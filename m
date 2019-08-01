@@ -2,297 +2,238 @@ Return-Path: <SRS0=gk/B=V5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0DBEC433FF
-	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 00:09:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A3B0C32751
+	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 00:28:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9C61820449
-	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 00:09:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D820A214DA
+	for <selinux@archiver.kernel.org>; Thu,  1 Aug 2019 00:28:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="f8SkXyTB"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="IdgS7cdc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728274AbfHAAJZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 31 Jul 2019 20:09:25 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:34816 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726248AbfHAAJZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 31 Jul 2019 20:09:25 -0400
-Received: by mail-lj1-f195.google.com with SMTP id x25so67535292ljh.2
-        for <selinux@vger.kernel.org>; Wed, 31 Jul 2019 17:09:23 -0700 (PDT)
+        id S1726268AbfHAA2H (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 31 Jul 2019 20:28:07 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:33186 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726876AbfHAA2H (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 31 Jul 2019 20:28:07 -0400
+Received: by mail-lf1-f68.google.com with SMTP id x3so48895808lfc.0
+        for <selinux@vger.kernel.org>; Wed, 31 Jul 2019 17:28:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=VMzUyIZtzTtWoivtKustfpWxxwobrs5AKcMEq5wXZkU=;
-        b=f8SkXyTBoCWESGW7TUcQYtrS3a5/Yx/tQVnSC8n271vGFCgNLf+Mmjb6/ENTbC7HYV
-         Q9p3kmWCH+oTmJ9F+3l73tZSl+pba6NHnoMwG+7Oq1rxaskWof0URiTpw+bdi9YwmUvm
-         A5FHZIu0ydBH9zzSNC06t/7pev5rIc90O3ulw5jh6ecNRQ0jwTn5Mw5ireZa1nihjZ3Y
-         RDt4pmUea+PgAaukI1rlTXke2vkKkPwmRjik6t8Y92yu5tKsemm2zTpjcNYx8wr5mCx1
-         B0czdRKMYpeXEszWU3VVuN0YorWuj+bP30jVFwxuP3RKjRoqiHBnfKJlcN+3fTaZGg0l
-         31wA==
+        bh=0Qo57YVgQ/jqVaTJY+4qvKgXudMAE+6INmZnvwnczwQ=;
+        b=IdgS7cdcTnOnIWJj3ZQPqlOMt0spHV9UhxisLETZiv/4LyNwPaXXDYtydLscG4zjIT
+         xKP7IcDA38yPj8guQFOON0d77h/8M8witMEIRQxbT3P7lpdpywBZ8rAeLg3o2+WnEnIk
+         HBv6v82Syznq+6VKNmx4xLsC5VbDxHbfXG7LpKTgxr1yEdvDHr3GZTAazNlIVeWt4Al9
+         QiTG8Ohgczrk/sFED4tJtmDMjWNY6QFz3ts7u1TLXsLjWLRZFy3lRzirDys/XrmtH0Sw
+         5nY3Gg2qRd2MgUKCcuzIsqHbETT37G1fv7lKUpku67csf6zJnfQ+d5Ad44PNo+m5R9RT
+         wpww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=VMzUyIZtzTtWoivtKustfpWxxwobrs5AKcMEq5wXZkU=;
-        b=n2N7issrIn1XjD1ZfwydFRGVW5v5xIf1T2OyIMnyFGgf4VVlLjvMAYQtvzPGVTdzdV
-         kG8uzTc384AdYvAl7ZZRxDtgvm0qanvmi7yIv0kByZWlpoe3ORTF5vPs/XUeGdqAKsy3
-         4bl+Qq9Jn4RlUmBTLyDl2VN3V7/lumHdr6rOHtC6XjTjK6Vuv/akHl8czY0VhgI7Xtdn
-         rg+2txPy/WcWxh2oNyko2SM7E29q6k3GF5D6/YCtj+Tomf+N23+BEj+84H7g0MMRUraM
-         lGknTjNzpx9mbzApz4d+9tcZSS0FTyUykkYznclVCkFYw9bO2bPm19B66aFvBPzwnG87
-         Ws6Q==
-X-Gm-Message-State: APjAAAX7Vom9kFtz8wwZ31YGZvJBqNvS3takj7BX+tiLmiAxs3tMifXJ
-        JXhY17Oskw3Amio4lxsF7VsBca+UEaJOL0B65w==
-X-Google-Smtp-Source: APXvYqwXeCHQ2BCbpuCczmJZX2/XdSthljcwv1ayFMXVw2Ji2aoLz1njSz6pDqdPrRIlZFTuqyv3RCdzNpkVy6tMklc=
-X-Received: by 2002:a2e:9858:: with SMTP id e24mr41978886ljj.91.1564618162210;
- Wed, 31 Jul 2019 17:09:22 -0700 (PDT)
+        bh=0Qo57YVgQ/jqVaTJY+4qvKgXudMAE+6INmZnvwnczwQ=;
+        b=B+UWhi6p4w1HF6air3Y3ufeE5A3TC+5EpnVqIKt4TCw8w6lvh/lXtVqKlbejk4pIqT
+         DO+l6db7+Fh7RfkjkmZuHWkl1MYMYFpl1pFubku9WzLt5vQMs+Pbgbe/18QPIuGZBOPN
+         holG5uSxJAb8liQ97xzKrds7XRi69jjmFpfOnk4qLMgrGHsPEebC/99/K4mou3WbZygr
+         F3n5FX+UjzbjA7BRH5di60BUm+nlIV8TqyxtGZPzP+3JSVu+XrxYVn1Rf748ZwP/uqDD
+         mdUKl7nLQUATRyjWrb3Ugh6BvWXj8zuBJ9YgSnTuSxSSGJt3ngs/tefzbG3nBE+pv997
+         72/w==
+X-Gm-Message-State: APjAAAV6vnZqmDDTEeH1FpOTf+Df9DdgYTlNac0aLBcpfCv13+c1+Uo3
+        f9SM5/RnwGtefikIU/ug37ZlyzgreobKHbCjfQ==
+X-Google-Smtp-Source: APXvYqx+bZ/SeGJIjDvBw92XUDDBl6YPemrbXccDXvsW5Atp4C9sU0hyEjEYX3B4gPa+3DgI5NFAc0l9N+0IdrZlcVg=
+X-Received: by 2002:ac2:4c37:: with SMTP id u23mr45044586lfq.119.1564619284203;
+ Wed, 31 Jul 2019 17:28:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190725135933.30046-1-omosnace@redhat.com>
-In-Reply-To: <20190725135933.30046-1-omosnace@redhat.com>
+References: <20190731153443.4984-1-acgoide@tycho.nsa.gov> <1c62c931-9441-4264-c119-d038b2d0c9b9@schaufler-ca.com>
+In-Reply-To: <1c62c931-9441-4264-c119-d038b2d0c9b9@schaufler-ca.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 31 Jul 2019 20:09:10 -0400
-Message-ID: <CAHC9VhSApdqtMfrBgkYzMCtFr62NsDCKpfd6jYZVHmQrAOo3fQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: avoid atomic_t usage in sidtab
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Jann Horn <jannh@google.com>,
-        NitinGote <nitin.r.gote@intel.com>,
-        Kees Cook <keescook@chromium.org>
+Date:   Wed, 31 Jul 2019 20:27:53 -0400
+Message-ID: <CAHC9VhS6cfMw5ZUkOSov6hexh9QpnpKwipP7L7ZYGCVLCHGfFQ@mail.gmail.com>
+Subject: Re: [PATCH] fanotify, inotify, dnotify, security: add security hook
+ for fs notifications
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Aaron Goidel <acgoide@tycho.nsa.gov>, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, dhowells@redhat.com, jack@suse.cz,
+        amir73il@gmail.com, James Morris <jmorris@namei.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 25, 2019 at 9:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> As noted in Documentation/atomic_t.txt, if we don't need the RMW atomic
-> operations, we should only use READ_ONCE()/WRITE_ONCE() +
-> smp_rmb()/smp_wmb() where necessary (or the combined variants
-> smp_load_acquire()/smp_store_release()).
+On Wed, Jul 31, 2019 at 1:26 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> On 7/31/2019 8:34 AM, Aaron Goidel wrote:
+> > As of now, setting watches on filesystem objects has, at most, applied a
+> > check for read access to the inode, and in the case of fanotify, requires
+> > CAP_SYS_ADMIN. No specific security hook or permission check has been
+> > provided to control the setting of watches. Using any of inotify, dnotify,
+> > or fanotify, it is possible to observe, not only write-like operations, but
+> > even read access to a file. Modeling the watch as being merely a read from
+> > the file is insufficient for the needs of SELinux. This is due to the fact
+> > that read access should not necessarily imply access to information about
+> > when another process reads from a file. Furthermore, fanotify watches grant
+> > more power to an application in the form of permission events. While
+> > notification events are solely, unidirectional (i.e. they only pass
+> > information to the receiving application), permission events are blocking.
+> > Permission events make a request to the receiving application which will
+> > then reply with a decision as to whether or not that action may be
+> > completed. This causes the issue of the watching application having the
+> > ability to exercise control over the triggering process. Without drawing a
+> > distinction within the permission check, the ability to read would imply
+> > the greater ability to control an application. Additionally, mount and
+> > superblock watches apply to all files within the same mount or superblock.
+> > Read access to one file should not necessarily imply the ability to watch
+> > all files accessed within a given mount or superblock.
+> >
+> > In order to solve these issues, a new LSM hook is implemented and has been
+> > placed within the system calls for marking filesystem objects with inotify,
+> > fanotify, and dnotify watches. These calls to the hook are placed at the
+> > point at which the target path has been resolved and are provided with the
+> > path struct, the mask of requested notification events, and the type of
+> > object on which the mark is being set (inode, superblock, or mount). The
+> > mask and obj_type have already been translated into common FS_* values
+> > shared by the entirety of the fs notification infrastructure. The path
+> > struct is passed rather than just the inode so that the mount is available,
+> > particularly for mount watches. This also allows for use of the hook by
+> > pathname-based security modules. However, since the hook is intended for
+> > use even by inode based security modules, it is not placed under the
+> > CONFIG_SECURITY_PATH conditional. Otherwise, the inode-based security
+> > modules would need to enable all of the path hooks, even though they do not
+> > use any of them.
+> >
+> > This only provides a hook at the point of setting a watch, and presumes
+> > that permission to set a particular watch implies the ability to receive
+> > all notification about that object which match the mask. This is all that
+> > is required for SELinux. If other security modules require additional hooks
+> > or infrastructure to control delivery of notification, these can be added
+> > by them. It does not make sense for us to propose hooks for which we have
+> > no implementation. The understanding that all notifications received by the
+> > requesting application are all strictly of a type for which the application
+> > has been granted permission shows that this implementation is sufficient in
+> > its coverage.
+> >
+> > Security modules wishing to provide complete control over fanotify must
+> > also implement a security_file_open hook that validates that the access
+> > requested by the watching application is authorized. Fanotify has the issue
+> > that it returns a file descriptor with the file mode specified during
+> > fanotify_init() to the watching process on event. This is already covered
+> > by the LSM security_file_open hook if the security module implements
+> > checking of the requested file mode there. Otherwise, a watching process
+> > can obtain escalated access to a file for which it has not been authorized.
+> >
+> > The selinux_path_notify hook implementation works by adding five new file
+> > permissions: watch, watch_mount, watch_sb, watch_reads, and watch_with_perm
+> > (descriptions about which will follow), and one new filesystem permission:
+> > watch (which is applied to superblock checks). The hook then decides which
+> > subset of these permissions must be held by the requesting application
+> > based on the contents of the provided mask and the obj_type. The
+> > selinux_file_open hook already checks the requested file mode and therefore
+> > ensures that a watching process cannot escalate its access through
+> > fanotify.
+> >
+> > The watch, watch_mount, and watch_sb permissions are the baseline
+> > permissions for setting a watch on an object and each are a requirement for
+> > any watch to be set on a file, mount, or superblock respectively. It should
+> > be noted that having either of the other two permissions (watch_reads and
+> > watch_with_perm) does not imply the watch, watch_mount, or watch_sb
+> > permission. Superblock watches further require the filesystem watch
+> > permission to the superblock. As there is no labeled object in view for
+> > mounts, there is no specific check for mount watches beyond watch_mount to
+> > the inode. Such a check could be added in the future, if a suitable labeled
+> > object existed representing the mount.
+> >
+> > The watch_reads permission is required to receive notifications from
+> > read-exclusive events on filesystem objects. These events include accessing
+> > a file for the purpose of reading and closing a file which has been opened
+> > read-only. This distinction has been drawn in order to provide a direct
+> > indication in the policy for this otherwise not obvious capability. Read
+> > access to a file should not necessarily imply the ability to observe read
+> > events on a file.
+> >
+> > Finally, watch_with_perm only applies to fanotify masks since it is the
+> > only way to set a mask which allows for the blocking, permission event.
+> > This permission is needed for any watch which is of this type. Though
+> > fanotify requires CAP_SYS_ADMIN, this is insufficient as it gives implicit
+> > trust to root, which we do not do, and does not support least privilege.
+> >
+> > Signed-off-by: Aaron Goidel <acgoide@tycho.nsa.gov>
 >
-> This patch converts the sidtab code to use regular u32 for the counter
-> and reverse lookup cache and use the appropriate operations instead of
-> atomic_get()/atomic_set(). Note that when reading/updating the reverse
-> lookup cache we don't need memory barriers as it doesn't need to be
-> consistent or accurate. We can now also replace some atomic ops with
-> regular loads (when under spinlock) and stores (for conversion target
-> fields that are always accessed under the master table's spinlock).
+> I can't say that I accept your arguments that this is sufficient,
+> but as you point out, the SELinux team does, and if I want more
+> for Smack that's my fish to fry.
 >
-> We can now also bump SIDTAB_MAX to U32_MAX as we can use the full u32
-> range again.
->
-> Suggested-by: Jann Horn <jannh@google.com>
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/ss/sidtab.c | 48 ++++++++++++++++--------------------
->  security/selinux/ss/sidtab.h |  8 +++---
->  2 files changed, 25 insertions(+), 31 deletions(-)
+> Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 
-One of the things that is nice about atomic_t is that the type itself
-helps indicate that this isn't a normal integer and you should look at
-the stuff in atomic.h for fetching/setting the value.  While I
-understand there is overhead involved, and this patch should help in
-this regard, I think we lose on code readability and increase the
-chance of someone manipulating these values incorrectly in the future.
-I believe this is a lot of what Kees was getting at with the counter_t
-idea.
+Thanks Aaron.  Thanks Casey.
 
-At the very least I would like to see a comment in sidtab.h for the
-sidtab struct explaining how users should access the count and rcache
-fields.  However, what I would really like to see is some simple
-macros/functions that handle the read/write accesses similar to the
-way we do it with atomic_t (once again, I think this is what Kees was
-getting at earlier).
+I think we also want an ACK from the other LSMs, what say all of you?
+Can you live with the new security_path_notify() hook?
 
-> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-> index e63a90ff2728..dc6c078b6432 100644
-> --- a/security/selinux/ss/sidtab.c
-> +++ b/security/selinux/ss/sidtab.c
-> @@ -12,7 +12,7 @@
->  #include <linux/slab.h>
->  #include <linux/sched.h>
->  #include <linux/spinlock.h>
-> -#include <linux/atomic.h>
-> +#include <asm/barrier.h>
->  #include "flask.h"
->  #include "security.h"
->  #include "sidtab.h"
-> @@ -23,14 +23,14 @@ int sidtab_init(struct sidtab *s)
->
->         memset(s->roots, 0, sizeof(s->roots));
->
-> +       /* max count is SIDTAB_MAX so valid index is always < SIDTAB_MAX */
->         for (i = 0; i < SIDTAB_RCACHE_SIZE; i++)
-> -               atomic_set(&s->rcache[i], -1);
-> +               s->rcache[i] = SIDTAB_MAX;
->
->         for (i = 0; i < SECINITSID_NUM; i++)
->                 s->isids[i].set = 0;
->
-> -       atomic_set(&s->count, 0);
-> -
-> +       s->count = 0;
->         s->convert = NULL;
->
->         spin_lock_init(&s->lock);
-> @@ -130,14 +130,12 @@ static struct context *sidtab_do_lookup(struct sidtab *s, u32 index, int alloc)
->
->  static struct context *sidtab_lookup(struct sidtab *s, u32 index)
->  {
-> -       u32 count = (u32)atomic_read(&s->count);
-> +       /* read entries only after reading count */
-> +       u32 count = smp_load_acquire(&s->count);
->
->         if (index >= count)
->                 return NULL;
->
-> -       /* read entries after reading count */
-> -       smp_rmb();
-> -
->         return sidtab_do_lookup(s, index, 0);
->  }
->
-> @@ -210,10 +208,10 @@ static int sidtab_find_context(union sidtab_entry_inner entry,
->  static void sidtab_rcache_update(struct sidtab *s, u32 index, u32 pos)
->  {
->         while (pos > 0) {
-> -               atomic_set(&s->rcache[pos], atomic_read(&s->rcache[pos - 1]));
-> +               WRITE_ONCE(s->rcache[pos], READ_ONCE(s->rcache[pos - 1]));
->                 --pos;
->         }
-> -       atomic_set(&s->rcache[0], (int)index);
-> +       WRITE_ONCE(s->rcache[0], index);
->  }
->
->  static void sidtab_rcache_push(struct sidtab *s, u32 index)
-> @@ -227,14 +225,14 @@ static int sidtab_rcache_search(struct sidtab *s, struct context *context,
->         u32 i;
->
->         for (i = 0; i < SIDTAB_RCACHE_SIZE; i++) {
-> -               int v = atomic_read(&s->rcache[i]);
-> +               u32 v = READ_ONCE(s->rcache[i]);
->
-> -               if (v < 0)
-> +               if (v >= SIDTAB_MAX)
->                         continue;
->
-> -               if (context_cmp(sidtab_do_lookup(s, (u32)v, 0), context)) {
-> -                       sidtab_rcache_update(s, (u32)v, i);
-> -                       *index = (u32)v;
-> +               if (context_cmp(sidtab_do_lookup(s, v, 0), context)) {
-> +                       sidtab_rcache_update(s, v, i);
-> +                       *index = v;
->                         return 0;
->                 }
->         }
-> @@ -245,8 +243,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
->                                  u32 *index)
->  {
->         unsigned long flags;
-> -       u32 count = (u32)atomic_read(&s->count);
-> -       u32 count_locked, level, pos;
-> +       u32 count, count_locked, level, pos;
->         struct sidtab_convert_params *convert;
->         struct context *dst, *dst_convert;
->         int rc;
-> @@ -255,11 +252,10 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
->         if (rc == 0)
->                 return 0;
->
-> +       /* read entries only after reading count */
-> +       count = smp_load_acquire(&s->count);
->         level = sidtab_level_from_count(count);
->
-> -       /* read entries after reading count */
-> -       smp_rmb();
-> -
->         pos = 0;
->         rc = sidtab_find_context(s->roots[level], &pos, count, level,
->                                  context, index);
-> @@ -272,7 +268,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
->         spin_lock_irqsave(&s->lock, flags);
->
->         convert = s->convert;
-> -       count_locked = (u32)atomic_read(&s->count);
-> +       count_locked = s->count;
->         level = sidtab_level_from_count(count_locked);
->
->         /* if count has changed before we acquired the lock, then catch up */
-> @@ -315,7 +311,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
->                 }
->
->                 /* at this point we know the insert won't fail */
-> -               atomic_set(&convert->target->count, count + 1);
-> +               convert->target->count = count + 1;
->         }
->
->         if (context->len)
-> @@ -326,9 +322,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
->         *index = count;
->
->         /* write entries before writing new count */
-> -       smp_wmb();
-> -
-> -       atomic_set(&s->count, count + 1);
-> +       smp_store_release(&s->count, count + 1);
->
->         rc = 0;
->  out_unlock:
-> @@ -418,7 +412,7 @@ int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params)
->                 return -EBUSY;
->         }
->
-> -       count = (u32)atomic_read(&s->count);
-> +       count = s->count;
->         level = sidtab_level_from_count(count);
->
->         /* allocate last leaf in the new sidtab (to avoid race with
-> @@ -431,7 +425,7 @@ int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params)
->         }
->
->         /* set count in case no new entries are added during conversion */
-> -       atomic_set(&params->target->count, count);
-> +       params->target->count = count;
->
->         /* enable live convert of new entries */
->         s->convert = params;
-> diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-> index bbd5c0d1f3bd..b4561c5ec893 100644
-> --- a/security/selinux/ss/sidtab.h
-> +++ b/security/selinux/ss/sidtab.h
-> @@ -40,8 +40,8 @@ union sidtab_entry_inner {
->  #define SIDTAB_LEAF_ENTRIES \
->         (SIDTAB_NODE_ALLOC_SIZE / sizeof(struct sidtab_entry_leaf))
->
-> -#define SIDTAB_MAX_BITS 31 /* limited to INT_MAX due to atomic_t range */
-> -#define SIDTAB_MAX (((u32)1 << SIDTAB_MAX_BITS) - 1)
-> +#define SIDTAB_MAX_BITS 32
-> +#define SIDTAB_MAX U32_MAX
->  /* ensure enough tree levels for SIDTAB_MAX entries */
->  #define SIDTAB_MAX_LEVEL \
->         DIV_ROUND_UP(SIDTAB_MAX_BITS - size_to_shift(SIDTAB_LEAF_ENTRIES), \
-> @@ -70,12 +70,12 @@ struct sidtab_convert_params {
->
->  struct sidtab {
->         union sidtab_entry_inner roots[SIDTAB_MAX_LEVEL + 1];
-> -       atomic_t count;
-> +       u32 count;
->         struct sidtab_convert_params *convert;
->         spinlock_t lock;
->
->         /* reverse lookup cache */
-> -       atomic_t rcache[SIDTAB_RCACHE_SIZE];
-> +       u32 rcache[SIDTAB_RCACHE_SIZE];
->
->         /* index == SID - 1 (no entry for SECSID_NULL) */
->         struct sidtab_isid_entry isids[SECINITSID_NUM];
-> --
-> 2.21.0
->
+Aaron, you'll also need to put together a test for the
+selinux-testsuite to exercise this code.  If you already sent it to
+the list, my apologies but I don't see it anywhere.  If you get stuck
+on the test, let me know and I'll try to help out.
 
+Oh, one more thing ...
+
+> > +static int selinux_path_notify(const struct path *path, u64 mask,
+> > +                                             unsigned int obj_type)
+> > +{
+> > +     int ret;
+> > +     u32 perm;
+> > +
+> > +     struct common_audit_data ad;
+> > +
+> > +     ad.type = LSM_AUDIT_DATA_PATH;
+> > +     ad.u.path = *path;
+> > +
+> > +     /*
+> > +      * Set permission needed based on the type of mark being set.
+> > +      * Performs an additional check for sb watches.
+> > +      */
+> > +     switch (obj_type) {
+> > +     case FSNOTIFY_OBJ_TYPE_VFSMOUNT:
+> > +             perm = FILE__WATCH_MOUNT;
+> > +             break;
+> > +     case FSNOTIFY_OBJ_TYPE_SB:
+> > +             perm = FILE__WATCH_SB;
+> > +             ret = superblock_has_perm(current_cred(), path->dentry->d_sb,
+> > +                                             FILESYSTEM__WATCH, &ad);
+> > +             if (ret)
+> > +                     return ret;
+> > +             break;
+> > +     case FSNOTIFY_OBJ_TYPE_INODE:
+> > +             perm = FILE__WATCH;
+> > +             break;
+> > +     default:
+> > +             return -EINVAL;
+> > +     }
+> > +
+> > +     // check if the mask is requesting ability to set a blocking watch
+
+... in the future please don't use "// XXX", use "/* XXX */" instead :)
+
+Don't respin the patch just for this, but if you have to do it for
+some other reason please fix the C++ style comments.  Thanks.
+
+> > +     if (mask & (ALL_FSNOTIFY_PERM_EVENTS))
+> > +             perm |= FILE__WATCH_WITH_PERM; // if so, check that permission
+> > +
+> > +     // is the mask asking to watch file reads?
+> > +     if (mask & (FS_ACCESS | FS_ACCESS_PERM | FS_CLOSE_NOWRITE))
+> > +             perm |= FILE__WATCH_READS; // check that permission as well
+> > +
+> > +     return path_has_perm(current_cred(), path, perm);
+> > +}
 
 -- 
 paul moore
