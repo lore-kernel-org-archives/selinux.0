@@ -4,55 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6E36C32751
-	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 22:43:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E0F2C32757
+	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 22:43:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BB282217D9
-	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 22:43:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73814217F4
+	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 22:43:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fXvUeNN9"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RquEBeu1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389636AbfHGWnT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S2389627AbfHGWnT (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 7 Aug 2019 18:43:19 -0400
-Received: from sonic317-27.consmr.mail.gq1.yahoo.com ([98.137.66.153]:44975
+Received: from sonic317-27.consmr.mail.gq1.yahoo.com ([98.137.66.153]:40625
         "EHLO sonic317-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389627AbfHGWnT (ORCPT
+        by vger.kernel.org with ESMTP id S2389633AbfHGWnT (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 7 Aug 2019 18:43:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565217798; bh=Veu3kjDA/1pLCZ4fZrBLZYYlkvuefge0fWjtW5fbMhk=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=fXvUeNN9CyTQQtHMv2jTJ0qbKtktOS06lV4zki0BSoTF/APj1cL7DIeV4HpCNQPwvIBDNSKfkIUPFk6AWvEHhjyJbSVuQbyPcllAoYny1klJWirH3x/Xar9o1QbFVPW8F9zEBSvYmKR62dmaFisr4TWhCNL/nn0deXIBRyI/Dc0ncXGYbsoIaOnflMXpz89MI7ECsEQh+u+28lEqJ1Gq8j3R3qmjnm5m1wJNBMY5jldvRajflfyxsb2O7940DjAG9gqKr5P2ou5odXkvoOpLBfT1qIB+yE+QswMGsTZms5ifpxzDbNgWeNdED0srUVxm7oQbjhsmp+bhg6e9UgyuMQ==
-X-YMail-OSG: KNeEXVUVM1nFH.F2eK23RxL3.g3308O.5CEXkwPV2iYV_KlzzhFs8K3XqfpQgga
- HEA8un0l0bk9S3POa5h4eP70wIT695qf5XQ9eGV21svF7MbypdmB64CsyAg54ukgrrgmoqOuIZf_
- 5cc2UylWwKuk2DSnOJeasTdQDaiZuRgRmx2m_7lGCAiQHUAhdliPLuO48RmgXuUqTLOOVMypwCOW
- k92Cv._Fe.tbvAxV.fBfY6Wp_cQN6VvUmfP0CbffrTmQOdgkwds0bE_oxb.ubdmoNjD2DMsL6fdV
- U5XhlzPTfky2cDRwU42ax5kOfk4BynIIToO2xpKknTRnrwDDy1BMC100Vg7HcoxI_cfPca4t307m
- CQDTw7zRICrjLbEKEhT9kmFE3RiVuI3wOSOleJvvKhI4Id6knnAL1zcQBH5Rc9sBzzhO9RSvxd.y
- ptXR2P39Bg2fnmCb3reB1xl2a2FXw.GQ_weKROlcbclQYxcWdIJhy4K08ChPG5xWBIEhv3dJzHS9
- 2KaKPK2k9eCVyYdyxuzOa.ljF1ltqTn8_oXwEJETp6ZrFS0aq76Lv8VRHCthXoV2zqQDwfoaSssu
- QMoq6a2P_Nx.aUAn9DPnpPm3CLYnIxh6CWLfilEHovHlWqE.jD1_p8Ph6OAbYW4NwOv3Wk2aHRoN
- nTSjoyCIE8_0fPYj31jmq0uDYm3SaJVBxfY8kKGSTdddL7TB2uCPS_WlVUteelNodMaGQQbUdJaO
- u_y.PTwZFnJNqRkswzJi1lrO0EBKIVZe8wzW64jtBm861kBnlVP1acHcblrErYVKFUFCI93YCI1Q
- dqTvqlOmHgi3A0R2Aymj1.0hofb_PpAmDyndsjtNYeqei_e.bklQsVWaDrnVo1_MSQ6iKM2LtQTa
- LEK9H6O0dEWNdStU85iT3YMsiRZBOgHYZtbVnOpx1AeMLA2MXR1gmPS0Gg9ii7xeVH0y_1cuMg4T
- bftvDCo9o8y4EX5TDePfYdwSKRPmb7nmOf2dd6Q7KJnZtdo1xy6OXJ2U9KEOK2RXxA7_Rad08H5.
- X5MTrO.vOYQbc_1DgYVe.xdrcM.wDcaj_KbCIrXGv_VshtLIbVvsUP6R_1NslJKlTISYi3mWiSuj
- ThPbG8Gk5WKjTdDrDKtdEY9PK2apj3b2AHETSl6J4g2LBF.lQJvG.Zduy.ujbwC9n2RQxJblYrAS
- L0YRiXxjJaXVnVxpGS6mBVP4cRoYFlHfCEH7l9LZMzn89_Usife3SL9JEVzOn4xNamXRmgDUenLE
- V7a89tZn_BqJFTL_mSmdu4vRCZnc72R01Enw009NLRoiPOfwgfEMSkdqaKTrPVZM2NxlfO_tKoyv
- PGknV
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565217798; bh=Osu6XGAcDFD0M+ySV74N8nqsIlm0gr6gJHIRJiI8EKM=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=RquEBeu1b/YoxREBJjZ7gub/9K61AxuchCoOB/HXcoHeavU9PVR9MwyHfGwW5n0B/wsqmyQ9OEH7nJ8GW+ujd64XIjH3804xNSOlaeOTUpf2mmIbLSR1+VRsVdqDdSnk6y0ffuG3rZ/7tVRnVM8nFoVSYGRnzG3AACp2U/12cO+bC6TPJD0sVGui1bEOdqQbqKGTRS0E+r8p8k6t6z9DTtaBvROcQc5YTOX4I1lDDUbcE6g4r693/PB/OKgzYDbT4D6QRl539VqfXQSdQXk4eHfE9L6ykYq+PKmpAAHW7vPw0VNTTWVn8+aRX/c89cLmHNiPgVXAg+XfhN0+FjZ/uA==
+X-YMail-OSG: zKbkBj4VM1k2F8fyRmZc7wxkgQ8GgHwKp8JxA7LrIZk188gCX8xMfADb1pDzirA
+ TPpPRTxf3JmLzvac.LhnpC9MX3TkpqoWhRQoQGcXshFQKpOaSCt1ptwC2q2O15ZOupQyhJ4SFDWY
+ yOiElM37jIAyCB5xHw0406exMri5GQ9plajmhxKxaBNWYZN8M37hKUQFc_MvfHBqaDrtGSdGKu.7
+ nRJIswrkr.z4pfLhgjFauLu7yBbSQqtvb42otrARqCdpkILmFk8OZEETSkYwNsRtAB8Q8mC1AGcd
+ nroZ7cbod7U8Jnjz5si9sUqeHJlDKdH.rWF32ZhROixFfGuM_9trc8u44SInUCPeJn4sw8sFz6__
+ sLh8vNSUTKEzwG2x8E0S45Rv76f9.lvZ3UOksgM7eI1NVz859i4XZTxmXHLdhMK2wBwjvhYMa8Ok
+ 8DfkhuXoB3HhcCMnV_t7q9IVwbjvbHD_.g1MWMKvLvz6NpCmCbFe6A2ibem0NC7jjt.3dcsxuoIZ
+ GCdKLQeJiRS5Eox.tCKzgewWJe7R6FCjmQB3kCxzTXXec6pOy_qYWiBGKaVP3EzIHpFfR8012XgY
+ 3XoMC4pgPljAWuj6OzqDxiM4TtOr6SMrq38Lah2csHF8aOLd4YrHcwhr0tu..faKP15iU5Px5l_R
+ yQRBMkKp0f1O68VkABFInWXJ8tODZFgYUxLAI3rYTZPD9CsDqyCB1iYHsiq58OV9_hCLId9A7HI2
+ ZEkgXvaOd.2cFFEEYDfwrzhWXTcxOhnM6KC_0rCb4GZrffhjNykf968tJzS5CB2AtqckLQUWW9nC
+ K.PZhApBGEmI9kNldkve1brS39gJvG3YxW019yBfb5AEZysbbXzS3oYmKie4K_8ba_qSY3P4PnFG
+ AH_ZAG4KJ0ItM5dLRBQgJAZ8xpNtFJLSSNlvHFSC9CJyD8uxdikmFBupvUG5gmI2JKc5T.BKaq7I
+ FR7t7nKl6cbgRDQ6TWJhpLkywqLkg5A3Iregsoa1zwLWtVBcNNmnGYeVEWxr.IkiGkqFLAWS3q_n
+ k7ng4baWQGE_r0QPsj9ht8O6xu7oKoSwYbf6t4EWvRP4f9SG9muaS6nyuw78aWCqWSWFmI8jS_P_
+ FvrdJYNFVgQHdY576v7H1TtP2TDfpxTgo9xdKh9mTzCf8JPJDueIERmja45xHeqwv94JdxpVTyWS
+ w5NUq3i7zPfU4t3iQsAc1vtuASSz4CIJeL9A78KbZia0hv1vfs4mqxTUw6LJN0kopO0gi.uw5uvi
+ Df_FMtM3JDpH17tPgiSrcs6kmgBMDG1y0R5NfV.X9YyXecd5cvlywNcsJiawgVDYrwqeGeTELKLG
+ eeLpE
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.gq1.yahoo.com with HTTP; Wed, 7 Aug 2019 22:43:18 +0000
 Received: by smtp405.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID b31e22a1723893410aaa66faa171513d;
-          Wed, 07 Aug 2019 22:43:16 +0000 (UTC)
+          Wed, 07 Aug 2019 22:43:17 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH v7 15/16] LSM: Avoid network conflicts in SELinux and Smack
-Date:   Wed,  7 Aug 2019 15:42:44 -0700
-Message-Id: <20190807224245.10798-17-casey@schaufler-ca.com>
+Subject: [PATCH v7 16/16] Smack: Remove the exclusive flag
+Date:   Wed,  7 Aug 2019 15:42:45 -0700
+Message-Id: <20190807224245.10798-18-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190807224245.10798-1-casey@schaufler-ca.com>
 References: <20190807224245.10798-1-casey@schaufler-ca.com>
@@ -63,141 +63,27 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add calls to security_reconcile_netlbl() in SELinux and
-Smack to ensure that only packets that are acceptable to
-all active security modules get sent. Verify that all
-security modules agree on the network labeling for sendmsg
-and connect.
+Smack no longer needs to be treated as an "exclusive" security module.
+Remove the flag that indicates it is exclusive.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/security.c              | 43 ++++++++++++++++++++++----------
- security/selinux/hooks.c         |  3 +++
- security/smack/smack_netfilter.c |  8 ++++--
- 3 files changed, 39 insertions(+), 15 deletions(-)
+ security/smack/smack_lsm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/security.c b/security/security.c
-index bfe40c11f5bf..4897c68cdb71 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2496,7 +2496,13 @@ int security_socket_bind(struct socket *sock, struct sockaddr *address, int addr
- 
- int security_socket_connect(struct socket *sock, struct sockaddr *address, int addrlen)
- {
--	return call_int_hook(socket_connect, 0, sock, address, addrlen);
-+	int rc;
-+
-+	rc = call_int_hook(socket_connect, 0, sock, address, addrlen);
-+	if (rc)
-+		return rc;
-+
-+	return security_reconcile_netlbl(sock->sk);
- }
- 
- int security_socket_listen(struct socket *sock, int backlog)
-@@ -2511,6 +2517,12 @@ int security_socket_accept(struct socket *sock, struct socket *newsock)
- 
- int security_socket_sendmsg(struct socket *sock, struct msghdr *msg, int size)
- {
-+	int rc;
-+
-+	rc = security_reconcile_netlbl(sock->sk);
-+	if (rc)
-+		return rc;
-+
- 	return call_int_hook(socket_sendmsg, 0, sock, msg, size);
- }
- 
-@@ -3016,28 +3028,33 @@ int security_reconcile_netlbl(struct sock *sk)
- 	int this_set = 0;
- 	struct security_hook_list *hp;
- 
-+	if (sk->sk_family != PF_INET && sk->sk_family != PF_INET6)
-+		return 0;
-+
- 	hlist_for_each_entry(hp, &security_hook_heads.socket_netlbl_secattr,
- 				list) {
- 		hp->hook.socket_netlbl_secattr(sk, &this, &this_set);
-+		/*
-+		 * If the NLTYPE has been deferred it's not
-+		 * possible to decide now. A decision will be made
-+		 * later.
-+		 */
-+		if (this_set == NETLBL_NLTYPE_ADDRSELECT)
-+			return 0;
- 		if (this_set == 0 || this == NULL)
- 			continue;
- 		if (prev != NULL) {
--			/*
--			 * Both unlabeled is easily acceptable.
--			 */
--			if (prev_set == NETLBL_NLTYPE_UNLABELED &&
--			    this_set == NETLBL_NLTYPE_UNLABELED)
--				continue;
- 			/*
- 			 * The nltype being different means that
--			 * the secattrs aren't comparible. Except
--			 * that ADDRSELECT means that couldn't know
--			 * when the socket was created.
-+			 * the secattrs aren't comparible.
- 			 */
--			if (prev_set != this_set &&
--			    prev_set != NETLBL_NLTYPE_ADDRSELECT &&
--			    this_set != NETLBL_NLTYPE_ADDRSELECT)
-+			if (prev_set != this_set)
- 				return -EACCES;
-+			/*
-+			 * Both unlabeled is easily acceptable.
-+			 */
-+			if (this_set == NETLBL_NLTYPE_UNLABELED)
-+				continue;
- 			/*
- 			 * Count on the Netlabel system's judgement.
- 			 */
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 48468a4b478c..293350b672a8 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5522,6 +5522,9 @@ static unsigned int selinux_ip_output(struct sk_buff *skb,
- 	if (selinux_netlbl_skbuff_setsid(skb, family, sid) != 0)
- 		return NF_DROP;
- 
-+	if (sk && security_reconcile_netlbl(sk))
-+		return NF_DROP;
-+
- 	return NF_ACCEPT;
- }
- 
-diff --git a/security/smack/smack_netfilter.c b/security/smack/smack_netfilter.c
-index 7b9c8d5d8408..92aeffbbb27c 100644
---- a/security/smack/smack_netfilter.c
-+++ b/security/smack/smack_netfilter.c
-@@ -75,7 +75,7 @@ static unsigned int smack_ipv4_output(void *priv,
- 					const struct nf_hook_state *state)
- {
- 	struct sock *sk = skb_to_full_sk(skb);
--	struct socket_smack *ssp;
-+	struct socket_smack *ssp = NULL;
- 	struct smack_known *skp;
- 
- 	if (!smack_checked_secmark) {
-@@ -84,11 +84,15 @@ static unsigned int smack_ipv4_output(void *priv,
- 		smack_checked_secmark = true;
- 	}
- 
--	if (smack_use_secmark && sk && smack_sock(sk)) {
-+	if (sk && smack_sock(sk))
- 		ssp = smack_sock(sk);
-+
-+	if (smack_use_secmark && ssp) {
- 		skp = ssp->smk_out;
- 		skb->secmark = skp->smk_secid;
- 	}
-+	if (sk && security_reconcile_netlbl(sk))
-+		return NF_DROP;
- 
- 	return NF_ACCEPT;
- }
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 122c13604d28..3b76ec6cf960 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -4822,7 +4822,7 @@ static __init int smack_init(void)
+  */
+ DEFINE_LSM(smack) = {
+ 	.name = "smack",
+-	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
++	.flags = LSM_FLAG_LEGACY_MAJOR,
+ 	.blobs = &smack_blob_sizes,
+ 	.init = smack_init,
+ };
 -- 
 2.20.1
 
