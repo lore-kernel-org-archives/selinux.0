@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9587BC433FF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C442AC32756
 	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 22:42:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 69A75217D9
+	by mail.kernel.org (Postfix) with ESMTP id 9A56021743
 	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 22:42:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="tRCLYz2k"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RbgeQ5ZG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730543AbfHGWmz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1730529AbfHGWmz (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 7 Aug 2019 18:42:55 -0400
-Received: from sonic309-22.consmr.mail.bf2.yahoo.com ([74.6.129.196]:39334
+Received: from sonic309-22.consmr.mail.bf2.yahoo.com ([74.6.129.196]:40502
         "EHLO sonic309-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730561AbfHGWmy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 7 Aug 2019 18:42:54 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565217773; bh=wKMBaKflYkENEJsBVX1qSUry36vkc1gZV3dLcIF7/m4=; h=From:To:Cc:Subject:Date:From:Subject; b=tRCLYz2kgoouoiD8+ZkV2A8zfaWxwyvlx5TGdJUBQmG5UtHoXRBXl1i4x3OaPp5OlndCXepg3bOe3uYlqb9hoHSBqTu92Ij/cLw1qxcc9iPjx9MIYNWz4dRpe9XBtSnhJp1UcJaIG0qt/pEIwoSqxTjZEvD5X0I9MPrwRCI/l2V2syfKuq2Sa17q8VyleXlqp1/tInqPs+Zdej1XOW8Rq7xSQ5FuTA+9JMQ/C/k3NOsvImSIuCs4jXsVszmI/mRXfCuTFW86M3wBswhM2uKNwwtPTckk1ykhrS4/uQVQ/lYJLgwi9ljd+4g2bNe4dHX4sDHiUrAbFZSP+JBQNAZrUQ==
-X-YMail-OSG: m4N_PzQVM1nNNMsV3DkCcPupi6cwBzpNH8RnRyB2Hly9QpUaaBOScTGw90YvJiB
- XyFFmvgfNHdV8ixnWZYHekzKpqtx3qq8GjcXWeGMUYdOSOjqcpIkB6DKz.Gda1ErnXrljh_A5mLi
- iw.TpDMN7QtcIerYaBOmYK2FpC3Z4attLSgPiuoFpMOD_SFVpbG.KUppouKACq3J.9y1VnIfR.Kn
- LZuOKqwredRgfaD2mbZCMAFneQw981Zf.n9qUIj7hYlBnJB96IZ7k7MFOPYAiX5pNM9ArIyv0l7A
- xMkSHaxoJrJeWD.7vb8ju8vw46FA6PMcKOlAnjFZjgdzwNVY94NsItXYCxGOacS7cNVL6_xPLxJs
- D2zWQd8ueZWBSoazRIdlG9j2wG_90SW2lDpJMTk88QZoh.8XKOrCxXjNLu9Id3OcMZ6iexAgq0xm
- dHrefFloVKAC_l047m57SxymlZNz88WOGuw6q6Vmdh6gSS98PygwK7rT05ut7vwSS0W08dCNEFPx
- QJW3edDI1OzA5NXnwZjZyY5RZAsplIhkAhSaIOcaBiJ3Ox5hV7qdY9k.RzGWk2zgo6C3nvY7QIRS
- 6UvqWXbcAE4Fp4NaM8TGNUNDLrR0rzsWtP92i26a2I7QNZ6nrKRS2Wns.KaPlMeQRTuz0KeYBYkL
- VOZHcc8dkoXZTWCZtnHZ5LUito4dDm1xScOAYtBmOTsOCho3l2EFTCoKFKiHwwIjjGL91N1P3L.r
- dO0jLKusiUqF8hckffmd7dzc.7Wf9xHPa8tYeBg0mWDlWmNXyIQfGZuWKl1xX8ym1zD3VRVMhtbQ
- R1dyIvdNOLZ4Mmm3kmnJt1GRBvl7cTdOnkg1.yzPS.vZgSuYCXX._pJG0Rlko6hCUbOoo5st5cCY
- UPS_v.zh2QacRjRuiM5wOiXuRaDGShpmspnM3q5gS7QJ.GtPqeQ4o2PD4YZr8hVXp3YcYejVb7SL
- I._2sN1s7IZUL5AhcRQY_C3VRY6DSmPm0DrV_kS6JVtCRQed4RrwmEdxpEVAE_IChYWytOUgDqGA
- vSaeghPai4SkLDZ2F5Y4n5QQkRDoX7d2j3ztZOBX3rdWcmVXyZjs4Us_BIhYUjsHZNPVLCyC060o
- MyI3PLMNiZoZz_z4kbASS5DlY0uIRhqCQ1NlaW3dL1lo.9hWbqmtouU4Oyri5Gn3ojsVcppbkleN
- 3NDh76SvhrvY7NAcwNVptoLXHBa_W9IfC4lTKKmy8xXjdwFK57M36lfKyH2x_V3VCkfBclPuNB8a
- zEluK0Gzh8m4kKKg3upWoLSAPZX27CXBOD0X0rHOsbUmBBiLeN5_2aaKYY77WEvB2Rj1mTw6KzRL
- 3bv7_18xrjOOtOZ9GeUDWtJ4ie3j6diCm
+        by vger.kernel.org with ESMTP id S1730426AbfHGWmz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 7 Aug 2019 18:42:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565217773; bh=3RKMnie7AzuXKHC/Adxyjxj+QqJlEBDoqVdUVenZM5c=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=RbgeQ5ZGTeOrrwSnWc72h6kyk0XcQE7LJYw05sgeYiJCWIL51fF63Vsxr6WRDFn5KNYvAxCUp4nga3L/OO33x+efqCHdvu/5k+BjZCMVtktHziOO69j9OLWnDxaV7eC3bAhmLKLEC5bXVrY4wgmz9g7x3xFW5gd3spx1nYdMukSU5i3Ggw3Jbi1ti9lSYtj8F42FuyL4LMLVYdEgbOtdKvP4KYwrUz1GhmS/2rDFB2w3F+xRyXlv2MOUlQqaWHb8aio2DiedcqoOuuh1brr4Ei4zFwAUvwQlvtH64z1tGOG/8SE45vMqrQ/rrNWZwKweLRUl2fgzkYUfpjzPV+4FNA==
+X-YMail-OSG: 2O_bOfMVM1l7LREw7Jn_YOx65pXM7SSZVq.01_60uS7ffNMWoZENpVzrWuUHucq
+ cBH7.olap7VhJyrEwaKz0SVGs6c6MivbRnjfePYlVRqg6kocFnOzgWwajY5cyRrqb3wqQP.3NEEk
+ SSKA.m0DdSxk2aQ2X8R8Hm18WmUxHSjHzvFPVGKlh51dw3f.gG2v9Jqs8YUXkGFJionQ.hcey5CT
+ a2IfwvhLfCUI7sL3wY_aQF6rWX.7iweGYtYtlh.chrC78m0SCSZ3lqtOI7mtjMOOaR9u70ljAG2F
+ k_0EdIBBqxTIqypFyLZRutaDdJwSVCbXN8ED8WL..SKEgDnbQVYJjDPsjwnr5isHkMhsiCDrsUCK
+ plIBaXJQl9Cm6GeyiRgJvPOtbWaY9URG2dm6FGGDkYff_1BGwF5eVrYXoMxrSgAiFJ4CQubfuFo6
+ YQGBAtoOr43SzSux6OfYNNThG4d.CQ3VOwl6cQ.QuHUS0XKqLxtbPGNEY6DMOJuQMSOjSyqGX3bQ
+ zdRPsswEA3a2ozwfKwor70oMVANkySinotkZqEjcfCTU6MXEVHewXJmqQ98MAK1sjDEumYv_L935
+ Hit9uGxPtBjV7AfCyDFwX6jok7hZRrn0uP_HzOjHeQ19ytgBt9BEdZ764rHJNe.5zQAu.vpfp7UR
+ Yjq3Ow5lSTGNA0_2RPS7X7KefzLjYPm5O7KtDHkk8qNkGu80inkgKmLwx.3.kzKjIckuwTk.koWc
+ dZe2lOlbhpbScbaNpzveClF66V9uII8WOmU6Oj2axDOLToNpOy_RJHThisbpYo8nEVi.cBdS_YQM
+ ARKVs8Zn5tA6OenRJQg2dcg0_adcVL57QPv8DQCXUcqoKqesi3z4W2fRbTz6AdxLMoOUz18WiiGc
+ Ybmk_lLmBLnWSqod3tidh1raL36627oQ3YAwusFEKeycDLIdJ9IRiQK3Qk5CHKnodrFfXHvyJPHY
+ byFPQTHiKgo5GT6cOaxPZYYTfQSYxPLYTZsOlSzqafdIVZ8E3r.BEZ.p65VKw_06Ov72.h9MQeDm
+ EmKYXlTF1UMOVL6lWawpP3AORlH5t7cQnBLOYqMLmHWzJc8EJA3dpS2Hke7Mo4zpVKzfkaz3TxwE
+ 73N5C5vcWDHKc19bB20Ovh.di0VXBW7_MC9O8aHOlEPdda.acgy4.yDtvfhhQR6xShNYO7bZgtvK
+ 6bDAJNt8lQ6Yk94vbMoyfvJSZWzRQh3xddGbqeYnmCTniQQnvHZE8BjvZRFP5tmRxecyqvWss9yN
+ HK3Zrh9_c7rR0lJ5e_SMKCdNOr3CsyNSl3HGzC4ZAdhNfURELzmfQUjLHEiN44yLTFCY.bC5vOtx
+ 38PuHvXNpdO1W4YY8BX8lur4QBTtdcQ--
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.bf2.yahoo.com with HTTP; Wed, 7 Aug 2019 22:42:53 +0000
 Received: by smtp429.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 824faaf1f4a5ffbf9b87c6192a4b2124;
-          Wed, 07 Aug 2019 22:42:48 +0000 (UTC)
+          Wed, 07 Aug 2019 22:42:50 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
@@ -51,9 +51,11 @@ Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
 Subject: [PATCH v7 00/16] LSM: Full module stacking
-Date:   Wed,  7 Aug 2019 15:42:28 -0700
-Message-Id: <20190807224245.10798-1-casey@schaufler-ca.com>
+Date:   Wed,  7 Aug 2019 15:42:29 -0700
+Message-Id: <20190807224245.10798-2-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190807224245.10798-1-casey@schaufler-ca.com>
+References: <20190807224245.10798-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -96,7 +98,7 @@ Smack is modified to use these interfaces to determine if the
 Internet Protocol secmark is meaningful to Smack.
 
 Patches 0003 and 0009 refactor security_inode_init_security() to
-accomodate integrity checking on multiple active security
+accommodate integrity checking on multiple active security
 attributes.
 
 Patch 0004 updates security_inode_listsecurity() to provide
