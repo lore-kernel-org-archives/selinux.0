@@ -7,51 +7,52 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8028AC32757
-	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 19:44:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49832C32751
+	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 19:44:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 581152229C
-	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 19:44:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FC7221EF2
+	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 19:44:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fRyxvKE5"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RKkwrBg2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389034AbfHGTob (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1729602AbfHGTob (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 7 Aug 2019 15:44:31 -0400
-Received: from sonic310-27.consmr.mail.gq1.yahoo.com ([98.137.69.153]:46061
+Received: from sonic310-27.consmr.mail.gq1.yahoo.com ([98.137.69.153]:45290
         "EHLO sonic310-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729960AbfHGToa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 7 Aug 2019 15:44:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565207069; bh=CbZU5iRe+yH1VCf2y2WYC0jsmwdjRjXMBNn1U3uoaKg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=fRyxvKE52VcRh0Cklxveqx/5FSj4hHNmxFJyyEhNmsu5whLFjqjpmegKknBYEAfzMJUeFUdHDV/MvBlprupoUuEraXAmlfqHywy3AFJ9Ra/nX2veAv1gLHCKo48qpnjbmotmUcsxl61icxiSpoedXwgHWNUFcvtqUAZC/A6zPsR0XrOV6Aw3dQLlt0gIqtcPUvyNtiqPJEvmmNoVt8+AZbB74M9dadLULjWZKT+2wFgXyLp/ydgLJG6k0X0WwmrDQmlWjxB3gGsshWbcNLQ24hnfbCXXdNajz/1kEPK9JT51JqblZ1yA70Q9Z/Vx25Dq/8ABu70blQW6fvtpJPp3kQ==
-X-YMail-OSG: 8E75v_kVM1lH_vLRlFPFSqjDsHsplpmM64Rfw8TPuOy.tCT1HxFGB6f_umoLzCh
- c.yhu3pOEctSEsncsCwsspCX1psbhqVkIDstKJLS3b6MHT.GzMtdvRKVCu1p_jcERqveK5Vj8ZRo
- q2ONI2XCaZtqC_hN4QMqKV.OlO4wsIFCE6Z4koGWa5hloseyVN2YA3traXXWxl3GpT57HAQX0ssG
- xv0fYbDpiaDRZbM5mv8qx0cAE3XidRA2uGJhji1o33kPxAqHTUhfZ_FkQolimbq2hE0xclr67Kbz
- O__e2arsIQ8vrWXDRnwUEiTuXLLgjatWa1OtZ8M6amzq0Cf4IH0BpT9JOevuAEGDvRq8DzgfBcbU
- JubnV_lFWxdaNnfLs5g.7_puDb6EGv9hB5vv09SYquWlgDly8kzlSln3vPinQ0F5butaeXxemFMJ
- Gt4n5cNeX1BFtIimyYT0IrdGGrP6ee25hGRAmChCwdUeU.iIrYK_iLZiaQGPT4mYwpd18fGWEwSL
- QuDXvscBO2HZF3Y6.kSCJm2QbZ2yl29YMPtqzVCOpmpJlK1ooOOD5cXgL.t9dO7xaabKm7fE4rBI
- kenBkm87Gi8N2y92kCf1aZKFEmyd2f0Hw0Nt5M16JHyhdMxvls2RTB3hZIDBcLB2_DSPpKYl6S1B
- .z_QZ5gTAVwnW9Ex22dLfH7q1kBJY3lPEWkRuKHuIjbaHTc7g_twwGMm5Dl99pxZlC_p4zbfVnAO
- VyBsTIoR7XXmQgd2TKv4DT2YwDmmgyGbK0fQxmGNfVIiRfMEOxpFalA9xzRnPbHjY_sQ_IPv_NAz
- zKFy1cFFK0IBetBFQADlCeqVU4tz7_qeV1VCsOWrckfVUg3MV0sMPVWuvTRsEnm8siVd1Xs1W9Ib
- LGLL_k6EKMREtwy1qW9U3fHRLnkMKb3jG.ZlVQBtyc0S6LuhxQdmRLNBHsZSUjodOYY3X7nNVtHD
- Cm3kiJ8ZAIR3U2IV6pyTNItUYHoYsjiDQHqtutqgwKMjWAFmMzn7HljmJfzSvujvLUQbdfppy5Sh
- fSJ1fg7lQuqwSy6Pe6xL4t_ZEl1uTyrV.YbCFPTUXNcN5Ua2PqwkTJJf43Dao8ESqSPSIOHpbKKP
- zUbxS9dwIMmlY9E9zmVrKM8bDnHU5h0pNJed3.Io9u43YXQk6l3r_eRohR8nAxBMfMbiO_4usKrt
- uCImzqJ_G52BA6KWCQ3h59Ki8Ec8FLVIPLC_WrXPixM.zDEOYFNjuTDBtFgPvh4dKXpazoGZpGe5
- .9MA3VISJ_A3ahSLt3E5cng9Y.FzJiDMuFijqazX0yO09iBY3sXNI.jA5SSIQrUbpqdA3X2qO
+        by vger.kernel.org with ESMTP id S1730010AbfHGTob (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 7 Aug 2019 15:44:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565207069; bh=Ka1Gx+I96hAzkKoAYSBNjQ1iDMrTZlQNs08b4b4eI/w=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=RKkwrBg2YQsccDAD+RnombiWAltxqr9vwdQFJuYBSSQoNcde14MnS78PKdk6WK9j3JFVyq2CFM+E6b0u6TUSNlRfXuq+j3eDCqsQFBHERgJpWhqVURk8C7IkZhH2/QMlGJjpXbFbR/uFrMt2DE9wgPPVY1GB9Q/EdMSvbklw6BtkmeY5GWwIL+ZtFDFkg/w2koS3xboSEZcXTz1i/xizhar/eXwrpKBlW/EcTeVFFtW4s9LjrVYI2rNLdivEwwopFs7WKj0adaac9AAvvbB0SChfVEDrRppmq3k0gVSYaTBbatXh8ksaEQ3ojK6J//1RmOcTZKjQVrqEixc/KMiNBg==
+X-YMail-OSG: mYT_7fwVM1mJCXF3249rhkV7wVR27r9nbDlJkVHNjqA9KumjpM.XpqZkeRUIglt
+ sZRUYdCgMKZdzJr7EH15kWQqRBTH6ZQOVk4W.9IQg8wgMocLeTPDhxM7Fwl0pktkDWYubAmLlSv.
+ DGzFOwXFxsNabnGTUA0Ompd6oeoF3hG_jgh8M8J6I4D.NHKYFKn5O8b4S95cqaGcFjEG8NHXCNK1
+ M1LPkboJVyB.g_6E2zRg5KOGRaYrAV6XHFc.cgSEO16j_hjqJbUeEyYrAxRd_mVrhggLObtrNJU1
+ dJVT9HuS90tKNnBwk23Ea22hQ2vawK62nBWNum1KO22gE5VDuSxmmSRN8Y3tW2V_9VKpMWQpmDsz
+ A60m8Tz.KS1nSQRWCilmlHpv26Zj0l3lfk9s9oL3NBPny9XXgyMRAuVXec9EWOGx7S7YtjgNfGFC
+ XISiTormEZIzhzYcxK6DGY._VQ1iW_g74rnCDJeG6v6yYKOOcgrzpnwGzD0rufRnz37bno4PXGIb
+ wARo0.RdArsHao.KvPdzeVdZeivECUlEhG8WJ_DW4DtlbWvHTWZqvY5DX1zgA1mSDj1kFQJRLG0g
+ RxAsIb_BHcnpacZpuiE2WAjPKMhVZ1Swb_aTYpnDnA3fPWvGZPTE3b26FcFI_NiRZO6v3NcR3dC6
+ 8isadcMZ8oPz3elfST5.ceKxXU0J41nZcrkXCiaIc8rqxjiA9povnTQO2UZVLjnt9lXMF7rLfztE
+ VxZ8gx3Wbis3svohkeBXwmxITRZD6Tz5uciWAk_ZIEJSKHv30I6CBK_gLIZiXy2Q7Z8lWBvro722
+ 1ZvFLUaTp73BdbtUSK5Vr456tsGoT5sGWTSZiN7b5kXYTqnVciA5TbQKL6aryPgnPBtDl3LjyrhC
+ 1UzNBWkzeqoK8iXAK1MK8rBDqF68IYl.c3eJgSuJnVbKo8PJ8GWrjWwi1CcLf7whQHxVHzBzjelo
+ pySebF54p54PgMts6eZiK6_RzuhYAx55R9VY1hpgoRJdi2bXNW5O7SGvjolxFSSn3gXATerfDbIr
+ nrxFeyyHd1H3PQKCEI2flVXqcqz4XKlINc4YdKoW6Mjamr84qwbl.fcmtXnEwcDxh_1o_.YB2hXo
+ xVEdXH.PAsl8tbq3AtuL7S_hZICc1vxLXSfNB9kwhq8b8SLmiJByspKdBBCaTKxxNqXVJgw77DnT
+ 00AxCjRm1cdyMjaErkE7YSo7iRjJXVvV8S4aFepzcSbLK5ZfbEoZCkENjF.z_2lNYmwyQmPpiA2O
+ fxF1Xr7ZxBw6bg0TuQjvqOoaw4x8ZkccaZU_m0qNyLk.5BiV5Co460lXAH18aURMNGr3UJVcsZwq
+ hBSDkQHI3
 Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.gq1.yahoo.com with HTTP; Wed, 7 Aug 2019 19:44:29 +0000
 Received: by smtp403.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 58c279a944991d666e27c38577be4792;
-          Wed, 07 Aug 2019 19:44:24 +0000 (UTC)
+          Wed, 07 Aug 2019 19:44:26 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH v7 05/28] LSM: Use lsmblob in security_audit_rule_match
-Date:   Wed,  7 Aug 2019 12:43:47 -0700
-Message-Id: <20190807194410.9762-6-casey@schaufler-ca.com>
+Subject: [PATCH v7 07/28] net: Prepare UDS for security module stacking
+Date:   Wed,  7 Aug 2019 12:43:49 -0700
+Message-Id: <20190807194410.9762-8-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190807194410.9762-1-casey@schaufler-ca.com>
 References: <20190807194410.9762-1-casey@schaufler-ca.com>
@@ -62,213 +63,175 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the secid parameter of security_audit_rule_match
-to a lsmblob structure pointer. Pass the entry from the
-lsmblob structure for the approprite slot to the LSM hook.
-
-Change the users of security_audit_rule_match to use the
-lsmblob instead of a u32. In some cases this requires a
-temporary conversion using lsmblob_init() that will go
-away when other interfaces get converted.
+Change the data used in UDS SO_PEERSEC processing from a
+secid to a more general struct lsmblob. Update the
+security_socket_getpeersec_dgram() interface to use the
+lsmblob. There is a small amount of scaffolding code
+that will come out when the security_secid_to_secctx()
+code is brought in line with the lsmblob.
 
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/security.h            |  7 ++++---
- kernel/auditfilter.c                |  7 +++++--
- kernel/auditsc.c                    | 14 ++++++++++----
- security/integrity/ima/ima.h        |  4 ++--
- security/integrity/ima/ima_policy.c |  7 +++++--
- security/security.c                 | 18 +++++++++++++++---
- 6 files changed, 41 insertions(+), 16 deletions(-)
+ include/linux/security.h |  7 +++++--
+ include/net/af_unix.h    |  2 +-
+ include/net/scm.h        |  8 +++++---
+ net/ipv4/ip_sockglue.c   |  8 +++++---
+ net/unix/af_unix.c       |  6 +++---
+ security/security.c      | 18 +++++++++++++++---
+ 6 files changed, 34 insertions(+), 15 deletions(-)
 
 diff --git a/include/linux/security.h b/include/linux/security.h
-index 5bb8b9a6fa84..4f8b478bc3a1 100644
+index 313e45a3cac3..dcf20da87d1b 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -1761,7 +1761,8 @@ static inline int security_key_getsecurity(struct key *key, char **_buffer)
- #ifdef CONFIG_SECURITY
- int security_audit_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule);
- int security_audit_rule_known(struct audit_krule *krule);
--int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule);
-+int security_audit_rule_match(struct lsmblob *blob, u32 field, u32 op,
-+			      void *lsmrule);
- void security_audit_rule_free(void *lsmrule);
+@@ -1280,7 +1280,8 @@ int security_socket_shutdown(struct socket *sock, int how);
+ int security_sock_rcv_skb(struct sock *sk, struct sk_buff *skb);
+ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				      int __user *optlen, unsigned len);
+-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid);
++int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
++				     struct lsmblob *blob);
+ int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
+ void security_sk_free(struct sock *sk);
+ void security_sk_clone(const struct sock *sk, struct sock *newsk);
+@@ -1418,7 +1419,9 @@ static inline int security_socket_getpeersec_stream(struct socket *sock, char __
+ 	return -ENOPROTOOPT;
+ }
  
+-static inline int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++static inline int security_socket_getpeersec_dgram(struct socket *sock,
++						   struct sk_buff *skb,
++						   struct lsmblob *blob)
+ {
+ 	return -ENOPROTOOPT;
+ }
+diff --git a/include/net/af_unix.h b/include/net/af_unix.h
+index 3426d6dacc45..933492c08b8c 100644
+--- a/include/net/af_unix.h
++++ b/include/net/af_unix.h
+@@ -36,7 +36,7 @@ struct unix_skb_parms {
+ 	kgid_t			gid;
+ 	struct scm_fp_list	*fp;		/* Passed files		*/
+ #ifdef CONFIG_SECURITY_NETWORK
+-	u32			secid;		/* Security ID		*/
++	struct lsmblob		lsmblob;	/* Security LSM data	*/
+ #endif
+ 	u32			consumed;
+ } __randomize_layout;
+diff --git a/include/net/scm.h b/include/net/scm.h
+index 1ce365f4c256..e2e71c4bf9d0 100644
+--- a/include/net/scm.h
++++ b/include/net/scm.h
+@@ -33,7 +33,7 @@ struct scm_cookie {
+ 	struct scm_fp_list	*fp;		/* Passed files		*/
+ 	struct scm_creds	creds;		/* Skb credentials	*/
+ #ifdef CONFIG_SECURITY_NETWORK
+-	u32			secid;		/* Passed security ID 	*/
++	struct lsmblob		lsmblob;	/* Passed LSM data	*/
+ #endif
+ };
+ 
+@@ -46,7 +46,7 @@ struct scm_fp_list *scm_fp_dup(struct scm_fp_list *fpl);
+ #ifdef CONFIG_SECURITY_NETWORK
+ static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
+ {
+-	security_socket_getpeersec_dgram(sock, NULL, &scm->secid);
++	security_socket_getpeersec_dgram(sock, NULL, &scm->lsmblob);
+ }
  #else
-@@ -1777,8 +1778,8 @@ static inline int security_audit_rule_known(struct audit_krule *krule)
- 	return 0;
- }
+ static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
+@@ -97,7 +97,9 @@ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct sc
+ 	int err;
  
--static inline int security_audit_rule_match(u32 secid, u32 field, u32 op,
--					    void *lsmrule)
-+static inline int security_audit_rule_match(struct lsmblob *blob, u32 field,
-+					    u32 op, void *lsmrule)
+ 	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
+-		err = security_secid_to_secctx(scm->secid, &secdata, &seclen);
++		/* Scaffolding - it has to be element 0 for now */
++		err = security_secid_to_secctx(scm->lsmblob.secid[0],
++					       &secdata, &seclen);
+ 
+ 		if (!err) {
+ 			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, seclen, secdata);
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index 82f341e84fae..2a5c868ce135 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -130,15 +130,17 @@ static void ip_cmsg_recv_checksum(struct msghdr *msg, struct sk_buff *skb,
+ 
+ static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
  {
- 	return 0;
- }
-diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
-index 63f8b3f26fab..8786b95b60bd 100644
---- a/kernel/auditfilter.c
-+++ b/kernel/auditfilter.c
-@@ -1324,6 +1324,7 @@ int audit_filter(int msgtype, unsigned int listtype)
- 			struct audit_field *f = &e->rule.fields[i];
- 			pid_t pid;
- 			u32 sid;
-+			struct lsmblob blob;
++	struct lsmblob lb;
+ 	char *secdata;
+-	u32 seclen, secid;
++	u32 seclen;
+ 	int err;
  
- 			switch (f->type) {
- 			case AUDIT_PID:
-@@ -1354,8 +1355,10 @@ int audit_filter(int msgtype, unsigned int listtype)
- 			case AUDIT_SUBJ_CLR:
- 				if (f->lsm_rule) {
- 					security_task_getsecid(current, &sid);
--					result = security_audit_rule_match(sid,
--						   f->type, f->op, f->lsm_rule);
-+					lsmblob_init(&blob, sid);
-+					result = security_audit_rule_match(
-+							&blob, f->type,
-+							f->op, f->lsm_rule);
- 				}
- 				break;
- 			case AUDIT_EXE:
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index d1eab1d4a930..18ee5556c086 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -445,6 +445,7 @@ static int audit_filter_rules(struct task_struct *tsk,
- 	const struct cred *cred;
- 	int i, need_sid = 1;
- 	u32 sid;
-+	struct lsmblob blob;
- 	unsigned int sessionid;
+-	err = security_socket_getpeersec_dgram(NULL, skb, &secid);
++	err = security_socket_getpeersec_dgram(NULL, skb, &lb);
+ 	if (err)
+ 		return;
  
- 	cred = rcu_dereference_check(tsk->cred, tsk == current || task_creation);
-@@ -630,7 +631,9 @@ static int audit_filter_rules(struct task_struct *tsk,
- 					security_task_getsecid(tsk, &sid);
- 					need_sid = 0;
- 				}
--				result = security_audit_rule_match(sid, f->type,
-+				lsmblob_init(&blob, sid);
-+				result = security_audit_rule_match(&blob,
-+								   f->type,
- 								   f->op,
- 								   f->lsm_rule);
- 			}
-@@ -645,15 +648,17 @@ static int audit_filter_rules(struct task_struct *tsk,
- 			if (f->lsm_rule) {
- 				/* Find files that match */
- 				if (name) {
-+					lsmblob_init(&blob, name->osid);
- 					result = security_audit_rule_match(
--								name->osid,
-+								&blob,
- 								f->type,
- 								f->op,
- 								f->lsm_rule);
- 				} else if (ctx) {
- 					list_for_each_entry(n, &ctx->names_list, list) {
-+						lsmblob_init(&blob, n->osid);
- 						if (security_audit_rule_match(
--								n->osid,
-+								&blob,
- 								f->type,
- 								f->op,
- 								f->lsm_rule)) {
-@@ -665,7 +670,8 @@ static int audit_filter_rules(struct task_struct *tsk,
- 				/* Find ipc objects that match */
- 				if (!ctx || ctx->type != AUDIT_IPC)
- 					break;
--				if (security_audit_rule_match(ctx->ipc.osid,
-+				lsmblob_init(&blob, ctx->ipc.osid);
-+				if (security_audit_rule_match(&blob,
- 							      f->type, f->op,
- 							      f->lsm_rule))
- 					++result;
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index d213e835c498..5a337239d9e4 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -307,8 +307,8 @@ static inline int security_filter_rule_init(u32 field, u32 op, char *rulestr,
- 	return -EINVAL;
- }
+-	err = security_secid_to_secctx(secid, &secdata, &seclen);
++	/* Scaffolding - it has to be element 0 */
++	err = security_secid_to_secctx(lb.secid[0], &secdata, &seclen);
+ 	if (err)
+ 		return;
  
--static inline int security_filter_rule_match(u32 secid, u32 field, u32 op,
--					     void *lsmrule)
-+static inline int security_filter_rule_match(struct lsmblob *blob, u32 field,
-+					     u32 op, void *lsmrule)
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index ddb838a1b74c..c50a004a1389 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -143,17 +143,17 @@ static struct hlist_head *unix_sockets_unbound(void *addr)
+ #ifdef CONFIG_SECURITY_NETWORK
+ static void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
  {
- 	return -EINVAL;
+-	UNIXCB(skb).secid = scm->secid;
++	UNIXCB(skb).lsmblob = scm->lsmblob;
  }
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index e0cc323f948f..e7b8ce942950 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -327,6 +327,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 	for (i = 0; i < MAX_LSM_RULES; i++) {
- 		int rc = 0;
- 		u32 osid;
-+		struct lsmblob blob;
- 		int retried = 0;
  
- 		if (!rule->lsm[i].rule)
-@@ -337,7 +338,8 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		case LSM_OBJ_ROLE:
- 		case LSM_OBJ_TYPE:
- 			security_inode_getsecid(inode, &osid);
--			rc = security_filter_rule_match(osid,
-+			lsmblob_init(&blob, osid);
-+			rc = security_filter_rule_match(&blob,
- 							rule->lsm[i].type,
- 							Audit_equal,
- 							rule->lsm[i].rule);
-@@ -345,7 +347,8 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		case LSM_SUBJ_USER:
- 		case LSM_SUBJ_ROLE:
- 		case LSM_SUBJ_TYPE:
--			rc = security_filter_rule_match(secid,
-+			lsmblob_init(&blob, secid);
-+			rc = security_filter_rule_match(&blob,
- 							rule->lsm[i].type,
- 							Audit_equal,
- 							rule->lsm[i].rule);
+ static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	scm->secid = UNIXCB(skb).secid;
++	scm->lsmblob = UNIXCB(skb).lsmblob;
+ }
+ 
+ static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	return (scm->secid == UNIXCB(skb).secid);
++	return lsmblob_equal(&scm->lsmblob, &(UNIXCB(skb).lsmblob));
+ }
+ #else
+ static inline void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
 diff --git a/security/security.c b/security/security.c
-index 27e2db3d6b04..fa6e425e6f29 100644
+index fa7ab1334f22..fe76dfa0f2fd 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -424,7 +424,7 @@ static int lsm_append(const char *new, char **result)
- /*
-  * Current index to use while initializing the lsmblob secid list.
-  */
--static int lsm_slot __initdata;
-+static int lsm_slot __lsm_ro_after_init;
- 
- /**
-  * security_add_hooks - Add a modules hooks to the hook lists.
-@@ -2433,9 +2433,21 @@ void security_audit_rule_free(void *lsmrule)
- 	call_void_hook(audit_rule_free, lsmrule);
+@@ -2120,10 +2120,22 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				optval, optlen, len);
  }
  
--int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule)
-+int security_audit_rule_match(struct lsmblob *blob, u32 field, u32 op,
-+			      void *lsmrule)
+-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
++				     struct lsmblob *blob)
  {
--	return call_int_hook(audit_rule_match, 0, secid, field, op, lsmrule);
+-	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+-			     skb, secid);
 +	struct security_hook_list *hp;
-+	int rc;
++	int rc = -ENOPROTOOPT;
 +
-+	hlist_for_each_entry(hp, &security_hook_heads.audit_rule_match, list) {
++	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
++			     list) {
 +		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
 +			continue;
-+		rc = hp->hook.audit_rule_match(blob->secid[hp->lsmid->slot],
-+					       field, op, lsmrule);
++		rc = hp->hook.socket_getpeersec_dgram(sock, skb,
++						&blob->secid[hp->lsmid->slot]);
 +		if (rc != 0)
-+			return rc;
++			break;
 +	}
-+	return 0;
++	return rc;
  }
- #endif /* CONFIG_AUDIT */
+ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
  
 -- 
 2.20.1
