@@ -4,55 +4,55 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96D1BC32754
-	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 19:44:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F21E9C32754
+	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 19:44:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6481E21EF2
-	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 19:44:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8F4B2229C
+	for <selinux@archiver.kernel.org>; Wed,  7 Aug 2019 19:44:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Dbn0yINC"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="gYPaJUsj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389186AbfHGToy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 7 Aug 2019 15:44:54 -0400
-Received: from sonic303-28.consmr.mail.ne1.yahoo.com ([66.163.188.154]:43373
-        "EHLO sonic303-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2389176AbfHGTox (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 7 Aug 2019 15:44:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565207093; bh=WNDu8xKQP3BgXRR8XEh1g0ZZLv2TSYcSmiyc340beyE=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=Dbn0yINC8RlwcNUz999i/NGrlx+29A571r/sBG46CV/VCi9C7h+x21mE+dK1cLzCcHBqGBSdrCbM1Z+Qw7I7hyye6qr5JAFq6fhP5oATBABQzSPUm8LCV1z7PL6/8rmYWzX/8+GTbWgGl425DkFxck2uw9nivDyeOs6EBIFQTRUajpZ+SxXkAPAya+Lt3BEMuMVUcdWwliZIcqvMQclpHG+RRN6lNoESrRb5GPBlbL80SsVGx1THxPC6EP38u3SsRYv+QbD1TSzPu2F+B/HpqPtO8GiIQnTlII5FcI2zLUTIhHBBGP8emftvbeqNpMcvpQCXJUmxcOFWfCrIjRFhpQ==
-X-YMail-OSG: YypA9.EVM1k4kZX7ha8J02QmYNyJSXW1p2E5xmSfczhfpnod5E7j53e0wRdZ1G0
- 3BKOVnVeCr_wZuPqbSQ4uXl9t_ysQpbRNyA_9YmcbkQwiVmGa_J_zf.l.r0.VQ18c3THC50Tlcvo
- .X7AnfOjkMk6A4oD7_vHLkYUXdnPhXHWA1Gaylvaijhg7xbsd40GLbzDBGM97xHOGOGr_K6Z0QYf
- zfl9M59nK91TnZPu9mbpi_MGkysX0DzW9ag3IJXSSdIIGAcjKDziT_f_zcgDx2n4E006OKUT2N.O
- H9MHkzgFIWsFYLG9yE9CKqje4VjJ27trkJ9teB9S1tR9y0QkNzT0DsXcdHU6bUd8Tc7TeDQszXZW
- thvGTb3SJnpwuaA9x8tjZ5SbIzZNnnx_3n5XMe44L2GBe53_PflJRrZeXZLLknElBCPXHqg5r1Nv
- dpSz5HcW7PgkYVhD3k8lyeUOIarKg8sNKvhGlksRF4B4v3sYeLal_e3n0j4h6Eqv8mHI4UhBBMcv
- 27tWmRWvBHp.n.jG1uHNlGo3WtKHxVXONO4xc4a.Wo7MKx0IDbNulTxOD.gddZd_U7OTutCBye06
- MvmzLOAYzgJRFu3uoYrw9ektF8_8Nj4fCrFpHFYSvpnPP1zlgQJVP5Oqr273SPdeTPm4QvLHtMqL
- Mc0eHzftn2iU_Tr_TwkjlqfAYRFO5GxBuDfISOuauieIjCYmp1UyZksnEgr36Wl7BnlGDfD7lxtl
- 8_5uFBfqrX0zNNeLHayaAeyosmST7vYdix4KpQhu4Y_HLohixUHE6AXZHBkYg9LuuYWAdu3b91c8
- 2tTvL5ftZa3IWJXflVoWIHp6gkba8JNtLfV_LWpVf0lCoebc.mH3r5M.kwr5Ox6fAUso7hxpbLpv
- Mv6ZNc67rukz3EhiJYsH40N7ftwGblCRFn7JBMMKBQTif7tHtYnAXutyDG2eSfeaLLIN2BeJ2Ktq
- eY4T1_D8Y6yB4OTrLON_c8_dgSMyv3Xz8Tes0mpBKZXHiXLpUahGU321D.IsH8PR7Fq_my9hBBbf
- 81Y246ujzBlQr0mpbfJbHSiMBySBvlEHdqvhcQhGPtn.xmXVkLK3f0pYIDDnVN.HlTil6DthozZX
- 51X94Iy..CK4jWbp4lSpVKrGhO8RPwAyUU3keHb7cCEF5Rff7EDc.rYUpj4Bizt9okCAaScNGobY
- QLYpvtPjco0oceUBprcRWffH8q5xz8UoR1svFSRAhcwodltKmRCr5ds2oAZjPhQmqTXrFQkxLPvN
- lIDxaTsmwWLcMlOD7sOQeTr2vPnJkzrHIeI0AwPX0MLJcYVSOL2Sh9HPStxk5uUxPt6hrVHclYQ-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Wed, 7 Aug 2019 19:44:53 +0000
-Received: by smtp409.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 8b8b8a62e307b49b2157970e55311396;
-          Wed, 07 Aug 2019 19:44:48 +0000 (UTC)
+        id S2389196AbfHGTo4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 7 Aug 2019 15:44:56 -0400
+Received: from sonic317-26.consmr.mail.gq1.yahoo.com ([98.137.66.152]:41586
+        "EHLO sonic317-26.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2389191AbfHGToz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 7 Aug 2019 15:44:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565207094; bh=y/mPhKNoq6nbt3w7HpbSUZG3e7LYtWMMfbakz1o/bfQ=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=gYPaJUsjFTfFKYs9Oa/o9c0L9lqQu7OHF2Hxb8QVWWcmmHOjQ58I3lktzQgwY5ywYc26VpQ+dmneCgk4O5hisJHjpLig0GdMgcbtWnURo+u0Z6JjlP5g4mvKimDp3LIDgsEtbjPc+E8QYzdxjLI7cYqXjAinG2cv7ZVOzjDb6aDGV1q8lldWogQnG+2bcAk0ea/RauB4njMrQW1gwIVicAzU8AEWUBFYbJveDvojfVA+qEbaxASbdp8PZsJRC5j/edhQsuEQa7bDMAfLt6GGl47F5EYBcEEyrsxcqH6Z5Nituxzdnh3fFgJBAdbh6XxsFSKjPBp2IVgAfRmU/eduxw==
+X-YMail-OSG: Dc8Sc8MVM1kFc7lEHUG7l8QRW5YmuCBr0Tdd6rOuusoNCMv2PI92qm.6lSVRUfM
+ iO4RWLvLSIQh_YrfBFACJccNaprW8VwV.UBruijUPK89SHc2Hc8a.aV0koqLRnWMriMhtFaXjvdf
+ 5LPR7TotA6Y5n8__53fQ7gIUoqIYL7tofEBjKG34iQww9Xixra54Nwiy44cgvT2RIwdkTQUxvZ_W
+ eYzaLs_NlgIBxd0rmevtOiN.ZSu1fThQjnsdUzHrCEc2RX7.4LItPEIS8sWRdodCpDFRyqh5ukDu
+ cLayzNn5APxZCMOUkTH.wi6vWSHJ1DajmA1jL3Dpa8GAZFpDCkk1VmUKWMv8pwhBe_E.DOGwyHBM
+ tuxAhAqZ2H0Zw0b4YpkpTG8p9MICx1zTUFyTN.MN5dY2jU.EfnieNGcXLSEHeFXSTqph8e2XlSot
+ MxXGZrHsnIJUusTlIuLyS472TYjLmZ2hC15bMwX7aYtbhO427M816.JlcIDDbzE73zQ4FTV0A_Wk
+ kPmMK5yMcEnfZPtx0nVlt3IfxzFTlaa.zVpX_TSp.G7esOEwbr0wwY5owZVo5ecvpRgRX5Z5Bm7s
+ bX662gxFPK8N.v7lPAcK4.njmGudAtuFvVjhESxkDsOm2oEOM5ywuBB62_143EmyCsRvJ1ROSL.H
+ NXGLTLptlaRyleFZM54UwMr5VJWMZqG6cx7ZqyiuWXO3I4M9oVdK_cDeTYjtpRy_.medBJeJRSxZ
+ V7xAaOtFt_Uq.5VXGTP_0Jf2AW36nHLE6Bzm4ErzkoahwIbLb3DFAZVrjXQbX_fkUfEniH6mGkl7
+ Bv2ezG8xU1y4NmTiO_f_dniK5Q6rtDLPmRC6R1rrCswMlrJwdykbE2TsHPjUC8wwKF1PXKE2xCmU
+ gI1ujel3evfsRYRNQmZpM_neSZCWgJo8e84_FSm4x6Jq6faJC0P_MWD.Y49_VXbuxFCsLsTtpT1U
+ u0zN5SzYPg0xwZV2iw70YtWHITCuhpcUUlXhYyxlzM7NWzwb083zGDjkdLA80Ei3Qr5ur0bRNj6I
+ lsGc5JrruUTfIC0ZUgYp2UvCpKCDsNykZgF4dcTGLG3MPqXXKcctBhSiVlk7ssJldZaly6.pvV7d
+ 26b2sCs289Lm0G.IWXoB73PAH4al27cfrxeDQLhU3vrry6UjdZkwPkZ3WqsOaHL_siCBs.D5VhJX
+ vbOHAvkxNjZVLj8sUc.XmgatqXCrHNv6XQ_smXNlHAFul5OQDpami0CtOG3q1Iw5WAfYv6c0Tprx
+ 8py4fJIYO8GlnhQjR6y7YKm.xIXtrq0N0k2yxf0S3_zJw64giUFDLZqdkIjt0ohsXdj9.aCcgQ5p
+ L
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.gq1.yahoo.com with HTTP; Wed, 7 Aug 2019 19:44:54 +0000
+Received: by smtp426.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID e1e2368a1a71816f77f09bb43c177f80;
+          Wed, 07 Aug 2019 19:44:53 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH v7 19/28] LSM: Use lsmcontext in security_inode_getsecctx
-Date:   Wed,  7 Aug 2019 12:44:01 -0700
-Message-Id: <20190807194410.9762-20-casey@schaufler-ca.com>
+Subject: [PATCH v7 22/28] SELinux: Verify LSM display sanity in binder
+Date:   Wed,  7 Aug 2019 12:44:04 -0700
+Message-Id: <20190807194410.9762-23-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190807194410.9762-1-casey@schaufler-ca.com>
 References: <20190807194410.9762-1-casey@schaufler-ca.com>
@@ -63,260 +63,90 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the security_inode_getsecctx() interface to fill
-a lsmcontext structure instead of data and length pointers.
-This provides the information about which LSM created the
-context so that security_release_secctx() can use the
-correct hook. A lsmcontext is used within kernfs to store
-the security information as well.
-
-security_inode_getsecctx() does not use the "display"
-value. There's only one possible user at any time at
-this point, and the use is only internal.
+Verify that the tasks on the ends of a binder transaction
+use LSM display values that don't cause SELinux contexts
+to be interpreted by another LSM or another LSM's context
+to be interpreted by SELinux. No judgement is made in cases
+that where SELinux contexts are not used in the binder
+transaction.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- fs/kernfs/dir.c             |  9 ++-------
- fs/kernfs/inode.c           | 34 ++++++++++++----------------------
- fs/kernfs/kernfs-internal.h |  3 +--
- fs/nfsd/nfs4xdr.c           | 23 +++++++++--------------
- include/linux/security.h    |  5 +++--
- security/security.c         | 13 +++++++++++--
- 6 files changed, 38 insertions(+), 49 deletions(-)
+ security/selinux/hooks.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
-index c8362b6d556e..1d000289d8b7 100644
---- a/fs/kernfs/dir.c
-+++ b/fs/kernfs/dir.c
-@@ -532,13 +532,8 @@ void kernfs_put(struct kernfs_node *kn)
- 	kfree_const(kn->name);
- 
- 	if (kn->iattr) {
--		struct lsmcontext scaff; /* scaffolding */
--
--		if (kn->iattr->ia_secdata) {
--			lsmcontext_init(&scaff, kn->iattr->ia_secdata,
--					kn->iattr->ia_secdata_len, 0);
--			security_release_secctx(&scaff);
--		}
-+		if (kn->iattr->ia_context.context)
-+			security_release_secctx(&kn->iattr->ia_context);
- 		simple_xattrs_free(&kn->iattr->xattrs);
- 		kmem_cache_free(kernfs_iattrs_cache, kn->iattr);
- 	}
-diff --git a/fs/kernfs/inode.c b/fs/kernfs/inode.c
-index 02cde9dac5ee..ffbf7863306d 100644
---- a/fs/kernfs/inode.c
-+++ b/fs/kernfs/inode.c
-@@ -135,21 +135,14 @@ int kernfs_iop_setattr(struct dentry *dentry, struct iattr *iattr)
- 	return error;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 352be16a887d..fcad2e3432d2 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2009,6 +2009,28 @@ static inline u32 open_file_to_av(struct file *file)
+ 	return av;
  }
  
--static int kernfs_node_setsecdata(struct kernfs_iattrs *attrs, void **secdata,
--				  u32 *secdata_len)
-+static void kernfs_node_setsecdata(struct kernfs_iattrs *attrs,
-+				   struct lsmcontext *cp)
- {
--	void *old_secdata;
--	size_t old_secdata_len;
-+	struct lsmcontext old_context;
- 
--	old_secdata = attrs->ia_secdata;
--	old_secdata_len = attrs->ia_secdata_len;
--
--	attrs->ia_secdata = *secdata;
--	attrs->ia_secdata_len = *secdata_len;
--
--	*secdata = old_secdata;
--	*secdata_len = old_secdata_len;
--	return 0;
-+	old_context = attrs->ia_context;
-+	attrs->ia_context = *cp;
-+	*cp = old_context;
- }
- 
- ssize_t kernfs_iop_listxattr(struct dentry *dentry, char *buf, size_t size)
-@@ -192,8 +185,8 @@ static void kernfs_refresh_inode(struct kernfs_node *kn, struct inode *inode)
- 		 * persistent copy in kernfs_node.
- 		 */
- 		set_inode_attr(inode, &attrs->ia_iattr);
--		security_inode_notifysecctx(inode, attrs->ia_secdata,
--					    attrs->ia_secdata_len);
-+		security_inode_notifysecctx(inode, attrs->ia_context.context,
-+					    attrs->ia_context.len);
- 	}
- 
- 	if (kernfs_type(kn) == KERNFS_DIR)
-@@ -350,8 +343,6 @@ static int kernfs_security_xattr_set(const struct xattr_handler *handler,
- 	struct kernfs_node *kn = inode->i_private;
- 	struct kernfs_iattrs *attrs;
- 	struct lsmcontext context;
--	void *secdata;
--	u32 secdata_len = 0;
- 	int error;
- 
- 	attrs = kernfs_iattrs(kn);
-@@ -361,18 +352,17 @@ static int kernfs_security_xattr_set(const struct xattr_handler *handler,
- 	error = security_inode_setsecurity(inode, suffix, value, size, flags);
- 	if (error)
- 		return error;
--	error = security_inode_getsecctx(inode, &secdata, &secdata_len);
-+	error = security_inode_getsecctx(inode, &context);
- 	if (error)
- 		return error;
- 
- 	mutex_lock(&kernfs_mutex);
--	error = kernfs_node_setsecdata(attrs, &secdata, &secdata_len);
-+	kernfs_node_setsecdata(attrs, &context);
- 	mutex_unlock(&kernfs_mutex);
- 
--	if (secdata) {
--		lsmcontext_init(&context, secdata, secdata_len, 0);
-+	if (context.context)
- 		security_release_secctx(&context);
--	}
++/*
++ * Verify that if the "display" LSM is SELinux for either task
++ * that it is for both tasks.
++ */
++static inline bool compatible_task_displays(struct task_struct *here,
++					    struct task_struct *there)
++{
++	int h = lsm_task_display(here);
++	int t = lsm_task_display(there);
 +
- 	return error;
- }
- 
-diff --git a/fs/kernfs/kernfs-internal.h b/fs/kernfs/kernfs-internal.h
-index 0b7d197a904c..844a028d282f 100644
---- a/fs/kernfs/kernfs-internal.h
-+++ b/fs/kernfs/kernfs-internal.h
-@@ -21,8 +21,7 @@
- 
- struct kernfs_iattrs {
- 	struct iattr		ia_iattr;
--	void			*ia_secdata;
--	u32			ia_secdata_len;
-+	struct lsmcontext	ia_context;
- 
- 	struct simple_xattrs	xattrs;
- };
-diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
-index bb3db033e144..d2dbec9c3340 100644
---- a/fs/nfsd/nfs4xdr.c
-+++ b/fs/nfsd/nfs4xdr.c
-@@ -2304,11 +2304,11 @@ nfsd4_encode_layout_types(struct xdr_stream *xdr, u32 layout_types)
- #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
- static inline __be32
- nfsd4_encode_security_label(struct xdr_stream *xdr, struct svc_rqst *rqstp,
--			    void *context, int len)
-+			    struct lsmcontext *context)
- {
- 	__be32 *p;
- 
--	p = xdr_reserve_space(xdr, len + 4 + 4 + 4);
-+	p = xdr_reserve_space(xdr, context->len + 4 + 4 + 4);
- 	if (!p)
- 		return nfserr_resource;
- 
-@@ -2318,13 +2318,13 @@ nfsd4_encode_security_label(struct xdr_stream *xdr, struct svc_rqst *rqstp,
- 	 */
- 	*p++ = cpu_to_be32(0); /* lfs */
- 	*p++ = cpu_to_be32(0); /* pi */
--	p = xdr_encode_opaque(p, context, len);
-+	p = xdr_encode_opaque(p, context->context, context->len);
- 	return 0;
- }
- #else
- static inline __be32
- nfsd4_encode_security_label(struct xdr_stream *xdr, struct svc_rqst *rqstp,
--			    void *context, int len)
-+			    struct lsmcontext *context)
- { return 0; }
- #endif
- 
-@@ -2420,9 +2420,7 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
- 	__be32 status;
- 	int err;
- 	struct nfs4_acl *acl = NULL;
--	struct lsmcontext scaff; /* scaffolding */
--	void *context = NULL;
--	int contextlen;
-+	struct lsmcontext context = { };
- 	bool contextsupport = false;
- 	struct nfsd4_compoundres *resp = rqstp->rq_resp;
- 	u32 minorversion = resp->cstate.minorversion;
-@@ -2479,7 +2477,7 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
- 	     bmval0 & FATTR4_WORD0_SUPPORTED_ATTRS) {
- 		if (exp->ex_flags & NFSEXP_SECURITY_LABEL)
- 			err = security_inode_getsecctx(d_inode(dentry),
--						&context, &contextlen);
-+						       &context);
- 		else
- 			err = -EOPNOTSUPP;
- 		contextsupport = (err == 0);
-@@ -2908,8 +2906,7 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
- 	}
- 
- 	if (bmval2 & FATTR4_WORD2_SECURITY_LABEL) {
--		status = nfsd4_encode_security_label(xdr, rqstp, context,
--								contextlen);
-+		status = nfsd4_encode_security_label(xdr, rqstp, &context);
- 		if (status)
- 			goto out;
- 	}
-@@ -2920,10 +2917,8 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
- 
- out:
- #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
--	if (context) {
--		lsmcontext_init(&scaff, context, contextlen, 0); /*scaffolding*/
--		security_release_secctx(&scaff);
--	}
-+	if (context.context)
-+		security_release_secctx(&context);
- #endif /* CONFIG_NFSD_V4_SECURITY_LABEL */
- 	kfree(acl);
- 	if (tempfh) {
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 2674eb70c2d7..c16aea55be97 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -489,7 +489,7 @@ void security_release_secctx(struct lsmcontext *cp);
- void security_inode_invalidate_secctx(struct inode *inode);
- int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
- int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
--int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
-+int security_inode_getsecctx(struct inode *inode, struct lsmcontext *cp);
- #else /* CONFIG_SECURITY */
- 
- static inline int call_lsm_notifier(enum lsm_event event, void *data)
-@@ -1290,7 +1290,8 @@ static inline int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32
- {
- 	return -EOPNOTSUPP;
- }
--static inline int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-+static inline int security_inode_getsecctx(struct inode *inode,
-+					   struct lsmcontext *cp)
- {
- 	return -EOPNOTSUPP;
- }
-diff --git a/security/security.c b/security/security.c
-index 836e395027d2..9426c09c4fba 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -2189,9 +2189,18 @@ int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
- }
- EXPORT_SYMBOL(security_inode_setsecctx);
- 
--int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-+int security_inode_getsecctx(struct inode *inode, struct lsmcontext *cp)
- {
--	return call_int_hook(inode_getsecctx, -EOPNOTSUPP, inode, ctx, ctxlen);
-+	struct security_hook_list *hp;
++	if (h == t)
++		return true;
 +
-+	memset(cp, 0, sizeof(*cp));
++	/* unspecified is only ok if SELinux isn't going to be involved */
++	if (selinux_lsmid.slot == 0)
++		return ((h == 0 && t == LSMBLOB_INVALID) ||
++			(t == 0 && h == LSMBLOB_INVALID));
 +
-+	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecctx, list) {
-+		cp->slot = hp->lsmid->slot;
-+		return hp->hook.inode_getsecctx(inode, (void **)&cp->context,
-+						&cp->len);
-+	}
-+	return -EOPNOTSUPP;
- }
- EXPORT_SYMBOL(security_inode_getsecctx);
++	/* it's ok only if neither display is SELinux */
++	return (h != selinux_lsmid.slot && t != selinux_lsmid.slot);
++}
++
+ /* Hook functions begin here. */
+ 
+ static int selinux_binder_set_context_mgr(struct task_struct *mgr)
+@@ -2016,6 +2038,9 @@ static int selinux_binder_set_context_mgr(struct task_struct *mgr)
+ 	u32 mysid = current_sid();
+ 	u32 mgrsid = task_sid(mgr);
+ 
++	if (!compatible_task_displays(current, mgr))
++		return -EINVAL;
++
+ 	return avc_has_perm(&selinux_state,
+ 			    mysid, mgrsid, SECCLASS_BINDER,
+ 			    BINDER__SET_CONTEXT_MGR, NULL);
+@@ -2029,6 +2054,9 @@ static int selinux_binder_transaction(struct task_struct *from,
+ 	u32 tosid = task_sid(to);
+ 	int rc;
+ 
++	if (!compatible_task_displays(from, to))
++		return -EINVAL;
++
+ 	if (mysid != fromsid) {
+ 		rc = avc_has_perm(&selinux_state,
+ 				  mysid, fromsid, SECCLASS_BINDER,
+@@ -2048,6 +2076,9 @@ static int selinux_binder_transfer_binder(struct task_struct *from,
+ 	u32 fromsid = task_sid(from);
+ 	u32 tosid = task_sid(to);
+ 
++	if (!compatible_task_displays(from, to))
++		return -EINVAL;
++
+ 	return avc_has_perm(&selinux_state,
+ 			    fromsid, tosid, SECCLASS_BINDER, BINDER__TRANSFER,
+ 			    NULL);
+@@ -2064,6 +2095,9 @@ static int selinux_binder_transfer_file(struct task_struct *from,
+ 	struct common_audit_data ad;
+ 	int rc;
+ 
++	if (!compatible_task_displays(from, to))
++		return -EINVAL;
++
+ 	ad.type = LSM_AUDIT_DATA_PATH;
+ 	ad.u.path = file->f_path;
  
 -- 
 2.20.1
