@@ -2,56 +2,56 @@ Return-Path: <SRS0=nXDU=WF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3205AC0650F
-	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 00:18:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC523C433FF
+	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 00:23:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DDBE22166E
-	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 00:18:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 73E16208C3
+	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 00:23:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="a/fj+9LP"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="pTp4KlKt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732375AbfHIASk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Aug 2019 20:18:40 -0400
-Received: from sonic317-27.consmr.mail.gq1.yahoo.com ([98.137.66.153]:39874
-        "EHLO sonic317-27.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725785AbfHIASk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Aug 2019 20:18:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565309917; bh=C6g8/JppoYEbzZ7NquOWatpR5vZ/7kdOxht0G6rgL30=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=a/fj+9LPIEJFbd8Rqf89eKId1JyIcT1LMGOGoof4YmLiVPXjEtnaR/CGaiQH0QRsP9NGzTKRK/vVtQ/YdGty3gZ8UACpkgGPpKCsIzoRmWodqsTRqngcfnwpUV4caF4wtRl0B9TkG+G9/A4QIIEnjIzdeDFPHEABmYt2QQaJA2d8A6wFrjFVKT8/HfI3raQAaAkBhw5m/Z8KB/CzT4xPmCKuP1+gn6VAcngStWH+cjVyZ+EXotx5TvaKSwH61Ba46TMRqnc2T2tO8eCp/3DSE13/26CeyuccHGVNzOodAhBnVR7Uh1QcjvD/Ve7qtrhcAaedM1gp04FlN0ffXtwZ/w==
-X-YMail-OSG: xOPTRegVM1nYweMOjKB7nAOsGhn8LZ2RqJef_WoN5XudWes4Z.0G.0SkH7ESATY
- KiUGUYQqV.xrkG.ATfSOLCZ7.ST_c42HH4_qp5jfQl2.mEn3o3E7gwD7OnEvUY27zkKgsTsD4qOo
- BpArV7OZVKArjvgyWdCj.WP0BjzVLXQ4mGtj3XoVeA9EJpLY1wvH8uhvhsFnPD2gsITvrqSH6SZy
- ZfUxmsv7ftZDfMPV771nVizvhvd0jRWj8Ir3VyU7NqGuO_7vROmjo1xeT5lV3DLF4iHTUJtd2XYh
- q_WLxj1N5DRc9ouBH1qbSsY9_EFwNfA7pW6aLYL8VpWtaIEPI0FAvzzSn444BsR4WCm7XlUIdWQx
- 1X.cT4kcQ4znIvEewkAO2tRVbsnpZLVne05.oS7mJzWtgS071AWrUSkfQLaeFPIiY6NIQ4G0IMF6
- 6rItZNTwsL0O.3JoqRICEBAJM2M0NjActKJckNetfVDnypfz0loJhzGRYBg_TAKNFm1l9ucOu_5u
- iqjgnbKCCss3gF.ny5FfUodo0LUiakmmJn.Pq2pu4uoDayjDArq0H5eaxkj2TnLo.JdkcaxzdEcn
- DS9BL0gjd30g2qpFGF2tIA9eMOeo5w1Ya7CFciLsdPQyrUpzOzTuIwG3weW0w4xRShpXVsq_JbSb
- dVv5wbfDxh7jDEzokJGA3bJCIorDTSSBMyBTtwj_VtrL0CVwRtSG8u_vfgZYREsBECg_pkmjtH2d
- 4KmWs1wW0kQXtSfCiFyOz.z9S.f5UTFGNQWUVNSQZ29PuV.JWrcaUSm9ibRMyHvBA6xn7NMH0VZ5
- rI9yFzVE_uhLj0PhbzntMq1ToWahVoGeJ0P2AlN4Qa3zjiGPQWwFfDwgYX4Kww06HB9mIKZJctxN
- 3Aw60ryBJxo0ZmKkArG3hBB2lKzqFrsmJFVRslue8ctusSh0acaQjNA6FpN4Zqgo9PctefjYfxL1
- TmzSuaQOziG12.dw3xRdUIDeQD8_0vKyF09tbsivFqsgusbR3irU2zLgC8YmqDnFiNyZ4GV8GuiH
- jSCeu6PLds4J39RNoSO0U37cW7nN7wU8kaix4vbiD16Mc_pl3mMtnsIlLWIvnZsBvVaT5S0Bpm.n
- vcDAT0wxXPe.3ttjzXiC7Q.uYy77rRU7aR.QnaNJVB5HZmSL5c0e34QtJCarcQSlOwMZpgG8IgyT
- pkUNyQ8QXMjmcBYqs9Pocr7QeshQOGEZVaYtnTRSiSvTFr2GVpuufYNvCbeXM7lhfNuVbvrYXsvd
- EaUrtUFGP7TEKUXYIVg3STxuVWJw3DQcyZosmYL3r3c3CCkbF1OPBycU0w3W.6Rv6Kg--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.gq1.yahoo.com with HTTP; Fri, 9 Aug 2019 00:18:37 +0000
-Received: by smtp415.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID b296d44ca06fda2f56a8a28956ab776e;
-          Fri, 09 Aug 2019 00:18:32 +0000 (UTC)
-Subject: Re: [PATCH v7 26/28] NET: Add SO_PEERCONTEXT for multiple LSMs
+        id S2404864AbfHIAXa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Aug 2019 20:23:30 -0400
+Received: from sonic307-14.consmr.mail.gq1.yahoo.com ([98.137.64.38]:43277
+        "EHLO sonic307-14.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1732796AbfHIAX3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Aug 2019 20:23:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565310208; bh=TxaIzTTOINzBfu/ZfDmenWprGsW3n5SWJYXFfMGXGL4=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=pTp4KlKtcJRKMsZkdNGDO8KD304DVe55upxvaKH2RYU1SGOYpgPe1+s4hfQ8NMKE8IPax32u/kUIjfFoc34Mz7+HV4Zy3B+jLBrhi/vs+IRX0UaIYBgAl3jDRIoY2fn/awbofE0cZZuZgZ1Mo5za+Ji7n7Zb79WfLUzMZwAx4ZgkoAMvhtS7P7yGw4+0RXVdymqXRW66GK7EEWP2OMsi1goNhnvCzFaG1b0ljmgbpmelNy9ld0DxMUvaFyt02n07AWRbm3/ITmx7k+XOKck7YIc2buvcOktnoDXkfWWhD8wZjXbemSsrnlPVe99KYXju6LNcJXIFMQIQKfojDXsq1Q==
+X-YMail-OSG: kodAWQkVM1lPNwuRLgO4ezDJkfbSghWkS8OheOgFpsHqnuGQSAr0tlXPlDdtuve
+ heXhT_yGKSBa9keH4bE0SukA34wAv9hBWJdyfWx9mJ7FAWHaK4TUlRMxU5lQSHAW1owbHwDYkP_n
+ g9nYuxGYDyePb6QXROYtpSLdFGJDlpUfwAvgTtckiHoLQIwGrV99nhftX9QMwqiOl5HUCMSZ9M05
+ 4Q2tyxOn9B1VcfxXwt6SXOXL5biq2pY26yRQKlynWsU8Bu0hBAkG8EH5_GnmcGDY7yurMR6PrfTM
+ B2ZDxIUo7vMdUk9dpSyqYQdcxOiEGgGUjDqdJ8rQk0gDgtYg.skevrwDywhLF78lLnHkEB59Vwgm
+ J..a615xC0NBQshnLEr2j5EMT5J9AbGb3JMMHZGD07C7mzWuMOMxyZ4XmWZoCNbL4OSdimqtncD3
+ GBUBD9ZF5MDC48dO6glT.jO7HZrI3Wukk0QW8zpbAK3bYmBTIdF0ySIY38eg6yswX6G4jJzAyT4P
+ 5eaMnzfPOaFxLO_ghINwdRrup5OtG1tGnW6g3AhXDzuJBJ.mGgV7.FLOnnXf_u4p1zB281RdpSWl
+ 7M2N3Q3mLGvuYACT4eivPhC_.CPz6EXi2QuSHp0pU8uEVjvnJXLfGXAg0nStEEc8AkuaP17gkDvY
+ nEwBqUWouREsXQQiPeuyEcZJSICnpQ5..LPkAbxknyqjdUsYAJRAhUjUUKbXa9xZsmHaditB9knm
+ C9dW63_pptDRhSTQauCEyCPK_WZAcTfNmXhInnt1s4M__bJ6VTkDqHAceVGTtTC5EJFsDd4PE2mj
+ eMOgJemR8EJcTl1_TwRRfHGuf9ldS14brA_i8XcthfV2hk8WshpcQuAfNtkTeqMkLawGwZJa_nze
+ 8Ce0W3OysWjZmauQL690kTLVUctDxKb8bJD42SB6XZcdB8SWyt83joCxYSaqnx8w4BTJW41nCnR7
+ wqJmd0zZmWM66qoW10JjvnmAVMZDGmk5JRkFY.XRLQnAqi4xL8kJs_gSOnTRGAuoGh5bAk5wnM9W
+ xf_A.BJVsNXskUfEKzv1CJLn0DFJ1ZgWq6BucYNIZriLSn4Uk0KuA5TtYUVMoBkh7R6oV4crnrb5
+ am.oXniF.nAT.mlz9nyBFTP6FDoorzxteX7ZZ8RcBgKdDmQCRB9IJOZxkZqQsK8lVax3WgwbaH0N
+ 8VUZY49AGGWarDF74YfAlCHGkP80s18tghrhfiZYXDbp60NJwmc4aB1tUM90CP6jmf9HSR141DDy
+ fOngjIS5kmT9.EdmZG7HqRNXUQMrx7yxTchIvzL3PG7NXtOwBw9VILeDKdq478MzIM820
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.gq1.yahoo.com with HTTP; Fri, 9 Aug 2019 00:23:28 +0000
+Received: by smtp423.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 71b6034a051e31f8e2e3e0de02712cf0;
+          Fri, 09 Aug 2019 00:23:25 +0000 (UTC)
+Subject: Re: [PATCH v7 27/28] LSM: Add /proc attr entry for full LSM context
 To:     Kees Cook <keescook@chromium.org>
 Cc:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
 References: <20190807194410.9762-1-casey@schaufler-ca.com>
- <20190807194410.9762-27-casey@schaufler-ca.com>
- <201908081500.992E5330@keescook>
+ <20190807194410.9762-28-casey@schaufler-ca.com>
+ <201908081521.E0E7CC8F6@keescook>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -98,160 +98,85 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <9cfae450-6878-4666-1328-934ea07a8e56@schaufler-ca.com>
-Date:   Thu, 8 Aug 2019 17:18:34 -0700
+Message-ID: <8783e3b5-0f44-61b6-5bfd-fe7b8ec524b6@schaufler-ca.com>
+Date:   Thu, 8 Aug 2019 17:23:26 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <201908081500.992E5330@keescook>
+In-Reply-To: <201908081521.E0E7CC8F6@keescook>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/8/2019 3:21 PM, Kees Cook wrote:
-> On Wed, Aug 07, 2019 at 12:44:08PM -0700, Casey Schaufler wrote:
->> The getsockopt SO_PEERSEC provides the LSM based security
->> information for a single module, but for reasons of backward
->> compatibility cannot include the information for multiple
->> modules. A new option SO_PEERCONTEXT is added to report the
->> security "context" of multiple modules using a "compound" format
->>
->> 	lsm1\0value\0lsm2\0value\0
->>
->> This is expected to be used by system services, including dbus-daemon.=
-
->> The exact format of a compound context has been the subject of
->> considerable debate. This format was suggested by Simon McVittie,
->> a dbus maintainer with a significant stake in the format being
->> uasable.
+On 8/8/2019 3:22 PM, Kees Cook wrote:
+> On Wed, Aug 07, 2019 at 12:44:09PM -0700, Casey Schaufler wrote:
+>> Add an entry /proc/.../attr/context which displays the full
+>> process security "context" in compound format:'
+>> 	lsm1\0value\0lsm2\0value\0...
+>> This entry is not writable.
 >>
 >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 >> ---
->> [...]
+>>  fs/proc/base.c      |  1 +
+>>  security/security.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
+>>  2 files changed, 46 insertions(+)
+>>
+>> diff --git a/fs/proc/base.c b/fs/proc/base.c
+>> index 7bf70e041315..79600df5f7a2 100644
+>> --- a/fs/proc/base.c
+>> +++ b/fs/proc/base.c
+>> @@ -2619,6 +2619,7 @@ static const struct pid_entry attr_dir_stuff[] = {
+>>  	ATTR(NULL, "keycreate",		0666),
+>>  	ATTR(NULL, "sockcreate",	0666),
+>>  	ATTR(NULL, "display",		0666),
+>> +	ATTR(NULL, "context",		0666),
+>>  #ifdef CONFIG_SECURITY_SMACK
+>>  	DIR("smack",			0555,
+>>  	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
 >> diff --git a/security/security.c b/security/security.c
->> index 2f4a430a1126..0ea7ee27e331 100644
+>> index 0ea7ee27e331..e9f579483d12 100644
 >> --- a/security/security.c
 >> +++ b/security/security.c
->> @@ -2117,8 +2117,8 @@ int security_setprocattr(const char *lsm, const =
-char *name, void *value,
->>  	hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
->>  		if (lsm !=3D NULL && strcmp(lsm, hp->lsmid->lsm))
->>  			continue;
->> -		if (lsm =3D=3D NULL && *display !=3D LSMBLOB_INVALID &&
->> -		    *display !=3D hp->lsmid->slot)
->> +		if (lsm =3D=3D NULL && display !=3D NULL &&
->> +		    *display !=3D LSMBLOB_INVALID && *display !=3D hp->lsmid->slot)=
-
->>  			continue;
->>  		return hp->hook.setprocattr(name, value, size);
->>  	}
->> @@ -2342,17 +2342,91 @@ int security_sock_rcv_skb(struct sock *sk, str=
-uct sk_buff *skb)
->>  EXPORT_SYMBOL(security_sock_rcv_skb);
->> =20
->>  int security_socket_getpeersec_stream(struct socket *sock, char __use=
-r *optval,
->> -				      int __user *optlen, unsigned len)
->> +				      int __user *optlen, unsigned len,
->> +				      int display)
+>> @@ -2046,6 +2046,14 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+>>  				char **value)
 >>  {
->> -	int display =3D lsm_task_display(current);
 >>  	struct security_hook_list *hp;
->> +	char *final =3D NULL;
+>> +	char *final = NULL;
 >> +	char *cp;
 >> +	char *tp;
->> +	int rc =3D 0;
->> +	unsigned finallen =3D 0;
->> +	unsigned llen;
->> +	unsigned clen =3D 0;
->> +	unsigned tlen;
-> Please move the case-specific variables into the case scope, like (and
-> expand type names):
->
-> 	case LSMBLOB_COMPOUND: {
-> 		unsigned int clen ...;
-
-I've never been a fan of that style. I'll probably make the
-special cases into functions.
-
->
->> +
->> +	switch (display) {
->> +	case LSMBLOB_DISPLAY:
->> +		rc =3D -ENOPROTOOPT;
->> +		display =3D lsm_task_display(current);
->> +		hlist_for_each_entry(hp,
->> +				&security_hook_heads.socket_getpeersec_stream,
->> +				list)
->> +			if (display =3D=3D LSMBLOB_INVALID ||
->> +			    display =3D=3D hp->lsmid->slot) {
->> +				rc =3D hp->hook.socket_getpeersec_stream(sock,
->> +							&final, &finallen, len);
->> +				break;
->> +			}
->> +		break;
->> +	case LSMBLOB_COMPOUND:
->> +		/*
->> +		 * A compound context, in the form [lsm\0value\0]...
->> +		 */
->> +		hlist_for_each_entry(hp,
->> +				&security_hook_heads.socket_getpeersec_stream,
->> +				list) {
->> +			rc =3D hp->hook.socket_getpeersec_stream(sock, &cp, &clen,
->> +							       len);
-> Is passing "len" here useful at all? It's kind of a lie, but nothing
-> else wouldn't also be a lie. :)
-
-I could be reducing the value of len for each component gathered.
-It requires yet another temporary length variable, and exceeding the
-len passed has to get checked in here anyway. I may be able to make
-this more sensible.
-
->
->> +			if (rc =3D=3D -EINVAL || rc =3D=3D -ENOPROTOOPT) {
->> +				rc =3D 0;
+>> +	int rc = 0;
+>> +	int finallen = 0;
+>> +	int llen;
+>> +	int clen;
+>> +	int tlen;
+>>  	int display = lsm_task_display(current);
+>>  	int slot = 0;
+>>  
+>> @@ -2063,6 +2071,43 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+>>  		return -ENOMEM;
+>>  	}
+>>  
+>> +	if (!strcmp(name, "context")) {
+>> +		hlist_for_each_entry(hp, &security_hook_heads.getprocattr,
+>> +				     list) {
+>> +			rc = hp->hook.getprocattr(p, "current", &cp);
+>> +			if (rc == -EINVAL || rc == -ENOPROTOOPT)
 >> +				continue;
->> +			}
->> +			if (rc) {
+>> +			if (rc < 0) {
 >> +				kfree(final);
 >> +				return rc;
 >> +			}
->> +			/*
->> +			 * Don't propogate trailing nul bytes.
-> typo: propagate
-
-Not a typo, a spelling error. I'm real good at spelling errors.
-
->
->> +			 */
->> +			clen =3D strnlen(cp, clen) + 1;
->> +			llen =3D strlen(hp->lsmid->lsm) + 1;
->> +			tlen =3D llen + clen;
+>> +			llen = strlen(hp->lsmid->lsm) + 1;
+>> +			clen = strlen(cp) + 1;
+>> +			tlen = llen + clen;
 >> +			if (final)
->> +				tlen +=3D finallen;
-> You can drop the "if (final)" since finallen is initialized to 0.
-
-Right you are.
-
->
->> +			tp =3D kzalloc(tlen, GFP_KERNEL);
-> I'm not a huge fan of "c", "l", and "t" prefixes -- can you just make
-> these a little more self-documenting? cp and clen could be value and
-> value_len. llen could be lsm_name_len. tp and tlen could be tuple and
-> tuple_len. (And maybe final and finallen could be compound and
-> compound_len?)
-
-You didn't spend much time using TTY33s, did you? Or 80 column punch card=
-s
-where the last 8 are reserved for collation numbers, I'd bet. Kids. OK,
-I'll see what I can do since I will be fiddling about anyway.
-
->
->> +			if (tp =3D=3D NULL) {
+>> +				tlen += finallen;
+>> +			tp = kzalloc(tlen, GFP_KERNEL);
+>> +			if (tp == NULL) {
 >> +				kfree(cp);
 >> +				kfree(final);
 >> +				return -ENOMEM;
@@ -263,144 +188,25 @@ I'll see what I can do since I will be fiddling about anyway.
 >> +			kfree(cp);
 >> +			if (final)
 >> +				kfree(final);
-> Just kfree(final) is safe here -- kfree(NULL) is valid.
-
-Just so. At some point there was more in the if condition.
-
->
->> +			final =3D tp;
->> +			finallen =3D tlen;
+>> +			final = tp;
+>> +			finallen = tlen;
 >> +		}
->> +		if (final =3D=3D NULL)
+>> +		if (final == NULL)
 >> +			return -EINVAL;
->> +		break;
->> +	default:
->> +		return -EINVAL;
+>> +		*value = final;
+>> +		return finallen;
 >> +	}
->> =20
->> -	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_stre=
-am,
->> -			     list)
->> -		if (display =3D=3D LSMBLOB_INVALID || display =3D=3D hp->lsmid->slo=
-t)
->> -			return hp->hook.socket_getpeersec_stream(sock, optval,
->> -								 optlen, len);
->> -	return -ENOPROTOOPT;
->> +	if (finallen > len)
->> +		rc =3D -ERANGE;
->> +	else if (copy_to_user(optval, final, finallen))
->> +		rc =3D -EFAULT;
+> Instead of a copy-paste here, please add a helper for use in both
+> places...
+
+I added an append_ctx() helper in the "full" series. I can pull it
+back to here.
+
+>
 >> +
->> +	if (put_user(finallen, optlen))
->> +		rc =3D -EFAULT;
->> +
->> +	kfree(final);
->> +	return rc;
->>  }
-> Otherwise, looks good.
->
-> Reviewed-by: Kees Cook <keescook@chromium.org>
->
-> -Kees
->
->> =20
->>  int security_socket_getpeersec_dgram(struct socket *sock, struct sk_b=
-uff *skb,
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index fcad2e3432d2..5e7d61754798 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -4923,10 +4923,8 @@ static int selinux_socket_sock_rcv_skb(struct s=
-ock *sk, struct sk_buff *skb)
->>  	return err;
->>  }
->> =20
->> -static int selinux_socket_getpeersec_stream(struct socket *sock,
->> -					    char __user *optval,
->> -					    int __user *optlen,
->> -					    unsigned int len)
->> +static int selinux_socket_getpeersec_stream(struct socket *sock, char=
- **optval,
->> +					    int *optlen, unsigned int len)
->>  {
->>  	int err =3D 0;
->>  	char *scontext;
->> @@ -4946,18 +4944,12 @@ static int selinux_socket_getpeersec_stream(st=
-ruct socket *sock,
->>  	if (err)
->>  		return err;
->> =20
->> -	if (scontext_len > len) {
->> +	if (scontext_len > len)
->>  		err =3D -ERANGE;
->> -		goto out_len;
->> -	}
->> -
->> -	if (copy_to_user(optval, scontext, scontext_len))
->> -		err =3D -EFAULT;
->> +	else
->> +		*optval =3D scontext;
->> =20
->> -out_len:
->> -	if (put_user(scontext_len, optlen))
->> -		err =3D -EFAULT;
->> -	kfree(scontext);
->> +	*optlen =3D scontext_len;
->>  	return err;
->>  }
->> =20
->> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
->> index 7a30b8692b1e..40c75205a914 100644
->> --- a/security/smack/smack_lsm.c
->> +++ b/security/smack/smack_lsm.c
->> @@ -3919,28 +3919,29 @@ static int smack_socket_sock_rcv_skb(struct so=
-ck *sk, struct sk_buff *skb)
->>   *
->>   * returns zero on success, an error code otherwise
->>   */
->> -static int smack_socket_getpeersec_stream(struct socket *sock,
->> -					  char __user *optval,
->> -					  int __user *optlen, unsigned len)
->> +static int smack_socket_getpeersec_stream(struct socket *sock, char *=
-*optval,
->> +					  int *optlen, unsigned len)
->>  {
->> -	struct socket_smack *ssp;
->> -	char *rcp =3D "";
->> -	int slen =3D 1;
->> +	struct socket_smack *ssp =3D smack_sock(sock->sk);
->> +	char *rcp;
->> +	int slen;
->>  	int rc =3D 0;
->> =20
->> -	ssp =3D smack_sock(sock->sk);
->> -	if (ssp->smk_packet !=3D NULL) {
->> -		rcp =3D ssp->smk_packet->smk_known;
->> -		slen =3D strlen(rcp) + 1;
->> +	if (ssp->smk_packet =3D=3D NULL) {
->> +		*optlen =3D 0;
->> +		return -EINVAL;
->>  	}
->> =20
->> +	rcp =3D ssp->smk_packet->smk_known;
->> +	slen =3D strlen(rcp) + 1;
->>  	if (slen > len)
->>  		rc =3D -ERANGE;
->> -	else if (copy_to_user(optval, rcp, slen) !=3D 0)
->> -		rc =3D -EFAULT;
->> -
->> -	if (put_user(slen, optlen) !=3D 0)
->> -		rc =3D -EFAULT;
->> +	else {
->> +		*optval =3D kstrdup(rcp, GFP_KERNEL);
->> +		if (*optval =3D=3D NULL)
->> +			rc =3D -ENOMEM;
->> +	}
->> +	*optlen =3D slen;
->> =20
->>  	return rc;
->>  }
->> --=20
+>>  	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+>>  		if (lsm != NULL && strcmp(lsm, hp->lsmid->lsm))
+>>  			continue;
+>> -- 
 >> 2.20.1
 >>
-
