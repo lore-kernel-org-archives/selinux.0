@@ -2,161 +2,125 @@ Return-Path: <SRS0=nXDU=WF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF29EC31E40
-	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 16:43:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2AB4C31E40
+	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 16:56:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8831320B7C
-	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 16:43:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70CCE2086A
+	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 16:56:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TVc46H13"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="mPwFfaOb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406197AbfHIQnX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Aug 2019 12:43:23 -0400
-Received: from mail-yb1-f193.google.com ([209.85.219.193]:46986 "EHLO
-        mail-yb1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726261AbfHIQnX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Aug 2019 12:43:23 -0400
-Received: by mail-yb1-f193.google.com with SMTP id w196so7941303ybe.13;
-        Fri, 09 Aug 2019 09:43:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ee6sLT3QKOZ9HPHIVStB6Oq32MyzNxKnALFXSGrvSq8=;
-        b=TVc46H13EkACc3tRJRH6cBRCNVjYa2zB2vR159T3lp5a1c5olUpKlZnIBVNszXgoH1
-         4ZYzEqbf51kW6xTSVXjf7JFshEao6DydD6v4wZxngF1uvPtjQXNQMOVBZLBEiMxeSLau
-         hDXQqmkPTnFuZEwaZXzfFWhQfdcikA9mAgaYFLwvdykxKXrjT38hchsN1ZvScRI7A41Z
-         P1T6mxZFb6e/57eIJAg7SIwC4HVvhyTPbawIBCEmk9ff7DLLmJAady1ToLm9I7mmbgpq
-         kxma1KWCJkIGeLivc9Dq/zhamVaRBUDGvIlg8VVOQqmgE+/2vVR8puFkGJxMpl6LT07R
-         uXqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ee6sLT3QKOZ9HPHIVStB6Oq32MyzNxKnALFXSGrvSq8=;
-        b=ilKmT8Eimd75aULfsNj9ou5YEoBNW2P23zdsKDxla61bm/zUJmxrbgc9O8R92vU24X
-         EU6OY2++g8p1tu86QLb0jwB/0TgYKc/U92a5xOYGn7xcD+jwExcLsI9YF9nZpab23NLd
-         sSEdO8Xh8VOaAp9KdAyh2iUup4oD2Cd0H7mghMaIaTmgBp3Yjv8w/rSm437IfHVwTM/T
-         CHYsmTNTzSTkob6ygikMHldM8ZQJPudQ/KdJ0c40WQY8xYZ4ayM+EJhcJwq0KucmoSEp
-         nP+X4HUOCRuTi5BCd/WkMjcOa1Hlgvk0oHlF/DTDHOLgXv3L3x3+lk7L0oHh7pU85Tn4
-         uv0g==
-X-Gm-Message-State: APjAAAWzBgJdvoOq7c5D+kODTSsZjZL7gOqtg8JGHBUvusb2ZOJuZuNc
-        sUvZqKM7WpPl0n50YoRvBASchVe1zya4SNHe9r0=
-X-Google-Smtp-Source: APXvYqyWd8Bd2MlCSQQlILPFLseAUONgO+0QnP6HjK5IX+v5Uz2uOP3Djl3F53pUiWu2hsshGUt7B65HXUjxQqXWX6U=
-X-Received: by 2002:a25:d44c:: with SMTP id m73mr9201782ybf.126.1565369002163;
- Fri, 09 Aug 2019 09:43:22 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190731153443.4984-1-acgoide@tycho.nsa.gov> <CAHC9VhQUoDwBiLi+BiW=_Px18v3xMhhGYDD2mLdu9YZJDWw1yg@mail.gmail.com>
- <CAOQ4uxigYZunXgq0BubRFNM51Kh_g3wrtyNH77PozUX+3sM=aQ@mail.gmail.com> <e69f95ba-3da7-380a-ef14-cc866172d79a@tycho.nsa.gov>
-In-Reply-To: <e69f95ba-3da7-380a-ef14-cc866172d79a@tycho.nsa.gov>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Fri, 9 Aug 2019 19:43:09 +0300
-Message-ID: <CAOQ4uxh4+SDCF7HHwSxGFx01ZyJ43VSLhLM2dDFY2AQ0HkkuvA@mail.gmail.com>
-Subject: Re: [Non-DoD Source] Re: [PATCH] fanotify, inotify, dnotify,
- security: add security hook for fs notifications
-To:     Aaron Goidel <acgoide@tycho.nsa.gov>
-Cc:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        David Howells <dhowells@redhat.com>, Jan Kara <jack@suse.cz>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        linux-kernel <linux-kernel@vger.kernel.org>
+        id S2407499AbfHIQ4D (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Aug 2019 12:56:03 -0400
+Received: from mailomta21-re.btinternet.com ([213.120.69.114]:64563 "EHLO
+        re-prd-fep-045.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2407474AbfHIQ4C (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Aug 2019 12:56:02 -0400
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-045.btinternet.com with ESMTP
+          id <20190809165600.DTDQ6048.re-prd-fep-045.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Fri, 9 Aug 2019 17:56:00 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1565369760; 
+        bh=+CMFNPx0TyjdqAjXzCA6+DYOKDY2VoB1F5901qGxiwM=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=mPwFfaObIKKQyj10q7tib0aPECnaa+fd8BlmDbF8C5l7WWo3pcuZhSoYQojmP6uV4uq8oNxDM9210JI3o8ecoOjWjoE6PDTmdNjcvpbxnkFMstePJI0a5pAGRycAi3TRkiqgW7a7vN8sq7DcT2DHwL1Cc/nZOaR6dDIWQ4IwqTVi7QMpO/S2dat2En2ryQRjtweUhBRR1f87EMmMK6Kr2miboze4paYYaetA1V8nDzzR6UlQBKVc4mA8YZ0eog0W2sH30Gl3zStqrs+MqyCQOlLxf2Ll/zzxOZIv/cu49vrOBL8bHOasgrsR16h3X4wPYSZXxcEmvECWRQQgebLXiw==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.6.35]
+X-OWM-Source-IP: 86.134.6.35 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddruddujedguddtjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudefgedriedrfeehnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdeirdefhedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.6.35) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.335.01) (authenticated as richard_c_haines@btinternet.com)
+        id 5D3F9015013BC15C; Fri, 9 Aug 2019 17:56:00 +0100
+Message-ID: <5a668ff82b2d3786ec0b816f78fc058012ee470f.camel@btinternet.com>
+Subject: Re: [PATCH V2 1/2] selinux-testsuite: Add BPF tests
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org
+Date:   Fri, 09 Aug 2019 17:55:58 +0100
+In-Reply-To: <CAHC9VhS+76AW-qVO_DRGaGdVz25mX0hbiz1V2dGAX7mEyi3yXQ@mail.gmail.com>
+References: <20190801111232.5589-1-richard_c_haines@btinternet.com>
+         <CAHC9VhS+76AW-qVO_DRGaGdVz25mX0hbiz1V2dGAX7mEyi3yXQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-> >>> +       switch (flags & FANOTIFY_MARK_TYPE_BITS) {
-> >>> +       case FAN_MARK_MOUNT:
-> >>> +               obj_type = FSNOTIFY_OBJ_TYPE_VFSMOUNT;
-> >>> +               break;
-> >>> +       case FAN_MARK_FILESYSTEM:
-> >>> +               obj_type = FSNOTIFY_OBJ_TYPE_SB;
-> >>> +               break;
-> >>> +       case FAN_MARK_INODE:
-> >>> +               obj_type = FSNOTIFY_OBJ_TYPE_INODE;
-> >>> +               break;
-> >>> +       default:
-> >>> +               ret = -EINVAL;
-> >>> +               goto out;
-> >>> +       }
-> >
-> > Sorry, I just can't stand this extra switch statement here.
-> > Please initialize obj_type at the very first switch statement in
-> > do_fanotify_mark() and pass it to fanotify_find_path().
-> > Preferably also make it a helper that returns either
-> > valid obj_type or <0 for error.
-> >
-> >
-> I have no problem moving the initialization of obj_type up one level to
-> do_fanotify_mark(). I don't think that a helper is necessary at this
-> juncture as this logic seems to only exist in one place. Should this
-> change, then there would be merit to having a separate function.
+On Fri, 2019-08-09 at 11:22 -0400, Paul Moore wrote:
+> On Thu, Aug 1, 2019 at 7:12 AM Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > This adds basic BPF tests for map and prog functions.
+> > 
+> > The check-syntax script has been modified to exclude files listed
+> > in tools/chk_c_exclude. This is because of macros in bpf_common.c
+> > that get horribly reformatted by check-syntax.
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> > V2 Change - Split BPF code into bpf_common.c for others to use.
+> > 
+> >  README.md              |  4 +-
+> >  defconfig              |  5 +++
+> >  policy/Makefile        |  4 ++
+> >  policy/test_bpf.te     | 77 ++++++++++++++++++++++++++++++++
+> >  tests/Makefile         |  4 ++
+> >  tests/bpf/.gitignore   |  2 +
+> >  tests/bpf/Makefile     | 12 +++++
+> >  tests/bpf/bpf_common.c | 99
+> > ++++++++++++++++++++++++++++++++++++++++++
+> >  tests/bpf/bpf_test.c   | 83 +++++++++++++++++++++++++++++++++++
+> >  tests/bpf/test         | 57 ++++++++++++++++++++++++
+> >  tools/check-syntax     |  2 +-
+> >  tools/chk_c_exclude    |  1 +
+> >  12 files changed, 348 insertions(+), 2 deletions(-)
+> >  create mode 100644 policy/test_bpf.te
+> >  create mode 100644 tests/bpf/.gitignore
+> >  create mode 100644 tests/bpf/Makefile
+> >  create mode 100644 tests/bpf/bpf_common.c
+> >  create mode 100644 tests/bpf/bpf_test.c
+> >  create mode 100755 tests/bpf/test
+> >  create mode 100644 tools/chk_c_exclude
+> 
+> ...
+> 
+> > diff --git a/tools/check-syntax b/tools/check-syntax
+> > index 7f9768d..5b7c211 100755
+> > --- a/tools/check-syntax
+> > +++ b/tools/check-syntax
+> > @@ -11,7 +11,7 @@
+> >  #
+> > 
+> >  CHK_C_LIST="$(find tests/ -name "*.c") $(find tests/ -name "*.h")"
+> > -CHK_C_EXCLUDE=""
+> > +CHK_C_EXCLUDE="$(cat tools/chk_c_exclude)"
+> > 
+> >  CHK_PERL_LIST="$(find tests/ -name "*.pl") $(find tests/ -name
+> > "test")"
+> >  CHK_PERL_EXCLUDE=""
+> > diff --git a/tools/chk_c_exclude b/tools/chk_c_exclude
+> > new file mode 100644
+> > index 0000000..20facbf
+> > --- /dev/null
+> > +++ b/tools/chk_c_exclude
+> > @@ -0,0 +1 @@
+> > +tests/bpf/bpf_common.c
+> 
+> Why are we excluding bpf_common.c from the style checks?
 
-Ok.
+Because check-syntax reformats a macro and it is not neat and tidy said
+Mr Neat to Mr Tidy
+ 
+> 
 
-> >>> +
-> >>> +       ret = security_path_notify(path, mask, obj_type);
-> >>>          if (ret)
-> >>>                  path_put(path);
-> >
-> > It is probably best to mask out FANOTIFY_EVENT_FLAGS
-> > when calling the hook. Although FAN_EVENT_ON_CHILD
-> > and FAN_ONDIR do map to corresponding FS_ constants,
-> > the security hooks from dnotify and inotify do not pass these
-> > flags, so the security module cannot use them as reliable
-> > information, so it will have to assume that they have been
-> > requested anyway.
-> >
-> > Alternatively, make sure that dnotify/inotify security hooks
-> > always set these two flags, by fixing up and using the
-> > dnotify/inotify arg_to_mask conversion helpers before calling
-> > the security hook.
-> >
-> I think that at this point either approach you mentioned makes just as
-> much sense. If it's all the same to you, Amir, I'll just change the
-> caller in fanotify to include (mask) & ~(FANOTIFY_EVENT_FLAGS)
-
-On second look, let's go with (mask & ALL_FSNOTIFY_EVENTS)
-It seems simpler and more appropriate way to convert to FS_ flags.
-
-[...]
-> >>>
-> >>> -       ret = inotify_find_inode(pathname, &path, flags);
-> >>> +       ret = inotify_find_inode(pathname, &path, flags, mask);
-> >
-> > Please use (mask & IN_ALL_EVENTS) for converting to common FS_ flags
-> > or use the inotify_arg_to_mask() conversion helper, which contains more
-> > details irrelevant for the security hook.
-> > Otherwise mask may contain flags like IN_MASK_CREATE, which mean
-> > different things on different backends and the security module cannot tell
-> > the difference.
-> >
-> > Also note that at this point, before inotify_arg_to_mask(), the mask does
-> > not yet contain FS_EVENT_ON_CHILD, which could be interesting for
-> > the security hook (fanotify users can opt-in with FAN_EVENT_ON_CHILD).
-> > Not a big deal though as security hook can assume the worse
-> > (that events on child are requested).
-> >
-> I'll use (mask & IN_ALL_EVENTS).
-
-OK.
-
->
-> I can implement the changes in the ways I mentioned above. I don't see a
-> need for anything more in the cases you brought up since none of them
-> change the logic of the hook itself or would make a substantive
-> difference to the operation of the hook given its current implementation.
->
-
-Agree. If more flags are needed for LSMs they could be added later.
-
-Thanks,
-Amir.
