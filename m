@@ -2,56 +2,56 @@ Return-Path: <SRS0=nXDU=WF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC523C433FF
-	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 00:23:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A219DC0650F
+	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 00:56:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 73E16208C3
-	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 00:23:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6DCE3216C8
+	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 00:56:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="pTp4KlKt"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RsjUSps4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404864AbfHIAXa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 8 Aug 2019 20:23:30 -0400
-Received: from sonic307-14.consmr.mail.gq1.yahoo.com ([98.137.64.38]:43277
-        "EHLO sonic307-14.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1732796AbfHIAX3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 8 Aug 2019 20:23:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565310208; bh=TxaIzTTOINzBfu/ZfDmenWprGsW3n5SWJYXFfMGXGL4=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=pTp4KlKtcJRKMsZkdNGDO8KD304DVe55upxvaKH2RYU1SGOYpgPe1+s4hfQ8NMKE8IPax32u/kUIjfFoc34Mz7+HV4Zy3B+jLBrhi/vs+IRX0UaIYBgAl3jDRIoY2fn/awbofE0cZZuZgZ1Mo5za+Ji7n7Zb79WfLUzMZwAx4ZgkoAMvhtS7P7yGw4+0RXVdymqXRW66GK7EEWP2OMsi1goNhnvCzFaG1b0ljmgbpmelNy9ld0DxMUvaFyt02n07AWRbm3/ITmx7k+XOKck7YIc2buvcOktnoDXkfWWhD8wZjXbemSsrnlPVe99KYXju6LNcJXIFMQIQKfojDXsq1Q==
-X-YMail-OSG: kodAWQkVM1lPNwuRLgO4ezDJkfbSghWkS8OheOgFpsHqnuGQSAr0tlXPlDdtuve
- heXhT_yGKSBa9keH4bE0SukA34wAv9hBWJdyfWx9mJ7FAWHaK4TUlRMxU5lQSHAW1owbHwDYkP_n
- g9nYuxGYDyePb6QXROYtpSLdFGJDlpUfwAvgTtckiHoLQIwGrV99nhftX9QMwqiOl5HUCMSZ9M05
- 4Q2tyxOn9B1VcfxXwt6SXOXL5biq2pY26yRQKlynWsU8Bu0hBAkG8EH5_GnmcGDY7yurMR6PrfTM
- B2ZDxIUo7vMdUk9dpSyqYQdcxOiEGgGUjDqdJ8rQk0gDgtYg.skevrwDywhLF78lLnHkEB59Vwgm
- J..a615xC0NBQshnLEr2j5EMT5J9AbGb3JMMHZGD07C7mzWuMOMxyZ4XmWZoCNbL4OSdimqtncD3
- GBUBD9ZF5MDC48dO6glT.jO7HZrI3Wukk0QW8zpbAK3bYmBTIdF0ySIY38eg6yswX6G4jJzAyT4P
- 5eaMnzfPOaFxLO_ghINwdRrup5OtG1tGnW6g3AhXDzuJBJ.mGgV7.FLOnnXf_u4p1zB281RdpSWl
- 7M2N3Q3mLGvuYACT4eivPhC_.CPz6EXi2QuSHp0pU8uEVjvnJXLfGXAg0nStEEc8AkuaP17gkDvY
- nEwBqUWouREsXQQiPeuyEcZJSICnpQ5..LPkAbxknyqjdUsYAJRAhUjUUKbXa9xZsmHaditB9knm
- C9dW63_pptDRhSTQauCEyCPK_WZAcTfNmXhInnt1s4M__bJ6VTkDqHAceVGTtTC5EJFsDd4PE2mj
- eMOgJemR8EJcTl1_TwRRfHGuf9ldS14brA_i8XcthfV2hk8WshpcQuAfNtkTeqMkLawGwZJa_nze
- 8Ce0W3OysWjZmauQL690kTLVUctDxKb8bJD42SB6XZcdB8SWyt83joCxYSaqnx8w4BTJW41nCnR7
- wqJmd0zZmWM66qoW10JjvnmAVMZDGmk5JRkFY.XRLQnAqi4xL8kJs_gSOnTRGAuoGh5bAk5wnM9W
- xf_A.BJVsNXskUfEKzv1CJLn0DFJ1ZgWq6BucYNIZriLSn4Uk0KuA5TtYUVMoBkh7R6oV4crnrb5
- am.oXniF.nAT.mlz9nyBFTP6FDoorzxteX7ZZ8RcBgKdDmQCRB9IJOZxkZqQsK8lVax3WgwbaH0N
- 8VUZY49AGGWarDF74YfAlCHGkP80s18tghrhfiZYXDbp60NJwmc4aB1tUM90CP6jmf9HSR141DDy
- fOngjIS5kmT9.EdmZG7HqRNXUQMrx7yxTchIvzL3PG7NXtOwBw9VILeDKdq478MzIM820
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.gq1.yahoo.com with HTTP; Fri, 9 Aug 2019 00:23:28 +0000
-Received: by smtp423.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 71b6034a051e31f8e2e3e0de02712cf0;
-          Fri, 09 Aug 2019 00:23:25 +0000 (UTC)
-Subject: Re: [PATCH v7 27/28] LSM: Add /proc attr entry for full LSM context
+        id S2404787AbfHIA4q (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 8 Aug 2019 20:56:46 -0400
+Received: from sonic310-28.consmr.mail.gq1.yahoo.com ([98.137.69.154]:39348
+        "EHLO sonic310-28.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2404764AbfHIA4p (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 8 Aug 2019 20:56:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1565312204; bh=ZAqxTU1mVpN2DNfSunQYOqVdORCofONN2YGYiRZ/Rp4=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=RsjUSps4Rl58rP5a7dzJXyDKdBHQ2hb6Jre5l6pMWA9TxERvDwYNyDUlBrO5S7plMZfRXaGLPqGa/cWlBw+SemOgOKYwWojhmiOBVGE+i0R+a2HgGPQzGyab9cV9qPB4Z411oNgb5TRSD5ZaVH0OeswJg4NpkJeYmNR0DJ3lofeqi7136tmXp8lmLNxYNiLPT83pjaOHsVDR1bNHaSiX9PCJhlF7Ock79FVESmtBJEgYZd4DpjwgJuxgh7ncJjUGbXtJn6T9vrUjAHqL13z9Bj9ppDzdVdsypZmEgObQsYo5x/Z2AnGDnKUGPdelEGGmsxFjgmfpnphDrWlnCTHajw==
+X-YMail-OSG: qHR6PVsVM1l9NMKMbLgMQBOKvpgR4NiDjQo7.bgjUp.lz5kCLFFArFa_uAoUYkO
+ EdtvC1dVAs1DscUJtnsTosw4L6QX7OGRfdnFGtwumr.aVhsGJiV6DwvBsQ4eQ5oBMdAd9WCGlZAb
+ owcLQFhKgdQ1TBecd.BgIV3yYbPB0dUHYhDcA6PUj.e7Y15UcB2hH8jU4hZS6mAQe5auiEP5MAOK
+ 0tHeaFF_CN1CXifbju0kDpYPAxinoqx8Vr0FTKUu0_iNM4KV8CGzZ0iRnndVXgfcYhtTsBt6VkjW
+ dmB6ERecd2rcFQQXDsf7X5ecgCA6aUzcW9wMOgNsNn37L5hQUM5IL8zjC0.ZBSGLTuTkC0eLiVla
+ hgnRrnyt1yd6usuNWemBEEsEMI4wNl08sPRbIeCr74iqigWoljJGXwUAdJJHeciYJk5lAV_okcId
+ 2lx..dEnV7el2mlMFyCgEVWvq_uRtOhsW6O10wUBfliZqA5gV3q3dHBKFHArajYTQLZ4vWFbUIdL
+ wrqV7vP4HiE3o8Zb5f59op5B537WRYZuTnxXID5f_hKaln3rLHyabTiWUGvvVnBc0vpPnpCmUyIB
+ 4UZ.FEwwBKfNLF0sHkNNXw4a.3h_0XV7grpHGJ9z4Ov_JXoUNo8r3pOWBvVhm3I5FInZbau_Ly8L
+ AGYv47rLkbrvf30v_whgdlhHenTYv0tvxBqHJZbOhoSGUgRaGxH0kNNrAXM.tVHJLI8GJH.lxpqe
+ O6NDG480TfgHSihKcKL8Go2Xnf.6Pg1ejrMgBOfo79SW6zCtZuvJzQZZOxqoLYoQXDObEQFIZl6M
+ wcHX2Ke2gp3eltcWX3JKYTKeWtZPLsQcPTPei6lCxlrYliCa.dIUPkd7VzKxw6sXyT180HrtkCnB
+ fI5UiXax82zwOPFrBDK.vmcnOBx1fszF9zVlOeZap4fC9IGUYazDldAA.vMK2iNf0IRGYt0rWvR9
+ exmFdh7j3fo8GPN6UQRTxYaYwWZQAh3puc2851Q.Cn7mI8MajXmsH0SCvVFLY86nGWZrHVnxFjpM
+ rVn.eXVPQQyKRdkWJdvZLmGVi6X4KkFUoSFKgReu9iw3WjpPzQH9D.ky8AqO1NgAYPGY7ESB.hkr
+ SbokryZNfaNbsER2AYxhjd8vvmTRO0pV9qKGeXOmk2rdLToXPEnQLRa29BbKlCP8KUk40riFah3H
+ uY_LjGX0BpxykDuncKVKhyRSY3l0bhqUwPoFZxLMUyePVnXUDXi4DJTCj2ZUz7hMKcEaZRwvHgfC
+ is5Qto8eQnz4bIsxCmusRksluqqh3fEZJsmhAOWyjMtjU4JZ_tWPfRCK3zGEX7.hl
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.gq1.yahoo.com with HTTP; Fri, 9 Aug 2019 00:56:44 +0000
+Received: by smtp420.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID c42b56befc7a07ce75680b367cf34946;
+          Fri, 09 Aug 2019 00:56:42 +0000 (UTC)
+Subject: Re: [PATCH v7 22/28] SELinux: Verify LSM display sanity in binder
 To:     Kees Cook <keescook@chromium.org>
 Cc:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
 References: <20190807194410.9762-1-casey@schaufler-ca.com>
- <20190807194410.9762-28-casey@schaufler-ca.com>
- <201908081521.E0E7CC8F6@keescook>
+ <20190807194410.9762-23-casey@schaufler-ca.com>
+ <201908081454.FF7420D8D@keescook>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -98,115 +98,137 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <8783e3b5-0f44-61b6-5bfd-fe7b8ec524b6@schaufler-ca.com>
-Date:   Thu, 8 Aug 2019 17:23:26 -0700
+Message-ID: <3ab05d95-b60e-a915-ede5-68af9cf37b31@schaufler-ca.com>
+Date:   Thu, 8 Aug 2019 17:56:31 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <201908081521.E0E7CC8F6@keescook>
+In-Reply-To: <201908081454.FF7420D8D@keescook>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/8/2019 3:22 PM, Kees Cook wrote:
-> On Wed, Aug 07, 2019 at 12:44:09PM -0700, Casey Schaufler wrote:
->> Add an entry /proc/.../attr/context which displays the full
->> process security "context" in compound format:'
->> 	lsm1\0value\0lsm2\0value\0...
->> This entry is not writable.
+On 8/8/2019 2:55 PM, Kees Cook wrote:
+> On Wed, Aug 07, 2019 at 12:44:04PM -0700, Casey Schaufler wrote:
+>> Verify that the tasks on the ends of a binder transaction
+>> use LSM display values that don't cause SELinux contexts
+>> to be interpreted by another LSM or another LSM's context
+>> to be interpreted by SELinux. No judgement is made in cases
+>> that where SELinux contexts are not used in the binder
+>> transaction.
 >>
 >> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 >> ---
->>  fs/proc/base.c      |  1 +
->>  security/security.c | 45 +++++++++++++++++++++++++++++++++++++++++++++
->>  2 files changed, 46 insertions(+)
+>>  security/selinux/hooks.c | 34 ++++++++++++++++++++++++++++++++++
+>>  1 file changed, 34 insertions(+)
 >>
->> diff --git a/fs/proc/base.c b/fs/proc/base.c
->> index 7bf70e041315..79600df5f7a2 100644
->> --- a/fs/proc/base.c
->> +++ b/fs/proc/base.c
->> @@ -2619,6 +2619,7 @@ static const struct pid_entry attr_dir_stuff[] = {
->>  	ATTR(NULL, "keycreate",		0666),
->>  	ATTR(NULL, "sockcreate",	0666),
->>  	ATTR(NULL, "display",		0666),
->> +	ATTR(NULL, "context",		0666),
->>  #ifdef CONFIG_SECURITY_SMACK
->>  	DIR("smack",			0555,
->>  	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
->> diff --git a/security/security.c b/security/security.c
->> index 0ea7ee27e331..e9f579483d12 100644
->> --- a/security/security.c
->> +++ b/security/security.c
->> @@ -2046,6 +2046,14 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
->>  				char **value)
->>  {
->>  	struct security_hook_list *hp;
->> +	char *final = NULL;
->> +	char *cp;
->> +	char *tp;
->> +	int rc = 0;
->> +	int finallen = 0;
->> +	int llen;
->> +	int clen;
->> +	int tlen;
->>  	int display = lsm_task_display(current);
->>  	int slot = 0;
->>  
->> @@ -2063,6 +2071,43 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
->>  		return -ENOMEM;
->>  	}
->>  
->> +	if (!strcmp(name, "context")) {
->> +		hlist_for_each_entry(hp, &security_hook_heads.getprocattr,
->> +				     list) {
->> +			rc = hp->hook.getprocattr(p, "current", &cp);
->> +			if (rc == -EINVAL || rc == -ENOPROTOOPT)
->> +				continue;
->> +			if (rc < 0) {
->> +				kfree(final);
->> +				return rc;
->> +			}
->> +			llen = strlen(hp->lsmid->lsm) + 1;
->> +			clen = strlen(cp) + 1;
->> +			tlen = llen + clen;
->> +			if (final)
->> +				tlen += finallen;
->> +			tp = kzalloc(tlen, GFP_KERNEL);
->> +			if (tp == NULL) {
->> +				kfree(cp);
->> +				kfree(final);
->> +				return -ENOMEM;
->> +			}
->> +			if (final)
->> +				memcpy(tp, final, finallen);
->> +			memcpy(tp + finallen, hp->lsmid->lsm, llen);
->> +			memcpy(tp + finallen + llen, cp, clen);
->> +			kfree(cp);
->> +			if (final)
->> +				kfree(final);
->> +			final = tp;
->> +			finallen = tlen;
->> +		}
->> +		if (final == NULL)
->> +			return -EINVAL;
->> +		*value = final;
->> +		return finallen;
->> +	}
-> Instead of a copy-paste here, please add a helper for use in both
-> places...
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index 352be16a887d..fcad2e3432d2 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -2009,6 +2009,28 @@ static inline u32 open_file_to_av(struct file *=
+file)
+>>  	return av;
+>>  }
+>> =20
+>> +/*
+>> + * Verify that if the "display" LSM is SELinux for either task
+>> + * that it is for both tasks.
+>> + */
+>> +static inline bool compatible_task_displays(struct task_struct *here,=
 
-I added an append_ctx() helper in the "full" series. I can pull it
-back to here.
+>> +					    struct task_struct *there)
+>> +{
+>> +	int h =3D lsm_task_display(here);
+>> +	int t =3D lsm_task_display(there);
+>> +
+>> +	if (h =3D=3D t)
+>> +		return true;
+>> +
+>> +	/* unspecified is only ok if SELinux isn't going to be involved */
+>> +	if (selinux_lsmid.slot =3D=3D 0)
+>> +		return ((h =3D=3D 0 && t =3D=3D LSMBLOB_INVALID) ||
+>> +			(t =3D=3D 0 && h =3D=3D LSMBLOB_INVALID));
+> What is "0" here? Doesn't that just mean the first LSM. I though only -=
+1
+> had a special meaning (and had a #define name for it).
+
+I try not to write obscure code, but I seem to have done so here.
+
+The lsm in slot 0 (the first registered "display" lsm) will
+get used if the display value is LSMBLOB_INVALID. We've already
+checked to see if the display values are the same, and they're not.
+
+If selinux is in slot 0, one of the display values is 0 and the
+other is LSMBLOB_INVALID, the displays are compatible. Otherwise,
+they're not. If selinux is not in slot 0 and either of the displays
+slots is selinux's slot, it's not compatible.
+
+Simple, no?
+
+I'll have a go at making the code more obvious or, failing
+that, better documented.
 
 >
+> -Kees
+>
 >> +
->>  	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
->>  		if (lsm != NULL && strcmp(lsm, hp->lsmid->lsm))
->>  			continue;
->> -- 
+>> +	/* it's ok only if neither display is SELinux */
+>> +	return (h !=3D selinux_lsmid.slot && t !=3D selinux_lsmid.slot);
+>> +}
+>> +
+>>  /* Hook functions begin here. */
+>> =20
+>>  static int selinux_binder_set_context_mgr(struct task_struct *mgr)
+>> @@ -2016,6 +2038,9 @@ static int selinux_binder_set_context_mgr(struct=
+ task_struct *mgr)
+>>  	u32 mysid =3D current_sid();
+>>  	u32 mgrsid =3D task_sid(mgr);
+>> =20
+>> +	if (!compatible_task_displays(current, mgr))
+>> +		return -EINVAL;
+>> +
+>>  	return avc_has_perm(&selinux_state,
+>>  			    mysid, mgrsid, SECCLASS_BINDER,
+>>  			    BINDER__SET_CONTEXT_MGR, NULL);
+>> @@ -2029,6 +2054,9 @@ static int selinux_binder_transaction(struct tas=
+k_struct *from,
+>>  	u32 tosid =3D task_sid(to);
+>>  	int rc;
+>> =20
+>> +	if (!compatible_task_displays(from, to))
+>> +		return -EINVAL;
+>> +
+>>  	if (mysid !=3D fromsid) {
+>>  		rc =3D avc_has_perm(&selinux_state,
+>>  				  mysid, fromsid, SECCLASS_BINDER,
+>> @@ -2048,6 +2076,9 @@ static int selinux_binder_transfer_binder(struct=
+ task_struct *from,
+>>  	u32 fromsid =3D task_sid(from);
+>>  	u32 tosid =3D task_sid(to);
+>> =20
+>> +	if (!compatible_task_displays(from, to))
+>> +		return -EINVAL;
+>> +
+>>  	return avc_has_perm(&selinux_state,
+>>  			    fromsid, tosid, SECCLASS_BINDER, BINDER__TRANSFER,
+>>  			    NULL);
+>> @@ -2064,6 +2095,9 @@ static int selinux_binder_transfer_file(struct t=
+ask_struct *from,
+>>  	struct common_audit_data ad;
+>>  	int rc;
+>> =20
+>> +	if (!compatible_task_displays(from, to))
+>> +		return -EINVAL;
+>> +
+>>  	ad.type =3D LSM_AUDIT_DATA_PATH;
+>>  	ad.u.path =3D file->f_path;
+>> =20
+>> --=20
 >> 2.20.1
 >>
+
