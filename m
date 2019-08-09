@@ -2,61 +2,60 @@ Return-Path: <SRS0=nXDU=WF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 410C5C433FF
-	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 15:22:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74C1BC433FF
+	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 15:27:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 15CD020C01
-	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 15:22:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 369FC2086A
+	for <selinux@archiver.kernel.org>; Fri,  9 Aug 2019 15:27:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="GvVGDg6J"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="HnqjuGXa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407365AbfHIPWx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 9 Aug 2019 11:22:53 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:37522 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407329AbfHIPWx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 9 Aug 2019 11:22:53 -0400
-Received: by mail-lj1-f195.google.com with SMTP id z28so38222173ljn.4
-        for <selinux@vger.kernel.org>; Fri, 09 Aug 2019 08:22:51 -0700 (PDT)
+        id S2407342AbfHIP1s (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 9 Aug 2019 11:27:48 -0400
+Received: from mail-lf1-f45.google.com ([209.85.167.45]:36671 "EHLO
+        mail-lf1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726037AbfHIP1s (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 9 Aug 2019 11:27:48 -0400
+Received: by mail-lf1-f45.google.com with SMTP id j17so15787874lfp.3
+        for <selinux@vger.kernel.org>; Fri, 09 Aug 2019 08:27:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Jh6fzs0ikG2BlMAtozcducufBjiT5WvI3N4CmuMHhsg=;
-        b=GvVGDg6J/CLpTYR71Tg/s0OpycVpMoLFH7NmrXphH2GQeb6Dbu54kb/e3Ya3Zmqwdy
-         IYI2noOoC8tNWiEaVxNNw1VqIcJIxFuV9enFoT/6WvWXVhsmwRQgRdX+a+m4XiwScYI9
-         1bS/107V86j7QhXn5UhbxVwvmwl+9U7xONHX2tHeuBS9R1cCfU7pc0HOcTx5FDlQyZ0T
-         4w60yTDkjCkpGfQJqtq5B5EcJy9kwlV3b/s0JYe7Ze8x2Of4yMdW9MRVDTL6yqNuoget
-         TB8P+WkHKrPyEsRFh1CKJLm8XNezdQ55WiPc7UE1dhTh+RVUvxzg3GqomyU17oXR0ja7
-         yUbQ==
+        bh=63nF9E0JoauNflUf+1oyiGGf3j4Ef0o1wSxE7efMELg=;
+        b=HnqjuGXa/dRh7xqjfbfXOqKIBLqaTPWjwE33x6r/sO8XVojjudbtoweMlgjJdxmS0N
+         4ditulIIj+muxM3FJe8+UX1ignLGcGArxJIy+ejyrt2TC/FjW8fxo5dRQTo4E2Ak9nGE
+         4qt+Xl7Kdyxkwqx1s7DKo/vprTBDwEB/5SXvSTBAiiCgwxb73d0AEAeFyScygmBorKBY
+         ifgXW1ppJEb+6Lc6awVJFyUZJ9r8T1vDWeAPCkJGdnwN1r0zVPnl3ZHEJ3rgKxjLBZYx
+         W12ucdtpmPuw7vImUeIhKREFRj77fgzVXqCAmGN42u/otjrMgubvsFWfrh7ia38bUZi5
+         hssg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Jh6fzs0ikG2BlMAtozcducufBjiT5WvI3N4CmuMHhsg=;
-        b=mS9eRVsMf7xkD6ZSAuEp32hsDYFBZt+pinHx+UtnksCB5fVmKQsh45luOQ3a8TqUMi
-         AXAYrBH+1PpcjlYQ7pBM5iVtsKdMhdaXeKWk2V36SonK4I0A09zWc8diaN+lc0dWzLzP
-         a3Q8NTddZl4WTZ7AAJj4/lMJu0nUf4Nxe3zzZRmMM3QXM1u9z/ZSqwNPzW6aPgmv8IHz
-         e5/2WfBBFbZTtzs8NKFKV9uleSYe+wPAp9NYviVVLjeVUrKS800j10wk5VqSteB3YFyf
-         eEr8shOFP/IQHO55nE413z0sdTpbk/FbvHLLJt+7lX5i2dlAMX8HtcyG6RFihTyH1YQQ
-         f/rg==
-X-Gm-Message-State: APjAAAXO12bjXTxumGbfo2oZweZc+lXuZq6sdBpUXBJKZTPZ03zk5zCZ
-        PcSwOT7HwaQBiuqIS5XBbB6t3ZDFGtz1FE6llzJ0
-X-Google-Smtp-Source: APXvYqwBFkpJqHKwF8iqFvrO4kMnNF4S8wnrJxNHcFPkhkrrN6LjhEJK016hLciAhD/jltYDwhDTtL8iJ/mRida4I0I=
-X-Received: by 2002:a2e:834e:: with SMTP id l14mr7267230ljh.158.1565364170957;
- Fri, 09 Aug 2019 08:22:50 -0700 (PDT)
+        bh=63nF9E0JoauNflUf+1oyiGGf3j4Ef0o1wSxE7efMELg=;
+        b=BEXmjfNOSvMt7F2x5gy/1bD483xZf5MLx62li/tA2v1hahq5eXVoi4cgsKjcOSyLJQ
+         qKzkZwHqsxZB61mTNMYXoBDWAfPbj031Lpc0OB4DOTR/ofBZVBiJVihB2cUcujSuXvLl
+         2iCoFneFr6ocIFCzEf2isqxCLp4kfbAWCzxSF7w0GFK4WmfuUsGSoNErqOx1npUAuv3X
+         CXDHUOoyxCoqaLe5qE5e/0XPaMPBZaPwWi37/bpCinTOt99d8UoN4+oIjlID9jaJyAzE
+         oM8wwpaqguLGAYg43uuHdMmEfez7uH1OocIgEdA8sFqlPCL2u13CdhSe4+7wNqBVO0Sj
+         z/rw==
+X-Gm-Message-State: APjAAAUVYSNpc2g8D+am+Hwc5Sw6KXWDCwI3x9Jhu97istzoX6hfK77x
+        mbIAIshset/hd6zzf5Vo24PHCPl48PGk3TVnxOT3qtM=
+X-Google-Smtp-Source: APXvYqyvYp4RqC0agT+y6UYL3uyO1pHkelu7FHuF6GzTte6AzqBStWYisPzbtWnhjZqnr+YW2x4m6xV7SUX9GRkXkwk=
+X-Received: by 2002:a19:8093:: with SMTP id b141mr13270051lfd.137.1565364466236;
+ Fri, 09 Aug 2019 08:27:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190801111232.5589-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20190801111232.5589-1-richard_c_haines@btinternet.com>
+References: <20190801111212.5536-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20190801111212.5536-1-richard_c_haines@btinternet.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 9 Aug 2019 11:22:39 -0400
-Message-ID: <CAHC9VhS+76AW-qVO_DRGaGdVz25mX0hbiz1V2dGAX7mEyi3yXQ@mail.gmail.com>
-Subject: Re: [PATCH V2 1/2] selinux-testsuite: Add BPF tests
+Date:   Fri, 9 Aug 2019 11:27:35 -0400
+Message-ID: <CAHC9VhQzWUDuGdsDQ9VDrSbm6VvGGYoOz-dq3BVz_dE860WK3Q@mail.gmail.com>
+Subject: Re: [PATCH V2 0/2] selinux-testsuite: Add BPF tests
 To:     Richard Haines <richard_c_haines@btinternet.com>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
@@ -65,64 +64,29 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 1, 2019 at 7:12 AM Richard Haines
+On Thu, Aug 1, 2019 at 7:22 AM Richard Haines
 <richard_c_haines@btinternet.com> wrote:
+> Patch 1 Runs basic checks for BPF with map_create, map_read, map_write,
+> prog_load and prog_run permissions.
 >
-> This adds basic BPF tests for map and prog functions.
+> Patch 2 Updates fdreceive to test BPF security_file_receive() path using
+> the common BPF code in tests/bpf.
 >
-> The check-syntax script has been modified to exclude files listed
-> in tools/chk_c_exclude. This is because of macros in bpf_common.c
-> that get horribly reformatted by check-syntax.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> V2 Change - Split BPF code into bpf_common.c for others to use.
->
->  README.md              |  4 +-
->  defconfig              |  5 +++
->  policy/Makefile        |  4 ++
->  policy/test_bpf.te     | 77 ++++++++++++++++++++++++++++++++
->  tests/Makefile         |  4 ++
->  tests/bpf/.gitignore   |  2 +
->  tests/bpf/Makefile     | 12 +++++
->  tests/bpf/bpf_common.c | 99 ++++++++++++++++++++++++++++++++++++++++++
->  tests/bpf/bpf_test.c   | 83 +++++++++++++++++++++++++++++++++++
->  tests/bpf/test         | 57 ++++++++++++++++++++++++
->  tools/check-syntax     |  2 +-
->  tools/chk_c_exclude    |  1 +
->  12 files changed, 348 insertions(+), 2 deletions(-)
->  create mode 100644 policy/test_bpf.te
->  create mode 100644 tests/bpf/.gitignore
->  create mode 100644 tests/bpf/Makefile
->  create mode 100644 tests/bpf/bpf_common.c
->  create mode 100644 tests/bpf/bpf_test.c
->  create mode 100755 tests/bpf/test
->  create mode 100644 tools/chk_c_exclude
+> If these are okay, I'll do the binder BPF tests for the
+> security_binder_transfer_file() path.
 
-...
+Patch 1/2 seems to run fine on my test system, but I'm hitting some
+errors with patch 2/2 ... although they appear to be gone now that I
+run the test again to paste the error into my email :/
 
-> diff --git a/tools/check-syntax b/tools/check-syntax
-> index 7f9768d..5b7c211 100755
-> --- a/tools/check-syntax
-> +++ b/tools/check-syntax
-> @@ -11,7 +11,7 @@
->  #
->
->  CHK_C_LIST="$(find tests/ -name "*.c") $(find tests/ -name "*.h")"
-> -CHK_C_EXCLUDE=""
-> +CHK_C_EXCLUDE="$(cat tools/chk_c_exclude)"
->
->  CHK_PERL_LIST="$(find tests/ -name "*.pl") $(find tests/ -name "test")"
->  CHK_PERL_EXCLUDE=""
-> diff --git a/tools/chk_c_exclude b/tools/chk_c_exclude
-> new file mode 100644
-> index 0000000..20facbf
-> --- /dev/null
-> +++ b/tools/chk_c_exclude
-> @@ -0,0 +1 @@
-> +tests/bpf/bpf_common.c
+I'm about to leave for the weekend, and while I have access to email,
+I don't plan to do much debugging while away ;)  I'll take a closer
+look next week.
 
-Why are we excluding bpf_common.c from the style checks?
+> Are there any other SELinux BPF areas that need testing ??
+
+I would say as long as you exercise the SELinux BPF access controls we
+should be good.  Thanks for helping with the tests!
 
 -- 
 paul moore
