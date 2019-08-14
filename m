@@ -2,50 +2,51 @@ Return-Path: <SRS0=pl+I=WK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA188C433FF
-	for <selinux@archiver.kernel.org>; Wed, 14 Aug 2019 09:22:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC659C32753
+	for <selinux@archiver.kernel.org>; Wed, 14 Aug 2019 13:33:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 97E4D2083B
-	for <selinux@archiver.kernel.org>; Wed, 14 Aug 2019 09:22:13 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="CdypWPmP"
+	by mail.kernel.org (Postfix) with ESMTP id C0D112083B
+	for <selinux@archiver.kernel.org>; Wed, 14 Aug 2019 13:33:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725955AbfHNJWN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 14 Aug 2019 05:22:13 -0400
-Received: from mailomta20-re.btinternet.com ([213.120.69.113]:22723 "EHLO
-        re-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726019AbfHNJWM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 14 Aug 2019 05:22:12 -0400
-Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
-          by re-prd-fep-044.btinternet.com with ESMTP
-          id <20190814092207.OJIY3723.re-prd-fep-044.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Wed, 14 Aug 2019 10:22:07 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1565774527; 
-        bh=Q5JwdMsFV/94fPpujogCDuDCoz0QoMxzddZ6Hy8tHdo=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=CdypWPmPP/voiBn0GcnSVyDpYuA+ohK16Tp1qOaskTTg2FdpifsKFFue0hdNi7FYh/XaAf+boSqmQKOQEOK9ub3FwDFHn0d1YjQeYJ+Ef/MHlAujOz5ywavn+HPiAFXSmZfRXyfHYMOY09tr8xadwWTZkzzzc1CnPUrJRRqtpdAU6ukeb9mqmAzG7kN+KqzwRsTX3c206+CoaqWEq4kalPK4EOwL1aTruEzOh9g71h3tnqTIB8WDkWXytBDb61NXaehmP69d4NjPH0WQuX/MklBOgdYgFjhx9zS1jwUiglmQIcRuIbgw/qpicTgMGSS8uEfMeb+e6wWqYRy8yVrEmg==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [86.134.7.87]
-X-OWM-Source-IP: 86.134.7.87 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddruddvkedgudduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddufeegrdejrdekjeenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudefgedrjedrkeejpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (86.134.7.87) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.335.01) (authenticated as richard_c_haines@btinternet.com)
-        id 5D3F8DB101DEF9BA; Wed, 14 Aug 2019 10:22:07 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org, paul@paul-moore.com
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V3 2/2] selinux-testsuite: Add BPF support to fdreceive test
-Date:   Wed, 14 Aug 2019 10:22:04 +0100
-Message-Id: <20190814092204.3943-1-richard_c_haines@btinternet.com>
+        id S1726951AbfHNNdZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 14 Aug 2019 09:33:25 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:54334 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728181AbfHNNdZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 14 Aug 2019 09:33:25 -0400
+Received: by mail-wm1-f65.google.com with SMTP id p74so4622932wme.4
+        for <selinux@vger.kernel.org>; Wed, 14 Aug 2019 06:33:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=2P45VgaeKFL7ns9duqFh90wO1EP3x5X4uRcvxsvMqR0=;
+        b=YmFxuuUKvJjDjtIdzaiqPMFugbuzK3auRVFySU8MeixOkY00AQzD8iIUEEsP2Gh7RJ
+         1/oiYQQ0oAgFTuBM2HP0p0Xg2BBSmPlzOCiWft2oSrtW80mHkM+nqF4cXG8uO38+gGYu
+         lcmiawe7izebEp+fBGwPXPI6xZdxoK6CztyOt1foy3mqIyXrjps8RgDKc3Y5GviXIUFg
+         2rRdulC2fr2D/aIazFs5YDWqVUgIh/tkG4YCws3hI9ZevzT8qVYHiJOQqlZ/X7i8joL/
+         XhigI4G+NgQiYVUVhOkDvSScRNs9I0ChUO2stIUnrPcbxXKDnoFLN32gkAq7Mh+nqED6
+         tj/Q==
+X-Gm-Message-State: APjAAAU4UocK/q58LjddAGggS86j8CwB8V3tVR5Z61zZQoXrlQwMXB/S
+        CUTdpgoeg/Ee8kLz261o6jlkrXktc7A=
+X-Google-Smtp-Source: APXvYqzZJo1sTvXtf9fr0FnwWtK72932t+1B8K6hL51b5MM1Z4Xq3uqH5F4YThGGSr2bfZDwuy/hgA==
+X-Received: by 2002:a1c:c00e:: with SMTP id q14mr8705853wmf.142.1565789602992;
+        Wed, 14 Aug 2019 06:33:22 -0700 (PDT)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id c1sm3253740wmc.40.2019.08.14.06.33.21
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 14 Aug 2019 06:33:22 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Jann Horn <jannh@google.com>, NitinGote <nitin.r.gote@intel.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH v2] selinux: avoid atomic_t usage in sidtab
+Date:   Wed, 14 Aug 2019 15:33:20 +0200
+Message-Id: <20190814133320.28516-1-omosnace@redhat.com>
 X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -54,312 +55,226 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add BPF map & prog functions to test fdreceive security_file_receive path()
+As noted in Documentation/atomic_t.txt, if we don't need the RMW atomic
+operations, we should only use READ_ONCE()/WRITE_ONCE() +
+smp_rmb()/smp_wmb() where necessary (or the combined variants
+smp_load_acquire()/smp_store_release()).
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+This patch converts the sidtab code to use regular u32 for the counter
+and reverse lookup cache and use the appropriate operations instead of
+atomic_get()/atomic_set(). Note that when reading/updating the reverse
+lookup cache we don't need memory barriers as it doesn't need to be
+consistent or accurate. We can now also replace some atomic ops with
+regular loads (when under spinlock) and stores (for conversion target
+fields that are always accessed under the master table's spinlock).
+
+We can now also bump SIDTAB_MAX to U32_MAX as we can use the full u32
+range again.
+
+Suggested-by: Jann Horn <jannh@google.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Reviewed-by: Jann Horn <jannh@google.com>
 ---
-V2 Change - Added to use tests/bpf/bpf_common.c for BPF tests.
-V3 Changes - Run tests under tests/bpf not tests/fdreceive, fix typos.
 
- policy/Makefile              |  2 +-
- policy/test_fdreceive_bpf.te | 60 ++++++++++++++++++++++++++++++
- tests/bpf/Makefile           |  4 ++
- tests/bpf/test               | 44 +++++++++++++++++++++-
- tests/fdreceive/Makefile     | 18 ++++++++-
- tests/fdreceive/client.c     | 72 +++++++++++++++++++++++++++++++-----
- 6 files changed, 186 insertions(+), 14 deletions(-)
- create mode 100644 policy/test_fdreceive_bpf.te
+v2: Added comments detailing access semantics of sidtab fields.
 
-diff --git a/policy/Makefile b/policy/Makefile
-index 16a4469..4ca5486 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -72,7 +72,7 @@ TARGETS += test_sctp.te
- endif
+ security/selinux/ss/sidtab.c | 48 ++++++++++++++++--------------------
+ security/selinux/ss/sidtab.h | 19 ++++++++++----
+ 2 files changed, 35 insertions(+), 32 deletions(-)
+
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index 1f0a6eaa2d6a..7d49994e8d5f 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -12,7 +12,7 @@
+ #include <linux/slab.h>
+ #include <linux/sched.h>
+ #include <linux/spinlock.h>
+-#include <linux/atomic.h>
++#include <asm/barrier.h>
+ #include "flask.h"
+ #include "security.h"
+ #include "sidtab.h"
+@@ -23,14 +23,14 @@ int sidtab_init(struct sidtab *s)
  
- ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && echo true),true)
--TARGETS += test_bpf.te
-+TARGETS += test_bpf.te test_fdreceive_bpf.te
- endif
+ 	memset(s->roots, 0, sizeof(s->roots));
  
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
-diff --git a/policy/test_fdreceive_bpf.te b/policy/test_fdreceive_bpf.te
-new file mode 100644
-index 0000000..653f88d
---- /dev/null
-+++ b/policy/test_fdreceive_bpf.te
-@@ -0,0 +1,60 @@
-+#################################
-+#
-+# Policy for testing BPF file descriptor transfer via socket IPC
-+#
-+
-+attribute fdreceivebpfdomain;
-+
-+# Domain for bpf client process.
-+type test_fdreceive_bpf_client_t;
-+domain_type(test_fdreceive_bpf_client_t)
-+unconfined_runs_test(test_fdreceive_bpf_client_t)
-+typeattribute test_fdreceive_bpf_client_t fdreceivebpfdomain;
-+typeattribute test_fdreceive_bpf_client_t testdomain;
-+allow test_fdreceive_bpf_client_t test_fdreceive_file_t:file { rw_file_perms };
-+allow test_fdreceive_bpf_client_t test_file_t:sock_file { rw_sock_file_perms };
-+allow test_fdreceive_bpf_client_t test_fdreceive_server_t:unix_stream_socket { connectto };
-+allow test_fdreceive_bpf_client_t self:bpf { map_create map_read map_write prog_load prog_run };
-+allow test_fdreceive_bpf_client_t self:capability { sys_admin sys_resource };
-+allow test_fdreceive_bpf_client_t self:process { setrlimit };
-+# Server side rules:
-+allow test_fdreceive_server_t test_fdreceive_bpf_client_t:fd { use };
-+allow test_fdreceive_server_t test_fdreceive_bpf_client_t:bpf { map_read map_write };
-+allow test_fdreceive_server_t test_fdreceive_bpf_client_t:bpf { prog_run} ;
-+
-+# Domain for bpf client2 process - Removes BPF prog_run perm from server.
-+# Tests security_file_receive flow.
-+type test_fdreceive_bpf_client2_t;
-+domain_type(test_fdreceive_bpf_client2_t)
-+unconfined_runs_test(test_fdreceive_bpf_client2_t)
-+typeattribute test_fdreceive_bpf_client2_t fdreceivebpfdomain;
-+typeattribute test_fdreceive_bpf_client2_t testdomain;
-+allow test_fdreceive_bpf_client2_t test_fdreceive_file_t:file { rw_file_perms };
-+allow test_fdreceive_bpf_client2_t test_file_t:sock_file { rw_sock_file_perms };
-+allow test_fdreceive_bpf_client2_t test_fdreceive_server_t:unix_stream_socket { connectto };
-+allow test_fdreceive_bpf_client2_t self:bpf { prog_load prog_run };
-+allow test_fdreceive_bpf_client2_t self:capability { sys_admin sys_resource };
-+allow test_fdreceive_bpf_client2_t self:process { setrlimit };
-+# Server side rules:
-+allow test_fdreceive_server_t test_fdreceive_bpf_client2_t:fd { use };
-+
-+# Domain for bpf client3 process - Removes BPF map_read perm from server.
-+# Tests security_file_receive flow.
-+type test_fdreceive_bpf_client3_t;
-+domain_type(test_fdreceive_bpf_client3_t)
-+unconfined_runs_test(test_fdreceive_bpf_client3_t)
-+typeattribute test_fdreceive_bpf_client3_t fdreceivebpfdomain;
-+typeattribute test_fdreceive_bpf_client3_t testdomain;
-+allow test_fdreceive_bpf_client3_t test_fdreceive_file_t:file { rw_file_perms };
-+allow test_fdreceive_bpf_client3_t test_file_t:sock_file { rw_sock_file_perms };
-+allow test_fdreceive_bpf_client3_t test_fdreceive_server_t:unix_stream_socket { connectto };
-+allow test_fdreceive_bpf_client3_t self:bpf { map_create map_read map_write };
-+allow test_fdreceive_bpf_client3_t self:capability { sys_admin sys_resource };
-+allow test_fdreceive_bpf_client3_t self:process { setrlimit };
-+# Server side rules:
-+allow test_fdreceive_server_t test_fdreceive_bpf_client3_t:fd { use };
-+allow test_fdreceive_server_t test_fdreceive_bpf_client3_t:bpf { map_write };
-+
-+# Allow all of these domains to be entered from the sysadm domain.
-+miscfiles_domain_entry_test_files(fdreceivebpfdomain)
-+userdom_sysadm_entry_spec_domtrans_to(fdreceivebpfdomain)
-diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
-index 78ae9db..5149d76 100644
---- a/tests/bpf/Makefile
-+++ b/tests/bpf/Makefile
-@@ -4,9 +4,13 @@ DEPS = bpf_common.c
- LDLIBS += -lselinux -lbpf
- CFLAGS += -DHAVE_BPF
++	/* max count is SIDTAB_MAX so valid index is always < SIDTAB_MAX */
+ 	for (i = 0; i < SIDTAB_RCACHE_SIZE; i++)
+-		atomic_set(&s->rcache[i], -1);
++		s->rcache[i] = SIDTAB_MAX;
  
-+BPF_ENABLED = ../fdreceive
-+
- all: $(TARGETS)
-+	@set -e; for i in $(BPF_ENABLED); do $(MAKE) -C $$i all ; done
+ 	for (i = 0; i < SECINITSID_NUM; i++)
+ 		s->isids[i].set = 0;
  
- clean:
- 	rm -f $(TARGETS)
-+	@set -e; for i in $(BPF_ENABLED); do $(MAKE) -C $$i clean ; done
+-	atomic_set(&s->count, 0);
+-
++	s->count = 0;
+ 	s->convert = NULL;
  
- $(TARGETS): $(DEPS)
-diff --git a/tests/bpf/test b/tests/bpf/test
-index 1d41d72..5cc1249 100755
---- a/tests/bpf/test
-+++ b/tests/bpf/test
-@@ -4,6 +4,7 @@ use Test::More;
- BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
-+    $fdr_basedir = "$basedir/../fdreceive/";
+ 	spin_lock_init(&s->lock);
+@@ -130,14 +130,12 @@ static struct context *sidtab_do_lookup(struct sidtab *s, u32 index, int alloc)
  
-     # allow info to be shown during tests
-     $v = $ARGV[0];
-@@ -16,7 +17,7 @@ BEGIN {
-         $v = " ";
-     }
+ static struct context *sidtab_lookup(struct sidtab *s, u32 index)
+ {
+-	u32 count = (u32)atomic_read(&s->count);
++	/* read entries only after reading count */
++	u32 count = smp_load_acquire(&s->count);
  
--    plan tests => 7;
-+    plan tests => 11;
+ 	if (index >= count)
+ 		return NULL;
+ 
+-	/* read entries after reading count */
+-	smp_rmb();
+-
+ 	return sidtab_do_lookup(s, index, 0);
  }
  
- #
-@@ -55,4 +56,45 @@ $result =
-   system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p $v 2>&1";
- ok( $result >> 8 eq 2 );
- 
-+#
-+################ BPF Tests for fdreceive #######################
-+#
-+# Remove any leftover test file from prior failed runs.
-+system("rm -rf $basedir/test_sock");
-+
-+# Start server process in test_fdreceive_server_t.
-+system("mkfifo $basedir/flag");
-+if ( ( $pid = fork() ) == 0 ) {
-+    exec
-+"runcon -t test_fdreceive_server_t $fdr_basedir/server $basedir/flag $basedir/test_sock";
-+}
-+
-+# Wait for it to initialize.
-+system("read -t 5 <>$basedir/flag");
-+
-+# Test BPF map & prog fd on transfer:
-+$result = system
-+"runcon -t test_fdreceive_bpf_client_t -- $fdr_basedir/client -m $basedir/test_sock";
-+ok( $result eq 0 );
-+
-+$result = system
-+"runcon -t test_fdreceive_bpf_client_t -- $fdr_basedir/client -p $basedir/test_sock";
-+ok( $result eq 0 );
-+
-+# Remove BPF prog_run permission from server:
-+$result = system
-+"runcon -t test_fdreceive_bpf_client2_t -- $fdr_basedir/client -p $basedir/test_sock";
-+ok($result);
-+
-+# Remove BPF map_read permission from server:
-+$result = system
-+"runcon -t test_fdreceive_bpf_client3_t -- $fdr_basedir/client -m $basedir/test_sock";
-+ok($result);
-+
-+# Kill the server.
-+kill KILL, $pid;
-+
-+# Clean up.
-+system "rm -rf $basedir/test_sock $basedir/flag";
-+
- exit;
-diff --git a/tests/fdreceive/Makefile b/tests/fdreceive/Makefile
-index bc33f1b..7afe230 100644
---- a/tests/fdreceive/Makefile
-+++ b/tests/fdreceive/Makefile
-@@ -1,3 +1,17 @@
--all: client server
-+# Required for local building
-+INCLUDEDIR ?= /usr/include
-+
-+TARGETS = client server
-+DEPS = ../bpf/bpf_common.c
-+
-+ifeq ($(shell test -e $(INCLUDEDIR)/bpf/bpf.h && echo true),true)
-+	CFLAGS += -DHAVE_BPF
-+	LDLIBS += -lbpf
-+endif
-+
-+all: $(TARGETS)
-+
- clean:
--	rm -f client server
-+	rm -f $(TARGETS)
-+
-+client: $(DEPS)
-diff --git a/tests/fdreceive/client.c b/tests/fdreceive/client.c
-index de40bc7..e330afc 100644
---- a/tests/fdreceive/client.c
-+++ b/tests/fdreceive/client.c
-@@ -8,11 +8,28 @@
- #include <stdio.h>
- #include <stdlib.h>
- 
-+int create_bpf_map(void);
-+int create_bpf_prog(void);
-+void bpf_setrlimit(void);
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-m|-p] [file] addr\n"
-+		"\nWhere:\n\t"
-+		"-m    Create BPF map fd\n\t"
-+		"-p    Create BPF prog fd\n\t"
-+		"   If -m or -p not supplied, create a file fd using:\n\t"
-+		"file  Test file fd sent to server\n\t"
-+		"addr  Servers address\n", progname);
-+	exit(-1);
-+}
-+
- int main(int argc, char **argv)
+@@ -210,10 +208,10 @@ static int sidtab_find_context(union sidtab_entry_inner entry,
+ static void sidtab_rcache_update(struct sidtab *s, u32 index, u32 pos)
  {
- 	struct sockaddr_un sun;
--	char buf[1024];
--	int s, sunlen, ret, buflen;
-+	char buf[1024], *addr = NULL;
-+	int opt, s, sunlen, ret, buflen, bpf_fd_type;
- 	struct msghdr msg = { 0 };
- 	struct iovec iov;
- 	struct cmsghdr *cmsg;
-@@ -20,15 +37,49 @@ int main(int argc, char **argv)
- 	char cmsgbuf[CMSG_SPACE(sizeof myfd)];
- 	int *fdptr;
+ 	while (pos > 0) {
+-		atomic_set(&s->rcache[pos], atomic_read(&s->rcache[pos - 1]));
++		WRITE_ONCE(s->rcache[pos], READ_ONCE(s->rcache[pos - 1]));
+ 		--pos;
+ 	}
+-	atomic_set(&s->rcache[0], (int)index);
++	WRITE_ONCE(s->rcache[0], index);
+ }
  
--	if (argc != 3) {
--		fprintf(stderr, "usage:  %s testfile address\n", argv[0]);
--		exit(-1);
-+	bpf_fd_type = 0;
-+
-+	while ((opt = getopt(argc, argv, "mp")) != -1) {
-+		switch (opt) {
-+		case 'm':
-+			bpf_fd_type = 1;
-+			break;
-+		case 'p':
-+			bpf_fd_type = 2;
-+			break;
-+		}
+ static void sidtab_rcache_push(struct sidtab *s, u32 index)
+@@ -227,14 +225,14 @@ static int sidtab_rcache_search(struct sidtab *s, struct context *context,
+ 	u32 i;
+ 
+ 	for (i = 0; i < SIDTAB_RCACHE_SIZE; i++) {
+-		int v = atomic_read(&s->rcache[i]);
++		u32 v = READ_ONCE(s->rcache[i]);
+ 
+-		if (v < 0)
++		if (v >= SIDTAB_MAX)
+ 			continue;
+ 
+-		if (context_cmp(sidtab_do_lookup(s, (u32)v, 0), context)) {
+-			sidtab_rcache_update(s, (u32)v, i);
+-			*index = (u32)v;
++		if (context_cmp(sidtab_do_lookup(s, v, 0), context)) {
++			sidtab_rcache_update(s, v, i);
++			*index = v;
+ 			return 0;
+ 		}
+ 	}
+@@ -245,8 +243,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+ 				 u32 *index)
+ {
+ 	unsigned long flags;
+-	u32 count = (u32)atomic_read(&s->count);
+-	u32 count_locked, level, pos;
++	u32 count, count_locked, level, pos;
+ 	struct sidtab_convert_params *convert;
+ 	struct context *dst, *dst_convert;
+ 	int rc;
+@@ -255,11 +252,10 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+ 	if (rc == 0)
+ 		return 0;
+ 
++	/* read entries only after reading count */
++	count = smp_load_acquire(&s->count);
+ 	level = sidtab_level_from_count(count);
+ 
+-	/* read entries after reading count */
+-	smp_rmb();
+-
+ 	pos = 0;
+ 	rc = sidtab_find_context(s->roots[level], &pos, count, level,
+ 				 context, index);
+@@ -272,7 +268,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+ 	spin_lock_irqsave(&s->lock, flags);
+ 
+ 	convert = s->convert;
+-	count_locked = (u32)atomic_read(&s->count);
++	count_locked = s->count;
+ 	level = sidtab_level_from_count(count_locked);
+ 
+ 	/* if count has changed before we acquired the lock, then catch up */
+@@ -320,7 +316,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+ 		}
+ 
+ 		/* at this point we know the insert won't fail */
+-		atomic_set(&convert->target->count, count + 1);
++		convert->target->count = count + 1;
  	}
  
--	myfd = open(argv[1], O_RDWR);
--	if (myfd < 0) {
--		perror(argv[1]);
--		exit(-1);
-+	if ((bpf_fd_type == 0 && (argc - optind) != 2) ||
-+	    (bpf_fd_type > 0 && (argc - optind) != 1))
-+		usage(argv[0]);
-+
-+	switch (bpf_fd_type) {
-+	case 0:
-+		myfd = open(argv[optind], O_RDWR);
-+		if (myfd < 0) {
-+			perror(argv[optind]);
-+			exit(-1);
-+		}
-+
-+		addr = argv[optind + 1];
-+		printf("client: Using a file fd\n");
-+		break;
-+	case 1:
-+		/* If BPF enabled, then need to set limits */
-+		bpf_setrlimit();
-+		myfd = create_bpf_map();
-+		addr = argv[optind];
-+		printf("client: Using a BPF map fd\n");
-+		break;
-+	case 2:
-+		bpf_setrlimit();
-+		myfd = create_bpf_prog();
-+		addr = argv[optind];
-+		printf("client: Using a BPF prog fd\n");
-+		break;
-+	default:
-+		usage(argv[0]);
+ 	if (context->len)
+@@ -331,9 +327,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+ 	*index = count;
+ 
+ 	/* write entries before writing new count */
+-	smp_wmb();
+-
+-	atomic_set(&s->count, count + 1);
++	smp_store_release(&s->count, count + 1);
+ 
+ 	rc = 0;
+ out_unlock:
+@@ -423,7 +417,7 @@ int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params)
+ 		return -EBUSY;
  	}
  
- 	s = socket(AF_UNIX, SOCK_STREAM, 0);
-@@ -38,7 +89,8 @@ int main(int argc, char **argv)
+-	count = (u32)atomic_read(&s->count);
++	count = s->count;
+ 	level = sidtab_level_from_count(count);
+ 
+ 	/* allocate last leaf in the new sidtab (to avoid race with
+@@ -436,7 +430,7 @@ int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params)
  	}
  
- 	sun.sun_family = AF_UNIX;
--	strcpy(sun.sun_path, argv[2]);
-+	strcpy(sun.sun_path, addr);
-+
- 	sunlen = strlen(sun.sun_path) + 1 + sizeof(short);
- 	ret = connect(s, (struct sockaddr *)&sun, sunlen);
- 	if (ret < 0) {
+ 	/* set count in case no new entries are added during conversion */
+-	atomic_set(&params->target->count, count);
++	params->target->count = count;
+ 
+ 	/* enable live convert of new entries */
+ 	s->convert = params;
+diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+index bbd5c0d1f3bd..1f4763141aa1 100644
+--- a/security/selinux/ss/sidtab.h
++++ b/security/selinux/ss/sidtab.h
+@@ -40,8 +40,8 @@ union sidtab_entry_inner {
+ #define SIDTAB_LEAF_ENTRIES \
+ 	(SIDTAB_NODE_ALLOC_SIZE / sizeof(struct sidtab_entry_leaf))
+ 
+-#define SIDTAB_MAX_BITS 31 /* limited to INT_MAX due to atomic_t range */
+-#define SIDTAB_MAX (((u32)1 << SIDTAB_MAX_BITS) - 1)
++#define SIDTAB_MAX_BITS 32
++#define SIDTAB_MAX U32_MAX
+ /* ensure enough tree levels for SIDTAB_MAX entries */
+ #define SIDTAB_MAX_LEVEL \
+ 	DIV_ROUND_UP(SIDTAB_MAX_BITS - size_to_shift(SIDTAB_LEAF_ENTRIES), \
+@@ -69,13 +69,22 @@ struct sidtab_convert_params {
+ #define SIDTAB_RCACHE_SIZE 3
+ 
+ struct sidtab {
++	/*
++	 * lock-free read access only for as many items as a prior read of
++	 * 'count'
++	 */
+ 	union sidtab_entry_inner roots[SIDTAB_MAX_LEVEL + 1];
+-	atomic_t count;
++	/*
++	 * access atomically via {READ|WRITE}_ONCE(); only increment under
++	 * spinlock
++	 */
++	u32 count;
++	/* access only under spinlock */
+ 	struct sidtab_convert_params *convert;
+ 	spinlock_t lock;
+ 
+-	/* reverse lookup cache */
+-	atomic_t rcache[SIDTAB_RCACHE_SIZE];
++	/* reverse lookup cache - access atomically via {READ|WRITE}_ONCE() */
++	u32 rcache[SIDTAB_RCACHE_SIZE];
+ 
+ 	/* index == SID - 1 (no entry for SECSID_NULL) */
+ 	struct sidtab_isid_entry isids[SECINITSID_NUM];
 -- 
 2.21.0
 
