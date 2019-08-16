@@ -2,120 +2,114 @@ Return-Path: <SRS0=yfq3=WM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E979EC3A59C
-	for <selinux@archiver.kernel.org>; Fri, 16 Aug 2019 16:36:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61F64C3A59C
+	for <selinux@archiver.kernel.org>; Fri, 16 Aug 2019 16:36:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B8A4920665
-	for <selinux@archiver.kernel.org>; Fri, 16 Aug 2019 16:36:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3607B20665
+	for <selinux@archiver.kernel.org>; Fri, 16 Aug 2019 16:36:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="IgefWocV"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="H5BhUsEH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726571AbfHPQgF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 16 Aug 2019 12:36:05 -0400
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:46356 "EHLO
-        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726557AbfHPQgF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 16 Aug 2019 12:36:05 -0400
-X-EEMSG-check-017: 6105897|UPDC19PA19_ESA_OUT01.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.64,393,1559520000"; 
-   d="scan'208";a="6105897"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Aug 2019 16:36:02 +0000
+        id S1726654AbfHPQg1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 16 Aug 2019 12:36:27 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:33738 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726591AbfHPQg1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 16 Aug 2019 12:36:27 -0400
+Received: by mail-lf1-f65.google.com with SMTP id x3so4498147lfc.0
+        for <selinux@vger.kernel.org>; Fri, 16 Aug 2019 09:36:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1565973362; x=1597509362;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=UQHEDJXdxvenLlUiEWzFnZABe93uaLVqqrX4/u2mEXQ=;
-  b=IgefWocVwUMJWYUL/d+Tn/DFtt8A4NZuoCKyyQMW0mj6JL05SOwBouiq
-   A77xbtQAmg0mwaaAs7qm3dWJceqFe2r4ldLzLKzZpLBBUaNnfvhmkMnXO
-   ocuDEgH3POMVMQ7p6rmMF3D0ZW8l5GSeequXlDaqHg2gU+mAcddCrQgCg
-   Tv6RVY3Dth08Gnl+Sf4hYs+AuO4dLKFtC36FUAGvHN2WEGcUxSWKLiPw2
-   hljnHqwcV6u455SeVZdNAzu471nYXEn6qTdhbAppYNSfifWcQwZJEsQhM
-   sNqUx572Cn+WXHK/h36nUN3We2KTtYpcDQ/wEOh4qt7P4/Xk6UlxEE2eC
-   g==;
-X-IronPort-AV: E=Sophos;i="5.64,393,1559520000"; 
-   d="scan'208";a="31576510"
-IronPort-PHdr: =?us-ascii?q?9a23=3AH6c4KB1Wwh8eWXhWsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseIfLvad9pjvdHbS+e9qxAeQG9mCsbQd0LGd4v+ocFdDyK7JiGoFfp1IWk?=
- =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
- =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmSSxbalvIBi4owjduc0bjIl/Iast1x?=
- =?us-ascii?q?XFpWdFdf5Lzm1yP1KTmBj85sa0/JF99ilbpuws+c1dX6jkZqo0VbNXAigoPG?=
- =?us-ascii?q?Az/83rqALMTRCT6XsGU2UZiQRHDg7Y5xznRJjxsy/6tu1g2CmGOMD9UL45VS?=
- =?us-ascii?q?i+46ptVRTnhj0HNzok+2/JjMJ+gr9QrBa4qxFxx4PYZYeYP+d8cKzAZ9MXXX?=
- =?us-ascii?q?dPUNhfVyJBAY2yYYUAAOUDMulEoIfwvEcOoBmkCAWwGO/ixD1Fi3nr1qM6ye?=
- =?us-ascii?q?QhFgTG0RQ9EdISrnvUtNX1O7kUUeuo0afIyC/Mb/dS2Tjj6InDbxcsoeqRUr?=
- =?us-ascii?q?JrasfR1UkuGB/FjlWXs4DlOSiV2f4Xv2iU6OpgS/uihmg6oA9/pTivw90jio?=
- =?us-ascii?q?jPho8NyVDL6z95wIArKt28UkJ7ZsSkEJRWuiqHNIV2WtsvT3xntSs10LELuY?=
- =?us-ascii?q?O3cDIUxJko2RLTceGLfo6V6Rz5TumROy13hHd9dbK6gBa97Favx/XnVsmxzF?=
- =?us-ascii?q?ZKti1FksTQtnwV1xzc9MyHSvxl80e9wzmPzQHT6vxfIUwuiaraK4Iuwr43lp?=
- =?us-ascii?q?YJt0TMAjT2l1nsgK+Td0Uk/vCk6+XhYrr4up+RL5J4hw7xP6g0msGzHP40Ph?=
- =?us-ascii?q?YBUmSF4+iwyaXv/UjjT7VLiv02nLPZsJffJckDva62HhRV350/6xe/Ezim0N?=
- =?us-ascii?q?MYkWMBLFJeYh2LlYfpO1bQIPzgF/ewn0yskCt3x/DBJrDhGYvCLnzCkLfnYL?=
- =?us-ascii?q?Z85FVRyBQ8zd9B/ZJYELIBL+zpWk/3qtPYCgU1Mwuuw+boEN99zJ8RWXqTAq?=
- =?us-ascii?q?+FN6PfqUKH6fgzLOWWY48VpijyK+I/5/7vkHA2h0QQfaas3ZQNaXC4Gu5qLF?=
- =?us-ascii?q?meYXrp0Z89FjIRsw4/SvH6oEONXCQVZHuoWa84oDYhB8buIYDGR4asi7/J8z?=
- =?us-ascii?q?26EIEeMmxPARaLD3rybYSIVt8DbSuTJolqlTlSBpa7TIp07g2jrA/3zfJcK+?=
- =?us-ascii?q?PQ/iAJ/cb42MNd+/zYlRZ08yd9ScuazTfeHClPgmoUSmpuj+hEqktnxwLGiv?=
- =?us-ascii?q?l1?=
-X-IPAS-Result: =?us-ascii?q?A2AZDADu2VZd/wHyM5BlHAEBAQQBAQcEAQGBZ4FuKm1RA?=
- =?us-ascii?q?TIqhB+PDU0BAQEBAQEGgTaJapEiCQEBAQEBAQEBAS0HAQIBAYQ/AoMaIzgTA?=
- =?us-ascii?q?gUBAQEEAQEBAQEGAwEBbIUnDII6KYJoAQUjFVELGAICJgICVwYBDAYCAQGCX?=
- =?us-ascii?q?z8BgXYUD6oUgTKEMwGBFIMqgUMGgQwoi2kXeIEHgTiCaz6CYQSEaoJYBJUfl?=
- =?us-ascii?q?jEJgh+CIYRDjUkGG4Ixi0iKSY1Xh2GSNSGBWCsIAhgIIQ+DKItHhVsjAzELe?=
- =?us-ascii?q?gEBjhoBAQ?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 16 Aug 2019 16:35:11 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x7GGZ9In011733;
-        Fri, 16 Aug 2019 12:35:10 -0400
-Subject: Re: Question about BPF acccess checks
-To:     selinux@vger.kernel.org, Dominick Grift <dac.override@gmail.com>
-References: <20190816072744.GA520884@brutus.lan>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <79283dc7-fcce-259e-e16e-a78eef87256d@tycho.nsa.gov>
-Date:   Fri, 16 Aug 2019 12:35:09 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=5lHpPSdCyT7Kyd9IXcFuqji9CoKFwycWngQ6LfdZfg0=;
+        b=H5BhUsEHdQ5FzU5Gk3d5ZM8xImwWXVoWJAWrdM3kLZsOeJoUZ3avKESAh1tSeDZ6Ea
+         hVTCFxGqXCkimDn7bP6MI3lVwNGcCDuB/i2EoTFkLFImYFh2pLggPXya/lJAbgxTYXXK
+         J+qeWHgEB4zdRQtaHTstos5ShRNZY3RSuKs+rajrXYDjswCt179GXtFpHvriHjbNkpOm
+         5rLot+GwHZvcR7cSBNSaOFe73ujrtrfrczpr7b24A0jQYXFechzoNzamh/kRq+4MtIk5
+         5N3sYJi9TrrpnqevluuW3pQzGMuLqeZQcnwKjhPSXQlE/pM7kSShuu9j8krYJfDsnjgm
+         yoiA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=5lHpPSdCyT7Kyd9IXcFuqji9CoKFwycWngQ6LfdZfg0=;
+        b=gOO9QMCPmH8QutWOXf0TZ/70BkSWy+r0Z6tfu6SjunoCQI+vnoDqRp9nkL7OsyblGO
+         ie3REXdDJ1v7Sb4bmDwQxCcszs0V/CedmJnGDDlKPlCVj7GCaBBBCmTOkYsCJkQT3BhA
+         1s7m06HDMpSOb7tqNORf6N9kU3ZrImV8+hzh9g5cSgJMSy586Ojvx9qLWbS4e7WNZR3I
+         EKI7QkoKcWq4ISDPXRicMeGVxcwT6o9qH/rSBaiFeNndxVtMgcIYEQSeFuokV034zMri
+         IX43MzQqrl8tZvwblrykUm21UrEA0irP+kDqKszDWZFbywv0AVZ6xQ8Ol5LTFxBIGf3f
+         OqTg==
+X-Gm-Message-State: APjAAAWrwDyyoKz0Nnt+TgCSkP3bf3hOoNDNfmhZoV8LwX7bTAVaXdAE
+        ZvfP+ALnu5WExp/MzyBBwKWOS0LFFgNngW64gPau
+X-Google-Smtp-Source: APXvYqzYbBGmvFQFm936ktOk3rwIm65aWylGP4lmnHHLscikOOcm/+ByQtnYFkBaH0Iqli70i/v+iW3RlhqE02ViCts=
+X-Received: by 2002:ac2:5225:: with SMTP id i5mr4589867lfl.13.1565973385355;
+ Fri, 16 Aug 2019 09:36:25 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190816072744.GA520884@brutus.lan>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20190815202357.4238-1-acgoide@tycho.nsa.gov> <alpine.LRH.2.21.1908160817300.22623@namei.org>
+ <cebacde0-5c53-c414-8f27-8d81ed928dfd@tycho.nsa.gov>
+In-Reply-To: <cebacde0-5c53-c414-8f27-8d81ed928dfd@tycho.nsa.gov>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 16 Aug 2019 12:36:13 -0400
+Message-ID: <CAHC9VhRLnUO_iiz31z=7wiHf2sNihC7mmi3FhaPCqmW=xt+tRw@mail.gmail.com>
+Subject: Re: [RFC PATCH v3] security, capability: pass object information to security_capable
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     James Morris <jmorris@namei.org>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>, rgb@redhat.com,
+        mortonm@chromium.org, john.johansen@canonical.com,
+        selinux@vger.kernel.org, luto@amacapital.net,
+        linux-security-module@vger.kernel.org, linux-audit@redhat.com,
+        nhfran2@tycho.nsa.gov, Serge Hallyn <serge@hallyn.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/16/19 3:27 AM, Dominick Grift wrote:
-> As of systemd v243rc1 I have been noticing bpf prog_load and prog_run access checks for systemd --user instances (only if secure boot is disabled)
-> I suspect that this is for IPAddressAllow/Deny= functionality.
-> So i tried it out and I was not allowed to use the above due to lack of root-access.
-> 
-> Then i read this:
-> https://lore.kernel.org/linux-security-module/4F52274A-CD70-4261-A255-2C4A7E818141@fb.com/T/#t
-> 
-> My question is: Is it expected that BPF prog_load and prog_run is checked when an *unprivileged* process, i suppose, tries to load and run bpf progs?
-> 
-> Are prog_load and prog_run unprivileged operations?
+On Fri, Aug 16, 2019 at 10:57 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 8/15/19 6:32 PM, James Morris wrote:
+> > On Thu, 15 Aug 2019, Aaron Goidel wrote:
+> >
+> >> In SELinux this new information is leveraged here to perform an
+> >> additional inode based check for capabilities relevant to inodes. Since
+> >> the inode provided to capable_wrt_inode_uidgid() is a const argument,
+> >> this also required propagating const down to dump_common_audit_data() and
+> >> dropping the use of d_find_alias() to find an alias for the inode. This
+> >> was sketchy to begin with and should be obsoleted by a separate change
+> >> that will allow LSMs to trigger audit collection for all file-related
+> >> information.
+> >
+> > Will the audit logs look the same once the 2nd patch is applied? We need
+> > to be careful about breaking existing userland.
+>
+> It was already the case that the name= field in the AVC audit record was
+> not guaranteed to be emitted in this case, since d_find_alias could
+> return NULL.  And it was only a hint, since that name might have nothing
+> to do with the name used to look up the inode in the first place. So I
+> don't believe userland could have ever relied upon it being present
+> here.  Removing it also fixes a problem with AVC audit generation under
+> RCU walk; we should be able to drop the code that skips audit generation
+> in that case with this d_find_alias call gone IIUC.
+>
+> With the ability for an LSM to enable collection and generation of
+> AUDIT_PATH and other AUDIT_* records (which is made possible via the
+> other patch), we will get more complete and relevant information in the
+> audit log.  It won't look exactly the same (there will be separate AVC,
+> PATH, ... records that can be correlated based on timestamp/serial and
+> ausearch does this automatically for you).
 
-They can be checked for processes that do not have CAP_SYS_ADMIN if that 
-is what you are asking.  This can occur either during bpf(2) system call 
-processing if unprivileged_bpf_disabled is 0 (for prog_load and/or 
-prog_run), or upon receiving a bpf prog fd from another process (for 
-prog_run). It is possible that the specific operation will nonetheless 
-fail due to a later CAP_SYS_ADMIN check applied for specific kinds of 
-bpf programs.  So it depends on the specifics.
+Regardless of if it is The Right Thing, changes like this should
+probably be put into a separate, unrelated patch.
 
-Android policy appears to have changed over time, with netd originally 
-allowed both prog_load and prog_run (but not sys_admin), and then later 
-bpf program loading was migrated into a separate bpfloader process (with 
-prog_load but not sys_admin) and netd was reduced to prog_run, and still 
-later sys_admin was added to bpfloader to enable loading bpf programs 
-with tracepoints. Similarly there has been an evolution in the handling 
-of bpf maps.
+I think there are a few things in dump_common_audit_data() that should
+have been done differently, but unfortunately the audit records (and
+IMHO the many stupid design decisions that went into them) are
+effectively part of the kernel API and need to be treated with care.
+
+-- 
+paul moore
+www.paul-moore.com
