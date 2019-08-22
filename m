@@ -6,50 +6,49 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1076DC3A5A3
-	for <selinux@archiver.kernel.org>; Thu, 22 Aug 2019 18:50:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00A9CC3A5A2
+	for <selinux@archiver.kernel.org>; Thu, 22 Aug 2019 20:10:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DD6CF2082F
-	for <selinux@archiver.kernel.org>; Thu, 22 Aug 2019 18:50:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C215421848
+	for <selinux@archiver.kernel.org>; Thu, 22 Aug 2019 20:10:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="c4vVQ+9W"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Fn3m85Na"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731458AbfHVSug (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 22 Aug 2019 14:50:36 -0400
-Received: from sonic302-28.consmr.mail.gq1.yahoo.com ([98.137.68.154]:36849
+        id S2388616AbfHVUKp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 22 Aug 2019 16:10:45 -0400
+Received: from sonic302-28.consmr.mail.gq1.yahoo.com ([98.137.68.154]:39845
         "EHLO sonic302-28.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1733246AbfHVSuf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 22 Aug 2019 14:50:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1566499833; bh=iGg+xKs9IWe92dtM6j+aU79MyRSLr1YHffVa8Fw1ZQA=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=c4vVQ+9W+THmOw7kEkQ5ja2REV1zMy0T6UJXUThjRGjfex1Hsd/cFwKiyteHsW6ZcTwoUIhPxF/t5HWkWKtd2iXlmdBMGvXy6z+wweJMIDRUCroJQSBnfmb2Xl7cjz6YbXQGz0XdVkhS8xWagmdk9UrW5ybsh7Mepob0le5w21ErpQXcdspd/20FUtYiKubTRFfb4rdkfwj9sUJ4RZH5nhfYOluJ5oaarkH9uVHMubKrcwGPn0rhGXFKxVyOfurxheEFwscfsh8+nXFbw7Yez/FUhU9VyjzqpDeHZHRq+gYjlkeNLkoA4Vk6TZVEqq5Pli5/sSpZGrPm4Mfg0MATxw==
-X-YMail-OSG: d4MmHSIVM1kQNLQN9luXcVEIwCEPEreKRmXjnJ_qerw.F7hDKfWAQX6NbthOkiR
- chnmOu3A889TbZP1EKbqAYq.T8.GPSGDZvn54UJg4epoarBSXFmJtiwAzVhcxEnYamOZ1PY5ZGv8
- XwN8Aa7Lc4DAaOWbDE5AkesJIAZl7W61g9X2U5TGd3BJkaeQeSFPerJYbPchd0FEvFU4y1G6KEU7
- xIRoBHTRTzKkVZ5tgJ20Jpgd_D4up2qrnlSTjlILT4j0huWTHiOAe66wQLb6zMDuxaMstZquBiF_
- gvBHVYsYmcEgfASMWYPRAI_dKu5nmpix3wgJ8p9We36_9zBx2X2l0fJlN3I2MvoxwewE2w1kf29n
- D3XfNgO31aCsUFtTn2L6LGMb54FpvpChAyq20umqGAIu2ApBuYDyQ6oYjpZbp2toFJpBOM_eFKuN
- yHZ.AIunDybSdWRmlBjf6dhCvPz17s2k47199PnBHpPCVJMMduPniREgn1Mg_JuYOM7Nsilf6Ls4
- Xt3sHFFvk36s_.dBV_Xsyir8If77plnsM_riJc5qKfKgByFMDURGatrEn7nCJLUYdGPXWvUMl5qF
- I61tsTLZkFpC1.0Ngmm7YW.Q7dJcrk.unroGOOwcV75uBGDsOlriQK2k2bsYvyVQzpSn1GcA1n5v
- yU6lvfUDlXwrYmr5uqp6EvNRltYXiRkSQdhaoIteBA8jjidDGZ_IypSFXbP0iRjfg6gfxy5tk2KG
- G5WUP9qL.edecbDBAOgiA95KZJw811uEmXlO..klSKUqaVjMtELIx8gMHiEw_LvF1hJlUNSgCye4
- U980vDaTmmE35n05uE6aycHxS6GNAokliTRYDXTQN2VIwmmVPMVYYS8mONyY9ShUNq_xhz3qv.oj
- .6jfp5laVGo_gVATxrcjXf8Zaued06g5RdwZv.su5YckU7v1vp8rcihDWzEqcD6e9O9I4dQTncKH
- d.fP973_f3uIL7vzYaXOrfeaVZkcqHcsfoYv8ZEqc1KESgNF43.mVe4m7ugDtkTqp0Ft6yDSA.aU
- DCdJ3WAFzqr3zQi6.QHAdx2bG36UPeQ0O4T01bHN2_ZxA40QyM0KTkUpkhTzWWlIAoc93KTZr6Ol
- bQ5p3QGN_YYdhJGnCG1z2P73ACgSFWMWYztqph9NrkmG66PmrCJL86ufCTw9pQdr.qtljGXKECjG
- Ctd3ba2F1ewqE7sLZyn_5xR7lim7MFiF00dZ.RLRU_7dZAfjuiuEDAjRjQemM7_rH3g9dB94WlX5
- jx59hbFl7UFL8T4T7CFhG0dMpjSALx.MJgEwW5NnPRubqWDE-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.gq1.yahoo.com with HTTP; Thu, 22 Aug 2019 18:50:33 +0000
-Received: by smtp419.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID fb795a423b8272431beb45d8e1e8aca6;
-          Thu, 22 Aug 2019 18:50:30 +0000 (UTC)
+        by vger.kernel.org with ESMTP id S2388126AbfHVUKo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 22 Aug 2019 16:10:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1566504643; bh=2zwlpGXcukVZkgLPp9UxKY68EqPwduS3sG7l9qbi3T0=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=Fn3m85NaBY7vWeNVFSfXmriMqq4A7CvQ/nmfZkVeVLfbAvLHYH53i2CfwBgGfJEInbG7Bip2/s4DRsmcWHN5o5gszqARP+j8JAChwwgUYAm5E8yhorDF6V3+hKeD02caD9qTuEOKFw69mVEFZdCHmwZmHkgsZ47VxILayEgxfCT00Npy3TDYpAOOmksLPuCSlFpzgQ3M/uais8e2jOjyDm6A7/VJIclbrRh3dx61XXR8w9uutHNC5goRswYmCB1uwN5R1efNaN9plbQCjKzjHlM0D6daIJAjVZf4up58GIdATf+d7IYGeK7uYFcdwDt1htALz5wt0fT0wVrcYxFCvg==
+X-YMail-OSG: it1csUUVM1ksB5lGCSVv5sbPkUnpGu16fqZSJ7jwKQ5gh6R98yTBtHwoiu57q7X
+ axnPe834d4mhcrf3jfxACHGgqIbheaThaiZ9sUffLgwubO_wxZz6SYFesbBnIJrsYBxt7Qa6aNEw
+ b.V8j86K5jpTGV.ROgOKjIdvBr3Fyq6kVCsRvGNtbMz8XXiqEGzz_Sh0RJMXiF9ueG1qby_vr.7N
+ d5EzU1uev4.8Q2IMkuz_zyqTUYCHnVgSthvgcLbrtJvE5E3Q1qrIyPvTF4Jje_UKfSq4AIWmuGBu
+ FzKNeoU5TMWaPnYxzeGvqP1W2.v7wv64FZD.per5VuPFHhXyvLuK2dx1Hx_NrDO.fvz0a15NXl2k
+ 0a5OC6L.uxYmeH4SfM4Ywdu5hnJCERUE70OtNyuYcWqxXTUJa7kufJjTDv4_EzYjO8klz9HZp_Fl
+ eXiFQVR8HZQEOtZGryucv6Y.mqud__hhz8cairYEkp1714NOjDV6KANOX0Vulbvr0cKR3qOF3apF
+ XZJ_raseI8ZrYU0lBU2lXPpuSS1sMiA2rNqkukaG4Q_Q6vLP65jGqG1e_6PgnWhDRwSIIHSt4qbk
+ iHJTlZQGQS0FLUAgqTY_CgqlG0f9RprDJJUg33DuiTIzADHch2id7llQaKqWlzS1iCWv.vDBeD.m
+ y5AhAwlU9uRuZgHoLLnbYtvcSwiw6l732I7tKfwPbbKpE0BftECRyIxOyYAs6t41CL_x2gXA3Xei
+ gqSxgXz3S2KLX8SevuyijU9qAmEgK6v7aeEnf0jd9RNII85WL07AUansvWahPSXUYXR36SnR.tgR
+ ywisAXlwASo_ruGA0SCNj.azMxyYfFFydUg.FfCBILfqN0s4zcQfnWn1TP64U88ljqwK0yf7GGTX
+ 9s0ulU8uEe._.bBRcHZcNaVW_hFiypC6YhXKJtPrqfSm6fexqUqawmj3PUtKMjxh_DAA839HpI2k
+ u4q8duKE.pHkumGVik9mhfGXcIHetIH2awz0NNXlKm61J89lsi3DvnJcpk7wsZwt_5O6kzEdh18q
+ iY.OkH662DBv6fZ12Tf7JzzO7JbHpJ1JAZ5k.J_HdYcCNkJK2VDrBoDB1yTMIhbaKNDc3xlXojFN
+ pxpG2aXmHrBcYuJeOJ1q1f4PCp2BisW3cxiIDZiWdsvHDtEmunzFIynzMbu6GQ3bQY0BdSNJacEs
+ 7LPWL2PHIPR7bhOe7.4evXG.VzKERdR62rtc0hkxaISzYKmnhmdT3ebuGz.TRpwwWqPH5TE2r_NU
+ ZWH2_L21AxUPmwxYjDd4dGJr4.v0YSUx2tmTZ_jQurEdtb27uOFKLxMRMVy8rcfJ1oy_isfg-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.gq1.yahoo.com with HTTP; Thu, 22 Aug 2019 20:10:43 +0000
+Received: by smtp401.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID c590be7bc3389192be3eb463b03ee945;
+          Thu, 22 Aug 2019 20:10:42 +0000 (UTC)
 Subject: Re: New skb extension for use by LSMs (skb "security blob")?
-To:     David Miller <davem@davemloft.net>, paul@paul-moore.com
+To:     Paul Moore <paul@paul-moore.com>, Florian Westphal <fw@strlen.de>
 Cc:     netdev@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, casey@schaufler-ca.com
 References: <CAHC9VhSz1_KA1tCJtNjwK26BOkGhKGbPT7v1O82mWPduvWwd4A@mail.gmail.com>
- <20190821.155013.1723892743521935274.davem@davemloft.net>
- <CAHC9VhRLexftb5mK8_izVQkv9w46m=aPukws2d2m+yrMvHUF_g@mail.gmail.com>
- <20190821.205454.2103510420957943248.davem@davemloft.net>
+ <20190822070358.GE20113@breakpoint.cc>
+ <CAHC9VhQ_+3ywPu0QRzP3cSgPH2i9Br994wJttp-yXy2GA4FrNg@mail.gmail.com>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -96,12 +95,12 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <36602a25-3a38-8478-d5e0-8d03d52593f3@schaufler-ca.com>
-Date:   Thu, 22 Aug 2019 11:50:31 -0700
+Message-ID: <00ab1a3e-fd57-fe42-04fa-d82c1585b360@schaufler-ca.com>
+Date:   Thu, 22 Aug 2019 13:10:43 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20190821.205454.2103510420957943248.davem@davemloft.net>
+In-Reply-To: <CAHC9VhQ_+3ywPu0QRzP3cSgPH2i9Br994wJttp-yXy2GA4FrNg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
@@ -110,86 +109,52 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/21/2019 8:54 PM, David Miller wrote:
-> From: Paul Moore <paul@paul-moore.com>
-> Date: Wed, 21 Aug 2019 23:27:03 -0400
->
->> On Wed, Aug 21, 2019 at 6:50 PM David Miller <davem@davemloft.net> wro=
-te:
->>> From: Paul Moore <paul@paul-moore.com>
->>> Date: Wed, 21 Aug 2019 18:00:09 -0400
+On 8/22/2019 9:32 AM, Paul Moore wrote:
+> On Thu, Aug 22, 2019 at 3:03 AM Florian Westphal <fw@strlen.de> wrote:
+>> Paul Moore <paul@paul-moore.com> wrote:
+>>> Hello netdev,
 >>>
->>>> I was just made aware of the skb extension work, and it looks very
->>>> appealing from a LSM perspective.  As some of you probably remember,=
+>>> I was just made aware of the skb extension work, and it looks very
+>>> appealing from a LSM perspective.  As some of you probably remember,
+>>> we (the LSM folks) have wanted a proper security blob in the skb for
+>>> quite some time, but netdev has been resistant to this idea thus far.=
 
->>>> we (the LSM folks) have wanted a proper security blob in the skb for=
-
->>>> quite some time, but netdev has been resistant to this idea thus far=
-=2E
->>>>
->>>> If I were to propose a patchset to add a SKB_EXT_SECURITY skb
->>>> extension (a single extension ID to be shared among the different
->>>> LSMs), would that be something that netdev would consider merging, o=
-r
->>>> is there still a philosophical objection to things like this?
->>> Unlike it's main intended user (MPTCP), it sounds like LSM's would us=
-e
->>> this in a way such that it would be enabled on most systems all the
->>> time.
-
-Only SELinux and Smack use the networking hooks today,
-although I understand that AppArmor has plans to do so
-in the not too distant future. Smack enables labeled
-networking at all times. While Smack doesn't have the
-expansive use that SELinux does because of Android, it
-is used extensively in embedded systems via Tizen and
-Yocto Project deployments.
-
->>> That really defeats the whole purpose of making it dynamic. :-/
-
-It argues that fulfilling the needs of LSMs ought to be a basic
-feature of the skb, rather than a dynamic extension. When LSMs were
-introduced 20 years ago it was assumed their use would be rare, and
-it was. Today almost all Linux systems use LSMs, and once AppArmor
-adds network labeling it will be quite difficult to find a major
-distribution that doesn't need the support.
-
->> I would be okay with only adding a skb extension when we needed it,
->> which I'm currently thinking would only be when we had labeled
->> networking actually configured at runtime and not just built into the
->> kernel.  In SELinux we do something similar today when it comes to our=
-
->> per-packet access controls; if labeled networking is not configured we=
-
->> bail out of the LSM hooks early to improve performance (we would just
->> be comparing unlabeled_t to unlabeled_t anyway).  I think the other
->> LSMs would be okay with this usage as well.
-
-Smack uses labeled (CIPSO now, CALIPSO 'soon') networking by default
-and depends on it heavily for basic system policy enforcement.
-
->> While a number of distros due enable some form of LSM and the labeled
->> networking bits at build time, vary few (if any?) provide a default
->> configuration so I would expect no additional overhead in the common
->> case.
-
-Tizen isn't a distro, but neither is Android.
-
->> Would that be acceptable?
-> I honestly don't know, I kinda feared that once the SKB extension went =
-in
-> people would start dumping things there and that's exactly what's happe=
-ning.
-
-As Paul has mentioned, the LSM community (Paul and me in particular)
-have been looking for a better way to deal with the network stack
-for a long time.
-
-> I just so happened to be reviewing:
+>> Is that "blob" in addition to skb->secmark, or a replacement?
+> That's a good question.  While I thought about that, I wasn't sure if
+> that was worth bringing up as previous attempts to trade the secmark
+> field for a void pointer met with failure.  Last time I played with it
+> I was able to take the additional 32-bits from holes in the skb, and
+> possibly even improve some of the cacheline groupings (but that is
+> always going to be a dependent on use case I think), but that wasn't
+> enough.
 >
-> 	https://patchwork.ozlabs.org/patch/1150091/
->
-> while you were writing this email.
->
-> It's rediculous, the vultures are out.
+> I think we could consider freeing up the secmark in the main skb, and
+> move it to a skb extension, but this would potentially increase the
+> chances that we would need to add an extension to a skb.  I don't have
+> any hard numbers, but based on discussions and questions I suspect
+> Secmark is more widely used than NetLabel and/or labeled IPsec;
+> although I'm confident it is still a minor percentage of the overall
+> Linux installed base.
+
+Smack uses both extensively. As far as Smack is concerned giving up
+the secmark for a blob would be just fine.
+
+I am also working on security module stacking, and a blob in the
+skb would dramatically improve the options for making that work
+rationally.
+
+> For me the big question is what would it take for us to get a security
+> blob associated with the skb?  Would moving the secmark into the skb
+> extension be enough?  Something else?  Or is this simply never going
+> to happen?  I want to remain optimistic, but I've been trying for this
+> off-and-on for over a decade and keep running into a brick wall ;)
+
+Given that the original objection to using a skb extension for a
+security blob was that an extension is dynamic, and that the ubiquitous
+nature of LSM use makes that unreasonable, it would seem that supporting
+the security blob as a basic part if the skb would be the obvious and
+correct solution. If the normal case is that there is an LSM that would
+befit from the native (unextended) support of a blob, it would seem
+that that is the case that should be optimized.
+
 
