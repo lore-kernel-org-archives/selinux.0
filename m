@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCA19C3A59F
-	for <selinux@archiver.kernel.org>; Mon, 26 Aug 2019 14:20:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E089C3A5A6
+	for <selinux@archiver.kernel.org>; Mon, 26 Aug 2019 14:20:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7B5EA20874
-	for <selinux@archiver.kernel.org>; Mon, 26 Aug 2019 14:20:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1AB4F20679
+	for <selinux@archiver.kernel.org>; Mon, 26 Aug 2019 14:20:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="fyqaaNL1"
+	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="t6hz+o2M"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729015AbfHZOUO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 26 Aug 2019 10:20:14 -0400
-Received: from mail-qt1-f196.google.com ([209.85.160.196]:36994 "EHLO
-        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728324AbfHZOUN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 26 Aug 2019 10:20:13 -0400
-Received: by mail-qt1-f196.google.com with SMTP id y26so18034019qto.4
-        for <selinux@vger.kernel.org>; Mon, 26 Aug 2019 07:20:13 -0700 (PDT)
+        id S1729035AbfHZOUP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 26 Aug 2019 10:20:15 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:35245 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728324AbfHZOUP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 26 Aug 2019 10:20:15 -0400
+Received: by mail-qt1-f193.google.com with SMTP id u34so18030348qte.2
+        for <selinux@vger.kernel.org>; Mon, 26 Aug 2019 07:20:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=aPDQZQvqNM0i9ZROK+6hn4FE5KOr4OqMG6MoSvzsFsU=;
-        b=fyqaaNL1WSLrS0YjYIUksXN7skxjF3sELGba5qaDOnjdm7HfZuo/XaRePMn3C9mX5g
-         pG6UYYkNL4NeyzGfEpyLt6TYWX3CPPpNoAixBt5v9LEJE1VkIRUAxmVI9AVCSvR26DLe
-         NrYUeDAfdThwftccN9pkYR/mes0hZkBSrx41oKMneducAp1Db4CZV7g/aBcH+8yqALj0
-         3MyPTExDRWr1gFEVYY01kLUIUbMUuj0MWNKe5wYPPXM+8PHjHJ2EAJ1znMXvbDiRBYQI
-         /IHVxQCFAAoDwDdLD4CoW8vCw6YOjMMHESaaXpdphNxuWAj4uwmBUZ0RQZeDFt7mVti6
-         kTtw==
+        bh=s9o5y6vQrq/OjqTGJl1mlB5Bi1wRnaRbsPezF97mkUs=;
+        b=t6hz+o2Mn0JZOUmwMoePj55DfL6hRIKwFVBhQkWhu+AHIUY802uL7W0hqTmAIfifOQ
+         85akEVt5JTb7tKSwn/RwPRADLLmALdT9XBj/ljEwkTI7ovYRGBp/L2OTeOaeDvOFlZBV
+         /A2UypI6WErSAq6vPiyjliS8rUuF1yHIyzA354vyqLlWqgvlHguKoV4dS0dcXT+zbAGe
+         7S6zDbz57XXdgd+1lSKMIPWMqaCAMG7W5elT6yHwXFSIO1MarucbOrMB+7UKDl/bU/dY
+         yS42bxn6YaTWKUCDtKzEkcEUJtiBg4vV7z+hcH4mKAF3K8MSRMtYhicOVLTb8WiWTXfZ
+         DBhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=aPDQZQvqNM0i9ZROK+6hn4FE5KOr4OqMG6MoSvzsFsU=;
-        b=BSe+3sHveWjRsQiY3qifE0DXSLjlYH/EN9YUw+YLiq/RAQp14hjVzBtjPOupVWFB+t
-         ZDlWLclsyEvUEgLIqb3f6b8s2F1vDAvH7TYhSWwGGwpjG4QXBxIlYubdRYeoFASa1BaI
-         ScW/RvOBDIc4YlGphGAX8Wmj8Y1qgc+NeKfi1tmneUfpQP1wukQ07fzesswb0fd/c2VG
-         y+vDhPW2cwksdb21rz0BEoZdt2fsiLfaIofiEMmwBJIu5JrARuAywMSgmZKaHdgGcivh
-         Nmao6s1yWbNwYZ5NyxSKD8oBqKypB8lIydzG+8PG7/YxXs1HbUfMxQMSWNFJKdrJDpvN
-         4giA==
-X-Gm-Message-State: APjAAAVMdzgjKD3tVh5Zo8FUKLAEM8EvsTrgqUs6D4jYpMon+TuipFgc
-        xvkxenr85UaG7lVB9ng5h04sMHvTJQ8=
-X-Google-Smtp-Source: APXvYqzIbxWwWOMMOsbIp1BzHaVCFxvO3dJ5M35uZqwR4J/KyXERBo/lbVqe+ckkY37NhMYBC7ES0w==
-X-Received: by 2002:a0c:ab49:: with SMTP id i9mr15514290qvb.142.1566829212374;
-        Mon, 26 Aug 2019 07:20:12 -0700 (PDT)
+        bh=s9o5y6vQrq/OjqTGJl1mlB5Bi1wRnaRbsPezF97mkUs=;
+        b=DgV6hEENSoFc4D23fpVIOxYOuAEGCmULaJQEKsB3Gv8kKh1wqESNAPZBZZGXCkfGeC
+         dYPS11i511mpx4vBdKiYGmS1NpeyI5CTjdQWbqtMG5SWQRIqL/PcQRlu1yQJBd5JGU1i
+         Hbo2XwOADr9/E8uFydMBaPTS8lrfMDJUtC6xzFyFNrZLHms2uKHUD0p+TGrIbUThBuDb
+         0NR8nfwuE55xoIAzrWS8kvdhFzxkdDXWeZR/ycXvnxShPGioWZfaGHACXnbyLufHJE/2
+         4e87UFuNYgxU+ApUUhhR6I724k9NfvEaMNwQD1l5nUQsjc44fKkX/LNQUS24W9GEDOqF
+         y77g==
+X-Gm-Message-State: APjAAAWxqkdVdiBhZOGUbyBVNHi8nlxnJaRvT/IX0/xe5r+rijbvzoQa
+        n6txvY1BK02/OpFe4xBKyqI2RqQHMiU=
+X-Google-Smtp-Source: APXvYqyf/rIyNYQspDDSVQeBTQfelRgqIy4yAAttrIhlSmqv1/XULjtWXx112uO7pEz8cyTgvlFQVA==
+X-Received: by 2002:ac8:64a:: with SMTP id e10mr17209357qth.30.1566829213902;
+        Mon, 26 Aug 2019 07:20:13 -0700 (PDT)
 Received: from fedora30.localdomain (pool-71-121-242-40.bltmmd.fios.verizon.net. [71.121.242.40])
-        by smtp.gmail.com with ESMTPSA id m5sm7697643qtc.89.2019.08.26.07.20.11
+        by smtp.gmail.com with ESMTPSA id j18sm6094973qth.24.2019.08.26.07.20.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Aug 2019 07:20:11 -0700 (PDT)
+        Mon, 26 Aug 2019 07:20:13 -0700 (PDT)
 From:   Joshua Brindle <joshua.brindle@crunchydata.com>
 To:     selinux@vger.kernel.org
-Cc:     Joshua Brindle <joshua.brindle@crunchydata.com>
-Subject: [PATCH] Add default_range glblub support
-Date:   Mon, 26 Aug 2019 07:20:09 -0700
-Message-Id: <20190826142009.2241-1-joshua.brindle@crunchydata.com>
+Cc:     paul@paul-moore.com,
+        Joshua Brindle <joshua.brindle@crunchydata.com>
+Subject: [PATCH] default_range glblub implementation
+Date:   Mon, 26 Aug 2019 07:20:08 -0700
+Message-Id: <20190826142008.2198-1-joshua.brindle@crunchydata.com>
 X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -68,290 +69,99 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Policy developers can set a default_range default to glblub and
-computed contexts will be the intersection of the ranges of the
-source and target contexts. For example, one can add a default with
-this cil:
-
-(defaultrange db_table glblub);
-
-and then test using the compute_create utility:
-
-$ ./compute_create system_u:system_r:kernel_t:s0:c1,c2,c5-s0:c1.c20 system_u:system_r:kernel_t:s0:c0.c20-s0:c0.c36 db_table
-system_u:object_r:kernel_t:s0:c1,c2,c5-s0:c1.c20
+A policy developer can now specify glblub as a default_range default and
+the computed transition will be the intersection of the mls range of
+the two contexts.
 
 Signed-off-by: Joshua Brindle <joshua.brindle@crunchydata.com>
 ---
- checkpolicy/policy_parse.y                  |  4 +++-
- checkpolicy/policy_scan.l                   |  2 ++
- libsemanage/src/direct_api.c                |  1 +
- libsepol/cil/src/cil.c                      |  1 +
- libsepol/cil/src/cil_build_ast.c            | 11 +++++----
- libsepol/cil/src/cil_internal.h             |  2 ++
- libsepol/cil/src/cil_policy.c               |  3 +++
- libsepol/include/sepol/policydb/context.h   |  5 +++++
- libsepol/include/sepol/policydb/mls_types.h | 25 +++++++++++++++++++++
- libsepol/include/sepol/policydb/policydb.h  |  7 ++++--
- libsepol/src/kernel_to_conf.c               |  3 +++
- libsepol/src/mls.c                          |  2 ++
- libsepol/src/module_to_cil.c                |  1 +
- libsepol/src/policydb.c                     | 22 ++++++++++++++++++
- libsepol/src/write.c                        | 12 ++++++++++
- 15 files changed, 94 insertions(+), 7 deletions(-)
+ security/selinux/include/security.h |  3 ++-
+ security/selinux/ss/context.h       |  6 ++++++
+ security/selinux/ss/ebitmap.c       | 15 +++++++++++++++
+ security/selinux/ss/ebitmap.h       |  1 +
+ security/selinux/ss/mls.c           |  2 ++
+ security/selinux/ss/mls_types.h     | 28 ++++++++++++++++++++++++++++
+ security/selinux/ss/policydb.c      |  5 +++++
+ security/selinux/ss/policydb.h      |  1 +
+ 8 files changed, 60 insertions(+), 1 deletion(-)
 
-diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
-index 247bd4ee..abb7d885 100644
---- a/checkpolicy/policy_parse.y
-+++ b/checkpolicy/policy_parse.y
-@@ -155,7 +155,7 @@ typedef int (* require_func_t)(int pass);
- %token PERMISSIVE
- %token FILESYSTEM
- %token DEFAULT_USER DEFAULT_ROLE DEFAULT_TYPE DEFAULT_RANGE
--%token LOW_HIGH LOW HIGH
-+%token LOW_HIGH LOW HIGH GLBLUB
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 111121281c47..ae840634e3c7 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -40,10 +40,11 @@
+ #define POLICYDB_VERSION_CONSTRAINT_NAMES	29
+ #define POLICYDB_VERSION_XPERMS_IOCTL	30
+ #define POLICYDB_VERSION_INFINIBAND		31
++#define POLICYDB_VERSION_GLBLUB		32
  
- %left OR
- %left XOR
-@@ -247,6 +247,8 @@ default_range_def	: DEFAULT_RANGE names SOURCE LOW ';'
- 			{if (define_default_range(DEFAULT_TARGET_HIGH)) return -1; }
- 			| DEFAULT_RANGE names TARGET LOW_HIGH ';'
- 			{if (define_default_range(DEFAULT_TARGET_LOW_HIGH)) return -1; }
-+			| DEFAULT_RANGE names GLBLUB';'
-+			{if (define_default_range(DEFAULT_GLBLUB)) return -1; }
- 			;
- opt_mls			: mls
-                         | 
-diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
-index e93ccb64..e2f676e4 100644
---- a/checkpolicy/policy_scan.l
-+++ b/checkpolicy/policy_scan.l
-@@ -256,6 +256,8 @@ high |
- HIGH				{ return(HIGH); }
- low |
- LOW				{ return(LOW); }
-+glblub |
-+GLBLUB				{ return(GLBLUB); }
- "/"[^ \n\r\t\f]*	        { return(PATH); }
- \""/"[^\"\n]*\" 		{ return(QPATH); }
- \"[^"/"\"\n]+\"	{ return(FILENAME); }
-diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
-index 1088a0ac..c9d7fa1c 100644
---- a/libsemanage/src/direct_api.c
-+++ b/libsemanage/src/direct_api.c
-@@ -22,6 +22,7 @@
- #include <sepol/module.h>
- #include <sepol/handle.h>
- #include <sepol/cil/cil.h>
-+#include <sepol/policydb.h>
- #include <selinux/selinux.h>
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN   POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX   POLICYDB_VERSION_INFINIBAND
++#define POLICYDB_VERSION_MAX   POLICYDB_VERSION_GLBLUB
  
- #include <assert.h>
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index 2a7ec063..de729cf8 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -227,6 +227,7 @@ static void cil_init_keys(void)
- 	CIL_KEY_LOW = cil_strpool_add("low");
- 	CIL_KEY_HIGH = cil_strpool_add("high");
- 	CIL_KEY_LOW_HIGH = cil_strpool_add("low-high");
-+	CIL_KEY_GLBLUB = cil_strpool_add("glblub");
- 	CIL_KEY_ROOT = cil_strpool_add("<root>");
- 	CIL_KEY_NODE = cil_strpool_add("<node>");
- 	CIL_KEY_PERM = cil_strpool_add("perm");
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index b90b0f60..ee1c51ce 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -5894,7 +5894,7 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
- 		CIL_SYN_STRING,
- 		CIL_SYN_STRING | CIL_SYN_LIST,
- 		CIL_SYN_STRING,
--		CIL_SYN_STRING,
-+		CIL_SYN_STRING | CIL_SYN_END,
- 		CIL_SYN_END
- 	};
- 	int syntax_len = sizeof(syntax)/sizeof(*syntax);
-@@ -5917,8 +5917,8 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
- 	}
- 
- 	object = parse_current->next->next->data;
--	range = parse_current->next->next->next->data;
- 	if (object == CIL_KEY_SOURCE) {
-+		range = parse_current->next->next->next->data;
- 		if (range == CIL_KEY_LOW) {
- 			def->object_range = CIL_DEFAULT_SOURCE_LOW;
- 		} else if (range == CIL_KEY_HIGH) {
-@@ -5930,7 +5930,8 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
- 			rc = SEPOL_ERR;
- 			goto exit;
- 		}
--	} else if (parse_current->next->next->data == CIL_KEY_TARGET) {
-+	} else if (object == CIL_KEY_TARGET) {
-+		range = parse_current->next->next->next->data;
- 		if (range == CIL_KEY_LOW) {
- 			def->object_range = CIL_DEFAULT_TARGET_LOW;
- 		} else if (range == CIL_KEY_HIGH) {
-@@ -5942,8 +5943,10 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
- 			rc = SEPOL_ERR;
- 			goto exit;
- 		}
-+	} else if (object == CIL_KEY_GLBLUB) {
-+		def->object_range = CIL_DEFAULT_GLBLUB;
- 	} else {
--		cil_log(CIL_ERR,"Expected either \'source\' or \'target\'\n");
-+		cil_log(CIL_ERR,"Expected \'source\', \'target\', or \'glblub\'\n");
- 		rc = SEPOL_ERR;
- 		goto exit;
- 	}
-diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
-index 6ff32285..30fab649 100644
---- a/libsepol/cil/src/cil_internal.h
-+++ b/libsepol/cil/src/cil_internal.h
-@@ -149,6 +149,7 @@ char *CIL_KEY_TARGET;
- char *CIL_KEY_LOW;
- char *CIL_KEY_HIGH;
- char *CIL_KEY_LOW_HIGH;
-+char *CIL_KEY_GLBLUB;
- char *CIL_KEY_HANDLEUNKNOWN;
- char *CIL_KEY_HANDLEUNKNOWN_ALLOW;
- char *CIL_KEY_HANDLEUNKNOWN_DENY;
-@@ -941,6 +942,7 @@ enum cil_default_object_range {
- 	CIL_DEFAULT_TARGET_LOW      = DEFAULT_TARGET_LOW,
- 	CIL_DEFAULT_TARGET_HIGH     = DEFAULT_TARGET_HIGH,
- 	CIL_DEFAULT_TARGET_LOW_HIGH = DEFAULT_TARGET_LOW_HIGH,
-+	CIL_DEFAULT_GLBLUB          = DEFAULT_GLBLUB,
- };
- 
- /* Default labeling behavior for range */
-diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
-index 1adf22a3..b031bb00 100644
---- a/libsepol/cil/src/cil_policy.c
-+++ b/libsepol/cil/src/cil_policy.c
-@@ -834,6 +834,9 @@ static void cil_default_ranges_to_policy(FILE *out, struct cil_list *defaults)
- 		case CIL_DEFAULT_TARGET_LOW_HIGH:
- 			fprintf(out," %s %s", CIL_KEY_TARGET, CIL_KEY_LOW_HIGH);
- 			break;
-+		case CIL_DEFAULT_GLBLUB:
-+			fprintf(out," %s %s", CIL_KEY_TARGET, CIL_KEY_GLBLUB);
-+			break;
- 		default:
- 			break;
- 		}
-diff --git a/libsepol/include/sepol/policydb/context.h b/libsepol/include/sepol/policydb/context.h
-index c27c3341..37cdc591 100644
---- a/libsepol/include/sepol/policydb/context.h
-+++ b/libsepol/include/sepol/policydb/context.h
-@@ -92,6 +92,11 @@ out:
+ /* Mask for just the mount related flags */
+ #define SE_MNTMASK	0x0f
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 2260c44a568c..cecb84d8b26c 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -95,6 +95,12 @@ static inline int mls_context_cpy_high(struct context *dst, struct context *src)
  	return rc;
  }
  
-+static inline int mls_context_glblub(context_struct_t *dst, context_struct_t *c1, context_struct_t *c2)
++
++static inline int mls_context_glblub(struct context *dst, struct context *c1, struct context *c2)
 +{
 +	return mls_range_glblub(&dst->range, &c1->range, &c2->range);
 +}
 +
- static inline int mls_context_cmp(context_struct_t * c1, context_struct_t * c2)
+ static inline int mls_context_cmp(struct context *c1, struct context *c2)
  {
- 	return (mls_level_eq(&c1->range.level[0], &c2->range.level[0]) &&
-diff --git a/libsepol/include/sepol/policydb/mls_types.h b/libsepol/include/sepol/policydb/mls_types.h
-index a06723be..450c9564 100644
---- a/libsepol/include/sepol/policydb/mls_types.h
-+++ b/libsepol/include/sepol/policydb/mls_types.h
-@@ -32,6 +32,7 @@
+ 	return ((c1->range.level[0].sens == c2->range.level[0].sens) &&
+diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
+index 09929fc5ab47..2042729b81f8 100644
+--- a/security/selinux/ss/ebitmap.c
++++ b/security/selinux/ss/ebitmap.c
+@@ -77,6 +77,21 @@ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src)
+ 	return 0;
+ }
  
- #include <stdint.h>
- #include <stdlib.h>
-+#include <sys/param.h>
- #include <sepol/policydb/ebitmap.h>
- #include <sepol/policydb/flask_types.h>
- 
-@@ -48,6 +49,30 @@ typedef struct mls_range {
- 	mls_level_t level[2];	/* low == level[0], high == level[1] */
- } mls_range_t;
- 
-+static inline int mls_range_glblub(struct mls_range *dst, struct mls_range *r1, struct mls_range *r2)
++int ebitmap_and(struct ebitmap *dst, struct ebitmap *e1, struct ebitmap *e2)
 +{
-+	if (r1->level[1].sens < r2->level[0].sens || r2->level[1].sens < r1->level[0].sens) {
-+		// These ranges have no common sensitivities
-+		return -1;
++	unsigned int i, length = min(ebitmap_length(e1), ebitmap_length(e2));
++	ebitmap_init(dst);
++	for (i=0; i < length; i++) {
++		if (ebitmap_get_bit(e1, i) && ebitmap_get_bit(e2, i)) {
++			int rc = ebitmap_set_bit(dst, i, 1);
++			if (rc < 0)
++				return rc;
++		}
 +	}
-+
-+	// Take the greatest of the low
-+	dst->level[0].sens = MAX(r1->level[0].sens, r2->level[0].sens);
-+	// Take the least of the high
-+	dst->level[1].sens = MIN(r1->level[1].sens, r2->level[1].sens);
-+
-+	if (ebitmap_and(&dst->level[0].cat, &r1->level[0].cat, &r2->level[0].cat) < 0) {
-+		return -1;
-+	}
-+
-+	if (ebitmap_and(&dst->level[1].cat, &r1->level[1].cat, &r2->level[1].cat) < 0) {
-+		return -1;
-+	}
-+
 +	return 0;
 +}
 +
 +
- static inline int mls_level_cpy(struct mls_level *dst, struct mls_level *src)
- {
+ #ifdef CONFIG_NETLABEL
+ /**
+  * ebitmap_netlbl_export - Export an ebitmap into a NetLabel category bitmap
+diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
+index 6aa7cf6a2197..9a23b81b8832 100644
+--- a/security/selinux/ss/ebitmap.h
++++ b/security/selinux/ss/ebitmap.h
+@@ -124,6 +124,7 @@ static inline void ebitmap_node_clr_bit(struct ebitmap_node *n,
  
-diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
-index a279382e..b0d2fdfc 100644
---- a/libsepol/include/sepol/policydb/policydb.h
-+++ b/libsepol/include/sepol/policydb/policydb.h
-@@ -130,6 +130,7 @@ typedef struct class_datum {
- #define DEFAULT_TARGET_LOW	4
- #define DEFAULT_TARGET_HIGH	5
- #define DEFAULT_TARGET_LOW_HIGH	6
-+#define DEFAULT_GLBLUB 		7
- 	char default_range;
- } class_datum_t;
- 
-@@ -741,10 +742,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define POLICYDB_VERSION_XEN_DEVICETREE		30 /* Xen-specific */
- #define POLICYDB_VERSION_XPERMS_IOCTL	30 /* Linux-specific */
- #define POLICYDB_VERSION_INFINIBAND		31 /* Linux-specific */
-+#define POLICYDB_VERSION_GLBLUB		32
- 
- /* Range of policy versions we understand*/
- #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
--#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_INFINIBAND
-+#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_GLBLUB
- 
- /* Module versions and specific changes*/
- #define MOD_POLICYDB_VERSION_BASE		4
-@@ -765,9 +767,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
- #define MOD_POLICYDB_VERSION_CONSTRAINT_NAMES  17
- #define MOD_POLICYDB_VERSION_XPERMS_IOCTL  18
- #define MOD_POLICYDB_VERSION_INFINIBAND		19
-+#define MOD_POLICYDB_VERSION_GLBLUB		20
- 
- #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
--#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_INFINIBAND
-+#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_GLBLUB
- 
- #define POLICYDB_CONFIG_MLS    1
- 
-diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
-index 930bafab..a44ba30a 100644
---- a/libsepol/src/kernel_to_conf.c
-+++ b/libsepol/src/kernel_to_conf.c
-@@ -673,6 +673,9 @@ static int write_default_range_to_conf(FILE *out, char *class_name, class_datum_
- 	case DEFAULT_TARGET_LOW_HIGH:
- 		dft = "target low-high";
- 		break;
-+	case DEFAULT_GLBLUB:
-+		dft = "glblub";
-+		break;
- 	default:
- 		sepol_log_err("Unknown default type value: %i", class->default_range);
- 		return -1;
-diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
-index 63ad1bcb..6ff9a846 100644
---- a/libsepol/src/mls.c
-+++ b/libsepol/src/mls.c
-@@ -643,6 +643,8 @@ int mls_compute_sid(policydb_t * policydb,
+ int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2);
+ int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src);
++int ebitmap_and(struct ebitmap *dst, struct ebitmap *e1, struct ebitmap *e2);
+ int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2, u32 last_e2bit);
+ int ebitmap_get_bit(struct ebitmap *e, unsigned long bit);
+ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value);
+diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
+index 5e05f5b902d7..76c8ad014ac9 100644
+--- a/security/selinux/ss/mls.c
++++ b/security/selinux/ss/mls.c
+@@ -529,6 +529,8 @@ int mls_compute_sid(struct policydb *p,
  			return mls_context_cpy_high(newcontext, tcontext);
  		case DEFAULT_TARGET_LOW_HIGH:
  			return mls_context_cpy(newcontext, tcontext);
@@ -360,95 +170,73 @@ index 63ad1bcb..6ff9a846 100644
  		}
  
  		/* Fallthrough */
-diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
-index 1af166c9..c48a897d 100644
---- a/libsepol/src/module_to_cil.c
-+++ b/libsepol/src/module_to_cil.c
-@@ -2033,6 +2033,7 @@ static int class_to_cil(int indent, struct policydb *pdb, struct avrule_block *U
- 		case DEFAULT_TARGET_LOW:		dflt = "target low";	break;
- 		case DEFAULT_TARGET_HIGH:		dflt = "target high";	break;
- 		case DEFAULT_TARGET_LOW_HIGH:	dflt = "target low-high";	break;
-+		case DEFAULT_GLBLUB:		dflt = "glblub";		break;
- 		default:
- 			log_err("Unknown default range value: %i", class->default_range);
- 			rc = -1;
-diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-index 69bcb4d5..67037b6d 100644
---- a/libsepol/src/policydb.c
-+++ b/libsepol/src/policydb.c
-@@ -194,6 +194,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = OCON_IBENDPORT + 1,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_KERN,
-+	 .version = POLICYDB_VERSION_GLBLUB,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_IBENDPORT + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- 	{
- 	 .type = POLICY_BASE,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
-@@ -306,6 +313,13 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = OCON_IBENDPORT + 1,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_BASE,
-+	 .version = MOD_POLICYDB_VERSION_GLBLUB,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = OCON_IBENDPORT + 1,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
- 	{
- 	 .type = POLICY_MOD,
- 	 .version = MOD_POLICYDB_VERSION_BASE,
-@@ -418,6 +432,14 @@ static struct policydb_compat_info policydb_compat[] = {
- 	 .ocon_num = 0,
- 	 .target_platform = SEPOL_TARGET_SELINUX,
- 	},
-+	{
-+	 .type = POLICY_MOD,
-+	 .version = MOD_POLICYDB_VERSION_GLBLUB,
-+	 .sym_num = SYM_NUM,
-+	 .ocon_num = 0,
-+	 .target_platform = SEPOL_TARGET_SELINUX,
-+	},
+diff --git a/security/selinux/ss/mls_types.h b/security/selinux/ss/mls_types.h
+index 068e0d7809db..e2a20eb0e87c 100644
+--- a/security/selinux/ss/mls_types.h
++++ b/security/selinux/ss/mls_types.h
+@@ -39,6 +39,34 @@ static inline int mls_level_dom(struct mls_level *l1, struct mls_level *l2)
+ 		ebitmap_contains(&l1->cat, &l2->cat, 0));
+ }
+ 
++static inline int mls_range_glblub(struct mls_range *dst, struct mls_range *r1, struct mls_range *r2)
++{
++	int rc = 0;
 +
++	if (r1->level[1].sens < r2->level[0].sens || r2->level[1].sens < r1->level[0].sens) {
++	{
++		// These ranges have no common sensitivities
++		return -1;
++	}
++
++	// Take the greatest of the low
++	dst->level[0].sens = max(r1->level[0].sens, r2->level[0].sens);
++
++        // Take the least of the high
++	dst->level[1].sens = min(r1->level[1].sens, r2->level[1].sens);
++
++	rc = ebitmap_and(&dst->level[0].cat, &r1->level[0].cat, &r2->level[0].cat);
++	if (rc)
++		goto out;
++
++	rc = ebitmap_and(&dst->level[1].cat, &r1->level[1].cat, &r2->level[1].cat);
++	if (rc)
++		goto out;
++
++out:
++	return rc;
++}
++
+ #define mls_level_incomp(l1, l2) \
+ (!mls_level_dom((l1), (l2)) && !mls_level_dom((l2), (l1)))
+ 
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index f8efaa9f647c..1b59f72effbb 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -160,6 +160,11 @@ static struct policydb_compat_info policydb_compat[] = {
+ 		.sym_num	= SYM_NUM,
+ 		.ocon_num	= OCON_NUM,
+ 	},
++	{
++		.version	= POLICYDB_VERSION_GLBLUB,
++		.sym_num	= SYM_NUM,
++		.ocon_num	= OCON_NUM,
++	},
  };
  
- #if 0
-diff --git a/libsepol/src/write.c b/libsepol/src/write.c
-index dee7b4a3..c6be2be2 100644
---- a/libsepol/src/write.c
-+++ b/libsepol/src/write.c
-@@ -46,6 +46,11 @@
- #include "private.h"
- #include "mls.h"
+ static struct policydb_compat_info *policydb_lookup_compat(int version)
+diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+index fcc6366b447f..0c41d0b4da96 100644
+--- a/security/selinux/ss/policydb.h
++++ b/security/selinux/ss/policydb.h
+@@ -69,6 +69,7 @@ struct class_datum {
+ #define DEFAULT_TARGET_LOW     4
+ #define DEFAULT_TARGET_HIGH    5
+ #define DEFAULT_TARGET_LOW_HIGH        6
++#define DEFAULT_GLBLUB		7
+ 	char default_range;
+ };
  
-+#define glblub_version ((p->policy_type == POLICY_KERN && \
-+		     p->policyvers >= POLICYDB_VERSION_GLBLUB) || \
-+		    (p->policy_type == POLICY_BASE && \
-+		     p->policyvers >= MOD_POLICYDB_VERSION_GLBLUB))
-+
- struct policy_data {
- 	struct policy_file *fp;
- 	struct policydb *p;
-@@ -1034,6 +1039,13 @@ static int class_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
- 	     p->policyvers >= MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS)) {
- 		buf[0] = cpu_to_le32(cladatum->default_user);
- 		buf[1] = cpu_to_le32(cladatum->default_role);
-+		if (!glblub_version && cladatum->default_range == DEFAULT_GLBLUB) {
-+			WARN(fp->handle,
-+                             "class %s default_range set to GLBLUB but policy version is %d (%d required), discarding",
-+                             p->p_class_val_to_name[cladatum->s.value - 1], p->policyvers,
-+                             p->policy_type == POLICY_KERN? POLICYDB_VERSION_GLBLUB:MOD_POLICYDB_VERSION_GLBLUB);
-+                        cladatum->default_range = 0;
-+                }
- 		buf[2] = cpu_to_le32(cladatum->default_range);
- 		items = put_entry(buf, sizeof(uint32_t), 3, fp);
- 		if (items != 3)
 -- 
 2.21.0
 
