@@ -2,117 +2,80 @@ Return-Path: <SRS0=L6MV=WW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C6D8C3A59F
-	for <selinux@archiver.kernel.org>; Mon, 26 Aug 2019 15:11:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6422C3A59F
+	for <selinux@archiver.kernel.org>; Mon, 26 Aug 2019 15:19:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D735F2173E
-	for <selinux@archiver.kernel.org>; Mon, 26 Aug 2019 15:11:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E67520828
+	for <selinux@archiver.kernel.org>; Mon, 26 Aug 2019 15:19:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="KGcwh+31"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="uadQDARM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732892AbfHZPLd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 26 Aug 2019 11:11:33 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:41091 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728395AbfHZPLd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 26 Aug 2019 11:11:33 -0400
-Received: by mail-qt1-f195.google.com with SMTP id i4so18155751qtj.8
-        for <selinux@vger.kernel.org>; Mon, 26 Aug 2019 08:11:33 -0700 (PDT)
+        id S1732141AbfHZPTl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 26 Aug 2019 11:19:41 -0400
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:34111 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727850AbfHZPTl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 26 Aug 2019 11:19:41 -0400
+Received: by mail-lf1-f65.google.com with SMTP id z21so4077089lfe.1
+        for <selinux@vger.kernel.org>; Mon, 26 Aug 2019 08:19:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=from:subject:to:date:message-id:user-agent:mime-version
-         :content-transfer-encoding;
-        bh=xqciGcZR7aK+Xw96dQtk7QoqxbhbNSseWFSeob7nLTk=;
-        b=KGcwh+31qt42PMbWZC/BmG7sN7cmFJxiEtmzdlGvCf5Qe9JX89tYwNwaDi+PTPiZug
-         bmj0ZlhaC+CLQsV96A3vqJpS92IIa1B1mJ9TdxEpd2EDc7wfeDjgMh/3cNPUedI8YNtY
-         iIEqyzTdoz2zsFi0IO1oOXwAk0lkn6R/PlewpAPbzKtCbsL0o65admEa1DMjoSBHOD0g
-         rtUjFjEzI809uEk11w7QCTIEHhdiwUgIQIPJkevCI4bsMrAlTk9nMDU/4CcD4kmjc3u0
-         Mn0L1bjl/oZXLjjpNeIReWL+PP9qOqxFt45FJ0cKLBfzkySWzYooHGDFA0OL1enzvJVY
-         i5Ow==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=Yxm1YpM5+HvB4PCmbQhZyVO5mxc5JDBpL24xPUQG7P4=;
+        b=uadQDARMtw+xzX86FaTZrDVYdv/+2AIk/h8HPYPo79emmQg+1CuTuxbwIfp9Nr0Cyq
+         P4wWOAljIuX5DyeIV94o0eLM8PESpbOzKs3JJbkvCrvAxMLwA3jpptccHnPPpyW6DkEg
+         m22N6PgW3uGG+LECOnWkLtmnxfor8lmSqS6Jgsdf4k5PDUmwM1S89OsOMMDeJ1i5rZoC
+         4fKcyY0X8rz0k3MT07R1qxNolbSFDrMiOsdpK9/GYKK9uq36figAIM4kZ1MR8ARenLrM
+         rAFnFHqAnNqz7vuLOqzY4m0t3A9OPFiMBuOsRAPF/IU5DnNEdY1RyavSwiyoRLcchH1R
+         /Ekg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:date:message-id:user-agent
-         :mime-version:content-transfer-encoding;
-        bh=xqciGcZR7aK+Xw96dQtk7QoqxbhbNSseWFSeob7nLTk=;
-        b=eDF2uIdXGOjILjcpVwmCo5Hnk/ZZzbeOGZTnHOkFnU+Ac5PexHVF2D5AIh5jfdJFRD
-         eQAp3lZwNET/eRBb+5BRKEuMlH65WFZH2SFAJ59b6r4m77vfn0zWMoOg1Lv7eexEi0Bj
-         uqY5icod4AomcF/ZViqxDIasNny2WaUOJFnLuzuf30xJjY6U6O0wqXv/rdDeACEP07zI
-         daVAOq88PkkgWyCKFnKLtZTcfIGmrbwNri1/tSAzoOrZM6uDWaupQtUB0o5uQbBfwpER
-         T93QtM7BpnMT/9gR5FsUNHAcnnylYJLxIpWCQGOABdC6qMg7w1AzCVqAhB7+oRgKucbk
-         ooVQ==
-X-Gm-Message-State: APjAAAXKjEDAN/6DywUrj0TX+wSsoLkfNjKPJdi45Jl5LcVG0txsqDGQ
-        0daT+wnuUVTDDsMHb0mroRPn/EV79g==
-X-Google-Smtp-Source: APXvYqyMBttNmh9xK3PjlUTy9J6y+VIqA/L1guZoKWpFzV6AAJe4Emu6NyJwj71NvWmnZDKP9pSShQ==
-X-Received: by 2002:ad4:420f:: with SMTP id k15mr15360456qvp.187.1566832292019;
-        Mon, 26 Aug 2019 08:11:32 -0700 (PDT)
-Received: from localhost (static-96-233-112-89.bstnma.ftas.verizon.net. [96.233.112.89])
-        by smtp.gmail.com with ESMTPSA id h66sm6696569qke.61.2019.08.26.08.11.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 26 Aug 2019 08:11:31 -0700 (PDT)
-From:   Paul Moore <paul@paul-moore.com>
-X-Google-Original-From: Paul Moore <pmoore2@cisco.com>
-Subject: [PATCH] selinux-testsuite: fix the cgroups_label test
-To:     selinux@vger.kernel.org
-Date:   Mon, 26 Aug 2019 11:11:30 -0400
-Message-ID: <156683229042.27016.12674072161480134335.stgit@chester>
-User-Agent: StGit/0.19-dirty
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to;
+        bh=Yxm1YpM5+HvB4PCmbQhZyVO5mxc5JDBpL24xPUQG7P4=;
+        b=OVaz2gybOZhD8tRKULUeNpDZfO9mzwsocp3ADwNUIkeeDRvzGN/bKTIHXvVpLn4cbp
+         VxDz5kWMTpnB0ZSZ+8ISXGVxeK7geP0p5a68qY7W7VPA90DrvFalprSowBpHz59ictK6
+         DPBH3pTlr1xIMscsmUQXSUqbSJcQQ0iveXcf1bYyCGupVCNRBbI9Uv1h73lKpqT3KR61
+         i4lIfyXmCPeUlYRXBZ82CaG8AqIGL1miVnrJmKJjNsPpZWO1+9MWAmQLRHb3g9hl+LQg
+         3rYKxemJEBbq+oRBP1gS2AueeUd9fWvaxBSgEK5L9IjTPFgevtN90cDiJBnYe+mX5+v/
+         Wc+g==
+X-Gm-Message-State: APjAAAXERVRr/4RzrwzQVztJctiAbAj/itRII6po0qI8rdzu1fCITVVH
+        YOzOZdv0j2Y9UcYz8mOWdnm70o2DozM4Dmz6PsD/BrlKSw==
+X-Google-Smtp-Source: APXvYqwlqbteqEFwVURFIM6ydB1Y+6lP8NzqsdRMfptzTTmKHAHk8ez+gqu9UGvWTtdroTPARLbqq/FzuKzMqyVaK9Q=
+X-Received: by 2002:ac2:4474:: with SMTP id y20mr1814758lfl.31.1566832778235;
+ Mon, 26 Aug 2019 08:19:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+References: <156683229042.27016.12674072161480134335.stgit@chester>
+In-Reply-To: <156683229042.27016.12674072161480134335.stgit@chester>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 26 Aug 2019 11:19:27 -0400
+Message-ID: <CAHC9VhQ3gZ_VFsRSXO_i0vFCJdHbWxGVB69mGAfCOvwsePyOLw@mail.gmail.com>
+Subject: Re: [PATCH] selinux-testsuite: fix the cgroups_label test
+To:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+On Mon, Aug 26, 2019 at 11:11 AM Paul Moore <paul@paul-moore.com> wrote:
+> From: Paul Moore <paul@paul-moore.com>
+>
+> We can't rely on /sys/fs/cgroups/unified anymore, use our own directory.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> ---
+>  tests/cgroupfs_label/test |   19 +++++++++----------
+>  1 file changed, 9 insertions(+), 10 deletions(-)
 
-We can't rely on /sys/fs/cgroups/unified anymore, use our own directory.
+This seemed like a trivial fix, and broken tests are a Very Bad Thing,
+so I merged this without the usual day-or-two delay.  However, if
+you've got comments on the patch please feel free to send mail.
 
-Signed-off-by: Paul Moore <paul@paul-moore.com>
----
- tests/cgroupfs_label/test |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
-
-diff --git a/tests/cgroupfs_label/test b/tests/cgroupfs_label/test
-index 127e802..385b953 100755
---- a/tests/cgroupfs_label/test
-+++ b/tests/cgroupfs_label/test
-@@ -5,24 +5,23 @@ BEGIN { plan tests => 2 }
- 
- my $ret;
- 
-+my $dir = "/sys/fs/cgroup/selinuxtest";
-+
- # Create a new cgroupfs directory and relabel it.
--mkdir("/sys/fs/cgroup/unified/test");
--system("chcon -R -t test_cgroup_t /sys/fs/cgroup/unified/test");
-+mkdir("$dir");
-+system("chcon -R -t test_cgroup_t $dir");
- 
- # Create a subdirectory in it.
--mkdir("/sys/fs/cgroup/unified/test/subdir");
-+mkdir("$dir/subdir");
- 
--$ret =
--  system("test `secon -tf /sys/fs/cgroup/unified/test/subdir` = test_cgroup_t");
-+$ret = system("secon -tf $dir/subdir | grep -q '^test_cgroup_t\$'");
- ok( $ret, 0 );    # Did the subdirectory inherit the parent's label?
- 
--$ret = system(
--"test `secon -tf /sys/fs/cgroup/unified/test/subdir/cgroup.type` = test_cgroup_t"
--);
-+$ret = system("secon -tf $dir/subdir/cgroup.type | grep -q '^test_cgroup_t\$'");
- ok( $ret, 0 );    # Did also files in the subdirectory inherit the label?
- 
- # Cleanup.
--rmdir("/sys/fs/cgroup/unified/test/subdir");
--rmdir("/sys/fs/cgroup/unified/test");
-+rmdir("$dir/subdir");
-+rmdir("$dir");
- 
- exit;
-
+-- 
+paul moore
+www.paul-moore.com
