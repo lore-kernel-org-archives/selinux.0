@@ -2,98 +2,95 @@ Return-Path: <SRS0=oO2X=WX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBFC3C3A5A3
-	for <selinux@archiver.kernel.org>; Tue, 27 Aug 2019 17:14:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BB8AC3A5A6
+	for <selinux@archiver.kernel.org>; Tue, 27 Aug 2019 17:24:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A19752070B
-	for <selinux@archiver.kernel.org>; Tue, 27 Aug 2019 17:14:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 454BC206BF
+	for <selinux@archiver.kernel.org>; Tue, 27 Aug 2019 17:24:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="XBGeEgAq"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="1COEvurp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727219AbfH0ROk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 27 Aug 2019 13:14:40 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:38823 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727064AbfH0ROj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 27 Aug 2019 13:14:39 -0400
-Received: by mail-lf1-f65.google.com with SMTP id c12so4440686lfh.5
-        for <selinux@vger.kernel.org>; Tue, 27 Aug 2019 10:14:38 -0700 (PDT)
+        id S1727057AbfH0RYq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 27 Aug 2019 13:24:46 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:45565 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727064AbfH0RYq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 27 Aug 2019 13:24:46 -0400
+Received: by mail-lf1-f66.google.com with SMTP id o11so6497008lfb.12
+        for <selinux@vger.kernel.org>; Tue, 27 Aug 2019 10:24:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=hwH8RVR0MXgLwbByxkYz0JNO95wQN1BPKZYhWUUAFeI=;
-        b=XBGeEgAqy7HWSGSlc3mUfSE3B65SbT9mhKS8jIFZrBcXbRkLJ/c8J81U3IAqlFx2st
-         Csdh9AdR18bJZdvzOaQ2w7Zc7eeFFKTfxD8R+7Ajtfngc1SX7HPHz4biAPBuoDBKCYQB
-         P5PJbjMWBlShePE1uGEkSYk2idhEdULAqwBio63gXSqmWl9oPhpF0Dapz3XGCpFhyFZ6
-         SXRgng2V4Wmb/otI7K56FYWIp7tZD0CSSrJ67VbAvCjEq0z0gbuqwqY/z4Mh4NM6qIeI
-         YzeKZA36LLnCv/ulFSh5cXk5bV9iIaer8DBpwQ1H05TCGW63UyqOu8gDQb2Gzc89W67+
-         ei+g==
+        bh=Ad0rlor5MGfGSOlkRJBMrrnHr5e679Yzb11amluiugk=;
+        b=1COEvurpyqmjhijgoJ2749mFxQKddU4K66iWQ5rNylO6NprPAmSoRPCWz83CgzB2fO
+         fa7z5gwenVfk1isTfsx4CY3amtyxwftWiipAMlIG78XSg8B/UaWy1SOotUR6SkEu5mmH
+         qJdk5tglmxJDOOjm1BkgUCKYNgJHKXiw72JHPDgpdSV9FFwO3pz089BDMErN/jzaQY44
+         wE9VrKyC6s4d7tJWRlISUuqdT2W6+tZJTTHG6BBfZmUjSF/y4/HIuBmb90AhcO0G2/cM
+         QBVJofWEeP/ruIT+Sto/9cQUvyjxF1VDzqfIjsGLT1Aei+zQNkvQpjJhEvSoNcgxG04I
+         +wCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=hwH8RVR0MXgLwbByxkYz0JNO95wQN1BPKZYhWUUAFeI=;
-        b=lu2RF6+NpWcmDXl1D4230eAAxCtlUw1DhzS6g4q4HHiraZ8lN4DYslIr+VSEPij1S7
-         yTeTl+NQyQ7uEadRnKM1wxo8a1opXpHTkbBQwYf1EVHzaDOsRweh9gGz6u+X8RVszOYM
-         pS+PP/iBFn8UEtCr8k+ivHCOtz7+qlIKVmCeoOSet+/xBzeX7PsU8KcQyiJbz5MB+hdJ
-         HGtp8Hv3UxtiMMZnfSzVsMI7lc98IUXx++jgHrXd5meFsxOajpXyFXv8CqMOKZceOndC
-         36qWNQaOcFKZDU1mVbbsokapImYt+3n8z1EExUOw3J4LtMEUkSWnJ9bWO/pA3PSdTJRy
-         ASBQ==
-X-Gm-Message-State: APjAAAWqYgzejUUIvnu3pG6QlfWvcAeoH5XvDlBbtnOKxjOn1oYAM8vP
-        yuoE7eTFe1j1DgSgOWgrimGGPHlU++k0Iumv0BNV
-X-Google-Smtp-Source: APXvYqxM12cj6Xm/qe0YG/iPt8R4ge5BojDgvfWaQOtHMwt7Fp3hgF3bd1mTl9ppYtGHAGST+9x+j0RJRVIZSKPcgPQ=
-X-Received: by 2002:a19:cc15:: with SMTP id c21mr8163213lfg.64.1566926077381;
- Tue, 27 Aug 2019 10:14:37 -0700 (PDT)
+        bh=Ad0rlor5MGfGSOlkRJBMrrnHr5e679Yzb11amluiugk=;
+        b=PQTK4jq7797vPMK51CTpu17eFaNC25jtEVtXQ7JmnVspeCKjeFgEXXb2qsBpcEdy//
+         VdGSZEqynB+dOLo4zlXYp9oP4fuCo8gRfszvJhQ4rDai660G7g8FXeAZC3tRxTs7DBdW
+         Es0uP2L7eFl22Esy8fq28h9qtBpPA8W5wsWh8qYUNzondIHJqz/ay3hI7zGxHiP6FPW5
+         C26xwOJUo59T4bgk06UF6KFRxauPRHwpMZWDgjSlVZ3+dxjK58tqBtzN3umezBRHEulF
+         ptwKvgQQlULv6xSfYJLhRJcaUkJhdQpVD7oxpDqXxZTz+A+Pa1/1qqIaJQYxfxMOy1Ro
+         m+qw==
+X-Gm-Message-State: APjAAAUl65G7fPVexIPhYAzLXaScbj1szUzb1DlWNfKmQC81zctp3x0w
+        6ulwYY+vc6HzqH04R2Yrgvq6bBskzHHsp0A0XXEs4tJYLw==
+X-Google-Smtp-Source: APXvYqz2zREnwm7aNr9SW9004n72as6isKSvvajAFcCmQpk32SRMoQ/njOVdKPn6zzgcqPoPWA7peUGmvST6Jm1RoSg=
+X-Received: by 2002:ac2:4474:: with SMTP id y20mr5314780lfl.31.1566926683848;
+ Tue, 27 Aug 2019 10:24:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190710133917.1188-1-acgoide@tycho.nsa.gov>
-In-Reply-To: <20190710133917.1188-1-acgoide@tycho.nsa.gov>
+References: <CAHC9VhTuYi+W0RukEV4WNrP5X_AFeouaWMsdbgxSL1v04mouWw@mail.gmail.com>
+ <CAHC9VhR1ZNyZqGB3Si-z77zLwaTBf-pkQk19rVqofs4P_oVtFg@mail.gmail.com>
+In-Reply-To: <CAHC9VhR1ZNyZqGB3Si-z77zLwaTBf-pkQk19rVqofs4P_oVtFg@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 27 Aug 2019 13:14:25 -0400
-Message-ID: <CAHC9VhQqrgR7+qakF+bz-i0tL9fN0YQSSmXMyGL-TeLnkNpBkQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: add tests for fsnotify
-To:     Aaron Goidel <acgoide@tycho.nsa.gov>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Lukas Vrabec <lvrabec@redhat.com>
-Cc:     selinux@vger.kernel.org
+Date:   Tue, 27 Aug 2019 13:24:31 -0400
+Message-ID: <CAHC9VhSKxgCB_j-eT65tSvqFDbBe_Wu_b+XsvN0Si2eDrEROMQ@mail.gmail.com>
+Subject: Re: IB pkey policy problem found via the selinux-testsuite
+To:     selinux@vger.kernel.org, selinux-refpolicy@vger.kernel.org,
+        Lukas Vrabec <lvrabec@redhat.com>,
+        Chris PeBenito <pebenito@ieee.org>
+Cc:     danielj@mellanox.com
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 10, 2019 at 9:40 AM Aaron Goidel <acgoide@tycho.nsa.gov> wrote:
+On Thu, Feb 28, 2019 at 4:58 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Wed, Feb 13, 2019 at 4:35 PM Paul Moore <paul@paul-moore.com> wrote:
+> > Hello all,
+> >
+> > On a fully up-to-date Rawhide system you need the following line added
+> > to the policy/test_ibpkey.te file to get a clean run of the
+> > selinux-testsuite:
+> >
+> >   allow test_ibpkey_access_t self:capability { ipc_lock };
+> >
+> > The breakage doesn't appear to be due to a kernel change (previously
+> > working kernels now fail), or a Fedora Rawhide policy change (nothing
+> > relevant changed since the last clean run), but I did notice that my
+> > libibverbs package was updated just prior to the breakage.  I haven't
+> > had the time to dig into the library code, but I expect that to be the
+> > source of the problem.
 >
-> Added a suite to test permissions for setting inotify and fanotify watches
-> on filesystem objects. Tests watch, watch_with_perm, and watch_reads permissions.
->
-> Signed-off-by: Aaron Goidel <acgoide@tycho.nsa.gov>
-> ---
->  policy/Makefile              |   4 ++
->  policy/test_notify.te        |  74 ++++++++++++++++++++++++
->  tests/Makefile               |   4 ++
->  tests/notify/Makefile        |   5 ++
->  tests/notify/test            | 101 +++++++++++++++++++++++++++++++++
->  tests/notify/test_fanotify.c | 105 +++++++++++++++++++++++++++++++++++
->  tests/notify/test_inotify.c  |  43 ++++++++++++++
->  7 files changed, 336 insertions(+)
->  create mode 100644 policy/test_notify.te
->  create mode 100644 tests/notify/Makefile
->  create mode 100755 tests/notify/test
->  create mode 100644 tests/notify/test_fanotify.c
->  create mode 100644 tests/notify/test_inotify.c
+> Just to be clear, I don't believe this breakage is limited to the test
+> suite, I expect any users of the SELinux IB hooks will run into this
+> problem.  I believe we need to update the upstream and distro
+> policies.
 
-FYI, I'm still waiting on the new permissions to show up in the
-Rawhide policy so I can test this and verify everything is working
-correctly with a "released" policy.
+A ping to bring this issue back to the top of the mailing list.
 
-I also had to perform a number of fixes to get 'make check-syntax' to
-run cleanly.
-
--- 
+--
 paul moore
 www.paul-moore.com
