@@ -6,98 +6,161 @@ X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C73F5C3A5A3
-	for <selinux@archiver.kernel.org>; Tue, 27 Aug 2019 17:33:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 591BEC3A5A3
+	for <selinux@archiver.kernel.org>; Tue, 27 Aug 2019 20:47:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9C92A21881
-	for <selinux@archiver.kernel.org>; Tue, 27 Aug 2019 17:33:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 220C020656
+	for <selinux@archiver.kernel.org>; Tue, 27 Aug 2019 20:47:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xKTB20+x"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="wjz2OlUL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730276AbfH0Rdw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 27 Aug 2019 13:33:52 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:39947 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727219AbfH0Rdw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 27 Aug 2019 13:33:52 -0400
-Received: by mail-lf1-f65.google.com with SMTP id u29so2981395lfk.7
-        for <selinux@vger.kernel.org>; Tue, 27 Aug 2019 10:33:51 -0700 (PDT)
+        id S1728371AbfH0UrT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 27 Aug 2019 16:47:19 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:36157 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726584AbfH0UrT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 27 Aug 2019 16:47:19 -0400
+Received: by mail-lj1-f196.google.com with SMTP id u15so547761ljl.3
+        for <selinux@vger.kernel.org>; Tue, 27 Aug 2019 13:47:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RKUULj5eMdf+J6Z6LlD09aOvP9ewJfGxBeSdaumGUzU=;
-        b=xKTB20+x3GyH4q//bJQM3AUuY05a1ha/AGFuXj0CxwGXFqGL0l1Ny8ycNeWKTzUZAS
-         3jIsywAZHsMA1KnH0wpU7LzS36IaVcRW0Kmadkjof7UWsvp09/okc+PQR1zf+E0H4rpW
-         80mqtv4V9o1LL0JJQw0SFi9hswDcwMZd54dEQE0nFzzM1CpKcGim/ejfoHBDpKG/bo+s
-         uv+IF8+LFe5MHRTuGAhjfK1IZhyW0UpUpH5qMRKmYoPwowOn+y379hxKzESvmKloSBlb
-         AELm48Is4GzeGXGAyiW8z5nAqZ71wqjbevaie/WJMNKheu7Xr9V4aRc2qLDshDxcmrO2
-         olPw==
+         :cc:content-transfer-encoding;
+        bh=676eBGOMnEbCXdYc2k42Pn3qEQ+iqzW4O3w2nRFpLyY=;
+        b=wjz2OlUL8SBaRIjQe2a3q3lg/KbUwYCbasUcIyh0tUnuwP/DR2Nx/EIcHFqRFsMuov
+         BMbbpB7exp43OZSkAwaHJfxuZd0k8xIREjlTyNSPAz8yw656ub/Sb2ZsX7warBLAVVmy
+         PnEeBerc/wgN7MYukl+57MTdVvVs84Mh3E/EsmTW5eASJGVG8WI+cNcLbUl9ASoS0gJK
+         nEiqqzY4o6eWY45oYImbaodwiaPLHfhMEjXFBbMNBYCd3IcXU9MO/G2qaD6HMM4iDgbN
+         YKNdXvzEusmflmeX0/d2oyJ1RzO3XdoSXxzq8qAz6tc/k1nh5P2QWpLAS9yQ32DvnFIo
+         zg9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RKUULj5eMdf+J6Z6LlD09aOvP9ewJfGxBeSdaumGUzU=;
-        b=j2iErutBM7A4ierVScyeaf/ylXGxAU7k1dJRcZiIxCevBevw8VLj+2ulLxA4Hba1jL
-         2TiS34S79vt3bB3W6qimRn9xy8dS8foHeY/hTnJziOs97OhEwJaEs7/xJAnzna47B8TY
-         yUMJgh3Fw4vwvWmAOfZ0xSFOB+RVo/q8HQQvRadWWwfj3/yr7kXTE/upyD3L0wZ8vEgm
-         7y/yYzlEJEl+QKTwup2/M735BKRClqGFPOh8Tsh5mzhpZeRuLlLy64o0BZa37puYn+J3
-         WE37vLAYn+/UxuhH01/KPiqozYndUFWW9OQbwVhfcf81cwg1ETibcLrenwOZc6W0iQ7A
-         VFww==
-X-Gm-Message-State: APjAAAUlem4TbKheR8AGZllflNFfVHRDrV5DqJ//YvbQPOvQVCxX7wWC
-        qcAjyEE1/51Yk2bYFraZ9YqvN8EcM+J65d/U1iPa
-X-Google-Smtp-Source: APXvYqzHpCxqXkmI4wP2SkK4RfTN8y2/Pw0NAgTQJbUBs4JWo3/CkwLnu23URV3boQnM/b1UUDGCEbN0ijojirR0ccA=
-X-Received: by 2002:a19:8c14:: with SMTP id o20mr8407138lfd.158.1566927228960;
- Tue, 27 Aug 2019 10:33:48 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=676eBGOMnEbCXdYc2k42Pn3qEQ+iqzW4O3w2nRFpLyY=;
+        b=UEnNv5Q6V8wMHYxfwGCbKyVKXynMuygs438PHiA3Nw12yOsJTFUvkdN7uixF2QiFmW
+         sfOg/P5zcDINemj5aacfD8XtW5542Gn8QFdWpY62G4S8Nj0XkGuLBBwUibiUFFEWIznJ
+         Qq3Bs7t4P0iVblN0emNYZPZgADF7ZMLbwnMwL3ASLdptwTDn98Dz061dlGYyiaHm8UEv
+         3d+LTxY0HeDRCd8J1Tyy0Y9Sc49ekb1smZxb6B5Qg71+6/FDNnSg0G1j59ZXAuGWw+jh
+         m5Bez+Qv+VYDzQQLbhWixg6SJtcoaSXTG1vl3nHfvpOE0tWoc+o/gYEQiUlnmVXeUlbz
+         kllA==
+X-Gm-Message-State: APjAAAWAxzaIMUNVty79y8wsiNCQcRLW2c2qfnrM4igPrEpWbiCqjyyL
+        G9kw8/Ulw17MsVao4tz+bgjiLHUXxt15VHiXwle2
+X-Google-Smtp-Source: APXvYqz18ASa+PuVHWeWsueo2BGnqQKKMgfHbJJ8aC+DXkQeY09FG1NoMCLdKpFnC0jdgk4t+vpziyBLozSTThLqkds=
+X-Received: by 2002:a2e:6393:: with SMTP id s19mr135317lje.46.1566938836251;
+ Tue, 27 Aug 2019 13:47:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190814133320.28516-1-omosnace@redhat.com>
-In-Reply-To: <20190814133320.28516-1-omosnace@redhat.com>
+References: <20190821134547.96929-1-jeffv@google.com> <20190822.161913.326746900077543343.davem@davemloft.net>
+ <CABXk95BF=RfqFSHU_---DRHDoKyFON5kS_vYJbc4ns2OS=_t0w@mail.gmail.com>
+In-Reply-To: <CABXk95BF=RfqFSHU_---DRHDoKyFON5kS_vYJbc4ns2OS=_t0w@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 27 Aug 2019 13:33:37 -0400
-Message-ID: <CAHC9VhRb1==sCoNxKZN09-rhs+yHiDXbd4Lw+fRZGen5d1A2uA@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: avoid atomic_t usage in sidtab
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Jann Horn <jannh@google.com>,
-        NitinGote <nitin.r.gote@intel.com>,
-        Kees Cook <keescook@chromium.org>
+Date:   Tue, 27 Aug 2019 16:47:04 -0400
+Message-ID: <CAHC9VhRmmEp_nFtOFy_YRa9NwZA4qPnjw7D3JQvqED-tO4Ha1g@mail.gmail.com>
+Subject: Re: [PATCH 1/2] rtnetlink: gate MAC address with an LSM hook
+To:     Jeffrey Vander Stoep <jeffv@google.com>
+Cc:     David Miller <davem@davemloft.net>, netdev@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 14, 2019 at 9:33 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Fri, Aug 23, 2019 at 7:41 AM Jeffrey Vander Stoep <jeffv@google.com> wro=
+te:
+> On Fri, Aug 23, 2019 at 1:19 AM David Miller <davem@davemloft.net> wrote:
+> > From: Jeff Vander Stoep <jeffv@google.com>
+> > Date: Wed, 21 Aug 2019 15:45:47 +0200
+> >
+> > > MAC addresses are often considered sensitive because they are
+> > > usually unique and can be used to identify/track a device or
+> > > user [1].
+> > >
+> > > The MAC address is accessible via the RTM_NEWLINK message type of a
+> > > netlink route socket[2]. Ideally we could grant/deny access to the
+> > > MAC address on a case-by-case basis without blocking the entire
+> > > RTM_NEWLINK message type which contains a lot of other useful
+> > > information. This can be achieved using a new LSM hook on the netlink
+> > > message receive path. Using this new hook, individual LSMs can select
+> > > which processes are allowed access to the real MAC, otherwise a
+> > > default value of zeros is returned. Offloading access control
+> > > decisions like this to an LSM is convenient because it preserves the
+> > > status quo for most Linux users while giving the various LSMs
+> > > flexibility to make finer grained decisions on access to sensitive
+> > > data based on policy.
+> > >
+> > > [1] https://adamdrake.com/mac-addresses-udids-and-privacy.html
+> > > [2] Other access vectors like ioctl(SIOCGIFHWADDR) are already covere=
+d
+> > > by existing LSM hooks.
+> > >
+> > > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+> >
+> > I'm sure the MAC address will escape into userspace via other means,
+> > dumping pieces of networking config in other contexts, etc.  I mean,
+> > if I can get a link dump, I can dump the neighbor table as well.
 >
-> As noted in Documentation/atomic_t.txt, if we don't need the RMW atomic
-> operations, we should only use READ_ONCE()/WRITE_ONCE() +
-> smp_rmb()/smp_wmb() where necessary (or the combined variants
-> smp_load_acquire()/smp_store_release()).
+> These are already gated by existing LSM hooks and capability checks.
+> They are not allowed on mandatory access control systems unless explicitl=
+y
+> granted.
 >
-> This patch converts the sidtab code to use regular u32 for the counter
-> and reverse lookup cache and use the appropriate operations instead of
-> atomic_get()/atomic_set(). Note that when reading/updating the reverse
-> lookup cache we don't need memory barriers as it doesn't need to be
-> consistent or accurate. We can now also replace some atomic ops with
-> regular loads (when under spinlock) and stores (for conversion target
-> fields that are always accessed under the master table's spinlock).
+> > I kinda think this is all very silly whack-a-mole kind of stuff, to
+> > be quite honest.
 >
-> We can now also bump SIDTAB_MAX to U32_MAX as we can use the full u32
-> range again.
+> We evaluated mechanisms for the MAC to reach unprivileged apps.
+> A number of researchers have published on this as well such as:
+> https://www.usenix.org/conference/usenixsecurity19/presentation/reardon
 >
-> Suggested-by: Jann Horn <jannh@google.com>
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> Reviewed-by: Jann Horn <jannh@google.com>
-> ---
+> Three "leaks" were identified, two have already been fixed.
+> -ioctl(SIOCGIFHWADDR). Fixed using finer grained LSM checks
+> on socket ioctls (similar to this change).
+> -IPv6 IP addresses. Fixed by no longer including the MAC as part
+> of the IP address.
+> -RTM_NEWLINK netlink route messages. The last mole to be whacked.
 >
-> v2: Added comments detailing access semantics of sidtab fields.
+> > And like others have said, tomorrow you'll be like "oh crap, we should
+> > block X too" and we'll get another hook, another config knob, another
+> > rulset update, etc.
 >
->  security/selinux/ss/sidtab.c | 48 ++++++++++++++++--------------------
->  security/selinux/ss/sidtab.h | 19 ++++++++++----
->  2 files changed, 35 insertions(+), 32 deletions(-)
+> This seems like an issue inherent with permissions/capabilities. I don=E2=
+=80=99t
+> think we should abandon the concept of permissions because someone
+> can forget to add a check.  Likewise, if someone adds new code to the
+> kernel and omits a capable(CAP_NET_*) check, I would expect it to be
+> fixed like any other bug without the idea of capability checks being toss=
+ed
+> out.
+>
+> We need to do something because this information is being abused. Any
+> recommendations? This seemed like the simplest approach, but I can
+> definitely appreciate that it has downsides.
+>
+> I could make this really generic by adding a single hook to the end of
+> sock_msgrecv() which would allow an LSM to modify the message to omit
+> the MAC address and any other information that we deem as sensitive in th=
+e
+> future. Basically what Casey was suggesting. Thoughts on that approach?
 
-Sorry for the delay on this, it was a casualty of LSS-NA.  Regardless,
-this looks better, I just merged it into selinux/next - thanks!
+I apologize for the delay in responding; I'm blaming LSS-NA travel.
 
--- 
+I'm also not a big fan of inserting the hook in rtnl_fill_ifinfo(); as
+presented it is way too specific for a LSM hook for me to be happy.
+However, I do agree that giving the LSMs some control over netlink
+messages makes sense.  As others have pointed out, it's all a matter
+of where to place the hook.
+
+If we only care about netlink messages which leverage nlattrs I
+suppose one option that I haven't seen mentioned would be to place a
+hook in nla_put().  While it is a bit of an odd place for a hook, it
+would allow the LSM easy access to the skb and attribute type to make
+decisions, and all of the callers should already be checking the
+return code (although we would need to verify this).  One notable
+drawback (not the only one) is that the hook is going to get hit
+multiple times for each message.
+
+--
 paul moore
 www.paul-moore.com
