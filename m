@@ -2,143 +2,168 @@ Return-Path: <SRS0=Y9t7=WZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCF18C3A59F
-	for <selinux@archiver.kernel.org>; Thu, 29 Aug 2019 17:11:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DEBEC3A59F
+	for <selinux@archiver.kernel.org>; Thu, 29 Aug 2019 19:26:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B02052189D
-	for <selinux@archiver.kernel.org>; Thu, 29 Aug 2019 17:11:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1AE9B22CEA
+	for <selinux@archiver.kernel.org>; Thu, 29 Aug 2019 19:26:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="v/ff9ZNU"
+	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="PhhzSpnJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726739AbfH2RLp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 29 Aug 2019 13:11:45 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:34470 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726661AbfH2RLo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 29 Aug 2019 13:11:44 -0400
-Received: by mail-ot1-f65.google.com with SMTP id c7so4190876otp.1
-        for <selinux@vger.kernel.org>; Thu, 29 Aug 2019 10:11:44 -0700 (PDT)
+        id S1728214AbfH2T0A (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 29 Aug 2019 15:26:00 -0400
+Received: from mail-oi1-f196.google.com ([209.85.167.196]:34640 "EHLO
+        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726343AbfH2T0A (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 29 Aug 2019 15:26:00 -0400
+Received: by mail-oi1-f196.google.com with SMTP id g128so3502193oib.1
+        for <selinux@vger.kernel.org>; Thu, 29 Aug 2019 12:25:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=LLFwB718xwnPmd1mJSQTWuWbRYIaTL+v1XQHQcP2gl8=;
-        b=v/ff9ZNUN2URZYbsw1DxFP4C/dBieQ4WdDYhpLkebd8hQHVWz1rdUusdJrVbwcpqZ/
-         q072mVZZHUWUJbWQOeV4aGNPZahQfac/Df2KkjKwnK05DU7bklPu9BJUf2aMQ6XWBRaj
-         218klUtfT2Dp2MOpVECe4+KVvETjMrsNHsFf1HzekPnYLMi76gPy1RysVwrQcJrBZhCn
-         E1e0/Vtco8gG2Y5S1pypQrld+7hItQrAe6GIo9UMGaVpmkNnmVU/cChuzyPzqdXkWWIp
-         UAsaDbu0VqEDpGAMcyDu3FN0zR7uINsdw1pJJ+1bH/DjzxYEtEvSp/xnh90yy0fPKNKW
-         9lCQ==
+        bh=xQaVQ/qTaInZdiHMHhEi+nPHvaVH+bYdyuiEJ/cz7kA=;
+        b=PhhzSpnJSFJ1Y2RR+SL6MOx0XYG5AGgp1zQQ19+ga0LhtsEQX1RnnN4/il3Vg/ciD3
+         zQESA/YWrbP2Ieq4e7oXFQS0jSmXUZnM4JYRRqULbUISvwJQ2ZjRxwFoJ9TVBT4Vrgyw
+         KRNUatXyxYj7P9UWq6NAj4NhZXILk5WwBI7PDmPetV5Bg4YDrWUQgfhSWmAdrdEIu/LA
+         PQxy1pxcsA51RVdNenfZBJWy/qqu4Xo6JdLld0Ae4Tqr4afnWHLwP9MZMgOVPK/n1R2X
+         PwV/RK+vfiIIGcv4FNLQg4hnpUR1uZLEsR46V2TRwu9B4p/i4lhUwD9w5n4ws7BywPwx
+         +whA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=LLFwB718xwnPmd1mJSQTWuWbRYIaTL+v1XQHQcP2gl8=;
-        b=ZUz6w5JrNSn/9Q2MvH6iTu0OYn9vYTCDy9LHRIvP62Ctf7ibwlDJKZ3hgtZClPqaU6
-         dUCJAo+1Go7qErukmvyxoURT2GP7bUZ3KjZ7G0Fm56Oi4GrIbMJpbEkWZdw2T2I5G7zB
-         TbCUUIkfI+fWw2Q1tvbK5cxOcmyMQbp3evu1r+gTcvMVYJNUNmwZNI+wgV3vvxb65MDt
-         iCpa8LhBpI4Ehb3+geTsLAw3IyibnVTsHBgcqQSynASUI+cLcK5U2x45kjOsqtz//ZOn
-         etBNS77gjMBDlpk+m4C/01bmJUktyj1Cioke0RDiOBBfV6A5iyPLZLszD2xcomEbmcmc
-         yU0Q==
-X-Gm-Message-State: APjAAAXlmXfD/VQeohBMMFhy7XPcrXjHw6PQNpZmf1fBI5RSD8NpAyrB
-        z98McE1+imtvP4Rjq8vBQdk5PeGRKiLFB/gyJhU3PJg9xBY=
-X-Google-Smtp-Source: APXvYqyRIYFb3EowJvld+8FM4cwsyaEz52N89wKU7UnBcdLLKC3aYd31g5BIe17fSwVTz8XBMgCQB6TEYzKpnHdHBCQ=
-X-Received: by 2002:a9d:4c18:: with SMTP id l24mr8263012otf.168.1567098703981;
- Thu, 29 Aug 2019 10:11:43 -0700 (PDT)
+        bh=xQaVQ/qTaInZdiHMHhEi+nPHvaVH+bYdyuiEJ/cz7kA=;
+        b=CoqDFLWI11Wojvt4MK4DSzwxTk2AUD1KecW6qSwKd9BgkO1SiM24I9muB3SJoYL0Ib
+         xiao9NgtF18AoHu/g4eHFM+G7iDIWC2UMLGQwodpYqAEj4J67fbd4uSeAgm/pP8bvzhI
+         y3mssYRAVUbvn39oKS8UGt63NgpiP6xYRdJR4ddcwYC2jSWyR76IaY6/4XAExzDG13aW
+         /ZJu2LlLJ3G6LwvytZsPWxvXmQsAFmOzHcsOieZWqRZhXqtmUJeJtBcZkJXC5Y9ZKbWm
+         qcsJOe/EgXtEyWPATKodn0WwQwndjaIYTyxOiaPuF6aIjSxp6eRnvwwM9hDVEUsVs4ov
+         p/uw==
+X-Gm-Message-State: APjAAAW8YFYPTSgZDeLnX7I4kbwCN1FCKBDUrIierULYZhYII5IDU5yR
+        YPTYAVNdd2Nzal+aZHqOjPDWsSSEuO9LyNBKiNoQAyz2
+X-Google-Smtp-Source: APXvYqymmLHCDHBCDcuO9yyx0KekKAlGqnEeYnrOpoh5WMeW+/X3exzP+XwGH1/1S4HZfhu4gd+7rIjNXUkHaTaoImk=
+X-Received: by 2002:aca:360b:: with SMTP id d11mr7624495oia.179.1567106759486;
+ Thu, 29 Aug 2019 12:25:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190828204259.23160-1-joshua.brindle@crunchydata.com>
- <CAHC9VhQVeSvqFYA9tgVZi9p5B6mDWdnsREJUYfP-oSGi17YhUQ@mail.gmail.com>
- <CAGB+Vh7dg-2mmtAYsFp3+v6a5DD1mRycOxqRLWOx1tcUOmvWYw@mail.gmail.com> <CAHC9VhRoTyyXb5iGW-NY7EVYmmE1m8CJJLh0dLswxgVp_tG7Gg@mail.gmail.com>
-In-Reply-To: <CAHC9VhRoTyyXb5iGW-NY7EVYmmE1m8CJJLh0dLswxgVp_tG7Gg@mail.gmail.com>
+References: <20190826142009.2241-1-joshua.brindle@crunchydata.com> <d6b2555e-fbda-b3e2-d451-a6e9500e3646@tycho.nsa.gov>
+In-Reply-To: <d6b2555e-fbda-b3e2-d451-a6e9500e3646@tycho.nsa.gov>
 From:   Joshua Brindle <joshua.brindle@crunchydata.com>
-Date:   Thu, 29 Aug 2019 13:11:33 -0400
-Message-ID: <CAGB+Vh7GpEC5vzvUFiUrzvKEq4ihOENZdM9dOvcL+Lap4Uh96w@mail.gmail.com>
-Subject: Re: [PATCH v2] default_range glblub implementation
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
+Date:   Thu, 29 Aug 2019 15:25:48 -0400
+Message-ID: <CAGB+Vh41FrvMOs2MoONi23gmve0i3oz3m70Fbitkj629EiMBHg@mail.gmail.com>
+Subject: Re: [Non-DoD Source] [PATCH] Add default_range glblub support
+To:     jwcart2 <jwcart2@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org, Steve Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 29, 2019 at 12:59 PM Paul Moore <paul@paul-moore.com> wrote:
+On Thu, Aug 29, 2019 at 3:12 PM jwcart2 <jwcart2@tycho.nsa.gov> wrote:
 >
-> On Thu, Aug 29, 2019 at 9:29 AM Joshua Brindle
-> <joshua.brindle@crunchydata.com> wrote:
-> > On Wed, Aug 28, 2019 at 6:31 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Wed, Aug 28, 2019 at 4:43 PM Joshua Brindle
-> > > <joshua.brindle@crunchydata.com> wrote:
-> > > >
-> > > > A policy developer can now specify glblub as a default_range default and
-> > > > the computed transition will be the intersection of the mls range of
-> > > > the two contexts.
-> > > >
-> > > > The glb (greatest lower bound) lub (lowest upper bound) of a range is calculated
-> > > > as the greater of the low sensitivities and the lower of the high sensitivities
-> > > > and the and of each category bitmap.
-> > > >
-> > > > This can be used by MLS solution developers to compute a context that satisfies,
-> > > > for example, the range of a network interface and the range of a user logging in.
-> > > >
-> > > > Some examples are:
-> > > >
-> > > > User Permitted Range | Network Device Label | Computed Label
-> > > > ---------------------|----------------------|----------------
-> > > > S0-S1:c0.c12         | S0                   | S0
-> > > > S0-S1:c0.c12         | S0-S1:c0.c1024       | S0-S1:c0.c12
-> > > > S0-S4:c0.c512        | S1-S1:c0.c1024       | S1-S1:c0.c512
-> > > > S0-S16:c0,c2         | S4-S6:c0.c128        | S4-S6:c0,c2
-> > > > S0-S4                | S2-S6                | S2-S4
-> > > > S0-S4                | S5-S8                | INVALID
-> > > > S5-S8                | S0-S4                | INVALID
-> > > > S6:c0,c2-S7:c4,c5    | S0:c2,c4-S6:c5.c100  | S6:c2-S6:c5
-> > > >
-> > > > Signed-off-by: Joshua Brindle <joshua.brindle@crunchydata.com>
-> > > > ---
-> > > >  security/selinux/include/security.h |  3 ++-
-> > > >  security/selinux/ss/context.h       | 28 ++++++++++++++++++++++++++++
-> > > >  security/selinux/ss/ebitmap.c       | 18 ++++++++++++++++++
-> > > >  security/selinux/ss/ebitmap.h       |  1 +
-> > > >  security/selinux/ss/mls.c           |  2 ++
-> > > >  security/selinux/ss/policydb.c      |  5 +++++
-> > > >  security/selinux/ss/policydb.h      |  1 +
-> > > >  7 files changed, 57 insertions(+), 1 deletion(-)
-> > >
-> > > You incorporated some feedback from the v1 patch, but you ignored
-> > > some, can you explain why?
-> > >
+> On 8/26/19 10:20 AM, Joshua Brindle wrote:
+> > Policy developers can set a default_range default to glblub and
+> > computed contexts will be the intersection of the ranges of the
+> > source and target contexts. For example, one can add a default with
+> > this cil:
 > >
-> > I apologize, I missed a couple C++ style comments, I'll fix those and
-> > resend, was there anything else? I thought I addressed all of the
-> > technical concerns.
+> > (defaultrange db_table glblub);
+> >
+> > and then test using the compute_create utility:
+> >
+> > $ ./compute_create system_u:system_r:kernel_t:s0:c1,c2,c5-s0:c1.c20 system_u:system_r:kernel_t:s0:c0.c20-s0:c0.c36 db_table
+> > system_u:object_r:kernel_t:s0:c1,c2,c5-s0:c1.c20
+> >
 >
-> My biggest concern wasn't really the style nits (although please do
-> fix those), but rather the guts of ebitmap_and() and the use of
-> ebitmap_get_bit() instead of something a bit more efficient.  Here is
-> my original comment:
->
->   "Beyond that, since this is an AND operation, could we make better
->    use of things like find_first_bit()/ebitmap_start_positive()/
->    ebitmap_next_positive() to skip along one of the bitmaps instead
->    of needing to call ebitmap_get_bit() for each bit?  I imagine it
->    would be quicker that way."
+> It would be nice to say what glblub means and to have an example for checkpolicy
+> as well.
 >
 
-I used ebitmap_for_each_positive_bit() for the outer loop which uses
-ebitmap_start_positive() and ebitmap_next_positive().
+Can do.
 
-I suppose I could try to track both lists at the same time and AND the
-bitmaps when the startbit is the same but I don't expect this to
-really be any kind of bottleneck.
-
-> > > For reference, here are my comments on your first patch:
-> > > * https://lore.kernel.org/selinux/CAHC9VhRXyRDjj3KJDHvA4ruJg6H+1kzFPzfA-PLZ-NqBicsLrw@mail.gmail.com/
+<snip>
+> > --- a/libsepol/cil/src/cil_policy.c
+> > +++ b/libsepol/cil/src/cil_policy.c
+> > @@ -834,6 +834,9 @@ static void cil_default_ranges_to_policy(FILE *out, struct cil_list *defaults)
+> >               case CIL_DEFAULT_TARGET_LOW_HIGH:
+> >                       fprintf(out," %s %s", CIL_KEY_TARGET, CIL_KEY_LOW_HIGH);
+> >                       break;
+> > +             case CIL_DEFAULT_GLBLUB:
+> > +                     fprintf(out," %s %s", CIL_KEY_TARGET, CIL_KEY_GLBLUB);
 >
-> --
-> paul moore
-> www.paul-moore.com
+> I think you just want fprintf(out," %s", CIL_KEY_GLBLUB);
+
+Yea, you are right. I wonder why this even works then?
+
+<snip>
+
+> > --- a/libsepol/src/kernel_to_conf.c
+> > +++ b/libsepol/src/kernel_to_conf.c
+> > @@ -673,6 +673,9 @@ static int write_default_range_to_conf(FILE *out, char *class_name, class_datum_
+> >       case DEFAULT_TARGET_LOW_HIGH:
+> >               dft = "target low-high";
+> >               break;
+> > +     case DEFAULT_GLBLUB:
+> > +             dft = "glblub";
+> > +             break;
+> >       default:
+> >               sepol_log_err("Unknown default type value: %i", class->default_range);
+> >               return -1;
+>
+> You need to update kernel_to_cil.c as well.
+
+Good catch. As a side note changing the policy has many more touch
+points than it use to (this is my first time making an update that
+include CIL). Is there some checklist or developer readme or something
+available?
+
+Also, it isn't clear how to test all the combinations. I did add:
+
+Add via CIL module (which combos does that test?)
+Add to exported CIL base (is that really the same as above?)
+Add to .te base
+
+What would I have needed to do to see that kernel_to_cil.c hadn't been updated?
+
+<snip>
+
+> > --- a/libsepol/src/write.c
+> > +++ b/libsepol/src/write.c
+> > @@ -46,6 +46,11 @@
+> >   #include "private.h"
+> >   #include "mls.h"
+> >
+> > +#define glblub_version ((p->policy_type == POLICY_KERN && \
+> > +                  p->policyvers >= POLICYDB_VERSION_GLBLUB) || \
+> > +                 (p->policy_type == POLICY_BASE && \
+> > +                  p->policyvers >= MOD_POLICYDB_VERSION_GLBLUB))
+> > +
+> >   struct policy_data {
+> >       struct policy_file *fp;
+> >       struct policydb *p;
+> > @@ -1034,6 +1039,13 @@ static int class_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+> >            p->policyvers >= MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS)) {
+> >               buf[0] = cpu_to_le32(cladatum->default_user);
+> >               buf[1] = cpu_to_le32(cladatum->default_role);
+> > +             if (!glblub_version && cladatum->default_range == DEFAULT_GLBLUB) {
+> > +                     WARN(fp->handle,
+> > +                             "class %s default_range set to GLBLUB but policy version is %d (%d required), discarding",
+> > +                             p->p_class_val_to_name[cladatum->s.value - 1], p->policyvers,
+> > +                             p->policy_type == POLICY_KERN? POLICYDB_VERSION_GLBLUB:MOD_POLICYDB_VERSION_GLBLUB);
+> > +                        cladatum->default_range = 0;
+> > +                }
+> >               buf[2] = cpu_to_le32(cladatum->default_range);
+> >               items = put_entry(buf, sizeof(uint32_t), 3, fp);
+> >               if (items != 3)
+> >
+>
+> Everything else looks ok, but I haven't tested it yet.
+
+Thanks. You can test using the test suite as well, I'm impressed that
+adding a bunch of sensitivities to an mcs policy works as well as it
+does!
