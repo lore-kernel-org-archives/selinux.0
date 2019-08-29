@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5782CC3A5A6
-	for <selinux@archiver.kernel.org>; Thu, 29 Aug 2019 23:30:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C284C3A5A6
+	for <selinux@archiver.kernel.org>; Thu, 29 Aug 2019 23:30:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 291F521874
-	for <selinux@archiver.kernel.org>; Thu, 29 Aug 2019 23:30:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D2D772173E
+	for <selinux@archiver.kernel.org>; Thu, 29 Aug 2019 23:30:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="PB5Oojsq"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="KdumSXWV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727171AbfH2XaS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 29 Aug 2019 19:30:18 -0400
-Received: from sonic312-30.consmr.mail.gq1.yahoo.com ([98.137.69.211]:39018
-        "EHLO sonic312-30.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728262AbfH2XaS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 29 Aug 2019 19:30:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1567121417; bh=VuF+R1SSIeu+9VfIQQL5nQZN69AkuS8IP6jyAKY1P6I=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=PB5OojsqoBlN4MkA09ncNyc/7fSOxYAOtzGHUZLabbcN/fqmyKt/GUnBG+KHSi16MfTO5hL3Sc4D3O9g0FIMypWqCrA+AifjXD3zZgFuctdHFlhiS1Hk7/idMAyjcx3rWvRnuJ90QV7yQfexlDSONvdnH4dREGZ2W2SmzuiqeZwOsYz94bDyOFo1I7lPm9aI4Z74u6u+2JOxLSP3oC8F1F9epjOgmxOBQxX8FsL577lIJ/w5GAgYuusLjGFnaM4BRSX2vlGNV7lH99H6G0cRHwzeFk2vnsz8FuEbs69GpaPWSd8McjxBcbcaHkjiTQws/W17LgKgDPSCsQQ399sGpw==
-X-YMail-OSG: wDCVl.kVM1nlmjYO7JxxWg3wKl_t.IqtfpMPhJn6GTIWOtOxTw7tCkkUbMCGuD2
- XYjUU1szFFQpIOPkZtnpL0NgixQ8r4F6V2qkelQ11Ak65aGgQUNiA9phcGKisVKE2GvGJDwSOkB3
- e8fep4Nz2qyqlc1Fcwyrg2yDN2UMQONH7MChepRhPM91jzHfpXaf7UB8VoOtb.VkDdG90geqlWQM
- QTGgBDZH1jX1iKOgJhNl.TYXEGi0T_0FcejW.eJ9xzeUtzwBBkxj4p_enwm1CqjJu35dIRIOjeQK
- 4JBlyE4f8tOOPORDdze7gNms68BDcfwb.oCP5HHFX_CvEAfyqTVFReIrD6W3wbyZPFKxjYCV545T
- 5XdvVaEtdPGj3sDqls5AK1VAprG83NVK9hs2llN58Ma1GqfjfLtYV03EkW83O40yFyDVytAtWkv8
- BCtxNKBIoLve5hdU.E__uclGKz_An5Bg8mrmyP04zbsmMHD.Jeng.GRQUhLeUwJC2c3.tti0iEc5
- MZwDZNaj8MlAMkWUUENak.XqaD5w3Ol2zZDt4SkxfdedHVnAMAdLEDojeENuLMv7cyvwnL5HTbPH
- URlJgvmv4lauCiP729Ih.FDSzh60M6hlW6sdjdv6auNkkANVL7RFfHg0WR7alGV0sHH9.GQ1pMzQ
- xsiJuTR1RImqiig0sTRDt8BfEaOA9XdAd3IEhrmlYcNQPvtwQmI7Ks3EPz7BwJJH42ab5yEau173
- Il1Vib9prDBgKnREW2zBVnyPI1D5LOhQx9aLQywAZEtZ3IN5fCL4BboOFTuQCjtEGcTZ8s9ppMYH
- 22X.tSvqEUB22jpeiTXWDpUEYm7RiUWRyQWzXH6PeIB1uYsTxSradVmjIYulwiuE1PqsZPpVlyMG
- ONBEI5BRIevx93XNAitQMX_OlB49ChuFejau5lPbDL3L5urWUIM0DEMDVbYRDcexcffQsCxCtxOy
- GBzmuk2Au4JTjk3r8zz8J90_v_9.Hi8saOtHX8DqccJY1lL7pFv3wSnijM1fAVwy17EXeMvNipdr
- vl4q8J5.RIkROFjWH3z7240vXC3yCDkayqRXKzfsDI41Ytzlq_LEc.Iny9R2G9brqAaFvwdbL.TT
- n0Js2ODf1Ghv1jpfgTius8DSw2dB9Ye3WzT80U9jVNhRwwyLrm4bkjMshxXTSc1d.SZKoWtf1T6J
- ZXC05Vf1b4Lx4IsdXlgBacbIbmvENmMh9uiGR_wumNMnEvjqnB4.vU4agugN2KT.ld1C0zA3Bxxs
- tUW5Z6Q2kbC1VeySIejv05z7MOrRppRbxn5zOH.b0qSDqTOlCkWUly_rjuzkoXDEjw06sfLMTysN
- lykg-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic312.consmr.mail.gq1.yahoo.com with HTTP; Thu, 29 Aug 2019 23:30:17 +0000
+        id S1728192AbfH2XaU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 29 Aug 2019 19:30:20 -0400
+Received: from sonic310-28.consmr.mail.gq1.yahoo.com ([98.137.69.154]:43604
+        "EHLO sonic310-28.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728295AbfH2XaU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 29 Aug 2019 19:30:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1567121418; bh=NX1Wm9mZ2rrFAh4r01JvGuFtS1Wfm+5+bHPs+vG06x4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=KdumSXWVnk7MPX/PRbmTBz06UWydkkrc/PubkN6V54WUAwrTNiBUhC2ZJRZlvTv/0LDnctbSqdBj12jYEueRx4IGX4rL/lFc5Lnxiw+JpZrAfQzv7UQg/6ani1T9d59i63HCEUH1k1BLZoSLxymf/jXhJTT5CAdHY91QxSWwMj2x0th7M8PYy7ubPtQHbTHgfjkgR85cMyVy+S43je5n1TuiUyZVgGqUB71FRT1T2mdn3fygdyJQHPW1GgV1CIN5SoH9xj++z8eaIeZwktlw1pGPgEzMtbEt/eiHRi/5H/j1O3Yzome0zRU93uLNCxWhObNYBuimD7+DSYTTAI87Dg==
+X-YMail-OSG: k1AO6u4VM1l7D_9R77afib1Fxxa67Q6y5YXiOj6DGp2awbebriKHCfxz5zLK3Va
+ hRPp42lDfiZzj6IrUBShGP9anRBtSW.8SGVn_KfFRJi6LzqGQu8amZx10rsT7ZjRVaoF8Nbnsvzb
+ KoiVSBdbdHMZXN5jomiowECr0TVpu4IIghyEprVA2PxFC4ZTcP9m8Sb9ourdBjvGYVmYRXTwTXZa
+ RakBzmdusWqKaOlVnwKQYMAB1ISHwfLxAV6CoEBB2VONiYJYcAzkP0h8VvO2nyrHq33QiyVvBOyp
+ N68ZcCxEyAZlC1VEqQzSlSa1Bf6p289.uzYGhchChO3IHdgOehzFiel6.mXs53jVhXTlO1iXg908
+ JXu0XnfB.DGBmBqgABoFULjhuEoEXZ8XkSGjatM2ttuKAPljXsdjRya2tDuelY.0ulCjicy2s4Hv
+ jQtmMvdq1o00cFzq1D_SKDklFiLbIAeMPmrFzq58UNBScq7VdbUV0xwUBcZ.6yeyIE0kT0FykKsY
+ CyfWKwC6wNnMZ81PYEdy.BgjAapbeeocD.gFrWMBtaE_wAkiiQTP4b3ZCVVN3E8P98p4Qi9pU4ZW
+ Bbyd5qMXgiUgUor1h95gt_Y47cQ5HvwQo1YWe_VAWbo7NZQ.PDDpfRxx6jSSCaTcJNtZGV6XG0IA
+ XdCznwoGaxieQsl4BDgLL4xhTNL9gCBBL.KtJnoD.5XrjQEVYCB9F.HiP_rqYZIamcvdOUjt_BQq
+ lUMoo68bSCbvGqQHU95EbjAUvjmlr0gNc3LjiwEQy55j_UPu5huA4Ol6iSqPc9DH5vyYZPJHW30S
+ REgwFzD99L3rmVmnIwG6Q5Ffb.MJl8px8qLHyVLDppNcUN72vHY5B2oqueTYStL6yhYTXKif8hUj
+ IBl0mIwBa6S2c49bufnRy.uFXUfTOWX0zkrD2xcde3t08eZ91ixNicz_p9e062qYAtSh1lsk8zBA
+ Q3gvGlYJ2tl9NoznAJlz_od5eSAXS4r.L..F1Rijen5ig__SzCLGj9ZnNQU_1bqBwITdA_Fb7gEZ
+ CLCGVAi3Ln_763Tq3ey8ywD9t0rvf5hT_y2zaTZcCZYst_7C5hXQdQ9tyJMAfxBzHFQDMuXFJQ45
+ MV9kQ6FHeR6WxSCjUL.ZcucXfP4Dc6dS08f1BoYJeHHcnzG02JvA530zVc.3nslCS9VFVy2r8WOX
+ Om.1WlYqS9xFSl8tq3TgCYGpNddCJeUheNtuw3Tgdpm7AT8F8cz2jEBZlAhWgul0u.hHLe8sTwdc
+ dQLDIWFIASR9.rqxE5UvOBxUywQug0I.9pSbTFZKjl8B_CLp2IPe_snxF23Bc6us4mZdlw2htdMZ
+ 18mAS
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.gq1.yahoo.com with HTTP; Thu, 29 Aug 2019 23:30:18 +0000
 Received: by smtp402.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID f8639e220c8a96cf24b2b0474e56d17f;
-          Thu, 29 Aug 2019 23:30:16 +0000 (UTC)
+          Thu, 29 Aug 2019 23:30:14 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH v8 22/28] SELinux: Verify LSM display sanity in binder
-Date:   Thu, 29 Aug 2019 16:29:29 -0700
-Message-Id: <20190829232935.7099-23-casey@schaufler-ca.com>
+Subject: [PATCH v8 20/28] LSM: security_secid_to_secctx in netlink netfilter
+Date:   Thu, 29 Aug 2019 16:29:27 -0700
+Message-Id: <20190829232935.7099-21-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190829232935.7099-1-casey@schaufler-ca.com>
 References: <20190829232935.7099-1-casey@schaufler-ca.com>
@@ -63,103 +63,108 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Verify that the tasks on the ends of a binder transaction
-use LSM display values that don't cause SELinux contexts
-to be interpreted by another LSM or another LSM's context
-to be interpreted by SELinux. No judgement is made in cases
-that where SELinux contexts are not used in the binder
-transaction.
+Change netlink netfilter interfaces to use lsmcontext
+pointers, and remove scaffolding.
 
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/security.h |  1 +
- security/selinux/hooks.c | 34 ++++++++++++++++++++++++++++++++++
- 2 files changed, 35 insertions(+)
+ net/netfilter/nfnetlink_queue.c | 32 +++++++++++++-------------------
+ 1 file changed, 13 insertions(+), 19 deletions(-)
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index c16aea55be97..7fcc94ec8e04 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -125,6 +125,7 @@ struct lsmblob {
- 	u32     secid[LSMBLOB_ENTRIES];
- };
- 
-+#define LSMBLOB_FIRST		0	/* First valid LSM slot number */
- #define LSMBLOB_INVALID		-1	/* Not a valid LSM slot number */
- #define LSMBLOB_NEEDED		-2	/* Slot requested on initialization */
- #define LSMBLOB_NOT_NEEDED	-3	/* Slot not requested */
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 352be16a887d..2844f2ab7706 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2009,6 +2009,28 @@ static inline u32 open_file_to_av(struct file *file)
- 	return av;
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index 5593ee05d106..58d5bd7a376e 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -305,12 +305,10 @@ static int nfqnl_put_sk_uidgid(struct sk_buff *skb, struct sock *sk)
+ 	return -1;
  }
  
-+/*
-+ * Verify that if the "display" LSM is SELinux for either task
-+ * that it is for both tasks.
-+ */
-+static inline bool compatible_task_displays(struct task_struct *here,
-+					    struct task_struct *there)
-+{
-+	int h = lsm_task_display(here);
-+	int t = lsm_task_display(there);
-+
-+	if (h == t)
-+		return true;
-+
-+	/* unspecified is only ok if SELinux isn't going to be involved */
-+	if (selinux_lsmid.slot == LSMBLOB_FIRST)
-+		return ((h == LSMBLOB_FIRST && t == LSMBLOB_INVALID) ||
-+			(t == LSMBLOB_FIRST && h == LSMBLOB_INVALID));
-+
-+	/* it's ok only if neither display is SELinux */
-+	return (h != selinux_lsmid.slot && t != selinux_lsmid.slot);
-+}
-+
- /* Hook functions begin here. */
+-static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
++static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, struct lsmcontext *context)
+ {
+-	u32 seclen = 0;
+ #if IS_ENABLED(CONFIG_NETWORK_SECMARK)
+ 	struct lsmblob blob;
+-	struct lsmcontext context = { };
  
- static int selinux_binder_set_context_mgr(struct task_struct *mgr)
-@@ -2016,6 +2038,9 @@ static int selinux_binder_set_context_mgr(struct task_struct *mgr)
- 	u32 mysid = current_sid();
- 	u32 mgrsid = task_sid(mgr);
+ 	if (!skb || !sk_fullsock(skb->sk))
+ 		return 0;
+@@ -318,15 +316,16 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
+ 	read_lock_bh(&skb->sk->sk_callback_lock);
  
-+	if (!compatible_task_displays(current, mgr))
-+		return -EINVAL;
-+
- 	return avc_has_perm(&selinux_state,
- 			    mysid, mgrsid, SECCLASS_BINDER,
- 			    BINDER__SET_CONTEXT_MGR, NULL);
-@@ -2029,6 +2054,9 @@ static int selinux_binder_transaction(struct task_struct *from,
- 	u32 tosid = task_sid(to);
- 	int rc;
+ 	if (skb->secmark) {
++		/* Any LSM might be looking for the secmark */
+ 		lsmblob_init(&blob, skb->secmark);
+-		security_secid_to_secctx(&blob, &context);
+-		*secdata = context.context;
++		security_secid_to_secctx(&blob, context);
+ 	}
  
-+	if (!compatible_task_displays(from, to))
-+		return -EINVAL;
-+
- 	if (mysid != fromsid) {
- 		rc = avc_has_perm(&selinux_state,
- 				  mysid, fromsid, SECCLASS_BINDER,
-@@ -2048,6 +2076,9 @@ static int selinux_binder_transfer_binder(struct task_struct *from,
- 	u32 fromsid = task_sid(from);
- 	u32 tosid = task_sid(to);
+ 	read_unlock_bh(&skb->sk->sk_callback_lock);
+-	seclen = context.len;
++	return context->len;
++#else
++	return 0;
+ #endif
+-	return seclen;
+ }
  
-+	if (!compatible_task_displays(from, to))
-+		return -EINVAL;
-+
- 	return avc_has_perm(&selinux_state,
- 			    fromsid, tosid, SECCLASS_BINDER, BINDER__TRANSFER,
- 			    NULL);
-@@ -2064,6 +2095,9 @@ static int selinux_binder_transfer_file(struct task_struct *from,
- 	struct common_audit_data ad;
- 	int rc;
+ static u32 nfqnl_get_bridge_size(struct nf_queue_entry *entry)
+@@ -402,8 +401,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	enum ip_conntrack_info uninitialized_var(ctinfo);
+ 	struct nfnl_ct_hook *nfnl_ct;
+ 	bool csum_verify;
+-	struct lsmcontext scaff; /* scaffolding */
+-	char *secdata = NULL;
++	struct lsmcontext context = { };
+ 	u32 seclen = 0;
  
-+	if (!compatible_task_displays(from, to))
-+		return -EINVAL;
-+
- 	ad.type = LSM_AUDIT_DATA_PATH;
- 	ad.u.path = file->f_path;
+ 	size =    nlmsg_total_size(sizeof(struct nfgenmsg))
+@@ -470,7 +468,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	}
+ 
+ 	if ((queue->flags & NFQA_CFG_F_SECCTX) && entskb->sk) {
+-		seclen = nfqnl_get_sk_secctx(entskb, &secdata);
++		seclen = nfqnl_get_sk_secctx(entskb, &context);
+ 		if (seclen)
+ 			size += nla_total_size(seclen);
+ 	}
+@@ -605,7 +603,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	    nfqnl_put_sk_uidgid(skb, entskb->sk) < 0)
+ 		goto nla_put_failure;
+ 
+-	if (seclen && nla_put(skb, NFQA_SECCTX, seclen, secdata))
++	if (seclen && nla_put(skb, NFQA_SECCTX, context.len, context.context))
+ 		goto nla_put_failure;
+ 
+ 	if (ct && nfnl_ct->build(skb, ct, ctinfo, NFQA_CT, NFQA_CT_INFO) < 0)
+@@ -633,10 +631,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	}
+ 
+ 	nlh->nlmsg_len = skb->len;
+-	if (seclen) {
+-		lsmcontext_init(&scaff, secdata, seclen, 0);
+-		security_release_secctx(&scaff);
+-	}
++	if (seclen)
++		security_release_secctx(&context);
+ 	return skb;
+ 
+ nla_put_failure:
+@@ -644,10 +640,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	kfree_skb(skb);
+ 	net_err_ratelimited("nf_queue: error creating packet message\n");
+ nlmsg_failure:
+-	if (seclen) {
+-		lsmcontext_init(&scaff, secdata, seclen, 0);
+-		security_release_secctx(&scaff);
+-	}
++	if (seclen)
++		security_release_secctx(&context);
+ 	return NULL;
+ }
  
 -- 
 2.20.1
