@@ -6,91 +6,103 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A253C3A59B
-	for <selinux@archiver.kernel.org>; Fri, 30 Aug 2019 21:44:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3EDBC3A59B
+	for <selinux@archiver.kernel.org>; Fri, 30 Aug 2019 21:46:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DB1EA2342E
-	for <selinux@archiver.kernel.org>; Fri, 30 Aug 2019 21:44:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92F572342E
+	for <selinux@archiver.kernel.org>; Fri, 30 Aug 2019 21:46:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="CSK9MnY/"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="aoFTsFCW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728157AbfH3Vos (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Aug 2019 17:44:48 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:40746 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728143AbfH3Vos (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 30 Aug 2019 17:44:48 -0400
-Received: by mail-lf1-f65.google.com with SMTP id u29so6376861lfk.7
-        for <selinux@vger.kernel.org>; Fri, 30 Aug 2019 14:44:46 -0700 (PDT)
+        id S1728242AbfH3Vqy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 30 Aug 2019 17:46:54 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:39900 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728053AbfH3Vqy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 30 Aug 2019 17:46:54 -0400
+Received: by mail-lj1-f194.google.com with SMTP id j16so1578917ljg.6
+        for <selinux@vger.kernel.org>; Fri, 30 Aug 2019 14:46:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=9DoBHWQPkyVassec/GBgmahpYkWK2pbvwheEpeZifOQ=;
-        b=CSK9MnY/c1G0itW+uTwSpMeh0o33SQIjYfuqGrIMXhj2eMK7gHIjsRK7zsojDs6vok
-         JO37JJOngIgEtKLrOfPTm3WufZsRF6rslND+/OqBnAejyDBuXP5sXc0ZqgvhvpY7Y4/e
-         PXuTJwzSDNmOmtew99q/HYb52LLEM8UKIZcdAZEJhF3lRab3NN2aTT+3ORLE1aa6+LkG
-         nmrAm6rWndIPFHH1/L6nbnZIiiTD5aEzDpQvYniIDtGoqLma+gbyKDcocNBg44+uQt5k
-         3DaCksDUi09WioTijOEDTjtPByM85DeVHg+cn6oT32EkXc6PuFUFtznOtmSqrPSQbDhq
-         fezA==
+        bh=h/IKEwtiMoZTtijwK84EjX+6xulxKmEOQTSwaaf+y48=;
+        b=aoFTsFCWzMtsMdDPZj1Iv+ZXjcGyzvvosDEXplOewRaj+VHWw2zUfXIYkswbA6TzJG
+         NWskcFkqaH33yD+gnvU6OO/RnyTek1/Exi1PL2s5XvzcF0WOzloSQDks895e3GD+I6Ru
+         yfoGDqbh7NXYFS8NxLwN3aMItjNI4N4qw9p1GJVb527MIY+fAYqZihttFdD1lM1jTR/G
+         XPyyDWKMXjWmZUab9jO0ywCx8EOyDfknhtAwoChxtu9Fkiw8rx0o98r68ncPLR1iFFGR
+         pw7g9f+S0bTZTxxjffvpwIIAVsRK0jXWsL+MZHB+HRZFdOyfLgBxSb9Hefqrf9jS3bxq
+         tfrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=9DoBHWQPkyVassec/GBgmahpYkWK2pbvwheEpeZifOQ=;
-        b=LeDVS/X3BvtLiwfsQoRwdmCwvWsdWBYwN2v6Pv/skQdsooiRbqkoOtixPBtGdj807u
-         KRRKjJFsFpNuH0/Sejj3hBseLcJ1HxLx3X7bdhOobhIwVWiL8YTNGZVFJNCeQwakwgd/
-         iO44F+l9EbhL8jQCobFE90etgOCmwM8OV+jrEnD4R8Ggg4gOedCbm/IaWi1edQvXtEdw
-         2ROftuRDxdtDu8JIzs3NnoA6zrxEBrIggTowxgv/yjMSNY8/wiTFfOCKU0oZy6TI5WHj
-         YEOflSZJuDJCxayYZk8+cUniDabQQMrOMzzup98Lh4caq5u9VC5zwzxqQuJfs7ZA6XGF
-         G/xQ==
-X-Gm-Message-State: APjAAAVL5ODRxFI/Wh8JQuXQYHj6o4zq2Kr2HURW+BelFIsqHy1xfCKU
-        vWpMJLO+loZ5PtXcRp1Hp+2T3QgdK7axMtmrwH7E
-X-Google-Smtp-Source: APXvYqzxjW2AeubX6l8EnoabWwRqIsB6lmxUCeU0YLgwOoLRz2gqTCm9f1uoSaiE46JWCIK8ArkZlhBVNlJxaOSEtjs=
-X-Received: by 2002:a19:8c14:: with SMTP id o20mr10473891lfd.158.1567201486020;
- Fri, 30 Aug 2019 14:44:46 -0700 (PDT)
+        bh=h/IKEwtiMoZTtijwK84EjX+6xulxKmEOQTSwaaf+y48=;
+        b=W1qtmtySM2XCZcR5Go3ya6oyKJDDRzRE8B9rM6uK4k9qAl1JrFtYWte+x0pUTEwi0R
+         ZFf3RKmhAi4BjpL8pwcSyKdvX9c8YIBrh9+n8GIWYWBqP5l0UB0YQGrtheDFzZa/v4qG
+         /7WmXYrEV8M9r+SYL7KIN0fFjSfQFaMW8g3tjFSmV5SWrQ0ErPCG1mf2VmZKv9VQkofA
+         3Ed+52mpkeVJMGpuzw1AWSrGDNjbziBtuI1KkhEaJlxBvW3qaDlZFwUkonSdclU5TKJK
+         ONWhpGL1+JajS1LALWpBzIXIHQh8ahj9Zm/h6IA1dyRDoaSd9aksLWRRlzgis1pIyQSp
+         NJsA==
+X-Gm-Message-State: APjAAAUEulES8x/wTD6mewxVNqnyAbf6K/YEGyYKZduU/mcRYS+CzYMe
+        iGQTjkMXm9HZmbp/pWKmU5RHao+4vKHxQRSR8PLM
+X-Google-Smtp-Source: APXvYqxirrtwxKydgvqj+iXwb2e01CWP4pG1x5kPYkURSbjtWQcwHoS1PGYLKIwllBMJ+BeSHOXr3+1+9uKQ3teRW3k=
+X-Received: by 2002:a05:651c:1111:: with SMTP id d17mr9377947ljo.87.1567201611994;
+ Fri, 30 Aug 2019 14:46:51 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190830153946.28159-1-joshua.brindle@crunchydata.com>
- <85c1aba4-39ce-ba21-bb8c-30aa71bab06c@tycho.nsa.gov> <CAGB+Vh6tLsLEd7fwQqkqFjgf0YZznFm=DUAMe39oFMBf8+eDXw@mail.gmail.com>
-In-Reply-To: <CAGB+Vh6tLsLEd7fwQqkqFjgf0YZznFm=DUAMe39oFMBf8+eDXw@mail.gmail.com>
+References: <20190821134547.96929-1-jeffv@google.com> <20190822.161913.326746900077543343.davem@davemloft.net>
+ <CABXk95BF=RfqFSHU_---DRHDoKyFON5kS_vYJbc4ns2OS=_t0w@mail.gmail.com>
+ <CAHC9VhRmmEp_nFtOFy_YRa9NwZA4qPnjw7D3JQvqED-tO4Ha1g@mail.gmail.com> <20190829074516.GM29594@unicorn.suse.cz>
+In-Reply-To: <20190829074516.GM29594@unicorn.suse.cz>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 30 Aug 2019 17:44:35 -0400
-Message-ID: <CAHC9VhTqe5OFUSwCV-RDa8LEq0Kwv2XE3hZVX078fH42y3Uubw@mail.gmail.com>
-Subject: Re: [PATCH v3] default_range glblub implementation
-To:     Joshua Brindle <joshua.brindle@crunchydata.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
+Date:   Fri, 30 Aug 2019 17:46:40 -0400
+Message-ID: <CAHC9VhSDZd9EZuKB0WcHW1P8va=vFdpG_Gnnx9ZELdqVtZ=Wgg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] rtnetlink: gate MAC address with an LSM hook
+To:     Michal Kubecek <mkubecek@suse.cz>
+Cc:     netdev@vger.kernel.org, Jeffrey Vander Stoep <jeffv@google.com>,
+        David Miller <davem@davemloft.net>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 30, 2019 at 11:47 AM Joshua Brindle
-<joshua.brindle@crunchydata.com> wrote:
-> <snip>
-> > > +
-> > > +static inline int mls_context_glblub(struct context *dst, struct context *c1, struct context *c2)
-> > > +{
-> > > +     struct mls_range *dr = &dst->range, *r1 = &c1->range, *r2 = &c2->range;
-> > > +     int rc = 0;
-> > > +
-> > > +     if (r1->level[1].sens < r2->level[0].sens || r2->level[1].sens < r1->level[0].sens)
-> > > +             /* These ranges have no common sensitivities */
-> > > +             return -1;
+On Thu, Aug 29, 2019 at 3:45 AM Michal Kubecek <mkubecek@suse.cz> wrote:
+> On Tue, Aug 27, 2019 at 04:47:04PM -0400, Paul Moore wrote:
 > >
-> > I mentioned this on the prior patch, but perhaps you didn't read past
-> > the first comment: I think you need to return -EINVAL or some other
-> > -errno value here since this will get propagated up to the userspace
-> > caller as an errno if I am not mistaken.
+> > I'm also not a big fan of inserting the hook in rtnl_fill_ifinfo(); as
+> > presented it is way too specific for a LSM hook for me to be happy.
+> > However, I do agree that giving the LSMs some control over netlink
+> > messages makes sense.  As others have pointed out, it's all a matter
+> > of where to place the hook.
+> >
+> > If we only care about netlink messages which leverage nlattrs I
+> > suppose one option that I haven't seen mentioned would be to place a
+> > hook in nla_put().  While it is a bit of an odd place for a hook, it
+> > would allow the LSM easy access to the skb and attribute type to make
+> > decisions, and all of the callers should already be checking the
+> > return code (although we would need to verify this).  One notable
+> > drawback (not the only one) is that the hook is going to get hit
+> > multiple times for each message.
 >
-> Yes, you are right. Sorry about that. I'll fix this on the next spin
-> if everyone is okay with everything else.  I think -EINVAL is
-> appropriate unless anyone else objects.
+> For most messages, "multiple times" would mean tens, for many even
+> hundreds of calls. For each, you would have to check corresponding
+> socket (and possibly also genetlink header) to see which netlink based
+> protocol it is and often even parse existing part of the message to get
+> the context (because the same numeric attribute type can mean something
+> completely different if it appears in a nested attribute).
+>
+> Also, nla_put() (or rather __nla_put()) is not used for all attributes,
+> one may also use nla_reserve() and then compose the attribute date in
+> place.
 
-Other than this, v3 seems reasonable to me, but it would be good to
-see a thumbs-up on the latest userspace patches before we merge this.
-Changes to the kernel/user interface are
-<haunting_voice>FOREVER</haunting_voice>.
+I never said it was a great idea, just an idea ;)
+
+Honestly I'm just trying to spur some discussion on this so we can
+hopefully arrive at a solution which allows a LSM to control kernel
+generated netlink messages that we can all accept.
 
 -- 
 paul moore
