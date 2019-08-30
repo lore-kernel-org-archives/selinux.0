@@ -2,104 +2,145 @@ Return-Path: <SRS0=26Hx=W2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAE6DC3A5A6
-	for <selinux@archiver.kernel.org>; Fri, 30 Aug 2019 21:36:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48E84C3A59B
+	for <selinux@archiver.kernel.org>; Fri, 30 Aug 2019 21:38:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7C4692343B
-	for <selinux@archiver.kernel.org>; Fri, 30 Aug 2019 21:36:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 05E5223407
+	for <selinux@archiver.kernel.org>; Fri, 30 Aug 2019 21:38:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="X1gvas1I"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="01NUJ4DT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728079AbfH3Vge (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 30 Aug 2019 17:36:34 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:39265 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728053AbfH3Vge (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 30 Aug 2019 17:36:34 -0400
-Received: by mail-lj1-f196.google.com with SMTP id j16so1562954ljg.6
-        for <selinux@vger.kernel.org>; Fri, 30 Aug 2019 14:36:33 -0700 (PDT)
+        id S1728079AbfH3ViW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 30 Aug 2019 17:38:22 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:36282 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727304AbfH3ViW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 30 Aug 2019 17:38:22 -0400
+Received: by mail-lj1-f195.google.com with SMTP id u15so7754869ljl.3
+        for <selinux@vger.kernel.org>; Fri, 30 Aug 2019 14:38:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=XMZWKko+ASVT2TCnNlqNttXBAJkFIN4ztuF0Hu7LsTw=;
-        b=X1gvas1I05qTsw5aRndWhgeH4Sd1K8y15NLruTKX0LLi0JhaMtpud1ERzMvci5sod0
-         XtPdY+yepT0CP/gIm+y2XhimptqhGFQD0MxuA0yQRE96uebkXhYlHtOGxm8EFJqoA3Z2
-         6UD0lSO1AHGsEGq1RxU+QAtdl2+9k3X0hnwqToiBd9Qbwr0PHnHGHSFx9A5WLdxZUxVZ
-         /tlVKIZWrfjgHp0xsLbWH7COEUckRAPQzKErC9pU5btdOgc+7C+Rz8kMKxVihzQIGso9
-         BYQl+jQ+gsEHx6Kqa8o3MF/KNOx1xmsUz5wwxUxMBfa2WLL2en+iAmHMazsmXOT1ubAu
-         iCNA==
+        bh=NzB2u2tMf++H6zBcovcHvslNOGQAdTWOG+rGU4fVdfU=;
+        b=01NUJ4DTtsK2if6czPun5PCvptm0ob45gpS+PWcqfqbYxcwk2YC604l5+lEEZdj1Tg
+         EHew20EZxfBGxlfYxFoQqrXjpP+HsIBbFGoZovVAWECu9WPAvFfd76HtVsrCc7dXvsG6
+         HSU9ROJlWhtvm2aN8DlsHusFCaWVHoW6U+kyhnQDHgnCUwFLw+2+k+DK/dGn88tmMzQ3
+         h7m+GWbKAy5h3wiOIEj61+EvS136DIyfFePTlIv0vhiBwmVeRHtp3TZnoyZPLzfpzeT1
+         qBL2NP4Kzu7KeNHCZ2rEz1huzL6RU7EErERswRFavaD38MfUS43rVcKC5XABGDxXLs4a
+         /3zQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=XMZWKko+ASVT2TCnNlqNttXBAJkFIN4ztuF0Hu7LsTw=;
-        b=sugy9iwzFi2r0cJyFc7AOQKhy0TPjUDhKLIQMkDGWOXSroIyyWmdi2oM0flLu17eP5
-         bptKgrx0rf8X4v6pP/YglfhQO+Qys9D4XSjJ+m3r9wvIrU6kbZMQgRU7humZAVr8Z8AG
-         NmNlOMJXazKriGwWH/itYoN4gztQ7kiWQIUkX0B50ZCZwxGcnk6fs7IbRpwfS4ejfF7f
-         GGLdZ3yDWKy0/Fxnc35zjOD6O49QcRYov/FRZ/yESd6a/rFqgPF2lGwW3f0MjSjcQzd0
-         yfs1j6bOTg5La9wd+w3gc+UoxuYX9kvKTwuBJF08m2n+EeWEVQIbWfbFLz9gXlUahtNm
-         ksnw==
-X-Gm-Message-State: APjAAAUEf2nE813Nsg8po9dHnkfINO5LGYwdvGgnZISEIrYN5SItNzrl
-        HtDehswIyrJqeOMY7b78ROYtlt1wu/y+VQR9P4Fh
-X-Google-Smtp-Source: APXvYqxN58iqSTPhCSXTXwCNYVxXTgrmsQQzuBl6M6p3v3BOy43vHoXsjfgnk4HjmSAUeq/WqHoa7HIAVHKNOFpWmyA=
-X-Received: by 2002:a05:651c:1111:: with SMTP id d17mr9362023ljo.87.1567200992082;
- Fri, 30 Aug 2019 14:36:32 -0700 (PDT)
+        bh=NzB2u2tMf++H6zBcovcHvslNOGQAdTWOG+rGU4fVdfU=;
+        b=aYSrI43JLWr/IpHbm7DccAEaC0rI4w/o6uH4eRCxv20OnLTAJvS+NU0vJdd4K2/S/m
+         jI0LrpMPincQrLYHyIyUf9Osu9ySrzPcvWT1ElhA3doJVN1C8tPiYJwhmH0bOBrxGkd/
+         y1UlOc1mQQApX+2e3LsORZ8Arr2pHMQobpMooA40PjnlhqAYm/fopAKpF1TYd2I7gHf6
+         p78O1eBoP7VVvu7Mp/BXY3WD2zx+2d4oNgWlaTvpfH+1blLpSST/fVg7nRwiYEmJeMMS
+         pbsrxgbW6jFn/NQaC4pGYXdkq3v8O5U0FvOeG+QyTWzMezjcNPZ+0x7QtLqNyONv4Z8S
+         edcA==
+X-Gm-Message-State: APjAAAXfetvVh4BJDNQgvFKwXslR0R+w2kbVoxpPlyY5XxeiwyIlylWj
+        2rbRnhlpoDbayT56E4QJivToPQRMmdNfyJXBjySCjdkcbg==
+X-Google-Smtp-Source: APXvYqzyzwkLRh0dJ55s09x7iDZLJZBlRsQtHeGgIo+TL1FBYFfuSkmauaA6qYVzQY/cyVCs1YH5mY/Psi4ZyOaSv2k=
+X-Received: by 2002:a2e:6393:: with SMTP id s19mr9351407lje.46.1567201100027;
+ Fri, 30 Aug 2019 14:38:20 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190815174111.6309-1-acgoide@tycho.nsa.gov> <edfe85bc-108a-f0cb-8678-67dc143284d5@tycho.nsa.gov>
- <c5156aaf-e361-65e6-3ca5-89f17fee54bd@schaufler-ca.com>
-In-Reply-To: <c5156aaf-e361-65e6-3ca5-89f17fee54bd@schaufler-ca.com>
+References: <20190828204259.23160-1-joshua.brindle@crunchydata.com>
+ <CAHC9VhQVeSvqFYA9tgVZi9p5B6mDWdnsREJUYfP-oSGi17YhUQ@mail.gmail.com>
+ <CAGB+Vh7dg-2mmtAYsFp3+v6a5DD1mRycOxqRLWOx1tcUOmvWYw@mail.gmail.com>
+ <CAHC9VhRoTyyXb5iGW-NY7EVYmmE1m8CJJLh0dLswxgVp_tG7Gg@mail.gmail.com> <CAGB+Vh7GpEC5vzvUFiUrzvKEq4ihOENZdM9dOvcL+Lap4Uh96w@mail.gmail.com>
+In-Reply-To: <CAGB+Vh7GpEC5vzvUFiUrzvKEq4ihOENZdM9dOvcL+Lap4Uh96w@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 30 Aug 2019 17:36:21 -0400
-Message-ID: <CAHC9VhQhDQ1TQcdEmTNsgZUgMLWpFm38U1D4GwungW7xPb1X_w@mail.gmail.com>
-Subject: Re: [RFC PATCH] audit, security: allow LSMs to selectively enable
- audit collection
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Aaron Goidel <acgoide@tycho.nsa.gov>,
-        James Morris <jmorris@namei.org>,
-        Serge Hallyn <serge@hallyn.com>, keescook@chromium.org,
-        rgb@redhat.com, linux-audit@redhat.com,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Date:   Fri, 30 Aug 2019 17:38:08 -0400
+Message-ID: <CAHC9VhSBXGGQVoaXd0b8vh04Lgrfmx1Fsd=706yr=6g6tORbxA@mail.gmail.com>
+Subject: Re: [PATCH v2] default_range glblub implementation
+To:     Joshua Brindle <joshua.brindle@crunchydata.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 30, 2019 at 11:31 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 8/30/2019 6:44 AM, Stephen Smalley wrote:
-> > On 8/15/19 1:41 PM, Aaron Goidel wrote:
-> >> Presently, there is no way for LSMs to enable collection of supplemental
-> >> audit records such as path and inode information when a permission denial
-> >> occurs. Provide a LSM hook to allow LSMs to selectively enable collection
-> >> on a per-task basis, even if the audit configuration would otherwise
-> >> disable auditing of a task and/or contains no audit filter rules. If the
-> >> hook returns a non-zero result, collect all available audit information. If
-> >> the hook generates its own audit record, then supplemental audit
-> >> information will be emitted at syscall exit.
-> >>
-> >> In SELinux, we implement this hook by returning the result of a permission
-> >> check on the process. If the new process2:audit_enable permission is
-> >> allowed by the policy, then audit collection will be enabled for that
-> >> process. Otherwise, SELinux will defer to the audit configuration.
+On Thu, Aug 29, 2019 at 1:11 PM Joshua Brindle
+<joshua.brindle@crunchydata.com> wrote:
+> On Thu, Aug 29, 2019 at 12:59 PM Paul Moore <paul@paul-moore.com> wrote:
+> > On Thu, Aug 29, 2019 at 9:29 AM Joshua Brindle
+> > <joshua.brindle@crunchydata.com> wrote:
+> > > On Wed, Aug 28, 2019 at 6:31 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > On Wed, Aug 28, 2019 at 4:43 PM Joshua Brindle
+> > > > <joshua.brindle@crunchydata.com> wrote:
+> > > > >
+> > > > > A policy developer can now specify glblub as a default_range default and
+> > > > > the computed transition will be the intersection of the mls range of
+> > > > > the two contexts.
+> > > > >
+> > > > > The glb (greatest lower bound) lub (lowest upper bound) of a range is calculated
+> > > > > as the greater of the low sensitivities and the lower of the high sensitivities
+> > > > > and the and of each category bitmap.
+> > > > >
+> > > > > This can be used by MLS solution developers to compute a context that satisfies,
+> > > > > for example, the range of a network interface and the range of a user logging in.
+> > > > >
+> > > > > Some examples are:
+> > > > >
+> > > > > User Permitted Range | Network Device Label | Computed Label
+> > > > > ---------------------|----------------------|----------------
+> > > > > S0-S1:c0.c12         | S0                   | S0
+> > > > > S0-S1:c0.c12         | S0-S1:c0.c1024       | S0-S1:c0.c12
+> > > > > S0-S4:c0.c512        | S1-S1:c0.c1024       | S1-S1:c0.c512
+> > > > > S0-S16:c0,c2         | S4-S6:c0.c128        | S4-S6:c0,c2
+> > > > > S0-S4                | S2-S6                | S2-S4
+> > > > > S0-S4                | S5-S8                | INVALID
+> > > > > S5-S8                | S0-S4                | INVALID
+> > > > > S6:c0,c2-S7:c4,c5    | S0:c2,c4-S6:c5.c100  | S6:c2-S6:c5
+> > > > >
+> > > > > Signed-off-by: Joshua Brindle <joshua.brindle@crunchydata.com>
+> > > > > ---
+> > > > >  security/selinux/include/security.h |  3 ++-
+> > > > >  security/selinux/ss/context.h       | 28 ++++++++++++++++++++++++++++
+> > > > >  security/selinux/ss/ebitmap.c       | 18 ++++++++++++++++++
+> > > > >  security/selinux/ss/ebitmap.h       |  1 +
+> > > > >  security/selinux/ss/mls.c           |  2 ++
+> > > > >  security/selinux/ss/policydb.c      |  5 +++++
+> > > > >  security/selinux/ss/policydb.h      |  1 +
+> > > > >  7 files changed, 57 insertions(+), 1 deletion(-)
+> > > >
+> > > > You incorporated some feedback from the v1 patch, but you ignored
+> > > > some, can you explain why?
+> > > >
+> > >
+> > > I apologize, I missed a couple C++ style comments, I'll fix those and
+> > > resend, was there anything else? I thought I addressed all of the
+> > > technical concerns.
 > >
-> > Any feedback on this RFC patch?  I know Paul provided some thoughts on the general topic of LSM/audit enablement in the other patch thread but I haven't seen any response to this patch.
+> > My biggest concern wasn't really the style nits (although please do
+> > fix those), but rather the guts of ebitmap_and() and the use of
+> > ebitmap_get_bit() instead of something a bit more efficient.  Here is
+> > my original comment:
+> >
+> >   "Beyond that, since this is an AND operation, could we make better
+> >    use of things like find_first_bit()/ebitmap_start_positive()/
+> >    ebitmap_next_positive() to skip along one of the bitmaps instead
+> >    of needing to call ebitmap_get_bit() for each bit?  I imagine it
+> >    would be quicker that way."
+> >
 >
-> Audit policy should be independent of security module policy.
-> I shouldn't have to change SELinux policy to enable this data
-> collection. I should be able to change the audit configuration
-> to get this if I want it.
+> I used ebitmap_for_each_positive_bit() for the outer loop which uses
+> ebitmap_start_positive() and ebitmap_next_positive().
 
-The idea is that the LSM can request that the audit subsystem
-selectively enable auditing (per-task, and hopefully per-record-type);
-the audit policy can still be configured as you normally.  This is to
-work around people (and distros) that disable audit, yet still want to
-audit some information (yeah, I know ...).
+Sorry, my mistake.  Your implementation wasn't quite what I was
+expecting and on quick glance it looked similar to your previous
+effort so I assumed it hadn't changed.  The v2 variant should be fine.
+
+> I suppose I could try to track both lists at the same time and AND the
+> bitmaps when the startbit is the same but I don't expect this to
+> really be any kind of bottleneck.
 
 -- 
 paul moore
