@@ -2,131 +2,147 @@ Return-Path: <SRS0=4h59=W6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4F70C3A5A2
-	for <selinux@archiver.kernel.org>; Tue,  3 Sep 2019 14:30:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D542FC3A5A7
+	for <selinux@archiver.kernel.org>; Tue,  3 Sep 2019 14:53:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9B5C223697
-	for <selinux@archiver.kernel.org>; Tue,  3 Sep 2019 14:30:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE05822D6D
+	for <selinux@archiver.kernel.org>; Tue,  3 Sep 2019 14:53:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=Mellanox.com header.i=@Mellanox.com header.b="Q4Pl4MGJ"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="pQr0IzxO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729801AbfICOaz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 3 Sep 2019 10:30:55 -0400
-Received: from mail-eopbgr00079.outbound.protection.outlook.com ([40.107.0.79]:52453
-        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729507AbfICOay (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 3 Sep 2019 10:30:54 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=K4SXdVRtA7klOY2czjUpxPCLjvLPCGY8xB71UTHVxHGCJjeSo4MiqDGcuF5o/onkG5muk7tfiU0eeCPK/MmJDXIAU9ZGog/eANA0oaTlsg9XS2YNUeksd8EDy42HJcTqnJZVvGrlId93X1UFsKANunLQRhO+RJY1mOmVreZwFpYQpi5WmRAIDw/A3CWhypU1N3QRApNuopX02I90dF3A75Ng8I7g926JjyObXWfwNNlJT+0cIxUQQ7gnMLp71kI28saiS20c7//8bmx3vgXcrByr15yMeLhHo0qJzy9RmjzPBXPzVtgb9UId43Rw++dHMCXQLvfs57EiKb3yCWjrLQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CR6TNfIW+JiBF8OuuWg5tGUzkJnA3BkuoL8Mk8oDfCs=;
- b=gHeHbB8RBcP4AxMgqxA4DYkT2ntVIm01FXKo4GW/OMfShUhlBrx4qGq7VPg5Pi1NTq3TTy9CL3KpwO9S1yBZlscSRl9yRWawzr3qPNKq51j9L/ozC8z+oN+5RcJjviMH/D4hSoUppNJveJ6qgtqPIexxq925RYp4jioEOcx89Ywk7hQRrFB7nhlEN+lskIiE3vHrjoPaxzetcHR+sia3kWKEtabE12j7uYQqhbROLPgHsuEDr55v5a7CNByuZWVsJrt1PhHmPTnx9qkr3PystGMDKZmWytxwKLDkF213FlKpfjkFCMgKMzYHJzEEAQCw3Xo/8GQJMi/uwyGz4GMOHg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=mellanox.com; dmarc=pass action=none header.from=mellanox.com;
- dkim=pass header.d=mellanox.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CR6TNfIW+JiBF8OuuWg5tGUzkJnA3BkuoL8Mk8oDfCs=;
- b=Q4Pl4MGJstZqfbOfsW4GIzFya45kFDI8Xw2P4nPhTws2g1Rn5MzFS8BK+ZN8hcqm6mW2JebpCRWMdgg++UScE80o9GP7Vk/dAICdBeUZLuPjwbG3lEYIJNlr8MDplzXYQ2/HU7p6tqm8t8mJnJWN7aw+ulsLm7PzHK175w/FC/A=
-Received: from AM0PR05MB5730.eurprd05.prod.outlook.com (20.178.115.152) by
- AM0PR05MB6035.eurprd05.prod.outlook.com (20.178.118.146) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2220.21; Tue, 3 Sep 2019 14:30:51 +0000
-Received: from AM0PR05MB5730.eurprd05.prod.outlook.com
- ([fe80::6d25:e52d:9387:610b]) by AM0PR05MB5730.eurprd05.prod.outlook.com
- ([fe80::6d25:e52d:9387:610b%6]) with mapi id 15.20.2220.020; Tue, 3 Sep 2019
- 14:30:51 +0000
-From:   Daniel Jurgens <danielj@mellanox.com>
-To:     Paul Moore <paul@paul-moore.com>,
+        id S1729545AbfICOxJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 3 Sep 2019 10:53:09 -0400
+Received: from USFB19PA33.eemsg.mail.mil ([214.24.26.196]:25329 "EHLO
+        USFB19PA33.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727624AbfICOxI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 3 Sep 2019 10:53:08 -0400
+X-Greylist: delayed 431 seconds by postgrey-1.27 at vger.kernel.org; Tue, 03 Sep 2019 10:53:08 EDT
+X-EEMSG-check-017: 5169117|USFB19PA33_ESA_OUT03.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,463,1559520000"; 
+   d="scan'208";a="5169117"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA33.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Sep 2019 14:45:56 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1567521956; x=1599057956;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=RspCxWiSp15RKlzzWOJZJQc9bjGUd2cCK6g8r7w94pQ=;
+  b=pQr0IzxOecokbSuCr9l5cSVhOrctUnviH+O9i7ImBpnAfOLBwsg98B+f
+   8MaCIwTvkS7FHqDNypr2uyTpTVGupBvv+R+seiVj5Co8SLPtm2fWxvAQb
+   0F4altPFhbwt9uec91kTl4OV88SMDbELFKZJM4+mdOGMko921Ex9PuCU1
+   VIoWAa9M6H7tnHv5RqLZV/g7XJYku6oHyo6PoMVry6/Od0vvnbbqnKWC5
+   iQYr5Jqp6H32IlEXJzCNPHQbNrPFs/EDoOOv3WOXGTl9dm7cHwCiwK9ZC
+   L+P3Oll0KGFDDPJJrPwf7YEmwCLCec4dunT8UyCwfo0p/fBJ4EHZCnbOM
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.64,463,1559520000"; 
+   d="scan'208";a="27449165"
+IronPort-PHdr: =?us-ascii?q?9a23=3Ad0uQJRZgr91R4L8D8r8kIpH/LSx+4OfEezUN45?=
+ =?us-ascii?q?9isYplN5qZps+9YR7h7PlgxGXEQZ/co6odzbaP6ea5BjdLvcfJmUtBWaQEbw?=
+ =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
+ =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MQu6oR/MusQUj4ZuJak8xx?=
+ =?us-ascii?q?/UqXZUZupawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
+ =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
+ =?us-ascii?q?mp8qlmRAP0hCoBKjU063/chNBug61HoRKhvx1/zJDSYIGJL/p1Y6fRccoHSW?=
+ =?us-ascii?q?ZdQspdUipMDY2mb4sLEuEPI+BWoYfgrFcKtBezCw2hCObpxzRVhHH5wLc63v?=
+ =?us-ascii?q?w8Hw/Y0gwuH9EAvnrao9r6NqgdTe+7wbLUzTjBdf5axSvx5YbKfx0nvPqCXa?=
+ =?us-ascii?q?hwcc3UyUQ3Cg3FkkufqZTlPzyL0OQGrnWV7+96WuKrj24otQFwqSWoy8c3l4?=
+ =?us-ascii?q?bJnZkYykzE9CplwIY1Ise0SEhgYdG+CpdQuCaaN5VvT84kXmpmtiE6yrgctp?=
+ =?us-ascii?q?66eigH0I8oxxnYa/ybd4iI4xTjWPyNLjd/gXJofq+0iRWq8UW41+HxWca53E?=
+ =?us-ascii?q?xKoyZYiNXAqH8A2wLJ5sSaTPZ2412v1iyV1w/J7+FJOUU0la3GJJE/2rMwjZ?=
+ =?us-ascii?q?8TsVjbHi/xhUX2kLeadkU69eis7OTqeqnmqYWGN491lwH+Kb4imtC/AOskMg?=
+ =?us-ascii?q?gOWHKX+eKg27344UL1WrBKjvwykqXBsZDaI9oUprKhDgNI3Ysu5AyzAje73N?=
+ =?us-ascii?q?gCg3UKI0xJdAiag4TxPlHBOvH4DfOxg1S2lzdrwujLPqb8DZXWNXXDjLfgcq?=
+ =?us-ascii?q?p9605b0gYzy8tf6IhOBrEOJ/LzRFf9tMbEAR8hLwy03+HnBc1g2YwEX2KPA7?=
+ =?us-ascii?q?GWMKfQsVKT4+IgPe2MZIsPtzb7LPgk6OTigmM+mV8YZaOpx4cYaGikHvR6JE?=
+ =?us-ascii?q?WUeWLsjc0cEWcOpQc+VPbliECGUTJKYnayWKU85islB468EYjDQYWtiqSb3C?=
+ =?us-ascii?q?inBp1WenxGCleUHHfzaYqEX/YMaCSPIs5uiTEES7ehRJE71R20tw/11aBnLu?=
+ =?us-ascii?q?zK9S0cr57j08J15+LLnxEo6TN0F9id032KT2xshWMHWTs23KF5oUxgxVaPyL?=
+ =?us-ascii?q?J4jOJWFdxL4PNJVgY6OoLczuFhFdDyVRzOfs2TRFalXNqmGzcxQcw1w9MUZE?=
+ =?us-ascii?q?Z9AdqihAjZ3yW2G78Vi6CLBJss/6LYwXjxPdxyxG3Y26Y9lFQmWNVAOnCmhq?=
+ =?us-ascii?q?Fl6wjfHZLGk0Kcl6yyb6QTwDbN9HufzWqJpExYSBB/Xr7bUnAZZ0vWsdP561?=
+ =?us-ascii?q?jDT7CwF7soLBFNycmYKqtFOZXVigBqTfHiNdCWQX+rlGq2Hl7cyrqKbYfueU?=
+ =?us-ascii?q?0Y0SHZAU4Dg0YY+nPQcUAGDzql60fZCyZjXQb3al7o2fF3tXf+S0gz1QzMZE?=
+ =?us-ascii?q?pkgf79sAUYgf2aVuM7wL0JomEipi9yEVL72MjZQZLUvAdlfaNBcfsj71pdk2?=
+ =?us-ascii?q?HUrQpwOtqnNa80whZUaAlzvkXzx1BtB4tYlswrp2IC0gV/M+Sb3UlHejfe2o?=
+ =?us-ascii?q?r/cPWDMWT2/Raye+vM11/G19KX8bYn9vs1sRPgsRuvG05k9G9ohZ0d92af74?=
+ =?us-ascii?q?6CMhAbW5/6GhIz6QJzrbzRSjMw64PdyTtnNqzi9nfp28goH6MdxzytedZDN+?=
+ =?us-ascii?q?vQDAL4HssbG8+GKeEnlh6udB1Sb85I86thBN+rb/uL3uaQOe9kmD+3xTBc7J?=
+ =?us-ascii?q?tVzlOH9y06TPXBmZkC3afLjUO8Sz7ggQL54YjMkodeaGRXRzHuxA=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CIAAAxfG5d/wHyM5BlHgEGBwaBVQcLAYFtKm1SATIqh?=
+ =?us-ascii?q?CGPD1ABAQEGgTaJb48rgXsJAQEBAQEBAQEBKwkBAgEBhDUKAoJ2IzYHDgILA?=
+ =?us-ascii?q?QEBBAEBAQEBBgMBAWyFLgyCOikBgmcBBSMVNhsLGAICJgICVwYBDAYCAQGCX?=
+ =?us-ascii?q?z8BgXYUD6o9gTKECQGBQIM1gUMGgQwohQCGeBh4gQeBOIJrPoQdgzKCWASVS?=
+ =?us-ascii?q?JZRgimCJ4RMiRmESQYbgjMvlgSNdoE3hj6SUwongVgrCAIYCCEPO4Jsgk4Xg?=
+ =?us-ascii?q?0+KHAFSJAMwgQYBAYxqglQBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 03 Sep 2019 14:45:55 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x83EjrM2024982;
+        Tue, 3 Sep 2019 10:45:53 -0400
+Subject: Re: IB pkey policy problem found via the selinux-testsuite
+To:     Daniel Jurgens <danielj@mellanox.com>,
+        Paul Moore <paul@paul-moore.com>,
         "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
         "selinux-refpolicy@vger.kernel.org" 
         <selinux-refpolicy@vger.kernel.org>,
         Lukas Vrabec <lvrabec@redhat.com>,
         Chris PeBenito <pebenito@ieee.org>
-Subject: Re: IB pkey policy problem found via the selinux-testsuite
-Thread-Topic: IB pkey policy problem found via the selinux-testsuite
-Thread-Index: AQHUw+QHP/kF8OXp6EiIBrvTCkmHXaX12c6AgRqW/ICACs/CAA==
-Date:   Tue, 3 Sep 2019 14:30:49 +0000
-Message-ID: <5817f158-9ba2-420d-3a9e-59ee43be3472@mellanox.com>
 References: <CAHC9VhTuYi+W0RukEV4WNrP5X_AFeouaWMsdbgxSL1v04mouWw@mail.gmail.com>
  <CAHC9VhR1ZNyZqGB3Si-z77zLwaTBf-pkQk19rVqofs4P_oVtFg@mail.gmail.com>
  <CAHC9VhSKxgCB_j-eT65tSvqFDbBe_Wu_b+XsvN0Si2eDrEROMQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSKxgCB_j-eT65tSvqFDbBe_Wu_b+XsvN0Si2eDrEROMQ@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: SN4PR0501CA0073.namprd05.prod.outlook.com
- (2603:10b6:803:22::11) To AM0PR05MB5730.eurprd05.prod.outlook.com
- (2603:10a6:208:11d::24)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=danielj@mellanox.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [208.176.44.194]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 77dccc16-c538-425a-7180-08d7307b5089
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600166)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:AM0PR05MB6035;
-x-ms-traffictypediagnostic: AM0PR05MB6035:
-x-ms-exchange-purlcount: 1
-x-microsoft-antispam-prvs: <AM0PR05MB6035C2B90DFB472885048794C4B90@AM0PR05MB6035.eurprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 01494FA7F7
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(39860400002)(136003)(346002)(376002)(396003)(366004)(53754006)(199004)(189003)(25786009)(110136005)(14454004)(6436002)(66946007)(14444005)(256004)(53936002)(186003)(316002)(66446008)(6506007)(5660300002)(53546011)(386003)(71200400001)(11346002)(64756008)(102836004)(71190400001)(26005)(476003)(66476007)(2616005)(6512007)(446003)(76176011)(66556008)(486006)(6246003)(3846002)(229853002)(305945005)(478600001)(6486002)(8676002)(81166006)(81156014)(2501003)(7736002)(99286004)(2906002)(8936002)(31696002)(2201001)(15974865002)(86362001)(66066001)(52116002)(36756003)(31686004)(6116002)(18886075002);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR05MB6035;H:AM0PR05MB5730.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: mellanox.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: m1jj676g7oN669jgftJnJf3nFCW8nYAJ33ATcu8BL5p/QqXRtnVquwJcWLGhpvdainDNcjAskm2ro+UoDwsVMpJxuk/QgdeawIG3EZhSuLE2v7xm21ZeoRh9IBR3EzJBMzIwc7AOJXrlhQyZxf/fq9R0pwuz6lUFb90v01Jo6fgvvPwCKAFKkr73kXt3TKB4WkZ3RahaAuZA+yziUovurtEgk5kInJ+bnbjj3dnLo/ZEtD4aT4CAeb5GV0oK+pmpbLTXDQeBV6bHIcuqFWdCYzk6H1CIoROzrNnzwqXTw0XxcrHS8dHK4nn4TJs8SVs1nZVpos8YlozLU/mrV9GBGE/2mzBeE57ywv4q/7q6/ymVkiSFWBSf8v79gkzIbRffbbbOgqqmn6QYlhZ9z5Ll4j8dEWYCJoFjCjHYp1ihibw=
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <2A9D07847F3DEA41AB89A128E4235C03@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+ <5817f158-9ba2-420d-3a9e-59ee43be3472@mellanox.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <9048b292-b9fa-49f7-d66e-1f0ceaa39290@tycho.nsa.gov>
+Date:   Tue, 3 Sep 2019 10:45:53 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-X-OriginatorOrg: Mellanox.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 77dccc16-c538-425a-7180-08d7307b5089
-X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Sep 2019 14:30:51.3694
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: l1PYzhAZxI1ZjlO6c+ABZcCTypA8G03/gsyOZ0sdW6W2m3cIWXKiN3xxdgZfsVv9UyOQWzmSXCJ1EIbK4H9alw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR05MB6035
+In-Reply-To: <5817f158-9ba2-420d-3a9e-59ee43be3472@mellanox.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-DQpPbiA4LzI3LzIwMTkgMTI6MjQgUE0sIFBhdWwgTW9vcmUgd3JvdGU6DQo+IE9uIFRodSwgRmVi
-IDI4LCAyMDE5IGF0IDQ6NTggUE0gUGF1bCBNb29yZSA8cGF1bEBwYXVsLW1vb3JlLmNvbT4gd3Jv
-dGU6DQo+PiBPbiBXZWQsIEZlYiAxMywgMjAxOSBhdCA0OjM1IFBNIFBhdWwgTW9vcmUgPHBhdWxA
-cGF1bC1tb29yZS5jb20+IHdyb3RlOg0KPj4+IEhlbGxvIGFsbCwNCj4+Pg0KPj4+IE9uIGEgZnVs
-bHkgdXAtdG8tZGF0ZSBSYXdoaWRlIHN5c3RlbSB5b3UgbmVlZCB0aGUgZm9sbG93aW5nIGxpbmUg
-YWRkZWQNCj4+PiB0byB0aGUgcG9saWN5L3Rlc3RfaWJwa2V5LnRlIGZpbGUgdG8gZ2V0IGEgY2xl
-YW4gcnVuIG9mIHRoZQ0KPj4+IHNlbGludXgtdGVzdHN1aXRlOg0KPj4+DQo+Pj4gICBhbGxvdyB0
-ZXN0X2licGtleV9hY2Nlc3NfdCBzZWxmOmNhcGFiaWxpdHkgeyBpcGNfbG9jayB9Ow0KPj4+DQo+
-Pj4gVGhlIGJyZWFrYWdlIGRvZXNuJ3QgYXBwZWFyIHRvIGJlIGR1ZSB0byBhIGtlcm5lbCBjaGFu
-Z2UgKHByZXZpb3VzbHkNCj4+PiB3b3JraW5nIGtlcm5lbHMgbm93IGZhaWwpLCBvciBhIEZlZG9y
-YSBSYXdoaWRlIHBvbGljeSBjaGFuZ2UgKG5vdGhpbmcNCj4+PiByZWxldmFudCBjaGFuZ2VkIHNp
-bmNlIHRoZSBsYXN0IGNsZWFuIHJ1biksIGJ1dCBJIGRpZCBub3RpY2UgdGhhdCBteQ0KPj4+IGxp
-YmlidmVyYnMgcGFja2FnZSB3YXMgdXBkYXRlZCBqdXN0IHByaW9yIHRvIHRoZSBicmVha2FnZS4g
-IEkgaGF2ZW4ndA0KPj4+IGhhZCB0aGUgdGltZSB0byBkaWcgaW50byB0aGUgbGlicmFyeSBjb2Rl
-LCBidXQgSSBleHBlY3QgdGhhdCB0byBiZSB0aGUNCj4+PiBzb3VyY2Ugb2YgdGhlIHByb2JsZW0u
-DQo+PiBKdXN0IHRvIGJlIGNsZWFyLCBJIGRvbid0IGJlbGlldmUgdGhpcyBicmVha2FnZSBpcyBs
-aW1pdGVkIHRvIHRoZSB0ZXN0DQo+PiBzdWl0ZSwgSSBleHBlY3QgYW55IHVzZXJzIG9mIHRoZSBT
-RUxpbnV4IElCIGhvb2tzIHdpbGwgcnVuIGludG8gdGhpcw0KPj4gcHJvYmxlbS4gIEkgYmVsaWV2
-ZSB3ZSBuZWVkIHRvIHVwZGF0ZSB0aGUgdXBzdHJlYW0gYW5kIGRpc3Rybw0KPj4gcG9saWNpZXMu
-DQo+IEEgcGluZyB0byBicmluZyB0aGlzIGlzc3VlIGJhY2sgdG8gdGhlIHRvcCBvZiB0aGUgbWFp
-bGluZyBsaXN0Lg0KDQpIaSBQYXVsLCBJIGxvb2tlZCBpbiB0aGUgbGlicmFyaWVzIGFuZCBkb24n
-dCBzZWUgZXhwbGljaXQgdXNlIG9mIG1sb2NrLiBNYXliZSB0aGVyZSB3YXMgYSBjaGFuZ2UgdG8g
-dXNlIHRoYXQgYWNjZXNzIGNvbnRyb2wgZm9yIGdldF91c2VyX3BhZ2VzPyBUaGF0IGRvZXNuJ3Qg
-cmVhbGx5IGppdmUgd2l0aCBwcmV2aW91c2x5IHdvcmtpbmcga2VybmVscyBubyBsb25nZXIgd29y
-a2luZyB0aG91Z2guDQoNCg0KPiAtLQ0KPiBwYXVsIG1vb3JlDQo+IHd3dy5wYXVsLW1vb3JlLmNv
-bQ0K
+On 9/3/19 10:30 AM, Daniel Jurgens wrote:
+> 
+> On 8/27/2019 12:24 PM, Paul Moore wrote:
+>> On Thu, Feb 28, 2019 at 4:58 PM Paul Moore <paul@paul-moore.com> wrote:
+>>> On Wed, Feb 13, 2019 at 4:35 PM Paul Moore <paul@paul-moore.com> wrote:
+>>>> Hello all,
+>>>>
+>>>> On a fully up-to-date Rawhide system you need the following line added
+>>>> to the policy/test_ibpkey.te file to get a clean run of the
+>>>> selinux-testsuite:
+>>>>
+>>>>    allow test_ibpkey_access_t self:capability { ipc_lock };
+>>>>
+>>>> The breakage doesn't appear to be due to a kernel change (previously
+>>>> working kernels now fail), or a Fedora Rawhide policy change (nothing
+>>>> relevant changed since the last clean run), but I did notice that my
+>>>> libibverbs package was updated just prior to the breakage.  I haven't
+>>>> had the time to dig into the library code, but I expect that to be the
+>>>> source of the problem.
+>>> Just to be clear, I don't believe this breakage is limited to the test
+>>> suite, I expect any users of the SELinux IB hooks will run into this
+>>> problem.  I believe we need to update the upstream and distro
+>>> policies.
+>> A ping to bring this issue back to the top of the mailing list.
+> 
+> Hi Paul, I looked in the libraries and don't see explicit use of mlock. Maybe there was a change to use that access control for get_user_pages? That doesn't really jive with previously working kernels no longer working though.
+
+It would be useful to see the audit messages for that ipc_lock denial, 
+including the SYSCALL record.
+
+There are a number of kernel operations that can trigger ipc_lock checks,
+https://elixir.bootlin.com/linux/latest/ident/CAP_IPC_LOCK
+
+Several of those are infiniband-specific.
