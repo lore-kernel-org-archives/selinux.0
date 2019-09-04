@@ -2,163 +2,156 @@ Return-Path: <SRS0=KzaI=W7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3228C3A5A9
-	for <selinux@archiver.kernel.org>; Wed,  4 Sep 2019 15:16:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41D9FC3A5A7
+	for <selinux@archiver.kernel.org>; Wed,  4 Sep 2019 15:31:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BC64722CF5
-	for <selinux@archiver.kernel.org>; Wed,  4 Sep 2019 15:16:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B7E2208E4
+	for <selinux@archiver.kernel.org>; Wed,  4 Sep 2019 15:31:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="QnrixGyC"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="qG6muAu2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729919AbfIDPQI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Sep 2019 11:16:08 -0400
-Received: from sonic303-27.consmr.mail.ne1.yahoo.com ([66.163.188.153]:43082
-        "EHLO sonic303-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729888AbfIDPQI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Sep 2019 11:16:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1567610166; bh=R2SpcOFSfSxnXasA1iCUbEqBgcZ1kI59YtSsJdElbLE=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=QnrixGyCzrjMwXStVUIgS+lnOEe5tYR7O/Pv6GX0+wnfb8euwYm7I9MURQtxBoWVGlmghhKkmwk5i2UfkaOfwmICCVFRGPoaATgVBYVmmaQRPBIwnbFixFDSrRjWsdeBXPxKnhleszIoDCc3atc3y2fsTO0kTYcrX8abCEzP4iL0TRura+0/B1iDBp2w1zJ1u1KKfRLZi9Yodou4EyJQhPvrkgEuurC7APHieQS4IX9snjaZtXgcGI1yE7uLKGrucFp+BxfbxHmgSxxaNwWSmMuLC7eUqlYYXLxoez97RI3EdwIA/hfYjruDeuHprbQRf2QQ1xiVpWCNTwriHmZz0A==
-X-YMail-OSG: TmOEjXgVM1nub_Jjl9QW8Sjc3WbzTmANNCCe79xTLNmB8uxtmMSpB9uUlEK2GVi
- iLt8tNfnj3xB0VSoRp9uA2NtKMPoaVHgruZtaPhWBeXnGNJ3C_veddHnPl1u5721cnpX2ChCvXIT
- 0wMT743eQPHkC3GS0dlXgmKI.EgVey8gXMwy2kfD0vtjMwW_Gd6d9pUETPPOnbtgc5RhFeCdVrmf
- 7z0kVp.KlMcbZ48oPivOWEgESSkNwYtZSBXgmVsZ0CRN0.3tBCWoCcpKmDswh893HjyKg91C3vFc
- fHauAR3JhLEJw9uBeMXMNFnEas_QI0G5Q_K3TzkCMJcAW2t._IdXljrAsa_HU0gx.T3sz4KAfTx7
- 0LDkz.OVlejH6IORUwOe2qOpDJMxjSu5Gd5G29mPeYufHT9lVCIehJWS61XuTiCPvjT69kuctG1D
- KDXMCGIRBv34hiIDXxOwy1sgLRDXknrnB6QS1K575qyHSMYzrQeggCbqu1_p1K0VAX2LxH_.KIdp
- cNOEZd9.X5xxGYt.p3VJkTp4yJxiGDL8pYl1fHXsrOhpm2YfuYwFXCEKPyceqrdBLHkNFRZXPvIn
- 3SypJE4z41qlxdUnxFlgAkGeygK5gjlpG7dqHvDVqyJ6ySMl3PxQgVap6bFG_5bTsJjqABRzUYyF
- cHurHJdtY4n2uNIxfYfnZZUXuugY1kKSMMmJ9xznVgiw07I57fH5hKLo14PMNSk7v9.mKp4V509L
- GkYiCDu06xFKSNdjXAEY4riSgNcVgvVnCK64QQo20o4Kfvr0fzsymVVwvSGbjh6_1RqursEuvVPx
- jO2U6nB8p6VRg5atZOWdvhbI.DvBOfm.BYmoJvltv0D9ZHDUaEJXmo_zK4JiFQoesr5B5I_Y8l_X
- _PD3i6U5T_SPCnnj.j2Nt3CsZS5JhgnojVMNf.qAQ8R_0nbApGp.4SDRvbmkDTxOEgs7PKNFgZoP
- 3jWA7Jxmdt6CD5W99wve9NEhMrXtUl7XSL7y1.1sSrvt6y8xUpQP7DRVRWSBPZIZUeRimlv.XwrB
- Z46OMeqw.RJjkbMUHMbxXIbuu7TR.EQ4TkWueyUil1fM3lkQ8hLE2kvXJgcCrnXXeqPDj4ukcWdM
- a0t7b79Qrqt1NcnAD4Q6IBfWjrCE.WTH0T6UmglzNuZahv6CBCnkgi50kjK9mvMeKMksoo7r.Pj1
- T.yIx6TPEL_iHoESEikD6238SY5IwGqm3wA57AxZ8mgvsur.VRCRAGimNvpVUG826UpqiF5lfckD
- oEfIDUZauLuHYgO0U4qnJmgKAvd0OR7c1wK780dlzp_loLjhQVebbjS6u0cQKF4McmzGXnxA_lgi
- Jr.XCM.7DJpYT.6_dudqee048jEo0dQ--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic303.consmr.mail.ne1.yahoo.com with HTTP; Wed, 4 Sep 2019 15:16:06 +0000
-Received: by smtp403.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 0ffca9b564eea69d38a8f998eb2a3aa1;
-          Wed, 04 Sep 2019 15:16:01 +0000 (UTC)
+        id S1730402AbfIDPb6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Sep 2019 11:31:58 -0400
+Received: from UCOL19PA34.eemsg.mail.mil ([214.24.24.194]:57733 "EHLO
+        UCOL19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729773AbfIDPb6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Sep 2019 11:31:58 -0400
+X-EEMSG-check-017: 18553483|UCOL19PA34_ESA_OUT01.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,467,1559520000"; 
+   d="scan'208";a="18553483"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UCOL19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Sep 2019 15:31:51 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1567611111; x=1599147111;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=J6OUOUpt0SxXrq2N0c9lkqRZAWi54n9GuYnnH6VrzkE=;
+  b=qG6muAu2WLYCcmCLODFlVov/o9OMywFdpbWKTONei7RBOyb81J3RO1UF
+   8ikEZ/mxDR9AZPY+XX+lcVQeMdbPhr6gKUcSDqD8smOl+EOh6PwH3V3au
+   /MSQitsDOCcIIlTypCIvFpjcbNslaCLbeqa/FmlEcyz/ZWyxv5S3Ne+03
+   He3lt5LKSKIvaTt+mfI67+w3Y0En+fE7z1CUw0FVrVuwmeirFfsV9IAQS
+   4QSfMTpySwS/HH7o89bOao/f1lF2xFkyG3LsN/ac1W3XhwHffin1VsHwr
+   /wSUcgqupxDDpqq7mNwYGoLGKcvN0S1Muygl3iQDiVaSFeVKL9bTRlmUh
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.64,467,1559520000"; 
+   d="scan'208";a="32345165"
+IronPort-PHdr: =?us-ascii?q?9a23=3A/U2mox1mFB01npPjsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZsesUKPTxwZ3uMQTl6Ol3ixeRBMOHsqgC0rWL+PC+EUU7or+5+EgYd5JNUx?=
+ =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
+ =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCejbb9oMRm7rwXcusYVjIZjN6081g?=
+ =?us-ascii?q?bHrnxUdupM2GhmP0iTnxHy5sex+J5s7SFdsO8/+sBDTKv3Yb02QaRXAzo6PW?=
+ =?us-ascii?q?814tbrtQTYQguU+nQcSGQWnQFWDAXD8Rr3Q43+sir+tup6xSmaIcj7Rq06VD?=
+ =?us-ascii?q?i+86tmTgLjhTwZPDAl7m7Yls1wjLpaoB2/oRx/35XUa5yROPZnY6/RYc8WSW?=
+ =?us-ascii?q?9HU8lfTSxBBp63YZUJAeQPIO1Uq5DxqlsKoBe7AwSnGeHhxSJShnLuwKM0ze?=
+ =?us-ascii?q?ohHwHF0gIuEd0Bv3bbo8n6OqoJTeC4zrPFwSnfY/5Y2zrw7pXDfBA7ofGLWL?=
+ =?us-ascii?q?J9adffyVUxGAPdjlWft4rlNC6I2OQIqWeb6+5gWvyvimU6rAxxuSWgxtw3h4?=
+ =?us-ascii?q?nVhoMa1lDE9SJjzIYzPt23UlR3YdGjEJtOriyXMZZ9TMA6Q2xwpSo3xbILtY?=
+ =?us-ascii?q?S7cSQX0pgr2RHSZ+Kdf4SV5B/oSfyfLi1ihH1/fbKynxOy8U+9xeLiTsS0y1?=
+ =?us-ascii?q?NKrjZdktnLq3ANywTf6siZRft5+UeswSqP2BrJ6uFFPEA0jrDXK4Ihw7Eslp?=
+ =?us-ascii?q?oTtl7PHinql0XtkKCabEAk+ums6+j/Y7XmoIGTN5Nshw3jPakjldazDOQlPg?=
+ =?us-ascii?q?QUQWSW9vqw2Kf+8UHhRbVFlPw2kq3XsJDAIsQbo7a0AxRI3YY48Bu/Ezen38?=
+ =?us-ascii?q?gYnXkANl5FfgmHgJLzN1HBJ/D4E++zg06wnzdz2/DGIrrhD43VLnfZjbfhea?=
+ =?us-ascii?q?1w61ZGxwouydBT/pdUCrYGIPLpRED9rsDXDhg8Mwas2eboFM191p8CWWKIGq?=
+ =?us-ascii?q?KZM73dvkGT5u0zJOmMY4wVtS3hJPgl/f7uino5mV4Afamsx5cXb2q4Hvt+KU?=
+ =?us-ascii?q?WDfXXsmssBEXsNvgcmUOPlkkaCXiBTZnupRKIz+jE7B5i7DYfNQoCinqaB0D?=
+ =?us-ascii?q?6nEZJMfGxJFleMEXLwfYWeR/gMcD6SItNmkjEcTriuVYsh1RCotA/nxLtqNf?=
+ =?us-ascii?q?TU+iIGupL5ztR15PPclQs09TNqC8SRyWaNT3t7nmkQXT85wLh/oVBhyleEya?=
+ =?us-ascii?q?V4h/1YFdpO5/JGSws6LoDTwPBnC9DoWwLBYteIRE+jQtWhHD4xU9YxzMEVbk?=
+ =?us-ascii?q?ZjFNWtkArD0zCpA7ALjbyLAoI78qbG03j2PcZ9xG7M1LM9gFk+XstPKWqmi7?=
+ =?us-ascii?q?Z99wjWAI7JiV+Zl6exdakH2i7C7mKDwnSPvE1CVw5wS6rFV2gFZkTKtdT5+l?=
+ =?us-ascii?q?/CT7i2BLs6MgtBzsCDJbVOat3tllVLX+3jN8rDbGKxgWiwGQyEya+LbIrvY2?=
+ =?us-ascii?q?8dxjnSCFAYkwAP+naLLQo+BiCho2LYFjBuF1XvY0P2/ul4s3O0UEk0whqWYE?=
+ =?us-ascii?q?J70bq1/RgVhf2ARPwJ2rIIojsuqzJxHAX149WDE9OdoyJ5dbhYJNY6501Kk2?=
+ =?us-ascii?q?nesl9TJJulept+i0YefgI/hEbn0xF6G80UisQxhG87xwp1b6SD2RVOcC3Ojs?=
+ =?us-ascii?q?O4AaHeNmSnpEPnUKXRwFyLlY/Lq6o=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DfBAAJ2G9d/wHyM5BmHQEBBQEHBQGBZ4FpBSqBQDIqh?=
+ =?us-ascii?q?CGPXAEBBoE2iW+KB4cfCQEBAQEBAQEBATQBAgEBhD8CgjIjOBMCCwEBAQQBA?=
+ =?us-ascii?q?QEBAQYDAQFshTqCOikBgmYBAQEBAgEjBBFBBQsLGAICJgICVxMGAgEBgl8/g?=
+ =?us-ascii?q?XcFD6pRfzOFSoM1gUmBDCiLeBh4gQeBESeCaz6HT4JYBIxPL4dxXpZXgimCK?=
+ =?us-ascii?q?IlYiFsGG5hrLagoIYFYKwgCGAghD4Mngk4XFY4pJAMwgQYBAY5zAQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Sep 2019 15:31:50 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x84FVmdT014118;
+        Wed, 4 Sep 2019 11:31:48 -0400
 Subject: Re: [PATCH] selinux: fix residual uses of current_security() for the
  SELinux blob
-To:     Stephen Smalley <sds@tycho.nsa.gov>, paul@paul-moore.com
-Cc:     keescook@chromium.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, jmorris@namei.org,
-        dhowells@redhat.com, casey@schaufler-ca.com
+To:     paul@paul-moore.com
+Cc:     keescook@chromium.org, casey@schaufler-ca.com,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        jmorris@namei.org, dhowells@redhat.com,
+        John Johansen <john.johansen@canonical.com>
 References: <20190904143248.7003-1-sds@tycho.nsa.gov>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <0edb10a8-7c6a-bee1-b6d4-382ee1ed51ee@schaufler-ca.com>
-Date:   Wed, 4 Sep 2019 08:16:00 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <38c27c97-d525-9afb-3f2d-9d3190444ae2@tycho.nsa.gov>
+Date:   Wed, 4 Sep 2019 11:31:48 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
 In-Reply-To: <20190904143248.7003-1-sds@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/4/2019 7:32 AM, Stephen Smalley wrote:
+On 9/4/19 10:32 AM, Stephen Smalley wrote:
 > We need to use selinux_cred() to fetch the SELinux cred blob instead
 > of directly using current->security or current_security().  There
 > were a couple of lingering uses of current_security() in the SELinux code
-> that were apparently missed during the earlier conversions.
-
-Thank you for finding this.
-
->  IIUC, this
+> that were apparently missed during the earlier conversions. IIUC, this
 > would only manifest as a bug if multiple security modules including
-> SELinux are enabled and SELinux is not first in the lsm order. After
+> SELinux are enabled and SELinux is not first in the lsm order.
+
+To further qualify that, it would only manifest as a bug if multiple 
+non-exclusive security modules that use the cred security blob are 
+enabled and SELinux is not first.  I don't think that is possible today 
+in existing upstream kernels since the cred blob-using modules are 
+currently all exclusive and tomoyo switched to using the task security 
+blob instead.  Obviously that will change if/when the stacking for AA 
+support lands and may already be an issue in Ubuntu depending on what 
+stacking patchsets and what lsm order it is using.
+
+> After
 > this change, there appear to be no other users of current_security()
 > in-tree; perhaps we should remove it altogether.
-
-I agree.
-
->
+> 
 > Fixes: bbd3662a8348 ("Infrastructure management of the cred security blob")
 > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-
 > ---
->  security/selinux/hooks.c          |  2 +-
->  security/selinux/include/objsec.h | 20 ++++++++++----------
->  2 files changed, 11 insertions(+), 11 deletions(-)
->
+>   security/selinux/hooks.c          |  2 +-
+>   security/selinux/include/objsec.h | 20 ++++++++++----------
+>   2 files changed, 11 insertions(+), 11 deletions(-)
+> 
 > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
 > index d55571c585ff..f1b763eceef9 100644
 > --- a/security/selinux/hooks.c
 > +++ b/security/selinux/hooks.c
 > @@ -3435,7 +3435,7 @@ static int selinux_inode_copy_up_xattr(const char *name)
->  static int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
->  					struct kernfs_node *kn)
->  {
+>   static int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
+>   					struct kernfs_node *kn)
+>   {
 > -	const struct task_security_struct *tsec = current_security();
 > +	const struct task_security_struct *tsec = selinux_cred(current_cred());
->  	u32 parent_sid, newsid, clen;
->  	int rc;
->  	char *context;
+>   	u32 parent_sid, newsid, clen;
+>   	int rc;
+>   	char *context;
 > diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
 > index 231262d8eac9..d2e00c7595dd 100644
 > --- a/security/selinux/include/objsec.h
 > +++ b/security/selinux/include/objsec.h
 > @@ -40,16 +40,6 @@ struct task_security_struct {
->  	u32 sockcreate_sid;	/* fscreate SID */
->  };
->  
+>   	u32 sockcreate_sid;	/* fscreate SID */
+>   };
+>   
 > -/*
 > - * get the subjective security ID of the current task
 > - */
@@ -169,13 +162,13 @@ Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 > -	return tsec->sid;
 > -}
 > -
->  enum label_initialized {
->  	LABEL_INVALID,		/* invalid or not initialized */
->  	LABEL_INITIALIZED,	/* initialized */
+>   enum label_initialized {
+>   	LABEL_INVALID,		/* invalid or not initialized */
+>   	LABEL_INITIALIZED,	/* initialized */
 > @@ -188,4 +178,14 @@ static inline struct ipc_security_struct *selinux_ipc(
->  	return ipc->security + selinux_blob_sizes.lbs_ipc;
->  }
->  
+>   	return ipc->security + selinux_blob_sizes.lbs_ipc;
+>   }
+>   
 > +/*
 > + * get the subjective security ID of the current task
 > + */
@@ -186,4 +179,6 @@ Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 > +	return tsec->sid;
 > +}
 > +
->  #endif /* _SELINUX_OBJSEC_H_ */
+>   #endif /* _SELINUX_OBJSEC_H_ */
+> 
+
