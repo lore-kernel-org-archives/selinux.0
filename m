@@ -2,105 +2,87 @@ Return-Path: <SRS0=j8XY=XA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FE51C41514
-	for <selinux@archiver.kernel.org>; Thu,  5 Sep 2019 12:07:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF442C3A5A5
+	for <selinux@archiver.kernel.org>; Thu,  5 Sep 2019 12:24:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D8F1222CF7
-	for <selinux@archiver.kernel.org>; Thu,  5 Sep 2019 12:07:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B20A02184B
+	for <selinux@archiver.kernel.org>; Thu,  5 Sep 2019 12:24:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="n3PEXKGu"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ibFQc6Uu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387968AbfIEMHo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Sep 2019 08:07:44 -0400
-Received: from USFB19PA31.eemsg.mail.mil ([214.24.26.194]:51638 "EHLO
-        USFB19PA31.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732003AbfIEMHo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Sep 2019 08:07:44 -0400
-X-EEMSG-check-017: 5783151|USFB19PA31_ESA_OUT01.csd.disa.mil
+        id S1731306AbfIEMYn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Sep 2019 08:24:43 -0400
+Received: from USAT19PA21.eemsg.mail.mil ([214.24.22.195]:44707 "EHLO
+        USAT19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731294AbfIEMYn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Sep 2019 08:24:43 -0400
+X-EEMSG-check-017: 24092631|USAT19PA21_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.64,470,1559520000"; 
-   d="scan'208";a="5783151"
+   d="scan'208";a="24092631"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA31.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 05 Sep 2019 12:07:37 +0000
+  by USAT19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 05 Sep 2019 12:24:18 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1567685258; x=1599221258;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=BCNBVFmjzCpk1W7vqVwtLwbkZZ0klrjkwkEZQZoQ0Yw=;
-  b=n3PEXKGuKt7hUbBXH3IXHTMq0Pm3T0snrO+gR4AipzsR4Z6pos1QBF5z
-   vsRUbwRBRXm3UJCO4m8drt5FBHnc6cJbXkXqS9h33LqiQFFPYnTz9CDHn
-   /D5/8VFwVgOIGWX4Z38Gc4Q7PaxBmcOVwjqXjflJJ7bhIY4rRZZvTWyRS
-   YYpcyA23GWBm/iNzwrSRGAMMgJEr+8Paw7K4FcmHh6l5cEQ+f2zQX7bi2
-   CGEbjiWovb/gMf3LiVWm+1mY+M41e7teKJqbPZkO+yxnBLTJuOtRAP2FB
-   cYc7IFHVm4HhBo2Dggcmic9hV2FMJfd4bYj7N0ksoZpOpT4GGFypCLrRs
-   Q==;
+  s=tycho.nsa.gov; t=1567686258; x=1599222258;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=oeTS0MeppC9qUZjrwzssszPhBPe94z00rrQTQ72VdpQ=;
+  b=ibFQc6UufIiHfKdtNwQ3daLdizjAkESU+njtIZ9hyiMoLH42w7OJMa/T
+   UmrKDcsLU0tEUm2VXdugSJeAlxsvvNwh/9Y/8RAcYgVcVedolvnAqd4yf
+   bHeUlH5cDXqaQWn/V98AsZ5PwGTtidTf0cNe+ncZXPKaGllrHlI/h+hFl
+   wPxj2J7DxmtOlyAaTXuyxtP56CraUpKi6IUkjisBN7aTjVBW3iUoo2v7W
+   pAqi1jA+BYtitAtA0PPfaqEVlc0CwCsbMxeQgjbdDjXjkLmdDonRxrie7
+   5Q06mtnQDOIbtV7ZUWs7MvmJD5Vs86inhcQY2GNtR8a7P/ZZ5gdhnkKQE
+   w==;
 X-IronPort-AV: E=Sophos;i="5.64,470,1559520000"; 
-   d="scan'208";a="32393753"
-IronPort-PHdr: =?us-ascii?q?9a23=3AeuAvQx1wcjg16J/zsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZsesXLfTxwZ3uMQTl6Ol3ixeRBMOHsqgC0rWJ+Py5EUU7or+5+EgYd5JNUx?=
- =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
- =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCejbb9oMRm7rwfcusYZjId/N6081g?=
- =?us-ascii?q?bHrnxUdupM2GhmP0iTnxHy5sex+J5s7SFdsO8/+sBDTKv3Yb02QaRXAzo6PW?=
- =?us-ascii?q?814tbrtQTYQguU+nQcSGQWnQFWDAXD8Rr3Q43+sir+tup6xSmaIcj7Rq06VD?=
- =?us-ascii?q?i+86tmTgLjhTwZPDAl7m7Yls1wjLpaoB2/oRx/35XUa5yROPZnY6/RYc8WSW?=
- =?us-ascii?q?9HU8lfTSxBBp63YZUJAeQPIO1Uq5DxqlUKoBe7AwSnGeHhxSJShnLuwKM0ze?=
- =?us-ascii?q?ohHwHF0gIuEd0Bv3bbo8n6OqoJTeC4zrPFwSnfY/5Y2zrw7pXDfBA7ofGLWL?=
- =?us-ascii?q?J9adffyVUxGAPdjlWft4rlNC6I2OQIqWeb6+5gWvyvimU6rAxxuSWgxtw3h4?=
- =?us-ascii?q?nVhoMa1lDE9SJjzIYzPt23UlR3YdGjEJtOriyXMZZ9TM0lQ2Ftoik6y7sGtI?=
- =?us-ascii?q?agcygNz5Qn2xrfa/2Bc4SS/h3jU+ORLDFlj3xmYLKynwu+/Eevx+HmVsS4zU?=
- =?us-ascii?q?xGojRKn9XSrHwByhre4dWdRPRn5EeuwzOP2hjW6uFDPE87i7LWK4Ukwr4sjp?=
- =?us-ascii?q?oTtlnDHjPulEX2kqCWckIk9/C06+v9eLXmp4KcN5RuhgHiMqUhhsy/AeMiPg?=
- =?us-ascii?q?gIQ2eb4viz2Kfm/U34RLVGlvw2kq/Hv5DGPckXu6G0DgBP3osj9hqzFSmq3d?=
- =?us-ascii?q?sGkXUdMV5JYBeHgJLoO1HKLvD4F/C/g1G0nTdw2v/GJabsAonNL3ffkLfheq?=
- =?us-ascii?q?xx60hHyAUp19xf6JVUCq8ZLPLpRkDxrMDYDgM+MwGs2+boEsh91ocFVGKXGK?=
- =?us-ascii?q?CZLafSvUaN5uIoJOmMfpEatCzhJPgi4v7klWU5lkMFfam1wZsXb2i1Eel8LE?=
- =?us-ascii?q?WfYHrjnNMBEWURswo7UuPqjFmCXiRVZ3a1UKMw/C00CIWjDY3bXICinKSB3D?=
- =?us-ascii?q?unHp1Rfm1GEU6DEXPpd4WCRvcNZzmfItFukjMaT7itUYwh2g+0tA/81bVnKv?=
- =?us-ascii?q?DY+ioCtZLszNJ1/fHclQku9TxoCMSQy3qNQH9wnmMJQT82wa9+rVVnylid36?=
- =?us-ascii?q?h4m/tYFdhS5/xVUgY3LoDcz+NkBNDoQA7BfcmGSEygQtq4BTE9VNUxw8UBY0?=
- =?us-ascii?q?xlAdWtkgjD3za2A78Sj7GLAII08rjG0HfqOcly123L1LM/gFY7QstAL3Gmir?=
- =?us-ascii?q?Rj+AjUAo7Di1+ZmLqydaQAwC7N83+OzXKQs05DTgFwV6TFXWwYZkbNrNT2+F?=
- =?us-ascii?q?3NQKG0BbQgKAtBxp3KFqwfUtT0iR1jQ/D5NZyKe2usn0+oDAuMg7aLa5DnPW?=
- =?us-ascii?q?4a2XOZQGQNlQEe+T6kKBIxCyG66zbSBTpvGFbtS0bh9e13rnSrCEQzylfZQV?=
- =?us-ascii?q?dm0u+O5hMNhfGaA8gW17YAtTZp/y54B36hztnWDJyGvAMnc6JCN4BuqGxb3H?=
- =?us-ascii?q?7U4lQudqerKLpv0xtHKFV6?=
-X-IPAS-Result: =?us-ascii?q?A2BOAQDf+XBd/wHyM5BlHAEBAQQBAQcEAQGBVgQBAQsBg?=
- =?us-ascii?q?W0qbVMyKoQhjwxOAQEBAQEGgREliW+RJgkBAQEBAQEBAQErCQECAQGENQoCg?=
- =?us-ascii?q?jYjNwYOAgsBAQEEAQEBAQEGAwEBbIUuDII6KQGCZwEFIxU2CxALGAICJgICV?=
- =?us-ascii?q?wYBDAYCAQGCXz8BgXYUD6lFgTKFS4M6gUmBDCgBhH+GeBh4gQeBOAyCXz6EH?=
- =?us-ascii?q?YMyglgEjD+JFoEwlSuCKYIohE+JH4RMBhuCNC9AlVKNeoE4hkWScCKBWCsIA?=
- =?us-ascii?q?hgIIQ87gmwJgkUXg0+FSIUnJAMwgQYBAYxuglQBAQ?=
+   d="scan'208";a="32395377"
+IronPort-PHdr: =?us-ascii?q?9a23=3AfImsqxFNcHjuNqEdADgXnp1GYnF86YWxBRYc79?=
+ =?us-ascii?q?8ds5kLTJ7zr8iwAkXT6L1XgUPTWs2DsrQY0rCQ6v+/EjBdqb+681k6OKRWUB?=
+ =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
+ =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba5sIBmssAnctMsbjYRtJ6sx1x?=
+ =?us-ascii?q?DEvmZGd+NKyG1yOFmdhQz85sC+/J5i9yRfpfcs/NNeXKv5Yqo1U6VWACwpPG?=
+ =?us-ascii?q?4p6sLrswLDTRaU6XsHTmoWiBtIDBPb4xz8Q5z8rzH1tut52CmdIM32UbU5Ui?=
+ =?us-ascii?q?ms4qt3VBPljjoMOiUn+2/LlMN/kKNboAqgpxNhxY7UfJqVP+d6cq/EYN8WWX?=
+ =?us-ascii?q?ZNUsNXWiNPGIO8a5YEAfQHM+hWsoLxo0ICoBW6CAWpAu7k1z1GiWLs3aAizu?=
+ =?us-ascii?q?ovDw/G0gwjEdwAvnvbo9f6O7sdX+2u0KnFzy/OY+9K1Trz6oXFdA0qr/GWXb?=
+ =?us-ascii?q?J3dMrc0VQhFx/bgVWIqYzqITWV3fkQvWie9eVgUeavhHAnqgpspTWv3dojip?=
+ =?us-ascii?q?LSi4IJylHL6SV5wIEvKd2+U050e8SoEJRXtyGELoZ7RN4pTWJwuCsi17ELtp?=
+ =?us-ascii?q?G2cDIKxZg63RLTdfOKf5aS7h7+UuuaPC12i2h/eL2lgha/6U2gyurhWcaqyF?=
+ =?us-ascii?q?tKtS9FksXUtnAKyhzT9tCLSvtj8Uel3jaCzxzT5fteIUA1iKrbMIQtwqIwl5?=
+ =?us-ascii?q?UPsUTDGTX6mEPqg6+Nakoo4O2o6+XjYrn+p5+cMZF7ih3mP6gzlcGyDv40Pw?=
+ =?us-ascii?q?gTU2SB5+ix26Pv8VfkTLlSi/05iKjZsJTUJcQBoa65BhdY0p0+5BakFDqmzN?=
+ =?us-ascii?q?QZkmUHLFJCYh6HiZPpNEvULPD3Cve/nUygkC13yPDeIr3hHpLNI2DbkLj7YL?=
+ =?us-ascii?q?Z971VRyBIpwtBC45JYE7QBIPX0Wk/rqtPUFAM2Mwuxw+z/EtVyypseWX6TAq?=
+ =?us-ascii?q?+eKK7SqkGH5uYuI+mKeY8Uty3wK+Yq5/Hwl381g1wdcrez3ZsRdn+4Gu5qI0?=
+ =?us-ascii?q?KDYXrj0Z89FjIytxc6BMntj0ePGWpLbmu2d7o1+zV+DYWhF4qFTYeo1vjJxy?=
+ =?us-ascii?q?q/H5tLdkhYBV2WV3TlbYOJX7ELci3BDNVml2k/SbW5S4InnSqrvQv+xqsvev?=
+ =?us-ascii?q?HY4QUEpJnj055z/OSVmhYso28nR/+B2n2AGjkn1lgDQCU7ieUm+h1w?=
+X-IPAS-Result: =?us-ascii?q?A2DlAQB6/XBd/wHyM5BlHQEBBQEHBQGBVgUBCwGBbSqBQ?=
+ =?us-ascii?q?DIqhCGPC04BAQEBAQaBNolvkSYJAQEBAQEBAQEBNAECAQGEPwKCNiM3Bg4CC?=
+ =?us-ascii?q?wEBAQQBAQEBAQYDAQFshTqCOikBgmYBAQEBAgEjFVELFQMCAiYCAlcGAQwGA?=
+ =?us-ascii?q?gEBgl8/gXcFD6lQgTKFS4M6gUmBDCgBi3cYeIEHgTiCaz6HT4JYBJVVlluCK?=
+ =?us-ascii?q?YIokjoGG5h1LYoOgz+abSKBWCsIAhgIIQ+DJ4J6jikkAzCBBgEBj0IBAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 05 Sep 2019 12:07:36 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 05 Sep 2019 12:24:17 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x85C7WIu014389;
-        Thu, 5 Sep 2019 08:07:33 -0400
-Subject: Re: IB pkey policy problem found via the selinux-testsuite
-To:     Paul Moore <paul@paul-moore.com>,
-        Daniel Jurgens <danielj@mellanox.com>
-Cc:     "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "selinux-refpolicy@vger.kernel.org" 
-        <selinux-refpolicy@vger.kernel.org>,
-        Lukas Vrabec <lvrabec@redhat.com>,
-        Chris PeBenito <pebenito@ieee.org>
-References: <CAHC9VhTuYi+W0RukEV4WNrP5X_AFeouaWMsdbgxSL1v04mouWw@mail.gmail.com>
- <CAHC9VhR1ZNyZqGB3Si-z77zLwaTBf-pkQk19rVqofs4P_oVtFg@mail.gmail.com>
- <CAHC9VhSKxgCB_j-eT65tSvqFDbBe_Wu_b+XsvN0Si2eDrEROMQ@mail.gmail.com>
- <5817f158-9ba2-420d-3a9e-59ee43be3472@mellanox.com>
- <9048b292-b9fa-49f7-d66e-1f0ceaa39290@tycho.nsa.gov>
- <CAHC9VhTiWg+ZP7p1ebDNFsfC5Lca1WaMGC-mbv1i9jR9E1pK+g@mail.gmail.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x85COGDm015534;
+        Thu, 5 Sep 2019 08:24:16 -0400
+Subject: Re: [PATCH] selinux-testsuite: don't break the system after running
+ the cgroups_label tests
+To:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+References: <156763458867.12445.11356660144461085311.stgit@chester>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <06c3964b-d0c5-530f-3573-9a9ce85ecfd8@tycho.nsa.gov>
-Date:   Thu, 5 Sep 2019 08:07:31 -0400
+Message-ID: <1f03f9a2-1bbe-c593-3cf0-3393f8dac943@tycho.nsa.gov>
+Date:   Thu, 5 Sep 2019 08:24:16 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhTiWg+ZP7p1ebDNFsfC5Lca1WaMGC-mbv1i9jR9E1pK+g@mail.gmail.com>
+In-Reply-To: <156763458867.12445.11356660144461085311.stgit@chester>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -109,84 +91,43 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/4/19 6:32 PM, Paul Moore wrote:
-> On Tue, Sep 3, 2019 at 10:45 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> On 9/3/19 10:30 AM, Daniel Jurgens wrote:
->>>
->>> On 8/27/2019 12:24 PM, Paul Moore wrote:
->>>> On Thu, Feb 28, 2019 at 4:58 PM Paul Moore <paul@paul-moore.com> wrote:
->>>>> On Wed, Feb 13, 2019 at 4:35 PM Paul Moore <paul@paul-moore.com> wrote:
->>>>>> Hello all,
->>>>>>
->>>>>> On a fully up-to-date Rawhide system you need the following line added
->>>>>> to the policy/test_ibpkey.te file to get a clean run of the
->>>>>> selinux-testsuite:
->>>>>>
->>>>>>     allow test_ibpkey_access_t self:capability { ipc_lock };
->>>>>>
->>>>>> The breakage doesn't appear to be due to a kernel change (previously
->>>>>> working kernels now fail), or a Fedora Rawhide policy change (nothing
->>>>>> relevant changed since the last clean run), but I did notice that my
->>>>>> libibverbs package was updated just prior to the breakage.  I haven't
->>>>>> had the time to dig into the library code, but I expect that to be the
->>>>>> source of the problem.
->>>>> Just to be clear, I don't believe this breakage is limited to the test
->>>>> suite, I expect any users of the SELinux IB hooks will run into this
->>>>> problem.  I believe we need to update the upstream and distro
->>>>> policies.
->>>> A ping to bring this issue back to the top of the mailing list.
->>>
->>> Hi Paul, I looked in the libraries and don't see explicit use of mlock. Maybe there was a change to use that access control for get_user_pages? That doesn't really jive with previously working kernels no longer working though.
->>
->> It would be useful to see the audit messages for that ipc_lock denial,
->> including the SYSCALL record.
->>
->> There are a number of kernel operations that can trigger ipc_lock checks,
->> https://elixir.bootlin.com/linux/latest/ident/CAP_IPC_LOCK
->>
->> Several of those are infiniband-specific.
+On 9/4/19 6:03 PM, Paul Moore wrote:
+> From: Paul Moore <paul@paul-moore.com>
 > 
-> Hi all,
+> Commit be0ca8feeb9b ("selinux-testsuite: ensure the cgroups_label
+> tests works on old and new systems"), and perhaps an earlier related
+> commit, broke systems after the tests were run by operating on
+> /sys/fs/cgroup/unified directly and not a sub-directory.  Fix this
+> by restoring the old (sub-directory) behavior.
 > 
-> Sorry for the delay in responding.  Here is what I see when running
-> the infiniband_pkey test on a current Fedora Rawhide system (run
-> individually to capture the output):
-> 
-> 1..4
-> # Running under perl version 5.030000 for linux
-> # Current time local: Wed Sep  4 18:24:39 2019
-> # Current time GMT:   Wed Sep  4 22:24:39 2019
-> # Using Test.pm version 1.31
-> ok 1
-> Unable to create cq.
-> not ok 2
-> # Test 2 got: "256" (./test at line 50)
-> #   Expected: "0"
-> #  ./test line 50 is:     ok( $result, 0 );
-> Unable to create cq.
-> not ok 3
-> # Test 3 got: "1" (./test at line 71)
-> #   Expected: "13"
-> #  ./test line 71 is: if (@unlabeled_pkeys) {
-> ok 4
-> 
-> ... and I see the following AVCs:
-> 
-> type=AVC msg=audit(1567635879.312:15018): avc:  denied  { ipc_lock } for
->    pid=15726 comm="create_modify_q" capability=14
->    scontext=unconfined_u:unconfined_r:test_ibpkey_access_t:s0-s0:c0.c1023
->    tcontext=unconfined_u:unconfined_r:test_ibpkey_access_t:s0-s0:c0.c1023
->    tclass=capability permissive=0
-> type=AVC msg=audit(1567635884.022:15020): avc:  denied  { ipc_lock } for
->    pid=15732 comm="create_modify_q" capability=14
->    scontext=unconfined_u:unconfined_r:test_ibpkey_access_t:s0-s0:c0.c1023
->    tcontext=unconfined_u:unconfined_r:test_ibpkey_access_t:s0-s0:c0.c1023
->    tclass=capability permissive=0
-> 
-> If I apply the workaround patch I mentioned earlier, the test succeeds
-> and the only AVC is a infiniband_pkey:access denial (which is expected
-> given the test).
+> Reported-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-I don't suppose you have SYSCALL (and possibly other auxiliary) audit 
-records from those denials?
-Trying to figure out what system call triggered the CAP_IPC_LOCK check.
+Tested-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+>   0 files changed
+
+That's a little odd.
+
+> 
+> diff --git a/tests/cgroupfs_label/test b/tests/cgroupfs_label/test
+> index 13f0434..3accca0 100755
+> --- a/tests/cgroupfs_label/test
+> +++ b/tests/cgroupfs_label/test
+> @@ -6,8 +6,11 @@ BEGIN { plan tests => 2 }
+>   my $ret;
+>   
+>   # Older systems use /sys/fs/cgroup/unified, newer use /sys/fs/cgroup.
+> -my $dir = "/sys/fs/cgroup/unified";
+> -if ( !-d $dir ) {
+> +my $dir;
+> +if ( -d "/sys/fs/cgroup/unified" ) {
+> +    $dir = "/sys/fs/cgroup/unified/selinuxtest";
+> +}
+> +else {
+>       $dir = "/sys/fs/cgroup/selinuxtest";
+>   }
+>   
+> 
+
