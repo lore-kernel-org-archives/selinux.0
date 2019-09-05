@@ -2,115 +2,86 @@ Return-Path: <SRS0=j8XY=XA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B536C43140
-	for <selinux@archiver.kernel.org>; Thu,  5 Sep 2019 20:24:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1C2BC43331
+	for <selinux@archiver.kernel.org>; Thu,  5 Sep 2019 20:27:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B47D52082E
-	for <selinux@archiver.kernel.org>; Thu,  5 Sep 2019 20:24:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 242F720825
+	for <selinux@archiver.kernel.org>; Thu,  5 Sep 2019 20:27:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="13mcJDhz"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="bHZ8uJcq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388502AbfIEUYH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Sep 2019 16:24:07 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:35217 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388907AbfIEUYG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Sep 2019 16:24:06 -0400
-Received: by mail-lj1-f196.google.com with SMTP id l14so3879394lje.2
-        for <selinux@vger.kernel.org>; Thu, 05 Sep 2019 13:24:05 -0700 (PDT)
+        id S1731552AbfIEU1M (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Sep 2019 16:27:12 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:36091 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731823AbfIEU1M (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Sep 2019 16:27:12 -0400
+Received: by mail-lf1-f68.google.com with SMTP id x80so3135094lff.3
+        for <selinux@vger.kernel.org>; Thu, 05 Sep 2019 13:27:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=cpqNY0toySTedGb8U7MFF/ZbGIKTZdxKon+7NXKsAkc=;
-        b=13mcJDhzd76giq/WwfkJtoxQ+U8mqub2DusiyOY3pEi8yvnUaa+41OiJLc7z+drmtK
-         bCKw9piZCMS8jyYnnf7TX30gepZY3G1GnQLhYUJ4lSi0n0frmmy1gwQbgSrLtXLHnnpy
-         ZW0BHQMIeArzbz/WAF9da9nfW8RljLoZ7S4f+VnTzq1Y5FEs82Ti2DlDwapbslH+vzpw
-         vvL+ZOU6rlpgcHdfocBWbQZGcRUjQ0Z/bB9yJj+EWbvT3EJVYcx+GoNOofhRned0x74+
-         T5PQVlAd4ZJG6ja0caqZ/aKpgpLLs9wpNLtSlC4fgwN0BIbmYaquorXG4dOC7vnKn2F1
-         xrjA==
+        bh=RVsYT5LiDmTkAuyzoCSrPPZFZ3YwCseupt2r60psf1I=;
+        b=bHZ8uJcq2zcPozORM+OzqAQ0bUd3F3XQYjLPmB7yusYpkag+KiR64E1V3jWDbDycP2
+         vOrw5bkSrr+36y6niHqNRzPtMJQ6GSjsiuF+UC4uv855LXZNJ4rgsMRT28AlJ+Cp1/hI
+         rUDkTms10z6P/y2UpO/FxewO0gHi1hYSi2RKoU6ZYGm9DfXNhEHaepUXf2esHvoMzb/E
+         5wPof8VuXMSlT7sthHMqWPY/4pBi2Jk3nTZe+3Pl6UM51Yk71NvLz0SWI7qiwWWgTxzw
+         LGWlSPIwqjbYVjWl9dR0iGioUGl3k87QExGfIHBFkkfaLW3Ee5e7FIkMaQ84U/vICuA0
+         sWtg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=cpqNY0toySTedGb8U7MFF/ZbGIKTZdxKon+7NXKsAkc=;
-        b=ofCP/3+gmy0A+bMXFLeoJ1px2fay+s6lJOof4GGGo0rQbibzxDzn1LXznRjh/mqFz1
-         wXLy0vgqmfM/vUSpVbfRE98w+KU98xTDbfE1/5jy+Dmb2pYb5xV4DQaehurUNF16e5eu
-         xIKHbVLGbaJiTVdIvlVuhgwRjYYC+OlfHSqeu+6ovHX/0R12PWmgnqrdnhWPM1v4pNX8
-         cZ375ndHNfkPjm3D92iI6DZ9+Nn5Z5YqyKzKN0WYWY9uYUbyTAWqevgOrEhGRCm0iNO5
-         pH6+aqOGv+KNbGOwlGz3iqIc9mkDzuAeG3Wf8y7JBmVfpWYPX3bncDTYB4qztN89Jo0j
-         Bg5Q==
-X-Gm-Message-State: APjAAAWL9lGs/grHdMfY+EoVDcWiC5rWlzwZGNWNNmQSGoFeyZGCbb1C
-        yAEo+x+2OvCmqxeTFt+r+9URA3hVa0RSXUbjLPnaXJQHHQ==
-X-Google-Smtp-Source: APXvYqzzY6LDQVluEVb5+hKWy0HYbTU63/cwkokQMjJZmS9GTyV2sMTvTFuarOfYJub+i5wnKCraJUuUZvE0j/mg4Pc=
-X-Received: by 2002:a2e:6596:: with SMTP id e22mr3303327ljf.87.1567715044104;
- Thu, 05 Sep 2019 13:24:04 -0700 (PDT)
+        bh=RVsYT5LiDmTkAuyzoCSrPPZFZ3YwCseupt2r60psf1I=;
+        b=RhbOUyHDVQTzXHoEXK3tRRBKh73I9Y/C8NDjHEVFAjuR3X18fWqaCzm+5waNRTUgEO
+         mnxclyVfviMZFJ67S0dTa7K4+d0PGR2TttlKY4GqsLkzZSymbT50vA/Mkt5BL+dOIQpb
+         5utf3/Zz3H6G9bnqOzFwqUQ9h9Sav62yxG5iOqHC4OCnNlZe9CjkxbON/QxC6ame12xV
+         NK+QglV5bip+4KO2J2eXGnCzgdFx+LCX2gftjArGz/OGUKX8x1E561Gqu427e5bP0PHz
+         inLc1G7pur4apeFSmOI5OB1oHRyka4r6WLysLaY4Vzk2UAnv12Ae8qkMWpGqtignxzYj
+         rEVw==
+X-Gm-Message-State: APjAAAUpjJjD5elB4marj51L97tJ2JG9oP2JwsdOnJHjpUDSYP+1PFpT
+        05k/hkj3goD7FvuUqvkUFKcg2dchliw24ux0j1R4E++yVA==
+X-Google-Smtp-Source: APXvYqy9TN7/1cq1Af9uGfhXRRn5jIXAUcggtttorgLfQcc8cNyky0AkBfXNplb8OsogBH6JhvMh7RQCbDI4mrQL/QI=
+X-Received: by 2002:a19:8c14:: with SMTP id o20mr3712142lfd.158.1567715229715;
+ Thu, 05 Sep 2019 13:27:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <156763458867.12445.11356660144461085311.stgit@chester> <1f03f9a2-1bbe-c593-3cf0-3393f8dac943@tycho.nsa.gov>
-In-Reply-To: <1f03f9a2-1bbe-c593-3cf0-3393f8dac943@tycho.nsa.gov>
+References: <156763801639.13084.2856415198922787618.stgit@chester> <alpine.LRH.2.21.1909051134200.30667@namei.org>
+In-Reply-To: <alpine.LRH.2.21.1909051134200.30667@namei.org>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 5 Sep 2019 16:23:52 -0400
-Message-ID: <CAHC9VhQWvdQvfr5idZ3Yb+YxaY7bxq8n0Gxjb=i6OM69woeaYQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: don't break the system after running
- the cgroups_label tests
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org
+Date:   Thu, 5 Sep 2019 16:26:58 -0400
+Message-ID: <CAHC9VhS9Rz2T0W=g_e0a5Jn7XxSjXAA7nTHSEi3z__PQN3oxTg@mail.gmail.com>
+Subject: Re: [PATCH] lsm: remove current_security()
+To:     James Morris <jmorris@namei.org>
+Cc:     linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 5, 2019 at 8:24 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 9/4/19 6:03 PM, Paul Moore wrote:
-> > From: Paul Moore <paul@paul-moore.com>
+On Wed, Sep 4, 2019 at 9:34 PM James Morris <jmorris@namei.org> wrote:
+> On Wed, 4 Sep 2019, Paul Moore wrote:
+>
+> > There are no remaining callers and it really is unsafe in the brave
+> > new world of LSM stacking.
 > >
-> > Commit be0ca8feeb9b ("selinux-testsuite: ensure the cgroups_label
-> > tests works on old and new systems"), and perhaps an earlier related
-> > commit, broke systems after the tests were run by operating on
-> > /sys/fs/cgroup/unified directly and not a sub-directory.  Fix this
-> > by restoring the old (sub-directory) behavior.
-> >
-> > Reported-by: Stephen Smalley <sds@tycho.nsa.gov>
 > > Signed-off-by: Paul Moore <paul@paul-moore.com>
 >
-> Tested-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Acked-by: James Morris <jamorris@linux.microsoft.com>
 
-Merged, thanks.
+Thanks.
 
-> > ---
-> >   0 files changed
->
-> That's a little odd.
+> You might as well push this through with the SELinux changes.
 
-Huh, yes it is ... ?  Not sure what happened here, but that part is
-automatically generated by 'stg mail'.  I don't see the same problem
-(missing diffstat) on the other patch I sent last night, so I'm not
-going to worry too much about it, but I'll keep an eye on it.
+That is what I was planning, it will break the build if merged via
+another tree without Stephen's patch.  Merged into selinux/next to be
+sent upstream during the next merge window.
 
-> > diff --git a/tests/cgroupfs_label/test b/tests/cgroupfs_label/test
-> > index 13f0434..3accca0 100755
-> > --- a/tests/cgroupfs_label/test
-> > +++ b/tests/cgroupfs_label/test
-> > @@ -6,8 +6,11 @@ BEGIN { plan tests => 2 }
-> >   my $ret;
-> >
-> >   # Older systems use /sys/fs/cgroup/unified, newer use /sys/fs/cgroup.
-> > -my $dir = "/sys/fs/cgroup/unified";
-> > -if ( !-d $dir ) {
-> > +my $dir;
-> > +if ( -d "/sys/fs/cgroup/unified" ) {
-> > +    $dir = "/sys/fs/cgroup/unified/selinuxtest";
-> > +}
-> > +else {
-> >       $dir = "/sys/fs/cgroup/selinuxtest";
-> >   }
-
---
+-- 
 paul moore
 www.paul-moore.com
