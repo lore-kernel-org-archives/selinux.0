@@ -2,860 +2,141 @@ Return-Path: <SRS0=qD/R=XE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0340C4740C
-	for <selinux@archiver.kernel.org>; Mon,  9 Sep 2019 13:17:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84D29C49ED6
+	for <selinux@archiver.kernel.org>; Mon,  9 Sep 2019 16:00:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7571D2086D
-	for <selinux@archiver.kernel.org>; Mon,  9 Sep 2019 13:17:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B8E020692
+	for <selinux@archiver.kernel.org>; Mon,  9 Sep 2019 16:00:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="kjAgr86U"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="sBYGIqJs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728966AbfIINRO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Sep 2019 09:17:14 -0400
-Received: from mailomta14-sa.btinternet.com ([213.120.69.20]:52388 "EHLO
-        sa-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727770AbfIINRO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Sep 2019 09:17:14 -0400
-Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-040.btinternet.com with ESMTP
-          id <20190909131707.VPRW20994.sa-prd-fep-040.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Mon, 9 Sep 2019 14:17:07 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1568035027; 
-        bh=h0GWLeek+weXAQ9hp1UA36KPUo1vAivunO52YtLmJIU=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=kjAgr86U/ROngc9dnXO7s0xmUPIF8Ri/UKQDO/4fzhY/8g2DS6IdKxj3hqRFC0mLXwJyszqK4qEzpw/wbM43pQF7EYlmXgofwfkZ6ytgDgQz0GTPaUfnbAkEM0kE6kY/MTabekcU6YRzTQ1Hz5eE9TSK694uUAoM+Nz8Bq3AaXOcW+esalqfffiQ/AcQ66TjhIpA8ljvB8BLl26wfIJU8d3mCq1rqADOC/73Chsh8ubgMhkdYN/PyHxA7XMuDEnJD2BvOLOzwOt6JLdq/uGUfr3yD5P46selvgjyPfWOs+tidsgdhGiO//lDFooLjsr9WNcXsw19AvBm1I8Q2p2CuQ==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [86.134.6.67]
-X-OWM-Source-IP: 86.134.6.67 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduvddrudekiedgieduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddufeegrdeirdeijeenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudefgedriedrieejpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (86.134.6.67) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
-        id 5D6FD1E5011207FB; Mon, 9 Sep 2019 14:17:07 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org, paul@paul-moore.com
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH] selinux-testsuite: Add key and key_socket tests
-Date:   Mon,  9 Sep 2019 14:17:01 +0100
-Message-Id: <20190909131701.29588-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.21.0
+        id S1729881AbfIIQA4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Sep 2019 12:00:56 -0400
+Received: from sonic311-7.consmr.mail.ir2.yahoo.com ([77.238.176.250]:37273
+        "EHLO sonic311-7.consmr.mail.ir2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388236AbfIIQAz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Sep 2019 12:00:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1568044853; bh=Xj6owETe0qrf7GCSYZt7kxdL4q4YHxZnBDMS69wJb4g=; h=Subject:To:References:From:Date:In-Reply-To:From:Subject; b=sBYGIqJsNaFoVL5TPNk0tKrNFmuxR5SfyjoCJcZSMFqcDEDOtgBmX62alm6Dsz/P82glfRUJNNOaT4WMqknw2qRb5Yewa/qCyzAmd5B+5hi+WT7vkz1x1rbMJgRRiPdo2/GY2MS3rfDfw9MyjLQWesrZlLuwAgld1V++KtK642j9N4kDclOZfr678ZxKhVnbkcXc5UuM36xhkLgLPCUG/VKkvJ47a5xdsB58WrPCb1KT3lfL54S38/dFETjTC+OaoRMods2McpWtr2GI8uYKSZLQGb1zo5m0tByotkR/PF3QiZosjnzOkZzu/nIyjU7LxqHGJNDrGXgy/XmL12DqDA==
+X-YMail-OSG: 9gnusFIVM1kcJq40QfvAzRUt6elJbug3apdMKeDHNhoIkH0xtYZteI.53LIls1T
+ 0dwYDJAmVNNlUmFXUbZ4_PQlKO9EgMGdAkCRXIQ9SGIaRCJRTzFgiULCm.SD10Hy7pmv356TcD9C
+ iZAogPuiGjAQsmxhWTefqxyKenana_qCJcLVp91326ISB6jgcR7jcHD54bbFFoVXyQ18qfrDJV3.
+ 4CnovNjkfa72J6Th.OciHl52ALR7o7AtwxEpL9klJ.jL_1uYhHz6pVH7alCZ.rbayGrOgPwbNyJu
+ 6D5V6fLBoMXpG0N4lx_MRiiWATiqXmt31aeCSd36caXn4AhhKQS.95FJ9blKiCSTfxBLhlDcVXm.
+ 9HOQFxLTqQnQda7psZ.kmTC2VyjhBZ6FSlveSQPGGyE3bsVrzd972NJp5_fhjdIfBdImLKsq_fis
+ 5Ez_cEyAzAzMhzGxdNhKMfd1O9MGi6PWB7lDfLCjMrf1WuhctzbSTmJJsWFm3Spnum.itO7xNcB6
+ HOOSH_gpeHhxHRxR2vPOK7HOnjSO2aIZLlFN3ivjvh4FQlWC2qbJo2v_KsyVhtt1QE9p.bc1x8ez
+ 12i_.MOuU1GzhWt8zi6MPqC8hmpC1TsFH8OxETzTNcBvrUTZMOFTvNv9NMYrCa86KRKDiv7Tveg9
+ 1PIh1m9IUcPr5qbwcvbYF3ZTFBshyirFjLPHeCskJSvgi54nsvQl0AywOwRUITBGD_WfjqKue7zD
+ uGZIB24BHVmCwWEzBDCgH1D4bAouh4MW6a6K4WFggG.be1G4tWzBWHHldLMiNiUeE91Hrz48LdgF
+ NHo9NFQg5wIzz3dI2xPB2RBS3lXE7r5h1TGjuS1JV_wOqkORVIOKBgEMfxb0uBPH0lDnrLHILe9Q
+ A6ONdgEVp37evRdZy40dh5n6sBB9g2cVKxtJcrBgNXmAsqhm_Oyl6AVvG3AFCrTQsX0jION2T6KG
+ 7itpjlMPf0Xh2OB7wfBJ.P09qIiLENqLqF2Huo3sJm_rWMX5qKJWnA7jUTvik5NIxYeT4JmJbHuM
+ V2NQ_CAKFpkfXNbD6lZd7N4oVQtdjgxRaHMCDHJWdKR7Nr_Yu7YQdEoxzkoxAW8ipWpu2srVCOlm
+ O3937UVFzhPvIxBJkvoWdT9ILhunBmrqxkW7bHMY9VzW9JyA3ip4KG4Ze4WmfGkb9wwfWkZbp9c1
+ U8wC7zWUl7UCk3BjYyx97DDucEzqrczfdBJxJjM.JyMFoxGn2GX_AesuAPvmAvvLu4WyaUCaJ5ie
+ 09kl0MyVmQWUetRa2Yji4JBwkvRirV.5HJLIe4wBGLMj1_VfN7Y0WCEwoUaYQO9q22UuxJryyCsI
+ m0uWDcU5KRHR3cA.r5eXki6hIuPoiOjck_hnQm9HdE1dv5w_0iqynahj75DR4810DGrdnfOVrY8F
+ P5hLkvGgiyhw-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ir2.yahoo.com with HTTP; Mon, 9 Sep 2019 16:00:53 +0000
+Received: by smtp414.mail.ir2.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d19967bce1726bf2544e96d77b5ebebc;
+          Mon, 09 Sep 2019 15:58:52 +0000 (UTC)
+Subject: Re: [PATCH] lsm: remove current_security()
+To:     Paul Moore <paul@paul-moore.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+References: <156763801639.13084.2856415198922787618.stgit@chester>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ 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
+ abzjfg==
+Message-ID: <3fb46173-5be2-4e83-3074-0f66b6edd632@schaufler-ca.com>
+Date:   Mon, 9 Sep 2019 08:58:49 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <156763801639.13084.2856415198922787618.stgit@chester>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Test all permissions associated with the key and key_socket classes.
+On 9/4/2019 4:00 PM, Paul Moore wrote:
+> There are no remaining callers and it really is unsafe in the brave
+> new world of LSM stacking.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-Note that kernel 5.3 commit keys: Fix request_key() lack of Link perm
-check on found key ("504b69eb3c95180bc59f1ae9096ad4b10bbbf254")
-added an additional check for link perm on request_key(). The tests
-will support earlier kernels.
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- README.md                   |   3 +-
- defconfig                   |   8 ++
- policy/Makefile             |   4 +
- policy/test_keys.te         | 161 ++++++++++++++++++++++++
- tests/Makefile              |   4 +
- tests/keys/.gitignore       |   3 +
- tests/keys/Makefile         |   8 ++
- tests/keys/key_sock.c       |  67 ++++++++++
- tests/keys/keyctl.c         | 241 ++++++++++++++++++++++++++++++++++++
- tests/keys/keyctl_relabel.c |  93 ++++++++++++++
- tests/keys/test             |  98 +++++++++++++++
- 11 files changed, 689 insertions(+), 1 deletion(-)
- create mode 100644 policy/test_keys.te
- create mode 100644 tests/keys/.gitignore
- create mode 100644 tests/keys/Makefile
- create mode 100644 tests/keys/key_sock.c
- create mode 100644 tests/keys/keyctl.c
- create mode 100644 tests/keys/keyctl_relabel.c
- create mode 100755 tests/keys/test
+Thanks for this. It should have gone in with the last
+set of stacking patches.
 
-diff --git a/README.md b/README.md
-index 26784f8..fe72a91 100644
---- a/README.md
-+++ b/README.md
-@@ -65,7 +65,8 @@ following command:
- 		netlabel_tools \
- 		iptables \
- 		lksctp-tools-devel \
--		attr
-+		attr \
-+		keyutils-libs-devel
- 
- The testsuite requires a pre-existing base policy configuration of SELinux,
- using either the old example policy or the reference policy as the baseline.
-diff --git a/defconfig b/defconfig
-index d7f0ea5..c00e291 100644
---- a/defconfig
-+++ b/defconfig
-@@ -62,3 +62,11 @@ CONFIG_ANDROID_BINDER_IPC=y
- # This will configure the Dynamically Allocated Binder Devices added
- # to 5.0+ kernels:
- CONFIG_ANDROID_BINDERFS=y
-+
-+# Key implementations.
-+# These are enabled to test the key and key_socket controls in
-+# tests/keys; they are not required for SELinux operation itself.
-+CONFIG_KEYS=y
-+CONFIG_KEYS_COMPAT=y
-+CONFIG_KEY_DH_OPERATIONS=y
-+CONFIG_NET_KEY=m
-diff --git a/policy/Makefile b/policy/Makefile
-index 305b572..9258a93 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -71,6 +71,10 @@ ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/coren
- TARGETS += test_sctp.te
- endif
- 
-+ifeq ($(shell grep -q key_socket $(POLDEV)/include/support/all_perms.spt && echo true),true)
-+TARGETS += test_keys.te
-+endif
-+
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
- TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te, $(TARGETS))
- endif
-diff --git a/policy/test_keys.te b/policy/test_keys.te
-new file mode 100644
-index 0000000..9c65ec8
---- /dev/null
-+++ b/policy/test_keys.te
-@@ -0,0 +1,161 @@
-+#
-+################# KEY selinux-testsuite policy module ######################
-+#
-+attribute keydomain;
-+
-+#
-+############################## Define Macro ################################
-+#
-+# Do not use domain_type() macro as it has allow 'key { link search }'
-+# in base module so 'allow domain self:key ~{ link search };' will not work
-+# here. Add these instead to allow key perms to be controlled by this module:
-+#
-+define(`key_domain_type',`
-+	allow $1 proc_t:dir { search };
-+	allow $1 proc_t:lnk_file { read };
-+	allow $1 self:dir { search };
-+	allow $1 self:file { open read write };
-+')
-+
-+#
-+####################### Main key class tests #####################
-+#
-+type test_key_t;
-+key_domain_type(test_key_t)
-+unconfined_runs_test(test_key_t)
-+typeattribute test_key_t testdomain;
-+typeattribute test_key_t keydomain;
-+
-+allow test_key_t self:process { setkeycreate };
-+allow test_key_t self:key { create write search read view link setattr };
-+
-+# Set new context on a keyring:
-+type test_newcon_key_t;
-+key_domain_type(test_newcon_key_t)
-+unconfined_runs_test(test_newcon_key_t)
-+typeattribute test_newcon_key_t testdomain;
-+typeattribute test_newcon_key_t keydomain;
-+
-+allow test_key_t test_newcon_key_t:key { create write search view };
-+
-+################# Deny process { setkeycreate } #######################
-+type test_no_setkeycreate_t;
-+key_domain_type(test_no_setkeycreate_t)
-+unconfined_runs_test(test_no_setkeycreate_t)
-+typeattribute test_no_setkeycreate_t testdomain;
-+typeattribute test_no_setkeycreate_t keydomain;
-+
-+###################### Deny key { create } ###########################
-+type test_key_no_create_t;
-+key_domain_type(test_key_no_create_t)
-+unconfined_runs_test(test_key_no_create_t)
-+typeattribute test_key_no_create_t testdomain;
-+typeattribute test_key_no_create_t keydomain;
-+
-+allow test_key_no_create_t self:process { setkeycreate };
-+allow test_key_no_create_t self:key { write search read view link setattr };
-+
-+###################### Deny key { write } ###########################
-+type test_key_no_write_t;
-+key_domain_type(test_key_no_write_t)
-+unconfined_runs_test(test_key_no_write_t)
-+typeattribute test_key_no_write_t testdomain;
-+typeattribute test_key_no_write_t keydomain;
-+
-+allow test_key_no_write_t self:process { setkeycreate };
-+allow test_key_no_write_t self:key { create search read view link setattr };
-+
-+###################### Deny key { search } ###########################
-+type test_key_no_search_t;
-+key_domain_type(test_key_no_search_t)
-+unconfined_runs_test(test_key_no_search_t)
-+typeattribute test_key_no_search_t testdomain;
-+typeattribute test_key_no_search_t keydomain;
-+
-+allow test_key_no_search_t self:process { setkeycreate };
-+allow test_key_no_search_t self:key { create write read view link setattr };
-+
-+###################### Deny key { view } ###########################
-+type test_key_no_view_t;
-+key_domain_type(test_key_no_view_t)
-+unconfined_runs_test(test_key_no_view_t)
-+typeattribute test_key_no_view_t testdomain;
-+typeattribute test_key_no_view_t keydomain;
-+
-+allow test_key_no_view_t self:process { setkeycreate };
-+allow test_key_no_view_t self:key { create write search read link setattr };
-+
-+###################### Deny key { read } ###########################
-+type test_key_no_read_t;
-+key_domain_type(test_key_no_read_t)
-+unconfined_runs_test(test_key_no_read_t)
-+typeattribute test_key_no_read_t testdomain;
-+typeattribute test_key_no_read_t keydomain;
-+
-+allow test_key_no_read_t self:process { setkeycreate };
-+allow test_key_no_read_t self:key { create write search view link setattr };
-+
-+###################### Deny key { link } ###########################
-+type test_key_no_link_t;
-+key_domain_type(test_key_no_link_t)
-+unconfined_runs_test(test_key_no_link_t)
-+typeattribute test_key_no_link_t testdomain;
-+typeattribute test_key_no_link_t keydomain;
-+
-+allow test_key_no_link_t self:process { setkeycreate };
-+allow test_key_no_link_t self:key { create write search read view setattr };
-+
-+###################### Deny key { setattr } ###########################
-+type test_key_no_setattr_t;
-+key_domain_type(test_key_no_setattr_t)
-+unconfined_runs_test(test_key_no_setattr_t)
-+typeattribute test_key_no_setattr_t testdomain;
-+typeattribute test_key_no_setattr_t keydomain;
-+
-+allow test_key_no_setattr_t self:process { setkeycreate };
-+allow test_key_no_setattr_t self:key { create write search read view link };
-+
-+#
-+######################## Test key_socket class ###########################
-+#
-+type test_key_sock_t;
-+domain_type(test_key_sock_t)
-+unconfined_runs_test(test_key_sock_t)
-+typeattribute test_key_sock_t testdomain;
-+typeattribute test_key_sock_t keydomain;
-+
-+# key_socket rules:
-+allow test_key_sock_t self:rawip_socket { create };
-+allow test_key_sock_t self:capability { net_admin };
-+allow test_key_sock_t self:key_socket { create write };
-+# For CONFIG_NET_KEY=m
-+allow test_key_sock_t kernel_t:system { module_request };
-+
-+################## Deny capability { net_admin } ##########################
-+type test_key_sock_no_net_admin_t;
-+domain_type(test_key_sock_no_net_admin_t)
-+unconfined_runs_test(test_key_sock_no_net_admin_t)
-+typeattribute test_key_sock_no_net_admin_t testdomain;
-+typeattribute test_key_sock_no_net_admin_t keydomain;
-+
-+# key_socket rules:
-+allow test_key_sock_no_net_admin_t self:rawip_socket { create };
-+allow test_key_sock_no_net_admin_t self:key_socket { create write };
-+
-+####################### Deny key_socket { create } ##########################
-+type test_key_sock_no_create_t;
-+domain_type(test_key_sock_no_create_t)
-+unconfined_runs_test(test_key_sock_no_create_t)
-+typeattribute test_key_sock_no_create_t testdomain;
-+typeattribute test_key_sock_no_create_t keydomain;
-+
-+# key_socket rules:
-+allow test_key_sock_no_create_t self:rawip_socket { create };
-+allow test_key_sock_no_create_t self:capability { net_admin };
-+allow test_key_sock_no_create_t self:key_socket { write };
-+
-+#
-+########### Allow these domains to be entered from sysadm domain ############
-+#
-+miscfiles_domain_entry_test_files(keydomain)
-+userdom_sysadm_entry_spec_domtrans_to(keydomain)
-diff --git a/tests/Makefile b/tests/Makefile
-index 63aa325..d1dbf38 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -42,6 +42,10 @@ ifeq ($(shell grep -q binder $(POLDEV)/include/support/all_perms.spt && test -e
- SUBDIRS += binder
- endif
- 
-+ifeq ($(shell grep -q key_socket $(POLDEV)/include/support/all_perms.spt && test -e $(INCLUDEDIR)/keyutils.h && echo true),true)
-+SUBDIRS += keys
-+endif
-+
- ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=" infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
- SUBDIRS += infiniband_endport
- endif
-diff --git a/tests/keys/.gitignore b/tests/keys/.gitignore
-new file mode 100644
-index 0000000..4a0a48d
---- /dev/null
-+++ b/tests/keys/.gitignore
-@@ -0,0 +1,3 @@
-+keyctl
-+keyctl_relabel
-+key_sock
-diff --git a/tests/keys/Makefile b/tests/keys/Makefile
-new file mode 100644
-index 0000000..3a00df5
---- /dev/null
-+++ b/tests/keys/Makefile
-@@ -0,0 +1,8 @@
-+TARGETS = keyctl key_sock keyctl_relabel
-+
-+LDLIBS += -lselinux -lkeyutils
-+
-+all: $(TARGETS)
-+
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/keys/key_sock.c b/tests/keys/key_sock.c
-new file mode 100644
-index 0000000..8ac1f45
---- /dev/null
-+++ b/tests/keys/key_sock.c
-@@ -0,0 +1,67 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <sys/socket.h>
-+#include <linux/pfkeyv2.h>
-+#include <selinux/selinux.h>
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-v]\n"
-+		"Where:\n\t"
-+		"-v  Print information.\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	char *context;
-+	int opt, sock, result;
-+	bool verbose = false;
-+
-+	while ((opt = getopt(argc, argv, "v")) != -1) {
-+		switch (opt) {
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	result = getcon(&context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain process context\n");
-+		exit(-1);
-+	}
-+	if (verbose)
-+		printf("Process context: %s\n", context);
-+
-+	sock = socket(PF_KEY, SOCK_RAW, PF_KEY_V2);
-+	if (sock < 0) {
-+		fprintf(stderr, "Failed to open PF_KEY socket: %s\n",
-+			strerror(errno));
-+		exit(errno);
-+	}
-+	if (verbose)
-+		printf("Opened PF_KEY socket\n");
-+
-+	/* Write nothing to socket for test, expect EMSGSIZE error */
-+	result = write(sock, NULL, 0);
-+	if (result < 0 && errno == EMSGSIZE) {
-+		result = 0;
-+		if (verbose)
-+			printf("Written to PF_KEY socket\n");
-+	} else if (result < 0 && errno != EMSGSIZE) {
-+		result = -1;
-+		fprintf(stderr, "Failed write to PF_KEY socket: %s\n",
-+			strerror(errno));
-+	}
-+
-+	close(sock);
-+	return result;
-+}
-diff --git a/tests/keys/keyctl.c b/tests/keys/keyctl.c
-new file mode 100644
-index 0000000..6d85be7
---- /dev/null
-+++ b/tests/keys/keyctl.c
-@@ -0,0 +1,241 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <keyutils.h>
-+#include <selinux/selinux.h>
-+
-+/* This is used as the payload for each add_key() */
-+static const char payload[] =
-+	" -----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDN4FHsPjlJf03r9KfNt1Ma9/D6\nQDEiR/cfhZrNUPgHRrC+E4dj52VJSonPFJ6HaLlUi5pZq2t1LqPNrMfFKCNn12m+\nWw4aduBJM7u1RUPSNxrlfDAJZkdtNALOO/ds3U93hZrxOYNetzbnjILDu5JT1nbI\n4aC60SkdlCw1TxmvXwIDAQAB\n-----END PUBLIC KEY-----\n";
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-v]\n"
-+		"Where:\n\t"
-+		"-v  Print information.\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	int opt, result;
-+	char *context, *keycreate_con;
-+	char r_con[256];
-+	bool verbose = false;
-+	key_serial_t retrieved, search, link, compute, newring,
-+		     private, prime, base, test_key;
-+	struct keyctl_dh_params params;
-+
-+	while ((opt = getopt(argc, argv, "v")) != -1) {
-+		switch (opt) {
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	result = getcon(&context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain process context\n");
-+		exit(1);
-+	}
-+	if (verbose)
-+		printf("Process context: %s\n", context);
-+
-+	result = getkeycreatecon(&keycreate_con);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain keycreate context\n");
-+		exit(2);
-+	}
-+	if (verbose)
-+		printf("Current keycreate context: %s\n", keycreate_con);
-+	free(keycreate_con);
-+
-+	/* Set context requires process { setkeycreate } and key { create } */
-+	result = setkeycreatecon(context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed setkeycreatecon(): %s\n",
-+			strerror(errno));
-+		exit(3);
-+	}
-+	if (verbose)
-+		printf("Set keycreate context: %s\n", context);
-+	free(context);
-+
-+	result = getkeycreatecon(&keycreate_con);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain keycreate context\n");
-+		exit(4);
-+	}
-+	if (verbose)
-+		printf("New keycreate context: %s\n", keycreate_con);
-+	free(keycreate_con);
-+
-+	/*
-+	 * Add three keys as these will be required by the
-+	 * keyctl(KEYCTL_DH_COMPUTE, ..) function.
-+	 * These require key { create write } permissions.
-+	 */
-+	private = add_key("user", "private", payload, strlen(payload),
-+			  KEY_SPEC_PROCESS_KEYRING);
-+	if (private < 0) {
-+		fprintf(stderr, "Failed add_key(private): %s\n",
-+			strerror(errno));
-+		exit(5);
-+	}
-+
-+	prime = add_key("user", "prime", payload, strlen(payload),
-+			KEY_SPEC_PROCESS_KEYRING);
-+	if (prime < 0) {
-+		fprintf(stderr, "Failed add_key(prime): %s\n",
-+			strerror(errno));
-+		exit(6);
-+	}
-+
-+	base = add_key("user", "base", payload, strlen(payload),
-+		       KEY_SPEC_PROCESS_KEYRING);
-+	if (base < 0) {
-+		fprintf(stderr, "Failed add_key(base): %s\n",
-+			strerror(errno));
-+		exit(7);
-+	}
-+
-+	if (verbose) {
-+		printf("Private key ID: 0x%x\n", private);
-+		printf("Prime key ID:   0x%x\n", prime);
-+		printf("Base key ID:    0x%x\n", base);
-+	}
-+
-+	/* Requires key { search }. From kernel 5.3 also requires { link } */
-+	retrieved = request_key("user", "private", NULL,
-+				KEY_SPEC_PROCESS_KEYRING);
-+	if (retrieved < 0) {
-+		fprintf(stderr, "Failed to request 'private' key: %s\n",
-+			strerror(errno));
-+		exit(8);
-+	}
-+
-+	/* Requires key { search } */
-+	search = keyctl(KEYCTL_SEARCH, KEY_SPEC_PROCESS_KEYRING, "user",
-+			"base", 0);
-+	if (search < 0) {
-+		fprintf(stderr, "Failed to find 'base' key: %s\n",
-+			strerror(errno));
-+		exit(9);
-+	}
-+
-+	/* Requires key { view } */
-+	result = keyctl(KEYCTL_GET_SECURITY, search, r_con, sizeof(r_con));
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain key context: %s\n",
-+			strerror(errno));
-+		exit(10);
-+	}
-+
-+	if (verbose) {
-+		printf("Requested 'private' key ID: 0x%x\n", retrieved);
-+		printf("Searched 'base' key ID:     0x%x\n", search);
-+		printf("Searched 'base' key context:\n\t%s\n", r_con);
-+	}
-+
-+	/* Compute DH key, only obtain the length for test, not the key. */
-+	params.priv = private;
-+	params.prime = prime;
-+	params.base = base;
-+
-+	/* Requires key { create read write } */
-+	compute = keyctl(KEYCTL_DH_COMPUTE, &params, NULL, 0, 0);
-+	if (compute < 0) {
-+		fprintf(stderr, "Failed KEYCTL_DH_COMPUTE: %s\n",
-+			strerror(errno));
-+		exit(11);
-+	}
-+	if (verbose)
-+		printf("KEYCTL_DH_COMPUTE key ID size: %d\n", compute);
-+
-+	/* To test key { link }, need to generate a new keyring ID first */
-+	newring = add_key("keyring", "my-keyring", NULL, 0,
-+			  KEY_SPEC_THREAD_KEYRING);
-+	if (newring < 0) {
-+		fprintf(stderr, "Failed to add new keyring: %s\n",
-+			strerror(errno));
-+		exit(12);
-+	}
-+	if (verbose)
-+		printf("New keyring ID: 0x%x\n", newring);
-+
-+	/* Requires key { write link } */
-+	link = keyctl(KEYCTL_LINK, base, newring);
-+	if (link < 0) {
-+		fprintf(stderr, "Failed KEYCTL_LINK: %s\n",
-+			strerror(errno));
-+		exit(13);
-+	}
-+	if (verbose)
-+		printf("Link key ID:    0x%x\n", newring);
-+
-+	/* Requires key { setattr } */
-+	link = keyctl(KEYCTL_RESTRICT_KEYRING, newring, NULL, NULL);
-+	if (link < 0) {
-+		fprintf(stderr, "Failed KEYCTL_RESTRICT_KEYRING: %s\n",
-+			strerror(errno));
-+		exit(14);
-+	}
-+	if (verbose)
-+		printf("Restricted keyring\n");
-+
-+	/* Requires key { search } from 5.X key { inval } */
-+	test_key = keyctl(KEYCTL_INVALIDATE, private);
-+	if (test_key < 0) {
-+		fprintf(stderr, "Failed KEYCTL_INVALIDATE(private): %s\n",
-+			strerror(errno));
-+		exit(15);
-+	}
-+	if (verbose)
-+		printf("Invalidated 'private' key\n");
-+
-+	/* Requires key { write setattr } from 5.X key { revoke } */
-+	test_key = keyctl(KEYCTL_REVOKE, prime);
-+	if (test_key < 0) {
-+		fprintf(stderr, "Failed KEYCTL_REVOKE(prime): %s\n",
-+			strerror(errno));
-+		exit(16);
-+	}
-+	if (verbose)
-+		printf("Revoked 'prime' key\n");
-+
-+	/* Requires key { write } from 5.X key { clear } */
-+	test_key = keyctl(KEYCTL_CLEAR, newring);
-+	if (test_key < 0) {
-+		fprintf(stderr, "Failed KEYCTL_CLEAR(newring): %s\n",
-+			strerror(errno));
-+		exit(17);
-+	}
-+	if (verbose)
-+		printf("Cleared 'newring' keyring\n");
-+
-+	/* To test key { join }, need to join session first */
-+	test_key = keyctl(KEYCTL_JOIN_SESSION_KEYRING, "user");
-+	if (test_key < 0) {
-+		fprintf(stderr, "Failed KEYCTL_JOIN_SESSION_KEYRING,: %s\n",
-+			strerror(errno));
-+		exit(18);
-+	}
-+	/* Requires key { link } from 5.X key { join } */
-+	test_key = keyctl(KEYCTL_SESSION_TO_PARENT);
-+	if (test_key < 0) {
-+		fprintf(stderr, "Failed KEYCTL_SESSION_TO_PARENT: %s\n",
-+			strerror(errno));
-+		exit(19);
-+	}
-+	if (verbose)
-+		printf("Joined session to parent\n");
-+
-+	return 0;
-+}
-diff --git a/tests/keys/keyctl_relabel.c b/tests/keys/keyctl_relabel.c
-new file mode 100644
-index 0000000..0276c7a
---- /dev/null
-+++ b/tests/keys/keyctl_relabel.c
-@@ -0,0 +1,93 @@
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <stdbool.h>
-+#include <keyutils.h>
-+#include <selinux/selinux.h>
-+
-+static void usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-v] newcon\n"
-+		"Where:\n\t"
-+		"-v      Print information.\n\t"
-+		"newcon  New keyring context.\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	int opt, result;
-+	char *context, *keycreate_con;
-+	char r_con[256];
-+	bool verbose = false;
-+	key_serial_t newring;
-+
-+	while ((opt = getopt(argc, argv, "v")) != -1) {
-+		switch (opt) {
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			usage(argv[0]);
-+		}
-+	}
-+
-+	if (optind >= argc)
-+		usage(argv[0]);
-+
-+	result = getcon(&context);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain process context\n");
-+		exit(1);
-+	}
-+	if (verbose)
-+		printf("Process context: %s\n", context);
-+	free(context);
-+
-+	result = setkeycreatecon(argv[optind]);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed setkeycreatecon(): %s\n",
-+			strerror(errno));
-+		exit(2);
-+	}
-+
-+	result = getkeycreatecon(&keycreate_con);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain keycreate context\n");
-+		exit(3);
-+	}
-+	if (verbose)
-+		printf("New keycreate context: %s\n", keycreate_con);
-+	free(keycreate_con);
-+
-+	newring = add_key("keyring", "my-keyring", NULL, 0,
-+			  KEY_SPEC_THREAD_KEYRING);
-+	if (newring < 0) {
-+		fprintf(stderr, "Failed to add new keyring: %s\n",
-+			strerror(errno));
-+		exit(4);
-+	}
-+
-+	result = keyctl(KEYCTL_GET_SECURITY, newring, r_con, sizeof(r_con));
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain key context: %s\n",
-+			strerror(errno));
-+		exit(5);
-+	}
-+
-+	if (strcmp(argv[optind], r_con)) {
-+		fprintf(stderr, "Relabel error - expected: %s got: %s\n",
-+			argv[optind], r_con);
-+		exit(6);
-+	}
-+
-+	if (verbose) {
-+		printf("'my-keyring' key ID: 0x%x\n", newring);
-+		printf("'my-keyring' context:\n\t%s\n", r_con);
-+	}
-+
-+	return 0;
-+}
-diff --git a/tests/keys/test b/tests/keys/test
-new file mode 100755
-index 0000000..4916e7c
---- /dev/null
-+++ b/tests/keys/test
-@@ -0,0 +1,98 @@
-+#!/usr/bin/perl
-+use Test::More;
-+
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    $test_count = 13;
-+
-+    # allow info to be shown during tests
-+    $v = $ARGV[0];
-+    if ($v) {
-+        if ( $v ne "-v" ) {
-+            plan skip_all => "Invalid option (use -v)";
-+        }
-+    }
-+    else {
-+        $v = " ";
-+    }
-+
-+    # From kernel 5.3 request_key() requires additional check of key { link }
-+    $kvercur = `uname -r`;
-+    chomp($kvercur);
-+    $kverminstream = "5.3";
-+    $test_link_53  = 0;
-+
-+    $result = `$basedir/../kvercmp $kvercur $kverminstream`;
-+    if ( $result >= 0 ) {
-+        $test_link_53 = 1;
-+    }
-+
-+    plan tests => $test_count;
-+}
-+
-+############ Test keyctl #############
-+print "Test key class permissions\n";
-+$result = system "runcon -t test_key_t $basedir/keyctl $v";
-+ok( $result eq 0 );
-+
-+# Deny process { setkeycreate }
-+$result = system "runcon -t test_no_setkeycreate_t $basedir/keyctl $v 2>&1";
-+ok( $result >> 8 eq 3 );
-+
-+# Deny key { create }
-+$result = system "runcon -t test_key_no_create_t $basedir/keyctl $v 2>&1";
-+ok( $result >> 8 eq 3 );
-+
-+# Deny key { write }
-+$result = system "runcon -t test_key_no_write_t $basedir/keyctl $v 2>&1";
-+ok( $result >> 8 eq 5 );
-+
-+# Deny key { search }
-+$result = system "runcon -t test_key_no_search_t $basedir/keyctl $v 2>&1";
-+ok( $result >> 8 eq 8 );
-+
-+# Deny key { view }
-+$result = system "runcon -t test_key_no_view_t $basedir/keyctl $v 2>&1";
-+ok( $result >> 8 eq 10 );
-+
-+# Deny key { read }
-+$result = system "runcon -t test_key_no_read_t $basedir/keyctl $v 2>&1";
-+ok( $result >> 8 eq 11 );
-+
-+# Deny key { link }
-+$result = system "runcon -t test_key_no_link_t $basedir/keyctl $v 2>&1";
-+if ($test_link_53) {
-+    ok( $result >> 8 eq 8 );
-+}
-+else {
-+    ok( $result >> 8 eq 13 );
-+}
-+
-+# Deny key { setattr }
-+$result = system "runcon -t test_key_no_setattr_t $basedir/keyctl $v 2>&1";
-+ok( $result >> 8 eq 14 );
-+
-+########### Change keyring context ##############
-+print "Change keyring context\n";
-+$result = system
-+"runcon -t test_key_t $basedir/keyctl_relabel $v system_u:system_r:test_newcon_key_t:s0";
-+ok( $result eq 0 );
-+
-+############ Test key_socket #############
-+print "Test key_socket class\n";
-+$result = system "runcon -t test_key_sock_t $basedir/key_sock $v";
-+ok( $result eq 0 );
-+
-+# Deny capability { net_admin } - EPERM
-+$result =
-+  system "runcon -t test_key_sock_no_net_admin_t $basedir/key_sock $v 2>&1";
-+ok( $result >> 8 eq 1 );
-+
-+# Deny key_socket { create } - EACCES
-+$result =
-+  system "runcon -t test_key_sock_no_create_t $basedir/key_sock $v 2>&1";
-+ok( $result >> 8 eq 13 );
-+
-+exit;
--- 
-2.21.0
+> ---
+>  include/linux/cred.h |    1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/include/linux/cred.h b/include/linux/cred.h
+> index efb6edf32de7..98b0a23ddd23 100644
+> --- a/include/linux/cred.h
+> +++ b/include/linux/cred.h
+> @@ -384,7 +384,6 @@ static inline void put_cred(const struct cred *_cre=
+d)
+>  #define current_fsgid() 	(current_cred_xxx(fsgid))
+>  #define current_cap()		(current_cred_xxx(cap_effective))
+>  #define current_user()		(current_cred_xxx(user))
+> -#define current_security()	(current_cred_xxx(security))
+> =20
+>  extern struct user_namespace init_user_ns;
+>  #ifdef CONFIG_USER_NS
+>
+>
 
