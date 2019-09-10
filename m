@@ -2,723 +2,558 @@ Return-Path: <SRS0=Wrvk=XF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71662C49ED7
-	for <selinux@archiver.kernel.org>; Tue, 10 Sep 2019 16:32:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F39FC49ED7
+	for <selinux@archiver.kernel.org>; Tue, 10 Sep 2019 17:27:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 28787208E4
-	for <selinux@archiver.kernel.org>; Tue, 10 Sep 2019 16:32:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DBDFD21019
+	for <selinux@archiver.kernel.org>; Tue, 10 Sep 2019 17:27:19 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="CuknOdaS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2436772AbfIJQcq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 10 Sep 2019 12:32:46 -0400
-Received: from dgrift.xs4all.space ([80.100.19.56]:52606 "EHLO
-        agnus.defensec.nl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729580AbfIJQcq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 10 Sep 2019 12:32:46 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by agnus.defensec.nl (Postfix) with ESMTP id E5EEF2E0EEF;
-        Tue, 10 Sep 2019 18:32:41 +0200 (CEST)
-X-Virus-Scanned: amavisd-new at defensec.nl
-Received: from agnus.defensec.nl ([127.0.0.1])
-        by localhost (agnus.defensec.nl [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id FUNWFAkucdzk; Tue, 10 Sep 2019 18:32:38 +0200 (CEST)
-Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 0738A2E0EEE;
-        Tue, 10 Sep 2019 18:32:37 +0200 (CEST)
-Date:   Tue, 10 Sep 2019 18:32:36 +0200
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Aaron Goidel <acgoide@tycho.nsa.gov>, paul@paul-moore.com,
+        id S2437143AbfIJR1T (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 10 Sep 2019 13:27:19 -0400
+Received: from UCOL19PA39.eemsg.mail.mil ([214.24.24.199]:51926 "EHLO
+        UCOL19PA39.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2436774AbfIJR1T (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 10 Sep 2019 13:27:19 -0400
+X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Tue, 10 Sep 2019 13:27:18 EDT
+X-EEMSG-check-017: 20804148|UCOL19PA39_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,490,1559520000"; 
+   d="scan'208";a="20804148"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UCOL19PA39.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Sep 2019 17:20:11 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1568136011; x=1599672011;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=rKmnXYVc+I1aG0f2LoBSbJm9b2oXCWO/TeFkAnomBqQ=;
+  b=CuknOdaSge+pO3a+wNnFuHrTNjBIF5HVLBwKdsDz2PlyHbnGlMfHdI8j
+   ePB5Wjg6fQihqPC6JZewE65VdP/qbCVoQKo6xQuSnlTEKcgh94KU7iyR8
+   YYqGVpTYAigRxU+biDLtcSJHvrr9SWqwNZ78XRAw/lSULZIUX6DOjVQis
+   3wlRUUMmpew4MjzI6oHCtVur7smt7dRs1Xw38hzNPczAgJj3WaZDDyRBU
+   mdC0h3DdwJVsS5XNxkUc8+CZJ7fBQ6c+UqKi3D90SUazX0acYu/ZZW7F1
+   X4yIzXftF+zXy5HLGBR+BhsKV7I2DUCmNr6BP7fLCrIMej84Trft/JroX
+   g==;
+X-IronPort-AV: E=Sophos;i="5.64,490,1559520000"; 
+   d="scan'208";a="32645894"
+IronPort-PHdr: =?us-ascii?q?9a23=3AtoXRGhLWKluH/DUowdmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgfIv7xwZ3uMQTl6Ol3ixeRBMOHsqkC07Kd4/CoGTRZp8rY6jZaKN0Efi?=
+ =?us-ascii?q?RGoP1epxYnDs+BBB+zB9/RRAt+Iv5/UkR49WqwK0lfFZW2TVTTpnqv8WxaQU?=
+ =?us-ascii?q?2nZkJ6KevvB4Hdkdm82fys9J3PeQVIgye2ba9vIBmsogjdq8cbjZF+JqotxR?=
+ =?us-ascii?q?fEoXhFcPlSyW90OF6fhRnx6tqu8JJ57yhcp/ct/NNcXKvneKg1UaZWByk8PW?=
+ =?us-ascii?q?Av483ruxjDTQ+R6XYZT24bjBlGDRXb4R/jRpv+vTf0ueR72CmBIM35Vqs0Vi?=
+ =?us-ascii?q?i476dqUxDnliEKPCMk/W7Ni8xwiKVboA+9pxF63oXZbp2ZOOZ4c6jAZt4RW3?=
+ =?us-ascii?q?ZPUdhNWCxAGoO8bpUAD+wdPeZDsoLxo0ICoQaiCQWwAe/izDFHhmXy3aYnze?=
+ =?us-ascii?q?ovFw/I1xEkE94XvnnZqND5OaEPWu630abI1y3OYe5I1zfz6IbGcR4vrv+DUr?=
+ =?us-ascii?q?1ybcXfxlIiFx/Hg1iKtYDpIz2Y2+YLvmOG7+RgT+Wvi2s/pgFzrDmg2t0jip?=
+ =?us-ascii?q?PVho4L11vJ8id5wYgpKtKiUk57fcCoHYBMtyCaK4R2QsQiT3tuuCYh0LIKo5?=
+ =?us-ascii?q?G7fC8UyJk+wRPUdvKJc4+N4h35VeaRJy91hGl5d72lgRa+60ygxfb6W8Kp01?=
+ =?us-ascii?q?hKtjJInsTDu30CzRDe6tWLRuFj8kquxzqDzR3f5+dZKk4uj6XbMYQuwrsom5?=
+ =?us-ascii?q?oWtkTMAzH5lV3tjK+TakUk4u+o6/n7Yrn+pp+TKYt0igbmP6QygMO/G+U4Mh?=
+ =?us-ascii?q?UVX2SB5eS91KHs/U3+QLlQiP05jrLZv4zAKcQep665BxdZ0ocl6xmhEzeryM?=
+ =?us-ascii?q?kUkHYIIV5feB+LkpLlN0/BLfzmF/uznkygkDJxyPDHOr3hDI/NLn/GkLr5f7?=
+ =?us-ascii?q?Z85VJTxxApzdBD+Z5ZEa0BIfLvVU/xs9zUFBk5MxeuzOr9B9V90Z0eVXqVAq?=
+ =?us-ascii?q?CFKKPSrUOI5uU3LumOY48Vozb9K+U/6PL0lnA5g14dfa+00psTdn+1BehpI1?=
+ =?us-ascii?q?+EYXrqntgBEWcLsRckQ+z2klKOSyJcZ3G3X6gk/DE0FJqmDZvfRoCqmLGBxz?=
+ =?us-ascii?q?m0HplXZmBAF1CNHmzld5uLW/gSciKeOMxhnSIeVbinVYAh0QuitAjgy7pofa?=
+ =?us-ascii?q?Lo/Xg6sonjydE9zffSkx02+HQgDcOG03yECWtun2UEQzIe17pip0d921uKza?=
+ =?us-ascii?q?E+iPtdQ5gb/P5NUwEnJbbCwOFgTdP/QATMepGOUln1bM+hBGQzUdk42cNUKx?=
+ =?us-ascii?q?J/BN6rlAyZ9za7CL8S0bqQDdo79byKjCu5HNp013uTjPpptFIhWMYacDT916?=
+ =?us-ascii?q?M=3D?=
+X-IPAS-Result: =?us-ascii?q?A2A/AACD2ndd/wHyM5BkHAEBAQQBAQcEAQGBUwcBAQsBg?=
+ =?us-ascii?q?W0qbVIBMiqEIYgchnaCD36YIIF7CQEBAQEBAQEBASsJAQIBAYISgi0CgkkjN?=
+ =?us-ascii?q?AkOAgwBAQEEAQEBAQEGAwEBbIU6gjopAYJnAQUjBBFRCwkPAgImAgJXBgEMB?=
+ =?us-ascii?q?gIBAYJfPwGCCg+oLn8zhUuDLYFJgQwoAYt3gVdAgREngjY1PodPglgEgS8Bi?=
+ =?us-ascii?q?ygEiQOVem4GgiWHAY1wBhuZCi2NUppoOIFYKwpBgWiBTgmCRReOIR0kAzCBB?=
+ =?us-ascii?q?gEBjyABAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 10 Sep 2019 17:20:10 +0000
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8AHKAAm003524;
+        Tue, 10 Sep 2019 13:20:10 -0400
+Subject: Re: [Non-DoD Source] [PATCH v4] Add default_range glblub support
+To:     Joshua Brindle <joshua.brindle@crunchydata.com>,
         selinux@vger.kernel.org
-Subject: Re: [PATCH] selinux-testsuite: add tests for fsnotify
-Message-ID: <20190910163236.GC1058184@brutus.lan>
-References: <20190710133917.1188-1-acgoide@tycho.nsa.gov>
- <20190910055926.GA963995@brutus.lan>
- <3e584347-f97f-eb00-3291-2ce666e50918@tycho.nsa.gov>
- <20190910141517.GA1058184@brutus.lan>
- <d6636549-d91c-d4d2-4478-9aa3c8e023df@tycho.nsa.gov>
- <76c7a2f2-ccc3-46bf-bf1c-ef11a039536e@tycho.nsa.gov>
- <b9cdbda9-af04-ddc5-6e17-040c74da7518@tycho.nsa.gov>
- <44cb5cbc-1811-3cf1-f910-ec04e65bdbce@tycho.nsa.gov>
- <20190910152231.GA963906@brutus.lan>
- <fff646bf-0911-fc5a-9a9c-79f4d5c30eae@tycho.nsa.gov>
+References: <20190909180557.8093-1-joshua.brindle@crunchydata.com>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <0ea96cc4-11bb-5c4a-5f0a-75411a58e546@tycho.nsa.gov>
+Date:   Tue, 10 Sep 2019 13:22:07 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <fff646bf-0911-fc5a-9a9c-79f4d5c30eae@tycho.nsa.gov>
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+In-Reply-To: <20190909180557.8093-1-joshua.brindle@crunchydata.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Sep 10, 2019 at 12:25:44PM -0400, Stephen Smalley wrote:
-> On 9/10/19 11:22 AM, Dominick Grift wrote:
-> > On Tue, Sep 10, 2019 at 11:02:16AM -0400, Stephen Smalley wrote:
-> > > On 9/10/19 10:59 AM, Stephen Smalley wrote:
-> > > > On 9/10/19 10:54 AM, Stephen Smalley wrote:
-> > > > > On 9/10/19 10:40 AM, Stephen Smalley wrote:
-> > > > > > On 9/10/19 10:15 AM, Dominick Grift wrote:
-> > > > > > > On Tue, Sep 10, 2019 at 08:26:57AM -0400, Stephen Smalley wrote:
-> > > > > > > > On 9/10/19 1:59 AM, Dominick Grift wrote:
-> > > > > > > > > On Wed, Jul 10, 2019 at 09:39:17AM -0400, Aaron Goidel wrote:
-> > > > > > > > > > Added a suite to test permissions for setting
-> > > > > > > > > > inotify and fanotify watches
-> > > > > > > > > > on filesystem objects. Tests watch,
-> > > > > > > > > > watch_with_perm, and watch_reads permissions.
-> > > > > > > > > 
-> > > > > > > > > Ive also "tested" the fsnotify patch. And my tests
-> > > > > > > > > indicate that this might cause issues:
-> > > > > > > > > 
-> > > > > > > > > I added the access vectors to my policy, but on
-> > > > > > > > > older systems (debian 10) cron fails to start
-> > > > > > > > > cron needs the "entrypoint" permission on
-> > > > > > > > > /etc/crontab but it looks like appending the "watch"
-> > > > > > > > > access vectors to common-file disrupted the ordering
-> > > > > > > > > The result is that now i have to allow cron to
-> > > > > > > > > "watch_read" /etc/crontab even though the neither
-> > > > > > > > > kernel nor selinux user space are aware of the
-> > > > > > > > > fsnotify access vectors
-> > > > > > > > > It seems the cron selinux code got confused and now
-> > > > > > > > > thinks watch_read is entrypoint (its using selinux
-> > > > > > > > > code to determine whether it can manually transition
-> > > > > > > > > to cronjob domains on crontabs)
-> > > > > > > > > 
-> > > > > > > > > I am hoping this issue with resolve itself on
-> > > > > > > > > systems with kernels and user spaces that suppose
-> > > > > > > > > fsnotify.
-> > > > > > > > > However unless i am overlooking something this is
-> > > > > > > > > still likely to disrupt compatibility
-> > > > > > > > 
-> > > > > > > > So, IIUC, the issue is that:
-> > > > > > > > a) older cron was directly using the fixed
-> > > > > > > > FILE__ENTRYPOINT definition from
-> > > > > > > > libselinux in a security_compute_av() call rather than
-> > > > > > > > dynamically looking
-> > > > > > > > up entrypoint permission,
-> > > > > > > > b) the value of the file entrypoint permission in policy
-> > > > > > > > has changed because
-> > > > > > > > you updated your policy and chose to place the watch*
-> > > > > > > > permissions in the
-> > > > > > > > common file definition to match the kernel.
-> > > > > > > > 
-> > > > > > > > Note that you could have instead sprinkled copies of the
-> > > > > > > > watch* permissions
-> > > > > > > > across all of the individual file/dir/*_file classes and
-> > > > > > > > placed them at the
-> > > > > > > > end of the classes if you wanted to avoid this
-> > > > > > > > compatibility issue. The
-> > > > > > > > policy and kernel definitions no longer need to be
-> > > > > > > > identical; the kernel
-> > > > > > > > will dynamically map between them for its own permission checks.
-> > > > > > > > 
-> > > > > > > > Also, this should have already been broken for you when
-> > > > > > > > map permission was
-> > > > > > > > added, which would have shown up as execute_no_trans
-> > > > > > > > being checked instead
-> > > > > > > > of entrypoint.  This was already filed as a bug on cron
-> > > > > > > > in debian here:
-> > > > > > > > https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=924716
-> > > > > > > > 
-> > > > > > > > So, wrt compatibility, IIUC:
-> > > > > > > > - the kernel change does not break compatibility for old policy + old
-> > > > > > > > userspace,
-> > > > > > > > - new policy can choose to add the new permissions in a
-> > > > > > > > backward-compatible
-> > > > > > > > manner if desired, although refpolicy has already chosen
-> > > > > > > > not to do this for
-> > > > > > > > map permission,
-> > > > > > > > - the offending code in cron produces build warnings
-> > > > > > > > that were introduced in
-> > > > > > > > 2014 in libselinux to update their code to use the dynamic class/perm
-> > > > > > > > mapping support, which would resolve the issue.
-> > > > > > > 
-> > > > > > > this does not work (cron[8934]: ((null)) ENTRYPOINT FAILED): https://defensec.nl/gitweb/dssp2.git/commitdiff/914b1d5366922f92435cba780519c5d2bb9f4f7d
-> > > > > > > 
-> > > > > > > 
-> > > > > > > [kcinimod@brutus dssp2 (master=)]$ seinfo policy.31 -x
-> > > > > > > --common common_file
-> > > > > > > 
-> > > > > > > Commons: 1
-> > > > > > >      common common_file
-> > > > > > > {
-> > > > > > >           append
-> > > > > > >           lock
-> > > > > > >           mounton
-> > > > > > >           unlink
-> > > > > > >           read
-> > > > > > >           create
-> > > > > > >           quotaon
-> > > > > > >           execute
-> > > > > > >           setattr
-> > > > > > >           map
-> > > > > > >           relabelto
-> > > > > > >           rename
-> > > > > > >           link
-> > > > > > >           ioctl
-> > > > > > >           getattr
-> > > > > > >           relabelfrom
-> > > > > > > }
-> > > > > > > [kcinimod@brutus dssp2 (master=)]$ seinfo policy.31 -xcfile
-> > > > > > > 
-> > > > > > > Classes: 1
-> > > > > > >      class file
-> > > > > > > inherits common_file
-> > > > > > > {
-> > > > > > >           execmod
-> > > > > > >           watch
-> > > > > > >           write
-> > > > > > >           watch_reads
-> > > > > > >           execute_no_trans
-> > > > > > >           watch_mount
-> > > > > > >           watch_with_perm
-> > > > > > >           open
-> > > > > > >           watch_sb
-> > > > > > >           audit_access
-> > > > > > >           entrypoint
-> > > > > > > }
-> > > > > > 
-> > > > > > If you want to preserve compatibility with userspace using fixed
-> > > > > > definitions of FILE__ENTRYPOINT, then you have to insert any new
-> > > > > > file permissions after the current entrypoint permission in the
-> > > > > > class file. So watch and friends have to go after it, not before
-> > > > > > it.
-> > > > > > 
-> > > > > > Also, since the kernel always uses FILE__WATCH* in the check
-> > > > > > code rather than distinguishing by class, the watch* permissions
-> > > > > > need to be at the same offset in all of the file classes.  The
-> > > > > > same is true of the other file permissions.  It looks like you
-> > > > > > may have other permissions out of sync across the file classes
-> > > > > > e.g. execmod, open, audit_access, that need to be aligned or the
-> > > > > > kernel could check the wrong permission.
-> > > > > 
-> > > > > Sorry, the last para isn't correct - it should get mapped correctly
-> > > > > per class.  But you do need to add the permissions after entrypoint
-> > > > > in the file class to avoid displacing its value.
-> > > > 
-> > > > Also, it looks like your file class permission order differs in other
-> > > > incompatible ways. If you want it to be compatible with the deprecated
-> > > > libselinux headers, the requisite order would be:
-> > > > class file
-> > > > inherits common_file
-> > > > {
-> > > >       execute_no_trans
-> > > >       entrypoint
-> > > >       execmod
-> > > >       open
-> > > >       audit_access
-> > > >       map
-> > > 
-> > > Sorry, insert watch* permissions here.
-> > 
-> > I applied brute force:
-> > 
-> > the map permission can be part of common_file just fine.
-> > the audit_access av (which was clearly introduced after entrypoint can precede entrypoint just fine.
-> > 
-> > The problem is the prescence of the fsnotify access vector in general. Moving them out of common_file and after entrypoint does not make a difference.
-> > As soon as I remove the fsnotify av's things start to work.
-> > 
-> > In other words. besides the precensce of the fsnotify access vectors everything (seemingly) is in order
-> > Now for me the question remains: will this issue automatically resolve itself as soon as userspace and kernel support the fsnotify av
+On 9/9/19 2:05 PM, Joshua Brindle wrote:
+> Policy developers can set a default_range default to glblub and
+> computed contexts will be the intersection of the ranges of the
+> source and target contexts. This can be used by MLS userspace
+> object managers to find the range of clearances that two contexts
+> have in common. An example usage is computing a transition between
+> the network context and the context of a user logging into an MLS
+> application.
 > 
-> That doesn't make any sense to me.  Sounds like a bug somewhere. Anything
-> that changes the permission bit value in the policy for FILE__ENTRYPOINT is
-> going to break legacy crond that is using the hardcoded value from the
-> deprecated libselinux headers.  So adding permissions at the end of the file
-> class should be fine.  Adding or removing to/from common file should break.
-> I can't explain the behavior you are seeing.
-
-It does not make sense to me either, but i believe it when i see it.
-Ive tried several times and just removing the fsnotify access vectors make it work. Whether i append them to common_file or whether i append them to the individual classes does not make a difference.
-
-BTW: this fixes it for me: https://lore.kernel.org/selinux/d706a78c-d6d0-13bb-c9af-7ec4365b9b44@debian.org/T/#u
-
+> For example, one can add a default with
+> this cil:
 > 
-> > > 
-> > > > }
-> > > > 
-> > > > > 
-> > > > > > 
-> > > > > > > 
-> > > > > > > > 
-> > > > > > > > > 
-> > > > > > > > > > 
-> > > > > > > > > > Signed-off-by: Aaron Goidel <acgoide@tycho.nsa.gov>
-> > > > > > > > > > ---
-> > > > > > > > > >     policy/Makefile              |   4 ++
-> > > > > > > > > >     policy/test_notify.te        |  74 ++++++++++++++++++++++++
-> > > > > > > > > >     tests/Makefile               |   4 ++
-> > > > > > > > > >     tests/notify/Makefile        |   5 ++
-> > > > > > > > > >     tests/notify/test            | 101
-> > > > > > > > > > +++++++++++++++++++++++++++++++++
-> > > > > > > > > >     tests/notify/test_fanotify.c | 105
-> > > > > > > > > > +++++++++++++++++++++++++++++++++++
-> > > > > > > > > >     tests/notify/test_inotify.c  |  43 ++++++++++++++
-> > > > > > > > > >     7 files changed, 336 insertions(+)
-> > > > > > > > > >     create mode 100644 policy/test_notify.te
-> > > > > > > > > >     create mode 100644 tests/notify/Makefile
-> > > > > > > > > >     create mode 100755 tests/notify/test
-> > > > > > > > > >     create mode 100644 tests/notify/test_fanotify.c
-> > > > > > > > > >     create mode 100644 tests/notify/test_inotify.c
-> > > > > > > > > > 
-> > > > > > > > > > diff --git a/policy/Makefile b/policy/Makefile
-> > > > > > > > > > index 305b572..65f88c5 100644
-> > > > > > > > > > --- a/policy/Makefile
-> > > > > > > > > > +++ b/policy/Makefile
-> > > > > > > > > > @@ -71,6 +71,10 @@ ifeq ($(shell grep -q
-> > > > > > > > > > corenet_sctp_bind_all_nodes
-> > > > > > > > > > $(POLDEV)/include/kernel/coren
-> > > > > > > > > >     TARGETS += test_sctp.te
-> > > > > > > > > >     endif
-> > > > > > > > > > +ifeq ($(shell grep -q all_file_perms.*watch
-> > > > > > > > > > $(POLDEV)/include/support/all_perms.spt && echo
-> > > > > > > > > > true),true)
-> > > > > > > > > > +TARGETS+=test_notify.te
-> > > > > > > > > > +endif
-> > > > > > > > > > +
-> > > > > > > > > >     ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
-> > > > > > > > > >     TARGETS:=$(filter-out test_overlayfs.te
-> > > > > > > > > > test_mqueue.te, $(TARGETS))
-> > > > > > > > > >     endif
-> > > > > > > > > > diff --git a/policy/test_notify.te b/policy/test_notify.te
-> > > > > > > > > > new file mode 100644
-> > > > > > > > > > index 0000000..8ba6f1a
-> > > > > > > > > > --- /dev/null
-> > > > > > > > > > +++ b/policy/test_notify.te
-> > > > > > > > > > @@ -0,0 +1,74 @@
-> > > > > > > > > > +####################################################
-> > > > > > > > > > +# Policy for testing inoftify and fanotify watches #
-> > > > > > > > > > +####################################################
-> > > > > > > > > > +
-> > > > > > > > > > +attribute test_notify_domain;
-> > > > > > > > > > +
-> > > > > > > > > > +# Type for the file on which we want to set a watch
-> > > > > > > > > > +type test_notify_file_t;
-> > > > > > > > > > +files_type(test_notify_file_t);
-> > > > > > > > > > +
-> > > > > > > > > > +# Domain for the process which CAN set a non-permission watch
-> > > > > > > > > > +type test_watch_t;
-> > > > > > > > > > +domain_type(test_watch_t);
-> > > > > > > > > > +unconfined_runs_test(test_watch_t);
-> > > > > > > > > > +
-> > > > > > > > > > +typeattribute test_watch_t test_notify_domain;
-> > > > > > > > > > +typeattribute test_watch_t testdomain;
-> > > > > > > > > > +
-> > > > > > > > > > +allow test_notify_domain self:capability sys_admin;
-> > > > > > > > > > +
-> > > > > > > > > > +allow test_watch_t test_notify_file_t:file {
-> > > > > > > > > > read write open watch };
-> > > > > > > > > > +
-> > > > > > > > > > +# Domain for the process which CAN set a NON-access watch on a file
-> > > > > > > > > > +type test_perm_watch_t;
-> > > > > > > > > > +domain_type(test_perm_watch_t);
-> > > > > > > > > > +unconfined_runs_test(test_perm_watch_t);
-> > > > > > > > > > +
-> > > > > > > > > > +typeattribute test_perm_watch_t test_notify_domain;
-> > > > > > > > > > +typeattribute test_perm_watch_t testdomain;
-> > > > > > > > > > +
-> > > > > > > > > > +allow test_perm_watch_t test_notify_file_t:file
-> > > > > > > > > > { read write open watch watch_with_perm };
-> > > > > > > > > > +
-> > > > > > > > > > +# Domain which CAN set a NON-perm watch which MAY read accesses
-> > > > > > > > > > +type test_read_watch_t;
-> > > > > > > > > > +domain_type(test_read_watch_t);
-> > > > > > > > > > +unconfined_runs_test(test_read_watch_t);
-> > > > > > > > > > +
-> > > > > > > > > > +typeattribute test_read_watch_t test_notify_domain;
-> > > > > > > > > > +typeattribute test_read_watch_t testdomain;
-> > > > > > > > > > +
-> > > > > > > > > > +allow test_read_watch_t test_notify_file_t:file
-> > > > > > > > > > { read write open watch watch_reads };
-> > > > > > > > > > +
-> > > > > > > > > > +# Domain which CAN set any watch which CAN read accesses
-> > > > > > > > > > +type test_perm_read_watch_t;
-> > > > > > > > > > +domain_type(test_perm_read_watch_t);
-> > > > > > > > > > +unconfined_runs_test(test_perm_read_watch_t);
-> > > > > > > > > > +
-> > > > > > > > > > +typeattribute test_perm_read_watch_t test_notify_domain;
-> > > > > > > > > > +typeattribute test_perm_read_watch_t testdomain;
-> > > > > > > > > > +
-> > > > > > > > > > +allow test_perm_read_watch_t
-> > > > > > > > > > test_notify_file_t:file { read write open watch
-> > > > > > > > > > watch_with_perm watch_reads };
-> > > > > > > > > > +
-> > > > > > > > > > +# Domain which CANNOT set any watches
-> > > > > > > > > > +type test_no_watch_t;
-> > > > > > > > > > +domain_type(test_no_watch_t);
-> > > > > > > > > > +unconfined_runs_test(test_no_watch_t);
-> > > > > > > > > > +
-> > > > > > > > > > +typeattribute test_no_watch_t test_notify_domain;
-> > > > > > > > > > +typeattribute test_no_watch_t testdomain;
-> > > > > > > > > > +
-> > > > > > > > > > +allow test_no_watch_t test_notify_file_t:file { read write open };
-> > > > > > > > > > +
-> > > > > > > > > > +# Domain which has no write access but can watch
-> > > > > > > > > > +type test_rdonly_t;
-> > > > > > > > > > +domain_type(test_rdonly_t);
-> > > > > > > > > > +unconfined_runs_test(test_rdonly_t);
-> > > > > > > > > > +
-> > > > > > > > > > +typeattribute test_rdonly_t test_notify_domain;
-> > > > > > > > > > +typeattribute test_rdonly_t testdomain;
-> > > > > > > > > > +
-> > > > > > > > > > +allow test_rdonly_t test_notify_file_t:file { read open watch };
-> > > > > > > > > > +
-> > > > > > > > > > +miscfiles_domain_entry_test_files(test_notify_domain);
-> > > > > > > > > > +userdom_sysadm_entry_spec_domtrans_to(test_notify_domain);
-> > > > > > > > > > diff --git a/tests/Makefile b/tests/Makefile
-> > > > > > > > > > index 63aa325..b99c96e 100644
-> > > > > > > > > > --- a/tests/Makefile
-> > > > > > > > > > +++ b/tests/Makefile
-> > > > > > > > > > @@ -50,6 +50,10 @@ ifeq ($(shell grep
-> > > > > > > > > > "^SELINUX_INFINIBAND_PKEY_TEST="
-> > > > > > > > > > infiniband_pkey/ibpkey_test.
-> > > > > > > > > >     SUBDIRS += infiniband_pkey
-> > > > > > > > > >     endif
-> > > > > > > > > > +ifeq ($(shell grep -q all_file_perms.*watch
-> > > > > > > > > > $(POLDEV)/include/support/all_perms.spt && echo
-> > > > > > > > > > true),true)
-> > > > > > > > > > +SUBDIRS+=notify
-> > > > > > > > > > +endif
-> > > > > > > > > > +
-> > > > > > > > > >     ifeq ($(DISTRO),RHEL4)
-> > > > > > > > > >         SUBDIRS:=$(filter-out bounds dyntrace
-> > > > > > > > > > dyntrans inet_socket mmap nnp_nosuid overlay
-> > > > > > > > > > unix_socket, $(SUBDIRS))
-> > > > > > > > > >     endif
-> > > > > > > > > > diff --git a/tests/notify/Makefile b/tests/notify/Makefile
-> > > > > > > > > > new file mode 100644
-> > > > > > > > > > index 0000000..78c4b3b
-> > > > > > > > > > --- /dev/null
-> > > > > > > > > > +++ b/tests/notify/Makefile
-> > > > > > > > > > @@ -0,0 +1,5 @@
-> > > > > > > > > > +TARGETS=test_inotify test_fanotify
-> > > > > > > > > > +
-> > > > > > > > > > +all: $(TARGETS)
-> > > > > > > > > > +clean:
-> > > > > > > > > > +    rm -f $(TARGETS)
-> > > > > > > > > > diff --git a/tests/notify/test b/tests/notify/test
-> > > > > > > > > > new file mode 100755
-> > > > > > > > > > index 0000000..21f03de
-> > > > > > > > > > --- /dev/null
-> > > > > > > > > > +++ b/tests/notify/test
-> > > > > > > > > > @@ -0,0 +1,101 @@
-> > > > > > > > > > +#!/usr/bin/perl
-> > > > > > > > > > +
-> > > > > > > > > > +use Test;
-> > > > > > > > > > +BEGIN { plan tests => 14 }    # number of tests to run
-> > > > > > > > > > +
-> > > > > > > > > > +# help the test script locate itself
-> > > > > > > > > > +$basedir = $0;
-> > > > > > > > > > +$basedir =~ s|(.*)/[^/]*|$1|;
-> > > > > > > > > > +
-> > > > > > > > > > +# Get rid of a testfile from last run if it's there (just in case)
-> > > > > > > > > > +system("rm -f $basedir/watch_me");
-> > > > > > > > > > +
-> > > > > > > > > > +# Create a new test file
-> > > > > > > > > > +system("touch $basedir/watch_me");
-> > > > > > > > > > +system("chcon -t test_notify_file_t $basedir/watch_me");
-> > > > > > > > > > +
-> > > > > > > > > > +## TESTS
-> > > > > > > > > > +
-> > > > > > > > > > +## TEST BASIC WATCH PERMISSION
-> > > > > > > > > > +# Should be able to set inotify watch
-> > > > > > > > > > +$exit_val =
-> > > > > > > > > > +  system("runcon -t test_watch_t
-> > > > > > > > > > $basedir/test_inotify $basedir/watch_me 2>&1");
-> > > > > > > > > > +ok( $exit_val, 0 );
-> > > > > > > > > > +
-> > > > > > > > > > +# Should be able to set non-permissions based fanotify watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +    "runcon -t test_watch_t
-> > > > > > > > > > $basedir/test_fanotify $basedir/watch_me 2>&1");
-> > > > > > > > > > +ok( $exit_val, 0 );
-> > > > > > > > > > +
-> > > > > > > > > > +# Should NOT be able to set permission based fanotify watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +    "runcon -t test_watch_t
-> > > > > > > > > > $basedir/test_fanotify -p $basedir/watch_me
-> > > > > > > > > > 2>&1");
-> > > > > > > > > > +ok($exit_val);    # this should fail
-> > > > > > > > > > +
-> > > > > > > > > > +# Should NOT be able to set read based fanotify watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +    "runcon -t test_watch_t
-> > > > > > > > > > $basedir/test_fanotify -r $basedir/watch_me
-> > > > > > > > > > 2>&1");
-> > > > > > > > > > +ok($exit_val);    # this should fail
-> > > > > > > > > > +
-> > > > > > > > > > +# Should NOT be able to set read based inotify watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +    "runcon -t test_watch_t
-> > > > > > > > > > $basedir/test_inotify -r $basedir/watch_me
-> > > > > > > > > > 2>&1");
-> > > > > > > > > > +ok($exit_val);    # this should fail
-> > > > > > > > > > +
-> > > > > > > > > > +## TEST PERM WATCH
-> > > > > > > > > > +# Should be able to set permission based fanotify watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +"runcon -t test_perm_watch_t
-> > > > > > > > > > $basedir/test_fanotify -p $basedir/watch_me
-> > > > > > > > > > 2>&1"
-> > > > > > > > > > +);
-> > > > > > > > > > +ok( $exit_val, 0 );
-> > > > > > > > > > +
-> > > > > > > > > > +# Should NOT be able to set watch of accesses
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +"runcon -t test_perm_watch_t
-> > > > > > > > > > $basedir/test_fanotify -r $basedir/watch_me
-> > > > > > > > > > 2>&1"
-> > > > > > > > > > +);
-> > > > > > > > > > +ok($exit_val);    # this should fail
-> > > > > > > > > > +
-> > > > > > > > > > +## TEST READ NO PERM WATCH PERMSISSIONS
-> > > > > > > > > > +# Should NOT be able to set read and perm watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +"runcon -t test_read_watch_t
-> > > > > > > > > > $basedir/test_fanotify -p -r $basedir/watch_me
-> > > > > > > > > > 2>&1"
-> > > > > > > > > > +);
-> > > > > > > > > > +ok($exit_val);    # should fail
-> > > > > > > > > > +
-> > > > > > > > > > +# Should be able to set read inotify watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +"runcon -t test_read_watch_t
-> > > > > > > > > > $basedir/test_inotify -r $basedir/watch_me 2>&1"
-> > > > > > > > > > +);
-> > > > > > > > > > +ok( $exit_val, 0 );
-> > > > > > > > > > +
-> > > > > > > > > > +## TEST READ WITH PERM WATCH PERMSISSIONS
-> > > > > > > > > > +# Should be able to set read and perm watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +"runcon -t test_perm_read_watch_t
-> > > > > > > > > > $basedir/test_fanotify -p -r $basedir/watch_me
-> > > > > > > > > > 2>&1"
-> > > > > > > > > > +);
-> > > > > > > > > > +ok( $exit_val, 0 );
-> > > > > > > > > > +
-> > > > > > > > > > +## TEST NO WATCH PERMSISSIONS
-> > > > > > > > > > +# Should NOT be able to set inotify watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +    "runcon -t test_no_watch_t
-> > > > > > > > > > $basedir/test_inotify $basedir/watch_me 2>&1");
-> > > > > > > > > > +ok($exit_val);    # this should fail
-> > > > > > > > > > +
-> > > > > > > > > > +# Should NOT be able to set any fanotify watch
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +    "runcon -t test_no_watch_t
-> > > > > > > > > > $basedir/test_fanotify $basedir/watch_me 2>&1");
-> > > > > > > > > > +ok($exit_val);    # this should fail
-> > > > > > > > > > +
-> > > > > > > > > > +## TEST READ ONLY
-> > > > > > > > > > +# Should NOT be able to get read-write descriptor
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +    "runcon -t test_rdonly_t
-> > > > > > > > > > $basedir/test_fanotify -l $basedir/watch_me
-> > > > > > > > > > 2>&1");
-> > > > > > > > > > +ok($exit_val);    # this should fail
-> > > > > > > > > > +
-> > > > > > > > > > +# Should be able to get read-write descriptor
-> > > > > > > > > > +$exit_val = system(
-> > > > > > > > > > +    "runcon -t test_watch_t
-> > > > > > > > > > $basedir/test_fanotify -l $basedir/watch_me
-> > > > > > > > > > 2>&1");
-> > > > > > > > > > +ok( $exit_val, 0 );
-> > > > > > > > > > +
-> > > > > > > > > > +# Clean up test file
-> > > > > > > > > > +system("rm -f $basedir/watch_me");
-> > > > > > > > > > diff --git a/tests/notify/test_fanotify.c
-> > > > > > > > > > b/tests/notify/test_fanotify.c
-> > > > > > > > > > new file mode 100644
-> > > > > > > > > > index 0000000..fff773f
-> > > > > > > > > > --- /dev/null
-> > > > > > > > > > +++ b/tests/notify/test_fanotify.c
-> > > > > > > > > > @@ -0,0 +1,105 @@
-> > > > > > > > > > +#define _GNU_SOURCE 1
-> > > > > > > > > > +
-> > > > > > > > > > +#include <stdio.h>
-> > > > > > > > > > +#include <stdlib.h>
-> > > > > > > > > > +
-> > > > > > > > > > +#include <getopt.h>
-> > > > > > > > > > +
-> > > > > > > > > > +#include <fcntl.h>
-> > > > > > > > > > +#include <poll.h>
-> > > > > > > > > > +#include <sys/fanotify.h>
-> > > > > > > > > > +#include <unistd.h>
-> > > > > > > > > > +
-> > > > > > > > > > +void printUsage()
-> > > > > > > > > > +{
-> > > > > > > > > > +    fprintf(stderr, "Usage: test_fanotify [-p]
-> > > > > > > > > > [-r] [-l] file_name\n");
-> > > > > > > > > > +    exit(1);
-> > > > > > > > > > +}
-> > > > > > > > > > +
-> > > > > > > > > > +int main(int argc, char *argv[])
-> > > > > > > > > > +{
-> > > > > > > > > > +    if (argc < 2) {
-> > > > > > > > > > +        printUsage();
-> > > > > > > > > > +    }
-> > > > > > > > > > +
-> > > > > > > > > > +    int fd, ret, arg;
-> > > > > > > > > > +    int mask = FAN_OPEN;  // default mask
-> > > > > > > > > > +    int listening = 0;
-> > > > > > > > > > +
-> > > > > > > > > > +    // the -p flag will test for watch_with_perm
-> > > > > > > > > > +    // the mask used at mark will contain FAN_OPEN_PERM
-> > > > > > > > > > +    //
-> > > > > > > > > > +    // the -r flag will test for watching
-> > > > > > > > > > accesses to files for reads
-> > > > > > > > > > +    // the mask will contain FAN_ACCESS
-> > > > > > > > > > +    while ((arg = getopt(argc, argv, "prl")) != -1) {
-> > > > > > > > > > +        switch (arg) {
-> > > > > > > > > > +        case 'p':
-> > > > > > > > > > +            mask |= FAN_OPEN_PERM;
-> > > > > > > > > > +            break;
-> > > > > > > > > > +        case 'r':
-> > > > > > > > > > +            mask |= FAN_ACCESS;
-> > > > > > > > > > +            break;
-> > > > > > > > > > +        case 'l':
-> > > > > > > > > > +            listening = 1;
-> > > > > > > > > > +            break;
-> > > > > > > > > > +        default:
-> > > > > > > > > > +            printUsage();
-> > > > > > > > > > +        }
-> > > > > > > > > > +    }
-> > > > > > > > > > +
-> > > > > > > > > > +    // get file descriptor for new fanotify event queue
-> > > > > > > > > > +    fd = fanotify_init(FAN_CLASS_CONTENT, O_RDWR);
-> > > > > > > > > > +    if (fd < 0) {
-> > > > > > > > > > +        perror("fanotify_init:bad file descriptor");
-> > > > > > > > > > +        exit(1);
-> > > > > > > > > > +    }
-> > > > > > > > > > +
-> > > > > > > > > > +    // mark a filesystem object and add mark to event queue
-> > > > > > > > > > +    // get notifications on file opens, accesses, and closes
-> > > > > > > > > > +    // use current working directory as base dir
-> > > > > > > > > > +    ret = fanotify_mark(fd, FAN_MARK_ADD, mask,
-> > > > > > > > > > AT_FDCWD, argv[optind]);
-> > > > > > > > > > +
-> > > > > > > > > > +    if (ret < 0) {
-> > > > > > > > > > +        perror("test_fanotify:watch denied");
-> > > > > > > > > > +        exit(1);
-> > > > > > > > > > +    }
-> > > > > > > > > > +
-> > > > > > > > > > +    // logic to actually listen for an event if
-> > > > > > > > > > the -l flag is passed
-> > > > > > > > > > +    // this is used to test if an app with
-> > > > > > > > > > read-only access can get a read/write
-> > > > > > > > > > +    // handle to the watched file
-> > > > > > > > > > +    if (listening) {
-> > > > > > > > > > +        if (fork() == 0) {  // fork a child
-> > > > > > > > > > process to cause an event on the file
-> > > > > > > > > > +            FILE *f;
-> > > > > > > > > > +
-> > > > > > > > > > +            f = fopen(argv[optind], "r");  // open file for reading
-> > > > > > > > > > +            fgetc(f);                      // read char from file
-> > > > > > > > > > +
-> > > > > > > > > > +            fclose(f);
-> > > > > > > > > > +        } else {  // logic to watch for events
-> > > > > > > > > > and try to access file read/write
-> > > > > > > > > > +            struct pollfd fds;
-> > > > > > > > > > +            fds.fd = fd;
-> > > > > > > > > > +            fds.events = POLLIN;
-> > > > > > > > > > +
-> > > > > > > > > > +            while (listening) {
-> > > > > > > > > > +                int polled = poll(&fds, 1, 1);
-> > > > > > > > > > +                if (polled > 0) {
-> > > > > > > > > > +                    if (fds.revents & POLLIN) {
-> > > > > > > > > > +                        struct fanotify_event_metadata buff[200];
-> > > > > > > > > > +
-> > > > > > > > > > +                        size_t len = read(fd,
-> > > > > > > > > > (void *)&buff, sizeof(buff));
-> > > > > > > > > > +                        if (len == -1) {
-> > > > > > > > > > +
-> > > > > > > > > > perror("test_fanotify:can't open file");
-> > > > > > > > > > +                            exit(1);
-> > > > > > > > > > +                        } else {
-> > > > > > > > > > +                            listening = 0;
-> > > > > > > > > > +                            break;
-> > > > > > > > > > +                        }
-> > > > > > > > > > +                    }
-> > > > > > > > > > +                } else if (polled == -1) {
-> > > > > > > > > > +                    listening = 0;
-> > > > > > > > > > +                }
-> > > > > > > > > > +            }
-> > > > > > > > > > +        }
-> > > > > > > > > > +    }
-> > > > > > > > > > +    exit(0);
-> > > > > > > > > > +}
-> > > > > > > > > > diff --git a/tests/notify/test_inotify.c
-> > > > > > > > > > b/tests/notify/test_inotify.c
-> > > > > > > > > > new file mode 100644
-> > > > > > > > > > index 0000000..17c3565
-> > > > > > > > > > --- /dev/null
-> > > > > > > > > > +++ b/tests/notify/test_inotify.c
-> > > > > > > > > > @@ -0,0 +1,43 @@
-> > > > > > > > > > +#include <stdio.h>
-> > > > > > > > > > +#include <stdlib.h>
-> > > > > > > > > > +#include <sys/inotify.h>
-> > > > > > > > > > +#include <getopt.h>
-> > > > > > > > > > +
-> > > > > > > > > > +int main(int argc, char *argv[])
-> > > > > > > > > > +{
-> > > > > > > > > > +    if (argc < 2) {
-> > > > > > > > > > +        fprintf(stderr, "Usage: test_inotify [-r] file_name\n");
-> > > > > > > > > > +        exit(1);
-> > > > > > > > > > +    }
-> > > > > > > > > > +
-> > > > > > > > > > +    int fd, wd, arg;
-> > > > > > > > > > +    int mask = IN_MODIFY;
-> > > > > > > > > > +
-> > > > > > > > > > +    while ((arg = getopt(argc, argv, "pr")) != -1) {
-> > > > > > > > > > +        switch (arg) {
-> > > > > > > > > > +        case 'r':
-> > > > > > > > > > +            mask |= IN_ACCESS;
-> > > > > > > > > > +            break;
-> > > > > > > > > > +        default:
-> > > > > > > > > > +            fprintf(stderr, "Usage:
-> > > > > > > > > > test_inotify [-r] file_name\n");
-> > > > > > > > > > +            exit(1);
-> > > > > > > > > > +        }
-> > > > > > > > > > +    }
-> > > > > > > > > > +
-> > > > > > > > > > +    // get new file descriptor for inotify access
-> > > > > > > > > > +    fd = inotify_init();
-> > > > > > > > > > +    if (fd < 0) {
-> > > > > > > > > > +        perror("inotify_init:bad file descriptor");
-> > > > > > > > > > +        exit(1);
-> > > > > > > > > > +    }
-> > > > > > > > > > +
-> > > > > > > > > > +    // set watch on file and get watch
-> > > > > > > > > > descriptor for accessing events on it
-> > > > > > > > > > +    wd = inotify_add_watch(fd, argv[optind], mask);
-> > > > > > > > > > +
-> > > > > > > > > > +    if (wd < 0) {
-> > > > > > > > > > +        perror("test_inotify:watch denied");
-> > > > > > > > > > +        exit(1);
-> > > > > > > > > > +    }
-> > > > > > > > > > +
-> > > > > > > > > > +    exit(0);
-> > > > > > > > > > +}
-> > > > > > > > > > -- 
-> > > > > > > > > > 2.21.0
-> > > > > > > > > > 
-> > > > > > > > > 
-> > > > > > > > 
-> > > > > > > 
-> > > > > > 
-> > > > > 
-> > > > 
-> > > 
-> > 
+> (defaultrange db_table glblub)
 > 
+> or in te (base module only):
+> 
+> default_range db_table glblub;
+> 
+> and then test using the compute_create utility:
+> 
+> $ ./compute_create system_u:system_r:kernel_t:s0:c1,c2,c5-s0:c1.c20 system_u:system_r:kernel_t:s0:c0.c20-s0:c0.c36 db_table
+> system_u:object_r:kernel_t:s0:c1,c2,c5-s0:c1.c20
+> 
+> Some example range transitions are:
+> 
+> User Permitted Range | Network Device Label | Computed Label
+> ---------------------|----------------------|----------------
+> s0-s1:c0.c12         | s0                   | s0
+> s0-s1:c0.c12         | s0-s1:c0.c1023       | s0-s1:c0.c12
+> s0-s4:c0.c512        | s1-s1:c0.c1023       | s1-s1:c0.c512
+> s0-s15:c0,c2         | s4-s6:c0.c128        | s4-s6:c0,c2
+> s0-s4                | s2-s6                | s2-s4
+> s0-s4                | s5-s8                | INVALID
+> s5-s8                | s0-s4                | INVALID
+> 
+> Signed-off-by: Joshua Brindle <joshua.brindle@crunchydata.com>
+
+Merged.
+Thanks,
+Jim
+
+> ---
+>   checkpolicy/policy_parse.y                   |  4 ++-
+>   checkpolicy/policy_scan.l                    |  2 ++
+>   libsepol/cil/src/cil.c                       |  1 +
+>   libsepol/cil/src/cil_build_ast.c             | 11 ++++++---
+>   libsepol/cil/src/cil_internal.h              |  2 ++
+>   libsepol/cil/src/cil_policy.c                |  3 +++
+>   libsepol/include/sepol/policydb/context.h    |  5 ++++
+>   libsepol/include/sepol/policydb/mls_types.h  | 26 ++++++++++++++++++++
+>   libsepol/include/sepol/policydb/policydb.h   |  7 ++++--
+>   libsepol/src/kernel_to_cil.c                 |  3 +++
+>   libsepol/src/kernel_to_conf.c                |  3 +++
+>   libsepol/src/mls.c                           |  2 ++
+>   libsepol/src/module_to_cil.c                 |  1 +
+>   libsepol/src/policydb.c                      | 22 +++++++++++++++++
+>   libsepol/src/write.c                         | 12 +++++++++
+>   secilc/docs/cil_default_object_statements.md | 12 ++++++---
+>   16 files changed, 105 insertions(+), 11 deletions(-)
+> 
+> diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+> index 247bd4ee..abb7d885 100644
+> --- a/checkpolicy/policy_parse.y
+> +++ b/checkpolicy/policy_parse.y
+> @@ -155,7 +155,7 @@ typedef int (* require_func_t)(int pass);
+>   %token PERMISSIVE
+>   %token FILESYSTEM
+>   %token DEFAULT_USER DEFAULT_ROLE DEFAULT_TYPE DEFAULT_RANGE
+> -%token LOW_HIGH LOW HIGH
+> +%token LOW_HIGH LOW HIGH GLBLUB
+>   
+>   %left OR
+>   %left XOR
+> @@ -247,6 +247,8 @@ default_range_def	: DEFAULT_RANGE names SOURCE LOW ';'
+>   			{if (define_default_range(DEFAULT_TARGET_HIGH)) return -1; }
+>   			| DEFAULT_RANGE names TARGET LOW_HIGH ';'
+>   			{if (define_default_range(DEFAULT_TARGET_LOW_HIGH)) return -1; }
+> +			| DEFAULT_RANGE names GLBLUB';'
+> +			{if (define_default_range(DEFAULT_GLBLUB)) return -1; }
+>   			;
+>   opt_mls			: mls
+>                           |
+> diff --git a/checkpolicy/policy_scan.l b/checkpolicy/policy_scan.l
+> index e93ccb64..e2f676e4 100644
+> --- a/checkpolicy/policy_scan.l
+> +++ b/checkpolicy/policy_scan.l
+> @@ -256,6 +256,8 @@ high |
+>   HIGH				{ return(HIGH); }
+>   low |
+>   LOW				{ return(LOW); }
+> +glblub |
+> +GLBLUB				{ return(GLBLUB); }
+>   "/"[^ \n\r\t\f]*	        { return(PATH); }
+>   \""/"[^\"\n]*\" 		{ return(QPATH); }
+>   \"[^"/"\"\n]+\"	{ return(FILENAME); }
+> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> index 2a7ec063..de729cf8 100644
+> --- a/libsepol/cil/src/cil.c
+> +++ b/libsepol/cil/src/cil.c
+> @@ -227,6 +227,7 @@ static void cil_init_keys(void)
+>   	CIL_KEY_LOW = cil_strpool_add("low");
+>   	CIL_KEY_HIGH = cil_strpool_add("high");
+>   	CIL_KEY_LOW_HIGH = cil_strpool_add("low-high");
+> +	CIL_KEY_GLBLUB = cil_strpool_add("glblub");
+>   	CIL_KEY_ROOT = cil_strpool_add("<root>");
+>   	CIL_KEY_NODE = cil_strpool_add("<node>");
+>   	CIL_KEY_PERM = cil_strpool_add("perm");
+> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+> index b90b0f60..ee1c51ce 100644
+> --- a/libsepol/cil/src/cil_build_ast.c
+> +++ b/libsepol/cil/src/cil_build_ast.c
+> @@ -5894,7 +5894,7 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
+>   		CIL_SYN_STRING,
+>   		CIL_SYN_STRING | CIL_SYN_LIST,
+>   		CIL_SYN_STRING,
+> -		CIL_SYN_STRING,
+> +		CIL_SYN_STRING | CIL_SYN_END,
+>   		CIL_SYN_END
+>   	};
+>   	int syntax_len = sizeof(syntax)/sizeof(*syntax);
+> @@ -5917,8 +5917,8 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
+>   	}
+>   
+>   	object = parse_current->next->next->data;
+> -	range = parse_current->next->next->next->data;
+>   	if (object == CIL_KEY_SOURCE) {
+> +		range = parse_current->next->next->next->data;
+>   		if (range == CIL_KEY_LOW) {
+>   			def->object_range = CIL_DEFAULT_SOURCE_LOW;
+>   		} else if (range == CIL_KEY_HIGH) {
+> @@ -5930,7 +5930,8 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
+>   			rc = SEPOL_ERR;
+>   			goto exit;
+>   		}
+> -	} else if (parse_current->next->next->data == CIL_KEY_TARGET) {
+> +	} else if (object == CIL_KEY_TARGET) {
+> +		range = parse_current->next->next->next->data;
+>   		if (range == CIL_KEY_LOW) {
+>   			def->object_range = CIL_DEFAULT_TARGET_LOW;
+>   		} else if (range == CIL_KEY_HIGH) {
+> @@ -5942,8 +5943,10 @@ int cil_gen_defaultrange(struct cil_tree_node *parse_current, struct cil_tree_no
+>   			rc = SEPOL_ERR;
+>   			goto exit;
+>   		}
+> +	} else if (object == CIL_KEY_GLBLUB) {
+> +		def->object_range = CIL_DEFAULT_GLBLUB;
+>   	} else {
+> -		cil_log(CIL_ERR,"Expected either \'source\' or \'target\'\n");
+> +		cil_log(CIL_ERR,"Expected \'source\', \'target\', or \'glblub\'\n");
+>   		rc = SEPOL_ERR;
+>   		goto exit;
+>   	}
+> diff --git a/libsepol/cil/src/cil_internal.h b/libsepol/cil/src/cil_internal.h
+> index 6ff32285..30fab649 100644
+> --- a/libsepol/cil/src/cil_internal.h
+> +++ b/libsepol/cil/src/cil_internal.h
+> @@ -149,6 +149,7 @@ char *CIL_KEY_TARGET;
+>   char *CIL_KEY_LOW;
+>   char *CIL_KEY_HIGH;
+>   char *CIL_KEY_LOW_HIGH;
+> +char *CIL_KEY_GLBLUB;
+>   char *CIL_KEY_HANDLEUNKNOWN;
+>   char *CIL_KEY_HANDLEUNKNOWN_ALLOW;
+>   char *CIL_KEY_HANDLEUNKNOWN_DENY;
+> @@ -941,6 +942,7 @@ enum cil_default_object_range {
+>   	CIL_DEFAULT_TARGET_LOW      = DEFAULT_TARGET_LOW,
+>   	CIL_DEFAULT_TARGET_HIGH     = DEFAULT_TARGET_HIGH,
+>   	CIL_DEFAULT_TARGET_LOW_HIGH = DEFAULT_TARGET_LOW_HIGH,
+> +	CIL_DEFAULT_GLBLUB          = DEFAULT_GLBLUB,
+>   };
+>   
+>   /* Default labeling behavior for range */
+> diff --git a/libsepol/cil/src/cil_policy.c b/libsepol/cil/src/cil_policy.c
+> index 1adf22a3..06d7d74e 100644
+> --- a/libsepol/cil/src/cil_policy.c
+> +++ b/libsepol/cil/src/cil_policy.c
+> @@ -834,6 +834,9 @@ static void cil_default_ranges_to_policy(FILE *out, struct cil_list *defaults)
+>   		case CIL_DEFAULT_TARGET_LOW_HIGH:
+>   			fprintf(out," %s %s", CIL_KEY_TARGET, CIL_KEY_LOW_HIGH);
+>   			break;
+> +		case CIL_DEFAULT_GLBLUB:
+> +			fprintf(out," %s", CIL_KEY_GLBLUB);
+> +			break;
+>   		default:
+>   			break;
+>   		}
+> diff --git a/libsepol/include/sepol/policydb/context.h b/libsepol/include/sepol/policydb/context.h
+> index c27c3341..37cdc591 100644
+> --- a/libsepol/include/sepol/policydb/context.h
+> +++ b/libsepol/include/sepol/policydb/context.h
+> @@ -92,6 +92,11 @@ out:
+>   	return rc;
+>   }
+>   
+> +static inline int mls_context_glblub(context_struct_t *dst, context_struct_t *c1, context_struct_t *c2)
+> +{
+> +	return mls_range_glblub(&dst->range, &c1->range, &c2->range);
+> +}
+> +
+>   static inline int mls_context_cmp(context_struct_t * c1, context_struct_t * c2)
+>   {
+>   	return (mls_level_eq(&c1->range.level[0], &c2->range.level[0]) &&
+> diff --git a/libsepol/include/sepol/policydb/mls_types.h b/libsepol/include/sepol/policydb/mls_types.h
+> index a06723be..0ba6d9de 100644
+> --- a/libsepol/include/sepol/policydb/mls_types.h
+> +++ b/libsepol/include/sepol/policydb/mls_types.h
+> @@ -30,8 +30,10 @@
+>   #ifndef _SEPOL_POLICYDB_MLS_TYPES_H_
+>   #define _SEPOL_POLICYDB_MLS_TYPES_H_
+>   
+> +#include <errno.h>
+>   #include <stdint.h>
+>   #include <stdlib.h>
+> +#include <sys/param.h>
+>   #include <sepol/policydb/ebitmap.h>
+>   #include <sepol/policydb/flask_types.h>
+>   
+> @@ -48,6 +50,30 @@ typedef struct mls_range {
+>   	mls_level_t level[2];	/* low == level[0], high == level[1] */
+>   } mls_range_t;
+>   
+> +static inline int mls_range_glblub(struct mls_range *dst, struct mls_range *r1, struct mls_range *r2)
+> +{
+> +	if (r1->level[1].sens < r2->level[0].sens || r2->level[1].sens < r1->level[0].sens) {
+> +		/* These ranges have no common sensitivities */
+> +		return -EINVAL;
+> +	}
+> +
+> +	/* Take the greatest of the low */
+> +	dst->level[0].sens = MAX(r1->level[0].sens, r2->level[0].sens);
+> +	/* Take the least of the high */
+> +	dst->level[1].sens = MIN(r1->level[1].sens, r2->level[1].sens);
+> +
+> +	if (ebitmap_and(&dst->level[0].cat, &r1->level[0].cat, &r2->level[0].cat) < 0) {
+> +		return -1;
+> +	}
+> +
+> +	if (ebitmap_and(&dst->level[1].cat, &r1->level[1].cat, &r2->level[1].cat) < 0) {
+> +		return -1;
+> +	}
+> +
+> +	return 0;
+> +}
+> +
+> +
+>   static inline int mls_level_cpy(struct mls_level *dst, struct mls_level *src)
+>   {
+>   
+> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+> index a279382e..b0d2fdfc 100644
+> --- a/libsepol/include/sepol/policydb/policydb.h
+> +++ b/libsepol/include/sepol/policydb/policydb.h
+> @@ -130,6 +130,7 @@ typedef struct class_datum {
+>   #define DEFAULT_TARGET_LOW	4
+>   #define DEFAULT_TARGET_HIGH	5
+>   #define DEFAULT_TARGET_LOW_HIGH	6
+> +#define DEFAULT_GLBLUB 		7
+>   	char default_range;
+>   } class_datum_t;
+>   
+> @@ -741,10 +742,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+>   #define POLICYDB_VERSION_XEN_DEVICETREE		30 /* Xen-specific */
+>   #define POLICYDB_VERSION_XPERMS_IOCTL	30 /* Linux-specific */
+>   #define POLICYDB_VERSION_INFINIBAND		31 /* Linux-specific */
+> +#define POLICYDB_VERSION_GLBLUB		32
+>   
+>   /* Range of policy versions we understand*/
+>   #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+> -#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_INFINIBAND
+> +#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_GLBLUB
+>   
+>   /* Module versions and specific changes*/
+>   #define MOD_POLICYDB_VERSION_BASE		4
+> @@ -765,9 +767,10 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+>   #define MOD_POLICYDB_VERSION_CONSTRAINT_NAMES  17
+>   #define MOD_POLICYDB_VERSION_XPERMS_IOCTL  18
+>   #define MOD_POLICYDB_VERSION_INFINIBAND		19
+> +#define MOD_POLICYDB_VERSION_GLBLUB		20
+>   
+>   #define MOD_POLICYDB_VERSION_MIN MOD_POLICYDB_VERSION_BASE
+> -#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_INFINIBAND
+> +#define MOD_POLICYDB_VERSION_MAX MOD_POLICYDB_VERSION_GLBLUB
+>   
+>   #define POLICYDB_CONFIG_MLS    1
+>   
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index 320af37b..01f5bc5b 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -698,6 +698,9 @@ static int write_default_range_to_cil(FILE *out, char *class_name, class_datum_t
+>   	case DEFAULT_TARGET_LOW_HIGH:
+>   		dft = "target low-high";
+>   		break;
+> +	case DEFAULT_GLBLUB:
+> +		dft = "glblub";
+> +		break;
+>   	default:
+>   		sepol_log_err("Unknown default type value: %i", class->default_range);
+>   		return -1;
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+> index 930bafab..a44ba30a 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -673,6 +673,9 @@ static int write_default_range_to_conf(FILE *out, char *class_name, class_datum_
+>   	case DEFAULT_TARGET_LOW_HIGH:
+>   		dft = "target low-high";
+>   		break;
+> +	case DEFAULT_GLBLUB:
+> +		dft = "glblub";
+> +		break;
+>   	default:
+>   		sepol_log_err("Unknown default type value: %i", class->default_range);
+>   		return -1;
+> diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
+> index 63ad1bcb..6ff9a846 100644
+> --- a/libsepol/src/mls.c
+> +++ b/libsepol/src/mls.c
+> @@ -643,6 +643,8 @@ int mls_compute_sid(policydb_t * policydb,
+>   			return mls_context_cpy_high(newcontext, tcontext);
+>   		case DEFAULT_TARGET_LOW_HIGH:
+>   			return mls_context_cpy(newcontext, tcontext);
+> +		case DEFAULT_GLBLUB:
+> +			return mls_context_glblub(newcontext, scontext, tcontext);
+>   		}
+>   
+>   		/* Fallthrough */
+> diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+> index 1af166c9..c48a897d 100644
+> --- a/libsepol/src/module_to_cil.c
+> +++ b/libsepol/src/module_to_cil.c
+> @@ -2033,6 +2033,7 @@ static int class_to_cil(int indent, struct policydb *pdb, struct avrule_block *U
+>   		case DEFAULT_TARGET_LOW:		dflt = "target low";	break;
+>   		case DEFAULT_TARGET_HIGH:		dflt = "target high";	break;
+>   		case DEFAULT_TARGET_LOW_HIGH:	dflt = "target low-high";	break;
+> +		case DEFAULT_GLBLUB:		dflt = "glblub";		break;
+>   		default:
+>   			log_err("Unknown default range value: %i", class->default_range);
+>   			rc = -1;
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index 69bcb4d5..67037b6d 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -194,6 +194,13 @@ static struct policydb_compat_info policydb_compat[] = {
+>   	 .ocon_num = OCON_IBENDPORT + 1,
+>   	 .target_platform = SEPOL_TARGET_SELINUX,
+>   	},
+> +	{
+> +	 .type = POLICY_KERN,
+> +	 .version = POLICYDB_VERSION_GLBLUB,
+> +	 .sym_num = SYM_NUM,
+> +	 .ocon_num = OCON_IBENDPORT + 1,
+> +	 .target_platform = SEPOL_TARGET_SELINUX,
+> +	},
+>   	{
+>   	 .type = POLICY_BASE,
+>   	 .version = MOD_POLICYDB_VERSION_BASE,
+> @@ -306,6 +313,13 @@ static struct policydb_compat_info policydb_compat[] = {
+>   	 .ocon_num = OCON_IBENDPORT + 1,
+>   	 .target_platform = SEPOL_TARGET_SELINUX,
+>   	},
+> +	{
+> +	 .type = POLICY_BASE,
+> +	 .version = MOD_POLICYDB_VERSION_GLBLUB,
+> +	 .sym_num = SYM_NUM,
+> +	 .ocon_num = OCON_IBENDPORT + 1,
+> +	 .target_platform = SEPOL_TARGET_SELINUX,
+> +	},
+>   	{
+>   	 .type = POLICY_MOD,
+>   	 .version = MOD_POLICYDB_VERSION_BASE,
+> @@ -418,6 +432,14 @@ static struct policydb_compat_info policydb_compat[] = {
+>   	 .ocon_num = 0,
+>   	 .target_platform = SEPOL_TARGET_SELINUX,
+>   	},
+> +	{
+> +	 .type = POLICY_MOD,
+> +	 .version = MOD_POLICYDB_VERSION_GLBLUB,
+> +	 .sym_num = SYM_NUM,
+> +	 .ocon_num = 0,
+> +	 .target_platform = SEPOL_TARGET_SELINUX,
+> +	},
+> +
+>   };
+>   
+>   #if 0
+> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+> index dee7b4a3..c6be2be2 100644
+> --- a/libsepol/src/write.c
+> +++ b/libsepol/src/write.c
+> @@ -46,6 +46,11 @@
+>   #include "private.h"
+>   #include "mls.h"
+>   
+> +#define glblub_version ((p->policy_type == POLICY_KERN && \
+> +		     p->policyvers >= POLICYDB_VERSION_GLBLUB) || \
+> +		    (p->policy_type == POLICY_BASE && \
+> +		     p->policyvers >= MOD_POLICYDB_VERSION_GLBLUB))
+> +
+>   struct policy_data {
+>   	struct policy_file *fp;
+>   	struct policydb *p;
+> @@ -1034,6 +1039,13 @@ static int class_write(hashtab_key_t key, hashtab_datum_t datum, void *ptr)
+>   	     p->policyvers >= MOD_POLICYDB_VERSION_NEW_OBJECT_DEFAULTS)) {
+>   		buf[0] = cpu_to_le32(cladatum->default_user);
+>   		buf[1] = cpu_to_le32(cladatum->default_role);
+> +		if (!glblub_version && cladatum->default_range == DEFAULT_GLBLUB) {
+> +			WARN(fp->handle,
+> +                             "class %s default_range set to GLBLUB but policy version is %d (%d required), discarding",
+> +                             p->p_class_val_to_name[cladatum->s.value - 1], p->policyvers,
+> +                             p->policy_type == POLICY_KERN? POLICYDB_VERSION_GLBLUB:MOD_POLICYDB_VERSION_GLBLUB);
+> +                        cladatum->default_range = 0;
+> +                }
+>   		buf[2] = cpu_to_le32(cladatum->default_range);
+>   		items = put_entry(buf, sizeof(uint32_t), 3, fp);
+>   		if (items != 3)
+> diff --git a/secilc/docs/cil_default_object_statements.md b/secilc/docs/cil_default_object_statements.md
+> index 73d84d6d..80ccabe7 100644
+> --- a/secilc/docs/cil_default_object_statements.md
+> +++ b/secilc/docs/cil_default_object_statements.md
+> @@ -143,11 +143,11 @@ When creating a new `socket` object, the [`type`](cil_type_statements.md#type) c
+>   defaultrange
+>   ------------
+>   
+> -Allows the default level or range to be taken from the source or target context when computing a new context for the object [`class`](cil_class_and_permission_statements.md#class) identifier. Requires policy version 27.
+> +Allows the default level or range to be taken from the source, target, or both contexts when computing a new context for the object [`class`](cil_class_and_permission_statements.md#class) identifier. Requires policy version 27. glblub as the default requires policy version 32.
+>   
+>   **Statement definition:**
+>   
+> -    (defaultrange class_id default range)
+> +    (defaultrange class_id default <range>)
+>   
+>   **Where:**
+>   
+> @@ -167,11 +167,11 @@ Allows the default level or range to be taken from the source or target context
+>   </tr>
+>   <tr class="odd">
+>   <td align="left"><p><code>default</code></p></td>
+> -<td align="left"><p>A keyword of either <code>source</code> or <code>target</code>.</p></td>
+> +<td align="left"><p>A keyword of either <code>source</code>, <code>target</code>, or <code>glblub</code>.</p></td>
+>   </tr>
+>   <tr class="even">
+>   <td align="left"><p><code>range</code></p></td>
+> -<td align="left"><p>A keyword of either <code>low</code>, <code>high</code> or <code>low-high</code>.</p></td>
+> +<td align="left"><p>A keyword of either <code>low</code>, <code>high</code>, or <code>low-high</code>.</p></td>
+>   </tr>
+>   </tbody>
+>   </table>
+> @@ -181,3 +181,7 @@ Allows the default level or range to be taken from the source or target context
+>   When creating a new `file` object, the appropriate `range` component of the new security context will be taken from the `target` context:
+>   
+>       (defaultrange file target low_high)
+> +
+> +MLS userspace object managers may need to compute the common parts of a range such that the object is created with the range common to the subject and containing object:
+> +
+> +    (defaultrange db_table glblub)
+> 
+
 
 -- 
-Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-Dominick Grift
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
