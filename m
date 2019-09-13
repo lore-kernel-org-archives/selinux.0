@@ -1,138 +1,221 @@
-Return-Path: <SRS0=e2dy=XH=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=5Yad=XI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20120C4CEC7
-	for <selinux@archiver.kernel.org>; Thu, 12 Sep 2019 18:28:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3103C49ED7
+	for <selinux@archiver.kernel.org>; Fri, 13 Sep 2019 15:33:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D97EB20830
-	for <selinux@archiver.kernel.org>; Thu, 12 Sep 2019 18:28:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CF7820693
+	for <selinux@archiver.kernel.org>; Fri, 13 Sep 2019 15:33:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="lxwHq5yW"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Hltjij3j"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbfILS2p (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Sep 2019 14:28:45 -0400
-Received: from UHIL19PA35.eemsg.mail.mil ([214.24.21.194]:42229 "EHLO
-        UHIL19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726017AbfILS2p (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Sep 2019 14:28:45 -0400
-X-EEMSG-check-017: 24556156|UHIL19PA35_ESA_OUT01.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.64,498,1559520000"; 
-   d="scan'208";a="24556156"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA35.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 12 Sep 2019 18:28:42 +0000
+        id S1728631AbfIMPda (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 13 Sep 2019 11:33:30 -0400
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:43494 "EHLO
+        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727452AbfIMPd3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 13 Sep 2019 11:33:29 -0400
+X-EEMSG-check-017: 13650085|UPDC19PA20_ESA_OUT02.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,501,1559520000"; 
+   d="scan'208";a="13650085"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Sep 2019 15:33:26 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1568312922; x=1599848922;
-  h=from:to:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=Kolkt7GJxjCO7MIX0RxOcdf0Npm32UX53hnsEDazjR8=;
-  b=lxwHq5yWlgJNe9Eh222Kb5u57deJVU9zcnlrdpsrOUVF9bGgDvR0Mp7U
-   a4h/TD5Jiz1p83WC7qC1YRlLGAZQd5FhwxckXrjegHG8CEjWTAwV3j2Mj
-   kfIVFzto8IIomP7SxNRu+jXEaK5z72V4DYEEQG+S7QSkRZ88Wi920IBkL
-   9XrV5cOjRkoOCqL1smrs//8/fl28pASPOHiqqfmJ7dWSWVvLT0gwFYGq0
-   XQ6ZWsCoQQjab7hvq30NsY5rri25SPHVnq23dH+X6Gacr0YxmsDQ8KTJN
-   miLrN+FYisqYebQRY6khROD4aB9zZl9TtJaEG1v8OBsDIyBzG1sh9nyor
-   w==;
-X-IronPort-AV: E=Sophos;i="5.64,498,1559520000"; 
-   d="scan'208";a="32779496"
-IronPort-PHdr: =?us-ascii?q?9a23=3AN2/W1RxD4rR7eL7XCy+O+j09IxM/srCxBDY+r6?=
- =?us-ascii?q?Qd1OMQIJqq85mqBkHD//Il1AaPAdyAraoZwLOM6eigATVGvc/b9ihaMdRlbF?=
+  s=tycho.nsa.gov; t=1568388806; x=1599924806;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=DsWv8ygbcHuJoz2t9H8hJO+I5FJLKI2h4SpsBWKZAw8=;
+  b=Hltjij3jGGugmmDeoA+M/DKWGjFr4mDNSwKgGgZLSReDtpQZeIwc/l+j
+   77R0xA4TpyQ+rHSBQj6r4AwSlTt5ceyblDIbCJpG9jUgPjkHjIQmh3yYm
+   Y7Sce+1RRmnxujwtwbjNLekg8xCLKM9G22AR5dNkpN/C907viyN0T9Lub
+   cEOKOb9Ns+3Bk7BiAf7iCNPERtChFhxc5QLbn3EV8BPEZhOhyZJc9JuuS
+   DijlFwjruulJ6vviV75+pCOqooIX8Wsk+bpcTRLaUfPhq36GmI58b9GqC
+   aCKt48tddV6AJmz6f4pEfBR3wQNALUIdEc5nyTL1JNqTEc8vTw+FfJhW1
+   A==;
+X-IronPort-AV: E=Sophos;i="5.64,501,1559520000"; 
+   d="scan'208";a="27892449"
+IronPort-PHdr: =?us-ascii?q?9a23=3AHCNg9RyMJ6wMpt7XCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd0uoSL/ad9pjvdHbS+e9qxAeQG9mCsLQc1KGG7OigATVGvc/b9ihaMdRlbF?=
  =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
- =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMuMQam5duJ6Y+xh?=
- =?us-ascii?q?fUvHdEZfldyWd0KV6OhRrx6dq88IB5/yhMp/4t8tNLXLnncag/UbFWFiktPX?=
- =?us-ascii?q?ov5M3suxnDTA+P6WUZX24LjBdGABXL4Q/jUJvpvST0quRy2C+BPc3rVr80Qi?=
- =?us-ascii?q?it771qSBDzligKMSMy/XzNhcxxiKJbpw+hpwB6zoXJboyZKOZyc6XAdtwUX2?=
- =?us-ascii?q?pBWttaWTJHDI2ycoADC/MNMOhcooX4oVYFsBmwChS2BO73yjFGmGL406M53e?=
- =?us-ascii?q?omHg7I0xctE84NvXnOsNn4LrseXfyzwaLVzTvDdfRW2TLl5YbMaB8hpO+DXa?=
- =?us-ascii?q?ltesfP00YvDR/FgUuKqYf4OD6V1OoMvHSB4Op6SeKjlXUqqx1xozezxscsjZ?=
- =?us-ascii?q?PFhoQOyl/e7yl5z4E1JcOhRUN9fNWqE4NQujmHO4Z5Tc4uWWFltDsgxrEYtp?=
- =?us-ascii?q?O3YjIGxIkhyhXCcfKIaZKI7QjmVOuJJDd4g29qd6ynihap9Eig1vX8Vs6p0F?=
- =?us-ascii?q?ZWtiZFksfDtnQK1xHL9siIUOF9/ka82TaUzQzT9uFFLlw0larcMZIhxKI/lo?=
- =?us-ascii?q?EPvkjZGy/2mUH2gLeXdkUi5Oeo9/zqbqjpq5KTLYN5ihzyPr4wlsGwH+g0KB?=
- =?us-ascii?q?UCU3Ce+eum1b3j+UP5QK9Njv0ziqTZsp7bKtgBqa6jHw9ZzJ0u6wq/Dji60N?=
- =?us-ascii?q?QYmmMLLFReeB2dlYTpNFbOIO7gAfeln1usiCtrx+zBPrD5GZXCMHzDkLbnfb?=
- =?us-ascii?q?Zg5E9R0xQzzd9B6JJOEL0BI+z8WlX3tNPGCh81KQu0w/zoCIY16oRLQm+LA6?=
- =?us-ascii?q?mEIIvMvlKSoOEiOe+BYMkSojmuBeIi4qvMhHo0ghc2dLO10IFfPHKnFf18Px?=
- =?us-ascii?q?+xfWvngtBHF3wD+AU5Urq52xW5TTdPaiPqDOoH7TYhBdfjVtbO?=
-X-IPAS-Result: =?us-ascii?q?A2DmAABQjXpd/wHyM5BmHgEGBwaBVAgLAYFoBSqBPwEyK?=
- =?us-ascii?q?pMhTQEBAQEBAQaLKY8rgXsJAQEBAQEBAQEBGxkBAgEBhx4jNQgOAgwBAQEEA?=
- =?us-ascii?q?QEBAQEGAwEBbIU6gjopgxULAYIXgmM/gXcUrEszhUuDL4FJgTSHH4RZgRCBB?=
- =?us-ascii?q?4N1bIURhRYEgS8BiyKKPpU3BoIllGsMG5kJAaN0hHUBNYFYKwgCGClKgR6BT?=
- =?us-ascii?q?oNpAQ6NKyQDMIEGAQGPIAEB?=
+ =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMuMQam5duJ6Q+xh?=
+ =?us-ascii?q?bKoHZDZuBayX91KV6JkBvw+9m88IR//yhMvv4q6tJNX7j9c6kkV7JTES4oM3?=
+ =?us-ascii?q?oy5M3ltBnDSRWA634BWWgIkRRGHhbI4gjiUpj+riX1uOx92DKHPcLtVrA7RS?=
+ =?us-ascii?q?6i76ZwRxD2jioMKiM0/3vWisx0i6JbvQ6hqhliyIPafI2ZKPxzdb7GcNgEWW?=
+ =?us-ascii?q?ROQNpeVy1ZAoO9cYQPCfYBPf1FpIX5vlcCsAeyCRWpCO7pxDBInHv21rAk3e?=
+ =?us-ascii?q?onHw/NwQgsE8sQvHnQqdn4MroZX+Kow6nS1TjNcu1Y2Tn95obLfB4ur/6DUr?=
+ =?us-ascii?q?BsfsTe0kQvCwHIg0+MpYD5MT6Y1OIAuHWb4ep6UuKvjnYqpRxtojex3scsip?=
+ =?us-ascii?q?fGhoQIwV7Z8CV22oI1JdmmR097fNWpF4BQuDyBN4ZtXsMjQ31nuCY9yrEcv5?=
+ =?us-ascii?q?67ZzIFxI4oxx7YdfyKao6F6Q/gWuaJOTp0mX1odb2lixuy7ESs0PPwW8aq3F?=
+ =?us-ascii?q?pQsyZIlMTHuGoX2BzJ8MeHT+Nw/kKm2TmSyQ/e8vpEIUUolarDLJ4h36Iwmo?=
+ =?us-ascii?q?ITsUvdGi/2n137jLOMeUU+++io9v/nbq/6pp6cK4B0igb+Pr4omsOjGuQ3Lh?=
+ =?us-ascii?q?ICX22a+eS4zLHj/Ev5T6tWjvAuj6XUv5/XKd4bq6KkGQNZzIku5wilAzu7yN?=
+ =?us-ascii?q?gYmGMILFNBeBKJlYjpPFTOLejjDfiimFShiytrxvDaMb3hBZXBNH7DkKz7cr?=
+ =?us-ascii?q?pn5E5czxQzwchF551IErEBPO7zWkjpudPFFBA5MxC7w+b9B9V7zYMeXmSPD7?=
+ =?us-ascii?q?SWMKPXq1CI5+YvL/OQa48SvTb3M+Il6OL2jX8lhV8derGk3Z0WaH+kGfRmJ1?=
+ =?us-ascii?q?+WYWH2jtcAFmcKuRE+TPfxhV2HXjNSaGy+X6Um5jE0EIimF5vMRpixgLyd2y?=
+ =?us-ascii?q?e2BoNWZmVBClCOEHbodp6EVuwWaC2MP8BhkiYLVaS7R4A90hGusRfwy6B7Ie?=
+ =?us-ascii?q?rM5i0YqZXj2cBu5+LNkREy9Dp0D9mS0myWUWF0kX0HRyUs0KB8v0N90FGD3r?=
+ =?us-ascii?q?Z8g/BCEtxT/fxJAU8GMsv3z+V2Q/D7XBnGeJ/dRF+mSdWvByo2SPo+xtYPZw?=
+ =?us-ascii?q?B2HND0yljl3iGtB7YO352MA4cvuvba3nP2I89mjXfB07I6p1x6Uo1IL2Lw1Y?=
+ =?us-ascii?q?Bl8A2GPJLEi0WUke6RcK0Y2CPcvDOYwXGmoFBTUAk2V77MG38YeB2F/pzC+k?=
+ =?us-ascii?q?reQur2WvwcOQxbxJvHc/EbZw=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BqAAB+tntd/wHyM5BmHAEBAQQBAQcEAQGBVAYBAQsBg?=
+ =?us-ascii?q?W0qgT8BMiqEIY9UAQEBAQEBBoE2iXOPK4F7CQEBAQEBAQEBATQBAgEBhD8Cg?=
+ =?us-ascii?q?mAjNQgOAgwBAQEEAQEBAQEGAwEBbIU6gjopAYJnAQUjFUEQCw4KAgImAgJXB?=
+ =?us-ascii?q?gEMBgIBAYJfP4F3FKptgTKFS4MzgUmBDCgBhH+GeBh4gQeBOIJrPodPglgEl?=
+ =?us-ascii?q?V+WaIIrgiySRQYbgjSHQI8WjX+aagI0gVgrCAIYCCEPgyeRIyQDMIEGAQGPI?=
+ =?us-ascii?q?AEB?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 12 Sep 2019 18:28:39 +0000
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8CISdkF022661
-        for <selinux@vger.kernel.org>; Thu, 12 Sep 2019 14:28:39 -0400
-From:   James Carter <jwcart2@tycho.nsa.gov>
-To:     selinux@vger.kernel.org
-Subject: [PATCH] libsepol: Make an unknown permission an error in CIL
-Date:   Thu, 12 Sep 2019 14:30:35 -0400
-Message-Id: <20190912183035.2946-1-jwcart2@tycho.nsa.gov>
-X-Mailer: git-send-email 2.21.0
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 13 Sep 2019 15:33:25 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8DFXNfX013803;
+        Fri, 13 Sep 2019 11:33:23 -0400
+Subject: Re: [PATCH 2/2] Fix mcstrans secolor examples
+To:     Chad Hanson <dahchanson@gmail.com>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
+References: <20190702120905.9808-1-vmojzis@redhat.com>
+ <20190702120905.9808-2-vmojzis@redhat.com>
+ <CAJfZ7=nZ3mVRFD6d5OGq+r1srH+8bRr-hKeLi3kpc_bx3W5yTw@mail.gmail.com>
+ <CAOFCXecb5Z_d+iSqda-yHaQRgEsonHJEZx4MQut89t8E4CQ9BA@mail.gmail.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <7762a815-65b6-b57c-7c03-38303ccf1d25@tycho.nsa.gov>
+Date:   Fri, 13 Sep 2019 11:33:23 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOFCXecb5Z_d+iSqda-yHaQRgEsonHJEZx4MQut89t8E4CQ9BA@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This patch is loosely based on a patch by Yuli Khodorkovskiy
-<yuli@crunchydata.com> from June 13th, 2019.
+On 7/31/19 1:15 AM, Chad Hanson wrote:
+> I agree the secolor configuration file is lacking consistency. From a
+> historical MLS perspective, there were two special labels in many MLS
+> systems: SystemLow and SystemHigh.  This would be "s0" (lowest
+> level/no categories)  and "s15:c0.c1023" (highest level/all
+> categories) respectively.  At these special  levels, there was
+> traditionally no other category usage.
+> 
+> I concur we either do the proposed change in this patch or just change
+> the "s0:c0.c1023" lines to just "s0" (SystemLow) to be consistent with
+> the "s15:c0.c1023" (SystemHigh) range that exists currently. They will
+> both provide the desired results.
 
-Since any permission used in the policy should be defined, CIL
-should return an error if it cannot resolve a permission used
-in a policy. This was the original behavior of CIL.
+I see that these two patches were never merged and still apply.  Does 
+anyone have any objection to merging them both?
 
-The behavior was changed over three commits from July to November
-2016 (See commits 46e157b47, da51020d6, and 2eefb20d8). The change
-was motivated by Fedora trying to remove permissions from its
-policy that were never upstreamed (ex/ process ptrace_child and
-capability2 compromise_kernel). Local or third party modules
-compiled with those permissions would break policy updates.
-
-After three years it seems unlikely that we need to worry about
-those local and third party modules and it is time for CIL to
-give an error like it should.
-
-Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
----
- libsepol/cil/src/cil_resolve_ast.c | 12 ++++--------
- 1 file changed, 4 insertions(+), 8 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-index ea08087d..863d9fe8 100644
---- a/libsepol/cil/src/cil_resolve_ast.c
-+++ b/libsepol/cil/src/cil_resolve_ast.c
-@@ -131,18 +131,14 @@ static int __cil_resolve_perms(symtab_t *class_symtab, symtab_t *common_symtab,
- 				}
- 			}
- 			if (rc != SEPOL_OK) {
--				struct cil_list *empty_list;
- 				if (class_flavor == CIL_MAP_CLASS) {
- 					cil_log(CIL_ERR, "Failed to resolve permission %s for map class\n", (char*)curr->data);
--					goto exit;
-+				} else {
-+					cil_log(CIL_ERR, "Failed to resolve permission %s\n", (char*)curr->data);
- 				}
--				cil_log(CIL_WARN, "Failed to resolve permission %s\n", (char*)curr->data);
--				/* Use an empty list to represent unknown perm */
--				cil_list_init(&empty_list, perm_strs->flavor);
--				cil_list_append(*perm_datums, CIL_LIST, empty_list);
--			} else {
--				cil_list_append(*perm_datums, CIL_DATUM, perm_datum);
-+				goto exit;
- 			}
-+			cil_list_append(*perm_datums, CIL_DATUM, perm_datum);
- 		} else {
- 			cil_list_append(*perm_datums, curr->flavor, curr->data);
- 		}
--- 
-2.21.0
+> 
+> -Chad
+> 
+> 
+> On Mon, Jul 29, 2019 at 5:41 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>>
+>> On Tue, Jul 2, 2019 at 2:09 PM Vit Mojzis <vmojzis@redhat.com> wrote:
+>>>
+>>> According to "check_dominance" function:
+>>> Range defined as "s15:c0.c1023" does not dominate any other range than
+>>>   "s15:c0.c1023" (does not dominate "s15", "s15:c0.c200", etc.).
+>>> While range defined as "s15-s15:c0.c1023" dominates all of the above.
+>>>
+>>> This is either a bug, or "s15:c0.c1023" should not be used in the
+>>> examples.
+>>
+>> Hello,
+>> I am not familiar with the concepts about range dominance, so I do not
+>> know whether this is a bug that should be fixed or if updating the
+>> examples is better. Can someone please review this?
+>>
+>> Cheers,
+>> Nicolas
+>>
+>>> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+>>> ---
+>>>   libselinux/man/man5/secolor.conf.5                      | 4 ++--
+>>>   libselinux/man/ru/man5/secolor.conf.5                   | 4 ++--
+>>>   mcstrans/share/examples/urcsts-via-include/secolor.conf | 2 +-
+>>>   mcstrans/share/examples/urcsts/secolor.conf             | 2 +-
+>>>   4 files changed, 6 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/libselinux/man/man5/secolor.conf.5 b/libselinux/man/man5/secolor.conf.5
+>>> index b834577a..a3bf2da1 100644
+>>> --- a/libselinux/man/man5/secolor.conf.5
+>>> +++ b/libselinux/man/man5/secolor.conf.5
+>>> @@ -123,7 +123,7 @@ range s7\-s7:c0.c1023 = black red
+>>>   .br
+>>>   range s9\-s9:c0.c1023 = black orange
+>>>   .br
+>>> -range s15:c0.c1023   = black yellow
+>>> +range s15\-s15:c0.c1023   = black yellow
+>>>   .RE
+>>>
+>>>   .sp
+>>> @@ -165,7 +165,7 @@ type xguest_t     = black green
+>>>   .br
+>>>   user sysadm_u     = white black
+>>>   .br
+>>> -range s0:c0.c1023 = black white
+>>> +range s0-s0:c0.c1023 = black white
+>>>   .br
+>>>   user *            = black white
+>>>   .br
+>>> diff --git a/libselinux/man/ru/man5/secolor.conf.5 b/libselinux/man/ru/man5/secolor.conf.5
+>>> index 4c1236ae..bcae80c1 100644
+>>> --- a/libselinux/man/ru/man5/secolor.conf.5
+>>> +++ b/libselinux/man/ru/man5/secolor.conf.5
+>>> @@ -121,7 +121,7 @@ range s7\-s7:c0.c1023 = black red
+>>>   .br
+>>>   range s9\-s9:c0.c1023 = black orange
+>>>   .br
+>>> -range s15:c0.c1023   = black yellow
+>>> +range s15\-s15:c0.c1023   = black yellow
+>>>   .RE
+>>>
+>>>   .sp
+>>> @@ -163,7 +163,7 @@ type xguest_t     = black green
+>>>   .br
+>>>   user sysadm_u     = white black
+>>>   .br
+>>> -range s0:c0.c1023 = black white
+>>> +range s0\-s0:c0.c1023 = black white
+>>>   .br
+>>>   user *            = black white
+>>>   .br
+>>> diff --git a/mcstrans/share/examples/urcsts-via-include/secolor.conf b/mcstrans/share/examples/urcsts-via-include/secolor.conf
+>>> index d35b3c67..3b3f5430 100644
+>>> --- a/mcstrans/share/examples/urcsts-via-include/secolor.conf
+>>> +++ b/mcstrans/share/examples/urcsts-via-include/secolor.conf
+>>> @@ -17,5 +17,5 @@ range s3-s3:c0.c1023 = black tan
+>>>   range s5-s5:c0.c1023 = white blue
+>>>   range s7-s7:c0.c1023 = black red
+>>>   range s9-s9:c0.c1023 = black orange
+>>> -range s15:c0.c1023 = black yellow
+>>> +range s15-s15:c0.c1023 = black yellow
+>>>
+>>> diff --git a/mcstrans/share/examples/urcsts/secolor.conf b/mcstrans/share/examples/urcsts/secolor.conf
+>>> index d35b3c67..3b3f5430 100644
+>>> --- a/mcstrans/share/examples/urcsts/secolor.conf
+>>> +++ b/mcstrans/share/examples/urcsts/secolor.conf
+>>> @@ -17,5 +17,5 @@ range s3-s3:c0.c1023 = black tan
+>>>   range s5-s5:c0.c1023 = white blue
+>>>   range s7-s7:c0.c1023 = black red
+>>>   range s9-s9:c0.c1023 = black orange
+>>> -range s15:c0.c1023 = black yellow
+>>> +range s15-s15:c0.c1023 = black yellow
+>>>
+>>> --
+>>> 2.17.2
+>>>
+>>
 
