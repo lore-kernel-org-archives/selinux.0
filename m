@@ -2,332 +2,650 @@ Return-Path: <SRS0=qBB/=XL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BF0CC49ED7
-	for <selinux@archiver.kernel.org>; Mon, 16 Sep 2019 17:31:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32766C49ED7
+	for <selinux@archiver.kernel.org>; Mon, 16 Sep 2019 17:54:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4F0E720665
-	for <selinux@archiver.kernel.org>; Mon, 16 Sep 2019 17:31:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5F8C214AF
+	for <selinux@archiver.kernel.org>; Mon, 16 Sep 2019 17:54:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="NI4ELDBL"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="o7GC8neL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730886AbfIPRbI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Sep 2019 13:31:08 -0400
-Received: from USAT19PA20.eemsg.mail.mil ([214.24.22.194]:8312 "EHLO
-        USAT19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726569AbfIPRbH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Sep 2019 13:31:07 -0400
-X-EEMSG-check-017: 28368959|USAT19PA20_ESA_OUT01.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.64,513,1559520000"; 
-   d="scan'208";a="28368959"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USAT19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Sep 2019 17:30:30 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1568655031; x=1600191031;
-  h=subject:from:to:cc:references:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=kSslRlFshMuNF61KJbNFCXvdj861jUUeo4LhSdQqv6A=;
-  b=NI4ELDBLIVF3VoePccbLjuirfY6KpSNQfCdwM0vzoKdry4AwM0UTCMpa
-   b6wkCxPDVXYgddBQtjhCtTc0b1JVh0OxCWBjOZF/vSrqX1nfoKeXEJWzp
-   3vuvRLF+4ZBzYTsTG1ytoBrMazds8CoLa92WL6+S/mKDdhYc2ocACeCoF
-   ZmkDvTrPmYUBBSjsbpLh34frWFF9HgiyOD1DURDLEu1B+pcNmpCPkmQrl
-   vnLqB/QkhFP8QVj43tVSq4bl2rHDbo9Vk6IuTDtF75xpuGfZ88DiYPHGF
-   awysUuBydPydbbGDgUqg6Oy7wuD1sdr+ixW2PpWdYdiAHvq8MEHCgvU/M
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.64,513,1559520000"; 
-   d="scan'208";a="27962768"
-IronPort-PHdr: =?us-ascii?q?9a23=3ALtMcfxT0NxC0P8fFr53sv081Ltpsv+yvbD5Q0Y?=
- =?us-ascii?q?Iujvd0So/mwa67ZRSCt8tkgFKBZ4jH8fUM07OQ7/m7HzVbqs/Y6jhCKMUKC0?=
- =?us-ascii?q?Zfz51O3kQJO42sMQXDNvnkbig3ToxpdWRO2DWFC3VTA9v0fFbIo3e/vnY4Ex?=
- =?us-ascii?q?T7MhdpdKyuQtaBx8u42Pqv9JLNfg5GmCSyYa9oLBWxsA7dqtQajZFtJ6osxB?=
- =?us-ascii?q?bFuGZEdupZyW91OF6fgQv36sOs8JJ+6ShdtO8t+9BaXanmY6g0SKFTASg7PW?=
- =?us-ascii?q?wy+MDlrwTIQxGV5nsbXGUWkx5IDBbA4RrnQJr/sTb0u/Rk1iWCMsL4Ub47WT?=
- =?us-ascii?q?K576d2UxDokzsINyQ48G7MlMN9ir9QrQ+7qBx+x47UZ5yVNOZ7c6jAc94WWX?=
- =?us-ascii?q?ZNU8BMXCFaHIiyc5UAAPYAPeZAronyuV0OrQelBQKxAO/j0yJEimPq0aE/1e?=
- =?us-ascii?q?kuHxvG3Ag9FNwQtnraosj+OKMLXe27yKTEyDPOZO5U1zjg8ojFag0vr/GSU7?=
- =?us-ascii?q?J+csTfx0cgGAzHgVqMpoLoJC+V2+cXvmSH8+ZtW+Cihmg6oA9xuDivwcIsh5?=
- =?us-ascii?q?HUiIIJ1F/E7SV5z5gzJdalVUB7ZMSrEJ9Uty6EN4p9X8QvQ3p1tyYh0bAGpZ?=
- =?us-ascii?q?66czQKyJQg3RLfbeeHfJKS7hLsU+aRPy51iXR4c7yxgBay9FKvyuz6VsSsyl?=
- =?us-ascii?q?ZFsDdKktnWuXARzRDc9s+HSv5780y82jiPzxje5vxLLE07j6bWK4MtzqQump?=
- =?us-ascii?q?ccr0jPBDL6lUPrh6GMbEok4PKn6+H/b7XjoZ+TKpF7hxnlMqQrhsy/GeM4Mh?=
- =?us-ascii?q?USX2SD+eSzyrnj/UrhTbVWlPI2iKjZsI3BJcgBuq64AxNa0oYk6xqlCTepzM?=
- =?us-ascii?q?8YkmUdIFJAeRKHi5DlO1DIIP/mEfeym0mgnThkyvzcPrDtH4/BImbMnbv/Z7?=
- =?us-ascii?q?px9lZQyA8pwtBe45JUBKsBIPX2WkLpr9zXEwQ5Pheow+fnFNp91oQeVXiJAq?=
- =?us-ascii?q?+CKqzeq1CI5uUxI+WUfo8apC79K+Q55/7plXI5nlodfa6y3ZsRcn+3AuppLl?=
- =?us-ascii?q?6DYXXyn9gBEX0FvhYkQOP2j12CVCZZZ2yuUKIk+jE7FIWmAJ/YRo+zhLyB3S?=
- =?us-ascii?q?G7HoBZZ21dFFCMHmnnd5+eV/cPdi2SOMlhnSIAVbS7TI8hzx6uvhfgy7V7Nu?=
- =?us-ascii?q?rU5jEYtZX72dht/eLTiBUy+CdsD8uHzmGNS3h4nmYPRz8xxqBwv1ZxxUuE0a?=
- =?us-ascii?q?h9m/ZYD8Bc5+tVUgcmMp7R1+l6C8vsVQLCeteGVkqmTc+9DDErUN0+3t8ObF?=
- =?us-ascii?q?xhG9m4kh/D2C+qUPcpkOmsApAu/6CU+n/qIc92xnWOgK4kiEIgS8BCHXeriq?=
- =?us-ascii?q?52607YAIuf1w2CmqKrc7kM9DDC+X3FzmeUukxcFglqXuGNZXkCYgPzqtPj6w?=
- =?us-ascii?q?uWV7azDZw/OxZFjMuFLbFHLNbuiAMVau3kPYHlf2+pm2q2TS2Nz7eIYZuiL3?=
- =?us-ascii?q?4Rxw3BGUMElEYV5n/AOg8gUHTy61nCBSBjQAq8K3jn9vNz/TbiFR45?=
-X-IPAS-Result: =?us-ascii?q?A2DgAQBOxn9d/wHyM5BmHAEBAQQBAQcEAQGBVgQBAQsBg?=
- =?us-ascii?q?W0qbVIBMiqEIY9WAQEBAQEBBoERJYlzj0CBZwkBAQEBAQEBAQErCQECAQGEP?=
- =?us-ascii?q?wKCbyM3Bg4CDAEBAQQBAQEBAQUDAQFshS4MgjopAYJnAQUjBAsBBUEQCQIOC?=
- =?us-ascii?q?gICERUCAlcGAQwGAgEBgl8/AYF2FA+RHptvfzOJAYFDBoEMKAGLdxh4gQeBO?=
- =?us-ascii?q?AyCXz6CYQQYgQKBBIJMglgEjGegA4Isgi6EV411BhuZGY4JiAyTBiKBWCsIA?=
- =?us-ascii?q?hgIIQ+DJ4JOF4NPim8kAzABgQUBAY9uAQE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 16 Sep 2019 17:30:27 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8GHUQLR021491;
-        Mon, 16 Sep 2019 13:30:27 -0400
-Subject: Re: [PATCH] selinux: optimize MLS context to string conversion
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>
-Cc:     Michal Sekletar <msekleta@redhat.com>
-References: <20190730124852.7670-1-omosnace@redhat.com>
- <2412f6e1-8f70-1ede-2776-79470083b912@tycho.nsa.gov>
-Message-ID: <e4390a08-4043-49bc-e792-c600d3183d5b@tycho.nsa.gov>
-Date:   Mon, 16 Sep 2019 13:30:26 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S2388445AbfIPRyO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Sep 2019 13:54:14 -0400
+Received: from mailomta20-re.btinternet.com ([213.120.69.113]:47847 "EHLO
+        re-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388225AbfIPRyN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Sep 2019 13:54:13 -0400
+Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
+          by re-prd-fep-044.btinternet.com with ESMTP
+          id <20190916175407.KYZW9748.re-prd-fep-044.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Mon, 16 Sep 2019 18:54:07 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1568656447; 
+        bh=gz9a9oSS5OD997qmPoUGhh/W5MUp2R3PzEMudrKwDDk=;
+        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
+        b=o7GC8neLY351xp+y10/tejjxIgit8Jf6uh6QesIjMhd9sSxMQg4Xv2L25XNtI4nIotEpvG7awT4Hw7LiNAVwNM/i+5hbJdHWJHMS/nKWe97dF+uClYVc8e1cNKzPz6lwqML8NbYnGsk3ZcMKFImXoumMvK4MTMnFssr/5ILSOpau+E+kUXtR6AXb4gyOrBfUuCdaaH632s9vAlW0B5CSOoEbURnx10bEkYir60Ta3Bqnv22BD8GJvMSHY47nFl2zimivKdB2kXfZn/0rXTGJX4W//qPnr09n+6/fAJZxrh6p1b/c+a/nlnBJ8l82e/lkquUsZ/kGB3aEHq2FhV6/BA==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [31.49.60.183]
+X-OWM-Source-IP: 31.49.60.183 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudefgdduudekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdeitddrudekfeenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdeitddrudekfedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgushesthihtghhohdrnhhsrgdrghhovheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (31.49.60.183) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5D74C2B1018CA2F7; Mon, 16 Sep 2019 18:54:07 +0100
+Message-ID: <19b043bc4d5efbf2f1994958c0a74709a34e3ad0.camel@btinternet.com>
+Subject: Re: [PATCH V3 1/2] selinux-testsuite: Add BPF tests
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org,
+        paul@paul-moore.com
+Date:   Mon, 16 Sep 2019 18:54:05 +0100
+In-Reply-To: <00949930-14ab-7b58-9be9-23658eed6baf@tycho.nsa.gov>
+References: <20190814092142.3894-1-richard_c_haines@btinternet.com>
+         <00949930-14ab-7b58-9be9-23658eed6baf@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
 MIME-Version: 1.0
-In-Reply-To: <2412f6e1-8f70-1ede-2776-79470083b912@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/16/19 10:43 AM, Stephen Smalley wrote:
-> On 7/30/19 8:48 AM, Ondrej Mosnacek wrote:
->> When mls_compute_context_len() or mls_sid_to_context() encounters a
->> context with large category ranges, it behaves suboptimally - it
->> traverses each positive bit of the category bitmap, each time calling
->> find_next_bit() again.
->>
->> This has a large performance impact on UNIX datagram sockets with
->> SO_PASSSEC set, since here the peer context needs to be converted to
->> string for each recieved datagram. See [1] for more information.
->>
->> This patch introduces a new helper for ebitmap traversal, which allows
->> to efficiently iterate over positive ranges instead of bits -
->> ebitmap_for_each_positive_range() - and converts the two mls_*()
->> functions to leverage it.
->>
->> [1] https://bugzilla.redhat.com/show_bug.cgi?id=1733259
->>
->> Reported-by: Michal Sekletar <msekleta@redhat.com>
->> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->> ---
->>   security/selinux/ss/ebitmap.h | 46 +++++++++++++++++++++
->>   security/selinux/ss/mls.c     | 76 +++++++++++++----------------------
->>   2 files changed, 73 insertions(+), 49 deletions(-)
->>
->> diff --git a/security/selinux/ss/ebitmap.h 
->> b/security/selinux/ss/ebitmap.h
->> index 6aa7cf6a2197..a415741cb206 100644
->> --- a/security/selinux/ss/ebitmap.h
->> +++ b/security/selinux/ss/ebitmap.h
->> @@ -42,6 +42,10 @@ struct ebitmap {
->>       u32 highbit;    /* highest position in the total bitmap */
->>   };
->> +struct ebitmap_range {
->> +    unsigned int start, end;
->> +};
->> +
->>   #define ebitmap_length(e) ((e)->highbit)
->>   static inline unsigned int ebitmap_start_positive(struct ebitmap *e,
->> @@ -80,6 +84,43 @@ static inline unsigned int 
->> ebitmap_next_positive(struct ebitmap *e,
->>       return ebitmap_length(e);
->>   }
->> +static inline unsigned int ebitmap_next_negative(struct ebitmap *e,
->> +                         struct ebitmap_node **n,
->> +                         unsigned int bit)
->> +{
->> +    unsigned int ofs;
->> +
->> +    ofs = find_next_zero_bit((*n)->maps, EBITMAP_SIZE,
->> +                 bit - (*n)->startbit + 1);
->> +    if (ofs < EBITMAP_SIZE)
->> +        return ofs + (*n)->startbit;
->> +
->> +    for (*n = (*n)->next; *n; *n = (*n)->next) {
->> +        ofs = find_first_zero_bit((*n)->maps, EBITMAP_SIZE);
->> +        if (ofs < EBITMAP_SIZE)
->> +            return ofs + (*n)->startbit;
->> +    }
->> +    return ebitmap_length(e);
->> +}
+On Fri, 2019-09-13 at 13:39 -0400, Stephen Smalley wrote:
+> On 8/14/19 5:21 AM, Richard Haines wrote:
+> > This adds basic BPF tests for map and prog functions.
+> > 
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > ---
+> > V2 Change - Split BPF code into bpf_common.c for others to use.
+> > V3 Changes - Correct style, Fix typos
+> > 
+> >   README.md              |  4 +-
+> >   defconfig              |  5 +++
+> >   policy/Makefile        |  4 ++
+> >   policy/test_bpf.te     | 77 +++++++++++++++++++++++++++++++++
+> >   tests/Makefile         |  4 ++
+> >   tests/bpf/.gitignore   |  2 +
+> >   tests/bpf/Makefile     | 12 ++++++
+> >   tests/bpf/bpf_common.c | 97
+> > ++++++++++++++++++++++++++++++++++++++++++
+> >   tests/bpf/bpf_test.c   | 82 +++++++++++++++++++++++++++++++++++
+> >   tests/bpf/test         | 58 +++++++++++++++++++++++++
+> >   10 files changed, 344 insertions(+), 1 deletion(-)
+> >   create mode 100644 policy/test_bpf.te
+> >   create mode 100644 tests/bpf/.gitignore
+> >   create mode 100644 tests/bpf/Makefile
+> >   create mode 100644 tests/bpf/bpf_common.c
+> >   create mode 100644 tests/bpf/bpf_test.c
+> >   create mode 100755 tests/bpf/test
+> > 
+> > diff --git a/README.md b/README.md
+> > index 26784f8..1396c8e 100644
+> > --- a/README.md
+> > +++ b/README.md
+> > @@ -51,6 +51,7 @@ similar dependencies):
+> >   * iptables _(to load the `iptables SECMARK` rules during
+> > `inet_socket` tests)_
+> >   * lksctp-tools-devel _(to build the SCTP test programs)_
+> >   * attr _(tools used by the overlayfs tests)_
+> > +* libbpf-devel _(tools used by the bpf tests)_
+> >   
+> >   On a modern Fedora system you can install these dependencies with
+> > the
+> >   following command:
+> > @@ -65,7 +66,8 @@ following command:
+> >   		netlabel_tools \
+> >   		iptables \
+> >   		lksctp-tools-devel \
+> > -		attr
+> > +		attr \
+> > +		libbpf-devel
 > 
-> This is likely moot given that the patch was deferred on exploring the 
-> cache option, but if/when this patch is revisited, you don't seem to 
-> account for the possibility that there could be a hole between the 
-> bitmaps represented by (*n) and (*n)->next, and that might be where the 
-> next negative/zero bit is.
+> Since we stipulate it as a dependency here, we shouldn't make the
+> test 
+> conditional on the presence of the header.  Otherwise, the test may 
+> silently be skipped due to an oversight even on kernels/policies
+> that 
+> support it.
 
-You can see this bug manifest by doing the following:
-runcon -l s0:c0.c383,c768 bash
-id -Z
-
-The correct output of course would be s0:c0.c383,c768, but your patched 
-kernel will report s0:c0.c768.
+Fixed
 
 > 
->> +
->> +static inline void ebitmap_start_positive_range(struct ebitmap *e,
->> +                        struct ebitmap_node **n,
->> +                        struct ebitmap_range *range)
->> +{
->> +    range->end = range->start = ebitmap_start_positive(e, n);
->> +    if (range->start < ebitmap_length(e))
->> +        range->end = ebitmap_next_negative(e, n, range->start);
->> +}
->> +
->> +static inline void ebitmap_next_positive_range(struct ebitmap *e,
->> +                           struct ebitmap_node **n,
->> +                           struct ebitmap_range *range)
->> +{
->> +    range->end = range->start = ebitmap_next_positive(e, n, range->end);
->> +    if (range->start < ebitmap_length(e))
->> +        range->end = ebitmap_next_negative(e, n, range->start);
->> +}
->> +
->>   #define EBITMAP_NODE_INDEX(node, bit)    \
->>       (((bit) - (node)->startbit) / EBITMAP_UNIT_SIZE)
->>   #define EBITMAP_NODE_OFFSET(node, bit)    \
->> @@ -122,6 +163,11 @@ static inline void ebitmap_node_clr_bit(struct 
->> ebitmap_node *n,
->>            bit < ebitmap_length(e);            \
->>            bit = ebitmap_next_positive(e, &n, bit))    \
->> +#define ebitmap_for_each_positive_range(e, n, range)        \
->> +    for (ebitmap_start_positive_range(e, &n, &range);    \
->> +         range.start < ebitmap_length(e);            \
->> +         ebitmap_next_positive_range(e, &n, &range))    \
->> +
->>   int ebitmap_cmp(struct ebitmap *e1, struct ebitmap *e2);
->>   int ebitmap_cpy(struct ebitmap *dst, struct ebitmap *src);
->>   int ebitmap_contains(struct ebitmap *e1, struct ebitmap *e2, u32 
->> last_e2bit);
->> diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
->> index 5e05f5b902d7..3abd6b950c66 100644
->> --- a/security/selinux/ss/mls.c
->> +++ b/security/selinux/ss/mls.c
->> @@ -35,10 +35,12 @@
->>    */
->>   int mls_compute_context_len(struct policydb *p, struct context 
->> *context)
->>   {
->> -    int i, l, len, head, prev;
->> +    int l, len;
->>       char *nm;
->>       struct ebitmap *e;
->>       struct ebitmap_node *node;
->> +    struct ebitmap_range range;
->> +    unsigned int rlen;
->>       if (!p->mls_enabled)
->>           return 0;
->> @@ -49,24 +51,14 @@ int mls_compute_context_len(struct policydb *p, 
->> struct context *context)
->>           len += strlen(sym_name(p, SYM_LEVELS, index_sens - 1));
->>           /* categories */
->> -        head = -2;
->> -        prev = -2;
->>           e = &context->range.level[l].cat;
->> -        ebitmap_for_each_positive_bit(e, node, i) {
->> -            if (i - prev > 1) {
->> -                /* one or more negative bits are skipped */
->> -                if (head != prev) {
->> -                    nm = sym_name(p, SYM_CATS, prev);
->> -                    len += strlen(nm) + 1;
->> -                }
->> -                nm = sym_name(p, SYM_CATS, i);
->> +        ebitmap_for_each_positive_range(e, node, range) {
->> +            rlen = range.end - range.start;
->> +            if (rlen > 1) {
->> +                nm = sym_name(p, SYM_CATS, range.start);
->>                   len += strlen(nm) + 1;
->> -                head = i;
->>               }
->> -            prev = i;
->> -        }
->> -        if (prev != head) {
->> -            nm = sym_name(p, SYM_CATS, prev);
->> +            nm = sym_name(p, SYM_CATS, range.end - 1);
->>               len += strlen(nm) + 1;
->>           }
->>           if (l == 0) {
->> @@ -91,9 +83,11 @@ void mls_sid_to_context(struct policydb *p,
->>               char **scontext)
->>   {
->>       char *scontextp, *nm;
->> -    int i, l, head, prev;
->> +    int l, first;
->>       struct ebitmap *e;
->>       struct ebitmap_node *node;
->> +    struct ebitmap_range range;
->> +    unsigned int rlen;
->>       if (!p->mls_enabled)
->>           return;
->> @@ -109,43 +103,27 @@ void mls_sid_to_context(struct policydb *p,
->>           scontextp += strlen(scontextp);
->>           /* categories */
->> -        head = -2;
->> -        prev = -2;
->> +        first = 1;
->>           e = &context->range.level[l].cat;
->> -        ebitmap_for_each_positive_bit(e, node, i) {
->> -            if (i - prev > 1) {
->> -                /* one or more negative bits are skipped */
->> -                if (prev != head) {
->> -                    if (prev - head > 1)
->> -                        *scontextp++ = '.';
->> -                    else
->> -                        *scontextp++ = ',';
->> -                    nm = sym_name(p, SYM_CATS, prev);
->> -                    strcpy(scontextp, nm);
->> -                    scontextp += strlen(nm);
->> -                }
->> -                if (prev < 0)
->> -                    *scontextp++ = ':';
->> -                else
->> -                    *scontextp++ = ',';
->> -                nm = sym_name(p, SYM_CATS, i);
->> -                strcpy(scontextp, nm);
->> -                scontextp += strlen(nm);
->> -                head = i;
->> -            }
->> -            prev = i;
->> -        }
->> -
->> -        if (prev != head) {
->> -            if (prev - head > 1)
->> -                *scontextp++ = '.';
->> -            else
->> +        ebitmap_for_each_positive_range(e, node, range) {
->> +            if (first) {
->> +                first = 0;
->> +                *scontextp++ = ':';
->> +            } else {
->>                   *scontextp++ = ',';
->> -            nm = sym_name(p, SYM_CATS, prev);
->> +            }
->> +            nm = sym_name(p, SYM_CATS, range.start);
->>               strcpy(scontextp, nm);
->>               scontextp += strlen(nm);
->> -        }
->> +            rlen = range.end - range.start;
->> +            if (rlen > 1) {
->> +                *scontextp++ = rlen > 2 ? '.' : ',';
->> +                nm = sym_name(p, SYM_CATS, range.end - 1);
->> +                strcpy(scontextp, nm);
->> +                scontextp += strlen(nm);
->> +            }
->> +        }
->>           if (l == 0) {
->>               if (mls_level_eq(&context->range.level[0],
->>                        &context->range.level[1]))
->>
+> >   
+> >   The testsuite requires a pre-existing base policy configuration
+> > of SELinux,
+> >   using either the old example policy or the reference policy as
+> > the baseline.
+> > diff --git a/defconfig b/defconfig
+> > index d7f0ea5..96f6443 100644
+> > --- a/defconfig
+> > +++ b/defconfig
+> > @@ -62,3 +62,8 @@ CONFIG_ANDROID_BINDER_IPC=y
+> >   # This will configure the Dynamically Allocated Binder Devices
+> > added
+> >   # to 5.0+ kernels:
+> >   CONFIG_ANDROID_BINDERFS=y
+> > +
+> > +# Test BPF + check in selinux_file_receive and
+> > selinux_binder_transfer_files.
+> > +# They are not required for SELinux operation itself.
+> > +CONFIG_BP=y
 > 
+> Typo in the config option name
+
+Fixed
+> 
+> > +CONFIG_BPF_SYSCALL=y
+> > diff --git a/policy/Makefile b/policy/Makefile
+> > index 305b572..16a4469 100644
+> > --- a/policy/Makefile
+> > +++ b/policy/Makefile
+> > @@ -71,6 +71,10 @@ ifeq ($(shell grep -q
+> > corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/coren
+> >   TARGETS += test_sctp.te
+> >   endif
+> >   
+> > +ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt
+> > && echo true),true)
+> > +TARGETS += test_bpf.te
+> > +endif
+> > +
+> >   ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+> >   TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te,
+> > $(TARGETS))
+> >   endif
+> > diff --git a/policy/test_bpf.te b/policy/test_bpf.te
+> > new file mode 100644
+> > index 0000000..38b7729
+> > --- /dev/null
+> > +++ b/policy/test_bpf.te
+> > @@ -0,0 +1,77 @@
+> > +#
+> > +################# BPF selinux-testsuite policy module
+> > ######################
+> > +#
+> > +
+> > +attribute bpfdomain;
+> > +
+> > +################################### Main
+> > ###################################
+> > +type test_bpf_t;
+> > +domain_type(test_bpf_t)
+> > +unconfined_runs_test(test_bpf_t)
+> > +typeattribute test_bpf_t testdomain;
+> > +typeattribute test_bpf_t bpfdomain;
+> > +
+> > +allow test_bpf_t self:process { setrlimit };
+> > +allow test_bpf_t self:capability { sys_resource sys_admin };
+> 
+> The point (or at least part of it) of introducing the bpf access 
+> controls was to provide a middle ground between requiring
+> CAP_SYS_ADMIN 
+> and allowing all processes to create/use these objects.  To truly
+> test 
+> that, you may need to set the sysctl to allow unprivileged use and 
+> further there are still cases that require CAP_SYS_ADMIN even then,
+> so 
+> the exact program/map matters.
+
+I have removed the sys_admin perm as the Fedora default is:
+sysctl kernel.unprivileged_bpf_disabled
+kernel.unprivileged_bpf_disabled = 0
+
+I've also found a map & prog type that requires sys_admin:
+BPF_MAP_TYPE_LPM_TRIE and BPF_PROG_TYPE_UNSPEC
+These tested ok.
+
+Is it worth setting kernel.unprivileged_bpf_disabled = 1 and testing as
+it can only be reset by a reboot of the system, if so I'll add a
+message after tests.
+
+> 
+> > +allow test_bpf_t self:bpf { map_create map_read map_write
+> > prog_load prog_run };
+> > +
+> > +############################## Deny map_create
+> > #############################
+> > +type test_bpf_deny_map_create_t;
+> > +domain_type(test_bpf_deny_map_create_t)
+> > +unconfined_runs_test(test_bpf_deny_map_create_t)
+> > +typeattribute test_bpf_deny_map_create_t testdomain;
+> > +typeattribute test_bpf_deny_map_create_t bpfdomain;
+> > +
+> > +allow test_bpf_deny_map_create_t self:process { setrlimit };
+> > +allow test_bpf_deny_map_create_t self:capability { sys_resource
+> > sys_admin };
+> > +allow test_bpf_deny_map_create_t self:bpf { map_read map_write
+> > prog_load prog_run };
+> > +
+> > +############################## Deny map_read
+> > ##############################
+> > +type test_bpf_deny_map_read_t;
+> > +domain_type(test_bpf_deny_map_read_t)
+> > +unconfined_runs_test(test_bpf_deny_map_read_t)
+> > +typeattribute test_bpf_deny_map_read_t testdomain;
+> > +typeattribute test_bpf_deny_map_read_t bpfdomain;
+> > +
+> > +allow test_bpf_deny_map_read_t self:process { setrlimit };
+> > +allow test_bpf_deny_map_read_t self:capability { sys_resource
+> > sys_admin };
+> > +allow test_bpf_deny_map_read_t self:bpf { map_create map_write
+> > prog_load prog_run };
+> > +
+> > +############################## Deny map_write
+> > ##############################
+> > +type test_bpf_deny_map_write_t;
+> > +domain_type(test_bpf_deny_map_write_t)
+> > +unconfined_runs_test(test_bpf_deny_map_write_t)
+> > +typeattribute test_bpf_deny_map_write_t testdomain;
+> > +typeattribute test_bpf_deny_map_write_t bpfdomain;
+> > +
+> > +allow test_bpf_deny_map_write_t self:process { setrlimit };
+> > +allow test_bpf_deny_map_write_t self:capability { sys_resource
+> > sys_admin };
+> > +allow test_bpf_deny_map_write_t self:bpf { map_create map_read
+> > prog_load prog_run };
+> > +
+> > +############################## Deny prog_load
+> > ##############################
+> > +type test_bpf_deny_prog_load_t;
+> > +domain_type(test_bpf_deny_prog_load_t)
+> > +unconfined_runs_test(test_bpf_deny_prog_load_t)
+> > +typeattribute test_bpf_deny_prog_load_t testdomain;
+> > +typeattribute test_bpf_deny_prog_load_t bpfdomain;
+> > +
+> > +allow test_bpf_deny_prog_load_t self:process { setrlimit };
+> > +allow test_bpf_deny_prog_load_t self:capability { sys_resource
+> > sys_admin };
+> > +allow test_bpf_deny_prog_load_t self:bpf { map_create map_read
+> > map_write prog_run };
+> > +
+> > +############################## Deny prog_run
+> > ###############################
+> > +type test_bpf_deny_prog_run_t;
+> > +domain_type(test_bpf_deny_prog_run_t)
+> > +unconfined_runs_test(test_bpf_deny_prog_run_t)
+> > +typeattribute test_bpf_deny_prog_run_t testdomain;
+> > +typeattribute test_bpf_deny_prog_run_t bpfdomain;
+> > +
+> > +allow test_bpf_deny_prog_run_t self:process { setrlimit };
+> > +allow test_bpf_deny_prog_run_t self:capability { sys_resource
+> > sys_admin };
+> > +allow test_bpf_deny_prog_run_t self:bpf { map_create map_read
+> > map_write prog_load };
+> > +
+> > +#
+> > +############ Allow these domains to be entered from sysadm domain
+> > ############
+> > +#
+> > +miscfiles_domain_entry_test_files(bpfdomain)
+> > +userdom_sysadm_entry_spec_domtrans_to(bpfdomain)
+> > diff --git a/tests/Makefile b/tests/Makefile
+> > index 63aa325..2717452 100644
+> > --- a/tests/Makefile
+> > +++ b/tests/Makefile
+> > @@ -42,6 +42,10 @@ ifeq ($(shell grep -q binder
+> > $(POLDEV)/include/support/all_perms.spt && test -e
+> >   SUBDIRS += binder
+> >   endif
+> >   
+> > +ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt
+> > && test -e $(INCLUDEDIR)/bpf/bpf.h && echo true),true)
+> > +SUBDIRS += bpf
+> > +endif
+> 
+> Don't make it conditional on the header since that is stated build 
+> dependency.  Do make it or the test itself conditional on kernel
+> version 
+> so that it doesn't break on kernels that predate the bpf access
+> controls.
+
+I've set this for kernel 4.4 as that supports kernel.unprivileged_bpf_disabled
+
+> 
+> > +
+> >   ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST="
+> > infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
+> >   SUBDIRS += infiniband_endport
+> >   endif
+> > diff --git a/tests/bpf/.gitignore b/tests/bpf/.gitignore
+> > new file mode 100644
+> > index 0000000..1919ff8
+> > --- /dev/null
+> > +++ b/tests/bpf/.gitignore
+> > @@ -0,0 +1,2 @@
+> > +bpf_test
+> > +bpf_common
+> > diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
+> > new file mode 100644
+> > index 0000000..78ae9db
+> > --- /dev/null
+> > +++ b/tests/bpf/Makefile
+> > @@ -0,0 +1,12 @@
+> > +TARGETS = bpf_test
+> > +DEPS = bpf_common.c
+> > +
+> > +LDLIBS += -lselinux -lbpf
+> > +CFLAGS += -DHAVE_BPF
+> > +
+> > +all: $(TARGETS)
+> > +
+> > +clean:
+> > +	rm -f $(TARGETS)
+> > +
+> > +$(TARGETS): $(DEPS)
+> > diff --git a/tests/bpf/bpf_common.c b/tests/bpf/bpf_common.c
+> > new file mode 100644
+> > index 0000000..3ac47be
+> > --- /dev/null
+> > +++ b/tests/bpf/bpf_common.c
+> > @@ -0,0 +1,97 @@
+> > +#include <stdio.h>
+> > +#include <string.h>
+> > +#include <stdlib.h>
+> > +#include <errno.h>
+> > +
+> > +#if HAVE_BPF /* Start HAVE_BPF */
+> 
+> Not sure what the point of this #if is given that you define it 
+> unconditionally in the Makefile and you made the package that
+> provides 
+> the header a build dependency.
+
+
+I've reworked the tests to remove this in bpf_common.c
+
+> 
+> > +#include <bpf/bpf.h>
+> > +#include <linux/bpf.h>
+> > +#include <sys/resource.h>
+> > +
+> > +/* edited eBPF instruction library */
+> > +/* Short form of mov, dst_reg = imm32 */
+> > +#define BPF_MOV64_IMM(DST, IMM)				\
+> > +	((struct bpf_insn) {				\
+> > +		.code  = BPF_ALU64 | BPF_MOV | BPF_K,	\
+> > +			 .dst_reg = DST,				\
+> > +				    .src_reg = 0,				
+> > \
+> > +					       .off   = 0,			
+> > 	\
+> > +							.imm   = IMM })
+> > +
+> > +/* Program exit */
+> > +#define BPF_EXIT_INSN()				\
+> > +	((struct bpf_insn) {			\
+> > +		.code  = BPF_JMP | BPF_EXIT,	\
+> > +			 .dst_reg = 0,			\
+> > +				    .src_reg = 0,			\
+> > +					       .off   = 0,			
+> > \
+> > +							.imm   = 0 })
+> 
+> That's ugly but I guess Paul wants it that way.
+> 
+> > +
+> > +int create_bpf_map(void)
+> > +{
+> > +	int map_fd, key;
+> > +	long long value = 0;
+> > +
+> > +	map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(key),
+> > +				sizeof(value), 256, 0);
+> > +	if (map_fd < 0) {
+> > +		fprintf(stderr, "Failed to create BPF map: %s\n",
+> > +			strerror(errno));
+> > +		return -1;
+> > +	}
+> > +
+> > +	return map_fd;
+> > +}
+> > +
+> > +int create_bpf_prog(void)
+> > +{
+> > +	int prog_fd;
+> > +	size_t insns_cnt;
+> > +
+> > +	struct bpf_insn prog[] = {
+> > +		BPF_MOV64_IMM(BPF_REG_0, 1),
+> > +		BPF_EXIT_INSN(),
+> > +	};
+> > +	insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
+> > +
+> > +	prog_fd = bpf_load_program(BPF_PROG_TYPE_SOCKET_FILTER, prog,
+> > +				   insns_cnt, "GPL", 0, NULL, 0);
+> > +	if (prog_fd < 0) {
+> > +		fprintf(stderr, "Failed to load BPF prog: %s\n",
+> > +			strerror(errno));
+> > +		return -1;
+> > +	}
+> > +
+> > +	return prog_fd;
+> > +}
+> > +
+> > +void bpf_setrlimit(void)
+> > +{
+> > +	int result;
+> > +	struct rlimit r = { RLIM_INFINITY, RLIM_INFINITY };
+> > +
+> > +	result = setrlimit(RLIMIT_MEMLOCK, &r);
+> > +	if (result < 0) {
+> > +		fprintf(stderr, "Failed to set resource limit: %s\n",
+> > +			strerror(errno));
+> > +		exit(-1);
+> > +	}
+> > +}
+> > +
+> > +#else
+> > +int create_bpf_map(void)
+> > +{
+> > +	fprintf(stderr, "BPF map not supported\n");
+> > +	return -1;
+> > +}
+> > +
+> > +int create_bpf_prog(void)
+> > +{
+> > +	fprintf(stderr, "BPF prog not supported\n");
+> > +	return -1;
+> > +}
+> > +
+> > +void bpf_setrlimit(void)
+> > +{
+> > +}
+> > +#endif /* End HAVE_BPF */
+> > diff --git a/tests/bpf/bpf_test.c b/tests/bpf/bpf_test.c
+> > new file mode 100644
+> > index 0000000..b866651
+> > --- /dev/null
+> > +++ b/tests/bpf/bpf_test.c
+> > @@ -0,0 +1,82 @@
+> > +#include <stdio.h>
+> > +#include <unistd.h>
+> > +#include <string.h>
+> > +#include <stdlib.h>
+> > +#include <errno.h>
+> > +#include <stdbool.h>
+> > +#include <selinux/selinux.h>
+> > +
+> > +int create_bpf_map(void);
+> > +int create_bpf_prog(void);
+> > +void bpf_setrlimit(void);
+> > +
+> > +static void usage(char *progname)
+> > +{
+> > +	fprintf(stderr,
+> > +		"usage:  %s [-m|-p] [-v]\n"
+> > +		"Where:\n\t"
+> > +		"-m    Create BPF map fd\n\t"
+> > +		"-p    Create BPF prog fd\n\t"
+> > +		"-v Print information.\n", progname);
+> > +	exit(-1);
+> > +}
+> > +
+> > +int main(int argc, char *argv[])
+> > +{
+> > +	int opt, result, fd, bpf_fd_type = 0;
+> > +	bool verbose = false;
+> > +	char *context;
+> > +
+> > +	while ((opt = getopt(argc, argv, "mpv")) != -1) {
+> > +		switch (opt) {
+> > +		case 'm':
+> > +			bpf_fd_type = 1;
+> > +			break;
+> > +		case 'p':
+> > +			bpf_fd_type = 2;
+> 
+> No magic constants please, use a #define or enum with symbolic names.
+Fixed
+> 
+> > +			break;
+> > +		case 'v':
+> > +			verbose = true;
+> > +			break;
+> > +		default:
+> > +			usage(argv[0]);
+> > +		}
+> > +	}
+> > +
+> > +	result = getcon(&context);
+> > +	if (result < 0) {
+> > +		fprintf(stderr, "Failed to obtain SELinux context\n");
+> > +		exit(-1);
+> > +	}
+> > +
+> > +	if (verbose)
+> > +		printf("Process context:\n\t%s\n", context);
+> > +
+> > +	free(context);
+> > +
+> > +	/* If BPF enabled, then need to set limits */
+> > +	bpf_setrlimit();
+> > +
+> > +	switch (bpf_fd_type) {
+> > +	case 1:
+> > +		if (verbose)
+> > +			printf("Creating BPF map\n");
+> > +
+> > +		fd = create_bpf_map();
+> > +		break;
+> > +	case 2:
+> > +		if (verbose)
+> > +			printf("Creating BPF prog\n");
+> > +
+> > +		fd = create_bpf_prog();
+> > +		break;
+> > +	default:
+> > +		usage(argv[0]);
+> > +	}
+> > +
+> > +	if (fd < 0)
+> > +		return bpf_fd_type;
+> > +
+> > +	close(fd);
+> > +	return 0;
+> > +}
+> > diff --git a/tests/bpf/test b/tests/bpf/test
+> > new file mode 100755
+> > index 0000000..1d41d72
+> > --- /dev/null
+> > +++ b/tests/bpf/test
+> > @@ -0,0 +1,58 @@
+> > +#!/usr/bin/perl
+> > +use Test::More;
+> > +
+> > +BEGIN {
+> > +    $basedir = $0;
+> > +    $basedir =~ s|(.*)/[^/]*|$1|;
+> > +
+> > +    # allow info to be shown during tests
+> > +    $v = $ARGV[0];
+> > +    if ($v) {
+> > +        if ( $v ne "-v" ) {
+> > +            plan skip_all => "Invalid option (use -v)";
+> > +        }
+> > +    }
+> > +    else {
+> > +        $v = " ";
+> > +    }
+> > +
+> > +    plan tests => 7;
+> > +}
+> > +
+> > +#
+> > +################ Core BPF Tests #######################
+> > +#
+> > +# BPF map
+> > +$result = system "runcon -t test_bpf_t $basedir/bpf_test -m $v";
+> > +ok( $result eq 0 );
+> > +
+> > +# BPF prog
+> > +$result = system "runcon -t test_bpf_t $basedir/bpf_test -p $v";
+> > +ok( $result eq 0 );
+> > +
+> > +# Deny map_create permission
+> > +$result =
+> > +  system "runcon -t test_bpf_deny_map_create_t $basedir/bpf_test
+> > -m $v 2>&1";
+> > +ok( $result >> 8 eq 1 );
+> > +
+> > +# Deny map_read permission
+> > +$result =
+> > +  system "runcon -t test_bpf_deny_map_read_t $basedir/bpf_test -m
+> > $v 2>&1";
+> > +ok( $result >> 8 eq 1 );
+> > +
+> > +# Deny map_write permission
+> > +$result =
+> > +  system "runcon -t test_bpf_deny_map_write_t $basedir/bpf_test -m
+> > $v 2>&1";
+> > +ok( $result >> 8 eq 1 );
+> > +
+> > +# Deny prog_load permission
+> > +$result =
+> > +  system "runcon -t test_bpf_deny_prog_load_t $basedir/bpf_test -p
+> > $v 2>&1";
+> > +ok( $result >> 8 eq 2 );
+> > +
+> > +# Deny prog_run permission
+> > +$result =
+> > +  system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p
+> > $v 2>&1";
+> > +ok( $result >> 8 eq 2 );
+> > +
+> > +exit;
+> 
+> Tests 8 and 9 failed for me,
+> bpf/test .................... 1/11 BPF map not supported
+> sendmsg: Bad file descriptor
+> 
+> #   Failed test at bpf/test line 78.
+> BPF prog not supported
+> connect: Connection refused
+> 
+> #   Failed test at bpf/test line 82.
+> BPF prog not supported
+> connect: Connection refused
+> BPF map not supported
+> connect: Connection refused
+> # Looks like you failed 2 tests of 11.
+> bpf/test .................... Dubious, test returned 2 (wstat 512,
+> 0x200)
+> Failed 2/11 subtests
+
+Hopefully this is fixed.
+
+Note when I send the updated patches I'll include the Binder BPF
+support as Patch 3.
+> 
+> 
+
+
 
