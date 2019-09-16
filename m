@@ -4,52 +4,52 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9ADFC49ED7
-	for <selinux@archiver.kernel.org>; Mon, 16 Sep 2019 18:05:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEA60C49ED7
+	for <selinux@archiver.kernel.org>; Mon, 16 Sep 2019 18:26:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6FF2820650
-	for <selinux@archiver.kernel.org>; Mon, 16 Sep 2019 18:05:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79F52206C2
+	for <selinux@archiver.kernel.org>; Mon, 16 Sep 2019 18:26:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="H2HYSYcm"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="CELz5ymp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388708AbfIPSF0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Sep 2019 14:05:26 -0400
-Received: from USAT19PA21.eemsg.mail.mil ([214.24.22.195]:18797 "EHLO
-        USAT19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726872AbfIPSFZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Sep 2019 14:05:25 -0400
-X-EEMSG-check-017: 28379323|USAT19PA21_ESA_OUT02.csd.disa.mil
+        id S1729838AbfIPS0e (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Sep 2019 14:26:34 -0400
+Received: from USAT19PA20.eemsg.mail.mil ([214.24.22.194]:61338 "EHLO
+        USAT19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726084AbfIPS0d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Sep 2019 14:26:33 -0400
+X-EEMSG-check-017: 28396745|USAT19PA20_ESA_OUT01.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.64,513,1559520000"; 
-   d="scan'208";a="28379323"
+   d="scan'208";a="28396745"
 Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USAT19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Sep 2019 18:02:43 +0000
+  by USAT19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Sep 2019 18:19:28 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1568656963; x=1600192963;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=e2W1kQj0xh/4DZ7PNZ7b+ZEIWtxd/kAN/gf+phYhkMI=;
-  b=H2HYSYcm7Hl7XnS+IAYBs9KuWX0MM/wRfzuyhKQWAATqSRtzMsQ+aGos
-   gnWcu9fWBgHFXtmhpQYiEx6amke8LMGpZcmTa/wjVklfqd539bZVuJVZr
-   w68/ejxlQyPVGiumiqdC9+AawWFaU6lHt5Op+i8N0aelrCUF788BZGsRm
-   2FvRU8bCUs+NvNjONWO7+A3AjfugXQzGdUx3WzPXVDtjFMlG8qpldRf+4
-   QBSP+22Wzqs2wELxxK5cjJ7Qh45UwWbuxNuyg+DtI+pYN0djQeFQqNYxr
-   rXAttLEBjx8s0ho3ROvioAOy77PnE/V6AW4zPXpQ1vIqNF7Dt0906MP2i
-   Q==;
+  s=tycho.nsa.gov; t=1568657968; x=1600193968;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=Df3R5Aoc/xcjAiEzpvjNx0MGhwnIz5zvaSIkbvXk63M=;
+  b=CELz5ympGhY+oAG3bGLFF8fSpk8wuC2CBqzyAFKPbKO5Hv3U7gycUMsE
+   /weU5zZPOMXkKoQMUCPp08ccp83ZbSFhDGFSEfJvgAe1nqk/qAzMlVJfZ
+   R97kTK7TtIF7azawm6fUKhQ+3APVS0SU2F4Fo+ZbYrYvE27Gmlt9gFIJ+
+   L2L/zz9v+GnFSHdZLP0j5xOqhcf0jGw9U+53vmm0PBR2kKlsOEo1Gm+MI
+   zU5/6C4hvR4wJaOqdCd+VElLKEMYUZ5zyb4hoPoBgi0TU19Tu9XQwfqzH
+   xjkz+KvLFPve/jl4qiSShMldolg+sON5Fu+7oU9ApV12YZJ+zCxrqM90C
+   A==;
 X-IronPort-AV: E=Sophos;i="5.64,513,1559520000"; 
-   d="scan'208";a="27964451"
-IronPort-PHdr: =?us-ascii?q?9a23=3AT+Ux6B2e2by3gGNCsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZsesWKfnxwZ3uMQTl6Ol3ixeRBMOHsqkC0rGd6vmwESxYuNDd6SpEKMQNHz?=
+   d="scan'208";a="27965663"
+IronPort-PHdr: =?us-ascii?q?9a23=3Af3hIbh0+JAiaAo4ksmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZsesSI/3xwZ3uMQTl6Ol3ixeRBMOHsqkC0rGd6vq6ESxYuNDd6SpEKMQNHz?=
  =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
  =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQYjId4N6o8xB?=
- =?us-ascii?q?TFrmZVd+lV2GhkIU6fkwvm6sq/4ZJv7T5ct+49+8JFTK73Y7k2QbtEATo8Lm?=
+ =?us-ascii?q?TFrmZWd+hI2GhkIU6fkwvm6sq/4ZJv7T5ct+49+8JFTK73Y7k2QbtEATo8Lm?=
  =?us-ascii?q?s7/tfrtR7NTQuO4nsTTGAbmQdWDgbG8R/3QI7/vjP1ueRh1iaaO9b2Ta0vVj?=
  =?us-ascii?q?S586hrUh7ohzwZODM/7Wral9Z/jKNfoBKmuhx/34vZa5ybOfZiYq/Qe84RSH?=
  =?us-ascii?q?FfVchNSSNOHoK8b5MOD+UfO+ZYs5L9rEYKoRenGAWgGP/jxjpOi3D4x6061/?=
- =?us-ascii?q?kqHx/A0gIuAtkCtG3YodvxOasXV+2+0avGwijZb/5OxDnz9obIfBAir/+CU7?=
+ =?us-ascii?q?kqHx/A0gIuAtkCtG3YoMvxOasXV+2+0avGwijZb/5OxDnz9obIfBAir/+CU7?=
  =?us-ascii?q?1/fsjexlUgGQ7eklWdq5boMy+J2ukDsWWW6fdrW+K1i24grgF8uiWhxtsyhY?=
  =?us-ascii?q?nRhoIa1FbE/jhkzoYwP9K4TEp7bsCkEZBNsCyaLJZ5Qtg5TmF0uCc11r0GuZ?=
  =?us-ascii?q?mhcCgM05Qo3QTTa/OAc4iW+x/uUvuaLzRghH99Zb6yiBm//VKgx+HhTMW4zl?=
@@ -57,39 +57,51 @@ IronPort-PHdr: =?us-ascii?q?9a23=3AT+Ux6B2e2by3gGNCsmDT+DRfVm0co7zxezQtwd?=
  =?us-ascii?q?oTrVzPHi/ol0Xyi6+bblkk9fKy6+Tmf7XmvYWQN5N0iw7iMqQundazAeIkPQ?=
  =?us-ascii?q?gVQ2eX4+G81Lzn/UHhQbVKiOM5krXBvZzHKskWqbS1Dg9I3oo59RqyACmq3M?=
  =?us-ascii?q?4FkXUfKVJKYhOHj4znO1HUJ/D4CO+yg0+xnzdw3P3GIr3gDYnNLnjEirvhe6?=
- =?us-ascii?q?195FRGxAo8ytBf+YpYCqsdL/LrRk/xqNvYAwcjMwy13+nnCM9y1pkDVm2XHq?=
- =?us-ascii?q?CWKKPSvkWJ5uIpPeaMf5QYty3hK/gk4f7ukWE2mUUbfaa3wZsbcmy3HvNjI0?=
- =?us-ascii?q?+Be3rjns8BEXsWvgo5VOHqk0ONUTpSZ3a0QqI96So2CJypDYjdXIChmr+B0z?=
- =?us-ascii?q?mhHp1QeG9GDkqAEXDyd4WLQ/0Mcj6dItd9kjwYUrisU5ch2guztA/+0LdnNv?=
- =?us-ascii?q?Db+jActZ760dh14OrTlQss+jBuE8ud1GSNHClImTYyRjQ21bpz6Wx0y1GOyu?=
- =?us-ascii?q?Asmf1TFdVJ68RCZQczNJjR1MRwF9H0Rg/beNqVDl2hR4PiSSo8StM33s8mfU?=
- =?us-ascii?q?lwAZOhgwrF0i7sBKUa0/STDYEw2rrVwny0IsF60XuA364k3Hc8Rc4aDnGrnq?=
- =?us-ascii?q?5y8UDoAofNl0iI3/Kxeb80wD/G9GDFy3GH+k5fTlgjAu3+QXkDax6O/pzC7U?=
- =?us-ascii?q?TYQurrUO92Pw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CFAgBQzX9d/wHyM5BmHAEBAQQBAQcEAQGBVgQBAQsBg?=
- =?us-ascii?q?W0qbVIBMiqEIY8JTQEBAQEBAQaBESWJc49AgWcJAQEBAQEBAQEBIxEBAgEBh?=
- =?us-ascii?q?D8Cgm8jNwYOAgwBAQEEAQEBAQEFAwEBbIUuDII6KQGCZwEFIxVRCxgCAiYCA?=
- =?us-ascii?q?lcGAQwGAgEBgl8/AYFqAwkUrTiBMoVMgzeBSYEMKAGLdxh4gQeBEAEnDIJfP?=
- =?us-ascii?q?oIagXMRDgEXgwuCWASMXYg2XoEylUeCLIIuhFeNdQYbgjVxhlaPHY4JmxIig?=
- =?us-ascii?q?VgrCAIYCCEPgycJgkUXh1eGZyQDMIEGAQGNGgElgi4BAQ?=
+ =?us-ascii?q?195FRGxAo8ytBf+YpYCqsdL/LrRk/xqNvYAwclPAOu2OboFtV825gFWW2TAq?=
+ =?us-ascii?q?+WKr7SsVGM5u0xOemAfZMatyznJ/c54P7uiGczmUUBcqmxwZsXdHe4E+x6LE?=
+ =?us-ascii?q?qDenrjnNcAHX0RvgUiTOzlkkCCUTBXZ3msRaIx/TA7CIS6DYjdQoChmqCO3C?=
+ =?us-ascii?q?C+HpdOfGBJFkiMEWv0d4WDQ/oMaieSIsh7kjweVLihUJQs1Re0uw//1bVnL/?=
+ =?us-ascii?q?DY+ioCtZLszNJ1/fHclQku9TxoCMSQy2WNT2BynmMVSD46xbt/rlJhxVeey6?=
+ =?us-ascii?q?h4guBYFNxK6/NMVQc1KIPcz+hkBN3pRALBccmGSEy8TtWlHz4xVNQxzMEKY0?=
+ =?us-ascii?q?pnHNWilB/D1TKwA7AJj7yLGIA08qXE0njqOcl9z3fG1K88j1gpWcZPK2Kmib?=
+ =?us-ascii?q?Bl9wTJBI7GjV+Zl6C0eqQYxiLN832DzWWWtkFCTAFwSbnFXWwYZkbOrtT2+F?=
+ =?us-ascii?q?3NT6SyBrQgNQtBytWPJbdKat3zilVGQfbjOMnbY26rnGewHxmIzKuWbIX2Y2?=
+ =?us-ascii?q?UdwDndCE8cngAR+naGNQ4+Cj2jo2LZDDxhD1TvY1jy/ul4s360UlU7zweNb0?=
+ =?us-ascii?q?1n1rq65gQahfiGR/wP2bIEvT8rqy9oE1alw9LWF92AqhJ5fKpCZ9M970pH1W?=
+ =?us-ascii?q?PftwBkPZyvMbpihlgAfARzpE7u1gx7CoFHkcg0snwm1hFyJrib0FNcbTOXx4?=
+ =?us-ascii?q?r8OrvJJWXo/hCvc7bc2kvC39aO5qcP9PM4pk37vA6zC0oi925q08FP3HuB4p?=
+ =?us-ascii?q?XGFQ8SUZX2UkYt6Rd2va3VYi4459Cc6Xo5GqCvvy6K4NkpDfYrzhu6N4NUOb?=
+ =?us-ascii?q?iJBSfpGM0TGsaqJfZvkFHvZRUBaqQa/6cvMtLgbPCG0bOlOOt6tDOgkWlDpo?=
+ =?us-ascii?q?t61wbE9S97UPTJxL4DyvSV302ATTi4xFOgtN3n3JtJbiwIH3aujC3jCJNVa4?=
+ =?us-ascii?q?VscosRT2SjOcu6wpN5nZGpE2VV8F+lGkMuxsCkY1yRYkb70AkW0l4Y8lK9ni?=
+ =?us-ascii?q?7t9CB5izEkqOKk2SXKx+nzPE4cNnVjWHhpjVCqJ5O9yd8dQh77PEASiBK56B?=
+ =?us-ascii?q?OilOBgr6NlIjyWGB0Zcg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2C6BwDY0H9d/wHyM5BmHAEBAQQBAQcEAQGBZ4FuKoE/A?=
+ =?us-ascii?q?TIqhCGPVgEBAQEBAQaBESV+iHWRJwkBAQEBAQEBAQE0AQIBAYQ/AoJvIzgTA?=
+ =?us-ascii?q?gwBAQEEAQEBAQEFAwEBbIU6gjopAYJmAQEBAQIBIwQRQRALGAICJgICVwYBD?=
+ =?us-ascii?q?AYCAQGCXz+BdwUPrUB/M4VMgzOBSYEMKIt4GHiBB4ERJwyCKjU+gReDLYMLg?=
+ =?us-ascii?q?lgEjF0KiCxegTKVR4Isgi6STAYbmRmOCZsTIYFYKwgCGAghDzuCbIJOF44+J?=
+ =?us-ascii?q?AMwgQYBAY9uAQE?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 16 Sep 2019 18:02:42 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 16 Sep 2019 18:19:26 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8GI2f0D032123;
-        Mon, 16 Sep 2019 14:02:41 -0400
-Subject: Re: [PATCH V3 1/2] selinux-testsuite: Add BPF tests
-To:     Richard Haines <richard_c_haines@btinternet.com>,
-        selinux@vger.kernel.org, paul@paul-moore.com
-References: <20190814092142.3894-1-richard_c_haines@btinternet.com>
- <00949930-14ab-7b58-9be9-23658eed6baf@tycho.nsa.gov>
- <19b043bc4d5efbf2f1994958c0a74709a34e3ad0.camel@btinternet.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8GIJNZi032395;
+        Mon, 16 Sep 2019 14:19:23 -0400
+Subject: Re: [PATCH v8 01/28] LSM: Infrastructure management of the superblock
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
+References: <20190829232935.7099-1-casey@schaufler-ca.com>
+ <20190829232935.7099-2-casey@schaufler-ca.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <15534c4e-4607-ac5e-3ac5-ec5b54b92bd3@tycho.nsa.gov>
-Date:   Mon, 16 Sep 2019 14:02:41 -0400
+Message-ID: <5e4b06dd-c96a-6224-dc09-af0705551f2b@tycho.nsa.gov>
+Date:   Mon, 16 Sep 2019 14:19:23 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <19b043bc4d5efbf2f1994958c0a74709a34e3ad0.camel@btinternet.com>
+In-Reply-To: <20190829232935.7099-2-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -98,600 +110,513 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/16/19 1:54 PM, Richard Haines wrote:
-> On Fri, 2019-09-13 at 13:39 -0400, Stephen Smalley wrote:
->> On 8/14/19 5:21 AM, Richard Haines wrote:
->>> This adds basic BPF tests for map and prog functions.
->>>
->>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->>> ---
->>> V2 Change - Split BPF code into bpf_common.c for others to use.
->>> V3 Changes - Correct style, Fix typos
->>>
->>>    README.md              |  4 +-
->>>    defconfig              |  5 +++
->>>    policy/Makefile        |  4 ++
->>>    policy/test_bpf.te     | 77 +++++++++++++++++++++++++++++++++
->>>    tests/Makefile         |  4 ++
->>>    tests/bpf/.gitignore   |  2 +
->>>    tests/bpf/Makefile     | 12 ++++++
->>>    tests/bpf/bpf_common.c | 97
->>> ++++++++++++++++++++++++++++++++++++++++++
->>>    tests/bpf/bpf_test.c   | 82 +++++++++++++++++++++++++++++++++++
->>>    tests/bpf/test         | 58 +++++++++++++++++++++++++
->>>    10 files changed, 344 insertions(+), 1 deletion(-)
->>>    create mode 100644 policy/test_bpf.te
->>>    create mode 100644 tests/bpf/.gitignore
->>>    create mode 100644 tests/bpf/Makefile
->>>    create mode 100644 tests/bpf/bpf_common.c
->>>    create mode 100644 tests/bpf/bpf_test.c
->>>    create mode 100755 tests/bpf/test
->>>
->>> diff --git a/README.md b/README.md
->>> index 26784f8..1396c8e 100644
->>> --- a/README.md
->>> +++ b/README.md
->>> @@ -51,6 +51,7 @@ similar dependencies):
->>>    * iptables _(to load the `iptables SECMARK` rules during
->>> `inet_socket` tests)_
->>>    * lksctp-tools-devel _(to build the SCTP test programs)_
->>>    * attr _(tools used by the overlayfs tests)_
->>> +* libbpf-devel _(tools used by the bpf tests)_
->>>    
->>>    On a modern Fedora system you can install these dependencies with
->>> the
->>>    following command:
->>> @@ -65,7 +66,8 @@ following command:
->>>    		netlabel_tools \
->>>    		iptables \
->>>    		lksctp-tools-devel \
->>> -		attr
->>> +		attr \
->>> +		libbpf-devel
->>
->> Since we stipulate it as a dependency here, we shouldn't make the
->> test
->> conditional on the presence of the header.  Otherwise, the test may
->> silently be skipped due to an oversight even on kernels/policies
->> that
->> support it.
-> 
-> Fixed
-> 
->>
->>>    
->>>    The testsuite requires a pre-existing base policy configuration
->>> of SELinux,
->>>    using either the old example policy or the reference policy as
->>> the baseline.
->>> diff --git a/defconfig b/defconfig
->>> index d7f0ea5..96f6443 100644
->>> --- a/defconfig
->>> +++ b/defconfig
->>> @@ -62,3 +62,8 @@ CONFIG_ANDROID_BINDER_IPC=y
->>>    # This will configure the Dynamically Allocated Binder Devices
->>> added
->>>    # to 5.0+ kernels:
->>>    CONFIG_ANDROID_BINDERFS=y
->>> +
->>> +# Test BPF + check in selinux_file_receive and
->>> selinux_binder_transfer_files.
->>> +# They are not required for SELinux operation itself.
->>> +CONFIG_BP=y
->>
->> Typo in the config option name
-> 
-> Fixed
->>
->>> +CONFIG_BPF_SYSCALL=y
->>> diff --git a/policy/Makefile b/policy/Makefile
->>> index 305b572..16a4469 100644
->>> --- a/policy/Makefile
->>> +++ b/policy/Makefile
->>> @@ -71,6 +71,10 @@ ifeq ($(shell grep -q
->>> corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/coren
->>>    TARGETS += test_sctp.te
->>>    endif
->>>    
->>> +ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt
->>> && echo true),true)
->>> +TARGETS += test_bpf.te
->>> +endif
->>> +
->>>    ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
->>>    TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te,
->>> $(TARGETS))
->>>    endif
->>> diff --git a/policy/test_bpf.te b/policy/test_bpf.te
->>> new file mode 100644
->>> index 0000000..38b7729
->>> --- /dev/null
->>> +++ b/policy/test_bpf.te
->>> @@ -0,0 +1,77 @@
->>> +#
->>> +################# BPF selinux-testsuite policy module
->>> ######################
->>> +#
->>> +
->>> +attribute bpfdomain;
->>> +
->>> +################################### Main
->>> ###################################
->>> +type test_bpf_t;
->>> +domain_type(test_bpf_t)
->>> +unconfined_runs_test(test_bpf_t)
->>> +typeattribute test_bpf_t testdomain;
->>> +typeattribute test_bpf_t bpfdomain;
->>> +
->>> +allow test_bpf_t self:process { setrlimit };
->>> +allow test_bpf_t self:capability { sys_resource sys_admin };
->>
->> The point (or at least part of it) of introducing the bpf access
->> controls was to provide a middle ground between requiring
->> CAP_SYS_ADMIN
->> and allowing all processes to create/use these objects.  To truly
->> test
->> that, you may need to set the sysctl to allow unprivileged use and
->> further there are still cases that require CAP_SYS_ADMIN even then,
->> so
->> the exact program/map matters.
-> 
-> I have removed the sys_admin perm as the Fedora default is:
-> sysctl kernel.unprivileged_bpf_disabled
-> kernel.unprivileged_bpf_disabled = 0
-> 
-> I've also found a map & prog type that requires sys_admin:
-> BPF_MAP_TYPE_LPM_TRIE and BPF_PROG_TYPE_UNSPEC
-> These tested ok.
-> 
-> Is it worth setting kernel.unprivileged_bpf_disabled = 1 and testing as
-> it can only be reset by a reboot of the system, if so I'll add a
-> message after tests.
+On 8/29/19 7:29 PM, Casey Schaufler wrote:
+> Move management of the superblock->sb_security blob out
+> of the individual security modules and into the security
+> infrastructure. Instead of allocating the blobs from within
+> the modules the modules tell the infrastructure how much
+> space is required, and the space is allocated there.
 
-I don't think so; we are primarily interested in testing the new SELinux 
-BPF controls, not sys_admin, here.
+This doesn't appear to be needed to stack AA?  That said, I have no 
+objections to converting all of the security blobs over to 
+infrastructure management just to be consistent.
 
 > 
->>
->>> +allow test_bpf_t self:bpf { map_create map_read map_write
->>> prog_load prog_run };
->>> +
->>> +############################## Deny map_create
->>> #############################
->>> +type test_bpf_deny_map_create_t;
->>> +domain_type(test_bpf_deny_map_create_t)
->>> +unconfined_runs_test(test_bpf_deny_map_create_t)
->>> +typeattribute test_bpf_deny_map_create_t testdomain;
->>> +typeattribute test_bpf_deny_map_create_t bpfdomain;
->>> +
->>> +allow test_bpf_deny_map_create_t self:process { setrlimit };
->>> +allow test_bpf_deny_map_create_t self:capability { sys_resource
->>> sys_admin };
->>> +allow test_bpf_deny_map_create_t self:bpf { map_read map_write
->>> prog_load prog_run };
->>> +
->>> +############################## Deny map_read
->>> ##############################
->>> +type test_bpf_deny_map_read_t;
->>> +domain_type(test_bpf_deny_map_read_t)
->>> +unconfined_runs_test(test_bpf_deny_map_read_t)
->>> +typeattribute test_bpf_deny_map_read_t testdomain;
->>> +typeattribute test_bpf_deny_map_read_t bpfdomain;
->>> +
->>> +allow test_bpf_deny_map_read_t self:process { setrlimit };
->>> +allow test_bpf_deny_map_read_t self:capability { sys_resource
->>> sys_admin };
->>> +allow test_bpf_deny_map_read_t self:bpf { map_create map_write
->>> prog_load prog_run };
->>> +
->>> +############################## Deny map_write
->>> ##############################
->>> +type test_bpf_deny_map_write_t;
->>> +domain_type(test_bpf_deny_map_write_t)
->>> +unconfined_runs_test(test_bpf_deny_map_write_t)
->>> +typeattribute test_bpf_deny_map_write_t testdomain;
->>> +typeattribute test_bpf_deny_map_write_t bpfdomain;
->>> +
->>> +allow test_bpf_deny_map_write_t self:process { setrlimit };
->>> +allow test_bpf_deny_map_write_t self:capability { sys_resource
->>> sys_admin };
->>> +allow test_bpf_deny_map_write_t self:bpf { map_create map_read
->>> prog_load prog_run };
->>> +
->>> +############################## Deny prog_load
->>> ##############################
->>> +type test_bpf_deny_prog_load_t;
->>> +domain_type(test_bpf_deny_prog_load_t)
->>> +unconfined_runs_test(test_bpf_deny_prog_load_t)
->>> +typeattribute test_bpf_deny_prog_load_t testdomain;
->>> +typeattribute test_bpf_deny_prog_load_t bpfdomain;
->>> +
->>> +allow test_bpf_deny_prog_load_t self:process { setrlimit };
->>> +allow test_bpf_deny_prog_load_t self:capability { sys_resource
->>> sys_admin };
->>> +allow test_bpf_deny_prog_load_t self:bpf { map_create map_read
->>> map_write prog_run };
->>> +
->>> +############################## Deny prog_run
->>> ###############################
->>> +type test_bpf_deny_prog_run_t;
->>> +domain_type(test_bpf_deny_prog_run_t)
->>> +unconfined_runs_test(test_bpf_deny_prog_run_t)
->>> +typeattribute test_bpf_deny_prog_run_t testdomain;
->>> +typeattribute test_bpf_deny_prog_run_t bpfdomain;
->>> +
->>> +allow test_bpf_deny_prog_run_t self:process { setrlimit };
->>> +allow test_bpf_deny_prog_run_t self:capability { sys_resource
->>> sys_admin };
->>> +allow test_bpf_deny_prog_run_t self:bpf { map_create map_read
->>> map_write prog_load };
->>> +
->>> +#
->>> +############ Allow these domains to be entered from sysadm domain
->>> ############
->>> +#
->>> +miscfiles_domain_entry_test_files(bpfdomain)
->>> +userdom_sysadm_entry_spec_domtrans_to(bpfdomain)
->>> diff --git a/tests/Makefile b/tests/Makefile
->>> index 63aa325..2717452 100644
->>> --- a/tests/Makefile
->>> +++ b/tests/Makefile
->>> @@ -42,6 +42,10 @@ ifeq ($(shell grep -q binder
->>> $(POLDEV)/include/support/all_perms.spt && test -e
->>>    SUBDIRS += binder
->>>    endif
->>>    
->>> +ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt
->>> && test -e $(INCLUDEDIR)/bpf/bpf.h && echo true),true)
->>> +SUBDIRS += bpf
->>> +endif
->>
->> Don't make it conditional on the header since that is stated build
->> dependency.  Do make it or the test itself conditional on kernel
->> version
->> so that it doesn't break on kernels that predate the bpf access
->> controls.
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Reviewed-by: John Johansen <john.johansen@canonical.com>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+
+Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+>   include/linux/lsm_hooks.h         |  1 +
+>   security/security.c               | 46 ++++++++++++++++++++----
+>   security/selinux/hooks.c          | 58 ++++++++++++-------------------
+>   security/selinux/include/objsec.h |  6 ++++
+>   security/selinux/ss/services.c    |  3 +-
+>   security/smack/smack.h            |  6 ++++
+>   security/smack/smack_lsm.c        | 35 +++++--------------
+>   7 files changed, 85 insertions(+), 70 deletions(-)
 > 
-> I've set this for kernel 4.4 as that supports kernel.unprivileged_bpf_disabled
-> 
->>
->>> +
->>>    ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST="
->>> infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
->>>    SUBDIRS += infiniband_endport
->>>    endif
->>> diff --git a/tests/bpf/.gitignore b/tests/bpf/.gitignore
->>> new file mode 100644
->>> index 0000000..1919ff8
->>> --- /dev/null
->>> +++ b/tests/bpf/.gitignore
->>> @@ -0,0 +1,2 @@
->>> +bpf_test
->>> +bpf_common
->>> diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
->>> new file mode 100644
->>> index 0000000..78ae9db
->>> --- /dev/null
->>> +++ b/tests/bpf/Makefile
->>> @@ -0,0 +1,12 @@
->>> +TARGETS = bpf_test
->>> +DEPS = bpf_common.c
->>> +
->>> +LDLIBS += -lselinux -lbpf
->>> +CFLAGS += -DHAVE_BPF
->>> +
->>> +all: $(TARGETS)
->>> +
->>> +clean:
->>> +	rm -f $(TARGETS)
->>> +
->>> +$(TARGETS): $(DEPS)
->>> diff --git a/tests/bpf/bpf_common.c b/tests/bpf/bpf_common.c
->>> new file mode 100644
->>> index 0000000..3ac47be
->>> --- /dev/null
->>> +++ b/tests/bpf/bpf_common.c
->>> @@ -0,0 +1,97 @@
->>> +#include <stdio.h>
->>> +#include <string.h>
->>> +#include <stdlib.h>
->>> +#include <errno.h>
->>> +
->>> +#if HAVE_BPF /* Start HAVE_BPF */
->>
->> Not sure what the point of this #if is given that you define it
->> unconditionally in the Makefile and you made the package that
->> provides
->> the header a build dependency.
-> 
-> 
-> I've reworked the tests to remove this in bpf_common.c
-> 
->>
->>> +#include <bpf/bpf.h>
->>> +#include <linux/bpf.h>
->>> +#include <sys/resource.h>
->>> +
->>> +/* edited eBPF instruction library */
->>> +/* Short form of mov, dst_reg = imm32 */
->>> +#define BPF_MOV64_IMM(DST, IMM)				\
->>> +	((struct bpf_insn) {				\
->>> +		.code  = BPF_ALU64 | BPF_MOV | BPF_K,	\
->>> +			 .dst_reg = DST,				\
->>> +				    .src_reg = 0,				
->>> \
->>> +					       .off   = 0,			
->>> 	\
->>> +							.imm   = IMM })
->>> +
->>> +/* Program exit */
->>> +#define BPF_EXIT_INSN()				\
->>> +	((struct bpf_insn) {			\
->>> +		.code  = BPF_JMP | BPF_EXIT,	\
->>> +			 .dst_reg = 0,			\
->>> +				    .src_reg = 0,			\
->>> +					       .off   = 0,			
->>> \
->>> +							.imm   = 0 })
->>
->> That's ugly but I guess Paul wants it that way.
->>
->>> +
->>> +int create_bpf_map(void)
->>> +{
->>> +	int map_fd, key;
->>> +	long long value = 0;
->>> +
->>> +	map_fd = bpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(key),
->>> +				sizeof(value), 256, 0);
->>> +	if (map_fd < 0) {
->>> +		fprintf(stderr, "Failed to create BPF map: %s\n",
->>> +			strerror(errno));
->>> +		return -1;
->>> +	}
->>> +
->>> +	return map_fd;
->>> +}
->>> +
->>> +int create_bpf_prog(void)
->>> +{
->>> +	int prog_fd;
->>> +	size_t insns_cnt;
->>> +
->>> +	struct bpf_insn prog[] = {
->>> +		BPF_MOV64_IMM(BPF_REG_0, 1),
->>> +		BPF_EXIT_INSN(),
->>> +	};
->>> +	insns_cnt = sizeof(prog) / sizeof(struct bpf_insn);
->>> +
->>> +	prog_fd = bpf_load_program(BPF_PROG_TYPE_SOCKET_FILTER, prog,
->>> +				   insns_cnt, "GPL", 0, NULL, 0);
->>> +	if (prog_fd < 0) {
->>> +		fprintf(stderr, "Failed to load BPF prog: %s\n",
->>> +			strerror(errno));
->>> +		return -1;
->>> +	}
->>> +
->>> +	return prog_fd;
->>> +}
->>> +
->>> +void bpf_setrlimit(void)
->>> +{
->>> +	int result;
->>> +	struct rlimit r = { RLIM_INFINITY, RLIM_INFINITY };
->>> +
->>> +	result = setrlimit(RLIMIT_MEMLOCK, &r);
->>> +	if (result < 0) {
->>> +		fprintf(stderr, "Failed to set resource limit: %s\n",
->>> +			strerror(errno));
->>> +		exit(-1);
->>> +	}
->>> +}
->>> +
->>> +#else
->>> +int create_bpf_map(void)
->>> +{
->>> +	fprintf(stderr, "BPF map not supported\n");
->>> +	return -1;
->>> +}
->>> +
->>> +int create_bpf_prog(void)
->>> +{
->>> +	fprintf(stderr, "BPF prog not supported\n");
->>> +	return -1;
->>> +}
->>> +
->>> +void bpf_setrlimit(void)
->>> +{
->>> +}
->>> +#endif /* End HAVE_BPF */
->>> diff --git a/tests/bpf/bpf_test.c b/tests/bpf/bpf_test.c
->>> new file mode 100644
->>> index 0000000..b866651
->>> --- /dev/null
->>> +++ b/tests/bpf/bpf_test.c
->>> @@ -0,0 +1,82 @@
->>> +#include <stdio.h>
->>> +#include <unistd.h>
->>> +#include <string.h>
->>> +#include <stdlib.h>
->>> +#include <errno.h>
->>> +#include <stdbool.h>
->>> +#include <selinux/selinux.h>
->>> +
->>> +int create_bpf_map(void);
->>> +int create_bpf_prog(void);
->>> +void bpf_setrlimit(void);
->>> +
->>> +static void usage(char *progname)
->>> +{
->>> +	fprintf(stderr,
->>> +		"usage:  %s [-m|-p] [-v]\n"
->>> +		"Where:\n\t"
->>> +		"-m    Create BPF map fd\n\t"
->>> +		"-p    Create BPF prog fd\n\t"
->>> +		"-v Print information.\n", progname);
->>> +	exit(-1);
->>> +}
->>> +
->>> +int main(int argc, char *argv[])
->>> +{
->>> +	int opt, result, fd, bpf_fd_type = 0;
->>> +	bool verbose = false;
->>> +	char *context;
->>> +
->>> +	while ((opt = getopt(argc, argv, "mpv")) != -1) {
->>> +		switch (opt) {
->>> +		case 'm':
->>> +			bpf_fd_type = 1;
->>> +			break;
->>> +		case 'p':
->>> +			bpf_fd_type = 2;
->>
->> No magic constants please, use a #define or enum with symbolic names.
-> Fixed
->>
->>> +			break;
->>> +		case 'v':
->>> +			verbose = true;
->>> +			break;
->>> +		default:
->>> +			usage(argv[0]);
->>> +		}
->>> +	}
->>> +
->>> +	result = getcon(&context);
->>> +	if (result < 0) {
->>> +		fprintf(stderr, "Failed to obtain SELinux context\n");
->>> +		exit(-1);
->>> +	}
->>> +
->>> +	if (verbose)
->>> +		printf("Process context:\n\t%s\n", context);
->>> +
->>> +	free(context);
->>> +
->>> +	/* If BPF enabled, then need to set limits */
->>> +	bpf_setrlimit();
->>> +
->>> +	switch (bpf_fd_type) {
->>> +	case 1:
->>> +		if (verbose)
->>> +			printf("Creating BPF map\n");
->>> +
->>> +		fd = create_bpf_map();
->>> +		break;
->>> +	case 2:
->>> +		if (verbose)
->>> +			printf("Creating BPF prog\n");
->>> +
->>> +		fd = create_bpf_prog();
->>> +		break;
->>> +	default:
->>> +		usage(argv[0]);
->>> +	}
->>> +
->>> +	if (fd < 0)
->>> +		return bpf_fd_type;
->>> +
->>> +	close(fd);
->>> +	return 0;
->>> +}
->>> diff --git a/tests/bpf/test b/tests/bpf/test
->>> new file mode 100755
->>> index 0000000..1d41d72
->>> --- /dev/null
->>> +++ b/tests/bpf/test
->>> @@ -0,0 +1,58 @@
->>> +#!/usr/bin/perl
->>> +use Test::More;
->>> +
->>> +BEGIN {
->>> +    $basedir = $0;
->>> +    $basedir =~ s|(.*)/[^/]*|$1|;
->>> +
->>> +    # allow info to be shown during tests
->>> +    $v = $ARGV[0];
->>> +    if ($v) {
->>> +        if ( $v ne "-v" ) {
->>> +            plan skip_all => "Invalid option (use -v)";
->>> +        }
->>> +    }
->>> +    else {
->>> +        $v = " ";
->>> +    }
->>> +
->>> +    plan tests => 7;
->>> +}
->>> +
->>> +#
->>> +################ Core BPF Tests #######################
->>> +#
->>> +# BPF map
->>> +$result = system "runcon -t test_bpf_t $basedir/bpf_test -m $v";
->>> +ok( $result eq 0 );
->>> +
->>> +# BPF prog
->>> +$result = system "runcon -t test_bpf_t $basedir/bpf_test -p $v";
->>> +ok( $result eq 0 );
->>> +
->>> +# Deny map_create permission
->>> +$result =
->>> +  system "runcon -t test_bpf_deny_map_create_t $basedir/bpf_test
->>> -m $v 2>&1";
->>> +ok( $result >> 8 eq 1 );
->>> +
->>> +# Deny map_read permission
->>> +$result =
->>> +  system "runcon -t test_bpf_deny_map_read_t $basedir/bpf_test -m
->>> $v 2>&1";
->>> +ok( $result >> 8 eq 1 );
->>> +
->>> +# Deny map_write permission
->>> +$result =
->>> +  system "runcon -t test_bpf_deny_map_write_t $basedir/bpf_test -m
->>> $v 2>&1";
->>> +ok( $result >> 8 eq 1 );
->>> +
->>> +# Deny prog_load permission
->>> +$result =
->>> +  system "runcon -t test_bpf_deny_prog_load_t $basedir/bpf_test -p
->>> $v 2>&1";
->>> +ok( $result >> 8 eq 2 );
->>> +
->>> +# Deny prog_run permission
->>> +$result =
->>> +  system "runcon -t test_bpf_deny_prog_run_t $basedir/bpf_test -p
->>> $v 2>&1";
->>> +ok( $result >> 8 eq 2 );
->>> +
->>> +exit;
->>
->> Tests 8 and 9 failed for me,
->> bpf/test .................... 1/11 BPF map not supported
->> sendmsg: Bad file descriptor
->>
->> #   Failed test at bpf/test line 78.
->> BPF prog not supported
->> connect: Connection refused
->>
->> #   Failed test at bpf/test line 82.
->> BPF prog not supported
->> connect: Connection refused
->> BPF map not supported
->> connect: Connection refused
->> # Looks like you failed 2 tests of 11.
->> bpf/test .................... Dubious, test returned 2 (wstat 512,
->> 0x200)
->> Failed 2/11 subtests
-> 
-> Hopefully this is fixed.
-> 
-> Note when I send the updated patches I'll include the Binder BPF
-> support as Patch 3.
->>
->>
-> 
-> 
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index a240a3fc5fc4..f9222a04968d 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -2047,6 +2047,7 @@ struct lsm_blob_sizes {
+>   	int	lbs_cred;
+>   	int	lbs_file;
+>   	int	lbs_inode;
+> +	int	lbs_superblock;
+>   	int	lbs_ipc;
+>   	int	lbs_msg_msg;
+>   	int	lbs_task;
+> diff --git a/security/security.c b/security/security.c
+> index 23cbb1a295a3..86198e303203 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -172,6 +172,7 @@ static void __init lsm_set_blob_sizes(struct lsm_blob_sizes *needed)
+>   	lsm_set_blob_size(&needed->lbs_inode, &blob_sizes.lbs_inode);
+>   	lsm_set_blob_size(&needed->lbs_ipc, &blob_sizes.lbs_ipc);
+>   	lsm_set_blob_size(&needed->lbs_msg_msg, &blob_sizes.lbs_msg_msg);
+> +	lsm_set_blob_size(&needed->lbs_superblock, &blob_sizes.lbs_superblock);
+>   	lsm_set_blob_size(&needed->lbs_task, &blob_sizes.lbs_task);
+>   }
+>   
+> @@ -300,12 +301,13 @@ static void __init ordered_lsm_init(void)
+>   	for (lsm = ordered_lsms; *lsm; lsm++)
+>   		prepare_lsm(*lsm);
+>   
+> -	init_debug("cred blob size     = %d\n", blob_sizes.lbs_cred);
+> -	init_debug("file blob size     = %d\n", blob_sizes.lbs_file);
+> -	init_debug("inode blob size    = %d\n", blob_sizes.lbs_inode);
+> -	init_debug("ipc blob size      = %d\n", blob_sizes.lbs_ipc);
+> -	init_debug("msg_msg blob size  = %d\n", blob_sizes.lbs_msg_msg);
+> -	init_debug("task blob size     = %d\n", blob_sizes.lbs_task);
+> +	init_debug("cred blob size       = %d\n", blob_sizes.lbs_cred);
+> +	init_debug("file blob size       = %d\n", blob_sizes.lbs_file);
+> +	init_debug("inode blob size      = %d\n", blob_sizes.lbs_inode);
+> +	init_debug("ipc blob size        = %d\n", blob_sizes.lbs_ipc);
+> +	init_debug("msg_msg blob size    = %d\n", blob_sizes.lbs_msg_msg);
+> +	init_debug("superblock blob size = %d\n", blob_sizes.lbs_superblock);
+> +	init_debug("task blob size       = %d\n", blob_sizes.lbs_task);
+>   
+>   	/*
+>   	 * Create any kmem_caches needed for blobs
+> @@ -603,6 +605,27 @@ static void __init lsm_early_task(struct task_struct *task)
+>   		panic("%s: Early task alloc failed.\n", __func__);
+>   }
+>   
+> +/**
+> + * lsm_superblock_alloc - allocate a composite superblock blob
+> + * @sb: the superblock that needs a blob
+> + *
+> + * Allocate the superblock blob for all the modules
+> + *
+> + * Returns 0, or -ENOMEM if memory can't be allocated.
+> + */
+> +static int lsm_superblock_alloc(struct super_block *sb)
+> +{
+> +	if (blob_sizes.lbs_superblock == 0) {
+> +		sb->s_security = NULL;
+> +		return 0;
+> +	}
+> +
+> +	sb->s_security = kzalloc(blob_sizes.lbs_superblock, GFP_KERNEL);
+> +	if (sb->s_security == NULL)
+> +		return -ENOMEM;
+> +	return 0;
+> +}
+> +
+>   /*
+>    * Hook list operation macros.
+>    *
+> @@ -776,12 +799,21 @@ int security_fs_context_parse_param(struct fs_context *fc, struct fs_parameter *
+>   
+>   int security_sb_alloc(struct super_block *sb)
+>   {
+> -	return call_int_hook(sb_alloc_security, 0, sb);
+> +	int rc = lsm_superblock_alloc(sb);
+> +
+> +	if (unlikely(rc))
+> +		return rc;
+> +	rc = call_int_hook(sb_alloc_security, 0, sb);
+> +	if (unlikely(rc))
+> +		security_sb_free(sb);
+> +	return rc;
+>   }
+>   
+>   void security_sb_free(struct super_block *sb)
+>   {
+>   	call_void_hook(sb_free_security, sb);
+> +	kfree(sb->s_security);
+> +	sb->s_security = NULL;
+>   }
+>   
+>   void security_free_mnt_opts(void **mnt_opts)
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 1d0b37af2444..7478d8eda00a 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -335,7 +335,7 @@ static void inode_free_security(struct inode *inode)
+>   
+>   	if (!isec)
+>   		return;
+> -	sbsec = inode->i_sb->s_security;
+> +	sbsec = selinux_superblock(inode->i_sb);
+>   	/*
+>   	 * As not all inode security structures are in a list, we check for
+>   	 * empty list outside of the lock to make sure that we won't waste
+> @@ -366,11 +366,7 @@ static int file_alloc_security(struct file *file)
+>   
+>   static int superblock_alloc_security(struct super_block *sb)
+>   {
+> -	struct superblock_security_struct *sbsec;
+> -
+> -	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_KERNEL);
+> -	if (!sbsec)
+> -		return -ENOMEM;
+> +	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>   
+>   	mutex_init(&sbsec->lock);
+>   	INIT_LIST_HEAD(&sbsec->isec_head);
+> @@ -379,18 +375,10 @@ static int superblock_alloc_security(struct super_block *sb)
+>   	sbsec->sid = SECINITSID_UNLABELED;
+>   	sbsec->def_sid = SECINITSID_FILE;
+>   	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+> -	sb->s_security = sbsec;
+>   
+>   	return 0;
+>   }
+>   
+> -static void superblock_free_security(struct super_block *sb)
+> -{
+> -	struct superblock_security_struct *sbsec = sb->s_security;
+> -	sb->s_security = NULL;
+> -	kfree(sbsec);
+> -}
+> -
+>   struct selinux_mnt_opts {
+>   	const char *fscontext, *context, *rootcontext, *defcontext;
+>   };
+> @@ -507,7 +495,7 @@ static int selinux_is_genfs_special_handling(struct super_block *sb)
+>   
+>   static int selinux_is_sblabel_mnt(struct super_block *sb)
+>   {
+> -	struct superblock_security_struct *sbsec = sb->s_security;
+> +	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>   
+>   	/*
+>   	 * IMPORTANT: Double-check logic in this function when adding a new
+> @@ -535,7 +523,7 @@ static int selinux_is_sblabel_mnt(struct super_block *sb)
+>   
+>   static int sb_finish_set_opts(struct super_block *sb)
+>   {
+> -	struct superblock_security_struct *sbsec = sb->s_security;
+> +	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>   	struct dentry *root = sb->s_root;
+>   	struct inode *root_inode = d_backing_inode(root);
+>   	int rc = 0;
+> @@ -648,7 +636,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>   				unsigned long *set_kern_flags)
+>   {
+>   	const struct cred *cred = current_cred();
+> -	struct superblock_security_struct *sbsec = sb->s_security;
+> +	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>   	struct dentry *root = sbsec->sb->s_root;
+>   	struct selinux_mnt_opts *opts = mnt_opts;
+>   	struct inode_security_struct *root_isec;
+> @@ -881,8 +869,8 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>   static int selinux_cmp_sb_context(const struct super_block *oldsb,
+>   				    const struct super_block *newsb)
+>   {
+> -	struct superblock_security_struct *old = oldsb->s_security;
+> -	struct superblock_security_struct *new = newsb->s_security;
+> +	struct superblock_security_struct *old = selinux_superblock(oldsb);
+> +	struct superblock_security_struct *new = selinux_superblock(newsb);
+>   	char oldflags = old->flags & SE_MNTMASK;
+>   	char newflags = new->flags & SE_MNTMASK;
+>   
+> @@ -914,8 +902,9 @@ static int selinux_sb_clone_mnt_opts(const struct super_block *oldsb,
+>   					unsigned long *set_kern_flags)
+>   {
+>   	int rc = 0;
+> -	const struct superblock_security_struct *oldsbsec = oldsb->s_security;
+> -	struct superblock_security_struct *newsbsec = newsb->s_security;
+> +	const struct superblock_security_struct *oldsbsec =
+> +						selinux_superblock(oldsb);
+> +	struct superblock_security_struct *newsbsec = selinux_superblock(newsb);
+>   
+>   	int set_fscontext =	(oldsbsec->flags & FSCONTEXT_MNT);
+>   	int set_context =	(oldsbsec->flags & CONTEXT_MNT);
+> @@ -1085,7 +1074,7 @@ static int show_sid(struct seq_file *m, u32 sid)
+>   
+>   static int selinux_sb_show_options(struct seq_file *m, struct super_block *sb)
+>   {
+> -	struct superblock_security_struct *sbsec = sb->s_security;
+> +	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>   	int rc;
+>   
+>   	if (!(sbsec->flags & SE_SBINITIALIZED))
+> @@ -1377,7 +1366,7 @@ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dent
+>   	if (isec->sclass == SECCLASS_FILE)
+>   		isec->sclass = inode_mode_to_security_class(inode->i_mode);
+>   
+> -	sbsec = inode->i_sb->s_security;
+> +	sbsec = selinux_superblock(inode->i_sb);
+>   	if (!(sbsec->flags & SE_SBINITIALIZED)) {
+>   		/* Defer initialization until selinux_complete_init,
+>   		   after the initial policy is loaded and the security
+> @@ -1767,7 +1756,8 @@ selinux_determine_inode_label(const struct task_security_struct *tsec,
+>   				 const struct qstr *name, u16 tclass,
+>   				 u32 *_new_isid)
+>   {
+> -	const struct superblock_security_struct *sbsec = dir->i_sb->s_security;
+> +	const struct superblock_security_struct *sbsec =
+> +						selinux_superblock(dir->i_sb);
+>   
+>   	if ((sbsec->flags & SE_SBINITIALIZED) &&
+>   	    (sbsec->behavior == SECURITY_FS_USE_MNTPOINT)) {
+> @@ -1798,7 +1788,7 @@ static int may_create(struct inode *dir,
+>   	int rc;
+>   
+>   	dsec = inode_security(dir);
+> -	sbsec = dir->i_sb->s_security;
+> +	sbsec = selinux_superblock(dir->i_sb);
+>   
+>   	sid = tsec->sid;
+>   
+> @@ -1947,7 +1937,7 @@ static int superblock_has_perm(const struct cred *cred,
+>   	struct superblock_security_struct *sbsec;
+>   	u32 sid = cred_sid(cred);
+>   
+> -	sbsec = sb->s_security;
+> +	sbsec = selinux_superblock(sb);
+>   	return avc_has_perm(&selinux_state,
+>   			    sid, sbsec->sid, SECCLASS_FILESYSTEM, perms, ad);
+>   }
+> @@ -2578,11 +2568,6 @@ static int selinux_sb_alloc_security(struct super_block *sb)
+>   	return superblock_alloc_security(sb);
+>   }
+>   
+> -static void selinux_sb_free_security(struct super_block *sb)
+> -{
+> -	superblock_free_security(sb);
+> -}
+> -
+>   static inline int opt_len(const char *s)
+>   {
+>   	bool open_quote = false;
+> @@ -2653,7 +2638,7 @@ static int selinux_sb_eat_lsm_opts(char *options, void **mnt_opts)
+>   static int selinux_sb_remount(struct super_block *sb, void *mnt_opts)
+>   {
+>   	struct selinux_mnt_opts *opts = mnt_opts;
+> -	struct superblock_security_struct *sbsec = sb->s_security;
+> +	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>   	u32 sid;
+>   	int rc;
+>   
+> @@ -2877,7 +2862,7 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+>   	int rc;
+>   	char *context;
+>   
+> -	sbsec = dir->i_sb->s_security;
+> +	sbsec = selinux_superblock(dir->i_sb);
+>   
+>   	newsid = tsec->create_sid;
+>   
+> @@ -3115,7 +3100,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+>   		return dentry_has_perm(current_cred(), dentry, FILE__SETATTR);
+>   	}
+>   
+> -	sbsec = inode->i_sb->s_security;
+> +	sbsec = selinux_superblock(inode->i_sb);
+>   	if (!(sbsec->flags & SBLABEL_MNT))
+>   		return -EOPNOTSUPP;
+>   
+> @@ -3296,13 +3281,14 @@ static int selinux_inode_setsecurity(struct inode *inode, const char *name,
+>   				     const void *value, size_t size, int flags)
+>   {
+>   	struct inode_security_struct *isec = inode_security_novalidate(inode);
+> -	struct superblock_security_struct *sbsec = inode->i_sb->s_security;
+> +	struct superblock_security_struct *sbsec;
+>   	u32 newsid;
+>   	int rc;
+>   
+>   	if (strcmp(name, XATTR_SELINUX_SUFFIX))
+>   		return -EOPNOTSUPP;
+>   
+> +	sbsec = selinux_superblock(inode->i_sb);
+>   	if (!(sbsec->flags & SBLABEL_MNT))
+>   		return -EOPNOTSUPP;
+>   
+> @@ -6647,6 +6633,7 @@ struct lsm_blob_sizes selinux_blob_sizes __lsm_ro_after_init = {
+>   	.lbs_inode = sizeof(struct inode_security_struct),
+>   	.lbs_ipc = sizeof(struct ipc_security_struct),
+>   	.lbs_msg_msg = sizeof(struct msg_security_struct),
+> +	.lbs_superblock = sizeof(struct superblock_security_struct),
+>   };
+>   
+>   static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+> @@ -6675,7 +6662,6 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+>   	LSM_HOOK_INIT(fs_context_parse_param, selinux_fs_context_parse_param),
+>   
+>   	LSM_HOOK_INIT(sb_alloc_security, selinux_sb_alloc_security),
+> -	LSM_HOOK_INIT(sb_free_security, selinux_sb_free_security),
+>   	LSM_HOOK_INIT(sb_eat_lsm_opts, selinux_sb_eat_lsm_opts),
+>   	LSM_HOOK_INIT(sb_free_mnt_opts, selinux_free_mnt_opts),
+>   	LSM_HOOK_INIT(sb_remount, selinux_sb_remount),
+> diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+> index 231262d8eac9..d08d7e5d2f93 100644
+> --- a/security/selinux/include/objsec.h
+> +++ b/security/selinux/include/objsec.h
+> @@ -188,4 +188,10 @@ static inline struct ipc_security_struct *selinux_ipc(
+>   	return ipc->security + selinux_blob_sizes.lbs_ipc;
+>   }
+>   
+> +static inline struct superblock_security_struct *selinux_superblock(
+> +					const struct super_block *superblock)
+> +{
+> +	return superblock->s_security + selinux_blob_sizes.lbs_superblock;
+> +}
+> +
+>   #endif /* _SELINUX_OBJSEC_H_ */
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index ec62918521b1..e3f5d6aece66 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -50,6 +50,7 @@
+>   #include <linux/audit.h>
+>   #include <linux/mutex.h>
+>   #include <linux/vmalloc.h>
+> +#include <linux/lsm_hooks.h>
+>   #include <net/netlabel.h>
+>   
+>   #include "flask.h"
+> @@ -2751,7 +2752,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+>   	struct sidtab *sidtab;
+>   	int rc = 0;
+>   	struct ocontext *c;
+> -	struct superblock_security_struct *sbsec = sb->s_security;
+> +	struct superblock_security_struct *sbsec = selinux_superblock(sb);
+>   	const char *fstype = sb->s_type->name;
+>   
+>   	read_lock(&state->ss->policy_rwlock);
+> diff --git a/security/smack/smack.h b/security/smack/smack.h
+> index cf52af77d15e..caecbcba9942 100644
+> --- a/security/smack/smack.h
+> +++ b/security/smack/smack.h
+> @@ -375,6 +375,12 @@ static inline struct smack_known **smack_ipc(const struct kern_ipc_perm *ipc)
+>   	return ipc->security + smack_blob_sizes.lbs_ipc;
+>   }
+>   
+> +static inline struct superblock_smack *smack_superblock(
+> +					const struct super_block *superblock)
+> +{
+> +	return superblock->s_security + smack_blob_sizes.lbs_superblock;
+> +}
+> +
+>   /*
+>    * Is the directory transmuting?
+>    */
+> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+> index 5c1613519d5a..807eff2ccce9 100644
+> --- a/security/smack/smack_lsm.c
+> +++ b/security/smack/smack_lsm.c
+> @@ -540,12 +540,7 @@ static int smack_syslog(int typefrom_file)
+>    */
+>   static int smack_sb_alloc_security(struct super_block *sb)
+>   {
+> -	struct superblock_smack *sbsp;
+> -
+> -	sbsp = kzalloc(sizeof(struct superblock_smack), GFP_KERNEL);
+> -
+> -	if (sbsp == NULL)
+> -		return -ENOMEM;
+> +	struct superblock_smack *sbsp = smack_superblock(sb);
+>   
+>   	sbsp->smk_root = &smack_known_floor;
+>   	sbsp->smk_default = &smack_known_floor;
+> @@ -554,22 +549,10 @@ static int smack_sb_alloc_security(struct super_block *sb)
+>   	/*
+>   	 * SMK_SB_INITIALIZED will be zero from kzalloc.
+>   	 */
+> -	sb->s_security = sbsp;
+>   
+>   	return 0;
+>   }
+>   
+> -/**
+> - * smack_sb_free_security - free a superblock blob
+> - * @sb: the superblock getting the blob
+> - *
+> - */
+> -static void smack_sb_free_security(struct super_block *sb)
+> -{
+> -	kfree(sb->s_security);
+> -	sb->s_security = NULL;
+> -}
+> -
+>   struct smack_mnt_opts {
+>   	const char *fsdefault, *fsfloor, *fshat, *fsroot, *fstransmute;
+>   };
+> @@ -781,7 +764,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
+>   {
+>   	struct dentry *root = sb->s_root;
+>   	struct inode *inode = d_backing_inode(root);
+> -	struct superblock_smack *sp = sb->s_security;
+> +	struct superblock_smack *sp = smack_superblock(sb);
+>   	struct inode_smack *isp;
+>   	struct smack_known *skp;
+>   	struct smack_mnt_opts *opts = mnt_opts;
+> @@ -880,7 +863,7 @@ static int smack_set_mnt_opts(struct super_block *sb,
+>    */
+>   static int smack_sb_statfs(struct dentry *dentry)
+>   {
+> -	struct superblock_smack *sbp = dentry->d_sb->s_security;
+> +	struct superblock_smack *sbp = smack_superblock(dentry->d_sb);
+>   	int rc;
+>   	struct smk_audit_info ad;
+>   
+> @@ -917,7 +900,7 @@ static int smack_bprm_set_creds(struct linux_binprm *bprm)
+>   	if (isp->smk_task == NULL || isp->smk_task == bsp->smk_task)
+>   		return 0;
+>   
+> -	sbsp = inode->i_sb->s_security;
+> +	sbsp = smack_superblock(inode->i_sb);
+>   	if ((sbsp->smk_flags & SMK_SB_UNTRUSTED) &&
+>   	    isp->smk_task != sbsp->smk_root)
+>   		return 0;
+> @@ -1168,7 +1151,7 @@ static int smack_inode_rename(struct inode *old_inode,
+>    */
+>   static int smack_inode_permission(struct inode *inode, int mask)
+>   {
+> -	struct superblock_smack *sbsp = inode->i_sb->s_security;
+> +	struct superblock_smack *sbsp = smack_superblock(inode->i_sb);
+>   	struct smk_audit_info ad;
+>   	int no_block = mask & MAY_NOT_BLOCK;
+>   	int rc;
+> @@ -1410,7 +1393,7 @@ static int smack_inode_removexattr(struct dentry *dentry, const char *name)
+>   	 */
+>   	if (strcmp(name, XATTR_NAME_SMACK) == 0) {
+>   		struct super_block *sbp = dentry->d_sb;
+> -		struct superblock_smack *sbsp = sbp->s_security;
+> +		struct superblock_smack *sbsp = smack_superblock(sbp);
+>   
+>   		isp->smk_inode = sbsp->smk_default;
+>   	} else if (strcmp(name, XATTR_NAME_SMACKEXEC) == 0)
+> @@ -1680,7 +1663,7 @@ static int smack_mmap_file(struct file *file,
+>   	isp = smack_inode(file_inode(file));
+>   	if (isp->smk_mmap == NULL)
+>   		return 0;
+> -	sbsp = file_inode(file)->i_sb->s_security;
+> +	sbsp = smack_superblock(file_inode(file)->i_sb);
+>   	if (sbsp->smk_flags & SMK_SB_UNTRUSTED &&
+>   	    isp->smk_mmap != sbsp->smk_root)
+>   		return -EACCES;
+> @@ -3288,7 +3271,7 @@ static void smack_d_instantiate(struct dentry *opt_dentry, struct inode *inode)
+>   		goto unlockandout;
+>   
+>   	sbp = inode->i_sb;
+> -	sbsp = sbp->s_security;
+> +	sbsp = smack_superblock(sbp);
+>   	/*
+>   	 * We're going to use the superblock default label
+>   	 * if there's no label on the file.
+> @@ -4575,6 +4558,7 @@ struct lsm_blob_sizes smack_blob_sizes __lsm_ro_after_init = {
+>   	.lbs_inode = sizeof(struct inode_smack),
+>   	.lbs_ipc = sizeof(struct smack_known *),
+>   	.lbs_msg_msg = sizeof(struct smack_known *),
+> +	.lbs_superblock = sizeof(struct superblock_smack),
+>   };
+>   
+>   static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+> @@ -4586,7 +4570,6 @@ static struct security_hook_list smack_hooks[] __lsm_ro_after_init = {
+>   	LSM_HOOK_INIT(fs_context_parse_param, smack_fs_context_parse_param),
+>   
+>   	LSM_HOOK_INIT(sb_alloc_security, smack_sb_alloc_security),
+> -	LSM_HOOK_INIT(sb_free_security, smack_sb_free_security),
+>   	LSM_HOOK_INIT(sb_free_mnt_opts, smack_free_mnt_opts),
+>   	LSM_HOOK_INIT(sb_eat_lsm_opts, smack_sb_eat_lsm_opts),
+>   	LSM_HOOK_INIT(sb_statfs, smack_sb_statfs),
 > 
 
