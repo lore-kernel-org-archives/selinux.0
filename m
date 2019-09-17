@@ -2,166 +2,111 @@ Return-Path: <SRS0=Kbw6=XM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97647C4CEC9
-	for <selinux@archiver.kernel.org>; Tue, 17 Sep 2019 13:20:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C460C4CECD
+	for <selinux@archiver.kernel.org>; Tue, 17 Sep 2019 14:56:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5517921881
-	for <selinux@archiver.kernel.org>; Tue, 17 Sep 2019 13:20:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2371021852
+	for <selinux@archiver.kernel.org>; Tue, 17 Sep 2019 14:56:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="Gg49Eenh"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="dKt/oKbt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726270AbfIQNUv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 17 Sep 2019 09:20:51 -0400
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:36181 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726230AbfIQNUv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 17 Sep 2019 09:20:51 -0400
-Received: by mail-lj1-f195.google.com with SMTP id v24so3522474ljj.3
-        for <selinux@vger.kernel.org>; Tue, 17 Sep 2019 06:20:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=C6sQw9SpTnTmE4gjIBwkVlVLus4AahHV9s6wg+CGPZ0=;
-        b=Gg49Eenh6+GmevfVQ0jxmPOYBKwQJq+e7zl1nfhYZOu8xKyLg7FjwbQX3/d0ByBQbB
-         OXrfBbS0rDsjzJoWJD6I8pe9crB7TLYszOnBGCGA/veLnzR4VBKbFWCeVIZBhUjYgWBM
-         5+T0yIApFAQR2dP781wA5JXf/FcL1x4ag+KMqJInsccJ9D2Io05xEXUJTKC+euqSWLWy
-         JGX9rHDfWr6HQeDNCoYU3JBunnwMkBe4HXSXf36YpsV60nVZvmk9w9jqp/ACAOhS+0vD
-         37JfGPBn5t4X3Kt/vzmX4AF3Jlp8QtllcmZrHmBn1YQEmhwbNOCN+nXkpVnI8nsc7FLV
-         Dd/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=C6sQw9SpTnTmE4gjIBwkVlVLus4AahHV9s6wg+CGPZ0=;
-        b=XfoyAv10hzOou+dh6f3I3q18BT3Fm86cf2yxztSeQFDSPgXU8cg86sZmjpQCjIz2dW
-         4cYZ+Ydlo1zMC2PAwNWFoeX7cjWsqRoRs3rfgTnbIv+siIFC0SVQ8pmh/lMJPIbMZMzP
-         ++Y4VVgm7ler/JdV4aXYA9ybvQuFx8pjKaU45pHpaUjlAA+oaGKP8gcnIpL2BxA2K1ks
-         eUoCZXsmS5tACKXnbASIQ8RTBxX/gmQ7x8wtis1T6qmBpYIuJ5fxoQvfXBeZj3FKm0nH
-         01kgKxzgK9UG+qa7yXLUyw/Tt59tufQJ8oDHppPEqz+TmpUETh/JE8IY5XDx3EzeuLIG
-         Ws7Q==
-X-Gm-Message-State: APjAAAUFuEBN7GC0CYVtpvyA17gllEbZiiQF5NInWdZ/bYyrtFuEhz4e
-        Nik2QCb5xia2RB5Y2ZClLzL3NZdQVSvQjI9kKhwwZsFjAnM=
-X-Google-Smtp-Source: APXvYqy4yL+fuNnqGOiRI3foO4KZL+sUmxS6ll+EbVo8bJFmXd+WlgfgN5xYX6msefEiFkv4q2shX/u9FN24Uxnr0y8=
-X-Received: by 2002:a2e:96cc:: with SMTP id d12mr1920312ljj.30.1568726448237;
- Tue, 17 Sep 2019 06:20:48 -0700 (PDT)
+        id S1728786AbfIQO4s (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 17 Sep 2019 10:56:48 -0400
+Received: from mailomta20-re.btinternet.com ([213.120.69.113]:61072 "EHLO
+        re-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727708AbfIQO4s (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 17 Sep 2019 10:56:48 -0400
+Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
+          by re-prd-fep-044.btinternet.com with ESMTP
+          id <20190917145646.BWZ26482.re-prd-fep-044.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Tue, 17 Sep 2019 15:56:46 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1568732206; 
+        bh=XM8MG5rvofStwvYxIznLaip8EnxqclBJ1v8yOE2SO8Q=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=dKt/oKbth9o36mA40NF+oPULsPeVPHeSIb8ECIzCC0IFoLqAzFdTp7rJwjkBRGBYdZay61jOe6XCBnZ4a7lJK6OZqcysja0obCAm3IsU2Dx10ytpd0aNplTMXGs+wcoUuk30FXAjlvvkY5EOMJPheYaCPPNG+Xwmn8iF9op+mCXJcTIyoC+E/gy0MWypuhSMm5p3GMOGw/aJnlTgSAW9wGN5Zs0Lqu2VHCL0umDyzJOAw5ZhDJfLw6tGpEo9U+JBVOCDHbeefeaTzRh/NTMD64cTkb0Foxdu5OkhwcURxwwPPaEgGTYWLYpkNWhBvrjx8IkTWobX9NlF3aWw0vGT8A==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.6.116]
+X-OWM-Source-IP: 86.134.6.116 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudeigdehhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirddufeegrdeirdduudeinecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdeirdduudeipdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.6.116) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5D7F5CD800382C54; Tue, 17 Sep 2019 15:56:46 +0100
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org, paul@paul-moore.com, sds@tycho.nsa.gov
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH V4 0/3] selinux-testsuite: Add BPF tests
+Date:   Tue, 17 Sep 2019 15:56:37 +0100
+Message-Id: <20190917145640.25629-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-References: <20190910195353.973-1-mike.palmiotto@crunchydata.com> <088debd8-0781-99ab-48a9-30bfa2e7a776@tycho.nsa.gov>
-In-Reply-To: <088debd8-0781-99ab-48a9-30bfa2e7a776@tycho.nsa.gov>
-From:   Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Date:   Tue, 17 Sep 2019 09:20:36 -0400
-Message-ID: <CAMN686GeYV3HcOaUAiu-yg7kiy1ybFCH=6pMG3b5AE_AOutTEA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: fix string conversion of unknown perms
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 16, 2019 at 4:01 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> On 9/10/19 3:53 PM, Mike Palmiotto wrote:
-> > Commit c19395d72295f5e69275d98df5db22dfdf214b6c fixed some handling of unknown
-> > classes/permissions, but missed the case where an unknown permission is loaded
-> > and then subsequently logged, either via denial or auditallow. If a permission
-> > set has some valid values mixed with unknown values, say `{ read write foo }`,
-> > a check on `{ read write foo }` would fail to log the entire set.
-> >
-> > To fix this, skip over the bad permissions/classes when expanding them to
-> > strings. The unknowns should be logged during `selinux_set_mapping`, so
-> > there is no need for further logging of the actual unknown permissions.
-> >
-> > Signed-off-by: Mike Palmiotto <mike.palmiotto@crunchydata.com>
-> > ---
-> >   libselinux/src/stringrep.c | 28 ++++++++++++----------------
-> >   1 file changed, 12 insertions(+), 16 deletions(-)
-> >
-> > diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
-> > index ad29f76d..85579422 100644
-> > --- a/libselinux/src/stringrep.c
-> > +++ b/libselinux/src/stringrep.c
-> > @@ -276,19 +276,15 @@ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
-> >       char *ptr;
-> >
-> >       /* first pass computes the required length */
-> > -     while (tmp) {
-> > +     for (i = 0; tmp; tmp >>= 1, i++) {
->
-> Remove the redundant initialization in the declaration now that you are
-> doing it here (which is better, I agree).
->
-> >               if (tmp & 1) {
-> >                       str = security_av_perm_to_string(tclass, av & (1<<i));
-> > -                     if (str)
-> > -                             len += strlen(str) + 1;
-> > -                     else {
-> > -                             rc = -1;
-> > -                             errno = EINVAL;
-> > -                             goto out;
-> > +                     if (!str) {
-> > +                             continue;
-> >                       }
->
-> No need to bracket it when it is a single statement.
->
-> > +
-> > +                     len += strlen(str) + 1;
->
-> Might be clearer as:
->         if (str)
->                 len += strlen(str) + 1;
-> And just let it fall through to the end of the loop otherwise - no need
-> for explicit continue here.
->
-> >               }
-> > -             tmp >>= 1;
-> > -             i++;
-> >       }
-> >
-> >       *res = malloc(len);
-> > @@ -298,7 +294,6 @@ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
-> >       }
-> >
-> >       /* second pass constructs the string */
-> > -     i = 0;
-> >       tmp = av;
-> >       ptr = *res;
-> >
-> > @@ -308,12 +303,13 @@ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
-> >       }
-> >
-> >       ptr += sprintf(ptr, "{ ");
-> > -     while (tmp) {
-> > -             if (tmp & 1)
-> > -                     ptr += sprintf(ptr, "%s ", security_av_perm_to_string(
-> > -                                            tclass, av & (1<<i)));
-> > -             tmp >>= 1;
-> > -             i++;
-> > +     for (i = 0; tmp; tmp >>= 1, i++) {
-> > +             if (tmp & 1) {
-> > +                     str = security_av_perm_to_string(tclass, av & (1<<i));
-> > +                     if (str) {
-> > +                             ptr += sprintf(ptr, "%s ", str);
-> > +                     }
->
-> No need for { } around a single statement.
->
-> > +             }
-> >       }
-> >       sprintf(ptr, "}");
-> >   out:
-> >
->
+Patch 1 Runs basic checks for BPF with map_create, map_read, map_write,
+prog_load and prog_run permissions.
+V2 Change - Split BPF code into bpf_common.c for others to use.
+V3 Changes - Correct style, Fix typos
+V4 Changes - Fixes as discussed in [1]
 
-Thanks for the review. Fixed all of the above in v2.
+Patch 2 Updates fdreceive to test BPF security_file_receive() path using
+the common BPF code in tests/bpf.
+V2 Change - Added to use tests/bpf/bpf_common.c for BPF tests.
+V3 Changes - Run tests under tests/bpf not tests/fdreceive, fix typos.
+V4 Changes - Update to work with changes in [1]
+
+Patch 3 - Updates Binder to test BPF path security_binder_transfer_file()
+V4 Change - New patch
+
+[1] https://lore.kernel.org/selinux/19b043bc4d5efbf2f1994958c0a74709a34e3ad0.camel@btinternet.com/
+
+Richard Haines (3):
+  selinux-testsuite: Add BPF tests
+  selinux-testsuite: Add BPF support to fdreceive test
+  selinux-testsuite: Add BPF support to binder test
+
+ README.md                       |   4 +-
+ defconfig                       |   5 +
+ policy/Makefile                 |   4 +
+ policy/test_binder_bpf.te       |  73 ++++++++++++
+ policy/test_bpf.te              |  78 +++++++++++++
+ policy/test_fdreceive_bpf.te    |  60 ++++++++++
+ tests/Makefile                  |   7 ++
+ tests/binder/Makefile           |   5 +
+ tests/binder/binder_common.c    |  10 +-
+ tests/binder/binder_common.h    |  17 ++-
+ tests/binder/client.c           |  28 ++++-
+ tests/binder/manager.c          |   2 +-
+ tests/binder/service_provider.c | 118 ++++++++++++++-----
+ tests/bpf/.gitignore            |   2 +
+ tests/bpf/Makefile              |  17 +++
+ tests/bpf/bpf_common.c          |  53 +++++++++
+ tests/bpf/bpf_common.h          |  34 ++++++
+ tests/bpf/bpf_test.c            |  77 ++++++++++++
+ tests/bpf/test                  | 199 ++++++++++++++++++++++++++++++++
+ tests/fdreceive/Makefile        |  14 ++-
+ tests/fdreceive/client.c        |  93 +++++++++++++--
+ 21 files changed, 847 insertions(+), 53 deletions(-)
+ create mode 100644 policy/test_binder_bpf.te
+ create mode 100644 policy/test_bpf.te
+ create mode 100644 policy/test_fdreceive_bpf.te
+ create mode 100644 tests/bpf/.gitignore
+ create mode 100644 tests/bpf/Makefile
+ create mode 100644 tests/bpf/bpf_common.c
+ create mode 100644 tests/bpf/bpf_common.h
+ create mode 100644 tests/bpf/bpf_test.c
+ create mode 100755 tests/bpf/test
 
 -- 
-Mike Palmiotto
-https://crunchydata.com
+2.21.0
+
