@@ -2,154 +2,181 @@ Return-Path: <SRS0=HWnL=XN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25A89C4CEC4
-	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 07:19:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 468A5C4CEC4
+	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 12:19:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 00F53214AF
-	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 07:19:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DEA87205F4
+	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 12:19:38 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="EC/AixD/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727661AbfIRHTI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Sep 2019 03:19:08 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:38497 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726077AbfIRHTI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Sep 2019 03:19:08 -0400
-Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=[10.155.2.218])
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <john.johansen@canonical.com>)
-        id 1iAUEx-0004ts-Dl; Wed, 18 Sep 2019 07:19:03 +0000
-Subject: Re: [PATCH v8 02/28] LSM: Infrastructure management of the sock
- security
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com
-References: <20190829232935.7099-1-casey@schaufler-ca.com>
- <20190829232935.7099-3-casey@schaufler-ca.com>
- <5fde58fe-3925-c9d6-39bf-9adb318f7186@tycho.nsa.gov>
-From:   John Johansen <john.johansen@canonical.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
- 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
-Organization: Canonical
-Message-ID: <e82206ce-c37d-b8e4-1ba4-c7c49afb5221@canonical.com>
-Date:   Wed, 18 Sep 2019 00:19:02 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S1730903AbfIRMTi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Sep 2019 08:19:38 -0400
+Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:22423 "EHLO
+        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730902AbfIRMTi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Sep 2019 08:19:38 -0400
+X-EEMSG-check-017: 14951672|UPDC19PA22_ESA_OUT04.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,520,1559520000"; 
+   d="scan'208";a="14951672"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Sep 2019 12:19:33 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1568809173; x=1600345173;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=5VfuF4sPR6lFhcL/Iq9ra13Y3xdChxAKOhrNSA9EYYo=;
+  b=EC/AixD/8MotPypTSWw5DGenMej3zd0hmugGnhpLeQk+N+duIUAap2jK
+   SD/kR3MqFVbHCtoXpkldLDUf+AvC1NjXhDJyrcQ6rfdqFDIXLE49MIz/p
+   RvKmZwxjcc+bt5K8tfEwgGCGmJy0sbCDZD6UDOZW4BnkZT4+CtJwcmus9
+   rs/YF7emv26+efgN+nycVoyG63FCU1GlM5BeKESsPhZ0TX4kbdVT6FSYC
+   0RdheCVDszTSKVub5v6cJygH0cWX+FKty73Ce/2cK2j3gv+jYeMT0W9FI
+   bAp9rXPxIJrzmI14Od5HkeFL9ZXV/eeQtHSzUo0IGLwH+6jMaH8/7XuzG
+   w==;
+X-IronPort-AV: E=Sophos;i="5.64,520,1559520000"; 
+   d="scan'208";a="28038833"
+IronPort-PHdr: =?us-ascii?q?9a23=3AWBbfbRBx3ObacUKFc2VOUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSPX+o8bcNUDSrc9gkEXOFd2Cra4d0KyP4+u9ASRAuc/H7ClYNsQUFl?=
+ =?us-ascii?q?cssoY/p0QYGsmLCEn2frbBThcRO4B8bmJj5GyxKkNPGczzNBX4q3y26iMOSF?=
+ =?us-ascii?q?2kbVImbuv6FZTPgMupyuu854PcYxlShDq6fLh+MAi6oR/eu8ULj4ZuMLs9xx?=
+ =?us-ascii?q?jGrnZIZ+hd2GdkKU6Okxrm6cq84YBv/z5Mt/498sJLTLn3cbk/QbFEFjotLn?=
+ =?us-ascii?q?o75NfstRnNTAuP4mUTX2ALmRdWAAbL8Q/3UI7pviT1quRy1i+aPdbrTb8vQj?=
+ =?us-ascii?q?St871rSB7zhygZMTMy7XzahdZxjKJfpxKhugB/zovJa4ybKPZyYqXQds4BSG?=
+ =?us-ascii?q?FfQsheSTBOAoKkb4sOEeUBO/pYr5LgrFcKtBeyGBWgCP/qxjJOiHD2x6k62P?=
+ =?us-ascii?q?k/Hw/A0gIrAtYCvG3aodjxMasfV/2+wqvVwjXZd/5YxCnz6IbIfB4ir/+DU7?=
+ =?us-ascii?q?1/fsjNxkcgDA7FkledpJb5Mz+J2OkAsW6W5PdgW+K1jG4nrhl8rCWzxsgyko?=
+ =?us-ascii?q?nJhpwaylbZ/itkxYY6P9m4SEplbt+kDZBdsDqaOJZtQs45X2FpuDo1yr0BuZ?=
+ =?us-ascii?q?KheigK044oywTQa/yAbYiF+xTuX/uSLzdgnH9pZb2yihmo/UWg1+HwTNe43V?=
+ =?us-ascii?q?lUoiZfj9XBsG0G2QbJ5cidUPR9+1+s2TOI1w/O9O5JOVs0la/HK545xb4wi4?=
+ =?us-ascii?q?YTvVzDHiDonEX2i7ebdlk+9eiy6uTnf67mqoWAN450lg7+MqMulta5AeskKQ?=
+ =?us-ascii?q?gBQ3KX+eG91L3n5UH5QbNKgeMqkqTBrZzXKssWqrS5DgNIyIov9RmyAym83N?=
+ =?us-ascii?q?gFhXUHKUhKeBODj4jnIVHOJ/X4AO+kg1uxizdm3OzGP739DZXNKXjPirHhfa?=
+ =?us-ascii?q?1n5EJGxwozys5f64pOCr4dOPLzRlPxtNvAAx88Mgy0wPjoBM9l1owEXWKPB6?=
+ =?us-ascii?q?6ZMKTOsV+U4eIiOPWDZJUIuDb7N/cl5/7vgmIjll8BZ6alx4cYaHe9Hv5+OU?=
+ =?us-ascii?q?WWfWLsgssdEWcNpgc+V/LliFmDUT5VenazULkx5i80CI24F4fPXIOtj6Kb3C?=
+ =?us-ascii?q?e9AJJWYnpKCleWEXfnJM24XKIpaSGfavdoljkFUqS9TMd10BCtuUniwr5iL+?=
+ =?us-ascii?q?3I5iowvoj+0tN19uHaiRh0/jtxWYDVyGyJTmdpjksWSDIsmqNyu0pwzhGEy6?=
+ =?us-ascii?q?crreZfEIlo+/5RUgo8faXZxuh+BsG6DhnNZf+VWV2mRZOgGjh3QdUvlYxdK3?=
+ =?us-ascii?q?1hEsmv20iQlxGhBKUYwvnSX805?=
+X-IPAS-Result: =?us-ascii?q?A2CoCgDyH4Jd/wHyM5BmHgEGDYFcC4FuKoFAMiqEIo8OU?=
+ =?us-ascii?q?AEBAQaBESV+iHaRKAkBAQEBAQEBAQE0AQIBAYQ/AoMDIzcGDgIMAQEBBAEBA?=
+ =?us-ascii?q?QEBBQMBAWyFOYI6KQGCZgEBAQECASMVUQsYAgImAgJXBgEMBgIBAYJfP4F3B?=
+ =?us-ascii?q?Q+wToEyhUyDL4FJgQwojAkYeIEHgREnDIIqNT6HT4JYBIxqA4kNln6CLIIuk?=
+ =?us-ascii?q?k8GG4I2i3CKeo4PmxkigVgrCAIYCCEPgydQEBSQLyQDMIEGAQGPbgEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 18 Sep 2019 12:19:32 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8ICJVZt007514;
+        Wed, 18 Sep 2019 08:19:32 -0400
+Subject: Re: [PATCH v2] libselinux: fix string conversion of unknown perms
+To:     Mike Palmiotto <mike.palmiotto@crunchydata.com>,
+        selinux@vger.kernel.org
+References: <20190916203015.19474-1-mike.palmiotto@crunchydata.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <629b332a-eaf7-2107-a243-62b5b66ef061@tycho.nsa.gov>
+Date:   Wed, 18 Sep 2019 08:19:31 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-In-Reply-To: <5fde58fe-3925-c9d6-39bf-9adb318f7186@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190916203015.19474-1-mike.palmiotto@crunchydata.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/16/19 11:42 AM, Stephen Smalley wrote:
-> On 8/29/19 7:29 PM, Casey Schaufler wrote:
->> Move management of the sock->sk_security blob out
->> of the individual security modules and into the security
->> infrastructure. Instead of allocating the blobs from within
->> the modules the modules tell the infrastructure how much
->> space is required, and the space is allocated there.
->>
->> Reviewed-by: Kees Cook <keescook@chromium.org>
->> Reviewed-by: John Johansen <john.johansen@canonical.com>
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+On 9/16/19 4:30 PM, Mike Palmiotto wrote:
+> Commit c19395d72295f5e69275d98df5db22dfdf214b6c fixed some handling of unknown
+> classes/permissions, but missed the case where an unknown permission is loaded
+> and then subsequently logged, either via denial or auditallow. If a permission
+> set has some valid values mixed with unknown values, say `{ read write foo }`,
+> a check on `{ read write foo }` would fail to log the entire set.
 > 
-> One oddity noted below, but it isn't introduced by this patch so you can add my:
+> To fix this, skip over the bad permissions/classes when expanding them to
+> strings. The unknowns should be logged during `selinux_set_mapping`, so
+> there is no need for further logging of the actual unknown permissions.
+
+It seems like we have a similar pattern in print_access_vector(), 
+avc_dump_av(); if security_av_perm_to_string() returns NULL, we break 
+out of the loops and skip the remaining bits.  We do however log the hex 
+value of the any remaining bits set in the av, so we don't lose all 
+information.  I think we can still take this patch as is but was 
+wondering whether the other cases ought to be similarly handled?
+
 > 
-> Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Mike Palmiotto <mike.palmiotto@crunchydata.com>
+> ---
+>   libselinux/src/stringrep.c | 24 ++++++++----------------
+>   1 file changed, 8 insertions(+), 16 deletions(-)
 > 
->> ---
->>   include/linux/lsm_hooks.h         |  1 +
->>   security/apparmor/include/net.h   |  6 ++-
->>   security/apparmor/lsm.c           | 38 ++++-----------
->>   security/security.c               | 36 +++++++++++++-
->>   security/selinux/hooks.c          | 78 +++++++++++++++----------------
->>   security/selinux/include/objsec.h |  5 ++
->>   security/selinux/netlabel.c       | 23 ++++-----
->>   security/smack/smack.h            |  5 ++
->>   security/smack/smack_lsm.c        | 64 ++++++++++++-------------
->>   security/smack/smack_netfilter.c  |  8 ++--
->>   10 files changed, 144 insertions(+), 120 deletions(-)
->>
->> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
->> index f9222a04968d..b353482ea348 100644
->> --- a/include/linux/lsm_hooks.h
->> +++ b/include/linux/lsm_hooks.h
->> @@ -2047,6 +2047,7 @@ struct lsm_blob_sizes {
->>       int    lbs_cred;
->>       int    lbs_file;
->>       int    lbs_inode;
->> +    int    lbs_sock;
->>       int    lbs_superblock;
->>       int    lbs_ipc;
->>       int    lbs_msg_msg;
->> diff --git a/security/apparmor/include/net.h b/security/apparmor/include/net.h
->> index 7334ac966d01..adac04e3b3cc 100644
->> --- a/security/apparmor/include/net.h
->> +++ b/security/apparmor/include/net.h
->> @@ -55,7 +55,11 @@ struct aa_sk_ctx {
->>       struct aa_label *peer;
->>   };
->>   -#define SK_CTX(X) ((X)->sk_security)
->> +static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
->> +{
->> +    return sk->sk_security + apparmor_blob_sizes.lbs_sock;
->> +}
->> +
->>   #define SOCK_ctx(X) SOCK_INODE(X)->i_security
-> 
-> This use of i_security looks suspicious, but SOCK_ctx doesn't appear to be used presently.  Probably should be removed in a separate patch.
+> diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
+> index ad29f76d..b9bf3ee6 100644
+> --- a/libselinux/src/stringrep.c
+> +++ b/libselinux/src/stringrep.c
+> @@ -268,7 +268,7 @@ const char *security_av_perm_to_string(security_class_t tclass,
+>   
+>   int security_av_string(security_class_t tclass, access_vector_t av, char **res)
+>   {
+> -	unsigned int i = 0;
+> +	unsigned int i;
+>   	size_t len = 5;
+>   	access_vector_t tmp = av;
+>   	int rc = 0;
+> @@ -276,19 +276,12 @@ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
+>   	char *ptr;
+>   
+>   	/* first pass computes the required length */
+> -	while (tmp) {
+> +	for (i = 0; tmp; tmp >>= 1, i++) {
+>   		if (tmp & 1) {
+>   			str = security_av_perm_to_string(tclass, av & (1<<i));
+>   			if (str)
+>   				len += strlen(str) + 1;
+> -			else {
+> -				rc = -1;
+> -				errno = EINVAL;
+> -				goto out;
+> -			}
+>   		}
+> -		tmp >>= 1;
+> -		i++;
+>   	}
+>   
+>   	*res = malloc(len);
+> @@ -298,7 +291,6 @@ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
+>   	}
+>   
+>   	/* second pass constructs the string */
+> -	i = 0;
+>   	tmp = av;
+>   	ptr = *res;
+>   
+> @@ -308,12 +300,12 @@ int security_av_string(security_class_t tclass, access_vector_t av, char **res)
+>   	}
+>   
+>   	ptr += sprintf(ptr, "{ ");
+> -	while (tmp) {
+> -		if (tmp & 1)
+> -			ptr += sprintf(ptr, "%s ", security_av_perm_to_string(
+> -					       tclass, av & (1<<i)));
+> -		tmp >>= 1;
+> -		i++;
+> +	for (i = 0; tmp; tmp >>= 1, i++) {
+> +		if (tmp & 1) {
+> +			str = security_av_perm_to_string(tclass, av & (1<<i));
+> +			if (str)
+> +				ptr += sprintf(ptr, "%s ", str);
+> +		}
+>   	}
+>   	sprintf(ptr, "}");
+>   out:
 > 
 
-yes this leaked is from some in dev patches that leaked into the base socket mediation patch. I can put together a patch to remove it
