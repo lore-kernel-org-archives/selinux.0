@@ -2,97 +2,105 @@ Return-Path: <SRS0=HWnL=XN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A3C7C4CEC4
-	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 13:52:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BA24C4CEC9
+	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 13:53:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1D4C22054F
-	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 13:52:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E18CE2054F
+	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 13:53:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XSEf/7Tv"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="QC1IXP6J"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727231AbfIRNwE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Sep 2019 09:52:04 -0400
-Received: from mail-wr1-f42.google.com ([209.85.221.42]:36128 "EHLO
-        mail-wr1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726562AbfIRNwE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Sep 2019 09:52:04 -0400
-Received: by mail-wr1-f42.google.com with SMTP id y19so7038159wrd.3
-        for <selinux@vger.kernel.org>; Wed, 18 Sep 2019 06:52:03 -0700 (PDT)
+        id S1726562AbfIRNxg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Sep 2019 09:53:36 -0400
+Received: from USAT19PA22.eemsg.mail.mil ([214.24.22.196]:3607 "EHLO
+        USAT19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726257AbfIRNxg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Sep 2019 09:53:36 -0400
+X-EEMSG-check-017: 29242652|USAT19PA22_ESA_OUT03.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,520,1559520000"; 
+   d="scan'208";a="29242652"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USAT19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Sep 2019 13:53:35 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=f0IVkZauId8ilfNOH3Ft7oo547KiWt9vuUCD28/A/ew=;
-        b=XSEf/7TvwIAGIxONctwbQExSiF+q5sA8EsrGEb5ThgaDchqPDb4u8yw1nufNnIHI/b
-         tfszy1laWDOeYBpRncORhRWYJDLxUVNMcZ0Eqrn12+hNOEpNK0Kj30OQ6ylwy8EmzBbW
-         se6PBor1xNd/QPOrDbe9LqQaROO7fSGbvDAvMXKp9Ms0w6xR6gYC/seY/DQVrlrKVSoI
-         HtzGj1Xb4Rcod2UW/g0m1HG8ODLKs+d7CunsgpOiRJcWtF6lCueAvBYcGyZbEIkF389T
-         Oy///ul8xa9wQGsdPezx6cvSRFOYGL3FEjUk+LzLqEWKqHvnDMBfh2DVqM9YnjkYwCWb
-         OUhg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=f0IVkZauId8ilfNOH3Ft7oo547KiWt9vuUCD28/A/ew=;
-        b=VtwBHZdJAj2Xvaf+WdPIIOY7WFQkdVhfgBAmi9FrTDZG+1bXbc+smzgVyID8GioypN
-         Ye2i8+wsGS3agFG97hEW2b3ibDYm0mfr1JkmTmS70Gd95YXVrP0r5tSsRIt9TnoKSBQd
-         XpTOXBWHgJcozTiHFoT9q/d7Hj2qSr4dgReVMK/cUPXcVikpRFKKD7L1TbsEdY9Sx42h
-         RpKAUFHhwZRKHg5J5NhdHEV5dGrpZaU7ECwSMgpLos4ZuhejVseVmkm8+xOX8MvKizoa
-         h6KDHPIRUCqgVmZrLnAIW9kTEl7Fo4wFZ13/GYBiywBaGy78oop2UaQtQbj29jNy0C/8
-         zELg==
-X-Gm-Message-State: APjAAAX30jE2zgNKdBQ56RuWfr7SmCLKdlt5sUG8+R3WOVaLhwv+wESc
-        VA5ETNCfYX77nYXGpkiCQboUvNzjEE3uew80/xU=
-X-Google-Smtp-Source: APXvYqykP0lKkqTXmcqN2b0hOKuLUrG9HGQeN7WlHRmciD3Ya2C4Z3SNLv043FvPTTJFiQtk6nOjGUCf2/U+Id5zam4=
-X-Received: by 2002:adf:9cc7:: with SMTP id h7mr3085699wre.193.1568814722205;
- Wed, 18 Sep 2019 06:52:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAFPpqQFwGgEKU9KY2kif4C95fZPvLH0TGdTxLKUAXuRgK2zxBw@mail.gmail.com>
- <20190918134642.GA15688@seamus.lan> <20190918134949.GB15688@seamus.lan>
-In-Reply-To: <20190918134949.GB15688@seamus.lan>
-From:   Ted Toth <txtoth@gmail.com>
-Date:   Wed, 18 Sep 2019 08:51:50 -0500
-Message-ID: <CAFPpqQH6O7p+d8=79pQ61dqgtNpWggJRtm3vXr3Gx687CvucVA@mail.gmail.com>
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1568814815; x=1600350815;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=zBZsqCgYtFR3Xj7S1MTZlNGwurEhhaPuQRlfQyDLWeE=;
+  b=QC1IXP6JnleoGtru2r1PQjF7jBeft1vDOkAme2qktwZV3hibvFZ1nb1k
+   DMhpmLJbtbL01Nbhgu51gPUJhfv+muiAZZexZ7ZV7KjiRidoE+KXJoGpR
+   oxdceb/o4c+syJURxJpa4/3c0/1e20Gm7sIMqpQHQFQuCO+HPpvnJ4+Dt
+   57l31pFAAYK5wyDG0Kwd9Pn3ZKS/n17JHx+tmyk4/+WKOo4SRAiLJG/Em
+   +5wozDe6axaDqVKuy1YjaqkreH9Nv2bI5bv0/60axu/1TwXSeRVE5Cm2B
+   MLQhUO/pXBklfFbDuedYGyncRL1/4JtsleZwNUU2slSMDYczRkMYtHJyM
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.64,520,1559520000"; 
+   d="scan'208";a="28044688"
+IronPort-PHdr: =?us-ascii?q?9a23=3AADRRdB0wTEMfryrqsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseMWLPad9pjvdHbS+e9qxAeQG9mCsLQd26GI4+igATVGvc/b9ihaMdRlbF?=
+ =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
+ =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMuMQam5ZuJ6U+xh?=
+ =?us-ascii?q?bIoXZDZuBayX91KV6JkBvw+9m88IR//yhMvv4q6tJNX7j9c6kkV7JTES4oM3?=
+ =?us-ascii?q?oy5M3ltBnDSRWA634BWWgIkRRGHhbI4gjiUpj+riX1uOx92DKHPcLtVrA7RS?=
+ =?us-ascii?q?6i76ZwRxD2jioMKiM0/3vWisx0i6JbvQ6hqhliyIPafI2ZKPxzdb7GcNgEWW?=
+ =?us-ascii?q?ROQNpeVy1ZAoO9cYQPCfYBPf1FpIX5vlcCsAeyCRWpCO7pxDBInHv21rAk3e?=
+ =?us-ascii?q?onHw/NwQgsE8sOvXnQqdn4MroZX+Kow6nS1TjNcu1Y2Tn95obLfB4ur/6DUr?=
+ =?us-ascii?q?BsfsTe0kQvCwHIg0+MpYD5MT6Y1OIAuHWb4ep6UuKvjnYqpRxtojex3scsip?=
+ =?us-ascii?q?fGhoQIwV7Z8CV22oI1JdmmR097fNWpF4BQuDyBN4ZtXsMjQ31nuCY9yrEcv5?=
+ =?us-ascii?q?67ZzIFxI4oxx7YdfyKao6F6Q/gWuaJOTp0mX1odb2lixuy7ESs0PPwW8aq3F?=
+ =?us-ascii?q?pQsyZIlMTHuGoX2BzJ8MeHT+Nw/kKm2TmSyQ/e8vpEIUUolarDLJ4h36Iwmo?=
+ =?us-ascii?q?ITsUvdGi/2n137jLOMeUU+++io9v/nbq/6pp6cK4B0igb+Pr4omsOjGuQ3Lh?=
+ =?us-ascii?q?ICX22a+eS4zLHj/Ev5T6tWjvAuj6XUv5/XKd4bq6KkGQNZzIku5wilAzu7yN?=
+ =?us-ascii?q?gYmGMILFNBeBKJlYjpPFTOLejjDfiimFShiytrxvDaMb3hBZXBNH7DkKz7cr?=
+ =?us-ascii?q?pn5E5czxQzwchF551IErEBPO7zWkjpudzEAR45Lwu0w/rnCNhm2YMeXHiAAq?=
+ =?us-ascii?q?6dMK/IrVCI4ecvKfGWZIAJoDb9N+Ql5/n2gH8ih1Adeaip3Z0KaHG3BflmPU?=
+ =?us-ascii?q?qZbmT2gtsbEmcFoBA+TOr0h12GSzJTYGyyX61vrg08Xb6rAc//QZytyOidzD?=
+ =?us-ascii?q?u8Ap1+aWVPC1TKGnDtIcHMQPoIaSSPMud/nTEeE7usUYks0VeprgCp5aBgK7?=
+ =?us-ascii?q?/v5iAAtZ/lnONw7unXmAB6oSd4FOyBwmqNSCdyhWpOSDgoivMs6Xdhw0uOhP?=
+ =?us-ascii?q?Ary8dTEsZesrYQD1Y3?=
+X-IPAS-Result: =?us-ascii?q?A2DMCQBuNoJd/wHyM5BmHQEBBQEHBQGBZ4FuKoFAMoRMj?=
+ =?us-ascii?q?w9QAQEBBoE2iXSRKAkBAQEBAQEBAQE0AQIBAYQ1CgKDAyM4EwIMAQEBBAEBA?=
+ =?us-ascii?q?QEBBQMBAWyFOYI6KQGCZwEFIxVRCw4KAgImAgJXBgEMCAEBgl8/gXcUsEmBM?=
+ =?us-ascii?q?oVMgy+BSYEMKIwJGHiBB4E4gms+h0+CWASVepZ+giyCLpJPBhuCJpZ6jg+bG?=
+ =?us-ascii?q?iGBWCsIAhgIIQ+DKE8QFJAvJAOBNgEBj24BAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 18 Sep 2019 13:53:31 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8IDrTOm028983;
+        Wed, 18 Sep 2019 09:53:31 -0400
 Subject: Re: strange tclass in AVCs
-To:     Dominick Grift <dac.override@gmail.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+To:     Ted Toth <txtoth@gmail.com>, selinux@vger.kernel.org
+References: <CAFPpqQFwGgEKU9KY2kif4C95fZPvLH0TGdTxLKUAXuRgK2zxBw@mail.gmail.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <ac6433e2-88a4-747c-66f5-d241499f40d6@tycho.nsa.gov>
+Date:   Wed, 18 Sep 2019 09:53:29 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
+MIME-Version: 1.0
+In-Reply-To: <CAFPpqQFwGgEKU9KY2kif4C95fZPvLH0TGdTxLKUAXuRgK2zxBw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Sep 18, 2019 at 8:49 AM Dominick Grift <dac.override@gmail.com> wrote:
->
-> On Wed, Sep 18, 2019 at 03:46:42PM +0200, Dominick Grift wrote:
-> > On Wed, Sep 18, 2019 at 08:35:09AM -0500, Ted Toth wrote:
-> > > I'm seeing things like tclass=context#012 in some AVCs what is this telling me?
-> >
-> > https://selinuxproject.org/page/ObjectClassesPerms#context
->
-> Not sure what the #012 suffix is doing there though
+On 9/18/19 9:35 AM, Ted Toth wrote:
+> I'm seeing things like tclass=context#012 in some AVCs what is this telling me?
 
-That's the crux of my question ;)
+Just a guess here, but octal 012 is '\n' aka a newline character, and 
+libselinux/src/avc.c:avc_audit() appends a "\n" at the end of the buffer 
+before calling avc_log() to log the entire string.  avc_log() will call 
+the logging callback, and dbusd does define one, which calls 
+audit_log_user_avc_message().  Maybe audit_log_user_avc_message() is 
+escaping the newline character in its output as well as appending 
+additional data.
 
->
-> >
-> > >
-> > > Ted
-> >
-> >
-> >
-> > --
-> > Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-> > https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-> > Dominick Grift
->
->
->
-> --
-> Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-> https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-> Dominick Grift
+I'm a little unclear though on why dbusd is checking a context contains 
+permission?
