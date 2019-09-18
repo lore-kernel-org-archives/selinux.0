@@ -1,149 +1,155 @@
-Return-Path: <SRS0=Kbw6=XM=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=HWnL=XN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26150C4CECD
-	for <selinux@archiver.kernel.org>; Tue, 17 Sep 2019 19:38:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25A89C4CEC4
+	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 07:19:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C929420665
-	for <selinux@archiver.kernel.org>; Tue, 17 Sep 2019 19:38:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="cs2Ud6vh"
+	by mail.kernel.org (Postfix) with ESMTP id 00F53214AF
+	for <selinux@archiver.kernel.org>; Wed, 18 Sep 2019 07:19:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727563AbfIQTiS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 17 Sep 2019 15:38:18 -0400
-Received: from mail-lf1-f44.google.com ([209.85.167.44]:45301 "EHLO
-        mail-lf1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726583AbfIQTiS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 17 Sep 2019 15:38:18 -0400
-Received: by mail-lf1-f44.google.com with SMTP id r134so3776658lff.12
-        for <selinux@vger.kernel.org>; Tue, 17 Sep 2019 12:38:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=DPMCqyPE0QzC55vTbDjf3OpUmm9PZ45gf2c/NXtRms4=;
-        b=cs2Ud6vhFRVLTHwS+TJWy/K0npQyVF7UGgwFXhyL38hI/XrrcUkCxchVudDRV+Y87Q
-         SwtTBuQ56G1UsSCImNsJOZoEs+B6xqduRc2ulEFSQtg8gsFXEeGNpLX7iYfpiIYh4ps+
-         wf3bOWH9ypIoXMcpUL9q/5JjQtIv3c5bJwBTTwff9Bnq5bsjgC0KptAs/J4DgPb785Jt
-         hucVAkYaQq/z4g+HeY7tUFV6kbJ5eMApqA3AVMa8QJIJKfQtsT7Cc3k2SU0F1C0H6kG2
-         p8prEPIpWW3q9H9ubTS0EVOCB6jEXBiu6siA3frXYxv01bu/4aZjEuFM/pC1W6ebt7da
-         X2oQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=DPMCqyPE0QzC55vTbDjf3OpUmm9PZ45gf2c/NXtRms4=;
-        b=CQWcsYQM1tnod0tFhTonIraeekysqgd0J3NvZZVCMaiwAgi2RZRGQY5aZYNdL0FGct
-         iiubd4Rj0sgfToANT5geOFBf9kQ6t7P3mD6eJSfs8ApDLKCWw5mB86k/RRO3vKTWp5DM
-         1F1e3TDTCElB7uhFXL1amJ1wDqNNddxBtyB1fT4jVjVssjeCSdu3lMniljFjaFqLf0Wh
-         A1Mq19SwDiY0EZmxmc3L7eqlRafx8qxW/QcxKLQGihTneqDKU1WKciyugU3Nn7b4barh
-         eKDqA+2vnD/+GwvvzdzXh7YvjTebIAstJcxMZRP5FwYwxmzAKng+f8Zcm43PM5ePVLyD
-         lagw==
-X-Gm-Message-State: APjAAAUaFNgLz4mX6jzX9LN76jZDKFAxXC4ZLlu3tqRd0HM/ONcb/qXU
-        NlwSmnjVMqcDIxjnaYbTKJ2ZCo1QEXuV8IzAYrhKLEJVGVL1
-X-Google-Smtp-Source: APXvYqxDlAIJZz7PnVeZd8+3jQfl+vZQNh7Br/xAk4fcswBcE4hm4+BMHvXr9jeBipijFUcWCYKs3rAS2d82E6s93K8=
-X-Received: by 2002:a19:6517:: with SMTP id z23mr2690779lfb.31.1568749096080;
- Tue, 17 Sep 2019 12:38:16 -0700 (PDT)
+        id S1727661AbfIRHTI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Sep 2019 03:19:08 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:38497 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726077AbfIRHTI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Sep 2019 03:19:08 -0400
+Received: from static-dcd-cqq-121001.business.bouyguestelecom.com ([212.194.121.1] helo=[10.155.2.218])
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <john.johansen@canonical.com>)
+        id 1iAUEx-0004ts-Dl; Wed, 18 Sep 2019 07:19:03 +0000
+Subject: Re: [PATCH v8 02/28] LSM: Infrastructure management of the sock
+ security
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com
+References: <20190829232935.7099-1-casey@schaufler-ca.com>
+ <20190829232935.7099-3-casey@schaufler-ca.com>
+ <5fde58fe-3925-c9d6-39bf-9adb318f7186@tycho.nsa.gov>
+From:   John Johansen <john.johansen@canonical.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
+ 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
+Organization: Canonical
+Message-ID: <e82206ce-c37d-b8e4-1ba4-c7c49afb5221@canonical.com>
+Date:   Wed, 18 Sep 2019 00:19:02 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 17 Sep 2019 15:38:05 -0400
-Message-ID: <CAHC9VhT1n=zwWJRSqF+OLzQq2r_8Bf0TjO-1QEe3yfLHAnomfA@mail.gmail.com>
-Subject: [GIT PULL] SELinux patches for v5.4
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <5fde58fe-3925-c9d6-39bf-9adb318f7186@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Linus,
+On 9/16/19 11:42 AM, Stephen Smalley wrote:
+> On 8/29/19 7:29 PM, Casey Schaufler wrote:
+>> Move management of the sock->sk_security blob out
+>> of the individual security modules and into the security
+>> infrastructure. Instead of allocating the blobs from within
+>> the modules the modules tell the infrastructure how much
+>> space is required, and the space is allocated there.
+>>
+>> Reviewed-by: Kees Cook <keescook@chromium.org>
+>> Reviewed-by: John Johansen <john.johansen@canonical.com>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> 
+> One oddity noted below, but it isn't introduced by this patch so you can add my:
+> 
+> Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+> 
+>> ---
+>>   include/linux/lsm_hooks.h         |  1 +
+>>   security/apparmor/include/net.h   |  6 ++-
+>>   security/apparmor/lsm.c           | 38 ++++-----------
+>>   security/security.c               | 36 +++++++++++++-
+>>   security/selinux/hooks.c          | 78 +++++++++++++++----------------
+>>   security/selinux/include/objsec.h |  5 ++
+>>   security/selinux/netlabel.c       | 23 ++++-----
+>>   security/smack/smack.h            |  5 ++
+>>   security/smack/smack_lsm.c        | 64 ++++++++++++-------------
+>>   security/smack/smack_netfilter.c  |  8 ++--
+>>   10 files changed, 144 insertions(+), 120 deletions(-)
+>>
+>> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+>> index f9222a04968d..b353482ea348 100644
+>> --- a/include/linux/lsm_hooks.h
+>> +++ b/include/linux/lsm_hooks.h
+>> @@ -2047,6 +2047,7 @@ struct lsm_blob_sizes {
+>>       int    lbs_cred;
+>>       int    lbs_file;
+>>       int    lbs_inode;
+>> +    int    lbs_sock;
+>>       int    lbs_superblock;
+>>       int    lbs_ipc;
+>>       int    lbs_msg_msg;
+>> diff --git a/security/apparmor/include/net.h b/security/apparmor/include/net.h
+>> index 7334ac966d01..adac04e3b3cc 100644
+>> --- a/security/apparmor/include/net.h
+>> +++ b/security/apparmor/include/net.h
+>> @@ -55,7 +55,11 @@ struct aa_sk_ctx {
+>>       struct aa_label *peer;
+>>   };
+>>   -#define SK_CTX(X) ((X)->sk_security)
+>> +static inline struct aa_sk_ctx *aa_sock(const struct sock *sk)
+>> +{
+>> +    return sk->sk_security + apparmor_blob_sizes.lbs_sock;
+>> +}
+>> +
+>>   #define SOCK_ctx(X) SOCK_INODE(X)->i_security
+> 
+> This use of i_security looks suspicious, but SOCK_ctx doesn't appear to be used presently.  Probably should be removed in a separate patch.
+> 
 
-Eight SELinux patches for v5.4, the highlights are listed below and
-all pass the selinux-testsuite, please merge for v5.4.
-
-- Add LSM hooks, and SELinux access control hooks, for dnotify,
-fanotify, and inotify watches.  This has been discussed with both the
-LSM and fs/notify folks and everybody is good with these new hooks.
-
-- The LSM stacking changes missed a few calls to current_security() in
-the SELinux code; we fix those and remove current_security() for good.
-
-- Improve our network object labeling cache so that we always return
-the object's label, even when under memory pressure.  Previously we
-would return an error if we couldn't allocate a new cache entry, now
-we always return the label even if we can't create a new cache entry
-for it.
-
-- Convert the sidtab atomic_t counter to a normal u32 with
-READ/WRITE_ONCE() and memory barrier protection.
-
-- A few patches to policydb.c to clean things up (remove forward
-declarations, long lines, bad variable names, etc.).
-
-Thanks,
--Paul
-
---
-The following changes since commit 45385237f65aeee73641f1ef737d7273905a233f:
-
- selinux: fix memory leak in policydb_init() (2019-07-31 16:51:23 -0400)
-
-are available in the Git repository at:
-
- git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
-   tags/selinux-pr-20190917
-
-for you to fetch changes up to 15322a0d90b6fd62ae8f22e5b87f735c3fdfeff7:
-
- lsm: remove current_security() (2019-09-04 18:53:39 -0400)
-
-----------------------------------------------------------------
-selinux/stable-5.4 PR 20190917
-
-----------------------------------------------------------------
-Aaron Goidel (1):
-     fanotify, inotify, dnotify, security: add security hook for fs
-       notifications
-
-Ondrej Mosnacek (3):
-     selinux: policydb - fix some checkpatch.pl warnings
-     selinux: policydb - rename type_val_to_struct_array
-     selinux: avoid atomic_t usage in sidtab
-
-Paul Moore (3):
-     selinux: shuffle around policydb.c to get rid of forward declarations
-     selinux: always return a secid from the network caches if we find one
-     lsm: remove current_security()
-
-Stephen Smalley (1):
-     selinux: fix residual uses of current_security() for the SELinux blob
-
-fs/notify/dnotify/dnotify.c         |  15 +-
-fs/notify/fanotify/fanotify_user.c  |  19 +-
-fs/notify/inotify/inotify_user.c    |  14 +-
-include/linux/cred.h                |   1 -
-include/linux/lsm_hooks.h           |   9 +-
-include/linux/security.h            |  10 +-
-security/security.c                 |   6 +
-security/selinux/hooks.c            |  49 ++++-
-security/selinux/include/classmap.h |   5 +-
-security/selinux/include/objsec.h   |  20 +-
-security/selinux/netif.c            |  31 ++-
-security/selinux/netnode.c          |  30 ++-
-security/selinux/netport.c          |  24 +--
-security/selinux/ss/policydb.c      | 402 +++++++++++++++---------------
-security/selinux/ss/policydb.h      |   2 +-
-security/selinux/ss/services.c      |   6 +-
-security/selinux/ss/sidtab.c        |  48 ++---
-security/selinux/ss/sidtab.h        |  19 +-
-18 files changed, 403 insertions(+), 307 deletions(-)
-
--- 
-paul moore
-www.paul-moore.com
+yes this leaked is from some in dev patches that leaked into the base socket mediation patch. I can put together a patch to remove it
