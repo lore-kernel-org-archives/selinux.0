@@ -2,700 +2,247 @@ Return-Path: <SRS0=jdxV=XO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C12A0C4CECE
-	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 17:47:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACEA7C3A5A6
+	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 19:27:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8990621A49
-	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 17:47:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68F7E2053B
+	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 19:27:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="BRe0NMLW"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="dzhwgf27"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391010AbfISRrF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Sep 2019 13:47:05 -0400
-Received: from mailomta30-sa.btinternet.com ([213.120.69.36]:36151 "EHLO
-        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2391038AbfISRrE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Sep 2019 13:47:04 -0400
-Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-043.btinternet.com with ESMTP
-          id <20190919174701.CTTA22185.sa-prd-fep-043.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Thu, 19 Sep 2019 18:47:01 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1568915221; 
-        bh=GwE4oZp9A8JGJ5rSHJ2X4crXPXukIEFNCR6HXz5e5M0=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=BRe0NMLWIHsyKmqY1badOkF2fJ3V+SqSaGWX+1iAhQToBLFFicKK+fR5ajaLH4mHZPbqBkI0mM1FIzfLAKOrKSAp4sxOLF33lwtPun85oiY+E4w7M8Qwl5KI7QLucAynMbr/TpWZWarErs+FN9Zwui5cIhnObJa4nwi71KL2QvivCeJ307xYgy9kpzVuquz4cIFYsPxOfp9qpoAzJY/qqzCUAvvT/l57hOtK9FNK/BKKG2HzEodfTHyUxE0EUJ+eL+23crElnhuxgmhI/unOVDJv4IQZOUkTK10CNwCH89uZVG68j/+DjYwIMWAbDpW0YyJANgmN2ONm5n8pguvyVA==
-Authentication-Results: btinternet.com; none
-X-Originating-IP: [31.49.59.204]
-X-OWM-Source-IP: 31.49.59.204 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrvddtgdduudelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepthignhdrthgrrhhgvghtpdhtgihnrdgurghtrgenucfkphepfedurdegledrheelrddvtdegnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepfedurdegledrheelrddvtdegpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (31.49.59.204) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
-        id 5D8362CD000C7EA4; Thu, 19 Sep 2019 18:47:01 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org, paul@paul-moore.com, sds@tycho.nsa.gov
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V5 3/3] selinux-testsuite: Add BPF support to binder test
-Date:   Thu, 19 Sep 2019 18:46:55 +0100
-Message-Id: <20190919174655.17348-4-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190919174655.17348-1-richard_c_haines@btinternet.com>
-References: <20190919174655.17348-1-richard_c_haines@btinternet.com>
+        id S2404431AbfIST1H (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Sep 2019 15:27:07 -0400
+Received: from USAT19PA25.eemsg.mail.mil ([214.24.22.199]:29620 "EHLO
+        USAT19PA25.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404419AbfIST1G (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Sep 2019 15:27:06 -0400
+X-EEMSG-check-017: 29982862|USAT19PA25_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,524,1559520000"; 
+   d="scan'208";a="29982862"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USAT19PA25.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 19 Sep 2019 19:22:44 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1568920964; x=1600456964;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=sZ1LP9Pim6kF822wDWyfLsSr/VL/yPSy+w4ICRVASu4=;
+  b=dzhwgf27E2PYkkVRIgxB21484K1ow0ESa9WDFo7TfXMevGsy0K6tFDhd
+   0pItE6U1rW+LmAXuawI3haL3h5Nnn14mBNAk31D1KU6OYZEQQT0CPQwp3
+   VNg8KERMvhnEtC6v12Wjdp0UxGFTB8LlI53AFftDNI1L8xd1k1Aj5Eup3
+   9TF++RWnea1aW4RA6EIHQHR9D8GiKjW92jUGmIVZ5adKy2Xx31waQDD4e
+   CZicFSRhXErX2zliF+Dwk9m9HmYq6vuQdL/S/mZbRhKgAKm/5GzpqmOGL
+   okKJuuI/2KD0hPQoRF62MhFyaajsmT4M78zNKGERa5D3XkSGG5Jzooggz
+   A==;
+X-IronPort-AV: E=Sophos;i="5.64,524,1559520000"; 
+   d="scan'208";a="28118706"
+IronPort-PHdr: =?us-ascii?q?9a23=3A0ylKERbTPph9SaeXiC/PlCD/LSx+4OfEezUN45?=
+ =?us-ascii?q?9isYplN5qZrs6/bnLW6fgltlLVR4KTs6sC17ON9fq4EjVbvt7B6ClELMUWEU?=
+ =?us-ascii?q?ddyI0/pE8JOIa9E0r1LfrnPWQRPf9pcxtbxUy9KlVfA83kZlff8TWY5D8WHQ?=
+ =?us-ascii?q?jjZ0IufrymUoHdgN6q2O+s5pbdfxtHhCanYbN1MR66sRjdutMZjId/JKs90A?=
+ =?us-ascii?q?XFrmdHd+hLy25lJ0+YkxLg6sut5pJu/Dlct+w7+8JcTan2erkzQKBFAjghL2?=
+ =?us-ascii?q?07/tDguwPZTQuI6HscU2EWnQRNDgPY8hz0XYr/vzXjuOZl1yaUIcP5TbYvWT?=
+ =?us-ascii?q?S/9KhrUwPniD0GNzEi7m7ajNF7gb9BrxKgoxx/xJPUYJ2QOfFjcK7RYc8WSG?=
+ =?us-ascii?q?xcVctKSSdPHp2zYJcOD+oZPOZXsY/9p0cVrRCjAQWgHf7jxiNUinPz26A13f?=
+ =?us-ascii?q?4hEQXb1wI+GdwAvmnfoNHsOKocVe25ya/FxijBYfxLwzfw8JXGfA4vof+MXr?=
+ =?us-ascii?q?x+f8TexkYtGAzZgVudspDlMjGP2+gRr2SW4ehtWOSygGAnsQFxpT2vy98xhI?=
+ =?us-ascii?q?nVmI0V0lDE+jt/wI0oONO4TVR0YdqgEJROtyCRKox7Qtg/TGFzoys61r0Hto?=
+ =?us-ascii?q?K7fCgN0pgnwQXfZOadf4iH5RLjSv+cLDFlj3xmYLKynwu+/Eevx+HmVsS4zU?=
+ =?us-ascii?q?xGojRKn9XSrHwByhre4dWdRPRn5EeuwzOP2hjW6uFDPE87i7LWK4Ukwr4sjp?=
+ =?us-ascii?q?oTtlnDHjPulEX2kqCWckIk9/C06+v9eLXmp4KcN5RuhgHiMqUhhsy/AeMiPg?=
+ =?us-ascii?q?gIQ2eb4viz2Kfm/U34RLVGlvw2kq/Hv5DGPckXu6G0DgBP3osj9hqzFSmq3d?=
+ =?us-ascii?q?sGkXUdMV5JYBeHgJLoO1HKLvD4F/C/g1G0nTdw2v/GJabsAonNL3ffkLfheq?=
+ =?us-ascii?q?xx60hHyAUp19xf6JVUCq8ZLPLpRkDxrMDYDgM+MwGsxObnDdJ91pgYWW2VHq?=
+ =?us-ascii?q?CWLrjfsUWW6e0yI+mDfpMVtCzhJPgi4v7klWU5lkMFfam1wZsXb2i1Hu94LE?=
+ =?us-ascii?q?WdYHrshMoBEGgRswogQ+zllkeCXSRQZ3msRaI84C80CIa8AYfEXICtj+/J4C?=
+ =?us-ascii?q?DuOZtafG1EQnWLCnHhfIiHE6MLbSWJJMZqnxQeWLShQpNn3har4kuy0LdjL+?=
+ =?us-ascii?q?zJ6gUGup/5ktt4/evekVc17zMnId6a1jS2U2xsnm4ODwQz1aR7rF01nkyPyo?=
+ =?us-ascii?q?BkkvdYEppV/PoPXQAkY82Ph9dmAsz/D1qSNuyCT0yrF5D/WmA8?=
+X-IPAS-Result: =?us-ascii?q?A2A4AgAE1YNd/wHyM5BmHQEBBQEHBQGBVQYBCwGBbSqBP?=
+ =?us-ascii?q?wEyKoQijxNNAQEBAQEHgTaJdI8tgXsJAQEBAQEBAQEBNAECAQGEPwKDAyM2B?=
+ =?us-ascii?q?w4CDAEBAQQBAQEBAQUDAQFshTmCOikBgmYBAQEBAgEjFVELDgoCAiYCAlcGA?=
+ =?us-ascii?q?QwGAgEBgl8/gXcFD61kgTKFTIMwgUmBDCgBjAgYeIEHgTiCaz6BBAGGSoJYB?=
+ =?us-ascii?q?JYAlwaCLIIuklQGG4I2i3CKfY4WmxIGK4FYKwgCGAghD4MnUBAUgWaOSSQDM?=
+ =?us-ascii?q?IEGAQGPbgEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 19 Sep 2019 19:22:43 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8JJMhkW024378;
+        Thu, 19 Sep 2019 15:22:43 -0400
+Subject: Re: [PATCH] policy: fix some build errors under refpolicy
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20190919081058.8860-1-omosnace@redhat.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <3d39baf3-8ac8-1ce5-47c3-6a4bd8bad299@tycho.nsa.gov>
+Date:   Thu, 19 Sep 2019 15:22:43 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190919081058.8860-1-omosnace@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add BPF map & prog functions to test binder security_binder_transfer_file()
+On 9/19/19 4:10 AM, Ondrej Mosnacek wrote:
+> Replace deprecated macros with new ones. Fedora's policy has both;
+> refpolicy just the new ones.
+> 
+> Partially addresses issue #57.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- policy/Makefile                 |   2 +-
- policy/test_binder_bpf.te       |  73 ++++++++++++++++++++
- tests/binder/Makefile           |   5 ++
- tests/binder/binder_common.c    |  10 +--
- tests/binder/binder_common.h    |  17 ++++-
- tests/binder/client.c           |  28 ++++++--
- tests/binder/manager.c          |   2 +-
- tests/binder/service_provider.c | 118 ++++++++++++++++++++++++--------
- tests/bpf/Makefile              |   2 +-
- tests/bpf/test                  |  84 ++++++++++++++++++++++-
- 10 files changed, 296 insertions(+), 45 deletions(-)
- create mode 100644 policy/test_binder_bpf.te
+Thanks, applied.
 
-diff --git a/policy/Makefile b/policy/Makefile
-index 4ca5486..d72eb62 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -72,7 +72,7 @@ TARGETS += test_sctp.te
- endif
- 
- ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && echo true),true)
--TARGETS += test_bpf.te test_fdreceive_bpf.te
-+TARGETS += test_bpf.te test_fdreceive_bpf.te test_binder_bpf.te
- endif
- 
- ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
-diff --git a/policy/test_binder_bpf.te b/policy/test_binder_bpf.te
-new file mode 100644
-index 0000000..c545846
---- /dev/null
-+++ b/policy/test_binder_bpf.te
-@@ -0,0 +1,73 @@
-+####### Policy for testing BPF file descriptor transfers via binder #########
-+
-+attribute binderbpfdomain;
-+
-+#
-+################################## Manager ##################################
-+#
-+type test_binder_bpf_mgr_t;
-+domain_type(test_binder_bpf_mgr_t)
-+unconfined_runs_test(test_binder_bpf_mgr_t)
-+typeattribute test_binder_bpf_mgr_t testdomain;
-+typeattribute test_binder_bpf_mgr_t binderdomain;
-+allow test_binder_bpf_mgr_t test_binder_bpf_client_t:binder { transfer };
-+allow test_binder_bpf_mgr_t test_binder_client_no_bpf_perm_t:binder { transfer };
-+allow test_binder_bpf_mgr_t device_t:chr_file { ioctl open read write };
-+allow_map(test_binder_bpf_mgr_t, device_t, chr_file)
-+allow test_binder_bpf_mgr_t self:binder { set_context_mgr };
-+# For writing to flag file:
-+allow test_binder_bpf_mgr_t test_file_t:fifo_file { rw_file_perms };
-+
-+#
-+########################### Service Provider ################################
-+#
-+type test_binder_bpf_provider_t;
-+domain_type(test_binder_bpf_provider_t)
-+unconfined_runs_test(test_binder_bpf_provider_t)
-+typeattribute test_binder_bpf_provider_t testdomain;
-+typeattribute test_binder_bpf_provider_t binderbpfdomain;
-+allow test_binder_bpf_provider_t test_binder_bpf_mgr_t:binder { call transfer };
-+allow test_binder_bpf_provider_t device_t:chr_file { ioctl open read write };
-+allow_map(test_binder_bpf_provider_t, device_t, chr_file)
-+# For writing to flag file:
-+allow test_binder_bpf_provider_t test_file_t:fifo_file { rw_file_perms };
-+# For testing BPF map fd transfer:
-+allow test_binder_bpf_provider_t self:bpf { map_create map_read map_write prog_load prog_run };
-+allow test_binder_bpf_provider_t self:capability { sys_resource };
-+allow test_binder_bpf_provider_t self:process { setrlimit };
-+
-+#
-+################################# Client ####################################
-+#
-+type test_binder_bpf_client_t;
-+domain_type(test_binder_bpf_client_t)
-+unconfined_runs_test(test_binder_bpf_client_t)
-+typeattribute test_binder_bpf_client_t testdomain;
-+typeattribute test_binder_bpf_client_t binderbpfdomain;
-+allow test_binder_bpf_client_t test_binder_bpf_provider_t:binder { call impersonate };
-+allow test_binder_bpf_client_t test_binder_bpf_mgr_t:binder { call };
-+allow test_binder_bpf_client_t test_binder_bpf_provider_t:fd { use };
-+allow test_binder_bpf_client_t device_t:chr_file { getattr ioctl open read write };
-+allow_map(test_binder_bpf_client_t, device_t, chr_file)
-+# For testing BPF map fd transfer:
-+allow test_binder_bpf_client_t test_binder_bpf_provider_t:bpf { map_read map_write prog_load prog_run };
-+
-+#
-+######################## Client no BPF perms #############################
-+#
-+type test_binder_client_no_bpf_perm_t;
-+domain_type(test_binder_client_no_bpf_perm_t)
-+unconfined_runs_test(test_binder_client_no_bpf_perm_t)
-+typeattribute test_binder_client_no_bpf_perm_t testdomain;
-+typeattribute test_binder_client_no_bpf_perm_t binderbpfdomain;
-+allow test_binder_client_no_bpf_perm_t test_binder_bpf_provider_t:binder { call impersonate };
-+allow test_binder_client_no_bpf_perm_t test_binder_bpf_mgr_t:binder { call };
-+allow test_binder_client_no_bpf_perm_t test_binder_bpf_provider_t:fd { use };
-+allow test_binder_client_no_bpf_perm_t device_t:chr_file { getattr ioctl open read write };
-+allow_map(test_binder_client_no_bpf_perm_t, device_t, chr_file)
-+
-+#
-+########### Allow these domains to be entered from sysadm domain ############
-+#
-+miscfiles_domain_entry_test_files(binderbpfdomain)
-+userdom_sysadm_entry_spec_domtrans_to(binderbpfdomain)
-diff --git a/tests/binder/Makefile b/tests/binder/Makefile
-index 32f9a83..e78ad16 100644
---- a/tests/binder/Makefile
-+++ b/tests/binder/Makefile
-@@ -10,6 +10,11 @@ CFLAGS += -DHAVE_BINDERFS
- TARGETS += check_binderfs
- endif
- 
-+ifneq (,$(findstring -DHAVE_BPF,$(CFLAGS)))
-+	DEPS += ../bpf/bpf_common.c ../bpf/bpf_common.h
-+	LDLIBS += -lbpf
-+endif
-+
- all: $(TARGETS)
- 
- clean:
-diff --git a/tests/binder/binder_common.c b/tests/binder/binder_common.c
-index a240453..224238b 100644
---- a/tests/binder/binder_common.c
-+++ b/tests/binder/binder_common.c
-@@ -3,13 +3,15 @@
-  * the raw ioctl commands to test the SELinux binder permissions:
-  *     set_context_mgr, call, transfer, impersonate.
-  *
-+ * If configured, the BPF permissions are also tested.
-+ *
-  * Using binder test policy the following will be validated:
-  *    security_binder_set_context_mgr() binder { set_context_mgr }
-  *    security_binder_transaction()     binder { call impersonate }
-  *    security_binder_transfer_binder() binder { transfer }
-  *    security_binder_transfer_file()   fd { use }
-- *
-- * TODO security_binder_transfer_file() uses BPF if configured in kernel.
-+ *					bpf { map_create map_read map_write };
-+ *					bpf { prog_load prog_run };
-  */
- 
- #include "binder_common.h"
-@@ -67,8 +69,8 @@ void print_trans_data(const struct binder_transaction_data *txn_in)
- 	case TEST_SERVICE_GET:
- 		printf("\tcode: TEST_SERVICE_GET\n");
- 		break;
--	case TEST_SERVICE_SEND_CLIENT_SP_FD:
--		printf("\tcode: TEST_SERVICE_SEND_CLIENT_SP_FD\n");
-+	case TEST_SERVICE_SEND_FD:
-+		printf("\tcode: TEST_SERVICE_SEND_FD\n");
- 		break;
- 	default:
- 		printf("Unknown binder_transaction_data->code: %x\n",
-diff --git a/tests/binder/binder_common.h b/tests/binder/binder_common.h
-index bcf9e0c..30edc75 100644
---- a/tests/binder/binder_common.h
-+++ b/tests/binder/binder_common.h
-@@ -15,6 +15,9 @@
- #if HAVE_BINDERFS
- #include <linux/android/binderfs.h>
- #endif
-+#if HAVE_BPF
-+#include "../bpf/bpf_common.h"
-+#endif
- 
- #define BINDER_DEV "/dev/binder"
- #define BINDERFS_DEV "/dev/binderfs"
-@@ -26,12 +29,20 @@
- /* These are the Binder txn->code values used by the Service Provider, Client
-  * and Manager to request/retrieve a binder handle or file descriptor.
-  */
--#define TEST_SERVICE_ADD		240616 /* Sent by Service Provider */
--#define TEST_SERVICE_GET		290317 /* Sent by Client */
--#define TEST_SERVICE_SEND_CLIENT_SP_FD	120419 /* Sent by Client */
-+#define TEST_SERVICE_ADD	240616 /* Sent by Service Provider */
-+#define TEST_SERVICE_GET	290317 /* Sent by Client */
-+#define TEST_SERVICE_SEND_FD	311019 /* Sent by Client */
- 
- bool verbose;
- 
- const char *cmd_name(uint32_t cmd);
- void print_trans_data(const struct binder_transaction_data *txn_in);
- int binder_write(int fd, void *data, size_t len);
-+
-+enum {
-+	BINDER_FD,
-+	BPF_MAP_FD,
-+	BPF_PROG_FD,
-+	BPF_TEST
-+} fd_type;
-+char *fd_type_str;
-diff --git a/tests/binder/client.c b/tests/binder/client.c
-index e4e2a61..4965563 100644
---- a/tests/binder/client.c
-+++ b/tests/binder/client.c
-@@ -6,7 +6,7 @@ static int transactions_complete;
- static void usage(char *progname)
- {
- 	fprintf(stderr,
--		"usage:  %s [-c] [-n] [-r replies] [-v]\n"
-+		"usage:  %s [-c] [-n] [-r replies] [-m|-p] [-v]\n"
- 		"Where:\n\t"
- 		"-c  Use the number of replies for the BR_TRANSACTION_COMPLETE"
- 		" count.\n\t"
-@@ -15,6 +15,8 @@ static void usage(char *progname)
- 		"    It can be the number of BR_TRANSACTION_COMPLETE if\n\t"
- 		"    the -c option is set or number of times to issue the\n\t"
- 		"    ioctl - BINDER_WRITE_READ command if -c not set.\n\t"
-+		"-m  Service Provider sending BPF map fd.\n\t"
-+		"-p  Service Provider sending BPF prog fd.\n\t"
- 		"-v  Print context and command information.\n\t"
- 		"\nNote: Ensure this boolean command is run when "
- 		"testing after a reboot:\n\t"
-@@ -67,8 +69,12 @@ static void extract_fd_and_respond(const struct binder_transaction_data *txn_in)
- 	}
- 
- 	if (verbose)
--		printf("Client retrieved Service Providers fd: %d st_dev: %ld\n",
--		       obj->fd, sb.st_dev);
-+		printf("Client retrieved %s fd: %d st_dev: %ld\n",
-+		       fd_type_str, obj->fd, sb.st_dev);
-+
-+	/* If testing BPF, then cannot do impersonate check */
-+	if (fd_type > BINDER_FD)
-+		return;
- 
- 	memset(&writebuf, 0, sizeof(writebuf));
- 	memset(readbuf, 0, sizeof(readbuf));
-@@ -141,7 +147,7 @@ static void request_service_provider_fd(int fd, uint32_t handle)
- 	writebuf.cmd = BC_TRANSACTION;
- 	writebuf.txn.target.handle = handle;
- 	writebuf.txn.cookie = 0;
--	writebuf.txn.code = TEST_SERVICE_SEND_CLIENT_SP_FD;
-+	writebuf.txn.code = TEST_SERVICE_SEND_FD;
- 	writebuf.txn.flags = TF_ACCEPT_FDS;
- 
- 	writebuf.txn.data_size = 0;
-@@ -270,7 +276,7 @@ static int binder_parse(int fd, binder_uintptr_t ptr, binder_size_t size)
- 			if (txn->code == TEST_SERVICE_GET)
- 				extract_handle_and_acquire(fd, txn);
- 
--			if (txn->code == TEST_SERVICE_SEND_CLIENT_SP_FD)
-+			if (txn->code == TEST_SERVICE_SEND_FD)
- 				extract_fd_and_respond(txn);
- 
- 			ptr += sizeof(*txn);
-@@ -313,8 +319,10 @@ int main(int argc, char **argv)
- 	unsigned int readbuf[32];
- 
- 	transactions_complete = 0;
-+	fd_type = BINDER_FD;
-+	fd_type_str = "SP";
- 
--	while ((opt = getopt(argc, argv, "cnr:v")) != -1) {
-+	while ((opt = getopt(argc, argv, "cnr:vmp")) != -1) {
- 		switch (opt) {
- 		case 'c':
- 			use_transactions_complete = true;
-@@ -328,6 +336,14 @@ int main(int argc, char **argv)
- 		case 'v':
- 			verbose = true;
- 			break;
-+		case 'm':
-+			fd_type = BPF_MAP_FD;
-+			fd_type_str = "BPF map";
-+			break;
-+		case 'p':
-+			fd_type = BPF_PROG_FD;
-+			fd_type_str = "BPF prog";
-+			break;
- 		default:
- 			usage(argv[0]);
- 		}
-diff --git a/tests/binder/manager.c b/tests/binder/manager.c
-index 9922183..8e5f446 100644
---- a/tests/binder/manager.c
-+++ b/tests/binder/manager.c
-@@ -91,7 +91,7 @@ static void do_service_manager(int fd, struct binder_transaction_data *txn_in)
- 		reply_with_handle(fd, txn_in);
- 
- 		break;
--	case TEST_SERVICE_SEND_CLIENT_SP_FD:
-+	case TEST_SERVICE_SEND_FD:
- 		if (verbose)
- 			printf("Manager Rx'ed SEND_CLIENT_YOUR_BINDER_FD for handle: %d\n",
- 			       txn_in->target.handle);
-diff --git a/tests/binder/service_provider.c b/tests/binder/service_provider.c
-index 2873af8..56d8a43 100644
---- a/tests/binder/service_provider.c
-+++ b/tests/binder/service_provider.c
-@@ -6,11 +6,14 @@ static int binder_parse(int fd, binder_uintptr_t ptr, binder_size_t size);
- static void usage(char *progname)
- {
- 	fprintf(stderr,
--		"usage:  %s [-e expected_ctx] [-f file] [-n] [-v]\n"
-+		"usage:  %s -e expected_ctx] [-f file] [-n] [-m|-p|-t] [-v]\n"
- 		"Where:\n\t"
- 		"-e  Expected security context.\n\t"
- 		"-f  Write a line to the file when listening starts.\n\t"
- 		"-n  Use the /dev/binderfs name service.\n\t"
-+		"-m  Use BPF map fd for transfer.\n\t"
-+		"-p  Use BPF prog fd for transfer.\n\t"
-+		"-t  Test if BPF enabled.\n\t"
- 		"-v  Print context and command information.\n\t"
- 		"\nNote: Ensure this boolean command is run when "
- 		"testing after a reboot:\n\t"
-@@ -34,7 +37,7 @@ static void request_service_provider_fd(int fd,
- 	}
- 
- 	if (verbose)
--		printf("Service Provider sending BC_REPLY with its FD\n");
-+		printf("Service Provider sending BC_REPLY with an FD\n");
- 
- 	memset(writebuf, 0, sizeof(writebuf));
- 	memset(&bwr, 0, sizeof(bwr));
-@@ -56,17 +59,47 @@ static void request_service_provider_fd(int fd,
- 	obj.pad_flags = 0x7f | FLAT_BINDER_FLAG_ACCEPTS_FDS;
- #endif
- 	obj.cookie = txn->cookie;
--	/* The Service Providers binder fd is used for testing as it allows
-+
-+	/*
-+	 * The Service Providers binder fd is used for testing as it allows
- 	 * policy to set whether the Service Provider and Client can be
- 	 * allowed access (fd use) or not.
- 	 * This also allows a check for the impersonate permission later as
- 	 * the Client will use the Service Provider fd to send a transaction.
-+	 *
-+	 * If a BPF fd is required, it is generated, however it cannot be
-+	 * used to check the impersonate permission.
- 	 */
--	obj.fd = fd;
-+	switch (fd_type) {
-+	case BINDER_FD:
-+		obj.fd = fd;
-+		break;
-+#if HAVE_BPF
-+	case BPF_MAP_FD:
-+		obj.fd = create_bpf_map();
-+		if (obj.fd < 0)
-+			exit(70);
-+		break;
-+	case BPF_PROG_FD:
-+		obj.fd = create_bpf_prog();
-+		if (obj.fd < 0)
-+			exit(71);
-+		break;
-+#else
-+	case BPF_MAP_FD:
-+	case BPF_PROG_FD:
-+		fprintf(stderr, "BPF not supported - Service Provider\n");
-+		exit(72);
-+		break;
-+#endif
-+	default:
-+		fprintf(stderr, "Invalid fd_type: %d\n", fd_type);
-+		exit(73);
-+	}
- 
- 	if (verbose)
--		printf("Service Provider handle: %d and its FD: %d\n",
--		       txn->target.handle, fd);
-+		printf("Service Provider handle: %d and %s FD: %d\n",
-+		       txn->target.handle, fd_type_str, obj.fd);
- 
- 	txn->data_size = sizeof(obj);
- 	txn->data.ptr.buffer = (binder_uintptr_t)&obj;
-@@ -81,7 +114,7 @@ static void request_service_provider_fd(int fd,
- 		fprintf(stderr,
- 			"Service Provider ioctl BINDER_WRITE_READ error: %s\n",
- 			strerror(errno));
--		exit(70);
-+		exit(74);
- 	}
- }
- 
-@@ -119,7 +152,7 @@ static int binder_parse(int fd, binder_uintptr_t ptr, binder_size_t size)
- 				print_trans_data(txn);
- 			}
- 
--			if (txn->code == TEST_SERVICE_SEND_CLIENT_SP_FD)
-+			if (txn->code == TEST_SERVICE_SEND_FD)
- 				request_service_provider_fd(fd, txn);
- 
- 			ptr += sizeof(*txn);
-@@ -148,8 +181,7 @@ static int binder_parse(int fd, binder_uintptr_t ptr, binder_size_t size)
- 				}
- 			}
- 
--			if (txn_ctx->transaction_data.code ==
--			    TEST_SERVICE_SEND_CLIENT_SP_FD)
-+			if (txn_ctx->transaction_data.code == TEST_SERVICE_SEND_FD)
- 				request_service_provider_fd(fd,
- 							    &txn_ctx->transaction_data);
- 
-@@ -209,8 +241,10 @@ int main(int argc, char **argv)
- 	unsigned int readbuf[32];
- 
- 	expected_ctx = NULL;
-+	fd_type = BINDER_FD;
-+	fd_type_str = "SP";
- 
--	while ((opt = getopt(argc, argv, "e:f:nv")) != -1) {
-+	while ((opt = getopt(argc, argv, "e:f:nvmpt")) != -1) {
- 		switch (opt) {
- 		case 'e':
- 			expected_ctx = optarg;
-@@ -224,11 +258,37 @@ int main(int argc, char **argv)
- 		case 'v':
- 			verbose = true;
- 			break;
-+		case 'm':
-+			fd_type = BPF_MAP_FD;
-+			fd_type_str = "BPF map";
-+			break;
-+		case 'p':
-+			fd_type = BPF_PROG_FD;
-+			fd_type_str = "BPF prog";
-+			break;
-+		case 't':
-+			fd_type = BPF_TEST;
-+			break;
- 		default:
- 			usage(argv[0]);
- 		}
- 	}
- 
-+
-+#if HAVE_BPF
-+	if (fd_type == BPF_TEST)
-+		exit(0);
-+
-+	/* If BPF enabed, then need to set limits */
-+	if (fd_type == BPF_MAP_FD || fd_type == BPF_PROG_FD)
-+		bpf_setrlimit();
-+#else
-+	if (fd_type == BPF_TEST) {
-+		fprintf(stderr, "BPF not supported\n");
-+		exit(-1);
-+	}
-+#endif
-+
- 	/* Get our context and pid */
- 	result = getcon(&context);
- 	if (result < 0) {
-@@ -267,19 +327,6 @@ int main(int argc, char **argv)
- 		exit(63);
- 	}
- 
--	if (flag_file) {
--		flag_fd = fopen(flag_file, "w");
--		if (!flag_fd) {
--			fprintf(stderr,
--				"Service Provider failed to open %s: %s\n",
--				flag_file, strerror(errno));
--			result = 64;
--			goto brexit;
--		}
--		fprintf(flag_fd, "listening\n");
--		fclose(flag_fd);
--	}
--
- 	memset(&writebuf, 0, sizeof(writebuf));
- 	memset(&obj, 0, sizeof(obj));
- 	memset(readbuf, 0, sizeof(readbuf));
-@@ -322,7 +369,7 @@ int main(int argc, char **argv)
- 		fprintf(stderr,
- 			"Service Provider ioctl BINDER_WRITE_READ error: %s\n",
- 			strerror(errno));
--		result = 65;
-+		result = 64;
- 		goto brexit;
- 	}
- 
-@@ -338,7 +385,7 @@ int main(int argc, char **argv)
- 	    cmd == BR_DEAD_BINDER) {
- 		fprintf(stderr, "Service Provider %s() failing command %s, exiting.\n",
- 			__func__, cmd_name(cmd));
--		result = 66;
-+		result = 65;
- 		goto brexit;
- 	}
- 
-@@ -358,10 +405,27 @@ int main(int argc, char **argv)
- 		fprintf(stderr,
- 			"Service Provider ioctl BINDER_WRITE_READ error: %s\n",
- 			strerror(errno));
--		result = 67;
-+		result = 66;
- 		goto brexit;
- 	}
- 
-+	/*
-+	 * Ensure the Manager and Service Provider have completed the
-+	 * TEST_SERVICE_ADD sequence before the Client is allowed to start.
-+	 */
-+	if (flag_file) {
-+		flag_fd = fopen(flag_file, "w");
-+		if (!flag_fd) {
-+			fprintf(stderr,
-+				"Service Provider failed to open %s: %s\n",
-+				flag_file, strerror(errno));
-+			result = 67;
-+			goto brexit;
-+		}
-+		fprintf(flag_fd, "listening\n");
-+		fclose(flag_fd);
-+	}
-+
- 	while (true) {
- 		memset(readbuf, 0, sizeof(readbuf));
- 		bwr.read_size = sizeof(readbuf);
-diff --git a/tests/bpf/Makefile b/tests/bpf/Makefile
-index 3513179..6fb230d 100644
---- a/tests/bpf/Makefile
-+++ b/tests/bpf/Makefile
-@@ -5,7 +5,7 @@ LDLIBS += -lselinux -lbpf
- # export so that BPF_ENABLED entries get built correctly on local build
- export CFLAGS += -DHAVE_BPF
- 
--BPF_ENABLED = ../fdreceive
-+BPF_ENABLED = ../fdreceive ../binder
- 
- all: $(TARGETS)
- 	@set -e; for i in $(BPF_ENABLED); do $(MAKE) -C $$i all ; done
-diff --git a/tests/bpf/test b/tests/bpf/test
-index b49918d..4c768be 100755
---- a/tests/bpf/test
-+++ b/tests/bpf/test
-@@ -4,11 +4,14 @@ use Test::More;
- BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
--    $fdr_basedir = "$basedir/../fdreceive/";
-+    $fdr_basedir    = "$basedir/../fdreceive/";
-+    $binder_basedir = "$basedir/../binder/";
- 
-     $test_bpf_count       = 7;
-     $test_fdreceive_count = 4;
- 
-+    $test_count = $test_bpf_count + $test_fdreceive_count;
-+
-     # allow info to be shown during tests
-     $v = $ARGV[0];
-     if ($v) {
-@@ -20,7 +23,15 @@ BEGIN {
-         $v = " ";
-     }
- 
--    plan tests => $test_bpf_count + $test_fdreceive_count;
-+    # Test if Binder is supported
-+    $test_binder = 0;
-+    $result      = system("$binder_basedir/check_binder $v 2>/dev/null");
-+    if ( $result >> 8 eq 0 ) {
-+        $test_binder = 1;
-+        $test_count += 4;
-+    }
-+
-+    plan tests => $test_count;
- }
- 
- #
-@@ -104,4 +115,73 @@ kill KILL, $pid;
- # Clean up.
- system "rm -rf $basedir/test_sock $basedir/flag";
- 
-+#
-+################ BPF Tests for binder #######################
-+#
-+sub service_start {
-+    my ( $service, $runcon_args, $args ) = @_;
-+    my $pid;
-+    my $flag = $service . "_flag";
-+
-+    system("mkfifo $basedir/$flag");
-+
-+    if ( ( $pid = fork() ) == 0 ) {
-+        exec
-+"runcon $runcon_args $binder_basedir/$service -f $basedir/$flag $args";
-+    }
-+
-+    # Wait for it to initialize.
-+    system("read -t 5 <>$basedir/$flag");
-+    return $pid;
-+}
-+
-+sub service_end {
-+    my ( $service, $pid ) = @_;
-+    my $flag = $service . "_flag";
-+
-+    kill KILL, $pid;
-+    waitpid $pid, 0;
-+    system("rm -f $basedir/$flag");
-+}
-+
-+if ($test_binder) {
-+    ### Test BPF map fd on transfer ##################
-+    $sm_pid = service_start( "manager", "-t test_binder_bpf_mgr_t", "$v" );
-+    $sp_pid =
-+      service_start( "service_provider", "-t test_binder_bpf_provider_t",
-+        "-m $v" );
-+
-+    # Verify that the BPF map fd can be transferred.
-+    $result =
-+      system
-+      "runcon -t test_binder_bpf_client_t $binder_basedir/client $v -m -r 1";
-+    ok( $result eq 0 );
-+
-+    # Verify BPF no map perms.
-+    $result = system
-+"runcon -t test_binder_client_no_bpf_perm_t $binder_basedir/client $v -m -r 2 2>&1";
-+    ok( $result >> 8 eq 141 );
-+
-+    ### Test BPF prog fd on transfer ##################
-+    service_end( "service_provider", $sp_pid );
-+    $sp_pid =
-+      service_start( "service_provider", "-t test_binder_bpf_provider_t",
-+        "-p $v" );
-+
-+    # Verify that the BPF prog fd can be transferred.
-+    $result =
-+      system
-+      "runcon -t test_binder_bpf_client_t $binder_basedir/client $v -p -r 1";
-+    ok( $result eq 0 );
-+
-+    # Verify BPF no prog perms.
-+    $result = system
-+"runcon -t test_binder_client_no_bpf_perm_t $binder_basedir/client $v -p -r 2 2>&1";
-+    ok( $result >> 8 eq 141 );
-+
-+    # Kill the service provider & manager.
-+    service_end( "service_provider", $sp_pid );
-+    service_end( "manager",          $sm_pid );
-+}
-+
- exit;
--- 
-2.21.0
+> 
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>   policy/test_atsecure.te    | 4 ++--
+>   policy/test_capable_net.te | 2 +-
+>   policy/test_file.te        | 4 ++--
+>   policy/test_inherit.te     | 4 ++--
+>   policy/test_readlink.te    | 2 +-
+>   policy/test_rxdir.te       | 2 +-
+>   policy/test_setnice.te     | 4 ++--
+>   policy/test_stat.te        | 2 +-
+>   policy/test_transition.te  | 2 +-
+>   9 files changed, 13 insertions(+), 13 deletions(-)
+> 
+> diff --git a/policy/test_atsecure.te b/policy/test_atsecure.te
+> index 7255553..486faf6 100644
+> --- a/policy/test_atsecure.te
+> +++ b/policy/test_atsecure.te
+> @@ -32,8 +32,8 @@ corecmd_bin_entry_type(atsecuredomain)
+>   corecmd_shell_entry_type(atsecuredomain)
+>   corecmd_exec_bin(atsecuredomain)
+>   domain_entry_file(test_atsecure_newdomain_t, test_file_t)
+> -domain_trans(test_atsecure_denied_t, test_file_t, test_atsecure_newdomain_t)
+> -domain_trans(test_atsecure_allowed_t, test_file_t, test_atsecure_newdomain_t)
+> +domain_transition_pattern(test_atsecure_denied_t, test_file_t, test_atsecure_newdomain_t)
+> +domain_transition_pattern(test_atsecure_allowed_t, test_file_t, test_atsecure_newdomain_t)
+>   allow test_atsecure_newdomain_t test_atsecure_denied_t:fd use;
+>   allow test_atsecure_newdomain_t test_atsecure_allowed_t:fd use;
+>   allow_map(atsecuredomain, test_file_t, file)
+> diff --git a/policy/test_capable_net.te b/policy/test_capable_net.te
+> index fab6650..80559f6 100644
+> --- a/policy/test_capable_net.te
+> +++ b/policy/test_capable_net.te
+> @@ -53,7 +53,7 @@ sysadm_bin_spec_domtrans_to(capabledomain)
+>   require {
+>   	type ifconfig_exec_t;
+>   }
+> -domain_trans(sysadm_t, ifconfig_exec_t, capabledomain)
+> +domain_transition_pattern(sysadm_t, ifconfig_exec_t, capabledomain)
+>   domain_entry_file(capabledomain, ifconfig_exec_t)
+>   
+>   # Permissions for the good domain
+> diff --git a/policy/test_file.te b/policy/test_file.te
+> index 1f1da3a..828c0f4 100644
+> --- a/policy/test_file.te
+> +++ b/policy/test_file.te
+> @@ -67,13 +67,13 @@ corecmd_bin_entry_type(fileopdomain)
+>   sysadm_bin_spec_domtrans_to(fileopdomain)
+>   
+>   domain_entry_file(fileop_t, fileop_exec_t)
+> -domain_auto_trans(test_fileop_t, fileop_exec_t, fileop_t)
+> +domain_auto_transition_pattern(test_fileop_t, fileop_exec_t, fileop_t)
+>   allow test_fileop_t fileop_t:fd use;
+>   allow fileop_t test_fileop_t:fd use;
+>   allow fileop_t test_fileop_t:fifo_file rw_file_perms;
+>   allow fileop_t test_fileop_t:process sigchld;
+>   
+> -domain_auto_trans(test_nofileop_t, fileop_exec_t, fileop_t)
+> +domain_auto_transition_pattern(test_nofileop_t, fileop_exec_t, fileop_t)
+>   allow test_nofileop_t fileop_t:fd use;
+>   allow fileop_t test_nofileop_t:fd use;
+>   allow fileop_t test_nofileop_t:fifo_file rw_file_perms;
+> diff --git a/policy/test_inherit.te b/policy/test_inherit.te
+> index 28bfd63..8303fc5 100644
+> --- a/policy/test_inherit.te
+> +++ b/policy/test_inherit.te
+> @@ -47,7 +47,7 @@ userdom_sysadm_entry_spec_domtrans_to(inheritdomain)
+>   allow test_inherit_parent_t test_inherit_file_t:file rw_file_perms;
+>   
+>   # Grant the necessary permissions for the child domain.
+> -domain_trans(test_inherit_parent_t, test_file_t, test_inherit_child_t)
+> +domain_transition_pattern(test_inherit_parent_t, test_file_t, test_inherit_child_t)
+>   allow test_inherit_parent_t test_inherit_child_t:fd use;
+>   allow test_inherit_child_t test_inherit_parent_t:fd use;
+>   allow test_inherit_child_t test_inherit_parent_t:fifo_file rw_file_perms;
+> @@ -60,7 +60,7 @@ allow test_inherit_nouse_t test_file_t:file { read getattr execute entrypoint };
+>   allow test_inherit_nouse_t test_inherit_file_t:file rw_file_perms;
+>   
+>   # Grant the nowrite domain all of the same permissions except for file write.
+> -domain_trans(test_inherit_parent_t, test_file_t, test_inherit_nowrite_t)
+> +domain_transition_pattern(test_inherit_parent_t, test_file_t, test_inherit_nowrite_t)
+>   allow test_inherit_parent_t test_inherit_nowrite_t:fd use;
+>   allow test_inherit_nowrite_t test_inherit_parent_t:fd use;
+>   allow test_inherit_nowrite_t test_inherit_parent_t:fifo_file rw_file_perms;
+> diff --git a/policy/test_readlink.te b/policy/test_readlink.te
+> index 1126fd5..b0d8cd5 100644
+> --- a/policy/test_readlink.te
+> +++ b/policy/test_readlink.te
+> @@ -34,5 +34,5 @@ allow test_noreadlink_t test_readlink_link_t:lnk_file { getattr };
+>   require {
+>   	type ls_exec_t;
+>   }
+> -domain_trans(sysadm_t, ls_exec_t, test_readlink_domain)
+> +domain_transition_pattern(sysadm_t, ls_exec_t, test_readlink_domain)
+>   domain_entry_file(test_readlink_domain, ls_exec_t)
+> diff --git a/policy/test_rxdir.te b/policy/test_rxdir.te
+> index cbe1897..50d5ad1 100644
+> --- a/policy/test_rxdir.te
+> +++ b/policy/test_rxdir.te
+> @@ -33,4 +33,4 @@ require {
+>   	type ls_exec_t;
+>   }
+>   domain_entry_file(test_rxdir_domain, ls_exec_t)
+> -domain_trans(sysadm_t, ls_exec_t, test_rxdir_domain)
+> +domain_transition_pattern(sysadm_t, ls_exec_t, test_rxdir_domain)
+> diff --git a/policy/test_setnice.te b/policy/test_setnice.te
+> index dac0dc5..d956598 100644
+> --- a/policy/test_setnice.te
+> +++ b/policy/test_setnice.te
+> @@ -38,8 +38,8 @@ libs_exec_lib_files(setnicedomain)
+>   # Allow all of these domains to be entered from sysadm domain
+>   # via a shell script in the test directory or by....
+>   miscfiles_domain_entry_test_files(setnicedomain)
+> -domain_trans(sysadm_t, test_file_t, setnicedomain)
+> -domain_trans(test_setnice_change_t, test_file_t, {test_setnice_set_t test_setnice_noset_t})
+> +domain_transition_pattern(sysadm_t, test_file_t, setnicedomain)
+> +domain_transition_pattern(test_setnice_change_t, test_file_t, {test_setnice_set_t test_setnice_noset_t})
+>   allow test_setnice_change_t test_setnice_set_t:fd use;
+>   allow test_setnice_set_t test_setnice_change_t:fd use;
+>   allow test_setnice_set_t test_setnice_change_t:fifo_file rw_file_perms;
+> diff --git a/policy/test_stat.te b/policy/test_stat.te
+> index 2e068d1..0204e71 100644
+> --- a/policy/test_stat.te
+> +++ b/policy/test_stat.te
+> @@ -29,5 +29,5 @@ typeattribute test_nostat_t testdomain;
+>   require {
+>   	type ls_exec_t;
+>   }
+> -domain_trans(sysadm_t, ls_exec_t, test_stat_domain)
+> +domain_transition_pattern(sysadm_t, ls_exec_t, test_stat_domain)
+>   domain_entry_file(test_stat_domain, ls_exec_t)
+> diff --git a/policy/test_transition.te b/policy/test_transition.te
+> index c487825..1eee2b4 100644
+> --- a/policy/test_transition.te
+> +++ b/policy/test_transition.te
+> @@ -28,7 +28,7 @@ typeattribute test_transition_todomain_t testdomain;
+>   
+>   # Allow the fromdomain to transition to the new domain.
+>   corecmd_bin_entry_type(transitiondomain)
+> -domain_trans(test_transition_fromdomain_t,bin_t,test_transition_todomain_t)
+> +domain_transition_pattern(test_transition_fromdomain_t,bin_t,test_transition_todomain_t)
+>   allow test_transition_fromdomain_t test_transition_todomain_t:fd use;
+>   allow test_transition_todomain_t test_transition_fromdomain_t:fd use;
+>   
+> 
 
