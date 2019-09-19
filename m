@@ -2,91 +2,94 @@ Return-Path: <SRS0=jdxV=XO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 162E5C3A5A6
-	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 12:11:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4593BC3A5A6
+	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 12:17:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C5EC221929
-	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 12:11:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C274205F4
+	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 12:17:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="dmPfk7l6"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="cZ+l1lge"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390109AbfISMLH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Sep 2019 08:11:07 -0400
-Received: from UHIL19PA37.eemsg.mail.mil ([214.24.21.196]:44455 "EHLO
-        UHIL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388551AbfISMLH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Sep 2019 08:11:07 -0400
-X-EEMSG-check-017: 27163680|UHIL19PA37_ESA_OUT03.csd.disa.mil
+        id S2388819AbfISMRQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Sep 2019 08:17:16 -0400
+Received: from UCOL19PA38.eemsg.mail.mil ([214.24.24.198]:27913 "EHLO
+        UCOL19PA38.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388585AbfISMRQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Sep 2019 08:17:16 -0400
+X-EEMSG-check-017: 24486745|UCOL19PA38_ESA_OUT05.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.64,523,1559520000"; 
-   d="scan'208";a="27163680"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 19 Sep 2019 12:11:04 +0000
+   d="scan'208";a="24486745"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UCOL19PA38.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 19 Sep 2019 12:17:15 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1568895064; x=1600431064;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=BsQHAqljsgLjTP/XOy9F98lUq/qRZnmn1pPzKaE3wsc=;
-  b=dmPfk7l6va0oFFNNPx75cnrUXEimSKA+VDrDDtvv96C6Tt3JE0vrPOBJ
-   1JglgT9mxfgjwrdSM7FVoYKR8fZyaOYUSeO5soIxrC+LNUAijJuwxkeP9
-   NnVd7DKzLn8QGc64hRhC+Gfd0085k6CXIv0buU+adQt3a62DNefO3zGGA
-   jz8vggHdGNQ805xUQbhzuBt28QNYpeZeTc2ct3Ac0/SBBX5A9Ev9jw/Q2
-   gfGMHNIXVsJehokt/nv9qTSq02HW9tSIiBhuh4bhd/mJ9Ab04C6FEGkno
-   tLU/dHKcOJ5zlZ/RuLJJCNmcE1OaJcvdJCkHe9ubfHyKqxatRCyYw7nIe
-   A==;
+  s=tycho.nsa.gov; t=1568895435; x=1600431435;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=8BJkF35Xlb/0IPIiKQK1iCQQhS0lX8DONiVnzlPSQzY=;
+  b=cZ+l1lgefKhVTK5vjcPVZqEsD5/b8p+CJovZPlEH5p97tdGL7zAjjpXI
+   8oRqTp5Y+TsaDGDhZqRhAp3JKLVg3RfPrpty/FuIHutli/htUkGZo4xoM
+   xNxUa8uSpYxg3t5Hysosx+3zqTh8KcKrLq9ld3Oi5OrRH7Sxsq1+Q02ZI
+   E+tQo+n3ef+pQd3rIRr9+gPH7yRwXxmJoDN2rGLHrTMjwptpQz2xw6iDz
+   wo3yYwcIahJlYqizUbsNN1GhFb98+dIPJnptIchEnuSyzUcVDcfY9ZepB
+   BIo87vMwBOk4fkazfOChs/BP5XqZjX8iaSY3FdHXzEvpJhVwdnmDC5R15
+   w==;
 X-IronPort-AV: E=Sophos;i="5.64,523,1559520000"; 
-   d="scan'208";a="33060321"
-IronPort-PHdr: =?us-ascii?q?9a23=3AGkBIUhKD8S/DAtn8s9mcpTZWNBhigK39O0sv0r?=
- =?us-ascii?q?FitYgfLfnxwZ3uMQTl6Ol3ixeRBMOHsqkC0bKd7/GoGTRZp8rY6jZaKN0Efi?=
- =?us-ascii?q?RGoP1epxYnDs+BBB+zB9/RRAt+Iv5/UkR49WqwK0lfFZW2TVTTpnqv8WxaQU?=
- =?us-ascii?q?2nZkJ6KevvB4Hdkdm82fys9J3PeQVIgye2ba9vIBmsogjdq8cbjZF8JqotxR?=
- =?us-ascii?q?fErX9FcPlSyW90OF6fhRnx6tqu8JJ57yhcp/ct/NNcXKvneKg1UaZWByk8PW?=
- =?us-ascii?q?Av483ruxjDTQ+R6XYZT24bjBlGDRXb4R/jRpv+vTf0ueR72CmBIM35Vqs0Vi?=
- =?us-ascii?q?i476dqUxDnliEKPCMk/W7Ni8xwiKVboA+9pxF63oXZbp2ZOOZ4c6jAZt4RW3?=
- =?us-ascii?q?ZPUdhNWCxAGoO8bpUAD+wdPeZDsoLxo0ICoQaiCQWwAe/izDFHhmXy3aYnze?=
- =?us-ascii?q?ovFw/I1xEkE94XrnjZqND5OaEPWu630abI1y3OYe5I1zfz6IbGcR4vrv+DUr?=
- =?us-ascii?q?1ybcXfxlIiFx/Hg1iKtYDpIz2Y2+YLvmOG7+RgT+Wvi2s/pg9svjig2N8sio?=
- =?us-ascii?q?nXiYIT11vK6CB5z5wxJd28VkF6YcOvHZxLty6HLIt7Wd8iQmF0tyY6zb0Ko5?=
- =?us-ascii?q?i7fDMQx5g9yB7fbOKHfpGO7xn+WuiRJjJ4i2hkeLK5nxuy8lavyvf6Vsaq1F?=
- =?us-ascii?q?ZGtC1FksPDtn0Lyhfd6dCHR+Ng8kqu1juDzQDe5vxeLUwqmqfXNYQtzqM2m5?=
- =?us-ascii?q?EOq0rMBDX2l1/zjKKOc0Uk/fWn5Pr/b7X9o5+cK5d0igbjMqQygsC/Afo3Mg?=
- =?us-ascii?q?wJX2WD5eSzzqfj/UzkQLVRlPE2jqnYv4zaJcQcvKK5BRNa0p0/5BqlCjem0d?=
- =?us-ascii?q?AYkWEGLFJDZh2Hk5DkN0zBLf33F/uyg0mgnC11y/3JILHtGIjBImDGkLj7fL?=
- =?us-ascii?q?Z970BcyBA0zdBa/59UEawOIOnoV0/ttN3XEh85Mwuuz+bhE9VyzJkSWW2IAq?=
- =?us-ascii?q?+HKK/Sq0OH5vozI+mQY48YoDH9K/0i5/71i382g0MScrey0JsNdn+3A/RmLF?=
- =?us-ascii?q?+FYXb2ntgBFmIKtBIkTOP2kF2CTSJTZ3GqUqIn+D47DIOmDYHeRoGim7GBwi?=
- =?us-ascii?q?i7EYNMZmxcCVCDD23od4OaVPcIci6SJdVhkjNXHYSmHqgn2QujtkffzKFhJ+?=
- =?us-ascii?q?HZ+WVMspfkz9587OD7jxw+9TVoSc+a1jfJB1pZmmIOWi9+2KFkvQQp0VqH0K?=
- =?us-ascii?q?5lk9RGGtFJofBESAE3Mdjb1eMsWP7oXQeURcuEUFarRJ2dBDg1St8gi4sVb1?=
- =?us-ascii?q?1VB8SpjheF2TGjRbASierYV9QP7qvA0i2pdI5GwHHc2fxk1gN3Tw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2ARAQDpb4Nd/wHyM5BlHAEBAQQBAQcEAQGBVAYBAQsBg?=
- =?us-ascii?q?W0qbVIBMiqEIo8STQEBAQEBB4E2iXSPLYF7CQEBAQEBAQEBAS0HAQIBAYFLg?=
- =?us-ascii?q?nQCgwMjNQgOAgwBAQEEAQEBAQEFAwEBbIUtDII6KQGCZwEFIxVRCw4KAgImA?=
- =?us-ascii?q?gJXBgEMBgIBAYJfPwGBdhQPrXqBMoVMgzGBQwaBDCgBjAgYeIEHgTiCaz6BB?=
- =?us-ascii?q?AGBXASBPwEBgymCWASWAJcGgiyCLoRXjX0GG4I2i3CKfY4WiBGSfAI0gVgrC?=
- =?us-ascii?q?AIYCCEPgydQEBSBZohuhVskAzABAYEEAQGNKYJFAQE?=
+   d="scan'208";a="28089743"
+IronPort-PHdr: =?us-ascii?q?9a23=3AkLPJcRN/awzw/0gqsZEl6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0K/z6oMbcNUDSrc9gkEXOFd2Cra4d0KyM6+u9ASRAuc/H7ClYNsQUFl?=
+ =?us-ascii?q?cssoY/p0QYGsmLCEn2frbBThcRO4B8bmJj5GyxKkNPGczzNBX4q3y26iMOSF?=
+ =?us-ascii?q?2kbVImbuv6FZTPgMupyuu854PcYxlShDq6fLh+MAi6oR/eu8ULj4ZuMLg9xg?=
+ =?us-ascii?q?fGrnZIZ+hd2GdkKU6Okxrm6cq84YBv/z5Mt/498sJLTLn3cbk/QbFEFjotLn?=
+ =?us-ascii?q?o75NfstRnNTAuP4mUTX2ALmRdWAAbL8Q/3UI7pviT1quRy1i+aPdbrTb8vQj?=
+ =?us-ascii?q?St871rSB7zhygZMTMy7XzahdZxjKJfpxKhugB/zovJa4ybKPZyYqXQds4BSG?=
+ =?us-ascii?q?FfQsheSTBOAoKkb4sOEeUBO/pYr5LgrFcKtBeyGBWgCP/qxjJOiHD2x6k62P?=
+ =?us-ascii?q?k/Hw/A0gIrAtYCvG3KoNjxMasfV/2+wqvVwjXZd/5YxCnz6IbIfB4ir/+DU7?=
+ =?us-ascii?q?1/fsjNxkcgDA7FkledpJb5Mz+J2OkAsW6W5PdgW+K1jG4nrhl8rCWzxsgyko?=
+ =?us-ascii?q?nJhpwaylbZ/itkxYY6P9m4SEplbt+kDZBdsDqaOJZtQs45X2FpuDo1yr0BuZ?=
+ =?us-ascii?q?KheigK044oywTQa/yAbYiF+xTuX/ufLzd/gXJqYrO/hxCq/Ei80O3zTNe00F?=
+ =?us-ascii?q?dRriZcjtbMt2oB1xvJ6siIUvd98Uah2SqP1wDO8e5IO1w7la3eK5Mn37U+lY?=
+ =?us-ascii?q?ITvFzeEiL5l0j6lq+belg+9uS25OnrfK/qqoKaOoRpkA/xKL4ulda6AekgNw?=
+ =?us-ascii?q?gOWHWU9vqk2b34+E35XK1KjvorkqnFqJzaJdoUpqq+AwJNzoYs8Qy/Dza70N?=
+ =?us-ascii?q?QDh3UHMFJEdw6Hj4juIV3OJuz3DeyjjFi2lTdrxvTGMqXgApXLMHfDjK/sca?=
+ =?us-ascii?q?ty5kNT0gY+zc1T64hKBrwOPv7/QFL9uMTdDhAjMgy0x+jnCM961oMbQW+PGb?=
+ =?us-ascii?q?KWMLjJvF+U5uMgP+mMZIgPtDb7MPgq/eTijXA+mV8DZaWpx4cYaGikHvR6JE?=
+ =?us-ascii?q?WUeX3sgtIGEWcRuAoxVvDlh0OZXD5JeXm9QqI86SsnCI68EYjDQYWtiqSb3C?=
+ =?us-ascii?q?inBp1WenxGCleUHHfwbYqERvMMZTmKIsB7jzwEUaGtS4om1RGprg/11aBrIf?=
+ =?us-ascii?q?bT+i0drZjjzsR65/XPlREu8jx5F9+d3H+JT2F1mGMIWjA30bthoUxy1FiDy7?=
+ =?us-ascii?q?J0g/9GGtxJ4fNGTAM6OYTbz+xgBNChEj7GK/CPREyrQJ2DBio3R9k8wJdaZE?=
+ =?us-ascii?q?N6ANOrhR3rxSemA7YJ0beMAcpn3Ljb2i3KO8tly3vAnJIkhl0iT9oHYXaqnY?=
+ =?us-ascii?q?Zj5gPTAMjPiEzfmKG0I/dPlBXR/XuOmDLd9HpTVxR9BOCcByES?=
+X-IPAS-Result: =?us-ascii?q?A2CcAADecINd/wHyM5BlHAEBAQQBAQcEAQGBVQUBAQsBg?=
+ =?us-ascii?q?W0qbVIBMiqEIo9gAQEBAQEBBoE2iXSPLRSBZwkBAQEBAQEBAQEtBwECAQGEP?=
+ =?us-ascii?q?wKDAyM2Bw4CDAEBAQQBAQEBAQUDAQFshS0MgjopAYJmAQEBAQIBIxVBBQsLD?=
+ =?us-ascii?q?goCAhEVAgJXBg0GAgEBgl8/AYF2BQ8PrX6BMoQ3AYEUgzGBQwaBDCgBjAgYe?=
+ =?us-ascii?q?IEHgTiCaz6BDoFTAoEcIxlIgkyCWASWAJcGgiyCLoRXjX0GG5kjlieTAQMug?=
+ =?us-ascii?q?VgrCAIYCCEPgydQEBSBWheDT4UUhVskAzAKfAEBjSkVghoWAQE?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 19 Sep 2019 12:11:02 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 19 Sep 2019 12:17:14 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8JCB2kd001580;
-        Thu, 19 Sep 2019 08:11:02 -0400
-Subject: Re: [PATCH] policy: fix some build errors under refpolicy
-To:     Ondrej Mosnacek <omosnace@redhat.com>,
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8JCHEY1005083;
+        Thu, 19 Sep 2019 08:17:14 -0400
+Subject: Re: [PATCH] selinux-testsuite: apply perltidy to infiniband test
+ scripts
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
         SElinux list <selinux@vger.kernel.org>
-References: <20190919081058.8860-1-omosnace@redhat.com>
- <CAFqZXNu30MVUACOkVxZWEvz4FjLQEg2YDfZ_7ZdvxotRtJqNjA@mail.gmail.com>
+References: <20190918125507.10778-1-sds@tycho.nsa.gov>
+ <CAFqZXNuZ00pFj_vyzJ3W3x2Fbs=NA+NDMCUR9fwpaerUfRU-pQ@mail.gmail.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <8e53d70c-f29c-f413-6e26-ca2bd589a4dc@tycho.nsa.gov>
-Date:   Thu, 19 Sep 2019 08:11:02 -0400
+Message-ID: <2ac5eb4d-b44f-bbe2-58fd-8a9c1758e4b9@tycho.nsa.gov>
+Date:   Thu, 19 Sep 2019 08:17:14 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.0
 MIME-Version: 1.0
-In-Reply-To: <CAFqZXNu30MVUACOkVxZWEvz4FjLQEg2YDfZ_7ZdvxotRtJqNjA@mail.gmail.com>
+In-Reply-To: <CAFqZXNuZ00pFj_vyzJ3W3x2Fbs=NA+NDMCUR9fwpaerUfRU-pQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -95,180 +98,66 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/19/19 4:33 AM, Ondrej Mosnacek wrote:
-> On Thu, Sep 19, 2019 at 10:11 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->> Replace deprecated macros with new ones. Fedora's policy has both;
->> refpolicy just the new ones.
+On 9/19/19 3:43 AM, Ondrej Mosnacek wrote:
+> On Wed, Sep 18, 2019 at 2:55 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> The infiniband test scripts weren't compliant with perltidy so
+>> make check-syntax was failing.  Fix it.
+> 
+> Unfortunately there is some disconnect between the perltidy version
+> available in the Travis CI environment and the newer versions
+> available in more recent distributions... See this commit in the
+> audit-testsuite [1] - the decision is to follow the Travis format as
+> the common "standard" (there is really no better way until we patch
+> the Travis script to install newer peritidy somehow...).
+
+Ok, I reverted this change. Wondering if this could be controlled 
+through any of the perltidy options, or fixed by using a newer image 
+e.g. bionic.
+
+> Just in case you don't know, anyone can easily enable Travis CI on
+> their GitHub fork - just go to https://travis-ci.org/, log in with
+> your GitHub account, and switch the corresponding project to enabled.
+> That way you can just push a branch to your fork, it will be tested
+> and you will get a report to (just) your mailbox. I.e. you can do the
+> canonical syntax check without opening a PR against the upstream repo.
+> 
+> [1] https://github.com/linux-audit/audit-testsuite/commit/7ff3e434bc243e667ebb26a22b64176e662fddec
+> 
 >>
->> Partially addresses issue #57.
->>
->> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 >> ---
->>   policy/test_atsecure.te    | 4 ++--
->>   policy/test_capable_net.te | 2 +-
->>   policy/test_file.te        | 4 ++--
->>   policy/test_inherit.te     | 4 ++--
->>   policy/test_readlink.te    | 2 +-
->>   policy/test_rxdir.te       | 2 +-
->>   policy/test_setnice.te     | 4 ++--
->>   policy/test_stat.te        | 2 +-
->>   policy/test_transition.te  | 2 +-
->>   9 files changed, 13 insertions(+), 13 deletions(-)
-> 
-> (Forgot to specify in the subject that this is a testsuite patch -
-> sorry, testing a new script...)
-> 
-> Tested by running the testuite on Fedora Rawhide along with Stephen's
-> related patch ("selinux-testsuite: drop use of
-> userdom_read_inherited_user_tmp_files"):
-> 
-> https://lore.kernel.org/selinux/CAFqZXNt4gtvgLbTj18=DW65SnQieaGA=++nKd0QLhzkQ6fERAg@mail.gmail.com/T/#t
-> 
-> Even with this + Stephen's patch the refpolicy build is still failing
-> for me on missing 'userdom_search_admin_dir'.
-
-That also looks like it isn't truly needed AFAICS.
-
-> 
+>>   tests/infiniband_endport/test | 2 +-
+>>   tests/infiniband_pkey/test    | 2 +-
+>>   2 files changed, 2 insertions(+), 2 deletions(-)
 >>
->> diff --git a/policy/test_atsecure.te b/policy/test_atsecure.te
->> index 7255553..486faf6 100644
->> --- a/policy/test_atsecure.te
->> +++ b/policy/test_atsecure.te
->> @@ -32,8 +32,8 @@ corecmd_bin_entry_type(atsecuredomain)
->>   corecmd_shell_entry_type(atsecuredomain)
->>   corecmd_exec_bin(atsecuredomain)
->>   domain_entry_file(test_atsecure_newdomain_t, test_file_t)
->> -domain_trans(test_atsecure_denied_t, test_file_t, test_atsecure_newdomain_t)
->> -domain_trans(test_atsecure_allowed_t, test_file_t, test_atsecure_newdomain_t)
->> +domain_transition_pattern(test_atsecure_denied_t, test_file_t, test_atsecure_newdomain_t)
->> +domain_transition_pattern(test_atsecure_allowed_t, test_file_t, test_atsecure_newdomain_t)
->>   allow test_atsecure_newdomain_t test_atsecure_denied_t:fd use;
->>   allow test_atsecure_newdomain_t test_atsecure_allowed_t:fd use;
->>   allow_map(atsecuredomain, test_file_t, file)
->> diff --git a/policy/test_capable_net.te b/policy/test_capable_net.te
->> index fab6650..80559f6 100644
->> --- a/policy/test_capable_net.te
->> +++ b/policy/test_capable_net.te
->> @@ -53,7 +53,7 @@ sysadm_bin_spec_domtrans_to(capabledomain)
->>   require {
->>          type ifconfig_exec_t;
->>   }
->> -domain_trans(sysadm_t, ifconfig_exec_t, capabledomain)
->> +domain_transition_pattern(sysadm_t, ifconfig_exec_t, capabledomain)
->>   domain_entry_file(capabledomain, ifconfig_exec_t)
+>> diff --git a/tests/infiniband_endport/test b/tests/infiniband_endport/test
+>> index 0021e0d69af4..f071fbc18cf8 100755
+>> --- a/tests/infiniband_endport/test
+>> +++ b/tests/infiniband_endport/test
+>> @@ -40,7 +40,7 @@ ok( $result, 0 );
 >>
->>   # Permissions for the good domain
->> diff --git a/policy/test_file.te b/policy/test_file.te
->> index 1f1da3a..828c0f4 100644
->> --- a/policy/test_file.te
->> +++ b/policy/test_file.te
->> @@ -67,13 +67,13 @@ corecmd_bin_entry_type(fileopdomain)
->>   sysadm_bin_spec_domtrans_to(fileopdomain)
+>>   foreach (@denied_device_port) {
+>>       @dev_port_pair = split( / /, $_ );
+>> -    $result = system
+>> +    $result        = system
+>>   "runcon -t test_ibendport_manage_subnet_t smpquery PKeyTable -C $dev_port_pair[0] -P $dev_port_pair[1] -D 1 2>/dev/null";
 >>
->>   domain_entry_file(fileop_t, fileop_exec_t)
->> -domain_auto_trans(test_fileop_t, fileop_exec_t, fileop_t)
->> +domain_auto_transition_pattern(test_fileop_t, fileop_exec_t, fileop_t)
->>   allow test_fileop_t fileop_t:fd use;
->>   allow fileop_t test_fileop_t:fd use;
->>   allow fileop_t test_fileop_t:fifo_file rw_file_perms;
->>   allow fileop_t test_fileop_t:process sigchld;
+>>       if ( $result >> 8 eq 0 ) {
+>> diff --git a/tests/infiniband_pkey/test b/tests/infiniband_pkey/test
+>> index 3ee4d13c8ffe..382c25913ca0 100755
+>> --- a/tests/infiniband_pkey/test
+>> +++ b/tests/infiniband_pkey/test
+>> @@ -32,7 +32,7 @@ close($f);
 >>
->> -domain_auto_trans(test_nofileop_t, fileop_exec_t, fileop_t)
->> +domain_auto_transition_pattern(test_nofileop_t, fileop_exec_t, fileop_t)
->>   allow test_nofileop_t fileop_t:fd use;
->>   allow fileop_t test_nofileop_t:fd use;
->>   allow fileop_t test_nofileop_t:fifo_file rw_file_perms;
->> diff --git a/policy/test_inherit.te b/policy/test_inherit.te
->> index 28bfd63..8303fc5 100644
->> --- a/policy/test_inherit.te
->> +++ b/policy/test_inherit.te
->> @@ -47,7 +47,7 @@ userdom_sysadm_entry_spec_domtrans_to(inheritdomain)
->>   allow test_inherit_parent_t test_inherit_file_t:file rw_file_perms;
+>>   # The gid sysfs shows a fully expanded ipv6 address, just take the
+>>   # top half.
+>> -@tmp = unpack( '(a20)*', $gid );
+>> +@tmp           = unpack( '(a20)*', $gid );
+>>   $subnet_prefix = $tmp[0] . ":";
 >>
->>   # Grant the necessary permissions for the child domain.
->> -domain_trans(test_inherit_parent_t, test_file_t, test_inherit_child_t)
->> +domain_transition_pattern(test_inherit_parent_t, test_file_t, test_inherit_child_t)
->>   allow test_inherit_parent_t test_inherit_child_t:fd use;
->>   allow test_inherit_child_t test_inherit_parent_t:fd use;
->>   allow test_inherit_child_t test_inherit_parent_t:fifo_file rw_file_perms;
->> @@ -60,7 +60,7 @@ allow test_inherit_nouse_t test_file_t:file { read getattr execute entrypoint };
->>   allow test_inherit_nouse_t test_inherit_file_t:file rw_file_perms;
->>
->>   # Grant the nowrite domain all of the same permissions except for file write.
->> -domain_trans(test_inherit_parent_t, test_file_t, test_inherit_nowrite_t)
->> +domain_transition_pattern(test_inherit_parent_t, test_file_t, test_inherit_nowrite_t)
->>   allow test_inherit_parent_t test_inherit_nowrite_t:fd use;
->>   allow test_inherit_nowrite_t test_inherit_parent_t:fd use;
->>   allow test_inherit_nowrite_t test_inherit_parent_t:fifo_file rw_file_perms;
->> diff --git a/policy/test_readlink.te b/policy/test_readlink.te
->> index 1126fd5..b0d8cd5 100644
->> --- a/policy/test_readlink.te
->> +++ b/policy/test_readlink.te
->> @@ -34,5 +34,5 @@ allow test_noreadlink_t test_readlink_link_t:lnk_file { getattr };
->>   require {
->>          type ls_exec_t;
->>   }
->> -domain_trans(sysadm_t, ls_exec_t, test_readlink_domain)
->> +domain_transition_pattern(sysadm_t, ls_exec_t, test_readlink_domain)
->>   domain_entry_file(test_readlink_domain, ls_exec_t)
->> diff --git a/policy/test_rxdir.te b/policy/test_rxdir.te
->> index cbe1897..50d5ad1 100644
->> --- a/policy/test_rxdir.te
->> +++ b/policy/test_rxdir.te
->> @@ -33,4 +33,4 @@ require {
->>          type ls_exec_t;
->>   }
->>   domain_entry_file(test_rxdir_domain, ls_exec_t)
->> -domain_trans(sysadm_t, ls_exec_t, test_rxdir_domain)
->> +domain_transition_pattern(sysadm_t, ls_exec_t, test_rxdir_domain)
->> diff --git a/policy/test_setnice.te b/policy/test_setnice.te
->> index dac0dc5..d956598 100644
->> --- a/policy/test_setnice.te
->> +++ b/policy/test_setnice.te
->> @@ -38,8 +38,8 @@ libs_exec_lib_files(setnicedomain)
->>   # Allow all of these domains to be entered from sysadm domain
->>   # via a shell script in the test directory or by....
->>   miscfiles_domain_entry_test_files(setnicedomain)
->> -domain_trans(sysadm_t, test_file_t, setnicedomain)
->> -domain_trans(test_setnice_change_t, test_file_t, {test_setnice_set_t test_setnice_noset_t})
->> +domain_transition_pattern(sysadm_t, test_file_t, setnicedomain)
->> +domain_transition_pattern(test_setnice_change_t, test_file_t, {test_setnice_set_t test_setnice_noset_t})
->>   allow test_setnice_change_t test_setnice_set_t:fd use;
->>   allow test_setnice_set_t test_setnice_change_t:fd use;
->>   allow test_setnice_set_t test_setnice_change_t:fifo_file rw_file_perms;
->> diff --git a/policy/test_stat.te b/policy/test_stat.te
->> index 2e068d1..0204e71 100644
->> --- a/policy/test_stat.te
->> +++ b/policy/test_stat.te
->> @@ -29,5 +29,5 @@ typeattribute test_nostat_t testdomain;
->>   require {
->>          type ls_exec_t;
->>   }
->> -domain_trans(sysadm_t, ls_exec_t, test_stat_domain)
->> +domain_transition_pattern(sysadm_t, ls_exec_t, test_stat_domain)
->>   domain_entry_file(test_stat_domain, ls_exec_t)
->> diff --git a/policy/test_transition.te b/policy/test_transition.te
->> index c487825..1eee2b4 100644
->> --- a/policy/test_transition.te
->> +++ b/policy/test_transition.te
->> @@ -28,7 +28,7 @@ typeattribute test_transition_todomain_t testdomain;
->>
->>   # Allow the fromdomain to transition to the new domain.
->>   corecmd_bin_entry_type(transitiondomain)
->> -domain_trans(test_transition_fromdomain_t,bin_t,test_transition_todomain_t)
->> +domain_transition_pattern(test_transition_fromdomain_t,bin_t,test_transition_todomain_t)
->>   allow test_transition_fromdomain_t test_transition_todomain_t:fd use;
->>   allow test_transition_todomain_t test_transition_fromdomain_t:fd use;
->>
+>>   @labeled_pkeys = split( /,/, $conf{SELINUX_INFINIBAND_TEST_LABELED_PKEYS} );
 >> --
 >> 2.21.0
 >>
-> 
-> 
-> --
-> Ondrej Mosnacek <omosnace at redhat dot com>
-> Software Engineer, Security Technologies
-> Red Hat, Inc.
 > 
 
