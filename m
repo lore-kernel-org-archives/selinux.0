@@ -2,160 +2,130 @@ Return-Path: <SRS0=jdxV=XO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BE0CC3A5A6
-	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 12:47:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F82BC3A5A6
+	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 13:03:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D66B920882
-	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 12:47:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E96421907
+	for <selinux@archiver.kernel.org>; Thu, 19 Sep 2019 13:03:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iO+1h67F"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SiSf6jBf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387753AbfISMr3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Sep 2019 08:47:29 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:40678 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2387520AbfISMr3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Sep 2019 08:47:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1568897247;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=g4Xb4Sk1xeO0T9dm5kzhIc3psSfkD136+1Ov/qjaJ4U=;
-        b=iO+1h67FmpIt7kL7sa347UZ0BjRNx3waKmY0gQPLfe/7sKrKX56Ao1nEgQRcf+oYjktuZY
-        Id+s/e2uFl+g5ipWgRoPSuHh6cdbUCfKT/cnZBlF4sqhs7moovL3UkM4ES+Dj8ihpJprjD
-        YTjedk7gOlkOKNWorC/tBffTN9mARpU=
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
- [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-311-r2wDYROjPNCm_SNvgH8Nhw-1; Thu, 19 Sep 2019 08:47:26 -0400
-Received: by mail-oi1-f200.google.com with SMTP id c18so1843914oiy.9
-        for <selinux@vger.kernel.org>; Thu, 19 Sep 2019 05:47:24 -0700 (PDT)
+        id S2388578AbfISNDI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Sep 2019 09:03:08 -0400
+Received: from mail-wr1-f47.google.com ([209.85.221.47]:44716 "EHLO
+        mail-wr1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387693AbfISNDI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Sep 2019 09:03:08 -0400
+Received: by mail-wr1-f47.google.com with SMTP id i18so2972883wru.11
+        for <selinux@vger.kernel.org>; Thu, 19 Sep 2019 06:03:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kIO7VpqRridRZA6neRu+MoaNkZZ6uhPyvyCLoH46Mes=;
+        b=SiSf6jBf93Q9BXO/ViKYYzfcM5G9X2fGtv2R8HeRgmhgUsRiwnZIF9BTf9Q/7Hl2cA
+         11B1lOmzB0/uJo33eJdokXOVsHQsde+YT5ii97K5XrPrIYBns6rvt3ZDYVo+ywS9X+b7
+         20l41rmbDXwYw7t2496062j++eCQ+XfxxJl69TxBEbV7puMH8f+scO0sw1u6FaaDQNlX
+         X1H894C4by9S/2mNBArdIzKCUUKdsfgYtazYVTGMqayBxtEdtRvHaZcr2vhd+VhNwdkZ
+         iU/3aXcWcPKJJziBqXv+3w677ngKtfRXnzPbFE4pcfUO+HLsSn92lZLqFvg6RKm9+/li
+         POQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=nZ65N2hj8ZILuQ8BlZ/qpoPWzGI1RuEFHIZ/aN1MWHs=;
-        b=asdGo7IESw/EtmUlKMwcaWDCkwBceA3BD663tsl4EzHOFNaROII8l54sKEO86eVa6Z
-         LTrw9ZHSlKAhvasz10voIeY/9Ypkw0X07cipsA2XYMcg63e1jYvZKCBL2HMp5+dmA73V
-         2Z2y2chVsDqYYqHQnm20NY9D7mYyGt1aXpc0tIcvNPlFhxaEZURsO8cpunEiKdadk7jD
-         EMMZpm4h254mbcruswdy4LjVF7xWYPQllYfXeXjlw5QCzmx29q+dFOxqZAids5yORoId
-         7enOnGRil7nCCbB8TDZPXfqYZMpfrn5ttIN9g3uhaSTBTsYJMfVAha32PDY6PjNmwM4i
-         zaHg==
-X-Gm-Message-State: APjAAAV9siGi3T2B8Fl8qWHQKJ9NKghnEEc/hSeMCMShGirKbhXhWaB/
-        AYxay3lvEgH9lPEVPNNpwgjp9cxfeSPrpO4O4iiVEYjSfKo92rkcAFDgV9zYokt1sYz+R203liy
-        vWDWlb9VEgX1VHHMBMTqnDOwvWFKQYj49gw==
-X-Received: by 2002:a9d:625a:: with SMTP id i26mr4371854otk.43.1568897244107;
-        Thu, 19 Sep 2019 05:47:24 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqyF0tBk2h0kWxZ4JLcfWgVjfJ6Jfj1q5dnn+rAY8i/g3DVEi3Wj+DUbosr5r/k0FGqD32iEklmAfuftqleWo90=
-X-Received: by 2002:a9d:625a:: with SMTP id i26mr4371838otk.43.1568897243764;
- Thu, 19 Sep 2019 05:47:23 -0700 (PDT)
+        bh=kIO7VpqRridRZA6neRu+MoaNkZZ6uhPyvyCLoH46Mes=;
+        b=iXaFdWL6iUPYpeoe5tBJdDj1cnQPkYyj6LRu9KShQKSX2cmsjHb0Vn25dnmIGikrdA
+         lOPb4mbX+XQEcM326s+s8d8Hd7iUg65mgI0xWilMbIJc0pjIf81MjBEVEa0eaLddgSsx
+         rwQKETxwbL2A2PoZX9eBoowOadLorUmRB64fMr3EaxxCaq8LFtKEK/oU9F5pujpxdFxX
+         gOPwJDFVTF0y8LnPqZydGQC6TYDJRJyWJxShWfJ/IRDq1c2wAgrgvNuVLwl3h6qv7sMz
+         WG+Vo+C2ED4StG4G8JAi6REIrkO1TeBwXvAyjhTdQsXH+okzC9SLMIFtumvU0dwZa7ma
+         B4oA==
+X-Gm-Message-State: APjAAAVix/YiSIi9bxBJGq3L0H5ElSELsZMjtl4QfQyGy7RXQdUtiz3d
+        zifm15KUoYZK4kcXAdW79RW7hUhi9RZKOvYddhx9cw==
+X-Google-Smtp-Source: APXvYqyhy0cAHEiu2CHLT/qV4eWop899a0a6pYHjqc7l0KdFSuf5K3S9xwnLmoXhi8t2IoteO2Ilvwj4LkAUvNRO6qo=
+X-Received: by 2002:adf:9cc7:: with SMTP id h7mr6889681wre.193.1568898186705;
+ Thu, 19 Sep 2019 06:03:06 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190918125507.10778-1-sds@tycho.nsa.gov> <CAFqZXNuZ00pFj_vyzJ3W3x2Fbs=NA+NDMCUR9fwpaerUfRU-pQ@mail.gmail.com>
- <2ac5eb4d-b44f-bbe2-58fd-8a9c1758e4b9@tycho.nsa.gov>
-In-Reply-To: <2ac5eb4d-b44f-bbe2-58fd-8a9c1758e4b9@tycho.nsa.gov>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 19 Sep 2019 14:47:12 +0200
-Message-ID: <CAFqZXNuyukdZ5-tbq=n148ZCt0QyGroELA3shRwjoLGMuuKnow@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: apply perltidy to infiniband test scripts
+References: <CAFPpqQFwGgEKU9KY2kif4C95fZPvLH0TGdTxLKUAXuRgK2zxBw@mail.gmail.com>
+ <ac6433e2-88a4-747c-66f5-d241499f40d6@tycho.nsa.gov> <CAFPpqQGfAifnShcWTMs1pJe1m7W_4wM8AUqFsvj4Zts5-9QiCQ@mail.gmail.com>
+ <b2c71d86-c574-43d6-2fcf-17a06078c8df@tycho.nsa.gov>
+In-Reply-To: <b2c71d86-c574-43d6-2fcf-17a06078c8df@tycho.nsa.gov>
+From:   Ted Toth <txtoth@gmail.com>
+Date:   Thu, 19 Sep 2019 08:02:51 -0500
+Message-ID: <CAFPpqQHJU8sta7t5ZQ2PQCJi064Po4jXZ2g-LAoOZPF9rtd-pQ@mail.gmail.com>
+Subject: Re: strange tclass in AVCs
 To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>
-X-MC-Unique: r2wDYROjPNCm_SNvgH8Nhw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 19, 2019 at 2:17 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 9/19/19 3:43 AM, Ondrej Mosnacek wrote:
-> > On Wed, Sep 18, 2019 at 2:55 PM Stephen Smalley <sds@tycho.nsa.gov> wro=
-te:
-> >> The infiniband test scripts weren't compliant with perltidy so
-> >> make check-syntax was failing.  Fix it.
-> >
-> > Unfortunately there is some disconnect between the perltidy version
-> > available in the Travis CI environment and the newer versions
-> > available in more recent distributions... See this commit in the
-> > audit-testsuite [1] - the decision is to follow the Travis format as
-> > the common "standard" (there is really no better way until we patch
-> > the Travis script to install newer peritidy somehow...).
+On Wed, Sep 18, 2019 at 9:18 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
 >
-> Ok, I reverted this change. Wondering if this could be controlled
-> through any of the perltidy options, or fixed by using a newer image
-> e.g. bionic.
-
-FWIW, I just checked and bionic is still not new enough:
-
-Passed with old perltidy syntax:
-https://travis-ci.org/WOnder93/selinux-testsuite/jobs/586994152
-Failed with new perltidy syntax:
-https://travis-ci.org/WOnder93/selinux-testsuite/builds/586996059
-
+> On 9/18/19 10:03 AM, Ted Toth wrote:
+> > On Wed, Sep 18, 2019 at 8:53 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >>
+> >> On 9/18/19 9:35 AM, Ted Toth wrote:
+> >>> I'm seeing things like tclass=context#012 in some AVCs what is this telling me?
+> >>
+> >> Just a guess here, but octal 012 is '\n' aka a newline character, and
+> >> libselinux/src/avc.c:avc_audit() appends a "\n" at the end of the buffer
+> >> before calling avc_log() to log the entire string.  avc_log() will call
+> >> the logging callback, and dbusd does define one, which calls
+> >> audit_log_user_avc_message().  Maybe audit_log_user_avc_message() is
+> >> escaping the newline character in its output as well as appending
+> >> additional data.
+> >>
+> >> I'm a little unclear though on why dbusd is checking a context contains
+> >> permission?
+> >
+> > These appear to only occur when systemd is starting the dbus daemon
+> > and they end up in /var/log/messages not /var/log/audit/audit.log as
+> > I'd expect.
 >
-> > Just in case you don't know, anyone can easily enable Travis CI on
-> > their GitHub fork - just go to https://travis-ci.org/, log in with
-> > your GitHub account, and switch the corresponding project to enabled.
-> > That way you can just push a branch to your fork, it will be tested
-> > and you will get a report to (just) your mailbox. I.e. you can do the
-> > canonical syntax check without opening a PR against the upstream repo.
-> >
-> > [1] https://github.com/linux-audit/audit-testsuite/commit/7ff3e434bc243=
-e667ebb26a22b64176e662fddec
-> >
-> >>
-> >> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> >> ---
-> >>   tests/infiniband_endport/test | 2 +-
-> >>   tests/infiniband_pkey/test    | 2 +-
-> >>   2 files changed, 2 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/tests/infiniband_endport/test b/tests/infiniband_endport/=
-test
-> >> index 0021e0d69af4..f071fbc18cf8 100755
-> >> --- a/tests/infiniband_endport/test
-> >> +++ b/tests/infiniband_endport/test
-> >> @@ -40,7 +40,7 @@ ok( $result, 0 );
-> >>
-> >>   foreach (@denied_device_port) {
-> >>       @dev_port_pair =3D split( / /, $_ );
-> >> -    $result =3D system
-> >> +    $result        =3D system
-> >>   "runcon -t test_ibendport_manage_subnet_t smpquery PKeyTable -C $dev=
-_port_pair[0] -P $dev_port_pair[1] -D 1 2>/dev/null";
-> >>
-> >>       if ( $result >> 8 eq 0 ) {
-> >> diff --git a/tests/infiniband_pkey/test b/tests/infiniband_pkey/test
-> >> index 3ee4d13c8ffe..382c25913ca0 100755
-> >> --- a/tests/infiniband_pkey/test
-> >> +++ b/tests/infiniband_pkey/test
-> >> @@ -32,7 +32,7 @@ close($f);
-> >>
-> >>   # The gid sysfs shows a fully expanded ipv6 address, just take the
-> >>   # top half.
-> >> -@tmp =3D unpack( '(a20)*', $gid );
-> >> +@tmp           =3D unpack( '(a20)*', $gid );
-> >>   $subnet_prefix =3D $tmp[0] . ":";
-> >>
-> >>   @labeled_pkeys =3D split( /,/, $conf{SELINUX_INFINIBAND_TEST_LABELED=
-_PKEYS} );
-> >> --
-> >> 2.21.0
-> >>
-> >
+> Sounds like auditd isn't operational at that point and therefore the
+> output just goes to syslog.
+>
+> Arguably avc_audit() shouldn't be adding a newline at all and that
+> should be handled by the logging callback (or default_selinux_log if no
+> callback is set).  But it has been this way forever, so that would no
+> doubt break some users.  Legacy of when this was a printk/printf.
+>
+>
+>
 >
 
+FWIW here's the comments from the function dbus uses that calls
+avs_has_perm where the contains check happens. Why dbus policy does
+not allow this is seems like an oversight.
 
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+/**
+ * Determine if the SELinux security policy allows the given sender
+ * security context to go to the given recipient security context.
+ * This function determines if the requested permissions are to be
+ * granted from the connection to the message bus or to another
+ * optionally supplied security identifier (e.g. for a service
+ * context).  Currently these permissions are either send_msg or
+ * acquire_svc in the dbus class.
+ *
+ * @param sender_sid source security context
+ * @param override_sid is the target security context.  If SECSID_WILD this will
+ *        use the context of the bus itself (e.g. the default).
+ * @param target_class is the target security class.
+ * @param requested is the requested permissions.
+ * @returns #TRUE if security policy allows the send.
+ */
+#ifdef HAVE_SELINUX
+static dbus_bool_t
+bus_selinux_check (BusSELinuxID        *sender_sid,
+                   BusSELinuxID        *override_sid,
+                   security_class_t     target_class,
+                   access_vector_t      requested,
+                   DBusString          *auxdata)
