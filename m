@@ -7,69 +7,66 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F607C4CECD
-	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 10:15:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15409C49ED7
+	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 11:50:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 59325208C0
-	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 10:15:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D7E7820882
+	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 11:50:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dci6WWip"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DQG4gAxS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438011AbfITKPT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 20 Sep 2019 06:15:19 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:49735 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2438042AbfITKPT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 20 Sep 2019 06:15:19 -0400
+        id S2438281AbfITLu0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 20 Sep 2019 07:50:26 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:30460 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2438245AbfITLu0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 20 Sep 2019 07:50:26 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1568974517;
+        s=mimecast20190719; t=1568980225;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=6+7nDa+TUyh+LnMh8k6IqeByFZpRJN1ChAfwm7LS+Bk=;
-        b=Dci6WWipgejArWsnxn6RTi1Io+ATYyiiWGRG6WuOs4kSzcqdHf0E1ifA8/CIe0B5lo7li6
-        5Zr96GIMxsLdAQ9ppxLTyK2Or791M7az2x3FrshqFfEjE8Stc73c8BqBr5X3L6YET/KPyd
-        /wNK+PORT3jU9UaUBc54aAlctwwotC8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-140-REekZsUCMhCjiGIGPdqSqA-1; Fri, 20 Sep 2019 06:15:15 -0400
-Received: by mail-wr1-f70.google.com with SMTP id n6so2061834wrm.20
-        for <selinux@vger.kernel.org>; Fri, 20 Sep 2019 03:15:15 -0700 (PDT)
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ujWdPb6tM+fB6ikcFhiakZYrReEpcspq8/UCdHPg77U=;
+        b=DQG4gAxSYzutFJK2X0ZLC5Oxu4dP++TKpUxZcO+DoZsHRyo9R/kRBvw4HRD7dKKbsl/wVI
+        M2l7g96vx9N0GfEiGpLUmnG2xs5fCbqtT4v5xID8OgNWyMhbNm+Gl5uAczcNXz1uKiTAkU
+        nCxW/WzdWG6Of5jeyhKJcgcbJS6qerA=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-361-HW-ce9itNBitBfPT1pFMUA-1; Fri, 20 Sep 2019 07:50:24 -0400
+Received: by mail-wm1-f71.google.com with SMTP id t185so925573wmg.4
+        for <selinux@vger.kernel.org>; Fri, 20 Sep 2019 04:50:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=aG9y36sXtDSiMIAH0hrmLmRBZaaFzLKFgDZ0kRbg+Ok=;
-        b=kN+ECJQbIPNIRFMl3t3N856zhvjkkQZeQV1tl5hGXZ8rl2h4B3WpY85BYBrnrZZeh6
-         oUJczxbqPmTTvVieh4bNyMTjVajPr1Bkf93K0evwqQIAAgRQA3rJxDAu5SCny2YnBTrS
-         ugMIJipf7onKWLcnOa53ISkrIOa9ElRT3/+Y9yiH0fhLRJTxUp92VHiihLrZYa711zYC
-         BLrnO1oVFzumbeyXE9Q2Bw0QU40Ac1Gn+NliR1XH0WMdw7q/APfSGGZNyyr5W/zbYqMQ
-         kfouzLfvqjWi8jTL7IlimO4rt/jqlUN3Cmad0CcorFwWK5H65hFPNkvqZjFCI0wzoUaj
-         jy3w==
-X-Gm-Message-State: APjAAAVp+Y32uc6BNhh7PLLxNhDGJbbV4/DrJayRUcZdN2xfO3Uc4CMI
-        YboaFbOa4lz0Rwl7LosLjpHcPcBkrMeJlhxBef9WqklLFlIijJpwbwiTaMUfb7rHS3aHNfSP4Fk
-        o5crbqWpCcQKPm8OiNg==
-X-Received: by 2002:adf:ed88:: with SMTP id c8mr10630638wro.329.1568974514393;
-        Fri, 20 Sep 2019 03:15:14 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqxe0jb4eq5DxVBgEXX8LbGLRA0D/y/ZRXARb/GsS3BxGdaCnNWpIrjuyQ3KcStcAhS6JWW7SA==
-X-Received: by 2002:adf:ed88:: with SMTP id c8mr10630620wro.329.1568974514147;
-        Fri, 20 Sep 2019 03:15:14 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=QSFQRY7wJUqt5hWmMKU4qYegaYWL9fe2P3OLVlHG7aw=;
+        b=sChUlqHl0PnSr3m8Mj79gxyPSRQpYzmbiBE55DN31C9+d1/ZhFMfXsDQgXD5aEJEIG
+         fCBeKmZF6MREdDKUGW68NV5Y/l3Nl+RPmF1mntce/ZbjbUvdGe6Y19tLPPLIKjivAFq2
+         UfNB3yME92EfC0GbeoVXuFpOXWfwxP1GJvMrIT7jxTLfvNKm4k5InFjAFfCF2jvdk7Qx
+         oI5DDw0Jy9ENX6uQOkPW/y9V0YGnhFdWhSBd7YVpwFbhDp6gwiqNCT9E1oxxO87dhcHK
+         0owZpfgs9Qz9gKDjtpkDTftJjr2XMagfF8ifv5TjNBDWEbYUyWXkisrFz9UrOKRcj7iV
+         5Sng==
+X-Gm-Message-State: APjAAAWHD0/RokPhnb/F7+t3A1AMieFMfdHbwf/7Zbgq3NOjh3yldnuk
+        I6SUGAAOeUP4GDDNf21VE/Iy9muvqBwGuSpSnicjn/lA0VepkVX85CjWbiBEq0bbN2iU776m/tc
+        ECNkjg05q3jxMSm2h+w==
+X-Received: by 2002:a1c:2d85:: with SMTP id t127mr3381086wmt.81.1568980222813;
+        Fri, 20 Sep 2019 04:50:22 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqzF5FQVX1cNuDR7cOoT5SjdZ0yU93V1DnJa8U3y5A8Q6pIxhzeWrbBmlbuApp0eqj+lcXl73w==
+X-Received: by 2002:a1c:2d85:: with SMTP id t127mr3381066wmt.81.1568980222523;
+        Fri, 20 Sep 2019 04:50:22 -0700 (PDT)
 Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id y14sm2246059wrd.84.2019.09.20.03.15.13
+        by smtp.gmail.com with ESMTPSA id f17sm2200312wru.29.2019.09.20.04.50.21
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Sep 2019 03:15:13 -0700 (PDT)
+        Fri, 20 Sep 2019 04:50:21 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 1/2] tests/task_setscheduler: fix for old kernels
-Date:   Fri, 20 Sep 2019 12:15:09 +0200
-Message-Id: <20190920101510.13907-2-omosnace@redhat.com>
+Subject: [PATCH testsuite] tests/Makefile: check if BPF library is installed
+Date:   Fri, 20 Sep 2019 13:50:19 +0200
+Message-Id: <20190920115019.23144-1-omosnace@redhat.com>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190920101510.13907-1-omosnace@redhat.com>
-References: <20190920101510.13907-1-omosnace@redhat.com>
 MIME-Version: 1.0
-X-MC-Unique: REekZsUCMhCjiGIGPdqSqA-1
+X-MC-Unique: HW-ce9itNBitBfPT1pFMUA-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
@@ -78,50 +75,35 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On some old kernels (e.g. RHEL-5) the setscheduler test hangs the system
-after commit 26a3b59d5f5a ("selinux-testsuite: fix potential races when
-starting bg programs"). The issue seems to be that the new 'target'
-program does a busy loop, whereas the old one did sleep() in a loop.
+Check for the existence of the <bpf/bpf.h> header before enabling BPF
+testing. Otherwise building the tests fails in an environment where
+the kernel and policy support BPF, but the library is not installed.
 
-Fix this by sleeping inside the loop as before. Note that the policy
-needs to be updated to allow running the sleep command from
-a test_setsched_target_t process.
-
-Fixes: 26a3b59d5f5a ("selinux-testsuite: fix potential races when starting =
-bg programs")
+Fixes: 8f0f980a4ad5 ("selinux-testsuite: Add BPF tests")
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- policy/test_task_setsched.te | 1 +
- tests/task_setscheduler/test | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ tests/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/policy/test_task_setsched.te b/policy/test_task_setsched.te
-index 32569b7..794de65 100644
---- a/policy/test_task_setsched.te
-+++ b/policy/test_task_setsched.te
-@@ -11,6 +11,7 @@ type test_setsched_target_t;
- domain_type(test_setsched_target_t)
- unconfined_runs_test(test_setsched_target_t)
- corecmd_shell_entry_type(test_setsched_target_t)
-+corecmd_exec_bin(test_setsched_target_t)
- typeattribute test_setsched_target_t test_setsched_d;
- typeattribute test_setsched_target_t testdomain;
+diff --git a/tests/Makefile b/tests/Makefile
+index e5bdfff..e8cf008 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -43,10 +43,12 @@ endif
 =20
-diff --git a/tests/task_setscheduler/test b/tests/task_setscheduler/test
-index 9e712a8..fa7d9cb 100755
---- a/tests/task_setscheduler/test
-+++ b/tests/task_setscheduler/test
-@@ -10,7 +10,7 @@ $basedir =3D~ s|(.*)/[^/]*|$1|;
- system("mkfifo $basedir/flag");
- if ( ( $pid =3D fork() ) =3D=3D 0 ) {
-     exec
--"runcon -t test_setsched_target_t sh -c 'echo >$basedir/flag; while :; do =
-:; done'";
-+"runcon -t test_setsched_target_t sh -c 'echo >$basedir/flag; while :; do =
-sleep 1; done'";
- }
+ ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && echo =
+true),true)
+ ifneq ($(shell ./kvercmp $$(uname -r) 4.15),-1)
++ifneq (,$(wildcard $(INCLUDEDIR)/bpf/bpf.h))
+ SUBDIRS +=3D bpf
+ export CFLAGS +=3D -DHAVE_BPF
+ endif
+ endif
++endif
 =20
- # Wait for it to start.
+ ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=3D" infiniband_endpor=
+t/ibendport_test.conf | cut -d'=3D' -f 2),1)
+ SUBDIRS +=3D infiniband_endport
 --=20
 2.21.0
 
