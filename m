@@ -2,85 +2,93 @@ Return-Path: <SRS0=JJ8R=XP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91378C49ED7
-	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 12:35:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C7C6C49ED7
+	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 13:02:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 62533208C0
-	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 12:35:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D34C20665
+	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 13:02:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="LSNFVk4r"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="dQoSwvTs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725909AbfITMfH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 20 Sep 2019 08:35:07 -0400
-Received: from USFB19PA35.eemsg.mail.mil ([214.24.26.198]:15869 "EHLO
-        USFB19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725842AbfITMfG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 20 Sep 2019 08:35:06 -0400
-X-EEMSG-check-017: 10483359|USFB19PA35_ESA_OUT05.csd.disa.mil
+        id S1726923AbfITNC1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 20 Sep 2019 09:02:27 -0400
+Received: from USAT19PA22.eemsg.mail.mil ([214.24.22.196]:20498 "EHLO
+        USAT19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726807AbfITNC1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 20 Sep 2019 09:02:27 -0400
+X-EEMSG-check-017: 30111135|USAT19PA22_ESA_OUT03.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.64,528,1559520000"; 
-   d="scan'208";a="10483359"
+   d="scan'208";a="30111135"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA35.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 20 Sep 2019 12:35:05 +0000
+  by USAT19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 20 Sep 2019 13:02:26 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1568982905; x=1600518905;
-  h=to:from:subject:message-id:date:mime-version:
-   content-transfer-encoding;
-  bh=V67GZW9pEuX57lPcMZ1EVdff3L7ZO3SKdkQkfKt3wCc=;
-  b=LSNFVk4rRzcUhyQn53qZm9t76NoZtYLiC6vGr/ZY9HOd8G+yUPHiFF4u
-   6Q65Fh64lopDkGfPii7jpLJlYqGKTSE2q77WsxNCavc1AVdn7wYOATeEh
-   F8QqiK94qu3t6skn/D73ihrs0m1VH2S7TxW4UJwHcchVtzISYfBwgRbLN
-   0UoS6txuHvK53mWbr8T7XPiu8+BAPV5KiuY8CJS3goJ2EmUSmJ07+Qyuc
-   U406vxhQnxV8d/jwi95H85R7uMGjrkksK3Tp7zy/hhwkclVJcvMPZCPLB
-   vuYzJ/+jGm/xTsxk5eSi4njr0mUEqN2Ku+kgCiJtGWDhyI7JwAhPEwIE+
+  s=tycho.nsa.gov; t=1568984546; x=1600520546;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=kxMekgaSt0IgxiB301DjyJRt6p3snWh6CavUysS3Ko4=;
+  b=dQoSwvTsWvJef4DgRrzd3PJVNKcWON17mZ3cSnmoI+FlkbQc13nDiVxS
+   uEfuhL4lKYGvYuykSCSqlWb9qyN/kGPI96oPwj07auxcPEjni2aYw2AKp
+   AURc6SUw4OmZvVE9DMZ3Ghf1lO8dRy++VAQxwO1hNEf0ebqzvS0JP0MlF
+   IOI8cIEXaSAUTWgk1nDw5a0q6NXSytf8F9F56ylu4fJ9zxdOguLinEGfd
+   MjHl02n8AnLRl7COC9uHiuXjXFi6C5kti6ssbXlRhhLcoHAziP/n3QHga
+   9G/42HOXc+cq+EOfbzwa0Hdtf0AVEl0jytPGerZjkU/sxbMtim2l7cvUH
    w==;
 X-IronPort-AV: E=Sophos;i="5.64,528,1559520000"; 
-   d="scan'208";a="33124804"
-IronPort-PHdr: =?us-ascii?q?9a23=3AUyTUrBWmSW7Zu3ggUnYHxE0l/3TV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYbB2Dt8tkgFKBZ4jH8fUM07OQ7/m7HzZaqsvZ+DBaKdoQDk?=
- =?us-ascii?q?VD0Z1X1yUbQ+e9QXXhK/DrayFoVO9jb3RCu0+BDE5OBczlbEfTqHDhpRQbGx?=
- =?us-ascii?q?H4KBYnbr+tQt2agMu4zf299IPOaAtUmjW9falyLBKrpgnNq8Uam4RvJrs/xx?=
- =?us-ascii?q?fTvHdEZetayGN0KVmOmxrw+tq88IRs/ihNpf4t7dJMXbn/c68lUbFWETMqPn?=
- =?us-ascii?q?wv6sb2rxfDVwyP5nUdUmUSjBVFBhXO4Q/5UJnsrCb0r/Jx1yaGM8L4S7A0Qi?=
- =?us-ascii?q?mi4LxwSBD0kicHNiU2/3/Rh8dtka9UuhOhpxh4w47JfIGYMed1c63Bcd8GQ2?=
- =?us-ascii?q?dKQ8heVzZFAoihcYUBCeQPNvtco4XkuVcDqR6yCA+xD+3t1zBInGf707M63e?=
- =?us-ascii?q?o8Eg/I0gIvEN0Sv3rbt9j1KKUfXPqpwKXUwzjObfVb0ir95ojSdRAhpOmBU6?=
- =?us-ascii?q?9sccXP0UkvFx3KjlONooL4OjOazOANs2yF4OtgSOmijHUnpBxqojW02sctip?=
- =?us-ascii?q?XGhoISylze8yV525w6Kce3SE58f96pCZ1dvDyUOYtxR8MtWWBouCAix70dpZ?=
- =?us-ascii?q?G7fDYFx4k9yxHDbPyHdpCE4hbiVOaXPDd5i3xleLWihxa07Eev0PH8Vsiz0F?=
- =?us-ascii?q?ZMtCZFlcPMtn8V2x3T7ciHV+d9/lq61jmRzQzc9uZEIUUymKHGKJAh2qY9mo?=
- =?us-ascii?q?ccvEnMBCP7mFj6gLWIekgr5OSk8fnrb7P7rZGGLYB0kBvxMqE2l8y6BuQ3Lx?=
- =?us-ascii?q?YBUnCA+eS5yL3j5Ur5QKhWjvEukqnWrpTaJcMDq66lGQBVyIcj6wukDzu8zN?=
- =?us-ascii?q?QZnWUILFJCeB6diYjmJ0rOL+ziAfe6glSslC9nx/HAPrL/HpXANmXPnbjucL?=
- =?us-ascii?q?pn60NQ1RA/wc5Q6p5KEL0NPer/Wkrru9zZCh85PRa0w+HiCNhlzYMRRHmPD7?=
- =?us-ascii?q?SFMKLSrVCI5uUvL/OKZI8OojnxMfcl5/nwjXMhg18SYbGp3YcLaHC/BvlmOF?=
- =?us-ascii?q?uWYX7tgtcHDGcLsREzTPLliFKcSz5ffXWyULwm5jE9Fo2mCZ3PRoe3gLyOj2?=
- =?us-ascii?q?+HGchtS0RHDE2cWSPzeoGFXeocQDydL9UnkTEeU7WlDYg72kf9mhX9zu9cMu?=
- =?us-ascii?q?fM+iAe/anm3dxx6vybwQo+7hRoHs+d1CeLVGgykWQWEWxllJtjqFBwnw/QmZ?=
- =?us-ascii?q?NzhOZVQJkJtv4=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BMEQAdx4Rd/wHyM5BkHgEZDIFVgXQqbVMyKoQijxhNA?=
- =?us-ascii?q?QEBAQEBBosrjy2BewkBAQEBAQEBAQEbEgcBAgEBh0ojNAkOAgwBAQEEAQEBA?=
- =?us-ascii?q?QEFAwEBbIUtDII6KYJsJRV2AiYCXw0IAQEQgk8/AYF2FA+sJoEyhDsDAgGBC?=
- =?us-ascii?q?4M0gUMGgQwojAkYeIEHgTiGCgEBAQEBF4RSglgElgKXC4Isgi6EV41/BhuCN?=
- =?us-ascii?q?pZwj1aGV41EhTo4gVgrCAIYCCEPgydQEBSFQIUUhVskAzABC3oBAY42AQE?=
+   d="scan'208";a="33127185"
+IronPort-PHdr: =?us-ascii?q?9a23=3AytT1Mxx6XeO+VJDXCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd0uoTKvad9pjvdHbS+e9qxAeQG9mCsLQe0aGL7eigATVGvc/b9ihaMdRlbF?=
+ =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
+ =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMuMQam5VuJrg+xh?=
+ =?us-ascii?q?bJo3ZDZuBayX91KV6JkBvw+9m88IR//yhMvv4q6tJNX7j9c6kkV7JTES4oM3?=
+ =?us-ascii?q?oy5M3ltBnDSRWA634BWWgIkRRGHhbI4gjiUpj+riX1uOx92DKHPcLtVrA7RS?=
+ =?us-ascii?q?6i76ZwRxD2jioMKiM0/3vWisx0i6JbvQ6hqhliyIPafI2ZKPxzdb7GcNgEWW?=
+ =?us-ascii?q?ROQNpeVy1ZAoO9cYQPCfYBPf1FpIX5vlcCsAeyCRWpCO7pxDBInHv21rAk3e?=
+ =?us-ascii?q?onHw/NwQgsE8sAvXnQqdn4MroZX+Kow6nS1TjNcu1Y2Tn95obLfB4ur/6DUr?=
+ =?us-ascii?q?BsfsTe0kQvCwHIg0+MpYD5MT6Y1OIAuHWb4ep6UuKvjnYqpRxtojex3scsip?=
+ =?us-ascii?q?fGhoQIwV7Z8CV22oI1JdmmR097fNWpF4BQuDyBN4ZtXsMjQ31nuCY9yrEcv5?=
+ =?us-ascii?q?67ZzIFxI4oxx7YdfyKao6F6Q/gWuaJOTp0mX1odb2lixuy7ESs0PPwW8aq3F?=
+ =?us-ascii?q?pQsyZIlMTHuGoX2BzJ8MeHT+Nw/kKm2TmSyQ/e8vpEIUUolarDLJ4h36Iwmo?=
+ =?us-ascii?q?ITsUvdGi/2n137jLOMeUU+++io9v/nbq/6pp6cK4B0igb+Pr4omsOjGuQ3Lh?=
+ =?us-ascii?q?ICX22a+eS4zLHj/Ev5T6tWjvAuj6XUv5/XKd4bq6KkGQNZzIku5wilAzu7yN?=
+ =?us-ascii?q?gYmGMILFNBeBKJlYjpPFTOLejjDfiimFShiytrxvDaMb3hBZXBNH7DkKz7cr?=
+ =?us-ascii?q?pn5E5czxQzwchF551IErEBPO7zWkjpudzfCx85NBe0w+D9B9phyIwTQniPDb?=
+ =?us-ascii?q?GEP6PSq1CI+vgjLPWLZI8QoDz9MeQq5+byjX8lnl8QZbKp0oUTaHC5GPRmPk?=
+ =?us-ascii?q?qYbGHygtcOD2gKpBAyTO/0h12YVz5ceXKyU7g75jEhB4KsFZ3DSZy1gLydwC?=
+ =?us-ascii?q?e7GYVbZnpHCl+QEXfnbZ+EVOoUZy2OOsBhkiYLVbmnS4A/zhGjrxT1y6ZmLu?=
+ =?us-ascii?q?rS5i0Xq4jj1N5r6O3Pjx096Tt0D8HOm12KGkZyknkFRXcT27t5qEdwyR/X1q?=
+ =?us-ascii?q?1/mPpRHtF7/f5FUg4mc5Xbyro+Q8v/XgPHY8ehVlmrWJOlDCs3Q9Z3xMUBJw?=
+ =?us-ascii?q?5HGt6ihwrPlwqjArkYjPTfHp0/8qvG00/6EMZ0ynDLz4Erk1ggXsZVM2C6wK?=
+ =?us-ascii?q?V48l6AKZTOlhCii6uydakalBXI/WOHwHvG6FpUSyZsQK7FWjYZfUKQotPnsB?=
+ =?us-ascii?q?CRB4SyAKgqZ1MSgfWJLbFHP5iw1gRL?=
+X-IPAS-Result: =?us-ascii?q?A2ANAQD3zIRd/wHyM5BlHQEBBQEHBQGBUwgBCwGBbgUqg?=
+ =?us-ascii?q?UAyKoQiiByGfE0BAQEBAQEGgTaJdY8tgXsJAQEBAQEBAQEBNAECAQGEPwKDC?=
+ =?us-ascii?q?SM0CQ4CDAEBAQQBAQEBAQUDAQFshTmCOikBgmYBAQEBAgEjFVELDgoCAiYCA?=
+ =?us-ascii?q?lcGAQwGAgEBgl8/gXcFD6w6gTKFTIM1gUmBDCgBjAgYeIEHgTiCaz6HT4I2I?=
+ =?us-ascii?q?gSWApcLgiyCLpJWBhuZJo4amxE4gVgrCAIYCCEPgydQEBSQLyQDMIEGAQGON?=
+ =?us-ascii?q?gEB?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 20 Sep 2019 12:34:56 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 20 Sep 2019 13:02:26 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8KCYt02010466
-        for <selinux@vger.kernel.org>; Fri, 20 Sep 2019 08:34:56 -0400
-To:     SELinux <selinux@vger.kernel.org>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8KD2PZY020560;
+        Fri, 20 Sep 2019 09:02:25 -0400
+Subject: Re: [PATCH testsuite] tests/Makefile: check if BPF library is
+ installed
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+        Richard Haines <richard_c_haines@btinternet.com>
+References: <20190920115019.23144-1-omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Subject: SELinux-related talks at LSS NA
-Message-ID: <395c19b5-608e-9ad6-c8d1-5920983275e9@tycho.nsa.gov>
-Date:   Fri, 20 Sep 2019 08:34:55 -0400
+Message-ID: <b8968a99-e780-d530-9e90-9650a7da70fc@tycho.nsa.gov>
+Date:   Fri, 20 Sep 2019 09:02:25 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.0
 MIME-Version: 1.0
+In-Reply-To: <20190920115019.23144-1-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -89,20 +97,40 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-For those who couldn't attend, the slides and videos from LSS NA are 
-available from 
-https://events.linuxfoundation.org/events/linux-security-summit-north-america-2019/
+On 9/20/19 7:50 AM, Ondrej Mosnacek wrote:
+> Check for the existence of the <bpf/bpf.h> header before enabling BPF
+> testing. Otherwise building the tests fails in an environment where
+> the kernel and policy support BPF, but the library is not installed.
+> 
+> Fixes: 8f0f980a4ad5 ("selinux-testsuite: Add BPF tests")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>   tests/Makefile | 2 ++
+>   1 file changed, 2 insertions(+)
+> 
+> diff --git a/tests/Makefile b/tests/Makefile
+> index e5bdfff..e8cf008 100644
+> --- a/tests/Makefile
+> +++ b/tests/Makefile
+> @@ -43,10 +43,12 @@ endif
+>   
+>   ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && echo true),true)
+>   ifneq ($(shell ./kvercmp $$(uname -r) 4.15),-1)
+> +ifneq (,$(wildcard $(INCLUDEDIR)/bpf/bpf.h))
+>   SUBDIRS += bpf
+>   export CFLAGS += -DHAVE_BPF
+>   endif
+>   endif
+> +endif
 
-Of particular relevance to the SELinux community are my Retrospective: 
-26 Years of Flexible MAC talk [1][2], which sets SELinux in its context 
-within our larger program of R&D into flexible MAC, and Paul's State of 
-SELinux update [3][4].  There are a number of other talks that are 
-likely to be of interest as well.
+I think Richard had something like this originally and I told him to 
+take it out.  The rationale was that he added libbpf-devel as a required 
+dependency to the README and we don't want to silently skip tests 
+because someone forgot to install some package; I'd rather it fail at 
+build time.
 
-[1] 
-https://static.sched.com/hosted_files/lssna19/e5/LSS2019-Retrospective-16-9.pdf
-[2] https://www.youtube.com/watch?v=AKWFbxbsU3o
-[3] 
-https://static.sched.com/hosted_files/lssna19/9d/lss-state_of_selinux-pmoore-201908-r2.pdf
-[4] https://www.youtube.com/watch?v=spepTDfYeBQ
+>   
+>   ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=" infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
+>   SUBDIRS += infiniband_endport
+> 
 
