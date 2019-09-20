@@ -2,263 +2,107 @@ Return-Path: <SRS0=JJ8R=XP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE590C49ED7
-	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 12:26:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91378C49ED7
+	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 12:35:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B74C2206B6
-	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 12:26:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 62533208C0
+	for <selinux@archiver.kernel.org>; Fri, 20 Sep 2019 12:35:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OjhgOyQ5"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="LSNFVk4r"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438366AbfITM0S (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 20 Sep 2019 08:26:18 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:41885 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2438330AbfITM0S (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 20 Sep 2019 08:26:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1568982376;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=yrE91GiAZzckeyBkMDIyeImh0DsQ6LRpTQYZddV41kM=;
-        b=OjhgOyQ53MKIVXt4/+GrTliayhR743nRCv4GrXkgt7ty9N8mfo3NAn+a9OureZgjCIcyfF
-        z6dSEbA1GfsmobnSQkvhqscEvvhKLPJAdArYaoOWXFR9FB9YI5hyrAR5FyzTKC5/W3zm2M
-        2732lvjPPS5PpkfElfs88D1t8p+mZFw=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-197-H89qJLVmP5CGpeWPPZ3Uug-1; Fri, 20 Sep 2019 08:26:13 -0400
-Received: by mail-oi1-f197.google.com with SMTP id r67so939627oif.18
-        for <selinux@vger.kernel.org>; Fri, 20 Sep 2019 05:26:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=nnEXZaEcgiZyPtoSBqILJuiRzQTx6HsbFA4Kautzh+I=;
-        b=O4HEU0bwQb8SxYxBmzxoBd2oB7pn3depbqF4K2ap5ZGsN1zUXkhWZEjNkGrnceeagE
-         f4kg/6g9qAEXtUF20L2wQy3zJo4E2yGIsbTnG8K1MHN/mMZxU1QT3CHZQfal/rovXljK
-         ymEM8OnOMyEFwkvusFi1Pa2Qdhe19aL4fy8DlEeRQDfatin+qwpDeLqGf3Y0SvybvXgU
-         XmcI3oj6YWcNqB11CqB4IO29ZNIQRVCvYHnrnum+wLJDt5pzcvA/eDyGXSgIzm6qew2l
-         JJhcKvomSfVuUnUzL+PDhnlgAuw+jI2X6BHLquos70bdncsyLp3amVoFBo78GkG613D2
-         2P+w==
-X-Gm-Message-State: APjAAAU+Raq5XG5JAQz5VgOF0HUlblf6dMGOmhzsTPf6ZpwV9A2vku8r
-        DT2kkZY5r9y2iFXkWOI6mGQ5tg4tSSAMedMkxQYAZ6BdWLF9/7QeoajmKvAXrDQGpD4O1UzIWKe
-        WUAi2L3mjmh55CfCGvAJnjswFi4LSy5R3hQ==
-X-Received: by 2002:aca:5781:: with SMTP id l123mr2662090oib.166.1568982372731;
-        Fri, 20 Sep 2019 05:26:12 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqyWEbctaO2ItPaW6dKtzrIZc09jpI8n2NM7YxPgbzlVbIraimMaQSA9Czr/V21Sd4tnqvyZ+y7AzPFSDTTzJCk=
-X-Received: by 2002:aca:5781:: with SMTP id l123mr2662074oib.166.1568982372427;
- Fri, 20 Sep 2019 05:26:12 -0700 (PDT)
+        id S1725909AbfITMfH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 20 Sep 2019 08:35:07 -0400
+Received: from USFB19PA35.eemsg.mail.mil ([214.24.26.198]:15869 "EHLO
+        USFB19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725842AbfITMfG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 20 Sep 2019 08:35:06 -0400
+X-EEMSG-check-017: 10483359|USFB19PA35_ESA_OUT05.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,528,1559520000"; 
+   d="scan'208";a="10483359"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA35.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 20 Sep 2019 12:35:05 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1568982905; x=1600518905;
+  h=to:from:subject:message-id:date:mime-version:
+   content-transfer-encoding;
+  bh=V67GZW9pEuX57lPcMZ1EVdff3L7ZO3SKdkQkfKt3wCc=;
+  b=LSNFVk4rRzcUhyQn53qZm9t76NoZtYLiC6vGr/ZY9HOd8G+yUPHiFF4u
+   6Q65Fh64lopDkGfPii7jpLJlYqGKTSE2q77WsxNCavc1AVdn7wYOATeEh
+   F8QqiK94qu3t6skn/D73ihrs0m1VH2S7TxW4UJwHcchVtzISYfBwgRbLN
+   0UoS6txuHvK53mWbr8T7XPiu8+BAPV5KiuY8CJS3goJ2EmUSmJ07+Qyuc
+   U406vxhQnxV8d/jwi95H85R7uMGjrkksK3Tp7zy/hhwkclVJcvMPZCPLB
+   vuYzJ/+jGm/xTsxk5eSi4njr0mUEqN2Ku+kgCiJtGWDhyI7JwAhPEwIE+
+   w==;
+X-IronPort-AV: E=Sophos;i="5.64,528,1559520000"; 
+   d="scan'208";a="33124804"
+IronPort-PHdr: =?us-ascii?q?9a23=3AUyTUrBWmSW7Zu3ggUnYHxE0l/3TV8LGtZVwlr6?=
+ =?us-ascii?q?E/grcLSJyIuqrYbB2Dt8tkgFKBZ4jH8fUM07OQ7/m7HzZaqsvZ+DBaKdoQDk?=
+ =?us-ascii?q?VD0Z1X1yUbQ+e9QXXhK/DrayFoVO9jb3RCu0+BDE5OBczlbEfTqHDhpRQbGx?=
+ =?us-ascii?q?H4KBYnbr+tQt2agMu4zf299IPOaAtUmjW9falyLBKrpgnNq8Uam4RvJrs/xx?=
+ =?us-ascii?q?fTvHdEZetayGN0KVmOmxrw+tq88IRs/ihNpf4t7dJMXbn/c68lUbFWETMqPn?=
+ =?us-ascii?q?wv6sb2rxfDVwyP5nUdUmUSjBVFBhXO4Q/5UJnsrCb0r/Jx1yaGM8L4S7A0Qi?=
+ =?us-ascii?q?mi4LxwSBD0kicHNiU2/3/Rh8dtka9UuhOhpxh4w47JfIGYMed1c63Bcd8GQ2?=
+ =?us-ascii?q?dKQ8heVzZFAoihcYUBCeQPNvtco4XkuVcDqR6yCA+xD+3t1zBInGf707M63e?=
+ =?us-ascii?q?o8Eg/I0gIvEN0Sv3rbt9j1KKUfXPqpwKXUwzjObfVb0ir95ojSdRAhpOmBU6?=
+ =?us-ascii?q?9sccXP0UkvFx3KjlONooL4OjOazOANs2yF4OtgSOmijHUnpBxqojW02sctip?=
+ =?us-ascii?q?XGhoISylze8yV525w6Kce3SE58f96pCZ1dvDyUOYtxR8MtWWBouCAix70dpZ?=
+ =?us-ascii?q?G7fDYFx4k9yxHDbPyHdpCE4hbiVOaXPDd5i3xleLWihxa07Eev0PH8Vsiz0F?=
+ =?us-ascii?q?ZMtCZFlcPMtn8V2x3T7ciHV+d9/lq61jmRzQzc9uZEIUUymKHGKJAh2qY9mo?=
+ =?us-ascii?q?ccvEnMBCP7mFj6gLWIekgr5OSk8fnrb7P7rZGGLYB0kBvxMqE2l8y6BuQ3Lx?=
+ =?us-ascii?q?YBUnCA+eS5yL3j5Ur5QKhWjvEukqnWrpTaJcMDq66lGQBVyIcj6wukDzu8zN?=
+ =?us-ascii?q?QZnWUILFJCeB6diYjmJ0rOL+ziAfe6glSslC9nx/HAPrL/HpXANmXPnbjucL?=
+ =?us-ascii?q?pn60NQ1RA/wc5Q6p5KEL0NPer/Wkrru9zZCh85PRa0w+HiCNhlzYMRRHmPD7?=
+ =?us-ascii?q?SFMKLSrVCI5uUvL/OKZI8OojnxMfcl5/nwjXMhg18SYbGp3YcLaHC/BvlmOF?=
+ =?us-ascii?q?uWYX7tgtcHDGcLsREzTPLliFKcSz5ffXWyULwm5jE9Fo2mCZ3PRoe3gLyOj2?=
+ =?us-ascii?q?+HGchtS0RHDE2cWSPzeoGFXeocQDydL9UnkTEeU7WlDYg72kf9mhX9zu9cMu?=
+ =?us-ascii?q?fM+iAe/anm3dxx6vybwQo+7hRoHs+d1CeLVGgykWQWEWxllJtjqFBwnw/QmZ?=
+ =?us-ascii?q?NzhOZVQJkJtv4=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BMEQAdx4Rd/wHyM5BkHgEZDIFVgXQqbVMyKoQijxhNA?=
+ =?us-ascii?q?QEBAQEBBosrjy2BewkBAQEBAQEBAQEbEgcBAgEBh0ojNAkOAgwBAQEEAQEBA?=
+ =?us-ascii?q?QEFAwEBbIUtDII6KYJsJRV2AiYCXw0IAQEQgk8/AYF2FA+sJoEyhDsDAgGBC?=
+ =?us-ascii?q?4M0gUMGgQwojAkYeIEHgTiGCgEBAQEBF4RSglgElgKXC4Isgi6EV41/BhuCN?=
+ =?us-ascii?q?pZwj1aGV41EhTo4gVgrCAIYCCEPgydQEBSFQIUUhVskAzABC3oBAY42AQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 20 Sep 2019 12:34:56 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8KCYt02010466
+        for <selinux@vger.kernel.org>; Fri, 20 Sep 2019 08:34:56 -0400
+To:     SELinux <selinux@vger.kernel.org>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Subject: SELinux-related talks at LSS NA
+Message-ID: <395c19b5-608e-9ad6-c8d1-5920983275e9@tycho.nsa.gov>
+Date:   Fri, 20 Sep 2019 08:34:55 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-References: <20190920101510.13907-1-omosnace@redhat.com>
-In-Reply-To: <20190920101510.13907-1-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 20 Sep 2019 14:26:01 +0200
-Message-ID: <CAFqZXNvWSEj=YOXG2XQaa2jVXQZVw1NoEgwr7_TsnzuZN0U=AA@mail.gmail.com>
-Subject: Re: [PATCH testsuite 0/2] RFE: remove special RHEL-5 and -4 policies
-To:     SElinux list <selinux@vger.kernel.org>
-X-MC-Unique: H89qJLVmP5CGpeWPPZ3Uug-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Sep 20, 2019 at 12:15 PM Ondrej Mosnacek <omosnace@redhat.com> wrot=
-e:
-> The first patch fixes a minor issue from a recent commit that breaks
-> the task_setscheduler test on very old kernels (RHEL-5).
->
-> The second patch then removes the special policies for RHEL-5 nad RHEL-4
-> (see the log message for more details).
+For those who couldn't attend, the slides and videos from LSS NA are 
+available from 
+https://events.linuxfoundation.org/events/linux-security-summit-north-america-2019/
 
-Looks like the second patch didn't make it to the mailing list...
-probably because it is too big removing so many lines.
+Of particular relevance to the SELinux community are my Retrospective: 
+26 Years of Flexible MAC talk [1][2], which sets SELinux in its context 
+within our larger program of R&D into flexible MAC, and Paul's State of 
+SELinux update [3][4].  There are a number of other talks that are 
+likely to be of interest as well.
 
-Please refer to the corresponding GH pull request for full patches:
-https://github.com/SELinuxProject/selinux-testsuite/pull/66
-
->
-> Verified that the testsuite still runs on Fedora Rawhide and a handful
-> of RHELs after this change (RHEL-5 needs some workarounds to be applied
-> to policy files - see the log message of patch 2).
->
-> Ondrej Mosnacek (2):
->   tests/task_setscheduler: fix for old kernels
->   policy: remove RHEL-5 and RHEL-4 special policies
->
->  policy/Makefile                          |  55 ++++--------
->  policy/redhat/4/Makefile                 |  23 -----
->  policy/redhat/4/test_attrib.te           |  38 --------
->  policy/redhat/4/test_capable_file.te     |  46 ----------
->  policy/redhat/4/test_capable_net.te      |  30 -------
->  policy/redhat/4/test_capable_sys.te      |  15 ----
->  policy/redhat/4/test_dyntrace.te         |  35 --------
->  policy/redhat/4/test_dyntrans.te         |  20 -----
->  policy/redhat/4/test_entrypoint.te       |  17 ----
->  policy/redhat/4/test_execshare.te        |  24 -----
->  policy/redhat/4/test_exectrace.te        |  33 -------
->  policy/redhat/4/test_execute_no_trans.te |  20 -----
->  policy/redhat/4/test_fdreceive.te        |  52 -----------
->  policy/redhat/4/test_file.te             |  60 -------------
->  policy/redhat/4/test_global.te           |  77 ----------------
->  policy/redhat/4/test_inherit.te          |  41 ---------
->  policy/redhat/4/test_ioctl.te            |  25 ------
->  policy/redhat/4/test_ipc.te              |  63 -------------
->  policy/redhat/4/test_link.te             |  49 -----------
->  policy/redhat/4/test_mkdir.te            |  38 --------
->  policy/redhat/4/test_open.te             |  23 -----
->  policy/redhat/4/test_ptrace.te           |  28 ------
->  policy/redhat/4/test_readlink.te         |  22 -----
->  policy/redhat/4/test_relabel.te          |  28 ------
->  policy/redhat/4/test_rename.te           |  76 ----------------
->  policy/redhat/4/test_rxdir.te            |  21 -----
->  policy/redhat/4/test_setattr.te          |  21 -----
->  policy/redhat/4/test_setnice.te          |  23 -----
->  policy/redhat/4/test_sigkill.te          |  29 ------
->  policy/redhat/4/test_socket.te           |  92 -------------------
->  policy/redhat/4/test_stat.te             |  18 ----
->  policy/redhat/4/test_sysctl.te           |  21 -----
->  policy/redhat/4/test_task_create.te      |  39 ---------
->  policy/redhat/4/test_task_getpgid.te     |  22 -----
->  policy/redhat/4/test_task_getsched.te    |  22 -----
->  policy/redhat/4/test_task_getsid.te      |  22 -----
->  policy/redhat/4/test_task_setpgid.te     |  36 --------
->  policy/redhat/4/test_task_setsched.te    |  29 ------
->  policy/redhat/4/test_transition.te       |  20 -----
->  policy/redhat/4/test_wait.te             |  27 ------
->  policy/redhat/5/Makefile                 |  36 --------
->  policy/redhat/5/test_capable_file.te     |  64 --------------
->  policy/redhat/5/test_capable_net.te      |  61 -------------
->  policy/redhat/5/test_capable_sys.te      |  20 -----
->  policy/redhat/5/test_dyntrace.te         |  48 ----------
->  policy/redhat/5/test_dyntrans.te         |  32 -------
->  policy/redhat/5/test_entrypoint.te       |  21 -----
->  policy/redhat/5/test_execshare.te        |  43 ---------
->  policy/redhat/5/test_exectrace.te        |  51 -----------
->  policy/redhat/5/test_execute_no_trans.te |  26 ------
->  policy/redhat/5/test_fdreceive.te        |  65 --------------
->  policy/redhat/5/test_file.te             |  98 ---------------------
->  policy/redhat/5/test_global.te           |  85 ------------------
->  policy/redhat/5/test_inherit.te          |  64 --------------
->  policy/redhat/5/test_ioctl.te            |  44 ----------
->  policy/redhat/5/test_ipc.te              |  82 -----------------
->  policy/redhat/5/test_link.te             |  73 ----------------
->  policy/redhat/5/test_mkdir.te            |  59 -------------
->  policy/redhat/5/test_open.te             |  35 --------
->  policy/redhat/5/test_ptrace.te           |  47 ----------
->  policy/redhat/5/test_readlink.te         |  36 --------
->  policy/redhat/5/test_relabel.te          |  44 ----------
->  policy/redhat/5/test_rename.te           | 107 -----------------------
->  policy/redhat/5/test_rxdir.te            |  34 -------
->  policy/redhat/5/test_setattr.te          |  31 -------
->  policy/redhat/5/test_setnice.te          |  52 -----------
->  policy/redhat/5/test_sigkill.te          |  49 -----------
->  policy/redhat/5/test_stat.te             |  31 -------
->  policy/redhat/5/test_sysctl.te           |  29 ------
->  policy/redhat/5/test_task_create.te      |  53 -----------
->  policy/redhat/5/test_task_getpgid.te     |  31 -------
->  policy/redhat/5/test_task_getsched.te    |  31 -------
->  policy/redhat/5/test_task_getsid.te      |  31 -------
->  policy/redhat/5/test_task_setpgid.te     |  44 ----------
->  policy/redhat/5/test_task_setsched.te    |  38 --------
->  policy/redhat/5/test_transition.te       |  33 -------
->  policy/redhat/5/test_wait.te             |  41 ---------
->  policy/test_task_setsched.te             |   1 +
->  tests/task_setscheduler/test             |   2 +-
->  79 files changed, 18 insertions(+), 3134 deletions(-)
->  delete mode 100644 policy/redhat/4/Makefile
->  delete mode 100644 policy/redhat/4/test_attrib.te
->  delete mode 100644 policy/redhat/4/test_capable_file.te
->  delete mode 100644 policy/redhat/4/test_capable_net.te
->  delete mode 100644 policy/redhat/4/test_capable_sys.te
->  delete mode 100644 policy/redhat/4/test_dyntrace.te
->  delete mode 100644 policy/redhat/4/test_dyntrans.te
->  delete mode 100644 policy/redhat/4/test_entrypoint.te
->  delete mode 100644 policy/redhat/4/test_execshare.te
->  delete mode 100644 policy/redhat/4/test_exectrace.te
->  delete mode 100644 policy/redhat/4/test_execute_no_trans.te
->  delete mode 100644 policy/redhat/4/test_fdreceive.te
->  delete mode 100644 policy/redhat/4/test_file.te
->  delete mode 100644 policy/redhat/4/test_global.te
->  delete mode 100644 policy/redhat/4/test_inherit.te
->  delete mode 100644 policy/redhat/4/test_ioctl.te
->  delete mode 100644 policy/redhat/4/test_ipc.te
->  delete mode 100644 policy/redhat/4/test_link.te
->  delete mode 100644 policy/redhat/4/test_mkdir.te
->  delete mode 100644 policy/redhat/4/test_open.te
->  delete mode 100644 policy/redhat/4/test_ptrace.te
->  delete mode 100644 policy/redhat/4/test_readlink.te
->  delete mode 100644 policy/redhat/4/test_relabel.te
->  delete mode 100644 policy/redhat/4/test_rename.te
->  delete mode 100644 policy/redhat/4/test_rxdir.te
->  delete mode 100644 policy/redhat/4/test_setattr.te
->  delete mode 100644 policy/redhat/4/test_setnice.te
->  delete mode 100644 policy/redhat/4/test_sigkill.te
->  delete mode 100644 policy/redhat/4/test_socket.te
->  delete mode 100644 policy/redhat/4/test_stat.te
->  delete mode 100644 policy/redhat/4/test_sysctl.te
->  delete mode 100644 policy/redhat/4/test_task_create.te
->  delete mode 100644 policy/redhat/4/test_task_getpgid.te
->  delete mode 100644 policy/redhat/4/test_task_getsched.te
->  delete mode 100644 policy/redhat/4/test_task_getsid.te
->  delete mode 100644 policy/redhat/4/test_task_setpgid.te
->  delete mode 100644 policy/redhat/4/test_task_setsched.te
->  delete mode 100644 policy/redhat/4/test_transition.te
->  delete mode 100644 policy/redhat/4/test_wait.te
->  delete mode 100644 policy/redhat/5/Makefile
->  delete mode 100644 policy/redhat/5/test_capable_file.te
->  delete mode 100644 policy/redhat/5/test_capable_net.te
->  delete mode 100644 policy/redhat/5/test_capable_sys.te
->  delete mode 100644 policy/redhat/5/test_dyntrace.te
->  delete mode 100644 policy/redhat/5/test_dyntrans.te
->  delete mode 100644 policy/redhat/5/test_entrypoint.te
->  delete mode 100644 policy/redhat/5/test_execshare.te
->  delete mode 100644 policy/redhat/5/test_exectrace.te
->  delete mode 100644 policy/redhat/5/test_execute_no_trans.te
->  delete mode 100644 policy/redhat/5/test_fdreceive.te
->  delete mode 100644 policy/redhat/5/test_file.te
->  delete mode 100644 policy/redhat/5/test_global.te
->  delete mode 100644 policy/redhat/5/test_inherit.te
->  delete mode 100644 policy/redhat/5/test_ioctl.te
->  delete mode 100644 policy/redhat/5/test_ipc.te
->  delete mode 100644 policy/redhat/5/test_link.te
->  delete mode 100644 policy/redhat/5/test_mkdir.te
->  delete mode 100644 policy/redhat/5/test_open.te
->  delete mode 100644 policy/redhat/5/test_ptrace.te
->  delete mode 100644 policy/redhat/5/test_readlink.te
->  delete mode 100644 policy/redhat/5/test_relabel.te
->  delete mode 100644 policy/redhat/5/test_rename.te
->  delete mode 100644 policy/redhat/5/test_rxdir.te
->  delete mode 100644 policy/redhat/5/test_setattr.te
->  delete mode 100644 policy/redhat/5/test_setnice.te
->  delete mode 100644 policy/redhat/5/test_sigkill.te
->  delete mode 100644 policy/redhat/5/test_stat.te
->  delete mode 100644 policy/redhat/5/test_sysctl.te
->  delete mode 100644 policy/redhat/5/test_task_create.te
->  delete mode 100644 policy/redhat/5/test_task_getpgid.te
->  delete mode 100644 policy/redhat/5/test_task_getsched.te
->  delete mode 100644 policy/redhat/5/test_task_getsid.te
->  delete mode 100644 policy/redhat/5/test_task_setpgid.te
->  delete mode 100644 policy/redhat/5/test_task_setsched.te
->  delete mode 100644 policy/redhat/5/test_transition.te
->  delete mode 100644 policy/redhat/5/test_wait.te
->
-> --
-> 2.21.0
->
-
-
---=20
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+[1] 
+https://static.sched.com/hosted_files/lssna19/e5/LSS2019-Retrospective-16-9.pdf
+[2] https://www.youtube.com/watch?v=AKWFbxbsU3o
+[3] 
+https://static.sched.com/hosted_files/lssna19/9d/lss-state_of_selinux-pmoore-201908-r2.pdf
+[4] https://www.youtube.com/watch?v=spepTDfYeBQ
 
