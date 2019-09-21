@@ -2,80 +2,137 @@ Return-Path: <SRS0=790g=XQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=FROM_LOCAL_HEX,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67BF9C3A5A2
-	for <selinux@archiver.kernel.org>; Sat, 21 Sep 2019 01:55:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E12C4360D
+	for <selinux@archiver.kernel.org>; Sat, 21 Sep 2019 15:50:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4252B2086A
-	for <selinux@archiver.kernel.org>; Sat, 21 Sep 2019 01:55:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 98E582086A
+	for <selinux@archiver.kernel.org>; Sat, 21 Sep 2019 15:50:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2437210AbfIUBzw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 20 Sep 2019 21:55:52 -0400
-Received: from out1.zte.com.cn ([202.103.147.172]:38614 "EHLO mxct.zte.com.cn"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2437018AbfIUBzw (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 20 Sep 2019 21:55:52 -0400
-Received: from mse-fl1.zte.com.cn (unknown [10.30.14.238])
-        by Forcepoint Email with ESMTPS id 3C6878FF3F0438D8E6E6;
-        Sat, 21 Sep 2019 09:55:50 +0800 (CST)
-Received: from notes_smtp.zte.com.cn (notessmtp.zte.com.cn [10.30.1.239])
-        by mse-fl1.zte.com.cn with ESMTP id x8L1ta04061200;
-        Sat, 21 Sep 2019 09:55:36 +0800 (GMT-8)
-        (envelope-from zhang.lin16@zte.com.cn)
-Received: from fox-host8.localdomain ([10.74.120.8])
-          by szsmtp06.zte.com.cn (Lotus Domino Release 8.5.3FP6)
-          with ESMTP id 2019092109561847-3748946 ;
-          Sat, 21 Sep 2019 09:56:18 +0800 
-From:   zhanglin <zhang.lin16@zte.com.cn>
-To:     paul@paul-moore.com
-Cc:     sds@tycho.nsa.gov, eparis@parisplace.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, xue.zhihong@zte.com.cn,
-        wang.yi59@zte.com.cn, jiang.xuexin@zte.com.cn,
-        zhanglin <zhang.lin16@zte.com.cn>
-Subject: [PATCH] selinux: Remove load size limit
-Date:   Sat, 21 Sep 2019 09:57:15 +0800
-Message-Id: <1569031035-12354-1-git-send-email-zhang.lin16@zte.com.cn>
-X-Mailer: git-send-email 1.8.3.1
-X-MIMETrack: Itemize by SMTP Server on SZSMTP06/server/zte_ltd(Release 8.5.3FP6|November
- 21, 2013) at 2019-09-21 09:56:18,
-        Serialize by Router on notes_smtp/zte_ltd(Release 9.0.1FP7|August  17, 2016) at
- 2019-09-21 09:55:42,
-        Serialize complete at 2019-09-21 09:55:42
-X-MAIL: mse-fl1.zte.com.cn x8L1ta04061200
+        id S2393508AbfIUPuI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 21 Sep 2019 11:50:08 -0400
+Received: from mail-io1-f71.google.com ([209.85.166.71]:44038 "EHLO
+        mail-io1-f71.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389131AbfIUPuH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 21 Sep 2019 11:50:07 -0400
+Received: by mail-io1-f71.google.com with SMTP id m3so15831168ion.11
+        for <selinux@vger.kernel.org>; Sat, 21 Sep 2019 08:50:07 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=e1WwvsIOYgkKP6m2QdsEqob6hucr8LgwvJH9je6vT4o=;
+        b=jwKSC73RCWUWZ9mDJDC4oiQhKqXiTRG0iusdejFQKgdF4rVuZkraFEVsJZ71mxMI9N
+         AUE+CdrBPIOJNMLchEbfmYaYOOU50bcTrpZZwHkyHVPTNVKMq0v1pjxHOZ3/y9gXccy/
+         ZtwozzPqNLhB6shDQZwFzQQTb1W7wgOQF/guPfAOcHWdnKPWj0AIF6lfE5nsTWFHFgHC
+         oZ0ojGeEG1UoLB0lVxaunTOl1uuw0/KIykz0xM+3vCFKXpk/9IDbp8qrDXQWMpvdTzBZ
+         fwGeJKtiRXfWZJU19h5AowtNPabcBGa4A6qxZCbMqeh9R0JxSJK4NeETaaXG1wGJ1+0r
+         26Yw==
+X-Gm-Message-State: APjAAAWYLuGjFcstY6fvc868mFgHB6V3czBBTTjJrffAk1RSSk1CWgdm
+        NoYPHdbs3oY7/wDcngiENkrDwlIzJGD0iUnSlwJlqiMzqG2x
+X-Google-Smtp-Source: APXvYqytDHK6Dr2YK7Ap6GUTihvNdQJ786D0hVc+JqFAK50SjmBDdxPD3xsJORDF0yRO3OvNJPMW6N/jlodpy18MHHirkaWBA2Yi
+MIME-Version: 1.0
+X-Received: by 2002:a6b:b643:: with SMTP id g64mr8423961iof.149.1569081006755;
+ Sat, 21 Sep 2019 08:50:06 -0700 (PDT)
+Date:   Sat, 21 Sep 2019 08:50:06 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000000814c405931224fc@google.com>
+Subject: WARNING: locking bug in selinux_netlbl_socket_connect
+From:   syzbot <syzbot+5fa07e4e18e4eb1ccb12@syzkaller.appspotmail.com>
+To:     eparis@parisplace.org, linux-kernel@vger.kernel.org,
+        paul@paul-moore.com, sds@tycho.nsa.gov, selinux@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Load size was limited to 64MB, this was legacy limitation due to vmalloc()
-which was removed a while ago.
+Hello,
 
-Limiting load size to 64MB is both pointless and affects real world use
-cases.
+syzbot found the following crash on:
 
-Signed-off-by: zhanglin <zhang.lin16@zte.com.cn>
+HEAD commit:    f97c81dc Merge tag 'armsoc-late' of git://git.kernel.org/p..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=127b709d600000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=10283c2b00ab4cd7
+dashboard link: https://syzkaller.appspot.com/bug?extid=5fa07e4e18e4eb1ccb12
+compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12996841600000
+
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+5fa07e4e18e4eb1ccb12@syzkaller.appspotmail.com
+
+WARNING: CPU: 0 PID: 10315 at kernel/locking/lockdep.c:840  
+look_up_lock_class kernel/locking/lockdep.c:840 [inline]
+WARNING: CPU: 0 PID: 10315 at kernel/locking/lockdep.c:840  
+register_lock_class+0x206/0x1850 kernel/locking/lockdep.c:1185
+Kernel panic - not syncing: panic_on_warn set ...
+CPU: 0 PID: 10315 Comm: syz-executor.0 Not tainted 5.3.0+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+  panic+0x2dc/0x755 kernel/panic.c:219
+  __warn.cold+0x20/0x4c kernel/panic.c:576
+  report_bug+0x263/0x2b0 lib/bug.c:186
+  fixup_bug arch/x86/kernel/traps.c:179 [inline]
+  fixup_bug arch/x86/kernel/traps.c:174 [inline]
+  do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:272
+  do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:291
+  invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1028
+RIP: 0010:look_up_lock_class kernel/locking/lockdep.c:840 [inline]
+RIP: 0010:register_lock_class+0x206/0x1850 kernel/locking/lockdep.c:1185
+Code: fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 aa 10 00 00 4c 3b 7b  
+18 44 8b 35 d5 de 55 09 74 0b 48 81 3b a0 65 06 8a 74 02 <0f> 0b 45 85 ed  
+0f 84 71 03 00 00 f6 85 70 ff ff ff 01 0f 85 64 03
+RSP: 0018:ffff888096777a48 EFLAGS: 00010002
+RAX: dffffc0000000000 RBX: ffff888093ff78e0 RCX: 0000000000000000
+RDX: 1ffff110127fef1f RSI: 0000000000000000 RDI: ffff888093ff78f8
+RBP: ffff888096777b10 R08: 1ffff11012ceef51 R09: ffffffff8aaea0e0
+R10: ffffffff8a7753c8 R11: 0000000000000000 R12: ffffffff8a7b5d20
+R13: 0000000000000000 R14: 0000000000000000 R15: ffffffff884766e0
+  __lock_acquire+0xf4/0x4e70 kernel/locking/lockdep.c:3837
+  lock_acquire+0x190/0x410 kernel/locking/lockdep.c:4487
+  __raw_spin_lock_bh include/linux/spinlock_api_smp.h:135 [inline]
+  _raw_spin_lock_bh+0x33/0x50 kernel/locking/spinlock.c:175
+  spin_lock_bh include/linux/spinlock.h:343 [inline]
+  lock_sock_nested+0x41/0x120 net/core/sock.c:2929
+  lock_sock include/net/sock.h:1522 [inline]
+  selinux_netlbl_socket_connect+0x20/0xc0 security/selinux/netlabel.c:607
+  selinux_socket_connect+0x6a/0x90 security/selinux/hooks.c:4745
+  security_socket_connect+0x77/0xc0 security/security.c:1958
+  __sys_connect+0x19d/0x330 net/socket.c:1824
+  __do_sys_connect net/socket.c:1839 [inline]
+  __se_sys_connect net/socket.c:1836 [inline]
+  __x64_sys_connect+0x73/0xb0 net/socket.c:1836
+  do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x459a09
+Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7  
+48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff  
+ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007fc302ec5c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459a09
+RDX: 000000000000001c RSI: 0000000020000080 RDI: 0000000000000005
+RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007fc302ec66d4
+R13: 00000000004bff42 R14: 00000000004d1eb0 R15: 00000000ffffffff
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
+
+
 ---
- security/selinux/selinuxfs.c | 4 ----
- 1 file changed, 4 deletions(-)
+This bug is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index f3a5a138a096..4249400e9712 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -549,10 +549,6 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 	if (*ppos != 0)
- 		goto out;
- 
--	length = -EFBIG;
--	if (count > 64 * 1024 * 1024)
--		goto out;
--
- 	length = -ENOMEM;
- 	data = vmalloc(count);
- 	if (!data)
--- 
-2.17.1
-
+syzbot will keep track of this bug report. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this bug, for details see:
+https://goo.gl/tpsmEJ#testing-patches
