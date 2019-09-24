@@ -2,139 +2,176 @@ Return-Path: <SRS0=oqeB=XT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F7A0C432C1
-	for <selinux@archiver.kernel.org>; Tue, 24 Sep 2019 10:51:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE0E8C432C2
+	for <selinux@archiver.kernel.org>; Tue, 24 Sep 2019 13:17:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 048CD214AF
-	for <selinux@archiver.kernel.org>; Tue, 24 Sep 2019 10:51:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8AC0F214DA
+	for <selinux@archiver.kernel.org>; Tue, 24 Sep 2019 13:17:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Sw9YdA3s"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="yvhBZUFK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388027AbfIXKvf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 24 Sep 2019 06:51:35 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:47178 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2387644AbfIXKvf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 24 Sep 2019 06:51:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1569322293;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Tp7SgAQa8q6Ghz+WZXTg5B8RGVTXWqssMgDJWk74AoA=;
-        b=Sw9YdA3sVSYvSWbMhxpxdBGbaf6AUWdK/x/PLe1Ru1hF0Akkhes9teBEMSL2cUziwqweZi
-        2b4n5MPKOYaxmjJHVszILy2i4kFrrvE2jEE7SDvqRe6IY/gBKYt82Pzh1b8//F0a2FzQqK
-        C+RAceYa6Cw542re4p5gqbq6J23FQt0=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-4-ug8zgiSyOlyVbxFAan_9FA-1; Tue, 24 Sep 2019 06:51:31 -0400
-Received: by mail-ot1-f71.google.com with SMTP id z24so925209otq.6
-        for <selinux@vger.kernel.org>; Tue, 24 Sep 2019 03:51:31 -0700 (PDT)
+        id S1729482AbfIXNRu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 24 Sep 2019 09:17:50 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:35606 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728379AbfIXNRt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 24 Sep 2019 09:17:49 -0400
+Received: by mail-lj1-f196.google.com with SMTP id m7so1860872lji.2
+        for <selinux@vger.kernel.org>; Tue, 24 Sep 2019 06:17:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=e5eEnaa3s99TqjcNTWFhVMAZ9L326EE/q94KG75MxAE=;
+        b=yvhBZUFKOGSTsX1BSfMVlaE9f+v3vtGBKmVWMAxRA3EqhKA1pxynS2fDQEgqFT6pXn
+         4GA/maxes7rHZNn4sLODh/r3c0lpq8lfBJ9M1mhOmE9DF5h4+e0xA1A5py3g+yNICl7J
+         mLX2vWCMRWXNEE7ZSS1iUBSL72H8132i92lTKN844PoOBsQz8avhJjE0EUsovLuksbIH
+         MFpSRm0nSE+otBrlGgl3YEhKPSR8QcUmLDEfpZ1Qkm6RwLORWESPY6+htozvEkpg32Is
+         Va3ASMVOhVEepMWSZw0chNdp+M6xI8N8gwVdbgUBulAX2Pr0Qr5iyjPAAByfVs6yWBmY
+         apSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=P/hjI0ww3TOGmvkgnZtJU3xN9ds5nr77R/kT8eYxOYk=;
-        b=ka0RUynuUoFAFBmP6f6Fv8mElhMgiZjIomUIsbN+3pEvQksXOSbA6fECyCHJJAmKHY
-         5O34gsgfcm0tzhK7o+NFPctlavg7aNrxm59EemXpKMFYVLWc76PRR6Ka+lTdHFEmrLm3
-         H4jhDfe00XQi9OXaFYtk98MNGWwq3ZyWLwfviKbWYuG08LJjSCkyHXwM8Z7BWAMLtNms
-         PxBKjkM3PDO8YzSI258pvrWZCOeb0hj2yzFmpvR7rIwaWmWWQ59+h+w6YAeuoR5NsmEP
-         GF6SeBsKYTLSnE+JhV9SMLuzsCZxScnO/6Rqaic94YEp6+q/edLo8EXHCkDcFdwXhU2w
-         qT3A==
-X-Gm-Message-State: APjAAAXUn5oHYkwGeKEPd2J0vbDZpXwzhC11MB+Y4OKw8WLeGUQpgwmz
-        p4Qc6SZT0g2NLHeoD1nK8m5n/9Jfb40ylMZEhEP+KLZsF7jhsNAZx6hwY8XcRGWwvo3USr0hVRI
-        jOredG9yf+F/r0jslH8Ctb8tNJ6CFE/f1eQ==
-X-Received: by 2002:a9d:625a:: with SMTP id i26mr1143457otk.43.1569322290182;
-        Tue, 24 Sep 2019 03:51:30 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqxglG6teMGD+GiJbzfyVS6YFkoJbtcnvdddP0EqvxWUSpPMYKDcVPgGD1N/ol6yU7Z+zqEYnfbtQT/EGGhoMeE=
-X-Received: by 2002:a9d:625a:: with SMTP id i26mr1143443otk.43.1569322289900;
- Tue, 24 Sep 2019 03:51:29 -0700 (PDT)
+        bh=e5eEnaa3s99TqjcNTWFhVMAZ9L326EE/q94KG75MxAE=;
+        b=Rpb6epINYJ9EdTVtoos/bhzCehOB3S7pPg+8lUCLCmOEhYNKQT1Exa9QWvfUPF/r+R
+         oD8I8IaBGCCf9RCkkC/ZMrRdzPG0jp7kTrTE8RjFPVEeP/p7CTxyMoSH1UZPSk87k13S
+         LPbertneKOfzRarMh9CNeNAaLcGwg5Z+d/Lm6PpxC6sstG4+HMexjN/xSGgU6/uwlolk
+         C8lH+NzIhu1QX4bKIdCbdaTuT2vaH/JaDgv2Yr39rf4n5t3ZqqCodZi3sk2VCZs01a3C
+         ntItjEMmfPFY1OrH8s+ODJb2ziR48TQJbLfp9+PGYfcFNU86aj0sZygUYR/tIqb07mUN
+         N1RA==
+X-Gm-Message-State: APjAAAWdIP8X/pSZSswPqaaXSCMiOXsFUUTWKfre1LtinNsyAHzhuz8E
+        BFEnWXerdazFSxqc3vqoZ+ewoZognzFVMz+3xYAN
+X-Google-Smtp-Source: APXvYqw/PJfajd2bC5IotgMMfs89CQIiV3FS8xSvUU2GqlOKK2f4lZrMpyrdXv+CdGAKa2fNllwH/VIGSuqfd2OY+OY=
+X-Received: by 2002:a2e:9615:: with SMTP id v21mr1906928ljh.46.1569331066193;
+ Tue, 24 Sep 2019 06:17:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190923095837.25752-1-omosnace@redhat.com> <b74cd6c5-0f63-80d8-99c0-967dc638279c@tycho.nsa.gov>
-In-Reply-To: <b74cd6c5-0f63-80d8-99c0-967dc638279c@tycho.nsa.gov>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 24 Sep 2019 12:51:18 +0200
-Message-ID: <CAFqZXNtagT7TDgV4D88juWK7qVTEgkcjm6UL6zKsPm8gd7yyWg@mail.gmail.com>
-Subject: Re: [PATCH testsuite] policy: do not rebuild policy package if
- already built
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     SElinux list <selinux@vger.kernel.org>
-X-MC-Unique: ug8zgiSyOlyVbxFAan_9FA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+References: <0000000000000814c405931224fc@google.com> <CAHC9VhQGLFWk3zqywgsip9KgTmKNTiwxDG4+BdkDQwNZKJunQg@mail.gmail.com>
+ <CACT4Y+ZqJJS+g=svSJDfd4Jo==kVFbJDCxrfRX2eyBH4hw2+-g@mail.gmail.com>
+In-Reply-To: <CACT4Y+ZqJJS+g=svSJDfd4Jo==kVFbJDCxrfRX2eyBH4hw2+-g@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 24 Sep 2019 09:17:35 -0400
+Message-ID: <CAHC9VhSa7GeLMZu=DTL_h-wtbkg7y6R9WeSAwJa4tZTVXGoX5g@mail.gmail.com>
+Subject: Re: WARNING: locking bug in selinux_netlbl_socket_connect
+To:     Dmitry Vyukov <dvyukov@google.com>
+Cc:     syzbot <syzbot+5fa07e4e18e4eb1ccb12@syzkaller.appspotmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org,
+        syzkaller-bugs <syzkaller-bugs@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 23, 2019 at 4:11 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 9/23/19 5:58 AM, Ondrej Mosnacek wrote:
-> > Right now, test_policy.pp is rebuilt on every make invocation. Tweak th=
-e
-> > Makefile so that it is only build when it hasn't been built, it has bee=
-n
-> > cleaned, or the source files changed.
+On Tue, Sep 24, 2019 at 4:21 AM Dmitry Vyukov <dvyukov@google.com> wrote:
+> On Tue, Sep 24, 2019 at 4:14 AM Paul Moore <paul@paul-moore.com> wrote:
+> > On Sat, Sep 21, 2019 at 11:50 AM syzbot
+> > <syzbot+5fa07e4e18e4eb1ccb12@syzkaller.appspotmail.com> wrote:
+> > > Hello,
+> > >
+> > > syzbot found the following crash on:
+> > >
+> > > HEAD commit:    f97c81dc Merge tag 'armsoc-late' of git://git.kernel.org/p..
+> > > git tree:       upstream
+> > > console output: https://syzkaller.appspot.com/x/log.txt?x=127b709d600000
+> > > kernel config:  https://syzkaller.appspot.com/x/.config?x=10283c2b00ab4cd7
+> > > dashboard link: https://syzkaller.appspot.com/bug?extid=5fa07e4e18e4eb1ccb12
+> > > compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> > > syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12996841600000
+> > >
+> > > IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> > > Reported-by: syzbot+5fa07e4e18e4eb1ccb12@syzkaller.appspotmail.com
+> > >
+> > > WARNING: CPU: 0 PID: 10315 at kernel/locking/lockdep.c:840
+> > > look_up_lock_class kernel/locking/lockdep.c:840 [inline]
+> > > WARNING: CPU: 0 PID: 10315 at kernel/locking/lockdep.c:840
+> > > register_lock_class+0x206/0x1850 kernel/locking/lockdep.c:1185
+> > > Kernel panic - not syncing: panic_on_warn set ...
+> > > CPU: 0 PID: 10315 Comm: syz-executor.0 Not tainted 5.3.0+ #0
+> > > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+> > > Google 01/01/2011
+> > > Call Trace:
+> > >   __dump_stack lib/dump_stack.c:77 [inline]
+> > >   dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+> > >   panic+0x2dc/0x755 kernel/panic.c:219
+> > >   __warn.cold+0x20/0x4c kernel/panic.c:576
+> > >   report_bug+0x263/0x2b0 lib/bug.c:186
+> > >   fixup_bug arch/x86/kernel/traps.c:179 [inline]
+> > >   fixup_bug arch/x86/kernel/traps.c:174 [inline]
+> > >   do_error_trap+0x11b/0x200 arch/x86/kernel/traps.c:272
+> > >   do_invalid_op+0x37/0x50 arch/x86/kernel/traps.c:291
+> > >   invalid_op+0x23/0x30 arch/x86/entry/entry_64.S:1028
+> > > RIP: 0010:look_up_lock_class kernel/locking/lockdep.c:840 [inline]
+> > > RIP: 0010:register_lock_class+0x206/0x1850 kernel/locking/lockdep.c:1185
+> > > Code: fc ff df 48 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 aa 10 00 00 4c 3b 7b
+> > > 18 44 8b 35 d5 de 55 09 74 0b 48 81 3b a0 65 06 8a 74 02 <0f> 0b 45 85 ed
+> > > 0f 84 71 03 00 00 f6 85 70 ff ff ff 01 0f 85 64 03
+> > > RSP: 0018:ffff888096777a48 EFLAGS: 00010002
+> > > RAX: dffffc0000000000 RBX: ffff888093ff78e0 RCX: 0000000000000000
+> > > RDX: 1ffff110127fef1f RSI: 0000000000000000 RDI: ffff888093ff78f8
+> > > RBP: ffff888096777b10 R08: 1ffff11012ceef51 R09: ffffffff8aaea0e0
+> > > R10: ffffffff8a7753c8 R11: 0000000000000000 R12: ffffffff8a7b5d20
+> > > R13: 0000000000000000 R14: 0000000000000000 R15: ffffffff884766e0
+> > >   __lock_acquire+0xf4/0x4e70 kernel/locking/lockdep.c:3837
+> > >   lock_acquire+0x190/0x410 kernel/locking/lockdep.c:4487
+> > >   __raw_spin_lock_bh include/linux/spinlock_api_smp.h:135 [inline]
+> > >   _raw_spin_lock_bh+0x33/0x50 kernel/locking/spinlock.c:175
+> > >   spin_lock_bh include/linux/spinlock.h:343 [inline]
+> > >   lock_sock_nested+0x41/0x120 net/core/sock.c:2929
+> > >   lock_sock include/net/sock.h:1522 [inline]
+> > >   selinux_netlbl_socket_connect+0x20/0xc0 security/selinux/netlabel.c:607
+> > >   selinux_socket_connect+0x6a/0x90 security/selinux/hooks.c:4745
+> > >   security_socket_connect+0x77/0xc0 security/security.c:1958
+> > >   __sys_connect+0x19d/0x330 net/socket.c:1824
+> > >   __do_sys_connect net/socket.c:1839 [inline]
+> > >   __se_sys_connect net/socket.c:1836 [inline]
+> > >   __x64_sys_connect+0x73/0xb0 net/socket.c:1836
+> > >   do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+> > >   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> > > RIP: 0033:0x459a09
+> > > Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7
+> > > 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
+> > > ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+> > > RSP: 002b:00007fc302ec5c78 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+> > > RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 0000000000459a09
+> > > RDX: 000000000000001c RSI: 0000000020000080 RDI: 0000000000000005
+> > > RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
+> > > R10: 0000000000000000 R11: 0000000000000246 R12: 00007fc302ec66d4
+> > > R13: 00000000004bff42 R14: 00000000004d1eb0 R15: 00000000ffffffff
+> > > Kernel Offset: disabled
+> > > Rebooting in 86400 seconds..
+> >
+> > This doesn't appear to be related to selinux_netlbl_socket_connect();
+> > I believe it should be okay to call lock_sock() in that context.
 >
-> It also needs to be rebuilt if anything under
-> /usr/share/selinux/devel/include has changed e.g. upon an update of
-> selinux-policy-devel.
-
-I am now testing a version that always executes the `$(MAKE) -C
-test_policy -f $(POLDEV)/Makefile test_policy.pp` step, relying on the
-system Makefile to rebuild the pp as needed (there already are proper
-dependencies on the include files). However, the package manager on
-Fedora preserves the timestamps of the installed files (from package
-build time), which means that make doesn't always detect that the
-files are newer than the already built policy package.
-
-So it looks like we don't have any other choice than to always rebuild
-if we really need to auto-react to changing system files.
-
 >
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >   policy/Makefile | 4 ++--
-> >   1 file changed, 2 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/policy/Makefile b/policy/Makefile
-> > index a5942b3..cc0f140 100644
-> > --- a/policy/Makefile
-> > +++ b/policy/Makefile
-> > @@ -86,7 +86,7 @@ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xR=
-HEL6))
-> >   TARGETS:=3D$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.=
-te, $(TARGETS))
-> >   endif
-> >
-> > -all: build
-> > +all: test_policy/test_policy.pp
-> >
-> >   expand_check:
-> >       # Test for "expand-check =3D 0" in /etc/selinux/semanage.conf
-> > @@ -94,7 +94,7 @@ expand_check:
-> >               (echo "ERROR: set 'expand-check =3D 0' in /etc/selinux/se=
-manage.conf"; \
-> >                /bin/false)
-> >
-> > -build: $(TARGETS)
-> > +test_policy/test_policy.pp: $(TARGETS) test_policy.if
-> >       # General policy build
-> >       @if [ -d $(POLDEV) ]; then \
-> >               mkdir -p test_policy; \
-> >
+> FTR, this is this warning:
 >
+> static inline struct lock_class *
+> look_up_lock_class(const struct lockdep_map *lock, unsigned int subclass)
+> {
+> ....
+>                         /*
+>                          * Huh! same key, different name? Did someone trample
+>                          * on some memory? We're most confused.
+>                          */
+>                         WARN_ON_ONCE(class->name != lock->name &&
+>                                      lock->key != &__lockdep_no_validate__);
+>
+>
+> So something fishy happens here (stack overflow again?).
 
+Yeah, when I saw that yesterday I figured it was something beyond the
+usual connect() call path; something else is going on I think.  I
+didn't see a reproducer for this, is that right?
 
---=20
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+-- 
+paul moore
+www.paul-moore.com
