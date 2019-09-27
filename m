@@ -1,254 +1,110 @@
-Return-Path: <SRS0=fLGi=XV=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=oTsg=XW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 858CEC4360C
-	for <selinux@archiver.kernel.org>; Thu, 26 Sep 2019 22:04:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C773C4360C
+	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 07:55:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4EC5720835
-	for <selinux@archiver.kernel.org>; Thu, 26 Sep 2019 22:04:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F3192075D
+	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 07:55:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W4VkvLQ4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726253AbfIZWEj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 26 Sep 2019 18:04:39 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:44767 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726229AbfIZWEi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 26 Sep 2019 18:04:38 -0400
-Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 81E4456491D
-        for <selinux@vger.kernel.org>; Fri, 27 Sep 2019 00:04:35 +0200 (CEST)
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+        id S1726027AbfI0HzM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Sep 2019 03:55:12 -0400
+Received: from mail-ed1-f51.google.com ([209.85.208.51]:38905 "EHLO
+        mail-ed1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725812AbfI0HzM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Sep 2019 03:55:12 -0400
+Received: by mail-ed1-f51.google.com with SMTP id l21so1515137edr.5
+        for <selinux@vger.kernel.org>; Fri, 27 Sep 2019 00:55:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:subject:message-id:mail-followup-to:mime-version
+         :content-disposition:user-agent;
+        bh=wrnm/74VUeNcmtOnWa1DD5GyU6RgH24RKV2RjBLZARg=;
+        b=W4VkvLQ4HR8WkKEVU9ESw/4s2L5Yis+z2YAtwKGf8MsXx9BiWf7gEKYffeU6LNBw/6
+         0dXf9mJKs0MTng/VaLsg3RY1g91y3hBe3PDIpvkHbUh87joyuB5NJXZQrkXyBb79iKHq
+         qS5JuTL5EPLdHrBIBJQ3lcWi76cywlyFSash+rrJljIzpNs6/l+/rrS7GUxmp0OIoyaR
+         nUwu8zR+06HbC4eynthESbX+oM8c4VOv+jm1Cnp0BmnBvwN1P2aLsBRLTdayU2gz8hpn
+         A33J3ro7n7SQZUULLyrtkQ/r4PEJl6+NB/lrCfQGiMhejn0tAqejUxyO8spEBQcClrX1
+         l2cw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:subject:message-id:mail-followup-to
+         :mime-version:content-disposition:user-agent;
+        bh=wrnm/74VUeNcmtOnWa1DD5GyU6RgH24RKV2RjBLZARg=;
+        b=jc0djXrHkqiSC7pL2bnCjT/KtODtasPD+jYSOgbuPo+/5SMpOjhKbho4jKutr20Omu
+         JIJFKjV1Oyy1yEp4Ru0Kv89j0A5qwEkCxB7YZnW8jj745Por/JYlI1Vc2obOCNnnJkWb
+         oP/XroHXfKHJAHoB3rdXxhJKXS9Gewd5SxAnq8EZ/rROGHLLMqJ4y3vh8HymQDHbJcDr
+         lno05dzwHb/dGp7M9hsQ9PJ5Grlf87F7rpVwbDhbCST/epGPwqWBzVuj94GJ2TBE7Crf
+         Gh8pHe4yHWEitJftZ1XIqfVtPEBnIfFE7aTlFHjtaVve6ziW24++7JM+fjNLFSseNNFN
+         B6sw==
+X-Gm-Message-State: APjAAAWosUjlIsoZm8fjvPDIKCd8loNZYPP+RXSIeA6DnjgaFQsXQKA7
+        doorotUGIK/j3W0jJEBu2YNeEY/c
+X-Google-Smtp-Source: APXvYqwEJBYZATuufg56AEcAUkJuK9fG8NmIDvsiO+Z9Lnq9Ecwo66aDk1uCKYGQ+y8LBU6vbYISKA==
+X-Received: by 2002:a50:b582:: with SMTP id a2mr3072478ede.98.1569570910601;
+        Fri, 27 Sep 2019 00:55:10 -0700 (PDT)
+Received: from seamus.lan ([2001:985:d55d:0:6257:18ff:fe75:6e8f])
+        by smtp.gmail.com with ESMTPSA id z20sm358478edb.3.2019.09.27.00.55.08
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 27 Sep 2019 00:55:09 -0700 (PDT)
+Date:   Fri, 27 Sep 2019 09:55:07 +0200
+From:   Dominick Grift <dac.override@gmail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v2] libsepol, libsemanage: add a macro to silence static analyzer warnings in tests
-Date:   Fri, 27 Sep 2019 00:04:05 +0200
-Message-Id: <20190926220405.4524-1-nicolas.iooss@m4x.org>
-X-Mailer: git-send-email 2.22.0
+Subject: question about selinux_restore_tty() in sudo's selinux.c
+Message-ID: <20190927075507.GA20555@seamus.lan>
+Mail-Followup-To: selinux@vger.kernel.org
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri Sep 27 00:04:35 2019 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="sdtB3X0nJg68CQEu"
+Content-Disposition: inline
+User-Agent: Every email client sucks, this one just sucks less.
+X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Several static analyzers (clang's one, Facebook Infer, etc.) warn about
-NULL pointer dereferences after a call to CU_ASSERT_PTR_NOT_NULL_FATAL()
-in the test code written using CUnit framework. This is because this
-CUnit macro is too complex for them to understand that the pointer
-cannot be NULL: it is translated to a call to CU_assertImplementation()
-with an argument as TRUE in order to mean that the call is fatal if the
-asserted condition failed (cf.
-http://cunit.sourceforge.net/doxdocs/group__Framework.html).
 
-A possible solution could consist in replacing the
-CU_ASSERT_..._FATAL() calls by assert() ones, as most static analyzers
-know about assert(). Nevertheless this seems to go against CUnit's API.
+--sdtB3X0nJg68CQEu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-An alternative solution consists in overriding CU_ASSERT_..._FATAL()
-macros in order to expand to assert() after a call to the matching
-CU_ASSERT_...() non-fatal macro. This appears to work fine and to remove
-many false-positive warnings from various static analyzers.
+sudo does not reset the role of my tty properly [1], and i was wondering if=
+ anyone is able to determine what is causing this [2]
 
-As this substitution should only occur when using static analyzer, put
-it under #ifdef __CHECKER__, which is the macro used by sparse when
-analyzing the Linux kernel.
+[1] https://bugzilla.sudo.ws/show_bug.cgi?id=3D898
+[2] https://www.sudo.ws/repos/sudo/file/tip/src/selinux.c
 
-Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
----
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
+Dominick Grift
 
-v2: introduce a temporary variable to not evaluate twice the argument
-of the macros.
+--sdtB3X0nJg68CQEu
+Content-Type: application/pgp-signature; name="signature.asc"
 
- libsemanage/tests/test_utilities.c      |  2 ++
- libsemanage/tests/utilities.h           | 26 ++++++++++++++++++++++
- libsepol/tests/helpers.h                | 29 +++++++++++++++++++++++++
- libsepol/tests/test-common.c            |  2 ++
- libsepol/tests/test-deps.c              |  2 ++
- libsepol/tests/test-expander-attr-map.c |  1 +
- libsepol/tests/test-expander-roles.c    |  1 +
- libsepol/tests/test-expander-users.c    |  1 +
- scripts/run-scan-build                  |  6 ++++-
- 9 files changed, 69 insertions(+), 1 deletion(-)
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_utilities.c
-index 601508c2c386..ba995b5ae094 100644
---- a/libsemanage/tests/test_utilities.c
-+++ b/libsemanage/tests/test_utilities.c
-@@ -34,6 +34,8 @@
- #include <string.h>
- #include <unistd.h>
- 
-+#include "utilities.h"
-+
- void test_semanage_is_prefix(void);
- void test_semanage_split_on_space(void);
- void test_semanage_split(void);
-diff --git a/libsemanage/tests/utilities.h b/libsemanage/tests/utilities.h
-index c9d54d1e1b76..db4dabf95588 100644
---- a/libsemanage/tests/utilities.h
-+++ b/libsemanage/tests/utilities.h
-@@ -41,6 +41,32 @@
- 		CU_ASSERT_STRING_EQUAL(__str, __str2); \
- 	} while (0)
- 
-+
-+/* Override CU_*_FATAL() in order to help static analyzers by really asserting that an assertion holds */
-+#ifdef __CHECKER__
-+
-+#undef CU_ASSERT_FATAL
-+#define CU_ASSERT_FATAL(value) do { \
-+		int _value = (value); \
-+		CU_ASSERT(_value); \
-+		assert(_value); \
-+	} while (0)
-+
-+#undef CU_FAIL_FATAL
-+#define CU_FAIL_FATAL(msg) do { \
-+		CU_FAIL(msg); \
-+		assert(0); \
-+	} while (0)
-+
-+#undef CU_ASSERT_PTR_NOT_NULL_FATAL
-+#define CU_ASSERT_PTR_NOT_NULL_FATAL(value) do { \
-+		const void *_value = (value); \
-+		CU_ASSERT_PTR_NOT_NULL(_value); \
-+		assert(_value != NULL); \
-+	} while (0)
-+
-+#endif /* __CHECKER__ */
-+
- #define I_NULL  -1
- #define I_FIRST  0
- #define I_SECOND 1
-diff --git a/libsepol/tests/helpers.h b/libsepol/tests/helpers.h
-index 10d390946499..fa84cfab7f10 100644
---- a/libsepol/tests/helpers.h
-+++ b/libsepol/tests/helpers.h
-@@ -24,9 +24,38 @@
- 
- #include <sepol/policydb/policydb.h>
- #include <sepol/policydb/conditional.h>
-+#include <CUnit/Basic.h>
- 
- /* helper functions */
- 
-+/* Override CU_*_FATAL() in order to help static analyzers by really asserting that an assertion holds */
-+#ifdef __CHECKER__
-+
-+#include <assert.h>
-+
-+#undef CU_ASSERT_FATAL
-+#define CU_ASSERT_FATAL(value) do { \
-+		int _value = (value); \
-+		CU_ASSERT(_value); \
-+		assert(_value); \
-+	} while (0)
-+
-+#undef CU_FAIL_FATAL
-+#define CU_FAIL_FATAL(msg) do { \
-+		CU_FAIL(msg); \
-+		assert(0); \
-+	} while (0)
-+
-+#undef CU_ASSERT_PTR_NOT_NULL_FATAL
-+#define CU_ASSERT_PTR_NOT_NULL_FATAL(value) do { \
-+		const void *_value = (value); \
-+		CU_ASSERT_PTR_NOT_NULL(_value); \
-+		assert(_value != NULL); \
-+	} while (0)
-+
-+#endif /* __CHECKER__ */
-+
-+
- /* Load a source policy into p. policydb_init will called within this function.
-  * 
-  * Example: test_load_policy(p, POLICY_BASE, 1, "foo", "base.conf") will load the
-diff --git a/libsepol/tests/test-common.c b/libsepol/tests/test-common.c
-index 1d902880fe2e..f690635eee27 100644
---- a/libsepol/tests/test-common.c
-+++ b/libsepol/tests/test-common.c
-@@ -26,6 +26,8 @@
- 
- #include <CUnit/Basic.h>
- 
-+#include "helpers.h"
-+
- void test_sym_presence(policydb_t * p, const char *id, int sym_type, unsigned int scope_type, unsigned int *decls, unsigned int len)
- {
- 	scope_datum_t *scope;
-diff --git a/libsepol/tests/test-deps.c b/libsepol/tests/test-deps.c
-index 6bbba810564a..f4ab09ba0dbf 100644
---- a/libsepol/tests/test-deps.c
-+++ b/libsepol/tests/test-deps.c
-@@ -66,6 +66,8 @@
- #include <sepol/debug.h>
- #include <sepol/handle.h>
- 
-+#include "helpers.h"
-+
- #define BASE_MODREQ_TYPE_GLOBAL    0
- #define BASE_MODREQ_ATTR_GLOBAL    1
- #define BASE_MODREQ_OBJ_GLOBAL     2
-diff --git a/libsepol/tests/test-expander-attr-map.c b/libsepol/tests/test-expander-attr-map.c
-index d10636ca09a8..a9744541fe00 100644
---- a/libsepol/tests/test-expander-attr-map.c
-+++ b/libsepol/tests/test-expander-attr-map.c
-@@ -21,6 +21,7 @@
- 
- #include "test-expander-attr-map.h"
- #include "test-common.h"
-+#include "helpers.h"
- 
- #include <sepol/policydb/policydb.h>
- #include <CUnit/Basic.h>
-diff --git a/libsepol/tests/test-expander-roles.c b/libsepol/tests/test-expander-roles.c
-index aba3c9bd19c4..74c781b85e68 100644
---- a/libsepol/tests/test-expander-roles.c
-+++ b/libsepol/tests/test-expander-roles.c
-@@ -22,6 +22,7 @@
- 
- #include "test-expander-roles.h"
- #include "test-common.h"
-+#include "helpers.h"
- 
- #include <sepol/policydb/policydb.h>
- #include <CUnit/Basic.h>
-diff --git a/libsepol/tests/test-expander-users.c b/libsepol/tests/test-expander-users.c
-index 9d9c7a62f215..ab2265c110d5 100644
---- a/libsepol/tests/test-expander-users.c
-+++ b/libsepol/tests/test-expander-users.c
-@@ -21,6 +21,7 @@
-  */
- 
- #include "test-expander-users.h"
-+#include "helpers.h"
- 
- #include <sepol/policydb/policydb.h>
- #include <CUnit/Basic.h>
-diff --git a/scripts/run-scan-build b/scripts/run-scan-build
-index 88fe551ce698..ae5aa48b4a05 100755
---- a/scripts/run-scan-build
-+++ b/scripts/run-scan-build
-@@ -22,7 +22,11 @@ export RUBYLIB="$DESTDIR/$(${RUBY:-ruby} -e 'puts RbConfig::CONFIG["vendorlibdir
- 
- # Build and analyze
- make -C .. CC=clang clean distclean -j"$(nproc)"
--scan-build -analyze-headers -o "$OUTPUTDIR" make -C .. CC=clang DESTDIR="$DESTDIR" install install-pywrap install-rubywrap all test
-+scan-build -analyze-headers -o "$OUTPUTDIR" make -C .. \
-+    CC=clang \
-+    DESTDIR="$DESTDIR" \
-+    CFLAGS="-O2 -Wall -D__CHECKER__ -I$DESTDIR/usr/include" \
-+    install install-pywrap install-rubywrap all test
- 
- # Reduce the verbosity in order to keep the message from scan-build saying
- # "scan-build: Run 'scan-view /.../output-scan-build/2018-...' to examine bug reports.
--- 
-2.22.0
+iQGzBAABCgAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAl2NwFcACgkQJXSOVTf5
+R2m9BAv8CWRcP8nacCXF4oNSMtugIZKCVB4nMI44l7moxrpvQtgwogy121/W7nCq
+xHDR6qHVpSeF90nLyO+hp4hat0ZnNHGVSZMYV70rMp1VI11/0c1sns/IJ+dQTvWz
+ZFuUqmEPF9OjpsRxKwc6xIwEs5cTp9EduPh8sMupbcglCZ05Eb5tVmWAwfg2ymbI
+S181W+jzO0EN/RI+ozCzk6poRdLVtIfLw30+zykknsiu9eS9WQ+qgu81h7LTQsh/
+QvhlwLSWdGjpcPM2AFRdWVlr9941rsrvBDJTg6Ne7muwdfTfJzMzZlO4bEkZUfh7
+QepKwwV2MPsG/EZaI9My+4j+ICuZGGKAfWr+cQIF5smBr9NTuehAA2C6WPRywjCR
+M6jRGiHXY9oP2IGdYWWamNhcw5gRG1IODDlhgslABOAlBfxCxIy13zcsgu/SI39A
+IjrRRY4jxIk3NJ25p/N9/GrMuVO5hrRgLI4L3+C98iNTvA2E9i7yRtkJs9ozdftc
+3F0KNQB8
+=MWUQ
+-----END PGP SIGNATURE-----
 
+--sdtB3X0nJg68CQEu--
