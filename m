@@ -2,146 +2,138 @@ Return-Path: <SRS0=oTsg=XW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42831C4360C
-	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 13:08:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72216C4360C
+	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 13:33:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 155D0207FF
-	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 13:08:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B45D217D9
+	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 13:33:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YlsY5a1C"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="U4u63/Qu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbfI0NIK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 27 Sep 2019 09:08:10 -0400
-Received: from mail-ed1-f48.google.com ([209.85.208.48]:36359 "EHLO
-        mail-ed1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726144AbfI0NIK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 27 Sep 2019 09:08:10 -0400
-Received: by mail-ed1-f48.google.com with SMTP id h2so2285934edn.3
-        for <selinux@vger.kernel.org>; Fri, 27 Sep 2019 06:08:09 -0700 (PDT)
+        id S1726926AbfI0NdM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Sep 2019 09:33:12 -0400
+Received: from UPDC19PA21.eemsg.mail.mil ([214.24.27.196]:58514 "EHLO
+        UPDC19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726549AbfI0NdM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Sep 2019 09:33:12 -0400
+X-EEMSG-check-017: 17748902|UPDC19PA21_ESA_OUT03.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,555,1559520000"; 
+   d="scan'208";a="17748902"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Sep 2019 13:33:08 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=jk+vFMiW2+vm6kbuOZOp6eiEkoG/75dUdG0MyQEgcUI=;
-        b=YlsY5a1CEGDcFwSWEDNsQ9dLD1jauJzimDMjQ5H1dIP9ujq8e8PumpNza0x55dw9DQ
-         kWcOZC1RvThydrtvlGQPXogO3L0ywJ0vXqHGfu/Ht1BXn7WbwLUeoeLPvGD9TaQtmpb0
-         dvjBE9rY5CP3ttth7/zpO22kgYxVadmyNC1kqWVt3yJBh88x4H4DSneSezPvwdpgwicr
-         o5HiOh3BRY3jTHIq2soSBM9DIxlq0KnwUgKK4WHSXSA3OKom4I+XPOaMLg0Ib1dLTwWM
-         HQcf18nRQxyWccfR/6AvUia5vndbcyLhKjHDwNVBgxUNvGVqTY275s975IE3ZU5RTijM
-         YIdw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=jk+vFMiW2+vm6kbuOZOp6eiEkoG/75dUdG0MyQEgcUI=;
-        b=o2yP5IjOucr5Ylub5TjTnlzkqIN18icAayz3HJa1r5BYAOk6f3pZyAizj8baQIoywy
-         7P93tqMShygGT6/hqjHtntU9N2sftoT82EH2scEWpl47RcydIHDkkLpZFHLe1O1bm2hI
-         jChNTIoRY3PjvXujxZXZWx8nn+X+5IU5vEdAZAoj6obSexC0BzbM3rPvnKIFj6+5oZ/W
-         6M5yIi6/RcLwNzdRw68KRPp4nVOUCsdR7bxOdM2F3loTSeZ0yK2BANJ4FmnQuNRMRV4m
-         S5HGsY6cvsluYAQVNYgelKYYx/fWcq8iNd0C1Yja3g8N80s8kTuBnQoq7ZuU0RJlkXTb
-         pvvw==
-X-Gm-Message-State: APjAAAXPhGLwMrzosfuQXm4Q+dDo4mybGkkiabWRZuPr8Tl7qWId/WGp
-        8D4qx2bNjglxwU+FJETDR+BYN0g3
-X-Google-Smtp-Source: APXvYqzPVpgIN7/mxeaWMfAfTxtT40V7LF4bXlNb/xRDFsACdIYHjGZ35lj5DXRA/29FkJ2VfRIBtw==
-X-Received: by 2002:a50:a41c:: with SMTP id u28mr4382876edb.185.1569589688739;
-        Fri, 27 Sep 2019 06:08:08 -0700 (PDT)
-Received: from seamus.lan ([2001:985:d55d:0:6257:18ff:fe75:6e8f])
-        by smtp.gmail.com with ESMTPSA id b12sm516690edq.75.2019.09.27.06.08.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Sep 2019 06:08:07 -0700 (PDT)
-Date:   Fri, 27 Sep 2019 15:08:05 +0200
-From:   Dominick Grift <dac.override@gmail.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1569591188; x=1601127188;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=k+t+uZkZsQx/RT4Lom/tgRVM+fMYFsmGdnlFolPphSI=;
+  b=U4u63/QuPXG5RpFwf1KavjEm+3b0jOg5Rou3CTP9S8G4LWZlGjh4x90N
+   gzA1wXohXfySqlmogR/tQVHzhFqXrBIpJpwFXQhXdHT2FaE1GKqFEjWlA
+   W8rFE37iDaLW3QYD8gsLw852BiLG5uzDMEI+XfEEa6cz2w+T8thONPpz9
+   nUh3qaUgV4EN+QTe5fOs6vrFSsPgpxmPxiEhCwq9W/wdQd/I05TuRn5H/
+   V+A3cw0ATfKyEPh2hHNz3v6V14gqqL5lbX4VcSlhmUCpPjGPR+AgLzXJ0
+   Macf4uP9XvO81lHAozWXt8M8Q1SHkz5SbuhHDAbgc1JWifmiI4GUWs50n
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.64,555,1559520000"; 
+   d="scan'208";a="28396927"
+IronPort-PHdr: =?us-ascii?q?9a23=3AsbcYvhw3m5/4FcbXCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd2+oQIJqq85mqBkHD//Il1AaPAdyArakawLSM+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxhGiTanb75/LRq6oATPusILnYZsN6E9xw?=
+ =?us-ascii?q?fTrHBVYepW32RoJVySnxb4+Mi9+YNo/jpTtfw86cNOSL32cKskQ7NWCjQmKH?=
+ =?us-ascii?q?0169bwtRbfVwuP52ATXXsQnxFVHgXK9hD6XpP2sivnqupw3TSRMMPqQbwoXz?=
+ =?us-ascii?q?mp8qlkSAXsiCwaKTA39m/ZgdF0gK5Cvh6sphlzzojJa4+XKfV+ZLvQc84ES2?=
+ =?us-ascii?q?pPXshfVCJPDY2zYIQNE+UPMv1Vr5X/qlYUsReyGQehCeHpxzRVhnH2x6o60+?=
+ =?us-ascii?q?E5HA/bwAwvAcoOsHTKo9XzKawcTOW1w7PMzTXHcfxX2Sr25Y/Tch88uvGBRq?=
+ =?us-ascii?q?5wcMrNxkkvEAPJlFOQqZf/MD+P2eQNtHab4vNmWOmyhWAnrARxrSKuxscqko?=
+ =?us-ascii?q?TJnZ8VxU3D9Spn2oY1Pse0SFV8YdK8C5tQqjyVN4xsTsIsWGFlvjsxxL4euZ?=
+ =?us-ascii?q?OjYSQHx5sqywTfZvCaaYSE/B3uWPiLLTtlgn9uZaixiAyo8Ue6z+3xTsy00F?=
+ =?us-ascii?q?FXoSVbitTMrXUN1wDL6siAV/t94l+t2TaR2ADX7eFJOVw0mrDBK54g374wjY?=
+ =?us-ascii?q?AfsVjDHyDqmEX2i7WadkM49eiz9+vreLDmpp6YN4NsiwH+NLohmtCnDOglPQ?=
+ =?us-ascii?q?UDUHKX9OSh2LH540H0T6tGgucrnqXBtZDVP8Ubpqq3Aw9P1YYj7g6yDyy739?=
+ =?us-ascii?q?QDhnQHMFJEdw6Hj4juIV3OJuv4Au2lj1Sjlzdr2ejKPqf9DZXVMnjDjLDhcK?=
+ =?us-ascii?q?5m60FCzAozzNZf549bC7waPvLzVVH+tMbCAh86LQO02eDnB8t51o8EXmKPGK?=
+ =?us-ascii?q?CZY+vutgqT6+YuJfScTJEatSy7KPU/4fPqy3gjlgwzZ66siKALZWi4E/IuGE?=
+ =?us-ascii?q?CQZX7hk59VCmsRlhYvR+ztzluZWHhcYGjkDPF03S0yFI/zVdSLfYuqmrHUmX?=
+ =?us-ascii?q?3lEw=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DRBgDKDo5d/wHyM5BmHAEBAQQBAQwEAQGBZ4F0Km1SA?=
+ =?us-ascii?q?TIqhCKObU0BAQEBAQEGgTaJdYoJhTqBZwkBAQEBAQEBAQErCQECAQGEQAKDN?=
+ =?us-ascii?q?yM4EwIMAQEBBAEBAQEBBQMBAWyFLQyCOimCaQEFIwQRUQsYAgImAgJXEwgBA?=
+ =?us-ascii?q?YJfPwGBdhQPrgl/M4VNgzOBSIEMKIwOGHiBB4E4gms+gkgZBBiBMGSCPoJYB?=
+ =?us-ascii?q?JYKlw2CLIIuhFeOAAYbgymWCy2WC5MYIYFYKwgCGAghD4MnCUcQFIwxgVqCJ?=
+ =?us-ascii?q?CUDMIEGAQGOPgEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 27 Sep 2019 13:33:06 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8RDX6l4007037
+        for <selinux@vger.kernel.org>; Fri, 27 Sep 2019 09:33:06 -0400
 Subject: Re: question about selinux_restore_tty() in sudo's selinux.c
-Message-ID: <20190927130805.GA22281@seamus.lan>
-Mail-Followup-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@vger.kernel.org
+To:     selinux@vger.kernel.org
 References: <20190927075507.GA20555@seamus.lan>
  <0fb7bf1f-f13b-3bec-7b91-53460dfbe265@tycho.nsa.gov>
+ <20190927130805.GA22281@seamus.lan>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <1aefe0bf-ab82-3b41-7f49-5a540ab8f7f9@tycho.nsa.gov>
+Date:   Fri, 27 Sep 2019 09:33:06 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
-Content-Disposition: inline
-In-Reply-To: <0fb7bf1f-f13b-3bec-7b91-53460dfbe265@tycho.nsa.gov>
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+In-Reply-To: <20190927130805.GA22281@seamus.lan>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On 9/27/19 9:08 AM, Dominick Grift wrote:
+> On Fri, Sep 27, 2019 at 08:59:26AM -0400, Stephen Smalley wrote:
+>> On 9/27/19 3:55 AM, Dominick Grift wrote:
+>>> sudo does not reset the role of my tty properly [1], and i was wondering if anyone is able to determine what is causing this [2]
+>>>
+>>> [1] https://bugzilla.sudo.ws/show_bug.cgi?id=898
+>>> [2] https://www.sudo.ws/repos/sudo/file/tip/src/selinux.c
+>>
+>> Are you sure sudo is calling selinux_restore_tty()?
+>>
+>>
+> 
+> running sudo with:
+> 
+> Debug sudo /var/log/sudo_debug all@debug
+> Debug sudoers.so /var/log/sudo_debug all@debug
+> 
+> Yields:
+> 
+> grep selinux /var/log/sudo_debug
+> Sep 27 15:06:29 sudo[3417] <- sudo_new_key_val_v1 @ ../../../lib/util/key_val.c:61 := selinux_role=sysadm.role
+> Sep 27 15:06:29 sudo[3417]     7: selinux_role=sysadm.role
+> Sep 27 15:06:29 sudo[3447] -> selinux_setup @ ../../src/selinux.c:349
+> Sep 27 15:06:29 sudo[3447] -> get_exec_context @ ../../src/selinux.c:274
+> Sep 27 15:06:29 sudo[3447] <- get_exec_context @ ../../src/selinux.c:328 := 0x564eed3621b0
+> Sep 27 15:06:29 sudo[3447] -> relabel_tty @ ../../src/selinux.c:160
+> Sep 27 15:06:29 sudo[3447] <- relabel_tty @ ../../src/selinux.c:253 := 0
+> Sep 27 15:06:29 sudo[3447] -> audit_role_change @ ../../src/selinux.c:76
+> Sep 27 15:06:29 sudo[3447] <- audit_role_change @ ../../src/selinux.c:98 := 6
+> Sep 27 15:06:29 sudo[3447] <- selinux_setup @ ../../src/selinux.c:395 := 0
+> Sep 27 15:06:29 sudo[3447] -> selinux_execve @ ../../src/selinux.c:405
+> Sep 27 15:06:29 sudo[3417] -> selinux_restore_tty @ ../../src/selinux.c:114
+> Sep 27 15:06:29 sudo[3417] <- selinux_restore_tty @ ../../src/selinux.c:142 := 0
 
---Dxnq1zWXvFF0Q93v
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ok, so you entered and exited selinux_restore_tty() without error. No 
+warning messages of any kind in any of the sudo logs? Not sure where 
+sudo_warn() and sudo_warnx() messages go.
 
-On Fri, Sep 27, 2019 at 08:59:26AM -0400, Stephen Smalley wrote:
-> On 9/27/19 3:55 AM, Dominick Grift wrote:
-> > sudo does not reset the role of my tty properly [1], and i was wonderin=
-g if anyone is able to determine what is causing this [2]
-> >=20
-> > [1] https://bugzilla.sudo.ws/show_bug.cgi?id=3D898
-> > [2] https://www.sudo.ws/repos/sudo/file/tip/src/selinux.c
->=20
-> Are you sure sudo is calling selinux_restore_tty()?
->=20
->=20
+selinux_restore_tty() does a goto skip_relabel in multiple cases:
+- if there was no tty (ttyfd == -1),
+- if we didn't set a new tty context (new_tty_context),
+- if the context on the tty was changed from the value set by sudo 
+(strcmp...) e.g. some other process changed it in the interim, but this 
+should have logged a warning,
 
-running sudo with:
-
-Debug sudo /var/log/sudo_debug all@debug
-Debug sudoers.so /var/log/sudo_debug all@debug
-
-Yields:
-
-grep selinux /var/log/sudo_debug
-Sep 27 15:06:29 sudo[3417] <- sudo_new_key_val_v1 @ ../../../lib/util/key_v=
-al.c:61 :=3D selinux_role=3Dsysadm.role
-Sep 27 15:06:29 sudo[3417]     7: selinux_role=3Dsysadm.role
-Sep 27 15:06:29 sudo[3447] -> selinux_setup @ ../../src/selinux.c:349
-Sep 27 15:06:29 sudo[3447] -> get_exec_context @ ../../src/selinux.c:274
-Sep 27 15:06:29 sudo[3447] <- get_exec_context @ ../../src/selinux.c:328 :=
-=3D 0x564eed3621b0
-Sep 27 15:06:29 sudo[3447] -> relabel_tty @ ../../src/selinux.c:160
-Sep 27 15:06:29 sudo[3447] <- relabel_tty @ ../../src/selinux.c:253 :=3D 0
-Sep 27 15:06:29 sudo[3447] -> audit_role_change @ ../../src/selinux.c:76
-Sep 27 15:06:29 sudo[3447] <- audit_role_change @ ../../src/selinux.c:98 :=
-=3D 6
-Sep 27 15:06:29 sudo[3447] <- selinux_setup @ ../../src/selinux.c:395 :=3D 0
-Sep 27 15:06:29 sudo[3447] -> selinux_execve @ ../../src/selinux.c:405
-Sep 27 15:06:29 sudo[3417] -> selinux_restore_tty @ ../../src/selinux.c:114
-Sep 27 15:06:29 sudo[3417] <- selinux_restore_tty @ ../../src/selinux.c:142=
- :=3D 0
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---Dxnq1zWXvFF0Q93v
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAABCgAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAl2OCbEACgkQJXSOVTf5
-R2mc+Av+OLvuvKPkPKYqcuZ+cbXLvljUGLhvGmf8+2yHGgynvgVGfr6W7fr33Oh4
-G6b5H85wdky9Z6wgg/vrMsMGEfcaKDMCiA0yrMutY1Vm8Otnca8vMNnJIM08daDE
-1S/LUI+EYiFwtSBj9LsxGexPVdZdA24t9NT7UtoH3qL6ekSH+kt483XBAMjrOxB7
-q6Fu3gasQ/kY7tMZw1Q6wek1dqlwayDsqhJhsm5/e2Hqs/C6mk4Tmn2M3Aba9biY
-4l27UkVV6YcsBe4WtPv+XuN24Zpsj93SrYp7+LSw3d9KWkld+EW176iSZC1IJ/wH
-dJnSXExJvKwmveb6cl9Pr6rcgUl+mg/Q7ui5FV8TKU5XDG66oXnPDGDdzMmWwVcN
-Tt6LDkZa9p+u4p6rJQ1cLmQ0+xlShC5sW85IK/HtB0KGHps9qya3y2GaptOVdVYH
-rBxSJTSSRZwWxo6+qTEqPVmy2nSSJzQg3dLFd7TwUkXBU6FoRZ8w+csltE087Dvv
-/PITE2mI
-=IXOn
------END PGP SIGNATURE-----
-
---Dxnq1zWXvFF0Q93v--
