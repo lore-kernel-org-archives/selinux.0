@@ -2,193 +2,99 @@ Return-Path: <SRS0=oTsg=XW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09537C4360C
-	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 09:24:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02C90C4360C
+	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 12:59:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CB600217D9
-	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 09:24:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BC34021850
+	for <selinux@archiver.kernel.org>; Fri, 27 Sep 2019 12:59:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="StTPh9WN"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="m1F4dhf/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbfI0JYJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 27 Sep 2019 05:24:09 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:24901 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725890AbfI0JYJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 27 Sep 2019 05:24:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1569576248;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/+XOHutj5h2W/z8lzNx5f4Lx0C3naGQu0st7ymtrQhk=;
-        b=StTPh9WNWN/V7iDYTui5TAVPSjxOO7L8uPzQigtz2xSfWUWA+dlegwDw8T3Lp1PO+Qtaq7
-        O9YeHgQLxY2bz3n6Mgtk9JHvK9VpqtMTB2XnRQnvfFFcFYjWi1toVjzUM+sNeZoA9ppkn3
-        u57yMXKl7D1p3XwbLVYwdprImtmoaQQ=
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
- [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-86-lPuvc5BNPRiM8RKGxMoeZw-1; Fri, 27 Sep 2019 05:24:06 -0400
-Received: by mail-oi1-f200.google.com with SMTP id l24so2635766oii.16
-        for <selinux@vger.kernel.org>; Fri, 27 Sep 2019 02:24:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Cfz81ENyKB6lxOqbH6ytizWfly2jQEB0S/3ncP/3iIs=;
-        b=TGBlJOPQxS0MorWqy8tSliTQSPp3+luMCFB+njxtqldAOyC7aGSxc/TfMusg1Yt0KC
-         BDzI9Yti1rStTzliniIkyh7wSpw7K0EXCtz1vi+YxyaDWyKjYC+6nooyfgz5y0QuL5IC
-         67SKEXN9UcYgvSmNYJg/ugtI897tZNZkFNI2y7xUkrhzJBXJ+x3n/rWzU9xppRLhRhfv
-         D6QvtMwc9QAYYUVdn1JCVskAqjo0N5R21KseSFEN7syrhbXu5wdO+GnX2WIWWY2+E/vD
-         SYo0HtAsy2leMryZc5DZWIDEe38NtxXbsAgtN3JLuN/2haoPykNOpRCodxLKyZNUvLCA
-         RiCw==
-X-Gm-Message-State: APjAAAXXLfdlat7NiTMfSajZOERjS/vAr+37/FQyeuLSQ01PBBpdUfhD
-        Ma7DI5qDvsPMuTQXmfQTdb99XUSh9PCZ73snXLZi6mB9H4oI9RP+QFxzWGSuqBBB+zJoYv3w2xz
-        XPY7Cgpnzdg4EmXzl/rsWCm8KazWQW+Sl2g==
-X-Received: by 2002:aca:4993:: with SMTP id w141mr6321856oia.127.1569576245558;
-        Fri, 27 Sep 2019 02:24:05 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqwAFSqepN0TeEWf7BNLYscxIFGwN/RS2SISOvPjJIIpH4d1JnOFvWrRGwucdiomn74LvrqiH4IZ0DM9WmmK1jw=
-X-Received: by 2002:aca:4993:: with SMTP id w141mr6321837oia.127.1569576245216;
- Fri, 27 Sep 2019 02:24:05 -0700 (PDT)
+        id S1727158AbfI0M7h (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Sep 2019 08:59:37 -0400
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:25163 "EHLO
+        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725890AbfI0M7h (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Sep 2019 08:59:37 -0400
+X-EEMSG-check-017: 17719267|UPDC19PA20_ESA_OUT02.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,555,1559520000"; 
+   d="scan'208";a="17719267"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Sep 2019 12:59:34 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1569589174; x=1601125174;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=3aJxXagwTVxZ7EgkUR4FYPQ/QHFO/ihijFrPXZ8yOgc=;
+  b=m1F4dhf/5Ht1ja/cA7PYggA8nL2aG0OYrkcZgMceedLn3IqLrNnXWynZ
+   fZ1mwHCkBuHA96ouJhsLRL19ccjbVvAIPcG8KZ/q8FBNN61+9T6QnvyXJ
+   zuvGiur2/yAOw9HqipN/1Qf3x4Wpw5UzgWXG9f75VwIFwICVssXZpPBat
+   NyMvfhtMOunODVsr3xzNo9etXFW2SIZM6BS9Afp9qPbgWb61cqJs7GiyF
+   qLx9pE8kdo8PuD+yUM92JomZFJgSv0u5OLRnPbb8mOiP6KYsIjksYeR3G
+   l/doiPrPoJ40ABNqtaMqM54sA9d4OvdFYkSyiGfQ2aODQSwfyn4zcDpUk
+   g==;
+X-IronPort-AV: E=Sophos;i="5.64,555,1559520000"; 
+   d="scan'208";a="33439210"
+IronPort-PHdr: =?us-ascii?q?9a23=3AnDMeAR+93xB+gP9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B42+4cTK2v8tzYMVDF4r011RmVBN6dsKwP1reempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffgtFiCCzbL5zIxm7rQXcvdQKjIV/Lao81g?=
+ =?us-ascii?q?HHqWZSdeRMwmNoK1OTnxLi6cq14ZVu7Sdete8/+sBZSan1cLg2QrJeDDQ9Lm?=
+ =?us-ascii?q?A6/9brugXZTQuO/XQTTGMbmQdVDgff7RH6WpDxsjbmtud4xSKXM9H6QawyVD?=
+ =?us-ascii?q?+/4ahrUhvogzoZOTA//m/cl8h8gLtFrB+gohByxZPfboOIO/pkZq7TYM0URW?=
+ =?us-ascii?q?RBUMhSWSJODIyzYIkTAOQOJutYs4vwqkESoReiCwShBuXiwSJIiH/s2q061v?=
+ =?us-ascii?q?wsHxza3AM+B9IOsGrbrNPoP6kPVOC61q3IzTHdYPJWxDzw75PIfQ06ofyXQb?=
+ =?us-ascii?q?JxcdbeyUkoFw/fiFWQspbqMyma1uQKrWiW9uxtXv+hhW4grgF+uDmvxsE0h4?=
+ =?us-ascii?q?nSm4Ia11fE+T93wYYuI9CzVU11Yca8HZdNuCyXOJF6T8M/T21ypio3xaMKtY?=
+ =?us-ascii?q?SmcCUM1Z8p3QTQa+adfIiN+h/jUeGRLipmi399Y7K/ggqy8VCnyu3hSsm4yF?=
+ =?us-ascii?q?ZKoTRBktnLrn0Nywbc6tKGSvtg5UetwyqP1gDP5eFEJkA4j6zbJII6wrEsjJ?=
+ =?us-ascii?q?YTtEXDHivulEX3iq+ZaFkk9/C15+nobbjqvJ+RO5Juhg3gPakihNazDfkgPg?=
+ =?us-ascii?q?gLRWeb+OC81LP5/U3+RbVHluY2nbTCsJ3BOcQaprK2Aw9S0oo57Ra/FC2p3M?=
+ =?us-ascii?q?4XnXkAMlJJYAiHgJTxO1HSPPD4Cu+yg0+ynzdvxvDGOKDhA5rWI3jdn7fuY6?=
+ =?us-ascii?q?x951RfyAUt19Bf4YxbCrUbLPL0QE/xu4+QMhhsKAGwwuD6GP1j2Y4EH2GCGK?=
+ =?us-ascii?q?mUNOXVq1DbyPgoJry3eIINuDv7Y8Mg7vrqgG5xzUQRZoG1zJAXbza+Bf0gLE?=
+ =?us-ascii?q?KHNym/yuwdGHsH61JtBNfhj0ePBHsJOXs=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CTDAAvB45d/wHyM5BmHQEBBQEMBQGBZ4F0Km1SATIqh?=
+ =?us-ascii?q?CKIPoYwTQEBAQEBAQaBNol1g3uGDoU6gWcJAQEBAQEBAQEBKwkBAgEBhEACg?=
+ =?us-ascii?q?zcjOBMCDAEBAQQBAQEBAQUDAQFshS0MgjopgmkBBSMVUQsYAgImAgJXEwgBA?=
+ =?us-ascii?q?YJfPwGBdhQPrhCBMoVNgzOBQgaBDCiMDhh4gQeBOIJrPoJIGQQYgTBkgj6CW?=
+ =?us-ascii?q?ASWCpcNgiyCLoRXjgAGG4InAZcMLZYLkxghgVgrCAIYCCEPgyhPEBSOC4IkJ?=
+ =?us-ascii?q?QMwgQYBAY4+AQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 27 Sep 2019 12:59:27 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8RCxQBn029037
+        for <selinux@vger.kernel.org>; Fri, 27 Sep 2019 08:59:26 -0400
+Subject: Re: question about selinux_restore_tty() in sudo's selinux.c
+To:     selinux@vger.kernel.org
+References: <20190927075507.GA20555@seamus.lan>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <0fb7bf1f-f13b-3bec-7b91-53460dfbe265@tycho.nsa.gov>
+Date:   Fri, 27 Sep 2019 08:59:26 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-References: <20190926171934.9786-1-jwcart2@tycho.nsa.gov>
-In-Reply-To: <20190926171934.9786-1-jwcart2@tycho.nsa.gov>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 27 Sep 2019 11:23:53 +0200
-Message-ID: <CAFqZXNvjkB=gi5-OZwfRSj7e4FrNQPxjP6uf95av+o5oPW0MhQ@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: Further improve binary policy optimization
-To:     James Carter <jwcart2@tycho.nsa.gov>
-Cc:     SElinux list <selinux@vger.kernel.org>
-X-MC-Unique: lPuvc5BNPRiM8RKGxMoeZw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20190927075507.GA20555@seamus.lan>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 26, 2019 at 7:19 PM James Carter <jwcart2@tycho.nsa.gov> wrote:
-> This improves commit b8213acf (libsepol: add a function to optimize
-> kernel policy) by Ondrej Mosnacek <omosnace@redhat.com> by always
-> removing redundant conditional rules which have an identical rule
-> in the unconditional policy.
->
-> Add a flag called not_cond to is_avrule_redundant(). When checking
-> unconditional rules against the avtab (which stores the unconditional
-> rules) we need to skip the actual rule that we are checking (otherwise
-> a rule would be determined to be redundant with itself and bad things
-> would happen), but when checking a conditional rule against the avtab
-> we do not want to skip an identical rule (which is what currently
-> happens), we want to remove the redundant permissions in the conditional
-> rule.
->
-> A couple of examples to illustrate when redundant condtional rules
-> are not removed.
->
-> Example 1
->   allow t1 t2:class1 perm1;
->   if (bool1) {
->     allow t1 t2:class1 perm1;
->   }
-> The conditional rule is clearly redundant, but without this change it
-> will not be removed, because of the check for an identical rule.
->
-> Example 2
->   typeattribute t1 a1;
->   allow t1 t2:class1 perm1;
->   allow a1 t2:class1 perm1;
->   if (bool1) {
->     allow t1 t2:class1 perm1;
->   }
-> The conditional rule is again clearly redundant, but now the order of
-> processing during the optimization will determine whether or not the
-> rule is removed. Because a1 contains only t1, a1 and t1 are considered
-> to be supersets of each other. If the rule with the attribute is
-> processed first, then it will be determined to be redundant and
-> removed, so the conditional rule will not be removed. But if the rule
-> with the type is processed first, then it will be removed and the
-> conditional rule will be determined to be redundant with the rule with
-> the attribute and removed as well.
->
-> The change reduces the size of policy a bit more than the original
-> optimization. Looking at the change in number of allow rules, there is
-> about a 10% improvement over the old optimization.
->            orig    old    new
-> Refpolicy 113284  82467  78053
-> Fedora    106410  64015  60008
->
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+On 9/27/19 3:55 AM, Dominick Grift wrote:
+> sudo does not reset the role of my tty properly [1], and i was wondering if anyone is able to determine what is causing this [2]
+> 
+> [1] https://bugzilla.sudo.ws/show_bug.cgi?id=898
+> [2] https://www.sudo.ws/repos/sudo/file/tip/src/selinux.c
 
-Nice improvement, thanks!
+Are you sure sudo is calling selinux_restore_tty()?
 
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-
-> ---
->  libsepol/src/optimize.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
->
-> diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
-> index 10399a43..1e5e97e8 100644
-> --- a/libsepol/src/optimize.c
-> +++ b/libsepol/src/optimize.c
-> @@ -123,7 +123,7 @@ static int process_avtab_datum(uint16_t specified,
->
->  /* checks if avtab contains a rule that covers the given rule */
->  static int is_avrule_redundant(avtab_ptr_t entry, avtab_t *tab,
-> -                              const ebitmap_t *type_map)
-> +                              const ebitmap_t *type_map, unsigned char n=
-ot_cond)
->  {
->         unsigned int i, k, s_idx, t_idx;
->         ebitmap_node_t *snode, *tnode;
-> @@ -146,7 +146,7 @@ static int is_avrule_redundant(avtab_ptr_t entry, avt=
-ab_t *tab,
->                 key.source_type =3D i + 1;
->
->                 ebitmap_for_each_positive_bit(&type_map[t_idx], tnode, k)=
- {
-> -                       if (s_idx =3D=3D i && t_idx =3D=3D k)
-> +                       if (not_cond && s_idx =3D=3D i && t_idx =3D=3D k)
->                                 continue;
->
->                         key.target_type =3D k + 1;
-> @@ -223,7 +223,7 @@ static void optimize_avtab(policydb_t *p, const ebitm=
-ap_t *type_map)
->         for (i =3D 0; i < tab->nslot; i++) {
->                 cur =3D &tab->htable[i];
->                 while (*cur) {
-> -                       if (is_avrule_redundant(*cur, tab, type_map)) {
-> +                       if (is_avrule_redundant(*cur, tab, type_map, 1)) =
-{
->                                 /* redundant rule -> remove it */
->                                 avtab_ptr_t tmp =3D *cur;
->
-> @@ -279,7 +279,7 @@ static void optimize_cond_av_list(cond_av_list_t **co=
-nd, cond_av_list_t **del,
->                  * First check if covered by an unconditional rule, then =
-also
->                  * check if covered by another rule in the same list.
->                  */
-> -               if (is_avrule_redundant((*cond)->node, &p->te_avtab, type=
-_map) ||
-> +               if (is_avrule_redundant((*cond)->node, &p->te_avtab, type=
-_map, 0) ||
->                     is_cond_rule_redundant((*cond)->node, *pcov_cur, type=
-_map)) {
->                         cond_av_list_t *tmp =3D *cond;
->
-> --
-> 2.21.0
->
-
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
 
