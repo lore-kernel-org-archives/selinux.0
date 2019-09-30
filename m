@@ -1,138 +1,80 @@
-Return-Path: <SRS0=NIRl=XY=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=KDcg=XZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66EA7C32793
-	for <selinux@archiver.kernel.org>; Sun, 29 Sep 2019 17:43:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D9FDC4360C
+	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 07:49:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4275F2086A
-	for <selinux@archiver.kernel.org>; Sun, 29 Sep 2019 17:43:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1569778988;
-	bh=F8RTzDc+fECkTRNigXyurxf3VNTlrsOpbjYpgckPm38=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=Ct07rC77hN+Mkn/0/5QK6ml1bX4nnCJ3WEv+EXjJ5Mu6rlOY9x5k2D+yiJRQD4hvQ
-	 O4CbA8bSSDjgSilPHFapmbcN04Jd5IPTAKFyS3FkRbFQaKvziNDX7HBjK1Mz2RJvef
-	 kP3weEoowUVteDeDRlgjsmcVtjVXHLOkWG/kuX0E=
+	by mail.kernel.org (Postfix) with ESMTP id 0B4BF20842
+	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 07:49:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729444AbfI2Rbr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 29 Sep 2019 13:31:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42300 "EHLO mail.kernel.org"
+        id S1729748AbfI3HtI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Sep 2019 03:49:08 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:41888 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729400AbfI2Rbq (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sun, 29 Sep 2019 13:31:46 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1729740AbfI3HtI (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 30 Sep 2019 03:49:08 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA31121906;
-        Sun, 29 Sep 2019 17:31:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1569778305;
-        bh=F8RTzDc+fECkTRNigXyurxf3VNTlrsOpbjYpgckPm38=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bDaE5NSM3FVA7TK9eB/IZuU9lbf+p4wlFN+y8ttg5ZMVQmxuAg1tPSe2Pc5Mf8n8m
-         ONMQvnVJTHd+d3Ec92HD9RIlKWTpRXH0SyEO3R8IIJ1x9/jgJEBEpEIelrYmXr8VgV
-         uyAdF0FSCcZvHdTxEf5ygdy3F8YPm+QKz7Lo864Q=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.3 24/49] selinux: fix residual uses of current_security() for the SELinux blob
-Date:   Sun, 29 Sep 2019 13:30:24 -0400
-Message-Id: <20190929173053.8400-24-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190929173053.8400-1-sashal@kernel.org>
-References: <20190929173053.8400-1-sashal@kernel.org>
+        by mx1.redhat.com (Postfix) with ESMTPS id 61C1DC049E23
+        for <selinux@vger.kernel.org>; Mon, 30 Sep 2019 07:49:08 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.43.12.184])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D5C9D5D6D0
+        for <selinux@vger.kernel.org>; Mon, 30 Sep 2019 07:49:07 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] python/semanage: fix moduleRecords.customized()
+Date:   Mon, 30 Sep 2019 09:49:04 +0200
+Message-Id: <20190930074904.25219-1-vmojzis@redhat.com>
+In-Reply-To: <CAJfZ7=nBDUZYO95PN4p5FaXh_KAa3SeHu6yq4CteFGgyPkjEUw@mail.gmail.com>
+References: <CAJfZ7=nBDUZYO95PN4p5FaXh_KAa3SeHu6yq4CteFGgyPkjEUw@mail.gmail.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Mon, 30 Sep 2019 07:49:08 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
+Return value of "customized" has to be iterable.
 
-[ Upstream commit 169ce0c081cd85f78388bb6c1638c1ad7b81bde7 ]
+Fixes:
+   "semanage export" with no modules in the system (eg. monolithic policy)
+   crashes:
 
-We need to use selinux_cred() to fetch the SELinux cred blob instead
-of directly using current->security or current_security().  There
-were a couple of lingering uses of current_security() in the SELinux code
-that were apparently missed during the earlier conversions. IIUC, this
-would only manifest as a bug if multiple security modules including
-SELinux are enabled and SELinux is not first in the lsm order. After
-this change, there appear to be no other users of current_security()
-in-tree; perhaps we should remove it altogether.
+   Traceback (most recent call last):
+     File "/usr/sbin/semanage", line 970, in <module>
+       do_parser()
+     File "/usr/sbin/semanage", line 949, in do_parser
+       args.func(args)
+     File "/usr/sbin/semanage", line 771, in handleExport
+       for c in OBJECT.customized():
+   TypeError: 'NoneType' object is not iterable
 
-Fixes: bbd3662a8348 ("Infrastructure management of the cred security blob")
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
- security/selinux/hooks.c          |  2 +-
- security/selinux/include/objsec.h | 20 ++++++++++----------
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ python/semanage/seobject.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 74dd46de01b6a..e755174647866 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3403,7 +3403,7 @@ static int selinux_inode_copy_up_xattr(const char *name)
- static int selinux_kernfs_init_security(struct kernfs_node *kn_dir,
- 					struct kernfs_node *kn)
- {
--	const struct task_security_struct *tsec = current_security();
-+	const struct task_security_struct *tsec = selinux_cred(current_cred());
- 	u32 parent_sid, newsid, clen;
- 	int rc;
- 	char *context;
-diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
-index 91c5395dd20c2..586b7abd0aa73 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -37,16 +37,6 @@ struct task_security_struct {
- 	u32 sockcreate_sid;	/* fscreate SID */
- };
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index 5e9e3eb5..f4c29854 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -380,7 +380,7 @@ class moduleRecords(semanageRecords):
+     def customized(self):
+         all = self.get_all()
+         if len(all) == 0:
+-            return
++            return []
+         return ["-d %s" % x[0] for x in [t for t in all if t[1] == 0]]
  
--/*
-- * get the subjective security ID of the current task
-- */
--static inline u32 current_sid(void)
--{
--	const struct task_security_struct *tsec = current_security();
--
--	return tsec->sid;
--}
--
- enum label_initialized {
- 	LABEL_INVALID,		/* invalid or not initialized */
- 	LABEL_INITIALIZED,	/* initialized */
-@@ -185,4 +175,14 @@ static inline struct ipc_security_struct *selinux_ipc(
- 	return ipc->security + selinux_blob_sizes.lbs_ipc;
- }
- 
-+/*
-+ * get the subjective security ID of the current task
-+ */
-+static inline u32 current_sid(void)
-+{
-+	const struct task_security_struct *tsec = selinux_cred(current_cred());
-+
-+	return tsec->sid;
-+}
-+
- #endif /* _SELINUX_OBJSEC_H_ */
+     def list(self, heading=1, locallist=0):
 -- 
-2.20.1
+2.21.0
 
