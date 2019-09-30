@@ -2,150 +2,307 @@ Return-Path: <SRS0=KDcg=XZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD6F9C32792
-	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 20:53:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6683DC32792
+	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 21:28:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9FF60224FE
-	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 20:53:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 22ADC20815
+	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 21:28:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="BXOZ5pxF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730485AbfI3Ux3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 30 Sep 2019 16:53:29 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:37782 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727118AbfI3Ux3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 30 Sep 2019 16:53:29 -0400
-Received: from mail-oi1-f178.google.com (mail-oi1-f178.google.com [209.85.167.178])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id C189F56488F
-        for <selinux@vger.kernel.org>; Mon, 30 Sep 2019 21:36:40 +0200 (CEST)
-Received: by mail-oi1-f178.google.com with SMTP id 83so12243408oii.1
-        for <selinux@vger.kernel.org>; Mon, 30 Sep 2019 12:36:40 -0700 (PDT)
-X-Gm-Message-State: APjAAAV7m9OdFqJeCmmHaEkxxcxEO8OA7K5XISgZhLCdqf9zqSj6jtbs
-        XRtWE39LDczyATrEWkbpeeBa3iNZBf55bm2+niA=
-X-Google-Smtp-Source: APXvYqyoAQl5GJyIm78xvbKWpJr4cOe6vQ/UOJXgdJFKQX9Q3jf9H8ZgYl3bRzdBqfvj+HDjWOobtdwnz1cYTAnmttw=
-X-Received: by 2002:aca:4b05:: with SMTP id y5mr694549oia.70.1569872199702;
- Mon, 30 Sep 2019 12:36:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190926125218.22958-1-sds@tycho.nsa.gov> <CAJfZ7=ntt2dH6PN3tMQMdw99x4dpU3eRoAd62W4Fqgkvt5Lb5g@mail.gmail.com>
- <e96c532b-f469-fd52-ce6d-3e71dc9e145a@tycho.nsa.gov> <pjd4l0thhnr.fsf@redhat.com>
-In-Reply-To: <pjd4l0thhnr.fsf@redhat.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Mon, 30 Sep 2019 21:36:27 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=n09Qz9OxSURCAqdHbMif9qEeRmVq9yk77upDTaDN0M4Q@mail.gmail.com>
-Message-ID: <CAJfZ7=n09Qz9OxSURCAqdHbMif9qEeRmVq9yk77upDTaDN0M4Q@mail.gmail.com>
-Subject: Re: [PATCH] python/sepolicy: call segenxml.py with python3
-To:     Petr Lautrbach <plautrba@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
+        id S1727720AbfI3V22 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Sep 2019 17:28:28 -0400
+Received: from USFB19PA35.eemsg.mail.mil ([214.24.26.198]:33736 "EHLO
+        USFB19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726504AbfI3V22 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 Sep 2019 17:28:28 -0400
+X-EEMSG-check-017: 13420382|USFB19PA35_ESA_OUT05.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,568,1559520000"; 
+   d="scan'208";a="13420382"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA35.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 30 Sep 2019 18:05:48 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1569866748; x=1601402748;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=EmpJFsOqadeM/i9JGLjVqIpMtNI2p9x9EFoqL/88ru4=;
+  b=BXOZ5pxFT8c430rIs7pMg/bKI+AZr0pBYq8pi9TQLMRb986lWAvNgtpl
+   xW4cxxMIzZx/z/2QZdWvLaZus0P5RZGnwGvd528ui/rp6lUP/xb7L1Xvh
+   p1w/Qk10V622SzeF0Omja8FNfFS+FmE6dAFAd9wnZRvxUvEQqvQRpz5gJ
+   coJcgBld5EjSTMOACxKEm5LOxjsK7LZ4WEKXTnjyTabf2ZKrFEPiEGtZu
+   STUSojmlxEEpsXHWK8cC+ODYRbAwndGIs7uDd5lVCsVW5T79mooI9zoJ7
+   +XaRNCsqHR+cQDyvre6PkaBxCJepWMqWh8pCe2MGxcpQQmTmYO2b29jQd
+   w==;
+X-IronPort-AV: E=Sophos;i="5.64,568,1559520000"; 
+   d="scan'208";a="33537683"
+IronPort-PHdr: =?us-ascii?q?9a23=3Ahm67LhOeaIDHDH4oY3El6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0I/3/rarrMEGX3/hxlliBBdydt6sfzbaM+Pm5BiQp2tWoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagb75+Nhq7oRveusULnIdvKLs6xw?=
+ =?us-ascii?q?fUrHdPZ+lY335jK0iJnxb76Mew/Zpj/DpVtvk86cNOUrj0crohQ7BAAzsoL2?=
+ =?us-ascii?q?465MvwtRneVgSP/WcTUn8XkhVTHQfI6gzxU4rrvSv7sup93zSaPdHzQLspVz?=
+ =?us-ascii?q?mu87tnRRn1gyocKTU37H/YhdBxjKJDoRKuuRp/w5LPYIqIMPZyZ77Rcc8GSW?=
+ =?us-ascii?q?ZEWMteWTZBAoehZIURCeQPM/tTo43kq1YAqRayAA+hD/7txDBVnH/7xbA03f?=
+ =?us-ascii?q?ovEQ/G3wIuEdwBv3vWo9rpO6kfSvy1wavSwDnfc/9b1zXw5Y7VeR4hu/GMWr?=
+ =?us-ascii?q?dwfNLMx0kzCQzFllWQppLjPziIy+oNtnKU7+5kVe2xi28stgZ8oiOyycc3kY?=
+ =?us-ascii?q?TJmoIUxUzE9SV+2oo1I8a4R1Rhbd6rF5tQqTiXOo1rSc0sRGFovTw1yrwAuZ?=
+ =?us-ascii?q?OjYCgF1o4rxx/Za/CffIiI4w7jVOaMIThjnn5qZLW/hxO0/EO9yeP8TtG53E?=
+ =?us-ascii?q?tFoydKiNXBtm0B2wbN5sWIVPdx5Fqt1DCS3A7J8O5EO1o7la/DJp4kxb4/i4?=
+ =?us-ascii?q?QcvFzYHi/zhEX2lKiWdlg4+uSw6+TofLHmppiEOo9okA7+KKUumtGkAegiLg?=
+ =?us-ascii?q?gPX3SU+eS71LH5+032XK5KgeEsnqncsZDaIdwXpq+/AwBLzoYu8wuzAjip3d?=
+ =?us-ascii?q?gCnXQLMUhJdAyIgoT3IV3CPej0DfKljFStlDdryerGPrrkApjVNXjMjazhcK?=
+ =?us-ascii?q?1h609c1AUzzddf64hSCrEaOv3/QEDxtNvGDhMhKQy73/7nCMlh1oMZQW+PBa?=
+ =?us-ascii?q?qZMKTJsV+O/O0gP/eDaZQPuDnjNvcl5+ThjWMjlVABeqmp2IMdaGqkEfR+P0?=
+ =?us-ascii?q?WZfX3sj88aEWgUugo+TerqiECNUDNIeXayULwz5ishBIKlE4jDXIatj6KF3C?=
+ =?us-ascii?q?uhGZ1WfG9GWRiwFiLPcYmeVvVETSWJJMZqnz9MAb+kTJQn3BqjnBX3x7puMq?=
+ =?us-ascii?q?zf/ShO5rz5090g3PHejRE/83RPCs2Z12ycBzVvknggWy493Kc5p1d0jFiEz/?=
+ =?us-ascii?q?4r0LRjCdVP6qYRAU8BPpnGwrk/UoujVw=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CBAAAYQ5Jd/wHyM5BmGwEBAQEDAQEBDAMBAQGBVgMBA?=
+ =?us-ascii?q?QELAYFzKm1SATIqhCKPQQEBAQaBNol1kSoJAQEBAQEBAQEBKwkBAgEBhEACg?=
+ =?us-ascii?q?0MjNwYOAgwBAQEEAQEBAQEFAwEBbIUtDII6KQGCaAEFIxVBEAsOCgICJgICV?=
+ =?us-ascii?q?wYNBgIBAYJfPwGBdhQPrHIbNXWBMoVNgyeBSIEMKAGMDRh4gQeBESeCaz6BD?=
+ =?us-ascii?q?oFTAoRuglgEjHmJGZcNgiyCLoRXhRUHiGQGG4Mplg2VSHGNKIVvI4FYKwgCG?=
+ =?us-ascii?q?AghD4MnCUcQFIVCglaCbIEPhB4lAzCBBgEBkBoBAQ?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 30 Sep 2019 18:05:46 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x8UI5jUx005227;
+        Mon, 30 Sep 2019 14:05:45 -0400
+Subject: Re: [PATCH testsuite 3/3] travis: test building the test policy
+ package
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Sep 30 21:36:41 2019 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+References: <20190930104850.5482-1-omosnace@redhat.com>
+ <20190930104850.5482-4-omosnace@redhat.com>
+ <2dfde121-d786-6ba3-0820-953cfbba7033@tycho.nsa.gov>
+ <CAFqZXNsKFb6QJ2jqYM8qS5Mx27sXaztn67-MxC-oanFQB7QaOg@mail.gmail.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <ca6ae7be-edd3-e86a-1b4a-94882471350c@tycho.nsa.gov>
+Date:   Mon, 30 Sep 2019 14:05:45 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
+MIME-Version: 1.0
+In-Reply-To: <CAFqZXNsKFb6QJ2jqYM8qS5Mx27sXaztn67-MxC-oanFQB7QaOg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Sep 30, 2019 at 6:29 PM Petr Lautrbach <plautrba@redhat.com> wrote:
->
-> Stephen Smalley <sds@tycho.nsa.gov> writes:
->
-> > On 9/26/19 5:58 PM, Nicolas Iooss wrote:
-> >> On Thu, Sep 26, 2019 at 2:52 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >>>
-> >>> Fixes: https://github.com/SELinuxProject/selinux/issues/61
-> >>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> >>> ---
-> >>>   python/sepolicy/sepolicy/interface.py | 2 +-
-> >>>   1 file changed, 1 insertion(+), 1 deletion(-)
-> >>>
-> >>> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
-> >>> index 583091ae18aa..b1b39a492d73 100644
-> >>> --- a/python/sepolicy/sepolicy/interface.py
-> >>> +++ b/python/sepolicy/sepolicy/interface.py
-> >>> @@ -196,7 +196,7 @@ def get_xml_file(if_file):
-> >>>           from subprocess import getstatusoutput
-> >>>       basedir = os.path.dirname(if_file) + "/"
-> >>>       filename = os.path.basename(if_file).split(".")[0]
-> >>> -    rc, output = getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
-> >>> +    rc, output = getstatusoutput("/usr/bin/python3 /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
-> >>>       if rc != 0:
-> >>>           sys.stderr.write("\n Could not proceed selected interface file.\n")
-> >>>           sys.stderr.write("\n%s" % output)
-> >>
-> >> Considering that Python's "command" module was removed in Python 3
-> >> (according to https://docs.python.org/2/library/commands.html), and
-> >> that Python 3's subprocess.getstatusoutput() supports using a list of
-> >> arguments instead of a string, it seems better to change this code to
-> >> something like:
->
-> I think this is not correct:
->
->     Execute the string 'cmd' in a shell with 'check_output' and
->     return a 2-tuple (status, output). The locale encoding is used
->     to decode the output and process newlines.
->
->
-> >>> subprocess.getstatusoutput(["echo", "hey"])
-> (0, '')
->
-> >> subprocess.getstatusoutput("echo hey")
-> (0, 'hey')
+On 9/30/19 11:02 AM, Ondrej Mosnacek wrote:
+> On Mon, Sep 30, 2019 at 3:44 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 9/30/19 6:48 AM, Ondrej Mosnacek wrote:
+>>> Download, build, and install Fedora policy & refpolicy and try building
+>>> the test policy package against both of them.
+>>
+>> I guess this is a necessary first step to actually getting the testsuite
+>> to run on travis, which would be the more important goal.  That
+>> obviously requires actually enabling SELinux on bionic, unless we could
+>> get travis-ci to offer fedora or centos images.
+>>
+>>>
+>>> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>>> ---
+>>>    .travis.yml                         | 24 ++++++++++++++++++--
+>>>    travis-ci/enable-policy.sh          | 10 +++++++++
+>>>    travis-ci/setup-policy-fedora.sh    | 35 +++++++++++++++++++++++++++++
+>>>    travis-ci/setup-policy-refpolicy.sh | 22 ++++++++++++++++++
+>>>    4 files changed, 89 insertions(+), 2 deletions(-)
+>>>    create mode 100644 travis-ci/enable-policy.sh
+>>>    create mode 100644 travis-ci/setup-policy-fedora.sh
+>>>    create mode 100644 travis-ci/setup-policy-refpolicy.sh
+>>>
+>>> diff --git a/.travis.yml b/.travis.yml
+>>> index fbbe98d..c8cd44e 100644
+>>> --- a/.travis.yml
+>>> +++ b/.travis.yml
+>>> @@ -1,6 +1,6 @@
+>>>    language: c
+>>>
+>>> -dist: xenial
+>>> +dist: bionic
+>>>
+>>>    addons:
+>>>      apt:
+>>> @@ -8,6 +8,14 @@ addons:
+>>>          - astyle
+>>>          - libselinux1-dev
+>>>          - libsctp-dev
+>>> +      - checkpolicy
+>>> +      - semodule-utils
+>>> +
+>>> +cache:
+>>> +  directories:
+>>> +    - selinux-policy
+>>> +    - container-selinux
+>>> +    - refpolicy
+>>>
+>>>    before_install:
+>>>      # FYI: known good with HEAD at 8551fc60fc515cd290ba38ee8c758c1f4df52b56
+>>> @@ -17,7 +25,19 @@ before_install:
+>>>         perl Makefile.PL &&
+>>>         make &&
+>>>         sudo make install)
+>>> +  # install libbpf from sources
+>>> +  - git clone https://github.com/libbpf/libbpf
+>>> +  - (cd libbpf/src && make PREFIX=/usr/local)
+>>> +  - (cd libbpf/src && sudo make install PREFIX=/usr/local)
+>>
+>> Not packaged on bionic or not recent enough?
+> 
+> Not packaged, AFAICT.
+> 
+>>
+>>> +  # install Fedora policy and refpolicy
+>>> +  - bash travis-ci/setup-policy-fedora.sh
+>>> +  - bash travis-ci/setup-policy-refpolicy.sh
+>>> +  # establish a fake "selinuxfs" mount (policy/Makefile just greps for selinuxfs)
+>>> +  - sudo mkdir -p /tmp/fake-selinuxfs
+>>> +  - sudo mount -t tmpfs tmpfs /tmp/fake-selinuxfs
+>>> +  - echo 31 >/tmp/fake-selinuxfs/policyvers
+>>
+>> Fragile; maybe use checkpolicy -V | awk '{print $1}' or equivalent?
+> 
+> This will get the policy version that checkpolicy supports, but the
+> policy Makefile also checks the version supported by the running
+> kernel. Since the policy won't actually be loaded in this case, it
+> makes sense to just report the highest known version so that the
+> Makefile tries to build as much as it can with the checkpolicy it has.
+> On second thought, we might even put in just some "infinity" number
+> (e.g. 999), since it should be just an additional upper bound to the
+> checkpolicy upper bound.
 
-Indeed, I am so used to subprocess.check_output() and
-subprocess.Popen(), that can both take arguments as a list, that I
-expected it to be the same with subprocess.getstatusoutput(), but it
-is not correct. Sorry for the confusion, and thank you for fixing it!
+When building policies, we should always build the highest version 
+supported by checkpolicy.  libselinux will downgrade automatically at 
+load time if necessary to the kernel's version.
 
-Anyway, using getstatusoutput() by concatenating a path to a command
-line makes get_xml_file() broken when operating on paths with spaces,
-as the paths are not quoted nor escaped before they are concatenated.
-In my humble opinion, I would prefer if the code was written in a more
-"defensive" way. But because nobody seems to have complained about
-this so far and because Python's standard library does not help much,
-I accept keeping getstatusoutput() for now.
-
-> >>
-> >>      from subprocess import getstatusoutput
-> >>      basedir = os.path.dirname(if_file)
-> >>      filename = os.path.basename(if_file).split(".")[0]
-> >>      rc, output = getstatusoutput(["python3",
-> >> "/usr/share/selinux/devel/include/support/segenxml.py", "-w", "-m",
-> >> os.path.join(basedir, filename)])
-> >>
-> >> The code that I suggest is not compatible with Python 2 (which does
-> >> not support using list of arguments). Therefore, doing so makes
-> >> sepolicy really Python-3 only. I do not consider this to be an issue,
-> >> but others may prefer to wait for 3.0 to be released before dropping
-> >> support for Python 2 completely.
-> >
-> > Anyone else have an opinion on whether we should fix this in a
-> > python2-compatible manner?
->
-> I'd stay with python2 compatible for now.
->
-> > Also, should it be just "python3" or "/usr/bin/python3"?
->
-> It would be great if it could use $(PYTHON) from Makefile.
-
-I agree, but this would be quite complex (the implementations of this
-idea that I imagine would consists in editing the Python source code
-with "sed" commands when installing the file). But it would
-nonetheless be nice if
-"/usr/share/selinux/devel/include/support/segenxml.py" could also be
-configured in Makefile...
-Anyway, for "python3 vs. /usr/bin/python3", I would like to stick as
-closely as possible with the meaning: use "/usr/bin/..." for
-system-wide programs/files and use "/usr/bin/env" or "python" for
-programs that can be run in Python's virtual environments. As
-/usr/share/selinux/devel/include/support/segenxml.py falls into
-category "system-wide files", my choice would be for /usr/bin/python3.
-
-Thanks,
-Nicolas
+> 
+>>
+>>>
+>>>    script:
+>>>      - tools/check-syntax -f && git diff --exit-code
+>>> -  - make
+>>> +  - bash travis-ci/enable-policy.sh targeted  && make POLDEV=/usr/share/selinux/targeted
+>>> +  - bash travis-ci/enable-policy.sh refpolicy && make POLDEV=/usr/share/selinux/refpolicy
+>>> diff --git a/travis-ci/enable-policy.sh b/travis-ci/enable-policy.sh
+>>> new file mode 100644
+>>> index 0000000..ae53fbe
+>>> --- /dev/null
+>>> +++ b/travis-ci/enable-policy.sh
+>>> @@ -0,0 +1,10 @@
+>>> +#!/bin/bash
+>>> +
+>>> +set -e
+>>> +
+>>> +# create a dummy /etc/selinux/config
+>>> +sudo mkdir -p /etc/selinux
+>>> +sudo tee /etc/selinux/config >/dev/null <<EOF
+>>> +SELINUX=disabled
+>>> +SELINUXTYPE=$1
+>>> +EOF
+>>> diff --git a/travis-ci/setup-policy-fedora.sh b/travis-ci/setup-policy-fedora.sh
+>>> new file mode 100644
+>>> index 0000000..192e234
+>>> --- /dev/null
+>>> +++ b/travis-ci/setup-policy-fedora.sh
+>>> @@ -0,0 +1,35 @@
+>>> +#!/bin/bash
+>>> +
+>>> +set -ex
+>>> +
+>>> +if ! [ -d selinux-policy/.git ]; then
+>>> +     git clone --recursive https://github.com/fedora-selinux/selinux-policy
+>>> +     (cd selinux-policy/policy/modules/contrib && git checkout rawhide)
+>>> +else
+>>> +     (cd selinux-policy && git pull || { git checkout '*' && git pull; })
+>>> +     (cd selinux-policy/policy/modules/contrib && git pull)
+>>> +fi
+>>> +
+>>> +if ! [ -d container-selinux/.git ]; then
+>>> +     git clone https://github.com/containers/container-selinux.git
+>>> +     for f in container.if container.te; do
+>>> +             ln -s ../../../../container-selinux/$f \
+>>> +                     selinux-policy/policy/modules/contrib/$f
+>>> +     done
+>>> +else
+>>> +     (cd container-selinux && git pull)
+>>> +fi
+>>
+>> Seem brittle / tightly tied to fedora policy internals - is there some
+>> more general facility or perhaps they even provide a script for doing
+>> this that we could just reuse?
+> 
+> No, this is simply how the Fedora policy repos are structured. I
+> mostly mirrored the logic of .travis.yml from the main repo [1] I
+> don't think there's a better way to do this.
+> 
+> [1] https://github.com/fedora-selinux/selinux-policy/
+> 
+>>
+>>> +
+>>> +cd selinux-policy
+>>> +
+>>> +grep -q refpolicy build.conf && sed -i 's/refpolicy/targeted/' build.conf
+>>> +grep -q '^portcon sctp' policy/modules/kernel/corenetwork.te.in && \
+>>> +     sed -i '/^portcon sctp/d' policy/modules/kernel/corenetwork.te.in
+>>
+>> Is this a limitation of the checkpolicy packaged in bionic?  If so,
+> 
+> Yes, I think it is due to checkpolicy/-module being too old. Maybe it
+> should actually be handled in policy/Makefile with a [MOD_]POL_VERS
+> check... I'll need to look more carefully into this.
+> 
+>> should we just grab the upstream selinux userspace and build it ourselves?
+> 
+> I tried to keep the number of dynamic dependencies on the minimum, but
+> perhaps that's indeed the better way to go here...
+> 
+>>
+>>> +
+>>> +[ -f policy/modules.conf ] || make conf
+>>> +
+>>> +make -j`nproc --all`
+>>> +sudo make install install-headers
+>>> +
+>>> +# workaround for different Makefile location in Fedora RPMs
+>>> +sudo ln -s include/Makefile /usr/share/selinux/targeted/Makefile
+>>> diff --git a/travis-ci/setup-policy-refpolicy.sh b/travis-ci/setup-policy-refpolicy.sh
+>>> new file mode 100644
+>>> index 0000000..d89b041
+>>> --- /dev/null
+>>> +++ b/travis-ci/setup-policy-refpolicy.sh
+>>> @@ -0,0 +1,22 @@
+>>> +#!/bin/bash
+>>> +
+>>> +set -ex
+>>> +
+>>> +if ! [ -d refpolicy/.git ]; then
+>>> +     git clone https://github.com/SELinuxProject/refpolicy
+>>> +else
+>>> +     git pull || { git checkout '*' && git pull; }
+>>> +fi
+>>> +
+>>> +cd refpolicy
+>>> +
+>>> +[ -f policy/modules.conf ] || make conf
+>>> +
+>>> +grep -q '^portcon sctp' policy/modules/kernel/corenetwork.te.in && \
+>>> +     sed -i '/^portcon sctp/d' policy/modules/kernel/corenetwork.te.in
+>>> +
+>>> +make -j`nproc --all`
+>>> +sudo make install install-headers
+>>> +
+>>> +# workaround for different Makefile location in Fedora RPMs
+>>> +sudo ln -s include/Makefile /usr/share/selinux/refpolicy/Makefile
+>>>
+>>
+> 
 
