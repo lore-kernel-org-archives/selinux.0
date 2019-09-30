@@ -2,128 +2,123 @@ Return-Path: <SRS0=KDcg=XZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C02CAC32792
-	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 16:29:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 818ABC32792
+	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 16:39:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9CA492075D
-	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 16:29:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 51F44215EA
+	for <selinux@archiver.kernel.org>; Mon, 30 Sep 2019 16:39:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="QNh0aotN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731967AbfI3Q3P (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 30 Sep 2019 12:29:15 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:57440 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731459AbfI3Q3P (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 30 Sep 2019 12:29:15 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id BCE4D3001A6C;
-        Mon, 30 Sep 2019 16:29:14 +0000 (UTC)
-Received: from localhost (ovpn-204-128.brq.redhat.com [10.40.204.128])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3134319C58;
-        Mon, 30 Sep 2019 16:29:14 +0000 (UTC)
-References: <20190926125218.22958-1-sds@tycho.nsa.gov> <CAJfZ7=ntt2dH6PN3tMQMdw99x4dpU3eRoAd62W4Fqgkvt5Lb5g@mail.gmail.com> <e96c532b-f469-fd52-ce6d-3e71dc9e145a@tycho.nsa.gov>
-User-agent: mu4e 1.2.0; emacs 26.2
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        SElinux list <selinux@vger.kernel.org>
-Subject: Re: [PATCH] python/sepolicy: call segenxml.py with python3
-In-reply-to: <e96c532b-f469-fd52-ce6d-3e71dc9e145a@tycho.nsa.gov>
-Date:   Mon, 30 Sep 2019 18:29:12 +0200
-Message-ID: <pjd4l0thhnr.fsf@redhat.com>
+        id S1732073AbfI3Qjy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Sep 2019 12:39:54 -0400
+Received: from mailomta26-sa.btinternet.com ([213.120.69.32]:50899 "EHLO
+        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731976AbfI3Qjx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 Sep 2019 12:39:53 -0400
+Received: from sa-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.38.5])
+          by sa-prd-fep-043.btinternet.com with ESMTP
+          id <20190930163950.NHCT22185.sa-prd-fep-043.btinternet.com@sa-prd-rgout-002.btmx-prd.synchronoss.net>;
+          Mon, 30 Sep 2019 17:39:50 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1569861590; 
+        bh=+SeJ1WREYlhqJPXs3tmm7vjk81Tcd0lvCurJa6NU0SU=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=QNh0aotNuBAO6KLVFZxlKNGtMxv+/UT0madPJGkKNb5PEONNytalcVWvZEnwsb5KF9xRq/usggwKHNnXbVtBEqYbs9mK0nI0SdChqt3fI4d9BbUrSQifuP05e/6jJCjx1eQV2TDV09x+lyxp6wsbTPYS4yxzO7gZcPj+PGyTdpMdYgpeYGH8mg5T/jHq7zbFL3dFFdQ1CtnEo1e9KN6jDo+p/veiHjrpWnK8gRDPq+nHzSUCRIE+/cxgkGEceAA/BJkoTPeUUXSlf5/SVE0FXx0iDHqMcVjgO0y9ViWf9YtvZv8TvZtd3QqVST0/1+EMcqCd/XuBaSqzoY6oiNPQXw==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.4.158]
+X-OWM-Source-IP: 86.134.4.158 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrgedvgdellecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnegfrhhlucfvnfffucdlqddutddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudefgedrgedrudehkeenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudefgedrgedrudehkedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoeguhhhofigvlhhlshesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeokhgvhihrihhnghhssehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.4.158) by sa-prd-rgout-002.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5D8A3C8F00EF9490; Mon, 30 Sep 2019 17:39:50 +0100
+Message-ID: <dc24a7ad0e3c191310128cba4e64123e5aa66692.camel@btinternet.com>
+Subject: Re: [RFC PATCH 22/27] KEYS: Replace uid/gid/perm permissions
+ checking with an ACL
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     David Howells <dhowells@redhat.com>
+Cc:     keyrings@vger.kernel.org, SELinux <selinux@vger.kernel.org>
+Date:   Mon, 30 Sep 2019 17:39:49 +0100
+In-Reply-To: <32623.1550252354@warthog.procyon.org.uk>
+References: <758871dc-15b7-ed5c-a119-a40037309507@tycho.nsa.gov>
+         <155024683432.21651.14153938339749694146.stgit@warthog.procyon.org.uk>
+         <155024709026.21651.7275876165845045967.stgit@warthog.procyon.org.uk>
+         <32623.1550252354@warthog.procyon.org.uk>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.4 (3.32.4-1.fc30) 
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Mon, 30 Sep 2019 16:29:14 +0000 (UTC)
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Fri, 2019-02-15 at 17:39 +0000, David Howells wrote:
+> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> 
+> > > --- a/security/selinux/hooks.c
+> > > +++ b/security/selinux/hooks.c
+> > > @@ -6560,6 +6560,7 @@ static int selinux_key_permission(key_ref_t
+> > > key_ref,
+> > >   {
+> > >   	struct key *key;
+> > >   	struct key_security_struct *ksec;
+> > > +	unsigned oldstyle_perm;
+> > >   	u32 sid;
+> > >     	/* if no specific permissions are requested, we skip
+> > > the
+> > > @@ -6568,13 +6569,26 @@ static int
+> > > selinux_key_permission(key_ref_t key_ref,
+> > >   	if (perm == 0)
+> > >   		return 0;
+> > >   +	oldstyle_perm = perm & (KEY_NEED_VIEW | KEY_NEED_READ |
+> > > KEY_NEED_WRITE
+> > > +				KEY_NEED_SEARCH | KEY_NEED_LINK);
+> > > +	if (perm & KEY_NEED_SETSEC)
+> > > +		oldstyle_perm |= OLD_KEY_NEED_SETATTR;
+> > > +	if (perm & KEY_NEED_INVAL)
+> > > +		oldstyle_perm |= KEY_NEED_SEARCH;
+> > > +	if (perm & KEY_NEED_REVOKE && !(perm & OLD_KEY_NEED_SETATTR))
+> > > +		oldstyle_perm |= KEY_NEED_WRITE;
+> > > +	if (perm & KEY_NEED_JOIN)
+> > > +		oldstyle_perm |= KEY_NEED_SEARCH;
+For JOIN tranlation this should be:
+oldstyle_perm |= KEY_NEED_LINK;
 
-Stephen Smalley <sds@tycho.nsa.gov> writes:
+I know a bit late but just got around to writing some 'keys' tests for
+the selinux-testsuite and found the above.
 
-> On 9/26/19 5:58 PM, Nicolas Iooss wrote:
->> On Thu, Sep 26, 2019 at 2:52 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>>
->>> Fixes: https://github.com/SELinuxProject/selinux/issues/61
->>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>> ---
->>>   python/sepolicy/sepolicy/interface.py | 2 +-
->>>   1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
->>> index 583091ae18aa..b1b39a492d73 100644
->>> --- a/python/sepolicy/sepolicy/interface.py
->>> +++ b/python/sepolicy/sepolicy/interface.py
->>> @@ -196,7 +196,7 @@ def get_xml_file(if_file):
->>>           from subprocess import getstatusoutput
->>>       basedir = os.path.dirname(if_file) + "/"
->>>       filename = os.path.basename(if_file).split(".")[0]
->>> -    rc, output = getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
->>> +    rc, output = getstatusoutput("/usr/bin/python3 /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
->>>       if rc != 0:
->>>           sys.stderr.write("\n Could not proceed selected interface file.\n")
->>>           sys.stderr.write("\n%s" % output)
->>
->> Considering that Python's "command" module was removed in Python 3
->> (according to https://docs.python.org/2/library/commands.html), and
->> that Python 3's subprocess.getstatusoutput() supports using a list of
->> arguments instead of a string, it seems better to change this code to
->> something like:
+> > > +	if (perm & KEY_NEED_CLEAR)
+> > > +		oldstyle_perm |= KEY_NEED_WRITE;
+> > > +
+> > >   	sid = cred_sid(cred);
+> > >     	key = key_ref_to_ptr(key_ref);
+> > >   	ksec = key->security;
+> > >     	return avc_has_perm(&selinux_state,
+> > > -			    sid, ksec->sid, SECCLASS_KEY, perm, NULL);
+> > > +			    sid, ksec->sid, SECCLASS_KEY,
+> > > oldstyle_perm, NULL);
+> > 
+> > This might be ok temporarily for compatibility but we'll want to
+> > ultimately
+> > define the new permissions in SELinux and switch over to using them
+> > if a new
+> > policy capability bit is set to indicate that the policy supports
+> > them.  We
+> > should probably decouple the SELinux permission bits from the
+> > KEY_NEED_*
+> > values and explicitly map them all at the same time.
+> 
+> Sounds reasonable.  I should probably detach the first two ACL
+> patches from
+> the set and push them separately.
+> 
+> David
 
-I think this is not correct:
-
-    Execute the string 'cmd' in a shell with 'check_output' and
-    return a 2-tuple (status, output). The locale encoding is used
-    to decode the output and process newlines.
-
-
->>> subprocess.getstatusoutput(["echo", "hey"])
-(0, '')
-
->> subprocess.getstatusoutput("echo hey")
-(0, 'hey')
-
-
->>
->>      from subprocess import getstatusoutput
->>      basedir = os.path.dirname(if_file)
->>      filename = os.path.basename(if_file).split(".")[0]
->>      rc, output = getstatusoutput(["python3",
->> "/usr/share/selinux/devel/include/support/segenxml.py", "-w", "-m",
->> os.path.join(basedir, filename)])
->>
->> The code that I suggest is not compatible with Python 2 (which does
->> not support using list of arguments). Therefore, doing so makes
->> sepolicy really Python-3 only. I do not consider this to be an issue,
->> but others may prefer to wait for 3.0 to be released before dropping
->> support for Python 2 completely.
->
-> Anyone else have an opinion on whether we should fix this in a
-> python2-compatible manner?
-
-I'd stay with python2 compatible for now.
-
-> Also, should it be just "python3" or "/usr/bin/python3"?
-
-It would be great if it could use $(PYTHON) from Makefile.
-
-
->>
->> By the way, the current code is quite misleading because ("%s" % a +
->> b) is interpreted as (("%s" % a) + b), not ("%s" % (a + b)).
->> Thankfully the "%s" is at the end of the format string, but if you
->> want to keep Python 2 compatibility, I suggest adding parentheses
->> somewhere.
-
-
--- 
-()  ascii ribbon campaign - against html e-mail 
-/\  www.asciiribbon.org   - against proprietary attachments
