@@ -2,88 +2,90 @@ Return-Path: <SRS0=wSC+=X2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56903C352AA
-	for <selinux@archiver.kernel.org>; Tue,  1 Oct 2019 18:28:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D43CC352AA
+	for <selinux@archiver.kernel.org>; Tue,  1 Oct 2019 19:02:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1FF532168B
-	for <selinux@archiver.kernel.org>; Tue,  1 Oct 2019 18:28:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D5DFF215EA
+	for <selinux@archiver.kernel.org>; Tue,  1 Oct 2019 19:02:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="aeTJUNWi"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="omgCcIQ1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725851AbfJAS25 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Oct 2019 14:28:57 -0400
-Received: from UPDC19PA21.eemsg.mail.mil ([214.24.27.196]:5188 "EHLO
-        UPDC19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725848AbfJAS25 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Oct 2019 14:28:57 -0400
-X-EEMSG-check-017: 18853555|UPDC19PA21_ESA_OUT03.csd.disa.mil
+        id S1725884AbfJATCa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Oct 2019 15:02:30 -0400
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:22499 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725844AbfJATCa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Oct 2019 15:02:30 -0400
+X-EEMSG-check-017: 13850915|USFB19PA36_ESA_OUT06.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.64,571,1559520000"; 
-   d="scan'208";a="18853555"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 01 Oct 2019 18:28:52 +0000
+   d="scan'208";a="13850915"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 01 Oct 2019 19:02:28 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1569954533; x=1601490533;
+  s=tycho.nsa.gov; t=1569956548; x=1601492548;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=HI4kIWub/mR4UuK8/Nb0hf/79b02MaM91PtMi8FG0bQ=;
-  b=aeTJUNWifOB9mYD9+JmchnYat42f3hBSVfTlVSW1kt8SJ8JMJtoHDMKv
-   kQ10Mr+GqljzJGe3iGfuOdfx9Eka0xSnulrqM2y2ZMHNX0VpaLWqzUHbn
-   HrRT+wlL2EAbTMbABYEP9impJfi8XduCnICoXp4pjJyTvy1v3bwzlkf9U
-   p8n7ybgDac+pEEGk9V37J/pk4EHRDWY7BTbHCApXQETAd2nFMrVFKDYXq
-   LAXCTHzh2nzp9DQ0e6bb2l0vRijg/tJ5O9SSIUsheE7kZkRfpcV74JNHI
-   dSKxkNYxbKGpC2Jgh/bHiRuuAFOSqHB3OMwDV4ODEI2sgtx4eHsu05Z6s
+  bh=oyM7Ykf1UOObNVV7YQncYGRP/iVGmQeiOxoyuYfiG6M=;
+  b=omgCcIQ1r/LfyK/p+fGYU1NWEstzNG8kin7kzkECJpKHSSfdWZv3kknb
+   nsgRz3YTGLoc83LtyXBnd12w6imKwf9PjNOT8hyv+q4z32OEovAnEGQAV
+   kvIaUXhY/+Ku6i4nzZ7oqHlJvgOo4l990Fwr3fPRCpwC/t/dALRFpR6ie
+   760GOaJiR6C4FJpVXzkTIsGlEGkKkmOJYAoG477O91oQI1nUEI8rMOeEG
+   iFH9ywe7Cp/+vPUDpQQA8oLLqIyOj0UKa8fvmmY2NIg49nl+pCW6j53FM
+   w8zwFBR9vvYc7eZ3Pzf9vyFec72V4rR3AbED9RVfl4cKqgBtSPHtwaZvL
    A==;
 X-IronPort-AV: E=Sophos;i="5.64,571,1559520000"; 
-   d="scan'208";a="33601633"
-IronPort-PHdr: =?us-ascii?q?9a23=3AqzkCRxHo9jgvPzhqHmYzn51GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7zr82wAkXT6L1XgUPTWs2DsrQY0rGQ7/yrADZZqb+681k6OKRWUB?=
- =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
- =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba58IRmsogjcucYajZZ8Jqos1x?=
- =?us-ascii?q?DEvmZGd+NKyG1yOFmdhQz85sC+/J5i9yRfpfcs/NNeXKv5Yqo1U6VWACwpPG?=
- =?us-ascii?q?4p6sLrswLDTRaU6XsHTmoWiBtIDBPb4xz8Q5z8rzH1tut52CmdIM32UbU5Ui?=
- =?us-ascii?q?ms4qt3VBPljjoMOiUn+2/LlMN/kKNboAqgpxNhxY7UfJqVP+d6cq/EYN8WWX?=
- =?us-ascii?q?ZNUsNXWiNPGIO8a5YEAfQHM+hWsoLxo0ICoBW6CAWpAu7k1z1GiWLs3aAizu?=
- =?us-ascii?q?ovDw/G0gwjEdwAvnvbo9f6O7sdX+2u0KnFzy/OY+9K1Trz6oXFdA0qr/GWXb?=
- =?us-ascii?q?J3dMrc0VQhFx/bgVWIqYzqITWV3fkQvWie9eVgUeavhHAnqgpspTWv3dojip?=
- =?us-ascii?q?LSi4IJylHL6SV5wIEvKd2+U050e8SoEJRXtyGELoZ7RN4pTWJwuCsi17ELtp?=
- =?us-ascii?q?G2cDIKxZg63RLTdfOKf5aS7h7+UuuaPC12i2h/eL2lgha/6U2gyurhWcaqyF?=
- =?us-ascii?q?tKtS9FksXUtnAKyhzT9tCLSvtj8Uel3jaCzxzT5fteIUA1iKrbMIQtwqIwl5?=
- =?us-ascii?q?UPsUTDGTX6mEPqg6+Nakoo4O2o6+XjYrn+p5+cMZF7ih3mP6gzlcGyDv40Pw?=
- =?us-ascii?q?gTU2SB5+ix26Pv8VfkTLlSi/05iKjZsJTUJcQBoa65BhdY0p0+5BakFDqmzN?=
- =?us-ascii?q?QZkmUHLFJCYh6HiZPpNEvULPD3Cve/nUygkC13yPDeIr3hHpLNI2DdkLfker?=
- =?us-ascii?q?Z96U9dyAsozd1E/ZJbFKwOIPLpVU/trtDXEhg5Mwmsyeb9FNp9zp8eWX6IAq?=
- =?us-ascii?q?KBK6Pdr1uI5uMpI+mRa44Yoyj9K/c76P70l3M5mkESfbOv3ZQJbHC0BPNmI1?=
- =?us-ascii?q?+WYSmkvtBUL2YW9i85Tv7rkxXWTztUZWSzRIom6z07AZ7gBoDGEMTlm7GF3S?=
- =?us-ascii?q?GmDrVIaW1cTFOBC3Hlc8ODQfhfRjiVJ5pajjEcVbWnA7Qk3BWquR6yn6FrNc?=
- =?us-ascii?q?LI6yYYstTlz9Ez6OrNw0JhvQdoBtiQhjneB1p/mXkFEnpvh/Fy?=
-X-IPAS-Result: =?us-ascii?q?A2B9AACfmZNd/wHyM5BmHAEBAQQBAQwEAQGBVQUBAQsBg?=
- =?us-ascii?q?XMqbVMyKoQijndNAQEBAQEBBoE2iXWPMIF7CQEBAQEBAQEBASMRAQIBAYRAA?=
- =?us-ascii?q?oIvIzYHDgIMAQEBBAEBAQEBBQMBAWyFLQyCOikBgmgBBSMVUQsOCgICJgICV?=
- =?us-ascii?q?wYBDAYCAQGCXz8BgXYUsDuBMoVNgyiBSIEMKAGMDRh4gQeBOIJrPoEXgnaDR?=
- =?us-ascii?q?IJYBJYWlw+CLIIvhFeOBQYbgyqWD4RCiWGbKgYsgVgrCAIYCCEPO4JsCUcQF?=
- =?us-ascii?q?IsnhQolAzCBBgEBjh+CVAEB?=
+   d="scan'208";a="28524729"
+IronPort-PHdr: =?us-ascii?q?9a23=3AUZz8FRUB4IYh/lIsoQokXmEU8LHV8LGtZVwlr6?=
+ =?us-ascii?q?E/grcLSJyIuqrYbB2Et8tkgFKBZ4jH8fUM07OQ7/m7HzBcqs/b4DgrS99lb1?=
+ =?us-ascii?q?c9k8IYnggtUoauKHbQC7rUVRE8B9lIT1R//nu2YgB/Ecf6YEDO8DXptWZBUh?=
+ =?us-ascii?q?rwOhBoKevrB4Xck9q41/yo+53Ufg5EmCexbal9IRmrowjdrMYbjIRtJqos1B?=
+ =?us-ascii?q?fEoWZDdvhLy29vOV+dhQv36N2q/J5k/SRQuvYh+NBFXK7nYak2TqFWASo/PW?=
+ =?us-ascii?q?wt68LlqRfMTQ2U5nsBSWoWiQZHAxLE7B7hQJj8tDbxu/dn1ymbOc32Sq00WS?=
+ =?us-ascii?q?in4qx2RhLklDsLOjgk+2zMlMd+kLxUrw6gpxxnwo7bfoeVNOZlfqjAed8WXH?=
+ =?us-ascii?q?dNUtpNWyBEBI6zYZEPD+4cNuhGqYfzqUYFoR+nCQSiAO7jzzlFjWL006Inye?=
+ =?us-ascii?q?QsCRzI0hIuH9wOs3raotv6O6gQXu+pw6fF1inDYvFM1Dvh9ITFfBIsrPeRVr?=
+ =?us-ascii?q?xwa8rRzkwvGhvYgFWMt4PlJzOV2foLs2OG8uRgUPigi2ojqw5vojmk28Ahip?=
+ =?us-ascii?q?LUiYIO0V3E6SV4z5o1Jd2/UkJ7Z8WkH4FKuyGVMIt2XNovTmd1syg50r0LoY?=
+ =?us-ascii?q?O3cScFxZg9xxPTduaLf5aH7x79TuqdPDF1j29/dr2lnRa9602gx/X5VsmzzV?=
+ =?us-ascii?q?lFsDJIksLJtnARzxzT7dWHSudl8kehxzmP0wfT5/lYIU8uj6rbKoMhwqUqmp?=
+ =?us-ascii?q?oPsUXMAi/2mELsgK+Qakok4fSn5/7iYrXnop+QL450igfgPaQygsGzHOs1Pw?=
+ =?us-ascii?q?cUU2Wb5OiwzqPv8ELnTLlQk/E6iqzZv4rbJcQfqK65GQhV0oM75hakEjimy8?=
+ =?us-ascii?q?8VnWUHLV1ZeBKHiJLlO1fVIP/iF/u/jFOskClzy/DcIrLhGonNLmTEkLr5e7?=
+ =?us-ascii?q?Z96lJTyA03zd9F/JJYELABIPX0Wk/qr9zVFRo5PgO7wur9D9V9zIweU3qVAq?=
+ =?us-ascii?q?CFKKPSrUOI5uU3LumXeoAVvDf9K/445//hlnI5h1Adcrez3ZcNa3C3AO5mI0?=
+ =?us-ascii?q?OHbnromNsBFn0KvgVtBNDt3XuDWjlXbm36fqU7/SpzXISnBoDHT5vrgbuGxz?=
+ =?us-ascii?q?yTG8FGIGdcBQbIWWzlc4SCRuckdi2fOIlinyYCWLznTJUuhj+0swqv8KZqNu?=
+ =?us-ascii?q?rZ/GUjsJvn0NVkr7nImQoa6S1/D8Pb1XqECW5zgDVbFHcNwKljrBklmR+42q?=
+ =?us-ascii?q?9ijqkdTIcC6g=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2AxBABqoZNd/wHyM5BmHAEBAQQBAQwEAQGBZ4F0KoFAM?=
+ =?us-ascii?q?iqEIo52TQEBAQEBAQaBNol1kSsJAQEBAQEBAQEBNAECAQGEQAKCLyM4EwIMA?=
+ =?us-ascii?q?QEBBAEBAQEBBQMBAWyFOYI6KQGCaAEFIxVRCxgCAiYCAlcGAQwGAgEBgl8/g?=
+ =?us-ascii?q?XcUsDKBMoVNgymBSIEMKIwOGHiBB4ERJ4JrPoEXhjqCWASWFpcPgiyCL5JcB?=
+ =?us-ascii?q?huZOY4jmzoigVgrCAIYCCEPgydQEBSBWxcVjiolAzCBBgEBjh8qgioBAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 01 Oct 2019 18:28:50 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 01 Oct 2019 19:02:27 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x91ISnPT009373;
-        Tue, 1 Oct 2019 14:28:49 -0400
-Subject: Re: [PATCH] python/semanage: fix moduleRecords.customized()
-To:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
-References: <CAJfZ7=nBDUZYO95PN4p5FaXh_KAa3SeHu6yq4CteFGgyPkjEUw@mail.gmail.com>
- <20190930074904.25219-1-vmojzis@redhat.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x91J2Pi6018712;
+        Tue, 1 Oct 2019 15:02:26 -0400
+Subject: Re: [PATCH 2/2] libsemanage/tests: check that string pointers are not
+ NULL before comparing them
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>, selinux@vger.kernel.org
+References: <20190930202211.781578-1-nicolas.iooss@m4x.org>
+ <20190930202211.781578-2-nicolas.iooss@m4x.org>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <83f5cfdc-a0a8-47f8-0a6d-2889a4d2c13f@tycho.nsa.gov>
-Date:   Tue, 1 Oct 2019 14:28:49 -0400
+Message-ID: <73a29991-27d0-7d95-f728-3adb92c1bf48@tycho.nsa.gov>
+Date:   Tue, 1 Oct 2019 15:02:25 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.0
 MIME-Version: 1.0
-In-Reply-To: <20190930074904.25219-1-vmojzis@redhat.com>
+In-Reply-To: <20190930202211.781578-2-nicolas.iooss@m4x.org>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -92,42 +94,85 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/30/19 3:49 AM, Vit Mojzis wrote:
-> Return value of "customized" has to be iterable.
+On 9/30/19 4:22 PM, Nicolas Iooss wrote:
+> This silences many issues reported by Infer static analyzer about
+> possible NULL pointer dereferences.
 > 
-> Fixes:
->     "semanage export" with no modules in the system (eg. monolithic policy)
->     crashes:
-> 
->     Traceback (most recent call last):
->       File "/usr/sbin/semanage", line 970, in <module>
->         do_parser()
->       File "/usr/sbin/semanage", line 949, in do_parser
->         args.func(args)
->       File "/usr/sbin/semanage", line 771, in handleExport
->         for c in OBJECT.customized():
->     TypeError: 'NoneType' object is not iterable
-> 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Thanks, both patches applied.
+Thanks, both applied.
 
 > ---
->   python/semanage/seobject.py | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+>   libsemanage/tests/test_utilities.c | 10 ++++++++++
+>   1 file changed, 10 insertions(+)
 > 
-> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> index 5e9e3eb5..f4c29854 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -380,7 +380,7 @@ class moduleRecords(semanageRecords):
->       def customized(self):
->           all = self.get_all()
->           if len(all) == 0:
-> -            return
-> +            return []
->           return ["-d %s" % x[0] for x in [t for t in all if t[1] == 0]]
+> diff --git a/libsemanage/tests/test_utilities.c b/libsemanage/tests/test_utilities.c
+> index fa3a077f5e92..33609401920c 100644
+> --- a/libsemanage/tests/test_utilities.c
+> +++ b/libsemanage/tests/test_utilities.c
+> @@ -145,16 +145,19 @@ void test_semanage_split_on_space(void)
+>   		return;
+>   	}
+>   	temp = semanage_split_on_space(str);
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(temp);
+>   	CU_ASSERT_STRING_EQUAL(temp, "bar    baz");
+>   	free(str);
+>   	str = temp;
 >   
->       def list(self, heading=1, locallist=0):
+>   	temp = semanage_split_on_space(str);
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(temp);
+>   	CU_ASSERT_STRING_EQUAL(temp, "baz");
+>   	free(str);
+>   	str = temp;
+>   
+>   	temp = semanage_split_on_space(str);
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(temp);
+>   	CU_ASSERT_STRING_EQUAL(temp, "");
+>   	free(str);
+>   	free(temp);
+> @@ -171,21 +174,25 @@ void test_semanage_split(void)
+>   		return;
+>   	}
+>   	temp = semanage_split(str, NULL);
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(temp);
+>   	CU_ASSERT_STRING_EQUAL(temp, "foo2   foo:bar:");
+>   	free(str);
+>   	str = temp;
+>   
+>   	temp = semanage_split(str, "");
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(temp);
+>   	CU_ASSERT_STRING_EQUAL(temp, "foo:bar:");
+>   	free(str);
+>   	str = temp;
+>   
+>   	temp = semanage_split(str, ":");
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(temp);
+>   	CU_ASSERT_STRING_EQUAL(temp, "bar:");
+>   	free(str);
+>   	str = temp;
+>   
+>   	temp = semanage_split(str, ":");
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(temp);
+>   	CU_ASSERT_STRING_EQUAL(temp, "");
+>   	free(str);
+>   	free(temp);
+> @@ -301,14 +308,17 @@ void test_semanage_findval(void)
+>   		CU_FAIL_FATAL("Temporary file was not created, aborting test.");
+>   	}
+>   	tok = semanage_findval(fname, "one", NULL);
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(tok);
+>   	CU_ASSERT_STRING_EQUAL(tok, "");
+>   	free(tok);
+>   	rewind(fptr);
+>   	tok = semanage_findval(fname, "one", "");
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(tok);
+>   	CU_ASSERT_STRING_EQUAL(tok, "");
+>   	free(tok);
+>   	rewind(fptr);
+>   	tok = semanage_findval(fname, "sigma", "=");
+> +	CU_ASSERT_PTR_NOT_NULL_FATAL(tok);
+>   	CU_ASSERT_STRING_EQUAL(tok, "foo");
+>   	free(tok);
+>   }
 > 
 
