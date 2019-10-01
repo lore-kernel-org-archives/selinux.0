@@ -2,121 +2,1225 @@ Return-Path: <SRS0=wSC+=X2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 201C6C352AA
-	for <selinux@archiver.kernel.org>; Tue,  1 Oct 2019 13:48:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0B3EC352AA
+	for <selinux@archiver.kernel.org>; Tue,  1 Oct 2019 17:23:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E6B2E21906
-	for <selinux@archiver.kernel.org>; Tue,  1 Oct 2019 13:48:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7396321A4A
+	for <selinux@archiver.kernel.org>; Tue,  1 Oct 2019 17:23:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="0AgL25m2"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="RYpMpGy9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727005AbfJANsv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 1 Oct 2019 09:48:51 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:37758 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726554AbfJANsv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 1 Oct 2019 09:48:51 -0400
-Received: by mail-lf1-f68.google.com with SMTP id w67so9932313lff.4
-        for <selinux@vger.kernel.org>; Tue, 01 Oct 2019 06:48:50 -0700 (PDT)
+        id S1729564AbfJARXf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 1 Oct 2019 13:23:35 -0400
+Received: from UHIL19PA37.eemsg.mail.mil ([214.24.21.196]:21148 "EHLO
+        UHIL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729515AbfJARXf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 1 Oct 2019 13:23:35 -0400
+X-EEMSG-check-017: 32008117|UHIL19PA37_ESA_OUT03.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.64,571,1559520000"; 
+   d="scan'208";a="32008117"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UHIL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 01 Oct 2019 17:23:29 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=63Z879F0idNmbzQ2MlB9mDeRU9jJ7ZJ117yeozx2VP4=;
-        b=0AgL25m2TXRRDaVVqwvwa5mz6c338I4R6zhsuqWSgxyBYqJZf/ENlQzM8YcnXPt0Fa
-         ig2YCGxr/9/eVhODhGeRt5Y/zwiuiPsLMO9S9BsmVBeX1gHG9GLHB99SZyHG1kHHD5bj
-         nSJ7ERm1TW6dmv8MUqzaGkYFJBtCuWYV+uKraBjQvoW1NOxFEtTyYTCjL4B7i+NLdNKT
-         q/quGH0I0+IwHbh95HYMZA/l3pu+UL7i2HfuluUTpjKGcLDFb4/wot3bU1wmy0A6g+Nx
-         wD3boQQVKuH0QzBAAISJ7h0U2FB72V5REuRDPjICi4LCSI4Ya6jeph522ZKBGuy9sPVY
-         sODw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=63Z879F0idNmbzQ2MlB9mDeRU9jJ7ZJ117yeozx2VP4=;
-        b=ksZ/eC6esV3WLAd5p8njc7G1KO5SW/HKulh5E2PIsPELu0NwTGvL3a5PHWGk7j3MFJ
-         bp9gV08qYkIpI56BAvV4G/hIofv4jGXcKAtPsejxo6dKxsaMwFg/hKg3SwpybknO1DhD
-         jIswQJby6/eyYLyxt+ybBL9o3I/AZdUce/IOLSNZmpwR0wqLFk/kdLYHYdgmXGOUU/B/
-         pF1zj7giX11BuKnPf/VzNMBHlW6klGCAknL9RMmi8zbBl0bJyxpWXw7CwuQxQCWjn0lC
-         3vskJVAMUmuJI1cj34QOruQ0yvC0ve0VzeyohrGtYqvPxCKsquc8KT37nUs0Ed5Q8x3o
-         R6Xw==
-X-Gm-Message-State: APjAAAV4MYyEyCgGz94DHrz679rI7Y7kL4PPQtdx+gcUflAumab8+PjQ
-        dd6nl9clybQ82aKcK+Wg7i8yY/TuVk62PRQ91y7KCNc=
-X-Google-Smtp-Source: APXvYqyKpLaTHFb0r4VQueDks1DVLdSxHkWqiEqUeBlgCK3Mb0mRJP8slMz6SZ8FgBlHPf3F/Mu4X2MVXfh+qgphmS4=
-X-Received: by 2002:a05:6512:202:: with SMTP id a2mr14677811lfo.175.1569937729156;
- Tue, 01 Oct 2019 06:48:49 -0700 (PDT)
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1569950609; x=1601486609;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=YDDulpKjb1sz7P0ZkJq57Zej2BHJwPBVLE4TR+UsQ/Y=;
+  b=RYpMpGy9mYVz7fqGsGZJ+4rdu8M6GYEf7oE9MNLtQr8hn5nVJcbR/hcE
+   HRQy/mwa4VCQeg0pE2GwjaH3CE25sW5LYfQ7j70vZx5vOmOe0NAS9qs2z
+   Fo2OhzQOxYOsMqVqq9Uzw/dDun2fH8K5TUBe8MNc4KHrpdW8aYRUWF2uM
+   ZMy7b4Bzz3vYTy9QGryROq1hsQ8D/53E+impmCM0OuJSu3AJGjA3h7cJb
+   1gQxAr8QB0bFjRnXA70NZb8CjUq3WMY3V04H2YBFelIra2k+g/gbMoLXL
+   04qlMqH4ZOPA/OfQNJW2a1CVQgSno2Bgj0eeJYN0CIb3kBQhPaCB+mkfR
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.64,571,1559520000"; 
+   d="scan'208";a="33596337"
+IronPort-PHdr: =?us-ascii?q?9a23=3Al2RnOR/+hj3/9v9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B20e4cTK2v8tzYMVDF4r011RmVBN6dt64P0rKG+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxhGiTanbr5/Ixq6oRjNusQVnIBvNrs/xh?=
+ =?us-ascii?q?zVr3VSZu9Y33loJVWdnxb94se/4ptu+DlOtvwi6sBNT7z0c7w3QrJEAjsmNX?=
+ =?us-ascii?q?s15NDwuhnYUQSP/HocXX4InRdOHgPI8Qv1Xpb1siv9q+p9xCyXNtD4QLwoRT?=
+ =?us-ascii?q?iv6bpgRQT2gykbKTE27GDXitRxjK1FphKhuwd/yJPQbI2MKfZyYr/RcdYcSG?=
+ =?us-ascii?q?VPRMZRUzFKDJ26YYUBEuENOf9Uoof5qlcLqxa1GAuiC/71yjJQm3H4w6M63e?=
+ =?us-ascii?q?QiHw/I0gMvENABv2jbotjuKKcfU/q4wLXUwTjNbf5b3yr25ojSchAmpPGBRa?=
+ =?us-ascii?q?9+cdbPxkk3FwPKkFOQopH4MTOQzOsNt2yb4PRgVOmyjGMnsBx+oiO0y8cwio?=
+ =?us-ascii?q?jGmoIVylfe+SV/24Y6P8e0SEF8Yd66CZZdsTyROYhuQs46Xm1ltyk3xqcGtJ?=
+ =?us-ascii?q?KmZiQG1psqywDFZ/CadYWD/wjtW/yLIThigXJoYLe/hxGv/ke+0uD8Tcy00E?=
+ =?us-ascii?q?pSripCj9nMqmgB1xzN5ciDTftw5luh1iyV1wDS9+FEOlo4lbbbKpE9wr4wkY?=
+ =?us-ascii?q?AfsULfES/thEr6lqqWdkQg+uSw6uTnZKvppoOEOoNphQzzPb4il8yiDegiLA?=
+ =?us-ascii?q?QDUHaX9f6h2LH7+E32WrRKjvk4kqnDt5DaINwWprWkDA9OyYsj9xa+ACum0N?=
+ =?us-ascii?q?Qfh3UHKklFdwidg4jmPFHOPuj0De2jjFS0jDdr2/fGM6X7ApXMMnfDkK3ufa?=
+ =?us-ascii?q?xg5EFE1AU81dBf6IhVCrEHPv3zQVT8u8fEDh84NQy03/joCM971owARWKDGL?=
+ =?us-ascii?q?OWMKTXsVWQ/OIgP/GMZJMJuDb6M/Ul/ODhjXs4mV8bYKmo0oAaaG63Hvt4OU?=
+ =?us-ascii?q?WVe3nsjckbEWcMoAU+SPbmiFqYUT5cND6OWPcG5zo7AZiqRafKR4agm/TVxi?=
+ =?us-ascii?q?awHpRMaldNPVCFEHHlbK2OR/YKdC+IJMJ91DcDUO7lA5Qs0RCoqR/S1bVqNK?=
+ =?us-ascii?q?zX9zceuJal08J6tMPJkhRnziB5F8SQ1Sm2Smhwmm4ZD2st0LtXvV12ylDF17?=
+ =?us-ascii?q?NxxfNfC4oAtLtyTg4mOMuEnKRBANfoV1eEJ4zYRQ=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2APAABXipNd/wHyM5BmGgEBAQEBAgEBAQEMAgEBAQGBV?=
+ =?us-ascii?q?QMBAQEBCwGBcyptUzIqhCKOd00BAQEBAQEGgTZ+iHePMIF7CQEBAQEBAQEBA?=
+ =?us-ascii?q?SMRAQIBAYRAAoIvIzYHDgIMAQEBBAEBAQEBBQMBAWyFLQyCOikBgmgBBRoBC?=
+ =?us-ascii?q?AQRUQsYAgImAgJXBgEMBgIBAYJfPwGBagMJFLArfzOFTYMpgUiBDCgBjA0Ye?=
+ =?us-ascii?q?IEHgREngjY1PoIagiqDDYJYBIx0iSKBM5VcgiyCL4RXjgUGG4I4cosGiwmOI?=
+ =?us-ascii?q?5sqCyeBWCsIAhgIIQ+DJwlHEBSBWxeHWIZnJQMwgQYBAZBzAQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 01 Oct 2019 17:23:26 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x91HNPRr025319;
+        Tue, 1 Oct 2019 13:23:25 -0400
+Subject: Re: [PATCH V4] selinux-testsuite: Add keys tests
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+References: <20191001110414.16032-1-richard_c_haines@btinternet.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <71a40e33-17f0-e7b6-11e1-e3c00f93106d@tycho.nsa.gov>
+Date:   Tue, 1 Oct 2019 13:23:25 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-References: <20190912133007.27545-1-jlebon@redhat.com>
-In-Reply-To: <20190912133007.27545-1-jlebon@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 1 Oct 2019 09:48:37 -0400
-Message-ID: <CAHC9VhS1tML2+cHM5K+ZMQp8ZsbwnbF0jWB_8sO9mTzozGCqnA@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: allow labeling before policy is loaded
-To:     Jonathan Lebon <jlebon@redhat.com>
-Cc:     selinux@vger.kernel.org, Victor Kamensky <kamensky@cisco.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20191001110414.16032-1-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Sep 12, 2019 at 9:30 AM Jonathan Lebon <jlebon@redhat.com> wrote:
-> Currently, the SELinux LSM prevents one from setting the
-> `security.selinux` xattr on an inode without a policy first being
-> loaded. However, this restriction is problematic: it makes it impossible
-> to have newly created files with the correct label before actually
-> loading the policy.
->
-> This is relevant in distributions like Fedora, where the policy is
-> loaded by systemd shortly after pivoting out of the initrd. In such
-> instances, all files created prior to pivoting will be unlabeled. One
-> then has to relabel them after pivoting, an operation which inherently
-> races with other processes trying to access those same files.
->
-> Going further, there are use cases for creating the entire root
-> filesystem on first boot from the initrd (e.g. Container Linux supports
-> this today[1], and we'd like to support it in Fedora CoreOS as well[2]).
-> One can imagine doing this in two ways: at the block device level (e.g.
-> laying down a disk image), or at the filesystem level. In the former,
-> labeling can simply be part of the image. But even in the latter
-> scenario, one still really wants to be able to set the right labels when
-> populating the new filesystem.
->
-> This patch enables this by changing behaviour in the following two ways:
-> 1. allow `setxattr` if we're not initialized
-> 2. don't try to set the in-core inode SID if we're not initialized;
->    instead leave it as `LABEL_INVALID` so that revalidation may be
->    attempted at a later time
->
-> Note the first hunk of this patch is mostly the same as a previously
-> discussed one[3], though it was part of a larger series which wasn't
-> accepted.
->
-> Co-developed-by: Victor Kamensky <kamensky@cisco.com>
-> Signed-off-by: Victor Kamensky <kamensky@cisco.com>
-> Signed-off-by: Jonathan Lebon <jlebon@redhat.com>
->
-> [1] https://coreos.com/os/docs/latest/root-filesystem-placement.html
-> [2] https://github.com/coreos/fedora-coreos-tracker/issues/94
-> [3] https://www.spinics.net/lists/linux-initramfs/msg04593.html
->
-> ---
->
-> v2:
->   - return early in selinux_inode_setxattr if policy hasn't been loaded
->
-> ---
->
->  security/selinux/hooks.c | 12 ++++++++++++
->  1 file changed, 12 insertions(+)
+On 10/1/19 7:04 AM, Richard Haines wrote:
+> Test all permissions associated with the key class.
+> 
+> Note that kernel 5.3 commit keys: Fix request_key() lack of Link perm
+> check on found key ("504b69eb3c95180bc59f1ae9096ad4b10bbbf254")
+> added an additional check for link perm on request_key(). The tests
+> will support earlier kernels.
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 
-Merged into selinux/next, thanks!
+Thanks, applied.
 
--- 
-paul moore
-www.paul-moore.com
+> ---
+> V2 Changes:
+> Added test permission checks between a keyring created by another process
+> Split out key_socket tests
+> V3 Changes:
+> Fixed KEYCTL_SESSION_TO_PARENT: Operation not permitted
+> Remove kernel 5.X checks as not yet relevant
+> Tested on latest Fedora 30 + Rawhide from user->su->make test
+> V4 Change:
+> .gitignore request_key to request_keys
+> 
+>   README.md                    |   4 +-
+>   defconfig                    |   7 ++
+>   policy/Makefile              |   4 +
+>   policy/test_global.te        |   2 +-
+>   policy/test_keys.te          | 226 +++++++++++++++++++++++++++++++++++
+>   tests/Makefile               |   4 +
+>   tests/keys/.gitignore        |   4 +
+>   tests/keys/Makefile          |   7 ++
+>   tests/keys/keyctl.c          | 188 +++++++++++++++++++++++++++++
+>   tests/keys/keyctl_relabel.c  |  93 ++++++++++++++
+>   tests/keys/keyring_service.c | 166 +++++++++++++++++++++++++
+>   tests/keys/keys_common.h     |  16 +++
+>   tests/keys/request_keys.c    | 138 +++++++++++++++++++++
+>   tests/keys/test              | 109 +++++++++++++++++
+>   14 files changed, 966 insertions(+), 2 deletions(-)
+>   create mode 100644 policy/test_keys.te
+>   create mode 100644 tests/keys/.gitignore
+>   create mode 100644 tests/keys/Makefile
+>   create mode 100644 tests/keys/keyctl.c
+>   create mode 100644 tests/keys/keyctl_relabel.c
+>   create mode 100644 tests/keys/keyring_service.c
+>   create mode 100644 tests/keys/keys_common.h
+>   create mode 100644 tests/keys/request_keys.c
+>   create mode 100755 tests/keys/test
+> 
+> diff --git a/README.md b/README.md
+> index 1396c8e..e845df8 100644
+> --- a/README.md
+> +++ b/README.md
+> @@ -52,6 +52,7 @@ similar dependencies):
+>   * lksctp-tools-devel _(to build the SCTP test programs)_
+>   * attr _(tools used by the overlayfs tests)_
+>   * libbpf-devel _(tools used by the bpf tests)_
+> +* keyutils-libs-devel _(tools used by the keys tests)_
+>   
+>   On a modern Fedora system you can install these dependencies with the
+>   following command:
+> @@ -67,7 +68,8 @@ following command:
+>   		iptables \
+>   		lksctp-tools-devel \
+>   		attr \
+> -		libbpf-devel
+> +		libbpf-devel \
+> +		keyutils-libs-devel
+>   
+>   The testsuite requires a pre-existing base policy configuration of SELinux,
+>   using either the old example policy or the reference policy as the baseline.
+> diff --git a/defconfig b/defconfig
+> index cb57f22..b13075d 100644
+> --- a/defconfig
+> +++ b/defconfig
+> @@ -67,3 +67,10 @@ CONFIG_ANDROID_BINDERFS=y
+>   # They are not required for SELinux operation itself.
+>   CONFIG_BPF=y
+>   CONFIG_BPF_SYSCALL=y
+> +
+> +# Keys implementation.
+> +# These are enabled to test the key controls in tests/keys; they are
+> +# not required for SELinux operation itself.
+> +CONFIG_KEYS=y
+> +CONFIG_KEYS_COMPAT=y
+> +CONFIG_KEY_DH_OPERATIONS=y
+> diff --git a/policy/Makefile b/policy/Makefile
+> index a5942b3..5c2c438 100644
+> --- a/policy/Makefile
+> +++ b/policy/Makefile
+> @@ -82,6 +82,10 @@ ifeq ($(shell grep -q bpf $(POLDEV)/include/support/all_perms.spt && echo true),
+>   TARGETS += test_bpf.te test_fdreceive_bpf.te test_binder_bpf.te
+>   endif
+>   
+> +ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && echo true),true)
+> +TARGETS += test_keys.te
+> +endif
+> +
+>   ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+>   TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $(TARGETS))
+>   endif
+> diff --git a/policy/test_global.te b/policy/test_global.te
+> index b77e025..90f9b65 100644
+> --- a/policy/test_global.te
+> +++ b/policy/test_global.te
+> @@ -42,7 +42,7 @@ allow testdomain self:process setfscreate;
+>   
+>   # General permissions commonly required for test operation.
+>   # general_domain_access
+> -allow testdomain self:process ~{ptrace setcurrent setexec setfscreate setrlimit execmem execstack execheap};
+> +allow testdomain self:process ~{ptrace setcurrent setexec setfscreate setrlimit execmem execstack execheap setkeycreate};
+>   allow testdomain self:fd use;
+>   allow testdomain self:fifo_file rw_file_perms;
+>   allow testdomain self:unix_dgram_socket create_socket_perms;
+> diff --git a/policy/test_keys.te b/policy/test_keys.te
+> new file mode 100644
+> index 0000000..78c0663
+> --- /dev/null
+> +++ b/policy/test_keys.te
+> @@ -0,0 +1,226 @@
+> +#
+> +################# KEY selinux-testsuite policy module ######################
+> +#
+> +attribute keydomain;
+> +
+> +#
+> +############################## Define Macro ################################
+> +#
+> +# Do not use domain_type() macro as it has allow 'key { link search }'
+> +# in base module so 'allow domain self:key ~{ link search };' will not work
+> +# here. Add these instead to allow key perms to be controlled by this module.
+> +#
+> +gen_require(`
+> +	type setrans_var_run_t, syslogd_t;
+> +')
+> +
+> +define(`key_domain_type',`
+> +	allow $1 proc_t:dir { search };
+> +	allow $1 proc_t:lnk_file { read };
+> +	allow $1 self:dir { search };
+> +	allow $1 self:file { open read write };
+> +	dontaudit init_t syslogd_t:fd use;
+> +	dontaudit $1 security_t:filesystem getattr;
+> +	dontaudit $1 self:file getattr;
+> +	dontaudit $1 setrans_var_run_t:dir search;
+> +	dontaudit unconfined_t $1:process { noatsecure rlimitinh siginh };
+> +')
+> +
+> +#
+> +####################### Main key class tests #####################
+> +#
+> +type test_key_t;
+> +key_domain_type(test_key_t)
+> +unconfined_runs_test(test_key_t)
+> +typeattribute test_key_t testdomain;
+> +typeattribute test_key_t keydomain;
+> +
+> +allow test_key_t self:process { setkeycreate };
+> +allow test_key_t self:key { create write search read view link setattr };
+> +
+> +# Set new context on a keyring:
+> +type test_newcon_key_t;
+> +key_domain_type(test_newcon_key_t)
+> +unconfined_runs_test(test_newcon_key_t)
+> +typeattribute test_newcon_key_t testdomain;
+> +typeattribute test_newcon_key_t keydomain;
+> +
+> +allow test_key_t test_newcon_key_t:key { create write search view };
+> +
+> +################# Deny process { setkeycreate } #######################
+> +type test_no_setkeycreate_t;
+> +key_domain_type(test_no_setkeycreate_t)
+> +unconfined_runs_test(test_no_setkeycreate_t)
+> +typeattribute test_no_setkeycreate_t testdomain;
+> +typeattribute test_no_setkeycreate_t keydomain;
+> +
+> +###################### Deny key { create } ###########################
+> +type test_key_no_create_t;
+> +key_domain_type(test_key_no_create_t)
+> +unconfined_runs_test(test_key_no_create_t)
+> +typeattribute test_key_no_create_t testdomain;
+> +typeattribute test_key_no_create_t keydomain;
+> +
+> +allow test_key_no_create_t self:process { setkeycreate };
+> +allow test_key_no_create_t self:key { write search read view link setattr };
+> +
+> +###################### Deny key { write } ###########################
+> +type test_key_no_write_t;
+> +key_domain_type(test_key_no_write_t)
+> +unconfined_runs_test(test_key_no_write_t)
+> +typeattribute test_key_no_write_t testdomain;
+> +typeattribute test_key_no_write_t keydomain;
+> +
+> +allow test_key_no_write_t self:process { setkeycreate };
+> +allow test_key_no_write_t self:key { create search read view link setattr };
+> +
+> +###################### Deny key { search } ###########################
+> +type test_key_no_search_t;
+> +key_domain_type(test_key_no_search_t)
+> +unconfined_runs_test(test_key_no_search_t)
+> +typeattribute test_key_no_search_t testdomain;
+> +typeattribute test_key_no_search_t keydomain;
+> +
+> +allow test_key_no_search_t self:process { setkeycreate };
+> +allow test_key_no_search_t self:key { create write read view link setattr };
+> +
+> +###################### Deny key { view } ###########################
+> +type test_key_no_view_t;
+> +key_domain_type(test_key_no_view_t)
+> +unconfined_runs_test(test_key_no_view_t)
+> +typeattribute test_key_no_view_t testdomain;
+> +typeattribute test_key_no_view_t keydomain;
+> +
+> +allow test_key_no_view_t self:process { setkeycreate };
+> +allow test_key_no_view_t self:key { create write search read link setattr };
+> +
+> +###################### Deny key { read } ###########################
+> +type test_key_no_read_t;
+> +key_domain_type(test_key_no_read_t)
+> +unconfined_runs_test(test_key_no_read_t)
+> +typeattribute test_key_no_read_t testdomain;
+> +typeattribute test_key_no_read_t keydomain;
+> +
+> +allow test_key_no_read_t self:process { setkeycreate };
+> +allow test_key_no_read_t self:key { create write search view link setattr };
+> +
+> +###################### Deny key { link } ###########################
+> +type test_key_no_link_t;
+> +key_domain_type(test_key_no_link_t)
+> +unconfined_runs_test(test_key_no_link_t)
+> +typeattribute test_key_no_link_t testdomain;
+> +typeattribute test_key_no_link_t keydomain;
+> +
+> +allow test_key_no_link_t self:process { setkeycreate };
+> +allow test_key_no_link_t self:key { create write search read view setattr };
+> +
+> +###################### Deny key { setattr } ###########################
+> +type test_key_no_setattr_t;
+> +key_domain_type(test_key_no_setattr_t)
+> +unconfined_runs_test(test_key_no_setattr_t)
+> +typeattribute test_key_no_setattr_t testdomain;
+> +typeattribute test_key_no_setattr_t keydomain;
+> +
+> +allow test_key_no_setattr_t self:process { setkeycreate };
+> +allow test_key_no_setattr_t self:key { create write search read view link };
+> +
+> +#
+> +############## keyring_service / request_keys process tests ###############
+> +#
+> +# Check between a process and a keyring created by another process in a
+> +# different security context.
+> +#
+> +type test_keyring_service_t;
+> +key_domain_type(test_keyring_service_t)
+> +unconfined_runs_test(test_keyring_service_t)
+> +typeattribute test_keyring_service_t testdomain;
+> +typeattribute test_keyring_service_t keydomain;
+> +
+> +allow test_keyring_service_t self:process { setkeycreate };
+> +allow test_keyring_service_t self:key { create write search read view link setattr };
+> +
+> +allow test_keyring_service_t test_file_t:file execute_no_trans;
+> +allow test_keyring_service_t self : process { dyntransition };
+> +allow test_keyring_service_t test_request_keys_t:process dyntransition;
+> +allow test_keyring_service_t test_request_keys_no_search_t:process dyntransition;
+> +allow test_keyring_service_t test_request_keys_no_read_t:process dyntransition;
+> +allow test_keyring_service_t test_request_keys_no_write_t:process dyntransition;
+> +allow test_keyring_service_t test_request_keys_no_view_t:process dyntransition;
+> +allow test_keyring_service_t test_request_keys_no_setattr_t:process dyntransition;
+> +allow test_keyring_service_t test_request_keys_no_link_t:process dyntransition;
+> +
+> +################################# request_keys ############################
+> +type test_request_keys_t;
+> +key_domain_type(test_request_keys_t)
+> +unconfined_runs_test(test_request_keys_t)
+> +typeattribute test_request_keys_t testdomain;
+> +typeattribute test_request_keys_t keydomain;
+> +
+> +allow test_request_keys_t self:key { create write search read view link setattr };
+> +allow test_request_keys_t test_keyring_service_t:key { search read write view link setattr };
+> +
+> +################### request_keys deny { search } ############################
+> +type test_request_keys_no_search_t;
+> +key_domain_type(test_request_keys_no_search_t)
+> +unconfined_runs_test(test_request_keys_no_search_t)
+> +typeattribute test_request_keys_no_search_t testdomain;
+> +typeattribute test_request_keys_no_search_t keydomain;
+> +
+> +allow test_request_keys_no_search_t self:key { create write search read view link setattr };
+> +allow test_request_keys_no_search_t test_keyring_service_t:key { write link view setattr };
+> +
+> +################### request_keys deny { read } ############################
+> +type test_request_keys_no_read_t;
+> +key_domain_type(test_request_keys_no_read_t)
+> +unconfined_runs_test(test_request_keys_no_read_t)
+> +typeattribute test_request_keys_no_read_t testdomain;
+> +typeattribute test_request_keys_no_read_t keydomain;
+> +
+> +allow test_request_keys_no_read_t self:key { create write search read view link setattr };
+> +allow test_request_keys_no_read_t test_keyring_service_t:key { write search view setattr link };
+> +
+> +################### request_keys deny { write } ############################
+> +type test_request_keys_no_write_t;
+> +key_domain_type(test_request_keys_no_write_t)
+> +unconfined_runs_test(test_request_keys_no_write_t)
+> +typeattribute test_request_keys_no_write_t testdomain;
+> +typeattribute test_request_keys_no_write_t keydomain;
+> +
+> +allow test_request_keys_no_write_t self:key { create write search read view link setattr };
+> +allow test_request_keys_no_write_t test_keyring_service_t:key { read search view setattr link };
+> +
+> +################### request_keys deny { view } ############################
+> +type test_request_keys_no_view_t;
+> +key_domain_type(test_request_keys_no_view_t)
+> +unconfined_runs_test(test_request_keys_no_view_t)
+> +typeattribute test_request_keys_no_view_t testdomain;
+> +typeattribute test_request_keys_no_view_t keydomain;
+> +
+> +allow test_request_keys_no_view_t self:key { create write search read view link setattr };
+> +allow test_request_keys_no_view_t test_keyring_service_t:key { search write setattr link };
+> +
+> +################### request_keys deny { setattr } ############################
+> +type test_request_keys_no_setattr_t;
+> +key_domain_type(test_request_keys_no_setattr_t)
+> +unconfined_runs_test(test_request_keys_no_setattr_t)
+> +typeattribute test_request_keys_no_setattr_t testdomain;
+> +typeattribute test_request_keys_no_setattr_t keydomain;
+> +
+> +allow test_request_keys_no_setattr_t self:key { create write search read view link setattr };
+> +allow test_request_keys_no_setattr_t test_keyring_service_t:key { search read write link view };
+> +
+> +################### request_keys deny { link } ############################
+> +type test_request_keys_no_link_t;
+> +key_domain_type(test_request_keys_no_link_t)
+> +unconfined_runs_test(test_request_keys_no_link_t)
+> +typeattribute test_request_keys_no_link_t testdomain;
+> +typeattribute test_request_keys_no_link_t keydomain;
+> +
+> +allow test_request_keys_no_link_t self:key { create write search read view link setattr };
+> +allow test_request_keys_no_link_t test_keyring_service_t:key { read write search view setattr };
+> +
+> +#
+> +########### Allow these domains to be entered from sysadm domain ############
+> +#
+> +miscfiles_domain_entry_test_files(keydomain)
+> +userdom_sysadm_entry_spec_domtrans_to(keydomain)
+> diff --git a/tests/Makefile b/tests/Makefile
+> index e5bdfff..42f7f40 100644
+> --- a/tests/Makefile
+> +++ b/tests/Makefile
+> @@ -48,6 +48,10 @@ export CFLAGS += -DHAVE_BPF
+>   endif
+>   endif
+>   
+> +ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && echo true),true)
+> +SUBDIRS += keys
+> +endif
+> +
+>   ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=" infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
+>   SUBDIRS += infiniband_endport
+>   endif
+> diff --git a/tests/keys/.gitignore b/tests/keys/.gitignore
+> new file mode 100644
+> index 0000000..3ce6465
+> --- /dev/null
+> +++ b/tests/keys/.gitignore
+> @@ -0,0 +1,4 @@
+> +keyctl
+> +keyctl_relabel
+> +keyring_service
+> +request_keys
+> diff --git a/tests/keys/Makefile b/tests/keys/Makefile
+> new file mode 100644
+> index 0000000..d3793db
+> --- /dev/null
+> +++ b/tests/keys/Makefile
+> @@ -0,0 +1,7 @@
+> +TARGETS = keyctl keyctl_relabel keyring_service request_keys
+> +LDLIBS += -lselinux -lkeyutils
+> +
+> +all: $(TARGETS)
+> +
+> +clean:
+> +	rm -f $(TARGETS)
+> diff --git a/tests/keys/keyctl.c b/tests/keys/keyctl.c
+> new file mode 100644
+> index 0000000..5aff8d8
+> --- /dev/null
+> +++ b/tests/keys/keyctl.c
+> @@ -0,0 +1,188 @@
+> +#include "keys_common.h"
+> +
+> +static void usage(char *progname)
+> +{
+> +	fprintf(stderr,
+> +		"usage:  %s [-v]\n"
+> +		"Where:\n\t"
+> +		"-v  Print information.\n", progname);
+> +	exit(-1);
+> +}
+> +
+> +int main(int argc, char *argv[])
+> +{
+> +	int opt, nr, result;
+> +	unsigned int timeout = 5;
+> +	char *context, *keycreate_con, type[20], desc[30];
+> +	char r_con[256];
+> +	bool verbose = false;
+> +	key_serial_t retrieved, search, link, compute,
+> +		     private, prime, base, test_key;
+> +	struct keyctl_dh_params params;
+> +
+> +	while ((opt = getopt(argc, argv, "v")) != -1) {
+> +		switch (opt) {
+> +		case 'v':
+> +			verbose = true;
+> +			break;
+> +		default:
+> +			usage(argv[0]);
+> +		}
+> +	}
+> +
+> +	result = getcon(&context);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain process context\n");
+> +		exit(1);
+> +	}
+> +	if (verbose)
+> +		printf("Process context:\n\t%s\n", context);
+> +
+> +	result = getkeycreatecon(&keycreate_con);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain keycreate context\n");
+> +		exit(2);
+> +	}
+> +	if (verbose)
+> +		printf("Current keycreate context:\n\t%s\n", keycreate_con);
+> +	free(keycreate_con);
+> +
+> +	/* Set context requires key { create } and process { setkeycreate } */
+> +	result = setkeycreatecon(context);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed setkeycreatecon(): %s\n",
+> +			strerror(errno));
+> +		exit(3);
+> +	}
+> +	if (verbose)
+> +		printf("Set keycreate context:\n\t%s\n", context);
+> +	free(context);
+> +
+> +	result = getkeycreatecon(&keycreate_con);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain keycreate context\n");
+> +		exit(4);
+> +	}
+> +	if (verbose)
+> +		printf("New keycreate context:\n\t%s\n", keycreate_con);
+> +	free(keycreate_con);
+> +
+> +	/*
+> +	 * Add three keys to the KEY_SPEC_PROCESS_KEYRING as these will be
+> +	 * required by the keyctl(KEYCTL_DH_COMPUTE, ..) function.
+> +	 * These require key { create write } permissions.
+> +	 */
+> +	private = add_key("user", "private", payload, strlen(payload),
+> +			  KEY_SPEC_PROCESS_KEYRING);
+> +	if (private < 0) {
+> +		fprintf(stderr, "Failed add_key(private): %s\n",
+> +			strerror(errno));
+> +		exit(5);
+> +	}
+> +
+> +	prime = add_key("user", "prime", payload, strlen(payload),
+> +			KEY_SPEC_PROCESS_KEYRING);
+> +	if (prime < 0) {
+> +		fprintf(stderr, "Failed add_key(prime): %s\n",
+> +			strerror(errno));
+> +		exit(5);
+> +	}
+> +
+> +	base = add_key("user", "base", payload, strlen(payload),
+> +		       KEY_SPEC_PROCESS_KEYRING);
+> +	if (base < 0) {
+> +		fprintf(stderr, "Failed add_key(base): %s\n",
+> +			strerror(errno));
+> +		exit(5);
+> +	}
+> +
+> +	if (verbose) {
+> +		printf("Private key ID: 0x%x\n", private);
+> +		printf("Prime key ID:   0x%x\n", prime);
+> +		printf("Base key ID:    0x%x\n", base);
+> +	}
+> +
+> +	/* Requires key { search }. From kernel 5.3 requires { link } */
+> +	retrieved = request_key("user", "private", NULL,
+> +				KEY_SPEC_PROCESS_KEYRING);
+> +	if (retrieved < 0) {
+> +		fprintf(stderr, "Failed to request 'private' key: %s\n",
+> +			strerror(errno));
+> +		exit(6);
+> +	}
+> +
+> +	/* Requires key { search } */
+> +	search = keyctl(KEYCTL_SEARCH, KEY_SPEC_PROCESS_KEYRING,
+> +			"user", "base", 0);
+> +	if (search < 0) {
+> +		fprintf(stderr, "Failed to find 'base' key: %s\n",
+> +			strerror(errno));
+> +		exit(7);
+> +	}
+> +
+> +	/* Requires key { view } */
+> +	result = keyctl(KEYCTL_GET_SECURITY, private, r_con, sizeof(r_con));
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain 'private' key context: %s\n",
+> +			strerror(errno));
+> +		exit(8);
+> +	}
+> +
+> +	if (verbose) {
+> +		printf("Requested 'private' key ID: 0x%x\n", retrieved);
+> +		printf("Searched 'base' key ID:     0x%x\n", search);
+> +		printf("Searched 'base' key context:\n\t%s\n", r_con);
+> +	}
+> +
+> +	/* Compute DH key, only obtain the length for test, not the key. */
+> +	params.priv = private;
+> +	params.prime = prime;
+> +	params.base = base;
+> +
+> +	/* Requires key { create read write } */
+> +	compute = keyctl(KEYCTL_DH_COMPUTE, &params, NULL, 0, 0);
+> +	if (compute < 0) {
+> +		fprintf(stderr, "Failed KEYCTL_DH_COMPUTE: %s\n",
+> +			strerror(errno));
+> +		exit(9);
+> +	}
+> +	if (verbose)
+> +		printf("KEYCTL_DH_COMPUTE key ID size: %d\n", compute);
+> +
+> +	/* Requires key { write link } */
+> +	link = keyctl(KEYCTL_LINK, base, KEY_SPEC_PROCESS_KEYRING);
+> +	if (link < 0) {
+> +		fprintf(stderr, "Failed KEYCTL_LINK: %s\n",
+> +			strerror(errno));
+> +		exit(10);
+> +	}
+> +	if (verbose)
+> +		printf("Link key ID:    0x%x\n", KEY_SPEC_PROCESS_KEYRING);
+> +
+> +	/* Requires key { setattr } */
+> +	link = keyctl(KEYCTL_SET_TIMEOUT, base, timeout);
+> +	if (link < 0) {
+> +		fprintf(stderr, "Failed KEYCTL_SET_TIMEOUT: %s\n",
+> +			strerror(errno));
+> +		exit(11);
+> +	}
+> +	if (verbose) {
+> +		test_key = keyctl(KEYCTL_DESCRIBE, base, r_con, sizeof(r_con));
+> +		if (test_key < 0) {
+> +			fprintf(stderr, "Failed KEYCTL_DESCRIBE: %s\n",
+> +				strerror(errno));
+> +			exit(11);
+> +		}
+> +		result = sscanf(r_con, "%[^;];%d;%d;%x;%s",
+> +				type, &nr, &nr, &nr, desc);
+> +		if (result < 0) {
+> +			fprintf(stderr, "Failed sscanf(): %s\n",
+> +				strerror(errno));
+> +			exit(11);
+> +		}
+> +		printf("Set %d second timeout on key Type: '%s' Description: '%s'\n",
+> +		       timeout, type, desc);
+> +	}
+> +
+> +	return 0;
+> +}
+> diff --git a/tests/keys/keyctl_relabel.c b/tests/keys/keyctl_relabel.c
+> new file mode 100644
+> index 0000000..7bab510
+> --- /dev/null
+> +++ b/tests/keys/keyctl_relabel.c
+> @@ -0,0 +1,93 @@
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <string.h>
+> +#include <unistd.h>
+> +#include <errno.h>
+> +#include <stdbool.h>
+> +#include <keyutils.h>
+> +#include <selinux/selinux.h>
+> +
+> +static void usage(char *progname)
+> +{
+> +	fprintf(stderr,
+> +		"usage:  %s [-v] newcon\n"
+> +		"Where:\n\t"
+> +		"-v      Print information.\n\t"
+> +		"newcon  New keyring context.\n", progname);
+> +	exit(-1);
+> +}
+> +
+> +int main(int argc, char *argv[])
+> +{
+> +	int opt, result;
+> +	char *context, *keycreate_con;
+> +	char r_con[256];
+> +	bool verbose = false;
+> +	key_serial_t newring;
+> +
+> +	while ((opt = getopt(argc, argv, "v")) != -1) {
+> +		switch (opt) {
+> +		case 'v':
+> +			verbose = true;
+> +			break;
+> +		default:
+> +			usage(argv[0]);
+> +		}
+> +	}
+> +
+> +	if (optind >= argc)
+> +		usage(argv[0]);
+> +
+> +	result = getcon(&context);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain process context\n");
+> +		exit(1);
+> +	}
+> +	if (verbose)
+> +		printf("Process context: %s\n", context);
+> +	free(context);
+> +
+> +	result = setkeycreatecon(argv[optind]);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed setkeycreatecon(): %s\n",
+> +			strerror(errno));
+> +		exit(2);
+> +	}
+> +
+> +	result = getkeycreatecon(&keycreate_con);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain keycreate context\n");
+> +		exit(3);
+> +	}
+> +	if (verbose)
+> +		printf("New keycreate context: %s\n", keycreate_con);
+> +	free(keycreate_con);
+> +
+> +	newring = add_key("keyring", "my-keyring", NULL, 0,
+> +			  KEY_SPEC_PROCESS_KEYRING);
+> +	if (newring < 0) {
+> +		fprintf(stderr, "Failed to add new keyring: %s\n",
+> +			strerror(errno));
+> +		exit(4);
+> +	}
+> +
+> +	result = keyctl(KEYCTL_GET_SECURITY, newring, r_con, sizeof(r_con));
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain key context: %s\n",
+> +			strerror(errno));
+> +		exit(5);
+> +	}
+> +
+> +	if (strcmp(argv[optind], r_con)) {
+> +		fprintf(stderr, "Relabel error - expected: %s got: %s\n",
+> +			argv[optind], r_con);
+> +		exit(6);
+> +	}
+> +
+> +	if (verbose) {
+> +		printf("'my-keyring' key ID: 0x%x\n", newring);
+> +		printf("'my-keyring' context:\n\t%s\n", r_con);
+> +	}
+> +
+> +	return 0;
+> +}
+> diff --git a/tests/keys/keyring_service.c b/tests/keys/keyring_service.c
+> new file mode 100644
+> index 0000000..e5dcab0
+> --- /dev/null
+> +++ b/tests/keys/keyring_service.c
+> @@ -0,0 +1,166 @@
+> +#include "keys_common.h"
+> +
+> +static void usage(char *progname)
+> +{
+> +	fprintf(stderr,
+> +		"usage:  %s [-v] newdomain program\n"
+> +		"Where:\n\t"
+> +		"newdomain  Type for new domain.\n\t"
+> +		"program    Program to be exec'd.\n\t"
+> +		"-v         Print information.\n", progname);
+> +	exit(-1);
+> +}
+> +
+> +int main(int argc, char **argv)
+> +{
+> +	int opt, pid, result, status;
+> +	bool verbose;
+> +	char *context_s, *request_keys_argv[4] = { NULL };
+> +	context_t context;
+> +	key_serial_t private, prime, base, newring;
+> +
+> +	verbose = false;
+> +
+> +	while ((opt = getopt(argc, argv, "v")) != -1) {
+> +		switch (opt) {
+> +		case 'v':
+> +			verbose = true;
+> +			request_keys_argv[2] = strdup("-v");
+> +			break;
+> +		default:
+> +			usage(argv[0]);
+> +		}
+> +	}
+> +
+> +	if (argc - optind != 2)
+> +		usage(argv[0]);
+> +
+> +	if (verbose)
+> +		printf("%s process information:\n", argv[0]);
+> +
+> +	result = getcon(&context_s);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain process context\n");
+> +		exit(1);
+> +	}
+> +	if (verbose)
+> +		printf("\tProcess context:\n\t\t%s\n", context_s);
+> +
+> +	/* Set context requires process { setkeycreate } and key { create } */
+> +	result = setkeycreatecon(context_s);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed setkeycreatecon(): %s\n",
+> +			strerror(errno));
+> +		exit(3);
+> +	}
+> +	if (verbose)
+> +		printf("\tSet keycreate context:\n\t\t%s\n", context_s);
+> +
+> +	context = context_new(context_s);
+> +	if (!context) {
+> +		fprintf(stderr, "Unable to create context structure\n");
+> +		exit(2);
+> +	}
+> +	free(context_s);
+> +
+> +	if (context_type_set(context, argv[optind])) {
+> +		fprintf(stderr, "Unable to set new type\n");
+> +		exit(3);
+> +	}
+> +
+> +	context_s = context_str(context);
+> +	if (!context_s) {
+> +		fprintf(stderr, "Unable to obtain new context string\n");
+> +		exit(4);
+> +	}
+> +	if (verbose)
+> +		printf("\t%s process context will transition to:\n\t\t%s\n",
+> +		       argv[optind], context_s);
+> +
+> +	/*
+> +	 * This sets up the environment the for 'request_keys' service when it
+> +	 * calls: keyctl(KEYCTL_SESSION_TO_PARENT)
+> +	 */
+> +	newring = keyctl(KEYCTL_JOIN_SESSION_KEYRING, "test-session");
+> +	if (newring < 0) {
+> +		fprintf(stderr, "Failed KEYCTL_JOIN_SESSION_KEYRING,: %s\n",
+> +			strerror(errno));
+> +		exit(5);
+> +	}
+> +	if (verbose)
+> +		printf("\tKEYCTL_JOIN_SESSION_KEYRING newkey ID: 0x%x\n",
+> +		       newring);
+> +
+> +	private = add_key("user", "private", payload, strlen(payload),
+> +			  KEY_SPEC_SESSION_KEYRING);
+> +	if (private < 0) {
+> +		fprintf(stderr, "Failed add_key(private): %s\n",
+> +			strerror(errno));
+> +		exit(6);
+> +	}
+> +
+> +	prime = add_key("user", "prime", payload, strlen(payload),
+> +			KEY_SPEC_SESSION_KEYRING);
+> +	if (prime < 0) {
+> +		fprintf(stderr, "Failed add_key(prime): %s\n",
+> +			strerror(errno));
+> +		exit(6);
+> +	}
+> +
+> +	base = add_key("user", "base", payload, strlen(payload),
+> +		       KEY_SPEC_SESSION_KEYRING);
+> +	if (base < 0) {
+> +		fprintf(stderr, "Failed add_key(base): %s\n",
+> +			strerror(errno));
+> +		exit(6);
+> +	}
+> +	if (verbose) {
+> +		printf("\tAdded 'private' key ID: 0x%x\n", private);
+> +		printf("\tAdded 'prime'   key ID: 0x%x\n", prime);
+> +		printf("\tAdded 'base'    key ID: 0x%x\n", base);
+> +	}
+> +
+> +	pid = fork();
+> +	if (pid < 0) {
+> +		fprintf(stderr, "fork failed: %s\n", strerror(errno));
+> +		exit(9);
+> +	} else if (pid == 0) {
+> +		signal(SIGTRAP, SIG_IGN);
+> +		request_keys_argv[0] = strdup(argv[optind + 1]);
+> +		request_keys_argv[1] = strdup(context_s);
+> +		if (verbose)
+> +			printf("\tExec parameters:\n\t\t%s\n\t\t%s\n\t\t%s\n",
+> +			       request_keys_argv[0],
+> +			       request_keys_argv[1],
+> +			       request_keys_argv[2]);
+> +
+> +		execv(request_keys_argv[0], request_keys_argv);
+> +		fprintf(stderr, "execv of: %s failed: %s\n",
+> +			request_keys_argv[0], strerror(errno));
+> +		exit(10);
+> +	}
+> +
+> +	pid = wait(&status);
+> +	if (pid < 0) {
+> +		fprintf(stderr, "wait() failed: %s\n", strerror(errno));
+> +		exit(11);
+> +	}
+> +
+> +	if (WIFEXITED(status)) {
+> +		fprintf(stderr, "%s exited with status: %d\n",
+> +			argv[optind + 1], WEXITSTATUS(status));
+> +		exit(WEXITSTATUS(status));
+> +	}
+> +
+> +	if (WIFSIGNALED(status)) {
+> +		fprintf(stderr, "%s terminated by signal: %d\n",
+> +			argv[optind + 1], WTERMSIG(status));
+> +		fprintf(stderr,
+> +			"..This is consistent with a %s permission denial - check the audit log.\n",
+> +			argv[optind + 1]);
+> +		exit(12);
+> +	}
+> +
+> +	fprintf(stderr, "Unexpected exit status 0x%x\n", status);
+> +	exit(-1);
+> +}
+> diff --git a/tests/keys/keys_common.h b/tests/keys/keys_common.h
+> new file mode 100644
+> index 0000000..df15280
+> --- /dev/null
+> +++ b/tests/keys/keys_common.h
+> @@ -0,0 +1,16 @@
+> +#include <stdio.h>
+> +#include <stdlib.h>
+> +#include <unistd.h>
+> +#include <sys/types.h>
+> +#include <string.h>
+> +#include <errno.h>
+> +#include <signal.h>
+> +#include <stdbool.h>
+> +#include <sys/wait.h>
+> +#include <keyutils.h>
+> +#include <selinux/selinux.h>
+> +#include <selinux/context.h>
+> +
+> +/* This is used as the payload for each add_key() */
+> +static const char payload[] =
+> +	" -----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDN4FHsPjlJf03r9KfNt1Ma9/D6\nQDEiR/cfhZrNUPgHRresult+E4dj52VJSonPFJ6HaLlUi5pZq2t1LqPNrMfFKCNn12m+\nWw4aduBJM7u1RUPSNxrlfDAJZkdtNALOO/ds3U93hZrxOYNetzbnjILDu5JT1nbI\n4aC60SkdlCw1TxmvXwIDAQAB\n-----END PUBLIC KEY-----\n";
+> diff --git a/tests/keys/request_keys.c b/tests/keys/request_keys.c
+> new file mode 100644
+> index 0000000..43b20d9
+> --- /dev/null
+> +++ b/tests/keys/request_keys.c
+> @@ -0,0 +1,138 @@
+> +#include "keys_common.h"
+> +
+> +int main(int argc, char **argv)
+> +{
+> +	int result, nr;
+> +	unsigned int timeout = 5;
+> +	char r_con[512], type[20], desc[30], *context;
+> +	bool verbose = false;
+> +	key_serial_t private, prime, base, compute, test_key;
+> +	struct keyctl_dh_params params;
+> +
+> +	/*
+> +	 * There are two parameters passed:
+> +	 *    1 - The security context for setcon(3)
+> +	 *    2 - Verbose mode
+> +	 */
+> +	if (argv[2] != NULL)
+> +		verbose = true;
+> +
+> +	if (verbose)
+> +		printf("%s process information:\n", argv[0]);
+> +
+> +	/*
+> +	 * Use setcon() as policy will not allow multiple type_transition
+> +	 * statements using the same target with different process types.
+> +	 */
+> +	result = setcon(argv[1]);
+> +	if (result < 0) {
+> +		fprintf(stderr, "setcon() failed to set process context: %s\n",
+> +			argv[1]);
+> +		exit(1);
+> +	}
+> +
+> +	result = getcon(&context);
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain process context\n");
+> +		exit(2);
+> +	}
+> +	if (verbose)
+> +		printf("\tProcess context:\n\t\t%s\n", context);
+> +
+> +	free(context);
+> +
+> +	/*
+> +	 * Join this session to the parent as ./keyring_service executed:
+> +	 *    keyctl(KEYCTL_JOIN_SESSION_KEYRING, "test-session")
+> +	 *
+> +	 * Requires key { link }
+> +	 */
+> +	test_key = keyctl(KEYCTL_SESSION_TO_PARENT);
+> +	if (test_key < 0) {
+> +		fprintf(stderr, "Failed KEYCTL_SESSION_TO_PARENT: %s\n",
+> +			strerror(errno));
+> +		exit(3);
+> +	}
+> +
+> +	/* Requires key { view } */
+> +	result = keyctl(KEYCTL_GET_SECURITY, KEY_SPEC_SESSION_KEYRING,
+> +			r_con, sizeof(r_con));
+> +	if (result < 0) {
+> +		fprintf(stderr, "Failed to obtain parent session context: %s\n",
+> +			strerror(errno));
+> +		exit(4);
+> +	}
+> +	if (verbose)
+> +		printf("\tJoined session to parent. Parent keyring context:\n\t\t%s\n",
+> +		       r_con);
+> +
+> +	/* Requires key { search write }. From kernel 5.3 requires { link } */
+> +	private = request_key("user", "private", NULL,
+> +			      KEY_SPEC_SESSION_KEYRING);
+> +	if (private < 0) {
+> +		fprintf(stderr, "Failed to request 'private' key: %s\n",
+> +			strerror(errno));
+> +		exit(5);
+> +	}
+> +
+> +	prime = request_key("user", "prime", NULL, KEY_SPEC_SESSION_KEYRING);
+> +	if (prime < 0) {
+> +		fprintf(stderr, "Failed to request 'prime' key: %s\n",
+> +			strerror(errno));
+> +		exit(5);
+> +	}
+> +
+> +	base = request_key("user", "base", NULL, KEY_SPEC_SESSION_KEYRING);
+> +	if (base < 0) {
+> +		fprintf(stderr, "Failed to request 'base' key: %s\n",
+> +			strerror(errno));
+> +		exit(5);
+> +	}
+> +	if (verbose) {
+> +		printf("\tRequested 'private' key ID: 0x%x\n", private);
+> +		printf("\tRequested 'prime'   key ID: 0x%x\n", prime);
+> +		printf("\tRequested 'base'    key ID: 0x%x\n", base);
+> +	}
+> +
+> +	/* Requires key { setattr } */
+> +	test_key = keyctl(KEYCTL_SET_TIMEOUT, base, timeout);
+> +	if (test_key < 0) {
+> +		fprintf(stderr, "Failed KEYCTL_SET_TIMEOUT: %s\n",
+> +			strerror(errno));
+> +		exit(6);
+> +	}
+> +	if (verbose) {
+> +		test_key = keyctl(KEYCTL_DESCRIBE, base, r_con, sizeof(r_con));
+> +		if (test_key < 0) {
+> +			fprintf(stderr, "Failed KEYCTL_DESCRIBE: %s\n",
+> +				strerror(errno));
+> +			exit(7);
+> +		}
+> +		result = sscanf(r_con, "%[^;];%d;%d;%x;%s",
+> +				type, &nr, &nr, &nr, desc);
+> +		if (result < 0) {
+> +			fprintf(stderr, "Failed sscanf(): %s\n",
+> +				strerror(errno));
+> +			exit(7);
+> +		}
+> +		printf("\tSet %d second timeout on key Type: '%s' Description: '%s'\n",
+> +		       timeout, type, desc);
+> +	}
+> +
+> +	/* Compute DH key, only obtain the length for test, not the key. */
+> +	params.priv = private;
+> +	params.prime = prime;
+> +	params.base = base;
+> +
+> +	/* Requires key { read write } */
+> +	compute = keyctl(KEYCTL_DH_COMPUTE, &params, NULL, 0, 0);
+> +	if (compute < 0) {
+> +		fprintf(stderr, "Failed KEYCTL_DH_COMPUTE: %s\n",
+> +			strerror(errno));
+> +		exit(8);
+> +	}
+> +	if (verbose)
+> +		printf("\tKEYCTL_DH_COMPUTE key ID size: %d\n", compute);
+> +
+> +	exit(0);
+> +}
+> diff --git a/tests/keys/test b/tests/keys/test
+> new file mode 100755
+> index 0000000..2dafb17
+> --- /dev/null
+> +++ b/tests/keys/test
+> @@ -0,0 +1,109 @@
+> +#!/usr/bin/perl
+> +use Test::More;
+> +
+> +BEGIN {
+> +    $basedir = $0;
+> +    $basedir =~ s|(.*)/[^/]*|$1|;
+> +
+> +    $test_count = 17;
+> +
+> +    # allow info to be shown during tests
+> +    $v = $ARGV[0];
+> +    if ($v) {
+> +        if ( $v ne "-v" ) {
+> +            plan skip_all => "Invalid option (use -v)";
+> +        }
+> +    }
+> +    else {
+> +        $v = " ";
+> +    }
+> +
+> +    # From kernel 5.3 request_key() requires { link } not { search } perm
+> +    $kvercur = `uname -r`;
+> +    chomp($kvercur);
+> +    $kverminstream = "5.3";
+> +    $test_link_53  = 0;
+> +
+> +    $result = `$basedir/../kvercmp $kvercur $kverminstream`;
+> +    if ( $result > 0 ) {
+> +        $test_link_53 = 1;
+> +    }
+> +
+> +    plan tests => $test_count;
+> +}
+> +
+> +print "Test key class permissions\n";
+> +$result = system "runcon -t test_key_t $basedir/keyctl $v";
+> +ok( $result eq 0 );
+> +
+> +$result = system "runcon -t test_no_setkeycreate_t $basedir/keyctl $v 2>&1";
+> +ok( $result >> 8 eq 3 );
+> +
+> +$result = system "runcon -t test_key_no_create_t $basedir/keyctl $v 2>&1";
+> +ok( $result >> 8 eq 3 );
+> +
+> +$result = system "runcon -t test_key_no_write_t $basedir/keyctl $v 2>&1";
+> +ok( $result >> 8 eq 5 );
+> +
+> +$result = system "runcon -t test_key_no_search_t $basedir/keyctl $v 2>&1";
+> +ok( $result >> 8 eq 6 );
+> +
+> +$result = system "runcon -t test_key_no_view_t $basedir/keyctl $v 2>&1";
+> +ok( $result >> 8 eq 8 );
+> +
+> +$result = system "runcon -t test_key_no_read_t $basedir/keyctl $v 2>&1";
+> +ok( $result >> 8 eq 9 );
+> +
+> +$result = system "runcon -t test_key_no_link_t $basedir/keyctl $v 2>&1";
+> +if ($test_link_53) {
+> +    ok( $result >> 8 eq 6 );
+> +}
+> +else {
+> +    ok( $result >> 8 eq 10 );
+> +}
+> +
+> +$result = system "runcon -t test_key_no_setattr_t $basedir/keyctl $v 2>&1";
+> +ok( $result >> 8 eq 11 );
+> +
+> +print "Change keyring context\n";
+> +$result = system
+> +"runcon -t test_key_t $basedir/keyctl_relabel $v system_u:system_r:test_newcon_key_t:s0";
+> +ok( $result eq 0 );
+> +
+> +print "Test permission checks between a keyring created by another process\n";
+> +$result = system(
+> +"runcon -t test_keyring_service_t $basedir/keyring_service $v test_request_keys_t $basedir/request_keys 2>&1"
+> +);
+> +ok( $result eq 0 );
+> +
+> +$result = system(
+> +"runcon -t test_keyring_service_t $basedir/keyring_service $v test_request_keys_no_link_t $basedir/request_keys 2>&1"
+> +);
+> +ok( $result >> 8 eq 3 );
+> +
+> +$result = system(
+> +"runcon -t test_keyring_service_t $basedir/keyring_service $v test_request_keys_no_write_t $basedir/request_keys 2>&1"
+> +);
+> +ok( $result >> 8 eq 5 );
+> +
+> +$result = system(
+> +"runcon -t test_keyring_service_t $basedir/keyring_service $v test_request_keys_no_view_t $basedir/request_keys 2>&1"
+> +);
+> +ok( $result >> 8 eq 4 );
+> +
+> +$result = system(
+> +"runcon -t test_keyring_service_t $basedir/keyring_service $v test_request_keys_no_search_t $basedir/request_keys 2>&1"
+> +);
+> +ok( $result >> 8 eq 5 );
+> +
+> +$result = system(
+> +"runcon -t test_keyring_service_t $basedir/keyring_service $v test_request_keys_no_setattr_t $basedir/request_keys 2>&1"
+> +);
+> +ok( $result >> 8 eq 6 );
+> +
+> +$result = system(
+> +"runcon -t test_keyring_service_t $basedir/keyring_service $v test_request_keys_no_read_t $basedir/request_keys 2>&1"
+> +);
+> +ok( $result >> 8 eq 8 );
+> +
+> +exit;
+> 
+
