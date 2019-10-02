@@ -7,66 +7,62 @@ X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D521C10F14
-	for <selinux@archiver.kernel.org>; Wed,  2 Oct 2019 20:08:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24170C10F14
+	for <selinux@archiver.kernel.org>; Wed,  2 Oct 2019 23:15:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1173520673
-	for <selinux@archiver.kernel.org>; Wed,  2 Oct 2019 20:08:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E9CD521A4C
+	for <selinux@archiver.kernel.org>; Wed,  2 Oct 2019 23:15:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ColS0Ai6"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SUO2Gr/P"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726376AbfJBUIt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 2 Oct 2019 16:08:49 -0400
-Received: from mail-ot1-f49.google.com ([209.85.210.49]:38847 "EHLO
-        mail-ot1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726069AbfJBUIt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 2 Oct 2019 16:08:49 -0400
-Received: by mail-ot1-f49.google.com with SMTP id e11so301810otl.5
-        for <selinux@vger.kernel.org>; Wed, 02 Oct 2019 13:08:48 -0700 (PDT)
+        id S1727473AbfJBXP1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 2 Oct 2019 19:15:27 -0400
+Received: from mail-ot1-f51.google.com ([209.85.210.51]:43516 "EHLO
+        mail-ot1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727460AbfJBXP1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 2 Oct 2019 19:15:27 -0400
+Received: by mail-ot1-f51.google.com with SMTP id o44so661652ota.10
+        for <selinux@vger.kernel.org>; Wed, 02 Oct 2019 16:15:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:references:from:message-id:date:user-agent:mime-version
-         :in-reply-to:content-language:content-transfer-encoding;
-        bh=Mr3B/DhRcstKqug5MUWD/B0NUXceCQUfNeXL+JFTgGc=;
-        b=ColS0Ai6uPlYqrle3BUF9ukErKoIX6JKI/PA0u+AM86q/oLrC8BVTfjwV1rfBvwm4W
-         xque4yi7npIIJn/LCDo6iewFW9ZQ5dLp2Kb1PxglqU0/Foi0qBsvgTw9Vwb68y9Y85OH
-         BP/2iwwFgp9ud63y6OcOEkPe9I4/6ITRGGaH3gq+rar0AJBRhyap5VgDGivr/CQKY2wQ
-         y2MQLSqm54xh2Ufa5KRmiJ3QDw1Frp8bGdXutNf/DVsQ063kN/ZmVHenqcfebAwLTteS
-         RoQmpOqeA7gffybpjRsdWXxqYIJh4aGpQDnR8zrIdSa3fPfudM9MUzIuEcOnQT8/ZnT1
-         sa2Q==
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=yLuAYiPLaGvuI80WrsCj0bh+sM3bMKYcvLtE/uMgMt4=;
+        b=SUO2Gr/PESt4fr+Egny42IQtX4WDX0XLlicntcV2jgTVvLV3En/AvGflV7u22/7y5w
+         7iXn0UAPJedmBu199KSeZJiji2ZU06HIinFDG5oQ/QPnYKDuTksvyoiwLfyyAmp0554i
+         Cmov/M3r5JPwjDUMgmDta9TjyRKDz2aYWS4cpcu8tpxPU5KnFLJywPNBehAlrXU72mH7
+         0qSgFoQSZydVt7TMUNLR3IHffBHZmsqix0hKND4pQhBwrVohIA1pOKFV/D40pOkc64bB
+         Pil/QjfnPkcjHvJi8FsRP7kE7qxVtHt/RqMvhfetA5C5fFQJ4z9IBY6ZmlQdvb93tD+Z
+         6WJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=Mr3B/DhRcstKqug5MUWD/B0NUXceCQUfNeXL+JFTgGc=;
-        b=Yol0bGihbYfJ8Xa3z3uqY90Mz+StX4Ii/g+F9Wq8Js/yp0ynBTEq2VOJehpWdU3wqS
-         TSurfRH4D9ywAEV5ikpAkS3Br8x0xOxJMITeUNyf0uilhrYMQr7KbknpqFjbWIWqE6go
-         4sY/v1sQfugBeRpb+98Bwqy4WyOC7Y+vbCWVpomkHkjpvgVYmstVXkrT6ukWN3+KIZKj
-         HAlyT61tc/F14RqGICVfm01sqJz6xpXgPVJXLdSqJaVEkHOSDJqvoHw4PtCj6nh1zK8B
-         +xAzt3uZyJwPzELUixmah4GlMFZArWX/HkXfm2OcpxcYK9avCcXpS2rGqyM+1aIjM0eK
-         wALw==
-X-Gm-Message-State: APjAAAXyBj+1Kkvn1vVYZtABJs9sL7KN73uS+cujwz3cvE3WM3MW3uod
-        zi8KGfJHoY8Jzc8O5wr9+wtwV/Qs
-X-Google-Smtp-Source: APXvYqyrCysLD0OikxSDBxK0rYLPGyvzmCoXh/SJkP+QKIIR9YFXO25W92V8UJY3OkezxGWsJTVPmQ==
-X-Received: by 2002:a9d:404:: with SMTP id 4mr4181140otc.204.1570046928091;
-        Wed, 02 Oct 2019 13:08:48 -0700 (PDT)
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=yLuAYiPLaGvuI80WrsCj0bh+sM3bMKYcvLtE/uMgMt4=;
+        b=iYshhlyurM9K81hrenWxwx8Li91xqAEInJDL9abgxcVT9YFG+zpftqqATMZAEwb2me
+         0PQK0rem/Rh8QkxMpHZ4uiPOA9DUN4ogeU3FYZoTyVkaAKDM6TJKfnzRVjsHmsJJ69/n
+         In0nv5VLocfVzLtGSPe+kmZXlimtgXdEnqoXu+m8KOvbhP61OQ+1lCo7BFMuifgLxVmT
+         rBP3RpGTvlhQLDylzM3reZ58gbcURbS0rHcLlC6gj3z75BcdiN16RH+Ph/lblow3T+Zv
+         HPmJpitP4XY2d/jBnv8sPRXSQAJqmwGZR2pGD+KSj1M2IFpToi6izguAdJITxK2hTgDC
+         quOw==
+X-Gm-Message-State: APjAAAWBWlwYHZe31eonJ0EeCpaNRfw32PJheHzAhm7XXiQeVVvFy50N
+        EdttA/27RAE/m9sPqgbZ5zjcjmG2
+X-Google-Smtp-Source: APXvYqzU8f8k/PaF4tszO9ow8xWnwr8VsJpnvzT9G7JlaWcbpvXx8w1Up9aM0fuU2Z49tfUJfFdb/g==
+X-Received: by 2002:a9d:61d0:: with SMTP id h16mr4263677otk.84.1570058125598;
+        Wed, 02 Oct 2019 16:15:25 -0700 (PDT)
 Received: from ian.penurio.us ([2605:6000:8c82:1efa:222:4dff:fe4f:c7ed])
-        by smtp.gmail.com with ESMTPSA id 21sm133655oin.26.2019.10.02.13.08.47
+        by smtp.gmail.com with ESMTPSA id y137sm297119oie.53.2019.10.02.16.15.24
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 02 Oct 2019 13:08:47 -0700 (PDT)
-Subject: Re: execve silently blocked
+        Wed, 02 Oct 2019 16:15:25 -0700 (PDT)
 To:     selinux@vger.kernel.org
-References: <43c6d9cc-bf9f-b729-2a0c-54a73fa79fdc@gmail.com>
- <20191002194100.GB1167620@brutus.lan>
 From:   Ian Pilcher <arequipeno@gmail.com>
-Message-ID: <9f7730fd-fd01-3a56-aebb-ddea8cf6df19@gmail.com>
-Date:   Wed, 2 Oct 2019 15:08:46 -0500
+Subject: Failed to resolve typeattributeset statement
+Message-ID: <7fb2cb6d-69c2-1471-bb9c-0abc52130e17@gmail.com>
+Date:   Wed, 2 Oct 2019 18:15:24 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.0
 MIME-Version: 1.0
-In-Reply-To: <20191002194100.GB1167620@brutus.lan>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -75,27 +71,38 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/2/19 2:41 PM, Dominick Grift wrote:
-> Are you also looking for "selinux_err" records?
+I've run into another issue while developing a policy for my service.
+It needs to run systemctl (via sudo), and I hit this denial:
 
-Nope, because I had never heard of them before.  :-)
+type=AVC msg=audit(1570051321.409:1773): avc:  denied  { getattr } for 
+pid=3682 comm="sudo" path="/usr/bin/systemctl" dev="dm-0" ino=12586503 
+scontext=system_u:system_r:denatc_sudo_t:s0 
+tcontext=system_u:object_r:systemd_systemctl_exec_t:s0 tclass=file 
+permissive=0
 
-That found the error:
+I would have expected this to be simple.  Add the following to my
+policy:
 
-   type=SELINUX_ERR msg=audit(1570044939.773:845):
-   op=security_compute_sid
-   invalid_context=system_u:system_r:denatc_sudo_t:s0
-   scontext=system_u:system_r:denatc_t:s0
-   tcontext=system_u:object_r:sudo_exec_t:s0 tclass=process
+require {
+	type systemctl_exec_t;
+}
 
-It seems that I was missing a role-type statement:
+allow denatc_sudo_t systemctl_exec_t:file { getattr };
 
-   role system_r types denatc_sudo_t;
+I am able to build a policy module (.pp file), but I am unable to load
+it:
 
-Adding that gets me back to more conventional denials, which I know how
-to deal with.
+Failed to resolve typeattributeset statement at 
+/etc/selinux/targeted/tmp/modules/400/denatc/cil:16
+semodule:  Failed!
 
-Thanks!
+After figuring out how to generate the .cil file, I've determined that
+line 16 is:
+
+(typeattributeset cil_gen_require systemctl_exec_t)
+
+This is obviously a showstopper, and Google isn't finding anything
+useful.
 
 -- 
 ========================================================================
