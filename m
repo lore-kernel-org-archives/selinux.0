@@ -1,689 +1,121 @@
-Return-Path: <SRS0=D0fO=X7=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=LR26=YA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+X-Spam-Status: No, score=-5.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1A8DC4360C
-	for <selinux@archiver.kernel.org>; Sun,  6 Oct 2019 08:51:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E53EECE58C
+	for <selinux@archiver.kernel.org>; Mon,  7 Oct 2019 13:20:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2861721479
-	for <selinux@archiver.kernel.org>; Sun,  6 Oct 2019 08:51:33 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="pQghKCaL"
+	by mail.kernel.org (Postfix) with ESMTP id 0A8042084D
+	for <selinux@archiver.kernel.org>; Mon,  7 Oct 2019 13:20:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726224AbfJFIvc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 6 Oct 2019 04:51:32 -0400
-Received: from mailomta10-sa.btinternet.com ([213.120.69.16]:55693 "EHLO
-        sa-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726210AbfJFIvc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 6 Oct 2019 04:51:32 -0400
-Received: from sa-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.38.5])
-          by sa-prd-fep-048.btinternet.com with ESMTP
-          id <20191006085125.ZKCQ8264.sa-prd-fep-048.btinternet.com@sa-prd-rgout-002.btmx-prd.synchronoss.net>;
-          Sun, 6 Oct 2019 09:51:25 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1570351885; 
-        bh=haUgsdiQMlWdDYx4H7Sxo0/BiIqBIW+mxuzOw7jCW9M=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=pQghKCaL+C4AMA79LiA7yYuTBluk3D4D7aV9eFBUyeo9yye/vLvpSnBJ+/6sVV7hRx85NEx2Ep5XfFteT4aX10aTqKKAWos5buVM2zTftwHH0wBuVL0s+t+FBx+yRzIbYB7FVqgTCrUpI4pCwHfORW22nIMk/nKb99XX9R8Xjp0avw8DvSp9PgWQiz9CRut6EqWrhwkEAeFWmLpbhAQfPMpYZIRJ4ZkPpbm5mydNIAbyE/8aBm8gR7z8cBB+1p0No5GNeUp9qJ8KvyxCGDEwWeL/lg+WZPeNcVImUTzR5Aw4cv+w4WrbgizhQvs03iAGSNUDc/LTkdk9ZgR0HJLxaQ==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [86.134.6.191]
-X-OWM-Source-IP: 86.134.6.191 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrheehgddutdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpghhithhhuhgsrdgtohhmnecukfhppeekiedrudefgedriedrudeludenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudefgedriedrudeluddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (86.134.6.191) by sa-prd-rgout-002.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
-        id 5D9605B50078F37F; Sun, 6 Oct 2019 09:51:25 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
+        id S1727742AbfJGNUX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Oct 2019 09:20:23 -0400
+Received: from vmicros1.altlinux.org ([194.107.17.57]:33236 "EHLO
+        vmicros1.altlinux.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727324AbfJGNUX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Oct 2019 09:20:23 -0400
+Received: from imap.altlinux.org (imap.altlinux.org [194.107.17.38])
+        by vmicros1.altlinux.org (Postfix) with ESMTP id 8BF0D72CC6C;
+        Mon,  7 Oct 2019 16:20:20 +0300 (MSK)
+Received: by imap.altlinux.org (Postfix, from userid 705)
+        id 7F24E4A4AE9; Mon,  7 Oct 2019 16:20:20 +0300 (MSK)
+Date:   Mon, 7 Oct 2019 16:20:20 +0300
+From:   Michael Shigorin <mike@altlinux.org>
 To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com,
-        Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH] selinux-testsuite: Update binder for kernel 5.4 support
-Date:   Sun,  6 Oct 2019 09:51:21 +0100
-Message-Id: <20191006085121.13556-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.21.0
+Cc:     Daniel J Walsh <dwalsh@redhat.com>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: [PATCH] non-gcc-specific exception.sh
+Message-ID: <20191007132020.GG4928@imap.altlinux.org>
 MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="VrqPEDrXMn8OVzN4"
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Kernel 5.4 commit ca2864c6e8965c37df97f11e6f99e83e09806b1c ("binder: Add
-default binder devices through binderfs when configured"), changed the way
-the binder device is initialised and no longer automatically generates
-/dev/binder when CONFIG_ANDROID_BINDERFS=y.
 
-These changes implement the following:
-Kernel < 5.0 - use /dev/binder that is set by:
-    CONFIG_ANDROID_BINDER_DEVICES="binder"
-Kernel >= 5.0 - use /dev/binder-test that will be generated by the test
-using binderfs services.
+--VrqPEDrXMn8OVzN4
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-As the BPF tests also test binder actions, the initialisation and clean-up
-operations have been moved to shell scripts to allow them to be shared.
-The check_binder and check_binderfs code also share the same exit codes.
+	Hello,
+please find attached the patch to (hopefully) improve
+self-surgery script that uses gcc-specific -aux-info now.
+Should help clang, icc and the like (in my case there's
+no proper gcc port for the target platform just yet).
 
-Reported-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
-Fixes: https://github.com/SELinuxProject/selinux-testsuite/issues/69
-
- tests/binder/binder_common.h   |   9 ++
- tests/binder/check_binder.c    |  19 +---
- tests/binder/check_binderfs.c  |  56 ++++++++--
- tests/binder/cleanup_binder.sh |   4 +
- tests/binder/init_binder.sh    |  28 +++++
- tests/binder/test              | 188 +++++++--------------------------
- tests/bpf/test                 |  43 ++++++--
- 7 files changed, 167 insertions(+), 180 deletions(-)
- create mode 100755 tests/binder/cleanup_binder.sh
- create mode 100755 tests/binder/init_binder.sh
-
-diff --git a/tests/binder/binder_common.h b/tests/binder/binder_common.h
-index 30edc75..1a04f9f 100644
---- a/tests/binder/binder_common.h
-+++ b/tests/binder/binder_common.h
-@@ -25,6 +25,15 @@
- #define BINDERFS_CONTROL "/dev/binderfs/binder-control"
- #define BINDER_MMAP_SIZE 1024
- 
-+/* Return codes for check_binder and check_binderfs */
-+enum {
-+	NO_BINDER_SUPPORT,
-+	BASE_BINDER_SUPPORT,
-+	BINDERFS_SUPPORT,
-+	BINDER_VER_ERROR,
-+	BINDER_ERROR = -1
-+};
-+
- #define TEST_SERVICE_MANAGER_HANDLE 0
- /* These are the Binder txn->code values used by the Service Provider, Client
-  * and Manager to request/retrieve a binder handle or file descriptor.
-diff --git a/tests/binder/check_binder.c b/tests/binder/check_binder.c
-index 2fc8d77..119b2b2 100644
---- a/tests/binder/check_binder.c
-+++ b/tests/binder/check_binder.c
-@@ -12,8 +12,6 @@ static void usage(char *progname)
- int main(int argc, char **argv)
- {
- 	int opt, result, fd;
--	void *mapped;
--	size_t mapsize = BINDER_MMAP_SIZE;
- 	struct binder_version vers;
- 
- 	while ((opt = getopt(argc, argv, "v")) != -1) {
-@@ -30,22 +28,14 @@ int main(int argc, char **argv)
- 	if (fd < 0) {
- 		fprintf(stderr, "Cannot open: %s error: %s\n",
- 			BINDER_DEV, strerror(errno));
--		result = 1;
--		return result;
--	}
--
--	/* Need this or 'no VMA error' from kernel */
--	mapped = mmap(NULL, mapsize, PROT_READ, MAP_PRIVATE, fd, 0);
--	if (mapped == MAP_FAILED) {
--		fprintf(stderr, "mmap error: %s\n", strerror(errno));
--		close(fd);
--		exit(-1);
-+		return NO_BINDER_SUPPORT;
- 	}
- 
- 	result = ioctl(fd, BINDER_VERSION, &vers);
- 	if (result < 0) {
- 		fprintf(stderr, "ioctl BINDER_VERSION: %s\n",
- 			strerror(errno));
-+		result = BINDER_ERROR;
- 		goto brexit;
- 	}
- 
-@@ -54,15 +44,16 @@ int main(int argc, char **argv)
- 			"Binder kernel version: %d differs from user space version: %d\n",
- 			vers.protocol_version,
- 			BINDER_CURRENT_PROTOCOL_VERSION);
--		result = 2;
-+		result = BINDER_VER_ERROR;
- 		goto brexit;
- 	}
- 
- 	if (verbose)
- 		printf("Binder kernel version: %d\n", vers.protocol_version);
- 
-+	result = BASE_BINDER_SUPPORT;
-+
- brexit:
--	munmap(mapped, mapsize);
- 	close(fd);
- 
- 	return result;
-diff --git a/tests/binder/check_binderfs.c b/tests/binder/check_binderfs.c
-index b016755..c0d8ea4 100644
---- a/tests/binder/check_binderfs.c
-+++ b/tests/binder/check_binderfs.c
-@@ -5,14 +5,16 @@ static void usage(char *progname)
- 	fprintf(stderr,
- 		"usage:  %s [-v]\n"
- 		"Where:\n\t"
--		"-v Print new device information.\n", progname);
-+		"-v Print status information.\n", progname);
- 	exit(-1);
- }
- 
- int main(int argc, char *argv[])
- {
--	int opt, fd, result;
-+	int opt, control_fd, dev_fd, result;
- 	size_t len;
-+	char dev_str[128];
-+	struct binder_version vers;
- 	struct binderfs_device device = { 0 };
- 
- 	while ((opt = getopt(argc, argv, "v")) != -1) {
-@@ -28,18 +30,18 @@ int main(int argc, char *argv[])
- 	len = strlen(BINDERFS_NAME);
- 	memcpy(device.name, BINDERFS_NAME, len);
- 
--	fd = open(BINDERFS_CONTROL, O_RDONLY | O_CLOEXEC);
--	if (fd < 0) {
-+	control_fd = open(BINDERFS_CONTROL, O_RDONLY | O_CLOEXEC);
-+	if (control_fd < 0) {
- 		fprintf(stderr, "Failed to open binder-control device: %s\n",
- 			strerror(errno));
--		return 1;
-+		return NO_BINDER_SUPPORT;
- 	}
- 
--	result = ioctl(fd, BINDER_CTL_ADD, &device);
-+	result = ioctl(control_fd, BINDER_CTL_ADD, &device);
- 	if (result < 0) {
- 		fprintf(stderr, "Failed to allocate new binder device: %s\n",
- 			strerror(errno));
--		result = 2;
-+		result = BINDER_ERROR;
- 		goto brexit;
- 	}
- 
-@@ -47,7 +49,45 @@ int main(int argc, char *argv[])
- 		printf("Allocated new binder device: major %d minor %d"
- 		       " with name \"%s\"\n", device.major, device.minor,
- 		       device.name);
-+
-+	result = sprintf(dev_str, "%s/%s", BINDERFS_DEV, BINDERFS_NAME);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to obtain Binder dev name\n");
-+		result = BINDER_ERROR;
-+		goto brexit;
-+	}
-+
-+	dev_fd = open(dev_str, O_RDWR | O_CLOEXEC);
-+	if (dev_fd < 0) {
-+		fprintf(stderr, "Cannot open: %s error: %s\n", dev_str,
-+			strerror(errno));
-+		result = BINDER_ERROR;
-+		goto brexit;
-+	}
-+
-+	result = ioctl(dev_fd, BINDER_VERSION, &vers);
-+	if (result < 0) {
-+		fprintf(stderr, "ioctl BINDER_VERSION: %s\n",
-+			strerror(errno));
-+		result = BINDER_ERROR;
-+		goto brexit;
-+	}
-+	close(dev_fd);
-+
-+	if (vers.protocol_version != BINDER_CURRENT_PROTOCOL_VERSION) {
-+		fprintf(stderr,
-+			"Binder kernel version: %d differs from user space version: %d\n",
-+			vers.protocol_version,
-+			BINDER_CURRENT_PROTOCOL_VERSION);
-+		result = BINDER_VER_ERROR;
-+		goto brexit;
-+	}
-+	if (verbose)
-+		printf("Binder kernel version: %d\n", vers.protocol_version);
-+
-+	result = BINDERFS_SUPPORT;
-+
- brexit:
--	close(fd);
-+	close(control_fd);
- 	return result;
- }
-diff --git a/tests/binder/cleanup_binder.sh b/tests/binder/cleanup_binder.sh
-new file mode 100755
-index 0000000..6b9e868
---- /dev/null
-+++ b/tests/binder/cleanup_binder.sh
-@@ -0,0 +1,4 @@
-+#!/bin/sh
-+
-+umount binder 2>/dev/null
-+rmdir /dev/binderfs 2>/dev/null
-diff --git a/tests/binder/init_binder.sh b/tests/binder/init_binder.sh
-new file mode 100755
-index 0000000..ba1077c
---- /dev/null
-+++ b/tests/binder/init_binder.sh
-@@ -0,0 +1,28 @@
-+#!/bin/sh
-+
-+binder_dir=$(dirname $0)
-+kvercmp=$binder_dir/../kvercmp
-+
-+# If < 5.0 then /dev/binder is automatically assigned by binder driver.
-+if [ "$($kvercmp $(uname -r) 5.0)" -lt 0 ]; then # BASE_BINDER_SUPPORT
-+	if [ "$1" = '-v' ]; then
-+		echo "Using: /dev/binder"
-+	fi
-+	$binder_dir/check_binder $1 2>/dev/null
-+	exit $?
-+fi
-+
-+# As from 5.0 to use binderfs, /dev/binderfs has to be created etc.
-+mkdir /dev/binderfs 2>/dev/null
-+mount -t binder binder /dev/binderfs -o context=system_u:object_r:device_t:s0 2>/dev/null
-+$binder_dir/check_binderfs $1 2>/dev/null
-+rc=$?
-+if [ $rc -ne 2 ]; then # BINDERFS_SUPPORT
-+	umount binder 2>/dev/null
-+	rmdir /dev/binderfs 2>/dev/null
-+	exit $rc
-+elif [ "$1" = '-v' ]; then
-+	echo "Using: /dev/binder-test"
-+fi
-+
-+exit $rc
-diff --git a/tests/binder/test b/tests/binder/test
-index f194050..18a4e58 100755
---- a/tests/binder/test
-+++ b/tests/binder/test
-@@ -6,7 +6,6 @@ BEGIN {
-     $basedir =~ s|(.*)/[^/]*|$1|;
- 
-     $test_count      = 0;
--    $test_binderfs   = 0;
-     $test_binder_ctx = 0;
- 
-     # Allow binder info to be shown.
-@@ -21,59 +20,39 @@ BEGIN {
-     }
- 
-     # check if binder driver available and kernel/userspace versions.
--    $result = system("$basedir/check_binder $v 2>/dev/null");
-+    $result = system("/bin/sh $basedir/init_binder.sh $v 2>/dev/null");
- 
--    if ( $result >> 8 eq 0 ) {
-+    if ( $result >> 8 eq 0 ) {    # NO_BINDER_SUPPORT
-+        plan skip_all => "Binder not supported by kernel";
-+    }
-+    elsif ( $result >> 8 eq 1 ) {    # BASE_BINDER_SUPPORT
-         $test_count += 7;
-+        $n = " ";                    # Use /dev/binder
-+          # Warn about earlier kernels may require patch (backported to some earlier kernels).
-+        $kvercur = `uname -r`;
-+        chomp($kvercur);
-+        $kverminstream = "4.16";
-+        $result        = `$basedir/../kvercmp $kvercur $kverminstream`;
-+        if ( $result < 0 ) {
-+            print
-+              "This $kvercur kernel may fail some tests, if so may require\n";
-+            print
-+"\"binder: Add thread->process_todo flag\" patch available from:\n";
-+            print "https://lore.kernel.org/patchwork/patch/851324/\n";
-+        }
-     }
--    elsif ( $result >> 8 eq 1 ) {
--        plan skip_all => "Binder not supported by kernel";
-+    elsif ( $result >> 8 eq 2 ) {    # BINDERFS_SUPPORT
-+        $test_binder_ctx = 1;
-+        $test_count += 8;
-+        $n = "-n";                   # Use /dev/binder-test
-     }
--    elsif ( $result >> 8 eq 2 ) {
-+    elsif ( $result >> 8 eq 3 ) {    # BINDER_VER_ERROR
-         plan skip_all => "Binder kernel/userspace versions differ";
-     }
--    else {
-+    else {                           # BINDER_ERROR
-         plan skip_all => "Error checking Binder driver";
-     }
- 
--    # Check if kernel may have "binder: Add thread->process_todo flag" patch.
--    # This has been backported to some earlier kernels.
--    # Patch available from: https://lore.kernel.org/patchwork/patch/851324/
--    $kvercur = `uname -r`;
--    chomp($kvercur);
--    $kverminstream = "4.16";
--    $result        = `$basedir/../kvercmp $kvercur $kverminstream`;
--    if ( $result < 0 ) {
--        print "This $kvercur kernel may fail some tests, if so may require\n";
--        print
--          "\"binder: Add thread->process_todo flag\" patch available from:\n";
--        print "https://lore.kernel.org/patchwork/patch/851324/\n";
--    }
--
--    # Check if kernel supports binderfs and return of security context.
--    $kverminstream = "5.0";
--    $result        = `$basedir/../kvercmp $kvercur $kverminstream`;
--
--    if ( $result > 0 ) {
--        $test_binder_ctx = 1;
--        $test_count += 1;
--        system("mkdir /dev/binderfs 2>/dev/null");
--        system(
--"mount -t binder binder /dev/binderfs -o context=system_u:object_r:device_t:s0 2>/dev/null"
--        );
--        $result = system("$basedir/check_binderfs $v 2>/dev/null");
--        if ( $result == 0 ) {
--            $test_binderfs = 1;
--            $test_count += 8;
--        }
--        elsif ( $result >> 8 eq 1 or $result >> 8 eq 2 ) {
--            print
--"Error BINDERFS: May require kernel \"CONFIG_ANDROID_BINDERFS=y\" or test rebuild.\n";
--            system("umount binder 2>/dev/null");
--            system("rmdir /dev/binderfs 2>/dev/null");
--        }
--    }
--
-     plan tests => $test_count;
- }
- 
-@@ -102,35 +81,35 @@ sub service_end {
-     system("rm -f $basedir/$flag");
- }
- 
--$sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$v" );
-+$sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$n $v" );
- $sp_pid =
--  service_start( "service_provider", "-t test_binder_provider_t", "$v" );
-+  service_start( "service_provider", "-t test_binder_provider_t", "$n $v" );
- 
- # 1 Verify that authorized client and service provider can communicate with the binder service manager.
--$result = system "runcon -t test_binder_client_t $basedir/client $v -c -r 3";
-+$result = system "runcon -t test_binder_client_t $basedir/client $n $v -c -r 3";
- ok( $result eq 0 );
- 
- # 2 Verify that client cannot call manager (no call perm).
- $result =
-   system
--  "runcon -t test_binder_client_no_call_mgr_t $basedir/client $v -r 1 2>&1";
-+  "runcon -t test_binder_client_no_call_mgr_t $basedir/client $n $v -r 1 2>&1";
- ok( $result >> 8 eq 125 );
- 
- # 3 Verify that client cannot call service provider (no call perm).
- $result =
-   system
--  "runcon -t test_binder_client_no_call_sp_t $basedir/client $v -r 2 2>&1";
-+  "runcon -t test_binder_client_no_call_sp_t $basedir/client $n $v -r 2 2>&1";
- ok( $result >> 8 eq 141 );
- 
- # 4 Verify that client cannot communicate with service provider (no impersonate perm).
- $result =
--  system "runcon -t test_binder_client_no_im_t $basedir/client $v -r 2 2>&1";
-+  system "runcon -t test_binder_client_no_im_t $basedir/client $n $v -r 2 2>&1";
- ok( $result >> 8 eq 133 );
- 
- # 5 Verify that client cannot communicate with service provider (no transfer perm).
- $result =
-   system
--  "runcon -t test_binder_client_no_transfer_t $basedir/client $v -r 2 2>&1";
-+  "runcon -t test_binder_client_no_transfer_t $basedir/client $n $v -r 2 2>&1";
- ok( $result >> 8 eq 125 );
- 
- # Kill the service provider & manager before next tests:
-@@ -138,22 +117,23 @@ service_end( "service_provider", $sp_pid );
- service_end( "manager",          $sm_pid );
- 
- # 6 Verify that provider domain cannot become a manager (no set_context_mgr perm).
--$result = system "runcon -t test_binder_provider_t $basedir/manager $v 2>&1";
-+$result = system "runcon -t test_binder_provider_t $basedir/manager $n $v 2>&1";
- ok( $result >> 8 eq 14 );
- 
- # 7 Test that selinux_binder_transfer_file() fails when fd { use } is denied by policy.
- #   Note that this test requires the Reference Policy boolean "allow_domain_fd_use" set to FALSE.
- #   (setsebool allow_domain_fd_use=0)
- # 7a Start Manager
--$sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$v" );
-+$sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$n $v" );
- 
- # 7b Start Service Provider
--$sp_pid =
--  service_start( "service_provider", "-t test_binder_provider_no_fd_t", "$v" );
-+$sp_pid = service_start( "service_provider", "-t test_binder_provider_no_fd_t",
-+    "$n $v" );
- 
- # 7c Verify that authorized client can communicate with the service provider, however the sp's binder fd passed
- #    to the client will not be valid for service provider domain and binder will return BR_FAILED_REPLY.
--$result = system "runcon -t test_binder_client_t $basedir/client $v -r2 2>&1";
-+$result =
-+  system "runcon -t test_binder_client_t $basedir/client $n $v -r2 2>&1";
- ok( $result >> 8 eq 141 );
- 
- # Kill the service provider & manager
-@@ -163,102 +143,17 @@ service_end( "manager",          $sm_pid );
- if ($test_binder_ctx) {
-     #### Binder return security context test ######################
-     #
--    $sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$v" );
-+    $sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$n $v" );
-     $sp_pid = service_start(
-         "service_provider",
-         "-t test_binder_provider_t",
--        "$v -e unconfined_u:unconfined_r:test_binder_client_t:s0-s0:c0.c1023"
-+        "$n $v -e unconfined_u:unconfined_r:test_binder_client_t:s0-s0:c0.c1023"
-     );
- 
- # 8 Verify that authorized client and service provider can communicate with the binder service manager.
- #   Also check that the service provider can receive the Clients security context.
-     $result =
--      system "runcon -t test_binder_client_t $basedir/client $v -c -r 3";
--    ok( $result eq 0 );
--
--    # Kill the service provider & manager.
--    service_end( "service_provider", $sp_pid );
--    service_end( "manager",          $sm_pid );
--}
--
--if ($test_binderfs) {
--    #### Linux 5.0+ Test binder 'Dynamically Allocated Binder Devices'.
--    $sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$v -n" );
--    $sp_pid =
--      service_start( "service_provider", "-t test_binder_provider_t", "$v -n" );
--
--# 9 Verify that authorized client and service provider can communicate with the binder service manager.
--    $result =
--      system "runcon -t test_binder_client_t $basedir/client $v -n -c -r 3";
--    ok( $result eq 0 );
--
--    # 10 Verify that client cannot call manager (no call perm).
--    $result =
--      system
--"runcon -t test_binder_client_no_call_mgr_t $basedir/client $v -n -r 1 2>&1";
--    ok( $result >> 8 eq 125 );
--
--    # 11 Verify that client cannot call service provider (no call perm).
--    $result =
--      system
--"runcon -t test_binder_client_no_call_sp_t $basedir/client $v -n -r 2 2>&1";
--    ok( $result >> 8 eq 141 );
--
--# 12 Verify that client cannot communicate with service provider (no impersonate perm).
--    $result =
--      system
--      "runcon -t test_binder_client_no_im_t $basedir/client $v -n -r 2 2>&1";
--    ok( $result >> 8 eq 133 );
--
--# 13 Verify that client cannot communicate with service provider (no transfer perm).
--    $result =
--      system
--"runcon -t test_binder_client_no_transfer_t $basedir/client $v -n -r 2 2>&1";
--    ok( $result >> 8 eq 125 );
--
--    # Kill the service provider & manager before next tests:
--    service_end( "service_provider", $sp_pid );
--    service_end( "manager",          $sm_pid );
--
--# 14 Verify that provider domain cannot become a manager (no set_context_mgr perm).
--    $result =
--      system "runcon -t test_binder_provider_t $basedir/manager $v -n 2>&1";
--    ok( $result >> 8 eq 14 );
--
--# 15 Test that selinux_binder_transfer_file() fails when fd { use } is denied by policy.
--#    Note that this test requires the Reference Policy boolean "allow_domain_fd_use" set to FALSE.
--#    (setsebool allow_domain_fd_use=0)
--# 15a Start Manager
--    $sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$v -n" );
--
--    # 15b Start Service Provider
--    $sp_pid =
--      service_start( "service_provider", "-t test_binder_provider_no_fd_t",
--        "$v -n" );
--
--# 15c Verify that authorized client can communicate with the service provider, however the sp's binder fd passed
--#    to the client will not be valid for service provider domain and binder will return BR_FAILED_REPLY.
--    $result =
--      system "runcon -t test_binder_client_t $basedir/client $v -n -r2 2>&1";
--    ok( $result >> 8 eq 141 );
--
--    # Kill the service provider & manager
--    service_end( "service_provider", $sp_pid );
--    service_end( "manager",          $sm_pid );
--
--    #### Binder return security context test #########################
--    #
--    $sm_pid = service_start( "manager", "-t test_binder_mgr_t", "$v -n" );
--    $sp_pid = service_start(
--        "service_provider",
--        "-t test_binder_provider_t",
--        "$v -n -e unconfined_u:unconfined_r:test_binder_client_t:s0-s0:c0.c1023"
--    );
--
--# 16 Verify that authorized client and service provider can communicate with the binder service manager.
--#    Also check that the service provider can receive the Clients security context.
--    $result =
--      system "runcon -t test_binder_client_t $basedir/client $v -n -c -r 3";
-+      system "runcon -t test_binder_client_t $basedir/client $n $v -c -r 3";
-     ok( $result eq 0 );
- 
-     # Kill the service provider & manager.
-@@ -266,8 +161,7 @@ if ($test_binderfs) {
-     service_end( "manager",          $sm_pid );
- 
-     # Cleanup binderfs stuff.
--    system("umount binder 2>/dev/null");
--    system("rmdir /dev/binderfs 2>/dev/null");
-+    system("/bin/sh $basedir/cleanup_binder.sh $v 2>/dev/null");
- }
- 
- exit;
-diff --git a/tests/bpf/test b/tests/bpf/test
-index 4c768be..6ab7686 100755
---- a/tests/bpf/test
-+++ b/tests/bpf/test
-@@ -4,8 +4,8 @@ use Test::More;
- BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
--    $fdr_basedir    = "$basedir/../fdreceive/";
--    $binder_basedir = "$basedir/../binder/";
-+    $fdr_basedir    = "$basedir/../fdreceive";
-+    $binder_basedir = "$basedir/../binder";
- 
-     $test_bpf_count       = 7;
-     $test_fdreceive_count = 4;
-@@ -25,10 +25,28 @@ BEGIN {
- 
-     # Test if Binder is supported
-     $test_binder = 0;
--    $result      = system("$binder_basedir/check_binder $v 2>/dev/null");
--    if ( $result >> 8 eq 0 ) {
-+
-+    # check if binder driver available and kernel/userspace versions.
-+    $result = system("/bin/sh $binder_basedir/init_binder.sh $v 2>/dev/null");
-+
-+    if ( $result >> 8 eq 0 ) {    # NO_BINDER_SUPPORT
-+        print "Binder not supported by kernel\n";
-+    }
-+    elsif ( $result >> 8 eq 1 ) {    # BASE_BINDER_SUPPORT
-         $test_binder = 1;
-         $test_count += 4;
-+        $n = " ";                    # Use /dev/binder
-+    }
-+    elsif ( $result >> 8 eq 2 ) {    # BINDERFS_SUPPORT
-+        $test_binder = 1;
-+        $test_count += 4;
-+        $n = "-n";                   # Use /dev/binder-test
-+    }
-+    elsif ( $result >> 8 eq 3 ) {    # BINDER_VER_ERROR
-+        print "Binder kernel/userspace versions differ\n";
-+    }
-+    else {                           # BINDER_ERROR
-+        print "Error checking Binder driver\n";
-     }
- 
-     plan tests => $test_count;
-@@ -146,42 +164,45 @@ sub service_end {
- 
- if ($test_binder) {
-     ### Test BPF map fd on transfer ##################
--    $sm_pid = service_start( "manager", "-t test_binder_bpf_mgr_t", "$v" );
-+    $sm_pid = service_start( "manager", "-t test_binder_bpf_mgr_t", "$n $v" );
-     $sp_pid =
-       service_start( "service_provider", "-t test_binder_bpf_provider_t",
--        "-m $v" );
-+        "-m $n $v" );
- 
-     # Verify that the BPF map fd can be transferred.
-     $result =
-       system
--      "runcon -t test_binder_bpf_client_t $binder_basedir/client $v -m -r 1";
-+      "runcon -t test_binder_bpf_client_t $binder_basedir/client $n $v -m -r 1";
-     ok( $result eq 0 );
- 
-     # Verify BPF no map perms.
-     $result = system
--"runcon -t test_binder_client_no_bpf_perm_t $binder_basedir/client $v -m -r 2 2>&1";
-+"runcon -t test_binder_client_no_bpf_perm_t $binder_basedir/client $n $v -m -r 2 2>&1";
-     ok( $result >> 8 eq 141 );
- 
-     ### Test BPF prog fd on transfer ##################
-     service_end( "service_provider", $sp_pid );
-     $sp_pid =
-       service_start( "service_provider", "-t test_binder_bpf_provider_t",
--        "-p $v" );
-+        "-p $n $v" );
- 
-     # Verify that the BPF prog fd can be transferred.
-     $result =
-       system
--      "runcon -t test_binder_bpf_client_t $binder_basedir/client $v -p -r 1";
-+      "runcon -t test_binder_bpf_client_t $binder_basedir/client $n $v -p -r 1";
-     ok( $result eq 0 );
- 
-     # Verify BPF no prog perms.
-     $result = system
--"runcon -t test_binder_client_no_bpf_perm_t $binder_basedir/client $v -p -r 2 2>&1";
-+"runcon -t test_binder_client_no_bpf_perm_t $binder_basedir/client $n $v -p -r 2 2>&1";
-     ok( $result >> 8 eq 141 );
- 
-     # Kill the service provider & manager.
-     service_end( "service_provider", $sp_pid );
-     service_end( "manager",          $sm_pid );
-+
-+    # Cleanup binderfs stuff.
-+    system("/bin/sh $binder_basedir/cleanup_binder.sh $v 2>/dev/null");
- }
- 
- exit;
 -- 
-2.21.0
+š---- WBR, Michael Shigorin / http://altlinux.org
+šš------ http://opennet.ru / http://anna-news.info
 
+--VrqPEDrXMn8OVzN4
+Content-Type: text/x-patch; charset=us-ascii
+Content-Disposition: attachment; filename="0001-exception.sh-fixed-to-work-with-non-gcc.patch"
+
+From ccfa41adf46367e132ba7556fad53dfce9ddffaf Mon Sep 17 00:00:00 2001
+From: Michael Shigorin <mike@altlinux.org>
+Date: Mon, 7 Oct 2019 16:00:39 +0300
+Subject: [PATCH] exception.sh: fixed to work with non-gcc
+
+-aux-info is a gccism absent in clang, icc and the like;
+let's reimplement this in a slightly cleaner way with -E.
+
+Suggested-by: Evgeny Mareev
+---
+ libselinux/src/exception.sh  | 12 +++++-------
+ libsemanage/src/exception.sh | 12 +++++-------
+ 2 files changed, 10 insertions(+), 14 deletions(-)
+
+diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
+index d6c8c71..459295c 100755
+--- a/libselinux/src/exception.sh
++++ b/libselinux/src/exception.sh
+@@ -15,10 +15,8 @@ echo "
+ ;;
+ esac
+ }
+-if ! ${CC:-gcc} -x c -c -I../include - -aux-info temp.aux < ../include/selinux/selinux.h
+-then
+-    # clang does not support -aux-info so fall back to gcc
+-    gcc -x c -c -I../include - -aux-info temp.aux < ../include/selinux/selinux.h
+-fi
+-for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except $i ; done 
+-rm -f -- temp.aux -.o
++
++# equivalent of gcc-specific -aux-info
++${CC:-gcc} -E -I../include -xc ../include/selinux/selinux.h |
++	sed -n 's/^extern * int *\(\w*\) *(.*$/\1/p' |
++	while read f; do except $f; done
+diff --git a/libsemanage/src/exception.sh b/libsemanage/src/exception.sh
+index 97bc2ae..11586a1 100644
+--- a/libsemanage/src/exception.sh
++++ b/libsemanage/src/exception.sh
+@@ -9,10 +9,8 @@ echo "
+ }
+ "
+ }
+-if ! ${CC:-gcc} -x c -c -I../include - -aux-info temp.aux < ../include/semanage/semanage.h
+-then
+-    # clang does not support -aux-info so fall back to gcc
+-    gcc -x c -c -I../include - -aux-info temp.aux < ../include/semanage/semanage.h
+-fi
+-for i in `awk '/extern int/ { print $6 }' temp.aux`; do except $i ; done
+-rm -f -- temp.aux -.o
++
++# equivalent of gcc-specific -aux-info
++${CC:-gcc} -E -I../include -xc ../include/semanage/semanage.h |
++	sed -n 's/^extern * int *\(\w*\) *(.*$/\1/p' |
++	while read f; do except $f; done
+-- 
+2.10.4
+
+
+--VrqPEDrXMn8OVzN4--
