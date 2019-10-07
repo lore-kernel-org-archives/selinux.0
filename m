@@ -2,98 +2,93 @@ Return-Path: <SRS0=LR26=YA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E75B0C47404
-	for <selinux@archiver.kernel.org>; Mon,  7 Oct 2019 16:03:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45888ECE58E
+	for <selinux@archiver.kernel.org>; Mon,  7 Oct 2019 16:27:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B5462205C9
-	for <selinux@archiver.kernel.org>; Mon,  7 Oct 2019 16:03:47 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GaSRo49r"
+	by mail.kernel.org (Postfix) with ESMTP id 2703421871
+	for <selinux@archiver.kernel.org>; Mon,  7 Oct 2019 16:27:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727970AbfJGQDr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 7 Oct 2019 12:03:47 -0400
-Received: from mail-ot1-f48.google.com ([209.85.210.48]:46952 "EHLO
-        mail-ot1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727935AbfJGQDq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 7 Oct 2019 12:03:46 -0400
-Received: by mail-ot1-f48.google.com with SMTP id 89so11383322oth.13
-        for <selinux@vger.kernel.org>; Mon, 07 Oct 2019 09:03:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=RlqF4LT9FgFgK8fWvd2t1z0B8b+UKLUhcnpbvZv7Szg=;
-        b=GaSRo49rtZCTKPWe9MWnF7UDsSNTZeqBqGDfQPyp03TbFejibF+YPD3DEW2vv9rpe3
-         TMZgA20TlO3CP9SqmGf+IW9Leir8g46jrwhHhEYbYMipObgX9itRxM1rWESOYO6m9mYx
-         4rgWW20o4SkcYKqnJhUm6Arz2YQt90xFfa2T1b0RAO+REv52TatwPsaOcUgRzYMslJZe
-         EBmHJ1tiglacJQuvHJe/CUipAz3WeflGoWvdyFg62KgN2XkfHV61FKt7mgt7KYG5Eszz
-         REBak8b/ekzg7YHwldNCW+CdhqvfnL5mYYDJWPB6c2Be4Voy0pNVImsFigMtl3xvqGVa
-         nYig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=RlqF4LT9FgFgK8fWvd2t1z0B8b+UKLUhcnpbvZv7Szg=;
-        b=YyP7PtccP2w3xZSdm3bWaXwqnTPuoENlpBpWznIlv5H3e7GgQLtpWZCmll1odCibTT
-         /8KhmnuJLSdF+yeCvOHDa7GD0/GOsy679B1mASqq05zeoYhcfFNpCB67ZO8jGgPLmIrT
-         izQedMsAGIo37WiVHcDuzcUFmBGatGxFtzY5BKJGX5p8o21j+bE+Az30IGYEMcccDWv2
-         SBsVLjmQzjmr1AF8qGIsIx4cZQizLylYlMXbT7wZcIrjtLXUm31yiCmiIuUkPmXoJgKF
-         09mC1Pii7sWGUnUlba+u3a5wT4bivlnd2pdvGf9hI44AA4q9lwclJZeF1EqQfWQip0wj
-         /aMg==
-X-Gm-Message-State: APjAAAU7+OH03KKWpid7M2bj1ykKUf4KnJwRHCijQfw4Chk66gkEH9Zq
-        esFHHGruh5K+uYgEGfNd/KvDZQXP
-X-Google-Smtp-Source: APXvYqzbG+EhFcYRE3ydlTUYLebutueBlclRYvLY5VUrsH0qbrT3d+NFqkKhxCgZs+yy7WHa+LUNdw==
-X-Received: by 2002:a9d:4b8c:: with SMTP id k12mr21748655otf.86.1570464225865;
-        Mon, 07 Oct 2019 09:03:45 -0700 (PDT)
-Received: from ian.penurio.us (cpe-70-119-169-186.tx.res.rr.com. [70.119.169.186])
-        by smtp.gmail.com with ESMTPSA id o23sm4602879ote.67.2019.10.07.09.03.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Oct 2019 09:03:45 -0700 (PDT)
-To:     selinux@vger.kernel.org,
-        Systemd <systemd-devel@lists.freedesktop.org>
-From:   Ian Pilcher <arequipeno@gmail.com>
-Subject: [systemd SELinux] system status permission
-Message-ID: <ae9ac0bb-0354-4d5a-fce7-dfc37481f439@gmail.com>
-Date:   Mon, 7 Oct 2019 11:03:44 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
+        id S1728871AbfJGQ1p (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 7 Oct 2019 12:27:45 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:40218 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728862AbfJGQ1p (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 7 Oct 2019 12:27:45 -0400
+Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com [209.85.210.49])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id F27C55646F4
+        for <selinux@vger.kernel.org>; Mon,  7 Oct 2019 18:27:41 +0200 (CEST)
+Received: by mail-ot1-f49.google.com with SMTP id e11so11514634otl.5
+        for <selinux@vger.kernel.org>; Mon, 07 Oct 2019 09:27:41 -0700 (PDT)
+X-Gm-Message-State: APjAAAWzIHh59itPXR3rj4GJcwWoEtb2uYN7BrW9ULlag6yDRCbzIon+
+        ib4bD4HqsKfffHAqPB5xOn3UGF/F4nTTHiDAmgA=
+X-Google-Smtp-Source: APXvYqwXG72FSfjq8KNQStkathsJMG7uCE8dNKLCz3DyXR5RIqmP7NgoT9nbouLJ5JBt0YjinmVuJrgmVZtgjqZvg+Q=
+X-Received: by 2002:a9d:e92:: with SMTP id 18mr22232162otj.321.1570465660971;
+ Mon, 07 Oct 2019 09:27:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20191007132020.GG4928@imap.altlinux.org>
+In-Reply-To: <20191007132020.GG4928@imap.altlinux.org>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Mon, 7 Oct 2019 18:27:29 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==pXUGZ_tEz0PuCR8-P2jm9hjO7vD4R++y2BHeBR_++LA@mail.gmail.com>
+Message-ID: <CAJfZ7==pXUGZ_tEz0PuCR8-P2jm9hjO7vD4R++y2BHeBR_++LA@mail.gmail.com>
+Subject: Re: [PATCH] non-gcc-specific exception.sh
+To:     Michael Shigorin <mike@altlinux.org>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Daniel J Walsh <dwalsh@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Oct  7 18:27:42 2019 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I am hitting this (non-fatal) denial when reloading a service via the
-systemd dbus API:
+On Mon, Oct 7, 2019 at 3:20 PM Michael Shigorin <mike@altlinux.org> wrote:
+>
+>         Hello,
+> please find attached the patch to (hopefully) improve
+> self-surgery script that uses gcc-specific -aux-info now.
+> Should help clang, icc and the like (in my case there's
+> no proper gcc port for the target platform just yet).
+>
+> --
+>  ---- WBR, Michael Shigorin / http://altlinux.org
+>   ------ http://opennet.ru / http://anna-news.info
 
-> type=USER_AVC msg=audit(1570462081.809:743): pid=1 uid=0
-> auid=4294967295 ses=4294967295 subj=system_u:system_r:init_t:s0
-> msg='avc:  denied  { status } for auid=n/a uid=0 gid=1001
-> cmdline="/usr/bin/python2 /usr/local/bin/test.py"
-> scontext=system_u:system_r:denatc_t:s0
-> tcontext=system_u:system_r:init_t:s0 tclass=system
-> exe="/usr/lib/systemd/systemd" sauid=0 hostname=? addr=? terminal=?'
-https://selinuxproject.org/page/NB_ObjectClassesPermissions defines this
-permission as "Get system status information," which isn't particularly
-helpful.
+Hello,
+How did you test this patch? On my system (Arch Linux x86-64), I get
+the following differences in the generated list of functions, for
+libselinux:
 
-Ultimately, I need to decide whether to allow or "dontaudit" this
-denial, so any information/pointers on what systemd is doing here and
-what functionality I will lose if I dontaudit this denial would be
-appreciated.
++select
++pselect
+-selinuxfs_exists
 
-Thanks!
+This is because /usr/include/sys/select.h contains "extern int select
+(int __nfds, fd_set *__restrict __readfds," and "extern int pselect
+(int __nfds, fd_set *__restrict __readfds,", and because
+libselinux/include/selinux/selinux.h contains "int
+selinuxfs_exists(void);" without "extern". Your patch therefore
+changes things in a way that seems unintended.
 
--- 
-========================================================================
-Ian Pilcher                                         arequipeno@gmail.com
--------- "I grew up before Mark Zuckerberg invented friendship" --------
-========================================================================
+I nevertheless agree that making the build system use clang when
+CC=clang is a good idea. As the regular expression you sent is quite
+fragile, a possible way of preventing issues such as the differences I
+found is to try using both methods (-aux-info and -E) in a "make test"
+target and fail with a fatal error when they do not produce the same
+output (this fatal error would be caught by a continuous-integration
+system, which would make the developers aware of something wrong).
+
+Moreover, please send your patch inline, if possible (for example with
+"git send-email"), and add a "Signed-off-by:" line as documented in
+https://github.com/SELinuxProject/selinux/blob/master/CONTRIBUTING.md#contributing-code.
+
+Thanks,
+Nicolas
+
