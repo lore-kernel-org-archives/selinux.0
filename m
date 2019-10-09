@@ -2,131 +2,167 @@ Return-Path: <SRS0=kJgC=YC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8658FC47404
-	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:42:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F73EECE58D
+	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:53:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B7F02190F
-	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:42:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52BEF21848
+	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:53:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="WDppy/w5"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RII7TtNO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731397AbfJIOmL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Oct 2019 10:42:11 -0400
-Received: from UCOL19PA38.eemsg.mail.mil ([214.24.24.198]:45651 "EHLO
-        UCOL19PA38.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731155AbfJIOmK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Oct 2019 10:42:10 -0400
-X-EEMSG-check-017: 33979451|UCOL19PA38_ESA_OUT05.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.67,276,1566864000"; 
-   d="scan'208";a="33979451"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UCOL19PA38.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Oct 2019 14:41:59 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1570632119; x=1602168119;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=a6JEyqLU/qzmqJ8vAjCyc+x+08pTPyakaVzI1WUVqxI=;
-  b=WDppy/w5ZL7nol7vHiY8vLsBfmqJ6fJz/+vjlbtpwZjT9mCk0Ex1uHZw
-   M8qw2LFjzEXk1D7hRGr9axqXY0l5+u3PcXz8LvIMEIlhgtnG1jITO7wpK
-   NoEG4XlspVF+rWWtqR4jwvzbK6S1zDWA0XYikR3QFCNvr/U/iRyPb32Tb
-   f4mj2JIIirXLTPHsvZYKBHoadnrD/IVumaVbtZs7TfoDf9XJV+OEdDGkr
-   jZkj2351BzII2TZKIv6hGi6gPQCPptBiayLgaBrvPGauovqdaDO6/XcOh
-   C16QRU20RCNmOS8QgsqgfTKRUvoeCrUEymnTNjgfy3RvRSueoOkdTeIHq
-   A==;
-X-IronPort-AV: E=Sophos;i="5.67,276,1566864000"; 
-   d="scan'208";a="33957415"
-IronPort-PHdr: =?us-ascii?q?9a23=3AuiBa9BZ+lDZG0SXyHP8Izyv/LSx+4OfEezUN45?=
- =?us-ascii?q?9isYplN5qZr8S6bnLW6fgltlLVR4KTs6sC17ON9f65EjFZqb+681k6OKRWUB?=
- =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
- =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba58IRmsrAjdq8YajIt/Jq0s1h?=
- =?us-ascii?q?bHv3xEdvhMy2h1P1yThRH85smx/J5n7Stdvu8q+tBDX6vnYak2VKRUAzs6PW?=
- =?us-ascii?q?874s3rrgTDQhCU5nQASGUWkwFHDBbD4RrnQ5r+qCr6tu562CmHIc37SK0/VD?=
- =?us-ascii?q?q+46t3ThLjlTwKPCAl/m7JlsNwjbpboBO/qBx5347Ue5yeOP5ncq/AYd8WWW?=
- =?us-ascii?q?9NU8BfWCxbBoO3cpUBAewPM+1Fq4XxvlUDoB+7CQSqGejhyCJHhmXu0KMnze?=
- =?us-ascii?q?ohHwHI0g8uEd0Av3vbrsn6OqgJXOCpzqTF1ynPY+9Y1Dr/7oXDbxAvoeuLXb?=
- =?us-ascii?q?J1acff1FUvGB3djlWQt4PlOS6e2PkIs2eB6+pgUfygim46oAx2uTig29wsh5?=
- =?us-ascii?q?LVhoMV1l/E9SJ5zJwzJd2jUkF3e9GkEJxOtyyDMYZ9X8AsQ3lwtSonxbALto?=
- =?us-ascii?q?S3cSgXxJg92RLSZOKLf5KV7h/lSe2fOy13hGh/d7K6nxuy9E+gxfDiWcSsy1?=
- =?us-ascii?q?ZKqzZFksHLtnAQyxzf8siHReV5/kemwTuPyxrc6vtFIUApjqrXMYIhw74smZ?=
- =?us-ascii?q?oTtkTPBCn2l1ntjKCKbEkk/+mo6+D/brXnoJ+TKZN0hxnjPqkhlcGzG+Q1Ph?=
- =?us-ascii?q?UUU2SF9umwyqfv8VDhTLVPlPI2k63ZsJ7AJcQco660GxRV3Zs46xukEzen0M?=
- =?us-ascii?q?gXnXkALF5ffhKHlJLmN0vBIPD/E/ezm06snytzx/DaIr3hBY3AL3jZn7fkZ7?=
- =?us-ascii?q?l990lcxREpzd9B+p1UCqsOIO7pVkDts9zYCwczMxaozOb/FNV9yoQeVHqUAq?=
- =?us-ascii?q?CHNKPSsFmI5v8gIuSXeo8VtyjyK+I/6/7tk3A5g1kdcret3ZcNb3C4BPtmcA?=
- =?us-ascii?q?2lZi/Ji8wIDW4Js0IPZcnDtHrKBS9aYn+uWIom6z07AZ7gBoDGEMTlm7GF3S?=
- =?us-ascii?q?GmDrVIaW1cTFOBC3Hlc8ODQfhfRjiVJ5pajjEcVbWnA7Qk3BWquR6yn6FrNc?=
- =?us-ascii?q?LI6yYYstTlz9Ez6OrNw0JhvQdoBtiQhjneB1p/mXkFEnpvh/Fy?=
-X-IPAS-Result: =?us-ascii?q?A2ARCgAf8Z1d/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBd?=
- =?us-ascii?q?CqBPwEyKoQjjlxTBoERJYl4kS4JAQEBAQEBAQEBNAECAQGEQAKCTyM4EwIMA?=
- =?us-ascii?q?QEBBAEBAQEBBQMBAWyFOYI6KQGCZwEBAQECASMVUQsYAgImAgJXBgEMBgIBA?=
- =?us-ascii?q?YJfP4F3BQ+vR3WBMoVNgy6BSIEMKIwOGHiBB4E4DIJfPodSglgElieXHIIsg?=
- =?us-ascii?q?i+SZAYbgjqHTo84ji2bRyKBWCsIAhgIIQ+DJ1AQFIFbFxWOKiUDMIEGAQGTX?=
- =?us-ascii?q?QEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 09 Oct 2019 14:41:58 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x99EfwgY018566;
-        Wed, 9 Oct 2019 10:41:58 -0400
-Subject: Re: [Non-DoD Source] [PATCH 2/5] dispol: add an option for printing
- the command usage
-To:     Masatake YAMATO <yamato@redhat.com>, selinux@vger.kernel.org
-References: <20191008064500.8651-1-yamato@redhat.com>
- <20191008064500.8651-4-yamato@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <41f518a5-7e1b-7fa5-6338-c0341f48b671@tycho.nsa.gov>
-Date:   Wed, 9 Oct 2019 10:41:58 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
+        id S1730674AbfJIOxq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Oct 2019 10:53:46 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:56865 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1729865AbfJIOxp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Oct 2019 10:53:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1570632824;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qKvDOL4Fdeo/l/G0FxiLqf/g63AOIy0dhB2OWgkem+s=;
+        b=RII7TtNON7AfVBGZOKVMwOjkzpAAT/yAtjB2GmzqdJGPQF7LLOogvDeNhc77lDHlKVYclb
+        oB+bZn7wNRPEUeKLqRPRF72FbwRP2k+Ak3WrjY0wcKSQHoTGvElKa7Bk7uWWeyrtU1r8wy
+        ec2x9EydTLiPvXBG+DHT2pLEmbnq7iU=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-124-e42AYoQSNoeBNv8XjZNCvA-1; Wed, 09 Oct 2019 10:53:42 -0400
+Received: by mail-ot1-f70.google.com with SMTP id f26so1274645otq.17
+        for <selinux@vger.kernel.org>; Wed, 09 Oct 2019 07:53:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=yURA94sYzw1DykwVUZPyrDheBRkeC5fSCDbMDM/FlBA=;
+        b=SHXEOEs2E1HtG1f9rRjQ8O30LBTY7SMAmVhrh9GUhIvm7ggkUs2u6FvaUQ/9Da3z8g
+         OY1rMiHX0rKWwRiY482voagss24O1FkFgzm+NLPmQdzBV5fDBMwAecoSsfYXpGtOD6Ma
+         CAdm5LcKBAgfpfOEsi62HhHt4Z9gF2Ae04aIF3XkdjIIr2vhoraTscFtIL0mx4sTdO6t
+         33/PDDqYvS6LQmmfzKvrqYBtMM0GrOzLzNAipoceVX2SlwA8toaM74fzPivNgKRRiy2P
+         mcnsqTyWjnCTXgqrpB3QDrRQjQ3ZwVJu9XBJPv2VGJGSH7HgS76AHfFHPvuYiQcGKrds
+         DwTg==
+X-Gm-Message-State: APjAAAXqYDk1vfLJi1LG2K8Kv434TQShvBXTBd23dKX0MVmlOCuFLOLb
+        JpQISlO+e78u/2G4C0B8/Uhw6KeXXX4ah1jKdgfnxrTqXsOkn5IrtNEwJ0V7jU9hQ4f0tokiFLu
+        pqwqr0X6cwm75oaUlDvGhpLwg67gERled3A==
+X-Received: by 2002:a05:6830:1510:: with SMTP id k16mr3267464otp.197.1570632821980;
+        Wed, 09 Oct 2019 07:53:41 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqw1HzE4hwmhRUiFrOuSiQkJm/IdUp+wBfAqNp38aYbwtgVa7/m2wyeJJeGzr0qVykg5LDFJ0Hf+sgMRryWL6PI=
+X-Received: by 2002:a05:6830:1510:: with SMTP id k16mr3267442otp.197.1570632821615;
+ Wed, 09 Oct 2019 07:53:41 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20191008064500.8651-4-yamato@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20190930131600.21473-1-omosnace@redhat.com> <c9cc5939-a6f3-73cd-7ff3-a83a04d36b17@tycho.nsa.gov>
+ <CAHC9VhTVNgqOgRjgk37x0EyZQWBbrYJ1FND5hVMxZUJ5JcofPA@mail.gmail.com>
+ <ddea594c-717b-cb40-6bd7-7bb6c8cae79d@tycho.nsa.gov> <CAHC9VhRmX0ofWA7Yqg73XfDW0Hhf2j6Yr7pi1pQ=bDBiARd5sg@mail.gmail.com>
+In-Reply-To: <CAHC9VhRmX0ofWA7Yqg73XfDW0Hhf2j6Yr7pi1pQ=bDBiARd5sg@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Wed, 9 Oct 2019 16:53:30 +0200
+Message-ID: <CAFqZXNvoh_ev=-RTFPgMBKGddzWME=SBqtX-EtKQ8f_YEGQOkw@mail.gmail.com>
+Subject: Re: [PATCH testsuite] selinux-testsuite: Add submount test
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        SElinux list <selinux@vger.kernel.org>
+X-MC-Unique: e42AYoQSNoeBNv8XjZNCvA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/8/19 2:44 AM, Masatake YAMATO wrote:
-> Signed-off-by: Masatake YAMATO <yamato@redhat.com>
-> ---
->   checkpolicy/test/dispol.c | 8 ++++++--
->   1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
-> index 1d9556f4..37b22cf8 100644
-> --- a/checkpolicy/test/dispol.c
-> +++ b/checkpolicy/test/dispol.c
-> @@ -39,7 +39,7 @@ static policydb_t policydb;
->   static __attribute__((__noreturn__)) void usage(const char *progname,
->   						int status)
->   {
-> -	printf("usage:  %s binary_pol_file\n\n", progname);
-> +	printf("usage:  %s [-h] binary_pol_file\n\n", progname);
->   	exit(status);
->   }
->   
-> @@ -395,7 +395,11 @@ int main(int argc, char **argv)
->   	int state;
->   	struct policy_file pf;
->   
-> -	if (argc != 2)
-> +	if (argc <= 1)
-> +		usage(argv[0], 1);
-> +	else if (strcmp(argv[1], "-h") == 0)
-> +		usage(argv[0], 0);
-> +	else if (argc != 2)
->   		usage(argv[0], 1);
+On Wed, Oct 9, 2019 at 4:01 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Wed, Oct 9, 2019 at 9:53 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On 10/8/19 5:30 PM, Paul Moore wrote:
+> > > On Mon, Sep 30, 2019 at 10:07 AM Stephen Smalley <sds@tycho.nsa.gov> =
+wrote:
+> > >> On 9/30/19 9:16 AM, Ondrej Mosnacek wrote:
+> > >>> Add a test that verifies that SELinux permissions are not checked w=
+hen
+> > >>> mounting submounts. The test sets up a simple local NFS export on a
+> > >>> directory which has another filesystem mounted on its subdirectory.
+> > >>> Since the export is set up with the crossmnt option enabled, any cl=
+ient
+> > >>> mount will try to transparently mount any subdirectory that has a
+> > >>> filesystem mounted on it on the server, triggering an internal moun=
+t.
+> > >>> The test tries to access the automounted part of this export via a
+> > >>> client mount without having a permission to mount filesystems, expe=
+cting
+> > >>> it to succeed.
+> > >>>
+> > >>> The original bug this test is checking for has been fixed in kernel
+> > >>> commit 892620bb3454 ("selinux: always allow mounting submounts"), w=
+hich
+> > >>> has been backported to 4.9+ stable kernels.
+> > >>>
+> > >>> The test first checks whether it is able to export and mount direct=
+ories
+> > >>> via NFS and skips the actual tests if e.g. NFS daemon is not runnin=
+g.
+> > >>> This means that the testsuite can still be run without having the N=
+FS
+> > >>> server installed and running.
+> > >>
+> > >> 1) We have to manually start nfs-server in order for the test to run=
+;
+> > >> else it will be skipped automatically.  Do we want to start/stop the
+> > >> nfs-server as part of the test script?
+> > >
+> > > My two cents are that I'm not sure we want to automatically start/sto=
+p
+> > > the NFS server with the usual "make test", perhaps we have a dedicate=
+d
+> > > NFS test target that does the setup-test-shutdown?  Other ideas are
+> > > welcome.
+> >
+> > I guess my concern is that anything that doesn't run with the default
+> > make test probably won't get run at all with any regularity.
+>
+> FWIW, I think I'm the only one regularly running the tests on upstream
+> kernels and reporting the results.  RH was running the tests at one
+> point, and may still be doing so, but I have no idea what kernels they
+> are testing (maybe just RHEL, stable Fedora, etc.) and what their
+> process is when they find failures.
 
-Use getopt(3) or getopt_long(3) please for option handling.
+We do still run the selinux-testsuite nightly on Fedora Rawhide with
+your kernel-secnext kernel builds (I suppose we fetch them from COPR).
+I can't really describe what we do when they fail, because that hardly
+ever happens now :) But if we came across a failure that would suggest
+a bug, we would certainly investigate and report it.
 
->   
->   	fd = open(argv[1], O_RDONLY);
-> 
+The testsuite is now also being run as part of CKI
+(https://github.com/cki-project), which AFAIK currently runs regularly
+on linux-stable kernels (the results are posted publicly to
+stable@vger.kernel.org). I don't follow these reports closely, so I'm
+not sure if there were any non-false-positive failures there...
+
+>
+> I also try to enable everything that I can enable for my test runs.
+> Thanks to Mellanox I can even run the IB tests.
+>
+> > For
+> > something that requires specialized hardware (e.g. InfiniBand), this is
+> > reasonable but that isn't true of NFS.  For the more analogous cases of
+> > e.g. labeled IPSEC, NetLabel, SECMARK, we already load and unload
+> > network configurations for the testsuite during testing.
+>
+> That's a good point about the other networking tests.  My gut feeling
+> tells me that NFS should be "different", but I guess I can't really
+> justify that statement in an objectively meaningful way.
+
+I think the main reason why I didn't include NFS server starting was
+that I don't know how to do it robustly across distros... Already on
+RHEL the service name varies ("nfs-server" vs. just "nfs") and then
+there is "service xyz start" vs. "systemctl start xyz"...
+
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
