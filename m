@@ -2,146 +2,113 @@ Return-Path: <SRS0=kJgC=YC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E66EC47404
-	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:04:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E358C47404
+	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:20:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3047221848
-	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:04:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 43ADA20B7C
+	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:20:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="CiSBZ0zi"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="dkvlmN3p"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727769AbfJIOEF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Oct 2019 10:04:05 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:37218 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726353AbfJIOEF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Oct 2019 10:04:05 -0400
-Received: by mail-lf1-f66.google.com with SMTP id w67so1766855lff.4
-        for <selinux@vger.kernel.org>; Wed, 09 Oct 2019 07:04:02 -0700 (PDT)
+        id S1731307AbfJIOUf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Oct 2019 10:20:35 -0400
+Received: from UHIL19PA37.eemsg.mail.mil ([214.24.21.196]:49525 "EHLO
+        UHIL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728019AbfJIOUe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Oct 2019 10:20:34 -0400
+X-EEMSG-check-017: 35220246|UHIL19PA37_ESA_OUT03.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.67,276,1566864000"; 
+   d="scan'208";a="35220246"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UHIL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Oct 2019 14:20:32 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jDK+Jfvol7rh6cLegzhW9/SVlf4FWinv3rs9c01PQ10=;
-        b=CiSBZ0ziWo0zdzet0ZWssXZQ/jPdyvfHhSfx3rgKZfArcqu0bIjCK/CVE4I3q11Ma4
-         Sa6rlv1cLkC2LMB3aMZMXrNnGV9ux8vZerfZvJrndFRdsaWLhQh70tcG+ZITwqJbqrxc
-         Y/aWkJqxB6liii0Fr4Z5bS4bXPpNRJDG+xt7FoANuJyDGRaCaCEXL1zTnT547rIE1W0t
-         QK/JsxyB+LTmSWNFEJdby17dRbOVmH2uzuNmmYhge+4qzAmdFqqgMRpf8eVCyrChhwiG
-         8zAH0glkFZCamnUty/S2yhk4GXArvNJiEtEqSOxwiRojRWXACDejVztMYUycBZ+KxRRu
-         ua5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jDK+Jfvol7rh6cLegzhW9/SVlf4FWinv3rs9c01PQ10=;
-        b=GDPADDGc9F2slLnKgDCpsKqtBWALThGLkCpPDUx9+Vw3lhndcmgqKlEk/01Q0fv00y
-         F2A1IwqE9LfbcWgsNauxHMiAUPYEC47ecut9J+KF+EzbGO2cGSnNgtKB3zVQbJiWhEDi
-         R5ck7k5uxgZpVYqWjQQrkFQqxpzMIakDZQ0genuYxYUzzdaOlxzYOXCiMMZWmji9DSJ6
-         OegOBpb/qH9ztDNAaKe/88BAieYU+CmycORWn84lb2yzgpQUfQKjeFvTgiRsI0p9MgSb
-         wZaFZwZqFf9DpYDI3f2tW3aaOPlafV54Z0kFrBQ3wavCej7x8+gclNgSqwYmJe84Z7na
-         aTYA==
-X-Gm-Message-State: APjAAAWNoZJXYP2uYm4KkvkPjP34F7x89cpyF+tD2V/VZDhSq2+XVM7V
-        CZOEVdP7xyeSqQCqCFX/CPH+mk5nUUXDYM9G/rid6mw=
-X-Google-Smtp-Source: APXvYqxDpAByrWVOp7QJt3xjWS3cxqEQwB9scYKudSN+etYH93w4bJD2QyYzEni7k+1N0ypVpz3K68ECPVj08Mr0B/A=
-X-Received: by 2002:ac2:5542:: with SMTP id l2mr2169796lfk.119.1570629841722;
- Wed, 09 Oct 2019 07:04:01 -0700 (PDT)
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1570630833; x=1602166833;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=d2azdq9tjJjwV9XjURlDxTY7r7O2zHljmh88+Dkb/io=;
+  b=dkvlmN3pUspzh+E9ucMWfKNZskioMqrRPF0Bpd6xQw4TkXxOTJ74RX0x
+   StqA8MzRDSYKPQvbCudk9aipr7zKK1fc1F9nNlwUv3788K9XipY9OQK72
+   tl2WtKRgOHUEsy+npbs6Y+L8spZ1Ttel+GH7u72Nv2KD/t3Hlra0Si+Eh
+   Oevo6vB4jIbD5RACaJRZxaYDz/SRjcESegBARkc1bmLpEe5P/lGWZ0iNY
+   PeFsLjn7wV37qRROvrswIj9r1iWYWh7udz471sR9t2UMeUYChlUuTJlRY
+   v1FSGKn1IYCTwlQ+nX5AH1i9lqqUpjki6HN0TNNTCqR+fqls7U4Rxq3Ay
+   w==;
+X-IronPort-AV: E=Sophos;i="5.67,276,1566864000"; 
+   d="scan'208";a="28812121"
+IronPort-PHdr: =?us-ascii?q?9a23=3ARVkYYx9C+mfeOf9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B32uwcTK2v8tzYMVDF4r011RmVBN6dtasP1rKempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffgtFiCC8bL9vIxm7rRndvdQKjIV/Lao81g?=
+ =?us-ascii?q?HHqWZSdeRMwmNoK1OTnxLi6cq14ZVu7Sdete8/+sBZSan1cLg2QrJeDDQ9Lm?=
+ =?us-ascii?q?A6/9brugXZTQuO/XQTTGMbmQdVDgff7RH6WpDxsjbmtud4xSKXM9H6QawyVD?=
+ =?us-ascii?q?+/4ahrUhvogzoZOTA//m/cl8h8gLtVrR+lohByxZPfboOIO/pkZq7Tfc0US3?=
+ =?us-ascii?q?dPUMhSUCJODYyyYpATA+cCJ+tUs5Pwq0cSoRa4GAKiBPnvyjhNhnLuwKM6z/?=
+ =?us-ascii?q?ouERnG3AM+GdIFrWnarNDvO6cWVeC60qnJxijEYvNNxDj985PFcgwhoP6QXb?=
+ =?us-ascii?q?JwdtDdyU80FwzflFmQpovlPy2M2+kLrmOV4e1gVee1hG4mrQF8ujevxsYwio?=
+ =?us-ascii?q?nJm4Ia0UrI+jl+wIYwI9CzVU11Yca8HZdNuCyXOJF6T8M/T21ypio3xaMKtY?=
+ =?us-ascii?q?SmcCUM1Z8p3QTQa+adfIiN+h/jUeGRLipmi399Y7K/ggqy8VCnyu3hSsm4yF?=
+ =?us-ascii?q?ZKoTRBktnLrn0Nywbc6tKGSvtg5UetwyqP1gDP5eFEJkA4j6zbJII6wrEsjJ?=
+ =?us-ascii?q?YTtEXDHivulEX3iq+ZaFkk9/C15+nobbjqvJ+RO5Juhg3gPakihNazDfkgPg?=
+ =?us-ascii?q?gLRWeb+OC81LP5/U3+RbVHluY2nbTCsJ3BOcQaprK2Aw9S0oo57Ra/FC2p3M?=
+ =?us-ascii?q?4XnXkAMlJJYAiHgJTxO1HSPPD4Cu+yg0yokDhx2vDGIqfhDY7XIXXYirfuY6?=
+ =?us-ascii?q?ty605Gxwov19xQ+5VUCrQZKvLpRkDxrMDYDgM+MwGsxebnCcly1oQaWW2VGa?=
+ =?us-ascii?q?+VKqLSsViP5uI0OOmBf4oVtTnyKvQ/4P7ul3A5k0cHfaa1xZsXdGy4HvN+Lk?=
+ =?us-ascii?q?WCf3XshtYBEWEXvgsxV+HqllKCXiBJZ3qoXKIz+Cs7CIS4AofHXIyth6aB3C?=
+ =?us-ascii?q?joVqFRM3tLDlGKDGfAaYqJQbEPZTiUL8snlSYLBpa7TIp07g2jrA/3zfJcK+?=
+ =?us-ascii?q?PQ/iAJ/cb42MNd+/zYlRZ08yd9ScuazTfeHClPgmoUSmpuj+hEqktnxwLGiv?=
+ =?us-ascii?q?l1?=
+X-IPAS-Result: =?us-ascii?q?A2DPCAD96p1d/wHyM5BlHgELHIFwC4F0Km1SATIqk1AGi?=
+ =?us-ascii?q?y6PM4F7CQEBAQEBAQEBARsQCQECAQGDe0WCUSM0CQ4CDAEBAQQBAQEBAQUDA?=
+ =?us-ascii?q?QFshS0MgjopgyEBRoFRgmM/AYF2FA+xVIVNgzCBSIE0hzWEWRh4gQeEYYJhA?=
+ =?us-ascii?q?oEqgQSFGQStQ4Isgi+EWY4FDBuDLJYUlk+TDjmBWCsIAhgIIQ+DJwlHEBSFQ?=
+ =?us-ascii?q?oVlhQolAzCBBgEBkQmCVAEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 09 Oct 2019 14:20:32 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x99EKU5R016518;
+        Wed, 9 Oct 2019 10:20:30 -0400
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+To:     selinux@vger.kernel.org
+Cc:     nicolas.iooss@m4x.org, plautrba@redhat.com,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH v2] python/sepolicy: call segenxml.py with python3
+Date:   Wed,  9 Oct 2019 10:20:24 -0400
+Message-Id: <20191009142024.9278-1-sds@tycho.nsa.gov>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-References: <20191006085121.13556-1-richard_c_haines@btinternet.com>
- <5e20d80f-909f-0bb7-4cf5-16e7ce89382b@tycho.nsa.gov> <57056c510589650446ac4dd079c112e22dffb042.camel@btinternet.com>
- <4f0c2ff54dd1ad94392ef7c2428c766e0e2a2574.camel@btinternet.com>
- <CAHC9VhQcvFna_Jj5kZaJVbUtY_EW97sreAODTiaH8pb8nEqZjA@mail.gmail.com> <e9b371bc-f028-1f0e-2b7e-628c11c1a0db@tycho.nsa.gov>
-In-Reply-To: <e9b371bc-f028-1f0e-2b7e-628c11c1a0db@tycho.nsa.gov>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 9 Oct 2019 10:03:49 -0400
-Message-ID: <CAHC9VhTmzp=miTR+aSvL+onOtd1P5=Ln1EKjLqFFuh7wkr1OYA@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: Update binder for kernel 5.4 support
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Richard Haines <richard_c_haines@btinternet.com>,
-        selinux@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Oct 9, 2019 at 9:56 AM Stephen Smalley <sds@tycho.nsa.gov> wrote
-> On 10/8/19 5:43 PM, Paul Moore wrote:
-> > On Mon, Oct 7, 2019 at 12:35 PM Richard Haines
-> > <richard_c_haines@btinternet.com> wrote:
-> >> On Mon, 2019-10-07 at 16:17 +0100, Richard Haines wrote:
-> >>> On Mon, 2019-10-07 at 10:28 -0400, Stephen Smalley wrote:
-> >>>> On 10/6/19 4:51 AM, Richard Haines wrote:
-> >>>>> Kernel 5.4 commit ca2864c6e8965c37df97f11e6f99e83e09806b1c
-> >>>>> ("binder: Add
-> >>>>> default binder devices through binderfs when configured"),
-> >>>>> changed
-> >>>>> the way
-> >>>>> the binder device is initialised and no longer automatically
-> >>>>> generates
-> >>>>> /dev/binder when CONFIG_ANDROID_BINDERFS=y.
-> >>>>
-> >>>> This seems like a userspace ABI break, no?  Same kernel config
-> >>>> before
-> >>>> and after this commit yields different behavior for
-> >>>> /dev/binder.  I
-> >>>> suppose one might argue that one would only enable
-> >>>> CONFIG_ANDROID_BINDERFS if one wanted to use it instead of
-> >>>> /dev/binder
-> >>>> but the original commit that introduced binderfs specifically said
-> >>>> that
-> >>>> backward compatibility was preserved.
-> >>> I'll need to check this further, but from what I've seen so far, is
-> >>> that the /dev/binder is not available until you mount binderfs etc.
-> >>> that's why Paul had the failure on 5.4 as before then is was
-> >>> available
-> >>> when the binder driver first initialised.
-> >>
-> >> To confirm tests using kernel 5.4-rc1
-> >>
-> >> Test 1 config:
-> >> CONFIG_ANDROID=y
-> >> CONFIG_ANDROID_BINDER_IPC=y
-> >> CONFIG_ANDROID_BINDERFS=y
-> >> CONFIG_ANDROID_BINDER_DEVICES="binder"
-> >>
-> >> On boot no /dev/binder
-> >>
-> >> To get this you have to:
-> >> mkdir /dev/binderfs 2>/dev/null
-> >> mount -t binder binder /dev/binderfs -o
-> >> context=system_u:object_r:device_t:s0 2>/dev/null
-> >>
-> >> You then have devs:
-> >> binder and binder-control
-> >>
-> >> Test 2 config:
-> >> CONFIG_ANDROID=y
-> >> CONFIG_ANDROID_BINDER_IPC=y
-> >> # CONFIG_ANDROID_BINDERFS is not set
-> >> CONFIG_ANDROID_BINDER_DEVICES="binder"
-> >>
-> >> On boot you have /dev/binder
-> >
-> > Disabling binderfs during build is probably not the smart thing to do
-> > considering where the world is at with namespaces/containers, whatever
-> > we do we should make sure the tests work with
-> > CONFIG_ANDROID_BINDERFS=y.
->
-> Yes, I think the question is just whether we want to have the tests use
-> binderfs for kernel >= 5.0 (i.e. the point at which binderfs was first
-> introduced) or for kernel >= 5.4 (i.e. the point at which binderfs usage
-> became mandatory if you enable it in your config because /dev/binder is
-> no longer automatically created).  I'm fine either way.
+Fixes: https://github.com/SELinuxProject/selinux/issues/61
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+v2 wraps basedir + filename in parentheses as per Nicolas Iooss' suggestion.
 
-Agreed in that it probably doesn't matter all that much.  I might be
-tempted to start with v5.4 over v5.0 since the old way still worked on
-v5.0 through v5.3 and it might be nice to notice if that changes in a
-v5.{0..3}.Z release.
+ python/sepolicy/sepolicy/interface.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
+index 583091ae18aa..187419fa7822 100644
+--- a/python/sepolicy/sepolicy/interface.py
++++ b/python/sepolicy/sepolicy/interface.py
+@@ -196,7 +196,7 @@ def get_xml_file(if_file):
+         from subprocess import getstatusoutput
+     basedir = os.path.dirname(if_file) + "/"
+     filename = os.path.basename(if_file).split(".")[0]
+-    rc, output = getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
++    rc, output = getstatusoutput("/usr/bin/python3 /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % (basedir + filename))
+     if rc != 0:
+         sys.stderr.write("\n Could not proceed selected interface file.\n")
+         sys.stderr.write("\n%s" % output)
 -- 
-paul moore
-www.paul-moore.com
+2.21.0
+
