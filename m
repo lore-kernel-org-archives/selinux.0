@@ -7,84 +7,84 @@ X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C3CCECE58D
-	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:39:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8658FC47404
+	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:42:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 40D4020640
-	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:39:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B7F02190F
+	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 14:42:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="aZMydtAs"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="WDppy/w5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731037AbfJIOjd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Oct 2019 10:39:33 -0400
-Received: from UHIL19PA39.eemsg.mail.mil ([214.24.21.198]:20239 "EHLO
-        UHIL19PA39.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729491AbfJIOjc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Oct 2019 10:39:32 -0400
-X-EEMSG-check-017: 35100664|UHIL19PA39_ESA_OUT05.csd.disa.mil
+        id S1731397AbfJIOmL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Oct 2019 10:42:11 -0400
+Received: from UCOL19PA38.eemsg.mail.mil ([214.24.24.198]:45651 "EHLO
+        UCOL19PA38.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731155AbfJIOmK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Oct 2019 10:42:10 -0400
+X-EEMSG-check-017: 33979451|UCOL19PA38_ESA_OUT05.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.67,276,1566864000"; 
-   d="scan'208";a="35100664"
+   d="scan'208";a="33979451"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA39.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Oct 2019 14:39:30 +0000
+  by UCOL19PA38.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Oct 2019 14:41:59 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1570631970; x=1602167970;
+  s=tycho.nsa.gov; t=1570632119; x=1602168119;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=eL6WWRHJmd0hJJQbbkcrONH/oXcvHPoybd83pK+ofzQ=;
-  b=aZMydtAslPTvi13EeZ3Y5y1aeAXjA3+PcZdEIq/bYtqxyg4PbnkaCPwh
-   cBy19xZmWPoG/S0lG3JIAgfzjmbzlS1BycI3OUz+20kbVGpTkO7T3aYzD
-   CgUyXBkCJPbO/Lwbb3lIy+lIK9Lus4ytGwzGSMAbLGgtDZNwHh5U+vOkn
-   LGm3VLV/ZCmOI4oy2bSPcsgPEIwitIEFlEmMq8Ek95t9KuG/mjbugMFjt
-   +H4055Rsh48EHcI/PB5lNaIl6x/gENny1+KSKW4HiYM/rFme9AtdaEeIZ
-   FRmySCOT0liiO2mLBDiJqabIL8kuawx96gewsbGz0twT+guCOEcieYGAP
+  bh=a6JEyqLU/qzmqJ8vAjCyc+x+08pTPyakaVzI1WUVqxI=;
+  b=WDppy/w5ZL7nol7vHiY8vLsBfmqJ6fJz/+vjlbtpwZjT9mCk0Ex1uHZw
+   M8qw2LFjzEXk1D7hRGr9axqXY0l5+u3PcXz8LvIMEIlhgtnG1jITO7wpK
+   NoEG4XlspVF+rWWtqR4jwvzbK6S1zDWA0XYikR3QFCNvr/U/iRyPb32Tb
+   f4mj2JIIirXLTPHsvZYKBHoadnrD/IVumaVbtZs7TfoDf9XJV+OEdDGkr
+   jZkj2351BzII2TZKIv6hGi6gPQCPptBiayLgaBrvPGauovqdaDO6/XcOh
+   C16QRU20RCNmOS8QgsqgfTKRUvoeCrUEymnTNjgfy3RvRSueoOkdTeIHq
    A==;
 X-IronPort-AV: E=Sophos;i="5.67,276,1566864000"; 
-   d="scan'208";a="33957225"
-IronPort-PHdr: =?us-ascii?q?9a23=3A0OKUzx2q0iCxVdyKsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseIRIvad9pjvdHbS+e9qxAeQG9mCsLQa0qGL6ujJYi8p2d65qncMcZhBBV?=
- =?us-ascii?q?cuqP49uEgeOvODElDxN/XwbiY3T4xoXV5h+GynYwAOQJ6tL1LdrWev4jEMBx?=
- =?us-ascii?q?7xKRR6JvjvGo7Vks+7y/2+94fcbglVijexe7J/IAi5oQjRq8UdnJdvJLs2xh?=
- =?us-ascii?q?bVuHVDZv5YxXlvJVKdnhb84tm/8Zt++ClOuPwv6tBNX7zic6s3UbJXAjImM3?=
- =?us-ascii?q?so5MLwrhnMURGP5noHXWoIlBdDHhXI4wv7Xpf1tSv6q/Z91SyHNsD4Ubw4RT?=
- =?us-ascii?q?Kv5LpwRRT2lCkIKSI28GDPisxxkq1bpg6hpwdiyILQeY2ZKeZycr/Ycd4cS2?=
- =?us-ascii?q?VBRMJRXDFfDI26YYUEEu4NMf9WooT5olcDqwa1CwuxC+P10jJGm2H43aM63e?=
- =?us-ascii?q?oiHw/J0gMvENASv3rbt9j1KKUfXPqpwKXUwzjObfVb0ir95ojSdRAhpOmBU6?=
- =?us-ascii?q?9sccXP0UkvFx3KjlONooL4OjOazOANs2yF4OtgSOmijHUnpBxqojW02sctip?=
- =?us-ascii?q?XGhoISylze8yV525w6Kce3SE58f96pCZ1dvDyZOYtuWs4uXm5ltSkgxrAGpJ?=
- =?us-ascii?q?K3ZjYGxZs5yxLFdvCKdZWD7Aj5W+aLOzh4gWpoeLe4hxmv70et0vb8Vsyo0F?=
- =?us-ascii?q?ZSqSpFj8XMumgN1xPN7siHTeNw/lu71jaV1gDT9/pELVoolavbN5Ehwrkwmo?=
- =?us-ascii?q?AVsUvfBS/5hF/6jKqXdkUg4uSo6uLnbav6ppKEKoN5hQ7zPr4ul8CiG+g0LA?=
- =?us-ascii?q?cDU3aB9eihzLHj+Ff2QLROjv04iKnZt5XaKNwApqGkGA9YyZoj6hajADem19?=
- =?us-ascii?q?QUh38HLElfdx6dgIjpPE/OLOjiDfijm1SsjCtrx/feM73/B5XNKXrDkbbgfb?=
- =?us-ascii?q?Zm8ENc0hQ8ws1f551OFrENOu78Wkj0tNbAFB82LxS0w/r7CNV6zo4eQnyAAq?=
- =?us-ascii?q?uYMKPUrF+J6fkiI/eDZIALojbxMfsl6OD0jX8/h1AdebOl3ZwNaHC3TbxaJB?=
- =?us-ascii?q?CnYGakp9ADA2YR9l4gSevomlyZeSRea3a7Q+Q34TRtTMq9AIPCQJ29qKKO0T?=
- =?us-ascii?q?39HZBMYG1CTFeWHiTGbYKBDswQZTqSL8kpqTkNUbysWsd1zh21nBPrwLpgaO?=
- =?us-ascii?q?zP82sXsoy1h4s93PHaiRxnrW88NM+ayWzYCjgvz24=3D?=
-X-IPAS-Result: =?us-ascii?q?A2ARCgDt751d/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBd?=
- =?us-ascii?q?CptUgEyKoQjjlxTBoERJYl4kS4JAQEBAQEBAQEBIxEBAgEBhEACgk8jOBMCD?=
- =?us-ascii?q?AEBAQQBAQEBAQUDAQFshS0MgjopAYJoAQUjFVELDgoCAiYCAlcGAQwGAgEBg?=
- =?us-ascii?q?l8/AYF2FLA4gTKFTYMvgUiBDCiMDhh4gQeBEScMgjEuPoEXhjuCWASWJ5ccg?=
- =?us-ascii?q?iyCL4RZjgsGG4MslhSOLZtHIoFYKwgCGAghD4MnCUcQFIsnhQolAzCBBgEBk?=
- =?us-ascii?q?10BAQ?=
+   d="scan'208";a="33957415"
+IronPort-PHdr: =?us-ascii?q?9a23=3AuiBa9BZ+lDZG0SXyHP8Izyv/LSx+4OfEezUN45?=
+ =?us-ascii?q?9isYplN5qZr8S6bnLW6fgltlLVR4KTs6sC17ON9f65EjFZqb+681k6OKRWUB?=
+ =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
+ =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba58IRmsrAjdq8YajIt/Jq0s1h?=
+ =?us-ascii?q?bHv3xEdvhMy2h1P1yThRH85smx/J5n7Stdvu8q+tBDX6vnYak2VKRUAzs6PW?=
+ =?us-ascii?q?874s3rrgTDQhCU5nQASGUWkwFHDBbD4RrnQ5r+qCr6tu562CmHIc37SK0/VD?=
+ =?us-ascii?q?q+46t3ThLjlTwKPCAl/m7JlsNwjbpboBO/qBx5347Ue5yeOP5ncq/AYd8WWW?=
+ =?us-ascii?q?9NU8BfWCxbBoO3cpUBAewPM+1Fq4XxvlUDoB+7CQSqGejhyCJHhmXu0KMnze?=
+ =?us-ascii?q?ohHwHI0g8uEd0Av3vbrsn6OqgJXOCpzqTF1ynPY+9Y1Dr/7oXDbxAvoeuLXb?=
+ =?us-ascii?q?J1acff1FUvGB3djlWQt4PlOS6e2PkIs2eB6+pgUfygim46oAx2uTig29wsh5?=
+ =?us-ascii?q?LVhoMV1l/E9SJ5zJwzJd2jUkF3e9GkEJxOtyyDMYZ9X8AsQ3lwtSonxbALto?=
+ =?us-ascii?q?S3cSgXxJg92RLSZOKLf5KV7h/lSe2fOy13hGh/d7K6nxuy9E+gxfDiWcSsy1?=
+ =?us-ascii?q?ZKqzZFksHLtnAQyxzf8siHReV5/kemwTuPyxrc6vtFIUApjqrXMYIhw74smZ?=
+ =?us-ascii?q?oTtkTPBCn2l1ntjKCKbEkk/+mo6+D/brXnoJ+TKZN0hxnjPqkhlcGzG+Q1Ph?=
+ =?us-ascii?q?UUU2SF9umwyqfv8VDhTLVPlPI2k63ZsJ7AJcQco660GxRV3Zs46xukEzen0M?=
+ =?us-ascii?q?gXnXkALF5ffhKHlJLmN0vBIPD/E/ezm06snytzx/DaIr3hBY3AL3jZn7fkZ7?=
+ =?us-ascii?q?l990lcxREpzd9B+p1UCqsOIO7pVkDts9zYCwczMxaozOb/FNV9yoQeVHqUAq?=
+ =?us-ascii?q?CHNKPSsFmI5v8gIuSXeo8VtyjyK+I/6/7tk3A5g1kdcret3ZcNb3C4BPtmcA?=
+ =?us-ascii?q?2lZi/Ji8wIDW4Js0IPZcnDtHrKBS9aYn+uWIom6z07AZ7gBoDGEMTlm7GF3S?=
+ =?us-ascii?q?GmDrVIaW1cTFOBC3Hlc8ODQfhfRjiVJ5pajjEcVbWnA7Qk3BWquR6yn6FrNc?=
+ =?us-ascii?q?LI6yYYstTlz9Ez6OrNw0JhvQdoBtiQhjneB1p/mXkFEnpvh/Fy?=
+X-IPAS-Result: =?us-ascii?q?A2ARCgAf8Z1d/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBd?=
+ =?us-ascii?q?CqBPwEyKoQjjlxTBoERJYl4kS4JAQEBAQEBAQEBNAECAQGEQAKCTyM4EwIMA?=
+ =?us-ascii?q?QEBBAEBAQEBBQMBAWyFOYI6KQGCZwEBAQECASMVUQsYAgImAgJXBgEMBgIBA?=
+ =?us-ascii?q?YJfP4F3BQ+vR3WBMoVNgy6BSIEMKIwOGHiBB4E4DIJfPodSglgElieXHIIsg?=
+ =?us-ascii?q?i+SZAYbgjqHTo84ji2bRyKBWCsIAhgIIQ+DJ1AQFIFbFxWOKiUDMIEGAQGTX?=
+ =?us-ascii?q?QEB?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 09 Oct 2019 14:39:29 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 09 Oct 2019 14:41:58 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x99EdTPS018516;
-        Wed, 9 Oct 2019 10:39:29 -0400
-Subject: Re: [PATCH 2/2] python/semanage: Add support for DCCP and SCTP
- protocols
-To:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
-References: <20191008122213.9227-1-vmojzis@redhat.com>
- <20191008122213.9227-2-vmojzis@redhat.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x99EfwgY018566;
+        Wed, 9 Oct 2019 10:41:58 -0400
+Subject: Re: [Non-DoD Source] [PATCH 2/5] dispol: add an option for printing
+ the command usage
+To:     Masatake YAMATO <yamato@redhat.com>, selinux@vger.kernel.org
+References: <20191008064500.8651-1-yamato@redhat.com>
+ <20191008064500.8651-4-yamato@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <8820fee0-2472-3209-ba5d-1ef957e4d559@tycho.nsa.gov>
-Date:   Wed, 9 Oct 2019 10:39:29 -0400
+Message-ID: <41f518a5-7e1b-7fa5-6338-c0341f48b671@tycho.nsa.gov>
+Date:   Wed, 9 Oct 2019 10:41:58 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.0
 MIME-Version: 1.0
-In-Reply-To: <20191008122213.9227-2-vmojzis@redhat.com>
+In-Reply-To: <20191008064500.8651-4-yamato@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -93,48 +93,40 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/8/19 8:22 AM, Vit Mojzis wrote:
-> Fixes:
->     # semanage port -a -p sctp -t port_t 1234
->     ValueError: Protocol udp or tcp is required
->     # semanage port -d -p sctp -t port_t 1234
->     ValueError: Protocol udp or tcp is required
-> 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
-
-For both patches,
-
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-
+On 10/8/19 2:44 AM, Masatake YAMATO wrote:
+> Signed-off-by: Masatake YAMATO <yamato@redhat.com>
 > ---
->   python/semanage/seobject.py | 14 ++++++++------
->   1 file changed, 8 insertions(+), 6 deletions(-)
+>   checkpolicy/test/dispol.c | 8 ++++++--
+>   1 file changed, 6 insertions(+), 2 deletions(-)
 > 
-> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> index f4c29854..dc413ca5 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -1058,13 +1058,15 @@ class portRecords(semanageRecords):
->               pass
+> diff --git a/checkpolicy/test/dispol.c b/checkpolicy/test/dispol.c
+> index 1d9556f4..37b22cf8 100644
+> --- a/checkpolicy/test/dispol.c
+> +++ b/checkpolicy/test/dispol.c
+> @@ -39,7 +39,7 @@ static policydb_t policydb;
+>   static __attribute__((__noreturn__)) void usage(const char *progname,
+>   						int status)
+>   {
+> -	printf("usage:  %s binary_pol_file\n\n", progname);
+> +	printf("usage:  %s [-h] binary_pol_file\n\n", progname);
+>   	exit(status);
+>   }
 >   
->       def __genkey(self, port, proto):
-> -        if proto == "tcp":
-> -            proto_d = SEMANAGE_PROTO_TCP
-> +        protocols = {"tcp": SEMANAGE_PROTO_TCP,
-> +                     "udp": SEMANAGE_PROTO_UDP,
-> +                     "sctp": SEMANAGE_PROTO_SCTP,
-> +                     "dccp": SEMANAGE_PROTO_DCCP}
-> +
-> +        if proto in protocols.keys():
-> +            proto_d = protocols[proto]
->           else:
-> -            if proto == "udp":
-> -                proto_d = SEMANAGE_PROTO_UDP
-> -            else:
-> -                raise ValueError(_("Protocol udp or tcp is required"))
-> +            raise ValueError(_("Protocol has to be one of udp, tcp, dccp or sctp"))
->           if port == "":
->               raise ValueError(_("Port is required"))
+> @@ -395,7 +395,11 @@ int main(int argc, char **argv)
+>   	int state;
+>   	struct policy_file pf;
 >   
+> -	if (argc != 2)
+> +	if (argc <= 1)
+> +		usage(argv[0], 1);
+> +	else if (strcmp(argv[1], "-h") == 0)
+> +		usage(argv[0], 0);
+> +	else if (argc != 2)
+>   		usage(argv[0], 1);
+
+Use getopt(3) or getopt_long(3) please for option handling.
+
+>   
+>   	fd = open(argv[1], O_RDONLY);
 > 
 
