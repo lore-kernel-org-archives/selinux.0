@@ -2,146 +2,715 @@ Return-Path: <SRS0=kJgC=YC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56EAAC47404
-	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 18:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 118A6C47404
+	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 20:37:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2653E20B7C
-	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 18:27:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C221120B7C
+	for <selinux@archiver.kernel.org>; Wed,  9 Oct 2019 20:37:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="mufB4S8o"
+	dkim=pass (1024-bit key) header.d=joelfernandes.org header.i=@joelfernandes.org header.b="naAWoMUH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731144AbfJIS1V (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 9 Oct 2019 14:27:21 -0400
-Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:61059 "EHLO
-        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731134AbfJIS1V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 9 Oct 2019 14:27:21 -0400
-X-EEMSG-check-017: 21147934|UPDC19PA22_ESA_OUT04.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.67,277,1566864000"; 
-   d="scan'208";a="21147934"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Oct 2019 18:27:17 +0000
+        id S1729865AbfJIUhK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 9 Oct 2019 16:37:10 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:44120 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731168AbfJIUhK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 9 Oct 2019 16:37:10 -0400
+Received: by mail-pg1-f194.google.com with SMTP id u12so2152273pgb.11
+        for <selinux@vger.kernel.org>; Wed, 09 Oct 2019 13:37:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1570645638; x=1602181638;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=5je9TvXBK5qPRrHhc27YDlnSE5gT/7LqUciNwlAHC4s=;
-  b=mufB4S8o0AkZRdoRlW6AI/nOzv4iCbzCU7M6JMBGk4AVHuEScAuFRKNR
-   JPtN87w5Q0NyT5XRFvb8KmsFzOso3BAWe85TleLaMerUP2vEAbq2MO15Y
-   0JdlAlH2eiAPRom3bNsExhHElTmLqaKmmIsb4e7MIKLlZwbViTluFd33H
-   WJjMeIjPHXAyvOoaj5KrTA7oDzgzeA82NSdEIwDXWtVZaMuk5w7ibJUeu
-   3b0A8X9x6WTA6s4JJUMSNtFta+PB90jtY3TGe9k1ltLJmpB/xvrdcGnqT
-   Pf5voqCbktohHRMlKSpjrpzl075rgQ9MoK94sJLhwZ66UuG4VuwdJhKRR
-   A==;
-X-IronPort-AV: E=Sophos;i="5.67,277,1566864000"; 
-   d="scan'208";a="28828564"
-IronPort-PHdr: =?us-ascii?q?9a23=3AdWqEUBX9b4CwsfQenmMefC5P6NLV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYZRSGv6dThVPEFb/W9+hDw7KP9fy5AipeuN3Y6ClKWacPfi?=
- =?us-ascii?q?dNsd8RkQ0kDZzNImzAB9muURYHGt9fXkRu5XCxPBsdMs//Y1rPvi/6tmZKSV?=
- =?us-ascii?q?3wOgVvO+v6BJPZgdip2OCu4Z3TZBhDiCagbb9oIxi6sAvcutMXjId/Jao91w?=
- =?us-ascii?q?fFrmZVcOlK2G1kIk6ekQzh7cmq5p5j9CpQu/Ml98FeVKjxYro1Q79FAjk4Km?=
- =?us-ascii?q?45/MLkuwXNQguJ/XscT34ZkgFUDAjf7RH1RYn+vy3nvedgwiaaPMn2TbcpWT?=
- =?us-ascii?q?S+6qpgVRHlhDsbOzM/7WrakdJ7gr5Frx29phx/24/Ub5+TNPpiZaPWYNcWSX?=
- =?us-ascii?q?NcUspNSyBNB4WxYIUVD+oFIO1WsY/zqVUTphe6HAWhCufixjpOi3Tr36M1zv?=
- =?us-ascii?q?4hHBnb0gI+EdIAsHfaotv7O6gdU++60KbGwC7fb/5Uwzrx9JTEfx4jrPyKQL?=
- =?us-ascii?q?l+cdDRyU4qFw7dk1uQtZLqPyuV1usTtWiQ8vduVee1hG4jrwF+vDiuzdorh4?=
- =?us-ascii?q?nSm40V0UvJ9Tl5wYkpJd24T1R3Ydi/EJRKrS2aOIx2Qt07TmxupS00xLoGuZ?=
- =?us-ascii?q?uhcygLzpQq3wTfZOKafIiI+B3jSPydLit/hHJgYL6/iBey8VSgyu3hTca4yk?=
- =?us-ascii?q?pFri1AktTKq3sD1ATT59CaRvZy8UqtwzaC2x3J5u1aLk04i7DXJ4Mnz7UtjJ?=
- =?us-ascii?q?Qcq17DETXzmEjuia+WcVgr9faw5uT8Z7XmuoecN4hpigHiKqgumtKwAeA/Mg?=
- =?us-ascii?q?UWQ2iU4/681Lz+/U3iWrlKkv03nbXZsJDdP8gboLK2AxRJ3Yo57ha/DjOm3M?=
- =?us-ascii?q?wZnXkBMl1FZAqKg5XmNlzBOvz1Deqzj06ynDpk2fzKJKDtDo3ILnfZkbfheb?=
- =?us-ascii?q?h961RbyAo21d1f/I9bCqoaLfLvWk7+qNzYDhgjPwyy2OboEs9x1owZWWKRGq?=
- =?us-ascii?q?OZKr/dsUeU5uIzJOmBfJcVtyzgK/gh/PPulWU2mUIZfaWw2JsXb3e4Hu54LE?=
- =?us-ascii?q?mDfXXshdIBG38QvgUiVOzqlEGCUTlLana1WqI84So7CIS8AojfWI+gm6aB0z?=
- =?us-ascii?q?mmEZ1WfG9GFkqAHmvvd4WBQ/0Mcj6dItd9kjwYUrisU5Qh2g+qtA/7zbpnM+?=
- =?us-ascii?q?XV9zYGtZLsytd1/ffflRIs+jxuCcSSzWWNQ3tznmMSSD9llJx49HR011PL9K?=
- =?us-ascii?q?9/mfEQQcRa+vdhSg4nMdvZyOtgBpb5XQeXOp+uTlq8T9fuJDYqSNs6ztxGN0?=
- =?us-ascii?q?F4HM6khxvO9zCnD78ci/qAA5lioYzG2H2kHNpw03bL0uEailAiRsZefTm9ir?=
- =?us-ascii?q?VX6xnYB4mPlV6Q0amta/JPj2b26G6fwD/W7wljWwlqXPCABCtOaw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CPAgDDJZ5d/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBe4F0LGxSATIqhCOPKwEBAQEGgTaJeJEuCQEBAQEBAQEBASsJAQIBAYRAA?=
- =?us-ascii?q?oJPIzgTAgwBAQEEAQEBAQEFAwEBbIUtDII6KQGCZwEBAQEDIxVBEAsVAwICJ?=
- =?us-ascii?q?gICVwYBDAYCAQGCXz8BglIlD692dYEyhU2DLYFCBoEMKIwOGHiBB4ERJ4JrP?=
- =?us-ascii?q?oJhAgIYhFWCXgSMYYlGlxyCLIIvhFmOCwYbmUCOLYgikyUigUEPCCsIAhgII?=
- =?us-ascii?q?Q+DJ1AQFIVCim8lAzABgQUBAZATAQE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 09 Oct 2019 18:27:16 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x99IRFPa015426;
-        Wed, 9 Oct 2019 14:27:16 -0400
-Subject: Re: [PATCH] selinux-testsuite: add libelf to builds using libbpf
-To:     Paul Moore <paul@paul-moore.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-References: <156936589827.661145.16998799838921887816.stgit@chester>
- <CAFqZXNtYOypuvkXExmo1=TiXSMU81k9=n=P8ZQjZ66dBugCFUg@mail.gmail.com>
- <CAHC9VhQkwySJJecbZLh1bSNV-oMEy8Ch_ZmuujOHiu7UgeYYiA@mail.gmail.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <d9248c65-d22c-4a4f-5fbd-8db9ed087d45@tycho.nsa.gov>
-Date:   Wed, 9 Oct 2019 14:27:15 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.0
+        d=joelfernandes.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=S/LB1jZX+3g3mn/uzEKnSvYamW6pUCsUQsCwAUev9cQ=;
+        b=naAWoMUHkUss9Wj70SMiT6ucslY2Djb2FESSl3KN2rthgxyQ+BWD+tOtEK+9CsxxIi
+         D4tY0bEN621fcZQM5TuAFk8396rAuCLL5fybe3NaObQnzic9BdwJFW2/6GesAGPb8GYU
+         +VXBv9ruaU7m8a+SL8YIfky+bR8IjEc4SqxFk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=S/LB1jZX+3g3mn/uzEKnSvYamW6pUCsUQsCwAUev9cQ=;
+        b=VT1r6Pe4pjycxByySwveWoaGtOvV7PV6x1tjQZ8DCjBfWAy4dI0lR7o3H+9X7K4Y/8
+         n1Sd9Tp082RqzNiQ6eJVBOSKdk6H1fe+JxU96jphoR41VdGoMetHbmJ8BEX4Pk9kV6qm
+         3QE0SiZXCn38SVY1rNyH54MCkz5Wk5Ew+VWrLFjxlYVXM9bkSUbCdg2VvDKkSuAJJ/X5
+         SxGs3HxBnkYU+6LPR+b/9XGcOrKG1PpARXygOcPrEl5QyUIz1zYBRuHAwqqWg93cvI0+
+         lU+PDShD0FnNEeVqS6K1+fa35SbNXQlsK78H3xMVi00AMndzaiGa4ALumUmf9zKyHpbd
+         VsvQ==
+X-Gm-Message-State: APjAAAWgLid2rJFTAjb1w89wqlyfQ43PvDUwooHv+AYhQa1hLMJhpxjq
+        7PDbyr0djkcEg1pEcS4+GygyOQ==
+X-Google-Smtp-Source: APXvYqyURYI1t6l3WgeoVYiaj8FrOOcESQFw3B9HXQGngeIuHQZGNWHM9bb9Xt3IfPjB8RRjslonMg==
+X-Received: by 2002:a63:c445:: with SMTP id m5mr6457743pgg.211.1570653427285;
+        Wed, 09 Oct 2019 13:37:07 -0700 (PDT)
+Received: from joelaf.cam.corp.google.com ([2620:15c:6:12:9c46:e0da:efbf:69cc])
+        by smtp.gmail.com with ESMTPSA id f12sm2791440pgo.85.2019.10.09.13.37.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 09 Oct 2019 13:37:06 -0700 (PDT)
+From:   "Joel Fernandes (Google)" <joel@joelfernandes.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        Peter Zijlstra <peterz@infradead.org>, rostedt@goodmis.org,
+        primiano@google.com, rsavitski@google.com, jeffv@google.com,
+        kernel-team@android.com, Alexei Starovoitov <ast@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        bpf@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Ingo Molnar <mingo@redhat.com>,
+        James Morris <jmorris@namei.org>, Jiri Olsa <jolsa@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        linux-security-module@vger.kernel.org,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Namhyung Kim <namhyung@kernel.org>, selinux@vger.kernel.org,
+        Song Liu <songliubraving@fb.com>,
+        x86@kernel.org (maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)),
+        Yonghong Song <yhs@fb.com>
+Subject: [PATCH RFC] perf_event: Add support for LSM and SELinux checks
+Date:   Wed,  9 Oct 2019 16:36:57 -0400
+Message-Id: <20191009203657.6070-1-joel@joelfernandes.org>
+X-Mailer: git-send-email 2.23.0.700.g56cf767bdb-goog
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQkwySJJecbZLh1bSNV-oMEy8Ch_ZmuujOHiu7UgeYYiA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 9/25/19 11:22 AM, Paul Moore wrote:
-> On Wed, Sep 25, 2019 at 5:06 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->> On Wed, Sep 25, 2019 at 12:58 AM Paul Moore <paul@paul-moore.com> wrote:
->>> From: Paul Moore <paul@paul-moore.com>
->>>
->>> On a modern Rawhide system builds that include libbpf require libelf
->>> as well to avoid the following linker errors:
->>>
->>>   # cc -g -O0 -Wall -D_GNU_SOURCE -DHAVE_BPF \
->>>      client.c ../bpf/bpf_common.c ../bpf/bpf_common.h  -lbpf -o client
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `gelf_getshdr'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_rawdata'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_getscn'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_begin'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `gelf_getrel'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_memory'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_end'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_strptr'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_nextscn'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `gelf_getehdr'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_version'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `elf_getdata'
->>>   /usr/bin/ld: ... libbpf.so: undefined reference to `gelf_getsym'
->>
->> This is a bug in libbpf. I filed a bug against the Fedora package [1]
->> and also opened a PR [2] against the upstream repo (which is a
->> modified mirror of the code in the kernel repo under tools/lib/bpf,
->> where the bug is not present), which I think should fix this problem
->> also in the Fedora builds.
->>
->> [1] https://bugzilla.redhat.com/show_bug.cgi?id=1755317
->> [2] https://github.com/libbpf/libbpf/pull/72
-> 
-> Thanks for tracking down the root cause and filing a report upstream;
-> I didn't have time to sort out the "why", I just wanted to get the
-> test working again :)
-> 
-> It looks like the best course of action is to hold off on this fix in
-> hopes that it gets fixed upstream, or at least in Fedora.  If this
-> issue persists for a week or two we can always go ahead and merge this
-> fix, it shouldn't break anything if/when this gets fixed upstream.
-> 
-> Tests that fail to run made me sad :(
+In currentl mainline, the degree of access to perf_event_open(2) system
+call depends on the perf_event_paranoid sysctl.  This has a number of
+limitations:
 
-FWIW, this is still broken on F30 (don't know about F31).  Any chance we 
-can get the updated package pushed to F30/F31 too?
+1. The sysctl is only a single value. Many types of accesses are controlled
+   based on the single value thus making the control very limited and
+   coarse grained.
+2. The sysctl is global, so if the sysctl is changed, then that means
+   all processes get access to perf_event_open(2) opening the door to
+   security issues.
+
+This patch adds LSM and SELinux access checking which will be used in
+Android to access perf_event_open(2) for the purposes of attaching BPF
+programs to tracepoints, perf profiling and other operations from
+userspace. These operations are intended for production systems.
+
+5 new LSM hooks are added:
+1. perf_event_open: This controls access during the perf_event_open(2)
+   syscall itself. The hook is called from all the places that the
+   perf_event_paranoid sysctl is checked to keep it consistent with the
+   systctl. The hook gets passed a 'type' argument which controls CPU,
+   kernel and tracepoint accesses (in this context, CPU, kernel and
+   tracepoint have the same semantics as the perf_event_paranoid sysctl).
+   Additionally, I added an 'open' type which is similar to
+   perf_event_paranoid sysctl == 3 patch carried in Android and several other
+   distros but was rejected in mainline [1] in 2016.
+
+2. perf_event_alloc: This allocates a new security object for the event
+   which stores the current SID within the event. It will be useful when
+   the perf event's FD is passed through IPC to another process which may
+   try to read the FD. Appropriate security checks will limit access.
+
+3. perf_event_free: Called when the event is closed.
+
+4. perf_event_read: Called from the read(2) system call path for the event.
+
+5. perf_event_write: Called from the read(2) system call path for the event.
+
+[1] https://lwn.net/Articles/696240/
+
+Since Peter had suggest LSM hooks in 2016 [1], I am adding his
+Suggested-by tag below.
+
+To use this patch, we set the perf_event_paranoid sysctl to -1 and then
+apply selinux checking as appropriate (default deny everything, and then
+add policy rules to give access to domains that need it). In the future
+we can remove the perf_event_paranoid sysctl altogether.
+
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: rostedt@goodmis.org
+Cc: primiano@google.com
+Cc: rsavitski@google.com
+Cc: jeffv@google.com
+Cc: kernel-team@android.com
+Signed-off-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+
+---
+ arch/x86/events/intel/bts.c         |  5 +++
+ arch/x86/events/intel/core.c        |  5 +++
+ arch/x86/events/intel/p4.c          |  5 +++
+ include/linux/lsm_hooks.h           | 15 +++++++
+ include/linux/perf_event.h          |  3 ++
+ include/linux/security.h            | 39 +++++++++++++++-
+ include/uapi/linux/perf_event.h     | 13 ++++++
+ kernel/events/core.c                | 59 +++++++++++++++++++++---
+ kernel/trace/trace_event_perf.c     | 15 ++++++-
+ security/security.c                 | 33 ++++++++++++++
+ security/selinux/hooks.c            | 69 +++++++++++++++++++++++++++++
+ security/selinux/include/classmap.h |  2 +
+ security/selinux/include/objsec.h   |  6 ++-
+ 13 files changed, 259 insertions(+), 10 deletions(-)
+
+diff --git a/arch/x86/events/intel/bts.c b/arch/x86/events/intel/bts.c
+index 5ee3fed881d3..9796fc094dad 100644
+--- a/arch/x86/events/intel/bts.c
++++ b/arch/x86/events/intel/bts.c
+@@ -14,6 +14,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/device.h>
+ #include <linux/coredump.h>
++#include <linux/security.h>
+ 
+ #include <linux/sizes.h>
+ #include <asm/perf_event.h>
+@@ -553,6 +554,10 @@ static int bts_event_init(struct perf_event *event)
+ 	    !capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+ 
++	ret = security_perf_event_open(&event->attr, PERF_SECURITY_KERNEL);
++	if (ret)
++		return ret;
++
+ 	if (x86_add_exclusive(x86_lbr_exclusive_bts))
+ 		return -EBUSY;
+ 
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 27ee47a7be66..75b6b9b239ae 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -11,6 +11,7 @@
+ #include <linux/stddef.h>
+ #include <linux/types.h>
+ #include <linux/init.h>
++#include <linux/security.h>
+ #include <linux/slab.h>
+ #include <linux/export.h>
+ #include <linux/nmi.h>
+@@ -3318,6 +3319,10 @@ static int intel_pmu_hw_config(struct perf_event *event)
+ 	if (perf_paranoid_cpu() && !capable(CAP_SYS_ADMIN))
+ 		return -EACCES;
+ 
++	ret = security_perf_event_open(&event->attr, PERF_SECURITY_CPU);
++	if (ret)
++		return ret;
++
+ 	event->hw.config |= ARCH_PERFMON_EVENTSEL_ANY;
+ 
+ 	return 0;
+diff --git a/arch/x86/events/intel/p4.c b/arch/x86/events/intel/p4.c
+index dee579efb2b2..6ac1a0328710 100644
+--- a/arch/x86/events/intel/p4.c
++++ b/arch/x86/events/intel/p4.c
+@@ -8,6 +8,7 @@
+  */
+ 
+ #include <linux/perf_event.h>
++#include <linux/security.h>
+ 
+ #include <asm/perf_event_p4.h>
+ #include <asm/hardirq.h>
+@@ -778,6 +779,10 @@ static int p4_validate_raw_event(struct perf_event *event)
+ 	if (p4_ht_active() && p4_event_bind_map[v].shared) {
+ 		if (perf_paranoid_cpu() && !capable(CAP_SYS_ADMIN))
+ 			return -EACCES;
++
++		v = security_perf_event_open(&event->attr, PERF_SECURITY_CPU);
++		if (v)
++			return v;
+ 	}
+ 
+ 	/* ESCR EventMask bits may be invalid */
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index a3763247547c..20d8cf194fb7 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1818,6 +1818,14 @@ union security_list_options {
+ 	void (*bpf_prog_free_security)(struct bpf_prog_aux *aux);
+ #endif /* CONFIG_BPF_SYSCALL */
+ 	int (*locked_down)(enum lockdown_reason what);
++#ifdef CONFIG_PERF_EVENTS
++	int (*perf_event_open)(struct perf_event_attr *attr, int type);
++	int (*perf_event_alloc)(struct perf_event *event);
++	void (*perf_event_free)(struct perf_event *event);
++	int (*perf_event_read)(struct perf_event *event);
++	int (*perf_event_write)(struct perf_event *event);
++
++#endif
+ };
+ 
+ struct security_hook_heads {
+@@ -2060,6 +2068,13 @@ struct security_hook_heads {
+ 	struct hlist_head bpf_prog_free_security;
+ #endif /* CONFIG_BPF_SYSCALL */
+ 	struct hlist_head locked_down;
++#ifdef CONFIG_PERF_EVENTS
++	struct hlist_head perf_event_open;
++	struct hlist_head perf_event_alloc;
++	struct hlist_head perf_event_free;
++	struct hlist_head perf_event_read;
++	struct hlist_head perf_event_write;
++#endif
+ } __randomize_layout;
+ 
+ /*
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index 61448c19a132..f074bb937800 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -721,6 +721,9 @@ struct perf_event {
+ 	struct perf_cgroup		*cgrp; /* cgroup event is attach to */
+ #endif
+ 
++#ifdef CONFIG_SECURITY
++	void *security;
++#endif
+ 	struct list_head		sb_list;
+ #endif /* CONFIG_PERF_EVENTS */
+ };
+diff --git a/include/linux/security.h b/include/linux/security.h
+index a8d59d612d27..273e11c66ed7 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1894,5 +1894,42 @@ static inline void security_bpf_prog_free(struct bpf_prog_aux *aux)
+ #endif /* CONFIG_SECURITY */
+ #endif /* CONFIG_BPF_SYSCALL */
+ 
+-#endif /* ! __LINUX_SECURITY_H */
++#ifdef CONFIG_PERF_EVENTS
++struct perf_event_attr;
++
++#ifdef CONFIG_SECURITY
++extern int security_perf_event_open(struct perf_event_attr *attr, int type);
++extern int security_perf_event_alloc(struct perf_event *event);
++extern void security_perf_event_free(struct perf_event *event);
++extern int security_perf_event_read(struct perf_event *event);
++extern int security_perf_event_write(struct perf_event *event);
++#else
++static inline int security_perf_event_open(struct perf_event_attr *attr,
++					   int type)
++{
++	return 0;
++}
+ 
++static inline int security_perf_event_alloc(struct perf_event *event)
++{
++	return 0;
++}
++
++static inline void security_perf_event_free(struct perf_event *event)
++{
++	return 0;
++}
++
++static inline int security_perf_event_read(struct perf_event *event)
++{
++	return 0;
++}
++
++static inline int security_perf_event_write(struct perf_event *event)
++{
++	return 0;
++}
++#endif /* CONFIG_SECURITY */
++#endif /* CONFIG_PERF_EVENTS */
++
++#endif /* ! __LINUX_SECURITY_H */
+diff --git a/include/uapi/linux/perf_event.h b/include/uapi/linux/perf_event.h
+index bb7b271397a6..5fc904c17dd8 100644
+--- a/include/uapi/linux/perf_event.h
++++ b/include/uapi/linux/perf_event.h
+@@ -427,6 +427,19 @@ struct perf_event_attr {
+ 	__u16	__reserved_2;	/* align to __u64 */
+ };
+ 
++
++/* Access to perf_event_open(2) syscall. */
++#define PERF_SECURITY_OPEN		0
++
++/* Finer grained perf_event_open(2) access control. */
++#define PERF_SECURITY_CPU		1
++#define PERF_SECURITY_KERNEL		2
++#define PERF_SECURITY_TRACEPOINT	3
++
++/* VFS access. */
++#define PERF_SECURITY_READ		4
++#define PERF_SECURITY_WRITE		5
++
+ /*
+  * Structure used by below PERF_EVENT_IOC_QUERY_BPF command
+  * to query bpf programs attached to the same perf tracepoint
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index 4655adbbae10..05915af9d215 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -4220,6 +4220,10 @@ find_get_context(struct pmu *pmu, struct task_struct *task,
+ 		if (perf_paranoid_cpu() && !capable(CAP_SYS_ADMIN))
+ 			return ERR_PTR(-EACCES);
+ 
++		err = security_perf_event_open(&event->attr, PERF_SECURITY_CPU);
++		if (err)
++			return ERR_PTR(err);
++
+ 		cpuctx = per_cpu_ptr(pmu->pmu_cpu_context, cpu);
+ 		ctx = &cpuctx->ctx;
+ 		get_ctx(ctx);
+@@ -4761,6 +4765,7 @@ int perf_event_release_kernel(struct perf_event *event)
+ 	}
+ 
+ no_ctx:
++	security_perf_event_free(event);
+ 	put_event(event); /* Must be the 'last' reference */
+ 	return 0;
+ }
+@@ -4980,6 +4985,10 @@ perf_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+ 	struct perf_event_context *ctx;
+ 	int ret;
+ 
++	ret = security_perf_event_read(event);
++	if (ret)
++		return ret;
++
+ 	ctx = perf_event_ctx_lock(event);
+ 	ret = __perf_read(event, buf, count);
+ 	perf_event_ctx_unlock(event, ctx);
+@@ -5244,6 +5253,11 @@ static long perf_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	struct perf_event_context *ctx;
+ 	long ret;
+ 
++	/* Treat ioctl like writes as it is likely a mutating operation. */
++	ret = security_perf_event_write(event);
++	if (ret)
++		return ret;
++
+ 	ctx = perf_event_ctx_lock(event);
+ 	ret = _perf_ioctl(event, cmd, arg);
+ 	perf_event_ctx_unlock(event, ctx);
+@@ -5706,6 +5720,10 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
+ 	if (!(vma->vm_flags & VM_SHARED))
+ 		return -EINVAL;
+ 
++	ret = security_perf_event_read(event);
++	if (ret)
++		return ret;
++
+ 	vma_size = vma->vm_end - vma->vm_start;
+ 
+ 	if (vma->vm_pgoff == 0) {
+@@ -5819,10 +5837,16 @@ static int perf_mmap(struct file *file, struct vm_area_struct *vma)
+ 	lock_limit >>= PAGE_SHIFT;
+ 	locked = atomic64_read(&vma->vm_mm->pinned_vm) + extra;
+ 
+-	if ((locked > lock_limit) && perf_paranoid_tracepoint_raw() &&
+-		!capable(CAP_IPC_LOCK)) {
+-		ret = -EPERM;
+-		goto unlock;
++	if (locked > lock_limit) {
++		if (perf_paranoid_tracepoint_raw() && !capable(CAP_IPC_LOCK)) {
++			ret = -EPERM;
++			goto unlock;
++		}
++
++		ret = security_perf_event_open(&event->attr,
++					       PERF_SECURITY_TRACEPOINT);
++		if (ret)
++			goto unlock;
+ 	}
+ 
+ 	WARN_ON(!rb && event->rb);
+@@ -10553,11 +10577,17 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
+ 		}
+ 	}
+ 
++#ifdef CONFIG_SECURITY
++	err = security_perf_event_alloc(event);
++	if (err)
++		goto err_security;
++#endif
+ 	/* symmetric to unaccount_event() in _free_event() */
+ 	account_event(event);
+ 
+ 	return event;
+ 
++err_security:
+ err_addr_filters:
+ 	kfree(event->addr_filter_ranges);
+ 
+@@ -10675,9 +10705,15 @@ static int perf_copy_attr(struct perf_event_attr __user *uattr,
+ 			attr->branch_sample_type = mask;
+ 		}
+ 		/* privileged levels capture (kernel, hv): check permissions */
+-		if ((mask & PERF_SAMPLE_BRANCH_PERM_PLM)
+-		    && perf_paranoid_kernel() && !capable(CAP_SYS_ADMIN))
+-			return -EACCES;
++		if (mask & PERF_SAMPLE_BRANCH_PERM_PLM) {
++			if (perf_paranoid_kernel() && !capable(CAP_SYS_ADMIN))
++				return -EACCES;
++
++			ret = security_perf_event_open(attr,
++						       PERF_SECURITY_KERNEL);
++			if (ret)
++				return ret;
++		}
+ 	}
+ 
+ 	if (attr->sample_type & PERF_SAMPLE_REGS_USER) {
+@@ -10890,6 +10926,11 @@ SYSCALL_DEFINE5(perf_event_open,
+ 	if (flags & ~PERF_FLAG_ALL)
+ 		return -EINVAL;
+ 
++	/* Do we allow access to perf_event_open(2) ? */
++	err = security_perf_event_open(&attr, PERF_SECURITY_OPEN);
++	if (err)
++		return err;
++
+ 	err = perf_copy_attr(attr_uptr, &attr);
+ 	if (err)
+ 		return err;
+@@ -10897,6 +10938,10 @@ SYSCALL_DEFINE5(perf_event_open,
+ 	if (!attr.exclude_kernel) {
+ 		if (perf_paranoid_kernel() && !capable(CAP_SYS_ADMIN))
+ 			return -EACCES;
++
++		err = security_perf_event_open(&attr, PERF_SECURITY_KERNEL);
++		if (err)
++			return err;
+ 	}
+ 
+ 	if (attr.namespaces) {
+diff --git a/kernel/trace/trace_event_perf.c b/kernel/trace/trace_event_perf.c
+index 0892e38ed6fb..7053a47ba344 100644
+--- a/kernel/trace/trace_event_perf.c
++++ b/kernel/trace/trace_event_perf.c
+@@ -8,6 +8,7 @@
+ 
+ #include <linux/module.h>
+ #include <linux/kprobes.h>
++#include <linux/security.h>
+ #include "trace.h"
+ #include "trace_probe.h"
+ 
+@@ -26,8 +27,10 @@ static int	total_ref_count;
+ static int perf_trace_event_perm(struct trace_event_call *tp_event,
+ 				 struct perf_event *p_event)
+ {
++	int ret;
++
+ 	if (tp_event->perf_perm) {
+-		int ret = tp_event->perf_perm(tp_event, p_event);
++		ret = tp_event->perf_perm(tp_event, p_event);
+ 		if (ret)
+ 			return ret;
+ 	}
+@@ -49,6 +52,11 @@ static int perf_trace_event_perm(struct trace_event_call *tp_event,
+ 		if (perf_paranoid_tracepoint_raw() && !capable(CAP_SYS_ADMIN))
+ 			return -EPERM;
+ 
++		ret = security_perf_event_open(&p_event->attr,
++					       PERF_SECURITY_TRACEPOINT);
++		if (ret)
++			return ret;
++
+ 		if (!is_sampling_event(p_event))
+ 			return 0;
+ 
+@@ -85,6 +93,11 @@ static int perf_trace_event_perm(struct trace_event_call *tp_event,
+ 	if (perf_paranoid_tracepoint_raw() && !capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+ 
++	ret = security_perf_event_open(&p_event->attr,
++				       PERF_SECURITY_TRACEPOINT);
++	if (ret)
++		return ret;
++
+ 	return 0;
+ }
+ 
+diff --git a/security/security.c b/security/security.c
+index 1bc000f834e2..7639bca1db59 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2373,26 +2373,32 @@ int security_bpf(int cmd, union bpf_attr *attr, unsigned int size)
+ {
+ 	return call_int_hook(bpf, 0, cmd, attr, size);
+ }
++
+ int security_bpf_map(struct bpf_map *map, fmode_t fmode)
+ {
+ 	return call_int_hook(bpf_map, 0, map, fmode);
+ }
++
+ int security_bpf_prog(struct bpf_prog *prog)
+ {
+ 	return call_int_hook(bpf_prog, 0, prog);
+ }
++
+ int security_bpf_map_alloc(struct bpf_map *map)
+ {
+ 	return call_int_hook(bpf_map_alloc_security, 0, map);
+ }
++
+ int security_bpf_prog_alloc(struct bpf_prog_aux *aux)
+ {
+ 	return call_int_hook(bpf_prog_alloc_security, 0, aux);
+ }
++
+ void security_bpf_map_free(struct bpf_map *map)
+ {
+ 	call_void_hook(bpf_map_free_security, map);
+ }
++
+ void security_bpf_prog_free(struct bpf_prog_aux *aux)
+ {
+ 	call_void_hook(bpf_prog_free_security, aux);
+@@ -2404,3 +2410,30 @@ int security_locked_down(enum lockdown_reason what)
+ 	return call_int_hook(locked_down, 0, what);
+ }
+ EXPORT_SYMBOL(security_locked_down);
++
++#ifdef CONFIG_PERF_EVENTS
++int security_perf_event_open(struct perf_event_attr *attr, int type)
++{
++	return call_int_hook(perf_event_open, 0, attr, type);
++}
++
++int security_perf_event_alloc(struct perf_event *event)
++{
++	return call_int_hook(perf_event_alloc, 0, event);
++}
++
++void security_perf_event_free(struct perf_event *event)
++{
++	call_void_hook(perf_event_free, event);
++}
++
++int security_perf_event_read(struct perf_event *event)
++{
++	return call_int_hook(perf_event_read, 0, event);
++}
++
++int security_perf_event_write(struct perf_event *event)
++{
++	return call_int_hook(perf_event_write, 0, event);
++}
++#endif /* CONFIG_PERF_EVENTS */
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9625b99e677f..28eb05490d59 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6795,6 +6795,67 @@ struct lsm_blob_sizes selinux_blob_sizes __lsm_ro_after_init = {
+ 	.lbs_msg_msg = sizeof(struct msg_security_struct),
+ };
+ 
++#ifdef CONFIG_PERF_EVENTS
++static int selinux_perf_event_open(struct perf_event_attr *attr, int type)
++{
++	u32 requested, sid = current_sid();
++
++	if (type == PERF_SECURITY_OPEN)
++		requested = PERF_EVENT__OPEN;
++	else if (type == PERF_SECURITY_CPU)
++		requested = PERF_EVENT__CPU;
++	else if (type == PERF_SECURITY_KERNEL)
++		requested = PERF_EVENT__KERNEL;
++	else if (type == PERF_SECURITY_TRACEPOINT)
++		requested = PERF_EVENT__TRACEPOINT;
++	else
++		return -EINVAL;
++
++	return avc_has_perm(&selinux_state, sid, sid, SECCLASS_PERF_EVENT,
++			    requested, NULL);
++}
++
++static int selinux_perf_event_alloc(struct perf_event *event)
++{
++	struct perf_event_security_struct *perfsec;
++
++	perfsec = kzalloc(sizeof(*perfsec), GFP_KERNEL);
++	if (!perfsec)
++		return -ENOMEM;
++
++	perfsec->sid = current_sid();
++	event->security = perfsec;
++
++	return 0;
++}
++
++static void selinux_perf_event_free(struct perf_event *event)
++{
++	struct perf_event_security_struct *perfsec = event->security;
++
++	event->security = NULL;
++	kfree(perfsec);
++}
++
++static int selinux_perf_event_read(struct perf_event *event)
++{
++	struct perf_event_security_struct *perfsec = event->security;
++	u32 sid = current_sid();
++
++	return avc_has_perm(&selinux_state, sid, perfsec->sid,
++			    SECCLASS_PERF_EVENT, PERF_EVENT__READ, NULL);
++}
++
++static int selinux_perf_event_write(struct perf_event *event)
++{
++	struct perf_event_security_struct *perfsec = event->security;
++	u32 sid = current_sid();
++
++	return avc_has_perm(&selinux_state, sid, perfsec->sid,
++			    SECCLASS_PERF_EVENT, PERF_EVENT__WRITE, NULL);
++}
++#endif
++
+ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(binder_set_context_mgr, selinux_binder_set_context_mgr),
+ 	LSM_HOOK_INIT(binder_transaction, selinux_binder_transaction),
+@@ -7030,6 +7091,14 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(bpf_map_free_security, selinux_bpf_map_free),
+ 	LSM_HOOK_INIT(bpf_prog_free_security, selinux_bpf_prog_free),
+ #endif
++
++#ifdef CONFIG_PERF_EVENTS
++	LSM_HOOK_INIT(perf_event_open, selinux_perf_event_open),
++	LSM_HOOK_INIT(perf_event_alloc, selinux_perf_event_alloc),
++	LSM_HOOK_INIT(perf_event_free, selinux_perf_event_free),
++	LSM_HOOK_INIT(perf_event_read, selinux_perf_event_read),
++	LSM_HOOK_INIT(perf_event_write, selinux_perf_event_write),
++#endif
+ };
+ 
+ static __init int selinux_init(void)
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 32e9b03be3dd..7db24855e12d 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -244,6 +244,8 @@ struct security_class_mapping secclass_map[] = {
+ 	  {"map_create", "map_read", "map_write", "prog_load", "prog_run"} },
+ 	{ "xdp_socket",
+ 	  { COMMON_SOCK_PERMS, NULL } },
++	{ "perf_event",
++	  {"open", "cpu", "kernel", "tracepoint", "read", "write"} },
+ 	{ NULL }
+   };
+ 
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 586b7abd0aa7..a4a86cbcfb0a 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -141,7 +141,11 @@ struct pkey_security_struct {
+ };
+ 
+ struct bpf_security_struct {
+-	u32 sid;  /*SID of bpf obj creater*/
++	u32 sid;  /* SID of bpf obj creator */
++};
++
++struct perf_event_security_struct {
++	u32 sid;  /* SID of perf_event obj creator */
+ };
+ 
+ extern struct lsm_blob_sizes selinux_blob_sizes;
+-- 
+2.23.0.700.g56cf767bdb-goog
 
