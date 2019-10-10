@@ -2,128 +2,149 @@ Return-Path: <SRS0=2qaZ=YD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8374C4360C
-	for <selinux@archiver.kernel.org>; Thu, 10 Oct 2019 17:10:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF5C0C4360C
+	for <selinux@archiver.kernel.org>; Thu, 10 Oct 2019 18:14:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B2DC72067B
-	for <selinux@archiver.kernel.org>; Thu, 10 Oct 2019 17:10:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5404214E0
+	for <selinux@archiver.kernel.org>; Thu, 10 Oct 2019 18:14:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="Do8hAovh"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="rsBY0mtf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726633AbfJJRKS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Oct 2019 13:10:18 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:51610 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726291AbfJJRKS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 10 Oct 2019 13:10:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=2ORhkw5GPRBxZuF/xlv/BjcMDmGKtcdp+AMxb3+giRk=; b=Do8hAovh7JWYg3ucRGcXnRKlp
-        Hk/Mdo6HvHbjjzVB2oeN73Lg3ScBEwJ7yLS2xEExgXEBE42Ov7eTrryiUc+6flTBzVMEVyngCfmr0
-        7DveBBO5dhInqtgUEe9a8uF1I+nODwJYoFohx1pWitYKqMGQnFzbQK9pZt+qPCF7MLYHxa6iEwG/W
-        8B6jY4hY9N4UfA4dnrnri9GsVVNzoPzINpuJzJ263r3CONhT24WWKWVS0iUkTf0g+msab95XEwsqm
-        robs5JYWD7vsNoTe5jx1EFbG3TPye9jJ4o0v+nT1wPbMgJAT9He3Ach8nHO3p/htt4/oIuFjVH/eV
-        AslgJc8fw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iIbwl-0004bm-V5; Thu, 10 Oct 2019 17:09:52 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id E0E243013A4;
-        Thu, 10 Oct 2019 19:08:56 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 29D5A21492B14; Thu, 10 Oct 2019 19:09:49 +0200 (CEST)
-Date:   Thu, 10 Oct 2019 19:09:49 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Joel Fernandes <joel@joelfernandes.org>
-Cc:     linux-kernel@vger.kernel.org, rostedt@goodmis.org,
+        id S1726951AbfJJSOY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Oct 2019 14:14:24 -0400
+Received: from sonic315-48.consmr.mail.bf2.yahoo.com ([74.6.134.222]:44600
+        "EHLO sonic315-48.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726946AbfJJSOY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Oct 2019 14:14:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1570731262; bh=zaME4nyMqJtWjsRvYUaqDCTHCgF4I360TrNfhU1lx1U=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=rsBY0mtfHdTBfLzAWvjwH0w7vnqUE+nGnhrcHvjLwJU0NHH7ez+VVLrn7BgMGP2/Ni9eJ60SaBn8aQMmmjmKdw2ktPIKVpFhKUBmJY4iyGzvZa0xQDWimVdArI8kzKWT8v54MVwA1MAiwo2RNfF/NXP51+1F/IJYfTVrweC1dA1ES7cH/0xKsyKbtXpR/qWJjc3IeRVK0Ff7k1wMQ3xZe8dg8BHeRWDsNbf6TLNV/k8m4WHgLZCoA0ssmjfpwSnS4Jm3IreLuz+hkeL5BiltW/zRFuYsG3jJoBlMGr3jtSLP1PSY4DhyQz3PYL+RYwRcyuk7eng4KqBuvL0vxnTmSQ==
+X-YMail-OSG: Ce6YZYEVM1k93g59lNLFfHP4FBHYKdtTbpIDqwUFs4XVp0rr53Kf8Dk9vVpygZa
+ mmf6Ld_DC6iRUb4itBdgSY5txaLvAWHzPpPYv6_6vIWd3opFidCKOK6GgK5gKKHN6a.WdYomz9B8
+ tSeAmbdhCW08OdRXSjNiPl4EFF2CGOPZuuBqovjq3Y1Ph5Qm.qXQRL5wb6kqsYetvMRBC7npId_Z
+ UTeGzuEYXTxAg2qIB9wVEAqQeOjN.AfcOd5_K9x0Z737CgxpZsWlyx8n5t6vkg_AkALjcpL1HuoP
+ x8uCkBn_rDX72IpZluaXkTTp7bYVhKDvqh863USEdMulkELpDyNs1FUkGao9aUZZ8ZbxPi_6V3IY
+ R6GFa9tC2n_mB.5xDjVYWHzd6zegp7FotA3TjIRnOHPDrq_Fyuqmu6LoE9NyNExLpM4cD3kTIEZM
+ DdlnnXjyqkV3c_rbLvISvJRYv9A71pg2Ua86Uxb2uuX95pyC.lmGhUDo8rN58j0jlvnOjr9Lor.6
+ JciMIV_3uLrWJy5GHnTPzOrPhhsyvAxI9BxZcne78t9dAZhDNki8859E6jQlCoYtk9Kpiq_Meefm
+ Cmn1n9_t8SjzAM2yFtXFqsEUJFBj6iWaWlVe01a.AL4tXk57o_Lkd2E2B8Tx934oXXV3lAV_8ZX9
+ BZ_vqyYCcaA7fvtX1Ex0S.b6X0hZDOYZtyf1lpjW.tVtpQBYGWaGzoAL6Vx6YNQ6X1dtn8lfeQK5
+ mM1dtGaMoUsnuhrA.LpNakwtdwbycZyHaYicmaYTxtHJj4Ckz6K6wZP8mT9.fQnQeLubrxOeHAuu
+ OaEe74_Duf_k.2X9tgEEDEBj7rXXpTWb44J2qmD8UKxyGF_CP6iYCy_lOE4czebGF9BS52ulVVjG
+ xc0M_PJtSCg9ZR3LRDSxCGnEgJZxOwYWrYnxhCKJt7DNFphtVt9c_rKxMihjAaAevMbrFaqpgvYr
+ KMQr0nz1eAY41DerRfFoV1VQZvd0_CieQtO90EzGQdDblWNfVxatl779Wgnp7mT.G9XAZb_8fk.d
+ _sc9MeNwmm_dke.c5anI4SnY7oSNhh.3o73Wl1fvGpmBaywRuPt7YDWPFaMdZY1Nzg4ovVT5lJFE
+ XBF46Y74FimJAWBa.CtOqK6LShx26J7pLWzvui0t5xLj0VnOb4cIOxY.qA8KcNe_eoOpQw2SwPd7
+ Mmy7xunaqIlXsLP_RmJ4HlwAvGRmvaCguln_hY5xW8OynqJyXb7qgKe7TQyh8_4a2zuecwd2IJGq
+ zPpAKV7U8Ez4eiHEyDYPm6ch4LU4RM3nelIP4wmrOj3Ac.ODrKkBi0HrRCOIBJJBIYQoiaS488KA
+ GfSp5h1J2ioj9uShOxvveAnTpaG_FOZJXZCzWdEYBH1CCTGjX37Nobih6K0hPuZTwhbnQuCL1dzp
+ trLcbBIEvnBR7GxtkA85ZTXS10p8wCvJrZ8g-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.bf2.yahoo.com with HTTP; Thu, 10 Oct 2019 18:14:22 +0000
+Received: by smtp416.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 704d4bedeb38f9e2c337e1f9d670721c;
+          Thu, 10 Oct 2019 18:12:21 +0000 (UTC)
+Subject: Re: [PATCH RFC] perf_event: Add support for LSM and SELinux checks
+To:     James Morris <jmorris@namei.org>
+Cc:     "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        linux-kernel@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>, rostedt@goodmis.org,
         primiano@google.com, rsavitski@google.com, jeffv@google.com,
         kernel-team@android.com, Alexei Starovoitov <ast@kernel.org>,
         Arnaldo Carvalho de Melo <acme@kernel.org>,
         bpf@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Morris <jmorris@namei.org>, Jiri Olsa <jolsa@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
         Kees Cook <keescook@chromium.org>,
         linux-security-module@vger.kernel.org,
         Matthew Garrett <matthewgarrett@google.com>,
         Namhyung Kim <namhyung@kernel.org>, selinux@vger.kernel.org,
         Song Liu <songliubraving@fb.com>,
         "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Yonghong Song <yhs@fb.com>
-Subject: Re: [PATCH RFC] perf_event: Add support for LSM and SELinux checks
-Message-ID: <20191010170949.GR2328@hirez.programming.kicks-ass.net>
+        Yonghong Song <yhs@fb.com>, casey@schaufler-ca.com
 References: <20191009203657.6070-1-joel@joelfernandes.org>
- <20191010081251.GP2311@hirez.programming.kicks-ass.net>
- <20191010151333.GE96813@google.com>
+ <710c5bc0-deca-2649-8351-678e177214e9@schaufler-ca.com>
+ <alpine.LRH.2.21.1910100912210.29840@namei.org>
+ <2b94802d-12ea-4f2d-bb65-eda3b3542bb2@schaufler-ca.com>
+ <alpine.LRH.2.21.1910101343470.8343@namei.org>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ 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
+ abzjfg==
+Message-ID: <dc0cacef-fff5-b837-97a4-ed7336934bf6@schaufler-ca.com>
+Date:   Thu, 10 Oct 2019 11:12:19 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191010151333.GE96813@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <alpine.LRH.2.21.1910101343470.8343@namei.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 10, 2019 at 11:13:33AM -0400, Joel Fernandes wrote:
-> On Thu, Oct 10, 2019 at 10:12:51AM +0200, Peter Zijlstra wrote:
-> > +static inline int perf_allow_tracepoint(struct perf_event_attr *attr)
-> >  {
-> > -	return sysctl_perf_event_paranoid > 1;
-> > +	if (sysctl_perf_event_paranoid > -1 && !capable(CAP_SYS_ADMIN))
-> > +		return -EPERM;
-> > +
-> 
-> Here the sysctl check of > -1 also is now coupled with a CAP_SYS_ADMIN check.
-> However..
-> 
-> > +	return security_perf_event_open(attr, PERF_SECURITY_TRACEPOINT);
-> 
-> >  }
-> >  
-> > --- a/kernel/events/core.c
-> > +++ b/kernel/events/core.c
+On 10/9/2019 7:44 PM, James Morris wrote:
+> On Wed, 9 Oct 2019, Casey Schaufler wrote:
+>
+>> On 10/9/2019 3:14 PM, James Morris wrote:
+>>> On Wed, 9 Oct 2019, Casey Schaufler wrote:
+>>>
+>>>> Please consider making the perf_alloc security blob maintained
+>>>> by the infrastructure rather than the individual modules. This
+>>>> will save it having to be changed later.
+>>> Is anyone planning on using this with full stacking?
+>>>
+>>> If not, we don't need the extra code & complexity. Stacking should only 
+>>> cover what's concretely required by in-tree users.
+>> I don't believe it's any simpler for SELinux to do the allocation
+>> than for the infrastructure to do it. I don't see anyone's head
+>> exploding over the existing infrastructure allocation of blobs.
+>> We're likely to want it at some point, so why not avoid the hassle
+>> and delay by doing it the "new" way up front?
+> Because it is not necessary.
 
-> > @@ -5862,14 +5859,8 @@ static int perf_mmap(struct file *file,
-> >  	lock_limit >>= PAGE_SHIFT;
-> >  	locked = atomic64_read(&vma->vm_mm->pinned_vm) + extra;
-> >  
-> > -	if (locked > lock_limit) {
-> > -		if (perf_paranoid_tracepoint_raw() && !capable(CAP_IPC_LOCK)) {
-> > -			ret = -EPERM;
-> > -			goto unlock;
-> > -		}
-> > -
-> > -		ret = security_perf_event_open(&event->attr,
-> > -					       PERF_SECURITY_TRACEPOINT);
-> > +	if (locked > lock_limit && !capable(CAP_IPC_LOCK)) {
-> > +		ret = perf_allow_tracepoint(&event->attr);
-> 
-> In previous code, this check did not involve a check for CAP_SYS_ADMIN.
-> 
-> I am Ok with adding the CAP_SYS_ADMIN check as well which does make sense to
-> me for tracepoint access. But it is still a change in the logic so I wanted
-> to bring it up.
-> 
-> Let me know any other thoughts and then I'll post a new patch.
+The logic escapes me, but OK.
 
-Yes, I did notice, I found it weird.
-
-If you have CAP_IPC_LIMIT you should be able to bust mlock memory
-limits, so I don't see why we should further relate that to paranoid.
-
-The way I wrote it, we also allow to bust the limit if we have disabled
-all paranoid checks. Which makes some sense I suppose.
-
-The original commit is this:
-
-  459ec28ab404 ("perf_counter: Allow mmap if paranoid checks are turned off")
