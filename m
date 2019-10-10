@@ -2,70 +2,81 @@ Return-Path: <SRS0=2qaZ=YD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53A48C10F14
-	for <selinux@archiver.kernel.org>; Thu, 10 Oct 2019 19:42:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 464EBC4360C
+	for <selinux@archiver.kernel.org>; Thu, 10 Oct 2019 19:48:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1A990218AC
-	for <selinux@archiver.kernel.org>; Thu, 10 Oct 2019 19:42:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 06A1E214E0
+	for <selinux@archiver.kernel.org>; Thu, 10 Oct 2019 19:48:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726146AbfJJTmE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 10 Oct 2019 15:42:04 -0400
-Received: from namei.org ([65.99.196.166]:53524 "EHLO namei.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725867AbfJJTmE (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 10 Oct 2019 15:42:04 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id x9AJf1pp032000;
-        Thu, 10 Oct 2019 19:41:01 GMT
-Date:   Fri, 11 Oct 2019 06:41:01 +1100 (AEDT)
-From:   James Morris <jmorris@namei.org>
-To:     Casey Schaufler <casey@schaufler-ca.com>
-cc:     "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        linux-kernel@vger.kernel.org,
-        Peter Zijlstra <peterz@infradead.org>, rostedt@goodmis.org,
-        primiano@google.com, rsavitski@google.com, jeffv@google.com,
-        kernel-team@android.com, Alexei Starovoitov <ast@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        bpf@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        linux-security-module@vger.kernel.org,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Namhyung Kim <namhyung@kernel.org>, selinux@vger.kernel.org,
-        Song Liu <songliubraving@fb.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Yonghong Song <yhs@fb.com>
-Subject: Re: [PATCH RFC] perf_event: Add support for LSM and SELinux checks
-In-Reply-To: <dc0cacef-fff5-b837-97a4-ed7336934bf6@schaufler-ca.com>
-Message-ID: <alpine.LRH.2.21.1910110637300.31442@namei.org>
-References: <20191009203657.6070-1-joel@joelfernandes.org> <710c5bc0-deca-2649-8351-678e177214e9@schaufler-ca.com> <alpine.LRH.2.21.1910100912210.29840@namei.org> <2b94802d-12ea-4f2d-bb65-eda3b3542bb2@schaufler-ca.com> <alpine.LRH.2.21.1910101343470.8343@namei.org>
- <dc0cacef-fff5-b837-97a4-ed7336934bf6@schaufler-ca.com>
-User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+        id S1726025AbfJJTsz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 10 Oct 2019 15:48:55 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:36451 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726028AbfJJTsz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 10 Oct 2019 15:48:55 -0400
+Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 3A2FE564779
+        for <selinux@vger.kernel.org>; Thu, 10 Oct 2019 21:48:52 +0200 (CEST)
+Received: by mail-oi1-f180.google.com with SMTP id 83so6016249oii.1
+        for <selinux@vger.kernel.org>; Thu, 10 Oct 2019 12:48:52 -0700 (PDT)
+X-Gm-Message-State: APjAAAXWsTUcjjr4SUo830u5jd4+FozoH/3sBBa9mFgpbPWfsOSCUhua
+        oRC9OqNdydyymaUgactrIuPvRc922Kz1bW5hwlk=
+X-Google-Smtp-Source: APXvYqwWg3IAy0wA05C4cC+AqwvYbzPSj7WYhsu2J69IlGoAzqX4I60t0D19wxVJqup2rjwN+fJWOxVomF96OQBbeW0=
+X-Received: by 2002:a54:4797:: with SMTP id o23mr8602077oic.50.1570736930948;
+ Thu, 10 Oct 2019 12:48:50 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20191009142024.9278-1-sds@tycho.nsa.gov>
+In-Reply-To: <20191009142024.9278-1-sds@tycho.nsa.gov>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Thu, 10 Oct 2019 21:48:39 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=mQ1MwfWC-R+QM45runiOunGQqTq-cjA8LZptN1n8g-2w@mail.gmail.com>
+Message-ID: <CAJfZ7=mQ1MwfWC-R+QM45runiOunGQqTq-cjA8LZptN1n8g-2w@mail.gmail.com>
+Subject: Re: [PATCH v2] python/sepolicy: call segenxml.py with python3
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Petr Lautrbach <plautrba@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu Oct 10 21:48:52 2019 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 10 Oct 2019, Casey Schaufler wrote:
+On Wed, Oct 9, 2019 at 4:20 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/61
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+> v2 wraps basedir + filename in parentheses as per Nicolas Iooss' suggestion.
 
-> > Because it is not necessary.
-> 
-> The logic escapes me, but OK.
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-We should only extend the stacking infrastructure to what is concretely 
-required. We don't yet have a use-case for stacking perf_event so we 
-should keep the code as simple as possible. As soon as multiple LSMs 
-determine they need to share the blob, we can convert the code to blob 
-sharing.
-
-
--- 
-James Morris
-<jmorris@namei.org>
+>
+>  python/sepolicy/sepolicy/interface.py | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
+> index 583091ae18aa..187419fa7822 100644
+> --- a/python/sepolicy/sepolicy/interface.py
+> +++ b/python/sepolicy/sepolicy/interface.py
+> @@ -196,7 +196,7 @@ def get_xml_file(if_file):
+>          from subprocess import getstatusoutput
+>      basedir = os.path.dirname(if_file) + "/"
+>      filename = os.path.basename(if_file).split(".")[0]
+> -    rc, output = getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
+> +    rc, output = getstatusoutput("/usr/bin/python3 /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % (basedir + filename))
+>      if rc != 0:
+>          sys.stderr.write("\n Could not proceed selected interface file.\n")
+>          sys.stderr.write("\n%s" % output)
+> --
+> 2.21.0
+>
 
