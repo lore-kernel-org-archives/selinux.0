@@ -6,66 +6,96 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F6C8ECE58C
-	for <selinux@archiver.kernel.org>; Fri, 11 Oct 2019 07:07:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97201C47404
+	for <selinux@archiver.kernel.org>; Fri, 11 Oct 2019 07:11:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 539402084C
-	for <selinux@archiver.kernel.org>; Fri, 11 Oct 2019 07:07:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7226E2196E
+	for <selinux@archiver.kernel.org>; Fri, 11 Oct 2019 07:11:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727557AbfJKHHj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Oct 2019 03:07:39 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:53336 "EHLO mx1.redhat.com"
+        id S1727379AbfJKHLB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Oct 2019 03:11:01 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:32968 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726755AbfJKHHj (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 11 Oct 2019 03:07:39 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726679AbfJKHLB (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 11 Oct 2019 03:11:01 -0400
+Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com [209.85.167.198])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A108030024DA
-        for <selinux@vger.kernel.org>; Fri, 11 Oct 2019 07:07:39 +0000 (UTC)
-Received: from workstation.redhat.com (ovpn-204-143.brq.redhat.com [10.40.204.143])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 030715DD7A;
-        Fri, 11 Oct 2019 07:07:36 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] libsepol: Use LIBSEPOL_3.0 and fix sepol_policydb_optimize symbol mapping
-Date:   Fri, 11 Oct 2019 09:07:17 +0200
-Message-Id: <20191011070716.198563-1-plautrba@redhat.com>
+        by mx1.redhat.com (Postfix) with ESMTPS id C25104FCC7
+        for <selinux@vger.kernel.org>; Fri, 11 Oct 2019 07:11:00 +0000 (UTC)
+Received: by mail-oi1-f198.google.com with SMTP id 19so4278096oii.2
+        for <selinux@vger.kernel.org>; Fri, 11 Oct 2019 00:11:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=b9TTFEt+fLm1IWDj1T+pfVFpsoq5pdlUlLwScOCeFUQ=;
+        b=kOyjf6JB95WxZc/9XvsTNYVqOlRYJ9l/GEpYKMP7Vw8cfRJrT9iCC1z2B938PaeJ1s
+         uiRD3OoQlFkoeZac6v7Wg023gRNpyQs4gMuriXSaH3ZvhRUuT5Fo4InW9vvg8MG03wuo
+         oSbGzLa0yX3vHeBDeVaJJogUcbvCQn1hv8KbARB/OTZbpytlfX8en9mAdbSJmm7m7DwZ
+         lAf9A/ne17MmKeyI+6n75hsfxDQ490kTfXybMzqaPqqS6gMOzc4FjFRHpE3X/7o8lPnd
+         BSzyfE3JvhhQROQJ7wCKJG6D9wzycx/22LZn4LkLNASefhXTgsJcYW4UAnT+IIDEtpdn
+         N9pw==
+X-Gm-Message-State: APjAAAUej424lEgLjkA2zcSk4uTn6GBiM/SlVmRow8WPEBjxbUA0nvca
+        91oOKqNikUPO47nvzLXd5SSB/2Zz5q1ORo6TU5sLiMjfaXLMX4sy2+wZWwPfBxtcd7PQS/XAt0d
+        jKKHcQqsCZZL6amFwOW8PTfs+G23er6Y7pA==
+X-Received: by 2002:a05:6830:1d9:: with SMTP id r25mr11262241ota.66.1570777860158;
+        Fri, 11 Oct 2019 00:11:00 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqyqfIGne3aQJzsg1RbouQxDoC0sPjvk6uE7MJuv10CtFbQsZ6JqybNqR9EEkdUeFM2mtUZTwSvSP4xfgpbQTf8=
+X-Received: by 2002:a05:6830:1d9:: with SMTP id r25mr11262233ota.66.1570777859906;
+ Fri, 11 Oct 2019 00:10:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Fri, 11 Oct 2019 07:07:39 +0000 (UTC)
+References: <20191011070716.198563-1-plautrba@redhat.com>
+In-Reply-To: <20191011070716.198563-1-plautrba@redhat.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 11 Oct 2019 09:10:51 +0200
+Message-ID: <CAFqZXNs6aQNXHUx0e1=uU1bLk3jDx_FGDM3GVmATBukhW2ojkw@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Use LIBSEPOL_3.0 and fix sepol_policydb_optimize
+ symbol mapping
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-There's a typo in commit b8213acff837101 ("libsepol: add a function to optimize
-kernel policy") which added new function sepol_policydb_optimize(), but there's
-sepol_optimize_policy in libsepol.map.
+On Fri, Oct 11, 2019 at 9:07 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> There's a typo in commit b8213acff837101 ("libsepol: add a function to optimize
+> kernel policy") which added new function sepol_policydb_optimize(), but there's
+> sepol_optimize_policy in libsepol.map.
+>
+> LIBSEPOL_3.0 is used to follow the next release version libsepol-3.0
+>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-LIBSEPOL_3.0 is used to follow the next release version libsepol-3.0
+Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- libsepol/src/libsepol.map.in | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Thanks for spotting it!
 
-diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
-index 6358e51f..f4946a79 100644
---- a/libsepol/src/libsepol.map.in
-+++ b/libsepol/src/libsepol.map.in
-@@ -60,7 +60,7 @@ LIBSEPOL_1.1 {
- 	sepol_polcap_getname;
- } LIBSEPOL_1.0;
- 
--LIBSEPOL_1.2 {
-+LIBSEPOL_3.0 {
-   global:
--	sepol_optimize_policy;
-+	sepol_policydb_optimize;
- } LIBSEPOL_1.1;
+> ---
+>  libsepol/src/libsepol.map.in | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+> index 6358e51f..f4946a79 100644
+> --- a/libsepol/src/libsepol.map.in
+> +++ b/libsepol/src/libsepol.map.in
+> @@ -60,7 +60,7 @@ LIBSEPOL_1.1 {
+>         sepol_polcap_getname;
+>  } LIBSEPOL_1.0;
+>
+> -LIBSEPOL_1.2 {
+> +LIBSEPOL_3.0 {
+>    global:
+> -       sepol_optimize_policy;
+> +       sepol_policydb_optimize;
+>  } LIBSEPOL_1.1;
+> --
+> 2.23.0
+>
+
 -- 
-2.23.0
-
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
