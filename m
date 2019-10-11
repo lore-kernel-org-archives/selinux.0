@@ -2,117 +2,70 @@ Return-Path: <SRS0=gpZQ=YE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F787C47404
-	for <selinux@archiver.kernel.org>; Fri, 11 Oct 2019 07:06:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F6C8ECE58C
+	for <selinux@archiver.kernel.org>; Fri, 11 Oct 2019 07:07:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 137332084C
-	for <selinux@archiver.kernel.org>; Fri, 11 Oct 2019 07:06:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="GvnBbSeR"
+	by mail.kernel.org (Postfix) with ESMTP id 539402084C
+	for <selinux@archiver.kernel.org>; Fri, 11 Oct 2019 07:07:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727109AbfJKHGL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 11 Oct 2019 03:06:11 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:40260 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726679AbfJKHGK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 11 Oct 2019 03:06:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=B7tSt4++AeNClEYMJ6vFiBHpS1WJihxuciejr2hX7bs=; b=GvnBbSeRL2D7Djol5QJK4MqT+
-        f5pua78F2o9VGO8YAmoQv16DV8cOvHSqAM9e+4JIHcuJk2nKDeKvCJgnjYK3SQmzdBKk/2cWLMjoP
-        pqAr/BidNI3as9nX/sJ7HaZqkEUiPCJGbFRFWV43iqClh+ek5Zjd5NrBpLm9I3OBWbx3fFeSgpjPZ
-        3HFr+5JoDrvRlwuZm1pms3rRyfSGcNJfzUjfRAw364CFb46QXZD81LBxKBMsyJSDD+zBjU7daKMVD
-        1mOylo3pTqay0R17ca4hZEsnO/6nJZdOUAJMyDqQ3vsoeecqLMGUu0QG3I3eSmhNIyAVAAMK79Ql9
-        tk4BJxQ0w==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iIozh-0004C0-Du; Fri, 11 Oct 2019 07:05:45 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id C6927301224;
-        Fri, 11 Oct 2019 09:04:50 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 4FEF021492B15; Fri, 11 Oct 2019 09:05:43 +0200 (CEST)
-Date:   Fri, 11 Oct 2019 09:05:43 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Joel Fernandes <joel@joelfernandes.org>
-Cc:     linux-kernel@vger.kernel.org, rostedt@goodmis.org,
-        primiano@google.com, rsavitski@google.com, jeffv@google.com,
-        kernel-team@android.com, Alexei Starovoitov <ast@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        bpf@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Morris <jmorris@namei.org>, Jiri Olsa <jolsa@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        linux-security-module@vger.kernel.org,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Namhyung Kim <namhyung@kernel.org>, selinux@vger.kernel.org,
-        Song Liu <songliubraving@fb.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Yonghong Song <yhs@fb.com>
-Subject: Re: [PATCH RFC] perf_event: Add support for LSM and SELinux checks
-Message-ID: <20191011070543.GV2328@hirez.programming.kicks-ass.net>
-References: <20191009203657.6070-1-joel@joelfernandes.org>
- <20191010081251.GP2311@hirez.programming.kicks-ass.net>
- <20191010151333.GE96813@google.com>
- <20191010170949.GR2328@hirez.programming.kicks-ass.net>
- <20191010183114.GF96813@google.com>
+        id S1727557AbfJKHHj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 11 Oct 2019 03:07:39 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:53336 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726755AbfJKHHj (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 11 Oct 2019 03:07:39 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id A108030024DA
+        for <selinux@vger.kernel.org>; Fri, 11 Oct 2019 07:07:39 +0000 (UTC)
+Received: from workstation.redhat.com (ovpn-204-143.brq.redhat.com [10.40.204.143])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 030715DD7A;
+        Fri, 11 Oct 2019 07:07:36 +0000 (UTC)
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH] libsepol: Use LIBSEPOL_3.0 and fix sepol_policydb_optimize symbol mapping
+Date:   Fri, 11 Oct 2019 09:07:17 +0200
+Message-Id: <20191011070716.198563-1-plautrba@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191010183114.GF96813@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Fri, 11 Oct 2019 07:07:39 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Oct 10, 2019 at 02:31:14PM -0400, Joel Fernandes wrote:
-> On Thu, Oct 10, 2019 at 07:09:49PM +0200, Peter Zijlstra wrote:
+There's a typo in commit b8213acff837101 ("libsepol: add a function to optimize
+kernel policy") which added new function sepol_policydb_optimize(), but there's
+sepol_optimize_policy in libsepol.map.
 
-> > Yes, I did notice, I found it weird.
-> > 
-> > If you have CAP_IPC_LIMIT you should be able to bust mlock memory
-> > limits, so I don't see why we should further relate that to paranoid.
-> > 
-> > The way I wrote it, we also allow to bust the limit if we have disabled
-> > all paranoid checks. Which makes some sense I suppose.
-> > 
-> > The original commit is this:
-> > 
-> >   459ec28ab404 ("perf_counter: Allow mmap if paranoid checks are turned off")
-> 
-> I am thinking we can just a new function perf_is_paranoid() that has nothing
-> to do with the CAP_SYS_ADMIN check and doesn't have tracepoint wording:
-> 
-> static inline int perf_is_paranoid(void)
-> {
-> 	return sysctl_perf_event_paranoid > -1;
-> }
-> 
-> And then call that from the mmap() code:
-> if (locked > lock_limit && perf_is_paranoid() && !capable(CAP_IPC_LOCK)) {
-> 	return -EPERM;
-> }
-> 
-> I don't think we need to add selinux security checks here since we are
-> already adding security checks earlier in mmap(). This will make the code and
-> its intention more clear and in line with the commit 459ec28ab404 you
-> mentioned. Thoughts?
+LIBSEPOL_3.0 is used to follow the next release version libsepol-3.0
 
-Mostly that I'm confused by the current code ;-)
+Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+---
+ libsepol/src/libsepol.map.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Like I said, CAP_IPC_LIMIT on its own should already allow busting the
-limit, I don't really see why we should make it conditional on paranoid.
+diff --git a/libsepol/src/libsepol.map.in b/libsepol/src/libsepol.map.in
+index 6358e51f..f4946a79 100644
+--- a/libsepol/src/libsepol.map.in
++++ b/libsepol/src/libsepol.map.in
+@@ -60,7 +60,7 @@ LIBSEPOL_1.1 {
+ 	sepol_polcap_getname;
+ } LIBSEPOL_1.0;
+ 
+-LIBSEPOL_1.2 {
++LIBSEPOL_3.0 {
+   global:
+-	sepol_optimize_policy;
++	sepol_policydb_optimize;
+ } LIBSEPOL_1.1;
+-- 
+2.23.0
 
-But if you want to preserve behaviour (arguably a sane thing for your
-patch) then yes, feel free to do as you propose.
