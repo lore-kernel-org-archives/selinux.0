@@ -6,523 +6,567 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14809C4360C
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA16ECE587
 	for <selinux@archiver.kernel.org>; Sun, 13 Oct 2019 10:52:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D56D3207FF
-	for <selinux@archiver.kernel.org>; Sun, 13 Oct 2019 10:52:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 119182084D
+	for <selinux@archiver.kernel.org>; Sun, 13 Oct 2019 10:52:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728772AbfJMKwx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1728691AbfJMKwx (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Sun, 13 Oct 2019 06:52:53 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:44201 "EHLO
+Received: from mx1.polytechnique.org ([129.104.30.34]:58090 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728691AbfJMKwx (ORCPT
+        with ESMTP id S1728620AbfJMKwx (ORCPT
         <rfc822;selinux@vger.kernel.org>); Sun, 13 Oct 2019 06:52:53 -0400
 Received: from localhost.localdomain (85-168-38-217.rev.numericable.fr [85.168.38.217])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id E91115612CB;
-        Sun, 13 Oct 2019 12:52:47 +0200 (CEST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 9E6D2564679;
+        Sun, 13 Oct 2019 12:52:46 +0200 (CEST)
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
 To:     selinux@vger.kernel.org
 Cc:     Michael Shigorin <mike@altlinux.org>
-Subject: [PATCH 2/2] libsemanage: mark all exported function "extern"
-Date:   Sun, 13 Oct 2019 12:52:16 +0200
-Message-Id: <20191013105216.614224-2-nicolas.iooss@m4x.org>
+Subject: [PATCH 1/2] libselinux: mark all exported function "extern"
+Date:   Sun, 13 Oct 2019 12:52:15 +0200
+Message-Id: <20191013105216.614224-1-nicolas.iooss@m4x.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20191013105216.614224-1-nicolas.iooss@m4x.org>
-References: <20191013105216.614224-1-nicolas.iooss@m4x.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Oct 13 12:52:48 2019 +0200 (CEST))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Oct 13 12:52:47 2019 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Many functions are already marked "extern" in libsemanage's public
+Many functions are already marked "extern" in libselinux's public
 headers and this will help using the content of the headers in order to
 automatically generate some glue code for Python bindings.
 
 Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 ---
- libsemanage/include/semanage/handle.h  |  58 ++++-----
- libsemanage/include/semanage/modules.h | 158 ++++++++++++-------------
- 2 files changed, 108 insertions(+), 108 deletions(-)
+ libselinux/include/selinux/avc.h              | 112 +++++++++---------
+ libselinux/include/selinux/get_context_list.h |  34 +++---
+ libselinux/include/selinux/get_default_type.h |   4 +-
+ libselinux/include/selinux/label.h            |  58 ++++-----
+ libselinux/include/selinux/selinux.h          |   6 +-
+ 5 files changed, 107 insertions(+), 107 deletions(-)
 
-diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
-index c816590094c5..946d69bc91fe 100644
---- a/libsemanage/include/semanage/handle.h
-+++ b/libsemanage/include/semanage/handle.h
-@@ -32,13 +32,13 @@ typedef struct semanage_handle semanage_handle_t;
- 
- /* Create and return a semanage handle.
-    The handle is initially in the disconnected state. */
--semanage_handle_t *semanage_handle_create(void);
-+extern semanage_handle_t *semanage_handle_create(void);
- 
- /* Deallocate all space associated with a semanage_handle_t, including
-  * the pointer itself.	CAUTION: this function does not disconnect
-  * from the backend; be sure that a semanage_disconnect() was
-  * previously called if the handle was connected. */
--void semanage_handle_destroy(semanage_handle_t *);
-+extern void semanage_handle_destroy(semanage_handle_t *);
- 
- /* This is the type of connection to the store, for now only
-  * direct is supported */
-@@ -51,65 +51,65 @@ enum semanage_connect_type {
-  * It must be called after semanage_handle_create but before 
-  * semanage_connect. The argument should be the full path to the store.
+diff --git a/libselinux/include/selinux/avc.h b/libselinux/include/selinux/avc.h
+index b4bc6f3f07f8..46c51419f588 100644
+--- a/libselinux/include/selinux/avc.h
++++ b/libselinux/include/selinux/avc.h
+@@ -37,8 +37,8 @@ typedef struct security_id *security_id_t;
+  * failure, with @errno set to %ENOMEM if insufficient memory was
+  * available to make the copy, or %EINVAL if the input SID is invalid.
   */
--void semanage_select_store(semanage_handle_t * handle, char *path,
--			   enum semanage_connect_type storetype);
-+extern void semanage_select_store(semanage_handle_t * handle, char *path,
-+				  enum semanage_connect_type storetype);
+-int avc_sid_to_context(security_id_t sid, char ** ctx);
+-int avc_sid_to_context_raw(security_id_t sid, char ** ctx);
++extern int avc_sid_to_context(security_id_t sid, char ** ctx);
++extern int avc_sid_to_context_raw(security_id_t sid, char ** ctx);
  
- /* Just reload the policy */
--int semanage_reload_policy(semanage_handle_t * handle);
-+extern int semanage_reload_policy(semanage_handle_t * handle);
- 
- /* set whether to reload the policy or not after a commit,
-  * 1 for yes (default), 0 for no */
--void semanage_set_reload(semanage_handle_t * handle, int do_reload);
-+extern void semanage_set_reload(semanage_handle_t * handle, int do_reload);
- 
- /* set whether to rebuild the policy on commit, even if no
-  * changes were performed.
-  * 1 for yes, 0 for no (default) */
--void semanage_set_rebuild(semanage_handle_t * handle, int do_rebuild);
-+extern void semanage_set_rebuild(semanage_handle_t * handle, int do_rebuild);
- 
- /* Fills *compiler_path with the location of the hll compiler sh->conf->compiler_directory_path
-  * corresponding to lang_ext.
-  * Upon success returns 0, -1 on error. */
--int semanage_get_hll_compiler_path(semanage_handle_t *sh, char *lang_ext, char **compiler_path);
-+extern int semanage_get_hll_compiler_path(semanage_handle_t *sh, char *lang_ext, char **compiler_path);
- 
- /* create the store if it does not exist, this only has an effect on 
-  * direct connections and must be called before semanage_connect 
-  * 1 for yes, 0 for no (default) */
--void semanage_set_create_store(semanage_handle_t * handle, int create_store);
-+extern void semanage_set_create_store(semanage_handle_t * handle, int create_store);
- 
- /*Get whether or not dontaudits will be disabled upon commit */
--int semanage_get_disable_dontaudit(semanage_handle_t * handle);
-+extern int semanage_get_disable_dontaudit(semanage_handle_t * handle);
- 
- /* Set whether or not to disable dontaudits upon commit */
--void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
-+extern void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
- 
- /* Set whether or not to execute setfiles to check file contexts upon commit */
--void semanage_set_check_contexts(semanage_handle_t * sh, int do_check_contexts);
-+extern void semanage_set_check_contexts(semanage_handle_t * sh, int do_check_contexts);
- 
- /* Get the default priority. */
--uint16_t semanage_get_default_priority(semanage_handle_t *sh);
-+extern uint16_t semanage_get_default_priority(semanage_handle_t *sh);
- 
- /* Set the default priority. */
--int semanage_set_default_priority(semanage_handle_t *sh, uint16_t priority);
-+extern int semanage_set_default_priority(semanage_handle_t *sh, uint16_t priority);
- 
- /* Check whether policy is managed via libsemanage on this system.
-  * Must be called prior to trying to connect.
-  * Return 1 if policy is managed via libsemanage on this system,
-  * 0 if policy is not managed, or -1 on error.
+ /**
+  * avc_context_to_sid - get SID for context.
+@@ -51,8 +51,8 @@ int avc_sid_to_context_raw(security_id_t sid, char ** ctx);
+  * to the SID structure into the memory referenced by @sid, 
+  * returning %0 on success or -%1 on error with @errno set.  
   */
--int semanage_is_managed(semanage_handle_t *);
-+extern int semanage_is_managed(semanage_handle_t *);
+-int avc_context_to_sid(const char * ctx, security_id_t * sid);
+-int avc_context_to_sid_raw(const char * ctx, security_id_t * sid);
++extern int avc_context_to_sid(const char * ctx, security_id_t * sid);
++extern int avc_context_to_sid_raw(const char * ctx, security_id_t * sid);
  
- /* "Connect" to a manager based on the configuration and 
-  * associate the provided handle with the connection.
-  * If the connect fails then this function returns a negative value, 
-  * else it returns zero.
+ /**
+  * sidget - increment SID reference counter.
+@@ -64,7 +64,7 @@ int avc_context_to_sid_raw(const char * ctx, security_id_t * sid);
+  * reference count).  Note that avc_context_to_sid() also
+  * increments reference counts.
   */
--int semanage_connect(semanage_handle_t *);
-+extern int semanage_connect(semanage_handle_t *);
+-int sidget(security_id_t sid);
++extern int sidget(security_id_t sid);
  
- /* Disconnect from the manager given by the handle.  If already
-  * disconnected then this function does nothing.  Return 0 if
-  * disconnected properly or already disconnected, negative value on
-  * error. */
--int semanage_disconnect(semanage_handle_t *);
-+extern int semanage_disconnect(semanage_handle_t *);
- 
- /* Attempt to obtain a transaction lock on the manager.	 If another
-  * process has the lock then this function may block, depending upon
-@@ -118,47 +118,47 @@ int semanage_disconnect(semanage_handle_t *);
-  * Note that if the semanage_handle has not yet obtained a transaction
-  * lock whenever a writer function is called, there will be an
-  * implicit call to this function. */
--int semanage_begin_transaction(semanage_handle_t *);
-+extern int semanage_begin_transaction(semanage_handle_t *);
- 
- /* Attempt to commit all changes since this transaction began.	If the
-  * commit is successful then increment the "policy sequence number"
-  * and then release the transaction lock.  Return that policy number
-  * afterwards, or -1 on error.
+ /**
+  * sidput - decrement SID reference counter.
+@@ -76,7 +76,7 @@ int sidget(security_id_t sid);
+  * zero, the SID is invalid, and avc_context_to_sid() must
+  * be called to obtain a new SID for the security context.
   */
--int semanage_commit(semanage_handle_t *);
-+extern int semanage_commit(semanage_handle_t *);
+-int sidput(security_id_t sid);
++extern int sidput(security_id_t sid);
  
- #define SEMANAGE_CAN_READ 1
- #define SEMANAGE_CAN_WRITE 2
- /* returns SEMANAGE_CAN_READ or SEMANAGE_CAN_WRITE if the store is readable
-  * or writable, respectively. <0 if an error occurred */
--int semanage_access_check(semanage_handle_t * sh);
-+extern int semanage_access_check(semanage_handle_t * sh);
+ /**
+  * avc_get_initial_sid - get SID for an initial kernel security identifier
+@@ -87,7 +87,7 @@ int sidput(security_id_t sid);
+  * @name using security_get_initial_context() and then call 
+  * avc_context_to_sid() to get the corresponding SID.
+  */
+-int avc_get_initial_sid(const char *name, security_id_t * sid);
++extern int avc_get_initial_sid(const char *name, security_id_t * sid);
  
- /* returns 0 if not connected, 1 if connected */
--int semanage_is_connected(semanage_handle_t * sh);
-+extern int semanage_is_connected(semanage_handle_t * sh);
+ /*
+  * AVC entry
+@@ -188,11 +188,11 @@ struct avc_lock_callback {
+  * for those callbacks (see the definition of the callback
+  * structures above).
+  */
+-int avc_init(const char *msgprefix,
+-	     const struct avc_memory_callback *mem_callbacks,
+-	     const struct avc_log_callback *log_callbacks,
+-	     const struct avc_thread_callback *thread_callbacks,
+-	     const struct avc_lock_callback *lock_callbacks);
++extern int avc_init(const char *msgprefix,
++		    const struct avc_memory_callback *mem_callbacks,
++		    const struct avc_log_callback *log_callbacks,
++		    const struct avc_thread_callback *thread_callbacks,
++		    const struct avc_lock_callback *lock_callbacks);
  
- /* returns 1 if policy is MLS, 0 otherwise. */
--int semanage_mls_enabled(semanage_handle_t *sh);
-+extern int semanage_mls_enabled(semanage_handle_t *sh);
+ /**
+  * avc_open - Initialize the AVC.
+@@ -203,7 +203,7 @@ int avc_init(const char *msgprefix,
+  * is set to "avc" and any callbacks desired should be specified via
+  * selinux_set_callback().  Available options are listed above.
+  */
+-int avc_open(struct selinux_opt *opts, unsigned nopts);
++extern int avc_open(struct selinux_opt *opts, unsigned nopts);
  
- /* Change to alternate semanage root path */
--int semanage_set_root(const char *path);
-+extern int semanage_set_root(const char *path);
+ /**
+  * avc_cleanup - Remove unused SIDs and AVC entries.
+@@ -213,7 +213,7 @@ int avc_open(struct selinux_opt *opts, unsigned nopts);
+  * AVC entries that reference them.  This can be used
+  * to return memory to the system.
+  */
+-void avc_cleanup(void);
++extern void avc_cleanup(void);
  
- /* Get the current semanage root path */
--const char * semanage_root(void);
-+extern const char * semanage_root(void);
+ /**
+  * avc_reset - Flush the cache and reset statistics.
+@@ -223,7 +223,7 @@ void avc_cleanup(void);
+  * The SID mapping is not affected.  Return %0 on success, 
+  * -%1 with @errno set on error.
+  */
+-int avc_reset(void);
++extern int avc_reset(void);
  
- /* Get whether or not needless unused branch of tunables would be preserved */
--int semanage_get_preserve_tunables(semanage_handle_t * handle);
-+extern int semanage_get_preserve_tunables(semanage_handle_t * handle);
+ /**
+  * avc_destroy - Free all AVC structures.
+@@ -234,7 +234,7 @@ int avc_reset(void);
+  * callbacks will not.  All SID's will be invalidated.
+  * User must call avc_init() if further use of AVC is desired.
+  */
+-void avc_destroy(void);
++extern void avc_destroy(void);
  
- /* Set whether or not to preserve the needless unused branch of tunables */
--void semanage_set_preserve_tunables(semanage_handle_t * handle, int preserve_tunables);
-+extern void semanage_set_preserve_tunables(semanage_handle_t * handle, int preserve_tunables);
+ /**
+  * avc_has_perm_noaudit - Check permissions but perform no auditing.
+@@ -257,11 +257,11 @@ void avc_destroy(void);
+  * auditing, e.g. in cases where a lock must be held for the check but
+  * should be released for the auditing.
+  */
+-int avc_has_perm_noaudit(security_id_t ssid,
+-			 security_id_t tsid,
+-			 security_class_t tclass,
+-			 access_vector_t requested,
+-			 struct avc_entry_ref *aeref, struct av_decision *avd);
++extern int avc_has_perm_noaudit(security_id_t ssid,
++				security_id_t tsid,
++				security_class_t tclass,
++				access_vector_t requested,
++				struct avc_entry_ref *aeref, struct av_decision *avd);
  
- /* Get the flag value for whether or not caching is ignored for compiled CIL modules from HLL files */
--int semanage_get_ignore_module_cache(semanage_handle_t *handle);
-+extern int semanage_get_ignore_module_cache(semanage_handle_t *handle);
+ /**
+  * avc_has_perm - Check permissions and perform any appropriate auditing.
+@@ -281,9 +281,9 @@ int avc_has_perm_noaudit(security_id_t ssid,
+  * permissions are granted, -%1 with @errno set to %EACCES if any permissions
+  * are denied or to another value upon other errors.
+  */
+-int avc_has_perm(security_id_t ssid, security_id_t tsid,
+-		 security_class_t tclass, access_vector_t requested,
+-		 struct avc_entry_ref *aeref, void *auditdata);
++extern int avc_has_perm(security_id_t ssid, security_id_t tsid,
++			security_class_t tclass, access_vector_t requested,
++			struct avc_entry_ref *aeref, void *auditdata);
  
- /* Set semanage_handle flag for whether or not to ignore caching of compiled CIL modules from HLL files */
--void semanage_set_ignore_module_cache(semanage_handle_t *handle, int ignore_module_cache);
-+extern void semanage_set_ignore_module_cache(semanage_handle_t *handle, int ignore_module_cache);
+ /**
+  * avc_audit - Audit the granting or denial of permissions.
+@@ -304,9 +304,9 @@ int avc_has_perm(security_id_t ssid, security_id_t tsid,
+  * be performed under a lock, to allow the lock to be released
+  * before calling the auditing code.
+  */
+-void avc_audit(security_id_t ssid, security_id_t tsid,
+-	       security_class_t tclass, access_vector_t requested,
+-	       struct av_decision *avd, int result, void *auditdata);
++extern void avc_audit(security_id_t ssid, security_id_t tsid,
++		      security_class_t tclass, access_vector_t requested,
++		      struct av_decision *avd, int result, void *auditdata);
  
- /* set the store root path for semanage output files */
--void semanage_set_store_root(semanage_handle_t *sh, const char *store_root);
-+extern void semanage_set_store_root(semanage_handle_t *sh, const char *store_root);
+ /**
+  * avc_compute_create - Compute SID for labeling a new object.
+@@ -322,9 +322,9 @@ void avc_audit(security_id_t ssid, security_id_t tsid,
+  * memory referenced by @newsid, returning %0 on success or -%1 on
+  * error with @errno set.  
+  */
+-int avc_compute_create(security_id_t ssid,
+-		       security_id_t tsid,
+-		       security_class_t tclass, security_id_t * newsid);
++extern int avc_compute_create(security_id_t ssid,
++			      security_id_t tsid,
++			      security_class_t tclass, security_id_t * newsid);
  
- /* META NOTES
+ /**
+  * avc_compute_member - Compute SID for polyinstantation.
+@@ -340,9 +340,9 @@ int avc_compute_create(security_id_t ssid,
+  * memory referenced by @newsid, returning %0 on success or -%1 on
+  * error with @errno set.  
+  */
+-int avc_compute_member(security_id_t ssid,
+-		       security_id_t tsid,
+-		       security_class_t tclass, security_id_t * newsid);
++extern int avc_compute_member(security_id_t ssid,
++			      security_id_t tsid,
++			      security_class_t tclass, security_id_t * newsid);
+ 
+ /* 
+  * security event callback facility
+@@ -373,14 +373,14 @@ int avc_compute_member(security_id_t ssid,
+  * @perms based on @tclass.  Returns %0 on success or
+  * -%1 if insufficient memory exists to add the callback.
+  */
+-int avc_add_callback(int (*callback)
+-		      (uint32_t event, security_id_t ssid,
+-		       security_id_t tsid, security_class_t tclass,
+-		       access_vector_t perms,
+-		       access_vector_t * out_retained),
+-		     uint32_t events, security_id_t ssid,
+-		     security_id_t tsid, security_class_t tclass,
+-		     access_vector_t perms);
++extern int avc_add_callback(int (*callback)
++			     (uint32_t event, security_id_t ssid,
++			      security_id_t tsid, security_class_t tclass,
++			      access_vector_t perms,
++			      access_vector_t * out_retained),
++			    uint32_t events, security_id_t ssid,
++			    security_id_t tsid, security_class_t tclass,
++			    access_vector_t perms);
+ 
+ /*
+  * AVC statistics 
+@@ -411,7 +411,7 @@ struct avc_cache_stats {
+  * avc_reset().  See the structure definition for
+  * details.
+  */
+-void avc_cache_stats(struct avc_cache_stats *stats);
++extern void avc_cache_stats(struct avc_cache_stats *stats);
+ 
+ /**
+  * avc_av_stats - log av table statistics.
+@@ -420,7 +420,7 @@ void avc_cache_stats(struct avc_cache_stats *stats);
+  * distribution of the access vector table.  The audit
+  * callback is used to print the message.
+  */
+-void avc_av_stats(void);
++extern void avc_av_stats(void);
+ 
+ /**
+  * avc_sid_stats - log SID table statistics.
+@@ -429,22 +429,22 @@ void avc_av_stats(void);
+  * distribution of the SID table.  The audit callback
+  * is used to print the message.
+  */
+-void avc_sid_stats(void);
++extern void avc_sid_stats(void);
+ 
+ /**
+  * avc_netlink_open - Create a netlink socket and connect to the kernel.
+  */
+-int avc_netlink_open(int blocking);
++extern int avc_netlink_open(int blocking);
+ 
+ /**
+  * avc_netlink_loop - Wait for netlink messages from the kernel
+  */
+-void avc_netlink_loop(void);
++extern void avc_netlink_loop(void);
+ 
+ /**
+  * avc_netlink_close - Close the netlink socket
+  */
+-void avc_netlink_close(void);
++extern void avc_netlink_close(void);
+ 
+ /**
+  * avc_netlink_acquire_fd - Acquire netlink socket fd.
+@@ -452,14 +452,14 @@ void avc_netlink_close(void);
+  * Allows the application to manage messages from the netlink socket in
+  * its own main loop.
+  */
+-int avc_netlink_acquire_fd(void);
++extern int avc_netlink_acquire_fd(void);
+ 
+ /**
+  * avc_netlink_release_fd - Release netlink socket fd.
   *
-diff --git a/libsemanage/include/semanage/modules.h b/libsemanage/include/semanage/modules.h
-index 03f7e57d50dd..ac4039314857 100644
---- a/libsemanage/include/semanage/modules.h
-+++ b/libsemanage/include/semanage/modules.h
-@@ -32,11 +32,11 @@ typedef struct semanage_module_key semanage_module_key_t;
-  * a transaction  
+  * Returns ownership of the netlink socket to the library.
   */
+-void avc_netlink_release_fd(void);
++extern void avc_netlink_release_fd(void);
  
--int semanage_module_install(semanage_handle_t *,
--			    char *module_data, size_t data_len, char *name, char *ext_lang);
--int semanage_module_install_file(semanage_handle_t *,
--				 const char *module_name);
--int semanage_module_remove(semanage_handle_t *, char *module_name);
-+extern int semanage_module_install(semanage_handle_t *,
-+				   char *module_data, size_t data_len, char *name, char *ext_lang);
-+extern int semanage_module_install_file(semanage_handle_t *,
-+					const char *module_name);
-+extern int semanage_module_remove(semanage_handle_t *, char *module_name);
+ /**
+  * avc_netlink_check_nb - Check netlink socket for new messages.
+@@ -467,43 +467,43 @@ void avc_netlink_release_fd(void);
+  * Called by the application when using avc_netlink_acquire_fd() to
+  * process kernel netlink events.
+  */
+-int avc_netlink_check_nb(void);
++extern int avc_netlink_check_nb(void);
  
- /* semanage_module_info is for getting information on installed
-    modules, only name at this time */
-@@ -52,18 +52,18 @@ typedef struct semanage_module_info semanage_module_info_t;
+ /**
+  * selinux_status_open - Open and map SELinux kernel status page
   *
-  * Returns 0 on success and -1 on error.
   */
--int semanage_module_extract(semanage_handle_t *sh,
--				 semanage_module_key_t *modkey,
--				 int extract_cil,
--				 void **mapped_data,
--				 size_t *data_len,
--				 semanage_module_info_t **modinfo);
--int semanage_module_list(semanage_handle_t *,
--			 semanage_module_info_t **, int *num_modules);
--void semanage_module_info_datum_destroy(semanage_module_info_t *);
--semanage_module_info_t *semanage_module_list_nth(semanage_module_info_t * list,
--						 int n);
--const char *semanage_module_get_name(semanage_module_info_t *);
-+extern int semanage_module_extract(semanage_handle_t *sh,
-+				  semanage_module_key_t *modkey,
-+				  int extract_cil,
-+				  void **mapped_data,
-+				  size_t *data_len,
-+				  semanage_module_info_t **modinfo);
-+extern int semanage_module_list(semanage_handle_t *,
-+				semanage_module_info_t **, int *num_modules);
-+extern void semanage_module_info_datum_destroy(semanage_module_info_t *);
-+extern semanage_module_info_t *semanage_module_list_nth(semanage_module_info_t * list,
-+							int n);
-+extern const char *semanage_module_get_name(semanage_module_info_t *);
+-int selinux_status_open(int fallback);
++extern int selinux_status_open(int fallback);
  
- /* Module Info */
- 
-@@ -74,8 +74,8 @@ const char *semanage_module_get_name(semanage_module_info_t *);
-  * The @modinfo should be destroyed with semanage_module_info_destroy.
-  * The caller should call free() on the struct.
-  */
--int semanage_module_info_create(semanage_handle_t *sh,
--				semanage_module_info_t **modinfo);
-+extern int semanage_module_info_create(semanage_handle_t *sh,
-+				       semanage_module_info_t **modinfo);
- 
- /* Frees the members of the module info struct.
+ /**
+  * selinux_status_close - Unmap and close SELinux kernel status page
   *
-@@ -83,8 +83,8 @@ int semanage_module_info_create(semanage_handle_t *sh,
+  */
+-void selinux_status_close(void);
++extern void selinux_status_close(void);
+ 
+ /**
+  * selinux_status_updated - Inform us whether the kernel status has been updated
   *
-  * The caller should call free() on the struct.
   */
--int semanage_module_info_destroy(semanage_handle_t *handle,
--				 semanage_module_info_t *modinfo);
-+extern int semanage_module_info_destroy(semanage_handle_t *handle,
-+					semanage_module_info_t *modinfo);
+-int selinux_status_updated(void);
++extern int selinux_status_updated(void);
  
- /* Module Info Getters */
- 
-@@ -92,33 +92,33 @@ int semanage_module_info_destroy(semanage_handle_t *handle,
+ /**
+  * selinux_status_getenforce - Get the enforce flag value
   *
-  * Returns 0 on success and -1 on error.
   */
--int semanage_module_info_get_priority(semanage_handle_t *sh,
--				      semanage_module_info_t *modinfo,
--				      uint16_t *priority);
-+extern int semanage_module_info_get_priority(semanage_handle_t *sh,
-+					     semanage_module_info_t *modinfo,
-+					     uint16_t *priority);
+-int selinux_status_getenforce(void);
++extern int selinux_status_getenforce(void);
  
- /* Get @name from @modinfo. Caller should not free @name.
+ /**
+  * selinux_status_policyload - Get the number of policy reloaded
   *
-  * Returns 0 on success and -1 on error.
   */
--int semanage_module_info_get_name(semanage_handle_t *sh,
--				  semanage_module_info_t *modinfo,
--				  const char **name);
-+extern int semanage_module_info_get_name(semanage_handle_t *sh,
-+					 semanage_module_info_t *modinfo,
-+					 const char **name);
+-int selinux_status_policyload(void);
++extern int selinux_status_policyload(void);
  
- /* Get @lang_ext from @modinfo. Caller should not free @lang_ext.
+ /**
+  * selinux_status_deny_unknown - Get the  behavior for undefined classes/permissions
   *
-  * Returns 0 on success and -1 on error.
   */
--int semanage_module_info_get_lang_ext(semanage_handle_t *sh,
--				      semanage_module_info_t *modinfo,
--				      const char **lang_ext);
-+extern int semanage_module_info_get_lang_ext(semanage_handle_t *sh,
-+					     semanage_module_info_t *modinfo,
-+					     const char **lang_ext);
+-int selinux_status_deny_unknown(void);
++extern int selinux_status_deny_unknown(void);
  
- /* Get @enabled from @modinfo.
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_info_get_enabled(semanage_handle_t *sh,
--				     semanage_module_info_t *modinfo,
--				     int *enabled);
-+extern int semanage_module_info_get_enabled(semanage_handle_t *sh,
-+					    semanage_module_info_t *modinfo,
-+					    int *enabled);
+ #ifdef __cplusplus
+ }
+diff --git a/libselinux/include/selinux/get_context_list.h b/libselinux/include/selinux/get_context_list.h
+index 905f6af3db3b..db8641a4ca8f 100644
+--- a/libselinux/include/selinux/get_context_list.h
++++ b/libselinux/include/selinux/get_context_list.h
+@@ -22,10 +22,10 @@ extern "C" {
  
- /* Module Info Setters */
+ /* As above, but use the provided MLS level rather than the
+    default level for the user. */
+-	int get_ordered_context_list_with_level(const char *user,
+-						const char *level,
+-						char * fromcon,
+-						char *** list);
++	extern int get_ordered_context_list_with_level(const char *user,
++						       const char *level,
++						       char * fromcon,
++						       char *** list);
  
-@@ -126,33 +126,33 @@ int semanage_module_info_get_enabled(semanage_handle_t *sh,
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_info_set_priority(semanage_handle_t *sh,
--				      semanage_module_info_t *modinfo,
--				      uint16_t priority);
-+extern int semanage_module_info_set_priority(semanage_handle_t *sh,
-+					     semanage_module_info_t *modinfo,
-+					     uint16_t priority);
+ /* Get the default security context for a user session for 'user'
+    spawned by 'fromcon' and set *newcon to refer to it.  The context
+@@ -40,27 +40,27 @@ extern "C" {
  
- /* Set @name in @modinfo.
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_info_set_name(semanage_handle_t *sh,
--				  semanage_module_info_t *modinfo,
--				  const char *name);
-+extern int semanage_module_info_set_name(semanage_handle_t *sh,
-+					 semanage_module_info_t *modinfo,
-+					 const char *name);
+ /* As above, but use the provided MLS level rather than the
+    default level for the user. */
+-	int get_default_context_with_level(const char *user,
+-					   const char *level,
+-					   char * fromcon,
+-					   char ** newcon);
++	extern int get_default_context_with_level(const char *user,
++						  const char *level,
++						  char * fromcon,
++						  char ** newcon);
  
- /* Set @lang_ext in @modinfo.
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_info_set_lang_ext(semanage_handle_t *sh,
--				      semanage_module_info_t *modinfo,
--				      const char *lang_ext);
-+extern int semanage_module_info_set_lang_ext(semanage_handle_t *sh,
-+					     semanage_module_info_t *modinfo,
-+					     const char *lang_ext);
+ /* Same as get_default_context, but only return a context
+    that has the specified role.  If no reachable context exists
+    for the user with that role, then return -1. */
+-	int get_default_context_with_role(const char *user,
+-					  const char *role,
+-					  char * fromcon,
+-					  char ** newcon);
++	extern int get_default_context_with_role(const char *user,
++						 const char *role,
++						 char * fromcon,
++						 char ** newcon);
  
- /* Set @enabled in @modinfo.
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_info_set_enabled(semanage_handle_t *sh,
--				     semanage_module_info_t *modinfo,
--				     int enabled);
-+extern int semanage_module_info_set_enabled(semanage_handle_t *sh,
-+					    semanage_module_info_t *modinfo,
-+					    int enabled);
+ /* Same as get_default_context, but only return a context
+    that has the specified role and level.  If no reachable context exists
+    for the user with that role, then return -1. */
+-	int get_default_context_with_rolelevel(const char *user,
+-					       const char *role,
+-					       const char *level,
+-					       char * fromcon,
+-					       char ** newcon);
++	extern int get_default_context_with_rolelevel(const char *user,
++						      const char *role,
++						      const char *level,
++						      char * fromcon,
++						      char ** newcon);
  
- /* Module Key */
- 
-@@ -163,16 +163,16 @@ int semanage_module_info_set_enabled(semanage_handle_t *sh,
-  * The @modkey should be destroyed with semanage_module_key_destroy.
-  * The caller should call free() on the struct.
-  */
--int semanage_module_key_create(semanage_handle_t *sh,
--			       semanage_module_key_t **modkey);
-+extern int semanage_module_key_create(semanage_handle_t *sh,
-+				      semanage_module_key_t **modkey);
- 
- /* Frees members of the @modkey, but not the struct. The caller should
-  * call free() on struct.
-  *
-  * Returns 0 on success, and -1 on error.
-  */
--int semanage_module_key_destroy(semanage_handle_t *sh,
--				semanage_module_key_t *modkey);
-+extern int semanage_module_key_destroy(semanage_handle_t *sh,
-+				       semanage_module_key_t *modkey);
- 
- /* Module Key Getters */
- 
-@@ -180,17 +180,17 @@ int semanage_module_key_destroy(semanage_handle_t *sh,
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_key_get_name(semanage_handle_t *sh,
--				 semanage_module_key_t *modkey,
--				 const char **name);
-+extern int semanage_module_key_get_name(semanage_handle_t *sh,
-+					semanage_module_key_t *modkey,
-+					const char **name);
- 
- /* Get @name from @modkey.
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_key_get_priority(semanage_handle_t *sh,
--				     semanage_module_key_t *modkey,
--				     uint16_t *priority);
-+extern int semanage_module_key_get_priority(semanage_handle_t *sh,
-+					    semanage_module_key_t *modkey,
-+					    uint16_t *priority);
- 
- /* Module Key Setters */
- 
-@@ -198,17 +198,17 @@ int semanage_module_key_get_priority(semanage_handle_t *sh,
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_key_set_name(semanage_handle_t *sh,
--				 semanage_module_key_t *modkey,
--				 const char *name);
-+extern int semanage_module_key_set_name(semanage_handle_t *sh,
-+					semanage_module_key_t *modkey,
-+					const char *name);
- 
- /* Set @priority in @modkey.
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_key_set_priority(semanage_handle_t *sh,
--				     semanage_module_key_t *modkey,
--				     uint16_t priority);
-+extern int semanage_module_key_set_priority(semanage_handle_t *sh,
-+					    semanage_module_key_t *modkey,
-+					    uint16_t priority);
- 
- /* Set module @enabled status from @modkey. Modules are enabled on a per
-  * module name basis (across all priorities). @modkey only needs to have
-@@ -216,18 +216,18 @@ int semanage_module_key_set_priority(semanage_handle_t *sh,
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_set_enabled(semanage_handle_t *sh,
--				const semanage_module_key_t *modkey,
--				int enabled);
-+extern int semanage_module_set_enabled(semanage_handle_t *sh,
-+				       const semanage_module_key_t *modkey,
-+				       int enabled);
- 
- /* Lookup @modinfo by @modkey. Caller should use
-  * semanage_module_info_destroy and free on @modinfo.
-  * 
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_get_module_info(semanage_handle_t *sh,
--				    const semanage_module_key_t *modkey,
--				    semanage_module_info_t **modinfo);
-+extern int semanage_module_get_module_info(semanage_handle_t *sh,
-+					   const semanage_module_key_t *modkey,
-+					   semanage_module_info_t **modinfo);
- 
- /* Create a list of all modules in @modinfos of length @modinfos_len.
-  * The list will be sorted from high priority to low and alphabetically
-@@ -238,9 +238,9 @@ int semanage_module_get_module_info(semanage_handle_t *sh,
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_list_all(semanage_handle_t *sh,
--			     semanage_module_info_t **modinfos,
--			     int *modinfos_len);
-+extern int semanage_module_list_all(semanage_handle_t *sh,
-+				    semanage_module_info_t **modinfos,
-+				    int *modinfos_len);
- 
- /* Install the module indicated by @modinfo with input data from 
-  * @module_data with length @data_len.
-@@ -254,10 +254,10 @@ int semanage_module_list_all(semanage_handle_t *sh,
-  *	-2	failure, invalid @modinfo
-  *	-3	failure, error writing file
-  */
--int semanage_module_install_info(semanage_handle_t *sh,
--				 const semanage_module_info_t *modinfo,
--				 char *data,
--				 size_t data_len);
-+extern int semanage_module_install_info(semanage_handle_t *sh,
-+					const semanage_module_info_t *modinfo,
-+					char *data,
-+					size_t data_len);
- 
- /* Remove the module indicated by @modkey.
-  * @modkey must have key values filled in.
-@@ -267,8 +267,8 @@ int semanage_module_install_info(semanage_handle_t *sh,
-  *	-1	failure, out of memory
-  *	-2	failure, @module not found or couldn't be removed
-  */
--int semanage_module_remove_key(semanage_handle_t *sh,
--			       const semanage_module_key_t *modkey);
-+extern int semanage_module_remove_key(semanage_handle_t *sh,
-+				      const semanage_module_key_t *modkey);
- 
- /* Module Enabled */
- 
-@@ -278,8 +278,8 @@ int semanage_module_remove_key(semanage_handle_t *sh,
-  *
-  * Returns 0 on success and -1 on error.
-  */
--int semanage_module_get_enabled(semanage_handle_t *sh,
--				const semanage_module_key_t *modkey,
--				int *enabled);
-+extern int semanage_module_get_enabled(semanage_handle_t *sh,
-+				       const semanage_module_key_t *modkey,
-+				       int *enabled);
- 
+ /* Given a list of authorized security contexts for the user, 
+    query the user to select one and set *newcon to refer to it.
+diff --git a/libselinux/include/selinux/get_default_type.h b/libselinux/include/selinux/get_default_type.h
+index 65c5dd40a3d4..93f5b2764d38 100644
+--- a/libselinux/include/selinux/get_default_type.h
++++ b/libselinux/include/selinux/get_default_type.h
+@@ -10,12 +10,12 @@ extern "C" {
  #endif
+ 
+ /* Return path to default type file. */
+-	const char *selinux_default_type_path(void);
++	extern const char *selinux_default_type_path(void);
+ 
+ /* Get the default type (domain) for 'role' and set 'type' to refer to it.
+    Caller must free via free().
+    Return 0 on success or -1 otherwise. */
+-	int get_default_type(const char *role, char **type);
++	extern int get_default_type(const char *role, char **type);
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/libselinux/include/selinux/label.h b/libselinux/include/selinux/label.h
+index 962826326a17..e8983606d93b 100644
+--- a/libselinux/include/selinux/label.h
++++ b/libselinux/include/selinux/label.h
+@@ -73,9 +73,9 @@ struct selabel_handle;
+  * backend.  Return value is the created handle on success or NULL with
+  * @errno set on failure.
+  */
+-struct selabel_handle *selabel_open(unsigned int backend,
+-				    const struct selinux_opt *opts,
+-				    unsigned nopts);
++extern struct selabel_handle *selabel_open(unsigned int backend,
++					   const struct selinux_opt *opts,
++					   unsigned nopts);
+ 
+ /**
+  * selabel_close - Close a labeling handle.
+@@ -84,7 +84,7 @@ struct selabel_handle *selabel_open(unsigned int backend,
+  * Destroy the specified handle, closing files, freeing allocated memory,
+  * etc.  The handle may not be further used after it has been closed.
+  */
+-void selabel_close(struct selabel_handle *handle);
++extern void selabel_close(struct selabel_handle *handle);
+ 
+ /**
+  * selabel_lookup - Perform labeling lookup operation.
+@@ -99,25 +99,25 @@ void selabel_close(struct selabel_handle *handle);
+  * The result is returned in the memory pointed to by @con and must be freed
+  * by the user with freecon().
+  */
+-int selabel_lookup(struct selabel_handle *handle, char **con,
+-		   const char *key, int type);
+-int selabel_lookup_raw(struct selabel_handle *handle, char **con,
+-		       const char *key, int type);
+-
+-bool selabel_partial_match(struct selabel_handle *handle, const char *key);
+-
+-bool selabel_get_digests_all_partial_matches(struct selabel_handle *rec,
+-					     const char *key,
+-					     uint8_t **calculated_digest,
+-					     uint8_t **xattr_digest,
+-					     size_t *digest_len);
+-bool selabel_hash_all_partial_matches(struct selabel_handle *rec,
+-                                      const char *key, uint8_t* digest);
+-
+-int selabel_lookup_best_match(struct selabel_handle *rec, char **con,
+-			      const char *key, const char **aliases, int type);
+-int selabel_lookup_best_match_raw(struct selabel_handle *rec, char **con,
+-			      const char *key, const char **aliases, int type);
++extern int selabel_lookup(struct selabel_handle *handle, char **con,
++			  const char *key, int type);
++extern int selabel_lookup_raw(struct selabel_handle *handle, char **con,
++			      const char *key, int type);
++
++extern bool selabel_partial_match(struct selabel_handle *handle, const char *key);
++
++extern bool selabel_get_digests_all_partial_matches(struct selabel_handle *rec,
++						    const char *key,
++						    uint8_t **calculated_digest,
++						    uint8_t **xattr_digest,
++						    size_t *digest_len);
++extern bool selabel_hash_all_partial_matches(struct selabel_handle *rec,
++					     const char *key, uint8_t* digest);
++
++extern int selabel_lookup_best_match(struct selabel_handle *rec, char **con,
++				     const char *key, const char **aliases, int type);
++extern int selabel_lookup_best_match_raw(struct selabel_handle *rec, char **con,
++					 const char *key, const char **aliases, int type);
+ 
+ /**
+  * selabel_digest - Retrieve the SHA1 digest and the list of specfiles used to
+@@ -132,9 +132,9 @@ int selabel_lookup_best_match_raw(struct selabel_handle *rec, char **con,
+  *
+  * Return %0 on success, -%1 with @errno set on failure.
+  */
+-int selabel_digest(struct selabel_handle *rec,
+-			    unsigned char **digest, size_t *digest_len,
+-			    char ***specfiles, size_t *num_specfiles);
++extern int selabel_digest(struct selabel_handle *rec,
++			  unsigned char **digest, size_t *digest_len,
++			  char ***specfiles, size_t *num_specfiles);
+ 
+ enum selabel_cmp_result {
+ 	SELABEL_SUBSET,
+@@ -153,8 +153,8 @@ enum selabel_cmp_result {
+  * if @h1 is identical to @h2, %SELABEL_SUPERSET if @h1 is a superset
+  * of @h2, and %SELABEL_INCOMPARABLE if @h1 and @h2 are incomparable.
+  */
+-enum selabel_cmp_result selabel_cmp(struct selabel_handle *h1,
+-				    struct selabel_handle *h2);
++extern enum selabel_cmp_result selabel_cmp(struct selabel_handle *h1,
++					   struct selabel_handle *h2);
+ 
+ /**
+  * selabel_stats - log labeling operation statistics.
+@@ -164,7 +164,7 @@ enum selabel_cmp_result selabel_cmp(struct selabel_handle *h1,
+  * number of unused matching entries, or other operational statistics.
+  * Message is backend-specific, some backends may not output a message.
+  */
+-void selabel_stats(struct selabel_handle *handle);
++extern void selabel_stats(struct selabel_handle *handle);
+ 
+ /*
+  * Type codes used by specific backends
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index 6db98e0e68cf..fe46e681488d 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -610,13 +610,13 @@ extern int selinux_check_securetty_context(const char * tty_context);
+    Normally, this is determined automatically during libselinux 
+    initialization, but this is not always possible, e.g. for /sbin/init
+    which performs the initial mount of selinuxfs. */
+-void set_selinuxmnt(const char *mnt);
++extern void set_selinuxmnt(const char *mnt);
+ 
+ /* Check if selinuxfs exists as a kernel filesystem */
+-int selinuxfs_exists(void);
++extern int selinuxfs_exists(void);
+ 
+ /* clear selinuxmnt variable and free allocated memory */
+-void fini_selinuxmnt(void);
++extern void fini_selinuxmnt(void);
+ 
+ /* Set an appropriate security context based on the filename of a helper
+  * program, falling back to a new context with the specified type. */
 -- 
 2.22.0
 
