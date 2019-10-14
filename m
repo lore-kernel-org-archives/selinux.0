@@ -2,160 +2,218 @@ Return-Path: <SRS0=gfEM=YH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAF9DECE587
-	for <selinux@archiver.kernel.org>; Mon, 14 Oct 2019 09:36:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8BC9ECE58E
+	for <selinux@archiver.kernel.org>; Mon, 14 Oct 2019 11:47:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C08D7214AE
-	for <selinux@archiver.kernel.org>; Mon, 14 Oct 2019 09:36:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9203220854
+	for <selinux@archiver.kernel.org>; Mon, 14 Oct 2019 11:47:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="XvAnoRVK"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g03BA/Am"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731011AbfJNJg0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 14 Oct 2019 05:36:26 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:55190 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730667AbfJNJg0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 14 Oct 2019 05:36:26 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=LsMYLS/Y8cXFlMO0GSn0Yr3BGu1XV5VAX95XcUxBpz0=; b=XvAnoRVKvYRsEt/t8d+FAEQPl
-        B2q8swT9UjlU8sRDS9hAToqyHzJLXEvw6tO47ML5EE88nfG6Cs+/lglrJiXTvJsdGiwk7Gn3B+fOg
-        d/KVk71GetGtHjFPkZmmNP9hpm3XNZPvZKHXKJtyG7MXCIxjQO+9ogr3UoyhzPcBvUkXJ/2FGwzjo
-        MT6aDZxByHv6N7QmSF865+Q8m+FdLf45V1GFwZm+UvbwvUKCoYXYwRB7Z7buZsr8Uk/Y1Vjd9nu88
-        SBtwYHS6X1OCWrTuYhgDYfYKmmcGs4/l3uPYqMJ7urLlxx9FG5EHeWRdIq4jHkLNqjUvIcQ2btmcQ
-        ytw851Dow==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iJwlY-0005EW-2w; Mon, 14 Oct 2019 09:35:48 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 717FC300F3F;
-        Mon, 14 Oct 2019 11:34:50 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id 555A926530285; Mon, 14 Oct 2019 11:35:44 +0200 (CEST)
-Date:   Mon, 14 Oct 2019 11:35:44 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Cc:     linux-kernel@vger.kernel.org, rostedt@goodmis.org,
-        primiano@google.com, rsavitski@google.com, jeffv@google.com,
-        kernel-team@android.com, Alexei Starovoitov <ast@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        bpf@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Morris <jmorris@namei.org>, Jiri Olsa <jolsa@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        linux-security-module@vger.kernel.org,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Namhyung Kim <namhyung@kernel.org>, selinux@vger.kernel.org,
-        Song Liu <songliubraving@fb.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Yonghong Song <yhs@fb.com>
-Subject: Re: [PATCH] perf_event: Add support for LSM and SELinux checks
-Message-ID: <20191014093544.GB2328@hirez.programming.kicks-ass.net>
-References: <20191011160330.199604-1-joel@joelfernandes.org>
+        id S1731143AbfJNLra (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 14 Oct 2019 07:47:30 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:59564 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730178AbfJNLra (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 14 Oct 2019 07:47:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1571053648;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mgYv54c4vuKeaHcGIIKYzlMRCTdnJho61wNbWnGsb8Q=;
+        b=g03BA/AmSBf2jcPAYXBcx1U+ClyGQi7maH1eZAV+dKIoAvImh78MRcDnLgWMhjnE5iF8u5
+        2I2ZUyFwDrY77PiRWBYQmPYqy0qTGb3/wNasbeonQDEwKqebIwWJDMf/c4o2k3BHSL+ycp
+        n8BbB55J2SSGDCHYq3zAY6QtWJPglY4=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-163-Wi-712GgP6auuWqjrE9_SA-1; Mon, 14 Oct 2019 07:47:25 -0400
+Received: by mail-ot1-f72.google.com with SMTP id z24so7485001otq.6
+        for <selinux@vger.kernel.org>; Mon, 14 Oct 2019 04:47:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hYG28HXnkRNT7QRwH9xxr4Q7Dggoitdum3h4Y5lSECE=;
+        b=MKHeU+7vv/vmhHuAydCaqzv92DSeecARnkL9a7MWDm9pSwz/g1PDDvDJxQ6iy81R/J
+         unx2zxn4gfIneaE6+ET1nDdnJgGzB5UGFXPewn/JD2dml3kpq3qyPbDzV234HVag8Ugv
+         cqC4OJSqu6tGENa3fGy0qvjECdXx/wTYq2A8xWbUu3aNfchPOMyc2MMQqR6ayj1mUI7r
+         9AmTZQgYL/luPjuQkz2iYePLckPXsj2XaOzxJKfP+bozpHWBrztm3j8oQ5s0trnEF0O+
+         7q/v7cViwIKChoMlfSD/OkQJlekCXVxgei414tAVXUUCtmbfXNzVe9Oe9HopTQunIkdB
+         8Wlw==
+X-Gm-Message-State: APjAAAVFV48cHvnED0nzPDquQuJtSPD7zsNVJ6R0zlrEZHxAWkf4EGVc
+        VP+SyEU2EZJ3fusUnpA7aNK4pK4D05k8wFg6JXpUmRHoGH9j0w9HgRndHB/xw8tI9oRqVIXpotP
+        FC0ZJmN/yaboVNe4xGE8dFzQc9Jzi35mFDA==
+X-Received: by 2002:aca:100f:: with SMTP id 15mr24126446oiq.166.1571053644828;
+        Mon, 14 Oct 2019 04:47:24 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqxr0HFF6Ze6Ybvexx5611FfLGOvA2CmefkmBdOXsw0uSiBRY9Y7bJ+nt39vKAxDGb8bvyqXTZnK7VqthAkPaTk=
+X-Received: by 2002:aca:100f:: with SMTP id 15mr24126427oiq.166.1571053644371;
+ Mon, 14 Oct 2019 04:47:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191011160330.199604-1-joel@joelfernandes.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190930131600.21473-1-omosnace@redhat.com> <c9cc5939-a6f3-73cd-7ff3-a83a04d36b17@tycho.nsa.gov>
+ <CAHC9VhTVNgqOgRjgk37x0EyZQWBbrYJ1FND5hVMxZUJ5JcofPA@mail.gmail.com>
+ <ddea594c-717b-cb40-6bd7-7bb6c8cae79d@tycho.nsa.gov> <CAHC9VhRmX0ofWA7Yqg73XfDW0Hhf2j6Yr7pi1pQ=bDBiARd5sg@mail.gmail.com>
+ <CAFqZXNvoh_ev=-RTFPgMBKGddzWME=SBqtX-EtKQ8f_YEGQOkw@mail.gmail.com> <CAHC9VhR=VF5jEttDLOh0XUkWuLi-aoK9uGGOTCST5ue=-ymatQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhR=VF5jEttDLOh0XUkWuLi-aoK9uGGOTCST5ue=-ymatQ@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 14 Oct 2019 13:47:13 +0200
+Message-ID: <CAFqZXNtpAnyCa9OKkbo5UYyZUQm=p6V_bKaf_ztyjOcjYfOQ4A@mail.gmail.com>
+Subject: Re: [PATCH testsuite] selinux-testsuite: Add submount test
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        SElinux list <selinux@vger.kernel.org>
+X-MC-Unique: Wi-712GgP6auuWqjrE9_SA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Oct 11, 2019 at 12:03:30PM -0400, Joel Fernandes (Google) wrote:
+On Thu, Oct 10, 2019 at 12:50 AM Paul Moore <paul@paul-moore.com> wrote:
+> On Wed, Oct 9, 2019 at 10:53 AM Ondrej Mosnacek <omosnace@redhat.com> wro=
+te:
+> > On Wed, Oct 9, 2019 at 4:01 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > On Wed, Oct 9, 2019 at 9:53 AM Stephen Smalley <sds@tycho.nsa.gov> wr=
+ote:
+> > > > On 10/8/19 5:30 PM, Paul Moore wrote:
+> > > > > On Mon, Sep 30, 2019 at 10:07 AM Stephen Smalley <sds@tycho.nsa.g=
+ov> wrote:
+> > > > >> On 9/30/19 9:16 AM, Ondrej Mosnacek wrote:
+> > > > >>> Add a test that verifies that SELinux permissions are not check=
+ed when
+> > > > >>> mounting submounts. The test sets up a simple local NFS export =
+on a
+> > > > >>> directory which has another filesystem mounted on its subdirect=
+ory.
+> > > > >>> Since the export is set up with the crossmnt option enabled, an=
+y client
+> > > > >>> mount will try to transparently mount any subdirectory that has=
+ a
+> > > > >>> filesystem mounted on it on the server, triggering an internal =
+mount.
+> > > > >>> The test tries to access the automounted part of this export vi=
+a a
+> > > > >>> client mount without having a permission to mount filesystems, =
+expecting
+> > > > >>> it to succeed.
+> > > > >>>
+> > > > >>> The original bug this test is checking for has been fixed in ke=
+rnel
+> > > > >>> commit 892620bb3454 ("selinux: always allow mounting submounts"=
+), which
+> > > > >>> has been backported to 4.9+ stable kernels.
+> > > > >>>
+> > > > >>> The test first checks whether it is able to export and mount di=
+rectories
+> > > > >>> via NFS and skips the actual tests if e.g. NFS daemon is not ru=
+nning.
+> > > > >>> This means that the testsuite can still be run without having t=
+he NFS
+> > > > >>> server installed and running.
+> > > > >>
+> > > > >> 1) We have to manually start nfs-server in order for the test to=
+ run;
+> > > > >> else it will be skipped automatically.  Do we want to start/stop=
+ the
+> > > > >> nfs-server as part of the test script?
+> > > > >
+> > > > > My two cents are that I'm not sure we want to automatically start=
+/stop
+> > > > > the NFS server with the usual "make test", perhaps we have a dedi=
+cated
+> > > > > NFS test target that does the setup-test-shutdown?  Other ideas a=
+re
+> > > > > welcome.
+> > > >
+> > > > I guess my concern is that anything that doesn't run with the defau=
+lt
+> > > > make test probably won't get run at all with any regularity.
+> > >
+> > > FWIW, I think I'm the only one regularly running the tests on upstrea=
+m
+> > > kernels and reporting the results.  RH was running the tests at one
+> > > point, and may still be doing so, but I have no idea what kernels the=
+y
+> > > are testing (maybe just RHEL, stable Fedora, etc.) and what their
+> > > process is when they find failures.
+> >
+> > We do still run the selinux-testsuite nightly on Fedora Rawhide with
+> > your kernel-secnext kernel builds (I suppose we fetch them from COPR).
+> > I can't really describe what we do when they fail, because that hardly
+> > ever happens now :)
+>
+> I'm happy to hear that the tests are still running, but we must be
+> looking at different test results ;)
 
-> @@ -4761,6 +4762,7 @@ int perf_event_release_kernel(struct perf_event *event)
->  	}
->  
->  no_ctx:
-> +	security_perf_event_free(event);
->  	put_event(event); /* Must be the 'last' reference */
->  	return 0;
->  }
+Well, we pin the testsuite to a fixed commit and bump it manually as
+needed/wanted, so we generally don't see failures that are fixed
+quickly. But I don't recall many (non-false-positive) failures
+appearing on kernel-secnext in the past few months either.
 
-> @@ -10553,11 +10568,16 @@ perf_event_alloc(struct perf_event_attr *attr, int cpu,
->  		}
->  	}
->  
-> +	err = security_perf_event_alloc(event);
-> +	if (err)
-> +		goto err_security;
-> +
->  	/* symmetric to unaccount_event() in _free_event() */
->  	account_event(event);
->  
->  	return event;
->  
-> +err_security:
->  err_addr_filters:
->  	kfree(event->addr_filter_ranges);
->  
+>
+> > But if we came across a failure that would suggest
+> > a bug, we would certainly investigate and report it.
+>
+> Great, thank you.
+>
+> > The testsuite is now also being run as part of CKI
+> > (https://github.com/cki-project), which AFAIK currently runs regularly
+> > on linux-stable kernels (the results are posted publicly to
+> > stable@vger.kernel.org). I don't follow these reports closely, so I'm
+> > not sure if there were any non-false-positive failures there...
+>
+> That's good news.  I assume CKI has some provision for emailing people
+> when there are test failures?  I don't really need to see every
+> -stable kernel test, but it might be nice to see the failures.
+> Alternatively, now that I think about it, this shouldn't be that hard
+> to setup with the secnext stuff ...
 
-There's a bunch of problems here I think:
+I don't know if it is possible to subscribe to test failures (I'd
+guess not). There is a notion of test maintainers, who are defined
+internally, who receive reports of failures for review before they are
+sent to relevant recipients, but this is an internal-only facility...
+Maybe you can try filing a feature request at [1]?
 
- - err_security is named wrong; the naming scheme is to name the label
-   after the last thing that succeeded / first thing that needs to be
-   undone.
+[1] https://github.com/CKI-project/meta/issues
 
- - per that, you're forgetting to undo 'get_callchain_buffers()'
+>
+> > > > For
+> > > > something that requires specialized hardware (e.g. InfiniBand), thi=
+s is
+> > > > reasonable but that isn't true of NFS.  For the more analogous case=
+s of
+> > > > e.g. labeled IPSEC, NetLabel, SECMARK, we already load and unload
+> > > > network configurations for the testsuite during testing.
+> > >
+> > > That's a good point about the other networking tests.  My gut feeling
+> > > tells me that NFS should be "different", but I guess I can't really
+> > > justify that statement in an objectively meaningful way.
+> >
+> > I think the main reason why I didn't include NFS server starting was
+> > that I don't know how to do it robustly across distros... Already on
+> > RHEL the service name varies ("nfs-server" vs. just "nfs") and then
+> > there is "service xyz start" vs. "systemctl start xyz"...
+>
+> That's another good point.  At this point in time I think it is
+> relatively safe to stick with systemd/systemctl (and skip if systemctl
+> is not found) as systemd appears to be eating the world; although this
+> doesn't help with the service name problem.
 
- - perf_event_release_kernel() is not a full match to
-   perf_event_alloc(), inherited events get created by
-   perf_event_alloc() but never pass through
-   perf_event_release_kernel().
+It seems that wherever the service can be started by systemctl, it is
+called "nfs-server" (on RHEL-7 there is also an alias "nfs"), so I
+think we can stick to just 'systemctl start nfs-server' and it should
+work most (if not all) of the time.
 
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
-I'm thinking the below patch on top should ammend these issues; please
-verify.
-
----
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -4540,6 +4540,8 @@ static void _free_event(struct perf_even
- 
- 	unaccount_event(event);
- 
-+	security_perf_event_free(event);
-+
- 	if (event->rb) {
- 		/*
- 		 * Can happen when we close an event with re-directed output.
-@@ -4774,7 +4776,6 @@ int perf_event_release_kernel(struct per
- 	}
- 
- no_ctx:
--	security_perf_event_free(event);
- 	put_event(event); /* Must be the 'last' reference */
- 	return 0;
- }
-@@ -10595,14 +10596,18 @@ perf_event_alloc(struct perf_event_attr
- 
- 	err = security_perf_event_alloc(event);
- 	if (err)
--		goto err_security;
-+		goto err_callchain_buffer;
- 
- 	/* symmetric to unaccount_event() in _free_event() */
- 	account_event(event);
- 
- 	return event;
- 
--err_security:
-+err_callchain_buffer:
-+	if (!event->parent) {
-+		if (event->attr.sample_type & PERF_SAMPLE_CALLCHAIN)
-+			put_callchain_buffers();
-+	}
- err_addr_filters:
- 	kfree(event->addr_filter_ranges);
- 
