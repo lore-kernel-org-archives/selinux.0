@@ -7,76 +7,76 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4258EECE588
-	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 379B7ECE588
+	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0FF83218DE
-	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4970218DE
+	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="mFcvs1bT"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Kwx1EOkj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731966AbfJON1N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Oct 2019 09:27:13 -0400
-Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:20315 "EHLO
+        id S1731968AbfJON1P (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Oct 2019 09:27:15 -0400
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:20310 "EHLO
         UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731154AbfJON1N (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Oct 2019 09:27:13 -0400
-X-EEMSG-check-017: 22420358|UPDC19PA20_ESA_OUT02.csd.disa.mil
+        with ESMTP id S1727745AbfJON1P (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Oct 2019 09:27:15 -0400
+X-EEMSG-check-017: 22420364|UPDC19PA20_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.67,300,1566864000"; 
-   d="scan'208";a="22420358"
+   d="scan'208";a="22420364"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
   by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Oct 2019 13:27:10 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1571146030; x=1602682030;
+  s=tycho.nsa.gov; t=1571146031; x=1602682031;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=Vq/l0TO6FeMlfrW5EHcGpISdvTr6djho/z9ycI97qrA=;
-  b=mFcvs1bTV/WgP/oIyclay+/RPgW+Va+qeLtYqhww4Pm8z6VtD+43y3zo
-   vsjxE2fuqhlpzZV3u73e/2q+T4XxE4lNJbM84Rz5dvtLRfzxgFE/8mQSO
-   f2Q8wpEVDbAxgKtWFb+rysk4DEOHBNZ4KeWxLoTeHRJYMF13AVo1zm0yB
-   5sTuGFyiORFv8Qws7oOWhE18HCxeTBAOoq5vauOZxr+u9R4VEXWnlGTWC
-   INKuS4Ew+j5jpX19glXarFiODBzP5+3R8aGhzsM88bhMwt9Y8uP+ozX/u
-   Vqo4QKGGREFyo9QShpc1rWIZHz8NeqQjiefV/zXK68bWE7qr4dbPv2eyu
-   w==;
+  bh=jZPzasM3Ai9mJ5Y5jzcSODF0MyAgpS6VP6aGDlhzlNY=;
+  b=Kwx1EOkjccVwYH31Qdjzle3x7ANgpr6z806HphPCggnff8m4vTWVP2Ae
+   ZcfSy9t9HqilKVehZRKZMRESSugsCJiS8TFoJs3zFF5yv3XOK+vd5M2V+
+   oGHzOTAj194Z8pI+G2zYPHv0KphPRtJVAp6xeCXdLJnJYvZV1np61AvtF
+   IXQ++hkqh1+wErzJyd57hsthbuTsTNVgpv2iTso5leNB00UvCzAEpDFAh
+   NqIoPM1AiUK8BCT14X5BMuPColWjAORCA6qHLmQkV8xG70ntv6EfDIV85
+   EbNxXE905SisnyjVeWaFmatyWPZx6hsvndujhK7ptGkGs0PioacryaiVf
+   g==;
 X-IronPort-AV: E=Sophos;i="5.67,300,1566864000"; 
-   d="scan'208";a="34156706"
-IronPort-PHdr: =?us-ascii?q?9a23=3AivGdYhLnydoMHz/jdtmcpTZWNBhigK39O0sv0r?=
- =?us-ascii?q?FitYgeKvjxwZ3uMQTl6Ol3ixeRBMOHsqkC1LGd7v6ocFdDyK7JiGoFfp1IWk?=
- =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
- =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmTSwbalwIRi4ognctsgbipZ+J6gszR?=
- =?us-ascii?q?fEvmFGcPlMy2NyIlKTkRf85sOu85Nm7i9dpfEv+dNeXKvjZ6g3QqBWAzogM2?=
- =?us-ascii?q?Au+c3krgLDQheV5nsdSWoZjBxFCBXY4R7gX5fxtiz6tvdh2CSfIMb7Q6w4VS?=
- =?us-ascii?q?ik4qx2RhDokiMHPCMn/m/RhMJ7kaZXrAuhqhF7xoLZZpyeOvhjcaPHZd4URX?=
- =?us-ascii?q?RPUNtfWSJCBY2zbYUPAOUOM+tDs4XwpEEDoQekCAWwGO/izCJDiH/s3a091u?=
- =?us-ascii?q?QsCRzI3BA+ENIWsHTbstP1P7oPX+Cw1qbIyTHDYO1W2Dzg74XIaQ0uoeqXUL?=
- =?us-ascii?q?Jsccve1UkvFwTfglWWsozqJSmZ1usKs2iF9udtU/+khW0/qwxpvzSiycghhp?=
- =?us-ascii?q?PJi44I0FzI6yp0zJgvKdGlTkNwfMSqH4FKty6AMot7WsYiQ2Z1tykk0rAGop?=
- =?us-ascii?q?u7fDQSyJQg2h7fd+SLc4iW7RLnU+acOSt4i2h/eLK+mhay6lKsyvH8V8ao0F?=
- =?us-ascii?q?ZKqTBJkt/QuXAWyxPf8M2HSvp5/ku52DaP0R7c6v1cLEwpmqfWJIQtz74tmp?=
- =?us-ascii?q?YJr0jOETH6lF/rgKOOc0Ur4Omo6+DpYrX8oZ+cMpd5ihrjPaQ1gcG/HeQ5PR?=
- =?us-ascii?q?QOX2ic4+i80qbj8lfjTLVFif02jLHVsIrGKsQDuq65HwhV35476xmlEjem1M?=
- =?us-ascii?q?8VnWEdI1JYfBKLlo3pO1bJIPDiE/izmUijkDBux/reJL3uHo3NLmTfkLfmZb?=
- =?us-ascii?q?t98FBTyA4yzdBZ+pJVBaoMIOz8WkDvrtzUFBw5PBKuw+bhFtp90pkSWWWVAq?=
- =?us-ascii?q?+WY+vutgqT6+YuJfScTJEatSy7KPU/4fPqy3gjlgwzZ66siKALZWi4E/IuGE?=
- =?us-ascii?q?CQZX7hk59VCmsRlhYvR+ztzluZWHhcYGjkDPF03S0yFI/zVdSLfYuqmrHUmX?=
- =?us-ascii?q?rqEw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DnAAAuxaVd/wHyM5BmHAEBAQEBBwEBEQEEBAEBgWkFA?=
- =?us-ascii?q?QELAYFuBSyBPwEyKpNSAQEBAQEBBosujzSBewkBAQEBAQEBAQEbGQECAQGEQ?=
- =?us-ascii?q?AKCayQ2Bw4CDAEBAQQBAQEBAQUDAQFshTmCOimCaQYnCwFGEFFXGYJjP4JTJ?=
- =?us-ascii?q?bArM4VNgy6BSIE0AYc0hFkYeIEHgRGDUIQuhgIErUqCLIIxiXGIbQwbmUGpb?=
- =?us-ascii?q?QsngVgrCAIYCCEPgydQEBSBWxcVjiolAzCBBgEBkEEBAQ?=
+   d="scan'208";a="34156707"
+IronPort-PHdr: =?us-ascii?q?9a23=3AIBQvvxwv8vaDk6vXCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd2+oSIJqq85mqBkHD//Il1AaPAdyAra0fwLeI+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxhGiTanY75/Ihq6oAXQu8ILnYZsN6E9xw?=
+ =?us-ascii?q?fTrHBVYepW32RoJVySnxb4+Mi9+YNo/jpTtfw86cNOSL32cKskQ7NWCjQmKH?=
+ =?us-ascii?q?0169bwtRbfVwuP52ATXXsQnxFVHgXK9hD6XpP2sivnqupw3TSRMMPqQbwoXz?=
+ =?us-ascii?q?mp8qlkSAXsiCwaKTA39m/ZgdF0gK5CoB+soxlzzojJa4+XKfV+ZLvQc9MES2?=
+ =?us-ascii?q?RcUMhfVCtPDYGyb4QAAOQMJvpUoornqlcStxayGRWgCeXywTFInH/22qg63v?=
+ =?us-ascii?q?w8HwHawgMgB9IOv2rSrN7oKakSVPq6zK3MzTrdb/JdxDDw6JPVfRA6uvyMQb?=
+ =?us-ascii?q?JxftbRyUkoDQ/FiE6Qppb/MzOa0eQNrXGW4ux9Xuysk24qsxx9rzegy8s2io?=
+ =?us-ascii?q?TFm5gZxk7L+Cln2oo5ONu1Q1Nhb9G+CptfrSSaOpNzQsMlXm5npj43yqYDuZ?=
+ =?us-ascii?q?6nZCgKz4knxwLHZ/yHbYeI5hXjWf6NIThinnJlea+/hw2o/Ui8yuzzSsm00F?=
+ =?us-ascii?q?FQoipDjtbMrWwC2wbW6siGTvtx5kah2TCR2ADP8uxIPE85mKXBJ5Mh37I8jI?=
+ =?us-ascii?q?QfvEvdEiPshUn6lKqWeV8l+uis5eTneLLmppqEOo9vlw7+Kb8jmtC/AOskMg?=
+ =?us-ascii?q?gOWHKX+eKn1LL550H5T7JKjuMunqnDrJ/aPdgbprK+AwJNyoYs8Qu/DzO93d?=
+ =?us-ascii?q?QAh3YHMVZFdAuCj4juPFHOOu73Ae2jjFSrlTdh3+rGMaH5ApXRMnjDl6/sfa?=
+ =?us-ascii?q?1j5E5YyQozy81f5p1PB7EfL/L8RFXxuMbbDhAnKQy0xfjoCNFn2oMZQ2KPDf?=
+ =?us-ascii?q?zRDKSHqlKM5+QyM8GSa4IP/jXwMf4o47jpl3Bqt0UaePySwZYPaH2+Vs9jKk?=
+ =?us-ascii?q?GdbGuk1swNCk8WrwE+S6rsk1TEXjlNMSXhF5kg7y02Xdr1RbzIQZqg1fncjS?=
+ =?us-ascii?q?o=3D?=
+X-IPAS-Result: =?us-ascii?q?A2ACCwAuxaVd/wHyM5BmHQEBAQkBEQUFAYF7gXQsgT8BM?=
+ =?us-ascii?q?iqTUgEBAQEBAQaCNIh6kS8JAQEBAQEBAQEBGxkBAgEBhEACgmskOBMCDAEBA?=
+ =?us-ascii?q?QQBAQEBAQUDAQFshTmCOimCaQYnCwFGEFFXGYJXDD+CUyWwKzOFTYMugUiBN?=
+ =?us-ascii?q?Ic1hFkYeIEHgRGCXXOKMASNB6BDgiyCMZJeDBuCOpcHj3CaDSKBWCsIAhgII?=
+ =?us-ascii?q?Q+DJ1AQFIFbF44/JQMwgQYBAZBBAQE?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
   by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Oct 2019 13:27:01 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9FDPV4K010187;
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9FDPV4L010187;
         Tue, 15 Oct 2019 09:27:01 -0400
 From:   Stephen Smalley <sds@tycho.nsa.gov>
 To:     selinux@vger.kernel.org
 Cc:     paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [RFC PATCH 06/10] netns,selinux: create the selinux netlink socket per network namespace
-Date:   Tue, 15 Oct 2019 09:25:24 -0400
-Message-Id: <20191015132528.13519-7-sds@tycho.nsa.gov>
+Subject: [RFC PATCH 07/10] selinux: support per-task/cred selinux namespace
+Date:   Tue, 15 Oct 2019 09:25:25 -0400
+Message-Id: <20191015132528.13519-8-sds@tycho.nsa.gov>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20191015132528.13519-1-sds@tycho.nsa.gov>
 References: <20191015132528.13519-1-sds@tycho.nsa.gov>
@@ -87,124 +87,281 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The selinux netlink socket is used to notify userspace of changes to
-the enforcing mode and policy reloads.  At present, these notifications
-are always sent to the initial network namespace.  In order to support
-multiple selinux namespaces, each with its own enforcing mode and
-policy, we need to create and use a separate selinux netlink socket
-for each network namespace.
+Extend the task security structure to include a reference to
+the associated selinux namespace, and to also contain a
+pointer to the cred in the parent namespace.  The current selinux
+namespace is changed to the per-task/cred selinux namespace
+for the current task/cred.
 
-Without this change, a policy reload in a child selinux namespace
-causes a notification to be sent to processes in the init namespace
-with a sequence number that may be higher than the policy sequence
-number for that namespace.  As a result, userspace AVC instances in
-the init namespace will then end up rejecting any further access
-vector results from its own security server instance due to the
-policy sequence number appearing to regress, which in turn causes
-all subsequent uncached access checks to fail.  Similarly,
-without this change, changing enforcing mode in the child selinux
-namespace triggers a notification to all userspace AVC instances
-in the init namespace that will switch their enforcing modes.
+This change makes it possible to support per-cred selinux namespaces,
+but does not yet introduce a mechanism for unsharing of the selinux
+namespace.  Thus, by itself, this change does not alter the existing
+situation with respect to all processes still using a single init
+selinux namespace.
 
-This change does alter SELinux behavior, since previously reloading
-policy or changing enforcing mode in a non-init network namespace would
-trigger a notification to processes in the init network namespace.
-However, this behavior is not being relied upon by existing userspace
-AFAICT and is arguably wrong regardless.
+An alternative would be to hang the selinux namespace off of the
+user namespace, which itself is associated with the cred.  This
+seems undesirable however since DAC and MAC are orthogonal, and
+there appear to be real use cases where one will want to use selinux
+namespaces without user namespaces and vice versa. However, one
+advantage of hanging off the user namespace would be that it is already
+associated with other namespaces, such as the network namespace, thus
+potentially facilitating looking up the relevant selinux namespace from
+the network input/forward hooks.  In most cases however, it appears that
+we could instead copy a reference to the creating task selinux namespace
+to sock security structures and use that in those hooks.
 
-This change presumes that one will always unshare the network namespace
-when unsharing a new selinux namespace (the reverse is not required).
-Otherwise, the same inconsistencies could arise between the notifications
-and the relevant policy.  At present, nothing enforces this guarantee
-at the kernel level; it is left up to userspace (e.g. container runtimes).
-It is an open question as to whether this is a good idea or whether
-unsharing of the selinux namespace should automatically unshare the network
-namespace.  However, keeping them separate is consistent with the handling
-of the mount namespace currently, which also should be unshared so that
-a private selinuxfs mount can be created.
+Introduce a task_security() helper to obtain the correct task/cred
+security structure from the hooks, and update the hooks to use it.
+This returns a pointer to the security structure for the task in
+the same selinux namespace as the caller, or if there is none, a
+fake security structure with the well-defined unlabeled SIDs.  This
+ensures that we return a valid result that can be used for permission
+checks and for returning contexts from e.g. reading /proc/pid/attr files.
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- include/net/net_namespace.h |  3 +++
- security/selinux/netlink.c  | 31 +++++++++++++++++++++++++------
- 2 files changed, 28 insertions(+), 6 deletions(-)
+ security/selinux/hooks.c            | 51 +++++++++++++++++++++++++----
+ security/selinux/include/objsec.h   | 23 -------------
+ security/selinux/include/security.h | 32 +++++++++++++++++-
+ 3 files changed, 75 insertions(+), 31 deletions(-)
 
-diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
-index f8712bbeb2e0..df0737725454 100644
---- a/include/net/net_namespace.h
-+++ b/include/net/net_namespace.h
-@@ -172,6 +172,9 @@ struct net {
- #endif
- 	struct sock		*diag_nlsk;
- 	atomic_t		fnhe_genid;
-+#if IS_ENABLED(CONFIG_SECURITY_SELINUX)
-+	struct sock		*selnl;
-+#endif
- } __randomize_layout;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index dc0b143ffa55..28cc75e5361b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -103,8 +103,6 @@
+ #include "audit.h"
+ #include "avc_ss.h"
  
- #include <linux/seq_file_net.h>
-diff --git a/security/selinux/netlink.c b/security/selinux/netlink.c
-index 621e2e9cd6a1..03678a76f4bb 100644
---- a/security/selinux/netlink.c
-+++ b/security/selinux/netlink.c
-@@ -19,8 +19,6 @@
- 
- #include "security.h"
- 
--static struct sock *selnl;
+-struct selinux_ns *current_selinux_ns;
 -
- static int selnl_msglen(int msgtype)
- {
- 	int ret = 0;
-@@ -66,6 +64,7 @@ static void selnl_add_payload(struct nlmsghdr *nlh, int len, int msgtype, void *
+ /* SECMARK reference count */
+ static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
  
- static void selnl_notify(int msgtype, void *data)
- {
-+	struct sock *selnl = current->nsproxy->net_ns->selnl;
- 	int len;
- 	sk_buff_data_t tmp;
- 	struct sk_buff *skb;
-@@ -105,16 +104,36 @@ void selnl_notify_policyload(u32 seqno)
- 	selnl_notify(SELNL_MSG_POLICYLOAD, &seqno);
- }
- 
--static int __init selnl_init(void)
-+static int __net_init selnl_net_init(struct net *net)
- {
-+	struct sock *sk;
- 	struct netlink_kernel_cfg cfg = {
- 		.groups	= SELNLGRP_MAX,
- 		.flags	= NL_CFG_F_NONROOT_RECV,
- 	};
- 
--	selnl = netlink_kernel_create(&init_net, NETLINK_SELINUX, &cfg);
--	if (selnl == NULL)
--		panic("SELinux:  Cannot create netlink socket.");
-+	sk = netlink_kernel_create(net, NETLINK_SELINUX, &cfg);
-+	if (!sk)
-+		return -ENOMEM;
-+	net->selnl = sk;
-+	return 0;
-+}
-+
-+static void __net_exit selnl_net_exit(struct net *net)
-+{
-+	netlink_kernel_release(net->selnl);
-+	net->selnl = NULL;
-+}
-+
-+static struct pernet_operations selnl_net_ops = {
-+	.init = selnl_net_init,
-+	.exit = selnl_net_exit,
-+};
-+
-+static int __init selnl_init(void)
-+{
-+	if (register_pernet_subsys(&selnl_net_ops))
-+		panic("Could not register selinux netlink operations\n");
+@@ -202,6 +200,8 @@ static int selinux_lsm_notifier_avc_callback(u32 event)
  	return 0;
  }
  
++static struct selinux_ns *init_selinux_ns  __ro_after_init;
++
+ /*
+  * initialise the security for the init task
+  */
+@@ -212,6 +212,7 @@ static void cred_init_security(void)
+ 
+ 	tsec = selinux_cred(cred);
+ 	tsec->osid = tsec->sid = SECINITSID_KERNEL;
++	tsec->ns = get_selinux_ns(init_selinux_ns);
+ }
+ 
+ /*
+@@ -225,15 +226,35 @@ static inline u32 cred_sid(const struct cred *cred)
+ 	return tsec->sid;
+ }
+ 
++static struct task_security_struct unlabeled_task_security = {
++	.osid = SECINITSID_UNLABELED,
++	.sid = SECINITSID_UNLABELED,
++};
++
++static const struct task_security_struct *task_security(
++	const struct task_struct *p)
++{
++	const struct task_security_struct *tsec;
++
++	tsec = selinux_cred(__task_cred(p));
++	while (tsec->ns != current_selinux_ns && tsec->parent_cred)
++		tsec = selinux_cred(tsec->parent_cred);
++	if (tsec->ns != current_selinux_ns)
++		return &unlabeled_task_security;
++	return tsec;
++}
++
+ /*
+  * get the objective security ID of a task
+  */
+ static inline u32 task_sid(const struct task_struct *task)
+ {
++	const struct task_security_struct *tsec;
+ 	u32 sid;
+ 
+ 	rcu_read_lock();
+-	sid = cred_sid(__task_cred(task));
++	tsec = task_security(task);
++	sid = tsec->sid;
+ 	rcu_read_unlock();
+ 	return sid;
+ }
+@@ -3889,6 +3910,18 @@ static int selinux_task_alloc(struct task_struct *task,
+ 			    sid, sid, SECCLASS_PROCESS, PROCESS__FORK, NULL);
+ }
+ 
++/*
++ * free/release any cred memory other than the blob itself
++ */
++static void selinux_cred_free(struct cred *cred)
++{
++	struct task_security_struct *tsec = selinux_cred(cred);
++
++	put_selinux_ns(tsec->ns);
++	if (tsec->parent_cred)
++		put_cred(tsec->parent_cred);
++}
++
+ /*
+  * prepare a new set of credentials for modification
+  */
+@@ -3899,6 +3932,9 @@ static int selinux_cred_prepare(struct cred *new, const struct cred *old,
+ 	struct task_security_struct *tsec = selinux_cred(new);
+ 
+ 	*tsec = *old_tsec;
++	tsec->ns = get_selinux_ns(old_tsec->ns);
++	if (old_tsec->parent_cred)
++		tsec->parent_cred = get_cred(old_tsec->parent_cred);
+ 	return 0;
+ }
+ 
+@@ -3911,6 +3947,9 @@ static void selinux_cred_transfer(struct cred *new, const struct cred *old)
+ 	struct task_security_struct *tsec = selinux_cred(new);
+ 
+ 	*tsec = *old_tsec;
++	tsec->ns = get_selinux_ns(old_tsec->ns);
++	if (old_tsec->parent_cred)
++		tsec->parent_cred = get_cred(old_tsec->parent_cred);
+ }
+ 
+ static void selinux_cred_getsecid(const struct cred *c, u32 *secid)
+@@ -6280,7 +6319,7 @@ static int selinux_getprocattr(struct task_struct *p,
+ 	unsigned len;
+ 
+ 	rcu_read_lock();
+-	__tsec = selinux_cred(__task_cred(p));
++	__tsec = task_security(p);
+ 
+ 	if (current != p) {
+ 		error = avc_has_perm(current_selinux_ns,
+@@ -6895,6 +6934,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 	LSM_HOOK_INIT(file_open, selinux_file_open),
+ 
+ 	LSM_HOOK_INIT(task_alloc, selinux_task_alloc),
++	LSM_HOOK_INIT(cred_free, selinux_cred_free),
+ 	LSM_HOOK_INIT(cred_prepare, selinux_cred_prepare),
+ 	LSM_HOOK_INIT(cred_transfer, selinux_cred_transfer),
+ 	LSM_HOOK_INIT(cred_getsecid, selinux_cred_getsecid),
+@@ -7096,8 +7136,6 @@ void __put_selinux_ns(struct selinux_ns *ns)
+ 	schedule_work(&ns->work);
+ }
+ 
+-static struct selinux_ns *init_selinux_ns  __ro_after_init;
+-
+ static __init int selinux_init(void)
+ {
+ 	pr_info("SELinux:  Initializing.\n");
+@@ -7107,7 +7145,6 @@ static __init int selinux_init(void)
+ 
+ 	enforcing_set(init_selinux_ns, selinux_enforcing_boot);
+ 	init_selinux_ns->checkreqprot = selinux_checkreqprot_boot;
+-	current_selinux_ns = init_selinux_ns;
+ 
+ 	/* Set the security state for the initial task. */
+ 	cred_init_security();
+diff --git a/security/selinux/include/objsec.h b/security/selinux/include/objsec.h
+index 586b7abd0aa7..23188a47474f 100644
+--- a/security/selinux/include/objsec.h
++++ b/security/selinux/include/objsec.h
+@@ -28,15 +28,6 @@
+ #include "flask.h"
+ #include "avc.h"
+ 
+-struct task_security_struct {
+-	u32 osid;		/* SID prior to last execve */
+-	u32 sid;		/* current SID */
+-	u32 exec_sid;		/* exec SID */
+-	u32 create_sid;		/* fscreate SID */
+-	u32 keycreate_sid;	/* keycreate SID */
+-	u32 sockcreate_sid;	/* fscreate SID */
+-};
+-
+ enum label_initialized {
+ 	LABEL_INVALID,		/* invalid or not initialized */
+ 	LABEL_INITIALIZED,	/* initialized */
+@@ -145,10 +136,6 @@ struct bpf_security_struct {
+ };
+ 
+ extern struct lsm_blob_sizes selinux_blob_sizes;
+-static inline struct task_security_struct *selinux_cred(const struct cred *cred)
+-{
+-	return cred->security + selinux_blob_sizes.lbs_cred;
+-}
+ 
+ static inline struct file_security_struct *selinux_file(const struct file *file)
+ {
+@@ -175,14 +162,4 @@ static inline struct ipc_security_struct *selinux_ipc(
+ 	return ipc->security + selinux_blob_sizes.lbs_ipc;
+ }
+ 
+-/*
+- * get the subjective security ID of the current task
+- */
+-static inline u32 current_sid(void)
+-{
+-	const struct task_security_struct *tsec = selinux_cred(current_cred());
+-
+-	return tsec->sid;
+-}
+-
+ #endif /* _SELINUX_OBJSEC_H_ */
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index 971fd5f53b6e..380ef3ede216 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -15,6 +15,8 @@
+ #include <linux/types.h>
+ #include <linux/refcount.h>
+ #include <linux/workqueue.h>
++#include <linux/cred.h>
++#include <linux/lsm_hooks.h>
+ #include "flask.h"
+ 
+ #define SECSID_NULL			0x00000000 /* unspecified SID */
+@@ -134,7 +136,35 @@ static inline struct selinux_ns *get_selinux_ns(struct selinux_ns *ns)
+ 	return ns;
+ }
+ 
+-extern struct selinux_ns *current_selinux_ns;
++struct task_security_struct {
++	u32 osid;		/* SID prior to last execve */
++	u32 sid;		/* current SID */
++	u32 exec_sid;		/* exec SID */
++	u32 create_sid;		/* fscreate SID */
++	u32 keycreate_sid;	/* keycreate SID */
++	u32 sockcreate_sid;	/* fscreate SID */
++	struct selinux_ns *ns;  /* selinux namespace */
++	const struct cred *parent_cred; /* cred in parent ns */
++};
++
++extern struct lsm_blob_sizes selinux_blob_sizes;
++
++static inline struct task_security_struct *selinux_cred(const struct cred *cred)
++{
++	return cred->security + selinux_blob_sizes.lbs_cred;
++}
++
++/*
++ * get the subjective security ID of the current task
++ */
++static inline u32 current_sid(void)
++{
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
++
++	return tsec->sid;
++}
++
++#define current_selinux_ns (selinux_cred(current_cred())->ns)
+ 
+ #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+ static inline bool enforcing_enabled(struct selinux_ns *ns)
 -- 
 2.21.0
 
