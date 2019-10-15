@@ -7,79 +7,79 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDA50ECE588
-	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA4F7ECE588
+	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 93D39218DE
-	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7EAB121925
+	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ZGCbF8q2"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="mmiV8hj2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731960AbfJON1D (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Oct 2019 09:27:03 -0400
-Received: from UCOL19PA38.eemsg.mail.mil ([214.24.24.198]:24971 "EHLO
-        UCOL19PA38.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731966AbfJON1D (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Oct 2019 09:27:03 -0400
-X-EEMSG-check-017: 35822953|UCOL19PA38_ESA_OUT05.csd.disa.mil
+        id S1731827AbfJON1M (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Oct 2019 09:27:12 -0400
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:20310 "EHLO
+        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727745AbfJON1M (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Oct 2019 09:27:12 -0400
+X-EEMSG-check-017: 22420348|UPDC19PA20_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.67,300,1566864000"; 
-   d="scan'208";a="35822953"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UCOL19PA38.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Oct 2019 13:27:00 +0000
+   d="scan'208";a="22420348"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Oct 2019 13:27:08 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1571146021; x=1602682021;
+  s=tycho.nsa.gov; t=1571146029; x=1602682029;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=35Mo9a6HxAk2Uv1LsXMaNKk4XVMrSE1dQBmilW3eWEQ=;
-  b=ZGCbF8q2B5YX8ICgrQHrKp/62XAP+4lII8dJCEogRZSN/6mAwvTVbp70
-   hXv04xYrwxqEljdxqVqvMs7QKZAFyrnZXGKkIlcfkKG6+/r/zLzcc0g2G
-   8mQwLPJXDNRFQnYGv0ylASr1cFgdKswdemwsiKwxnM87D3aASXMj3ZTPH
-   lqJeL0+VDKtW6HR8ZmP7mEXz0Rpf9dj0MuHYDkdFWf1xBjGM7l9S0Jaq5
-   GsDoP9RNarVLPN2D+nl+GB2EsKqkBWQlNupjVY+7HR24tbomjl6pw0DQS
-   zREhuFcudaLoAEUFlWxB48Pv2fKEArKhIkvoHsTGqN01AhdZER/ryESME
+  bh=/QmDn8XULPzx70bpwidmD6Vt6TNuodjqft2TGbNhQLU=;
+  b=mmiV8hj2Pr96m2DhzhETs59pvOJVMlZzQEWc11OSwazjlYOL2n8r+t3d
+   CJs1EgFmXnLIeqzShvCdiJFU83mZngWfkTzkYjqOPgwcZsjnfJCVVi+4T
+   19Pc5zV0dzBtTeyh/A46zCWAW4l/OPdejyeH514YlqyA2v/nHpPp/KT7f
+   FfYWJynlAG3Ov5AStDK2VlvBqKgAREKTWZq9XZOdNhPZwHcHIjCMSdxG2
+   8ZMgQjP9WLnbnJ8WB+uKHn+qp65vKjYFwLCw0qz/aFT4cqRTIv1fAkpwG
+   eoyEf4gLqh0ziet/4CyJlhgUneBZg9eC5+jWfNiZqSVWBFhGyXI5R7it5
    g==;
 X-IronPort-AV: E=Sophos;i="5.67,300,1566864000"; 
-   d="scan'208";a="28980477"
-IronPort-PHdr: =?us-ascii?q?9a23=3A2OfI/x3mmwk+AzPWsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseMXK/ad9pjvdHbS+e9qxAeQG9mCsLQb0KGL7ejJYi8p2d65qncMcZhBBV?=
- =?us-ascii?q?cuqP49uEgeOvODElDxN/XwbiY3T4xoXV5h+GynYwAOQJ6tL1LdrWev4jEMBx?=
- =?us-ascii?q?7xKRR6JvjvGo7Vks+7y/2+94fcbglVijexe7F/IRu5oQjRt8QdnJdvJLs2xh?=
- =?us-ascii?q?bVuHVDZv5YxXlvJVKdnhb84tm/8Zt++ClOuPwv6tBNX7zic6s3UbJXAjImM3?=
- =?us-ascii?q?so5MLwrhnMURGP5noHXWoIlBdDHhXI4wv7Xpf1tSv6q/Z91SyHNsD4Ubw4RT?=
- =?us-ascii?q?Kv5LpwRRT2lCkIKSI28GDPisxxkq1bpg6hpwdiyILQeY2ZKeZycr/Ycd4cS2?=
- =?us-ascii?q?VBRMJRXDFfDI26YYUEEu4NMf9WooT5olcDqwa1CwuxC+P10jJGhmH407A03e?=
- =?us-ascii?q?oiFg/J3gIgEN0BvnnPsNn4N70fXfyvwaXU0TnOae5d1zfn6IjPdxAsueyCXa?=
- =?us-ascii?q?5ufsrJyUkgCQXFhUiNp4zgJTyV0uANvHab7uF9Uu+vkHMoqxpqrzizxsYjlo?=
- =?us-ascii?q?nJhoUPxlDC7iV22pw5JdK/SE5leNOpFoZbuSKCN4ZuX88vTG5ltDw6x7Ebo5?=
- =?us-ascii?q?K3YicHxIo9yxLCbfGMbpKG7Qj5VOmLJDd1nHdleLWiiBms6UWg0ej8VtWs0F?=
- =?us-ascii?q?ZNsypFjsHAtnAT2BzX7ciKUud98V272TaOygDT8ftIIVw0lKXHK54hxaQ8lp?=
- =?us-ascii?q?wPvkTYAiD6gkD2jK6Sdkk8++io7froYqn+q5OBOIJ5hRvyP6QzlsClH+g1PR?=
- =?us-ascii?q?YCU3KG9eik0b3s50z5QLFEjv0slanZtYjXJd8Gqa6iGAJVzoYi5Aq/Dzehyt?=
- =?us-ascii?q?gYm2IHI0hfdBKIiIjpJUnCIOrkAvenn1SsjDBryujEPrL7B5XCMGPDnK3lfb?=
- =?us-ascii?q?pn7k5czxAzzcpe55JPEbwBJ+jzVVXtu9zcEBA1KRC7w+HiCN9lzIMRRXqPAr?=
- =?us-ascii?q?OFMKPVqVKI/vggI/SIZIIOoDbyMeUl5/r3gX88nl8derOp0oUNZH+kGfRmJl?=
- =?us-ascii?q?2TYWDwjdcZDWcKog0+QfTxiFKcVT5TZnCyX78z5zwgFoKmApnMRpq3jLyCwi?=
- =?us-ascii?q?i7BJtWaX5CClyWFnfobYqECL8wb3eJL8tglCEUfaauRpVn1hy0sgL+jb19Ib?=
- =?us-ascii?q?n64Cod4Kn/2cB16uubrhQ78Th5HozJyG2WZ31llWMPATkt1eZwplIrmQTL6r?=
- =?us-ascii?q?Rxn/ENTY8b3PhOSApvcMeHnuE=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BXAAAXxqVd/wHyM5BmHAEBAQEBBwEBEQEEBAEBgWcHA?=
- =?us-ascii?q?QELAYFzLIE/ATIqjEeHDAEBAQEBAQaBNol4jzSBewkBAQEBAQEBAQEbGQECA?=
- =?us-ascii?q?QGEQAKCayQ0CQ4CDAEBAQQBAQEBAQUDAQFshTmCOikBgmgGJwsBRhAgMVcZg?=
- =?us-ascii?q?mM/glMlsCAziH2BSIE0AYc0hFkYeIEHhGGEDYEEhR8ErUqCLIIxkl4MG5lBL?=
- =?us-ascii?q?ak5OYFYKwgCGAghD4MnUBAUgVsXjj8lAzABgQUBAY1tglQBAQ?=
+   d="scan'208";a="34156705"
+IronPort-PHdr: =?us-ascii?q?9a23=3AWqN3AxLx3TAt1+e3etmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgfKvXxwZ3uMQTl6Ol3ixeRBMOHsqkC1LGd7v6ocFdDyK7JiGoFfp1IWk?=
+ =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
+ =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmTSwbalwIRi4ognctsgbipZ+J6gszR?=
+ =?us-ascii?q?fEvmFGcPlMy2NyIlKTkRf85sOu85Nm7i9dpfEv+dNeXKvjZ6g3QqBWAzogM2?=
+ =?us-ascii?q?Au+c3krgLDQheV5nsdSWoZjBxFCBXY4R7gX5fxtiz6tvdh2CSfIMb7Q6w4VS?=
+ =?us-ascii?q?ik4qx2UxLjljsJOCAl/2HWksxwjbxUoBS9pxxk3oXYZJiZOOdicq/BeN8XQ2?=
+ =?us-ascii?q?ROXtxVVydcHI2yaYUBBPcFMepBoYTwo14CoB2jDgeuGezv0CdFiH/o06Mn3e?=
+ =?us-ascii?q?ovEgbI0w4uH90Bv3rZt8n5OaQIXOyp1qTE0SnPYvVL0jn98ojIdRUhrOmRU7?=
+ =?us-ascii?q?Jsb8XR0UkvGB3Djl6NtILlOima1uAJs2eF7+trSOWii3U6pAFquTWv2scthZ?=
+ =?us-ascii?q?XJhoIS0FzE8z55z5wvKd23T057f8epHZ1NvC+ZL4t7Wt4uTm5ntSogyrAKpI?=
+ =?us-ascii?q?S3cDYFxZg53RLTdvqKeJWS7B35TuaeOzJ4iWpgeLK4mhm971Ctyvb5VsmoyF?=
+ =?us-ascii?q?ZKqTdFksXUunANyRPT7s+HR+Nh/ki7wzaP1h3T6vpeLUAolavUN54hwrkqmp?=
+ =?us-ascii?q?oVrUvDBTP5lF/zjK+XckUo4umo6+L5bbX6vpKQKoB5hw7kPqkuh8CzG/o0Pw?=
+ =?us-ascii?q?cQU2SB5OiwzLjj8lf4QLVOgP02iK7ZsJXCKMQAu6G5GBRY0poj6hmjDzem18?=
+ =?us-ascii?q?4UnX8cLF1fYh6HgI/pO0/WLPDiEfi/m0iskCtsx/3eJr3uHInNIWbZkLv7Y7?=
+ =?us-ascii?q?l97VNTxxQpzd9E4JJUEL4BLenoWk/2stzZDgU1PBCzw+biEN99zJ8RWXqTAq?=
+ =?us-ascii?q?+FN6PfqUeI6fgyI+mIf4IVoCzyK+Uh5/L3iH85nlgdfbO30pcNdH+4GfFmKV?=
+ =?us-ascii?q?2DYXXwmtcBDXsKvg0mQezxllKCVT9TZ3CvX6Mz/Tw7Fo2mApnZRoy3g7yOwj?=
+ =?us-ascii?q?27HptIaWBCEFyMFm3od4rXE8sLPTmfJs5njywsS7esUcki2AuouQu8zKBofc?=
+ =?us-ascii?q?TO/ShNjo7uzNh44aXokBg28TFlR5CG33qlU3B/nmROQSQ/mq94vxoumR+4za?=
+ =?us-ascii?q?FkjqkARpRo7PRTX1J/bMWNwg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2B/AAAuxaVd/wHyM5BmHQEBAQkBEQUFAYFnCAELAYFzL?=
+ =?us-ascii?q?IE/ATIqjEeHCwEBAQEBAQaBNol4jzSBewkBAQEBAQEBAQEbGQECAQGEQAKCa?=
+ =?us-ascii?q?yQ0CQ4CDAEBAQQBAQEBAQUDAQFshTmCOikBgmgGJwsBRhAgMVcZgmM/glMls?=
+ =?us-ascii?q?CsziHuBSIE0AYc0hFkYeIEHhGGFEYUfBK1KgiyCMZJeDBuZQYphnwU5gVgrC?=
+ =?us-ascii?q?AIYCCEPgydQEBSQMSUDMIEGAQGQQQEB?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 15 Oct 2019 13:27:00 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Oct 2019 13:27:01 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9FDPV4I010187;
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9FDPV4J010187;
         Tue, 15 Oct 2019 09:27:00 -0400
 From:   Stephen Smalley <sds@tycho.nsa.gov>
 To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, James Morris <james.l.morris@oracle.com>,
+Cc:     paul@paul-moore.com, Peter Enderborg <peter.enderborg@sony.com>,
         Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [RFC PATCH 04/10] selinuxns: mark init_selinux_ns as __ro_after_init
-Date:   Tue, 15 Oct 2019 09:25:22 -0400
-Message-Id: <20191015132528.13519-5-sds@tycho.nsa.gov>
+Subject: [RFC PATCH 05/10] selinux: Annotate lockdep for services locks
+Date:   Tue, 15 Oct 2019 09:25:23 -0400
+Message-Id: <20191015132528.13519-6-sds@tycho.nsa.gov>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20191015132528.13519-1-sds@tycho.nsa.gov>
 References: <20191015132528.13519-1-sds@tycho.nsa.gov>
@@ -90,33 +90,44 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: James Morris <james.l.morris@oracle.com>
+From: Peter Enderborg <peter.enderborg@sony.com>
 
-This is a patch against the SELinux namespace work.
+The locks are moved to dynamic allocation, we need to
+help the lockdep system to classify the locks.
+This adds to lockdep annotation for the page mutex and
+for the ss lock.
 
-Mark the initial SELinux namespace pointer as __ro_after_init, to harden
-against malicious overwrite by an attacker.
-
-Signed-off-by: James Morris <james.l.morris@oracle.com>
+Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
 [sds@tycho.nsa.gov: ported to v5.4-rc1]
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/hooks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/ss/services.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 7a4ed553cec0..dc0b143ffa55 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -7096,7 +7096,7 @@ void __put_selinux_ns(struct selinux_ns *ns)
- 	schedule_work(&ns->work);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 57d6b8dddc54..9404a4494c7c 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -66,6 +66,9 @@
+ #include "ebitmap.h"
+ #include "audit.h"
+ 
++static struct lock_class_key selinux_ss_class_key;
++static struct lock_class_key selinux_status_class_key;
++
+ /* Policy capability names */
+ const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+ 	"network_peer_controls",
+@@ -84,7 +87,9 @@ int selinux_ss_create(struct selinux_ss **ss)
+ 	if (!newss)
+ 		return -ENOMEM;
+ 	rwlock_init(&newss->policy_rwlock);
++	lockdep_set_class(&newss->policy_rwlock, &selinux_ss_class_key);
+ 	mutex_init(&newss->status_lock);
++	lockdep_set_class(&newss->status_lock, &selinux_status_class_key);
+ 	*ss = newss;
+ 	return 0;
  }
- 
--static struct selinux_ns *init_selinux_ns;
-+static struct selinux_ns *init_selinux_ns  __ro_after_init;
- 
- static __init int selinux_init(void)
- {
 -- 
 2.21.0
 
