@@ -2,214 +2,132 @@ Return-Path: <SRS0=yIcu=YI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-13.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F4C8C10F14
-	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D70F3C10F14
+	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 14:17:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4D2CF218DE
-	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 13:27:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AA80E20650
+	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 14:17:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="BRdX7vFE"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="MSIxXwPS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731154AbfJON1S (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Oct 2019 09:27:18 -0400
-Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:20310 "EHLO
-        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727745AbfJON1R (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Oct 2019 09:27:17 -0400
-X-EEMSG-check-017: 22420383|UPDC19PA20_ESA_OUT02.csd.disa.mil
+        id S1732490AbfJOORu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Oct 2019 10:17:50 -0400
+Received: from UCOL19PA37.eemsg.mail.mil ([214.24.24.197]:16646 "EHLO
+        UCOL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731553AbfJOORu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 15 Oct 2019 10:17:50 -0400
+X-EEMSG-check-017: 35694204|UCOL19PA37_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.67,300,1566864000"; 
-   d="scan'208";a="22420383"
+   d="scan'208";a="35694204"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Oct 2019 13:27:12 +0000
+  by UCOL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Oct 2019 14:17:42 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1571146032; x=1602682032;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=2ABv5GBCUYwX0W0GkpRVecoXxaZJs9vqtMjSVA/jTr0=;
-  b=BRdX7vFE3k1k6yI69PR2sI1iWZuwwet3AXFCzgRRZ3yvsUAHCJU2ByrT
-   pCyfHYXF/iHoUqGlig19auAbEtP91fGDAp8jpwBGggf0fhnbaDIedEXu1
-   6yyNdrybITd9GZm7kyQPhavSWv0LJGhUh2PHXz7GnTKpyNgq42J5uLKng
-   UhIkcLbEvWRV7F9KeOvEwsTSyz6IxHmHPuj6UYRdLzO2J1jr9l9euoFR2
-   Obyk7r7tEXpjUyTgCdfMw5l3ahhbpA8XgIK96FRUY1Rg7WT0kLlEfm59J
-   oLd6D/HYsKfBo9/5ihXbSfUjDW9uF7v4lRhbvAMj8Ud3l9huUAun0gbRs
-   Q==;
+  s=tycho.nsa.gov; t=1571149062; x=1602685062;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=ldX5kGJ6CVADJqn/Wtl4jASwh5uTpf5ShHyjCJZxUrk=;
+  b=MSIxXwPSiNnACf2A/BOOV43/s+eFAfPDiVW4i1Pzw4ny3HpNCoFiM6Ue
+   Grgp7qw41NkO8F0sx4o12XidWVlFdt9GA2GMFGV9pd7lovc/AYxPy5diA
+   j1naEaQxC7UuXYr71gmFQUxY3sBbUSVlfKRWe1HMrR4Zrkp1RrjVgLoU0
+   GqoXqPovs74BkpRgoCNWgUhvf3nPlvKjxiGmvjNdE4Fqh6gYO+xZgVLRq
+   dT6om8popUsbODSg2zKruP/+vLDzHzBa4sJFg6TR79ZfgsLmQgFs7nZ9u
+   CiZe9hoX/z0Cynk/Ezb72PxUbwMX8256QHTBeZL5+SUSv1HFeoNTs8erd
+   g==;
 X-IronPort-AV: E=Sophos;i="5.67,300,1566864000"; 
-   d="scan'208";a="34156710"
-IronPort-PHdr: =?us-ascii?q?9a23=3AuPnNgRE8j+RTcZQ1PN5L151GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7zp8iwAkXT6L1XgUPTWs2DsrQY0rGQ7PurBDJIyK3CmUhKSIZLWR?=
- =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
- =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfL1/IA+0oAjfucUbgYpvIbstxx?=
- =?us-ascii?q?XUpXdFZ/5Yzn5yK1KJmBb86Maw/Jp9/ClVpvks6c1OX7jkcqohVbBXAygoPG?=
- =?us-ascii?q?4z5M3wqBnMVhCP6WcGUmUXiRVHHQ7I5wznU5jrsyv6su192DSGPcDzULs5Vy?=
- =?us-ascii?q?iu47ttRRT1higHLTo5+3zJhMJ2gqxQvRatqwV/zoPQZY2YMud1cKHActMAXW?=
- =?us-ascii?q?dPXthfWTFPDI2/aIUADeQBMulXoYTmu1cDrgGzCRW2Ce/z1jNFgGL9060g0+?=
- =?us-ascii?q?QmFAHLxBEuH84Qv3TMrNX6KqESWv2owqnN1zrDa/dW1in96YPVdR0huuyDXa?=
- =?us-ascii?q?lrfMrNyUggCwPFjlKKpYzjJDOazP4Bs2ec7+p+TO+ijXMspQJpojW328shhY?=
- =?us-ascii?q?bEipgVx1zZ7yl13ok4KcOiREJmZ9OvDYFeuDuAN4RsR8MvW2RouCEnxbIYoZ?=
- =?us-ascii?q?O7Zy0KyIg/xx7YdvyHb5CE4hL9W+aVJjd1nG5ld6ilhxaz7Eig0ffwVtW00V?=
- =?us-ascii?q?lWripFlcPAtnYR2BzI9seLUP59/kal2TqX1gDT7P9LIVwsmKbGJJMszaQ8m5?=
- =?us-ascii?q?oOvUjZACP7l1v6gLWLekk8/+in8eXnYrHopp+GMI90jxnzMr8zlcykGuk4Lg?=
- =?us-ascii?q?gPUHSb+eS7zrHj+1b5T69Qgv05lanZrojWJd4Hqa6hHw9VzoEj5g6nDzi8zd?=
- =?us-ascii?q?QYmWIKLEpfdxKai4jlIlTOIPf/DfelnVugiitkx/fDPrf5GJXCMmDDkKv9fb?=
- =?us-ascii?q?Z680Nc0xQ8zdRe55JSF7EAL+n+WlH+tNPGFB81KQ+0zPj9CNV7yIweXXiDAq?=
- =?us-ascii?q?iDMKPd4he04bc0Lu2NYpIFkCjyJuJj5PP0i3I931gHcvqHx5wSPUukE+xmLk?=
- =?us-ascii?q?PRWn/lhtMMAC9epQYlZPD7g12FFzhIbjC9WLxqtWJzM56vEYqWHtPlu7eGxi?=
- =?us-ascii?q?ruW8AHaw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DaAQAuxaVd/wHyM5BmHAEBAQEBBwEBEQEEBAEBgWoEA?=
- =?us-ascii?q?QELAYFuBSyBPwEyKpNSAQEBAQEBBosukS8JAQEBAQEBAQEBGxkBAgEBhEACg?=
- =?us-ascii?q?mskNwYOAgwBAQEEAQEBAQEFAwEBbIU5gjopgmkGJwsBRhBRVxmCYz+CUyWwK?=
- =?us-ascii?q?zOFTYMugUiBNAGHNIRZGHiBB4ERg1CKMASMY4hnmACCLIIxiXGIbQwbmUGpf?=
- =?us-ascii?q?COBWCsIAhgIIQ+DJ1AQFIFbFxWOKiUDMIEGAQGQQQEB?=
+   d="scan'208";a="34163713"
+IronPort-PHdr: =?us-ascii?q?9a23=3A33dVHR9GWzepMP9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B21u0cTK2v8tzYMVDF4r011RmVBN6dtKkP1LKempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffgtFiCC/bL58Ixm7rxndvdQKjIV/Lao81g?=
+ =?us-ascii?q?HHqWZSdeRMwmNoK1OTnxLi6cq14ZVu7Sdete8/+sBZSan1cLg2QrJeDDQ9Lm?=
+ =?us-ascii?q?A6/9brugXZTQuO/XQTTGMbmQdVDgff7RH6WpDxsjbmtud4xSKXM9H6QawyVD?=
+ =?us-ascii?q?+/9KpgVgPmhzkbOD446GHXi9J/jKRHoBK6uhdzx5fYbJyJOPZie6/Qe90VRX?=
+ =?us-ascii?q?BFXs1MSSJPBI2yZJYLA+YYI+pVq4zxql0TphW8GAasHvvixCJWiH/43aM00O?=
+ =?us-ascii?q?ovHg/J0wMiA90Av2/ZrMn3OaoITey50KfFwDfFYvhL2Tn98o/IchU5rP+RQb?=
+ =?us-ascii?q?J/b9LRyUkxGAPDk16etInlMCmR1uQJrWea7/drWOW0i2E6sAF8uSSvx8cwhY?=
+ =?us-ascii?q?nJgYIZ0FbE9T5jz4ovKt24T1B7bMeiHZBNuS+aMI52TdkjQ2FuoCs6xbwGuY?=
+ =?us-ascii?q?K7fCgX05sr3QLQa/uCc4WO/xntV/6RLC9liH9qd7+znRa//VW6xuHiWcS4zk?=
+ =?us-ascii?q?xGojdDn9LRrH4CzQbT5dKCSvZl+0eh3iuA2B7L5+FfJEA0ibLbK5k8wr4sjp?=
+ =?us-ascii?q?YTsVrMHivxmEjukK+ZbF8k+um16+T8eLnmup+dOJN0igH5KKgunNCwAf8kPQ?=
+ =?us-ascii?q?QUWmib+OC82KXi/U3/XrpKkuU7nrTWvZ3VP8gWprO1DxVL3oss9RqzFSqq3M?=
+ =?us-ascii?q?wdnXYdLVJFfByHj5LuO1HLOP34Fuqwg0+3nTd3x/HJIr3hApLXInjFi7fuZ6?=
+ =?us-ascii?q?xx60FbyAot1dxf/Y5bCqkdIPLvXU/8rNrYDh4lPAyzx+boEs592pkfWWKIBa?=
+ =?us-ascii?q?+ZK7jSvESN5u8gLOiAfogVuCzyK/I9/f7hkWc5mUMBfamuxZYXc263HvBnI0?=
+ =?us-ascii?q?WffHrtjcwMEXkFvgUgVuzmkl6CXiBJZ3a0Qa084is3CIW8DYfMXoqtmqCO3D?=
+ =?us-ascii?q?+nHp1KYWBLEkiMEXPyeIWZR/cMcjmdLdV6nzweS7euVo8h2guytAPg17VnKe?=
+ =?us-ascii?q?/UqWUkssfF1dNy4+TI3TA18idvR5Cb0mqKS2hv2GIPQCQt9KUjsQp60FjVgo?=
+ =?us-ascii?q?ZihPkNLsBe//NEVE8BMJfYy+FrQ4TpVhnpYsaCSFHgRM6vRz42UIRikJc1f0?=
+ =?us-ascii?q?9hFoD63Vj41C2wDupQzubaCQ=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CLAACc1KVd/wHyM5BmHAEBAQEBBwEBEQEEBAEBgWgGA?=
+ =?us-ascii?q?QELAYFzLGxTATIqhCWPLgEBAQEBAQaBNol4jzSBewkBAQEBAQEBAQErCQECA?=
+ =?us-ascii?q?QGDe0UCgm4kNQgOAgwBAQEEAQEBAQEFAwEBbIUtDII6KQGCaAEFIxVBEAsYA?=
+ =?us-ascii?q?gImAgJXBg0GAgEBgl8/AYJSJQ+vN4EyhU2DMYFIgQwoAYwNGHiBB4E4gms+g?=
+ =?us-ascii?q?mECgSqDRYJeBJYrlx+CLIIxhFmOCwYbgyyWFZZUkxQBNoFYKwgCGAghD4MnC?=
+ =?us-ascii?q?UcQFIVChWWFCiUDMIEGAQGNbYJUAQE?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Oct 2019 13:27:01 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Oct 2019 14:17:41 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9FDPV4O010187;
-        Tue, 15 Oct 2019 09:27:01 -0400
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9FEHes2017295;
+        Tue, 15 Oct 2019 10:17:40 -0400
+Subject: Re: [PATCH v2] python/sepolicy: call segenxml.py with python3
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Petr Lautrbach <plautrba@redhat.com>
+References: <20191009142024.9278-1-sds@tycho.nsa.gov>
+ <CAJfZ7=mQ1MwfWC-R+QM45runiOunGQqTq-cjA8LZptN1n8g-2w@mail.gmail.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [RFC PATCH 10/10] selinuxfs: restrict write operations to the same selinux namespace
-Date:   Tue, 15 Oct 2019 09:25:28 -0400
-Message-Id: <20191015132528.13519-11-sds@tycho.nsa.gov>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20191015132528.13519-1-sds@tycho.nsa.gov>
-References: <20191015132528.13519-1-sds@tycho.nsa.gov>
+Message-ID: <0fddfce9-6f24-d793-f6b6-fc665ebdca15@tycho.nsa.gov>
+Date:   Tue, 15 Oct 2019 10:17:40 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAJfZ7=mQ1MwfWC-R+QM45runiOunGQqTq-cjA8LZptN1n8g-2w@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This ensures that once a process unshares its selinux namespace,
-it can no longer act on the parent namespace's selinuxfs instance,
-irrespective of policy.  This is a safety measure so that even if
-an otherwise unconfined process unshares its selinux namespace, it
-won't be able to subsequently affect the enforcing mode or policy of the
-parent.  This also helps avoid common mistakes like failing to create
-a mount namespace and mount a new selinuxfs instance in order to act
-on one's own selinux namespace after unsharing.
+On 10/10/19 3:48 PM, Nicolas Iooss wrote:
+> On Wed, Oct 9, 2019 at 4:20 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>
+>> Fixes: https://github.com/SELinuxProject/selinux/issues/61
+>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> ---
+>> v2 wraps basedir + filename in parentheses as per Nicolas Iooss' suggestion.
+> 
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- security/selinux/selinuxfs.c | 31 +++++++++++++++++++++++++++++++
- 1 file changed, 31 insertions(+)
+Thanks, applied.
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 48afdc3a4aa4..1ba4d874fc86 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -143,6 +143,9 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 	ssize_t length;
- 	int old_value, new_value;
- 
-+	if (ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 
-@@ -284,6 +287,9 @@ static ssize_t sel_write_disable(struct file *file, const char __user *buf,
- 	int new_value;
- 	int enforcing;
- 
-+	if (fsi->ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 
-@@ -337,6 +343,9 @@ static ssize_t sel_write_unshare(struct file *file, const char __user *buf,
- 	bool set;
- 	int rc;
- 
-+	if (ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 
-@@ -601,6 +610,9 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 	ssize_t length;
- 	void *data = NULL;
- 
-+	if (fsi->ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	mutex_lock(&fsi->mutex);
- 
- 	length = avc_has_perm(current_selinux_ns,
-@@ -706,6 +718,9 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
- 	ssize_t length;
- 	unsigned int new_value;
- 
-+	if (fsi->ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	length = avc_has_perm(current_selinux_ns,
- 			      current_sid(), SECINITSID_SECURITY,
- 			      SECCLASS_SECURITY, SECURITY__SETCHECKREQPROT,
-@@ -752,6 +767,9 @@ static ssize_t sel_write_validatetrans(struct file *file,
- 	u16 tclass;
- 	int rc;
- 
-+	if (ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	rc = avc_has_perm(current_selinux_ns,
- 			  current_sid(), SECINITSID_SECURITY,
- 			  SECCLASS_SECURITY, SECURITY__VALIDATE_TRANS, NULL);
-@@ -839,10 +857,14 @@ static ssize_t (*const write_op[])(struct file *, char *, size_t) = {
- 
- static ssize_t selinux_transaction_write(struct file *file, const char __user *buf, size_t size, loff_t *pos)
- {
-+	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
- 	ino_t ino = file_inode(file)->i_ino;
- 	char *data;
- 	ssize_t rv;
- 
-+	if (fsi->ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	if (ino >= ARRAY_SIZE(write_op) || !write_op[ino])
- 		return -EINVAL;
- 
-@@ -1278,6 +1300,9 @@ static ssize_t sel_write_bool(struct file *filep, const char __user *buf,
- 	unsigned index = file_inode(filep)->i_ino & SEL_INO_MASK;
- 	const char *name = filep->f_path.dentry->d_name.name;
- 
-+	if (fsi->ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 
-@@ -1334,6 +1359,9 @@ static ssize_t sel_commit_bools_write(struct file *filep,
- 	ssize_t length;
- 	int new_value;
- 
-+	if (fsi->ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	if (count >= PAGE_SIZE)
- 		return -ENOMEM;
- 
-@@ -1498,6 +1526,9 @@ static ssize_t sel_write_avc_cache_threshold(struct file *file,
- 	ssize_t ret;
- 	unsigned int new_value;
- 
-+	if (ns != current_selinux_ns)
-+		return -EPERM;
-+
- 	ret = avc_has_perm(current_selinux_ns,
- 			   current_sid(), SECINITSID_SECURITY,
- 			   SECCLASS_SECURITY, SECURITY__SETSECPARAM,
--- 
-2.21.0
+> 
+>>
+>>   python/sepolicy/sepolicy/interface.py | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
+>> index 583091ae18aa..187419fa7822 100644
+>> --- a/python/sepolicy/sepolicy/interface.py
+>> +++ b/python/sepolicy/sepolicy/interface.py
+>> @@ -196,7 +196,7 @@ def get_xml_file(if_file):
+>>           from subprocess import getstatusoutput
+>>       basedir = os.path.dirname(if_file) + "/"
+>>       filename = os.path.basename(if_file).split(".")[0]
+>> -    rc, output = getstatusoutput("python /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % basedir + filename)
+>> +    rc, output = getstatusoutput("/usr/bin/python3 /usr/share/selinux/devel/include/support/segenxml.py -w -m %s" % (basedir + filename))
+>>       if rc != 0:
+>>           sys.stderr.write("\n Could not proceed selected interface file.\n")
+>>           sys.stderr.write("\n%s" % output)
+>> --
+>> 2.21.0
+>>
+> 
 
