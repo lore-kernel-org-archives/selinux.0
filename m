@@ -2,128 +2,543 @@ Return-Path: <SRS0=yIcu=YI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64923C10F14
-	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 08:30:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90A27ECE58E
+	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 09:34:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 72DC12089C
-	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 08:30:49 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="YbFbFpEk"
+	by mail.kernel.org (Postfix) with ESMTP id 53B092083B
+	for <selinux@archiver.kernel.org>; Tue, 15 Oct 2019 09:34:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728962AbfJOIap (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 15 Oct 2019 04:30:45 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:42826 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726358AbfJOIap (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 15 Oct 2019 04:30:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=nde+rVxrbKGORynbc7srtKQrRn/wfiVC6y4tD1FT7B0=; b=YbFbFpEk4DpWY6RLhaLCvmJiX
-        Aux8/sNbH48tsLFO5JH6caRTG0co+m0pmYYidLAW8/Lla9Ygzk0kpPQr9UvMWWAxylSf9bNlQB9BW
-        7w7HkmmJ6GBaPp0Om+i17i7ed9q7icxuLV9zpcLLmRNv/5VspmqDE7gMu22tjcHUnmeDpU8VNDHjY
-        KO+y7VmPxVO1I1MlZjm9p4Idv0lnNtxhNH/mOmvzD45K44F/RuNRVgko6j6rkccPhgot44PNlvIwB
-        jocNU+1j2OpQHEWDy5tT9leSUdXiNvXaQpdagTRQ9Ssnk3I5RvxVJ8xgt0vpvqoInIiFI4AmF1BOC
-        Ked5/SBpw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iKIDe-0005F7-3A; Tue, 15 Oct 2019 08:30:14 +0000
-Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A4E8A303807;
-        Tue, 15 Oct 2019 10:29:14 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id F3CD0284DE58D; Tue, 15 Oct 2019 10:30:08 +0200 (CEST)
-Date:   Tue, 15 Oct 2019 10:30:08 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Cc:     linux-kernel@vger.kernel.org, rostedt@goodmis.org,
-        primiano@google.com, rsavitski@google.com, jeffv@google.com,
-        kernel-team@android.com, James Morris <jmorris@namei.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        bpf@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        linux-security-module@vger.kernel.org,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Namhyung Kim <namhyung@kernel.org>, selinux@vger.kernel.org,
-        Song Liu <songliubraving@fb.com>,
-        "maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-        Yonghong Song <yhs@fb.com>
-Subject: Re: [PATCH v2] perf_event: Add support for LSM and SELinux checks
-Message-ID: <20191015083008.GC2311@hirez.programming.kicks-ass.net>
-References: <20191014170308.70668-1-joel@joelfernandes.org>
+        id S1729929AbfJOJeo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 15 Oct 2019 05:34:44 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:39884 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725890AbfJOJeo (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 15 Oct 2019 05:34:44 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id E6D3BC049E1A;
+        Tue, 15 Oct 2019 09:34:43 +0000 (UTC)
+Received: from localhost (unknown [10.34.245.65])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9B0745D6A9;
+        Tue, 15 Oct 2019 09:34:40 +0000 (UTC)
+References: <20191013105216.614224-1-nicolas.iooss@m4x.org> <20191013105216.614224-2-nicolas.iooss@m4x.org>
+User-agent: mu4e 1.2.0; emacs 26.2
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     selinux@vger.kernel.org, Michael Shigorin <mike@altlinux.org>
+Subject: Re: [PATCH 2/2] libsemanage: mark all exported function "extern"
+In-reply-to: <20191013105216.614224-2-nicolas.iooss@m4x.org>
+Date:   Tue, 15 Oct 2019 11:34:35 +0200
+Message-ID: <pjd7e564aj8.fsf@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191014170308.70668-1-joel@joelfernandes.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Tue, 15 Oct 2019 09:34:44 +0000 (UTC)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Oct 14, 2019 at 01:03:08PM -0400, Joel Fernandes (Google) wrote:
-> In current mainline, the degree of access to perf_event_open(2) system
-> call depends on the perf_event_paranoid sysctl.  This has a number of
-> limitations:
-> 
-> 1. The sysctl is only a single value. Many types of accesses are controlled
->    based on the single value thus making the control very limited and
->    coarse grained.
-> 2. The sysctl is global, so if the sysctl is changed, then that means
->    all processes get access to perf_event_open(2) opening the door to
->    security issues.
-> 
-> This patch adds LSM and SELinux access checking which will be used in
-> Android to access perf_event_open(2) for the purposes of attaching BPF
-> programs to tracepoints, perf profiling and other operations from
-> userspace. These operations are intended for production systems.
-> 
-> 5 new LSM hooks are added:
-> 1. perf_event_open: This controls access during the perf_event_open(2)
->    syscall itself. The hook is called from all the places that the
->    perf_event_paranoid sysctl is checked to keep it consistent with the
->    systctl. The hook gets passed a 'type' argument which controls CPU,
->    kernel and tracepoint accesses (in this context, CPU, kernel and
->    tracepoint have the same semantics as the perf_event_paranoid sysctl).
->    Additionally, I added an 'open' type which is similar to
->    perf_event_paranoid sysctl == 3 patch carried in Android and several other
->    distros but was rejected in mainline [1] in 2016.
-> 
-> 2. perf_event_alloc: This allocates a new security object for the event
->    which stores the current SID within the event. It will be useful when
->    the perf event's FD is passed through IPC to another process which may
->    try to read the FD. Appropriate security checks will limit access.
-> 
-> 3. perf_event_free: Called when the event is closed.
-> 
-> 4. perf_event_read: Called from the read(2) and mmap(2) syscalls for the event.
-> 
-> 5. perf_event_write: Called from the ioctl(2) syscalls for the event.
-> 
-> [1] https://lwn.net/Articles/696240/
-> 
-> Since Peter had suggest LSM hooks in 2016 [1], I am adding his
-> Suggested-by tag below.
 
-Thanks, I've queued the patch!
+Nicolas Iooss <nicolas.iooss@m4x.org> writes:
 
-> To use this patch, we set the perf_event_paranoid sysctl to -1 and then
-> apply selinux checking as appropriate (default deny everything, and then
-> add policy rules to give access to domains that need it). In the future
-> we can remove the perf_event_paranoid sysctl altogether.
+> Many functions are already marked "extern" in libsemanage's public
+> headers and this will help using the content of the headers in order to
+> automatically generate some glue code for Python bindings.
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-This I'm not sure about; the sysctl is only redundant when you actually
-use a security thingy, not everyone is. I always find them things to be
-mightily unfriendly.
+Do you plan to provide a test which would guard libselinux.h and
+libsemanage.h so that all new functions are added with extern?
 
+Anyway, for both
+
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+> ---
+>  libsemanage/include/semanage/handle.h  |  58 ++++-----
+>  libsemanage/include/semanage/modules.h | 158 ++++++++++++-------------
+>  2 files changed, 108 insertions(+), 108 deletions(-)
+>
+> diff --git a/libsemanage/include/semanage/handle.h b/libsemanage/include/semanage/handle.h
+> index c816590094c5..946d69bc91fe 100644
+> --- a/libsemanage/include/semanage/handle.h
+> +++ b/libsemanage/include/semanage/handle.h
+> @@ -32,13 +32,13 @@ typedef struct semanage_handle semanage_handle_t;
+>  
+>  /* Create and return a semanage handle.
+>     The handle is initially in the disconnected state. */
+> -semanage_handle_t *semanage_handle_create(void);
+> +extern semanage_handle_t *semanage_handle_create(void);
+>  
+>  /* Deallocate all space associated with a semanage_handle_t, including
+>   * the pointer itself.	CAUTION: this function does not disconnect
+>   * from the backend; be sure that a semanage_disconnect() was
+>   * previously called if the handle was connected. */
+> -void semanage_handle_destroy(semanage_handle_t *);
+> +extern void semanage_handle_destroy(semanage_handle_t *);
+>  
+>  /* This is the type of connection to the store, for now only
+>   * direct is supported */
+> @@ -51,65 +51,65 @@ enum semanage_connect_type {
+>   * It must be called after semanage_handle_create but before 
+>   * semanage_connect. The argument should be the full path to the store.
+>   */
+> -void semanage_select_store(semanage_handle_t * handle, char *path,
+> -			   enum semanage_connect_type storetype);
+> +extern void semanage_select_store(semanage_handle_t * handle, char *path,
+> +				  enum semanage_connect_type storetype);
+>  
+>  /* Just reload the policy */
+> -int semanage_reload_policy(semanage_handle_t * handle);
+> +extern int semanage_reload_policy(semanage_handle_t * handle);
+>  
+>  /* set whether to reload the policy or not after a commit,
+>   * 1 for yes (default), 0 for no */
+> -void semanage_set_reload(semanage_handle_t * handle, int do_reload);
+> +extern void semanage_set_reload(semanage_handle_t * handle, int do_reload);
+>  
+>  /* set whether to rebuild the policy on commit, even if no
+>   * changes were performed.
+>   * 1 for yes, 0 for no (default) */
+> -void semanage_set_rebuild(semanage_handle_t * handle, int do_rebuild);
+> +extern void semanage_set_rebuild(semanage_handle_t * handle, int do_rebuild);
+>  
+>  /* Fills *compiler_path with the location of the hll compiler sh->conf->compiler_directory_path
+>   * corresponding to lang_ext.
+>   * Upon success returns 0, -1 on error. */
+> -int semanage_get_hll_compiler_path(semanage_handle_t *sh, char *lang_ext, char **compiler_path);
+> +extern int semanage_get_hll_compiler_path(semanage_handle_t *sh, char *lang_ext, char **compiler_path);
+>  
+>  /* create the store if it does not exist, this only has an effect on 
+>   * direct connections and must be called before semanage_connect 
+>   * 1 for yes, 0 for no (default) */
+> -void semanage_set_create_store(semanage_handle_t * handle, int create_store);
+> +extern void semanage_set_create_store(semanage_handle_t * handle, int create_store);
+>  
+>  /*Get whether or not dontaudits will be disabled upon commit */
+> -int semanage_get_disable_dontaudit(semanage_handle_t * handle);
+> +extern int semanage_get_disable_dontaudit(semanage_handle_t * handle);
+>  
+>  /* Set whether or not to disable dontaudits upon commit */
+> -void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
+> +extern void semanage_set_disable_dontaudit(semanage_handle_t * handle, int disable_dontaudit);
+>  
+>  /* Set whether or not to execute setfiles to check file contexts upon commit */
+> -void semanage_set_check_contexts(semanage_handle_t * sh, int do_check_contexts);
+> +extern void semanage_set_check_contexts(semanage_handle_t * sh, int do_check_contexts);
+>  
+>  /* Get the default priority. */
+> -uint16_t semanage_get_default_priority(semanage_handle_t *sh);
+> +extern uint16_t semanage_get_default_priority(semanage_handle_t *sh);
+>  
+>  /* Set the default priority. */
+> -int semanage_set_default_priority(semanage_handle_t *sh, uint16_t priority);
+> +extern int semanage_set_default_priority(semanage_handle_t *sh, uint16_t priority);
+>  
+>  /* Check whether policy is managed via libsemanage on this system.
+>   * Must be called prior to trying to connect.
+>   * Return 1 if policy is managed via libsemanage on this system,
+>   * 0 if policy is not managed, or -1 on error.
+>   */
+> -int semanage_is_managed(semanage_handle_t *);
+> +extern int semanage_is_managed(semanage_handle_t *);
+>  
+>  /* "Connect" to a manager based on the configuration and 
+>   * associate the provided handle with the connection.
+>   * If the connect fails then this function returns a negative value, 
+>   * else it returns zero.
+>   */
+> -int semanage_connect(semanage_handle_t *);
+> +extern int semanage_connect(semanage_handle_t *);
+>  
+>  /* Disconnect from the manager given by the handle.  If already
+>   * disconnected then this function does nothing.  Return 0 if
+>   * disconnected properly or already disconnected, negative value on
+>   * error. */
+> -int semanage_disconnect(semanage_handle_t *);
+> +extern int semanage_disconnect(semanage_handle_t *);
+>  
+>  /* Attempt to obtain a transaction lock on the manager.	 If another
+>   * process has the lock then this function may block, depending upon
+> @@ -118,47 +118,47 @@ int semanage_disconnect(semanage_handle_t *);
+>   * Note that if the semanage_handle has not yet obtained a transaction
+>   * lock whenever a writer function is called, there will be an
+>   * implicit call to this function. */
+> -int semanage_begin_transaction(semanage_handle_t *);
+> +extern int semanage_begin_transaction(semanage_handle_t *);
+>  
+>  /* Attempt to commit all changes since this transaction began.	If the
+>   * commit is successful then increment the "policy sequence number"
+>   * and then release the transaction lock.  Return that policy number
+>   * afterwards, or -1 on error.
+>   */
+> -int semanage_commit(semanage_handle_t *);
+> +extern int semanage_commit(semanage_handle_t *);
+>  
+>  #define SEMANAGE_CAN_READ 1
+>  #define SEMANAGE_CAN_WRITE 2
+>  /* returns SEMANAGE_CAN_READ or SEMANAGE_CAN_WRITE if the store is readable
+>   * or writable, respectively. <0 if an error occurred */
+> -int semanage_access_check(semanage_handle_t * sh);
+> +extern int semanage_access_check(semanage_handle_t * sh);
+>  
+>  /* returns 0 if not connected, 1 if connected */
+> -int semanage_is_connected(semanage_handle_t * sh);
+> +extern int semanage_is_connected(semanage_handle_t * sh);
+>  
+>  /* returns 1 if policy is MLS, 0 otherwise. */
+> -int semanage_mls_enabled(semanage_handle_t *sh);
+> +extern int semanage_mls_enabled(semanage_handle_t *sh);
+>  
+>  /* Change to alternate semanage root path */
+> -int semanage_set_root(const char *path);
+> +extern int semanage_set_root(const char *path);
+>  
+>  /* Get the current semanage root path */
+> -const char * semanage_root(void);
+> +extern const char * semanage_root(void);
+>  
+>  /* Get whether or not needless unused branch of tunables would be preserved */
+> -int semanage_get_preserve_tunables(semanage_handle_t * handle);
+> +extern int semanage_get_preserve_tunables(semanage_handle_t * handle);
+>  
+>  /* Set whether or not to preserve the needless unused branch of tunables */
+> -void semanage_set_preserve_tunables(semanage_handle_t * handle, int preserve_tunables);
+> +extern void semanage_set_preserve_tunables(semanage_handle_t * handle, int preserve_tunables);
+>  
+>  /* Get the flag value for whether or not caching is ignored for compiled CIL modules from HLL files */
+> -int semanage_get_ignore_module_cache(semanage_handle_t *handle);
+> +extern int semanage_get_ignore_module_cache(semanage_handle_t *handle);
+>  
+>  /* Set semanage_handle flag for whether or not to ignore caching of compiled CIL modules from HLL files */
+> -void semanage_set_ignore_module_cache(semanage_handle_t *handle, int ignore_module_cache);
+> +extern void semanage_set_ignore_module_cache(semanage_handle_t *handle, int ignore_module_cache);
+>  
+>  /* set the store root path for semanage output files */
+> -void semanage_set_store_root(semanage_handle_t *sh, const char *store_root);
+> +extern void semanage_set_store_root(semanage_handle_t *sh, const char *store_root);
+>  
+>  /* META NOTES
+>   *
+> diff --git a/libsemanage/include/semanage/modules.h b/libsemanage/include/semanage/modules.h
+> index 03f7e57d50dd..ac4039314857 100644
+> --- a/libsemanage/include/semanage/modules.h
+> +++ b/libsemanage/include/semanage/modules.h
+> @@ -32,11 +32,11 @@ typedef struct semanage_module_key semanage_module_key_t;
+>   * a transaction  
+>   */
+>  
+> -int semanage_module_install(semanage_handle_t *,
+> -			    char *module_data, size_t data_len, char *name, char *ext_lang);
+> -int semanage_module_install_file(semanage_handle_t *,
+> -				 const char *module_name);
+> -int semanage_module_remove(semanage_handle_t *, char *module_name);
+> +extern int semanage_module_install(semanage_handle_t *,
+> +				   char *module_data, size_t data_len, char *name, char *ext_lang);
+> +extern int semanage_module_install_file(semanage_handle_t *,
+> +					const char *module_name);
+> +extern int semanage_module_remove(semanage_handle_t *, char *module_name);
+>  
+>  /* semanage_module_info is for getting information on installed
+>     modules, only name at this time */
+> @@ -52,18 +52,18 @@ typedef struct semanage_module_info semanage_module_info_t;
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_extract(semanage_handle_t *sh,
+> -				 semanage_module_key_t *modkey,
+> -				 int extract_cil,
+> -				 void **mapped_data,
+> -				 size_t *data_len,
+> -				 semanage_module_info_t **modinfo);
+> -int semanage_module_list(semanage_handle_t *,
+> -			 semanage_module_info_t **, int *num_modules);
+> -void semanage_module_info_datum_destroy(semanage_module_info_t *);
+> -semanage_module_info_t *semanage_module_list_nth(semanage_module_info_t * list,
+> -						 int n);
+> -const char *semanage_module_get_name(semanage_module_info_t *);
+> +extern int semanage_module_extract(semanage_handle_t *sh,
+> +				  semanage_module_key_t *modkey,
+> +				  int extract_cil,
+> +				  void **mapped_data,
+> +				  size_t *data_len,
+> +				  semanage_module_info_t **modinfo);
+> +extern int semanage_module_list(semanage_handle_t *,
+> +				semanage_module_info_t **, int *num_modules);
+> +extern void semanage_module_info_datum_destroy(semanage_module_info_t *);
+> +extern semanage_module_info_t *semanage_module_list_nth(semanage_module_info_t * list,
+> +							int n);
+> +extern const char *semanage_module_get_name(semanage_module_info_t *);
+>  
+>  /* Module Info */
+>  
+> @@ -74,8 +74,8 @@ const char *semanage_module_get_name(semanage_module_info_t *);
+>   * The @modinfo should be destroyed with semanage_module_info_destroy.
+>   * The caller should call free() on the struct.
+>   */
+> -int semanage_module_info_create(semanage_handle_t *sh,
+> -				semanage_module_info_t **modinfo);
+> +extern int semanage_module_info_create(semanage_handle_t *sh,
+> +				       semanage_module_info_t **modinfo);
+>  
+>  /* Frees the members of the module info struct.
+>   *
+> @@ -83,8 +83,8 @@ int semanage_module_info_create(semanage_handle_t *sh,
+>   *
+>   * The caller should call free() on the struct.
+>   */
+> -int semanage_module_info_destroy(semanage_handle_t *handle,
+> -				 semanage_module_info_t *modinfo);
+> +extern int semanage_module_info_destroy(semanage_handle_t *handle,
+> +					semanage_module_info_t *modinfo);
+>  
+>  /* Module Info Getters */
+>  
+> @@ -92,33 +92,33 @@ int semanage_module_info_destroy(semanage_handle_t *handle,
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_info_get_priority(semanage_handle_t *sh,
+> -				      semanage_module_info_t *modinfo,
+> -				      uint16_t *priority);
+> +extern int semanage_module_info_get_priority(semanage_handle_t *sh,
+> +					     semanage_module_info_t *modinfo,
+> +					     uint16_t *priority);
+>  
+>  /* Get @name from @modinfo. Caller should not free @name.
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_info_get_name(semanage_handle_t *sh,
+> -				  semanage_module_info_t *modinfo,
+> -				  const char **name);
+> +extern int semanage_module_info_get_name(semanage_handle_t *sh,
+> +					 semanage_module_info_t *modinfo,
+> +					 const char **name);
+>  
+>  /* Get @lang_ext from @modinfo. Caller should not free @lang_ext.
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_info_get_lang_ext(semanage_handle_t *sh,
+> -				      semanage_module_info_t *modinfo,
+> -				      const char **lang_ext);
+> +extern int semanage_module_info_get_lang_ext(semanage_handle_t *sh,
+> +					     semanage_module_info_t *modinfo,
+> +					     const char **lang_ext);
+>  
+>  /* Get @enabled from @modinfo.
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_info_get_enabled(semanage_handle_t *sh,
+> -				     semanage_module_info_t *modinfo,
+> -				     int *enabled);
+> +extern int semanage_module_info_get_enabled(semanage_handle_t *sh,
+> +					    semanage_module_info_t *modinfo,
+> +					    int *enabled);
+>  
+>  /* Module Info Setters */
+>  
+> @@ -126,33 +126,33 @@ int semanage_module_info_get_enabled(semanage_handle_t *sh,
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_info_set_priority(semanage_handle_t *sh,
+> -				      semanage_module_info_t *modinfo,
+> -				      uint16_t priority);
+> +extern int semanage_module_info_set_priority(semanage_handle_t *sh,
+> +					     semanage_module_info_t *modinfo,
+> +					     uint16_t priority);
+>  
+>  /* Set @name in @modinfo.
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_info_set_name(semanage_handle_t *sh,
+> -				  semanage_module_info_t *modinfo,
+> -				  const char *name);
+> +extern int semanage_module_info_set_name(semanage_handle_t *sh,
+> +					 semanage_module_info_t *modinfo,
+> +					 const char *name);
+>  
+>  /* Set @lang_ext in @modinfo.
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_info_set_lang_ext(semanage_handle_t *sh,
+> -				      semanage_module_info_t *modinfo,
+> -				      const char *lang_ext);
+> +extern int semanage_module_info_set_lang_ext(semanage_handle_t *sh,
+> +					     semanage_module_info_t *modinfo,
+> +					     const char *lang_ext);
+>  
+>  /* Set @enabled in @modinfo.
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_info_set_enabled(semanage_handle_t *sh,
+> -				     semanage_module_info_t *modinfo,
+> -				     int enabled);
+> +extern int semanage_module_info_set_enabled(semanage_handle_t *sh,
+> +					    semanage_module_info_t *modinfo,
+> +					    int enabled);
+>  
+>  /* Module Key */
+>  
+> @@ -163,16 +163,16 @@ int semanage_module_info_set_enabled(semanage_handle_t *sh,
+>   * The @modkey should be destroyed with semanage_module_key_destroy.
+>   * The caller should call free() on the struct.
+>   */
+> -int semanage_module_key_create(semanage_handle_t *sh,
+> -			       semanage_module_key_t **modkey);
+> +extern int semanage_module_key_create(semanage_handle_t *sh,
+> +				      semanage_module_key_t **modkey);
+>  
+>  /* Frees members of the @modkey, but not the struct. The caller should
+>   * call free() on struct.
+>   *
+>   * Returns 0 on success, and -1 on error.
+>   */
+> -int semanage_module_key_destroy(semanage_handle_t *sh,
+> -				semanage_module_key_t *modkey);
+> +extern int semanage_module_key_destroy(semanage_handle_t *sh,
+> +				       semanage_module_key_t *modkey);
+>  
+>  /* Module Key Getters */
+>  
+> @@ -180,17 +180,17 @@ int semanage_module_key_destroy(semanage_handle_t *sh,
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_key_get_name(semanage_handle_t *sh,
+> -				 semanage_module_key_t *modkey,
+> -				 const char **name);
+> +extern int semanage_module_key_get_name(semanage_handle_t *sh,
+> +					semanage_module_key_t *modkey,
+> +					const char **name);
+>  
+>  /* Get @name from @modkey.
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_key_get_priority(semanage_handle_t *sh,
+> -				     semanage_module_key_t *modkey,
+> -				     uint16_t *priority);
+> +extern int semanage_module_key_get_priority(semanage_handle_t *sh,
+> +					    semanage_module_key_t *modkey,
+> +					    uint16_t *priority);
+>  
+>  /* Module Key Setters */
+>  
+> @@ -198,17 +198,17 @@ int semanage_module_key_get_priority(semanage_handle_t *sh,
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_key_set_name(semanage_handle_t *sh,
+> -				 semanage_module_key_t *modkey,
+> -				 const char *name);
+> +extern int semanage_module_key_set_name(semanage_handle_t *sh,
+> +					semanage_module_key_t *modkey,
+> +					const char *name);
+>  
+>  /* Set @priority in @modkey.
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_key_set_priority(semanage_handle_t *sh,
+> -				     semanage_module_key_t *modkey,
+> -				     uint16_t priority);
+> +extern int semanage_module_key_set_priority(semanage_handle_t *sh,
+> +					    semanage_module_key_t *modkey,
+> +					    uint16_t priority);
+>  
+>  /* Set module @enabled status from @modkey. Modules are enabled on a per
+>   * module name basis (across all priorities). @modkey only needs to have
+> @@ -216,18 +216,18 @@ int semanage_module_key_set_priority(semanage_handle_t *sh,
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_set_enabled(semanage_handle_t *sh,
+> -				const semanage_module_key_t *modkey,
+> -				int enabled);
+> +extern int semanage_module_set_enabled(semanage_handle_t *sh,
+> +				       const semanage_module_key_t *modkey,
+> +				       int enabled);
+>  
+>  /* Lookup @modinfo by @modkey. Caller should use
+>   * semanage_module_info_destroy and free on @modinfo.
+>   * 
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_get_module_info(semanage_handle_t *sh,
+> -				    const semanage_module_key_t *modkey,
+> -				    semanage_module_info_t **modinfo);
+> +extern int semanage_module_get_module_info(semanage_handle_t *sh,
+> +					   const semanage_module_key_t *modkey,
+> +					   semanage_module_info_t **modinfo);
+>  
+>  /* Create a list of all modules in @modinfos of length @modinfos_len.
+>   * The list will be sorted from high priority to low and alphabetically
+> @@ -238,9 +238,9 @@ int semanage_module_get_module_info(semanage_handle_t *sh,
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_list_all(semanage_handle_t *sh,
+> -			     semanage_module_info_t **modinfos,
+> -			     int *modinfos_len);
+> +extern int semanage_module_list_all(semanage_handle_t *sh,
+> +				    semanage_module_info_t **modinfos,
+> +				    int *modinfos_len);
+>  
+>  /* Install the module indicated by @modinfo with input data from 
+>   * @module_data with length @data_len.
+> @@ -254,10 +254,10 @@ int semanage_module_list_all(semanage_handle_t *sh,
+>   *	-2	failure, invalid @modinfo
+>   *	-3	failure, error writing file
+>   */
+> -int semanage_module_install_info(semanage_handle_t *sh,
+> -				 const semanage_module_info_t *modinfo,
+> -				 char *data,
+> -				 size_t data_len);
+> +extern int semanage_module_install_info(semanage_handle_t *sh,
+> +					const semanage_module_info_t *modinfo,
+> +					char *data,
+> +					size_t data_len);
+>  
+>  /* Remove the module indicated by @modkey.
+>   * @modkey must have key values filled in.
+> @@ -267,8 +267,8 @@ int semanage_module_install_info(semanage_handle_t *sh,
+>   *	-1	failure, out of memory
+>   *	-2	failure, @module not found or couldn't be removed
+>   */
+> -int semanage_module_remove_key(semanage_handle_t *sh,
+> -			       const semanage_module_key_t *modkey);
+> +extern int semanage_module_remove_key(semanage_handle_t *sh,
+> +				      const semanage_module_key_t *modkey);
+>  
+>  /* Module Enabled */
+>  
+> @@ -278,8 +278,8 @@ int semanage_module_remove_key(semanage_handle_t *sh,
+>   *
+>   * Returns 0 on success and -1 on error.
+>   */
+> -int semanage_module_get_enabled(semanage_handle_t *sh,
+> -				const semanage_module_key_t *modkey,
+> -				int *enabled);
+> +extern int semanage_module_get_enabled(semanage_handle_t *sh,
+> +				       const semanage_module_key_t *modkey,
+> +				       int *enabled);
+>  
+>  #endif
+
+
+-- 
+()  ascii ribbon campaign - against html e-mail 
+/\  www.asciiribbon.org   - against proprietary attachments
