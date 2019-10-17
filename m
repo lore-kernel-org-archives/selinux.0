@@ -2,90 +2,88 @@ Return-Path: <SRS0=qWI8=YK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92C04FA3735
-	for <selinux@archiver.kernel.org>; Thu, 17 Oct 2019 12:52:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B168ECE58E
+	for <selinux@archiver.kernel.org>; Thu, 17 Oct 2019 17:15:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5F6D821835
-	for <selinux@archiver.kernel.org>; Thu, 17 Oct 2019 12:52:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E290A21925
+	for <selinux@archiver.kernel.org>; Thu, 17 Oct 2019 17:15:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="jC2j2tiS"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="iR+hU/Ue"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390108AbfJQMwS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 17 Oct 2019 08:52:18 -0400
-Received: from USAT19PA24.eemsg.mail.mil ([214.24.22.198]:18304 "EHLO
-        USAT19PA24.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728768AbfJQMwS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 17 Oct 2019 08:52:18 -0400
-X-EEMSG-check-017: 40226612|USAT19PA24_ESA_OUT05.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.67,307,1566864000"; 
-   d="scan'208";a="40226612"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USAT19PA24.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 17 Oct 2019 12:52:16 +0000
+        id S2440642AbfJQRPL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 17 Oct 2019 13:15:11 -0400
+Received: from USFB19PA31.eemsg.mail.mil ([214.24.26.194]:59862 "EHLO
+        USFB19PA31.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728639AbfJQRPL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 17 Oct 2019 13:15:11 -0400
+X-EEMSG-check-017: 18487184|USFB19PA31_ESA_OUT01.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.67,308,1566864000"; 
+   d="scan'208";a="18487184"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA31.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 17 Oct 2019 17:15:09 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1571316736; x=1602852736;
+  s=tycho.nsa.gov; t=1571332510; x=1602868510;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=ivaWYgcquI8rt6CEkilch4I0bgVVAOQtw9VC+wpVZGw=;
-  b=jC2j2tiSHCjOSo5WXzgkGdxD8h9n8rIyp9H99umsgfM0oI9gXSytVm1a
-   eDomZ/tYbyxHg69FfMFhQCw3JY483m4gJwpz5VqG/f+sycC9jMFgrVGKw
-   F7aFk/0eL9Ro3kYhPel7LmRa5WDNVY8Vej1V3UGF+Rp6wDmEIo1CVQDWU
-   5QSLb00GbwXJWFl/oRZArjGR8+9ADRGNJtEIJp1q8eBNeaHpvugHrx2tG
-   BP22fEDH5jHuRF9+pVs/oEtdXr5nhKwkZxzFhsZAR2EPh8L5WSAlzccw2
-   pVwX49fDFtRQHPHYWdorikJoXKeWlhf9p2m0tDFpeG3o5hXxI2LZ/Sw1S
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.67,307,1566864000"; 
-   d="scan'208";a="29081315"
-IronPort-PHdr: =?us-ascii?q?9a23=3AFJS6MxSFLJqisFKBS1GVXGPhd9psv+yvbD5Q0Y?=
- =?us-ascii?q?Iujvd0So/mwa6zYReN2/xhgRfzUJnB7Loc0qyK6vumBjNLvMvJmUtBWaQEbw?=
- =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
- =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRu7oR/Tu8QUjodvKqY8wQ?=
- =?us-ascii?q?bVr3VVfOhb2XlmLk+JkRbm4cew8p9j8yBOtP8k6sVNT6b0cbkmQLJBFDgpPH?=
- =?us-ascii?q?w768PttRnYUAuA/WAcXXkMkhpJGAfK8hf3VYrsvyTgt+p93C6aPdDqTb0xRD?=
- =?us-ascii?q?+v4btnRAPuhSwaLDMy7n3ZhdJsg6JauBKhpgJww4jIYIGOKfFyerrRcc4GSW?=
- =?us-ascii?q?ZdW8pcUStODJ6hb4sUF+oOI/pXr5XzqVsJqBuxHwisBOXywTNMiXL72ag23u?=
- =?us-ascii?q?IvHgHc2AwrAswAvnLaot7oMKseSO64wa3NwTjFcvhY2yry6JLQfx48v/+MU7?=
- =?us-ascii?q?J+f8nfx0YhGAzKjEmfp4P+MjOJ1OkAqXSX4/ZuWO+tjWMstgF/oiKoxscpko?=
- =?us-ascii?q?THm54VxU7c9SV53ok1I8CzRlN+YdG+FJtQsz+VNotrSc4lWGFnpT06x6YauZ?=
- =?us-ascii?q?+7YCcKyJMnywTZa/ycaYeE+B3jVOGPITphgn9uZbyxhxG38Ue6y+38UNG50F?=
- =?us-ascii?q?hLripBjNbArG0C2ALN6sWBV/Bz/V+h1C6S2w3c5exIO0A5mbfBJ5I/zbM8iI?=
- =?us-ascii?q?AfvVnFEyTrgkv5lrWWeV8h+uWw7uTnZajpqYGEOo9vjwH+LrwumsuiAeQkKg?=
- =?us-ascii?q?QOX3aU+eC71LD74U32Wq9KjvwrkqnCqpzaOcQaqbK5Aw9SyIoj7QqwDyy639?=
- =?us-ascii?q?gCmHkHLVZFdAqGj4jvJV7OPOj1Aeqwjlmjijtmx+3KMqf/DpjCMHTPiqrtca?=
- =?us-ascii?q?5460FGyQozyd5f54hTCrEEOP/zQVL+tMfDAx8lMw273+bnCNJn2oMYQmKAGL?=
- =?us-ascii?q?WVMKzVsV+W/u4vOfWDZJcJuDbhLPgo//7vgmU8mVAHYamp2oAaaGqmEft7I0?=
- =?us-ascii?q?WWe2bsjs0dHmcNuwo0VPbqh0GaUT5Pe3ayWLox5iolB4KiDIfDQJ2tgbOa0S?=
- =?us-ascii?q?elEZ1ZeHpGBkqPEXj2bYWEXekDaCaILs9miDwEWuvpd4h08Bi1vRPzyLcvH8?=
- =?us-ascii?q?Px0xE//cby3d18++r7jxw+9TVoSc+a1jfJB3p5mmIOWi8ewq9yuwp+x02F3K?=
- =?us-ascii?q?w+hOZXRvJJ4PYcaRs3LZ7RyaRBDtn2Xg/QNoOSRE2OXsStATZ3SMk4hdAJfR?=
- =?us-ascii?q?AuSJ2Zkhnf0n/yUPcunLuRCclxo/rR?=
-X-IPAS-Result: =?us-ascii?q?A2DdAgACYqhd/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWoEA?=
- =?us-ascii?q?QELAYFzLIFAMiqEJY5nUwaBNol5kS8JAQEBAQEBAQEBNAECAQGEQAKDAyQ3B?=
- =?us-ascii?q?g4CDAEBAQQBAQEBAQUDAQFshTmCOimCaQEFIxVRCxgCAiYCAlcGAQwGAgEBg?=
- =?us-ascii?q?l8/glMlr1iBMoVNgy6BSIEMKAGMDRh4gQeBESeCaz6HUoJeBJYvlyKCLIIyk?=
- =?us-ascii?q?mkGG4I6i32LD44wm04jgVgrCAIYCCEPgydQEBSBXBeOPyUDMIEGAQGNYiqCK?=
- =?us-ascii?q?gEB?=
+  bh=1vxJyoB1V7W9Ku2+ijvwmGfZ7CsrftZP/TmVgGwKnoo=;
+  b=iR+hU/UeZIQyETvXqereiyyU2Mn/EHo3Viw/IlfmGt8vFNUWO6DVSUa8
+   6aO5r7a+xl6t+KcCCsXhAYEgSJRAHy9TJoXS/V7sgsxismUvfnfN40oxG
+   jjTKoBpNH+uk3nbOwTnpVLcp/6bY+1L82J5xtGt3ahF+8Stn1vi6662xK
+   RMtNIrgt40+/dABtzABdYuUz3eFas9uty7oAIXZciOIifCowqnGL5mG7A
+   ws5jE97bt5Oa4vgimth/3hDR0j9xboJgqRnSxJZ5z8vMZuoTWaEsAZ9Gg
+   kI2K5T37Xv3bJLXbdWq9EvMcG35W0lKVkEIRJf0WL6Ib++VAqPdcKIDT9
+   g==;
+X-IronPort-AV: E=Sophos;i="5.67,308,1566864000"; 
+   d="scan'208";a="34309865"
+IronPort-PHdr: =?us-ascii?q?9a23=3AmGpCvRUbJPoxZ1iP5sutc9NC7fLV8LGtZVwlr6?=
+ =?us-ascii?q?E/grcLSJyIuqrYbByOt8tkgFKBZ4jH8fUM07OQ7/m7HzNfqs/Y6DgrS99lb1?=
+ =?us-ascii?q?c9k8IYnggtUoauKHbQC7rUVRE8B9lIT1R//nu2YgB/Ecf6YEDO8DXptWZBUh?=
+ =?us-ascii?q?rwOhBoKevrB4Xck9q41/yo+53Ufg5EmCexbal9IRmrowjdrMsbjIltJqos1x?=
+ =?us-ascii?q?fFvmZDdvhLy29vOV+dhQv36N2q/J5k/SRQuvYh+NBFXK7nYak2TqFWASo/PW?=
+ =?us-ascii?q?wt68LlqRfMTQ2U5nsBSWoWiQZHAxLE7B7hQJj8tDbxu/dn1ymbOc32Sq00WS?=
+ =?us-ascii?q?in4qx2RhLklDsLOjgk+2zMlMd+kLxUrw6gpxxnwo7bfoeVNOZlfqjAed8WXH?=
+ =?us-ascii?q?dNUtpNWyBEBI6zYZEPD+4cNuhGqYfzqUYFoR+nCQSiAO7jzzlFjWL006Inye?=
+ =?us-ascii?q?QsCRzI0hIuH9wOs3raotv6O6gQXu+pw6fF1inDYvFM1Dvh9ITFfBIsrPeRVr?=
+ =?us-ascii?q?xwa8rRzkwvGhvYgFWMt4PlJzOV2foLs2OG8uRgUPigi2ojqw5vojmk28Ahip?=
+ =?us-ascii?q?LUiYIO0V3E6SV4z5o1Jd2/UkJ7Z8WkH4FKuyGVMIt2XNovTmd1syg50r0LoY?=
+ =?us-ascii?q?O3cScFxZg9xxPTduaLf5aH7x79TuqdPDF1j29/dr2lnRa9602gx/X5VsmzzV?=
+ =?us-ascii?q?lFsDJIksLJtnARzxzT7dWHSudl8kehxzmP0wfT5/lYIU8uj6rbKoMhwqUqmp?=
+ =?us-ascii?q?oPsUXMAi/2mELsgK+Qakok4fSn5/7iYrXnop+QL450igfgPaQygsGzHOs1Pw?=
+ =?us-ascii?q?cUU2Wb5OiwzqPv8ELnTLlQk/E6iqzZv4rbJcQfqK65GQhV0oM75hakEjimy8?=
+ =?us-ascii?q?8VnWUHLV1ZeBKHiJLlO1fVIP/iF/u/jFOskClzy/DcIrLhGonNLmTEkLr5er?=
+ =?us-ascii?q?Z97klcyBE1zd9F+51bFKoMIOjtVUDstNzXFAM5PxaozObgDdV3zpkeVn6XAq?=
+ =?us-ascii?q?+FLKPStkeF5vkxLOmIZY8Vviv9Kvc+6v7wgn82h0UdcbOq3ZQJcnC4GOppI0?=
+ =?us-ascii?q?GDbXrrmNcBHjRCgg1ra+rmklCAGRtUfHC7VK8/rmU8DYW9C47IS6i3jbCB1T?=
+ =?us-ascii?q?v9FZpTMCQOEV2IEHH1Z62aVPoWLiGfOMlslnoDT7fyZZUm0ESVqALiy7dhZt?=
+ =?us-ascii?q?HR8ykcuIOrgMN5/MXPhBoy8npyFM3b3GaTGTIn1lgUTiM7ifgs6Xd2zU2OhO?=
+ =?us-ascii?q?0h2K1V?=
+X-IPAS-Result: =?us-ascii?q?A2CRAQBHoahd/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWoEA?=
+ =?us-ascii?q?QELAYFzLGxUMiqEJY5mUwaBNol5kS8JAQEBAQEBAQEBIxEBAgEBhEACgwYkN?=
+ =?us-ascii?q?wYOAgwBAQEEAQEBAQEFAwEBbIUtDII6KQGCaAEFIxVRCw4KAgImAgJXBgEMB?=
+ =?us-ascii?q?gIBAYJfPwGCUiWwCYEyhU2DKIFIgQwoAYwNGHiBB4E4gms+h1KCXgSWL5cig?=
+ =?us-ascii?q?iyCMoRajg8GG4MslhuOMJtPI4FYKwgCGAghD4MnCUcQFIsohQolAzCBBgEBj?=
+ =?us-ascii?q?3wBAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 17 Oct 2019 12:52:14 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 17 Oct 2019 17:14:34 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9HCqEYX015614;
-        Thu, 17 Oct 2019 08:52:14 -0400
-Subject: Re: [PATCH 3/3] checkpolicy: allow to write policy to stdout
-To:     Masatake YAMATO <yamato@redhat.com>, selinux@vger.kernel.org
-References: <20191017070513.13445-1-yamato@redhat.com>
- <20191017070513.13445-3-yamato@redhat.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9HHEYfq021512;
+        Thu, 17 Oct 2019 13:14:34 -0400
+Subject: Re: [PATCH userspace] sepolicy: generate man pages in parallel
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20191014080647.19602-1-omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <0770f4d7-77bf-8ad8-582b-bf8c06f730fb@tycho.nsa.gov>
-Date:   Thu, 17 Oct 2019 08:52:14 -0400
+Message-ID: <d6755428-b0bd-1d88-69f7-0dd953eb7300@tycho.nsa.gov>
+Date:   Thu, 17 Oct 2019 13:14:34 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.1
 MIME-Version: 1.0
-In-Reply-To: <20191017070513.13445-3-yamato@redhat.com>
+In-Reply-To: <20191014080647.19602-1-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -94,111 +92,57 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/17/19 3:05 AM, Masatake YAMATO wrote:
-> If - is given as filename for -o option, checkpolicy
-> writes the policy to standard output. This helps users
-> to read policy.conf and/or CIL policy file with pager
-> like less command:
+On 10/14/19 4:06 AM, Ondrej Mosnacek wrote:
+> Generating man pages takes a lot of time. Do it in parallel to speed up
+> the process.
 > 
->   $ checkpolicy -M -F -b /sys/fs/selinux/policy  -o - | less
-> 
-> The users don't have to make a temporary file.
-> /dev/stdout can be used instead. However, - reduces the number of
-> typing for the purpose. Using - for standard output (and/or standard
-> input) is popular convention.
-> 
-> Signed-off-by: Masatake YAMATO <yamato@redhat.com>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
 > ---
->   checkpolicy/checkpolicy.8 |  5 +++--
->   checkpolicy/checkpolicy.c | 24 +++++++++++++++++++-----
->   2 files changed, 22 insertions(+), 7 deletions(-)
+>   python/sepolicy/sepolicy.py | 14 ++++++++++----
+>   1 file changed, 10 insertions(+), 4 deletions(-)
 > 
-> diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
-> index db57751c..bdfd6acd 100644
-> --- a/checkpolicy/checkpolicy.8
-> +++ b/checkpolicy/checkpolicy.8
-> @@ -3,7 +3,7 @@
->   checkpolicy \- SELinux policy compiler
->   .SH SYNOPSIS
->   .B checkpolicy
-> -.I "[\-b[F]] [\-C] [\-d] [\-U handle_unknown (allow,deny,reject)] [\-M] [\-c policyvers] [\-o output_file] [\-S] [\-t target_platform (selinux,xen)] [\-V] [input_file]"
-> +.I "[\-b[F]] [\-C] [\-d] [\-U handle_unknown (allow,deny,reject)] [\-M] [\-c policyvers] [\-o output_file|\-] [\-S] [\-t target_platform (selinux,xen)] [\-V] [input_file]"
->   .br
->   .SH "DESCRIPTION"
->   This manual page describes the
-> @@ -41,7 +41,8 @@ Specify the policy version, defaults to the latest.
->   .TP
->   .B \-o,\-\-output filename
->   Write a policy file (binary, policy.conf, or CIL policy)
-> -to the specified filename.
-> +to the specified filename. If - is given as filename,
-> +write it to standard output.
->   .TP
->   .B \-S,\-\-sort
->   Sort ocontexts before writing out the binary policy. This option makes output of checkpolicy consistent with binary policies created by semanage and secilc.
-> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
-> index e18de171..81bd2a9d 100644
-> --- a/checkpolicy/checkpolicy.c
-> +++ b/checkpolicy/checkpolicy.c
-> @@ -112,7 +112,7 @@ static __attribute__((__noreturn__)) void usage(const char *progname)
->   {
->   	printf
->   	    ("usage:  %s [-b[F]] [-C] [-d] [-U handle_unknown (allow,deny,reject)] [-M] "
-> -	     "[-c policyvers (%d-%d)] [-o output_file] [-S] "
-> +	     "[-c policyvers (%d-%d)] [-o output_file|-] [-S] "
->   	     "[-t target_platform (selinux,xen)] [-V] [input_file]\n",
->   	     progname, POLICYDB_VERSION_MIN, POLICYDB_VERSION_MAX);
->   	exit(1);
-> @@ -390,7 +390,8 @@ int main(int argc, char **argv)
->   	struct sepol_av_decision avd;
->   	class_datum_t *cladatum;
->   	const char *file = txtfile;
-> -	char ans[80 + 1], *outfile = NULL, *path, *fstype;
-> +	char ans[80 + 1], *path, *fstype;
-> +	const char *outfile = NULL;
->   	size_t scontext_len, pathlen;
->   	unsigned int i;
->   	unsigned int protocol, port;
-> @@ -638,9 +639,20 @@ int main(int argc, char **argv)
->   	}
+> diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
+> index 1934cd86..02094013 100755
+> --- a/python/sepolicy/sepolicy.py
+> +++ b/python/sepolicy/sepolicy.py
+> @@ -25,6 +25,7 @@ import os
+>   import sys
+>   import selinux
+>   import sepolicy
+> +from concurrent.futures import ProcessPoolExecutor
+>   from sepolicy import get_os_version, get_conditionals, get_conditionals_format_text
+>   import argparse
+>   PROGNAME = "policycoreutils"
+> @@ -326,8 +327,13 @@ def gen_gui_args(parser):
+>       gui.set_defaults(func=gui_run)
 >   
->   	if (outfile) {
-> -		outfp = fopen(outfile, "w");
-> +		int use_stdout = !strcmp(outfile, "-");
-> +		if (use_stdout) {
-> +			outfp = stdout;
-> +			outfile = "<STDOUT>";
-> +		} else {
-> +			outfp = fopen(outfile, "w");
-> +		}
+>   
+> +def manpage_work(domain, path, root, source_files, web):
+> +    from sepolicy.manpage import ManPage
+> +    m = ManPage(domain, path, root, source_files, web)
+> +    print(m.get_man_page_path())
 > +
->   		if (!outfp) {
-> -			perror(outfile);
-> +			if (use_stdout)
-> +				fprintf(stderr, "%s: error to use %s\n",
-> +					argv[0], outfile);
-
-This error message doesn't seem especially useful, and it isn't clear to 
-me under what conditions this could ever occur.  Do we really need 
-special handling of the stdout case here?
-
-Otherwise, this looks good to me.
-
-> +			else
-> +				perror(outfile);
->   			exit(1);
->   		}
+>   def manpage(args):
+> -    from sepolicy.manpage import ManPage, HTMLManPages, manpage_domains, manpage_roles, gen_domains
+> +    from sepolicy.manpage import HTMLManPages, manpage_domains, manpage_roles, gen_domains
 >   
-> @@ -682,7 +694,9 @@ int main(int argc, char **argv)
->   			}
->   		}
+>       path = args.path
+>       if not args.policy and args.root != "/":
+> @@ -340,9 +346,9 @@ def manpage(args):
+>       else:
+>           test_domains = args.domain
 >   
-> -		fclose(outfp);
-> +		if (outfp != stdout) {
-> +			fclose(outfp);
-> +		}
->   	} else if (cil) {
->   		fprintf(stderr, "%s:  No file to write CIL was specified\n", argv[0]);
->   		exit(1);
+> -    for domain in test_domains:
+> -        m = ManPage(domain, path, args.root, args.source_files, args.web)
+> -        print(m.get_man_page_path())
+> +    with ProcessPoolExecutor() as e:
+> +        for domain in test_domains:
+> +            e.submit(manpage_work, domain, path, args.root, args.source_files, args.web)
+>   
+>       if args.web:
+>           HTMLManPages(manpage_roles, manpage_domains, path, args.os)
 > 
 
