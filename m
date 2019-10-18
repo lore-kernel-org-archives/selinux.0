@@ -2,136 +2,96 @@ Return-Path: <SRS0=WnGO=YL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCFB6CA9EA4
-	for <selinux@archiver.kernel.org>; Fri, 18 Oct 2019 09:20:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1581CA9EA0
+	for <selinux@archiver.kernel.org>; Fri, 18 Oct 2019 09:22:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B6115222C3
-	for <selinux@archiver.kernel.org>; Fri, 18 Oct 2019 09:20:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85D3021897
+	for <selinux@archiver.kernel.org>; Fri, 18 Oct 2019 09:22:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ca9sdGNr"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QuCbofG0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390499AbfJRJUN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Oct 2019 05:20:13 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:59808 "EHLO
+        id S2389980AbfJRJWQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Oct 2019 05:22:16 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:37373 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2409648AbfJRJUN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Oct 2019 05:20:13 -0400
+        by vger.kernel.org with ESMTP id S1725818AbfJRJWQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Oct 2019 05:22:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1571390411;
+        s=mimecast20190719; t=1571390534;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=rEkagaXKoXhnnnheNdzt9zMOPRjlnVD/zrbZPYiIXzY=;
-        b=Ca9sdGNrp3e0OSAuofhDnN2cEXY/v9CmSDD3XE/oZz2oyl1mePCqpgDQ0X5uM3z3eDgMhW
-        wgQPILurKYUDf5IZFV4OXfZxL9XcIKkbj8pITKGb6hy9HxwBOY1PI9BVBHUxvgLhwYP7ma
-        TwLBv3uNLTS1TFjwEeXpDleTjz11Zyg=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-80-IeBu5Q5cOsyWb9NlrZqoVw-1; Fri, 18 Oct 2019 05:20:10 -0400
-Received: by mail-wr1-f69.google.com with SMTP id t11so2303807wro.10
-        for <selinux@vger.kernel.org>; Fri, 18 Oct 2019 02:20:10 -0700 (PDT)
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=E0KuXJ+I6Kyym7Wbp44uifMDO77KHLiStuwB/HjRw6s=;
+        b=QuCbofG0Y4YSNnpocH0f2c6MAH7PO76yZ7kW/QlL+NKIYOJyjvoGCzzKfTyTGuvVI8X8k6
+        Kwz9untyatSqX0vqqU2xNBpyeP3Xv50o828GAOqkM2nQW+8BGFo1BlLv80irVRVsKUB9mg
+        7C7fsUUFY9gTO/AjUIR7LfJlvgEMoks=
+Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
+ [209.85.210.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-219-d1-g6ffLNwuLkRv85NH6zw-1; Fri, 18 Oct 2019 05:22:13 -0400
+Received: by mail-ot1-f71.google.com with SMTP id t7so2646034otm.4
+        for <selinux@vger.kernel.org>; Fri, 18 Oct 2019 02:22:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=cEOYskm/itwHlkRsONS5/D5rKRb2CYlz+zwdyMLpUBw=;
-        b=KDCA6i04Wg/sSKbnjWStUc/bC4nC+VfP/tDUsNzMj+HD29c7dwp0Vr80X/8bycyoYU
-         Jk4JhCQiEfImDUkv8u2jJsPOETVgd3s9MHLEEqh4biEs3zVPKPPT1luQLeSU7LfjsdsW
-         fgfhYSzVCU580iuPsgVdi43vSO+qtVxERQOyNju0GPo5utV9vswUokUbrny7MZXIri1o
-         JCEQ8j7LfoDL2Q3L6ymPbOTql/guJTOmL8SSSzG1m8b3iAYuDhgGEKlKKNZae+e4Hw3k
-         e7MUXkzyIsLVx5UCiuFqYiEbNzPzHXScR1PviaDNS/ufuR7qOvspWxztHnbbif1WWcHe
-         5emA==
-X-Gm-Message-State: APjAAAXJ0j8vGxViSGM+6iIy4/VWmp4K4CVazYhZOL869bZoFB2+BbvU
-        kamTq7TodyDqkcrsl0QaXjA1L4mEfj5HOYR9qN0OtykVEVh2UaTYgvVCY1NxjI3jOXUMHMbAwTr
-        bEmJSkT7ajewkWSkysQ==
-X-Received: by 2002:a05:600c:224c:: with SMTP id a12mr5541316wmm.19.1571390408512;
-        Fri, 18 Oct 2019 02:20:08 -0700 (PDT)
-X-Google-Smtp-Source: APXvYqwdOXFohtJI4snc31e85wA4zvKUFeUMmZOtVHd5cmHorqe//KG/TeyjbMA8n0x6SpjJzSbjfA==
-X-Received: by 2002:a05:600c:224c:: with SMTP id a12mr5541287wmm.19.1571390408216;
-        Fri, 18 Oct 2019 02:20:08 -0700 (PDT)
-Received: from localhost.localdomain.com (adsl-dyn123.78-98-13.t-com.sk. [78.98.13.123])
-        by smtp.gmail.com with ESMTPSA id f143sm9275826wme.40.2019.10.18.02.20.07
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 18 Oct 2019 02:20:07 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH userspace v2] sepolicy: generate man pages in parallel
-Date:   Fri, 18 Oct 2019 11:20:05 +0200
-Message-Id: <20191018092005.3198-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.21.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1diiFOoBn+aPjZNERTJSHqMcI1iFpSGLBN/SfEFseP8=;
+        b=iPxpc9CZivFFQ826Udvv8M1ZS+/uo7cOrV4fdKiczJTNU+/imtbOeF5t4BQCxYpMHE
+         keCVgUEs1bvwmo8IQJTo2HTQro41T6Uu52zlPkLtKKTbcORrmrSdt68eiquMH1r1/CVF
+         aIhYHwWEP9nDyMxEXFqeuTaLqKVdq7JQEZQ/OruNfJ0ieXKKDXSxlZqgYmfMVbJxNyg0
+         kOt9HVSZFSocd+Hgw9deCnk4FXcPMj6G40g+Uag2LA/n6AzghfR5bT+pW56TDZVIcxpl
+         gytJOHVBOrXEc+NlXpu1ZWKzS5cI0VFrZbOilE6NbHu6/bI3KjuP0Bzfm0ovzl41TNlK
+         T5qw==
+X-Gm-Message-State: APjAAAUKbBZ7Qos4x7VwZnwD10n8lwBQPSTTMQ8k7tdWoHB94zS2ssF0
+        xaUwE83s4NNxax0XVGBIfe/M/0KgG5WuAMHjnjfFAvvPXGV4UF6wNMrTuoFiS5ModzDqlO8w6o5
+        Fg5GH6t/lubYo5FVi3q/K3GIfOknBdEBJ+g==
+X-Received: by 2002:a05:6830:1d9:: with SMTP id r25mr6844853ota.66.1571390532594;
+        Fri, 18 Oct 2019 02:22:12 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqwmmvS7mOLvPx8Fl3ahvtwE7jlYEpguZAzFke5b9Qml1ZYSev7elY0rpQsxeeAVkhb8JSTsRmeXgUeZYgXV6f8=
+X-Received: by 2002:a05:6830:1d9:: with SMTP id r25mr6844834ota.66.1571390532291;
+ Fri, 18 Oct 2019 02:22:12 -0700 (PDT)
 MIME-Version: 1.0
-X-MC-Unique: IeBu5Q5cOsyWb9NlrZqoVw-1
+References: <20191014080647.19602-1-omosnace@redhat.com> <d6755428-b0bd-1d88-69f7-0dd953eb7300@tycho.nsa.gov>
+ <CAFqZXNsMVm2OmWOTiMaKybkhX8Zerp6rDeFfEd0UwhZRiNuNXQ@mail.gmail.com>
+ <511ca06c-7786-1b90-4694-a5cb842a8fca@ieee.org> <0a554b63-df42-fbc0-6877-f58c16156a9e@ieee.org>
+In-Reply-To: <0a554b63-df42-fbc0-6877-f58c16156a9e@ieee.org>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 18 Oct 2019 11:22:01 +0200
+Message-ID: <CAFqZXNt5eYLMHCOuBBVjxRHSTG6H_FzNhHaHxza9kHC2yF+utA@mail.gmail.com>
+Subject: Re: [PATCH userspace] sepolicy: generate man pages in parallel
+To:     Chris PeBenito <pebenito@ieee.org>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        SElinux list <selinux@vger.kernel.org>
+X-MC-Unique: d1-g6ffLNwuLkRv85NH6zw-1
 X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Generating man pages takes a lot of time. Do it in parallel to speed up
-the process.
+On Fri, Oct 18, 2019 at 11:01 AM Chris PeBenito <pebenito@ieee.org> wrote:
+> On 10/18/19 5:00 AM, Chris PeBenito wrote:
+> > On 10/18/19 3:44 AM, Ondrej Mosnacek wrote:
+> >> Since there are plans to support
+> >> only Python 3 in 3.0+ this may not be an issue, but I could also add a
+> >> few lines to fallback to sequential execution under Python 2 for the
+> >> sake of compatibility. Would that be OK or should I not bother?
+> >
+> > Python 2 end of life is in less than 2 months.  Please don't add new
+> > code only for Python 2 compatibility.
+>
+> I can't count.  It's a little over 2 months.  The point still stands :)
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- python/sepolicy/sepolicy.py | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+OK, I posted a v2 without the fallback.
 
-Changes in v2:
-- use multiprocessing.Pool, which reacts better to interruption
-
-diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
-index 1934cd86..7b223065 100755
---- a/python/sepolicy/sepolicy.py
-+++ b/python/sepolicy/sepolicy.py
-@@ -25,6 +25,7 @@ import os
- import sys
- import selinux
- import sepolicy
-+from multiprocessing import Pool
- from sepolicy import get_os_version, get_conditionals, get_conditionals_fo=
-rmat_text
- import argparse
- PROGNAME =3D "policycoreutils"
-@@ -326,8 +327,13 @@ def gen_gui_args(parser):
-     gui.set_defaults(func=3Dgui_run)
-=20
-=20
-+def manpage_work(domain, path, root, source_files, web):
-+    from sepolicy.manpage import ManPage
-+    m =3D ManPage(domain, path, root, source_files, web)
-+    print(m.get_man_page_path())
-+
- def manpage(args):
--    from sepolicy.manpage import ManPage, HTMLManPages, manpage_domains, m=
-anpage_roles, gen_domains
-+    from sepolicy.manpage import HTMLManPages, manpage_domains, manpage_ro=
-les, gen_domains
-=20
-     path =3D args.path
-     if not args.policy and args.root !=3D "/":
-@@ -340,9 +346,11 @@ def manpage(args):
-     else:
-         test_domains =3D args.domain
-=20
-+    p =3D Pool()
-     for domain in test_domains:
--        m =3D ManPage(domain, path, args.root, args.source_files, args.web=
-)
--        print(m.get_man_page_path())
-+        p.apply_async(manpage_work, [domain, path, args.root, args.source_=
-files, args.web])
-+    p.close()
-+    p.join()
-=20
-     if args.web:
-         HTMLManPages(manpage_roles, manpage_domains, path, args.os)
 --=20
-2.21.0
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
