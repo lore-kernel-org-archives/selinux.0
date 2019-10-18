@@ -2,91 +2,166 @@ Return-Path: <SRS0=WnGO=YL=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFBF4CA9ECF
-	for <selinux@archiver.kernel.org>; Fri, 18 Oct 2019 05:22:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11472CA9EA0
+	for <selinux@archiver.kernel.org>; Fri, 18 Oct 2019 07:44:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BDBEE222BD
-	for <selinux@archiver.kernel.org>; Fri, 18 Oct 2019 05:22:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D64FB21925
+	for <selinux@archiver.kernel.org>; Fri, 18 Oct 2019 07:44:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="aaMRinkp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hrasi7ZL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726533AbfJRFW7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 18 Oct 2019 01:22:59 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:45918 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407641AbfJRFW7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 18 Oct 2019 01:22:59 -0400
-Received: by mail-lj1-f196.google.com with SMTP id q64so4815157ljb.12
-        for <selinux@vger.kernel.org>; Thu, 17 Oct 2019 22:22:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MMJaEYZh6ao/YRuYTW1CqBcQX7ARqvhEcTOFnS4ulPA=;
-        b=aaMRinkpQw6LiO2zd4X3cQb+Nctf2gsz5IEOxo016KpM/rq6GDA+EwYBMhyIhve8Bz
-         XuCRBFdalr0Gt4i+8+uBdLq5XUTviyWhIUq1e1aQahJu0aBub6YtaKMLUFVZpa2F8oSV
-         v1fHMSG8QTFrYcWb+7fCI8/pVL4M6cwFZNBDo0Tu8wYc8Fo+Ud0Oh7UFd8ad/g5nvMxj
-         U+pL9IEo5zPoYVLIO88azUp8GC7UVo+l/KjIM0QNkihGGax2V02VHWW6M3zebpcVzAnc
-         ibgoOYulWpDEdejnYOVioV9Zf+YYunL5r2EuM9qHNK+NgIkYzk+mUrsvvUu9uzD6AV6+
-         cEFA==
+        id S2409615AbfJRHoc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 18 Oct 2019 03:44:32 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:38371 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727388AbfJRHob (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 18 Oct 2019 03:44:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1571384668;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UHpDzlIdetdCaZNiT8hoQU/djmawWtA9HwbrDbOeJxk=;
+        b=Hrasi7ZLk+CWJ9dguIu+ZW6/5pnrKIYYmxmxT7U0HTQfBOxP4s1ZyACQw3e9RkJSf5WnKD
+        GNXw5+P6w6YsmU2ltUFM4MjRMg6jbyJwlBiOm7XYjNrrMz5dZw7eVIi7Kne4ZV8IldaUkw
+        HokTpo6i/+/44xB7DVAGaCjRVSouWwM=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-358-nd_umPmbOsy-g1QN_iLPYA-1; Fri, 18 Oct 2019 03:44:23 -0400
+Received: by mail-ot1-f72.google.com with SMTP id v51so2540750otb.5
+        for <selinux@vger.kernel.org>; Fri, 18 Oct 2019 00:44:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=MMJaEYZh6ao/YRuYTW1CqBcQX7ARqvhEcTOFnS4ulPA=;
-        b=JhidLC4zSUEE5SIieektlkSkdaIQl0X1BtxkrFLeP12cTw6LFVSwmIFDCZP5xqiz34
-         ZRPvBZLlAwB6Ns02hienbuv4Wixo3D1dSsAjNtHRDxPuHRjWGw1UhHYUxO7v0gBk0wK9
-         aC77ixHx2X5JZ6Av4Rw3iLQs3ZZKwcCLBaipYTp3wLkfhdR0Llsan2pBpXLaIwLN71JT
-         bEJptRIYEU0Ox15k/Dc9KB7QIwKqJaeCrsDwSzyxVpcxiqc0Oh+EBIxgTkYid+MTjfxP
-         aDkPxtJ2aObNmRDdfu3gipJ6pgnOIWAY2HIdalM2Z9zdK69LgSW5dwz0y+K3smjsK/Gm
-         HjAw==
-X-Gm-Message-State: APjAAAUf/cx65qh59Ifckox/8O0dd1lZ8uAJnYWgnObOs9URbNuV7CVv
-        4S/cxV0VJJQ0FHYmXgk1NoS6UEnG3KM6i/cvIbvSM1s=
-X-Google-Smtp-Source: APXvYqyljQdRYDJCo4CyI+XWdj/f9O3v48mSaeIknl6xNUKUjzjYl4lv2idfVSOcRAC+W+OTN7DINzbOivxwBQFN6DQ=
-X-Received: by 2002:a2e:b17b:: with SMTP id a27mr4397443ljm.243.1571365978341;
- Thu, 17 Oct 2019 19:32:58 -0700 (PDT)
+        bh=unqjuQo8BwkbnIJigk2ZaSPMwrQ1jkfXUvUDYsTAY4I=;
+        b=sK3vlPgx0U62G18Mr2i1ZO8EJPl6HLOnxzWLhtkvfhOM0fwejUc/uWn3YjYmCogff4
+         MVJ8/8Tfv2wH8+Y67I7qjTcHS1K1tMxD4GpUtawPpgxWkO5dgN0oAzv6AB6SthS3NWvQ
+         drkkLtthMGnmG8MJS9CjeITxb7U/zeE8rEcBbI9Jc3MWw064qY7x0zjLjSGh4QI8EBJ3
+         2pefY0gJLhXJIcmzgmFtVU5bsoCbiLr3LpocKl9GbB7NnamR0tRTFcf8Lyy1Ypwoy+9S
+         zimRAWVaXn2zoIf/V3bch7Y4YelMxcnGfZGmNKMaRxm5Ld/WaS8tSehn4NatoBPGmNuB
+         7/Bw==
+X-Gm-Message-State: APjAAAX1Hl1HXHX5+K2zn/oSkIt3wlAFr2K7E4J7yafR40zXwI4TOxQO
+        RuJaZ/p1VNmZBmzF7cyNMeqpBuTTavLlWLhrUzy/tM/l/eN0N1yTwF3ZSlEdy4v6T/2jNFwPjze
+        Pc07l8rlW34WeO6BWYYQYue5hJc5tUYYE7Q==
+X-Received: by 2002:a9d:67cc:: with SMTP id c12mr6019039otn.43.1571384662841;
+        Fri, 18 Oct 2019 00:44:22 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqwJnJSIJR24iI4/hRtsz8DLVfqMaXvpzPsvO+zF/kV4Yu3IhPoF4sHJHTmKE4qDmCOUjFH90hvvdQNSU9QTyZc=
+X-Received: by 2002:a9d:67cc:: with SMTP id c12mr6019024otn.43.1571384662487;
+ Fri, 18 Oct 2019 00:44:22 -0700 (PDT)
 MIME-Version: 1.0
-References: <20191015132528.13519-1-sds@tycho.nsa.gov>
-In-Reply-To: <20191015132528.13519-1-sds@tycho.nsa.gov>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 17 Oct 2019 22:32:47 -0400
-Message-ID: <CAHC9VhQ86rm86CyNEXM_eXcG7iM7a_67-iE6e1vZcpB7uU3mzA@mail.gmail.com>
-Subject: Re: [RFC PATCH 00/10] SELinux namespace series, re-based
-To:     selinux@vger.kernel.org
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+References: <20191014080647.19602-1-omosnace@redhat.com> <d6755428-b0bd-1d88-69f7-0dd953eb7300@tycho.nsa.gov>
+In-Reply-To: <d6755428-b0bd-1d88-69f7-0dd953eb7300@tycho.nsa.gov>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 18 Oct 2019 09:44:11 +0200
+Message-ID: <CAFqZXNsMVm2OmWOTiMaKybkhX8Zerp6rDeFfEd0UwhZRiNuNXQ@mail.gmail.com>
+Subject: Re: [PATCH userspace] sepolicy: generate man pages in parallel
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     SElinux list <selinux@vger.kernel.org>
+X-MC-Unique: nd_umPmbOsy-g1QN_iLPYA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Oct 15, 2019 at 9:25 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> After a long hiatus, I have re-based the SELinux namespace series
-> on top of selinux/next based on v5.4-rc1 ...
+On Thu, Oct 17, 2019 at 7:15 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 10/14/19 4:06 AM, Ondrej Mosnacek wrote:
+> > Generating man pages takes a lot of time. Do it in parallel to speed up
+> > the process.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Thanks Stephen.
+Thank you for the ack, however I discovered that after this change it
+becomes more difficult to end the program via KeyboardInterrupt
+(SIGINT). The first interrupt only stops the main process and you need
+to send several more to take down the background processes as well...
 
-As mentioned previously at LSS-NA, in an effort to get this moving
-again I've pulled this into the 'working-selinuxns' branch of the main
-SELinux kernel repository and I'll keep that branch actively rebased
-against current kernel releases* until we get to a point where we can
-merge it all into selinux/next.  If you are reading this email and are
-interested in helping with the SELinux namespacing work, patches are
-welcome (and encouraged!) :)
+I found a different way (multiprocessing.Pool) to do the same, which
+ends the processing gracefully on interrupt, but that one behaves even
+worse under Python 2 (each interrupt only cancels one work item and
+the processing happily continues...). Since there are plans to support
+only Python 3 in 3.0+ this may not be an issue, but I could also add a
+few lines to fallback to sequential execution under Python 2 for the
+sake of compatibility. Would that be OK or should I not bother?
 
-I would ask that those of you who are interested in participating send
-your patches with tag on the patch posting so we all have the correct
-context in which to review your work, e.g. "[PATCH selinuxns] selinux:
-make it work".
+Either way I'd like to send a v2 that uses multiprocessing instead of
+concurrent.futures, so please don't merge this yet :)
 
-* My initial thought is to rebase the selinux/working-selinuxns at the
-end of each merge window against the vX.Y-rc1, but if we need to do it
-more often we can.
+FYI, here is a preliminary diff for a switch to multiprocessing.Pool:
+https://github.com/WOnder93/selinux/commit/a33acec8c298c112f5412b8b61b5b090=
+58a267ee
 
--- 
-paul moore
-www.paul-moore.com
+...and here is what the Python 2 fallback would look like:
+https://github.com/WOnder93/selinux/commit/b39a12120656b50eb0a1ee01227646ba=
+3cd63f15
+
+>
+> > ---
+> >   python/sepolicy/sepolicy.py | 14 ++++++++++----
+> >   1 file changed, 10 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/python/sepolicy/sepolicy.py b/python/sepolicy/sepolicy.py
+> > index 1934cd86..02094013 100755
+> > --- a/python/sepolicy/sepolicy.py
+> > +++ b/python/sepolicy/sepolicy.py
+> > @@ -25,6 +25,7 @@ import os
+> >   import sys
+> >   import selinux
+> >   import sepolicy
+> > +from concurrent.futures import ProcessPoolExecutor
+> >   from sepolicy import get_os_version, get_conditionals, get_conditiona=
+ls_format_text
+> >   import argparse
+> >   PROGNAME =3D "policycoreutils"
+> > @@ -326,8 +327,13 @@ def gen_gui_args(parser):
+> >       gui.set_defaults(func=3Dgui_run)
+> >
+> >
+> > +def manpage_work(domain, path, root, source_files, web):
+> > +    from sepolicy.manpage import ManPage
+> > +    m =3D ManPage(domain, path, root, source_files, web)
+> > +    print(m.get_man_page_path())
+> > +
+> >   def manpage(args):
+> > -    from sepolicy.manpage import ManPage, HTMLManPages, manpage_domain=
+s, manpage_roles, gen_domains
+> > +    from sepolicy.manpage import HTMLManPages, manpage_domains, manpag=
+e_roles, gen_domains
+> >
+> >       path =3D args.path
+> >       if not args.policy and args.root !=3D "/":
+> > @@ -340,9 +346,9 @@ def manpage(args):
+> >       else:
+> >           test_domains =3D args.domain
+> >
+> > -    for domain in test_domains:
+> > -        m =3D ManPage(domain, path, args.root, args.source_files, args=
+.web)
+> > -        print(m.get_man_page_path())
+> > +    with ProcessPoolExecutor() as e:
+> > +        for domain in test_domains:
+> > +            e.submit(manpage_work, domain, path, args.root, args.sourc=
+e_files, args.web)
+> >
+> >       if args.web:
+> >           HTMLManPages(manpage_roles, manpage_domains, path, args.os)
+> >
+>
+
+
+--=20
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
