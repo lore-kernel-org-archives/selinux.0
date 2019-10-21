@@ -2,143 +2,114 @@ Return-Path: <SRS0=hnB7=YO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E044CA9EB5
-	for <selinux@archiver.kernel.org>; Mon, 21 Oct 2019 05:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36215CA9EAF
+	for <selinux@archiver.kernel.org>; Mon, 21 Oct 2019 14:37:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DFD9421721
-	for <selinux@archiver.kernel.org>; Mon, 21 Oct 2019 05:55:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C55A20640
+	for <selinux@archiver.kernel.org>; Mon, 21 Oct 2019 14:37:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=perfinion-com.20150623.gappssmtp.com header.i=@perfinion-com.20150623.gappssmtp.com header.b="c7U/NGO2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HSduiGnn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727261AbfJUFzS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 21 Oct 2019 01:55:18 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:40335 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727459AbfJUFzR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 21 Oct 2019 01:55:17 -0400
-Received: by mail-pf1-f193.google.com with SMTP id x127so7698848pfb.7
-        for <selinux@vger.kernel.org>; Sun, 20 Oct 2019 22:55:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=perfinion-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xA6NS+xkd4XOOPYbauTeIGyoxqwwiLCr/AC/UJN2Etg=;
-        b=c7U/NGO2bzpEpINZ56r6VW4aJCiHmJ77gzxAbb7kB7Vc4R0T4gKxWNKXvN1mog5Cwx
-         p+H6UqgvBEj9C1nMellVo1N6j/01qBrfEvQIl7oVaqzJZai1er7JcXK3Bqa3ggTVvL+O
-         LnNuAQCyqqS3Enm+gjghVHnYmazPwyFRGirLIvLWtdx8T9ihBE5HyXKuWC7S26FgYcU+
-         NIFwYnaYaTt3Pdw6TP6aZCKhq3R+wsYIdf1o8TL5rsZMT/i8znqsCnrWuDb/tpKoLtKo
-         tJSOXPGqaP1oaz/NPyiPncNnmFHbhx9Rl3TvO65sJ2hZ9/jK1f0RSlGA315p8BCrdvjy
-         nB/w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=xA6NS+xkd4XOOPYbauTeIGyoxqwwiLCr/AC/UJN2Etg=;
-        b=KkyPI5Jt9PoTVZgJlm4lA1AeUJp4x8IUUabB8Q7MiTx7XF/Swv6kZGr20zgnrEBRx5
-         3ZliYtTqmsKiJ2h6asmoAJMS2bpx2xatBpL1+lAeNgFjDt2IcM6fjGH7CJ4gZq+XY0bl
-         GLnp/s3F4vF0Jv1fBZObx0hcWnZ0+hdWAHGyfDS6tEkoBUZ66t620chFLgFQiTTDH/XV
-         65awwydTUY2BM+n6JfcaNZDs/2Xwx12Ww7PNSIccVCcoxh9K5rE0IHO1QwJeK5qDsv0n
-         cwryzQ3UOAjOL1vZU3xbtR1ky87q9SzCInip7NWsDTHm1NzgdgTDxZrJTQDx4+fUZwNn
-         EDOw==
-X-Gm-Message-State: APjAAAX9VsaMKUEn3hgYY66VUMHoVJlZ9CwR3jN9n/dWw6i6lyE5gkcy
-        WAZkFJ3yAbG2Kp1JtLb0gazUmLoI1BCWbg==
-X-Google-Smtp-Source: APXvYqy6iMuNbfYEIkK9S5orVw2KHZSYfcpPdF7KSbBsEJDOsUoqnhf4o0LNM7ImBvIjUpO4rYLcvA==
-X-Received: by 2002:a17:90a:8c14:: with SMTP id a20mr26828108pjo.77.1571637315663;
-        Sun, 20 Oct 2019 22:55:15 -0700 (PDT)
-Received: from localhost ([2401:fa00:d:fd00:d09e:9177:8678:8a22])
-        by smtp.gmail.com with ESMTPSA id l22sm12294528pgj.4.2019.10.20.22.55.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 20 Oct 2019 22:55:14 -0700 (PDT)
-From:   Jason Zaman <jason@perfinion.com>
+        id S1726847AbfJUOhu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 21 Oct 2019 10:37:50 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:55277 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727309AbfJUOhu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 21 Oct 2019 10:37:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1571668669;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=MGx2UYNX59Bws5RB50GvVm5Q9ljARn3FCT+sfG5ziNQ=;
+        b=HSduiGnnUpl5tjzNC9VFXykikT4Mx9/5b+rOR2wAf1mYLWbUOnlMZhJ7OYnmTESA76w7KP
+        P2yDDEtqlQsk5nizZFoMSFUhXMOsrhpRLH00GBYbYTT6XoOi5VHV1gnMSo0RNN+qDx2jvq
+        bbHYNpfFhwEZ02LrzC5QlvWpA00zolE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-274-lAxixlvaMG-tK_XKk_cGew-1; Mon, 21 Oct 2019 10:37:46 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 78DA8107AD31
+        for <selinux@vger.kernel.org>; Mon, 21 Oct 2019 14:37:45 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.43.12.184])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id F19995D9E5
+        for <selinux@vger.kernel.org>; Mon, 21 Oct 2019 14:37:44 +0000 (UTC)
+From:   Vit Mojzis <vmojzis@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     Jason Zaman <jason@perfinion.com>
-Subject: [PATCH] policycoreutils: semodule: Enable CIL logging
-Date:   Mon, 21 Oct 2019 13:55:05 +0800
-Message-Id: <20191021055505.25372-1-jason@perfinion.com>
-X-Mailer: git-send-email 2.23.0
+Subject: [PATCH] python/semanage: Document DCCP and SCTP support
+Date:   Mon, 21 Oct 2019 16:37:36 +0200
+Message-Id: <20191021143736.13456-1-vmojzis@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: lAxixlvaMG-tK_XKk_cGew-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-semodule -v will turn on semodule's own verbose logging but not logging
-from CIL. This change makes the verbose flag also set cil's log level.
+Add DCCP and SCTP protocols in semanage port man page and --help
+message.
 
-By default (ie no -v flag), this will enable CIL_ERR, and each -v will
-increase the level from there.
-
-Tested with a duplicated fcontext in the policy.
-Before this change:
-    # semodule -v -B
-    Committing changes:
-    Problems processing filecon rules
-    Failed post db handling
-    semodule:  Failed!
-
-After this change:
-    # semodule -v -B
-    [ ... snip ... ]
-    Found conflicting filecon rules
-      at /var/lib/selinux/mcs/tmp/modules/400/mycustom/cil:159
-      at /var/lib/selinux/mcs/tmp/modules/400/mycustom/cil:158
-    Problems processing filecon rules
-    Failed post db handling
-    semodule:  Failed!
-
-Closes: https://github.com/SELinuxProject/selinux/issues/176
-Signed-off-by: Jason Zaman <jason@perfinion.com>
+Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
 ---
+ python/semanage/semanage        | 5 +----
+ python/semanage/semanage-port.8 | 2 +-
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-I also opened a PR here to run travis tests: https://github.com/SELinuxProject/selinux/pull/182
-
-This only affects semodule -v, I tested out setsebool and it doesnt die
-on a duplicated fcontext so I skipped it there. Should all the tools set
-it or only as-needed? Do we want to make some general guidelines for
-what kind of tools should set the CIL logging?
-
--- Jason
-
-
- policycoreutils/semodule/semodule.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-index a76797f5..a1f75e16 100644
---- a/policycoreutils/semodule/semodule.c
-+++ b/policycoreutils/semodule/semodule.c
-@@ -22,6 +22,7 @@
- #include <libgen.h>
- #include <limits.h>
- 
-+#include <sepol/cil/cil.h>
- #include <semanage/modules.h>
- 
- enum client_modes {
-@@ -238,7 +239,7 @@ static void parse_command_line(int argc, char **argv)
- 			set_mode(LIST_M, optarg);
- 			break;
- 		case 'v':
--			verbose = 1;
-+			verbose++;
- 			break;
- 		case 'r':
- 			set_mode(REMOVE_M, optarg);
-@@ -350,6 +351,8 @@ int main(int argc, char *argv[])
- 	}
- 	parse_command_line(argc, argv);
- 
-+	cil_set_log_level(CIL_ERR + verbose);
-+
- 	if (build)
- 		commit = 1;
- 
--- 
-2.23.0
+diff --git a/python/semanage/semanage b/python/semanage/semanage
+index 864f9212..b2fabea6 100644
+--- a/python/semanage/semanage
++++ b/python/semanage/semanage
+@@ -73,9 +73,6 @@ usage_interface_dict =3D {' --add': ('-t TYPE', '-r RANGE=
+', 'interface'), ' --modi
+ usage_boolean =3D "semanage boolean [-h] [-n] [-N] [-S STORE] ["
+ usage_boolean_dict =3D {' --modify': ('(', '--on', '|', '--off', ')', 'boo=
+lean'), ' --list': ('-C',), '  --extract': ('',), ' --deleteall': ('',)}
+=20
+-
+-
+-
+ class CheckRole(argparse.Action):
+=20
+     def __call__(self, parser, namespace, value, option_string=3DNone):
+@@ -248,7 +245,7 @@ SELinux Range for SELinux user defaults to s0.
+=20
+ def parser_add_proto(parser, name):
+     parser.add_argument('-p', '--proto', help=3D_('''
+-    Protocol  for  the specified port (tcp|udp) or internet protocol
++    Protocol  for  the specified port (tcp|udp|dccp|sctp) or internet prot=
+ocol
+     version for the specified node (ipv4|ipv6).
+ '''))
+=20
+diff --git a/python/semanage/semanage-port.8 b/python/semanage/semanage-por=
+t.8
+index a21287c0..12ec14c2 100644
+--- a/python/semanage/semanage-port.8
++++ b/python/semanage/semanage-port.8
+@@ -49,7 +49,7 @@ SELinux type for the object
+ MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SELinux lo=
+gin mapping defaults to the SELinux user record range. SELinux Range for SE=
+Linux user defaults to s0.
+ .TP
+ .I   \-p PROTO, \-\-proto PROTO
+-Protocol for the specified port (tcp|udp) or internet protocol version for=
+ the specified node (ipv4|ipv6).
++Protocol for the specified port (tcp|udp|dccp|sctp) or internet protocol v=
+ersion for the specified node (ipv4|ipv6).
+=20
+ .SH EXAMPLE
+ .nf
+--=20
+2.21.0
 
