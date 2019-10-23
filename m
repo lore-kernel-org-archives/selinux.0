@@ -2,90 +2,87 @@ Return-Path: <SRS0=o958=YQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAD57CA9EB6
-	for <selinux@archiver.kernel.org>; Wed, 23 Oct 2019 14:23:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D596CA9EB6
+	for <selinux@archiver.kernel.org>; Wed, 23 Oct 2019 14:27:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9E19521906
-	for <selinux@archiver.kernel.org>; Wed, 23 Oct 2019 14:23:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 48C4F21906
+	for <selinux@archiver.kernel.org>; Wed, 23 Oct 2019 14:27:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ZtXN9FUU"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="PXaL9G8P"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391097AbfJWOXN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 23 Oct 2019 10:23:13 -0400
-Received: from USFB19PA34.eemsg.mail.mil ([214.24.26.197]:54393 "EHLO
-        USFB19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725852AbfJWOXM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 23 Oct 2019 10:23:12 -0400
-X-EEMSG-check-017: 20156883|USFB19PA34_ESA_OUT04.csd.disa.mil
+        id S2389941AbfJWO1d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 23 Oct 2019 10:27:33 -0400
+Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:58827 "EHLO
+        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389521AbfJWO1d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 23 Oct 2019 10:27:33 -0400
+X-EEMSG-check-017: 24665698|UPDC19PA22_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.68,221,1569283200"; 
-   d="scan'208";a="20156883"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 23 Oct 2019 14:23:09 +0000
+   d="scan'208";a="24665698"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 23 Oct 2019 14:27:29 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1571840589; x=1603376589;
+  s=tycho.nsa.gov; t=1571840849; x=1603376849;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=aDiUQo1Z78/vjsIxuiJ4OYJ+2B+S7IrAis/p5ec51Hs=;
-  b=ZtXN9FUUC+k7R1zf7rQpSyYuRoBlRRqkV2nIZpePZ76gPB67fWKFUFPf
-   71A79PVuF36DuCGxm+9jCtDTX8tuSB374CTo7N6jvZtqaWEBdZtGHWtU8
-   oF0IAoxolicLOQTfSG2/IFuROo0qAk2lZr9JKu3mauxdQ6l8mK08esMxR
-   aCa3DSUxJDd6fc5GlejZaPYaw6DKyVJc2EvsnWMzPnnSXA3pVyemicdPc
-   MwgztZhsWUp+7R2+vr0Vp9RAHj79X5bimAFVMFXdQKJsJp8EWaxIsnoDM
-   dNdce3eX77llAv1oLiOh2rtvHnU4SsJnZx9LkaxWBfwBesYNapwCegELj
+  bh=ZOKWJkTvkrAkMW2ErtHOeAB7TiVdzw0L8lSvV+Gboek=;
+  b=PXaL9G8PNCuf2xHhvYiOAJ2OdVDl0Q4uGBX2IQPORzx/1PqjBYAWWxAF
+   4ENPaZ/VQ1muZWdUV1xIiFdxkveml7aljV8X/YZvykUEEBO6GmLkE8gRV
+   ohGnjOzBMjOaeTd3S0wnIDZhfhhGYO5uz57leK/qaAGxr3L1vZ1zfgpuo
+   OTm9kqzWiTsbBnvdH+RtrX2+8YY1boBVfojsYpCwjvDsFpyw5ODRcBzIz
+   sJiCh9sc6KW68U657AhF4J970q6MXenwJAk8X57a3g1CHqFFAAYrdz0QP
+   Wvl+EqKjpX/fOhbx/AarzJqG1tZ9P2w5iRMLrp/cJuzO7+LIe8tc6PQ+E
    w==;
 X-IronPort-AV: E=Sophos;i="5.68,221,1569283200"; 
-   d="scan'208";a="29302999"
-IronPort-PHdr: =?us-ascii?q?9a23=3AJo+NwhATQX8rMRODC5Y5UyQJP3N1i/DPJgcQr6?=
- =?us-ascii?q?AfoPdwSPX+r8bcNUDSrc9gkEXOFd2Cra4d0KyG4uu/BSQp2tWoiDg6aptCVh?=
- =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
- =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagb75+Nha7oAHeusQUjoZpN7o8xA?=
- =?us-ascii?q?bOrnZUYepd2HlmJUiUnxby58ew+IBs/iFNsP8/9MBOTLv3cb0gQbNXEDopPW?=
- =?us-ascii?q?Y15Nb2tRbYVguA+mEcUmQNnRVWBQXO8Qz3UY3wsiv+sep9xTWaMMjrRr06RT?=
- =?us-ascii?q?iu86FmQwLzhSwZKzA27n3Yis1ojKJavh2hoQB/w5XJa42RLfZyY7/Rcc8fSW?=
- =?us-ascii?q?dHUMlRTShBCZ6iYYUJAeQKIOJUo5DzqlYKqBezAxSnCuHyxT9SnnL4wLM00+?=
- =?us-ascii?q?ohHw/F0gIvEd0Bv3bIo9v6L6oSTeK4wbPUwTnfYf5b2zHw45XIfBA7pvGMWK?=
- =?us-ascii?q?p9f9fNyUYxDwPFjkufqYr4ND2I0+QCqWyb7+5+WuOvlmUqrBpxrSW0xso3lo?=
- =?us-ascii?q?nIhp4aylDD9SljxoY1Pse3RFR0Yd6jDptdrieXPJZ4TMMlRmFnoic6yrsetJ?=
- =?us-ascii?q?60fSgK1JQnxwPEZPCdb4eI5RfjWeCMKjl7nHJoYK+zihm9/ES6yuDwS9O43E?=
- =?us-ascii?q?hFoyZbiNXAq3YA3AHJ5MedUPty5EKh1C6K1wDU9+5LP1g5lbHeK5492r4wkY?=
- =?us-ascii?q?cTsVjbEi/2hkr2iKiWe104+uey8eTnY6jmpoSGO49oigDxLqQumsulDeQ+Lg?=
- =?us-ascii?q?cORHSU9f651L3i+U31WLRKjvsonanFqJ3WOMsWq6GjDwJVz4ov8QizAji43N?=
- =?us-ascii?q?gCgHULNFdFdwiGj4jtNVHOOvf4DfKnjlS3jThr3OvLPqHhA5rRLnjDl63tfb?=
- =?us-ascii?q?Bm60FG0gYzwtdf54xMBrEbPP3zQlPxtMDfDhIhMQy72f3nCNJ71o4FQWKAHL?=
- =?us-ascii?q?WZMK3TsV+O5+IvJO+MaJUJtzb6Lvgv/+TugmMhmV8BYamp2oMaaGumEfRiIk?=
- =?us-ascii?q?WZZ2fsg9gaHGcUsQoxUvbqhEeBUTFNfXayWbwz5jUhBIKhF4fDSdPlvLvU/i?=
- =?us-ascii?q?6gGZseVGlDA1bERXXhbIKCc+8BciyTJM5mlHoPUr33D8c62BWvshLq46RoI/?=
- =?us-ascii?q?CS+SACs5/nkt9v6Kmbtxg3+Cc8JM2Hz2yXBzV2gWgBXSNs9Lxuqkx6jFGY2O?=
- =?us-ascii?q?53hOIORvJJ4PYcaRs3LZ7RyaRBDtn2Xg/QNoOSRE2OXsStATZ3SMk4hdAJfR?=
- =?us-ascii?q?AuSJ2Zkhnf0n/yUPcunLuRCclxq/mN0g=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CCAAAAYbBd/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWgGA?=
- =?us-ascii?q?QELAYFzLGxUMiqEJ45vVAaBNol9jzSBewkBAQEBAQEBAQErCQECAQGDe0UCg?=
- =?us-ascii?q?zQkNQgOAgwBAQEEAQEBAQEFAwEBbIU3DII6KQGCbQEFIxVRCxgCAiYCAlcGA?=
- =?us-ascii?q?QwGAgEBgl8/AYJSJQ+yHoEyhDkBgRSDMYFCBoEOKAGMDhh4gQeBESeCaz6CY?=
- =?us-ascii?q?gKBKoNHgl4EjQSITmGBNJV3gi6CMoRcjhIGG5lOjjaIJ5McATaBWCsIAhgII?=
- =?us-ascii?q?Q+DJ1AQFIMSF4NQim8lAzCBBgEBjGMqgjEBAQ?=
+   d="scan'208";a="34554434"
+IronPort-PHdr: =?us-ascii?q?9a23=3AQDUnMx8MBe9Yvv9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B31OIcTK2v8tzYMVDF4r011RmVBN6du6MP1LeempujcFRI2YyGvnEGfc4EfD?=
+ =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
+ =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffgtFiCC+bL52Ixm7rwXcvdQKjIV/Lao81g?=
+ =?us-ascii?q?HHqWZSdeRMwmNoK1OTnxLi6cq14ZVu7Sdete8/+sBZSan1cLg2QrJeDDQ9Lm?=
+ =?us-ascii?q?A6/9brugXZTQuO/XQTTGMbmQdVDgff7RH6WpDxsjbmtud4xSKXM9H6QawyVD?=
+ =?us-ascii?q?+/9KpgVgPmhzkbOD446GHXi9J/jKRHoBK6uhdzx5fYbJyJOPZie6/Qe90VRX?=
+ =?us-ascii?q?BFXs1MSSJPBI2yZJYLA+YYM+tVq4zxql0TphW8GAasHvvixCJWiH/43aM00O?=
+ =?us-ascii?q?ovHg/J0wMiA90Av2/ZrMn3OaoITey50KfFwDfFYvhL2Tn98o/IchU5rP+RQb?=
+ =?us-ascii?q?J/b9LRyUkxGAPDk16etInlMCmR1uQJrWea7/drWOW0i2E6sAF8uSSvx8cwhY?=
+ =?us-ascii?q?nJgYIZ0FbE9T5jz4ovKt24T1B7bMeiHZBNtC+aL5N7Tt4tTmxnoio3yqAKtY?=
+ =?us-ascii?q?SlcCUF1pgr3QPTZvqaeIaS+B3jTvyeITJgiXJgf7Kwmgi9/FC7yu35Ssm0yF?=
+ =?us-ascii?q?FKrjdZktXUtnACyRjT6s+fR/th5EihwzeP1x3I6u1ePUA1lbbUK54mwrIqkJ?=
+ =?us-ascii?q?ocrV/DETPslEXzja+Wcl0o+umu6+v5frXrvoKQOoB7hw3kMqkih9azDfo3Pw?=
+ =?us-ascii?q?QQRWSX5Pyw1Lj58k34RLVKgOc2kq7csJ3CPsQUu7W5DhRJ0ocj9xm/DzCm3M?=
+ =?us-ascii?q?4enXkcNl1JYh2Hj4/3O13WOvD3Ee+/g0iwkDds3/3GILjhApLPLnnCkbfhZq?=
+ =?us-ascii?q?1w61RCxwUuzdBQ/Y5UBqsdL/L0X0/7rMbYAQMhMwyo3+bnD81w1pgAVmKLA6?=
+ =?us-ascii?q?+ZNr7SsFCT6+IxLOmDepUVtCz+K/c7/f7ui2E2mVsHcamux5sXZyPwIvMzHU?=
+ =?us-ascii?q?SFKV/rgMUACi9eoA85Tv7rk3WYXDJTbmr0VKU5sHVzE4+iDIHeVqizj7Gbmi?=
+ =?us-ascii?q?S2BJtbYiZBEF/fP23vctC/R/oUaC+UavRkmzgAWKnpH5QtzjmypQT6zPxhNe?=
+ =?us-ascii?q?OS9SoG48GwnONp7vHewElhvQd/CN6QhiTUFDB5?=
+X-IPAS-Result: =?us-ascii?q?A2AaAACRYrBd/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
+ =?us-ascii?q?QGBZwYBAQELAYFzLIFAMiqEJ4gihk1UBoE2iX2PNIF7CQEBAQEBAQEBATQBA?=
+ =?us-ascii?q?gEBhEACgzQkNAkOAgwBAQEEAQEBAQEFAwEBbIVDgjopAYJsAQEBAQIBIxVGC?=
+ =?us-ascii?q?wsOCgICEgETAgJXBgEMBgIBAYJfP4JTBSCxPXWBMoVOgzGBSIEOKAGMDhh4g?=
+ =?us-ascii?q?QeBESeCaz6BF4N2AoJGgjwiBIxqiGhhlyuCLoIyjXyEcgYbmU6ONptBOYFYK?=
+ =?us-ascii?q?wgCGAghDzuCbFAQFJFoJQMwgQYBAYxlDReCNQEB?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 23 Oct 2019 14:23:08 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 23 Oct 2019 14:27:28 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9NEN7P1011572;
-        Wed, 23 Oct 2019 10:23:07 -0400
-Subject: Re: [PATCH] policycoreutils: semodule: Enable CIL logging
-To:     Jason Zaman <jason@perfinion.com>, selinux@vger.kernel.org,
-        James Carter <jwcart2@tycho.nsa.gov>
-References: <20191021055505.25372-1-jason@perfinion.com>
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9NERSPF015526;
+        Wed, 23 Oct 2019 10:27:28 -0400
+Subject: Re: [PATCH] python/semanage: Document DCCP and SCTP support
+To:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
+References: <20191021143736.13456-1-vmojzis@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <e3c0bd92-7fc8-78f2-eabb-867142a5e660@tycho.nsa.gov>
-Date:   Wed, 23 Oct 2019 10:23:07 -0400
+Message-ID: <4f7a9197-f42d-83c1-c2ad-50989157aac1@tycho.nsa.gov>
+Date:   Wed, 23 Oct 2019 10:27:28 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.1
 MIME-Version: 1.0
-In-Reply-To: <20191021055505.25372-1-jason@perfinion.com>
+In-Reply-To: <20191021143736.13456-1-vmojzis@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -94,85 +91,58 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/21/19 1:55 AM, Jason Zaman wrote:
-> semodule -v will turn on semodule's own verbose logging but not logging
-> from CIL. This change makes the verbose flag also set cil's log level.
+On 10/21/19 10:37 AM, Vit Mojzis wrote:
+> Add DCCP and SCTP protocols in semanage port man page and --help
+> message.
 > 
-> By default (ie no -v flag), this will enable CIL_ERR, and each -v will
-> increase the level from there.
-> 
-> Tested with a duplicated fcontext in the policy.
-> Before this change:
->      # semodule -v -B
->      Committing changes:
->      Problems processing filecon rules
->      Failed post db handling
->      semodule:  Failed!
-> 
-> After this change:
->      # semodule -v -B
->      [ ... snip ... ]
->      Found conflicting filecon rules
->        at /var/lib/selinux/mcs/tmp/modules/400/mycustom/cil:159
->        at /var/lib/selinux/mcs/tmp/modules/400/mycustom/cil:158
->      Problems processing filecon rules
->      Failed post db handling
->      semodule:  Failed!
-> 
-> Closes: https://github.com/SELinuxProject/selinux/issues/176
-> Signed-off-by: Jason Zaman <jason@perfinion.com>
+> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+
+Thanks, applied but see note below for future reference.
+
 > ---
+>   python/semanage/semanage        | 5 +----
+>   python/semanage/semanage-port.8 | 2 +-
+>   2 files changed, 2 insertions(+), 5 deletions(-)
 > 
-> I also opened a PR here to run travis tests: https://github.com/SELinuxProject/selinux/pull/182
-> 
-> This only affects semodule -v, I tested out setsebool and it doesnt die
-> on a duplicated fcontext so I skipped it there. Should all the tools set
-> it or only as-needed? Do we want to make some general guidelines for
-> what kind of tools should set the CIL logging?
+> diff --git a/python/semanage/semanage b/python/semanage/semanage
+> index 864f9212..b2fabea6 100644
+> --- a/python/semanage/semanage
+> +++ b/python/semanage/semanage
+> @@ -73,9 +73,6 @@ usage_interface_dict = {' --add': ('-t TYPE', '-r RANGE', 'interface'), ' --modi
+>   usage_boolean = "semanage boolean [-h] [-n] [-N] [-S STORE] ["
+>   usage_boolean_dict = {' --modify': ('(', '--on', '|', '--off', ')', 'boolean'), ' --list': ('-C',), '  --extract': ('',), ' --deleteall': ('',)}
+>   
+> -
+> -
+> -
 
-Thanks, applied. Not sure about whether other tools should set the cil 
-log level.  I think current cil logging leaves a lot to be desired, 
-especially since the pathnames identified in the output when invoked 
-from semodule/libsemanage are temporary.  It would be preferable IMHO to 
-display the actual conflicting rules themselves and not just the file 
-name and line number.
+Generally you should avoid unrelated whitespace fixes in a patch and put 
+those in a separate patch.
 
-> 
-> -- Jason
-> 
-> 
->   policycoreutils/semodule/semodule.c | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/policycoreutils/semodule/semodule.c b/policycoreutils/semodule/semodule.c
-> index a76797f5..a1f75e16 100644
-> --- a/policycoreutils/semodule/semodule.c
-> +++ b/policycoreutils/semodule/semodule.c
-> @@ -22,6 +22,7 @@
->   #include <libgen.h>
->   #include <limits.h>
+>   class CheckRole(argparse.Action):
 >   
-> +#include <sepol/cil/cil.h>
->   #include <semanage/modules.h>
+>       def __call__(self, parser, namespace, value, option_string=None):
+> @@ -248,7 +245,7 @@ SELinux Range for SELinux user defaults to s0.
 >   
->   enum client_modes {
-> @@ -238,7 +239,7 @@ static void parse_command_line(int argc, char **argv)
->   			set_mode(LIST_M, optarg);
->   			break;
->   		case 'v':
-> -			verbose = 1;
-> +			verbose++;
->   			break;
->   		case 'r':
->   			set_mode(REMOVE_M, optarg);
-> @@ -350,6 +351,8 @@ int main(int argc, char *argv[])
->   	}
->   	parse_command_line(argc, argv);
+>   def parser_add_proto(parser, name):
+>       parser.add_argument('-p', '--proto', help=_('''
+> -    Protocol  for  the specified port (tcp|udp) or internet protocol
+> +    Protocol  for  the specified port (tcp|udp|dccp|sctp) or internet protocol
+>       version for the specified node (ipv4|ipv6).
+>   '''))
 >   
-> +	cil_set_log_level(CIL_ERR + verbose);
-> +
->   	if (build)
->   		commit = 1;
+> diff --git a/python/semanage/semanage-port.8 b/python/semanage/semanage-port.8
+> index a21287c0..12ec14c2 100644
+> --- a/python/semanage/semanage-port.8
+> +++ b/python/semanage/semanage-port.8
+> @@ -49,7 +49,7 @@ SELinux type for the object
+>   MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SELinux login mapping defaults to the SELinux user record range. SELinux Range for SELinux user defaults to s0.
+>   .TP
+>   .I   \-p PROTO, \-\-proto PROTO
+> -Protocol for the specified port (tcp|udp) or internet protocol version for the specified node (ipv4|ipv6).
+> +Protocol for the specified port (tcp|udp|dccp|sctp) or internet protocol version for the specified node (ipv4|ipv6).
 >   
+>   .SH EXAMPLE
+>   .nf
 > 
 
