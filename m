@@ -1,148 +1,161 @@
-Return-Path: <SRS0=o958=YQ=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=vsEg=YR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D596CA9EB6
-	for <selinux@archiver.kernel.org>; Wed, 23 Oct 2019 14:27:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E45CCA9EAF
+	for <selinux@archiver.kernel.org>; Thu, 24 Oct 2019 04:57:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 48C4F21906
-	for <selinux@archiver.kernel.org>; Wed, 23 Oct 2019 14:27:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B48B21655
+	for <selinux@archiver.kernel.org>; Thu, 24 Oct 2019 04:57:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="PXaL9G8P"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f+iU1lVJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389941AbfJWO1d (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 23 Oct 2019 10:27:33 -0400
-Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:58827 "EHLO
-        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389521AbfJWO1d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 23 Oct 2019 10:27:33 -0400
-X-EEMSG-check-017: 24665698|UPDC19PA22_ESA_OUT04.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.68,221,1569283200"; 
-   d="scan'208";a="24665698"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 23 Oct 2019 14:27:29 +0000
+        id S2408375AbfJXE5R (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 24 Oct 2019 00:57:17 -0400
+Received: from mail-yw1-f68.google.com ([209.85.161.68]:41658 "EHLO
+        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725298AbfJXE5Q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 24 Oct 2019 00:57:16 -0400
+Received: by mail-yw1-f68.google.com with SMTP id o195so3404768ywd.8;
+        Wed, 23 Oct 2019 21:57:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1571840849; x=1603376849;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=ZOKWJkTvkrAkMW2ErtHOeAB7TiVdzw0L8lSvV+Gboek=;
-  b=PXaL9G8PNCuf2xHhvYiOAJ2OdVDl0Q4uGBX2IQPORzx/1PqjBYAWWxAF
-   4ENPaZ/VQ1muZWdUV1xIiFdxkveml7aljV8X/YZvykUEEBO6GmLkE8gRV
-   ohGnjOzBMjOaeTd3S0wnIDZhfhhGYO5uz57leK/qaAGxr3L1vZ1zfgpuo
-   OTm9kqzWiTsbBnvdH+RtrX2+8YY1boBVfojsYpCwjvDsFpyw5ODRcBzIz
-   sJiCh9sc6KW68U657AhF4J970q6MXenwJAk8X57a3g1CHqFFAAYrdz0QP
-   Wvl+EqKjpX/fOhbx/AarzJqG1tZ9P2w5iRMLrp/cJuzO7+LIe8tc6PQ+E
-   w==;
-X-IronPort-AV: E=Sophos;i="5.68,221,1569283200"; 
-   d="scan'208";a="34554434"
-IronPort-PHdr: =?us-ascii?q?9a23=3AQDUnMx8MBe9Yvv9uRHKM819IXTAuvvDOBiVQ1K?=
- =?us-ascii?q?B31OIcTK2v8tzYMVDF4r011RmVBN6du6MP1LeempujcFRI2YyGvnEGfc4EfD?=
- =?us-ascii?q?4+ouJSoTYdBtWYA1bwNv/gYn9yNs1DUFh44yPzahANS47xaFLIv3K98yMZFA?=
- =?us-ascii?q?nhOgppPOT1HZPZg9iq2+yo9JDffgtFiCC+bL52Ixm7rwXcvdQKjIV/Lao81g?=
- =?us-ascii?q?HHqWZSdeRMwmNoK1OTnxLi6cq14ZVu7Sdete8/+sBZSan1cLg2QrJeDDQ9Lm?=
- =?us-ascii?q?A6/9brugXZTQuO/XQTTGMbmQdVDgff7RH6WpDxsjbmtud4xSKXM9H6QawyVD?=
- =?us-ascii?q?+/9KpgVgPmhzkbOD446GHXi9J/jKRHoBK6uhdzx5fYbJyJOPZie6/Qe90VRX?=
- =?us-ascii?q?BFXs1MSSJPBI2yZJYLA+YYM+tVq4zxql0TphW8GAasHvvixCJWiH/43aM00O?=
- =?us-ascii?q?ovHg/J0wMiA90Av2/ZrMn3OaoITey50KfFwDfFYvhL2Tn98o/IchU5rP+RQb?=
- =?us-ascii?q?J/b9LRyUkxGAPDk16etInlMCmR1uQJrWea7/drWOW0i2E6sAF8uSSvx8cwhY?=
- =?us-ascii?q?nJgYIZ0FbE9T5jz4ovKt24T1B7bMeiHZBNtC+aL5N7Tt4tTmxnoio3yqAKtY?=
- =?us-ascii?q?SlcCUF1pgr3QPTZvqaeIaS+B3jTvyeITJgiXJgf7Kwmgi9/FC7yu35Ssm0yF?=
- =?us-ascii?q?FKrjdZktXUtnACyRjT6s+fR/th5EihwzeP1x3I6u1ePUA1lbbUK54mwrIqkJ?=
- =?us-ascii?q?ocrV/DETPslEXzja+Wcl0o+umu6+v5frXrvoKQOoB7hw3kMqkih9azDfo3Pw?=
- =?us-ascii?q?QQRWSX5Pyw1Lj58k34RLVKgOc2kq7csJ3CPsQUu7W5DhRJ0ocj9xm/DzCm3M?=
- =?us-ascii?q?4enXkcNl1JYh2Hj4/3O13WOvD3Ee+/g0iwkDds3/3GILjhApLPLnnCkbfhZq?=
- =?us-ascii?q?1w61RCxwUuzdBQ/Y5UBqsdL/L0X0/7rMbYAQMhMwyo3+bnD81w1pgAVmKLA6?=
- =?us-ascii?q?+ZNr7SsFCT6+IxLOmDepUVtCz+K/c7/f7ui2E2mVsHcamux5sXZyPwIvMzHU?=
- =?us-ascii?q?SFKV/rgMUACi9eoA85Tv7rk3WYXDJTbmr0VKU5sHVzE4+iDIHeVqizj7Gbmi?=
- =?us-ascii?q?S2BJtbYiZBEF/fP23vctC/R/oUaC+UavRkmzgAWKnpH5QtzjmypQT6zPxhNe?=
- =?us-ascii?q?OS9SoG48GwnONp7vHewElhvQd/CN6QhiTUFDB5?=
-X-IPAS-Result: =?us-ascii?q?A2AaAACRYrBd/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBZwYBAQELAYFzLIFAMiqEJ4gihk1UBoE2iX2PNIF7CQEBAQEBAQEBATQBA?=
- =?us-ascii?q?gEBhEACgzQkNAkOAgwBAQEEAQEBAQEFAwEBbIVDgjopAYJsAQEBAQIBIxVGC?=
- =?us-ascii?q?wsOCgICEgETAgJXBgEMBgIBAYJfP4JTBSCxPXWBMoVOgzGBSIEOKAGMDhh4g?=
- =?us-ascii?q?QeBESeCaz6BF4N2AoJGgjwiBIxqiGhhlyuCLoIyjXyEcgYbmU6ONptBOYFYK?=
- =?us-ascii?q?wgCGAghDzuCbFAQFJFoJQMwgQYBAYxlDReCNQEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 23 Oct 2019 14:27:28 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id x9NERSPF015526;
-        Wed, 23 Oct 2019 10:27:28 -0400
-Subject: Re: [PATCH] python/semanage: Document DCCP and SCTP support
-To:     Vit Mojzis <vmojzis@redhat.com>, selinux@vger.kernel.org
-References: <20191021143736.13456-1-vmojzis@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <4f7a9197-f42d-83c1-c2ad-50989157aac1@tycho.nsa.gov>
-Date:   Wed, 23 Oct 2019 10:27:28 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Qp4ylpFjT2NK5D3YlCPCDZfnUsSpfLeB6JcWlmTT8JE=;
+        b=f+iU1lVJ+8MXE0YjXhbzT4Z+QZTKEVbpSj7I64WEMcxAgcUOKckEALuDnxjfop1KDz
+         /GEuxtdqM/gAmg/8rUQcbM54P8ZvUqXo23LCox8OZKBVBlVoDn1p5gmEXxfQnAWBfBHW
+         uZZaGVOWsT//cwHGlbqENLvAYitmYf5NxnxRGYapcBJVSV1rP+NlFCXZHqVZ6fsYCVwo
+         HiL1fAZTVAeLbnNXS5YnMp44jrRgVnpRxhkGyVWlHqmqFFsCMZbuTBKjna3CheOTh8v8
+         hD6hfXAtyLGGlQqfHMdlsFiQ1XgpXWIL5nune/Pgn/JF3P1WqL13u+LVKHRsnQpi/3uP
+         Pzow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Qp4ylpFjT2NK5D3YlCPCDZfnUsSpfLeB6JcWlmTT8JE=;
+        b=t2MGTIc8mTc7xW5/p/CK16Ve9OEKmiR3Bt1eoB5Z7AoMwDnIldppJFs4AQlRg5rSTa
+         q12+rvFQWnsBdLRSERRYnp2UD56h9Ed7dygSLlsN0K+KpagF9fNJEIyKLAZLanO3WOPf
+         xM/lf7xUbla/jk3vlTj9s1KC4BPrPrpH5tFKq9eB/9V+W/lhbBMXJOZIyvrB5aDeJJ6t
+         C+eN3/HhTt2oLPFy4NmgSsOa9Izgi1LmAXlmxlOybOx4Ju3ogFv6LeWPgiB0NsBh1iZd
+         fM7e68NeYec1KF3EY1ABYuene9koRVfxcXINUYEd59XIU70IQZHgjxsu/Ak2dZoAh9dB
+         jjbg==
+X-Gm-Message-State: APjAAAX2taqOZp6Wh4uI+eNoiHVcayhSQURKPdVWJQhiiAase5zce9Le
+        cDp9IVjonZ/SxmlpoPcPLJDkSfLsNotmk4dR8To=
+X-Google-Smtp-Source: APXvYqzpUv8fnfcjV1KksbDdhWbx31x/A6CcO3wQjALxaBgCfUkMkcsChuqQOOuA9702g94fFIVsWA6cYWlyk5yi/8s=
+X-Received: by 2002:a81:6c58:: with SMTP id h85mr5010753ywc.88.1571893034732;
+ Wed, 23 Oct 2019 21:57:14 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20191021143736.13456-1-vmojzis@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20191022204453.97058-1-salyzyn@android.com> <20191022204453.97058-2-salyzyn@android.com>
+ <8CE5B6E8-DCB7-4F0B-91C1-48030947F585@dilger.ca>
+In-Reply-To: <8CE5B6E8-DCB7-4F0B-91C1-48030947F585@dilger.ca>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Thu, 24 Oct 2019 07:57:03 +0300
+Message-ID: <CAOQ4uxis-oQSjKrtBDi-8BQ2M3ve3w8o-YVGRwWLnq+5JLUttA@mail.gmail.com>
+Subject: Re: [PATCH v14 1/5] Add flags option to get xattr method paired to __vfs_getxattr
+To:     Andreas Dilger <adilger@dilger.ca>
+Cc:     Mark Salyzyn <salyzyn@android.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-doc@vger.kernel.org, CIFS <linux-cifs@vger.kernel.org>,
+        kernel-team@android.com, selinux@vger.kernel.org,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Ext4 Developers List <linux-ext4@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        overlayfs <linux-unionfs@vger.kernel.org>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        ecryptfs@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/21/19 10:37 AM, Vit Mojzis wrote:
-> Add DCCP and SCTP protocols in semanage port man page and --help
-> message.
-> 
-> Signed-off-by: Vit Mojzis <vmojzis@redhat.com>
+[excessive CC list reduced]
 
-Thanks, applied but see note below for future reference.
+On Wed, Oct 23, 2019 at 11:07 AM Andreas Dilger via samba-technical
+<samba-technical@lists.samba.org> wrote:
+>
+>
+> On Oct 22, 2019, at 2:44 PM, Mark Salyzyn <salyzyn@android.com> wrote:
+> >
+> > Replace arguments for get and set xattr methods, and __vfs_getxattr
+> > and __vfs_setaxtr functions with a reference to the following now
+> > common argument structure:
+> >
+> > struct xattr_gs_args {
+> >       struct dentry *dentry;
+> >       struct inode *inode;
+> >       const char *name;
+> >       union {
+> >               void *buffer;
+> >               const void *value;
+> >       };
+> >       size_t size;
+> >       int flags;
+> > };
+>
 
-> ---
->   python/semanage/semanage        | 5 +----
->   python/semanage/semanage-port.8 | 2 +-
->   2 files changed, 2 insertions(+), 5 deletions(-)
-> 
-> diff --git a/python/semanage/semanage b/python/semanage/semanage
-> index 864f9212..b2fabea6 100644
-> --- a/python/semanage/semanage
-> +++ b/python/semanage/semanage
-> @@ -73,9 +73,6 @@ usage_interface_dict = {' --add': ('-t TYPE', '-r RANGE', 'interface'), ' --modi
->   usage_boolean = "semanage boolean [-h] [-n] [-N] [-S STORE] ["
->   usage_boolean_dict = {' --modify': ('(', '--on', '|', '--off', ')', 'boolean'), ' --list': ('-C',), '  --extract': ('',), ' --deleteall': ('',)}
->   
-> -
-> -
-> -
+> > Mark,
+> >
+> > I do not see the first patch on fsdevel
+> > and I am confused from all the suggested APIs
+> > I recall Christoph's comment on v8 for not using xattr_gs_args
+> > and just adding flags to existing get() method.
+> > I agree to that comment.
+>
+> As already responded, third (?) patch version was like that,
 
-Generally you should avoid unrelated whitespace fixes in a patch and put 
-those in a separate patch.
+The problem is that because of the waaay too long CC list, most revisions
+of the patch and discussion were bounced from fsdevel, most emails
+I did not get and cannot find in archives, so the discussion around
+them is not productive.
 
->   class CheckRole(argparse.Action):
->   
->       def __call__(self, parser, namespace, value, option_string=None):
-> @@ -248,7 +245,7 @@ SELinux Range for SELinux user defaults to s0.
->   
->   def parser_add_proto(parser, name):
->       parser.add_argument('-p', '--proto', help=_('''
-> -    Protocol  for  the specified port (tcp|udp) or internet protocol
-> +    Protocol  for  the specified port (tcp|udp|dccp|sctp) or internet protocol
->       version for the specified node (ipv4|ipv6).
->   '''))
->   
-> diff --git a/python/semanage/semanage-port.8 b/python/semanage/semanage-port.8
-> index a21287c0..12ec14c2 100644
-> --- a/python/semanage/semanage-port.8
-> +++ b/python/semanage/semanage-port.8
-> @@ -49,7 +49,7 @@ SELinux type for the object
->   MLS/MCS Security Range (MLS/MCS Systems only) SELinux Range for SELinux login mapping defaults to the SELinux user record range. SELinux Range for SELinux user defaults to s0.
->   .TP
->   .I   \-p PROTO, \-\-proto PROTO
-> -Protocol for the specified port (tcp|udp) or internet protocol version for the specified node (ipv4|ipv6).
-> +Protocol for the specified port (tcp|udp|dccp|sctp) or internet protocol version for the specified node (ipv4|ipv6).
->   
->   .SH EXAMPLE
->   .nf
-> 
+Please resend patch to fsdevel discarding the auto added CC list
+of all fs maintainers.
 
+> gregkh@
+> said it passed the limit for number of arguments, is looking a bit silly
+
+Well, you just matched get() to set() args list, so this is not a strong
+argument IMO.
+
+> (my paraphrase), and that it should be passed as a structure. Two others
+> agreed. We gained because both set and get use the same structure after
+> this change (this allows a simplified read-modify-write cycle).
+
+That sounds like a nice benefit if this was user API, but are there any
+kernel users that intend to make use of that read-modify-write cycle?
+I don't think so.
+
+>
+> We will need a quorum on this, 3 (structure) to 2 (flag) now (but really
+> basically between Greg and Christoph?). Coding style issue: Add a flag,
+> or switch to a common xattr argument  structure?
+>
+
+IIRC, Christoph was asking why the silly struct and not simply add flags
+(as did I). He probably did not see Greg's comments due to the list bounce
+issue. If I read your second hand description of Greg's reaction correctly,
+it doesn't sound so strong opinionated as well.
+Me, I can live with flags or struct - I don't care, but...
+
+Be prepared that if you are going ahead with struct you are going to
+suffer from bike shedding, which has already started and you will be
+instructed (just now) to also fix all the relevant and missing Documentation.
+If, on the other hand, you can get Greg and the rest to concede to adding
+flags arg and match get() arg list to set() arg list, you will have a much
+easier job and the patch line count, especially in fs code will be *much*
+smaller - just saying.
+
+Thanks,
+Amir.
