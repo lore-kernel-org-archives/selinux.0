@@ -1,346 +1,926 @@
-Return-Path: <SRS0=nm5n=YW=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=VtUM=YX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-22.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 992AACA9EAE
-	for <selinux@archiver.kernel.org>; Tue, 29 Oct 2019 15:51:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94D87CA9EC5
+	for <selinux@archiver.kernel.org>; Wed, 30 Oct 2019 10:19:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B1E4208E3
-	for <selinux@archiver.kernel.org>; Tue, 29 Oct 2019 15:51:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3199420874
+	for <selinux@archiver.kernel.org>; Wed, 30 Oct 2019 10:19:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="t1wJjaXz"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="R7sAygnc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390120AbfJ2Pvb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 29 Oct 2019 11:51:31 -0400
-Received: from sonic306-26.consmr.mail.gq1.yahoo.com ([98.137.68.89]:36743
-        "EHLO sonic306-26.consmr.mail.gq1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390121AbfJ2Pva (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 29 Oct 2019 11:51:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1572364286; bh=KTqsCOFQPgDsxSMjAolu/0TFSGepVZzrmYtjociN4qY=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=t1wJjaXzCo1vR/6fw49mtbtBKM7oH06bwt8QzWB2fgRGP0BLJsnB+ncaXuIVliTZ1H48KgUQnkEFcpsTeP9mpxRHZvIeO11l5AFHm/x3qDxuVTqMnHWQJ/fRqLUmaIcMTvGaf+UYWRde6LStnrV9g8wUdEANJkCBNmwiIEL8c4YyZybvm80zftXkkIoV0oD2NfqaEUr0mRj+97s5KjtJ9lsPKUAjie9WImlMa6jzazPl+40DvJwHA3PPQxqAoVwD2Isn57uvZKYyjNF4MnpZ2D03/Qix258RTNB168hzjhqohk6ryjNxyN0JjQ33z91f1NitDuNCy2NGdBTrj1kxBQ==
-X-YMail-OSG: bLR5ExwVM1knRoaznmupXanJU9CZY6xP.hSfg_d_TbkjKLHUQEuNSTMZ4UUOxq9
- Jeis8Awesf_LghM4lF_qR.Q8B9yC6MjfmTelfP42CU3bi0zADHKcANsh5a5mVZ7b4AL6rD.4ZCDe
- SrbKFwqxJLBZ1egU7KS7HRBZhM9U0UxZWA63UB5r2PK7pQpPAyMJX4Q5uLbil7WYPJyfhRCiA4kb
- Ej5nLvlXTcVLvvy3SuG7suGP9qqVZpJpnvrmfdb3ONLfpgmXM4gmrnEMqHFHs.UbdX6CdFBlM.D3
- AA6EeyyaB6ueXrG2dUq1LffgQtr.TUfm9u9lp92VIj6fOl3KMDOYxM_wEhx6BNpPQ9x7XwsQ3CS3
- JDDGZsZpr1LAIhqauTjLJom7NWYGhl4goFmMWuMJHqmGuTNpJe.QpbvKwHdlM0HEhF3IU.HoPCgr
- GVk5JOi1m2UCK8ff.nVukC2xeP5TeXk9v7Ag93WyC.po8._2nfV1WFRDxABzegGFOgeXw1HH2mo4
- 51oCzRiEjYgoS_WJmezueKgoBeN5C1j_azpScI8JSnFK16yQTvTtLI0kF_YE.HUQNliX7kuGCjbW
- chpSqzJPCO5wA4nCr.SnVxqV2Na0peSV8.qsz.jA1tLjgADJbxsTKKasjdrKTl_BhKiwkssJoD0p
- Wevp_MJdzYACcT_uIH5eyChJJG9MKSMurH45_AzqmLivTY5DLzS_M5mJuHCbX8wd7U8By55S0ByM
- ld5Jwt0zORPC3K23C0_PhVuToLTwvZVpvcLKEYPiKNQD4WomNT9cO0fS9rikcxpRkXe5_blRbm5E
- wM_14QYufvHfNBNdIXK1NKNUXsnDKuiSWwBaaYTOJPhSgB5Rx4W_ZQdD79XGP4_xGceZpGTUu.26
- dplLYHHnqvTuH1cI7TIMKXX18g1ljWNcEIpiHFiItgBYC2R_QfUGTqnXbs0JVMgbmSjjz7H46WfU
- HzWNFM5qv0CJ.TsxpLNhGlKhAPCKH6MEZ8e_9yknVmDnp54LWtF8CGSfZISUIjciDHcaFHPIjCtd
- NwG6ABTlWztVMbFhdhaAyT1hYY7sCMv4fKDZU.BBZouaAdjwFeXJDRKEYYWACKjBKQwQyuGqeZ7c
- L8SM59HVrW4cyL.T.Q2ZHmYA5oQwuwMm1zseXGiYVwS3DU.rQszsFmoJk_dp85AkrxSBIde_qojH
- dPdzQFcT2A9izczuXTk0lU4tm4HlDdksugEpblFyjxNlhw7SJkN.OiGDELyZvcibyuAkAPd9AB_L
- 6XyCdBywsEOWCQBx8Ct6E28Wp7QqRwwpF9hHHKhnhHaNs8W0PSBR7aeREg4smm6sW1Oj59yCY0.S
- mE4ah_sXR__MVJDQZYXFQmEiJBfyGIHxzicZThh7F5lNYPkgt4L3XozZmA8yrKZ.o6mXvSKuOd8g
- SJNla3DwzIReBKodhix05k4IZnTl0
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.gq1.yahoo.com with HTTP; Tue, 29 Oct 2019 15:51:26 +0000
-Received: by smtp426.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 52b79302aa99703fcd89f9705bf5b90b;
-          Tue, 29 Oct 2019 15:51:22 +0000 (UTC)
-Subject: Re: [PATCH v10 00/25] LSM: Module stacking for AppArmor
-To:     Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
-        jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        casey@schaufler-ca.com
-References: <20191024205228.6922-1-casey@schaufler-ca.com>
- <ce6c4861-2767-89ab-bad5-f633a67b3fc9@tycho.nsa.gov>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <19e2696d-ab07-21e5-ba22-4ffdcae3c97c@schaufler-ca.com>
-Date:   Tue, 29 Oct 2019 08:51:20 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
-MIME-Version: 1.0
-In-Reply-To: <ce6c4861-2767-89ab-bad5-f633a67b3fc9@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: base64
-Content-Language: en-US
+        id S1726046AbfJ3KT6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 30 Oct 2019 06:19:58 -0400
+Received: from mail-wr1-f74.google.com ([209.85.221.74]:34288 "EHLO
+        mail-wr1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726032AbfJ3KT6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 30 Oct 2019 06:19:58 -0400
+Received: by mail-wr1-f74.google.com with SMTP id m3so533953wrs.1
+        for <selinux@vger.kernel.org>; Wed, 30 Oct 2019 03:19:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=l/+WFlJpkHR5fbD86n4YypDtEt0VbTfJV8kAR/KO6Bk=;
+        b=R7sAygncRdKkeOijVHSbA0bFLODWXC0l6SoO/pGjSwk6Jqo1ZfC9pfZHYVactRx/ZZ
+         tWqNkeDvz6+faMyn27l5YoendM8M57/gjCaDUfXTechnpGv/JHrghdeUffgy60W9zVzl
+         GIdUcDQQWVRt4/FYl4jDSeCAFyaWcWKTMbI41klL6SHnUpVGI+CUbMrP066B+6iOuY/N
+         MHhHofeJDDrzMmhvu6i/iLx6eeGcMbegCpDcLNZWc5aAGIFG1dqYnJSO75JQKf67gp68
+         Q9T4T/jIycFucF0d9EvPyb7QwON+kLV69BSN1c/58ZiIcOHvbJnktviIi0hUspf4CHWk
+         oHBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=l/+WFlJpkHR5fbD86n4YypDtEt0VbTfJV8kAR/KO6Bk=;
+        b=EnXEmikpyDqVLAcQHMLvldJ8fD6HsOeVGq5G4GwXUfvYsY5X9c9s/QBec06wAOWQyg
+         1CZGQSEke+4iAqnX9qBf1DGfkSMxu/DgThucbNnQ/BKk2SL0VDC0aqElew7YjnWq98Gz
+         gIM/wfZCR6wKqyPzkfcNeuHk483PfBanny+0EZikUxUwGuTNeeYIj4lhNXV0+YyWbAL8
+         1AaWczI8QWwbmSYUvetKlXV9clXRCK+gANUmxyWypJUZBq9EjjObQVCh9GXv0q9R1wVR
+         48vq0c1P9sAyEMx4h3L28DepC/nyioWPU31CxH1n7xWHfLG4GKhxdUOtdczJ/6BhoZI6
+         3hSQ==
+X-Gm-Message-State: APjAAAUcEm71XFEXkSuXUHs5hGWtA7Gtwj9d9kPkRBJik4lteeWsalwY
+        vpLtM1qCI8ulfUAFUA7ZQMbNyQj7O6A6vhoVDo+7eHfEBtBDwvqSJ9INvVzgi8IuBesAm/BzWEm
+        LiSTcahU8/7d0fMMhcLPRLjZRpGAmMKSKURepOrVQpE6RIw03h/Llp5A/w2u7
+X-Google-Smtp-Source: APXvYqxwBSaIdzpmKAQuORTyYuKegSTRA865tIxjikqa/NvHtXRd9ZAwr9JxnnTIQ54gq0hE+za95eSZdA==
+X-Received: by 2002:a5d:53cb:: with SMTP id a11mr24727938wrw.22.1572430793702;
+ Wed, 30 Oct 2019 03:19:53 -0700 (PDT)
+Date:   Wed, 30 Oct 2019 11:19:49 +0100
+Message-Id: <20191030101949.191788-1-jeffv@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.24.0.rc0.303.g954a862665-goog
+Subject: [PATCH] selinux: sidtab: reverse lookup hash table
+From:   Jeff Vander Stoep <jeffv@google.com>
+To:     selinux@vger.kernel.org
+Cc:     Jeff Vander Stoep <jeffv@google.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Jovana Knezevic <jovanak@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-T24gMTAvMjkvMjAxOSA3OjUzIEFNLCBTdGVwaGVuIFNtYWxsZXkgd3JvdGU6DQo+IE9uIDEw
-LzI0LzE5IDQ6NTIgUE0sIENhc2V5IFNjaGF1ZmxlciB3cm90ZToNCj4+IFRoaXMgcGF0Y2hz
-ZXQgcHJvdmlkZXMgdGhlIGNoYW5nZXMgcmVxdWlyZWQgZm9yDQo+PiB0aGUgQXBwQXJtb3Ig
-c2VjdXJpdHkgbW9kdWxlIHRvIHN0YWNrIHNhZmVseSB3aXRoIGFueSBvdGhlci4NCj4+DQo+
-PiB2MTA6IEFzayB0aGUgc2VjdXJpdHkgbW9kdWxlcyBpZiB0aGUgZGlzcGxheSBjYW4gYmUg
-Y2hhbmdlZC4NCj4+DQo+PiB2OTogVGhlcmUgaXMgbm8gdmVyc2lvbiA5DQo+Pg0KPj4gdjg6
-IEluY29ycG9yYXRlIGZlZWRiYWNrIGZyb20gdjcNCj4+IMKgwqDCoMKgIC0gTWlub3IgY2xl
-YW4tdXAgaW4gZGlzcGxheSB2YWx1ZSBtYW5hZ2VtZW50DQo+PiDCoMKgwqDCoCAtIHJlZmFj
-dG9yICJjb21wb3VuZCIgY29udGV4dCBjcmVhdGlvbiB0byB1c2UgYSBjb21tb24NCj4+IMKg
-wqDCoMKgwqDCoCBhcHBlbmRfY3R4KCkgZnVuY3Rpb24uDQo+Pg0KPj4gdjc6IEluY29ycG9y
-YXRlIGZlZWRiYWNrIGZyb20gdjYNCj4+IMKgwqDCoMKgIC0gTWFrZSBzZXR0aW5nIHRoZSBk
-aXNwbGF5IGEgcHJpdmlsZWdlZCBvcGVyYXRpb24uIFRoZQ0KPj4gwqDCoMKgwqDCoMKgIGF2
-YWlsYWJpbGl0eSBvZiBjb21wb3VuZCBjb250ZXh0cyByZWR1Y2VzIHRoZSBuZWVkIGZvcg0K
-Pj4gwqDCoMKgwqDCoMKgIHNldHRpbmcgdGhlIGRpc3BsYXkuDQo+Pg0KPj4gdjY6IEluY29y
-cG9yYXRlIGZlZWRiYWNrIGZyb20gdjUNCj4+IMKgwqDCoMKgIC0gQWRkIHN1YmpfPGxzbT49
-IGFuZCBvYmpfPGxzbT49IGZpZWxkcyB0byBhdWRpdCByZWNvcmRzDQo+PiDCoMKgwqDCoCAt
-IEFkZCAvcHJvYy8uLi4vYXR0ci9jb250ZXh0IHRvIGdldCB0aGUgZnVsbCBjb250ZXh0IGlu
-DQo+PiDCoMKgwqDCoMKgwqAgbHNtbmFtZVwwdmFsdWVcMC4uLiBmb3JtYXQgYXMgc3VnZ2Vz
-dGVkIGJ5IFNpbW9uIE1jVml0dGllDQo+PiDCoMKgwqDCoCAtIEFkZCBTT19QRUVSQ09OVEVY
-VCBmb3IgZ2V0c29ja29wdCgpIHRvIGdldCB0aGUgZnVsbCBjb250ZXh0DQo+PiDCoMKgwqDC
-oMKgwqAgaW4gdGhlIHNhbWUgZm9ybWF0LCBhbHNvIHN1Z2dlc3RlZCBieSBTaW1vbiBNY1Zp
-dHRpZS4NCj4+IMKgwqDCoMKgIC0gQWRkIC9zeXMva2VybmVsL3NlY3VyaXR5L2xzbV9kaXNw
-bGF5X2RlZmF1bHQgdG8gcHJvdmlkZQ0KPj4gwqDCoMKgwqDCoMKgIHRoZSBkaXNwbGF5IGRl
-ZmF1bHQgdmFsdWUuDQo+Pg0KPj4gdjU6IEluY29ycG9yYXRlIGZlZWRiYWNrIGZyb20gdjQN
-Cj4+IMKgwqDCoMKgIC0gSW5pdGlhbGl6ZSB0aGUgbHNtY29udGV4dCBpbiBzZWN1cml0eV9z
-ZWNpZF90b19zZWNjdHgoKQ0KPj4gwqDCoMKgwqAgLSBDbGVhciB0aGUgbHNtY29udGV4dCBp
-biBhbGwgc2VjdXJpdHlfcmVsZWFzZV9zZWNjdHgoKSBjYXNlcw0KPj4gwqDCoMKgwqAgLSBE
-b24ndCB1c2UgdGhlICJkaXNwbGF5IiBvbiBzdHJpY3RseSBpbnRlcm5hbCBjb250ZXh0DQo+
-PiDCoMKgwqDCoMKgwqAgaW50ZXJmYWNlcy4NCj4+IMKgwqDCoMKgIC0gVGhlIFNFTGludXgg
-YmluZGVyIGhvb2tzIGNoZWNrIGZvciBjYXNlcyB3aGVyZSB0aGUgY29udGV4dA0KPj4gwqDC
-oMKgwqDCoMKgICJkaXNwbGF5IiBpc24ndCBjb21wYXRpYmxlIHdpdGggU0VMaW51eC4NCj4+
-DQo+PiB2NDogSW5jb3Jwb3JhdGUgZmVlZGJhY2sgZnJvbSB2Mw0KPj4gwqDCoMKgwqAgLSBN
-YXJrIG5ldyBsc21fPGJsb2I+X2FsbG9jIGZ1bmN0aW9ucyBzdGF0aWMNCj4+IMKgwqDCoMKg
-IC0gUmVwbGFjZSB0aGUgbHNtIGFuZCBzbG90IGZpZWxkcyBvZiB0aGUgc2VjdXJpdHlfaG9v
-a19saXN0DQo+PiDCoMKgwqDCoMKgwqAgd2l0aCBhIHBvaW50ZXIgdG8gYSBMU00gYWxsb2Nh
-dGVkIGxzbV9pZCBzdHJ1Y3R1cmUuIFRoZQ0KPj4gwqDCoMKgwqDCoMKgIExTTSBpZGVudGlm
-aWVzIGlmIGl0IG5lZWRzIGEgc2xvdCBleHBsaWNpdGx5LiBVc2UgdGhlDQo+PiDCoMKgwqDC
-oMKgwqAgbHNtX2lkIHJhdGhlciB0aGFuIG1ha2Ugc2VjdXJpdHlfYWRkX2hvb2tzIHJldHVy
-biB0aGUNCj4+IMKgwqDCoMKgwqDCoCBzbG90IHZhbHVlLg0KPj4gwqDCoMKgwqAgLSBWYWxp
-ZGF0ZSBzbG90IHZhbHVlcyB1c2VkIGluIHNlY3VyaXR5LmMNCj4+IMKgwqDCoMKgIC0gUmV3
-b3JrZWQgdGhlICJkaXNwbGF5IiBwcm9jZXNzIGF0dHJpYnV0ZSBoYW5kbGluZyBzbyB0aGF0
-DQo+PiDCoMKgwqDCoMKgwqAgaXQgd29ya3MgcmlnaHQgYW5kIGRvZXNuJ3QgdXNlIGdvb2Z5
-IGxpc3QgcHJvY2Vzc2luZy4NCj4+IMKgwqDCoMKgIC0gZml4IGRpc3BsYXkgdmFsdWUgY2hl
-Y2sgaW4gZGVudHJ5X2luaXRfc2VjdXJpdHkNCj4+IMKgwqDCoMKgIC0gUmVwbGFjZSBhdWRp
-dF9sb2cgb2Ygc2VjaWRzIHdpdGggJz8nIGluc3RlYWQgb2YgZGVsZXRpbmcNCj4+IMKgwqDC
-oMKgwqDCoCB0aGUgYXVkaXQgbG9nDQo+Pg0KPj4gdjM6IEluY29ycG9yYXRlIGZlZWRiYWNr
-IGZyb20gdjINCj4+IMKgwqDCoMKgIC0gTWFrZSBsc21ibG9iIHBhcmFtZXRlciBhbmQgdmFy
-aWFibGUgbmFtZXMgbW9yZQ0KPj4gwqDCoMKgwqDCoMKgIG1lYW5pbmdmdWwsIGNoYW5naW5n
-ICJsZSIgYW5kICJsIiB0byAiYmxvYiIuDQo+PiDCoMKgwqDCoCAtIEltcHJvdmUgY29uc2lz
-dGVuY3kgb2YgY29uc3RhbnQgbmFtaW5nLg0KPj4gwqDCoMKgwqAgLSBEbyBtb3JlIHNhbml0
-eSBjaGVja2luZyBkdXJpbmcgTFNNIGluaXRpYWxpemF0aW9uLg0KPj4gwqDCoMKgwqAgLSBC
-ZSBhIGJpdCBjbGVhcmVyIGFib3V0IHdoYXQgaXMgdGVtcG9yYXJ5IHNjYWZmb2xkaW5nLg0K
-Pj4gwqDCoMKgwqAgLSBSYXRoZXIgdGhhbiBjbHV0dGVyIHNlY3VyaXR5X2dldHBlZXJzZWNf
-ZGdyYW0gd2l0aA0KPj4gwqDCoMKgwqDCoMKgIG90aGVyd2lzZSB1bm5lY2Vzc2FyeSBjaGVj
-a3MgcmVtb3ZlIHRoZSBhcHBhcm1vcg0KPj4gwqDCoMKgwqDCoMKgIHN0dWIsIHdoaWNoIGRv
-ZXMgbm90aGluZyB1c2VmdWwuDQo+Pg0KPj4gUGF0Y2hlIDAwMDEgbW92ZXMgbWFuYWdlbWVu
-dCBvZiB0aGUgc29jayBzZWN1cml0eSBibG9iIGZyb20gdGhlIGluZGl2aWR1YWwNCj4+IG1v
-ZHVsZXMgdG8gdGhlIGluZnJhc3RydWN0dXJlLg0KPj4NCj4+IFBhdGNoZXMgMDAwMi0wMDEy
-IHJlcGxhY2Ugc3lzdGVtIHVzZSBvZiBhICJzZWNpZCIgd2l0aA0KPj4gYSBzdHJ1Y3R1cmUg
-ImxzbWJsb2IiIGNvbnRhaW5pbmcgaW5mb3JtYXRpb24gZnJvbSB0aGUNCj4+IHNlY3VyaXR5
-IG1vZHVsZXMgdG8gYmUgaGVsZCBhbmQgcmV1c2VkIGxhdGVyLiBBdCB0aGlzDQo+PiBwb2lu
-dCBsc21ibG9iIGNvbnRhaW5zIGFuIGFycmF5IG9mIHUzMiBzZWNpZHMsIG9uZSAic2xvdCIN
-Cj4+IGZvciBlYWNoIG9mIHRoZSBzZWN1cml0eSBtb2R1bGVzIGNvbXBpbGVkIGludG8gdGhl
-DQo+PiBrZXJuZWwgdGhhdCB1c2VkIHNlY2lkcy4gQSAic2xvdCIgaXMgYWxsb2NhdGVkIHdo
-ZW4NCj4+IGEgc2VjdXJpdHkgbW9kdWxlIHJlcXVlc3RzIG9uZS4NCj4+IFRoZSBpbmZyYXN0
-cnVjdHVyZSBpcyBjaGFuZ2VkIHRvIHVzZSB0aGUgc2xvdCBudW1iZXINCj4+IHRvIHBhc3Mg
-dGhlIGNvcnJlY3Qgc2VjaWQgdG8gb3IgZnJvbSB0aGUgc2VjdXJpdHkgbW9kdWxlDQo+PiBo
-b29rcy4NCj4+DQo+PiBJdCBpcyBpbXBvcnRhbnQgdGhhdCB0aGUgbHNtYmxvYiBiZSBhIGZp
-eGVkIHNpemUgZW50aXR5DQo+PiB0aGF0IGRvZXMgbm90IGhhdmUgdG8gYmUgYWxsb2NhdGVk
-LiBTZXZlcmFsIG9mIHRoZSBwbGFjZXMNCj4+IHdoZXJlIGl0IGlzIHVzZWQgd291bGQgaGF2
-ZSBwZXJmb3JtYW5jZSBhbmQvb3IgbG9ja2luZw0KPj4gaXNzdWVzIHdpdGggZHluYW1pYyBh
-bGxvY2F0aW9uLg0KPj4NCj4+IFBhdGNoIDAwMTMgcHJvdmlkZXMgYSBtZWNoYW5pc20gZm9y
-IGEgcHJvY2VzcyB0bw0KPj4gaWRlbnRpZnkgd2hpY2ggc2VjdXJpdHkgbW9kdWxlJ3MgaG9v
-a3Mgc2hvdWxkIGJlIHVzZWQNCj4+IHdoZW4gZGlzcGxheWluZyBvciBjb252ZXJ0aW5nIGEg
-c2VjdXJpdHkgY29udGV4dCBzdHJpbmcuDQo+PiBBIG5ldyBpbnRlcmZhY2UgL3Byb2MvLi4u
-L2F0dHIvZGlzcGxheSBjb250YWlucyB0aGUgbmFtZQ0KPj4gb2YgdGhlIHNlY3VyaXR5IG1v
-ZHVsZSB0byBzaG93LiBSZWFkaW5nIGZyb20gdGhpcyBmaWxlDQo+PiB3aWxsIHByZXNlbnQg
-dGhlIG5hbWUgb2YgdGhlIG1vZHVsZSwgd2hpbGUgd3JpdGluZyB0bw0KPj4gaXQgd2lsbCBz
-ZXQgdGhlIHZhbHVlLiBPbmx5IG5hbWVzIG9mIGFjdGl2ZSBzZWN1cml0eQ0KPj4gbW9kdWxl
-cyBhcmUgYWNjZXB0ZWQuIEludGVybmFsbHksIHRoZSBuYW1lIGlzIHRyYW5zbGF0ZWQNCj4+
-IHRvIHRoZSBhcHByb3ByaWF0ZSAic2xvdCIgbnVtYmVyIGZvciB0aGUgbW9kdWxlIHdoaWNo
-DQo+PiBpcyB0aGVuIHN0b3JlZCBpbiB0aGUgdGFzayBzZWN1cml0eSBibG9iLiBTZXR0aW5n
-IHRoZQ0KPj4gZGlzcGxheSByZXF1aXJlcyB0aGF0IGFsbCBtb2R1bGVzIHVzaW5nIHRoZSAv
-cHJvYyBpbnRlcmZhY2VzDQo+PiBhbGxvdyB0aGUgdHJhbnNpdGlvbi4NCj4+DQo+PiBQYXRj
-aCAwMDE0IFN0YXJ0cyB0aGUgcHJvY2VzcyBvZiBjaGFuZ2luZyBob3cgYSBzZWN1cml0eQ0K
-Pj4gY29udGV4dCBpcyByZXByZXNlbnRlZC4gU2luY2UgaXQgaXMgcG9zc2libGUgZm9yIGEN
-Cj4+IHNlY3VyaXR5IGNvbnRleHQgdG8gaGF2ZSBiZWVuIGdlbmVyYXRlZCBieSBtb3JlIHRo
-YW4gb25lDQo+PiBzZWN1cml0eSBtb2R1bGUgaXQgaXMgbm93IG5lY2Vzc2FyeSB0byBub3Rl
-IHdoaWNoIG1vZHVsZQ0KPj4gY3JlYXRlZCBhIHNlY3VyaXR5IGNvbnRleHQgc28gdGhhdCB0
-aGUgY29ycmVjdCAicmVsZWFzZSINCj4+IGhvb2sgY2FuIGJlIGNhbGxlZC4gVGhlcmUgYXJl
-IHNldmVyYWwgcGxhY2VzIHdoZXJlIHRoZQ0KPj4gbW9kdWxlIHRoYXQgY3JlYXRlZCBhIHNl
-Y3VyaXR5IGNvbnRleHQgY2Fubm90IGJlIGluZmVycmVkLg0KPj4NCj4+IFRoaXMgaXMgYWNo
-aWV2ZWQgYnkgaW50cm9kdWNpbmcgYSAibHNtY29udGV4dCIgc3RydWN0dXJlDQo+PiB3aGlj
-aCBjb250YWlucyB0aGUgY29udGV4dCBzdHJpbmcsIGl0cyBsZW5ndGggYW5kIHRoZQ0KPj4g
-InNsb3QiIG51bWJlciBvZiB0aGUgc2VjdXJpdHkgbW9kdWxlIHRoYXQgY3JlYXRlZCBpdC4N
-Cj4+IFRoZSBzZWN1cml0eV9yZWxlYXNlX3NlY2N0eCgpIGludGVyZmFjZSBpcyBjaGFuZ2Vk
-LA0KPj4gcmVwbGFjaW5nIHRoZSAoc3RyaW5nLGxlbikgcG9pbnRlciBwYWlyIHdpdGggYSBs
-c21jb250ZXh0DQo+PiBwb2ludGVyLg0KPj4NCj4+IFBhdGNoZXMgMDAxNS0wMDE3IGNvbnZl
-cnQgdGhlIHNlY3VyaXR5IGludGVyZmFjZXMgZnJvbQ0KPj4gKHN0cmluZyxsZW4pIHBvaW50
-ZXIgcGFpcnMgdG8gYSBsc21jb250ZXh0IHBvaW50ZXIuDQo+PiBUaGUgc2xvdCBudW1iZXIg
-aWRlbnRpZnlpbmcgdGhlIGNyZWF0aW5nIG1vZHVsZSBpcw0KPj4gYWRkZWQgYnkgdGhlIGlu
-ZnJhc3RydWN0dXJlLiBXaGVyZSB0aGUgc2VjdXJpdHkgY29udGV4dA0KPj4gaXMgc3RvcmVk
-IGZvciBleHRlbmRlZCBwZXJpb2RzIHRoZSBkYXRhIHR5cGUgaXMgY2hhbmdlZC4NCj4+DQo+
-PiBUaGUgTmV0bGFiZWwgY29kZSBpcyBjb252ZXJ0ZWQgdG8gc2F2ZSBsc21ibG9iIHN0cnVj
-dHVyZXMNCj4+IGluc3RlYWQgb2Ygc2VjaWRzIGluIFBhdGNoZXMgMDAxOC0wMDE5Lg0KPj4N
-Cj4+IFBhdGNoIDAwMjAgYWRkcyBjaGVja3MgdG8gdGhlIGJpbmRlciBob29rcyB3aGljaCB2
-ZXJpZnkNCj4+IHRoYXQgaWYgYm90aCBlbmRzIG9mIGEgdHJhbnNhY3Rpb24gdXNlIHRoZSBz
-YW1lICJkaXNwbGF5Ii4NCj4+DQo+PiBQYXRjaGVzIDAwMjEtMDAyMiBhZGQgYWRkaXRpb24g
-ZGF0YSB0byB0aGUgYXVkaXQgcmVjb3Jkcw0KPj4gdG8gaWRlbnRpZnkgdGhlIExTTSBzcGVj
-aWZpYyBkYXRhIGZvciBhbGwgYWN0aXZlIG1vZHVsZXMuDQo+Pg0KPj4gUGF0Y2hlcyAwMDIz
-LTAwMjQgYWRkIG5ldyBpbnRlcmZhY2VzIGZvciBnZXR0aW5nIHRoZQ0KPj4gY29tcG91bmQg
-c2VjdXJpdHkgY29udGV4dHMuDQo+Pg0KPj4gRmluYWxseSwgd2l0aCBhbGwgaW50ZXJmZXJl
-bmNlIG9uIHRoZSBBcHBBcm1vciBob29rcw0KPj4gcmVtb3ZlZCwgUGF0Y2ggMDAyNSByZW1v
-dmVzIHRoZSBleGNsdXNpdmUgYml0IGZyb20NCj4+IEFwcEFybW9yLiBBbiB1bm5lY2Vzc2Fy
-eSBzdHViIGhvb2sgd2FzIGFsc28gcmVtb3ZlZC4NCj4+DQo+PiBUaGUgVWJ1bnR1IHByb2pl
-Y3QgaXMgdXNpbmcgYW4gZWFybGllciB2ZXJzaW9uIG9mDQo+PiB0aGlzIHBhdGNoc2V0IGlu
-IHRoZWlyIGRpc3RyaWJ1dGlvbiB0byBlbmFibGUgc3RhY2tpbmcNCj4+IGZvciBjb250YWlu
-ZXJzLg0KPj4NCj4+IFBlcmZvcm1hbmNlIG1lYXN1cmVtZW50cyB0byBkYXRlIGhhdmUgdGhl
-IGNoYW5nZQ0KPj4gd2l0aGluIHRoZSAibm9pc2UiLiBUaGUgc29ja3BlcmYgYW5kIGRiZW5j
-aCByZXN1bHRzDQo+PiBhcmUgb24gdGhlIG9yZGVyIG9mIDAuMiUgdG8gMC44JSBkaWZmZXJl
-bmNlLCB3aXRoDQo+PiBiZXR0ZXIgcGVyZm9ybWFuY2UgYmVpbmcgYXMgY29tbW9uIGFzIHdv
-cnNlLiBUaGUNCj4+IGJlbmNobWFya3Mgd2VyZSBydW4gd2l0aCBBcHBBcm1vciBhbmQgU21h
-Y2sgb24gVWJ1bnR1Lg0KPj4NCj4+IGh0dHBzOi8vZ2l0aHViLmNvbS9jc2NoYXVmbGVyL2xz
-bS1zdGFja2luZy5naXQjc3RhY2stNS4yLXYxMC1hcHBhcm1vcg0KPg0KPiBDYW4geW91IHJl
-LWJhc2Ugb24gc29tZXRoaW5nIG1vcmUgcmVjZW50IHRoYW4gdjUuMS1yYzIgKHRoYXQncyB0
-aGUgYmFzZSBmb3IgdGhhdCBicmFuY2ggY3VycmVudGx5KT8NCj4gQXQgcHJlc2VudCBpdCB3
-b24ndCBldmVuIGJvb3QgZm9yIG1lIG9uIG1vZGVybiBGZWRvcmEuwqAgVHdvIGtleSBtaXNz
-aW5nIGNvbW1pdHMgYXJlOg0KDQpTaWdoLiBJdCdzIGJhc2VkIG9uIEphbWVzJyBuZXh0LWdl
-bmVyYWwuIEFzIGl0J3MgZ29pbmcgdXAgdGhyb3VnaCBKYW1lcywNCmFuZCBoZSBoYXNuJ3Qg
-dXBkYXRlZCB0aGF0IGJyYW5jaCwgSSdtIHNvcnQgb2Ygc3R1Y2suIEJUVywgSSBoYXZlIGEg
-cmUtYmFzZWQNCnZlcnNpb24sIGJ1dCBkb24ndCBzZWUgaG93IHRvIGdldCBpdCBpbnRvIG15
-IGdpdCB0cmVlIHdpdGhvdXQgbXVja2luZyB1cA0KdGhlIGV2ZW50dWFsIG1lcmdlLg0KDQo+
-DQo+IGUzM2MxYjk5MjM3NzVkMTdhZDI0Njk0NmZlNjdmY2I5YmUyODg2NzcgKCJhcHBhcm1v
-cjogUmVzdG9yZSBZL04gaW4gL3N5cyBmb3IgYXBwYXJtb3IncyAiZW5hYmxlZCIpIC0gd2l0
-aG91dCB0aGlzLCBkYnVzIGZhbGxzIG92ZXIgKG9yIGF0IGxlYXN0IGRidXMtYnJva2VyIGlu
-IEZlZG9yYSkNCj4NCj4gMTY5Y2UwYzA4MWNkODVmNzgzODhiYjZjMTYzOGMxYWQ3YjgxYmRl
-NyAoInNlbGludXg6IGZpeCByZXNpZHVhbCB1c2VzIG9mIGN1cnJlbnRfc2VjdXJpdHkoKSBm
-b3IgdGhlIFNFTGludXggYmxvYiIpIC0gd2l0aG91dCB0aGlzLCBzZWxpbnV4IGVuZHMgdXAg
-ZGVyZWZlcmVuY2luZyBzb21ldGhpbmcgb3RoZXIgdGhhbiBpdHMgb3duIHNlY3VyaXR5IGJs
-b2IgYWZ0ZXIgdGhlc2UgcGF0Y2hlcw0KPg0KPj4NCj4+IFNpZ25lZC1vZmYtYnk6IENhc2V5
-IFNjaGF1ZmxlciA8Y2FzZXlAc2NoYXVmbGVyLWNhLmNvbT4NCj4+IC0tLQ0KPj4gwqAgYXJj
-aC9hbHBoYS9pbmNsdWRlL3VhcGkvYXNtL3NvY2tldC5owqDCoMKgIHzCoMKgIDEgKw0KPj4g
-wqAgYXJjaC9taXBzL2luY2x1ZGUvdWFwaS9hc20vc29ja2V0LmjCoMKgwqDCoCB8wqDCoCAx
-ICsNCj4+IMKgIGFyY2gvcGFyaXNjL2luY2x1ZGUvdWFwaS9hc20vc29ja2V0LmjCoMKgIHzC
-oMKgIDEgKw0KPj4gwqAgYXJjaC9zcGFyYy9pbmNsdWRlL3VhcGkvYXNtL3NvY2tldC5owqDC
-oMKgIHzCoMKgIDEgKw0KPj4gwqAgZHJpdmVycy9hbmRyb2lkL2JpbmRlci5jwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAyNCArLQ0KPj4gwqAgZnMva2VybmZzL2Rpci5j
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKg
-IDUgKy0NCj4+IMKgIGZzL2tlcm5mcy9pbm9kZS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDM1ICstDQo+PiDCoCBmcy9rZXJuZnMva2VybmZz
-LWludGVybmFsLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgMyArLQ0KPj4gwqAg
-ZnMvbmZzL25mczRwcm9jLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCB8wqAgMjIgKy0NCj4+IMKgIGZzL25mc2QvbmZzNHhkci5jwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDIwICstDQo+PiDCoCBmcy9w
-cm9jL2Jhc2UuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgIHzCoMKgIDIgKw0KPj4gwqAgaW5jbHVkZS9saW51eC9hdWRpdC5owqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDEgKw0KPj4gwqAgaW5jbHVkZS9s
-aW51eC9jcmVkLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDC
-oCAzICstDQo+PiDCoCBpbmNsdWRlL2xpbnV4L2xzbV9ob29rcy5owqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoCB8wqAgMzcgKy0NCj4+IMKgIGluY2x1ZGUvbGludXgvc2VjdXJpdHku
-aMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDE3NSArKysrKysrKy0tDQo+PiDC
-oCBpbmNsdWRlL25ldC9hZl91bml4LmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqAgfMKgwqAgMiArLQ0KPj4gwqAgaW5jbHVkZS9uZXQvbmV0bGFiZWwuaMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgOCArLQ0KPj4gwqAgaW5jbHVkZS9u
-ZXQvc2NtLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
-wqAgMTUgKy0NCj4+IMKgIGluY2x1ZGUvdWFwaS9hc20tZ2VuZXJpYy9zb2NrZXQuaMKgwqDC
-oMKgwqDCoCB8wqDCoCAxICsNCj4+IMKgIGtlcm5lbC9hdWRpdC5jwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDcwICsrKy0NCj4+IMKg
-IGtlcm5lbC9hdWRpdC5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgfMKgwqAgOSArLQ0KPj4gwqAga2VybmVsL2F1ZGl0X2Zzbm90aWZ5LmPC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCAxICsNCj4+IMKgIGtlcm5l
-bC9hdWRpdGZpbHRlci5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-fMKgIDEwICstDQo+PiDCoCBrZXJuZWwvYXVkaXRzYy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IDEyOSArKysrLS0tDQo+PiDCoCBrZXJuZWwv
-Y3JlZC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCB8wqAgMTIgKy0NCj4+IMKgIG5ldC9jb3JlL3NvY2suY8KgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCA3ICstDQo+PiDCoCBuZXQv
-aXB2NC9jaXBzb19pcHY0LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-fMKgwqAgNiArLQ0KPj4gwqAgbmV0L2lwdjQvaXBfc29ja2dsdWUuY8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDEyICstDQo+PiDCoCBuZXQvbmV0ZmlsdGVyL25m
-X2Nvbm50cmFja19uZXRsaW5rLmPCoMKgwqAgfMKgIDIwICstDQo+PiDCoCBuZXQvbmV0Zmls
-dGVyL25mX2Nvbm50cmFja19zdGFuZGFsb25lLmMgfMKgIDExICstDQo+PiDCoCBuZXQvbmV0
-ZmlsdGVyL25mbmV0bGlua19xdWV1ZS5jwqDCoMKgwqDCoMKgwqDCoCB8wqAgMjYgKy0NCj4+
-IMKgIG5ldC9uZXRmaWx0ZXIvbmZ0X21ldGEuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCB8wqAgMTMgKy0NCj4+IMKgIG5ldC9uZXRmaWx0ZXIveHRfU0VDTUFSSy5jwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgNSArLQ0KPj4gwqAgbmV0L25ldGxhYmVsL25l
-dGxhYmVsX2thcGkuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgNiArLQ0KPj4gwqAg
-bmV0L25ldGxhYmVsL25ldGxhYmVsX3VubGFiZWxlZC5jwqDCoMKgwqDCoMKgIHzCoCA5NyAr
-KystLS0NCj4+IMKgIG5ldC9uZXRsYWJlbC9uZXRsYWJlbF91bmxhYmVsZWQuaMKgwqDCoMKg
-wqDCoCB8wqDCoCAyICstDQo+PiDCoCBuZXQvbmV0bGFiZWwvbmV0bGFiZWxfdXNlci5jwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgMTMgKy0NCj4+IMKgIG5ldC9uZXRsYWJlbC9uZXRs
-YWJlbF91c2VyLmjCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDYgKy0NCj4+IMKgIG5l
-dC91bml4L2FmX3VuaXguY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCB8wqDCoCA2ICstDQo+PiDCoCBuZXQveGZybS94ZnJtX3BvbGljeS5jwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCAyICsNCj4+IMKgIG5ldC94ZnJtL3hm
-cm1fc3RhdGUuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCAy
-ICsNCj4+IMKgIHNlY3VyaXR5L2FwcGFybW9yL2luY2x1ZGUvYXBwYXJtb3IuaMKgwqDCoCB8
-wqDCoCAzICstDQo+PiDCoCBzZWN1cml0eS9hcHBhcm1vci9pbmNsdWRlL25ldC5owqDCoMKg
-wqDCoMKgwqDCoCB8wqDCoCA2ICstDQo+PiDCoCBzZWN1cml0eS9hcHBhcm1vci9sc20uY8Kg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgMTIxICsrKystLS0NCj4+IMKgIHNl
-Y3VyaXR5L2NvbW1vbmNhcC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqAgfMKgwqAgNyArLQ0KPj4gwqAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWEuaMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgfMKgIDE0ICstDQo+PiDCoCBzZWN1cml0eS9pbnRlZ3JpdHkv
-aW1hL2ltYV9hcGkuY8KgwqDCoMKgwqDCoMKgIHzCoCAxMCArLQ0KPj4gwqAgc2VjdXJpdHkv
-aW50ZWdyaXR5L2ltYS9pbWFfYXBwcmFpc2UuY8KgwqAgfMKgwqAgNiArLQ0KPj4gwqAgc2Vj
-dXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFfbWFpbi5jwqDCoMKgwqDCoMKgIHzCoCAzNiArLQ0K
-Pj4gwqAgc2VjdXJpdHkvaW50ZWdyaXR5L2ltYS9pbWFfcG9saWN5LmPCoMKgwqDCoCB8wqAg
-MTkgKy0NCj4+IMKgIHNlY3VyaXR5L2ludGVncml0eS9pbnRlZ3JpdHlfYXVkaXQuY8KgwqDC
-oCB8wqDCoCAxICsNCj4+IMKgIHNlY3VyaXR5L2xvYWRwaW4vbG9hZHBpbi5jwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgOCArLQ0KPj4gwqAgc2VjdXJpdHkvc2FmZXNldGlk
-L2xzbS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDggKy0NCj4+IMKg
-IHNlY3VyaXR5L3NlY3VyaXR5LmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgIHwgNTg2ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tDQo+PiDCoCBz
-ZWN1cml0eS9zZWxpbnV4L2hvb2tzLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
-fCAxMDkgKysrLS0tDQo+PiDCoCBzZWN1cml0eS9zZWxpbnV4L2luY2x1ZGUvY2xhc3NtYXAu
-aMKgwqDCoMKgIHzCoMKgIDIgKy0NCj4+IMKgIHNlY3VyaXR5L3NlbGludXgvaW5jbHVkZS9v
-YmpzZWMuaMKgwqDCoMKgwqDCoCB8wqDCoCA1ICsNCj4+IMKgIHNlY3VyaXR5L3NlbGludXgv
-aW5jbHVkZS9zZWN1cml0eS5owqDCoMKgwqAgfMKgwqAgMSArDQo+PiDCoCBzZWN1cml0eS9z
-ZWxpbnV4L25ldGxhYmVsLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDI1ICstDQo+
-PiDCoCBzZWN1cml0eS9zZWxpbnV4L3NzL3NlcnZpY2VzLmPCoMKgwqDCoMKgwqDCoMKgwqAg
-fMKgwqAgNCArLQ0KPj4gwqAgc2VjdXJpdHkvc21hY2svc21hY2suaMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgNiArDQo+PiDCoCBzZWN1cml0eS9zbWFjay9z
-bWFja19sc20uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgMTI0ICsrKystLS0NCj4+
-IMKgIHNlY3VyaXR5L3NtYWNrL3NtYWNrX25ldGZpbHRlci5jwqDCoMKgwqDCoMKgwqAgfMKg
-wqAgOCArLQ0KPj4gwqAgc2VjdXJpdHkvc21hY2svc21hY2tmcy5jwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgIHzCoCAxMCArLQ0KPj4gwqAgc2VjdXJpdHkvdG9tb3lvL3RvbW95
-by5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDggKy0NCj4+IMKgIHNl
-Y3VyaXR5L3lhbWEveWFtYV9sc20uY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
-wqDCoCA3ICstDQo+PiDCoCA2NiBmaWxlcyBjaGFuZ2VkLCAxMzc2IGluc2VydGlvbnMoKyks
-IDU4MCBkZWxldGlvbnMoLSkNCj4+DQo+DQo=
+This replaces the reverse table lookup and reverse cache with a
+hashtable which improves cache-miss reverese-lookup times from
+O(n) to O(1) and maintains the same performance as a reverse
+cache hit.
+
+This reduces the time needed to add a new sidtab entry from ~500us
+to 5us on a Pixel 3 when there are ~10,000 sidtab entries.
+
+The implementation uses the kernel's generic hashtable API,
+It uses the context's string represtation as the hash source,
+and the kernels generic string hashing algorithm full_name_hash()
+to reduce the string to a 32 bit value.
+
+This change also maintains the improvement introduced in commit
+ee1a84fd which removed the need to keep the current sidtab locked
+during policy reload. It does however introduce periodic locking of
+the target sidtab while converting the hashtable. Sidtab entries
+are never modified or removed, so the context struct stored in the
+sid_to_context tree can also be used for the context_to_sid
+hashtable to reduce memory usage.
+
+This bug was reported by:
+- Stephen Smally on the selinux bug tracker.
+  BUG: kernel softlockup due to too many SIDs/contexts #37
+  https://github.com/SELinuxProject/selinux-kernel/issues/37
+- Jovana Knezevic on Android's bugtracker.
+  Bug: 140252993
+  "During multi-user performance testing, we create and remove users
+  many times. selinux_android_restorecon_pkgdir goes from 1ms to over
+  20ms after about 200 user creations and removals. Accumulated over
+  ~280 packages, that adds a significant time to user creation,
+  making perf benchmarks unreliable."
+
+Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+Reported-by: Stephen Smalley <sds@tycho.nsa.gov>
+Reported-by: Jovana Knezevic <jovanak@google.com>
+---
+ security/selinux/include/security.h |   1 +
+ security/selinux/selinuxfs.c        |  27 +++
+ security/selinux/ss/context.h       |   9 +
+ security/selinux/ss/policydb.c      |   5 +
+ security/selinux/ss/services.c      |  81 +++++---
+ security/selinux/ss/services.h      |   4 +-
+ security/selinux/ss/sidtab.c        | 283 ++++++++++++++++------------
+ security/selinux/ss/sidtab.h        |  20 +-
+ 8 files changed, 283 insertions(+), 147 deletions(-)
+
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index ae840634e3c7..8c0dbbd076c6 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -395,5 +395,6 @@ extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
+ extern void avtab_cache_init(void);
+ extern void ebitmap_cache_init(void);
+ extern void hashtab_cache_init(void);
++extern int security_sidtab_hash_stats(struct selinux_state *state, char *page);
+ 
+ #endif /* _SELINUX_SECURITY_H_ */
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index ee94fa469c29..ebdec88d9ccb 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1482,6 +1482,32 @@ static ssize_t sel_read_avc_hash_stats(struct file *filp, char __user *buf,
+ 	return length;
+ }
+ 
++static ssize_t sel_read_sidtab_hash_stats(struct file *filp, char __user *buf,
++					size_t count, loff_t *ppos)
++{
++	struct selinux_fs_info *fsi = file_inode(filp)->i_sb->s_fs_info;
++	struct selinux_state *state = fsi->state;
++	char *page;
++	ssize_t length;
++
++	page = (char *)__get_free_page(GFP_KERNEL);
++	if (!page)
++		return -ENOMEM;
++
++	length = security_sidtab_hash_stats(state, page);
++	if (length >= 0)
++		length = simple_read_from_buffer(buf, count, ppos, page,
++						length);
++	free_page((unsigned long)page);
++
++	return length;
++}
++
++static const struct file_operations sel_sidtab_hash_stats_ops = {
++	.read		= sel_read_sidtab_hash_stats,
++	.llseek		= generic_file_llseek,
++};
++
+ static const struct file_operations sel_avc_cache_threshold_ops = {
+ 	.read		= sel_read_avc_cache_threshold,
+ 	.write		= sel_write_avc_cache_threshold,
+@@ -1572,6 +1598,7 @@ static int sel_make_avc_files(struct dentry *dir)
+ 		{ "cache_threshold",
+ 		  &sel_avc_cache_threshold_ops, S_IRUGO|S_IWUSR },
+ 		{ "hash_stats", &sel_avc_hash_stats_ops, S_IRUGO },
++		{ "sidtab_hash_stats", &sel_sidtab_hash_stats_ops, S_IRUGO },
+ #ifdef CONFIG_SECURITY_SELINUX_AVC_STATS
+ 		{ "cache_stats", &sel_avc_cache_stats_ops, S_IRUGO },
+ #endif
+diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
+index 513e67f48878..01fea944177d 100644
+--- a/security/selinux/ss/context.h
++++ b/security/selinux/ss/context.h
+@@ -31,6 +31,7 @@ struct context {
+ 	u32 len;        /* length of string in bytes */
+ 	struct mls_range range;
+ 	char *str;	/* string representation if context cannot be mapped. */
++	u32 hash;	/* a hash of the string representation */
+ };
+ 
+ static inline void mls_context_init(struct context *c)
+@@ -168,6 +169,7 @@ static inline int context_cpy(struct context *dst, struct context *src)
+ 		kfree(dst->str);
+ 		return rc;
+ 	}
++	dst->hash = src->hash;
+ 	return 0;
+ }
+ 
+@@ -182,6 +184,8 @@ static inline void context_destroy(struct context *c)
+ 
+ static inline int context_cmp(struct context *c1, struct context *c2)
+ {
++	if (c1->hash && c2->hash && (c1->hash != c2->hash))
++		return 0;
+ 	if (c1->len && c2->len)
+ 		return (c1->len == c2->len && !strcmp(c1->str, c2->str));
+ 	if (c1->len || c2->len)
+@@ -192,5 +196,10 @@ static inline int context_cmp(struct context *c1, struct context *c2)
+ 		mls_context_cmp(c1, c2));
+ }
+ 
++static inline unsigned int context_compute_hash(const char *s)
++{
++	return full_name_hash(NULL, s, strlen(s));
++}
++
+ #endif	/* _SS_CONTEXT_H_ */
+ 
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index e20624a68f5d..e369b0092cdf 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -878,6 +878,11 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+ 			sidtab_destroy(s);
+ 			goto out;
+ 		}
++		rc = context_add_hash(p, &c->context[0]);
++		if (rc) {
++			sidtab_destroy(s);
++			goto out;
++		}
+ 
+ 		rc = sidtab_set_initial(s, c->sid[0], &c->context[0]);
+ 		if (rc) {
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index a5813c7629c1..29076c15cdf7 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1257,6 +1257,11 @@ static int context_struct_to_string(struct policydb *p,
+ 
+ #include "initial_sid_to_string.h"
+ 
++int security_sidtab_hash_stats(struct selinux_state *state, char *page)
++{
++	return sidtab_hash_stats(state->ss->sidtab, page);
++}
++
+ const char *security_get_initial_sid_context(u32 sid)
+ {
+ 	if (unlikely(sid > SECINITSID_NUM))
+@@ -1384,6 +1389,8 @@ static int string_to_context_struct(struct policydb *pol,
+ 	int rc = 0;
+ 
+ 	context_init(ctx);
++	/* hash the string before it gets mutated */
++	ctx->hash = context_compute_hash(scontext);
+ 
+ 	/* Parse the security context. */
+ 
+@@ -1442,6 +1449,7 @@ static int string_to_context_struct(struct policydb *pol,
+ 	rc = -EINVAL;
+ 	if (!policydb_context_isvalid(pol, ctx))
+ 		goto out;
++
+ 	rc = 0;
+ out:
+ 	if (rc)
+@@ -1449,6 +1457,42 @@ static int string_to_context_struct(struct policydb *pol,
+ 	return rc;
+ }
+ 
++int context_add_hash(struct policydb *policydb,
++		     struct context *context)
++{
++	int rc;
++	char *str;
++	int len;
++
++	if (context->str) {
++		context->hash = context_compute_hash(context->str);
++	} else {
++		rc = context_struct_to_string(policydb, context,
++					      &str, &len);
++		if (rc)
++			return rc;
++		context->hash = context_compute_hash(str);
++		kfree(str);
++	}
++	return 0;
++}
++
++static int context_to_sid(struct selinux_state *state,
++			  struct context *context, u32 *sid)
++{
++	int rc;
++	struct sidtab *sidtab = state->ss->sidtab;
++	struct policydb *policydb = &state->ss->policydb;
++
++	if (!context->hash) {
++		rc = context_add_hash(policydb, context);
++		if (rc)
++			return rc;
++	}
++
++	return sidtab_context_to_sid(sidtab, context, sid);
++}
++
+ static int security_context_to_sid_core(struct selinux_state *state,
+ 					const char *scontext, u32 scontext_len,
+ 					u32 *sid, u32 def_sid, gfp_t gfp_flags,
+@@ -1501,7 +1545,7 @@ static int security_context_to_sid_core(struct selinux_state *state,
+ 		str = NULL;
+ 	} else if (rc)
+ 		goto out_unlock;
+-	rc = sidtab_context_to_sid(sidtab, &context, sid);
++	rc = context_to_sid(state, &context, sid);
+ 	context_destroy(&context);
+ out_unlock:
+ 	read_unlock(&state->ss->policy_rwlock);
+@@ -1805,7 +1849,7 @@ static int security_compute_sid(struct selinux_state *state,
+ 			goto out_unlock;
+ 	}
+ 	/* Obtain the sid for the context. */
+-	rc = sidtab_context_to_sid(sidtab, &newcontext, out_sid);
++	rc = context_to_sid(state, &newcontext, out_sid);
+ out_unlock:
+ 	read_unlock(&state->ss->policy_rwlock);
+ 	context_destroy(&newcontext);
+@@ -2033,6 +2077,10 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
+ 			goto bad;
+ 	}
+ 
++	rc = context_add_hash(args->newp, newc);
++	if (rc)
++		goto bad;
++
+ 	return 0;
+ bad:
+ 	/* Map old representation to string and save it. */
+@@ -2280,9 +2328,7 @@ int security_port_sid(struct selinux_state *state,
+ 
+ 	if (c) {
+ 		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[0],
+-						   &c->sid[0]);
++			rc = context_to_sid(state, &c->context[0], &c->sid[0]);
+ 			if (rc)
+ 				goto out;
+ 		}
+@@ -2374,9 +2420,7 @@ int security_ib_endport_sid(struct selinux_state *state,
+ 
+ 	if (c) {
+ 		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[0],
+-						   &c->sid[0]);
++			rc = context_to_sid(state, &c->context[0], &c->sid[0]);
+ 			if (rc)
+ 				goto out;
+ 		}
+@@ -2416,14 +2460,10 @@ int security_netif_sid(struct selinux_state *state,
+ 
+ 	if (c) {
+ 		if (!c->sid[0] || !c->sid[1]) {
+-			rc = sidtab_context_to_sid(sidtab,
+-						  &c->context[0],
+-						  &c->sid[0]);
++			rc = context_to_sid(state, &c->context[0], &c->sid[0]);
+ 			if (rc)
+ 				goto out;
+-			rc = sidtab_context_to_sid(sidtab,
+-						   &c->context[1],
+-						   &c->sid[1]);
++			rc = context_to_sid(state, &c->context[1], &c->sid[1]);
+ 			if (rc)
+ 				goto out;
+ 		}
+@@ -2601,7 +2641,7 @@ int security_get_user_sids(struct selinux_state *state,
+ 						 &usercon))
+ 				continue;
+ 
+-			rc = sidtab_context_to_sid(sidtab, &usercon, &sid);
++			rc = context_to_sid(state, &usercon, &sid);
+ 			if (rc)
+ 				goto out_unlock;
+ 			if (mynel < maxnel) {
+@@ -2672,7 +2712,6 @@ static inline int __security_genfs_sid(struct selinux_state *state,
+ 				       u32 *sid)
+ {
+ 	struct policydb *policydb = &state->ss->policydb;
+-	struct sidtab *sidtab = state->ss->sidtab;
+ 	int len;
+ 	u16 sclass;
+ 	struct genfs *genfs;
+@@ -2707,7 +2746,7 @@ static inline int __security_genfs_sid(struct selinux_state *state,
+ 		goto out;
+ 
+ 	if (!c->sid[0]) {
+-		rc = sidtab_context_to_sid(sidtab, &c->context[0], &c->sid[0]);
++		rc = context_to_sid(state, &c->context[0], &c->sid[0]);
+ 		if (rc)
+ 			goto out;
+ 	}
+@@ -2770,8 +2809,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+ 	if (c) {
+ 		sbsec->behavior = c->v.behavior;
+ 		if (!c->sid[0]) {
+-			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+-						   &c->sid[0]);
++			rc = context_to_sid(state, &c->context[0], &c->sid[0]);
+ 			if (rc)
+ 				goto out;
+ 		}
+@@ -3026,8 +3064,7 @@ int security_sid_mls_copy(struct selinux_state *state,
+ 			goto out_unlock;
+ 		}
+ 	}
+-
+-	rc = sidtab_context_to_sid(sidtab, &newcon, new_sid);
++	rc = context_to_sid(state, &newcon, new_sid);
+ out_unlock:
+ 	read_unlock(&state->ss->policy_rwlock);
+ 	context_destroy(&newcon);
+@@ -3620,7 +3657,7 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
+ 		if (!mls_context_isvalid(policydb, &ctx_new))
+ 			goto out_free;
+ 
+-		rc = sidtab_context_to_sid(sidtab, &ctx_new, sid);
++		rc = context_to_sid(state, &ctx_new, sid);
+ 		if (rc)
+ 			goto out_free;
+ 
+diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
+index 9a36de860368..fc40640a9725 100644
+--- a/security/selinux/ss/services.h
++++ b/security/selinux/ss/services.h
+@@ -8,7 +8,7 @@
+ #define _SS_SERVICES_H_
+ 
+ #include "policydb.h"
+-#include "sidtab.h"
++#include "context.h"
+ 
+ /* Mapping for a single class */
+ struct selinux_mapping {
+@@ -39,4 +39,6 @@ void services_compute_xperms_drivers(struct extended_perms *xperms,
+ void services_compute_xperms_decision(struct extended_perms_decision *xpermd,
+ 					struct avtab_node *node);
+ 
++int context_add_hash(struct policydb *policydb, struct context *context);
++
+ #endif	/* _SS_SERVICES_H_ */
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index 7d49994e8d5f..e4710f32b6d9 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -23,23 +23,32 @@ int sidtab_init(struct sidtab *s)
+ 
+ 	memset(s->roots, 0, sizeof(s->roots));
+ 
+-	/* max count is SIDTAB_MAX so valid index is always < SIDTAB_MAX */
+-	for (i = 0; i < SIDTAB_RCACHE_SIZE; i++)
+-		s->rcache[i] = SIDTAB_MAX;
+-
+ 	for (i = 0; i < SECINITSID_NUM; i++)
+ 		s->isids[i].set = 0;
+ 
+ 	s->count = 0;
+ 	s->convert = NULL;
++	hash_init(s->context_to_sid);
+ 
+ 	spin_lock_init(&s->lock);
+ 	return 0;
+ }
+ 
++static u32 context_to_sid(struct sidtab *s, struct context *context)
++{
++	struct sidtab_node *node;
++
++	hash_for_each_possible(s->context_to_sid, node, list, context->hash) {
++		if (context_cmp(node->context, context))
++			return node->sid;
++	}
++	return 0;
++}
++
+ int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
+ {
+ 	struct sidtab_isid_entry *entry;
++	struct sidtab_node *node = NULL;
+ 	int rc;
+ 
+ 	if (sid == 0 || sid > SECINITSID_NUM)
+@@ -52,9 +61,57 @@ int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
+ 		return rc;
+ 
+ 	entry->set = 1;
++
++	/*
++	 * Multiple initial sids may map to the same context. Check that this
++	 * context is not already represented in the context_to_sid hashtable
++	 * to avoid duplicate entries and long linked lists upon hash
++	 * collision.
++	 */
++	if (!context_to_sid(s, context)) {
++		node = kzalloc(sizeof(struct sidtab_node), GFP_ATOMIC);
++		if (!node)
++			return -ENOMEM;
++		node->sid = sid;
++		node->context = &entry->context;
++		hash_add(s->context_to_sid, &node->list, context->hash);
++	}
++
+ 	return 0;
+ }
+ 
++int sidtab_hash_stats(struct sidtab *sidtab, char *page)
++{
++	int i;
++	int chain_len = 0;
++	int slots_used = 0;
++	int entries = 0;
++	int max_chain_len = 0;
++	int cur_bucket = 0;
++	struct sidtab_node *node;
++
++
++	hash_for_each(sidtab->context_to_sid, i, node, list) {
++		entries++;
++		if (i == cur_bucket) {
++			chain_len++;
++			if (chain_len == 1)
++				slots_used++;
++		} else {
++			cur_bucket = i;
++			if (chain_len > max_chain_len)
++				max_chain_len = chain_len;
++			chain_len = 0;
++		}
++	}
++	if (chain_len > max_chain_len)
++		max_chain_len = chain_len;
++	return scnprintf(page, PAGE_SIZE, "%s:  %d entries and %d/%d buckets "
++			 "used, longest chain length %d\n", "context_to_sid",
++			 entries, slots_used, SIDTAB_HASH_BUCKETS,
++			 max_chain_len);
++}
++
+ static u32 sidtab_level_from_count(u32 count)
+ {
+ 	u32 capacity = SIDTAB_LEAF_ENTRIES;
+@@ -150,7 +207,7 @@ static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
+ 
+ 	if (sid != 0) {
+ 		if (sid > SECINITSID_NUM)
+-			context = sidtab_lookup(s, sid - (SECINITSID_NUM + 1));
++			context = sidtab_lookup(s, sid_to_index(sid));
+ 		else
+ 			context = sidtab_lookup_initial(s, sid);
+ 		if (context && (!context->len || force))
+@@ -170,132 +227,70 @@ struct context *sidtab_search_force(struct sidtab *s, u32 sid)
+ 	return sidtab_search_core(s, sid, 1);
+ }
+ 
+-static int sidtab_find_context(union sidtab_entry_inner entry,
+-			       u32 *pos, u32 count, u32 level,
+-			       struct context *context, u32 *index)
+-{
+-	int rc;
+-	u32 i;
+-
+-	if (level != 0) {
+-		struct sidtab_node_inner *node = entry.ptr_inner;
+-
+-		i = 0;
+-		while (i < SIDTAB_INNER_ENTRIES && *pos < count) {
+-			rc = sidtab_find_context(node->entries[i],
+-						 pos, count, level - 1,
+-						 context, index);
+-			if (rc == 0)
+-				return 0;
+-			i++;
+-		}
+-	} else {
+-		struct sidtab_node_leaf *node = entry.ptr_leaf;
+-
+-		i = 0;
+-		while (i < SIDTAB_LEAF_ENTRIES && *pos < count) {
+-			if (context_cmp(&node->entries[i].context, context)) {
+-				*index = *pos;
+-				return 0;
+-			}
+-			(*pos)++;
+-			i++;
+-		}
+-	}
+-	return -ENOENT;
+-}
+-
+-static void sidtab_rcache_update(struct sidtab *s, u32 index, u32 pos)
+-{
+-	while (pos > 0) {
+-		WRITE_ONCE(s->rcache[pos], READ_ONCE(s->rcache[pos - 1]));
+-		--pos;
+-	}
+-	WRITE_ONCE(s->rcache[0], index);
+-}
+-
+-static void sidtab_rcache_push(struct sidtab *s, u32 index)
+-{
+-	sidtab_rcache_update(s, index, SIDTAB_RCACHE_SIZE - 1);
+-}
+-
+-static int sidtab_rcache_search(struct sidtab *s, struct context *context,
+-				u32 *index)
+-{
+-	u32 i;
+-
+-	for (i = 0; i < SIDTAB_RCACHE_SIZE; i++) {
+-		u32 v = READ_ONCE(s->rcache[i]);
+-
+-		if (v >= SIDTAB_MAX)
+-			continue;
+-
+-		if (context_cmp(sidtab_do_lookup(s, v, 0), context)) {
+-			sidtab_rcache_update(s, v, i);
+-			*index = v;
+-			return 0;
+-		}
+-	}
+-	return -ENOENT;
+-}
+-
+-static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+-				 u32 *index)
++int sidtab_context_to_sid(struct sidtab *s, struct context *context,
++			  u32 *sid)
+ {
+ 	unsigned long flags;
+-	u32 count, count_locked, level, pos;
++	u32 count;
+ 	struct sidtab_convert_params *convert;
+ 	struct context *dst, *dst_convert;
++	struct sidtab_node *dst_node, *dst_node_convert = NULL;
+ 	int rc;
+ 
+-	rc = sidtab_rcache_search(s, context, index);
+-	if (rc == 0)
+-		return 0;
+-
+-	/* read entries only after reading count */
+-	count = smp_load_acquire(&s->count);
+-	level = sidtab_level_from_count(count);
+-
+-	pos = 0;
+-	rc = sidtab_find_context(s->roots[level], &pos, count, level,
+-				 context, index);
+-	if (rc == 0) {
+-		sidtab_rcache_push(s, *index);
++	*sid = context_to_sid(s, context);
++	if (*sid)
+ 		return 0;
+-	}
+ 
+ 	/* lock-free search failed: lock, re-search, and insert if not found */
+ 	spin_lock_irqsave(&s->lock, flags);
+ 
++	*sid = context_to_sid(s, context);
++	if (*sid)
++		goto out_unlock;
++
+ 	convert = s->convert;
+-	count_locked = s->count;
+-	level = sidtab_level_from_count(count_locked);
+-
+-	/* if count has changed before we acquired the lock, then catch up */
+-	while (count < count_locked) {
+-		if (context_cmp(sidtab_do_lookup(s, count, 0), context)) {
+-			sidtab_rcache_push(s, count);
+-			*index = count;
+-			rc = 0;
++	count = s->count;
++
++	rc = -ENOMEM;
++	dst_node = kzalloc(sizeof(struct sidtab_node), GFP_ATOMIC);
++	if (!dst_node)
++		goto out_unlock;
++
++	if (convert) {
++		dst_node_convert = kzalloc(sizeof(struct sidtab_node),
++					   GFP_ATOMIC);
++		if (!dst_node_convert) {
++			kfree(dst_node);
+ 			goto out_unlock;
+ 		}
+-		++count;
+ 	}
+ 
+ 	/* bail out if we already reached max entries */
+ 	rc = -EOVERFLOW;
+-	if (count >= SIDTAB_MAX)
++	if (count >= SIDTAB_MAX) {
++		kfree(dst_node);
++		kfree(dst_node_convert);
+ 		goto out_unlock;
++	}
+ 
+ 	/* insert context into new entry */
+ 	rc = -ENOMEM;
+ 	dst = sidtab_do_lookup(s, count, 1);
+-	if (!dst)
++	if (!dst) {
++		kfree(dst_node);
++		kfree(dst_node_convert);
+ 		goto out_unlock;
++	}
++
++	dst_node->sid = index_to_sid(count);
++	dst_node->context = dst;
+ 
+ 	rc = context_cpy(dst, context);
+-	if (rc)
++	if (rc) {
++		kfree(dst_node);
++		kfree(dst_node_convert);
+ 		goto out_unlock;
++	}
+ 
+ 	/*
+ 	 * if we are building a new sidtab, we need to convert the context
+@@ -306,25 +301,35 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+ 		dst_convert = sidtab_do_lookup(convert->target, count, 1);
+ 		if (!dst_convert) {
+ 			context_destroy(dst);
++			kfree(dst_node);
++			kfree(dst_node_convert);
+ 			goto out_unlock;
+ 		}
+ 
+ 		rc = convert->func(context, dst_convert, convert->args);
+ 		if (rc) {
+ 			context_destroy(dst);
++			kfree(dst_node);
++			kfree(dst_node_convert);
+ 			goto out_unlock;
+ 		}
++		dst_node_convert->sid = index_to_sid(count);
++		dst_node_convert->context = dst_convert;
+ 
+ 		/* at this point we know the insert won't fail */
++		spin_lock_irqsave(&convert->target->lock, flags);
+ 		convert->target->count = count + 1;
++		hash_add(convert->target->context_to_sid,
++			 &dst_node_convert->list, dst_convert->hash);
++		spin_unlock_irqrestore(&convert->target->lock, flags);
+ 	}
++	hash_add(s->context_to_sid, &dst_node->list, context->hash);
+ 
+ 	if (context->len)
+ 		pr_info("SELinux:  Context %s is not valid (left unmapped).\n",
+ 			context->str);
+ 
+-	sidtab_rcache_push(s, count);
+-	*index = count;
++	*sid = index_to_sid(count);
+ 
+ 	/* write entries before writing new count */
+ 	smp_store_release(&s->count, count + 1);
+@@ -335,27 +340,41 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+ 	return rc;
+ }
+ 
+-int sidtab_context_to_sid(struct sidtab *s, struct context *context, u32 *sid)
++static int sidtab_convert_hashnode(struct sidtab *s, u32 index)
+ {
+-	int rc;
+-	u32 i;
++	unsigned long flags;
++	struct context *context;
++	struct sidtab_node *node;
+ 
+-	for (i = 0; i < SECINITSID_NUM; i++) {
+-		struct sidtab_isid_entry *entry = &s->isids[i];
++	context = sidtab_do_lookup(s, index, 0);
+ 
+-		if (entry->set && context_cmp(context, &entry->context)) {
+-			*sid = i + 1;
+-			return 0;
+-		}
+-	}
++	node = kzalloc(sizeof(struct sidtab_node), GFP_ATOMIC);
++	if (!node)
++		return -ENOMEM;
+ 
+-	rc = sidtab_reverse_lookup(s, context, sid);
+-	if (rc)
+-		return rc;
+-	*sid += SECINITSID_NUM + 1;
++	node->sid = index_to_sid(index);
++	node->context = context;
++	spin_lock_irqsave(&s->lock, flags);
++	hash_add(s->context_to_sid, &node->list, context->hash);
++	spin_unlock_irqrestore(&s->lock, flags);
+ 	return 0;
+ }
+ 
++static int sidtab_convert_hashtable(struct sidtab *s, u32 count)
++{
++	u32 i;
++	int rc = 0;
++
++	for (i = 0; i < count; i++) {
++		rc = sidtab_convert_hashnode(s, i);
++		if (rc)
++			break;
++
++		cond_resched();
++	}
++	return rc;
++}
++
+ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
+ 			       union sidtab_entry_inner *esrc,
+ 			       u32 *pos, u32 count, u32 level,
+@@ -400,6 +419,7 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
+ 		}
+ 		cond_resched();
+ 	}
++
+ 	return 0;
+ }
+ 
+@@ -449,7 +469,16 @@ int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params)
+ 		spin_lock_irqsave(&s->lock, flags);
+ 		s->convert = NULL;
+ 		spin_unlock_irqrestore(&s->lock, flags);
++		return rc;
++	}
++
++	rc = sidtab_convert_hashtable(params->target, count);
++	if (rc) {
++		spin_lock_irqsave(&s->lock, flags);
++		s->convert = NULL;
++		spin_unlock_irqrestore(&s->lock, flags);
+ 	}
++
+ 	return rc;
+ }
+ 
+@@ -478,6 +507,19 @@ static void sidtab_destroy_tree(union sidtab_entry_inner entry, u32 level)
+ 	}
+ }
+ 
++
++static void sidtab_destroy_hashtable(struct sidtab *s)
++{
++	struct sidtab_node *node;
++	struct hlist_node *tmp;
++	int i;
++
++	hash_for_each_safe(s->context_to_sid, i, tmp, node, list) {
++		hash_del(&node->list);
++		kfree(node);
++	}
++}
++
+ void sidtab_destroy(struct sidtab *s)
+ {
+ 	u32 i, level;
+@@ -491,4 +533,5 @@ void sidtab_destroy(struct sidtab *s)
+ 		--level;
+ 
+ 	sidtab_destroy_tree(s->roots[level], level);
++	sidtab_destroy_hashtable(s);
+ }
+diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+index 1f4763141aa1..85afef719a43 100644
+--- a/security/selinux/ss/sidtab.h
++++ b/security/selinux/ss/sidtab.h
+@@ -13,6 +13,7 @@
+ 
+ #include <linux/spinlock_types.h>
+ #include <linux/log2.h>
++#include <linux/hashtable.h>
+ 
+ #include "context.h"
+ 
+@@ -66,7 +67,16 @@ struct sidtab_convert_params {
+ 	struct sidtab *target;
+ };
+ 
+-#define SIDTAB_RCACHE_SIZE 3
++struct sidtab_node {
++	u32 sid;
++	struct context *context;
++	struct hlist_node list;
++};
++
++#define SIDTAB_HASH_BITS 9
++#define SIDTAB_HASH_BUCKETS (1 << SIDTAB_HASH_BITS)
++#define index_to_sid(index) (index + SECINITSID_NUM + 1)
++#define sid_to_index(sid) (sid - (SECINITSID_NUM + 1))
+ 
+ struct sidtab {
+ 	/*
+@@ -83,11 +93,11 @@ struct sidtab {
+ 	struct sidtab_convert_params *convert;
+ 	spinlock_t lock;
+ 
+-	/* reverse lookup cache - access atomically via {READ|WRITE}_ONCE() */
+-	u32 rcache[SIDTAB_RCACHE_SIZE];
+-
+ 	/* index == SID - 1 (no entry for SECSID_NULL) */
+ 	struct sidtab_isid_entry isids[SECINITSID_NUM];
++
++	/* Hash table for fast reverse context-to-sid lookups. */
++	DECLARE_HASHTABLE(context_to_sid, SIDTAB_HASH_BITS);
+ };
+ 
+ int sidtab_init(struct sidtab *s);
+@@ -101,6 +111,8 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context, u32 *sid);
+ 
+ void sidtab_destroy(struct sidtab *s);
+ 
++int sidtab_hash_stats(struct sidtab *sidtab, char *page);
++
+ #endif	/* _SS_SIDTAB_H_ */
+ 
+ 
+-- 
+2.24.0.rc0.303.g954a862665-goog
+
