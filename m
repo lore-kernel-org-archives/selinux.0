@@ -2,267 +2,107 @@ Return-Path: <SRS0=943q=YY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,URIBL_SBL,
-	URIBL_SBL_A autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3F38CA9EC3
-	for <selinux@archiver.kernel.org>; Thu, 31 Oct 2019 09:43:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D611DCA9EC3
+	for <selinux@archiver.kernel.org>; Thu, 31 Oct 2019 09:47:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ABE142083E
-	for <selinux@archiver.kernel.org>; Thu, 31 Oct 2019 09:43:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A40A32086D
+	for <selinux@archiver.kernel.org>; Thu, 31 Oct 2019 09:47:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W6pOOXeP"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="S0YhV8rv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727009AbfJaJni (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 31 Oct 2019 05:43:38 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:20290 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726960AbfJaJni (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 31 Oct 2019 05:43:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572515016;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=7Ti2lHQ4qKHAoeXd645TCwWLPHu3Qx1dtidS6Sn9vIg=;
-        b=W6pOOXePYVQGhGInG1tgFX60NRF6QTAuV3zbly8D6zh1iicQVDbdzK0rye/UvlvKmUjeeR
-        6SUEns0xxR8ZZxNgSezi3Pk7fv9RzLe+6z7TePOZDaxSQr/DPW3Nm7lhTg/VRik1RSmxLo
-        BDedZHrQh+xoENckGS40Y1HCwlgbO9s=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-97-UdvICDsWOwW-EP0SP0YQCg-1; Thu, 31 Oct 2019 05:43:33 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ED6071800D56
-        for <selinux@vger.kernel.org>; Thu, 31 Oct 2019 09:43:32 +0000 (UTC)
-Received: from localhost (ovpn-204-65.brq.redhat.com [10.40.204.65])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5DEAA1001B23
-        for <selinux@vger.kernel.org>; Thu, 31 Oct 2019 09:43:32 +0000 (UTC)
-User-agent: mu4e 1.2.0; emacs 26.2
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Subject: ANN: SELinux userspace 3.0-rc1 release candidate
-Date:   Thu, 31 Oct 2019 10:43:30 +0100
-Message-ID: <pjd1rut9rnh.fsf@redhat.com>
+        id S1726911AbfJaJrb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 31 Oct 2019 05:47:31 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:33664 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726867AbfJaJrb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 31 Oct 2019 05:47:31 -0400
+Received: by mail-lf1-f68.google.com with SMTP id y127so4095730lfc.0
+        for <selinux@vger.kernel.org>; Thu, 31 Oct 2019 02:47:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=M5lsnBLAOscz+eqJqCitZcN4u6tDV06AOdbwrk54IRU=;
+        b=S0YhV8rvW2YoAMj+dvFNdv0xzTMRd5DY5exVV7WtlIuZnqgDhXkRgsjLOgiTDzL3WB
+         1q+j/G6txlMODd8lLdw6pvrHEmDq8jTSut6MxD9UI7Opr6TfP/6T2Qkiqv2FER7zQBRZ
+         8n2FjRK/JChAkfNPdUAzsLUExuSsRF2hS675PQS+lzRkFWu5aci56tRilWJp7VSqrbMz
+         mPQbT0LZK26Vb2IUDWulsbUABiMccedpovbzDdLQVcAUdbbV8srrHktOW0viaS5XzhEp
+         O/tMuDTZMwUBqWhSvl74nVr/dBlH/CnmfhMm45u1qMoKvGF5hEv0kJYYB3N8Mlwk6IlS
+         Y7Fg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=M5lsnBLAOscz+eqJqCitZcN4u6tDV06AOdbwrk54IRU=;
+        b=Md3t/BTeO/yu4ygyulV5mmYwnH6kri73Oy3UvQwS84hYbcAjjihy+TbNyQksuZHf8D
+         BDCwfqrNBQMjxVovbxkNm4oZKhxxk6dF0O+YKV5RyB5fRY3G9Sj0tXdl3BQKVVMt0E9B
+         wFG42EFWpR5CdEuzs+IFaPl6mf/SUc6ViMGB5Srj9LMDjc+CFJGqPLC9CJJnMJ8U/zvB
+         e7YXDcpTAnbIotNbXW91jI6NL0L9774UIOOXVUSiYxe/pe6iwmGAqEH0NA1ftKw7fm+W
+         KWBXQJicFCBvopJRq9e8iN0OumL2SzpoEGywpnXhQVuj13UkCTXXt8oX+UINoDaSq9d4
+         6Rug==
+X-Gm-Message-State: APjAAAWDiCxPyaplHIw4tl1QPri3yYKEMR70erOduORKQNoU7aACXmM6
+        ZYVKl5rtxmALbUF1XWf4UgXKDlOEWCavcU8K/W5BHGfxyA==
+X-Google-Smtp-Source: APXvYqwmtK5uuVJ0CUmBA45WUed7OGz6iV3J1Rl/Mi4KClc3t9VkjeVFxH6tyfOzptBGjYHJbp95JdGWB3ODPRKtXV0=
+X-Received: by 2002:a19:8092:: with SMTP id b140mr2720435lfd.13.1572515248887;
+ Thu, 31 Oct 2019 02:47:28 -0700 (PDT)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: UdvICDsWOwW-EP0SP0YQCg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+References: <20191030131633.9356-1-sds@tycho.nsa.gov> <365ca063-6efd-8051-8d4b-5c8aef0d2e12@tycho.nsa.gov>
+In-Reply-To: <365ca063-6efd-8051-8d4b-5c8aef0d2e12@tycho.nsa.gov>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 31 Oct 2019 05:47:18 -0400
+Message-ID: <CAHC9VhRoBGgw3YrACh5LffcFhDMefEqF7dWuqD+bEadFMr5o3A@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: add SELinux hooks for lockdown integrity and confidentiality
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+On Wed, Oct 30, 2019 at 11:29 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 10/30/19 9:16 AM, Stephen Smalley wrote:
+> > Add SELinux access control hooks for lockdown integrity and
+> > confidentiality. This effectively mimics the current implementation of
+> > lockdown (caveat noted below). If lockdown is enabled alongside SELinux,
+> > then the lockdown access control will take precedence over the SELinux
+> > lockdown implementation.
+> >
+> > Note that this SELinux implementation allows the integrity and
+> > confidentiality reasons to be controlled independently from one another.
+> > Thus, in an SELinux policy, one could allow integrity operations while
+> > blocking confidentiality operations.
+>
+> NB This is intended to be the first of a series that will ultimately
+> lead to finer-grained controls than just integrity and confidentiality,
+> but wanted to get some feedback on it at this stage.  Also anticipate
+> greater controversy over exposing finer granularity since the lockdown
+> reasons are free to change at any time, so this would be the baseline
+> fallback position if finer grained controls are rejected.
+>
+> > (original patch authored by an intern who wishes to remain anonymous;
+> > I am signing off on his behalf)
 
-A 3.0-rc1 release candidate for the SELinux userspace is now=20
-available at:
+I'm not going to comment on this on-list because IANAL, but it might
+be best to leave the comment above off of future postings as I think
+it somewhat confuses the principle behind the sign-off line.  I
+understand you want to give credit where it is due, but without an
+explicit author's name/email I believe it is safer for you to assume
+that role.
 
-https://github.com/SELinuxProject/selinux/wiki/Releases
+Put another way, the comment above makes me nervous about adding my
+own sign-off and merging it into the SELinux tree.
 
-Please give it a test and let us know if there are any issues.
+> > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > ---
+> >   security/selinux/hooks.c            | 22 ++++++++++++++++++++++
+> >   security/selinux/include/classmap.h |  2 ++
+> >   2 files changed, 24 insertions(+)
 
-If there are specific changes that you think should be called out=20
-in release notes for packagers and users in the final release
-announcement, let us know.=20
-
-Thanks to all the contributors to this release candidate!
-
-User-visible changes:
-
-* Optional support for kernel policy optimization (enable with
-optimize-policy=3Dtrue in /etc/selinux/semanage.conf for modular policy or =
--O
-option to checkpolicy/secilc for monolithic policy); this is optional becau=
-se it
-provides relatively small savings with non-trivial policy compile-time over=
-head
-for some policies e.g. Android.
-
-* New digest scheme for setfiles/restorecon -D; instead of a single hash of=
- the
-entire file contexts configuration stored in a security.restorecon_last xat=
-tr on
-only the top-level directory, use a hash of all partial matches from file
-contexts stored in a security.sehash xattr on each directory,
-
-* Support for default_range glblub in source policy (.te/policy.conf and CI=
-L)
-and kernel policy version 32,
-
-* New libselinux APIs for querying validatetrans rules,
-
-* Unknown permissions are now handled as errors in CIL,
-
-* security_av_string() no longer returns immediately upon encountering an
-unknown permission and will log all known permissions,
-
-* checkmodule -c support for specifying module policy version,
-
-* mcstransd reverted to original color range matching based on dominance,
-
-* Support for 'dccp' and 'sctp' protocols in semanage port command,
-
-* 'checkpolicy -o -' writes policy to standard output,
-
-* 'semodule -v' sets also cil's log level
-
-Issues fixed:
-
-* https://github.com/SELinuxProject/selinux/issues/61
-* https://github.com/SELinuxProject/selinux/issues/137
-* https://github.com/SELinuxProject/selinux/issues/138
-* https://github.com/SELinuxProject/selinux/issues/167
-* https://github.com/SELinuxProject/selinux/issues/169
-* https://github.com/SELinuxProject/selinux/issues/176
-
-A shortlog of changes since the 2.9 release:
-
-Aleksei Nikiforov (1):
-      Update man pages translation by Olesya Gerasimenko
-
-Gary Tierney (2):
-      checkmodule: add support for specifying module policy version
-      dismod: print policy version of loaded modules
-
-James Carter (4):
-      checkpolicy: add flag to enable policy optimization
-      libsepol: Make an unknown permission an error in CIL
-      libsepol: Remove cil_mem_error_handler() function pointer
-      libsepol: Further improve binary policy optimization
-
-Jan Zarsky (11):
-      libsemanage: add helper functions to tests
-      libsemanage: test semanage_handle_* functions
-      libsemanage: test semanage_bool_* functions
-      libsemanage: test semanage_fcontext functions
-      libsemanage: test semanage_iface_* functions
-      libsemanage: test semanage_ibendport_* functions
-      libsemanage: test semanage_node_* functions
-      libsemanage: test semanage_port_* functions
-      libsemanage: test semanage_user_* functions
-      libsemanage: test semanage_context_* functions
-      libsemanage: test semanage_msg_default_handler
-
-Jason Zaman (1):
-      policycoreutils: semodule: Enable CIL logging
-
-Jokke H=C3=A4m=C3=A4l=C3=A4inen (2):
-      libsepol: Check strdup() failures
-      libsepol: Replace constant with sizeof()
-
-Joshua Brindle (2):
-      Add security_validatetrans support
-      Add default_range glblub support
-
-Laurent Bigonville (4):
-      restorecond: Do not link against libpcre
-      Add documentation key in systemd .service files
-      mcstrans: Move setrans.conf manpage to section 5
-      mcstrans: Add reference to setools.conf man page in the daemon one
-
-Masatake YAMATO (3):
-      checkpolicy: remove a redundant if-condition
-      checkpolicy: update the description for -o option in the man page
-      checkpolicy: allow to write policy to stdout
-
-Mike Palmiotto (2):
-      libsepol/cil: fix mlsconstrain segfault
-      libselinux: fix string conversion of unknown perms
-
-Nicolas Iooss (23):
-      restorecond: use /run instead of /var/run
-      libsepol: include module.c internal header in module_to_cil.c
-      libsepol: initialize a local variable once
-      libselinux: ensure that digest_len is not zero
-      libsemanage: include internal header to use the hidden function proto=
-types
-      libsepol: do not dereference a failed allocated pointer
-      semodule-utils: fix comparison with argc
-      libsepol: do not dereference scope if it can be NULL
-      libsepol: reset *p to NULL if sepol_module_package_create fails
-      libsepol/cil: do not dereference perm_value_to_cil when it has not be=
-en allocated
-      python/chcat: remove unnecessary assignment
-      python/sepolicy: remove unnecessary pass statement
-      libsepol/tests: do not dereference a NULL pointer
-      Add configuration file for lgtm.com
-      Fix many misspellings
-      libselinux: ensure strlen() is not called on NULL
-      libselinux: do not add rc to pos twice
-      CircleCI: run scan-build and publish its results automatically
-      libsepol, libsemanage: add a macro to silence static analyzer warning=
-s in tests
-      libsemanage/tests: return when str is NULL
-      libsemanage/tests: check that string pointers are not NULL before com=
-paring them
-      libselinux: mark all exported function "extern"
-      libsemanage: mark all exported function "extern"
-
-Ondrej Mosnacek (6):
-      libsepol: add ebitmap_for_each_set_bit macro
-      run_init: fix build when crypt() is not in unistd.h
-      libsepol: add a function to optimize kernel policy
-      libsemanage: optionally optimize policy on rebuild
-      secilc: add flag to enable policy optimization
-      sepolicy: generate man pages in parallel
-
-Petr Lautrbach (12):
-      gui: Install polgengui.py to /usr/bin/selinux-polgengui
-      gui: Install .desktop files to /usr/share/applications by default
-      semanage/semanage-boolean.8: Fix a minor typo
-      Add CONTRIBUTING.md
-      libselinux: Use Python distutils to install SELinux python bindings
-      policycoreutils/fixfiles: Fix [-B] [-F] onboot
-      policycoreutils/fixfiles: Force full relabel when SELinux is disabled
-      gui: Fix remove module in system-config-selinux
-      python/semanage: Do not use default s0 range in "semanage login -a"
-      Switch last 2 files using /usr/bin/env to /usr/bin/python3
-      libsepol: Use LIBSEPOL_3.0 and fix sepol_policydb_optimize symbol map=
-ping
-      Update VERSIONs to 3.0-rc1 for release.
-
-Richard Haines (6):
-      libsepol/cil: Allow validatetrans rules to be resolved
-      libselinux: Fix security_get_boolean_names build error
-      libselinux: Save digest of all partial matches for directory
-      setfiles: Update utilities for the new digest scheme
-      selinux: Remove legacy local boolean and user code
-      selinux: Update manpages after removing legacy boolean and user code
-
-Stephen Smalley (1):
-      python/sepolicy: call segenxml.py with python3
-
-Unto Sten (9):
-      Global replace exit(0) with more readable exit(EXIT_SUCCESS)
-      Unify code style to preserve my sanity
-      another style fix
-      Check strdup() failure
-      Trivial style improvements
-      Trivial style fixes
-      Remove unneeded int
-      Remove redundant if-clause
-      More accurate error messages
-
-Vit Mojzis (8):
-      Revert "mcstransd select correct colour range."
-      Fix mcstrans secolor examples
-      policycoreutils/fixfiles: Fix "verify" option
-      python/semanage: Improve handling of "permissive" statements
-      python/semanage: fix moduleRecords.customized()
-      libsemanage: Add support for DCCP and SCTP protocols
-      python/semanage: Add support for DCCP and SCTP protocols
-      python/semanage: Document DCCP and SCTP support
-
-xunchang (2):
-      Restorecon: factor out a lookup helper for context matches
-      libselinux: Ignore the stem when looking up all matches in file conte=
-xt
-
-Petr
-
+-- 
+paul moore
+www.paul-moore.com
