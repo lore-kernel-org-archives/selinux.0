@@ -1,176 +1,270 @@
-Return-Path: <SRS0=nnTv=Y4=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=kJrL=Y5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-16.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1229BCA9EC9
-	for <selinux@archiver.kernel.org>; Mon,  4 Nov 2019 22:26:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8DBBC010A2
+	for <selinux@archiver.kernel.org>; Tue,  5 Nov 2019 11:49:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CDF8F214D8
-	for <selinux@archiver.kernel.org>; Mon,  4 Nov 2019 22:26:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 978A221D71
+	for <selinux@archiver.kernel.org>; Tue,  5 Nov 2019 11:49:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=android.com header.i=@android.com header.b="Pp8aTcTc"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="c/5t51o9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730232AbfKDW0S (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 Nov 2019 17:26:18 -0500
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:32775 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730484AbfKDVvX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 Nov 2019 16:51:23 -0500
-Received: by mail-pf1-f193.google.com with SMTP id c184so13439814pfb.0
-        for <selinux@vger.kernel.org>; Mon, 04 Nov 2019 13:51:22 -0800 (PST)
+        id S1730784AbfKELti (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 Nov 2019 06:49:38 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:36991 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730627AbfKELth (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 Nov 2019 06:49:37 -0500
+Received: by mail-lf1-f66.google.com with SMTP id b20so14886468lfp.4
+        for <selinux@vger.kernel.org>; Tue, 05 Nov 2019 03:49:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=bHzFpby5nBvLQoa1A3N45Iv5pE3sE4p/UO4W7iuituU=;
-        b=Pp8aTcTc4J8HQHJfK7XYOvTKX+0OBvRsnX5l3y4u4g4MM3j86RHYT5E3CyfwGjTx4M
-         OY4am3V6P04tfgMJdWaiBA4U4MVXNNXBLNBBKKsjLvm6Py+danTKFeA58zni2EwrZJ4a
-         LNM/Y81H3MGNqRtK9pfeV0H03aM+7nND2Zei+zqEbD1s4PqBPprHUisrBeteBubsbwSy
-         TVQ544cT0wpbyLgolGEW1xWW2VpX+SzNMXEAx14Fcr5iUkFTIem+fgkabRMzppRp0uwa
-         f1TaCzq6xMl1AGXBK5nQcB2Aq9iUTjOhumPtO956o84HKT+keZUKHTeZ+X7Z6JqxV9xJ
-         DqlQ==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kEhdoHWESB3TxaEvW6H/6VSPc9ovtGWhaUQi5SVv7IY=;
+        b=c/5t51o9yU+Ng5j23ZJTzf+p1Ey3hCfSOdnb0xS30brMJPdrBJ9zmbSUIoppbIuasW
+         lGxIIIb7fovuYbCGpbZwrF7rQ9hPMm2DyLxEmshBsMYxV12QlRFRm5j/MY1amWEkzV6X
+         A/EtqbgOnnB8A7V3ll7M3xIhm/UBReghd2sgAeyS06IR5ZHNCx3MUZ8QF1jXzo2NBhGH
+         34+REeKTlGjRS3EqSMzCn4Woblfe1XGn3G1NdujIYazcrjQ4z8IZAh71PBnGIqZJFUVP
+         dFgs92AoTCzVfRlYkc7eVuXmoYxP5oAKdNxXqzPPbBLzYVfaPTHBcjCNBatCEMIMPv2c
+         BiLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=bHzFpby5nBvLQoa1A3N45Iv5pE3sE4p/UO4W7iuituU=;
-        b=UF/BlV4nZI26PreHgj2TIh4sTyjBVnIK8R7Ikp4ALoK+wLGZymBsScffQjVd1sLZAj
-         +eMMFKs0oYEVWZBeSeWgdI6SHj+wiUlQTL9HXYD0yj0Md+z14yeCJPxZCri1muVQT+6H
-         Je3WYbYQyi1Kt1tx5w/M+V2xQkn7Vm2h/DM+4WXLOMIGmZ9+LpGoZwFiiVTBOWYWpIL0
-         7U3pXgD9msxJMSTn0P/NckdhqsDkG3802nagj334gPcTP2G9U7sVRy4juwXMDF35z/Rn
-         +0O1ctqCoUFAN4Tucvt2wxTgOvn3yco/L1ZlByAzv6shu/2qi+m9jy4+URRPwu29oK3v
-         +N5A==
-X-Gm-Message-State: APjAAAV8JfEZ5CfLpFNd3h74hoh1bXkov8RDTw/Ep6UJBxsBWcEb1aRh
-        SCSyOiOzDO1oZd+ZyHJiMLJkNQ==
-X-Google-Smtp-Source: APXvYqy8cbQrcNS2YZCm15LNXj84RCWobmcY3Yi0AKiVBFlHOjV+tLdHj1XjjIBLQcnlWN3fV+awgw==
-X-Received: by 2002:a63:dc45:: with SMTP id f5mr32464004pgj.250.1572904282035;
-        Mon, 04 Nov 2019 13:51:22 -0800 (PST)
-Received: from nebulus.mtv.corp.google.com ([2620:15c:211:200:5404:91ba:59dc:9400])
-        by smtp.googlemail.com with ESMTPSA id z7sm10567610pgk.10.2019.11.04.13.51.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 04 Nov 2019 13:51:21 -0800 (PST)
-Subject: Re: [PATCH v14 1/5] Add flags option to get xattr method paired to
- __vfs_getxattr
-To:     Amir Goldstein <amir73il@gmail.com>,
-        Andreas Dilger <adilger@dilger.ca>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-doc@vger.kernel.org, CIFS <linux-cifs@vger.kernel.org>,
-        kernel-team@android.com, selinux@vger.kernel.org,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Ext4 Developers List <linux-ext4@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        overlayfs <linux-unionfs@vger.kernel.org>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        ecryptfs@vger.kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@infradead.org>
-References: <20191022204453.97058-1-salyzyn@android.com>
- <20191022204453.97058-2-salyzyn@android.com>
- <8CE5B6E8-DCB7-4F0B-91C1-48030947F585@dilger.ca>
- <CAOQ4uxis-oQSjKrtBDi-8BQ2M3ve3w8o-YVGRwWLnq+5JLUttA@mail.gmail.com>
-From:   Mark Salyzyn <salyzyn@android.com>
-Message-ID: <7b5f2964-10ce-021b-01f7-6b662bf0c09a@android.com>
-Date:   Mon, 4 Nov 2019 13:51:20 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kEhdoHWESB3TxaEvW6H/6VSPc9ovtGWhaUQi5SVv7IY=;
+        b=WsN05PGqa3FYkLWilCuspJ5uUSB0QluGciGEgHdxXqT+53jqkvRtzzv2XLVsAPxVso
+         TFHT2KUmQSGX9s/gGFa3Vh2RpEk2MGjlUCOPZBFOJWWBZx9f969AURZB1VvEogu6HZLL
+         6QkDJkWgvbS/kO2WajUEjaRhp3/3fSgTL54QcoeJuqXjziQunT/IeYa+yjiHU4CAjzpJ
+         E62GuBsZMlnyXqAhgO1hcnHuzT4CtDEWpLba0NGMmBd3TVJg766jsAu2I9eEUKrytCtT
+         qrd4aGieNMxZKSX+IQ439xFnHSf16BY890GfLXpoFl0+7GeBQTPimgIV9zEzOKQ29qly
+         t4Dg==
+X-Gm-Message-State: APjAAAV7OQoGy2SKJ3UQOnFtR4nDWFl2c/+eDtDOqSXBqTu8woSxeVzZ
+        uTQRDyH6cB6HeO5S0nzjl8Gc242a3e4YxHp89a0T4g==
+X-Google-Smtp-Source: APXvYqy4VfzYeYLTKjwexdPLXIJ0zAt2R53QtA8CG93O6DOV8NQ+uxZLeUH1lzUdlwk7BcJ/NC6ePWSy3F4wMNoff28=
+X-Received: by 2002:a05:6512:203:: with SMTP id a3mr20141633lfo.7.1572954574608;
+ Tue, 05 Nov 2019 03:49:34 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAOQ4uxis-oQSjKrtBDi-8BQ2M3ve3w8o-YVGRwWLnq+5JLUttA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
+References: <20191104191535.23642-1-jeffv@google.com> <f824ce20-99f7-9df5-541e-8d239c6f31b4@tycho.nsa.gov>
+In-Reply-To: <f824ce20-99f7-9df5-541e-8d239c6f31b4@tycho.nsa.gov>
+From:   Jeffrey Vander Stoep <jeffv@google.com>
+Date:   Tue, 5 Nov 2019 12:49:23 +0100
+Message-ID: <CABXk95D2wnuywPw6OvnQQ5kiqwN8LtpKTQQS6Lc5E2aZrB99iA@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: sidtab: reverse lookup hash table
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Jovana Knezevic <jovanak@google.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 10/23/19 9:57 PM, Amir Goldstein wrote:
-> [excessive CC list reduced]
+Is it actually a deadlock, or just missing nesting annotation? I'm
+unable to reproduce (and this was one of my test cases). On my device
+I use:
+
+while true; do load_policy /vendor/etc/selinux/precompiled_sepolicy;
+echo -n .; sleep 0.1; done &
+for i in $(seq 1 256);
+do
+  runcon u:r:untrusted_app:s0:c$i,c256 echo -n x || break
+done
+
+dmesg is full of:
+<snip>
+[   73.731342] c4   8041 SELinux:  Converting 1694 SID table entries...
+[   73.740946] c4   8041 SELinux:  policy capability
+network_peer_controls=1
+ [   73.747800] c4   8041 SELinux:  policy capability open_perms=1
+[   73.759296] c4   8041 SELinux:  policy capability
+always_check_network=0
+[   73.771677] c4   8041 SELinux:  policy capability nnp_nosuid_transition=1
+[   73.957571] c3   8049 SELinux:  Converting 1700 SID table entries...
+[   73.968435] c4   8049 SELinux:  policy capability network_peer_controls=1
+[   73.975278] c4   8049 SELinux:  policy capability open_perms=1
+[   73.986776] c4   8049 SELinux:  policy capability always_check_network=0
+[   73.999145] c4   8049 SELinux:  policy capability nnp_nosuid_transition=1
+<snip>
+
+
+On Mon, Nov 4, 2019 at 9:44 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
 >
-> On Wed, Oct 23, 2019 at 11:07 AM Andreas Dilger via samba-technical
-> <samba-technical@lists.samba.org> wrote:
->>
->> On Oct 22, 2019, at 2:44 PM, Mark Salyzyn <salyzyn@android.com> wrote:
->>> Replace arguments for get and set xattr methods, and __vfs_getxattr
->>> and __vfs_setaxtr functions with a reference to the following now
->>> common argument structure:
->>>
->>> struct xattr_gs_args {
->>>        struct dentry *dentry;
->>>        struct inode *inode;
->>>        const char *name;
->>>        union {
->>>                void *buffer;
->>>                const void *value;
->>>        };
->>>        size_t size;
->>>        int flags;
->>> };
->>> Mark,
->>>
->>> I do not see the first patch on fsdevel
->>> and I am confused from all the suggested APIs
->>> I recall Christoph's comment on v8 for not using xattr_gs_args
->>> and just adding flags to existing get() method.
->>> I agree to that comment.
->> As already responded, third (?) patch version was like that,
-> The problem is that because of the waaay too long CC list, most revisions
-> of the patch and discussion were bounced from fsdevel, most emails
-> I did not get and cannot find in archives, so the discussion around
-> them is not productive.
+> On 11/4/19 2:15 PM, Jeff Vander Stoep wrote:
+> > This replaces the reverse table lookup and reverse cache with a
+> > hashtable which improves cache-miss reverese-lookup times from
+> > O(n) to O(1)* and maintains the same performance as a reverse
+> > cache hit.
+> >
+> > This reduces the time needed to add a new sidtab entry from ~500us
+> > to 5us on a Pixel 3 when there are ~10,000 sidtab entries.
+> >
+> > The implementation uses the kernel's generic hashtable API,
+> > It uses the context's string represtation as the hash source,
+> > and the kernels generic string hashing algorithm full_name_hash()
+> > to reduce the string to a 32 bit value.
+> >
+> > This change also maintains the improvement introduced in commit
+> > ee1a84fd which removed the need to keep the current sidtab locked
+> > during policy reload. It does however introduce periodic locking of
+> > the target sidtab while converting the hashtable. Sidtab entries
+> > are never modified or removed, so the context struct stored in the
+> > sid_to_context tree can also be used for the context_to_sid
+> > hashtable to reduce memory usage.
+> >
+> > This bug was reported by:
+> > - Stephen Smally on the selinux bug tracker.
+> >    BUG: kernel softlockup due to too many SIDs/contexts #37
+> >    https://github.com/SELinuxProject/selinux-kernel/issues/37
+> > - Jovana Knezevic on Android's bugtracker.
+> >    Bug: 140252993
+> >    "During multi-user performance testing, we create and remove users
+> >    many times. selinux_android_restorecon_pkgdir goes from 1ms to over
+> >    20ms after about 200 user creations and removals. Accumulated over
+> >    ~280 packages, that adds a significant time to user creation,
+> >    making perf benchmarks unreliable."
+> >
+> > * Hashtable lookup is only O(1) when n < the number of buckets.
+> >
+> > Changes in V2:
+> > -The hashtable uses sidtab_entry_leaf objects directly so these
+> > objects are shared between the sid_to_context lookup tree and the
+> > context_to_sid hashtable.
+> > -Move the hash_add() statement to after the smp_store_release()
+> > to ensure that the contents have been written before the object
+> > becomes available in the hashtable.
 >
-> Please resend patch to fsdevel discarding the auto added CC list
-> of all fs maintainers.
-
-git send-email is not my friend :-(
-
->> gregkh@
->> said it passed the limit for number of arguments, is looking a bit silly
-> Well, you just matched get() to set() args list, so this is not a strong
-> argument IMO.
+> Don't forget to cc Paul and anyone who commented previously (e.g. Ondrej).
 >
->> (my paraphrase), and that it should be passed as a structure. Two others
->> agreed. We gained because both set and get use the same structure after
->> this change (this allows a simplified read-modify-write cycle).
-> That sounds like a nice benefit if this was user API, but are there any
-> kernel users that intend to make use of that read-modify-write cycle?
-> I don't think so.
-(one user)
+> I could be wrong, but I think that only helps if we also do a
+> smp_load_acquire() prior to reading/walking the hash table and if there
+> is an actual data dependency between the target of the store/load and
+> what we are trying to protect here.   I don't think that's the case
+> here.  So I don't think you can or should piggyback on the existing
+> load_acquire/store_release pair.  Ondrej can correct me if I am wrong
+> (entirely possible).
 >
->> We will need a quorum on this, 3 (structure) to 2 (flag) now (but really
->> basically between Greg and Christoph?). Coding style issue: Add a flag,
->> or switch to a common xattr argument  structure?
->>
-> IIRC, Christoph was asking why the silly struct and not simply add flags
-> (as did I). He probably did not see Greg's comments due to the list bounce
-> issue. If I read your second hand description of Greg's reaction correctly,
-> it doesn't sound so strong opinionated as well.
-> Me, I can live with flags or struct - I don't care, but...
+> I also get this splat upon running Ondrej's reproducer for the bug fixed
+> by his sidtab rewrite.
 >
-> Be prepared that if you are going ahead with struct you are going to
-> suffer from bike shedding, which has already started and you will be
-> instructed (just now) to also fix all the relevant and missing Documentation.
-> If, on the other hand, you can get Greg and the rest to concede to adding
-> flags arg and match get() arg list to set() arg list, you will have a much
-> easier job and the patch line count, especially in fs code will be *much*
-> smaller - just saying.
-
-Respining back to the v4 version of the series incorporating some of the 
-fixes on the way.
-
-Automated testing in kernel not yet handled and will be noted in the 
-respin.
-
-> Thanks,
-> Amir.
-
-Mark
-
+> Reproducer:
+>
+>        while true; do load_policy; echo -n .; sleep 0.1; done &
+>          for (( i = 0; i < 1024; i++ )); do
+>              runcon -l s0:c$i echo -n x || break
+>              # or:
+>              # chcon -l s0:c$i <some_file> || break
+>          done
+>
+> Splat:
+>
+> 6>[ 1070.843961] SELinux:  Converting 3927 SID table entries...
+> <4>[ 1070.858060]
+> <4>[ 1070.858064] ============================================
+> <4>[ 1070.858066] WARNING: possible recursive locking detected
+> <4>[ 1070.858068] 5.4.0-rc1+ #50 Not tainted
+> <4>[ 1070.858070] --------------------------------------------
+> <4>[ 1070.858072] runcon/13122 is trying to acquire lock:
+> <4>[ 1070.858074] ffff88869467c248 (&(&s->lock)->rlock){..-.}, at:
+> sidtab_context_to_sid+0x379/0x700
+> <4>[ 1070.858080]
+> <4>[ 1070.858080] but task is already holding lock:
+> <4>[ 1070.858082] ffff8886e608c248 (&(&s->lock)->rlock){..-.}, at:
+> sidtab_context_to_sid+0x64/0x700
+> <4>[ 1070.858086]
+> <4>[ 1070.858086] other info that might help us debug this:
+> <4>[ 1070.858088]  Possible unsafe locking scenario:
+> <4>[ 1070.858088]
+> <4>[ 1070.858089]        CPU0
+> <4>[ 1070.858090]        ----
+> <4>[ 1070.858091]   lock(&(&s->lock)->rlock);
+> <4>[ 1070.858093]   lock(&(&s->lock)->rlock);
+> <4>[ 1070.858095]
+> <4>[ 1070.858095]  *** DEADLOCK ***
+> <4>[ 1070.858095]
+> <4>[ 1070.858097]  May be due to missing lock nesting notation
+> <4>[ 1070.858097]
+> <4>[ 1070.858099] 3 locks held by runcon/13122:
+> <4>[ 1070.858100]  #0: ffff8887fa97c820 (sb_writers#9){.+.+}, at:
+> vfs_write+0x215/0x280
+> <4>[ 1070.858105]  #1: ffffffffae0230e8
+> (&selinux_ss.policy_rwlock){.+.?}, at:
+> security_context_to_sid_core+0x2c0/0x340
+> <4>[ 1070.858109]  #2: ffff8886e608c248 (&(&s->lock)->rlock){..-.}, at:
+> sidtab_context_to_sid+0x64/0x700
+> <4>[ 1070.858113]
+> <4>[ 1070.858113] stack backtrace:
+> <4>[ 1070.858116] CPU: 1 PID: 13122 Comm: runcon Not tainted 5.4.0-rc1+ #50
+> <4>[ 1070.858118] Hardware name: Dell Inc. OptiPlex 7050/0NW6H5, BIOS
+> 1.8.3 03/23/2018
+> <4>[ 1070.858120] Call Trace:
+> <4>[ 1070.858124]  dump_stack+0x9a/0xf0
+> <4>[ 1070.858128]  __lock_acquire.cold+0x12e/0x212
+> <4>[ 1070.858136]  ? lockdep_hardirqs_on+0x260/0x260
+> <4>[ 1070.858142]  lock_acquire+0xe5/0x210
+> <4>[ 1070.858160]  ? sidtab_context_to_sid+0x379/0x700
+> <4>[ 1070.858164]  _raw_spin_lock_irqsave+0x44/0x60
+> <4>[ 1070.858166]  ? sidtab_context_to_sid+0x379/0x700
+> <4>[ 1070.858169]  sidtab_context_to_sid+0x379/0x700
+> <4>[ 1070.858173]  ? security_compute_sid.part.0+0x960/0x960
+> <4>[ 1070.858177]  security_context_to_sid_core+0x177/0x340
+> <4>[ 1070.858180]  ? context_to_sid.isra.0+0x60/0x60
+> <4>[ 1070.858182]  ? match_held_lock+0x1b/0x240
+> <4>[ 1070.858200]  ? __might_fault+0x6f/0xd0
+> <4>[ 1070.858203]  security_context_to_sid+0x12/0x20
+> <4>[ 1070.858206]  sel_write_context+0x19b/0x200
+> <4>[ 1070.858209]  ? selinux_transaction_write+0xa0/0xa0
+> <4>[ 1070.858213]  ? _copy_from_user+0xa1/0xd0
+> <4>[ 1070.858216]  ? selinux_transaction_write+0xa0/0xa0
+> <4>[ 1070.858218]  selinux_transaction_write+0x72/0xa0
+> <4>[ 1070.858221]  vfs_write+0x12f/0x280
+> <4>[ 1070.858224]  ksys_write+0xc3/0x160
+> <4>[ 1070.858227]  ? __ia32_sys_read+0x50/0x50
+> <4>[ 1070.858230]  ? lockdep_hardirqs_off+0xbe/0x100
+> <4>[ 1070.858232]  ? mark_held_locks+0x24/0x90
+> <4>[ 1070.858236]  do_syscall_64+0x74/0xd0
+> <4>[ 1070.858239]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> <4>[ 1070.858242] RIP: 0033:0x7f7e94d3a467
+> <4>[ 1070.858245] Code: 64 89 02 48 c7 c0 ff ff ff ff eb bb 0f 1f 80 00
+> 00 00 00 f3 0f 1e fa 64 8b 04 25 18 00 00 00 85 c0 75 10 b8 01 00 00 00
+> 0f 05 <48> 3d 00 f0 ff ff 77 51 c3 48 83 ec 28 48 89 54 24 18 48 89 74 24
+> <4>[ 1070.858247] RSP: 002b:00007ffd48dbae78 EFLAGS: 00000246 ORIG_RAX:
+> 0000000000000001
+> <4>[ 1070.858250] RAX: ffffffffffffffda RBX: 00007ffd48dbc038 RCX:
+> 00007f7e94d3a467
+> <4>[ 1070.858252] RDX: 000000000000002f RSI: 000055e32f081600 RDI:
+> 0000000000000003
+> <4>[ 1070.858254] RBP: 000055e32f081600 R08: 00000000ffffffff R09:
+> 00007ffd48dbad10
+> <4>[ 1070.858255] R10: 0000000000000000 R11: 0000000000000246 R12:
+> 0000000000000003
+> <4>[ 1070.858257] R13: 00007ffd48dbbefc R14: 0000000000000000 R15:
+> 0000000000000000
+>
+> > -The new sidtab hash stats file in selinuxfs has been moved out of
+> > the avc dir and into a new "ss" dir.
+> >
+> > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+> > Reported-by: Stephen Smalley <sds@tycho.nsa.gov>
+> > Reported-by: Jovana Knezevic <jovanak@google.com>
+> > ---
+> >   security/selinux/Kconfig            |  12 ++
+> >   security/selinux/include/security.h |   1 +
+> >   security/selinux/selinuxfs.c        |  64 +++++++
+> >   security/selinux/ss/context.h       |  11 +-
+> >   security/selinux/ss/policydb.c      |   5 +
+> >   security/selinux/ss/services.c      |  87 +++++++---
+> >   security/selinux/ss/services.h      |   4 +-
+> >   security/selinux/ss/sidtab.c        | 249 +++++++++++++---------------
+> >   security/selinux/ss/sidtab.h        |  16 +-
+> >   9 files changed, 287 insertions(+), 162 deletions(-)
+> >
+> <snip>
