@@ -2,214 +2,173 @@ Return-Path: <SRS0=VC3m=Y6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1216BC5DF63
-	for <selinux@archiver.kernel.org>; Wed,  6 Nov 2019 16:30:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38EF1C5DF63
+	for <selinux@archiver.kernel.org>; Wed,  6 Nov 2019 16:42:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CDA1E2067B
-	for <selinux@archiver.kernel.org>; Wed,  6 Nov 2019 16:30:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F093A207FA
+	for <selinux@archiver.kernel.org>; Wed,  6 Nov 2019 16:42:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Fl4LmDk+"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="VID82FFX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732172AbfKFQa4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Nov 2019 11:30:56 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:35371 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1732169AbfKFQa4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Nov 2019 11:30:56 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573057854;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=UJt3KrLqpH06r+SdjXHSb5mJDhZRvO9vkNXES+xlPVw=;
-        b=Fl4LmDk+sOSRf3OKnwv3WVoHBibEk5C0qgin+kGVerputGlLrSBE57OVzfEYfF/i4kCuGw
-        8l51bdWM5UuEMqijvkrDYtquIF9Agx8qQu4154Q/F0yDlSJ61cKkeL9acxe4IZJx/URcYk
-        +B/yyhFfVnjfdk7JAA4W3yq9LieHOy0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-358-Z88HhmrsOy6zyqKd-r9sLQ-1; Wed, 06 Nov 2019 11:30:53 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 42CA91005500
-        for <selinux@vger.kernel.org>; Wed,  6 Nov 2019 16:30:52 +0000 (UTC)
-Received: from workstation.brq.redhat.com (unknown [10.34.245.65])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 62E5A60CD3;
-        Wed,  6 Nov 2019 16:30:51 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] Replace www.nsa.gov references by github.com/SELinuxProject
-Date:   Wed,  6 Nov 2019 17:30:43 +0100
-Message-Id: <20191106163043.1081424-1-plautrba@redhat.com>
+        id S1727570AbfKFQmt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Nov 2019 11:42:49 -0500
+Received: from mail-vk1-f170.google.com ([209.85.221.170]:44731 "EHLO
+        mail-vk1-f170.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727285AbfKFQmt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Nov 2019 11:42:49 -0500
+Received: by mail-vk1-f170.google.com with SMTP id o198so5769474vko.11
+        for <selinux@vger.kernel.org>; Wed, 06 Nov 2019 08:42:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ammZCAn1GUtDmbEKbm0tTB4ROYXHy+Eu0GhSjuokXWo=;
+        b=VID82FFXLa+9jpv5fMPM1r3WLGj2kjW7qHlWfFqVwinkSSDJ4GjgrAzQtQrTyXLaww
+         TUjOIzfTO80Qj/9PqDysG0nwDUhN1brGaZC65u6WAs0kSLlALUppWesbgc6wrqFVNhPZ
+         oMFZJquusZ/EP9IfQOGylHY1r+yHIFkP95B7qRhimIlxDkg3hHeKja959Jjb8ruXLroE
+         QKIClUfAvHjzn0y1vziyVXeEJOmEXYEqKPmJV+WzP9Mw930rd8yC19/X8q/f44MChqet
+         4FZfOzhsOCuMikHYOS82GEQJaXb6bF292pwGB/r4jR5e2wt1Toxb4+oAGt+M9wQNxsqk
+         47gA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ammZCAn1GUtDmbEKbm0tTB4ROYXHy+Eu0GhSjuokXWo=;
+        b=Tidlv4vgVZs565kMogmZSdYmmoaSPMB3FBpfj1bgyrFgCIReoiW7wTKhyJSKvaDGG3
+         wkv5k89kEMY0nLIUVnSCTePnrJyc6Hkw4A7x7DyRKIZ+8LmPZMrHNuwSHCQNWUN9Pdym
+         2zS7GaqZLHdOCfiPVlPitBoGPoZCpK2xRcS8/zVUBj5kFtWJ/KJCTWyZqUanr54mAFAX
+         Qdz1bogWu7KVN70lB7d9OLrvsZ4xuzyRrp+gqWEY1Yq9ZeOUPyk1nezDX3jSp9YaVyv0
+         0vq7l1T5X4Y/BrLfesXm8/2R9RR/z9Kxs0nuI+LZh4PdQIQyPdd7DvET/R1CCxvESKR8
+         sKxQ==
+X-Gm-Message-State: APjAAAVEgnRXkt+iy/6G/iDw/hlN8Uqnz12qYPVWwKRDR7/+Top9uvOB
+        ThyNIQMl4YWZak8/ZgHyqPToRTQqxo03PoaR/tXWQlJDa/g=
+X-Google-Smtp-Source: APXvYqwfgN72W/jEytwR1GQftIp0FMLYFZ873AZiuLnjG8REclGqNBiJ8mzQLQweoDELn5rRYaYU2iifP4LI9xSB+Cs=
+X-Received: by 2002:a1f:7c01:: with SMTP id x1mr1788863vkc.15.1573058566318;
+ Wed, 06 Nov 2019 08:42:46 -0800 (PST)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-MC-Unique: Z88HhmrsOy6zyqKd-r9sLQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
+References: <CAJ2a_Df4Mwf8eiatG92fywoCoEDpozYGz+jvPLRN8vcXy2a70g@mail.gmail.com>
+ <57bbaee4-4338-30f2-3d12-bbf6a6aaabe6@tycho.nsa.gov>
+In-Reply-To: <57bbaee4-4338-30f2-3d12-bbf6a6aaabe6@tycho.nsa.gov>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Wed, 6 Nov 2019 17:42:35 +0100
+Message-ID: <CAJ2a_Dc9mxQzuhxrbhq90LMfDVx0i-33GPegrhxVeRgXg2A4zA@mail.gmail.com>
+Subject: Re: Odd systemd source context for non pid 1 process
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The original page doesn't exist anymore.
+> No.  Not sure what it is that you are seeing.  Maybe auditallow
+> execute_no_trans or double check that your policy isn't allowing it
+> (e.g. sesearch -A -s systemd_t -p execute_no_trans)
 
-Fixes: https://github.com/SELinuxProject/selinux/issues/170
+No execute_no_trans are logged (with an auditallow rule).
+There is actually one execute_no_trans over itself (systemd_exec_t --
+/usr/lib/systemd/systemd).
+So systemd might re-exec or fork to get another pid.
+But the pid in the denials is, in the case of systemd-logind, the
+final pid of that daemon.
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- checkpolicy/checkmodule.8        | 3 +--
- checkpolicy/checkpolicy.8        | 3 +--
- checkpolicy/ru/checkmodule.8     | 3 +--
- checkpolicy/ru/checkpolicy.8     | 4 +---
- libselinux/man/man8/selinux.8    | 2 +-
- libselinux/man/ru/man8/selinux.8 | 2 +-
- python/sepolgen/HACKING          | 2 --
- 7 files changed, 6 insertions(+), 13 deletions(-)
+Also in the audit logs, the odd denial (e.g. 11/06/19 17:31:39.298:30)
+is prior to the nnp_transition info (e.g. 11/06/19 17:31:39.466:35).
 
-diff --git a/checkpolicy/checkmodule.8 b/checkpolicy/checkmodule.8
-index e55582f3..e597d9d4 100644
---- a/checkpolicy/checkmodule.8
-+++ b/checkpolicy/checkmodule.8
-@@ -59,8 +59,7 @@ $ checkmodule \-M \-m httpd.te \-o httpd.mod
-=20
- .SH "SEE ALSO"
- .B semodule(8), semodule_package(8)
--SELinux documentation at http://www.nsa.gov/research/selinux,
--especially "Configuring the SELinux Policy".
-+SELinux Reference Policy documentation at https://github.com/SELinuxProjec=
-t/refpolicy/wiki
-=20
-=20
- .SH AUTHOR
-diff --git a/checkpolicy/checkpolicy.8 b/checkpolicy/checkpolicy.8
-index bdfd6acd..97e10ca7 100644
---- a/checkpolicy/checkpolicy.8
-+++ b/checkpolicy/checkpolicy.8
-@@ -60,8 +60,7 @@ Show version information.
- Show usage information.
-=20
- .SH "SEE ALSO"
--SELinux documentation at http://www.nsa.gov/research/selinux,
--especially "Configuring the SELinux Policy".
-+SELinux Reference Policy documentation at https://github.com/SELinuxProjec=
-t/refpolicy/wiki
-=20
-=20
- .SH AUTHOR
-diff --git a/checkpolicy/ru/checkmodule.8 b/checkpolicy/ru/checkmodule.8
-index 93e68e70..a1d687e3 100644
---- a/checkpolicy/ru/checkmodule.8
-+++ b/checkpolicy/ru/checkmodule.8
-@@ -46,8 +46,7 @@ $ checkmodule \-M \-m httpd.te \-o httpd.mod
-=20
- .SH "=D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
-=D0=96=D0=95"
- .B semodule(8), semodule_package(8)
--=D0=94=D0=BE=D0=BA=D1=83=D0=BC=D0=B5=D0=BD=D1=82=D0=B0=D1=86=D0=B8=D1=8F S=
-ELinux =D0=BF=D0=BE =D0=B0=D0=B4=D1=80=D0=B5=D1=81=D1=83 http://www.nsa.gov=
-/research/selinux,
--=D0=B2 =D1=87=D0=B0=D1=81=D1=82=D0=BD=D0=BE=D1=81=D1=82=D0=B8 - "=D0=9D=D0=
-=B0=D1=81=D1=82=D1=80=D0=BE=D0=B9=D0=BA=D0=B0 =D0=BF=D0=BE=D0=BB=D0=B8=D1=
-=82=D0=B8=D0=BA=D0=B8 SELinux".
-+=D0=94=D0=BE=D0=BA=D1=83=D0=BC=D0=B5=D0=BD=D1=82=D0=B0=D1=86=D0=B8=D1=8F S=
-ELinux Reference Policy =D0=BF=D0=BE =D0=B0=D0=B4=D1=80=D0=B5=D1=81=D1=83 h=
-ttps://github.com/SELinuxProject/refpolicy/wiki
-=20
-=20
- .SH =D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB
-diff --git a/checkpolicy/ru/checkpolicy.8 b/checkpolicy/ru/checkpolicy.8
-index 2ad39b8e..25b0e555 100644
---- a/checkpolicy/ru/checkpolicy.8
-+++ b/checkpolicy/ru/checkpolicy.8
-@@ -51,9 +51,7 @@ checkpolicy \- =D0=BA=D0=BE=D0=BC=D0=BF=D0=B8=D0=BB=D1=8F=
-=D1=82=D0=BE=D1=80 =D0=BF=D0=BE=D0=BB=D0=B8=D1=82=D0=B8=D0=BA=D0=B8 SELinux
- =D0=9F=D0=BE=D0=BA=D0=B0=D0=B7=D0=B0=D1=82=D1=8C =D1=81=D0=B2=D0=B5=D0=B4=
-=D0=B5=D0=BD=D0=B8=D1=8F =D0=BE=D0=B1 =D0=B8=D1=81=D0=BF=D0=BE=D0=BB=D1=8C=
-=D0=B7=D0=BE=D0=B2=D0=B0=D0=BD=D0=B8=D0=B8.
-=20
- .SH "=D0=A1=D0=9C=D0=9E=D0=A2=D0=A0=D0=98=D0=A2=D0=95 =D0=A2=D0=90=D0=9A=
-=D0=96=D0=95"
--=D0=94=D0=BE=D0=BA=D1=83=D0=BC=D0=B5=D0=BD=D1=82=D0=B0=D1=86=D0=B8=D1=8F S=
-ELinux =D0=BF=D0=BE =D0=B0=D0=B4=D1=80=D0=B5=D1=81=D1=83 http://www.nsa.gov=
-/research/selinux,
--=D0=B2 =D1=87=D0=B0=D1=81=D1=82=D0=BD=D0=BE=D1=81=D1=82=D0=B8 - "=D0=9D=D0=
-=B0=D1=81=D1=82=D1=80=D0=BE=D0=B9=D0=BA=D0=B0 =D0=BF=D0=BE=D0=BB=D0=B8=D1=
-=82=D0=B8=D0=BA=D0=B8 SELinux".
--
-+=D0=94=D0=BE=D0=BA=D1=83=D0=BC=D0=B5=D0=BD=D1=82=D0=B0=D1=86=D0=B8=D1=8F S=
-ELinux Reference Policy =D0=BF=D0=BE =D0=B0=D0=B4=D1=80=D0=B5=D1=81=D1=83 h=
-ttps://github.com/SELinuxProject/refpolicy/wiki
-=20
- .SH =D0=90=D0=92=D0=A2=D0=9E=D0=A0=D0=AB
- =D0=AD=D1=82=D0=B0 =D1=81=D1=82=D1=80=D0=B0=D0=BD=D0=B8=D1=86=D0=B0 =D1=80=
-=D1=83=D0=BA=D0=BE=D0=B2=D0=BE=D0=B4=D1=81=D1=82=D0=B2=D0=B0 =D0=B1=D1=8B=
-=D0=BB=D0=B0 =D0=BD=D0=B0=D0=BF=D0=B8=D1=81=D0=B0=D0=BD=D0=B0 Arpad Magosan=
-yi <mag@bunuel.tii.matav.hu>,
-diff --git a/libselinux/man/man8/selinux.8 b/libselinux/man/man8/selinux.8
-index e37aee68..31364271 100644
---- a/libselinux/man/man8/selinux.8
-+++ b/libselinux/man/man8/selinux.8
-@@ -10,7 +10,7 @@ enforcement of many kinds of mandatory access control pol=
-icies,
- including those based on the concepts of Type Enforcement=C2=AE, Role-
- Based Access Control, and Multi-Level Security.  Background
- information and technical documentation about SELinux can be found at
--http://www.nsa.gov/research/selinux.
-+https://github.com/SELinuxProject.
-=20
- The
- .I /etc/selinux/config
-diff --git a/libselinux/man/ru/man8/selinux.8 b/libselinux/man/ru/man8/seli=
-nux.8
-index 5cc48df8..271809de 100644
---- a/libselinux/man/ru/man8/selinux.8
-+++ b/libselinux/man/ru/man8/selinux.8
-@@ -9,7 +9,7 @@ Linux =D1=81 =D1=83=D0=BB=D1=83=D1=87=D1=88=D0=B5=D0=BD=D0=
-=BD=D0=BE=D0=B9 =D0=B1=D0=B5=D0=B7=D0=BE=D0=BF=D0=B0=D1=81=D0=BD=D0=BE=D1=
-=81=D1=82=D1=8C=D1=8E =D0=BE=D1=82 NSA - =D1=8D=D1=82=D0=BE =D1=80=D0=B5
- =D0=B2=D0=BA=D0=BB=D1=8E=D1=87=D0=B0=D1=8F =D0=BE=D1=81=D0=BD=D0=BE=D0=B2=
-=D0=B0=D0=BD=D0=BD=D1=8B=D0=B5 =D0=BD=D0=B0 =D0=BA=D0=BE=D0=BD=D1=86=D0=B5=
-=D0=BF=D1=86=D0=B8=D1=8F=D1=85 Type Enforcement=C2=AE (=D0=BF=D1=80=D0=B8=
-=D0=BD=D1=83=D0=B4=D0=B8=D1=82=D0=B5=D0=BB=D1=8C=D0=BD=D0=BE=D0=B5 =D0=BF=
-=D1=80=D0=B8=D1=81=D0=B2=D0=BE=D0=B5=D0=BD=D0=B8=D0=B5 =D1=82=D0=B8=D0=BF=
-=D0=BE=D0=B2),
- Role-Based Access Control (=D1=83=D0=BF=D1=80=D0=B0=D0=B2=D0=BB=D0=B5=D0=
-=BD=D0=B8=D0=B5 =D0=B4=D0=BE=D1=81=D1=82=D1=83=D0=BF=D0=BE=D0=BC =D0=BD=D0=
-=B0 =D0=BE=D1=81=D0=BD=D0=BE=D0=B2=D0=B5 =D1=80=D0=BE=D0=BB=D0=B5=D0=B9) =
-=D0=B8 Multi-Level Security
- (=D0=BC=D0=BD=D0=BE=D0=B3=D0=BE=D1=83=D1=80=D0=BE=D0=B2=D0=BD=D0=B5=D0=B2=
-=D0=B0=D1=8F =D0=B1=D0=B5=D0=B7=D0=BE=D0=BF=D0=B0=D1=81=D0=BD=D0=BE=D1=81=
-=D1=82=D1=8C). =D0=94=D0=BE=D0=BF=D0=BE=D0=BB=D0=BD=D0=B8=D1=82=D0=B5=D0=BB=
-=D1=8C=D0=BD=D0=B0=D1=8F =D0=B8=D0=BD=D1=84=D0=BE=D1=80=D0=BC=D0=B0=D1=86=
-=D0=B8=D1=8F =D0=B8 =D1=82=D0=B5=D1=85=D0=BD=D0=B8=D1=87=D0=B5=D1=81=D0=BA=
-=D0=B0=D1=8F =D0=B4=D0=BE=D0=BA=D1=83=D0=BC=D0=B5=D0=BD=D1=82=D0=B0=D1=86=
-=D0=B8=D1=8F =D0=BF=D0=BE
--SELinux =D0=B4=D0=BE=D1=81=D1=82=D1=83=D0=BF=D0=BD=D0=B0 =D0=BF=D0=BE =D0=
-=B0=D0=B4=D1=80=D0=B5=D1=81=D1=83 http://www.nsa.gov/research/selinux.
-+SELinux =D0=B4=D0=BE=D1=81=D1=82=D1=83=D0=BF=D0=BD=D0=B0 =D0=BF=D0=BE =D0=
-=B0=D0=B4=D1=80=D0=B5=D1=81=D1=83 https://github.com/SELinuxProject.
-=20
- =D0=A4=D0=B0=D0=B9=D0=BB =D0=BA=D0=BE=D0=BD=D1=84=D0=B8=D0=B3=D1=83=D1=80=
-=D0=B0=D1=86=D0=B8=D0=B8
- .I /etc/selinux/config
-diff --git a/python/sepolgen/HACKING b/python/sepolgen/HACKING
-index e624a1b4..f7d07774 100644
---- a/python/sepolgen/HACKING
-+++ b/python/sepolgen/HACKING
-@@ -75,5 +75,3 @@ Information about the SELinux object classes. This is sem=
-antic
- information about the object classes - including information flow. It
- is separated to keep the core from being concerned about the details
- of the object classes.
--
--[selist]: http://www.nsa.gov/research/selinux/info/list.cfm
---=20
-2.23.0
 
+<<<<<<<< log snippets
+
+$ ps -efZ | grep logind
+system_u:system_r:systemd_logind_t:s0 root 478     1  0 17:31 ?
+00:00:00 /lib/systemd/systemd-logind
+
+type=3DPROCTITLE msg=3Daudit(11/06/19 17:31:39.298:30) : proctitle=3D(d-log=
+ind)
+type=3DPATH msg=3Daudit(11/06/19 17:31:39.298:30) : item=3D1
+name=3D/run/systemd/inhibit inode=3D14431 dev=3D00:15 mode=3Ddir,755 ouid=
+=3Droot
+ogid=3Droot rdev=3D00:00
+obj=3Dsystem_u:object_r:systemd_logind_inhibit_runtime_t:s0
+nametype=3DCREATE cap_fp=3Dnone cap_fi=3Dnone cap_fe=3D0 cap_fver=3D0
+cap_frootid=3D0
+type=3DPATH msg=3Daudit(11/06/19 17:31:39.298:30) : item=3D0
+name=3D/run/systemd/ inode=3D10008 dev=3D00:15 mode=3Ddir,755 ouid=3Droot
+ogid=3Droot rdev=3D00:00 obj=3Dsystem_u:object_r:systemd_runtime_t:s0
+nametype=3DPARENT cap_fp=3Dnone cap_fi=3Dnone cap_fe=3D0 cap_fver=3D0
+cap_frootid=3D0
+type=3DCWD msg=3Daudit(11/06/19 17:31:39.298:30) : cwd=3D/
+type=3DSYSCALL msg=3Daudit(11/06/19 17:31:39.298:30) : arch=3Dx86_64
+syscall=3Dmkdir success=3Dyes exit=3D0 a0=3D0x559af6611a00 a1=3D0755 a2=3D0=
+x0
+a3=3D0x7 items=3D2 ppid=3D1 pid=3D478 auid=3Dunset uid=3Droot gid=3Droot eu=
+id=3Droot
+suid=3Droot fsuid=3Droot egid=3Droot sgid=3Droot fsgid=3Droot tty=3D(none)
+ses=3Dunset comm=3D(d-logind) exe=3D/usr/lib/systemd/systemd
+subj=3Dsystem_u:system_r:systemd_t:s0 key=3D(null)
+type=3DAVC msg=3Daudit(11/06/19 17:31:39.298:30) : avc:  denied  { create
+} for  pid=3D478 comm=3D(d-logind) name=3Dinhibit
+scontext=3Dsystem_u:system_r:systemd_t:s0
+tcontext=3Dsystem_u:object_r:systemd_logind_inhibit_runtime_t:s0
+tclass=3Ddir permissive=3D1
+
+.. later...
+
+type=3DPROCTITLE msg=3Daudit(11/06/19 17:31:39.466:35) : proctitle=3D(d-log=
+ind)
+type=3DPATH msg=3Daudit(11/06/19 17:31:39.466:35) : item=3D1
+name=3D/lib64/ld-linux-x86-64.so.2 inode=3D263996 dev=3D08:01 mode=3Dfile,7=
+55
+ouid=3Droot ogid=3Droot rdev=3D00:00 obj=3Dsystem_u:object_r:ld_so_t:s0
+nametype=3DNORMAL cap_fp=3Dnone cap_fi=3Dnone cap_fe=3D0 cap_fver=3D0
+cap_frootid=3D0
+type=3DPATH msg=3Daudit(11/06/19 17:31:39.466:35) : item=3D0
+name=3D/lib/systemd/systemd-logind inode=3D268205 dev=3D08:01 mode=3Dfile,7=
+55
+ouid=3Droot ogid=3Droot rdev=3D00:00
+obj=3Dsystem_u:object_r:systemd_logind_exec_t:s0 nametype=3DNORMAL
+cap_fp=3Dnone cap_fi=3Dnone cap_fe=3D0 cap_fver=3D0 cap_frootid=3D0
+type=3DCWD msg=3Daudit(11/06/19 17:31:39.466:35) : cwd=3D/
+type=3DEXECVE msg=3Daudit(11/06/19 17:31:39.466:35) : argc=3D1
+a0=3D/lib/systemd/systemd-logind
+type=3DBPRM_FCAPS msg=3Daudit(11/06/19 17:31:39.466:35) : fver=3D0 fp=3Dnon=
+e
+fi=3Dnone fe=3D0 old_pp=3Dchown,dac_override,dac_read_search,fowner,fsetid,=
+kill,setgid,setuid,setpcap,linux_immutable,net_bind_service,net_broadcast,n=
+et_admin,net_raw,ipc_lock,ipc_owner,sys_module,sys_rawio,sys_chroot,sys_ptr=
+ace,sys_pacct,sys_admin,sys_boot,sys_nice,sys_resource,sys_time,sys_tty_con=
+fig,mknod,lease,audit_write,audit_control,setfcap,mac_override,mac_admin,sy=
+slog,wake_alarm,block_suspend,audit_read
+old_pi=3Dnone old_pe=3Dchown,dac_override,dac_read_search,fowner,fsetid,kil=
+l,setgid,setuid,setpcap,linux_immutable,net_bind_service,net_broadcast,net_=
+admin,net_raw,ipc_lock,ipc_owner,sys_module,sys_rawio,sys_chroot,sys_ptrace=
+,sys_pacct,sys_admin,sys_boot,sys_nice,sys_resource,sys_time,sys_tty_config=
+,mknod,lease,audit_write,audit_control,setfcap,mac_override,mac_admin,syslo=
+g,wake_alarm,block_suspend,audit_read
+old_pa=3Dnone pp=3Dchown,dac_override,dac_read_search,fowner,linux_immutabl=
+e,sys_admin,sys_tty_config,audit_control,mac_admin
+pi=3Dnone pe=3Dchown,dac_override,dac_read_search,fowner,linux_immutable,sy=
+s_admin,sys_tty_config,audit_control,mac_admin
+pa=3Dnone frootid=3D0
+type=3DSYSCALL msg=3Daudit(11/06/19 17:31:39.466:35) : arch=3Dx86_64
+syscall=3Dexecve success=3Dyes exit=3D0 a0=3D0x559af6603750 a1=3D0x559af66a=
+d680
+a2=3D0x559af6690250 a3=3D0x559af66035c0 items=3D2 ppid=3D1 pid=3D478 auid=
+=3Dunset
+uid=3Droot gid=3Droot euid=3Droot suid=3Droot fsuid=3Droot egid=3Droot sgid=
+=3Droot
+fsgid=3Droot tty=3D(none) ses=3Dunset comm=3Dsystemd-logind
+exe=3D/usr/lib/systemd/systemd-logind
+subj=3Dsystem_u:system_r:systemd_logind_t:s0 key=3D(null)
+type=3DAVC msg=3Daudit(11/06/19 17:31:39.466:35) : avc:  granted  {
+nnp_transition } for  pid=3D478 comm=3D(d-logind)
+scontext=3Dsystem_u:system_r:systemd_t:s0
+tcontext=3Dsystem_u:system_r:systemd_logind_t:s0 tclass=3Dprocess2
+
+
+>>>>>>>> log snippets
