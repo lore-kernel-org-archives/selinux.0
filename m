@@ -7,84 +7,85 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F327C5DF63
-	for <selinux@archiver.kernel.org>; Wed,  6 Nov 2019 16:50:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3766C5DF63
+	for <selinux@archiver.kernel.org>; Wed,  6 Nov 2019 17:35:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 46EA82067B
-	for <selinux@archiver.kernel.org>; Wed,  6 Nov 2019 16:50:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 925412067B
+	for <selinux@archiver.kernel.org>; Wed,  6 Nov 2019 17:35:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="JKeFsg+G"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="V2srSnPb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732180AbfKFQul (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 Nov 2019 11:50:41 -0500
-Received: from UHIL19PA37.eemsg.mail.mil ([214.24.21.196]:29091 "EHLO
-        UHIL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732176AbfKFQuk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 Nov 2019 11:50:40 -0500
-X-EEMSG-check-017: 46067013|UHIL19PA37_ESA_OUT03.csd.disa.mil
+        id S1727957AbfKFRfK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 Nov 2019 12:35:10 -0500
+Received: from UCOL19PA37.eemsg.mail.mil ([214.24.24.197]:49220 "EHLO
+        UCOL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727894AbfKFRfJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 6 Nov 2019 12:35:09 -0500
+X-EEMSG-check-017: 46342730|UCOL19PA37_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.68,275,1569283200"; 
-   d="scan'208";a="46067013"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Nov 2019 16:50:39 +0000
+   d="scan'208";a="46342730"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UCOL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Nov 2019 17:35:05 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1573059039; x=1604595039;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=VtIEogTC72TZ6Rn0Zj8DvN8W2lv1xSa/wgME/L20gMo=;
-  b=JKeFsg+GZpxC0VTaCMFSAzQ3gN7CmehpXPXJmnnyLEVEZesdvUTF1AIC
-   aTcdExXcMLQHcgbFoIFfdWcwcQfzXvmSZ10Dw+nq9gebw40sFOww3e0aY
-   42RuTxuW4v6hPOvcoEtgXV06U8U8/EN+Vo+jAGD+oB+N4Jl0Mrbk0qTt6
-   t1vdGYmJGKFrG7wi9mIBbmc59zY9fN8N7DQvkDsrqcWfsGvGrbUjHWgNo
-   8UkyG09KCtvISdRhFEK7Nwf83EAflqODQ86hCL6JCn7NXoGgYDPSNKXCe
-   rk2GmEtR/8H00tn5uiOdVCdImXVhtChE/2oHtlRjCNoVmTIxPNwvf/bgq
-   A==;
+  s=tycho.nsa.gov; t=1573061706; x=1604597706;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=ION5+qz2/6PnFyZJGCSOuXq51+5pUeFpP0Q6buCDMs8=;
+  b=V2srSnPbR/HlapedzkXbv3oh34cr0yA/LQKdVOYPovUXx7I3DXdxrXvU
+   /VSabUWFCGOtaaj1fdeSl0K5nNDXEiM4Kyu+NNdeHXlW91aOxWOYmeQ8+
+   djJgR5eB4HlMl74iP1UxQ7ySfEkemEBOt2MqoNluTdG7xV9AtHbDxi1cu
+   P8s8sgv72PEDzP+oLkZl7lvEgF74AEVQtE0XEKpp+aiNMC6kpCqJCo6Sf
+   xVf1F6Imp3inAciyRSGYuXJl2czIOngmRWxRB9Ga872QLH5EXRJunoDGX
+   SW3595+K2dABPVIdymrqPxOl3rbDgonx0TnlOSJLx1rojP+nE53Jo8Ff3
+   g==;
 X-IronPort-AV: E=Sophos;i="5.68,275,1569283200"; 
-   d="scan'208";a="35197983"
-IronPort-PHdr: =?us-ascii?q?9a23=3AmPAFChDfJb9vg8ZXmHdPUyQJP3N1i/DPJgcQr6?=
- =?us-ascii?q?AfoPdwSPX5ocbcNUDSrc9gkEXOFd2Cra4d0KyP6v+rCDZIyK3CmUhKSIZLWR?=
- =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
- =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfL1/IA+roQnMtMQajo9vJrgswR?=
- =?us-ascii?q?bVv3VEfPhby3l1LlyJhRb84cmw/J9n8ytOvv8q6tBNX6bncakmVLJUFDspPX?=
- =?us-ascii?q?w7683trhnDUBCA5mAAXWUMkxpHGBbK4RfnVZrsqCT6t+592C6HPc3qSL0/RD?=
- =?us-ascii?q?qv47t3RBLulSwKLCAy/n3JhcNsjaJbuBOhqAJ5w47Ie4GeKf5ycrrAcd8GWW?=
- =?us-ascii?q?ZNW8BcWCJbAoO4coABEewPM+hFpIX5vlcCsx+zCQyqCejyyDFHm2X20LUn3e?=
- =?us-ascii?q?o/HwHI3A8uEdwAv3vbrtr6KKgcXPupzKTK1zjPc+9a1Dn/5YXObxsvoeuMXb?=
- =?us-ascii?q?V1ccfJ1EcvCx3Kjk2QqYP7OTOey/kDs22B4OpkUeKglW4moBx2rzi028gskZ?=
- =?us-ascii?q?LEhp4Vy1/Y9SV5x5w5JdujSEFhe9KkH5xQtz+DOoZwX8gsTWZouCMgxb0Hv5?=
- =?us-ascii?q?62ZDAKyZQ7xx7fbPyHdZKE4hX5VOaeJzpzmXFreKqnihqv/kWtxffwW8mp3F?=
- =?us-ascii?q?pQsCZIncfAumoQ2xHV98OJUOFy/l271jaKzw3T7+ZELl0qmqfDMJ4hx6Iwlo?=
- =?us-ascii?q?IUsUTeAi/6gEX2g7GSdkUj4uWo9/7oYq/npp+BLI94kB3+M6Qylcy/BuQ0KA?=
- =?us-ascii?q?4OUHSA+eugzrHj+Ez5QLFSgv03lKnWrozaKNwGqqO2DAJZyIYu5wulAzu439?=
- =?us-ascii?q?kUg2MLIE9ddBKClYfpOlXOIP7iDfe4hlShiCxryO3dPrD6HpXMLmTMkLfmfb?=
- =?us-ascii?q?pn7U5c0xA8wcpQ55JTFLENOOjzVVPptNzEEh85NBS5w/7jCNpny4MeRXiPDb?=
- =?us-ascii?q?SDP67Jq1+H+P8gI+mWa48JojryN/8l5/v2h38jhVAdZbWp3YcQaH2gBfRpPU?=
- =?us-ascii?q?GZYXvqgtccHmYHpRQ+TOP0h12YSzJTZGi9X7g65j4lDIKqF4DDRpqigO/J4C?=
- =?us-ascii?q?DuJpBKfChiA02QC33hfIXMD+8IYT+OOMVouiYJWbioV8kq0hT48Efhxr5mKP?=
- =?us-ascii?q?fE0jMXuIil19Vv4eDX0xYo+m9aFcOYhlqRQnl0k2VAfDo/2KRysAQp0VuY+b?=
- =?us-ascii?q?RpiPxfU9pI7rVGVRlsZs2U9PBzF92nAlGJRdyOUlvzB4z8UDw=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AvAgDD+MJd/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBfoF0LGxUATIqhCmPFVEBAQEGgTaJZI9cgWcJAQEBAQEBAQEBJw0BAgEBh?=
- =?us-ascii?q?EAChA4kOBMCDgEBAQQBAQEBAQUDAQFshTcMgjspAYJsAQEBAQIBIxVGCwsOC?=
- =?us-ascii?q?gICJgICVwYBDAYCAQGCXz8BglIFIA+wcXWBMoVOgyyBSIEOKIwUGHiBB4E4g?=
- =?us-ascii?q?ms+hC2DKIJeBI0RiFNhRXKGXY8ngi6CNIRhjiEGG4MujTeJB45DiC+TRiKBW?=
- =?us-ascii?q?CsIAhgIIQ+DJwlHERSDERgViE9RbIQgIwMwgQUBAZEDAQE?=
+   d="scan'208";a="29827529"
+IronPort-PHdr: =?us-ascii?q?9a23=3AtwhlcxKS4Ktv/RdBMdmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgeLPvxwZ3uMQTl6Ol3ixeRBMOHsqkC0rOJ+Pm4AiQp2tWoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagb75+Ngi6oRjTu8UZnIduNqg8wQ?=
+ =?us-ascii?q?bVr3VVfOhb2XlmLk+JkRbm4cew8p9j8yBOtP8k6sVNT6b0cbkmQLJBFDgpPH?=
+ =?us-ascii?q?w768PttRnYUAuA/WAcXXkMkhpJGAfK8hf3VYrsvyTgt+p93C6aPdDqTb0xRD?=
+ =?us-ascii?q?+v4btnRAPuhSwaLDMy7n3ZhdJsg6JauBKhpgJww4jIYIGOKfFyerrRcc4GSW?=
+ =?us-ascii?q?ZdW8pcUSJOApm4b4ASEeQPO+hWpJT5q1cXoxazAQygCeXywTFKm3D2x7U33f?=
+ =?us-ascii?q?k/HwHI3AIuHNwAv3rbo9r3KKgcXvu4zLXKwDjZc/9axTnw5YrOfxs8of+MR7?=
+ =?us-ascii?q?Vwcc/JxEktGQLKkk+fqZb5Pz+Ly+8AtGqb7uR8Wu21kW4ntx99ryOzxsYslo?=
+ =?us-ascii?q?bJhoUVxkrC9SVi2ok5P9K4SEllYdO9FpZbqiKUN5NuT88/TGxltzw2x70btZ?=
+ =?us-ascii?q?KhYiQHx4orywTCZ/GBboOG+AjsVPyLLjd9nH9lfbW/iAus/kW40e38U9W00E?=
+ =?us-ascii?q?5NripYjtnArnAN2ALX6siAUvZ94l2u2SyO1wDO8eFIO1w0lKrHJJ4hxb48jJ?=
+ =?us-ascii?q?wTvljYHiDqgkn2ia6WdkE89uip7eTofKnmq4eBO4J7hQzyKKQjltGlDegmPQ?=
+ =?us-ascii?q?UCQXKX9fmk2L3m50L5QbFKjvMskqnetZDXPcYbp6ClDABPyIYj9wizAiy60N?=
+ =?us-ascii?q?UYgXYHLFVFdAiBj4jyIV7COv/4DfChg1i0ijdk2+jGPqH9ApXKNnXDlrbhcq?=
+ =?us-ascii?q?p6605Y0gUz1spT55NTCrEGO/LzQVT8tNnXAx42KQC0xPznCNpl3IMERW2PGr?=
+ =?us-ascii?q?OZML/VsVKQ/eIgPe2MZI4TuDbgJPko/ODujXAnll8HZ6Wp3oUYaGq+Hvt4J0?=
+ =?us-ascii?q?WVe33sgs0OETRCgg1rau3hj1mLSnZyYHGpROpo4DAwD4avFsHCQYe2m5SEgD?=
+ =?us-ascii?q?f9GYdZMDNoEFeJRHX3fIyeR61EPCCNKcZ7jmYsSamqS4hn0wqn8gD91ew0fa?=
+ =?us-ascii?q?Lv5iQEuMe7h5BO7OrJmER3rGclAg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2ASAADmA8Nd/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
+ =?us-ascii?q?QICAQEBAYFtAgEBAQELAYFzLIFAATIqhCmRJ5snCQEBAQEBAQEBATQBAgEBg?=
+ =?us-ascii?q?hOCLQKEDiQ3Bg4CDgEBAQQBAQEBAQUDAQFshUOCOykBgm0BBSMEEUEQCwkPA?=
+ =?us-ascii?q?gIfBwICVwYNBgIBAYJfP4J4sSZ1fzOFToMsgUiBDigBjBOBV0CBESeCaz5ph?=
+ =?us-ascii?q?myCXgSBOwGLVYhTYUVylgQGgiiVNgYbmWyqNyOBWCsKQYFogU5QERSDPo4sI?=
+ =?us-ascii?q?wMwgQUBAZEDAQE?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Nov 2019 16:50:36 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xA6Goa3R021639;
-        Wed, 6 Nov 2019 11:50:36 -0500
-Subject: Re: [PATCH] python/sepolicy: Revert "Only invoke RPM on RPM-enabled
- Linux distributions"
-To:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
-References: <20191106105907.1064568-1-plautrba@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <4ccc28b3-4e2c-e287-6d3e-4738e27bbbb3@tycho.nsa.gov>
-Date:   Wed, 6 Nov 2019 11:50:36 -0500
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 06 Nov 2019 17:34:55 +0000
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xA6HYsU4031850;
+        Wed, 6 Nov 2019 12:34:54 -0500
+Subject: Re: [Non-DoD Source] Re: [PATCH] libsepol/cil: Report disabling an
+ optional block only at high verbose levels
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20191101151903.15554-1-jwcart2@tycho.nsa.gov>
+ <CAJfZ7=nLxMZz_Y_m59gzn1fo=wXeDtn2fFMbHpv_9erZKOedZQ@mail.gmail.com>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <d2f1ca31-b273-e196-2c2f-8d0933974984@tycho.nsa.gov>
+Date:   Wed, 6 Nov 2019 12:35:21 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.1
 MIME-Version: 1.0
-In-Reply-To: <20191106105907.1064568-1-plautrba@redhat.com>
+In-Reply-To: <CAJfZ7=nLxMZz_Y_m59gzn1fo=wXeDtn2fFMbHpv_9erZKOedZQ@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -93,74 +94,62 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/6/19 5:59 AM, Petr Lautrbach wrote:
-> Commit 8ad76337d09d4b0080275d74392a258ea4ed0273 ("Only invoke RPM on RPM-enabled
-> Linux distributions") used platform.linux_distribution() function to detect
-
-That isn't a commit hash from the upstream selinux repo at least as far 
-as I can tell from my clone.  The corresponding one is 
-73b7ff410c1b2958c5c1f8e26cae5347d56416d4.
-
-Otherwise, looks good to me.
-
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-
-> whether the system is rpm based. This function is deprecated since Python 3.5
-> and it's removed from Python 3.8 - https://bugs.python.org/issue28167
+On 11/2/19 1:16 PM, Nicolas Iooss wrote:
+> On Fri, Nov 1, 2019 at 4:25 PM James Carter <jwcart2@tycho.nsa.gov> wrote:
+>>
+>> Since failing to resolve a statement in an optional block is normal,
+>> only display messages about the statement failing to resolve and the
+>> optional block being disabled at the highest verbosity level.
+>>
+>> These messages are now only at log level CIL_INFO instead of CIL_WARN.
+>>
+>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 > 
-> The original problem is already fixed by another commit
-> 671f83b42ba2 ("policycoreutils/sepolicy: Check get_rpm_nvr_list() return
-> value"):
+> I confirm that this fixes the issue I experienced with "semodule
+> --verbose -B" being much noisier in 3.0-rc1 than in 2.9.
 > 
->      $ sepolicy generate --customize -p mypolicy -n testpolicy -d httpd_sys_script_t -w /home
->      Failed to retrieve rpm info for selinux-policy
->      Created the following files:
->      mypolicy/testpolicy.te # Type Enforcement file
->      mypolicy/testpolicy.if # Interface file
->      mypolicy/testpolicy.fc # File Contexts file
->      mypolicy/testpolicy_selinux.spec # Spec file
->      mypolicy/testpolicy.sh # Setup Script
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 > 
-> Fixes:
->       File "/usr/lib/python3.8/site-packages/sepolicy/generate.py", line 1384, in generate
->         if (platform.linux_distribution(full_distribution_name=0)[0] in ("redhat", "centos", "SuSE", "fedora", "mandrake", "mandriva")):
->       AttributeError: module 'platform' has no attribute 'linux_distribution'
-> 
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> ---
->   python/sepolicy/sepolicy/generate.py | 7 ++-----
->   1 file changed, 2 insertions(+), 5 deletions(-)
-> 
-> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepolicy/generate.py
-> index 973edb9d..e8d07e7d 100644
-> --- a/python/sepolicy/sepolicy/generate.py
-> +++ b/python/sepolicy/sepolicy/generate.py
-> @@ -26,7 +26,6 @@ import re
->   import sepolicy
->   from sepolicy import get_all_types, get_all_attributes, get_all_roles
->   import time
-> -import platform
->   
->   from .templates import executable
->   from .templates import boolean
-> @@ -1178,8 +1177,7 @@ allow %s_t %s_t:%s_socket name_%s;
->                   newsh += re.sub("TEMPLATETYPE", self.name, t1)
->   
->           newsh += self.generate_user_sh()
-> -        if (platform.linux_distribution(full_distribution_name=0)[0] in ("redhat", "centos", "SuSE", "fedora", "mandrake", "mandriva")):
-> -            newsh += re.sub("TEMPLATEFILE", self.file_name, script.rpm)
-> +        newsh += re.sub("TEMPLATEFILE", self.file_name, script.rpm)
->   
->           return newsh
->   
-> @@ -1379,7 +1377,6 @@ Warning %s does not exist
->           out += "%s # %s\n" % (self.write_if(out_dir), _("Interface file"))
->           out += "%s # %s\n" % (self.write_fc(out_dir), _("File Contexts file"))
->           if self.type != NEWTYPE:
-> -            if (platform.linux_distribution(full_distribution_name=0)[0] in ("redhat", "centos", "SuSE", "fedora", "mandrake", "mandriva")):
-> -                out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file"))
-> +            out += "%s # %s\n" % (self.write_spec(out_dir), _("Spec file"))
->               out += "%s # %s\n" % (self.write_sh(out_dir), _("Setup Script"))
->           return out
+> Thanks
+> Nicolas
 > 
 
+I merged this.
+Jim
+
+>> ---
+>>   libsepol/cil/src/cil_resolve_ast.c | 6 ++++--
+>>   1 file changed, 4 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+>> index 70a60bdf..87575860 100644
+>> --- a/libsepol/cil/src/cil_resolve_ast.c
+>> +++ b/libsepol/cil/src/cil_resolve_ast.c
+>> @@ -3761,14 +3761,16 @@ int __cil_resolve_ast_node_helper(struct cil_tree_node *node, uint32_t *finished
+>>                  enum cil_log_level lvl = CIL_ERR;
+>>
+>>                  if (optstack != NULL) {
+>> -                       lvl = CIL_WARN;
+>> +                       lvl = CIL_INFO;
+>>
+>>                          struct cil_optional *opt = (struct cil_optional *)optstack->data;
+>>                          struct cil_tree_node *opt_node = opt->datum.nodes->head->data;
+>> -                       cil_tree_log(opt_node, lvl, "Disabling optional '%s'", opt->datum.name);
+>>                          /* disable an optional if something failed to resolve */
+>>                          opt->enabled = CIL_FALSE;
+>> +                       cil_tree_log(node, lvl, "Failed to resolve %s statement", cil_node_to_string(node));
+>> +                       cil_tree_log(opt_node, lvl, "Disabling optional '%s'", opt->datum.name);
+>>                          rc = SEPOL_OK;
+>> +                       goto exit;
+>>                  }
+>>
+>>                  cil_tree_log(node, lvl, "Failed to resolve %s statement", cil_node_to_string(node));
+>> --
+>> 2.21.0
+>>
+> 
+
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
