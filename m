@@ -5,56 +5,56 @@ X-Spam-Level:
 X-Spam-Status: No, score=-22.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham
-	autolearn_force=no version=3.4.0
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B4A5C43331
-	for <selinux@archiver.kernel.org>; Thu,  7 Nov 2019 20:52:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D04BC5DF61
+	for <selinux@archiver.kernel.org>; Thu,  7 Nov 2019 20:53:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ACCCE21D79
-	for <selinux@archiver.kernel.org>; Thu,  7 Nov 2019 20:52:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 424992166E
+	for <selinux@archiver.kernel.org>; Thu,  7 Nov 2019 20:53:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="fG6AbcaS"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="CwQZW5ID"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725912AbfKGUwd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 Nov 2019 15:52:33 -0500
-Received: from mail-wr1-f74.google.com ([209.85.221.74]:44132 "EHLO
-        mail-wr1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725818AbfKGUwc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 Nov 2019 15:52:32 -0500
-Received: by mail-wr1-f74.google.com with SMTP id z9so1879461wrq.11
-        for <selinux@vger.kernel.org>; Thu, 07 Nov 2019 12:52:27 -0800 (PST)
+        id S1725893AbfKGUxU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Nov 2019 15:53:20 -0500
+Received: from mail-vs1-f73.google.com ([209.85.217.73]:51437 "EHLO
+        mail-vs1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727166AbfKGUxU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Nov 2019 15:53:20 -0500
+Received: by mail-vs1-f73.google.com with SMTP id l3so992958vsd.18
+        for <selinux@vger.kernel.org>; Thu, 07 Nov 2019 12:53:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:message-id:mime-version:subject:from:to:cc;
         bh=40ylXrkxkskOj0zhvvJUQtGozbuqKxgGLhOnckCB2KY=;
-        b=fG6AbcaSgd/UTGqCCD1tuUYHTrFzTUJ8xYhPZqzXZICdt+PoeHpRQfXfpIKgZr0CqH
-         34OVuS4nA9YqujHeOx68gsx8cOS7K/QpUZySGNvs6N1QYB9ZZoPhnATu3ywrMzrWrf8t
-         1mzayKZAYBE/5jANovikHSP31izTgrRv+C8uH1PUr65kCyCJFS0vzS6Slhsb4UszSflA
-         aC3jcsAxru2it6fr3J1RsTdkJdZq+rNSk6hGxb/YJk+T5kgJJJC5HEZ3bG3d9agxdymB
-         SqTbEtxQyZg6NKrokalwJg1b8LkFPn+KVnBvk7ECLAss/4+fahbI3REUBR8fji0wWGiz
-         VkqQ==
+        b=CwQZW5IDeEnrt60HTZQ9zkB9jCDebeJJf3tFIhQFLIQNQUsErdwzR78VNH2LE/qr0D
+         kS5t8wJOXmM9GVwtck40uJQ9ScRMb6KaC4rYwaXtDBhY3W7Ay/+kVg0z5CZMGah1MK9L
+         qEooWxg1AtG4Ob4Qt40bhE167R8QkiuJHjK7kxe4BDh8YeH3UFioA1NYqMTzPSpYp33h
+         t+X1jLeZpPtyGd6hiL8QgX0s+8OITik+tZNu4keN78kTJG8Wa4d8zh/w+lM5RMyVBD2l
+         XwGJqEBsn0rwB6KBHWnGtO2BMnMDAAqTTgadLsxF6R0rQlwTVqBEeazJNswKeX41jNs4
+         yEzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
         bh=40ylXrkxkskOj0zhvvJUQtGozbuqKxgGLhOnckCB2KY=;
-        b=qj+nWysU3an3qey/Qu1FHvNqeujIYIF+R53rTkegcK18+zLuLPKPRrSDpue/jH8PHm
-         zFo2pbdR0QXtZBje72/AQ7XEiw19GoTmqPYu7bp8K7mQDnI5uyzxZ1RqmHGrUkEmZMZf
-         navkYzoE8QolpjhIvBcGDmnUEpSk7hlFJaTQRr8nmjnDCjRywFE6ffW5Vp/q18y2SIko
-         h+VeDT0j0GepXwvttxz6l+LhHx1XG+Ps+RRiLjgtk4ajmlabV897oXJplqoarkbO0Znb
-         TNAqfY6/4RRfqY7iBkIu1mIaPi0r/PLW7/4daNkmHrlylKU4VRadjtQxwuQ3yYzqS+S3
-         DhIA==
-X-Gm-Message-State: APjAAAWBwOxsSqx3W3DlHZ7x6ZAfPtcPqK0PiRUHL8JZYEKTKAoMDfPC
-        pXjc4ZHadNRcVLBzcU5CFwhIy4cGuS2Us/gvHK+6dABTQ8/Xq2hN3sll89CZghJg059fvvxtVf3
-        e8chq1M5gxCQFqzwQ3gi2V8yYlr1Qga1Id5TI78mrd1FHykqOXZtIxcIPO2jB
-X-Google-Smtp-Source: APXvYqwGBZXiRR/pwvJw7/jmYRPWmmDhARZdVX7LKonCd4C9N8ptHF6gnQaDUHIYna8wwXM69Jh1Pk8Y7A==
-X-Received: by 2002:adf:de86:: with SMTP id w6mr4917563wrl.220.1573159946804;
- Thu, 07 Nov 2019 12:52:26 -0800 (PST)
-Date:   Thu,  7 Nov 2019 21:52:21 +0100
-Message-Id: <20191107205221.222447-1-jeffv@google.com>
+        b=qLqEMhe464WveFi9o0gt8QHAm77gd47EpX7deBICcMKHzPTv4TWWeo1IpY686dnocH
+         hW7RQlwAByi0engmmSz1BseIetRZ0LqZynutECYVmLKeZNNKRAgbs4eu7xx9X0c/U9zS
+         zafkOJxpQ4uGOjwjWqTht5VssNcfa+oPhWl65JLOLK22MYfOjhvoTq1uQIhRz8J8flRw
+         RH6+ZoHGgdK+03Kt+rsDPRk77wCGN3hkeJnDiDR85BxrztxMwmyso2L3S/yspNY86RxU
+         dIpFaIWuUgixtWvv7/u6UiaKpHZbTRQsKPjCwmILZUQ130W263Pf5jPTiWgZxHLSFBuF
+         fTCA==
+X-Gm-Message-State: APjAAAVlaSsUKp+wthybj+Ehp3Znq55JVrthpCL01qS0DiKhG3CtRGye
+        DFRt6ZMmwkX5FlzGeHVggHlDL2i/KK4xRn0NVAa0k8NQR9DvYUoHe/kAQRSiO0ZW1f1/1/8v1M5
+        En2NHGld/5DeRRekGI+nFsrjsECc2+JmF7/CE/2iK35goIBIrqA0Ch1kHuJeA
+X-Google-Smtp-Source: APXvYqyEgGeAUxerdqLQfunUkaTD+ENVGiKc64R/wtDf/2pAJWwcAOoscFkXEG6eSmb3i998x8KR2Nc/Fg==
+X-Received: by 2002:a67:ed05:: with SMTP id l5mr2481425vsp.154.1573159998128;
+ Thu, 07 Nov 2019 12:53:18 -0800 (PST)
+Date:   Thu,  7 Nov 2019 21:53:13 +0100
+Message-Id: <20191107205313.224281-1-jeffv@google.com>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.24.0.rc1.363.gb1bccd3e3d-goog
-Subject: [PATCH] selinux: sidtab: reverse lookup hash table
+Subject: [PATCH v6] selinux: sidtab: reverse lookup hash table
 From:   Jeff Vander Stoep <jeffv@google.com>
 To:     selinux@vger.kernel.org
 Cc:     will@kernel.org, paul@paul-moore.com, sds@tycho.nsa.gov,
