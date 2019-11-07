@@ -2,112 +2,167 @@ Return-Path: <SRS0=6oqa=Y7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC148C43331
-	for <selinux@archiver.kernel.org>; Thu,  7 Nov 2019 16:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0EE6C43331
+	for <selinux@archiver.kernel.org>; Thu,  7 Nov 2019 16:13:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7F34F2085B
-	for <selinux@archiver.kernel.org>; Thu,  7 Nov 2019 16:00:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8344C214D8
+	for <selinux@archiver.kernel.org>; Thu,  7 Nov 2019 16:13:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gAQ7RGEa"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="goywMFUF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729656AbfKGQAM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 Nov 2019 11:00:12 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:33794 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726231AbfKGQAL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 Nov 2019 11:00:11 -0500
-Received: by mail-lj1-f194.google.com with SMTP id 139so2880579ljf.1
-        for <selinux@vger.kernel.org>; Thu, 07 Nov 2019 08:00:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=oTCB+8e4ID2fhFPP4vIjaRPCd2WGoz2VqqECGC98lUo=;
-        b=gAQ7RGEazWOFI+c7tI0MqT5wABHs9klQ5Li9/0j26FTNVfPaTaT6m4bVlBL+h74h5i
-         tu35ipfmfvAhKuZl8cRAJ4/cCl+4XD7RDtCfXwnVMQwTsN0PfaRYSysxdOON9DXRqpen
-         /xBA5Pxe/yRCiWeiu0ZV8w9X4vdlWFPDFhUo5Y+mAz7xE9vrB3q6ERfpDBHhaPDWWtCD
-         J43KIEufH/bc9Mnzxga8bpdU5JScNHy2YNZ0JhveJ4Zz+fu/Vd3+iBnHP+gJ3wyCCarq
-         MgDIOcQ16IzDBFqD+7RJhkoAJLPHmdJnK6vEk+Y8zF/amxXdjBxQ0vWgP0vhQMTv+gCU
-         GkXw==
+        id S1730266AbfKGQNJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 Nov 2019 11:13:09 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:26362 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729953AbfKGQNJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 Nov 2019 11:13:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573143187;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=1v4mEVbeZoDq8YSIhudBoiKncb5G85zJBRJGndSxloQ=;
+        b=goywMFUFFcm4xTvXxKGMOmmrUoLX7YHl8cQs8pASAKu52wHgfsWARAIMY+YNXRgnSt6AES
+        NpJT+LVVZjVqykxSgL7FXUVVX2BtH9DmGk5Jl+byceWdOsUjqph0RBJRq5e57Par1aiL8H
+        iUvn34P5tnU13U+xKSz+KNs0gbQJ2W0=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-426-ymRMFaSkMii0TfPz5Mvinw-1; Thu, 07 Nov 2019 11:13:06 -0500
+Received: by mail-ot1-f72.google.com with SMTP id l1so2395213otr.2
+        for <selinux@vger.kernel.org>; Thu, 07 Nov 2019 08:13:06 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=oTCB+8e4ID2fhFPP4vIjaRPCd2WGoz2VqqECGC98lUo=;
-        b=Y6fa0VrsPb1UR4oc80eBQrOSRrpbq/R3y6clXfQb3qpNoFWKooZnBKtAPgy9sODkvW
-         7l5yXNBwleHB6WO1Xe5QzC4LephVu3Fdbca1VhgQroZXd905JMxm6yRLsP5MRNFN0upg
-         zDwGs36y+GX040ddZT07rXVLg7JSspfHHBc24otSyGr6VIMzBfjWBXYXdcK65iPDxNjC
-         07JUujjZKSqEy+opxj2XYMGytirIIpDtFO9E0E+ktmvayxcswmw5aQXSNUWok5kY8Cs6
-         atWIcpdI3ht0Aymxa0xeM0DaKQ7TFpGjIKXUiEvfNTrjS+Eciv+bUYRPWIqvgWzpqji2
-         vQsw==
-X-Gm-Message-State: APjAAAXwHmBKGVg/2ixQUMcjcn7DWYpUvlfodqWerh1KFfoY60qbFM/1
-        bJYraiwI13XuVSbC1EM15WrIt3kg3Uht84fI+cJL3lny
-X-Google-Smtp-Source: APXvYqwT8n88/8A8F6OXlljQ7hwNeYMVkI4VN1yROJJrGjHu/5hR/MK+XskN4xr9ygkZ866FP4RHHm1NxUfvUtrGiac=
-X-Received: by 2002:a05:651c:20f:: with SMTP id y15mr2912510ljn.31.1573142409725;
- Thu, 07 Nov 2019 08:00:09 -0800 (PST)
+        bh=cD6vVrFE3T3d0Mx0pqzqj1EAHJjCq9qhpnJ8SEm2qDk=;
+        b=j+SOHoDWBaJSm0dPsckknJgoXw9x33A/Zaqq3PogaJyXW8mj58N8wI/+W3ZMhp+LXc
+         iDXv3m0l8saMZDaXgkS6dpeiC7lWDsOvrLBp9cmttIkxrGkXST3AGILlfiaFmtg6tMrL
+         TnzUwvVc3lS5g2+2vzfslOnVRhGmW1vEu51+32L9e2JpX774W9h2oJgUMWp+sDZgaBJX
+         9/SRxH5ZQkl63tucm4CekAuucnplI7kfgy3a0+/k0rYIYgby3vJpXaGGb6dNI6BtRsJZ
+         OM/UOwMJIcXKcT3Vug7pS1WgxFW02w9j5eRsrB3y+oV8OXT4Y0hOoCgPMbPZp6/Wnq9u
+         x9BA==
+X-Gm-Message-State: APjAAAVVQvKL0r4uTTj04Jd8XYjnVJj2l1sFGBYAEHkVx8+9WGvVhmzi
+        DRJQ3DyV2ug3CrGtx4LhA2G2PLwtGcwSKIzKe8SOYbD+RwdfsGBVWyACLUjo/KaONhyKTWef5CH
+        +bulqFMPpxkrHEL9mVC+bix8LEU1W70Y6aw==
+X-Received: by 2002:a9d:7642:: with SMTP id o2mr3738614otl.66.1573143185419;
+        Thu, 07 Nov 2019 08:13:05 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyLrUOCpi+2ww6VJIled8c9TuoRHOOCmZIjqwdA9Kr6yZkNieWRzS0kS6MHZOFPKRmPfXYoHd+qf2xRtviXPjg=
+X-Received: by 2002:a9d:7642:: with SMTP id o2mr3738573otl.66.1573143184945;
+ Thu, 07 Nov 2019 08:13:04 -0800 (PST)
 MIME-Version: 1.0
-References: <20191107101743.203699-1-jeffv@google.com> <9b0959ff-93be-9086-063e-5403accabc8e@tycho.nsa.gov>
- <CAFqZXNvxn-g3_m-49xBtONwBJwEh7GkrFvy025oX1pe9KcyG1g@mail.gmail.com>
-In-Reply-To: <CAFqZXNvxn-g3_m-49xBtONwBJwEh7GkrFvy025oX1pe9KcyG1g@mail.gmail.com>
-From:   Jeffrey Vander Stoep <jeffv@google.com>
-Date:   Thu, 7 Nov 2019 16:59:58 +0100
-Message-ID: <CABXk95CSWL4rf7XzE-AeDXiUs27TKjV1Axtpe86Z_pnifHa_Nw@mail.gmail.com>
+References: <20191107101743.203699-1-jeffv@google.com>
+In-Reply-To: <20191107101743.203699-1-jeffv@google.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 7 Nov 2019 17:12:53 +0100
+Message-ID: <CAFqZXNvn4tTgNcQ3-fFE5QN7dS93h2VNznZ-D=3m2gZ26di9hA@mail.gmail.com>
 Subject: Re: [PATCH v5] selinux: sidtab: reverse lookup hash table
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>, will@kernel.org,
+To:     Jeff Vander Stoep <jeffv@google.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, will@kernel.org,
         Jovana Knezevic <jovanak@google.com>
-Content-Type: text/plain; charset="UTF-8"
+X-MC-Unique: ymRMFaSkMii0TfPz5Mvinw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-> > > @@ -305,29 +284,36 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
-> > >               rc = -ENOMEM;
-> > >               dst_convert = sidtab_do_lookup(convert->target, count, 1);
-> > >               if (!dst_convert) {
-> > > -                     context_destroy(dst);
-> > > +                     context_destroy(&dst->context);
-> > >                       goto out_unlock;
-> > >               }
-> > >
-> > > -             rc = convert->func(context, dst_convert, convert->args);
-> > > +             rc = convert->func(context, &dst_convert->context,
-> > > +                             convert->args);
-> > >               if (rc) {
-> > > -                     context_destroy(dst);
-> > > +                     context_destroy(&dst->context);
-> > >                       goto out_unlock;
-> > >               }
-> > > +             dst_convert->sid = index_to_sid(count);
-> > > +             convert->target->count = count + 1;
-> > >
-> > >               /* at this point we know the insert won't fail */
-> > > -             convert->target->count = count + 1;
-> > > +             spin_lock_irqsave_nested(&convert->target->lock, flags,
-> > > +                             SINGLE_DEPTH_NESTING);
-> > > +             hash_add_rcu(convert->target->context_to_sid,
-> > > +                             &dst_convert->list, dst_convert->context.hash);
-> > > +             spin_unlock_irqrestore(&convert->target->lock, flags);
-> >
-> > Still having a hard time understanding why we need to lock the target.
-> > The target here is always the newsidtab allocated by
-> > security_load_policy(), not yet exposed to any other threads in the system?
+On Thu, Nov 7, 2019 at 11:17 AM Jeff Vander Stoep <jeffv@google.com> wrote:
+> This replaces the reverse table lookup and reverse cache with a
+> hashtable which improves cache-miss reverse-lookup times from
+> O(n) to O(1)* and maintains the same performance as a reverse
+> cache hit.
 >
-> I believe this is to avoid a race with the hash_add() in
-> sidtab_convert_hashtable(), which locks only the target table.
-> However, I don't like the fact that we need to mess with inconsistent
-> lock nesting here... I think it would be better to just lock the
-> master's spinlock in sidtab_convert_hashtable() - it will then block
-> more when entries would be added to sidtab, but that shouldn't be a
-> big concern in practice.
+> This reduces the time needed to add a new sidtab entry from ~500us
+> to 5us on a Pixel 3 when there are ~10,000 sidtab entries.
 >
+> The implementation uses the kernel's generic hashtable API,
+> It uses the context's string represtation as the hash source,
+> and the kernels generic string hashing algorithm full_name_hash()
+> to reduce the string to a 32 bit value.
+>
+> This change also maintains the improvement introduced in
+> commit ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
+> performance") which removed the need to keep the current sidtab
+> locked during policy reload. It does however introduce periodic
+> locking of the target sidtab while converting the hashtable. Sidtab
+> entries are never modified or removed, so the context struct stored
+> in the sid_to_context tree can also be used for the context_to_sid
+> hashtable to reduce memory usage.
+>
+> This bug was reported by:
+> - On the selinux bug tracker.
+>   BUG: kernel softlockup due to too many SIDs/contexts #37
+>   https://github.com/SELinuxProject/selinux-kernel/issues/37
+> - Jovana Knezevic on Android's bugtracker.
+>   Bug: 140252993
+>   "During multi-user performance testing, we create and remove users
+>   many times. selinux_android_restorecon_pkgdir goes from 1ms to over
+>   20ms after about 200 user creations and removals. Accumulated over
+>   ~280 packages, that adds a significant time to user creation,
+>   making perf benchmarks unreliable."
+>
+> * Hashtable lookup is only O(1) when n < the number of buckets.
+>
+> Changes in V2:
+> -The hashtable uses sidtab_entry_leaf objects directly so these
+> objects are shared between the sid_to_context lookup tree and the
+> context_to_sid hashtable. This simplifies memory allocation and
+> was suggested by Ondrej Mosnacek.
+> -The new sidtab hash stats file in selinuxfs has been moved out of
+> the avc dir and into a new "ss" dir.
+>
+> V3:
+> -Add lock nesting notation.
+>
+> V4:
+> -Moved to *_rcu variants of the various hashtable functions
+> as suggested by Ondrej Mosnacek and Will Deacon.
 
-I'll try that. Thanks.
+I may be misunderstanding the purpose of RCU, but isn't all this RCU
+stuff a big overkill when these entries are never removed? (Well, they
+are removed when the sidtab is being destroyed, at which point however
+no other threads are accessing them any more.) In my understanding,
+RCU basically makes sure that objects that you dereference in an RCU
+critical section are not destroyed until you leave it. Yes, it also
+helps you to dereference/update them safely, but that can be achieved
+on its own in a simpler way. Instead of using RCU here, I would
+instead suggest looking into adding an equivalent of
+list_for_each_entry_lockless()* for hlist and maybe introduce some
+suitable hlist_add_something() function that ensures consistency
+w.r.t. the lockless traversal (perhaps the WRITE_ONCE() in hlist_add()
+is already sufficient, but I'm not sure...).
+
+> -Naming/spelling fixups.
+>
+> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+> Reported-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Reported-by: Jovana Knezevic <jovanak@google.com>
+> ---
+>  security/selinux/Kconfig            |  12 ++
+>  security/selinux/include/security.h |   1 +
+>  security/selinux/selinuxfs.c        |  65 +++++++
+>  security/selinux/ss/context.h       |  11 +-
+>  security/selinux/ss/policydb.c      |   5 +
+>  security/selinux/ss/services.c      |  83 +++++++--
+>  security/selinux/ss/services.h      |   4 +-
+>  security/selinux/ss/sidtab.c        | 264 ++++++++++++++--------------
+>  security/selinux/ss/sidtab.h        |  17 +-
+>  9 files changed, 302 insertions(+), 160 deletions(-)
+
+<snip>
+
+--=20
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
