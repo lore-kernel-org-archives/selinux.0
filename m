@@ -2,109 +2,247 @@ Return-Path: <SRS0=6fGn=ZA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.0 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_SBL,
+	URIBL_SBL_A,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7286BC5DF60
-	for <selinux@archiver.kernel.org>; Fri,  8 Nov 2019 18:39:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2680FC6196
+	for <selinux@archiver.kernel.org>; Fri,  8 Nov 2019 21:05:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 46EE3214DB
-	for <selinux@archiver.kernel.org>; Fri,  8 Nov 2019 18:39:08 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="RvuvnlKe"
+	by mail.kernel.org (Postfix) with ESMTP id 8FE15206C3
+	for <selinux@archiver.kernel.org>; Fri,  8 Nov 2019 21:05:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727233AbfKHSjH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 Nov 2019 13:39:07 -0500
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:34684 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726804AbfKHSjH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 Nov 2019 13:39:07 -0500
-Received: by mail-lj1-f196.google.com with SMTP id 139so7263637ljf.1
-        for <selinux@vger.kernel.org>; Fri, 08 Nov 2019 10:39:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pQFnTwuRqhYAsQvf7lXFvGo2c1sUmVGvnUwePPPTe4Q=;
-        b=RvuvnlKeJZu7reXZ5NBjJANyuNdaq7oXNqqFoUMbv/aBRwAiEljl5mG8rDuTyxTAXr
-         zgrdYWO/1FEeUw/ixvDAJnUE2xelxgDI1PYv/XHmFUfE2zFzd3slfhg9LzTUFA9FwDfv
-         uxDDAHgNN7mPyWevaO4Oq7OnmIAzQxYRC/q/fCEus2PQHMwy3DFYTPz5sZlM8AyPAKnC
-         qO4aHMDnWllGa3qMA/G49UpODnN+qx3+935FmoFvmlUdUl9nMSAKs0A2/3BG3EGuJ39g
-         CgAIGwxviZkjFiDN73a8qMUiLLm89+8QNVs42T22ANw/+d63MnoElD2pzA5Sasa8Iskr
-         r89Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pQFnTwuRqhYAsQvf7lXFvGo2c1sUmVGvnUwePPPTe4Q=;
-        b=h6rehILqwtHKXh5rxUXLhVHZ9JETudMtVygTcc2oHxgMGtab/BQktlgL7FwyHSu4/e
-         ZkGICh0daki0gK3E8xbYdhzoIFLmvZJ7qtvVwQDkycJhCy9hRztYjRSxtLFEepnf40sR
-         7K2ABhk2ME42jL2P5cOPtGc2eWpZ1z14ZG0mKETR8FcnjFZCLlU03PREbr4NZ2bSI0G3
-         IeSNpvoiPFzK75ner5vUIKFw3rxHK4g008DZxBDWt4mHqrgy9XnTo0sZJcRHgx9ocTmv
-         FQU4e64tpwe5tNFKNIL8ypxdblm8TfsyZz2U0gsHHE9Jqj4ok9vLd09I/3TutefaKcAX
-         XInw==
-X-Gm-Message-State: APjAAAXQAB+T5DfSkaT3XPSoMnCEzxKvXH0XRCGnqc3tivlJv6T6HnIP
-        uC3ux3P2k+scayGeXBVH6CLHOq29wBTBVyvdutW+
-X-Google-Smtp-Source: APXvYqwq0ve3s3164xuWiytSBUNOtC5TG6EjmA3PoV86+8rL3gxjSH20wuUihDBVcSJlUe/VOWyFPmWwOAORWqbu6wg=
-X-Received: by 2002:a2e:95c5:: with SMTP id y5mr7953326ljh.184.1573238343833;
- Fri, 08 Nov 2019 10:39:03 -0800 (PST)
+        id S1731743AbfKHVFh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 Nov 2019 16:05:37 -0500
+Received: from mout.kundenserver.de ([212.227.126.135]:38665 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726394AbfKHVFg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 Nov 2019 16:05:36 -0500
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue012 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1MI41P-1ifa9R3rIV-00FECL; Fri, 08 Nov 2019 22:03:03 +0100
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     y2038@lists.linaro.org
+Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        rth@twiddle.net, tony.luck@intel.com, paul.burton@mips.com,
+        green.hu@gmail.com, deller@gmx.de, mpe@ellerman.id.au,
+        davem@davemloft.net, tglx@linutronix.de, x86@kernel.org,
+        jdike@addtoit.com, richard@nod.at, viro@zeniv.linux.org.uk,
+        bcrl@kvack.org, john.stultz@linaro.org, sboyd@kernel.org,
+        rostedt@goodmis.org, vincenzo.frascino@arm.com,
+        paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
+        peterz@infradead.org, will@kernel.org, deepa.kernel@gmail.com,
+        christian@brauner.io, heiko.carstens@de.ibm.com,
+        christophe.leroy@c-s.fr, ebiederm@xmission.com,
+        linux-alpha@vger.kernel.org, linux-ia64@vger.kernel.org,
+        linux-mips@vger.kernel.org, linux-parisc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, sparclinux@vger.kernel.org,
+        linux-um@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+        linux-aio@kvack.org, linux-api@vger.kernel.org,
+        linux-arch@vger.kernel.org, netdev@vger.kernel.org,
+        selinux@vger.kernel.org
+Subject: [PATCH 00/23] y2038 cleanups
+Date:   Fri,  8 Nov 2019 22:02:21 +0100
+Message-Id: <20191108210236.1296047-1-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
-References: <20191030131633.9356-1-sds@tycho.nsa.gov> <CAHC9VhQG=2VwJiM=LrZxZaSXWELbsu61pw2ynNgL0NAO+SvYMA@mail.gmail.com>
- <de944969-6d9f-8fbd-ffe1-4f9bdd7410f2@tycho.nsa.gov> <CAHC9VhSzoDnHK+fDXocShQALW32ctoOOC7GOeb_tEQsnm-1d0g@mail.gmail.com>
- <14181dcc-aa6f-8fbb-6244-08ed39591f30@tycho.nsa.gov>
-In-Reply-To: <14181dcc-aa6f-8fbb-6244-08ed39591f30@tycho.nsa.gov>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 8 Nov 2019 13:38:53 -0500
-Message-ID: <CAHC9VhQnoGLM7H-vR-kDBgdib5gPehVpNPr+d85VRFs5UYHnqQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: add SELinux hooks for lockdown integrity and confidentiality
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:UnBnEVvh9e/TAlbVJpAgl+cZfINqrWh9dLOxhM2cR8aLh8bxi43
+ imnX6NUaeePS5+DRA0WRYUJVamsiPbbVcIxpp/4FOrH5eYIasgtQ9F4iNEhxTjL7CjcCc5K
+ bAv59di7IK248c9R001Bzfk5n9zBi6XSKGbbURpyvKXfff1XY6BWVKsSxLxE879MSpi2NAc
+ hQzqPBvdAyeO+K+Sge1xw==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:OIDj0+r1Q9A=:9gN4BqFLWG42/ujpgO6Cgr
+ o8zqBPZmLIUIEnDlrrAXeH2vLeBpIadNXhV86RgylTicv9xsmYlpVaFpBMf/H/Yjlzbw54cpy
+ eh/U17TACQhr/ys8Bi+1eshVGdQxS5ivhF8awvsaZnAXg9mNAA8jkqXgpcpwWt367C/8Kd86R
+ PArvSuqzyeR9kXxr8BvqUTmoaE4g6Rd8F0lY4P97kcm/hZDDTFU9lm0mHxnM0bHAyM+SvOHYd
+ iw+439TjI1JHDeQqBpLukAr0wnd9IY2f05cEO8b48Hy7kYtbaI2rom9bTJZ3BbKszOykd7H0q
+ oK4Ya32pPC2rfGc0OBMvlJAfW+U7J0Y2JHzAkyUMd/7/mal+bfzBkSg8A0O6/exDyl/Z/WNJy
+ m3TRmxcGqeD+mrruFnCOYH9J91b9cbHcwtFZD/CAY9jd9786DVfTW8CKd5BLmZRsHl71EyEi5
+ K6mfaAx63kT3i52V/5zPjVHi/xplJ3YpYGzCTEeY7jgkxp6i6NqIi2ghC/8j5/eYAtCM51h3d
+ Z8Ob7p2gDLZwWhpdQ4b78C5ehph2lPjnzxiqzxTyMT+MD96QhPQWmWVKsWIK0FAs0qvDqsP2a
+ GKGNlVHb+qr7JyGt+fF9+SvIKG13x6Bhw26DKuQtLgfO6qnyM9jMr6nN5/5EV/9nPPKgeZMi6
+ a1svux7RWVOd64AYgjbwsp2PjdbU/xpWDDSVGOMhQmktNt60nxmbkWIkGbMHoosfsFgXXEfB4
+ i7LmjSLuzVGAOXL0n7HULZV9tfkZIv5cbllBdYB5FinD1QYgQQG36yK6WhFCFvCPmv1hlou8U
+ ye11gYsvTwOfF7tDpZ1QmTJ1v1Q1y1VYzfbIpHyUIMvlz8YcXL2vDgC6IMOdob8B3C6bh7EPJ
+ j24sn73RDOt7PznprOsg==
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 7, 2019 at 1:07 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 11/7/19 12:48 PM, Paul Moore wrote:
->  > On Thu, Oct 31, 2019 at 10:01 AM Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > That is an interesting question: do we consider dmesg output to be
-> > part of the stable kernel API?  My hunch would be "no", as I've seen
-> > things change quite a bit there over the years, but IANL (I Am Not
-> > Linus).  However, that said, logging a reason string via audit seems
-> > like a good idea (especially since there is presently a many-to-one
-> > mapping between reasons and the SELinux permission).  Further, while
-> > the audit field name is part of the kernel API, the value is much more
-> > open.
->
-> Ok, any preferences on the audit field name or should we just create one
-> and cc linux-audit on the next RFC?  lockdown_reason=?
+This is a series of cleanups for the y2038 work, mostly intended
+for namespace cleaning: the kernel defines the traditional
+time_t, timeval and timespec types that often lead to y2038-unsafe
+code. Even though the unsafe usage is mostly gone from the kernel,
+having the types and associated functions around means that we
+can still grow new users, and that we may be missing conversions
+to safe types that actually matter.
 
-Definitely CC linux-audit as I expect Steve will want to have his say.
-FWIW, "lockdown_reason" seems reasonable to me.
+As there is no rush on any of these patches, I would either
+queue them up in linux-next through my y2038 branch, or
+Thomas could add them to the tip tree if he wants.
 
-> >> I also wasn't sure about the pr_warn() above.  If we reach it, it is
-> >> effectively a kernel bug. We could mirror what the lockdown module does
-> >> in lockdown_is_locked_down(), i.e. use WARN() instead.  Of course, the
-> >> SELinux hook won't even be reached in this case if the lockdown module
-> >> is enabled, but the lockdown module could be disabled so I guess we need
-> >> to check it too.
-> >
-> > Since this seems security relevant, I wonder if we should be using SELINUX_ERR?
->
-> The benefit of a WARN() is that it will give us a stack trace showing
-> the offending caller in the kernel, which would be useful since it would
-> be a buggy caller passing an invalid lockdown reason (LOCKDOWN_NONE or
->  >= LOCKDOWN_CONFIDENTIALITY_MAX).  pr_warn() or audit_log() won't give
-> us that info.  We could do both of course.
+As mentioned in another series, this is part of a larger
+effort to fix all the remaining bits and pieces that are
+not completed yet from the y2038 conversion, and the full
+set can be found at:
 
-It's a balance between development needs and freaking out
-administrators (although perhaps rightly so).  I also worry a bit that
-WARN can be disabled at build time so having something like
-SELINUX_ERR could be a good fallback, assuming we did both.
+https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/?h=y2038-endgame
+
+Maintainers, please review and provide Acks.
+
+Let me know if you have any opinion on whether we should do
+the include last two patches of this series or not.
+
+     Arnd
+
+Arnd Bergmann (23):
+  y2038: remove CONFIG_64BIT_TIME
+  y2038: add __kernel_old_timespec and __kernel_old_time_t
+  y2038: vdso: change timeval to __kernel_old_timeval
+  y2038: vdso: change timespec to __kernel_old_timespec
+  y2038: vdso: change time_t to __kernel_old_time_t
+  y2038: vdso: nds32: open-code timespec_add_ns()
+  y2038: vdso: powerpc: avoid timespec references
+  y2038: ipc: remove __kernel_time_t reference from headers
+  y2038: stat: avoid 'time_t' in 'struct stat'
+  y2038: uapi: change __kernel_time_t to __kernel_old_time_t
+  y2038: rusage: use __kernel_old_timeval
+  y2038: syscalls: change remaining timeval to __kernel_old_timeval
+  y2038: socket: remove timespec reference in timestamping
+  y2038: make ns_to_compat_timeval use __kernel_old_timeval
+  y2038: elfcore: Use __kernel_old_timeval for process times
+  y2038: timerfd: Use timespec64 internally
+  y2038: time: avoid timespec usage in settimeofday()
+  y2038: itimer: compat handling to itimer.c
+  y2038: use compat_{get,set}_itimer on alpha
+  y2038: move itimer reset into itimer.c
+  y2038: itimer: change implementation to timespec64
+  [RFC] y2038: itimer: use ktime_t internally
+  y2038: allow disabling time32 system calls
+
+ arch/Kconfig                              |  11 +-
+ arch/alpha/kernel/osf_sys.c               |  67 +-----
+ arch/alpha/kernel/syscalls/syscall.tbl    |   4 +-
+ arch/ia64/kernel/asm-offsets.c            |   2 +-
+ arch/mips/include/uapi/asm/msgbuf.h       |   6 +-
+ arch/mips/include/uapi/asm/sembuf.h       |   4 +-
+ arch/mips/include/uapi/asm/shmbuf.h       |   6 +-
+ arch/mips/include/uapi/asm/stat.h         |  16 +-
+ arch/mips/kernel/binfmt_elfn32.c          |   4 +-
+ arch/mips/kernel/binfmt_elfo32.c          |   4 +-
+ arch/nds32/kernel/vdso/gettimeofday.c     |  61 +++--
+ arch/parisc/include/uapi/asm/msgbuf.h     |   6 +-
+ arch/parisc/include/uapi/asm/sembuf.h     |   4 +-
+ arch/parisc/include/uapi/asm/shmbuf.h     |   6 +-
+ arch/powerpc/include/asm/asm-prototypes.h |   3 +-
+ arch/powerpc/include/asm/vdso_datapage.h  |   6 +-
+ arch/powerpc/include/uapi/asm/msgbuf.h    |   6 +-
+ arch/powerpc/include/uapi/asm/sembuf.h    |   4 +-
+ arch/powerpc/include/uapi/asm/shmbuf.h    |   6 +-
+ arch/powerpc/include/uapi/asm/stat.h      |   2 +-
+ arch/powerpc/kernel/asm-offsets.c         |  18 +-
+ arch/powerpc/kernel/syscalls.c            |   4 +-
+ arch/powerpc/kernel/time.c                |   5 +-
+ arch/powerpc/kernel/vdso32/gettimeofday.S |   6 +-
+ arch/powerpc/kernel/vdso64/gettimeofday.S |   8 +-
+ arch/sparc/include/uapi/asm/msgbuf.h      |   6 +-
+ arch/sparc/include/uapi/asm/sembuf.h      |   4 +-
+ arch/sparc/include/uapi/asm/shmbuf.h      |   6 +-
+ arch/sparc/include/uapi/asm/stat.h        |  24 +-
+ arch/sparc/vdso/vclock_gettime.c          |  36 +--
+ arch/x86/entry/vdso/vclock_gettime.c      |   6 +-
+ arch/x86/entry/vsyscall/vsyscall_64.c     |   4 +-
+ arch/x86/include/uapi/asm/msgbuf.h        |   6 +-
+ arch/x86/include/uapi/asm/sembuf.h        |   4 +-
+ arch/x86/include/uapi/asm/shmbuf.h        |   6 +-
+ arch/x86/um/vdso/um_vdso.c                |  12 +-
+ fs/aio.c                                  |   2 +-
+ fs/binfmt_elf.c                           |  12 +-
+ fs/binfmt_elf_fdpic.c                     |  12 +-
+ fs/compat_binfmt_elf.c                    |   4 +-
+ fs/select.c                               |  10 +-
+ fs/timerfd.c                              |  14 +-
+ fs/utimes.c                               |   8 +-
+ include/linux/compat.h                    |  19 +-
+ include/linux/syscalls.h                  |  16 +-
+ include/linux/time.h                      |   9 +-
+ include/linux/time32.h                    |   2 +-
+ include/linux/types.h                     |   2 +-
+ include/trace/events/timer.h              |  29 +--
+ include/uapi/asm-generic/msgbuf.h         |  12 +-
+ include/uapi/asm-generic/posix_types.h    |   1 +
+ include/uapi/asm-generic/sembuf.h         |   7 +-
+ include/uapi/asm-generic/shmbuf.h         |  12 +-
+ include/uapi/linux/cyclades.h             |   6 +-
+ include/uapi/linux/elfcore.h              |   8 +-
+ include/uapi/linux/errqueue.h             |   7 +
+ include/uapi/linux/msg.h                  |   6 +-
+ include/uapi/linux/ppp_defs.h             |   4 +-
+ include/uapi/linux/resource.h             |   4 +-
+ include/uapi/linux/sem.h                  |   4 +-
+ include/uapi/linux/shm.h                  |   6 +-
+ include/uapi/linux/time.h                 |   6 +-
+ include/uapi/linux/time_types.h           |   5 +
+ include/uapi/linux/utime.h                |   4 +-
+ ipc/syscall.c                             |   2 +-
+ kernel/compat.c                           |  24 --
+ kernel/power/power.h                      |   2 +-
+ kernel/sys.c                              |   4 +-
+ kernel/sys_ni.c                           |  23 ++
+ kernel/time/hrtimer.c                     |   2 +-
+ kernel/time/itimer.c                      | 280 ++++++++++++++--------
+ kernel/time/time.c                        |  32 ++-
+ lib/vdso/gettimeofday.c                   |   4 +-
+ net/core/scm.c                            |   6 +-
+ net/socket.c                              |   2 +-
+ security/selinux/hooks.c                  |  10 +-
+ 76 files changed, 501 insertions(+), 504 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+2.20.0
+
+Cc: rth@twiddle.net
+Cc: tony.luck@intel.com
+Cc: paul.burton@mips.com
+Cc: green.hu@gmail.com
+Cc: deller@gmx.de
+Cc: mpe@ellerman.id.au
+Cc: davem@davemloft.net
+Cc: tglx@linutronix.de
+Cc: x86@kernel.org
+Cc: jdike@addtoit.com
+Cc: richard@nod.at
+Cc: viro@zeniv.linux.org.uk
+Cc: bcrl@kvack.org
+Cc: john.stultz@linaro.org
+Cc: sboyd@kernel.org
+Cc: rostedt@goodmis.org
+Cc: arnd@arndb.de
+Cc: vincenzo.frascino@arm.com
+Cc: paul@paul-moore.com
+Cc: sds@tycho.nsa.gov
+Cc: eparis@parisplace.org
+Cc: peterz@infradead.org
+Cc: will@kernel.org
+Cc: deepa.kernel@gmail.com
+Cc: christian@brauner.io
+Cc: heiko.carstens@de.ibm.com
+Cc: christophe.leroy@c-s.fr
+Cc: ebiederm@xmission.com
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-alpha@vger.kernel.org>
+Cc: linux-ia64@vger.kernel.org>
+Cc: linux-mips@vger.kernel.org>
+Cc: linux-parisc@vger.kernel.org>
+Cc: linuxppc-dev@lists.ozlabs.org>
+Cc: sparclinux@vger.kernel.org>
+Cc: linux-um@lists.infradead.org>
+Cc: linux-fsdevel@vger.kernel.org>
+Cc: linux-aio@kvack.org>
+Cc: linux-api@vger.kernel.org>
+Cc: linux-arch@vger.kernel.org>
+Cc: netdev@vger.kernel.org>
+Cc: selinux@vger.kernel.org>
+
