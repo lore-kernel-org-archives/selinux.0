@@ -2,42 +2,67 @@ Return-Path: <SRS0=e4om=ZB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C870BC17444
-	for <selinux@archiver.kernel.org>; Sat,  9 Nov 2019 21:03:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D009C43331
+	for <selinux@archiver.kernel.org>; Sat,  9 Nov 2019 23:07:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A5E9E21882
-	for <selinux@archiver.kernel.org>; Sat,  9 Nov 2019 21:03:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2211E207FF
+	for <selinux@archiver.kernel.org>; Sat,  9 Nov 2019 23:07:38 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pms9Fk0T"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726594AbfKIVDJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 9 Nov 2019 16:03:09 -0500
-Received: from mout.kundenserver.de ([212.227.126.187]:34273 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726545AbfKIVDJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 9 Nov 2019 16:03:09 -0500
-Received: from mail-qv1-f45.google.com ([209.85.219.45]) by
- mrelayeu.kundenserver.de (mreue010 [212.227.15.129]) with ESMTPSA (Nemesis)
- id 1N5VTm-1hrmS02jko-016stv; Sat, 09 Nov 2019 22:03:06 +0100
-Received: by mail-qv1-f45.google.com with SMTP id w11so3519335qvu.13;
-        Sat, 09 Nov 2019 13:03:06 -0800 (PST)
-X-Gm-Message-State: APjAAAV2k8JvymMxplEpZ4LWlhRJ12lcRL5DPKRX91lIzt3uALcIcpi0
-        St2XKjMdDm8nFqDWlv08kWalMFSW0AXhnL8fwMw=
-X-Google-Smtp-Source: APXvYqzVWdaWa9r60I/4Z9hpe05+E921xzLR8H/PZkF7j6E78aa0x1vFwmnnWC69tXfwFmEaoi/5dhGDrttFdJdYruM=
-X-Received: by 2002:a0c:fde8:: with SMTP id m8mr16974889qvu.4.1573333385442;
- Sat, 09 Nov 2019 13:03:05 -0800 (PST)
+        id S1726470AbfKIXHh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 9 Nov 2019 18:07:37 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36658 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726530AbfKIXHh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 9 Nov 2019 18:07:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573340855;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nM/QlBuwgFsk9POi3L9W4gfZTnhffjaZ1rya0qjcHXg=;
+        b=Pms9Fk0TkPDCeYYTUEEbcYQoS7EIvFQDPsLwIFl5ub/ZTa7r8ZINHDsIeKPcgUy1de7sgZ
+        cxCmzRqyBrAFliYSYqyhS2fXd3/DO6KR//khogZfZ72W58wNpItvAb/U9ix+zL6SasILwe
+        dIsJnuJ9CWxV1b7TB722qAKvaWJQ5uo=
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
+ [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-302-nb195IxVMbuP5H08-u6p7w-1; Sat, 09 Nov 2019 18:07:32 -0500
+Received: by mail-oi1-f197.google.com with SMTP id j23so7928950oii.21
+        for <selinux@vger.kernel.org>; Sat, 09 Nov 2019 15:07:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=joVZUMPvUOgWVUGh3XNj6yKcnBUM0ZIbNDOvlvl0Y3s=;
+        b=STc0aLbhDfIdxkkUT6Ff1NM5dy3gkLsoW8vAbXjmM2cmrUsVvCHa8sCjHM/SNx/gmz
+         laQgoTXOQ2Rva6cHhy8UCFFI5W2aNwnYicnMgF1SL6ogQQ2EJRawWMQIYQWdw6P7ixIn
+         JVFAs9+XonZ5kXWqUwKLSF1Jolf7zKNmigLbxicUXGOSgNbF/Y87k/hKTtT1EwVx9P81
+         Ya+1uEmybf4f4oRBEf7sO/e4q1rEHFNixlcCVv8ivZ4kfC+OuXIHjrO+ZRGSc/ZhUPSJ
+         g0faqTQ0NRi0GUPP6VYb9V1jZbKBqun8vNVfKQ6i8667qN6U9XBT3/F5h5VeYUXpNR8T
+         +HLA==
+X-Gm-Message-State: APjAAAX3jAKQGjueKWHNt+TmwjDzcT4etJTxhO6w3Xbw9o6dIxaCA6dV
+        IrRKnzC/CiAZ6Pdm7asEktBVjiiUaBKnPvp1ZfgBt68sUkf41iaPjqQJ0+8xl2O+h9mqOV9kAgH
+        ULRPbK7Yhui/okIyTRWqi+1uoQg7sFlpqjw==
+X-Received: by 2002:aca:ecd0:: with SMTP id k199mr17121165oih.166.1573340851730;
+        Sat, 09 Nov 2019 15:07:31 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxPG+slhOAaUZlQmRXbIknpOfUNqhnDz7x+YaHmJ0gB074zuMPBX0TM8nkmK+qgiZAPAXBiBhxHkEnU0Z4aVdA=
+X-Received: by 2002:aca:ecd0:: with SMTP id k199mr17121146oih.166.1573340851438;
+ Sat, 09 Nov 2019 15:07:31 -0800 (PST)
 MIME-Version: 1.0
 References: <20191108210236.1296047-1-arnd@arndb.de> <20191108211323.1806194-11-arnd@arndb.de>
- <CAFqZXNuevxW9d91Zpy6fw3LKrF=xtajAiB61soGQLxgP4xRnFg@mail.gmail.com>
-In-Reply-To: <CAFqZXNuevxW9d91Zpy6fw3LKrF=xtajAiB61soGQLxgP4xRnFg@mail.gmail.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Sat, 9 Nov 2019 22:02:49 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a38eZijQH=vChgm5fZBzOuV2Oi2c0LEdrMy4nKpL7QLbQ@mail.gmail.com>
-Message-ID: <CAK8P3a38eZijQH=vChgm5fZBzOuV2Oi2c0LEdrMy4nKpL7QLbQ@mail.gmail.com>
+ <CAFqZXNuevxW9d91Zpy6fw3LKrF=xtajAiB61soGQLxgP4xRnFg@mail.gmail.com> <CAK8P3a38eZijQH=vChgm5fZBzOuV2Oi2c0LEdrMy4nKpL7QLbQ@mail.gmail.com>
+In-Reply-To: <CAK8P3a38eZijQH=vChgm5fZBzOuV2Oi2c0LEdrMy4nKpL7QLbQ@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Sun, 10 Nov 2019 00:07:20 +0100
+Message-ID: <CAFqZXNsp3JxqW-ahCvtiZBECX5PWonpzMRK0MOn=6a28WzF4cA@mail.gmail.com>
 Subject: Re: [PATCH 20/23] y2038: move itimer reset into itimer.c
-To:     Ondrej Mosnacek <omosnace@redhat.com>
+To:     Arnd Bergmann <arnd@arndb.de>
 Cc:     y2038 Mailman List <y2038@lists.linaro.org>,
         John Stultz <john.stultz@linaro.org>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -51,67 +76,56 @@ Cc:     y2038 Mailman List <y2038@lists.linaro.org>,
         Anna-Maria Gleixner <anna-maria@linutronix.de>,
         Al Viro <viro@zeniv.linux.org.uk>,
         SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:Gl1fFRfO9j2DtrAd5m3vLUZBvw9/Qo04K69D9QBhEGuOD3kC6Ny
- oJrNEFUAUBLNcpyJd2NO/dlDsQfw9Sx0x1h/mb2qXrr25t9QyHsazOvrdCPsRHKjBDxl844
- lLTq5Rdq8mkxH+Z5ZBX6DsSnrGRaVSmGFaY66BoLJi6JMnwp6zjC0bGDz5RmAJpWHhSHKhu
- gn5MdMPpuQPw6FkLwB1lQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:ut+WqSDbMvI=:qi5JdruNp2M1RiCv44NEpL
- NClrdIpdVHDSulBhWPNKUy5IgZNyGwnR20PN7pXrApDtHKovD3EfNtslqN2/jYr0B4eH9CzcT
- y8YjI8eky82YrPxm2jMwRPZ2QNpsH/u4qYD7SexAYPhURFPANKx8/4bFv22KMM0/N2c8/mHBA
- fOqyMWHyPAJgejXwt57yHWDgKcz3wHziYlErVJXitZo/FsMFSrK24BCEsphqkKorbuQ3pgay6
- wgrj0V1NFXlgSCS5GNu/uoarBsn2vISyJ8RBc72IJUWSdVVvvappxtPKl3NW1NA6PQ2F104uo
- GwNyeos9tJ7IDP7PSf5IOvP6U4n2tafCh8rHVFLNUhz3WUcOcUEpmZXRM8lGc48bvIXTXT+zr
- P6jlJ9DxeY4gas5oxVmABJiEnrCLNPmRz/dAGf+BBabZAdAC7OhCVQCFGSPE13h39/j5xPGfR
- u4mfQSoyPwZ4hT9tGgADLv1ljE3Hzw5PSCJLyhUmKwanoqhfDm0hcYB78ulb00rr4ngBXfb25
- MVeAwHfhHQ5uoM9SC1tqjiWNF5yh2tgHrOiYPisTVqqgSHrbnpIUEjUblJygy5U+FHGGXD27S
- 0F/QqLs3FYOuLOfun6Pz7nOvRrCZX448Ir0R7aEfg4TTaQ/n4MVRHRGLMgemP2gzHn8Vh4j2K
- xKn5811CPZA/NanWNOOOyYH3kaBJJn3U6uPobs4iAd8yEstZKL6jdlscaR9s67gQwGIatJl2v
- eKUIcMGGY3kjGOBcWQBdYQU8V6YGTxP5LfQtRgGXm6egfA06cbOEXWvToPTG+jd+vt27lTqec
- A/vGneTmMHiJeyUb5ydqIrgU49cdvLQmEGh6XC54TqVfC+HJOWn7fNSOv66cZONFJ6mF8FX0V
- UmGEuS8UyAaAWkjhy4Vw==
+X-MC-Unique: nb195IxVMbuP5H08-u6p7w-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Nov 9, 2019 at 2:43 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-
-> > -struct itimerval;
-> > -extern int do_setitimer(int which, struct itimerval *value,
-> > -                       struct itimerval *ovalue);
-> > -extern int do_getitimer(int which, struct itimerval *value);
-> > +#ifdef CONFIG_POSIX_TIMERS
-> > +extern void clear_itimer(void);
-> > +#else
-> > +static inline void clear_itimer(void) {}
-> > +#endif
-> >
-
-> > @@ -249,6 +249,17 @@ int do_setitimer(int which, struct itimerval *value, struct itimerval *ovalue)
-> >         return 0;
-> >  }
-> >
-> > +#ifdef CONFIG_SECURITY_SELINUX
+On Sat, Nov 9, 2019 at 10:03 PM Arnd Bergmann <arnd@arndb.de> wrote:
 >
-> Did you mean "#ifdef CONFIG_POSIX_TIMERS" here to match the header?
-
-No, this part is intentional, CONFIG_POSIX_TIMERS already controls
-whether itimer.c is
-compiled in the first place, but this function is only needed when called from
-the selinux driver.
-
-> > -               }
-> > +               if (IS_ENABLED(CONFIG_POSIX_TIMERS))
-> > +                       clear_itimer();
+> On Sat, Nov 9, 2019 at 2:43 PM Ondrej Mosnacek <omosnace@redhat.com> wrot=
+e:
 >
-> Since you already define a no-op fallback for the case of
-> !IS_ENABLED(CONFIG_POSIX_TIMERS) in time.h, why not simply call
-> clear_itimer() unconditionally?
+> > > -struct itimerval;
+> > > -extern int do_setitimer(int which, struct itimerval *value,
+> > > -                       struct itimerval *ovalue);
+> > > -extern int do_getitimer(int which, struct itimerval *value);
+> > > +#ifdef CONFIG_POSIX_TIMERS
+> > > +extern void clear_itimer(void);
+> > > +#else
+> > > +static inline void clear_itimer(void) {}
+> > > +#endif
+> > >
+>
+> > > @@ -249,6 +249,17 @@ int do_setitimer(int which, struct itimerval *va=
+lue, struct itimerval *ovalue)
+> > >         return 0;
+> > >  }
+> > >
+> > > +#ifdef CONFIG_SECURITY_SELINUX
+> >
+> > Did you mean "#ifdef CONFIG_POSIX_TIMERS" here to match the header?
+>
+> No, this part is intentional, CONFIG_POSIX_TIMERS already controls
+> whether itimer.c is
+> compiled in the first place, but this function is only needed when called=
+ from
+> the selinux driver.
 
-Ah right, that was indeed my plan here when I changed the declaration
-in the header, I just forgot to remove the if(). Fixed now.
+All right, but you declare the function in time.h even if
+CONFIG_SECURITY_SELINUX is not enabled... it is kind of awkward when
+it can happen that the function is declared but not defined anywhere
+(even if it shouldn't be used by new users). Maybe you could at least
+put the header declaration/definition inside #ifdef
+CONFIG_SECURITY_SELINUX as well so it is clear that this function is
+intended for SELinux only?
 
-Thanks for the review!
+--=20
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
-      Arnd
