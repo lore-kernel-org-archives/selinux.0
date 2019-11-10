@@ -1,131 +1,416 @@
-Return-Path: <SRS0=e4om=ZB=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=w/2l=ZC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D009C43331
-	for <selinux@archiver.kernel.org>; Sat,  9 Nov 2019 23:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9016DC17444
+	for <selinux@archiver.kernel.org>; Sun, 10 Nov 2019 16:26:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2211E207FF
-	for <selinux@archiver.kernel.org>; Sat,  9 Nov 2019 23:07:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C47220854
+	for <selinux@archiver.kernel.org>; Sun, 10 Nov 2019 16:26:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pms9Fk0T"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="jQyaefeV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726470AbfKIXHh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 9 Nov 2019 18:07:37 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36658 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726530AbfKIXHh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 9 Nov 2019 18:07:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573340855;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nM/QlBuwgFsk9POi3L9W4gfZTnhffjaZ1rya0qjcHXg=;
-        b=Pms9Fk0TkPDCeYYTUEEbcYQoS7EIvFQDPsLwIFl5ub/ZTa7r8ZINHDsIeKPcgUy1de7sgZ
-        cxCmzRqyBrAFliYSYqyhS2fXd3/DO6KR//khogZfZ72W58wNpItvAb/U9ix+zL6SasILwe
-        dIsJnuJ9CWxV1b7TB722qAKvaWJQ5uo=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-302-nb195IxVMbuP5H08-u6p7w-1; Sat, 09 Nov 2019 18:07:32 -0500
-Received: by mail-oi1-f197.google.com with SMTP id j23so7928950oii.21
-        for <selinux@vger.kernel.org>; Sat, 09 Nov 2019 15:07:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=joVZUMPvUOgWVUGh3XNj6yKcnBUM0ZIbNDOvlvl0Y3s=;
-        b=STc0aLbhDfIdxkkUT6Ff1NM5dy3gkLsoW8vAbXjmM2cmrUsVvCHa8sCjHM/SNx/gmz
-         laQgoTXOQ2Rva6cHhy8UCFFI5W2aNwnYicnMgF1SL6ogQQ2EJRawWMQIYQWdw6P7ixIn
-         JVFAs9+XonZ5kXWqUwKLSF1Jolf7zKNmigLbxicUXGOSgNbF/Y87k/hKTtT1EwVx9P81
-         Ya+1uEmybf4f4oRBEf7sO/e4q1rEHFNixlcCVv8ivZ4kfC+OuXIHjrO+ZRGSc/ZhUPSJ
-         g0faqTQ0NRi0GUPP6VYb9V1jZbKBqun8vNVfKQ6i8667qN6U9XBT3/F5h5VeYUXpNR8T
-         +HLA==
-X-Gm-Message-State: APjAAAX3jAKQGjueKWHNt+TmwjDzcT4etJTxhO6w3Xbw9o6dIxaCA6dV
-        IrRKnzC/CiAZ6Pdm7asEktBVjiiUaBKnPvp1ZfgBt68sUkf41iaPjqQJ0+8xl2O+h9mqOV9kAgH
-        ULRPbK7Yhui/okIyTRWqi+1uoQg7sFlpqjw==
-X-Received: by 2002:aca:ecd0:: with SMTP id k199mr17121165oih.166.1573340851730;
-        Sat, 09 Nov 2019 15:07:31 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxPG+slhOAaUZlQmRXbIknpOfUNqhnDz7x+YaHmJ0gB074zuMPBX0TM8nkmK+qgiZAPAXBiBhxHkEnU0Z4aVdA=
-X-Received: by 2002:aca:ecd0:: with SMTP id k199mr17121146oih.166.1573340851438;
- Sat, 09 Nov 2019 15:07:31 -0800 (PST)
+        id S1727009AbfKJQ0c (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 10 Nov 2019 11:26:32 -0500
+Received: from mailomta10-sa.btinternet.com ([213.120.69.16]:41609 "EHLO
+        sa-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727005AbfKJQ0c (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 10 Nov 2019 11:26:32 -0500
+Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
+          by sa-prd-fep-044.btinternet.com with ESMTP
+          id <20191110162627.ZDTO8432.sa-prd-fep-044.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Sun, 10 Nov 2019 16:26:27 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1573403187; 
+        bh=Mtz6ekYlJae+N3X4T+RtpvvJRpoI1Q1DWNkyfjsFbLY=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=jQyaefeVPLyG8e/xWYMz9CHk1Jlpb7l3BHV6JmeOMsFHDryuyri/8BppFz4b+5O3RvKsYSFXzBwUBsr/bxNSUDEDz2s7lyE6QYSLZeCukhsTfgfjalxXhbUarPGxtDQ+wFPbwR3h2R6icVuLFkjYIC3QU2vcOaFw19bpGu34fRV47q6n1n6/uBmKigAwBBENFW+IHxyYGsuJI/yNEAQ5amPY/ITNjHEbIFwqgYwqaH8DvuH524+AVEQSTsUIB21Mlc3kHKJDZorCK5QQeYUcNvIH7U7LJ1AkheoX5lygyDeWtSVdtcww/5sunNqY/6wH11HBgSGIyws0fHttDEoIGA==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.6.128]
+X-OWM-Source-IP: 86.134.6.128 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedruddvhedgledvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddufeegrdeirdduvdeknecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdeirdduvdekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.6.128) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5D8362CA0986608A; Sun, 10 Nov 2019 16:26:27 +0000
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] selinux-testsuite: Add key_socket tests
+Date:   Sun, 10 Nov 2019 16:26:18 +0000
+Message-Id: <20191110162618.395932-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-References: <20191108210236.1296047-1-arnd@arndb.de> <20191108211323.1806194-11-arnd@arndb.de>
- <CAFqZXNuevxW9d91Zpy6fw3LKrF=xtajAiB61soGQLxgP4xRnFg@mail.gmail.com> <CAK8P3a38eZijQH=vChgm5fZBzOuV2Oi2c0LEdrMy4nKpL7QLbQ@mail.gmail.com>
-In-Reply-To: <CAK8P3a38eZijQH=vChgm5fZBzOuV2Oi2c0LEdrMy4nKpL7QLbQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Sun, 10 Nov 2019 00:07:20 +0100
-Message-ID: <CAFqZXNsp3JxqW-ahCvtiZBECX5PWonpzMRK0MOn=6a28WzF4cA@mail.gmail.com>
-Subject: Re: [PATCH 20/23] y2038: move itimer reset into itimer.c
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     y2038 Mailman List <y2038@lists.linaro.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Anna-Maria Gleixner <anna-maria@linutronix.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        SElinux list <selinux@vger.kernel.org>
-X-MC-Unique: nb195IxVMbuP5H08-u6p7w-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Nov 9, 2019 at 10:03 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> On Sat, Nov 9, 2019 at 2:43 PM Ondrej Mosnacek <omosnace@redhat.com> wrot=
-e:
->
-> > > -struct itimerval;
-> > > -extern int do_setitimer(int which, struct itimerval *value,
-> > > -                       struct itimerval *ovalue);
-> > > -extern int do_getitimer(int which, struct itimerval *value);
-> > > +#ifdef CONFIG_POSIX_TIMERS
-> > > +extern void clear_itimer(void);
-> > > +#else
-> > > +static inline void clear_itimer(void) {}
-> > > +#endif
-> > >
->
-> > > @@ -249,6 +249,17 @@ int do_setitimer(int which, struct itimerval *va=
-lue, struct itimerval *ovalue)
-> > >         return 0;
-> > >  }
-> > >
-> > > +#ifdef CONFIG_SECURITY_SELINUX
-> >
-> > Did you mean "#ifdef CONFIG_POSIX_TIMERS" here to match the header?
->
-> No, this part is intentional, CONFIG_POSIX_TIMERS already controls
-> whether itimer.c is
-> compiled in the first place, but this function is only needed when called=
- from
-> the selinux driver.
+Test relevant key management socket permissions.
 
-All right, but you declare the function in time.h even if
-CONFIG_SECURITY_SELINUX is not enabled... it is kind of awkward when
-it can happen that the function is declared but not defined anywhere
-(even if it shouldn't be used by new users). Maybe you could at least
-put the header declaration/definition inside #ifdef
-CONFIG_SECURITY_SELINUX as well so it is clear that this function is
-intended for SELinux only?
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ defconfig                   |   4 ++
+ policy/Makefile             |   4 ++
+ policy/test_key_socket.te   |  74 +++++++++++++++++++
+ tests/Makefile              |   4 ++
+ tests/key_socket/.gitignore |   1 +
+ tests/key_socket/Makefile   |   7 ++
+ tests/key_socket/key_sock.c | 139 ++++++++++++++++++++++++++++++++++++
+ tests/key_socket/test       |  45 ++++++++++++
+ 8 files changed, 278 insertions(+)
+ create mode 100644 policy/test_key_socket.te
+ create mode 100644 tests/key_socket/.gitignore
+ create mode 100644 tests/key_socket/Makefile
+ create mode 100644 tests/key_socket/key_sock.c
+ create mode 100755 tests/key_socket/test
 
---=20
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+diff --git a/defconfig b/defconfig
+index b13075d..0574f1d 100644
+--- a/defconfig
++++ b/defconfig
+@@ -74,3 +74,7 @@ CONFIG_BPF_SYSCALL=y
+ CONFIG_KEYS=y
+ CONFIG_KEYS_COMPAT=y
+ CONFIG_KEY_DH_OPERATIONS=y
++
++# Test key management socket.
++# This is not required for SELinux operation itself.
++CONFIG_NET_KEY=m
+diff --git a/policy/Makefile b/policy/Makefile
+index ff65153..ad94c43 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -90,6 +90,10 @@ ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.
+ TARGETS+=test_notify.te
+ endif
+ 
++ifeq ($(shell grep -q key_socket $(POLDEV)/include/support/all_perms.spt && echo true),true)
++TARGETS += test_key_socket.te
++endif
++
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $(TARGETS))
+ endif
+diff --git a/policy/test_key_socket.te b/policy/test_key_socket.te
+new file mode 100644
+index 0000000..6906010
+--- /dev/null
++++ b/policy/test_key_socket.te
+@@ -0,0 +1,74 @@
++#
++############## Test key management socket 'key_socket' #####################
++#
++attribute keysockdomain;
++
++type test_key_sock_t;
++domain_type(test_key_sock_t)
++unconfined_runs_test(test_key_sock_t)
++typeattribute test_key_sock_t testdomain;
++typeattribute test_key_sock_t keysockdomain;
++
++# key_socket rules:
++allow test_key_sock_t self:rawip_socket { create };
++allow test_key_sock_t self:capability { net_admin };
++allow test_key_sock_t self:key_socket { create write read setopt };
++# For CONFIG_NET_KEY=m
++allow test_key_sock_t kernel_t:system { module_request };
++
++################## Deny capability { net_admin } ##########################
++#
++# Note that when capability { net_admin } is removed for the test
++# there will not be an audit message in the log as the Fedora policy
++# is built with 'hide_broken_symptoms' that adds the following:
++#   dontaudit test_key_sock_no_net_admin_t self:capability { net_admin sys_module };
++#
++type test_key_sock_no_net_admin_t;
++domain_type(test_key_sock_no_net_admin_t)
++unconfined_runs_test(test_key_sock_no_net_admin_t)
++typeattribute test_key_sock_no_net_admin_t testdomain;
++typeattribute test_key_sock_no_net_admin_t keysockdomain;
++
++allow test_key_sock_no_net_admin_t self:rawip_socket { create };
++allow test_key_sock_no_net_admin_t self:key_socket { create write read setopt };
++allow test_key_sock_no_net_admin_t kernel_t:system { module_request };
++
++####################### Deny key_socket { create } ##########################
++type test_key_sock_no_create_t;
++domain_type(test_key_sock_no_create_t)
++unconfined_runs_test(test_key_sock_no_create_t)
++typeattribute test_key_sock_no_create_t testdomain;
++typeattribute test_key_sock_no_create_t keysockdomain;
++
++allow test_key_sock_no_create_t self:rawip_socket { create };
++allow test_key_sock_no_create_t self:capability { net_admin };
++allow test_key_sock_no_create_t self:key_socket { write read setopt };
++
++####################### Deny key_socket { write } ##########################
++type test_key_sock_no_write_t;
++domain_type(test_key_sock_no_write_t)
++unconfined_runs_test(test_key_sock_no_write_t)
++typeattribute test_key_sock_no_write_t testdomain;
++typeattribute test_key_sock_no_write_t keysockdomain;
++
++allow test_key_sock_no_write_t self:rawip_socket { create };
++allow test_key_sock_no_write_t self:capability { net_admin };
++allow test_key_sock_no_write_t self:key_socket { create read setopt };
++allow test_key_sock_no_write_t kernel_t:system { module_request };
++
++####################### Deny key_socket { read } ##########################
++type test_key_sock_no_read_t;
++domain_type(test_key_sock_no_read_t)
++unconfined_runs_test(test_key_sock_no_read_t)
++typeattribute test_key_sock_no_read_t testdomain;
++typeattribute test_key_sock_no_read_t keysockdomain;
++
++allow test_key_sock_no_read_t self:rawip_socket { create };
++allow test_key_sock_no_read_t self:capability { net_admin };
++allow test_key_sock_no_read_t self:key_socket { create write setopt };
++allow test_key_sock_no_read_t kernel_t:system { module_request };
++#
++########### Allow these domains to be entered from sysadm domain ############
++#
++miscfiles_domain_entry_test_files(keysockdomain)
++userdom_sysadm_entry_spec_domtrans_to(keysockdomain)
+diff --git a/tests/Makefile b/tests/Makefile
+index 0021590..cca6648 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -52,6 +52,10 @@ ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && e
+ SUBDIRS += keys
+ endif
+ 
++ifeq ($(shell grep -q key_socket $(POLDEV)/include/support/all_perms.spt && test -e $(INCLUDEDIR)/keyutils.h && echo true),true)
++SUBDIRS += key_socket
++endif
++
+ ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=" infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
+ SUBDIRS += infiniband_endport
+ endif
+diff --git a/tests/key_socket/.gitignore b/tests/key_socket/.gitignore
+new file mode 100644
+index 0000000..1a532c0
+--- /dev/null
++++ b/tests/key_socket/.gitignore
+@@ -0,0 +1 @@
++key_sock
+diff --git a/tests/key_socket/Makefile b/tests/key_socket/Makefile
+new file mode 100644
+index 0000000..e5e6a58
+--- /dev/null
++++ b/tests/key_socket/Makefile
+@@ -0,0 +1,7 @@
++TARGETS = key_sock
++LDLIBS += -lselinux
++
++all: $(TARGETS)
++
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/key_socket/key_sock.c b/tests/key_socket/key_sock.c
+new file mode 100644
+index 0000000..95622b7
+--- /dev/null
++++ b/tests/key_socket/key_sock.c
+@@ -0,0 +1,139 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdint.h>
++#include <unistd.h>
++#include <errno.h>
++#include <stdbool.h>
++#include <sys/socket.h>
++#include <linux/pfkeyv2.h>
++#include <selinux/selinux.h>
++
++static void print_usage(char *progname)
++{
++	fprintf(stderr,
++		"usage:  %s [-v]\n"
++		"Where:\n\t"
++		"-v  Print information.\n", progname);
++	exit(-1);
++}
++
++int main(int argc, char *argv[])
++{
++	char *context;
++	int opt, sock, result;
++	bool verbose = false;
++	struct timeval tm;
++	struct sadb_msg w_msg, r_msg;
++	int mlen = sizeof(struct sadb_msg);
++
++	while ((opt = getopt(argc, argv, "v")) != -1) {
++		switch (opt) {
++		case 'v':
++			verbose = true;
++			break;
++		default:
++			print_usage(argv[0]);
++		}
++	}
++
++	result = getcon(&context);
++	if (result < 0) {
++		fprintf(stderr, "Failed to obtain process context\n");
++		exit(1);
++	}
++
++	if (verbose)
++		printf("Process context:\n\t%s\n", context);
++
++	sock = socket(PF_KEY, SOCK_RAW, PF_KEY_V2);
++	if (sock < 0) {
++		fprintf(stderr, "Failed to open key management socket: %s\n",
++			strerror(errno));
++		/* Return errno as denying net_admin=EPERM, create=EACCES */
++		exit(errno);
++	}
++
++	if (verbose)
++		printf("Opened key management socket\n");
++
++	/* Set socket timeout for read in case no response from kernel */
++	tm.tv_sec = 3;
++	tm.tv_usec = 0;
++	result = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tm, sizeof(tm));
++	if (result < 0) {
++		fprintf(stderr, "Failed setsockopt SO_RCVTIMEO: %s\n",
++			strerror(errno));
++		result = 2;
++		goto error;
++	}
++
++	if (verbose)
++		printf("setsocketopt: SO_RCVTIMEO - %ld seconds\n", tm.tv_sec);
++
++	memset(&w_msg, 0, mlen);
++	w_msg.sadb_msg_version = PF_KEY_V2;
++	w_msg.sadb_msg_type = SADB_FLUSH;
++	w_msg.sadb_msg_satype = SADB_SATYPE_AH;
++	/* sadb_msg_len contains length in 64-bit words */
++	w_msg.sadb_msg_len = (mlen / sizeof(uint64_t));
++	w_msg.sadb_msg_seq = 99;
++	w_msg.sadb_msg_pid = getpid();
++
++	result = write(sock, &w_msg, mlen);
++	if (result < 0) {
++		fprintf(stderr, "Failed write to key management socket: %s\n",
++			strerror(errno));
++		result = 3;
++		goto error;
++	}
++
++	if (verbose) {
++		printf("Write sadb_msg data to key management socket:\n");
++		printf("\tver: PF_KEY_V2 type: SADB_FLUSH sa_type: SADB_SATYPE_AH\n");
++		printf("\tseq: %d pid: %d\n", w_msg.sadb_msg_seq,
++		       w_msg.sadb_msg_pid);
++	}
++
++	memset(&r_msg, 0, mlen);
++
++	result = read(sock, &r_msg, mlen);
++	if (result < 0) {
++		fprintf(stderr, "Failed to read key management socket: %s\n",
++			strerror(errno));
++		result = 4;
++		goto error;
++	}
++
++	if (r_msg.sadb_msg_version != w_msg.sadb_msg_version ||
++	    r_msg.sadb_msg_type != w_msg.sadb_msg_type ||
++	    r_msg.sadb_msg_satype != w_msg.sadb_msg_satype ||
++	    r_msg.sadb_msg_seq != w_msg.sadb_msg_seq ||
++	    r_msg.sadb_msg_pid != getpid()) {
++		fprintf(stderr, "Failed to read correct sadb_msg data:\n");
++		fprintf(stderr, "\tSent - ver: %d type: %d sa_type: %d seq: %d pid: %d\n",
++			w_msg.sadb_msg_version, w_msg.sadb_msg_type,
++			w_msg.sadb_msg_satype, w_msg.sadb_msg_seq,
++			w_msg.sadb_msg_pid);
++		fprintf(stderr, "\tRecv - ver: %d type: %d sa_type: %d seq: %d pid: %d\n",
++			r_msg.sadb_msg_version, r_msg.sadb_msg_type,
++			r_msg.sadb_msg_satype, r_msg.sadb_msg_seq,
++			r_msg.sadb_msg_pid);
++		result = 5;
++		goto error;
++	}
++
++	if (verbose) {
++		printf("Read sadb_msg data from key management socket:\n");
++		printf("\tver: PF_KEY_V2 type: SADB_FLUSH sa_type: SADB_SATYPE_AH\n");
++		printf("\tseq: %d pid: %d\n", r_msg.sadb_msg_seq,
++		       r_msg.sadb_msg_pid);
++	}
++
++	result = 0;
++
++error:
++	close(sock);
++
++	return result;
++}
+diff --git a/tests/key_socket/test b/tests/key_socket/test
+new file mode 100755
+index 0000000..9772611
+--- /dev/null
++++ b/tests/key_socket/test
+@@ -0,0 +1,45 @@
++#!/usr/bin/perl
++use Test::More;
++
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    # allow info to be shown during tests
++    $v = $ARGV[0];
++    if ($v) {
++        if ( $v ne "-v" ) {
++            plan skip_all => "Invalid option (use -v)";
++        }
++    }
++    else {
++        $v = " ";
++    }
++
++    plan tests => 5;
++}
++
++############ Test key_socket #############
++print "Test key_socket class\n";
++$result = system "runcon -t test_key_sock_t $basedir/key_sock $v";
++ok( $result eq 0 );
++
++# Deny capability { net_admin } - EPERM
++$result =
++  system "runcon -t test_key_sock_no_net_admin_t $basedir/key_sock $v 2>&1";
++ok( $result >> 8 eq 1 );
++
++# Deny key_socket { create } - EACCES
++$result =
++  system "runcon -t test_key_sock_no_create_t $basedir/key_sock $v 2>&1";
++ok( $result >> 8 eq 13 );
++
++# Deny key_socket { write }
++$result = system "runcon -t test_key_sock_no_write_t $basedir/key_sock $v 2>&1";
++ok( $result >> 8 eq 3 );
++
++# Deny key_socket { read }
++$result = system "runcon -t test_key_sock_no_read_t $basedir/key_sock $v 2>&1";
++ok( $result >> 8 eq 4 );
++
++exit;
+-- 
+2.23.0
 
