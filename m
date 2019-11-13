@@ -1,171 +1,241 @@
-Return-Path: <SRS0=4d9t=ZF=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=aYY/=ZF=vger.kernel.org=netdev-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 777D4C432C3
-	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 21:41:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64A0BC43331
+	for <netdev@archiver.kernel.org>; Wed, 13 Nov 2019 00:09:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6DA96206F0
-	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 21:41:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 332562196E
+	for <netdev@archiver.kernel.org>; Wed, 13 Nov 2019 00:09:46 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="VIrKDrhy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbfKMVlO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Nov 2019 16:41:14 -0500
-Received: from mout.kundenserver.de ([217.72.192.75]:50117 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726162AbfKMVlN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Nov 2019 16:41:13 -0500
-Received: from mail-qk1-f176.google.com ([209.85.222.176]) by
- mrelayeu.kundenserver.de (mreue106 [212.227.15.145]) with ESMTPSA (Nemesis)
- id 1MA844-1ic77X1dpy-00Bazm; Wed, 13 Nov 2019 22:41:09 +0100
-Received: by mail-qk1-f176.google.com with SMTP id e2so3179980qkn.5;
-        Wed, 13 Nov 2019 13:41:08 -0800 (PST)
-X-Gm-Message-State: APjAAAWUlaX5k/dh9wFHu/VYQujHorLDE1tZJWRaiN7EqHBTtUHZdvuu
-        hnPzKvX07XhAG8FNwuxDaSTUA+kjnJYa92OjVQc=
-X-Google-Smtp-Source: APXvYqyjRd+a6foxC3+k9qUEopPf1CRknFxQHbHw9aZuys53MC+zVt0jx9JeruKLHIsAWsaGcA9LllqlMRQxiR5o4ug=
-X-Received: by 2002:a37:4f0a:: with SMTP id d10mr4703334qkb.286.1573681267104;
- Wed, 13 Nov 2019 13:41:07 -0800 (PST)
+        id S1727142AbfKMAJn (ORCPT <rfc822;netdev@archiver.kernel.org>);
+        Tue, 12 Nov 2019 19:09:43 -0500
+Received: from sonic315-27.consmr.mail.ne1.yahoo.com ([66.163.190.153]:36734
+        "EHLO sonic315-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727122AbfKMAJn (ORCPT
+        <rfc822;netdev@vger.kernel.org>); Tue, 12 Nov 2019 19:09:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1573603781; bh=fQopPU+QHEIhU1rMxngnZt5dLriz8PONEvXZFfDzj2M=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=VIrKDrhyq9bFHOTNVoJJR+7kFNmfXmjbQnWVLE5ZMITv5HHkWVODswQ7TawSpL+0BfOABsLv6pWEY4YkFnzLEKJy+NBMaBz1cg5oQzbNq3iGvNZ3y4PfpAV/SadXkC+sT2dKPnPnKMLA6R4Bh/fxQ+qJZ6kAoqjcsd1t/FJdLyYDP+sDJMSNDdSZ78Tl9c53TfciZxPsEqmAi9EIhb0lMk0i90bmY8RIigXHwUKusVFSUekNvt1HUBoEb18RzOQAh1tNw14uG0p5xhuAOhn+E9NaCThL37OdPRoNFm+19vuo6qo1d5n6Em5xelZXbCLEsxD4HTNGnW95a3huhpr7JA==
+X-YMail-OSG: nXHSJ0UVM1mNznJO.AkXuFiBGQrd1UtHzHox9XQuRYjtuL.PPsY6OcT2bZATAJq
+ BIWMN_dylpUvbmeayEpGIo_SXDa40KAATm8.ypX7vNTajR5CaK2X7hSfM1ZqKE96dtNDiQtFFXx2
+ LZjV4M5HgZoQA1KJVwG0AGQLXYZAYrwin.PfH23XNkJKDX_RS.BLh2fPmoEUooNWXVecoOkyb4aH
+ KproHUnRvb18gFL01wZ76sR.ulGjEJLomrMIbHq56W5Y.z72E8jmmXCnbKlaFO3RXROOHrQ6J6IL
+ lBl82YQk3UIPs8uu3vK8PoevcHNbNRBDBenI1reJNA7k5LrDiM4JxnFn_vicDTaJpkEkqbd.gV2K
+ N9sPZjXjpguVg_lajo9YmNBrfoOsWS9QoVYwROE1Pn6ru9L7FyI1Kdsxf4.r.ikEjvSzvD6hjXJo
+ 6QmBNhSR4yh73ZR4h.wZ7egE9lAKvZ0LsGeGuBmqMANtRBD0chUYN2FuxNWMvhRQW94bnWk.2tXJ
+ kJ6Xk7Qi7n12m4tnhYZK49EIaMkGzOMKMFXNmdS3U.GdDHVk7g82lJocxV_QtdACIG9bM9x1UJo_
+ 43Pt3.MMQ6SxBHrQrcyP4zpvHCCcHGK_DQraGzpafZTmdp7fUQDspAP2gJ2hMBF9Q1joeMN8VOQr
+ DnZx63hmO2z5Fnv1Nt8yJhlDP4shkiomIgiVPaS2ihudi9IYCoEATUxR6TZdblaoK0BMGMlu8.Q3
+ STvSB1HNMksBxo0nEqbKU1MTZD94oM3HkFbvr8ABUARJ5MYhpKHShhx.rgyBqtadUgWCApbMHoBJ
+ RrdhGDR_MyxEUcC1AMwgYcqzGwaaTCcC3j1ytpuM6nOs_XlioTKWX_5.Eg7OusOVGYLRx0lgMANg
+ 9unbRS01iF.JlZ__0EBcrs6gRyMLVFXy.83nD3Z9llo8l5fcU6BFPx8915g.9Jp2wv4mLBEMlQz_
+ Kn3pDCEGWPDRE3p6FoaGeE9N4vPz4Al4b03iVZRpSKUVvnQD03n97Jw8l1iyG65K7xHjJXH2E8.m
+ z3ElSlJIzo1Yo9vGhFK5Po27hq7GtuGEUXkkt7E01fu04t8WDLE2WlgUQ6_kPBECFZaswMS9Scnx
+ zOnW6lf6EDtY0gGyOpyugl1ePgZWF4kHrZrJ1sXUqaWxkg6gFs3gmzOUATUYrW0nFZunoOXNFsyP
+ NCHxcFok18aPiis9kcQ7o9UdionZEJFKXcMrMJqVa2ZbhbtTrJ61ufEFfgaLCL5082DFNUG.3Eco
+ 0XrXhanRHnvbdiFoZb.rUBxfTbT6mzOyhmE_e4E7a3DxRrExybCUTmlZSiP0fg7K56TT2yxDDSUU
+ CQA2VJLqogykdyhIXkEP6huKziOHE8eyripBT3wGlfJ.Tq_FcY709ZupsYElAMF9nlknlIUW1OJ7
+ iFMASNAM0hZCRr1miiwcX5V8bjaMIMfeEssGy8qc61jwz.Lqni5rF.bTDZSKm.4F9kl5BSg--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.ne1.yahoo.com with HTTP; Wed, 13 Nov 2019 00:09:41 +0000
+Received: by smtp427.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID eba4c54ba4d55f2cad95fb20ef489486;
+          Wed, 13 Nov 2019 00:09:38 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov, netdev@vger.kernel.org
+Subject: [PATCH 05/25] net: Prepare UDS for security module stacking
+Date:   Tue, 12 Nov 2019 16:08:53 -0800
+Message-Id: <20191113000913.5414-6-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191113000913.5414-1-casey@schaufler-ca.com>
+References: <20191113000913.5414-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
-References: <20191108210236.1296047-1-arnd@arndb.de>
-In-Reply-To: <20191108210236.1296047-1-arnd@arndb.de>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 13 Nov 2019 22:40:50 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a1CbDaPqNsOVOuq2UDPSOwzd2U_WEmmXBMwCOhv1=iaSQ@mail.gmail.com>
-Message-ID: <CAK8P3a1CbDaPqNsOVOuq2UDPSOwzd2U_WEmmXBMwCOhv1=iaSQ@mail.gmail.com>
-Subject: Re: [PATCH 00/23] y2038 cleanups
-To:     y2038 Mailman List <y2038@lists.linaro.org>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Richard Henderson <rth@twiddle.net>,
-        Tony Luck <tony.luck@intel.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Greentime Hu <green.hu@gmail.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        David Miller <davem@davemloft.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "the arch/x86 maintainers" <x86@kernel.org>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will@kernel.org>,
-        Deepa Dinamani <deepa.kernel@gmail.com>,
-        Christian Brauner <christian@brauner.io>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        christophe leroy <christophe.leroy@c-s.fr>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        alpha <linux-alpha@vger.kernel.org>, linux-ia64@vger.kernel.org,
-        linux-mips@vger.kernel.org,
-        Parisc List <linux-parisc@vger.kernel.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        sparclinux <sparclinux@vger.kernel.org>,
-        linux-um@lists.infradead.org,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        linux-arch <linux-arch@vger.kernel.org>,
-        Networking <netdev@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:t9jsa1d3irkSvjYT/rEVzAEkwZVcthQkNq7GL9PWrByG2yn/ofy
- 8fgkWFb7yzBDhxggib3MFVAG5e4TExjEbTOk4rBmOFRV8Z0nAydeuemmrZedaWDRbilNXuy
- NmTQNhL2f4T7/p0oM9CgHzRhNyXfyVm+jWuv44PuQ4PFfCAkqAjtWz90qM5ZdfkGAf4n22W
- cO6/64/K+Hbl+/pD4TCAw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:4GD3zQCUG/U=:u8KPHFHcLf73169L5bs8bd
- Z3kilw5OQOJ51slVfyv48BfHKjUeXcr+fJ2u45Kzx18zYiu2AKmH6ZjNMBv8Z1Fi95V25C/TC
- fpxwbADUtzoRKZwKTHxmLDwqc/bWFmkKgomoPalGRo18fIa8xiHrYanOdB9pr3ZlCYBpwne8/
- ygyOCaAIeB+5EUMvMd4gTk4JL4j4Lyxr3ghbVkZ5VyqjZ+1EbBbxjw1BbAb32gMNbGLc6QnKD
- XrM6i7uPvn5gDb8ckQDKQ1Zczz6PXXeXCUxXE/12lJNWRl+MJ9kyiHU4m+4JEL37n5bL7zhar
- gqoCvFCmTY8Nirsdm0tNGa7oM70YXf2eD6Yr4ZphgxE0rlP5cht0ROBWRkB5Z67OvFSKPcyy9
- q7aDiaGLMpVsX/TIk5GTKGw/9pr39C5aFcxXQDTsX/EO3Pks3UiL5zYbj7LATgElV/UAWLHNR
- QcQAHYRRSfrrf0nCVnJhOZiuJwYS3i23RjFjF2ZUDtzy85NfJBRdus4N5VtexqszcSpgIqAB0
- Z1helxbHW+pX4eff8B5DwM+xxkqLKVTbbGpbPRr+OyKQBEO5R4uzDHnBECPvkA7oHbAf9IoOG
- Xx/ZdkY79cqP1duDzuGkU/obiqfWEJI4KiUJYg1LqP4RaCH1pHIYkE8ZnJBuq9+wBEvOjbFTi
- BKOk4YBy22M0llu56auY0kznLVVknOE+fS4d2fpHG+skogpTkJ32csRy7QZDKKOHXCrSqIw0N
- eJvSfpBVcYmPhOR6E127MVUrLiXsnZTrgBybVqltTDrEZPpsPPWrn3zQ9jZ5QgKEXuPmHrOVy
- 7Txdt9e0cr1UEc6SEe5lI1nmxP/uOHf3iHGiloI5gi9g986J9+vuZ7Q04BEetmXhvJBQfPI7x
- mbb7T23Q5o8NIb6sMiRw==
-Sender: selinux-owner@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+Sender: netdev-owner@vger.kernel.org
 Precedence: bulk
-List-ID: <selinux.vger.kernel.org>
-X-Mailing-List: selinux@vger.kernel.org
+List-ID: <netdev.vger.kernel.org>
+X-Mailing-List: netdev@vger.kernel.org
+Message-ID: <20191113000853.ZqJOag2cxAzs8aakFnRWu1Jfcg3saMtgSX8OCVUYFv4@z>
 
-On Fri, Nov 8, 2019 at 10:04 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> This is a series of cleanups for the y2038 work, mostly intended
-> for namespace cleaning: the kernel defines the traditional
-> time_t, timeval and timespec types that often lead to y2038-unsafe
-> code. Even though the unsafe usage is mostly gone from the kernel,
-> having the types and associated functions around means that we
-> can still grow new users, and that we may be missing conversions
-> to safe types that actually matter.
->
-> As there is no rush on any of these patches, I would either
-> queue them up in linux-next through my y2038 branch, or
-> Thomas could add them to the tip tree if he wants.
->
-> As mentioned in another series, this is part of a larger
-> effort to fix all the remaining bits and pieces that are
-> not completed yet from the y2038 conversion, and the full
-> set can be found at:
->
-> https://git.kernel.org/pub/scm/linux/kernel/git/arnd/playground.git/log/?h=y2038-endgame
->
-> Maintainers, please review and provide Acks.
->
-> Let me know if you have any opinion on whether we should do
-> the include last two patches of this series or not.
->
->      Arnd
->
-> Arnd Bergmann (23):
->   y2038: remove CONFIG_64BIT_TIME
->   y2038: add __kernel_old_timespec and __kernel_old_time_t
->   y2038: vdso: change timeval to __kernel_old_timeval
->   y2038: vdso: change timespec to __kernel_old_timespec
->   y2038: vdso: change time_t to __kernel_old_time_t
->   y2038: vdso: nds32: open-code timespec_add_ns()
->   y2038: vdso: powerpc: avoid timespec references
->   y2038: ipc: remove __kernel_time_t reference from headers
->   y2038: stat: avoid 'time_t' in 'struct stat'
->   y2038: uapi: change __kernel_time_t to __kernel_old_time_t
->   y2038: rusage: use __kernel_old_timeval
->   y2038: syscalls: change remaining timeval to __kernel_old_timeval
->   y2038: socket: remove timespec reference in timestamping
->   y2038: make ns_to_compat_timeval use __kernel_old_timeval
->   y2038: elfcore: Use __kernel_old_timeval for process times
->   y2038: timerfd: Use timespec64 internally
->   y2038: time: avoid timespec usage in settimeofday()
->   y2038: itimer: compat handling to itimer.c
->   y2038: use compat_{get,set}_itimer on alpha
->   y2038: move itimer reset into itimer.c
->   y2038: itimer: change implementation to timespec64
->   [RFC] y2038: itimer: use ktime_t internally
->   y2038: allow disabling time32 system calls
+Change the data used in UDS SO_PEERSEC processing from a
+secid to a more general struct lsmblob. Update the
+security_socket_getpeersec_dgram() interface to use the
+lsmblob. There is a small amount of scaffolding code
+that will come out when the security_secid_to_secctx()
+code is brought in line with the lsmblob.
 
-I've dropped the "[RFC] y2038: itimer: use ktime_t internally" patch
-for the moment,
-and added two other patches from other series:
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: John Johansen <john.johansen@canonical.com>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+cc: netdev@vger.kernel.org
+---
+ include/linux/security.h |  7 +++++--
+ include/net/af_unix.h    |  2 +-
+ include/net/scm.h        |  8 +++++---
+ net/ipv4/ip_sockglue.c   |  8 +++++---
+ net/unix/af_unix.c       |  6 +++---
+ security/security.c      | 18 +++++++++++++++---
+ 6 files changed, 34 insertions(+), 15 deletions(-)
 
-y2038: remove CONFIG_64BIT_TIME
-y2038: socket: use __kernel_old_timespec instead of timespec
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 2b0ab47cfb26..d57f400a307e 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -1354,7 +1354,8 @@ int security_socket_shutdown(struct socket *sock, int how);
+ int security_sock_rcv_skb(struct sock *sk, struct sk_buff *skb);
+ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				      int __user *optlen, unsigned len);
+-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid);
++int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
++				     struct lsmblob *blob);
+ int security_sk_alloc(struct sock *sk, int family, gfp_t priority);
+ void security_sk_free(struct sock *sk);
+ void security_sk_clone(const struct sock *sk, struct sock *newsk);
+@@ -1492,7 +1493,9 @@ static inline int security_socket_getpeersec_stream(struct socket *sock, char __
+ 	return -ENOPROTOOPT;
+ }
+ 
+-static inline int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++static inline int security_socket_getpeersec_dgram(struct socket *sock,
++						   struct sk_buff *skb,
++						   struct lsmblob *blob)
+ {
+ 	return -ENOPROTOOPT;
+ }
+diff --git a/include/net/af_unix.h b/include/net/af_unix.h
+index 3426d6dacc45..933492c08b8c 100644
+--- a/include/net/af_unix.h
++++ b/include/net/af_unix.h
+@@ -36,7 +36,7 @@ struct unix_skb_parms {
+ 	kgid_t			gid;
+ 	struct scm_fp_list	*fp;		/* Passed files		*/
+ #ifdef CONFIG_SECURITY_NETWORK
+-	u32			secid;		/* Security ID		*/
++	struct lsmblob		lsmblob;	/* Security LSM data	*/
+ #endif
+ 	u32			consumed;
+ } __randomize_layout;
+diff --git a/include/net/scm.h b/include/net/scm.h
+index 1ce365f4c256..e2e71c4bf9d0 100644
+--- a/include/net/scm.h
++++ b/include/net/scm.h
+@@ -33,7 +33,7 @@ struct scm_cookie {
+ 	struct scm_fp_list	*fp;		/* Passed files		*/
+ 	struct scm_creds	creds;		/* Skb credentials	*/
+ #ifdef CONFIG_SECURITY_NETWORK
+-	u32			secid;		/* Passed security ID 	*/
++	struct lsmblob		lsmblob;	/* Passed LSM data	*/
+ #endif
+ };
+ 
+@@ -46,7 +46,7 @@ struct scm_fp_list *scm_fp_dup(struct scm_fp_list *fpl);
+ #ifdef CONFIG_SECURITY_NETWORK
+ static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
+ {
+-	security_socket_getpeersec_dgram(sock, NULL, &scm->secid);
++	security_socket_getpeersec_dgram(sock, NULL, &scm->lsmblob);
+ }
+ #else
+ static __inline__ void unix_get_peersec_dgram(struct socket *sock, struct scm_cookie *scm)
+@@ -97,7 +97,9 @@ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct sc
+ 	int err;
+ 
+ 	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
+-		err = security_secid_to_secctx(scm->secid, &secdata, &seclen);
++		/* Scaffolding - it has to be element 0 for now */
++		err = security_secid_to_secctx(scm->lsmblob.secid[0],
++					       &secdata, &seclen);
+ 
+ 		if (!err) {
+ 			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY, seclen, secdata);
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index aa3fd61818c4..6cf57d5ac899 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -130,15 +130,17 @@ static void ip_cmsg_recv_checksum(struct msghdr *msg, struct sk_buff *skb,
+ 
+ static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
+ {
++	struct lsmblob lb;
+ 	char *secdata;
+-	u32 seclen, secid;
++	u32 seclen;
+ 	int err;
+ 
+-	err = security_socket_getpeersec_dgram(NULL, skb, &secid);
++	err = security_socket_getpeersec_dgram(NULL, skb, &lb);
+ 	if (err)
+ 		return;
+ 
+-	err = security_secid_to_secctx(secid, &secdata, &seclen);
++	/* Scaffolding - it has to be element 0 */
++	err = security_secid_to_secctx(lb.secid[0], &secdata, &seclen);
+ 	if (err)
+ 		return;
+ 
+diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+index 0d8da809bea2..189fd6644e7f 100644
+--- a/net/unix/af_unix.c
++++ b/net/unix/af_unix.c
+@@ -138,17 +138,17 @@ static struct hlist_head *unix_sockets_unbound(void *addr)
+ #ifdef CONFIG_SECURITY_NETWORK
+ static void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	UNIXCB(skb).secid = scm->secid;
++	UNIXCB(skb).lsmblob = scm->lsmblob;
+ }
+ 
+ static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	scm->secid = UNIXCB(skb).secid;
++	scm->lsmblob = UNIXCB(skb).lsmblob;
+ }
+ 
+ static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
+ {
+-	return (scm->secid == UNIXCB(skb).secid);
++	return lsmblob_equal(&scm->lsmblob, &(UNIXCB(skb).lsmblob));
+ }
+ #else
+ static inline void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+diff --git a/security/security.c b/security/security.c
+index dd6f212e11af..55837706e3ef 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -2108,10 +2108,22 @@ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				optval, optlen, len);
+ }
+ 
+-int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb, u32 *secid)
++int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
++				     struct lsmblob *blob)
+ {
+-	return call_int_hook(socket_getpeersec_dgram, -ENOPROTOOPT, sock,
+-			     skb, secid);
++	struct security_hook_list *hp;
++	int rc = -ENOPROTOOPT;
++
++	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_dgram,
++			     list) {
++		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
++			continue;
++		rc = hp->hook.socket_getpeersec_dgram(sock, skb,
++						&blob->secid[hp->lsmid->slot]);
++		if (rc != 0)
++			break;
++	}
++	return rc;
+ }
+ EXPORT_SYMBOL(security_socket_getpeersec_dgram);
+ 
+-- 
+2.20.1
 
-Tentatively pushed out the patches with the Acks I have received so
-far to my y2038 branch on git.kernel.org so it gets included in linux-next.
-
-If I hear no complaints, I'll send a pull request for the merge window,
-along with the compat-ioctl series I have already queued up in the same
-branch.
-
-    Arnd
