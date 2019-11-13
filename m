@@ -7,53 +7,53 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA15DC17440
-	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 00:01:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BE1EC17441
+	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 00:01:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 81ABB2084E
-	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 00:01:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6446021872
+	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 00:01:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="H6a9v1p0"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="nkpIfqab"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726973AbfKMABM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 Nov 2019 19:01:12 -0500
-Received: from sonic315-27.consmr.mail.ne1.yahoo.com ([66.163.190.153]:43829
-        "EHLO sonic315-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727001AbfKMABM (ORCPT
+        id S1727015AbfKMABN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 Nov 2019 19:01:13 -0500
+Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:37943
+        "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727002AbfKMABM (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 12 Nov 2019 19:01:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1573603269; bh=3OZ0QTMhwcTIDhDEmCMlZD0E+hS3/MR+doho0EPOFT0=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=H6a9v1p0OJLDa43Nk6+dwTdHC/Su1ewxoLXE4hfQ8Oik5da1YgRNTnT7Jzs19sXjKQVTx3eaNpeEWGQaZFAZ667h2Hkv0pY8C5iDvE4htmKoSHSK1QjF7bnW6G/HaMm5IsmLw0oOjlb5yjD+KEDQg1sBXlyLvvAZxuZ7gMl0ijzWHZhYltvUGYunl6e6ZVewgotMirXKDhNTGbZWhBvkZ3K8hDmQEM18enksfk5CNkkXdgKiL0CQiuke7rUSLPq+2XtKQUsdPqUEgABkWSyGB8zCzjCnmhFNOUHYsNo1CP7R7m94qaKRkaLgtal/RAKBMYQD37aIKNNc9OtDvhGzPA==
-X-YMail-OSG: KGUWPyIVM1loKxtdt2t9YpGfUzEpmyyFy.2hPabaWNhhNDPG2NyWg4CIX.MKRuy
- ucusVz9CqGyj.5n6YNVQwHKRfuBF0RNvPcDLEaafGrw5RS90qx6_vDrGhA_o7c.0Ge.tg4U6LyHH
- qcMul_BdxJ8EhgvxUuvk.TwpauDYOkqMngnMfPZnR4VMEU7Qa1BF8SC2irEGHmNvcOVIcnAT94ui
- RjqVvK.41LuHw6Y2YvktxJ7lr9oIpgnMh21dOsaHad3jHPCZ2jSIH6VJ6hNGc34WWLIFj182j_yS
- DadY8oMLWAyjbyytmK4CFpgL6KaWfXlOYD0YJBh.egjJdIj5mZPC7BT8xx3qABlDJp6NtwCZi7b0
- UOdYOZj0uVH6MlrB9tRWiggXihn1J5L1nZK.RBLC.0vDz_I20ZNapsuM.Biua0yDbCKbKKEiPz9t
- cWJF8Zr2Lp9Itg1YMhVh.nFLYWLov1VTdO3zPoRSQoLVvmuYvboG47G05JKgxBj2g8OwG9xWbrp_
- 8zz5SF6P9QXyalVqOu5pYeUM1m7vS29gs0Vcqxapeq3ldRvss8FJCE4zc71NR4HFHRwqysrz9kd8
- bliSr4CGr28EwH.z.Eikk8jB8tcoTXbW34E..wv4f9eMKdl9vCr2OMiz3YXnav.KZZ3XjyRNaZ9.
- SAg1tWzvjjGx0yEfw3NtsAF74s.VG2PbptAAUJj0V7LHCrflDto9.4qZZBvpN2C5K5rt1L3pHxFA
- ap0BTCkbP3hmyfJ64CsrPPgow8cTblLBqGZM2eYc3w9PbXsvB1mZvo12A6C7ztfcwURGFlrUbXi3
- AmZ6WgbJRzonFOWOaJ5sehwZ_EqMWeFv1gmPcTTNs_AMxbl5TulSf8m1jxaUa..zzHz.drRJsDwy
- yjCZEmrM8boD7.pa5sJGCkzn84N8mffeEFdIUVmo75XexzWaU7gN6Q_2_iFo8E4Bn_C6LOMSu0Yb
- 8gPbCupwFVxk6Ab7jrq.E5orcwMIJyx4yUTMWygPbBLoubOwPS9lXYC8Kqsk7qn6CgNekHs5pc6O
- TQK_1i4QijEsQIgk1pyTln1zAXNgYCbFog5GFfhM_CVUU7Q1SSe0YNIn3tpdgztL5b4dFkH5ICGO
- F4i7YdGr2VnCVE8I18qe_kQ7vBnypYOQBoqRdbSXNgQSryDbdUqCkWwNHFkgZi21wDuN8SgshjLF
- ncWMRpIh5t37kYMKfwfWmagmNfnrOZ6376M2ZxxaXNY1npdd4G8yScP1Eo7eXnQopJifTugggfTv
- r9uEy4PUnd.G.8werC4lCWQMumGzO3jGzJVX8X_yAOe0REIZux._9JoWwr6F.OzUNtJ14n_B91om
- AXmAktclrnAFhR0H5XHok9Z.3n0NyRtAWOHTGDoZWJL9B_ENEQpLbKRqeMRns.S5e46ctlqzFAOT
- XkoV668mlyU7D9wyZViAhTBassxievCDTkzzw6NFb__9.7s5mYJNiL828Aytrxy6T
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.ne1.yahoo.com with HTTP; Wed, 13 Nov 2019 00:01:09 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1573603271; bh=5/d7h1GSWRDAgX7ZrCVTYIB4A4dZ6lEDfv77O92Tu6g=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=nkpIfqabCNx6PW0JZkdS7yp9KLcBAgYX/XPGrsxEGlM12XOhDXZ++UL7CfrvhsVf/RVIc1w2cqJrRfYiWlqFVm0jkJ+oRqzkplseSBj0ZgDUqHRrrRbGAGid/roHNpL/Feg0kkvZjRVlJggPkZ7+KfPZyBfzarmMsx31QlUYDNHIUYIrSq9bt+qouXRfvhC46/7xXc9A48P5gVuDfCHJDkz9wGr96fnqMyaDeqGesDF3pfGp0BD05gdVRCUM3orkLxzQROxuKAnbIkqc/qbd/wBdSXXs3W2rvIGm/mTwqM3QfZa34A5BRRDlk84dgxz6TCnJ7JD0lx2124FK8VBxPg==
+X-YMail-OSG: u6uTZcsVM1mFKlU52kkCYAgayLZkJK5h.jS87kgcL60cwCPqORfPKarvtJeWrOw
+ 3h6kXcQBhxPUEc_8n1ZDRTAOCpWx7xIOOa8_smbe_HyhA6CHnFg_L6GJdB9tMGRtpFZer67bUftj
+ td7kGzRya9p5RsmsS.RKuZvLEp50DppEElznCtIppjraY.AWLcnSdmp4SemeHCWHtNBrnHFegwcT
+ MkQmZMFFHFZ9HBdBwu9aaGMaBPh0PLETlYviNopT0NUO6dnSEwV5fvgu_0ElXELu2Gyjiknlt5FI
+ e2HpzEp2ksUkqKnfzrWDsYX_46jG0w7ILdw0zOT5UV.TDwbO9qxEpX2Wb42RKKgGubMcPNUA6H5z
+ GaQ3Wp4Rnn5GI4YYBubhvz1gFAkqcN9Q1ckHQqrvdF.DtchpwW3xk8L3YGh0M1kq7VQlXDR0Eqqj
+ .6Rg9PmuK3SaHRod2Vw8cmagAFLFn.Wwo6GAHvQIx_n1bnT2Ak5p8JGu8F2aSIi5AT0x_1uYTalU
+ UrPiZ1O.tspNwz1NfN8bWONtSgLdFF6WuNJ0PSrXmaRnoGcJUrleyNi5JlD7P3zy4CaHCVak6_sr
+ FzyFCeWtodfXX.dpCMRyRLa9M8DIULFYZvDbtx99WjGteeOTTeMDZ0rXbdajg3eWXD3odSs7QNRz
+ U6GoWfHhHHu67i.DLurdX2Yyo82dO3_M1jX6o9hBfbZKA_00dFEPR4UxWToeS.Tthw1N05rsm.lp
+ ZgTYrj64_Fy4abjHiwRowebeNrytUMpjtU3S5Xl8QZu9t.uxo048BkvJZ_ObuaSBnnNqx0m3E5jh
+ uhnFkRj68SYUrfXcL4N6T2u9I1658sWRKZKoyqie.5q62r3D0fsltuAUU4f54tnRBZ9niqfhYqhT
+ 1OJcWiD651THQWyFKzinfUJ57m4d.OHDxJns9sQZYAJ2QIFtMo3v7fqRL1MEmeo4D4FELciOBofo
+ .f5Y9MFB0dlOYtBWMcYOwzklrcOIUij8VoyMVQcrkCKJnm6bo.kYY1IivSc1fhsdRNgZ8BuW07aE
+ O.CN54WJbIPKYtT6_4IUsLuOLVJxpYF1M1WuFDuAdr8XZfRdc33vzOEA43MDTN5mBv.9odFHVlUK
+ 348KJaG.Enylp9wnUtpqut8gTK0tGvEczX5Qa1rtK1UOxymNsLOz6p_jPwbF6wGbQr8bvCepIIm6
+ c25DCTsrkTdUbLZGBRmSg0r6Weh75jyqjqLd1Q.Zk1qz56pvm.8Bnvp871DM6IxNdbkFPpwVhuN0
+ L3Y23eNsAcOn4.PMJTF7_dwg9Hrf.uXfmNBFSP1FjgafhuYOWhD2i3LUQLhe0z5Jm7R5rXRmBiYj
+ 46BAmax2ZO_ckBqww84saudPULgh.UOsd9lQxVaNbBXZNcp45H.rqFr56IKIDVIHs8g.LS8KPGhF
+ uKEo.sTVQsKYExEpC_D.Dz0pUtbQ89Q7IKCdINxFXLyzPFdD7LEHiPjA.F9zC3FoYew--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Wed, 13 Nov 2019 00:01:11 +0000
 Received: by smtp419.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 498aa4bc8ee3a781207e3ee551d35445;
-          Wed, 13 Nov 2019 00:01:06 +0000 (UTC)
+          Wed, 13 Nov 2019 00:01:05 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov
-Subject: [PATCH v10 12/25] IMA: Change internal interfaces to use lsmblobs
-Date:   Tue, 12 Nov 2019 16:00:09 -0800
-Message-Id: <20191113000022.5300-13-casey@schaufler-ca.com>
+Subject: [PATCH v10 11/25] LSM: Use lsmblob in security_cred_getsecid
+Date:   Tue, 12 Nov 2019 16:00:08 -0800
+Message-Id: <20191113000022.5300-12-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113000022.5300-1-casey@schaufler-ca.com>
 References: <20191113000022.5300-1-casey@schaufler-ca.com>
@@ -64,230 +64,286 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The IMA interfaces ima_get_action() and ima_match_policy()
-call LSM functions that use lsmblobs. Change the IMA functions
-to pass the lsmblob to be compatible with the LSM functions.
+Change the security_cred_getsecid() interface to fill in a
+lsmblob instead of a u32 secid. The associated data elements
+in the audit sub-system are changed from a secid to a lsmblob
+to accommodate multiple possible LSM audit users.
 
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- security/integrity/ima/ima.h          | 10 ++++++----
- security/integrity/ima/ima_api.c      |  9 +++++----
- security/integrity/ima/ima_appraise.c |  4 +---
- security/integrity/ima/ima_main.c     | 27 +++++++++++----------------
- security/integrity/ima/ima_policy.c   | 12 ++++++------
- 5 files changed, 29 insertions(+), 33 deletions(-)
+ include/linux/security.h          |  2 +-
+ kernel/audit.c                    | 14 +++++-------
+ kernel/audit.h                    |  5 +++--
+ kernel/auditsc.c                  | 37 +++++++++++--------------------
+ security/integrity/ima/ima_main.c |  8 +++----
+ security/security.c               | 12 +++++++---
+ 6 files changed, 36 insertions(+), 42 deletions(-)
 
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index 5a337239d9e4..73b3b15dec5c 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -192,8 +192,9 @@ enum ima_hooks {
+diff --git a/include/linux/security.h b/include/linux/security.h
+index d48961c43175..f4082156683c 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -379,7 +379,7 @@ int security_cred_alloc_blank(struct cred *cred, gfp_t gfp);
+ void security_cred_free(struct cred *cred);
+ int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
+ void security_transfer_creds(struct cred *new, const struct cred *old);
+-void security_cred_getsecid(const struct cred *c, u32 *secid);
++void security_cred_getsecid(const struct cred *c, struct lsmblob *blob);
+ int security_kernel_act_as(struct cred *new, struct lsmblob *blob);
+ int security_kernel_create_files_as(struct cred *new, struct inode *inode);
+ int security_kernel_module_request(char *kmod_name);
+diff --git a/kernel/audit.c b/kernel/audit.c
+index a0205f3c23c7..1b51e907f131 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -137,7 +137,7 @@ static u32	audit_backlog_wait_time = AUDIT_BACKLOG_WAIT_TIME;
+ /* The identity of the user shutting down the audit system. */
+ kuid_t		audit_sig_uid = INVALID_UID;
+ pid_t		audit_sig_pid = -1;
+-u32		audit_sig_sid = 0;
++struct lsmblob	audit_sig_lsm;
+ 
+ /* Records can be lost in several ways:
+    0) [suppressed in audit_alloc]
+@@ -1429,23 +1429,21 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 	}
+ 	case AUDIT_SIGNAL_INFO:
+ 		len = 0;
+-		if (audit_sig_sid) {
+-			struct lsmblob blob;
+-
+-			lsmblob_init(&blob, audit_sig_sid);
+-			err = security_secid_to_secctx(&blob, &ctx, &len);
++		if (lsmblob_is_set(&audit_sig_lsm)) {
++			err = security_secid_to_secctx(&audit_sig_lsm, &ctx,
++						       &len);
+ 			if (err)
+ 				return err;
+ 		}
+ 		sig_data = kmalloc(sizeof(*sig_data) + len, GFP_KERNEL);
+ 		if (!sig_data) {
+-			if (audit_sig_sid)
++			if (lsmblob_is_set(&audit_sig_lsm))
+ 				security_release_secctx(ctx, len);
+ 			return -ENOMEM;
+ 		}
+ 		sig_data->uid = from_kuid(&init_user_ns, audit_sig_uid);
+ 		sig_data->pid = audit_sig_pid;
+-		if (audit_sig_sid) {
++		if (lsmblob_is_set(&audit_sig_lsm)) {
+ 			memcpy(sig_data->ctx, ctx, len);
+ 			security_release_secctx(ctx, len);
+ 		}
+diff --git a/kernel/audit.h b/kernel/audit.h
+index 958d5b8fc1b3..29e29c6f4afb 100644
+--- a/kernel/audit.h
++++ b/kernel/audit.h
+@@ -22,6 +22,7 @@
+ #include <linux/fs.h>
+ #include <linux/audit.h>
+ #include <linux/skbuff.h>
++#include <linux/security.h>
+ #include <uapi/linux/mqueue.h>
+ #include <linux/tty.h>
+ 
+@@ -147,7 +148,7 @@ struct audit_context {
+ 	kuid_t		    target_auid;
+ 	kuid_t		    target_uid;
+ 	unsigned int	    target_sessionid;
+-	u32		    target_sid;
++	struct lsmblob   target_lsm;
+ 	char		    target_comm[TASK_COMM_LEN];
+ 
+ 	struct audit_tree_refs *trees, *first_trees;
+@@ -338,7 +339,7 @@ extern char *audit_unpack_string(void **bufp, size_t *remain, size_t len);
+ 
+ extern pid_t audit_sig_pid;
+ extern kuid_t audit_sig_uid;
+-extern u32 audit_sig_sid;
++extern struct lsmblob audit_sig_lsm;
+ 
+ extern int audit_filter(int msgtype, unsigned int listtype);
+ 
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 54797c0fc3b7..c7aa39bda5cc 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -112,7 +112,7 @@ struct audit_aux_data_pids {
+ 	kuid_t			target_auid[AUDIT_AUX_PIDS];
+ 	kuid_t			target_uid[AUDIT_AUX_PIDS];
+ 	unsigned int		target_sessionid[AUDIT_AUX_PIDS];
+-	u32			target_sid[AUDIT_AUX_PIDS];
++	struct lsmblob	target_lsm[AUDIT_AUX_PIDS];
+ 	char 			target_comm[AUDIT_AUX_PIDS][TASK_COMM_LEN];
+ 	int			pid_count;
  };
- 
- /* LIM API function definitions */
--int ima_get_action(struct inode *inode, const struct cred *cred, u32 secid,
--		   int mask, enum ima_hooks func, int *pcr);
-+int ima_get_action(struct inode *inode, const struct cred *cred,
-+		   struct lsmblob *blob, int mask, enum ima_hooks func,
-+		   int *pcr);
- int ima_must_measure(struct inode *inode, int mask, enum ima_hooks func);
- int ima_collect_measurement(struct integrity_iint_cache *iint,
- 			    struct file *file, void *buf, loff_t size,
-@@ -213,8 +214,9 @@ void ima_free_template_entry(struct ima_template_entry *entry);
- const char *ima_d_path(const struct path *path, char **pathbuf, char *filename);
- 
- /* IMA policy related functions */
--int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
--		     enum ima_hooks func, int mask, int flags, int *pcr);
-+int ima_match_policy(struct inode *inode, const struct cred *cred,
-+		     struct lsmblob *blob, enum ima_hooks func, int mask,
-+		     int flags, int *pcr);
- void ima_init_policy(void);
- void ima_update_policy(void);
- void ima_update_policy_flag(void);
-diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
-index c7505fb122d4..94b2a4840d81 100644
---- a/security/integrity/ima/ima_api.c
-+++ b/security/integrity/ima/ima_api.c
-@@ -159,7 +159,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
-  * ima_get_action - appraise & measure decision based on policy.
-  * @inode: pointer to inode to measure
-  * @cred: pointer to credentials structure to validate
-- * @secid: secid of the task being validated
-+ * @blob: LSM data of the task being validated
-  * @mask: contains the permission mask (MAY_READ, MAY_WRITE, MAY_EXEC,
-  *        MAY_APPEND)
-  * @func: caller identifier
-@@ -175,14 +175,15 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
-  * Returns IMA_MEASURE, IMA_APPRAISE mask.
-  *
-  */
--int ima_get_action(struct inode *inode, const struct cred *cred, u32 secid,
--		   int mask, enum ima_hooks func, int *pcr)
-+int ima_get_action(struct inode *inode, const struct cred *cred,
-+		   struct lsmblob *blob, int mask, enum ima_hooks func,
-+		   int *pcr)
- {
- 	int flags = IMA_MEASURE | IMA_AUDIT | IMA_APPRAISE | IMA_HASH;
- 
- 	flags &= ima_policy_flag;
- 
--	return ima_match_policy(inode, cred, secid, func, mask, flags, pcr);
-+	return ima_match_policy(inode, cred, blob, func, mask, flags, pcr);
+@@ -938,14 +938,14 @@ static inline void audit_free_context(struct audit_context *context)
  }
  
- /*
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index 85c7692fc4a3..3ff7aae81829 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -50,15 +50,13 @@ bool is_ima_appraise_enabled(void)
-  */
- int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func)
+ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
+-				 kuid_t auid, kuid_t uid, unsigned int sessionid,
+-				 u32 sid, char *comm)
++				 kuid_t auid, kuid_t uid,
++				 unsigned int sessionid,
++				 struct lsmblob *blob, char *comm)
  {
+ 	struct audit_buffer *ab;
+ 	char *ctx = NULL;
+ 	u32 len;
+ 	int rc = 0;
+-	struct lsmblob blob;
+ 
+ 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_OBJ_PID);
+ 	if (!ab)
+@@ -954,9 +954,8 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
+ 	audit_log_format(ab, "opid=%d oauid=%d ouid=%d oses=%d", pid,
+ 			 from_kuid(&init_user_ns, auid),
+ 			 from_kuid(&init_user_ns, uid), sessionid);
+-	if (sid) {
+-		lsmblob_init(&blob, sid);
+-		if (security_secid_to_secctx(&blob, &ctx, &len)) {
++	if (lsmblob_is_set(blob)) {
++		if (security_secid_to_secctx(blob, &ctx, &len)) {
+ 			audit_log_format(ab, " obj=(none)");
+ 			rc = 1;
+ 		} else {
+@@ -1527,7 +1526,7 @@ static void audit_log_exit(void)
+ 						  axs->target_auid[i],
+ 						  axs->target_uid[i],
+ 						  axs->target_sessionid[i],
+-						  axs->target_sid[i],
++						  &axs->target_lsm[i],
+ 						  axs->target_comm[i]))
+ 				call_panic = 1;
+ 	}
+@@ -1536,7 +1535,7 @@ static void audit_log_exit(void)
+ 	    audit_log_pid_context(context, context->target_pid,
+ 				  context->target_auid, context->target_uid,
+ 				  context->target_sessionid,
+-				  context->target_sid, context->target_comm))
++				  &context->target_lsm, context->target_comm))
+ 			call_panic = 1;
+ 
+ 	if (context->pwd.dentry && context->pwd.mnt) {
+@@ -1713,7 +1712,7 @@ void __audit_syscall_exit(int success, long return_code)
+ 	context->aux = NULL;
+ 	context->aux_pids = NULL;
+ 	context->target_pid = 0;
+-	context->target_sid = 0;
++	lsmblob_init(&context->target_lsm, 0);
+ 	context->sockaddr_len = 0;
+ 	context->type = 0;
+ 	context->fds[0] = -1;
+@@ -2367,15 +2366,12 @@ int __audit_sockaddr(int len, void *a)
+ void __audit_ptrace(struct task_struct *t)
+ {
+ 	struct audit_context *context = audit_context();
+-	struct lsmblob blob;
+ 
+ 	context->target_pid = task_tgid_nr(t);
+ 	context->target_auid = audit_get_loginuid(t);
+ 	context->target_uid = task_uid(t);
+ 	context->target_sessionid = audit_get_sessionid(t);
+-	security_task_getsecid(t, &blob);
+-	/* scaffolding - until target_sid is converted */
+-	context->target_sid = blob.secid[0];
++	security_task_getsecid(t, &context->target_lsm);
+ 	memcpy(context->target_comm, t->comm, TASK_COMM_LEN);
+ }
+ 
+@@ -2392,7 +2388,6 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 	struct audit_aux_data_pids *axp;
+ 	struct audit_context *ctx = audit_context();
+ 	kuid_t uid = current_uid(), auid, t_uid = task_uid(t);
+-	struct lsmblob blob;
+ 
+ 	if (auditd_test_task(t) &&
+ 	    (sig == SIGTERM || sig == SIGHUP ||
+@@ -2403,9 +2398,7 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 			audit_sig_uid = auid;
+ 		else
+ 			audit_sig_uid = uid;
+-		security_task_getsecid(current, &blob);
+-		/* scaffolding until audit_sig_sid is converted */
+-		audit_sig_sid = blob.secid[0];
++		security_task_getsecid(current, &audit_sig_lsm);
+ 	}
+ 
+ 	if (!audit_signals || audit_dummy_context())
+@@ -2418,9 +2411,7 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 		ctx->target_auid = audit_get_loginuid(t);
+ 		ctx->target_uid = t_uid;
+ 		ctx->target_sessionid = audit_get_sessionid(t);
+-		security_task_getsecid(t, &blob);
+-		/* scaffolding until target_sid is converted */
+-		ctx->target_sid = blob.secid[0];
++		security_task_getsecid(t, &ctx->target_lsm);
+ 		memcpy(ctx->target_comm, t->comm, TASK_COMM_LEN);
+ 		return 0;
+ 	}
+@@ -2441,9 +2432,7 @@ int audit_signal_info(int sig, struct task_struct *t)
+ 	axp->target_auid[axp->pid_count] = audit_get_loginuid(t);
+ 	axp->target_uid[axp->pid_count] = t_uid;
+ 	axp->target_sessionid[axp->pid_count] = audit_get_sessionid(t);
+-	security_task_getsecid(t, &blob);
+-	/* scaffolding until target_sid is converted */
+-	axp->target_sid[axp->pid_count] = blob.secid[0];
++	security_task_getsecid(t, &axp->target_lsm[axp->pid_count]);
+ 	memcpy(axp->target_comm[axp->pid_count], t->comm, TASK_COMM_LEN);
+ 	axp->pid_count++;
+ 
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index fefa848cf0c7..1afb75a893af 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -363,7 +363,6 @@ int ima_file_mmap(struct file *file, unsigned long prot)
+ int ima_bprm_check(struct linux_binprm *bprm)
+ {
+ 	int ret;
 -	u32 secid;
  	struct lsmblob blob;
  
- 	if (!ima_appraise)
- 		return 0;
- 
  	security_task_getsecid(current, &blob);
--	lsmblob_secid(&blob, &secid);
--	return ima_match_policy(inode, current_cred(), secid, func, mask,
-+	return ima_match_policy(inode, current_cred(), &blob, func, mask,
- 				IMA_APPRAISE | IMA_HASH, NULL);
- }
- 
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index 1afb75a893af..0588dd9a88db 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -169,8 +169,8 @@ void ima_file_free(struct file *file)
- }
- 
- static int process_measurement(struct file *file, const struct cred *cred,
--			       u32 secid, char *buf, loff_t size, int mask,
--			       enum ima_hooks func)
-+			       struct lsmblob *blob, char *buf, loff_t size,
-+			       int mask, enum ima_hooks func)
- {
- 	struct inode *inode = file_inode(file);
- 	struct integrity_iint_cache *iint = NULL;
-@@ -192,7 +192,7 @@ static int process_measurement(struct file *file, const struct cred *cred,
- 	 * bitmask based on the appraise/audit/measurement policy.
- 	 * Included is the appraise submask.
- 	 */
--	action = ima_get_action(inode, cred, secid, mask, func, &pcr);
-+	action = ima_get_action(inode, cred, blob, mask, func, &pcr);
- 	violation_check = ((func == FILE_CHECK || func == MMAP_CHECK) &&
- 			   (ima_policy_flag & IMA_MEASURE));
- 	if (!action && !violation_check)
-@@ -339,8 +339,7 @@ int ima_file_mmap(struct file *file, unsigned long prot)
- 
- 	if (file && (prot & PROT_EXEC)) {
- 		security_task_getsecid(current, &blob);
--		/* scaffolding - until process_measurement changes */
--		return process_measurement(file, current_cred(), blob.secid[0],
-+		return process_measurement(file, current_cred(), &blob,
- 					   NULL, 0, MAY_EXEC, MMAP_CHECK);
- 	}
- 
-@@ -366,16 +365,14 @@ int ima_bprm_check(struct linux_binprm *bprm)
- 	struct lsmblob blob;
- 
- 	security_task_getsecid(current, &blob);
--	/* scaffolding until process_measurement changes */
--	ret = process_measurement(bprm->file, current_cred(), blob.secid[0],
--				  NULL, 0, MAY_EXEC, BPRM_CHECK);
-+	ret = process_measurement(bprm->file, current_cred(), &blob, NULL, 0,
-+				  MAY_EXEC, BPRM_CHECK);
+@@ -373,9 +372,10 @@ int ima_bprm_check(struct linux_binprm *bprm)
  	if (ret)
  		return ret;
  
- 	security_cred_getsecid(bprm->cred, &blob);
--	/* scaffolding until process_measurement changes */
--	return process_measurement(bprm->file, bprm->cred, blob.secid[0],
--				   NULL, 0, MAY_EXEC, CREDS_CHECK);
-+	return process_measurement(bprm->file, bprm->cred, &blob, NULL, 0,
-+				   MAY_EXEC, CREDS_CHECK);
+-	security_cred_getsecid(bprm->cred, &secid);
+-	return process_measurement(bprm->file, bprm->cred, secid, NULL, 0,
+-				   MAY_EXEC, CREDS_CHECK);
++	security_cred_getsecid(bprm->cred, &blob);
++	/* scaffolding until process_measurement changes */
++	return process_measurement(bprm->file, bprm->cred, blob.secid[0],
++				   NULL, 0, MAY_EXEC, CREDS_CHECK);
  }
  
  /**
-@@ -393,8 +390,7 @@ int ima_file_check(struct file *file, int mask)
- 	struct lsmblob blob;
- 
- 	security_task_getsecid(current, &blob);
--	/* scaffolding until process_measurement changes */
--	return process_measurement(file, current_cred(), blob.secid[0], NULL, 0,
-+	return process_measurement(file, current_cred(), &blob, NULL, 0,
- 				   mask & (MAY_READ | MAY_WRITE | MAY_EXEC |
- 					   MAY_APPEND), FILE_CHECK);
- }
-@@ -526,9 +522,8 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
- 
- 	func = read_idmap[read_id] ?: FILE_CHECK;
- 	security_task_getsecid(current, &blob);
--	/* scaffolding until process_measurement changes */
--	return process_measurement(file, current_cred(), blob.secid[0], buf,
--				   size, MAY_READ, func);
-+	return process_measurement(file, current_cred(), &blob, buf, size,
-+				   MAY_READ, func);
+diff --git a/security/security.c b/security/security.c
+index d88283007ab6..8368d1e726a0 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1566,10 +1566,16 @@ void security_transfer_creds(struct cred *new, const struct cred *old)
+ 	call_void_hook(cred_transfer, new, old);
  }
  
- /**
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 92ee3d984c73..dbad256aa7b4 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -286,7 +286,7 @@ static void ima_lsm_update_rules(void)
-  * Returns true on rule match, false on failure.
-  */
- static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
--			    const struct cred *cred, u32 secid,
-+			    const struct cred *cred, struct lsmblob *blob,
- 			    enum ima_hooks func, int mask)
+-void security_cred_getsecid(const struct cred *c, u32 *secid)
++void security_cred_getsecid(const struct cred *c, struct lsmblob *blob)
  {
- 	int i;
-@@ -345,7 +345,6 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		case LSM_SUBJ_USER:
- 		case LSM_SUBJ_ROLE:
- 		case LSM_SUBJ_TYPE:
--			lsmblob_init(&blob, secid);
- 			rc = security_filter_rule_match(&blob,
- 							rule->lsm[i].type,
- 							Audit_equal,
-@@ -394,7 +393,7 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
-  * @inode: pointer to an inode for which the policy decision is being made
-  * @cred: pointer to a credentials structure for which the policy decision is
-  *        being made
-- * @secid: LSM secid of the task to be validated
-+ * @blob: LSM data of the task to be validated
-  * @func: IMA hook identifier
-  * @mask: requested action (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_EXEC)
-  * @pcr: set the pcr to extend
-@@ -406,8 +405,9 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
-  * list when walking it.  Reads are many orders of magnitude more numerous
-  * than writes so ima_match_policy() is classical RCU candidate.
-  */
--int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
--		     enum ima_hooks func, int mask, int flags, int *pcr)
-+int ima_match_policy(struct inode *inode, const struct cred *cred,
-+		     struct lsmblob *blob, enum ima_hooks func, int mask,
-+		     int flags, int *pcr)
- {
- 	struct ima_rule_entry *entry;
- 	int action = 0, actmask = flags | (flags << 1);
-@@ -418,7 +418,7 @@ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
- 		if (!(entry->action & actmask))
- 			continue;
+-	*secid = 0;
+-	call_void_hook(cred_getsecid, c, secid);
++	struct security_hook_list *hp;
++
++	lsmblob_init(blob, 0);
++	hlist_for_each_entry(hp, &security_hook_heads.cred_getsecid, list) {
++		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
++			continue;
++		hp->hook.cred_getsecid(c, &blob->secid[hp->lsmid->slot]);
++	}
+ }
+ EXPORT_SYMBOL(security_cred_getsecid);
  
--		if (!ima_match_rules(entry, inode, cred, secid, func, mask))
-+		if (!ima_match_rules(entry, inode, cred, blob, func, mask))
- 			continue;
- 
- 		action |= entry->flags & IMA_ACTION_FLAGS;
 -- 
 2.20.1
 
