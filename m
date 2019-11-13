@@ -1,4 +1,4 @@
-Return-Path: <SRS0=/sIX=ZF=vger.kernel.org=linux-integrity-owner@kernel.org>
+Return-Path: <SRS0=aYY/=ZF=vger.kernel.org=netdev-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
@@ -7,22 +7,20 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39309C17441
-	for <linux-integrity@archiver.kernel.org>; Wed, 13 Nov 2019 00:10:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CDD4C1744A
+	for <netdev@archiver.kernel.org>; Wed, 13 Nov 2019 00:10:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1198821E6F
-	for <linux-integrity@archiver.kernel.org>; Wed, 13 Nov 2019 00:10:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C76CD2196E
+	for <netdev@archiver.kernel.org>; Wed, 13 Nov 2019 00:10:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
 	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fmVHO0LP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727224AbfKMAKM (ORCPT
-        <rfc822;linux-integrity@archiver.kernel.org>);
-        Tue, 12 Nov 2019 19:10:12 -0500
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:37630
+        id S1727256AbfKMAKN (ORCPT <rfc822;netdev@archiver.kernel.org>);
+        Tue, 12 Nov 2019 19:10:13 -0500
+Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:33684
         "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727104AbfKMAKM (ORCPT
-        <rfc822;linux-integrity@vger.kernel.org>);
-        Tue, 12 Nov 2019 19:10:12 -0500
+        by vger.kernel.org with ESMTP id S1727223AbfKMAKM (ORCPT
+        <rfc822;netdev@vger.kernel.org>); Tue, 12 Nov 2019 19:10:12 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1573603809; bh=3DGCbwEZhoi3LiQz+TuVsl3UVgwOsrdqkddkSVfW48A=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=fmVHO0LPrnMpk7ToUGOIacXoYHQFdCUEX37vMgOqzUZoTt2TaugKilq/27O1biEq9aRCb7LjtUCWTWwcnE/zDDefjaGCqg88A6MS8dLKr4thvrb5fmUOLmCT15kGBg8EIC0akzNTGLOAL74VqApfJGe5s/Y/FLY3egSPw3s3x2PYL3lxdVQ6fORtvz0AfjlOomw9FgughYsTNDBQO3G/UXYxg6TVO9oBQLWOSrhkXCWAY+PWTIB9xkqNKxU1B76fvwm7+hSnA0T++n/VT9oAB0M52vVRRpad95iFP8VJNvzyTIJWjyhOcgvAmtyKWeYYkvTfvt6Y1krW5QMWwiWUDA==
 X-YMail-OSG: 8KtC9ZMVM1nTzkyQOaFOxS9SSmb7JcPjiogDHcmzm3EefHyHeEKO_xI.0.vf6Vp
  FcHzcZ_o1tO4mWpIdzC69bYcDN_Zx3D2ygN3mwftF.fCviUv4tz7E6vlDAqn5wnwYUGasycBrwD2
@@ -62,11 +60,11 @@ In-Reply-To: <20191113000913.5414-1-casey@schaufler-ca.com>
 References: <20191113000913.5414-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Sender: linux-integrity-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 Precedence: bulk
-List-ID: <linux-integrity.vger.kernel.org>
-X-Mailing-List: linux-integrity@vger.kernel.org
-Message-ID: <20191113000902.lB_iYDLRIlL_8g-ANFrRokGwW608_nri5zwDVe2IPRg@z>
+List-ID: <netdev.vger.kernel.org>
+X-Mailing-List: netdev@vger.kernel.org
+Message-ID: <20191113000902.pSU19UVM3Y0gRkmKAKa8BOTst6kK6XC_cTvqiaZUxDk@z>
 
 Add a new lsmcontext data structure to hold all the information
 about a "security context", including the string, its size and
