@@ -2,223 +2,916 @@ Return-Path: <SRS0=4d9t=ZF=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CDEBC43331
-	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 13:13:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26126C17442
+	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 14:30:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2F04322467
-	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 13:13:16 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="k1TmAwk1"
+	by mail.kernel.org (Postfix) with ESMTP id E958B22466
+	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 14:30:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1573655404;
+	bh=hQAVS7eFinzNHR+RbpSN+r1VWdYuyrS9f6znoeI3JCA=;
+	h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:List-ID:
+	 From;
+	b=HagtgW7FUoddPMpFMhioRFHV3tKa34eLHJ8T+1UL5TYRepFZLFdoK17+LtY/vLqu8
+	 ciynk17ds419YbyytvFcmbTSoONy31vMQFO8oT+wXZwNVQyB3BGopD3WpQXP/C4CkT
+	 RYgsHHCuvGzn9UB+dn3h+g04LqpEIISrWl1sn0NY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726185AbfKMNNP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Nov 2019 08:13:15 -0500
-Received: from USAT19PA21.eemsg.mail.mil ([214.24.22.195]:49641 "EHLO
-        USAT19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725996AbfKMNNP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 Nov 2019 08:13:15 -0500
-X-EEMSG-check-017: 50007838|USAT19PA21_ESA_OUT02.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.68,300,1569283200"; 
-   d="scan'208";a="50007838"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USAT19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Nov 2019 13:13:13 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1573650793; x=1605186793;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=18Jxw0b++RJTfNQJ3Lr4nGh2P22FEQ7YTwh0fIFlrug=;
-  b=k1TmAwk1ZJ9mg6f/PuZ0TU4pobv9ijU4tSKekvFaBOVlmhfKfAs/CLUk
-   oHYYYeJBMzucK2v3iR2ro8YwtZ5rQxswtmX86ErXJ80nELzLe57n4cCQ3
-   K0cAAvfFwdf9qmS2OYWEc+3Zei9ZdAeiuLCUj2ci6fNcFwGDKsqV5wnol
-   tI2WOV/Uigc1Dl1il081qPgSTi0Wl5LHYF4c8UZqKLXmk7kGdmhzwK+gg
-   e8f0/8nbiVQtIARKLUIbXW/mmgtuGsW2LlXT7LYWvjDxTtxE2deXesnzk
-   W0CzlEmJYjvDZYSyK6OSDrN1HmeVaZPdKenTvY8yYuyegfTFdq0MqDnn9
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.68,300,1569283200"; 
-   d="scan'208";a="35447288"
-IronPort-PHdr: =?us-ascii?q?9a23=3ApdBRtxD30w9bHY1lAeyRUyQJP3N1i/DPJgcQr6?=
- =?us-ascii?q?AfoPdwSPTzosbcNUDSrc9gkEXOFd2Cra4d0KyP6PmrBT1IyK3CmUhKSIZLWR?=
- =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
- =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfL1/IA+roQjfq8UajoRvJ6IswR?=
- =?us-ascii?q?bVv3VEfPhby3l1LlyJhRb84cmw/J9n8ytOvv8q6tBNX6bncakmVLJUFDspPX?=
- =?us-ascii?q?w7683trhnDUBCA5mAAXWUMkxpHGBbK4RfnVZrsqCT6t+592C6HPc3qSL0/RD?=
- =?us-ascii?q?qv47t3RBLulSwIOSQ58GXKgcJuiqxVrg+qqxhmz4LKZIyZMfxzdb7fc9wHX2?=
- =?us-ascii?q?pMRttfWTJPAo28bIUBAeQOMulaoIbhqFUDtge+CAq2Ce/z1jNFiH370Ksn2O?=
- =?us-ascii?q?ohCwHG2wkgEsoTvnTIstr1LKcSXv6zzKLV0DvDaulZ2TP56IfWchEqvPaBXa?=
- =?us-ascii?q?ltfsrK0kQvCwPEgUmQqYziJT+V0P8NvHKB4+pvUuKvlXcqpgdsqTas3schkp?=
- =?us-ascii?q?TFi40ax1ze9Sh13Zw5KcO3RUJle9KoDZ1dvDyAOYRsWMMtWWRotT4/yr0BpJ?=
- =?us-ascii?q?G0YjAHyI8ixx7Dc/yHdJWI4g77WOaRPzh4gHVldaqjhxmo60igy/D8VtKu3F?=
- =?us-ascii?q?ZWritKjtnMtncX2xzV9seHUedy8l2k2TaO0wDf8uBEIUYqmqrHM5Mt37E9m5?=
- =?us-ascii?q?UJvUnDAyP6glv6gaCIekk+5+Sk8+Hnba/npp+YOY90kAb+MqE2l8ykHOs4KR?=
- =?us-ascii?q?MDX3Sb+Oug1L3j+lf1QLNRjvIsiKXZv5faJdoDqq6jHwBVypoj6wq4Dzq+09?=
- =?us-ascii?q?QYmn8HLF1edx2djojmJ1HOIO3iAve5mFmskCpryOrIP7L/A5XBNGTMkLDkfb?=
- =?us-ascii?q?xl8U5T1BIzzcxD55JTErwBO+z8WkvwtNzeEx84PBe5w/joCNpjzIMSQ2GPDb?=
- =?us-ascii?q?GDMKPUr1CI4vgjI+6WZI8a637BLK0m4Pjhh3Y4kl8AdK/hiZgQbn+yF/VtI1?=
- =?us-ascii?q?iQZ1Lsn94eHGZMtQ07GqiiwkaPVT9VemaaQa0x/Hc4BZigAIOFQZqiyvTVxy?=
- =?us-ascii?q?q/H5tLdkhYBV2WV3TlbYOJX7ELci3EceF7lTlRbqSsU48s01mVsQb+z7d2Zr?=
- =?us-ascii?q?7P9jYwqYPo1N8z4fba0x4162onXIymz2iRQjQszSszTDgs0fU6+x1w?=
-X-IPAS-Result: =?us-ascii?q?A2DtAgB6AMxd/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBfoF0LIFAATIqhCmPC1QGgREliWaRQwkBAQEBAQEBAQE0AQIBAYRAAoIgJ?=
- =?us-ascii?q?DgTAg4BAQEEAQEBAQEFAwEBbIVDgjspgm0BAQEBAyMECwEFUQkCFQMCAiMDA?=
- =?us-ascii?q?gJGEQYBDAYCAQGCXz+CUyWUEZp9dX8zhU6DO4FIgQ4ojBQYeIEHgTgMgioHL?=
- =?us-ascii?q?j6HVYJeBI0iiE6BJpZ/gjKCNooGiQUGG5l+jkecDSKBWCsIAhgIIQ+DJ1ARF?=
- =?us-ascii?q?JEjAxeOQSMDMIEFAQGQXAEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 13 Nov 2019 13:13:11 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xADDDAtn007006;
-        Wed, 13 Nov 2019 08:13:10 -0500
-Subject: Re: [PATCH] restorecond: Fix redundant console log output error
-To:     kongbaichuan <kongbaichuan@huawei.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-References: <20191112012328.2314-1-kongbaichuan@huawei.com>
- <fac0b04d-7d96-eedd-c083-31bc9b00597f@tycho.nsa.gov>
- <acce2e1f-1deb-7a4a-9fca-6cc6c0a71c70@tycho.nsa.gov>
- <29DB54BD44962C418560B9F4D8E964C41B2BDCF9@DGGEML522-MBX.china.huawei.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <283867b7-3495-2ba8-ff4b-d73cf0183396@tycho.nsa.gov>
-Date:   Wed, 13 Nov 2019 08:13:10 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.0
+        id S1727655AbfKMOaD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 Nov 2019 09:30:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60952 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727500AbfKMOaD (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 13 Nov 2019 09:30:03 -0500
+Received: from paulmck-ThinkPad-P72.home (199-192-87-166.static.wiline.com [199.192.87.166])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28E73222D0;
+        Wed, 13 Nov 2019 14:29:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573655399;
+        bh=hQAVS7eFinzNHR+RbpSN+r1VWdYuyrS9f6znoeI3JCA=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=1C4S+U8Bi1zhziNLfykZoHE2m8zwahzhp4GzyIj+5g28bhTyvNjKBNQFO/I0TsLGm
+         VmQEG6AmQu8TvNu2356yAYxdyMoP9JfvB7X2wlYJUtyX8wsLFQAXfQ8KDeyM3Dtdzr
+         uMIvGcn57MjbUFGKhdoz6HK5Hu3rsTkXtExbjpmI=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id 085B435227FC; Wed, 13 Nov 2019 06:29:57 -0800 (PST)
+Date:   Wed, 13 Nov 2019 06:29:57 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, rcu@vger.kernel.org,
+        Michal Sekletar <msekleta@redhat.com>
+Subject: Re: [PATCH v4] selinux: cache the SID -> context string translation
+Message-ID: <20191113142956.GC2865@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20191111154004.1790-1-omosnace@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <29DB54BD44962C418560B9F4D8E964C41B2BDCF9@DGGEML522-MBX.china.huawei.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191111154004.1790-1-omosnace@redhat.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/13/19 1:36 AM, kongbaichuan wrote:
-> The situation in policycoreutils/setfiles is different with restorecond.
-> Two same-name varibales r_opts in policycoreutils/setfiles is not effected with each other,
-> so it is not necessary to fix.
+On Mon, Nov 11, 2019 at 04:40:04PM +0100, Ondrej Mosnacek wrote:
+> Translating a context struct to string can be quite slow, especially if
+> the context has a lot of category bits set. This can cause quite
+> noticeable performance impact in situations where the translation needs
+> to be done repeatedly. A common example is a UNIX datagram socket with
+> the SO_PASSSEC option enabled, which is used e.g. by systemd-journald
+> when receiving log messages via datagram socket. This scenario can be
+> reproduced with:
+> 
+>     cat /dev/urandom | base64 | logger &
+>     timeout 30s perf record -p $(pidof systemd-journald) -a -g
+>     kill %1
+>     perf report -g none --pretty raw | grep security_secid_to_secctx
+> 
+> Before the caching introduced by this patch, computing the context
+> string (security_secid_to_secctx() function) takes up ~65% of
+> systemd-journald's CPU time (assuming a context with 1024 categories
+> set and Fedora x86_64 release kernel configs). After this patch
+> (assuming near-perfect cache hit ratio) this overhead is reduced to just
+> ~2%.
+> 
+> This patch addresses the issue by caching a certain number (compile-time
+> configurable) of recently used context strings to speed up repeated
+> translations of the same context, while using only a small amount of
+> memory.
+> 
+> The cache is integrated into the existing sidtab table by adding a field
+> to each entry, which when not NULL contains an RCU-protected pointer to
+> a cache entry containing the cached string. The cache entries are kept
+> in a linked list sorted according to how recently they were used. On a
+> cache miss when the cache is full, the least recently used entry is
+> removed to make space for the new entry.
+> 
+> The patch migrates security_sid_to_context_core() to use the cache (also
+> a few other functions where it was possible without too much fuss, but
+> these mostly use the translation for logging in case of error, which is
+> rare).
+> 
+> Link: https://bugzilla.redhat.com/show_bug.cgi?id=1733259
+> Cc: Michal Sekletar <msekleta@redhat.com>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-I understand it isn't a problem in practice right now, but it is a 
-maintainability issue; it can create confusion in the future and if 
-someone were to ever change the one instance to be non-static in order 
-to access it from another source file, we would have exactly the same 
-bug.  Hence, I would favor fixing it now.
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
 
+> ---
 > 
+> Changes in v4:
+>  - use rcu_dereference_protected() instead of rcu_dereference_raw() in
+>    sidtab_sid2str_put()
+>  - fix typo in comment
+>  - remove unnecessary rcu_head_init() call
 > 
-> -----邮件原件-----
-> 发件人: Stephen Smalley [mailto:sds@tycho.nsa.gov]
-> 发送时间: 2019年11月12日 23:55
-> 收件人: kongbaichuan <kongbaichuan@huawei.com>; selinux@vger.kernel.org
-> 主题: Re: [PATCH] restorecond: Fix redundant console log output error
+> Changes in v3:
+>  - add rcu@vger.kernel.org and Paul McKenney to Cc for review of the RCU
+>    logic
+>  - add __rcu annotation to the cache entry pointer (sidtab.c now passes
+>    sparse checks with C=1)
 > 
-> On 11/12/19 10:47 AM, Stephen Smalley wrote:
->> On 11/11/19 8:23 PM, Baichuan Kong wrote:
->>> From: kong baichuan <kongbaichuan@huawei.com>
->>>
->>> When starting restorecond without any option the following redundant
->>> console log is outputed:
->>>
->>> /dev/log 100.0%
->>> /var/volatile/run/syslogd.pid 100.0%
->>> ...
->>>
->>> This is caused by two global variables of same name r_opts. When
->>> executes r_opts = opts in restore_init(), it originally intends to
->>> assign the address of struct r_opts in "restorecond.c" to the pointer
->>> *r_opts in "restore.c".
->>>
->>> However, the address is assigned to the struct r_opts and covers the
->>> value of low eight bytes in it. That causes unexpected value of
->>> member varibale 'nochange' and 'verbose' in struct r_opts, thus
->>> affects value of 'restorecon_flags' and executes unexpected
->>> operations when restorecon the files such as the redundant console
->>> log output or file label nochange.
->>>
->>> Signed-off-by: kong baichuan <kongbaichuan@huawei.com>
->>
->> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Changes in v2:
+>  - skip sidtab_sid2str_put() when in non-task context to prevent
+>    deadlock while avoiding the need to lock the spinlock with
+>    irqsave/-restore (which is slower)
 > 
-> NB restore.c in restorecond was copied from policycoreutils/setfiles, which shares this same pattern, except that the separate r_opts declaration in setfiles.c is static.  We should likely fix it for setfiles as well.
+>  security/selinux/Kconfig       |  11 ++
+>  security/selinux/ss/services.c | 138 +++++++++++++++----------
+>  security/selinux/ss/sidtab.c   | 179 +++++++++++++++++++++++++++------
+>  security/selinux/ss/sidtab.h   |  58 +++++++++--
+>  4 files changed, 294 insertions(+), 92 deletions(-)
 > 
->>
->>> ---
->>>    restorecond/restore.c | 40 ++++++++++++++++++----------------------
->>>    1 file changed, 18 insertions(+), 22 deletions(-)
->>>
->>> diff --git a/restorecond/restore.c b/restorecond/restore.c
->>> index f6e30001..b93b5fdb 100644
->>> --- a/restorecond/restore.c
->>> +++ b/restorecond/restore.c
->>> @@ -12,39 +12,36 @@
->>>    char **exclude_list;
->>>    int exclude_count;
->>> -struct restore_opts *r_opts;
->>> -
->>>    void restore_init(struct restore_opts *opts)
->>>    {
->>>        int rc;
->>> -    r_opts = opts;
->>>        struct selinux_opt selinux_opts[] = {
->>> -        { SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
->>> -        { SELABEL_OPT_PATH, r_opts->selabel_opt_path },
->>> -        { SELABEL_OPT_DIGEST, r_opts->selabel_opt_digest }
->>> +        { SELABEL_OPT_VALIDATE, opts->selabel_opt_validate },
->>> +        { SELABEL_OPT_PATH, opts->selabel_opt_path },
->>> +        { SELABEL_OPT_DIGEST, opts->selabel_opt_digest }
->>>        };
->>> -    r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
->>> -    if (!r_opts->hnd) {
->>> -        perror(r_opts->selabel_opt_path);
->>> +    opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
->>> +    if (!opts->hnd) {
->>> +        perror(opts->selabel_opt_path);
->>>            exit(1);
->>>        }
->>> -    r_opts->restorecon_flags = 0;
->>> -    r_opts->restorecon_flags = r_opts->nochange | r_opts->verbose |
->>> -               r_opts->progress | r_opts->set_specctx  |
->>> -               r_opts->add_assoc | r_opts->ignore_digest |
->>> -               r_opts->recurse | r_opts->userealpath |
->>> -               r_opts->xdev | r_opts->abort_on_error |
->>> -               r_opts->syslog_changes | r_opts->log_matches |
->>> -               r_opts->ignore_noent | r_opts->ignore_mounts;
->>> +    opts->restorecon_flags = 0;
->>> +    opts->restorecon_flags = opts->nochange | opts->verbose |
->>> +               opts->progress | opts->set_specctx  |
->>> +               opts->add_assoc | opts->ignore_digest |
->>> +               opts->recurse | opts->userealpath |
->>> +               opts->xdev | opts->abort_on_error |
->>> +               opts->syslog_changes | opts->log_matches |
->>> +               opts->ignore_noent | opts->ignore_mounts;
->>>        /* Use setfiles, restorecon and restorecond own handles */
->>> -    selinux_restorecon_set_sehandle(r_opts->hnd);
->>> +    selinux_restorecon_set_sehandle(opts->hnd);
->>> -    if (r_opts->rootpath) {
->>> -        rc = selinux_restorecon_set_alt_rootpath(r_opts->rootpath);
->>> +    if (opts->rootpath) {
->>> +        rc = selinux_restorecon_set_alt_rootpath(opts->rootpath);
->>>            if (rc) {
->>>                fprintf(stderr,
->>>                    "selinux_restorecon_set_alt_rootpath error: %s.\n",
->>> @@ -75,7 +72,6 @@ int process_glob(char *name, struct restore_opts *opts)
->>>        size_t i = 0;
->>>        int len, rc, errors;
->>> -    r_opts = opts;
->>>        memset(&globbuf, 0, sizeof(globbuf));
->>>        errors = glob(name, GLOB_TILDE | GLOB_PERIOD |
->>> @@ -90,7 +86,7 @@ int process_glob(char *name, struct restore_opts *opts)
->>>            if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0)
->>>                continue;
->>>            rc = selinux_restorecon(globbuf.gl_pathv[i],
->>> -                    r_opts->restorecon_flags);
->>> +                    opts->restorecon_flags);
->>>            if (rc < 0)
->>>                errors = rc;
->>>        }
->>>
->>
+> diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+> index 5711689deb6a..35fe8878cf1c 100644
+> --- a/security/selinux/Kconfig
+> +++ b/security/selinux/Kconfig
+> @@ -85,3 +85,14 @@ config SECURITY_SELINUX_CHECKREQPROT_VALUE
+>  	  via /selinux/checkreqprot if authorized by policy.
+>  
+>  	  If you are unsure how to answer this question, answer 0.
+> +
+> +config SECURITY_SELINUX_SID2STR_CACHE_SIZE
+> +	int "NSA SELinux SID to context string translation cache size"
+> +	depends on SECURITY_SELINUX
+> +	default 256
+> +	help
+> +	  This option defines the size of the internal SID -> context string
+> +	  cache, which improves the performance of context to string
+> +	  conversion.  Setting this option to 0 disables the cache completely.
+> +
+> +	  If unsure, keep the default value.
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 3a29e7c24ba9..b6dda5261166 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -91,6 +91,12 @@ static int context_struct_to_string(struct policydb *policydb,
+>  				    char **scontext,
+>  				    u32 *scontext_len);
+>  
+> +static int sidtab_entry_to_string(struct policydb *policydb,
+> +				  struct sidtab *sidtab,
+> +				  struct sidtab_entry *entry,
+> +				  char **scontext,
+> +				  u32 *scontext_len);
+> +
+>  static void context_struct_compute_av(struct policydb *policydb,
+>  				      struct context *scontext,
+>  				      struct context *tcontext,
+> @@ -716,20 +722,21 @@ static void context_struct_compute_av(struct policydb *policydb,
+>  }
+>  
+>  static int security_validtrans_handle_fail(struct selinux_state *state,
+> -					   struct context *ocontext,
+> -					   struct context *ncontext,
+> -					   struct context *tcontext,
+> +					   struct sidtab_entry *oentry,
+> +					   struct sidtab_entry *nentry,
+> +					   struct sidtab_entry *tentry,
+>  					   u16 tclass)
+>  {
+>  	struct policydb *p = &state->ss->policydb;
+> +	struct sidtab *sidtab = state->ss->sidtab;
+>  	char *o = NULL, *n = NULL, *t = NULL;
+>  	u32 olen, nlen, tlen;
+>  
+> -	if (context_struct_to_string(p, ocontext, &o, &olen))
+> +	if (sidtab_entry_to_string(p, sidtab, oentry, &o, &olen))
+>  		goto out;
+> -	if (context_struct_to_string(p, ncontext, &n, &nlen))
+> +	if (sidtab_entry_to_string(p, sidtab, nentry, &n, &nlen))
+>  		goto out;
+> -	if (context_struct_to_string(p, tcontext, &t, &tlen))
+> +	if (sidtab_entry_to_string(p, sidtab, tentry, &t, &tlen))
+>  		goto out;
+>  	audit_log(audit_context(), GFP_ATOMIC, AUDIT_SELINUX_ERR,
+>  		  "op=security_validate_transition seresult=denied"
+> @@ -751,9 +758,9 @@ static int security_compute_validatetrans(struct selinux_state *state,
+>  {
+>  	struct policydb *policydb;
+>  	struct sidtab *sidtab;
+> -	struct context *ocontext;
+> -	struct context *ncontext;
+> -	struct context *tcontext;
+> +	struct sidtab_entry *oentry;
+> +	struct sidtab_entry *nentry;
+> +	struct sidtab_entry *tentry;
+>  	struct class_datum *tclass_datum;
+>  	struct constraint_node *constraint;
+>  	u16 tclass;
+> @@ -779,24 +786,24 @@ static int security_compute_validatetrans(struct selinux_state *state,
+>  	}
+>  	tclass_datum = policydb->class_val_to_struct[tclass - 1];
+>  
+> -	ocontext = sidtab_search(sidtab, oldsid);
+> -	if (!ocontext) {
+> +	oentry = sidtab_search_entry(sidtab, oldsid);
+> +	if (!oentry) {
+>  		pr_err("SELinux: %s:  unrecognized SID %d\n",
+>  			__func__, oldsid);
+>  		rc = -EINVAL;
+>  		goto out;
+>  	}
+>  
+> -	ncontext = sidtab_search(sidtab, newsid);
+> -	if (!ncontext) {
+> +	nentry = sidtab_search_entry(sidtab, newsid);
+> +	if (!nentry) {
+>  		pr_err("SELinux: %s:  unrecognized SID %d\n",
+>  			__func__, newsid);
+>  		rc = -EINVAL;
+>  		goto out;
+>  	}
+>  
+> -	tcontext = sidtab_search(sidtab, tasksid);
+> -	if (!tcontext) {
+> +	tentry = sidtab_search_entry(sidtab, tasksid);
+> +	if (!tentry) {
+>  		pr_err("SELinux: %s:  unrecognized SID %d\n",
+>  			__func__, tasksid);
+>  		rc = -EINVAL;
+> @@ -805,15 +812,16 @@ static int security_compute_validatetrans(struct selinux_state *state,
+>  
+>  	constraint = tclass_datum->validatetrans;
+>  	while (constraint) {
+> -		if (!constraint_expr_eval(policydb, ocontext, ncontext,
+> -					  tcontext, constraint->expr)) {
+> +		if (!constraint_expr_eval(policydb, &oentry->context,
+> +					  &nentry->context, &tentry->context,
+> +					  constraint->expr)) {
+>  			if (user)
+>  				rc = -EPERM;
+>  			else
+>  				rc = security_validtrans_handle_fail(state,
+> -								     ocontext,
+> -								     ncontext,
+> -								     tcontext,
+> +								     oentry,
+> +								     nentry,
+> +								     tentry,
+>  								     tclass);
+>  			goto out;
+>  		}
+> @@ -855,7 +863,7 @@ int security_bounded_transition(struct selinux_state *state,
+>  {
+>  	struct policydb *policydb;
+>  	struct sidtab *sidtab;
+> -	struct context *old_context, *new_context;
+> +	struct sidtab_entry *old_entry, *new_entry;
+>  	struct type_datum *type;
+>  	int index;
+>  	int rc;
+> @@ -869,16 +877,16 @@ int security_bounded_transition(struct selinux_state *state,
+>  	sidtab = state->ss->sidtab;
+>  
+>  	rc = -EINVAL;
+> -	old_context = sidtab_search(sidtab, old_sid);
+> -	if (!old_context) {
+> +	old_entry = sidtab_search_entry(sidtab, old_sid);
+> +	if (!old_entry) {
+>  		pr_err("SELinux: %s: unrecognized SID %u\n",
+>  		       __func__, old_sid);
+>  		goto out;
+>  	}
+>  
+>  	rc = -EINVAL;
+> -	new_context = sidtab_search(sidtab, new_sid);
+> -	if (!new_context) {
+> +	new_entry = sidtab_search_entry(sidtab, new_sid);
+> +	if (!new_entry) {
+>  		pr_err("SELinux: %s: unrecognized SID %u\n",
+>  		       __func__, new_sid);
+>  		goto out;
+> @@ -886,10 +894,10 @@ int security_bounded_transition(struct selinux_state *state,
+>  
+>  	rc = 0;
+>  	/* type/domain unchanged */
+> -	if (old_context->type == new_context->type)
+> +	if (old_entry->context.type == new_entry->context.type)
+>  		goto out;
+>  
+> -	index = new_context->type;
+> +	index = new_entry->context.type;
+>  	while (true) {
+>  		type = policydb->type_val_to_struct[index - 1];
+>  		BUG_ON(!type);
+> @@ -901,7 +909,7 @@ int security_bounded_transition(struct selinux_state *state,
+>  
+>  		/* @newsid is bounded by @oldsid */
+>  		rc = 0;
+> -		if (type->bounds == old_context->type)
+> +		if (type->bounds == old_entry->context.type)
+>  			break;
+>  
+>  		index = type->bounds;
+> @@ -912,10 +920,10 @@ int security_bounded_transition(struct selinux_state *state,
+>  		char *new_name = NULL;
+>  		u32 length;
+>  
+> -		if (!context_struct_to_string(policydb, old_context,
+> -					      &old_name, &length) &&
+> -		    !context_struct_to_string(policydb, new_context,
+> -					      &new_name, &length)) {
+> +		if (!sidtab_entry_to_string(policydb, sidtab, old_entry,
+> +					    &old_name, &length) &&
+> +		    !sidtab_entry_to_string(policydb, sidtab, new_entry,
+> +					    &new_name, &length)) {
+>  			audit_log(audit_context(),
+>  				  GFP_ATOMIC, AUDIT_SELINUX_ERR,
+>  				  "op=security_bounded_transition "
+> @@ -1255,6 +1263,23 @@ static int context_struct_to_string(struct policydb *p,
+>  	return 0;
+>  }
+>  
+> +static int sidtab_entry_to_string(struct policydb *p,
+> +				  struct sidtab *sidtab,
+> +				  struct sidtab_entry *entry,
+> +				  char **scontext, u32 *scontext_len)
+> +{
+> +	int rc = sidtab_sid2str_get(sidtab, entry, scontext, scontext_len);
+> +
+> +	if (rc != -ENOENT)
+> +		return rc;
+> +
+> +	rc = context_struct_to_string(p, &entry->context, scontext,
+> +				      scontext_len);
+> +	if (!rc && scontext)
+> +		sidtab_sid2str_put(sidtab, entry, *scontext, *scontext_len);
+> +	return rc;
+> +}
+> +
+>  #include "initial_sid_to_string.h"
+>  
+>  const char *security_get_initial_sid_context(u32 sid)
+> @@ -1271,7 +1296,7 @@ static int security_sid_to_context_core(struct selinux_state *state,
+>  {
+>  	struct policydb *policydb;
+>  	struct sidtab *sidtab;
+> -	struct context *context;
+> +	struct sidtab_entry *entry;
+>  	int rc = 0;
+>  
+>  	if (scontext)
+> @@ -1302,21 +1327,23 @@ static int security_sid_to_context_core(struct selinux_state *state,
+>  	read_lock(&state->ss->policy_rwlock);
+>  	policydb = &state->ss->policydb;
+>  	sidtab = state->ss->sidtab;
+> +
+>  	if (force)
+> -		context = sidtab_search_force(sidtab, sid);
+> +		entry = sidtab_search_entry_force(sidtab, sid);
+>  	else
+> -		context = sidtab_search(sidtab, sid);
+> -	if (!context) {
+> +		entry = sidtab_search_entry(sidtab, sid);
+> +	if (!entry) {
+>  		pr_err("SELinux: %s:  unrecognized SID %d\n",
+>  			__func__, sid);
+>  		rc = -EINVAL;
+>  		goto out_unlock;
+>  	}
+> -	if (only_invalid && !context->len)
+> -		rc = 0;
+> -	else
+> -		rc = context_struct_to_string(policydb, context, scontext,
+> -					      scontext_len);
+> +	if (only_invalid && !entry->context.len)
+> +		goto out_unlock;
+> +
+> +	rc = sidtab_entry_to_string(policydb, sidtab, entry, scontext,
+> +				    scontext_len);
+> +
+>  out_unlock:
+>  	read_unlock(&state->ss->policy_rwlock);
+>  out:
+> @@ -1574,19 +1601,20 @@ int security_context_to_sid_force(struct selinux_state *state,
+>  
+>  static int compute_sid_handle_invalid_context(
+>  	struct selinux_state *state,
+> -	struct context *scontext,
+> -	struct context *tcontext,
+> +	struct sidtab_entry *sentry,
+> +	struct sidtab_entry *tentry,
+>  	u16 tclass,
+>  	struct context *newcontext)
+>  {
+>  	struct policydb *policydb = &state->ss->policydb;
+> +	struct sidtab *sidtab = state->ss->sidtab;
+>  	char *s = NULL, *t = NULL, *n = NULL;
+>  	u32 slen, tlen, nlen;
+>  	struct audit_buffer *ab;
+>  
+> -	if (context_struct_to_string(policydb, scontext, &s, &slen))
+> +	if (sidtab_entry_to_string(policydb, sidtab, sentry, &s, &slen))
+>  		goto out;
+> -	if (context_struct_to_string(policydb, tcontext, &t, &tlen))
+> +	if (sidtab_entry_to_string(policydb, sidtab, tentry, &t, &tlen))
+>  		goto out;
+>  	if (context_struct_to_string(policydb, newcontext, &n, &nlen))
+>  		goto out;
+> @@ -1645,7 +1673,8 @@ static int security_compute_sid(struct selinux_state *state,
+>  	struct policydb *policydb;
+>  	struct sidtab *sidtab;
+>  	struct class_datum *cladatum = NULL;
+> -	struct context *scontext = NULL, *tcontext = NULL, newcontext;
+> +	struct context *scontext, *tcontext, newcontext;
+> +	struct sidtab_entry *sentry, *tentry;
+>  	struct role_trans *roletr = NULL;
+>  	struct avtab_key avkey;
+>  	struct avtab_datum *avdatum;
+> @@ -1682,21 +1711,24 @@ static int security_compute_sid(struct selinux_state *state,
+>  	policydb = &state->ss->policydb;
+>  	sidtab = state->ss->sidtab;
+>  
+> -	scontext = sidtab_search(sidtab, ssid);
+> -	if (!scontext) {
+> +	sentry = sidtab_search_entry(sidtab, ssid);
+> +	if (!sentry) {
+>  		pr_err("SELinux: %s:  unrecognized SID %d\n",
+>  		       __func__, ssid);
+>  		rc = -EINVAL;
+>  		goto out_unlock;
+>  	}
+> -	tcontext = sidtab_search(sidtab, tsid);
+> -	if (!tcontext) {
+> +	tentry = sidtab_search_entry(sidtab, tsid);
+> +	if (!tentry) {
+>  		pr_err("SELinux: %s:  unrecognized SID %d\n",
+>  		       __func__, tsid);
+>  		rc = -EINVAL;
+>  		goto out_unlock;
+>  	}
+>  
+> +	scontext = &sentry->context;
+> +	tcontext = &tentry->context;
+> +
+>  	if (tclass && tclass <= policydb->p_classes.nprim)
+>  		cladatum = policydb->class_val_to_struct[tclass - 1];
+>  
+> @@ -1797,10 +1829,8 @@ static int security_compute_sid(struct selinux_state *state,
+>  
+>  	/* Check the validity of the context. */
+>  	if (!policydb_context_isvalid(policydb, &newcontext)) {
+> -		rc = compute_sid_handle_invalid_context(state, scontext,
+> -							tcontext,
+> -							tclass,
+> -							&newcontext);
+> +		rc = compute_sid_handle_invalid_context(state, sentry, tentry,
+> +							tclass, &newcontext);
+>  		if (rc)
+>  			goto out_unlock;
+>  	}
+> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+> index 7d49994e8d5f..6d6ce1c43b49 100644
+> --- a/security/selinux/ss/sidtab.c
+> +++ b/security/selinux/ss/sidtab.c
+> @@ -9,6 +9,8 @@
+>   */
+>  #include <linux/errno.h>
+>  #include <linux/kernel.h>
+> +#include <linux/list.h>
+> +#include <linux/rcupdate.h>
+>  #include <linux/slab.h>
+>  #include <linux/sched.h>
+>  #include <linux/spinlock.h>
+> @@ -17,6 +19,14 @@
+>  #include "security.h"
+>  #include "sidtab.h"
+>  
+> +struct sidtab_str_cache {
+> +	struct rcu_head rcu_member;
+> +	struct list_head lru_member;
+> +	struct sidtab_entry *parent;
+> +	u32 len;
+> +	char str[];
+> +};
+> +
+>  int sidtab_init(struct sidtab *s)
+>  {
+>  	u32 i;
+> @@ -34,24 +44,33 @@ int sidtab_init(struct sidtab *s)
+>  	s->convert = NULL;
+>  
+>  	spin_lock_init(&s->lock);
+> +
+> +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+> +	s->cache_free_slots = CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE;
+> +	INIT_LIST_HEAD(&s->cache_lru_list);
+> +	spin_lock_init(&s->cache_lock);
+> +#endif
+>  	return 0;
+>  }
+>  
+>  int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
+>  {
+> -	struct sidtab_isid_entry *entry;
+> +	struct sidtab_isid_entry *isid;
+>  	int rc;
+>  
+>  	if (sid == 0 || sid > SECINITSID_NUM)
+>  		return -EINVAL;
+>  
+> -	entry = &s->isids[sid - 1];
+> +	isid = &s->isids[sid - 1];
+>  
+> -	rc = context_cpy(&entry->context, context);
+> +	rc = context_cpy(&isid->entry.context, context);
+>  	if (rc)
+>  		return rc;
+>  
+> -	entry->set = 1;
+> +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+> +	isid->entry.cache = NULL;
+> +#endif
+> +	isid->set = 1;
+>  	return 0;
+>  }
+>  
+> @@ -88,7 +107,8 @@ static int sidtab_alloc_roots(struct sidtab *s, u32 level)
+>  	return 0;
+>  }
+>  
+> -static struct context *sidtab_do_lookup(struct sidtab *s, u32 index, int alloc)
+> +static struct sidtab_entry *sidtab_do_lookup(struct sidtab *s, u32 index,
+> +					     int alloc)
+>  {
+>  	union sidtab_entry_inner *entry;
+>  	u32 level, capacity_shift, leaf_index = index / SIDTAB_LEAF_ENTRIES;
+> @@ -125,10 +145,16 @@ static struct context *sidtab_do_lookup(struct sidtab *s, u32 index, int alloc)
+>  		if (!entry->ptr_leaf)
+>  			return NULL;
+>  	}
+> -	return &entry->ptr_leaf->entries[index % SIDTAB_LEAF_ENTRIES].context;
+> +	return &entry->ptr_leaf->entries[index % SIDTAB_LEAF_ENTRIES];
+> +}
+> +
+> +/* use when you know that there is enough entries */
+> +static struct context *sidtab_lookup_unsafe(struct sidtab *s, u32 index)
+> +{
+> +	return &sidtab_do_lookup(s, index, 0)->context;
+>  }
+>  
+> -static struct context *sidtab_lookup(struct sidtab *s, u32 index)
+> +static struct sidtab_entry *sidtab_lookup(struct sidtab *s, u32 index)
+>  {
+>  	/* read entries only after reading count */
+>  	u32 count = smp_load_acquire(&s->count);
+> @@ -139,33 +165,34 @@ static struct context *sidtab_lookup(struct sidtab *s, u32 index)
+>  	return sidtab_do_lookup(s, index, 0);
+>  }
+>  
+> -static struct context *sidtab_lookup_initial(struct sidtab *s, u32 sid)
+> +static struct sidtab_entry *sidtab_lookup_initial(struct sidtab *s, u32 sid)
+>  {
+> -	return s->isids[sid - 1].set ? &s->isids[sid - 1].context : NULL;
+> +	return s->isids[sid - 1].set ? &s->isids[sid - 1].entry : NULL;
+>  }
+>  
+> -static struct context *sidtab_search_core(struct sidtab *s, u32 sid, int force)
+> +static struct sidtab_entry *sidtab_search_core(struct sidtab *s, u32 sid,
+> +					       int force)
+>  {
+> -	struct context *context;
+> -
+>  	if (sid != 0) {
+> +		struct sidtab_entry *entry;
+> +
+>  		if (sid > SECINITSID_NUM)
+> -			context = sidtab_lookup(s, sid - (SECINITSID_NUM + 1));
+> +			entry = sidtab_lookup(s, sid - (SECINITSID_NUM + 1));
+>  		else
+> -			context = sidtab_lookup_initial(s, sid);
+> -		if (context && (!context->len || force))
+> -			return context;
+> +			entry = sidtab_lookup_initial(s, sid);
+> +		if (entry && (!entry->context.len || force))
+> +			return entry;
+>  	}
+>  
+>  	return sidtab_lookup_initial(s, SECINITSID_UNLABELED);
+>  }
+>  
+> -struct context *sidtab_search(struct sidtab *s, u32 sid)
+> +struct sidtab_entry *sidtab_search_entry(struct sidtab *s, u32 sid)
+>  {
+>  	return sidtab_search_core(s, sid, 0);
+>  }
+>  
+> -struct context *sidtab_search_force(struct sidtab *s, u32 sid)
+> +struct sidtab_entry *sidtab_search_entry_force(struct sidtab *s, u32 sid)
+>  {
+>  	return sidtab_search_core(s, sid, 1);
+>  }
+> @@ -230,7 +257,7 @@ static int sidtab_rcache_search(struct sidtab *s, struct context *context,
+>  		if (v >= SIDTAB_MAX)
+>  			continue;
+>  
+> -		if (context_cmp(sidtab_do_lookup(s, v, 0), context)) {
+> +		if (context_cmp(sidtab_lookup_unsafe(s, v), context)) {
+>  			sidtab_rcache_update(s, v, i);
+>  			*index = v;
+>  			return 0;
+> @@ -245,7 +272,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+>  	unsigned long flags;
+>  	u32 count, count_locked, level, pos;
+>  	struct sidtab_convert_params *convert;
+> -	struct context *dst, *dst_convert;
+> +	struct sidtab_entry *dst, *dst_convert;
+>  	int rc;
+>  
+>  	rc = sidtab_rcache_search(s, context, index);
+> @@ -273,7 +300,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+>  
+>  	/* if count has changed before we acquired the lock, then catch up */
+>  	while (count < count_locked) {
+> -		if (context_cmp(sidtab_do_lookup(s, count, 0), context)) {
+> +		if (context_cmp(sidtab_lookup_unsafe(s, count), context)) {
+>  			sidtab_rcache_push(s, count);
+>  			*index = count;
+>  			rc = 0;
+> @@ -293,7 +320,7 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+>  	if (!dst)
+>  		goto out_unlock;
+>  
+> -	rc = context_cpy(dst, context);
+> +	rc = context_cpy(&dst->context, context);
+>  	if (rc)
+>  		goto out_unlock;
+>  
+> @@ -305,13 +332,14 @@ static int sidtab_reverse_lookup(struct sidtab *s, struct context *context,
+>  		rc = -ENOMEM;
+>  		dst_convert = sidtab_do_lookup(convert->target, count, 1);
+>  		if (!dst_convert) {
+> -			context_destroy(dst);
+> +			context_destroy(&dst->context);
+>  			goto out_unlock;
+>  		}
+>  
+> -		rc = convert->func(context, dst_convert, convert->args);
+> +		rc = convert->func(context, &dst_convert->context,
+> +				   convert->args);
+>  		if (rc) {
+> -			context_destroy(dst);
+> +			context_destroy(&dst->context);
+>  			goto out_unlock;
+>  		}
+>  
+> @@ -341,9 +369,9 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context, u32 *sid)
+>  	u32 i;
+>  
+>  	for (i = 0; i < SECINITSID_NUM; i++) {
+> -		struct sidtab_isid_entry *entry = &s->isids[i];
+> +		struct sidtab_isid_entry *isid = &s->isids[i];
+>  
+> -		if (entry->set && context_cmp(context, &entry->context)) {
+> +		if (isid->set && context_cmp(context, &isid->entry.context)) {
+>  			*sid = i + 1;
+>  			return 0;
+>  		}
+> @@ -453,6 +481,14 @@ int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params)
+>  	return rc;
+>  }
+>  
+> +static void sidtab_destroy_entry(struct sidtab_entry *entry)
+> +{
+> +	context_destroy(&entry->context);
+> +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+> +	kfree(rcu_dereference_raw(entry->cache));
+> +#endif
+> +}
+> +
+>  static void sidtab_destroy_tree(union sidtab_entry_inner entry, u32 level)
+>  {
+>  	u32 i;
+> @@ -473,7 +509,7 @@ static void sidtab_destroy_tree(union sidtab_entry_inner entry, u32 level)
+>  			return;
+>  
+>  		for (i = 0; i < SIDTAB_LEAF_ENTRIES; i++)
+> -			context_destroy(&node->entries[i].context);
+> +			sidtab_destroy_entry(&node->entries[i]);
+>  		kfree(node);
+>  	}
+>  }
+> @@ -484,7 +520,7 @@ void sidtab_destroy(struct sidtab *s)
+>  
+>  	for (i = 0; i < SECINITSID_NUM; i++)
+>  		if (s->isids[i].set)
+> -			context_destroy(&s->isids[i].context);
+> +			sidtab_destroy_entry(&s->isids[i].entry);
+>  
+>  	level = SIDTAB_MAX_LEVEL;
+>  	while (level && !s->roots[level].ptr_inner)
+> @@ -492,3 +528,88 @@ void sidtab_destroy(struct sidtab *s)
+>  
+>  	sidtab_destroy_tree(s->roots[level], level);
+>  }
+> +
+> +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+> +
+> +void sidtab_sid2str_put(struct sidtab *s, struct sidtab_entry *entry,
+> +			const char *str, u32 str_len)
+> +{
+> +	struct sidtab_str_cache *cache, *victim;
+> +
+> +	/* do not cache invalid contexts */
+> +	if (entry->context.len)
+> +		return;
+> +
+> +	/*
+> +	 * Skip the put operation when in non-task context to avoid the need
+> +	 * to disable interrupts while holding s->cache_lock.
+> +	 */
+> +	if (!in_task())
+> +		return;
+> +
+> +	spin_lock(&s->cache_lock);
+> +
+> +	cache = rcu_dereference_protected(entry->cache,
+> +					  lockdep_is_held(&s->cache_lock));
+> +	if (cache) {
+> +		/* entry in cache - just bump to the head of LRU list */
+> +		list_move(&cache->lru_member, &s->cache_lru_list);
+> +		goto out_unlock;
+> +	}
+> +
+> +	cache = kmalloc(sizeof(struct sidtab_str_cache) + str_len, GFP_ATOMIC);
+> +	if (!cache)
+> +		goto out_unlock;
+> +
+> +	if (s->cache_free_slots == 0) {
+> +		/* pop a cache entry from the tail and free it */
+> +		victim = container_of(s->cache_lru_list.prev,
+> +				      struct sidtab_str_cache, lru_member);
+> +		list_del(&victim->lru_member);
+> +		kfree_rcu(victim, rcu_member);
+> +		rcu_assign_pointer(victim->parent->cache, NULL);
+> +	} else {
+> +		s->cache_free_slots--;
+> +	}
+> +	cache->parent = entry;
+> +	cache->len = str_len;
+> +	memcpy(cache->str, str, str_len);
+> +	list_add(&cache->lru_member, &s->cache_lru_list);
+> +
+> +	rcu_assign_pointer(entry->cache, cache);
+> +
+> +out_unlock:
+> +	spin_unlock(&s->cache_lock);
+> +}
+> +
+> +int sidtab_sid2str_get(struct sidtab *s, struct sidtab_entry *entry,
+> +		       char **out, u32 *out_len)
+> +{
+> +	struct sidtab_str_cache *cache;
+> +	int rc = 0;
+> +
+> +	if (entry->context.len)
+> +		return -ENOENT; /* do not cache invalid contexts */
+> +
+> +	rcu_read_lock();
+> +
+> +	cache = rcu_dereference(entry->cache);
+> +	if (!cache) {
+> +		rc = -ENOENT;
+> +	} else {
+> +		*out_len = cache->len;
+> +		if (out) {
+> +			*out = kmemdup(cache->str, cache->len, GFP_ATOMIC);
+> +			if (!*out)
+> +				rc = -ENOMEM;
+> +		}
+> +	}
+> +
+> +	rcu_read_unlock();
+> +
+> +	if (!rc && out)
+> +		sidtab_sid2str_put(s, entry, *out, *out_len);
+> +	return rc;
+> +}
+> +
+> +#endif /* CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0 */
+> diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+> index 1f4763141aa1..5fe67a0c307b 100644
+> --- a/security/selinux/ss/sidtab.h
+> +++ b/security/selinux/ss/sidtab.h
+> @@ -16,13 +16,13 @@
+>  
+>  #include "context.h"
+>  
+> -struct sidtab_entry_leaf {
+> +struct sidtab_entry {
+>  	struct context context;
+> +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+> +	struct sidtab_str_cache __rcu *cache;
+> +#endif
+>  };
+>  
+> -struct sidtab_node_inner;
+> -struct sidtab_node_leaf;
+> -
+>  union sidtab_entry_inner {
+>  	struct sidtab_node_inner *ptr_inner;
+>  	struct sidtab_node_leaf  *ptr_leaf;
+> @@ -38,7 +38,7 @@ union sidtab_entry_inner {
+>  	(SIDTAB_NODE_ALLOC_SHIFT - size_to_shift(sizeof(union sidtab_entry_inner)))
+>  #define SIDTAB_INNER_ENTRIES ((size_t)1 << SIDTAB_INNER_SHIFT)
+>  #define SIDTAB_LEAF_ENTRIES \
+> -	(SIDTAB_NODE_ALLOC_SIZE / sizeof(struct sidtab_entry_leaf))
+> +	(SIDTAB_NODE_ALLOC_SIZE / sizeof(struct sidtab_entry))
+>  
+>  #define SIDTAB_MAX_BITS 32
+>  #define SIDTAB_MAX U32_MAX
+> @@ -48,7 +48,7 @@ union sidtab_entry_inner {
+>  		     SIDTAB_INNER_SHIFT)
+>  
+>  struct sidtab_node_leaf {
+> -	struct sidtab_entry_leaf entries[SIDTAB_LEAF_ENTRIES];
+> +	struct sidtab_entry entries[SIDTAB_LEAF_ENTRIES];
+>  };
+>  
+>  struct sidtab_node_inner {
+> @@ -57,7 +57,7 @@ struct sidtab_node_inner {
+>  
+>  struct sidtab_isid_entry {
+>  	int set;
+> -	struct context context;
+> +	struct sidtab_entry entry;
+>  };
+>  
+>  struct sidtab_convert_params {
+> @@ -83,6 +83,13 @@ struct sidtab {
+>  	struct sidtab_convert_params *convert;
+>  	spinlock_t lock;
+>  
+> +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+> +	/* SID -> context string cache */
+> +	u32 cache_free_slots;
+> +	struct list_head cache_lru_list;
+> +	spinlock_t cache_lock;
+> +#endif
+> +
+>  	/* reverse lookup cache - access atomically via {READ|WRITE}_ONCE() */
+>  	u32 rcache[SIDTAB_RCACHE_SIZE];
+>  
+> @@ -92,8 +99,22 @@ struct sidtab {
+>  
+>  int sidtab_init(struct sidtab *s);
+>  int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context);
+> -struct context *sidtab_search(struct sidtab *s, u32 sid);
+> -struct context *sidtab_search_force(struct sidtab *s, u32 sid);
+> +struct sidtab_entry *sidtab_search_entry(struct sidtab *s, u32 sid);
+> +struct sidtab_entry *sidtab_search_entry_force(struct sidtab *s, u32 sid);
+> +
+> +static inline struct context *sidtab_search(struct sidtab *s, u32 sid)
+> +{
+> +	struct sidtab_entry *entry = sidtab_search_entry(s, sid);
+> +
+> +	return entry ? &entry->context : NULL;
+> +}
+> +
+> +static inline struct context *sidtab_search_force(struct sidtab *s, u32 sid)
+> +{
+> +	struct sidtab_entry *entry = sidtab_search_entry_force(s, sid);
+> +
+> +	return entry ? &entry->context : NULL;
+> +}
+>  
+>  int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params);
+>  
+> @@ -101,6 +122,25 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context, u32 *sid);
+>  
+>  void sidtab_destroy(struct sidtab *s);
+>  
+> +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+> +void sidtab_sid2str_put(struct sidtab *s, struct sidtab_entry *entry,
+> +			const char *str, u32 str_len);
+> +int sidtab_sid2str_get(struct sidtab *s, struct sidtab_entry *entry,
+> +		       char **out, u32 *out_len);
+> +#else
+> +static inline void sidtab_sid2str_put(struct sidtab *s,
+> +				      struct sidtab_entry *entry,
+> +				      const char *str, u32 str_len)
+> +{
+> +}
+> +static inline int sidtab_sid2str_get(struct sidtab *s,
+> +				     struct sidtab_entry *entry,
+> +				     char **out, u32 *out_len)
+> +{
+> +	return -ENOENT;
+> +}
+> +#endif /* CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0 */
+> +
+>  #endif	/* _SS_SIDTAB_H_ */
+>  
+>  
+> -- 
+> 2.21.0
 > 
-
