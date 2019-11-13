@@ -7,53 +7,53 @@ X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4764C43141
-	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 18:25:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA788C432C3
+	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 18:25:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BC647206EE
-	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 18:25:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A274A206EE
+	for <selinux@archiver.kernel.org>; Wed, 13 Nov 2019 18:25:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="JfyjcQ6N"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Uix4lNla"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728526AbfKMSZf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Nov 2019 13:25:35 -0500
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:43879
-        "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728507AbfKMSZe (ORCPT
+        id S1728469AbfKMSZg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 Nov 2019 13:25:36 -0500
+Received: from sonic306-27.consmr.mail.ne1.yahoo.com ([66.163.189.89]:44410
+        "EHLO sonic306-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728512AbfKMSZe (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 13 Nov 2019 13:25:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1573669533; bh=AqABZKrHoJ2O/YxWBBlyrWT0dGVssWeBH837HbXrHjo=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=JfyjcQ6NUCYw8FsUl+NJIDTySLWpyQaVxr091yrrTLYQtu79zv+g2eOhtcs1t6NmggV+g1504iKAME+8zcB8Dfd3ZfI7VPEqAA2OKVJicK35cW0dqcVSayLkJYKjT4FLBK0M4xeFH+5GAVR5TzAyL/6T6VXa4gyEJsOAB0k8zoBvQK7AJFhBSrf6xxT47QqJ1ssHNvSs76cPUnPzrFRyKK9yHbrgdITiv5l268ZVb+NVNTKbI6ZsAgz5OWfQbeoqur710pImAwuOgHVXUUhxUIUoCcvbemF80L52ArVWi6V+v/tiHDyawOHwi2wCgVjlv05C18uQbk7MzmZlaY4f7g==
-X-YMail-OSG: S1qBDk0VM1mM.fUjEi9MniiYq0QiznKKSC5HZTH1ttPdcP0.sNO6ncr3w.B4exo
- EDVU9bmcZOshR7dnNvWH26GBUzIHEcjzeTnzoK4GQ90cyEjXqYEDebuJR14BBoiN5X5RDqb7Q4yg
- jXjgWXH6JqBn.EZcH2GU9ANrtF1h8JUNaJzvtHNv3Qwp7SKf0wAYOBEWr8zKC4VO.abDk.WvHB7D
- ZGkr3yfBSmyxk7pYOphX8qJm2TIAFEompYZCL.c9tB131tKWUH1ndtXBtbe_j3uz5g7LdNXVJOon
- Z8XfskZ9rlXjrVJxt5hyqFO1SaISJNnM8rbSYYD.KwabMuM9YDEdjx0mIgl1m5NZqNNTf0W8Nrge
- .Vb7gDU35G5xbGabE0MVuVepzG1M_fzu91v9zPcc_9.s5ihwlIglmjYMYLwfqIUeNqe0J1GAh6Hc
- 4qaV4kLhhY4ZB1gGwGLoH_DqbAW2EOU8ta8wMnhuS4H6uCaetB.X_8mzDoNW74DwITlKTGi37sw_
- ViXcPx.oVfD58uNB3gLp1ZzOIhQkyWGAgcx_MzHGOzJYTrz5z1GzWfamvuPNzddvaHM5vUbdbyDN
- mykeHk.88XQyUqM.AwHqmMpPnq6Kj9p6msP4cXHVT9sDPWbovHDXRF1RlQIT2nF5PqD8KKB0eB2o
- RyDmnQJVs.H.UpJ6D_Y8vImexbCPhI8hcFRocsS5vm.JWs2kLlfc.2kQ1FWoJ7AkJWRElgMmCxt6
- PUFtKbsCMhuoT6e2cKGYHNwSJ2zC4OGLIDm3AUGxQi5kp45KkMO7_0vr6M4t2lS1SRTkDoKlxXQw
- G89DQjECe6TYiIbbvrLivcHj6tz4d_twAwPTuGl2sxlHBbo0Kb1Oaj1yfhDSFdx1Ul0ah0kn_1bv
- uksZ0hzmseJ3sr4M8MNzMTiCMunG_HmjVvXrIotIKXV0FOFIs_eWSVPq5HOE4DMQ0hkKZI3RaWat
- b4VbbF49QW34WGOtUlhlRQZAtcTG9Z8fKn3rakfY9Z1SnrX0FkClcudh_Nr9xcl4.PGXeb3vNDWF
- gf3bh59_QOKwgprJqouKAAvxZENwh8XMRS3aDedHQZe58GOzOi14gLJYI4nOiOkKIugbeocO0J.K
- eYnI_APVh2G69oJxVAZa90JP_ka0ZgrBb2wenowEtgNrO7CsR5uiq7.R1.0LA1P6rYn6hyvNpd.E
- wT4zKA.2usGtsJEfZG._LQOOQtROZggU_95WcMtqheD.K.vWWYazcrfm7JquIQ8ZKFIwqY5_Rko3
- Jb5hzvPH_gHVaRPnw.f4jNPp94iOg7I1KIa1jZD97DbDf4CxwW73z02XnVWIxmKkStOW490TVBxv
- aaaXVC.AUjvcDDFUuxfgNmN_.dShO2HF1jcUVdYLgmkqyEY5BIOOVMaT1N8NeIe90C4W5lBRAQ3p
- aep40b.FLLZD.7OxRce.lH36vHTPZerrjV28HorOALNCkTfp3yMv.xkA4bUs-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Wed, 13 Nov 2019 18:25:33 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1573669533; bh=4BNeK1T0pzd/wMsy2qJfXPnWbLa7Th6PwCe3mqGs/OQ=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=Uix4lNlaPM/mREl0XHHUnHLDxW+Dk5sTbLyVc+CXI9Ar1NkNm0/jLa9shX4Fi7894m8PxVYWQEmwAEZLwrUTFQn4fiQEyWxaDDbvCXcpEy13OPWwz7QKk/eVSfYGl2Tn2GVd5t5nUMMz/oj8+tiQ3ejBCbTdb7hSRDAPjim6359N97GKaLja/uLbxfnheTIxmf6qWkdVNw7ar2Fg3CQ1Y0ZYWAmHou30qq1qCWYQM48lTmDudC8Qq6cTlhG+6skdQaSYtLR7WS0NZU3MrWhJIqI2DhkaM5B6S28/DhoSt8gzkGR3MkpC089pC40Ytoqm0deo75WP9NTA/AtYsYTlmw==
+X-YMail-OSG: ND0pDdUVM1nHW3ambJEdIZCGsmWhQDH3cQMoShkokZLhgSkvdU44LSjYpVq0.J9
+ EriCZmvDIUh2p7AVcYAXNEtiL5Q4r9pEk1dQWEg_Dc4fw4cnqZ8vkEICr3oL23MDMgGrBJpgzKZq
+ CE76NfJFj3fif005W.LNDLOLyi4I_1u.qtVFmTT1jkIVFZf5FZetmwqqUW7bCbn7IJfcBMxnkczj
+ fn7mNc3_RSSCTZp.Ep_2P7lG86zLI1lYwnPvyiLaP9IfIBhN22ptKWa6Xjt62DCM1wKL2Pv3T1I2
+ 3QYJe16jWluQnEdtSBQhdQPQw.6d5x7wFh.XWeNG57P3UWX9OhdOZPkVdJh2tLjomHqWmtPi9lgs
+ KiONfwYSxOl3G.KbBvxekziWM7ryjRBJbprSfK_k6OjsDiVyy0AnE0ZPKBAiYdWVk202QEMW12s5
+ Z6LbC0awK1OEYn4HVj5TtAIfsq9cuiX.cuV7pjEjPBiNbuVywfeaSzneTNkZQ1iq2avU5sbe9uYY
+ fFQrXV9LemZTbXGS48rht8z5vowUQsyy7UBRyPSwHj3724UcV71YjYXt6oWvBWAjtMQwnJcTluAa
+ i60Pgse16Y1V0icLZI.qzWLavTYT1W2YrqxYSbWDgrH1BOU1IaKHZQk5fi2z_MzUjY3GeaeInFSC
+ cH9aHpa_5LnpbQe20Q5LCpAqrv88eyIwp9Vt90N7Ln12Iw9n9oIlMn3fTZ37VwkSwHUJMCst8DBy
+ 36sAVjCtz5Hm_4oAVV9OqF_MJjrBG4pYuGU1k5z7tpZKN8Ex73i1O9wrNdHScFpDyQ2SPwq5PmIs
+ stXMoC_AR.kqDuWpu_Uar45rLzoOAlVXc7Wtj2Nd1mJeDDEn66kiqz3oBcYcpTMKJ6seil91KCcs
+ 4ovZJRxqztc2alzBBVISVLElIeXgR76ToqagVJynnchn7R2jdyhotPC.SzcKRXel_1hfUmjDH521
+ EeSiPla4EV.QZF9EeTJYAVx12pVzcpb9ahk9VRZWqF8P36zVN0B069UvY3tx9_TycbrTHy9Qlg8X
+ QTiqb5HR8y6BYh7cJxwsKXDCxDG3aMgos5fOgQ.oMIgDUNDGV.dNnrxCcb2Vzh2vhxhp8Et8sHTz
+ wx1bgrvGrk.2oG.2FPYCFmsJbudXmwOMVJ5LIb2GISh1neF88hlVR2JnuKXHCRRSV78lD6f8Zguq
+ aikCMMM1dFgukrJ0_tgRgnS38yQ8EwVrfBbskUVTc_v1HRG_BLMM_r77v1pAEAnZG.lUlMSRmbOC
+ ro44vrrnDrwm9y5Gwy.B5JvoVLItS7IsWvDxQQ57cxvJpWDPgxudmt_u1JiFeatJbL1XUBrxjgqp
+ JSqjkxwGwsoZGwcbVFnBpSCaramJGG0CnwaOMTq3muwLpRsw4W7XNAQVqLJ4r3AlLTmiJmcYOG13
+ ikvcegzFOHvS6yyN93DlExTn237_m28NpngiHnFpyO2bkQyLh19X.pronWOLNLEXDQe4-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Wed, 13 Nov 2019 18:25:33 +0000
 Received: by smtp427.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 49e6f77245781a0699a1cd8181a84e13;
-          Wed, 13 Nov 2019 18:25:30 +0000 (UTC)
+          Wed, 13 Nov 2019 18:25:28 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         sds@tycho.nsa.gov
-Subject: [PATCH v11 22/25] Audit: Include object data for all security modules
-Date:   Wed, 13 Nov 2019 10:25:03 -0800
-Message-Id: <20191113182506.2580-6-casey@schaufler-ca.com>
+Subject: [PATCH v11 21/25] Audit: Add subj_LSM fields when necessary
+Date:   Wed, 13 Nov 2019 10:25:02 -0800
+Message-Id: <20191113182506.2580-5-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113182506.2580-1-casey@schaufler-ca.com>
 References: <20191113182506.2580-1-casey@schaufler-ca.com>
@@ -64,236 +64,581 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When there is more than one context displaying security
-module extend what goes into the audit record by supplimenting
-the "obj=" with an "obj_<lsm>=" for each such security
-module.
+Add record entries to identify subject data for all of the
+security modules when there is more than one.
 
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+cc: netdev@vger.kernel.com
 ---
- kernel/audit.h   |   4 +-
- kernel/auditsc.c | 110 ++++++++++++++++++++++++-----------------------
- 2 files changed, 58 insertions(+), 56 deletions(-)
+ drivers/android/binder.c                |  2 +-
+ include/linux/audit.h                   |  1 +
+ include/linux/security.h                |  9 ++++-
+ include/net/scm.h                       |  3 +-
+ kernel/audit.c                          | 40 ++++++++++++++++++-
+ kernel/audit_fsnotify.c                 |  1 +
+ kernel/auditfilter.c                    |  1 +
+ kernel/auditsc.c                        | 10 +++--
+ net/ipv4/ip_sockglue.c                  |  2 +-
+ net/netfilter/nf_conntrack_netlink.c    |  4 +-
+ net/netfilter/nf_conntrack_standalone.c |  2 +-
+ net/netfilter/nfnetlink_queue.c         |  2 +-
+ net/netlabel/netlabel_unlabeled.c       | 11 ++++--
+ net/netlabel/netlabel_user.c            |  2 +-
+ net/xfrm/xfrm_policy.c                  |  2 +
+ net/xfrm/xfrm_state.c                   |  2 +
+ security/integrity/ima/ima_api.c        |  1 +
+ security/integrity/integrity_audit.c    |  1 +
+ security/security.c                     | 51 +++++++++++++++++++++++--
+ 19 files changed, 124 insertions(+), 23 deletions(-)
 
-diff --git a/kernel/audit.h b/kernel/audit.h
-index af9bc09e656c..c9f1e1641542 100644
---- a/kernel/audit.h
-+++ b/kernel/audit.h
-@@ -78,7 +78,7 @@ struct audit_names {
- 	kuid_t			uid;
- 	kgid_t			gid;
- 	dev_t			rdev;
--	u32			osid;
-+	struct lsmblob		oblob;
- 	struct audit_cap_data	fcap;
- 	unsigned int		fcap_ver;
- 	unsigned char		type;		/* record type */
-@@ -152,7 +152,7 @@ struct audit_context {
- 			kuid_t			uid;
- 			kgid_t			gid;
- 			umode_t			mode;
--			u32			osid;
-+			struct lsmblob		oblob;
- 			int			has_perm;
- 			uid_t			perm_uid;
- 			gid_t			perm_gid;
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index e0dd643e9b13..0c071947c2b3 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -659,17 +659,15 @@ static int audit_filter_rules(struct task_struct *tsk,
- 			if (f->lsm_rule) {
- 				/* Find files that match */
- 				if (name) {
--					lsmblob_init(&blob, name->osid);
- 					result = security_audit_rule_match(
--								&blob,
-+								&name->oblob,
- 								f->type,
- 								f->op,
- 								f->lsm_rule);
- 				} else if (ctx) {
- 					list_for_each_entry(n, &ctx->names_list, list) {
--						lsmblob_init(&blob, n->osid);
- 						if (security_audit_rule_match(
--								&blob,
-+								&n->oblob,
- 								f->type,
- 								f->op,
- 								f->lsm_rule)) {
-@@ -681,8 +679,7 @@ static int audit_filter_rules(struct task_struct *tsk,
- 				/* Find ipc objects that match */
- 				if (!ctx || ctx->type != AUDIT_IPC)
- 					break;
--				lsmblob_init(&blob, ctx->ipc.osid);
--				if (security_audit_rule_match(&blob,
-+				if (security_audit_rule_match(&ctx->ipc.oblob,
- 							      f->type, f->op,
- 							      f->lsm_rule))
- 					++result;
-@@ -956,13 +953,57 @@ static inline void audit_free_context(struct audit_context *context)
- 	kfree(context);
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index cc81d0f540fd..0ca841ce2de9 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -3111,7 +3111,7 @@ static void binder_transaction(struct binder_proc *proc,
+ 		size_t added_size;
+ 
+ 		security_task_getsecid(proc->tsk, &blob);
+-		ret = security_secid_to_secctx(&blob, &lsmctx);
++		ret = security_secid_to_secctx(&blob, &lsmctx, LSMBLOB_DISPLAY);
+ 		if (ret) {
+ 			return_error = BR_FAILED_REPLY;
+ 			return_error_param = ret;
+diff --git a/include/linux/audit.h b/include/linux/audit.h
+index aee3dc9eb378..950d2d141cde 100644
+--- a/include/linux/audit.h
++++ b/include/linux/audit.h
+@@ -160,6 +160,7 @@ extern void		    audit_log_link_denied(const char *operation);
+ extern void		    audit_log_lost(const char *message);
+ 
+ extern int audit_log_task_context(struct audit_buffer *ab);
++extern void audit_log_task_lsms(struct audit_buffer *ab);
+ extern void audit_log_task_info(struct audit_buffer *ab);
+ 
+ extern int		    audit_update_lsm_rules(void);
+diff --git a/include/linux/security.h b/include/linux/security.h
+index 5da16f97f2be..79f5177a6b52 100644
+--- a/include/linux/security.h
++++ b/include/linux/security.h
+@@ -178,6 +178,8 @@ struct lsmblob {
+ #define LSMBLOB_INVALID		-1	/* Not a valid LSM slot number */
+ #define LSMBLOB_NEEDED		-2	/* Slot requested on initialization */
+ #define LSMBLOB_NOT_NEEDED	-3	/* Slot not requested */
++#define LSMBLOB_DISPLAY		-4	/* Use the "display" slot */
++#define LSMBLOB_FIRST		-5	/* Use the default "display" slot */
+ 
+ /**
+  * lsmblob_init - initialize an lsmblob structure.
+@@ -219,6 +221,8 @@ static inline bool lsmblob_equal(struct lsmblob *bloba, struct lsmblob *blobb)
+ 	return !memcmp(bloba, blobb, sizeof(*bloba));
  }
  
-+static int audit_log_object_context(struct audit_buffer *ab,
-+				    struct lsmblob *blob)
++const char *security_lsm_slot_name(int slot);
++
+ /* These functions are in security/commoncap.c */
+ extern int cap_capable(const struct cred *cred, struct user_namespace *ns,
+ 		       int cap, unsigned int opts);
+@@ -528,7 +532,8 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
+ 			 size_t size);
+ int security_netlink_send(struct sock *sk, struct sk_buff *skb);
+ int security_ismaclabel(const char *name);
+-int security_secid_to_secctx(struct lsmblob *blob, struct lsmcontext *cp);
++int security_secid_to_secctx(struct lsmblob *blob, struct lsmcontext *cp,
++			     int display);
+ int security_secctx_to_secid(const char *secdata, u32 seclen,
+ 			     struct lsmblob *blob);
+ void security_release_secctx(struct lsmcontext *cp);
+@@ -1332,7 +1337,7 @@ static inline int security_ismaclabel(const char *name)
+ }
+ 
+ static inline int security_secid_to_secctx(struct lsmblob *blob,
+-					   struct lsmcontext *cp)
++					   struct lsmcontext *cp, int display)
+ {
+ 	return -EOPNOTSUPP;
+ }
+diff --git a/include/net/scm.h b/include/net/scm.h
+index 4a6ad8caf423..8b5a4737e1b8 100644
+--- a/include/net/scm.h
++++ b/include/net/scm.h
+@@ -96,7 +96,8 @@ static inline void scm_passec(struct socket *sock, struct msghdr *msg, struct sc
+ 	int err;
+ 
+ 	if (test_bit(SOCK_PASSSEC, &sock->flags)) {
+-		err = security_secid_to_secctx(&scm->lsmblob, &context);
++		err = security_secid_to_secctx(&scm->lsmblob, &context,
++					       LSMBLOB_DISPLAY);
+ 
+ 		if (!err) {
+ 			put_cmsg(msg, SOL_SOCKET, SCM_SECURITY,
+diff --git a/kernel/audit.c b/kernel/audit.c
+index cd0024c89807..77e5d54a3e30 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -392,6 +392,7 @@ static int audit_log_config_change(char *function_name, u32 new, u32 old,
+ 	if (rc)
+ 		allow_changes = 0; /* Something weird, deny request */
+ 	audit_log_format(ab, " res=%d", allow_changes);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ 	return rc;
+ }
+@@ -1097,6 +1098,7 @@ static void audit_log_feature_change(int which, u32 old_feature, u32 new_feature
+ 	audit_log_format(ab, " feature=%s old=%u new=%u old_lock=%u new_lock=%u res=%d",
+ 			 audit_feature_names[which], !!old_feature, !!new_feature,
+ 			 !!old_lock, !!new_lock, res);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ }
+ 
+@@ -1347,6 +1349,7 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 					size--;
+ 				audit_log_n_untrustedstring(ab, data, size);
+ 			}
++			audit_log_task_lsms(ab);
+ 			audit_log_end(ab);
+ 		}
+ 		break;
+@@ -1361,6 +1364,7 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 					 msg_type == AUDIT_ADD_RULE ?
+ 						"add_rule" : "remove_rule",
+ 					 audit_enabled);
++			audit_log_task_lsms(ab);
+ 			audit_log_end(ab);
+ 			return -EPERM;
+ 		}
+@@ -1374,6 +1378,7 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 		audit_log_common_recv_msg(audit_context(), &ab,
+ 					  AUDIT_CONFIG_CHANGE);
+ 		audit_log_format(ab, " op=trim res=1");
++		audit_log_task_lsms(ab);
+ 		audit_log_end(ab);
+ 		break;
+ 	case AUDIT_MAKE_EQUIV: {
+@@ -1409,6 +1414,7 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 		audit_log_format(ab, " new=");
+ 		audit_log_untrustedstring(ab, new);
+ 		audit_log_format(ab, " res=%d", !err);
++		audit_log_task_lsms(ab);
+ 		audit_log_end(ab);
+ 		kfree(old);
+ 		kfree(new);
+@@ -1418,7 +1424,7 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 		len = 0;
+ 		if (lsmblob_is_set(&audit_sig_lsm)) {
+ 			err = security_secid_to_secctx(&audit_sig_lsm,
+-						       &context);
++						       &context, LSMBLOB_FIRST);
+ 			if (err)
+ 				return err;
+ 		}
+@@ -1477,6 +1483,7 @@ static int audit_receive_msg(struct sk_buff *skb, struct nlmsghdr *nlh)
+ 				 " old-log_passwd=%d new-log_passwd=%d res=%d",
+ 				 old.enabled, s.enabled, old.log_passwd,
+ 				 s.log_passwd, !err);
++		audit_log_task_lsms(ab);
+ 		audit_log_end(ab);
+ 		break;
+ 	}
+@@ -2055,6 +2062,33 @@ void audit_log_key(struct audit_buffer *ab, char *key)
+ 		audit_log_format(ab, "(null)");
+ }
+ 
++void audit_log_task_lsms(struct audit_buffer *ab)
 +{
-+	struct lsmcontext context;
-+	const char *lsm;
 +	int i;
++	const char *lsm;
++	struct lsmblob blob;
++	struct lsmcontext context;
 +
 +	/*
-+	 * None of the installed modules have object labels.
-+	 */
-+	if (security_lsm_slot_name(0) == NULL)
-+		return 0;
-+
-+	if (blob->secid[0] != 0) {
-+		if (security_secid_to_secctx(blob, &context, 0)) {
-+			audit_log_format(ab, " obj=?");
-+			return 1;
-+		}
-+		audit_log_format(ab, " obj=%s", context.context);
-+		security_release_secctx(&context);
-+	}
-+
-+	/*
-+	 * Don't do anything more unless there is more than one LSM
++	 * Don't do anything unless there is more than one LSM
 +	 * with a security context to report.
 +	 */
 +	if (security_lsm_slot_name(1) == NULL)
-+		return 0;
++		return;
++
++	security_task_getsecid(current, &blob);
 +
 +	for (i = 0; i < LSMBLOB_ENTRIES; i++) {
 +		lsm = security_lsm_slot_name(i);
 +		if (lsm == NULL)
 +			break;
-+		if (blob->secid[i] == 0)
++		if (security_secid_to_secctx(&blob, &context, i))
 +			continue;
-+		if (security_secid_to_secctx(blob, &context, i)) {
-+			audit_log_format(ab, " obj_%s=?", lsm);
-+			continue;
-+		}
-+		audit_log_format(ab, " obj_%s=%s", lsm, context.context);
++		audit_log_format(ab, " subj_%s=%s", lsm, context.context);
 +		security_release_secctx(&context);
 +	}
-+	return 0;
 +}
 +
- static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 				 kuid_t auid, kuid_t uid,
- 				 unsigned int sessionid,
- 				 struct lsmblob *blob, char *comm)
+ int audit_log_task_context(struct audit_buffer *ab)
  {
- 	struct audit_buffer *ab;
--	struct lsmcontext lsmctx;
- 	int rc = 0;
+ 	int error;
+@@ -2065,7 +2099,7 @@ int audit_log_task_context(struct audit_buffer *ab)
+ 	if (!lsmblob_is_set(&blob))
+ 		return 0;
  
- 	ab = audit_log_start(context, GFP_KERNEL, AUDIT_OBJ_PID);
-@@ -972,15 +1013,7 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
- 	audit_log_format(ab, "opid=%d oauid=%d ouid=%d oses=%d", pid,
+-	error = security_secid_to_secctx(&blob, &context);
++	error = security_secid_to_secctx(&blob, &context, LSMBLOB_FIRST);
+ 	if (error) {
+ 		if (error != -EINVAL)
+ 			goto error_path;
+@@ -2172,6 +2206,7 @@ void audit_log_link_denied(const char *operation)
+ 	audit_log_format(ab, "op=%s", operation);
+ 	audit_log_task_info(ab);
+ 	audit_log_format(ab, " res=0");
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ }
+ 
+@@ -2222,6 +2257,7 @@ static void audit_log_set_loginuid(kuid_t koldloginuid, kuid_t kloginuid,
+ 			 oldloginuid, loginuid, tty ? tty_name(tty) : "(none)",
+ 			 oldsessionid, sessionid, !rc);
+ 	audit_put_tty(tty);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ }
+ 
+diff --git a/kernel/audit_fsnotify.c b/kernel/audit_fsnotify.c
+index f0d243318452..7f8c4b1a2884 100644
+--- a/kernel/audit_fsnotify.c
++++ b/kernel/audit_fsnotify.c
+@@ -126,6 +126,7 @@ static void audit_mark_log_rule_change(struct audit_fsnotify_mark *audit_mark, c
+ 	audit_log_untrustedstring(ab, audit_mark->path);
+ 	audit_log_key(ab, rule->filterkey);
+ 	audit_log_format(ab, " list=%d res=1", rule->listnr);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ }
+ 
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index 19cfbe716f9d..bf28bb599b6d 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -1103,6 +1103,7 @@ static void audit_log_rule_change(char *action, struct audit_krule *rule, int re
+ 	audit_log_format(ab, " op=%s", action);
+ 	audit_log_key(ab, rule->filterkey);
+ 	audit_log_format(ab, " list=%d res=%d", rule->listnr, res);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ }
+ 
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 6d273183dd87..e0dd643e9b13 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -973,7 +973,7 @@ static int audit_log_pid_context(struct audit_context *context, pid_t pid,
  			 from_kuid(&init_user_ns, auid),
  			 from_kuid(&init_user_ns, uid), sessionid);
--	if (lsmblob_is_set(blob)) {
--		if (security_secid_to_secctx(blob, &lsmctx, LSMBLOB_FIRST)) {
--			audit_log_format(ab, " obj=(none)");
--			rc = 1;
--		} else {
--			audit_log_format(ab, " obj=%s", lsmctx.context);
--			security_release_secctx(&lsmctx);
--		}
--	}
-+	rc = audit_log_object_context(ab, blob);
- 	audit_log_format(ab, " ocomm=");
- 	audit_log_untrustedstring(ab, comm);
+ 	if (lsmblob_is_set(blob)) {
+-		if (security_secid_to_secctx(blob, &lsmctx)) {
++		if (security_secid_to_secctx(blob, &lsmctx, LSMBLOB_FIRST)) {
+ 			audit_log_format(ab, " obj=(none)");
+ 			rc = 1;
+ 		} else {
+@@ -1218,7 +1218,8 @@ static void show_special(struct audit_context *context, int *call_panic)
+ 			struct lsmblob blob;
+ 
+ 			lsmblob_init(&blob, osid);
+-			if (security_secid_to_secctx(&blob, &lsmcxt)) {
++			if (security_secid_to_secctx(&blob, &lsmcxt,
++						     LSMBLOB_FIRST)) {
+ 				audit_log_format(ab, " osid=%u", osid);
+ 				*call_panic = 1;
+ 			} else {
+@@ -1370,7 +1371,7 @@ static void audit_log_name(struct audit_context *context, struct audit_names *n,
+ 		struct lsmcontext lsmctx;
+ 
+ 		lsmblob_init(&blob, n->osid);
+-		if (security_secid_to_secctx(&blob, &lsmctx)) {
++		if (security_secid_to_secctx(&blob, &lsmctx, LSMBLOB_FIRST)) {
+ 			audit_log_format(ab, " osid=%u", n->osid);
+ 			if (call_panic)
+ 				*call_panic = 2;
+@@ -1479,6 +1480,7 @@ static void audit_log_exit(void)
+ 
+ 	audit_log_task_info(ab);
+ 	audit_log_key(ab, context->filterkey);
++	audit_log_task_lsms(ab);
  	audit_log_end(ab);
-@@ -1207,26 +1240,14 @@ static void show_special(struct audit_context *context, int *call_panic)
- 				context->socketcall.args[i]);
- 		break; }
- 	case AUDIT_IPC: {
--		u32 osid = context->ipc.osid;
-+		struct lsmblob *oblob = & context->ipc.oblob;
  
- 		audit_log_format(ab, "ouid=%u ogid=%u mode=%#ho",
- 				 from_kuid(&init_user_ns, context->ipc.uid),
- 				 from_kgid(&init_user_ns, context->ipc.gid),
- 				 context->ipc.mode);
--		if (osid) {
--			struct lsmcontext lsmcxt;
--			struct lsmblob blob;
--
--			lsmblob_init(&blob, osid);
--			if (security_secid_to_secctx(&blob, &lsmcxt,
--						     LSMBLOB_FIRST)) {
--				audit_log_format(ab, " osid=%u", osid);
--				*call_panic = 1;
--			} else {
--				audit_log_format(ab, " obj=%s", lsmcxt.context);
--				security_release_secctx(&lsmcxt);
--			}
--		}
-+		if (audit_log_object_context(ab, oblob))
-+			*call_panic = 1;
- 		if (context->ipc.has_perm) {
- 			audit_log_end(ab);
- 			ab = audit_log_start(context, GFP_KERNEL,
-@@ -1366,20 +1387,8 @@ static void audit_log_name(struct audit_context *context, struct audit_names *n,
- 				 from_kgid(&init_user_ns, n->gid),
- 				 MAJOR(n->rdev),
- 				 MINOR(n->rdev));
--	if (n->osid != 0) {
--		struct lsmblob blob;
--		struct lsmcontext lsmctx;
--
--		lsmblob_init(&blob, n->osid);
--		if (security_secid_to_secctx(&blob, &lsmctx, LSMBLOB_FIRST)) {
--			audit_log_format(ab, " osid=%u", n->osid);
--			if (call_panic)
--				*call_panic = 2;
--		} else {
--			audit_log_format(ab, " obj=%s", lsmctx.context);
--			security_release_secctx(&lsmctx);
--		}
--	}
-+	if (audit_log_object_context(ab, &n->oblob) && call_panic)
-+		*call_panic = 2;
- 
- 	/* log the audit_names record type */
- 	switch (n->type) {
-@@ -1929,17 +1938,13 @@ static void audit_copy_inode(struct audit_names *name,
- 			     const struct dentry *dentry,
- 			     struct inode *inode, unsigned int flags)
- {
--	struct lsmblob blob;
--
- 	name->ino   = inode->i_ino;
- 	name->dev   = inode->i_sb->s_dev;
- 	name->mode  = inode->i_mode;
- 	name->uid   = inode->i_uid;
- 	name->gid   = inode->i_gid;
- 	name->rdev  = inode->i_rdev;
--	security_inode_getsecid(inode, &blob);
--	/* scaffolding until osid is updated */
--	name->osid = blob.secid[0];
-+	security_inode_getsecid(inode, &name->oblob);
- 	if (flags & AUDIT_INODE_NOEVAL) {
- 		name->fcap_ver = -1;
+ 	for (aux = context->aux; aux; aux = aux->next) {
+@@ -2602,6 +2604,7 @@ void audit_core_dumps(long signr)
  		return;
-@@ -2285,14 +2290,11 @@ void __audit_mq_getsetattr(mqd_t mqdes, struct mq_attr *mqstat)
- void __audit_ipc_obj(struct kern_ipc_perm *ipcp)
- {
- 	struct audit_context *context = audit_context();
--	struct lsmblob blob;
- 	context->ipc.uid = ipcp->uid;
- 	context->ipc.gid = ipcp->gid;
- 	context->ipc.mode = ipcp->mode;
- 	context->ipc.has_perm = 0;
--	security_ipc_getsecid(ipcp, &blob);
--	/* scaffolding on the [0] - change "osid" to a lsmblob */
--	context->ipc.osid = blob.secid[0];
-+	security_ipc_getsecid(ipcp, &context->ipc.oblob);
- 	context->type = AUDIT_IPC;
+ 	audit_log_task(ab);
+ 	audit_log_format(ab, " sig=%ld res=1", signr);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
  }
+ 
+@@ -2628,6 +2631,7 @@ void audit_seccomp(unsigned long syscall, long signr, int code)
+ 	audit_log_format(ab, " sig=%ld arch=%x syscall=%ld compat=%d ip=0x%lx code=0x%x",
+ 			 signr, syscall_get_arch(current), syscall,
+ 			 in_compat_syscall(), KSTK_EIP(current), code);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ }
+ 
+diff --git a/net/ipv4/ip_sockglue.c b/net/ipv4/ip_sockglue.c
+index 27af7a6b8780..10b418029cdd 100644
+--- a/net/ipv4/ip_sockglue.c
++++ b/net/ipv4/ip_sockglue.c
+@@ -138,7 +138,7 @@ static void ip_cmsg_recv_security(struct msghdr *msg, struct sk_buff *skb)
+ 	if (err)
+ 		return;
+ 
+-	err = security_secid_to_secctx(&lb, &context);
++	err = security_secid_to_secctx(&lb, &context, LSMBLOB_DISPLAY);
+ 	if (err)
+ 		return;
+ 
+diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
+index 7c8a7edac36d..732631f67a78 100644
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -334,7 +334,7 @@ static int ctnetlink_dump_secctx(struct sk_buff *skb, const struct nf_conn *ct)
+ 	struct lsmcontext context;
+ 
+ 	lsmblob_init(&blob, ct->secmark);
+-	ret = security_secid_to_secctx(&blob, &context);
++	ret = security_secid_to_secctx(&blob, &context, LSMBLOB_DISPLAY);
+ 	if (ret)
+ 		return 0;
+ 
+@@ -627,7 +627,7 @@ static inline int ctnetlink_secctx_size(const struct nf_conn *ct)
+ 	struct lsmcontext context;
+ 
+ 	lsmblob_init(&blob, ct->secmark);
+-	ret = security_secid_to_secctx(&blob, &context);
++	ret = security_secid_to_secctx(&blob, &context, LSMBLOB_DISPLAY);
+ 	if (ret)
+ 		return 0;
+ 
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index 8969754d7fe9..0ff2b8300c28 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -177,7 +177,7 @@ static void ct_show_secctx(struct seq_file *s, const struct nf_conn *ct)
+ 	struct lsmcontext context;
+ 
+ 	lsmblob_init(&blob, ct->secmark);
+-	ret = security_secid_to_secctx(&blob, &context);
++	ret = security_secid_to_secctx(&blob, &context, LSMBLOB_DISPLAY);
+ 	if (ret)
+ 		return;
+ 
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index a1296453d8f2..b6f71be884e8 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -314,7 +314,7 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, struct lsmcontext *context)
+ 	if (skb->secmark) {
+ 		/* Any LSM might be looking for the secmark */
+ 		lsmblob_init(&blob, skb->secmark);
+-		security_secid_to_secctx(&blob, context);
++		security_secid_to_secctx(&blob, context, LSMBLOB_DISPLAY);
+ 	}
+ 
+ 	read_unlock_bh(&skb->sk->sk_callback_lock);
+diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
+index 3b0f07b59436..60a7665de0e3 100644
+--- a/net/netlabel/netlabel_unlabeled.c
++++ b/net/netlabel/netlabel_unlabeled.c
+@@ -436,7 +436,8 @@ int netlbl_unlhsh_add(struct net *net,
+ unlhsh_add_return:
+ 	rcu_read_unlock();
+ 	if (audit_buf != NULL) {
+-		if (security_secid_to_secctx(lsmblob, &context) == 0) {
++		if (security_secid_to_secctx(lsmblob, &context,
++					     LSMBLOB_FIRST) == 0) {
+ 			audit_log_format(audit_buf, " sec_obj=%s",
+ 					 context.context);
+ 			security_release_secctx(&context);
+@@ -491,7 +492,8 @@ static int netlbl_unlhsh_remove_addr4(struct net *net,
+ 		if (dev != NULL)
+ 			dev_put(dev);
+ 		if (entry != NULL &&
+-		    security_secid_to_secctx(&entry->lsmblob, &context) == 0) {
++		    security_secid_to_secctx(&entry->lsmblob, &context,
++					     LSMBLOB_FIRST) == 0) {
+ 			audit_log_format(audit_buf, " sec_obj=%s",
+ 					 context.context);
+ 			security_release_secctx(&context);
+@@ -551,7 +553,8 @@ static int netlbl_unlhsh_remove_addr6(struct net *net,
+ 		if (dev != NULL)
+ 			dev_put(dev);
+ 		if (entry != NULL &&
+-		    security_secid_to_secctx(&entry->lsmblob, &context) == 0) {
++		    security_secid_to_secctx(&entry->lsmblob, &context,
++					     LSMBLOB_FIRST) == 0) {
+ 			audit_log_format(audit_buf, " sec_obj=%s",
+ 					 context.context);
+ 			security_release_secctx(&context);
+@@ -1122,7 +1125,7 @@ static int netlbl_unlabel_staticlist_gen(u32 cmd,
+ 		lsmb = (struct lsmblob *)&addr6->lsmblob;
+ 	}
+ 
+-	ret_val = security_secid_to_secctx(lsmb, &context);
++	ret_val = security_secid_to_secctx(lsmb, &context, LSMBLOB_FIRST);
+ 	if (ret_val != 0)
+ 		goto list_cb_failure;
+ 	ret_val = nla_put(cb_arg->skb,
+diff --git a/net/netlabel/netlabel_user.c b/net/netlabel/netlabel_user.c
+index 951ba0639d20..1941877fd16f 100644
+--- a/net/netlabel/netlabel_user.c
++++ b/net/netlabel/netlabel_user.c
+@@ -100,7 +100,7 @@ struct audit_buffer *netlbl_audit_start_common(int type,
+ 
+ 	lsmblob_init(&blob, audit_info->secid);
+ 	if (audit_info->secid != 0 &&
+-	    security_secid_to_secctx(&blob, &context) == 0) {
++	    security_secid_to_secctx(&blob, &context, LSMBLOB_FIRST) == 0) {
+ 		audit_log_format(audit_buf, " subj=%s", context.context);
+ 		security_release_secctx(&context);
+ 	}
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index f2d1e573ea55..bd2b36a83e66 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -4206,6 +4206,7 @@ void xfrm_audit_policy_add(struct xfrm_policy *xp, int result, bool task_valid)
+ 	xfrm_audit_helper_usrinfo(task_valid, audit_buf);
+ 	audit_log_format(audit_buf, " res=%u", result);
+ 	xfrm_audit_common_policyinfo(xp, audit_buf);
++	audit_log_task_lsms(audit_buf);
+ 	audit_log_end(audit_buf);
+ }
+ EXPORT_SYMBOL_GPL(xfrm_audit_policy_add);
+@@ -4221,6 +4222,7 @@ void xfrm_audit_policy_delete(struct xfrm_policy *xp, int result,
+ 	xfrm_audit_helper_usrinfo(task_valid, audit_buf);
+ 	audit_log_format(audit_buf, " res=%u", result);
+ 	xfrm_audit_common_policyinfo(xp, audit_buf);
++	audit_log_task_lsms(audit_buf);
+ 	audit_log_end(audit_buf);
+ }
+ EXPORT_SYMBOL_GPL(xfrm_audit_policy_delete);
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index c6f3c4a1bd99..61dddd153d82 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2640,6 +2640,7 @@ void xfrm_audit_state_add(struct xfrm_state *x, int result, bool task_valid)
+ 	xfrm_audit_helper_usrinfo(task_valid, audit_buf);
+ 	xfrm_audit_helper_sainfo(x, audit_buf);
+ 	audit_log_format(audit_buf, " res=%u", result);
++	audit_log_task_lsms(audit_buf);
+ 	audit_log_end(audit_buf);
+ }
+ EXPORT_SYMBOL_GPL(xfrm_audit_state_add);
+@@ -2654,6 +2655,7 @@ void xfrm_audit_state_delete(struct xfrm_state *x, int result, bool task_valid)
+ 	xfrm_audit_helper_usrinfo(task_valid, audit_buf);
+ 	xfrm_audit_helper_sainfo(x, audit_buf);
+ 	audit_log_format(audit_buf, " res=%u", result);
++	audit_log_task_lsms(audit_buf);
+ 	audit_log_end(audit_buf);
+ }
+ EXPORT_SYMBOL_GPL(xfrm_audit_state_delete);
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index 1ab769fa7df6..252dc00700e8 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -363,6 +363,7 @@ void ima_audit_measurement(struct integrity_iint_cache *iint,
+ 	audit_log_format(ab, " hash=\"%s:%s\"", algo_name, hash);
+ 
+ 	audit_log_task_info(ab);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ 
+ 	iint->flags |= IMA_AUDITED;
+diff --git a/security/integrity/integrity_audit.c b/security/integrity/integrity_audit.c
+index 5109173839cc..bca89ae72e3d 100644
+--- a/security/integrity/integrity_audit.c
++++ b/security/integrity/integrity_audit.c
+@@ -54,5 +54,6 @@ void integrity_audit_msg(int audit_msgno, struct inode *inode,
+ 		audit_log_format(ab, " ino=%lu", inode->i_ino);
+ 	}
+ 	audit_log_format(ab, " res=%d", !result);
++	audit_log_task_lsms(ab);
+ 	audit_log_end(ab);
+ }
+diff --git a/security/security.c b/security/security.c
+index 0e8c61cceecd..0dce15d74cb5 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -449,7 +449,31 @@ static int lsm_append(const char *new, char **result)
+  * Pointers to the LSM id structures for local use.
+  */
+ static int lsm_slot __lsm_ro_after_init;
+-static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES];
++static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES] __lsm_ro_after_init;
++
++/**
++ * security_lsm_slot_name - Get the name of the security module in a slot
++ * @slot: index into the "display" slot list.
++ *
++ * Provide the name of the security module associated with
++ * a display slot.
++ *
++ * If @slot is LSMBLOB_INVALID return the value
++ * for slot 0 if it has been set, otherwise NULL.
++ *
++ * Returns a pointer to the name string or NULL.
++ */
++const char *security_lsm_slot_name(int slot)
++{
++	if (slot == LSMBLOB_INVALID)
++		slot = 0;
++	else if (slot >= LSMBLOB_ENTRIES || slot < 0)
++		return NULL;
++
++	if (lsm_slotlist[slot] == NULL)
++		return NULL;
++	return lsm_slotlist[slot]->lsm;
++}
+ 
+ /**
+  * security_add_hooks - Add a modules hooks to the hook lists.
+@@ -2159,13 +2183,32 @@ int security_ismaclabel(const char *name)
+ }
+ EXPORT_SYMBOL(security_ismaclabel);
+ 
+-int security_secid_to_secctx(struct lsmblob *blob, struct lsmcontext *cp)
++int security_secid_to_secctx(struct lsmblob *blob, struct lsmcontext *cp,
++			     int display)
+ {
+ 	struct security_hook_list *hp;
+-	int display = lsm_task_display(current);
+ 
+ 	memset(cp, 0, sizeof(*cp));
+ 
++	/*
++	 * display either is the slot number use for formatting
++	 * or an instruction on which relative slot to use.
++	 */
++	if (display == LSMBLOB_DISPLAY)
++		display = lsm_task_display(current);
++	else if (display == LSMBLOB_FIRST)
++		display = LSMBLOB_INVALID;
++	else if (display < 0) {
++		WARN_ONCE(true,
++			"LSM: security_secid_to_secctx unknown display\n");
++		display = LSMBLOB_INVALID;
++	} else if (display >= lsm_slot) {
++		WARN_ONCE(true,
++			"LSM: security_secid_to_secctx invalid display\n");
++		display = LSMBLOB_INVALID;
++	}
++
++
+ 	hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx, list) {
+ 		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
+ 			continue;
+@@ -2176,7 +2219,7 @@ int security_secid_to_secctx(struct lsmblob *blob, struct lsmcontext *cp)
+ 					&cp->context, &cp->len);
+ 		}
+ 	}
+-	return 0;
++	return -EOPNOTSUPP;
+ }
+ EXPORT_SYMBOL(security_secid_to_secctx);
  
 -- 
 2.20.1
