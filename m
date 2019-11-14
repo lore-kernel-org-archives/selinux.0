@@ -2,175 +2,150 @@ Return-Path: <SRS0=pcBM=ZG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48629C432C3
-	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 03:03:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25E81C43141
+	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 08:52:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5F09E206E4
-	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 03:03:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E7612206DB
+	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 08:52:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QNUlRia8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726519AbfKNDDO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Nov 2019 22:03:14 -0500
-Received: from szxga03-in.huawei.com ([45.249.212.189]:2084 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726505AbfKNDDO (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 13 Nov 2019 22:03:14 -0500
-Received: from DGGEML404-HUB.china.huawei.com (unknown [172.30.72.55])
-        by Forcepoint Email with ESMTP id 98E461A0F1AAD77BEC31;
-        Thu, 14 Nov 2019 11:03:08 +0800 (CST)
-Received: from DGGEML423-HUB.china.huawei.com (10.1.199.40) by
- DGGEML404-HUB.china.huawei.com (10.3.17.39) with Microsoft SMTP Server (TLS)
- id 14.3.439.0; Thu, 14 Nov 2019 11:03:08 +0800
-Received: from DGGEML522-MBX.china.huawei.com ([169.254.7.243]) by
- dggeml423-hub.china.huawei.com ([10.1.199.40]) with mapi id 14.03.0439.000;
- Thu, 14 Nov 2019 11:03:03 +0800
-From:   kongbaichuan <kongbaichuan@huawei.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Subject: =?utf-8?B?562U5aSNOiBbUEFUQ0hdIHJlc3RvcmVjb25kOiBGaXggcmVkdW5kYW50IGNv?=
- =?utf-8?Q?nsole_log_output_error?=
-Thread-Topic: [PATCH] restorecond: Fix redundant console log output error
-Thread-Index: AQHVmXCwInfkntC5gUO+YpYlnRZb7aeHKfqAgAF3dCD//+3FAIABbHcQ
-Date:   Thu, 14 Nov 2019 03:03:02 +0000
-Message-ID: <29DB54BD44962C418560B9F4D8E964C41B2BEDFB@DGGEML522-MBX.china.huawei.com>
-References: <20191112012328.2314-1-kongbaichuan@huawei.com>
- <fac0b04d-7d96-eedd-c083-31bc9b00597f@tycho.nsa.gov>
- <acce2e1f-1deb-7a4a-9fca-6cc6c0a71c70@tycho.nsa.gov>
- <29DB54BD44962C418560B9F4D8E964C41B2BDCF9@DGGEML522-MBX.china.huawei.com>
- <283867b7-3495-2ba8-ff4b-d73cf0183396@tycho.nsa.gov>
-In-Reply-To: <283867b7-3495-2ba8-ff4b-d73cf0183396@tycho.nsa.gov>
-Accept-Language: en-US
-Content-Language: zh-CN
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.67.101.91]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726717AbfKNIwH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Nov 2019 03:52:07 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:23930 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725976AbfKNIwH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Nov 2019 03:52:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573721526;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BFTDXu5KLCx/NgGlQEs4Px8yUQfHFzlFH/OlFo2n0ok=;
+        b=QNUlRia8af3RuBF49reGaCHPrQyGuFiTqVqoJ9xc8EfFn14OAOBySPOXbe3frQKpNSJYba
+        0q9xyqgkVAOZxWa0q28QHoZ6L6Imm3u+jhO/85/zf5dhP+pkpAja3rBHn3ecN+VUENlggy
+        Kt8DfOi1pUnj/3d6r6t0BIfZ84vkuAw=
+Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
+ [209.85.167.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-407-4n-WeFkrMRuUqUTDP4kBzQ-1; Thu, 14 Nov 2019 03:52:04 -0500
+Received: by mail-oi1-f198.google.com with SMTP id v130so2716433oib.5
+        for <selinux@vger.kernel.org>; Thu, 14 Nov 2019 00:52:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=XEwBZHA4L5rrNOG3OYpSp+PIcgka4zs8smBH6QqTobU=;
+        b=cJmCWwVU5nc+GqxxKgjd+b7OxWBKV/fPl/5s6RQhIyOsZ+38DTc+z0w1WKA7bBBiRP
+         13OW48pfbqPwG4Y52oQmaTqRGt2aCRq+wzsYrAF1CbjrrDyboWqcOzn3ShrhN1Q8MxHc
+         mfYqOGmokG59BC+6u+2+gZFjCni/lshEHvuAv5ZdBqScqbfRUKKzZitWBZsipYwJHpxJ
+         vD7ek1DdPWkmgf5OIwZCuzo/lMfvlUv8r8mErY/Y1tbrVDA4dmYhn6DR5fMDDO4WwLx3
+         n5WpdKzQtZXyYqNs5yUCWbcXcqX+lqX7WQrGTkDZbyqzwRGIeoqIXZ2VtEjP9P3uhcJ9
+         OHqg==
+X-Gm-Message-State: APjAAAVeVCXUYtSqH4WacTbj+oJ1S5sgnzNkOwN6qjh7G879KtGzCrGb
+        dWl4cocMigzmLb/1/J3n8Wh3WihFv4wSL8FkpoY5S6nIsQT04mXYbobKAlb5GqziS67evFnXXln
+        VI0btQ3wJS2o55I5sb82iIsaB8F//IrQt1g==
+X-Received: by 2002:a05:6808:2d8:: with SMTP id a24mr2573371oid.127.1573721524144;
+        Thu, 14 Nov 2019 00:52:04 -0800 (PST)
+X-Google-Smtp-Source: APXvYqw1QDcDJLBPEsL/ncLIzgR6bS6OfTcJGtgLAB78T6NUoGPLrobtbWs6KSmYiwSL2HMp898O1D+tw+M5jgBSME0=
+X-Received: by 2002:a05:6808:2d8:: with SMTP id a24mr2573349oid.127.1573721523827;
+ Thu, 14 Nov 2019 00:52:03 -0800 (PST)
 MIME-Version: 1.0
-X-CFilter-Loop: Reflected
+References: <20191108210236.1296047-1-arnd@arndb.de> <20191108211323.1806194-11-arnd@arndb.de>
+ <CAFqZXNuevxW9d91Zpy6fw3LKrF=xtajAiB61soGQLxgP4xRnFg@mail.gmail.com>
+ <CAK8P3a38eZijQH=vChgm5fZBzOuV2Oi2c0LEdrMy4nKpL7QLbQ@mail.gmail.com>
+ <CAFqZXNsp3JxqW-ahCvtiZBECX5PWonpzMRK0MOn=6a28WzF4cA@mail.gmail.com> <CAK8P3a2FZ2_v6uUJJOurMAE7xYG6wq7T7ZvpLVAPA6FG2pm0dQ@mail.gmail.com>
+In-Reply-To: <CAK8P3a2FZ2_v6uUJJOurMAE7xYG6wq7T7ZvpLVAPA6FG2pm0dQ@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 14 Nov 2019 09:51:52 +0100
+Message-ID: <CAFqZXNu4Tk4H3b_FS8=EA5QMi10kEgT22uD=61aDryHp-fXnig@mail.gmail.com>
+Subject: Re: [PATCH 20/23] y2038: move itimer reset into itimer.c
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     y2038 Mailman List <y2038@lists.linaro.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        Anna-Maria Gleixner <anna-maria@linutronix.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        SElinux list <selinux@vger.kernel.org>
+X-MC-Unique: 4n-WeFkrMRuUqUTDP4kBzQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-VGhhbmtzIGZvciB5b3VyIGFkdmljZSwgSSB1bmRlcnN0YW5kIHdoYXQgeW91IG1lYW4gYW5kIHlv
-dSBhcmUgcmlnaHQuIFRoZSBuZXcgcGF0Y2ggaXMgcmVzZW50DQp0byB0aGUgbWFpbGluZyBsaXN0
-LCB3aGljaCBmaXhlZCBwb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMsIHBsZWFzZSByZXZpZXcgaXQu
-IFRrcyENCg0KLS0tLS3pgq7ku7bljp/ku7YtLS0tLQ0K5Y+R5Lu25Lq6OiBTdGVwaGVuIFNtYWxs
-ZXkgW21haWx0bzpzZHNAdHljaG8ubnNhLmdvdl0gDQrlj5HpgIHml7bpl7Q6IDIwMTnlubQxMeac
-iDEz5pelIDIxOjEzDQrmlLbku7bkuro6IGtvbmdiYWljaHVhbiA8a29uZ2JhaWNodWFuQGh1YXdl
-aS5jb20+OyBzZWxpbnV4QHZnZXIua2VybmVsLm9yZw0K5Li76aKYOiBSZTogW1BBVENIXSByZXN0
-b3JlY29uZDogRml4IHJlZHVuZGFudCBjb25zb2xlIGxvZyBvdXRwdXQgZXJyb3INCg0KT24gMTEv
-MTMvMTkgMTozNiBBTSwga29uZ2JhaWNodWFuIHdyb3RlOg0KPiBUaGUgc2l0dWF0aW9uIGluIHBv
-bGljeWNvcmV1dGlscy9zZXRmaWxlcyBpcyBkaWZmZXJlbnQgd2l0aCByZXN0b3JlY29uZC4NCj4g
-VHdvIHNhbWUtbmFtZSB2YXJpYmFsZXMgcl9vcHRzIGluIHBvbGljeWNvcmV1dGlscy9zZXRmaWxl
-cyBpcyBub3QgDQo+IGVmZmVjdGVkIHdpdGggZWFjaCBvdGhlciwgc28gaXQgaXMgbm90IG5lY2Vz
-c2FyeSB0byBmaXguDQoNCkkgdW5kZXJzdGFuZCBpdCBpc24ndCBhIHByb2JsZW0gaW4gcHJhY3Rp
-Y2UgcmlnaHQgbm93LCBidXQgaXQgaXMgYSBtYWludGFpbmFiaWxpdHkgaXNzdWU7IGl0IGNhbiBj
-cmVhdGUgY29uZnVzaW9uIGluIHRoZSBmdXR1cmUgYW5kIGlmIHNvbWVvbmUgd2VyZSB0byBldmVy
-IGNoYW5nZSB0aGUgb25lIGluc3RhbmNlIHRvIGJlIG5vbi1zdGF0aWMgaW4gb3JkZXIgdG8gYWNj
-ZXNzIGl0IGZyb20gYW5vdGhlciBzb3VyY2UgZmlsZSwgd2Ugd291bGQgaGF2ZSBleGFjdGx5IHRo
-ZSBzYW1lIGJ1Zy4gIEhlbmNlLCBJIHdvdWxkIGZhdm9yIGZpeGluZyBpdCBub3cuDQoNCj4gDQo+
-IA0KPiAtLS0tLemCruS7tuWOn+S7ti0tLS0tDQo+IOWPkeS7tuS6ujogU3RlcGhlbiBTbWFsbGV5
-IFttYWlsdG86c2RzQHR5Y2hvLm5zYS5nb3ZdDQo+IOWPkemAgeaXtumXtDogMjAxOeW5tDEx5pyI
-MTLml6UgMjM6NTUNCj4g5pS25Lu25Lq6OiBrb25nYmFpY2h1YW4gPGtvbmdiYWljaHVhbkBodWF3
-ZWkuY29tPjsgc2VsaW51eEB2Z2VyLmtlcm5lbC5vcmcNCj4g5Li76aKYOiBSZTogW1BBVENIXSBy
-ZXN0b3JlY29uZDogRml4IHJlZHVuZGFudCBjb25zb2xlIGxvZyBvdXRwdXQgZXJyb3INCj4gDQo+
-IE9uIDExLzEyLzE5IDEwOjQ3IEFNLCBTdGVwaGVuIFNtYWxsZXkgd3JvdGU6DQo+PiBPbiAxMS8x
-MS8xOSA4OjIzIFBNLCBCYWljaHVhbiBLb25nIHdyb3RlOg0KPj4+IEZyb206IGtvbmcgYmFpY2h1
-YW4gPGtvbmdiYWljaHVhbkBodWF3ZWkuY29tPg0KPj4+DQo+Pj4gV2hlbiBzdGFydGluZyByZXN0
-b3JlY29uZCB3aXRob3V0IGFueSBvcHRpb24gdGhlIGZvbGxvd2luZyByZWR1bmRhbnQgDQo+Pj4g
-Y29uc29sZSBsb2cgaXMgb3V0cHV0ZWQ6DQo+Pj4NCj4+PiAvZGV2L2xvZyAxMDAuMCUNCj4+PiAv
-dmFyL3ZvbGF0aWxlL3J1bi9zeXNsb2dkLnBpZCAxMDAuMCUgLi4uDQo+Pj4NCj4+PiBUaGlzIGlz
-IGNhdXNlZCBieSB0d28gZ2xvYmFsIHZhcmlhYmxlcyBvZiBzYW1lIG5hbWUgcl9vcHRzLiBXaGVu
-IA0KPj4+IGV4ZWN1dGVzIHJfb3B0cyA9IG9wdHMgaW4gcmVzdG9yZV9pbml0KCksIGl0IG9yaWdp
-bmFsbHkgaW50ZW5kcyB0byANCj4+PiBhc3NpZ24gdGhlIGFkZHJlc3Mgb2Ygc3RydWN0IHJfb3B0
-cyBpbiAicmVzdG9yZWNvbmQuYyIgdG8gdGhlIA0KPj4+IHBvaW50ZXIgKnJfb3B0cyBpbiAicmVz
-dG9yZS5jIi4NCj4+Pg0KPj4+IEhvd2V2ZXIsIHRoZSBhZGRyZXNzIGlzIGFzc2lnbmVkIHRvIHRo
-ZSBzdHJ1Y3Qgcl9vcHRzIGFuZCBjb3ZlcnMgdGhlIA0KPj4+IHZhbHVlIG9mIGxvdyBlaWdodCBi
-eXRlcyBpbiBpdC4gVGhhdCBjYXVzZXMgdW5leHBlY3RlZCB2YWx1ZSBvZiANCj4+PiBtZW1iZXIg
-dmFyaWJhbGUgJ25vY2hhbmdlJyBhbmQgJ3ZlcmJvc2UnIGluIHN0cnVjdCByX29wdHMsIHRodXMg
-DQo+Pj4gYWZmZWN0cyB2YWx1ZSBvZiAncmVzdG9yZWNvbl9mbGFncycgYW5kIGV4ZWN1dGVzIHVu
-ZXhwZWN0ZWQgDQo+Pj4gb3BlcmF0aW9ucyB3aGVuIHJlc3RvcmVjb24gdGhlIGZpbGVzIHN1Y2gg
-YXMgdGhlIHJlZHVuZGFudCBjb25zb2xlIA0KPj4+IGxvZyBvdXRwdXQgb3IgZmlsZSBsYWJlbCBu
-b2NoYW5nZS4NCj4+Pg0KPj4+IFNpZ25lZC1vZmYtYnk6IGtvbmcgYmFpY2h1YW4gPGtvbmdiYWlj
-aHVhbkBodWF3ZWkuY29tPg0KPj4NCj4+IEFja2VkLWJ5OiBTdGVwaGVuIFNtYWxsZXkgPHNkc0B0
-eWNoby5uc2EuZ292Pg0KPiANCj4gTkIgcmVzdG9yZS5jIGluIHJlc3RvcmVjb25kIHdhcyBjb3Bp
-ZWQgZnJvbSBwb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMsIHdoaWNoIHNoYXJlcyB0aGlzIHNhbWUg
-cGF0dGVybiwgZXhjZXB0IHRoYXQgdGhlIHNlcGFyYXRlIHJfb3B0cyBkZWNsYXJhdGlvbiBpbiBz
-ZXRmaWxlcy5jIGlzIHN0YXRpYy4gIFdlIHNob3VsZCBsaWtlbHkgZml4IGl0IGZvciBzZXRmaWxl
-cyBhcyB3ZWxsLg0KPiANCj4+DQo+Pj4gLS0tDQo+Pj4gIMKgIHJlc3RvcmVjb25kL3Jlc3RvcmUu
-YyB8IDQwIA0KPj4+ICsrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4+
-PiAgwqAgMSBmaWxlIGNoYW5nZWQsIDE4IGluc2VydGlvbnMoKyksIDIyIGRlbGV0aW9ucygtKQ0K
-Pj4+DQo+Pj4gZGlmZiAtLWdpdCBhL3Jlc3RvcmVjb25kL3Jlc3RvcmUuYyBiL3Jlc3RvcmVjb25k
-L3Jlc3RvcmUuYyBpbmRleCANCj4+PiBmNmUzMDAwMS4uYjkzYjVmZGIgMTAwNjQ0DQo+Pj4gLS0t
-IGEvcmVzdG9yZWNvbmQvcmVzdG9yZS5jDQo+Pj4gKysrIGIvcmVzdG9yZWNvbmQvcmVzdG9yZS5j
-DQo+Pj4gQEAgLTEyLDM5ICsxMiwzNiBAQA0KPj4+ICDCoCBjaGFyICoqZXhjbHVkZV9saXN0Ow0K
-Pj4+ICDCoCBpbnQgZXhjbHVkZV9jb3VudDsNCj4+PiAtc3RydWN0IHJlc3RvcmVfb3B0cyAqcl9v
-cHRzOw0KPj4+IC0NCj4+PiAgwqAgdm9pZCByZXN0b3JlX2luaXQoc3RydWN0IHJlc3RvcmVfb3B0
-cyAqb3B0cykNCj4+PiAgwqAgew0KPj4+ICDCoMKgwqDCoMKgIGludCByYzsNCj4+PiAtwqDCoMKg
-IHJfb3B0cyA9IG9wdHM7DQo+Pj4gIMKgwqDCoMKgwqAgc3RydWN0IHNlbGludXhfb3B0IHNlbGlu
-dXhfb3B0c1tdID0gew0KPj4+IC3CoMKgwqDCoMKgwqDCoCB7IFNFTEFCRUxfT1BUX1ZBTElEQVRF
-LCByX29wdHMtPnNlbGFiZWxfb3B0X3ZhbGlkYXRlIH0sDQo+Pj4gLcKgwqDCoMKgwqDCoMKgIHsg
-U0VMQUJFTF9PUFRfUEFUSCwgcl9vcHRzLT5zZWxhYmVsX29wdF9wYXRoIH0sDQo+Pj4gLcKgwqDC
-oMKgwqDCoMKgIHsgU0VMQUJFTF9PUFRfRElHRVNULCByX29wdHMtPnNlbGFiZWxfb3B0X2RpZ2Vz
-dCB9DQo+Pj4gK8KgwqDCoMKgwqDCoMKgIHsgU0VMQUJFTF9PUFRfVkFMSURBVEUsIG9wdHMtPnNl
-bGFiZWxfb3B0X3ZhbGlkYXRlIH0sDQo+Pj4gK8KgwqDCoMKgwqDCoMKgIHsgU0VMQUJFTF9PUFRf
-UEFUSCwgb3B0cy0+c2VsYWJlbF9vcHRfcGF0aCB9LA0KPj4+ICvCoMKgwqDCoMKgwqDCoCB7IFNF
-TEFCRUxfT1BUX0RJR0VTVCwgb3B0cy0+c2VsYWJlbF9vcHRfZGlnZXN0IH0NCj4+PiAgwqDCoMKg
-wqDCoCB9Ow0KPj4+IC3CoMKgwqAgcl9vcHRzLT5obmQgPSBzZWxhYmVsX29wZW4oU0VMQUJFTF9D
-VFhfRklMRSwgc2VsaW51eF9vcHRzLCAzKTsNCj4+PiAtwqDCoMKgIGlmICghcl9vcHRzLT5obmQp
-IHsNCj4+PiAtwqDCoMKgwqDCoMKgwqAgcGVycm9yKHJfb3B0cy0+c2VsYWJlbF9vcHRfcGF0aCk7
-DQo+Pj4gK8KgwqDCoCBvcHRzLT5obmQgPSBzZWxhYmVsX29wZW4oU0VMQUJFTF9DVFhfRklMRSwg
-c2VsaW51eF9vcHRzLCAzKTsNCj4+PiArwqDCoMKgIGlmICghb3B0cy0+aG5kKSB7DQo+Pj4gK8Kg
-wqDCoMKgwqDCoMKgIHBlcnJvcihvcHRzLT5zZWxhYmVsX29wdF9wYXRoKTsNCj4+PiAgwqDCoMKg
-wqDCoMKgwqDCoMKgIGV4aXQoMSk7DQo+Pj4gIMKgwqDCoMKgwqAgfQ0KPj4+IC3CoMKgwqAgcl9v
-cHRzLT5yZXN0b3JlY29uX2ZsYWdzID0gMDsNCj4+PiAtwqDCoMKgIHJfb3B0cy0+cmVzdG9yZWNv
-bl9mbGFncyA9IHJfb3B0cy0+bm9jaGFuZ2UgfCByX29wdHMtPnZlcmJvc2UgfA0KPj4+IC3CoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJfb3B0cy0+cHJvZ3Jlc3MgfCByX29wdHMtPnNldF9z
-cGVjY3R4wqAgfA0KPj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJfb3B0cy0+YWRk
-X2Fzc29jIHwgcl9vcHRzLT5pZ25vcmVfZGlnZXN0IHwNCj4+PiAtwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoCByX29wdHMtPnJlY3Vyc2UgfCByX29wdHMtPnVzZXJlYWxwYXRoIHwNCj4+PiAt
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByX29wdHMtPnhkZXYgfCByX29wdHMtPmFib3J0
-X29uX2Vycm9yIHwNCj4+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByX29wdHMtPnN5
-c2xvZ19jaGFuZ2VzIHwgcl9vcHRzLT5sb2dfbWF0Y2hlcyB8DQo+Pj4gLcKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgcl9vcHRzLT5pZ25vcmVfbm9lbnQgfCByX29wdHMtPmlnbm9yZV9tb3Vu
-dHM7DQo+Pj4gK8KgwqDCoCBvcHRzLT5yZXN0b3JlY29uX2ZsYWdzID0gMDsNCj4+PiArwqDCoMKg
-IG9wdHMtPnJlc3RvcmVjb25fZmxhZ3MgPSBvcHRzLT5ub2NoYW5nZSB8IG9wdHMtPnZlcmJvc2Ug
-fA0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG9wdHMtPnByb2dyZXNzIHwgb3B0
-cy0+c2V0X3NwZWNjdHjCoCB8DQo+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgb3B0
-cy0+YWRkX2Fzc29jIHwgb3B0cy0+aWdub3JlX2RpZ2VzdCB8DQo+Pj4gK8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgb3B0cy0+cmVjdXJzZSB8IG9wdHMtPnVzZXJlYWxwYXRoIHwNCj4+PiAr
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBvcHRzLT54ZGV2IHwgb3B0cy0+YWJvcnRfb25f
-ZXJyb3IgfA0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG9wdHMtPnN5c2xvZ19j
-aGFuZ2VzIHwgb3B0cy0+bG9nX21hdGNoZXMgfA0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgIG9wdHMtPmlnbm9yZV9ub2VudCB8IG9wdHMtPmlnbm9yZV9tb3VudHM7DQo+Pj4gIMKg
-wqDCoMKgwqAgLyogVXNlIHNldGZpbGVzLCByZXN0b3JlY29uIGFuZCByZXN0b3JlY29uZCBvd24g
-aGFuZGxlcyAqLw0KPj4+IC3CoMKgwqAgc2VsaW51eF9yZXN0b3JlY29uX3NldF9zZWhhbmRsZShy
-X29wdHMtPmhuZCk7DQo+Pj4gK8KgwqDCoCBzZWxpbnV4X3Jlc3RvcmVjb25fc2V0X3NlaGFuZGxl
-KG9wdHMtPmhuZCk7DQo+Pj4gLcKgwqDCoCBpZiAocl9vcHRzLT5yb290cGF0aCkgew0KPj4+IC3C
-oMKgwqDCoMKgwqDCoCByYyA9IHNlbGludXhfcmVzdG9yZWNvbl9zZXRfYWx0X3Jvb3RwYXRoKHJf
-b3B0cy0+cm9vdHBhdGgpOw0KPj4+ICvCoMKgwqAgaWYgKG9wdHMtPnJvb3RwYXRoKSB7DQo+Pj4g
-K8KgwqDCoMKgwqDCoMKgIHJjID0gc2VsaW51eF9yZXN0b3JlY29uX3NldF9hbHRfcm9vdHBhdGgo
-b3B0cy0+cm9vdHBhdGgpOw0KPj4+ICDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKHJjKSB7DQo+Pj4g
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGZwcmludGYoc3RkZXJyLA0KPj4+ICDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICJzZWxpbnV4X3Jlc3RvcmVjb25fc2V0X2FsdF9y
-b290cGF0aCBlcnJvcjogDQo+Pj4gJXMuXG4iLCBAQCAtNzUsNyArNzIsNiBAQCBpbnQgcHJvY2Vz
-c19nbG9iKGNoYXIgKm5hbWUsIHN0cnVjdCANCj4+PiByZXN0b3JlX29wdHMgKm9wdHMpDQo+Pj4g
-IMKgwqDCoMKgwqAgc2l6ZV90IGkgPSAwOw0KPj4+ICDCoMKgwqDCoMKgIGludCBsZW4sIHJjLCBl
-cnJvcnM7DQo+Pj4gLcKgwqDCoCByX29wdHMgPSBvcHRzOw0KPj4+ICDCoMKgwqDCoMKgIG1lbXNl
-dCgmZ2xvYmJ1ZiwgMCwgc2l6ZW9mKGdsb2JidWYpKTsNCj4+PiAgwqDCoMKgwqDCoCBlcnJvcnMg
-PSBnbG9iKG5hbWUsIEdMT0JfVElMREUgfCBHTE9CX1BFUklPRCB8IEBAIC05MCw3ICs4Niw3IA0K
-Pj4+IEBAIGludCBwcm9jZXNzX2dsb2IoY2hhciAqbmFtZSwgc3RydWN0IHJlc3RvcmVfb3B0cyAq
-b3B0cykNCj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChsZW4gPiAwICYmIHN0cmNtcCgmZ2xv
-YmJ1Zi5nbF9wYXRodltpXVtsZW5dLCAiLy4uIikgDQo+Pj4gPT0gMCkNCj4+PiAgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgY29udGludWU7DQo+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoCByYyA9
-IHNlbGludXhfcmVzdG9yZWNvbihnbG9iYnVmLmdsX3BhdGh2W2ldLA0KPj4+IC3CoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByX29wdHMtPnJlc3RvcmVjb25fZmxhZ3MpOw0K
-Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBvcHRzLT5yZXN0b3Jl
-Y29uX2ZsYWdzKTsNCj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChyYyA8IDApDQo+Pj4gIMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGVycm9ycyA9IHJjOw0KPj4+ICDCoMKgwqDCoMKgIH0N
-Cj4+Pg0KPj4NCj4gDQoNCg==
+On Mon, Nov 11, 2019 at 11:58 AM Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> On Sun, Nov 10, 2019 at 12:07 AM Ondrej Mosnacek <omosnace@redhat.com> wr=
+ote:
+> >
+> > On Sat, Nov 9, 2019 at 10:03 PM Arnd Bergmann <arnd@arndb.de> wrote:
+> > >
+> > > On Sat, Nov 9, 2019 at 2:43 PM Ondrej Mosnacek <omosnace@redhat.com> =
+wrote:
+> > >
+> > > > > -struct itimerval;
+> > > > > -extern int do_setitimer(int which, struct itimerval *value,
+> > > > > -                       struct itimerval *ovalue);
+> > > > > -extern int do_getitimer(int which, struct itimerval *value);
+> > > > > +#ifdef CONFIG_POSIX_TIMERS
+> > > > > +extern void clear_itimer(void);
+> > > > > +#else
+> > > > > +static inline void clear_itimer(void) {}
+> > > > > +#endif
+> > > > >
+> > >
+> > > > > @@ -249,6 +249,17 @@ int do_setitimer(int which, struct itimerval=
+ *value, struct itimerval *ovalue)
+> > > > >         return 0;
+> > > > >  }
+> > > > >
+> > > > > +#ifdef CONFIG_SECURITY_SELINUX
+> > > >
+> > > > Did you mean "#ifdef CONFIG_POSIX_TIMERS" here to match the header?
+> > >
+> > > No, this part is intentional, CONFIG_POSIX_TIMERS already controls
+> > > whether itimer.c is
+> > > compiled in the first place, but this function is only needed when ca=
+lled from
+> > > the selinux driver.
+> >
+> > All right, but you declare the function in time.h even if
+> > CONFIG_SECURITY_SELINUX is not enabled... it is kind of awkward when
+> > it can happen that the function is declared but not defined anywhere
+> > (even if it shouldn't be used by new users). Maybe you could at least
+> > put the header declaration/definition inside #ifdef
+> > CONFIG_SECURITY_SELINUX as well so it is clear that this function is
+> > intended for SELinux only?
+>
+> I don't see that as a problem, we rarely put declarations inside of an #i=
+fdef.
+> The main effect that would have is forcing any file that includes linux/t=
+ime.h
+> to be rebuilt when selinux is turned on or off in the .config.
+
+OK, but with this patch if someone tries to use the function
+elsewhere, the build will succeed if SELinux is enabled in the config,
+but fail if it isn't.  Is that intended?  I would suggest at least
+clearly documenting it above the declaration that the function isn't
+supposed to be used by new users and doing so will cause build to fail
+under CONFIG_SECURITY_SELINUX=3Dn.
+
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
