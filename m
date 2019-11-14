@@ -2,232 +2,175 @@ Return-Path: <SRS0=pcBM=ZG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33F26C432C3
-	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 02:48:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48629C432C3
+	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 03:03:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 48A98206F4
-	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 02:48:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5F09E206E4
+	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 03:03:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726491AbfKNCsT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 Nov 2019 21:48:19 -0500
-Received: from szxga07-in.huawei.com ([45.249.212.35]:58548 "EHLO huawei.com"
+        id S1726519AbfKNDDO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 Nov 2019 22:03:14 -0500
+Received: from szxga03-in.huawei.com ([45.249.212.189]:2084 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726489AbfKNCsT (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 13 Nov 2019 21:48:19 -0500
-Received: from DGGEMS404-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id 4545E37E97F36717A20B;
-        Thu, 14 Nov 2019 10:48:17 +0800 (CST)
-Received: from DESKTOP-AMN0A62.china.huawei.com (10.67.101.91) by
- DGGEMS404-HUB.china.huawei.com (10.3.19.204) with Microsoft SMTP Server id
- 14.3.439.0; Thu, 14 Nov 2019 10:48:11 +0800
-From:   Baichuan Kong <kongbaichuan@huawei.com>
-To:     <selinux@vger.kernel.org>, <sds@tycho.nsa.gov>
-Subject: [PATCH] restorecond: Fix redundant console log output error
-Date:   Thu, 14 Nov 2019 10:48:07 +0800
-Message-ID: <20191114024807.2371-1-kongbaichuan@huawei.com>
-X-Mailer: git-send-email 2.23.0.windows.1
+        id S1726505AbfKNDDO (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 13 Nov 2019 22:03:14 -0500
+Received: from DGGEML404-HUB.china.huawei.com (unknown [172.30.72.55])
+        by Forcepoint Email with ESMTP id 98E461A0F1AAD77BEC31;
+        Thu, 14 Nov 2019 11:03:08 +0800 (CST)
+Received: from DGGEML423-HUB.china.huawei.com (10.1.199.40) by
+ DGGEML404-HUB.china.huawei.com (10.3.17.39) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Thu, 14 Nov 2019 11:03:08 +0800
+Received: from DGGEML522-MBX.china.huawei.com ([169.254.7.243]) by
+ dggeml423-hub.china.huawei.com ([10.1.199.40]) with mapi id 14.03.0439.000;
+ Thu, 14 Nov 2019 11:03:03 +0800
+From:   kongbaichuan <kongbaichuan@huawei.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Subject: =?utf-8?B?562U5aSNOiBbUEFUQ0hdIHJlc3RvcmVjb25kOiBGaXggcmVkdW5kYW50IGNv?=
+ =?utf-8?Q?nsole_log_output_error?=
+Thread-Topic: [PATCH] restorecond: Fix redundant console log output error
+Thread-Index: AQHVmXCwInfkntC5gUO+YpYlnRZb7aeHKfqAgAF3dCD//+3FAIABbHcQ
+Date:   Thu, 14 Nov 2019 03:03:02 +0000
+Message-ID: <29DB54BD44962C418560B9F4D8E964C41B2BEDFB@DGGEML522-MBX.china.huawei.com>
+References: <20191112012328.2314-1-kongbaichuan@huawei.com>
+ <fac0b04d-7d96-eedd-c083-31bc9b00597f@tycho.nsa.gov>
+ <acce2e1f-1deb-7a4a-9fca-6cc6c0a71c70@tycho.nsa.gov>
+ <29DB54BD44962C418560B9F4D8E964C41B2BDCF9@DGGEML522-MBX.china.huawei.com>
+ <283867b7-3495-2ba8-ff4b-d73cf0183396@tycho.nsa.gov>
+In-Reply-To: <283867b7-3495-2ba8-ff4b-d73cf0183396@tycho.nsa.gov>
+Accept-Language: en-US
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.67.101.91]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.67.101.91]
 X-CFilter-Loop: Reflected
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When starting restorecond without any option the following redundant
-console log is outputed:
-
-/dev/log 100.0%
-/var/volatile/run/syslogd.pid 100.0%
-...
-
-This is caused by two global variables of same name r_opts. When
-executes r_opts = opts in restore_init(), it originally intends
-to assign the address of struct r_opts in "restorecond.c" to the
-pointer *r_opts in "restore.c".
-
-However, the address is assigned to the struct r_opts and covers
-the value of low eight bytes in it. That causes unexpected value
-of member varibale 'nochange' and 'verbose' in struct r_opts, thus
-affects value of 'restorecon_flags' and executes unexpected operations
-when restorecon the files such as the redundant console log output or
-file label nochange.
-
-Cause restorecond/restore.c is copied from policycoreutils/setfiles,
-which share the same pattern. It also has potential risk to generate
-same problems, So fix it in case.
-
-Signed-off-by: Baichuan Kong <kongbaichuan@huawei.com>
----
- policycoreutils/setfiles/restore.c | 42 +++++++++++++++++---------------------
- restorecond/restore.c              | 40 ++++++++++++++++--------------------
- 2 files changed, 37 insertions(+), 45 deletions(-)
-
-diff --git a/policycoreutils/setfiles/restore.c b/policycoreutils/setfiles/restore.c
-index 9dea5656..d3335d1a 100644
---- a/policycoreutils/setfiles/restore.c
-+++ b/policycoreutils/setfiles/restore.c
-@@ -17,40 +17,37 @@
- char **exclude_list;
- int exclude_count;
- 
--struct restore_opts *r_opts;
--
- void restore_init(struct restore_opts *opts)
- {
- 	int rc;
- 
--	r_opts = opts;
- 	struct selinux_opt selinux_opts[] = {
--		{ SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
--		{ SELABEL_OPT_PATH, r_opts->selabel_opt_path },
--		{ SELABEL_OPT_DIGEST, r_opts->selabel_opt_digest }
-+		{ SELABEL_OPT_VALIDATE, opts->selabel_opt_validate },
-+		{ SELABEL_OPT_PATH, opts->selabel_opt_path },
-+		{ SELABEL_OPT_DIGEST, opts->selabel_opt_digest }
- 	};
- 
--	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
--	if (!r_opts->hnd) {
--		perror(r_opts->selabel_opt_path);
-+	opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
-+	if (!opts->hnd) {
-+		perror(opts->selabel_opt_path);
- 		exit(1);
- 	}
- 
--	r_opts->restorecon_flags = 0;
--	r_opts->restorecon_flags = r_opts->nochange | r_opts->verbose |
--			   r_opts->progress | r_opts->set_specctx  |
--			   r_opts->add_assoc | r_opts->ignore_digest |
--			   r_opts->recurse | r_opts->userealpath |
--			   r_opts->xdev | r_opts->abort_on_error |
--			   r_opts->syslog_changes | r_opts->log_matches |
--			   r_opts->ignore_noent | r_opts->ignore_mounts |
--			   r_opts->mass_relabel;
-+	opts->restorecon_flags = 0;
-+	opts->restorecon_flags = opts->nochange | opts->verbose |
-+			   opts->progress | opts->set_specctx  |
-+			   opts->add_assoc | opts->ignore_digest |
-+			   opts->recurse | opts->userealpath |
-+			   opts->xdev | opts->abort_on_error |
-+			   opts->syslog_changes | opts->log_matches |
-+			   opts->ignore_noent | opts->ignore_mounts |
-+			   opts->mass_relabel;
- 
- 	/* Use setfiles, restorecon and restorecond own handles */
--	selinux_restorecon_set_sehandle(r_opts->hnd);
-+	selinux_restorecon_set_sehandle(opts->hnd);
- 
--	if (r_opts->rootpath) {
--		rc = selinux_restorecon_set_alt_rootpath(r_opts->rootpath);
-+	if (opts->rootpath) {
-+		rc = selinux_restorecon_set_alt_rootpath(opts->rootpath);
- 		if (rc) {
- 			fprintf(stderr,
- 				"selinux_restorecon_set_alt_rootpath error: %s.\n",
-@@ -81,7 +78,6 @@ int process_glob(char *name, struct restore_opts *opts)
- 	size_t i = 0;
- 	int len, rc, errors;
- 
--	r_opts = opts;
- 	memset(&globbuf, 0, sizeof(globbuf));
- 
- 	errors = glob(name, GLOB_TILDE | GLOB_PERIOD |
-@@ -96,7 +92,7 @@ int process_glob(char *name, struct restore_opts *opts)
- 		if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0)
- 			continue;
- 		rc = selinux_restorecon(globbuf.gl_pathv[i],
--					r_opts->restorecon_flags);
-+					opts->restorecon_flags);
- 		if (rc < 0)
- 			errors = rc;
- 	}
-diff --git a/restorecond/restore.c b/restorecond/restore.c
-index f6e30001..b93b5fdb 100644
---- a/restorecond/restore.c
-+++ b/restorecond/restore.c
-@@ -12,39 +12,36 @@
- char **exclude_list;
- int exclude_count;
- 
--struct restore_opts *r_opts;
--
- void restore_init(struct restore_opts *opts)
- {
- 	int rc;
- 
--	r_opts = opts;
- 	struct selinux_opt selinux_opts[] = {
--		{ SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
--		{ SELABEL_OPT_PATH, r_opts->selabel_opt_path },
--		{ SELABEL_OPT_DIGEST, r_opts->selabel_opt_digest }
-+		{ SELABEL_OPT_VALIDATE, opts->selabel_opt_validate },
-+		{ SELABEL_OPT_PATH, opts->selabel_opt_path },
-+		{ SELABEL_OPT_DIGEST, opts->selabel_opt_digest }
- 	};
- 
--	r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
--	if (!r_opts->hnd) {
--		perror(r_opts->selabel_opt_path);
-+	opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
-+	if (!opts->hnd) {
-+		perror(opts->selabel_opt_path);
- 		exit(1);
- 	}
- 
--	r_opts->restorecon_flags = 0;
--	r_opts->restorecon_flags = r_opts->nochange | r_opts->verbose |
--			   r_opts->progress | r_opts->set_specctx  |
--			   r_opts->add_assoc | r_opts->ignore_digest |
--			   r_opts->recurse | r_opts->userealpath |
--			   r_opts->xdev | r_opts->abort_on_error |
--			   r_opts->syslog_changes | r_opts->log_matches |
--			   r_opts->ignore_noent | r_opts->ignore_mounts;
-+	opts->restorecon_flags = 0;
-+	opts->restorecon_flags = opts->nochange | opts->verbose |
-+			   opts->progress | opts->set_specctx  |
-+			   opts->add_assoc | opts->ignore_digest |
-+			   opts->recurse | opts->userealpath |
-+			   opts->xdev | opts->abort_on_error |
-+			   opts->syslog_changes | opts->log_matches |
-+			   opts->ignore_noent | opts->ignore_mounts;
- 
- 	/* Use setfiles, restorecon and restorecond own handles */
--	selinux_restorecon_set_sehandle(r_opts->hnd);
-+	selinux_restorecon_set_sehandle(opts->hnd);
- 
--	if (r_opts->rootpath) {
--		rc = selinux_restorecon_set_alt_rootpath(r_opts->rootpath);
-+	if (opts->rootpath) {
-+		rc = selinux_restorecon_set_alt_rootpath(opts->rootpath);
- 		if (rc) {
- 			fprintf(stderr,
- 				"selinux_restorecon_set_alt_rootpath error: %s.\n",
-@@ -75,7 +72,6 @@ int process_glob(char *name, struct restore_opts *opts)
- 	size_t i = 0;
- 	int len, rc, errors;
- 
--	r_opts = opts;
- 	memset(&globbuf, 0, sizeof(globbuf));
- 
- 	errors = glob(name, GLOB_TILDE | GLOB_PERIOD |
-@@ -90,7 +86,7 @@ int process_glob(char *name, struct restore_opts *opts)
- 		if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0)
- 			continue;
- 		rc = selinux_restorecon(globbuf.gl_pathv[i],
--					r_opts->restorecon_flags);
-+					opts->restorecon_flags);
- 		if (rc < 0)
- 			errors = rc;
- 	}
--- 
-2.12.3
-
-
+VGhhbmtzIGZvciB5b3VyIGFkdmljZSwgSSB1bmRlcnN0YW5kIHdoYXQgeW91IG1lYW4gYW5kIHlv
+dSBhcmUgcmlnaHQuIFRoZSBuZXcgcGF0Y2ggaXMgcmVzZW50DQp0byB0aGUgbWFpbGluZyBsaXN0
+LCB3aGljaCBmaXhlZCBwb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMsIHBsZWFzZSByZXZpZXcgaXQu
+IFRrcyENCg0KLS0tLS3pgq7ku7bljp/ku7YtLS0tLQ0K5Y+R5Lu25Lq6OiBTdGVwaGVuIFNtYWxs
+ZXkgW21haWx0bzpzZHNAdHljaG8ubnNhLmdvdl0gDQrlj5HpgIHml7bpl7Q6IDIwMTnlubQxMeac
+iDEz5pelIDIxOjEzDQrmlLbku7bkuro6IGtvbmdiYWljaHVhbiA8a29uZ2JhaWNodWFuQGh1YXdl
+aS5jb20+OyBzZWxpbnV4QHZnZXIua2VybmVsLm9yZw0K5Li76aKYOiBSZTogW1BBVENIXSByZXN0
+b3JlY29uZDogRml4IHJlZHVuZGFudCBjb25zb2xlIGxvZyBvdXRwdXQgZXJyb3INCg0KT24gMTEv
+MTMvMTkgMTozNiBBTSwga29uZ2JhaWNodWFuIHdyb3RlOg0KPiBUaGUgc2l0dWF0aW9uIGluIHBv
+bGljeWNvcmV1dGlscy9zZXRmaWxlcyBpcyBkaWZmZXJlbnQgd2l0aCByZXN0b3JlY29uZC4NCj4g
+VHdvIHNhbWUtbmFtZSB2YXJpYmFsZXMgcl9vcHRzIGluIHBvbGljeWNvcmV1dGlscy9zZXRmaWxl
+cyBpcyBub3QgDQo+IGVmZmVjdGVkIHdpdGggZWFjaCBvdGhlciwgc28gaXQgaXMgbm90IG5lY2Vz
+c2FyeSB0byBmaXguDQoNCkkgdW5kZXJzdGFuZCBpdCBpc24ndCBhIHByb2JsZW0gaW4gcHJhY3Rp
+Y2UgcmlnaHQgbm93LCBidXQgaXQgaXMgYSBtYWludGFpbmFiaWxpdHkgaXNzdWU7IGl0IGNhbiBj
+cmVhdGUgY29uZnVzaW9uIGluIHRoZSBmdXR1cmUgYW5kIGlmIHNvbWVvbmUgd2VyZSB0byBldmVy
+IGNoYW5nZSB0aGUgb25lIGluc3RhbmNlIHRvIGJlIG5vbi1zdGF0aWMgaW4gb3JkZXIgdG8gYWNj
+ZXNzIGl0IGZyb20gYW5vdGhlciBzb3VyY2UgZmlsZSwgd2Ugd291bGQgaGF2ZSBleGFjdGx5IHRo
+ZSBzYW1lIGJ1Zy4gIEhlbmNlLCBJIHdvdWxkIGZhdm9yIGZpeGluZyBpdCBub3cuDQoNCj4gDQo+
+IA0KPiAtLS0tLemCruS7tuWOn+S7ti0tLS0tDQo+IOWPkeS7tuS6ujogU3RlcGhlbiBTbWFsbGV5
+IFttYWlsdG86c2RzQHR5Y2hvLm5zYS5nb3ZdDQo+IOWPkemAgeaXtumXtDogMjAxOeW5tDEx5pyI
+MTLml6UgMjM6NTUNCj4g5pS25Lu25Lq6OiBrb25nYmFpY2h1YW4gPGtvbmdiYWljaHVhbkBodWF3
+ZWkuY29tPjsgc2VsaW51eEB2Z2VyLmtlcm5lbC5vcmcNCj4g5Li76aKYOiBSZTogW1BBVENIXSBy
+ZXN0b3JlY29uZDogRml4IHJlZHVuZGFudCBjb25zb2xlIGxvZyBvdXRwdXQgZXJyb3INCj4gDQo+
+IE9uIDExLzEyLzE5IDEwOjQ3IEFNLCBTdGVwaGVuIFNtYWxsZXkgd3JvdGU6DQo+PiBPbiAxMS8x
+MS8xOSA4OjIzIFBNLCBCYWljaHVhbiBLb25nIHdyb3RlOg0KPj4+IEZyb206IGtvbmcgYmFpY2h1
+YW4gPGtvbmdiYWljaHVhbkBodWF3ZWkuY29tPg0KPj4+DQo+Pj4gV2hlbiBzdGFydGluZyByZXN0
+b3JlY29uZCB3aXRob3V0IGFueSBvcHRpb24gdGhlIGZvbGxvd2luZyByZWR1bmRhbnQgDQo+Pj4g
+Y29uc29sZSBsb2cgaXMgb3V0cHV0ZWQ6DQo+Pj4NCj4+PiAvZGV2L2xvZyAxMDAuMCUNCj4+PiAv
+dmFyL3ZvbGF0aWxlL3J1bi9zeXNsb2dkLnBpZCAxMDAuMCUgLi4uDQo+Pj4NCj4+PiBUaGlzIGlz
+IGNhdXNlZCBieSB0d28gZ2xvYmFsIHZhcmlhYmxlcyBvZiBzYW1lIG5hbWUgcl9vcHRzLiBXaGVu
+IA0KPj4+IGV4ZWN1dGVzIHJfb3B0cyA9IG9wdHMgaW4gcmVzdG9yZV9pbml0KCksIGl0IG9yaWdp
+bmFsbHkgaW50ZW5kcyB0byANCj4+PiBhc3NpZ24gdGhlIGFkZHJlc3Mgb2Ygc3RydWN0IHJfb3B0
+cyBpbiAicmVzdG9yZWNvbmQuYyIgdG8gdGhlIA0KPj4+IHBvaW50ZXIgKnJfb3B0cyBpbiAicmVz
+dG9yZS5jIi4NCj4+Pg0KPj4+IEhvd2V2ZXIsIHRoZSBhZGRyZXNzIGlzIGFzc2lnbmVkIHRvIHRo
+ZSBzdHJ1Y3Qgcl9vcHRzIGFuZCBjb3ZlcnMgdGhlIA0KPj4+IHZhbHVlIG9mIGxvdyBlaWdodCBi
+eXRlcyBpbiBpdC4gVGhhdCBjYXVzZXMgdW5leHBlY3RlZCB2YWx1ZSBvZiANCj4+PiBtZW1iZXIg
+dmFyaWJhbGUgJ25vY2hhbmdlJyBhbmQgJ3ZlcmJvc2UnIGluIHN0cnVjdCByX29wdHMsIHRodXMg
+DQo+Pj4gYWZmZWN0cyB2YWx1ZSBvZiAncmVzdG9yZWNvbl9mbGFncycgYW5kIGV4ZWN1dGVzIHVu
+ZXhwZWN0ZWQgDQo+Pj4gb3BlcmF0aW9ucyB3aGVuIHJlc3RvcmVjb24gdGhlIGZpbGVzIHN1Y2gg
+YXMgdGhlIHJlZHVuZGFudCBjb25zb2xlIA0KPj4+IGxvZyBvdXRwdXQgb3IgZmlsZSBsYWJlbCBu
+b2NoYW5nZS4NCj4+Pg0KPj4+IFNpZ25lZC1vZmYtYnk6IGtvbmcgYmFpY2h1YW4gPGtvbmdiYWlj
+aHVhbkBodWF3ZWkuY29tPg0KPj4NCj4+IEFja2VkLWJ5OiBTdGVwaGVuIFNtYWxsZXkgPHNkc0B0
+eWNoby5uc2EuZ292Pg0KPiANCj4gTkIgcmVzdG9yZS5jIGluIHJlc3RvcmVjb25kIHdhcyBjb3Bp
+ZWQgZnJvbSBwb2xpY3ljb3JldXRpbHMvc2V0ZmlsZXMsIHdoaWNoIHNoYXJlcyB0aGlzIHNhbWUg
+cGF0dGVybiwgZXhjZXB0IHRoYXQgdGhlIHNlcGFyYXRlIHJfb3B0cyBkZWNsYXJhdGlvbiBpbiBz
+ZXRmaWxlcy5jIGlzIHN0YXRpYy4gIFdlIHNob3VsZCBsaWtlbHkgZml4IGl0IGZvciBzZXRmaWxl
+cyBhcyB3ZWxsLg0KPiANCj4+DQo+Pj4gLS0tDQo+Pj4gIMKgIHJlc3RvcmVjb25kL3Jlc3RvcmUu
+YyB8IDQwIA0KPj4+ICsrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0NCj4+
+PiAgwqAgMSBmaWxlIGNoYW5nZWQsIDE4IGluc2VydGlvbnMoKyksIDIyIGRlbGV0aW9ucygtKQ0K
+Pj4+DQo+Pj4gZGlmZiAtLWdpdCBhL3Jlc3RvcmVjb25kL3Jlc3RvcmUuYyBiL3Jlc3RvcmVjb25k
+L3Jlc3RvcmUuYyBpbmRleCANCj4+PiBmNmUzMDAwMS4uYjkzYjVmZGIgMTAwNjQ0DQo+Pj4gLS0t
+IGEvcmVzdG9yZWNvbmQvcmVzdG9yZS5jDQo+Pj4gKysrIGIvcmVzdG9yZWNvbmQvcmVzdG9yZS5j
+DQo+Pj4gQEAgLTEyLDM5ICsxMiwzNiBAQA0KPj4+ICDCoCBjaGFyICoqZXhjbHVkZV9saXN0Ow0K
+Pj4+ICDCoCBpbnQgZXhjbHVkZV9jb3VudDsNCj4+PiAtc3RydWN0IHJlc3RvcmVfb3B0cyAqcl9v
+cHRzOw0KPj4+IC0NCj4+PiAgwqAgdm9pZCByZXN0b3JlX2luaXQoc3RydWN0IHJlc3RvcmVfb3B0
+cyAqb3B0cykNCj4+PiAgwqAgew0KPj4+ICDCoMKgwqDCoMKgIGludCByYzsNCj4+PiAtwqDCoMKg
+IHJfb3B0cyA9IG9wdHM7DQo+Pj4gIMKgwqDCoMKgwqAgc3RydWN0IHNlbGludXhfb3B0IHNlbGlu
+dXhfb3B0c1tdID0gew0KPj4+IC3CoMKgwqDCoMKgwqDCoCB7IFNFTEFCRUxfT1BUX1ZBTElEQVRF
+LCByX29wdHMtPnNlbGFiZWxfb3B0X3ZhbGlkYXRlIH0sDQo+Pj4gLcKgwqDCoMKgwqDCoMKgIHsg
+U0VMQUJFTF9PUFRfUEFUSCwgcl9vcHRzLT5zZWxhYmVsX29wdF9wYXRoIH0sDQo+Pj4gLcKgwqDC
+oMKgwqDCoMKgIHsgU0VMQUJFTF9PUFRfRElHRVNULCByX29wdHMtPnNlbGFiZWxfb3B0X2RpZ2Vz
+dCB9DQo+Pj4gK8KgwqDCoMKgwqDCoMKgIHsgU0VMQUJFTF9PUFRfVkFMSURBVEUsIG9wdHMtPnNl
+bGFiZWxfb3B0X3ZhbGlkYXRlIH0sDQo+Pj4gK8KgwqDCoMKgwqDCoMKgIHsgU0VMQUJFTF9PUFRf
+UEFUSCwgb3B0cy0+c2VsYWJlbF9vcHRfcGF0aCB9LA0KPj4+ICvCoMKgwqDCoMKgwqDCoCB7IFNF
+TEFCRUxfT1BUX0RJR0VTVCwgb3B0cy0+c2VsYWJlbF9vcHRfZGlnZXN0IH0NCj4+PiAgwqDCoMKg
+wqDCoCB9Ow0KPj4+IC3CoMKgwqAgcl9vcHRzLT5obmQgPSBzZWxhYmVsX29wZW4oU0VMQUJFTF9D
+VFhfRklMRSwgc2VsaW51eF9vcHRzLCAzKTsNCj4+PiAtwqDCoMKgIGlmICghcl9vcHRzLT5obmQp
+IHsNCj4+PiAtwqDCoMKgwqDCoMKgwqAgcGVycm9yKHJfb3B0cy0+c2VsYWJlbF9vcHRfcGF0aCk7
+DQo+Pj4gK8KgwqDCoCBvcHRzLT5obmQgPSBzZWxhYmVsX29wZW4oU0VMQUJFTF9DVFhfRklMRSwg
+c2VsaW51eF9vcHRzLCAzKTsNCj4+PiArwqDCoMKgIGlmICghb3B0cy0+aG5kKSB7DQo+Pj4gK8Kg
+wqDCoMKgwqDCoMKgIHBlcnJvcihvcHRzLT5zZWxhYmVsX29wdF9wYXRoKTsNCj4+PiAgwqDCoMKg
+wqDCoMKgwqDCoMKgIGV4aXQoMSk7DQo+Pj4gIMKgwqDCoMKgwqAgfQ0KPj4+IC3CoMKgwqAgcl9v
+cHRzLT5yZXN0b3JlY29uX2ZsYWdzID0gMDsNCj4+PiAtwqDCoMKgIHJfb3B0cy0+cmVzdG9yZWNv
+bl9mbGFncyA9IHJfb3B0cy0+bm9jaGFuZ2UgfCByX29wdHMtPnZlcmJvc2UgfA0KPj4+IC3CoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJfb3B0cy0+cHJvZ3Jlc3MgfCByX29wdHMtPnNldF9z
+cGVjY3R4wqAgfA0KPj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHJfb3B0cy0+YWRk
+X2Fzc29jIHwgcl9vcHRzLT5pZ25vcmVfZGlnZXN0IHwNCj4+PiAtwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCByX29wdHMtPnJlY3Vyc2UgfCByX29wdHMtPnVzZXJlYWxwYXRoIHwNCj4+PiAt
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByX29wdHMtPnhkZXYgfCByX29wdHMtPmFib3J0
+X29uX2Vycm9yIHwNCj4+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByX29wdHMtPnN5
+c2xvZ19jaGFuZ2VzIHwgcl9vcHRzLT5sb2dfbWF0Y2hlcyB8DQo+Pj4gLcKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgcl9vcHRzLT5pZ25vcmVfbm9lbnQgfCByX29wdHMtPmlnbm9yZV9tb3Vu
+dHM7DQo+Pj4gK8KgwqDCoCBvcHRzLT5yZXN0b3JlY29uX2ZsYWdzID0gMDsNCj4+PiArwqDCoMKg
+IG9wdHMtPnJlc3RvcmVjb25fZmxhZ3MgPSBvcHRzLT5ub2NoYW5nZSB8IG9wdHMtPnZlcmJvc2Ug
+fA0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG9wdHMtPnByb2dyZXNzIHwgb3B0
+cy0+c2V0X3NwZWNjdHjCoCB8DQo+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgb3B0
+cy0+YWRkX2Fzc29jIHwgb3B0cy0+aWdub3JlX2RpZ2VzdCB8DQo+Pj4gK8KgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgb3B0cy0+cmVjdXJzZSB8IG9wdHMtPnVzZXJlYWxwYXRoIHwNCj4+PiAr
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBvcHRzLT54ZGV2IHwgb3B0cy0+YWJvcnRfb25f
+ZXJyb3IgfA0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIG9wdHMtPnN5c2xvZ19j
+aGFuZ2VzIHwgb3B0cy0+bG9nX21hdGNoZXMgfA0KPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIG9wdHMtPmlnbm9yZV9ub2VudCB8IG9wdHMtPmlnbm9yZV9tb3VudHM7DQo+Pj4gIMKg
+wqDCoMKgwqAgLyogVXNlIHNldGZpbGVzLCByZXN0b3JlY29uIGFuZCByZXN0b3JlY29uZCBvd24g
+aGFuZGxlcyAqLw0KPj4+IC3CoMKgwqAgc2VsaW51eF9yZXN0b3JlY29uX3NldF9zZWhhbmRsZShy
+X29wdHMtPmhuZCk7DQo+Pj4gK8KgwqDCoCBzZWxpbnV4X3Jlc3RvcmVjb25fc2V0X3NlaGFuZGxl
+KG9wdHMtPmhuZCk7DQo+Pj4gLcKgwqDCoCBpZiAocl9vcHRzLT5yb290cGF0aCkgew0KPj4+IC3C
+oMKgwqDCoMKgwqDCoCByYyA9IHNlbGludXhfcmVzdG9yZWNvbl9zZXRfYWx0X3Jvb3RwYXRoKHJf
+b3B0cy0+cm9vdHBhdGgpOw0KPj4+ICvCoMKgwqAgaWYgKG9wdHMtPnJvb3RwYXRoKSB7DQo+Pj4g
+K8KgwqDCoMKgwqDCoMKgIHJjID0gc2VsaW51eF9yZXN0b3JlY29uX3NldF9hbHRfcm9vdHBhdGgo
+b3B0cy0+cm9vdHBhdGgpOw0KPj4+ICDCoMKgwqDCoMKgwqDCoMKgwqAgaWYgKHJjKSB7DQo+Pj4g
+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGZwcmludGYoc3RkZXJyLA0KPj4+ICDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICJzZWxpbnV4X3Jlc3RvcmVjb25fc2V0X2FsdF9y
+b290cGF0aCBlcnJvcjogDQo+Pj4gJXMuXG4iLCBAQCAtNzUsNyArNzIsNiBAQCBpbnQgcHJvY2Vz
+c19nbG9iKGNoYXIgKm5hbWUsIHN0cnVjdCANCj4+PiByZXN0b3JlX29wdHMgKm9wdHMpDQo+Pj4g
+IMKgwqDCoMKgwqAgc2l6ZV90IGkgPSAwOw0KPj4+ICDCoMKgwqDCoMKgIGludCBsZW4sIHJjLCBl
+cnJvcnM7DQo+Pj4gLcKgwqDCoCByX29wdHMgPSBvcHRzOw0KPj4+ICDCoMKgwqDCoMKgIG1lbXNl
+dCgmZ2xvYmJ1ZiwgMCwgc2l6ZW9mKGdsb2JidWYpKTsNCj4+PiAgwqDCoMKgwqDCoCBlcnJvcnMg
+PSBnbG9iKG5hbWUsIEdMT0JfVElMREUgfCBHTE9CX1BFUklPRCB8IEBAIC05MCw3ICs4Niw3IA0K
+Pj4+IEBAIGludCBwcm9jZXNzX2dsb2IoY2hhciAqbmFtZSwgc3RydWN0IHJlc3RvcmVfb3B0cyAq
+b3B0cykNCj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChsZW4gPiAwICYmIHN0cmNtcCgmZ2xv
+YmJ1Zi5nbF9wYXRodltpXVtsZW5dLCAiLy4uIikgDQo+Pj4gPT0gMCkNCj4+PiAgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgY29udGludWU7DQo+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoCByYyA9
+IHNlbGludXhfcmVzdG9yZWNvbihnbG9iYnVmLmdsX3BhdGh2W2ldLA0KPj4+IC3CoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByX29wdHMtPnJlc3RvcmVjb25fZmxhZ3MpOw0K
+Pj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBvcHRzLT5yZXN0b3Jl
+Y29uX2ZsYWdzKTsNCj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIGlmIChyYyA8IDApDQo+Pj4gIMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGVycm9ycyA9IHJjOw0KPj4+ICDCoMKgwqDCoMKgIH0N
+Cj4+Pg0KPj4NCj4gDQoNCg==
