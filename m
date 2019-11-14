@@ -2,135 +2,81 @@ Return-Path: <SRS0=pcBM=ZG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD2B8C432C3
-	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 17:56:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42A0AC432C3
+	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 23:35:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B3A9220718
-	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 17:56:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 09AF620723
+	for <selinux@archiver.kernel.org>; Thu, 14 Nov 2019 23:35:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="FLv8EMHf"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="drGsLk69"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726098AbfKNR45 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 Nov 2019 12:56:57 -0500
-Received: from UCOL19PA37.eemsg.mail.mil ([214.24.24.197]:59145 "EHLO
-        UCOL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727118AbfKNR4y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 Nov 2019 12:56:54 -0500
-X-EEMSG-check-017: 49442139|UCOL19PA37_ESA_OUT04.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.68,304,1569283200"; 
-   d="scan'208";a="49442139"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UCOL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 14 Nov 2019 17:56:49 +0000
+        id S1726953AbfKNXfY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 Nov 2019 18:35:24 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:44923 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726767AbfKNXfY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 Nov 2019 18:35:24 -0500
+Received: by mail-lj1-f195.google.com with SMTP id g3so8576052ljl.11
+        for <selinux@vger.kernel.org>; Thu, 14 Nov 2019 15:35:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1573754209; x=1605290209;
-  h=subject:from:to:references:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=yf6AyfCSToW3iJmlKGGJqCtPz30XxKK6Sn11JGk2ybc=;
-  b=FLv8EMHfXmjR7EoQUxTpR5xFHVY8bE31Kf2sr4TJK72fiXG9DeyKXblb
-   XxzbNvCbqo5C+iYIS+dhzMLwe3qY6arC8a1C2DtvfQvdpBVHEocWGILaN
-   Fvu+UO1nieFjwPcXcgA719dGmW03pDPKdEvEpRGGVI/HU4LXvzojBu2Kp
-   DwDNBahoIYv9Z8FiMw32O5Vf6sZXNA3Jak8OHYkzAA4MWffh+r2/KPsnP
-   ivdUqQzIYTNRc460J4gw8tE2/QR08sOKmP0wFcS7Qp0XKc7puXG3McCz8
-   ieDD7sO54saK51u/NOG44LsteTHLuCI2n5yE2p6kqfNTzDIQShECxF9Dp
-   A==;
-X-IronPort-AV: E=Sophos;i="5.68,304,1569283200"; 
-   d="scan'208";a="30118488"
-IronPort-PHdr: =?us-ascii?q?9a23=3AhEn19B1JNJctaQhBsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseMULfad9pjvdHbS+e9qxAeQG9mCsLQd0LGd6vi9EUU7or+5+EgYd5JNUx?=
- =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
- =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCezbL9oMRm7owvcusYLjYd+Kqs61w?=
- =?us-ascii?q?fErGZPd+lK321jOEidnwz75se+/Z5j9zpftvc8/MNeUqv0Yro1Q6VAADspL2?=
- =?us-ascii?q?466svrtQLeTQSU/XsTTn8WkhtTDAfb6hzxQ4r8vTH7tup53ymaINH2QLUpUj?=
- =?us-ascii?q?ms86tnVBnlgzocOjUn7G/YlNB/jKNDoBKguRN/xZLUYJqIP/Z6Z6/RYM8WSX?=
- =?us-ascii?q?ZEUstXWSNBGIe8ZJYRAeQHM+hTso3xq0IAoBa6AAWhAv7kxD1ViX/sxaA0zu?=
- =?us-ascii?q?QvHx/I3AIjEdwBvnvbo9fpO6kdSu210KvFwC/fY/9K1zrw6o7FeQ0hr/GWWr?=
- =?us-ascii?q?JwdNLcx1QzFwzbllWQqZLqPzWI3eoQtmiU9e5gVeaxhG8ntgp8pSOvydo3io?=
- =?us-ascii?q?TSmoIUykzL9SV+wIovI924U1R0bcSrEJtXqSGXLo17Sd4hTWFwoCs217ILtJ?=
- =?us-ascii?q?GhcCUK1Zgr3QDTZvOZf4SS/x7uUvuaLy1ii3J/Yr2/gg6/8U2nyuLhSMa5yE?=
- =?us-ascii?q?1Kri9ZktnUsXANygDT5tCHSvRj+keh3i6C1xzJ5eFeIEA0iLHbJ4Q9wr8wip?=
- =?us-ascii?q?UTsUPDEjXwmErql6+Zal8o+u2p6+Tjernmp5mcOJFoigzmL6gjlcOyDf44Pw?=
- =?us-ascii?q?QTRWSX5+ux2KP58UHkWLlKi+c5kqjdsJDUP8Qboau5DhdO0ok+8BayFCum0d?=
- =?us-ascii?q?QEknkHK1JJYhSHj5PzNF3UL/D4Cum/j0y2kDh33/DGIqHhApLVI3jZkbfuYb?=
- =?us-ascii?q?Z95FRGyAUu1d9Q+4pbCrEbL/LyXE/+qsfYAwQiPAyowubnDsl92Z0EWWKJHK?=
- =?us-ascii?q?CZLLnevkOP5uIqO+OMfpMauC7hK/g54P7jlWQ5lkEZfamo25sXdX+5E+94I0?=
- =?us-ascii?q?WWf3XsmM0NEWQUsQokSuzlllmCXSRUZ3aoUKJvrg08XbinBofKXIzloLWA2i?=
- =?us-ascii?q?qgVslMZ2tGA0qAJnzfd4yFXfoXQCiOI8l9nyYCWKTnQIgkg1XmrwL+yrx6Ps?=
- =?us-ascii?q?LK9SAC85Huzt5446vUjx5h2yZzCpGmz2yVT2xy1lgNTjsy0bE39Vdx0X+fwK?=
- =?us-ascii?q?N4hLpeDtUV6PRXBFRpfaXAxvB3XoihEjnKec2EHRP/GYSr?=
-X-IPAS-Result: =?us-ascii?q?A2BOAQB0lM1d/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF+AoFyLIFBMiqEKY8JVAaBESWJZpFDCQEBAQEBAQEBATQBAgEBh?=
- =?us-ascii?q?EACgiAkOQUNAg4BAQEEAQEBAQEFAwEBbIVDgjspAYJtAQUjFVELGAICJgICV?=
- =?us-ascii?q?wYBDAYCAQGCXz+CRwMJJbJdgTKJCoFIgQ4oAYwUGHiBB4E4DIJfPoIbhTqCX?=
- =?us-ascii?q?gSWVkWXA4I0gjaTEAYbgj6MG4srLY4anBYhgVgrCAIYCCEPgydQERSffiMDM?=
- =?us-ascii?q?IEFAQGREQEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 14 Nov 2019 17:56:48 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xAEHumA3013213;
-        Thu, 14 Nov 2019 12:56:48 -0500
-Subject: Re: [PATCH V2] selinux-testsuite: Add key_socket tests
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Richard Haines <richard_c_haines@btinternet.com>,
-        selinux@vger.kernel.org
-References: <20191112171557.3067-1-richard_c_haines@btinternet.com>
- <fcd7dcc3-899f-2cb7-54d6-1f82100ed0e2@tycho.nsa.gov>
-Message-ID: <3248f905-6d5d-acc8-6003-ace0d6177397@tycho.nsa.gov>
-Date:   Thu, 14 Nov 2019 12:56:48 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.0
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AYuSkJ9oPws3UUjingV1Zg7JO0uNEunaTAcySA2zhvs=;
+        b=drGsLk699/Br4+VVrSrOXTe6yaXJJ6yIw1gOjgkEEw5tMhezrFL07cnw+8S3+WhMCL
+         AXCwM2nPk8/ScuV17amf/yZk23nQtsNnZOteIhU2UCFx6T3dc5Q53Apt+74qlyya20VK
+         qgp5gjJWACC2B0ud39nE0/t6eNMo+Dee7kp6vklXx6ih33vjUDt7J8CcUJPiuDLz04E1
+         WnZeU+2IKKGB3ZuE7pL3cKt3mYGRYQkgxluwi6qP/EwtNFNJ1OLA8SsVwS+gZTWWWUD+
+         fNw1zXTLZcE/n20xHfO5ucEXkPuCIzYfZl4uFxcqYT3YuYE9a/4C64Qhxcs1LNzLBvc7
+         2zCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AYuSkJ9oPws3UUjingV1Zg7JO0uNEunaTAcySA2zhvs=;
+        b=L9b6kJ55rDHbbWa3hrzbSkk4d5ud1nWU46gOkGMcs/VAltXMJ+C2s5aVPPqUWXMRFQ
+         Lb/SwuPhkArcKYhY5xX1Anv+HjhKBb+v3MTXPatZYWeWFyg+weKM5eQ8Tzr67h6DDWIj
+         NDhx5t9IaRwms9DJT+oNK7GE+Lhre2xG52LUSz+360yvwfUPE9wRjMDpQfde6T/iVaLA
+         trKuX9+cqad7nRMb1zixvq0/szYHyPkQNYTywr78Dnyn7PnN5F5rJclnB0G/BNiCRbVu
+         MJTiUiWJup9Qz0CESXRPss/h3ppq6kdPX+R59QA3cV8ywH5gZqIWTLyK6D58eyPglMYi
+         y+ig==
+X-Gm-Message-State: APjAAAXYUKgXomXN4+wY4STT3ycGOh30uPEN3x4nzaDtxMg0fuAjSY/d
+        K0yKFChXd4kjuViuDIJHfrVemuDfO01I7+e+SXBF
+X-Google-Smtp-Source: APXvYqyn6QWpb+fW0JLGaGp9fW1p4xYgqa5dnCSGCbLPQ1YEWLQW9O0YnLvgM9qDLp293eUqpSx2rwp1R82kBt+VlyQ=
+X-Received: by 2002:a2e:300d:: with SMTP id w13mr9024068ljw.117.1573774522150;
+ Thu, 14 Nov 2019 15:35:22 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <fcd7dcc3-899f-2cb7-54d6-1f82100ed0e2@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20191107101743.203699-1-jeffv@google.com> <CABXk95A1aKrcSLmHxyoH+mdXoZTc83BRV8SOOwQbrnCw4gfAwg@mail.gmail.com>
+In-Reply-To: <CABXk95A1aKrcSLmHxyoH+mdXoZTc83BRV8SOOwQbrnCw4gfAwg@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 14 Nov 2019 18:35:11 -0500
+Message-ID: <CAHC9VhQEZPt4pOGTS9mcQaUVpzz_S8Vcv9ScUVmSY+v9jznxuA@mail.gmail.com>
+Subject: Re: [PATCH v5] selinux: sidtab: reverse lookup hash table
+To:     Jeffrey Vander Stoep <jeffv@google.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, will@kernel.org,
+        Jovana Knezevic <jovanak@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/14/19 9:24 AM, Stephen Smalley wrote:
-> On 11/12/19 12:15 PM, Richard Haines wrote:
->> Test relevant key management socket permissions.
->>
->> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+On Thu, Nov 7, 2019 at 7:01 AM Jeffrey Vander Stoep <jeffv@google.com> wrote:
+> Note this should be v4, not v5.
+>
+> Paul, please let me know if you'd prefer my change applied on top of Ondrej's
+>  "selinux: cache the SID -> context string translation" patch.
 
-Sorry, on second thought I had a question below.
+Sorry for the delay, travel had me a bit backlogged.  Regardless,
+don't worry about rebasing on other in-flight patches; unless it gets
+*really* messy I'll take care of that when I merge everything.
 
-<snip>
->> diff --git a/policy/test_key_socket.te b/policy/test_key_socket.te
->> new file mode 100644
->> index 0000000..5c36c72
->> --- /dev/null
->> +++ b/policy/test_key_socket.te
->> @@ -0,0 +1,75 @@
->> +#
->> +############## Test key management socket 'key_socket' 
->> #####################
->> +#
->> +attribute keysockdomain;
->> +
->> +type test_key_sock_t;
->> +domain_type(test_key_sock_t)
->> +unconfined_runs_test(test_key_sock_t)
->> +typeattribute test_key_sock_t testdomain;
->> +typeattribute test_key_sock_t keysockdomain;
->> +
->> +# key_socket rules:
->> +allow test_key_sock_t self:rawip_socket { create };
-
-Why was the above rule on rawip_socket necessary (and likewise for the 
-other domains)?
-
->> +allow test_key_sock_t self:capability { net_admin };
->> +allow test_key_sock_t self:key_socket { create write read setopt };
->> +# For CONFIG_NET_KEY=m
->> +allow test_key_sock_t kernel_t:system { module_request };
-
+-- 
+paul moore
+www.paul-moore.com
