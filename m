@@ -2,209 +2,133 @@ Return-Path: <SRS0=ealm=ZH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAC7AC432C3
-	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 15:37:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0DDEC432C3
+	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 15:53:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B93B02072A
-	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 15:37:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B2A8A206D3
+	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 15:53:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Q9zs6O59"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="FADu32ub"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727587AbfKOPhG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Nov 2019 10:37:06 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:37119 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727559AbfKOPhG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Nov 2019 10:37:06 -0500
-Received: by mail-lj1-f194.google.com with SMTP id d5so11148128ljl.4
-        for <selinux@vger.kernel.org>; Fri, 15 Nov 2019 07:37:04 -0800 (PST)
+        id S1727540AbfKOPxW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Nov 2019 10:53:22 -0500
+Received: from UCOL19PA37.eemsg.mail.mil ([214.24.24.197]:8246 "EHLO
+        UCOL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727520AbfKOPxW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Nov 2019 10:53:22 -0500
+X-EEMSG-check-017: 49945942|UCOL19PA37_ESA_OUT04.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.68,308,1569283200"; 
+   d="scan'208";a="49945942"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UCOL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Nov 2019 15:52:57 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Q4CS/Wze+L8OwF05/nD8VCaricfA1ZEuBlqqqQ5obWM=;
-        b=Q9zs6O59rpnfXObvdCaCTcp0jZWgC6Byu/VVbmKONCMw6kxvtDRi59knKfKa2BR2Ik
-         DeWfbmyVQKEyBgJSM94GvDaU4o4VtWcBCvi/dL0/JVIApoWqUdf0v/eU5rkvrsd5YhKX
-         O7Kdzl5NicrqKHO1GJEPDS3LLdUzvcSN+ernXIr/YeIPd7j7cZ+jFq3fD7dpXr992fDW
-         nF2wZhdunNQ6OGqp55Wf5E9rXYpE3v4YInxE4IebCj+fG3jCV+IjCfd5QFO9dLQDQU0m
-         EL+KQx92o/Pco6xjP5YTiooqRt/5AWZieoIz9PSygRf+uJ8N4A1/qF4fJt0mvXITKhYT
-         1aew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Q4CS/Wze+L8OwF05/nD8VCaricfA1ZEuBlqqqQ5obWM=;
-        b=DDf/SqNAI1QXa+eY4Ic0Z44NBEN0NMBg1p6iJ3vmpAqd0RYESHPa28pknd5hf7muvx
-         lY7mxhYmXGBMZbhrU3vq6PMvcAh5lyGyWiWPp+ttuvYA6rutiSVsW+u6FVagyOVTKkjY
-         eC8wCG65JspeaKwq6jSnIAbaVCf0O4AUxtDjbBwV+SYowzu2WqDOH4K0xqKsj9xPC43h
-         KSt40KwSpPiExoaWMUbMYgP0klsWmXAnmqZAQcSxNs4EoZ/hxlBDRjNmwQUYkMLwRBuK
-         GqB6IyMNczpvjfs9v6I2Df+pwq34PiCxZIfrrmQvSDOFJoEnTujLdMsyy+YF7w8+fStn
-         zpvg==
-X-Gm-Message-State: APjAAAUyfyAxIf235Hpdjj4T2nPGCsRGHpTDtiqdNtS0wt2bM0D/7gUe
-        l2nCYeSa3M4wO7oBffBW1vcpYKUasIlUx7XrvptC
-X-Google-Smtp-Source: APXvYqzr/hwcxkX0NSjaY/7tIWxLNyeVio/tuoykAuHnars5P0RDd5TzNDSkKTC0kUUBfe38PGz0lQIoRJ9fdJbJRio=
-X-Received: by 2002:a2e:95c5:: with SMTP id y5mr11909602ljh.184.1573832223224;
- Fri, 15 Nov 2019 07:37:03 -0800 (PST)
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1573833177; x=1605369177;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=qY0QoxeIZT5AjSBm2jwCnMXrKnntZdRFVFfCLl20RQs=;
+  b=FADu32ubMhGvsx3TIIx1TSIy9z7XegtXaVjjFiMHlw8h8oaJYkB25R/U
+   og+Bp7PNArXtrfsBdNyCm3G8NEbGNPLi7CvvmtUCbAhaSXgL/DS6RIl6H
+   l6iU6STn7DHpeMK664Xuf1YMQUq/Ecj1A1rGUoSNcrYz+4wrtmiY1vpoP
+   rqLX+O7Y90AybMqbJi+Id1RLJ+mc+zlDfoI967Q0Fur9wuN9gmyZsaSuA
+   Gp+hty3CWYJ7zAfYYFWa74VnnS6jvyPOOStR/yGyCk7TFWeXR0HKn88pq
+   2xIOofGhpfbYJq+pVWs2BcG06Ll7MhSJy0zmMzIcoBHoqqgJnaQnvsUfI
+   w==;
+X-IronPort-AV: E=Sophos;i="5.68,308,1569283200"; 
+   d="scan'208";a="30157122"
+IronPort-PHdr: =?us-ascii?q?9a23=3Acpog+h3+G0ihvZOQsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseMULfad9pjvdHbS+e9qxAeQG9mCsLQd0Led4/mocFdDyK7JiGoFfp1IWk?=
+ =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
+ =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmTSwbalvIBi4rQjducobjZZ/Iast1x?=
+ =?us-ascii?q?XFpWdFdf5Lzm1yP1KTmBj85sa0/JF99ilbpuws+c1dX6jkZqo0VbNXAigoPG?=
+ =?us-ascii?q?Az/83rqALMTRCT6XsGU2UZiQRHDg7Y5xznRJjxsy/6tu1g2CmGOMD9UL45VS?=
+ =?us-ascii?q?i+46ptVRTlkzkMOSIn/27Li8xwlKNbrwynpxxj2I7ffYWZOONjcq/BYd8WQG?=
+ =?us-ascii?q?xMUchLVyxFH4iycY0BAeQcNupctoXwqV8DoR64CAKxBu3g1yVIi2fr06Mk3e?=
+ =?us-ascii?q?QvEQLI0gIuEN0BsnvbsNr7ObwOUe231qTE0SnPYv1U1Dr79YPGcgohofaJXb?=
+ =?us-ascii?q?9obMTR1VcgFxvFjlqOr4zuIi6b1uEXvGif6+pvS+KugHMgpgFqvzev3dwhip?=
+ =?us-ascii?q?XJh40JylDE8j91wIAuJdKiUkJ7btmkEIVJuiycKoB4TMQiQ2RytyY7zL0LoZ?=
+ =?us-ascii?q?27czYQyJQh2RHfb+aLc4+S4hLsUuuaPDR2hGp9db6iiBu//lKsx+3hWsWuzl?=
+ =?us-ascii?q?pHoTRJnsPRun0Lyhfd8NKISuFn8UekwTuP0gfT5fxaLk0sjqrbLoIhwqY3lp?=
+ =?us-ascii?q?oOrUTPBi/2l1vyjK+Rbkgk5vKn6/7mYrX7vZ+QLZN0iwHiPaQuncyzG+I4PR?=
+ =?us-ascii?q?QVX2eH4+i80bzj/UnhTLVLiP05jLXZvYjHKckUqaO1GQ9Y3ps55xqhADqqzs?=
+ =?us-ascii?q?4UkWQfIFJAYh2HjozpO1/UIPD/CPeym0+snypwx/3dIr3gAonCLnjEkLv7e7?=
+ =?us-ascii?q?Z98FRTxBA8zdBY+ZJYEqsBL+7rWk/tqNzYCQc0Mwuxw+bgE9V90JkRVn6RDa?=
+ =?us-ascii?q?KCKqPdr0KH5uI1LOmQfoMapDH9K/097f70kXA5gUMdfbWu3ZYPc3C3APBmI0?=
+ =?us-ascii?q?SfYXrxjdYMCnkKvgUgQ+zwklGCUiBcZ2y0X60i4jE3EoWmDZ3MRtPlvLvU+y?=
+ =?us-ascii?q?G3BJBULkVBEVaFGnrrP9GDXvAXbiuZL+d7nzAEXKTnQIgkg1XmrwL+yrx6Ps?=
+ =?us-ascii?q?LK9SAC85Huzt5446vUjx5h2yZzCpGmz2yVT2xy1lgNTjsy0bE39Vdx0X+fwK?=
+ =?us-ascii?q?N4hLpeDtUV6PRXBFRpfaXAxvB3XoihEjnKec2EHRP/GYSr?=
+X-IPAS-Result: =?us-ascii?q?A2BVBwA0yc5d/wHyM5BkHAEBAQEBBwEBEQEEBAEBgX6Bd?=
+ =?us-ascii?q?CxsVTIqhCmPClEBAQEGgREliWaRQwkBAQEBAQEBAQEtBwECAQGEQAKCIyQ4E?=
+ =?us-ascii?q?wIOAQEBBAEBAQEBBQMBAWyFNwyCOykBgmwBAQEBAgEjFVELDgoCAiYCAlcGA?=
+ =?us-ascii?q?QwGAgEBgl8/AYJSBSAPrlp1gTKEOQGBFINAgUiBDiiMFRh4gQeBOAyCXz6HV?=
+ =?us-ascii?q?YJeBJZYRpcHgjSCN4Riji4GG5oOLY4biDiTYSKBWCsIAhgIIQ+DJwlHERSRU?=
+ =?us-ascii?q?ohPgT2EICMDMAEBgQMBAZBfAQE?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 15 Nov 2019 15:52:57 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xAFFquJY008667;
+        Fri, 15 Nov 2019 10:52:57 -0500
+Subject: Re: [PATCH testsuite v2 0/3] Fix refpolicy build & build
+ test_policy.pp in Travis
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20191115151623.265770-1-omosnace@redhat.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <74a989a0-4288-af3b-21c1-05cbfa6ba167@tycho.nsa.gov>
+Date:   Fri, 15 Nov 2019 10:52:56 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.0
 MIME-Version: 1.0
-References: <20191111154004.1790-1-omosnace@redhat.com> <CAHC9VhSqmHJqxK3xm9Jo+iu7eJao=L6CLpp4UQEGbUGM8puudw@mail.gmail.com>
- <CAFqZXNvKD16h_T+w8OhAsxJTdr_gLv8B0=LjSmKGKkOLjam3DQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNvKD16h_T+w8OhAsxJTdr_gLv8B0=LjSmKGKkOLjam3DQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 15 Nov 2019 10:36:52 -0500
-Message-ID: <CAHC9VhTGYWs+k2vRYFnHU7-mUXfDDop7CGaKAthv4Gds0A54zw@mail.gmail.com>
-Subject: Re: [PATCH v4] selinux: cache the SID -> context string translation
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>, rcu@vger.kernel.org,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Michal Sekletar <msekleta@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20191115151623.265770-1-omosnace@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 15, 2019 at 9:50 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Fri, Nov 15, 2019 at 1:42 AM Paul Moore <paul@paul-moore.com> wrote:
-> > On Mon, Nov 11, 2019 at 10:40 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > Translating a context struct to string can be quite slow, especially if
-> > > the context has a lot of category bits set. This can cause quite
-> > > noticeable performance impact in situations where the translation needs
-> > > to be done repeatedly. A common example is a UNIX datagram socket with
-> > > the SO_PASSSEC option enabled, which is used e.g. by systemd-journald
-> > > when receiving log messages via datagram socket. This scenario can be
-> > > reproduced with:
-> > >
-> > >     cat /dev/urandom | base64 | logger &
-> > >     timeout 30s perf record -p $(pidof systemd-journald) -a -g
-> > >     kill %1
-> > >     perf report -g none --pretty raw | grep security_secid_to_secctx
-> > >
-> > > Before the caching introduced by this patch, computing the context
-> > > string (security_secid_to_secctx() function) takes up ~65% of
-> > > systemd-journald's CPU time (assuming a context with 1024 categories
-> > > set and Fedora x86_64 release kernel configs). After this patch
-> > > (assuming near-perfect cache hit ratio) this overhead is reduced to just
-> > > ~2%.
-> > >
-> > > This patch addresses the issue by caching a certain number (compile-time
-> > > configurable) of recently used context strings to speed up repeated
-> > > translations of the same context, while using only a small amount of
-> > > memory.
-> > >
-> > > The cache is integrated into the existing sidtab table by adding a field
-> > > to each entry, which when not NULL contains an RCU-protected pointer to
-> > > a cache entry containing the cached string. The cache entries are kept
-> > > in a linked list sorted according to how recently they were used. On a
-> > > cache miss when the cache is full, the least recently used entry is
-> > > removed to make space for the new entry.
-> > >
-> > > The patch migrates security_sid_to_context_core() to use the cache (also
-> > > a few other functions where it was possible without too much fuss, but
-> > > these mostly use the translation for logging in case of error, which is
-> > > rare).
-> > >
-> > > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1733259
-> > > Cc: Michal Sekletar <msekleta@redhat.com>
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > ---
-> > >
-> > > Changes in v4:
-> > >  - use rcu_dereference_protected() instead of rcu_dereference_raw() in
-> > >    sidtab_sid2str_put()
-> > >  - fix typo in comment
-> > >  - remove unnecessary rcu_head_init() call
-> > >
-> > > Changes in v3:
-> > >  - add rcu@vger.kernel.org and Paul McKenney to Cc for review of the RCU
-> > >    logic
-> > >  - add __rcu annotation to the cache entry pointer (sidtab.c now passes
-> > >    sparse checks with C=1)
-> > >
-> > > Changes in v2:
-> > >  - skip sidtab_sid2str_put() when in non-task context to prevent
-> > >    deadlock while avoiding the need to lock the spinlock with
-> > >    irqsave/-restore (which is slower)
-> > >
-> > >  security/selinux/Kconfig       |  11 ++
-> > >  security/selinux/ss/services.c | 138 +++++++++++++++----------
-> > >  security/selinux/ss/sidtab.c   | 179 +++++++++++++++++++++++++++------
-> > >  security/selinux/ss/sidtab.h   |  58 +++++++++--
-> > >  4 files changed, 294 insertions(+), 92 deletions(-)
-> >
-> > ...
-> >
-> > > diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-> > > index 7d49994e8d5f..6d6ce1c43b49 100644
-> > > --- a/security/selinux/ss/sidtab.c
-> > > +++ b/security/selinux/ss/sidtab.c
-> > > @@ -492,3 +528,88 @@ void sidtab_destroy(struct sidtab *s)
-> > >
-> > >         sidtab_destroy_tree(s->roots[level], level);
-> > >  }
-> > > +
-> > > +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
-> > > +
-> > > +void sidtab_sid2str_put(struct sidtab *s, struct sidtab_entry *entry,
-> > > +                       const char *str, u32 str_len)
-> > > +{
-> > > +       struct sidtab_str_cache *cache, *victim;
-> > > +
-> > > +       /* do not cache invalid contexts */
-> > > +       if (entry->context.len)
-> > > +               return;
-> > > +
-> > > +       /*
-> > > +        * Skip the put operation when in non-task context to avoid the need
-> > > +        * to disable interrupts while holding s->cache_lock.
-> > > +        */
-> > > +       if (!in_task())
-> > > +               return;
-> > > +
-> > > +       spin_lock(&s->cache_lock);
-> > > +
-> > > +       cache = rcu_dereference_protected(entry->cache,
-> > > +                                         lockdep_is_held(&s->cache_lock));
-> > > +       if (cache) {
-> > > +               /* entry in cache - just bump to the head of LRU list */
-> > > +               list_move(&cache->lru_member, &s->cache_lru_list);
-> > > +               goto out_unlock;
-> > > +       }
-> > > +
-> > > +       cache = kmalloc(sizeof(struct sidtab_str_cache) + str_len, GFP_ATOMIC);
-> > > +       if (!cache)
-> > > +               goto out_unlock;
-> > > +
-> > > +       if (s->cache_free_slots == 0) {
-> > > +               /* pop a cache entry from the tail and free it */
-> > > +               victim = container_of(s->cache_lru_list.prev,
-> > > +                                     struct sidtab_str_cache, lru_member);
-> > > +               list_del(&victim->lru_member);
-> > > +               kfree_rcu(victim, rcu_member);
-> >
-> > We could move the kfree_rcu() down to after we drop the spinlock,
-> > right?  It's likely not a big deal, but since the whole point of this
-> > patch is performance improvements it seems like it might be nice. ;)
->
-> I could be wrong, but I think kfree_rcu() just (always?) appends the
-> object to the RCU list and defers the deallocation for later (and that
-> should be pretty quick). But actually... since the kfree_rcu() is not
-> called under RCU read lock here, I should at least move it below the
-> next line, which still dereferences "victim". And at that point I
-> could move it all the way after spin_unlock() as you suggest...
+On 11/15/19 10:16 AM, Ondrej Mosnacek wrote:
+> This series fixes the remaining test_policy.pp build errors under
+> refpolicy and enables building the test policy under both Fedora policy
+> and refpolicy in Travis CI.
+> 
+> Changes in v2:
+>   - report policy version 999 in the fake selinuxfs to force building
+>     latest version
+>   - install userspace tools and libraries straight from source instead
+>     of working around maissing features in the Ubuntu builds
+>   - install also latest keyutils from source to allow the new 'keys'
+>     subtest helpers to build
 
-Yes, the bulk of the work is handled later once it is safe to free the
-memory, but that doesn't mean work doesn't still happen :)
+Doesn't appear to have addressed any of my comments on the first version 
+of the first two patches:
 
-It's definitely a nitpicky thing, but since we are already at -rc7 and
-this isn't a bug-fix, this was always going to land in selinux/next
-after the upcoming merge window so we've got time for a respin.
+https://lore.kernel.org/selinux/6df6dafe-56a6-7de0-0196-d2b714b453bb@tycho.nsa.gov/
 
--- 
-paul moore
-www.paul-moore.com
+https://lore.kernel.org/selinux/c7521035-8608-c24e-4056-c58aa02de387@tycho.nsa.gov/
+
+> 
+> Ondrej Mosnacek (3):
+>    policy: consolidate macros for home dirs access
+>    policy: add fallbacks for Fedora-specific macros
+>    travis: test building the test policy package
+> 
+>   .travis.yml                         | 48 ++++++++++++++++++++++++++---
+>   policy/Makefile                     | 11 ++++---
+>   policy/test_overlayfs.te            |  6 ++--
+>   policy/test_policy.if               | 23 ++++++++++++--
+>   travis-ci/enable-policy.sh          | 10 ++++++
+>   travis-ci/setup-policy-fedora.sh    | 33 ++++++++++++++++++++
+>   travis-ci/setup-policy-refpolicy.sh | 19 ++++++++++++
+>   7 files changed, 136 insertions(+), 14 deletions(-)
+>   create mode 100644 travis-ci/enable-policy.sh
+>   create mode 100644 travis-ci/setup-policy-fedora.sh
+>   create mode 100644 travis-ci/setup-policy-refpolicy.sh
+> 
+
