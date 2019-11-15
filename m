@@ -7,28 +7,28 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DA62C43141
-	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 11:40:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 641D2C432C3
+	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 11:44:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2946F2072D
-	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 11:40:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FBC02072D
+	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 11:44:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="sfQ7TAPI"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="fCpgfO6s"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727359AbfKOLk3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Nov 2019 06:40:29 -0500
-Received: from mailomta8-sa.btinternet.com ([213.120.69.14]:22624 "EHLO
-        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727254AbfKOLk3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Nov 2019 06:40:29 -0500
-Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
-          by sa-prd-fep-043.btinternet.com with ESMTP
-          id <20191115114025.QGNT22185.sa-prd-fep-043.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Fri, 15 Nov 2019 11:40:25 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1573818025; 
-        bh=UbEURJUeqhioktQ5lf4LhVj8knz6aUjeRxRHmN3zAaI=;
+        id S1727196AbfKOLoi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Nov 2019 06:44:38 -0500
+Received: from mailomta28-re.btinternet.com ([213.120.69.121]:12964 "EHLO
+        re-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727122AbfKOLoi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Nov 2019 06:44:38 -0500
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-040.btinternet.com with ESMTP
+          id <20191115114432.GSYC11338.re-prd-fep-040.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Fri, 15 Nov 2019 11:44:32 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1573818272; 
+        bh=MURg16/GSu8omscyz56Mzj5xdzKpXC9q23J1l/vxJJY=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=sfQ7TAPIHLtVJlgGi0hhFFN7SgcjiZS7KbArhCEt1F6cHHxl/ZHwDMog0HNGgUSFpRawSAs39L4xcILaz7uvylOGQtzoRJDoT5yaa5ouSqfKbs7z39VZmozuglKLBy5E2BMX2oovSVK8dU1mlWdzcJXtUyzkFNzXkYSFieTR+/GOAjhotBCNeyzi3KJHxRWXgAWqC1xRcgxvzSDi1VjJoHhujnQ2+y49nj6EHRnt3XT0MkIx73dvjJOGQVjytPouNlW1IbELMONYjN6JPL3R5gGZLKvCgoXZL2UVWQ82bsNGfPEo366Nt9ccDB+kUrkzWO5SiP1AbRnjJ3def/vrQA==
+        b=fCpgfO6s79fL9meLKH6aUCw+rLurSoHSFG+kh4kRNa45KDQpUY/DBqmKEPCsgnvYnanIFUALBmDOCD7ZUJfGyZ7XCGu46uNJcwm1brKCybzeMo94Rjp2Ybjz/bwFX5kVQrnfqXDA0aNn4socahiWPl6vgt4aYKCtrFEA+VLDBX8sbI2vLbF4MEUwOGDo/0FQCxdufLh7Srz+szc0cl1IeVhYtDYIOtWgWhHn+xsWbvp2P1h+q0wsBPlWG13UFtxmUr2A39ggMXk3/2OSBgd1SXzlCE2kG0f566QI3F8cJivLiLsUerjM8dedufWig7TZ9iwg4BgzkrKGZWnZh63kqg==
 Authentication-Results: btinternet.com;
     auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
 X-Originating-IP: [86.134.6.1]
@@ -38,14 +38,14 @@ X-VadeSecure-score: verdict=clean score=0/300, class=clean
 X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudefhedgfedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddufeegrdeirddunecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdeirddupdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (86.134.6.1) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
-        id 5DC9560500B84530; Fri, 15 Nov 2019 11:40:25 +0000
+Received: from localhost.localdomain (86.134.6.1) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5D834EE50A9E92FD; Fri, 15 Nov 2019 11:44:32 +0000
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V3] selinux-testsuite: Add key_socket tests
-Date:   Fri, 15 Nov 2019 11:40:21 +0000
-Message-Id: <20191115114021.17253-1-richard_c_haines@btinternet.com>
+Subject: [PATCH V2] selinux-testsuite: Add kernel module tests
+Date:   Fri, 15 Nov 2019 11:44:29 +0000
+Message-Id: <20191115114429.18566-1-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -54,200 +54,260 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Test relevant key management socket permissions.
+Test kernel module loading permissions.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
-V2 Change: Rework error handling
-V3 Change: Remove rawip_socket allow rule as not required.
+V2 Change:
+Check permission denial module_load versus module_request by using a
+test kernel module for each.
+Note: Rawhide (with secnext kernel) adds built-in.a and built-in.a.cmd when
+building modules, therefore added to Makefile and .gitignore.
 
- defconfig                   |   4 ++
- policy/Makefile             |   4 ++
- policy/test_key_socket.te   |  70 ++++++++++++++++++
- tests/Makefile              |   4 ++
- tests/key_socket/.gitignore |   1 +
- tests/key_socket/Makefile   |   7 ++
- tests/key_socket/key_sock.c | 137 ++++++++++++++++++++++++++++++++++++
- tests/key_socket/test       |  45 ++++++++++++
- 8 files changed, 272 insertions(+)
- create mode 100644 policy/test_key_socket.te
- create mode 100644 tests/key_socket/.gitignore
- create mode 100644 tests/key_socket/Makefile
- create mode 100644 tests/key_socket/key_sock.c
- create mode 100755 tests/key_socket/test
+ policy/Makefile                           |   4 +
+ policy/test_module_load.te                | 118 +++++++++++++++++++++
+ tests/Makefile                            |   4 +
+ tests/module_load/.gitignore              |  11 ++
+ tests/module_load/Makefile                |  12 +++
+ tests/module_load/finit_load.c            |  94 +++++++++++++++++
+ tests/module_load/init_load.c             | 121 ++++++++++++++++++++++
+ tests/module_load/setest_module_load.c    |  18 ++++
+ tests/module_load/setest_module_request.c |  22 ++++
+ tests/module_load/test                    |  62 +++++++++++
+ 10 files changed, 466 insertions(+)
+ create mode 100644 policy/test_module_load.te
+ create mode 100644 tests/module_load/.gitignore
+ create mode 100644 tests/module_load/Makefile
+ create mode 100644 tests/module_load/finit_load.c
+ create mode 100644 tests/module_load/init_load.c
+ create mode 100644 tests/module_load/setest_module_load.c
+ create mode 100644 tests/module_load/setest_module_request.c
+ create mode 100755 tests/module_load/test
 
-diff --git a/defconfig b/defconfig
-index b13075d..0574f1d 100644
---- a/defconfig
-+++ b/defconfig
-@@ -74,3 +74,7 @@ CONFIG_BPF_SYSCALL=y
- CONFIG_KEYS=y
- CONFIG_KEYS_COMPAT=y
- CONFIG_KEY_DH_OPERATIONS=y
-+
-+# Test key management socket.
-+# This is not required for SELinux operation itself.
-+CONFIG_NET_KEY=m
 diff --git a/policy/Makefile b/policy/Makefile
-index ff65153..ad94c43 100644
+index ff65153..545f3b5 100644
 --- a/policy/Makefile
 +++ b/policy/Makefile
 @@ -90,6 +90,10 @@ ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.
  TARGETS+=test_notify.te
  endif
  
-+ifeq ($(shell grep -q key_socket $(POLDEV)/include/support/all_perms.spt && echo true),true)
-+TARGETS += test_key_socket.te
++ifeq ($(shell grep -q module_load $(POLDEV)/include/support/all_perms.spt && echo true),true)
++TARGETS+=test_module_load.te
 +endif
 +
  ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
  TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $(TARGETS))
  endif
-diff --git a/policy/test_key_socket.te b/policy/test_key_socket.te
+diff --git a/policy/test_module_load.te b/policy/test_module_load.te
 new file mode 100644
-index 0000000..cde426b
+index 0000000..566ddf7
 --- /dev/null
-+++ b/policy/test_key_socket.te
-@@ -0,0 +1,70 @@
++++ b/policy/test_module_load.te
+@@ -0,0 +1,118 @@
 +#
-+############## Test key management socket 'key_socket' #####################
++############################## Define Macro ################################
 +#
-+attribute keysockdomain;
-+
-+type test_key_sock_t;
-+domain_type(test_key_sock_t)
-+unconfined_runs_test(test_key_sock_t)
-+typeattribute test_key_sock_t testdomain;
-+typeattribute test_key_sock_t keysockdomain;
-+
-+# key_socket rules:
-+allow test_key_sock_t self:capability { net_admin };
-+allow test_key_sock_t self:key_socket { create write read setopt };
-+# For CONFIG_NET_KEY=m
-+allow test_key_sock_t kernel_t:system { module_request };
-+
-+################## Deny capability { net_admin } ##########################
++# Replace domain_type() macro as it hides some relevant denials in audit.log
 +#
-+# Note that when capability { net_admin } is removed for the test
-+# there will not be an audit message in the log as the Fedora policy
-+# is built with 'hide_broken_symptoms' that adds the following:
-+#   dontaudit test_key_sock_no_net_admin_t self:capability { net_admin sys_module };
++gen_require(`
++	type setrans_var_run_t, syslogd_t;
++')
++
++define(`module_domain_type',`
++	allow $1 proc_t:dir { search };
++	allow $1 proc_t:lnk_file { read };
++	allow $1 self:dir { search };
++	allow $1 self:file { open read write };
++	dontaudit init_t syslogd_t:fd use;
++	dontaudit $1 security_t:filesystem getattr;
++	dontaudit $1 self:file getattr;
++	dontaudit $1 setrans_var_run_t:dir search;
++	dontaudit unconfined_t $1:process { noatsecure rlimitinh siginh };
++')
++
 +#
-+type test_key_sock_no_net_admin_t;
-+domain_type(test_key_sock_no_net_admin_t)
-+unconfined_runs_test(test_key_sock_no_net_admin_t)
-+typeattribute test_key_sock_no_net_admin_t testdomain;
-+typeattribute test_key_sock_no_net_admin_t keysockdomain;
++############# Test kernel modules with finitmod_module(2) ###################
++#
++attribute finitmoddomain;
 +
-+allow test_key_sock_no_net_admin_t self:key_socket { create write read setopt };
-+allow test_key_sock_no_net_admin_t kernel_t:system { module_request };
++type test_finitmod_t;
++module_domain_type(test_finitmod_t)
++unconfined_runs_test(test_finitmod_t)
++typeattribute test_finitmod_t testdomain;
++typeattribute test_finitmod_t finitmoddomain;
 +
-+####################### Deny key_socket { create } ##########################
-+type test_key_sock_no_create_t;
-+domain_type(test_key_sock_no_create_t)
-+unconfined_runs_test(test_key_sock_no_create_t)
-+typeattribute test_key_sock_no_create_t testdomain;
-+typeattribute test_key_sock_no_create_t keysockdomain;
++allow test_finitmod_t self:capability { sys_module };
++allow test_finitmod_t test_file_t:system { module_load };
++allow test_finitmod_t kernel_t:system { module_request };
 +
-+allow test_key_sock_no_create_t self:capability { net_admin };
-+allow test_key_sock_no_create_t self:key_socket { write read setopt };
++############### Deny cap sys_module ######################
++type test_finitmod_deny_sys_module_t;
++module_domain_type(test_finitmod_deny_sys_module_t)
++unconfined_runs_test(test_finitmod_deny_sys_module_t)
++typeattribute test_finitmod_deny_sys_module_t testdomain;
++typeattribute test_finitmod_deny_sys_module_t finitmoddomain;
 +
-+####################### Deny key_socket { write } ##########################
-+type test_key_sock_no_write_t;
-+domain_type(test_key_sock_no_write_t)
-+unconfined_runs_test(test_key_sock_no_write_t)
-+typeattribute test_key_sock_no_write_t testdomain;
-+typeattribute test_key_sock_no_write_t keysockdomain;
++neverallow test_finitmod_deny_sys_module_t self:capability { sys_module };
 +
-+allow test_key_sock_no_write_t self:capability { net_admin };
-+allow test_key_sock_no_write_t self:key_socket { create read setopt };
-+allow test_key_sock_no_write_t kernel_t:system { module_request };
++############### Deny sys module_load ######################
++type test_finitmod_deny_module_load_t;
++module_domain_type(test_finitmod_deny_module_load_t)
++unconfined_runs_test(test_finitmod_deny_module_load_t)
++typeattribute test_finitmod_deny_module_load_t testdomain;
++typeattribute test_finitmod_deny_module_load_t finitmoddomain;
 +
-+####################### Deny key_socket { read } ##########################
-+type test_key_sock_no_read_t;
-+domain_type(test_key_sock_no_read_t)
-+unconfined_runs_test(test_key_sock_no_read_t)
-+typeattribute test_key_sock_no_read_t testdomain;
-+typeattribute test_key_sock_no_read_t keysockdomain;
++allow test_finitmod_deny_module_load_t self:capability { sys_module };
++neverallow test_finitmod_deny_module_load_t test_file_t:system { module_load };
 +
-+allow test_key_sock_no_read_t self:capability { net_admin };
-+allow test_key_sock_no_read_t self:key_socket { create write setopt };
-+allow test_key_sock_no_read_t kernel_t:system { module_request };
++############### Deny sys module_request ######################
++type test_finitmod_deny_module_request_t;
++module_domain_type(test_finitmod_deny_module_request_t)
++unconfined_runs_test(test_finitmod_deny_module_request_t)
++typeattribute test_finitmod_deny_module_request_t testdomain;
++typeattribute test_finitmod_deny_module_request_t finitmoddomain;
++
++allow test_finitmod_deny_module_request_t self:capability { sys_module };
++allow test_finitmod_deny_module_request_t test_file_t:system { module_load };
++neverallow test_finitmod_deny_module_request_t kernel_t:system { module_request };
++
++#
++############# Test kernel modules with initmod_module(2) ###################
++#
++attribute initmoddomain;
++
++type test_initmod_t;
++module_domain_type(test_initmod_t)
++unconfined_runs_test(test_initmod_t)
++typeattribute test_initmod_t testdomain;
++typeattribute test_initmod_t initmoddomain;
++
++allow test_initmod_t self:capability { sys_module };
++allow test_initmod_t self:system { module_load };
++allow test_initmod_t kernel_t:system { module_request };
++
++############### Deny cap sys_module ######################
++type test_initmod_deny_sys_module_t;
++module_domain_type(test_initmod_deny_sys_module_t)
++unconfined_runs_test(test_initmod_deny_sys_module_t)
++typeattribute test_initmod_deny_sys_module_t testdomain;
++typeattribute test_initmod_deny_sys_module_t initmoddomain;
++
++neverallow test_initmod_deny_sys_module_t self:capability { sys_module };
++
++############### Deny sys module_load ######################
++type test_initmod_deny_module_load_t;
++module_domain_type(test_initmod_deny_module_load_t)
++unconfined_runs_test(test_initmod_deny_module_load_t)
++typeattribute test_initmod_deny_module_load_t testdomain;
++typeattribute test_initmod_deny_module_load_t initmoddomain;
++
++allow test_initmod_deny_module_load_t self:capability { sys_module };
++neverallow test_initmod_deny_module_load_t self:system { module_load };
++
++############### Deny sys module_request ######################
++type test_initmod_deny_module_request_t;
++module_domain_type(test_initmod_deny_module_request_t)
++unconfined_runs_test(test_initmod_deny_module_request_t)
++typeattribute test_initmod_deny_module_request_t testdomain;
++typeattribute test_initmod_deny_module_request_t initmoddomain;
++
++allow test_initmod_deny_module_request_t self:capability { sys_module };
++allow test_initmod_deny_module_request_t self:system { module_load };
++neverallow test_initmod_deny_module_request_t kernel_t:system { module_request };
 +
 +#
 +########### Allow these domains to be entered from sysadm domain ############
 +#
-+miscfiles_domain_entry_test_files(keysockdomain)
-+userdom_sysadm_entry_spec_domtrans_to(keysockdomain)
++miscfiles_domain_entry_test_files(finitmoddomain)
++userdom_sysadm_entry_spec_domtrans_to(finitmoddomain)
++miscfiles_domain_entry_test_files(initmoddomain)
++userdom_sysadm_entry_spec_domtrans_to(initmoddomain)
 diff --git a/tests/Makefile b/tests/Makefile
-index 0021590..cca6648 100644
+index 0021590..4731d8c 100644
 --- a/tests/Makefile
 +++ b/tests/Makefile
-@@ -52,6 +52,10 @@ ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && e
- SUBDIRS += keys
+@@ -68,6 +68,10 @@ ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.
+ SUBDIRS+=notify
  endif
  
-+ifeq ($(shell grep -q key_socket $(POLDEV)/include/support/all_perms.spt && test -e $(INCLUDEDIR)/keyutils.h && echo true),true)
-+SUBDIRS += key_socket
++ifeq ($(shell grep -q module_load $(POLDEV)/include/support/all_perms.spt && echo true),true)
++SUBDIRS+=module_load
 +endif
 +
- ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=" infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
- SUBDIRS += infiniband_endport
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
  endif
-diff --git a/tests/key_socket/.gitignore b/tests/key_socket/.gitignore
+diff --git a/tests/module_load/.gitignore b/tests/module_load/.gitignore
 new file mode 100644
-index 0000000..1a532c0
+index 0000000..7fa5772
 --- /dev/null
-+++ b/tests/key_socket/.gitignore
-@@ -0,0 +1 @@
-+key_sock
-diff --git a/tests/key_socket/Makefile b/tests/key_socket/Makefile
++++ b/tests/module_load/.gitignore
+@@ -0,0 +1,11 @@
++finit_load
++init_load
++modules.order
++Module.symvers
++*.a
++*.o
++*.ko
++*.cmd
++*.mod
++*.mod.c
++.*.cmd
+diff --git a/tests/module_load/Makefile b/tests/module_load/Makefile
 new file mode 100644
-index 0000000..e5e6a58
+index 0000000..c561685
 --- /dev/null
-+++ b/tests/key_socket/Makefile
-@@ -0,0 +1,7 @@
-+TARGETS = key_sock
++++ b/tests/module_load/Makefile
+@@ -0,0 +1,12 @@
++obj-m = setest_module_load.o setest_module_request.o
++
++TARGETS = finit_load init_load
 +LDLIBS += -lselinux
++KDIR = /usr/src/kernels/$(shell uname -r)
 +
 +all: $(TARGETS)
++	$(MAKE) -C $(KDIR) M=$(PWD)
 +
 +clean:
 +	rm -f $(TARGETS)
-diff --git a/tests/key_socket/key_sock.c b/tests/key_socket/key_sock.c
++	rm -f *.a *.o *.ko *.cmd *.mod *.mod.c .*.cmd Module.symvers modules.order
+diff --git a/tests/module_load/finit_load.c b/tests/module_load/finit_load.c
 new file mode 100644
-index 0000000..29beb0e
+index 0000000..029c698
 --- /dev/null
-+++ b/tests/key_socket/key_sock.c
-@@ -0,0 +1,137 @@
++++ b/tests/module_load/finit_load.c
+@@ -0,0 +1,94 @@
++#define _GNU_SOURCE 1
++
 +#include <stdio.h>
++#include <unistd.h>
 +#include <stdlib.h>
 +#include <string.h>
-+#include <stdint.h>
-+#include <unistd.h>
 +#include <errno.h>
 +#include <stdbool.h>
-+#include <sys/socket.h>
-+#include <linux/pfkeyv2.h>
++#include <fcntl.h>
++#include <limits.h>
++#include <sys/syscall.h>
 +#include <selinux/selinux.h>
 +
-+static void print_usage(char *progname)
++static void print_usage(char *progfile_name)
 +{
 +	fprintf(stderr,
-+		"usage:  %s [-v]\n"
++		"usage:  %s [-v] path name\n"
 +		"Where:\n\t"
-+		"-v  Print information.\n", progname);
++		"-v    Print information.\n\t"
++		"path  Kernel module build path.\n\t"
++		"name  Name of kernel module to load.\n", progfile_name);
 +	exit(-1);
 +}
 +
 +int main(int argc, char *argv[])
 +{
-+	char *context;
-+	int opt, sock, result;
++	char *context, file_name[PATH_MAX];
++	int opt, result, fd;
 +	bool verbose = false;
-+	struct timeval tm;
-+	struct sadb_msg w_msg, r_msg;
-+	int mlen = sizeof(struct sadb_msg);
 +
 +	while ((opt = getopt(argc, argv, "v")) != -1) {
 +		switch (opt) {
@@ -259,9 +319,27 @@ index 0000000..29beb0e
 +		}
 +	}
 +
++	if (optind >= argc)
++		print_usage(argv[0]);
++
++	result = sprintf(file_name, "%s/%s.ko", argv[optind],
++			 argv[optind + 1]);
++	if (result < 0) {
++		fprintf(stderr, "Failed sprintf\n");
++		exit(-1);
++	}
++
++	fd = open(file_name, O_RDONLY);
++	if (!fd) {
++		fprintf(stderr, "Failed to open %s: %s\n",
++			file_name, strerror(errno));
++		exit(-1);
++	}
++
 +	result = getcon(&context);
 +	if (result < 0) {
 +		fprintf(stderr, "Failed to obtain process context\n");
++		close(fd);
 +		exit(-1);
 +	}
 +
@@ -270,99 +348,216 @@ index 0000000..29beb0e
 +
 +	free(context);
 +
-+	sock = socket(PF_KEY, SOCK_RAW, PF_KEY_V2);
-+	if (sock < 0) {
-+		fprintf(stderr, "Failed to open key management socket: %s\n",
-+			strerror(errno));
-+		/* Return errno as denying net_admin=EPERM, create=EACCES */
++	result = syscall(__NR_finit_module, fd, "", 0);
++	if (result < 0) {
++		fprintf(stderr, "Failed to load '%s' module: %s\n",
++			file_name, strerror(errno));
++		close(fd);
++		/* Denying: sys_module=EPERM, module_load=EACCES */
 +		exit(errno);
 +	}
++	close(fd);
 +
 +	if (verbose)
-+		printf("Opened key management socket\n");
++		printf("Loaded kernel module:  %s\n", file_name);
 +
-+	/* Set socket timeout for read in case no response from kernel */
-+	tm.tv_sec = 3;
-+	tm.tv_usec = 0;
-+	result = setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tm, sizeof(tm));
++	result = syscall(__NR_delete_module, argv[optind + 1], 0);
 +	if (result < 0) {
-+		fprintf(stderr, "Failed setsockopt SO_RCVTIMEO: %s\n",
-+			strerror(errno));
-+		close(sock);
++		fprintf(stderr, "Failed to delete '%s' module: %s\n",
++			argv[optind + 1], strerror(errno));
 +		exit(-1);
 +	}
 +
 +	if (verbose)
-+		printf("setsocketopt: SO_RCVTIMEO - %ld seconds\n", tm.tv_sec);
++		printf("Deleted kernel module: %s\n", argv[optind + 1]);
 +
-+	memset(&w_msg, 0, mlen);
-+	w_msg.sadb_msg_version = PF_KEY_V2;
-+	w_msg.sadb_msg_type = SADB_FLUSH;
-+	w_msg.sadb_msg_satype = SADB_SATYPE_AH;
-+	/* sadb_msg_len contains length in 64-bit words */
-+	w_msg.sadb_msg_len = (mlen / sizeof(uint64_t));
-+	w_msg.sadb_msg_seq = 99;
-+	w_msg.sadb_msg_pid = getpid();
-+
-+	result = write(sock, &w_msg, mlen);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed write to key management socket: %s\n",
-+			strerror(errno));
-+		close(sock);
-+		exit(errno); /* Return errno to test if EACCES */
-+	}
-+
-+	if (verbose) {
-+		printf("Write sadb_msg data to key management socket:\n");
-+		printf("\tver: PF_KEY_V2 type: SADB_FLUSH sa_type: SADB_SATYPE_AH\n");
-+		printf("\tseq: %d pid: %d\n", w_msg.sadb_msg_seq,
-+		       w_msg.sadb_msg_pid);
-+	}
-+
-+	memset(&r_msg, 0, mlen);
-+
-+	result = read(sock, &r_msg, mlen);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to read key management socket: %s\n",
-+			strerror(errno));
-+		close(sock);
-+		exit(errno); /* Return errno to test if EACCES */
-+	}
-+
-+	if (r_msg.sadb_msg_version != w_msg.sadb_msg_version ||
-+	    r_msg.sadb_msg_type != w_msg.sadb_msg_type ||
-+	    r_msg.sadb_msg_satype != w_msg.sadb_msg_satype ||
-+	    r_msg.sadb_msg_seq != w_msg.sadb_msg_seq ||
-+	    r_msg.sadb_msg_pid != getpid()) {
-+		fprintf(stderr, "Failed to read correct sadb_msg data:\n");
-+		fprintf(stderr, "\tSent - ver: %d type: %d sa_type: %d seq: %d pid: %d\n",
-+			w_msg.sadb_msg_version, w_msg.sadb_msg_type,
-+			w_msg.sadb_msg_satype, w_msg.sadb_msg_seq,
-+			w_msg.sadb_msg_pid);
-+		fprintf(stderr, "\tRecv - ver: %d type: %d sa_type: %d seq: %d pid: %d\n",
-+			r_msg.sadb_msg_version, r_msg.sadb_msg_type,
-+			r_msg.sadb_msg_satype, r_msg.sadb_msg_seq,
-+			r_msg.sadb_msg_pid);
-+		close(sock);
-+		exit(-1);
-+	}
-+
-+	if (verbose) {
-+		printf("Read sadb_msg data from key management socket:\n");
-+		printf("\tver: PF_KEY_V2 type: SADB_FLUSH sa_type: SADB_SATYPE_AH\n");
-+		printf("\tseq: %d pid: %d\n", r_msg.sadb_msg_seq,
-+		       r_msg.sadb_msg_pid);
-+	}
-+
-+	close(sock);
 +	return 0;
 +}
-diff --git a/tests/key_socket/test b/tests/key_socket/test
-new file mode 100755
-index 0000000..a13327f
+diff --git a/tests/module_load/init_load.c b/tests/module_load/init_load.c
+new file mode 100644
+index 0000000..5f9997b
 --- /dev/null
-+++ b/tests/key_socket/test
-@@ -0,0 +1,45 @@
++++ b/tests/module_load/init_load.c
+@@ -0,0 +1,121 @@
++#define _GNU_SOURCE 1
++
++#include <stdio.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <string.h>
++#include <errno.h>
++#include <stdbool.h>
++#include <fcntl.h>
++#include <limits.h>
++#include <sys/stat.h>
++#include <sys/syscall.h>
++#include <selinux/selinux.h>
++
++static void print_usage(char *progfile_name)
++{
++	fprintf(stderr,
++		"usage:  %s [-v] path name\n"
++		"Where:\n\t"
++		"-v    Print information.\n\t"
++		"path  Kernel module build path.\n\t"
++		"name  Name of kernel module to load.\n", progfile_name);
++	exit(-1);
++}
++
++int main(int argc, char *argv[])
++{
++	char *context, file_name[PATH_MAX];
++	int opt, result, fd;
++	bool verbose = false;
++	void *elf_image;
++	struct stat st;
++
++	while ((opt = getopt(argc, argv, "v")) != -1) {
++		switch (opt) {
++		case 'v':
++			verbose = true;
++			break;
++		default:
++			print_usage(argv[0]);
++		}
++	}
++
++	if (optind >= argc)
++		print_usage(argv[0]);
++
++	result = sprintf(file_name, "%s/%s.ko", argv[optind],
++			 argv[optind + 1]);
++	if (result < 0) {
++		fprintf(stderr, "Failed sprintf\n");
++		exit(-1);
++	}
++
++	fd = open(file_name, O_RDONLY);
++	if (!fd) {
++		fprintf(stderr, "Failed to open %s: %s\n",
++			file_name, strerror(errno));
++		exit(-1);
++	}
++
++	result = getcon(&context);
++	if (result < 0) {
++		fprintf(stderr, "Failed to obtain process context\n");
++		close(fd);
++		exit(-1);
++	}
++
++	if (verbose)
++		printf("Process context:\n\t%s\n", context);
++
++	free(context);
++
++	result = fstat(fd, &st);
++	if (result < 0) {
++		fprintf(stderr, "Failed fstat on %s: %s\n",
++			file_name, strerror(errno));
++		close(fd);
++		exit(-1);
++	}
++
++	elf_image = malloc(st.st_size);
++	if (!elf_image) {
++		fprintf(stderr, "Failed malloc on %s: %s\n",
++			file_name, strerror(errno));
++		close(fd);
++		exit(-1);
++	}
++
++	result = read(fd, elf_image, st.st_size);
++	if (result < 0) {
++		fprintf(stderr, "Failed read on %s: %s\n",
++			file_name, strerror(errno));
++		close(fd);
++		exit(-1);
++	}
++	close(fd);
++
++	result = syscall(__NR_init_module, elf_image, st.st_size, "");
++	if (result < 0) {
++		fprintf(stderr, "Failed to load '%s' module: %s\n",
++			file_name, strerror(errno));
++		/* Denying: sys_module=EPERM, module_load & request=EACCES */
++		exit(errno);
++	}
++	free(elf_image);
++
++	if (verbose)
++		printf("Loaded kernel module:  %s\n", file_name);
++
++	result = syscall(__NR_delete_module, argv[optind + 1], 0);
++	if (result < 0) {
++		fprintf(stderr, "Failed to delete '%s' module: %s\n",
++			argv[optind + 1], strerror(errno));
++		exit(-1);
++	}
++
++	if (verbose)
++		printf("Deleted kernel module: %s\n", argv[optind + 1]);
++
++	return 0;
++}
+diff --git a/tests/module_load/setest_module_load.c b/tests/module_load/setest_module_load.c
+new file mode 100644
+index 0000000..0be7a26
+--- /dev/null
++++ b/tests/module_load/setest_module_load.c
+@@ -0,0 +1,18 @@
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++
++static int __init setest_module_load_init(void)
++{
++	pr_info("INIT - setest_module_load\n");
++	return 0;
++}
++
++static void __exit setest_module_load_exit(void)
++{
++	pr_info("EXIT - setest_module_load\n");
++}
++
++module_init(setest_module_load_init);
++module_exit(setest_module_load_exit);
++MODULE_LICENSE("GPL");
+diff --git a/tests/module_load/setest_module_request.c b/tests/module_load/setest_module_request.c
+new file mode 100644
+index 0000000..f79d4ef
+--- /dev/null
++++ b/tests/module_load/setest_module_request.c
+@@ -0,0 +1,22 @@
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++
++static int __init setest_module_request_init(void)
++{
++	int result;
++
++	pr_info("INIT - setest_module_request\n");
++	result = request_module_nowait("dummy-module");
++	pr_info("request_module() returned: %d\n", result);
++	return result;
++}
++
++static void __exit setest_module_request_exit(void)
++{
++	pr_info("EXIT - setest_module_request\n");
++}
++
++module_init(setest_module_request_init);
++module_exit(setest_module_request_exit);
++MODULE_LICENSE("GPL");
+diff --git a/tests/module_load/test b/tests/module_load/test
+new file mode 100755
+index 0000000..c3242fc
+--- /dev/null
++++ b/tests/module_load/test
+@@ -0,0 +1,62 @@
 +#!/usr/bin/perl
 +use Test::More;
 +
@@ -381,30 +576,47 @@ index 0000000..a13327f
 +        $v = " ";
 +    }
 +
-+    plan tests => 5;
++    plan tests => 8;
 +}
 +
-+############ Test key_socket #############
-+print "Test key management key_socket\n";
-+$result = system "runcon -t test_key_sock_t $basedir/key_sock $v";
++print "Test finit_module(2)\n";
++$result = system
++"runcon -t test_finitmod_t $basedir/finit_load $v $basedir setest_module_request";
 +ok( $result eq 0 );
 +
-+# Deny capability { net_admin } - EPERM
-+$result =
-+  system "runcon -t test_key_sock_no_net_admin_t $basedir/key_sock $v 2>&1";
++# Deny capability { sys_module } - EPERM
++$result = system
++"runcon -t test_finitmod_deny_sys_module_t $basedir/finit_load $v $basedir setest_module_load 2>&1";
 +ok( $result >> 8 eq 1 );
 +
-+# Deny key_socket { create } - EACCES
-+$result =
-+  system "runcon -t test_key_sock_no_create_t $basedir/key_sock $v 2>&1";
++# Deny system { module_load } - EACCES
++$result = system
++"runcon -t test_finitmod_deny_module_load_t $basedir/finit_load $v $basedir setest_module_load 2>&1";
 +ok( $result >> 8 eq 13 );
 +
-+# Deny key_socket { write } - EACCES
-+$result = system "runcon -t test_key_sock_no_write_t $basedir/key_sock $v 2>&1";
++# Deny system { module_request } - EACCES
++$result = system
++"runcon -t test_finitmod_deny_module_request_t $basedir/finit_load $v $basedir setest_module_request 2>&1";
 +ok( $result >> 8 eq 13 );
 +
-+# Deny key_socket { read } - EACCES
-+$result = system "runcon -t test_key_sock_no_read_t $basedir/key_sock $v 2>&1";
++print "Test init_module(2)\n";
++$result = system
++"runcon -t test_initmod_t $basedir/init_load $v $basedir setest_module_request";
++ok( $result eq 0 );
++
++# Deny capability { sys_module } - EPERM
++$result = system
++"runcon -t test_initmod_deny_sys_module_t $basedir/init_load $v $basedir setest_module_load 2>&1";
++ok( $result >> 8 eq 1 );
++
++# Deny system { module_load } - EACCES
++$result = system
++"runcon -t test_initmod_deny_module_load_t $basedir/init_load $v $basedir setest_module_load 2>&1";
++ok( $result >> 8 eq 13 );
++
++# Deny system { module_request } - EACCES
++$result = system
++"runcon -t test_initmod_deny_module_request_t $basedir/init_load $v $basedir setest_module_request 2>&1";
 +ok( $result >> 8 eq 13 );
 +
 +exit;
