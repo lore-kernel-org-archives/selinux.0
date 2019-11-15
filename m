@@ -2,279 +2,242 @@ Return-Path: <SRS0=ealm=ZH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9071C432C3
-	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 13:13:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B159C432C3
+	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 14:51:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 965822073A
-	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 13:13:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 568AA2073C
+	for <selinux@archiver.kernel.org>; Fri, 15 Nov 2019 14:51:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="YeIktHRh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NkExEXp5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727329AbfKONNA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 Nov 2019 08:13:00 -0500
-Received: from USFB19PA34.eemsg.mail.mil ([214.24.26.197]:42582 "EHLO
-        USFB19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727223AbfKONNA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 Nov 2019 08:13:00 -0500
-X-EEMSG-check-017: 27072883|USFB19PA34_ESA_OUT04.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.68,308,1569283200"; 
-   d="scan'208";a="27072883"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Nov 2019 13:12:57 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1573823578; x=1605359578;
-  h=subject:from:to:references:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=DTODfvcEzBcQ70bjTVmGA8Z2PDuHLx3pIbMx9mNapg8=;
-  b=YeIktHRhhT3YDp+I4GJnYKf/t4Q5NH3l+ntZ9I7lWUd89LpqrzJENhny
-   NASjCYuHwT8lqGMwAejyYQLkvet8ECYv9Oroe54kDYehhDYSZxe1Ox5MV
-   lFY/pdYUBiJcywp5bGSYhdG1PCNmF9Y8QolHac+1r156FXqGsKec590Wl
-   m7H720dZJyeOmWKT3XIAQWJwwBi+HBIymenD15qNnfCCxmzhlH2LI9NKB
-   c5mIzTKkVfhUOc8UTyzsmvzy2dio8wFQUW9qXZ7wmM1QgzK8d8kmnyZWN
-   xjw+OjDDvFlAJgtmHOE8PwMrm6A6CFj2F9eDowK4Zb9a1XWATQZYJhpr5
-   g==;
-X-IronPort-AV: E=Sophos;i="5.68,308,1569283200"; 
-   d="scan'208";a="30146795"
-IronPort-PHdr: =?us-ascii?q?9a23=3AfsAX/BFX7kdBV6RcGL5+tJ1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7zrsWwAkXT6L1XgUPTWs2DsrQY0rGQ6vu9EjBfqb+681k6OKRWUB?=
- =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
- =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba58IRmssAncuMkbjYRtJ6sz1x?=
- =?us-ascii?q?DEvmZGd+NKyG1yOFmdhQz85sC+/J5i9yRfpfcs/NNeXKv5Yqo1U6VWACwpPG?=
- =?us-ascii?q?4p6sLrswLDTRaU6XsHTmoWiBtIDBPb4xz8Q5z8rzH1tut52CmdIM32UbU5Ui?=
- =?us-ascii?q?ms4qt3VBPljjoMOiUn+2/LlMN/kKNboAqgpxNhxY7UfJqVP+d6cq/EYN8WWX?=
- =?us-ascii?q?ZNUsNXWiNPGIO8a5YEAfQHM+hWsoLxo0ICoBW6CAWpAu7k1z1GiWLs3aAizu?=
- =?us-ascii?q?ovER/I3AIjEdwAvnvbo9f6O7sdX+2u0KnFzi/OY+9K1Trz6oXFdA0qr/GWXb?=
- =?us-ascii?q?J3dMrc0VQhFx/bgVWIqYzqITWV3fkQvWie9eVgUeavhHAnqgpspTWv3dojip?=
- =?us-ascii?q?LSi4IJylHL6SV5wIEvKd2+U050e8SoEJRXtyGELoZ7RN4pTWJwuCsi17ELtp?=
- =?us-ascii?q?G2cDIKxZg63RLTdfOKf5aS7h7+UuuaPC12i2h/eL2lgha/6U2gyurhWcaqyF?=
- =?us-ascii?q?tKtS9FksXUtnAKyhzT9tCLSvtj8Uel3jaCzxzT5fteIUA1iKrbMIQtwqIwl5?=
- =?us-ascii?q?UPsUTDGTX6mEPqg6+Nakoo4O2o6+XjYrn+p5+cMZF7ih3mP6gzlcGyDv40Pw?=
- =?us-ascii?q?gTU2SB5+ix26Pv8VfkTLlSi/05iKjZsJTUJcQBoa65BhdY0p0+5BakFDqmzN?=
- =?us-ascii?q?QZkmUHLFJCYh6HiZPpNEvULPD3Cve/nUygkC13yPDeIr3hHpLNI2DAkLfme7?=
- =?us-ascii?q?Z95FVTxxAyzd9D55JUF6sOIPToV0/xqdzXFBE4PBK1w+r9FNp90YYeU3qVAq?=
- =?us-ascii?q?CFKKPSrUOI5uU3LumXeoAVvDf9K/445//hlnI5h1Adcrez3ZcNa3C3AO5mI0?=
- =?us-ascii?q?OHbnromNsBFn0KvgVtBNDt3XeLUDVTen+0F4E74D5zXIGhC4jJT4GmgKGI2g?=
- =?us-ascii?q?+7A5RJa2EAAVeJRzOgbIiAWvEReAqMLcJ71D8JT76sT8kmzx79mhX9zu9cMu?=
- =?us-ascii?q?fM+iAe/anm3dxx6vybwQo+7hRoHs+d1CeLVGgykWQWEWxllJtjqFBwnw/QmZ?=
- =?us-ascii?q?NzhOZVQJkKvKJE?=
-X-IPAS-Result: =?us-ascii?q?A2CwAAC+o85d/wHyM5BkGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF+gXQsgUEyKoQpjwlRAQEBBoE2iWaRQwkBAQEBAQEBAQE0AQIBA?=
- =?us-ascii?q?YRAAoIjJDgTAg4BAQEEAQEBAQEFAwEBbIVDgjspAYJtAQUjBAsBBVEJAhgCA?=
- =?us-ascii?q?iYCAlcGAQwGAgEBgl8/glMlk3abc38ziQ2BSIEOKIwVGHiBB4E4gj0uPodVg?=
- =?us-ascii?q?l4EjSSIU4EnlweCNII3kxAGG5oOjkicGSKBWCsIAhgIIQ+DJ1ARFJEjAxeOQ?=
- =?us-ascii?q?SMDMIEFAQGQXwEB?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 15 Nov 2019 13:12:56 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xAFDCuf6004013;
-        Fri, 15 Nov 2019 08:12:56 -0500
-Subject: Re: [PATCH] restorecond: Fix redundant console log output error
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Baichuan Kong <kongbaichuan@huawei.com>, selinux@vger.kernel.org
-References: <20191114024807.2371-1-kongbaichuan@huawei.com>
- <8a0e3293-db20-e0b0-603a-40fb3c6c4e04@tycho.nsa.gov>
-Message-ID: <6eacd855-d59a-bfe7-2b80-2d5267d3b512@tycho.nsa.gov>
-Date:   Fri, 15 Nov 2019 08:12:56 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.0
+        id S1727612AbfKOOvK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 Nov 2019 09:51:10 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:41047 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727561AbfKOOvK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 Nov 2019 09:51:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573829469;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=tWGZlZ/TMnVLnOB99qYt76ANzAov/W2PfLYNFn2AD7c=;
+        b=NkExEXp561SXtOONrHtGdUv4y3fOErJXYlcp+TS6UZOLI2uKP3rGVYl07+sZQaFrBaIxE6
+        k/XFyS2Bb18DpMMh5BpxyQatSY/uvTTRlOOzJ/r+FDgdy3vuNMqpNI/i8H2+I3CbBCfBK3
+        d8y1esbb1J/L0pmgDLvF6H2ztOUCuBo=
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
+ [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-379-jXyOEuB5N62Ahztj7T9UUA-1; Fri, 15 Nov 2019 09:50:57 -0500
+Received: by mail-oi1-f197.google.com with SMTP id r206so5077926oih.6
+        for <selinux@vger.kernel.org>; Fri, 15 Nov 2019 06:50:57 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ZuEfVqdjpO5uHXjyqdTIsfI3JsI4KSvsw1ieKeAi0HA=;
+        b=I1bxgvkCejZpvuhaLYy12LBzkTk2Kz7wggoZHXv7HVWy0Qvpztcj1X4/RKFZwOq8WS
+         /8AW4bR1oZvamAbq+YJbovID+ElXscvVhcanycBKlkCUvTGQOI0cgIz2HzaYkdIXDAAy
+         hP6N6Qz+NYw2v6pJvg604XGWMXxIr+thqqwDkY2aSiD1doU/zQ0WUuMaX6KLVlE8zhSg
+         F+exknTqxS6grr60NeezzrwdCQvaLEGeC3reA2Ixu+80VMSCJ09rGBiqH9qFfP/Iig2v
+         qTeL9k7+vs9qNexy+Aai1PibDkPjPR9vkuqlrPE+nPVKswocWCY50fidjo900FzQoERG
+         RzQQ==
+X-Gm-Message-State: APjAAAXI2ayfGa5yXHFbLnrUgh/NQXqtkYxHmyuvuBpzvwssghHic8A4
+        P3RfDeY3GRD9/as54KTnnOUlLoyG9Sl9ysNxe6NiL2/padlnKP6UlKnkXdsKHi4Yy+zpqNOLNLK
+        wRET+6gvtJp2grgjlMkqwBQ4D0orergPxRA==
+X-Received: by 2002:a9d:313:: with SMTP id 19mr11934159otv.197.1573829456394;
+        Fri, 15 Nov 2019 06:50:56 -0800 (PST)
+X-Google-Smtp-Source: APXvYqwCtJP5eaEf80ezya450FnIth03LsIbTqtjsVlloZZcLd792F6CkGP9HSXmFamOJv53eqNEYx39EptMqlDOKNk=
+X-Received: by 2002:a9d:313:: with SMTP id 19mr11934121otv.197.1573829455868;
+ Fri, 15 Nov 2019 06:50:55 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <8a0e3293-db20-e0b0-603a-40fb3c6c4e04@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20191111154004.1790-1-omosnace@redhat.com> <CAHC9VhSqmHJqxK3xm9Jo+iu7eJao=L6CLpp4UQEGbUGM8puudw@mail.gmail.com>
+In-Reply-To: <CAHC9VhSqmHJqxK3xm9Jo+iu7eJao=L6CLpp4UQEGbUGM8puudw@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 15 Nov 2019 15:50:44 +0100
+Message-ID: <CAFqZXNvKD16h_T+w8OhAsxJTdr_gLv8B0=LjSmKGKkOLjam3DQ@mail.gmail.com>
+Subject: Re: [PATCH v4] selinux: cache the SID -> context string translation
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>, rcu@vger.kernel.org,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Michal Sekletar <msekleta@redhat.com>
+X-MC-Unique: jXyOEuB5N62Ahztj7T9UUA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/14/19 10:18 AM, Stephen Smalley wrote:
-> On 11/13/19 9:48 PM, Baichuan Kong wrote:
->> When starting restorecond without any option the following redundant
->> console log is outputed:
->>
->> /dev/log 100.0%
->> /var/volatile/run/syslogd.pid 100.0%
->> ...
->>
->> This is caused by two global variables of same name r_opts. When
->> executes r_opts = opts in restore_init(), it originally intends
->> to assign the address of struct r_opts in "restorecond.c" to the
->> pointer *r_opts in "restore.c".
->>
->> However, the address is assigned to the struct r_opts and covers
->> the value of low eight bytes in it. That causes unexpected value
->> of member varibale 'nochange' and 'verbose' in struct r_opts, thus
->> affects value of 'restorecon_flags' and executes unexpected operations
->> when restorecon the files such as the redundant console log output or
->> file label nochange.
->>
->> Cause restorecond/restore.c is copied from policycoreutils/setfiles,
->> which share the same pattern. It also has potential risk to generate
->> same problems, So fix it in case.
->>
->> Signed-off-by: Baichuan Kong <kongbaichuan@huawei.com>
-> 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+On Fri, Nov 15, 2019 at 1:42 AM Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, Nov 11, 2019 at 10:40 AM Ondrej Mosnacek <omosnace@redhat.com> wr=
+ote:
+> > Translating a context struct to string can be quite slow, especially if
+> > the context has a lot of category bits set. This can cause quite
+> > noticeable performance impact in situations where the translation needs
+> > to be done repeatedly. A common example is a UNIX datagram socket with
+> > the SO_PASSSEC option enabled, which is used e.g. by systemd-journald
+> > when receiving log messages via datagram socket. This scenario can be
+> > reproduced with:
+> >
+> >     cat /dev/urandom | base64 | logger &
+> >     timeout 30s perf record -p $(pidof systemd-journald) -a -g
+> >     kill %1
+> >     perf report -g none --pretty raw | grep security_secid_to_secctx
+> >
+> > Before the caching introduced by this patch, computing the context
+> > string (security_secid_to_secctx() function) takes up ~65% of
+> > systemd-journald's CPU time (assuming a context with 1024 categories
+> > set and Fedora x86_64 release kernel configs). After this patch
+> > (assuming near-perfect cache hit ratio) this overhead is reduced to jus=
+t
+> > ~2%.
+> >
+> > This patch addresses the issue by caching a certain number (compile-tim=
+e
+> > configurable) of recently used context strings to speed up repeated
+> > translations of the same context, while using only a small amount of
+> > memory.
+> >
+> > The cache is integrated into the existing sidtab table by adding a fiel=
+d
+> > to each entry, which when not NULL contains an RCU-protected pointer to
+> > a cache entry containing the cached string. The cache entries are kept
+> > in a linked list sorted according to how recently they were used. On a
+> > cache miss when the cache is full, the least recently used entry is
+> > removed to make space for the new entry.
+> >
+> > The patch migrates security_sid_to_context_core() to use the cache (als=
+o
+> > a few other functions where it was possible without too much fuss, but
+> > these mostly use the translation for logging in case of error, which is
+> > rare).
+> >
+> > Link: https://bugzilla.redhat.com/show_bug.cgi?id=3D1733259
+> > Cc: Michal Sekletar <msekleta@redhat.com>
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >
+> > Changes in v4:
+> >  - use rcu_dereference_protected() instead of rcu_dereference_raw() in
+> >    sidtab_sid2str_put()
+> >  - fix typo in comment
+> >  - remove unnecessary rcu_head_init() call
+> >
+> > Changes in v3:
+> >  - add rcu@vger.kernel.org and Paul McKenney to Cc for review of the RC=
+U
+> >    logic
+> >  - add __rcu annotation to the cache entry pointer (sidtab.c now passes
+> >    sparse checks with C=3D1)
+> >
+> > Changes in v2:
+> >  - skip sidtab_sid2str_put() when in non-task context to prevent
+> >    deadlock while avoiding the need to lock the spinlock with
+> >    irqsave/-restore (which is slower)
+> >
+> >  security/selinux/Kconfig       |  11 ++
+> >  security/selinux/ss/services.c | 138 +++++++++++++++----------
+> >  security/selinux/ss/sidtab.c   | 179 +++++++++++++++++++++++++++------
+> >  security/selinux/ss/sidtab.h   |  58 +++++++++--
+> >  4 files changed, 294 insertions(+), 92 deletions(-)
+>
+> ...
+>
+> > diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.=
+c
+> > index 7d49994e8d5f..6d6ce1c43b49 100644
+> > --- a/security/selinux/ss/sidtab.c
+> > +++ b/security/selinux/ss/sidtab.c
+> > @@ -492,3 +528,88 @@ void sidtab_destroy(struct sidtab *s)
+> >
+> >         sidtab_destroy_tree(s->roots[level], level);
+> >  }
+> > +
+> > +#if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+> > +
+> > +void sidtab_sid2str_put(struct sidtab *s, struct sidtab_entry *entry,
+> > +                       const char *str, u32 str_len)
+> > +{
+> > +       struct sidtab_str_cache *cache, *victim;
+> > +
+> > +       /* do not cache invalid contexts */
+> > +       if (entry->context.len)
+> > +               return;
+> > +
+> > +       /*
+> > +        * Skip the put operation when in non-task context to avoid the=
+ need
+> > +        * to disable interrupts while holding s->cache_lock.
+> > +        */
+> > +       if (!in_task())
+> > +               return;
+> > +
+> > +       spin_lock(&s->cache_lock);
+> > +
+> > +       cache =3D rcu_dereference_protected(entry->cache,
+> > +                                         lockdep_is_held(&s->cache_loc=
+k));
+> > +       if (cache) {
+> > +               /* entry in cache - just bump to the head of LRU list *=
+/
+> > +               list_move(&cache->lru_member, &s->cache_lru_list);
+> > +               goto out_unlock;
+> > +       }
+> > +
+> > +       cache =3D kmalloc(sizeof(struct sidtab_str_cache) + str_len, GF=
+P_ATOMIC);
+> > +       if (!cache)
+> > +               goto out_unlock;
+> > +
+> > +       if (s->cache_free_slots =3D=3D 0) {
+> > +               /* pop a cache entry from the tail and free it */
+> > +               victim =3D container_of(s->cache_lru_list.prev,
+> > +                                     struct sidtab_str_cache, lru_memb=
+er);
+> > +               list_del(&victim->lru_member);
+> > +               kfree_rcu(victim, rcu_member);
+>
+> We could move the kfree_rcu() down to after we drop the spinlock,
+> right?  It's likely not a big deal, but since the whole point of this
+> patch is performance improvements it seems like it might be nice. ;)
 
-Thanks, applied.
+I could be wrong, but I think kfree_rcu() just (always?) appends the
+object to the RCU list and defers the deallocation for later (and that
+should be pretty quick). But actually... since the kfree_rcu() is not
+called under RCU read lock here, I should at least move it below the
+next line, which still dereferences "victim". And at that point I
+could move it all the way after spin_unlock() as you suggest...
 
-> 
->> ---
->>   policycoreutils/setfiles/restore.c | 42 
->> +++++++++++++++++---------------------
->>   restorecond/restore.c              | 40 
->> ++++++++++++++++--------------------
->>   2 files changed, 37 insertions(+), 45 deletions(-)
->>
->> diff --git a/policycoreutils/setfiles/restore.c 
->> b/policycoreutils/setfiles/restore.c
->> index 9dea5656..d3335d1a 100644
->> --- a/policycoreutils/setfiles/restore.c
->> +++ b/policycoreutils/setfiles/restore.c
->> @@ -17,40 +17,37 @@
->>   char **exclude_list;
->>   int exclude_count;
->> -struct restore_opts *r_opts;
->> -
->>   void restore_init(struct restore_opts *opts)
->>   {
->>       int rc;
->> -    r_opts = opts;
->>       struct selinux_opt selinux_opts[] = {
->> -        { SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
->> -        { SELABEL_OPT_PATH, r_opts->selabel_opt_path },
->> -        { SELABEL_OPT_DIGEST, r_opts->selabel_opt_digest }
->> +        { SELABEL_OPT_VALIDATE, opts->selabel_opt_validate },
->> +        { SELABEL_OPT_PATH, opts->selabel_opt_path },
->> +        { SELABEL_OPT_DIGEST, opts->selabel_opt_digest }
->>       };
->> -    r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
->> -    if (!r_opts->hnd) {
->> -        perror(r_opts->selabel_opt_path);
->> +    opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
->> +    if (!opts->hnd) {
->> +        perror(opts->selabel_opt_path);
->>           exit(1);
->>       }
->> -    r_opts->restorecon_flags = 0;
->> -    r_opts->restorecon_flags = r_opts->nochange | r_opts->verbose |
->> -               r_opts->progress | r_opts->set_specctx  |
->> -               r_opts->add_assoc | r_opts->ignore_digest |
->> -               r_opts->recurse | r_opts->userealpath |
->> -               r_opts->xdev | r_opts->abort_on_error |
->> -               r_opts->syslog_changes | r_opts->log_matches |
->> -               r_opts->ignore_noent | r_opts->ignore_mounts |
->> -               r_opts->mass_relabel;
->> +    opts->restorecon_flags = 0;
->> +    opts->restorecon_flags = opts->nochange | opts->verbose |
->> +               opts->progress | opts->set_specctx  |
->> +               opts->add_assoc | opts->ignore_digest |
->> +               opts->recurse | opts->userealpath |
->> +               opts->xdev | opts->abort_on_error |
->> +               opts->syslog_changes | opts->log_matches |
->> +               opts->ignore_noent | opts->ignore_mounts |
->> +               opts->mass_relabel;
->>       /* Use setfiles, restorecon and restorecond own handles */
->> -    selinux_restorecon_set_sehandle(r_opts->hnd);
->> +    selinux_restorecon_set_sehandle(opts->hnd);
->> -    if (r_opts->rootpath) {
->> -        rc = selinux_restorecon_set_alt_rootpath(r_opts->rootpath);
->> +    if (opts->rootpath) {
->> +        rc = selinux_restorecon_set_alt_rootpath(opts->rootpath);
->>           if (rc) {
->>               fprintf(stderr,
->>                   "selinux_restorecon_set_alt_rootpath error: %s.\n",
->> @@ -81,7 +78,6 @@ int process_glob(char *name, struct restore_opts *opts)
->>       size_t i = 0;
->>       int len, rc, errors;
->> -    r_opts = opts;
->>       memset(&globbuf, 0, sizeof(globbuf));
->>       errors = glob(name, GLOB_TILDE | GLOB_PERIOD |
->> @@ -96,7 +92,7 @@ int process_glob(char *name, struct restore_opts *opts)
->>           if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0)
->>               continue;
->>           rc = selinux_restorecon(globbuf.gl_pathv[i],
->> -                    r_opts->restorecon_flags);
->> +                    opts->restorecon_flags);
->>           if (rc < 0)
->>               errors = rc;
->>       }
->> diff --git a/restorecond/restore.c b/restorecond/restore.c
->> index f6e30001..b93b5fdb 100644
->> --- a/restorecond/restore.c
->> +++ b/restorecond/restore.c
->> @@ -12,39 +12,36 @@
->>   char **exclude_list;
->>   int exclude_count;
->> -struct restore_opts *r_opts;
->> -
->>   void restore_init(struct restore_opts *opts)
->>   {
->>       int rc;
->> -    r_opts = opts;
->>       struct selinux_opt selinux_opts[] = {
->> -        { SELABEL_OPT_VALIDATE, r_opts->selabel_opt_validate },
->> -        { SELABEL_OPT_PATH, r_opts->selabel_opt_path },
->> -        { SELABEL_OPT_DIGEST, r_opts->selabel_opt_digest }
->> +        { SELABEL_OPT_VALIDATE, opts->selabel_opt_validate },
->> +        { SELABEL_OPT_PATH, opts->selabel_opt_path },
->> +        { SELABEL_OPT_DIGEST, opts->selabel_opt_digest }
->>       };
->> -    r_opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
->> -    if (!r_opts->hnd) {
->> -        perror(r_opts->selabel_opt_path);
->> +    opts->hnd = selabel_open(SELABEL_CTX_FILE, selinux_opts, 3);
->> +    if (!opts->hnd) {
->> +        perror(opts->selabel_opt_path);
->>           exit(1);
->>       }
->> -    r_opts->restorecon_flags = 0;
->> -    r_opts->restorecon_flags = r_opts->nochange | r_opts->verbose |
->> -               r_opts->progress | r_opts->set_specctx  |
->> -               r_opts->add_assoc | r_opts->ignore_digest |
->> -               r_opts->recurse | r_opts->userealpath |
->> -               r_opts->xdev | r_opts->abort_on_error |
->> -               r_opts->syslog_changes | r_opts->log_matches |
->> -               r_opts->ignore_noent | r_opts->ignore_mounts;
->> +    opts->restorecon_flags = 0;
->> +    opts->restorecon_flags = opts->nochange | opts->verbose |
->> +               opts->progress | opts->set_specctx  |
->> +               opts->add_assoc | opts->ignore_digest |
->> +               opts->recurse | opts->userealpath |
->> +               opts->xdev | opts->abort_on_error |
->> +               opts->syslog_changes | opts->log_matches |
->> +               opts->ignore_noent | opts->ignore_mounts;
->>       /* Use setfiles, restorecon and restorecond own handles */
->> -    selinux_restorecon_set_sehandle(r_opts->hnd);
->> +    selinux_restorecon_set_sehandle(opts->hnd);
->> -    if (r_opts->rootpath) {
->> -        rc = selinux_restorecon_set_alt_rootpath(r_opts->rootpath);
->> +    if (opts->rootpath) {
->> +        rc = selinux_restorecon_set_alt_rootpath(opts->rootpath);
->>           if (rc) {
->>               fprintf(stderr,
->>                   "selinux_restorecon_set_alt_rootpath error: %s.\n",
->> @@ -75,7 +72,6 @@ int process_glob(char *name, struct restore_opts *opts)
->>       size_t i = 0;
->>       int len, rc, errors;
->> -    r_opts = opts;
->>       memset(&globbuf, 0, sizeof(globbuf));
->>       errors = glob(name, GLOB_TILDE | GLOB_PERIOD |
->> @@ -90,7 +86,7 @@ int process_glob(char *name, struct restore_opts *opts)
->>           if (len > 0 && strcmp(&globbuf.gl_pathv[i][len], "/..") == 0)
->>               continue;
->>           rc = selinux_restorecon(globbuf.gl_pathv[i],
->> -                    r_opts->restorecon_flags);
->> +                    opts->restorecon_flags);
->>           if (rc < 0)
->>               errors = rc;
->>       }
->>
-> 
+>
+> > +               rcu_assign_pointer(victim->parent->cache, NULL);
+> > +       } else {
+> > +               s->cache_free_slots--;
+> > +       }
+> > +       cache->parent =3D entry;
+> > +       cache->len =3D str_len;
+> > +       memcpy(cache->str, str, str_len);
+> > +       list_add(&cache->lru_member, &s->cache_lru_list);
+> > +
+> > +       rcu_assign_pointer(entry->cache, cache);
+> > +
+> > +out_unlock:
+> > +       spin_unlock(&s->cache_lock);
+> > +}
+>
+> --
+> paul moore
+> www.paul-moore.com
+
+--=20
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
