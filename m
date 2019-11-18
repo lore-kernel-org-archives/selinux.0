@@ -2,123 +2,622 @@ Return-Path: <SRS0=s9so=ZK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFBEEC432C0
-	for <selinux@archiver.kernel.org>; Mon, 18 Nov 2019 16:15:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CCC5C432C0
+	for <selinux@archiver.kernel.org>; Mon, 18 Nov 2019 17:36:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A332621844
-	for <selinux@archiver.kernel.org>; Mon, 18 Nov 2019 16:15:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F5442063A
+	for <selinux@archiver.kernel.org>; Mon, 18 Nov 2019 17:36:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EdvbL4Zk"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="MVbSE+TS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727361AbfKRQPn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Nov 2019 11:15:43 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:59484 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726423AbfKRQPn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Nov 2019 11:15:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574093742;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=K/JBkIAUaLNyA1dTvSwh7KYASr3OU6X9Wwuk7QmZbF4=;
-        b=EdvbL4ZkD4b33Np8ecjfQf+bAVB5ItxRH1uGC9S2WSQ15Wm6cfmutJK7SZQezBfCDZ4Cpf
-        d/sL0k/SdQcllrIa0vLgQ2XqzUfWIv+kaS7TQqpIuGhpanaCsA7VDK4DEpGtNPLRCTbD1W
-        W5fmPdROHgoUFgp831VhJ6agMtSf3Wo=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-349-9lOfz_dNMLiyHxTc_WDovw-1; Mon, 18 Nov 2019 11:15:40 -0500
-Received: by mail-oi1-f197.google.com with SMTP id l67so8956204oih.4
-        for <selinux@vger.kernel.org>; Mon, 18 Nov 2019 08:15:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7tmwvUvqOR1DzWUNViZpQgRZ2jDXruON43u9SDwCyFA=;
-        b=s+HO0xEbohmaF9lCPmQBg1n5zLdi/CYFpc3Rqxh24jqHuPuvZByp680ItijjH92Ttg
-         KoB9mAPdKrOYYotUP4G8iIbGJQpx+wHxMd5fqCKysjJgmJXYAWzyPP2JYpT0YFETRNjf
-         z/LaXqxTQ87Vec6jTtSxFfiofksOXNNcepRXjUxHK+63BSPks1E46L5rh9FqNHzTxQ9A
-         SpziSY95kbY+1ppQ7zzL+blhz9LNjlAbSJ5TG0bFfnsR62GPEQC9XYLeyJICecxXWNDN
-         xKZeSiTSitZQY/qlFMkOf+YTLLweDWymeOUR0nh/N1dYWfNBlfLDnydcwl6bmb9ydBTv
-         dVzQ==
-X-Gm-Message-State: APjAAAXkA8KFEo+7cQmmWRweWC7GsQKgxWOegJRiH3A07Ji57Zpbjx+y
-        tHyTu7MI/VXpIMFHIC8OsMoCQUdxNMHqI5u+7yAD0jC/NVX85x0s63UUfgKvTmD32cpt0pbvCvR
-        4usUfKv2gbw30N8UToNwRJlVgK0GfbVyyCg==
-X-Received: by 2002:aca:da87:: with SMTP id r129mr14804707oig.26.1574093739520;
-        Mon, 18 Nov 2019 08:15:39 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxvOZZcPtFGQ7xxngCCXGsE+4++ch5EBsdz2Y+ka54PReENZ6+RYm0nSBDL+t5NB1jmW7v0FDmrAdpGMr2Iutk=
-X-Received: by 2002:aca:da87:: with SMTP id r129mr14804688oig.26.1574093739191;
- Mon, 18 Nov 2019 08:15:39 -0800 (PST)
+        id S1726465AbfKRRgK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Nov 2019 12:36:10 -0500
+Received: from mailomta27-sa.btinternet.com ([213.120.69.33]:60217 "EHLO
+        sa-prd-fep-046.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726423AbfKRRgK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Nov 2019 12:36:10 -0500
+Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
+          by sa-prd-fep-046.btinternet.com with ESMTP
+          id <20191118173605.XISO29440.sa-prd-fep-046.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
+          Mon, 18 Nov 2019 17:36:05 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1574098565; 
+        bh=ZjrJoaj0Zr5Msx2HWrncCS/DpSC8tCmDiJu5eBF5hEE=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=MVbSE+TSp+/DxfYV6qMM1Nl7/rIvDBCXR5t/TL8iv3vjmo/xzcM0ki0HLTbYZmFLWZcTrmt07hLF+Xe35SFXwRKwEJPRle30xGBiIMhoNSowQ3bfayjM0UwPGaj47g0UVBrgFp1eeIDN6kvtAx9nIBHgfbyqUrNSrCvZwiAae3lNpQhGCuZWUGtZk2n9csYkfS9A+1nfOgb153KFwULQYHdJVq5UUab7Pef05u1MwcAfnoRJFTZA9P/E8INTsxBAirbavQFgUOsEZkXQGggzgcm3UjgF3JOLsKoeFLmvOdKdP0A1zC3jWxaZEC7rZbZ1nSJlQCfIYm17cJfAQ16KrA==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.4.99]
+X-OWM-Source-IP: 86.134.4.99 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudegiedgkeduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekiedrudefgedrgedrleelnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdegrdelledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.4.99) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5D8681A10A804DAC; Mon, 18 Nov 2019 17:36:05 +0000
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH V3] selinux-testsuite: Add kernel module tests
+Date:   Mon, 18 Nov 2019 17:36:02 +0000
+Message-Id: <20191118173602.25506-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-References: <20191115114429.18566-1-richard_c_haines@btinternet.com>
- <CAFqZXNtm_X+YssnX_3_5ThkVZY+9SBeQC5Qo78s+geSsBok8=Q@mail.gmail.com> <068a7a76-02c8-a30f-18ec-2a692e3e157b@tycho.nsa.gov>
-In-Reply-To: <068a7a76-02c8-a30f-18ec-2a692e3e157b@tycho.nsa.gov>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 18 Nov 2019 17:15:30 +0100
-Message-ID: <CAFqZXNv=qQAzLMXfVPwef6_xdRFgohup1ueiv2+=jvsEDHmz4g@mail.gmail.com>
-Subject: Re: [PATCH V2] selinux-testsuite: Add kernel module tests
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Richard Haines <richard_c_haines@btinternet.com>,
-        SElinux list <selinux@vger.kernel.org>
-X-MC-Unique: 9lOfz_dNMLiyHxTc_WDovw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Nov 18, 2019 at 4:51 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 11/18/19 4:10 AM, Ondrej Mosnacek wrote:
-> > A couple comments below...
-> >
-> > On Fri, Nov 15, 2019 at 12:44 PM Richard Haines
-> > <richard_c_haines@btinternet.com> wrote:
-> <snip>
-> >> +########### Allow these domains to be entered from sysadm domain ####=
-########
-> >> +#
-> >> +miscfiles_domain_entry_test_files(finitmoddomain)
-> >> +userdom_sysadm_entry_spec_domtrans_to(finitmoddomain)
-> >> +miscfiles_domain_entry_test_files(initmoddomain)
-> >> +userdom_sysadm_entry_spec_domtrans_to(initmoddomain)
-> >
-> > It seems that the finitmoddomain and initmoddomain type sets are
-> > exactly the same except for names - can they be merged into just one
-> > set of types? The AVC denials should be still easily distinguishable
-> > by the comm=3D field if that's the intended purpose of the separation.
->
-> Do you just mean coalesce the type attributes together or coalesce the
-> individual types to which they refer?
+Test kernel module loading permissions.
 
-I meant the latter.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+V2 Change:
+Check permission denial module_load versus module_request by using a
+test kernel module for each.
+Note: Rawhide (with secnext kernel) adds built-in.a and built-in.a.cmd when
+building modules, therefore added to Makefile and .gitignore.
+V3 Changes:
+As requested in [1] except policy change, coalesced type attributes instead.
 
->
-> If the former, then the denials will still be distinguishable based on
-> individual types; the attribute names are only used in policy not
-> denials.  Coalescing the attributes makes sense to me too.
->
-> If the latter, the individual types differ in that test_finitmod_t is
-> only allowed module_load to a specific file type (test_file_t), i.e. it
-> can only load modules from files with that type via the finit_module(2),
-> whereas test_initmod_t is allowed module_load to self as the fallback
-> when using init_module(2) and hence can load a module content at all.
-> So coalescing those would detract from testing.
+[1] https://lore.kernel.org/selinux/CAFqZXNtm_X+YssnX_3_5ThkVZY+9SBeQC5Qo78s+geSsBok8=Q@mail.gmail.com/
 
-Ah, so there was a difference between them that I was missing :) In
-that case please disregard my comment.
+ policy/Makefile                           |   4 +
+ policy/test_module_load.te                | 110 +++++++++++++++++++
+ tests/Makefile                            |   4 +
+ tests/module_load/.gitignore              |  11 ++
+ tests/module_load/Makefile                |  12 +++
+ tests/module_load/finit_load.c            |  94 +++++++++++++++++
+ tests/module_load/init_load.c             | 123 ++++++++++++++++++++++
+ tests/module_load/setest_module_load.c    |  18 ++++
+ tests/module_load/setest_module_request.c |  22 ++++
+ tests/module_load/test                    |  62 +++++++++++
+ 10 files changed, 460 insertions(+)
+ create mode 100644 policy/test_module_load.te
+ create mode 100644 tests/module_load/.gitignore
+ create mode 100644 tests/module_load/Makefile
+ create mode 100644 tests/module_load/finit_load.c
+ create mode 100644 tests/module_load/init_load.c
+ create mode 100644 tests/module_load/setest_module_load.c
+ create mode 100644 tests/module_load/setest_module_request.c
+ create mode 100755 tests/module_load/test
 
-I don't have an opinion on whether to coalesce the attributes. It can
-stay as it is as far as I'm concerned.
-
---=20
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+diff --git a/policy/Makefile b/policy/Makefile
+index ad94c43..25dfb69 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -94,6 +94,10 @@ ifeq ($(shell grep -q key_socket $(POLDEV)/include/support/all_perms.spt && echo
+ TARGETS += test_key_socket.te
+ endif
+ 
++ifeq ($(shell grep -q module_load $(POLDEV)/include/support/all_perms.spt && echo true),true)
++TARGETS+=test_module_load.te
++endif
++
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $(TARGETS))
+ endif
+diff --git a/policy/test_module_load.te b/policy/test_module_load.te
+new file mode 100644
+index 0000000..9256ddd
+--- /dev/null
++++ b/policy/test_module_load.te
+@@ -0,0 +1,110 @@
++#
++############################## Define Macro ################################
++#
++# Replace domain_type() macro as it hides some relevant denials in audit.log
++#
++gen_require(`
++	type setrans_var_run_t, syslogd_t;
++')
++
++define(`module_domain_type',`
++	allow $1 proc_t:dir { search };
++	allow $1 proc_t:lnk_file { read };
++	allow $1 self:dir { search };
++	allow $1 self:file { open read write };
++	dontaudit init_t syslogd_t:fd use;
++	dontaudit $1 security_t:filesystem getattr;
++	dontaudit $1 self:file getattr;
++	dontaudit $1 setrans_var_run_t:dir search;
++	dontaudit unconfined_t $1:process { noatsecure rlimitinh siginh };
++')
++
++#
++############# Test kernel modules with finitmod_module(2) ###################
++#
++attribute finitmoddomain;
++
++type test_finitmod_t;
++module_domain_type(test_finitmod_t)
++unconfined_runs_test(test_finitmod_t)
++typeattribute test_finitmod_t testdomain, finitmoddomain;
++
++allow test_finitmod_t self:capability { sys_module };
++allow test_finitmod_t test_file_t:system { module_load };
++allow test_finitmod_t kernel_t:system { module_request };
++
++############### Deny cap sys_module ######################
++type test_finitmod_deny_sys_module_t;
++module_domain_type(test_finitmod_deny_sys_module_t)
++unconfined_runs_test(test_finitmod_deny_sys_module_t)
++typeattribute test_finitmod_deny_sys_module_t testdomain, finitmoddomain;
++
++neverallow test_finitmod_deny_sys_module_t self:capability { sys_module };
++
++############### Deny sys module_load ######################
++type test_finitmod_deny_module_load_t;
++module_domain_type(test_finitmod_deny_module_load_t)
++unconfined_runs_test(test_finitmod_deny_module_load_t)
++typeattribute test_finitmod_deny_module_load_t testdomain, finitmoddomain;
++
++allow test_finitmod_deny_module_load_t self:capability { sys_module };
++neverallow test_finitmod_deny_module_load_t test_file_t:system { module_load };
++
++############### Deny sys module_request ######################
++type test_finitmod_deny_module_request_t;
++module_domain_type(test_finitmod_deny_module_request_t)
++unconfined_runs_test(test_finitmod_deny_module_request_t)
++typeattribute test_finitmod_deny_module_request_t testdomain, finitmoddomain;
++
++allow test_finitmod_deny_module_request_t self:capability { sys_module };
++allow test_finitmod_deny_module_request_t test_file_t:system { module_load };
++neverallow test_finitmod_deny_module_request_t kernel_t:system { module_request };
++
++#
++############# Test kernel modules with initmod_module(2) ###################
++#
++attribute initmoddomain;
++
++type test_initmod_t;
++module_domain_type(test_initmod_t)
++unconfined_runs_test(test_initmod_t)
++typeattribute test_initmod_t testdomain, initmoddomain;
++
++allow test_initmod_t self:capability { sys_module };
++allow test_initmod_t self:system { module_load };
++allow test_initmod_t kernel_t:system { module_request };
++
++############### Deny cap sys_module ######################
++type test_initmod_deny_sys_module_t;
++module_domain_type(test_initmod_deny_sys_module_t)
++unconfined_runs_test(test_initmod_deny_sys_module_t)
++typeattribute test_initmod_deny_sys_module_t testdomain, initmoddomain;
++
++neverallow test_initmod_deny_sys_module_t self:capability { sys_module };
++
++############### Deny sys module_load ######################
++type test_initmod_deny_module_load_t;
++module_domain_type(test_initmod_deny_module_load_t)
++unconfined_runs_test(test_initmod_deny_module_load_t)
++typeattribute test_initmod_deny_module_load_t testdomain, initmoddomain;
++
++allow test_initmod_deny_module_load_t self:capability { sys_module };
++neverallow test_initmod_deny_module_load_t self:system { module_load };
++
++############### Deny sys module_request ######################
++type test_initmod_deny_module_request_t;
++module_domain_type(test_initmod_deny_module_request_t)
++unconfined_runs_test(test_initmod_deny_module_request_t)
++typeattribute test_initmod_deny_module_request_t testdomain, initmoddomain;
++
++allow test_initmod_deny_module_request_t self:capability { sys_module };
++allow test_initmod_deny_module_request_t self:system { module_load };
++neverallow test_initmod_deny_module_request_t kernel_t:system { module_request };
++
++#
++########### Allow these domains to be entered from sysadm domain ############
++#
++miscfiles_domain_entry_test_files(finitmoddomain)
++userdom_sysadm_entry_spec_domtrans_to(finitmoddomain)
++miscfiles_domain_entry_test_files(initmoddomain)
++userdom_sysadm_entry_spec_domtrans_to(initmoddomain)
+diff --git a/tests/Makefile b/tests/Makefile
+index cca6648..0452887 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -72,6 +72,10 @@ ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.
+ SUBDIRS+=notify
+ endif
+ 
++ifeq ($(shell grep -q module_load $(POLDEV)/include/support/all_perms.spt && echo true),true)
++SUBDIRS+=module_load
++endif
++
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
+ endif
+diff --git a/tests/module_load/.gitignore b/tests/module_load/.gitignore
+new file mode 100644
+index 0000000..7fa5772
+--- /dev/null
++++ b/tests/module_load/.gitignore
+@@ -0,0 +1,11 @@
++finit_load
++init_load
++modules.order
++Module.symvers
++*.a
++*.o
++*.ko
++*.cmd
++*.mod
++*.mod.c
++.*.cmd
+diff --git a/tests/module_load/Makefile b/tests/module_load/Makefile
+new file mode 100644
+index 0000000..b6eba25
+--- /dev/null
++++ b/tests/module_load/Makefile
+@@ -0,0 +1,12 @@
++obj-m = setest_module_load.o setest_module_request.o
++
++TARGETS = finit_load init_load
++LDLIBS += -lselinux
++KDIR = /lib/modules/$(shell uname -r)/build
++
++all: $(TARGETS)
++	$(MAKE) -C $(KDIR) M=$(PWD)
++
++clean:
++	rm -f $(TARGETS)
++	rm -f *.a *.o *.ko *.cmd *.mod *.mod.c .*.cmd Module.symvers modules.order
+diff --git a/tests/module_load/finit_load.c b/tests/module_load/finit_load.c
+new file mode 100644
+index 0000000..1c05d7b
+--- /dev/null
++++ b/tests/module_load/finit_load.c
+@@ -0,0 +1,94 @@
++#define _GNU_SOURCE 1
++
++#include <stdio.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <string.h>
++#include <errno.h>
++#include <stdbool.h>
++#include <fcntl.h>
++#include <limits.h>
++#include <sys/syscall.h>
++#include <selinux/selinux.h>
++
++static void print_usage(char *progfile_name)
++{
++	fprintf(stderr,
++		"usage:  %s [-v] path name\n"
++		"Where:\n\t"
++		"-v    Print information.\n\t"
++		"path  Kernel module build path.\n\t"
++		"name  Name of kernel module to load.\n", progfile_name);
++	exit(-1);
++}
++
++int main(int argc, char *argv[])
++{
++	char *context, file_name[PATH_MAX];
++	int opt, result, fd, s_errno;
++	bool verbose = false;
++
++	while ((opt = getopt(argc, argv, "v")) != -1) {
++		switch (opt) {
++		case 'v':
++			verbose = true;
++			break;
++		default:
++			print_usage(argv[0]);
++		}
++	}
++
++	if (optind >= argc)
++		print_usage(argv[0]);
++
++	result = sprintf(file_name, "%s/%s.ko", argv[optind],
++			 argv[optind + 1]);
++	if (result < 0) {
++		fprintf(stderr, "Failed sprintf\n");
++		exit(-1);
++	}
++
++	fd = open(file_name, O_RDONLY);
++	if (!fd) {
++		fprintf(stderr, "Failed to open %s: %s\n",
++			file_name, strerror(errno));
++		exit(-1);
++	}
++
++	if (verbose) {
++		result = getcon(&context);
++		if (result < 0) {
++			fprintf(stderr, "Failed to obtain process context\n");
++			close(fd);
++			exit(-1);
++		}
++
++		printf("Process context:\n\t%s\n", context);
++		free(context);
++	}
++
++	result = syscall(__NR_finit_module, fd, "", 0);
++	s_errno = errno;
++	close(fd);
++	if (result < 0) {
++		fprintf(stderr, "Failed to load '%s' module: %s\n",
++			file_name, strerror(s_errno));
++		/* Denying: sys_module=EPERM, module_load=EACCES */
++		exit(s_errno);
++	}
++
++	if (verbose)
++		printf("Loaded kernel module:  %s\n", file_name);
++
++	result = syscall(__NR_delete_module, argv[optind + 1], 0);
++	if (result < 0) {
++		fprintf(stderr, "Failed to delete '%s' module: %s\n",
++			argv[optind + 1], strerror(errno));
++		exit(-1);
++	}
++
++	if (verbose)
++		printf("Deleted kernel module: %s\n", argv[optind + 1]);
++
++	return 0;
++}
+diff --git a/tests/module_load/init_load.c b/tests/module_load/init_load.c
+new file mode 100644
+index 0000000..0422c19
+--- /dev/null
++++ b/tests/module_load/init_load.c
+@@ -0,0 +1,123 @@
++#define _GNU_SOURCE 1
++
++#include <stdio.h>
++#include <unistd.h>
++#include <stdlib.h>
++#include <string.h>
++#include <errno.h>
++#include <stdbool.h>
++#include <fcntl.h>
++#include <limits.h>
++#include <sys/stat.h>
++#include <sys/syscall.h>
++#include <selinux/selinux.h>
++
++static void print_usage(char *progfile_name)
++{
++	fprintf(stderr,
++		"usage:  %s [-v] path name\n"
++		"Where:\n\t"
++		"-v    Print information.\n\t"
++		"path  Kernel module build path.\n\t"
++		"name  Name of kernel module to load.\n", progfile_name);
++	exit(-1);
++}
++
++int main(int argc, char *argv[])
++{
++	char *context, file_name[PATH_MAX];
++	int opt, result, fd, s_errno;
++	bool verbose = false;
++	void *elf_image;
++	struct stat st;
++
++	while ((opt = getopt(argc, argv, "v")) != -1) {
++		switch (opt) {
++		case 'v':
++			verbose = true;
++			break;
++		default:
++			print_usage(argv[0]);
++		}
++	}
++
++	if (optind >= argc)
++		print_usage(argv[0]);
++
++	result = sprintf(file_name, "%s/%s.ko", argv[optind],
++			 argv[optind + 1]);
++	if (result < 0) {
++		fprintf(stderr, "Failed sprintf\n");
++		exit(-1);
++	}
++
++	fd = open(file_name, O_RDONLY);
++	if (!fd) {
++		fprintf(stderr, "Failed to open %s: %s\n",
++			file_name, strerror(errno));
++		exit(-1);
++	}
++
++	if (verbose) {
++		result = getcon(&context);
++		if (result < 0) {
++			fprintf(stderr, "Failed to obtain process context\n");
++			close(fd);
++			exit(-1);
++		}
++
++		printf("Process context:\n\t%s\n", context);
++		free(context);
++	}
++
++	result = fstat(fd, &st);
++	if (result < 0) {
++		fprintf(stderr, "Failed fstat on %s: %s\n",
++			file_name, strerror(errno));
++		close(fd);
++		exit(-1);
++	}
++
++	elf_image = malloc(st.st_size);
++	if (!elf_image) {
++		fprintf(stderr, "Failed malloc on %s: %s\n",
++			file_name, strerror(errno));
++		close(fd);
++		exit(-1);
++	}
++
++	result = read(fd, elf_image, st.st_size);
++	if (result < 0) {
++		fprintf(stderr, "Failed read on %s: %s\n",
++			file_name, strerror(errno));
++		close(fd);
++		free(elf_image);
++		exit(-1);
++	}
++	close(fd);
++
++	result = syscall(__NR_init_module, elf_image, st.st_size, "");
++	s_errno = errno;
++	free(elf_image);
++	if (result < 0) {
++		fprintf(stderr, "Failed to load '%s' module: %s\n",
++			file_name, strerror(s_errno));
++		/* Denying: sys_module=EPERM, module_load & request=EACCES */
++		exit(s_errno);
++	}
++
++	if (verbose)
++		printf("Loaded kernel module:  %s\n", file_name);
++
++	result = syscall(__NR_delete_module, argv[optind + 1], 0);
++	if (result < 0) {
++		fprintf(stderr, "Failed to delete '%s' module: %s\n",
++			argv[optind + 1], strerror(errno));
++		exit(-1);
++	}
++
++	if (verbose)
++		printf("Deleted kernel module: %s\n", argv[optind + 1]);
++
++	return 0;
++}
+diff --git a/tests/module_load/setest_module_load.c b/tests/module_load/setest_module_load.c
+new file mode 100644
+index 0000000..0be7a26
+--- /dev/null
++++ b/tests/module_load/setest_module_load.c
+@@ -0,0 +1,18 @@
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++
++static int __init setest_module_load_init(void)
++{
++	pr_info("INIT - setest_module_load\n");
++	return 0;
++}
++
++static void __exit setest_module_load_exit(void)
++{
++	pr_info("EXIT - setest_module_load\n");
++}
++
++module_init(setest_module_load_init);
++module_exit(setest_module_load_exit);
++MODULE_LICENSE("GPL");
+diff --git a/tests/module_load/setest_module_request.c b/tests/module_load/setest_module_request.c
+new file mode 100644
+index 0000000..f79d4ef
+--- /dev/null
++++ b/tests/module_load/setest_module_request.c
+@@ -0,0 +1,22 @@
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/kernel.h>
++
++static int __init setest_module_request_init(void)
++{
++	int result;
++
++	pr_info("INIT - setest_module_request\n");
++	result = request_module_nowait("dummy-module");
++	pr_info("request_module() returned: %d\n", result);
++	return result;
++}
++
++static void __exit setest_module_request_exit(void)
++{
++	pr_info("EXIT - setest_module_request\n");
++}
++
++module_init(setest_module_request_init);
++module_exit(setest_module_request_exit);
++MODULE_LICENSE("GPL");
+diff --git a/tests/module_load/test b/tests/module_load/test
+new file mode 100755
+index 0000000..c3242fc
+--- /dev/null
++++ b/tests/module_load/test
+@@ -0,0 +1,62 @@
++#!/usr/bin/perl
++use Test::More;
++
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    # allow info to be shown during tests
++    $v = $ARGV[0];
++    if ($v) {
++        if ( $v ne "-v" ) {
++            plan skip_all => "Invalid option (use -v)";
++        }
++    }
++    else {
++        $v = " ";
++    }
++
++    plan tests => 8;
++}
++
++print "Test finit_module(2)\n";
++$result = system
++"runcon -t test_finitmod_t $basedir/finit_load $v $basedir setest_module_request";
++ok( $result eq 0 );
++
++# Deny capability { sys_module } - EPERM
++$result = system
++"runcon -t test_finitmod_deny_sys_module_t $basedir/finit_load $v $basedir setest_module_load 2>&1";
++ok( $result >> 8 eq 1 );
++
++# Deny system { module_load } - EACCES
++$result = system
++"runcon -t test_finitmod_deny_module_load_t $basedir/finit_load $v $basedir setest_module_load 2>&1";
++ok( $result >> 8 eq 13 );
++
++# Deny system { module_request } - EACCES
++$result = system
++"runcon -t test_finitmod_deny_module_request_t $basedir/finit_load $v $basedir setest_module_request 2>&1";
++ok( $result >> 8 eq 13 );
++
++print "Test init_module(2)\n";
++$result = system
++"runcon -t test_initmod_t $basedir/init_load $v $basedir setest_module_request";
++ok( $result eq 0 );
++
++# Deny capability { sys_module } - EPERM
++$result = system
++"runcon -t test_initmod_deny_sys_module_t $basedir/init_load $v $basedir setest_module_load 2>&1";
++ok( $result >> 8 eq 1 );
++
++# Deny system { module_load } - EACCES
++$result = system
++"runcon -t test_initmod_deny_module_load_t $basedir/init_load $v $basedir setest_module_load 2>&1";
++ok( $result >> 8 eq 13 );
++
++# Deny system { module_request } - EACCES
++$result = system
++"runcon -t test_initmod_deny_module_request_t $basedir/init_load $v $basedir setest_module_request 2>&1";
++ok( $result >> 8 eq 13 );
++
++exit;
+-- 
+2.23.0
 
