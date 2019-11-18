@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CB47C43215
-	for <selinux@archiver.kernel.org>; Mon, 18 Nov 2019 14:52:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8C1AC432C0
+	for <selinux@archiver.kernel.org>; Mon, 18 Nov 2019 14:52:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 44B9420659
-	for <selinux@archiver.kernel.org>; Mon, 18 Nov 2019 14:52:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E26620659
+	for <selinux@archiver.kernel.org>; Mon, 18 Nov 2019 14:52:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aHBOE56n"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N9wbu47x"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727185AbfKROwp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 Nov 2019 09:52:45 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:22548 "EHLO
+        id S1727238AbfKROwq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 Nov 2019 09:52:46 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:40612 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726748AbfKROwo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 Nov 2019 09:52:44 -0500
+        with ESMTP id S1727140AbfKROwq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 Nov 2019 09:52:46 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574088763;
+        s=mimecast20190719; t=1574088764;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=DabM93OoheOrEmXg8Syh0emJ+a/qyGvYPkLKHwVWNXY=;
-        b=aHBOE56nn0n9sQap0JxVwmO72epByzpwHyxvjaIZqTjR3JZz/VnbIGTYm6KQDtB50Z60rO
-        CQzWKVLZrV4pMuXA/q1f7kX041t4mBVd4KQy3UUTU0SBsJf9wyDfVkgo8/sdScDm8K9gMW
-        ibp6BLGRwgaeQXMU7Ed4NihbUCaCQqU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-287-fJIjeJgpO8CuBRKB__YIlA-1; Mon, 18 Nov 2019 09:52:42 -0500
-Received: by mail-wr1-f70.google.com with SMTP id l3so15473861wrx.21
-        for <selinux@vger.kernel.org>; Mon, 18 Nov 2019 06:52:42 -0800 (PST)
+        bh=YA77x+4PA0qaAsOTR4t/Bl4as0UKWpCesCnEV6xwFR0=;
+        b=N9wbu47xNwdg9nnHrQHBeP3a1rXeGYWSXf1KmCHb+oOH/eZGMwx7N3JmtFQ+qGghQbV7LZ
+        hGyj4/88HdtsHr0lduSZQN/mbNvvsGVbFhBjtYrou7z8Y5+ttfXRGKhOI4xNnXIHvAzxMy
+        z7SpCqmb13r7WnIZK412MG3jof8hl1U=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-378-K_bDYUsMO96ofL3FVYtMaw-1; Mon, 18 Nov 2019 09:52:41 -0500
+Received: by mail-wr1-f71.google.com with SMTP id e10so15362928wrt.16
+        for <selinux@vger.kernel.org>; Mon, 18 Nov 2019 06:52:41 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=tShv3HblVr38GsmOK3QTPK0EcQKV+tukNGauXiaStiw=;
-        b=s8t+GL61nZTCoLUFDbsBlnyDkGliH1FHAiZvNRI0+ymkhiNzeUF+JSy6Otk0OJ9I2J
-         UJ+oBfSK4AIrdcT5IbcxQZvlq5dBkMikWFUHnFVJdKFc/sqA9lcc3GEhEOcm9UHBVm9G
-         QxdkJa+UJy/b0HDGs+9/NBBQ8562FvI5thzOP/JmdtS48vZ/NTplgUiNmwJYD7texneJ
-         2liZTjdbIh6kj4iWgaF48bmnkB/BeQ/2dSTUCqQQn6uEfVV1/dSMGEYWj6lQp56EX2Ic
-         ooID6Srpkw+qzQKajLEHxuYpWzQC9/QrZkVh06q//RyIQoDG16sCnFrgUustS8/24a5a
-         CY2Q==
-X-Gm-Message-State: APjAAAWK9jlc2RYJax8S5/EeGVnXfwDdQH22mip5pR4u1qE54Rkd5Zn5
-        y1gjAaQcB599FsuuhJGh67jVxzv0F0Aub9DlmPqeD5lAZqsnjAWlADNz4MCULLjZ94EW2B3AuvZ
-        Afre9Say2hfZEr0cLBQ==
-X-Received: by 2002:adf:978c:: with SMTP id s12mr29733422wrb.47.1574088760786;
+        bh=JdrqQyBgjLnoJVNufGA0KbMbzvfP1CLHphimIOO60r4=;
+        b=Teml4fYprnfFxguwXYYkvkMU3Dan5nUYvw39e41xtq1gBATo5BlELW1+8Ip1DNjUO+
+         vk2gr97Alsbg9YT3REcR2IgnCfeZ90D6BllhvD4bxrtz6Njjb+F81ZuRdgnd+nBZS5Ab
+         FZY0BeHj7qDEX8S6Z7uzXp2S7gR4draccg0+hDhb4fxOmdSMgD6fTIgrht7Gc5ll/Dzj
+         87eit4VhzUC0zBcOahBpz/GKXm2iHbiaSUffi53nwcBbGIKbzfF5KAxskCcFbIddoPYm
+         U2fgFeAOASi6kKZBq4cr1DGKbXwaeFm3CO4BVC0ODfpF5IwDcw1xyzsc7NIYr/lm1ers
+         aSzg==
+X-Gm-Message-State: APjAAAXK8GyENvMoXZeO/W4gPp075Yr3NglIUwmwByYrG/6d6f66c/3P
+        GZAzemqurRYOcM0YQaKYFULiFfQN2GCkH7jIpfOO//h0b/DAFnSd9+54kn1QsoW8X0yeWC7x/Qk
+        zJRuTUixvOiEKcD5SMg==
+X-Received: by 2002:a1c:6641:: with SMTP id a62mr28836424wmc.54.1574088760039;
         Mon, 18 Nov 2019 06:52:40 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwVg6Z6Imu0cyzMhC7Mt7Eo1AAo2oiq/nu0GK1+vnNxECAxpLclsP74A0Piw4OlLHqfU3TcvA==
-X-Received: by 2002:adf:978c:: with SMTP id s12mr29733405wrb.47.1574088760565;
-        Mon, 18 Nov 2019 06:52:40 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzm2USSaAqX1tnWKJ3JeBYVEfQbsfuhq4RIa4doEhCDnPJ7ex30wN6ZgEku/GUroII7h01hrQ==
+X-Received: by 2002:a1c:6641:: with SMTP id a62mr28836404wmc.54.1574088759790;
+        Mon, 18 Nov 2019 06:52:39 -0800 (PST)
 Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
         by smtp.gmail.com with ESMTPSA id o5sm23044658wrx.15.2019.11.18.06.52.39
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Nov 2019 06:52:40 -0800 (PST)
+        Mon, 18 Nov 2019 06:52:39 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite v4 2/3] policy: add fallbacks for Fedora-specific macros
-Date:   Mon, 18 Nov 2019 15:52:37 +0100
-Message-Id: <20191118145238.408124-3-omosnace@redhat.com>
+Subject: [PATCH testsuite v4 1/3] policy: drop the unneeded userdom_search_generic_user_home_dirs()
+Date:   Mon, 18 Nov 2019 15:52:36 +0100
+Message-Id: <20191118145238.408124-2-omosnace@redhat.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191118145238.408124-1-omosnace@redhat.com>
 References: <20191118145238.408124-1-omosnace@redhat.com>
 MIME-Version: 1.0
-X-MC-Unique: fJIjeJgpO8CuBRKB__YIlA-1
+X-MC-Unique: K_bDYUsMO96ofL3FVYtMaw-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
@@ -78,51 +78,55 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-dev_rw_infiniband_dev() and mount_rw_pid_files() are not defined in
-refpolicy. Fall back to dev_rw_generic_{blk|chr}_files() and
-mount_rw_runtime_files() if they are not defined.
-
-Also, userdom_search_admin_dir() is not defined in refpolicy because it
-doesn't have admin_home_t. Fall back to
-userdom_search_user_home_content(), which should apply for root's home
-directory under refpolicy.
+userdom_search_generic_user_home_dirs() is not defined in neither Fedora
+policy nor refpolicy. userdom_search_user_home_dirs() is already defined
+in both, so just use that directly.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- policy/test_policy.if | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ policy/test_ipc.te    | 2 +-
+ policy/test_policy.if | 6 ------
+ policy/test_ptrace.te | 2 +-
+ 3 files changed, 2 insertions(+), 8 deletions(-)
 
+diff --git a/policy/test_ipc.te b/policy/test_ipc.te
+index baa7bda..324b690 100644
+--- a/policy/test_ipc.te
++++ b/policy/test_ipc.te
+@@ -83,4 +83,4 @@ sysadm_bin_spec_domtrans_to(ipcdomain)
+ allow test_ipc_base_t self:sem create_sem_perms;
+ allow test_ipc_base_t self:shm create_shm_perms;
+ # ipcrm needs this...=20
+-userdom_search_generic_user_home_dirs(test_ipc_base_t)
++userdom_search_user_home_dirs(test_ipc_base_t)
 diff --git a/policy/test_policy.if b/policy/test_policy.if
-index 939cd7e..e1175e8 100644
+index 5f4000f..939cd7e 100644
 --- a/policy/test_policy.if
 +++ b/policy/test_policy.if
-@@ -60,3 +60,25 @@ interface(`userdom_sysadm_entry_spec_domtrans_to',`
+@@ -60,9 +60,3 @@ interface(`userdom_sysadm_entry_spec_domtrans_to',`
          allow $1 sysadm_t:process sigchld;
  ')
  ')
-+
-+# Workarounds for refpolicy:
-+
-+ifdef(`dev_rw_infiniband_dev', `', ` dnl
-+interface(`dev_rw_infiniband_dev', `
-+    dev_rw_generic_blk_files($1)
-+    dev_rw_generic_chr_files($1)
-+')
-+')
-+
-+ifdef(`mount_rw_pid_files', `', ` dnl
-+interface(`mount_rw_pid_files', `
-+    mount_rw_runtime_files($1)
-+')
-+')
-+
-+# Refpolicy doesn't have admin_home_t - assume /root will be user_home_dir=
-_t.
-+ifdef(`userdom_search_admin_dir', `', ` dnl
-+interface(`userdom_search_admin_dir', `
-+    userdom_search_user_home_content($1)
-+')
-+')
+-
+-ifdef(`userdom_search_generic_user_home_dirs', `', ` dnl
+-interface(`userdom_search_generic_user_home_dirs', `
+-    userdom_search_user_home_dirs($1)
+-')
+-')
+diff --git a/policy/test_ptrace.te b/policy/test_ptrace.te
+index 0d10e85..b5f9995 100644
+--- a/policy/test_ptrace.te
++++ b/policy/test_ptrace.te
+@@ -34,7 +34,7 @@ allow test_ptrace_traced_t test_file_t:fifo_file rw_file_=
+perms;
+=20
+ # Allow the tracer domain to trace the traced domain.
+ allow test_ptrace_tracer_t test_ptrace_traced_t:process ptrace;
+-userdom_search_generic_user_home_dirs(test_ptrace_traced_t)
++userdom_search_user_home_dirs(test_ptrace_traced_t)
+=20
+ # Let the tracer wait on the traced domain.
+ allow test_ptrace_traced_t test_ptrace_tracer_t:process sigchld;
 --=20
 2.23.0
 
