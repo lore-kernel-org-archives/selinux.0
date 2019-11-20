@@ -2,142 +2,121 @@ Return-Path: <SRS0=kO0s=ZM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E825EC432C0
-	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 15:29:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7214AC432C0
+	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 16:09:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B65DC20679
-	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 15:29:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 47311206EC
+	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 16:09:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="P6DRL/oM"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BoQW8VeF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731073AbfKTP2h (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Nov 2019 10:28:37 -0500
-Received: from UHIL19PA40.eemsg.mail.mil ([214.24.21.199]:42644 "EHLO
-        UHIL19PA40.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731051AbfKTP2g (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Nov 2019 10:28:36 -0500
-X-EEMSG-check-017: 50252330|UHIL19PA40_ESA_OUT06.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.69,222,1571702400"; 
-   d="scan'208";a="50252330"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA40.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 20 Nov 2019 15:28:33 +0000
+        id S1729187AbfKTQJD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Nov 2019 11:09:03 -0500
+Received: from mail-wr1-f46.google.com ([209.85.221.46]:39202 "EHLO
+        mail-wr1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728017AbfKTQJD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Nov 2019 11:09:03 -0500
+Received: by mail-wr1-f46.google.com with SMTP id l7so455750wrp.6
+        for <selinux@vger.kernel.org>; Wed, 20 Nov 2019 08:09:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1574263713; x=1605799713;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=SbonHAnJ65ofoJGSPztdBnhiqK+qDwU/5hUGN93Jeiw=;
-  b=P6DRL/oM82D31nXN10/RnZ3dcJRSsuTJnyFKM5QfsVvUcIJkqtSaElep
-   LNdEa/9XSPHMzsAi0J5lgvmOnAW9UKdHmALO7xmCKkXy9imCXpJJ6a8Sv
-   G/Esb+ufPg+mJdayrn86vsHbS0CQTXPdEGpws79hg4LAAlQsS+OfNdCHI
-   3gIBPb8Chl3LHmHQudtdmfMUWTpmoyXKFMJ8XlTanUtGTIdh4UqTNCvsU
-   QqUti9QSNzEuinypc3+qZ7jh9Mxy7sJZIKgS93Nf6mAt5WNUtmjKJUlHq
-   WavCjbL4uZN/xCDebUHm9063g35wopgdLolsssej/tfYdJ9+ey333IMXh
-   A==;
-X-IronPort-AV: E=Sophos;i="5.69,222,1571702400"; 
-   d="scan'208";a="35774017"
-IronPort-PHdr: =?us-ascii?q?9a23=3AqI7KQRVBRCbj8kIN7jKsyLGYakTV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYZRWGvadThVPEFb/W9+hDw7KP9fy5AipZvM7K7ypKWacPfi?=
- =?us-ascii?q?dNsd8RkQ0kDZzNImzAB9muURYHGt9fXkRu5XCxPBsdMs//Y1rPvi/6tmZKSV?=
- =?us-ascii?q?3wOgVvO+v6BJPZgdip2OCu4Z3TZBhDiCagbb9oIxi6sAvcutMLjYZiNqo9xR?=
- =?us-ascii?q?nErmVVcOlK2G1kIk6ekQzh7cmq5p5j9CpQu/Ml98FeVKjxYro1Q79FAjk4Km?=
- =?us-ascii?q?45/MLkuwXNQguJ/XscT34ZkgFUDAjf7RH1RYn+vy3nvedgwiaaPMn2TbcpWT?=
- =?us-ascii?q?S+6qpgVRHlhDsbOzM/7WrakdJ7gr5Frx29phx/24/Ub5+TNPpiZaPWYNcWSX?=
- =?us-ascii?q?NcUspNSyBNB4WxYIUVD+oFIO1WsY/zqVUTphe6HAWhBOfixjpOi3Tr36M1zv?=
- =?us-ascii?q?4hHBnb0gI+EdIAsHfaotv7O6gdU++60KbGwC7fb/5Uwzrx9JTEfx4jrPyKQL?=
- =?us-ascii?q?l+cdDRyU4qFw7dk1uQtZLqPyuV1usTtWiQ8vduVee1hG4jrwF+vDiuzdorh4?=
- =?us-ascii?q?nSm40V0UvJ9Tl5wYkpJd24T1R3Ydi/EJRKrS2aOIx2Qt07TmxupS00yaUGtI?=
- =?us-ascii?q?amcCUFx5kr3R7SZ+Gdf4SW7R/vSvydLSp+iXl4YrywnQyy/lKlyuDkU8m010?=
- =?us-ascii?q?tFoTRdn9nXs3ANywTT6s+aSvth5kuh2SiA1wTU6uxcPUA7j7DbK588wr4rjJ?=
- =?us-ascii?q?YTrUTCETP2mEXxlqOWcFkr+vO05Oj9Z7Xmp5ucO5d1igH4LKsuhtSyDfk3Pw?=
- =?us-ascii?q?UBRWSW+fmw2Kf98UD2XrlGlOA6nrHcsJ/AJMQboqC5AxVS0oYm8xu/FCqp0M?=
- =?us-ascii?q?8DkHkbLFNKZBKHj4/zN1HIO/D3F+2zg1urkDd13/zGJKHuAo3RLnjfl7fsZb?=
- =?us-ascii?q?h8609YyAo31t1f5IxbCqsHIP3tXk/9rtvYDgU2Mwas2eboFM191p8CWWKIGq?=
- =?us-ascii?q?KZK73dsVuJ5uIpPumNa5QYuCjyK/c7/f7il3w5lkEHfamvw5QXbGq0HvN8I0?=
- =?us-ascii?q?WWeXDsmMsOEX8WvgoiS+znkFmCUT9VZ3avUKMw/zI7B5y8DYfFWI+thKeM3D?=
- =?us-ascii?q?m0HpJIfGBKEFOMHmnyd4WCRfgMbDieIsh7kjwLTbKhUZMu1QmytA/mzLpqNv?=
- =?us-ascii?q?TU+iwCtZLkz9V05vPclRcz9TxqFcid12CNT2dpnmIHXTM227p/oUNnxlee0q?=
- =?us-ascii?q?hym+ZYGsBL5/NVTgc6MobRz+h7C9D0RwLAcc6FSFi9Qtq7Hz4xUMw+w9sVbk?=
- =?us-ascii?q?ZjFNWtkArD0zCpA7ALjbyLAoI78qbG03j2PcZ9xG7M1LM9gFk+XstPKWqmi7?=
- =?us-ascii?q?Zl9wfPGo7EiFuZl6m0eqQGxiLN93mMzXCIvE5GVA58S6LFXWoQZhiekdOs2U?=
- =?us-ascii?q?LGS/eCBL0sNQ0JndGDLq9iadDzi1hCAvD5N4KNTXi2njKLGRuQxr6KJLHvcm?=
- =?us-ascii?q?EZ0TSVXFMIiCgP7H2GMk44HS7nrGXAWm89XWnzal/hpLEt4EiwSVU5mkTTMh?=
- =?us-ascii?q?xs?=
-X-IPAS-Result: =?us-ascii?q?A2BQAAA1WtVd/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF+gXQsgUABMoRUj1ABAQEBAQEGgREliWaRQwkBAQEBAQEBAQE0A?=
- =?us-ascii?q?QIBAYRAAoInJDgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYJtAQUjFUEQCxgCA?=
- =?us-ascii?q?iYCAlcGDQgBAYJfP4JTJbAugTKFToM2gUiBDiiMFhh4gQeBOAyCXz6EL4Mmg?=
- =?us-ascii?q?l4Ell5GlwqCNYI3kxIGG4I+jCOLMy2qOCKBWCsIAhgIIQ+DKE8RFIdtAQiNN?=
- =?us-ascii?q?CMDgTUBAYsnKoIWAQE?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 20 Nov 2019 15:28:32 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xAKFSV1v032640;
-        Wed, 20 Nov 2019 10:28:32 -0500
-Subject: Re: [RFC PATCH 1/2] selinux: Don't call avc_compute_av() from RCU
- path walk
-To:     Will Deacon <will@kernel.org>
-Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        "viro@zeniv.linux.org.uk" <viro@zeniv.linux.org.uk>,
-        linuxfs <linux-fsdevel@vger.kernel.org>, rcu@vger.kernel.org
-References: <20191119184057.14961-1-will@kernel.org>
- <20191119184057.14961-2-will@kernel.org>
- <5e51f9a5-ba76-a42d-fc2b-9255f8544859@tycho.nsa.gov>
- <20191120131229.GA21500@willie-the-truck>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <d8dbd290-0ffa-271f-0268-5e9148e7ee9b@tycho.nsa.gov>
-Date:   Wed, 20 Nov 2019 10:28:31 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        d=gmail.com; s=20161025;
+        h=date:from:to:subject:message-id:mail-followup-to:mime-version
+         :content-disposition:user-agent;
+        bh=J+NXs07Gtht8r79b/S/5GFrPYmbMyAd/JqBSTkOlEiA=;
+        b=BoQW8VeF32AQz+UaYGF5cwUS1j1M/cF76c++5AZt7pgSADPQFtQujsPn0VGu4m+0/m
+         bu0oGdba2chBpyF/G+P61BWZC4sfLjZPI4bKMw3SU/BmX2QAIgVKDXLhfJXfNF3hbMBr
+         1wCBtIlxy26qR4Y/lDYWW1lZk0fHJllPHy3m0t7GhwiWD1m0pT+FWWIESlWBgivinkQt
+         JJOTcokPM3SBANkixcqMw04x9I3ryf540I1hVgMqYA4mF8tqxEw0W+1shTcqfmRpwigu
+         FAmsl6NbG/1TKOwjr13YXJd/RLdOlNm5mq3OiNMPy0XpXB47bsalXqrRV/pfiLzYxqPI
+         uElg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:subject:message-id:mail-followup-to
+         :mime-version:content-disposition:user-agent;
+        bh=J+NXs07Gtht8r79b/S/5GFrPYmbMyAd/JqBSTkOlEiA=;
+        b=l40aDTHgShvsCYrJ1PnYQKRgHwneEZoLGJAZZIC72QHZrdBGL4eklVdJG4Pie9oJOL
+         I9a8f+jR6auSxagsudoqasbVxSJeJ1AGMSglJ2WFJGIqnyfgHFvJs3FG30as8luLBivn
+         AbpGuqHjWiKBcDhLPvrPrbrRMXyjY8riIZeuOiJqCO/ss/Ji3xqRIbifV8RJax30Nbc9
+         mnKe/nikxFuSkes7gyld7tciU0ofZgFrmnQdO851PoiEq2GYPt5Y+GtMx6E0giq9NnxV
+         EPDQRzl3W0/8duHYYHDn0zEtBuAIdQLmO+z1+fJGgqJ7hyMUiaxsuiK2AaS0Uq0GLamr
+         a8kA==
+X-Gm-Message-State: APjAAAV6qDjF8ZRK7XTNwECr8O+Ud2Pp9KCf+N4Bpu77BEEA7Th1WPZ0
+        S8mEm5fZp6lGxVSm8RWuS6Q91PRN
+X-Google-Smtp-Source: APXvYqzV14zz1fUKM5Sz9yeAjKL1N90xT5YjfZG+Nk3TRvFTHIqk+q0KuMTSGDSijh8TnWLn7AV3KA==
+X-Received: by 2002:a5d:6152:: with SMTP id y18mr4440948wrt.142.1574266141420;
+        Wed, 20 Nov 2019 08:09:01 -0800 (PST)
+Received: from brutus.lan (brutus.defensec.nl. [2001:985:d55d::438])
+        by smtp.gmail.com with ESMTPSA id d7sm32233924wrx.11.2019.11.20.08.08.59
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Nov 2019 08:09:00 -0800 (PST)
+Date:   Wed, 20 Nov 2019 17:08:58 +0100
+From:   Dominick Grift <dac.override@gmail.com>
+To:     selinux@vger.kernel.org
+Subject: RFC:
+ https://github.com/SELinuxProject/selinux/issues/140#issuecomment-556049712
+Message-ID: <20191120160858.GA1624071@brutus.lan>
+Mail-Followup-To: selinux@vger.kernel.org
 MIME-Version: 1.0
-In-Reply-To: <20191120131229.GA21500@willie-the-truck>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
+Content-Disposition: inline
+User-Agent: Every email client sucks, this one just sucks less.
+X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/20/19 8:12 AM, Will Deacon wrote:
-> Hi Stephen,
-> 
-> Thanks for the quick reply.
-> 
-> On Tue, Nov 19, 2019 at 01:59:40PM -0500, Stephen Smalley wrote:
->> On 11/19/19 1:40 PM, Will Deacon wrote:
->>> 'avc_compute_av()' can block, so we carefully exit the RCU read-side
->>> critical section before calling it in 'avc_has_perm_noaudit()'.
->>> Unfortunately, if we're calling from the VFS layer on the RCU path walk
->>> via 'selinux_inode_permission()' then we're still actually in an RCU
->>> read-side critical section and must not block.
->>
->> avc_compute_av() should never block AFAIK. The blocking concern was with
->> slow_avc_audit(), and even that appears dubious to me. That seems to be more
->> about misuse of d_find_alias in dump_common_audit_data() than anything.
-> 
-> Apologies, I lost track of GFP_ATOMIC when I reading the code and didn't
-> think it was propagated down to all of the potential allocations and
-> string functions. Having looked at it again, I can't see where it blocks.
-> 
-> Might be worth a comment in avc_compute_av(), because the temporary
-> dropping of rcu_read_lock() looks really dodgy when we could be running
-> on the RCU path walk path anyway.
 
-I don't think that's a problem but I'll defer to the fsdevel and rcu 
-folks.  The use of RCU within the SELinux AVC long predates the 
-introduction of RCU path walk, and the rcu_read_lock()/unlock() pairs 
-inside the AVC are not related in any way to RCU path walk.  Hopefully 
-they don't break it.  The SELinux security server (i.e. 
-security_compute_av() and the rest of security/selinux/ss/*) internally 
-has its own locking for its data structures, primarily the policy 
-rwlock.  There was also a patch long ago to convert use of that policy 
-rwlock to RCU but it didn't seem justified at the time.  We are 
-interested in revisiting that however.  That would introduce its own set 
-of rcu_read_lock/unlock pairs inside of security_compute_av() as well.
+--C7zPtVaVf+AK4Oqc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+I was reminded of issue in topic.
+
+"userprefix" functionality has been removed from reference policy since 200=
+8, in favor of "rbacsep role".
+
+I am currently the only (known) user of "rbacsep role".
+
+I guess the CIL "userprefix" statement would probably have to be renamed to=
+ something like "rbacsep_role", and the -P/--prefix to something more accur=
+ate (any naming suggestions?)
+
+Am I overlooking some other visible/exposed references to this deprecated "=
+userprefix" functionality?
+
+As the only user of this functionality (although I am not a user of semanag=
+e) I feel obliged to some how try to address this.
+
+--=20
+Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
+https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
+Dominick Grift
+
+--C7zPtVaVf+AK4Oqc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAl3VZRMACgkQJXSOVTf5
+R2nDggv9ELpgwljERtEYPemPyDWFVL6xnSZbTzilPOLylP134rz+ZXuzICV7uz2S
+mIrWd2l5LHK9cWH6fdymWhm4nhn9++o89uJJhZSpI/HhpGfgyLDdTOI1zMC9X9PW
+7/t9OKZ1qNdhHUCWLKFqHKB7K8gef3PV1469RHYZnHZSXSL2l506qJ9xRKpwvlNQ
+yt8u7nYaiJzUM14I4b/y3x0iI2DFRgqav5V94w+sfEI6xaaAbQm2urILhd/yp4Vk
+9N67zjKdG4oAgQKcUbjbc01TXn/LUyBGo+sRFtI82SHYbTN5/NWjgndmdo7QYIaV
+H4cBDGYdg11iUVEiyIfsKn9StFWhqCUWbfpbtZxlPd8UeEDNfrW+Sy06HPXKf6om
+70o2gAX0aIJvqsG8QITdYTj7ycpwv5lTbKbighi6JIOOw9DU7z9JBpwFmvmDDPeY
+Z521FKP9TuDQv387rvdVW+eFEc1PgcTHvxr2BMHlNmo/+6B2ZV2Wg/A1RYtP+bEm
+Gvp0OKql
+=upjC
+-----END PGP SIGNATURE-----
+
+--C7zPtVaVf+AK4Oqc--
