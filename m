@@ -7,83 +7,84 @@ X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D871FC432C0
-	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 13:06:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35958C432C0
+	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 13:07:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A49342251D
-	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 13:06:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 06D4522519
+	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 13:07:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="pEvQ7HdT"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="LBy6pbPo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728661AbfKTNG1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Nov 2019 08:06:27 -0500
-Received: from UCOL19PA39.eemsg.mail.mil ([214.24.24.199]:48252 "EHLO
-        UCOL19PA39.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727965AbfKTNG1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 Nov 2019 08:06:27 -0500
-X-EEMSG-check-017: 51734439|UCOL19PA39_ESA_OUT06.csd.disa.mil
+        id S1727986AbfKTNHs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Nov 2019 08:07:48 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:18577 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-FAIL-OK-OK)
+        by vger.kernel.org with ESMTP id S1727965AbfKTNHs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 Nov 2019 08:07:48 -0500
+X-EEMSG-check-017: 28526938|USFB19PA36_ESA_OUT06.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,221,1571702400"; 
-   d="scan'208";a="51734439"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UCOL19PA39.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 20 Nov 2019 13:06:06 +0000
+   d="scan'208";a="28526938"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 20 Nov 2019 13:06:33 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1574255166; x=1605791166;
+  s=tycho.nsa.gov; t=1574255193; x=1605791193;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=aP9+1DuzLHV1as0Oxfkkzy7bSkdLu50aV4ssNMTeces=;
-  b=pEvQ7HdTXKq8tpwxKL9TvxraJqG9UqbzqU6+3a1fYvyjYm5JWoWw+KxH
-   bSG377qPT8VWV60chsn8Yv2rlBWRCXBQgNjykPKF1O8MQ9Ra0dKPSrLCu
-   SHJiyTJTGOWdOVzNPr5cEkDcL3uUTsbsnFY6BY5V+TLkF/+qR4nC82dvo
-   e5kS9JNhJvpoaxU3AGVU6hImd9WAr975KPKWMo9aLtFpCMLiodyM5Y8PT
-   1c/ez9iwWlucwQdEiRYUwSXcleyPZjva7I6D5kYiIUqMyBovyFQ8/GMN9
-   8NJLkeLFNZxKrogsOYh7ZkCKFUTlzDFVsbxqeGfnBJSxq+ApyTyxG0mBn
+  bh=hMRG4PAgrFeFG8ZsskyYjAuEDlQPc6Oj3rf/SbgB1Bw=;
+  b=LBy6pbPoei5INhg/iwjcGpCHihwKgmHLL9wRQsRuegwTUGl0kQf58hRO
+   Ap0SAbPuYGPqT8fNjgwTZ2AC4JF/C1XJuXhVk7DDFOnyL9HUkXVcBzFbK
+   BHd+4hrOTrzJpN+y+RwICpqqgCd7TYOWsM1Kh5DNWlMseDJMLvt+dyVnG
+   BQ3J1o2rERgNxKHQCD1yoMNgx2PchPajwJReBrJSQMmSvcuQb06Pz07pL
+   gsIxiIASkyE31UTc3GUgWFksnh1Ie2HQX4dB7JRKeqVCmde5teY+8Kw+e
+   0TLGSBTvb0iylCGBc41gc/pUUa0dFsXo5dPcD95iiCVMhn507rvFr5NjY
    g==;
 X-IronPort-AV: E=Sophos;i="5.69,221,1571702400"; 
-   d="scan'208";a="30305099"
-IronPort-PHdr: =?us-ascii?q?9a23=3A+mk9XR2FRif7trehsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseIeIvad9pjvdHbS+e9qxAeQG9mCsLQd1rKd7/yocFdDyK7JiGoFfp1IWk?=
- =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
- =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmTSwbalvIBi2sQnducYbjIR/Iast1x?=
- =?us-ascii?q?XFpWdFdf5Lzm1yP1KTmBj85sa0/JF99ilbpuws+c1dX6jkZqo0VbNXAigoPG?=
- =?us-ascii?q?Az/83rqALMTRCT6XsGU2UZiQRHDg7Y5xznRJjxsy/6tu1g2CmGOMD9UL45VS?=
- =?us-ascii?q?i+46ptVRTlkzkMOSIn/27Li8xwlKNbrwynpxxj2I7ffYWZOONjcq/BYd8WQG?=
- =?us-ascii?q?xMUchLVyxFH4iycY0BAeQcNupctoXwqV8DoR64CAKxBu3g1yVIi2fr06Mk3e?=
- =?us-ascii?q?QvEQLI0gIuEN0BsnvbsNr7ObwOUe231qTE0SnPYv1U1Dr79YPGcgohofaJXb?=
- =?us-ascii?q?9obMTR1VcgFxvFjlqOr4zuIi6b1uEXvGif6+pvS+KugHMgpgFqvzev3dwhip?=
- =?us-ascii?q?XJh40JylDE8j91wIAuJdKiUkJ7btmkEIVJuiycKoB4QdsiTnl1tCs1xbAKo5?=
- =?us-ascii?q?62cDUQxJg5yBPTdeaLf5WO7xn+TuieOy14i2hgeL+nghay9lWvxfPkW8mv1V?=
- =?us-ascii?q?ZKsjJFkt7RtnARzxDT6taISv96/kq5xTaAzRrT6uBZIUAvj6bbN54gzaIwlp?=
- =?us-ascii?q?oUq0jDGDP5mF7qg6OMc0Uk++yo5/zmYrXguJCcK5d5hhzxP6khgMCyAfk0Ph?=
- =?us-ascii?q?IQU2WU5+iwzqDv8VX8QLpQj/02lqfZsIrdJcQevqO5GBJa0p045hajDzapzN?=
- =?us-ascii?q?QYnX4dIFJDYxKIlZLlO17JIPDmFfu/mUijkC93x/DaOb3sGo3NLnzZn7f8Yb?=
- =?us-ascii?q?Z98VVTxxAowNBF+Z1bF7EBL+jvWkPrqNPYCRo5ORSuw+n7ENV9yp8eWWWXD6?=
- =?us-ascii?q?+CLqzStV6I5uQyI+iDf4IVpjn9JOY/5/L0jn82h0Udfa+30psTcny4Ge5mI0?=
- =?us-ascii?q?rKKUbr1+8MDX1CmgMjUPbggVaCGWpLY3+vQ7g27xkhBY6mBJuFTYeo1vjJxy?=
- =?us-ascii?q?q/H5tLdkhYBV2WV3TlbYOJX7ELci3BDNVml2k/SbW5S4InnSqrvQv+xqsvev?=
- =?us-ascii?q?HY4QUEpJnj055z/OSVmhYso28nR/+B2n2AGjkn1lgDQCU7ieUm+h1w?=
-X-IPAS-Result: =?us-ascii?q?A2CzAADcONVd/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF+gXQsbIEHKoQqjwFUBoE2iWaKH4ckCQEBAQEBAQEBAScNAQIBA?=
- =?us-ascii?q?YRAAoInJDgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYJtAQUjBBFRCw4KAgImA?=
- =?us-ascii?q?gJXBgEMBgIBAYJfPwGCUiWwVH8zhU6DNIFIgQ4ogRKLAxh4gQeBOIJrPoQOg?=
- =?us-ascii?q?0eCPCIEjRyIYWFGdJYWgjWCN4Rjji8GG5oULYQhiXqcHSKBWCsIAhgIIQ+DJ?=
- =?us-ascii?q?wlHERSGfo4sIwMwgQUBAYtugkABAQ?=
+   d="scan'208";a="35763377"
+IronPort-PHdr: =?us-ascii?q?9a23=3AI0a8AhOITnwWKOtwLVIl6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0I/n/rarrMEGX3/hxlliBBdydt6sfzbOL6+u8BCQp2tWoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagb75+Ngi6oAXNusUZjoZvKrs6xw?=
+ =?us-ascii?q?fUrHdPZ+lY335jK0iJnxb76Mew/Zpj/DpVtvk86cNOUrj0crohQ7BAAzsoL2?=
+ =?us-ascii?q?465MvwtRneVgSP/WcTUn8XkhVTHQfI6gzxU4rrvSv7sup93zSaPdHzQLspVz?=
+ =?us-ascii?q?mu87tnRRn1gyocKTU37H/YhdBxjKJDoRKuuRp/w5LPYIqIMPZyZ77Rcc8GSW?=
+ =?us-ascii?q?ZEWMteWTZBAoehZIURCeQPM/tTo43kq1cQqRayAA+hD/7txDBVnH/7xbA03f?=
+ =?us-ascii?q?ovEQ/G3wIuEdwBv3vWo9rpO6kfSvy1wavSwDnfc/9b1zXw5Y7VeR4hu/GMWr?=
+ =?us-ascii?q?dwfNLMx0kzCQzFllWQppLjPziIy+oNtnKU7+5kVe2xi28stgZ8oiOyycc3kY?=
+ =?us-ascii?q?TJmoIUxUzE9SV+2oo1I8a4R1Rhbd6rF5tQqTiXOo1rSc0sRGFovTw1yrwAuZ?=
+ =?us-ascii?q?OjYCgK0o4oxwDea/ycaoSH/hPjWPyWITdii3JpYKq/hhau8Uigze38UNO40F?=
+ =?us-ascii?q?FQripKlNTHq3MD1wTL58SaRfZw8V2t1DaS2wzJ9O1JLl44mbDGJ5Mn37U+jI?=
+ =?us-ascii?q?AcsV7ZES/zgEj2iaiWeVg69eWw8OTnZ6nmpoebN49plgHyKqQuldK7AeQ/Kg?=
+ =?us-ascii?q?UOQ3KU+f691L3+5k31WqlKj/0qnanZt5DWP8IbqbKiAwBJyIoj7he/DzO+3N?=
+ =?us-ascii?q?QZm3kIMk5FdQqag4XmNFzCOvD1Aeqlj1iynzpn2erKMqD5DpXINHfDkbPhfb?=
+ =?us-ascii?q?hn605bzQo+1ctf6I9PCrwaPPLyWlP+tNzfDhMjNQy02PzoBM9y1oMZR2KDGr?=
+ =?us-ascii?q?WZP7/KsV+U+uIvJPGBZJcRuDnnNvgl++TugmQjllIGZ6mmw4YYaHCiEfR6OU?=
+ =?us-ascii?q?mWfX3sgtIZG2cQogU+VPDqiEGFUTNLfHa9QaY85jA9CIK7AobOXZ6tgLOf0y?=
+ =?us-ascii?q?ehBJFWZX5JCkqKEXj2c4WIQfAMaDidIpwprjtRbbW9UccF3AyyrgXzwLovev?=
+ =?us-ascii?q?LQ8zAEr5jq/MJ46+3aiVc58jkiS4yG3mWMSXxktn0HSiVw361lp0F5jFCZ3v?=
+ =?us-ascii?q?tWmftdQOdP6utJXwFyDpvVy+h3GpimQQ7aVsuYQ1ahBNO9CHc+ScxnkIxGWF?=
+ =?us-ascii?q?p0B9j31kOL5CGtGbJA0uXRVZE=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CmGgBNOdVd/wHyM5BlHAEBAQEBBwEBEQEEBAEBgX6Bd?=
+ =?us-ascii?q?CxsgQcqhCqPAVQGgTaBYIgGkUMJAQEBAQEBAQEBKwkBAgEBhEACgickOBMCE?=
+ =?us-ascii?q?AEBAQQBAQEBAQUDAQFshTcMgjspAYJtAQUjFVELDgoCAiYCAlcGAQwGAgEBg?=
+ =?us-ascii?q?l8/AYJSJQ+wRYEyhE1BQIM3gUiBDiiMFRh4gQeBOIJrPoJohG2CXgSWXkaXC?=
+ =?us-ascii?q?oI1gjeEY44vBhuDMZZjjkiIOJNlIoFYKwgCGAghD4MnCUcRFI9NhV0jAzCBB?=
+ =?us-ascii?q?QEBji4BAQ?=
 Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 20 Nov 2019 13:06:05 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 20 Nov 2019 13:06:30 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xAKD63lf024363;
-        Wed, 20 Nov 2019 08:06:04 -0500
-Subject: Re: [Non-DoD Source] [PATCH] dbus: Fix FileNotFoundError in
- org.selinux.relabel_on_boot
+        by tarius.tycho.ncsc.mil (8.14.4/8.14.4) with ESMTP id xAKD6UMa024366;
+        Wed, 20 Nov 2019 08:06:30 -0500
+Subject: Re: [PATCH] Travis-CI: Drop Python 2 from matrix
 To:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
-References: <20191115145425.1460016-1-plautrba@redhat.com>
+References: <20191119104326.1572146-1-plautrba@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <47cc6bd0-009b-33bb-62b6-d22ced25c211@tycho.nsa.gov>
-Date:   Wed, 20 Nov 2019 08:06:03 -0500
+Message-ID: <cdbd96fa-004f-e395-373b-1a9b41e92236@tycho.nsa.gov>
+Date:   Wed, 20 Nov 2019 08:06:30 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20191115145425.1460016-1-plautrba@redhat.com>
+In-Reply-To: <20191119104326.1572146-1-plautrba@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -92,56 +93,33 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/15/19 9:54 AM, Petr Lautrbach wrote:
-> When org.selinux.relabel_on_boot(0) was called twice, it failed with
-> FileNotFoundError.
-> 
-> Fixes:
->      $ dbus-send --system --print-reply --dest=org.selinux /org/selinux/object org.selinux.relabel_on_boot int64:1
->      method return sender=:1.53 -> dest=:1.54 reply_serial=2
->      $ dbus-send --system --print-reply --dest=org.selinux /org/selinux/object org.selinux.relabel_on_boot int64:0
->      method return sender=:1.53 -> dest=:1.55 reply_serial=2
->      $ dbus-send --system --print-reply --dest=org.selinux /org/selinux/object org.selinux.relabel_on_boot int64:0
->      Error org.freedesktop.DBus.Python.FileNotFoundError: FileNotFoundError: [Errno 2] No such file or directory: '/.autorelabel'
+On 11/19/19 5:43 AM, Petr Lautrbach wrote:
+> As a result of Python 2 sunset - https://www.python.org/doc/sunset-python-2/ -
+> Python 2 code will not be supported in this project anymore and new Python code
+> should be written only for Python 3.
 > 
 > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
 Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
+>   .travis.yml | 2 --
+>   1 file changed, 2 deletions(-)
 > 
-> Note: This is python 3 only code and it fails in travis with PYVER=python2.7 RUBYLIBVER=2.6:
-> 
-> $ PATH="$VIRTUAL_ENV/bin:$PATH" ./scripts/run-flake8
-> 
-> Analyzing 187 Python scripts
-> 
-> ./dbus/selinux_server.py:90:20: F821 undefined name 'FileNotFoundError'
-> 
-> ./installdir/usr/share/system-config-selinux/selinux_server.py:90:20: F821 undefined name 'FileNotFoundError'
-> 
-> The command "PATH="$VIRTUAL_ENV/bin:$PATH" ./scripts/run-flake8" exited with 1.
-> 
-> 
-> 
->   dbus/selinux_server.py | 5 ++++-
->   1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/dbus/selinux_server.py b/dbus/selinux_server.py
-> index b9debc071485..be4f4557a9fa 100644
-> --- a/dbus/selinux_server.py
-> +++ b/dbus/selinux_server.py
-> @@ -85,7 +85,10 @@ class selinux_server(slip.dbus.service.Object):
->               fd = open("/.autorelabel", "w")
->               fd.close()
->           else:
-> -            os.unlink("/.autorelabel")
-> +            try:
-> +                os.unlink("/.autorelabel")
-> +            except FileNotFoundError:
-> +                pass
+> diff --git a/.travis.yml b/.travis.yml
+> index 7a9e73ce55db..e9f86baa4e6f 100644
+> --- a/.travis.yml
+> +++ b/.travis.yml
+> @@ -17,10 +17,8 @@ env:
+>       - PYVER=python3.7 RUBYLIBVER=2.6 LINKER=bfd
 >   
->       def write_selinux_config(self, enforcing=None, policy=None):
->           path = selinux.selinux_path() + "config"
+>       # Test several Python versions
+> -    - PYVER=python2.7 RUBYLIBVER=2.6
+>       - PYVER=python3.5 RUBYLIBVER=2.6
+>       - PYVER=python3.6 RUBYLIBVER=2.6
+> -    - PYVER=pypy2.7-6.0 RUBYLIBVER=2.6
+>       - PYVER=pypy3.5-6.0 RUBYLIBVER=2.6
+>   
+>       # Test several Ruby versions (http://rubies.travis-ci.org/)
 > 
 
