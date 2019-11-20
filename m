@@ -6,51 +6,51 @@ X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8BCDC432C0
-	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 13:12:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3243CC432C0
+	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 13:13:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A26D12251D
-	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 13:12:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0658C2251D
+	for <selinux@archiver.kernel.org>; Wed, 20 Nov 2019 13:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1574255555;
-	bh=Y1YHQvbgqBVBtYfXoF968NFfUCGRtYRaQ43ufvzwMQs=;
+	s=default; t=1574255589;
+	bh=4QxDfTWhfYIfShUTFJUNL5e7kwntUpyWkEOl1iCfVwM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=iDGxXyzIyZK4/seKnbmAiKS6IWJL3UKwaOy++n7ppAPqVGivQ4KPbdTlZHsr2UGll
-	 e1E59fkYquQTkd7PfJe2cqcL0XL22r8jFfiYY9iRRCH2uEr3g93tot5Woqpsc2N1uH
-	 0nUWriiDutTzRg7bCy7seHt/q9MBVSvcPScI03Og=
+	b=AJkyJpMrNvmZJ9umvGoVFlpL99+xZaNRbocKq+zofcnkAwi2wG8bjgvyfIZlE603i
+	 OyF08abVHGllC9hrmI951mJK3MEtWFvuCTJjOwzq4bk9P2quRZlcHBPauk41JtJFEu
+	 ShvXLM8KWAWmwe/0WP5wOoz5irMm1LKVRVUHJ6WE=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728049AbfKTNMf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 Nov 2019 08:12:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33904 "EHLO mail.kernel.org"
+        id S1728748AbfKTNNI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 Nov 2019 08:13:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727958AbfKTNMf (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 20 Nov 2019 08:12:35 -0500
+        id S1727958AbfKTNNI (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 20 Nov 2019 08:13:08 -0500
 Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DFCFA22519;
-        Wed, 20 Nov 2019 13:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D761022519;
+        Wed, 20 Nov 2019 13:13:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574255554;
-        bh=Y1YHQvbgqBVBtYfXoF968NFfUCGRtYRaQ43ufvzwMQs=;
+        s=default; t=1574255587;
+        bh=4QxDfTWhfYIfShUTFJUNL5e7kwntUpyWkEOl1iCfVwM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pdvavX/auzZdjuvYtAjnH7kGUHtTRVMH9RMGBCtfUp/dqm7hOuVcoXzICSr+4KR0X
-         k+nzkC7879TNvYXHP9DvftbfnqeOGzK6+67GMqnl4NTsBdP5WtE5+VpNXlSY/GBk2/
-         z8P65MllnB3+r6jPfIVRXO0FujcJWL/TDXoOsIHI=
-Date:   Wed, 20 Nov 2019 13:12:30 +0000
+        b=tBFRoJ/WF6PtVpkvzfpadq7Q21oE83R3/+0YLWppJ5Uprf8ZyM+FNehc8utKG01rp
+         G330xEHF3fP5srBsNurWZd61K0s/9/s1MDQ93RQCq7zPwqpOLRdVBhs7n7dBvlzdVA
+         d4ssQ5uDToxXvzRzpRF3zbQMlL/Z6DLsaduA8o2A=
+Date:   Wed, 20 Nov 2019 13:13:03 +0000
 From:   Will Deacon <will@kernel.org>
 To:     Stephen Smalley <sds@tycho.nsa.gov>
 Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH 1/2] selinux: Don't call avc_compute_av() from RCU
- path walk
-Message-ID: <20191120131229.GA21500@willie-the-truck>
+Subject: Re: [RFC PATCH 2/2] selinux: Propagate RCU walk status from
+ 'security_inode_follow_link()'
+Message-ID: <20191120131303.GB21500@willie-the-truck>
 References: <20191119184057.14961-1-will@kernel.org>
- <20191119184057.14961-2-will@kernel.org>
- <5e51f9a5-ba76-a42d-fc2b-9255f8544859@tycho.nsa.gov>
+ <20191119184057.14961-3-will@kernel.org>
+ <d1b03e3f-2906-d022-3578-e443a5ebb1a0@tycho.nsa.gov>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5e51f9a5-ba76-a42d-fc2b-9255f8544859@tycho.nsa.gov>
+In-Reply-To: <d1b03e3f-2906-d022-3578-e443a5ebb1a0@tycho.nsa.gov>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -59,26 +59,38 @@ X-Mailing-List: selinux@vger.kernel.org
 
 Hi Stephen,
 
-Thanks for the quick reply.
+Thanks for the quick review.
 
-On Tue, Nov 19, 2019 at 01:59:40PM -0500, Stephen Smalley wrote:
+On Tue, Nov 19, 2019 at 01:46:37PM -0500, Stephen Smalley wrote:
 > On 11/19/19 1:40 PM, Will Deacon wrote:
-> > 'avc_compute_av()' can block, so we carefully exit the RCU read-side
-> > critical section before calling it in 'avc_has_perm_noaudit()'.
-> > Unfortunately, if we're calling from the VFS layer on the RCU path walk
-> > via 'selinux_inode_permission()' then we're still actually in an RCU
-> > read-side critical section and must not block.
+> > 'selinux_inode_follow_link()' can be called as part of an RCU path walk,
+> > and is passed a 'bool rcu' parameter to indicate whether or not it is
+> > being called from within an RCU read-side critical section.
+> > 
+> > Unfortunately, this knowledge is not propagated further and, instead,
+> > 'avc_has_perm()' unconditionally passes a flags argument of '0' to both
+> > 'avc_has_perm_noaudit()' and 'avc_audit()' which may block.
+> > 
+> > Introduce 'avc_has_perm_flags()' which can be used safely from within an
+> > RCU read-side critical section.
 > 
-> avc_compute_av() should never block AFAIK. The blocking concern was with
-> slow_avc_audit(), and even that appears dubious to me. That seems to be more
-> about misuse of d_find_alias in dump_common_audit_data() than anything.
+> Please see e46e01eebbbcf2ff6d28ee7cae9f117e9d1572c8 ("selinux: stop passing
+> MAY_NOT_BLOCK to the AVC upon follow_link").
 
-Apologies, I lost track of GFP_ATOMIC when I reading the code and didn't
-think it was propagated down to all of the potential allocations and
-string functions. Having looked at it again, I can't see where it blocks.
+Ha, not sure how I missed that -- my patch is almost a direct revert,
+including the name 'avs_has_perm_flags()'! My only concern is that the
+commit message for e46e01eebbbc asserts that the only use of MAY_NOT_BLOCK
+is in slow_avc_audit(), but AVC_NONBLOCKING is used more widely than that.
 
-Might be worth a comment in avc_compute_av(), because the temporary
-dropping of rcu_read_lock() looks really dodgy when we could be running
-on the RCU path walk path anyway.
+For example:
+
+	selinux_inode_follow_link()
+	  -> avc_has_perm()
+	    -> avc_has_perm_noaudit()
+	      -> avc_denied()
+	        -> avc_update_node()
+
+where we return early if AVC_NONBLOCKING is set, except flags are always
+zero on this path.
 
 Will
