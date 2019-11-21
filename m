@@ -4,38 +4,35 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C39DDC432C0
-	for <selinux@archiver.kernel.org>; Thu, 21 Nov 2019 05:38:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68BD8C432C0
+	for <selinux@archiver.kernel.org>; Thu, 21 Nov 2019 05:50:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9674A2068E
-	for <selinux@archiver.kernel.org>; Thu, 21 Nov 2019 05:38:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4572620898
+	for <selinux@archiver.kernel.org>; Thu, 21 Nov 2019 05:50:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726132AbfKUFi7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 21 Nov 2019 00:38:59 -0500
-Received: from namei.org ([65.99.196.166]:41488 "EHLO namei.org"
+        id S1726502AbfKUFuk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 Nov 2019 00:50:40 -0500
+Received: from namei.org ([65.99.196.166]:41508 "EHLO namei.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725842AbfKUFi7 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 21 Nov 2019 00:38:59 -0500
+        id S1725904AbfKUFuk (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 21 Nov 2019 00:50:40 -0500
 Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id xAL5cgMg004627;
-        Thu, 21 Nov 2019 05:38:42 GMT
-Date:   Thu, 21 Nov 2019 16:38:42 +1100 (AEDT)
+        by namei.org (8.14.4/8.14.4) with ESMTP id xAL5oPFd005470;
+        Thu, 21 Nov 2019 05:50:25 GMT
+Date:   Thu, 21 Nov 2019 16:50:25 +1100 (AEDT)
 From:   James Morris <jmorris@namei.org>
 To:     Casey Schaufler <casey@schaufler-ca.com>
 cc:     casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        John Johansen <john.johansen@canonical.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Mimi Zohar <zohar@linux.vnet.ibm.com>
-Subject: Re: [PATCH v11 03/25] LSM: Use lsmblob in
- security_audit_rule_match
-In-Reply-To: <20191113175721.2317-4-casey@schaufler-ca.com>
-Message-ID: <alpine.LRH.2.21.1911211636380.3625@namei.org>
-References: <20191113175721.2317-1-casey@schaufler-ca.com> <20191113175721.2317-4-casey@schaufler-ca.com>
+        selinux@vger.kernel.org, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: Re: [PATCH v11 17/25] LSM: Use lsmcontext in
+ security_inode_getsecctx
+In-Reply-To: <20191113175721.2317-18-casey@schaufler-ca.com>
+Message-ID: <alpine.LRH.2.21.1911211648200.3625@namei.org>
+References: <20191113175721.2317-1-casey@schaufler-ca.com> <20191113175721.2317-18-casey@schaufler-ca.com>
 User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -46,28 +43,22 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Wed, 13 Nov 2019, Casey Schaufler wrote:
 
-> Change the secid parameter of security_audit_rule_match
-> to a lsmblob structure pointer. Pass the entry from the
-> lsmblob structure for the approprite slot to the LSM hook.
+> Change the security_inode_getsecctx() interface to fill
+> a lsmcontext structure instead of data and length pointers.
+> This provides the information about which LSM created the
+> context so that security_release_secctx() can use the
+> correct hook.
 > 
-> Change the users of security_audit_rule_match to use the
-> lsmblob instead of a u32. In some cases this requires a
-> temporary conversion using lsmblob_init() that will go
-> away when other interfaces get converted.
-> 
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-> Reviewed-by: John Johansen <john.johansen@canonical.com>
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->  include/linux/security.h            |  7 ++++---
->  kernel/auditfilter.c                |  7 +++++--
->  kernel/auditsc.c                    | 14 ++++++++++----
->  security/integrity/ima/ima.h        |  4 ++--
->  security/integrity/ima/ima_policy.c |  7 +++++--
->  security/security.c                 | 18 +++++++++++++++---
->  6 files changed, 41 insertions(+), 16 deletions(-)
+>  fs/nfsd/nfs4xdr.c        | 23 +++++++++--------------
+>  include/linux/security.h |  5 +++--
+>  security/security.c      | 13 +++++++++++--
+>  3 files changed, 23 insertions(+), 18 deletions(-)
 
-IMA changes will also need review from Mimi.
+Please ensure all relevant maintainers are cc'd:
+
+$ scripts/get_maintainer.pl fs/nfsd/nfs4xdr.c
 
 
 -- 
