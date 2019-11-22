@@ -2,104 +2,124 @@ Return-Path: <SRS0=8Pnr=ZO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00156C432C0
-	for <selinux@archiver.kernel.org>; Fri, 22 Nov 2019 16:11:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB881C432C0
+	for <selinux@archiver.kernel.org>; Fri, 22 Nov 2019 16:18:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D17962071C
-	for <selinux@archiver.kernel.org>; Fri, 22 Nov 2019 16:11:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 76C222071C
+	for <selinux@archiver.kernel.org>; Fri, 22 Nov 2019 16:18:40 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="mMQAStza"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726664AbfKVQLf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Nov 2019 11:11:35 -0500
-Received: from zeniv.linux.org.uk ([195.92.253.2]:46434 "EHLO
-        ZenIV.linux.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726546AbfKVQLf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 Nov 2019 11:11:35 -0500
-Received: from viro by ZenIV.linux.org.uk with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iYBWt-0008E6-1N; Fri, 22 Nov 2019 16:11:31 +0000
-Date:   Fri, 22 Nov 2019 16:11:31 +0000
-From:   Al Viro <viro@zeniv.linux.org.uk>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org, paul@paul-moore.com, will@kernel.org,
-        neilb@suse.de, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC PATCH 2/2] selinux: fall back to ref-walk upon
- LSM_AUDIT_DATA_DENTRY too
-Message-ID: <20191122161131.GB26530@ZenIV.linux.org.uk>
-References: <20191121145245.8637-1-sds@tycho.nsa.gov>
- <20191121145245.8637-2-sds@tycho.nsa.gov>
+        id S1727471AbfKVQSk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Nov 2019 11:18:40 -0500
+Received: from mailomta32-re.btinternet.com ([213.120.69.125]:20196 "EHLO
+        re-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726666AbfKVQSk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Nov 2019 11:18:40 -0500
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-049.btinternet.com with ESMTP
+          id <20191122161836.VJLH30084.re-prd-fep-049.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Fri, 22 Nov 2019 16:18:36 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1574439516; 
+        bh=SVJQLrWHGw2jom/v+sBEqEqXkedEsNARnVbmDl+l+kE=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=mMQAStzaKHi+/Lb6WnBSLQkmUgpYxDZi0aDHeDnbXDgezehuEqdgKVr8ZtMTyoD2klPVpumFiP68zNuzWQq3+TgFKYjs/ZsXcYWfzgDrmJZguJNeiLLzAbheV03AnAF/qY2/vS0jBUQAAPrUDmcn4nsQ6DDIb38v0vNPz4jy4hEmqMLYNomBja7JxEozflOts9yq/Q6X79BDN3yWX59i5y/mmlgio/HOK4MZeNy2tPWrHLxMl5kG5XojoKtYKzyYvK/d74vj1eLhlqDHj6eWqTPy24O1NRUrSk//u7tDWR0+YoHi0J11ZZL7SYDw3q4XtHfX34/5Vt9rbjdiuX7lpQ==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.7.51]
+X-OWM-Source-IP: 86.134.7.51 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudehgedgkeeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenfghrlhcuvffnffculddquddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppeekiedrudefgedrjedrhedunecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdejrdehuddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehomhhoshhnrggtvgesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvsheshhhothhmrghilhdrtghomheqpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhr
+        gheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.7.51) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5D834EE50BE1AD7B; Fri, 22 Nov 2019 16:18:36 +0000
+Message-ID: <7735c6c82adc9c1b8e3ff9ee195e4efaf530e480.camel@btinternet.com>
+Subject: Re: [PATCH V4] selinux-testsuite: Add kernel module tests
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
+Date:   Fri, 22 Nov 2019 16:18:35 +0000
+In-Reply-To: <CAHC9VhS3jdaCH+jdmTG=Qk+r_zBuaNdWtFKnQ=ntQL-PpDqjPA@mail.gmail.com>
+References: <20191119113845.89951-1-richard_c_haines@btinternet.com>
+         <CAFqZXNtdWNSma6Y55bPcRvJinCe=F4YNwuciDAhhdgr95ef0Dg@mail.gmail.com>
+         <CAFqZXNtZ8TVWP=6Rsp81u5NOHsvgc0Xr2yMtATTv2R-u5YmOhw@mail.gmail.com>
+         <57736f19-2b1b-aa1f-39ea-19f5c837ad9a@tycho.nsa.gov>
+         <CAHC9VhS3jdaCH+jdmTG=Qk+r_zBuaNdWtFKnQ=ntQL-PpDqjPA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.1 (3.34.1-1.fc31) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191121145245.8637-2-sds@tycho.nsa.gov>
-User-Agent: Mutt/1.12.1 (2019-06-15)
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Nov 21, 2019 at 09:52:45AM -0500, Stephen Smalley wrote:
-> commit bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
-> passed down the rcu flag to the SELinux AVC, but failed to adjust the
-> test in slow_avc_audit() to also return -ECHILD on LSM_AUDIT_DATA_DENTRY.
-> Previously, we only returned -ECHILD if generating an audit record with
-> LSM_AUDIT_DATA_INODE since this was only relevant from inode_permission.
-> Return -ECHILD on either LSM_AUDIT_DATA_INODE or LSM_AUDIT_DATA_DENTRY.
-> LSM_AUDIT_DATA_INODE only requires this handling due to the fact
-> that dump_common_audit_data() calls d_find_alias() and collects the
-> dname from the result if any.
-> Other cases that might require similar treatment in the future are
-> LSM_AUDIT_DATA_PATH and LSM_AUDIT_DATA_FILE if any hook that takes
-> a path or file is called under RCU-walk.
+On Fri, 2019-11-22 at 08:39 -0500, Paul Moore wrote:
+> On Fri, Nov 22, 2019 at 8:04 AM Stephen Smalley <sds@tycho.nsa.gov>
+> wrote:
+> > On 11/22/19 5:40 AM, Ondrej Mosnacek wrote:
+> > > When trying this on RHEL-7, I realized there is a missing kernel
+> > > version check here (module_load kernel support was introduced in
+> > > v4.7
+> > > [1]):
+> > > 
+> > > ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
+> > > ...
+> > > endif
+> > > 
+> > > It is quite a corner case to have a policy that supports
+> > > module_load
+> > > and a kernel that does not, but there is at least one distro that
+> > > hits
+> > > it, so I think it's worth it to add the explicit check.
+> > > 
+> > > Stephen/Paul, is it trivial enough to add when merging the patch
+> > > or
+> > > should Richard repost it?
+> > > 
+> > > [1] 
+> > > https://github.com/torvalds/linux/commit/61d612ea731e57dc510472fb746b55cdc017f371
+> > 
+> > Alternatively, you could exclude it on RHEL7 by adding it to the
+> > filter-out line under ifeq ($(DISTRO),RHEL7).  Regardless, it is
+> > entirely up to you as to whether you want to fix it up on merge
+> > yourself
+> > or request a re-spin.
 > 
-> Fixes: bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
->  security/selinux/avc.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+> Yes, each project and maintainer handle this differently.  I
+> personally try to have the original submitter make the change(s)
+> whenever possible (assuming they are not merge related); I do this
+> for
+> a few reasons: 1) it is their name on the code, and I don't want to
+> cause them problems by others mistaking my changes for the submitters
+> changes (aside, this is why I try to mark my edits in the commit
+> metadata) 2) changes made during the merge don't go through the
+> normal
+> mailing list review 3) the mailing list feedback loop is a Very Good
+> Thing in my opinion and we should do what we can to keep it going.
 > 
-> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> index 74c43ebe34bb..f1fa1072230c 100644
-> --- a/security/selinux/avc.c
-> +++ b/security/selinux/avc.c
-> @@ -779,7 +779,8 @@ noinline int slow_avc_audit(struct selinux_state *state,
->  	 * during retry. However this is logically just as if the operation
->  	 * happened a little later.
->  	 */
-> -	if ((a->type == LSM_AUDIT_DATA_INODE) &&
-> +	if ((a->type == LSM_AUDIT_DATA_INODE ||
-> +	     a->type == LSM_AUDIT_DATA_DENTRY) &&
->  	    (flags & MAY_NOT_BLOCK))
+> That said, there are cases where the change is mindlessly trivial
+> (e.g. misspellings, nonconformant whitespace, etc.) and I don't have
+> a
+> problem making that edit.  I'll also consider making larger changes
+> if
+> I know the original submitter to be unreliable and we want/need to
+> get
+> the commit into the tree soon.
 
-IDGI, to be honest.  Why do we bother with slow path if MAY_NOT_BLOCK has
-been given?  If we'd run into "there's something to report" case, we
-are not on the fastpath anymore.  IOW, why not have
-        audited = avc_audit_required(requested, avd, result, 0, &denied);
-        if (likely(!audited))
-                return 0;
-	if (flags & MAY_NOT_BLOCK)
-		return -ECHILD;
-        return slow_avc_audit(state, ssid, tsid, tclass,
-                              requested, audited, denied, result,
-                              a, flags);
-in avc_audit() and be done with that?
+I'll submit a new patch with:
+ ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
 
-It's not just whether we *can* collect whatever audit might want; do
-we want to try and make an audit-spewing syscall marginally faster?
-And "marginally" is all you'll get there, really...
-
-We could do
-        error = security_inode_follow_link(dentry, inode,
-                                           nd->flags & LOOKUP_RCU);
-        if (unlikely(error)) {
-		if (error == -ECHILD && !unlazy_walk(nd))
-			error = security_inode_follow_link(dentry, inode, 0);
-		if (error)
-			return ERR_PTR(error);
-	}
-in fs/namei.c:get_link() to slightly reduce the costs; that might or
-might not be useful - I'd like to see profiling results first.  But
-trying to push the actual "spew to audit" into RCU case?  What for?
+Richard
+> 
 
