@@ -2,124 +2,171 @@ Return-Path: <SRS0=8Pnr=ZO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB881C432C0
-	for <selinux@archiver.kernel.org>; Fri, 22 Nov 2019 16:18:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87790C432C0
+	for <selinux@archiver.kernel.org>; Fri, 22 Nov 2019 16:28:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 76C222071C
-	for <selinux@archiver.kernel.org>; Fri, 22 Nov 2019 16:18:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52A9120714
+	for <selinux@archiver.kernel.org>; Fri, 22 Nov 2019 16:28:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="mMQAStza"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="R7osB2Mz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727471AbfKVQSk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 Nov 2019 11:18:40 -0500
-Received: from mailomta32-re.btinternet.com ([213.120.69.125]:20196 "EHLO
-        re-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726666AbfKVQSk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 Nov 2019 11:18:40 -0500
-Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
-          by re-prd-fep-049.btinternet.com with ESMTP
-          id <20191122161836.VJLH30084.re-prd-fep-049.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Fri, 22 Nov 2019 16:18:36 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1574439516; 
-        bh=SVJQLrWHGw2jom/v+sBEqEqXkedEsNARnVbmDl+l+kE=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=mMQAStzaKHi+/Lb6WnBSLQkmUgpYxDZi0aDHeDnbXDgezehuEqdgKVr8ZtMTyoD2klPVpumFiP68zNuzWQq3+TgFKYjs/ZsXcYWfzgDrmJZguJNeiLLzAbheV03AnAF/qY2/vS0jBUQAAPrUDmcn4nsQ6DDIb38v0vNPz4jy4hEmqMLYNomBja7JxEozflOts9yq/Q6X79BDN3yWX59i5y/mmlgio/HOK4MZeNy2tPWrHLxMl5kG5XojoKtYKzyYvK/d74vj1eLhlqDHj6eWqTPy24O1NRUrSk//u7tDWR0+YoHi0J11ZZL7SYDw3q4XtHfX34/5Vt9rbjdiuX7lpQ==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [86.134.7.51]
-X-OWM-Source-IP: 86.134.7.51 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudehgedgkeeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenfghrlhcuvffnffculddquddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppeekiedrudefgedrjedrhedunecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdejrdehuddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehomhhoshhnrggtvgesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvsheshhhothhmrghilhdrtghomheqpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhr
-        gheqnecuvehluhhsthgvrhfuihiivgeptd
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (86.134.7.51) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
-        id 5D834EE50BE1AD7B; Fri, 22 Nov 2019 16:18:36 +0000
-Message-ID: <7735c6c82adc9c1b8e3ff9ee195e4efaf530e480.camel@btinternet.com>
-Subject: Re: [PATCH V4] selinux-testsuite: Add kernel module tests
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
-Date:   Fri, 22 Nov 2019 16:18:35 +0000
-In-Reply-To: <CAHC9VhS3jdaCH+jdmTG=Qk+r_zBuaNdWtFKnQ=ntQL-PpDqjPA@mail.gmail.com>
-References: <20191119113845.89951-1-richard_c_haines@btinternet.com>
-         <CAFqZXNtdWNSma6Y55bPcRvJinCe=F4YNwuciDAhhdgr95ef0Dg@mail.gmail.com>
-         <CAFqZXNtZ8TVWP=6Rsp81u5NOHsvgc0Xr2yMtATTv2R-u5YmOhw@mail.gmail.com>
-         <57736f19-2b1b-aa1f-39ea-19f5c837ad9a@tycho.nsa.gov>
-         <CAHC9VhS3jdaCH+jdmTG=Qk+r_zBuaNdWtFKnQ=ntQL-PpDqjPA@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.1 (3.34.1-1.fc31) 
+        id S1727139AbfKVQ2D (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 Nov 2019 11:28:03 -0500
+Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:19807 "EHLO
+        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726546AbfKVQ2C (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 Nov 2019 11:28:02 -0500
+X-EEMSG-check-017: 33153256|UPDC19PA19_ESA_OUT01.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.69,230,1571702400"; 
+   d="scan'208";a="33153256"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 22 Nov 2019 16:27:59 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1574440079; x=1605976079;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=V92KujVdDRAUOMqIQ2F2Sp/3kKB/bbgxyLIWLOAxY3E=;
+  b=R7osB2MzEjtB4gXp0MtDq3a9Cm5Cws5Jq+BOlDgvKj1GzF2na+z/jozn
+   aLVonAcp9SUd6IvkNVSLGuKAiUqJtAnqeaP/5DAjBT9jTQpteJ+3WWG0x
+   JeJnwLImfpaCegcoZYpeyKwm7DQRy250zhiAu8XtlksyA+6y47qP+D8B/
+   wsxovVgaUBLS2LaWDHBLmraDJZhcfYZWE8oLxA3dk8L8CRLgXvzxyzs5N
+   XI2GtWBBLXmlO6O8d5Cag+FskD3N7W6XXIjWj9e2ImDUwfiU3LO9AFlFO
+   lQT0skFapj5Iran27YnVx7IMpxhQN0SNFI5/uWFIjq2Cl3fRmnkgnlvZX
+   A==;
+X-IronPort-AV: E=Sophos;i="5.69,230,1571702400"; 
+   d="scan'208";a="30415959"
+IronPort-PHdr: =?us-ascii?q?9a23=3ArkS1nRTPFnnZdGXFSFnn/7PTQtpsv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa67ZRSHt8tkgFKBZ4jH8fUM07OQ7/m7HzVdvd3R7jgrS99lb1?=
+ =?us-ascii?q?c9k8IYnggtUoauKHbQC7rUVRE8B9lIT1R//nu2YgB/Ecf6YEDO8DXptWZBUh?=
+ =?us-ascii?q?rwOhBoKevrB4Xck9q41/yo+53Ufg5EmCexbal9IRmrowjdrNQajIttJ6o+yR?=
+ =?us-ascii?q?bEo2ZDdvhLy29vOV+dhQv36N2q/J5k/SRQuvYh+NBFXK7nYak2TqFWASo/PW?=
+ =?us-ascii?q?wt68LlqRfMTQ2U5nsBSWoWiQZHAxLE7B7hQJj8tDbxu/dn1ymbOc32Sq00WS?=
+ =?us-ascii?q?in4qx2RhLklDsLOjgk+2zMlMd+kLxUrw6gpxxnwo7bfoeVNOZlfqjAed8WXH?=
+ =?us-ascii?q?dNUtpNWyBEBI6zYZEPD+4cNuhGqYfzqUYFoR+nCQSsAO7jzzlFjWL006Inye?=
+ =?us-ascii?q?QsCRzI0hIuH9wOs3raotv6O6gQXu+pw6fF1inDYvFM1Dvh9ITFfBIsrPeRVr?=
+ =?us-ascii?q?xwa8rRzkwvGhvYgFWMt4PlJzOV2foLs2OG8uRgUPigi2ojqw5vojmk28Ahip?=
+ =?us-ascii?q?LUiYIO0V3E6SV4z5o1Jd2/UkJ7Z8WkH4FKuyGVMIt2XNovTmd1syg50r0LoY?=
+ =?us-ascii?q?O3cScFxZg9xxPTduaLf5aH7x79TuqdPDF1j29/dr2lnRa9602gx/X5VsmzzV?=
+ =?us-ascii?q?lFsDJIksLJtnARzxzT7dWHSudl8kehxzmP0wfT5/lYIU8uj6rbKoMhwqUqmp?=
+ =?us-ascii?q?oSt0TDECj2mF7og6CKbEkk5uip5PjnYrXhvJOcMZN7ihriPag0n8y/AOA4Ph?=
+ =?us-ascii?q?APX2id5+u8yKXu8VD2TbhFlPE7krTVvIrEKckUuKK1GRJZ3p4m6xmlDjem1N?=
+ =?us-ascii?q?oYnWMALFJAYB+HlJXmO0rVLfDkDfawn1SskDBxy/DAJb3uGI/BLnfEkLf/Zb?=
+ =?us-ascii?q?p98VJTyBIvzdBD4JJZEq8BIPPpWk/2r9HZDwE2Mwq1w+b5Etl90oIeWWSSAq?=
+ =?us-ascii?q?6WKq/StkWI5u01L+mRZ48foCz9JOQ95/7ykX85nkcQfbK30psTaXC4GOlmIk?=
+ =?us-ascii?q?qCbHryjdcOD30KshA9TOP0kl2CVyBcZ3KoU6I7/DE7B5qsDZ3fSYC1nLyBwC?=
+ =?us-ascii?q?C7E4VOZm9cF1CMFWzld52eVPcRbCKeO8phkjsDVbi7VYAtzw2htAj/y7B/NO?=
+ =?us-ascii?q?rb5jUYtY7/1Nhy/+DSmxAy9ThwD8mG0GGCUXt0nmUWSD8yxqx/plZ9ylib26?=
+ =?us-ascii?q?hin/NYDcBT5+9OUgoiM57T0e16C9TpVQ/aZdeJVU2mTcu8DT4sUN0728UObF?=
+ =?us-ascii?q?plG9W+khDD2DKnA7sUl7yNGZw1/bvQ33bqJ8lg1XnGyrcuj109T8tROm2pmL?=
+ =?us-ascii?q?R/+xLQB4HXiUWZkbildaAG0C7K7meDwjnGgEYNeQo4b6TfWjhLeErMqvzr60?=
+ =?us-ascii?q?XDUfmqCLI6Ik1G08HEN6gcOfPzilATf+vuINTTZSqKnm60ARuZjueXYJHCZ3?=
+ =?us-ascii?q?QW3CKbDlMN1Q8U4yDVZkAFGi69rjeGX3RVHlX1bhapqLQvpQ=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2A3AAA4DNhd/wHyM5BlGQEBAQEBAQEBAQEBAQEBAQEBE?=
+ =?us-ascii?q?QEBAQEBAQEBAQEBgX6BdIFtIBIqhCqJA4ZSBoE3iWeKH4ckCQEBAQEBAQEBA?=
+ =?us-ascii?q?TcBAYRAAoJOOBMCEAEBAQQBAQEBAQUDAQFshUOCOykBgmwBAQEBAgEjBBFBB?=
+ =?us-ascii?q?QsLGAICJgICVwYNBgIBAYJfP4JTBSCuVnV/M4VOgzWBSIEOKIwweIEHgREng?=
+ =?us-ascii?q?ms+hA6DR4JeBI0SC4lCRnSWF4I1gjeTEwYbmhgtqjgigVgrCAIYCCEPgydQE?=
+ =?us-ascii?q?RSGVBcVjiwjAzCPBYJAAQE?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 22 Nov 2019 16:27:39 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xAMGRahY070678;
+        Fri, 22 Nov 2019 11:27:36 -0500
+Subject: Re: [RFC PATCH 2/2] selinux: fall back to ref-walk upon
+ LSM_AUDIT_DATA_DENTRY too
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     selinux@vger.kernel.org, paul@paul-moore.com, will@kernel.org,
+        neilb@suse.de, linux-fsdevel@vger.kernel.org
+References: <20191121145245.8637-1-sds@tycho.nsa.gov>
+ <20191121145245.8637-2-sds@tycho.nsa.gov>
+ <20191122161131.GB26530@ZenIV.linux.org.uk>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <18fef491-bee5-fbf6-a3b8-113150f324b4@tycho.nsa.gov>
+Date:   Fri, 22 Nov 2019 11:27:37 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
+In-Reply-To: <20191122161131.GB26530@ZenIV.linux.org.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 2019-11-22 at 08:39 -0500, Paul Moore wrote:
-> On Fri, Nov 22, 2019 at 8:04 AM Stephen Smalley <sds@tycho.nsa.gov>
-> wrote:
-> > On 11/22/19 5:40 AM, Ondrej Mosnacek wrote:
-> > > When trying this on RHEL-7, I realized there is a missing kernel
-> > > version check here (module_load kernel support was introduced in
-> > > v4.7
-> > > [1]):
-> > > 
-> > > ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-> > > ...
-> > > endif
-> > > 
-> > > It is quite a corner case to have a policy that supports
-> > > module_load
-> > > and a kernel that does not, but there is at least one distro that
-> > > hits
-> > > it, so I think it's worth it to add the explicit check.
-> > > 
-> > > Stephen/Paul, is it trivial enough to add when merging the patch
-> > > or
-> > > should Richard repost it?
-> > > 
-> > > [1] 
-> > > https://github.com/torvalds/linux/commit/61d612ea731e57dc510472fb746b55cdc017f371
-> > 
-> > Alternatively, you could exclude it on RHEL7 by adding it to the
-> > filter-out line under ifeq ($(DISTRO),RHEL7).  Regardless, it is
-> > entirely up to you as to whether you want to fix it up on merge
-> > yourself
-> > or request a re-spin.
+On 11/22/19 11:11 AM, Al Viro wrote:
+> On Thu, Nov 21, 2019 at 09:52:45AM -0500, Stephen Smalley wrote:
+>> commit bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
+>> passed down the rcu flag to the SELinux AVC, but failed to adjust the
+>> test in slow_avc_audit() to also return -ECHILD on LSM_AUDIT_DATA_DENTRY.
+>> Previously, we only returned -ECHILD if generating an audit record with
+>> LSM_AUDIT_DATA_INODE since this was only relevant from inode_permission.
+>> Return -ECHILD on either LSM_AUDIT_DATA_INODE or LSM_AUDIT_DATA_DENTRY.
+>> LSM_AUDIT_DATA_INODE only requires this handling due to the fact
+>> that dump_common_audit_data() calls d_find_alias() and collects the
+>> dname from the result if any.
+>> Other cases that might require similar treatment in the future are
+>> LSM_AUDIT_DATA_PATH and LSM_AUDIT_DATA_FILE if any hook that takes
+>> a path or file is called under RCU-walk.
+>>
+>> Fixes: bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
+>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+>> ---
+>>   security/selinux/avc.c | 3 ++-
+>>   1 file changed, 2 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+>> index 74c43ebe34bb..f1fa1072230c 100644
+>> --- a/security/selinux/avc.c
+>> +++ b/security/selinux/avc.c
+>> @@ -779,7 +779,8 @@ noinline int slow_avc_audit(struct selinux_state *state,
+>>   	 * during retry. However this is logically just as if the operation
+>>   	 * happened a little later.
+>>   	 */
+>> -	if ((a->type == LSM_AUDIT_DATA_INODE) &&
+>> +	if ((a->type == LSM_AUDIT_DATA_INODE ||
+>> +	     a->type == LSM_AUDIT_DATA_DENTRY) &&
+>>   	    (flags & MAY_NOT_BLOCK))
 > 
-> Yes, each project and maintainer handle this differently.  I
-> personally try to have the original submitter make the change(s)
-> whenever possible (assuming they are not merge related); I do this
-> for
-> a few reasons: 1) it is their name on the code, and I don't want to
-> cause them problems by others mistaking my changes for the submitters
-> changes (aside, this is why I try to mark my edits in the commit
-> metadata) 2) changes made during the merge don't go through the
-> normal
-> mailing list review 3) the mailing list feedback loop is a Very Good
-> Thing in my opinion and we should do what we can to keep it going.
+> IDGI, to be honest.  Why do we bother with slow path if MAY_NOT_BLOCK has
+> been given?  If we'd run into "there's something to report" case, we
+> are not on the fastpath anymore.  IOW, why not have
+>          audited = avc_audit_required(requested, avd, result, 0, &denied);
+>          if (likely(!audited))
+>                  return 0;
+> 	if (flags & MAY_NOT_BLOCK)
+> 		return -ECHILD;
+>          return slow_avc_audit(state, ssid, tsid, tclass,
+>                                requested, audited, denied, result,
+>                                a, flags);
+> in avc_audit() and be done with that?
+
+That works for me; we would also need to do the same in 
+selinux_inode_permission().  We can then stop passing flags down to 
+slow_avc_audit() entirely.
+
+> It's not just whether we *can* collect whatever audit might want; do
+> we want to try and make an audit-spewing syscall marginally faster?
+> And "marginally" is all you'll get there, really...
 > 
-> That said, there are cases where the change is mindlessly trivial
-> (e.g. misspellings, nonconformant whitespace, etc.) and I don't have
-> a
-> problem making that edit.  I'll also consider making larger changes
-> if
-> I know the original submitter to be unreliable and we want/need to
-> get
-> the commit into the tree soon.
-
-I'll submit a new patch with:
- ifneq ($(shell ./kvercmp $$(uname -r) 4.7),-1)
-
-Richard
+> We could do
+>          error = security_inode_follow_link(dentry, inode,
+>                                             nd->flags & LOOKUP_RCU);
+>          if (unlikely(error)) {
+> 		if (error == -ECHILD && !unlazy_walk(nd))
+> 			error = security_inode_follow_link(dentry, inode, 0);
+> 		if (error)
+> 			return ERR_PTR(error);
+> 	}
+> in fs/namei.c:get_link() to slightly reduce the costs; that might or
+> might not be useful - I'd like to see profiling results first.  But
+> trying to push the actual "spew to audit" into RCU case?  What for?
 > 
 
