@@ -2,131 +2,82 @@ Return-Path: <SRS0=nPuh=ZR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B30E9C432C3
-	for <selinux@archiver.kernel.org>; Mon, 25 Nov 2019 19:28:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7ED1C432C0
+	for <selinux@archiver.kernel.org>; Mon, 25 Nov 2019 22:04:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9834F2084D
-	for <selinux@archiver.kernel.org>; Mon, 25 Nov 2019 19:28:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A546920659
+	for <selinux@archiver.kernel.org>; Mon, 25 Nov 2019 22:04:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727102AbfKYT2J (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 Nov 2019 14:28:09 -0500
-Received: from mail-il1-f200.google.com ([209.85.166.200]:37872 "EHLO
-        mail-il1-f200.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725799AbfKYT2J (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 Nov 2019 14:28:09 -0500
-Received: by mail-il1-f200.google.com with SMTP id q1so14580477ile.4
-        for <selinux@vger.kernel.org>; Mon, 25 Nov 2019 11:28:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=vepHw2FCtDai2doID+pQcicHSRg4AAVaV69lUY8SeNc=;
-        b=on9+v8kac+OUEbhukI9wHR/5xPzHSkmCkJS1vPqdVZWllcnBBje2swxrE3O20ibC4x
-         6b2n0WTFDr3rJtUba6zUTt1bUM9jPPuAuXbNOlAKKxFqJQeAa2CAS9VwutpJyrPn6LmJ
-         4LbH5d+YXiZxBdX5rs+BWSqGml8rVNvkFjTOfjeEh+yV1maIVtzLEK9UNj4w4qEjNcIG
-         aR/KqhwjD+8ezAeeJ/nbPVlKPn4jI6eDAh9AhhHlM7hkR58AB0ttH1hb+UK6aqQaQ+RY
-         vLiLLV6sviWDKRon96tY8KbyHOF2D/WrDoOoaitz2dZ5xM/AlcultdvSRM2KyUrhbmcE
-         Y8nw==
-X-Gm-Message-State: APjAAAV4wJ3SMzPg24EJXmL4xxA5HOLJ9ReSU7Uhq9necKEtx7SpQBmm
-        Exa0jkPi0wQOZdXjmbHJhARLDQFb2OShSHhqks4SXvwmS9k0
-X-Google-Smtp-Source: APXvYqy9j/n9HPTJPkHiUlSCPsZh3oe7S2pyT8r5kW0yvcYxtwD0vMn4rZli+fUaFR17ZHhevavNreq77VK2Vn/4uWHbujIQHC/t
-MIME-Version: 1.0
-X-Received: by 2002:a92:9e0e:: with SMTP id q14mr20742629ili.151.1574710088077;
- Mon, 25 Nov 2019 11:28:08 -0800 (PST)
-Date:   Mon, 25 Nov 2019 11:28:08 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000006c9f4e059830c33c@google.com>
-Subject: general protection fault in selinux_socket_sendmsg (2)
-From:   syzbot <syzbot+314db21f0d5c1f53856c@syzkaller.appspotmail.com>
-To:     andriin@fb.com, anton@enomsg.org, ast@kernel.org,
+        id S1725938AbfKYWEE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 Nov 2019 17:04:04 -0500
+Received: from www262.sakura.ne.jp ([202.181.97.72]:52051 "EHLO
+        www262.sakura.ne.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725924AbfKYWED (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 Nov 2019 17:04:03 -0500
+Received: from fsav401.sakura.ne.jp (fsav401.sakura.ne.jp [133.242.250.100])
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id xAPM40dL086354;
+        Tue, 26 Nov 2019 07:04:01 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Received: from www262.sakura.ne.jp (202.181.97.72)
+ by fsav401.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav401.sakura.ne.jp);
+ Tue, 26 Nov 2019 07:04:00 +0900 (JST)
+X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav401.sakura.ne.jp)
+Received: from [192.168.1.9] (softbank126040052248.bbtec.net [126.40.52.248])
+        (authenticated bits=0)
+        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id xAPM3qjm086324
+        (version=TLSv1.2 cipher=AES256-SHA bits=256 verify=NO);
+        Tue, 26 Nov 2019 07:04:00 +0900 (JST)
+        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
+Subject: Re: general protection fault in selinux_socket_sendmsg (2)
+To:     syzbot <syzbot+314db21f0d5c1f53856c@syzkaller.appspotmail.com>,
+        netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com
+References: <0000000000006c9f4e059830c33c@google.com>
+Cc:     andriin@fb.com, anton@enomsg.org, ast@kernel.org,
         bpf@vger.kernel.org, ccross@android.com, daniel@iogearbox.net,
         eparis@parisplace.org, kafai@fb.com, keescook@chromium.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        paul@paul-moore.com, sds@tycho.nsa.gov, selinux@vger.kernel.org,
-        songliubraving@fb.com, syzkaller-bugs@googlegroups.com,
+        linux-kernel@vger.kernel.org, paul@paul-moore.com,
+        sds@tycho.nsa.gov, selinux@vger.kernel.org, songliubraving@fb.com,
         tony.luck@intel.com, yhs@fb.com
-Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
+From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Message-ID: <2340a1a3-37cf-5f55-1f9a-9052a557f579@I-love.SAKURA.ne.jp>
+Date:   Tue, 26 Nov 2019 07:03:51 +0900
+User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
+MIME-Version: 1.0
+In-Reply-To: <0000000000006c9f4e059830c33c@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+On 2019/11/26 4:28, syzbot wrote:
+> Hello,
+> 
+> syzbot found the following crash on:
+> 
+> HEAD commit:    6b8a7946 Merge tag 'for_linus' of git://git.kernel.org/pub..
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=1680ab8ce00000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=4737c15fc47048f2
+> dashboard link: https://syzkaller.appspot.com/bug?extid=314db21f0d5c1f53856c
+> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> 
+> Unfortunately, I don't have any reproducer for this crash yet.
 
-syzbot found the following crash on:
+Original bug has syz reproducer.
 
-HEAD commit:    6b8a7946 Merge tag 'for_linus' of git://git.kernel.org/pub..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=1680ab8ce00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=4737c15fc47048f2
-dashboard link: https://syzkaller.appspot.com/bug?extid=314db21f0d5c1f53856c
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> 
+> IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> Reported-by: syzbot+314db21f0d5c1f53856c@syzkaller.appspotmail.com
+> 
 
-Unfortunately, I don't have any reproducer for this crash yet.
+net/rxrpc/output.c:655
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+314db21f0d5c1f53856c@syzkaller.appspotmail.com
-
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] PREEMPT SMP KASAN
-CPU: 1 PID: 4616 Comm: kworker/1:0 Not tainted 5.4.0-rc8-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS  
-Google 01/01/2011
-Workqueue: krxrpcd rxrpc_peer_keepalive_worker
-RIP: 0010:selinux_socket_sendmsg+0x22/0x40 security/selinux/hooks.c:4828
-Code: c3 e8 c2 40 ac fe eb e8 55 48 89 e5 53 48 89 fb e8 43 d5 70 fe 48 8d  
-7b 18 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 75  
-11 48 8b 7b 18 be 04 00 00 00 e8 fa fb ff ff 5b 5d
-RSP: 0000:ffff888089fd79f0 EFLAGS: 00010206
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff83427eb5
-RDX: 0000000000000003 RSI: ffffffff830281dd RDI: 0000000000000018
-RBP: ffff888089fd79f8 R08: ffff888098698400 R09: fffffbfff14f0154
-R10: fffffbfff14f0153 R11: ffffffff8a780a9f R12: dffffc0000000000
-R13: ffff888089fd7b20 R14: ffff888089fd7b20 R15: 000000000000001d
-FS:  0000000000000000(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000000c000064008 CR3: 00000000a87b8000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-  security_socket_sendmsg+0x77/0xc0 security/security.c:2013
-  sock_sendmsg+0x45/0x130 net/socket.c:654
-  kernel_sendmsg+0x44/0x50 net/socket.c:677
-  rxrpc_send_keepalive+0x1ff/0x940 net/rxrpc/output.c:655
-  rxrpc_peer_keepalive_dispatch net/rxrpc/peer_event.c:376 [inline]
-  rxrpc_peer_keepalive_worker+0x7be/0xd02 net/rxrpc/peer_event.c:437
-  process_one_work+0x9af/0x1740 kernel/workqueue.c:2269
-  worker_thread+0x98/0xe40 kernel/workqueue.c:2415
-  kthread+0x361/0x430 kernel/kthread.c:255
-  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-Modules linked in:
----[ end trace f42fd501ecc72d8d ]---
-RIP: 0010:selinux_socket_sendmsg+0x22/0x40 security/selinux/hooks.c:4828
-Code: c3 e8 c2 40 ac fe eb e8 55 48 89 e5 53 48 89 fb e8 43 d5 70 fe 48 8d  
-7b 18 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 75  
-11 48 8b 7b 18 be 04 00 00 00 e8 fa fb ff ff 5b 5d
-RSP: 0000:ffff888089fd79f0 EFLAGS: 00010206
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffffff83427eb5
-RDX: 0000000000000003 RSI: ffffffff830281dd RDI: 0000000000000018
-RBP: ffff888089fd79f8 R08: ffff888098698400 R09: fffffbfff14f0154
-R10: fffffbfff14f0153 R11: ffffffff8a780a9f R12: dffffc0000000000
-R13: ffff888089fd7b20 R14: ffff888089fd7b20 R15: 000000000000001d
-FS:  0000000000000000(0000) GS:ffff8880ae900000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f9c00057120 CR3: 00000000a3e31000 CR4: 00000000001406e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-
-
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
-
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+#syz dup: KMSAN: use-after-free in rxrpc_send_keepalive
