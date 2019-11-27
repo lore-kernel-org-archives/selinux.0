@@ -2,175 +2,152 @@ Return-Path: <SRS0=LgiC=ZT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9591C432C0
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 13:46:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C0C4C432C0
+	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 14:00:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A363B2073F
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 13:46:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2DC3520678
+	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 14:00:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fhQ6ak2l"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="njSczbCQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726655AbfK0Nqh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Nov 2019 08:46:37 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50919 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726320AbfK0Nqh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 08:46:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574862396;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=GTLjiXLIruyFO2VshcQdpPwnvoZ/4VyGIWbWmpxmVjA=;
-        b=fhQ6ak2lrEGghAZ1xTAgU5CYNhJOOJ1IdZI6TmUT21stcJQ0TEw7PrEhJrGHVx1m/sgk8w
-        VOKq2WpG9iezUGFMpp2LgieRbE7nKYwXGkd070TCrPm04knqqm0DC1VhsfA3dpDHlC413I
-        4FFOOzPNSFFF5+YoJ7deqXJGr2X55tw=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-297-sE5IT2b7MaabixAceGM0Yg-1; Wed, 27 Nov 2019 08:46:34 -0500
-Received: by mail-wr1-f72.google.com with SMTP id h7so12245674wrb.2
-        for <selinux@vger.kernel.org>; Wed, 27 Nov 2019 05:46:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ihhHNpgBE7UzQ0HUKqHHN/a81NciiY3dmRjLnePfUtI=;
-        b=e6XNBXK6VipUhdj0fPd5E17ir0WTdVBsNqmfOlkVPoBr4GKQZ7Om7hwVihnsAPoKpz
-         quZqJu/D4lMZe3s82f47vkZLdyek6LO3yLJ8GolWdMJhxQZz8zap24JKyiTXJ7UT6VQS
-         y3GhaqYtuieDS9RiObAm6ju2Umk5HRTnEsb30bKvwZzLQ+j2cVO7ElifsJYSIp+e5F4E
-         bO3m6hNTcIuXdYWK5HIRllVpp7/vEhNDHkLB1WdfJhEJHy0vIfDxE6gqLqQ+ivAmfdKV
-         l7E426vAKQNYTe0Lqq23tgaKIC40MpWVoqTeMtuQ6U7Z70hREGPJ3gLdak/xABFY1B/Y
-         KnoQ==
-X-Gm-Message-State: APjAAAXPjIJe3ZslO1OX81oQMfVmPiqLu9XH/hUE4eKEasYff6t5Ikyj
-        u4r7+qBRgtr1FmfZHX9AHvAnavEf4ud0ULnJgdzQJwlSt8u/rRpc6lVEUDdHdm5ZK7A+LNz1W1g
-        EPKdX14aVZf+8AEyTbg==
-X-Received: by 2002:adf:fe8d:: with SMTP id l13mr45285984wrr.287.1574862393080;
-        Wed, 27 Nov 2019 05:46:33 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxh4Ji2vrjwUDCKDPitm4F0uNPFKqh/TY4z3+vFake+g6jkCjSmZOme5XDdMFr2Uqf9kLE3eQ==
-X-Received: by 2002:adf:fe8d:: with SMTP id l13mr45285963wrr.287.1574862392756;
-        Wed, 27 Nov 2019 05:46:32 -0800 (PST)
-Received: from localhost.localdomain.com ([2a02:8308:b13e:ee00:435d:e8f:90ca:755e])
-        by smtp.gmail.com with ESMTPSA id c15sm19479151wrx.78.2019.11.27.05.46.31
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 27 Nov 2019 05:46:31 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite] travis: improve selinuxfs mocking
-Date:   Wed, 27 Nov 2019 14:46:43 +0100
-Message-Id: <20191127134643.822677-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.23.0
+        id S1726873AbfK0OAN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Nov 2019 09:00:13 -0500
+Received: from mailomta29-sa.btinternet.com ([213.120.69.35]:38285 "EHLO
+        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726747AbfK0OAN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 09:00:13 -0500
+Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
+          by sa-prd-fep-043.btinternet.com with ESMTP
+          id <20191127140010.GNUD22185.sa-prd-fep-043.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
+          Wed, 27 Nov 2019 14:00:10 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1574863210; 
+        bh=rlaY1zQbk3KrYgYfdC6AnBBmdmTzZVhGmUKoVCHQoVw=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=njSczbCQNdn1+NQcrceqnDewC804bqE+cRlfYuRyGrTa1baazuMYHrijAFF1ADiFA6vKf8qw3/bTZgXeaHLH3vJrcjFmQbSwCFQ8UGllBTip34DQX4S9qvpPAlUN3JBL5F2JloaMrP8iUfCNP+9ToOFjS9U072/1fyREPYGCZsr5WTq0CbVCaTwvCpRMVTYp+x1yWI3oSjuHSKKIt4rmwYWHr2u3y8mPLgkJKj0qRHcRXgJUe8D+i2H4ezz9kR7O7fySCos/wzrwqIhIYJuhl0+6EiZpfFkOJMUl6h1PScfUVL0L/RZ9BAwqDkRGJmhyLaVtwX5MoZTflKtjHZqh6A==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.3.133]
+X-OWM-Source-IP: 86.134.3.133 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudeihedgheejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenfghrlhcuvffnffculddquddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddufeegrdefrddufeefnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdefrddufeefpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvsheshhhothhmrghilhdrtghomheqpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.3.133) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5D8681A10C108871; Wed, 27 Nov 2019 14:00:10 +0000
+Message-ID: <0430f9ce2cf78707c16113d7b3b4f5515d120dd6.camel@btinternet.com>
+Subject: Re: [PATCH testsuite v5] policy: use the
+ kernel_request_load_module() interface
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Wed, 27 Nov 2019 14:00:09 +0000
+In-Reply-To: <20191127123319.814863-1-omosnace@redhat.com>
+References: <20191127123319.814863-1-omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.1 (3.34.1-1.fc31) 
 MIME-Version: 1.0
-X-MC-Unique: sE5IT2b7MaabixAceGM0Yg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Modify all Makefiles to allow overriding the path to the selinuxfs
-mountpoint via the SELINUXFS variable and use it in the Travis script to
-allow more stuff to be built (namely the extended_socket_class subdir).
+On Wed, 2019-11-27 at 13:33 +0100, Ondrej Mosnacek wrote:
+> ...instead of open-coding the rules. Also define a fallback to allow
+> the
+> policy to build even if the interface is not defined.
+> 
+> Fixes: f5e5a0b8d005 ("selinux-testsuite: Add key_socket tests")
+> Cc: Richard Haines <richard_c_haines@btinternet.com>
+> Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+> 
+Thanks, ack from me
 
-This patch also drops the auto-detection of selinuxfs mount from
-policy/Makefile in favor of overriding it via the variable if it differs
-from the usual /sys/fs/selinux/.
-
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- .travis.yml     | 8 ++++----
- policy/Makefile | 2 +-
- tests/Makefile  | 5 +++--
- 3 files changed, 8 insertions(+), 7 deletions(-)
-
-diff --git a/.travis.yml b/.travis.yml
-index d1e5056..2c8e416 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -51,15 +51,15 @@ before_install:
-   - bash travis-ci/setup-policy-fedora.sh
-   - bash travis-ci/setup-policy-refpolicy.sh
-   # establish a fake "selinuxfs" mount (policy/Makefile just greps for sel=
-inuxfs)
--  - sudo mkdir -p /tmp/fake-selinuxfs
--  - sudo mount -t tmpfs tmpfs /tmp/fake-selinuxfs
-+  - mkdir -p /tmp/fake-selinuxfs/policy_capabilities
-+  - echo 1 > /tmp/fake-selinuxfs/policy_capabilities/extended_socket_class
-   - echo 999 >/tmp/fake-selinuxfs/policyvers
-=20
- script:
-   - tools/check-syntax -f && git diff --exit-code
-   - |
-     bash travis-ci/enable-policy.sh targeted &&
--    make PREFIX=3D/usr/local POLDEV=3D/usr/share/selinux/targeted
-+    make SELINUXFS=3D/tmp/fake-selinuxfs PREFIX=3D/usr/local POLDEV=3D/usr=
-/share/selinux/targeted
-   - |
-     bash travis-ci/enable-policy.sh refpolicy &&
--    make PREFIX=3D/usr/local POLDEV=3D/usr/share/selinux/refpolicy
-+    make SELINUXFS=3D/tmp/fake-selinuxfs PREFIX=3D/usr/local POLDEV=3D/usr=
-/share/selinux/refpolicy
-diff --git a/policy/Makefile b/policy/Makefile
-index 87b2856..dda2e16 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -3,6 +3,7 @@ PREFIX ?=3D /usr
- BINDIR ?=3D $(PREFIX)/bin
- SBINDIR ?=3D $(PREFIX)/sbin
- POLDEV ?=3D $(PREFIX)/share/selinux/devel
-+SELINUXFS ?=3D /sys/fs/selinux
- SEMODULE =3D $(SBINDIR)/semodule
- CHECKPOLICY =3D $(BINDIR)/checkpolicy
- CHECKMODULE =3D $(BINDIR)/checkmodule
-@@ -11,7 +12,6 @@ DISTRO=3D$(shell ../tests/os_detect)
-=20
- POL_VERS :=3D $(shell $(CHECKPOLICY) -V |cut -f 1 -d ' ')
- MOD_POL_VERS :=3D $(shell $(CHECKMODULE) -V |cut -f 2 -d '-')
--SELINUXFS :=3D $(shell cat /proc/mounts | grep selinuxfs | cut -f 2 -d ' '=
-)
- MAX_KERNEL_POLICY :=3D $(shell cat $(SELINUXFS)/policyvers)
-=20
- TARGETS =3D \
-diff --git a/tests/Makefile b/tests/Makefile
-index 1cdb1ac..0d33fbf 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -1,5 +1,6 @@
- INCLUDEDIR ?=3D /usr/include
- POLDEV ?=3D /usr/share/selinux/devel
-+SELINUXFS ?=3D /sys/fs/selinux
-=20
- export CFLAGS+=3D-g -O0 -Wall -D_GNU_SOURCE
-=20
-@@ -19,11 +20,11 @@ SUBDIRS +=3D cap_userns
- endif
- endif
-=20
--ifeq ($(shell grep -q icmp_socket $(POLDEV)/include/support/all_perms.spt =
-&& grep -q 1 /sys/fs/selinux/policy_capabilities/extended_socket_class && e=
-cho true),true)
-+ifeq ($(shell grep -q icmp_socket $(POLDEV)/include/support/all_perms.spt =
-&& grep -q 1 $(SELINUXFS)/policy_capabilities/extended_socket_class && echo=
- true),true)
- SUBDIRS +=3D extended_socket_class
- endif
-=20
--ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel=
-/corenetwork.if && grep -q 1 /sys/fs/selinux/policy_capabilities/extended_s=
-ocket_class && echo true),true)
-+ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel=
-/corenetwork.if && grep -q 1 $(SELINUXFS)/policy_capabilities/extended_sock=
-et_class && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 4.20.17),-1)
- SUBDIRS +=3D sctp
- endif
---=20
-2.23.0
+> Change in v5: call the macro only once for the whole domain
+> Change in v4: fix copy-paste mistakes spotted by Richard
+> Change in v3: use different approach as suggested by Stephen
+> Change in v2: update also tests/Makefile for consistency
+> 
+>  policy/test_key_socket.te | 8 +++-----
+>  policy/test_policy.if     | 6 ++++++
+>  2 files changed, 9 insertions(+), 5 deletions(-)
+> 
+> diff --git a/policy/test_key_socket.te b/policy/test_key_socket.te
+> index cde426b..64d2cee 100644
+> --- a/policy/test_key_socket.te
+> +++ b/policy/test_key_socket.te
+> @@ -12,8 +12,6 @@ typeattribute test_key_sock_t keysockdomain;
+>  # key_socket rules:
+>  allow test_key_sock_t self:capability { net_admin };
+>  allow test_key_sock_t self:key_socket { create write read setopt };
+> -# For CONFIG_NET_KEY=m
+> -allow test_key_sock_t kernel_t:system { module_request };
+>  
+>  ################## Deny capability { net_admin }
+> ##########################
+>  #
+> @@ -29,7 +27,6 @@ typeattribute test_key_sock_no_net_admin_t
+> testdomain;
+>  typeattribute test_key_sock_no_net_admin_t keysockdomain;
+>  
+>  allow test_key_sock_no_net_admin_t self:key_socket { create write
+> read setopt };
+> -allow test_key_sock_no_net_admin_t kernel_t:system { module_request
+> };
+>  
+>  ####################### Deny key_socket { create }
+> ##########################
+>  type test_key_sock_no_create_t;
+> @@ -50,7 +47,6 @@ typeattribute test_key_sock_no_write_t
+> keysockdomain;
+>  
+>  allow test_key_sock_no_write_t self:capability { net_admin };
+>  allow test_key_sock_no_write_t self:key_socket { create read setopt
+> };
+> -allow test_key_sock_no_write_t kernel_t:system { module_request };
+>  
+>  ####################### Deny key_socket { read }
+> ##########################
+>  type test_key_sock_no_read_t;
+> @@ -61,10 +57,12 @@ typeattribute test_key_sock_no_read_t
+> keysockdomain;
+>  
+>  allow test_key_sock_no_read_t self:capability { net_admin };
+>  allow test_key_sock_no_read_t self:key_socket { create write setopt
+> };
+> -allow test_key_sock_no_read_t kernel_t:system { module_request };
+>  
+>  #
+>  ########### Allow these domains to be entered from sysadm domain
+> ############
+>  #
+>  miscfiles_domain_entry_test_files(keysockdomain)
+>  userdom_sysadm_entry_spec_domtrans_to(keysockdomain)
+> +
+> +# For CONFIG_NET_KEY=m
+> +kernel_request_load_module(keysockdomain)
+> diff --git a/policy/test_policy.if b/policy/test_policy.if
+> index e1175e8..3f163cb 100644
+> --- a/policy/test_policy.if
+> +++ b/policy/test_policy.if
+> @@ -82,3 +82,9 @@ interface(`userdom_search_admin_dir', `
+>      userdom_search_user_home_content($1)
+>  ')
+>  ')
+> +
+> +# If the macro isn't defined, then most probably module_request
+> permission
+> +# is just not supported (and relevant operations should be just
+> allowed).
+> +ifdef(`kernel_request_load_module', `', ` dnl
+> +interface(`kernel_request_load_module', `')
+> +')
 
