@@ -2,128 +2,160 @@ Return-Path: <SRS0=LgiC=ZT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BECAC432C0
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 12:21:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB1CEC432C0
+	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 12:33:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F363720722
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 12:21:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 717C52075C
+	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 12:33:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cSE7T38Z"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FisBO44M"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726526AbfK0MVa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Nov 2019 07:21:30 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:45930 "EHLO
+        id S1726537AbfK0MdO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Nov 2019 07:33:14 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:32355 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726383AbfK0MVa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 07:21:30 -0500
+        by vger.kernel.org with ESMTP id S1726526AbfK0MdN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 07:33:13 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574857288;
+        s=mimecast20190719; t=1574857992;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=lLIGzO8tegQ90chT7fYzmrxGeEaNY+uVdGFdt8NPyKA=;
-        b=cSE7T38ZCM8OpoimzdBVtcpipCeyEKVZ5D4pHevykUxwl5A+Yh2CH9iSnNjGnVf4rwSkLX
-        jNhFGDf1hCrQisO6PFNNL3OuQJd0Xm2dceOhQxWo/dM+3KvhZKQplmPxUr3u+JezWnkXRC
-        KspzwnqWshHdZfXMydk58OLhJdtoxqA=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-58-Pd_GZfnbNqmnt36GYNtdog-1; Wed, 27 Nov 2019 07:21:27 -0500
-Received: by mail-ot1-f71.google.com with SMTP id z13so7985645otp.7
-        for <selinux@vger.kernel.org>; Wed, 27 Nov 2019 04:21:27 -0800 (PST)
+         content-transfer-encoding:content-transfer-encoding;
+        bh=HfGjttgUyrVStfX02cc07hk2yg+7gpsLknYcexO1U34=;
+        b=FisBO44MFtWjdgmF3Rs0Olqi/ZwCBUVmH+LBvfOT0yzgEbOdepcVDtpInJFRx8WJmbxfL5
+        imWHHe3x6Q3diZKOePpkMWR+bpgZsZJM0CgzJdt4YMMPzaZ5p6Wb1Jq7KN977PAnTWDKHo
+        0FwURL+wIwbxl2SIGYTGqubPsmzXriE=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-388-8eBqMCFENsqiYfmOuLqX9A-1; Wed, 27 Nov 2019 07:33:10 -0500
+Received: by mail-wm1-f72.google.com with SMTP id m68so2443076wme.7
+        for <selinux@vger.kernel.org>; Wed, 27 Nov 2019 04:33:10 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=FjpVga20A7mcH0ng/vmgMkQlqgmES9iOu/NUByKqXwo=;
-        b=G9FY97CYqj2k4strozqfh1ws7n4jKNdGA5qcEHO8dTYA/i8BuqmXyiGXHUMWdyakyW
-         Qn0ATxKrf+gMxQcZdEyj1hNVsVoMhyVFjXP5KRMOwTRxgwJyft8VugXdzjA+nGm7+mGb
-         7gkxjmfQnxFa0MgoDn67Oe/ezBcipCzcURZNHEDf3kbm2VTtz/wrWjqOu606iSEQDQ6O
-         /uhuJd3FUPf5+VdaaPPHlhHWRz02UxbzScnF352z62phxEpVRQ1DOfM/RPaW3eHctPYf
-         Te+/PvpcBHx7NKQG+zwP6i9Ixk8ZKRlsfvUqS82K6QrLOzYybzA4hcZ+19onpkwFmKMm
-         To5g==
-X-Gm-Message-State: APjAAAU4s3KSofa8p1XJNz4xW8U051kiuO2c25V4UB8N3W3LBY/I79F0
-        J7xWzyF2A4yy/O1lxrPMHM5xASKNDlSMQ/glpFIM4t1z9qjcgGXaXgMt20hYOsgG4BU19cMyyAE
-        9buE/yE47h5eeLL9s/ue36S5ptrTkRZEUZQ==
-X-Received: by 2002:a9d:313:: with SMTP id 19mr3378116otv.197.1574857286695;
-        Wed, 27 Nov 2019 04:21:26 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxxcfoHIR1AlsqeqqVziIZ14cjDgRz/S6uflYRpm5Gmqg44khrjBOAW3UwqWKbJqepHjWoMbYzsGAXt7z2Ou7Y=
-X-Received: by 2002:a9d:313:: with SMTP id 19mr3378098otv.197.1574857286422;
- Wed, 27 Nov 2019 04:21:26 -0800 (PST)
-MIME-Version: 1.0
-References: <20191122164719.98943-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20191122164719.98943-1-richard_c_haines@btinternet.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=RE1IF45MOBYv5HaB6pEpTCBYHR+5Jfqlrou1w5Kn/u8=;
+        b=sSS5Glvmx+SHm0c6rGewy0YCffJ+7pKnhIaAMJcyQ+PKSiG7EnvxlP9cTzLu25k5ie
+         w7S6frCvoGxVRmQqmk+6k7+i34zsKGHVcMCBx2t10kjdjDBXVdWNVY5QfOVI6a3ogMUf
+         Ioqtd6ATuAFMp3Zbg+CR29vaiC9JdrAvS8BxxBHMfbvVWaluIeY0Cw/MkqNYjDO+rtpE
+         YNZzJPeVMAViyOjJjVEoSW328KzewZYPIN5HL7phAiwPAoarObal/3TcUr+6obprY9wG
+         uZRrcA5f/Ivu5eJxNsbvnVxSk0RaGBB8zCZwlC+ktCQ3Zkr89OsYQsFGy9OGG9rNloRW
+         dhdg==
+X-Gm-Message-State: APjAAAXTbv947LjZhi7FyFNtudrW84NVQzK9aOvfInsAmBevAI6tqy68
+        Kv9v36N1cCn/91b7vSfqb1HCXBrLQuWmHTnrLdia44o6SfBHYo1vBa2ztI0d9ppY0oSi5CmVIpT
+        Kei/xBjKsrzYgCPXTKg==
+X-Received: by 2002:a7b:c75a:: with SMTP id w26mr4094046wmk.18.1574857989107;
+        Wed, 27 Nov 2019 04:33:09 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyLS/7bMRKNRkWOdVTxYITr6CW7q2Hqea4Nki9w+SyYn6t2Nyvp5eyPYgS/O/fKoz1KZWHp3Q==
+X-Received: by 2002:a7b:c75a:: with SMTP id w26mr4094020wmk.18.1574857988841;
+        Wed, 27 Nov 2019 04:33:08 -0800 (PST)
+Received: from localhost.localdomain.com ([2a02:8308:b13e:ee00:435d:e8f:90ca:755e])
+        by smtp.gmail.com with ESMTPSA id m13sm6777973wmc.41.2019.11.27.04.33.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 27 Nov 2019 04:33:08 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 27 Nov 2019 13:21:29 +0100
-Message-ID: <CAFqZXNvYikN+QNXxLcUis8VQ7z5+DAYeoenK_oM5sLZ_0n7EmQ@mail.gmail.com>
-Subject: Re: [PATCH V5] selinux-testsuite: Add kernel module tests
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-X-MC-Unique: Pd_GZfnbNqmnt36GYNtdog-1
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH testsuite v5] policy: use the kernel_request_load_module() interface
+Date:   Wed, 27 Nov 2019 13:33:19 +0100
+Message-Id: <20191127123319.814863-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.23.0
+MIME-Version: 1.0
+X-MC-Unique: 8eBqMCFENsqiYfmOuLqX9A-1
 X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 22, 2019 at 5:47 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> Test kernel module loading permissions.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> V2 Change:
-> Check permission denial module_load versus module_request by using a
-> test kernel module for each.
-> Note: Rawhide (with secnext kernel) adds built-in.a and built-in.a.cmd wh=
-en
-> building modules, therefore added to Makefile and .gitignore.
-> V3 Changes:
-> As requested in [1] except policy change, coalesced type attributes inste=
-ad.
-> V4 Change:
-> Combine the original initmoddoman and finitmoddomain type
-> attribute for both sets of types
-> V5 Change:
-> Do not run on kernels < 4.7 as module loading not supported.
->
-> [1] https://lore.kernel.org/selinux/CAFqZXNtm_X+YssnX_3_5ThkVZY+9SBeQC5Qo=
-78s+geSsBok8=3DQ@mail.gmail.com/
->
->  policy/Makefile                           |   4 +
->  policy/test_module_load.te                |  72 +++++++++++++
->  tests/Makefile                            |   6 ++
->  tests/module_load/.gitignore              |  11 ++
->  tests/module_load/Makefile                |  12 +++
->  tests/module_load/finit_load.c            |  94 +++++++++++++++++
->  tests/module_load/init_load.c             | 123 ++++++++++++++++++++++
->  tests/module_load/setest_module_load.c    |  18 ++++
->  tests/module_load/setest_module_request.c |  22 ++++
->  tests/module_load/test                    |  62 +++++++++++
->  10 files changed, 424 insertions(+)
->  create mode 100644 policy/test_module_load.te
->  create mode 100644 tests/module_load/.gitignore
->  create mode 100644 tests/module_load/Makefile
->  create mode 100644 tests/module_load/finit_load.c
->  create mode 100644 tests/module_load/init_load.c
->  create mode 100644 tests/module_load/setest_module_load.c
->  create mode 100644 tests/module_load/setest_module_request.c
->  create mode 100755 tests/module_load/test
+...instead of open-coding the rules. Also define a fallback to allow the
+policy to build even if the interface is not defined.
 
-Now applied:
+Fixes: f5e5a0b8d005 ("selinux-testsuite: Add key_socket tests")
+Cc: Richard Haines <richard_c_haines@btinternet.com>
+Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
 
-https://github.com/SELinuxProject/selinux-testsuite/commit/a68d583c2a70e5d4=
-34f4f24d1fcf73b3e22d289e
+Change in v5: call the macro only once for the whole domain
+Change in v4: fix copy-paste mistakes spotted by Richard
+Change in v3: use different approach as suggested by Stephen
+Change in v2: update also tests/Makefile for consistency
 
+ policy/test_key_socket.te | 8 +++-----
+ policy/test_policy.if     | 6 ++++++
+ 2 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/policy/test_key_socket.te b/policy/test_key_socket.te
+index cde426b..64d2cee 100644
+--- a/policy/test_key_socket.te
++++ b/policy/test_key_socket.te
+@@ -12,8 +12,6 @@ typeattribute test_key_sock_t keysockdomain;
+ # key_socket rules:
+ allow test_key_sock_t self:capability { net_admin };
+ allow test_key_sock_t self:key_socket { create write read setopt };
+-# For CONFIG_NET_KEY=3Dm
+-allow test_key_sock_t kernel_t:system { module_request };
+=20
+ ################## Deny capability { net_admin } #########################=
+#
+ #
+@@ -29,7 +27,6 @@ typeattribute test_key_sock_no_net_admin_t testdomain;
+ typeattribute test_key_sock_no_net_admin_t keysockdomain;
+=20
+ allow test_key_sock_no_net_admin_t self:key_socket { create write read set=
+opt };
+-allow test_key_sock_no_net_admin_t kernel_t:system { module_request };
+=20
+ ####################### Deny key_socket { create } #######################=
+###
+ type test_key_sock_no_create_t;
+@@ -50,7 +47,6 @@ typeattribute test_key_sock_no_write_t keysockdomain;
+=20
+ allow test_key_sock_no_write_t self:capability { net_admin };
+ allow test_key_sock_no_write_t self:key_socket { create read setopt };
+-allow test_key_sock_no_write_t kernel_t:system { module_request };
+=20
+ ####################### Deny key_socket { read } #########################=
+#
+ type test_key_sock_no_read_t;
+@@ -61,10 +57,12 @@ typeattribute test_key_sock_no_read_t keysockdomain;
+=20
+ allow test_key_sock_no_read_t self:capability { net_admin };
+ allow test_key_sock_no_read_t self:key_socket { create write setopt };
+-allow test_key_sock_no_read_t kernel_t:system { module_request };
+=20
+ #
+ ########### Allow these domains to be entered from sysadm domain #########=
+###
+ #
+ miscfiles_domain_entry_test_files(keysockdomain)
+ userdom_sysadm_entry_spec_domtrans_to(keysockdomain)
++
++# For CONFIG_NET_KEY=3Dm
++kernel_request_load_module(keysockdomain)
+diff --git a/policy/test_policy.if b/policy/test_policy.if
+index e1175e8..3f163cb 100644
+--- a/policy/test_policy.if
++++ b/policy/test_policy.if
+@@ -82,3 +82,9 @@ interface(`userdom_search_admin_dir', `
+     userdom_search_user_home_content($1)
+ ')
+ ')
++
++# If the macro isn't defined, then most probably module_request permission
++# is just not supported (and relevant operations should be just allowed).
++ifdef(`kernel_request_load_module', `', ` dnl
++interface(`kernel_request_load_module', `')
++')
 --=20
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+2.23.0
 
