@@ -2,96 +2,92 @@ Return-Path: <SRS0=LgiC=ZT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A770C432C0
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 15:04:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D186C43215
+	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 15:16:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0402A20665
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 15:04:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07F212075C
+	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 15:16:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ERXazAsr"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ALWSZeNv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726698AbfK0PET (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Nov 2019 10:04:19 -0500
-Received: from UCOL19PA36.eemsg.mail.mil ([214.24.24.196]:25125 "EHLO
-        UCOL19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726558AbfK0PET (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 10:04:19 -0500
-X-EEMSG-check-017: 54923390|UCOL19PA36_ESA_OUT03.csd.disa.mil
+        id S1726858AbfK0PQf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Nov 2019 10:16:35 -0500
+Received: from USAT19PA24.eemsg.mail.mil ([214.24.22.198]:47902 "EHLO
+        USAT19PA24.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726729AbfK0PQf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 10:16:35 -0500
+X-EEMSG-check-017: 55284242|USAT19PA24_ESA_OUT05.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,249,1571702400"; 
-   d="scan'208";a="54923390"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UCOL19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Nov 2019 15:03:56 +0000
+   d="scan'208";a="55284242"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USAT19PA24.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Nov 2019 15:16:31 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1574867037; x=1606403037;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=Ao21goY/gx//LERsaZpi3UMCEETnzcUe14T9YlyI0z0=;
-  b=ERXazAsr/3LlKrAFrfGOD5XiU45tefEx17/PUZtNE8qHBbuUWsY+9GYq
-   KDxs/O/XrQOs1eKTzWfdNKuQcAxoKTHhXk0OzfSaZjGQT+TJLArB7FYh2
-   W+VvC+ZL193fMYNH7SQrAf+TVO5WTy/F51CgIM9fKqFXqyAvfjLpGQFC+
-   6cr5JqZ6p9WJp4cio9GrQRz1Uu0g8gmhEG3xBXTaQe/E70TgwXQT/AGiJ
-   U1uUBinqOPmkEVFpAMjtFfmlo6TRlWX1CRHZPkQVg/6B1pn7UgHceJdRf
-   wU8B0kuGeTKrb5uaMJPKZLJzEtjQtUrW+YMwqQxRMqjThAND7Kgr1grVI
-   w==;
+  s=tycho.nsa.gov; t=1574867791; x=1606403791;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=cPLnHgz+UEIEaVEvc0lotQY5BDVbebTFDDbjC1JxVZ4=;
+  b=ALWSZeNva/aPUskG+aoQObz7r9ibE/ogLe7QWLUT0CEa4G7f5c1a5obD
+   g9uPHHo0WHtcjaRJ3YwWRSTQvUI8fSdDD2EaBB+03U9CGeN9pn2Bkfpoo
+   Q4ceSBD231zwhofI9yZJKTG5jDfPd3z9HfTgE1zcjfdmkvKLyaRv/c7DX
+   U/PieJAtXdBF0q6QN7Kwe8wB4Lr+oWDADy4kN/Xyc/m86CI73+ng5COxd
+   4oJp2gx8rC7PNJe8JLbPj7MvIu+W2lVAbtNOzrtyBX1zAPX6GiDRYDKHU
+   +QlgYvUzT0PVbLfN75fGGTuktJnvI07tiIn76o+/VeA5bbaCEmOVHXb5q
+   A==;
 X-IronPort-AV: E=Sophos;i="5.69,249,1571702400"; 
-   d="scan'208";a="36082499"
-IronPort-PHdr: =?us-ascii?q?9a23=3AwLV2Jhzrn1u38bPXCy+O+j09IxM/srCxBDY+r6?=
- =?us-ascii?q?Qd0uoXKvad9pjvdHbS+e9qxAeQG9mCsLQd1bed7fCocFdDyK7JiGoFfp1IWk?=
- =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
- =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmTSwbalvIBi3rQjducgbjIh/Iast1x?=
- =?us-ascii?q?XFpWdFdf5Lzm1yP1KTmBj85sa0/JF99ilbpuws+c1dX6jkZqo0VbNXAigoPG?=
- =?us-ascii?q?Az/83rqALMTRCT6XsGU2UZiQRHDg7Y5xznRJjxsy/6tu1g2CmGOMD9UL45VS?=
- =?us-ascii?q?i+46ptVRTlkzkMOSIn/27Li8xwlKNbrwynpxxj2I7ffYWZOONjcq/BYd8WQG?=
- =?us-ascii?q?xMUchLVyxFH4iycY0BAeQcNupctoXwp18DoR64CAKxBu3g1yVIi2fr06Mk3e?=
- =?us-ascii?q?QvEQLI0gIuEN0BsnvbsNr7ObwOUe231qTE0SnPYv1U1Dr79YPGcgohofaJXb?=
- =?us-ascii?q?9obMTR1VcgFxvFjlqOr4zuIi6b1uEXvGif6+pvS+KugHMgpgFqvzev3dwhip?=
- =?us-ascii?q?XJh40JylDE8j91wIAuJdKiUkJ7btmkEIVJuiycKoB4QdsiTnl1tCs1xbAKo5?=
- =?us-ascii?q?62cDUQxJg5yBPTdeaLf5WO7xn+TuieOy14i2hgeL+nghay9lWvxfPkW8mv1V?=
- =?us-ascii?q?ZKsjJFkt7RtnARzxDT6taISv96/kq5xTaAzRrT6uBZIUAvj6bbKpghwrA3lp?=
- =?us-ascii?q?oIr0vMAjX6mFn2jaCKdkUk/fKk6+L7bbX9upCQLYp0igD6Mqg2m8y/B/o3Mh?=
- =?us-ascii?q?QWUmSG9umx26fv8E3kTLlQkPE7nbfVvIrHKcgDo662GQ5V0oIt6xalCDem1c?=
- =?us-ascii?q?wVnWIaI1JeYx+Hk4joNE3OIPD/F/u/hU+sny1xy/DJOb3hHI3BLmLfn7f5Yb?=
- =?us-ascii?q?Z990lcxRIozd9B45JUC7cBIO/8W0LqqtzYAQE2Mxauz+bkFtp9zIUeVnyLAq?=
- =?us-ascii?q?ODN6PSq1CI7Po1I+aQfI8VpCr9K/896vHzl3A2hUURfa633ZQJcnC4BPVmLF?=
- =?us-ascii?q?iHbnf3jdcBFH0Fvgs6TODwlFKCVjtTbW6oX60g/jE7FJ6mDYDbS4C1nrOOxz?=
- =?us-ascii?q?m0HptXZmBaDVCBCnboeJuaVPgSci6SJdVhkjNXHYSmHpQs0RCoqR/S1bVqNK?=
- =?us-ascii?q?zX9zceuJal08J6o6X/khQz8z1/DIyyyWCDUykgkmoDATgo0bploEBw4liG2K?=
- =?us-ascii?q?l8xfdfEIoXr7liUh07LoLb1+x3EZjQHEr5c/2ETle6RZ/uVSk8RN83wsMJS0?=
- =?us-ascii?q?dwFtjkiQrMiXmEGbgQwoeXCYQ0/6SU5H34I8Jw2j6Sz6U6p0U3SctIc2u9j+?=
- =?us-ascii?q?hw8BaFVN2BqFmQi6v/LfdU5yXK7mrWiDPT7Uw=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BIAAChj95d/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF+gXSBbSAShFWJA4ZZBoE3iWmPXYFnCQEBAQEBAQEBATcBAYRAA?=
- =?us-ascii?q?oIkOBMCEAEBAQQBAQEBAQUDAQFshUOCOykBgm4BBSMVUQsYAgImAgJXBgEMC?=
- =?us-ascii?q?AEBgl8/glMlslCBMoVPg0OBSIEOKIESix55gQeBEScPgl0+hDELgx2CXgSNB?=
- =?us-ascii?q?VSJCkaHXI5EcII3gjmTFwYbkQiJF45IlxGFFCKBWCsIAhgIIQ+DKE8RFJUsI?=
- =?us-ascii?q?wOMLoI/AQE?=
+   d="scan'208";a="30559092"
+IronPort-PHdr: =?us-ascii?q?9a23=3AZN/mqBSJ8wiwHODdo4pdi4NERtpsv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa6zbBeN2/xhgRfzUJnB7Loc0qyK6vumADJdqsnZ+Fk5M7V0Hy?=
+ =?us-ascii?q?cfjssXmwFySOWkMmbcaMDQUiohAc5ZX0Vk9XzoeWJcGcL5ekGA6ibqtW1aFR?=
+ =?us-ascii?q?rwLxd6KfroEYDOkcu3y/qy+5rOaAlUmTaxe7x/IAi4oAnLq8UbgItvJqkzxx?=
+ =?us-ascii?q?fVv3BFZ/lYyWR0KFyJgh3y/N2w/Jlt8yRRv/Iu6ctNWrjkcqo7ULJVEi0oP3?=
+ =?us-ascii?q?g668P3uxbDSxCP5mYHXWUNjhVIGQnF4wrkUZr3ryD3q/By2CiePc3xULA0RT?=
+ =?us-ascii?q?Gv5LplRRP0lCsKMSMy/XrJgcJskq1UvBOhpwR+w4HKZoGVKOF+db7Zcd8DWG?=
+ =?us-ascii?q?ZNQtpdWylHD4yydYsPC/cKM/heoYfzulACqQKyCAeoCe/qzDJDm3340rAg0+?=
+ =?us-ascii?q?k5DA/IwgIgEdINvnraotr6O6UdXvy6wqTT0TXObelb1Svh5IXGcB0sp+yHU7?=
+ =?us-ascii?q?JqccrWzEkiDx7LjkmOpoz9PzOayOINuHWG4eplT+2vj2onpB9xozOywcoskZ?=
+ =?us-ascii?q?TGhpkOx1DY9SR23IY1JdqiRE59et6rCoFcty6dN4toW84vRXxjtiUiyrAepJ?=
+ =?us-ascii?q?K2cycHxI4nyhLCcfCLbYeF7gz5WOqMJzpzmWhrd6ilhxmo9Eit0uj8Vs6p31?=
+ =?us-ascii?q?lUtidFidzMtmwV1xzU98iHVuNx/ke/1jaL0ADe8v1ELloularaNp4h2aQ8lp?=
+ =?us-ascii?q?sVsUTNGS/2g1v5g7OMekU4+umn9+TnYrL8qp+aK4B0kR3xPr4rmsy+BeQ0Kg?=
+ =?us-ascii?q?kOX26F9uSgzLDv4EL0TbpQgvA2j6XVqo7WKMsFqqKjHgNZyoMj5Ay+Dzei3t?=
+ =?us-ascii?q?QYh34HLFdddRKckofpIErDIOz4DPijg1Ssly1nx/bdPrL7GJnNIX/DkKn5cb?=
+ =?us-ascii?q?Zn90Fc0BYzzcxY559MDbEBJfXzWlT3tNPCEhA2LRe5w/z5B9pg1oMRQ36PDr?=
+ =?us-ascii?q?WFP6PVtF+C/vgvLPWUZI8JpDb9LOAo5+Xwgn89mF8de7Sp3JQMZXCmEfRpPV?=
+ =?us-ascii?q?+ZbWDvgtgfC2cKuBQxTOjwhF2FSz5TaG64X7gg6TEjFIKmEYDDS5i3gLyAwC?=
+ =?us-ascii?q?i7HodZZnpbBV+UDXjnb4WEVO0NaCKUPMBhiScJWqO9S48g0xGuqBH1y6BhLu?=
+ =?us-ascii?q?XK5i0Ur47s1N9w576bqRZn0jp4Fcmfm0SKVGd9lW4LD2sx2adkp0V2x3+Z3K?=
+ =?us-ascii?q?R4iuAeHttWsbcBSQo+NJjB38RkBN3oHAHMZNGETBChWNr1Lys2S4cK39IWY0?=
+ =?us-ascii?q?t7U+6nhxTH0jviV6QZjJSXFZc09eTaxHG3KMFjnSWVnJI9hkUrF5McfVatgb?=
+ =?us-ascii?q?Ryok2KXN/E?=
+X-IPAS-Result: =?us-ascii?q?A2BIAABHkt5d/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
+ =?us-ascii?q?QICAQEBAYF+gXSBbSASKoQriQOGWgaBN4lpiiCHJAkBAQEBAQEBAQE3AQGEQ?=
+ =?us-ascii?q?AKCJDgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYJuAQUjFUEQCw4KAgImAgJXB?=
+ =?us-ascii?q?gEMBgIBAYJfP4JHAwklslaBMoVPg0OBSIEOKIwweYEHgTgPgl0+ghuFPoJeB?=
+ =?us-ascii?q?JZjRpcQgjeCOZMXBhuCQIwpizYtjhuBQppjIoFYKwgCGAghD4MnUBEUlSwjA?=
+ =?us-ascii?q?zCOPQEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 27 Nov 2019 15:03:36 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 27 Nov 2019 15:16:31 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xARF3Sj0268040;
-        Wed, 27 Nov 2019 10:03:30 -0500
-Subject: Re: [RFC 0/3] Second phase of UserPrefix to UserRBACSEPRole
- transition
-To:     selinux@vger.kernel.org, Dominick Grift <dac.override@gmail.com>,
-        "Christopher J. PeBenito" <pebenito@ieee.org>
-References: <20191123144245.3079306-1-dac.override@gmail.com>
- <7f62f389-f531-f1dd-cb38-3a5b75e40731@tycho.nsa.gov>
- <20191125141035.GB441967@brutus.lan>
- <fe0d0ffe-a96a-9438-76f2-7759a41b823c@tycho.nsa.gov>
- <20191127112241.GA23027@brutus.lan>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xARFGRPt007630;
+        Wed, 27 Nov 2019 10:16:27 -0500
+Subject: Re: [PATCH testsuite v5] policy: use the kernel_request_load_module()
+ interface
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+References: <20191127123319.814863-1-omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <49b2e25e-d317-3ea9-dd75-5beae73309ee@tycho.nsa.gov>
-Date:   Wed, 27 Nov 2019 10:03:44 -0500
+Message-ID: <3c4cc54b-bad1-e72f-85c2-7742cbd3c425@tycho.nsa.gov>
+Date:   Wed, 27 Nov 2019 10:16:43 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20191127112241.GA23027@brutus.lan>
+In-Reply-To: <20191127123319.814863-1-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -100,74 +96,86 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/27/19 6:22 AM, Dominick Grift wrote:
-> On Tue, Nov 26, 2019 at 01:27:42PM -0500, Stephen Smalley wrote:
->> On 11/25/19 9:10 AM, Dominick Grift wrote:
->>> On Mon, Nov 25, 2019 at 08:24:21AM -0500, Stephen Smalley wrote:
->>>> On 11/23/19 9:42 AM, Dominick Grift wrote:
->>>>> In 2008 support for UserPrefix was removed from Reference policy.
->>>>> The code to support this functionality in libsepol and libsemanage however remained albeit slightly modified.
->>>>> I am not sure why it was not fully removed.
->>>>>
->>>>> DefaultRole replaces UserPrefix functionality but the code in libsepol and libsemanage was only slighty adjusted to accomodate my use-case.
->>>>> This was done in 88e334f1923396d5ace56b8439c731dcde0d1f3b (2016).
->>>>> I do not use semanage and I do not mind using the old UserPrefix statement, but there is some confusion.
->>>>> For example there was a report recently about how semanage does not document UserPrefix.
->>>>> The documentation was likely removed from view because UserPrefix is no longer supported as such.
->>>>>
->>>>> I want to make the situation better and this proposal is the next phase.
->>>>> This proposal causes some disruption as Reference policy based policy often calls the gen_user() macro with the "user" prefix.
->>>>>
->>>>> Example: gen_user(user_u, user, user_r, s0, s0)
->>>>>
->>>>> This will no longer be valid, and the userprefix parameter in gen_user() can be left empty (or needs a valid role if RBACSEP DefaultRole is leveraged).
->>>>>
->>>>> Example: gen_user(user_u,, user_r, s0, s0)
->>>>>
->>>>> UserPrefix will now default to object_r. This should not affect common policy implementations.
->>>>>
->>>>> The next phases will be:
->>>>>
->>>>> Renaming the UserPrefix statement to UserRBACSEPRole, and renaming references to (user)?prefix to (user)?rbacseprole.
->>>>> Adjusting semanage to expose UserRBACSEPRole.
->>>>> Removing legacy UserPrefix (ROLE/USER_TEMPLATE) references from libsemanage.
->>>>>
->>>>> After this the UserPrefix to UserRBACSEPRole transition should be completed.
->>>>>
->>>>> This should get us by until someone decides to rewrite libsemanage to take advantage of CIL, simplify the code, and to make the code more robust.
->>>>
->>>> I guess my only question with regard to this phase and the next ones is with
->>>> regard to backward compatibility.  Even if no one is using this facility, we
->>>> have to make sure we do not break existing installs upon upgrade.
->>>
->>> Maybe we can duplicate the code instead. That way we would not have to touch the existing, but dead userprefix code.
->>> That should address any compatibility issues.
->>
->> At a minimum, we must avoid breaking existing installs upon upgrade, and we
->> must avoid breaking compilation of existing policy modules (both refpolicy
->> and CIL).
->>
->> A simple test would be ensuring that if you upgrade the userspace and run
->> semodule -B with your previously installed policy (including its existing
->> userprefix statements), there are no errors and you get the same
->> file_contexts.homedirs as you had before.
->>
->> That should be relatively easy to ensure for targeted policy.  Might be more
->> complicated with your policy, the CLIP policy, or perhaps others.
+On 11/27/19 7:33 AM, Ondrej Mosnacek wrote:
+> ...instead of open-coding the rules. Also define a fallback to allow the
+> policy to build even if the interface is not defined.
 > 
-> I am thinking that we might be able to add something to cil_resolve_userprefix() that would just not process any entries referencing the "prefix" keyword as in "user ... prefix ...;" instead of "user ... rbacseprole ...;", and instead emits a warning: "Not processing deprecated userprefix: userprefix. Use userrbacseprole instead."
-> That would then just not add those entries to users_extra, and instead rely on "fallback_rbacseprole=object_r" in genhomedircon.c, if the "migration" code in libsemanage does not catch it first.
+> Fixes: f5e5a0b8d005 ("selinux-testsuite: Add key_socket tests")
+> Cc: Richard Haines <richard_c_haines@btinternet.com>
+> Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+> 
+> Change in v5: call the macro only once for the whole domain
+> Change in v4: fix copy-paste mistakes spotted by Richard
+> Change in v3: use different approach as suggested by Stephen
+> Change in v2: update also tests/Makefile for consistency
+> 
+>   policy/test_key_socket.te | 8 +++-----
+>   policy/test_policy.if     | 6 ++++++
+>   2 files changed, 9 insertions(+), 5 deletions(-)
+> 
+> diff --git a/policy/test_key_socket.te b/policy/test_key_socket.te
+> index cde426b..64d2cee 100644
+> --- a/policy/test_key_socket.te
+> +++ b/policy/test_key_socket.te
+> @@ -12,8 +12,6 @@ typeattribute test_key_sock_t keysockdomain;
+>   # key_socket rules:
+>   allow test_key_sock_t self:capability { net_admin };
+>   allow test_key_sock_t self:key_socket { create write read setopt };
+> -# For CONFIG_NET_KEY=m
+> -allow test_key_sock_t kernel_t:system { module_request };
+>   
+>   ################## Deny capability { net_admin } ##########################
+>   #
+> @@ -29,7 +27,6 @@ typeattribute test_key_sock_no_net_admin_t testdomain;
+>   typeattribute test_key_sock_no_net_admin_t keysockdomain;
+>   
+>   allow test_key_sock_no_net_admin_t self:key_socket { create write read setopt };
+> -allow test_key_sock_no_net_admin_t kernel_t:system { module_request };
+>   
+>   ####################### Deny key_socket { create } ##########################
+>   type test_key_sock_no_create_t;
+> @@ -50,7 +47,6 @@ typeattribute test_key_sock_no_write_t keysockdomain;
+>   
+>   allow test_key_sock_no_write_t self:capability { net_admin };
+>   allow test_key_sock_no_write_t self:key_socket { create read setopt };
+> -allow test_key_sock_no_write_t kernel_t:system { module_request };
+>   
+>   ####################### Deny key_socket { read } ##########################
+>   type test_key_sock_no_read_t;
+> @@ -61,10 +57,12 @@ typeattribute test_key_sock_no_read_t keysockdomain;
+>   
+>   allow test_key_sock_no_read_t self:capability { net_admin };
+>   allow test_key_sock_no_read_t self:key_socket { create write setopt };
+> -allow test_key_sock_no_read_t kernel_t:system { module_request };
+>   
+>   #
+>   ########### Allow these domains to be entered from sysadm domain ############
+>   #
+>   miscfiles_domain_entry_test_files(keysockdomain)
+>   userdom_sysadm_entry_spec_domtrans_to(keysockdomain)
+> +
+> +# For CONFIG_NET_KEY=m
+> +kernel_request_load_module(keysockdomain)
+> diff --git a/policy/test_policy.if b/policy/test_policy.if
+> index e1175e8..3f163cb 100644
+> --- a/policy/test_policy.if
+> +++ b/policy/test_policy.if
+> @@ -82,3 +82,9 @@ interface(`userdom_search_admin_dir', `
+>       userdom_search_user_home_content($1)
+>   ')
+>   ')
+> +
+> +# If the macro isn't defined, then most probably module_request permission
 
-I don't think we want warnings; otherwise someone upgrading Fedora to 
-new userspace would get constant warnings on all subsequent libsemanage 
-transactions due to their existing distro-provided users_extra file.
+Sorry, I should have caught this earlier.  m4 does not do the right 
+thing with embedded quotes in comments, so you can get weird effects 
+after macro expansion.  I'd expand it to "is not" to be safe.
 
-Also, not to bikeshed, but userrbacseprole is hard on the eyes.  Looks 
-like libsemanage/src/genhomedircon.c currently tests whether the prefix 
-value is a homedir role (prefix_is_homedir_role()) and uses it as such 
-in that case.  Can we just do that?  And if we have to rename it, maybe 
-just call it homedir_role instead.
-
-
-
+> +# is just not supported (and relevant operations should be just allowed).
+> +ifdef(`kernel_request_load_module', `', ` dnl
+> +interface(`kernel_request_load_module', `')
+> +')
+> 
 
