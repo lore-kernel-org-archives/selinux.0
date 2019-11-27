@@ -7,87 +7,83 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D186C43215
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 15:16:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD393C432C0
+	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 15:21:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 07F212075C
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 15:16:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7B0EA2053B
+	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 15:21:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ALWSZeNv"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="g3U/0kb/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726858AbfK0PQf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Nov 2019 10:16:35 -0500
-Received: from USAT19PA24.eemsg.mail.mil ([214.24.22.198]:47902 "EHLO
-        USAT19PA24.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726729AbfK0PQf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 10:16:35 -0500
-X-EEMSG-check-017: 55284242|USAT19PA24_ESA_OUT05.csd.disa.mil
+        id S1726603AbfK0PV2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 Nov 2019 10:21:28 -0500
+Received: from USFB19PA35.eemsg.mail.mil ([214.24.26.198]:28863 "EHLO
+        USFB19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726514AbfK0PV1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 10:21:27 -0500
+X-EEMSG-check-017: 30857421|USFB19PA35_ESA_OUT05.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,249,1571702400"; 
-   d="scan'208";a="55284242"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USAT19PA24.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Nov 2019 15:16:31 +0000
+   d="scan'208";a="30857421"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA35.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Nov 2019 15:21:25 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1574867791; x=1606403791;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=cPLnHgz+UEIEaVEvc0lotQY5BDVbebTFDDbjC1JxVZ4=;
-  b=ALWSZeNva/aPUskG+aoQObz7r9ibE/ogLe7QWLUT0CEa4G7f5c1a5obD
-   g9uPHHo0WHtcjaRJ3YwWRSTQvUI8fSdDD2EaBB+03U9CGeN9pn2Bkfpoo
-   Q4ceSBD231zwhofI9yZJKTG5jDfPd3z9HfTgE1zcjfdmkvKLyaRv/c7DX
-   U/PieJAtXdBF0q6QN7Kwe8wB4Lr+oWDADy4kN/Xyc/m86CI73+ng5COxd
-   4oJp2gx8rC7PNJe8JLbPj7MvIu+W2lVAbtNOzrtyBX1zAPX6GiDRYDKHU
-   +QlgYvUzT0PVbLfN75fGGTuktJnvI07tiIn76o+/VeA5bbaCEmOVHXb5q
-   A==;
+  s=tycho.nsa.gov; t=1574868085; x=1606404085;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=vAB3/Dw4IbuAF5jw5QGPGOUBGVieCsmtrhwcuOmhDZ0=;
+  b=g3U/0kb/VDVS++dRpPHGoNZtI1Q5VvdCEF69IgumUuQHKfyEd3Fl6JCR
+   yPLlJqO7D1pmzCgDIzjTCQx/4C9BHn1LEh09RiSl104Dog/5icUQu+pKi
+   t5sdQd+KBzvqoXXSXkfA5CE3uTMhKtas0HFQV5Qm/KL00jreA6c3sN7Xm
+   XGpBgfhx4R3YoTScwJqMqzvyXbJ4QhYvNxGWlw8lVDbnqjxbsFu9XbHzN
+   MSFEd8CzvjYDx1B7tzW9d3/msEXZPcbrB4idaEHPX5OrUxSsykPNNdhH9
+   dkk/fEKt/gHgMM6OC1PkTBIaHZYZXryyyBShoWSaSR5Pozi6N0nFsrrtZ
+   w==;
 X-IronPort-AV: E=Sophos;i="5.69,249,1571702400"; 
-   d="scan'208";a="30559092"
-IronPort-PHdr: =?us-ascii?q?9a23=3AZN/mqBSJ8wiwHODdo4pdi4NERtpsv+yvbD5Q0Y?=
- =?us-ascii?q?Iujvd0So/mwa6zbBeN2/xhgRfzUJnB7Loc0qyK6vumADJdqsnZ+Fk5M7V0Hy?=
- =?us-ascii?q?cfjssXmwFySOWkMmbcaMDQUiohAc5ZX0Vk9XzoeWJcGcL5ekGA6ibqtW1aFR?=
- =?us-ascii?q?rwLxd6KfroEYDOkcu3y/qy+5rOaAlUmTaxe7x/IAi4oAnLq8UbgItvJqkzxx?=
- =?us-ascii?q?fVv3BFZ/lYyWR0KFyJgh3y/N2w/Jlt8yRRv/Iu6ctNWrjkcqo7ULJVEi0oP3?=
- =?us-ascii?q?g668P3uxbDSxCP5mYHXWUNjhVIGQnF4wrkUZr3ryD3q/By2CiePc3xULA0RT?=
- =?us-ascii?q?Gv5LplRRP0lCsKMSMy/XrJgcJskq1UvBOhpwR+w4HKZoGVKOF+db7Zcd8DWG?=
- =?us-ascii?q?ZNQtpdWylHD4yydYsPC/cKM/heoYfzulACqQKyCAeoCe/qzDJDm3340rAg0+?=
- =?us-ascii?q?k5DA/IwgIgEdINvnraotr6O6UdXvy6wqTT0TXObelb1Svh5IXGcB0sp+yHU7?=
- =?us-ascii?q?JqccrWzEkiDx7LjkmOpoz9PzOayOINuHWG4eplT+2vj2onpB9xozOywcoskZ?=
- =?us-ascii?q?TGhpkOx1DY9SR23IY1JdqiRE59et6rCoFcty6dN4toW84vRXxjtiUiyrAepJ?=
- =?us-ascii?q?K2cycHxI4nyhLCcfCLbYeF7gz5WOqMJzpzmWhrd6ilhxmo9Eit0uj8Vs6p31?=
- =?us-ascii?q?lUtidFidzMtmwV1xzU98iHVuNx/ke/1jaL0ADe8v1ELloularaNp4h2aQ8lp?=
- =?us-ascii?q?sVsUTNGS/2g1v5g7OMekU4+umn9+TnYrL8qp+aK4B0kR3xPr4rmsy+BeQ0Kg?=
- =?us-ascii?q?kOX26F9uSgzLDv4EL0TbpQgvA2j6XVqo7WKMsFqqKjHgNZyoMj5Ay+Dzei3t?=
- =?us-ascii?q?QYh34HLFdddRKckofpIErDIOz4DPijg1Ssly1nx/bdPrL7GJnNIX/DkKn5cb?=
- =?us-ascii?q?Zn90Fc0BYzzcxY559MDbEBJfXzWlT3tNPCEhA2LRe5w/z5B9pg1oMRQ36PDr?=
- =?us-ascii?q?WFP6PVtF+C/vgvLPWUZI8JpDb9LOAo5+Xwgn89mF8de7Sp3JQMZXCmEfRpPV?=
- =?us-ascii?q?+ZbWDvgtgfC2cKuBQxTOjwhF2FSz5TaG64X7gg6TEjFIKmEYDDS5i3gLyAwC?=
- =?us-ascii?q?i7HodZZnpbBV+UDXjnb4WEVO0NaCKUPMBhiScJWqO9S48g0xGuqBH1y6BhLu?=
- =?us-ascii?q?XK5i0Ur47s1N9w576bqRZn0jp4Fcmfm0SKVGd9lW4LD2sx2adkp0V2x3+Z3K?=
- =?us-ascii?q?R4iuAeHttWsbcBSQo+NJjB38RkBN3oHAHMZNGETBChWNr1Lys2S4cK39IWY0?=
- =?us-ascii?q?t7U+6nhxTH0jviV6QZjJSXFZc09eTaxHG3KMFjnSWVnJI9hkUrF5McfVatgb?=
- =?us-ascii?q?Ryok2KXN/E?=
-X-IPAS-Result: =?us-ascii?q?A2BIAABHkt5d/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF+gXSBbSASKoQriQOGWgaBN4lpiiCHJAkBAQEBAQEBAQE3AQGEQ?=
- =?us-ascii?q?AKCJDgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYJuAQUjFUEQCw4KAgImAgJXB?=
- =?us-ascii?q?gEMBgIBAYJfP4JHAwklslaBMoVPg0OBSIEOKIwweYEHgTgPgl0+ghuFPoJeB?=
- =?us-ascii?q?JZjRpcQgjeCOZMXBhuCQIwpizYtjhuBQppjIoFYKwgCGAghD4MnUBEUlSwjA?=
+   d="scan'208";a="36084592"
+IronPort-PHdr: =?us-ascii?q?9a23=3A8tTCaB98aYR4Ov9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B20+8cTK2v8tzYMVDF4r011RmVBN6dsqwZwLWO+4nbGkU4qa6bt34DdJEeHz?=
+ =?us-ascii?q?Qksu4x2zIaPcieFEfgJ+TrZSFpVO5LVVti4m3peRMNQJW2aFLduGC94iAPER?=
+ =?us-ascii?q?vjKwV1Ov71GonPhMiryuy+4ZLebxhGiTanfL9/LRW7oQrTu8UKnIBvNrs/xh?=
+ =?us-ascii?q?zVr3VSZu9Y33loJVWdnxb94se/4ptu+DlOtvwi6sBNT7z0c7w3QrJEAjsmNX?=
+ =?us-ascii?q?s15NDwuhnYUQSP/HocXX4InRdOHgPI8Qv1Xpb1siv9q+p9xCyXNtD4QLwoRT?=
+ =?us-ascii?q?iv6bpgRQT2gykbKTE27GDXitRxjK1FphKhuwd/yJPQbI2MKfZyYr/RcdYcSG?=
+ =?us-ascii?q?VPRMZRUzFKDJ26YYUBEuENOf9Uoof5qlcLqxa1GAuiC/71yjJQm3H4w6M63e?=
+ =?us-ascii?q?QiHw/I0gMvENABv2jbotjuKKcfU/q4wLXUwTjNbf5b3yr25ojSchAmpPGBRa?=
+ =?us-ascii?q?9+cdbPxkk3FwPKkFOQopH4MTOQzOsNt2yb4PRgVOmyjGMnsBx+oiO0y8cwio?=
+ =?us-ascii?q?jGmoIVylfe+SV/24Y6P8e0SEF8Yd66CZZdsTyROYhuQs46Xm1ltyk3xqcGtJ?=
+ =?us-ascii?q?KmZiQG1psqywDFZ/CadYWD/wjtW/yLIThigXJoYLe/hxGv/ke+0uD8Tcy00E?=
+ =?us-ascii?q?pSripCj9nMqmgB1xzN5ciDTftw5luh1iyV1wDS9+FEOlo4lavdK54vxb4wjY?=
+ =?us-ascii?q?QcvljZEi/qmET5kK+WdkI+9uiu9+vneanpqoWZN491jgHyKqUumsqhDuQkKg?=
+ =?us-ascii?q?UCQmeW9Oum2LDj4EH1WqtGg/IonqXDrZzWPcEbqbS4Aw9R3IYj8RG/DzK+3d?=
+ =?us-ascii?q?QDgHYHN0lIeA6Hjof1O1HOJ+r0DfGkg1u2ijtryPfGPqP5DpXXMnfDiKvhfa?=
+ =?us-ascii?q?p660NEzwozyNdf54lSCr4bPP38RFT8tMbGARAkMwy72frnBM9h2YMZXGKFGr?=
+ =?us-ascii?q?WZP7/KsV+U+uIvJPGBZJQLtzb5Kvgl4ePujHAilF8Dcqmmw4EXZGq7Hvt4OU?=
+ =?us-ascii?q?WZZ2TjgtMbHWcNpAo+Q7+itFrXdjhffXuwF4c7/TcyA4+lRdPEQ4e2hrWK0Q?=
+ =?us-ascii?q?+hE5FWb3wAAVeJRzOgbIiAWvEReAqMLcJ71D8JT76sT8kmzx79mhX9zu9cMu?=
+ =?us-ascii?q?fM+iAe/anm3dxx6vybwQo+7hRoHs+d1CeLVGgykWQWEWxllJtjqFBwnw/QmZ?=
+ =?us-ascii?q?NzhOZVQJkKvKJE?=
+X-IPAS-Result: =?us-ascii?q?A2DFAABAk95d/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
+ =?us-ascii?q?QGBfoF0gRhVIBIqhCuJA4ZaBoESJYlpkUQJAQEBAQEBAQEBJxABAYRAAoIkO?=
+ =?us-ascii?q?BMCEAEBAQQBAQEBAQUDAQFshTcMgjspAYJtAQEBAQIBIxVRCw4KAgImAgJXB?=
+ =?us-ascii?q?gEMBgIBAYJfPwGCUgUgsWZ1gTKFT4NDgUiBDiiII4QNeYEHgTgMA4JdPodZg?=
+ =?us-ascii?q?l4ElmNGlxCCN4I5hGSOMwYbmh+OSJwlIoFYKwgCGAghD4MnCUcRFJEMhCAjA?=
  =?us-ascii?q?zCOPQEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 27 Nov 2019 15:16:31 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 27 Nov 2019 15:21:24 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xARFGRPt007630;
-        Wed, 27 Nov 2019 10:16:27 -0500
-Subject: Re: [PATCH testsuite v5] policy: use the kernel_request_load_module()
- interface
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xARFLJnX012155;
+        Wed, 27 Nov 2019 10:21:19 -0500
+Subject: Re: [PATCH testsuite] travis: improve selinuxfs mocking
 To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-References: <20191127123319.814863-1-omosnace@redhat.com>
+References: <20191127134643.822677-1-omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3c4cc54b-bad1-e72f-85c2-7742cbd3c425@tycho.nsa.gov>
-Date:   Wed, 27 Nov 2019 10:16:43 -0500
+Message-ID: <bf470995-b4ec-90af-6187-d4e405775ad4@tycho.nsa.gov>
+Date:   Wed, 27 Nov 2019 10:21:35 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20191127123319.814863-1-omosnace@redhat.com>
+In-Reply-To: <20191127134643.822677-1-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -96,86 +92,109 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/27/19 7:33 AM, Ondrej Mosnacek wrote:
-> ...instead of open-coding the rules. Also define a fallback to allow the
-> policy to build even if the interface is not defined.
+On 11/27/19 8:46 AM, Ondrej Mosnacek wrote:
+> Modify all Makefiles to allow overriding the path to the selinuxfs
+> mountpoint via the SELINUXFS variable and use it in the Travis script to
+> allow more stuff to be built (namely the extended_socket_class subdir).
 > 
-> Fixes: f5e5a0b8d005 ("selinux-testsuite: Add key_socket tests")
-> Cc: Richard Haines <richard_c_haines@btinternet.com>
-> Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
+> This patch also drops the auto-detection of selinuxfs mount from
+> policy/Makefile in favor of overriding it via the variable if it differs
+> from the usual /sys/fs/selinux/.
+
+This seems fine but note that several test scripts also access 
+/sys/fs/selinux for various purposes:
+tests/mkdir/test:    @locations = ( '/selinux', '/sys/fs/selinux' );
+tests/nnp_nosuid/test:"grep -q 1 
+/sys/fs/selinux/policy_capabilities/nnp_nosuid_transition 2> /dev/null"
+tests/checkreqprot/default_value.sh:	grep -q 0 
+/sys/fs/selinux/checkreqprot 2> /dev/null
+tests/mmap/test:    if ( system("grep -q 0 /sys/fs/selinux/checkreqprot 
+2> /dev/null") == 0 ) {
+tests/mmap/test:    if ( -e '/sys/fs/selinux/class/file/perms/map' ) {
+
+This won't matter until/unless we get to the point of actually running 
+the testsuite on travis, in which case we should have a real 
+/sys/fs/selinux so it may not matter.
+
+> 
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
 > ---
+>   .travis.yml     | 8 ++++----
+>   policy/Makefile | 2 +-
+>   tests/Makefile  | 5 +++--
+>   3 files changed, 8 insertions(+), 7 deletions(-)
 > 
-> Change in v5: call the macro only once for the whole domain
-> Change in v4: fix copy-paste mistakes spotted by Richard
-> Change in v3: use different approach as suggested by Stephen
-> Change in v2: update also tests/Makefile for consistency
-> 
->   policy/test_key_socket.te | 8 +++-----
->   policy/test_policy.if     | 6 ++++++
->   2 files changed, 9 insertions(+), 5 deletions(-)
-> 
-> diff --git a/policy/test_key_socket.te b/policy/test_key_socket.te
-> index cde426b..64d2cee 100644
-> --- a/policy/test_key_socket.te
-> +++ b/policy/test_key_socket.te
-> @@ -12,8 +12,6 @@ typeattribute test_key_sock_t keysockdomain;
->   # key_socket rules:
->   allow test_key_sock_t self:capability { net_admin };
->   allow test_key_sock_t self:key_socket { create write read setopt };
-> -# For CONFIG_NET_KEY=m
-> -allow test_key_sock_t kernel_t:system { module_request };
+> diff --git a/.travis.yml b/.travis.yml
+> index d1e5056..2c8e416 100644
+> --- a/.travis.yml
+> +++ b/.travis.yml
+> @@ -51,15 +51,15 @@ before_install:
+>     - bash travis-ci/setup-policy-fedora.sh
+>     - bash travis-ci/setup-policy-refpolicy.sh
+>     # establish a fake "selinuxfs" mount (policy/Makefile just greps for selinuxfs)
+> -  - sudo mkdir -p /tmp/fake-selinuxfs
+> -  - sudo mount -t tmpfs tmpfs /tmp/fake-selinuxfs
+> +  - mkdir -p /tmp/fake-selinuxfs/policy_capabilities
+> +  - echo 1 > /tmp/fake-selinuxfs/policy_capabilities/extended_socket_class
+>     - echo 999 >/tmp/fake-selinuxfs/policyvers
 >   
->   ################## Deny capability { net_admin } ##########################
->   #
-> @@ -29,7 +27,6 @@ typeattribute test_key_sock_no_net_admin_t testdomain;
->   typeattribute test_key_sock_no_net_admin_t keysockdomain;
+>   script:
+>     - tools/check-syntax -f && git diff --exit-code
+>     - |
+>       bash travis-ci/enable-policy.sh targeted &&
+> -    make PREFIX=/usr/local POLDEV=/usr/share/selinux/targeted
+> +    make SELINUXFS=/tmp/fake-selinuxfs PREFIX=/usr/local POLDEV=/usr/share/selinux/targeted
+>     - |
+>       bash travis-ci/enable-policy.sh refpolicy &&
+> -    make PREFIX=/usr/local POLDEV=/usr/share/selinux/refpolicy
+> +    make SELINUXFS=/tmp/fake-selinuxfs PREFIX=/usr/local POLDEV=/usr/share/selinux/refpolicy
+> diff --git a/policy/Makefile b/policy/Makefile
+> index 87b2856..dda2e16 100644
+> --- a/policy/Makefile
+> +++ b/policy/Makefile
+> @@ -3,6 +3,7 @@ PREFIX ?= /usr
+>   BINDIR ?= $(PREFIX)/bin
+>   SBINDIR ?= $(PREFIX)/sbin
+>   POLDEV ?= $(PREFIX)/share/selinux/devel
+> +SELINUXFS ?= /sys/fs/selinux
+>   SEMODULE = $(SBINDIR)/semodule
+>   CHECKPOLICY = $(BINDIR)/checkpolicy
+>   CHECKMODULE = $(BINDIR)/checkmodule
+> @@ -11,7 +12,6 @@ DISTRO=$(shell ../tests/os_detect)
 >   
->   allow test_key_sock_no_net_admin_t self:key_socket { create write read setopt };
-> -allow test_key_sock_no_net_admin_t kernel_t:system { module_request };
+>   POL_VERS := $(shell $(CHECKPOLICY) -V |cut -f 1 -d ' ')
+>   MOD_POL_VERS := $(shell $(CHECKMODULE) -V |cut -f 2 -d '-')
+> -SELINUXFS := $(shell cat /proc/mounts | grep selinuxfs | cut -f 2 -d ' ')
+>   MAX_KERNEL_POLICY := $(shell cat $(SELINUXFS)/policyvers)
 >   
->   ####################### Deny key_socket { create } ##########################
->   type test_key_sock_no_create_t;
-> @@ -50,7 +47,6 @@ typeattribute test_key_sock_no_write_t keysockdomain;
+>   TARGETS = \
+> diff --git a/tests/Makefile b/tests/Makefile
+> index 1cdb1ac..0d33fbf 100644
+> --- a/tests/Makefile
+> +++ b/tests/Makefile
+> @@ -1,5 +1,6 @@
+>   INCLUDEDIR ?= /usr/include
+>   POLDEV ?= /usr/share/selinux/devel
+> +SELINUXFS ?= /sys/fs/selinux
 >   
->   allow test_key_sock_no_write_t self:capability { net_admin };
->   allow test_key_sock_no_write_t self:key_socket { create read setopt };
-> -allow test_key_sock_no_write_t kernel_t:system { module_request };
+>   export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
 >   
->   ####################### Deny key_socket { read } ##########################
->   type test_key_sock_no_read_t;
-> @@ -61,10 +57,12 @@ typeattribute test_key_sock_no_read_t keysockdomain;
+> @@ -19,11 +20,11 @@ SUBDIRS += cap_userns
+>   endif
+>   endif
 >   
->   allow test_key_sock_no_read_t self:capability { net_admin };
->   allow test_key_sock_no_read_t self:key_socket { create write setopt };
-> -allow test_key_sock_no_read_t kernel_t:system { module_request };
+> -ifeq ($(shell grep -q icmp_socket $(POLDEV)/include/support/all_perms.spt && grep -q 1 /sys/fs/selinux/policy_capabilities/extended_socket_class && echo true),true)
+> +ifeq ($(shell grep -q icmp_socket $(POLDEV)/include/support/all_perms.spt && grep -q 1 $(SELINUXFS)/policy_capabilities/extended_socket_class && echo true),true)
+>   SUBDIRS += extended_socket_class
+>   endif
 >   
->   #
->   ########### Allow these domains to be entered from sysadm domain ############
->   #
->   miscfiles_domain_entry_test_files(keysockdomain)
->   userdom_sysadm_entry_spec_domtrans_to(keysockdomain)
-> +
-> +# For CONFIG_NET_KEY=m
-> +kernel_request_load_module(keysockdomain)
-> diff --git a/policy/test_policy.if b/policy/test_policy.if
-> index e1175e8..3f163cb 100644
-> --- a/policy/test_policy.if
-> +++ b/policy/test_policy.if
-> @@ -82,3 +82,9 @@ interface(`userdom_search_admin_dir', `
->       userdom_search_user_home_content($1)
->   ')
->   ')
-> +
-> +# If the macro isn't defined, then most probably module_request permission
-
-Sorry, I should have caught this earlier.  m4 does not do the right 
-thing with embedded quotes in comments, so you can get weird effects 
-after macro expansion.  I'd expand it to "is not" to be safe.
-
-> +# is just not supported (and relevant operations should be just allowed).
-> +ifdef(`kernel_request_load_module', `', ` dnl
-> +interface(`kernel_request_load_module', `')
-> +')
+> -ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/corenetwork.if && grep -q 1 /sys/fs/selinux/policy_capabilities/extended_socket_class && echo true),true)
+> +ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/corenetwork.if && grep -q 1 $(SELINUXFS)/policy_capabilities/extended_socket_class && echo true),true)
+>   ifneq ($(shell ./kvercmp $$(uname -r) 4.20.17),-1)
+>   SUBDIRS += sctp
+>   endif
 > 
 
