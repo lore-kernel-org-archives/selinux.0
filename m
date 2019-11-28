@@ -1,136 +1,141 @@
-Return-Path: <SRS0=LgiC=ZT=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=hQaX=ZU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8560FC432C3
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 20:43:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A81D6C432C0
+	for <selinux@archiver.kernel.org>; Thu, 28 Nov 2019 12:53:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 57A0E217D7
-	for <selinux@archiver.kernel.org>; Wed, 27 Nov 2019 20:43:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5ABC9215A5
+	for <selinux@archiver.kernel.org>; Thu, 28 Nov 2019 12:53:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="zmUjUY1N"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="P5SoTcA+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728827AbfK0Un3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 Nov 2019 15:43:29 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:45907 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728986AbfK0Un3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 Nov 2019 15:43:29 -0500
-Received: by mail-lj1-f194.google.com with SMTP id n21so25918715ljg.12
-        for <selinux@vger.kernel.org>; Wed, 27 Nov 2019 12:43:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=6EB4/knNs+vWKzG9d3D2zh6Mmu0oPU+u/O54o/0EjqA=;
-        b=zmUjUY1NAZZtpJVEOvZYH7zdf6xHzO1OZ/fWXINzr1a+kNcwMsrxcil2g6QYUQaplh
-         sz7UqGiuBGgWcrZqwTISa4KcKKu6xB9k1G53flFVVCV8SDNWVwMflIiNkjMPOEp46r+4
-         jlER63qhgFl0P4esp5yDA4Vc1Wb7KEl6GwWO2VfYTSlSw3Dkbzjeu16XCOksA7Yry7yZ
-         ob4FeYDnr9j9AHWPan6DpaAK1ZrZ3igBFBcjEoluOHyHx6WLFHwoy8KOV0+DX3BY8gJI
-         jw8pVjkMzkfBsYQI6Ty8A6HmzBnLsm3fvREk+ixMR8AnFlqXP2iVwLUJ1SzwLpDX3VnP
-         8hsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6EB4/knNs+vWKzG9d3D2zh6Mmu0oPU+u/O54o/0EjqA=;
-        b=ivaFCzWiAdrYkAcl1r4zkZ1ZMMXiqLq8M52Nu3WncAb+5sxa3m3/WlZxsGjgoDV+F0
-         MjKktb9S6/PJIYzhvOLBpzWZyk5Yl+haHt4NjUwSoAqWgM9jzVO3vNEqpOpsaj3iSAbh
-         kJ4aEzoiR4zz1Bx7gmTlc0KesS4DwMnyaY9FS9LAp2aDQEfmtpVgMvq0Bgv519aDAHn+
-         +fjdwwUGQ6o5tQRYT/9cpRmXWnDvc2NNxIOgbem2Cs2R637CRfx3FkcwbOGCKjJjomT5
-         wRcBeDTYdglAEL/IfwrXFoKF8iYJvbhvs4NseyOaQA/YuFcLZIr31D/MdiASIjhNLZiy
-         dS4w==
-X-Gm-Message-State: APjAAAXnqx+h30QCQnMHQzUiLarCmlufzYQZvGhEPgf4XDgK+q4nBPXo
-        g7XIClFgIoMpyoIKu70Xn6Rs5BmCJT+82Eu9QhO7
-X-Google-Smtp-Source: APXvYqzjXXEqqJrPbjF/L4lRRk0lCD2TQ6ds+ia038SGST9wXuNmejczcknlaj5tmSeEXG5s5hFpr05YZ1fAtJmX2GA=
-X-Received: by 2002:a05:651c:1ba:: with SMTP id c26mr3133429ljn.126.1574887406362;
- Wed, 27 Nov 2019 12:43:26 -0800 (PST)
-MIME-Version: 1.0
-References: <157486604069.70468.14139138243381994891.stgit@chester>
- <CAFqZXNs5jcOOnhzT8=DQgzaf9RtBZ1=oqTU83pjVLMqPb-rzHA@mail.gmail.com>
- <574b6648-8698-65e0-23c4-5ddb096b36c6@tycho.nsa.gov> <CAFqZXNtm3H02aFTinZ0OGtezFdVJ66dQV9YXx2ABm-3z-UtWoQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNtm3H02aFTinZ0OGtezFdVJ66dQV9YXx2ABm-3z-UtWoQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 27 Nov 2019 15:43:15 -0500
-Message-ID: <CAHC9VhRYebGQEPFG0FZmkjbzrbn6yewSqHrdRgLQJLpzsjZ7qA@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: update the dependencies in README.md
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        SElinux list <selinux@vger.kernel.org>
+        id S1726252AbfK1Mx4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 Nov 2019 07:53:56 -0500
+Received: from mailomta29-sa.btinternet.com ([213.120.69.35]:13536 "EHLO
+        sa-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726227AbfK1Mxz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 Nov 2019 07:53:55 -0500
+Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
+          by sa-prd-fep-044.btinternet.com with ESMTP
+          id <20191128125352.LAEU8432.sa-prd-fep-044.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Thu, 28 Nov 2019 12:53:52 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1574945632; 
+        bh=EspOsOgQcRMH66ym6vS8OXAaQPNdOGfDC5PVlvcC5sI=;
+        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
+        b=P5SoTcA+gmUqlWPXOiC+Gw2umD9tCC550woxeG9DMC2kuG2/MJZLunBmXfJ18XDOG8C93VjD+bFV6vIOfC9EsK4wYS86wKx9/y2mhl+0LtLSnb9av5uP9XGGSgqzfS2K9MMO2rmeKF/vC+Y8YUMSIoKhjmWEk1H8utWXzNmAHfRPaES+og3pdpAfPrcpGCrBg82nR1TOjAQmsRcqmD8ygzVYZsB39fNwevykF7UIWLmQt28j88OKpP62PHuFuVlE2zXI/NjiFheSRRvrnkCfK9bzvFYR31GQY+jmgtERnnfy/FN7J35TBRGCohcEqOerEc/jqMFsBZroxmUismHquw==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.6.134]
+X-OWM-Source-IP: 86.134.6.134 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudeijedggedvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudefgedriedrudefgeenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudefgedriedrudefgedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvsheshhhothhmrghilhdrtghomheqpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.6.134) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5DCFE7EF02164B4D; Thu, 28 Nov 2019 12:53:52 +0000
+Message-ID: <2f41698ed14a640481fcc82476cd9c725e3d17e6.camel@btinternet.com>
+Subject: Re: [RFC PATCH] selinux-testsuite: Add TUN/TAP driver tests
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
+Date:   Thu, 28 Nov 2019 12:53:51 +0000
+In-Reply-To: <41aca6c1-7284-0226-3f20-6eb15f437c48@tycho.nsa.gov>
+References: <20191127094702.3418-1-richard_c_haines@btinternet.com>
+         <41aca6c1-7284-0226-3f20-6eb15f437c48@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.1 (3.34.1-1.fc31) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Nov 27, 2019 at 10:39 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Wed, Nov 27, 2019 at 4:24 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On 11/27/19 10:21 AM, Ondrej Mosnacek wrote:
-> > > On Wed, Nov 27, 2019 at 3:47 PM Paul Moore <paul@paul-moore.com> wrote:
-> > >> From: Paul Moore <paul@paul-moore.com>
-> > >>
-> > >> The new kernel module tests added in a68d583c2a70 ("selinux-testsuite:
-> > >> Add kernel module tests") require the kernel-devel package on Fedora,
-> > >> make sure we list that in the README.md file.
-> > >
-> > > Thanks, I should have thought of this when reviewing the patch :)
-> > >
-> > >>
-> > >> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > >> ---
-> > >>   README.md |    4 +++-
-> > >>   1 file changed, 3 insertions(+), 1 deletion(-)
-> > >>
-> > >> diff --git a/README.md b/README.md
-> > >> index e845df8..4352796 100644
-> > >> --- a/README.md
-> > >> +++ b/README.md
-> > >> @@ -53,6 +53,7 @@ similar dependencies):
-> > >>   * attr _(tools used by the overlayfs tests)_
-> > >>   * libbpf-devel _(tools used by the bpf tests)_
-> > >>   * keyutils-libs-devel _(tools used by the keys tests)_
-> > >> +* kernel-devel _(used by the kernel module tests)_
-> > >>
-> > >>   On a modern Fedora system you can install these dependencies with the
-> > >>   following command:
-> > >> @@ -69,7 +70,8 @@ following command:
-> > >>                  lksctp-tools-devel \
-> > >>                  attr \
-> > >>                  libbpf-devel \
-> > >> -               keyutils-libs-devel
-> > >> +               keyutils-libs-devel \
-> > >> +               kernel-devel
-> > >
-> > > I'm wondering whether we should rather put kernel-devel-$(uname -r)
-> > > here, to make sure that the right package is installed that
-> > > corresponds to the running kernel version (which may not be the latest
-> > > version that dnf will fetch). Or if the use of shell expansion feels
-> > > too clever, then we should at last document that the command may not
-> > > always install the version that is needed.
-> >
-> > I'm often testing kernels I build myself and not via rpm.
->
-> Right, then the command would just fail... :/ But it might be slightly
-> faster to realize that you can just delete the kernel-devel line from
-> the command when you're running a local kernel build, than figuring
-> out why the test failed to build after a successful run of the command
-> (in the non-latest stock kernel scenario). But I'm fine with just
-> documenting it if we want to keep it simple.
+On Wed, 2019-11-27 at 09:59 -0500, Stephen Smalley wrote:
+> On 11/27/19 4:47 AM, Richard Haines wrote:
+> > Test TUN/TAP tun_socket permissions.
+> > 
+> > I've made this an RFC patch as TAP supports adding BPF prog file
+> > descriptors, therefore I've added a simple test that just checks
+> > that it
+> > works. However, there does not seem to be a requirement to test any
+> > additional SELinux functionality that the basic BPF tests do not
+> > already cover. Any views !!!
+> 
+> That seems reasonable to me.  Generally our focus is on ensuring
+> test 
+> coverage of the LSM/SELinux hooks and SELinux kernel APIs, so
+> anything 
+> that is already covered by an existing test doesn't need to be
+> repeated. 
+>   In the case of tun/tap, likely only the tun_socket checks
+> themselves 
+> are unique to these tests.
 
-I don't feel that strongly about it either way, but one could argue
-that if start versioning the kernel-devel package, why not all the
-other packages?  What if you have a locally modified BPF userspace?
-Infiniband?  I think you get the idea.
+I'll remove the BPF check and send an update.
 
-My opinion is that if you are going off into the weeds by replacing
-the kernel or portions of your userspace, you should know well enough
-how to ensure that they are properly installed ;)
+> 
+> I would prioritize on 1) ensuring that we have test coverage of new 
+> security hooks, new functionality within existing hooks, or new
+> SELinux 
+> kernel APIs as they get added to the kernel, e.g. the perf
+> permission 
+> checks (github issue #71), the socketpair peer labeling support
+> (#63), 
+> etc, and then 2) gradually expanding our test coverage of existing 
+> security hooks and kernel APIs to ensure that future kernels do not 
+> regress, e.g. it would have been nice to have had explicit tests for 
+> context mounts as per issue #20 to ensure that we didn't regress
+> during 
+> the vfs new mount API overhaul (we happen to exercise context mounts
+> as 
+> part of overlay testing and as part of binderfs testing but not as a 
+> separate test, not in a comprehensive way, and not for anything
+> other 
+> than overlay mounts), and likewise for many of the tests identified
+> as 
+> open github issues.
 
--- 
-paul moore
-www.paul-moore.com
+I'll have a go at the perf checks next as I guess it will make it to
+5.5 unlike the keys-acl (that I did tests for). I also have the simple
+'watch_key' test that I'll send once in 5.5 (if it makes it).
+
+> 
+> I haven't looked too closely at this yet, but I did have one minor 
+> comment on your test policy below.
+
+I'll change this (I try to avoid interfaces in tests as you need to
+lookup what they really contain and it may be more than you want, plus
+just plain allow rules are much clearer (but that's just me))
+> 
+> <snip>
+> > diff --git a/policy/test_tap_bpf.te b/policy/test_tap_bpf.te
+> > new file mode 100644
+> > index 0000000..f921a5a
+> > --- /dev/null
+> > +++ b/policy/test_tap_bpf.te
+> > @@ -0,0 +1,30 @@
+> > +#
+> > +########### Test TAP/BPF - 'tun_socket' #################
+> > +#
+> > +attribute tapbpfdomain;
+> > +
+> > +# For CONFIG_TUN=m
+> > +kernel_request_load_module(tapbpfdomain)
+> > +
+> > +gen_require(`
+> > +	type tun_tap_device_t;
+> > +')
+> 
+> Any time you find yourself needing a require, look to see if there is
+> a 
+> refpolicy interface you could use instead that would provide that 
+> require and the necessary rules.  In this case, I think you could
+> have 
+> used corenet_rw_tun_tap_dev().
+
