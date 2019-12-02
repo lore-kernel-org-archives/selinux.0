@@ -7,83 +7,82 @@ X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DD88C432C0
-	for <selinux@archiver.kernel.org>; Mon,  2 Dec 2019 17:21:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6752AC432C0
+	for <selinux@archiver.kernel.org>; Mon,  2 Dec 2019 17:21:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DD2B420833
-	for <selinux@archiver.kernel.org>; Mon,  2 Dec 2019 17:21:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3455E20833
+	for <selinux@archiver.kernel.org>; Mon,  2 Dec 2019 17:21:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="n4txF+hQ"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="O5WvGecR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727542AbfLBRVY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Dec 2019 12:21:24 -0500
-Received: from UHIL19PA37.eemsg.mail.mil ([214.24.21.196]:44388 "EHLO
-        UHIL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727493AbfLBRVY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Dec 2019 12:21:24 -0500
-X-EEMSG-check-017: 53354165|UHIL19PA37_ESA_OUT03.csd.disa.mil
+        id S1727493AbfLBRVv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Dec 2019 12:21:51 -0500
+Received: from USAT19PA20.eemsg.mail.mil ([214.24.22.194]:19952 "EHLO
+        USAT19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727460AbfLBRVv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Dec 2019 12:21:51 -0500
+X-EEMSG-check-017: 56073373|USAT19PA20_ESA_OUT01.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,270,1571702400"; 
-   d="scan'208";a="53354165"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 02 Dec 2019 17:21:19 +0000
+   d="scan'208";a="56073373"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USAT19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 02 Dec 2019 17:21:50 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1575307280; x=1606843280;
+  s=tycho.nsa.gov; t=1575307310; x=1606843310;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=8sUDpPS6So6KDfR8kcDMKvQm71FJUmXMBut/5GAZsQw=;
-  b=n4txF+hQr9AGEuvZPqft/a9wlA8My/7CZT52+S3mzTlsXdhpyAXaVPJp
-   kyO7n+y8GVnRCihPAE2jubjP9fvKLEhvQvsDCsRJ6VwX7IK09Lptp0ss0
-   Nr9xTeFIBYq7xremi5zsCFOgF7TaKWVFSelhCLJHM/fuScbIxMC12yql2
-   rki5Nw7x/ufaT0lCdNYB/SOdsGBldeS8TTawgPQOcCfqpjcHIAM7kUJJu
-   Q9gznpNCpLbqLybF8olbANiUzitdMGufQa6tcTTSZgUNREXz8IiLAVqlQ
-   gvTdE1NTNVRU9DLQh8zF5nJrTfLhXdoMILKiVWUWZg/8pWAULpPZxnQ+o
-   A==;
+  bh=G/A4LG6f5GB7dE4K2YtYjCvtSjz8wMeqKktb7/wHCN0=;
+  b=O5WvGecRvVf9c0XcDh1S4DbGd1ywpwkhxCMAfZ5m2g+gPb9s8b1grfbP
+   qflsIRBN1/CSxWu/Jcu3Z8m2TbMdZmk7kcBKLCtfieG9OehP5tWANvpLV
+   K89vouF1BwTFxsezdqF7sVyDShpSPnF34jrjOi8pbYnjtt6IpipK4wDrm
+   IFrhWHhpM9UqbpkgyaLxRvz9ycKjd7MAwDrtP/oXpB6vX6mThISe+52XW
+   rbGcUnIG2oZ53kV/M/mhQWQ3fnHZxSPww+UlLmJkbYrhBxQF17h9tR3qE
+   wpRbi6SGe6H7B0py0/VKE3FrMlLc8GuMtWvzK+6PVsSQrFd1M402sLa7s
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.69,270,1571702400"; 
-   d="scan'208";a="36199333"
-IronPort-PHdr: =?us-ascii?q?9a23=3Ae+cVrRxf8+iS7EjXCy+O+j09IxM/srCxBDY+r6?=
- =?us-ascii?q?Qd2uoVIJqq85mqBkHD//Il1AaPAdyArasb1qGP6/iocFdDyK7JiGoFfp1IWk?=
- =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
- =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmTSwbalvIBi0rQjdudQajZd+Jq0s1h?=
- =?us-ascii?q?bHv3xEdvhMy2h1P1yThRH85smx/J5n7Stdvu8q+tBDX6vnYak2VKRUAzs6PW?=
- =?us-ascii?q?874s3rrgTDQhCU5nQASGUWkwFHDBbD4RrnQ5r+qCr6tu562CmHIc37SK0/VD?=
- =?us-ascii?q?q+46t3ThLjlTwKPCAl/m7JlsNwjbpboBO/qBx5347Ue5yeOP5ncq/AYd8WWW?=
- =?us-ascii?q?9NU8BfWCxbBoO3cpUBAewPM+1Fq4XxvlUDoB+7CQSqGejhyCJHhmXu0KMnze?=
- =?us-ascii?q?ohHwHI0g8uEd0Av3vbrsn6OqgJXOCpzqTF1ynPY+9Y1Dr/7oXDbxAvoeuLXb?=
- =?us-ascii?q?J1acff1FUvGB3djlWQt4PlOS6e2PkIs2eB6+pgUfygim46oAx2uTig29wsh5?=
- =?us-ascii?q?LVhoMV1l/E9SJ5zJwzJd2jUkF3e9GkEJxOtyyDMYZ9X8AsQ3lwtSonxbALto?=
- =?us-ascii?q?S3cSgXxJg92RLSZOKLf5KV7h/lSe2fOy13hGh/d7K6nxuy9E+gxfDiWcSsy1?=
- =?us-ascii?q?ZKqzZFksHLtnAQyxzf8siHReV5/kemwTuPyxrc6vtFIUApjqrXMZ8hwrg+lp?=
- =?us-ascii?q?oUqkTMADP5lF/qjK6Wakok+u+o5/7hYrr6vZ+TK5V4igT/MqQqgsC/AOI4PR?=
- =?us-ascii?q?YSX2WD5Oix27Lu8Vf5TblXlPE6jKbUvI7AKcgGvqK5BhVa0ocn6xaxFTem19?=
- =?us-ascii?q?EYkGEcLF1YYxKKlJTpOlHSL/D4CvezmVKskCxxyPzcMb3hBYvNImDZkLj9Zb?=
- =?us-ascii?q?Z991JcyA0rwNBH/Z1UF7UBLenrWkDrqdzYCgY1Mwmzw+bgEtVyyJkSVn6IAq?=
- =?us-ascii?q?+cKKnSq0OH5vozI+mQY48YoC39JOYh5/7vi385hFAccLK33ZsYdn+4BO5qI0?=
- =?us-ascii?q?aHbnr2hNcOD2MKshA5TOzwh13RGQJUMk67QqZ0wzY8Eo/uWZ/KW4SFmLWc2G?=
- =?us-ascii?q?K+GZpMayZNDVXaVT/zeoGFXeocQDydL9UnkTEeU7WlDYg72kKArgj/noF7I/?=
- =?us-ascii?q?LU9ytQjpfq0Nx49qWHjh0p3SBlBMSalWeWRid7mX1eFGx+57x2vUEokgTL6q?=
- =?us-ascii?q?N/mfENUIUItv4=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AVAQA5ReVd/wHyM5BmGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBfoF0gRhUASASKoQriQOGVwEBAQEBAQaBN4lpkUQJAQEBAQEBAQEBIxQBA?=
- =?us-ascii?q?YRAAoIvOBMCEAEBAQQBAQEBAQUDAQFshTcMgjspAYJtAQEBAQMjFVELFQMCA?=
- =?us-ascii?q?iYCAlcGAQwGAgEBgl8/AYJSJbIudYEyhU+DJoFIgQ4ojDB5gQeBOA+CXT6EE?=
- =?us-ascii?q?oNHgl4ElmdGlxGCOII5hGWONQYbgkFzlm+OSoFCmmYigVgrCAIYCCEPO4JsC?=
- =?us-ascii?q?UcRFJRhhmkjAzCPB4JBAQE?=
+   d="scan'208";a="30650960"
+IronPort-PHdr: =?us-ascii?q?9a23=3AczjMyRcaTc4HZ0LQNvtzci7WlGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxcW6bB7h7PlgxGXEQZ/co6odzbaP6Oa5BjFLuM7Z+Fk5M7V0Hy?=
+ =?us-ascii?q?cfjssXmwFySOWkMmbcaMDQUiohAc5ZX0Vk9XzoeWJcGcL5ekGA6ibqtW1aFR?=
+ =?us-ascii?q?rwLxd6KfroEYDOkcu3y/qy+5rOaAlUmTaxe7x/IAi4oAnLq8Ubg4tvJqksxh?=
+ =?us-ascii?q?fVvndDZvhby35vKV+PhRj3+92+/IRk8yReuvIh89BPXKDndKkmTrJWESorPX?=
+ =?us-ascii?q?kt6MLkqRfMQw2P5mABUmoNiRpHHxLF7BDhUZjvtCbxq/dw1zObPc3ySrA0RC?=
+ =?us-ascii?q?ii4qJ2QxLmlCsLKzg0+3zMh8dukKxUvg6upx1nw47Vfo6VMuZ+frjAdt8eXG?=
+ =?us-ascii?q?ZNQ9pdWzBEDo66YYQPFe4BNvtGoYf7qVUFsB+yCRCiCe7rzzNFgGL9068n3O?=
+ =?us-ascii?q?Q7CQzIwRIuH9wOvnrXotv6OqgdXuKpw6fH1jjDc/Fb1C3h5ITUfB0so/eBVq?=
+ =?us-ascii?q?9wf8rLzkkvEhvIgEiMqYP7JzOV1voCs26G5OR9UOKgkWonqwVvrTmv28whjZ?=
+ =?us-ascii?q?LJiZ8Oyl3f6SV4wJo6Jd2/SEJhZ96kC4FfuzuVN4txXMMvWmdlszs5xL0eoZ?=
+ =?us-ascii?q?O3YScHxZs9yxPfdvCLaZaE7x39WOqLPDt1gm9udqiliBao60egz/XxVsyz0F?=
+ =?us-ascii?q?lXsCVIisLMtnUR1xzL7ciHV+d98l+h2TmR0wDT7flJIVwumqrBKp4h36Uwmo?=
+ =?us-ascii?q?ASsUTFEC/2n172g7GKeUk+5uip6/joYrXhppOGMY97lhr+Pbg0lsy6AOQ4Nh?=
+ =?us-ascii?q?ACX2md+euiyL3u5VD1TbpFg/EskqTVrYrWKdoUq6KnGQNZz54v6xOlADen1N?=
+ =?us-ascii?q?QYk2MHLFVAeB+flIjmJkrOLevkDfa/n1uskDBry+rAPr36GJrBNHfDkLD/fb?=
+ =?us-ascii?q?pl8U5T1BIzzcxD55JTErwBJ/fzWkjqtNzeFBA2LxK7zv39CNpjy4weWXiAAr?=
+ =?us-ascii?q?ODPKzOtl+I4/olI/OQa48NpDb9N/8l6ub1jXAnnV8dfK+p3YYYaX2jAPRmLF?=
+ =?us-ascii?q?uWYWD2jtcCD2gKpAw+Q/LuiFGYVj5TfXmyDOoA4WQcDo68AIWLY4e2hrWK0S?=
+ =?us-ascii?q?TzSppTYXtAA1uBOW3le4WNR7EHbyfEZod6nzgFU6WxY5Eu2AvotwLgzbdjaO?=
+ =?us-ascii?q?3O9X42r5XmgeNp6vXTmBd6zjl9C8CQwinZVG1vtn8ZTD8xmqZkqApyzUnVgv?=
+ =?us-ascii?q?swuOBRCdEGv6ABaQw9L5OJirUhWt0=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BHAwDURuVd/wHyM5BmHAEBAQEBBwEBEQEEBAEBgX6Bd?=
+ =?us-ascii?q?IEYVAEgEiqEK4kDhlcBAQEBAQEGgTeJaZFECQEBAQEBAQEBAScQAQGEQAKCL?=
+ =?us-ascii?q?zgTAhABAQEEAQEBAQEFAwEBbIU3DII7KQGCbgEFIxVRCw4KAgImAgJXBgEMB?=
+ =?us-ascii?q?gIBAYJfPwGCUiWzKIEyhU+DJoFIgQ4ojDB5gQeBOA+CXT6HWYJeBJZnRpcRg?=
+ =?us-ascii?q?jiCOYRljjUGG5ojjkqcKCKBWCsIAhgIIQ+DJwlHERSXKoQgIwMwkUgBAQ?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 02 Dec 2019 17:21:19 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 02 Dec 2019 17:21:49 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xB2HLAHR069547;
-        Mon, 2 Dec 2019 12:21:10 -0500
-Subject: Re: [PATCH] selinux-testsuite: update the dependencies in README.md
-To:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
-References: <157486604069.70468.14139138243381994891.stgit@chester>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xB2HLfki069555;
+        Mon, 2 Dec 2019 12:21:41 -0500
+Subject: Re: [PATCH testsuite] travis: improve selinuxfs mocking
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20191127134643.822677-1-omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <13bfd1ea-3f1c-7de4-9d8f-344d1a74ca8f@tycho.nsa.gov>
-Date:   Mon, 2 Dec 2019 12:21:28 -0500
+Message-ID: <f0305aac-c30a-8f09-65f0-143cfffbf414@tycho.nsa.gov>
+Date:   Mon, 2 Dec 2019 12:21:59 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <157486604069.70468.14139138243381994891.stgit@chester>
+In-Reply-To: <20191127134643.822677-1-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -92,42 +91,93 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 11/27/19 9:47 AM, Paul Moore wrote:
-> From: Paul Moore <paul@paul-moore.com>
+On 11/27/19 8:46 AM, Ondrej Mosnacek wrote:
+> Modify all Makefiles to allow overriding the path to the selinuxfs
+> mountpoint via the SELINUXFS variable and use it in the Travis script to
+> allow more stuff to be built (namely the extended_socket_class subdir).
 > 
-> The new kernel module tests added in a68d583c2a70 ("selinux-testsuite:
-> Add kernel module tests") require the kernel-devel package on Fedora,
-> make sure we list that in the README.md file.
+> This patch also drops the auto-detection of selinuxfs mount from
+> policy/Makefile in favor of overriding it via the variable if it differs
+> from the usual /sys/fs/selinux/.
 > 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
 Thanks, applied.
 
 > ---
->   README.md |    4 +++-
->   1 file changed, 3 insertions(+), 1 deletion(-)
+>   .travis.yml     | 8 ++++----
+>   policy/Makefile | 2 +-
+>   tests/Makefile  | 5 +++--
+>   3 files changed, 8 insertions(+), 7 deletions(-)
 > 
-> diff --git a/README.md b/README.md
-> index e845df8..4352796 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -53,6 +53,7 @@ similar dependencies):
->   * attr _(tools used by the overlayfs tests)_
->   * libbpf-devel _(tools used by the bpf tests)_
->   * keyutils-libs-devel _(tools used by the keys tests)_
-> +* kernel-devel _(used by the kernel module tests)_
+> diff --git a/.travis.yml b/.travis.yml
+> index d1e5056..2c8e416 100644
+> --- a/.travis.yml
+> +++ b/.travis.yml
+> @@ -51,15 +51,15 @@ before_install:
+>     - bash travis-ci/setup-policy-fedora.sh
+>     - bash travis-ci/setup-policy-refpolicy.sh
+>     # establish a fake "selinuxfs" mount (policy/Makefile just greps for selinuxfs)
+> -  - sudo mkdir -p /tmp/fake-selinuxfs
+> -  - sudo mount -t tmpfs tmpfs /tmp/fake-selinuxfs
+> +  - mkdir -p /tmp/fake-selinuxfs/policy_capabilities
+> +  - echo 1 > /tmp/fake-selinuxfs/policy_capabilities/extended_socket_class
+>     - echo 999 >/tmp/fake-selinuxfs/policyvers
 >   
->   On a modern Fedora system you can install these dependencies with the
->   following command:
-> @@ -69,7 +70,8 @@ following command:
->   		lksctp-tools-devel \
->   		attr \
->   		libbpf-devel \
-> -		keyutils-libs-devel
-> +		keyutils-libs-devel \
-> +		kernel-devel
+>   script:
+>     - tools/check-syntax -f && git diff --exit-code
+>     - |
+>       bash travis-ci/enable-policy.sh targeted &&
+> -    make PREFIX=/usr/local POLDEV=/usr/share/selinux/targeted
+> +    make SELINUXFS=/tmp/fake-selinuxfs PREFIX=/usr/local POLDEV=/usr/share/selinux/targeted
+>     - |
+>       bash travis-ci/enable-policy.sh refpolicy &&
+> -    make PREFIX=/usr/local POLDEV=/usr/share/selinux/refpolicy
+> +    make SELINUXFS=/tmp/fake-selinuxfs PREFIX=/usr/local POLDEV=/usr/share/selinux/refpolicy
+> diff --git a/policy/Makefile b/policy/Makefile
+> index 87b2856..dda2e16 100644
+> --- a/policy/Makefile
+> +++ b/policy/Makefile
+> @@ -3,6 +3,7 @@ PREFIX ?= /usr
+>   BINDIR ?= $(PREFIX)/bin
+>   SBINDIR ?= $(PREFIX)/sbin
+>   POLDEV ?= $(PREFIX)/share/selinux/devel
+> +SELINUXFS ?= /sys/fs/selinux
+>   SEMODULE = $(SBINDIR)/semodule
+>   CHECKPOLICY = $(BINDIR)/checkpolicy
+>   CHECKMODULE = $(BINDIR)/checkmodule
+> @@ -11,7 +12,6 @@ DISTRO=$(shell ../tests/os_detect)
 >   
->   The testsuite requires a pre-existing base policy configuration of SELinux,
->   using either the old example policy or the reference policy as the baseline.
+>   POL_VERS := $(shell $(CHECKPOLICY) -V |cut -f 1 -d ' ')
+>   MOD_POL_VERS := $(shell $(CHECKMODULE) -V |cut -f 2 -d '-')
+> -SELINUXFS := $(shell cat /proc/mounts | grep selinuxfs | cut -f 2 -d ' ')
+>   MAX_KERNEL_POLICY := $(shell cat $(SELINUXFS)/policyvers)
+>   
+>   TARGETS = \
+> diff --git a/tests/Makefile b/tests/Makefile
+> index 1cdb1ac..0d33fbf 100644
+> --- a/tests/Makefile
+> +++ b/tests/Makefile
+> @@ -1,5 +1,6 @@
+>   INCLUDEDIR ?= /usr/include
+>   POLDEV ?= /usr/share/selinux/devel
+> +SELINUXFS ?= /sys/fs/selinux
+>   
+>   export CFLAGS+=-g -O0 -Wall -D_GNU_SOURCE
+>   
+> @@ -19,11 +20,11 @@ SUBDIRS += cap_userns
+>   endif
+>   endif
+>   
+> -ifeq ($(shell grep -q icmp_socket $(POLDEV)/include/support/all_perms.spt && grep -q 1 /sys/fs/selinux/policy_capabilities/extended_socket_class && echo true),true)
+> +ifeq ($(shell grep -q icmp_socket $(POLDEV)/include/support/all_perms.spt && grep -q 1 $(SELINUXFS)/policy_capabilities/extended_socket_class && echo true),true)
+>   SUBDIRS += extended_socket_class
+>   endif
+>   
+> -ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/corenetwork.if && grep -q 1 /sys/fs/selinux/policy_capabilities/extended_socket_class && echo true),true)
+> +ifeq ($(shell grep -q corenet_sctp_bind_all_nodes $(POLDEV)/include/kernel/corenetwork.if && grep -q 1 $(SELINUXFS)/policy_capabilities/extended_socket_class && echo true),true)
+>   ifneq ($(shell ./kvercmp $$(uname -r) 4.20.17),-1)
+>   SUBDIRS += sctp
+>   endif
 > 
 
