@@ -2,188 +2,101 @@ Return-Path: <SRS0=8r5V=ZZ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64AA7C432C3
-	for <selinux@archiver.kernel.org>; Tue,  3 Dec 2019 00:33:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 723F4C43215
+	for <selinux@archiver.kernel.org>; Tue,  3 Dec 2019 02:00:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2978420705
-	for <selinux@archiver.kernel.org>; Tue,  3 Dec 2019 00:33:01 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="FSQPX8B1"
+	by mail.kernel.org (Postfix) with ESMTP id 54068206ED
+	for <selinux@archiver.kernel.org>; Tue,  3 Dec 2019 02:00:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725899AbfLCAdA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Dec 2019 19:33:00 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:33037 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725874AbfLCAdA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Dec 2019 19:33:00 -0500
-Received: by mail-lf1-f65.google.com with SMTP id n25so1426480lfl.0
-        for <selinux@vger.kernel.org>; Mon, 02 Dec 2019 16:32:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=fCug3Ppc9thpxmAFLjDKLldHZMpAgrzJKJFYoBGj+c8=;
-        b=FSQPX8B16jV7y74bf+KYgX9sBkewBdA5TmeUx3igCbcPHRfcWnz9E6/HF5mIaiNtYK
-         Kc5ZbptClIYnfw6qg+KDcCLrkJjMaJPb6O0qk7YQF2BSv9DSKimjEv4vw84gVuFTGaS7
-         nnP39IrTBN+4dl4hfg4HxvkshPbPrJfGsWnc/j/Jhbsn8Vtvltjknkzhod961is8g+W+
-         iMSXx/cNvhrOt7ekJyDF3ssLBB5MyjBYNzNoLVk7/nKQ2Kpm4Kz+KxEjxEp7leGfePGE
-         mN6PyLRyriKey41IoHP1KGTPZV2TIbdhdGv8t9bjq9J/4cEU0M/QkbB+TYWjDPyAyYdn
-         IUlw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fCug3Ppc9thpxmAFLjDKLldHZMpAgrzJKJFYoBGj+c8=;
-        b=kEotE6cUuZ5dtLr3gNbXlFMQ2kGqzHAGYvIDDdWU4QB2UywhQnLWD+KflKCbXdtqJA
-         B2BMZ/9fvXUfAs+TfpTVpIaMSE0UbxLgvFjbUim3DbxCw9xcPEfH4R5kF+yn3Tc13XVG
-         wW4dCDrCdaWGEZlKpqC7vaXrayZnNMGbg9oqJwCvoJqrGqyfY8mrlKmXRWL/lV7ZLWAr
-         +DUwIz96CJ+QuVt08AFjxvoSiFKYJFIipSW8nsSZ5M9onxuch9YfLRC6l+Q6JnnPlK0l
-         LVqGXBViJklyaiVjcr5zEV1GcxHHPi4hWmocMqXmad4RLks63GKBKfltIxASF9SrmYrF
-         k4Ug==
-X-Gm-Message-State: APjAAAXnOgEl0QSPBFdttYQsXI5LYz5G8/6eVPTxcAgNZ1dRCplsyV3e
-        xyWiK6EVHkJ4u8QOgHKUdTcxbPvFeQtdY5g2Qp0t
-X-Google-Smtp-Source: APXvYqzCArUpnJaRFf28mIWkJFV4CgAXhfssQ8Owlv2fld+XKT+wH71zxjQ2cyb07A3Szc6YgoXGv2pwwtsau7CvTGw=
-X-Received: by 2002:a19:6553:: with SMTP id c19mr996691lfj.158.1575333177019;
- Mon, 02 Dec 2019 16:32:57 -0800 (PST)
-MIME-Version: 1.0
-References: <20191122093306.17335-1-jeffv@google.com>
-In-Reply-To: <20191122093306.17335-1-jeffv@google.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 2 Dec 2019 19:32:45 -0500
-Message-ID: <CAHC9VhQ-piMePyfOeLsrAtgSCG5iWjk9xFbjOvURe3WLD-z89g@mail.gmail.com>
-Subject: Re: [PATCH v9] selinux: sidtab: reverse lookup hash table
-To:     Jeff Vander Stoep <jeffv@google.com>
-Cc:     selinux@vger.kernel.org, omosnace@redhat.com,
-        Stephen Smalley <sds@tycho.nsa.gov>, will@kernel.org,
-        paulmck@kernel.org, rcu@vger.kernel.org,
-        Jovana Knezevic <jovanak@google.com>
+        id S1725939AbfLCCAg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Dec 2019 21:00:36 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31254 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725941AbfLCCAg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Dec 2019 21:00:36 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xB31xnEm005273
+        for <selinux@vger.kernel.org>; Mon, 2 Dec 2019 21:00:35 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2wm6cy75uy-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <selinux@vger.kernel.org>; Mon, 02 Dec 2019 21:00:35 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <selinux@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Tue, 3 Dec 2019 02:00:32 -0000
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
+        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Tue, 3 Dec 2019 02:00:30 -0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id xB320TCk63045710
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 3 Dec 2019 02:00:29 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id EC0A652063;
+        Tue,  3 Dec 2019 02:00:28 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.85.147.107])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 4A5E15204E;
+        Tue,  3 Dec 2019 02:00:28 +0000 (GMT)
+Subject: Re: [GIT PULL] SELinux patches for v5.5
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        initramfs <initramfs@vger.kernel.org>
+Date:   Mon, 02 Dec 2019 21:00:27 -0500
+In-Reply-To: <CAHC9VhRkosCVR+4qyf=GPKQuQoJzwjZZJ_z7rhE-qiL-TNbtPw@mail.gmail.com>
+References: <CAHC9VhRj-vx8AnP5tKcq9joNqWSHRv1bk+3e7DGU9mxjN+fVFg@mail.gmail.com>
+         <1575302310.4793.379.camel@linux.ibm.com>
+         <CAHC9VhRkosCVR+4qyf=GPKQuQoJzwjZZJ_z7rhE-qiL-TNbtPw@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19120302-0020-0000-0000-00000392C1A5
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19120302-0021-0000-0000-000021E9DFB5
+Message-Id: <1575338427.4793.486.camel@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
+ definitions=2019-12-02_06:2019-11-29,2019-12-02 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 priorityscore=1501 suspectscore=0 bulkscore=0 phishscore=0
+ mlxlogscore=999 adultscore=0 spamscore=0 mlxscore=0 lowpriorityscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1910280000 definitions=main-1912030016
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 22, 2019 at 4:33 AM Jeff Vander Stoep <jeffv@google.com> wrote:
-> This replaces the reverse table lookup and reverse cache with a
-> hashtable which improves cache-miss reverse-lookup times from
-> O(n) to O(1)* and maintains the same performance as a reverse
-> cache hit.
->
-> This reduces the time needed to add a new sidtab entry from ~500us
-> to 5us on a Pixel 3 when there are ~10,000 sidtab entries.
->
-> The implementation uses the kernel's generic hashtable API,
-> It uses the context's string represtation as the hash source,
-> and the kernels generic string hashing algorithm full_name_hash()
-> to reduce the string to a 32 bit value.
->
-> This change also maintains the improvement introduced in
-> commit ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
-> performance") which removed the need to keep the current sidtab
-> locked during policy reload. It does however introduce periodic
-> locking of the target sidtab while converting the hashtable. Sidtab
-> entries are never modified or removed, so the context struct stored
-> in the sid_to_context tree can also be used for the context_to_sid
-> hashtable to reduce memory usage.
->
-> This bug was reported by:
-> - On the selinux bug tracker.
->   BUG: kernel softlockup due to too many SIDs/contexts #37
->   https://github.com/SELinuxProject/selinux-kernel/issues/37
-> - Jovana Knezevic on Android's bugtracker.
->   Bug: 140252993
->   "During multi-user performance testing, we create and remove users
->   many times. selinux_android_restorecon_pkgdir goes from 1ms to over
->   20ms after about 200 user creations and removals. Accumulated over
->   ~280 packages, that adds a significant time to user creation,
->   making perf benchmarks unreliable."
->
-> * Hashtable lookup is only O(1) when n < the number of buckets.
->
-> Changes in V2:
-> -The hashtable uses sidtab_entry_leaf objects directly so these
-> objects are shared between the sid_to_context lookup tree and the
-> context_to_sid hashtable. This simplifies memory allocation and
-> was suggested by Ondrej Mosnacek.
-> -The new sidtab hash stats file in selinuxfs has been moved out of
-> the avc dir and into a new "ss" dir.
->
-> V3:
-> -Add lock nesting notation.
->
-> V4/V5:
-> -Moved to *_rcu variants of the various hashtable functions
-> as suggested by Will Deacon.
-> -Naming/spelling fixups.
->
-> V6
-> -Remove nested locking. Use lock of active sidtab to gate
-> access to the new sidtab.
-> -Remove use of rcu_head/kfree_rcu(), they're unnecessary because
-> hashtable objects are never removed when read/add operations are
-> occurring. Why is this safe? Quoting Ondrej Mosnacek from the
-> selinux mailing list:
-> "It is not visible in this patch, but the sidtab (along with other
-> policy-lifetime structures) is protected by a big fat read-write lock.
-> The only places where sidtab_destroy() is called are (a) error paths
-> when initializing a new sidtab (here the sidtab isn't shared yet, so
-> no race) and (b) when freeing the old sidtab during policy reload - in
-> this case it is happening after a policy write-locked critical
-> section, which had removed the old sidtab pointer from the shared
-> structures, so at that point all sidtab readers will already be
-> accessing the new sidtab and the old one is visible only by the thread
-> doing the destruction."
->
-> V7
-> -Change format of /sys/fs/selinux/ss/sidtab_hash_stats to match
-> /sys/fs/selinux/avc/hash_stats.
-> -Add __rcu annotation to rcu pointers.
-> -Test with CONFIG_SPARSE_RCU_POINTER and CONFIG_PROVE_RCU.
-> -Add rcu@vger.kernel.org and Paul McKenney to Cc for review of the
-> RCU logic.
->
-> V8
-> -Removed the __rcu annotation used in V7. The annotation is
-> intended to be applied to pointers to an object, however the
-> objects referenced in the rcu hashtable are allocated in an
-> array.
-> -Fixed bug where multiple SIDs were receiving the same hash
-> due to security_get_user_sids() reusing the same context
-> struct without calling context_init() on it. This bug was
-> discovered and root-caused by Stephen Smalley.
->
-> V9
-> -Do not compute the hash in string_to_context_struct
-> because this string representation is non-canonical.
->
-> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-> Reported-by: Stephen Smalley <sds@tycho.nsa.gov>
-> Reported-by: Jovana Knezevic <jovanak@google.com>
-> ---
->  security/selinux/Kconfig            |  12 ++
->  security/selinux/include/security.h |   1 +
->  security/selinux/selinuxfs.c        |  65 +++++++
->  security/selinux/ss/context.h       |  11 +-
->  security/selinux/ss/policydb.c      |   5 +
->  security/selinux/ss/services.c      |  96 +++++++---
->  security/selinux/ss/services.h      |   4 +-
->  security/selinux/ss/sidtab.c        | 263 ++++++++++++++--------------
->  security/selinux/ss/sidtab.h        |  16 +-
->  9 files changed, 306 insertions(+), 167 deletions(-)
+On Mon, 2019-12-02 at 15:04 -0500, Paul Moore wrote:
+> On Mon, Dec 2, 2019 at 10:58 AM Mimi Zohar <zohar@linux.ibm.com> wrote:
+> > [Truncated Cc list, adding Roberto and the initramfs mailing list]
+> >
+> > Hi Paul,
+> >
+> > On Tue, 2019-11-26 at 16:24 -0500, Paul Moore wrote:
+> >
+> > > - Allow file labeling before the policy is loaded.  This should ease
+> > > some of the burden when the policy is initially loaded (no need to
+> > > relabel files), but it should also help enable some new system
+> > > concepts which dynamically create the root filesystem in the initrd.
+> >
+> > Any chance you're planning on using Roberto's patches for including
+> > security xattrs in the initramfs?[1]
+> > [1] https://www.spinics.net/lists/linux-initramfs/msg04771.html
+> 
+> I'm assuming you're not asking about me personally? ;)
 
-Thanks Jeff, as well as everyone else who contributed reviews and feedback.
+No, of course not.  I was wondering if "help enable some new system
+concepts which dynamically create the root filesystem in the initrd"
+adds SELinux labels on the root filesystem.
 
-I've pulled this into a working branch and I'll be merging it with the
-other sidtab patches before posting it to a "next-queue" branch for
-review later this week.  When done, I'll send a note to the list, as
-well as the relevant patch authors; your help in reviewing the merge
-would be greatly appreciated.
+Mimi
 
--- 
-paul moore
-www.paul-moore.com
