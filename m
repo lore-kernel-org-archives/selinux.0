@@ -2,216 +2,539 @@ Return-Path: <SRS0=lyW+=Z2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06FCDC3F68F
-	for <selinux@archiver.kernel.org>; Wed,  4 Dec 2019 09:11:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05EBCC43603
+	for <selinux@archiver.kernel.org>; Wed,  4 Dec 2019 12:14:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CB9C42073B
-	for <selinux@archiver.kernel.org>; Wed,  4 Dec 2019 09:11:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A92D020803
+	for <selinux@archiver.kernel.org>; Wed,  4 Dec 2019 12:14:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K4kzqsne"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="RBPu1YEt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727273AbfLDJLj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Dec 2019 04:11:39 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56910 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725994AbfLDJLj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Dec 2019 04:11:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575450697;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=q7Lg8cDUVfxBXxCRzCrnTJ+QCtM61bTFUOU+LDgLN14=;
-        b=K4kzqsneSMNQbxK4of9qPaBlU0gsS4w1QlUcNcCnJ/qclh4NjmS7N8fmh/V23TLUpFgsdn
-        FFUSBd65+c46GodOTpUjUUwdoWb4k2hpkTk0AHcBoWs/fmTAjP5TpgmlqjS8XVU6tiOaOD
-        GaKsnVwwMP/68K2lrauFmn0gm6fVC/s=
-Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
- [209.85.167.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-115-d-xRXPZhOPmjDg2zkzXdng-1; Wed, 04 Dec 2019 04:11:33 -0500
-Received: by mail-oi1-f199.google.com with SMTP id k11so2836202oih.23
-        for <selinux@vger.kernel.org>; Wed, 04 Dec 2019 01:11:33 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=y0KbZ2KtCux97FGRs2TrvDEKNeFoXlUkQDFLPI/VaOA=;
-        b=XWqGltXbQyQHhByIJcghNgAHxecEbflvxBvWZBe/I18w3wScGEUabziPN8oIxVl0GU
-         3aegz0ZgxquuO8zOl/jg8y6pcXoTYBHpHrOvFeH++CKYHVbGV30BO3pitR5Hp0rvoSfm
-         y04NITTswe5UlYVCz6dWfjUCQ7bTEVQI4l604T9Bv7rcCAqk1OmL+7LX4je1DP2d8voj
-         k8GTNT/xu3hrPZ1dPCMACT1mMs7hXMhazdio5/G3uedeeeSXvCoPO01c/hAHeI6ltleq
-         EtqfizPxHtgpnUqrTP1NhI76V9t6+gp5pbxBPjIQmfeZXSCZZ00ktmUgAkrxMTjbncha
-         tXxQ==
-X-Gm-Message-State: APjAAAWPqrm+PtfFSXN61/bM+opN+h1tF/LH2mCKsMH/VUOp0lPTQriv
-        Z2Wqe11+NYKanaEkussyCeUuwJgZhLJTWwnis5WYGmnhjrBonrKz3dTDP9tCQ5FpSWrn4p18zmP
-        QVmQsp5oJED2SMzfbhWpGubuTt4xrU17eRw==
-X-Received: by 2002:a05:6808:285:: with SMTP id z5mr73174oic.127.1575450692364;
-        Wed, 04 Dec 2019 01:11:32 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwsVWegwPNnar/6/YnRmo0K2tHud+yZApOW8EBYQtMXzMhH1hIKY9dgSIteOmJG3TkmVfqVFLdgvmAheNstyIo=
-X-Received: by 2002:a05:6808:285:: with SMTP id z5mr73150oic.127.1575450691959;
- Wed, 04 Dec 2019 01:11:31 -0800 (PST)
+        id S1727452AbfLDMOQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Dec 2019 07:14:16 -0500
+Received: from mailomta7-sa.btinternet.com ([213.120.69.13]:52918 "EHLO
+        sa-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727445AbfLDMOQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Dec 2019 07:14:16 -0500
+Received: from sa-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.38.5])
+          by sa-prd-fep-049.btinternet.com with ESMTP
+          id <20191204121410.WXUI28776.sa-prd-fep-049.btinternet.com@sa-prd-rgout-002.btmx-prd.synchronoss.net>;
+          Wed, 4 Dec 2019 12:14:10 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1575461650; 
+        bh=rV5TjkZe2ZFR0Xh+MWl+CrsfgzkhcP+sh2BxpQ1M+r0=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=RBPu1YEtKnecbrbuKZjjT5n2YoIGaMK/YSUV6QZ2qbVZJT2KqgHMQ9TLTAKG02KmXcDUykhMZcH5gdKEyr8yrJP7e7cWh/xGCBS2ISsKT0b6tD4pWKai0zjQ4UtXZbnveDQUSE+coriNqqCMcpZAz5kFTi8YfuBgUNFmqbUUPaHKupmSjdiKLQQGEXUNnD3JuDvKA3fxDcty3HS6RNOsOYA23WkT+4EV80hTC3i59/LEMhBXickRZXXgohUJ0KhmwxtcJ6NVsdrDFuhUtMlPU9yqj2AvO0KSa+J80wq/yu0dl1t74RtlLoZN3rlgvcm2lu0sfTzzNm6htNufDay+1Q==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.3.29]
+X-OWM-Source-IP: 86.134.3.29 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrudejledgfeehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddufeegrdefrddvleenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudefgedrfedrvdelpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.3.29) by sa-prd-rgout-002.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5DC13795050011A1; Wed, 4 Dec 2019 12:14:10 +0000
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [V2 PATCH 1/1] selinux-testsuite: Add perf_event tests
+Date:   Wed,  4 Dec 2019 12:14:03 +0000
+Message-Id: <20191204121403.2505-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-References: <20191122093306.17335-1-jeffv@google.com> <CAHC9VhQ-piMePyfOeLsrAtgSCG5iWjk9xFbjOvURe3WLD-z89g@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ-piMePyfOeLsrAtgSCG5iWjk9xFbjOvURe3WLD-z89g@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 4 Dec 2019 10:11:45 +0100
-Message-ID: <CAFqZXNun_-aWx19UKUMfiYuQuttxCgMOoAczBAddDv3yaCZyxw@mail.gmail.com>
-Subject: Re: [PATCH v9] selinux: sidtab: reverse lookup hash table
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Jeff Vander Stoep <jeffv@google.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Will Deacon <will@kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>, rcu@vger.kernel.org,
-        Jovana Knezevic <jovanak@google.com>
-X-MC-Unique: d-xRXPZhOPmjDg2zkzXdng-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Dec 3, 2019 at 1:33 AM Paul Moore <paul@paul-moore.com> wrote:
-> On Fri, Nov 22, 2019 at 4:33 AM Jeff Vander Stoep <jeffv@google.com> wrot=
-e:
-> > This replaces the reverse table lookup and reverse cache with a
-> > hashtable which improves cache-miss reverse-lookup times from
-> > O(n) to O(1)* and maintains the same performance as a reverse
-> > cache hit.
-> >
-> > This reduces the time needed to add a new sidtab entry from ~500us
-> > to 5us on a Pixel 3 when there are ~10,000 sidtab entries.
-> >
-> > The implementation uses the kernel's generic hashtable API,
-> > It uses the context's string represtation as the hash source,
-> > and the kernels generic string hashing algorithm full_name_hash()
-> > to reduce the string to a 32 bit value.
-> >
-> > This change also maintains the improvement introduced in
-> > commit ee1a84fdfeed ("selinux: overhaul sidtab to fix bug and improve
-> > performance") which removed the need to keep the current sidtab
-> > locked during policy reload. It does however introduce periodic
-> > locking of the target sidtab while converting the hashtable. Sidtab
-> > entries are never modified or removed, so the context struct stored
-> > in the sid_to_context tree can also be used for the context_to_sid
-> > hashtable to reduce memory usage.
-> >
-> > This bug was reported by:
-> > - On the selinux bug tracker.
-> >   BUG: kernel softlockup due to too many SIDs/contexts #37
-> >   https://github.com/SELinuxProject/selinux-kernel/issues/37
-> > - Jovana Knezevic on Android's bugtracker.
-> >   Bug: 140252993
-> >   "During multi-user performance testing, we create and remove users
-> >   many times. selinux_android_restorecon_pkgdir goes from 1ms to over
-> >   20ms after about 200 user creations and removals. Accumulated over
-> >   ~280 packages, that adds a significant time to user creation,
-> >   making perf benchmarks unreliable."
-> >
-> > * Hashtable lookup is only O(1) when n < the number of buckets.
-> >
-> > Changes in V2:
-> > -The hashtable uses sidtab_entry_leaf objects directly so these
-> > objects are shared between the sid_to_context lookup tree and the
-> > context_to_sid hashtable. This simplifies memory allocation and
-> > was suggested by Ondrej Mosnacek.
-> > -The new sidtab hash stats file in selinuxfs has been moved out of
-> > the avc dir and into a new "ss" dir.
-> >
-> > V3:
-> > -Add lock nesting notation.
-> >
-> > V4/V5:
-> > -Moved to *_rcu variants of the various hashtable functions
-> > as suggested by Will Deacon.
-> > -Naming/spelling fixups.
-> >
-> > V6
-> > -Remove nested locking. Use lock of active sidtab to gate
-> > access to the new sidtab.
-> > -Remove use of rcu_head/kfree_rcu(), they're unnecessary because
-> > hashtable objects are never removed when read/add operations are
-> > occurring. Why is this safe? Quoting Ondrej Mosnacek from the
-> > selinux mailing list:
-> > "It is not visible in this patch, but the sidtab (along with other
-> > policy-lifetime structures) is protected by a big fat read-write lock.
-> > The only places where sidtab_destroy() is called are (a) error paths
-> > when initializing a new sidtab (here the sidtab isn't shared yet, so
-> > no race) and (b) when freeing the old sidtab during policy reload - in
-> > this case it is happening after a policy write-locked critical
-> > section, which had removed the old sidtab pointer from the shared
-> > structures, so at that point all sidtab readers will already be
-> > accessing the new sidtab and the old one is visible only by the thread
-> > doing the destruction."
-> >
-> > V7
-> > -Change format of /sys/fs/selinux/ss/sidtab_hash_stats to match
-> > /sys/fs/selinux/avc/hash_stats.
-> > -Add __rcu annotation to rcu pointers.
-> > -Test with CONFIG_SPARSE_RCU_POINTER and CONFIG_PROVE_RCU.
-> > -Add rcu@vger.kernel.org and Paul McKenney to Cc for review of the
-> > RCU logic.
-> >
-> > V8
-> > -Removed the __rcu annotation used in V7. The annotation is
-> > intended to be applied to pointers to an object, however the
-> > objects referenced in the rcu hashtable are allocated in an
-> > array.
-> > -Fixed bug where multiple SIDs were receiving the same hash
-> > due to security_get_user_sids() reusing the same context
-> > struct without calling context_init() on it. This bug was
-> > discovered and root-caused by Stephen Smalley.
-> >
-> > V9
-> > -Do not compute the hash in string_to_context_struct
-> > because this string representation is non-canonical.
-> >
-> > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-> > Reported-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > Reported-by: Jovana Knezevic <jovanak@google.com>
-> > ---
-> >  security/selinux/Kconfig            |  12 ++
-> >  security/selinux/include/security.h |   1 +
-> >  security/selinux/selinuxfs.c        |  65 +++++++
-> >  security/selinux/ss/context.h       |  11 +-
-> >  security/selinux/ss/policydb.c      |   5 +
-> >  security/selinux/ss/services.c      |  96 +++++++---
-> >  security/selinux/ss/services.h      |   4 +-
-> >  security/selinux/ss/sidtab.c        | 263 ++++++++++++++--------------
-> >  security/selinux/ss/sidtab.h        |  16 +-
-> >  9 files changed, 306 insertions(+), 167 deletions(-)
->
-> Thanks Jeff, as well as everyone else who contributed reviews and feedbac=
-k.
->
-> I've pulled this into a working branch and I'll be merging it with the
-> other sidtab patches before posting it to a "next-queue" branch for
-> review later this week.  When done, I'll send a note to the list, as
-> well as the relevant patch authors; your help in reviewing the merge
-> would be greatly appreciated.
+Test perf_event permissions.
 
-I tried doing the merge on my own here [1], you can use it as a sanity
-check if we came to the same/similar result. I based it off your
-existing next-queue, which contains only Jeff's patch at the time of
-writing. I only build-tested it so far.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+V2 Changes:
+Remove neverallows from policy
+Check /proc/sys/kernel/perf_event_paranoid, if < 2 then bypass the
+capability { sys_admin } test.
 
-Note that there are two whitespace cleanups included in the string
-cache commit that I intuitively did while resolving the merge
-conflicts. You might want to move those to the first commit or just
-ignore them.
+ defconfig                     |   6 ++
+ policy/Makefile               |   4 +
+ policy/test_perf_event.te     | 104 ++++++++++++++++++++
+ tests/Makefile                |   4 +
+ tests/perf_event/.gitignore   |   1 +
+ tests/perf_event/Makefile     |   7 ++
+ tests/perf_event/perf_event.c | 178 ++++++++++++++++++++++++++++++++++
+ tests/perf_event/test         |  93 ++++++++++++++++++
+ 8 files changed, 397 insertions(+)
+ create mode 100644 policy/test_perf_event.te
+ create mode 100644 tests/perf_event/.gitignore
+ create mode 100644 tests/perf_event/Makefile
+ create mode 100644 tests/perf_event/perf_event.c
+ create mode 100755 tests/perf_event/test
 
-[1] https://gitlab.com/omos/linux-public/compare/selinux-next...rebase-seli=
-nux-sidtab-string-cache
-
---=20
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+diff --git a/defconfig b/defconfig
+index 0574f1d..2d9c092 100644
+--- a/defconfig
++++ b/defconfig
+@@ -78,3 +78,9 @@ CONFIG_KEY_DH_OPERATIONS=y
+ # Test key management socket.
+ # This is not required for SELinux operation itself.
+ CONFIG_NET_KEY=m
++
++# Test perf events.
++# This is not required for SELinux operation itself.
++CONFIG_HAVE_PERF_EVENTS=y
++CONFIG_PERF_EVENTS=y
++CONFIG_TRACEPOINTS=y
+diff --git a/policy/Makefile b/policy/Makefile
+index 87b2856..8a739d6 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -101,6 +101,10 @@ ifeq ($(shell grep -q module_load $(POLDEV)/include/support/all_perms.spt && ech
+ TARGETS+=test_module_load.te
+ endif
+ 
++ifeq ($(shell grep -q perf_event $(POLDEV)/include/support/all_perms.spt && echo true),true)
++TARGETS += test_perf_event.te
++endif
++
+ ifeq (x$(DISTRO),$(filter x$(DISTRO),xRHEL4 xRHEL5 xRHEL6))
+ TARGETS:=$(filter-out test_overlayfs.te test_mqueue.te test_ibpkey.te, $(TARGETS))
+ endif
+diff --git a/policy/test_perf_event.te b/policy/test_perf_event.te
+new file mode 100644
+index 0000000..bdf3938
+--- /dev/null
++++ b/policy/test_perf_event.te
+@@ -0,0 +1,104 @@
++#
++######### Check watch_queue for key changes policy module ##########
++#
++attribute perfdomain;
++
++################# Allow perf_event { * } ##########################
++type test_perf_t;
++domain_type(test_perf_t)
++unconfined_runs_test(test_perf_t)
++typeattribute test_perf_t testdomain;
++typeattribute test_perf_t perfdomain;
++
++allow test_perf_t self:capability { sys_admin };
++allow test_perf_t device_t:chr_file { ioctl open read write };
++allow test_perf_t self:perf_event { open cpu kernel tracepoint read write };
++allow_map(test_perf_t, device_t, chr_file)
++
++################# Deny capability { sys_admin } ##########################
++type test_perf_no_admin_t;
++domain_type(test_perf_no_admin_t)
++unconfined_runs_test(test_perf_no_admin_t)
++typeattribute test_perf_no_admin_t testdomain;
++typeattribute test_perf_no_admin_t perfdomain;
++
++allow test_perf_no_admin_t device_t:chr_file { ioctl open read write };
++allow test_perf_no_admin_t self:perf_event { open cpu kernel tracepoint read write };
++allow_map(test_perf_no_admin_t, device_t, chr_file)
++
++################# Deny perf_event { open } ##########################
++type test_perf_no_open_t;
++domain_type(test_perf_no_open_t)
++unconfined_runs_test(test_perf_no_open_t)
++typeattribute test_perf_no_open_t testdomain;
++typeattribute test_perf_no_open_t perfdomain;
++
++allow test_perf_no_open_t self:capability { sys_admin };
++allow test_perf_no_open_t device_t:chr_file { ioctl open read write };
++allow_map(test_perf_no_open_t, device_t, chr_file)
++
++################# Deny perf_event { cpu } ##########################
++type test_perf_no_cpu_t;
++domain_type(test_perf_no_cpu_t)
++unconfined_runs_test(test_perf_no_cpu_t)
++typeattribute test_perf_no_cpu_t testdomain;
++typeattribute test_perf_no_cpu_t perfdomain;
++
++allow test_perf_no_cpu_t self:capability { sys_admin };
++allow test_perf_no_cpu_t device_t:chr_file { ioctl open read write };
++allow test_perf_no_cpu_t self:perf_event { open kernel tracepoint read write };
++allow_map(test_perf_no_cpu_t, device_t, chr_file)
++
++################# Deny perf_event { kernel } ##########################
++type test_perf_no_kernel_t;
++domain_type(test_perf_no_kernel_t)
++unconfined_runs_test(test_perf_no_kernel_t)
++typeattribute test_perf_no_kernel_t testdomain;
++typeattribute test_perf_no_kernel_t perfdomain;
++
++allow test_perf_no_kernel_t self:capability { sys_admin };
++allow test_perf_no_kernel_t device_t:chr_file { ioctl open read write };
++allow test_perf_no_kernel_t self:perf_event { open cpu tracepoint read write };
++allow_map(test_perf_no_kernel_t, device_t, chr_file)
++
++################# Deny perf_event { tracepoint } ##########################
++type test_perf_no_tracepoint_t;
++domain_type(test_perf_no_tracepoint_t)
++unconfined_runs_test(test_perf_no_tracepoint_t)
++typeattribute test_perf_no_tracepoint_t testdomain;
++typeattribute test_perf_no_tracepoint_t perfdomain;
++
++allow test_perf_no_tracepoint_t self:capability { sys_admin };
++allow test_perf_no_tracepoint_t device_t:chr_file { ioctl open read write };
++allow test_perf_no_tracepoint_t self:perf_event { open cpu kernel read write };
++allow_map(test_perf_no_tracepoint_t, device_t, chr_file)
++
++################# Deny perf_event { read } ##########################
++type test_perf_no_read_t;
++domain_type(test_perf_no_read_t)
++unconfined_runs_test(test_perf_no_read_t)
++typeattribute test_perf_no_read_t testdomain;
++typeattribute test_perf_no_read_t perfdomain;
++
++allow test_perf_no_read_t self:capability { sys_admin };
++allow test_perf_no_read_t device_t:chr_file { ioctl open read write };
++allow test_perf_no_read_t self:perf_event { open cpu kernel tracepoint write };
++allow_map(test_perf_no_read_t, device_t, chr_file)
++
++################# Deny perf_event { write } ##########################
++type test_perf_no_write_t;
++domain_type(test_perf_no_write_t)
++unconfined_runs_test(test_perf_no_write_t)
++typeattribute test_perf_no_write_t testdomain;
++typeattribute test_perf_no_write_t perfdomain;
++
++allow test_perf_no_write_t self:capability { sys_admin };
++allow test_perf_no_write_t device_t:chr_file { ioctl open read write };
++allow test_perf_no_write_t self:perf_event { open cpu kernel tracepoint read };
++allow_map(test_perf_no_write_t, device_t, chr_file)
++
++#
++########### Allow these domains to be entered from sysadm domain ############
++#
++miscfiles_domain_entry_test_files(perfdomain)
++userdom_sysadm_entry_spec_domtrans_to(perfdomain)
+diff --git a/tests/Makefile b/tests/Makefile
+index 1cdb1ac..627193f 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -78,6 +78,10 @@ SUBDIRS+=module_load
+ endif
+ endif
+ 
++ifeq ($(shell grep -q perf_event $(POLDEV)/include/support/all_perms.spt && echo true),true)
++SUBDIRS += perf_event
++endif
++
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
+ endif
+diff --git a/tests/perf_event/.gitignore b/tests/perf_event/.gitignore
+new file mode 100644
+index 0000000..8c2f931
+--- /dev/null
++++ b/tests/perf_event/.gitignore
+@@ -0,0 +1 @@
++perf_event
+diff --git a/tests/perf_event/Makefile b/tests/perf_event/Makefile
+new file mode 100644
+index 0000000..988424c
+--- /dev/null
++++ b/tests/perf_event/Makefile
+@@ -0,0 +1,7 @@
++TARGETS = perf_event
++LDLIBS += -lselinux
++
++all: $(TARGETS)
++
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/perf_event/perf_event.c b/tests/perf_event/perf_event.c
+new file mode 100644
+index 0000000..8983f02
+--- /dev/null
++++ b/tests/perf_event/perf_event.c
+@@ -0,0 +1,178 @@
++#include <stdlib.h>
++#include <stdio.h>
++#include <unistd.h>
++#include <string.h>
++#include <unistd.h>
++#include <errno.h>
++#include <stdbool.h>
++#include <asm/unistd.h>
++#include <sys/mman.h>
++#include <sys/ioctl.h>
++#include <linux/perf_event.h>
++#include <selinux/selinux.h>
++
++enum {
++	PERF_FILE_MMAP,
++	PERF_FILE,
++	PERF_MMAP
++} read_type;
++
++static void print_usage(char *progname)
++{
++	fprintf(stderr,
++		"usage:  %s [-f|-m] [-v]\n"
++		"Where:\n\t"
++		"-f  Read perf_event info using read(2)\n\t"
++		"-m  Read perf_event info using mmap(2)\n\t"
++		"    Default is to use read(2) and mmap(2)\n\t"
++		"-v  Print information\n", progname);
++	exit(-1);
++}
++
++static long perf_event_open(struct perf_event_attr *hw_event, pid_t pid,
++			    int cpu, int group_fd, unsigned long flags)
++{
++	return syscall(__NR_perf_event_open, hw_event, pid, cpu,
++		       group_fd, flags);
++}
++
++int main(int argc, char **argv)
++{
++	int opt, result, page_size, mmap_size, fd;
++	long long count;
++	bool verbose = false;
++	char *context;
++	void *base;
++	struct perf_event_attr pe_attr;
++	struct perf_event_mmap_page *pe_page;
++
++	read_type = PERF_FILE_MMAP;
++
++	while ((opt = getopt(argc, argv, "fmv")) != -1) {
++		switch (opt) {
++		case 'f':
++			read_type = PERF_FILE;
++			break;
++		case 'm':
++			read_type = PERF_MMAP;
++			break;
++		case 'v':
++			verbose = true;
++			break;
++		default:
++			print_usage(argv[0]);
++		}
++	}
++
++	if (verbose) {
++		result = getcon(&context);
++		if (result < 0) {
++			fprintf(stderr, "Failed to obtain process context\n");
++			exit(-1);
++		}
++		printf("Process context:\n\t%s\n", context);
++		free(context);
++	}
++
++	/* Test perf_event { open cpu kernel tracepoint } */
++	memset(&pe_attr, 0, sizeof(struct perf_event_attr));
++	pe_attr.type = PERF_TYPE_HARDWARE | PERF_TYPE_TRACEPOINT;
++	pe_attr.size = sizeof(struct perf_event_attr);
++	pe_attr.config = PERF_COUNT_HW_INSTRUCTIONS;
++	pe_attr.disabled = 1;
++	pe_attr.exclude_hv = 1;
++
++	fd = perf_event_open(&pe_attr, -1, 1, -1, 0);
++	if (fd < 0) {
++		fprintf(stderr, "Failed perf_event_open(): %s\n",
++			strerror(errno));
++		if (errno == EACCES)
++			exit(1);
++		else
++			exit(-1);
++	}
++
++	/* Test perf_event { write }; */
++	result = ioctl(fd, PERF_EVENT_IOC_RESET, 0);
++	if (result < 0) {
++		fprintf(stderr, "Failed ioctl(PERF_EVENT_IOC_RESET): %s\n",
++			strerror(errno));
++		if (errno == EACCES)
++			result = 2;
++		goto err;
++	}
++
++	result = ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
++	if (result < 0) {
++		fprintf(stderr, "Failed ioctl(PERF_EVENT_IOC_ENABLE): %s\n",
++			strerror(errno));
++		if (errno == EACCES)
++			result = 3;
++		goto err;
++	}
++
++	result = ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
++	if (result < 0) {
++		fprintf(stderr, "Failed ioctl(PERF_EVENT_IOC_DISABLE): %s\n",
++			strerror(errno));
++		if (errno == EACCES)
++			result = 4;
++		goto err;
++	}
++
++	/* Test mmap(2) perf_event { read } */
++	if (read_type == PERF_MMAP || read_type == PERF_FILE_MMAP) {
++		page_size = sysconf(_SC_PAGESIZE);
++		if (page_size < 0) {
++			fprintf(stderr, "Failed sysconf(_SC_PAGESIZE): %s\n",
++				strerror(errno));
++			if (errno == EACCES)
++				result = 5;
++			else
++				result = -1;
++			goto err;
++		}
++		mmap_size = page_size * 2;
++
++		base = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
++			    MAP_SHARED, fd, 0);
++		if (base == MAP_FAILED) {
++			fprintf(stderr, "Failed mmap(): %s\n", strerror(errno));
++			if (errno == EACCES)
++				result = 6;
++			else
++				result = -1;
++			goto err;
++		}
++
++		if (verbose) {
++			pe_page = base;
++			printf("perf mmap(2) return value: %lld\n",
++			       pe_page->offset);
++		}
++
++		munmap(base, mmap_size);
++	}
++
++	/* Test read(2) perf_event { read } */
++	if (read_type == PERF_FILE || read_type == PERF_FILE_MMAP) {
++		result = read(fd, &count, sizeof(long long));
++		if (result < 0) {
++			fprintf(stderr, "Failed read(): %s\n", strerror(errno));
++			if (errno == EACCES)
++				result = 7;
++			goto err;
++		}
++
++		if (verbose)
++			printf("perf read(2) return value: %lld\n", count);
++
++		close(fd);
++	}
++
++	return 0;
++
++err:
++	close(fd);
++	return result;
++}
+diff --git a/tests/perf_event/test b/tests/perf_event/test
+new file mode 100755
+index 0000000..1c2e4a9
+--- /dev/null
++++ b/tests/perf_event/test
+@@ -0,0 +1,93 @@
++#!/usr/bin/perl
++use Test::More;
++
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    $test_count = 8;
++    $sys_admin  = 0;
++
++    # allow info to be shown during tests
++    $v = $ARGV[0];
++    if ($v) {
++        if ( $v ne "-v" ) {
++            plan skip_all => "Invalid option (use -v)";
++        }
++    }
++    else {
++        $v = " ";
++    }
++
++    $level = `cat /proc/sys/kernel/perf_event_paranoid`;
++    chomp($level);
++    if ( $level >= 2 ) {    # These tests require CAP_SYS_ADMIN
++        $test_count += 1;
++        $sys_admin = 1;
++    }
++
++    if ( $v eq "-v" ) {
++        print "Paranoid level: $level\n";
++        if ( $level < 0 ) {
++            print "\tNot paranoid\n";
++        }
++        elsif ( $level eq 0 ) {
++            print "\tDisallow raw tracepoint/ftrace without CAP_SYS_ADMIN\n";
++        }
++        elsif ( $level eq 1 ) {
++            print "\tDisallow CPU event access without CAP_SYS_ADMIN\n";
++        }
++        elsif ( $level eq 2 ) {
++            print "\tDisallow kernel profiling without CAP_SYS_ADMIN\n";
++        }
++        else {
++            print "\tUndefined level\n";
++        }
++    }
++
++    plan tests => $test_count;
++}
++
++# perf_event { open cpu kernel tracepoint read write };
++print "Test perf_event\n";
++$result = system "runcon -t test_perf_t $basedir/perf_event $v";
++ok( $result eq 0 );
++
++if ($sys_admin) {
++
++    # Deny capability { sys_admin } - EACCES perf_event_open(2)
++    $result =
++      system "runcon -t test_perf_no_admin_t $basedir/perf_event $v 2>&1";
++    ok( $result >> 8 eq 1 );
++}
++
++# Deny perf_event { open } - EACCES perf_event_open(2)
++$result = system "runcon -t test_perf_no_open_t $basedir/perf_event $v 2>&1";
++ok( $result >> 8 eq 1 );
++
++# Deny perf_event { cpu } - EACCES perf_event_open(2)
++$result = system "runcon -t test_perf_no_cpu_t $basedir/perf_event $v 2>&1";
++ok( $result >> 8 eq 1 );
++
++# Deny perf_event { kernel } - EACCES perf_event_open(2)
++$result = system "runcon -t test_perf_no_kernel_t $basedir/perf_event $v 2>&1";
++ok( $result >> 8 eq 1 );
++
++# Deny perf_event { tracepoint } - EACCES perf_event_open(2)
++$result =
++  system "runcon -t test_perf_no_tracepoint_t $basedir/perf_event $v 2>&1";
++ok( $result >> 8 eq 1 );
++
++# Deny perf_event { read } - EACCES mmap(2)
++$result = system "runcon -t test_perf_no_read_t $basedir/perf_event -m $v 2>&1";
++ok( $result >> 8 eq 6 );
++
++# Deny perf_event { read } - EACCES read(2)
++$result = system "runcon -t test_perf_no_read_t $basedir/perf_event -f $v 2>&1";
++ok( $result >> 8 eq 7 );
++
++# Deny perf_event { write } - EACCES ioctl(2) write
++$result = system "runcon -t test_perf_no_write_t $basedir/perf_event $v 2>&1";
++ok( $result >> 8 eq 2 );
++
++exit;
+-- 
+2.23.0
 
