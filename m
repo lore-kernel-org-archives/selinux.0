@@ -2,113 +2,147 @@ Return-Path: <SRS0=K0yT=Z3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E737BC2BD09
-	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:04:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE657C2D0C0
+	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:08:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B68EF22525
-	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:04:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A27832464E
+	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:08:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SP7lAzok"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="SGFY9Id7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729099AbfLEOE2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Dec 2019 09:04:28 -0500
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:43719 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729531AbfLEOE2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Dec 2019 09:04:28 -0500
-Received: by mail-wr1-f54.google.com with SMTP id d16so3707885wre.10
-        for <selinux@vger.kernel.org>; Thu, 05 Dec 2019 06:04:26 -0800 (PST)
+        id S1729544AbfLEOIy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Dec 2019 09:08:54 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:37434 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729512AbfLEOIy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Dec 2019 09:08:54 -0500
+Received: by mail-lf1-f65.google.com with SMTP id b15so2605449lfc.4
+        for <selinux@vger.kernel.org>; Thu, 05 Dec 2019 06:08:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:subject:message-id:mail-followup-to:mime-version
-         :content-disposition:user-agent;
-        bh=4edA1Dc0isUmiru0SLFa/PDFBc4K1wKDIVHyf8AyCUc=;
-        b=SP7lAzokD8OGlvtZww8ZuzhZ4EWXeMCTkmzFlwPxu4hl7uGflGq3uFFTaqxWZIiMdd
-         aD4oCVVuFVX2O6s/b7FV6yT7YgpkPK6FEJKgnEut/u5dXWZ3ebrEaw04pcLXCTb5UZWK
-         jAjVCvisTdXmBsJe4lXX7/n8QbkTuTHEDRTEDa+dijiYJ4taCRIpmcO/z5ol3yKVcF7y
-         gnpEgn9m6rCVi5MeAh80fEYrxWWd2uBWpzJSeEehq8t+anH7tC1RSi0Zp1nLFe58rCkg
-         jTbDFJgKgcJXO1vaXCloAbMPAPObaZHF5wTZw6JVOsvblZcjEPu5Tkon5I9PaSnpNmye
-         j3Pw==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=gmDcfySFu4cZhpLYljWttxXox5YE9OQcKuIq/LT/coc=;
+        b=SGFY9Id7W6F+dnLbSC8iZmVwK44Feg5fPR3ZsA+QTXEEJf89ntnrSlRXx8AS+Z3TTD
+         aAhVyosxwNRJc9CV6jKspldBKWJLgNqvorGB4Rgn0nBDLPMQo06Cm+Gd/gKrTVkHPSYT
+         KYv3Ch8BCTlfqdI+h5ZRJxxcfl73B/AoEkbE0wkdCOTBX5KIEhX80uYosEW3isj+3GIk
+         MUf6LQgeEuaeT6hXfR3JtfT1dpOD4k7kvOeLsDdgmuH3KoGLx439+rkCVRrrarsEoO5m
+         81TvLqZZ96VnNq//6rWkSBw5Z/NNi4IDWkWJuvUuoP9+jGt0YYYxsor58v4As3bWRv/3
+         1JNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:subject:message-id:mail-followup-to
-         :mime-version:content-disposition:user-agent;
-        bh=4edA1Dc0isUmiru0SLFa/PDFBc4K1wKDIVHyf8AyCUc=;
-        b=ZSRULAJTDWWVuytuOiy+CIcc4x6t7OSlcKYcU31y6xQMsNhx5BICNuq01kIcZ/y7h5
-         eoipRRD5vmbNv4zdMKq28hzSihjcNqAkFHr7S1tm7z3Huk8G/l3mVcJCPFWXe47zpagO
-         b1HGmAxETH4ATRV08ngGjWAEHN5eRYdkuxi3+alYzcLkSUYxrSiCs3gUyfvp2+CzPn+2
-         Hf4A3SQ2mn0yfdwv6acFvATxcvQb6VBLhPL8V9212234LEiiM9DgkbMhcnWGEVG1gAfn
-         7s/uVNjXkaZOZGosAOaNz3RRDEgALFzu6xdwBk+/RhAE+seOKyqmwEQNy5F/BtqoUUEx
-         iP8A==
-X-Gm-Message-State: APjAAAUMskf5yesyd3xz5sA6T1ZplTAZSRCQd7kP8L2/fo6q2obtjK7Z
-        F+G/XzPMKLs5S9OVn6BwzLBkbyMn
-X-Google-Smtp-Source: APXvYqwnpg3PI4r7d8X8/ZjfvBHfXPgWv9jGPVswpKgoUf3YnQVZ5/g8VZIyCQhtFTvVc1+xf+jv1g==
-X-Received: by 2002:a5d:4a91:: with SMTP id o17mr11097757wrq.232.1575554665935;
-        Thu, 05 Dec 2019 06:04:25 -0800 (PST)
-Received: from brutus.lan (brutus.defensec.nl. [2001:985:d55d::438])
-        by smtp.gmail.com with ESMTPSA id a186sm10439343wmd.41.2019.12.05.06.04.24
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Dec 2019 06:04:24 -0800 (PST)
-Date:   Thu, 5 Dec 2019 15:04:23 +0100
-From:   Dominick Grift <dac.override@gmail.com>
-To:     selinux@vger.kernel.org
-Subject: perf and cap_syslog
-Message-ID: <20191205140423.GB1734091@brutus.lan>
-Mail-Followup-To: selinux@vger.kernel.org
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=gmDcfySFu4cZhpLYljWttxXox5YE9OQcKuIq/LT/coc=;
+        b=L1xmMXPRQsa1xuh//4oOryeKNygpylwYgMG6VK+K0kvuQxTpHqH85u7bJykPAv+m20
+         qcOuVWzTz6hCSuFK4z9uPzuR/Rz/q+6HD3Grl3qfReZLZXmwV+WYQj4dyQrFgqIkj1pe
+         YZ1y56TO5fIw78RHUXOppT7EshX7t3Ee++37AUAw63Gg8c1XxuPrgjQ048kI+qpJBb9S
+         AKf56D0FucE/ggbw7fnD6HSnpe0kifG/zAFNAD9SKQYSb7irNRo+jiMwXAX2594/rS4k
+         yi9MpntUtc1X0GnnMaT6t8eJMpWCRVu3r/M2Uj+AmVRgKR5+9rk/goIC98ZK2bzMnsil
+         a1nQ==
+X-Gm-Message-State: APjAAAUb5puv414N9QwbLiWYqTUyp0MXbKjbJlmGZNRsinySkYjYw/AR
+        kDNFamuKqUsHbm3KlZSRzACgroWuYX5o/FsyVbqUfv8=
+X-Google-Smtp-Source: APXvYqxsmozelM1jQBbA3G59cIGm7jWU81K1xtvs8Sq8Y1dS9Yu6I1fHTZA8+YigfeK+zF7Hg//cW84+j6rBp+tzbtk=
+X-Received: by 2002:ac2:428d:: with SMTP id m13mr5535498lfh.64.1575554930642;
+ Thu, 05 Dec 2019 06:08:50 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="uQr8t48UFsdbeI+V"
-Content-Disposition: inline
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+References: <20191122093306.17335-1-jeffv@google.com> <CAHC9VhQ-piMePyfOeLsrAtgSCG5iWjk9xFbjOvURe3WLD-z89g@mail.gmail.com>
+ <CAFqZXNun_-aWx19UKUMfiYuQuttxCgMOoAczBAddDv3yaCZyxw@mail.gmail.com>
+ <CAHC9VhTwct8daQoXFg4JpHkWUhijQFn8D0Tq=VX989mq3TVfvg@mail.gmail.com> <CAFqZXNvQV+syzOE0CGczzTvi9g65AUT8bdsG0YN6NcHzd5GVHQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNvQV+syzOE0CGczzTvi9g65AUT8bdsG0YN6NcHzd5GVHQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 5 Dec 2019 09:08:38 -0500
+Message-ID: <CAHC9VhSVsmu6hjmUAi2wM6wAkkQnUDx7MM1G8Ln9OLAzwFmz6A@mail.gmail.com>
+Subject: Re: [PATCH v9] selinux: sidtab: reverse lookup hash table
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Jeff Vander Stoep <jeffv@google.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Will Deacon <will@kernel.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>, rcu@vger.kernel.org,
+        Jovana Knezevic <jovanak@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Thu, Dec 5, 2019 at 6:47 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Thu, Dec 5, 2019 at 12:52 AM Paul Moore <paul@paul-moore.com> wrote:
+> > On Wed, Dec 4, 2019 at 4:11 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > On Tue, Dec 3, 2019 at 1:33 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > Thanks Jeff, as well as everyone else who contributed reviews and feedback.
+> > > >
+> > > > I've pulled this into a working branch and I'll be merging it with the
+> > > > other sidtab patches before posting it to a "next-queue" branch for
+> > > > review later this week.  When done, I'll send a note to the list, as
+> > > > well as the relevant patch authors; your help in reviewing the merge
+> > > > would be greatly appreciated.
+> > >
+> > > I tried doing the merge on my own here [1], you can use it as a sanity
+> > > check if we came to the same/similar result. I based it off your
+> > > existing next-queue, which contains only Jeff's patch at the time of
+> > > writing. I only build-tested it so far.
+> >
+> > Thanks, that was a good sanity check.  There are some minor diffs from
+> > what I ended up with, but nothing substantive that I can see.
+> >
+> > Although I'll be honest, the merge wasn't as bad as I thought it would
+> > be; most of the fuzz was simply due shuffling and renaming of data
+> > structures, which generally isn't too bad.  Although I'm still
+> > building the kernel to test it, so let's see if that statement still
+> > holds (although it looks like it passed Stephen's testing). ;)
+> >
+> > If you haven't noticed already, the merge currently lives in the
+> > selinux/next-queue branch; if you notice anything off, feel free to
+> > send a fixup patch.
+>
+> It looks OK semantically when compared to my merge. I only see
+> reordering/comment/whitespace differences.
 
---uQr8t48UFsdbeI+V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for the double check.  Unfortunately my kernel build locks my
+test VM in early boot; it appears to be non-SELinux related and since
+the test build is based on selinux/next+patches (which is based off
+v5.4-rc1) I imagine there might be some unrelated problems in the
+build.  I'm going to rebase my test build to Linus' current and try
+this again.
 
-I am also trying out the new perf_event access vectors. I use the perf util=
- for this.
+> > > Note that there are two whitespace cleanups included in the string
+> > > cache commit that I intuitively did while resolving the merge
+> > > conflicts. You might want to move those to the first commit or just
+> > > ignore them.
+> >
+> > When looking at the combined diff between the two sidtab patches and
+> > comparing it to your merge I did make a few additional small cosmetic
+> > tweaks.  Assuming the testing goes well, I'll probably go over
+> > everything one more time to make sure the style looks okay, but today
+> > I was focusing more on the correctness.
+>
+> The whitespace misalignment introduced by Jeff's patch is still there
+> in your branch. Personally, I'd prefer that we fix them now rather
+> than deferring it to a future patch, because it seems that no one ever
+> has time to bother sending whitespace fixup patches :) But I'll
+> understand it if you prefer not to touch it more than necessary, so I
+> won't fight about this further.
 
-Whilst I wwas confining `perf` at some point there were no avc denials anym=
-ore but `perf` was segfaulting in enforcing mode.
-After some brute force it turns out that it wanted access to cap_syslog.
+Like I said, I only quickly scanned the combined diff for style
+problems so it doesn't surprise me that there are still some issues.
+I'll give it a closer look once I can get a kernel build passing all
+the tests.
 
-My question: why was it not logging the capability2 syslog event?
-Could this be due to an access vectors ordering issue?
+As an aside, I keep debating doing a big style-fix patch (likely
+automated via astyle or similar, likely with some additional fixes by
+hand, and passed through checkpatch.pl) after one of the -rc1 rebases
+to clean up all these little things that have crept into the code over
+the years.  I dislike the idea of the churn that would likely bring,
+but it should make life a little bit better, and help cut down on the
+trivial "checkpatch patches" we get from time to time (although that
+really hasn't been too bad of an issue).
 
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---uQr8t48UFsdbeI+V
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAl3pDmIACgkQJXSOVTf5
-R2kSxgv/V1YqZSW1gl8v39nDl3xAR671sxBh5oMlO8CfeYmVXEpioogSguVN275f
-4CJGuc6mcqRuJ4//46ddUwISqDTKTpu1bW9rwtpGXbGVCvj51g4rByYNJXfQV8w0
-3eU3hs8IyFTlM5Y58Zi068Zfg3/MLix8WW8Bl3dRX8mtQzKivJlOMXtvL7fVuUds
-1uQzYPSHC0tk2anlQtxEOhRm5esGHtM02vYgkH5eqTpscAMkP7ZyxttDb9XoFWKx
-T7Y9jbTkLIi8J/HLoFiv4qnabSeGccmtLY4WaN+jjufkesd8w+Y4uuoQh14NZS1S
-LpIpo31qRdM9/wFt0Zl+QfbM+lN1yNuF/mm85Ke8anWda/xqITsnFj7fTc74xGUI
-xbG3SlGAyQMGfdOdDH9i/Bibn2FDRgm3aPPtH8G5EK007IB5+GmzCTBSgEf7nQX9
-XjAMm90nrfEMyg+PbzJMlvZ/vXYn8xn3zU3JUK39pchMxMSBE+cgA0s8WU1laLpy
-WFWx+iOz
-=0x66
------END PGP SIGNATURE-----
-
---uQr8t48UFsdbeI+V--
+-- 
+paul moore
+www.paul-moore.com
