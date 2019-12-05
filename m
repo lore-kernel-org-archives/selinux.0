@@ -2,147 +2,110 @@ Return-Path: <SRS0=K0yT=Z3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE657C2D0C0
-	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:08:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 928BBC43603
+	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:18:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A27832464E
-	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:08:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6453D2245C
+	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:18:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="SGFY9Id7"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="BUTirq37"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729544AbfLEOIy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Dec 2019 09:08:54 -0500
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:37434 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729512AbfLEOIy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Dec 2019 09:08:54 -0500
-Received: by mail-lf1-f65.google.com with SMTP id b15so2605449lfc.4
-        for <selinux@vger.kernel.org>; Thu, 05 Dec 2019 06:08:51 -0800 (PST)
+        id S1729402AbfLEOSf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Dec 2019 09:18:35 -0500
+Received: from UHIL19PA39.eemsg.mail.mil ([214.24.21.198]:33553 "EHLO
+        UHIL19PA39.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729236AbfLEOSe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Dec 2019 09:18:34 -0500
+X-EEMSG-check-017: 54465481|UHIL19PA39_ESA_OUT05.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.69,281,1571702400"; 
+   d="scan'208";a="54465481"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UHIL19PA39.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 05 Dec 2019 14:18:33 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gmDcfySFu4cZhpLYljWttxXox5YE9OQcKuIq/LT/coc=;
-        b=SGFY9Id7W6F+dnLbSC8iZmVwK44Feg5fPR3ZsA+QTXEEJf89ntnrSlRXx8AS+Z3TTD
-         aAhVyosxwNRJc9CV6jKspldBKWJLgNqvorGB4Rgn0nBDLPMQo06Cm+Gd/gKrTVkHPSYT
-         KYv3Ch8BCTlfqdI+h5ZRJxxcfl73B/AoEkbE0wkdCOTBX5KIEhX80uYosEW3isj+3GIk
-         MUf6LQgeEuaeT6hXfR3JtfT1dpOD4k7kvOeLsDdgmuH3KoGLx439+rkCVRrrarsEoO5m
-         81TvLqZZ96VnNq//6rWkSBw5Z/NNi4IDWkWJuvUuoP9+jGt0YYYxsor58v4As3bWRv/3
-         1JNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gmDcfySFu4cZhpLYljWttxXox5YE9OQcKuIq/LT/coc=;
-        b=L1xmMXPRQsa1xuh//4oOryeKNygpylwYgMG6VK+K0kvuQxTpHqH85u7bJykPAv+m20
-         qcOuVWzTz6hCSuFK4z9uPzuR/Rz/q+6HD3Grl3qfReZLZXmwV+WYQj4dyQrFgqIkj1pe
-         YZ1y56TO5fIw78RHUXOppT7EshX7t3Ee++37AUAw63Gg8c1XxuPrgjQ048kI+qpJBb9S
-         AKf56D0FucE/ggbw7fnD6HSnpe0kifG/zAFNAD9SKQYSb7irNRo+jiMwXAX2594/rS4k
-         yi9MpntUtc1X0GnnMaT6t8eJMpWCRVu3r/M2Uj+AmVRgKR5+9rk/goIC98ZK2bzMnsil
-         a1nQ==
-X-Gm-Message-State: APjAAAUb5puv414N9QwbLiWYqTUyp0MXbKjbJlmGZNRsinySkYjYw/AR
-        kDNFamuKqUsHbm3KlZSRzACgroWuYX5o/FsyVbqUfv8=
-X-Google-Smtp-Source: APXvYqxsmozelM1jQBbA3G59cIGm7jWU81K1xtvs8Sq8Y1dS9Yu6I1fHTZA8+YigfeK+zF7Hg//cW84+j6rBp+tzbtk=
-X-Received: by 2002:ac2:428d:: with SMTP id m13mr5535498lfh.64.1575554930642;
- Thu, 05 Dec 2019 06:08:50 -0800 (PST)
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1575555513; x=1607091513;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=QhI4sj/4fFKrcRQkfBQ+Az8xij2UHxPcFbBDbB73xmo=;
+  b=BUTirq37XGS+eSdo5pOk0lWozJdwizmkErzZcMFIKvYy/PmKu9cYD9/h
+   kikZ0KlaQMgcFBQ+HWJezkbv0ji6WkiN7vqpMCb7YzTKn/2ptL1uCGJDC
+   xa+Cbstshv+UozgqZwVKuEvHAxEwRzU6UyXPndUV1lSp6bYBg65neyUeY
+   GbPwR267hlIhtNC8HhumwNrPd4ePndhGC/GArQXIi+9097U46WIuO5lQA
+   7mA23rX8tbP5mbN1LqBUiMXdD0y9ljib3AetNQFdYy3Ofwl2vZ8nBkUr3
+   ZIbJ4ySXzGIH3WiiEwswGwP1wpYL/YPweLk48eM6l/9XwKZyYdbbm0gAU
+   g==;
+X-IronPort-AV: E=Sophos;i="5.69,281,1571702400"; 
+   d="scan'208";a="30790270"
+IronPort-PHdr: =?us-ascii?q?9a23=3Ay/iFGBAy5fbAy3DdMTKXUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSPT8pcbcNUDSrc9gkEXOFd2Cra4d0KyP4/mrBDxIyK3CmUhKSIZLWR?=
+ =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
+ =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfL1/IA+roQjSq8UajotvJ6UswR?=
+ =?us-ascii?q?bVv3VEfPhby3l1LlyJhRb84cmw/J9n8ytOvv8q6tBNX6bncakmVLJUFDspPX?=
+ =?us-ascii?q?w7683trhnDUBCA5mAAXWUMkxpHGBbK4RfnVZrsqCT6t+592C6HPc3qSL0/RD?=
+ =?us-ascii?q?qv47t3RBLulSwIOSQ58GXKgcJuiqxVrg+qqxhmz4PUZIyZMfxzdb7fc9wHX2?=
+ =?us-ascii?q?pMRttfWTJPAo28bIUBAeQOMulaoIbhqFUDtge+CAu2Ce/z1jNFiH370Ksn2O?=
+ =?us-ascii?q?ohCwHG2wkgEsoTvnTIstr1LKcSXv6zzKLV0DvDaulZ2TP56IfWchEqvPaBXa?=
+ =?us-ascii?q?ltfsrK0kQvCwPEgUmQqYziJT+V0P8NvHKB4+pvUuKvlXcqpgdsqTas3schkp?=
+ =?us-ascii?q?TFi40ax1ze9Sh13Zw5KcO3RUJle9KoDZ1dvDyAOYRsWMMtWWRotT4/yr0BpJ?=
+ =?us-ascii?q?G0YjAHyI8ixx7Dc/yHdJWI4g77WOaRPzh4gHVldaqjhxmo60igy/D8VtKu3F?=
+ =?us-ascii?q?ZLqCpFnN7MtmsT2BPP8MSHVvt88Vuh2TaIzQzT7P1LIVsomqbBLp4hw7owmo?=
+ =?us-ascii?q?ISsUTFACD2hF37gLKZe0gr4OSl6/nrbq/4qpKTKYN4kBzyPrwrmsOlAOQ4Ng?=
+ =?us-ascii?q?YOX3Kc+eS5zLDj5lD2QK5Rg/0qkqjWrJDaJcMBqq6/GA9ayJwv6xm4Dze4yN?=
+ =?us-ascii?q?gYh2UILEpZeBKbiIjkI0rOL+78Dfe+hVSsjThqyuvYPr3uHJrNNGLPkLT/cr?=
+ =?us-ascii?q?Zn7U5T1g4zwcpY55JOBbELOOjzVVPptNzEEh85NBS5zPv9B9phzI8eXnyPDb?=
+ =?us-ascii?q?GDMKPIsF+H+/wgLvKDZI8Qojn9Kvwl6+Tygn8+nF9ONZWuiIAabHG+A+ROPU?=
+ =?us-ascii?q?qUezzvj80HHGNMuRAxCKTGj1iDVz9YZD6dRaMy+nlvBIutS4DdS5q3gbCM9C?=
+ =?us-ascii?q?i+F5xSIGtBDwbfP23vctC/R/oUaC+UavRkmzgAWKnpH5QtzjmypQT6zPxhNe?=
+ =?us-ascii?q?OS9SoG48GwnONp7vHewElhvQd/CN6QhiTQHmw=3D?=
+X-IPAS-Result: =?us-ascii?q?A2C9AgCWDuld/wHyM5BlHAEBAQEBBwEBEQEEBAEBgX6Bd?=
+ =?us-ascii?q?IFtIBKEVYkDhmIGgTeJaZFECQEBAQEBAQEBATcBAYRAAoI2OBMCEAEBAQQBA?=
+ =?us-ascii?q?QEBAQUDAQFshUOCOymCbwEFIxVRCxgCAiYCAlcGAQwIAQGCUww/glMlrnuBM?=
+ =?us-ascii?q?oVPgzaBSIEOKIwxeYEHgREnD4JdPodZgl4EjQyJZUaXE4I4gjmTGwYbmiYtj?=
+ =?us-ascii?q?h2cNCKBWCsIAhgIIQ+DKE8RFJtKIwOSGAEB?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 05 Dec 2019 14:18:32 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xB5EILZR211618;
+        Thu, 5 Dec 2019 09:18:23 -0500
+Subject: Re: perf and cap_syslog
+To:     selinux@vger.kernel.org, Dominick Grift <dac.override@gmail.com>
+References: <20191205140423.GB1734091@brutus.lan>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <348d54cd-f6f7-3dad-d2cc-4d7e2cf57186@tycho.nsa.gov>
+Date:   Thu, 5 Dec 2019 09:18:48 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-References: <20191122093306.17335-1-jeffv@google.com> <CAHC9VhQ-piMePyfOeLsrAtgSCG5iWjk9xFbjOvURe3WLD-z89g@mail.gmail.com>
- <CAFqZXNun_-aWx19UKUMfiYuQuttxCgMOoAczBAddDv3yaCZyxw@mail.gmail.com>
- <CAHC9VhTwct8daQoXFg4JpHkWUhijQFn8D0Tq=VX989mq3TVfvg@mail.gmail.com> <CAFqZXNvQV+syzOE0CGczzTvi9g65AUT8bdsG0YN6NcHzd5GVHQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNvQV+syzOE0CGczzTvi9g65AUT8bdsG0YN6NcHzd5GVHQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 5 Dec 2019 09:08:38 -0500
-Message-ID: <CAHC9VhSVsmu6hjmUAi2wM6wAkkQnUDx7MM1G8Ln9OLAzwFmz6A@mail.gmail.com>
-Subject: Re: [PATCH v9] selinux: sidtab: reverse lookup hash table
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Jeff Vander Stoep <jeffv@google.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Will Deacon <will@kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>, rcu@vger.kernel.org,
-        Jovana Knezevic <jovanak@google.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20191205140423.GB1734091@brutus.lan>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Dec 5, 2019 at 6:47 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Thu, Dec 5, 2019 at 12:52 AM Paul Moore <paul@paul-moore.com> wrote:
-> > On Wed, Dec 4, 2019 at 4:11 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > On Tue, Dec 3, 2019 at 1:33 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > > Thanks Jeff, as well as everyone else who contributed reviews and feedback.
-> > > >
-> > > > I've pulled this into a working branch and I'll be merging it with the
-> > > > other sidtab patches before posting it to a "next-queue" branch for
-> > > > review later this week.  When done, I'll send a note to the list, as
-> > > > well as the relevant patch authors; your help in reviewing the merge
-> > > > would be greatly appreciated.
-> > >
-> > > I tried doing the merge on my own here [1], you can use it as a sanity
-> > > check if we came to the same/similar result. I based it off your
-> > > existing next-queue, which contains only Jeff's patch at the time of
-> > > writing. I only build-tested it so far.
-> >
-> > Thanks, that was a good sanity check.  There are some minor diffs from
-> > what I ended up with, but nothing substantive that I can see.
-> >
-> > Although I'll be honest, the merge wasn't as bad as I thought it would
-> > be; most of the fuzz was simply due shuffling and renaming of data
-> > structures, which generally isn't too bad.  Although I'm still
-> > building the kernel to test it, so let's see if that statement still
-> > holds (although it looks like it passed Stephen's testing). ;)
-> >
-> > If you haven't noticed already, the merge currently lives in the
-> > selinux/next-queue branch; if you notice anything off, feel free to
-> > send a fixup patch.
->
-> It looks OK semantically when compared to my merge. I only see
-> reordering/comment/whitespace differences.
+On 12/5/19 9:04 AM, Dominick Grift wrote:
+> I am also trying out the new perf_event access vectors. I use the perf util for this.
+> 
+> Whilst I wwas confining `perf` at some point there were no avc denials anymore but `perf` was segfaulting in enforcing mode.
+> After some brute force it turns out that it wanted access to cap_syslog.
+> 
+> My question: why was it not logging the capability2 syslog event?
+> Could this be due to an access vectors ordering issue?
 
-Thanks for the double check.  Unfortunately my kernel build locks my
-test VM in early boot; it appears to be non-SELinux related and since
-the test build is based on selinux/next+patches (which is based off
-v5.4-rc1) I imagine there might be some unrelated problems in the
-build.  I'm going to rebase my test build to Linus' current and try
-this again.
+Sometimes capability checks are not audited by the kernel because a 
+denial is not fatal to the operation; it just causes the kernel to fall 
+back to an unprivileged code path or provide a hashed or NULL value for 
+sensitive data.  Offhand, I'd guess you are hitting one of these two checks:
+./kernel/kallsyms.c:		if (has_capability_noaudit(current, CAP_SYSLOG))
+./lib/vsprintf.c:		if (!has_capability_noaudit(current, CAP_SYSLOG) ||
 
-> > > Note that there are two whitespace cleanups included in the string
-> > > cache commit that I intuitively did while resolving the merge
-> > > conflicts. You might want to move those to the first commit or just
-> > > ignore them.
-> >
-> > When looking at the combined diff between the two sidtab patches and
-> > comparing it to your merge I did make a few additional small cosmetic
-> > tweaks.  Assuming the testing goes well, I'll probably go over
-> > everything one more time to make sure the style looks okay, but today
-> > I was focusing more on the correctness.
->
-> The whitespace misalignment introduced by Jeff's patch is still there
-> in your branch. Personally, I'd prefer that we fix them now rather
-> than deferring it to a future patch, because it seems that no one ever
-> has time to bother sending whitespace fixup patches :) But I'll
-> understand it if you prefer not to touch it more than necessary, so I
-> won't fight about this further.
-
-Like I said, I only quickly scanned the combined diff for style
-problems so it doesn't surprise me that there are still some issues.
-I'll give it a closer look once I can get a kernel build passing all
-the tests.
-
-As an aside, I keep debating doing a big style-fix patch (likely
-automated via astyle or similar, likely with some additional fixes by
-hand, and passed through checkpatch.pl) after one of the -rc1 rebases
-to clean up all these little things that have crept into the code over
-the years.  I dislike the idea of the churn that would likely bring,
-but it should make life a little bit better, and help cut down on the
-trivial "checkpatch patches" we get from time to time (although that
-really hasn't been too bad of an issue).
-
--- 
-paul moore
-www.paul-moore.com
+In these cases, you'll end up with NULL pointer values to avoid leaking 
+kernel pointers to userspace, and perf apparently doesn't bother 
+checking before dereferencing them.
