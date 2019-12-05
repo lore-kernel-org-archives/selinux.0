@@ -2,120 +2,185 @@ Return-Path: <SRS0=K0yT=Z3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-1.8 required=3.0 tests=BITCOIN_SPAM_02,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	PDS_BTC_ID,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07036C43603
-	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:21:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81BCCC43603
+	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 15:41:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CBFB124249
-	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 14:21:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1575555664;
-	bh=zFPFhAPwFWCzlgPTd18hCv5TcuyxPL4nvClVVvLvz5s=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=G+wEa8WMerpAzDjm2MYuDAMjRv9QINpLZqvkl2IQCaT9Mqdni9mXn2XB9gRQBQk5d
-	 FvRJ6e4NyovdTYxUYhFMiYMMVldAoeXq+N0/oW4qWm7PTsK4rvNfxQrEf4XVoOXSzB
-	 LbVspkjWbdihPgU70SbT/90uxYUbIWMY/5vMsucM=
+	by mail.kernel.org (Postfix) with ESMTP id 5F5BC20675
+	for <selinux@archiver.kernel.org>; Thu,  5 Dec 2019 15:41:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729396AbfLEOVE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Dec 2019 09:21:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45054 "EHLO mail.kernel.org"
+        id S1729145AbfLEPlQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Dec 2019 10:41:16 -0500
+Received: from mga18.intel.com ([134.134.136.126]:17497 "EHLO mga18.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729240AbfLEOVE (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 5 Dec 2019 09:21:04 -0500
-Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90EC121823;
-        Thu,  5 Dec 2019 14:21:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1575555662;
-        bh=zFPFhAPwFWCzlgPTd18hCv5TcuyxPL4nvClVVvLvz5s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=h73GFGrdmIfVr3nGlDrmXEnV6YTMrFPbSPNxt5lqAY5XTsc/zZSKHaRwYBI2A8WVm
-         bj1QN5si2RvU7UQhUgmdVHHYFhHJU1eOYAWIuM9D+SRKDNmqlvBZikkGLnmxW3udRZ
-         +9qyA4M3AqlGoLe0cs1wPi+rgRqZC8FcboX43b2E=
-Date:   Thu, 5 Dec 2019 14:20:58 +0000
-From:   Will Deacon <will@kernel.org>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>, selinux@vger.kernel.org,
-        paul@paul-moore.com, neilb@suse.de, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFC PATCH 2/2] selinux: fall back to ref-walk upon
- LSM_AUDIT_DATA_DENTRY too
-Message-ID: <20191205142057.GB10647@willie-the-truck>
-References: <20191121145245.8637-1-sds@tycho.nsa.gov>
- <20191121145245.8637-2-sds@tycho.nsa.gov>
- <20191122161131.GB26530@ZenIV.linux.org.uk>
- <18fef491-bee5-fbf6-a3b8-113150f324b4@tycho.nsa.gov>
+        id S1726028AbfLEPlQ (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 5 Dec 2019 10:41:16 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Dec 2019 07:41:14 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,281,1571727600"; 
+   d="scan'208";a="214212412"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga003.jf.intel.com with ESMTP; 05 Dec 2019 07:41:14 -0800
+Received: from [10.125.252.254] (abudanko-mobl.ccr.corp.intel.com [10.125.252.254])
+        by linux.intel.com (Postfix) with ESMTP id 7E83C580418;
+        Thu,  5 Dec 2019 07:41:09 -0800 (PST)
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+Subject: [PATCH v1 0/3] Introduce CAP_SYS_PERFMON capability for secure Perf
+ users groups
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>
+Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        elena.reshetova@intel.com,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Stephane Eranian <eranian@google.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel-owner@vger.kernel.org
+Organization: Intel Corp.
+Message-ID: <a5c64571-64a8-eace-dc3c-36283dda4af6@linux.intel.com>
+Date:   Thu, 5 Dec 2019 18:41:08 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <18fef491-bee5-fbf6-a3b8-113150f324b4@tycho.nsa.gov>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Nov 22, 2019 at 11:27:37AM -0500, Stephen Smalley wrote:
-> On 11/22/19 11:11 AM, Al Viro wrote:
-> > On Thu, Nov 21, 2019 at 09:52:45AM -0500, Stephen Smalley wrote:
-> > > commit bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
-> > > passed down the rcu flag to the SELinux AVC, but failed to adjust the
-> > > test in slow_avc_audit() to also return -ECHILD on LSM_AUDIT_DATA_DENTRY.
-> > > Previously, we only returned -ECHILD if generating an audit record with
-> > > LSM_AUDIT_DATA_INODE since this was only relevant from inode_permission.
-> > > Return -ECHILD on either LSM_AUDIT_DATA_INODE or LSM_AUDIT_DATA_DENTRY.
-> > > LSM_AUDIT_DATA_INODE only requires this handling due to the fact
-> > > that dump_common_audit_data() calls d_find_alias() and collects the
-> > > dname from the result if any.
-> > > Other cases that might require similar treatment in the future are
-> > > LSM_AUDIT_DATA_PATH and LSM_AUDIT_DATA_FILE if any hook that takes
-> > > a path or file is called under RCU-walk.
-> > > 
-> > > Fixes: bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
-> > > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > > ---
-> > >   security/selinux/avc.c | 3 ++-
-> > >   1 file changed, 2 insertions(+), 1 deletion(-)
-> > > 
-> > > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-> > > index 74c43ebe34bb..f1fa1072230c 100644
-> > > --- a/security/selinux/avc.c
-> > > +++ b/security/selinux/avc.c
-> > > @@ -779,7 +779,8 @@ noinline int slow_avc_audit(struct selinux_state *state,
-> > >   	 * during retry. However this is logically just as if the operation
-> > >   	 * happened a little later.
-> > >   	 */
-> > > -	if ((a->type == LSM_AUDIT_DATA_INODE) &&
-> > > +	if ((a->type == LSM_AUDIT_DATA_INODE ||
-> > > +	     a->type == LSM_AUDIT_DATA_DENTRY) &&
-> > >   	    (flags & MAY_NOT_BLOCK))
-> > 
-> > IDGI, to be honest.  Why do we bother with slow path if MAY_NOT_BLOCK has
-> > been given?  If we'd run into "there's something to report" case, we
-> > are not on the fastpath anymore.  IOW, why not have
-> >          audited = avc_audit_required(requested, avd, result, 0, &denied);
-> >          if (likely(!audited))
-> >                  return 0;
-> > 	if (flags & MAY_NOT_BLOCK)
-> > 		return -ECHILD;
-> >          return slow_avc_audit(state, ssid, tsid, tclass,
-> >                                requested, audited, denied, result,
-> >                                a, flags);
-> > in avc_audit() and be done with that?
-> 
-> That works for me; we would also need to do the same in
-> selinux_inode_permission().  We can then stop passing flags down to
-> slow_avc_audit() entirely.
 
-I'm new to looking at this code, but that would certainly have helped me to
-understand it when I was reading it a couple of weeks back! So, for what
-it's worth, you can count me in favour.
+Currently access to perf_events functionality [1] beyond the scope permitted
+by perf_event_paranoid [1] kernel setting is allowed to a privileged process
+[2] with CAP_SYS_ADMIN capability enabled in the process effective set [3].
 
-Cheers,
+This patch set introduces CAP_SYS_PERFMON capability devoted to secure performance
+monitoring activity so that CAP_SYS_PERFMON would assist CAP_SYS_ADMIN in its
+governing role for perf_events based performance monitoring of a system.
 
-Will
+CAP_SYS_PERFMON aims to harden system security and integrity when monitoring
+performance using perf_events subsystem by processes and Perf privileged users
+[2], thus decreasing attack surface that is available to CAP_SYS_ADMIN
+privileged processes [3].
+
+CAP_SYS_PERFMON aims to take over CAP_SYS_ADMIN credentials related to
+performance monitoring functionality of perf_events and balance amount of
+CAP_SYS_ADMIN credentials in accordance with the recommendations provided in
+the man page for CAP_SYS_ADMIN [3]: "Note: this capability is overloaded;
+see Notes to kernel developers, below."
+
+For backward compatibility reasons performance monitoring functionality of 
+perf_events subsystem remains available under CAP_SYS_ADMIN but its usage for
+secure performance monitoring use cases is discouraged with respect to the
+introduced CAP_SYS_PERFMON capability.
+
+In the suggested implementation CAP_SYS_PERFMON enables Perf privileged users
+[2] to conduct secure performance monitoring using perf_events in the scope
+of available online CPUs when executing code in kernel and user modes.
+
+Possible alternative solution to this capabilities balancing, system security
+hardening task could be to use the existing CAP_SYS_PTRACE capability to govern
+perf_events' performance monitoring functionality, since process debugging is
+similar to performance monitoring with respect to providing insights into
+process memory and execution details. However CAP_SYS_PTRACE still provides
+users with more credentials than are required for secure performance monitoring
+using perf_events subsystem and this excess is avoided by using the dedicated
+CAP_SYS_PERFMON capability.
+
+libcap library utilities [4], [5] and Perf tool can be used to apply
+CAP_SYS_PERFMON capability for secure performance monitoring beyond the scope
+permitted by system wide perf_event_paranoid kernel setting and below are the
+steps to evaluate the advancement suggested by the patch set:
+
+  - patch, build and boot the kernel
+  - patch, build Perf tool e.g. to /home/user/perf
+  ...
+  # git clone git://git.kernel.org/pub/scm/libs/libcap/libcap.git libcap
+  # pushd libcap
+  # patch libcap/include/uapi/linux/capabilities.h with [PATCH 1/3]
+  # make
+  # pushd progs
+  # ./setcap "cap_sys_perfmon,cap_sys_ptrace,cap_syslog=ep" /home/user/perf
+  # ./setcap -v "cap_sys_perfmon,cap_sys_ptrace,cap_syslog=ep" /home/user/perf
+  /home/user/perf: OK
+  # ./getcap /home/user/perf
+  /home/user/perf = cap_sys_ptrace,cap_syslog,cap_sys_perfmon+ep
+  # echo 2 > /proc/sys/kernel/perf_event_paranoid
+  # cat /proc/sys/kernel/perf_event_paranoid 
+  2
+  ...
+  $ /home/user/perf top
+    ... works as expected ...
+  $ cat /proc/`pidof perf`/status
+  Name:	perf
+  Umask:	0002
+  State:	S (sleeping)
+  Tgid:	2958
+  Ngid:	0
+  Pid:	2958
+  PPid:	9847
+  TracerPid:	0
+  Uid:	500	500	500	500
+  Gid:	500	500	500	500
+  FDSize:	256
+  ...
+  CapInh:	0000000000000000
+  CapPrm:	0000004400080000
+  CapEff:	0000004400080000 => 01000100 00000000 00001000 00000000 00000000
+                                     cap_sys_perfmon,cap_sys_ptrace,cap_syslog
+  CapBnd:	0000007fffffffff
+  CapAmb:	0000000000000000
+  NoNewPrivs:	0
+  Seccomp:	0
+  Speculation_Store_Bypass:	thread vulnerable
+  Cpus_allowed:	ff
+  Cpus_allowed_list:	0-7
+  ...
+
+Usage of cap_sys_perfmon effectively avoids unused credentials excess:
+- with cap_sys_admin:
+  CapEff:	0000007fffffffff => 01111111 11111111 11111111 11111111 11111111
+- with cap_sys_perfmon:
+  CapEff:	0000004400080000 => 01000100 00000000 00001000 00000000 00000000
+                                    38   34               19
+                           sys_perfmon   syslog           sys_ptrace
+
+The patch set is for tip perf/core repository:
+  git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip perf/core
+  tip sha1: ceb9e77324fa661b1001a0ae66f061b5fcb4e4e6
+
+[1] http://man7.org/linux/man-pages/man2/perf_event_open.2.html
+[2] https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
+[3] http://man7.org/linux/man-pages/man7/capabilities.7.html
+[4] http://man7.org/linux/man-pages/man8/setcap.8.html
+[5] https://git.kernel.org/pub/scm/libs/libcap/libcap.git
+[6] https://sites.google.com/site/fullycapable/, posix_1003.1e-990310.pdf
+
+---
+Alexey Budankov (3):
+  capabilities: introduce CAP_SYS_PERFMON to kernel and user space
+  perf/core: apply CAP_SYS_PERFMON to CPUs and kernel monitoring
+  perf tool: extend Perf tool with CAP_SYS_PERFMON support
+
+ include/linux/perf_event.h          |  6 ++++--
+ include/uapi/linux/capability.h     | 10 +++++++++-
+ security/selinux/include/classmap.h |  4 ++--
+ tools/perf/design.txt               |  3 ++-
+ tools/perf/util/cap.h               |  4 ++++
+ tools/perf/util/evsel.c             | 10 +++++-----
+ tools/perf/util/util.c              | 15 +++++++++++++--
+ 7 files changed, 39 insertions(+), 13 deletions(-)
+
+-- 
+2.20.1
