@@ -1,145 +1,99 @@
-Return-Path: <SRS0=TNfp=Z4=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=YXBU=Z5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A87DDC2BD09
-	for <selinux@archiver.kernel.org>; Fri,  6 Dec 2019 15:08:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9322FC43603
+	for <selinux@archiver.kernel.org>; Sat,  7 Dec 2019 00:17:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7F6A924673
-	for <selinux@archiver.kernel.org>; Fri,  6 Dec 2019 15:08:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57C1920637
+	for <selinux@archiver.kernel.org>; Sat,  7 Dec 2019 00:17:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="UbThqBv0"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iJXKnUkW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726256AbfLFPIr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 Dec 2019 10:08:47 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:41252 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726234AbfLFPIr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 6 Dec 2019 10:08:47 -0500
-Received: by mail-lf1-f68.google.com with SMTP id m30so5501153lfp.8
-        for <selinux@vger.kernel.org>; Fri, 06 Dec 2019 07:08:45 -0800 (PST)
+        id S1726377AbfLGARl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 Dec 2019 19:17:41 -0500
+Received: from mail-pg1-f169.google.com ([209.85.215.169]:37903 "EHLO
+        mail-pg1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726375AbfLGARk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 6 Dec 2019 19:17:40 -0500
+Received: by mail-pg1-f169.google.com with SMTP id a33so3913561pgm.5
+        for <selinux@vger.kernel.org>; Fri, 06 Dec 2019 16:17:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=tDpR9HC0N0LylNs7IQ0staMtQmWQ/+07ieameKSy+BU=;
-        b=UbThqBv0yZmZtyIEKsxCOzqk7hboUOD/OYaUUtZ3TA/d5v0YeDh3ObW9TWy2J0uJos
-         zrekA6/1LYgXyqtu+C5Fv3zWeYG57g6cTcp66wbJ4GsiKm7ZBdSHcmgoWZatSL4uonAG
-         02bcTHUPPEQeMS3XmP8Hh+obGu252d5CE2AR8uwyulCtGpXPGnGg+nU0SUCC6YyBQpx7
-         YtNAcKYHjSl+7MPC9IQI5Gv0y8IU50EPQkmOrBOps/zxI27N6knSsUyVWrmS5iKJb8t7
-         QFs8wBTi5ErjXn9SNdYLNav1K7PPir6xNVr99KlNPn/W9bSG/ohjiGT/ZbTaIl34f58t
-         Gsow==
+        d=gmail.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=NXRpf3teo9zD7/4xIBOoEWwZWibxTbOpSaJc2moPEMs=;
+        b=iJXKnUkWvGOYbp2f5555kmlNopu/UFNpDj0ylfNQs98MVDIMdeHndEkFzarabZC7Wv
+         DlYRjiSRYJezON0ExeFuzsudoKbsUFOKl9p5Ujzxi/ss2ufR5ExNUEEzqrmx8h5zyiy/
+         hyzwustjqojveYoJp8L2GLXyqU0KU09M/UpqsCLjrBSSwe2mjMHxEM00oJZDe+FjnetI
+         oVAfPwxy4YpW58NfwJ3A9P/RIszrSglKi1dU1Tu7z8+RBPK8W4H3xdtNdhx6Ae4vEdPX
+         3RiDXocsYxRDoiDxBya8RseCQrSSoUA7iyDOKKFQbAsmE+G6zT3l0xcxpVV0UFRld+Hj
+         JUWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tDpR9HC0N0LylNs7IQ0staMtQmWQ/+07ieameKSy+BU=;
-        b=ddw6DZt5TApxMpP1TsikeIt5KgPNhhCY4zohuOr2i5/U4yinVIWw6LL7ZniPM3gyWi
-         srwYoDvusYU9weG4uJuEai6su5LYgF0XSdqH+Q0Wd3iz5SZwtYGdN1cHm0Wdk8iBBE3+
-         JCjcUZkgiZJ40HqxkyYSSzzyLNL6eFZ3t4YN2NaEJxrXggHAaeFeck6s4MxoTFoA8Lh/
-         OalhVoHIfkDVv4dYR/erToh+aQy96Py3rtOmVA8gGBzIEWc+DujbTfnTnYp6NNeTywWx
-         dnPXdKAYZwozFhf4dlDsgAEwLHIOyAH61KITyoEgqS2HupmN8h6OE7HMS69s2CVIrJFT
-         Wxjg==
-X-Gm-Message-State: APjAAAWLQsOcfuoVkV5AdDG0hWfIWP9MUCQBUb9MF0L6tBHjwmY7iTWT
-        GHCgT7+aPZXcuhTDllhIF/UeG2aQFMdk6F9VkP6i
-X-Google-Smtp-Source: APXvYqyHuAf1U6B3Ez7ghdYr9OxWS0HPk1oGXvEPsi/mt9SJ+Vm2vIv8UKN1swaZR7yrZn9ikiGxfgVudfm3pwgUv7A=
-X-Received: by 2002:a19:f514:: with SMTP id j20mr7762466lfb.31.1575644924413;
- Fri, 06 Dec 2019 07:08:44 -0800 (PST)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=NXRpf3teo9zD7/4xIBOoEWwZWibxTbOpSaJc2moPEMs=;
+        b=OKM5KmxMh73no7p3K4/MWVzNTNtTCeQQR3WMv4xD6WRzMJvSzP5d/s15d/fjuBYbAz
+         7KcyeX7Yf5xunZzZc6pUWHVbulc9MFZgBJ0yxkMVWovoFSRCimIFdsIxnFNVG9hfyb6U
+         1sbPnM7K/butzTwOipPHNb0eXsib9FPtM/kdHl2OGAMVs1wTT4QReZFMmQDKzNT8y1gF
+         H86aWmjubUFKdyX+n02iWoffYGw5FVaD4f4S+vLk+OOwc2Pzi5tWdHGlcuskNNYdVj1U
+         /71Fo6F+tQuBkqE1vt5KhoeuvEGMxo1CLzKMwabPTP+Ph6I/ndR69OIT8UEXrscoRF11
+         2b2Q==
+X-Gm-Message-State: APjAAAUymBEbory/+Xm6iuV1V/AMqBjtL1OjChUvu5AMRikfhrCmXtm/
+        DluSAfAfPkjwJttf3oqID+GvIBfCH842M5Vg7nrOM9NC
+X-Google-Smtp-Source: APXvYqzERCn2H/8SuBzKYHy6bYz+ekx6fWxeetYVXMdb4dpCokAYEkAt3c70G0SA73Mt2e6OsYx28FCcgi1u6DiDWTE=
+X-Received: by 2002:aa7:9567:: with SMTP id x7mr17408764pfq.133.1575677859766;
+ Fri, 06 Dec 2019 16:17:39 -0800 (PST)
 MIME-Version: 1.0
-References: <20191122093306.17335-1-jeffv@google.com> <CAHC9VhQ-piMePyfOeLsrAtgSCG5iWjk9xFbjOvURe3WLD-z89g@mail.gmail.com>
- <CAFqZXNun_-aWx19UKUMfiYuQuttxCgMOoAczBAddDv3yaCZyxw@mail.gmail.com>
- <CAHC9VhTwct8daQoXFg4JpHkWUhijQFn8D0Tq=VX989mq3TVfvg@mail.gmail.com>
- <CAFqZXNvQV+syzOE0CGczzTvi9g65AUT8bdsG0YN6NcHzd5GVHQ@mail.gmail.com>
- <CAHC9VhSVsmu6hjmUAi2wM6wAkkQnUDx7MM1G8Ln9OLAzwFmz6A@mail.gmail.com>
- <CAHC9VhR+hYnLoMkAPuRNJygk+dOoNyhooNuz3Ma=F07b9gh=rA@mail.gmail.com>
- <8257410c-025a-7250-fa78-944289e378bd@tycho.nsa.gov> <CAHC9VhREL17FH0XOUkvegY4yGeQu5p1qLdWEdnwvPw1W+bLfRA@mail.gmail.com>
- <CAHC9VhQOb5skqQofnrESFuAqfRE1+xq9OD48JcYzq77v0XJsog@mail.gmail.com> <4257992a-e4d8-eff4-3421-61da3376d930@tycho.nsa.gov>
-In-Reply-To: <4257992a-e4d8-eff4-3421-61da3376d930@tycho.nsa.gov>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 6 Dec 2019 10:08:33 -0500
-Message-ID: <CAHC9VhQF_FzbtwF+9Q_u4EiEnNQHc2KkaoPYOCkGnB3F4Xd2JQ@mail.gmail.com>
-Subject: Re: [PATCH v9] selinux: sidtab: reverse lookup hash table
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Will Deacon <will@kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>, rcu@vger.kernel.org,
-        Jovana Knezevic <jovanak@google.com>
+From:   Joshua Schmidlkofer <joshland@gmail.com>
+Date:   Fri, 6 Dec 2019 16:17:44 -0800
+Message-ID: <CAHduLLQV07RPLcV-3ffaebEosQS_DRAk_7ZconHbdkx8oAHejQ@mail.gmail.com>
+Subject: [PATCH] python/semanage: check variable type of port before trying to split
+To:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 6, 2019 at 8:45 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 12/5/19 7:50 PM, Paul Moore wrote:
-> > On Thu, Dec 5, 2019 at 1:14 PM Paul Moore <paul@paul-moore.com> wrote:
-> >> On Thu, Dec 5, 2019 at 1:10 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >>> On 12/5/19 12:41 PM, Paul Moore wrote:
-> >>>> Hmm.  I haven't done any debugging yet, but the BPF tests are failing
-> >>>> (they pass with kernel-5.5.0-0.rc0.git5.1.2.secnext.fc32.x86_64):
-> >
-> > ...
-> >
-> >>> They all pass for me (with your next-queue branch, using the
-> >>> selinux-testsuite defconfig fragment merged with the Fedora config).
-> >>
-> >> Oh goodie, I'm special :/
-> >>
-> >> FWIW, my current test kernel is the next-queue branch rebased on top
-> >> of Linus' current tree, using the latest config from the secnext
-> >> kernel builds (Fedora Rawhide + stuff for the test suite).
-> >>
-> >>> The error above doesn't look SELinux-related; it looks like your kernel
-> >>> is rejecting the trivial bpf program used in the test code as being
-> >>> invalid for some reason.
-> >>
-> >> That's where I'm at as well, I'm building an instrumented kernel right
-> >> now to try and track down the source.  I'm sure it is something silly
-> >> like a messed up kernel config or something, but I'd like to
-> >> understand *why*.
-> >
-> > I traced the "./bpf_test -p" failure down to a BTF check in the BPF
-> > verifier, there is a comment in that code block which helpfully reads:
-> > "Either gcc or pahole or kernel are broken.".
-> >
-> >   :/
-> >
-> > The relevant commit is 8580ac9404f6 ("bpf: Process in-kernel BTF"),
-> > and it appears to be new for v5.5; it isn't present in selinux/next or
-> > selinux/next-queue.  Recompiling with CONFIG_DEBUG_INFO_BTF disabled
-> > does allow "./bpf_test -p" to succeed, but I hit other BPF test
-> > failures further along.  For reasons I don't understand, the secnext
-> > kernel builds (which should have this code, and have
-> > CONFIG_DEBUG_INFO_BTF enabled) are not hitting this problem, but that
-> > may be due to differences in the build tools on the two systems
-> > (although they *should* be the same).
-> >
-> > Given that we haven't hit -rc1 yet, and everyone else's builds are
-> > working just fine, I'm going to leave this alone for now.  Whatever
-> > the problems may be, they definitely don't appear to be SELinux
-> > related.
->
-> I re-based next-queue on top of -linus, enabled CONFIG_DEBUG_INFO_BTF,
-> rebuilt and booted new kernel, did a git clean -fdx in the
-> selinux-testsuite directory, and built/ran the testsuite; bpf tests
-> still passed for me.  This was on F31.
+While using Ansible's Selinux module to manage ports, I discovered
+that numerical ports caused an unhandled exception in 'seobject.py'.
+This appears to be a bug, and I am proposing a fix which checks the
+type of the argument before operating on it.  This maintains the
+original functionality in the case of a string, and acts in the same
+fashion if you supply an integer.
 
-Thanks.  If I had another day to spend on this I'm reasonably
-confident it would end up being the result of some oddity/difference
-in the Rawhide toolchains, or ghosts.  Either way, this seems to be
-both unrelated to the SELinux changes and not something anyone else is
-seeing despite a number of different scenarios.  I still need to go
-through the two patches and cleanup some of the whitespace issues we
-talked about earlier, but barring anything weird happening (see the
-previous ghost comment) I'll merge both of these patches into
-selinux/next when the merge window closes this weekend.
+I did not find any open bug report against the SELinux project. The
+downstream bug report is here:
+https://github.com/ansible/ansible/issues/60968
 
--- 
-paul moore
-www.paul-moore.com
+
+Signed-off-by: Joshua Schmidlkofer <joshua@joshuainnovates.us>
+---
+ python/semanage/seobject.py | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+index dc413ca5..0e9ce290 100644
+--- a/python/semanage/seobject.py
++++ b/python/semanage/seobject.py
+@@ -1070,7 +1070,11 @@ class portRecords(semanageRecords):
+         if port == "":
+             raise ValueError(_("Port is required"))
+
+-        ports = port.split("-")
++        if isinstance(port, str):
++            ports = port.split('-', 1)
++        else:
++            ports = (port,)
++
+         if len(ports) == 1:
+             high = low = int(ports[0])
+         else:
+--
+2.23.0
