@@ -6,54 +6,55 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76933C43603
-	for <selinux@archiver.kernel.org>; Mon,  9 Dec 2019 17:20:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44B7DC43603
+	for <selinux@archiver.kernel.org>; Mon,  9 Dec 2019 17:37:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 417D62080D
-	for <selinux@archiver.kernel.org>; Mon,  9 Dec 2019 17:20:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F9542077B
+	for <selinux@archiver.kernel.org>; Mon,  9 Dec 2019 17:37:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="G8iRXLag"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="CFEaMF2w"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726495AbfLIRUc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Dec 2019 12:20:32 -0500
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:44631
-        "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725904AbfLIRUb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Dec 2019 12:20:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1575912029; bh=Pbk7IW9GGRcX4NGbg4dMOzc/ixecYySg5lZoO3EXmDg=; h=Subject:To:References:From:Date:In-Reply-To:From:Subject; b=G8iRXLagRTUe+zdQSuubqkHFfDkb6pDQVZAENPknfmWJm0hfU8V3AocdZQoVqBMnOZL6WNaO9JJgrU7J0mLl86PeMJNQSXtFreCNYWmx7bJtEIjxfK6VgK3miJ5ExsVpiM+hwpxW0K1rTZKKqjUW/9fATSJmScVtkkxQow+yOXDmug4nM4n/eEJIzmuUw4GNpOkF3T81Z5x2Wa2YoudfA4uas3Xi72Hm01pxGdHsMczcXYdWKKTkkwK49s/eR7b4ot1C7K2+8p3k+rRypI9WuXcH/ERBDW6XJ44cyFZeFrLLlsQDL/l4NZmjyOpois97yjHYv8tFTtPRM9vAahTo2w==
-X-YMail-OSG: ZTLKbzgVM1kEOlp7qNvitugRIJJN2lXmxLXfI9sj4wdBTgTertepPwTLWqNgd5h
- WfTlKvlSiBaQNo3JtlYesxOnJE782.LnD6lNKImdDcYoEaytMZCO3299aU2ZqFL0UoAX5udTMhzX
- WxCVOW1UlGPLX33dn_48POpFNgM5VaPOh.1k_ydZr0oxYNVE3GBAAKcCde65BZBz7m1p.JomFk8N
- PKTDxfQyiBIYKxqnKfCy7CmiVPyZyUreP9ZWslUua.ApOGZ4jRgrUp0uGYVtw3a1dciPRJKegjbI
- 9DtWwYDBflHgl2olWsfO.8p23JV9v7ajLEGEiCAevMSNUfeNMQPpyVW1FzPyKuvuHMXrJuc4yw.B
- kmn5mb.03VzKY48RuWeP3nJMKNljvUzMSBEN6wLSUo2pfuMTMRQDlrc790_GM41DhRZ_.4puHfh_
- Lrq_mKXOor5gbcpvbXQyiAXFy2SR9rSFOtowlh83JrjqAQgItfNU_GZ9pbBTr7pH_6BK8bJwWArc
- NNVFYH9fuLOF4MAbzXA9Oc4SsnLV2JCQdfpiPSTcAdLg6KT2sXk_wGGipQn7nWtpNS5EzIze2ZBG
- H5vaWn0UKhfCC.LMpSKL0Jc69bB.AW574JaPzdi0CJUiJaysbtKmHpFsEiscIqytjAmqbRPcCRG0
- MTTJI4YYnz7jKfoNyHFW8Y9oBxnk1hH7wdPo1gtdInH8o.0LmS6gEj3QfIkwz.Xyi5m6i8majbSI
- a_UM0lY.l33_RQWG7Z4i_2qhvL8WoN7YrOqNXJIzhaJi0nOXSf7vYbTuF7XO3RxRw.eux4oAHP_g
- fZ9Wy2OtvXG9TZqZgJn_VvTKaViooSfEuTohCDIIGVnW0g_Nqgr5mBjv.fdI9QIW4BtauYmPZJ6S
- aPOM4oYFaVMCGESIrJbOZvxxDRSCcvMCGIXT3vE6a2CzCfm3_86F9mM1X_6Bzfz.LSt2x8qKse.X
- s5owdnu0kec7kN2zVQj5IjC39tj_55cnnee4wLQ_Z.1h7dZ2SMtCVry_na0w6u5Fsm_aFv6x52ly
- gZ5eqqdg0pyqaHAzwyb9E4vzOZvyiLfxvndlrRYHE9Hr.gs6PbDNbJBbH8X0ZCeBvAuOUKWz_YtS
- EypfgEbHG0Gn4RjDP2PzW8IRSsxWZ.qaJcthrcJ6_YXoZUAEieDqtg5DSJO82I96L5FzmI2KC3DC
- Qw9MgW0rP_psI.ddxaWBOHX3JEuTwqI4Vrm9hBqMVaK57RDowW.hSKT1pg3FuTvUHFw5vSGFnC5g
- dJH6g8z6gfoa0qwZymNzdlkvmNkVggX.vBiDd204RO7CRw.Xftk_GNTTy1Ydg5wkot8dbOqQyYWw
- NDdqXn1dvEg5ecxL50EfEhVim00JUffsGDJikgI2BhZZ5OBOUb_8CwmU1ZBVDdrD9hpMUv8AVrpr
- jfQ2Zxl4hyu.cx0.6pwRb
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Mon, 9 Dec 2019 17:20:29 +0000
-Received: by smtp404.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID ac0871ffa96363089ac7a0327b1fb80e;
-          Mon, 09 Dec 2019 17:20:27 +0000 (UTC)
+        id S1726408AbfLIRhl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Dec 2019 12:37:41 -0500
+Received: from sonic311-30.consmr.mail.ne1.yahoo.com ([66.163.188.211]:37844
+        "EHLO sonic311-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726342AbfLIRhl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Dec 2019 12:37:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1575913059; bh=6a2j4rz6Zfr0HYjlC1crjhNMOF9hgUXGdPrBFIBXE6w=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=CFEaMF2wKXMpW8M7MhHgqUUWCOgkWWJGdmTFmYPMnbBQR6MbMCCzDIlkxv47LtYmIR825ExIc0STmDFfw9fvRR3plcdCrE5mqUawaibXxYPh7BTi9uA10OO5+QwxKwIKOl6f6z3iXwv7AtwDLCJU8Pa4ux8q77UtFc0Cz4w7M3za91gVNeNH3Bw6d0SuAuUKLBScy4VdAhHK3heDN4i8FJTBBne9izHdHlSYsiWlkC8dVYLT90KxHtBUMPp9TTiPt4qHf14v6pBGjk3IJ9rOl/VsjiuqOBztHm9prZJon3gv8Bt0EQzblFCknFXwVtN9tAgFetAjtEapwOzge3TKgw==
+X-YMail-OSG: VniK5JkVM1n9lqMNYHQ_rY9Vuq5aVZ_FjHb6sI6sQiooP.VdUFqEopk9nnDl1Sb
+ vK6yKS1DPyhd0ivVscme_iPXPBCnnXZTxSpXaZZVIeVlCDIfcdBfCJE2Me4OIYcjKGjdY4XOnDse
+ kFADcRgS5eyL9nzmzEAgWDGCMUXgNTuqzHFWZlwLqEIO3FE.W8nqlVn1_LDLkHIjfZqi5FUugWV5
+ eweJ7sYwwKLRByK2ZlcU9XuqiXt.iekPLw4pk5NeVU_qLh3j8_0gGDPgPD60scdrYqx8ykBA7_Nf
+ KB4e2nSoNMZoh4iIiCSWruHLpAhPOM4AXEgJHIRUP.1DZy6YiIXC9RwrgY5K1Z5BHZ6a6lDGM8mD
+ v6gZUjPedgtJfdntViCTY.HiDvKrpmjM7OBLHPwMP2LSWimxTJcAKpF1E6kWiPLO.EXdpVnIiybO
+ XAaewkSMBpQ7UQZhXIT7cqLfc6403m_KcGhuuatUpDScOPaDV65EVp8jdA_JQoYTPsyUSQUZPaRF
+ g2hb3WRRB4F_Fp8bK03M6gHZTKYa_pjSK1hP66oFTHrjjry1FkksouQHxJBXr0QYd96h2TP1KAK6
+ c7BrUdhrSQRwWx_x7MrMAWZO5dkaw1NzKqQusVWpkIgtasfIRAVv9_K0wPAKk20Y1VbVhIyBe_JQ
+ .gTHHXrgjeFABTzsyo1UmP0rasNwb4yTsX63MJ2XFLLR81I7.ovkxtiZzgynXjyvCv_m7fI1RcYW
+ k2Z4P57986j1kdiEqcXD19lfOnNGalycurq9m5Pn2krkkMhbjJzrt5Kk2WPO8Ld18KqLPffDMj.y
+ b4R6sq7c6bjclCjQjWTc.0Vo69ClBhoNOjFPw..BE8wpIWomojvV0lJ1RaSSbx69RWSyAsgbrNHO
+ 8gSF3sPZviEhmDxmihrmUiW21M0fmq8MIMjdDsXYSwC6Wj0hnNYcOOIVUqEZiWAB3C545tLPU9qW
+ zdhrcMIofJPXm.4h4wwD1Hao465cA7oQ6NwEmMhbn7Q1hmxuHPfvIDcWQZx8sbtTnk_ZELQOay3R
+ M.JvtRTRMX_5W9fu7RVrJNknEbfK.lcQ9cVc64QKnVUhIGTP63.8HTb6reDn8JWXYM0IYiTj1ile
+ 5pRobhgqJrBCMOlJvnxNZtRQz59oL1sfRi0x6Hp2DmXVbmjkZlqDSud.ZtQmRh9NA09sRbRbrJKB
+ vPk75E7QrxlPFhIIWpxjrhkQupfidwdItkwasXIUwS0778qb4vIzwTAIh49JtDyIM6yTfvp5hm0B
+ 8hms_OVFzpIdt09g2DJs12fXsZhQX_67FAIdem5Xl6jSBhQ6FKfVOhscZU2VpsMn6ueJnsJFhglr
+ 2JRjM84wh.E9jYRO6bJbE9tGQ9sN2NYa6gkBzecD0Yc1.z25.DIUUVWm7GRSczgLEhdqF8uzqt_W
+ WiqDvpvhLtaLh6x82kClyd6l.8tYiH14-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Mon, 9 Dec 2019 17:37:39 +0000
+Received: by smtp427.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID da8323d882945f542bf46eeb71e810da;
+          Mon, 09 Dec 2019 17:37:34 +0000 (UTC)
 Subject: Re: [PATCH] selinux: reorder hooks to make runtime disable less
  broken
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
+To:     Wenhui Zhang <wenhui@gwmail.gwu.edu>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
         Paul Moore <paul@paul-moore.com>,
-        LSM <linux-security-module@vger.kernel.org>,
         Casey Schaufler <casey@schaufler-ca.com>
 References: <20191209075756.123157-1-omosnace@redhat.com>
  <23671223-f841-564c-6ae8-0401bce0fa20@tycho.nsa.gov>
- <ecfd3846-b38f-4b85-4568-d64625c490ac@tycho.nsa.gov>
+ <3285ac79-5d26-71bf-6fd7-dc1895ee7bbc@schaufler-ca.com>
+ <CAOSEQ1pHnxrMyn1qYXzJPaT6Smf1ycVOfHQ7-gkDpzYiq9S=Cg@mail.gmail.com>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -100,12 +101,12 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <2fadcd3d-96d2-82bf-f221-a7961853be50@schaufler-ca.com>
-Date:   Mon, 9 Dec 2019 09:20:25 -0800
+Message-ID: <95a6c581-f1f2-2f82-732b-90503278ad97@schaufler-ca.com>
+Date:   Mon, 9 Dec 2019 09:37:32 -0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.1
 MIME-Version: 1.0
-In-Reply-To: <ecfd3846-b38f-4b85-4568-d64625c490ac@tycho.nsa.gov>
+In-Reply-To: <CAOSEQ1pHnxrMyn1qYXzJPaT6Smf1ycVOfHQ7-gkDpzYiq9S=Cg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
@@ -115,85 +116,24 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/9/2019 5:58 AM, Stephen Smalley wrote:
-> On 12/9/19 8:21 AM, Stephen Smalley wrote:
->> On 12/9/19 2:57 AM, Ondrej Mosnacek wrote:
->>> Commit b1d9e6b0646d ("LSM: Switch to lists of hooks") switched the LS=
-M
->>> infrastructure to use per-hook lists, which meant that removing the
->>> hooks for a given module was no longer atomic. Even though the commit=
+On 12/9/2019 8:40 AM, Wenhui Zhang wrote:
+> As Casey mentioned.
+> When changing this order, would you take some default stackable modules=
+ in consideration as well?
 
->>> clearly documents that modules implementing runtime revmoval of hooks=
+The order in which another module sets things up ought not
+affect your module in any way.=20
 
->>> (only SELinux attempts this madness) need to take special precautions=
- to
->>> avoid race conditions, SELinux has never addressed this.
->>>
->>> By inserting an artificial delay between the loop iterations of
->>> security_delete_hooks() (I used 100 ms), booting to a state where
->>> SELinux is enabled, but policy is not yet loaded, and running these
->>> commands:
->>>
->>> =C2=A0=C2=A0=C2=A0=C2=A0 while true; do ping -c 1 <some IP>; done &
->>> =C2=A0=C2=A0=C2=A0=C2=A0 echo -n 1 >/sys/fs/selinux/disable
->>> =C2=A0=C2=A0=C2=A0=C2=A0 kill %1
->>> =C2=A0=C2=A0=C2=A0=C2=A0 wait
->>>
->>> ...I was able to trigger NULL pointer dereferences in various places.=
- I
->>> also have a report of someone getting panics on a stock RHEL-8 kernel=
+> I personally is writing a module for my course work, and I am using Sel=
+inux and Integrity implementations as a basis, while stacking some new ho=
+ok implementations on top of this.
+> If the underlying Selinux and Integrity module changes the order, would=
+ it affect my stacked one please?
+> Maybe a centralized memory security blob garbage collection module shou=
+ld be written, such as garbage collection by refcount of the security blo=
+b?
 
->>> after setting SELINUX=3Ddisabled in /etc/selinux/config and rebooting=
-
->>> (without adding "selinux=3D0" to kernel command-line).
->>>
->>> Reordering the SELinux hooks such that those that allocate structures=
-
->>> are removed last seems to prevent these panics. It is very much possi=
-ble
->>> that this doesn't make the runtime disable completely race-free, but =
-at
->>> least it makes the operation much less fragile.
->>>
->>> An alternative (and safer) solution would be to add NULL checks to ea=
-ch
->>> hook, but doing this just to support the runtime disable hack doesn't=
-
->>> seem to be worth the effort...
->>
->> Personally, I would prefer to just get rid of runtime disable altogeth=
-er; it also precludes making the hooks read-only after initialization.=C2=
-=A0 IMHO, selinux=3D0 is the proper way to disable SELinux if necessary.=C2=
-=A0 I believe there is an open bugzilla on Fedora related to this issue, =
-since runtime disable was originally introduced for Fedora.
->
-> Also, if we have to retain this support, it seems like this ought to be=
- fixed in the LSM framework especially since it was a change there that b=
-roke the SELinux implementation.
-
-Agreed, mostly. Deleting an LSM is fundamentally something the infrastruc=
-ture
-should handle *if* we allow it. Should we decide at some point to allow l=
-oadable
-modules, as Tetsuo has advocated from time to time, we would need a gener=
-al
-solution. We don't have a general solution now because only SELinux wants=
- it.
-The previous implementation was under #ifdef for SELinux. At the time I u=
-nderstood
-that there was no interest in investing in it. The implementation passed =
-tests
-at the time.
-
-I propose that until such time as someone decides to seriously investigat=
-e
-loadable security modules* the sole user of the deletion mechanism is
-welcome to invest whatever they like in their special case, and I will be=
-
-happy to lend whatever assistance I can.
-
----
-* I do not plan to propose an implementation of loadable modules.
-  I leave that as an exercise for the next generation.
+The security module infrastructure does not do garbage collection.
+Modules are encouraged to not create garbage.
 
 
