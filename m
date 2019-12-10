@@ -2,165 +2,201 @@ Return-Path: <SRS0=5m9B=2A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D741C43603
-	for <selinux@archiver.kernel.org>; Tue, 10 Dec 2019 11:27:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A93C3C43603
+	for <selinux@archiver.kernel.org>; Tue, 10 Dec 2019 13:44:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 3ED392073B
-	for <selinux@archiver.kernel.org>; Tue, 10 Dec 2019 11:27:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4BC0D2077B
+	for <selinux@archiver.kernel.org>; Tue, 10 Dec 2019 13:44:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PXjKkgMX"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="kQuj4mDp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727306AbfLJL1t (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 10 Dec 2019 06:27:49 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36922 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727211AbfLJL1s (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 10 Dec 2019 06:27:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1575977267;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=bOFmsAtNbW8RFKiaUWBj7E1wR8cw0Z5ta8Z04trWaPw=;
-        b=PXjKkgMX3jYCeIPg7CvNbgQcfKlCzSa6KQ3TXAnyXFRbfULZpZU0zE6ChXj5cbpGlC/uvE
-        HXWAg6IGeIFxo6SaGIGbN0pyyiC0eCzagU+cepVrf5S7HHY1yEvplrrMxvOxSUsFDFN/Pv
-        4bq8OIZ2BEkoWlkxE5uKRVAO4mmqycQ=
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
- [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-386-5zXCzlagPnqIAwx-6njYDA-1; Tue, 10 Dec 2019 06:27:46 -0500
-Received: by mail-oi1-f200.google.com with SMTP id d9so1404373oij.4
-        for <selinux@vger.kernel.org>; Tue, 10 Dec 2019 03:27:46 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=bOFmsAtNbW8RFKiaUWBj7E1wR8cw0Z5ta8Z04trWaPw=;
-        b=X1jirKhYgZ9wIQAqoURb0L888mkYD9KJXur/bu+81wx4nCrJkVf/obiGAapDi59sUq
-         nUgCikx/VZGEHbjRL0psTnTMPEfZ/opz/Ou8RF3pGcbSrY6NNo4iFcuELIDbAK12VqXm
-         BToH0uWz4Cd4pD9JMs4TwaRCkR2FlaCvkOAd55PU1p1BDIGMSFR87jOQdMyFjLdPivMH
-         9ntHSgx1LK/h8t8gbY/2pfm+cTRjJ5t4aUPZuklDIoLIeBpMEFrH5xp3otMmkDBkpB3n
-         wg8cGVLI/2c4YsI+gXEgDW5f7R3XVgOhMMc5dyUtZ1HOou0EsfB9rlkps7xtrUAkCko/
-         CLLA==
-X-Gm-Message-State: APjAAAVztW3kyeDRroNYg6iwvsbn7/8CkxPe3b9Ziq0l3R+sB0XNCVvi
-        HT5rT3RVodcSUoDs9nw9zCK9yfcfPNMY6w9aVq7sFbe9tq+8iOFsJnzcnp1PzpslMz1HPZXKRRY
-        abKNdIbojS7eUlOw9CuWOSo8tBvTk7bSceg==
-X-Received: by 2002:a9d:338:: with SMTP id 53mr15586614otv.197.1575977265343;
-        Tue, 10 Dec 2019 03:27:45 -0800 (PST)
-X-Google-Smtp-Source: APXvYqxoDNawE1RIKWv2izZYOAI/uCL0+cRnKFQ76pSJpz1S/34x+nbOWHlmWHvZ46sRQuTiYSTwxrUg3G5EtMrNof8=
-X-Received: by 2002:a9d:338:: with SMTP id 53mr15586596otv.197.1575977265026;
- Tue, 10 Dec 2019 03:27:45 -0800 (PST)
+        id S1727145AbfLJNol (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 10 Dec 2019 08:44:41 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:17422 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727061AbfLJNok (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 10 Dec 2019 08:44:40 -0500
+X-EEMSG-check-017: 34153941|USFB19PA36_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.69,299,1571702400"; 
+   d="scan'208";a="34153941"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Dec 2019 13:44:35 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1575985476; x=1607521476;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=BqrXrOlH2AwEczMne19p4RzjhaG6eEPCHqHn8/2G4PA=;
+  b=kQuj4mDp6PojT3wI+KVBCAXbiy5KvwucPCO8IwjFEAd2bNwUAosb6n48
+   eBhPSpXp1GzJufsyQIGEl3IxJcg4I55jR95isalxqkGoxSIH0Mi8/gbNj
+   exkN9AdawASUkFdUxHbhr+kdVlq5e4R5QnII2DeGfGqLqQPtZaSm+mLl0
+   aHVjiMZnksLQNy/o62X3yvMRC7D0iZOa3G+F9ApmQmMV3IFUJgkhAHpA1
+   VNqiC8kBd++1iwOlBjq+JaSTSQAmvagT7r5Lkq4vTFgDxKz1OBL94o7vV
+   C5YFb4UL6eMmoKMZsZyELVoWLhqW/D0APoJ64YNdenUUZ7eMdnp8lfbum
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.69,299,1571702400"; 
+   d="scan'208";a="36538632"
+IronPort-PHdr: =?us-ascii?q?9a23=3AfFd2PRMe8IlpRgdqQHwl6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0K/z+pcbcNUDSrc9gkEXOFd2Cra4d0KyP4vurBDdIyK3CmUhKSIZLWR?=
+ =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
+ =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfL1/IA+roQjVuMQajotvJ6gswR?=
+ =?us-ascii?q?bVv3VEfPhby3l1LlyJhRb84cmw/J9n8ytOvv8q6tBNX6bncakmVLJUFDspPX?=
+ =?us-ascii?q?w7683trhnDUBCA5mAAXWUMkxpHGBbK4RfnVZrsqCT6t+592C6HPc3qSL0/RD?=
+ =?us-ascii?q?qv47t3RBLulSwKLCAy/n3JhcNsjaJbuBOhqAJ5w47Ie4GeKf5ycrrAcd8GWW?=
+ =?us-ascii?q?ZNW8BcWCJbAoO4coABEewPM+hFpIX5vlcCsx+zCQyqCejyyDFHm2X20LUn3e?=
+ =?us-ascii?q?o/HwHI3A8uEdwAv3vbrtr6KKgcXPupzKTK1zjPc+9a1Dn/5YXObxsvoeuMXb?=
+ =?us-ascii?q?V1ccfJ1EcvCx3Kjk2QqYP7OTOey/kDs22B4OpkUeKglW4moBx2rzi028gskZ?=
+ =?us-ascii?q?LEhp4Vy1/Y9SV5x5w5JdujSEFhe9KkH5xQtz+DOoZwX8gsQHlotT4nxrAJtp?=
+ =?us-ascii?q?O3ZigHxIk9yxLBZPGLbZKE7g/lWe2MOzl3nmhld6i6hxuq9EigzfDzWdes3V?=
+ =?us-ascii?q?ZRqypFjsHMtncQ1xzP8sSHSuVy/kOm2TuXywDc8PtEIUEplarAMZIhw7gwlp?=
+ =?us-ascii?q?QUsUTYACD5hF/6jLOWd0o4+uio7P7rYrP6qZ+HK4B4kAT+MqUqmsCnAOQ4NB?=
+ =?us-ascii?q?YBX3SD9Oih27Du8lf1TbVXgvEsjKXUv47WKd4GqqKhBg9ayIcj6xKxDze819?=
+ =?us-ascii?q?QYmGEKLElYdxKclIXpJ1HPL+z4Dfe4mVislixryOrcMr3uBZXNMGDPkK39cr?=
+ =?us-ascii?q?Zl905c1A0zwMhH551OF7EBJOn+Wlfru9zFCh81Kgm0w+HgCNVnyIwSQ36AAq?=
+ =?us-ascii?q?icMKnKq1+H+vovI/WQZI8SoDv9MOYq5/rvjX8/hF8ccrKk3YUYaH+mBPRqOU?=
+ =?us-ascii?q?aZbmT2gtcHD2gKuhAyTOvwiF2NSTRTfWq9X7og5jEnD4KrFZ3DRpusgLOcwS?=
+ =?us-ascii?q?i7GZ9WZmFdB1+QFnfnapuLVO0RaCKIJc9hiCYLWaKmS4872hGkrBX6xKZ/Lu?=
+ =?us-ascii?q?rI5i0Ysoru1Nx05+3ViBEz+iV4D9+D3G6RUmF0hGIIRyM23axmpEx9zUqM0b?=
+ =?us-ascii?q?V8g/NGDtFT+fxJXRkgNZLGzOx1FcryWgTfcdeNUlqmRc+mAT5iBu42lucHfk?=
+ =?us-ascii?q?I1PtKllB2LizKjHrs9j7WWANkx9aXG0j76IMMrjz7d2a0giUQ2atVAOHfgha?=
+ =?us-ascii?q?Nl8QXXQYnTnBa3jaGvIJ8A0TbN+WHL9m+HuEVVQUYkSqnedWwObUvR69Li7w?=
+ =?us-ascii?q?XNSKH4WudvCRdI1cPXcvgCUdbul1gTAa65adk=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BJAACJn+9d/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
+ =?us-ascii?q?QICAQEBAYF+gXSBbSASKoQDiQOGZgEBAQEBAQaBN4lpkUYJAQEBAQEBAQEBN?=
+ =?us-ascii?q?wEBhEACgic4EwIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGCeQEBAQECASMEEUEQC?=
+ =?us-ascii?q?xgCAiYCAlcGAQwGAgEBgl8/glMFIKwtdX8zhU+DP4FIgQ4ojDJ5gQeBEScPg?=
+ =?us-ascii?q?l0+h1mCXgSNNolGRpcigjmCO5MvBhuaOC2OHZxCIoFYKwgCGAghDzuCbFARF?=
+ =?us-ascii?q?IxyFxWOLCMDMI8rAQE?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 10 Dec 2019 13:44:33 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBADiHkZ235780;
+        Tue, 10 Dec 2019 08:44:17 -0500
+Subject: Re: [RFC PATCH] selinux: ensure we cleanup the internal AVC counters
+ on error in avc_insert()
+To:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+Cc:     rsiddoji@codeaurora.org, linux-security-module@vger.kernel.org
+References: <157594281322.676903.11041338053333686450.stgit@chester>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <f7e43b67-3f46-e480-f8b0-e86eff85293f@tycho.nsa.gov>
+Date:   Tue, 10 Dec 2019 08:44:52 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-References: <20191209075756.123157-1-omosnace@redhat.com> <23671223-f841-564c-6ae8-0401bce0fa20@tycho.nsa.gov>
- <ecfd3846-b38f-4b85-4568-d64625c490ac@tycho.nsa.gov> <2fadcd3d-96d2-82bf-f221-a7961853be50@schaufler-ca.com>
-In-Reply-To: <2fadcd3d-96d2-82bf-f221-a7961853be50@schaufler-ca.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 10 Dec 2019 12:27:34 +0100
-Message-ID: <CAFqZXNsZTRveUYBdsXC2iM2MU+nWPz0xL9eLRFwFYMnti-Ww-g@mail.gmail.com>
-Subject: Re: [PATCH] selinux: reorder hooks to make runtime disable less broken
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        LSM <linux-security-module@vger.kernel.org>
-X-MC-Unique: 5zXCzlagPnqIAwx-6njYDA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <157594281322.676903.11041338053333686450.stgit@chester>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Dec 9, 2019 at 6:20 PM Casey Schaufler <casey@schaufler-ca.com> wro=
-te:
-> On 12/9/2019 5:58 AM, Stephen Smalley wrote:
-> > On 12/9/19 8:21 AM, Stephen Smalley wrote:
-> >> On 12/9/19 2:57 AM, Ondrej Mosnacek wrote:
-> >>> Commit b1d9e6b0646d ("LSM: Switch to lists of hooks") switched the LS=
-M
-> >>> infrastructure to use per-hook lists, which meant that removing the
-> >>> hooks for a given module was no longer atomic. Even though the commit
-> >>> clearly documents that modules implementing runtime revmoval of hooks
-> >>> (only SELinux attempts this madness) need to take special precautions=
- to
-> >>> avoid race conditions, SELinux has never addressed this.
-> >>>
-> >>> By inserting an artificial delay between the loop iterations of
-> >>> security_delete_hooks() (I used 100 ms), booting to a state where
-> >>> SELinux is enabled, but policy is not yet loaded, and running these
-> >>> commands:
-> >>>
-> >>>      while true; do ping -c 1 <some IP>; done &
-> >>>      echo -n 1 >/sys/fs/selinux/disable
-> >>>      kill %1
-> >>>      wait
-> >>>
-> >>> ...I was able to trigger NULL pointer dereferences in various places.=
- I
-> >>> also have a report of someone getting panics on a stock RHEL-8 kernel
-> >>> after setting SELINUX=3Ddisabled in /etc/selinux/config and rebooting
-> >>> (without adding "selinux=3D0" to kernel command-line).
-> >>>
-> >>> Reordering the SELinux hooks such that those that allocate structures
-> >>> are removed last seems to prevent these panics. It is very much possi=
-ble
-> >>> that this doesn't make the runtime disable completely race-free, but =
-at
-> >>> least it makes the operation much less fragile.
-> >>>
-> >>> An alternative (and safer) solution would be to add NULL checks to ea=
-ch
-> >>> hook, but doing this just to support the runtime disable hack doesn't
-> >>> seem to be worth the effort...
-> >>
-> >> Personally, I would prefer to just get rid of runtime disable altogeth=
-er; it also precludes making the hooks read-only after initialization.  IMH=
-O, selinux=3D0 is the proper way to disable SELinux if necessary.  I believ=
-e there is an open bugzilla on Fedora related to this issue, since runtime =
-disable was originally introduced for Fedora.
-> >
-> > Also, if we have to retain this support, it seems like this ought to be=
- fixed in the LSM framework especially since it was a change there that bro=
-ke the SELinux implementation.
->
-> Agreed, mostly. Deleting an LSM is fundamentally something the infrastruc=
-ture
-> should handle *if* we allow it. Should we decide at some point to allow l=
-oadable
-> modules, as Tetsuo has advocated from time to time, we would need a gener=
-al
-> solution. We don't have a general solution now because only SELinux wants=
- it.
-> The previous implementation was under #ifdef for SELinux. At the time I u=
-nderstood
-> that there was no interest in investing in it. The implementation passed =
-tests
-> at the time.
->
-> I propose that until such time as someone decides to seriously investigat=
-e
-> loadable security modules* the sole user of the deletion mechanism is
-> welcome to invest whatever they like in their special case, and I will be
-> happy to lend whatever assistance I can.
+On 12/9/19 8:53 PM, Paul Moore wrote:
+> In AVC insert we don't call avc_node_kill() when avc_xperms_populate()
+> fails, resulting in the avc->avc_cache.active_nodes counter having a
+> false value.
 
-On my way to lunch I came up with another relatively simple solution
-that should address this problem at the infrastructure level. Let me
-try to write it up into a patch, hopefully it will work...
+incorrect value?
 
->
+   This patch corrects this problem and does some cleanup
+> in avc_insert() while we are there.
+
+submitting-patches.rst recommends describing in imperative mood and 
+avoiding the words "patch" in what will eventually just be a commit log, 
+ala "Correct this problem and perform some cleanup..."
+
+Should probably add a:
+
+Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
+
+Might be easier to back port if you split the cleanup from the fix, but 
+your call of course.
+
+> 
+> Reported-by: rsiddoji@codeaurora.org
+> Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
 > ---
-> * I do not plan to propose an implementation of loadable modules.
->   I leave that as an exercise for the next generation.
->
->
-
---=20
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+>   security/selinux/avc.c |   51 +++++++++++++++++++++++-------------------------
+>   1 file changed, 24 insertions(+), 27 deletions(-)
+> 
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 23dc888ae305..6646300f7ccb 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -617,40 +617,37 @@ static struct avc_node *avc_insert(struct selinux_avc *avc,
+>   	struct avc_node *pos, *node = NULL;
+>   	int hvalue;
+>   	unsigned long flag;
+> +	spinlock_t *lock;
+> +	struct hlist_head *head;
+>   
+>   	if (avc_latest_notif_update(avc, avd->seqno, 1))
+> -		goto out;
+> +		return NULL;
+>   
+>   	node = avc_alloc_node(avc);
+> -	if (node) {
+> -		struct hlist_head *head;
+> -		spinlock_t *lock;
+> -		int rc = 0;
+> -
+> -		hvalue = avc_hash(ssid, tsid, tclass);
+> -		avc_node_populate(node, ssid, tsid, tclass, avd);
+> -		rc = avc_xperms_populate(node, xp_node);
+> -		if (rc) {
+> -			kmem_cache_free(avc_node_cachep, node);
+> -			return NULL;
+> -		}
+> -		head = &avc->avc_cache.slots[hvalue];
+> -		lock = &avc->avc_cache.slots_lock[hvalue];
+> +	if (!node)
+> +		return NULL;
+>   
+> -		spin_lock_irqsave(lock, flag);
+> -		hlist_for_each_entry(pos, head, list) {
+> -			if (pos->ae.ssid == ssid &&
+> -			    pos->ae.tsid == tsid &&
+> -			    pos->ae.tclass == tclass) {
+> -				avc_node_replace(avc, node, pos);
+> -				goto found;
+> -			}
+> +	avc_node_populate(node, ssid, tsid, tclass, avd);
+> +	if (avc_xperms_populate(node, xp_node)) {
+> +		avc_node_kill(avc, node);
+> +		return NULL;
+> +	}
+> +
+> +	hvalue = avc_hash(ssid, tsid, tclass);
+> +	head = &avc->avc_cache.slots[hvalue];
+> +	lock = &avc->avc_cache.slots_lock[hvalue];
+> +	spin_lock_irqsave(lock, flag);
+> +	hlist_for_each_entry(pos, head, list) {
+> +		if (pos->ae.ssid == ssid &&
+> +			pos->ae.tsid == tsid &&
+> +			pos->ae.tclass == tclass) {
+> +			avc_node_replace(avc, node, pos);
+> +			goto found;
+>   		}
+> -		hlist_add_head_rcu(&node->list, head);
+> -found:
+> -		spin_unlock_irqrestore(lock, flag);
+>   	}
+> -out:
+> +	hlist_add_head_rcu(&node->list, head);
+> +found:
+> +	spin_unlock_irqrestore(lock, flag);
+>   	return node;
+>   }
+>   
+> 
 
