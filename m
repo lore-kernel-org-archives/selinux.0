@@ -2,144 +2,98 @@ Return-Path: <SRS0=W72o=2B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D2E9C43603
-	for <selinux@archiver.kernel.org>; Wed, 11 Dec 2019 11:12:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94A16C43603
+	for <selinux@archiver.kernel.org>; Wed, 11 Dec 2019 13:32:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F25BE208C3
-	for <selinux@archiver.kernel.org>; Wed, 11 Dec 2019 11:12:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 663DC214AF
+	for <selinux@archiver.kernel.org>; Wed, 11 Dec 2019 13:32:09 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PDNfxiSH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727493AbfLKLMl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Dec 2019 06:12:41 -0500
-Received: from mga09.intel.com ([134.134.136.24]:22038 "EHLO mga09.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727469AbfLKLMl (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 11 Dec 2019 06:12:41 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Dec 2019 02:52:20 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,301,1571727600"; 
-   d="scan'208";a="215736932"
-Received: from linux.intel.com ([10.54.29.200])
-  by orsmga006.jf.intel.com with ESMTP; 11 Dec 2019 02:52:20 -0800
-Received: from [10.125.252.248] (abudanko-mobl.ccr.corp.intel.com [10.125.252.248])
-        by linux.intel.com (Postfix) with ESMTP id 143BF580297;
-        Wed, 11 Dec 2019 02:52:16 -0800 (PST)
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-Subject: Re: [PATCH v1 0/3] Introduce CAP_SYS_PERFMON capability for secure
- Perf users groups
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>
-Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        elena.reshetova@intel.com,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jann Horn <jannh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Stephane Eranian <eranian@google.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <283f09a5-33bd-eac3-bdfd-83d775045bf9@linux.intel.com>
- <1e836f34-eda3-542d-f7ce-9a3e87ac5e2e@schaufler-ca.com>
- <d0c6f000-4757-02d8-b114-a35cbb9566ed@linux.intel.com>
- <a81248c5-971a-9d3f-6df4-e6335384fe7f@schaufler-ca.com>
-Organization: Intel Corp.
-Message-ID: <ab206ef5-466e-7bce-3e5f-53da110bddb2@linux.intel.com>
-Date:   Wed, 11 Dec 2019 13:52:15 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
+        id S1729238AbfLKNcJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Dec 2019 08:32:09 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:56116 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727477AbfLKNcI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Dec 2019 08:32:08 -0500
+Received: by mail-wm1-f65.google.com with SMTP id q9so7086328wmj.5
+        for <selinux@vger.kernel.org>; Wed, 11 Dec 2019 05:32:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=C4uUoHNh392R4pRRzAf3E2+qkrnPf0LjzBy28PzVz+c=;
+        b=PDNfxiSHkUsb/hU8BbW9X9uiExFT8Q3AD55rwJgj/tMxyEqcwNHZKBScmPHuf4pn5x
+         ZtI5SOBq5UFNH5/8Nxba1XJZ5m/QE1ZCpsko02M3600S+flx+bPXAet5cMyk/cGoQhSE
+         Dmq7MPhterEaz9iiRl69bMZ3yKOTwck9s3LJOgSG/Ht/TI7RQbacqhGSGy5YkIOZyyRS
+         5TPZoj8Ha4hxweT5MD6ClYUPYzt34aCkUooQVJK2wizWhNES+SZ9QZDvZjLwmZCYzURn
+         pV8pKqIfvMNpNYCFJlD8fjLxq/v8uzQDqadLlPtgnFHyuB9v5J5Lq5i1+D9+QkxUTZjS
+         0PVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=C4uUoHNh392R4pRRzAf3E2+qkrnPf0LjzBy28PzVz+c=;
+        b=I5CWrsFe+TcYEi7GAl11oYwOiI60yJxbJ/1x504aP8AdUce5Pni1cW4VozluZuG/2P
+         glFr8ARQQhMJkGnBhd30QoqfQ0cA1Rop0Yc6iIN3T5VyZX9SE5Q4qajxlU68Hcl5Dp/r
+         Qrn0u29Cv08pPN2LyqDUAUduQI4loRdZD/7HEBvOPzkQhnMVIGOUP7cIm3iGDIh6NkKo
+         zyIWwcpxaMXT9iwzkLOUT75S+po9RpZdDTt2Bo7paOFogPaquLkrycK+fiDwyjFr1c1i
+         cxaEiNdzaGFYcluoWokJH6VkvVj/7K7sJnmF9RKxytCNeK7j48zH8FlAVmG5SpKORs8l
+         a8Dg==
+X-Gm-Message-State: APjAAAUWdGJ6nD2iet/WY8uPhhwhEryEF87j09YST6J8DXVg/sjFnaAu
+        lp+IqjL6AyT/UpaqzQQ7gQ7P8cxg
+X-Google-Smtp-Source: APXvYqwz/Wb+uKMrOptz9+q3xKgxfxPo8p9kdHt/Gu3eU6GcpZ1ge6phibKVqmLZ35D/KK2sUlyMrw==
+X-Received: by 2002:a1c:1bc3:: with SMTP id b186mr3707525wmb.79.1576071126389;
+        Wed, 11 Dec 2019 05:32:06 -0800 (PST)
+Received: from brutus.lan (brutus.defensec.nl. [2001:985:d55d::438])
+        by smtp.gmail.com with ESMTPSA id q3sm2234609wmj.38.2019.12.11.05.32.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Dec 2019 05:32:05 -0800 (PST)
+From:   Dominick Grift <dac.override@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dac.override@gmail.com>
+Subject: [PATCH] mcstrans: start early and stop late
+Date:   Wed, 11 Dec 2019 14:32:01 +0100
+Message-Id: <20191211133201.2353261-1-dac.override@gmail.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-In-Reply-To: <a81248c5-971a-9d3f-6df4-e6335384fe7f@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+It stopped too early, exposing a bug in sudo selinux_restore_tty():
 
-On 05.12.2019 20:33, Casey Schaufler wrote:
-> On 12/5/2019 9:05 AM, Alexey Budankov wrote:
->> Hello Casey,
->>  
->> On 05.12.2019 19:49, Casey Schaufler wrote:
->>> On 12/5/2019 8:15 AM, Alexey Budankov wrote:
->>>> Currently access to perf_events functionality [1] beyond the scope permitted
->>>> by perf_event_paranoid [1] kernel setting is allowed to a privileged process
->>>> [2] with CAP_SYS_ADMIN capability enabled in the process effective set [3].
->>>>
->>>> This patch set introduces CAP_SYS_PERFMON capability devoted to secure performance
->>>> monitoring activity so that CAP_SYS_PERFMON would assist CAP_SYS_ADMIN in its
->>>> governing role for perf_events based performance monitoring of a system.
->>>>
->>>> CAP_SYS_PERFMON aims to harden system security and integrity when monitoring
->>>> performance using perf_events subsystem by processes and Perf privileged users
->>>> [2], thus decreasing attack surface that is available to CAP_SYS_ADMIN
->>>> privileged processes [3].
->>> Are there use cases where you would need CAP_SYS_PERFMON where you
->>> would not also need CAP_SYS_ADMIN? If you separate a new capability
->> Actually, there are. Perf tool that has record, stat and top modes could run with
->> CAP_SYS_PERFMON capability as mentioned below and provide system wide performance
->> data. Currently for that to work the tool needs to be granted with CAP_SYS_ADMIN.
-> 
-> The question isn't whether the tool could use the capability, it's whether
-> the tool would also need CAP_SYS_ADMIN to be useful. Are there existing
-> tools that could stop using CAP_SYS_ADMIN in favor of CAP_SYS_PERFMON?
-> My bet is that any tool that does performance monitoring is going to need
-> CAP_SYS_ADMIN for other reasons.
-> 
->>
->>> from CAP_SYS_ADMIN but always have to use CAP_SYS_ADMIN in conjunction
->>> with the new capability it is all rather pointless.
->>>
->>> The scope you've defined for this CAP_SYS_PERFMON is very small.
->>> Is there a larger set of privilege checks that might be applicable
->>> for it?
->> CAP_SYS_PERFMON could be applied broadly, though, this patch set enables record
->> and stat mode use cases for system wide performance monitoring in kernel and
->> user modes.
-> 
-> The granularity of capabilities is something we have to watch
-> very carefully. Sure, CAP_SYS_ADMIN covers a lot of things, but
-> if we broke it up "properly" we'd have hundreds of capabilities.
+SELINUX_ERR op=setxattr invalid_context="wheel.id:wheel.role:users.terminals.pty.pty_file:SystemLow"
+avc:  denied  { mac_admin } for  pid=859 comm="sudo" capability=33 scontext=wheel.id:wheel.role:sudo.wheel.subj:s0 tcontext=wheel.id:wheel.role:sudo.wheel.subj:s0 tclass=capability2 permissive=0
 
-Fully agree and this broader discussion is really helpful to come up with
-properly balanced solution.
+If we want to be able to reference human readable contexts in SELinuxContext= and nspawn -Z and -L then we need mcstrans ASAP
 
-> If you want control that finely we have SELinux.
+Signed-off-by: Dominick Grift <dac.override@gmail.com>
+---
+ mcstrans/src/mcstrans.service | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Undoubtedly, SELinux is the powerful, mature, whole level of functionality that
-could provide benefits not only for perf_events subsystem. However perf_events
-is built around capabilities to provide access control to its functionality,
-thus perf_events would require considerable rework prior it could be controlled
-thru SELinux. Then the adoption could also require changes to the installed
-infrastructure just for the sake of adopting alternative access control mechanism.
+diff --git a/mcstrans/src/mcstrans.service b/mcstrans/src/mcstrans.service
+index 09529432..08a41585 100644
+--- a/mcstrans/src/mcstrans.service
++++ b/mcstrans/src/mcstrans.service
+@@ -2,6 +2,8 @@
+ Description=Translates SELinux MCS/MLS labels to human readable form
+ Documentation=man:mcstransd(8)
+ ConditionSecurity=selinux
++DefaultDependencies=no
++Before=sysinit.target
+ 
+ [Service]
+ ExecStart=/sbin/mcstransd -f
+-- 
+2.24.0
 
-On the other hand there are currently already existing users and use cases that
-are built around the CAP_SYS_ADMIN based access control, and Perf tool, which is
-the native Linux kernel observability and performance profiling tool, provides
-means to operate in restricted multiuser environments(HPC clusters, cloud and 
-virtual environments) for groups of unprivileged users under admins control [1].
-
-In this circumstances CAP_SYS_PERFMON looks like smart balanced advancement that
-trade-offs between perf_events subsystem extensions, required level of control
-and configurability of perf_events, existing users adoption effort, and it brings
-security hardening benefits of decreasing attack surface for the existing users
-and use cases.
-
-Well, yes, it is really good that Linux nowadays provides a handful of various
-security assuring mechanisms but proper balance is what usually makes valuable
-features happen and its users happy and moves forward. 
-
-Gratefully,
-Alexey
-
-[1] https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
