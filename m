@@ -2,202 +2,92 @@ Return-Path: <SRS0=W72o=2B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-2.0 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69432C00454
-	for <selinux@archiver.kernel.org>; Wed, 11 Dec 2019 15:36:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BACE3C00454
+	for <selinux@archiver.kernel.org>; Wed, 11 Dec 2019 15:49:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 337F92077B
-	for <selinux@archiver.kernel.org>; Wed, 11 Dec 2019 15:36:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 90A102077B
+	for <selinux@archiver.kernel.org>; Wed, 11 Dec 2019 15:49:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=codeaurora.org header.i=@codeaurora.org header.b="cjCFTBJq";
-	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="A8sbbGm8"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="JQ+T1bbR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388234AbfLKPfu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Dec 2019 10:35:50 -0500
-Received: from a27-11.smtp-out.us-west-2.amazonses.com ([54.240.27.11]:47462
-        "EHLO a27-11.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388226AbfLKPft (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Dec 2019 10:35:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=zsmsymrwgfyinv5wlfyidntwsjeeldzt; d=codeaurora.org; t=1576078548;
-        h=From:To:Cc:References:In-Reply-To:Subject:Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding;
-        bh=rV4v6Lop81IZGMoLzmce/cfcYM6iRPo3L6TYBiuEy9w=;
-        b=cjCFTBJq2W2zZ/iCSgwrL2wj9UagN1B8viXETDYP0/YkTlyxf9B2ptphnT82l6Oi
-        ZDblmlb2adL5E9T3Lh1dzUKufPcb69s2SV5z7ZxNrSWGQtdfDdYKiG6aN6unyM2qHap
-        /A4F181B/9vmZ+qYAYvWKxe8exiiY9gUrT4Frgbk=
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1576078548;
-        h=From:To:Cc:References:In-Reply-To:Subject:Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Feedback-ID;
-        bh=rV4v6Lop81IZGMoLzmce/cfcYM6iRPo3L6TYBiuEy9w=;
-        b=A8sbbGm8qNRU6ReeXp9239GJr6TbUrB7yThWCe11Ntn6elVUc82CqpWBdeNMubgD
-        TL3sr0RQMVisF/ovgm8d+ilKqmwBtsRyfOfJalQwBYHKNEs6mhLckL9DK26lAoc1NIQ
-        ZIv2TjWgME4FqZ7fby4bgHITvRf9xifPXyBIF1C4=
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 47D55C8F137
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=rsiddoji@codeaurora.org
-From:   <rsiddoji@codeaurora.org>
-To:     "'Stephen Smalley'" <sds@tycho.nsa.gov>, <selinux@vger.kernel.org>
-Cc:     <paul@paul-moore.com>, <linux-security-module@vger.kernel.org>
-References: <0101016eeb5fdf43-18f58c0b-8670-43eb-ad08-60dae381f0fd-000000@us-west-2.amazonses.com> <4335f89f-d2cb-7f45-d370-6ee0699d3c20@tycho.nsa.gov> <0101016eebed2b2e-db98eae1-b92b-450b-934e-c8e92c5370b3-000000@us-west-2.amazonses.com> <7b047966-33c0-de62-b10f-047819890337@tycho.nsa.gov> <d6081414-613f-fdb8-8dcd-9ebf6a3baa27@tycho.nsa.gov>
-In-Reply-To: <d6081414-613f-fdb8-8dcd-9ebf6a3baa27@tycho.nsa.gov>
-Subject: RE: Looks like issue in handling active_nodes count in 4.19 kernel .
-Date:   Wed, 11 Dec 2019 15:35:48 +0000
-Message-ID: <0101016ef59a1e09-acb95851-4399-47c5-847b-a93cab7a8e89-000000@us-west-2.amazonses.com>
+        id S1732879AbfLKPYo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Dec 2019 10:24:44 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:46658 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1732714AbfLKPYn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Dec 2019 10:24:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=lCtKLzzdaOAiKN6oGE3yx6uTT5U+M8wV3nEecLRcZL4=; b=JQ+T1bbRmiOoN11jYVC7+m0HU
+        JoyGLNA3Nzw1yp7vwy93I53nt5PqCLktzdgmHlodPSYRBP/HJ6z3hZMf9gWmZokOE8ltuaquR05Cz
+        mh7n3UdMKbcvok3uc+IYpnOsTzdHT+oK0Cd1IOXLrtnznq3i72h+XDgKNNEtH3YCHpyOVOGEeDSVU
+        ZdY9dzNbIkF61y5/Kk4IXcyJ3HLTVcH7P5y9SsVsWaaXMuCAN+eOPKnrHFlq5Io0xxz/FCzLFaC6z
+        Gmo6Eog8Rbc/geQNHiYrLw84TJkBbw71cV1QH/c9t6gRmbvzTmGk3mSeDv4a2Nq9zefrComnPIvZJ
+        LGByA1Pdw==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1if3qw-0001sp-5J; Wed, 11 Dec 2019 15:24:38 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 56095306060;
+        Wed, 11 Dec 2019 16:23:15 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 3BF3220137C8F; Wed, 11 Dec 2019 16:24:35 +0100 (CET)
+Date:   Wed, 11 Dec 2019 16:24:35 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
+        Andi Kleen <ak@linux.intel.com>, elena.reshetova@intel.com,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Stephane Eranian <eranian@google.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v1 0/3] Introduce CAP_SYS_PERFMON capability for secure
+ Perf users groups
+Message-ID: <20191211152435.GN2827@hirez.programming.kicks-ass.net>
+References: <283f09a5-33bd-eac3-bdfd-83d775045bf9@linux.intel.com>
+ <1e836f34-eda3-542d-f7ce-9a3e87ac5e2e@schaufler-ca.com>
+ <d0c6f000-4757-02d8-b114-a35cbb9566ed@linux.intel.com>
+ <a81248c5-971a-9d3f-6df4-e6335384fe7f@schaufler-ca.com>
+ <ab206ef5-466e-7bce-3e5f-53da110bddb2@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQHnox6jYXzQWBJanA4xvaBIwH53oQHEBp5eAW+3n+oCcppYQQLX+pcHp00yuFA=
-Content-Language: en-us
-X-SES-Outgoing: 2019.12.11-54.240.27.11
-Feedback-ID: 1.us-west-2.CZuq2qbDmUIuT3qdvXlRHZZCpfZqZ4GtG9v3VKgRyF0=:AmazonSES
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ab206ef5-466e-7bce-3e5f-53da110bddb2@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Thanks for tacking the patch fwd . On the  question :
+On Wed, Dec 11, 2019 at 01:52:15PM +0300, Alexey Budankov wrote:
+> Undoubtedly, SELinux is the powerful, mature, whole level of functionality that
+> could provide benefits not only for perf_events subsystem. However perf_events
+> is built around capabilities to provide access control to its functionality,
+> thus perf_events would require considerable rework prior it could be controlled
+> thru SELinux. 
 
-Actually issue started when we were seeing most of the  time =
-"avc_reclaim_node" in the stack .=20
-Which on debugging further  avc_cache.active_nodes was already in 7K+ =
-nodes  and  as the logic  is=20
+You mean this:
 
-As below .=20
-	if (atomic_inc_return(&avc->avc_cache.active_nodes) >   =
-avc->avc_cache_threshold)
-           			avc_reclaim_node(avc);
+  da97e18458fb ("perf_event: Add support for LSM and SELinux checks")
 
-So if the  active_nodes count is  > 512  (if not configured) we will be =
-always be calling   avc_reclaim_node() and eventually  for each  node =
-insert we will be calling avc_reclaim_node  and might  be expansive then =
-using=20
-cache  and advantage of cache might be null and void due to this =
-overhead?
+?
 
-Thanks ,=20
-Ravi
+> Then the adoption could also require changes to the installed
+> infrastructure just for the sake of adopting alternative access control mechanism.
 
------Original Message-----
-From: selinux-owner@vger.kernel.org <selinux-owner@vger.kernel.org> On =
-Behalf Of Stephen Smalley
-Sent: Wednesday, December 11, 2019 8:18 PM
-To: rsiddoji@codeaurora.org; selinux@vger.kernel.org
-Cc: paul@paul-moore.com; linux-security-module@vger.kernel.org
-Subject: Re: Looks like issue in handling active_nodes count in 4.19 =
-kernel .
-
-On 12/11/19 9:37 AM, Stephen Smalley wrote:
-> On 12/9/19 1:30 PM, rsiddoji@codeaurora.org wrote:
->> Thanks for quick response , yes it will be helpful if you can raise=20
->> the change .
->> On the second issue  in  avc_alloc_node we are trying to check the=20
->> slot status  as    active_nodes  > 512 ( default ) Where  checking=20
->> the occupancy  should be corrected as     active_nodes
->> > 80% of slots occupied  or 16*512 or
->> May be we need to use a different logic .
->=20
-> Are you seeing an actual problem with this in practice, and if so,=20
-> what exactly is it that you are seeing and do you have a reproducer?
-
-BTW, on Linux distributions, there is an avcstat(8) utility that can be =
-used to monitor the AVC statistics, or you can directly read the stats =
-from the kernel via /sys/fs/selinux/avc/cache_stats
-
->=20
->>
->>> /*@ static struct avc_node *avc_alloc_node(struct selinux_avc *avc)=20
->>> */
->>>
->>>        if (atomic_inc_return(&avc->avc_cache.active_nodes) >
->>>            avc->avc_cache_threshold)      //  default  threshold is=20
->>> 512
->>>            avc_reclaim_node(avc);
->>>
->>
->> Regards,
->> Ravi
->>
->> -----Original Message-----
->> From: selinux-owner@vger.kernel.org <selinux-owner@vger.kernel.org>=20
->> On Behalf Of Stephen Smalley
->> Sent: Monday, December 9, 2019 11:35 PM
->> To: rsiddoji@codeaurora.org; selinux@vger.kernel.org
->> Cc: paul@paul-moore.com; linux-security-module@vger.kernel.org
->> Subject: Re: Looks like issue in handling active_nodes count in 4.19=20
->> kernel .
->>
->> On 12/9/19 10:55 AM, rsiddoji@codeaurora.org wrote:
->>> Hi team ,
->>> Looks like we have  issue in handling the  "active_nodes" count in=20
->>> the Selinux - avc.c file.
->>> Where  avc_cache.active_nodes increase more than slot array   and=20
->>> code frequency calling of avc_reclaim_node()  from  avc_alloc_node() =
-
->>> ;
->>>
->>> Where following are the 2 instance which seem to  possible culprits=20
->>> which are seen on 4.19 kernel . Can you  comment if my understand is =
-
->>> wrong.
->>>
->>>
->>> #1. if we see the  active_nodes count is incremented in=20
->>> avc_alloc_node
->>> (avc) which is called in avc_insert() Where if the code take =20
->>> failure path on  avc_xperms_populate  the code will not decrement=20
->>> this counter .
->>>
->>>
->>> static struct avc_node *avc_insert(struct selinux_avc *avc,
->>>                    u32 ssid, u32 tsid, u16 tclass,
->>>                       struct av_decision *avd, ....
->>>     node =3D avc_alloc_node(avc);  //incremented here ....
->>>                 rc =3D avc_xperms_populate(node, xp_node);  //=20
->>> possibilities of this getting failure is there .
->>>         if (rc) {
->>>             kmem_cache_free(avc_node_cachep, node);  // but on=20
->>> failure we are not decrementing active_nodes ?
->>>             return NULL;
->>>            }
->>
->> I think you are correct; we should perhaps be calling avc_node_kill() =
-
->> here as we do in an earlier error path?
->>
->>>
->>> #2.  where it looks like the logic on comparing the  active_nodes=20
->>> against avc_cache_threshold seems  wired  as the count of active=20
->>> nodes is always going to be
->>>    more than 512 will may land in simply  removing /calling=20
->>> avc_reclaim_node frequently much before the slots are full maybe we=20
->>> are not using cache at best ?
->>>    we should be comparing with some high watermark ? or my=20
->>> understanding wrong ?
->>> /*@ static struct avc_node *avc_alloc_node(struct selinux_avc *avc)=20
->>> */
->>>
->>>        if (atomic_inc_return(&avc->avc_cache.active_nodes) >
->>>            avc->avc_cache_threshold)      //  default  threshold is=20
->>> 512
->>>            avc_reclaim_node(avc);
->>>
->>
->> Not entirely sure what you are asking here.  avc_reclaim_node()=20
->> should reclaim multiple nodes up to AVC_CACHE_RECLAIM.  Possibly that =
-
->> should be configurable via selinuxfs too, and/or calculated from=20
->> avc_cache_threshold in some way?
->>
->> Were you interested in creating a patch to fix the first issue above=20
->> or looking to us to do so?
->>
->>
->>
->=20
-
-
+This is still very much true.
