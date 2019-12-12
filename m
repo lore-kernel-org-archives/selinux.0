@@ -2,214 +2,193 @@ Return-Path: <SRS0=73iw=2C=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41026C43603
-	for <selinux@archiver.kernel.org>; Thu, 12 Dec 2019 15:00:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA52AC43603
+	for <selinux@archiver.kernel.org>; Thu, 12 Dec 2019 16:03:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0978F2054F
-	for <selinux@archiver.kernel.org>; Thu, 12 Dec 2019 15:00:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B596D22527
+	for <selinux@archiver.kernel.org>; Thu, 12 Dec 2019 16:03:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JBDxHotW"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gFPNHe49"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728611AbfLLPAD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Dec 2019 10:00:03 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:43683 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728605AbfLLPAD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Dec 2019 10:00:03 -0500
-Received: by mail-wr1-f65.google.com with SMTP id d16so3045042wre.10
-        for <selinux@vger.kernel.org>; Thu, 12 Dec 2019 07:00:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=tLm1jUL+F+w/wXeKYWsX6w7Za2kk/tC+MWSXuMwCoJU=;
-        b=JBDxHotWb0tiuAC4gXl39Rtws5e2rF+kAff0UWC8dTDI++rjKpXWZX1ojz6Db5azTM
-         wkSSw/9IFNMIvlCvVbRQrcygZN3OebBaDJxJVzR+vGGi5hNrmxlmdz/kugYnd4BnScCr
-         T31SmGJ/GJM3p4MEypB2DjKNk66/3JltJ9KiVM5Qq1JNDbxI03Q7x/V7qH9IOzTpG1cA
-         AbxkYV2TGKuiGmihimrUYW7BVQty8V8DKhXrUGRVNqYOl5ZOb7ZZbaL/s2WN6hvatTFd
-         v5j82co94PPBzrNlYGJTLcUeEJGXVDBEgFzx9q3eTl71/DPlvmsntSj5lRsRyYBdt5G2
-         B2cA==
+        id S1729247AbfLLQDV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Dec 2019 11:03:21 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:27079 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729618AbfLLQDV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Dec 2019 11:03:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1576166599;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1MMaFBO/gL/SISGr7Vc7VFndOnccsU620OgzX8/Wmzw=;
+        b=gFPNHe492vkIy8Xa9gPfijiQVQ0/Kci+3pXZBJw3X2JrEvNX3URRLDHiBE7UZkiqe7tSfM
+        LN0vfhwG8EVBnRHRcPd0P/J02CN6xPqGqmRKGUTwQs38J4dOy+OB+fQ2L0whqwYnlsKMLb
+        rQHl8yYT6VMmCEJ3oDF0mqQaU88gl+o=
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
+ [209.85.167.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-174-I1hy9nIPPxqhHMk_P_3ywA-1; Thu, 12 Dec 2019 11:03:18 -0500
+X-MC-Unique: I1hy9nIPPxqhHMk_P_3ywA-1
+Received: by mail-oi1-f199.google.com with SMTP id v130so813455oif.18
+        for <selinux@vger.kernel.org>; Thu, 12 Dec 2019 08:03:18 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=tLm1jUL+F+w/wXeKYWsX6w7Za2kk/tC+MWSXuMwCoJU=;
-        b=BxGs7nmlTIUns4NI5jA7vChFFnBuJDPLM0GDiiTImQF8And9EqTATgEQHrXWP9poFo
-         sPjW01FDh/TILcjHDbEgKPtnKL3/SU/QNYG8KhigG0Xq8ow1hskAwHH9lrqMbFkxNdMB
-         3m02TAVD3Oj6CiXixwxpU5yUdIXKh8dXx0KgrbNxAJ1AzFigdiCIIagr58IbLMuHOonf
-         HccU7TFgeHJSktdkvXg9ybq8uns+GjW1CeaIc81c4P/d6iqUOpAkdLv093e4uXOitDz/
-         oyUIrSsseKGsqmVL7Fg4UVna6Sm9dRcYo2MZ/SYl9VC4iSBW9o/fJnVlRZaFHpNNxST6
-         3OkQ==
-X-Gm-Message-State: APjAAAVzIQFKohzLBK3Mmk/et6DSpDtmMJGmEDOcLg6EL9x/QEdOB+jv
-        5Uew/0McKtg3JoAc9iANCsnM5T5G
-X-Google-Smtp-Source: APXvYqxUwg/IofYaxTwxSdqpQkOllY4+DBDviNDrBEon6kb8Vn+UK3QnGXpZKLRdyj+1dk4MwnK0tg==
-X-Received: by 2002:a5d:620b:: with SMTP id y11mr6722473wru.230.1576162800438;
-        Thu, 12 Dec 2019 07:00:00 -0800 (PST)
-Received: from brutus.lan (brutus.defensec.nl. [2001:985:d55d::438])
-        by smtp.gmail.com with ESMTPSA id f17sm6465188wmc.8.2019.12.12.06.59.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Dec 2019 06:59:59 -0800 (PST)
-Date:   Thu, 12 Dec 2019 15:59:57 +0100
-From:   Dominick Grift <dac.override@gmail.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH v2] mcstrans: start early and stop late
-Message-ID: <20191212145957.GC2670272@brutus.lan>
-Mail-Followup-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@vger.kernel.org
-References: <20191211134423.2357254-1-dac.override@gmail.com>
- <20191211142124.GB2233813@brutus.lan>
- <d992aba5-77a3-bd47-6cae-95fc5ecf10dd@tycho.nsa.gov>
- <20191212142436.GA2670272@brutus.lan>
- <c961712f-a084-e421-a919-41d5a86ee5bc@tycho.nsa.gov>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1MMaFBO/gL/SISGr7Vc7VFndOnccsU620OgzX8/Wmzw=;
+        b=D9RFkX6Wdt8p+hP1DcOAsBnp3JBXhmKEuR1TEJ8+giXR5lRXrQKw+zn6ajmM0IICsJ
+         gt7nwecQjCipVtBXeVdmG3JGo6Hk5D/QCml7DBIIrm5vU2Qp2qnv5nZUZqmULw6U9xB5
+         fkMML4wKnde1tmpjYfDLZ5uSLYSdJA7QNahS8ghokIjiBVuuVWMhT0m+9b9PXogrZwoH
+         KRDlsvODT0T4LL5IohD7R4XWg68KpgT4faeqX0VaEIT5gCXTdbevIVaICh3qK/Ww6GEE
+         NyZqiy0HK2mEhhb5wBvYMUDD3pK9Fj1lBIh1UiS0fIf4J5TbhCzoub6RmePnRpH8wg16
+         qDhA==
+X-Gm-Message-State: APjAAAVXX6kV9c1ZJhNf0dFhnt1svdCLN96uiUvD+sxm2p9Tn1u9GDkH
+        7FILxdMb/FVTs60PKhJh4qWuEesbnxjctxbgOkkSjUPlktFE7551ECDNU/dHk3cMOptpjk/j0yB
+        C6kEaB3SHTHY1TcZmLdtVM+DFE4PqCSOZ4Q==
+X-Received: by 2002:aca:498e:: with SMTP id w136mr827446oia.103.1576166597334;
+        Thu, 12 Dec 2019 08:03:17 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxf/8HbpzahUgvj05ZxnnoEPurDochWKDityadFNIJw87ktdSLpFgVvvYkOJMNwxAYIibp2IlwX3BDEEyRYTOw=
+X-Received: by 2002:aca:498e:: with SMTP id w136mr827410oia.103.1576166596929;
+ Thu, 12 Dec 2019 08:03:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="UPT3ojh+0CqEDtpF"
-Content-Disposition: inline
-In-Reply-To: <c961712f-a084-e421-a919-41d5a86ee5bc@tycho.nsa.gov>
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+References: <20191211140833.939845-1-omosnace@redhat.com> <677be2d4-8247-3c2b-ac13-def725cffaeb@tycho.nsa.gov>
+ <201912110840.62A4E64BA@keescook> <356c555a-d4ab-84fb-0165-f7672bc1ee63@schaufler-ca.com>
+ <2fdb09e7-6668-cb1b-8a2d-1550278ae803@tycho.nsa.gov> <CAFqZXNtjELoG_5GK5c4XpH8Be3NfsKMZdZvrJKPpnTLPKKgZ9A@mail.gmail.com>
+ <1f613260-d315-6925-d069-e92b872b8610@tycho.nsa.gov>
+In-Reply-To: <1f613260-d315-6925-d069-e92b872b8610@tycho.nsa.gov>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 12 Dec 2019 17:03:05 +0100
+Message-ID: <CAFqZXNsZvTfeL_ST7FSxbgM28E3RzKrF1f4JqYUhVY7++01NMw@mail.gmail.com>
+Subject: Re: [PATCH] LSM: allow an LSM to disable all hooks at once
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        Kees Cook <keescook@chromium.org>,
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Micah Morton <mortonm@chromium.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Thu, Dec 12, 2019 at 2:14 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 12/12/19 6:49 AM, Ondrej Mosnacek wrote:
+> > On Wed, Dec 11, 2019 at 8:12 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >> On 12/11/19 1:35 PM, Casey Schaufler wrote:
+> >>> On 12/11/2019 8:42 AM, Kees Cook wrote:
+> >>>> On Wed, Dec 11, 2019 at 09:29:10AM -0500, Stephen Smalley wrote:
+> >>>>> On 12/11/19 9:08 AM, Ondrej Mosnacek wrote:
+> >>>>>> Instead of deleting the hooks from each list one-by-one (which creates
+> >>>>>> some bad race conditions), allow an LSM to provide a reference to its
+> >>>>>> "enabled" variable and check this variable before calling the hook.
+> >>>>>>
+> >>>>>> As a nice side effect, this allows marking the hooks (and other stuff)
+> >>>>>> __ro_after_init unconditionally. Since SECURITY_WRITABLE_HOOKS no longer
+> >>>>>> makes sense, remove it and instead use SECURITY_SELINUX_DISABLE directly
+> >>>>>> for turning on the runtime disable functionality, to emphasize that this
+> >>>>>> is only used by SELinux and is meant to be removed in the future.
+> >>>>> Is this fundamentally different/better than adding if (!selinux_enabled)
+> >>>>> return 0; to the beginning of every SELinux hook function?  And as I noted
+> >>>>> to Casey in the earlier thread, that provides an additional easy target to
+> >>>>> kernel exploit writers for neutering SELinux with a single kernel write
+> >>>>> vulnerability. OTOH, they already have selinux_state.enforcing and friends,
+> >>>>> and this new one would only be if SECURITY_SELINUX_DISABLE=y.
+> >>>> Yeah, I agree here -- we specifically do not want there to be a trivial
+> >>>> way to disable LSMs at runtime. CONFIG_SECURITY_SELINUX_DISABLE should
+> >>>> be considered deprecated IMO, and we don't want to widen its features.
+> >>>
+> >>> In /etc/selinux/config SELINUX=disabled is documented as "No SELinux
+> >>> policy is loaded". How about if instead of blocking policy load and
+> >>> removing the hooks it just blocked policy load? It may be appropriate
+> >>> to tweak the code a bit to perform better in the no-policy loaded
+> >>> case, but my understanding is that the system should work. That would
+> >>> address backward compatibility concerns and allow removal of
+> >>> security_delete_hooks(). I don't think this would have the same
+> >>> exposure of resetting selinux_enabled.
+> >>
+> >> I think that comment stems from before runtime disable was first
+> >> implemented in the kernel, when the only option was to leave SELinux
+> >> enabled with no policy loaded.  Fedora didn't consider that (or
+> >> selinux=0) to be acceptable alternatives, which is why we have runtime
+> >> disable today.
+> >
+> > Do you happen to remember the reasons why it wasn't acceptable? We are
+> > ready to start pushing for disabling SECURITY_SELINUX_DISABLE in
+> > Fedora, but we're not sure why it is so crucial. Knowing what we need
+> > to address before disabling/removing it would help a lot.
+>
+> IIRC, they considered the selinux=0 kernel boot parameter to be
+> inadequate because of the difficulty in changing kernel boot parameters
+> on certain platforms (IBM?).  The no-policy-loaded alternative still
+> left a lot of SELinux processing in place, so users would still end up
+> paying memory and runtime overheads for no benefit if we only skipped
+> policy load.
 
---UPT3ojh+0CqEDtpF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks, I was worried that there was also something more tricky than
+this. We could make adding-removing the kernel parameter easier on
+Fedora by creating and maintaining a tool that would be able to do it
+reliably across the supported arches. That shouldn't be too hard,
+hopefully.
 
-On Thu, Dec 12, 2019 at 09:36:19AM -0500, Stephen Smalley wrote:
-> On 12/12/19 9:24 AM, Dominick Grift wrote:
-> > On Thu, Dec 12, 2019 at 08:45:29AM -0500, Stephen Smalley wrote:
-> > > On 12/11/19 9:21 AM, Dominick Grift wrote:
-> > > > On Wed, Dec 11, 2019 at 02:44:23PM +0100, Dominick Grift wrote:
-> > > > > It stopped too early, exposing a bug in sudo selinux_restore_tty(=
-):
-> > > > >=20
-> > > > > SELINUX_ERR op=3Dsetxattr invalid_context=3D"wheel.id:wheel.role:=
-users.terminals.pty.pty_file:SystemLow"
-> > > > > avc:  denied  { mac_admin } for  pid=3D859 comm=3D"sudo" capabili=
-ty=3D33 scontext=3Dwheel.id:wheel.role:sudo.wheel.subj:s0 tcontext=3Dwheel.=
-id:wheel.role:sudo.wheel.subj:s0 tclass=3Dcapability2 permissive=3D0
-> > > > >=20
-> > > > > If we want to be able to reference human readable contexts in SEL=
-inuxContext=3D and nspawn -Z and -L then we need mcstrans ASAP
-> > > >=20
-> > > > Unfortunately it does not quite seem to address this challenge, at =
-least currently, but still
-> > > > I think systemd would need to refresh its label cache when mcstrans=
- is started, as per systemd v245 that should be a little less painful than =
-it is today
-> > > > Something like a: ExecStartPost=3D/bin/systemctl daemon-reload woul=
-d do that then
-> > >=20
-> > > I'm a little unclear on where the bug lies - you show a sudo denial, =
-but
-> > > refer to systemd as the culprit?
-> >=20
-> > The sudo bug is fixed here: https://github.com/sudo-project/sudo/commit=
-/718e6997fcaae6ea065ce74d08dd4aae5917df5e
-> >=20
-> > >=20
-> > > If we don't care about being able to use translated contexts in syste=
-md unit
-> > > files or options, it could always use the _raw interfaces to ensure t=
-hat it
-> > > is always dealing with the raw kernel contexts.  The translated conte=
-xts are
-> > > mostly for display purposes for MLS labels/policies.
-> >=20
-> > The thing with systemd is that since systemd runs before mcstrans is st=
-arted it doesnt use mcstrans.
-> > So if you try to reference translated contexts using systemd then it wi=
-ll refuse.
-> > Running a systemctl daemon-reexec after mcstrans is started fixes that =
-issue but that is not really an option.
-> >=20
-> > I am wondering what causes this behavior, i suppose this is some libsel=
-inux thing.
->=20
-> Yes, libselinux checks for the existence of the mcstrans socket exactly o=
-nce
-> on the first attempted translation, and if it does not exist at that time,
-> it never tries again.  That is to avoid overhead on systems that are not
-> running mcstrans, which is the majority of systems. mcstrans is only real=
-ly
-> needed for MLS policies and those are a minority of SELinux systems.
->=20
-> > Regardless of all the above though, i think it makes sense for mcstrans=
- to start early and stop late.
->=20
-> Perhaps; I'll defer to the distro maintainers on that.  I don't really
-> recommend using mcstrans unless you truly need it.
+>
+> >> selinux_state.initialized reflects whether a policy has
+> >> been loaded.  With a few exceptions in certain hook functions, it is
+> >> only checked by the security server service functions
+> >> (security/selinux/ss/services.c) prior to accessing the policydb.  So
+> >> there is a lot of SELinux processing that would still occur in that
+> >> situation unless we added if (!selinux_state.initialized) return 0;
+> >> checks to all the hook functions, which would create the same exposure
+> >> and would further break the SELinux-enabled case (we need to perform
+> >> some SELinux processing pre-policy-load to allocate blobs and track what
+> >> tasks and objects require delayed security initialization when policy
+> >> load finally occurs).
+> >
+> > I think what Casey was suggesting is to add another flag that would
+> > switch from "no policy loaded, but we expect it to be loaded
+> > eventually" to "no policy loaded and we don't expect/allow it to be
+> > loaded any more", which is essentially equivalent to checking
+> > selinux_enabled in each hook, which you had already brought up.
+>
+> Yep.  if (!selinux_enabled) return 0; or if (selinux_state.disabled)
+> return 0; under #ifdef CONFIG_SECURITY_SELINUX_DISABLE in every hook
+> might be the best option until it can be removed altogether; avoids
+> impacting the LSM framework or any other security module, preserves the
+> existing functionality, fairly low overhead on the SELinux-disabled case.
 
-Me neither. There was a request for support on IRC. So i looked into it.
-I certainly think I made it clear to stay away from it if possible.
+OK, so I'll put together another patch that removes all the
+security_delete_hooks() stuff and adds the checks.
 
->=20
-> >=20
-> > >=20
-> > > >=20
-> > > > >=20
-> > > > > v2: stop late, but do stop
-> > > > > Signed-off-by: Dominick Grift <dac.override@gmail.com>
-> > > > > ---
-> > > > >    mcstrans/src/mcstrans.service | 3 +++
-> > > > >    1 file changed, 3 insertions(+)
-> > > > >=20
-> > > > > diff --git a/mcstrans/src/mcstrans.service b/mcstrans/src/mcstran=
-s.service
-> > > > > index 09529432..c13cd09a 100644
-> > > > > --- a/mcstrans/src/mcstrans.service
-> > > > > +++ b/mcstrans/src/mcstrans.service
-> > > > > @@ -2,6 +2,9 @@
-> > > > >    Description=3DTranslates SELinux MCS/MLS labels to human reada=
-ble form
-> > > > >    Documentation=3Dman:mcstransd(8)
-> > > > >    ConditionSecurity=3Dselinux
-> > > > > +DefaultDependencies=3Dno
-> > > > > +Before=3Dshutdown.target sysinit.target
-> > > > > +Conflicts=3Dshutdown.target
-> > > > >    [Service]
-> > > > >    ExecStart=3D/sbin/mcstransd -f
-> > > > > --=20
-> > > > > 2.24.0
-> > > > >=20
-> > > >=20
-> > >=20
-> >=20
->=20
+>
+> NB selinux_enabled was originally just for selinux=0 handling and thus
+> remains global (not per selinux-namespace).  selinux_state.disabled is
+> only for runtime disable via selinuxfs, which could be applied per
+> selinux-namespace if/when selinux namespaces are ever completed and
+> merged. Aside from clearing selinux_enabled in selinux_disable() and
+> logging selinux_enabled in sel_write_enforce() - which seems pointless
+> by the way, there are no other uses of selinux_enabled outside of __init
+> code AFAICS.  I think at one time selinux_enabled was exported for use
+> by other kernel code related to SECMARK or elsewhere but that was
+> eliminated/generalized for other security modules.  So it seems like we
+> could always make selinux_enabled itself ro_after_init, stop clearing it
+> in selinux_disable() since nothing will be testing it, and just use
+> selinux_state.disabled in the hooks (and possibly in the
+> sel_write_enforce audit log).
 
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
+Yes, that sounds reasonable.
 
---UPT3ojh+0CqEDtpF
-Content-Type: application/pgp-signature; name="signature.asc"
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAl3yVegACgkQJXSOVTf5
-R2lVzQv/eumNjlfLLsJj2Sg0IYlaG7XmzffeBPLys2K2MjUjyj/3m06nN40mNPqA
-cS4yNDkBrzcDZ/4N12EnQPyuLJRQ1unwdtnHt805BKVW3B/hEk8HEbkz7MzoCHPE
-UZjBTIT/KApfouFrLCkBw3y4yErAJkYbIhxKos+quBhM9hBok2GFTZrXifExchua
-4ySk2K6aOieYGed9FRI9BHTHlqpZnQuhxsDzo8xti55TXj6E+0wJZcH35ibNy3x2
-fUqgN3ypSTgBqFXyYJDJQ9rkQ8VlyUQpBBwVuR+OiTG+xc4hQarX1d3PpsSkK5WH
-IR5S3odDR05AndGxkr3DHuNBrac3P8BZW4PK5SIaXQz8rArvt6q8QN9qg5Tgmfko
-yF8haJCjJZFR459EqkYkPWxUD60KOkIOwkFdCZseuuXvEW78xVZVr/NW3TG3DrRp
-nXIFnqNEiZIQmF/y5g3B09kAntLdjXACNZ0/zybkz5j/TsxOc93f4hJq/FXlRaXO
-5V8fZcrQ
-=NDHX
------END PGP SIGNATURE-----
-
---UPT3ojh+0CqEDtpF--
