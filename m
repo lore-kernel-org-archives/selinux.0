@@ -1,169 +1,106 @@
-Return-Path: <SRS0=NFTj=2E=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=eXnu=2F=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBADFC43603
-	for <selinux@archiver.kernel.org>; Sat, 14 Dec 2019 20:30:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 398AAC43603
+	for <selinux@archiver.kernel.org>; Sun, 15 Dec 2019 00:33:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 79BAF20866
-	for <selinux@archiver.kernel.org>; Sat, 14 Dec 2019 20:30:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 04740214AF
+	for <selinux@archiver.kernel.org>; Sun, 15 Dec 2019 00:33:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="J0/cHgWl"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q6j7020v"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbfLNUaj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 14 Dec 2019 15:30:39 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:40020 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726484AbfLNUai (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 14 Dec 2019 15:30:38 -0500
-Received: by mail-wm1-f67.google.com with SMTP id t14so2369984wmi.5
-        for <selinux@vger.kernel.org>; Sat, 14 Dec 2019 12:30:37 -0800 (PST)
+        id S1726837AbfLOAdH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 14 Dec 2019 19:33:07 -0500
+Received: from mail-pf1-f178.google.com ([209.85.210.178]:34176 "EHLO
+        mail-pf1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726783AbfLOAdH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 14 Dec 2019 19:33:07 -0500
+Received: by mail-pf1-f178.google.com with SMTP id l127so1773967pfl.1
+        for <selinux@vger.kernel.org>; Sat, 14 Dec 2019 16:33:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=6UOxhi6+Z0aq+uYOx5yjJOikHBP2UaOly8Rh6ZJVM/4=;
-        b=J0/cHgWlH3frV+cw6uWr409Vw+hIoeOIl7lY2gI+rd8GDPCdsghT5b3PLu8vt7CbW0
-         jG5Ua+C/0eIy83a7PSqYLOGEfA8OB3Q/hZ3rg7N4XLownMM6iO/1C9O0fGYzpqWpJXs6
-         sNXVyy1xhxgJkRR+GAJaIzOqpTaHEJxX5/ur1vBnuZwQI7pBhRvijBHjS5YgFd+dYtE1
-         Fxa2wx5Doe4/vbwjrUVIxH2XviMTjE/TbBwFg+mZdqnn6NtfwjKBB26s6sKQkIMVaQBv
-         7zKe/I+1I4VAFoIn2DQjfcHAbWVBRgqS3X2dFFxfbNnghW/ybN9B6+jSpOsRM4KdqlWu
-         OetA==
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=WIlNEGDxNwW/8ESd9m3XOO1N744Tq8N7W6A6F/F+Eos=;
+        b=Q6j7020vzUdvcK8pxHsXR4pUyww7LgMUsmsEcBVqLWrDRAYik6AEza2vlYb/nlXgCs
+         NDyYWU5+LYWzvbJMXPARnslF1CCWUEF08t7517U25fpifNx+ygtCDm7NAi/1x/wjC6GZ
+         qsMz/zt01zjDThLN0Cy1q6wc1ezNTubhv2/IkG0huQepo9zmemqtH6KVn58K2bJ5rWJM
+         iCThXjaFYG8feZm4Y5N0O3VFDwIsejk2P+nfQpT+HQR6fWJ0tiZVQ7GY6yupE5YcNf60
+         KYhCi17ccyTSboCpKw0Wo/xBt8leT/mU4LmEQLXKpD/AOp/qTC9ZgPfb8aOoqd6AqjUU
+         +uYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=6UOxhi6+Z0aq+uYOx5yjJOikHBP2UaOly8Rh6ZJVM/4=;
-        b=MZc6o09CH0TGlaUUKyLyJYrcywnBPgSIf9uRklsOCKvnqbQgjZt34GYPBGBfJFZgGJ
-         XvP/avYMTwLtAvgGA5OmAHZrKDGhiCBwsmOeHRf3AlyNMG/Fazxu11a5LCrDdwThBKsb
-         PxR8GdhrdufO/cd837lGpLvq9W7V75CAcdCiIsS+gjfm6dyW5vIVQxLeVjloxxUfOXt7
-         qYWXa2hL7fZEbiw00YjlGYVlk5vub2Ju4n+d/N6vrr0mINV7oDAmICf69HrCR2JgBtZL
-         LU4cxA0+m0DusJiWOEWGtCcVvxgK14jsQmrRpQW4DZ2INLFo9Op1Ne+46n289ghghYJP
-         S2dQ==
-X-Gm-Message-State: APjAAAXwxv1bO6ousxpDmTRi6nZBiLLNpx+QO9L+kHG2UQorZnUBjH9/
-        xnfCt7smFb2+hGDYGoBROkNAFNOp
-X-Google-Smtp-Source: APXvYqyZLvPtlPGznAznstlCnqfq4s69OilaKGXxzhugI9V/NBM3RJ31ql8Js6srejxFPXUQn5FQaw==
-X-Received: by 2002:a1c:6809:: with SMTP id d9mr20010611wmc.70.1576355436807;
-        Sat, 14 Dec 2019 12:30:36 -0800 (PST)
-Received: from brutus.lan (brutus.defensec.nl. [2001:985:d55d::438])
-        by smtp.gmail.com with ESMTPSA id o15sm15597066wra.83.2019.12.14.12.30.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Dec 2019 12:30:35 -0800 (PST)
-Date:   Sat, 14 Dec 2019 21:30:34 +0100
-From:   Dominick Grift <dac.override@gmail.com>
-To:     Alexander Wetzel <alexander@wetzel-home.de>
-Cc:     selinux@vger.kernel.org, acgoide@tycho.nsa.gov, paul@paul-moore.com
-Subject: Re: "watch" - Problem when using kernel >= 5.4
-Message-ID: <20191214203034.GA233591@brutus.lan>
-Mail-Followup-To: Alexander Wetzel <alexander@wetzel-home.de>,
-        selinux@vger.kernel.org, acgoide@tycho.nsa.gov, paul@paul-moore.com
-References: <9d54debb-7031-4d93-38b7-62c853289512@wetzel-home.de>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=WIlNEGDxNwW/8ESd9m3XOO1N744Tq8N7W6A6F/F+Eos=;
+        b=tJkluRRN0wZUZNMBOugg/kV+BgJA2Whr7R3RajUaW67wAz4Dan4UrvJ7sd0dfLf59B
+         Ur80zZ9ixPWL4ZcD/Zwm43MYbnfUXa7TsTpopipxK2uX7yY7nHBONTNJ0LofZTluzDo1
+         N6JaM8wG6jx5iL80mC3jeEV1kwWFLq/XeinE5qlqUkppl2JA3WprDtXxqHoMa56xEZJR
+         mjfO5ZMI6wg3/0YGLVv945XVmp4U0P/1+xhlqaZf1kzukLsohuckgg6hpUu0+mUpyxxE
+         3VszL0vIQgT/H6+gjLdqBzzJnOCSFX/xFtSMyW7cM9NkfNpehc2NP4bdSfgzdatYezZ0
+         hW8g==
+X-Gm-Message-State: APjAAAUw6KlU1uxB9PFomzjuCM/Y5BIplRRniCx3xEWrI0iG3+6Bz7Ku
+        7gu6Pp8lzIjrKuadsjN6Ags=
+X-Google-Smtp-Source: APXvYqyyZhdkXK8g0sLePyR6l4zhfnmyb2KiofxkUTUsjgKZqct8BNzsdp6s2tb9C4rZ8V0W5saZcg==
+X-Received: by 2002:a63:f910:: with SMTP id h16mr9065781pgi.148.1576369986531;
+        Sat, 14 Dec 2019 16:33:06 -0800 (PST)
+Received: from [192.168.0.180] (c-71-63-171-240.hsd1.or.comcast.net. [71.63.171.240])
+        by smtp.gmail.com with ESMTPSA id j21sm16551583pfe.175.2019.12.14.16.33.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 14 Dec 2019 16:33:06 -0800 (PST)
+Subject: Re: Does anyone use RANDSTRUCT?
+To:     Dan Aloni <dan@kernelim.com>, Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Paul Moore <paul@paul-moore.com>,
+        SELinux <selinux@vger.kernel.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+References: <bf727420-b7bd-d3e9-a597-812922ba20a3@tycho.nsa.gov>
+ <201912130943.A301DBF@keescook>
+ <7514d477-3a27-0d35-d611-335a103290ec@tycho.nsa.gov>
+ <20191213223958.GB31026@gmail.com>
+From:   Connor Kuehl <cipkuehl@gmail.com>
+Message-ID: <bc8d099a-2973-22cb-d6b0-cae8786eeea8@gmail.com>
+Date:   Sat, 14 Dec 2019 16:33:04 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="7AUc2qLy4jB3hD7Z"
-Content-Disposition: inline
-In-Reply-To: <9d54debb-7031-4d93-38b7-62c853289512@wetzel-home.de>
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
+In-Reply-To: <20191213223958.GB31026@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On 12/13/19 2:39 PM, Dan Aloni wrote:
+>> Do you know if there is something inhibiting usage in e.g. Pixel devices?
+>> Performance impact?
+> About performance, the gcc RANDSTRUCT implementation also includes a
+> performance-preserving feature where randomization takes cacheline
+> boundary into consideration. The Clang implementation is expected to
+> have this as well. It's a valid concern and definitely garners testing
+> for anyone enabling the feature.
 
---7AUc2qLy4jB3hD7Z
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Just confirming this: the development branch (well I suppose that's 
+technically the only branch :-) ) for Clang randstruct does already have 
+this feature -- it will try its hardest to squeeze the fields into cache 
+lines. It's worth noting however that this algorithm is in its first 
+iteration with potentially many more to come as people that are much 
+smarter than me start digging into it and contributing optimizations 
+while Clang randstruct gets closer and closer to getting merged upstream.
 
-On Sat, Dec 14, 2019 at 05:40:51PM +0100, Alexander Wetzel wrote:
-> Hello,
->=20
-> I've a strange problem with selinux when switching a kernel >=3D 5.4.0 and
-> since this could be an unintended regression I want to report it here, to=
-o.
->=20
-> There are two threads in the Gentoo forum with more details:
-> https://forums.gentoo.org/viewtopic-t-1105128.html (started by me)
-> https://forums.gentoo.org/viewtopic-t-1104916.html (looks like the same
-> underlying issue)
->=20
-> In a nutshell commit ac5656d8a4cd ("fanotify, inotify, dnotify, security:
-> add security hook for fs notifications") added new hooks for fs
-> notifications which also seem to requite updated user space and policies
-> which seem to be unavailable as for now.
->=20
-> So when updating the kernel to >=3D 5.4.0 all processes trying to registe=
-r for
-> file notifications will be blocked. And at least I was unable to add rules
-> for the new permission "watch", even after updating all selinux
-> tools/libraries and policies to the upstream git versions - as provided by
-> Gentoo's -9999 version of the packages.
->=20
-> Dec  8 14:49:01 web kernel: audit: type=3D1400 audit(1575812941.870:2069):
-> avc:  denied  { watch } for  pid=3D2826 comm=3D"crond"
-> path=3D"/var/spool/cron/crontabs" dev=3D"sda3" ino=3D2539899
-> scontext=3Dsystem_u:system_r:crond_t tcontext=3Dsystem_u:object_r:cron_sp=
-ool_t
-> tclass=3Ddir permissive=3D0
->=20
-> I ended up reverting commit ac5656d8a4cd ("fanotify, inotify, dnotify,
-> security: add security hook for fs notifications") and asked in the gentoo
-> forum - so far without success (link above) - how that should work proper=
-ly.
->=20
-> If there is a way to use an unmodified kernel >=3D 5.4.0 with older (so f=
-ar
-> all current) selinux tools and policies I did miss it.
->=20
-> Do you have a pointer how I can keep the commit ac5656d8a4cd in a selinux
-> enabled system in enforcing mode without breaking all file change
-> notifications?
->=20
-> Alexander
+Unfortunately I have not measured or collected any data on the 
+performance implications of Clang randstruct yet... but that is 
+something I am interested in doing once we've gotten all of the wrinkles 
+figured out.
 
-I do not believe there is a regression. However support in the policy for t=
-his functionality may be lagging behind (be non existent as of now).
-You could try this as a temporary workaround:
-
-echo "(handleunknown allow)" > mytest.cil && sudo semodule -i mytest.cil
-
-If that works then that should tell selinux to ignore the watch access vect=
-or permissions (and any other permission unknown to the policy).
-
->=20
->=20
->=20
->=20
->=20
-
---=20
-Key fingerprint =3D 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0x3B6C5F1D2C7B6B02
-Dominick Grift
-
---7AUc2qLy4jB3hD7Z
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQGzBAEBCAAdFiEEujmXliIBLFTc2Y4AJXSOVTf5R2kFAl31RmUACgkQJXSOVTf5
-R2k84gwAscgv2tncBRUSohI2ltWz1G9JkSHNE2wI6HfSGwla/pNB6owzAw8g/0S7
-1JqNDodw6dBnlokf4gSpoaI5//nZr00ggIwRnLNY+VKQ+O8HDytcvPrFKJeOzgCS
-QSmDGVHE9H5LjP2WnRn0U9XVh1fvGwlNwNgmlFsIac8igH1dUN0IHlwWbLUEQe47
-vbwDkk8K1A4c/nRLxA+ptf0K1a2IEYJtX2PPiaxLpmyP9fchz0HtaBO6qw0IhR/z
-qvzsnCum83tlWQzP+0naAd+Bu1OxFg229kp/rL4tJwOap9ZlXwZwRwglWA8y2ww5
-3emtUs7ZUGzHlyhnv/vZeZuT2AVS+4DoGGk1P0/d07j+33IEv3ZXlTy/A4ng4zli
-xb1PwXzlIkNFXY9z9z8zcjVM7+XX+CJTzvUzob307IXztZxbnv/ojVxiZdisrDmN
-VZv6AVd9fRnVqgq99uQ1clf1SU+XjNy/JI3LcFCvWY05IN7HBCMTVjCBVBjYcIYA
-IoOSz3UQ
-=c1HT
------END PGP SIGNATURE-----
-
---7AUc2qLy4jB3hD7Z--
+- Connor
