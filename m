@@ -2,105 +2,109 @@ Return-Path: <SRS0=eXnu=2F=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 398AAC43603
-	for <selinux@archiver.kernel.org>; Sun, 15 Dec 2019 00:33:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4509C43603
+	for <selinux@archiver.kernel.org>; Sun, 15 Dec 2019 11:53:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 04740214AF
-	for <selinux@archiver.kernel.org>; Sun, 15 Dec 2019 00:33:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q6j7020v"
+	by mail.kernel.org (Postfix) with ESMTP id C4FA522B48
+	for <selinux@archiver.kernel.org>; Sun, 15 Dec 2019 11:53:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726837AbfLOAdH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 14 Dec 2019 19:33:07 -0500
-Received: from mail-pf1-f178.google.com ([209.85.210.178]:34176 "EHLO
-        mail-pf1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726783AbfLOAdH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 14 Dec 2019 19:33:07 -0500
-Received: by mail-pf1-f178.google.com with SMTP id l127so1773967pfl.1
-        for <selinux@vger.kernel.org>; Sat, 14 Dec 2019 16:33:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=WIlNEGDxNwW/8ESd9m3XOO1N744Tq8N7W6A6F/F+Eos=;
-        b=Q6j7020vzUdvcK8pxHsXR4pUyww7LgMUsmsEcBVqLWrDRAYik6AEza2vlYb/nlXgCs
-         NDyYWU5+LYWzvbJMXPARnslF1CCWUEF08t7517U25fpifNx+ygtCDm7NAi/1x/wjC6GZ
-         qsMz/zt01zjDThLN0Cy1q6wc1ezNTubhv2/IkG0huQepo9zmemqtH6KVn58K2bJ5rWJM
-         iCThXjaFYG8feZm4Y5N0O3VFDwIsejk2P+nfQpT+HQR6fWJ0tiZVQ7GY6yupE5YcNf60
-         KYhCi17ccyTSboCpKw0Wo/xBt8leT/mU4LmEQLXKpD/AOp/qTC9ZgPfb8aOoqd6AqjUU
-         +uYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=WIlNEGDxNwW/8ESd9m3XOO1N744Tq8N7W6A6F/F+Eos=;
-        b=tJkluRRN0wZUZNMBOugg/kV+BgJA2Whr7R3RajUaW67wAz4Dan4UrvJ7sd0dfLf59B
-         Ur80zZ9ixPWL4ZcD/Zwm43MYbnfUXa7TsTpopipxK2uX7yY7nHBONTNJ0LofZTluzDo1
-         N6JaM8wG6jx5iL80mC3jeEV1kwWFLq/XeinE5qlqUkppl2JA3WprDtXxqHoMa56xEZJR
-         mjfO5ZMI6wg3/0YGLVv945XVmp4U0P/1+xhlqaZf1kzukLsohuckgg6hpUu0+mUpyxxE
-         3VszL0vIQgT/H6+gjLdqBzzJnOCSFX/xFtSMyW7cM9NkfNpehc2NP4bdSfgzdatYezZ0
-         hW8g==
-X-Gm-Message-State: APjAAAUw6KlU1uxB9PFomzjuCM/Y5BIplRRniCx3xEWrI0iG3+6Bz7Ku
-        7gu6Pp8lzIjrKuadsjN6Ags=
-X-Google-Smtp-Source: APXvYqyyZhdkXK8g0sLePyR6l4zhfnmyb2KiofxkUTUsjgKZqct8BNzsdp6s2tb9C4rZ8V0W5saZcg==
-X-Received: by 2002:a63:f910:: with SMTP id h16mr9065781pgi.148.1576369986531;
-        Sat, 14 Dec 2019 16:33:06 -0800 (PST)
-Received: from [192.168.0.180] (c-71-63-171-240.hsd1.or.comcast.net. [71.63.171.240])
-        by smtp.gmail.com with ESMTPSA id j21sm16551583pfe.175.2019.12.14.16.33.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 14 Dec 2019 16:33:06 -0800 (PST)
-Subject: Re: Does anyone use RANDSTRUCT?
-To:     Dan Aloni <dan@kernelim.com>, Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Paul Moore <paul@paul-moore.com>,
-        SELinux <selinux@vger.kernel.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-References: <bf727420-b7bd-d3e9-a597-812922ba20a3@tycho.nsa.gov>
- <201912130943.A301DBF@keescook>
- <7514d477-3a27-0d35-d611-335a103290ec@tycho.nsa.gov>
- <20191213223958.GB31026@gmail.com>
-From:   Connor Kuehl <cipkuehl@gmail.com>
-Message-ID: <bc8d099a-2973-22cb-d6b0-cae8786eeea8@gmail.com>
-Date:   Sat, 14 Dec 2019 16:33:04 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1726112AbfLOLxo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 15 Dec 2019 06:53:44 -0500
+Received: from mga18.intel.com ([134.134.136.126]:55004 "EHLO mga18.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726089AbfLOLxn (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sun, 15 Dec 2019 06:53:43 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 15 Dec 2019 03:53:43 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,317,1571727600"; 
+   d="scan'208";a="416159519"
+Received: from linux.intel.com ([10.54.29.200])
+  by fmsmga006.fm.intel.com with ESMTP; 15 Dec 2019 03:53:41 -0800
+Received: from [10.251.95.214] (abudanko-mobl.ccr.corp.intel.com [10.251.95.214])
+        by linux.intel.com (Postfix) with ESMTP id 1FB7658044E;
+        Sun, 15 Dec 2019 03:53:36 -0800 (PST)
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+Subject: Re: [PATCH v1 0/3] Introduce CAP_SYS_PERFMON capability for secure
+ Perf users groups
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Andi Kleen <ak@linux.intel.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
+        elena.reshetova@intel.com,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Stephane Eranian <eranian@google.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        James Morris <jmorris@namei.org>
+References: <283f09a5-33bd-eac3-bdfd-83d775045bf9@linux.intel.com>
+ <1e836f34-eda3-542d-f7ce-9a3e87ac5e2e@schaufler-ca.com>
+ <d0c6f000-4757-02d8-b114-a35cbb9566ed@linux.intel.com>
+ <a81248c5-971a-9d3f-6df4-e6335384fe7f@schaufler-ca.com>
+ <ab206ef5-466e-7bce-3e5f-53da110bddb2@linux.intel.com>
+ <16e9e399-2ebf-261f-eee5-cf9ace2a82b9@schaufler-ca.com>
+ <20191211203648.GA862919@tassilo.jf.intel.com>
+ <d2095e4a-261b-b561-2a2c-cf00fd416503@tycho.nsa.gov>
+Organization: Intel Corp.
+Message-ID: <533d0954-25ce-9df0-6324-3ff00d1ee042@linux.intel.com>
+Date:   Sun, 15 Dec 2019 14:53:35 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
 MIME-Version: 1.0
-In-Reply-To: <20191213223958.GB31026@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <d2095e4a-261b-b561-2a2c-cf00fd416503@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/13/19 2:39 PM, Dan Aloni wrote:
->> Do you know if there is something inhibiting usage in e.g. Pixel devices?
->> Performance impact?
-> About performance, the gcc RANDSTRUCT implementation also includes a
-> performance-preserving feature where randomization takes cacheline
-> boundary into consideration. The Clang implementation is expected to
-> have this as well. It's a valid concern and definitely garners testing
-> for anyone enabling the feature.
 
-Just confirming this: the development branch (well I suppose that's 
-technically the only branch :-) ) for Clang randstruct does already have 
-this feature -- it will try its hardest to squeeze the fields into cache 
-lines. It's worth noting however that this algorithm is in its first 
-iteration with potentially many more to come as people that are much 
-smarter than me start digging into it and contributing optimizations 
-while Clang randstruct gets closer and closer to getting merged upstream.
+On 12.12.2019 17:24, Stephen Smalley wrote:
+> On 12/11/19 3:36 PM, Andi Kleen wrote:
+>>>> In this circumstances CAP_SYS_PERFMON looks like smart balanced advancement that
+>>>> trade-offs between perf_events subsystem extensions, required level of control
+>>>> and configurability of perf_events, existing users adoption effort, and it brings
+>>>> security hardening benefits of decreasing attack surface for the existing users
+>>>> and use cases.
+>>>
+>>> I'm not 100% opposed to CAP_SYS_PERFMON. I am 100% opposed to new capabilities
+>>> that have a single use. Surely there are other CAP_SYS_ADMIN users that [cs]ould
+>>> be converted to CAP_SYS_PERFMON as well. If there is a class of system performance
+>>> privileged operations, say a dozen or so, you may have a viable argument.
+>>
+>> perf events is not a single use. It has a bazillion of sub functionalities,
+>> including hardware tracing, software tracing, pmu counters, software counters,
+>> uncore counters, break points and various other stuff in its PMU drivers.
+>>
+>> See it more as a whole quite heterogenous driver subsystem.
+>>
+>> I guess CAP_SYS_PERFMON is not a good name because perf is much more
+>> than just Perfmon. Perhaps call it CAP_SYS_PERF_EVENTS
+> 
+> That seems misleading since it isn't being checked for all perf_events operations IIUC (CAP_SYS_ADMIN is still required for some?) and it is even more specialized than CAP_SYS_PERFMON, making it less likely that we could ever use this capability as a check for other kernel performance monitoring facilities beyond perf_events.
+> 
+> I'm not as opposed to fine-grained capabilities as Casey is but I do recognize that there are a limited number of available bits (although we do have a fair number of unused ones currently given the extension to 64-bits) and that it would be easy to consume them all if we allocated one for every kernel feature.  That said, this might be a sufficiently important use case to justify it.
+> 
+> Obviously I'd encourage you to consider leveraging SELinux as well but I understand that you are looking for a solution that doesn't depend on a distro using a particular LSM or a particular policy.  I will note that SELinux doesn't suffer from the limited bits problem because one can always define a new SELinux security class with its own access vector permissions bitmap, as has been done for the recently added LSM/SELinux perf_event hooks.
+> 
+> I don't know who actually gets to decide when/if a new capability is allocated.  Maybe Serge and/or James as capabilities and LSM maintainers.
+> 
+> I have no objections to these patches from a SELinux POV.
 
-Unfortunately I have not measured or collected any data on the 
-performance implications of Clang randstruct yet... but that is 
-something I am interested in doing once we've gotten all of the wrinkles 
-figured out.
+Stephen, thanks for meaningful input!
 
-- Connor
+~Alexey
