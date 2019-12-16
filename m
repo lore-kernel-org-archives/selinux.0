@@ -7,53 +7,53 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F493C2D0C3
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:37:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39C85C43603
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:37:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 24CF721739
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:37:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B5F521835
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:37:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Sl/DvVUL"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="U7PUFPtq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727599AbfLPWhH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 17:37:07 -0500
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:41366
-        "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727696AbfLPWhH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 17:37:07 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576535824; bh=CflM/BYE/m6vkCFgy2DwlH+gpJmxaxAxuCstaWJenLE=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=Sl/DvVULc9eeSwsdikD3AIjyWLEsSgc52zGwtNkagE4/JA5C6QMlYu45eM/pjm1FeIui8PyJoSbof37FUMdS7kDN5P/Nk3QQSrAEMxHwn8ua+roEfmXEqNaYGVoxrJBQnFCJg9Y3aoB/3nUW5kXJRpSYoXeIThSc6XQCRYijG3xrU2T2BFySO5uBKQWWa6YChyTlw9nTVUQMt7icml2VzSm/SgeCiY3PYRfKj63LOfnd5FQwhc1tV5mfj4zk4fyqIrNQM5+jCTeWbIYTY0nbcrlWmlhxIuP0tfq1t1KahinscuBp4KEiZrxYQmUsSKOs7kj5o84KQ8nDmRJ8aY178g==
-X-YMail-OSG: Hh8rkVkVM1lCmRAwctpG9ZbFdkU_kpBeVes.wR2Pm2sf8u0cRln5HmRHjuXtWNk
- DD5RhNOm63RqY6xlrlmrGjH5fj9cRpjJ.gsoz5cd3PBWBbBhYs4tTnywd0OKprk9egENzxipI5m_
- n9AeMJcoHhG1CIaENBAyazCYq0WrHaDMUFExtXgUfldUgU5SiLRLdu6rxpMzJyKCKkVmT8paq3h_
- XMVJrcpz5Xa8oJtfZK9IGi5CjmC6dSYyC_P7.J3A7O0hHPiRmNorvNBpOG.T.rIdnuPoVdCTDjTL
- hTRbY8TbMt7nbu2IKxQvsJXIRmzmSrIrHWfrI66xqB5Bq4fdb_tWi19UQSuETtoByUYgN1MUeeue
- 6Rn__jE1AsyfpdwL._h_NPbif3q6NtTWdnrC1VfknjOuI2qrmU1roPf48DdTr2npuQcxEmHoGqnN
- .wpg9jJliK6jdH3nAGb0traR2tpfApMgbFqtZZ5wCSWHyUT_BGHRUUSREPwiaOU5A3mMn38d_Jv7
- bk2lqpvAXaUSbRuwi8cG5e_5SUNsrHCRirDpCUguQXp9GYZZvVimes9Ep7D56bqb9TyShRAZ58rT
- QDnACwJVkcwcQSziNKv1wwgveVnwH1AbKVibNBbTHWItK1GsG2pci50.zzHucWP0jN6XqhCY5.fU
- dZcfmTmsyeaK8cFYArgX.RgB4MWiAXqKWdJq_EORxNFNb7hjD3YOz2YDiCD3P4CRjqHAwx0pIQl6
- kzlqtxQ2Y07GmNL0OdmpHO6WsyBVbRai1S_tc6GVRkzTKdgiIsaMiXzAISscHCQOMhY3MFZxjgwT
- pHpHlPmH9xF63XSo.RK4Udy4QhhFZphQIPPHuLn0NtCt3ZGtGawGMMP6ET_wJLzJaPn0bBJouHeO
- FtYMmtN54OJGNQEK9fzv3u7Pm2x7JXjhaHBEm2RWpecUCiLEyXpkQnE5XF54a1lh7Oql1Ul54ra5
- i8Kyi4mafMOae57lbp2s4lKsGaS6mXrrE1Y0nBTbnZWxRxi2X0eck.7p3XdmPpdtspg55_qo6zV5
- Xy3GUVcdqNUIjAA.S8IjiO2L3bIG6DxZe3iwj8gMW55GKRFB584Ov8dNDMsg10wrppba2HDA9vyJ
- kTVdXGTLsd7N1_lxXU1xkQWag7JSkyl5wm5lge_WCdc6vyvd7_bvibwprbUiyhHgwqOUxvpJTuTC
- V528DmMbaPyEmWpYfi1wwJyrbIjDrsQvTgvl70d8oPcIYAfaEJsBhEci7FhPcLfsFzCIUgWu4AQH
- 7fPawjYizRUYLOYgcGGI1B1nWk8EgUigu56ykJYR_LpH.R8b72SjS29SzbsI90Ak_zMh.UHLGYfE
- mHrQUPJcsNl05AjEnuIDAXsiwBKFlVkD30dK_puSDTVI2zcS60xNKB92WC.vAIP7E4hp60IvQYUK
- 2pvgC6NncINp2V8KFVNidNDn_2weSddFXFO06WjCXqhHDONHD0P0iSe4sWh.vm_FOmNOFGL9d
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Mon, 16 Dec 2019 22:37:04 +0000
-Received: by smtp427.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 786e24f6854d13fd6e7d0cab589c1b74;
-          Mon, 16 Dec 2019 22:37:00 +0000 (UTC)
+        id S1726718AbfLPWhU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 17:37:20 -0500
+Received: from sonic311-30.consmr.mail.ne1.yahoo.com ([66.163.188.211]:36447
+        "EHLO sonic311-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726928AbfLPWhU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 17:37:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576535838; bh=uQ2URDlGHwivvTFxlkJ4ZmBWhh8fhZMuYTKrwyBZ/Yc=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=U7PUFPtqKDWd0UVYQWG9sXW+dS8dYleP+V/l8oXD+kKda9wvPtCdguXi97BKne5qXhC7tPHYZTU6l8Hi6g5v1LYnONSxnMbvcUFjHJqjZM2c9Xi8BdNfO8UPuJo66dxEgDbzuLNE5azJwwWvsROSDMrBXGgenfOmiyv6nIFm5apURQWesIc83+y/itOKblLJ3AlIFaBb5cI6R+j9+XNWIKg1T00c9A2fdRp17VEOCMphdYAEpz22A1OxFQrMo2HFEn2jo7JeO0DCCZDX6J4/wNUMU4ebFxzJnEhBA6utLJgDcmQ9mPTBUWQS2aB+J/CR0esVdxPrP2/M84+SrAkWHw==
+X-YMail-OSG: xcPZ3ewVM1lhfAXj_aJro.ATGElX9igq6L0enhA4NyyflCM5UcjsWtB14i.SOaS
+ CpeXTMhHgFazUfNWjRXqSMMSX3kqXcIVVpqTIyMVFhQyyRV90OBZWTvdVIt2oeLK0CTWIFgzV58H
+ TY_z1Yj54o.vbeonIaFpi2FiToyYUmURV5NeAQGsHSzkorhQYesgmi8qR2Im05v33WbqzNKzghpl
+ wPd6NkaZtH9.vlCoKdoe4BA5jek3gIVenRaD4282ksCAt_TGjjZSnRQ2DWlU77VXS5Hjq305OwVf
+ HJf_TaWF.FZzuBXHLe8ujG3_X7jqS40R2UvPEC5BtuqNw3GQKU9vill60Fh8cg3YtSfypFpKTtRU
+ vNOnbsx2qHfj_CyXUS9KI.8R9elE0IX0_Fg5.28RNMOxj2WRFrMwE_7fPwVa.XRYNmJKeLpUmMQU
+ jo_Eoa5i.CbXcs0ri9xg64p3Qvp_JAglXaasuyQ0gcqoiIywSViKHuIWbLhohTs3hVPFleHD0UZp
+ DtQh5Wy_CYRkXYYe.ZmZGbEgYIwuV.3uNAfvzoLFyUc5oXAXb0n_vQcVbGX_VIarkhD0jz9G4zhR
+ uakVenwHT0WcSv9QBJFd9dXDxaL5xD.CutmJXcK5Yr2eKjWC8OnulkuQXO5sC9lal8BuDpFjkj9Q
+ gVlq6JG4fIxAGaMurzeeWRVoWrxFrPUB0K4u_4PvmPFoEHU2KeO08YJj3f7blyJM9lGlvVj567ah
+ h.BvupGAgkGW4Fjng6P4YmpJvC1HN4CcwjCaX3T3S83VGx7GOZUq0v4MAp_NUfjyRxAaupZ2afYi
+ jF5UxJ8Lwx055OfFz35xr95zPDegX2KKr6eqKBiHG33ZvoLjLJhvUTx9d1lhwhUTUMfopE2Nw3Tz
+ KnHagu9DSLW7jkP6fKl8jVS77qPML0CVl9pOuY_K9LoDrl.BeWUW2vcG4wdPGJtktEG8_Xrpa8UD
+ SS2pJz.lmaPaA1jU5aHXN0srOnK3HGInXd6wpPdwJxdttKCW1wtfDuK8nlk0IGK._2.lwfTsWVAJ
+ Ngbep2QGUVTKmyyHGOsV4tAAhCOZGW8tld5R57pjlhrp08w.tolonbyYm4EpwhDhqCAskNVGlj6A
+ KR8ffjsjbiSe5H.iqXgbndeSndG.IpJcZs5NmJJmTzt7s6qzmzb5bcnkEZosAe23_qqwHadv17hl
+ Mjwvhlk5QP3i_S9iptXM2yz6IwAE9..5UtBAK8W.q16giNFsMkmuSjjOa906QKvx2q3lNMZ0GjF2
+ 9Hx1QNXL3m_G6LWt7QbEK9t1eLZd8Fi0Ml3wrDQZpbdNYi0lsdmGwFcvNfV7wVmDVSSQ7kyP.p4R
+ 3aosX9hZwFnX7DnGv5a1sqxcJacC7m_I8taZazMEEUoM_2Hj3gzR_ot43KRVhgjhFHyMsmFocPkf
+ lYrUVt60GeSf_tUZmlEK1m4I8m.TVPacmHK_eR3eHNH9mdFEv1E4wxUSZW0UMuONuZmif
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Mon, 16 Dec 2019 22:37:18 +0000
+Received: by smtp420.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 4c6acdb48f29824eb054cd3aa9a6ce09;
+          Mon, 16 Dec 2019 22:37:16 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         sds@tycho.nsa.gov
-Subject: [PATCH v12 06/25] LSM: Use lsmblob in security_secctx_to_secid
-Date:   Mon, 16 Dec 2019 14:36:02 -0800
-Message-Id: <20191216223621.5127-7-casey@schaufler-ca.com>
+Subject: [PATCH v12 10/25] LSM: Use lsmblob in security_inode_getsecid
+Date:   Mon, 16 Dec 2019 14:36:06 -0800
+Message-Id: <20191216223621.5127-11-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191216223621.5127-1-casey@schaufler-ca.com>
 References: <20191216223621.5127-1-casey@schaufler-ca.com>
@@ -64,212 +64,116 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change security_secctx_to_secid() to fill in a lsmblob instead
-of a u32 secid. Multiple LSMs may be able to interpret the
-string, and this allows for setting whichever secid is
-appropriate. In some cases there is scaffolding where other
-interfaces have yet to be converted.
+Change the security_inode_getsecid() interface to fill in a
+lsmblob structure instead of a u32 secid. This allows for its
+callers to gather data from all registered LSMs. Data is provided
+for IMA and audit.
 
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+cc: linux-integrity@vger.kernel.org
 ---
- include/linux/security.h          |  5 +++--
- kernel/cred.c                     |  4 +---
- net/netfilter/nft_meta.c          | 13 ++++++-------
- net/netfilter/xt_SECMARK.c        |  5 ++++-
- net/netlabel/netlabel_unlabeled.c | 14 ++++++++------
- security/security.c               | 18 +++++++++++++++---
- 6 files changed, 37 insertions(+), 22 deletions(-)
+ include/linux/security.h            |  7 ++++---
+ kernel/auditsc.c                    |  6 +++++-
+ security/integrity/ima/ima_policy.c |  4 +---
+ security/security.c                 | 11 +++++++++--
+ 4 files changed, 19 insertions(+), 9 deletions(-)
 
 diff --git a/include/linux/security.h b/include/linux/security.h
-index 995faba7393f..8cae9e4bd760 100644
+index b6d5475f8196..e0acc09a79fe 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -496,7 +496,8 @@ int security_setprocattr(const char *lsm, const char *name, void *value,
- int security_netlink_send(struct sock *sk, struct sk_buff *skb);
- int security_ismaclabel(const char *name);
- int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen);
--int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid);
-+int security_secctx_to_secid(const char *secdata, u32 seclen,
-+			     struct lsmblob *blob);
- void security_release_secctx(char *secdata, u32 seclen);
- void security_inode_invalidate_secctx(struct inode *inode);
- int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
-@@ -1302,7 +1303,7 @@ static inline int security_secid_to_secctx(u32 secid, char **secdata, u32 *secle
- 
- static inline int security_secctx_to_secid(const char *secdata,
- 					   u32 seclen,
--					   u32 *secid)
-+					   struct lsmblob *blob)
- {
- 	return -EOPNOTSUPP;
- }
-diff --git a/kernel/cred.c b/kernel/cred.c
-index 846ac4b23c16..7fef90f3f10b 100644
---- a/kernel/cred.c
-+++ b/kernel/cred.c
-@@ -756,14 +756,12 @@ EXPORT_SYMBOL(set_security_override);
- int set_security_override_from_ctx(struct cred *new, const char *secctx)
- {
- 	struct lsmblob blob;
--	u32 secid;
- 	int ret;
- 
--	ret = security_secctx_to_secid(secctx, strlen(secctx), &secid);
-+	ret = security_secctx_to_secid(secctx, strlen(secctx), &blob);
- 	if (ret < 0)
- 		return ret;
- 
--	lsmblob_init(&blob, secid);
- 	return set_security_override(new, &blob);
- }
- EXPORT_SYMBOL(set_security_override_from_ctx);
-diff --git a/net/netfilter/nft_meta.c b/net/netfilter/nft_meta.c
-index 9740b554fdb3..9b8066d02868 100644
---- a/net/netfilter/nft_meta.c
-+++ b/net/netfilter/nft_meta.c
-@@ -625,21 +625,20 @@ static const struct nla_policy nft_secmark_policy[NFTA_SECMARK_MAX + 1] = {
- 
- static int nft_secmark_compute_secid(struct nft_secmark *priv)
- {
--	u32 tmp_secid = 0;
-+	struct lsmblob blob;
- 	int err;
- 
--	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &tmp_secid);
-+	err = security_secctx_to_secid(priv->ctx, strlen(priv->ctx), &blob);
- 	if (err)
- 		return err;
- 
--	if (!tmp_secid)
--		return -ENOENT;
--
--	err = security_secmark_relabel_packet(tmp_secid);
-+	/* Using le[0] is scaffolding */
-+	err = security_secmark_relabel_packet(blob.secid[0]);
- 	if (err)
- 		return err;
- 
--	priv->secid = tmp_secid;
-+	/* Using le[0] is scaffolding */
-+	priv->secid = blob.secid[0];
+@@ -409,7 +409,7 @@ int security_inode_killpriv(struct dentry *dentry);
+ int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc);
+ int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
+-void security_inode_getsecid(struct inode *inode, u32 *secid);
++void security_inode_getsecid(struct inode *inode, struct lsmblob *blob);
+ int security_inode_copy_up(struct dentry *src, struct cred **new);
+ int security_inode_copy_up_xattr(const char *name);
+ int security_kernfs_init_security(struct kernfs_node *kn_dir,
+@@ -924,9 +924,10 @@ static inline int security_inode_listsecurity(struct inode *inode, char *buffer,
  	return 0;
  }
  
-diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
-index 2317721f3ecb..2d68416b4552 100644
---- a/net/netfilter/xt_SECMARK.c
-+++ b/net/netfilter/xt_SECMARK.c
-@@ -45,13 +45,14 @@ secmark_tg(struct sk_buff *skb, const struct xt_action_param *par)
- 
- static int checkentry_lsm(struct xt_secmark_target_info *info)
- {
-+	struct lsmblob blob;
- 	int err;
- 
- 	info->secctx[SECMARK_SECCTX_MAX - 1] = '\0';
- 	info->secid = 0;
- 
- 	err = security_secctx_to_secid(info->secctx, strlen(info->secctx),
--				       &info->secid);
-+				       &blob);
- 	if (err) {
- 		if (err == -EINVAL)
- 			pr_info_ratelimited("invalid security context \'%s\'\n",
-@@ -59,6 +60,8 @@ static int checkentry_lsm(struct xt_secmark_target_info *info)
- 		return err;
- 	}
- 
-+	/* scaffolding during the transition */
-+	info->secid = blob.secid[0];
- 	if (!info->secid) {
- 		pr_info_ratelimited("unable to map security context \'%s\'\n",
- 				    info->secctx);
-diff --git a/net/netlabel/netlabel_unlabeled.c b/net/netlabel/netlabel_unlabeled.c
-index d2e4ab8d1cb1..7a5a87f15736 100644
---- a/net/netlabel/netlabel_unlabeled.c
-+++ b/net/netlabel/netlabel_unlabeled.c
-@@ -881,7 +881,7 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
- 	void *addr;
- 	void *mask;
- 	u32 addr_len;
--	u32 secid;
-+	struct lsmblob blob;
- 	struct netlbl_audit audit_info;
- 
- 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
-@@ -905,12 +905,13 @@ static int netlbl_unlabel_staticadd(struct sk_buff *skb,
- 	ret_val = security_secctx_to_secid(
- 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
- 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
--				  &secid);
-+				  &blob);
- 	if (ret_val != 0)
- 		return ret_val;
- 
-+	/* scaffolding with the [0] */
- 	return netlbl_unlhsh_add(&init_net,
--				 dev_name, addr, mask, addr_len, secid,
-+				 dev_name, addr, mask, addr_len, blob.secid[0],
- 				 &audit_info);
- }
- 
-@@ -932,7 +933,7 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
- 	void *addr;
- 	void *mask;
- 	u32 addr_len;
--	u32 secid;
-+	struct lsmblob blob;
- 	struct netlbl_audit audit_info;
- 
- 	/* Don't allow users to add both IPv4 and IPv6 addresses for a
-@@ -954,12 +955,13 @@ static int netlbl_unlabel_staticadddef(struct sk_buff *skb,
- 	ret_val = security_secctx_to_secid(
- 		                  nla_data(info->attrs[NLBL_UNLABEL_A_SECCTX]),
- 				  nla_len(info->attrs[NLBL_UNLABEL_A_SECCTX]),
--				  &secid);
-+				  &blob);
- 	if (ret_val != 0)
- 		return ret_val;
- 
-+	/* scaffolding with the [0] */
- 	return netlbl_unlhsh_add(&init_net,
--				 NULL, addr, mask, addr_len, secid,
-+				 NULL, addr, mask, addr_len, blob.secid[0],
- 				 &audit_info);
- }
- 
-diff --git a/security/security.c b/security/security.c
-index a3be3929a60a..03ac668c0c10 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1970,10 +1970,22 @@ int security_secid_to_secctx(u32 secid, char **secdata, u32 *seclen)
- }
- EXPORT_SYMBOL(security_secid_to_secctx);
- 
--int security_secctx_to_secid(const char *secdata, u32 seclen, u32 *secid)
-+int security_secctx_to_secid(const char *secdata, u32 seclen,
-+			     struct lsmblob *blob)
+-static inline void security_inode_getsecid(struct inode *inode, u32 *secid)
++static inline void security_inode_getsecid(struct inode *inode,
++					   struct lsmblob *blob)
  {
 -	*secid = 0;
--	return call_int_hook(secctx_to_secid, 0, secdata, seclen, secid);
++	lsmblob_init(blob, 0);
+ }
+ 
+ static inline int security_inode_copy_up(struct dentry *src, struct cred **new)
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index cccb681ad081..5752e51883d5 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1931,13 +1931,17 @@ static void audit_copy_inode(struct audit_names *name,
+ 			     const struct dentry *dentry,
+ 			     struct inode *inode, unsigned int flags)
+ {
++	struct lsmblob blob;
++
+ 	name->ino   = inode->i_ino;
+ 	name->dev   = inode->i_sb->s_dev;
+ 	name->mode  = inode->i_mode;
+ 	name->uid   = inode->i_uid;
+ 	name->gid   = inode->i_gid;
+ 	name->rdev  = inode->i_rdev;
+-	security_inode_getsecid(inode, &name->osid);
++	security_inode_getsecid(inode, &blob);
++	/* scaffolding until osid is updated */
++	name->osid = blob.secid[0];
+ 	if (flags & AUDIT_INODE_NOEVAL) {
+ 		name->fcap_ver = -1;
+ 		return;
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 193ddd55420b..c7d2ea47a326 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -413,7 +413,6 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+ 		return false;
+ 	for (i = 0; i < MAX_LSM_RULES; i++) {
+ 		int rc = 0;
+-		u32 osid;
+ 		struct lsmblob blob;
+ 
+ 		if (!rule->lsm[i].rule)
+@@ -423,8 +422,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+ 		case LSM_OBJ_USER:
+ 		case LSM_OBJ_ROLE:
+ 		case LSM_OBJ_TYPE:
+-			security_inode_getsecid(inode, &osid);
+-			lsmblob_init(&blob, osid);
++			security_inode_getsecid(inode, &blob);
+ 			rc = security_filter_rule_match(&blob,
+ 							rule->lsm[i].type,
+ 							Audit_equal,
+diff --git a/security/security.c b/security/security.c
+index c42573958630..66322a2a2beb 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -1386,9 +1386,16 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
+ }
+ EXPORT_SYMBOL(security_inode_listsecurity);
+ 
+-void security_inode_getsecid(struct inode *inode, u32 *secid)
++void security_inode_getsecid(struct inode *inode, struct lsmblob *blob)
+ {
+-	call_void_hook(inode_getsecid, inode, secid);
 +	struct security_hook_list *hp;
-+	int rc;
 +
 +	lsmblob_init(blob, 0);
-+	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list) {
++	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecid, list) {
 +		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
 +			continue;
-+		rc = hp->hook.secctx_to_secid(secdata, seclen,
-+					      &blob->secid[hp->lsmid->slot]);
-+		if (rc != 0)
-+			return rc;
++		hp->hook.inode_getsecid(inode, &blob->secid[hp->lsmid->slot]);
 +	}
-+	return 0;
  }
- EXPORT_SYMBOL(security_secctx_to_secid);
  
+ int security_inode_copy_up(struct dentry *src, struct cred **new)
 -- 
 2.20.1
 
