@@ -2,80 +2,69 @@ Return-Path: <SRS0=HHao=2G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A150EC43603
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 17:12:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1697BC43603
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 18:09:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 83E70206EC
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 17:12:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E1524206E0
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 18:09:58 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WAhq57eq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726729AbfLPRMO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 12:12:14 -0500
-Received: from mga17.intel.com ([192.55.52.151]:35213 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726368AbfLPRMO (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 16 Dec 2019 12:12:14 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 Dec 2019 09:12:13 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,322,1571727600"; 
-   d="scan'208";a="415144339"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga005.fm.intel.com with ESMTP; 16 Dec 2019 09:12:12 -0800
-Received: from [10.251.95.214] (abudanko-mobl.ccr.corp.intel.com [10.251.95.214])
-        by linux.intel.com (Postfix) with ESMTP id 30029580342;
-        Mon, 16 Dec 2019 09:12:03 -0800 (PST)
-Subject: Re: [PATCH v2 2/7] perf/core: open access for CAP_SYS_PERFMON
- privileged process
-To:     "Lubashev, Igor" <ilubashe@akamai.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        "james.bottomley@hansenpartnership.com" 
-        <james.bottomley@hansenpartnership.com>,
-        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "serge@hallyn.com" <serge@hallyn.com>,
-        James Morris <jmorris@namei.org>
-Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Jann Horn <jannh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "bgregg@netflix.com" <bgregg@netflix.com>,
-        Song Liu <songliubraving@fb.com>,
-        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-References: <26101427-c0a3-db9f-39e9-9e5f4ddd009c@linux.intel.com>
- <fd6ffb43-ed43-14cd-b286-6ab4b199155b@linux.intel.com>
- <9316a1ab21f6441eb2b421acb818a2a1@ustx2ex-dag1mb6.msg.corp.akamai.com>
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <c471a28b-6620-9b0a-4b6e-43f4956202cd@linux.intel.com>
-Date:   Mon, 16 Dec 2019 20:12:02 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
+        id S1730538AbfLPSJ6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 13:09:58 -0500
+Received: from mail-ed1-f54.google.com ([209.85.208.54]:42112 "EHLO
+        mail-ed1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730296AbfLPSJ6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 13:09:58 -0500
+Received: by mail-ed1-f54.google.com with SMTP id e10so5768167edv.9
+        for <selinux@vger.kernel.org>; Mon, 16 Dec 2019 10:09:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=zX6tP/nFfwQ6qY0rNkbp/PKOSOUIIWtoIcyTbSPR1vk=;
+        b=WAhq57eqT/8yUg4DpCWKozpM9HZ1eRl/B7a2j9+j7AthEBKwr6j1HZZmJ9yZ6ybjUX
+         h3DnysVSLY9BwKLyzAY8Y9OQZrN7hTY6+p9mpKlKF9wA5ApKT69C7dik1dkVYw5onZmq
+         BFcfnJUIrGzHYoysLDahiYJ0bzTVUp4PUN/tJsy5L3C4BzA7xS7yu8h130J+0t2IMQnP
+         6411Mw7lFe5D+LJK1UirO2bV6la0P4TOV9dsblBUoa7x8hb2rtD4y6Reov7k6wAzmIaz
+         FwGKdySBlQ4llJF3to216ppmxNZR449+ehEmzcqGuTP90jpl6fyXLsMFx0jshhwAotCB
+         o8WQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=zX6tP/nFfwQ6qY0rNkbp/PKOSOUIIWtoIcyTbSPR1vk=;
+        b=iUqaTtCMyWgqoRIqH5pOCIQGWQEz/oW4EUzAGOTF/eTXLawsjNZBJGzco1jOxdOvdZ
+         WiZh3He9HH1SWTw87ZPpQ8oN0r/x9hRGGFS740SlH0JC3mMvpcYa5fDaETt8LUCxtE6q
+         2MYxvLmlPVNoamZXDjE7m56veK/oW/FMtVF9RJr4V7TlTmqzvLICUeAiLQeBh3e6dwXi
+         4OIn6O7VOtPvU67pQ8Z84NF7hhY5X2b08ZJyGjkiltt4t93yMx1dfHwsYaWUwagLAQ3S
+         963mcJyIoRdAdhaP7X1IP/TGdzy2d0h3J3vHK9pyHS6SFEVLjbcp64LXhDd6R0r4x7J4
+         yj7Q==
+X-Gm-Message-State: APjAAAV5R8MtbE15v52RXmEqeUdfVd6b3nrjIzHooDXH/BMlMhBI6wBH
+        6X1CbUZZ1mC2LLaWHpRn6FVxtdSt
+X-Google-Smtp-Source: APXvYqyUzp6jYXEKJ90QIO6bwi+cXjR7TDhjDqUfnFNL3vNlpFs96ogq/zvm51MMHu+lRaGK2o8iTA==
+X-Received: by 2002:a17:906:6942:: with SMTP id c2mr310614ejs.12.1576519795875;
+        Mon, 16 Dec 2019 10:09:55 -0800 (PST)
+Received: from [192.168.1.178] (mue-88-130-57-231.dsl.tropolys.de. [88.130.57.231])
+        by smtp.gmail.com with ESMTPSA id o9sm643891eds.75.2019.12.16.10.09.55
+        for <selinux@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 16 Dec 2019 10:09:55 -0800 (PST)
+To:     selinux@vger.kernel.org
+From:   Denis Obrezkov <denisobrezkov@gmail.com>
+Subject: mcstrans doesn't translate for s0 level (thus, doesn't work in mcs
+ policy)
+Message-ID: <43d68a8f-94ce-4201-2d9a-0ce514971aac@gmail.com>
+Date:   Mon, 16 Dec 2019 19:09:54 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <9316a1ab21f6441eb2b421acb818a2a1@ustx2ex-dag1mb6.msg.corp.akamai.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -84,66 +73,26 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Hi,
 
-On 16.12.2019 19:12, Lubashev, Igor wrote:
-> On Mon, Dec 16, 2019 at 2:15 AM, Alexey Budankov <alexey.budankov@linux.intel.com> wrote:
->>
->> Open access to perf_events monitoring for CAP_SYS_PERFMON privileged
->> processes.
->> For backward compatibility reasons access to perf_events subsystem remains
->> open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN usage
->> for secure perf_events monitoring is discouraged with respect to
->> CAP_SYS_PERFMON capability.
->>
->> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
->> ---
->>  include/linux/perf_event.h | 9 ++++++---
->>  1 file changed, 6 insertions(+), 3 deletions(-)
->>
->> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h index
->> 34c7c6910026..52313d2cc343 100644
->> --- a/include/linux/perf_event.h
->> +++ b/include/linux/perf_event.h
->> @@ -1285,7 +1285,8 @@ static inline int perf_is_paranoid(void)
->>
->>  static inline int perf_allow_kernel(struct perf_event_attr *attr)  {
->> -	if (sysctl_perf_event_paranoid > 1 && !capable(CAP_SYS_ADMIN))
->> +	if (sysctl_perf_event_paranoid > 1 &&
->> +	   !(capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN)))
->>  		return -EACCES;
->>
->>  	return security_perf_event_open(attr, PERF_SECURITY_KERNEL); @@
->> -1293,7 +1294,8 @@ static inline int perf_allow_kernel(struct
->> perf_event_attr *attr)
->>
->>  static inline int perf_allow_cpu(struct perf_event_attr *attr)  {
->> -	if (sysctl_perf_event_paranoid > 0 && !capable(CAP_SYS_ADMIN))
->> +	if (sysctl_perf_event_paranoid > 0 &&
->> +	    !(capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN)))
->>  		return -EACCES;
->>
->>  	return security_perf_event_open(attr, PERF_SECURITY_CPU); @@ -
->> 1301,7 +1303,8 @@ static inline int perf_allow_cpu(struct perf_event_attr
->> *attr)
->>
->>  static inline int perf_allow_tracepoint(struct perf_event_attr *attr)  {
->> -	if (sysctl_perf_event_paranoid > -1 && !capable(CAP_SYS_ADMIN))
->> +	if (sysctl_perf_event_paranoid > -1 &&
->> +	    !(capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN)))
->>  		return -EPERM;
->>
->>  	return security_perf_event_open(attr, PERF_SECURITY_TRACEPOINT);
->> --
->> 2.20.1
-> 
-> Thanks.  I like the idea of CAP_SYS_PERFMON that does not require CAP_SYS_ADMIN.  It makes granting users ability to run perf a bit safer.
-> 
-> I see a lot of "(capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN)" constructs now.  Maybe wrapping it in an " inline bool perfmon_capable()" defined somewhere (like in /include/linux/capability.h)?
+I was trying to use mcstrans with mcs policy on debian and found out
+that it doesn't translate anything after s0 level. It works with s1,
+s2...sN (N>0) levels with mls policy.
 
-Sounds reasonable, thanks!
+Here is the issue: https://github.com/SELinuxProject/selinux/issues/191
 
-~Alexey
+It seems that sensitivity level might affect translation process. When I
+change line 1316
+(https://github.com/SELinuxProject/selinux/blob/master/mcstrans/src/mcstrans.c#L1316)
+in mcstrans from:
+int doInverse = l->sens > 0;
+to
+int doInverse = l->sens >= 0;
+mcstrans starts to translate contexts with s0 level.
 
-> 
-> - Igor
-> 
+Why is there this constraint? Would it break something if we relaxed it?
+Maybe we should add some parameter to distinguish between mls and mcs,
+otherwise, we have a situation when mcstrans doesn't work with mcs policies.
+
+-- 
+Regards, Denis Obrezkov
