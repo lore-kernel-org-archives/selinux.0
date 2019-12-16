@@ -2,128 +2,108 @@ Return-Path: <SRS0=HHao=2G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00241C2D0BF
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:38:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91B93C43603
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 23:39:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C8E1C21835
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:38:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6057924673
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 23:39:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="D/ILdUz7"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="BMvtQdbf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727890AbfLPWil (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 17:38:41 -0500
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:33594
-        "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727884AbfLPWil (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 17:38:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576535920; bh=DJkcoXBN6Len1rmT8hLxo+7iFFtGC2LMsJjtLAQzYm4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=D/ILdUz7vUWmQuHV+giwgWyk9kTN770b8wnTXN1Sd6XrTVsRxOAXiMsuQZyleCXALsijhpgsxjaUWFfAw+yCfinnyxELA0us2CFhHw3SBbQxEB07TKCjar0+oBEIPdBXtpGSSOR7TeaUotGCF7bxhZuK+YAUaa7Q/Rve8tHo5srhhjtEJ3/fYnsV80bLfc69GKM/on0nT5ut8J/zoJLaKjeRct7FPsfyN+2Tsl/MP4Dq2zXsmANe7dz/6y68Pk2qIPeKin/Jf5JdRC42xqaH8E6Kwtb3SAt/h1Qhjfcok/8816yKNjPxZAaH+Rjo4UsgpyASuNrRUWndEDaYSPX4Jg==
-X-YMail-OSG: vWuD9K4VM1li6qNfNOUH413r5gpWmFvMyILFSoaTbTp0JQTyYyiPyZeU7PTYYog
- gZef0NkMetPx7QEya58qYIjejXyZzkokkdv8wbhERNJ5khf.8TnYturHYxOTXuiAsyZMQlK2ze1t
- H75DoclyKhJIsw4AhAwCqGInPUFIajQBoMqzBNTdFJadzyGeBe9IektlsiZvL51farskH4qODS.N
- Tv_TatDZ0IGbjKIk.efdGliJS2.CYHqxEEht0srvi47srjozfX5X9oxcuB6f_tcVdVSpt8bvr0Lf
- Ne0x.HzzqC.5juQ9YBthxTJBK.McVXvsoey.YlvCgoYv2lYG_o3r9yU1xpv_fCYSTpLZllDrjyQX
- d6_LKwibvP2bm2dlFyoOglNIYeF8CT41FiAr5X0kHoTrObP5COCPNfsevHUggjKAeFHZ1pSlIJ60
- QSH5PTN3CM4YzMkJG02oQ96kBilB1jIeR4HrkivbX.2jEr3QhUK7zTafzxaunb562DvZt80_HQg9
- zF2QeBMi7zqAeYX0UCuhx8MGWVurX8Nzwlm5EDCiWIGoSQkAmS1aloZJ8aDihAdrULeiO2.hCuHj
- E6XT0fWfWg9sBCNuF_9HC_OeKXDmYlcgLXbxiYui5TllxuGQQJPIQ7DHsNev1cd2VSVWZncCMAhl
- Cnp8BrGwHBGwAgCFhnPLDWcWpJAHR58KC6LVQzVGUZ0TnJKT6z8isrpxHnGoYnaYxkfGBvgZ.kzE
- ylaztmNePfeHLiMadrs2XlQGunubYI8nAfjJcTIl3b5QkVFVmP6tn4594EfdkAdKspp1kTqWItBn
- sRjS5B6YGR7JwmRhTZY762ZywY6tVs7ErTbAgw5CDcTWbmkofc5grb5rKm3RHC0MCLznrZ1sLGcs
- 9HrLKo0TTHq3QaAiUtDdUj.lCC6Q2.4AsWkCRR1EYwnCPqzrmNF2pjmspkNEh_RjrWTclyJ3II0Y
- ZwQhcKgUkTlGcWMhrEEn8FafxUuV4V5cYSGHjWUadxKWN6tQ0Y7qpW7OnyxVjnPbzkWlNL7jc0He
- r4kV9lIEDbI2JQgZsfEfhLvcyXqA9xESJfSjhTQXNcya9olk76J23UwaFM9ePylEHS_KCIwaZJoq
- P6xLkQIB9ERw.I6K1GRyzREEI3nWyR8PSSCQ4gkpcy.9tVRH5qJFC6h52nBX2IQAa8AxSkkmOwrd
- adSM6HadlWS7GvxKRPJPt5UOq4kPguzcpLdVvXq2ZRtgSmMIRTXDbnOG6h8mRKZSofUBBTXBZZKw
- UZnu5DCL.8tqZmSsAx3m5YdgJ30MWO6AU.IgzAQZTtmohmbM84q0VvLplPwftnGuUgKXZyXgNZUe
- ZDLUDbxN.zwIuS.putvYa_BhlmjOC9dP18fSAnQo.fqTAEz4fLUPdj_Xt52F14GDMf0lFRm5rXlm
- qDWVVrJ_cSCP2OSPih.hacschHE6jadLjUhxAj5_HmVEZzpgpn_87ydxk5LuITszuwyjlQKbCEA-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Mon, 16 Dec 2019 22:38:40 +0000
-Received: by smtp425.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 8674306002fb398816baaa76923d69da;
-          Mon, 16 Dec 2019 22:38:38 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov
-Subject: [PATCH v12 25/25] AppArmor: Remove the exclusive flag
-Date:   Mon, 16 Dec 2019 14:36:21 -0800
-Message-Id: <20191216223621.5127-26-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191216223621.5127-1-casey@schaufler-ca.com>
-References: <20191216223621.5127-1-casey@schaufler-ca.com>
+        id S1727173AbfLPXjc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 18:39:32 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:38340 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726454AbfLPXjb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 18:39:31 -0500
+Received: by mail-lj1-f196.google.com with SMTP id k8so8740389ljh.5
+        for <selinux@vger.kernel.org>; Mon, 16 Dec 2019 15:39:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lTAhM9qvrWzZl1ZQnDoOUwuUrWCg/TYk4xAG/Y5t+4M=;
+        b=BMvtQdbfW8AmZksHpS0HH4va/otDIpkSk0rBmZWmwPWtPOpJsvj/yNbzP23du8FdXI
+         LXmB0Jz85hF9GXyN4eL8YPRZVMk73vQ4UZvSz6OgglBrQkJRLv+JvSxynQIOgfwXHeNH
+         EJe4CCsKzXGyA9eKvXGFNMFbn2mKxDst0ybAvgsIxPaoN8HUpvzWAgyvjZnGOIhud6e9
+         dthKPT7n1LpB6jLRwnljnXjYxxmhfrlw2R2eUPPdklwCV71gRjAhwlOd7xbfRQoBGTpK
+         z77vwVsRGjbysgtPcRvHFRhNvWjj1PB5cI8S9j3hO1CGKWZl2CKwYbPCgvYnfg5go/7q
+         5QzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lTAhM9qvrWzZl1ZQnDoOUwuUrWCg/TYk4xAG/Y5t+4M=;
+        b=a3HwXqt0zknnGciBIU1cS3n1DsPyeHjp2uylHyxIfaGIXtHGDH/aNHUbe5sBe0KBgS
+         Ml1qe74S/knCzDKLLN88tA3fuJp0Fl4P3aKQcR0XVpt5g7+uG+4raZ4SG0wK7U8Nx6Q4
+         stNfKlRVQlrb8NIdQGWE9lxsLba2RuxyndjuT1ucziFeKYx7gTfi3JRAt4pFxr47BcUW
+         djsgYc9nMnAIO5g6pCfqnch/Ydbzphc4dGbCJIyMCWb1FtwiaR4NoIozoWZGZGr7gj/z
+         k0WLZxPorPWN6iR4kV8hShD6JxseD294WOPfDbM8uvkM/PhRZGsZ/Uqlu/Gj8JSb2bnk
+         XM1g==
+X-Gm-Message-State: APjAAAX4QwcZ1erGbOiNBpr2Jjfkwk3GzJEpMQ73Z88QApqUHbsJcQ5c
+        /VA8s/gLQm0OR5GWVkJtF57dsR7XoW2ELv6xhhI67YQ=
+X-Google-Smtp-Source: APXvYqwRU8Xe9kg2FkC/3KE+nlwYoRh8BI9MFs+WxrxS0TYslb5/GK+yBNubhSPNAozp+4RbutKipCGgjLJ9/1WSkm4=
+X-Received: by 2002:a2e:3207:: with SMTP id y7mr1091291ljy.57.1576539569454;
+ Mon, 16 Dec 2019 15:39:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20191213143218.149544-1-sds@tycho.nsa.gov> <7e45e92b-0883-c65e-3809-ecdc8148127b@tycho.nsa.gov>
+In-Reply-To: <7e45e92b-0883-c65e-3809-ecdc8148127b@tycho.nsa.gov>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 16 Dec 2019 18:39:18 -0500
+Message-ID: <CAHC9VhSqMbNgWD+R4zBxqUm=vhKPF=-v9CyQQyvRepodCDMV+A@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: clean up selinux_enabled/disabled
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org, omosnace@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-With the inclusion of the "display" process attribute
-mechanism AppArmor no longer needs to be treated as an
-"exclusive" security module. Remove the flag that indicates
-it is exclusive. Remove the stub getpeersec_dgram AppArmor
-hook as it has no effect in the single LSM case and
-interferes in the multiple LSM case.
+On Fri, Dec 13, 2019 at 9:44 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 12/13/19 9:32 AM, Stephen Smalley wrote:
+> > Rename selinux_enabled to selinux_enabled_boot to make it clear that
+> > it only reflects whether SELinux was enabled at boot.  Further make it
+> > unconditionally read-only-after-init and stop needlessly clearing it
+> > in selinux_disable() since it is only used to skip other SELinux
+> > initialization code.
+> >
+> > Wrap the disabled field in the struct selinux_state with
+> > CONFIG_SECURITY_SELINUX_DISABLE since it is only used for
+> > runtime disable.
+> >
+> > Introduce a selinux_is_enabled() static inline that tests both
+> > selinux_enabled_boot and selinux_state.disabled as appropriate
+> > to determine whether SELinux is in an enabled state.  Use this function
+> > in the MAC_STATUS audit log message in place of selinux_enabled(_boot).
+> > It is unclear why this information is included in that audit record
+> > since selinuxfs is never registered at all if !selinux_enabled_boot
+> > and is unregistered in the runtime disable case, so this code should never
+> > be reached if SELinux is disabled.  It is also unclear why it is logged
+> > twice under enabled/old-enabled since setenforce does not change its
+> > value. Regardless, we leave it as is for compatibility.
+>
+> Just noticed that there is another AUDIT_MAC_STATUS audit log in
+> sel_write_disable() that uses hardcoded 0, 1 for enabled and old-enabled
+> values in the audit record.  Don't know if it should also use
+> selinux_is_enabled(), or if we should likewise just hardcode the values
+> used in the sel_write_enforce() case (to 1, 1, since this code shouldn't
+> be reachable if SELinux were disabled).  If the latter, we don't need
+> selinux_is_enabled() at all.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- security/apparmor/lsm.c | 20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+I see no reason why we can't hardcode the enabled/old-enabled values
+as they are always going to be "1" here.  As for why the values are
+being logged there at all, it has to do with a desire to have a
+consistent format for each record type; in sel_write_enforce() we log
+the enabled/old-enabled values for the MAC_STATUS record, so we need
+to ensure we log the values in sel_write_disable() as well.
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 34edfd29c32f..402a919190fd 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1112,22 +1112,6 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock, char **optval,
- 	return error;
- }
- 
--/**
-- * apparmor_socket_getpeersec_dgram - get security label of packet
-- * @sock: the peer socket
-- * @skb: packet data
-- * @secid: pointer to where to put the secid of the packet
-- *
-- * Sets the netlabel socket state on sk from parent
-- */
--static int apparmor_socket_getpeersec_dgram(struct socket *sock,
--					    struct sk_buff *skb, u32 *secid)
--
--{
--	/* TODO: requires secid support */
--	return -ENOPROTOOPT;
--}
--
- /**
-  * apparmor_sock_graft - Initialize newly created socket
-  * @sk: child sock
-@@ -1231,8 +1215,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
- #endif
- 	LSM_HOOK_INIT(socket_getpeersec_stream,
- 		      apparmor_socket_getpeersec_stream),
--	LSM_HOOK_INIT(socket_getpeersec_dgram,
--		      apparmor_socket_getpeersec_dgram),
- 	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
- #ifdef CONFIG_NETWORK_SECMARK
- 	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
-@@ -1901,7 +1883,7 @@ static int __init apparmor_init(void)
- 
- DEFINE_LSM(apparmor) = {
- 	.name = "apparmor",
--	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
-+	.flags = LSM_FLAG_LEGACY_MAJOR,
- 	.enabled = &apparmor_enabled,
- 	.blobs = &apparmor_blob_sizes,
- 	.init = apparmor_init,
+Looks fine to me otherwise.
+
 -- 
-2.20.1
-
+paul moore
+www.paul-moore.com
