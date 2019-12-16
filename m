@@ -7,53 +7,53 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0B5CC43603
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:37:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8780C43603
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:37:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B90D021835
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:37:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 69D1421739
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:37:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LpmXgIPI"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="mPx4WG68"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727505AbfLPWhg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 17:37:36 -0500
-Received: from sonic311-30.consmr.mail.ne1.yahoo.com ([66.163.188.211]:37134
-        "EHLO sonic311-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727437AbfLPWhg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 17:37:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576535853; bh=vAY+BSSlZvLKw6BmZsbfSaSyBBrsJ1eETqHGtnGVNto=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=LpmXgIPIFB3RqiiHUn574M0/4exC8SvqCo+5eLPRtz8HfiezKSF/fl/j59y1F1JIMokPzuYMIAcxSRna+S3CXfCcAtridjAEiDgPsPvSBhNvwOiShudTkaTFtwQKF0PqMkqaHcVrPA8WxSjzk25HvsvEK/QUV1/Vj4w/ZiKF+aCUXSJTeSPTtyhSB0jPMmzPY9vmBgkyzvaTFbTVYc8/ZJkhQ/n7r+u7X+lKVOeQyZb4rkVqtjguWBBgprbcFEyXlB9OFW73mmUqBms3ndvWVgBNOPQUmTIEyZkRn/2IeOJbtrv9KtAhlgaIURupe24jyaC+89Il+Owm5IUxhHgc0w==
-X-YMail-OSG: swbQ96kVM1kdwhGl6h1zWc2HPW2PnvwQ8vn0ix7M3UvKHbSB4gG85yAxsLG6zKI
- gGRBJfmWdDGNDtRndfnbxgdAtPmn2BUP5CBEyUpqWN9MXmvMqtRLKoAxRei7BHe_8Osg2FbrGqX1
- Ty5oEkh_k.0.bZisF5UqGw3m5GBxTULz2eECFyEdpcmGeNYo8LhuBGLU35U7oVlBi27MJWHeN32n
- CCSjG.PVhInJOxPskxhYpIi8Cr9350srTyTpM5Fh5ZZsewzuAByxIXId_V_bGYNvlRvkto2kQXNn
- 6yRzOyw_G1Wl2ER11Y9RisIxUY0rfYp37kThntMM4H_ewcHnxaOTWjPDgqwAO8KSsGu.DrdqqPkF
- 5TWV._xu5x3Fc_YOseHdCBzZuYy8osSPIDtx_9GkQzBBRVacQdNTWvc.xlKFI4kfetoPgk7TNHbU
- .M4NxC4mny1axK9oKWbk53ceVdAdQN3ABJxwUzVauWZ6gCAbfuE3ddt2bxjSphMpFKDVeLY5hAAK
- 0KNYSTCYYIQvWlU1Vr2QQt.malRpnEH7Ehz7SdtEW2VuQZ.s4cyPpEAnJOB.hJvbWh3BIvvM5hmP
- MP45bJg4QxIX71vkznDgGx6Z7LurIvZ_HFKeDsUI.O.A.2ggE1ucJaEbDd7UWeATuFYfFPCeI3LH
- O3lgM1iWI44aXmwEr_EiH98fbXAloPkO3WTkXGAJf7IaiAjZKUoaLsvoQml00adaVkca1rbvhKn8
- 73stVgIZQsKYAf0RaUJiITbjCLvhkGXOKtF6lARJu0c4LNPjzY94O4x24x8MsimbFBbmOTNv.P6v
- OB5JL5DIcfL8SxSSGFijahk64jNgCbLxXxuyWF34SdCbNk1gCIr1xKRlGdpUhsdFc5sGdIRomPQZ
- li5mSnug6shi_r6Wplsc4ispTn2p3IAjudqgO9LJwkG7GtMQ5DP7WLv3_EVfS4GE1IsJ4ndc7KXf
- W4Hez8SqHhB7byHT5j1O31HIMQfye64MHroG_0FvAvGwy5JPnmf0wttOvp3OuiuT_xv8AmvPynEh
- zxIWEP1pU3PxBQ.13rfPpwa7r9HZP.wocDO2KBYnD6aKSx16CAwoEt8GXdhgI0p38yBz2ehrF17l
- Qm2FYonKu3D4W0IkYKpZ7BqiWRgPxYenlEmHwvmYBfANyNp8sDv4jdCcR6sA.3v.uzkeVov8on3d
- okUez9UfO6cuizIuJuAw2758xQEWzD3fIbFviI0oGJN_t5LGCWJ7VbzmcOgoOd7rpEjFGEKSkCeX
- Vvq1HSgNwgu76O6nJgCGdWGHbDkvRi6tQbTTp3V5FGcJvFtxkGLpbKix_bzrX3QEaqO_jqEZul2O
- YWrzR.tCrhNTwqJKWSgN_Aq9F6DOXuVNFI.fm0UQsckDxCniOnQwzsG7HB.Qt9LCdfuQDMFesa8H
- bKnMNB5ZcvTbNkQ0k_0meahMNCX93kyBxkATaA7ymarKanETv1MXeX1xJLOKNFCsOC4oEvw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Mon, 16 Dec 2019 22:37:33 +0000
+        id S1727723AbfLPWhk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 17:37:40 -0500
+Received: from sonic306-28.consmr.mail.ne1.yahoo.com ([66.163.189.90]:34573
+        "EHLO sonic306-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727607AbfLPWhk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 17:37:40 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576535859; bh=g8TWN1eoe+uy+sZe5wVWXpzABF5M7+tcGA3nRh7X6XE=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=mPx4WG68Y2mTkc3vavTTqecZJQwIByGWsW+TwQwwWR1n9MmJQKCJbh+S8OL1SlBYYd4q+xfDLve9K80Bidf4lCpUBRnpDfdl3V5xfdzzy+zFLjsxQaeQmtXBPceESs9ZKQ8TnNAbRqwVZgJN1D2d2M6jAFFsHjFSh9dFc+M6+bE8n0chP/OJ+KkCP79ykZts9nu2znKy0p13DV0flV/ilM0CIWt7iod6SzMHN20W8oE3hB0KgjPCh21sTthT3f20Grj+ULVvIpUUq1LaMx14RMp0z5ArHR9MN6BPYprmnOleS6VZs0YKU0fYxk/9bj+vHVnW6AReVFfeSt/kXjIpVw==
+X-YMail-OSG: HlmzTTUVM1l2QEPpPWGxZFoM._KvylqNe_Du3XGP6m.QA5bGUAMmweta.MDut8H
+ OUSSFqR_nsZpVR3aNQW623Nb489SMDiqqOXQRBSLCfo.kPCcQFElmJ2JyfG3jVQKHNHcksvmTazy
+ VMFus1h_cMot7qSgL9JGU1U51yndPLw3SWPml_fqjjlK0RsXkV1n2.s68Ek1caUsQVpWmVSGGqIF
+ 2CSeCxSZi75JEklkxrAiOFE2SNI.BRNeHd_wgyMJyedOhc7HxGzL6AVHqHeNHsYwOEQCX.fsPXRC
+ F6GrZZL.s4LL1XMjSGwpSQ.rVnH43oT40WmP1Qy3ZGBet2yUSyYBGQD761sS5jTVwMm_9NFDl3yC
+ P5CPmHzFPEj9uS9ntTrQ.S3vH0hFTk7IXnDlBDSn11oph.6uHlpl20n6fCg559jY2xl_3.UWiPpT
+ V43i8C3BLvYZ3dqCtVybHI2oIqHFsnaa1RCe2wqGnuHr.6dgs5UR.ux1hxcASKLMBuwWJwYoNI_M
+ JMUHDlFFw4f5Mm8WOi933Mzl.AtnXo4vK469BzUr5t2e5JdhUZp9BVeXUKD36ydc00Xgzm7IDrMv
+ fiK5poVh6nP5ZZCAGT7LP6oCz8q7knkB6VZvuHG9j_KfZIPTxJ6c9mV3s_E2fYtGZ2u9tzQsgpVM
+ N_wBt35Qosmis0ggAiHq9IJ.Ilg_ezpojf93xNuHAG5w5MFy.SgxcwtGzLoja5JlaFpKg67uFU9n
+ .IY2JQ70zb_M4NZVvfuR71tOxSRf8TalKt_9So1hH9SIEHWJS04Zx1pk9sCmlTup1wawlpy6q7I5
+ sTe_IsCq4y_fG1yoZomBU2PgsuljbOJIco47YLI5dlZGQ_2R72AApyfr7ngNeR5bx5R.i6Fxaq7S
+ ChJbr47S01YwujBMmhxJMym_OwkAglL6EqePgQJhb5O1vxMaXLsAllaN1lLLTkaeaUzfSKz_KzJC
+ wAHjPj7ixUEVDYu4olI1B4IJ_kuJ6ZrU2zRSUSKpGTKeIYksE2eoRaJ3kc4XCjsqgAsX_EN0RNK3
+ L5oe8DDbcR7hB8n.v8jjpjTTWuHbjl7Sed0IxMXN0EqtBflY.QxcKdYryickaMwuwrG8AgO3YljD
+ PKi_z5pkuVPb_X7R2BjO46M_yrF8Ws3NkoHwYBusNNPQQJq8U.YvSzNuTCBlHRL9ZarT8I_Nh91r
+ PGyTh7JFgo2Y0C8dJao7wU7qT_LOdORAqVO.WUW4jhchFIjsQHA8LgiwLqM3jZLuwOssj9FuqAjC
+ kis69Duk_lGQF_klqoA4T11j5k1pmxFrERQKODWfMSKFynHUlFvExzRrYh1UCHCUhRWsbR5.EonO
+ kxAApw_ALde.8uGdHACoGL07HMJlmOTSrl1OaGd4zSz61Q.4bgnsOoJTpPTeeHVtwidO952xY7zr
+ wBXUVy9fEjyp276xskyAqJlNRY9gWvxToDQSV32afOtlgbFPlROGAlLLu7.An3zygurT5Gw--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 16 Dec 2019 22:37:39 +0000
 Received: by smtp422.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID ffb4aedc0a14f9ec9c33a789d0e268ee;
-          Mon, 16 Dec 2019 22:37:31 +0000 (UTC)
+          Mon, 16 Dec 2019 22:37:34 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         sds@tycho.nsa.gov
-Subject: [PATCH v12 12/25] IMA: Change internal interfaces to use lsmblobs
-Date:   Mon, 16 Dec 2019 14:36:08 -0800
-Message-Id: <20191216223621.5127-13-casey@schaufler-ca.com>
+Subject: [PATCH v12 13/25] LSM: Specify which LSM to display
+Date:   Mon, 16 Dec 2019 14:36:09 -0800
+Message-Id: <20191216223621.5127-14-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191216223621.5127-1-casey@schaufler-ca.com>
 References: <20191216223621.5127-1-casey@schaufler-ca.com>
@@ -64,245 +64,479 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The IMA interfaces ima_get_action() and ima_match_policy()
-call LSM functions that use lsmblobs. Change the IMA functions
-to pass the lsmblob to be compatible with the LSM functions.
+Create a new entry "display" in the procfs attr directory for
+controlling which LSM security information is displayed for a
+process. A process can only read or write its own display value.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: John Johansen <john.johansen@canonical.com>
+The name of an active LSM that supplies hooks for
+human readable data may be written to "display" to set the
+value. The name of the LSM currently in use can be read from
+"display". At this point there can only be one LSM capable
+of display active. A helper function lsm_task_display() is
+provided to get the display slot for a task_struct.
+
+Setting the "display" requires that all security modules using
+setprocattr hooks allow the action. Each security module is
+responsible for defining its policy.
+
+AppArmor hook provided by John Johansen <john.johansen@canonical.com>
+SELinux hook provided by Stephen Smalley <sds@tycho.nsa.gov>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-cc: linux-integrity@vger.kernel.org
 ---
- security/integrity/ima/ima.h          | 11 ++++-----
- security/integrity/ima/ima_api.c      | 10 ++++-----
- security/integrity/ima/ima_appraise.c |  4 +---
- security/integrity/ima/ima_main.c     | 32 +++++++++++----------------
- security/integrity/ima/ima_policy.c   | 12 +++++-----
- 5 files changed, 31 insertions(+), 38 deletions(-)
+ fs/proc/base.c                       |   1 +
+ include/linux/lsm_hooks.h            |  15 +++
+ security/apparmor/include/apparmor.h |   3 +-
+ security/apparmor/lsm.c              |  32 +++++
+ security/security.c                  | 169 ++++++++++++++++++++++++---
+ security/selinux/hooks.c             |  11 ++
+ security/selinux/include/classmap.h  |   2 +-
+ security/smack/smack_lsm.c           |   7 ++
+ 8 files changed, 221 insertions(+), 19 deletions(-)
 
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index d95b0ece7434..96b6662ea39f 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -205,9 +205,9 @@ extern const char *const func_tokens[];
- struct modsig;
+diff --git a/fs/proc/base.c b/fs/proc/base.c
+index ebea9501afb8..950c200cb9ad 100644
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2652,6 +2652,7 @@ static const struct pid_entry attr_dir_stuff[] = {
+ 	ATTR(NULL, "fscreate",		0666),
+ 	ATTR(NULL, "keycreate",		0666),
+ 	ATTR(NULL, "sockcreate",	0666),
++	ATTR(NULL, "display",		0666),
+ #ifdef CONFIG_SECURITY_SMACK
+ 	DIR("smack",			0555,
+ 	    proc_smack_attr_dir_inode_ops, proc_smack_attr_dir_ops),
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 7eb808cde051..2bf82e1cf347 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -2186,4 +2186,19 @@ static inline void security_delete_hooks(struct security_hook_list *hooks,
  
- /* LIM API function definitions */
--int ima_get_action(struct inode *inode, const struct cred *cred, u32 secid,
--		   int mask, enum ima_hooks func, int *pcr,
--		   struct ima_template_desc **template_desc);
-+int ima_get_action(struct inode *inode, const struct cred *cred,
-+		   struct lsmblob *blob, int mask, enum ima_hooks func,
-+		   int *pcr, struct ima_template_desc **template_desc);
- int ima_must_measure(struct inode *inode, int mask, enum ima_hooks func);
- int ima_collect_measurement(struct integrity_iint_cache *iint,
- 			    struct file *file, void *buf, loff_t size,
-@@ -232,8 +232,9 @@ void ima_free_template_entry(struct ima_template_entry *entry);
- const char *ima_d_path(const struct path *path, char **pathbuf, char *filename);
+ extern int lsm_inode_alloc(struct inode *inode);
  
- /* IMA policy related functions */
--int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
--		     enum ima_hooks func, int mask, int flags, int *pcr,
-+int ima_match_policy(struct inode *inode, const struct cred *cred,
-+		     struct lsmblob *blob, enum ima_hooks func, int mask,
-+		     int flags, int *pcr,
- 		     struct ima_template_desc **template_desc);
- void ima_init_policy(void);
- void ima_update_policy(void);
-diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
-index 610759fe63b8..1ab769fa7df6 100644
---- a/security/integrity/ima/ima_api.c
-+++ b/security/integrity/ima/ima_api.c
-@@ -163,7 +163,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
-  * ima_get_action - appraise & measure decision based on policy.
-  * @inode: pointer to inode to measure
-  * @cred: pointer to credentials structure to validate
-- * @secid: secid of the task being validated
-+ * @blob: LSM data of the task being validated
-  * @mask: contains the permission mask (MAY_READ, MAY_WRITE, MAY_EXEC,
-  *        MAY_APPEND)
-  * @func: caller identifier
-@@ -181,15 +181,15 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
-  * Returns IMA_MEASURE, IMA_APPRAISE mask.
-  *
-  */
--int ima_get_action(struct inode *inode, const struct cred *cred, u32 secid,
--		   int mask, enum ima_hooks func, int *pcr,
--		   struct ima_template_desc **template_desc)
-+int ima_get_action(struct inode *inode, const struct cred *cred,
-+		   struct lsmblob *blob, int mask, enum ima_hooks func,
-+		   int *pcr, struct ima_template_desc **template_desc)
- {
- 	int flags = IMA_MEASURE | IMA_AUDIT | IMA_APPRAISE | IMA_HASH;
++/**
++ * lsm_task_display - the "display" LSM for this task
++ * @task: The task to report on
++ *
++ * Returns the task's display LSM slot.
++ */
++static inline int lsm_task_display(struct task_struct *task)
++{
++	int *display = task->security;
++
++	if (display)
++		return *display;
++	return LSMBLOB_INVALID;
++}
++
+ #endif /* ! __LINUX_LSM_HOOKS_H */
+diff --git a/security/apparmor/include/apparmor.h b/security/apparmor/include/apparmor.h
+index 1fbabdb565a8..b1622fcb4394 100644
+--- a/security/apparmor/include/apparmor.h
++++ b/security/apparmor/include/apparmor.h
+@@ -28,8 +28,9 @@
+ #define AA_CLASS_SIGNAL		10
+ #define AA_CLASS_NET		14
+ #define AA_CLASS_LABEL		16
++#define AA_CLASS_DISPLAY_LSM	17
  
- 	flags &= ima_policy_flag;
+-#define AA_CLASS_LAST		AA_CLASS_LABEL
++#define AA_CLASS_LAST		AA_CLASS_DISPLAY_LSM
  
--	return ima_match_policy(inode, cred, secid, func, mask, flags, pcr,
-+	return ima_match_policy(inode, cred, blob, func, mask, flags, pcr,
- 				template_desc);
+ /* Control parameters settable through module/boot flags */
+ extern enum audit_mode aa_g_audit;
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index 146d75e5e021..16b992235c11 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -612,6 +612,25 @@ static int apparmor_getprocattr(struct task_struct *task, char *name,
+ 	return error;
  }
  
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index 69e549164949..01c755a242ac 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -48,15 +48,13 @@ bool is_ima_appraise_enabled(void)
-  */
- int ima_must_appraise(struct inode *inode, int mask, enum ima_hooks func)
++
++static int profile_display_lsm(struct aa_profile *profile,
++			       struct common_audit_data *sa)
++{
++	struct aa_perms perms = { };
++	unsigned int state;
++
++	state = PROFILE_MEDIATES(profile, AA_CLASS_DISPLAY_LSM);
++	if (state) {
++		aa_compute_perms(profile->policy.dfa, state, &perms);
++		aa_apply_modes_to_perms(profile, &perms);
++		aad(sa)->label = &profile->label;
++
++		return aa_check_perms(profile, &perms, AA_MAY_WRITE, sa, NULL);
++	}
++
++	return 0;
++}
++
+ static int apparmor_setprocattr(const char *name, void *value,
+ 				size_t size)
  {
--	u32 secid;
- 	struct lsmblob blob;
+@@ -623,6 +642,19 @@ static int apparmor_setprocattr(const char *name, void *value,
+ 	if (size == 0)
+ 		return -EINVAL;
  
- 	if (!ima_appraise)
++	/* LSM infrastructure does actual setting of display if allowed */
++	if (!strcmp(name, "display")) {
++		struct aa_profile *profile;
++		struct aa_label *label;
++
++		aad(&sa)->info = "set display lsm";
++		label = begin_current_label_crit_section();
++		error = fn_for_each_confined(label, profile,
++					     profile_display_lsm(profile, &sa));
++		end_current_label_crit_section(label);
++		return error;
++	}
++
+ 	/* AppArmor requires that the buffer must be null terminated atm */
+ 	if (args[size - 1] != '\0') {
+ 		/* null terminate */
+diff --git a/security/security.c b/security/security.c
+index 32354942b7e8..aaac748e4d83 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -27,6 +27,7 @@
+ #include <linux/backing-dev.h>
+ #include <linux/string.h>
+ #include <linux/msg.h>
++#include <linux/binfmts.h>
+ #include <net/flow.h>
+ #include <net/sock.h>
+ 
+@@ -43,7 +44,14 @@ static struct kmem_cache *lsm_file_cache;
+ static struct kmem_cache *lsm_inode_cache;
+ 
+ char *lsm_names;
+-static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init;
++
++/*
++ * The task blob includes the "display" slot used for
++ * chosing which module presents contexts.
++ */
++static struct lsm_blob_sizes blob_sizes __lsm_ro_after_init = {
++	.lbs_task = sizeof(int),
++};
+ 
+ /* Boot-time LSM user choice */
+ static __initdata const char *chosen_lsm_order;
+@@ -438,8 +446,10 @@ static int lsm_append(const char *new, char **result)
+ 
+ /*
+  * Current index to use while initializing the lsmblob secid list.
++ * Pointers to the LSM id structures for local use.
+  */
+ static int lsm_slot __lsm_ro_after_init;
++static struct lsm_id *lsm_slotlist[LSMBLOB_ENTRIES];
+ 
+ /**
+  * security_add_hooks - Add a modules hooks to the hook lists.
+@@ -459,6 +469,7 @@ void __init security_add_hooks(struct security_hook_list *hooks, int count,
+ 	if (lsmid->slot == LSMBLOB_NEEDED) {
+ 		if (lsm_slot >= LSMBLOB_ENTRIES)
+ 			panic("%s Too many LSMs registered.\n", __func__);
++		lsm_slotlist[lsm_slot] = lsmid;
+ 		lsmid->slot = lsm_slot++;
+ 		init_debug("%s assigned lsmblob slot %d\n", lsmid->lsm,
+ 			   lsmid->slot);
+@@ -588,6 +599,8 @@ int lsm_inode_alloc(struct inode *inode)
+  */
+ static int lsm_task_alloc(struct task_struct *task)
+ {
++	int *display;
++
+ 	if (blob_sizes.lbs_task == 0) {
+ 		task->security = NULL;
  		return 0;
- 
- 	security_task_getsecid(current, &blob);
--	lsmblob_secid(&blob, &secid);
--	return ima_match_policy(inode, current_cred(), secid, func, mask,
-+	return ima_match_policy(inode, current_cred(), &blob, func, mask,
- 				IMA_APPRAISE | IMA_HASH, NULL, NULL);
+@@ -596,6 +609,15 @@ static int lsm_task_alloc(struct task_struct *task)
+ 	task->security = kzalloc(blob_sizes.lbs_task, GFP_KERNEL);
+ 	if (task->security == NULL)
+ 		return -ENOMEM;
++
++	/*
++	 * The start of the task blob contains the "display" LSM slot number.
++	 * Start with it set to the invalid slot number, indicating that the
++	 * default first registered LSM be displayed.
++	 */
++	display = task->security;
++	*display = LSMBLOB_INVALID;
++
+ 	return 0;
  }
  
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index c8e3e234d446..86cc1419587e 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -190,8 +190,8 @@ void ima_file_free(struct file *file)
- }
+@@ -1551,14 +1573,26 @@ int security_file_open(struct file *file)
  
- static int process_measurement(struct file *file, const struct cred *cred,
--			       u32 secid, char *buf, loff_t size, int mask,
--			       enum ima_hooks func)
-+			       struct lsmblob *blob, char *buf, loff_t size,
-+			       int mask, enum ima_hooks func)
+ int security_task_alloc(struct task_struct *task, unsigned long clone_flags)
  {
- 	struct inode *inode = file_inode(file);
- 	struct integrity_iint_cache *iint = NULL;
-@@ -214,7 +214,7 @@ static int process_measurement(struct file *file, const struct cred *cred,
- 	 * bitmask based on the appraise/audit/measurement policy.
- 	 * Included is the appraise submask.
- 	 */
--	action = ima_get_action(inode, cred, secid, mask, func, &pcr,
-+	action = ima_get_action(inode, cred, blob, mask, func, &pcr,
- 				&template_desc);
- 	violation_check = ((func == FILE_CHECK || func == MMAP_CHECK) &&
- 			   (ima_policy_flag & IMA_MEASURE));
-@@ -388,8 +388,7 @@ int ima_file_mmap(struct file *file, unsigned long prot)
++	int *odisplay = current->security;
++	int *ndisplay;
+ 	int rc = lsm_task_alloc(task);
  
- 	if (file && (prot & PROT_EXEC)) {
- 		security_task_getsecid(current, &blob);
--		/* scaffolding - until process_measurement changes */
--		return process_measurement(file, current_cred(), blob.secid[0],
-+		return process_measurement(file, current_cred(), &blob,
- 					   NULL, 0, MAY_EXEC, MMAP_CHECK);
- 	}
- 
-@@ -415,16 +414,14 @@ int ima_bprm_check(struct linux_binprm *bprm)
- 	struct lsmblob blob;
- 
- 	security_task_getsecid(current, &blob);
--	/* scaffolding until process_measurement changes */
--	ret = process_measurement(bprm->file, current_cred(), blob.secid[0],
--				  NULL, 0, MAY_EXEC, BPRM_CHECK);
-+	ret = process_measurement(bprm->file, current_cred(), &blob, NULL, 0,
-+				  MAY_EXEC, BPRM_CHECK);
- 	if (ret)
- 		return ret;
- 
- 	security_cred_getsecid(bprm->cred, &blob);
--	/* scaffolding until process_measurement changes */
--	return process_measurement(bprm->file, bprm->cred, blob.secid[0],
--				   NULL, 0, MAY_EXEC, CREDS_CHECK);
-+	return process_measurement(bprm->file, bprm->cred, &blob, NULL, 0,
-+				   MAY_EXEC, CREDS_CHECK);
+-	if (rc)
++	if (unlikely(rc))
+ 		return rc;
++
+ 	rc = call_int_hook(task_alloc, 0, task, clone_flags);
+-	if (unlikely(rc))
++	if (unlikely(rc)) {
+ 		security_task_free(task);
+-	return rc;
++		return rc;
++	}
++
++	if (odisplay) {
++		ndisplay = task->security;
++		if (ndisplay)
++			*ndisplay = *odisplay;
++	}
++
++	return 0;
  }
  
- /**
-@@ -442,8 +439,7 @@ int ima_file_check(struct file *file, int mask)
- 	struct lsmblob blob;
- 
- 	security_task_getsecid(current, &blob);
--	/* scaffolding until process_measurement changes */
--	return process_measurement(file, current_cred(), blob.secid[0], NULL, 0,
-+	return process_measurement(file, current_cred(), &blob, NULL, 0,
- 				   mask & (MAY_READ | MAY_WRITE | MAY_EXEC |
- 					   MAY_APPEND), FILE_CHECK);
- }
-@@ -575,9 +571,8 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
- 
- 	func = read_idmap[read_id] ?: FILE_CHECK;
- 	security_task_getsecid(current, &blob);
--	/* scaffolding until process_measurement changes */
--	return process_measurement(file, current_cred(), blob.secid[0], buf,
--				   size, MAY_READ, func);
-+	return process_measurement(file, current_cred(), &blob, buf, size,
-+				   MAY_READ, func);
- }
- 
- /**
-@@ -669,9 +664,8 @@ void process_buffer_measurement(const void *buf, int size,
- 	 */
- 	if (func) {
- 		security_task_getsecid(current, &blob);
--		/* scaffolding */
--		action = ima_get_action(NULL, current_cred(), blob.secid[0],
--					0, func, &pcr, &template);
-+		action = ima_get_action(NULL, current_cred(), &blob, 0, func,
-+					&pcr, &template);
- 		if (!(action & IMA_MEASURE))
- 			return;
- 	}
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index c7d2ea47a326..b089d4a8b27b 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -368,7 +368,7 @@ int ima_lsm_policy_change(struct notifier_block *nb, unsigned long event,
-  * Returns true on rule match, false on failure.
-  */
- static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
--			    const struct cred *cred, u32 secid,
-+			    const struct cred *cred, struct lsmblob *blob,
- 			    enum ima_hooks func, int mask)
+ void security_task_free(struct task_struct *task)
+@@ -1955,23 +1989,110 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+ 				char **value)
  {
- 	int i;
-@@ -431,7 +431,6 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		case LSM_SUBJ_USER:
- 		case LSM_SUBJ_ROLE:
- 		case LSM_SUBJ_TYPE:
--			lsmblob_init(&blob, secid);
- 			rc = security_filter_rule_match(&blob,
- 							rule->lsm[i].type,
- 							Audit_equal,
-@@ -475,7 +474,7 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
-  * @inode: pointer to an inode for which the policy decision is being made
-  * @cred: pointer to a credentials structure for which the policy decision is
-  *        being made
-- * @secid: LSM secid of the task to be validated
-+ * @blob: LSM data of the task to be validated
-  * @func: IMA hook identifier
-  * @mask: requested action (MAY_READ | MAY_WRITE | MAY_APPEND | MAY_EXEC)
-  * @pcr: set the pcr to extend
-@@ -488,8 +487,9 @@ static int get_subaction(struct ima_rule_entry *rule, enum ima_hooks func)
-  * list when walking it.  Reads are many orders of magnitude more numerous
-  * than writes so ima_match_policy() is classical RCU candidate.
-  */
--int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
--		     enum ima_hooks func, int mask, int flags, int *pcr,
-+int ima_match_policy(struct inode *inode, const struct cred *cred,
-+		     struct lsmblob *blob, enum ima_hooks func, int mask,
-+		     int flags, int *pcr,
- 		     struct ima_template_desc **template_desc)
- {
- 	struct ima_rule_entry *entry;
-@@ -504,7 +504,7 @@ int ima_match_policy(struct inode *inode, const struct cred *cred, u32 secid,
- 		if (!(entry->action & actmask))
+ 	struct security_hook_list *hp;
++	int display = lsm_task_display(current);
++	int slot = 0;
++
++	if (!strcmp(name, "display")) {
++		/*
++		 * lsm_slot will be 0 if there are no displaying modules.
++		 */
++		if (lsm_slot == 0)
++			return -EINVAL;
++
++		/*
++		 * Only allow getting the current process' display.
++		 * There are too few reasons to get another process'
++		 * display and too many LSM policy issues.
++		 */
++		if (current != p)
++			return -EINVAL;
++
++		display = lsm_task_display(p);
++		if (display != LSMBLOB_INVALID)
++			slot = display;
++		*value = kstrdup(lsm_slotlist[slot]->lsm, GFP_KERNEL);
++		if (*value)
++			return strlen(*value);
++		return -ENOMEM;
++	}
+ 
+ 	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+ 		if (lsm != NULL && strcmp(lsm, hp->lsmid->lsm))
  			continue;
++		if (lsm == NULL && display != LSMBLOB_INVALID &&
++		    display != hp->lsmid->slot)
++			continue;
+ 		return hp->hook.getprocattr(p, name, value);
+ 	}
+ 	return -EINVAL;
+ }
  
--		if (!ima_match_rules(entry, inode, cred, secid, func, mask))
-+		if (!ima_match_rules(entry, inode, cred, blob, func, mask))
++/**
++ * security_setprocattr - Set process attributes via /proc
++ * @lsm: name of module involved, or NULL
++ * @name: name of the attribute
++ * @value: value to set the attribute to
++ * @size: size of the value
++ *
++ * Set the process attribute for the specified security module
++ * to the specified value. Note that this can only be used to set
++ * the process attributes for the current, or "self" process.
++ * The /proc code has already done this check.
++ *
++ * Returns 0 on success, an appropriate code otherwise.
++ */
+ int security_setprocattr(const char *lsm, const char *name, void *value,
+ 			 size_t size)
+ {
+ 	struct security_hook_list *hp;
++	char *term;
++	char *cp;
++	int *display = current->security;
++	int rc = -EINVAL;
++	int slot = 0;
++
++	if (!strcmp(name, "display")) {
++		/*
++		 * Change the "display" value only if all the security
++		 * modules that support setting a procattr allow it.
++		 * It is assumed that all such security modules will be
++		 * cooperative.
++		 */
++		if (size == 0)
++			return -EINVAL;
++
++		hlist_for_each_entry(hp, &security_hook_heads.setprocattr,
++				     list) {
++			rc = hp->hook.setprocattr(name, value, size);
++			if (rc < 0)
++				return rc;
++		}
++
++		rc = -EINVAL;
++
++		term = kmemdup_nul(value, size, GFP_KERNEL);
++		if (term == NULL)
++			return -ENOMEM;
++
++		cp = strsep(&term, " \n");
++
++		for (slot = 0; slot < lsm_slot; slot++)
++			if (!strcmp(cp, lsm_slotlist[slot]->lsm)) {
++				*display = lsm_slotlist[slot]->slot;
++				rc = size;
++				break;
++			}
++
++		kfree(cp);
++		return rc;
++	}
+ 
+ 	hlist_for_each_entry(hp, &security_hook_heads.setprocattr, list) {
+ 		if (lsm != NULL && strcmp(lsm, hp->lsmid->lsm))
  			continue;
++		if (lsm == NULL && *display != LSMBLOB_INVALID &&
++		    *display != hp->lsmid->slot)
++			continue;
+ 		return hp->hook.setprocattr(name, value, size);
+ 	}
+ 	return -EINVAL;
+@@ -1991,15 +2112,15 @@ EXPORT_SYMBOL(security_ismaclabel);
+ int security_secid_to_secctx(struct lsmblob *blob, char **secdata, u32 *seclen)
+ {
+ 	struct security_hook_list *hp;
+-	int rc;
++	int display = lsm_task_display(current);
  
- 		action |= entry->flags & IMA_ACTION_FLAGS;
+ 	hlist_for_each_entry(hp, &security_hook_heads.secid_to_secctx, list) {
+ 		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
+ 			continue;
+-		rc = hp->hook.secid_to_secctx(blob->secid[hp->lsmid->slot],
+-					      secdata, seclen);
+-		if (rc != 0)
+-			return rc;
++		if (display == LSMBLOB_INVALID || display == hp->lsmid->slot)
++			return hp->hook.secid_to_secctx(
++					blob->secid[hp->lsmid->slot],
++					secdata, seclen);
+ 	}
+ 	return 0;
+ }
+@@ -2009,16 +2130,15 @@ int security_secctx_to_secid(const char *secdata, u32 seclen,
+ 			     struct lsmblob *blob)
+ {
+ 	struct security_hook_list *hp;
+-	int rc;
++	int display = lsm_task_display(current);
+ 
+ 	lsmblob_init(blob, 0);
+ 	hlist_for_each_entry(hp, &security_hook_heads.secctx_to_secid, list) {
+ 		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
+ 			continue;
+-		rc = hp->hook.secctx_to_secid(secdata, seclen,
+-					      &blob->secid[hp->lsmid->slot]);
+-		if (rc != 0)
+-			return rc;
++		if (display == LSMBLOB_INVALID || display == hp->lsmid->slot)
++			return hp->hook.secctx_to_secid(secdata, seclen,
++						&blob->secid[hp->lsmid->slot]);
+ 	}
+ 	return 0;
+ }
+@@ -2026,7 +2146,15 @@ EXPORT_SYMBOL(security_secctx_to_secid);
+ 
+ void security_release_secctx(char *secdata, u32 seclen)
+ {
+-	call_void_hook(release_secctx, secdata, seclen);
++	struct security_hook_list *hp;
++	int *display = current->security;
++
++	hlist_for_each_entry(hp, &security_hook_heads.release_secctx, list)
++		if (display == NULL || *display == LSMBLOB_INVALID ||
++		    *display == hp->lsmid->slot) {
++			hp->hook.release_secctx(secdata, seclen);
++			return;
++		}
+ }
+ EXPORT_SYMBOL(security_release_secctx);
+ 
+@@ -2151,8 +2279,15 @@ EXPORT_SYMBOL(security_sock_rcv_skb);
+ int security_socket_getpeersec_stream(struct socket *sock, char __user *optval,
+ 				      int __user *optlen, unsigned len)
+ {
+-	return call_int_hook(socket_getpeersec_stream, -ENOPROTOOPT, sock,
+-				optval, optlen, len);
++	int display = lsm_task_display(current);
++	struct security_hook_list *hp;
++
++	hlist_for_each_entry(hp, &security_hook_heads.socket_getpeersec_stream,
++			     list)
++		if (display == LSMBLOB_INVALID || display == hp->lsmid->slot)
++			return hp->hook.socket_getpeersec_stream(sock, optval,
++								 optlen, len);
++	return -ENOPROTOOPT;
+ }
+ 
+ int security_socket_getpeersec_dgram(struct socket *sock, struct sk_buff *skb,
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 97f2ee6e4080..b8501ca3c8f3 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6323,6 +6323,17 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+ 	/*
+ 	 * Basic control over ability to set these attributes at all.
+ 	 */
++
++	/*
++	 * For setting display, we only perform a permission check;
++	 * the actual update to the display value is handled by the
++	 * LSM framework.
++	 */
++	if (!strcmp(name, "display"))
++		return avc_has_perm(&selinux_state,
++				    mysid, mysid, SECCLASS_PROCESS2,
++				    PROCESS2__SETDISPLAY, NULL);
++
+ 	if (!strcmp(name, "exec"))
+ 		error = avc_has_perm(&selinux_state,
+ 				     mysid, mysid, SECCLASS_PROCESS,
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index 7db24855e12d..323da8a38c43 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -52,7 +52,7 @@ struct security_class_mapping secclass_map[] = {
+ 	    "execmem", "execstack", "execheap", "setkeycreate",
+ 	    "setsockcreate", "getrlimit", NULL } },
+ 	{ "process2",
+-	  { "nnp_transition", "nosuid_transition", NULL } },
++	  { "nnp_transition", "nosuid_transition", "setdisplay", NULL } },
+ 	{ "system",
+ 	  { "ipc_info", "syslog_read", "syslog_mod",
+ 	    "syslog_console", "module_request", "module_load", NULL } },
+diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+index 82cbb3eeec76..9737ead06b39 100644
+--- a/security/smack/smack_lsm.c
++++ b/security/smack/smack_lsm.c
+@@ -3518,6 +3518,13 @@ static int smack_setprocattr(const char *name, void *value, size_t size)
+ 	struct smack_known_list_elem *sklep;
+ 	int rc;
+ 
++	/*
++	 * Allow the /proc/.../attr/current and SO_PEERSEC "display"
++	 * to be reset at will.
++	 */
++	if (strcmp(name, "display") == 0)
++		return 0;
++
+ 	if (!smack_privileged(CAP_MAC_ADMIN) && list_empty(&tsp->smk_relabel))
+ 		return -EPERM;
+ 
 -- 
 2.20.1
 
