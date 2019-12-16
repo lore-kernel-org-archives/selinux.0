@@ -7,82 +7,161 @@ X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68560C43603
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 13:50:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11847C2D0C3
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 14:04:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 393E0205ED
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 13:50:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D2123206B7
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 14:04:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ADOlTrb8"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Xt0JEWx0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727945AbfLPNul (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 08:50:41 -0500
-Received: from UHIL19PA35.eemsg.mail.mil ([214.24.21.194]:36636 "EHLO
-        UHIL19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727579AbfLPNul (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 08:50:41 -0500
-X-EEMSG-check-017: 57730771|UHIL19PA35_ESA_OUT01.csd.disa.mil
+        id S1728105AbfLPOEL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 09:04:11 -0500
+Received: from UCOL19PA36.eemsg.mail.mil ([214.24.24.196]:19861 "EHLO
+        UCOL19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727906AbfLPOEL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 09:04:11 -0500
+X-EEMSG-check-017: 61521314|UCOL19PA36_ESA_OUT03.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,321,1571702400"; 
-   d="scan'208";a="57730771"
+   d="scan'208";a="61521314"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA35.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Dec 2019 13:50:39 +0000
+  by UCOL19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Dec 2019 14:04:09 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1576504239; x=1608040239;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=2k1H/a06zDtQ4rYa2fRG68MEPGfS5eePYvu6AQNf/rQ=;
-  b=ADOlTrb8KFkXdJUhZrAdPGVzN6n1DLcV6SXkTsLNF7dWXQ5TpfPCGXyS
-   8/7+PA1x6sLq/AwL1XQmVgEIrs4S9imVbWbr6zpSVMkqHzVsu22xF0CfU
-   urFmOh2YWNlq9UeLuQjN6XOb9w7KxWY9ZvG01NNg4MoH8bVNVCUTA8zPx
-   2hzOpHbf9mLsxsbzRk7kHtaxseJEJfK+dRH2KcCJJTWbssM4eItJonI6h
-   FAOD8oLbb7r65CEb8Ls2x4psNtvl/Yf6xl/cu1BAGFB15oc25+4J545LY
-   KbG/64FT/kV7HgP9Z3NuH9JprjQxrK4FQ2heK2es7QZiB2o+FXMuya/zI
-   Q==;
+  s=tycho.nsa.gov; t=1576505049; x=1608041049;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=U0M0tIssvGrXXr9dmiqb0cmH1xoVvn8V0R69uhizAz0=;
+  b=Xt0JEWx0eGrG7h8Ig8HlW0+ELW+o0+CLEE6h+l91OjQyb7Vu9m1SoSlO
+   +K6GvqvsuNZAjH2fgr8LuCL+MWZXYConpHHb4LIYgZoz2e7atdw9tfghH
+   P4c5xReSFanPcO1sykqhbwXn/oqidrVbEFOjarpDvUa5ruwZ/YXqKmBtj
+   KyP+unT0zd6AzLc6Y8AAFcyDRXKpZZ0C5n4gJgUVngOkZG9EBdeI28/hj
+   3kPFl17LzjjgclXvAYTTgt77V+oX/WPTGnQujuobSPDsxhEqF81dkHVwW
+   s2NyOpGyevEHpl2LaQdWZZdgypJlFm1Y04ZFR7yKJs6AllGWSq/9oeprl
+   g==;
 X-IronPort-AV: E=Sophos;i="5.69,321,1571702400"; 
-   d="scan'208";a="36781451"
-IronPort-PHdr: =?us-ascii?q?9a23=3ADEkLhxJTxrGjPGEe59mcpTZWNBhigK39O0sv0r?=
- =?us-ascii?q?FitYgfKvnxwZ3uMQTl6Ol3ixeRBMOHsqkC0bKL+P29EUU7or+5+EgYd5JNUx?=
- =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
- =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCezbL9oMhm6sQXcusYWjIZiN6081g?=
- =?us-ascii?q?bHrnxUdupM2GhmP0iTnxHy5sex+J5s7SFdsO8/+sBDTKv3Yb02QaRXAzo6PW?=
- =?us-ascii?q?814tbrtQTYQguU+nQcSGQWnQFWDAXD8Rr3Q43+sir+tup6xSmaIcj7Rq06VD?=
- =?us-ascii?q?i+86tmTgLjhTwZPDAl7m7Yls1wjLpaoB2/oRx/35XUa5yROPZnY6/RYc8WSW?=
- =?us-ascii?q?9HU8lfTSxBBp63YZUJAeQPIO1Uq5DxqlUKoBe7AwSnGeHhxSJShnLuwKM0ze?=
- =?us-ascii?q?ohHwHF0gIuEd0Bv3bbo8n6OqoJTeC4zrPFwSnfY/5Y2zrw7pXDfBA7ofGLWL?=
- =?us-ascii?q?J9adffyVUxGAPdjlWft4rlNC6I2OQIqWeb6+5gWvyvimU6rAxxuSWgxtw3h4?=
- =?us-ascii?q?nVhoMa1lDE9SJjzIYzPt23UlR3YdGjEJtOriyXMZZ9TMA6Q2xwpSo3xbILtY?=
- =?us-ascii?q?S7cSQX0pgr2RHSZ+Kdf4SV5B/oSfyfLi1ihH1/fbKynxOy8U+9xeLiTsS0y1?=
- =?us-ascii?q?NKrjZdktnLq3ANywTf6siZRft5+UeswSqP2BrJ6uFFPEA0jrDXK58nwr4+kZ?=
- =?us-ascii?q?oTqlrMETPslEXqjK6ZakUk+u+y5+ThfrrmvYOTO5VxigH/NqQigs2/AeImPQ?=
- =?us-ascii?q?gSR2WX5Oux2bL58UD5XblGlOM6n6bHvJzAOMgXvqu5DBVU0oYn5Ra/FTCm0N?=
- =?us-ascii?q?EAkHkcMV1FYwmKj5TpOl7SIPD4Cu2zg1K3kDhx3fzGMbrhAovVInjZjLjhZa?=
- =?us-ascii?q?p961JbyAcrytBf4pVUCqoHIP3pRkD+qsfVDgUnPAOpw+boEsl92pkCVmKIB6?=
- =?us-ascii?q?+TKLnSvkOQ5uIzP+mMY5cYuC3jJPgh5v7ui2I5mFAGcKm30psYdmq4Eu5lI0?=
- =?us-ascii?q?qHe3rshMkOEWMQsgo5Vuzqhw7KbTkGQHC+Ra8+rhQ8E4SvBorADtSqhbua2i?=
- =?us-ascii?q?6wE7VMa2xGA0zKGnDtIcHMQPoIaSSPMud/nTEeE7usUYks0VeprgCp5aBgK7?=
- =?us-ascii?q?/v5iAAtZ/lnONw7unXmAB6oSd4FOyBwmqNSCdyhWpOSDgoivMs6Xdhw0uOhP?=
- =?us-ascii?q?Ary8dTEsZesrYQCVY3?=
-X-IPAS-Result: =?us-ascii?q?A2DdAAAsi/dd/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBfoF0gW0gEiqEBIkDhnUGgTeJapFFCQEBAQEBAQEBATcBAYRAAoI4OBMCE?=
- =?us-ascii?q?AEBAQQBAQEBAQUDAQFshUOCOykBgnoBBSMVUQsOCgICJgICVwYBDAYCAQGCX?=
- =?us-ascii?q?z+CUyWuHYEyhU+DL4FIgQ4ojDJ5gQeBOA+CXT6HWYJeBJcJRpcrgj6CP5NAB?=
- =?us-ascii?q?huaSC2OH5xaIoFYKwgCGAghD4MnUBEUm3YjAzCQJgEB?=
+   d="scan'208";a="36782375"
+IronPort-PHdr: =?us-ascii?q?9a23=3AKPoiuhHc+V4kn8xeMmMs4J1GYnF86YWxBRYc79?=
+ =?us-ascii?q?8ds5kLTJ74pcqzbnLW6fgltlLVR4KTs6sC17ON9fq4BCddsN6oizMrSNR0TR?=
+ =?us-ascii?q?gLiMEbzUQLIfWuLgnFFsPsdDEwB89YVVVorDmROElRH9viNRWJ+iXhpTEdFQ?=
+ =?us-ascii?q?/iOgVrO+/7BpDdj9it1+C15pbffxhEiCCybL9vIhi6txvdutUWjIdtKqs8zg?=
+ =?us-ascii?q?bCr2dVdehR2W5mP0+YkQzm5se38p5j8iBQtOwk+sVdT6j0fLk2QKJBAjg+PG?=
+ =?us-ascii?q?87+MPktR/YTQuS/XQcSXkZkgBJAwfe8h73WIr6vzbguep83CmaOtD2TawxVD?=
+ =?us-ascii?q?+/4apnVAPkhSEaPDMi7mrZltJ/g75aoBK5phxw3YjUYJ2ONPFjeq/RZM4WSX?=
+ =?us-ascii?q?ZdUspUUSFODJm8b48SBOQfO+hWoZT2q18XoRegAQSgAeXiwSJKiHDrx603y/?=
+ =?us-ascii?q?kvHx/I3AIgHNwAvnrbo9r3O6gOXu6417XIwDfZYv9KxTvw5orFfxY8qv+MR7?=
+ =?us-ascii?q?Jwds/RxFEyGQPZkFqQsYzlMC2T1u8Qrmab6vBvVeari2E5qwB6vz+ixtwxhY?=
+ =?us-ascii?q?nSnY8V1lDF+jl5wIYyP9G4TlV7bsS+HJtfsCGaKZJ7T8U/SG9mvyY6z6cJuZ?=
+ =?us-ascii?q?+9fCUSzZQo3RjfZv6df4iP+BLjW+CcKip7inJ9YL+zmhm//Ee6xuD8S8W4yk?=
+ =?us-ascii?q?hGoyVbntXWq3wA0QHY5NKdRftn5Eih3C6C1wXU6u5ZP085jbHbK5s9wr4okZ?=
+ =?us-ascii?q?oTrFjDEjf2mEroiK+WcV0p+vSy5OT9Y7Xmu4ScO5V1igH4PKQunde/DvokPQ?=
+ =?us-ascii?q?QUQ2ia+fiz1L3k/UHjRrVFkuY2nbXDvJDfJMQbora1Aw5T0ok99xayFyqq3d?=
+ =?us-ascii?q?sXkHUdLF9JZQiLg5bmNl3QOvz0EO+zg1G2nzdqw/DGMKfhApLILnXbi7fuYK?=
+ =?us-ascii?q?195lVAyAsz0d9f55VUBqsHIPLoQED9rtPYDhgnMwCs2eboFM191p8CWWKIGq?=
+ =?us-ascii?q?KWKqfSvkGH5+0xI+iAfpQauCvgJPc/4f7ujng5mUEGcKmt3JsXbm24H/t8L0?=
+ =?us-ascii?q?WYZ3rsnskOEWMQsgUiS+zqjUWIUSRPaHaqQ6I8+jY7BZq+DYjdWoCinqaB3S?=
+ =?us-ascii?q?agE51XYGBGBEqMHm31eIqaQfgDdTieIsh7kjwLTbKhUZMu1QmytA/mzLpqNv?=
+ =?us-ascii?q?Db9TEdtZ39z9V15PPclQs09TNqC8SRyWaNT3t7nmkQXT85wLh/oVBhyleEya?=
+ =?us-ascii?q?V4hv1YFdpc5/NOSQo6L4DTwPF6C9/oRgLNZMuGSFGjQt++GzE+Usoxw8MSY0?=
+ =?us-ascii?q?Z6A9iijArM3yyrA7MPkbyLBZ808r/Y33frPMt9z3fG1K88j1gpWMdPNGumhr?=
+ =?us-ascii?q?Jh+AjXHYLGj0KZl6Oyf6QGwCHN7HuDzXaJvExAUg5wVqLFXXYFaUvNt9j54l?=
+ =?us-ascii?q?nNT7+yCbQmNAtO18iCJ7BOat3oi1VGWfjiNM7fY2K3h2e/GxKIyqmQY4rtfm?=
+ =?us-ascii?q?UXxD/dB1QckwAP4XaGMhAzBj2mo23DFjxuFF3vY0T2/elgqXO7UE40whqLb0?=
+ =?us-ascii?q?1ny7q65BoVieaARPMU27IOoD0hpClsHFahw9LWDMKNqBB6fKVAet4940lI1X?=
+ =?us-ascii?q?jftwNjOpysNadihkQRcw5vpUPhyw13CplckcgttH4qzhB9KaeG31NabT+Xxp?=
+ =?us-ascii?q?fwOqHLKmn1+RCvb7DZ21HF3daW4KgP7u84pEvlvAGxDEUi6Wln099L3HuG/Z?=
+ =?us-ascii?q?XKDAsSUYrrXkkr8Bh6oqnQYjMh6IPMyX1sLa60vyfZ1N03Auslyg2tf9RBP6?=
+ =?us-ascii?q?OeEg/9DckaC9KyJ+wwgVepdRIEPOFU9K47Jc+mcOGG2KGzNuZ6gD2mlXhH4J?=
+ =?us-ascii?q?x60k+U6yVzUPXI0IgFwvyDxQuISzf8g028ssD5nYBLeysSEnOjxif+HoJeeq?=
+ =?us-ascii?q?pyfYMTA2e0P8K33sl+h4LqW3NA716sGUkG2MC3dheJb1zyxwlQ1UAXoHyhgy?=
+ =?us-ascii?q?e30zt0kzQxpKqFwCPO2/jidAYAOmNTRmliiFDsIZKuj9AbR0ildA4pmwGg5U?=
+ =?us-ascii?q?nkxqhXvqN/L3PcQU1QZSj5M3liUrestrqFe8NP6pQosSFMUOumel2aUKDyrA?=
+ =?us-ascii?q?Ya0yz5A2tS3iw0dzavup/hhRx1lHqdLGpvrHreYcx/3xTf6cfYRf5Q2DoGWS?=
+ =?us-ascii?q?Z5hSPWBli6I9mm49GUm43fveC5UmKrTodTfjXzzYOcqCu74nVnDgOln/+pnN?=
+ =?us-ascii?q?3nEBI10Sng2tllUiXIqxn8Yo312KigLe1neUxoDkfm68VmAoF+jpcwhJYI1H?=
+ =?us-ascii?q?gbgpWV4GEInn3oMdVbx63zd2ACRT0RzN7Q+gfl2VdvIW6Ox4L8Tn+d2NduZ8?=
+ =?us-ascii?q?GmYmMK3SIw99pFCKOK471LhyR1pEe3ohzLYfRnhTcdyfou6GUag+EKuQotyD?=
+ =?us-ascii?q?6QArQTHUleICztmA6E79G4rKVLemmvdaK821Z5ndCkFLuCuB1TWG7lepc+Gi?=
+ =?us-ascii?q?999sN/P0jJ0H3z6oDkZd/Qbd0Iux2XjRjAle5VJ4w1lvYQgipnI239t2U/y+?=
+ =?us-ascii?q?EnlRxuwY26vI+fJmVv5q25BBhYNj3uasMc/THtiqlensKI0Iy1ApphHTALVo?=
+ =?us-ascii?q?PyTf20CDISqejnNwGWHT0/tHiUB6HfEhOY6EdhrHLCCIykN3GNJHkeyNViRQ?=
+ =?us-ascii?q?SdJElFjAATRjU6kYYzFhq2y8z5bEd5+jcR60bkqhtDzuJpOALyUmPepAeudz?=
+ =?us-ascii?q?c0VIKfLB1Q7gFD6EbZK9GR4fxrFSFC4pKhtBCNKnCcZwlQEWEJRFaEB0zgPr?=
+ =?us-ascii?q?mp/9XA7vKYBvGjL/vKYLWOr/dTV/OJxZKpz4tn8CyANsSJPnl+EfI73lBPUm?=
+ =?us-ascii?q?x+G8Tcgz8PUTAYlzrRb86Hoxex4il3rsG58PT2VwPj/JCPBKVOPtVy4RC2gL?=
+ =?us-ascii?q?uDNu6JiCZ8LjZXy44MxXvWx7UEwl4ShD9hdyO3HbQDqyHNVqTQlbFTDxIBbC?=
+ =?us-ascii?q?NzLsRI5bom3gZRIc7bls/11rlgg/4uFVhFUV3hmse0Zc0FOGy9KlzHC1iRNL?=
+ =?us-ascii?q?icJj3E3dv3YaWiRr1UlulUsAewuTmDGU/5IjuDjyXpVwyoMexUiCGbPRpeuJ?=
+ =?us-ascii?q?yycxp0CmjsUsjmahulP99zljA237I0iW3QNWIGMjhzbVlNrruO4iNcmPl/HH?=
+ =?us-ascii?q?ZB7nV9J+mehymZ9/XYKooRsfZzBiR0luRa4Gk1yrdM9CFLWuZ1mCXLot5zuF?=
+ =?us-ascii?q?GpjPOPyiF8XRpQpTZEmpiLsV9hOarH7JlAX2jL/BYX4WWXERQKqMNvCsfztK?=
+ =?us-ascii?q?BI1tjPiKXzJS9D89LS4csTGczUJNuIMHovPhvkAzrUDAoeTT63LmHTnUJdkO?=
+ =?us-ascii?q?uM+XKLs5c1tIPsmJkSSr9cTFw5DPQaCl5qHNYaOpd4QiskkaKHjM4P/Xextx?=
+ =?us-ascii?q?bRRN9EsZDIWfKfGvPvJyiFjblKYxsIwLz5IZ4POY383kxockN6k5jSG0rMQd?=
+ =?us-ascii?q?BNpTVsbhQzoEVL/3h+Smwz21/+ZQO3+nATC/+0nhg5igZlb+Qi7y3g7EswJl?=
+ =?us-ascii?q?rPvCEwilU+mc35gTCNdz78NLy/XZlYCyfvqUgxPY30QxxvYQ2xg0NkLjHESK?=
+ =?us-ascii?q?xVj7d6cmBrkgDcs4NVGfFAVa1EfAMQxfaPavUs0FRcrDinxEBe6evdE5Rijg?=
+ =?us-ascii?q?oqcYWwoH9bxQJjY8A6JbbKKKpK0FdQnKSOsTGs1uwrxw8ePUkN+nuIeCEUoE?=
+ =?us-ascii?q?wIKqUmJy2w8+xo6AyCnSZDeWcUV/oyvv1m714yNPqezy/7175DK1uxN/CEL6?=
+ =?us-ascii?q?+DvGjBlMqITUkr2UMTjUVF+qJ20chwO3aTAmkrwaucBlwjKMbLLwJScYIG/X?=
+ =?us-ascii?q?zebSuf9+/QzZtzPIKjPuTpS/Ke8qcSnk+gWg0uGtJIpvwMApS2mHPZL8P8MK?=
+ =?us-ascii?q?QMgUE16RjmPketDfJHYhuHnT4L5calw8kzlaBHIDgZDWI1Giyt+L/TpghijP?=
+ =?us-ascii?q?fLedoyZT9OV4ABO1o1Vde8liofuG5PWn3/8+QWz0Cn6Dv6rz6YWDz9adVkTO?=
+ =?us-ascii?q?2ZaRNlFJe9/jBpt+C0gFjWtJPfJHz+PPxmu9nS+aUboYqKD7VfSrw5+0XbnI?=
+ =?us-ascii?q?9RXDquWm7TENi4IbD0ao8xfZr1DGq3Vhq0jDdxB932MMysIa/OnwD2RK5Vtp?=
+ =?us-ascii?q?WW2HYoMsr5XhgaFgd9pqk4+KtmYhMEYoY8f1a8vh8iH6+yOgGV1pOpWWn7bX?=
+ =?us-ascii?q?NURvxS1qOwYKBLyC8oY/6SyHImVZw81+Ct7UgAXooKjwmYzvGmI8FUXC7zMn?=
+ =?us-ascii?q?9QYQPCoWwyjWF6Nuc0zaE42hyM+XIVKD2aPNdiaGVZsdUxHxvGKnxtB3sQXF?=
+ =?us-ascii?q?SchJfN5gO2mrsbuSBamoAQmfZIqnfzlp/WZDa9XuqgrpCR+wgpaNU964h2K5?=
+ =?us-ascii?q?biOYPStpbZhCbeV7HWuwiIUWi9DfUMyfZKJycNe+VFgWEoP4Q9vINF7UcgHp?=
+ =?us-ascii?q?MlK6dnFLgnprfsbyFtSyEV03lKBMu7wDUej7LkiPPhnRCKfcFnaUZVvQ=3D?=
+ =?us-ascii?q?=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CjAgCTjfdd/wHyM5BlHAEBAQEBBwEBEQEEBAEBgX6Bd?=
+ =?us-ascii?q?IEYVSASKoQEiQOGdgaBEiWJapFFCQEBAQEBAQEBASsMAQGEQAKCODgTAhABA?=
+ =?us-ascii?q?QEEAQEBAQEFAwEBbIU3DII7KQGCegEFDhUVLRQQCxgCAiYCAlcGAQwGAgEBg?=
+ =?us-ascii?q?l8/AYJSJQ+uCYEyhA0BgUGDOIFIgQ4oiU+CY3mBB4E4DAOCXT6CZAOEcoJeB?=
+ =?us-ascii?q?I92hxNGlyuCPoI/hGqOVgYCGYJDdIcCkA8tjh+BRocJlAsigVgrCAIYCCEPg?=
+ =?us-ascii?q?ycJFjERFI1KiE+FCFUjAzABkCUBAQ?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 16 Dec 2019 13:50:31 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 16 Dec 2019 14:04:07 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBGDoDam134329;
-        Mon, 16 Dec 2019 08:50:13 -0500
-Subject: Re: [PATCH testsuite] selinux-testsuite: fix tun_tap checks
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-References: <20191213091733.1058949-1-omosnace@redhat.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBGE37n2143708;
+        Mon, 16 Dec 2019 09:03:09 -0500
+Subject: Re: [PATCH v2 1/7] capabilities: introduce CAP_SYS_PERFMON to kernel
+ and user space
+To:     Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>, jani.nikula@linux.intel.com,
+        joonas.lahtinen@linux.intel.com, rodrigo.vivi@intel.com,
+        Alexei Starovoitov <ast@kernel.org>,
+        james.bottomley@hansenpartnership.com, benh@kernel.crashing.org,
+        Casey Schaufler <casey@schaufler-ca.com>, serge@hallyn.com,
+        James Morris <jmorris@namei.org>
+Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        intel-gfx@lists.freedesktop.org, bgregg@netflix.com,
+        Song Liu <songliubraving@fb.com>, bpf@vger.kernel.org,
+        linux-parisc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
+References: <26101427-c0a3-db9f-39e9-9e5f4ddd009c@linux.intel.com>
+ <9066ae10-63d6-67a1-d472-1f22826c9ae8@linux.intel.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <9265b6af-231f-dbcf-b24b-81e7997d5588@tycho.nsa.gov>
-Date:   Mon, 16 Dec 2019 08:51:11 -0500
+Message-ID: <81603537-023c-9b6b-06ac-384de60dbb1d@tycho.nsa.gov>
+Date:   Mon, 16 Dec 2019 09:04:04 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20191213091733.1058949-1-omosnace@redhat.com>
+In-Reply-To: <9066ae10-63d6-67a1-d472-1f22826c9ae8@linux.intel.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -91,46 +170,69 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/13/19 4:17 AM, Ondrej Mosnacek wrote:
-> The attach_queue permission was introduced later than the tun_socket
-> class itself. So check for that instead of the class, since the policy
-> fails to build without it.
+On 12/16/19 2:14 AM, Alexey Budankov wrote:
 > 
-> Fixes: 4e0f6d5a52d2 ("selinux-testsuite: Add TUN/TAP driver tests")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Introduce CAP_SYS_PERFMON capability devoted to secure system performance
+> monitoring and observability operations so that CAP_SYS_PERFMON would assist
+> CAP_SYS_ADMIN capability in its governing role for perf_events, i915_perf
+> and other performance monitoring and observability subsystems of the kernel.
+> 
+> CAP_SYS_PERFMON intends to harden system security and integrity during
+> system performance monitoring and observability operations by decreasing
+> attack surface that is available to CAP_SYS_ADMIN privileged processes.
+> 
+> CAP_SYS_PERFMON intends to take over CAP_SYS_ADMIN credentials related to
+> system performance monitoring and observability operations and balance amount
+> of CAP_SYS_ADMIN credentials following with the recommendations provided
+> in the capabilities man page [1] for CAP_SYS_ADMIN: "Note: this capability
+> is overloaded; see Notes to kernel developers, below."
+> 
+> [1] http://man7.org/linux/man-pages/man7/capabilities.7.html
+> 
+> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
 
-Thanks, applied.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->   policy/Makefile | 2 +-
->   tests/Makefile  | 2 +-
->   2 files changed, 2 insertions(+), 2 deletions(-)
+>   include/uapi/linux/capability.h     | 8 +++++++-
+>   security/selinux/include/classmap.h | 4 ++--
+>   2 files changed, 9 insertions(+), 3 deletions(-)
 > 
-> diff --git a/policy/Makefile b/policy/Makefile
-> index f0de669..909594a 100644
-> --- a/policy/Makefile
-> +++ b/policy/Makefile
-> @@ -101,7 +101,7 @@ ifeq ($(shell grep -q module_load $(POLDEV)/include/support/all_perms.spt && ech
->   TARGETS+=test_module_load.te
->   endif
+> diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
+> index 240fdb9a60f6..7d1f8606c3e6 100644
+> --- a/include/uapi/linux/capability.h
+> +++ b/include/uapi/linux/capability.h
+> @@ -366,8 +366,14 @@ struct vfs_ns_cap_data {
 >   
-> -ifeq ($(shell grep -q tun_socket $(POLDEV)/include/support/all_perms.spt && echo true),true)
-> +ifeq ($(shell grep -q attach_queue $(POLDEV)/include/support/all_perms.spt && echo true),true)
->   TARGETS += test_tun_tap.te
->   endif
+>   #define CAP_AUDIT_READ		37
 >   
-> diff --git a/tests/Makefile b/tests/Makefile
-> index 9a890be..45c9885 100644
-> --- a/tests/Makefile
-> +++ b/tests/Makefile
-> @@ -79,7 +79,7 @@ SUBDIRS+=module_load
->   endif
->   endif
+> +/*
+> + * Allow system performance and observability privileged operations
+> + * using perf_events, i915_perf and other kernel subsystems
+> + */
+> +
+> +#define CAP_SYS_PERFMON		38
 >   
-> -ifeq ($(shell grep -q tun_socket $(POLDEV)/include/support/all_perms.spt && echo true),true)
-> +ifeq ($(shell grep -q attach_queue $(POLDEV)/include/support/all_perms.spt && echo true),true)
->   SUBDIRS += tun_tap
->   endif
+> -#define CAP_LAST_CAP         CAP_AUDIT_READ
+> +#define CAP_LAST_CAP         CAP_SYS_PERFMON
+>   
+>   #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
+>   
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index 7db24855e12d..bae602c623b0 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -27,9 +27,9 @@
+>   	    "audit_control", "setfcap"
+>   
+>   #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+> -		"wake_alarm", "block_suspend", "audit_read"
+> +		"wake_alarm", "block_suspend", "audit_read", "sys_perfmon"
+>   
+> -#if CAP_LAST_CAP > CAP_AUDIT_READ
+> +#if CAP_LAST_CAP > CAP_SYS_PERFMON
+>   #error New capability defined, please update COMMON_CAP2_PERMS.
+>   #endif
 >   
 > 
 
