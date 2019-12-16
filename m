@@ -2,59 +2,40 @@ Return-Path: <SRS0=HHao=2G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 768F7C2D0C3
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 16:14:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9EE2C43603
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 17:08:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 418322072B
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 16:14:00 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=akamai.com header.i=@akamai.com header.b="icziZlzR"
+	by mail.kernel.org (Postfix) with ESMTP id 8A70F206EC
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 17:08:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726798AbfLPQN7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 11:13:59 -0500
-Received: from mx0b-00190b01.pphosted.com ([67.231.157.127]:31686 "EHLO
-        mx0b-00190b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726571AbfLPQN6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 11:13:58 -0500
-Received: from pps.filterd (m0050096.ppops.net [127.0.0.1])
-        by m0050096.ppops.net-00190b01. (8.16.0.42/8.16.0.42) with SMTP id xBGG9eCE008464;
-        Mon, 16 Dec 2019 16:12:53 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=jan2016.eng;
- bh=TlJtzvSQJY2PpRhXQCFBBcMUtctaSu6LA6YjngOX+UQ=;
- b=icziZlzR56P+iT9L8NT3+VAG4RQyiBAd/YOq5pI4YpuFW0t1+HL5RIYnzx6GmtTAd6ay
- 2W0g2L4CYbMW4aPkTepW2fw28kdpei+5r4SIwX1d6PzJD06IB9Qdy6fJUnT2xu4uB8+1
- A1tXCJxmb3TMWcLptpeJYYPl1/+0yBcNMB3ydQApyuTuu9lJuXBheAJMBDGdqWx/S5Nl
- dXlhuEEeoS8fLZmF3qLYptE1Mr0fzi3i8TE4jBePnmj4Dgmc8Vqk+Nnl0LvmJuj91bEy
- qYl0PEE6IyrHlIkNJLQ/S2SjRE5gFgRb0pP6PWjzLToJOULkz2toJBCkQd7Aw2vwnXCq hg== 
-Received: from prod-mail-ppoint6 (prod-mail-ppoint6.akamai.com [184.51.33.61] (may be forged))
-        by m0050096.ppops.net-00190b01. with ESMTP id 2wvs1d0e6c-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 16 Dec 2019 16:12:52 +0000
-Received: from pps.filterd (prod-mail-ppoint6.akamai.com [127.0.0.1])
-        by prod-mail-ppoint6.akamai.com (8.16.0.27/8.16.0.27) with SMTP id xBGFp46N000594;
-        Mon, 16 Dec 2019 11:12:52 -0500
-Received: from email.msg.corp.akamai.com ([172.27.165.112])
-        by prod-mail-ppoint6.akamai.com with ESMTP id 2wvuxydunk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Mon, 16 Dec 2019 11:12:51 -0500
-Received: from ustx2ex-dag1mb6.msg.corp.akamai.com (172.27.165.124) by
- ustx2ex-dag1mb5.msg.corp.akamai.com (172.27.165.123) with Microsoft SMTP
- Server (TLS) id 15.0.1473.3; Mon, 16 Dec 2019 10:12:50 -0600
-Received: from ustx2ex-dag1mb6.msg.corp.akamai.com ([172.27.165.124]) by
- ustx2ex-dag1mb6.msg.corp.akamai.com ([172.27.165.124]) with mapi id
- 15.00.1473.005; Mon, 16 Dec 2019 08:12:50 -0800
-From:   "Lubashev, Igor" <ilubashe@akamai.com>
-To:     Alexey Budankov <alexey.budankov@linux.intel.com>,
+        id S1727579AbfLPRIr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 12:08:47 -0500
+Received: from mga14.intel.com ([192.55.52.115]:59257 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727788AbfLPRIm (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 16 Dec 2019 12:08:42 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 16 Dec 2019 08:33:58 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,322,1571727600"; 
+   d="scan'208";a="240090657"
+Received: from linux.intel.com ([10.54.29.200])
+  by fmsmga004.fm.intel.com with ESMTP; 16 Dec 2019 08:33:57 -0800
+Received: from [10.251.95.214] (abudanko-mobl.ccr.corp.intel.com [10.251.95.214])
+        by linux.intel.com (Postfix) with ESMTP id 52C38580458;
+        Mon, 16 Dec 2019 08:33:49 -0800 (PST)
+Subject: Re: [PATCH v2 2/7] perf/core: open access for CAP_SYS_PERFMON
+ privileged process
+To:     "Lubashev, Igor" <ilubashe@akamai.com>,
         Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@kernel.org>,
-        "Ingo Molnar" <mingo@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
         "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
         "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
         "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
@@ -65,13 +46,13 @@ To:     Alexey Budankov <alexey.budankov@linux.intel.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
         "serge@hallyn.com" <serge@hallyn.com>,
         James Morris <jmorris@namei.org>
-CC:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        "Stephane Eranian" <eranian@google.com>,
+Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Jann Horn <jannh@google.com>,
         Kees Cook <keescook@chromium.org>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
         "linux-security-module@vger.kernel.org" 
         <linux-security-module@vger.kernel.org>,
@@ -84,84 +65,85 @@ CC:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
         "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
         "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
         "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
-Subject: RE: [PATCH v2 2/7] perf/core: open access for CAP_SYS_PERFMON
- privileged process
-Thread-Topic: [PATCH v2 2/7] perf/core: open access for CAP_SYS_PERFMON
- privileged process
-Thread-Index: AQHVs+CfzGj9uMUtGUC4IRZHidt5Zae87MsA
-Date:   Mon, 16 Dec 2019 16:12:50 +0000
-Message-ID: <9316a1ab21f6441eb2b421acb818a2a1@ustx2ex-dag1mb6.msg.corp.akamai.com>
 References: <26101427-c0a3-db9f-39e9-9e5f4ddd009c@linux.intel.com>
  <fd6ffb43-ed43-14cd-b286-6ab4b199155b@linux.intel.com>
-In-Reply-To: <fd6ffb43-ed43-14cd-b286-6ab4b199155b@linux.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [172.19.113.150]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <9316a1ab21f6441eb2b421acb818a2a1@ustx2ex-dag1mb6.msg.corp.akamai.com>
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+Organization: Intel Corp.
+Message-ID: <3f2ac76c-6108-7769-4b99-a7a2da31af3d@linux.intel.com>
+Date:   Mon, 16 Dec 2019 19:33:48 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-12-16_06:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1911140001 definitions=main-1912160139
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
- definitions=2019-12-16_06:2019-12-16,2019-12-16 signatures=0
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 bulkscore=0 clxscore=1011
- adultscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
- priorityscore=1501 malwarescore=0 mlxlogscore=999 suspectscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1910280000 definitions=main-1912160141
+In-Reply-To: <9316a1ab21f6441eb2b421acb818a2a1@ustx2ex-dag1mb6.msg.corp.akamai.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-T24gTW9uLCBEZWMgMTYsIDIwMTkgYXQgMjoxNSBBTSwgQWxleGV5IEJ1ZGFua292IDxhbGV4ZXku
-YnVkYW5rb3ZAbGludXguaW50ZWwuY29tPiB3cm90ZToNCj4gDQo+IE9wZW4gYWNjZXNzIHRvIHBl
-cmZfZXZlbnRzIG1vbml0b3JpbmcgZm9yIENBUF9TWVNfUEVSRk1PTiBwcml2aWxlZ2VkDQo+IHBy
-b2Nlc3Nlcy4NCj4gRm9yIGJhY2t3YXJkIGNvbXBhdGliaWxpdHkgcmVhc29ucyBhY2Nlc3MgdG8g
-cGVyZl9ldmVudHMgc3Vic3lzdGVtIHJlbWFpbnMNCj4gb3BlbiBmb3IgQ0FQX1NZU19BRE1JTiBw
-cml2aWxlZ2VkIHByb2Nlc3NlcyBidXQgQ0FQX1NZU19BRE1JTiB1c2FnZQ0KPiBmb3Igc2VjdXJl
-IHBlcmZfZXZlbnRzIG1vbml0b3JpbmcgaXMgZGlzY291cmFnZWQgd2l0aCByZXNwZWN0IHRvDQo+
-IENBUF9TWVNfUEVSRk1PTiBjYXBhYmlsaXR5Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQWxleGV5
-IEJ1ZGFua292IDxhbGV4ZXkuYnVkYW5rb3ZAbGludXguaW50ZWwuY29tPg0KPiAtLS0NCj4gIGlu
-Y2x1ZGUvbGludXgvcGVyZl9ldmVudC5oIHwgOSArKysrKystLS0NCj4gIDEgZmlsZSBjaGFuZ2Vk
-LCA2IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvaW5j
-bHVkZS9saW51eC9wZXJmX2V2ZW50LmggYi9pbmNsdWRlL2xpbnV4L3BlcmZfZXZlbnQuaCBpbmRl
-eA0KPiAzNGM3YzY5MTAwMjYuLjUyMzEzZDJjYzM0MyAxMDA2NDQNCj4gLS0tIGEvaW5jbHVkZS9s
-aW51eC9wZXJmX2V2ZW50LmgNCj4gKysrIGIvaW5jbHVkZS9saW51eC9wZXJmX2V2ZW50LmgNCj4g
-QEAgLTEyODUsNyArMTI4NSw4IEBAIHN0YXRpYyBpbmxpbmUgaW50IHBlcmZfaXNfcGFyYW5vaWQo
-dm9pZCkNCj4gDQo+ICBzdGF0aWMgaW5saW5lIGludCBwZXJmX2FsbG93X2tlcm5lbChzdHJ1Y3Qg
-cGVyZl9ldmVudF9hdHRyICphdHRyKSAgew0KPiAtCWlmIChzeXNjdGxfcGVyZl9ldmVudF9wYXJh
-bm9pZCA+IDEgJiYgIWNhcGFibGUoQ0FQX1NZU19BRE1JTikpDQo+ICsJaWYgKHN5c2N0bF9wZXJm
-X2V2ZW50X3BhcmFub2lkID4gMSAmJg0KPiArCSAgICEoY2FwYWJsZShDQVBfU1lTX1BFUkZNT04p
-IHx8IGNhcGFibGUoQ0FQX1NZU19BRE1JTikpKQ0KPiAgCQlyZXR1cm4gLUVBQ0NFUzsNCj4gDQo+
-ICAJcmV0dXJuIHNlY3VyaXR5X3BlcmZfZXZlbnRfb3BlbihhdHRyLCBQRVJGX1NFQ1VSSVRZX0tF
-Uk5FTCk7IEBADQo+IC0xMjkzLDcgKzEyOTQsOCBAQCBzdGF0aWMgaW5saW5lIGludCBwZXJmX2Fs
-bG93X2tlcm5lbChzdHJ1Y3QNCj4gcGVyZl9ldmVudF9hdHRyICphdHRyKQ0KPiANCj4gIHN0YXRp
-YyBpbmxpbmUgaW50IHBlcmZfYWxsb3dfY3B1KHN0cnVjdCBwZXJmX2V2ZW50X2F0dHIgKmF0dHIp
-ICB7DQo+IC0JaWYgKHN5c2N0bF9wZXJmX2V2ZW50X3BhcmFub2lkID4gMCAmJiAhY2FwYWJsZShD
-QVBfU1lTX0FETUlOKSkNCj4gKwlpZiAoc3lzY3RsX3BlcmZfZXZlbnRfcGFyYW5vaWQgPiAwICYm
-DQo+ICsJICAgICEoY2FwYWJsZShDQVBfU1lTX1BFUkZNT04pIHx8IGNhcGFibGUoQ0FQX1NZU19B
-RE1JTikpKQ0KPiAgCQlyZXR1cm4gLUVBQ0NFUzsNCj4gDQo+ICAJcmV0dXJuIHNlY3VyaXR5X3Bl
-cmZfZXZlbnRfb3BlbihhdHRyLCBQRVJGX1NFQ1VSSVRZX0NQVSk7IEBAIC0NCj4gMTMwMSw3ICsx
-MzAzLDggQEAgc3RhdGljIGlubGluZSBpbnQgcGVyZl9hbGxvd19jcHUoc3RydWN0IHBlcmZfZXZl
-bnRfYXR0cg0KPiAqYXR0cikNCj4gDQo+ICBzdGF0aWMgaW5saW5lIGludCBwZXJmX2FsbG93X3Ry
-YWNlcG9pbnQoc3RydWN0IHBlcmZfZXZlbnRfYXR0ciAqYXR0cikgIHsNCj4gLQlpZiAoc3lzY3Rs
-X3BlcmZfZXZlbnRfcGFyYW5vaWQgPiAtMSAmJiAhY2FwYWJsZShDQVBfU1lTX0FETUlOKSkNCj4g
-KwlpZiAoc3lzY3RsX3BlcmZfZXZlbnRfcGFyYW5vaWQgPiAtMSAmJg0KPiArCSAgICAhKGNhcGFi
-bGUoQ0FQX1NZU19QRVJGTU9OKSB8fCBjYXBhYmxlKENBUF9TWVNfQURNSU4pKSkNCj4gIAkJcmV0
-dXJuIC1FUEVSTTsNCj4gDQo+ICAJcmV0dXJuIHNlY3VyaXR5X3BlcmZfZXZlbnRfb3BlbihhdHRy
-LCBQRVJGX1NFQ1VSSVRZX1RSQUNFUE9JTlQpOw0KPiAtLQ0KPiAyLjIwLjENCg0KVGhhbmtzLiAg
-SSBsaWtlIHRoZSBpZGVhIG9mIENBUF9TWVNfUEVSRk1PTiB0aGF0IGRvZXMgbm90IHJlcXVpcmUg
-Q0FQX1NZU19BRE1JTi4gIEl0IG1ha2VzIGdyYW50aW5nIHVzZXJzIGFiaWxpdHkgdG8gcnVuIHBl
-cmYgYSBiaXQgc2FmZXIuDQoNCkkgc2VlIGEgbG90IG9mICIoY2FwYWJsZShDQVBfU1lTX1BFUkZN
-T04pIHx8IGNhcGFibGUoQ0FQX1NZU19BRE1JTikiIGNvbnN0cnVjdHMgbm93LiAgTWF5YmUgd3Jh
-cHBpbmcgaXQgaW4gYW4gIiBpbmxpbmUgYm9vbCBwZXJmbW9uX2NhcGFibGUoKSIgZGVmaW5lZCBz
-b21ld2hlcmUgKGxpa2UgaW4gL2luY2x1ZGUvbGludXgvY2FwYWJpbGl0eS5oKT8NCg0KLSBJZ29y
-DQo=
+On 16.12.2019 19:12, Lubashev, Igor wrote:
+> On Mon, Dec 16, 2019 at 2:15 AM, Alexey Budankov <alexey.budankov@linux.intel.com> wrote:
+>>
+>> Open access to perf_events monitoring for CAP_SYS_PERFMON privileged
+>> processes.
+>> For backward compatibility reasons access to perf_events subsystem remains
+>> open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN usage
+>> for secure perf_events monitoring is discouraged with respect to
+>> CAP_SYS_PERFMON capability.
+>>
+>> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
+>> ---
+>>  include/linux/perf_event.h | 9 ++++++---
+>>  1 file changed, 6 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h index
+>> 34c7c6910026..52313d2cc343 100644
+>> --- a/include/linux/perf_event.h
+>> +++ b/include/linux/perf_event.h
+>> @@ -1285,7 +1285,8 @@ static inline int perf_is_paranoid(void)
+>>
+>>  static inline int perf_allow_kernel(struct perf_event_attr *attr)  {
+>> -	if (sysctl_perf_event_paranoid > 1 && !capable(CAP_SYS_ADMIN))
+>> +	if (sysctl_perf_event_paranoid > 1 &&
+>> +	   !(capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN)))
+>>  		return -EACCES;
+>>
+>>  	return security_perf_event_open(attr, PERF_SECURITY_KERNEL); @@
+>> -1293,7 +1294,8 @@ static inline int perf_allow_kernel(struct
+>> perf_event_attr *attr)
+>>
+>>  static inline int perf_allow_cpu(struct perf_event_attr *attr)  {
+>> -	if (sysctl_perf_event_paranoid > 0 && !capable(CAP_SYS_ADMIN))
+>> +	if (sysctl_perf_event_paranoid > 0 &&
+>> +	    !(capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN)))
+>>  		return -EACCES;
+>>
+>>  	return security_perf_event_open(attr, PERF_SECURITY_CPU); @@ -
+>> 1301,7 +1303,8 @@ static inline int perf_allow_cpu(struct perf_event_attr
+>> *attr)
+>>
+>>  static inline int perf_allow_tracepoint(struct perf_event_attr *attr)  {
+>> -	if (sysctl_perf_event_paranoid > -1 && !capable(CAP_SYS_ADMIN))
+>> +	if (sysctl_perf_event_paranoid > -1 &&
+>> +	    !(capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN)))
+>>  		return -EPERM;
+>>
+>>  	return security_perf_event_open(attr, PERF_SECURITY_TRACEPOINT);
+>> --
+>> 2.20.1
+> 
+> Thanks.  I like the idea of CAP_SYS_PERFMON that does not require CAP_SYS_ADMIN.  It makes granting users ability to run perf a bit safer.
+> 
+> I see a lot of "(capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN)" constructs now.  Maybe wrapping it in an " inline bool perfmon_capable()" defined somewhere (like in /include/linux/capability.h)?
+
+Yes, it makes sense.
+
+Thanks,
+Alexey
+
+> 
+> - Igor
+> 
