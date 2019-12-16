@@ -2,199 +2,107 @@ Return-Path: <SRS0=HHao=2G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06A11C43603
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 10:13:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C513EC43603
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 12:07:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CDB21206D3
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 10:13:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70256206D3
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 12:07:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="reEfLMPI"
+	dkim=pass (1024-bit key) header.d=wetzel-home.de header.i=@wetzel-home.de header.b="ipRfkaK8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727224AbfLPKN1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 05:13:27 -0500
-Received: from mail25.static.mailgun.info ([104.130.122.25]:40031 "EHLO
-        mail25.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727099AbfLPKN1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 05:13:27 -0500
-X-Greylist: delayed 302 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Dec 2019 05:13:24 EST
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1576491206; h=Content-Transfer-Encoding: Content-Type:
- MIME-Version: Message-ID: Date: Subject: To: From: Sender;
- bh=1vtyzgjHXkmAnklSV6EXehzxMTrEiDYXFQb7K7MPNyk=; b=reEfLMPIGHKY7rXrh3U9nM3oMVCvBH1JXUpbWT++ttV3juz+7VCCizd0YK15uJ9sMJPfLGL1
- ax0oVheszZKguYap8Oj4lckhKuYZcg+ay1IV1jpRhW4RgYiRPbg3ucaQmt/SRn4pgPp0ZnyN
- sMCo21ajM2SYFb9NK44NK1f3Bbk=
-X-Mailgun-Sending-Ip: 104.130.122.25
-X-Mailgun-Sid: WyIxZmM3MiIsICJzZWxpbnV4QHZnZXIua2VybmVsLm9yZyIsICJiZTllNGEiXQ==
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5df75794.7ff9bfc5df10-smtp-out-n03;
- Mon, 16 Dec 2019 10:08:20 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 4438DC433A2; Mon, 16 Dec 2019 10:08:20 +0000 (UTC)
-Received: from rsiddoji1 (blr-c-bdr-fw-01_globalnat_allzones-outside.qualcomm.com [103.229.19.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: rsiddoji)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 179C0C43383
-        for <selinux@vger.kernel.org>; Mon, 16 Dec 2019 10:08:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 179C0C43383
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=rsiddoji@codeaurora.org
-From:   "Ravi Kumar Siddojigari" <rsiddoji@codeaurora.org>
-To:     <selinux@vger.kernel.org>
-Subject: [PATCH] selinux: move pkey sid cache based retrieval under defconfig
-Date:   Mon, 16 Dec 2019 15:38:16 +0530
-Organization: The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,\na Linux Foundation Collaborative Project
-Message-ID: <001501d5b3f8$bdc5b610$39512230$@codeaurora.org>
+        id S1727454AbfLPMHB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 07:07:01 -0500
+Received: from 5.mo179.mail-out.ovh.net ([46.105.43.140]:51133 "EHLO
+        5.mo179.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727335AbfLPMHA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 07:07:00 -0500
+X-Greylist: delayed 151841 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Dec 2019 07:06:59 EST
+Received: from player690.ha.ovh.net (unknown [10.108.16.68])
+        by mo179.mail-out.ovh.net (Postfix) with ESMTP id B9CF2152D8E
+        for <selinux@vger.kernel.org>; Mon, 16 Dec 2019 12:31:31 +0100 (CET)
+Received: from awhome.eu (p4FF918CF.dip0.t-ipconnect.de [79.249.24.207])
+        (Authenticated sender: postmaster@awhome.eu)
+        by player690.ha.ovh.net (Postfix) with ESMTPSA id ABFB2D382197;
+        Mon, 16 Dec 2019 11:31:28 +0000 (UTC)
+Subject: Re: "watch" - Problem when using kernel >= 5.4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wetzel-home.de;
+        s=wetzel-home; t=1576495856;
+        bh=IuxQ5PfMqtdN8RK9r9789R45uRu7r0Qqslk75uocZUs=;
+        h=Subject:To:References:From:Date:In-Reply-To;
+        b=ipRfkaK8VQzx0obicwFvx9adZ9TVaM2a7gKLsafcQqce0GMwb8p6e7+9xW6l/waOZ
+         q/pFlcWs1V1pWP87hxcUwl/rHX9YJ0p7FaP4MPHf1akN5E9HgAXjeqzAztpjFfi7Bg
+         XSW0YvLXFqlhSfySmdFDCXdcltR0ca7yekurV/AE=
+To:     selinux@vger.kernel.org, acgoide@tycho.nsa.gov, paul@paul-moore.com
+References: <9d54debb-7031-4d93-38b7-62c853289512@wetzel-home.de>
+ <20191214203034.GA233591@brutus.lan>
+From:   Alexander Wetzel <alexander@wetzel-home.de>
+Message-ID: <362fa2a9-91c7-ebb4-3283-f53b852aa3d7@wetzel-home.de>
+Date:   Mon, 16 Dec 2019 12:31:25 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="us-ascii"
+In-Reply-To: <20191214203034.GA233591@brutus.lan>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Content-Language: en-us
-Thread-Index: AdWz+CypHkf7Klt6RBSwMcNWvYREAA==
+X-Ovh-Tracer-Id: 7715510587443649536
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: 0
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedrvddthedgfedtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefuvfhfhffkffgfgggjtgfgsehtjeertddtfeehnecuhfhrohhmpeetlhgvgigrnhguvghrucghvghtiigvlhcuoegrlhgvgigrnhguvghrseifvghtiigvlhdqhhhomhgvrdguvgeqnecukfhppedtrddtrddtrddtpdejledrvdegledrvdegrddvtdejnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrheiledtrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheprghlvgigrghnuggvrhesfigvthiivghlqdhhohhmvgdruggvpdhrtghpthhtohepshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedt
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Team, 
-We see an increase in the memory consumption from 4.9 ->4.19 kernel which is
-impacting the low_ram device .
-So thought of enabling only that are really needed for the such  device
-where performance might not be of priority list .
-One such patch is on the  pkey sid cache  which was added with commit :"
-409dcf31" 
-which can be moved under defconfig where enabled by default and only
-disabled for low_ram targets.
-Which is going to save ram/reduce slub usage . 
+>> Dec  8 14:49:01 web kernel: audit: type=1400 audit(1575812941.870:2069):
+>> avc:  denied  { watch } for  pid=2826 comm="crond"
+>> path="/var/spool/cron/crontabs" dev="sda3" ino=2539899
+>> scontext=system_u:system_r:crond_t tcontext=system_u:object_r:cron_spool_t
+>> tclass=dir permissive=0
+>>
+>> I ended up reverting commit ac5656d8a4cd ("fanotify, inotify, dnotify,
+>> security: add security hook for fs notifications") and asked in the gentoo
+>> forum - so far without success (link above) - how that should work properly.
+>>
+>> If there is a way to use an unmodified kernel >= 5.4.0 with older (so far
+>> all current) selinux tools and policies I did miss it.
+>>
+>> Do you have a pointer how I can keep the commit ac5656d8a4cd in a selinux
+>> enabled system in enforcing mode without breaking all file change
+>> notifications?
+>>
+>> Alexander
+> 
+> I do not believe there is a regression. However support in the policy for this functionality may be lagging behind (be non existent as of now).
+> You could try this as a temporary workaround:
+> 
+> echo "(handleunknown allow)" > mytest.cil && sudo semodule -i mytest.cil
+> 
+> If that works then that should tell selinux to ignore the watch access vector permissions (and any other permission unknown to the policy).
+> 
 
---
-From 1719256bbb8fe3e239be0928386a50b7b41752e8 Mon Sep 17 00:00:00 2001
-From: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-Date: Wed, 11 Dec 2019 19:57:24 +0530
-Subject: [PATCH] selinux: move pkey sid cache based retrieval under
-defconfig
- .
+Thank you very much, that was the tip I was missing
 
-adding new  key CONFIG_FASTER_RETRIEVAL_PKEY_SID which is used to enable
-cache based  pkey sid  retrieval code added with  Commit 409dcf31.
-As this is going to alloc a new cache for this booster which may  impact
-low ram devices .  By default  its enabled  for low_ram targets
-they can disable this feature.
+While the workaround itself is not working
+$ echo "(handleunknown allow)" > mytest.cil && sudo semodule -i mytest.cil
+Password:
+Policy can not have more than one handleunknown
+Failed to verify cil database
+Failed to verify cil database
+/usr/sbin/semodule:  Failed!
 
-Change-Id: I80a13fb7bce8723c8c880cb77cbaee42db413a7a
-Signed-off-by: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
----
- security/selinux/Kconfig          | 10 ++++++++++
- security/selinux/Makefile         |  4 +++-
- security/selinux/hooks.c          | 10 ++++++++++
- security/selinux/include/objsec.h |  2 ++
- 4 files changed, 25 insertions(+), 4 deletions(-)
+that was the "knob" I was missing and with your tip I found the way how 
+this is intended to be handled.
 
-diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-index 8af7a69..7bcc015 100644
---- a/security/selinux/Kconfig
-+++ b/security/selinux/Kconfig
-@@ -99,3 +99,13 @@ config SECURITY_SELINUX_CHECKREQPROT_VALUE
- 	  via /selinux/checkreqprot if authorized by policy.
- 
- 	  If you are unsure how to answer this question, answer 0.
-+
-+config FASTER_RETRIEVAL_PKEY_SID
-+	bool "quicker retrieval of PKey SIDs"
-+        depends on SECURITY_SELINUX
-+        default y
-+        help
-+         This option enables cache for quicker retrieval of PKey SIDs
-+	 by storing the Pkey SIDs to cache.
-+	 Better performance but penalty on memory (RAM ).
-+	 for low ram devices better to say n.
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index c7161f8..192f4ba 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -6,12 +6,14 @@
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
- 
- selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
--	     netnode.o netport.o ibpkey.o exports.o \
-+	     netnode.o netport.o exports.o \
- 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
- 	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o
-ss/status.o
- 
- selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
- 
-+selinux-$(CONFIG_FASTER_RETRIEVAL_PKEY_SID) += ibpkey.o
-+
- selinux-$(CONFIG_NETLABEL) += netlabel.o
- 
- ccflags-y := -I$(srctree)/security/selinux
--I$(srctree)/security/selinux/include
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index af030ff..60c4212 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -92,7 +92,11 @@
- #include "netif.h"
- #include "netnode.h"
- #include "netport.h"
-+
-+#ifdef CONFIG_FASTER_RETRIEVAL_PKEY_SID
- #include "ibpkey.h"
-+#endif
-+
- #include "xfrm.h"
- #include "netlabel.h"
- #include "audit.h"
-@@ -177,7 +181,9 @@ static int selinux_netcache_avc_callback(u32 event)
- static int selinux_lsm_notifier_avc_callback(u32 event)
- {
- 	if (event == AVC_CALLBACK_RESET) {
-+#ifdef  CONFIG_FASTER_RETRIEVAL_PKEY_SID
- 		sel_ib_pkey_flush();
-+#endif
- 		call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
- 	}
- 
-@@ -6246,7 +6252,11 @@ static int selinux_ib_pkey_access(void *ib_sec, u64
-subnet_prefix, u16 pkey_val)
- 	struct ib_security_struct *sec = ib_sec;
- 	struct lsm_ibpkey_audit ibpkey;
- 
-+#ifdef CONFIG_FASTER_RETRIEVAL_PKEY_SID
- 	err = sel_ib_pkey_sid(subnet_prefix, pkey_val, &sid);
-+#else
-+	err = security_ib_pkey_sid(subnet_prefix, pkey_val, &sid);
-+#endif
- 	if (err)
- 		return err;
- 
-diff --git a/security/selinux/include/objsec.h
-b/security/selinux/include/objsec.h
-index 9cec304..5608978 100644
---- a/security/selinux/include/objsec.h
-+++ b/security/selinux/include/objsec.h
-@@ -147,11 +147,13 @@ struct ib_security_struct {
- 	u32 sid;        /* SID of the queue pair or MAD agent */
- };
- 
-+#ifdef CONFIG_FASTER_RETRIEVAL_PKEY_SID
- struct pkey_security_struct {
- 	u64	subnet_prefix; /* Port subnet prefix */
- 	u16	pkey;	/* PKey number */
- 	u32	sid;	/* SID of pkey */
- };
-+#endif
- 
- struct bpf_security_struct {
- 	u32 sid;  /*SID of bpf obj creater*/
--- 
-1.9.1
+I've now simply executed these commands
 
-Regards,
-Ravi
+echo "handle-unknown = allow" >> /etc/selinux/semanage.conf
+semodule -B
+
+Which solves the issue without any reverts.
+
+Alexander
