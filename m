@@ -2,85 +2,166 @@ Return-Path: <SRS0=HHao=2G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AD17C43603
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 14:26:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 768F7C2D0C3
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 16:14:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6B190206D7
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 14:26:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 418322072B
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 16:14:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="okP+QpSo"
+	dkim=pass (2048-bit key) header.d=akamai.com header.i=@akamai.com header.b="icziZlzR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727579AbfLPO0A (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 09:26:00 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:40132 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728120AbfLPOZ7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 09:25:59 -0500
-Received: by mail-lj1-f194.google.com with SMTP id s22so7006882ljs.7
-        for <selinux@vger.kernel.org>; Mon, 16 Dec 2019 06:25:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=CNsMW+NwAwrOgzKdybNMTFImbblwkHO9DHhy0HiCdBU=;
-        b=okP+QpSoosMPSchTjgJs4anufmI11Ah5fTVGpn5ZnQTG0TNzq1Qsxt2nmAr2PMVFHt
-         4dF9nIwXdIA4VrJlVxdiQtAKtfQXifUIiatfLTl/gLfpUNBH78o816Z6+2d0l0I0Qw1w
-         SwXvhLY2L4KWGbQxn04LvP2pwNakxGEIVwS7CrJ4yIiHIke7Zv657c50xRbUNwobLr/V
-         6ZTQqcybq98OMspHMwF60K9X0y47/0z9QKsdBTANBI4cZl6yvZbrBCUx8fYnbw6Gqksl
-         VdPXhWCagwnXpUQiW0vr+Eu5niZ+IiQk6qf7sKmlTKYpOchrCawIMyu40wn7agABSozo
-         /vmg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=CNsMW+NwAwrOgzKdybNMTFImbblwkHO9DHhy0HiCdBU=;
-        b=EYowXI+e7pDoiRbXTtfoOqkygeHzyWOdHF4dgcj85kfSUWtgHUGu3+e3D5+Om+tk6v
-         Ogbm/SJ6ta8ddeCKu6+0v6Ok9xnYl7UMoF6J8s6JSi2RZiMc7UPX4k9J3sWKl2bCdqNI
-         a8Qzf+A2Xq8ZtCUYVobc3diljRIh/woqQCXGdI07dMRJerlBFS1hahpQXu+1DHfJVnHQ
-         eFLFKYPt3G/tH6Ex5Bny+Ep2JnG+NuzvgC9Y+x+ESuwfPYzGXOTx7vMc67+bQGGZcLqh
-         +SGBCEjdseCmBQ3/fZcEUA8tlvVdJdl/HtpQSYc84LE89U6nImnqUzlDxAHbpqL87KOo
-         Yz4w==
-X-Gm-Message-State: APjAAAXvieN0vtgv9TeEwycm6lE2sFRbkyNqelXGJCSUsPb7Ay1AeYRw
-        N/ovGf++fbqrSSnrkmZhB1nVgZLFt8+8FfG4sFO+YTi12w==
-X-Google-Smtp-Source: APXvYqzkEnMFcc+THl0las6y/AFr4evh18cERz7X47/ouDOEKn+VVbDsMqrkAdNHfXW/UQiGxTNfIhQoRA+aez6HsDs=
-X-Received: by 2002:a2e:800b:: with SMTP id j11mr17878980ljg.126.1576506357652;
- Mon, 16 Dec 2019 06:25:57 -0800 (PST)
+        id S1726798AbfLPQN7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 11:13:59 -0500
+Received: from mx0b-00190b01.pphosted.com ([67.231.157.127]:31686 "EHLO
+        mx0b-00190b01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726571AbfLPQN6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 11:13:58 -0500
+Received: from pps.filterd (m0050096.ppops.net [127.0.0.1])
+        by m0050096.ppops.net-00190b01. (8.16.0.42/8.16.0.42) with SMTP id xBGG9eCE008464;
+        Mon, 16 Dec 2019 16:12:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=akamai.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=jan2016.eng;
+ bh=TlJtzvSQJY2PpRhXQCFBBcMUtctaSu6LA6YjngOX+UQ=;
+ b=icziZlzR56P+iT9L8NT3+VAG4RQyiBAd/YOq5pI4YpuFW0t1+HL5RIYnzx6GmtTAd6ay
+ 2W0g2L4CYbMW4aPkTepW2fw28kdpei+5r4SIwX1d6PzJD06IB9Qdy6fJUnT2xu4uB8+1
+ A1tXCJxmb3TMWcLptpeJYYPl1/+0yBcNMB3ydQApyuTuu9lJuXBheAJMBDGdqWx/S5Nl
+ dXlhuEEeoS8fLZmF3qLYptE1Mr0fzi3i8TE4jBePnmj4Dgmc8Vqk+Nnl0LvmJuj91bEy
+ qYl0PEE6IyrHlIkNJLQ/S2SjRE5gFgRb0pP6PWjzLToJOULkz2toJBCkQd7Aw2vwnXCq hg== 
+Received: from prod-mail-ppoint6 (prod-mail-ppoint6.akamai.com [184.51.33.61] (may be forged))
+        by m0050096.ppops.net-00190b01. with ESMTP id 2wvs1d0e6c-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 16 Dec 2019 16:12:52 +0000
+Received: from pps.filterd (prod-mail-ppoint6.akamai.com [127.0.0.1])
+        by prod-mail-ppoint6.akamai.com (8.16.0.27/8.16.0.27) with SMTP id xBGFp46N000594;
+        Mon, 16 Dec 2019 11:12:52 -0500
+Received: from email.msg.corp.akamai.com ([172.27.165.112])
+        by prod-mail-ppoint6.akamai.com with ESMTP id 2wvuxydunk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
+        Mon, 16 Dec 2019 11:12:51 -0500
+Received: from ustx2ex-dag1mb6.msg.corp.akamai.com (172.27.165.124) by
+ ustx2ex-dag1mb5.msg.corp.akamai.com (172.27.165.123) with Microsoft SMTP
+ Server (TLS) id 15.0.1473.3; Mon, 16 Dec 2019 10:12:50 -0600
+Received: from ustx2ex-dag1mb6.msg.corp.akamai.com ([172.27.165.124]) by
+ ustx2ex-dag1mb6.msg.corp.akamai.com ([172.27.165.124]) with mapi id
+ 15.00.1473.005; Mon, 16 Dec 2019 08:12:50 -0800
+From:   "Lubashev, Igor" <ilubashe@akamai.com>
+To:     Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        "Ingo Molnar" <mingo@redhat.com>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        "james.bottomley@hansenpartnership.com" 
+        <james.bottomley@hansenpartnership.com>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "serge@hallyn.com" <serge@hallyn.com>,
+        James Morris <jmorris@namei.org>
+CC:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        "Stephane Eranian" <eranian@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Jann Horn <jannh@google.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "bgregg@netflix.com" <bgregg@netflix.com>,
+        Song Liu <songliubraving@fb.com>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+Subject: RE: [PATCH v2 2/7] perf/core: open access for CAP_SYS_PERFMON
+ privileged process
+Thread-Topic: [PATCH v2 2/7] perf/core: open access for CAP_SYS_PERFMON
+ privileged process
+Thread-Index: AQHVs+CfzGj9uMUtGUC4IRZHidt5Zae87MsA
+Date:   Mon, 16 Dec 2019 16:12:50 +0000
+Message-ID: <9316a1ab21f6441eb2b421acb818a2a1@ustx2ex-dag1mb6.msg.corp.akamai.com>
+References: <26101427-c0a3-db9f-39e9-9e5f4ddd009c@linux.intel.com>
+ <fd6ffb43-ed43-14cd-b286-6ab4b199155b@linux.intel.com>
+In-Reply-To: <fd6ffb43-ed43-14cd-b286-6ab4b199155b@linux.intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [172.19.113.150]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <001501d5b3f8$bdc5b610$39512230$@codeaurora.org>
-In-Reply-To: <001501d5b3f8$bdc5b610$39512230$@codeaurora.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 16 Dec 2019 09:25:46 -0500
-Message-ID: <CAHC9VhQXrukJZWrc2ZxOZg5vvmJUHdQyuTJAKR0Kf7-qFEWGNQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: move pkey sid cache based retrieval under defconfig
-To:     Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-12-16_06:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1911140001 definitions=main-1912160139
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
+ definitions=2019-12-16_06:2019-12-16,2019-12-16 signatures=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 bulkscore=0 clxscore=1011
+ adultscore=0 spamscore=0 phishscore=0 lowpriorityscore=0
+ priorityscore=1501 malwarescore=0 mlxlogscore=999 suspectscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-1910280000 definitions=main-1912160141
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Dec 16, 2019 at 5:13 AM Ravi Kumar Siddojigari
-<rsiddoji@codeaurora.org> wrote:
-> Hi Team,
-> We see an increase in the memory consumption from 4.9 ->4.19 kernel which is
-> impacting the low_ram device .
-> So thought of enabling only that are really needed for the such  device
-> where performance might not be of priority list .
-> One such patch is on the  pkey sid cache  which was added with commit :"
-> 409dcf31"
-> which can be moved under defconfig where enabled by default and only
-> disabled for low_ram targets.
-> Which is going to save ram/reduce slub usage .
-
-Why not just reuse CONFIG_SECURITY_INFINIBAND?  I'm guessing these
-systems are using the SELinux/IB controls at all, so why not remove
-them completely?
-
--- 
-paul moore
-www.paul-moore.com
+T24gTW9uLCBEZWMgMTYsIDIwMTkgYXQgMjoxNSBBTSwgQWxleGV5IEJ1ZGFua292IDxhbGV4ZXku
+YnVkYW5rb3ZAbGludXguaW50ZWwuY29tPiB3cm90ZToNCj4gDQo+IE9wZW4gYWNjZXNzIHRvIHBl
+cmZfZXZlbnRzIG1vbml0b3JpbmcgZm9yIENBUF9TWVNfUEVSRk1PTiBwcml2aWxlZ2VkDQo+IHBy
+b2Nlc3Nlcy4NCj4gRm9yIGJhY2t3YXJkIGNvbXBhdGliaWxpdHkgcmVhc29ucyBhY2Nlc3MgdG8g
+cGVyZl9ldmVudHMgc3Vic3lzdGVtIHJlbWFpbnMNCj4gb3BlbiBmb3IgQ0FQX1NZU19BRE1JTiBw
+cml2aWxlZ2VkIHByb2Nlc3NlcyBidXQgQ0FQX1NZU19BRE1JTiB1c2FnZQ0KPiBmb3Igc2VjdXJl
+IHBlcmZfZXZlbnRzIG1vbml0b3JpbmcgaXMgZGlzY291cmFnZWQgd2l0aCByZXNwZWN0IHRvDQo+
+IENBUF9TWVNfUEVSRk1PTiBjYXBhYmlsaXR5Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTogQWxleGV5
+IEJ1ZGFua292IDxhbGV4ZXkuYnVkYW5rb3ZAbGludXguaW50ZWwuY29tPg0KPiAtLS0NCj4gIGlu
+Y2x1ZGUvbGludXgvcGVyZl9ldmVudC5oIHwgOSArKysrKystLS0NCj4gIDEgZmlsZSBjaGFuZ2Vk
+LCA2IGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvaW5j
+bHVkZS9saW51eC9wZXJmX2V2ZW50LmggYi9pbmNsdWRlL2xpbnV4L3BlcmZfZXZlbnQuaCBpbmRl
+eA0KPiAzNGM3YzY5MTAwMjYuLjUyMzEzZDJjYzM0MyAxMDA2NDQNCj4gLS0tIGEvaW5jbHVkZS9s
+aW51eC9wZXJmX2V2ZW50LmgNCj4gKysrIGIvaW5jbHVkZS9saW51eC9wZXJmX2V2ZW50LmgNCj4g
+QEAgLTEyODUsNyArMTI4NSw4IEBAIHN0YXRpYyBpbmxpbmUgaW50IHBlcmZfaXNfcGFyYW5vaWQo
+dm9pZCkNCj4gDQo+ICBzdGF0aWMgaW5saW5lIGludCBwZXJmX2FsbG93X2tlcm5lbChzdHJ1Y3Qg
+cGVyZl9ldmVudF9hdHRyICphdHRyKSAgew0KPiAtCWlmIChzeXNjdGxfcGVyZl9ldmVudF9wYXJh
+bm9pZCA+IDEgJiYgIWNhcGFibGUoQ0FQX1NZU19BRE1JTikpDQo+ICsJaWYgKHN5c2N0bF9wZXJm
+X2V2ZW50X3BhcmFub2lkID4gMSAmJg0KPiArCSAgICEoY2FwYWJsZShDQVBfU1lTX1BFUkZNT04p
+IHx8IGNhcGFibGUoQ0FQX1NZU19BRE1JTikpKQ0KPiAgCQlyZXR1cm4gLUVBQ0NFUzsNCj4gDQo+
+ICAJcmV0dXJuIHNlY3VyaXR5X3BlcmZfZXZlbnRfb3BlbihhdHRyLCBQRVJGX1NFQ1VSSVRZX0tF
+Uk5FTCk7IEBADQo+IC0xMjkzLDcgKzEyOTQsOCBAQCBzdGF0aWMgaW5saW5lIGludCBwZXJmX2Fs
+bG93X2tlcm5lbChzdHJ1Y3QNCj4gcGVyZl9ldmVudF9hdHRyICphdHRyKQ0KPiANCj4gIHN0YXRp
+YyBpbmxpbmUgaW50IHBlcmZfYWxsb3dfY3B1KHN0cnVjdCBwZXJmX2V2ZW50X2F0dHIgKmF0dHIp
+ICB7DQo+IC0JaWYgKHN5c2N0bF9wZXJmX2V2ZW50X3BhcmFub2lkID4gMCAmJiAhY2FwYWJsZShD
+QVBfU1lTX0FETUlOKSkNCj4gKwlpZiAoc3lzY3RsX3BlcmZfZXZlbnRfcGFyYW5vaWQgPiAwICYm
+DQo+ICsJICAgICEoY2FwYWJsZShDQVBfU1lTX1BFUkZNT04pIHx8IGNhcGFibGUoQ0FQX1NZU19B
+RE1JTikpKQ0KPiAgCQlyZXR1cm4gLUVBQ0NFUzsNCj4gDQo+ICAJcmV0dXJuIHNlY3VyaXR5X3Bl
+cmZfZXZlbnRfb3BlbihhdHRyLCBQRVJGX1NFQ1VSSVRZX0NQVSk7IEBAIC0NCj4gMTMwMSw3ICsx
+MzAzLDggQEAgc3RhdGljIGlubGluZSBpbnQgcGVyZl9hbGxvd19jcHUoc3RydWN0IHBlcmZfZXZl
+bnRfYXR0cg0KPiAqYXR0cikNCj4gDQo+ICBzdGF0aWMgaW5saW5lIGludCBwZXJmX2FsbG93X3Ry
+YWNlcG9pbnQoc3RydWN0IHBlcmZfZXZlbnRfYXR0ciAqYXR0cikgIHsNCj4gLQlpZiAoc3lzY3Rs
+X3BlcmZfZXZlbnRfcGFyYW5vaWQgPiAtMSAmJiAhY2FwYWJsZShDQVBfU1lTX0FETUlOKSkNCj4g
+KwlpZiAoc3lzY3RsX3BlcmZfZXZlbnRfcGFyYW5vaWQgPiAtMSAmJg0KPiArCSAgICAhKGNhcGFi
+bGUoQ0FQX1NZU19QRVJGTU9OKSB8fCBjYXBhYmxlKENBUF9TWVNfQURNSU4pKSkNCj4gIAkJcmV0
+dXJuIC1FUEVSTTsNCj4gDQo+ICAJcmV0dXJuIHNlY3VyaXR5X3BlcmZfZXZlbnRfb3BlbihhdHRy
+LCBQRVJGX1NFQ1VSSVRZX1RSQUNFUE9JTlQpOw0KPiAtLQ0KPiAyLjIwLjENCg0KVGhhbmtzLiAg
+SSBsaWtlIHRoZSBpZGVhIG9mIENBUF9TWVNfUEVSRk1PTiB0aGF0IGRvZXMgbm90IHJlcXVpcmUg
+Q0FQX1NZU19BRE1JTi4gIEl0IG1ha2VzIGdyYW50aW5nIHVzZXJzIGFiaWxpdHkgdG8gcnVuIHBl
+cmYgYSBiaXQgc2FmZXIuDQoNCkkgc2VlIGEgbG90IG9mICIoY2FwYWJsZShDQVBfU1lTX1BFUkZN
+T04pIHx8IGNhcGFibGUoQ0FQX1NZU19BRE1JTikiIGNvbnN0cnVjdHMgbm93LiAgTWF5YmUgd3Jh
+cHBpbmcgaXQgaW4gYW4gIiBpbmxpbmUgYm9vbCBwZXJmbW9uX2NhcGFibGUoKSIgZGVmaW5lZCBz
+b21ld2hlcmUgKGxpa2UgaW4gL2luY2x1ZGUvbGludXgvY2FwYWJpbGl0eS5oKT8NCg0KLSBJZ29y
+DQo=
