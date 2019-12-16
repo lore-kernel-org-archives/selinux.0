@@ -7,53 +7,53 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80AF6C43603
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:36:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DE5AC43603
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:36:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4495A21835
-	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:36:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12C6821739
+	for <selinux@archiver.kernel.org>; Mon, 16 Dec 2019 22:36:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="BqU+Piq/"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="PJaHbZ8H"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726734AbfLPWgq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Dec 2019 17:36:46 -0500
-Received: from sonic311-30.consmr.mail.ne1.yahoo.com ([66.163.188.211]:44076
-        "EHLO sonic311-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727524AbfLPWgp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 17:36:45 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576535803; bh=1geWvs7GfSFx9csTS2THo8vohI1Xi608jxOz2eEL/1Q=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=BqU+Piq/zYbvoI/26ihU18sVO11eO20R3XEauGS0TipMfBpVEcutDRIfoBn/hGCxjNIgwYV+jSNeV8OKGr7eZ0wW0NutG7ucsylsxBZA2xPkYQIkM8i49oZISwuC7jp1ON5JZ99S+pSP0E1g/BTgQ8iuW8TlFBiNK6X0ItDWyalY6CBIpuFJgpQGQHNFo9A+Xk85swvyYbSyRZbekvdqbg0fgxCqre5dAoIQBWRMfjLnMZX2Vrko6iBM2y+oD5ji6Dk+asMEnX7q3rP8g32UOn3eEbtbGu1UTzpgStYiLoEGZ/pqd3IVpG7q7SoxDn8ah0fG6k6NzqgQaORbH5cY1w==
-X-YMail-OSG: N46BUZoVM1mWLpkxO48uBQReXAcXukUqYYGyquzPeNjDeiIN0uPPaQLhbaLDq6M
- 963.LmLIky0uAayoiq6t9iXTlmJlNH_w16e0JiZIuLvfz8iby48SNhe7ZyTamdGaZGB9.WKpP1bT
- rIBxiFa4BhQ0ta_ls.dBSquQjjugOvMNn_hdu1fjTBMsDeONepArR98B.2sibu6Wc0Qvn0QOrdCE
- AP5QAgdP35e3LI1F4jMsLqchCAXWIMrSBJF03lDIz7TvLnpRiqBbefR12y1bHgDA9EUjuGKj_Hk6
- 7qk.yDRSbfmc83suxIhWq8TqrOn70V3LhIkh2vDiLyhqv6flNQF_QErPMcUb9FDkFQmu3hx_pWBs
- hXuHWctdgphmRXOCKWcni.ZQP5LYOmG8URzTDACaZnJzIzc87rmb8a6vMk6GZ9AA97CK0d5cCumH
- fyXAmbZJdnuz.B8QtmlUY66JHDdoISRbt5AzcfCRRK48UxtuFOJYoRS6oWSPx1JV.VffkJLyEgQN
- TfuziCu2FCjgAzWAVtL7dBo1HkrZXU2tfHCkebeaGbpEcFVgNcpDKMlKbWRgPtV8Xnh9Y40KjDll
- p5HSvBEHLmnMtPA_t5rLK8PqhUIfEwJXn0yUaMiUSCHYMWe8NYc0nkqa8bLJZ7qwUg30CbUeQjXP
- lCPFqasrGys5T.PvXoiS5tE_sRR_zL0ttjX1y0MDwPuXc3uWq9hS3dF_bWXcoFEAFB.uSzwR_ldm
- zRYUk43bydpF_YslDKHKWvvqvJaw16QOi7FF0zqSbl1g637BaRyWrmRg6OdLvzqWkDG4Z_dk7.ar
- T3_3RKaxLs3hTfRP6rVllEYRilNMAWwokSWwfFsfZvoyaEjZeVK9kB9ICZRJF6LwX_jYBWFZ9nl2
- Dj0S_UVoN9SqjZ7yMMgz7M8nuNsFERpFgipBWm7W8F1LgXXhnpnHsTNVw0bNuo0Jel0azqsij8Ug
- .8w_h0p6WnjzvYyRC6VPk1Rm4E5g3XQa0KyNXYnp1jkhLTmw8S_3KU4g2YYoyoAuYsWjeeu9.I.U
- sAHOS0K4amOk6dCyb5OBLzR8CIAAsAhm3YKpUX_Z1xMWvspradkJ.70BasledSDHAEWIZXI7R7_b
- aItyzbCCkJhtPOKowzPFaFI9B4KYMczgrKFoSkhorBTFaoju2dPO_F2W8TtYfde_K5uBiIyFWh8M
- m2.09_yCoiD53Qz_fDGRnBlWBnV6JJMPFuez_72SJVEHt5_KhxlEcV0ag3kxnOmRtXP3Hi1lwDgL
- l2mNy4OqJrkjPj4iE2Ef3WmLK1b8uMXvj3bT_43my2VyGTm0kPLE9vqO69jSuIe5L7vyvKgyaGmH
- rxADkV203IizIzw3GiXwiBwoGlG1YIMTmwipX4XUzrxN0vVa0h68VpeCHkJYeesUF.4uVbgQIpuc
- ZJ6wzEl9GY4DrWnP1gEMl7w8kEVpnDunszKCKdOnTpaVMuI22i7dmqmM1Y_NM.B5TZwynRg--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Mon, 16 Dec 2019 22:36:43 +0000
+        id S1727604AbfLPWgu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Dec 2019 17:36:50 -0500
+Received: from sonic306-28.consmr.mail.ne1.yahoo.com ([66.163.189.90]:41994
+        "EHLO sonic306-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727532AbfLPWgu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Dec 2019 17:36:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576535808; bh=/tjZqQ3eFg6RGmAZKeaCUxadHu2YVRy2b3KPUAFCwsc=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=PJaHbZ8H+64R01ajDceePQReC5MIOslfLWuVArp46+t/BkFpnnpsBew6XV3hxBSDttfPckvO9y0EeDt3Gj+0Arh0EL10UYK1uBThU4o5pI2tzaplJyI1EA3z/4bAZDqdKzBfSSM2+sWr42qU0l8yP+t4fpAJLHOfL68ItUaJOu/0CFPDKtZONTTriQMTbHIZXvR1QGeSHbvcj7f50b93D28ZTQK9MATWltVfBxNoPjTON6EAHLkMKZCyTFxwWQRP5FA7YpTbJAYzHn0iGILVJluLBssLRVEqiug6Jp/dNwxp4sJ82m3vdluNcdSzAblL8Cte7tzLFngpKKTRwEpCww==
+X-YMail-OSG: EEHHLicVM1nr6pnUbXlAaKLg8P69lKFNIho9QuA1CQG9npgTAWD4hloDaUs1H6h
+ dBAcQql_tBtPcC_2_KM0mOqqRy2annbmDAg83GcESTrzebqrn7Puc79cjDVfwopfPMFP_YmYQC65
+ QpHKhrs7dGiRF7wP1tEkjvKU5lcoovyEqt5l_7pI6_lbzZlmD6fm.F4e54RHNkzimTmTl6Ia9udp
+ S8N6DGToQYb0GSK4WJAOadOaiVKV_CaJcBVbK0YXT1DqoaQLybPU2U4scAzSVVsWQEKX5DI2DyR0
+ LZo1__GlJ.voDSwl85x0ntBeH2PZdgbwxL5FKWhnqJmzdaK0j2_eczJouHSa2zu9MMYGQ.hO7oCU
+ V0bpSTzn3fq3R.lmt.6Dgq_QVzdI1Eubhv_WZANgIsynTOZzYDmJ43r3fCneNq_J4vXMpWmOP3E5
+ ikHfWY3zF2d8o6zGYs82dXVHY608ts_3T1Nxa11YEKJDqM1yc82eREj2fjlLYJpfZNYl3whNzQIl
+ ePyxd__2L2DLu07_hIP9HL1.zsQRldvFb7gSUabEm3v5vb0.H2BzoqCAs3bSPp1irH_3Hn8iVGqE
+ PQejqJsCqYxTKf1s303x3XUIPBAkjlqkveDQ5UVGKWpyFEiHDX3eLzRwDv1ACr.Sde7aoODEaz0p
+ u_8ivMYvQoNnFDsbNd1sAyZr6iiaQ5JJDKhqqbUInoQVq2QHOIi6lGjrCI7D4UaTZM0ClyTrOCXY
+ MNvLgnPzanMHnTtdCyIVC_JyN5qYmibUN07GEj6AleKGmcxEHzCPxybtcM5rgb0vfc8vi9WZ0pFv
+ JxDstEOSDNjmc_Lr1RQ_1LYxs5LVgRITK0fJFSR96ZYWwCyYocrEUwZ6_n599z8gawYP.RoDfIHn
+ GD0OV9t.5E00YvvZMqopjbM07LSNaeUQEmeMkQIhpdM_NQeBnxLgfd061bGIH5fn68jQRd_plcDm
+ uppFgIJUI0ecj8IYEUmm_MMHKNR_vPi2BJCae.3GGxme8OuuIARLM3snFfy9yaDyjbbmWLg0Lv9X
+ C9Yk6Uja6Xh5E0t7QRwFO8tirp5Jd7_0Oc6duXeImRZcNdwiW8WRWA6Lw_EJglLmEzhr24lazU_f
+ kxOar0ZlvCpYZWCHSg53rfH37H1mLXRyS5WktWHC8Eg8viie3HIAacdgsapX3H6fIFBnOQDS4vOf
+ 4sUcbcigR0PcfHwPtTaab5qXNyeWoj_aPRLbkm6YGtbUmNkYoVRRpyL7nFNxo5JeGR5ttgPV4oeM
+ YjM_xked4NRuhSjauBT9QVvQpu.ClRNiEXJW5ihy7PBpdWcqvK.cw2OO7.7A9ODUazliCugLMe4Z
+ Cfby3JsUKbDidixREO2nLAR64faNCjpYGQuDbXBF38t4ZWxa4MrLkPV2ILz.ET.DDD9UHmovgU4Z
+ sjRB9DQtNjDVH.8_pimOAO_o3HIzmYNUnVBgia9._hhzSsgXHxFf7s2AFgblwsJB1qw--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 16 Dec 2019 22:36:48 +0000
 Received: by smtp408.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d9d1cdd036ab55d1ad38f3162a989ce6;
-          Mon, 16 Dec 2019 22:36:40 +0000 (UTC)
+          Mon, 16 Dec 2019 22:36:44 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         sds@tycho.nsa.gov
-Subject: [PATCH v12 03/25] LSM: Use lsmblob in security_audit_rule_match
-Date:   Mon, 16 Dec 2019 14:35:59 -0800
-Message-Id: <20191216223621.5127-4-casey@schaufler-ca.com>
+Subject: [PATCH v12 04/25] LSM: Use lsmblob in security_kernel_act_as
+Date:   Mon, 16 Dec 2019 14:36:00 -0800
+Message-Id: <20191216223621.5127-5-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191216223621.5127-1-casey@schaufler-ca.com>
 References: <20191216223621.5127-1-casey@schaufler-ca.com>
@@ -64,214 +64,133 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the secid parameter of security_audit_rule_match
-to a lsmblob structure pointer. Pass the entry from the
-lsmblob structure for the approprite slot to the LSM hook.
-
-Change the users of security_audit_rule_match to use the
-lsmblob instead of a u32. In some cases this requires a
-temporary conversion using lsmblob_init() that will go
-away when other interfaces get converted.
+Change the security_kernel_act_as interface to use a lsmblob
+structure in place of the single u32 secid in support of
+module stacking. Change its only caller, set_security_override,
+to do the same. Change that one's only caller,
+set_security_override_from_ctx, to call it with the new
+parameter type.
 
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: John Johansen <john.johansen@canonical.com>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
- include/linux/security.h            |  7 ++++---
- kernel/auditfilter.c                |  7 +++++--
- kernel/auditsc.c                    | 14 ++++++++++----
- security/integrity/ima/ima.h        |  4 ++--
- security/integrity/ima/ima_policy.c |  7 +++++--
- security/security.c                 | 18 +++++++++++++++---
- 6 files changed, 41 insertions(+), 16 deletions(-)
+ include/linux/cred.h     |  3 ++-
+ include/linux/security.h |  5 +++--
+ kernel/cred.c            | 10 ++++++----
+ security/security.c      | 14 ++++++++++++--
+ 4 files changed, 23 insertions(+), 9 deletions(-)
 
+diff --git a/include/linux/cred.h b/include/linux/cred.h
+index 18639c069263..03ae0182cba6 100644
+--- a/include/linux/cred.h
++++ b/include/linux/cred.h
+@@ -18,6 +18,7 @@
+ 
+ struct cred;
+ struct inode;
++struct lsmblob;
+ 
+ /*
+  * COW Supplementary groups list
+@@ -165,7 +166,7 @@ extern const struct cred *override_creds(const struct cred *);
+ extern void revert_creds(const struct cred *);
+ extern struct cred *prepare_kernel_cred(struct task_struct *);
+ extern int change_create_files_as(struct cred *, struct inode *);
+-extern int set_security_override(struct cred *, u32);
++extern int set_security_override(struct cred *, struct lsmblob *);
+ extern int set_security_override_from_ctx(struct cred *, const char *);
+ extern int set_create_files_as(struct cred *, struct inode *);
+ extern int cred_fscmp(const struct cred *, const struct cred *);
 diff --git a/include/linux/security.h b/include/linux/security.h
-index b74dc70088ca..9c6dbe248eaf 100644
+index 9c6dbe248eaf..322ed9622819 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -1837,7 +1837,8 @@ static inline int security_key_getsecurity(struct key *key, char **_buffer)
- #ifdef CONFIG_SECURITY
- int security_audit_rule_init(u32 field, u32 op, char *rulestr, void **lsmrule);
- int security_audit_rule_known(struct audit_krule *krule);
--int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule);
-+int security_audit_rule_match(struct lsmblob *blob, u32 field, u32 op,
-+			      void *lsmrule);
- void security_audit_rule_free(void *lsmrule);
- 
- #else
-@@ -1853,8 +1854,8 @@ static inline int security_audit_rule_known(struct audit_krule *krule)
- 	return 0;
+@@ -437,7 +437,7 @@ void security_cred_free(struct cred *cred);
+ int security_prepare_creds(struct cred *new, const struct cred *old, gfp_t gfp);
+ void security_transfer_creds(struct cred *new, const struct cred *old);
+ void security_cred_getsecid(const struct cred *c, u32 *secid);
+-int security_kernel_act_as(struct cred *new, u32 secid);
++int security_kernel_act_as(struct cred *new, struct lsmblob *blob);
+ int security_kernel_create_files_as(struct cred *new, struct inode *inode);
+ int security_kernel_module_request(char *kmod_name);
+ int security_kernel_load_data(enum kernel_load_data_id id);
+@@ -1043,7 +1043,8 @@ static inline void security_transfer_creds(struct cred *new,
+ {
  }
  
--static inline int security_audit_rule_match(u32 secid, u32 field, u32 op,
--					    void *lsmrule)
-+static inline int security_audit_rule_match(struct lsmblob *blob, u32 field,
-+					    u32 op, void *lsmrule)
+-static inline int security_kernel_act_as(struct cred *cred, u32 secid)
++static inline int security_kernel_act_as(struct cred *cred,
++					 struct lsmblob *blob)
  {
  	return 0;
  }
-diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
-index b0126e9c0743..356db1dd276c 100644
---- a/kernel/auditfilter.c
-+++ b/kernel/auditfilter.c
-@@ -1325,6 +1325,7 @@ int audit_filter(int msgtype, unsigned int listtype)
- 			struct audit_field *f = &e->rule.fields[i];
- 			pid_t pid;
- 			u32 sid;
-+			struct lsmblob blob;
+diff --git a/kernel/cred.c b/kernel/cred.c
+index c0a4c12d38b2..846ac4b23c16 100644
+--- a/kernel/cred.c
++++ b/kernel/cred.c
+@@ -732,14 +732,14 @@ EXPORT_SYMBOL(prepare_kernel_cred);
+ /**
+  * set_security_override - Set the security ID in a set of credentials
+  * @new: The credentials to alter
+- * @secid: The LSM security ID to set
++ * @blob: The LSM security information to set
+  *
+  * Set the LSM security ID in a set of credentials so that the subjective
+  * security is overridden when an alternative set of credentials is used.
+  */
+-int set_security_override(struct cred *new, u32 secid)
++int set_security_override(struct cred *new, struct lsmblob *blob)
+ {
+-	return security_kernel_act_as(new, secid);
++	return security_kernel_act_as(new, blob);
+ }
+ EXPORT_SYMBOL(set_security_override);
  
- 			switch (f->type) {
- 			case AUDIT_PID:
-@@ -1355,8 +1356,10 @@ int audit_filter(int msgtype, unsigned int listtype)
- 			case AUDIT_SUBJ_CLR:
- 				if (f->lsm_rule) {
- 					security_task_getsecid(current, &sid);
--					result = security_audit_rule_match(sid,
--						   f->type, f->op, f->lsm_rule);
-+					lsmblob_init(&blob, sid);
-+					result = security_audit_rule_match(
-+							&blob, f->type,
-+							f->op, f->lsm_rule);
- 				}
- 				break;
- 			case AUDIT_EXE:
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 4effe01ebbe2..7566e5b1c419 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -445,6 +445,7 @@ static int audit_filter_rules(struct task_struct *tsk,
- 	const struct cred *cred;
- 	int i, need_sid = 1;
- 	u32 sid;
+@@ -755,6 +755,7 @@ EXPORT_SYMBOL(set_security_override);
+  */
+ int set_security_override_from_ctx(struct cred *new, const char *secctx)
+ {
 +	struct lsmblob blob;
- 	unsigned int sessionid;
+ 	u32 secid;
+ 	int ret;
  
- 	cred = rcu_dereference_check(tsk->cred, tsk == current || task_creation);
-@@ -643,7 +644,9 @@ static int audit_filter_rules(struct task_struct *tsk,
- 					security_task_getsecid(tsk, &sid);
- 					need_sid = 0;
- 				}
--				result = security_audit_rule_match(sid, f->type,
-+				lsmblob_init(&blob, sid);
-+				result = security_audit_rule_match(&blob,
-+								   f->type,
- 								   f->op,
- 								   f->lsm_rule);
- 			}
-@@ -658,15 +661,17 @@ static int audit_filter_rules(struct task_struct *tsk,
- 			if (f->lsm_rule) {
- 				/* Find files that match */
- 				if (name) {
-+					lsmblob_init(&blob, name->osid);
- 					result = security_audit_rule_match(
--								name->osid,
-+								&blob,
- 								f->type,
- 								f->op,
- 								f->lsm_rule);
- 				} else if (ctx) {
- 					list_for_each_entry(n, &ctx->names_list, list) {
-+						lsmblob_init(&blob, n->osid);
- 						if (security_audit_rule_match(
--								n->osid,
-+								&blob,
- 								f->type,
- 								f->op,
- 								f->lsm_rule)) {
-@@ -678,7 +683,8 @@ static int audit_filter_rules(struct task_struct *tsk,
- 				/* Find ipc objects that match */
- 				if (!ctx || ctx->type != AUDIT_IPC)
- 					break;
--				if (security_audit_rule_match(ctx->ipc.osid,
-+				lsmblob_init(&blob, ctx->ipc.osid);
-+				if (security_audit_rule_match(&blob,
- 							      f->type, f->op,
- 							      f->lsm_rule))
- 					++result;
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index df4ca482fb53..d95b0ece7434 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -381,8 +381,8 @@ static inline int security_filter_rule_init(u32 field, u32 op, char *rulestr,
- 	return -EINVAL;
+@@ -762,7 +763,8 @@ int set_security_override_from_ctx(struct cred *new, const char *secctx)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return set_security_override(new, secid);
++	lsmblob_init(&blob, secid);
++	return set_security_override(new, &blob);
  }
+ EXPORT_SYMBOL(set_security_override_from_ctx);
  
--static inline int security_filter_rule_match(u32 secid, u32 field, u32 op,
--					     void *lsmrule)
-+static inline int security_filter_rule_match(struct lsmblob *blob, u32 field,
-+					     u32 op, void *lsmrule)
- {
- 	return -EINVAL;
- }
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index f19a895ad7cd..193ddd55420b 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -414,6 +414,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 	for (i = 0; i < MAX_LSM_RULES; i++) {
- 		int rc = 0;
- 		u32 osid;
-+		struct lsmblob blob;
- 
- 		if (!rule->lsm[i].rule)
- 			continue;
-@@ -423,7 +424,8 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		case LSM_OBJ_ROLE:
- 		case LSM_OBJ_TYPE:
- 			security_inode_getsecid(inode, &osid);
--			rc = security_filter_rule_match(osid,
-+			lsmblob_init(&blob, osid);
-+			rc = security_filter_rule_match(&blob,
- 							rule->lsm[i].type,
- 							Audit_equal,
- 							rule->lsm[i].rule);
-@@ -431,7 +433,8 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		case LSM_SUBJ_USER:
- 		case LSM_SUBJ_ROLE:
- 		case LSM_SUBJ_TYPE:
--			rc = security_filter_rule_match(secid,
-+			lsmblob_init(&blob, secid);
-+			rc = security_filter_rule_match(&blob,
- 							rule->lsm[i].type,
- 							Audit_equal,
- 							rule->lsm[i].rule);
 diff --git a/security/security.c b/security/security.c
-index a89634af639a..bfea9739c084 100644
+index bfea9739c084..cee032b5ce29 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -439,7 +439,7 @@ static int lsm_append(const char *new, char **result)
- /*
-  * Current index to use while initializing the lsmblob secid list.
-  */
--static int lsm_slot __initdata;
-+static int lsm_slot __lsm_ro_after_init;
- 
- /**
-  * security_add_hooks - Add a modules hooks to the hook lists.
-@@ -2412,9 +2412,21 @@ void security_audit_rule_free(void *lsmrule)
- 	call_void_hook(audit_rule_free, lsmrule);
+@@ -1615,9 +1615,19 @@ void security_cred_getsecid(const struct cred *c, u32 *secid)
  }
+ EXPORT_SYMBOL(security_cred_getsecid);
  
--int security_audit_rule_match(u32 secid, u32 field, u32 op, void *lsmrule)
-+int security_audit_rule_match(struct lsmblob *blob, u32 field, u32 op,
-+			      void *lsmrule)
+-int security_kernel_act_as(struct cred *new, u32 secid)
++int security_kernel_act_as(struct cred *new, struct lsmblob *blob)
  {
--	return call_int_hook(audit_rule_match, 0, secid, field, op, lsmrule);
+-	return call_int_hook(kernel_act_as, 0, new, secid);
 +	struct security_hook_list *hp;
 +	int rc;
 +
-+	hlist_for_each_entry(hp, &security_hook_heads.audit_rule_match, list) {
++	hlist_for_each_entry(hp, &security_hook_heads.kernel_act_as, list) {
 +		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
 +			continue;
-+		rc = hp->hook.audit_rule_match(blob->secid[hp->lsmid->slot],
-+					       field, op, lsmrule);
++		rc = hp->hook.kernel_act_as(new, blob->secid[hp->lsmid->slot]);
 +		if (rc != 0)
 +			return rc;
 +	}
 +	return 0;
  }
- #endif /* CONFIG_AUDIT */
  
+ int security_kernel_create_files_as(struct cred *new, struct inode *inode)
 -- 
 2.20.1
 
