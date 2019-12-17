@@ -2,293 +2,266 @@ Return-Path: <SRS0=4tRG=2H=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64B05C43603
-	for <selinux@archiver.kernel.org>; Tue, 17 Dec 2019 14:15:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59844C43603
+	for <selinux@archiver.kernel.org>; Tue, 17 Dec 2019 15:02:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2778F20663
-	for <selinux@archiver.kernel.org>; Tue, 17 Dec 2019 14:15:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1AB802146E
+	for <selinux@archiver.kernel.org>; Tue, 17 Dec 2019 15:02:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="J8GfZpET"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ozyiAI+z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728656AbfLQOPD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 17 Dec 2019 09:15:03 -0500
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:32245 "EHLO
-        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728546AbfLQOPD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 17 Dec 2019 09:15:03 -0500
-X-EEMSG-check-017: 38959506|UPDC19PA19_ESA_OUT01.csd.disa.mil
+        id S1728195AbfLQPCt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 17 Dec 2019 10:02:49 -0500
+Received: from UCOL19PA34.eemsg.mail.mil ([214.24.24.194]:51342 "EHLO
+        UCOL19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726560AbfLQPCt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 17 Dec 2019 10:02:49 -0500
+X-EEMSG-check-017: 62778706|UCOL19PA34_ESA_OUT01.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,325,1571702400"; 
-   d="scan'208";a="38959506"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 17 Dec 2019 14:15:00 +0000
+   d="scan'208";a="62778706"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UCOL19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 17 Dec 2019 15:02:46 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1576592100; x=1608128100;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=zalttHRqR+q1I3Hm9CsR4v9PxtiZJGhDao2YVRuRlE0=;
-  b=J8GfZpETpF7zGOQ8vDLibWjrNc3ggZNy26FCSQ49G9wVTSKmqlOd2C89
-   sb3l1vS0YbX4A4v0INh41lDYQmmdBG+OLoj0BuUbAZvvB9oS8Ia0+z3pm
-   BzoRz2xExAa5yq619FL8s6ZkZeBXFBqCO6LrgS+9BltlhPowprJ9J2QWi
-   R2fhxYmwZD/cQTd+CS39t/i+RhQouX7cFnD4nZnCfNCPhumiDI/fgq6A0
-   yFrAySy/hfJSCoa6tuv8p2OKQr+W7for4tomJLocVmsNqW5rPNCtqnyv5
-   OzTyNhcef/h/I8a+9J59gnagRjTiC7vbxPnbvacRxoNtWHZEeoiMqKIQ4
-   Q==;
+  s=tycho.nsa.gov; t=1576594966; x=1608130966;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=M8vVOKFL7M0o9dNSY+1QS9XWVSEgualJYa5ILUoa1w8=;
+  b=ozyiAI+znvKptnDveIiXFZc5Cf77Vs4nbDYKTSMSd0Xu6CnIwzG1aGu/
+   r87DxKj7MjtUw1yY18ORJi8UDyOaYa5fDv7VtnPcUtu1dHk7xrg3E8iZz
+   MKlVlYMRi9RAQA5hfnUueDeUwG2TDcC0PyoOge+OPQleTVWZzXhJ1LCtu
+   mClMndZVqhG/28Gl3wj0DF8DbDv+hGTssiROmvybA7ooy1XCb/BC5SNoC
+   ra01Bthge0hRvQ7EQBv3VK0BdbJj4NSgEO4kK4dHCpQkB9ZI/cboI8fen
+   K4xf5OArpXkD+S78jk+W4I1sG6MCRl4Bt75bSdR/aoTquVZoskyllAPcu
+   w==;
 X-IronPort-AV: E=Sophos;i="5.69,325,1571702400"; 
-   d="scan'208";a="36839132"
-IronPort-PHdr: =?us-ascii?q?9a23=3A7FYyfRcZvgMF1IxDTfNjp0w2lGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxcW7Zx7h7PlgxGXEQZ/co6odzbaP6Oa6ATNLvMbJmUtBWaQEbw?=
- =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
- =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRu7oR/PusUKg4ZuJaY8xx?=
- =?us-ascii?q?jUqXZUZupawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
- =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
- =?us-ascii?q?mp8qlmRAP0hCoBKjU2/nvXishth6xFphyvqQF0z4rNbIyVMPdye6XQds4YS2?=
- =?us-ascii?q?VcRMZcTyxPDJ2hYYUBDOQPOulXoYbmqlcSrhazHxWgCfnzxjNUgHL9wK000/?=
- =?us-ascii?q?4mEQHDxAEuAs4Ov2rMrNX1KqgSV/2+wrTNzTrZa/NW3Sny6YjVeR0muvGDQK?=
- =?us-ascii?q?lwfNHNyUgvCwzFjlKQpZbjPzOOzOsBqWeb7+1+Ve+2jWMstg9/oj+qxsg2i4?=
- =?us-ascii?q?nJgJoYxUzD9Spk3ok5P8a4R1Bnbt65CptQtj2aNotwT8g/QG9ooD43xqAJtJ?=
- =?us-ascii?q?O0ZiQHyIkrywTBZ/GIbYSE+A/vWeCMKjlinn1lYqiwhxOq/Eilze3zS9e73U?=
- =?us-ascii?q?5RripAjtnMrncN1wHP6sSfSvty4EOh2TGX2gDP8O5EO0E0lbfAK5I7w74wkJ?=
- =?us-ascii?q?QTsUPYHiDohEr6lrOWd0U49eio7OTreLPmqYOHN4BokA3+N6UumsinDeQ5NA?=
- =?us-ascii?q?gBQXSb9Pyh2LDs8kD1WrVHguAsnqXHv53WO94XqrOhDw9QyIkj6hK/Dzm80N?=
- =?us-ascii?q?QfmHkKNElFdw+cj4XyJ1HPIOz3Dfe4g1i2ljdr3OrJMqfuApXKMHjPiK3hcq?=
- =?us-ascii?q?pl605A1AozyshS55VRCrEGO/LzXFX+u8DGARIiKQy73fvoCNVn2YMCQ26AHq?=
- =?us-ascii?q?iZMKbKu1+S+u0vO/WMZJMSuDvlMPgq+frujX4/mV8AcqikxoUXaH+mEfR8OU?=
- =?us-ascii?q?mZYmTjgs0HEWgUugoyVuvqiEeNUTRLfXa9Q7o85i0nCIKhFYrDXpqigKGF3C?=
- =?us-ascii?q?qgBp1ZfH1GClSVHXftcIWEXO0MZzyILsB9lTwEUOvpd4h0zRizsCfiwqdja+?=
- =?us-ascii?q?/T/TcV85nk0Ytb/erWwCou+CR0AsLV6GSES2V5jytcXDMt9Lxuqkx6jFGY2O?=
- =?us-ascii?q?53hOIORo8b3O9ATgpvbc2U9Od9Ed2nH1+Qcw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DwAABM4fhd/wHyM5BlHAEBAQEBBwEBEQEEBAEBgW0EA?=
- =?us-ascii?q?QELAQGBcoFtIBIqjQeGcwQGiyGRRQkBAQEBAQEBAQEbHAEBhECCPjcGDgIQA?=
- =?us-ascii?q?QEBBAEBAQEBBQMBAWyFCwcxQgEQAYFnKYMoCwFGgVGCYz+CUyWvJzOFT4NFg?=
- =?us-ascii?q?UiBNgGHPoRzeYEHgUeDG4o3BJYrgSeXM4I+gkKTQgwbgkOYBi2PZpsXI4FYK?=
- =?us-ascii?q?wgCGAghD4MnUBEUiwyCEheOQSMDMIJSjy4BAQ?=
+   d="scan'208";a="31183820"
+IronPort-PHdr: =?us-ascii?q?9a23=3A4JhWxRKuMEvgieyRbdmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgVLvjyrarrMEGX3/hxlliBBdydt6sfzbCO7Ou+CSQp2tWoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagb75+Ngu6oRnTu8UZgIZvKbs6xw?=
+ =?us-ascii?q?fUrHdPZ+lY335jK0iJnxb76Mew/Zpj/DpVtvk86cNOUrj0crohQ7BAAzsoL2?=
+ =?us-ascii?q?465MvwtRneVgSP/WcTUn8XkhVTHQfI6gzxU4rrvSv7sup93zSaPdHzQLspVz?=
+ =?us-ascii?q?mu87tnRRn1gyocKTU37H/YhdBxjKJDoRKuuRp/w5LPYIqIMPZyZ77Rcc8GSW?=
+ =?us-ascii?q?ZEWMteWTZBAoehZIURCeQPM/tTo43kq1cQqRayAA+hD/7txDBVnH/7xbA03f?=
+ =?us-ascii?q?ovEQ/G3wIuEdwBv3vWo9rpO6kfSvy1wavSwDnfc/9b1zXw5Y7VeR4hu/GMWr?=
+ =?us-ascii?q?dwfNLMx0kzCQzFllWQppLjPziIy+oNtnKU7+5kVe2xi28stgZ8oiOyycc3kY?=
+ =?us-ascii?q?TJmoIUxUzE9SV+2oo1I8a4R1Rhbd6rF5tQqTiXOo1rSc0sRGFovTw1yrwAuZ?=
+ =?us-ascii?q?OjeSgF0pInyhzFZ/yAaYiI7RTuX/uSLzdgnH9pZb2yihmo/UWg1+HwTNe43V?=
+ =?us-ascii?q?lUoiZfj9XBsG0G2QbJ5cidUPR9+1+s2TOI1w/O9O5JOVs0la/HK545xb4wi4?=
+ =?us-ascii?q?YTvVzDHiDonEX2i7ebdlk+9eiy6uTnf67mqoWdN49yhAH+Nb8uldKjDugiLg?=
+ =?us-ascii?q?gPX3SU+eS71LH5+032XK5KgeEsnqncsZDaIdwXpq+/AwBLzoYu8wuzAjip3d?=
+ =?us-ascii?q?gCnXQLMUhJdAyIgoT3IV3CPej0DfKljFStlDdryerGPrrkApjVNXjMjazhcK?=
+ =?us-ascii?q?1h609c1AUzzddf64hSCrEaOv3/QEDxtNvGDhMhKQy73/7nCMlh1oMZQW+AGK?=
+ =?us-ascii?q?uZP73dsFCW5uMjOfKDZJIItznnLfgl5PnujWEilF8ZfKmp24YXaX+iEvRnJU?=
+ =?us-ascii?q?WZfWTjgtMbHWgWuQo+SfTgiEeeXj5Le3ayQ6U86ykjCI24EYfMWJqtgb2a0S?=
+ =?us-ascii?q?e6GJ1WaHpGBUqRHnj2bYqLRu0AaCWIIs9uijYET6SuS5c91RGysw/306BoIf?=
+ =?us-ascii?q?bR+iIGrp/j18Z65/fVlR4s8Tx4FcOd03uCT2tshGMHWyc23LxjoUx60lqD1K?=
+ =?us-ascii?q?l4g/pXFdxU/P5JSBk1OoPcz+NgF9D+QB7OftCMSFy+WNWpHSkxTs4tw98Je0?=
+ =?us-ascii?q?t9Gc+tjhbC3yawBb8Vlr+LBIEw8q3GxHXxI8d9y3Db1KgulVUmQ81PNXG4ia?=
+ =?us-ascii?q?577QTcG4nJk0CBnaawaascxDLN9HuEzWeWvkFYVwlwUaPfUnAEfEfWqc725k?=
+ =?us-ascii?q?PeT7+vD7QoLA1BxNWGKqtLbN3pkFpHSO3iONTYf2K+hWOwCQyUybOLaYrgY3?=
+ =?us-ascii?q?8d0znFCEgYjwAT+m6LNRI5Bii8uWLeDTNuFVX1b0Py8Ol+tnK7Q1Q1zwGMc0?=
+ =?us-ascii?q?1uyb619gQJivybTvMZxqgEtzs5qzVoAFa92MrbBMCbpwp9Z6hcYs0y4E1B1W?=
+ =?us-ascii?q?3HswxxJJugL7pthlQGaQR4o1vu1wlrCoVHicUlt20lzAxyKa+D01NOaSmY3Z?=
+ =?us-ascii?q?buNb3TMGX94AqvZLTN2lHe0daW/KgP5O4/q1X5swGjDlAi/Gl/09lJz3uc4Y?=
+ =?us-ascii?q?3HDBIIXpLsVkY36gN6qqrBYiYn4oPbzmdjPbOzsj/Y1NIjHPElxQq4f9dDLK?=
+ =?us-ascii?q?OEExf/E8gCB8ewM+ElhVypbhYaM+BI8a47JcWme+GH2KG2Jupvhi+mh3xd4I?=
+ =?us-ascii?q?9hykKM6zZ8SunQ0pYe3f6YxASHWCnngVehqM/3nYREZDEUHmal1SfkA4tRbL?=
+ =?us-ascii?q?VofYkXEWeuP9G3xtJmip7vXn5Y80SjB0kH2M+yYheSaUby3QhO2kQWu3Cnnj?=
+ =?us-ascii?q?G4zzNsmTEzsqWfxDDOw/jldBcfJmFEXnJigknsIIWvlNAVQEioYBI0lBur4U?=
+ =?us-ascii?q?b12bJbqL1jIGbJW0tHYy/2L2R6WKuqqrWCe9JP6I8vsShPUuS8ZlSaSqXnrB?=
+ =?us-ascii?q?YBySPsAXZRxDAheDG2oJn2gxt6iGeFJnZpsHXZYd1wxQvY5NHEX/FR3SELRC?=
+ =?us-ascii?q?15iTnRG1i9MMOl/dSSl5ffrO++U3itWYFUcSnu1YmArje05XV2AR2jmPC+gs?=
+ =?us-ascii?q?PoERIg3i/91tllTyPIoQ3zYons0KS6PuZncVdyCFDg7Mp6H5l0kpEsi5EIxX?=
+ =?us-ascii?q?gampKV8GIGkWf3LNVUwrjxbGENRTEV2NPa+gvl11dmLn2TxoL1TGmSwsxkZ9?=
+ =?us-ascii?q?OieGMZxjo979xWCKeT9LFLhy91rUS3rA3LZ/hygykSyeE05H4Bg+EJuREtzi?=
+ =?us-ascii?q?WeArATG0lVJijslxWO79Cjo6Rbfmevcb6s1EVgmdCtFq2NogZZWHzhYJctAT?=
+ =?us-ascii?q?dw7tljMFLLyHDz7JvreNzQbdMTqx2UlRjAgvNWKJ0vjPoKgzRoOWbnsX0i0e?=
+ =?us-ascii?q?47ggRk3Yums4ifN2Vt4KW5DwZbNjLrecwT4S3ijaFZnsaVxI2gApVhGi8MXJ?=
+ =?us-ascii?q?vtTPKoDTcSue7gNwaUHz02sm2bFqbHHQ+D9EdmqGrCE5KxOHGRInkZzc5vRB?=
+ =?us-ascii?q?aaJExYjwAUWCs1koQlGQCtwczraF156SwJ5l7kthtMzfplNwXwUmfbqwalcT?=
+ =?us-ascii?q?M0SJmZLBpL8gFC/UDVMcqf7uN8BS1X44OuphSXKmOHfwRIEX0JWkucClD/IL?=
+ =?us-ascii?q?mu/8XA8+ufBuakMvvOe66OqfFaV/eJw5KiyY9m/zeKNsWSMXhuFfw72kxfXX?=
+ =?us-ascii?q?9nH8TVgSkASysSlyjVdc6UuA+8+jFrrsC46PnrXAPv5Y2SC7pdKNlv4A65jr?=
+ =?us-ascii?q?ueN+6KhSZ5NTZZ2ooJxX/P1bcfwVoShD91ejmzHrQPqzTNQLjTmqBJFR4bbT?=
+ =?us-ascii?q?18NM9S46I7xAlNNtbRisnp2b5gkv41F1BFWET6ms63YcwKIme9NE7IBUuQKr?=
+ =?us-ascii?q?SGKiPEw9vtbaO/V7JQluNUuAO0uTqBFE/jJDuDnSHzVx+zKeFMkD2bPBtGtY?=
+ =?us-ascii?q?G5cxZtD3XjTd3/Zh24LtB3lzs2zqMwhn7RK24cPiZzc1lXor2T8yxYmPN/FH?=
+ =?us-ascii?q?JF7nZ/KumEgSmZ5fHCKpkKqftrHjh0l+VC7XQ+yrtV6jxERfNslCvKsNFuuV?=
+ =?us-ascii?q?+mnvCSyjp8ThVOsC1LiZmVvUVtJ6rZ7INMWXXa8xIX62WfFRAKq8FiCt31tK?=
+ =?us-ascii?q?Ba0sLPm77rKDde79LU+tMRB8nSKMKbLnUhNQPlGDHaDAoKVjOrMWDfh1dBkP?=
+ =?us-ascii?q?GJ7HGVoII6pYbyl5UTVLBbT181Fu8dCkR9BtACJ413Xjw8m76BkMEI/Wa+rA?=
+ =?us-ascii?q?XWRMhCpZ/HWeiSDuvgKDaWlrREYQUHwa/2LYQXN4361FZuZUV9nITPA0DQR8?=
+ =?us-ascii?q?xCojV9bg8op0VA6GN+Tmo120LqbgOt4WITGuWunhEslAt+YOIt9Dj37lc5PV?=
+ =?us-ascii?q?XGvjc/kE40md/9mzCebCbxLLusXYFREyf7rFAxMp3gTgZrYg29g1ZkOC3HR7?=
+ =?us-ascii?q?1Plbtgc35kiAvGtZtIA/5cQrVOYAUMyvGPe/UozVNcpz2jxU9G4+vFFJRjmB?=
+ =?us-ascii?q?IycZG2tXJA2hljY8IuKKzOK6pG0EJQiriNviC2zOAxxhERJ0IX/GOVYi4It1?=
+ =?us-ascii?q?QCNqM6KCqw4uxs9QuCliNHeGgNUfoqv/1r9lslO+uc1i7vzqBMKl6qOuybLq?=
+ =?us-ascii?q?OZoHTAldWSTlM310IIk1NK8qNt0cs5dEqUTU8vn/OtEEEgMcfSJBAdRdde/X?=
+ =?us-ascii?q?7QejjG5ezJzIJ4LsO3C+zhS+yJqo4Qg0S5DEAoGZgB6oIKGZz6lAngINvqNv?=
+ =?us-ascii?q?Y3yBcp/xjxLR3RFPlVdQiZuDYBrdu2wJJ+0c9aPD5LRS1UKyO+4rrQ7iQjmu?=
+ =?us-ascii?q?SKWNcxKnsXFq4JMnV+DMSxniNxvHlaCjSzlOUDx17Gpx76qSOYKT74adN5LK?=
+ =?us-ascii?q?ORZBVjD/ms9Dk/+rTwglnSpNGWbWPzM9UkvN7M9OcTj5KGDe5EC7h7r0rY3Y?=
+ =?us-ascii?q?JfQjbiB2zGF9/zIZnzdo0lRdj1DGuqFF25lz8xCcz2OYDpZuKKhgbuTJ0StI?=
+ =?us-ascii?q?CbwDElOMmVEjAYBgc2pucf6aY6bgoGKdJvYxnvsQ0lcai2IBuZ1Nioa2KsLy?=
+ =?us-ascii?q?ZGCfhZ0ei+IbdQynxoJqWgz3c6T549ife2708lRZcWgxWYzvGmLcEKSy//AH?=
+ =?us-ascii?q?1SfEPRpDQ4v2lnKus2hOw4xUWM+XAYPiCGdaRSdGVeuM87BE+VPz0iA3Ekb1?=
+ =?us-ascii?q?yRl4zO5kirxb9Eu2N3ktBW2OhEtjDes4XFbTS3U6yuqJnJ+34qYN4mi658K4?=
+ =?us-ascii?q?ruJo2NrprFnj3ZQ9/XqALTFGaCHude0v1ZKyFVWuNBgilxIcUbvZdawVE4U8?=
+ =?us-ascii?q?03YbtVB/9o7pWrYjptACpa4CsdWpmF1TpK1uKk1pPXkhOdapErNloFvNNLn4?=
+ =?us-ascii?q?1ZGxV7eCwT7I+qU4HHkSfQUWURLwo77Q1I4BMG0IR3e7ahqKjBSZJXgxtRue?=
+ =?us-ascii?q?h1SWOfFJxv7UH6UUmQiF31SbOmieP/mUp5xenhw5EgUx52FEZZyvwewkAhM7?=
+ =?us-ascii?q?xmA7IbvofXvDuFbwbxtSTmz+7wd3dLzsiBTEH1FIrIsyLHVyQY/XAFDdtUxG?=
+ =?us-ascii?q?r3CYUZkw0/br0i4lpLPtb1KQ7F+zU4ytExTPGDXsexygNg9CxXSg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BKAACQ7Phd/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWwFA?=
+ =?us-ascii?q?QELAYFzgRhVIBIqhASJA4ZzBAaBN4lqj0qBewkBAQEBAQEBAQErDAEBhEACg?=
+ =?us-ascii?q?jw2Bw4CEAEBAQQBAQEBAQUDAQFshTcMgjspAYJ6AQUOFRUtFBALGAICJgICV?=
+ =?us-ascii?q?wYBDAYCAQGCXz8BglIlD64agTKEDQEBgUCDQIFIgQ4oAYlOgmN5gQeBOA+CX?=
+ =?us-ascii?q?T6CZAOEcoJeBI94hxRGlzOCPoJChG2OWwYbgkN0hwKQEC2OIIFGhwqTfgUtg?=
+ =?us-ascii?q?VgrCAIYCCEPgycJFjERFI1KiE+FCAFUIwMwAZF/AQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 17 Dec 2019 14:14:59 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 17 Dec 2019 15:02:44 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBHEEZ8w038794;
-        Tue, 17 Dec 2019 09:14:37 -0500
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBHF1mb0066955;
+        Tue, 17 Dec 2019 10:01:51 -0500
+Subject: Re: [PATCH v3 1/7] capabilities: introduce CAP_SYS_PERFMON to kernel
+ and user space
+To:     Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Serge Hallyn <serge@hallyn.com>,
+        James Morris <jmorris@namei.org>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        linux-kernel@vger.kernel.org,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        intel-gfx@lists.freedesktop.org,
+        Brendan Gregg <bgregg@netflix.com>, songliubraving@fb.com,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>
+References: <b175f283-d256-e37e-f447-6ba4ab4f3d3a@linux.intel.com>
+ <bd8adfde-f562-0e56-75aa-371c5354f350@linux.intel.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     paul@paul-moore.com
-Cc:     selinux@vger.kernel.org, omosnace@redhat.com,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH v2] selinux: clean up selinux_enabled/disabled/enforcing_boot
-Date:   Tue, 17 Dec 2019 09:15:10 -0500
-Message-Id: <20191217141510.10941-1-sds@tycho.nsa.gov>
-X-Mailer: git-send-email 2.23.0
+Message-ID: <a9542dcd-6f02-92eb-bd97-8aa839e9036f@tycho.nsa.gov>
+Date:   Tue, 17 Dec 2019 10:02:25 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <bd8adfde-f562-0e56-75aa-371c5354f350@linux.intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Rename selinux_enabled to selinux_enabled_boot to make it clear that
-it only reflects whether SELinux was enabled at boot.  Replace the
-references to it in the MAC_STATUS audit log in sel_write_enforce()
-with hardcoded "1" values because this code is only reachable if SELinux
-is enabled and does not change its value, and update the corresponding
-MAC_STATUS audit log in sel_write_disable().  Stop clearing
-selinux_enabled in selinux_disable() since it is not used outside of
-initialization code that runs before selinux_disable() can be reached.
-Mark both selinux_enabled_boot and selinux_enforcing_boot as __initdata
-since they are only used in initialization code.
+On 12/16/19 2:58 PM, Alexey Budankov wrote:
+> 
+> Introduce CAP_SYS_PERFMON capability devoted to secure system performance
+> monitoring and observability so that CAP_SYS_PERFMON would assist
+> CAP_SYS_ADMIN capability in its governing role for perf_events, i915_perf
+> and other subsystems of the kernel.
+> 
+> CAP_SYS_PERFMON intends to harden system security and integrity during
+> system performance monitoring and observability by decreasing attack surface
+> that is available to CAP_SYS_ADMIN privileged processes.
+> 
+> CAP_SYS_PERFMON intends to take over CAP_SYS_ADMIN credentials related to
+> system performance monitoring and observability and balance amount of
+> CAP_SYS_ADMIN credentials in accordance with the recommendations provided
+> in the man page for CAP_SYS_ADMIN [1]: "Note: this capability is overloaded;
+> see Notes to kernel developers, below."
+> 
+> [1] http://man7.org/linux/man-pages/man7/capabilities.7.html
+> 
+> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
+> ---
+>   include/linux/capability.h          | 1 +
+>   include/uapi/linux/capability.h     | 8 +++++++-
+>   security/selinux/include/classmap.h | 4 ++--
+>   3 files changed, 10 insertions(+), 3 deletions(-)
+> 
+> diff --git a/include/linux/capability.h b/include/linux/capability.h
+> index ecce0f43c73a..6342502c4c2a 100644
+> --- a/include/linux/capability.h
+> +++ b/include/linux/capability.h
+> @@ -251,6 +251,7 @@ extern bool privileged_wrt_inode_uidgid(struct user_namespace *ns, const struct
+>   extern bool capable_wrt_inode_uidgid(const struct inode *inode, int cap);
+>   extern bool file_ns_capable(const struct file *file, struct user_namespace *ns, int cap);
+>   extern bool ptracer_capable(struct task_struct *tsk, struct user_namespace *ns);
+> +#define perfmon_capable() (capable(CAP_SYS_PERFMON) || capable(CAP_SYS_ADMIN))
 
-Wrap the disabled field in the struct selinux_state with
-CONFIG_SECURITY_SELINUX_DISABLE since it is only used for
-runtime disable.
+I think making it a static inline bool function instead of a macro would 
+be preferred?
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
-v2 switches to hardcoded values for enabled/old-enabled in the MAC_STATUS
-audit records, drops selinux_is_enabled() since it is not needed, and
-makes both selinux_enabled_boot and selinux_enforcing_boot __initdata
-since they are unused outside of initialization code.
- security/selinux/hooks.c            | 12 +++++-------
- security/selinux/ibpkey.c           |  2 +-
- security/selinux/include/security.h |  4 +++-
- security/selinux/netif.c            |  2 +-
- security/selinux/netnode.c          |  2 +-
- security/selinux/netport.c          |  2 +-
- security/selinux/selinuxfs.c        | 11 +++++------
- 7 files changed, 17 insertions(+), 18 deletions(-)
+Otherwise,
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 40ec866e48da..659c4a81e897 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -109,7 +109,7 @@ struct selinux_state selinux_state;
- static atomic_t selinux_secmark_refcount = ATOMIC_INIT(0);
- 
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
--static int selinux_enforcing_boot;
-+static int selinux_enforcing_boot __initdata;
- 
- static int __init enforcing_setup(char *str)
- {
-@@ -123,13 +123,13 @@ __setup("enforcing=", enforcing_setup);
- #define selinux_enforcing_boot 1
- #endif
- 
--int selinux_enabled __lsm_ro_after_init = 1;
-+int selinux_enabled_boot __initdata = 1;
- #ifdef CONFIG_SECURITY_SELINUX_BOOTPARAM
- static int __init selinux_enabled_setup(char *str)
- {
- 	unsigned long enabled;
- 	if (!kstrtoul(str, 0, &enabled))
--		selinux_enabled = enabled ? 1 : 0;
-+		selinux_enabled_boot = enabled ? 1 : 0;
- 	return 1;
- }
- __setup("selinux=", selinux_enabled_setup);
-@@ -7202,7 +7202,7 @@ void selinux_complete_init(void)
- DEFINE_LSM(selinux) = {
- 	.name = "selinux",
- 	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
--	.enabled = &selinux_enabled,
-+	.enabled = &selinux_enabled_boot,
- 	.blobs = &selinux_blob_sizes,
- 	.init = selinux_init,
- };
-@@ -7271,7 +7271,7 @@ static int __init selinux_nf_ip_init(void)
- {
- 	int err;
- 
--	if (!selinux_enabled)
-+	if (!selinux_enabled_boot)
- 		return 0;
- 
- 	pr_debug("SELinux:  Registering netfilter hooks\n");
-@@ -7318,8 +7318,6 @@ int selinux_disable(struct selinux_state *state)
- 
- 	pr_info("SELinux:  Disabled at runtime.\n");
- 
--	selinux_enabled = 0;
--
- 	security_delete_hooks(selinux_hooks, ARRAY_SIZE(selinux_hooks));
- 
- 	/* Try to destroy the avc node cache */
-diff --git a/security/selinux/ibpkey.c b/security/selinux/ibpkey.c
-index de92365e4324..f68a7617cfb9 100644
---- a/security/selinux/ibpkey.c
-+++ b/security/selinux/ibpkey.c
-@@ -222,7 +222,7 @@ static __init int sel_ib_pkey_init(void)
- {
- 	int iter;
- 
--	if (!selinux_enabled)
-+	if (!selinux_enabled_boot)
- 		return 0;
- 
- 	for (iter = 0; iter < SEL_PKEY_HASH_SIZE; iter++) {
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 8c0dbbd076c6..af623f03922c 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -69,7 +69,7 @@
- 
- struct netlbl_lsm_secattr;
- 
--extern int selinux_enabled;
-+extern int selinux_enabled_boot;
- 
- /* Policy capabilities */
- enum {
-@@ -99,7 +99,9 @@ struct selinux_avc;
- struct selinux_ss;
- 
- struct selinux_state {
-+#ifdef CONFIG_SECURITY_SELINUX_DISABLE
- 	bool disabled;
-+#endif
- #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
- 	bool enforcing;
- #endif
-diff --git a/security/selinux/netif.c b/security/selinux/netif.c
-index e40fecd73752..15b8c1bcd7d0 100644
---- a/security/selinux/netif.c
-+++ b/security/selinux/netif.c
-@@ -266,7 +266,7 @@ static __init int sel_netif_init(void)
- {
- 	int i;
- 
--	if (!selinux_enabled)
-+	if (!selinux_enabled_boot)
- 		return 0;
- 
- 	for (i = 0; i < SEL_NETIF_HASH_SIZE; i++)
-diff --git a/security/selinux/netnode.c b/security/selinux/netnode.c
-index 9ab84efa46c7..dff587d1e164 100644
---- a/security/selinux/netnode.c
-+++ b/security/selinux/netnode.c
-@@ -291,7 +291,7 @@ static __init int sel_netnode_init(void)
- {
- 	int iter;
- 
--	if (!selinux_enabled)
-+	if (!selinux_enabled_boot)
- 		return 0;
- 
- 	for (iter = 0; iter < SEL_NETNODE_HASH_SIZE; iter++) {
-diff --git a/security/selinux/netport.c b/security/selinux/netport.c
-index 3f8b2c0458c8..de727f7489b7 100644
---- a/security/selinux/netport.c
-+++ b/security/selinux/netport.c
-@@ -225,7 +225,7 @@ static __init int sel_netport_init(void)
- {
- 	int iter;
- 
--	if (!selinux_enabled)
-+	if (!selinux_enabled_boot)
- 		return 0;
- 
- 	for (iter = 0; iter < SEL_NETPORT_HASH_SIZE; iter++) {
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index dd7bb1f1dc99..278417e67b4c 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -168,11 +168,10 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 			goto out;
- 		audit_log(audit_context(), GFP_KERNEL, AUDIT_MAC_STATUS,
- 			"enforcing=%d old_enforcing=%d auid=%u ses=%u"
--			" enabled=%d old-enabled=%d lsm=selinux res=1",
-+			" enabled=1 old-enabled=1 lsm=selinux res=1",
- 			new_value, old_value,
- 			from_kuid(&init_user_ns, audit_get_loginuid(current)),
--			audit_get_sessionid(current),
--			selinux_enabled, selinux_enabled);
-+			audit_get_sessionid(current));
- 		enforcing_set(state, new_value);
- 		if (new_value)
- 			avc_ss_reset(state->avc, 0);
-@@ -304,10 +303,10 @@ static ssize_t sel_write_disable(struct file *file, const char __user *buf,
- 			goto out;
- 		audit_log(audit_context(), GFP_KERNEL, AUDIT_MAC_STATUS,
- 			"enforcing=%d old_enforcing=%d auid=%u ses=%u"
--			" enabled=%d old-enabled=%d lsm=selinux res=1",
-+			" enabled=0 old-enabled=1 lsm=selinux res=1",
- 			enforcing, enforcing,
- 			from_kuid(&init_user_ns, audit_get_loginuid(current)),
--			audit_get_sessionid(current), 0, 1);
-+			audit_get_sessionid(current));
- 	}
- 
- 	length = count;
-@@ -2105,7 +2104,7 @@ static int __init init_sel_fs(void)
- 					  sizeof(NULL_FILE_NAME)-1);
- 	int err;
- 
--	if (!selinux_enabled)
-+	if (!selinux_enabled_boot)
- 		return 0;
- 
- 	err = sysfs_create_mount_point(fs_kobj, "selinux");
--- 
-2.23.0
+>   
+>   /* audit system wants to get cap info from files as well */
+>   extern int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data *cpu_caps);
+> diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
+> index 240fdb9a60f6..98e03cc76c7c 100644
+> --- a/include/uapi/linux/capability.h
+> +++ b/include/uapi/linux/capability.h
+> @@ -366,8 +366,14 @@ struct vfs_ns_cap_data {
+>   
+>   #define CAP_AUDIT_READ		37
+>   
+> +/*
+> + * Allow system performance and observability privileged operations
+> + * using perf_events, i915_perf and other kernel subsystems
+> + */
+> +
+> +#define CAP_SYS_PERFMON		38
+>   
+> -#define CAP_LAST_CAP         CAP_AUDIT_READ
+> +#define CAP_LAST_CAP         CAP_SYS_PERFMON
+>   
+>   #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
+>   
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index 7db24855e12d..bae602c623b0 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -27,9 +27,9 @@
+>   	    "audit_control", "setfcap"
+>   
+>   #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+> -		"wake_alarm", "block_suspend", "audit_read"
+> +		"wake_alarm", "block_suspend", "audit_read", "sys_perfmon"
+>   
+> -#if CAP_LAST_CAP > CAP_AUDIT_READ
+> +#if CAP_LAST_CAP > CAP_SYS_PERFMON
+>   #error New capability defined, please update COMMON_CAP2_PERMS.
+>   #endif
+>   
+> 
 
