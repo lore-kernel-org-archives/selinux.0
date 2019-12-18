@@ -2,105 +2,106 @@ Return-Path: <SRS0=xVDs=2I=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C9EDC2D0BF
-	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 17:03:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D983C43603
+	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 17:10:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2939A227BF
-	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 17:03:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E83E22082E
+	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 17:10:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="FKzTF1lY"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="pZJD61KJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727727AbfLRRD3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Dec 2019 12:03:29 -0500
-Received: from UCOL19PA34.eemsg.mail.mil ([214.24.24.194]:14557 "EHLO
-        UCOL19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727697AbfLRRD3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Dec 2019 12:03:29 -0500
-X-EEMSG-check-017: 63567850|UCOL19PA34_ESA_OUT01.csd.disa.mil
+        id S1727025AbfLRRKe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Dec 2019 12:10:34 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:48029 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726960AbfLRRKe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Dec 2019 12:10:34 -0500
+X-EEMSG-check-017: 36886583|USFB19PA36_ESA_OUT06.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,330,1571702400"; 
-   d="scan'208";a="63567850"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UCOL19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Dec 2019 17:02:38 +0000
+   d="scan'208";a="36886583"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Dec 2019 17:10:32 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1576688559; x=1608224559;
+  s=tycho.nsa.gov; t=1576689032; x=1608225032;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=q9DdLc8AGEh2YrzHiROMw96F1FmZoMMJWXK63hi27cE=;
-  b=FKzTF1lYtL0p15E9IvAF0+ocO6ZPX+SQ7ovP1qM4XL3DlQQHMuDdzB2Y
-   bf9iF4i3WYbR3SjgMqswOr49Yu9AfW3W2ljO6D9YAysso/jcNbCdynegu
-   w1QWmfAO0qgj/J5t642CgKIJAa/rP5lw5jZCKPKwMjjFEjcZj8V78bKtw
-   MNJsZ4LdlWFhDx2+jFZE+m9tAA/053E7Obyd1LXPgQTg/QCIH18euRXAl
-   NypsDnm5w58AVt8TletwCA/46N5y3sINmBw6bNv5eJHFVUIPFlH4Y4aiK
-   QvrSHxLDS5l9Zo9zIKIrItD/Pd5FE91o1Zkb7C8sDqz8W5bh9i4vB9X79
-   Q==;
+  bh=X7XEuTbLCiKdg3A+9tmOBdCYC7v7W+GwywtBfIE+7y8=;
+  b=pZJD61KJ2xNTJ4Bdi+3JqwWJ1Vp9yKKd/02xsIGPO9/gyEHN4qAFpSzx
+   XVnpcxxlhIZ+c3OcQcLYW1nZqZxMrGsV2c7QkezTyYPvxXjH9r9ViYg+M
+   OOn08uAYjO+V162jfJ3aQvD/5gD5E0FcBwZ7bq3Fv1GLKeBOKGOVOnDtZ
+   OslHkZmcJEpxNn+CIp0lWSBB/p4DkORIhBBm3m05Wd2pZ4WgVkc1I1zwm
+   aKdQw+PTwQzuCXVjrblO7nOoyFvTN0xFOnfm0KZZsQVguyFX94Bc8rFwD
+   JOEr3PRUjaIytzRe+RNl2WgsMvvPkqfXWh1JyUVPc7gzrlCJIu5zjA7dX
+   g==;
 X-IronPort-AV: E=Sophos;i="5.69,330,1571702400"; 
-   d="scan'208";a="31241601"
-IronPort-PHdr: =?us-ascii?q?9a23=3ACbXSwR25nZSUrr3dsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZsesSLf3xwZ3uMQTl6Ol3ixeRBMOHsqkC0bKH+PG5EUU7or+5+EgYd5JNUx?=
- =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
- =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCezbL9oMhm6sQHcusYSjId/N6081g?=
- =?us-ascii?q?bHrnxUdupM2GhmP0iTnxHy5sex+J5s7SFdsO8/+sBDTKv3Yb02QaRXAzo6PW?=
- =?us-ascii?q?814tbrtQTYQguU+nQcSGQWnQFWDAXD8Rr3Q43+sir+tup6xSmaIcj7Rq06VD?=
- =?us-ascii?q?i+86tmTgLjhTwZPDAl7m7Yls1wjLpaoB2/oRx/35XUa5yROPZnY6/RYc8WSW?=
- =?us-ascii?q?9HU8lfTSxBBp63YZUJAeQPIO1Uq5DxqlUKoBe7AwSnGeHhxSJShnLuwKM0ze?=
- =?us-ascii?q?ohHwHF0gIuEd0Bv3bbo8n6OqoJTeC4zrPFwSnfY/5Y2zrw7pXDfBA7ofGLWL?=
- =?us-ascii?q?J9adffyVUxGAPdjlWft4rlNC6I2OQIqWeb6+5gWvyvimU6rAxxuSWgxtw3h4?=
- =?us-ascii?q?nVhoMa1lDE9SJjzIYzPt23UlR3YdGjEJtOriyXMZZ9TMA6Q2xwpSo3xbILtY?=
- =?us-ascii?q?S7cSQX0pgr2RHSZ+Kdf4SV5B/oSfyfLi1ihH1/fbKynxOy8U+9xeLiTsS0y1?=
- =?us-ascii?q?NKrjZdktnLq3ANywTf6siZRft5+UeswSqP2BrJ6uFFPEA0jrDXK58nwr4+kZ?=
- =?us-ascii?q?oTqlrMETPslEXqjK6ZakUk+u+y5+ThfrrmvYOTO5VxigH/NqQigs2/AeImPQ?=
- =?us-ascii?q?gSR2WX5Oux2bL58UD5XblGlOM6n6bHvJzAOMgXvqu5DBVU0oYn5Ra/FTCm0N?=
- =?us-ascii?q?EAkHkcMV1FYwmKj5TpOl7SIPD4Cu2zg1K3kDhx3fzGMbrhAovVInjZjLjhZa?=
- =?us-ascii?q?p961JbyAcr0d9Q/YlUBa8BIf/oQU/+qNzYAQUkMwy6x+boFs992poCVm2VGK?=
- =?us-ascii?q?OWLKTSsVqQ7OI1P+aMfJMVuCr6K/U9+/Hhl2Q5lkEdfKWzxpsYdHC4Ee57I0?=
- =?us-ascii?q?WXZXrjnM0BHHwLvgo4UOzlllmCXSRPaHa1WqI2/is7B56+DYffWoCth6SM3C?=
- =?us-ascii?q?W+Hp1RfGBGEFGMEWzzeoWCQfgMbTydIs57njwDT7ihRJcr1Quyuw/i17pnMu?=
- =?us-ascii?q?3U9zUctZLi0th1+uLSmQgp9TNqE8udznuNT2BonmIIXjM22ad/rlFgyleHz6?=
- =?us-ascii?q?d1mOJYFdNN6PNTSAs6NoDTz/Z8C9/sXgLNZNCJSEypQt++GzE+Usoxw8MSY0?=
- =?us-ascii?q?Z6A9iilQ7M3y6rA78TiryKC4c58rzT33fvPcZx0XXG27c7j1kgXMRPMXeqhq?=
- =?us-ascii?q?ll9wjcH4TJiVmWl762daQA2y7A7GSDwnSQs0FDTAFwVqLFXXMEa0TKrdT5/E?=
- =?us-ascii?q?TCT7qvCbQ6NwtN08mCKrFFatfxl1VJWO/jOMjCY2K2g2qwBxGIxrOKbIbweW?=
- =?us-ascii?q?Ud2yXdB1ICkwAI43mGMxMzCTu7rGLYCzxuE1PvbF/2/ul6sn+0Ukg0zwSSZU?=
- =?us-ascii?q?17y7W14gIVheCbS/4LxrILpiEhqzppHFa82dLaEtmAqBR7fKVaf9w95ExK1W?=
- =?us-ascii?q?PAuwx5OZygMb5tikQFcwttvEPuyg93BZ9ancgssnwm1ghyKbqA2lNbazyYxY?=
- =?us-ascii?q?zwOqHQKmTq5BCgcbPW2lXF3daO4KgP9fA4p0zmvAGuEUoi6Wto38NJ3Hub45?=
- =?us-ascii?q?WZRDYVBLn4SUsmvyNxp7jHbC0w/cuA3nR3PLicqTTC0s8nAOY/jx2pOdxYNf?=
- =?us-ascii?q?XAXAT7CMALQdOlKOU3lVykdDoFOvxf8Og/OMbiP/mD37SxPf1ImjujgGUB55?=
- =?us-ascii?q?pylgqI9ixhWqvT0p0Y2fCEz06CUDvhiFqJrM/6g8ZHaCsUE275zjLrQMZKa6?=
- =?us-ascii?q?lze5sbIXmhLtfxxdhkgZPpHXlC+w2NHVQDjfS1dAKSYlq15ghZ0UAasDTzgi?=
- =?us-ascii?q?ej5yBlmDEu6KyE1WrBxPq0J0lPAXJCWGQ31QSkGoOzld1PGRHzPgU=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BKAABkWvpd/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF8gXaBbSASKoQEiQOGWgaBEiWJaooihyMJAQEBAQEBAQEBNwEBh?=
- =?us-ascii?q?EACgj04EwIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGCegEFIwQRQRALGAICJgICV?=
- =?us-ascii?q?wYBDAYCAQGCXz+CUyWtfn8zhU+DO4FBgQ4ojDJ5gQeBEScMA4JdPodZgl4Ej?=
- =?us-ascii?q?UKJTEaXNYI/gkOTSgYbmk4tjiGcXyKBWCsIAhgIIQ87gmxQGA2NHheOQSMDM?=
- =?us-ascii?q?I8tAQE?=
+   d="scan'208";a="36917433"
+IronPort-PHdr: =?us-ascii?q?9a23=3A4iWCjBXnFK25YuVs7RlEmKD/jtfV8LGtZVwlr6?=
+ =?us-ascii?q?E/grcLSJyIuqrYZRCAvKdThVPEFb/W9+hDw7KP9fy5AipaucfK4SpKWacPfi?=
+ =?us-ascii?q?dNsd8RkQ0kDZzNImzAB9muURYHGt9fXkRu5XCxPBsdMs//Y1rPvi/6tmZKSV?=
+ =?us-ascii?q?3wOgVvO+v6BJPZgdip2OCu4Z3TZBhDiCagbb9oIxi6sAvcutMIjYd+Lqs9xR?=
+ =?us-ascii?q?/ErmVVcOlK2G1kIk6ekQzh7cmq5p5j9CpQu/Ml98FeVKjxYro1Q79FAjk4Km?=
+ =?us-ascii?q?45/MLkuwXNQguJ/XscT34ZkgFUDAjf7RH1RYn+vy3nvedgwiaaPMn2TbcpWT?=
+ =?us-ascii?q?S+6qpgVRHlhDsbOzM/7WrakdJ7gr5Frx29phx/24/Ub5+TNPpiZaPWYNcWSX?=
+ =?us-ascii?q?NcUspNSyBNB4WxYIUVD+oFIO1WsY/zqVUTphe6HAWgGufixjpOi3Tr36M1zv?=
+ =?us-ascii?q?4hHBnb0gI+EdIAsHfaotv7O6gdU++60KbGwC7fb/5Uwzrx9JTEfx4jrPyKQL?=
+ =?us-ascii?q?l+cdDRyU4qFw7dk1uQtZLqPyuV1usTtWiQ8vduVee1hG4jrwF+vDiuzdorh4?=
+ =?us-ascii?q?nSm40V0UvJ9Tl5wYkpJd24T1R3Ydi/EJRKrS2aOIx2Qt07TmxupS00yaUGtI?=
+ =?us-ascii?q?amcCUFx5kr3R7SZ+Gdf4SW7R/vSvydLSp+iXl4YrywnQyy/lKlyuDkU8m010?=
+ =?us-ascii?q?tFoTRdn9nXs3ANywTT6s+aSvth5kuh2SiA1wTU6uxcPUA7j7DbK588wr4rjJ?=
+ =?us-ascii?q?YTsELDHiHxmEXtkqCZal8o+vSo6uv7YrXmoYWQN4lohQHlLqsigMm/AeU8Mg?=
+ =?us-ascii?q?QWXmib//qz1KH78EHkT7hHgec6n6nEvJzAO8gWqbC1DxVI3oo77hawFTam0N?=
+ =?us-ascii?q?AWnXkdK1JFfQqKj5P0NFHVO/34Efe+jEiskDds3fzGOKbhDY/XInjMl7fhY6?=
+ =?us-ascii?q?5x61RAxwor0dBf+5VUB6kdL/3pQU/+qtzZAwQiMwOow+boEsh91o0aWW2RGK?=
+ =?us-ascii?q?+VKb/dvkWS6u0zJOmMYZcfuCzhJPg9+/7ukXg5lEcBcqazxpsYdnC5Eu59I0?=
+ =?us-ascii?q?qFYXrjmMoBEWkOvgUgVuznk1yCUThPZ3msW6Iw/C00CIWjDY3bXICinKSB3D?=
+ =?us-ascii?q?unHp1Rfm1GCFWMEXDyd4WeWvcMczmfIsl7nTwBS7ehSpUt1Ra0tA/107BnNP?=
+ =?us-ascii?q?bb+jUEtZL/09h4/+nTlRA09TxpAMWRynqNQH9okWMVXT823bx/oExkxleG1q?=
+ =?us-ascii?q?h3nuFYFdhN6P5STAc6OoDTz/ZgB9DxRA3BZNGJR0iiQtm8BjExVN0xyccUY0?=
+ =?us-ascii?q?lhA9WikgzD3y2yDr8OibOLAJ008qTB33n+PMt91XnG27c7j1U8QctAK3emhq?=
+ =?us-ascii?q?hh+AjXHYLJlF+Zl6myf6QGwCHN7HuDzXaJvExAUw5/T7vKXWsDaUvRqtT55V?=
+ =?us-ascii?q?jPQKOuCbQ9NQtBzM+CKrZPatHzilVGXvjjMszEY22tg2ewGQqIxrSUYYrofG?=
+ =?us-ascii?q?Ud3CPdBFIGkwAU/XaJLw4+Bjy/rGLYFzFhCUjgY0Xr8el4qXO0UlU7zwWQY0?=
+ =?us-ascii?q?J90Lq1/wYfheaARPMLwrIEpCAhpi1sHFmj2dLWBMeApwtnfKlFYtMy/k1H1W?=
+ =?us-ascii?q?THuAx5JZGgLrluhloZcwRpoUzizQ53BZ9Dkcg3tnMl1hB+KaSG319bdTOYxY?=
+ =?us-ascii?q?j6OqfLJWnq4BCvd6nW10nG0NmM56cP7O81q035swG0Ekou6nBn095S03uG+J?=
+ =?us-ascii?q?rGFhYdUZX0UhV/yx8vjLjBbzh13IjU3GBiNaSu+mvJ0skkFcM+wRapYtlbPb?=
+ =?us-ascii?q?nBHwa0GMofUYzmI+UxlknvdRkENf1c8KMuF8Kga/aCnqWsOaIonjehl35G+6?=
+ =?us-ascii?q?h720eB9mx7UOGMl5IExeyImxCKXCrmjUuw98XwlZ1AaBkMEWeljyvpHohcYu?=
+ =?us-ascii?q?t1Z4lPQXyjJ8yx28VWmZHgQThb+USlCldA39WmKjSIaFmo5hFdzUQapzScnC?=
+ =?us-ascii?q?K8yzFl22UyorG3wD3Fw+OkcgEOfGFMWj8x3h/XPYGogoVCDwCTZA8zmU7gvB?=
+ =?us-ascii?q?yryg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DIAACeXPpd/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
+ =?us-ascii?q?QGBfIF2gW0gEiqEBIkDhlkGgTeJaooihyMJAQEBAQEBAQEBNwEBhEACgj04E?=
+ =?us-ascii?q?wIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGCegEFIwQRQRALGAICJgICVwYBDAYCA?=
+ =?us-ascii?q?QGCXz+CUyWtcX8zhU+DPYFBgQ4ojDJ5gQeBEScPgl0+h1mCXgSNQolMRpc1g?=
+ =?us-ascii?q?j+CQ5NKBhuaTi2OIZxfIoFYKwgCGAghD4MnUBgNm3YjAzCPLQEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 18 Dec 2019 17:02:38 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 18 Dec 2019 17:10:30 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBIH25ZZ037781;
-        Wed, 18 Dec 2019 12:02:06 -0500
-Subject: Re: [PATCH v12 17/25] LSM: Use lsmcontext in security_inode_getsecctx
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBIHA7J2047077;
+        Wed, 18 Dec 2019 12:10:09 -0500
+Subject: Re: [PATCH v12 18/25] LSM: security_secid_to_secctx in netlink
+ netfilter
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
 References: <20191216223621.5127-1-casey@schaufler-ca.com>
- <20191216223621.5127-18-casey@schaufler-ca.com>
+ <20191216223621.5127-19-casey@schaufler-ca.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <6740b5a0-db70-9281-f3ca-7cb4822e0889@tycho.nsa.gov>
-Date:   Wed, 18 Dec 2019 12:02:56 -0500
+Message-ID: <5c5038f7-e523-78f8-2e81-5b4195d9cd94@tycho.nsa.gov>
+Date:   Wed, 18 Dec 2019 12:10:58 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20191216223621.5127-18-casey@schaufler-ca.com>
+In-Reply-To: <20191216223621.5127-19-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -110,146 +111,112 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 12/16/19 5:36 PM, Casey Schaufler wrote:
-> Change the security_inode_getsecctx() interface to fill
-> a lsmcontext structure instead of data and length pointers.
-> This provides the information about which LSM created the
-> context so that security_release_secctx() can use the
-> correct hook.
+> Change netlink netfilter interfaces to use lsmcontext
+> pointers, and remove scaffolding.
 > 
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Reviewed-by: John Johansen <john.johansen@canonical.com>
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> cc: netdev@vger.kernel.org
 
 Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->   fs/nfsd/nfs4xdr.c        | 23 +++++++++--------------
->   include/linux/security.h |  5 +++--
->   security/security.c      | 13 +++++++++++--
->   3 files changed, 23 insertions(+), 18 deletions(-)
+>   net/netfilter/nfnetlink_queue.c | 32 +++++++++++++-------------------
+>   1 file changed, 13 insertions(+), 19 deletions(-)
 > 
-> diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
-> index e20011281915..98d20178e60f 100644
-> --- a/fs/nfsd/nfs4xdr.c
-> +++ b/fs/nfsd/nfs4xdr.c
-> @@ -2304,11 +2304,11 @@ nfsd4_encode_layout_types(struct xdr_stream *xdr, u32 layout_types)
->   #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
->   static inline __be32
->   nfsd4_encode_security_label(struct xdr_stream *xdr, struct svc_rqst *rqstp,
-> -			    void *context, int len)
-> +			    struct lsmcontext *context)
->   {
->   	__be32 *p;
->   
-> -	p = xdr_reserve_space(xdr, len + 4 + 4 + 4);
-> +	p = xdr_reserve_space(xdr, context->len + 4 + 4 + 4);
->   	if (!p)
->   		return nfserr_resource;
->   
-> @@ -2318,13 +2318,13 @@ nfsd4_encode_security_label(struct xdr_stream *xdr, struct svc_rqst *rqstp,
->   	 */
->   	*p++ = cpu_to_be32(0); /* lfs */
->   	*p++ = cpu_to_be32(0); /* pi */
-> -	p = xdr_encode_opaque(p, context, len);
-> +	p = xdr_encode_opaque(p, context->context, context->len);
->   	return 0;
+> diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+> index 2d6668fd026c..a1296453d8f2 100644
+> --- a/net/netfilter/nfnetlink_queue.c
+> +++ b/net/netfilter/nfnetlink_queue.c
+> @@ -301,12 +301,10 @@ static int nfqnl_put_sk_uidgid(struct sk_buff *skb, struct sock *sk)
+>   	return -1;
 >   }
->   #else
->   static inline __be32
->   nfsd4_encode_security_label(struct xdr_stream *xdr, struct svc_rqst *rqstp,
-> -			    void *context, int len)
-> +			    struct lsmcontext *context)
->   { return 0; }
->   #endif
 >   
-> @@ -2421,9 +2421,7 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
->   	int err;
->   	struct nfs4_acl *acl = NULL;
->   #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
-> -	struct lsmcontext scaff; /* scaffolding */
-> -	void *context = NULL;
-> -	int contextlen;
-> +	struct lsmcontext context = { };
->   #endif
->   	bool contextsupport = false;
->   	struct nfsd4_compoundres *resp = rqstp->rq_resp;
-> @@ -2481,7 +2479,7 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
->   	     bmval0 & FATTR4_WORD0_SUPPORTED_ATTRS) {
->   		if (exp->ex_flags & NFSEXP_SECURITY_LABEL)
->   			err = security_inode_getsecctx(d_inode(dentry),
-> -						&context, &contextlen);
-> +						       &context);
->   		else
->   			err = -EOPNOTSUPP;
->   		contextsupport = (err == 0);
-> @@ -2911,8 +2909,7 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
+> -static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
+> +static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, struct lsmcontext *context)
+>   {
+> -	u32 seclen = 0;
+>   #if IS_ENABLED(CONFIG_NETWORK_SECMARK)
+>   	struct lsmblob blob;
+> -	struct lsmcontext context = { };
 >   
->   #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
->   	if (bmval2 & FATTR4_WORD2_SECURITY_LABEL) {
-> -		status = nfsd4_encode_security_label(xdr, rqstp, context,
-> -								contextlen);
-> +		status = nfsd4_encode_security_label(xdr, rqstp, &context);
->   		if (status)
->   			goto out;
+>   	if (!skb || !sk_fullsock(skb->sk))
+>   		return 0;
+> @@ -314,15 +312,16 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
+>   	read_lock_bh(&skb->sk->sk_callback_lock);
+>   
+>   	if (skb->secmark) {
+> +		/* Any LSM might be looking for the secmark */
+>   		lsmblob_init(&blob, skb->secmark);
+> -		security_secid_to_secctx(&blob, &context);
+> -		*secdata = context.context;
+> +		security_secid_to_secctx(&blob, context);
 >   	}
-> @@ -2924,10 +2921,8 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
 >   
->   out:
->   #ifdef CONFIG_NFSD_V4_SECURITY_LABEL
-> -	if (context) {
-> -		lsmcontext_init(&scaff, context, contextlen, 0); /*scaffolding*/
+>   	read_unlock_bh(&skb->sk->sk_callback_lock);
+> -	seclen = context.len;
+> +	return context->len;
+> +#else
+> +	return 0;
+>   #endif
+> -	return seclen;
+>   }
+>   
+>   static u32 nfqnl_get_bridge_size(struct nf_queue_entry *entry)
+> @@ -398,8 +397,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+>   	enum ip_conntrack_info uninitialized_var(ctinfo);
+>   	struct nfnl_ct_hook *nfnl_ct;
+>   	bool csum_verify;
+> -	struct lsmcontext scaff; /* scaffolding */
+> -	char *secdata = NULL;
+> +	struct lsmcontext context = { };
+>   	u32 seclen = 0;
+>   
+>   	size = nlmsg_total_size(sizeof(struct nfgenmsg))
+> @@ -466,7 +464,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+>   	}
+>   
+>   	if ((queue->flags & NFQA_CFG_F_SECCTX) && entskb->sk) {
+> -		seclen = nfqnl_get_sk_secctx(entskb, &secdata);
+> +		seclen = nfqnl_get_sk_secctx(entskb, &context);
+>   		if (seclen)
+>   			size += nla_total_size(seclen);
+>   	}
+> @@ -601,7 +599,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+>   	    nfqnl_put_sk_uidgid(skb, entskb->sk) < 0)
+>   		goto nla_put_failure;
+>   
+> -	if (seclen && nla_put(skb, NFQA_SECCTX, seclen, secdata))
+> +	if (seclen && nla_put(skb, NFQA_SECCTX, context.len, context.context))
+>   		goto nla_put_failure;
+>   
+>   	if (ct && nfnl_ct->build(skb, ct, ctinfo, NFQA_CT, NFQA_CT_INFO) < 0)
+> @@ -629,10 +627,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+>   	}
+>   
+>   	nlh->nlmsg_len = skb->len;
+> -	if (seclen) {
+> -		lsmcontext_init(&scaff, secdata, seclen, 0);
 > -		security_release_secctx(&scaff);
 > -	}
-> +	if (context.context)
+> +	if (seclen)
 > +		security_release_secctx(&context);
->   #endif /* CONFIG_NFSD_V4_SECURITY_LABEL */
->   	kfree(acl);
->   	if (tempfh) {
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index a5eba06a9382..d0fab9f5dddf 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -537,7 +537,7 @@ void security_release_secctx(struct lsmcontext *cp);
->   void security_inode_invalidate_secctx(struct inode *inode);
->   int security_inode_notifysecctx(struct inode *inode, void *ctx, u32 ctxlen);
->   int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen);
-> -int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen);
-> +int security_inode_getsecctx(struct inode *inode, struct lsmcontext *cp);
->   int security_locked_down(enum lockdown_reason what);
->   #else /* CONFIG_SECURITY */
+>   	return skb;
 >   
-> @@ -1362,7 +1362,8 @@ static inline int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32
->   {
->   	return -EOPNOTSUPP;
+>   nla_put_failure:
+> @@ -640,10 +636,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+>   	kfree_skb(skb);
+>   	net_err_ratelimited("nf_queue: error creating packet message\n");
+>   nlmsg_failure:
+> -	if (seclen) {
+> -		lsmcontext_init(&scaff, secdata, seclen, 0);
+> -		security_release_secctx(&scaff);
+> -	}
+> +	if (seclen)
+> +		security_release_secctx(&context);
+>   	return NULL;
 >   }
-> -static inline int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-> +static inline int security_inode_getsecctx(struct inode *inode,
-> +					   struct lsmcontext *cp)
->   {
->   	return -EOPNOTSUPP;
->   }
-> diff --git a/security/security.c b/security/security.c
-> index 8aa107b57af9..963641acf9dc 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -2207,9 +2207,18 @@ int security_inode_setsecctx(struct dentry *dentry, void *ctx, u32 ctxlen)
->   }
->   EXPORT_SYMBOL(security_inode_setsecctx);
->   
-> -int security_inode_getsecctx(struct inode *inode, void **ctx, u32 *ctxlen)
-> +int security_inode_getsecctx(struct inode *inode, struct lsmcontext *cp)
->   {
-> -	return call_int_hook(inode_getsecctx, -EOPNOTSUPP, inode, ctx, ctxlen);
-> +	struct security_hook_list *hp;
-> +
-> +	memset(cp, 0, sizeof(*cp));
-> +
-> +	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecctx, list) {
-> +		cp->slot = hp->lsmid->slot;
-> +		return hp->hook.inode_getsecctx(inode, (void **)&cp->context,
-> +						&cp->len);
-> +	}
-> +	return -EOPNOTSUPP;
->   }
->   EXPORT_SYMBOL(security_inode_getsecctx);
 >   
 > 
 
