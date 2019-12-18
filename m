@@ -6,31 +6,31 @@ X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FB3EC2D0CD
-	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 09:30:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 445E1C43603
+	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 09:31:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 109A62467B
-	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 09:30:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2556024650
+	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 09:31:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726847AbfLRJal (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Dec 2019 04:30:41 -0500
-Received: from mga09.intel.com ([134.134.136.24]:20819 "EHLO mga09.intel.com"
+        id S1726824AbfLRJbT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Dec 2019 04:31:19 -0500
+Received: from mga06.intel.com ([134.134.136.31]:41254 "EHLO mga06.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725785AbfLRJal (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 18 Dec 2019 04:30:41 -0500
+        id S1725785AbfLRJbS (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 18 Dec 2019 04:31:18 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Dec 2019 01:30:39 -0800
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Dec 2019 01:31:17 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.69,329,1571727600"; 
-   d="scan'208";a="240731625"
+   d="scan'208";a="218091630"
 Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga004.fm.intel.com with ESMTP; 18 Dec 2019 01:30:39 -0800
+  by orsmga003.jf.intel.com with ESMTP; 18 Dec 2019 01:31:17 -0800
 Received: from [10.125.252.219] (abudanko-mobl.ccr.corp.intel.com [10.125.252.219])
-        by linux.intel.com (Postfix) with ESMTP id B1C1B5802C9;
-        Wed, 18 Dec 2019 01:30:30 -0800 (PST)
-Subject: [PATCH v4 8/9] drivers/perf: open access for CAP_SYS_PERFMON
+        by linux.intel.com (Postfix) with ESMTP id 33127580458;
+        Wed, 18 Dec 2019 01:31:09 -0800 (PST)
+Subject: [PATCH v4 9/9] drivers/oprofile: open access for CAP_SYS_PERFMON
  privileged process
 From:   Alexey Budankov <alexey.budankov@linux.intel.com>
 To:     Peter Zijlstra <peterz@infradead.org>,
@@ -74,8 +74,8 @@ Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
         linux-arm-kernel@lists.infradead.org, oprofile-list@lists.sf.net
 References: <c0460c78-b1a6-b5f7-7119-d97e5998f308@linux.intel.com>
 Organization: Intel Corp.
-Message-ID: <ce3086d8-9fce-84d6-8b4e-948996c2e0fc@linux.intel.com>
-Date:   Wed, 18 Dec 2019 12:30:29 +0300
+Message-ID: <70eb48f8-34ae-8aa3-ca64-d433b75ea2ae@linux.intel.com>
+Date:   Wed, 18 Dec 2019 12:31:08 +0300
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.1
 MIME-Version: 1.0
@@ -96,31 +96,22 @@ monitoring is discouraged with respect to CAP_SYS_PERFMON capability.
 
 Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
 ---
- drivers/perf/arm_spe_pmu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/oprofile/event_buffer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
-index 4e4984a55cd1..5dff81bc3324 100644
---- a/drivers/perf/arm_spe_pmu.c
-+++ b/drivers/perf/arm_spe_pmu.c
-@@ -274,7 +274,7 @@ static u64 arm_spe_event_to_pmscr(struct perf_event *event)
- 	if (!attr->exclude_kernel)
- 		reg |= BIT(SYS_PMSCR_EL1_E1SPE_SHIFT);
+diff --git a/drivers/oprofile/event_buffer.c b/drivers/oprofile/event_buffer.c
+index 12ea4a4ad607..6c9edc8bbc95 100644
+--- a/drivers/oprofile/event_buffer.c
++++ b/drivers/oprofile/event_buffer.c
+@@ -113,7 +113,7 @@ static int event_buffer_open(struct inode *inode, struct file *file)
+ {
+ 	int err = -EPERM;
  
--	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && capable(CAP_SYS_ADMIN))
-+	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && perfmon_capable())
- 		reg |= BIT(SYS_PMSCR_EL1_CX_SHIFT);
+-	if (!capable(CAP_SYS_ADMIN))
++	if (!perfmon_capable())
+ 		return -EPERM;
  
- 	return reg;
-@@ -700,7 +700,7 @@ static int arm_spe_pmu_event_init(struct perf_event *event)
- 		return -EOPNOTSUPP;
- 
- 	reg = arm_spe_event_to_pmscr(event);
--	if (!capable(CAP_SYS_ADMIN) &&
-+	if (!perfmon_capable() &&
- 	    (reg & (BIT(SYS_PMSCR_EL1_PA_SHIFT) |
- 		    BIT(SYS_PMSCR_EL1_CX_SHIFT) |
- 		    BIT(SYS_PMSCR_EL1_PCT_SHIFT))))
+ 	if (test_and_set_bit_lock(0, &buffer_opened))
 -- 
 2.20.1
 
