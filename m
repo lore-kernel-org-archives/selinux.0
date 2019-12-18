@@ -5,103 +5,101 @@ X-Spam-Level:
 X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67137C43603
-	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 17:41:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9900EC43603
+	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 17:43:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 345B32082E
-	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 17:41:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D1902146E
+	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 17:43:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Zwg2hwrf"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Cga9Uawo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727130AbfLRRlK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Dec 2019 12:41:10 -0500
-Received: from USFB19PA32.eemsg.mail.mil ([214.24.26.195]:11910 "EHLO
-        USFB19PA32.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726939AbfLRRlK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Dec 2019 12:41:10 -0500
-X-EEMSG-check-017: 37223547|USFB19PA32_ESA_OUT02.csd.disa.mil
+        id S1727171AbfLRRnR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Dec 2019 12:43:17 -0500
+Received: from USAT19PA20.eemsg.mail.mil ([214.24.22.194]:32425 "EHLO
+        USAT19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726939AbfLRRnR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Dec 2019 12:43:17 -0500
+X-EEMSG-check-017: 61895198|USAT19PA20_ESA_OUT01.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,330,1571702400"; 
-   d="scan'208";a="37223547"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA32.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Dec 2019 17:41:08 +0000
+   d="scan'208";a="61895198"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USAT19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 18 Dec 2019 17:43:14 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1576690869; x=1608226869;
+  s=tycho.nsa.gov; t=1576690995; x=1608226995;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=kYMnqSfxG44+/+4WCAGdGpL68SHnHE2CxWqVLRVzl/A=;
-  b=Zwg2hwrfI1oO0nw6jjImvYk8gRbGqvDlBnxEZRckNMJoIiNPSq+A2px9
-   2OJDA3EFEK8B6bfa6AQnNwl0oqNjLw31Cf9CYeFbfF6imiQP0bIBNoFWB
-   NWvHlXeGF1VV/8w9RvEnoe0kqauYwWajeZ8Yk6zmh5crOv5Lh6AsIhY9d
-   mDJifH7heJUFJlHVfbP7qKAQ3s7DMxtiakiI/ZL0FWZorntvWmlmMB4t0
-   9Gra1flH5u0u85t3YSiNPKlqDVoxhVMLyh/XgJJQKkbUHBqQwyf+1AI0B
-   NEgBhn+RPjVsqEnjgMpv+05ESR+ut15+sLuexfX+NcnvQ4C2RhCPaCSWM
-   Q==;
+  bh=GS8HsaeLKhlOx1GDE+aJwqe147RI1w6UlplS4nwA+4k=;
+  b=Cga9Uawo8q4/wVDNMW6nzc17GeSkrnw7eNcf1YImg/IZoAf83szlwBG8
+   8ySzs4VjMnt/as9jQJCLVzJC9y7g9cQ0ZSK8nJZ3OlyIZIVkInaUJ24NT
+   Nx+K6n4b0vtjalAmtyHWK+HcvLs1cvGIW1SA1uxAMpS3Nqvw9EIQ3VEKa
+   zUbQH/MWhz1RaoW0ncYOJa8c3I2yATE5BW2bN7FahBPVRHHrr8cR8sGlC
+   Or5ZUBlpiwOoXQqVmvgUnLqlt+MYWCNn0iF9Bl8b/0Yg/oIg66Ys74ePx
+   N/4smSPZNKOuFCBoSCsJnv3csS5pzMo6hju6a3LqyNo+qjiQqzXuT4pRH
+   g==;
 X-IronPort-AV: E=Sophos;i="5.69,330,1571702400"; 
-   d="scan'208";a="31244705"
-IronPort-PHdr: =?us-ascii?q?9a23=3A0Q3QbRMvZKC42uwoJssl6mtUPXoX/o7sNwtQ0K?=
- =?us-ascii?q?IMzox0K/n7pMbcNUDSrc9gkEXOFd2Cra4d0KyM6/GrCD1IyK3CmUhKSIZLWR?=
- =?us-ascii?q?4BhJdetC0bK+nBN3fGKuX3ZTcxBsVIWQwt1Xi6NU9IBJS2PAWK8TW94jEIBx?=
- =?us-ascii?q?rwKxd+KPjrFY7OlcS30P2594HObwlSizexfL1/IA+ooQnNssQajo9vJ6IswR?=
- =?us-ascii?q?bVv3VEfPhby3l1LlyJhRb84cmw/J9n8ytOvv8q6tBNX6bncakmVLJUFDspPX?=
- =?us-ascii?q?w7683trhnDUBCA5mAAXWUMkxpHGBbK4RfnVZrsqCT6t+592C6HPc3qSL0/RD?=
- =?us-ascii?q?qv47t3RBLulSwKLCAy/n3JhcNsjaJbuBOhqAJ5w47Ie4GeKf5ycrrAcd8GWW?=
- =?us-ascii?q?ZNW8BcWCJbAoO4coABEewPM+hFpIX5vlcCsx+zCQyqCejyyDFHm2X20LUn3e?=
- =?us-ascii?q?o/HwHI3A8uEdwAv3vbrtr6KKgcXPupzKTK1zjPc+9a1Dn/5YXObxsvoeuMXb?=
- =?us-ascii?q?V1ccfJ1EcvCx3Kjk2QqYP7OTOey/kDs22B4OpkUeKglW4moBx2rzi028gskZ?=
- =?us-ascii?q?LEhp4Vy1/Y9SV5x5w5JdujSEFhe9KkH5xQtz+DOoZwX8gsTWZouCMgxb0Hv5?=
- =?us-ascii?q?62ZDMKyJAgxx7DcfCHaI+I7xT+X+iSOTd1nG9pdb2wihqo8UWs1/fwWte73V?=
- =?us-ascii?q?pUtCZJj9/BvW0X2RPJ8MiIUP5981+k2TaIyg/c9PlJIVsxlarHM54hxaMwlo?=
- =?us-ascii?q?YLvUTDACD2nEL2gbeKdko+4Oio6vnnYq78qp+dMY90hAb+Mr8wlcOjG+g4Lg?=
- =?us-ascii?q?gPUHSb+eS7zrHj+1H2QK5WgfEsl6nZsZTaKdwapq6/HQBVzp4u5wuwAjqpyt?=
- =?us-ascii?q?gVnWQLIEhbdB+IkYTlIUzCLOj9DfilglSslDlrx+rBPr3kGpjNNWXMkKz6cL?=
- =?us-ascii?q?Zh609T1AozzddF65JSEbEOOuj/WkD2tNzGFhM5KRC7w/77CNVh0YMTQX6ADb?=
- =?us-ascii?q?WCMKzMsV6F/fkvLPWMZIAPpTb9Jfwl6OD0jXMghVASZ7Ol0ocQaHC9Bv5mOV?=
- =?us-ascii?q?mWYWLwgtcdFmcHphYxQ/bxiFKcUT9ffW2yUL485j4hFYKmA4PDSZ63gLGa3S?=
- =?us-ascii?q?e7GIFWaX5CClyWDXjocICEUe8WaC2OOs9hjiAEVb+5Ro8j0BGusxX6y6BmLu?=
- =?us-ascii?q?rP4SAYs4js1N1r6O3Sjx0y8iZ0D8uF2WGXU250hn8IRyMx3K1npUx9y1GD0b?=
- =?us-ascii?q?V3gvBBDtxc+e9GUhogNZ7d0+x7C8n+WgfGftiUVVamRsupDCovTtI+3dAOeV?=
- =?us-ascii?q?xxG9a8gRDZ2SqlHbsVm6aMBJwu/aLWx2LxKNply3bayKkhiEErQtBROm2ih6?=
- =?us-ascii?q?5/8RXTBoHSnkWHmKala74c0DTO9Gid12qOul9XUApqXaXCR3AfaVPcrc7l6U?=
- =?us-ascii?q?PaU7+uFbMnPxNCycGcNKRKccHmjVJBRPfgI9nRf2Kxm323BRaNx7OMcY/qd3?=
- =?us-ascii?q?8a3CXHB0gOixoT8mqeNQgiGiehpHrTDD5pFVLvZUPg6+t+qHS7TkAuyQGKdF?=
- =?us-ascii?q?Nu17yu9xEJn/OcTfQT3rQFuCg9sTp0GEyx0M7RC9qFvwBhZrlTYcsh4Fdb0m?=
- =?us-ascii?q?LUrxR9MYKmL6Btm14ecgJ3s1rt1xppEIVAl9YlrHcxwQpzMK6Y1FRBdy2G0p?=
- =?us-ascii?q?zqIb3YMGry/A21a6HMwF3e1siZ9r0N6PQgs1/jph2mFlI+83V71NlYy2Oc6Y?=
- =?us-ascii?q?/XDAoWSp/xSlw49wV+p73DZyk94ITU1WdyPqWurjDC3NcpV6MZzUOLdsxSIe?=
- =?us-ascii?q?u/Hw/7DsMeCtLmfOcjgFW4RgkPPOlP+qo5JYatfr2N36v9eK5rlSmrnCJc64?=
- =?us-ascii?q?B0z0yI+jBUS+jU0pJDyPadmkOFUjDmlla6msb+nI1FIzYIES73zSniGZ4Ufa?=
- =?us-ascii?q?B5YJwKFXbrJsq729Fzr4DiVmQe91O5AV4Cnsizdl7adFH53AtNxWwJrnG93y?=
- =?us-ascii?q?i11Tp5l3cutKXM8jbJxrHZaBcfOmNNDFJnhFPoLJn828sWR2C0fgMpk12j/k?=
- =?us-ascii?q?+8yK9F8vcsZ1LPSFtFKnClZ1ppVbG94//bOZ9C?=
-X-IPAS-Result: =?us-ascii?q?A2DJAAC5Y/pd/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBfIF2gW0gEiqEBIkDhlkGgTeJapFFCQEBAQEBAQEBATcBAYRAAoI9OBMCE?=
- =?us-ascii?q?AEBAQQBAQEBAQUDAQFshUOCOykBgnkBAQEBAgEjBBFBBQsLGAICJgICVwYBD?=
- =?us-ascii?q?AYCAQGCXz+CUwUgrRd1fzOFT4M8gUGBDiiMMnmBB4ERJw+CLy4+hDWDJIJeB?=
- =?us-ascii?q?I1CiUxGlzWCP4JDk0oGG4JDmAuOToFGmxkigVgrCAIYCCEPgydQGA2NHheOQ?=
- =?us-ascii?q?SMDMIxtgkABAQ?=
+   d="scan'208";a="36919399"
+IronPort-PHdr: =?us-ascii?q?9a23=3AXFuSkBwuFZBm31DXCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd0u4RK/ad9pjvdHbS+e9qxAeQG9mCsLQe07ud4vGocFdDyK7JiGoFfp1IWk?=
+ =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
+ =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmTSwbalsIBmqqQjduc0bjI9/Iast1x?=
+ =?us-ascii?q?XFpWdFdf5Lzm1yP1KTmBj85sa0/JF99ilbpuws+c1dX6jkZqo0VbNXAigoPG?=
+ =?us-ascii?q?Az/83rqALMTRCT6XsGU2UZiQRHDg7Y5xznRJjxsy/6tu1g2CmGOMD9UL45VS?=
+ =?us-ascii?q?i+46ptVRTlkzkMOSIn/27Li8xwlKNbrwynpxxj2I7ffYWZOONjcq/BYd8WQG?=
+ =?us-ascii?q?xMUchLVyxFH4iycY0BAeQcNupctoXwqV8DoR64CAKxBu3g1yVIi2fr06Mk3e?=
+ =?us-ascii?q?QvEQLI0gIuEN0BsnvbsNr7ObwOUe231qTE0SnPYv1U1Dr79YPGcgohofaJXb?=
+ =?us-ascii?q?9obMTR1VcgFxvFjlqOr4zuIi6b1uEXvGif6+pvS+KugHMgpgFqvzev3dwhip?=
+ =?us-ascii?q?XJh40JylDE8j91wIAuJdKiUkJ7btmkEIVJuiycKoB4QdsiTnl1tCs1xbAKo5?=
+ =?us-ascii?q?62cDUQxJg5yBPTdeaLf5WO7xn+TuieOy14i2hgeL+nghay9lWvxfPkW8mv1V?=
+ =?us-ascii?q?ZKsjJFkt7RtnARzxDT6taISv96/kq5xTaAzRrT6uBZIUAvj6bbKpghwrA3lp?=
+ =?us-ascii?q?oIr0vMAjX6mFn2jaCKdkUk/fKk6+L7bbX9upCQLYp0igD6Mqg2m8y/B/o3Mh?=
+ =?us-ascii?q?QWUmSG9umx26fv8E3kTLlQkPE7nbfVvIrHKcgDo662GQ5V0oIt6xalCDem1c?=
+ =?us-ascii?q?wVnWIaI1JeYx+Hk4joNE3OIPD/F/u/hU+sny1xy/DJOb3hHI3BLmLfn7f5Yb?=
+ =?us-ascii?q?Z990lcxRIvwt9F/JJbFLEALenoWkDttNzXFAI5MwKww+n5EtVxz58RVniVDq?=
+ =?us-ascii?q?CFN6PStEeC5vgzLOmUeI8VpDH9JuA56PH0ln82h18ccbOy3ZQLaHC3BOlmI0?=
+ =?us-ascii?q?udYXXymNcMCmYKvgwiTOP0jF2OSyJcZ3G3X6gk/DE0FJqmDZvfRoCqmLGB3i?=
+ =?us-ascii?q?K7HppMZmBcC1CMCmzld4OeVPcJdi2SI9VtkjseVbiuU4Uhzw2htBfmy7p7Ke?=
+ =?us-ascii?q?rZ4ikYtZPl1Nho6OzfjAoy+iJoAMSAyWGNTn10n2MRSz8z26BwvFF9ylOd3q?=
+ =?us-ascii?q?VjnfxYGsJc5+lTXgc5K5Hc1ep6BM72Wg7bedeJUlmmSM28AT4tVtIx38MOY0?=
+ =?us-ascii?q?FlFtW5kB/D2yuqA7kIl72EH5E07K3c0GbrJ8pnyHbJyrMhj184TctLL2Gmgb?=
+ =?us-ascii?q?R/9wfLDY7Tj0qZj7qqdbgb3CPV92eM03SBvFpEXw53VqXFXmsSaVfWrdTj4U?=
+ =?us-ascii?q?PCSr6uCakiMgdbzs6CMKRKYMXzjVpaXPfjJMjeY2WplmeyAhaIxrWMYJDoe2?=
+ =?us-ascii?q?Ua3CXSEk4EkxsN8naALgUxGj2uo2TZDDxoFFLgf1nj8e1kpHynSU80yhmAb1?=
+ =?us-ascii?q?d92Lqt5h4VmfucRusL3r0avichpCh0HFe7397PCNqPuRBhfKNCbtM5+1pH1H?=
+ =?us-ascii?q?vVtwh6Ppy+Ma9unEUefB50v0PzzRV4EJ9Mkc40o38wzgpyMbqS0EldeDOAwZ?=
+ =?us-ascii?q?DwJrrXJ3Hq/B+1dq7W3krT0M6M9acS7PQ0slDjvAauFko47XprycVa03yZ5s?=
+ =?us-ascii?q?aCMA1HepvqX1d/zBN6rqzUZiQnr9ff3GZhIIGvuT/LxtwtCfFgwR/mdNBaZu?=
+ =?us-ascii?q?fMHwbpHtxcHMOuIfEkn1WzRhMCIO1WsqUzOofudf6BwrSqJ85mlTerjCJA+o?=
+ =?us-ascii?q?85mkaN8TdsD/XF1Isfwu2Jmw6AWyr4gX+/vc3t34NJfzcfGiy40yegTJVcYq?=
+ =?us-ascii?q?x0YJYjF2ijOYu0y894ipqrXGRXp3C5AFZT49OkYRqfaRTG2ARU0UkG6Si8lT?=
+ =?us-ascii?q?CQ0y1/kzZvqLGWmiPJ3bKxJ1I8JmdXSTw63h/XKo+ugoVfBRP5Yg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BgAgB/ZPpd/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXyBd?=
+ =?us-ascii?q?oFtIBIqhASJA4ZZBoE3iWqRRQkBAQEBAQEBAQE3AQGEQAKCPTgTAhABAQEEA?=
+ =?us-ascii?q?QEBAQEFAwEBbIVDgjspAYJ6AQUjFUEQCxgCAiYCAlcGAQwGAgEBgl8/glMlr?=
+ =?us-ascii?q?guBMoVPgziBQYEOKIwyeYEHgTgPgigHLj6EM4Mmgl4Elw5GlzWCP4JDk0oGG?=
+ =?us-ascii?q?5pOjk6cXyKBWCsIAhgIIQ+DJ1AYDZt2IwMwjy0BAQ?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 18 Dec 2019 17:41:07 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 18 Dec 2019 17:43:14 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBIHedvl056741;
-        Wed, 18 Dec 2019 12:40:39 -0500
-Subject: Re: [PATCH v12 19/25] NET: Store LSM netlabel data in a lsmblob
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id xBIHgqnR056762;
+        Wed, 18 Dec 2019 12:42:53 -0500
+Subject: Re: [PATCH v12 20/25] LSM: Verify LSM display sanity in binder
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
 References: <20191216223621.5127-1-casey@schaufler-ca.com>
- <20191216223621.5127-20-casey@schaufler-ca.com>
+ <20191216223621.5127-21-casey@schaufler-ca.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <8c1d38e1-f589-4abf-f9f1-8c8f433e4ea6@tycho.nsa.gov>
-Date:   Wed, 18 Dec 2019 12:41:20 -0500
+Message-ID: <37a82a11-2e1e-0d01-93c8-6a45763c6bb3@tycho.nsa.gov>
+Date:   Wed, 18 Dec 2019 12:43:34 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.2.2
 MIME-Version: 1.0
-In-Reply-To: <20191216223621.5127-20-casey@schaufler-ca.com>
+In-Reply-To: <20191216223621.5127-21-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -111,101 +109,60 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 12/16/19 5:36 PM, Casey Schaufler wrote:
-> Netlabel uses LSM interfaces requiring an lsmblob and
-> the internal storage is used to pass information between
-> these interfaces, so change the internal data from a secid
-> to a lsmblob. Update the netlabel interfaces and their
-> callers to accommodate the change. This requires that the
-> modules using netlabel use the lsm_id.slot to access the
-> correct secid when using netlabel.
+> Verify that the tasks on the ends of a binder transaction
+> use the same "display" security module. This prevents confusion
+> of security "contexts".
 > 
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-> Reviewed-by: John Johansen <john.johansen@canonical.com>
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
 > ---
->   include/net/netlabel.h              |  8 ++--
->   net/ipv4/cipso_ipv4.c               |  6 ++-
->   net/netlabel/netlabel_kapi.c        |  6 +--
->   net/netlabel/netlabel_unlabeled.c   | 57 +++++++++++------------------
->   net/netlabel/netlabel_unlabeled.h   |  2 +-
->   security/selinux/hooks.c            |  2 +-
->   security/selinux/include/security.h |  1 +
->   security/selinux/netlabel.c         |  2 +-
->   security/selinux/ss/services.c      |  4 +-
->   security/smack/smack.h              |  1 +
->   security/smack/smack_lsm.c          |  5 ++-
->   security/smack/smackfs.c            | 10 +++--
->   12 files changed, 50 insertions(+), 54 deletions(-)
+>   security/security.c | 29 +++++++++++++++++++++++++++++
+>   1 file changed, 29 insertions(+)
 > 
-
-> diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-> index 376882215919..8ee7a804423e 100644
-> --- a/net/ipv4/cipso_ipv4.c
-> +++ b/net/ipv4/cipso_ipv4.c
-> @@ -1467,7 +1467,8 @@ static int cipso_v4_gentag_loc(const struct cipso_v4_doi *doi_def,
->   
->   	buffer[0] = CIPSO_V4_TAG_LOCAL;
->   	buffer[1] = CIPSO_V4_TAG_LOC_BLEN;
-> -	*(u32 *)&buffer[2] = secattr->attr.secid;
-> +	/* only one netlabel user - the first */
-> +	*(u32 *)&buffer[2] = secattr->attr.lsmblob.secid[0];
->   
->   	return CIPSO_V4_TAG_LOC_BLEN;
+> diff --git a/security/security.c b/security/security.c
+> index 963641acf9dc..bca092dd4f00 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -738,9 +738,38 @@ int security_binder_set_context_mgr(struct task_struct *mgr)
+>   	return call_int_hook(binder_set_context_mgr, 0, mgr);
 >   }
-> @@ -1487,7 +1488,8 @@ static int cipso_v4_parsetag_loc(const struct cipso_v4_doi *doi_def,
->   				 const unsigned char *tag,
->   				 struct netlbl_lsm_secattr *secattr)
+>   
+> +/**
+> + * security_binder_transaction - Binder driver transaction check
+> + * @from: source of the transaction
+> + * @to: destination of the transaction
+> + *
+> + * Verify that the tasks have the same LSM "display", then
+> + * call the security module hooks.
+> + *
+> + * Returns -EINVAL if the displays don't match, or the
+> + * result of the security module checks.
+> + */
+>   int security_binder_transaction(struct task_struct *from,
+>   				struct task_struct *to)
 >   {
-> -	secattr->attr.secid = *(u32 *)&tag[2];
-> +	/* only one netlabel user - the first */
-> +	secattr->attr.lsmblob.secid[0] = *(u32 *)&tag[2];
->   	secattr->flags |= NETLBL_SECATTR_SECID;
+> +	int from_display = lsm_task_display(from);
+> +	int to_display = lsm_task_display(to);
+> +
+> +	/*
+> +	 * If the display is LSMBLOB_INVALID the first module that has
+> +	 * an entry is used. This will be in the 0 slot.
+> +	 *
+> +	 * This is currently only required if the server has requested
+> +	 * peer contexts, but it would be unwieldly to have too much of
+> +	 * the binder driver detail here.
+> +	 */
+> +	if (from_display == LSMBLOB_INVALID)
+> +		from_display = 0;
+> +	if (to_display == LSMBLOB_INVALID)
+> +		to_display = 0;
+> +	if (from_display != to_display)
+> +		return -EINVAL;
+> +
+>   	return call_int_hook(binder_transaction, 0, from, to);
+>   }
 >   
->   	return 0;
-
-Here we always use secid[0].
-
-> diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-> index 6a94b31b5472..d8d7603ab14e 100644
-> --- a/security/selinux/netlabel.c
-> +++ b/security/selinux/netlabel.c
-> @@ -108,7 +108,7 @@ static struct netlbl_lsm_secattr *selinux_netlbl_sock_getattr(
->   		return NULL;
->   
->   	if ((secattr->flags & NETLBL_SECATTR_SECID) &&
-> -	    (secattr->attr.secid == sid))
-> +	    (secattr->attr.lsmblob.secid[selinux_lsmid.slot] == sid))
->   		return secattr;
->   
->   	return NULL;
-
-And here we use secid[selinux_lsmid.slot].  So things will break in 
-interesting ways if selinux_lsmid.slot is anything other than zero? 
-What's the point of using this indirection in the security modules 
-until/unless NetLabel truly supports something other than slot 0?
-
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index a5813c7629c1..2b7680903b6b 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -3599,7 +3599,7 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
->   	if (secattr->flags & NETLBL_SECATTR_CACHE)
->   		*sid = *(u32 *)secattr->cache->data;
->   	else if (secattr->flags & NETLBL_SECATTR_SECID)
-> -		*sid = secattr->attr.secid;
-> +		*sid = secattr->attr.lsmblob.secid[selinux_lsmid.slot];
->   	else if (secattr->flags & NETLBL_SECATTR_MLS_LVL) {
->   		rc = -EIDRM;
->   		ctx = sidtab_search(sidtab, SECINITSID_NETMSG);
-> @@ -3672,7 +3672,7 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
->   	if (secattr->domain == NULL)
->   		goto out;
->   
-> -	secattr->attr.secid = sid;
-> +	secattr->attr.lsmblob.secid[selinux_lsmid.slot] = sid;
->   	secattr->flags |= NETLBL_SECATTR_DOMAIN_CPY | NETLBL_SECATTR_SECID;
->   	mls_export_netlbl_lvl(policydb, ctx, secattr);
->   	rc = mls_export_netlbl_cat(policydb, ctx, secattr);
-
-Ditto
+> 
 
