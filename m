@@ -2,55 +2,54 @@ Return-Path: <SRS0=xVDs=2I=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46D65C43603
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E3CEC2D0C3
 	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 14:28:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 06417227BF
+	by mail.kernel.org (Postfix) with ESMTP id 633F9218AC
 	for <selinux@archiver.kernel.org>; Wed, 18 Dec 2019 14:28:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="Bhchrh4p"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="Nz8yXoI7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727210AbfLRO2Y (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Dec 2019 09:28:24 -0500
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:36964 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727152AbfLRO2Y (ORCPT
+        id S1727152AbfLRO2Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Dec 2019 09:28:25 -0500
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:46699 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727189AbfLRO2Y (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 18 Dec 2019 09:28:24 -0500
-Received: by mail-ed1-f66.google.com with SMTP id cy15so1817148edb.4
-        for <selinux@vger.kernel.org>; Wed, 18 Dec 2019 06:28:22 -0800 (PST)
+Received: by mail-ed1-f67.google.com with SMTP id m8so1782738edi.13
+        for <selinux@vger.kernel.org>; Wed, 18 Dec 2019 06:28:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=YW+I59w6+Obs2r/1pYJmdSGP5U2Xt6oQOgwt5MnVaho=;
-        b=Bhchrh4pDNCLIYSQ+0a50vXF0G3fX4RGZK+LmNn6gJpngpP0DBGt95vjHkdpmyFZ2w
-         6/yU6XnyiSFMicz8UME5BRdAHtKuIs4iI+Tfs6y6mBPCqmEGIeDKOVV5vRCFjd0aoDhU
-         mEghoJQFjxPa1KcB2ukBLyGDRm5wcJ+qbmbR7rayGaM4CyqcFcG13zH0P9Ux7opiYnit
-         4nR/T8WlYO7EEM1DKGanbRJmJMLvyFgSRq4X2zL2CH06qQ34PFwXZqCyYdScxc4kdE7D
-         RcZFV8eJ9WTLUTl8ir2EExXKaGf2XEBA7tq0YxojpsOTbvwJe4wSMz4gpOliyGAwrmXv
-         ZdIg==
+        bh=j5AMi00ikqquEUsGSw0RdDNar4ei548oAVjXgUD8JZE=;
+        b=Nz8yXoI71e+3jo3GrcLzz7JZognPSFmCQtrb+qLvVeeRWI9tfWUy/uzsr3YaGk62w5
+         KsrXe5S9eRyBhWs672WTSVpfiKDsMB9G1Ov5CpIWGAcf9INNlNp421H2Vw/YDZhRTbAY
+         htsDkm+EvJvYCXoJUdSrGjBlP6pGz9PR+lSY+IOTQR1y47dQD7JbcO5lRvySHM7bDjoJ
+         WJI6dQnBA6QgB1xZqVGkBmw8h4cbqIfJGaeosC/cM3mGdh3X9B6nw2HwdRciZ08GUzpI
+         KTBV9oIiG2SkMX4A0aQ7JcZiNzpa3iugVSHybjYICwtFV74KGVNY507t3RUWK9TUxOAo
+         9ZQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=YW+I59w6+Obs2r/1pYJmdSGP5U2Xt6oQOgwt5MnVaho=;
-        b=BJ6fEz+Y6ikGNFJ7NdV9rDcEvw8s7yTacFoaFjIJsFHIiLPOtQ3SPO2UTVLy3VRBQK
-         s5yBz+JJdZwuy8Laosq7sye5BQ853P8zmIQ8ud0JUfeitL4w4XCkswagdoyHOR9AcMJi
-         JBdzL7HLl9tW7XIFiwWfzDhSzjca3a2aMLXNflw6CNapEhbkQXtx8FxJJAyz5oM4vahK
-         9XcvwjiYD6WuuWm3FjoorhJ1eha2t4HlgsM9bkX6/3mjPf0GCGnxieU2JpIDHWP2rPua
-         qE69eDUMSYfUQkKtWI3f2NcLDMT0IqTj12N+6VrbYoqnCOOJdla8ilo045RBz91rDZ48
-         CTWA==
-X-Gm-Message-State: APjAAAXkXna/RWv3NJy85zZFoGJk3E5MMD5phew+PQuWRdSCVGFQejxu
-        Dhqtr00hp0guZ3y0xAUEiB3sUIHC
-X-Google-Smtp-Source: APXvYqz/8FQDYuoTmY4Nm7PfWsYDRf3PbejFtnWgxNk2YELe+4R0hSBlm9FCV9hYK5TZ67YJbGVmNA==
-X-Received: by 2002:a05:6402:542:: with SMTP id i2mr2613650edx.190.1576679301782;
-        Wed, 18 Dec 2019 06:28:21 -0800 (PST)
+        bh=j5AMi00ikqquEUsGSw0RdDNar4ei548oAVjXgUD8JZE=;
+        b=QD28zEm+J8dpIPL/YnV6ylfukNLqxiH78KZWsqnP6t2z5g6Uqv/MigMaUFL51ozgTJ
+         1pYec1+kmqIbIDau5CZJPzTP/I4JfMdmwNI8mJFbRl/nCoX7zxSb71czC3dUsYDnKVSP
+         u3xPSGHBtHuMsHdaiGx+F8LGKmqOe8H30EhxfjZwdFmHvVtNW3a1wq1Tv/XOr4K16qzQ
+         y2ByPnz9TNeEiLtZDwcvvW7kudpyjAclY1kCwGppcudzvdie2LrpEftXpgj/1/0VV4Jy
+         lkcaM2oiQtJ8tgzNtKhe371jcTAPYudjVzOIIu8HeQWVE/8EhZtGEzO4i9VgJceHcyrv
+         IaLA==
+X-Gm-Message-State: APjAAAV+s7MYOyw2gkeJpqv7q4cvSffE+3Iake4edeP1LAOgB59h/eSD
+        HPcGWkZXgdHjuymUcHgAP/GSDg9p
+X-Google-Smtp-Source: APXvYqywJGYcD1nT2Y1Y5r6/DdmpM2v91ZiZEdZZ6VqbtNqavmozuoLQJQaudBujmV45uayWZb45sQ==
+X-Received: by 2002:a05:6402:2052:: with SMTP id bc18mr2644404edb.161.1576679302358;
+        Wed, 18 Dec 2019 06:28:22 -0800 (PST)
 Received: from desktopdebian.localdomain (x4d015122.dyn.telefonica.de. [77.1.81.34])
         by smtp.gmail.com with ESMTPSA id mh16sm96826ejb.46.2019.12.18.06.28.21
         for <selinux@vger.kernel.org>
@@ -58,9 +57,9 @@ Received: from desktopdebian.localdomain (x4d015122.dyn.telefonica.de. [77.1.81.
         Wed, 18 Dec 2019 06:28:21 -0800 (PST)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [RFC PATCH 7/8] core: implement the sd-bus generic callback for SELinux
-Date:   Wed, 18 Dec 2019 15:28:07 +0100
-Message-Id: <20191218142808.30433-8-cgzones@googlemail.com>
+Subject: [RFC PATCH 8/8] core: add notes to D-Bus interfaces about adding SELinux checks
+Date:   Wed, 18 Dec 2019 15:28:08 +0100
+Message-Id: <20191218142808.30433-9-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20191218142808.30433-1-cgzones@googlemail.com>
 References: <20191218142808.30433-1-cgzones@googlemail.com>
@@ -71,372 +70,274 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Also keep the SELinux class `service` in `mac_selinux_generic_access_check()` in the case no path is given.
-Previously this could mainly happen on a mask unit, which is fixed now.
-Changing the class, but keeping the permission, is unpleasant as the class `system` must otherwise define always all permissions of `service` and a unit operation resulting in a system class-based check is odd.
-The fallback target context remains the process context of systemd-pid1.
 ---
- src/core/dbus-manager.c   | 37 +++++++++++++++++++++-------------
- src/core/manager.c        |  7 +++++++
- src/core/manager.h        |  1 +
- src/core/selinux-access.c | 42 ++++++++++++++++++++++++++++++++++-----
- src/core/selinux-access.h | 28 +++++++++++++++++++++++---
- src/core/unit.c           |  4 +++-
- src/core/unit.h           |  2 +-
- 7 files changed, 97 insertions(+), 24 deletions(-)
+ src/core/dbus-automount.c | 3 +++
+ src/core/dbus-cgroup.c    | 3 +++
+ src/core/dbus-device.c    | 3 +++
+ src/core/dbus-execute.c   | 3 +++
+ src/core/dbus-job.c       | 3 +++
+ src/core/dbus-kill.c      | 3 +++
+ src/core/dbus-manager.c   | 3 +++
+ src/core/dbus-mount.c     | 3 +++
+ src/core/dbus-path.c      | 3 +++
+ src/core/dbus-scope.c     | 3 +++
+ src/core/dbus-service.c   | 3 +++
+ src/core/dbus-slice.c     | 3 +++
+ src/core/dbus-socket.c    | 3 +++
+ src/core/dbus-swap.c      | 3 +++
+ src/core/dbus-target.c    | 3 +++
+ src/core/dbus-timer.c     | 3 +++
+ src/core/dbus-unit.c      | 6 ++++++
+ 17 files changed, 54 insertions(+)
 
+diff --git a/src/core/dbus-automount.c b/src/core/dbus-automount.c
+index bd6e6a9dde..129ef98df1 100644
+--- a/src/core/dbus-automount.c
++++ b/src/core/dbus-automount.c
+@@ -8,6 +8,9 @@
+ 
+ static BUS_DEFINE_PROPERTY_GET_ENUM(property_get_result, automount_result, AutomountResult);
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_automount_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Where", "s", NULL, offsetof(Automount, where), SD_BUS_VTABLE_PROPERTY_CONST),
+diff --git a/src/core/dbus-cgroup.c b/src/core/dbus-cgroup.c
+index 27dc9e43c3..ad277e94c9 100644
+--- a/src/core/dbus-cgroup.c
++++ b/src/core/dbus-cgroup.c
+@@ -344,6 +344,9 @@ static int property_get_ip_address_access(
+         return sd_bus_message_close_container(reply);
+ }
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_cgroup_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Delegate", "b", bus_property_get_bool, offsetof(CGroupContext, delegate), 0),
+diff --git a/src/core/dbus-device.c b/src/core/dbus-device.c
+index 6cf7f58e02..c2566c274b 100644
+--- a/src/core/dbus-device.c
++++ b/src/core/dbus-device.c
+@@ -4,6 +4,9 @@
+ #include "device.h"
+ #include "unit.h"
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_device_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("SysFSPath", "s", NULL, offsetof(Device, sysfs), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+diff --git a/src/core/dbus-execute.c b/src/core/dbus-execute.c
+index 1d0bc1ede3..67bc91c3c6 100644
+--- a/src/core/dbus-execute.c
++++ b/src/core/dbus-execute.c
+@@ -692,6 +692,9 @@ static int property_get_log_extra_fields(
+         return sd_bus_message_close_container(reply);
+ }
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_exec_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Environment", "as", NULL, offsetof(ExecContext, environment), SD_BUS_VTABLE_PROPERTY_CONST),
+diff --git a/src/core/dbus-job.c b/src/core/dbus-job.c
+index 7b0b093757..ca531570ba 100644
+--- a/src/core/dbus-job.c
++++ b/src/core/dbus-job.c
+@@ -119,6 +119,9 @@ int bus_job_method_get_waiting_jobs(sd_bus_message *message, void *userdata, sd_
+         return sd_bus_send(NULL, reply, NULL);
+ }
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_job_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_METHOD("Cancel", NULL, NULL, bus_job_method_cancel, SD_BUS_VTABLE_UNPRIVILEGED),
+diff --git a/src/core/dbus-kill.c b/src/core/dbus-kill.c
+index 30597e86f0..e7d0d2b16c 100644
+--- a/src/core/dbus-kill.c
++++ b/src/core/dbus-kill.c
+@@ -25,6 +25,9 @@ static int property_get_restart_kill_signal(
+         return sd_bus_message_append_basic(reply, 'i', &s);
+ }
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_kill_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("KillMode", "s", property_get_kill_mode, offsetof(KillContext, kill_mode), SD_BUS_VTABLE_PROPERTY_CONST),
 diff --git a/src/core/dbus-manager.c b/src/core/dbus-manager.c
-index b866fd58b6..14085ba1a1 100644
+index 14085ba1a1..721ebeeaa8 100644
 --- a/src/core/dbus-manager.c
 +++ b/src/core/dbus-manager.c
-@@ -2063,14 +2063,20 @@ fail:
+@@ -2476,6 +2476,9 @@ static int method_abandon_scope(sd_bus_message *message, void *userdata, sd_bus_
+         return bus_scope_method_abandon(message, u, error);
  }
  
- struct mac_callback_userdata {
-+        struct mac_selinux_callback_userdata selinux;
- };
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_manager_vtable[] = {
+         SD_BUS_VTABLE_START(0),
  
- static int mac_callback_check(const char *name, void *userdata) {
-         struct mac_callback_userdata *ud = userdata;
-+        int r;
+diff --git a/src/core/dbus-mount.c b/src/core/dbus-mount.c
+index b6d61627eb..1fface5532 100644
+--- a/src/core/dbus-mount.c
++++ b/src/core/dbus-mount.c
+@@ -39,6 +39,9 @@ static BUS_DEFINE_PROPERTY_GET(property_get_options, "s", Mount, mount_get_optio
+ static BUS_DEFINE_PROPERTY_GET(property_get_type, "s", Mount, mount_get_fstype);
+ static BUS_DEFINE_PROPERTY_GET_ENUM(property_get_result, mount_result, MountResult);
  
-         assert(name);
-         assert(ud);
- 
-+        r = mac_selinux_callback_check(name, &(ud->selinux));
-+        if (r < 0)
-+                return r;
-+
-         return 0;
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_mount_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Where", "s", NULL, offsetof(Mount, where), SD_BUS_VTABLE_PROPERTY_CONST),
+diff --git a/src/core/dbus-path.c b/src/core/dbus-path.c
+index 1a97d62486..9f53c4bd1e 100644
+--- a/src/core/dbus-path.c
++++ b/src/core/dbus-path.c
+@@ -42,6 +42,9 @@ static int property_get_paths(
+         return sd_bus_message_close_container(reply);
  }
  
-@@ -2079,6 +2085,7 @@ static int method_enable_unit_files_generic(
-                 Manager *m,
-                 int (*call)(UnitFileScope scope, UnitFileFlags flags, const char *root_dir, char *files[], UnitFileChange **changes, size_t *n_changes, mac_callback_t mac_check, void *userdata),
-                 bool carries_install_info,
-+                const char *mac_selinux_verb,
-                 sd_bus_error *error) {
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_path_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Unit", "s", bus_property_get_triggered_unit, 0, SD_BUS_VTABLE_PROPERTY_CONST),
+diff --git a/src/core/dbus-scope.c b/src/core/dbus-scope.c
+index 84d91dcfa3..740a09874d 100644
+--- a/src/core/dbus-scope.c
++++ b/src/core/dbus-scope.c
+@@ -42,6 +42,9 @@ int bus_scope_method_abandon(sd_bus_message *message, void *userdata, sd_bus_err
  
-         _cleanup_strv_free_ char **l = NULL;
-@@ -2086,7 +2093,7 @@ static int method_enable_unit_files_generic(
-         size_t n_changes = 0;
-         UnitFileFlags flags;
-         int runtime, force, r;
--        struct mac_callback_userdata mcud = {};
-+        struct mac_callback_userdata mcud = { .selinux = { m, message, error, mac_selinux_verb } };
+ static BUS_DEFINE_PROPERTY_GET_ENUM(property_get_result, scope_result, ScopeResult);
  
-         assert(message);
-         assert(m);
-@@ -2115,15 +2122,15 @@ static int method_enable_unit_files_generic(
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_scope_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Controller", "s", NULL, offsetof(Scope, controller), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+diff --git a/src/core/dbus-service.c b/src/core/dbus-service.c
+index 5cf9b21890..ef912577ab 100644
+--- a/src/core/dbus-service.c
++++ b/src/core/dbus-service.c
+@@ -91,6 +91,9 @@ static int property_get_exit_status_set(
+         return sd_bus_message_close_container(reply);
  }
  
- static int method_enable_unit_files(sd_bus_message *message, void *userdata, sd_bus_error *error) {
--        return method_enable_unit_files_generic(message, userdata, unit_file_enable, true, error);
-+        return method_enable_unit_files_generic(message, userdata, unit_file_enable, true, MAC_SELINUX_UNIT_PERM_ENABLE, error);
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_service_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Type", "s", property_get_type, offsetof(Service, type), SD_BUS_VTABLE_PROPERTY_CONST),
+diff --git a/src/core/dbus-slice.c b/src/core/dbus-slice.c
+index effd5fa5d7..db49933ae3 100644
+--- a/src/core/dbus-slice.c
++++ b/src/core/dbus-slice.c
+@@ -5,6 +5,9 @@
+ #include "slice.h"
+ #include "unit.h"
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_slice_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_VTABLE_END
+diff --git a/src/core/dbus-socket.c b/src/core/dbus-socket.c
+index 25d3d71391..15ba47091d 100644
+--- a/src/core/dbus-socket.c
++++ b/src/core/dbus-socket.c
+@@ -74,6 +74,9 @@ static int property_get_listen(
+         return sd_bus_message_close_container(reply);
  }
  
- static int method_reenable_unit_files(sd_bus_message *message, void *userdata, sd_bus_error *error) {
--        return method_enable_unit_files_generic(message, userdata, unit_file_reenable, true, error);
-+        return method_enable_unit_files_generic(message, userdata, unit_file_reenable, true, MAC_SELINUX_UNIT_PERM_REENABLE, error);
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_socket_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("BindIPv6Only", "s", property_get_bind_ipv6_only, offsetof(Socket, bind_ipv6_only), SD_BUS_VTABLE_PROPERTY_CONST),
+diff --git a/src/core/dbus-swap.c b/src/core/dbus-swap.c
+index 353fa20132..de4a0b0e55 100644
+--- a/src/core/dbus-swap.c
++++ b/src/core/dbus-swap.c
+@@ -29,6 +29,9 @@ static BUS_DEFINE_PROPERTY_GET(property_get_priority, "i", Swap, swap_get_priori
+ static BUS_DEFINE_PROPERTY_GET(property_get_options, "s", Swap, swap_get_options);
+ static BUS_DEFINE_PROPERTY_GET_ENUM(property_get_result, swap_result, SwapResult);
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_swap_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("What", "s", NULL, offsetof(Swap, what), SD_BUS_VTABLE_PROPERTY_EMITS_CHANGE),
+diff --git a/src/core/dbus-target.c b/src/core/dbus-target.c
+index ba50113641..7c61f7d6fd 100644
+--- a/src/core/dbus-target.c
++++ b/src/core/dbus-target.c
+@@ -3,6 +3,9 @@
+ #include "dbus-target.h"
+ #include "unit.h"
+ 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_target_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_VTABLE_END
+diff --git a/src/core/dbus-timer.c b/src/core/dbus-timer.c
+index 439c276fac..354336e4a3 100644
+--- a/src/core/dbus-timer.c
++++ b/src/core/dbus-timer.c
+@@ -118,6 +118,9 @@ static int property_get_next_elapse_monotonic(
+                                                                  TIMER_MONOTONIC_CLOCK(t), CLOCK_MONOTONIC));
  }
  
- static int method_link_unit_files(sd_bus_message *message, void *userdata, sd_bus_error *error) {
--        return method_enable_unit_files_generic(message, userdata, unit_file_link, false, error);
-+        return method_enable_unit_files_generic(message, userdata, unit_file_link, false, MAC_SELINUX_UNIT_PERM_LINK, error);
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_timer_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Unit", "s", bus_property_get_triggered_unit, 0, SD_BUS_VTABLE_PROPERTY_CONST),
+diff --git a/src/core/dbus-unit.c b/src/core/dbus-unit.c
+index 37b5decf52..184405d8be 100644
+--- a/src/core/dbus-unit.c
++++ b/src/core/dbus-unit.c
+@@ -764,6 +764,9 @@ static int property_get_refs(
+         return sd_bus_message_close_container(reply);
  }
  
- static int unit_file_preset_without_mode(UnitFileScope scope, UnitFileFlags flags, const char *root_dir, char **files, UnitFileChange **changes, size_t *n_changes, mac_callback_t mac_check, void *userdata) {
-@@ -2131,11 +2138,11 @@ static int unit_file_preset_without_mode(UnitFileScope scope, UnitFileFlags flag
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_unit_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+ 
+@@ -1350,6 +1353,9 @@ int bus_unit_method_attach_processes(sd_bus_message *message, void *userdata, sd
+         return sd_bus_reply_method_return(message, NULL);
  }
  
- static int method_preset_unit_files(sd_bus_message *message, void *userdata, sd_bus_error *error) {
--        return method_enable_unit_files_generic(message, userdata, unit_file_preset_without_mode, true, error);
-+        return method_enable_unit_files_generic(message, userdata, unit_file_preset_without_mode, true, MAC_SELINUX_UNIT_PERM_PRESET, error);
- }
- 
- static int method_mask_unit_files(sd_bus_message *message, void *userdata, sd_bus_error *error) {
--        return method_enable_unit_files_generic(message, userdata, unit_file_mask, false, error);
-+        return method_enable_unit_files_generic(message, userdata, unit_file_mask, false, MAC_SELINUX_UNIT_PERM_MASK, error);
- }
- 
- static int method_preset_unit_files_with_mode(sd_bus_message *message, void *userdata, sd_bus_error *error) {
-@@ -2148,7 +2155,7 @@ static int method_preset_unit_files_with_mode(sd_bus_message *message, void *use
-         int runtime, force, r;
-         UnitFileFlags flags;
-         const char *mode;
--        struct mac_callback_userdata mcud = {};
-+        struct mac_callback_userdata mcud = { .selinux = { m, message, error, MAC_SELINUX_UNIT_PERM_PRESET } };
- 
-         assert(message);
-         assert(m);
-@@ -2188,13 +2195,14 @@ static int method_disable_unit_files_generic(
-                 sd_bus_message *message,
-                 Manager *m,
-                 int (*call)(UnitFileScope scope, UnitFileFlags flags, const char *root_dir, char *files[], UnitFileChange **changes, size_t *n_changes, mac_callback_t mac_check, void *userdata),
-+                const char *mac_selinux_verb,
-                 sd_bus_error *error) {
- 
-         _cleanup_strv_free_ char **l = NULL;
-         UnitFileChange *changes = NULL;
-         size_t n_changes = 0;
-         int r, runtime;
--        struct mac_callback_userdata mcud = {};
-+        struct mac_callback_userdata mcud = { .selinux = { m, message, error, mac_selinux_verb } };
- 
-         assert(message);
-         assert(m);
-@@ -2221,11 +2229,11 @@ static int method_disable_unit_files_generic(
- }
- 
- static int method_disable_unit_files(sd_bus_message *message, void *userdata, sd_bus_error *error) {
--        return method_disable_unit_files_generic(message, userdata, unit_file_disable, error);
-+        return method_disable_unit_files_generic(message, userdata, unit_file_disable, MAC_SELINUX_UNIT_PERM_DISABLE, error);
- }
- 
- static int method_unmask_unit_files(sd_bus_message *message, void *userdata, sd_bus_error *error) {
--        return method_disable_unit_files_generic(message, userdata, unit_file_unmask, error);
-+        return method_disable_unit_files_generic(message, userdata, unit_file_unmask, MAC_SELINUX_UNIT_PERM_UNMASK, error);
- }
- 
- static int method_revert_unit_files(sd_bus_message *message, void *userdata, sd_bus_error *error) {
-@@ -2234,7 +2242,7 @@ static int method_revert_unit_files(sd_bus_message *message, void *userdata, sd_
-         size_t n_changes = 0;
-         Manager *m = userdata;
-         int r;
--        struct mac_callback_userdata mcud = {};
-+        struct mac_callback_userdata mcud = { .selinux = { m, message, error, MAC_SELINUX_UNIT_PERM_REVERT } };
- 
-         assert(message);
-         assert(m);
-@@ -2295,7 +2303,7 @@ static int method_preset_all_unit_files(sd_bus_message *message, void *userdata,
-         const char *mode;
-         UnitFileFlags flags;
-         int force, runtime, r;
--        struct mac_callback_userdata mcud = {};
-+        struct mac_callback_userdata mcud = { .selinux = { m, message, error, MAC_SELINUX_UNIT_PERM_PRESET } };
- 
-         assert(message);
-         assert(m);
-@@ -2340,7 +2348,7 @@ static int method_add_dependency_unit_files(sd_bus_message *message, void *userd
-         char *target, *type;
-         UnitDependency dep;
-         UnitFileFlags flags;
--        struct mac_callback_userdata mcud = {};
-+        struct mac_callback_userdata mcud = { .selinux = { m, message, error, MAC_SELINUX_UNIT_PERM_ADDDEPENDENCY } };
- 
-         assert(message);
-         assert(m);
-@@ -2377,6 +2385,7 @@ static int method_add_dependency_unit_files(sd_bus_message *message, void *userd
- }
- 
- static int method_get_unit_file_links(sd_bus_message *message, void *userdata, sd_bus_error *error) {
-+        Manager *m = userdata;
-         _cleanup_(sd_bus_message_unrefp) sd_bus_message *reply = NULL;
-         UnitFileChange *changes = NULL;
-         size_t n_changes = 0, i;
-@@ -2384,7 +2393,7 @@ static int method_get_unit_file_links(sd_bus_message *message, void *userdata, s
-         const char *name;
-         char **p;
-         int runtime, r;
--        struct mac_callback_userdata mcud = {};
-+        struct mac_callback_userdata mcud = { .selinux = { m, message, error, MAC_SELINUX_UNIT_PERM_STATUS } };
- 
-         r = mac_selinux_access_check(message, "status", error);
-         if (r < 0)
-diff --git a/src/core/manager.c b/src/core/manager.c
-index 0b6ef09924..0f69ba12fd 100644
---- a/src/core/manager.c
-+++ b/src/core/manager.c
-@@ -1868,6 +1868,13 @@ Unit *manager_get_unit(Manager *m, const char *name) {
-         return hashmap_get(m->units, name);
- }
- 
-+const char *manager_get_unitpath(Manager *m, const char *name) {
-+        assert(m);
-+        assert(name);
-+
-+        return hashmap_get(m->unit_id_map, name);
-+}
-+
- static int manager_dispatch_target_deps_queue(Manager *m) {
-         Unit *u;
-         unsigned k;
-diff --git a/src/core/manager.h b/src/core/manager.h
-index fb1a29d88c..acd3762744 100644
---- a/src/core/manager.h
-+++ b/src/core/manager.h
-@@ -452,6 +452,7 @@ int manager_startup(Manager *m, FILE *serialization, FDSet *fds);
- 
- Job *manager_get_job(Manager *m, uint32_t id);
- Unit *manager_get_unit(Manager *m, const char *name);
-+const char *manager_get_unitpath(Manager *m, const char *name);
- 
- int manager_get_job_from_dbus_path(Manager *m, const char *s, Job **_j);
- 
-diff --git a/src/core/selinux-access.c b/src/core/selinux-access.c
-index 4500e4452f..d3b89c1d7a 100644
---- a/src/core/selinux-access.c
-+++ b/src/core/selinux-access.c
-@@ -168,6 +168,33 @@ static int access_init(sd_bus_error *error) {
-         return 1;
- }
- 
-+int mac_selinux_callback_check(
-+                const char *name,
-+                struct mac_selinux_callback_userdata *userdata) {
-+        const Unit *u;
-+        const char *path = NULL;
-+
-+        assert(name);
-+        assert(userdata);
-+        assert(userdata->m);
-+        assert(userdata->message);
-+        assert(userdata->error);
-+        assert(userdata->permission);
-+
-+        if (!mac_selinux_use())
-+                return 0;
-+
-+        u = manager_get_unit(userdata->m, name);
-+        if (u)
-+                path = unit_label_path(u);
-+
-+        /* maybe the unit is not loaded, e.g. a disabled user session unit */
-+        if (!path)
-+                path = manager_get_unitpath(userdata->m, name);
-+
-+        return mac_selinux_generic_access_check(userdata->message, path, MAC_SELINUX_CLASS_UNIT, userdata->permission, userdata->error);
-+}
-+
- /*
-    This function communicates with the kernel to check whether or not it should
-    allow the access.
-@@ -177,11 +204,12 @@ static int access_init(sd_bus_error *error) {
- int mac_selinux_generic_access_check(
-                 sd_bus_message *message,
-                 const char *path,
-+                const char *tclass,
-                 const char *permission,
-                 sd_bus_error *error) {
- 
-         _cleanup_(sd_bus_creds_unrefp) sd_bus_creds *creds = NULL;
--        const char *tclass = NULL, *scon = NULL;
-+        const char *scon = NULL;
-         struct audit_info audit_info = {};
-         _cleanup_free_ char *cl = NULL;
-         char *fcon = NULL;
-@@ -227,8 +255,6 @@ int mac_selinux_generic_access_check(
-                         r = sd_bus_error_setf(error, SD_BUS_ERROR_ACCESS_DENIED, "Failed to get file context on %s.", path);
-                         goto finish;
-                 }
--
--                tclass = "service";
-         } else {
-                 r = getcon_raw(&fcon);
-                 if (r < 0) {
-@@ -236,8 +262,6 @@ int mac_selinux_generic_access_check(
-                         r = sd_bus_error_setf(error, SD_BUS_ERROR_ACCESS_DENIED, "Failed to get current context.");
-                         goto finish;
-                 }
--
--                tclass = "system";
-         }
- 
-         sd_bus_creds_get_cmdline(creds, &cmdline);
-@@ -269,10 +293,18 @@ finish:
- int mac_selinux_generic_access_check(
-                 sd_bus_message *message,
-                 const char *path,
-+                const char *tclass,
-                 const char *permission,
-                 sd_bus_error *error) {
- 
-         return 0;
- }
- 
-+int mac_selinux_callback_check(
-+                const char *name,
-+                struct mac_selinux_callback_userdata *userdata) {
-+
-+        return 0;
-+}
-+
- #endif
-diff --git a/src/core/selinux-access.h b/src/core/selinux-access.h
-index 1e75930f57..cfdeded59b 100644
---- a/src/core/selinux-access.h
-+++ b/src/core/selinux-access.h
-@@ -6,15 +6,37 @@
- #include "bus-util.h"
- #include "manager.h"
- 
--int mac_selinux_generic_access_check(sd_bus_message *message, const char *path, const char *permission, sd_bus_error *error);
-+#define MAC_SELINUX_CLASS_SYSTEM            "system"
-+#define MAC_SELINUX_CLASS_UNIT              "service"
-+
-+#define MAC_SELINUX_UNIT_PERM_ADDDEPENDENCY "modify"
-+#define MAC_SELINUX_UNIT_PERM_DISABLE       "disable"
-+#define MAC_SELINUX_UNIT_PERM_ENABLE        "enable"
-+#define MAC_SELINUX_UNIT_PERM_LINK          "enable"
-+#define MAC_SELINUX_UNIT_PERM_MASK          "disable"
-+#define MAC_SELINUX_UNIT_PERM_PRESET        "modify"
-+#define MAC_SELINUX_UNIT_PERM_REENABLE      "enable"
-+#define MAC_SELINUX_UNIT_PERM_REVERT        "modify"
-+#define MAC_SELINUX_UNIT_PERM_STATUS        "status"
-+#define MAC_SELINUX_UNIT_PERM_UNMASK        "enable"
-+
-+struct mac_selinux_callback_userdata {
-+        Manager *m;
-+        sd_bus_message *message;
-+        sd_bus_error *error;
-+        const char *permission;
-+};
-+int mac_selinux_callback_check(const char *name, struct mac_selinux_callback_userdata *userdata);
-+
-+int mac_selinux_generic_access_check(sd_bus_message *message, const char *path, const char *tclass, const char *permission, sd_bus_error *error);
- 
- #if HAVE_SELINUX
- 
- #define mac_selinux_access_check(message, permission, error) \
--        mac_selinux_generic_access_check((message), NULL, (permission), (error))
-+        mac_selinux_generic_access_check((message), NULL, MAC_SELINUX_CLASS_SYSTEM, (permission), (error))
- 
- #define mac_selinux_unit_access_check(unit, message, permission, error) \
--        mac_selinux_generic_access_check((message), unit_label_path(unit), (permission), (error))
-+        mac_selinux_generic_access_check((message), unit_label_path(unit), MAC_SELINUX_CLASS_UNIT, (permission), (error))
- 
- #else
- 
-diff --git a/src/core/unit.c b/src/core/unit.c
-index f9b299c8a4..1d5c702020 100644
---- a/src/core/unit.c
-+++ b/src/core/unit.c
-@@ -5703,9 +5703,11 @@ bool unit_needs_console(Unit *u) {
-         return exec_context_may_touch_console(ec);
- }
- 
--const char *unit_label_path(Unit *u) {
-+const char *unit_label_path(const Unit *u) {
-         const char *p;
- 
-+        assert(u);
-+
-         /* Returns the file system path to use for MAC access decisions, i.e. the file to read the SELinux label off
-          * when validating access checks. */
- 
-diff --git a/src/core/unit.h b/src/core/unit.h
-index 5dac251d74..821c7b3c84 100644
---- a/src/core/unit.h
-+++ b/src/core/unit.h
-@@ -839,7 +839,7 @@ int unit_warn_leftover_processes(Unit *u);
- 
- bool unit_needs_console(Unit *u);
- 
--const char *unit_label_path(Unit *u);
-+const char *unit_label_path(const Unit *u);
- 
- int unit_pid_attachable(Unit *unit, pid_t pid, sd_bus_error *error);
- 
++/* Note: when adding a SD_BUS_WRITABLE_PROPERTY or SD_BUS_METHOD add a TODO(selinux),
++ *       so the SELinux people can add a permission check.
++ */
+ const sd_bus_vtable bus_unit_cgroup_vtable[] = {
+         SD_BUS_VTABLE_START(0),
+         SD_BUS_PROPERTY("Slice", "s", property_get_slice, 0, 0),
 -- 
 2.24.1
 
