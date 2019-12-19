@@ -2,60 +2,54 @@ Return-Path: <SRS0=Xw2L=2J=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 555CBC43603
-	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 21:44:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89544C2D0D1
+	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 23:40:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D4B382467B
-	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 21:44:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5462421655
+	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 23:40:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="DBvv9GXG"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Z4aN1MBx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726963AbfLSVoP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Dec 2019 16:44:15 -0500
-Received: from sonic311-30.consmr.mail.ne1.yahoo.com ([66.163.188.211]:44603
-        "EHLO sonic311-30.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726959AbfLSVoP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Dec 2019 16:44:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576791853; bh=v66WuyTVUaX6OG3ox7vmPodGeM1PNJQrZv92B/pn1Wo=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=DBvv9GXGW0ll7gW4oJu9YBpXNR7d7Ev2l2grGO4ZLlEZBHPDyrIWJv9vKFDsHePjkv1ld9x//xIr94nCPKe3Q0EwabEe2fubEXxxmC9PVdFvZ9BZkTrg5GMxlbkMRDUJ/7AEYxEnlmoSo6h+diS+eX8cnnZgdmaqdXEO/5dztQwyd3uqm160mwLXfgJMkKrNutwEMk0Ql0XS1Qd2NFJnZsO0qTMGSy82ejtj3SyvWfF0J9T9J62VLWu6Eu7py7venp+wNsb6txLNNJNHg2fRSldxVlC2J2TnRr+yMcK65AcGXJPQ7nNMcmTwcdtv/vY0k+F27aZwQpUmm/0wKhKrTg==
-X-YMail-OSG: .fo38vcVM1lwx6mufN0Jn4tN8j9TF_QI66jsB4TishWnHoUk.Hc5__0rXHZ7iLB
- iiTRSlUtbEDAGd1MrSWU07OJ.zBm4WZXs1MFoUqw2zgf0rhs8cKuzZbvBkrYykirHJHqeruyCtjm
- pxp1or2Q0FTSrs.sBtGCv22nj9rjxwVtlguqmNTaPFTxPHtg2kWC6QwXo4YOzWpNmeF8oTsJYox0
- 9rC_pW31ze8oBDn5zlPmoNTWGxZ15T0FQ8Cd.0dbzeYWELhpuEYYTm_YgGEili.ujFsMS3AWvf78
- YEf747vR6uUBAXrJYdeHzHL8pIB5Qt.8ZCEEj5I3JaVNYm2BCLEnlW4B9fUrBbr_6FZGVHQfie6D
- vuyrSHo5MeFiGjO5wn9fEgjNo95VGXxsznOo4iegConMKRWRykXdgUeu_0AV.iuRm5Wys0DVtDGm
- bjpvVetct8qBDiXoaYez2JWei8WfrApE8FiTVKgG_.cZS8d0kWt10SrUANXJTAQ5zrVZ50rveETJ
- kTXdtjM702WtOKO9C3vRvRKwr3HwnCjVVWgGmuzCK8akUFNZD9xDJ1SlZ6QONQMbjXOXiOADciFu
- kGIStZ6GdBm4zJngIvGQEeHJNkzHmIRbueIbq82IIKnGzF69ZK_RM8Ci7m8nSEaEjEPg47sQLAua
- 5SziE1rKqRaGQE8n0O4nGRn10jY6bCjmGDR3YzBe3ZHWfHDBawtYK3VmYlZ6SjbUAVrVcKYAXVTF
- iiNE6QWQi0u5FqKm4DgEkUx5DNBhCHkx8c4MWQR5wqxBhyRA7knlosDX_iTDlm75JOMIedbet1rF
- jTNJRqznRpfYIv3UE8psmNGGPVqc5cEW6TWTB3sVlK3FW4eDkq8JzCjq4zBI8fxRKjKrHNp93yaY
- BYz2ilqxBbKteS2kdCj73g.PGIriCH_CmVEqFO3LHO0nckzYymUStF4orDQ27K5VgAnsAYpk0XtR
- 71qCOk9MI07xFq1MG8d1y8HrIPNRcTC0LLRrw1JPgYwaVYlwe4z5rRjU5VwCopr13U1KTak1y6Lp
- XmxCkiqPJfa0Uc7tmLtjDVQsUfjeH6VlG4AV5vuH9zeG7Rf442ckFlJGrFQ1sD7bnO5_wdvJ6kwl
- wGuyKvhd_QCpR0wIRiGKcPdy5zzp1smZAh69DJoizgmPXUhut4Q5QedS5ErOK61Gfz.hdhhOW5kW
- 940CVgl6R.B7kHFE6cd_xY5To5HjpLXYqbaoeO5.znfEMJK9AgCJJO8KEONHJLJiyDm_nqktP9qz
- yvECtEV4bC5bPu7nNOOQ7RalQmFOm290vb94B1DWKOpoW8WnS7sDTbECgJUqUcqDsT2ydN_E1tgj
- cTnTEHxqupnNHfJBkvoJpPeC_gi_8q1K3rsdDDkeu1i0Blv9qS6yYJ6u1mxHfc.3nvbis3HJqRiE
- jClP0AgqPRo2ssNpkyH9RZ9LHLDnNw9B7XbGjtpSrxJ4AI6MaGstQbLf8cy63xx1i
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Thu, 19 Dec 2019 21:44:13 +0000
-Received: by smtp413.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 57146edacb5a882d36f6a55ae3d3e67d;
-          Thu, 19 Dec 2019 21:44:11 +0000 (UTC)
-Subject: Re: [PATCH v12 02/25] LSM: Create and manage the lsmblob data
- structure.
-To:     Mimi Zohar <zohar@linux.ibm.com>, casey.schaufler@intel.com,
-        jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov, Casey Schaufler <casey@schaufler-ca.com>
-References: <20191216223621.5127-1-casey@schaufler-ca.com>
- <20191216223621.5127-3-casey@schaufler-ca.com>
- <1576789891.5660.3.camel@linux.ibm.com>
+        id S1726992AbfLSXkH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Dec 2019 18:40:07 -0500
+Received: from sonic306-28.consmr.mail.ne1.yahoo.com ([66.163.189.90]:46658
+        "EHLO sonic306-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727006AbfLSXkH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Dec 2019 18:40:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1576798805; bh=livN2Xigk9A7Z8xaASD06WAD/1D0KoEf5drFCXwUss8=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=Z4aN1MBxWURNRd2QA5Yii4ud3liP5GUPzABKwj+DDVdRkiQ6R9Vx0FyY14glnv9F53GDb6q211SBaGAB+gvDWaXcHfun7JH9thgszuyutIC/quQEsdQdXoE7KbMFVpHMj9KKjAHFlUQImxgZdkx8gcsXu3lr4S6s8jjs2rQzsRwo9Ifzxl7q3bEFZTnF92mEl6SQvsnt36g65c/2vJ22Dtc2u3knch3nP6UDAB/ixRp+OOEmuXMEr+ecyNRg9i+BYka4Yp13pgprnf7HFnH/PiKHcRqPKkvrHlWysCuNa3kKPx9jGIni5AMHa6nm25yKKC2I4cSxnjXrLse0fU9plw==
+X-YMail-OSG: 04h1HyIVM1knJtz4wI5FESW75W6KWiBjxHsQ9iQyWxnIO9WRNtY8pVmiBwuvXxJ
+ JwUKBYzY4Jk6uL639CmSTu5XIkwqdSS_YGBEelRA3gB8M.rlac5o2WcK02nunaWWIpPe3bza5Eop
+ p1J45n47zW59.5MDaG9KMM6OwDwQILlJkcXW9P2OIO5Ln6p_7g4xOD.YRuYDs8xuYyYbLzbdmvx2
+ Kw7w5lxAQjzOU_fcqoHdOK1K3No9OjZdccdzEWUf3tsyH38mbfdJyqlLVUGsYQFMrXFAlrmXkXK.
+ d1H.ThKLPN1dvmU8UXDEblzcHQnXqIGdfjZC2Ij37P5p2VUw8R8tHOokUqpEihspyRymzcLKIONq
+ 7nDeONmfwtUxe39tD1gRBRiKRMNb1bDQNJBmWfQiufBDU88Wj5igzIjg5TMfPwfMu7KMn.WADzda
+ 9T4BiKNb9LfTx1QPJc3342k39mNfQDXFsUWPAxOHNwnCxdGYsXHDC5YXBSGnw9VMPuWs0XqEf1_W
+ itNTqTsuCY8XDbOiLHFbnF3aY2GQ0urDx.3m.1xdjf.CqRCHBfo3spx1ibofSajuxL153_gQBepC
+ WD0_0LrPBlOWPqNv_BKKsoAq_I_2vu_M61LeG4Eg5yw7a.3MjmFN5uWb9NWuQED6.mB5vP8DjsO.
+ AaSB4loVx307Uyi7TtYDCUxVvZUvZPTu8vsBY2HTe1nALwS1jH.BRbDsQkt6El5BriqRYBkz3iRF
+ MCfwNLYq9mjDHPV8Qr4WFaB84MRibBRqiN2ZL3QFMrmIpF7N_KK1LOllmUncBFbUs53sQJ3DMKB7
+ jbXDtXNW_gShpX2ebkXvwA9dMHEQGsVs9ny6vYrKHfZiWDPkv5B51h50lRWAzUNMczccYTzpVnmx
+ MC1ElCmbI.9I0o7QBXxvvAOQ5Knac_6X6MJkKXstUw5F4jKFd0y2i6fK9Z9fI3r0YQUi4aBPH4lI
+ AR_tZUp_2gI0JGHwQoeX1duNdkG5N2.A5vJsddgU0tntSyL3l_6LhjyBlBNK7h71E22tYHlPdjQ_
+ Zfm33FjQkxcxbjsjMPGMkV09uL.Pnza_1LsXvk3.4FwALx4tqstXxWLPLz3Q9PDfx7h6isFauQT2
+ 8v6tBTezOhT6RtMcV9CQxb64GaRm.sQbAciw2E1y__wBlnbS5ebanl8MpUkoQRlsFiCD5.Ye4WNN
+ SG6kafGNqdvP_xAQdvFPhtuw3h8RFGdu4mjHFWlhs3P3umDF7jIkRbTiNtWJLZ3oy0pg7fT6_QmV
+ BKfw6XcZi9bfov6_c_34FXeqhIUtHY5y7LtGvG7SaxEXo8G8JP7HwKTAxy1GwZ5BGayXRwhUK_mH
+ s_Uxes1Zz5VhtCaXbY_qMuDNJlKGvS.CUTrNvhJsPB7.GsLOA2l1MskYCYtEsSGp.mWfbDWLuRDu
+ P6k46l7u3aoSR5j_Kmi_pZLSO7UaJE7OCYh9hQ.vES5vM1TrFHA--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Thu, 19 Dec 2019 23:40:05 +0000
+Received: by smtp429.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 71711ae153ca12db4fbff8a003edb13a;
+          Thu, 19 Dec 2019 23:40:03 +0000 (UTC)
+Subject: Re: [RFC PATCH] selinux: deprecate disabling SELinux and runtime
+To:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+Cc:     linux-security-module@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <157678334821.158235.2125894638773393579.stgit@chester>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -102,14 +96,14 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <b3370d56-241c-ccd5-1438-4266b8cec6a4@schaufler-ca.com>
-Date:   Thu, 19 Dec 2019 13:44:08 -0800
+Message-ID: <a023c681-3ede-a08d-d9ea-67ab49f10aa3@schaufler-ca.com>
+Date:   Thu, 19 Dec 2019 15:40:01 -0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.1
 MIME-Version: 1.0
-In-Reply-To: <1576789891.5660.3.camel@linux.ibm.com>
+In-Reply-To: <157678334821.158235.2125894638773393579.stgit@chester>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Content-Language: en-US
 X-Mailer: WebService/1.1.14873 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
 Sender: selinux-owner@vger.kernel.org
@@ -117,46 +111,70 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/19/2019 1:11 PM, Mimi Zohar wrote:
-> On Mon, 2019-12-16 at 14:35 -0800, Casey Schaufler wrote:
->> When more than one security module is exporting data to
->> audit and networking sub-systems a single 32 bit integer
->> is no longer sufficient to represent the data. Add a
->> structure to be used instead.
->>
->> The lsmblob structure is currently an array of
->> u32 "secids". There is an entry for each of the
->> security modules built into the system that would
->> use secids if active. The system assigns the module
->> a "slot" when it registers hooks. If modules are
->> compiled in but not registered there will be unused
->> slots.
->>
->> A new lsm_id structure, which contains the name
->> of the LSM and its slot number, is created. There
->> is an instance for each LSM, which assigns the name
->> and passes it to the infrastructure to set the slot.
->>
->> Reviewed-by: John Johansen <john.johansen@canonical.com>
->> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->> ---
->>  include/linux/lsm_hooks.h  | 12 ++++++--
->>  include/linux/security.h   | 58 ++++++++++++++++++++++++++++++++++++++
->>  security/apparmor/lsm.c    |  7 ++++-
->>  security/commoncap.c       |  7 ++++-
->>  security/loadpin/loadpin.c |  8 +++++-
->>  security/safesetid/lsm.c   |  8 +++++-
->>  security/security.c        | 28 ++++++++++++++----
->>  security/selinux/hooks.c   |  8 +++++-
->>  security/smack/smack_lsm.c |  7 ++++-
->>  security/tomoyo/tomoyo.c   |  8 +++++-
->>  security/yama/yama_lsm.c   |  7 ++++-
->>  11 files changed, 142 insertions(+), 16 deletions(-)
-> security/lockdown/lockdown.c is missing.  I'm getting a compiler
-> error.
-
-Whoops. I'll add the new kid to the list.
-
+On 12/19/2019 11:22 AM, Paul Moore wrote:
+> Deprecate the CONFIG_SECURITY_SELINUX_DISABLE functionality.  The
+> code was originally developed to make it easier for Linux
+> distributions to support architectures where adding parameters to the
+> kernel command line was difficult.  Unfortunately, supporting runtime
+> disable meant we had to make some security trade-offs when it came to
+> the LSM hooks, as documented in the Kconfig help text:
 >
-> Mimi
+>   NOTE: selecting this option will disable the '__ro_after_init'
+>   kernel hardening feature for security hooks.   Please consider
+>   using the selinux=0 boot parameter instead of enabling this
+>   option.
+>
+> Fortunately it looks as if that the original motivation for the
+> runtime disable functionality is gone, and Fedora/RHEL appears to be
+> the only major distribution enabling this capability at build time
+> so we are now taking steps to remove it entirely from the kernel.
+> The first step is to mark the functionality as deprecated and print
+> an error when it is used (what this patch is doing).  As Fedora/RHEL
+> makes progress in transitioning the distribution away from runtime
+> disable, we will introduce follow-up patches over several kernel
+> releases which will block for increasing periods of time when the
+> runtime disable is used.  Finally we will remove the option entirely
+> once we believe all users have moved to the kernel cmdline approach.
+>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+
+Acked-by: Casey Schaufler <casey@schaufler-ca.com>
+
+> ---
+>  security/selinux/Kconfig     |    3 +++
+>  security/selinux/selinuxfs.c |    6 ++++++
+>  2 files changed, 9 insertions(+)
+>
+> diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+> index 996d35d950f7..580ac24c7aa1 100644
+> --- a/security/selinux/Kconfig
+> +++ b/security/selinux/Kconfig
+> @@ -42,6 +42,9 @@ config SECURITY_SELINUX_DISABLE
+>  	  using the selinux=0 boot parameter instead of enabling this
+>  	  option.
+>  
+> +	  WARNING: this option is deprecated and will be removed in a future
+> +	  kernel release.
+> +
+>  	  If you are unsure how to answer this question, answer N.
+>  
+>  config SECURITY_SELINUX_DEVELOP
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 278417e67b4c..adbe2dd35202 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -281,6 +281,12 @@ static ssize_t sel_write_disable(struct file *file, const char __user *buf,
+>  	int new_value;
+>  	int enforcing;
+>  
+> +	/* NOTE: we are now officially considering runtime disable as
+> +	 *       deprecated, and using it will become increasingly painful
+> +	 *       (e.g. sleeping/blocking) as we progress through future
+> +	 *       kernel releases until eventually it is removed */
+> +	pr_err("SELinux:  Runtime disable is deprecated, use selinux=0 on the kernel cmdline.\n");
+> +
+>  	if (count >= PAGE_SIZE)
+>  		return -ENOMEM;
+>  
+>
 >
