@@ -2,281 +2,177 @@ Return-Path: <SRS0=Xw2L=2J=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBDCAC43603
-	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 18:29:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BC37C43603
+	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 19:21:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 67E8624672
-	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 18:29:24 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="i74zbOUq"
+	by mail.kernel.org (Postfix) with ESMTP id 2D510206D3
+	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 19:21:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726818AbfLSS3Y (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Dec 2019 13:29:24 -0500
-Received: from mail-pj1-f68.google.com ([209.85.216.68]:51265 "EHLO
-        mail-pj1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726797AbfLSS3X (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Dec 2019 13:29:23 -0500
-Received: by mail-pj1-f68.google.com with SMTP id j11so2912358pjs.1
-        for <selinux@vger.kernel.org>; Thu, 19 Dec 2019 10:29:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=4hMuTDWZsbv52j0RYJUZw8XCLhp2o7L2nrrQ2Usef9c=;
-        b=i74zbOUqSbk093GI6BFGe8HG4vbuDJblkpIjc46OuB+1ZH/C/jGvohKz74cJD5XdfI
-         06J/vu/B9RfsoAEah1Pd+EqkLs6p8EIgX5HviJb3SwxxDSBccyEELG4Vh+PaR5VSiaVo
-         icUxuXZsTErL5kA1hWEfl3k/6V2SP0Wkq83U0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=4hMuTDWZsbv52j0RYJUZw8XCLhp2o7L2nrrQ2Usef9c=;
-        b=aYklvgd0eaYPKLqxcW/khZ3Zq1XHxLrAM3e1lc3d75cxG003znRaw3D7L36Br9yKim
-         lfOymylldzpAMKy0snKpoe96PtJOZFw+6Gie1GIF/W+PHy9AP8HWdSKuYBIaLmwCcVw1
-         KT4aQ3yUnLvv3+1MiHMhBTQzsW6zt99LjjV9j04JtIXoj/pfedMsHoPh+ynISQtNNg2c
-         jRIT2MFFveJQ7752tUrHB30GgVc4k7tUXac4rDirwPCePgLBJhcM8NNOwUnB4nP0VdDM
-         UTaO9bh0Qv3dTPSyMWIkXhQ49SWecvTKwPnYOMbsEXV+GZRIukyU8aMsC2PGj8bju2Zb
-         AsgA==
-X-Gm-Message-State: APjAAAXvCef8L2+eMobaln03qgOm7BXpNGu4zwyvHcV2XSX5s+1GN1s4
-        LJYcIKAH2cP0Cn8rQbWCaxFG4w==
-X-Google-Smtp-Source: APXvYqxkTvFAm1BFWCO4dTed6j+HCsiI4CQIProlD+qBUtXwFMsTOTDgJyL6Ft+Hre9Ncf66WYwFsA==
-X-Received: by 2002:a17:902:6906:: with SMTP id j6mr5057843plk.321.1576780162720;
-        Thu, 19 Dec 2019 10:29:22 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id 199sm9710449pfv.81.2019.12.19.10.29.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Dec 2019 10:29:21 -0800 (PST)
-Date:   Thu, 19 Dec 2019 10:29:20 -0800
-From:   Kees Cook <keescook@chromium.org>
-To:     Wenhui Zhang <wenhui@gwmail.gwu.edu>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Paul Moore <paul@paul-moore.com>,
-        SELinux <selinux@vger.kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>
-Subject: Re: [RFC PATCH] selinux: randomize layout of key structures
-Message-ID: <201912191028.549604D@keescook>
-References: <20191213202838.7323-1-sds@tycho.nsa.gov>
- <201912171550.C731CA1C@keescook>
- <CAOSEQ1qFpLX5hTyNZ+QZuhunH3gr+KAB5PDgcoFjUcyNojEVMQ@mail.gmail.com>
- <201912171616.616C9C9990@keescook>
- <CAOSEQ1ow2XGQ4faoFekK9s3HfmfcvnVKZgGC6tPm0ChJ0F+-vw@mail.gmail.com>
- <201912171645.663C28F0@keescook>
- <CAOSEQ1quzmnB4700JdOob=DNgbF5ma2rt7O-ayZwWeWBjymcjw@mail.gmail.com>
+        id S1726967AbfLSTVq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Dec 2019 14:21:46 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:50791 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726836AbfLSTVq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Dec 2019 14:21:46 -0500
+Received: from static-50-53-33-191.bvtn.or.frontiernet.net ([50.53.33.191] helo=[192.168.192.153])
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <john.johansen@canonical.com>)
+        id 1ii1Mi-0005Zw-Bs; Thu, 19 Dec 2019 19:21:40 +0000
+Subject: Re: [PATCH v12 23/25] NET: Add SO_PEERCONTEXT for multiple LSMs
+To:     Simon McVittie <smcv@collabora.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com
+References: <20191216223621.5127-1-casey@schaufler-ca.com>
+ <20191216223621.5127-24-casey@schaufler-ca.com>
+ <56b96440-a304-42b6-1515-1ad2659b2581@tycho.nsa.gov>
+ <e7aa3b6f-cee1-6277-21dd-77a4db9bbc2b@tycho.nsa.gov>
+ <a522de22-ba62-a24d-24f7-b69418e7ec0b@tycho.nsa.gov>
+ <20191219121939.GA1291250@horizon>
+ <55b5c889-ff38-38c4-578e-ec4211b837a4@tycho.nsa.gov>
+ <93912039-e64e-cc56-20fc-095accf6c4dd@tycho.nsa.gov>
+ <20191219164831.GA1308552@horizon>
+From:   John Johansen <john.johansen@canonical.com>
+Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
+ xsFNBE5mrPoBEADAk19PsgVgBKkImmR2isPQ6o7KJhTTKjJdwVbkWSnNn+o6Up5knKP1f49E
+ BQlceWg1yp/NwbR8ad+eSEO/uma/K+PqWvBptKC9SWD97FG4uB4/caomLEU97sLQMtnvGWdx
+ rxVRGM4anzWYMgzz5TZmIiVTZ43Ou5VpaS1Vz1ZSxP3h/xKNZr/TcW5WQai8u3PWVnbkjhSZ
+ PHv1BghN69qxEPomrJBm1gmtx3ZiVmFXluwTmTgJOkpFol7nbJ0ilnYHrA7SX3CtR1upeUpM
+ a/WIanVO96WdTjHHIa43fbhmQube4txS3FcQLOJVqQsx6lE9B7qAppm9hQ10qPWwdfPy/+0W
+ 6AWtNu5ASiGVCInWzl2HBqYd/Zll93zUq+NIoCn8sDAM9iH+wtaGDcJywIGIn+edKNtK72AM
+ gChTg/j1ZoWH6ZeWPjuUfubVzZto1FMoGJ/SF4MmdQG1iQNtf4sFZbEgXuy9cGi2bomF0zvy
+ BJSANpxlKNBDYKzN6Kz09HUAkjlFMNgomL/cjqgABtAx59L+dVIZfaF281pIcUZzwvh5+JoG
+ eOW5uBSMbE7L38nszooykIJ5XrAchkJxNfz7k+FnQeKEkNzEd2LWc3QF4BQZYRT6PHHga3Rg
+ ykW5+1wTMqJILdmtaPbXrF3FvnV0LRPcv4xKx7B3fGm7ygdoowARAQABzR1Kb2huIEpvaGFu
+ c2VuIDxqb2huQGpqbXgubmV0PsLBegQTAQoAJAIbAwULCQgHAwUVCgkICwUWAgMBAAIeAQIX
+ gAUCTo0YVwIZAQAKCRAFLzZwGNXD2LxJD/9TJZCpwlncTgYeraEMeDfkWv8c1IsM1j0AmE4V
+ tL+fE780ZVP9gkjgkdYSxt7ecETPTKMaZSisrl1RwqU0oogXdXQSpxrGH01icu/2n0jcYSqY
+ KggPxy78BGs2LZq4XPfJTZmHZGnXGq/eDr/mSnj0aavBJmMZ6jbiPz6yHtBYPZ9fdo8btczw
+ P41YeWoIu26/8II6f0Xm3VC5oAa8v7Rd+RWZa8TMwlhzHExxel3jtI7IzzOsnmE9/8Dm0ARD
+ 5iTLCXwR1cwI/J9BF/S1Xv8PN1huT3ItCNdatgp8zqoJkgPVjmvyL64Q3fEkYbfHOWsaba9/
+ kAVtBNz9RTFh7IHDfECVaToujBd7BtPqr+qIjWFadJD3I5eLCVJvVrrolrCATlFtN3YkQs6J
+ n1AiIVIU3bHR8Gjevgz5Ll6SCGHgRrkyRpnSYaU/uLgn37N6AYxi/QAL+by3CyEFLjzWAEvy
+ Q8bq3Iucn7JEbhS/J//dUqLoeUf8tsGi00zmrITZYeFYARhQMtsfizIrVDtz1iPf/ZMp5gRB
+ niyjpXn131cm3M3gv6HrQsAGnn8AJru8GDi5XJYIco/1+x/qEiN2nClaAOpbhzN2eUvPDY5W
+ 0q3bA/Zp2mfG52vbRI+tQ0Br1Hd/vsntUHO903mMZep2NzN3BZ5qEvPvG4rW5Zq2DpybWc7B
+ TQROZqz6ARAAoqw6kkBhWyM1fvgamAVjeZ6nKEfnRWbkC94L1EsJLup3Wb2X0ABNOHSkbSD4
+ pAuC2tKF/EGBt5CP7QdVKRGcQzAd6b2c1Idy9RLw6w4gi+nn/d1Pm1kkYhkSi5zWaIg0m5RQ
+ Uk+El8zkf5tcE/1N0Z5OK2JhjwFu5bX0a0l4cFGWVQEciVMDKRtxMjEtk3SxFalm6ZdQ2pp2
+ 822clnq4zZ9mWu1d2waxiz+b5Ia4weDYa7n41URcBEUbJAgnicJkJtCTwyIxIW2KnVyOrjvk
+ QzIBvaP0FdP2vvZoPMdlCIzOlIkPLgxE0IWueTXeBJhNs01pb8bLqmTIMlu4LvBELA/veiaj
+ j5s8y542H/aHsfBf4MQUhHxO/BZV7h06KSUfIaY7OgAgKuGNB3UiaIUS5+a9gnEOQLDxKRy/
+ a7Q1v9S+Nvx+7j8iH3jkQJhxT6ZBhZGRx0gkH3T+F0nNDm5NaJUsaswgJrqFZkUGd2Mrm1qn
+ KwXiAt8SIcENdq33R0KKKRC80Xgwj8Jn30vXLSG+NO1GH0UMcAxMwy/pvk6LU5JGjZR73J5U
+ LVhH4MLbDggD3mPaiG8+fotTrJUPqqhg9hyUEPpYG7sqt74Xn79+CEZcjLHzyl6vAFE2W0kx
+ lLtQtUZUHO36afFv8qGpO3ZqPvjBUuatXF6tvUQCwf3H6XMAEQEAAcLBXwQYAQoACQUCTmas
+ +gIbDAAKCRAFLzZwGNXD2D/XD/0ddM/4ai1b+Tl1jznKajX3kG+MeEYeI4f40vco3rOLrnRG
+ FOcbyyfVF69MKepie4OwoI1jcTU0ADecnbWnDNHpr0SczxBMro3bnrLhsmvjunTYIvssBZtB
+ 4aVJjuLILPUlnhFqa7fbVq0ZQjbiV/rt2jBENdm9pbJZ6GjnpYIcAbPCCa/ffL4/SQRSYHXo
+ hGiiS4y5jBTmK5ltfewLOw02fkexH+IJFrrGBXDSg6n2Sgxnn++NF34fXcm9piaw3mKsICm+
+ 0hdNh4afGZ6IWV8PG2teooVDp4dYih++xX/XS8zBCc1O9w4nzlP2gKzlqSWbhiWpifRJBFa4
+ WtAeJTdXYd37j/BI4RWWhnyw7aAPNGj33ytGHNUf6Ro2/jtj4tF1y/QFXqjJG/wGjpdtRfbt
+ UjqLHIsvfPNNJq/958p74ndACidlWSHzj+Op26KpbFnmwNO0psiUsnhvHFwPO/vAbl3RsR5+
+ 0Ro+hvs2cEmQuv9r/bDlCfpzp2t3cK+rhxUqisOx8DZfz1BnkaoCRFbvvvk+7L/fomPntGPk
+ qJciYE8TGHkZw1hOku+4OoM2GB5nEDlj+2TF/jLQ+EipX9PkPJYvxfRlC6dK8PKKfX9KdfmA
+ IcgHfnV1jSn+8yH2djBPtKiqW0J69aIsyx7iV/03paPCjJh7Xq9vAzydN5U/UA==
+Organization: Canonical
+Message-ID: <1ba872e5-a6b2-f221-2a69-dca4c22a2a32@canonical.com>
+Date:   Thu, 19 Dec 2019 11:21:37 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOSEQ1quzmnB4700JdOob=DNgbF5ma2rt7O-ayZwWeWBjymcjw@mail.gmail.com>
+In-Reply-To: <20191219164831.GA1308552@horizon>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-GB
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Dec 17, 2019 at 08:02:58PM -0500, Wenhui Zhang wrote:
-> EVM protects while security attributes data in memory and disk.
-> structrand protects security attributes data in memory.
+On 12/19/19 8:48 AM, Simon McVittie wrote:
+> On Thu, 19 Dec 2019 at 10:00:31 -0500, Stephen Smalley wrote:
+>> Looks like userspace is generally forgiving of whether the terminating NUL
+>> byte is included or omitted by the kernel (with different behaviors for
+>> SELinux - always included, Smack - omitted by /proc/pid/attr/current but
+>> included in SO_PEERSEC, and AppArmor - omitted for /proc/pid/attr/current
+>> but includes a terminating \n, omitted for SO_PEERSEC but no terminating
+>> \n), and procps-ng explicitly tests for printable characters (but truncates
+>> on the first unprintable character).
 > 
-> It seem like EVM introduces higher overhead than trampoline based
-> structrand in general.
+> Because LSM people have told me in the past that the '\0' is not
+> conceptually part of the label, the D-Bus specification and reference
+> implementation already assume that its presence or absence is irrelevant,
+> and normalize to a canonical form (which happens to be that it appends a
+> '\0' if missing, to be nice to C-like languages, but I could equally
+> have chosen to strip the '\0' and rely on an out-of-band length count).
 > 
-> So, if we know our disks are reliable,  does it make sense if we add some
-> ifdef options for disabling EVM please?
+> By design, SO_PEERCONTEXT and /proc/pid/attr/context don't (can't!)
+> preserve whether the label originally ended with '\0' or not (because
+> they are designed to use '\0' as a terminator for each label), so these
+> new kernel interfaces are already a bit closer than the old kernel
+> interfaces to how D-Bus represents this information.
 > 
-> However this really depends on which one is faster,  the trampoline
-> function or the encryption hash function.
+> The problematic case is AppArmor's terminating '\n' on
+> /proc/pid/attr/current, because when I asked in the past, I was told
+> that it would be (unwise but) valid to have a LSM where "foo" and "foo\n"
+> are distinct labels.
+> 
+that is true if any value except \0 is allowed, which is/was the case. I am
+not opposed to the LSM defining it otherwise.
 
-There is no trampoline. It's just a per-compile re-ordering of the
-structures. It makes attack that depend on knowing structure layouts
-less reliable. EVM does not check these at memory access times, so they
-are complimentary.
+I would also love to ditch the trailing \n from /proc/pid/attr/current,
+we tried that before and ran into problems with something in userspace.
+I can look into it again.
 
--Kees
 
+> If that hypothetical LSM would make procps-ng lose information (because
+> procps-ng truncates at the first unprintable character), does that change
+> the situation any? Would that make it acceptable for other LSM-agnostic
+> user-space components, like the reference implementation of D-Bus, to
+> assume that stripping a trailing newline from /proc/pid/attr/context
+> or from one of the component strings of /proc/pid/attr/current is a
+> non-lossy operation?
 > 
+>>>>    If this new API is an opportunity to declare that LSMs are expected
+>>>>    to put the same canonical form of a label in
+>>>> /proc/$pid/attr/context and
+>>>>    SO_PEERCONTEXT, possibly with a non-canonical version (adding '\n' or
+>>>>    '\0' or similar) exposed in the older /proc/$pid/attr/current and
+>>>>    SO_PEERSEC interfaces for backwards compatibility, then that
+>>>> would make
+>>>>    life a lot easier for user-space developers like me.
+>>>
+>>> I'm all for this but the current implementation reuses the same
+>>> underlying hooks as SO_PEERSEC, so it gets the same result for the
+>>> per-lsm values.  We'd need a separate hook if we cannot alter the
+>>> current AppArmor SO_PEERSEC format.
 > 
-> On Tue, Dec 17, 2019 at 7:47 PM Kees Cook <keescook@chromium.org> wrote:
+> If AppArmor was going to change the format of one of its interfaces
+> (or deviate from it when implementing new interfaces), I'd actually
+> prefer it to be /proc/pid/attr/current that changed or was superseded,
+> because /proc/pid/attr/current is the one that contains a newline that
+> consumers are meant to ignore.
 > 
-> > On Tue, Dec 17, 2019 at 07:21:49PM -0500, Wenhui Zhang wrote:
-> > > In my understanding, evm is called whenever a security related attribute
-> > is
-> > > committed to VFS.
-> > > It is set as enabled  by default.
-> > > (ref.
-> > >
-> > https://github.com/torvalds/linux/blob/8b68150883ca466a23e90902dd4113b22e692f04/security/integrity/evm/evm_main.c
-> > > )
-> >
-> > Okay, so yes, complimentary. randstruct means attackers need use bugs to
-> > expose enough memory from the kernel to determine the order of structure
-> > members before they can manipulate them with a kernel bug.
-> >
-> > -Kees
-> >
-> > >
-> > > On Tue, Dec 17, 2019 at 7:16 PM Kees Cook <keescook@chromium.org> wrote:
-> > >
-> > > > On Tue, Dec 17, 2019 at 07:12:28PM -0500, Wenhui Zhang wrote:
-> > > > > Hi, Sorry for bothering you again.
-> > > > >
-> > > > > However I came into some *evm code* in LSM, which calculates HMAC for
-> > > > data
-> > > > > structures.
-> > > > > It looks like HMAC could protect integrity of LSM data structures.
-> > > > >
-> > > > > IMHO, __randomize_layout and evm might duplicate the work, any
-> > > > instructions
-> > > > > on this please?
-> > > >
-> > > > When does the EVM code perform the checking? I would assume these are
-> > > > complimentary features rather than duplicate.
-> > > >
-> > > > -Kees
-> > > >
-> > > > >
-> > > > >
-> > > > > On Tue, Dec 17, 2019 at 6:50 PM Kees Cook <keescook@chromium.org>
-> > wrote:
-> > > > >
-> > > > > > On Fri, Dec 13, 2019 at 03:28:38PM -0500, Stephen Smalley wrote:
-> > > > > > > Randomize the layout of key selinux data structures.
-> > > > > > > Initially this is applied to the selinux_state, selinux_ss,
-> > > > > > > policydb, and task_security_struct data structures.
-> > > > > > >
-> > > > > > > NB To test/use this mechanism, one must install the
-> > > > > > > necessary build-time dependencies, e.g. gcc-plugin-devel on
-> > Fedora,
-> > > > > > > and enable CONFIG_GCC_PLUGIN_RANDSTRUCT in the kernel
-> > configuration.
-> > > > > > >
-> > > > > > > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> > > > > >
-> > > > > > Reviewed-by: Kees Cook <keescook@chromium.org>
-> > > > > >
-> > > > > > -Kees
-> > > > > >
-> > > > > > > ---
-> > > > > > > I would have expected that two kernels built with the same config
-> > > > > > > with this enabled would have yielded different struct layouts in
-> > > > > > > pahole vmlinux output, but that doesn't appear to be the case.
-> > They
-> > > > > > > do have different seeds.  Am I doing something wrong?
-> > > > > > > Also, does DEBUG_INFO_BTF effectively undermine/negate the
-> > benefits
-> > > > of
-> > > > > > this
-> > > > > > > change if enabled?
-> > > > > > >
-> > > > > > >  security/selinux/include/objsec.h   | 2 +-
-> > > > > > >  security/selinux/include/security.h | 2 +-
-> > > > > > >  security/selinux/ss/policydb.h      | 2 +-
-> > > > > > >  security/selinux/ss/services.h      | 2 +-
-> > > > > > >  4 files changed, 4 insertions(+), 4 deletions(-)
-> > > > > > >
-> > > > > > > diff --git a/security/selinux/include/objsec.h
-> > > > > > b/security/selinux/include/objsec.h
-> > > > > > > index a4a86cbcfb0a..330b7b6d44e0 100644
-> > > > > > > --- a/security/selinux/include/objsec.h
-> > > > > > > +++ b/security/selinux/include/objsec.h
-> > > > > > > @@ -35,7 +35,7 @@ struct task_security_struct {
-> > > > > > >       u32 create_sid;         /* fscreate SID */
-> > > > > > >       u32 keycreate_sid;      /* keycreate SID */
-> > > > > > >       u32 sockcreate_sid;     /* fscreate SID */
-> > > > > > > -};
-> > > > > > > +} __randomize_layout;
-> > > > > > >
-> > > > > > >  enum label_initialized {
-> > > > > > >       LABEL_INVALID,          /* invalid or not initialized */
-> > > > > > > diff --git a/security/selinux/include/security.h
-> > > > > > b/security/selinux/include/security.h
-> > > > > > > index 49737087ad33..3ea406ad91b6 100644
-> > > > > > > --- a/security/selinux/include/security.h
-> > > > > > > +++ b/security/selinux/include/security.h
-> > > > > > > @@ -110,7 +110,7 @@ struct selinux_state {
-> > > > > > >       bool policycap[__POLICYDB_CAPABILITY_MAX];
-> > > > > > >       struct selinux_avc *avc;
-> > > > > > >       struct selinux_ss *ss;
-> > > > > > > -};
-> > > > > > > +} __randomize_layout;
-> > > > > > >
-> > > > > > >  void selinux_ss_init(struct selinux_ss **ss);
-> > > > > > >  void selinux_avc_init(struct selinux_avc **avc);
-> > > > > > > diff --git a/security/selinux/ss/policydb.h
-> > > > > > b/security/selinux/ss/policydb.h
-> > > > > > > index bc56b14e2216..98afe52a3d19 100644
-> > > > > > > --- a/security/selinux/ss/policydb.h
-> > > > > > > +++ b/security/selinux/ss/policydb.h
-> > > > > > > @@ -307,7 +307,7 @@ struct policydb {
-> > > > > > >
-> > > > > > >       u16 process_class;
-> > > > > > >       u32 process_trans_perms;
-> > > > > > > -};
-> > > > > > > +} __randomize_layout;;
-> > > > > > >
-> > > > > > >  extern void policydb_destroy(struct policydb *p);
-> > > > > > >  extern int policydb_load_isids(struct policydb *p, struct sidtab
-> > > > *s);
-> > > > > > > diff --git a/security/selinux/ss/services.h
-> > > > > > b/security/selinux/ss/services.h
-> > > > > > > index fc40640a9725..c5896f39e8f6 100644
-> > > > > > > --- a/security/selinux/ss/services.h
-> > > > > > > +++ b/security/selinux/ss/services.h
-> > > > > > > @@ -31,7 +31,7 @@ struct selinux_ss {
-> > > > > > >       struct selinux_map map;
-> > > > > > >       struct page *status_page;
-> > > > > > >       struct mutex status_lock;
-> > > > > > > -};
-> > > > > > > +} __randomize_layout;
-> > > > > > >
-> > > > > > >  void services_compute_xperms_drivers(struct extended_perms
-> > *xperms,
-> > > > > > >                               struct avtab_node *node);
-> > > > > > > --
-> > > > > > > 2.23.0
-> > > > > > >
-> > > > > >
-> > > > > > --
-> > > > > > Kees Cook
-> > > > > >
-> > > > >
-> > > > >
-> > > > > --
-> > > > > V/R,
-> > > > >
-> > > > > Wenhui Zhang
-> > > > >
-> > > > > Email: wenhui@gwmail.gwu.edu
-> > > > >            Telephone: 1-(703) 424 3193
-> > > >
-> > > > --
-> > > > Kees Cook
-> > > >
-> > >
-> > >
-> > > --
-> > > V/R,
-> > >
-> > > Wenhui Zhang
-> > >
-> > > Email: wenhui@gwmail.gwu.edu
-> > >            Telephone: 1-(703) 424 3193
-> >
-> > --
-> > Kees Cook
-> >
-> 
-> 
-> -- 
-> V/R,
-> 
-> Wenhui Zhang
-> 
-> Email: wenhui@gwmail.gwu.edu
->            Telephone: 1-(703) 424 3193
+Right, I am not opposed to a new interface. Ditching the trailing \n
+would be even better if we can get rid of it
 
--- 
-Kees Cook
+> For what it's worth, libapparmor explicitly removes the newline, so this
+> only matters to LSM-agnostic readers like D-Bus implementations, and to
+> lower-level AppArmor-aware readers that use the kernel interfaces directly
+> in preference to using libapparmor.
+> 
+
+yeah
+
+>     smcv
+> 
+
