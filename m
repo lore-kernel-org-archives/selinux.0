@@ -4,153 +4,137 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ED4EC43603
-	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 02:09:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1EC2C43603
+	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 02:20:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6F00A21D7D
-	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 02:09:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B33C1222C2
+	for <selinux@archiver.kernel.org>; Thu, 19 Dec 2019 02:20:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xykzybc2"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="UTc/Bgw0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbfLSCJM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Dec 2019 21:09:12 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:39984 "EHLO
+        id S1726747AbfLSCUY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Dec 2019 21:20:24 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:37412 "EHLO
         mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726463AbfLSCJM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Dec 2019 21:09:12 -0500
-Received: by mail-lj1-f193.google.com with SMTP id u1so4373301ljk.7
-        for <selinux@vger.kernel.org>; Wed, 18 Dec 2019 18:09:10 -0800 (PST)
+        with ESMTP id S1726725AbfLSCUY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Dec 2019 21:20:24 -0500
+Received: by mail-lj1-f193.google.com with SMTP id u17so4406216lja.4
+        for <selinux@vger.kernel.org>; Wed, 18 Dec 2019 18:20:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=JpoNjwUwuLASUbxB30Xnoe1xrW5RYg+Kmb4VBQ4nnHM=;
-        b=xykzybc2KlstAxIejnd9nWZiPyd00YNKX9cqCVmAcp7bkQqIxYp+iLtl394UwN34U9
-         y1cGsrNT1kJhoe7Wc0JfZ/0Lw3G9g3RvdVMH4TSLLzGqg0rE37KtXPdfYGuvkj/4cCa8
-         +Zx2P1nE0nASMh7jBDU1rk/xEhw8OGuFSqx1KLxZdKTHo/lYapcfMJ73ZBiU0wtjSijL
-         vdjYOxB+96dltbb9uGHy9S80dnFWrkQ30Suf3dK/si2r9mTXXGg60fa8sGaSJk0+Y8KC
-         k1clk1S5QGrJuNtHUw9IiVUpI+EyWdj+wv8KlCnsoTMwWAEBHJ9eX2tA8Q+gYHZojzZb
-         c2Dg==
+        bh=W4MZuRDe1qNtyJglhw8ziER4PihOIF2oLpjUaybe0ME=;
+        b=UTc/Bgw0DYdAU6zTuz9BoNuzLudLFwrrMAlnHWON4W/ATxpVAeAbzcIZ3AGfSOh8+a
+         i9JxIGULKX3/AER8TZJWP/OGN9Un/aCfYO0CAn0XcXVtwqqEstONFeRwKdwoVKPrxB5p
+         yab1ExlmLWjgnyWe7nnTRDL7tJ6DKxnI+0qye0UWFTUdXVIVderUpo18dvpxHGJiZU2D
+         cy0gDzJ5OGOrKhAf0sb0sH++QV0XlL3sc/ZYOdnQUCrPyOmJa4/iswnY5iFEHKRzbWpq
+         m4QJrqCCF7LYPyHaD1ivMepZ92bI12xPFIETJdvSqJmBgNdyJ1t1xOeRjP3gQXo5RtPp
+         m9OA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=JpoNjwUwuLASUbxB30Xnoe1xrW5RYg+Kmb4VBQ4nnHM=;
-        b=C6uh33s+ori+3JZtE0tdGJlw5vlvgbys00QxptjDHoj7VHF7/VyHQ7UkqrfVjKYNCv
-         OTGAnWgg+SZ6bmaE359RIvGIqCfV+XowXzkVdIME7V/7guWTaoy2sfjshTxUHY4IRKHF
-         cDaeOb7qiA442oRAzkmuUlUmwvPjR+KYOhfdEPaKSlsG5sufUIS7BCqHLH7YOeV1SUzP
-         HA3Yr8soj1+mnG4xg3Tw//YWhdCQs6o9qOcNlxS7twA8g3sREyzVrhKmqFyokbeUFc02
-         y/rimdTIBqWzXMr/tipTS0q7kL2DpNQqznGleb72TNyMuVM/eV2gt9/rt++N2SFzr1Tu
-         y+Bg==
-X-Gm-Message-State: APjAAAWt/SgGiHBaikGRMLT4EI1kEJeUPsVP+E4yOxPRKaNyfhLa97yo
-        vdwsJX5tOlBKhp8qTxQgvZcxGGZEaT7TrXf+CunpXwqNmw==
-X-Google-Smtp-Source: APXvYqzUtwkqM8xWCeGeWUZv4bMEzcNYYJNjxv19Xjz4UxV7NGTM/2bNvmOadt/7GviAkbIraMH66V8J9sHRIciSSAI=
-X-Received: by 2002:a2e:800b:: with SMTP id j11mr3756002ljg.126.1576721350007;
- Wed, 18 Dec 2019 18:09:10 -0800 (PST)
+        bh=W4MZuRDe1qNtyJglhw8ziER4PihOIF2oLpjUaybe0ME=;
+        b=nVfBK+tcSYY80Oe1SAhaZzOkij4zE66JZzbdHeNyM1L0OcXE+Wq7YnXFCgsgnl7xB8
+         LUnxI28kG50j7ZU9gkf3PwUB00PN9Bft4H20sktp23WOkXipam2pIpOJg+rCai09Or0b
+         mQkPxKwvDKK2eEiMlA2DOM9ZV8rM7pT6dG7kaXqZnn3My3TI2LhJuCCZqrdFworFvJlG
+         QHjnSQkFUEhC5pu5eEcxWAcKxrSGZ/6dCerNtfQbyVC+8NM2AygAPWdwQPNWEGjPU4IS
+         k3AKITXzxztoxu6TCW1e9uK1rSb6F/Hd8wWYwZN6nPUOh4bzhfed7Qol/VXrsBkYGFGS
+         tRTw==
+X-Gm-Message-State: APjAAAWk1wPYysQC52shIhkxbueGqJTmukinyme2QfSfJhf75u/CjhA0
+        GxO05M+wbeGg3HZ1FsZy6XAVVUBXwII21npDioIk
+X-Google-Smtp-Source: APXvYqz+PnlZnt71AqHNciSSq0K5R9A2IQ5BCu//LHgAlHbl9iBbzqAwBVIlr/mjAWeIQxhT/LqDQ9n99WesdVtdYOk=
+X-Received: by 2002:a2e:7e11:: with SMTP id z17mr4135699ljc.117.1576722021919;
+ Wed, 18 Dec 2019 18:20:21 -0800 (PST)
 MIME-Version: 1.0
-References: <002301d5b568$8149c7a0$83dd56e0$@codeaurora.org>
-In-Reply-To: <002301d5b568$8149c7a0$83dd56e0$@codeaurora.org>
+References: <0101016eeb5fdf43-18f58c0b-8670-43eb-ad08-60dae381f0fd-000000@us-west-2.amazonses.com>
+ <4335f89f-d2cb-7f45-d370-6ee0699d3c20@tycho.nsa.gov> <0101016eebed2b2e-db98eae1-b92b-450b-934e-c8e92c5370b3-000000@us-west-2.amazonses.com>
+ <7b047966-33c0-de62-b10f-047819890337@tycho.nsa.gov> <d6081414-613f-fdb8-8dcd-9ebf6a3baa27@tycho.nsa.gov>
+ <0101016ef59a2152-41e65aac-8784-4401-b20d-45b2852872d4-000000@us-west-2.amazonses.com>
+ <411fa1ea-d9b4-b89e-8cab-656db8eef259@tycho.nsa.gov> <001e01d5b4f0$495efbd0$dc1cf370$@codeaurora.org>
+ <21b5511a-fdba-3c2f-e9a6-efdc890b5881@tycho.nsa.gov>
+In-Reply-To: <21b5511a-fdba-3c2f-e9a6-efdc890b5881@tycho.nsa.gov>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 18 Dec 2019 21:08:58 -0500
-Message-ID: <CAHC9VhRqsGQfO-7EYctCmcjXbPznh=+xm7OJ_oN1RLGWaywGag@mail.gmail.com>
-Subject: Re: [PATCH] selinux: move ibpkeys code under CONFIG_SECURITY_INFINIBAND.
-To:     Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Wed, 18 Dec 2019 21:20:10 -0500
+Message-ID: <CAHC9VhQYA8uTRQ0OajEmsTrDytNVx+BSiL5vEsGefKEhAw+gKA@mail.gmail.com>
+Subject: Re: Looks like issue in handling active_nodes count in 4.19 kernel .
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Dec 18, 2019 at 1:01 AM Ravi Kumar Siddojigari
-<rsiddoji@codeaurora.org> wrote:
-> -----Original Message-----
-> From: selinux-owner@vger.kernel.org <selinux-owner@vger.kernel.org> On Behalf Of Ravi Kumar Siddojigari
-> Sent: Tuesday, December 17, 2019 8:42 PM
-> To: 'Paul Moore' <paul@paul-moore.com>
-> Cc: selinux@vger.kernel.org
-> Subject: RE: [PATCH] selinux: move pkey sid cache based retrieval under defconfig
+On Tue, Dec 17, 2019 at 10:51 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
 >
-> Yes Paul,  it should be under  CONFIG_SECURITY_INFINIBAND thanks for correcting this .
-> Hope  we can taken it fwd as all the targets with disabled  InfiniBand can be gained .
-> Please find the updated path for review .
+> On 12/17/19 10:40 AM, Ravi Kumar Siddojigari wrote:
+> > Yes  indeed this is a stress test on ARM64 device with multicore  where most of the cores /tasks are stuck  in avc_reclaim_node .
+> > We still see this issue even after picking the earlier patch " selinux: ensure we cleanup the internal AVC counters on error in avc_insert() commit: d8db60cb23e4"
+> > Where selinux_state  during issue was as below where all the slots are  NULL and the count was more than threshold.
+> > Which seem to be calling avc_reclaim_node always and as the all the slots are empty its going for full for- loop with locks and unlock and taking too long .
+> > Not sure what could make the  slots null , for sure its not due to flush() /Reset(). We think that still we need to call  avc_kill_node  in update_node function .
+> > Adding the patch below can you please review or correct the following patch .
+> >
+> >
+> >    selinux_state = (
+> >      disabled = FALSE,
+> >      enforcing = TRUE,
+> >      checkreqprot = FALSE,
+> >      initialized = TRUE,
+> >      policycap = (TRUE, TRUE, TRUE, FALSE, FALSE, TRUE),
+> >      avc = 0xFFFFFF9BEFF1E890 -> (
+> >        avc_cache_threshold = 512,  /* <<<<<not configured and its with default*/
+> >        avc_cache = (
+> >          slots = ((first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first = 0x0), (first   /*<<<< all are NULL */
+> >          slots_lock = ((rlock = (raw_lock = (val = (counter = 0), locked = 0, pending = 0, locked_pending = 0, tail = 0), magic = 3735899821, owner_cpu = 4294967295, owner = 0xFFFFFFFFFFFFFFFF, dep_map = (key = 0xFFFFFF9BEFF298A8, cla
+> >          lru_hint = (counter = 616831529),
+> >          active_nodes = (counter = 547),   /*<<<<< increased more than 512*/
+> >          latest_notif = 1)),
+> >      ss = 0xFFFFFF9BEFF2E578)
+> >
+> >
+> > --
+> > In AVC update we don't call avc_node_kill() when avc_xperms_populate()
+> > fails, resulting in the avc->avc_cache.active_nodes counter having a
+> > false value.In last patch this changes was missed , so correcting it.
+> >
+> > Change-Id: Ic0298162cc766c0f21be7ab232e259766654dad3
+> > Signed-off-by: Jaihind Yadav<jaihindyadav@codeaurora.org>
+> > ---
+> >   security/selinux/avc.c | 2 +-
+> >   1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> > index 91d24c2..3d1cff2 100644
+> > --- a/security/selinux/avc.c
+> > +++ b/security/selinux/avc.c
+> > @@ -913,7 +913,7 @@ static int avc_update_node(struct selinux_avc *avc,
+> >          if (orig->ae.xp_node) {
+> >                  rc = avc_xperms_populate(node, orig->ae.xp_node);
+> >                  if (rc) {
+> > -                       kmem_cache_free(avc_node_cachep, node);
+> > +                       avc_node_kill(avc, node);
+> >                          goto out_unlock;
+> >                  }
+> >          }
+> > --
 >
-> From 6a8c60eacd0b6e5189722bb1823864b6728c2e34 Mon Sep 17 00:00:00 2001
-> From: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-> Date: Wed, 11 Dec 2019 19:57:24 +0530
-> Subject: [PATCH] selinux: move ibpkeys code under CONFIG_SECURITY_INFINIBAND.
+> That looks correct to me; I guess that one got missed by the prior fix.
+> Still not sure how your AVC got into that state though...
 >
-> Move cache based  pkey sid  retrieval code which was added with  Commit 409dcf31. under CONFIG_SECURITY_INFINIBAND.
-> As its  going to alloc a new cache which may impact low ram devices which was enabled by default.
->
-> Change-Id: I80a13fb7bce8723c8c880cb77cbaee42db413a7a
-> Signed-off-by: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-> ---
->  security/selinux/Makefile         | 4 +++-
->  security/selinux/hooks.c          | 6 ++++++
->  security/selinux/include/objsec.h | 2 ++
->  3 files changed, 11 insertions(+), 1 deletion(-)
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-...
+This looks good to me too.  Ravi, can you submit this as a proper
+patch with From: set to Jaihing Yadav (assuming they are the author)
+and your sign-off?
 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c index b1a9ac9..157faaf 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -94,7 +94,11 @@
->  #include "netif.h"
->  #include "netnode.h"
->  #include "netport.h"
-> +
-> +#ifdef CONFIG_SECURITY_INFINIBAND
->  #include "ibpkey.h"
-> +#endif
+Thanks.
 
-See the comments below ...
-
-
->  #include "xfrm.h"
->  #include "netlabel.h"
->  #include "audit.h"
-> @@ -198,7 +202,9 @@ static int selinux_netcache_avc_callback(u32 event)  static int selinux_lsm_notifier_avc_callback(u32 event)  {
->         if (event == AVC_CALLBACK_RESET) {
-> +#ifdef CONFIG_SECURITY_INFINIBAND
->                 sel_ib_pkey_flush();
-> +#endif
->                 call_lsm_notifier(LSM_POLICY_CHANGE, NULL);
->         }
-
-In cases like the you see directly above, and in the #include further
-up, the kernel usually solves this by creating dummy function in the
-header file.  In this case, ibpkey.h would look something like this:
-
->>>
-/* header comments, blah blah blah */
-
-#ifndef _SELINUX_IB_PKEY_H
-#define _SELINUX_IB_PKEY_H
-
-#ifdef CONFIG_SECURITY_INFINIBAND
-void sel_ib_pkey_flush(void);
-int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid);
-#else
-static inline void sel_ib_pkey_flush(void)
-{
-  return;
-}
-static inline int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid)
-{
-  *sid = SECINITSID_UNLABELED;
-  return 0;
-}
-#endif
-
-#endif
->>>
-
-Does that make sense?
-
---
+-- 
 paul moore
 www.paul-moore.com
