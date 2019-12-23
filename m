@@ -1,96 +1,82 @@
-Return-Path: <SRS0=Y3F+=2L=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=nyjS=2N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72085C2D0D3
-	for <selinux@archiver.kernel.org>; Sat, 21 Dec 2019 16:02:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF9A3C2D0CF
+	for <selinux@archiver.kernel.org>; Mon, 23 Dec 2019 14:38:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4275D21927
-	for <selinux@archiver.kernel.org>; Sat, 21 Dec 2019 16:02:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C0E6420663
+	for <selinux@archiver.kernel.org>; Mon, 23 Dec 2019 14:38:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="mzjQaps5"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Uw7IDaRh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726319AbfLUQCu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 21 Dec 2019 11:02:50 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:40804 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726107AbfLUQCu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 21 Dec 2019 11:02:50 -0500
-Received: by mail-lf1-f68.google.com with SMTP id i23so9338707lfo.7
-        for <selinux@vger.kernel.org>; Sat, 21 Dec 2019 08:02:49 -0800 (PST)
+        id S1726763AbfLWOiI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 23 Dec 2019 09:38:08 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:42227 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726733AbfLWOiH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 23 Dec 2019 09:38:07 -0500
+Received: by mail-lj1-f194.google.com with SMTP id y4so3576060ljj.9
+        for <selinux@vger.kernel.org>; Mon, 23 Dec 2019 06:38:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=gHdcMDpf8IolRPfeOn2sGCNg2EQjHxCfsmV0ayw9qok=;
-        b=mzjQaps5cDiq5MiKd2IrArQZeG/Y5b2CjMMAAKLEH7LubGPtWD0u4L65VsNrdUFvwp
-         YMAwignOR8pwDs25BfGffFSKQhqgZMhD/oxsA8VVtHsL6wvciDd5TumAMbM1CTGpg+9d
-         GNZaSOIsUeGpyfb5RFIj143BLTnrkJnlzbyA7MO1KZBHvpAdinkmsC7mDThjPX7ehp9O
-         qScqrTVH+uWhfJIvSpoaSwMPvpDm7zifRkmFBwzXQJ5IscTe6s5RPrMocJWiyL5nr2Yj
-         LnwfcHNvrtKJ/WMCD9+VSLiluMci/QPqbQpww5tA/MIHzyYxxR0o0WF/VjJ9+NbmAD6T
-         vq9g==
+        bh=Ny04lhAVNIULrfBpZhO5VcAHqzBDDJ5pBM6lI84KV5I=;
+        b=Uw7IDaRh+nOcy8K9buBuxba9lOBogk/ws5fb3LJBttaDslNFXVLKQKRaY31iAiZu0h
+         cErijldB8ypl+n3xrCR31wOmFYFl5MlxZucRoLaqhjXtbWsEYVRoMwFeK7WVQ2dzcs8a
+         20ixjkfh6Wpf+PyCbVJVSyOMs40rMxDFW6GTLaeZ+f5i/dHMZF7vGmhc5aprOtSWtz0Q
+         G15eyMIj20zxMirmEFCwmIhmNOtw1O9SdULHdW4h1DNwYbyQzIh0ncDvvPDv0jKVV2v8
+         PbCCtO7BXM+cjETAlKEcT4xkWfOPrW9CXFdnIC4U80Apv6A36F3dVPWkMhiOQg0r26HS
+         C2/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=gHdcMDpf8IolRPfeOn2sGCNg2EQjHxCfsmV0ayw9qok=;
-        b=k6LH2glf9otQr9SQXwv03xqYkFo1RuuvXyHHDS/IfTBChtv+OpAasPkn80KhZQFXCS
-         0iNXitPPFmc4qQh/KpaN5cYDW4L7+8x1IxrbN/gOPsiVYrBp56EfV5a6igH6Ye2lanwf
-         G0ENH2bhOiQOTJYSHVixsxkX4/uV+ZGFp39WFJkujHh5DnKVhqMTi1UcUXZ1Nu+XjeeC
-         MUkiY4CS80iw519rzpxEzRJAyuc7CEKxqskraaGYaIOAglpcMC1hfKtObl9DSIhZzf+U
-         8KvFdF34t+VGhi2cmd26xLHloTfURA4s86+7OkpFypOT0z8oF4n+X75BNQUP971lt196
-         tRsQ==
-X-Gm-Message-State: APjAAAUEtTCclCYtyyRWy4qt/zkpGqhI9SPPkRp/oMSrHjtaAp03JTiO
-        F+VhTttwEiAdf0+gvpOiCpyFANx2mfTlmIb/7B6q
-X-Google-Smtp-Source: APXvYqyLHkXQKL1J3OTxU/bdu+Dcp2xdETA1TIZPPVamsSrtI6ATBOw181IvkYtNU2YBVCydfZgA8n8t22WATazkpxU=
-X-Received: by 2002:a19:4a12:: with SMTP id x18mr12207385lfa.158.1576944168281;
- Sat, 21 Dec 2019 08:02:48 -0800 (PST)
+        bh=Ny04lhAVNIULrfBpZhO5VcAHqzBDDJ5pBM6lI84KV5I=;
+        b=Evjmjv8fWz+og3b9m34d3wzt8lel8H+l1HixSyKrKPfmC9l2v6UEoS7q+ZgH+rQqgO
+         SZkIsSrIzDV8Esc4JViq8Zk7dNr85n3nzGdn1Q9ZLyLeTwAoSf5rCZWJniQTqLaUATje
+         M9b+YfqmEaifvPfEpAKYvk5o2df8Gh1wfRYjUvSxxMOIfC0p4CxxEPUUPukfzAEPcpzX
+         xVk8E3i8SvDxUeM3kxK/EwCBDUgw0KMth3PzmHuy/8EwfGRww5bFgevrJEEWNZ+aLhoI
+         5Mr8wJEkCANPUNwELE2cXCQGoCTNHBDNctE8OgK1zWa1ur4AVV+/H5RYiuCgdU3atCgY
+         e8sg==
+X-Gm-Message-State: APjAAAWsaFxevBezZf+XuvAYMyLiqBJngHvE2alurg/NSZbyMZTWb/W0
+        QWD3h75FExjkyrKZNDaQjClPHnJQ2vyZ+Y37IYpY
+X-Google-Smtp-Source: APXvYqyFlRwV4FD8ips+n7kQ7dPz3Uevw54PJr2E4X4dV9/id4+HDR5MJFciz6tXbFmHHaqu33YEYNWX9fliLPqk15k=
+X-Received: by 2002:a2e:8188:: with SMTP id e8mr11474700ljg.57.1577111884984;
+ Mon, 23 Dec 2019 06:38:04 -0800 (PST)
 MIME-Version: 1.0
-References: <CAHC9VhSv9BsjqNtwdpAv1yj630L-k8UBcWA5bwC9ySevrPw34w@mail.gmail.com>
- <1576843382-24184-1-git-send-email-rsiddoji@codeaurora.org>
-In-Reply-To: <1576843382-24184-1-git-send-email-rsiddoji@codeaurora.org>
+References: <20191223091512.GL2760@shao2-debian>
+In-Reply-To: <20191223091512.GL2760@shao2-debian>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Sat, 21 Dec 2019 11:02:37 -0500
-Message-ID: <CAHC9VhTRnuWd=-ED=rr_OqVGV5b-VGQ4rHXMAfuOdJFDRCwG4Q@mail.gmail.com>
-Subject: Re: Looks like issue in handling active_nodes count in 4.19 kernel
-To:     Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Jaihind Yadav <jaihindyadav@codeaurora.org>
+Date:   Mon, 23 Dec 2019 09:37:53 -0500
+Message-ID: <CAHC9VhQfCmWbd7Yt0Jcz-QpSqXidri5PNgb_514+sfah5w3K6g@mail.gmail.com>
+Subject: Re: [selinux] 66f8e2f03c: RIP:sidtab_hash_stats
+To:     Jeff Vander Stoep <jeffv@google.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Jovana Knezevic <jovanak@google.com>,
+        LKML <linux-kernel@vger.kernel.org>, selinux@vger.kernel.org,
+        lkp@lists.01.org, kernel test robot <lkp@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Dec 20, 2019 at 7:03 AM Ravi Kumar Siddojigari
-<rsiddoji@codeaurora.org> wrote:
-> Thanks for correcting , Adding the signoff of orginal author in the
-> following commit .
+On Mon, Dec 23, 2019 at 4:15 AM kernel test robot <lkp@intel.com> wrote:
+> FYI, we noticed the following commit (built with gcc-7):
 >
-> From 6308b405e2097ab9d82c5a3894815daf7331e0b6 Mon Sep 17 00:00:00 2001
-> From: Jaihind Yadav <jaihindyadav@codeaurora.org>
-> Date: Tue, 17 Dec 2019 17:25:47 +0530
-> Subject: [PATCH] selinux: ensure we cleanup the internal AVC counters on error
->  in avc_update()
-> To: rsiddoji@codeaurora.org
+> commit: 66f8e2f03c02e812002f8e9e465681cc62edda5b ("selinux: sidtab reverse lookup hash table")
+> https://git.kernel.org/cgit/linux/kernel/git/pcmoore/selinux.git next
 >
-> In AVC update we don't call avc_node_kill() when avc_xperms_populate()
-> fails, resulting in the avc->avc_cache.active_nodes counter having a
-> false value.In last patch this changes was missed , so correcting it.
->
->
-> Signed-off-by: Jaihind Yadav <jaihindyadav@codeaurora.org>
-> Signed-off-by: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-> ---
->  security/selinux/avc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> ...
 
-Merged into selinux/next, thanks!
+Jeff, please look into this.  I suspect we may need to check
+state->initialized in security_sidtab_hash_stats(...) (or similar).
 
 -- 
 paul moore
