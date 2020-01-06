@@ -2,173 +2,134 @@ Return-Path: <SRS0=/M55=23=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-14.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C40F5C33C8C
-	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 21:25:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CE91C33C8C
+	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 22:26:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8E53420731
-	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 21:25:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4BE1D2072A
+	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 22:26:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="mej2kPeP"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KT3zTq13"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726977AbgAFVZz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Jan 2020 16:25:55 -0500
-Received: from UCOL19PA35.eemsg.mail.mil ([214.24.24.195]:9937 "EHLO
-        UCOL19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726969AbgAFVZy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jan 2020 16:25:54 -0500
-X-EEMSG-check-017: 63304281|UCOL19PA35_ESA_OUT02.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.69,403,1571702400"; 
-   d="scan'208";a="63304281"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UCOL19PA35.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Jan 2020 21:25:52 +0000
+        id S1726739AbgAFW0g (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Jan 2020 17:26:36 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:33295 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726731AbgAFW0f (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jan 2020 17:26:35 -0500
+Received: by mail-ot1-f65.google.com with SMTP id b18so51820616otp.0
+        for <selinux@vger.kernel.org>; Mon, 06 Jan 2020 14:26:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1578345952; x=1609881952;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=DvKwP+zm9yWcM/KI0EUJvVJldh/ba0CFm6Nx9gWe4uM=;
-  b=mej2kPePXTLRqyaMlVE4vLV4xeqFZ/SCTAl+MFJkM3iSq4SZiKGPko8F
-   7hBxtXP03AhDvxjCNF2AHJTmcoeBD0h3RyfDRGs6yf9oD4XkvTktoWpvk
-   06UeLGrRNZSxmwswBYd+e/EtODRnhJmFrfKk3uaSde6VtqHkWURINcSPX
-   oc1UZp3eq/cQo5Lz/aeZG6zzICFKuzMMaYF6MubaW3UUvceYKn/l5nAZr
-   0cP2EiphsZ/k4Qahi8OgO/SLsIK3fAIznmAuG0hFIm1gMM1DgRQZN+GxM
-   8qh/16r7LPjcBkxpzxrw0tjXEc/CA8zXp+noa/lV83sXrDMrhcOxRJTJ0
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.69,403,1571702400"; 
-   d="scan'208";a="37406374"
-IronPort-PHdr: =?us-ascii?q?9a23=3AxkKjwhdruxGl6lhTa6hIF0mmlGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxcWzZx7h7PlgxGXEQZ/co6odzbaP6Oa6BDRLuMrR+Fk5M7V0Hy?=
- =?us-ascii?q?cfjssXmwFySOWkMmbcaMDQUiohAc5ZX0Vk9XzoeWJcGcL5ekGA6ibqtW1aFR?=
- =?us-ascii?q?rwLxd6KfroEYDOkcu3y/qy+5rOaAlUmTaxe7x/IAi4oAnLqMUbgZduJqksxh?=
- =?us-ascii?q?bGoXZDZvhby35vKV+PhRj3+92+/IRk8yReuvIh89BPXKDndKkmTrJWESorPX?=
- =?us-ascii?q?kt6MLkqRfMQw2P5mABUmoNiRpHHxLF7BDhUZjvtCbxq/dw1zObPc3ySrA0RC?=
- =?us-ascii?q?ii4qJ2QxLmlCsLKzg0+3zMh8dukKxUvg6upx1nw47Vfo6VMuZ+frjAdt8eXG?=
- =?us-ascii?q?ZNQ9pdWzBEDo66YYQPFe4BNvtGoYf7qVUFsB+yCRCiCe7rzzNFgGL9068n3O?=
- =?us-ascii?q?Q7CQzIwRIuH9wOvnrXotv6OqgdXuKpw6fH1jjDc/Fb1C3h5ITUfB0so/eBVq?=
- =?us-ascii?q?9wf8rLzkkvEhvIgEiMqYP7JzOV1voCs26G5OR9UOKgkWonqwVvrTmv28whjZ?=
- =?us-ascii?q?LJiZ8Oyl3f6SV4wJo6Jd2/SEJhZ96kC4FfuzuVN4txXMMvWmdlszs5xL0eoZ?=
- =?us-ascii?q?O3YScHxZs9yxPfdvCLaZaE7x39WOqLPDt1gm9udqiliBao60egz/XxVsyz0F?=
- =?us-ascii?q?lXsCVIisLMtnUR1xzL7ciHV+d98l+h2TmR0wDT7flJIVwumqrBKp4h36Uwmo?=
- =?us-ascii?q?ASsUTFEC/2n172g7GKeUk+5uip6/joYrXhppOGMY97lhr+Pbg0lsy6AOQ4Nh?=
- =?us-ascii?q?ACX2md+euiyL3u5VD1TbpFg/EskqTVrYrWKdoUq6KnGQNZz54v6xOlADen1N?=
- =?us-ascii?q?QYk2MHLFVAeB+flIjmJkrOLevkDfa/n1uskDBry+rAPr36GJrBNHfDkLD/fb?=
- =?us-ascii?q?pl8U5T1BIzzcxD55JTErwBOOj8WlL1tNHDFh82KRG0w+L+BNV40YMeXniPDb?=
- =?us-ascii?q?GDPKzOtl+I4/olI/OQa48NpDb9N/8l6ub1jXAnnV8dfK+p3YYYaX2jAPRmLF?=
- =?us-ascii?q?uWYWD2jtcCD2gKpAw+Q/LuiFGYVj5TfXmyVbom5j4nEIKmEZvDRoe1jbyF3S?=
- =?us-ascii?q?e7GIBWZ29fBlCXD3jna5iEW+0NaCKOIs5tizkEVb+8RI880RGhqhT3y6RoLu?=
- =?us-ascii?q?XK4C0Ur5Hj28Zv5+3Vix4y8SZ4D8OH02GCHClImTYwTiIylIV4plZwggOb2L?=
- =?us-ascii?q?V8q+RRCNgW4vROSAp8PpnZmagyEN32WwTcbv+XR1u8BNarGzc8SpQ22dBdTV?=
- =?us-ascii?q?x6HoCZkh3b3yesS4QQnriPCY18prnQxFDtNs19zDDAz6BngF44FJgcfVa6j7?=
- =?us-ascii?q?JyolCAT7XClF+UwuPzLvUR?=
-X-IPAS-Result: =?us-ascii?q?A2DaAgAVpRNe/wHyM5BcChwBAQEBAQcBAREBBAQBAYF8g?=
- =?us-ascii?q?X2BbAEgEiqECYkDhmUBAQQGgTeBAYhtj2GBZwkBAQEBAQEBAQE3AQGEQAKCD?=
- =?us-ascii?q?TgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYJ6AQUjFUEQCxgCAiYCAlcGAQwGA?=
- =?us-ascii?q?gEBgl8/glMlrWWBMoVPgyiBPYEOKIwzeYEHgREnD4IoNT6EHhODKIJeBI0li?=
- =?us-ascii?q?RBhRpc9gkCCRY5UhHsGG4JGMIdNkBiOU5xqIoFYKwgCGAghD4MnUBgNm3YjA?=
- =?us-ascii?q?zCOZwEB?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Jan 2020 21:25:51 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 006LPGfw119434;
-        Mon, 6 Jan 2020 16:25:16 -0500
-Subject: Re: [RFC PATCH] selinux: deprecate disabling SELinux and runtime
-To:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
-Cc:     linux-security-module@vger.kernel.org
-References: <157678334821.158235.2125894638773393579.stgit@chester>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a5794ae2-d1e3-4ad3-6a16-2d479f33da16@tycho.nsa.gov>
-Date:   Mon, 6 Jan 2020 16:26:24 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mxfnlzR8Z4ts/JAYctHXiWfBXAVi4Rg1+RqTkuxcXH0=;
+        b=KT3zTq13pwos3lUHyrco2lsAUWV1EAmrdS4rtw5xveHovt/+6pDL09kW9Ah4vhaDtm
+         WaQoZdUA+TVRoB+VboEKRwhnRBaQMTgHSyDlkebw8+92WLTfEQY0TeE6KMtVMNma75FZ
+         /0Su8D2L8COpd1ADE6dvVNrFzuyR+9tbIewVaht1E2oyZHlbk2jXZzU8FU9owkSMLs/7
+         wyftUApIEdV5rYxtUByhbx1ASniTjeUDluhBGktPAD7sXfuMCezwUvt3XnWmK3YZofCV
+         rTXKaN4t9D2CHuh6wPGSvza01dPbi8pWHrrcPR93JbwiFAihEESqZrIMuZBbAYLTJjvj
+         eyfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mxfnlzR8Z4ts/JAYctHXiWfBXAVi4Rg1+RqTkuxcXH0=;
+        b=T1sCyVe1nRV7hJXwLINTyuGzrHa3vt6LVrZWV+AeGCF5OdBOKEwJc/Z31OTRuTKyVw
+         XpXMcGkupN7+XvUsLW6Hcy4wDeTl8waIEWqp/Kh+RmKkju2fWwfJex3ZHlXUOtwc7Ie/
+         G3nZ3DNsL7xbQQ7K54NCzJfpF/Eu+fGIUIw/UYK/DhZViUoDvE0eCwridrVBjOvd9S3+
+         wBrGs8j64gJ/y+f8giojUkHiVeuNlX6IYEltjnRlgHitjtjD7HBjpm9Le9JsDh527YDs
+         uMgI548GVtiidzr+drjGaPTaDCpUwPLfu1PvHGsReQgaqmi+57+3xuz8YANtSZbVmvwz
+         xyOQ==
+X-Gm-Message-State: APjAAAUHvdJQzqirJBRw+EXo4PYiZwVOBgZdJb7JSPOalPl4iViYS1Hb
+        Udyt47riAR68kAByeMxmTOHWcJRTt6lWaRPATKAPl59L
+X-Google-Smtp-Source: APXvYqwL3jAWdvMDMj4aRBZmqvQUERlVV6jXvZVasskn9QFt2yWJfcehfWgI+srl/dO2csohUYzK2dK4JXfZgXIo96Q=
+X-Received: by 2002:a9d:644a:: with SMTP id m10mr14535027otl.97.1578349594831;
+ Mon, 06 Jan 2020 14:26:34 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <157678334821.158235.2125894638773393579.stgit@chester>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200106181329.167322-1-hridya@google.com> <d78e4db4-5847-082c-189a-f13d7d6a6c7a@tycho.nsa.gov>
+ <CA+wgaPMHWOVYo_pVeYuvj6CrQOgy9=vQco+tnGHjPX3=CLh5wA@mail.gmail.com> <c1354989-1e08-1433-f2c0-5984da341cf5@tycho.nsa.gov>
+In-Reply-To: <c1354989-1e08-1433-f2c0-5984da341cf5@tycho.nsa.gov>
+From:   Hridya Valsaraju <hridya@google.com>
+Date:   Mon, 6 Jan 2020 14:25:58 -0800
+Message-ID: <CA+wgaPNWxpa4bUqer2kJZBATEf1NRvGD2pN4_mkev2NiS7U-Sw@mail.gmail.com>
+Subject: Re: [PATCH] security: selinux: allow per-file labelling for binderfs
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Mark Salyzyn <salyzyn@android.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12/19/19 2:22 PM, Paul Moore wrote:
-> Deprecate the CONFIG_SECURITY_SELINUX_DISABLE functionality.  The
-> code was originally developed to make it easier for Linux
-> distributions to support architectures where adding parameters to the
-> kernel command line was difficult.  Unfortunately, supporting runtime
-> disable meant we had to make some security trade-offs when it came to
-> the LSM hooks, as documented in the Kconfig help text:
-> 
->    NOTE: selecting this option will disable the '__ro_after_init'
->    kernel hardening feature for security hooks.   Please consider
->    using the selinux=0 boot parameter instead of enabling this
->    option.
-> 
-> Fortunately it looks as if that the original motivation for the
-> runtime disable functionality is gone, and Fedora/RHEL appears to be
-> the only major distribution enabling this capability at build time
-> so we are now taking steps to remove it entirely from the kernel.
-> The first step is to mark the functionality as deprecated and print
-> an error when it is used (what this patch is doing).  As Fedora/RHEL
-> makes progress in transitioning the distribution away from runtime
-> disable, we will introduce follow-up patches over several kernel
-> releases which will block for increasing periods of time when the
-> runtime disable is used.  Finally we will remove the option entirely
-> once we believe all users have moved to the kernel cmdline approach.
-> 
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->   security/selinux/Kconfig     |    3 +++
->   security/selinux/selinuxfs.c |    6 ++++++
->   2 files changed, 9 insertions(+)
-> 
-> diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-> index 996d35d950f7..580ac24c7aa1 100644
-> --- a/security/selinux/Kconfig
-> +++ b/security/selinux/Kconfig
-> @@ -42,6 +42,9 @@ config SECURITY_SELINUX_DISABLE
->   	  using the selinux=0 boot parameter instead of enabling this
->   	  option.
->   
-> +	  WARNING: this option is deprecated and will be removed in a future
-> +	  kernel release.
-> +
->   	  If you are unsure how to answer this question, answer N.
->   
->   config SECURITY_SELINUX_DEVELOP
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 278417e67b4c..adbe2dd35202 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -281,6 +281,12 @@ static ssize_t sel_write_disable(struct file *file, const char __user *buf,
->   	int new_value;
->   	int enforcing;
->   
-> +	/* NOTE: we are now officially considering runtime disable as
-> +	 *       deprecated, and using it will become increasingly painful
-> +	 *       (e.g. sleeping/blocking) as we progress through future
-> +	 *       kernel releases until eventually it is removed */
-> +	pr_err("SELinux:  Runtime disable is deprecated, use selinux=0 on the kernel cmdline.\n");
+On Mon, Jan 6, 2020 at 11:33 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> On 1/6/20 2:06 PM, Hridya Valsaraju wrote:
+> > On Mon, Jan 6, 2020 at 10:33 AM 'Stephen Smalley' via kernel-team
+> > <kernel-team@android.com> wrote:
+> >>
+> >> On 1/6/20 1:13 PM, Hridya Valsaraju wrote:
+> >>> This patch allows genfscon per-file labeling for binderfs.
+> >>> This is required to have separate permissions to allow
+> >>> access to binder, hwbinder and vndbinder devices which are
+> >>> relocating to binderfs.
+> >>>
+> >>> Acked-by: Jeff Vander Stoep <jeffv@google.com>
+> >>> Acked-by: Mark Salyzyn <salyzyn@android.com>
+> >>> Signed-off-by: Hridya Valsaraju <hridya@google.com>
+> >>
+> >> Do you want binderfs to also support userspace labeling of files via
+> >> setxattr()?  If so, you'll want to also add it to
+> >> selinux_is_genfs_special_handling() as well.
+> >
+> > Thank you for the quick response Stephen :) I cannot think of a
+> > use-case for the userspace labelling of files in binderfs via
+> > setxattr() as of now. I
+> > will make the change if one comes up!
+>
+> Ok, then you can include my:
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Looking for examples of similar deprecations in the kernel, I notice 
-that they often use pr_warn_once() or WARN_ONCE() to avoid spamming the 
-kernel logs excessively.  They also often include the current process 
-name to identify the offending process.  In this case, it probably 
-matters little since this is only done (legitimately) by the init 
-process and only once, so up to you whether you bother amending it. 
-Also for some interfaces, they appear to document the intent to remove 
-it in a file under Documentation/ABI/obsolete/ and then later move that 
-to removed/ when fully removed. Regardless,
+Great! Thank you for reviewing my patch Stephen!
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Regards,
+Hridya
 
-> +
->   	if (count >= PAGE_SIZE)
->   		return -ENOMEM;
->   
-> 
-
+>
+> >
+> > Thanks,
+> > Hridya
+> >
+> >
+> >>
+> >>> ---
+> >>>    security/selinux/hooks.c | 1 +
+> >>>    1 file changed, 1 insertion(+)
+> >>>
+> >>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> >>> index 116b4d644f68..3f0669a708e9 100644
+> >>> --- a/security/selinux/hooks.c
+> >>> +++ b/security/selinux/hooks.c
+> >>> @@ -752,6 +752,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+> >>>
+> >>>        if (!strcmp(sb->s_type->name, "debugfs") ||
+> >>>            !strcmp(sb->s_type->name, "tracefs") ||
+> >>> +         !strcmp(sb->s_type->name, "binderfs") ||
+> >>>            !strcmp(sb->s_type->name, "pstore"))
+> >>>                sbsec->flags |= SE_SBGENFS;
+> >>>
+> >>>
+> >>
+> >> --
+> >> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
+> >>
+>
