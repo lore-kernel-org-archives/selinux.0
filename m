@@ -2,97 +2,182 @@ Return-Path: <SRS0=/M55=23=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B341CC00523
-	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 01:56:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C90D6C33C8C
+	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 16:03:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 86D342072C
-	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 01:56:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9A79120707
+	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 16:03:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ji/Uri2p"
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="RLggU0A7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727278AbgAFB4Z (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 5 Jan 2020 20:56:25 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:55254 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727226AbgAFB4Y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 5 Jan 2020 20:56:24 -0500
-Received: by mail-pj1-f66.google.com with SMTP id kx11so6907009pjb.4;
-        Sun, 05 Jan 2020 17:56:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Bwykfnh9I+HBTex5KIv5flUDMZzUB+KXgYZaVTuNTVw=;
-        b=Ji/Uri2phyquI7tB8XXhe1WF/Q/QRG9LVCeX5W+cBP9IjDAeGBcb1e6BGAQw9tbTmo
-         1+5gUpRdr0mwzShSPcROxJl71xDR4R57tQezoQPsvZw93yUZCnlv7qYICAA1ca0W9yUC
-         NnhMGHxzOXPB0lsI214wqc1MSkaB/arMYEXBkeB2zmCGtX7m50ME2DJuFQkdsRzvYLRj
-         6d7tIf92A6XWNbrLe8ovm4Kn3LlFP+8r1qXXQb3VExQvcN5netq1WY0uueZakvojQ77w
-         fdxqGrJaHaiHC2FqYk5klZuPLIk/36/SuwPieoMdecy+iM+0NW89Cm72F75QIzEjw7fy
-         eBLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=Bwykfnh9I+HBTex5KIv5flUDMZzUB+KXgYZaVTuNTVw=;
-        b=mg3F/7Yo7L1v0jeBrxyYCR6iPtOiavtRPPjgmleC48hcQlK1+vbD0UDp2Vgka3OePB
-         CWSE8XpvEifglm7cYPxTpE/TPi9ceKNySd2K8LOC2c2s7ns/OSVG3GZlxyjmBWRFUzHz
-         1sM1u9t7GJyZUyn+W8XJ39LjtQQSGlohHA2vWb1iofSyB/6AzQOHV/1lnejvgjId1LVU
-         //2V/+hZwWGX7fZhJtknVNHR4YqsLR10JmomNbCseJDv0YIAMocyq2mYRoV/BipN3dPm
-         +qvU8yep9HC8yBl1BTk3P3L51LTRC5DuLCBlQDCTEgWBbw4wPQTqprCSquZHTB4VUDB7
-         sxQw==
-X-Gm-Message-State: APjAAAWCj1IlPt9BEyHwjumt7HpeDmBORcEcPxrBCdEOhQ4JmjH9RIuD
-        n4xOoBTho4VRYUA41NVkA2U=
-X-Google-Smtp-Source: APXvYqwprWNudrZCAIdy2jEAfpLuiljLwlXloJdJDl3DL5bBJ0mppBmTwbVXm2ltIwpCH+09OxqEOw==
-X-Received: by 2002:a17:90b:1243:: with SMTP id gx3mr40570711pjb.117.1578275784141;
-        Sun, 05 Jan 2020 17:56:24 -0800 (PST)
-Received: from localhost ([43.224.245.180])
-        by smtp.gmail.com with ESMTPSA id e16sm68495846pgk.77.2020.01.05.17.56.22
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 05 Jan 2020 17:56:23 -0800 (PST)
-From:   liuyang34 <yangliuxm34@gmail.com>
-X-Google-Original-From: liuyang34 <liuyang34@xiaomi.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     liuyang34 <liuyang34@xiaomi.com>
-Subject: [PATCH] selinuxfs: use scnprinft to get real length in sel_read_class
-Date:   Mon,  6 Jan 2020 09:56:18 +0800
-Message-Id: <ba3290e18f9867e110b77d058c3f8c7015bd868b.1578274288.git.liuyang34@xiaomi.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <cover.1578274288.git.liuyang34@xiaomi.com>
-References: <cover.1578274288.git.liuyang34@xiaomi.com>
+        id S1726446AbgAFQDB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Jan 2020 11:03:01 -0500
+Received: from mail25.static.mailgun.info ([104.130.122.25]:35805 "EHLO
+        mail25.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726296AbgAFQDB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jan 2020 11:03:01 -0500
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1578326580; h=References: In-Reply-To: Message-Id: Date:
+ Subject: Cc: To: From: Sender;
+ bh=lpJ0DhmwcXrocVyqRrj+zJqB313nI+3M4z6m9eAIYQY=; b=RLggU0A7NdCAQcB1NrBpnrvpD1+cuNtNef83beq8Wv9za09mi66314g+K7NhGTEGZ4lAIqzz
+ J9QYhRRS3vo/PnRV3SVK/kl/x5zO18FZOvdcZI7nE73E9unfHybJxXM0quqYxCHmjiI0Ns9C
+ g/mWpLbJJJzl2ZtPjva7/cdTksg=
+X-Mailgun-Sending-Ip: 104.130.122.25
+X-Mailgun-Sid: WyIxZmM3MiIsICJzZWxpbnV4QHZnZXIua2VybmVsLm9yZyIsICJiZTllNGEiXQ==
+Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
+ by mxa.mailgun.org with ESMTP id 5e135a2f.7f43787833b0-smtp-out-n01;
+ Mon, 06 Jan 2020 16:02:55 -0000 (UTC)
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id B3057C433A2; Mon,  6 Jan 2020 16:02:54 +0000 (UTC)
+Received: from rsiddoji-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: rsiddoji)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id 4B95DC43383;
+        Mon,  6 Jan 2020 16:02:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 4B95DC43383
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=rsiddoji@codeaurora.org
+From:   Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
+To:     selinux@vger.kernel.org
+Cc:     Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
+Subject: [PATCH v3] selinux: move ibpkeys code under CONFIG_SECURITY_INFINIBAND.
+Date:   Mon,  6 Jan 2020 21:31:53 +0530
+Message-Id: <1578326514-22012-1-git-send-email-rsiddoji@codeaurora.org>
+X-Mailer: git-send-email 1.9.1
+In-Reply-To: <[PATCH] selinux: move ibpkeys code under CONFIG_SECURITY_INFINIBAND.>
+References: <[PATCH] selinux: move ibpkeys code under CONFIG_SECURITY_INFINIBAND.>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-as the return value of snprintf maybe over the size of TMPBUFLEN, 
-use scnprintf to instead of it
 
-Signed-off-by: liuyang34 <liuyang34@xiaomi.com>
+please find the updated patch based on the review comments
+
+
+Move cache based  pkey sid  retrieval code which was added
+with  Commit "409dcf31" under CONFIG_SECURITY_INFINIBAND.
+As its  going to alloc a new cache which impacts
+low ram devices which was enabled by default.
+
+Suggested-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
 ---
- security/selinux/selinuxfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ security/selinux/Makefile         |  4 +++-
+ security/selinux/include/ibpkey.h | 13 +++++++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index ee94fa4..977c32d 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1672,7 +1672,7 @@ static ssize_t sel_read_class(struct file *file, char __user *buf,
- {
- 	unsigned long ino = file_inode(file)->i_ino;
- 	char res[TMPBUFLEN];
--	ssize_t len = snprintf(res, sizeof(res), "%d", sel_ino_to_class(ino));
-+	ssize_t len = scnprintf(res, sizeof(res), "%d", sel_ino_to_class(ino));
- 	return simple_read_from_buffer(buf, count, ppos, res, len);
- }
- 
--- 
-2.7.4
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index ccf950409384..2000f95fb197 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -6,7 +6,7 @@
+ obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
 
+ selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
+-            netnode.o netport.o ibpkey.o \
++            netnode.o netport.o \
+             ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
+             ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
+
+@@ -14,6 +14,8 @@ selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
+
+ selinux-$(CONFIG_NETLABEL) += netlabel.o
+
++selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
++
+ ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
+
+ $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
+diff --git a/security/selinux/include/ibpkey.h b/security/selinux/include/ibpkey.h
+index a2ebe397bcb7..040b93cca486 100644
+--- a/security/selinux/include/ibpkey.h
++++ b/security/selinux/include/ibpkey.h
+@@ -14,8 +14,21 @@
+ #ifndef _SELINUX_IB_PKEY_H
+ #define _SELINUX_IB_PKEY_H
+
++#ifdef CONFIG_SECURITY_INFINIBAND
+ void sel_ib_pkey_flush(void);
+
+ int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid);
+
++#else
++
++static inline void sel_ib_pkey_flush(void) {
++  return;
++}
++
++static inline int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid) {
++  *sid = SECINITSID_UNLABELED;
++  return 0;
++}
+Move cache based  pkey sid  retrieval code which was added
+with  Commit "409dcf31" under CONFIG_SECURITY_INFINIBAND.
+As its  going to alloc a new cache which impacts
+low ram devices which was enabled by default.
+
+Suggested-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
+---
+ security/selinux/Makefile         |  4 +++-
+ security/selinux/include/ibpkey.h | 13 +++++++++++++
+ 2 files changed, 16 insertions(+), 1 deletion(-)
+
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index ccf950409384..2000f95fb197 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -6,7 +6,7 @@
+ obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
+
+ selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
+-            netnode.o netport.o ibpkey.o \
++            netnode.o netport.o \
+             ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
+             ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
+
+@@ -14,6 +14,8 @@ selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
+
+ selinux-$(CONFIG_NETLABEL) += netlabel.o
+
++selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
++
+ ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
+
+ $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
+diff --git a/security/selinux/include/ibpkey.h b/security/selinux/include/ibpkey.h
+index a2ebe397bcb7..040b93cca486 100644
+--- a/security/selinux/include/ibpkey.h
++++ b/security/selinux/include/ibpkey.h
+@@ -14,8 +14,21 @@
+ #ifndef _SELINUX_IB_PKEY_H
+ #define _SELINUX_IB_PKEY_H
+
++#ifdef CONFIG_SECURITY_INFINIBAND
+ void sel_ib_pkey_flush(void);
+
+ int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid);
+
++#else
++
++static inline void sel_ib_pkey_flush(void) {
++  return;
++}
++
++static inline int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid) {
++  *sid = SECINITSID_UNLABELED;
++  return 0;
++}
++#endif
++
+ #endif
+--
+The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+a Linux Foundation Collaborative Project
