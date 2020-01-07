@@ -1,135 +1,104 @@
-Return-Path: <SRS0=/M55=23=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=B3ih=24=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CE91C33C8C
-	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 22:26:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CDD2C32771
+	for <selinux@archiver.kernel.org>; Tue,  7 Jan 2020 01:39:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4BE1D2072A
-	for <selinux@archiver.kernel.org>; Mon,  6 Jan 2020 22:26:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 402552072E
+	for <selinux@archiver.kernel.org>; Tue,  7 Jan 2020 01:39:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KT3zTq13"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="go/i/cMb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726739AbgAFW0g (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Jan 2020 17:26:36 -0500
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:33295 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726731AbgAFW0f (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jan 2020 17:26:35 -0500
-Received: by mail-ot1-f65.google.com with SMTP id b18so51820616otp.0
-        for <selinux@vger.kernel.org>; Mon, 06 Jan 2020 14:26:35 -0800 (PST)
+        id S1727355AbgAGBjY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Jan 2020 20:39:24 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:34474 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727326AbgAGBjY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jan 2020 20:39:24 -0500
+Received: by mail-pf1-f194.google.com with SMTP id i6so20923809pfc.1;
+        Mon, 06 Jan 2020 17:39:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=mxfnlzR8Z4ts/JAYctHXiWfBXAVi4Rg1+RqTkuxcXH0=;
-        b=KT3zTq13pwos3lUHyrco2lsAUWV1EAmrdS4rtw5xveHovt/+6pDL09kW9Ah4vhaDtm
-         WaQoZdUA+TVRoB+VboEKRwhnRBaQMTgHSyDlkebw8+92WLTfEQY0TeE6KMtVMNma75FZ
-         /0Su8D2L8COpd1ADE6dvVNrFzuyR+9tbIewVaht1E2oyZHlbk2jXZzU8FU9owkSMLs/7
-         wyftUApIEdV5rYxtUByhbx1ASniTjeUDluhBGktPAD7sXfuMCezwUvt3XnWmK3YZofCV
-         rTXKaN4t9D2CHuh6wPGSvza01dPbi8pWHrrcPR93JbwiFAihEESqZrIMuZBbAYLTJjvj
-         eyfw==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=BcDQpu3fVXCp65bnUVYlKVk92q4FOMqEZL5EQW3/yP0=;
+        b=go/i/cMbOARRQVokioLhN/htb67IaDYlIXboEVmR1TbTKiQ2STY3u7h+OAlUGluGD9
+         nisE4oGOyJq2DU9BJziGyu5rlwdKzFeJ8Q99xx5LSTmq7kug3g4njnY6/IeKySSE6Rpw
+         J6XkW9JpUQXDpViYg4XB8n/79IPwt7hKekALIFpDbrOhptBoDWHnFaSk2B+YnAYdWu0y
+         qdFnXhGxKJgvsVSUR2YL+tGpYZNiXXKJ3JiYosEq6NEAqSX0pJDImRkoaRZPygFcq1BT
+         15fYgMMSzAoiREZHI9aSh1KDDnudMKMr0YNg7NLALjqLaxOkj4BPjHd54Cd94JuK2hTK
+         aODw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=mxfnlzR8Z4ts/JAYctHXiWfBXAVi4Rg1+RqTkuxcXH0=;
-        b=T1sCyVe1nRV7hJXwLINTyuGzrHa3vt6LVrZWV+AeGCF5OdBOKEwJc/Z31OTRuTKyVw
-         XpXMcGkupN7+XvUsLW6Hcy4wDeTl8waIEWqp/Kh+RmKkju2fWwfJex3ZHlXUOtwc7Ie/
-         G3nZ3DNsL7xbQQ7K54NCzJfpF/Eu+fGIUIw/UYK/DhZViUoDvE0eCwridrVBjOvd9S3+
-         wBrGs8j64gJ/y+f8giojUkHiVeuNlX6IYEltjnRlgHitjtjD7HBjpm9Le9JsDh527YDs
-         uMgI548GVtiidzr+drjGaPTaDCpUwPLfu1PvHGsReQgaqmi+57+3xuz8YANtSZbVmvwz
-         xyOQ==
-X-Gm-Message-State: APjAAAUHvdJQzqirJBRw+EXo4PYiZwVOBgZdJb7JSPOalPl4iViYS1Hb
-        Udyt47riAR68kAByeMxmTOHWcJRTt6lWaRPATKAPl59L
-X-Google-Smtp-Source: APXvYqwL3jAWdvMDMj4aRBZmqvQUERlVV6jXvZVasskn9QFt2yWJfcehfWgI+srl/dO2csohUYzK2dK4JXfZgXIo96Q=
-X-Received: by 2002:a9d:644a:: with SMTP id m10mr14535027otl.97.1578349594831;
- Mon, 06 Jan 2020 14:26:34 -0800 (PST)
-MIME-Version: 1.0
-References: <20200106181329.167322-1-hridya@google.com> <d78e4db4-5847-082c-189a-f13d7d6a6c7a@tycho.nsa.gov>
- <CA+wgaPMHWOVYo_pVeYuvj6CrQOgy9=vQco+tnGHjPX3=CLh5wA@mail.gmail.com> <c1354989-1e08-1433-f2c0-5984da341cf5@tycho.nsa.gov>
-In-Reply-To: <c1354989-1e08-1433-f2c0-5984da341cf5@tycho.nsa.gov>
-From:   Hridya Valsaraju <hridya@google.com>
-Date:   Mon, 6 Jan 2020 14:25:58 -0800
-Message-ID: <CA+wgaPNWxpa4bUqer2kJZBATEf1NRvGD2pN4_mkev2NiS7U-Sw@mail.gmail.com>
-Subject: Re: [PATCH] security: selinux: allow per-file labelling for binderfs
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Paul Moore <paul@paul-moore.com>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=BcDQpu3fVXCp65bnUVYlKVk92q4FOMqEZL5EQW3/yP0=;
+        b=W2pOOyFJZNcJniknCcnNjUvdGYI3kVYh1f1S5Nk03dK2Moy3Ng/+vCZc4EXyiZSoSj
+         Azr1n1gDeiR9cF1cQyUzyKULD0hZGNUiRM3lFQmYIMrMfUGqq9IPSIj/r5+Bxv+Fvuea
+         ii02gF1IWBYCv/TMWDA10AYAuCwtqF9I8jv5tagcNKh+y0wv3D/2xIRThOdAKhzwACva
+         0Gg6gk4TMSP0rACSqcP6Qs0hJ0ROiuf61G9kAuxmwo5EabUE1AjTYwVQnccEN6zxLI+f
+         adinjThPPIlQBcKdVErI8XdMGpY+mgUQ+uxuDZvEcY1KDBEtvxabdPzOiqwLD0TsIP0Q
+         A22g==
+X-Gm-Message-State: APjAAAWxWPHINIdgHFiEsOT2XUvpk9GU8njHleD+sOZMBOSiYd0JX2Nw
+        e6Dv4nOOtSiw6IPvrDctRKTKwcc0
+X-Google-Smtp-Source: APXvYqyrC/hBUWYQWUfTch01WDIl59Zo5xgxUL1U3eB1k4mRKVaNtP7SHeVR+/2OMDkTHoKxKDx68w==
+X-Received: by 2002:aa7:96b7:: with SMTP id g23mr109012696pfk.108.1578361164098;
+        Mon, 06 Jan 2020 17:39:24 -0800 (PST)
+Received: from localhost ([43.224.245.180])
+        by smtp.gmail.com with ESMTPSA id p23sm74779248pgh.83.2020.01.06.17.39.23
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 06 Jan 2020 17:39:23 -0800 (PST)
+From:   liuyang34 <yangliuxm34@gmail.com>
+X-Google-Original-From: liuyang34 <liuyang34@xiaomi.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
         Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        Android Kernel Team <kernel-team@android.com>,
-        Jeff Vander Stoep <jeffv@google.com>,
-        Mark Salyzyn <salyzyn@android.com>
-Content-Type: text/plain; charset="UTF-8"
+        linux-kernel@vger.kernel.org
+Cc:     liuyang34 <liuyang34@xiaomi.com>
+Subject: [PATCH v2] selinuxfs: use scnprinft to get real length for inode
+Date:   Tue,  7 Jan 2020 09:39:18 +0800
+Message-Id: <1578361158-27940-1-git-send-email-liuyang34@xiaomi.com>
+X-Mailer: git-send-email 2.7.4
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 6, 2020 at 11:33 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> On 1/6/20 2:06 PM, Hridya Valsaraju wrote:
-> > On Mon, Jan 6, 2020 at 10:33 AM 'Stephen Smalley' via kernel-team
-> > <kernel-team@android.com> wrote:
-> >>
-> >> On 1/6/20 1:13 PM, Hridya Valsaraju wrote:
-> >>> This patch allows genfscon per-file labeling for binderfs.
-> >>> This is required to have separate permissions to allow
-> >>> access to binder, hwbinder and vndbinder devices which are
-> >>> relocating to binderfs.
-> >>>
-> >>> Acked-by: Jeff Vander Stoep <jeffv@google.com>
-> >>> Acked-by: Mark Salyzyn <salyzyn@android.com>
-> >>> Signed-off-by: Hridya Valsaraju <hridya@google.com>
-> >>
-> >> Do you want binderfs to also support userspace labeling of files via
-> >> setxattr()?  If so, you'll want to also add it to
-> >> selinux_is_genfs_special_handling() as well.
-> >
-> > Thank you for the quick response Stephen :) I cannot think of a
-> > use-case for the userspace labelling of files in binderfs via
-> > setxattr() as of now. I
-> > will make the change if one comes up!
->
-> Ok, then you can include my:
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+as the return value of snprintf maybe over the size of TMPBUFLEN, use scnprintf
+to instead of it in sel_read_class and sel_read_perm
 
-Great! Thank you for reviewing my patch Stephen!
+Signed-off-by: liuyang34 <liuyang34@xiaomi.com>
+---
+ security/selinux/selinuxfs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Regards,
-Hridya
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index ee94fa4..376d2c0e 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -1672,7 +1672,7 @@ static ssize_t sel_read_class(struct file *file, char __user *buf,
+ {
+ 	unsigned long ino = file_inode(file)->i_ino;
+ 	char res[TMPBUFLEN];
+-	ssize_t len = snprintf(res, sizeof(res), "%d", sel_ino_to_class(ino));
++	ssize_t len = scnprintf(res, sizeof(res), "%d", sel_ino_to_class(ino));
+ 	return simple_read_from_buffer(buf, count, ppos, res, len);
+ }
+ 
+@@ -1686,7 +1686,7 @@ static ssize_t sel_read_perm(struct file *file, char __user *buf,
+ {
+ 	unsigned long ino = file_inode(file)->i_ino;
+ 	char res[TMPBUFLEN];
+-	ssize_t len = snprintf(res, sizeof(res), "%d", sel_ino_to_perm(ino));
++	ssize_t len = scnprintf(res, sizeof(res), "%d", sel_ino_to_perm(ino));
+ 	return simple_read_from_buffer(buf, count, ppos, res, len);
+ }
+ 
+-- 
+2.7.4
 
->
-> >
-> > Thanks,
-> > Hridya
-> >
-> >
-> >>
-> >>> ---
-> >>>    security/selinux/hooks.c | 1 +
-> >>>    1 file changed, 1 insertion(+)
-> >>>
-> >>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> >>> index 116b4d644f68..3f0669a708e9 100644
-> >>> --- a/security/selinux/hooks.c
-> >>> +++ b/security/selinux/hooks.c
-> >>> @@ -752,6 +752,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
-> >>>
-> >>>        if (!strcmp(sb->s_type->name, "debugfs") ||
-> >>>            !strcmp(sb->s_type->name, "tracefs") ||
-> >>> +         !strcmp(sb->s_type->name, "binderfs") ||
-> >>>            !strcmp(sb->s_type->name, "pstore"))
-> >>>                sbsec->flags |= SE_SBGENFS;
-> >>>
-> >>>
-> >>
-> >> --
-> >> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
-> >>
->
