@@ -2,99 +2,109 @@ Return-Path: <SRS0=kOa9=25=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92207C282DD
-	for <selinux@archiver.kernel.org>; Wed,  8 Jan 2020 13:41:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E462AC33CA2
+	for <selinux@archiver.kernel.org>; Wed,  8 Jan 2020 13:46:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 64275206DB
-	for <selinux@archiver.kernel.org>; Wed,  8 Jan 2020 13:41:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B916A20692
+	for <selinux@archiver.kernel.org>; Wed,  8 Jan 2020 13:46:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UaX/WMAM"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="YVZL4qzD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728260AbgAHNlk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Jan 2020 08:41:40 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:37641 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726144AbgAHNlj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jan 2020 08:41:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578490898;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=1LpLNr3NPA0yf2CrG1xyCr8Zw4FNK6E46Q5gEQI0gmM=;
-        b=UaX/WMAMIHDb6eZtwwDzv7KBLVjpa6p23TVtilZSrQlTYRC7WYfSn8kgjXm8F0cJ9b44OB
-        GuQUQaTPbsmSE6yGpTz488asLKwV0Ih7g3EVfIOvCE1O2vQ9UsYftVBoyjS4ibaCxLL5NX
-        434Mnd0T1FnlfhO/IDFcDG0DuxQ9gYI=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-176-GUvmVjXGMU6jMCF0XmPHWw-1; Wed, 08 Jan 2020 08:41:37 -0500
-X-MC-Unique: GUvmVjXGMU6jMCF0XmPHWw-1
-Received: by mail-oi1-f197.google.com with SMTP id d9so1611553oij.4
-        for <selinux@vger.kernel.org>; Wed, 08 Jan 2020 05:41:37 -0800 (PST)
+        id S1727333AbgAHNqC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Jan 2020 08:46:02 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:41065 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727067AbgAHNqC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jan 2020 08:46:02 -0500
+Received: by mail-lj1-f196.google.com with SMTP id h23so3355347ljc.8
+        for <selinux@vger.kernel.org>; Wed, 08 Jan 2020 05:46:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rtYjbXkwyJJ6frQY7IN0ik7r1JCy0a8VOwpAJOl3+CA=;
+        b=YVZL4qzD+quwISVrxqEP0ng6AleuKTNulKBVcdHkM+8Y54+fnTt7rBUG0+r5jTcQzS
+         IciPYeZBFcdi7QGow18P9USwUlh2l5YKn+tj2uYSEj7lEx2YTwRqi2Zvt0/pOY3A7Cgu
+         dI1GmUugGTjbmdXXIzMIhqxwtowIzkBqV2drtGOvuV140m0aHlZGSR1iov8gb0qB9npN
+         XWXQT28RX7GCvxBnPgAS7ncO9HhWRmbmGIrr8G77c9dYNormeFS2Uik1O8dOAMLD8Aga
+         /5Aw1Kc2CTohMr1V65CkhI1wL9eWhFnstGaB75grGNfRrmlwBW2VD6dHWESOYX+tNKgF
+         lkWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1LpLNr3NPA0yf2CrG1xyCr8Zw4FNK6E46Q5gEQI0gmM=;
-        b=Fx4oWrvMm6+hzEk8foWc7c85V4moAoouEW0LmWdQtZYPxihwBRJF5YDsu1VU4dOucQ
-         eWfWxRAolBx4vVN0dDVXT1o6mlLALScI9WWWnzDcvcKYNhy0C33EQC4Kr69ZxKyqQ1ql
-         F5tkcXwIykRFQL/8c3LAMv9Gz4BEMSm7RJvdisNyAwXZDlmFZQbYVC3HWrV6z+DI7irU
-         m2kOGzpUV9gCXwcei7mapLkLmaKpipvP8apr9UV+rCd3CGkDqMQmNyvKX0oURLFZyyoB
-         jAB5tu+pBiOoHveKMLL8VCWO1cjUBLY0OB7WzENLQiBq9m+PNcVBF5HMnepnfVpXmsMf
-         /K2w==
-X-Gm-Message-State: APjAAAUgqFix23xNuCBYpmEt8Wp/Wnbrp21PS7rkrcZJGYjxhakVFyT/
-        0lFyoF8ndD0EGB59gYMYOUKO568j2NidfgUBq5Frd3Geu53grQL3RT2ak3ZPs7foCwELy4eJI+y
-        QW6hCwJR7hsTmxY8KiuPd5xP6nrXCocFNZw==
-X-Received: by 2002:aca:f507:: with SMTP id t7mr3168525oih.156.1578490896603;
-        Wed, 08 Jan 2020 05:41:36 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzHzTyc0D9Gf584Mw/+kIQSZCRq3b9WBkfCLv9Zt717IlIx0Uv0fa87B3GmS2blRgtTV5hnYqq57OG4F3jFaV0=
-X-Received: by 2002:aca:f507:: with SMTP id t7mr3168514oih.156.1578490896397;
- Wed, 08 Jan 2020 05:41:36 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=rtYjbXkwyJJ6frQY7IN0ik7r1JCy0a8VOwpAJOl3+CA=;
+        b=GyTb0r9nL5087knffp1Nnyox3APM0C/OfZLbgUI4J1MYI5YEZ91NGtYrwvhkRv59lL
+         0Agv4UuCwobdwhimx0/9wYSHkik39JNfwQZU4GLzgkyxaIL/rjCMcUM5jFhSodgkSJMF
+         zwOinc3ogXTq7RdBaqp+EzVcf1sYAMm4udbVYcvGZoktimrGApaC655in8GFnyLpEAkU
+         2f2nBRBpqPbiUfz5YD6obacsehub1bGrGuedOgyansazDgd2gp1FZjoM4jFqDH/Jn6hL
+         u+A2vSkPybiLMSVZtprTAUa7IIBIC8+FPzwlFpTu2fP4sahUuMWeoiyD4M9pT9iZtjpQ
+         lXHQ==
+X-Gm-Message-State: APjAAAWRpvYo8iQrhLRPjPCj9wjEZeEi3XVNl0M28CZkIMvcUSIZ6SbT
+        lRaS08y0APVJigNutl5o7YO0tmc9ghyOLs3+pBUyNMk=
+X-Google-Smtp-Source: APXvYqxMjVMqf/KB7IcC4X0JsfvWoVHm4r/NjJZU5Z0gQWyMHuuC7r7j/QpeaE51324hTAs1C8Jr2W42TEd4+pXIUok=
+X-Received: by 2002:a2e:96c4:: with SMTP id d4mr3030322ljj.225.1578491159585;
+ Wed, 08 Jan 2020 05:45:59 -0800 (PST)
 MIME-Version: 1.0
-References: <CAJ2a_Ddz0dXzuhyyO_SNNZRc==8K7Nba0N6Rh_u+yig6c7w3tQ@mail.gmail.com>
- <ed8c325b-f8e8-3e91-81cf-1db5c59e2bc0@tycho.nsa.gov> <CAJ2a_DcEnxg4w92ayqg7y76_5AvkGnzFBU32FpV_qzcxuUN_Pg@mail.gmail.com>
-In-Reply-To: <CAJ2a_DcEnxg4w92ayqg7y76_5AvkGnzFBU32FpV_qzcxuUN_Pg@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 8 Jan 2020 14:41:25 +0100
-Message-ID: <CAFqZXNsOJMS_pi80O1+-57dBgwGJ0oHS=v2b1X9SR2rU1u0=dg@mail.gmail.com>
-Subject: Re: incorrect sysfs contexts
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+References: <20200107133154.588958-1-omosnace@redhat.com> <20200107133154.588958-3-omosnace@redhat.com>
+ <bad81aeb-c21f-c5be-12a1-61912d04573a@tycho.nsa.gov> <CAHC9VhRMLJLSUY5VfdDRv=OuyLkvzsyqfpNhf_SfC9V8OALJ4g@mail.gmail.com>
+ <CAFqZXNuv6OV_w_qneo-vK2Z4SBOqKRnnwNr-tgK__uSoX=76Ww@mail.gmail.com>
+In-Reply-To: <CAFqZXNuv6OV_w_qneo-vK2Z4SBOqKRnnwNr-tgK__uSoX=76Ww@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 8 Jan 2020 08:45:47 -0500
+Message-ID: <CAHC9VhRzdTpW+qUbLZR8t+yDpKJfnMo9N=tZiuByp_80XHGXHA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] security, selinux: get rid of security_delete_hooks()
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        SElinux list <selinux@vger.kernel.org>
+        Linux Security Module list 
+        <linux-security-module@vger.kernel.org>,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Kees Cook <keescook@chromium.org>,
+        Micah Morton <mortonm@chromium.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Dec 19, 2019 at 3:16 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
-> Default Debian sid kernel:
-> Linux debian-test 5.3.0-3-amd64 #1 SMP Debian 5.3.15-1 (2019-12-07)
-> x86_64 GNU/Linux
+On Wed, Jan 8, 2020 at 3:15 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Wed, Jan 8, 2020 at 6:32 AM Paul Moore <paul@paul-moore.com> wrote:
+> > On Tue, Jan 7, 2020 at 9:46 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > On 1/7/20 8:31 AM, Ondrej Mosnacek wrote:
+> > > > The only user is SELinux, which is hereby converted to check the
+> > > > disabled flag in each hook instead of removing the hooks from the list.
+> > > >
+> > > > The __lsm_ro_after_init macro is now removed and replaced with
+> > > > __ro_after_init directly.
+> > > >
+> > > > This fixes a race condition in SELinux runtime disable, which was
+> > > > introduced with the switch to hook lists in b1d9e6b0646d ("LSM: Switch
+> > > > to lists of hooks").
+> > >
+> > > Not opposed (naturally, since I suggested it) but my impression from the
+> > > earlier thread was that Paul preferred the less invasive approach of
+> > > your original patch (just reordering the hooks) as a short term fix with
+> > > an eye toward full removal of disable support in the not-too-distant future.
+> >
+> > Unless we are seeing wide spread breakages (I don't think we are), or
+> > we decide we can never remove the runtime disable, I still prefer the
+> > hook-shuffle over the changes proposed in this patchset.
 >
-> Somehow symlinks do not inherit their parent label.
-> They all have the root-sysfs label.
->
-> Remounting sysfs with `mount -o remount -t sysfs /sys` leaves all
-> symlinks with the root-sysfs label.
+> OK, I'm fine with either solution. Do you want me to rebase and resend
+> the reorder patch? There are some minor conflicts with Stephen's
+> recently merged patches.
 
-Hm... this seems to happen due to the !S_ISLNK(inode->i_mode)
-condition in inode_doinit_with_dentry() introduced in ea6b184f7d521
-("selinux: use default proc sid on symlinks"). Since the condition was
-apparently only intended for procfs at that time, I think we can
-change the condition to !((sbsec->flags & SE_SBPROC) &&
-S_ISLNK(inode->i_mode)) to fix this for sysfs (et al.). Stephen, do
-you agree? Or could the condition even be removed completely?
+Yes please.
 
---=20
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+-- 
+paul moore
+www.paul-moore.com
