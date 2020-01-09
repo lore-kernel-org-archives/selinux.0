@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F273FC33CA1
-	for <selinux@archiver.kernel.org>; Thu,  9 Jan 2020 17:13:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16170C282DD
+	for <selinux@archiver.kernel.org>; Thu,  9 Jan 2020 17:19:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C765C2067D
-	for <selinux@archiver.kernel.org>; Thu,  9 Jan 2020 17:13:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DD21B2067D
+	for <selinux@archiver.kernel.org>; Thu,  9 Jan 2020 17:19:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="poLgJO3i"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="jIhSj2Ad"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731529AbgAIRNi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jan 2020 12:13:38 -0500
-Received: from USFB19PA35.eemsg.mail.mil ([214.24.26.198]:57121 "EHLO
-        USFB19PA35.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731497AbgAIRNi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jan 2020 12:13:38 -0500
-X-EEMSG-check-017: 42907311|USFB19PA35_ESA_OUT05.csd.disa.mil
+        id S1728951AbgAIRTJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jan 2020 12:19:09 -0500
+Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:38218 "EHLO
+        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729640AbgAIRTJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jan 2020 12:19:09 -0500
+X-EEMSG-check-017: 44005904|UPDC19PA22_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,414,1571702400"; 
-   d="scan'208";a="42907311"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA35.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Jan 2020 17:13:30 +0000
+   d="scan'208";a="44005904"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 09 Jan 2020 17:19:06 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1578590011; x=1610126011;
+  s=tycho.nsa.gov; t=1578590346; x=1610126346;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=f7V/QP8r4oSoPgFk6/Q8ix3AbREIZgrKL4oqrgmT6DY=;
-  b=poLgJO3i4gsZuFKmhIr5IOmQXB3VuEXaUt6Rb01IoId+IGHbwcxR2rvS
-   79aNlQnBm8p0tzLzx2DNpFtpAx+yCTqWCXW4lxH+RzITL3H+20vs07Ijo
-   A8xWdNAKmuIZbtUqWfIn2O1dMCpwIeRrX9vjbt3ssZ5yIwrW+urypds+D
-   03v6GXTDiPoS7466zWMi8BjslnnUJ0oII599JOEM/JsGA9dv3D7Jjb/sm
-   8JiFphm0HoIOEji+67kSq/mgXHNgX6ZiUik8ufcxIE0XcGX1TF869XgSQ
-   kPlm0UTxF6UqA0AII8VejICBUrMgDbNTIx7K+i0Cuz3W5hYoIQXA0Soac
-   Q==;
+  bh=9S17D97TKkWT/dV/cIKLeMDMM8ndS85SX5WttY4m/+4=;
+  b=jIhSj2AdwXWzQa8MgG6bSQtn9pWyhh2pPekjT8wZuK1vHWq57H+1/L4T
+   eTQmmEnHLt2eRnFCFl+pLCQvE6G70/laSho0tso2wQ2op8XoAIMNiDOne
+   wGZH+IQWs8N0XolCt0d6igSWfJ2NTrw3WLlZenFlVbh00EkKVfbk1WKlV
+   /gP6+RcRkJ2AFmynmfLLvybAHtaui1KbT6QD3Mpuj+hFQy39Zw7KYjzi8
+   LeOidxPiwYg33bUM7DYIAYIxnmzinOXp2ynlgyYfUSH60kdigJKXtbdWi
+   U2U1w4C+xrBaRgqYsWE0xEA/LApf19lmynuIIxBpc/rK67nMJdhRkk5lE
+   g==;
 X-IronPort-AV: E=Sophos;i="5.69,414,1571702400"; 
-   d="scan'208";a="37560954"
-IronPort-PHdr: =?us-ascii?q?9a23=3A5nKNexfy5zOMuo1GAGq5qQGSlGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxcWzYB7h7PlgxGXEQZ/co6odzbaP6Oa6BzVLv87JmUtBWaQEbw?=
- =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
- =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRu7oR/PusQXnIduJac8xg?=
- =?us-ascii?q?fUqXZUZupawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
- =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
- =?us-ascii?q?mp8qlmRAP0hCoBKjU063/chNBug61HoRKhvx1/zJDSYIGJL/p1Y6fRccoHSW?=
- =?us-ascii?q?ZdQspdUipMDY2mb4sLEuEPI+BWoYfgrFcKtBezCw2hCObpxzRVhHH5wLc63v?=
- =?us-ascii?q?w8Hw/Y0gwuH9EAvnrao9r6NqgdTe+7wbLUzTjBdf5axSvx5YbKfx0nvPqCXa?=
- =?us-ascii?q?hwcc3UyUQ3Cg3FkkufqZTlPzyL0OQGrnWV7+96WuKrj24otQFwqSWoy8c3l4?=
- =?us-ascii?q?bJnZkYykzE9CplwIY1Ise0SEhgYdG+CpdQuCaaN5VvT84kXmpmuz46x6UbtZ?=
- =?us-ascii?q?O0cyUG0pQqywPFZ/CZfIWE/AjvWPuXLDxlnnxqYqi/iAy38UW4z+38UdS730?=
- =?us-ascii?q?hSoypel9nMqmgN1xvO6sibUvd9/lmu2TKI1w3L9uFLO1o0lavGK5462LIwl5?=
- =?us-ascii?q?wTsUrEHi/thkr5kLWadlkk++e06+TnZa/qppmAOI9vlg7yKKEums27AeggMw?=
- =?us-ascii?q?gOWXaU+fik2bH+8kD0T69Gg/0rnqXDrpzXKtoXqrSkDwNN14Ys8Re/DzOo0N?=
- =?us-ascii?q?QCmnkHKUpIeAmagIjyIFzOPPD5Auu/g1SrijtrwevGMaf7DpXCKXjDjq/tfa?=
- =?us-ascii?q?xh5E5E1Aoz0ddf6opOCrEAPP3zWlX+tMbFARAhLwO72+bnB8981oMYR22PGb?=
- =?us-ascii?q?SUP7jOsV+J4OIvP/eDZJUTuDnjN/gp/eLhjXg8mVUFZ6mmwYMXaGykHvRhO0?=
- =?us-ascii?q?iZemTjgtMAEWcMowo/Q/fniEONUTFNfXa+RaE86S8hCIKgE4jDQpqhgLub3C?=
- =?us-ascii?q?e0BpdWfHxJCkiQEXf0cIWJQ/AMaCeVIs96lDwLT6SuRJE62BG0qgD11rpnIf?=
- =?us-ascii?q?DI+iECqZ3j0911tKXvkkQI9Dd0Bt6Rm0GETmd5hStcXT493KllrXt2/VeK0K?=
- =?us-ascii?q?51mNRSCd1V+/5TVAomc5Xbyro+Q8v/XgPHY8ehVlmrWJOlDCs3Q9Z3xMUBMG?=
- =?us-ascii?q?hnHND3tQzOxyqnBfcukrWPAJEluvbH02PZO9d2y3GA0rIoyVYhXJ0cZiWdmq?=
- =?us-ascii?q?dj+l2LVMbymEKDmvPvLP9N0Q=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AYAACDXRde/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYFrAgEBAQELAYF8gWwBIBIqhAmJA4ZgAQEBAQEBBoE3iW6RSAkBA?=
- =?us-ascii?q?QEBAQEBAQE3AQGEQAKCEzcGDgIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGCeQEBA?=
- =?us-ascii?q?QECASMVQQULCxgCAiYCAlcGAQwGAgEBgmM/gksDCQUgqwF1gTKFT4NCgT2BD?=
- =?us-ascii?q?igBjDJ5gQeBEScPgl0+ghuFPoI8IgSNSIlXRniWT4JAgkWTXAYbmmSOWJx8I?=
- =?us-ascii?q?4FYKwgCGAghD4MnUBgNjR4XjkEjAzCRFQEB?=
+   d="scan'208";a="31776642"
+IronPort-PHdr: =?us-ascii?q?9a23=3AaBKd+h1s6QogCapCsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseMfLvad9pjvdHbS+e9qxAeQG9mCsLQe1bOd7fqocFdDyK7JiGoFfp1IWk?=
+ =?us-ascii?q?1NouQttCtkPvS4D1bmJuXhdS0wEZcKflZk+3amLRodQ56mNBXdrXKo8DEdBA?=
+ =?us-ascii?q?j0OxZrKeTpAI7SiNm82/yv95HJbAhEmTSwbalsIBi3sAnducgbjZV/Iast1x?=
+ =?us-ascii?q?XFpWdFdf5Lzm1yP1KTmBj85sa0/JF99ilbpuws+c1dX6jkZqo0VbNXAigoPG?=
+ =?us-ascii?q?Az/83rqALMTRCT6XsGU2UZiQRHDg7Y5xznRJjxsy/6tu1g2CmGOMD9UL45VS?=
+ =?us-ascii?q?i+46ptVRTlkzkMOSIn/27Li8xwlKNbrwynpxxj2I7ffYWZOONjcq/BYd8WQG?=
+ =?us-ascii?q?xMUchLVyxFH4iycY0BAeQcNupctoXwqV8DoR64CAKxBu3g1yVIi2fr06Mk3e?=
+ =?us-ascii?q?QvEQLI0gIuEN0BsnvbsNr7ObwOUe231qTE0SnPYv1U1Dr79YPGcgohofaJXb?=
+ =?us-ascii?q?9obMTR1VcgFxvFjlqOr4zuIi6b1uEXvGif6+pvS+KugHMgpgFqvzev3dwhip?=
+ =?us-ascii?q?XJh40JylDE8j91wIAuJdKiUkJ7btmkEIVJuiycKoB4QdsiTnl1tCs1xbAKo5?=
+ =?us-ascii?q?62cDUQxJg5yBPTdeaLf5WO7xn+TuieOy14i2hgeL+nghay9lWvxfPkW8mv1V?=
+ =?us-ascii?q?ZKsjJFkt7RtnARzxDT6taISv96/kq5xTaAzRrT6uBZIUAvj6bbKpghwrA3lp?=
+ =?us-ascii?q?oIr0vMAjX6mFn2jaCKdkUk/fKk6+L7bbX9upCQLYp0igD6Mqg2m8y/B/o3Mh?=
+ =?us-ascii?q?QWUmSG9umx26fv8E3kTLlQkPE7nbfVvIrHKcgDo662GQ5V0oIt6xalCDem1c?=
+ =?us-ascii?q?wVnWIaI1JeYx+Hk4joNE3OIPD/F/u/hU+sny1xy/DJOb3hHI3BLmLfn7f5Yb?=
+ =?us-ascii?q?Z990lcxRIpzdBe+51UCqsOIOjuVUDpqNPXFh85PBa1w+bhFtp9zZgTVnmTAq?=
+ =?us-ascii?q?+YNqPSrUGH5vgpI+aSeI8ZoiryK/8g5/T2l382hUcdfbW13ZsQcH24BeppI0?=
+ =?us-ascii?q?GYYXrqn9cAHnwHvhQxTOP0kl2OSz1TaGioX6I6+D47DJiqDYDZRoCimLaBxj?=
+ =?us-ascii?q?u0HoVKZmBaDVCBCXDod4CDW/cXbiKdONNunSIfWLi7VYAuyBGuuxXmy7Z9Mu?=
+ =?us-ascii?q?XU/SgY5trf041P5ubTnAs+vRx9DsKQyCnZVWB/nmoSSwg966B2oEpw0X+Jza?=
+ =?us-ascii?q?l+n/FCE9FPofhOV1F+fYXRy+18FsDaRA3MZJGKRUygT9HgBis+HfwrxNpbWF?=
+ =?us-ascii?q?pwA9WviFj42iOuB7IE3+iQCIcc7rPX33+3Id10jXnByv9y3BEdXsJTODj+1e?=
+ =?us-ascii?q?ZE/A/JCtuMyh7Img=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2AbAQAtYBde/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
+ =?us-ascii?q?QGBfIF9gWwBIBIqhAmJA4ZgAQEBAQEBBoE3iW6RSAkBAQEBAQEBAQE3AQGEQ?=
+ =?us-ascii?q?AKCEzgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYJ5AQEBAQIBIxVBBQsLGAICJ?=
+ =?us-ascii?q?gICVwYBDAYCAQGCYz+CSwMJBSCqeHWBMoVPg0KBPYEOKIwzeYEHgTgPgl0+g?=
+ =?us-ascii?q?huFPoI8IgSXH0aXR4JAgkWTXAYbgkeMQYtcjliBSZs0IoFYKwgCGAghD4MnU?=
+ =?us-ascii?q?BgNm3YjAzCRFQEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 09 Jan 2020 17:13:28 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 09 Jan 2020 17:18:42 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 009HCq10211732;
-        Thu, 9 Jan 2020 12:12:52 -0500
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 009HI626211796;
+        Thu, 9 Jan 2020 12:18:06 -0500
 Subject: Re: [PATCH V2 1/1] selinux-testsuite: Add filesystem tests
 To:     Richard Haines <richard_c_haines@btinternet.com>,
         selinux@vger.kernel.org
@@ -83,8 +83,8 @@ Cc:     omosnace@redhat.com
 References: <20200109150709.360345-1-richard_c_haines@btinternet.com>
  <20200109150709.360345-2-richard_c_haines@btinternet.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <26995a97-6d5d-5ae1-914b-25de620c4b5c@tycho.nsa.gov>
-Date:   Thu, 9 Jan 2020 12:14:05 -0500
+Message-ID: <aa333bd1-9fd8-b4a4-eba2-aa8d722cbc7e@tycho.nsa.gov>
+Date:   Thu, 9 Jan 2020 12:19:20 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
@@ -105,93 +105,57 @@ On 1/9/20 10:07 AM, Richard Haines wrote:
 > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > ---
 
-> diff --git a/tests/filesystem/fs_relabel.c b/tests/filesystem/fs_relabel.c
+> diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
 > new file mode 100644
-> index 0000000..25b1781
+> index 0000000..2eee1fc
 > --- /dev/null
-> +++ b/tests/filesystem/fs_relabel.c
-> @@ -0,0 +1,72 @@
-> +#include <stdio.h>
-> +#include <stdlib.h>
-> +#include <string.h>
-> +#include <unistd.h>
-> +#include <errno.h>
-> +#include <fcntl.h>
-> +#include <stdbool.h>
-> +#include <linux/unistd.h>
-> +#include <selinux/selinux.h>
+> +++ b/policy/test_filesystem.te
+> @@ -0,0 +1,324 @@
+> +#
+> +######### Test filesystem permissions policy module ##########
+> +#
+> +attribute filesystemdomain;
 > +
-> +static void print_usage(char *progname)
-> +{
-> +	fprintf(stderr,
-> +		"usage:  %s [-v] -n\n"
-> +		"Where:\n\t"
-> +		"-n  New fs context\n\t"
-> +		"-v  Print information.\n", progname);
-> +	exit(-1);
-> +}
+> +#################### Create a test file context ######################
+> +type test_filesystem_filecon_t;
+> +unconfined_runs_test(test_filesystem_filecon_t)
 > +
-> +int main(int argc, char **argv)
-> +{
-> +	int opt, result, save_err;
-> +	char *context, *fscreate_con, *newcon = NULL;
-> +	bool verbose = false;
+> +################# Test all functions ##########################
+> +type test_filesystem_t;
+> +domain_type(test_filesystem_t)
+> +unconfined_runs_test(test_filesystem_t)
+> +typeattribute test_filesystem_t testdomain;
+> +typeattribute test_filesystem_t filesystemdomain;
 > +
-> +	while ((opt = getopt(argc, argv, "n:v")) != -1) {
-> +		switch (opt) {
-> +		case 'n':
-> +			newcon = optarg;
-> +			break;
-> +		case 'v':
-> +			verbose = true;
-> +			break;
-> +		default:
-> +			print_usage(argv[0]);
-> +		}
-> +	}
+> +allow test_filesystem_t self:capability { sys_admin };
+> +allow test_filesystem_t self:filesystem { mount remount quotamod relabelfrom relabelto unmount quotaget };
+> +allow test_filesystem_t self:dir { mounton add_name write };
+> +allow test_filesystem_t test_file_t:dir { mounton write remove_name rmdir };
+> +# Create test file
+> +allow test_filesystem_t self:dir { add_name write };
+> +allow test_filesystem_t self:file { create relabelfrom relabelto };
 > +
-> +	if (!newcon)
-> +		print_usage(argv[0]);
+> +fs_mount_all_fs(test_filesystem_t)
+> +fs_remount_all_fs(test_filesystem_t)
+> +fs_unmount_all_fs(test_filesystem_t)
+> +fs_relabelfrom_all_fs(test_filesystem_t)
+> +fs_get_xattr_fs_quotas(test_filesystem_t)
+> +files_search_all(test_filesystem_t)
+> +# Required for mount opts "rootcontext=system_u:object_r:test_filesystem_t:s0";
+> +fs_associate(test_filesystem_t)
+> +fs_getattr_xattr_fs(test_filesystem_t)
 > +
-> +	if (verbose) {
-> +		result = getcon(&context);
-> +		if (result < 0) {
-> +			fprintf(stderr, "Failed to obtain process context\n");
-> +			exit(-1);
-> +		}
-> +		printf("Process context:\n\t%s\n", context);
-> +		free(context);
-> +	}
-> +
-> +	result = setfscreatecon(newcon);
-> +	save_err = errno;
-> +	if (result < 0) {
-> +		fprintf(stderr, "Failed setfscreatecon(3): %s\n",
-> +			strerror(errno));
-> +		return save_err;
-> +	}
-> +
-> +	result = getfscreatecon(&fscreate_con);
-> +	if (result < 0) {
-> +		fprintf(stderr, "Failed getfscreatecon(3): %s\n",
-> +			strerror(errno));
-> +		exit(-1);
-> +	}
-> +	if (verbose)
-> +		printf("New fscreate context: %s\n", fscreate_con);
-> +
-> +	free(fscreate_con);
-> +	return 0;
-> +}
+> +# For running quotacheck(8)
+> +files_type(test_filesystem_t)
+> +# Update quotas
+> +fs_set_all_quotas(test_filesystem_t)
+> +allow test_filesystem_t self:file { quotaon };
+> +# Create test file and change context:
+> +fs_associate(test_filesystem_filecon_t)
+> +allow test_filesystem_t test_filesystem_filecon_t:file { open read getattr relabelto write };
+> +dontaudit test_filesystem_t kernel_t:process { setsched };
 
-I'm a little confused by this test.  setfscreatecon() is normally 
-performed prior to performing some file creation using creat() or 
-open(O_CREAT), mkdir(), symlink(), etc and the expected behavior is that 
-the newly created file/directory/link/... will have the specified 
-security context.  I didn't see an explicit test that setfscreatecon() 
-followed by one or more file creations yields the expected context on 
-the new files, and I don't think we have an explicit test of this 
-functionality in the testsuite currently.
-
-
+Why do you need these dontaudit statements?  It seems like a kernel bug 
+if something is triggering a setsched permission check on the kernel_t 
+domain?  Something the kernel module is doing during initialization?
 
