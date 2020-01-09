@@ -2,117 +2,188 @@ Return-Path: <SRS0=XIqT=26=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEAD0C33CA1
-	for <selinux@archiver.kernel.org>; Thu,  9 Jan 2020 11:11:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13CE9C32771
+	for <selinux@archiver.kernel.org>; Thu,  9 Jan 2020 11:37:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 84B7A20656
-	for <selinux@archiver.kernel.org>; Thu,  9 Jan 2020 11:11:13 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=mg.codeaurora.org header.i=@mg.codeaurora.org header.b="k/a4/lEI"
+	by mail.kernel.org (Postfix) with ESMTP id E558D2072A
+	for <selinux@archiver.kernel.org>; Thu,  9 Jan 2020 11:37:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729696AbgAILLN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jan 2020 06:11:13 -0500
-Received: from mail26.static.mailgun.info ([104.130.122.26]:35025 "EHLO
-        mail26.static.mailgun.info" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728635AbgAILLM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jan 2020 06:11:12 -0500
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1578568272; h=Message-Id: Date: Subject: Cc: To: From:
- Sender; bh=qTrTf/+OME0vhfEHRHmoTZZeJoU8yVqYMMWBGfK1/9s=; b=k/a4/lEItQ/ROApEcjulu1OPeZ4OzOrmF4VeAu6ZzL/VqZDuUvaW5HuC2rndq9c3Y0GRR6HO
- BWwqAhA/TgLUd/rAnk15BUFc68hokgF4eIKEsNMRdG7JjseJ2fTl8qj/FGQti4fkLF4Tag+j
- 2kbKfBo+WbVETP9LBAqkjTElygY=
-X-Mailgun-Sending-Ip: 104.130.122.26
-X-Mailgun-Sid: WyIxZmM3MiIsICJzZWxpbnV4QHZnZXIua2VybmVsLm9yZyIsICJiZTllNGEiXQ==
-Received: from smtp.codeaurora.org (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171])
- by mxa.mailgun.org with ESMTP id 5e170a49.7ff576fddce0-smtp-out-n02;
- Thu, 09 Jan 2020 11:11:05 -0000 (UTC)
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 0CD54C433A2; Thu,  9 Jan 2020 11:11:05 +0000 (UTC)
-Received: from rsiddoji-linux.qualcomm.com (blr-c-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.19.19])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: rsiddoji)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 71B4BC4479C;
-        Thu,  9 Jan 2020 11:11:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 71B4BC4479C
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=rsiddoji@codeaurora.org
-From:   Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-To:     selinux@vger.kernel.org
-Cc:     Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
-Subject: [PATCH v4] selinux: move ibpkeys code under CONFIG_SECURITY_INFINIBAND.
-Date:   Thu,  9 Jan 2020 16:40:47 +0530
-Message-Id: <1578568247-29760-1-git-send-email-rsiddoji@codeaurora.org>
-X-Mailer: git-send-email 1.9.1
+        id S1726449AbgAILhB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jan 2020 06:37:01 -0500
+Received: from mga01.intel.com ([192.55.52.88]:55961 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725997AbgAILhA (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 9 Jan 2020 06:37:00 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 09 Jan 2020 03:37:00 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,413,1571727600"; 
+   d="scan'208";a="216275607"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga008.jf.intel.com with ESMTP; 09 Jan 2020 03:36:59 -0800
+Received: from [10.125.253.127] (abudanko-mobl.ccr.corp.intel.com [10.125.253.127])
+        by linux.intel.com (Postfix) with ESMTP id 2707C58043A;
+        Thu,  9 Jan 2020 03:36:50 -0800 (PST)
+Subject: Re: [PATCH v4 2/9] perf/core: open access for CAP_SYS_PERFMON
+ privileged process
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "james.bottomley@hansenpartnership.com" 
+        <james.bottomley@hansenpartnership.com>,
+        Serge Hallyn <serge@hallyn.com>,
+        James Morris <jmorris@namei.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Robert Richter <rric@kernel.org>, Jiri Olsa <jolsa@redhat.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Song Liu <songliubraving@fb.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "bpf@vger.kernel.org" <bpf@vger.kernel.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        linux-arm-kernel@lists.infradead.org, oprofile-list@lists.sf.net
+References: <c0460c78-b1a6-b5f7-7119-d97e5998f308@linux.intel.com>
+ <c93309dc-b920-f5fa-f997-e8b2faf47b88@linux.intel.com>
+ <20200108160713.GI2844@hirez.programming.kicks-ass.net>
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+Organization: Intel Corp.
+Message-ID: <cc239899-5c52-2fd0-286d-4bff18877937@linux.intel.com>
+Date:   Thu, 9 Jan 2020 14:36:50 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.1
+MIME-Version: 1.0
+In-Reply-To: <20200108160713.GI2844@hirez.programming.kicks-ass.net>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Move cache based  pkey sid  retrieval code which was added
-with  Commit "409dcf31" under CONFIG_SECURITY_INFINIBAND.
-As its  going to alloc a new cache which impacts
-low ram devices which was enabled by default.
 
-Suggested-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Ravi Kumar Siddojigari <rsiddoji@codeaurora.org>
----
- security/selinux/Makefile         |  4 +++-
- security/selinux/include/ibpkey.h | 12 ++++++++++++
- 2 files changed, 15 insertions(+), 1 deletion(-)
+On 08.01.2020 19:07, Peter Zijlstra wrote:
+> On Wed, Dec 18, 2019 at 12:25:35PM +0300, Alexey Budankov wrote:
+>>
+>> Open access to perf_events monitoring for CAP_SYS_PERFMON privileged
+>> processes. For backward compatibility reasons access to perf_events
+>> subsystem remains open for CAP_SYS_ADMIN privileged processes but
+>> CAP_SYS_ADMIN usage for secure perf_events monitoring is discouraged
+>> with respect to CAP_SYS_PERFMON capability.
+>>
+>> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
+>> ---
+>>  include/linux/perf_event.h | 6 +++---
+>>  kernel/events/core.c       | 6 +++---
+>>  2 files changed, 6 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+>> index 34c7c6910026..f46acd69425f 100644
+>> --- a/include/linux/perf_event.h
+>> +++ b/include/linux/perf_event.h
+>> @@ -1285,7 +1285,7 @@ static inline int perf_is_paranoid(void)
+>>  
+>>  static inline int perf_allow_kernel(struct perf_event_attr *attr)
+>>  {
+>> -	if (sysctl_perf_event_paranoid > 1 && !capable(CAP_SYS_ADMIN))
+>> +	if (sysctl_perf_event_paranoid > 1 && !perfmon_capable())
+>>  		return -EACCES;
+>>  
+>>  	return security_perf_event_open(attr, PERF_SECURITY_KERNEL);
+>> @@ -1293,7 +1293,7 @@ static inline int perf_allow_kernel(struct perf_event_attr *attr)
+>>  
+>>  static inline int perf_allow_cpu(struct perf_event_attr *attr)
+>>  {
+>> -	if (sysctl_perf_event_paranoid > 0 && !capable(CAP_SYS_ADMIN))
+>> +	if (sysctl_perf_event_paranoid > 0 && !perfmon_capable())
+>>  		return -EACCES;
+>>  
+>>  	return security_perf_event_open(attr, PERF_SECURITY_CPU);
+>> @@ -1301,7 +1301,7 @@ static inline int perf_allow_cpu(struct perf_event_attr *attr)
+>>  
+>>  static inline int perf_allow_tracepoint(struct perf_event_attr *attr)
+>>  {
+>> -	if (sysctl_perf_event_paranoid > -1 && !capable(CAP_SYS_ADMIN))
+>> +	if (sysctl_perf_event_paranoid > -1 && !perfmon_capable())
+>>  		return -EPERM;
+>>  
+>>  	return security_perf_event_open(attr, PERF_SECURITY_TRACEPOINT);
+> 
+> These are OK I suppose.
+> 
+>> diff --git a/kernel/events/core.c b/kernel/events/core.c
+>> index 059ee7116008..d9db414f2197 100644
+>> --- a/kernel/events/core.c
+>> +++ b/kernel/events/core.c
+>> @@ -9056,7 +9056,7 @@ static int perf_kprobe_event_init(struct perf_event *event)
+>>  	if (event->attr.type != perf_kprobe.type)
+>>  		return -ENOENT;
+>>  
+>> -	if (!capable(CAP_SYS_ADMIN))
+>> +	if (!perfmon_capable())
+>>  		return -EACCES;
+>>  
+>>  	/*
+> 
+> This one only allows attaching to already extant kprobes, right? It does
+> not allow creation of kprobes.
 
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index ccf950409384..2000f95fb197 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -6,7 +6,7 @@
- obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
- 
- selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
--	     netnode.o netport.o ibpkey.o \
-+	     netnode.o netport.o \
- 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
- 	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
- 
-@@ -14,6 +14,8 @@ selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
- 
- selinux-$(CONFIG_NETLABEL) += netlabel.o
- 
-+selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
-+
- ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
- 
- $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
-diff --git a/security/selinux/include/ibpkey.h b/security/selinux/include/ibpkey.h
-index a2ebe397bcb7..e3c08287fd9a 100644
---- a/security/selinux/include/ibpkey.h
-+++ b/security/selinux/include/ibpkey.h
-@@ -14,8 +14,20 @@
- #ifndef _SELINUX_IB_PKEY_H
- #define _SELINUX_IB_PKEY_H
- 
-+#ifdef CONFIG_SECURITY_INFINIBAND
- void sel_ib_pkey_flush(void);
- 
- int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid);
- 
-+#else
-+static inline void sel_ib_pkey_flush(void) {
-+  return;
-+}
-+
-+static inline int sel_ib_pkey_sid(u64 subnet_prefix, u16 pkey, u32 *sid) {
-+  *sid = SECINITSID_UNLABELED;
-+  return 0;
-+}
-+#endif
-+
- #endif
--- 
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
-a Linux Foundation Collaborative Project
+This unblocks creation of local trace kprobes and uprobes by CAP_SYS_PERFMON 
+privileged process, exactly the same as for CAP_SYS_ADMIN privileged process.
+
+> 
+>> @@ -9116,7 +9116,7 @@ static int perf_uprobe_event_init(struct perf_event *event)
+>>  	if (event->attr.type != perf_uprobe.type)
+>>  		return -ENOENT;
+>>  
+>> -	if (!capable(CAP_SYS_ADMIN))
+>> +	if (!perfmon_capable())
+>>  		return -EACCES;
+>>  
+>>  	/*
+> 
+> Idem, I presume.
+> 
+>> @@ -11157,7 +11157,7 @@ SYSCALL_DEFINE5(perf_event_open,
+>>  	}
+>>  
+>>  	if (attr.namespaces) {
+>> -		if (!capable(CAP_SYS_ADMIN))
+>> +		if (!perfmon_capable())
+>>  			return -EACCES;
+>>  	}
+> 
+> And given we basically make the entire kernel observable with this CAP,
+> busting namespaces shoulnd't be a problem either.
+> 
+> So yeah, I suppose that works.
+> 
