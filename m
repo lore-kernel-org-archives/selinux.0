@@ -2,179 +2,170 @@ Return-Path: <SRS0=2SWW=27=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A590C3F68F
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 16:44:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50328C282DD
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 16:46:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 21FFE206ED
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 16:44:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0E8412072E
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 16:46:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="dU204d41"
+	dkim=pass (1024-bit key) header.d=LenovoBeijing.onmicrosoft.com header.i=@LenovoBeijing.onmicrosoft.com header.b="ODJHisWh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728538AbgAJQob (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jan 2020 11:44:31 -0500
-Received: from sonic305-8.consmr.mail.bf2.yahoo.com ([74.6.133.47]:33934 "EHLO
-        sonic305-8.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728837AbgAJQob (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 11:44:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1578674669; bh=Z0yAe2gY+3u+oE07I9zx18MKpLJ8oAZm58GdLltCZbU=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=dU204d418tuy5YC9SukmB4WpIhZTc09hVijV2EToUSHvFQNrJzERBuzQ991JxWe2tuiXFvpOKA9CJqPMVffg7kcZsNSQpO/+cPdt97oACeuSQ7bs3RaMStbekGeU+gh2dTj9f634Nb+nrDPJ4jY/CRmPDx461KNC6koGuO1rEVcb3O2Cdz26DQElxvdhy7OYsNqSUCQBkjxkgYVhfkljmdTH8trIaAVJXbcnlrbcmDi4Bw4VEaxXOIWkZsEBIHIzDQ3qHbaAkCGk/VnwOrTmbDK9g8kKW3zb1PLCCGeB0I59odURtkXy3Zgo0D+cyqoK0YDpOqEBLzCnawhU6Ukq4w==
-X-YMail-OSG: eYJYnTsVM1nJy_nknd8jH_mItjhx1K6SWm73ZLdtdAuKOcMesbzqrDwM9jicR9y
- azkI0xpLtlaUNYDeM0n4BDl7lyMCEzK50jWo5oecv97FPMhFBGmU7DNI4h7nS6Vdf3UJUHjyfSf3
- WIZHmvWP3gRKqM_qbjm7CzicQKjs4NBUMpW29vNYkAa2uLJ67l8W8D6Q8xdWKkHzaYr0u6tzoEAu
- PHuzif.0DYGlYWRZvqooT1DG0Q.LfzK.SqqZNEJe.odzy8Xiu0LC9NzFT76Gvrk.t3yvFEZ2j6D2
- y.bZzc.hXh3DFKoLOajK0brzJTLBv8FNeVNHVSxBpeBZtAbdKxRA.vW1EDTDKwJK4hRDUwhGRJMu
- g8h6jjv4G5QHC4IP3rGE3Pa.gMa2Wab_23ATHzXdVAujvkCKaq49vIcap6Q_oeGaq.sy56TGCnrc
- ZNA.UB4eqliPSBQSpmwLIw_TDdY05x6NYYgFirjUJGqp9NwLMjy1i9QSAvgkzSu5azFpGdsf3RBG
- Ayl_Rbn6Hbl_Sj8egEDv7C9cwj82AixwnE10wzzpdYB97bWU7F7kU2jDC7AS2NBH37ez_ewNb96h
- wP69EE06w2NDcm7Hc7TO3I1sAPo20VH6ttYlyMZi8EkdyMgy9SkLWk.7xaADV9CySlB7x6rHRGZB
- sByOEq3FEWDicJVB6A6.M.aF6cF7P7PNo87qwFzxeXy32OobHdIqLdyrmc8u53z8R8as4A_jIyxt
- cc_6yEqtkVVBYXBF3UW2UZX13GjawCwGDdUSI_MVHG5kq_c0JlYb0cr1PV7f4rrCTdC3i8XFqoqW
- iXlKULZGEEcG8HAb7c0sI2w7rOA8J765GhpSxtLvwkDjNbzDVy.eLN_4pNLyzG96EDMb7QeIgHPE
- VS90rm_iRw8jWMZioAOgmbdW47zVWB4nhUhRAUAuhEHwuDn5fr.wdVi4TpnoMsYAAtBw3qvCdw4L
- WFxl_tuoXEa1kRwyvYFRB8t2Xt5ynTHScMuT_QchzUd6k1OGxY2TDmcWx8srAtCOzjrHsLA_n50I
- 53vbbHAfQ6R3IUdAJVW7mQpj5oAYyc.uCaIXPMYZ1HpQI0wwjM2YFOPZusBISTvr2CBBJ4TamQjN
- 3t3C2RZHvFHg4PK76an0Y_azin4g4AzU1MU16z4dA_EQyiRctODxFsczgqnlgBE71VSadWbhd37R
- 2im95d3wxf5ljDdvrUZ0Gk.L8zoAyyAWd3D0HdWtOAFRBr55LVrc_UtrEWGCTedmxmDXyZD8QUXL
- S2gUV26dOSItYCbpk.AsumNmf8_SnC_UnoBJPhRK.Ast6CUliX570tekXA8x9cX2m12kYayPJUvq
- TRU5Ga8URHUpyUcCZvMUQlI3Pi4fJiRMrcbwRhkUCWLZ0aoYYYmigDTjqAPRZ3SUj5VZ1mUORvYp
- 8rhJmESc6vD6_Gy0VIgsMt0LKmSw_wi9mjkBZR5hm
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.bf2.yahoo.com with HTTP; Fri, 10 Jan 2020 16:44:29 +0000
-Received: by smtp402.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 8fd6bc7821c9c5592201a3e5de6585b4;
-          Fri, 10 Jan 2020 16:44:26 +0000 (UTC)
-Subject: Re: [PATCH] selinux: remove redundant msg_msg_alloc_security
+        id S1728946AbgAJQqz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jan 2020 11:46:55 -0500
+Received: from mail1.bemta23.messagelabs.com ([67.219.246.1]:52963 "EHLO
+        mail1.bemta23.messagelabs.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728868AbgAJQqy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 11:46:54 -0500
+Received: from [67.219.246.111] (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256 bits))
+        by server-1.bemta.az-b.us-east-1.aws.symcld.net id 74/EB-12313-B7AA81E5; Fri, 10 Jan 2020 16:46:51 +0000
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrDJsWRWlGSWpSXmKPExsWS8eIhj27VKok
+  4g9VNXBadD88yW6xbv5jJ4vKuOWwWH3oesVncnjSdxeLw7sXMFuePH2O3OH/hHLvFnqMdzA6c
+  Htd2R3r0fE/2OPs1ymPt3heMHlun/2f1+LxJzuP8/X/sAexRrJl5SfkVCawZPSt/sRT08Vdsf
+  rqCuYHxC18XIxeHkEADk8Slw+eYIJxXjBKfT29mg8ss6Wxk72LkBHJ+M0pc6xQESTAKLGWWmL
+  N3JiOEc4xF4tHMj6wQzgZGie5fn8EyLAK7mSWuNE5kgRg2kUliy65nzBDObUaJj8/+soBMZhP
+  QlDj55hpYQkTgBqPEpE37wIYxC/QwSVzYNxesSljAVeLqhT2sILaIgJvE4y3P2SFsPYlzb+8z
+  g9gsAqoS0/evYgSxeQVigHoPgtUwCshKTHt0nwnEZhYQl5g7bRbYHAkBAYkle84zQ9iiEi8f/
+  wOKcwDVB0m82xIHEVaS+HfhPwuELStxaX43I4TtK7Gnbys7SLmEgJbE2gVOEKaKxL9DlRAV2R
+  JnNs+EGq4msefbEagpMhK3Wk+BfSghsI5FYn/TXfYJjPqzkBw3C2gUMzBY1u+CCitKTOl+yD4
+  L7C9BiZMzn7AsYGRZxWiWVJSZnlGSm5iZo2toYKBraGika6xrZGihl1ilm6RXWqybmlhcomuo
+  l1herFdcmZuck6KXl1qyiRGY5FIKmG/tYPz89a3eIUZJDiYlUV7OOPE4Ib6k/JTKjMTijPii0
+  pzU4kOMMhwcShK8ySsk4oQEi1LTUyvSMnOACRcmLcHBoyTCywqS5i0uSMwtzkyHSJ1iNOaY8H
+  LuImaOI3OXLmIWYsnLz0uVEudlWAlUKgBSmlGaBzcIlgkuMcpKCfMyMjAwCPEUpBblZpagyr9
+  iFOdgVBLmXQGykCczrwRuHzDhAn0hwnvnjijIKSWJCCmpBqZQmT31OTE56cXFj42Flj+Qua1w
+  8YX/ZtEZJx+bik6/lMiuUuTMXiUQIXQ4au6z5KNMSpP/Gc24Xti5TNhZT/bJFDMdCafjPfNrL
+  q06JH5eR0En8Nr72UE+XCxfkw4VZDx85Jn4UvG09a/X+8rt3z+z12EILVQO8tYz4ZqezHTztM
+  HLWQ55ekm1Mzs+71WIjvl1YsaXN90aFucP7LvQvzwkuPkFH/fRxZ223EtyhN6VFPS9C+gSeyr
+  1v8cn5SPvkyNsNY3cB3xev9GYHvFux9Glj5QOSmU/d78X+/ZPFZPyzqriX/Oq3dsnWD0xn157
+  7NsK/8br+p5XblVKenQe9OsLj2YpW97zVyxnu8d/AyWW4oxEQy3mouJEAIuLVN9/BAAA
+X-Env-Sender: yehs1@lenovo.com
+X-Msg-Ref: server-33.tower-395.messagelabs.com!1578674809!1729330!1
+X-Originating-IP: [104.232.225.12]
+X-SYMC-ESS-Client-Auth: outbound-route-from=pass
+X-StarScan-Received: 
+X-StarScan-Version: 9.44.22; banners=-,-,-
+X-VirusChecked: Checked
+Received: (qmail 16667 invoked from network); 10 Jan 2020 16:46:50 -0000
+Received: from unknown (HELO lenovo.com) (104.232.225.12)
+  by server-33.tower-395.messagelabs.com with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP; 10 Jan 2020 16:46:50 -0000
+Received: from HKGWPEMAIL01.lenovo.com (unknown [10.128.3.69])
+        (using TLSv1.2 with cipher AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by Forcepoint Email with ESMTPS id 18A2B6315A5F4D67F071;
+        Fri, 10 Jan 2020 11:46:47 -0500 (EST)
+Received: from HKGWPEMAIL01.lenovo.com (10.128.3.69) by
+ HKGWPEMAIL01.lenovo.com (10.128.3.69) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.1779.2; Sat, 11 Jan 2020 00:46:45 +0800
+Received: from HKEXEDGE01.lenovo.com (10.128.62.71) by HKGWPEMAIL01.lenovo.com
+ (10.128.3.69) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.1779.2 via Frontend
+ Transport; Sat, 11 Jan 2020 00:46:45 +0800
+Received: from KOR01-SL2-obe.outbound.protection.outlook.com (104.47.108.51)
+ by mail.lenovo.com (10.128.62.71) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.1779.2; Sat, 11 Jan
+ 2020 00:46:35 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Oy/Rvldhjr7Gv/WvUx7NgtkeKPF9v20QMfOTkqNGHE6NKtuVG3g+1uAblrMtrZHOY+od/2xGiidd1wL5vLwUCSxnA7WupASHPV5Nw1kZlxBdssYU2ddm7aXb4dOq0IBYA26M/VYKkUVPGUe6on1PzG2NmpHRv8oILAIAVyDUzUELxnaNhWm3gwqqncUOALgMgd54PzNsRCzUOcorJ+sfX18QLS3D8e7nBMTNBIhdlBJbFwhTUcrmq/PXXKWx1Kks+Iq8jb1Cr2wBj5uWzP1GvF3TK8xzHaOmgQo+V7mGSsWhH1rzcB1SavNOXHxtU/ZwhCIXyza+5oLnWr1wWtzE1A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3Yqss8Xe3KoEG3yhdoxCDb1x+/XndZWBkHsxNIv8In0=;
+ b=B0hK6kmOW+k4ju28VeVuz7lhx2GNKG/ntca+62mfw7wpQh0gVMDZCzf/vNon+9LSB3DYHaOnBArFjh99HlyxnqBcNgxZF6zmTib+WwOj6NvdlqS0ehRuO7Okd7tcUR1bdDtnEnPx6/ksd3x0URoqi9dWVHgDZ3FVbPkZxOXtGbgdUbzcKlbx/Gk8uUL9wodYoJzMByr6gyBQPDDXp3WO9DjPLN6RfWia9sAUEwiqjShbB6YvPTZ3VZmedzjPBuuDojSjufnXAcu7NSk/wSU8YY2vegH6IeFKp5kJdmkUotV1PeAjgHKJMwVskXVIAlUiiK4BnHyjAHXB067oHO/2kw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=lenovo.com; dmarc=pass action=none header.from=lenovo.com;
+ dkim=pass header.d=lenovo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=LenovoBeijing.onmicrosoft.com; s=selector2-LenovoBeijing-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=3Yqss8Xe3KoEG3yhdoxCDb1x+/XndZWBkHsxNIv8In0=;
+ b=ODJHisWhD6FXPT1DezFGRJr6ICG3KMjCVBbbyoItVfVXjwC/QY4pD6jYW4Xikc3Qtj2nxbkRz86F5Qel0AbmINOdjOzj8CJUq4hjWjPzNq7nTxJuIISBiCfdXVudCaAr1jvHdEE6j6C2fmMCRzPUt6EmPcmPK1psAVJTHMnRvJQ=
+Received: from SL2PR03MB4425.apcprd03.prod.outlook.com (20.178.163.203) by
+ SL2PR03MB4603.apcprd03.prod.outlook.com (20.178.162.150) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2644.5; Fri, 10 Jan 2020 16:46:34 +0000
+Received: from SL2PR03MB4425.apcprd03.prod.outlook.com
+ ([fe80::ac:7d71:eba7:1565]) by SL2PR03MB4425.apcprd03.prod.outlook.com
+ ([fe80::ac:7d71:eba7:1565%7]) with mapi id 15.20.2644.010; Fri, 10 Jan 2020
+ 16:46:34 +0000
+From:   Huaisheng HS1 Ye <yehs1@lenovo.com>
 To:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Huaisheng Ye <yehs2007@zoho.com>, paul@paul-moore.com,
-        eparis@parisplace.org, jmorris@namei.org, serge@hallyn.com
-Cc:     tyu1@lenovo.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Huaisheng Ye <yehs1@lenovo.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20200110095856.76612-1-yehs2007@zoho.com>
- <e71932ce-0687-02e5-5f34-980c0cad4ae9@tycho.nsa.gov>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- mQINBFzV9HABEAC/mmv3jeJyF7lR7QhILYg1+PeBLIMZv7KCzBSc/4ZZipoWdmr77Lel/RxQ
- 1PrNx0UaM5r6Hj9lJmJ9eg4s/TUBSP67mTx+tsZ1RhG78/WFf9aBe8MSXxY5cu7IUwo0J/CG
- vdSqACKyYPV5eoTJmnMxalu8/oVUHyPnKF3eMGgE0mKOFBUMsb2pLS/enE4QyxhcZ26jeeS6
- 3BaqDl1aTXGowM5BHyn7s9LEU38x/y2ffdqBjd3au2YOlvZ+XUkzoclSVfSR29bomZVVyhMB
- h1jTmX4Ac9QjpwsxihT8KNGvOM5CeCjQyWcW/g8LfWTzOVF9lzbx6IfEZDDoDem4+ZiPsAXC
- SWKBKil3npdbgb8MARPes2DpuhVm8yfkJEQQmuLYv8GPiJbwHQVLZGQAPBZSAc7IidD2zbf9
- XAw1/SJGe1poxOMfuSBsfKxv9ba2i8hUR+PH7gWwkMQaQ97B1yXYxVEkpG8Y4MfE5Vd3bjJU
- kvQ/tOBUCw5zwyIRC9+7zr1zYi/3hk+OG8OryZ5kpILBNCo+aePeAJ44znrySarUqS69tuXd
- a3lMPHUJJpUpIwSKQ5UuYYkWlWwENEWSefpakFAIwY4YIBkzoJ/t+XJHE1HTaJnRk6SWpeDf
- CreF3+LouP4njyeLEjVIMzaEpwROsw++BX5i5vTXJB+4UApTAQARAQABtChDYXNleSBTY2hh
- dWZsZXIgPGNhc2V5QHNjaGF1Zmxlci1jYS5jb20+iQJUBBMBCAA+FiEEC+9tH1YyUwIQzUIe
- OKUVfIxDyBEFAlzV9HACGwMFCRLMAwAFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQOKUV
- fIxDyBG6ag/6AiRl8yof47YOEVHlrmewbpnlBTaYNfJ5cZflNRKRX6t4bp1B2YV1whlDTpiL
- vNOwFkh+ZE0eI5M4x8Gw2Oiok+4Q5liA9PHTozQYF+Ia+qdL5EehfbLGoEBqklpGvG3h8JsO
- 7SvONJuFDgvab/U/UriDYycJwzwKZuhVtK9EMpnTtUDyP3DY+Q8h7MWsniNBLVXnh4yBIEJg
- SSgDn3COpZoFTPGKE+rIzioo/GJe8CTa2g+ZggJiY/myWTS3quG0FMvwvNYvZ4I2g6uxSl7n
- bZVqAZgqwoTAv1HSXIAn9muwZUJL03qo25PFi2gQmX15BgJKQcV5RL0GHFHRThDS3IyadOgK
- P2j78P8SddTN73EmsG5OoyzwZAxXfck9A512BfVESqapHurRu2qvMoUkQaW/2yCeRQwGTsFj
- /rr0lnOBkyC6wCmPSKXe3dT2mnD5KnCkjn7KxLqexKt4itGjJz4/ynD/qh+gL7IPbifrQtVH
- JI7cr0fI6Tl8V6efurk5RjtELsAlSR6fKV7hClfeDEgLpigHXGyVOsynXLr59uE+g/+InVic
- jKueTq7LzFd0BiduXGO5HbGyRKw4MG5DNQvC//85EWmFUnDlD3WHz7Hicg95D+2IjD2ZVXJy
- x3LTfKWdC8bU8am1fi+d6tVEFAe/KbUfe+stXkgmfB7pxqW5Ag0EXNX0cAEQAPIEYtPebJzT
- wHpKLu1/j4jQcke06Kmu5RNuj1pEje7kX5IKzQSs+CPH0NbSNGvrA4dNGcuDUTNHgb5Be9hF
- zVqRCEvF2j7BFbrGe9jqMBWHuWheQM8RRoa2UMwQ704mRvKr4sNPh01nKT52ASbWpBPYG3/t
- WbYaqfgtRmCxBnqdOx5mBJIBh9Q38i63DjQgdNcsTx2qS7HFuFyNef5LCf3jogcbmZGxG/b7
- yF4OwmGsVc8ufvlKo5A9Wm+tnRjLr/9Mn9vl5Xa/tQDoPxz26+aWz7j1in7UFzAarcvqzsdM
- Em6S7uT+qy5jcqyuipuenDKYF/yNOVSNnsiFyQTFqCPCpFihOnuaWqfmdeUOQHCSo8fD4aRF
- emsuxqcsq0Jp2ODq73DOTsdFxX2ESXYoFt3Oy7QmIxeEgiHBzdKU2bruIB5OVaZ4zWF+jusM
- Uh+jh+44w9DZkDNjxRAA5CxPlmBIn1OOYt1tsphrHg1cH1fDLK/pDjsJZkiH8EIjhckOtGSb
- aoUUMMJ85nVhN1EbU/A3DkWCVFEA//Vu1+BckbSbJKE7Hl6WdW19BXOZ7v3jo1q6lWwcFYth
- esJfk3ZPPJXuBokrFH8kqnEQ9W2QgrjDX3et2WwZFLOoOCItWxT0/1QO4ikcef/E7HXQf/ij
- Dxf9HG2o5hOlMIAkJq/uLNMvABEBAAGJAjwEGAEIACYWIQQL720fVjJTAhDNQh44pRV8jEPI
- EQUCXNX0cAIbDAUJEswDAAAKCRA4pRV8jEPIEWkzEACKFUnpp+wIVHpckMfBqN8BE5dUbWJc
- GyQ7wXWajLtlPdw1nNw0Wrv+ob2RCT7qQlUo6GRLcvj9Fn5tR4hBvR6D3m8aR0AGHbcC62cq
- I7LjaSDP5j/em4oVL2SMgNTrXgE2w33JMGjAx9oBzkxmKUqprhJomPwmfDHMJ0t7y39Da724
- oLPTkQDpJL1kuraM9TC5NyLe1+MyIxqM/8NujoJbWeQUgGjn9uxQAil7o/xSCjrWCP3kZDID
- vd5ZaHpdl8e1mTExQoKr4EWgaMjmD/a3hZ/j3KfTVNpM2cLfD/QwTMaC2fkK8ExMsz+rUl1H
- icmcmpptCwOSgwSpPY1Zfio6HvEJp7gmDwMgozMfwQuT9oxyFTxn1X3rn1IoYQF3P8gsziY5
- qtTxy2RrgqQFm/hr8gM78RhP54UPltIE96VywviFzDZehMvuwzW//fxysIoK97Y/KBZZOQs+
- /T+Bw80Pwk/dqQ8UmIt2ffHEgwCTbkSm711BejapWCfklxkMZDp16mkxSt2qZovboVjXnfuq
- wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
- v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
- abzjfg==
-Message-ID: <e556e93a-9e2c-8045-b191-629f78dbb7fd@schaufler-ca.com>
-Date:   Fri, 10 Jan 2020 08:44:25 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
+        "paul@paul-moore.com" <paul@paul-moore.com>,
+        "eparis@parisplace.org" <eparis@parisplace.org>,
+        "jmorris@namei.org" <jmorris@namei.org>,
+        "serge@hallyn.com" <serge@hallyn.com>
+CC:     Tzu ting Yu1 <tyu1@lenovo.com>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Huaisheng Ye <yehs2007@zoho.com>
+Subject: Re: [PATCH] selinux: remove redundant msg_msg_alloc_security
+Thread-Topic: [PATCH] selinux: remove redundant msg_msg_alloc_security
+Thread-Index: AdXH1XutBMvy1rlaSm6SDVDC+PBSdw==
+Date:   Fri, 10 Jan 2020 16:46:34 +0000
+Message-ID: <SL2PR03MB4425F3C1A2DA9F0EC48B10A292380@SL2PR03MB4425.apcprd03.prod.outlook.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [221.219.123.16]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 075230e7-37ba-4d40-f4c5-08d795eca70c
+x-ms-traffictypediagnostic: SL2PR03MB4603:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <SL2PR03MB4603C5E017018AFFCF4C8E2992380@SL2PR03MB4603.apcprd03.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:6430;
+x-forefront-prvs: 02788FF38E
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(396003)(346002)(366004)(136003)(39860400002)(376002)(199004)(189003)(13464003)(51914003)(51444003)(86362001)(4326008)(76116006)(66946007)(316002)(81156014)(81166006)(52536014)(53546011)(71200400001)(9686003)(55016002)(186003)(26005)(7696005)(6506007)(110136005)(5660300002)(54906003)(33656002)(8936002)(66556008)(64756008)(66446008)(66476007)(8676002)(2906002)(478600001);DIR:OUT;SFP:1102;SCL:1;SRVR:SL2PR03MB4603;H:SL2PR03MB4425.apcprd03.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: lenovo.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: GUM0331uUruvtWWgV/ki5DiU2Ld135yR6HDmZejJLnVdHV4XFRCcBEagkjYjX30Rc36UWXIadrnfdGtZ0UNtFxzzbsS7r9eYV0SWisH3dFz1HUasmZrRyeffC4nlKBpJIdoAv1Uvr3O87p5LrN0ErzEygdealpJ8zsLJ2ZutDoYpjk0gDimkK5FVjP6WOaPeTZyhHTT9fHj9GKzSpxub78oUuYfDnE+EGKWa+U8zuqqHWJXxIQWSoC9zYPuw7hd1+yFGse1DIcj8BM2eL191FUJsakn2vq7xXEKHT+vPFmhGu9A98AgXkfMW30o3lJU/rRbUIrsuiD3XWKgd8h42ztmTWoboq9vLSCGYR5mOXJIJB5sxNuPOpFGHZbaZbi8eQU7b3vm0Hmy0gdoH6Uj6X2SameA+dvDS0z43IMEH4NmqlZRWAkDLANFB4LvpAvt0Ln6YIE9xgvSFgRjHPqLppvDRlhRh8aEYpxHleoY2Ue2RX3G5z4jOOElvYOlM42ebu+Lv39S5uLBORxsECcK4LeasPDHZOMZlHzCYxmkl2v8=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-In-Reply-To: <e71932ce-0687-02e5-5f34-980c0cad4ae9@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.14873 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 075230e7-37ba-4d40-f4c5-08d795eca70c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jan 2020 16:46:34.1950
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5c7d0b28-bdf8-410c-aa93-4df372b16203
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: dmQw1Tvy4Gpyh3FqJ2YuRuwLTZmhQnLwhwvzGl5GbtVBYnPVN7/muKuI1twT66uVcaYejDE2ucg9NXCd0mXZEQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SL2PR03MB4603
+X-OriginatorOrg: lenovo.com
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/10/2020 7:13 AM, Stephen Smalley wrote:
-> On 1/10/20 4:58 AM, Huaisheng Ye wrote:
->> From: Huaisheng Ye <yehs1@lenovo.com>
->>
->> selinux_msg_msg_alloc_security only calls msg_msg_alloc_security but
->> do nothing else. And also msg_msg_alloc_security is just used by the
->> former.
->>
->> Remove the redundant function to simplify the code.
->
-> This seems to also be true of other _alloc_security functions, probably due to historical reasons.  Further, at least some of these functions no longer perform any allocation; they are just initialization functions now that allocation has been taken to the LSM framework, so possibly could be renamed and made to return void at some point.
-
-That's something I've been eyeing. I'm not 100% sure that no module will
-ever fail doing the new style initialization. The int to void and name
-change will probably happen after the next round of modules come in and
-we can see that failure of initialization isn't a rational situation.
-
->
->>
->> Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
->
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
->
->> ---
->>   security/selinux/hooks.c | 17 ++++++-----------
->>   1 file changed, 6 insertions(+), 11 deletions(-)
->>
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 9625b99..fb1b9da 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -5882,16 +5882,6 @@ static void ipc_init_security(struct ipc_security_struct *isec, u16 sclass)
->>       isec->sid = current_sid();
->>   }
->>   -static int msg_msg_alloc_security(struct msg_msg *msg)
->> -{
->> -    struct msg_security_struct *msec;
->> -
->> -    msec = selinux_msg_msg(msg);
->> -    msec->sid = SECINITSID_UNLABELED;
->> -
->> -    return 0;
->> -}
->> -
->>   static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
->>               u32 perms)
->>   {
->> @@ -5910,7 +5900,12 @@ static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
->>     static int selinux_msg_msg_alloc_security(struct msg_msg *msg)
->>   {
->> -    return msg_msg_alloc_security(msg);
->> +    struct msg_security_struct *msec;
->> +
->> +    msec = selinux_msg_msg(msg);
->> +    msec->sid = SECINITSID_UNLABELED;
->> +
->> +    return 0;
->>   }
->>     /* message queue security operations */
->>
->
->
+DQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IFN0ZXBoZW4gU21hbGxleSA8
+c2RzQHR5Y2hvLm5zYS5nb3Y+DQo+IFNlbnQ6IEZyaWRheSwgSmFudWFyeSAxMCwgMjAyMCAxMTox
+NCBQTQ0KPiANCj4gT24gMS8xMC8yMCA0OjU4IEFNLCBIdWFpc2hlbmcgWWUgd3JvdGU6DQo+ID4g
+RnJvbTogSHVhaXNoZW5nIFllIDx5ZWhzMUBsZW5vdm8uY29tPg0KPiA+DQo+ID4gc2VsaW51eF9t
+c2dfbXNnX2FsbG9jX3NlY3VyaXR5IG9ubHkgY2FsbHMgbXNnX21zZ19hbGxvY19zZWN1cml0eSBi
+dXQNCj4gPiBkbyBub3RoaW5nIGVsc2UuIEFuZCBhbHNvIG1zZ19tc2dfYWxsb2Nfc2VjdXJpdHkg
+aXMganVzdCB1c2VkIGJ5IHRoZQ0KPiA+IGZvcm1lci4NCj4gPg0KPiA+IFJlbW92ZSB0aGUgcmVk
+dW5kYW50IGZ1bmN0aW9uIHRvIHNpbXBsaWZ5IHRoZSBjb2RlLg0KPiANCj4gVGhpcyBzZWVtcyB0
+byBhbHNvIGJlIHRydWUgb2Ygb3RoZXIgX2FsbG9jX3NlY3VyaXR5IGZ1bmN0aW9ucywgcHJvYmFi
+bHkgZHVlIHRvDQo+IGhpc3RvcmljYWwgcmVhc29ucy4gIEZ1cnRoZXIsIGF0IGxlYXN0IHNvbWUg
+b2YgdGhlc2UgZnVuY3Rpb25zIG5vIGxvbmdlciBwZXJmb3JtDQo+IGFueSBhbGxvY2F0aW9uOyB0
+aGV5IGFyZSBqdXN0IGluaXRpYWxpemF0aW9uIGZ1bmN0aW9ucyBub3cgdGhhdCBhbGxvY2F0aW9u
+IGhhcw0KPiBiZWVuIHRha2VuIHRvIHRoZSBMU00gZnJhbWV3b3JrLCBzbyBwb3NzaWJseSBjb3Vs
+ZCBiZSByZW5hbWVkIGFuZCBtYWRlIHRvIHJldHVybg0KPiB2b2lkIGF0IHNvbWUgcG9pbnQuDQo+
+IA0KPiA+DQo+ID4gU2lnbmVkLW9mZi1ieTogSHVhaXNoZW5nIFllIDx5ZWhzMUBsZW5vdm8uY29t
+Pg0KPiANCj4gQWNrZWQtYnk6IFN0ZXBoZW4gU21hbGxleSA8c2RzQHR5Y2hvLm5zYS5nb3Y+DQoN
+Ck1hbnkgdGhhbmtzIGZvciB0aGUgQWNrZWQtYnkuDQoNClllcywgeW91IGFyZSByaWdodCwgc2Vs
+aW51eF9tc2dfbXNnX2FsbG9jX3NlY3VyaXR5IG9ubHkgY2FuIHJldHVybiAwIGluIGFueSBjYXNl
+Lg0KSSB0aGluayB0aGF0IHNob3VsZCBiZSBtb2RpZmllZCB0byB2b2lkIGluc3RlYWQgb2YgaW50
+Lg0KDQpBbmQgYWxzbywgdGhlIGZhY3QgaXMgbm8gbW9kdWxlIG5lZWRzIHRvIGltcGxlbWVudCBt
+c2dfbXNnX2ZyZWVfc2VjdXJpdHksIGJlY2F1c2UNCkxTTSB3b3VsZCB0YWtlIHRoZSByZXNwb25z
+aWJpbGl0eSBmb3IgZnJlZWluZyBtc2ctPnNlY3VyaXR5Lg0KSSB0aGluayB3ZSBjb3VsZCBkZWxl
+dGUgdGhlIGhvb2sgY2FsbCBvZiBtc2dfbXNnX2ZyZWVfc2VjdXJpdHksIGJ1dCBJIGFtIGNhdXRp
+b3VzDQp0byBtb2RpZnkgdGhlIGV4aXN0aW5nIGludGVyZmFjZXMsIHRoYXQganVzdCB3b3JyeSB0
+byBicmVhayB0cmFkaXRpb25hbCBydWxlcy4NCg0KQ2hlZXJzLA0KSHVhaXNoZW5nIFllDQpMZW5v
+dm8NCg0K
