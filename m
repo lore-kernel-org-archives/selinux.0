@@ -2,177 +2,227 @@ Return-Path: <SRS0=2SWW=27=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 768FCC282DD
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 21:02:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4104EC282DD
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 21:32:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2EB772072E
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 21:02:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1231E20838
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 21:32:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="BPnJhdNC"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="uNNAYywh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726859AbgAJVCB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jan 2020 16:02:01 -0500
-Received: from mail-lj1-f195.google.com ([209.85.208.195]:37166 "EHLO
-        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726836AbgAJVCB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 16:02:01 -0500
-Received: by mail-lj1-f195.google.com with SMTP id o13so3524348ljg.4
-        for <selinux@vger.kernel.org>; Fri, 10 Jan 2020 13:01:59 -0800 (PST)
+        id S1726891AbgAJVcN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jan 2020 16:32:13 -0500
+Received: from mail-qv1-f67.google.com ([209.85.219.67]:39543 "EHLO
+        mail-qv1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726836AbgAJVcN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 16:32:13 -0500
+Received: by mail-qv1-f67.google.com with SMTP id y8so1458962qvk.6
+        for <selinux@vger.kernel.org>; Fri, 10 Jan 2020 13:32:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=z8WBZdCWjz+iFpfHXk0D3ftIaLDNxDnn8aRPtPk15T4=;
-        b=BPnJhdNCBO579L4QrbdkZ5F1datZgkMX75UNQuJ4kkaRCV/1iDguLSgC7cYzDnywyf
-         /0yOTBPSM8Xut4TMsVwwoVEKjsH/e4KD1ALTPvp8q5ZllakcMfybCFdAbZpHxsbKKQIa
-         s989x5R6sAMC1O3RcJyg6pYGqn3FJcdv/WSxb61SouDOHlh2WIAVCE+K6A5GQq9HsfKf
-         ZXAvODO6lLADa8gD3mQ6sZdN9IKfUYUKGmN/vU8f2Svx4K9HUJMCUNcVbOl97hE68Jm4
-         pO0dOtIE/ORhlyWJ+P8zaKK7hd33fhuckdj2JZ2trWHQqH7E/73TmsImc+QIVFNPWC/y
-         vnDg==
+        h=subject:from:to:date:message-id:user-agent:mime-version
+         :content-transfer-encoding;
+        bh=Chmj9OkeFxatK/Exl+tgjUhpo62A3QT8B8QlkG219cY=;
+        b=uNNAYywhyTTHAD4FT8+swKGCy65YL2IVn3e1NXj1NVV/Bo+c0ulIfLNpmrk3/4pDUQ
+         7B6nL9JU4NjXhj8KWRad2+Sg9yH2bZIrVKzQTC4VW0V8m+dtr9PkA8SguNBaY85ksYoI
+         YmyixcqX0aRBRQE8GQVxv50PMkW+kOdoqQQvv+Y9MheLLKmn9UQU9jNSG5+nE+bKwC1o
+         Is1tijuchrp/XNERu/WqMV4RTijTQ8pNM5ADwlcpP/zoj0XjRA2WtZfZYuEk3GEx2rpK
+         ZHd1H4yddlzPWbzUNawKMCawuO96ZNo4SkdvyBUPIUtMWMv577vV6p/qsDteiSvDmT8R
+         AW+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=z8WBZdCWjz+iFpfHXk0D3ftIaLDNxDnn8aRPtPk15T4=;
-        b=kPZaKiSoJgH0XbeluUF2u6Vi7R8TtxAIR5xDR5LrnAAzjZ86MTH1Ac8J77t654gEt0
-         aegpB+UBZizzNymr1DDBnU0jQO5YMxqA+hs1S1NCRE0rfOkUWHQQltd5NN1//ucIkiie
-         rbvqm3Gvu0h+mu2Xl4IQvFAEdr4wkjKYx9d/eLgMf1A3kCSDOXIfu0x5D9bb4+dinzkO
-         hfj726exyzg5MXtw30cQtfyzYbKp5RFBRtZWM7n0glDKT5v3hC7Ut7xEq/ExEDrAx72k
-         QfGcdO12yX0KsVIWuVU+/rRX9UdEQa5AbvtE77I60xrYl/Z0qBM7dDFdnRq9e5qcXGGL
-         sFMw==
-X-Gm-Message-State: APjAAAUo7ZKRFEFVZCT3CvqMWQaAktPsC7o/S6P1iiNFcFZvy1K2iAue
-        Jx57C/X7L37F44WKtBjtw0kypgHLum89IgSqeQZk
-X-Google-Smtp-Source: APXvYqwUUr/W/4yxA8nw49ohd7jXSBYrmH3UanlUmXHqdo+3Vgl6HEGf+3zBxXmgAk9Mk9Ty3LkgQ1+vlLmu4btovoU=
-X-Received: by 2002:a2e:8152:: with SMTP id t18mr3680289ljg.255.1578690118328;
- Fri, 10 Jan 2020 13:01:58 -0800 (PST)
-MIME-Version: 1.0
-References: <20200110142038.21602-1-cgzones@googlemail.com>
- <CAHC9VhTm4Mv2=vy7-LVFnnVnNd87MajzN1imjSLcqx9H17uQqg@mail.gmail.com>
- <8426e416-cc8e-e054-aded-075cfc381057@tycho.nsa.gov> <03490eb6-ac2f-ce43-4534-fd7a25f89020@tycho.nsa.gov>
- <0f0a3b90-583e-bae0-bc23-5ddf1d64924e@tycho.nsa.gov>
-In-Reply-To: <0f0a3b90-583e-bae0-bc23-5ddf1d64924e@tycho.nsa.gov>
+        h=x-gm-message-state:subject:from:to:date:message-id:user-agent
+         :mime-version:content-transfer-encoding;
+        bh=Chmj9OkeFxatK/Exl+tgjUhpo62A3QT8B8QlkG219cY=;
+        b=kTMVKz1xAjrb+BxbOCQ1HdD+GztzPPdP5A2glr+SmqJW19HCkXAbzsjRIc40vDckqc
+         gFRQtjS4agbyg42EGiWCHUmI8TpSI+kBqjdvwOm0oCqegCU1WtEdofINN3K+/U0ex30B
+         1SKi6OumrBMD/trwvZgTcSjgyvrclLxLdqjnp62rKHGhA6yt0o8BP3kvhDiYpwEcKbuQ
+         dz7bXHtLE0zMK7OWshCHEJgmW0/f5amrohE6dJK5Y/R1jHnA2pCHyMl+U1qbWCH8MNzg
+         aLqBCVzof296uiF+5wdaI4Z9YuPaxtcNKO93rks6j6iLbqP3MGoaNsJCgzdGSnVqU2mr
+         MBkw==
+X-Gm-Message-State: APjAAAX/ZBn1lstEjXZKjxHUM+UDgUpXWIx2BzRwV64WfA/XsQUywNql
+        /nWfHLveQ36+xnjjgSAgcsmItZ1X7Q==
+X-Google-Smtp-Source: APXvYqxMByQbI+UGEil0eVVZMhMsImTXmH1KM3FJ27qa/1AGAVnPwCOuP9woDLq9iEkFaZ7fOE09Bg==
+X-Received: by 2002:ad4:5525:: with SMTP id ba5mr710778qvb.117.1578691931590;
+        Fri, 10 Jan 2020 13:32:11 -0800 (PST)
+Received: from localhost (static-96-233-112-89.bstnma.ftas.verizon.net. [96.233.112.89])
+        by smtp.gmail.com with ESMTPSA id f4sm1426027qka.89.2020.01.10.13.32.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jan 2020 13:32:10 -0800 (PST)
+Subject: [RFC PATCH] selinux: remove redundant allocation and helper functions
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 10 Jan 2020 16:01:47 -0500
-Message-ID: <CAHC9VhQDjwHXCS5ZKRwrVbTqVG62yBQ5g5LfCdLFZydcxQog_g@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: add policy capability for systemd overhaul
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To:     selinux@vger.kernel.org
+Date:   Fri, 10 Jan 2020 16:32:10 -0500
+Message-ID: <157869192997.484726.14884768578207909170.stgit@chester>
+User-Agent: StGit/0.21
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 10, 2020 at 1:12 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 1/10/20 1:03 PM, Stephen Smalley wrote:
-> > On 1/10/20 12:41 PM, Stephen Smalley wrote:
-> >> On 1/10/20 11:55 AM, Paul Moore wrote:
-> >>> On Fri, Jan 10, 2020 at 9:20 AM Christian G=C3=B6ttsche
-> >>> <cgzones@googlemail.com> wrote:
-> >>>> Support a SELinux overhaul of systemd by adding a policy capability.
-> >>>>
-> >>>> The systemd patch can be found at
-> >>>> https://github.com/systemd/systemd/pull/10023
-> >>>> and has NOT yet been accepted.
-> >>>>
-> >>>> This is just a rfc to test the water.
-> >>>> ---
-> >>>>   security/selinux/include/security.h | 1 +
-> >>>>   security/selinux/ss/services.c      | 3 ++-
-> >>>>   2 files changed, 3 insertions(+), 1 deletion(-)
-> >>>
-> >>> Generally the SELinux policy capabilities are reserved for *kernel*
-> >>> changes that potentially break compatibility with existing SELinux
-> >>> policies.  I'm probably not the best person to talk about
-> >>> tricks/conventions used to do similar things in userspace, but you've
-> >>> come to the right place :)
-> >>
-> >> It was my suggestion to use policy capabilities for this.  There is no
-> >> separate mechanism for supporting major changes to userspace SELinux
-> >> permission checks in a backward-compatible manner.  Userspace already
-> >> relies upon /sys/fs/selinux/{deny_unknown,reject_unknown} to get the
-> >> handle_unknown setting from the kernel policy to decide how to handle
-> >> unknown userspace classes/permissions.  That however is insufficient
-> >> for these changes to systemd's permission check because they go beyond
-> >> introducing new classes and permissions and overhaul the existing
-> >> checks.  Policy capability seemed like the best way to do it, and
-> >> getting it from the kernel is consistent with the fact that we are
-> >> also getting the userspace classes/perms from the kernel via
-> >> /sys/fs/selinux/class and the userspace access decisions from the
-> >> kernel via /sys/fs/selinux/access (through the libselinux AVC,
-> >> typically).
+This patch removes the inode, file, and superblock security blob
+allocation functions and moves the associated code into the
+respective LSM hooks.  This patch also removes the inode_doinit()
+function as it was a trivial wrapper around
+inode_doinit_with_dentry() and called from one location in the code.
 
-I would argue that the examples you mention above
-(/sys/fs/selinux/class, etc.) are different enough from the policy
-capabilities that it isn't a fair comparison.  Although given your
-other responses (below), it's probably not worth our time digging into
-this argument further.
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+---
+ security/selinux/hooks.c |   94 ++++++++++++++++++----------------------------
+ 1 file changed, 36 insertions(+), 58 deletions(-)
 
-> > As to why we keep the userspace policy as part of the kernel policy and
-> > not as a separate entity:
-> >
-> > - It allows us to provide an effective atomicity in policy changes that
-> > may span both kernel and userspace components,
-> >
-> > - There is significant overlap between the contexts used in the kernel
-> > and userspace policies, since most userspace policy enforcers are using
-> > contexts obtained from the kernel for the subject (e.g.
-> > SO_PEERSEC/getpeercon) or for the object (e.g. getfilecon),
-> >
-> > - Policy lookups via /sys/fs/selinux/access are more efficient than
-> > performing an IPC to a userspace security server.  Of course, in both
-> > cases, we try to maximize use of the libselinux AVC first to avoid
-> > needing to perform the policy lookup at all.
-> >
-> > There were experiments done with introducing support for userspace
-> > security server(s) for things like XACE/XSELinux and it was found to be
-> > unsatisfying both performance and security-wise.
-> >
-> > There are still cases where we would recommend userspace security
-> > server(s), such as when the userspace component is implementing a polic=
-y
-> > entirely distinct from that of the kernel (e.g. a remote document serve=
-r
-> > implementing RaDAC policies, as in one of our earlier experimental
-> > research projects), but not for things like systemd.
->
-> All that said, I can see that we probably don't want a hardcoded
-> reference to systemd in the kernel, since not everyone uses systemd ;)
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 2c84b12d50bc..1305fc51bfae 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -238,24 +238,6 @@ static inline u32 task_sid(const struct task_struct *task)
+ 	return sid;
+ }
+ 
+-/* Allocate and free functions for each kind of security blob. */
+-
+-static int inode_alloc_security(struct inode *inode)
+-{
+-	struct inode_security_struct *isec = selinux_inode(inode);
+-	u32 sid = current_sid();
+-
+-	spin_lock_init(&isec->lock);
+-	INIT_LIST_HEAD(&isec->list);
+-	isec->inode = inode;
+-	isec->sid = SECINITSID_UNLABELED;
+-	isec->sclass = SECCLASS_FILE;
+-	isec->task_sid = sid;
+-	isec->initialized = LABEL_INVALID;
+-
+-	return 0;
+-}
+-
+ static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
+ 
+ /*
+@@ -354,37 +336,6 @@ static void inode_free_security(struct inode *inode)
+ 	}
+ }
+ 
+-static int file_alloc_security(struct file *file)
+-{
+-	struct file_security_struct *fsec = selinux_file(file);
+-	u32 sid = current_sid();
+-
+-	fsec->sid = sid;
+-	fsec->fown_sid = sid;
+-
+-	return 0;
+-}
+-
+-static int superblock_alloc_security(struct super_block *sb)
+-{
+-	struct superblock_security_struct *sbsec;
+-
+-	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_KERNEL);
+-	if (!sbsec)
+-		return -ENOMEM;
+-
+-	mutex_init(&sbsec->lock);
+-	INIT_LIST_HEAD(&sbsec->isec_head);
+-	spin_lock_init(&sbsec->isec_lock);
+-	sbsec->sb = sb;
+-	sbsec->sid = SECINITSID_UNLABELED;
+-	sbsec->def_sid = SECINITSID_FILE;
+-	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+-	sb->s_security = sbsec;
+-
+-	return 0;
+-}
+-
+ static void superblock_free_security(struct super_block *sb)
+ {
+ 	struct superblock_security_struct *sbsec = sb->s_security;
+@@ -406,11 +357,6 @@ static void selinux_free_mnt_opts(void *mnt_opts)
+ 	kfree(opts);
+ }
+ 
+-static inline int inode_doinit(struct inode *inode)
+-{
+-	return inode_doinit_with_dentry(inode, NULL);
+-}
+-
+ enum {
+ 	Opt_error = -1,
+ 	Opt_context = 0,
+@@ -598,7 +544,7 @@ static int sb_finish_set_opts(struct super_block *sb)
+ 		inode = igrab(inode);
+ 		if (inode) {
+ 			if (!IS_PRIVATE(inode))
+-				inode_doinit(inode);
++				inode_doinit_with_dentry(inode, NULL);
+ 			iput(inode);
+ 		}
+ 		spin_lock(&sbsec->isec_lock);
+@@ -2593,7 +2539,22 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+ 
+ static int selinux_sb_alloc_security(struct super_block *sb)
+ {
+-	return superblock_alloc_security(sb);
++	struct superblock_security_struct *sbsec;
++
++	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_KERNEL);
++	if (!sbsec)
++		return -ENOMEM;
++
++	mutex_init(&sbsec->lock);
++	INIT_LIST_HEAD(&sbsec->isec_head);
++	spin_lock_init(&sbsec->isec_lock);
++	sbsec->sb = sb;
++	sbsec->sid = SECINITSID_UNLABELED;
++	sbsec->def_sid = SECINITSID_FILE;
++	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
++	sb->s_security = sbsec;
++
++	return 0;
+ }
+ 
+ static void selinux_sb_free_security(struct super_block *sb)
+@@ -2845,7 +2806,18 @@ static int selinux_fs_context_parse_param(struct fs_context *fc,
+ 
+ static int selinux_inode_alloc_security(struct inode *inode)
+ {
+-	return inode_alloc_security(inode);
++	struct inode_security_struct *isec = selinux_inode(inode);
++	u32 sid = current_sid();
++
++	spin_lock_init(&isec->lock);
++	INIT_LIST_HEAD(&isec->list);
++	isec->inode = inode;
++	isec->sid = SECINITSID_UNLABELED;
++	isec->sclass = SECCLASS_FILE;
++	isec->task_sid = sid;
++	isec->initialized = LABEL_INVALID;
++
++	return 0;
+ }
+ 
+ static void selinux_inode_free_security(struct inode *inode)
+@@ -3555,7 +3527,13 @@ static int selinux_file_permission(struct file *file, int mask)
+ 
+ static int selinux_file_alloc_security(struct file *file)
+ {
+-	return file_alloc_security(file);
++	struct file_security_struct *fsec = selinux_file(file);
++	u32 sid = current_sid();
++
++	fsec->sid = sid;
++	fsec->fown_sid = sid;
++
++	return 0;
+ }
+ 
+ /*
 
-That is definitely one of my concerns; the last thing I want to do is
-start a Debian-esque argument about init systems :)
-
-> Perhaps what we need is for some range of policy capabilities to be
-> user-defined, with generic names in the kernel and then userspace can
-> choose to associate meaning with them.
-
-It sounds like we may not need this after all, but if we do have to go
-this route, I would be okay with establishing a
-range/subset/namespace/etc. of policy capabilities for use by
-userspace so long as we somehow ensure that there is a clear
-separation between kernel and userspace policy capabilities.  The last
-thing I want is to add a new policy capability to the kernel only to
-find out that the capability name already conflicts with someone's
-policy, that would be very bad.
-
-> This would be a bit easier if we implemented a solution to the 2nd part
-> of https://github.com/SELinuxProject/selinux/issues/55, i.e. pass
-> capabilities to the kernel as a list of uninterpreted string names
-> rather than a bitmap.  Then the kernel only needs to recognize its own
-> capability names and create selinuxfs nodes for all of them reflecting
-> their policy values, but no hard-coded references to systemd required.
-
-We would probably want to enforce some sort of prefix string on the
-userspace policy capabilities during policy load to ensure that we
-don't have accidental overlap between kernel and userspace
-capabilities.
-
---=20
-paul moore
-www.paul-moore.com
