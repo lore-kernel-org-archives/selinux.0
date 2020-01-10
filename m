@@ -2,154 +2,112 @@ Return-Path: <SRS0=2SWW=27=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97633C282DD
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:31:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 867B7C282DD
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:38:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6F14B2080D
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:31:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A1122072E
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:38:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="qUkLMN5d"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iUcfAXqj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727927AbgAJObp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jan 2020 09:31:45 -0500
-Received: from UCOL19PA37.eemsg.mail.mil ([214.24.24.197]:26214 "EHLO
-        UCOL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727848AbgAJObo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 09:31:44 -0500
-X-EEMSG-check-017: 70612803|UCOL19PA37_ESA_OUT04.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.69,417,1571702400"; 
-   d="scan'208";a="70612803"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UCOL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Jan 2020 14:31:43 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1578666703; x=1610202703;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=xId5BtuFqkdNIP0U6y0BiiQocaf1u191KNmgHjWICMY=;
-  b=qUkLMN5dZw6KXWd0slNAZSpLSbQp3O1VboIQ/2jQaq1YG2M5Ope4eV9x
-   UGpp/EYU6K++rMp8Pi6b0nrKTB/5wcftLZNK+P9eEeNs7iixi2MlZHZTp
-   oUGafOpnTHVyYdecYbYeh0i4LzKNBtsbti6W8emjxgcfI4yIWzDy4UU16
-   E44TAm9D263gR1/OO5vudQpDy8JO9hQn+R7LuoJJT1g5U7FznWWTfz0hq
-   CReSyVHL6IxOoRrrmcunBejjgAoOGvd2wWjVXL9PnIX/ewp8GgRNy4s+W
-   zvLxjCowD0Sof4xhhnOft5wQtfIMTDs1l+MxAa+dd29qYik0Ag75OsOgk
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.69,417,1571702400"; 
-   d="scan'208";a="37603501"
-IronPort-PHdr: =?us-ascii?q?9a23=3AeslTYxGi8FFcpK21mitJEJ1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7zoMqwAkXT6L1XgUPTWs2DsrQY0rGQ6f67EjFRqb+681k6OKRWUB?=
- =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
- =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba58IRmsswnct8cbjYRiJ6s11x?=
- =?us-ascii?q?DEvmZGd+NKyG1yOFmdhQz85sC+/J5i9yRfpfcs/NNeXKv5Yqo1U6VWACwpPG?=
- =?us-ascii?q?4p6sLrswLDTRaU6XsHTmoWiBtIDBPb4xz8Q5z8rzH1tut52CmdIM32UbU5Ui?=
- =?us-ascii?q?ms4qt3VBPljjoMODAj8GHTl8d+kqRVrhy8rBB72oLZYIWYOP94c6jAf90VWH?=
- =?us-ascii?q?BBU95MWSJfDIOyb4gBAeQPMulXrYbyu1QAoACiBQSvHu7j1iNEi3H00KA8zu?=
- =?us-ascii?q?8vERvG3AslH98WrXrUsMv6NL8SUe+ryqnD0CjNb/ZM1jf57IjHbBAgquyLUL?=
- =?us-ascii?q?JrbMXR0lIiFx/Fj1qMqYzlOCmZ1uIWs2eB9eZgWuWvi3A+pgx3vzOhxd8sh5?=
- =?us-ascii?q?HUio8axV3I7yV0zJsvKdGmR0N3f8SoHIZWuiqHLYV5WNkiTHttuCsiz70Gvo?=
- =?us-ascii?q?O0czYSxZQ8wh7fd+SHc4+V4hL/TOqRISl3hHZieL+nmxa961KgyuzhVsmvyl?=
- =?us-ascii?q?pKryxFktfLtnAWyRPc9tKLSud9/0i92TaP0Brf6udYLkAviaXXMZshwr80lp?=
- =?us-ascii?q?YLsETDGDH5mFnugaOLeUgp9fKk5uT6brn8uJOROJF4hhvjPqg2n8ywG+U4Mg?=
- =?us-ascii?q?wAX2iB/uS80aXu/VbkT7VRlfA2jqnYv4zaJcQcvKK5BRRV3Zw55xawCDemzs?=
- =?us-ascii?q?wUnWMbI1JdZBKHk4/pNknSL/D3DPa/hFKsnylwx/3dMb3hBZLNLnfHkLj/eL?=
- =?us-ascii?q?Zy8U9cyA4pwd9D4JJUD6kLIOjvVU/pqNzYEhg5PhSvw+n5DNV914UeWX+AA6?=
- =?us-ascii?q?KCLqPSvkGH5vg1L+mPeoAVojD9JOYh5/L0in85g1AdLuGV2s48aGq5BehnKk?=
- =?us-ascii?q?OuTuTwnswKEWpC6gExXuvshUaqXjlUaHK/Wqs94ncwD4fwSc/YS4SshqGR9D?=
- =?us-ascii?q?m0E4cQZW1cDF2IV3DyeNaqQfAJPRmOL9dhnzpMbr2oT4ssxFn6rwPh46Z2Je?=
- =?us-ascii?q?rTvCsDvNTs08YjtL6brg076TEhV5fV6GqKVWwh2z5ZSg=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AZAQDhiBhe/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBe4F9gWwBIBKEM4kDhmQBAQEBAQEGgRIliW6RSAkBAQEBAQEBAQE3AQGEQ?=
- =?us-ascii?q?AKCFjgTAhABAQEEAQEBAQEFAwEBbIVDgjspgnsBBSMPAQVRCxgCAiYCAlcGA?=
- =?us-ascii?q?QwIAQGCYz+CVyWrb4EyhUmDQoE9gQ4ojDN5gQeBOAwDgl0+gQ6GS4JeBI0wi?=
- =?us-ascii?q?jmXToJBgkiTXwYbmmqOWp0FIoFYKwgCGAghD4MoTxgNoTMjA5FgAQE?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 10 Jan 2020 14:31:42 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00AEV8VC022050;
-        Fri, 10 Jan 2020 09:31:08 -0500
-Subject: Re: [RFC PATCH 3/3] libselinux: add policy capability test binary
-To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-References: <20200110141509.21098-1-cgzones@googlemail.com>
- <20200110141509.21098-4-cgzones@googlemail.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a29daabd-e6f2-4f22-3830-b00bd8bf63aa@tycho.nsa.gov>
-Date:   Fri, 10 Jan 2020 09:32:28 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+        id S1727869AbgAJOiD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jan 2020 09:38:03 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:26058 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727823AbgAJOiC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 09:38:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1578667081;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=CzgIuSg008eXA+wOOSE3hAnnszikvAl+lJtEHiEZLKk=;
+        b=iUcfAXqjlP8rebrVdG1J7rVGC9C7A3qQNQQC3nQ1pjgRuP2/tzEgfp6t1qNLBs+fqZxBlg
+        BhEbrcW/DGtmoVq4xj4ENsgqxY9c3SgX6ciUardMiwEn9M3M7EVcuQY6X06H+g1aQwmsNx
+        lXP5irRRYFHO0p8+KrRXdhArAf3FQNU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-169-DdxKQqVXMrCJoMcpAZNB_g-1; Fri, 10 Jan 2020 09:38:00 -0500
+X-MC-Unique: DdxKQqVXMrCJoMcpAZNB_g-1
+Received: by mail-wm1-f69.google.com with SMTP id b131so868671wmd.9
+        for <selinux@vger.kernel.org>; Fri, 10 Jan 2020 06:38:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CzgIuSg008eXA+wOOSE3hAnnszikvAl+lJtEHiEZLKk=;
+        b=OldzjQt+rY1uXrXJxsTfKXVqTBjp9DkyBdtAfYZm3PwGe5P0Wr9B7Ah8HqvfbYhhYH
+         Haf2QYA51iC65FDMV2/k1kh03xhCOEMBkx9XzonOuEYHkLjA6qcO1OEdNfbPiPyrx0C1
+         cd/pRFTgGcsrwb3f37+y227V4eZ/teN94CvSEioUgUkYKeAqSRgX3A4Ok5eCcdCjcekK
+         0XW6odkigUOPR100g+3C43RFmISioqmyvmUusg6Bgnr51Sfgo3dR2KTKwwq+bAKL6Pat
+         tXl3WmKYDhSq/lnBsZVrR7eH1YidWTP1caN8ZzUDaskt9nYcBJ27VL6+21RRNfk2gd6l
+         v90w==
+X-Gm-Message-State: APjAAAWk2no/KMQ/QU2yMuKP2Cko3xhi1aLONLDGaTyW65CCFgK7xZRo
+        nhP1HqZfkUJ8JNdd8FEY8uOtQ2Hc/ie2W3v2YgxpTuyUNkjdZnLeDfvhUAawxDS+q/3HOZs5Inq
+        lpUotiy5Kc6Nv4u7zUA==
+X-Received: by 2002:a5d:49cc:: with SMTP id t12mr3775528wrs.363.1578667078951;
+        Fri, 10 Jan 2020 06:37:58 -0800 (PST)
+X-Google-Smtp-Source: APXvYqwnYIlwaPrjrUd7FOQEZ6pOeLdrNICVZekZy/HX5y66hvYmj/w4/EbNSGTB63fHfPrCbuaCMQ==
+X-Received: by 2002:a5d:49cc:: with SMTP id t12mr3775502wrs.363.1578667078622;
+        Fri, 10 Jan 2020 06:37:58 -0800 (PST)
+Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id i11sm2458533wrs.10.2020.01.10.06.37.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jan 2020 06:37:58 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Paul Bunyan <pbunyan@redhat.com>
+Subject: [PATCH testsuite] tests/prlimit: avoid invalid limit combinations
+Date:   Fri, 10 Jan 2020 15:37:56 +0100
+Message-Id: <20200110143756.20101-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <20200110141509.21098-4-cgzones@googlemail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/10/20 9:15 AM, Christian Göttsche wrote:
-> ---
->   libselinux/utils/.gitignore       |  1 +
->   libselinux/utils/polcap_enabled.c | 30 ++++++++++++++++++++++++++++++
->   2 files changed, 31 insertions(+)
->   create mode 100644 libselinux/utils/polcap_enabled.c
-> 
-> diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
-> index 3ef34374..bfe1db4d 100644
-> --- a/libselinux/utils/.gitignore
-> +++ b/libselinux/utils/.gitignore
-> @@ -12,6 +12,7 @@ getpidcon
->   getsebool
->   getseuser
->   matchpathcon
-> +polcap_enabled
->   policyvers
->   sefcontext_compile
->   selabel_digest
-> diff --git a/libselinux/utils/polcap_enabled.c b/libselinux/utils/polcap_enabled.c
-> new file mode 100644
-> index 00000000..e984d1e4
-> --- /dev/null
-> +++ b/libselinux/utils/polcap_enabled.c
-> @@ -0,0 +1,30 @@
-> +#include <errno.h>
-> +#include <stdio.h>
-> +#include <string.h>
-> +
-> +#include <selinux/selinux.h>
-> +
-> +int main(int argc, char **argv)
-> +{
-> +	int ret;
-> +
-> +	if (argc != 2) {
-> +		printf("usage: %s polcap_name\n", argv[0]);
-> +		return 1;
-> +	}
-> +
-> +	ret = security_is_policy_capability_enabled(argv[1]);
-> +
-> +	if (ret == 1)
-> +		printf("enabled\n");
-> +	else if (ret == 0)
-> +		printf("disabled\n");
-> +	else if (errno == ENOTSUP)
-> +		printf("not supported\n");
-> +	else {
-> +		printf("error (%d): %s\n", errno, strerror(errno));
-> +		return 1;
-> +	}
-> +
-> +	return 0;
-> +}
+There is a bug in the prlimit test that causes invalid limit
+combinations (soft > hard) to be created, leading to false failures.
 
-For new libselinux utilities, let's try to use some kind of unique 
-prefix to help avoid collisions for distros that install these programs. 
-  selinux_ should be fine.
+Consider for example an old setting of X for both soft and hard limit.
+In such case the hard limit test tries to set the limits to X (soft) and
+X/2 (hard), which always fails with -EINVAL.
 
+This patch fixes the logic to clamp the soft limit to keep it from
+exceeding the hard limit. In such case the soft limit will also be
+changed, but this can't be avoided.
+
+Fixes: 0782228ef06b ("selinux-testsuite: Add tests for prlimit(2) permission checks")
+Reported-by: Paul Bunyan <pbunyan@redhat.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ tests/prlimit/parent.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/tests/prlimit/parent.c b/tests/prlimit/parent.c
+index be320f0..11c0c25 100644
+--- a/tests/prlimit/parent.c
++++ b/tests/prlimit/parent.c
+@@ -147,6 +147,12 @@ int main(int argc, char **argv)
+ 				newrlim.rlim_max = 1024;
+ 			else
+ 				newrlim.rlim_max = oldrlim.rlim_max / 2;
++			if (newrlim.rlim_cur > newrlim.rlim_max)
++				/*
++				 * This will change also soft limit, but
++				 * what else can you do in such case...
++				 */
++				newrlim.rlim_cur = newrlim.rlim_max;
+ 		}
+ 	}
+ 
+-- 
+2.24.1
 
