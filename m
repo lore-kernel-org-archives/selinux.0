@@ -2,136 +2,214 @@ Return-Path: <SRS0=2SWW=27=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2364C282DD
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:53:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E92B2C282DD
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:58:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B489D20721
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:53:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B1E1820721
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:58:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="QkTaoczD"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="A1H+PYKY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728115AbgAJOxt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jan 2020 09:53:49 -0500
-Received: from USFB19PA31.eemsg.mail.mil ([214.24.26.194]:63024 "EHLO
-        USFB19PA31.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727866AbgAJOxt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 09:53:49 -0500
-X-EEMSG-check-017: 42988705|USFB19PA31_ESA_OUT01.csd.disa.mil
+        id S1727993AbgAJO6S (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jan 2020 09:58:18 -0500
+Received: from UCOL19PA37.eemsg.mail.mil ([214.24.24.197]:32196 "EHLO
+        UCOL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727912AbgAJO6S (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 09:58:18 -0500
+X-EEMSG-check-017: 70625215|UCOL19PA37_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,417,1571702400"; 
-   d="scan'208";a="42988705"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA31.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Jan 2020 14:53:46 +0000
+   d="scan'208";a="70625215"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UCOL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Jan 2020 14:58:16 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1578668026; x=1610204026;
+  s=tycho.nsa.gov; t=1578668296; x=1610204296;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=EOr+qBSvnHaLM/rvHWK/b5+k2/irRv5MRkquyh8rwTc=;
-  b=QkTaoczDbu1OL8jzonjVPiOBX5mxdH9wVEz5YdE/g6ci/YaaEKfjDHlt
-   1lN1EUGrxzS8pKJrMDw9bsmYRsUcz34VsHKTf+Ut3JI2rWnczKBpEDvZb
-   dlQUDhw81Rihy8G6osBh2/tl49iVNFPt2Y28/jmwtkNxz8z6DUPEfEpET
-   aJG7mWoWgwoE/6di0SJBjLAP8FoQRoqixQyNZEBq0RGXRP/CHHSJU1lpR
-   RATUaVG1wVA+GPahUajiFFm+0CNQiMilEnSyD1FkgBJG5IpLCIdvNwR08
-   Y4q0kMRtk5rKyjaywI6ZUK1MN7mHWQq67CnL9VtMvHR2c4PLnYgxaMpKt
-   g==;
+  bh=A39meMn8N2yodvsbFERew5lQSWpNMaoxKjePpoeApO0=;
+  b=A1H+PYKY9GdOSQRwrod9wZjFkKlGRcs76k8TunlAd0DS1xjdOw+MwKUM
+   65Pr9mNnShSreGNqqJGUTdVIqwyl8/IOmREXQhenZe8udZy2rZTYxmxio
+   TPbne0YwLfJ9hCrOokynrbx7AZd/0OO3YIAhmRt0iCNRaEdE1JHMI0Usr
+   mEf9smrhttkN1rVffuufbNH1wWKPf9UVLLgALcqoz8xrBqBk3sTDkVOTG
+   V6KiJemd3xIcWYb+QnUO1ggY/zc1Ix966KZ5YfHI+DuxolGiozkgKrWln
+   6Bw3ADbYJ8hOaoqvjWfaAu3OsXVvMIsQYOh6XLeyx6qnDLuTl/oyS1YTJ
+   A==;
 X-IronPort-AV: E=Sophos;i="5.69,417,1571702400"; 
-   d="scan'208";a="37604639"
-IronPort-PHdr: =?us-ascii?q?9a23=3AcTHgDxKF1T26/9BdkNmcpTZWNBhigK39O0sv0r?=
- =?us-ascii?q?FitYgfL/vxwZ3uMQTl6Ol3ixeRBMOHsqkC0bSN+P68EUU7or+5+EgYd5JNUx?=
- =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
- =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCezbL9oMhm7rAvcusYXjIZtN6081g?=
- =?us-ascii?q?bHrnxUdupM2GhmP0iTnxHy5sex+J5s7SFdsO8/+sBDTKv3Yb02QaRXAzo6PW?=
- =?us-ascii?q?814tbrtQTYQguU+nQcSGQWnQFWDAXD8Rr3Q43+sir+tup6xSmaIcj7Rq06VD?=
- =?us-ascii?q?i+86tmTgLjhTwZPDAl7m7Yls1wjLpaoB2/oRx/35XUa5yROPZnY6/RYc8WSW?=
- =?us-ascii?q?9HU8lfTSxBBp63YZUJAeQPIO1Uq5DxqlUKoBe7AwSnGeHhxSJShnLuwKM0ze?=
- =?us-ascii?q?ohHwHF0gIuEd0Bv3bbo8n6OqoJTeC4zrPFwSnfY/5Y2zrw7pXDfBA7ofGLWL?=
- =?us-ascii?q?J9adffyVUxGAPdjlWft4rlNC6I2OQIqWeb6+5gWvyvimU6rAxxuSWgxtw3h4?=
- =?us-ascii?q?nVhoMa1lDE9SJjzIYzPt23UlR3YdGjEJtOriyXMZZ9TMA6Q2xwpSo3xbILtY?=
- =?us-ascii?q?S7cSQX0pgr2RHSZ+Kdf4SV5B/oSfyfLi1ihH1/fbKynxOy8U+9xeLiTsS0y1?=
- =?us-ascii?q?NKrjZdktnLq3ANywTf6siZRft5+UeswSqP2BrJ6uFFPEA0jrDXK58nwr4+kZ?=
- =?us-ascii?q?oTqlrMETPslEXqjK6ZakUk+u+y5+ThfrrmvYOTO5VxigH/NqQigs2/AeImPQ?=
- =?us-ascii?q?gSR2WX5Oux2bL58UD5XblGlOM6n6bHvJzAOMgXvqu5DBVU0oYn5Ra/FTCm0N?=
- =?us-ascii?q?EAkHkcMV1FYwmKj5TpOl7SIPD4Cu2zg1K3kDhx3fzGMbrhAovVInjZjLjhZa?=
- =?us-ascii?q?p961JbyAcrytBf4pVUCqoHIP3pRkD+qsfVDgUnPAOpw+boEsl92pkCVmKIB6?=
- =?us-ascii?q?+TKLnSvkOQ5uIzP+mMY5cYuC3jJPgh5v7ui2I5mFAGcKm30psYdmq4Eu5lI0?=
- =?us-ascii?q?qHe3rshMkOEWMQsgo5Vuzqh0WIUSRPaHaqQ6I8+jY7BZq+DYjYW4CthryA0z?=
- =?us-ascii?q?29HpBNfGBJFE2DEXfyeIWYQfsDdCWSIsoy2gADAJ+nR5Us11mLsxT8wrFqLa?=
- =?us-ascii?q?KA/SgfrpTq39Vd/eDflRguszdzCpLZm3qAS2Byg3MgWTA7xuZ8rFZ7x1PF1r?=
- =?us-ascii?q?J30NJCEtkG3O9ESgc3M9bnyuV+D93jElbacsyhVEetQtLgByo4CN023YldMA?=
- =?us-ascii?q?5GB9y+g0WbjGKRCLgPmunOXcdl/w=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DtAACrjhhe/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBe4F9gWwBIBIqhAmJA4ZjAQEBAQEBBoE3iW6RSAkBAQEBAQEBAQE3AQGEQ?=
- =?us-ascii?q?AKCFjgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYJ6AQUjFUEQCw4KAgImAgJXB?=
- =?us-ascii?q?gEMBgIBAYJjP4JXJat6gTKFSYNJgT2BDiiMM3mBB4E4D4JdPoQjgzaCXgSNM?=
- =?us-ascii?q?IlzRpZZdYJBgkiTXwYbmmqOWp0FIoFYKwgCGAghD4MnUBgNoTMjAzCOboJCA?=
- =?us-ascii?q?QE?=
+   d="scan'208";a="31812225"
+IronPort-PHdr: =?us-ascii?q?9a23=3AEBVIVxcr5RuYMHulKxqbRoznlGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxcSybR7h7PlgxGXEQZ/co6odzbaP6Oa6BzdLv8rJmUtBWaQEbw?=
+ =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
+ =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRu7oR/PusQXj4ZuJac8xx?=
+ =?us-ascii?q?TUqXZUZupawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
+ =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
+ =?us-ascii?q?mp8qlmRAP0hCoBKjU2/nvXishth6xFphyvqQF0z4rNbIybMPdye6XQds4YS2?=
+ =?us-ascii?q?VcRMZcTzFPDJ2yb4UPDOQPM+hXoIb/qFQSohWzHhWsCeD1xzNUmnP706833u?=
+ =?us-ascii?q?I8Gg/GxgwgGNcOvWzJotXpKqgSSeC1w7fOzT7ecv1W3C3y6IzMch8/ofCHQL?=
+ =?us-ascii?q?V9cdHMxkk0DA7FklWRppDlPzOSzOgNtXOb4PB6WeKgjG4ntRh8rz6yzckijY?=
+ =?us-ascii?q?nJg5gaylHC9Shhz4Y1JMG4SE5mYdG/CpdfqyaaN45wT8g/QG9ooD43xqAJtJ?=
+ =?us-ascii?q?O0ZiQHyIkrywTBZ/GIbYSE+A/vWeCMKjlinn1lYqiwhxOq/Eilze3zS9e73U?=
+ =?us-ascii?q?5RripAjtnMrncN1wHP6sSfSvty4EOh2TGX2gDP8O5EO0E0lbfAK5I7w74wkJ?=
+ =?us-ascii?q?QTsUPYHiDohEr6lrOWd0U49eio7OTreLPmqYOHN4BokA3+N6UumsinDeQ5NA?=
+ =?us-ascii?q?gBQXSb9Pyh2LDs8kD1WrVHguAsnqXHv53WO94XqrOhDw9QyIkj6hK/Dzm80N?=
+ =?us-ascii?q?QfmHkKNElFdw+cj4XyJ1HPIOz3Dfe4g1i2ljdr3OrJMqfuApXKMHjPiK3hcq?=
+ =?us-ascii?q?pl605A1AozyshS6I5bCrAAJ/LzXFH+tMfDAx82NAy0xOnnCNFj2YMbQ22PA6?=
+ =?us-ascii?q?uZPLnOvl+P4+IlO/OMa5MNuDbhN/gl4ObjjWQnll8ZfKmp24YXaX+jE/R4LE?=
+ =?us-ascii?q?WWf2Dsjs0CEWgUpAo+SvLliFmYXT5UfXayUPF02jZuI4K8DJzfR4mrt5MfwD?=
+ =?us-ascii?q?ugFZ1bLjRNBUKLF3rzX4qDXPgIZSebI8snmTsBA+uPUYgkgCqyuRf6xrwvFe?=
+ =?us-ascii?q?/d/ikVpNq3z9Ruz/HCnhE1szpvBoKS1H/bHDI8pX8BWzJjhPM3mkd60FrWlP?=
+ =?us-ascii?q?Mpjg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BbAwBykBhe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YEYVAEgEiqECYkDhmQBAQEBAQEGgRIlgQGIbYokhyQJAQEBAQEBAQEBLwgBA?=
+ =?us-ascii?q?YRAAoIWOBMCEAEBAQQBAQEBAQUDAQFshTcMgjspgnoBAQEBAgEjBAsBBUEQC?=
+ =?us-ascii?q?xgCAiYCAlcGDQYCAQGCYz8BgkoDCQUgD6p5dX8zhDQBgRSCWg1jgTcGgQ4oj?=
+ =?us-ascii?q?DN5gQeBEScMA4IoNT6CGzAZAQEChHGCXgSWQoEnl06CQYJIhHOObAYbmmotl?=
+ =?us-ascii?q?weUKyKBWCsIAhgIIQ+DJ1AYDZZCinEjAzAKkSYBAQ?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 10 Jan 2020 14:53:45 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 10 Jan 2020 14:58:15 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00AEr8R8039638;
-        Fri, 10 Jan 2020 09:53:09 -0500
-Subject: Re: [PATCH testsuite] tests/prlimit: avoid invalid limit combinations
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Cc:     Paul Bunyan <pbunyan@redhat.com>
-References: <20200110143756.20101-1-omosnace@redhat.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00AEveVn040630;
+        Fri, 10 Jan 2020 09:57:40 -0500
+Subject: Re: [RFC PATCH 2/3] libselinux: add
+ security_is_policy_capabilty_enabled()
+To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+References: <20200110141509.21098-1-cgzones@googlemail.com>
+ <20200110141509.21098-3-cgzones@googlemail.com>
+ <7a4f539c-496d-ad3b-f937-604fda594ee3@tycho.nsa.gov>
+ <CAJ2a_DfK4BjJOmQfjbg0zXcFxWB2B+7_p9gvp6tEKd=fzOuS+g@mail.gmail.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <f0a648c5-c105-f239-c6cc-7f827987a638@tycho.nsa.gov>
-Date:   Fri, 10 Jan 2020 09:54:29 -0500
+Message-ID: <bf835427-93c4-1490-8bbd-f7a82ab61b75@tycho.nsa.gov>
+Date:   Fri, 10 Jan 2020 09:59:01 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <20200110143756.20101-1-omosnace@redhat.com>
+In-Reply-To: <CAJ2a_DfK4BjJOmQfjbg0zXcFxWB2B+7_p9gvp6tEKd=fzOuS+g@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/10/20 9:37 AM, Ondrej Mosnacek wrote:
-> There is a bug in the prlimit test that causes invalid limit
-> combinations (soft > hard) to be created, leading to false failures.
-> 
-> Consider for example an old setting of X for both soft and hard limit.
-> In such case the hard limit test tries to set the limits to X (soft) and
-> X/2 (hard), which always fails with -EINVAL.
-> 
-> This patch fixes the logic to clamp the soft limit to keep it from
-> exceeding the hard limit. In such case the soft limit will also be
-> changed, but this can't be avoided.
-> 
-> Fixes: 0782228ef06b ("selinux-testsuite: Add tests for prlimit(2) permission checks")
-> Reported-by: Paul Bunyan <pbunyan@redhat.com>
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+On 1/10/20 9:43 AM, Christian Göttsche wrote:
+> Am Fr., 10. Jan. 2020 um 15:29 Uhr schrieb Stephen Smalley <sds@tycho.nsa.gov>:
+>>
+>> On 1/10/20 9:15 AM, Christian Göttsche wrote:
+>>> Allow userspace (e.g. object managers like systemd) to obtain the state of a policy capability via a library call.
+>>> ---
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-
-> ---
->   tests/prlimit/parent.c | 6 ++++++
->   1 file changed, 6 insertions(+)
+>>> diff --git a/libselinux/man/man3/security_is_policy_capability_enabled.3 b/libselinux/man/man3/security_is_policy_capability_enabled.3
+>>> new file mode 100644
+>>> index 00000000..18c53b67
+>>> --- /dev/null
+>>> +++ b/libselinux/man/man3/security_is_policy_capability_enabled.3
+>>> @@ -0,0 +1,27 @@
+>>> +.TH "security_is_policy_capability_enabled" "3" "9 January 2020" "cgzones@googlemail.com" "SELinux API documentation"
+>>> +.SH "NAME"
+>>> +security_is_policy_capability_enabled \- get the state of a SELinux policy
+>>> +capability
+>>> +.
+>>> +.SH "SYNOPSIS"
+>>> +.B #include <selinux/selinux.h>
+>>> +.sp
+>>> +.BI "int security_is_policy_capability_enabled(const char *" name ");"
+>>> +.
+>>> +.SH "DESCRIPTION"
+>>> +.BR security_is_policy_capability_enabled ()
+>>> +returns 1 if the SELinux policy capability with the given name is enabled,
+>>> +0 if it is disabled, and \-1 on error.
+>>> +.SH "NOTES"
+>>> +The parameter
+>>> +.IR name
+>>> +is case insensitive.
+>>
+>> Why support case-insensitivity?  It complicates the implementation and
+>> seems unnecessary.
+>>
 > 
-> diff --git a/tests/prlimit/parent.c b/tests/prlimit/parent.c
-> index be320f0..11c0c25 100644
-> --- a/tests/prlimit/parent.c
-> +++ b/tests/prlimit/parent.c
-> @@ -147,6 +147,12 @@ int main(int argc, char **argv)
->   				newrlim.rlim_max = 1024;
->   			else
->   				newrlim.rlim_max = oldrlim.rlim_max / 2;
-> +			if (newrlim.rlim_cur > newrlim.rlim_max)
-> +				/*
-> +				 * This will change also soft limit, but
-> +				 * what else can you do in such case...
-> +				 */
-> +				newrlim.rlim_cur = newrlim.rlim_max;
->   		}
->   	}
->   
-> 
+> sepol_polcap_getnum() does it:
+> https://github.com/SELinuxProject/selinux/blob/5bbe32a7e585dcd403739ea55a2fb25cbd184383/libsepol/src/polcaps.c#L25
 
+Not sure why though.  One difference is that sepol_polcap_getnum() is 
+only used for capability names specified in policies, while 
+security_is_policy_capability_enabled() will be used in application 
+code.  It seems reasonable to require application writers to use the 
+right case for the capability name?
+
+> 
+>>
+>>> +
+>>> +If the the current kernel does not support the given policy capability \-1 is returned and
+>>> +.BR errno
+>>> +is set to
+>>> +.BR ENOTSUP
+>>> +\&.
+>>> +.
+>>> +.SH "SEE ALSO"
+>>> +.BR selinux "(8)"
+>>> diff --git a/libselinux/src/polcap.c b/libselinux/src/polcap.c
+>>> new file mode 100644
+>>> index 00000000..801231cf
+>>> --- /dev/null
+>>> +++ b/libselinux/src/polcap.c
+>>> @@ -0,0 +1,64 @@
+>>> +#include <dirent.h>
+>>> +#include <errno.h>
+>>> +#include <fcntl.h>
+>>> +#include <limits.h>
+>>> +#include <stdio.h>
+>>> +#include <string.h>
+>>> +#include <sys/types.h>
+>>> +#include <unistd.h>
+>>> +
+>>> +#include "policy.h"
+>>> +#include "selinux_internal.h"
+>>> +
+>>> +int security_is_policy_capability_enabled(const char *name)
+>>> +{
+>>> +     int fd, enabled;
+>>> +     ssize_t ret;
+>>> +     char path[PATH_MAX];
+>>> +     char buf[20];
+>>> +     DIR *polcapdir;
+>>> +     struct dirent *dentry;
+>>> +
+>>> +     if (!selinux_mnt) {
+>>> +             errno = ENOENT;
+>>> +             return -1;
+>>> +     }
+>>> +
+>>> +     snprintf(path, sizeof path, "%s/policy_capabilities", selinux_mnt);
+>>> +     polcapdir = opendir(path);
+>>> +     if (!polcapdir)
+>>> +             return -1;
+>>> +
+>>> +     while ((dentry = readdir(polcapdir)) != NULL) {
+>>> +             if (strcmp(dentry->d_name, ".") == 0 || strcmp(dentry->d_name, "..") == 0)
+>>> +                     continue;
+>>> +
+>>> +             if (strcasecmp(name, dentry->d_name) != 0)
+>>> +                     continue;
+>>> +
+>>> +             snprintf(path, sizeof path, "%s/policy_capabilities/%s", selinux_mnt, dentry->d_name);
+>>> +             fd = open(path, O_RDONLY | O_CLOEXEC);
+>>> +             if (fd < 0)
+>>> +                 goto err;
+>>
+>> If you weren't trying to support case-insensitivity, you could just
+>> directly open() the capability file and be done with it.
+>>
+> 
+> Would we need to check for directory traversals in that case?
+> char *tainted_userdata = "../../../../etc/passwd"
+> security_is_policy_capability_enabled(tainted_userdata)
+
+No, we aren't crossing a trust boundary here and any sane application is 
+going to hardcode the policy capability name, not take it from an 
+untrusted source.
