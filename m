@@ -7,85 +7,83 @@ X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22F93C282DD
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:29:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97633C282DD
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:31:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C943B20838
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:29:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6F14B2080D
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:31:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="c540yf3x"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="qUkLMN5d"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727885AbgAJO3g (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jan 2020 09:29:36 -0500
-Received: from UHIL19PA39.eemsg.mail.mil ([214.24.21.198]:54863 "EHLO
-        UHIL19PA39.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727823AbgAJO3f (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 09:29:35 -0500
-X-EEMSG-check-017: 64774024|UHIL19PA39_ESA_OUT05.csd.disa.mil
+        id S1727927AbgAJObp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jan 2020 09:31:45 -0500
+Received: from UCOL19PA37.eemsg.mail.mil ([214.24.24.197]:26214 "EHLO
+        UCOL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727848AbgAJObo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 09:31:44 -0500
+X-EEMSG-check-017: 70612803|UCOL19PA37_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,417,1571702400"; 
-   d="scan'208";a="64774024"
+   d="scan'208";a="70612803"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA39.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Jan 2020 14:29:33 +0000
+  by UCOL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Jan 2020 14:31:43 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1578666573; x=1610202573;
+  s=tycho.nsa.gov; t=1578666703; x=1610202703;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=4Q3wv0JiTJJM/Po+xdDrXSDxpMizCnZtj2RM4ul2VOE=;
-  b=c540yf3xnQd97PIzBP/WI9kGSOy8HeEawPcH7MpIxBc7508Sy88rvkom
-   mRjIy4/Sy7Z/l/UY6s4RX3JlheLL+9afcr1ldla6B68zBCRMJB51tM1wj
-   L62CYIQF8oilAlxqBdALeC+IVkziD3iDOmfQKKBCBTq8cZJW7r6gQS65N
-   soTbWk4EkkJ+vKR3jh61LZnMI7+sTCE3NFVvwqk/WcK6ywvA56i71dYqF
-   qvisX6+jVIN61spB4y943sxaHyR6vvaByzrEZ0LdxrhqFKkm/0uVG504O
-   dus1beXuai5etrg2vbpIPt65opLcquAcYdaQNfxq6wvd4aejw8My2WC3Z
-   w==;
+  bh=xId5BtuFqkdNIP0U6y0BiiQocaf1u191KNmgHjWICMY=;
+  b=qUkLMN5dZw6KXWd0slNAZSpLSbQp3O1VboIQ/2jQaq1YG2M5Ope4eV9x
+   UGpp/EYU6K++rMp8Pi6b0nrKTB/5wcftLZNK+P9eEeNs7iixi2MlZHZTp
+   oUGafOpnTHVyYdecYbYeh0i4LzKNBtsbti6W8emjxgcfI4yIWzDy4UU16
+   E44TAm9D263gR1/OO5vudQpDy8JO9hQn+R7LuoJJT1g5U7FznWWTfz0hq
+   CReSyVHL6IxOoRrrmcunBejjgAoOGvd2wWjVXL9PnIX/ewp8GgRNy4s+W
+   zvLxjCowD0Sof4xhhnOft5wQtfIMTDs1l+MxAa+dd29qYik0Ag75OsOgk
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.69,417,1571702400"; 
-   d="scan'208";a="37603353"
-IronPort-PHdr: =?us-ascii?q?9a23=3AURz65BJQVB1PzT5Q69mcpTZWNBhigK39O0sv0r?=
- =?us-ascii?q?FitYgeLfrxwZ3uMQTl6Ol3ixeRBMOHsqkC0bSN+P2xEUU7or+5+EgYd5JNUx?=
- =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
- =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCezbL9oMhm7rAvcusYWjIZmN6081g?=
- =?us-ascii?q?bHrnxUdupM2GhmP0iTnxHy5sex+J5s7SFdsO8/+sBDTKv3Yb02QaRXAzo6PW?=
- =?us-ascii?q?814tbrtQTYQguU+nQcSGQWnQFWDAXD8Rr3Q43+sir+tup6xSmaIcj7Rq06VD?=
- =?us-ascii?q?i+86tmTgLjhykdNz497WrZlMp+gqxGqx6lvhByzYrZbISTOfFjfK3SYMkaSH?=
- =?us-ascii?q?JcUMhPWSxPAoCyYYUBAOUOP+lXs4bzqkASrRa9HwSgGP/jxzFKi3LwwKY00/?=
- =?us-ascii?q?4hEQbD3AE4AtwOrGrbrM31NKgMV+C+0bTGzTDZYPNS3Tfy9ojJeQ0mrPGXQL?=
- =?us-ascii?q?1watHcyVUvFgzZjlWQrpbpPzWO1usXqWSb4O1gVfy2hmMhtgp/oSCvy98xho?=
- =?us-ascii?q?TGiY8Z0FDJ+ThjzIorKtC0VlR3bcOiHZBNrS+VLZF2TdknQ2xwvSY6zaAJto?=
- =?us-ascii?q?CjcSgRzZQn2wbfa/uac4iU+h7jVPieITN/hH99ZLKwnQyy8Um9yu3nTMW00V?=
- =?us-ascii?q?BKriRCktnXqH8Cywbf6tSHS/Rh/keh3iyD1wbP5eFfPU84j6/bK58lwrIol5?=
- =?us-ascii?q?oTt1rMHjPulUnrg6KbeV8o9+i15+j9fLnrqYGQO5Vphg3mN6QhgM2/AeA2Mg?=
- =?us-ascii?q?gUWGib/Pyx1Kb+8k3iW7hKkv03nbXZsJDdP8gboLW5DBVP3oYs7Ba/ES+q0M?=
- =?us-ascii?q?4EknkfMFJFZBWHgpD1NFHBIfH4CvG/jEq3kDpwyPDGObrhAprJLnfdlbfuZ7?=
- =?us-ascii?q?d960pGxAUvytBf4opeCqsdL/LrRk/xqNvYAwciMwOqx+bnCdN91p4RWG+UHK?=
- =?us-ascii?q?+ZP73dsUWS6uIsPeaMfokVtyj5K/Q/4P7ul3A5yhchevyC3YEWc2y5F/JRDN?=
- =?us-ascii?q?uFfWHngtpJRWwFrA04QffCh1qFXjpeYn+zW+Q34TRtTMq9AIPCQJ29qKKO0T?=
- =?us-ascii?q?39HZBMYG1CTFeWHiTGbYKBDswQZTqSL8kpqTkNUbysWsd1zh21nBPrwLpgaO?=
- =?us-ascii?q?zP82sXsoy1h4s93PHaiRxnrW88NM+ayWzYCjolkw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BTAwDhiBhe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YFsASASKoQJiQOGZAEBAQEBAQaBN4EBiG2KJIckCQEBAQEBAQEBATcBAYRAA?=
- =?us-ascii?q?oIWOBMCEAEBAQQBAQEBAQUDAQFshUOCOymCegEBAQECASMECwEFRgsLGAICJ?=
- =?us-ascii?q?gICVwYBDAYCAQGCYz+CSwMJBSCqenV/M4VJglINY4E9gQ4ojDN5gQeBEScPg?=
- =?us-ascii?q?ig1PoIbghiDJoJeBI0wiRKBJ5dOgkGCSJNfBhuCR4xFi14tji2dBSKBWCsIA?=
- =?us-ascii?q?hgIIQ+DJ1AYDZJbF45BIwMwkTABAQ?=
+   d="scan'208";a="37603501"
+IronPort-PHdr: =?us-ascii?q?9a23=3AeslTYxGi8FFcpK21mitJEJ1GYnF86YWxBRYc79?=
+ =?us-ascii?q?8ds5kLTJ7zoMqwAkXT6L1XgUPTWs2DsrQY0rGQ6f67EjFRqb+681k6OKRWUB?=
+ =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
+ =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba58IRmsswnct8cbjYRiJ6s11x?=
+ =?us-ascii?q?DEvmZGd+NKyG1yOFmdhQz85sC+/J5i9yRfpfcs/NNeXKv5Yqo1U6VWACwpPG?=
+ =?us-ascii?q?4p6sLrswLDTRaU6XsHTmoWiBtIDBPb4xz8Q5z8rzH1tut52CmdIM32UbU5Ui?=
+ =?us-ascii?q?ms4qt3VBPljjoMODAj8GHTl8d+kqRVrhy8rBB72oLZYIWYOP94c6jAf90VWH?=
+ =?us-ascii?q?BBU95MWSJfDIOyb4gBAeQPMulXrYbyu1QAoACiBQSvHu7j1iNEi3H00KA8zu?=
+ =?us-ascii?q?8vERvG3AslH98WrXrUsMv6NL8SUe+ryqnD0CjNb/ZM1jf57IjHbBAgquyLUL?=
+ =?us-ascii?q?JrbMXR0lIiFx/Fj1qMqYzlOCmZ1uIWs2eB9eZgWuWvi3A+pgx3vzOhxd8sh5?=
+ =?us-ascii?q?HUio8axV3I7yV0zJsvKdGmR0N3f8SoHIZWuiqHLYV5WNkiTHttuCsiz70Gvo?=
+ =?us-ascii?q?O0czYSxZQ8wh7fd+SHc4+V4hL/TOqRISl3hHZieL+nmxa961KgyuzhVsmvyl?=
+ =?us-ascii?q?pKryxFktfLtnAWyRPc9tKLSud9/0i92TaP0Brf6udYLkAviaXXMZshwr80lp?=
+ =?us-ascii?q?YLsETDGDH5mFnugaOLeUgp9fKk5uT6brn8uJOROJF4hhvjPqg2n8ywG+U4Mg?=
+ =?us-ascii?q?wAX2iB/uS80aXu/VbkT7VRlfA2jqnYv4zaJcQcvKK5BRRV3Zw55xawCDemzs?=
+ =?us-ascii?q?wUnWMbI1JdZBKHk4/pNknSL/D3DPa/hFKsnylwx/3dMb3hBZLNLnfHkLj/eL?=
+ =?us-ascii?q?Zy8U9cyA4pwd9D4JJUD6kLIOjvVU/pqNzYEhg5PhSvw+n5DNV914UeWX+AA6?=
+ =?us-ascii?q?KCLqPSvkGH5vg1L+mPeoAVojD9JOYh5/L0in85g1AdLuGV2s48aGq5BehnKk?=
+ =?us-ascii?q?OuTuTwnswKEWpC6gExXuvshUaqXjlUaHK/Wqs94ncwD4fwSc/YS4SshqGR9D?=
+ =?us-ascii?q?m0E4cQZW1cDF2IV3DyeNaqQfAJPRmOL9dhnzpMbr2oT4ssxFn6rwPh46Z2Je?=
+ =?us-ascii?q?rTvCsDvNTs08YjtL6brg076TEhV5fV6GqKVWwh2z5ZSg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2AZAQDhiBhe/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
+ =?us-ascii?q?QGBe4F9gWwBIBKEM4kDhmQBAQEBAQEGgRIliW6RSAkBAQEBAQEBAQE3AQGEQ?=
+ =?us-ascii?q?AKCFjgTAhABAQEEAQEBAQEFAwEBbIVDgjspgnsBBSMPAQVRCxgCAiYCAlcGA?=
+ =?us-ascii?q?QwIAQGCYz+CVyWrb4EyhUmDQoE9gQ4ojDN5gQeBOAwDgl0+gQ6GS4JeBI0wi?=
+ =?us-ascii?q?jmXToJBgkiTXwYbmmqOWp0FIoFYKwgCGAghD4MoTxgNoTMjA5FgAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 10 Jan 2020 14:29:31 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 10 Jan 2020 14:31:42 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00AESuiO021892;
-        Fri, 10 Jan 2020 09:28:56 -0500
-Subject: Re: [RFC PATCH 2/3] libselinux: add
- security_is_policy_capabilty_enabled()
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00AEV8VC022050;
+        Fri, 10 Jan 2020 09:31:08 -0500
+Subject: Re: [RFC PATCH 3/3] libselinux: add policy capability test binary
 To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
         selinux@vger.kernel.org
 References: <20200110141509.21098-1-cgzones@googlemail.com>
- <20200110141509.21098-3-cgzones@googlemail.com>
+ <20200110141509.21098-4-cgzones@googlemail.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <7a4f539c-496d-ad3b-f937-604fda594ee3@tycho.nsa.gov>
-Date:   Fri, 10 Jan 2020 09:30:17 -0500
+Message-ID: <a29daabd-e6f2-4f22-3830-b00bd8bf63aa@tycho.nsa.gov>
+Date:   Fri, 10 Jan 2020 09:32:28 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <20200110141509.21098-3-cgzones@googlemail.com>
+In-Reply-To: <20200110141509.21098-4-cgzones@googlemail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -95,192 +93,63 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 1/10/20 9:15 AM, Christian Göttsche wrote:
-> Allow userspace (e.g. object managers like systemd) to obtain the state of a policy capability via a library call.
 > ---
->   libselinux/include/selinux/selinux.h          |  3 +
->   .../security_is_policy_capability_enabled.3   | 27 ++++++++
->   libselinux/src/polcap.c                       | 64 +++++++++++++++++++
->   libselinux/src/selinux_internal.h             |  1 +
->   libselinux/src/selinuxswig_python_exception.i |  9 +++
->   5 files changed, 104 insertions(+)
->   create mode 100644 libselinux/man/man3/security_is_policy_capability_enabled.3
->   create mode 100644 libselinux/src/polcap.c
+>   libselinux/utils/.gitignore       |  1 +
+>   libselinux/utils/polcap_enabled.c | 30 ++++++++++++++++++++++++++++++
+>   2 files changed, 31 insertions(+)
+>   create mode 100644 libselinux/utils/polcap_enabled.c
 > 
-> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-> index fe46e681..b46f152d 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -354,6 +354,9 @@ extern int security_disable(void);
->   /* Get the policy version number. */
->   extern int security_policyvers(void);
->   
-> +/* Get the state of a policy capability. */
-> +extern int security_is_policy_capability_enabled(const char *name);
-
-Not sure if this should be security_ or selinux_.  Historically, we 
-originally used security_ as the prefix for security server interfaces 
-(e.g. security_compute_av), avc_ as the prefix for AVC interfaces, and 
-no prefix at all for various other interfaces (e.g. getcon, getfilecon). 
-  Then people pointed out the potential for name collisions (even more 
-so in a multi-LSM world) and we started using selinux_ prefixes (but not 
-consistently).  I'm ok either way but thought I'd mention it.
-
-> +
->   /* Get the boolean names */
->   extern int security_get_boolean_names(char ***names, int *len);
->   
-> diff --git a/libselinux/man/man3/security_is_policy_capability_enabled.3 b/libselinux/man/man3/security_is_policy_capability_enabled.3
+> diff --git a/libselinux/utils/.gitignore b/libselinux/utils/.gitignore
+> index 3ef34374..bfe1db4d 100644
+> --- a/libselinux/utils/.gitignore
+> +++ b/libselinux/utils/.gitignore
+> @@ -12,6 +12,7 @@ getpidcon
+>   getsebool
+>   getseuser
+>   matchpathcon
+> +polcap_enabled
+>   policyvers
+>   sefcontext_compile
+>   selabel_digest
+> diff --git a/libselinux/utils/polcap_enabled.c b/libselinux/utils/polcap_enabled.c
 > new file mode 100644
-> index 00000000..18c53b67
+> index 00000000..e984d1e4
 > --- /dev/null
-> +++ b/libselinux/man/man3/security_is_policy_capability_enabled.3
-> @@ -0,0 +1,27 @@
-> +.TH "security_is_policy_capability_enabled" "3" "9 January 2020" "cgzones@googlemail.com" "SELinux API documentation"
-> +.SH "NAME"
-> +security_is_policy_capability_enabled \- get the state of a SELinux policy
-> +capability
-> +.
-> +.SH "SYNOPSIS"
-> +.B #include <selinux/selinux.h>
-> +.sp
-> +.BI "int security_is_policy_capability_enabled(const char *" name ");"
-> +.
-> +.SH "DESCRIPTION"
-> +.BR security_is_policy_capability_enabled ()
-> +returns 1 if the SELinux policy capability with the given name is enabled,
-> +0 if it is disabled, and \-1 on error.
-> +.SH "NOTES"
-> +The parameter
-> +.IR name
-> +is case insensitive.
-
-Why support case-insensitivity?  It complicates the implementation and 
-seems unnecessary.
-
-> +
-> +If the the current kernel does not support the given policy capability \-1 is returned and
-> +.BR errno
-> +is set to
-> +.BR ENOTSUP
-> +\&.
-> +.
-> +.SH "SEE ALSO"
-> +.BR selinux "(8)"
-> diff --git a/libselinux/src/polcap.c b/libselinux/src/polcap.c
-> new file mode 100644
-> index 00000000..801231cf
-> --- /dev/null
-> +++ b/libselinux/src/polcap.c
-> @@ -0,0 +1,64 @@
-> +#include <dirent.h>
+> +++ b/libselinux/utils/polcap_enabled.c
+> @@ -0,0 +1,30 @@
 > +#include <errno.h>
-> +#include <fcntl.h>
-> +#include <limits.h>
 > +#include <stdio.h>
 > +#include <string.h>
-> +#include <sys/types.h>
-> +#include <unistd.h>
 > +
-> +#include "policy.h"
-> +#include "selinux_internal.h"
+> +#include <selinux/selinux.h>
 > +
-> +int security_is_policy_capability_enabled(const char *name)
+> +int main(int argc, char **argv)
 > +{
-> +	int fd, enabled;
-> +	ssize_t ret;
-> +	char path[PATH_MAX];
-> +	char buf[20];
-> +	DIR *polcapdir;
-> +	struct dirent *dentry;
+> +	int ret;
 > +
-> +	if (!selinux_mnt) {
-> +		errno = ENOENT;
-> +		return -1;
+> +	if (argc != 2) {
+> +		printf("usage: %s polcap_name\n", argv[0]);
+> +		return 1;
 > +	}
 > +
-> +	snprintf(path, sizeof path, "%s/policy_capabilities", selinux_mnt);
-> +	polcapdir = opendir(path);
-> +	if (!polcapdir)
-> +		return -1;
+> +	ret = security_is_policy_capability_enabled(argv[1]);
 > +
-> +	while ((dentry = readdir(polcapdir)) != NULL) {
-> +		if (strcmp(dentry->d_name, ".") == 0 || strcmp(dentry->d_name, "..") == 0)
-> +			continue;
-> +
-> +		if (strcasecmp(name, dentry->d_name) != 0)
-> +			continue;
-> +
-> +		snprintf(path, sizeof path, "%s/policy_capabilities/%s", selinux_mnt, dentry->d_name);
-> +		fd = open(path, O_RDONLY | O_CLOEXEC);
-> +		if (fd < 0)
-> +		    goto err;
-
-If you weren't trying to support case-insensitivity, you could just 
-directly open() the capability file and be done with it.
-
-> +
-> +		memset(buf, 0, sizeof buf);
-> +		ret = read(fd, buf, sizeof buf - 1);
-> +		close(fd);
-> +		if (ret < 0)
-> +			goto err;
-> +
-> +		if (sscanf(buf, "%d", &enabled) != 1)
-> +			goto err;
-> +
-> +		closedir(polcapdir);
-> +		return !!enabled;
+> +	if (ret == 1)
+> +		printf("enabled\n");
+> +	else if (ret == 0)
+> +		printf("disabled\n");
+> +	else if (errno == ENOTSUP)
+> +		printf("not supported\n");
+> +	else {
+> +		printf("error (%d): %s\n", errno, strerror(errno));
+> +		return 1;
 > +	}
 > +
-> +	if (errno == 0)
-> +		errno = ENOTSUP;
-> +err:
-> +	closedir(polcapdir);
-> +	return -1;
+> +	return 0;
 > +}
-> +
-> +hidden_def(security_is_policy_capability_enabled)
 
-The hidden_proto/hidden_def declarations are for libselinux functions 
-that are called by libselinux itself, to provide an internal symbol for 
-it and thereby avoid the cost and confusion of supporting libselinux 
-using some other .so's definition of it.  So unless you put a call to it 
-somewhere inside libselinux, you don't need this.
+For new libselinux utilities, let's try to use some kind of unique 
+prefix to help avoid collisions for distros that install these programs. 
+  selinux_ should be fine.
 
-> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-> index 8b4bed2f..7ca1c329 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -9,6 +9,7 @@ hidden_proto(selinux_mkload_policy)
->       hidden_proto(security_disable)
->       hidden_proto(security_policyvers)
->       hidden_proto(security_load_policy)
-> +    hidden_proto(security_is_policy_capability_enabled)
-
-Ditto
-
->       hidden_proto(security_get_boolean_active)
->       hidden_proto(security_get_boolean_names)
->       hidden_proto(security_set_boolean)
-> diff --git a/libselinux/src/selinuxswig_python_exception.i b/libselinux/src/selinuxswig_python_exception.i
-> index cf658259..bd107295 100644
-> --- a/libselinux/src/selinuxswig_python_exception.i
-> +++ b/libselinux/src/selinuxswig_python_exception.i
-> @@ -665,6 +665,15 @@
->   }
->   
->   
-> +%exception security_is_policy_capability_enabled {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
->   %exception security_get_boolean_names {
->     $action
->     if (result < 0) {
-> 
 
