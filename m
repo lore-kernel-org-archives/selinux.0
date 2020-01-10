@@ -2,116 +2,103 @@ Return-Path: <SRS0=2SWW=27=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1447AC33CA3
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 10:14:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99853C282DD
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:15:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DEF93206ED
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 10:14:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 68F102072E
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 14:15:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=zoho.com header.i=yehs2007@zoho.com header.b="CHKE/Ajc"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="SoN2YmsJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727315AbgAJKOn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jan 2020 05:14:43 -0500
-Received: from sender4-pp-o98.zoho.com ([136.143.188.98]:25889 "EHLO
-        sender4-pp-o98.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727168AbgAJKOn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 05:14:43 -0500
-ARC-Seal: i=1; a=rsa-sha256; t=1578650363; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=LPNKhYD8VGGM3LlOvpkvz4S9ACqCUh4yp3mupX2mqzgp9x1omeg/7mvIiTsDpsTHyVVqJS+QUCZmei1q/tvXFTyeUkp8Q37erGa7Gm4qHuDlyeIoA2FeF3hZSAdqA0tgbh/Bvs16pKErfTS9RoBW04HRg8xdPGTHW+JtM8MBYcc=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1578650363; h=Cc:Date:From:Message-ID:Subject:To; 
-        bh=6k+ob4mND5uhGYNS0aLLe9mkja1bcLdOMMO7jcUWhUo=; 
-        b=ZSVBhOl6iI8eQVqe5qm70vgMz6PZeU7tH/5ECA9xpWgXCGBlClXJUoBqOytQor0TMXHqbSjT/Dc4ecK/upGfLUhvzrW+KOtbr9AGn7FHutzjmNDkiovzS6out02Z2Jc0vy0DPwP+1CT8z80f2nLCdgcCzhrRIaLCym1wl+U0+Dw=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=zoho.com;
-        spf=pass  smtp.mailfrom=yehs2007@zoho.com;
-        dmarc=pass header.from=<yehs2007@zoho.com> header.from=<yehs2007@zoho.com>
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws; 
-  s=zapps768; d=zoho.com; 
-  h=from:to:cc:subject:date:message-id; 
-  b=ejW7ZWQ5OyE9/795JUKXZ6EzmelpS/1GJpbI1mGTt6CO4wZHYu0QoblwEPkYIaERRiuRU91QqmlJ
-    U9DjHv4BALJHW7XObKvsXgjcjNLKGF2c56dOG/a5M8a7ymfizR8F  
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1578650363;
-        s=zm2020; d=zoho.com; i=yehs2007@zoho.com;
-        h=From:To:Cc:Subject:Date:Message-Id;
-        bh=6k+ob4mND5uhGYNS0aLLe9mkja1bcLdOMMO7jcUWhUo=;
-        b=CHKE/Ajc7XKpwGamfC/RhaTQUAM0SXRRovodAMD+cT/cQc+EpZSnQK3V4zmnz1Oz
-        9QCTpc85rLAuLPFJ0xGWClaRLX03T+/F7TA+bZu8Th+JqlsSwZ2qS8dmFglxo2rGJJg
-        MFQZiJfdx6ohi553PqJk/5uviWRdunUqJ/ttm+QY=
-Received: from YEHS1XPF1D05WL.lenovo.com (221.219.123.16 [221.219.123.16]) by mx.zohomail.com
-        with SMTPS id 1578650359384351.6084037024035; Fri, 10 Jan 2020 01:59:19 -0800 (PST)
-From:   Huaisheng Ye <yehs2007@zoho.com>
-To:     paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
-        jmorris@namei.org, serge@hallyn.com
-Cc:     tyu1@lenovo.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Huaisheng Ye <yehs1@lenovo.com>
-Subject: [PATCH] selinux: remove redundant msg_msg_alloc_security
-Date:   Fri, 10 Jan 2020 17:58:56 +0800
-Message-Id: <20200110095856.76612-1-yehs2007@zoho.com>
-X-Mailer: git-send-email 2.17.0.windows.1
-X-ZohoMailClient: External
+        id S1727358AbgAJOPR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jan 2020 09:15:17 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:53950 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727181AbgAJOPR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 09:15:17 -0500
+Received: by mail-wm1-f65.google.com with SMTP id m24so2164257wmc.3
+        for <selinux@vger.kernel.org>; Fri, 10 Jan 2020 06:15:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CYy6t1vC/vw9kUGpEpxIhpvBUQI0S0mxIu11GDRr2cg=;
+        b=SoN2YmsJHG9IrKPBSB+ATpTGIEkevyHeL4UqpeqDXvjWgxOKokA6qwVspV6QGtuHCN
+         y+Ahuqy0fAkxq2wok8BJOsQubm4Xk9YPGdvAg8Yo1CKNi8ysjLgZmGuT0/WhiXPpNCIP
+         LFsBfG26Y5Eko7U+ZLFX9AUFRDgZEyUnH6D1xpx6lUAPUtjfFSfBIa36jFGl8MBd6fIC
+         ESQCoXvRgKOlpF3T7W/P/Z2ydwzO7P5RyboYFLwoLbYUsdi3TD+67CVtsagoTVgKf7Jh
+         FRGGsSOmC2vMVQavf2U4cgNQDGP411D/GkT0iURH5Mw2cqQNUzqUfb6vUp2+QO9G4JzU
+         byqA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CYy6t1vC/vw9kUGpEpxIhpvBUQI0S0mxIu11GDRr2cg=;
+        b=e4XmnR1YdiGYmsWT89M8WV3EYJaBWEvqKOaWQktJ9+zX1w2L6KsT2wAXp35Ps1J/M3
+         ++YzaycDUJ4QMWN5iA6P7UTeyvgywZUWK0X7aAICfS0JqJZk1csdP/HGVK07lYUcCkP7
+         /bpICka3fxz3Nonbm1yDeosHie765b9i2TI4bRZHi0pcMI09vHjGVdATuOXlH+YaPrPM
+         J4QLkhEY0QUmdr70dzR7hcczaSQIl27KHNhgJWQ+yxTFz9GqbtfWNCWyNQuRfdmBP05B
+         qpCuW05eOOmVFIeaKysABjTli26cI3sLpVpbOiSvkjOdUKoB+jU8px+tA+8abggoHim1
+         6LBw==
+X-Gm-Message-State: APjAAAUcTuMuH8AClVCVqluZ5DrlY5/dxxZRqq2vGHx0tuFLE9QqtBKR
+        oMv8O4fRVSY1uX9qUTsiedS0Pb6Z
+X-Google-Smtp-Source: APXvYqz8GYeqfC/B207hzO7rJUZM3Sq1qYcVKz7ISr6Lrawc6CqlYR7Zxn07t317o8dzXsdjvwYYOA==
+X-Received: by 2002:a05:600c:290f:: with SMTP id i15mr4751779wmd.115.1578665715589;
+        Fri, 10 Jan 2020 06:15:15 -0800 (PST)
+Received: from desktopdebian.localdomain (x4d03413a.dyn.telefonica.de. [77.3.65.58])
+        by smtp.gmail.com with ESMTPSA id q15sm2369509wrr.11.2020.01.10.06.15.14
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Jan 2020 06:15:15 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [RFC PATCH 0/3] Add policy capability for systemd overhaul
+Date:   Fri, 10 Jan 2020 15:15:06 +0100
+Message-Id: <20200110141509.21098-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.25.0.rc2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Huaisheng Ye <yehs1@lenovo.com>
+Support a SELinux overhaul of systemd by adding a policy capability and
+adding a library method to obtain a current state of a policy
+capability.
 
-selinux_msg_msg_alloc_security only calls msg_msg_alloc_security but
-do nothing else. And also msg_msg_alloc_security is just used by the
-former.
+The systemd patch can be found at
+https://github.com/systemd/systemd/pull/10023
+and has NOT yet been accepted.
 
-Remove the redundant function to simplify the code.
+This is just a rfc to test the water.
 
-Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
----
- security/selinux/hooks.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+Christian Göttsche (3):
+  libsepol: add policy capability for systemd overhaul
+  libselinux: add security_is_policy_capabilty_enabled()
+  libselinux: add policy capability test binary
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 9625b99..fb1b9da 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -5882,16 +5882,6 @@ static void ipc_init_security(struct ipc_security_struct *isec, u16 sclass)
- 	isec->sid = current_sid();
- }
- 
--static int msg_msg_alloc_security(struct msg_msg *msg)
--{
--	struct msg_security_struct *msec;
--
--	msec = selinux_msg_msg(msg);
--	msec->sid = SECINITSID_UNLABELED;
--
--	return 0;
--}
--
- static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
- 			u32 perms)
- {
-@@ -5910,7 +5900,12 @@ static int ipc_has_perm(struct kern_ipc_perm *ipc_perms,
- 
- static int selinux_msg_msg_alloc_security(struct msg_msg *msg)
- {
--	return msg_msg_alloc_security(msg);
-+	struct msg_security_struct *msec;
-+
-+	msec = selinux_msg_msg(msg);
-+	msec->sid = SECINITSID_UNLABELED;
-+
-+	return 0;
- }
- 
- /* message queue security operations */
+ libselinux/include/selinux/selinux.h          |  3 +
+ .../security_is_policy_capability_enabled.3   | 27 ++++++++
+ libselinux/src/polcap.c                       | 64 +++++++++++++++++++
+ libselinux/src/selinux_internal.h             |  1 +
+ libselinux/src/selinuxswig_python_exception.i |  9 +++
+ libselinux/utils/.gitignore                   |  1 +
+ libselinux/utils/polcap_enabled.c             | 30 +++++++++
+ libsepol/include/sepol/policydb/polcaps.h     |  1 +
+ libsepol/src/polcaps.c                        |  1 +
+ 9 files changed, 137 insertions(+)
+ create mode 100644 libselinux/man/man3/security_is_policy_capability_enabled.3
+ create mode 100644 libselinux/src/polcap.c
+ create mode 100644 libselinux/utils/polcap_enabled.c
+
 -- 
-1.8.3.1
-
+2.25.0.rc2
 
