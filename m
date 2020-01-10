@@ -2,186 +2,226 @@ Return-Path: <SRS0=2SWW=27=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC9C4C282DD
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 18:18:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CF44C282DD
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 18:53:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8B0C32080D
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 18:18:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA0432072A
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 18:53:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="UPN8myRd"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="oaT1nZPq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727742AbgAJSSE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jan 2020 13:18:04 -0500
-Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:14481 "EHLO
-        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726346AbgAJSSE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 13:18:04 -0500
-X-EEMSG-check-017: 44552114|UPDC19PA20_ESA_OUT02.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.69,417,1571702400"; 
-   d="scan'208";a="44552114"
+        id S1728023AbgAJSxm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jan 2020 13:53:42 -0500
+Received: from USFB19PA34.eemsg.mail.mil ([214.24.26.197]:41670 "EHLO
+        USFB19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728242AbgAJSxl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 13:53:41 -0500
+X-EEMSG-check-017: 43147028|USFB19PA34_ESA_OUT04.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.69,418,1571702400"; 
+   d="scan'208";a="43147028"
 Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Jan 2020 18:18:00 +0000
+  by USFB19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Jan 2020 18:53:39 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1578680280; x=1610216280;
-  h=subject:to:cc:references:from:message-id:date:
+  s=tycho.nsa.gov; t=1578682420; x=1610218420;
+  h=subject:from:to:cc:references:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=u0cZvBBUBaQphqUkzRw3+hhlDjdcIZaoIienxwXG/pw=;
-  b=UPN8myRdO4FWFA21Gd3TptHu4tbN5cFgoEatOIuWFRz30GyLOb1xitFk
-   Z5zdGpkrRnOXyxG41v3eL9rOXbqoI5oqvO+JLDz0ruNzkglCqA0QMforE
-   h62iTMIn/uWNhOgoGCNGnMC8qcuD9rjgC0tpIYIlUfAICYuxqhNVpOw6S
-   HeKRRqiMgfRLu1aU3+pkOtZQ3+PVpKmOy9olqNIVWnP6XkmHz2f8G90Ol
-   s4AHNO5zJwYgOjYSLMcu64atoaW9V9rJe6D/V3l5O7TOrhxkZXANmETWb
-   fzNaUrxe8RjAC5AbRtgrmFcRxS9gPeB+IU+kOiE0hJ4si5/qLuDcOAXKL
-   w==;
-X-IronPort-AV: E=Sophos;i="5.69,417,1571702400"; 
-   d="scan'208";a="31824488"
-IronPort-PHdr: =?us-ascii?q?9a23=3AQPbTSBWw8ytkAN972YyDsRLN3ZrV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYbR2At8tkgFKBZ4jH8fUM07OQ7/m7HzZeut3Y6C1KWacPfi?=
- =?us-ascii?q?dNsd8RkQ0kDZzNImzAB9muURYHGt9fXkRu5XCxPBsdMs//Y1rPvi/6tmZKSV?=
- =?us-ascii?q?3wOgVvO+v6BJPZgdip2OCu4Z3TZBhDiCagbb9oIxi6sAvcutMIjYZjJKs9xQ?=
- =?us-ascii?q?bFrmdIdu9L2W5mOFWfkgrm6Myt5pBj6SNQu/wg985ET6r3erkzQKJbAjo7LW?=
- =?us-ascii?q?07/dXnuhbfQwSB4HscSXgWnQFTAwfZ9hH6X4z+vTX8u+FgxSSVJ8z2TbQzWT?=
- =?us-ascii?q?S/86dmTQLjhSkbOzIl9mzcl9d9h7xHrh2/uxN/wpbUYICLO/p4YqPdZs4RSW?=
- =?us-ascii?q?5YUspMSyBNHoawYo0BAOobOeZTspfzqV0AoxCjAQWgHe3ixztNinLwwKY00f?=
- =?us-ascii?q?kuERve0QI9AdwOvnTaotb7OqgcXu+6zrXHwzrYYvNK2zrw8pTEfgwvrPyOW7?=
- =?us-ascii?q?97bMrfyVMoFwPAllietJDlMC2N1uQNrWeb6fdrW/+qi2E9rwFxpiagx8cxgY?=
- =?us-ascii?q?TOnYIa10vE+D5lwIc1OdK4SEl7bcSiEJtLrS6WLYR2QsQ8Q2xxvisx174IuY?=
- =?us-ascii?q?ajcSQXx5kqyATTZvyaf4SS/B7uW/idLS1liH9jZbmxnQy98VK6xe35TsS01V?=
- =?us-ascii?q?FKoTdbndTUrXAN0gDT6tCASvtg4ketwTaP2B7X6uFDOU00ibDUK4Qgwr4tjZ?=
- =?us-ascii?q?ofq0XDHin4mEXxl6+ZaFkr9vK06+XnfrrmppicO5Vyig7iKaQhhtazAeE5Mg?=
- =?us-ascii?q?gKR2Sb+OK826P//UDhXblHgfI7nrPZvZzHP8gXuKG0DxFP3oo+8xq/Ci2p0N?=
- =?us-ascii?q?UcnXkJNlJFfxeHgpDyO17TO/D1Fuu/glSwnzdrwPDKJLvhAo7XIXTZn7fheq?=
- =?us-ascii?q?h951ZGyAUv1dBf+45UCrYZLfLpW0/+qNzYAQUjMwOp2+noFM1y1oMEVmKOBK?=
- =?us-ascii?q?+WLrjSvEST6eIzIumMYpMVtyjnK/gj+fHukWU1lkMafamsxZEXcmy3Hux6I0?=
- =?us-ascii?q?WFZnrhmswBHnkOvgo/SuzqlVKDXCVNZ3a9Qa08/Cs3CIG4AofZQICinriB0D?=
- =?us-ascii?q?28Hp1MaWBMEkqMHmvwd4WYR/cMbzqfIshkkjwDTrihTZUu2g2wuwLh0bpoMP?=
- =?us-ascii?q?fb+i0CupL/ztR6++rTlRRhvQBzWv6c2GGEVW08vmoJQTItlPRloEd9w02P5q?=
- =?us-ascii?q?NPg/VZE9FIz/lVUwEmOITawvA8ANf3DEaJZdqNSVC7Uv24DjwrCNE82dkDZw?=
- =?us-ascii?q?B6AdrxoArE2n+RH7INl7GNTKcx+6bY0mm5c91x0F7axaIhiB8gWcIJOmq40P?=
- =?us-ascii?q?0svzPPDpLExh3K352hcr4RiWuUrzaO?=
-X-IPAS-Result: =?us-ascii?q?A2DtAAB2vxhe/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBe4F9gWwBIBIqhAmJA4ZlAQEBAQEBBoE3iW6RSAkBAQEBAQEBAQE3AQGEQ?=
- =?us-ascii?q?AKCFjgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYJ6AQUjBBFBEAsYAgImAgJXB?=
- =?us-ascii?q?gEMBgIBAYJjP4JLAwklrGR/M4VJg02BPYEOKIwzeYEHgTgPgl0+ghuFPoI8I?=
- =?us-ascii?q?gSXI0aXToJBgkiTXwYbgkeMRYtejlqBSZs8IoFYKwgCGAghD4MnUBgNoTMjA?=
- =?us-ascii?q?zCRMAEB?=
+  bh=OACZPCqkFOAe5oY1wmOGHxqr8RNrxSYN+v8HqtxSojU=;
+  b=oaT1nZPqNe0gCFyRZ5RxQZN4QCCd3GX2/YMlhQFy3xEA+adk9IpPTGho
+   mOvHgWRuroznrDlSMIunYdgRDyD8e4qdTi/3tkLKmr4j7MbzooERjzwE5
+   V5t5FCe/2qdrNjnHdcU/RolS0ENng1YLC812MLMggJVMqeFp9jDDsHmXq
+   AcVdL0aeSuuH1UshnT7Aj3Mkogi6/MVj+JQMj6FDyO1d00Q1ZKTy3MB2U
+   Lxg38gniKvn9B3Rm498ze7gY+qviOHBaQwVubS46CHjU8aepH8R7b+gD0
+   7C7JLHBkJt9O01kAIvP4mcrj2donSgbGaDt2DIiN1lrEDe2p1Apc+8lNl
+   A==;
+X-IronPort-AV: E=Sophos;i="5.69,418,1571702400"; 
+   d="scan'208";a="31826237"
+IronPort-PHdr: =?us-ascii?q?9a23=3AnTWuoxeElsT6JP4sCvcR2e6SlGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxc26YRON2/xhgRfzUJnB7Loc0qyK6vumAzJbqs/Y6zgrS99lb1?=
+ =?us-ascii?q?c9k8IYnggtUoauKHbQC7rUVRE8B9lIT1R//nu2YgB/Ecf6YEDO8DXptWZBUh?=
+ =?us-ascii?q?rwOhBoKevrB4Xck9q41/yo+53Ufg5EmCexbal9IRmrowjdrNcajIpsJ6o+1x?=
+ =?us-ascii?q?fFv3VFcPlKyG11Il6egwzy7dqq8p559CRQtfMh98peXqj/Yq81U79WAik4Pm?=
+ =?us-ascii?q?4s/MHkugXNQgWJ5nsHT2UZiQFIDBTf7BH7RZj+rC33vfdg1SaAPM32Sbc0WS?=
+ =?us-ascii?q?m+76puVRTlhjsLOyI//WrKkcF7kr5Vrwy9qBx+247UYZ+aNPxifqPGYNgWQX?=
+ =?us-ascii?q?NNUttNWyBdB4+xaYUAD/AFPe1FsYfzoVUApga6CQW1Cu7izjpEi3nr1qM4zu?=
+ =?us-ascii?q?shCxnL0hEgEdwQvnTar9v7O6kdXu+30KbGwi7Ob+9V1Drn9ITEbh4srPOKUL?=
+ =?us-ascii?q?ltccTR004vFwbdg1uNtYzqISuV1uQTvGid8uFuSOevhHQjqwF1vDeuxtonh4?=
+ =?us-ascii?q?7Sho0I0VDJ7jl5wYYpKt24T053e9ikEIBKuC2AOIt2Rd0iTnhutS0nxLMGvp?=
+ =?us-ascii?q?u7czILyJQh3xPeZeaIc5SW7RL5TuqdOC50iGt+eL2hmxmy7FKgyuzgVsi0yF?=
+ =?us-ascii?q?pKoStFksXMtnAQzBPf8NSISvx4/kqnxD2B1BjT5/lZLU07mqfXMZ4szqMqmp?=
+ =?us-ascii?q?YNvknPADX6lFjwgaSLbEsr4PKo5P7iYrj+o5+cMJJ7hR/mP6Q1n8y/Hfw4Mg?=
+ =?us-ascii?q?8TX2iH4ei81KPs/Un+QLhSkv05iLPZsJHHJcQAvKK5AglV0ogk6xakETipzM?=
+ =?us-ascii?q?4UnWUHLV1ZeBKHiJLlO1fSL/DjEfizmVGskDZvx/zeP73hBIvCLmTbnbv8cr?=
+ =?us-ascii?q?tw5FRQxQouwdxF+Z5ZBa8NLOjuVkPpsdzXFB45Mwi6w+b9D9V905sTWXmSDa?=
+ =?us-ascii?q?+CK67SrV+J6f4vI+mLfoMVvi39JOI/6/7hin85h0cRfbO10psPdHC4AvNmLl?=
+ =?us-ascii?q?2BYXX2n9cBFXwHvhIkQ+z3jF2OSDtTZ3G1X6Im+D43Ep6pDYDGRoq1mryOwD?=
+ =?us-ascii?q?+7HoFKZmBBEl2DDXjodoSDW/cKdi2SOdRskjMDVbimRI8h0Q+htArgxLpmKu?=
+ =?us-ascii?q?rY4DEXtZXm1NJt/e3ciQky9SBoD8Say2yNVH97nmcJRz8wwaB+rldwykmM0a?=
+ =?us-ascii?q?dmmfxUD99T6O1TUgc8K5Hcy/Z2C9foWgLOLZ+1TwOeS8iiSRQ2Scg8i4sWal?=
+ =?us-ascii?q?t5M82rkxSG2i2tGbJTnLuOUth82aLG3mPtJs97/FlYyLU6hFkrCp9EOn+hgK?=
+ =?us-ascii?q?Nk3wfUAIHNnkCQlqLsfqMZin3j7mCGmFGSsVlYXQg4aqDMWXQSdwOCttjizl?=
+ =?us-ascii?q?/TRL+pT7I8O01OztDUefgCUcHgkVgTHKSrA9/ZeW/k3j7rVBs=3D?=
+X-IPAS-Result: =?us-ascii?q?A2B+BACnxxhe/wHyM5AZAUsdAQEBCQERBQUBgXsCgXuBG?=
+ =?us-ascii?q?FQBIBIqhAmJA4ZlAQEBAQEBBoE3iW6RSAkBAQEBAQEBAQErDAEBg3tFAoIWO?=
+ =?us-ascii?q?BMCEAEBAQQBAQEBAQUDAQFshQsHJQyCOykBgnkBAQEBAgEjDwEFQRAJAhgCA?=
+ =?us-ascii?q?iYCAlcGAQwGAgEBF4JMPwGCSgMJBSAPjjeCP5p/dYEyhDQBg2cNY4E3BoEOK?=
+ =?us-ascii?q?AGMMnmBB4ERJw+CXT6CG0kCgSwhgyaCXgSNMCCKGZdOgkGCSIRzjmwGG5pqj?=
+ =?us-ascii?q?lqIWpQrIoFYKwgCGAghDzuCbFAYDY0ehT0Xg1CKcSMDMI5tgkMBAQ?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 10 Jan 2020 18:17:59 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 10 Jan 2020 18:53:38 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00AIHKuH134832;
-        Fri, 10 Jan 2020 13:17:21 -0500
-Subject: Re: [PATCH V2 1/1] selinux-testsuite: Add filesystem tests
-To:     Richard Haines <richard_c_haines@btinternet.com>,
-        selinux@vger.kernel.org
-Cc:     omosnace@redhat.com
-References: <20200109150709.360345-1-richard_c_haines@btinternet.com>
- <20200109150709.360345-2-richard_c_haines@btinternet.com>
- <aa333bd1-9fd8-b4a4-eba2-aa8d722cbc7e@tycho.nsa.gov>
- <f2cebe3fcb2960a2b51638d457ae07781896a12c.camel@btinternet.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00AIqxSS153826;
+        Fri, 10 Jan 2020 13:52:59 -0500
+Subject: Re: [RFC PATCH] selinux: add policy capability for systemd overhaul
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c2cc9f48-4dd3-cdf4-8c4e-3575ffc05aaf@tycho.nsa.gov>
-Date:   Fri, 10 Jan 2020 13:18:44 -0500
+To:     Paul Moore <paul@paul-moore.com>,
+        =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+References: <20200110142038.21602-1-cgzones@googlemail.com>
+ <CAHC9VhTm4Mv2=vy7-LVFnnVnNd87MajzN1imjSLcqx9H17uQqg@mail.gmail.com>
+ <8426e416-cc8e-e054-aded-075cfc381057@tycho.nsa.gov>
+ <03490eb6-ac2f-ce43-4534-fd7a25f89020@tycho.nsa.gov>
+ <0f0a3b90-583e-bae0-bc23-5ddf1d64924e@tycho.nsa.gov>
+Message-ID: <514a7fd5-a61e-be09-ceee-d06cb3bebe02@tycho.nsa.gov>
+Date:   Fri, 10 Jan 2020 13:54:23 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <f2cebe3fcb2960a2b51638d457ae07781896a12c.camel@btinternet.com>
+In-Reply-To: <0f0a3b90-583e-bae0-bc23-5ddf1d64924e@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/10/20 1:09 PM, Richard Haines wrote:
-> On Thu, 2020-01-09 at 12:19 -0500, Stephen Smalley wrote:
->> On 1/9/20 10:07 AM, Richard Haines wrote:
->>> Test filesystem permissions and setfscreatecon(3).
+On 1/10/20 1:12 PM, Stephen Smalley wrote:
+> On 1/10/20 1:03 PM, Stephen Smalley wrote:
+>> On 1/10/20 12:41 PM, Stephen Smalley wrote:
+>>> On 1/10/20 11:55 AM, Paul Moore wrote:
+>>>> On Fri, Jan 10, 2020 at 9:20 AM Christian Göttsche
+>>>> <cgzones@googlemail.com> wrote:
+>>>>> Support a SELinux overhaul of systemd by adding a policy capability.
+>>>>>
+>>>>> The systemd patch can be found at
+>>>>> https://github.com/systemd/systemd/pull/10023
+>>>>> and has NOT yet been accepted.
+>>>>>
+>>>>> This is just a rfc to test the water.
+>>>>> ---
+>>>>>   security/selinux/include/security.h | 1 +
+>>>>>   security/selinux/ss/services.c      | 3 ++-
+>>>>>   2 files changed, 3 insertions(+), 1 deletion(-)
+>>>>
+>>>> Generally the SELinux policy capabilities are reserved for *kernel*
+>>>> changes that potentially break compatibility with existing SELinux
+>>>> policies.  I'm probably not the best person to talk about
+>>>> tricks/conventions used to do similar things in userspace, but you've
+>>>> come to the right place :)
 >>>
->>>   From kernels 5.5 filesystem { watch } is also tested.
->>>
->>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->>> ---
->>> diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
->>> new file mode 100644
->>> index 0000000..2eee1fc
->>> --- /dev/null
->>> +++ b/policy/test_filesystem.te
->>> @@ -0,0 +1,324 @@
->>> +#
->>> +######### Test filesystem permissions policy module ##########
->>> +#
->>> +attribute filesystemdomain;
->>> +
->>> +#################### Create a test file context
->>> ######################
->>> +type test_filesystem_filecon_t;
->>> +unconfined_runs_test(test_filesystem_filecon_t)
->>> +
->>> +################# Test all functions ##########################
->>> +type test_filesystem_t;
->>> +domain_type(test_filesystem_t)
->>> +unconfined_runs_test(test_filesystem_t)
->>> +typeattribute test_filesystem_t testdomain;
->>> +typeattribute test_filesystem_t filesystemdomain;
->>> +
->>> +allow test_filesystem_t self:capability { sys_admin };
->>> +allow test_filesystem_t self:filesystem { mount remount quotamod
->>> relabelfrom relabelto unmount quotaget };
->>> +allow test_filesystem_t self:dir { mounton add_name write };
->>> +allow test_filesystem_t test_file_t:dir { mounton write
->>> remove_name rmdir };
->>> +# Create test file
->>> +allow test_filesystem_t self:dir { add_name write };
->>> +allow test_filesystem_t self:file { create relabelfrom relabelto
->>> };
->>> +
->>> +fs_mount_all_fs(test_filesystem_t)
->>> +fs_remount_all_fs(test_filesystem_t)
->>> +fs_unmount_all_fs(test_filesystem_t)
->>> +fs_relabelfrom_all_fs(test_filesystem_t)
->>> +fs_get_xattr_fs_quotas(test_filesystem_t)
->>> +files_search_all(test_filesystem_t)
->>> +# Required for mount opts
->>> "rootcontext=system_u:object_r:test_filesystem_t:s0";
->>> +fs_associate(test_filesystem_t)
->>> +fs_getattr_xattr_fs(test_filesystem_t)
->>> +
->>> +# For running quotacheck(8)
->>> +files_type(test_filesystem_t)
->>> +# Update quotas
->>> +fs_set_all_quotas(test_filesystem_t)
->>> +allow test_filesystem_t self:file { quotaon };
->>> +# Create test file and change context:
->>> +fs_associate(test_filesystem_filecon_t)
->>> +allow test_filesystem_t test_filesystem_filecon_t:file { open read
->>> getattr relabelto write };
->>> +dontaudit test_filesystem_t kernel_t:process { setsched };
+>>> It was my suggestion to use policy capabilities for this.  There is 
+>>> no separate mechanism for supporting major changes to userspace 
+>>> SELinux permission checks in a backward-compatible manner.  Userspace 
+>>> already relies upon /sys/fs/selinux/{deny_unknown,reject_unknown} to 
+>>> get the handle_unknown setting from the kernel policy to decide how 
+>>> to handle unknown userspace classes/permissions.  That however is 
+>>> insufficient for these changes to systemd's permission check because 
+>>> they go beyond introducing new classes and permissions and overhaul 
+>>> the existing checks.  Policy capability seemed like the best way to 
+>>> do it, and getting it from the kernel is consistent with the fact 
+>>> that we are also getting the userspace classes/perms from the kernel 
+>>> via /sys/fs/selinux/class and the userspace access decisions from the 
+>>> kernel via /sys/fs/selinux/access (through the libselinux AVC, 
+>>> typically).
 >>
->> Why do you need these dontaudit statements?  It seems like a kernel
->> bug
->> if something is triggering a setsched permission check on the
->> kernel_t
->> domain?  Something the kernel module is doing during initialization?
+>> As to why we keep the userspace policy as part of the kernel policy 
+>> and not as a separate entity:
 >>
+>> - It allows us to provide an effective atomicity in policy changes 
+>> that may span both kernel and userspace components,
+>>
+>> - There is significant overlap between the contexts used in the kernel 
+>> and userspace policies, since most userspace policy enforcers are 
+>> using contexts obtained from the kernel for the subject (e.g. 
+>> SO_PEERSEC/getpeercon) or for the object (e.g. getfilecon),
+>>
+>> - Policy lookups via /sys/fs/selinux/access are more efficient than 
+>> performing an IPC to a userspace security server.  Of course, in both 
+>> cases, we try to maximize use of the libselinux AVC first to avoid 
+>> needing to perform the policy lookup at all.
+>>
+>> There were experiments done with introducing support for userspace 
+>> security server(s) for things like XACE/XSELinux and it was found to 
+>> be unsatisfying both performance and security-wise.
+>>
+>> There are still cases where we would recommend userspace security 
+>> server(s), such as when the userspace component is implementing a 
+>> policy entirely distinct from that of the kernel (e.g. a remote 
+>> document server implementing RaDAC policies, as in one of our earlier 
+>> experimental research projects), but not for things like systemd.
 > 
-> I've tracked this down to them all being called from block/ioprio.c
-> with: security_task_setioprio(task, ioprio) -> selinux_task_setioprio
+> All that said, I can see that we probably don't want a hardcoded 
+> reference to systemd in the kernel, since not everyone uses systemd ;) 
+> Perhaps what we need is for some range of policy capabilities to be 
+> user-defined, with generic names in the kernel and then userspace can 
+> choose to associate meaning with them.
 > 
-> Why the SECCLASS_PROCESS, PROCESS__SETSCHED I've no idea. The following
-> also use SET/GETSCHED permission:
-> 
-> selinux_task_getioprio, selinux_task_setnice, selinux_task_movememory
+> This would be a bit easier if we implemented a solution to the 2nd part 
+> of https://github.com/SELinuxProject/selinux/issues/55, i.e. pass 
+> capabilities to the kernel as a list of uninterpreted string names 
+> rather than a bitmap.  Then the kernel only needs to recognize its own 
+> capability names and create selinuxfs nodes for all of them reflecting 
+> their policy values, but no hard-coded references to systemd required.
 
-The confusing bit is that it is between test_filesystem_t and kernel_t. 
-If the process was setting its own ioprio, then I'd expect to see the 
-denial between test_filesystem_t and test_filesystem_t aka self.  If the 
-process inserted a kernel module and the module initializer spawned a 
-kernel thread that set its ioprio, I would expect it to be kernel_t to 
-kernel_t.
+Actually, given that Christian is proposing defining entirely new 
+classes for the new checks in systemd, maybe we don't need a policy 
+capability at all?  systemd can just check whether its new classes are 
+defined and use that as the indicator of whether the policy support the 
+new checks?
+
+> 
+>>
+>>>
+>>>>
+>>>>> diff --git a/security/selinux/include/security.h 
+>>>>> b/security/selinux/include/security.h
+>>>>> index ecdd610e6449..2853e462977f 100644
+>>>>> --- a/security/selinux/include/security.h
+>>>>> +++ b/security/selinux/include/security.h
+>>>>> @@ -79,6 +79,7 @@ enum {
+>>>>>          POLICYDB_CAPABILITY_ALWAYSNETWORK,
+>>>>>          POLICYDB_CAPABILITY_CGROUPSECLABEL,
+>>>>>          POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
+>>>>> +       POLICYDB_CAPABILITY_SYSTEMD_OVERHAUL,
+>>>>>          __POLICYDB_CAPABILITY_MAX
+>>>>>   };
+>>>>>   #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+>>>>> diff --git a/security/selinux/ss/services.c 
+>>>>> b/security/selinux/ss/services.c
+>>>>> index 55cf42945cba..cb50e187b181 100644
+>>>>> --- a/security/selinux/ss/services.c
+>>>>> +++ b/security/selinux/ss/services.c
+>>>>> @@ -73,7 +73,8 @@ const char 
+>>>>> *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
+>>>>>          "extended_socket_class",
+>>>>>          "always_check_network",
+>>>>>          "cgroup_seclabel",
+>>>>> -       "nnp_nosuid_transition"
+>>>>> +       "nnp_nosuid_transition",
+>>>>> +       "systemd_overhaul"
+>>>>>   };
+>>>>>
+>>>>>   static struct selinux_ss selinux_ss;
+>>>>> -- 
+>>>>> 2.24.1
+>>>>
+>>>
+>>
+> 
+
