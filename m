@@ -2,120 +2,177 @@ Return-Path: <SRS0=2SWW=27=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20E69C282DD
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 20:38:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 768FCC282DD
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 21:02:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DA0A2206ED
-	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 20:38:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2EB772072E
+	for <selinux@archiver.kernel.org>; Fri, 10 Jan 2020 21:02:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="CvL9cy6v"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="BPnJhdNC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726707AbgAJUiO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jan 2020 15:38:14 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:41096 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726683AbgAJUiO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 15:38:14 -0500
-Received: by mail-lf1-f67.google.com with SMTP id m30so2454128lfp.8
-        for <selinux@vger.kernel.org>; Fri, 10 Jan 2020 12:38:13 -0800 (PST)
+        id S1726859AbgAJVCB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jan 2020 16:02:01 -0500
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:37166 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726836AbgAJVCB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jan 2020 16:02:01 -0500
+Received: by mail-lj1-f195.google.com with SMTP id o13so3524348ljg.4
+        for <selinux@vger.kernel.org>; Fri, 10 Jan 2020 13:01:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ohxv7/AQm9sxn9/G4cC4SFGNmcMj4WUAVoS5w0ph5Iw=;
-        b=CvL9cy6vALYprOWCiG9nHFRtp7dXeoSd3Y6txf52mBlIJAt7REa5RgfhrhohYs3bED
-         Db3oLbjNs2lj1RJlv2v6qrRy0xwT4vSM/juZP1qpb8wn6f5xMtsN0z7ZC1T5M9d3LlVT
-         chEoDcM9Z9CwlptXHbSuJTHX+i6yXNHuuV0vVnFrPybWojEvPqrK2Ac7zsO+ZxHXDUs2
-         fKyVx05O2FdfqtiP33TZnaowM0fO6FgiPEtDB1JpUBCqRPIlQQ6TfQnhnoKnAyb9aHEP
-         NXForlC3TP4clCAKLwx+4JZDCIWWUO8zhVRJ76fEkP/JaBHTa5TsQJqc3we9trbz00So
-         /UpA==
+         :cc:content-transfer-encoding;
+        bh=z8WBZdCWjz+iFpfHXk0D3ftIaLDNxDnn8aRPtPk15T4=;
+        b=BPnJhdNCBO579L4QrbdkZ5F1datZgkMX75UNQuJ4kkaRCV/1iDguLSgC7cYzDnywyf
+         /0yOTBPSM8Xut4TMsVwwoVEKjsH/e4KD1ALTPvp8q5ZllakcMfybCFdAbZpHxsbKKQIa
+         s989x5R6sAMC1O3RcJyg6pYGqn3FJcdv/WSxb61SouDOHlh2WIAVCE+K6A5GQq9HsfKf
+         ZXAvODO6lLADa8gD3mQ6sZdN9IKfUYUKGmN/vU8f2Svx4K9HUJMCUNcVbOl97hE68Jm4
+         pO0dOtIE/ORhlyWJ+P8zaKK7hd33fhuckdj2JZ2trWHQqH7E/73TmsImc+QIVFNPWC/y
+         vnDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ohxv7/AQm9sxn9/G4cC4SFGNmcMj4WUAVoS5w0ph5Iw=;
-        b=Zkc3vH/zrWczuIg6ZGhnxEtQgtSc5HnCgQHuQ9Nttu5+wp5sgfLr+JHBb1fwIOUwC8
-         dRmumxQ/XV10DQCwfjn3++RBQ5iKpjzHoAKGdyuZ97ECVk1LGPYSnIG817DUNyPws4jA
-         hwqM/TQkoDVgeeL8bhWkZ/mqTspiwIrx8B+l7rhDa6dOhSnVnXyIYFLqkLkHKZON3WEP
-         BULF1qBTjZ1fN/SwQWDgjGk1LQ+3KRfignNn0sBsvQHt1grGQ9/CyN1rTg6Mrt7q2YFL
-         yOUyMiRIdAlebyVVUgTZDea5L66ukCk0TFVwxsJf8KwKUjtLROFKV+nIxezJPNExrEUH
-         rZkQ==
-X-Gm-Message-State: APjAAAXW9j9XaHxymUecinnNo1PMen7TyxQOFGtBs4ktS0dASLGj1BP0
-        VuimMUStX4bNKg1TrPwz+i92Mf3k+N5xeRQ3mOkk
-X-Google-Smtp-Source: APXvYqzYe1MUuEgZ3Y3mpM8MGvDzguhYjoPapSXFHijT9owt1bcz/JPMe10Ak2Og9tsgMphb+gxbEzczd+afoTu0qw0=
-X-Received: by 2002:ac2:5983:: with SMTP id w3mr3506797lfn.137.1578688692589;
- Fri, 10 Jan 2020 12:38:12 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=z8WBZdCWjz+iFpfHXk0D3ftIaLDNxDnn8aRPtPk15T4=;
+        b=kPZaKiSoJgH0XbeluUF2u6Vi7R8TtxAIR5xDR5LrnAAzjZ86MTH1Ac8J77t654gEt0
+         aegpB+UBZizzNymr1DDBnU0jQO5YMxqA+hs1S1NCRE0rfOkUWHQQltd5NN1//ucIkiie
+         rbvqm3Gvu0h+mu2Xl4IQvFAEdr4wkjKYx9d/eLgMf1A3kCSDOXIfu0x5D9bb4+dinzkO
+         hfj726exyzg5MXtw30cQtfyzYbKp5RFBRtZWM7n0glDKT5v3hC7Ut7xEq/ExEDrAx72k
+         QfGcdO12yX0KsVIWuVU+/rRX9UdEQa5AbvtE77I60xrYl/Z0qBM7dDFdnRq9e5qcXGGL
+         sFMw==
+X-Gm-Message-State: APjAAAUo7ZKRFEFVZCT3CvqMWQaAktPsC7o/S6P1iiNFcFZvy1K2iAue
+        Jx57C/X7L37F44WKtBjtw0kypgHLum89IgSqeQZk
+X-Google-Smtp-Source: APXvYqwUUr/W/4yxA8nw49ohd7jXSBYrmH3UanlUmXHqdo+3Vgl6HEGf+3zBxXmgAk9Mk9Ty3LkgQ1+vlLmu4btovoU=
+X-Received: by 2002:a2e:8152:: with SMTP id t18mr3680289ljg.255.1578690118328;
+ Fri, 10 Jan 2020 13:01:58 -0800 (PST)
 MIME-Version: 1.0
-References: <20200108140958.870283-1-omosnace@redhat.com>
-In-Reply-To: <20200108140958.870283-1-omosnace@redhat.com>
+References: <20200110142038.21602-1-cgzones@googlemail.com>
+ <CAHC9VhTm4Mv2=vy7-LVFnnVnNd87MajzN1imjSLcqx9H17uQqg@mail.gmail.com>
+ <8426e416-cc8e-e054-aded-075cfc381057@tycho.nsa.gov> <03490eb6-ac2f-ce43-4534-fd7a25f89020@tycho.nsa.gov>
+ <0f0a3b90-583e-bae0-bc23-5ddf1d64924e@tycho.nsa.gov>
+In-Reply-To: <0f0a3b90-583e-bae0-bc23-5ddf1d64924e@tycho.nsa.gov>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 10 Jan 2020 15:38:01 -0500
-Message-ID: <CAHC9VhS7fWscz-dOwwBDdzoeUr4-7Yt410RSEZPctoNBTnAsJw@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: reorder hooks to make runtime disable less broken
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org
+Date:   Fri, 10 Jan 2020 16:01:47 -0500
+Message-ID: <CAHC9VhQDjwHXCS5ZKRwrVbTqVG62yBQ5g5LfCdLFZydcxQog_g@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: add policy capability for systemd overhaul
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 8, 2020 at 9:10 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> Commit b1d9e6b0646d ("LSM: Switch to lists of hooks") switched the LSM
-> infrastructure to use per-hook lists, which meant that removing the
-> hooks for a given module was no longer atomic. Even though the commit
-> clearly documents that modules implementing runtime revmoval of hooks
-> (only SELinux attempts this madness) need to take special precautions to
-> avoid race conditions, SELinux has never addressed this.
->
-> By inserting an artificial delay between the loop iterations of
-> security_delete_hooks() (I used 100 ms), booting to a state where
-> SELinux is enabled, but policy is not yet loaded, and running these
-> commands:
->
->     while true; do ping -c 1 <some IP>; done &
->     echo -n 1 >/sys/fs/selinux/disable
->     kill %1
->     wait
->
-> ...I was able to trigger NULL pointer dereferences in various places. I
-> also have a report of someone getting panics on a stock RHEL-8 kernel
-> after setting SELINUX=disabled in /etc/selinux/config and rebooting
-> (without adding "selinux=0" to kernel command-line).
->
-> Reordering the SELinux hooks such that those that allocate structures
-> are removed last seems to prevent these panics. It is very much possible
-> that this doesn't make the runtime disable completely race-free, but at
-> least it makes the operation much less fragile.
->
-> Fixes: b1d9e6b0646d ("LSM: Switch to lists of hooks")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->
-> Changes in v2:
->  - rebased on latest selinux/next
->  - added comment above selinux_nf_ip_exit() call to ensure it remains
->    ordered correctly
->
->  security/selinux/hooks.c | 101 +++++++++++++++++++++++++++------------
->  1 file changed, 70 insertions(+), 31 deletions(-)
+On Fri, Jan 10, 2020 at 1:12 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 1/10/20 1:03 PM, Stephen Smalley wrote:
+> > On 1/10/20 12:41 PM, Stephen Smalley wrote:
+> >> On 1/10/20 11:55 AM, Paul Moore wrote:
+> >>> On Fri, Jan 10, 2020 at 9:20 AM Christian G=C3=B6ttsche
+> >>> <cgzones@googlemail.com> wrote:
+> >>>> Support a SELinux overhaul of systemd by adding a policy capability.
+> >>>>
+> >>>> The systemd patch can be found at
+> >>>> https://github.com/systemd/systemd/pull/10023
+> >>>> and has NOT yet been accepted.
+> >>>>
+> >>>> This is just a rfc to test the water.
+> >>>> ---
+> >>>>   security/selinux/include/security.h | 1 +
+> >>>>   security/selinux/ss/services.c      | 3 ++-
+> >>>>   2 files changed, 3 insertions(+), 1 deletion(-)
+> >>>
+> >>> Generally the SELinux policy capabilities are reserved for *kernel*
+> >>> changes that potentially break compatibility with existing SELinux
+> >>> policies.  I'm probably not the best person to talk about
+> >>> tricks/conventions used to do similar things in userspace, but you've
+> >>> come to the right place :)
+> >>
+> >> It was my suggestion to use policy capabilities for this.  There is no
+> >> separate mechanism for supporting major changes to userspace SELinux
+> >> permission checks in a backward-compatible manner.  Userspace already
+> >> relies upon /sys/fs/selinux/{deny_unknown,reject_unknown} to get the
+> >> handle_unknown setting from the kernel policy to decide how to handle
+> >> unknown userspace classes/permissions.  That however is insufficient
+> >> for these changes to systemd's permission check because they go beyond
+> >> introducing new classes and permissions and overhaul the existing
+> >> checks.  Policy capability seemed like the best way to do it, and
+> >> getting it from the kernel is consistent with the fact that we are
+> >> also getting the userspace classes/perms from the kernel via
+> >> /sys/fs/selinux/class and the userspace access decisions from the
+> >> kernel via /sys/fs/selinux/access (through the libselinux AVC,
+> >> typically).
 
-Thanks Ondrej, I've merged this into selinux/next and added the stable
-kernel CC.  Normally when we mark something for stable I send it up to
-Linus during the -rcX development phase, but I think this case is
-somewhat unique in that it isn't widespread (and there is no
-indication it will become widespread) and it requires privilege to
-trigger.  Also, while not a major factor, we are at -rc5 which means
-we are very near the end of the -rcX cycle and I'd rather not
-accidentally break something else this late in an attempt to fix such
-a limited problem.
+I would argue that the examples you mention above
+(/sys/fs/selinux/class, etc.) are different enough from the policy
+capabilities that it isn't a fair comparison.  Although given your
+other responses (below), it's probably not worth our time digging into
+this argument further.
 
-Comments and objections are welcome ;)
+> > As to why we keep the userspace policy as part of the kernel policy and
+> > not as a separate entity:
+> >
+> > - It allows us to provide an effective atomicity in policy changes that
+> > may span both kernel and userspace components,
+> >
+> > - There is significant overlap between the contexts used in the kernel
+> > and userspace policies, since most userspace policy enforcers are using
+> > contexts obtained from the kernel for the subject (e.g.
+> > SO_PEERSEC/getpeercon) or for the object (e.g. getfilecon),
+> >
+> > - Policy lookups via /sys/fs/selinux/access are more efficient than
+> > performing an IPC to a userspace security server.  Of course, in both
+> > cases, we try to maximize use of the libselinux AVC first to avoid
+> > needing to perform the policy lookup at all.
+> >
+> > There were experiments done with introducing support for userspace
+> > security server(s) for things like XACE/XSELinux and it was found to be
+> > unsatisfying both performance and security-wise.
+> >
+> > There are still cases where we would recommend userspace security
+> > server(s), such as when the userspace component is implementing a polic=
+y
+> > entirely distinct from that of the kernel (e.g. a remote document serve=
+r
+> > implementing RaDAC policies, as in one of our earlier experimental
+> > research projects), but not for things like systemd.
+>
+> All that said, I can see that we probably don't want a hardcoded
+> reference to systemd in the kernel, since not everyone uses systemd ;)
 
--- 
+That is definitely one of my concerns; the last thing I want to do is
+start a Debian-esque argument about init systems :)
+
+> Perhaps what we need is for some range of policy capabilities to be
+> user-defined, with generic names in the kernel and then userspace can
+> choose to associate meaning with them.
+
+It sounds like we may not need this after all, but if we do have to go
+this route, I would be okay with establishing a
+range/subset/namespace/etc. of policy capabilities for use by
+userspace so long as we somehow ensure that there is a clear
+separation between kernel and userspace policy capabilities.  The last
+thing I want is to add a new policy capability to the kernel only to
+find out that the capability name already conflicts with someone's
+policy, that would be very bad.
+
+> This would be a bit easier if we implemented a solution to the 2nd part
+> of https://github.com/SELinuxProject/selinux/issues/55, i.e. pass
+> capabilities to the kernel as a list of uninterpreted string names
+> rather than a bitmap.  Then the kernel only needs to recognize its own
+> capability names and create selinuxfs nodes for all of them reflecting
+> their policy values, but no hard-coded references to systemd required.
+
+We would probably want to enforce some sort of prefix string on the
+userspace policy capabilities during policy load to ensure that we
+don't have accidental overlap between kernel and userspace
+capabilities.
+
+--=20
 paul moore
 www.paul-moore.com
