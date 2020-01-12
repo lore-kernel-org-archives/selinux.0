@@ -2,184 +2,152 @@ Return-Path: <SRS0=L9QR=3B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3153EC33CA2
-	for <selinux@archiver.kernel.org>; Sun, 12 Jan 2020 16:04:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1842EC33CA2
+	for <selinux@archiver.kernel.org>; Sun, 12 Jan 2020 19:24:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C44A0214D8
-	for <selinux@archiver.kernel.org>; Sun, 12 Jan 2020 16:04:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC03F21556
+	for <selinux@archiver.kernel.org>; Sun, 12 Jan 2020 19:24:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="BTcnmboE"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="dU8H0mCA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733081AbgALQEE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 12 Jan 2020 11:04:04 -0500
-Received: from mailomta31-re.btinternet.com ([213.120.69.124]:20769 "EHLO
-        re-prd-fep-042.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1733064AbgALQEE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 12 Jan 2020 11:04:04 -0500
-Received: from re-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.54.5])
-          by re-prd-fep-042.btinternet.com with ESMTP
-          id <20200112160401.XCWG28894.re-prd-fep-042.btinternet.com@re-prd-rgout-002.btmx-prd.synchronoss.net>;
-          Sun, 12 Jan 2020 16:04:01 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1578845041; 
-        bh=pQfztX9AgnaGWWJk9oMxL0Id/lE+upuZYV4dHj/TORU=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=BTcnmboEWfNv+kIZOWwTHpcEqJeHITL4N2MCQhztLfsROvRXRPIPq8zPiuAqrfF1+s8GcE4pDG8jKUl4xHu+oQOwmjG2l1V38H1OtqVO4iUkiu1ZkIbuEDIbt57YgJXYWxqgZsvSqKqV0iq8pwRoZ93lQ4j7ljgX5zZn8Yes8hfTokNfyDLhz4E6QGcX5Ba4EIjGRujdaYV0qUbvcZlrIOUAnvZU7jwNt5obUY0Rr6gLI5Di+NJzgX0vizMAPFBbiwvnK2G+ZJxaah5pL2MvgwBQ8WgV35WyMrdya1JSkxJ3fNKH1m0/HQWWCJ4azuwizRKSnCedqliilds63JtJnQ==
+        id S1733064AbgALTYk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 12 Jan 2020 14:24:40 -0500
+Received: from mailomta32-re.btinternet.com ([213.120.69.125]:52721 "EHLO
+        re-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1732957AbgALTYk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 12 Jan 2020 14:24:40 -0500
+Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
+          by re-prd-fep-048.btinternet.com with ESMTP
+          id <20200112192435.FWCN14852.re-prd-fep-048.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Sun, 12 Jan 2020 19:24:35 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1578857075; 
+        bh=fCgXF5uQPjVFz67t0C2vyVkYid76i5xJCJHqHG5t3tE=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=dU8H0mCAhaMFGIfUZURh7GvdwhwPlDvVqt+lQKZAKFzop7wzMrlwD3P6ID1oC04jzHjg+FhXLT/LZ0A056VAKOv0gZ5m0a7tsJRu6cmfWfULu3arNSJ9k+Wf5rEtqGeCkuxYleiIaGC4hpcuyWpxThlRaXfG8tNRgmOlvVKbEyxcGpqTX3LKO+ExheZX+ES3SIfac8proBvUovXjKRZMiXHAazTeT8FumHlwtyJVuPBBRF6G/Q+bpS76fWMznY2rqR5i1lFXIR7qle+AkGF5JU058l8uXhALV9OjsPxtZmiQAoNSMLhHDmko8+Bs79DPQ+SIyxzVpCDjNEQkUv2vRQ==
 Authentication-Results: btinternet.com;
     auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
 X-Originating-IP: [86.134.6.171]
 X-OWM-Source-IP: 86.134.6.171 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrvdeikedgkeefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudefgedriedrudejudenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudefgedriedrudejuddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehomhhoshhnrggtvgesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgushesthihtghhohdrnhhsrgdrghhovheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqeenucevlhhushhtvghrufhiiigvpedt
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedufedrvdeikedguddvgecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirddufeegrdeirddujedunecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdeirddujedupdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqnecuvehluhhsthgvrhfuihiivgeptd
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (86.134.6.171) by re-prd-rgout-002.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
-        id 5DE2575E0785CB0E; Sun, 12 Jan 2020 16:04:01 +0000
-Message-ID: <f863a91987c1926a4351f3edf968c9003197fead.camel@btinternet.com>
-Subject: Re: [PATCH V2 1/1] selinux-testsuite: Add filesystem tests
+Received: from localhost.localdomain (86.134.6.171) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5DF6656304D208D9; Sun, 12 Jan 2020 19:24:35 +0000
 From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
-Cc:     omosnace@redhat.com
-Date:   Sun, 12 Jan 2020 16:04:00 +0000
-In-Reply-To: <c2cc9f48-4dd3-cdf4-8c4e-3575ffc05aaf@tycho.nsa.gov>
-References: <20200109150709.360345-1-richard_c_haines@btinternet.com>
-         <20200109150709.360345-2-richard_c_haines@btinternet.com>
-         <aa333bd1-9fd8-b4a4-eba2-aa8d722cbc7e@tycho.nsa.gov>
-         <f2cebe3fcb2960a2b51638d457ae07781896a12c.camel@btinternet.com>
-         <c2cc9f48-4dd3-cdf4-8c4e-3575ffc05aaf@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.2 (3.34.2-1.fc31) 
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH V3 0/1] selinux-testsuite: Add filesystem tests
+Date:   Sun, 12 Jan 2020 19:24:31 +0000
+Message-Id: <20200112192432.862800-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 2020-01-10 at 13:18 -0500, Stephen Smalley wrote:
-> On 1/10/20 1:09 PM, Richard Haines wrote:
-> > On Thu, 2020-01-09 at 12:19 -0500, Stephen Smalley wrote:
-> > > On 1/9/20 10:07 AM, Richard Haines wrote:
-> > > > Test filesystem permissions and setfscreatecon(3).
-> > > > 
-> > > >   From kernels 5.5 filesystem { watch } is also tested.
-> > > > 
-> > > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> > > > ---
-> > > > diff --git a/policy/test_filesystem.te
-> > > > b/policy/test_filesystem.te
-> > > > new file mode 100644
-> > > > index 0000000..2eee1fc
-> > > > --- /dev/null
-> > > > +++ b/policy/test_filesystem.te
-> > > > @@ -0,0 +1,324 @@
-> > > > +#
-> > > > +######### Test filesystem permissions policy module ##########
-> > > > +#
-> > > > +attribute filesystemdomain;
-> > > > +
-> > > > +#################### Create a test file context
-> > > > ######################
-> > > > +type test_filesystem_filecon_t;
-> > > > +unconfined_runs_test(test_filesystem_filecon_t)
-> > > > +
-> > > > +################# Test all functions
-> > > > ##########################
-> > > > +type test_filesystem_t;
-> > > > +domain_type(test_filesystem_t)
-> > > > +unconfined_runs_test(test_filesystem_t)
-> > > > +typeattribute test_filesystem_t testdomain;
-> > > > +typeattribute test_filesystem_t filesystemdomain;
-> > > > +
-> > > > +allow test_filesystem_t self:capability { sys_admin };
-> > > > +allow test_filesystem_t self:filesystem { mount remount
-> > > > quotamod
-> > > > relabelfrom relabelto unmount quotaget };
-> > > > +allow test_filesystem_t self:dir { mounton add_name write };
-> > > > +allow test_filesystem_t test_file_t:dir { mounton write
-> > > > remove_name rmdir };
-> > > > +# Create test file
-> > > > +allow test_filesystem_t self:dir { add_name write };
-> > > > +allow test_filesystem_t self:file { create relabelfrom
-> > > > relabelto
-> > > > };
-> > > > +
-> > > > +fs_mount_all_fs(test_filesystem_t)
-> > > > +fs_remount_all_fs(test_filesystem_t)
-> > > > +fs_unmount_all_fs(test_filesystem_t)
-> > > > +fs_relabelfrom_all_fs(test_filesystem_t)
-> > > > +fs_get_xattr_fs_quotas(test_filesystem_t)
-> > > > +files_search_all(test_filesystem_t)
-> > > > +# Required for mount opts
-> > > > "rootcontext=system_u:object_r:test_filesystem_t:s0";
-> > > > +fs_associate(test_filesystem_t)
-> > > > +fs_getattr_xattr_fs(test_filesystem_t)
-> > > > +
-> > > > +# For running quotacheck(8)
-> > > > +files_type(test_filesystem_t)
-> > > > +# Update quotas
-> > > > +fs_set_all_quotas(test_filesystem_t)
-> > > > +allow test_filesystem_t self:file { quotaon };
-> > > > +# Create test file and change context:
-> > > > +fs_associate(test_filesystem_filecon_t)
-> > > > +allow test_filesystem_t test_filesystem_filecon_t:file { open
-> > > > read
-> > > > getattr relabelto write };
-> > > > +dontaudit test_filesystem_t kernel_t:process { setsched };
-> > > 
-> > > Why do you need these dontaudit statements?  It seems like a
-> > > kernel
-> > > bug
-> > > if something is triggering a setsched permission check on the
-> > > kernel_t
-> > > domain?  Something the kernel module is doing during
-> > > initialization?
-> > > 
-> > 
-> > I've tracked this down to them all being called from block/ioprio.c
-> > with: security_task_setioprio(task, ioprio) ->
-> > selinux_task_setioprio
-> > 
-> > Why the SECCLASS_PROCESS, PROCESS__SETSCHED I've no idea. The
-> > following
-> > also use SET/GETSCHED permission:
-> > 
-> > selinux_task_getioprio, selinux_task_setnice,
-> > selinux_task_movememory
-> 
-> The confusing bit is that it is between test_filesystem_t and
-> kernel_t. 
-> If the process was setting its own ioprio, then I'd expect to see
-> the 
-> denial between test_filesystem_t and test_filesystem_t aka self.  If
-> the 
-> process inserted a kernel module and the module initializer spawned
-> a 
-> kernel thread that set its ioprio, I would expect it to be kernel_t
-> to 
-> kernel_t.
+These tests should cover all the areas in selinux/hooks.c that touch
+the 'filesystem' class. Each hooks.c function is listed in the 'test'
+script as there are some permissions that are checked in multiple places.
 
-Some more info on who calls set_task_ioprio:
+Tested on Fedora 31 and Rawhide (5.5 for the new watch perm).
 
-fs/ext4/super.c calls 'set_task_ioprio' in two places using:
-    set_task_ioprio(sbi->s_journal->j_task, journal_ioprio);
-The return codes are not checked. This code was added 11 years ago.
+V3 Changes:
+1) Lots of minor updates.
+2) Add 'udevadm settle' as suggested by Ondrej to resolve udisks(8) issue.
+3) Add stopping udisks(8) daemon as a '-d' option.
+4) Add file quotaon test.
+5) Add test for name type_transition rule.
+6) Fix setfscreatecon(3) test to create a directory and check context.
+7) Use kernel_dontaudit_setsched() as explained in [1].
 
-fs/btrfs/reada.c also calls 'set_task_ioprio' in two places using:
-    set_task_ioprio(current, BTRFS_IOPRIO_READA);
-The return codes are not checked.
+The only thing I have not done is cutting the clutter in the logs. Tried
+various things, all failed. Ideas !!!!
 
-As can be seen the ext4 module does not use 'current'. I have patched
-kernel 5.5-rc5 to use 'current' and it now works as you expected. Also
-the kernel_t:process { setsched } rules can be removed.
-As the problem will exist for some time, I've added to the test policy:
-    kernel_dontaudit_setsched(filesystemdomain)
+[1] https://lore.kernel.org/selinux/f863a91987c1926a4351f3edf968c9003197fead.camel@btinternet.com/
 
-It appears that most of the refpolicy modules do the same.
+V2 Changes:
+1) If udisks(8) daemon is running, stop then restart after tests. The tests
+   run faster and stops the annoying habit of adding mounts to the 'files'
+   app on the desktop. Supports /usr/bin/systemctl or /usr/sbin/service
+   More importantly it stops interferance with the '*context=' tests as it
+   can cause intermittent failures. Tested by running 'test' in a continuous
+   loop with udisks enabled, and then again disabled.
+   Loop 200 times, with udisks failed between 1 to 70 iterations, without
+   udisks, no failures.
+2) Add "#define QFMT_VFS_V0 2" to quotas_test.c to fix a RHEL/CentOS 7 and
+   below build issue.
+3) Build new file context based on the original in
+   create_file_change_context.c
+4) Use "runcon `id -Z` quotacheck ..." to resolve RHEL-6 test run issue.
+5) Fix free() contexts in create_file_change_context.c and
+   check_mount_context.c
 
+To test fanotify fs watch perm on 5.5+:
+1) Build the testsuite policy first:
+make -C policy load
+
+2) Add the following CIL statements to watch.cil and install:
+semodule -i watch.cil
+
+(common filesystem (watch))
+(classcommon filesystem filesystem)
+(allow test_filesystem_t self(filesystem (watch)))
+; Until 'fs_watch_all_fs(test_filesystem_t)' in Policy use:
+(allow test_filesystem_t fs_t (filesystem (watch)))
+; Required if notify policy enabled
+;(allow test_filesystem_t self (dir (watch_sb)))
+
+3) Edit /usr/share/selinux/devel/include/support/all_perms.spt
+   and insert the 'watch' permission at:
+
+define(`all_filesystem_perms',`{ mount remount ..... watch }')
+
+Richard Haines (1):
+  selinux-testsuite: Add filesystem tests
+
+ defconfig                                     |   6 +
+ policy/Makefile                               |   4 +
+ policy/test_filesystem.te                     | 343 +++++++
+ tests/Makefile                                |   7 +
+ tests/filesystem/.gitignore                   |  11 +
+ tests/filesystem/Makefile                     |  16 +
+ tests/filesystem/check_file_context.c         |  75 ++
+ tests/filesystem/check_mount_context.c        | 127 +++
+ tests/filesystem/create_file.c                | 112 +++
+ tests/filesystem/create_file_change_context.c | 146 +++
+ tests/filesystem/fanotify_fs.c                |  79 ++
+ tests/filesystem/fs_relabel.c                 | 138 +++
+ tests/filesystem/grim_reaper.c                |  89 ++
+ tests/filesystem/mount.c                      | 130 +++
+ tests/filesystem/quotas_test.c                | 143 +++
+ tests/filesystem/statfs_test.c                |  65 ++
+ tests/filesystem/test                         | 929 ++++++++++++++++++
+ tests/filesystem/umount.c                     |  84 ++
+ 18 files changed, 2504 insertions(+)
+ create mode 100644 policy/test_filesystem.te
+ create mode 100644 tests/filesystem/.gitignore
+ create mode 100644 tests/filesystem/Makefile
+ create mode 100644 tests/filesystem/check_file_context.c
+ create mode 100644 tests/filesystem/check_mount_context.c
+ create mode 100644 tests/filesystem/create_file.c
+ create mode 100644 tests/filesystem/create_file_change_context.c
+ create mode 100644 tests/filesystem/fanotify_fs.c
+ create mode 100644 tests/filesystem/fs_relabel.c
+ create mode 100644 tests/filesystem/grim_reaper.c
+ create mode 100644 tests/filesystem/mount.c
+ create mode 100644 tests/filesystem/quotas_test.c
+ create mode 100644 tests/filesystem/statfs_test.c
+ create mode 100755 tests/filesystem/test
+ create mode 100644 tests/filesystem/umount.c
+
+-- 
+2.24.1
 
