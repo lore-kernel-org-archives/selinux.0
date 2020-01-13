@@ -5,99 +5,95 @@ X-Spam-Level:
 X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1341C33CAD
-	for <selinux@archiver.kernel.org>; Mon, 13 Jan 2020 13:46:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE916C33CAD
+	for <selinux@archiver.kernel.org>; Mon, 13 Jan 2020 13:51:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9BFB82080D
-	for <selinux@archiver.kernel.org>; Mon, 13 Jan 2020 13:46:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78162214AF
+	for <selinux@archiver.kernel.org>; Mon, 13 Jan 2020 13:51:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="obvoQL36"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="mzTGuKl1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726505AbgAMNqE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Jan 2020 08:46:04 -0500
-Received: from USAT19PA22.eemsg.mail.mil ([214.24.22.196]:11828 "EHLO
-        USAT19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726074AbgAMNqD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jan 2020 08:46:03 -0500
-X-EEMSG-check-017: 68680305|USAT19PA22_ESA_OUT03.csd.disa.mil
+        id S1726163AbgAMNvP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Jan 2020 08:51:15 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:14070 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726946AbgAMNvP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jan 2020 08:51:15 -0500
+X-EEMSG-check-017: 43667429|USFB19PA36_ESA_OUT06.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.69,429,1571702400"; 
-   d="scan'208";a="68680305"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USAT19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Jan 2020 13:46:02 +0000
+   d="scan'208";a="43667429"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Jan 2020 13:51:07 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1578923162; x=1610459162;
+  s=tycho.nsa.gov; t=1578923467; x=1610459467;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=VB1Gg0QpB3xQjqLIw9BZCseVcnO03GV8AR2FwXWgoSY=;
-  b=obvoQL36c6FglQ7b5ycxjAQrbt+v64O2BH6AB3CuItwgZMqvEQrFAyGz
-   TgvhyuNhDZAHt93nf+5hrFzA1GnNk9AoRDyKWT3z3bGG2ayPrbX1OrLG2
-   wstVTerCPqhEWImOFUo27bFqX/8UhRRmG4kTtmO8wu6aOWRNUMJHjImdo
-   2HRMng/baSIdTAqS6oIve7F0CWbCO45KQpB2EGLSYJRoJ+E6vpIkOoqIv
-   kipeB+iWK04+LluPkxWDStD4ZTWm5YnG/K7yrRsDmaKHiHKV28eWR0Lch
-   s0LuPbFMWxUbI5xIUHK3YqrUrsGnCXDiewf7Op+FlEl1iCz57Cgz5WfEB
-   w==;
+  bh=huYaCJoecUz88eGf0jPqmvopPNdElLxc7Teo1sM3oJ4=;
+  b=mzTGuKl1A0MbDCmDi4APagzSs7E9Xd7RbvkDRvZ5TL4DpMpVbbWhq1lG
+   EJMiWsoZIKAC51qZ6nC0xkuNazzFIncoHZrydV0au/cr3seuZeXYebrwv
+   7LXoxXrbneZI9ilLWcXI+zl/0ZwCW70h8ZSP691S2Y1Upt7tI0nPhLEPp
+   rnEwZ50J2RcvPhXsgkjtlKpiUrYEs0KRi1TkijVRqrWr5AIV3kNNlymBh
+   TAiSTUrmH0kFvdvYnUidpyAkz2/bc/ixZ61+CBqkf0JbZhdEGTEqf2M/t
+   HcXJRHdD/RwLhrMKe3Gp3lMydaUps0BJHSYaLM8onflRqzmHQcm8eYv9p
+   A==;
 X-IronPort-AV: E=Sophos;i="5.69,429,1571702400"; 
-   d="scan'208";a="37677237"
-IronPort-PHdr: =?us-ascii?q?9a23=3AwpjDYRZELjrGaYtlT4EAoY7/LSx+4OfEezUN45?=
- =?us-ascii?q?9isYplN5qZps+9Yx7h7PlgxGXEQZ/co6odzbaP6Oa6BjRLvMzJmUtBWaQEbw?=
- =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
- =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRu7oR/PusQUnYduJaY8xg?=
- =?us-ascii?q?XUqXZUZupawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
- =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
- =?us-ascii?q?mp8qlmRAP0hCoBKjU2/nvXishth6xFphyvqQF0z4rNbIybMPdye6XQds4YS2?=
- =?us-ascii?q?VcRMZcTzFPDJ2yb4UPDOQPM+hXoIb/qFQSohWzHhWsCeH1xzNUmnP706833u?=
- =?us-ascii?q?I8Gg/GxgwgGNcOvWzJotXpKqgSSeC1w7fOzT7ecv1W3C3y6IzMch8/ofCHQL?=
- =?us-ascii?q?V9cdHMxkk0DA7FklWRppDlPzOSzOgNtXOb4PB6WeKgjG4ntRh8rz6yzckvko?=
- =?us-ascii?q?nEnp8Zx1/L+CljwIs5OMe0RFB0bNK6CpdcqieXPJZsTMw4WWFnoiM6x6UDuZ?=
- =?us-ascii?q?68YScF1owqxwXaa/yba4iI5Q/jVPqJLTd4mn1lfLW/ig6u8Ue60O38V9S00E?=
- =?us-ascii?q?1QoipElNnMuHcN1wfN5cebUPd94keg1iqP1wDU8O1EJ1w7lbHHJJI7x74wl5?=
- =?us-ascii?q?4TvVzCHi/whkr2kLebelgr9+Wn8ejqYqjqqoWCO4J7lA3yKLkiltS6AesiMw?=
- =?us-ascii?q?gOW2ab+f671L3m5UD5W6hFjuYtn6nFsJHVOcQbpqmjDw9TyYYs8QyzDzih0N?=
- =?us-ascii?q?QGhXUHNk5KeAqbj4j1PFHDOPD5Aum/g1S3jjtn2+zKM7/6D5TMKXjDkLDhca?=
- =?us-ascii?q?xh5E5bzQo51cpf6I5MCrEdPPLzXVf8tMTCAR8kNwy52P7nB89g1oMaQG6PB6?=
- =?us-ascii?q?iZMKTIsVCW/O4gP+6MZIoNsjbnN/cl/+LujWM+mVIFY6apxYEYaGq5HvR9OE?=
- =?us-ascii?q?iZeWDjgs0AEWcRpgo+SPblh0GcXjJJYHayRa087CkhCI26FYfDWpytgLuZ0S?=
- =?us-ascii?q?e5G51WYXpGCkqNEXfzbIiEXe0DaCeMLc9giDAEUqKhS4A53xG0qAD606ZnLv?=
- =?us-ascii?q?bT+iAArpLsysJ15+LNmhwp9Tx7FcCd02WNTmFyhG8HWzg23KVnq0xn1liDyb?=
- =?us-ascii?q?R4g+BfFdFL+/NIUho6OYPHwux+Fd/yXAXBfsmOSFq8XtqmBjQxRMorw9ASe0?=
- =?us-ascii?q?Z9B8mijhfb0iquAr8VkaGLBZMt/qLHwXf+O9t9y2zH1Kk9j1gqW85PNWq7ia?=
- =?us-ascii?q?5i8wjcGZXEk1uWl6m0b6QQxi3N+3mZzWqIok5YVBR8UaLfXXAQfkHWt8j25l?=
- =?us-ascii?q?veT7+yDrQqKhBBxtCGKqtLbN3pkFpHSez9ONTRfW2xgX28BRWWybOWaorlZW?=
- =?us-ascii?q?Ed0D/aCEgenAAZ5WyGOhQmBie9v2LeCyRjFVbuY0Pq7Ol/p2q3TkwqwAGQaU?=
- =?us-ascii?q?1uyb619wULhfyTVfwTxKgIuCQ/pDVuGlaywdbWB8CHpwp7c6VWeck970tf1W?=
- =?us-ascii?q?LFqwx9OYStLqB8iV4eaAR7oljj1xFpBYVGlsgqsnQqwBBuJqKf1VMSPw+fiL?=
- =?us-ascii?q?DtM7zMKmT081ieZuaCy1zey4zOovgn+vM4rBPouwT/UgI6+mhj+8Fczn/Z45?=
- =?us-ascii?q?LNFgdUWpX0Fg467xFgpqryeiAn5pjM0XRnPO+zqDCGk9AsA/E/yw2Ied5aPa?=
- =?us-ascii?q?LCExX9V4UBCtKhJcQqklytfxRCN+dXp4AuOMbzTOeLwK6mOq5bmTuiiWlWqN?=
- =?us-ascii?q?Rm3lmk6zt3SumO2Y0Mhf6fwF3UBH/HkF69v5Wvysh/bjYIEz/6knnp?=
-X-IPAS-Result: =?us-ascii?q?A2BuAABqcxxe/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF7gX2BbAEgEiqEDIkDhmsGgTeJbookhyQJAQEBAQEBAQEBNwEBh?=
- =?us-ascii?q?EACghw4EwIQAQEBBAEBAQEBBQMBAWyFQ4I7KYJ6AQEBAQMjBBFBEAsVAwICJ?=
- =?us-ascii?q?gICVwYBDAYCAQGCYz+CVyWoF3V/M4VJg0+BPYEOKIwzeYEHgTgPgl0+h1mCX?=
- =?us-ascii?q?gSNVIhwYUaXUYJBgkiTXwYbmmwtji6dByKBWCsIAhgIIQ+DJ1AYDYgNF45BI?=
- =?us-ascii?q?wMwjR4BAQ?=
+   d="scan'208";a="31864671"
+IronPort-PHdr: =?us-ascii?q?9a23=3A0Z19kRLIzun7SoK/y9mcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgXKvjzrarrMEGX3/hxlliBBdydt6sfzbCJ6+u9AiQp2tWoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagb75+Ngu6oAfNusUZgYZvJLs6xw?=
+ =?us-ascii?q?fUrHdPZ+lY335jK0iJnxb76Mew/Zpj/DpVtvk86cNOUrj0crohQ7BAAzsoL2?=
+ =?us-ascii?q?465MvwtRneVgSP/WcTUn8XkhVTHQfI6gzxU4rrvSv7sup93zSaPdHzQLspVz?=
+ =?us-ascii?q?mu87tnRRn1gyocKTU37H/YhdBxjKJDoRKuuRp/w5LPYIqIMPZyZ77Rcc8GSW?=
+ =?us-ascii?q?ZEWMteWTZBAoehZIURCeQPM/tTo43kq1YAqRayAA+hD/7txDBVnH/7xbA03f?=
+ =?us-ascii?q?ovEQ/G3wIuEdwBv3vWo9rpO6kfSvy1wavSwDnfc/9b1zXw5Y7VeR4hu/GMWr?=
+ =?us-ascii?q?dwfNLMx0kzCQzFllWQppLjPziIy+oNtnKU7+5kVe2xi28stgZ8oiOyycc3kY?=
+ =?us-ascii?q?TJmoIUxUzE9SV+2oo1I8a4R1Rhbd6rF5tQqTiXOo1rSc0hW2FloDs2x7IJtJ?=
+ =?us-ascii?q?KhfCUG1Y4rywDQZvCZaYSE/xTuX/uLLzhinnJqYre/ig638Uin1+LzSNG50E?=
+ =?us-ascii?q?1PripZitnMsW0N1wDL5siHVPR9+kCh1C6T1w/J8OFEIF00lbHBJ54gxL4wmJ?=
+ =?us-ascii?q?0TsV/dESDqgkn2kK+XeVkk+uiv8ejnZKnppoSAOINujwH+M6AultS+AeQ+LA?=
+ =?us-ascii?q?cOQ3CW9fmz2bDs50H0QKhGguconqTWrpzWP9kXqra8AwBP04Yj7xi/Dy2h0N?=
+ =?us-ascii?q?QdhXQHN09KeAmcgoj1O1DBPPD4DfClj1Sqizdk3erKPrLmApXTNnTDiqvufa?=
+ =?us-ascii?q?5h605Azwo+1cpf55NIBbEBOv3zQFL+u8TEARAhMwy72efnCNNj2YMFQm+AGb?=
+ =?us-ascii?q?OZMKLUsV+U+O0vOe+Ma5EJuDrnN/cl4Pvuh2cjmVABZampwYcXaHegE/R9PU?=
+ =?us-ascii?q?qZZXvsgtEcEWYFpQc+UuPqh0OYUTJJZHa9Qbg85jclB4KiF4vDQZqtgLOZ1i?=
+ =?us-ascii?q?ehApJWfnxGCkyLEXrwcIWEXvAMaDmUIsB7jjMLS6OsS5U/2h6ztA/10aZnIv?=
+ =?us-ascii?q?DI9S0fsJLpzMJ16PHLlREu6Tx0CNyQ03mXQGFpmmMFXCc207pioUx501uD1K?=
+ =?us-ascii?q?94g/tCFdNN/f9GTgA6NZuPh9B9XurzUQLIZNvBaF+nRNi9SWUrT9kxysUCVE?=
+ =?us-ascii?q?1KG9yjiB3Y9yC2ArkJmqaNCYBy+aXZiTy5PMt5ynDbxIE/gFQ8BMhCL2urgu?=
+ =?us-ascii?q?h47QeAKZTOlhCii6uydakalBXI/WOHwHvG6FpUSyZsQK7FWjYZfUKQotPnsB?=
+ =?us-ascii?q?CRB4SyAKgqZ1MSgfWJLbFHP5iw1gRL?=
+X-IPAS-Result: =?us-ascii?q?A2AEAwBYdBxe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFsASASKoQMiQOGawaBN4luj2GBZwkBAQEBAQEBAQE3AQGEQAKCHDgTAhABA?=
+ =?us-ascii?q?QEEAQEBAQEFAwEBbIVDgjspAYJ6AQUjBBE2CxALGAICJgICVwYBDAYCAQGCY?=
+ =?us-ascii?q?z+CSwMJJakNfzOFSYNPgT2BDiiMM3mBB4E4D4JdPoIbghaDKII8IgSXJUaXU?=
+ =?us-ascii?q?YJBgkiTXwYbgkeMRYtgjluBSZs+IoFYKwgCGAghD4MnUBgNiSgBB401IwMwi?=
+ =?us-ascii?q?lssghcBAQ?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 13 Jan 2020 13:46:01 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 13 Jan 2020 13:51:06 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00DDjLDp229665;
-        Mon, 13 Jan 2020 08:45:22 -0500
-Subject: Re: [PATCH] selinux: remove redundant selinux_nlmsg_perm
-To:     Huaisheng Ye <yehs2007@zoho.com>, paul@paul-moore.com,
-        eparis@parisplace.org, jmorris@namei.org, serge@hallyn.com
-Cc:     tyu1@lenovo.com, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Huaisheng Ye <yehs1@lenovo.com>
-References: <20200112154216.46992-1-yehs2007@zoho.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00DDoSIs238938;
+        Mon, 13 Jan 2020 08:50:29 -0500
+Subject: Re: [PATCH V2 1/1] selinux-testsuite: Add filesystem tests
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+Cc:     omosnace@redhat.com, Paul Moore <paul@paul-moore.com>
+References: <20200109150709.360345-1-richard_c_haines@btinternet.com>
+ <20200109150709.360345-2-richard_c_haines@btinternet.com>
+ <aa333bd1-9fd8-b4a4-eba2-aa8d722cbc7e@tycho.nsa.gov>
+ <f2cebe3fcb2960a2b51638d457ae07781896a12c.camel@btinternet.com>
+ <c2cc9f48-4dd3-cdf4-8c4e-3575ffc05aaf@tycho.nsa.gov>
+ <f863a91987c1926a4351f3edf968c9003197fead.camel@btinternet.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <e7ec908e-01c1-b76d-f797-545b70a49075@tycho.nsa.gov>
-Date:   Mon, 13 Jan 2020 08:47:00 -0500
+Message-ID: <956ad05b-9b1e-9d0b-75d1-02b02858a835@tycho.nsa.gov>
+Date:   Mon, 13 Jan 2020 08:52:07 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <20200112154216.46992-1-yehs2007@zoho.com>
+In-Reply-To: <f863a91987c1926a4351f3edf968c9003197fead.camel@btinternet.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -106,114 +102,132 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/12/20 10:42 AM, Huaisheng Ye wrote:
-> From: Huaisheng Ye <yehs1@lenovo.com>
+On 1/12/20 11:04 AM, Richard Haines wrote:
+> On Fri, 2020-01-10 at 13:18 -0500, Stephen Smalley wrote:
+>> On 1/10/20 1:09 PM, Richard Haines wrote:
+>>> On Thu, 2020-01-09 at 12:19 -0500, Stephen Smalley wrote:
+>>>> On 1/9/20 10:07 AM, Richard Haines wrote:
+>>>>> Test filesystem permissions and setfscreatecon(3).
+>>>>>
+>>>>>    From kernels 5.5 filesystem { watch } is also tested.
+>>>>>
+>>>>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>>>>> ---
+>>>>> diff --git a/policy/test_filesystem.te
+>>>>> b/policy/test_filesystem.te
+>>>>> new file mode 100644
+>>>>> index 0000000..2eee1fc
+>>>>> --- /dev/null
+>>>>> +++ b/policy/test_filesystem.te
+>>>>> @@ -0,0 +1,324 @@
+>>>>> +#
+>>>>> +######### Test filesystem permissions policy module ##########
+>>>>> +#
+>>>>> +attribute filesystemdomain;
+>>>>> +
+>>>>> +#################### Create a test file context
+>>>>> ######################
+>>>>> +type test_filesystem_filecon_t;
+>>>>> +unconfined_runs_test(test_filesystem_filecon_t)
+>>>>> +
+>>>>> +################# Test all functions
+>>>>> ##########################
+>>>>> +type test_filesystem_t;
+>>>>> +domain_type(test_filesystem_t)
+>>>>> +unconfined_runs_test(test_filesystem_t)
+>>>>> +typeattribute test_filesystem_t testdomain;
+>>>>> +typeattribute test_filesystem_t filesystemdomain;
+>>>>> +
+>>>>> +allow test_filesystem_t self:capability { sys_admin };
+>>>>> +allow test_filesystem_t self:filesystem { mount remount
+>>>>> quotamod
+>>>>> relabelfrom relabelto unmount quotaget };
+>>>>> +allow test_filesystem_t self:dir { mounton add_name write };
+>>>>> +allow test_filesystem_t test_file_t:dir { mounton write
+>>>>> remove_name rmdir };
+>>>>> +# Create test file
+>>>>> +allow test_filesystem_t self:dir { add_name write };
+>>>>> +allow test_filesystem_t self:file { create relabelfrom
+>>>>> relabelto
+>>>>> };
+>>>>> +
+>>>>> +fs_mount_all_fs(test_filesystem_t)
+>>>>> +fs_remount_all_fs(test_filesystem_t)
+>>>>> +fs_unmount_all_fs(test_filesystem_t)
+>>>>> +fs_relabelfrom_all_fs(test_filesystem_t)
+>>>>> +fs_get_xattr_fs_quotas(test_filesystem_t)
+>>>>> +files_search_all(test_filesystem_t)
+>>>>> +# Required for mount opts
+>>>>> "rootcontext=system_u:object_r:test_filesystem_t:s0";
+>>>>> +fs_associate(test_filesystem_t)
+>>>>> +fs_getattr_xattr_fs(test_filesystem_t)
+>>>>> +
+>>>>> +# For running quotacheck(8)
+>>>>> +files_type(test_filesystem_t)
+>>>>> +# Update quotas
+>>>>> +fs_set_all_quotas(test_filesystem_t)
+>>>>> +allow test_filesystem_t self:file { quotaon };
+>>>>> +# Create test file and change context:
+>>>>> +fs_associate(test_filesystem_filecon_t)
+>>>>> +allow test_filesystem_t test_filesystem_filecon_t:file { open
+>>>>> read
+>>>>> getattr relabelto write };
+>>>>> +dontaudit test_filesystem_t kernel_t:process { setsched };
+>>>>
+>>>> Why do you need these dontaudit statements?  It seems like a
+>>>> kernel
+>>>> bug
+>>>> if something is triggering a setsched permission check on the
+>>>> kernel_t
+>>>> domain?  Something the kernel module is doing during
+>>>> initialization?
+>>>>
+>>>
+>>> I've tracked this down to them all being called from block/ioprio.c
+>>> with: security_task_setioprio(task, ioprio) ->
+>>> selinux_task_setioprio
+>>>
+>>> Why the SECCLASS_PROCESS, PROCESS__SETSCHED I've no idea. The
+>>> following
+>>> also use SET/GETSCHED permission:
+>>>
+>>> selinux_task_getioprio, selinux_task_setnice,
+>>> selinux_task_movememory
+>>
+>> The confusing bit is that it is between test_filesystem_t and
+>> kernel_t.
+>> If the process was setting its own ioprio, then I'd expect to see
+>> the
+>> denial between test_filesystem_t and test_filesystem_t aka self.  If
+>> the
+>> process inserted a kernel module and the module initializer spawned
+>> a
+>> kernel thread that set its ioprio, I would expect it to be kernel_t
+>> to
+>> kernel_t.
 > 
-> selinux_nlmsg_perm is used for only by selinux_netlink_send. Remove
-> the redundant function to simplify the code.
+> Some more info on who calls set_task_ioprio:
 > 
-> Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
-
-The patch itself seems fine but it looks like someone accidentally put 
-pig= in the log message when they meant pid=; that can be fixed via a 
-separate patch.
-
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-
-> ---
->   security/selinux/hooks.c | 73 ++++++++++++++++++++++--------------------------
->   1 file changed, 34 insertions(+), 39 deletions(-)
+> fs/ext4/super.c calls 'set_task_ioprio' in two places using:
+>      set_task_ioprio(sbi->s_journal->j_task, journal_ioprio);
+> The return codes are not checked. This code was added 11 years ago.
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index fb1b9da..9f3f966 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -5507,44 +5507,6 @@ static int selinux_tun_dev_open(void *security)
->   	return 0;
->   }
->   
-> -static int selinux_nlmsg_perm(struct sock *sk, struct sk_buff *skb)
-> -{
-> -	int err = 0;
-> -	u32 perm;
-> -	struct nlmsghdr *nlh;
-> -	struct sk_security_struct *sksec = sk->sk_security;
-> -
-> -	if (skb->len < NLMSG_HDRLEN) {
-> -		err = -EINVAL;
-> -		goto out;
-> -	}
-> -	nlh = nlmsg_hdr(skb);
-> -
-> -	err = selinux_nlmsg_lookup(sksec->sclass, nlh->nlmsg_type, &perm);
-> -	if (err) {
-> -		if (err == -EINVAL) {
-> -			pr_warn_ratelimited("SELinux: unrecognized netlink"
-> -			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
-> -			       " pig=%d comm=%s\n",
-> -			       sk->sk_protocol, nlh->nlmsg_type,
-> -			       secclass_map[sksec->sclass - 1].name,
-> -			       task_pid_nr(current), current->comm);
-> -			if (!enforcing_enabled(&selinux_state) ||
-> -			    security_get_allow_unknown(&selinux_state))
-> -				err = 0;
-> -		}
-> -
-> -		/* Ignore */
-> -		if (err == -ENOENT)
-> -			err = 0;
-> -		goto out;
-> -	}
-> -
-> -	err = sock_has_perm(sk, perm);
-> -out:
-> -	return err;
-> -}
-> -
->   #ifdef CONFIG_NETFILTER
->   
->   static unsigned int selinux_ip_forward(struct sk_buff *skb,
-> @@ -5873,7 +5835,40 @@ static unsigned int selinux_ipv6_postroute(void *priv,
->   
->   static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
->   {
-> -	return selinux_nlmsg_perm(sk, skb);
-> +	int err = 0;
-> +	u32 perm;
-> +	struct nlmsghdr *nlh;
-> +	struct sk_security_struct *sksec = sk->sk_security;
-> +
-> +	if (skb->len < NLMSG_HDRLEN) {
-> +		err = -EINVAL;
-> +		goto out;
-> +	}
-> +	nlh = nlmsg_hdr(skb);
-> +
-> +	err = selinux_nlmsg_lookup(sksec->sclass, nlh->nlmsg_type, &perm);
-> +	if (err) {
-> +		if (err == -EINVAL) {
-> +			pr_warn_ratelimited("SELinux: unrecognized netlink"
-> +			       " message: protocol=%hu nlmsg_type=%hu sclass=%s"
-> +			       " pig=%d comm=%s\n",
-> +			       sk->sk_protocol, nlh->nlmsg_type,
-> +			       secclass_map[sksec->sclass - 1].name,
-> +			       task_pid_nr(current), current->comm);
-> +			if (!enforcing_enabled(&selinux_state) ||
-> +			    security_get_allow_unknown(&selinux_state))
-> +				err = 0;
-> +		}
-> +
-> +		/* Ignore */
-> +		if (err == -ENOENT)
-> +			err = 0;
-> +		goto out;
-> +	}
-> +
-> +	err = sock_has_perm(sk, perm);
-> +out:
-> +	return err;
->   }
->   
->   static void ipc_init_security(struct ipc_security_struct *isec, u16 sclass)
+> fs/btrfs/reada.c also calls 'set_task_ioprio' in two places using:
+>      set_task_ioprio(current, BTRFS_IOPRIO_READA);
+> The return codes are not checked.
 > 
+> As can be seen the ext4 module does not use 'current'. I have patched
+> kernel 5.5-rc5 to use 'current' and it now works as you expected. Also
+> the kernel_t:process { setsched } rules can be removed.
+> As the problem will exist for some time, I've added to the test policy:
+>      kernel_dontaudit_setsched(filesystemdomain)
+> 
+> It appears that most of the refpolicy modules do the same.
 
+This seems like a kernel bug to me. I assume that these filesystems 
+expect the I/O priority to be always set in these cases irrespective of 
+the permissions of the current process.  Either they should be using 
+some internal helper function ala a new set_task_ioprio_noperm() that 
+skips permission checking or they should be temporarily overriding their 
+cred to the init cred before doing this.  Probably a topic for 
+linux-fsdevel and/or the respective per-filesystem mailing lists.
