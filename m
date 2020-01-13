@@ -2,133 +2,257 @@ Return-Path: <SRS0=2vFY=3C=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1078AC33C9A
-	for <selinux@archiver.kernel.org>; Mon, 13 Jan 2020 10:00:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85A6AC33CAF
+	for <selinux@archiver.kernel.org>; Mon, 13 Jan 2020 13:38:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D47562080D
-	for <selinux@archiver.kernel.org>; Mon, 13 Jan 2020 10:00:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4A24F2080D
+	for <selinux@archiver.kernel.org>; Mon, 13 Jan 2020 13:38:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tov5xuqQ"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="R19BTW2L"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726001AbgAMKAk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Jan 2020 05:00:40 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:20784 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725978AbgAMKAk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jan 2020 05:00:40 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1578909638;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=+Ofz5cGqlCAg0ob1EDru1R0PIDxRoCJIGrPX3XZZto8=;
-        b=Tov5xuqQ0onCn/9C/AOAarEHNOkKIsoTjowzcCo3bLAle+NlDnXfxu0ovr3fddwIea3lob
-        YsaQkzy1FnwlQw4RJe8XYUGrpc0HeZS/lszsQ/E3c9HIAWad8WVHsK0lZxEVTHbWYq8xPK
-        6SwKylQq2xlxxGBW9CPKly5ALjmMo50=
-Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
- [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-299-8CE1DHwANtytbyzyhKFBnA-1; Mon, 13 Jan 2020 05:00:36 -0500
-X-MC-Unique: 8CE1DHwANtytbyzyhKFBnA-1
-Received: by mail-ot1-f72.google.com with SMTP id v2so6151132otq.2
-        for <selinux@vger.kernel.org>; Mon, 13 Jan 2020 02:00:36 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+Ofz5cGqlCAg0ob1EDru1R0PIDxRoCJIGrPX3XZZto8=;
-        b=uOitxL1t4UTeAVfz9CoqsB4j7G5VrjQcgWJQBuf2l4WHpSkmGCr4E71zrKxLQkXeKu
-         Ok0n12AlaNOy6LXINSkQpMjzkF1aU5bgQTjEt9+200CbcbePDxd0UrCkSzQu4/6cKk3H
-         F+YStuBRdSYDmc91pDFSzkbkx82FE1FHbt0R4uIJprEL2sgBxU5JkHIdqcxebBN+u8nC
-         YtSOG5vSzpSXNpPwKdBoH67w9X6xdC8mOH1fhhU0Mbk0kj9bKWfnYoFi5XPVDCX5y4UD
-         fW6Op/ZZW6thXDKK2ePYFwdzQpT65soINmypkTGP+K/KqG/YgKjHK42TZA/z23PbysDW
-         724A==
-X-Gm-Message-State: APjAAAUN5K+WD8VReiVzu/JWZeALOJ9tgKDfdm9D6tuIjfJ7PWniH84S
-        oY9Cyxqu04VyolhjyGWHVf+BElUkDY/+TIP1ZlcYPU+RoCchYzglAXeCmMnPeDV+Hm+URQrRqKj
-        xtdg6MonURmil7gyjsQsDHD7xAwdBu/BqoA==
-X-Received: by 2002:aca:4d4f:: with SMTP id a76mr12380848oib.26.1578909635644;
-        Mon, 13 Jan 2020 02:00:35 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyyDHfR9EetLXjZlojl+iDPnylhCcmxzjimaWB3o0hB60YmN/zBC/3pTi4V9y5GzcagWfcZGdbYwTneD6QLF+w=
-X-Received: by 2002:aca:4d4f:: with SMTP id a76mr12380831oib.26.1578909635349;
- Mon, 13 Jan 2020 02:00:35 -0800 (PST)
+        id S1728774AbgAMNiw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Jan 2020 08:38:52 -0500
+Received: from UHIL19PA37.eemsg.mail.mil ([214.24.21.196]:33104 "EHLO
+        UHIL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726277AbgAMNiw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jan 2020 08:38:52 -0500
+X-EEMSG-check-017: 65293052|UHIL19PA37_ESA_OUT03.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.69,429,1571702400"; 
+   d="scan'208";a="65293052"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UHIL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Jan 2020 13:38:49 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1578922729; x=1610458729;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=AtXAFW4FpycVvgqJpjDQe+3TXBz6KYcatRpFoMP6Jpw=;
+  b=R19BTW2L+598GbbcKkdI2TvI0XM3JkwEKtI9SdapaK93pZIeHkpqU+jr
+   nBI4FjvFul0xZHf9Ac8kcIFvkyVqCGJMBKWTKja8t+smI7Phn2cf6gxYI
+   u7FtTyRdaTjbG8PxgiVH0fLDIsD+iyZQo4fJmPwDj2Owj4CN6dUqlxyyk
+   fLi3uOzrsYSfT+4Vio8ahzK+8biQ1j0Clf1FP2G9PQMz1LBToZDupVZ1Z
+   Ne1Rw+pT+nejPE23Y3qvIOTVZhZ8V8SdlEMGB1IR7gzbXgDIKlp68qzmt
+   vhjxUQT4IMfdVtVtKolJkqh+YpoABzBrgBnHqZHRYZ3jzfiaDCX4wil3j
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.69,429,1571702400"; 
+   d="scan'208";a="37676965"
+IronPort-PHdr: =?us-ascii?q?9a23=3A4brhxRbo0dfqFiAI3L/IPKn/LSx+4OfEezUN45?=
+ =?us-ascii?q?9isYplN5qZrsy6bnLW6fgltlLVR4KTs6sC17ON9fq/ASddu96oizMrSNR0TR?=
+ =?us-ascii?q?gLiMEbzUQLIfWuLgnFFsPsdDEwB89YVVVorDmROElRH9viNRWJ+iXhpTEdFQ?=
+ =?us-ascii?q?/iOgVrO+/7BpDdj9it1+C15pbffxhEiCCybL9vIhi6txvdu8sKjYdtKqs91A?=
+ =?us-ascii?q?bCr2dVdehR2W5mP0+YkQzm5se38p5j8iBQtOwk+sVdT6j0fLk2QKJBAjg+PG?=
+ =?us-ascii?q?87+MPktR/YTQuS/XQcSXkZkgBJAwfe8h73WIr6vzbguep83CmaOtD2TawxVD?=
+ =?us-ascii?q?+/4apnVAPkhSEaPDMi7mrZltJ/g75aoBK5phxw3YjUYJ2ONPFjeq/RZM4WSX?=
+ =?us-ascii?q?ZdUspUUSFODJm8b48SBOQfO+hWoZT2q18XoRawAQSgAeXiwSJKiHDrx603y/?=
+ =?us-ascii?q?kvHx/I3AIgHNwAvnrbo9r3O6gOXu6417XIwDfZYv9KxTvw5orFfxY8qv+MR7?=
+ =?us-ascii?q?Jwds/RxFEyGQPZkFqQsYzlMC2T1u8Qrmab6vBvVeari2E5qwB6vz+ixtwxhY?=
+ =?us-ascii?q?nSnY8V1lDF+jl5wIYyP9G4TlV7bsS+HJtfsCGaKZJ7T8U/SG9roCY30qAKtJ?=
+ =?us-ascii?q?G0cSQQyJkr2gTTZ+KIfoSW+B7vSeCcKipiin1/YrKwnROy/FClyu37S8a7zk?=
+ =?us-ascii?q?5HrjFAktnQrnAN0AHT6tSfRvt94Eih3TGP2hjP6u5eO0A0lLfbK4U7zr4xkJ?=
+ =?us-ascii?q?oTv0PDHjTol0rqlqOWakUl9fSo6+TgeLnmoIOTN5RohQ3kN6Qum8i/Dfw5Mg?=
+ =?us-ascii?q?gIQWeb5fyx2KDs8ED2WrlHjuA6nrPHvJ3VO8gXvLO1DxdQ0ok56ha/Czmm0M?=
+ =?us-ascii?q?4fnXkCNF9FYw+Ij5PyNlHSIPH3Efe/g1O2nDdt3PDJJKftAprKLnjdiLvhZ6?=
+ =?us-ascii?q?py61ZAyAovytBS/4pUBascIPL3QULxrMbXDgI9MwCtxubnD9J91pkAVm6VHq?=
+ =?us-ascii?q?CZN6bSu0eS5u0zO+mMeJMVuDHlJvg++fHuiX45mVkAfaimxpYXdn+4Eep8I0?=
+ =?us-ascii?q?mDYnrjnM0BEWEUsQo6VuDqj0eCUTEAL0q1Cpo1+zVzLYWhF4qLEpiknbipxC?=
+ =?us-ascii?q?6mGthTYWdcBxaHFnK+M82fVvMNbj+CCtFunyZCVrW7TYIlkxa0u1zU0b1ie9?=
+ =?us-ascii?q?HI9zUYuJSr79184+nehFlm7jBvJ9iM2GGKCWdvlyUHQCFgj/M3mlB01lrWif?=
+ =?us-ascii?q?swuPdfD9EGoqoSAwo=3D?=
+X-IPAS-Result: =?us-ascii?q?A2AhBAA7chxe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFsASASKoQMiQOGawaBEiWJbpFICQEBAQEBAQEBATcBAYRAAoIcOBMCEAEBA?=
+ =?us-ascii?q?QQBAQEBAQUDAQFshUOCOykBgnoBBSMEEVELGAICJgICVwYBDAYCAQGCYz+CV?=
+ =?us-ascii?q?yWpCH8zhUmDT4E9gQ4ojDN5gQeBEScMA4JdPodZgl4EjVSJUUaXUYJBgkiTX?=
+ =?us-ascii?q?wYbmmyOW50HIoFYKwgCGAghDzuCbFAYDYgNF45BIwMwjR4BAQ?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 13 Jan 2020 13:38:49 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00DDcCFH229600;
+        Mon, 13 Jan 2020 08:38:12 -0500
+Subject: Re: [RFC PATCH] selinux: remove redundant allocation and helper
+ functions
+To:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+References: <157869192997.484726.14884768578207909170.stgit@chester>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <fee766f2-e19d-5af4-1635-5c4240c3b495@tycho.nsa.gov>
+Date:   Mon, 13 Jan 2020 08:39:51 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.1
 MIME-Version: 1.0
-References: <20200108140958.870283-1-omosnace@redhat.com> <CAHC9VhS7fWscz-dOwwBDdzoeUr4-7Yt410RSEZPctoNBTnAsJw@mail.gmail.com>
-In-Reply-To: <CAHC9VhS7fWscz-dOwwBDdzoeUr4-7Yt410RSEZPctoNBTnAsJw@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 13 Jan 2020 11:00:23 +0100
-Message-ID: <CAFqZXNvzz9GSJjBgYLV3MPVKvxx4nKSGquVxy=0gRj4n=veuOg@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: reorder hooks to make runtime disable less broken
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <157869192997.484726.14884768578207909170.stgit@chester>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 10, 2020 at 9:38 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Wed, Jan 8, 2020 at 9:10 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > Commit b1d9e6b0646d ("LSM: Switch to lists of hooks") switched the LSM
-> > infrastructure to use per-hook lists, which meant that removing the
-> > hooks for a given module was no longer atomic. Even though the commit
-> > clearly documents that modules implementing runtime revmoval of hooks
-> > (only SELinux attempts this madness) need to take special precautions to
-> > avoid race conditions, SELinux has never addressed this.
-> >
-> > By inserting an artificial delay between the loop iterations of
-> > security_delete_hooks() (I used 100 ms), booting to a state where
-> > SELinux is enabled, but policy is not yet loaded, and running these
-> > commands:
-> >
-> >     while true; do ping -c 1 <some IP>; done &
-> >     echo -n 1 >/sys/fs/selinux/disable
-> >     kill %1
-> >     wait
-> >
-> > ...I was able to trigger NULL pointer dereferences in various places. I
-> > also have a report of someone getting panics on a stock RHEL-8 kernel
-> > after setting SELINUX=disabled in /etc/selinux/config and rebooting
-> > (without adding "selinux=0" to kernel command-line).
-> >
-> > Reordering the SELinux hooks such that those that allocate structures
-> > are removed last seems to prevent these panics. It is very much possible
-> > that this doesn't make the runtime disable completely race-free, but at
-> > least it makes the operation much less fragile.
-> >
-> > Fixes: b1d9e6b0646d ("LSM: Switch to lists of hooks")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >
-> > Changes in v2:
-> >  - rebased on latest selinux/next
-> >  - added comment above selinux_nf_ip_exit() call to ensure it remains
-> >    ordered correctly
-> >
-> >  security/selinux/hooks.c | 101 +++++++++++++++++++++++++++------------
-> >  1 file changed, 70 insertions(+), 31 deletions(-)
->
-> Thanks Ondrej, I've merged this into selinux/next and added the stable
-> kernel CC.  Normally when we mark something for stable I send it up to
-> Linus during the -rcX development phase, but I think this case is
-> somewhat unique in that it isn't widespread (and there is no
-> indication it will become widespread) and it requires privilege to
-> trigger.  Also, while not a major factor, we are at -rc5 which means
-> we are very near the end of the -rcX cycle and I'd rather not
-> accidentally break something else this late in an attempt to fix such
-> a limited problem.
->
-> Comments and objections are welcome ;)
+On 1/10/20 4:32 PM, Paul Moore wrote:
+> This patch removes the inode, file, and superblock security blob
+> allocation functions and moves the associated code into the
+> respective LSM hooks.  This patch also removes the inode_doinit()
+> function as it was a trivial wrapper around
+> inode_doinit_with_dentry() and called from one location in the code.
+> 
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-No objections. I'm perfectly fine with that in this case :)
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Thanks,
-
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+> ---
+>   security/selinux/hooks.c |   94 ++++++++++++++++++----------------------------
+>   1 file changed, 36 insertions(+), 58 deletions(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 2c84b12d50bc..1305fc51bfae 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -238,24 +238,6 @@ static inline u32 task_sid(const struct task_struct *task)
+>   	return sid;
+>   }
+>   
+> -/* Allocate and free functions for each kind of security blob. */
+> -
+> -static int inode_alloc_security(struct inode *inode)
+> -{
+> -	struct inode_security_struct *isec = selinux_inode(inode);
+> -	u32 sid = current_sid();
+> -
+> -	spin_lock_init(&isec->lock);
+> -	INIT_LIST_HEAD(&isec->list);
+> -	isec->inode = inode;
+> -	isec->sid = SECINITSID_UNLABELED;
+> -	isec->sclass = SECCLASS_FILE;
+> -	isec->task_sid = sid;
+> -	isec->initialized = LABEL_INVALID;
+> -
+> -	return 0;
+> -}
+> -
+>   static int inode_doinit_with_dentry(struct inode *inode, struct dentry *opt_dentry);
+>   
+>   /*
+> @@ -354,37 +336,6 @@ static void inode_free_security(struct inode *inode)
+>   	}
+>   }
+>   
+> -static int file_alloc_security(struct file *file)
+> -{
+> -	struct file_security_struct *fsec = selinux_file(file);
+> -	u32 sid = current_sid();
+> -
+> -	fsec->sid = sid;
+> -	fsec->fown_sid = sid;
+> -
+> -	return 0;
+> -}
+> -
+> -static int superblock_alloc_security(struct super_block *sb)
+> -{
+> -	struct superblock_security_struct *sbsec;
+> -
+> -	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_KERNEL);
+> -	if (!sbsec)
+> -		return -ENOMEM;
+> -
+> -	mutex_init(&sbsec->lock);
+> -	INIT_LIST_HEAD(&sbsec->isec_head);
+> -	spin_lock_init(&sbsec->isec_lock);
+> -	sbsec->sb = sb;
+> -	sbsec->sid = SECINITSID_UNLABELED;
+> -	sbsec->def_sid = SECINITSID_FILE;
+> -	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+> -	sb->s_security = sbsec;
+> -
+> -	return 0;
+> -}
+> -
+>   static void superblock_free_security(struct super_block *sb)
+>   {
+>   	struct superblock_security_struct *sbsec = sb->s_security;
+> @@ -406,11 +357,6 @@ static void selinux_free_mnt_opts(void *mnt_opts)
+>   	kfree(opts);
+>   }
+>   
+> -static inline int inode_doinit(struct inode *inode)
+> -{
+> -	return inode_doinit_with_dentry(inode, NULL);
+> -}
+> -
+>   enum {
+>   	Opt_error = -1,
+>   	Opt_context = 0,
+> @@ -598,7 +544,7 @@ static int sb_finish_set_opts(struct super_block *sb)
+>   		inode = igrab(inode);
+>   		if (inode) {
+>   			if (!IS_PRIVATE(inode))
+> -				inode_doinit(inode);
+> +				inode_doinit_with_dentry(inode, NULL);
+>   			iput(inode);
+>   		}
+>   		spin_lock(&sbsec->isec_lock);
+> @@ -2593,7 +2539,22 @@ static void selinux_bprm_committed_creds(struct linux_binprm *bprm)
+>   
+>   static int selinux_sb_alloc_security(struct super_block *sb)
+>   {
+> -	return superblock_alloc_security(sb);
+> +	struct superblock_security_struct *sbsec;
+> +
+> +	sbsec = kzalloc(sizeof(struct superblock_security_struct), GFP_KERNEL);
+> +	if (!sbsec)
+> +		return -ENOMEM;
+> +
+> +	mutex_init(&sbsec->lock);
+> +	INIT_LIST_HEAD(&sbsec->isec_head);
+> +	spin_lock_init(&sbsec->isec_lock);
+> +	sbsec->sb = sb;
+> +	sbsec->sid = SECINITSID_UNLABELED;
+> +	sbsec->def_sid = SECINITSID_FILE;
+> +	sbsec->mntpoint_sid = SECINITSID_UNLABELED;
+> +	sb->s_security = sbsec;
+> +
+> +	return 0;
+>   }
+>   
+>   static void selinux_sb_free_security(struct super_block *sb)
+> @@ -2845,7 +2806,18 @@ static int selinux_fs_context_parse_param(struct fs_context *fc,
+>   
+>   static int selinux_inode_alloc_security(struct inode *inode)
+>   {
+> -	return inode_alloc_security(inode);
+> +	struct inode_security_struct *isec = selinux_inode(inode);
+> +	u32 sid = current_sid();
+> +
+> +	spin_lock_init(&isec->lock);
+> +	INIT_LIST_HEAD(&isec->list);
+> +	isec->inode = inode;
+> +	isec->sid = SECINITSID_UNLABELED;
+> +	isec->sclass = SECCLASS_FILE;
+> +	isec->task_sid = sid;
+> +	isec->initialized = LABEL_INVALID;
+> +
+> +	return 0;
+>   }
+>   
+>   static void selinux_inode_free_security(struct inode *inode)
+> @@ -3555,7 +3527,13 @@ static int selinux_file_permission(struct file *file, int mask)
+>   
+>   static int selinux_file_alloc_security(struct file *file)
+>   {
+> -	return file_alloc_security(file);
+> +	struct file_security_struct *fsec = selinux_file(file);
+> +	u32 sid = current_sid();
+> +
+> +	fsec->sid = sid;
+> +	fsec->fown_sid = sid;
+> +
+> +	return 0;
+>   }
+>   
+>   /*
+> 
 
