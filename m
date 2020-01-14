@@ -2,59 +2,63 @@ Return-Path: <SRS0=4X/7=3D=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89676C33CB3
-	for <selinux@archiver.kernel.org>; Tue, 14 Jan 2020 23:06:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E7C2C33C9E
+	for <selinux@archiver.kernel.org>; Tue, 14 Jan 2020 23:59:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4A31F24656
-	for <selinux@archiver.kernel.org>; Tue, 14 Jan 2020 23:06:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 55E47222C4
+	for <selinux@archiver.kernel.org>; Tue, 14 Jan 2020 23:59:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="S4/SxxSj"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="mW/9gqOb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728757AbgANXGA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Jan 2020 18:06:00 -0500
-Received: from sonic306-9.consmr.mail.bf2.yahoo.com ([74.6.132.48]:39580 "EHLO
-        sonic306-9.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728746AbgANXGA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jan 2020 18:06:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1579043158; bh=L58bwoyBzCOKNSdPJbpgHsHMnN/Jn3KqRPkRQWVxpZ4=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=S4/SxxSjnBFEij42ysR97NtZkvfO91wChD8zH4zziPP0WvQQJRwgDkL+4W33YEiTG8Nh7vGx6IRvGtHnk+uVgvQsfe2rP3bH/haXbcLQe1illXV3C898PSitWh9+YNp1lfVPbibFyxO/e0uuoUb2urpmRzebx5M3KXJ5IEeGKPiild2RhNTEgOH3/zKEZdijqP/bH0D9QGH3XoMY/w0UjkmGZeiP8zXISH+0JFl4ecG88kWZtI4P4NHRkbaaaDLixvv28nwVZdtd3q0KrKUZE4c1dC7zHTVJDx6HCZUcNnX8+KBSNi37R1CIBipuoEvZ5bO9QtQJMRXWSSvA3488iQ==
-X-YMail-OSG: 4f9y1RcVM1k9RRReJ_hILbK0pHKWn8eo8OasgI1jgRtKT3y7g1WXkMz.INXzpoG
- aEzValkiMuXbVofr0pNB.llOIYEs8W.oFS5iclyJqEUQEN2bQcTy3Z6ujpYUJYjScFcUs46lwOXI
- B8CWujVWFzWRUncBRP7O48ODn7rn1JxrDmEPSKkR_foNVfs9G0dva9pc1YLWqwtXtec9kAE99rdS
- 1lDLSh4EhAmZX7706fbXGDhT.kOjgaDxlLPV37my5zD.v6z9PeOB4L83ivEXBAg5M38k9wqoWj01
- 3ex2VeQO7H_f4rzbsWhbWOetUg2.bhcyZSNYdjd7uqGh9_pySiMdcOMRBuRkJOmjG.s0yhaoPO7T
- LAv8n0.FO9DSEwyFsodnGb0z0tfNBtzMs3x9uWyRM8HXw5OWUZs_jrNWs6BnlbKN7ocHPy80KbsF
- fu87TT1k4IXiRIEacQf06hOBDJdWlBuCHmqUxF19okXSGinu9TDeMveYCHjtD9KzrnshyKdtTmMJ
- E0BBYIvrkMILfNVr6STuP3Wrj0BzqyCcZtjD8HTYGgihjx6mY2g_5DXJ1I1_dhP8hxq6d3bEVCQz
- Tbtr3GM_RR.wRC18uTCY3MMppLwSn1tSt78vM6z.1nIIoWtJHdnTYAcIY1HEPJ_RyCd78d8Uzer3
- 5y9VYnEee1obPJYc3o5fdxqy4EWDzBMPOTmgLYZOHECmua4UYafFHp8MDABlWCTxYUs8LbDBsnRi
- b9pqmlJMqnCUHtZgNggknxlPdAebZ06h4NdOvX3R60Is179.7I7ds3miSUPAp1edX8WrT0hoBiOl
- FR6teTqwwSd85a_dJypIVgQeTa8XiDcwYHlXiGMWkXv8KzIcIX.h64nw5TUsw6HI3J9M6P9yt3CV
- IlEJcye5.yzrUy8uTIaMlruEG5FtPRcw8rEU9OBmbEBqUVD7uTVe6EfH4sWVPJvUMwunV2lZCrgs
- Fe45o.jpd9LClMH6aohqGScpTmJMvyUZ7o25dq7zPsPeeO2V2m9oMr6vbouHYD1uHpQ5HkjZXDoC
- P50w7jCkOLaF9MUXGH2JP7VHKL3ilxz.vq7Z07XZLO1Go2qQva5JK9c1pkir63iMjCTZcCg3Lcax
- R8PsACFNBM_rlLaGjTama296hYgxj4WntjY1Pf8LYSxT7Z4547AclDZUWnKOCTr_t5JFZjGtj4pN
- .oXGpjIHMicTQ_QcC2dpJisDMsXyvGHNT8VuThiQYUug8X89jvzCdaQAAPZKkXqhYKn2lbGZtjlt
- DsPcaddephl1vlwZVDIYzKImCB8iQZYHgZPGyNHht.upbBFfyxs0R5cbY7kvY0mRYW_OaNPUSdOA
- .87vobpsP.qG_FwLbROIrs095ZPD0CxwRno9ocUll6VOnLPRJWtkyjBnU5bdQKcvRGXNq9HzV_MN
- d1gzM3CNGTdwAM.6SMZBD_caKxtyNcHIN0nKUnzS7y716g2N4b7jCjSrqLctCcGhQS5gC_XMxJbq
- IoeVztPjNXV0EVPsQj806L8qyAYLNMgYproOmg5rpTv9yzt8iOR2RpK4EUIMmQ9lN8LUW7Pm4gQ-
- -
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.bf2.yahoo.com with HTTP; Tue, 14 Jan 2020 23:05:58 +0000
-Received: by smtp432.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d719e289febf502e36855def414175da;
-          Tue, 14 Jan 2020 23:05:54 +0000 (UTC)
-Subject: Re: [RFC PATCH] selinux: implement move_mount hook
-To:     Stephen Smalley <sds@tycho.nsa.gov>, paul@paul-moore.com
-Cc:     selinux@vger.kernel.org, omosnace@redhat.com, dhowells@redhat.com,
-        linux-security-module@vger.kernel.org, jmorris@namei.org,
-        richard_c_haines@btinternet.com,
+        id S1728873AbgANX73 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Jan 2020 18:59:29 -0500
+Received: from sonic305-9.consmr.mail.bf2.yahoo.com ([74.6.133.48]:39958 "EHLO
+        sonic305-9.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728848AbgANX72 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jan 2020 18:59:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1579046367; bh=zpEQoE71h37YGQf8xNIWDqiL3vD1FfCpR3LenEFeHsQ=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=mW/9gqObIfJmaO09vblkjZu/+rjP59ZTtQF0AdRp+0FqPsh/c82+lXTLwrzrys7inn2t05VxGNNz/CElh77S8QGZxxoq8/J2TCdFJ9w53wBTwudR2708qdR4veCy0wsEh+GWsv73FWI9HYAJ9NP4QVUN8vCmLPU0EDchGA0y6yCDaqatl/dQVfRnLUwopRyc9mQUP1fMCzy16gE1Xe9LdsoZIs1quhhDE8Ej8wAu6x0o1jO9dHw3AdSpj2Bn2s4kwiNK3PmCx893+ldVhdhi786aFFC3WZujTJRyOXdnZGVRQw0H04kp5AysVDFlGNVIS1e6Gln2joFqb1bBMkekJQ==
+X-YMail-OSG: 7DDDNm0VM1m91zIUyjeEk6xI3UIuxnZBuEptD4HhOQOviteXGajkKMF3rKEGRN9
+ IE.b4ALYHom6OZ4uC8nWOnctg4WOGPKFvB2MsUZMhwpxTKlMxYDUgQyGPi_ienxKvAQvmt1.CcHB
+ C_IVDWeEm4H3sp97z.42qyInd_SoRk1MilI4cRqN0SaqdN0IRVBQ9aMQzRdCc4b9raGmonnHBRqh
+ WDRw1.6NR1RZYc2aIA6_bDovMFPfxT3Cd12qfQJU2_bIlA1C8ftJc6ht.YsMVx.WdrptaEN4wMZD
+ 2d1FwBfKkqLxjrUhNVZ8S_9vvr3RL8fzHvS6pi1KN93SGLeH.UjEcdqXQ6awCFZ89Nlf1dRERP1S
+ ZxCVixfmqT.bcr2DId3F8wstgjgCMUR54GBE8hdmLfSjYkjx0Ri17a82HxjsL1OA.TKbFUvKmESu
+ NS6tB4B7VCVskLfz1NH7P0KChAYZfdROtsl96fHKvbpkYg3QxwUMXFn4YM71QQQm_SarPRrUyGvL
+ yENxcuth9ucATuhQHRE6etVEzHNi6LLepBkpKkPkJWw9bK_BTCWF4trKgQG7itC5luUToaLKg00T
+ UulALuHckQ0lg1R6mPgfXNdCAds3bj3F_jolVZddJsnz3ZOQmCt0vweA1keDdgllw8.uyBnUv1Qu
+ mU6WthWTyHk1Wc2vtlUHQ3SEXgqzkB4GMBmi2gcxRjBAoVsu4ky2J60e.YsWCU_icGzLszeRaEWB
+ jjSiu9IAh6lUTnw0Cw1wCfj_p9ugAWwYPkY5bJHeaYdyl9b9n8d25NR3BpprRhplR.YzVzTK94CE
+ cQhjE2jwi6gyvoD_tqRFRUdTGCoZHIwKZdQRPHqTFLegYnCbwzvFULt.nrzaVtFDe.sBNj41ciJx
+ Iqb8iLzLFZbC58IddQysvkH9BhRCS.3VaCOqYnDvqHE0I1LdgtEGszmoRXmNvTzzJB_1wymg9g_1
+ oDS8wPKR.292uGQUYALmcEIQ5CqaUWOXHstppEgel0YZP01ay47Ai.xkflP9X6Ekom3Fq2mYDOGP
+ B1FIAprh8BzHY_0sYOh1V55mHx5Twq0n7XZh5w1heZwXghdnhSuqJsJyx4nMfm9Z6jwZlayDZ3RS
+ Jec7hrxK5YGusuM4_W7jc58z2ykf5.DGqOtYHmIzprJrfrOb568yICX2Cljbp0Rivr9qzzNpTQxg
+ 1lBEZ3H_DEhSTuazBaDMCk84e2TSxfozIfGouQI_fVDEODEo8zDFe4MryhSKw9_48fCEpVJ_GkgP
+ HfdlXODyHqqWYyjombtbOr9ZT7Zv6kdi0wZdzPvcqpTRkecLzYiUohRX.Ik4eBOQNwOtjhxyf90r
+ ckfkreaDlkX4AMvuuHjBYpeB24kQhkrv_caRPmx0KiufKCo0soRHSUs_50YS2ZF.LDpSPNE4T3b9
+ oZESu1Xo9SitQUpooAyF.ZmF_RzNnT.0VFoYP7CieN1mlZhg5
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.bf2.yahoo.com with HTTP; Tue, 14 Jan 2020 23:59:27 +0000
+Received: by smtp408.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID e324bbe8e4fd9cac429457b256cae513;
+          Tue, 14 Jan 2020 23:59:22 +0000 (UTC)
+Subject: Re: Perf Data on LSM in v5.3
+To:     Wenhui Zhang <wenhui@gwmail.gwu.edu>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Casey Schaufler <casey.schaufler@intel.com>,
+        James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org,
+        SELinux <selinux@vger.kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        John Johansen <john.johansen@canonical.com>,
+        penguin-kernel@i-love.sakura.ne.jp,
+        Paul Moore <paul@paul-moore.com>,
         Casey Schaufler <casey@schaufler-ca.com>
-References: <20200113161800.63865-1-sds@tycho.nsa.gov>
- <a5839718-8b75-8a8b-189b-bd19e4c85219@tycho.nsa.gov>
+References: <CAOSEQ1poqrUQdRc+ZLNbEoPqgd4MMomeYmefjca_mj-2zxrdUA@mail.gmail.com>
+ <7ebd42d8-5392-90f6-fc08-4364176cfbb6@schaufler-ca.com>
+ <CAOSEQ1p0q4gxVwN3MJkP=xxn4GUVaKsaArtQpxNy5rv7vYvVVw@mail.gmail.com>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Openpgp: preference=signencrypt
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
@@ -101,14 +105,14 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <3af9d34d-63df-11a6-d358-79f257711b4f@schaufler-ca.com>
-Date:   Tue, 14 Jan 2020 15:05:46 -0800
+Message-ID: <3993c054-8094-56aa-b66c-1f97b325ca96@schaufler-ca.com>
+Date:   Tue, 14 Jan 2020 15:59:13 -0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.1
 MIME-Version: 1.0
-In-Reply-To: <a5839718-8b75-8a8b-189b-bd19e4c85219@tycho.nsa.gov>
+In-Reply-To: <CAOSEQ1p0q4gxVwN3MJkP=xxn4GUVaKsaArtQpxNy5rv7vYvVVw@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
 X-Mailer: WebService/1.1.14873 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
 Sender: selinux-owner@vger.kernel.org
@@ -116,66 +120,19 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/14/2020 6:33 AM, Stephen Smalley wrote:
-> On 1/13/20 11:18 AM, Stephen Smalley wrote:
->> commit 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
->> introduced a new move_mount(2) system call and a corresponding new LSM
->> security_move_mount hook but did not implement this hook for any existing
->> LSM.  This creates a regression for SELinux with respect to consistent
->> checking of mounts; the existing selinux_mount hook checks mounton
->> permission to the mount point path.  Provide a SELinux hook
->> implementation for move_mount that applies this same check for
->> consistency.  We may wish to consider defining a new filesystem
->> move_mount permission and/or a new dir(ectory) move_mount permission
->> and checking it in this hook in the future.
->>
->> Fixes: 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+On 1/14/2020 1:15 PM, Wenhui Zhang wrote:
 >
-> NB I cc'd lsm list on this patch just as a heads-up/reminder that this hook hasn't been implemented for any security modules AFAICT, not just SELinux.  I see that there was some discussion of this in the past with a trivial patch proposed by Tetsuo to just disable the syscall when TOMOYO or AppArmor is enabled, but no action seems to have been taken,
-> https://lore.kernel.org/linux-security-module/5802b8b1-f734-1670-f83b-465eda133936@i-love.sakura.ne.jp/
-> https://lore.kernel.org/linux-security-module/1565365478-6550-1-git-send-email-penguin-kernel@I-love.SAKURA.ne.jp/
+> On Tue, Jan 14, 2020 at 4:08 PM Casey Schaufler <casey@schaufler-ca.com=
+ <mailto:casey@schaufler-ca.com>> wrote:
 >
-> The move_mount syscall does check may_mount() and hence requires CAP_SYS_ADMIN for the user namespace associated with the mount namespace, so both SELinux and AppArmor would at least restrict the use of this syscall to processes allowed CAP_SYS_ADMIN by policy, but TOMOYO doesn't implement the capable hook either so move_mount is entirely unrestricted by it at present.  Looks like Smack doesn't implement any mount checking so it doesn't care about move_mount (especially since it requires CAP_SYS_ADMIN already).
+>     On 1/14/2020 12:15 PM, Wenhui Zhang wrote:
+>     > Hi, Casey:
+>     >
+>     > I just performed=C2=A0a performance check on=C2=A0
+>     > 1. v5.3 with DAC only, and=C2=A0
+>     > 2. v5.3 with DAC and MAC framework, an empty-policy enabled in su=
+b-modules(e.g. selinux)
+>
+This is great. Do you have data for a system without CONFIG_SECURITY?
 
-That's correct. Smack provides controls on subjects and objects. It leaves
-the mundania of privilege to the capabilities mechanism.
 
->
->> ---
->>   security/selinux/hooks.c | 15 +++++++++++++++
->>   1 file changed, 15 insertions(+)
->>
->> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->> index 0606e107fca3..244874b103ff 100644
->> --- a/security/selinux/hooks.c
->> +++ b/security/selinux/hooks.c
->> @@ -2766,6 +2766,19 @@ static int selinux_mount(const char *dev_name,
->>           return path_has_perm(cred, path, FILE__MOUNTON);
->>   }
->>   +static int selinux_move_mount(const struct path *from_path,
->> +                  const struct path *to_path)
->> +{
->> +    const struct cred *cred = current_cred();
->> +
->> +    /*
->> +     *  TBD: Check new FILESYSTEM__MOVE_MOUNT permission to
->> +     *  from_path->dentry->s_sb and/or new DIR__MOVE_MOUNT
->> +     *  permission to from_path?
->> +     */
->> +    return path_has_perm(cred, to_path, FILE__MOUNTON);
->> +}
->> +
->>   static int selinux_umount(struct vfsmount *mnt, int flags)
->>   {
->>       const struct cred *cred = current_cred();
->> @@ -6943,6 +6956,8 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
->>       LSM_HOOK_INIT(sb_set_mnt_opts, selinux_set_mnt_opts),
->>       LSM_HOOK_INIT(sb_clone_mnt_opts, selinux_sb_clone_mnt_opts),
->>   +    LSM_HOOK_INIT(move_mount, selinux_move_mount),
->> +
->>       LSM_HOOK_INIT(dentry_init_security, selinux_dentry_init_security),
->>       LSM_HOOK_INIT(dentry_create_files_as, selinux_dentry_create_files_as),
->>  
->
->
