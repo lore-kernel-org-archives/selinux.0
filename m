@@ -2,241 +2,1264 @@ Return-Path: <SRS0=JZpt=3E=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UPPERCASE_50_75,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C54A7C33CB1
-	for <selinux@archiver.kernel.org>; Wed, 15 Jan 2020 15:54:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7071CC33CB1
+	for <selinux@archiver.kernel.org>; Wed, 15 Jan 2020 15:54:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 934102187F
-	for <selinux@archiver.kernel.org>; Wed, 15 Jan 2020 15:54:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 152FD2187F
+	for <selinux@archiver.kernel.org>; Wed, 15 Jan 2020 15:54:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="K9W1MTXA"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="gahirouh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728982AbgAOPyB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jan 2020 10:54:01 -0500
-Received: from USAT19PA25.eemsg.mail.mil ([214.24.22.199]:56618 "EHLO
-        USAT19PA25.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726574AbgAOPyA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jan 2020 10:54:00 -0500
-X-EEMSG-check-017: 69981850|USAT19PA25_ESA_OUT06.csd.disa.mil
+        id S1726483AbgAOPyn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jan 2020 10:54:43 -0500
+Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:3261 "EHLO
+        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726248AbgAOPyn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jan 2020 10:54:43 -0500
+X-EEMSG-check-017: 45972603|UPDC19PA19_ESA_OUT01.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,323,1574121600"; 
-   d="scan'208";a="69981850"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USAT19PA25.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Jan 2020 15:33:42 +0000
+   d="scan'208";a="45972603"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Jan 2020 15:54:38 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579102422; x=1610638422;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=WUGWphAeSZBwi4cuTVhp3wQF0Tp2xsIJMPVJYMBn4vM=;
-  b=K9W1MTXA5q29iBJrtJVIESo/LvZdvv85ImzoP9Mi33RlHhvH3jtgeouJ
-   JLlq2KlXPjaZ9O9pctN554n+IFeLiymm2rOPlmAdYm6yvXHGyWpViOeXM
-   Etak+QpT/8++65NQA7h7L8PUt9OAPZy45LzqF8iOdgbFHiIvwFOrWbU5n
-   sWzU5THptR4ceamy0xmRrj+/NKDX2Ns+5gjvmmUCEDbhxWUNhdfWFaxRg
-   Kv1Wi6IzI2GydkmOuRg4nkrbn5UDFSFp9lKFJzCgDOKENOy2on1XP43zr
-   fAT8c4uterlhoTgfVRGknCvb5SSPGfJd2Km61JZerPhhFhj4hgO+KXpxY
+  s=tycho.nsa.gov; t=1579103678; x=1610639678;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Ji9bZyRtgn6pVJ7J5cRfa2XM5ImXl9aZibSM/a9Ffow=;
+  b=gahirouhICEv4TUZ5v6lpYmS4ZxO0TC6OQ2x2blJv2jORjcZyqbAeCeq
+   h15IWmvGs7tlYpJ4XyLlylKq/p3McGV3Kb5OPN6+yysbPP3+bwapfEQcU
+   xLyvOd4IA9m0s0lmyzJNgDCj9k5uL7W8K+5Y3EoyzMmRx1gn0nuHUgW98
+   ZxdT6vFVlzi2rNSTndI8xjNPn84b2bS39pz9tDoJzztjo+ukdWEt2cZeN
+   GOilObzIgW27QX5Fzv0deJS6CRmClDjNX2Rad5ZRRJ2DR/otpoeGoUg/Y
+   7WVuiR/jY5eU8u3Ew5Ce5ANiZMwYn+UxKnd+syM5FCoYYUqDilnh7H183
    g==;
-X-IronPort-AV: E=Sophos;i="5.70,322,1574121600"; 
-   d="scan'208";a="31980805"
-IronPort-PHdr: =?us-ascii?q?9a23=3AD25W1B3FW5UkoyDhsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZsesSLvTxwZ3uMQTl6Ol3ixeRBMOHsq4C07Gd7PyoGTRZp8rY6zZaKN0Efi?=
- =?us-ascii?q?RGoP1epxYnDs+BBB+zB9/RRAt+Iv5/UkR49WqwK0lfFZW2TVTTpnqv8WxaQU?=
- =?us-ascii?q?2nZkJ6KevvB4Hdkdm82fys9J3PeQVIgye2ba9vIBmsogjdq8YbjZF+Jqs/xR?=
- =?us-ascii?q?fEoHRFcPlSyW90OF6fhRnx6tq+8ZJ57yhcp/ct/NNcXKvneKg1UaZWByk8PW?=
- =?us-ascii?q?Av483ruxjDTQ+R6XYZT24bjBlGDRXb4R/jRpv+vTf0ueR72CmBIM35Vqs0Vi?=
- =?us-ascii?q?i476dqUxDnliEKPCMk/W7Ni8xwiKVboA+9pxF63oXZbp2ZOOZ4c6jAZt4RW3?=
- =?us-ascii?q?ZPUdhNWCxAGoO8bpUAD+wdPeZDsoLxo0ICoQaiCQWwAe/izDFHhmXy3aYnze?=
- =?us-ascii?q?ovFw/I1xEkE94XsHnZqND5OaEPWu630abI1y3OYe5I1zfz6IbGcR4vrv+DUr?=
- =?us-ascii?q?1ybcXfxlIiFx/Gg1iKtYDpIz2Y2+YLvmOG7+RgT+Wvi2s/pg9svjig2N8sio?=
- =?us-ascii?q?nXiYIT11vK6CB5z5wxJd28VkF6YcOvHZxLty6HLIt7Wd8iQmF0tyY6zb0Ko5?=
- =?us-ascii?q?i7fDMQx5g9yB7fbOKHfpGO7xn+V+iROS91iG9qdb+wnRq/8VWsxvfiWsS7zl?=
- =?us-ascii?q?pGtDdJn9/RvX4XzRPT8NKISv5l80ek3jaAyh7c5/lfIUAxiarbM5khwqMslp?=
- =?us-ascii?q?YLsUTMACv2mELuga+KbEok4Omo6/n8Yrn8p5+cMYF0igblMqswhsOzG/g4Mw?=
- =?us-ascii?q?gSUGib/uSwzrvj8lHiQLpWlPE2l6jZsJTCKcQaoK62HRNV354+5xuwADqqyt?=
- =?us-ascii?q?QVkWQdIF5bdx+LkZLlN0zWLPD9F/i/glCskDlxx/DBO73sGo7NIWXYkLr6Yb?=
- =?us-ascii?q?Z861JTyAo0zdxF4ZJUEasOLOj8Wk/2qtzUFgU5PBCsw+b7FNV90ZsTWGyRDa?=
- =?us-ascii?q?+fMKPSrF6I6/kgI+iCYY8aojf9K/w/6/7hg345hEURcre00psKcHq4BOhpI1?=
- =?us-ascii?q?2FYXrwhdcMCWUKvg0+TOzsklGCUzlTZ3aoUKI6/TE0FoSmAJzfSY+3hryB2y?=
- =?us-ascii?q?G7HpxKaW9cDlCAC2vnd4KBW/0UciKdPtdhkiAYVbimU4IuyQuhtBTkxLtnNe?=
- =?us-ascii?q?fU4TEXtZL529ho6e3TkQ899SZtA8uByW6BVX17nmQNRzUuxqBwvVR9ykuf0a?=
- =?us-ascii?q?h/m/FXCcZc5+hXXQY6L5Lc1PB1C9DoVQLccNeJTEipQs+9DDEwSNIx38EBY0?=
- =?us-ascii?q?JnF9q+iRDD2jKgA6UJmLyTGJw07qXc0mDzJ8Z4zHbGzrMhj1g9QsZUM22pnK?=
- =?us-ascii?q?t/+BbSB4LTlEWZjamqf7wG3CHR7GeD0XaOvEZAXQ50UKXFW20fZ0TPodTi+E?=
- =?us-ascii?q?zNU6KuCa4mMgtdyc+OM65Katr0glVbQPfsJs/TY3y+m2iuHxaE3LCMY5Twe2?=
- =?us-ascii?q?UbwirdDFIIkwcJ/XaJLQI+HDuuo3rCDDxyElLie1js/vd6qHO6SE800g6LYl?=
- =?us-ascii?q?Z/17q65BEVn+aQS/AN0bIevicutTF0EEy639LMBNqKvxBhc7lEYdMh/FdH0n?=
- =?us-ascii?q?rUtw9jMZO+NKBtmlkecwN0v071yxp3Cp9Akc8vrHMr0QpyLLiU0FRbdzOXxZ?=
- =?us-ascii?q?rwIKHYKnHu/BCzbK7bwkne38iQ+qcA9fQ4qlPjsBiqFkU86XVn1cda03+H65?=
- =?us-ascii?q?XLFQYSVZXxUlgp+BRgvLHVeCo9557O1XJ2K6W0tCHN18grBOs90hygZctQML?=
- =?us-ascii?q?uYFA/uFM0XH9CuJ/Y3m1itdR8EJPpd9LMwP8+/cvuG36mrPPx+kz68kWtH54?=
- =?us-ascii?q?V9gQqw8H9DR+jIwpdN8fGR2ATPAyjxile8s+j4hoVNZDVUEXWijyXoGdgCSL?=
- =?us-ascii?q?d1eNMwFWq2I8Cxju57jprpVm8QoEWvHHsaycSpflyUdFW70gpOgxdE6Ue7kD?=
- =?us-ascii?q?e1mmQn2woiqbCSiWmXnrXv?=
-X-IPAS-Result: =?us-ascii?q?A2DcAwAMMB9e/wHyM5BkDg4BAQEBAQcBAREBBAQBAYF7g?=
- =?us-ascii?q?XgFgWwBIBIqhA+JA4ZcBoE3iW6RSQkBAQEBAQEBAQE3AQGEQAKCIzgTAhABA?=
- =?us-ascii?q?QEEAQEBAQEFAwEBbIVDgjspAYJ6AQUjDwEFQRALGAICIwMCAkYRBg0GAgEBg?=
- =?us-ascii?q?mM/glclpjuBMoVKg0yBPoEOKIwyeYEHgTgPgi8uPoQDH4M3gl4EjUWCTIdfl?=
- =?us-ascii?q?1SCQoJJk2EGG4JHiAOERItgq20igVgrCAIYCCEPgydQGA2IDReNaFkjAzCLH?=
- =?us-ascii?q?REXghsBAQ?=
+X-IronPort-AV: E=Sophos;i="5.70,323,1574121600"; 
+   d="scan'208";a="37814599"
+IronPort-PHdr: =?us-ascii?q?9a23=3AJjK22BNefoSICkv0DY0l6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0LfXzrarrMEGX3/hxlliBBdydt6sYzbKN+P+xESxYuNDd6StEKMQNHz?=
+ =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
+ =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQZjId4Nqo8xB?=
+ =?us-ascii?q?TFr3lMdu9LwW9kOU+fkwzz68ut8pNv6Thct+4k+8VdTaj0YqM0QKBCAj87KW?=
+ =?us-ascii?q?41/srrtRfCTQuL+HQRV3gdnwRLDQbY8hz0R4/9vSTmuOVz3imaJtD2QqsvWT?=
+ =?us-ascii?q?u+9adrSQTnhzkBOjUk7WzYkM1wjKZcoBK8uxxyxpPfbY+JOPZieK7WYN0VRX?=
+ =?us-ascii?q?BFXs1MSSJPBI2yZJYLA+YYPetVq4zxql0TphW8GAasHvvixD9WiHHr06M00O?=
+ =?us-ascii?q?MvHg7J0gE7A94Ds27ZoMnvOasOTey4yrTDwzXZb/NR3Dfw8JXGcgw/rvGUXb?=
+ =?us-ascii?q?J/b8zRwlQyGQPAlFqQrYjlMC2V1+8QtGWb9PdvVfm0hm47qwB+vjivxsA2ho?=
+ =?us-ascii?q?nPnYIa0ErI9Sp+wIYrPNC1TlNwb928EJZIqi2XOIR7TtkiTm11oio21LILtY?=
+ =?us-ascii?q?ChcCQXzpks2gTRZOadc4eS5xLuTOORITBli317YL+/nBOy8VS4yu37S8m0zE?=
+ =?us-ascii?q?5GripbndnIsXAAzwDT5dKdSvt840ehwiyD1wHV6uFKJkA0jrTUJII7zr4slp?=
+ =?us-ascii?q?scrUTDHijslEXwkKCWbVkr9vKt6+TmZrXqvp6cN4lqhQHiKqkih8OyDOsiPg?=
+ =?us-ascii?q?UOQmSX4/qw2bL98UHjXblGlvg2nbPYsJDeK8QbvKm5AwpN34Y49hm/FCyr0M?=
+ =?us-ascii?q?gYnHYbLFJFfwiLj47yO17UOvz4AvC/g0q0nDdx2//GJqHhAonKLnXbi7fuY7?=
+ =?us-ascii?q?J9609ayAouwtFS/IxUCr4fL/LpQEPxt8LXDgU/MwOqx+brEtJ91pkRWTHHPq?=
+ =?us-ascii?q?jMK67WsFmV9soxLOSWIowYojDwL74i/fG9o2U+nAomYaSx3ZYRIEu9F/BiLl?=
+ =?us-ascii?q?TRNWHgmf8dAGwKuUw4V+Wsh1qcB20AL02uVr4xs2loQLmtCp3OE8Xw0bE=3D?=
+X-IPAS-Result: =?us-ascii?q?A2A6AABpNR9e/wHyM5BkHAEBAQEBBwEBEQEEBAEBgWcHA?=
+ =?us-ascii?q?QELAYF8gWwBIBIqjDJghlwGiyWPThSBZwkBAQEBAQEBAQEbHAEBhECCJTQJD?=
+ =?us-ascii?q?gIQAQEBBAEBAQEBBQMBAWyFQ4I7KYMbARcBRoFRgmc/glclp3CFSoNIgT6BN?=
+ =?us-ascii?q?gGHPoRzeYEHgUeDG4QxhgYEjVeIcoEnl1SCQoJJk1sMG4JHiAOQIwEtqyk5g?=
+ =?us-ascii?q?VgrCAIYCCEPgydQGA2WZSMDMI0BXwEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 15 Jan 2020 15:33:41 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Jan 2020 15:54:35 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00FFWr9o103673;
-        Wed, 15 Jan 2020 10:32:54 -0500
-Subject: Re: Perf Data on LSM in v5.3
-To:     Wenhui Zhang <wenhui@gwmail.gwu.edu>
-Cc:     John Johansen <john.johansen@canonical.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        James Morris <jmorris@namei.org>,
-        linux-security-module@vger.kernel.org,
-        SELinux <selinux@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        penguin-kernel@i-love.sakura.ne.jp,
-        Paul Moore <paul@paul-moore.com>
-References: <CAOSEQ1poqrUQdRc+ZLNbEoPqgd4MMomeYmefjca_mj-2zxrdUA@mail.gmail.com>
- <7ebd42d8-5392-90f6-fc08-4364176cfbb6@schaufler-ca.com>
- <CAOSEQ1p0q4gxVwN3MJkP=xxn4GUVaKsaArtQpxNy5rv7vYvVVw@mail.gmail.com>
- <abd4dddb-8968-2655-3d80-ce446451b3de@canonical.com>
- <CAOSEQ1rBu+wRzgk_Jh2RsZpf8Lv1+WUi-Pte-EsBMphnEr4SsQ@mail.gmail.com>
- <e7cfc960-32fb-7712-b21c-37999cf29430@tycho.nsa.gov>
- <2a984c76-a499-53f6-68c5-5d3604094ba4@tycho.nsa.gov>
- <CAOSEQ1o3nhY-svtsFSSv+M=V+NchxmBbhY-FvqoTzJgMnZ1ydw@mail.gmail.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00FFrv3U113202;
+        Wed, 15 Jan 2020 10:53:57 -0500
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <1479ac1a-b957-f907-b983-c0bcefd51457@tycho.nsa.gov>
-Date:   Wed, 15 Jan 2020 10:34:22 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+To:     selinux@vger.kernel.org
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] libselinux: remove flask.h and av_permissions.h
+Date:   Wed, 15 Jan 2020 10:55:23 -0500
+Message-Id: <20200115155523.69438-1-sds@tycho.nsa.gov>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <CAOSEQ1o3nhY-svtsFSSv+M=V+NchxmBbhY-FvqoTzJgMnZ1ydw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/15/20 10:21 AM, Wenhui Zhang wrote:
-> 
-> On Wed, Jan 15, 2020 at 9:08 AM Stephen Smalley <sds@tycho.nsa.gov 
-> <mailto:sds@tycho.nsa.gov>> wrote:
-> 
->     On 1/15/20 8:40 AM, Stephen Smalley wrote:
->      > On 1/14/20 8:00 PM, Wenhui Zhang wrote:
->      >> Hi, John:
->      >>
->      >> It seems like, the MAC hooks are default to*return 0 or empty void
->      >> hooks* if CONFIG_SECURITY, CONFIG_SECURITY_NETWORK ,
->      >> CONFIG_PAGE_TABLE_ISOLATION, CONFIG_SECURITY_INFINIBAND,
->      >> CONFIG_SECURITY_PATH, CONFIG_INTEL_TXT,
->      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR,
->      >> CONFIG_HARDENED_USERCOPY, CONFIG_HARDENED_USERCOPY_FALLBACK *are
->     NOT
->      >> set*.
->      >>
->      >> If HOOKs are "return 0 or empty void hooks", MAC is not enabled.
->      >> In runtime of fs-benchmarks, if CONFIG_DEFAULT_SECURITY_DAC=y, then
->      >> capability is enabled.
->      >>
->      >> Please correct me if I am wrong.
->      >>
->      >> For the first test, wo-sec is tested with:
->      >> # CONFIG_SECURITY_DMESG_RESTRICT is not set
->      >> # CONFIG_SECURITY is not set
->      >> # CONFIG_SECURITYFS is not set
->      >> # CONFIG_PAGE_TABLE_ISOLATION is not set
->      >> # CONFIG_INTEL_TXT is not set
->      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
->      >> # CONFIG_HARDENED_USERCOPY is not set
->      >> CONFIG_FORTIFY_SOURCE=y
->      >> # CONFIG_STATIC_USERMODEHELPER is not set
->      >> CONFIG_DEFAULT_SECURITY_DAC=y
->      >>
->      >>
->      >> For the second test, w-sec is tested with:
->      >> # CONFIG_SECURITY_DMESG_RESTRICT is not set
->      >> CONFIG_SECURITY=y
->      >> CONFIG_SECURITYFS=y
->      >> # CONFIG_SECURITY_NETWORK is not set
->      >> CONFIG_PAGE_TABLE_ISOLATION=y
->      >> CONFIG_SECURITY_INFINIBAND=y
->      >> CONFIG_SECURITY_PATH=y
->      >> CONFIG_INTEL_TXT=y
->      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
->      >> CONFIG_HARDENED_USERCOPY=y
->      >> CONFIG_HARDENED_USERCOPY_FALLBACK=y
->      >> # CONFIG_HARDENED_USERCOPY_PAGESPAN is not set
->      >> CONFIG_FORTIFY_SOURCE=y
->      >> # CONFIG_STATIC_USERMODEHELPER is not set
->      >> # CONFIG_SECURITY_SMACK is not set
->      >> # CONFIG_SECURITY_TOMOYO is not set
->      >> # CONFIG_SECURITY_APPARMOR is not set
->      >> # CONFIG_SECURITY_LOADPIN is not set
->      >> # CONFIG_SECURITY_YAMA is not set
->      >> # CONFIG_SECURITY_SAFESETID is not set
->      >> # CONFIG_INTEGRITY is not set
->      >> CONFIG_DEFAULT_SECURITY_DAC=y
->      >> #
->      >>
->     CONFIG_LSM="yama,loadpin,safesetid,integrity,apparmor,selinux,smack,tomoyo"
-> 
->      >>
->      >
->      > Your configs should only differ with respect to CONFIG_SECURITY*
->     if you
->      > want to evaluate LSM, SELinux, etc overheads.  PAGE_TABLE_ISOLATION,
->      > INTEL_TXT, and HARDENED_USERCOPY are not relevant to LSM itself.
->      >
->      > Also, what benchmarks are you using?  Your own home-grown ones, a
->     set of
->      > open source standard benchmarks (if so, which ones?).  You should
->      > include both micro and macro benchmarks in your suite.
->      >
->      > How stable are your results?  What kind of variance / standard
->     deviation
->      > are you seeing?
->      >
->      > It is hard to get meaningful, reliable performance measurements
->     so going
->      > down this road is not to be done lightly.
-> 
->     Also, I note that you don't enable CONFIG_SECURITY_NETWORK above.  That
->     means you aren't including the base LSM overhead for the networking
->     security hooks.  So if you then compare that against SELinux (which
->     requires CONFIG_SECURITY_NETWORK), you are going to end up attributing
->     the cost of both the LSM overhead and SELinux overhead all to SELinux.
->     If you truly want to isolate the base LSM overhead, you need to enable
->     all the hooks.
-> 
-> I will give it a try for enabling CONFIG_SECURITY_NETWORK later this 
-> week, however I wonder if this would affect the test results that much.
-> I am testing with LMBench 2.5 , with focusing on filesystem unit tests, 
-> however not network stack at this time.
-> My understanding of why this result is so different from previous paper 
-> 20 years ago, is that the Bottleneck changes.
-> As Chris was testing with 4 cores , each 700MHz CPU, and 128MB memory, 
-> with HDD (latency is about 20,000,000 ns for sequential read).
-> The  Bottleneck of accessing files w/ MAC are mostly on I/O.
-> However hardware setup is different now,  we have much larger and faster 
-> memory (better prefetching as well), with SSD (latency is about 49,000 
-> ns for sequential read). , while CPU speed is not increasing as much as 
-> that of I/O.
-> The Bottleneck of accessing files w/ MAC are mostly on CPU now.
+The flask.h and av_permissions.h header files were deprecated and
+all selinux userspace references to them were removed in
+commit 76913d8adb61b5 ("Deprecate use of flask.h and av_permissions.h.")
+back in 2014 and included in the 20150202 / 2.4 release.
+All userspace object managers should have been updated
+to use the dynamic class/perm mapping support since that time.
+Remove these headers finally to ensure that no users remain and
+that no future uses are ever introduced.
 
-Don't know if lmbench is still a good benchmark and I recall struggling 
-with it even back then to get stable results.
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ libselinux/include/selinux/av_permissions.h | 1029 -------------------
+ libselinux/include/selinux/flask.h          |  118 ---
+ 2 files changed, 1147 deletions(-)
+ delete mode 100644 libselinux/include/selinux/av_permissions.h
+ delete mode 100644 libselinux/include/selinux/flask.h
 
-Could be bottleneck changes, could be the fact that your kernel config 
-changes aren't limited to CONFIG_SECURITY* (e.g. PTI introduces 
-non-trivial overheads), could be changes to LSM since that time (e.g. 
-stacking support, moving security_ calls out-of-line, more hooks, ...), 
-could be that running SELinux w/o policy is flooding the system logs 
-with warnings or other messages since it wasn't really designed to be 
-used that way past initialization.  Lots of options, can't tell without 
-more info on your details.
-
+diff --git a/libselinux/include/selinux/av_permissions.h b/libselinux/include/selinux/av_permissions.h
+deleted file mode 100644
+index c1269af9b72d..000000000000
+--- a/libselinux/include/selinux/av_permissions.h
++++ /dev/null
+@@ -1,1029 +0,0 @@
+-#warning "Please remove any #include of this header in your source code."
+-#warning "Instead, use string_to_av_perm() to map the permission name to a value."
+-
+-/* This file is automatically generated.  Do not edit. */
+-#define COMMON_FILE__IOCTL                               0x00000001UL
+-#define COMMON_FILE__READ                                0x00000002UL
+-#define COMMON_FILE__WRITE                               0x00000004UL
+-#define COMMON_FILE__CREATE                              0x00000008UL
+-#define COMMON_FILE__GETATTR                             0x00000010UL
+-#define COMMON_FILE__SETATTR                             0x00000020UL
+-#define COMMON_FILE__LOCK                                0x00000040UL
+-#define COMMON_FILE__RELABELFROM                         0x00000080UL
+-#define COMMON_FILE__RELABELTO                           0x00000100UL
+-#define COMMON_FILE__APPEND                              0x00000200UL
+-#define COMMON_FILE__UNLINK                              0x00000400UL
+-#define COMMON_FILE__LINK                                0x00000800UL
+-#define COMMON_FILE__RENAME                              0x00001000UL
+-#define COMMON_FILE__EXECUTE                             0x00002000UL
+-#define COMMON_FILE__SWAPON                              0x00004000UL
+-#define COMMON_FILE__QUOTAON                             0x00008000UL
+-#define COMMON_FILE__MOUNTON                             0x00010000UL
+-#define COMMON_SOCKET__IOCTL                             0x00000001UL
+-#define COMMON_SOCKET__READ                              0x00000002UL
+-#define COMMON_SOCKET__WRITE                             0x00000004UL
+-#define COMMON_SOCKET__CREATE                            0x00000008UL
+-#define COMMON_SOCKET__GETATTR                           0x00000010UL
+-#define COMMON_SOCKET__SETATTR                           0x00000020UL
+-#define COMMON_SOCKET__LOCK                              0x00000040UL
+-#define COMMON_SOCKET__RELABELFROM                       0x00000080UL
+-#define COMMON_SOCKET__RELABELTO                         0x00000100UL
+-#define COMMON_SOCKET__APPEND                            0x00000200UL
+-#define COMMON_SOCKET__BIND                              0x00000400UL
+-#define COMMON_SOCKET__CONNECT                           0x00000800UL
+-#define COMMON_SOCKET__LISTEN                            0x00001000UL
+-#define COMMON_SOCKET__ACCEPT                            0x00002000UL
+-#define COMMON_SOCKET__GETOPT                            0x00004000UL
+-#define COMMON_SOCKET__SETOPT                            0x00008000UL
+-#define COMMON_SOCKET__SHUTDOWN                          0x00010000UL
+-#define COMMON_SOCKET__RECVFROM                          0x00020000UL
+-#define COMMON_SOCKET__SENDTO                            0x00040000UL
+-#define COMMON_SOCKET__RECV_MSG                          0x00080000UL
+-#define COMMON_SOCKET__SEND_MSG                          0x00100000UL
+-#define COMMON_SOCKET__NAME_BIND                         0x00200000UL
+-#define COMMON_IPC__CREATE                               0x00000001UL
+-#define COMMON_IPC__DESTROY                              0x00000002UL
+-#define COMMON_IPC__GETATTR                              0x00000004UL
+-#define COMMON_IPC__SETATTR                              0x00000008UL
+-#define COMMON_IPC__READ                                 0x00000010UL
+-#define COMMON_IPC__WRITE                                0x00000020UL
+-#define COMMON_IPC__ASSOCIATE                            0x00000040UL
+-#define COMMON_IPC__UNIX_READ                            0x00000080UL
+-#define COMMON_IPC__UNIX_WRITE                           0x00000100UL
+-#define COMMON_DATABASE__CREATE                          0x00000001UL
+-#define COMMON_DATABASE__DROP                            0x00000002UL
+-#define COMMON_DATABASE__GETATTR                         0x00000004UL
+-#define COMMON_DATABASE__SETATTR                         0x00000008UL
+-#define COMMON_DATABASE__RELABELFROM                     0x00000010UL
+-#define COMMON_DATABASE__RELABELTO                       0x00000020UL
+-#define FILESYSTEM__MOUNT                         0x00000001UL
+-#define FILESYSTEM__REMOUNT                       0x00000002UL
+-#define FILESYSTEM__UNMOUNT                       0x00000004UL
+-#define FILESYSTEM__GETATTR                       0x00000008UL
+-#define FILESYSTEM__RELABELFROM                   0x00000010UL
+-#define FILESYSTEM__RELABELTO                     0x00000020UL
+-#define FILESYSTEM__TRANSITION                    0x00000040UL
+-#define FILESYSTEM__ASSOCIATE                     0x00000080UL
+-#define FILESYSTEM__QUOTAMOD                      0x00000100UL
+-#define FILESYSTEM__QUOTAGET                      0x00000200UL
+-#define DIR__IOCTL                                0x00000001UL
+-#define DIR__READ                                 0x00000002UL
+-#define DIR__WRITE                                0x00000004UL
+-#define DIR__CREATE                               0x00000008UL
+-#define DIR__GETATTR                              0x00000010UL
+-#define DIR__SETATTR                              0x00000020UL
+-#define DIR__LOCK                                 0x00000040UL
+-#define DIR__RELABELFROM                          0x00000080UL
+-#define DIR__RELABELTO                            0x00000100UL
+-#define DIR__APPEND                               0x00000200UL
+-#define DIR__UNLINK                               0x00000400UL
+-#define DIR__LINK                                 0x00000800UL
+-#define DIR__RENAME                               0x00001000UL
+-#define DIR__EXECUTE                              0x00002000UL
+-#define DIR__SWAPON                               0x00004000UL
+-#define DIR__QUOTAON                              0x00008000UL
+-#define DIR__MOUNTON                              0x00010000UL
+-#define DIR__ADD_NAME                             0x00020000UL
+-#define DIR__REMOVE_NAME                          0x00040000UL
+-#define DIR__REPARENT                             0x00080000UL
+-#define DIR__SEARCH                               0x00100000UL
+-#define DIR__RMDIR                                0x00200000UL
+-#define DIR__OPEN                                 0x00400000UL
+-#define FILE__IOCTL                               0x00000001UL
+-#define FILE__READ                                0x00000002UL
+-#define FILE__WRITE                               0x00000004UL
+-#define FILE__CREATE                              0x00000008UL
+-#define FILE__GETATTR                             0x00000010UL
+-#define FILE__SETATTR                             0x00000020UL
+-#define FILE__LOCK                                0x00000040UL
+-#define FILE__RELABELFROM                         0x00000080UL
+-#define FILE__RELABELTO                           0x00000100UL
+-#define FILE__APPEND                              0x00000200UL
+-#define FILE__UNLINK                              0x00000400UL
+-#define FILE__LINK                                0x00000800UL
+-#define FILE__RENAME                              0x00001000UL
+-#define FILE__EXECUTE                             0x00002000UL
+-#define FILE__SWAPON                              0x00004000UL
+-#define FILE__QUOTAON                             0x00008000UL
+-#define FILE__MOUNTON                             0x00010000UL
+-#define FILE__EXECUTE_NO_TRANS                    0x00020000UL
+-#define FILE__ENTRYPOINT                          0x00040000UL
+-#define FILE__EXECMOD                             0x00080000UL
+-#define FILE__OPEN                                0x00100000UL
+-#define LNK_FILE__IOCTL                           0x00000001UL
+-#define LNK_FILE__READ                            0x00000002UL
+-#define LNK_FILE__WRITE                           0x00000004UL
+-#define LNK_FILE__CREATE                          0x00000008UL
+-#define LNK_FILE__GETATTR                         0x00000010UL
+-#define LNK_FILE__SETATTR                         0x00000020UL
+-#define LNK_FILE__LOCK                            0x00000040UL
+-#define LNK_FILE__RELABELFROM                     0x00000080UL
+-#define LNK_FILE__RELABELTO                       0x00000100UL
+-#define LNK_FILE__APPEND                          0x00000200UL
+-#define LNK_FILE__UNLINK                          0x00000400UL
+-#define LNK_FILE__LINK                            0x00000800UL
+-#define LNK_FILE__RENAME                          0x00001000UL
+-#define LNK_FILE__EXECUTE                         0x00002000UL
+-#define LNK_FILE__SWAPON                          0x00004000UL
+-#define LNK_FILE__QUOTAON                         0x00008000UL
+-#define LNK_FILE__MOUNTON                         0x00010000UL
+-#define CHR_FILE__IOCTL                           0x00000001UL
+-#define CHR_FILE__READ                            0x00000002UL
+-#define CHR_FILE__WRITE                           0x00000004UL
+-#define CHR_FILE__CREATE                          0x00000008UL
+-#define CHR_FILE__GETATTR                         0x00000010UL
+-#define CHR_FILE__SETATTR                         0x00000020UL
+-#define CHR_FILE__LOCK                            0x00000040UL
+-#define CHR_FILE__RELABELFROM                     0x00000080UL
+-#define CHR_FILE__RELABELTO                       0x00000100UL
+-#define CHR_FILE__APPEND                          0x00000200UL
+-#define CHR_FILE__UNLINK                          0x00000400UL
+-#define CHR_FILE__LINK                            0x00000800UL
+-#define CHR_FILE__RENAME                          0x00001000UL
+-#define CHR_FILE__EXECUTE                         0x00002000UL
+-#define CHR_FILE__SWAPON                          0x00004000UL
+-#define CHR_FILE__QUOTAON                         0x00008000UL
+-#define CHR_FILE__MOUNTON                         0x00010000UL
+-#define CHR_FILE__EXECUTE_NO_TRANS                0x00020000UL
+-#define CHR_FILE__ENTRYPOINT                      0x00040000UL
+-#define CHR_FILE__EXECMOD                         0x00080000UL
+-#define CHR_FILE__OPEN                            0x00100000UL
+-#define BLK_FILE__IOCTL                           0x00000001UL
+-#define BLK_FILE__READ                            0x00000002UL
+-#define BLK_FILE__WRITE                           0x00000004UL
+-#define BLK_FILE__CREATE                          0x00000008UL
+-#define BLK_FILE__GETATTR                         0x00000010UL
+-#define BLK_FILE__SETATTR                         0x00000020UL
+-#define BLK_FILE__LOCK                            0x00000040UL
+-#define BLK_FILE__RELABELFROM                     0x00000080UL
+-#define BLK_FILE__RELABELTO                       0x00000100UL
+-#define BLK_FILE__APPEND                          0x00000200UL
+-#define BLK_FILE__UNLINK                          0x00000400UL
+-#define BLK_FILE__LINK                            0x00000800UL
+-#define BLK_FILE__RENAME                          0x00001000UL
+-#define BLK_FILE__EXECUTE                         0x00002000UL
+-#define BLK_FILE__SWAPON                          0x00004000UL
+-#define BLK_FILE__QUOTAON                         0x00008000UL
+-#define BLK_FILE__MOUNTON                         0x00010000UL
+-#define BLK_FILE__OPEN                            0x00020000UL
+-#define SOCK_FILE__IOCTL                          0x00000001UL
+-#define SOCK_FILE__READ                           0x00000002UL
+-#define SOCK_FILE__WRITE                          0x00000004UL
+-#define SOCK_FILE__CREATE                         0x00000008UL
+-#define SOCK_FILE__GETATTR                        0x00000010UL
+-#define SOCK_FILE__SETATTR                        0x00000020UL
+-#define SOCK_FILE__LOCK                           0x00000040UL
+-#define SOCK_FILE__RELABELFROM                    0x00000080UL
+-#define SOCK_FILE__RELABELTO                      0x00000100UL
+-#define SOCK_FILE__APPEND                         0x00000200UL
+-#define SOCK_FILE__UNLINK                         0x00000400UL
+-#define SOCK_FILE__LINK                           0x00000800UL
+-#define SOCK_FILE__RENAME                         0x00001000UL
+-#define SOCK_FILE__EXECUTE                        0x00002000UL
+-#define SOCK_FILE__SWAPON                         0x00004000UL
+-#define SOCK_FILE__QUOTAON                        0x00008000UL
+-#define SOCK_FILE__MOUNTON                        0x00010000UL
+-#define FIFO_FILE__IOCTL                          0x00000001UL
+-#define FIFO_FILE__READ                           0x00000002UL
+-#define FIFO_FILE__WRITE                          0x00000004UL
+-#define FIFO_FILE__CREATE                         0x00000008UL
+-#define FIFO_FILE__GETATTR                        0x00000010UL
+-#define FIFO_FILE__SETATTR                        0x00000020UL
+-#define FIFO_FILE__LOCK                           0x00000040UL
+-#define FIFO_FILE__RELABELFROM                    0x00000080UL
+-#define FIFO_FILE__RELABELTO                      0x00000100UL
+-#define FIFO_FILE__APPEND                         0x00000200UL
+-#define FIFO_FILE__UNLINK                         0x00000400UL
+-#define FIFO_FILE__LINK                           0x00000800UL
+-#define FIFO_FILE__RENAME                         0x00001000UL
+-#define FIFO_FILE__EXECUTE                        0x00002000UL
+-#define FIFO_FILE__SWAPON                         0x00004000UL
+-#define FIFO_FILE__QUOTAON                        0x00008000UL
+-#define FIFO_FILE__MOUNTON                        0x00010000UL
+-#define FIFO_FILE__OPEN                           0x00020000UL
+-#define FD__USE                                   0x00000001UL
+-#define SOCKET__IOCTL                             0x00000001UL
+-#define SOCKET__READ                              0x00000002UL
+-#define SOCKET__WRITE                             0x00000004UL
+-#define SOCKET__CREATE                            0x00000008UL
+-#define SOCKET__GETATTR                           0x00000010UL
+-#define SOCKET__SETATTR                           0x00000020UL
+-#define SOCKET__LOCK                              0x00000040UL
+-#define SOCKET__RELABELFROM                       0x00000080UL
+-#define SOCKET__RELABELTO                         0x00000100UL
+-#define SOCKET__APPEND                            0x00000200UL
+-#define SOCKET__BIND                              0x00000400UL
+-#define SOCKET__CONNECT                           0x00000800UL
+-#define SOCKET__LISTEN                            0x00001000UL
+-#define SOCKET__ACCEPT                            0x00002000UL
+-#define SOCKET__GETOPT                            0x00004000UL
+-#define SOCKET__SETOPT                            0x00008000UL
+-#define SOCKET__SHUTDOWN                          0x00010000UL
+-#define SOCKET__RECVFROM                          0x00020000UL
+-#define SOCKET__SENDTO                            0x00040000UL
+-#define SOCKET__RECV_MSG                          0x00080000UL
+-#define SOCKET__SEND_MSG                          0x00100000UL
+-#define SOCKET__NAME_BIND                         0x00200000UL
+-#define TCP_SOCKET__IOCTL                         0x00000001UL
+-#define TCP_SOCKET__READ                          0x00000002UL
+-#define TCP_SOCKET__WRITE                         0x00000004UL
+-#define TCP_SOCKET__CREATE                        0x00000008UL
+-#define TCP_SOCKET__GETATTR                       0x00000010UL
+-#define TCP_SOCKET__SETATTR                       0x00000020UL
+-#define TCP_SOCKET__LOCK                          0x00000040UL
+-#define TCP_SOCKET__RELABELFROM                   0x00000080UL
+-#define TCP_SOCKET__RELABELTO                     0x00000100UL
+-#define TCP_SOCKET__APPEND                        0x00000200UL
+-#define TCP_SOCKET__BIND                          0x00000400UL
+-#define TCP_SOCKET__CONNECT                       0x00000800UL
+-#define TCP_SOCKET__LISTEN                        0x00001000UL
+-#define TCP_SOCKET__ACCEPT                        0x00002000UL
+-#define TCP_SOCKET__GETOPT                        0x00004000UL
+-#define TCP_SOCKET__SETOPT                        0x00008000UL
+-#define TCP_SOCKET__SHUTDOWN                      0x00010000UL
+-#define TCP_SOCKET__RECVFROM                      0x00020000UL
+-#define TCP_SOCKET__SENDTO                        0x00040000UL
+-#define TCP_SOCKET__RECV_MSG                      0x00080000UL
+-#define TCP_SOCKET__SEND_MSG                      0x00100000UL
+-#define TCP_SOCKET__NAME_BIND                     0x00200000UL
+-#define TCP_SOCKET__CONNECTTO                     0x00400000UL
+-#define TCP_SOCKET__NEWCONN                       0x00800000UL
+-#define TCP_SOCKET__ACCEPTFROM                    0x01000000UL
+-#define TCP_SOCKET__NODE_BIND                     0x02000000UL
+-#define TCP_SOCKET__NAME_CONNECT                  0x04000000UL
+-#define UDP_SOCKET__IOCTL                         0x00000001UL
+-#define UDP_SOCKET__READ                          0x00000002UL
+-#define UDP_SOCKET__WRITE                         0x00000004UL
+-#define UDP_SOCKET__CREATE                        0x00000008UL
+-#define UDP_SOCKET__GETATTR                       0x00000010UL
+-#define UDP_SOCKET__SETATTR                       0x00000020UL
+-#define UDP_SOCKET__LOCK                          0x00000040UL
+-#define UDP_SOCKET__RELABELFROM                   0x00000080UL
+-#define UDP_SOCKET__RELABELTO                     0x00000100UL
+-#define UDP_SOCKET__APPEND                        0x00000200UL
+-#define UDP_SOCKET__BIND                          0x00000400UL
+-#define UDP_SOCKET__CONNECT                       0x00000800UL
+-#define UDP_SOCKET__LISTEN                        0x00001000UL
+-#define UDP_SOCKET__ACCEPT                        0x00002000UL
+-#define UDP_SOCKET__GETOPT                        0x00004000UL
+-#define UDP_SOCKET__SETOPT                        0x00008000UL
+-#define UDP_SOCKET__SHUTDOWN                      0x00010000UL
+-#define UDP_SOCKET__RECVFROM                      0x00020000UL
+-#define UDP_SOCKET__SENDTO                        0x00040000UL
+-#define UDP_SOCKET__RECV_MSG                      0x00080000UL
+-#define UDP_SOCKET__SEND_MSG                      0x00100000UL
+-#define UDP_SOCKET__NAME_BIND                     0x00200000UL
+-#define UDP_SOCKET__NODE_BIND                     0x00400000UL
+-#define RAWIP_SOCKET__IOCTL                       0x00000001UL
+-#define RAWIP_SOCKET__READ                        0x00000002UL
+-#define RAWIP_SOCKET__WRITE                       0x00000004UL
+-#define RAWIP_SOCKET__CREATE                      0x00000008UL
+-#define RAWIP_SOCKET__GETATTR                     0x00000010UL
+-#define RAWIP_SOCKET__SETATTR                     0x00000020UL
+-#define RAWIP_SOCKET__LOCK                        0x00000040UL
+-#define RAWIP_SOCKET__RELABELFROM                 0x00000080UL
+-#define RAWIP_SOCKET__RELABELTO                   0x00000100UL
+-#define RAWIP_SOCKET__APPEND                      0x00000200UL
+-#define RAWIP_SOCKET__BIND                        0x00000400UL
+-#define RAWIP_SOCKET__CONNECT                     0x00000800UL
+-#define RAWIP_SOCKET__LISTEN                      0x00001000UL
+-#define RAWIP_SOCKET__ACCEPT                      0x00002000UL
+-#define RAWIP_SOCKET__GETOPT                      0x00004000UL
+-#define RAWIP_SOCKET__SETOPT                      0x00008000UL
+-#define RAWIP_SOCKET__SHUTDOWN                    0x00010000UL
+-#define RAWIP_SOCKET__RECVFROM                    0x00020000UL
+-#define RAWIP_SOCKET__SENDTO                      0x00040000UL
+-#define RAWIP_SOCKET__RECV_MSG                    0x00080000UL
+-#define RAWIP_SOCKET__SEND_MSG                    0x00100000UL
+-#define RAWIP_SOCKET__NAME_BIND                   0x00200000UL
+-#define RAWIP_SOCKET__NODE_BIND                   0x00400000UL
+-#define NODE__TCP_RECV                            0x00000001UL
+-#define NODE__TCP_SEND                            0x00000002UL
+-#define NODE__UDP_RECV                            0x00000004UL
+-#define NODE__UDP_SEND                            0x00000008UL
+-#define NODE__RAWIP_RECV                          0x00000010UL
+-#define NODE__RAWIP_SEND                          0x00000020UL
+-#define NODE__ENFORCE_DEST                        0x00000040UL
+-#define NODE__DCCP_RECV                           0x00000080UL
+-#define NODE__DCCP_SEND                           0x00000100UL
+-#define NODE__RECVFROM                            0x00000200UL
+-#define NODE__SENDTO                              0x00000400UL
+-#define NETIF__TCP_RECV                           0x00000001UL
+-#define NETIF__TCP_SEND                           0x00000002UL
+-#define NETIF__UDP_RECV                           0x00000004UL
+-#define NETIF__UDP_SEND                           0x00000008UL
+-#define NETIF__RAWIP_RECV                         0x00000010UL
+-#define NETIF__RAWIP_SEND                         0x00000020UL
+-#define NETIF__DCCP_RECV                          0x00000040UL
+-#define NETIF__DCCP_SEND                          0x00000080UL
+-#define NETIF__INGRESS                            0x00000100UL
+-#define NETIF__EGRESS                             0x00000200UL
+-#define NETLINK_SOCKET__IOCTL                     0x00000001UL
+-#define NETLINK_SOCKET__READ                      0x00000002UL
+-#define NETLINK_SOCKET__WRITE                     0x00000004UL
+-#define NETLINK_SOCKET__CREATE                    0x00000008UL
+-#define NETLINK_SOCKET__GETATTR                   0x00000010UL
+-#define NETLINK_SOCKET__SETATTR                   0x00000020UL
+-#define NETLINK_SOCKET__LOCK                      0x00000040UL
+-#define NETLINK_SOCKET__RELABELFROM               0x00000080UL
+-#define NETLINK_SOCKET__RELABELTO                 0x00000100UL
+-#define NETLINK_SOCKET__APPEND                    0x00000200UL
+-#define NETLINK_SOCKET__BIND                      0x00000400UL
+-#define NETLINK_SOCKET__CONNECT                   0x00000800UL
+-#define NETLINK_SOCKET__LISTEN                    0x00001000UL
+-#define NETLINK_SOCKET__ACCEPT                    0x00002000UL
+-#define NETLINK_SOCKET__GETOPT                    0x00004000UL
+-#define NETLINK_SOCKET__SETOPT                    0x00008000UL
+-#define NETLINK_SOCKET__SHUTDOWN                  0x00010000UL
+-#define NETLINK_SOCKET__RECVFROM                  0x00020000UL
+-#define NETLINK_SOCKET__SENDTO                    0x00040000UL
+-#define NETLINK_SOCKET__RECV_MSG                  0x00080000UL
+-#define NETLINK_SOCKET__SEND_MSG                  0x00100000UL
+-#define NETLINK_SOCKET__NAME_BIND                 0x00200000UL
+-#define PACKET_SOCKET__IOCTL                      0x00000001UL
+-#define PACKET_SOCKET__READ                       0x00000002UL
+-#define PACKET_SOCKET__WRITE                      0x00000004UL
+-#define PACKET_SOCKET__CREATE                     0x00000008UL
+-#define PACKET_SOCKET__GETATTR                    0x00000010UL
+-#define PACKET_SOCKET__SETATTR                    0x00000020UL
+-#define PACKET_SOCKET__LOCK                       0x00000040UL
+-#define PACKET_SOCKET__RELABELFROM                0x00000080UL
+-#define PACKET_SOCKET__RELABELTO                  0x00000100UL
+-#define PACKET_SOCKET__APPEND                     0x00000200UL
+-#define PACKET_SOCKET__BIND                       0x00000400UL
+-#define PACKET_SOCKET__CONNECT                    0x00000800UL
+-#define PACKET_SOCKET__LISTEN                     0x00001000UL
+-#define PACKET_SOCKET__ACCEPT                     0x00002000UL
+-#define PACKET_SOCKET__GETOPT                     0x00004000UL
+-#define PACKET_SOCKET__SETOPT                     0x00008000UL
+-#define PACKET_SOCKET__SHUTDOWN                   0x00010000UL
+-#define PACKET_SOCKET__RECVFROM                   0x00020000UL
+-#define PACKET_SOCKET__SENDTO                     0x00040000UL
+-#define PACKET_SOCKET__RECV_MSG                   0x00080000UL
+-#define PACKET_SOCKET__SEND_MSG                   0x00100000UL
+-#define PACKET_SOCKET__NAME_BIND                  0x00200000UL
+-#define KEY_SOCKET__IOCTL                         0x00000001UL
+-#define KEY_SOCKET__READ                          0x00000002UL
+-#define KEY_SOCKET__WRITE                         0x00000004UL
+-#define KEY_SOCKET__CREATE                        0x00000008UL
+-#define KEY_SOCKET__GETATTR                       0x00000010UL
+-#define KEY_SOCKET__SETATTR                       0x00000020UL
+-#define KEY_SOCKET__LOCK                          0x00000040UL
+-#define KEY_SOCKET__RELABELFROM                   0x00000080UL
+-#define KEY_SOCKET__RELABELTO                     0x00000100UL
+-#define KEY_SOCKET__APPEND                        0x00000200UL
+-#define KEY_SOCKET__BIND                          0x00000400UL
+-#define KEY_SOCKET__CONNECT                       0x00000800UL
+-#define KEY_SOCKET__LISTEN                        0x00001000UL
+-#define KEY_SOCKET__ACCEPT                        0x00002000UL
+-#define KEY_SOCKET__GETOPT                        0x00004000UL
+-#define KEY_SOCKET__SETOPT                        0x00008000UL
+-#define KEY_SOCKET__SHUTDOWN                      0x00010000UL
+-#define KEY_SOCKET__RECVFROM                      0x00020000UL
+-#define KEY_SOCKET__SENDTO                        0x00040000UL
+-#define KEY_SOCKET__RECV_MSG                      0x00080000UL
+-#define KEY_SOCKET__SEND_MSG                      0x00100000UL
+-#define KEY_SOCKET__NAME_BIND                     0x00200000UL
+-#define UNIX_STREAM_SOCKET__IOCTL                 0x00000001UL
+-#define UNIX_STREAM_SOCKET__READ                  0x00000002UL
+-#define UNIX_STREAM_SOCKET__WRITE                 0x00000004UL
+-#define UNIX_STREAM_SOCKET__CREATE                0x00000008UL
+-#define UNIX_STREAM_SOCKET__GETATTR               0x00000010UL
+-#define UNIX_STREAM_SOCKET__SETATTR               0x00000020UL
+-#define UNIX_STREAM_SOCKET__LOCK                  0x00000040UL
+-#define UNIX_STREAM_SOCKET__RELABELFROM           0x00000080UL
+-#define UNIX_STREAM_SOCKET__RELABELTO             0x00000100UL
+-#define UNIX_STREAM_SOCKET__APPEND                0x00000200UL
+-#define UNIX_STREAM_SOCKET__BIND                  0x00000400UL
+-#define UNIX_STREAM_SOCKET__CONNECT               0x00000800UL
+-#define UNIX_STREAM_SOCKET__LISTEN                0x00001000UL
+-#define UNIX_STREAM_SOCKET__ACCEPT                0x00002000UL
+-#define UNIX_STREAM_SOCKET__GETOPT                0x00004000UL
+-#define UNIX_STREAM_SOCKET__SETOPT                0x00008000UL
+-#define UNIX_STREAM_SOCKET__SHUTDOWN              0x00010000UL
+-#define UNIX_STREAM_SOCKET__RECVFROM              0x00020000UL
+-#define UNIX_STREAM_SOCKET__SENDTO                0x00040000UL
+-#define UNIX_STREAM_SOCKET__RECV_MSG              0x00080000UL
+-#define UNIX_STREAM_SOCKET__SEND_MSG              0x00100000UL
+-#define UNIX_STREAM_SOCKET__NAME_BIND             0x00200000UL
+-#define UNIX_STREAM_SOCKET__CONNECTTO             0x00400000UL
+-#define UNIX_STREAM_SOCKET__NEWCONN               0x00800000UL
+-#define UNIX_STREAM_SOCKET__ACCEPTFROM            0x01000000UL
+-#define UNIX_DGRAM_SOCKET__IOCTL                  0x00000001UL
+-#define UNIX_DGRAM_SOCKET__READ                   0x00000002UL
+-#define UNIX_DGRAM_SOCKET__WRITE                  0x00000004UL
+-#define UNIX_DGRAM_SOCKET__CREATE                 0x00000008UL
+-#define UNIX_DGRAM_SOCKET__GETATTR                0x00000010UL
+-#define UNIX_DGRAM_SOCKET__SETATTR                0x00000020UL
+-#define UNIX_DGRAM_SOCKET__LOCK                   0x00000040UL
+-#define UNIX_DGRAM_SOCKET__RELABELFROM            0x00000080UL
+-#define UNIX_DGRAM_SOCKET__RELABELTO              0x00000100UL
+-#define UNIX_DGRAM_SOCKET__APPEND                 0x00000200UL
+-#define UNIX_DGRAM_SOCKET__BIND                   0x00000400UL
+-#define UNIX_DGRAM_SOCKET__CONNECT                0x00000800UL
+-#define UNIX_DGRAM_SOCKET__LISTEN                 0x00001000UL
+-#define UNIX_DGRAM_SOCKET__ACCEPT                 0x00002000UL
+-#define UNIX_DGRAM_SOCKET__GETOPT                 0x00004000UL
+-#define UNIX_DGRAM_SOCKET__SETOPT                 0x00008000UL
+-#define UNIX_DGRAM_SOCKET__SHUTDOWN               0x00010000UL
+-#define UNIX_DGRAM_SOCKET__RECVFROM               0x00020000UL
+-#define UNIX_DGRAM_SOCKET__SENDTO                 0x00040000UL
+-#define UNIX_DGRAM_SOCKET__RECV_MSG               0x00080000UL
+-#define UNIX_DGRAM_SOCKET__SEND_MSG               0x00100000UL
+-#define UNIX_DGRAM_SOCKET__NAME_BIND              0x00200000UL
+-#define PROCESS__FORK                             0x00000001UL
+-#define PROCESS__TRANSITION                       0x00000002UL
+-#define PROCESS__SIGCHLD                          0x00000004UL
+-#define PROCESS__SIGKILL                          0x00000008UL
+-#define PROCESS__SIGSTOP                          0x00000010UL
+-#define PROCESS__SIGNULL                          0x00000020UL
+-#define PROCESS__SIGNAL                           0x00000040UL
+-#define PROCESS__PTRACE                           0x00000080UL
+-#define PROCESS__GETSCHED                         0x00000100UL
+-#define PROCESS__SETSCHED                         0x00000200UL
+-#define PROCESS__GETSESSION                       0x00000400UL
+-#define PROCESS__GETPGID                          0x00000800UL
+-#define PROCESS__SETPGID                          0x00001000UL
+-#define PROCESS__GETCAP                           0x00002000UL
+-#define PROCESS__SETCAP                           0x00004000UL
+-#define PROCESS__SHARE                            0x00008000UL
+-#define PROCESS__GETATTR                          0x00010000UL
+-#define PROCESS__SETEXEC                          0x00020000UL
+-#define PROCESS__SETFSCREATE                      0x00040000UL
+-#define PROCESS__NOATSECURE                       0x00080000UL
+-#define PROCESS__SIGINH                           0x00100000UL
+-#define PROCESS__SETRLIMIT                        0x00200000UL
+-#define PROCESS__RLIMITINH                        0x00400000UL
+-#define PROCESS__DYNTRANSITION                    0x00800000UL
+-#define PROCESS__SETCURRENT                       0x01000000UL
+-#define PROCESS__EXECMEM                          0x02000000UL
+-#define PROCESS__EXECSTACK                        0x04000000UL
+-#define PROCESS__EXECHEAP                         0x08000000UL
+-#define PROCESS__SETKEYCREATE                     0x10000000UL
+-#define PROCESS__SETSOCKCREATE                    0x20000000UL
+-#define IPC__CREATE                               0x00000001UL
+-#define IPC__DESTROY                              0x00000002UL
+-#define IPC__GETATTR                              0x00000004UL
+-#define IPC__SETATTR                              0x00000008UL
+-#define IPC__READ                                 0x00000010UL
+-#define IPC__WRITE                                0x00000020UL
+-#define IPC__ASSOCIATE                            0x00000040UL
+-#define IPC__UNIX_READ                            0x00000080UL
+-#define IPC__UNIX_WRITE                           0x00000100UL
+-#define SEM__CREATE                               0x00000001UL
+-#define SEM__DESTROY                              0x00000002UL
+-#define SEM__GETATTR                              0x00000004UL
+-#define SEM__SETATTR                              0x00000008UL
+-#define SEM__READ                                 0x00000010UL
+-#define SEM__WRITE                                0x00000020UL
+-#define SEM__ASSOCIATE                            0x00000040UL
+-#define SEM__UNIX_READ                            0x00000080UL
+-#define SEM__UNIX_WRITE                           0x00000100UL
+-#define MSGQ__CREATE                              0x00000001UL
+-#define MSGQ__DESTROY                             0x00000002UL
+-#define MSGQ__GETATTR                             0x00000004UL
+-#define MSGQ__SETATTR                             0x00000008UL
+-#define MSGQ__READ                                0x00000010UL
+-#define MSGQ__WRITE                               0x00000020UL
+-#define MSGQ__ASSOCIATE                           0x00000040UL
+-#define MSGQ__UNIX_READ                           0x00000080UL
+-#define MSGQ__UNIX_WRITE                          0x00000100UL
+-#define MSGQ__ENQUEUE                             0x00000200UL
+-#define MSG__SEND                                 0x00000001UL
+-#define MSG__RECEIVE                              0x00000002UL
+-#define SHM__CREATE                               0x00000001UL
+-#define SHM__DESTROY                              0x00000002UL
+-#define SHM__GETATTR                              0x00000004UL
+-#define SHM__SETATTR                              0x00000008UL
+-#define SHM__READ                                 0x00000010UL
+-#define SHM__WRITE                                0x00000020UL
+-#define SHM__ASSOCIATE                            0x00000040UL
+-#define SHM__UNIX_READ                            0x00000080UL
+-#define SHM__UNIX_WRITE                           0x00000100UL
+-#define SHM__LOCK                                 0x00000200UL
+-#define SECURITY__COMPUTE_AV                      0x00000001UL
+-#define SECURITY__COMPUTE_CREATE                  0x00000002UL
+-#define SECURITY__COMPUTE_MEMBER                  0x00000004UL
+-#define SECURITY__CHECK_CONTEXT                   0x00000008UL
+-#define SECURITY__LOAD_POLICY                     0x00000010UL
+-#define SECURITY__COMPUTE_RELABEL                 0x00000020UL
+-#define SECURITY__COMPUTE_USER                    0x00000040UL
+-#define SECURITY__SETENFORCE                      0x00000080UL
+-#define SECURITY__SETBOOL                         0x00000100UL
+-#define SECURITY__SETSECPARAM                     0x00000200UL
+-#define SECURITY__SETCHECKREQPROT                 0x00000400UL
+-#define SYSTEM__IPC_INFO                          0x00000001UL
+-#define SYSTEM__SYSLOG_READ                       0x00000002UL
+-#define SYSTEM__SYSLOG_MOD                        0x00000004UL
+-#define SYSTEM__SYSLOG_CONSOLE                    0x00000008UL
+-#define CAPABILITY__CHOWN                         0x00000001UL
+-#define CAPABILITY__DAC_OVERRIDE                  0x00000002UL
+-#define CAPABILITY__DAC_READ_SEARCH               0x00000004UL
+-#define CAPABILITY__FOWNER                        0x00000008UL
+-#define CAPABILITY__FSETID                        0x00000010UL
+-#define CAPABILITY__KILL                          0x00000020UL
+-#define CAPABILITY__SETGID                        0x00000040UL
+-#define CAPABILITY__SETUID                        0x00000080UL
+-#define CAPABILITY__SETPCAP                       0x00000100UL
+-#define CAPABILITY__LINUX_IMMUTABLE               0x00000200UL
+-#define CAPABILITY__NET_BIND_SERVICE              0x00000400UL
+-#define CAPABILITY__NET_BROADCAST                 0x00000800UL
+-#define CAPABILITY__NET_ADMIN                     0x00001000UL
+-#define CAPABILITY__NET_RAW                       0x00002000UL
+-#define CAPABILITY__IPC_LOCK                      0x00004000UL
+-#define CAPABILITY__IPC_OWNER                     0x00008000UL
+-#define CAPABILITY__SYS_MODULE                    0x00010000UL
+-#define CAPABILITY__SYS_RAWIO                     0x00020000UL
+-#define CAPABILITY__SYS_CHROOT                    0x00040000UL
+-#define CAPABILITY__SYS_PTRACE                    0x00080000UL
+-#define CAPABILITY__SYS_PACCT                     0x00100000UL
+-#define CAPABILITY__SYS_ADMIN                     0x00200000UL
+-#define CAPABILITY__SYS_BOOT                      0x00400000UL
+-#define CAPABILITY__SYS_NICE                      0x00800000UL
+-#define CAPABILITY__SYS_RESOURCE                  0x01000000UL
+-#define CAPABILITY__SYS_TIME                      0x02000000UL
+-#define CAPABILITY__SYS_TTY_CONFIG                0x04000000UL
+-#define CAPABILITY__MKNOD                         0x08000000UL
+-#define CAPABILITY__LEASE                         0x10000000UL
+-#define CAPABILITY__AUDIT_WRITE                   0x20000000UL
+-#define CAPABILITY__AUDIT_CONTROL                 0x40000000UL
+-#define CAPABILITY__SETFCAP                       0x80000000UL
+-#define CAPABILITY2__MAC_OVERRIDE                 0x00000001UL
+-#define CAPABILITY2__MAC_ADMIN                    0x00000002UL
+-#define PASSWD__PASSWD                            0x00000001UL
+-#define PASSWD__CHFN                              0x00000002UL
+-#define PASSWD__CHSH                              0x00000004UL
+-#define PASSWD__ROOTOK                            0x00000008UL
+-#define PASSWD__CRONTAB                           0x00000010UL
+-#define X_DRAWABLE__CREATE                        0x00000001UL
+-#define X_DRAWABLE__DESTROY                       0x00000002UL
+-#define X_DRAWABLE__READ                          0x00000004UL
+-#define X_DRAWABLE__WRITE                         0x00000008UL
+-#define X_DRAWABLE__BLEND                         0x00000010UL
+-#define X_DRAWABLE__GETATTR                       0x00000020UL
+-#define X_DRAWABLE__SETATTR                       0x00000040UL
+-#define X_DRAWABLE__LIST_CHILD                    0x00000080UL
+-#define X_DRAWABLE__ADD_CHILD                     0x00000100UL
+-#define X_DRAWABLE__REMOVE_CHILD                  0x00000200UL
+-#define X_DRAWABLE__LIST_PROPERTY                 0x00000400UL
+-#define X_DRAWABLE__GET_PROPERTY                  0x00000800UL
+-#define X_DRAWABLE__SET_PROPERTY                  0x00001000UL
+-#define X_DRAWABLE__MANAGE                        0x00002000UL
+-#define X_DRAWABLE__OVERRIDE                      0x00004000UL
+-#define X_DRAWABLE__SHOW                          0x00008000UL
+-#define X_DRAWABLE__HIDE                          0x00010000UL
+-#define X_DRAWABLE__SEND                          0x00020000UL
+-#define X_DRAWABLE__RECEIVE                       0x00040000UL
+-#define X_SCREEN__GETATTR                         0x00000001UL
+-#define X_SCREEN__SETATTR                         0x00000002UL
+-#define X_SCREEN__HIDE_CURSOR                     0x00000004UL
+-#define X_SCREEN__SHOW_CURSOR                     0x00000008UL
+-#define X_SCREEN__SAVER_GETATTR                   0x00000010UL
+-#define X_SCREEN__SAVER_SETATTR                   0x00000020UL
+-#define X_SCREEN__SAVER_HIDE                      0x00000040UL
+-#define X_SCREEN__SAVER_SHOW                      0x00000080UL
+-#define X_GC__CREATE                              0x00000001UL
+-#define X_GC__DESTROY                             0x00000002UL
+-#define X_GC__GETATTR                             0x00000004UL
+-#define X_GC__SETATTR                             0x00000008UL
+-#define X_GC__USE                                 0x00000010UL
+-#define X_FONT__CREATE                            0x00000001UL
+-#define X_FONT__DESTROY                           0x00000002UL
+-#define X_FONT__GETATTR                           0x00000004UL
+-#define X_FONT__ADD_GLYPH                         0x00000008UL
+-#define X_FONT__REMOVE_GLYPH                      0x00000010UL
+-#define X_FONT__USE                               0x00000020UL
+-#define X_COLORMAP__CREATE                        0x00000001UL
+-#define X_COLORMAP__DESTROY                       0x00000002UL
+-#define X_COLORMAP__READ                          0x00000004UL
+-#define X_COLORMAP__WRITE                         0x00000008UL
+-#define X_COLORMAP__GETATTR                       0x00000010UL
+-#define X_COLORMAP__ADD_COLOR                     0x00000020UL
+-#define X_COLORMAP__REMOVE_COLOR                  0x00000040UL
+-#define X_COLORMAP__INSTALL                       0x00000080UL
+-#define X_COLORMAP__UNINSTALL                     0x00000100UL
+-#define X_COLORMAP__USE                           0x00000200UL
+-#define X_PROPERTY__CREATE                        0x00000001UL
+-#define X_PROPERTY__DESTROY                       0x00000002UL
+-#define X_PROPERTY__READ                          0x00000004UL
+-#define X_PROPERTY__WRITE                         0x00000008UL
+-#define X_PROPERTY__APPEND                        0x00000010UL
+-#define X_PROPERTY__GETATTR                       0x00000020UL
+-#define X_PROPERTY__SETATTR                       0x00000040UL
+-#define X_SELECTION__READ                         0x00000001UL
+-#define X_SELECTION__WRITE                        0x00000002UL
+-#define X_SELECTION__GETATTR                      0x00000004UL
+-#define X_SELECTION__SETATTR                      0x00000008UL
+-#define X_CURSOR__CREATE                          0x00000001UL
+-#define X_CURSOR__DESTROY                         0x00000002UL
+-#define X_CURSOR__READ                            0x00000004UL
+-#define X_CURSOR__WRITE                           0x00000008UL
+-#define X_CURSOR__GETATTR                         0x00000010UL
+-#define X_CURSOR__SETATTR                         0x00000020UL
+-#define X_CURSOR__USE                             0x00000040UL
+-#define X_CLIENT__DESTROY                         0x00000001UL
+-#define X_CLIENT__GETATTR                         0x00000002UL
+-#define X_CLIENT__SETATTR                         0x00000004UL
+-#define X_CLIENT__MANAGE                          0x00000008UL
+-#define X_DEVICE__GETATTR                         0x00000001UL
+-#define X_DEVICE__SETATTR                         0x00000002UL
+-#define X_DEVICE__USE                             0x00000004UL
+-#define X_DEVICE__READ                            0x00000008UL
+-#define X_DEVICE__WRITE                           0x00000010UL
+-#define X_DEVICE__GETFOCUS                        0x00000020UL
+-#define X_DEVICE__SETFOCUS                        0x00000040UL
+-#define X_DEVICE__BELL                            0x00000080UL
+-#define X_DEVICE__FORCE_CURSOR                    0x00000100UL
+-#define X_DEVICE__FREEZE                          0x00000200UL
+-#define X_DEVICE__GRAB                            0x00000400UL
+-#define X_DEVICE__MANAGE                          0x00000800UL
+-#define X_SERVER__GETATTR                         0x00000001UL
+-#define X_SERVER__SETATTR                         0x00000002UL
+-#define X_SERVER__RECORD                          0x00000004UL
+-#define X_SERVER__DEBUG                           0x00000008UL
+-#define X_SERVER__GRAB                            0x00000010UL
+-#define X_SERVER__MANAGE                          0x00000020UL
+-#define X_EXTENSION__QUERY                        0x00000001UL
+-#define X_EXTENSION__USE                          0x00000002UL
+-#define X_RESOURCE__READ                          0x00000001UL
+-#define X_RESOURCE__WRITE                         0x00000002UL
+-#define X_EVENT__SEND                             0x00000001UL
+-#define X_EVENT__RECEIVE                          0x00000002UL
+-#define X_SYNTHETIC_EVENT__SEND                   0x00000001UL
+-#define X_SYNTHETIC_EVENT__RECEIVE                0x00000002UL
+-#define NETLINK_ROUTE_SOCKET__IOCTL               0x00000001UL
+-#define NETLINK_ROUTE_SOCKET__READ                0x00000002UL
+-#define NETLINK_ROUTE_SOCKET__WRITE               0x00000004UL
+-#define NETLINK_ROUTE_SOCKET__CREATE              0x00000008UL
+-#define NETLINK_ROUTE_SOCKET__GETATTR             0x00000010UL
+-#define NETLINK_ROUTE_SOCKET__SETATTR             0x00000020UL
+-#define NETLINK_ROUTE_SOCKET__LOCK                0x00000040UL
+-#define NETLINK_ROUTE_SOCKET__RELABELFROM         0x00000080UL
+-#define NETLINK_ROUTE_SOCKET__RELABELTO           0x00000100UL
+-#define NETLINK_ROUTE_SOCKET__APPEND              0x00000200UL
+-#define NETLINK_ROUTE_SOCKET__BIND                0x00000400UL
+-#define NETLINK_ROUTE_SOCKET__CONNECT             0x00000800UL
+-#define NETLINK_ROUTE_SOCKET__LISTEN              0x00001000UL
+-#define NETLINK_ROUTE_SOCKET__ACCEPT              0x00002000UL
+-#define NETLINK_ROUTE_SOCKET__GETOPT              0x00004000UL
+-#define NETLINK_ROUTE_SOCKET__SETOPT              0x00008000UL
+-#define NETLINK_ROUTE_SOCKET__SHUTDOWN            0x00010000UL
+-#define NETLINK_ROUTE_SOCKET__RECVFROM            0x00020000UL
+-#define NETLINK_ROUTE_SOCKET__SENDTO              0x00040000UL
+-#define NETLINK_ROUTE_SOCKET__RECV_MSG            0x00080000UL
+-#define NETLINK_ROUTE_SOCKET__SEND_MSG            0x00100000UL
+-#define NETLINK_ROUTE_SOCKET__NAME_BIND           0x00200000UL
+-#define NETLINK_ROUTE_SOCKET__NLMSG_READ          0x00400000UL
+-#define NETLINK_ROUTE_SOCKET__NLMSG_WRITE         0x00800000UL
+-#define NETLINK_FIREWALL_SOCKET__IOCTL            0x00000001UL
+-#define NETLINK_FIREWALL_SOCKET__READ             0x00000002UL
+-#define NETLINK_FIREWALL_SOCKET__WRITE            0x00000004UL
+-#define NETLINK_FIREWALL_SOCKET__CREATE           0x00000008UL
+-#define NETLINK_FIREWALL_SOCKET__GETATTR          0x00000010UL
+-#define NETLINK_FIREWALL_SOCKET__SETATTR          0x00000020UL
+-#define NETLINK_FIREWALL_SOCKET__LOCK             0x00000040UL
+-#define NETLINK_FIREWALL_SOCKET__RELABELFROM      0x00000080UL
+-#define NETLINK_FIREWALL_SOCKET__RELABELTO        0x00000100UL
+-#define NETLINK_FIREWALL_SOCKET__APPEND           0x00000200UL
+-#define NETLINK_FIREWALL_SOCKET__BIND             0x00000400UL
+-#define NETLINK_FIREWALL_SOCKET__CONNECT          0x00000800UL
+-#define NETLINK_FIREWALL_SOCKET__LISTEN           0x00001000UL
+-#define NETLINK_FIREWALL_SOCKET__ACCEPT           0x00002000UL
+-#define NETLINK_FIREWALL_SOCKET__GETOPT           0x00004000UL
+-#define NETLINK_FIREWALL_SOCKET__SETOPT           0x00008000UL
+-#define NETLINK_FIREWALL_SOCKET__SHUTDOWN         0x00010000UL
+-#define NETLINK_FIREWALL_SOCKET__RECVFROM         0x00020000UL
+-#define NETLINK_FIREWALL_SOCKET__SENDTO           0x00040000UL
+-#define NETLINK_FIREWALL_SOCKET__RECV_MSG         0x00080000UL
+-#define NETLINK_FIREWALL_SOCKET__SEND_MSG         0x00100000UL
+-#define NETLINK_FIREWALL_SOCKET__NAME_BIND        0x00200000UL
+-#define NETLINK_FIREWALL_SOCKET__NLMSG_READ       0x00400000UL
+-#define NETLINK_FIREWALL_SOCKET__NLMSG_WRITE      0x00800000UL
+-#define NETLINK_TCPDIAG_SOCKET__IOCTL             0x00000001UL
+-#define NETLINK_TCPDIAG_SOCKET__READ              0x00000002UL
+-#define NETLINK_TCPDIAG_SOCKET__WRITE             0x00000004UL
+-#define NETLINK_TCPDIAG_SOCKET__CREATE            0x00000008UL
+-#define NETLINK_TCPDIAG_SOCKET__GETATTR           0x00000010UL
+-#define NETLINK_TCPDIAG_SOCKET__SETATTR           0x00000020UL
+-#define NETLINK_TCPDIAG_SOCKET__LOCK              0x00000040UL
+-#define NETLINK_TCPDIAG_SOCKET__RELABELFROM       0x00000080UL
+-#define NETLINK_TCPDIAG_SOCKET__RELABELTO         0x00000100UL
+-#define NETLINK_TCPDIAG_SOCKET__APPEND            0x00000200UL
+-#define NETLINK_TCPDIAG_SOCKET__BIND              0x00000400UL
+-#define NETLINK_TCPDIAG_SOCKET__CONNECT           0x00000800UL
+-#define NETLINK_TCPDIAG_SOCKET__LISTEN            0x00001000UL
+-#define NETLINK_TCPDIAG_SOCKET__ACCEPT            0x00002000UL
+-#define NETLINK_TCPDIAG_SOCKET__GETOPT            0x00004000UL
+-#define NETLINK_TCPDIAG_SOCKET__SETOPT            0x00008000UL
+-#define NETLINK_TCPDIAG_SOCKET__SHUTDOWN          0x00010000UL
+-#define NETLINK_TCPDIAG_SOCKET__RECVFROM          0x00020000UL
+-#define NETLINK_TCPDIAG_SOCKET__SENDTO            0x00040000UL
+-#define NETLINK_TCPDIAG_SOCKET__RECV_MSG          0x00080000UL
+-#define NETLINK_TCPDIAG_SOCKET__SEND_MSG          0x00100000UL
+-#define NETLINK_TCPDIAG_SOCKET__NAME_BIND         0x00200000UL
+-#define NETLINK_TCPDIAG_SOCKET__NLMSG_READ        0x00400000UL
+-#define NETLINK_TCPDIAG_SOCKET__NLMSG_WRITE       0x00800000UL
+-#define NETLINK_NFLOG_SOCKET__IOCTL               0x00000001UL
+-#define NETLINK_NFLOG_SOCKET__READ                0x00000002UL
+-#define NETLINK_NFLOG_SOCKET__WRITE               0x00000004UL
+-#define NETLINK_NFLOG_SOCKET__CREATE              0x00000008UL
+-#define NETLINK_NFLOG_SOCKET__GETATTR             0x00000010UL
+-#define NETLINK_NFLOG_SOCKET__SETATTR             0x00000020UL
+-#define NETLINK_NFLOG_SOCKET__LOCK                0x00000040UL
+-#define NETLINK_NFLOG_SOCKET__RELABELFROM         0x00000080UL
+-#define NETLINK_NFLOG_SOCKET__RELABELTO           0x00000100UL
+-#define NETLINK_NFLOG_SOCKET__APPEND              0x00000200UL
+-#define NETLINK_NFLOG_SOCKET__BIND                0x00000400UL
+-#define NETLINK_NFLOG_SOCKET__CONNECT             0x00000800UL
+-#define NETLINK_NFLOG_SOCKET__LISTEN              0x00001000UL
+-#define NETLINK_NFLOG_SOCKET__ACCEPT              0x00002000UL
+-#define NETLINK_NFLOG_SOCKET__GETOPT              0x00004000UL
+-#define NETLINK_NFLOG_SOCKET__SETOPT              0x00008000UL
+-#define NETLINK_NFLOG_SOCKET__SHUTDOWN            0x00010000UL
+-#define NETLINK_NFLOG_SOCKET__RECVFROM            0x00020000UL
+-#define NETLINK_NFLOG_SOCKET__SENDTO              0x00040000UL
+-#define NETLINK_NFLOG_SOCKET__RECV_MSG            0x00080000UL
+-#define NETLINK_NFLOG_SOCKET__SEND_MSG            0x00100000UL
+-#define NETLINK_NFLOG_SOCKET__NAME_BIND           0x00200000UL
+-#define NETLINK_XFRM_SOCKET__IOCTL                0x00000001UL
+-#define NETLINK_XFRM_SOCKET__READ                 0x00000002UL
+-#define NETLINK_XFRM_SOCKET__WRITE                0x00000004UL
+-#define NETLINK_XFRM_SOCKET__CREATE               0x00000008UL
+-#define NETLINK_XFRM_SOCKET__GETATTR              0x00000010UL
+-#define NETLINK_XFRM_SOCKET__SETATTR              0x00000020UL
+-#define NETLINK_XFRM_SOCKET__LOCK                 0x00000040UL
+-#define NETLINK_XFRM_SOCKET__RELABELFROM          0x00000080UL
+-#define NETLINK_XFRM_SOCKET__RELABELTO            0x00000100UL
+-#define NETLINK_XFRM_SOCKET__APPEND               0x00000200UL
+-#define NETLINK_XFRM_SOCKET__BIND                 0x00000400UL
+-#define NETLINK_XFRM_SOCKET__CONNECT              0x00000800UL
+-#define NETLINK_XFRM_SOCKET__LISTEN               0x00001000UL
+-#define NETLINK_XFRM_SOCKET__ACCEPT               0x00002000UL
+-#define NETLINK_XFRM_SOCKET__GETOPT               0x00004000UL
+-#define NETLINK_XFRM_SOCKET__SETOPT               0x00008000UL
+-#define NETLINK_XFRM_SOCKET__SHUTDOWN             0x00010000UL
+-#define NETLINK_XFRM_SOCKET__RECVFROM             0x00020000UL
+-#define NETLINK_XFRM_SOCKET__SENDTO               0x00040000UL
+-#define NETLINK_XFRM_SOCKET__RECV_MSG             0x00080000UL
+-#define NETLINK_XFRM_SOCKET__SEND_MSG             0x00100000UL
+-#define NETLINK_XFRM_SOCKET__NAME_BIND            0x00200000UL
+-#define NETLINK_XFRM_SOCKET__NLMSG_READ           0x00400000UL
+-#define NETLINK_XFRM_SOCKET__NLMSG_WRITE          0x00800000UL
+-#define NETLINK_SELINUX_SOCKET__IOCTL             0x00000001UL
+-#define NETLINK_SELINUX_SOCKET__READ              0x00000002UL
+-#define NETLINK_SELINUX_SOCKET__WRITE             0x00000004UL
+-#define NETLINK_SELINUX_SOCKET__CREATE            0x00000008UL
+-#define NETLINK_SELINUX_SOCKET__GETATTR           0x00000010UL
+-#define NETLINK_SELINUX_SOCKET__SETATTR           0x00000020UL
+-#define NETLINK_SELINUX_SOCKET__LOCK              0x00000040UL
+-#define NETLINK_SELINUX_SOCKET__RELABELFROM       0x00000080UL
+-#define NETLINK_SELINUX_SOCKET__RELABELTO         0x00000100UL
+-#define NETLINK_SELINUX_SOCKET__APPEND            0x00000200UL
+-#define NETLINK_SELINUX_SOCKET__BIND              0x00000400UL
+-#define NETLINK_SELINUX_SOCKET__CONNECT           0x00000800UL
+-#define NETLINK_SELINUX_SOCKET__LISTEN            0x00001000UL
+-#define NETLINK_SELINUX_SOCKET__ACCEPT            0x00002000UL
+-#define NETLINK_SELINUX_SOCKET__GETOPT            0x00004000UL
+-#define NETLINK_SELINUX_SOCKET__SETOPT            0x00008000UL
+-#define NETLINK_SELINUX_SOCKET__SHUTDOWN          0x00010000UL
+-#define NETLINK_SELINUX_SOCKET__RECVFROM          0x00020000UL
+-#define NETLINK_SELINUX_SOCKET__SENDTO            0x00040000UL
+-#define NETLINK_SELINUX_SOCKET__RECV_MSG          0x00080000UL
+-#define NETLINK_SELINUX_SOCKET__SEND_MSG          0x00100000UL
+-#define NETLINK_SELINUX_SOCKET__NAME_BIND         0x00200000UL
+-#define NETLINK_AUDIT_SOCKET__IOCTL               0x00000001UL
+-#define NETLINK_AUDIT_SOCKET__READ                0x00000002UL
+-#define NETLINK_AUDIT_SOCKET__WRITE               0x00000004UL
+-#define NETLINK_AUDIT_SOCKET__CREATE              0x00000008UL
+-#define NETLINK_AUDIT_SOCKET__GETATTR             0x00000010UL
+-#define NETLINK_AUDIT_SOCKET__SETATTR             0x00000020UL
+-#define NETLINK_AUDIT_SOCKET__LOCK                0x00000040UL
+-#define NETLINK_AUDIT_SOCKET__RELABELFROM         0x00000080UL
+-#define NETLINK_AUDIT_SOCKET__RELABELTO           0x00000100UL
+-#define NETLINK_AUDIT_SOCKET__APPEND              0x00000200UL
+-#define NETLINK_AUDIT_SOCKET__BIND                0x00000400UL
+-#define NETLINK_AUDIT_SOCKET__CONNECT             0x00000800UL
+-#define NETLINK_AUDIT_SOCKET__LISTEN              0x00001000UL
+-#define NETLINK_AUDIT_SOCKET__ACCEPT              0x00002000UL
+-#define NETLINK_AUDIT_SOCKET__GETOPT              0x00004000UL
+-#define NETLINK_AUDIT_SOCKET__SETOPT              0x00008000UL
+-#define NETLINK_AUDIT_SOCKET__SHUTDOWN            0x00010000UL
+-#define NETLINK_AUDIT_SOCKET__RECVFROM            0x00020000UL
+-#define NETLINK_AUDIT_SOCKET__SENDTO              0x00040000UL
+-#define NETLINK_AUDIT_SOCKET__RECV_MSG            0x00080000UL
+-#define NETLINK_AUDIT_SOCKET__SEND_MSG            0x00100000UL
+-#define NETLINK_AUDIT_SOCKET__NAME_BIND           0x00200000UL
+-#define NETLINK_AUDIT_SOCKET__NLMSG_READ          0x00400000UL
+-#define NETLINK_AUDIT_SOCKET__NLMSG_WRITE         0x00800000UL
+-#define NETLINK_AUDIT_SOCKET__NLMSG_RELAY         0x01000000UL
+-#define NETLINK_AUDIT_SOCKET__NLMSG_READPRIV      0x02000000UL
+-#define NETLINK_AUDIT_SOCKET__NLMSG_TTY_AUDIT     0x04000000UL
+-#define NETLINK_IP6FW_SOCKET__IOCTL               0x00000001UL
+-#define NETLINK_IP6FW_SOCKET__READ                0x00000002UL
+-#define NETLINK_IP6FW_SOCKET__WRITE               0x00000004UL
+-#define NETLINK_IP6FW_SOCKET__CREATE              0x00000008UL
+-#define NETLINK_IP6FW_SOCKET__GETATTR             0x00000010UL
+-#define NETLINK_IP6FW_SOCKET__SETATTR             0x00000020UL
+-#define NETLINK_IP6FW_SOCKET__LOCK                0x00000040UL
+-#define NETLINK_IP6FW_SOCKET__RELABELFROM         0x00000080UL
+-#define NETLINK_IP6FW_SOCKET__RELABELTO           0x00000100UL
+-#define NETLINK_IP6FW_SOCKET__APPEND              0x00000200UL
+-#define NETLINK_IP6FW_SOCKET__BIND                0x00000400UL
+-#define NETLINK_IP6FW_SOCKET__CONNECT             0x00000800UL
+-#define NETLINK_IP6FW_SOCKET__LISTEN              0x00001000UL
+-#define NETLINK_IP6FW_SOCKET__ACCEPT              0x00002000UL
+-#define NETLINK_IP6FW_SOCKET__GETOPT              0x00004000UL
+-#define NETLINK_IP6FW_SOCKET__SETOPT              0x00008000UL
+-#define NETLINK_IP6FW_SOCKET__SHUTDOWN            0x00010000UL
+-#define NETLINK_IP6FW_SOCKET__RECVFROM            0x00020000UL
+-#define NETLINK_IP6FW_SOCKET__SENDTO              0x00040000UL
+-#define NETLINK_IP6FW_SOCKET__RECV_MSG            0x00080000UL
+-#define NETLINK_IP6FW_SOCKET__SEND_MSG            0x00100000UL
+-#define NETLINK_IP6FW_SOCKET__NAME_BIND           0x00200000UL
+-#define NETLINK_IP6FW_SOCKET__NLMSG_READ          0x00400000UL
+-#define NETLINK_IP6FW_SOCKET__NLMSG_WRITE         0x00800000UL
+-#define NETLINK_DNRT_SOCKET__IOCTL                0x00000001UL
+-#define NETLINK_DNRT_SOCKET__READ                 0x00000002UL
+-#define NETLINK_DNRT_SOCKET__WRITE                0x00000004UL
+-#define NETLINK_DNRT_SOCKET__CREATE               0x00000008UL
+-#define NETLINK_DNRT_SOCKET__GETATTR              0x00000010UL
+-#define NETLINK_DNRT_SOCKET__SETATTR              0x00000020UL
+-#define NETLINK_DNRT_SOCKET__LOCK                 0x00000040UL
+-#define NETLINK_DNRT_SOCKET__RELABELFROM          0x00000080UL
+-#define NETLINK_DNRT_SOCKET__RELABELTO            0x00000100UL
+-#define NETLINK_DNRT_SOCKET__APPEND               0x00000200UL
+-#define NETLINK_DNRT_SOCKET__BIND                 0x00000400UL
+-#define NETLINK_DNRT_SOCKET__CONNECT              0x00000800UL
+-#define NETLINK_DNRT_SOCKET__LISTEN               0x00001000UL
+-#define NETLINK_DNRT_SOCKET__ACCEPT               0x00002000UL
+-#define NETLINK_DNRT_SOCKET__GETOPT               0x00004000UL
+-#define NETLINK_DNRT_SOCKET__SETOPT               0x00008000UL
+-#define NETLINK_DNRT_SOCKET__SHUTDOWN             0x00010000UL
+-#define NETLINK_DNRT_SOCKET__RECVFROM             0x00020000UL
+-#define NETLINK_DNRT_SOCKET__SENDTO               0x00040000UL
+-#define NETLINK_DNRT_SOCKET__RECV_MSG             0x00080000UL
+-#define NETLINK_DNRT_SOCKET__SEND_MSG             0x00100000UL
+-#define NETLINK_DNRT_SOCKET__NAME_BIND            0x00200000UL
+-#define DBUS__ACQUIRE_SVC                         0x00000001UL
+-#define DBUS__SEND_MSG                            0x00000002UL
+-#define NSCD__GETPWD                              0x00000001UL
+-#define NSCD__GETGRP                              0x00000002UL
+-#define NSCD__GETHOST                             0x00000004UL
+-#define NSCD__GETSTAT                             0x00000008UL
+-#define NSCD__ADMIN                               0x00000010UL
+-#define NSCD__SHMEMPWD                            0x00000020UL
+-#define NSCD__SHMEMGRP                            0x00000040UL
+-#define NSCD__SHMEMHOST                           0x00000080UL
+-#define NSCD__GETSERV                             0x00000100UL
+-#define NSCD__SHMEMSERV                           0x00000200UL
+-#define ASSOCIATION__SENDTO                       0x00000001UL
+-#define ASSOCIATION__RECVFROM                     0x00000002UL
+-#define ASSOCIATION__SETCONTEXT                   0x00000004UL
+-#define ASSOCIATION__POLMATCH                     0x00000008UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__IOCTL      0x00000001UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__READ       0x00000002UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__WRITE      0x00000004UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__CREATE     0x00000008UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__GETATTR    0x00000010UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__SETATTR    0x00000020UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__LOCK       0x00000040UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__RELABELFROM 0x00000080UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__RELABELTO  0x00000100UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__APPEND     0x00000200UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__BIND       0x00000400UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__CONNECT    0x00000800UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__LISTEN     0x00001000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__ACCEPT     0x00002000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__GETOPT     0x00004000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__SETOPT     0x00008000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__SHUTDOWN   0x00010000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__RECVFROM   0x00020000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__SENDTO     0x00040000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__RECV_MSG   0x00080000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__SEND_MSG   0x00100000UL
+-#define NETLINK_KOBJECT_UEVENT_SOCKET__NAME_BIND  0x00200000UL
+-#define APPLETALK_SOCKET__IOCTL                   0x00000001UL
+-#define APPLETALK_SOCKET__READ                    0x00000002UL
+-#define APPLETALK_SOCKET__WRITE                   0x00000004UL
+-#define APPLETALK_SOCKET__CREATE                  0x00000008UL
+-#define APPLETALK_SOCKET__GETATTR                 0x00000010UL
+-#define APPLETALK_SOCKET__SETATTR                 0x00000020UL
+-#define APPLETALK_SOCKET__LOCK                    0x00000040UL
+-#define APPLETALK_SOCKET__RELABELFROM             0x00000080UL
+-#define APPLETALK_SOCKET__RELABELTO               0x00000100UL
+-#define APPLETALK_SOCKET__APPEND                  0x00000200UL
+-#define APPLETALK_SOCKET__BIND                    0x00000400UL
+-#define APPLETALK_SOCKET__CONNECT                 0x00000800UL
+-#define APPLETALK_SOCKET__LISTEN                  0x00001000UL
+-#define APPLETALK_SOCKET__ACCEPT                  0x00002000UL
+-#define APPLETALK_SOCKET__GETOPT                  0x00004000UL
+-#define APPLETALK_SOCKET__SETOPT                  0x00008000UL
+-#define APPLETALK_SOCKET__SHUTDOWN                0x00010000UL
+-#define APPLETALK_SOCKET__RECVFROM                0x00020000UL
+-#define APPLETALK_SOCKET__SENDTO                  0x00040000UL
+-#define APPLETALK_SOCKET__RECV_MSG                0x00080000UL
+-#define APPLETALK_SOCKET__SEND_MSG                0x00100000UL
+-#define APPLETALK_SOCKET__NAME_BIND               0x00200000UL
+-#define PACKET__SEND                              0x00000001UL
+-#define PACKET__RECV                              0x00000002UL
+-#define PACKET__RELABELTO                         0x00000004UL
+-#define PACKET__FLOW_IN                           0x00000008UL
+-#define PACKET__FLOW_OUT                          0x00000010UL
+-#define PACKET__FORWARD_IN                        0x00000020UL
+-#define PACKET__FORWARD_OUT                       0x00000040UL
+-#define KEY__VIEW                                 0x00000001UL
+-#define KEY__READ                                 0x00000002UL
+-#define KEY__WRITE                                0x00000004UL
+-#define KEY__SEARCH                               0x00000008UL
+-#define KEY__LINK                                 0x00000010UL
+-#define KEY__SETATTR                              0x00000020UL
+-#define KEY__CREATE                               0x00000040UL
+-#define CONTEXT__TRANSLATE                        0x00000001UL
+-#define CONTEXT__CONTAINS                         0x00000002UL
+-#define DCCP_SOCKET__IOCTL                        0x00000001UL
+-#define DCCP_SOCKET__READ                         0x00000002UL
+-#define DCCP_SOCKET__WRITE                        0x00000004UL
+-#define DCCP_SOCKET__CREATE                       0x00000008UL
+-#define DCCP_SOCKET__GETATTR                      0x00000010UL
+-#define DCCP_SOCKET__SETATTR                      0x00000020UL
+-#define DCCP_SOCKET__LOCK                         0x00000040UL
+-#define DCCP_SOCKET__RELABELFROM                  0x00000080UL
+-#define DCCP_SOCKET__RELABELTO                    0x00000100UL
+-#define DCCP_SOCKET__APPEND                       0x00000200UL
+-#define DCCP_SOCKET__BIND                         0x00000400UL
+-#define DCCP_SOCKET__CONNECT                      0x00000800UL
+-#define DCCP_SOCKET__LISTEN                       0x00001000UL
+-#define DCCP_SOCKET__ACCEPT                       0x00002000UL
+-#define DCCP_SOCKET__GETOPT                       0x00004000UL
+-#define DCCP_SOCKET__SETOPT                       0x00008000UL
+-#define DCCP_SOCKET__SHUTDOWN                     0x00010000UL
+-#define DCCP_SOCKET__RECVFROM                     0x00020000UL
+-#define DCCP_SOCKET__SENDTO                       0x00040000UL
+-#define DCCP_SOCKET__RECV_MSG                     0x00080000UL
+-#define DCCP_SOCKET__SEND_MSG                     0x00100000UL
+-#define DCCP_SOCKET__NAME_BIND                    0x00200000UL
+-#define DCCP_SOCKET__NODE_BIND                    0x00400000UL
+-#define DCCP_SOCKET__NAME_CONNECT                 0x00800000UL
+-#define MEMPROTECT__MMAP_ZERO                     0x00000001UL
+-#define DB_DATABASE__CREATE                       0x00000001UL
+-#define DB_DATABASE__DROP                         0x00000002UL
+-#define DB_DATABASE__GETATTR                      0x00000004UL
+-#define DB_DATABASE__SETATTR                      0x00000008UL
+-#define DB_DATABASE__RELABELFROM                  0x00000010UL
+-#define DB_DATABASE__RELABELTO                    0x00000020UL
+-#define DB_DATABASE__ACCESS                       0x00000040UL
+-#define DB_DATABASE__INSTALL_MODULE               0x00000080UL
+-#define DB_DATABASE__LOAD_MODULE                  0x00000100UL
+-#define DB_DATABASE__GET_PARAM                    0x00000200UL
+-#define DB_DATABASE__SET_PARAM                    0x00000400UL
+-#define DB_TABLE__CREATE                          0x00000001UL
+-#define DB_TABLE__DROP                            0x00000002UL
+-#define DB_TABLE__GETATTR                         0x00000004UL
+-#define DB_TABLE__SETATTR                         0x00000008UL
+-#define DB_TABLE__RELABELFROM                     0x00000010UL
+-#define DB_TABLE__RELABELTO                       0x00000020UL
+-#define DB_TABLE__USE                             0x00000040UL
+-#define DB_TABLE__SELECT                          0x00000080UL
+-#define DB_TABLE__UPDATE                          0x00000100UL
+-#define DB_TABLE__INSERT                          0x00000200UL
+-#define DB_TABLE__DELETE                          0x00000400UL
+-#define DB_TABLE__LOCK                            0x00000800UL
+-#define DB_PROCEDURE__CREATE                      0x00000001UL
+-#define DB_PROCEDURE__DROP                        0x00000002UL
+-#define DB_PROCEDURE__GETATTR                     0x00000004UL
+-#define DB_PROCEDURE__SETATTR                     0x00000008UL
+-#define DB_PROCEDURE__RELABELFROM                 0x00000010UL
+-#define DB_PROCEDURE__RELABELTO                   0x00000020UL
+-#define DB_PROCEDURE__EXECUTE                     0x00000040UL
+-#define DB_PROCEDURE__ENTRYPOINT                  0x00000080UL
+-#define DB_COLUMN__CREATE                         0x00000001UL
+-#define DB_COLUMN__DROP                           0x00000002UL
+-#define DB_COLUMN__GETATTR                        0x00000004UL
+-#define DB_COLUMN__SETATTR                        0x00000008UL
+-#define DB_COLUMN__RELABELFROM                    0x00000010UL
+-#define DB_COLUMN__RELABELTO                      0x00000020UL
+-#define DB_COLUMN__USE                            0x00000040UL
+-#define DB_COLUMN__SELECT                         0x00000080UL
+-#define DB_COLUMN__UPDATE                         0x00000100UL
+-#define DB_COLUMN__INSERT                         0x00000200UL
+-#define DB_TUPLE__RELABELFROM                     0x00000001UL
+-#define DB_TUPLE__RELABELTO                       0x00000002UL
+-#define DB_TUPLE__USE                             0x00000004UL
+-#define DB_TUPLE__SELECT                          0x00000008UL
+-#define DB_TUPLE__UPDATE                          0x00000010UL
+-#define DB_TUPLE__INSERT                          0x00000020UL
+-#define DB_TUPLE__DELETE                          0x00000040UL
+-#define DB_BLOB__CREATE                           0x00000001UL
+-#define DB_BLOB__DROP                             0x00000002UL
+-#define DB_BLOB__GETATTR                          0x00000004UL
+-#define DB_BLOB__SETATTR                          0x00000008UL
+-#define DB_BLOB__RELABELFROM                      0x00000010UL
+-#define DB_BLOB__RELABELTO                        0x00000020UL
+-#define DB_BLOB__READ                             0x00000040UL
+-#define DB_BLOB__WRITE                            0x00000080UL
+-#define DB_BLOB__IMPORT                           0x00000100UL
+-#define DB_BLOB__EXPORT                           0x00000200UL
+-#define PEER__RECV                                0x00000001UL
+-#define X_APPLICATION_DATA__PASTE                 0x00000001UL
+-#define X_APPLICATION_DATA__PASTE_AFTER_CONFIRM   0x00000002UL
+-#define X_APPLICATION_DATA__COPY                  0x00000004UL
+diff --git a/libselinux/include/selinux/flask.h b/libselinux/include/selinux/flask.h
+deleted file mode 100644
+index 812822373b0e..000000000000
+--- a/libselinux/include/selinux/flask.h
++++ /dev/null
+@@ -1,118 +0,0 @@
+-/* This file is automatically generated.  Do not edit. */
+-#ifndef _SELINUX_FLASK_H_
+-#define _SELINUX_FLASK_H_
+-
+-#warning "Please remove any #include's of this header in your source code."
+-#warning "Instead, use string_to_security_class() to map the class name to a value."
+-
+-/*
+- * Security object class definitions
+- */
+-#define SECCLASS_SECURITY                                1
+-#define SECCLASS_PROCESS                                 2
+-#define SECCLASS_SYSTEM                                  3
+-#define SECCLASS_CAPABILITY                              4
+-#define SECCLASS_FILESYSTEM                              5
+-#define SECCLASS_FILE                                    6
+-#define SECCLASS_DIR                                     7
+-#define SECCLASS_FD                                      8
+-#define SECCLASS_LNK_FILE                                9
+-#define SECCLASS_CHR_FILE                                10
+-#define SECCLASS_BLK_FILE                                11
+-#define SECCLASS_SOCK_FILE                               12
+-#define SECCLASS_FIFO_FILE                               13
+-#define SECCLASS_SOCKET                                  14
+-#define SECCLASS_TCP_SOCKET                              15
+-#define SECCLASS_UDP_SOCKET                              16
+-#define SECCLASS_RAWIP_SOCKET                            17
+-#define SECCLASS_NODE                                    18
+-#define SECCLASS_NETIF                                   19
+-#define SECCLASS_NETLINK_SOCKET                          20
+-#define SECCLASS_PACKET_SOCKET                           21
+-#define SECCLASS_KEY_SOCKET                              22
+-#define SECCLASS_UNIX_STREAM_SOCKET                      23
+-#define SECCLASS_UNIX_DGRAM_SOCKET                       24
+-#define SECCLASS_SEM                                     25
+-#define SECCLASS_MSG                                     26
+-#define SECCLASS_MSGQ                                    27
+-#define SECCLASS_SHM                                     28
+-#define SECCLASS_IPC                                     29
+-#define SECCLASS_PASSWD                                  30
+-#define SECCLASS_X_DRAWABLE                              31
+-#define SECCLASS_X_SCREEN                                32
+-#define SECCLASS_X_GC                                    33
+-#define SECCLASS_X_FONT                                  34
+-#define SECCLASS_X_COLORMAP                              35
+-#define SECCLASS_X_PROPERTY                              36
+-#define SECCLASS_X_SELECTION                             37
+-#define SECCLASS_X_CURSOR                                38
+-#define SECCLASS_X_CLIENT                                39
+-#define SECCLASS_X_DEVICE                                40
+-#define SECCLASS_X_SERVER                                41
+-#define SECCLASS_X_EXTENSION                             42
+-#define SECCLASS_NETLINK_ROUTE_SOCKET                    43
+-#define SECCLASS_NETLINK_FIREWALL_SOCKET                 44
+-#define SECCLASS_NETLINK_TCPDIAG_SOCKET                  45
+-#define SECCLASS_NETLINK_NFLOG_SOCKET                    46
+-#define SECCLASS_NETLINK_XFRM_SOCKET                     47
+-#define SECCLASS_NETLINK_SELINUX_SOCKET                  48
+-#define SECCLASS_NETLINK_AUDIT_SOCKET                    49
+-#define SECCLASS_NETLINK_IP6FW_SOCKET                    50
+-#define SECCLASS_NETLINK_DNRT_SOCKET                     51
+-#define SECCLASS_DBUS                                    52
+-#define SECCLASS_NSCD                                    53
+-#define SECCLASS_ASSOCIATION                             54
+-#define SECCLASS_NETLINK_KOBJECT_UEVENT_SOCKET           55
+-#define SECCLASS_APPLETALK_SOCKET                        56
+-#define SECCLASS_PACKET                                  57
+-#define SECCLASS_KEY                                     58
+-#define SECCLASS_CONTEXT                                 59
+-#define SECCLASS_DCCP_SOCKET                             60
+-#define SECCLASS_MEMPROTECT                              61
+-#define SECCLASS_DB_DATABASE                             62
+-#define SECCLASS_DB_TABLE                                63
+-#define SECCLASS_DB_PROCEDURE                            64
+-#define SECCLASS_DB_COLUMN                               65
+-#define SECCLASS_DB_TUPLE                                66
+-#define SECCLASS_DB_BLOB                                 67
+-#define SECCLASS_PEER                                    68
+-#define SECCLASS_CAPABILITY2                             69
+-#define SECCLASS_X_RESOURCE                              70
+-#define SECCLASS_X_EVENT                                 71
+-#define SECCLASS_X_SYNTHETIC_EVENT                       72
+-#define SECCLASS_X_APPLICATION_DATA                      73
+-
+-/*
+- * Security identifier indices for initial entities
+- */
+-#define SECINITSID_KERNEL                               1
+-#define SECINITSID_SECURITY                             2
+-#define SECINITSID_UNLABELED                            3
+-#define SECINITSID_FS                                   4
+-#define SECINITSID_FILE                                 5
+-#define SECINITSID_FILE_LABELS                          6
+-#define SECINITSID_INIT                                 7
+-#define SECINITSID_ANY_SOCKET                           8
+-#define SECINITSID_PORT                                 9
+-#define SECINITSID_NETIF                                10
+-#define SECINITSID_NETMSG                               11
+-#define SECINITSID_NODE                                 12
+-#define SECINITSID_IGMP_PACKET                          13
+-#define SECINITSID_ICMP_SOCKET                          14
+-#define SECINITSID_TCP_SOCKET                           15
+-#define SECINITSID_SYSCTL_MODPROBE                      16
+-#define SECINITSID_SYSCTL                               17
+-#define SECINITSID_SYSCTL_FS                            18
+-#define SECINITSID_SYSCTL_KERNEL                        19
+-#define SECINITSID_SYSCTL_NET                           20
+-#define SECINITSID_SYSCTL_NET_UNIX                      21
+-#define SECINITSID_SYSCTL_VM                            22
+-#define SECINITSID_SYSCTL_DEV                           23
+-#define SECINITSID_KMOD                                 24
+-#define SECINITSID_POLICY                               25
+-#define SECINITSID_SCMP_PACKET                          26
+-#define SECINITSID_DEVNULL                              27
+-
+-#define SECINITSID_NUM                                  27
+-
+-#endif
+-- 
+2.24.1
 
