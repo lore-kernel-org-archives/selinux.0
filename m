@@ -7,85 +7,85 @@ X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 081C3C3F68F
-	for <selinux@archiver.kernel.org>; Wed, 15 Jan 2020 16:04:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4C16C32771
+	for <selinux@archiver.kernel.org>; Wed, 15 Jan 2020 16:48:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D04B824671
-	for <selinux@archiver.kernel.org>; Wed, 15 Jan 2020 16:04:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B32F2081E
+	for <selinux@archiver.kernel.org>; Wed, 15 Jan 2020 16:48:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="R6VhtfPi"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="AcQH44qx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729010AbgAOQEP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jan 2020 11:04:15 -0500
-Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:47226 "EHLO
-        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728921AbgAOQEP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jan 2020 11:04:15 -0500
-X-EEMSG-check-017: 45931682|UPDC19PA22_ESA_OUT04.csd.disa.mil
+        id S1726418AbgAOQsI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jan 2020 11:48:08 -0500
+Received: from USFB19PA31.eemsg.mail.mil ([214.24.26.194]:2829 "EHLO
+        USFB19PA31.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728896AbgAOQsH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jan 2020 11:48:07 -0500
+X-EEMSG-check-017: 44816974|USFB19PA31_ESA_OUT01.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,323,1574121600"; 
-   d="scan'208";a="45931682"
+   d="scan'208";a="44816974"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Jan 2020 16:04:10 +0000
+  by USFB19PA31.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 15 Jan 2020 16:48:06 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579104250; x=1610640250;
+  s=tycho.nsa.gov; t=1579106886; x=1610642886;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=VAuXoFXElRTtZeC3bFgq8xKzvqspsmI8CGw4eX6eWu4=;
-  b=R6VhtfPiXxvq3bPB/GlhRKqE0N7UoNGNOnrFcO4ZiDoaJ274jKAARhzZ
-   KquvU+MnfDLcFi7+J1hQCG0uVrzrdMGxotu2RycrBf5X/AClbGOsUv+yD
-   mQ/iFf6TYVHX8jDvi+IqV/RQobBz/6Iq3iZc5ZfM78UxnuD1rIwBsXDQ6
-   WRZkP3Uc99lJcj8gQZvDkNnahMfyYML/8yYtJ/epfsOjtBoqGi6P6NfcJ
-   GyTD4orwnFfardHBV6Obx1AERdQlr4BfARUeE23QPwrzHvHxn/v9/FmOc
-   +29iru7wJg/VrIBiHLLxTfO2EuFLaGVS6cCpFI96ClwlZJnsFj6CyM+R8
+  bh=Z+IlujCbNI+70UdqEgyL4sAAY+Bx4axRMvSjymtJrMc=;
+  b=AcQH44qx+BmkK9PnSlciMvb03fk2onM/wL94KbQWrIpU5+a5gwZDjxVJ
+   ZN1KVhIO5b4hsFf9L+E3vjbkOBxlU82baop9BlUTTuct9pC1P6rSWesho
+   UseyHCEWBSCA5mgof4Y5my+Yuyh+99txTXLjXgq1tfF8XhGRbI1fi/5ch
+   XxKtpgCv98rkuIhafSMtSH4EEa1eFj73HwiXLjq+Tc//Eg/IJkLbGcwY2
+   mH0Hkt3UgbG1r27qiUX8hBjpnmGVWKU2lAU1V1Zp9r1oIbzbnKKIdM36S
+   v2Q0CBfN2E+pPoX5jIAyqlEtYXuEbR65kCVb3MwUh+DIqY31L/9xB1g86
    g==;
 X-IronPort-AV: E=Sophos;i="5.70,323,1574121600"; 
-   d="scan'208";a="37815530"
-IronPort-PHdr: =?us-ascii?q?9a23=3AU6SYbB3VDxoTIPHJsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZsesSLvTxwZ3uMQTl6Ol3ixeRBMOHsq4C07Gd4/moGTRZp8rY6zZaKN0Efi?=
- =?us-ascii?q?RGoP1epxYnDs+BBB+zB9/RRAt+Iv5/UkR49WqwK0lfFZW2TVTTpnqv8WxaQU?=
- =?us-ascii?q?2nZkJ6KevvB4Hdkdm82fys9J3PeQVIgye2ba9vIBmsogjdq8YbjZF+Jqs/xR?=
- =?us-ascii?q?fEoWZEcPlSyW90OF6fhRnx6tq+8ZJ57yhcp/ct/NNcXKvneKg1UaZWByk8PW?=
- =?us-ascii?q?Av483ruxjDTQ+R6XYZT24bjBlGDRXb4R/jRpv+vTf0ueR72CmBIM35Vqs0Vi?=
- =?us-ascii?q?i476dqUxDnliEKPCMk/W7Ni8xwiKVboA+9pxF63oXZbp2ZOOZ4c6jAZt4RW3?=
- =?us-ascii?q?ZPUdhNWCxAGoO8bpUAD+wdPeZDsoLxo0ICoQaiCQWwAe/izDFHhmXy3aYnze?=
- =?us-ascii?q?ovFw/I1xEkE94XsHnZqND5OaEPWu630abI1y3OYe5I1zfz6IbGcR4vrv+DUr?=
- =?us-ascii?q?1ybcXfxlIiFx/Gg1iKtYDpIz2Y2+YLvmOG7+RgT+Wvi2s/pg9svjig2N8sio?=
- =?us-ascii?q?nXiYIT11vK6CB5z5wxJd28VkF6YcOvHZxLty6HLIt7Wd8iQmF0tyY6zb0Ko5?=
- =?us-ascii?q?i7fDMQx5g9yB7fbOKHfpGO7xn+V+iROS91iG9qdb+wnRq/8VWsxvfiWsS7zl?=
- =?us-ascii?q?pGtDdJn9/RvX4XzRPT8NKISv5l80ek3jaAyh7c5/lfIUAxiarbM5khwqMslp?=
- =?us-ascii?q?YLsUTMACv2mELuga+KbEok4Omo6/n8Yrn8p5+cMYF0igblMqswhsOzG/g4Mw?=
- =?us-ascii?q?gSUGib/uSwzrvj8lHiQLpWlPE2l6jZsJTCKcQaoK62HRNV354+5xuwADqqyt?=
- =?us-ascii?q?QVkWQdIF5bdx+LkZLlN0zWLPD9F/i/glCskDlxx/DBO73sGo7NIWXYkLr6Yb?=
- =?us-ascii?q?Z861JTyAo0zdxF4ZJUEasOLOj8Wk/2qtzUFgU5PBCsw+b7FNV90ZsTWGyRDa?=
- =?us-ascii?q?+fMKPSrF6I6/kgI+iCYY8aojf9K/w/6/7hg345hEURcre00psKcHq4BOhpI1?=
- =?us-ascii?q?2FYXrwhdcMCWUKvg0+TOzsklGCUzlTZ3aoUKI6/TE0FoSmAJzfSY+3hryB2y?=
- =?us-ascii?q?G7HpxKaW9cDlCAC2vnd4KBW/0UciKdPtdhkiAYVbimU4IuyQuhtBTkxLtnNe?=
- =?us-ascii?q?fU4TEXtZL529ho6e3TkQ899SZtA8uByW6BVX17nmQNRzUuxqBwvVR9ykuf0a?=
- =?us-ascii?q?h/m/FXCcZc5+hXXQY6L5Lc1PB1C9DoVQLccNeJTEipQs+9DDEwSNIx38EBY0?=
- =?us-ascii?q?JnF9q+iRDD2jKgA6UJmLyTGJw07qXc0mDzJ8Z4zHbGzrMhj1g9QsZUM22pnK?=
- =?us-ascii?q?t/+BbSB4LTlEWZjamqf7wG3CHR7GeD0XaOvEZAXQ50UKXFW20fZ0TPodTi+E?=
- =?us-ascii?q?zNU6KuCa4mMgtdyc+OM65Katr0glVbQPfsJs/TY3y+m2iuHxaE3LCMY5Twe2?=
- =?us-ascii?q?UbwirdDFIIkwcJ/XaJLQI+HDuuo3rCDDxyElLie1js/vd6qHO6SE800g6LYl?=
- =?us-ascii?q?Z/17q65BEVn+aQS/AN0bIevicutTF0EEy639LMBNqKvxBhc7lEYdMh/FdH0n?=
- =?us-ascii?q?rUtw9jMZO+NKBtmlkecwN0v071yxp3Cp9Akc8vrHMr0QpyLLiU0FRbdzOXxZ?=
- =?us-ascii?q?rwIKHYKnHu/BCzbK7bwkne38iQ+qcA9fQ4qlPjsBiqFkU86XVn1cda03+H65?=
- =?us-ascii?q?XLFQYSVZXxUlgp+BRgvLHVeCo9557O1XJ2K6W0tCHN18grBOs90hygZctQML?=
- =?us-ascii?q?uYFA/uFM0XH9CuJ/Y3m1itdR8EJPpd9LMwP8+/cvuG36mrPPx+kz68kWtH54?=
- =?us-ascii?q?V9gQqw8H9DR+jIwpdN8fGR2ATPAyjxile8s+j4hoVNZDVUEXWijyXoGdgCSL?=
- =?us-ascii?q?d1eNMwFWq2I8Cxju57jprpVm8QoEWvHHsaycSpflyUdFW70gpOgxdE6Ue7kD?=
- =?us-ascii?q?e1mmQn2woiqbCSiWmXnrXv?=
-X-IPAS-Result: =?us-ascii?q?A2DdAwCUNh9e/wHyM5BkDg4BAQEBAQcBAREBBAQBAYF7g?=
- =?us-ascii?q?XgFgWwBIBIqhA+JA4ZcBoE3iW6RSQkBAQEBAQEBAQE3AQGEQAKCIzgTAhABA?=
- =?us-ascii?q?QEEAQEBAQEFAwEBbIVDgjspAYJ6AQUjDwEFQRAJAhgCAiMDAgJGEQYNBgIBA?=
- =?us-ascii?q?YJjP4JXJYpOm3SBMoVKg0iBPoEOKIwyeYEHgTgPgi8uPoQDH4M3gl4EjUWCT?=
- =?us-ascii?q?Idfl1SCQoJJk2EGG4JHiAOERItgq20igVgrCAIYCCEPgydQGA2IDReNaFkjA?=
- =?us-ascii?q?zCLHREXghsBAQ?=
+   d="scan'208";a="37819654"
+IronPort-PHdr: =?us-ascii?q?9a23=3AfT7Lxh/+jFRNof9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B+1+4eIJqq85mqBkHD//Il1AaPAdyHraofwLuO++C4ACpcuM3H6ChDOLV3FD?=
+ =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
+ =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjeu8UMnYdvJKk9xx?=
+ =?us-ascii?q?/VrnBVf+ha2X5kKUickhrh6Mq85oJv/zhVt/k868NOTKL2crgiQ7dFFjomKW?=
+ =?us-ascii?q?c15MPqtRnHUwSC42YXX3sVnBRVHQXL9Qn2UZjtvCT0sOp9wzSaMtbtTb8oQz?=
+ =?us-ascii?q?Si7rxkRwHuhSwaKjM26mDXish3jKJGvBKsogF0zoDIbI2JMvd1Y7jQds0GS2?=
+ =?us-ascii?q?VfQslRVjRBAoKiYIsJE+oBJvtTo43kq1cTsReyGQygCeXhxT9Sgn/9wLM03e?=
+ =?us-ascii?q?IvHwrb2AAsBtIDvXDRoNjzKawcU/26zLPQwDvecf1W1zfz5ovGfB8vrv6DX6?=
+ =?us-ascii?q?5/f8XKxEkzFA7IlEmcpZDrMj6X0OkGrmiV7/BnVeKqk2Mpth1xrSa3xscslI?=
+ =?us-ascii?q?bJgJ8exE3B9SpjxIY1IcO3SU5matOjC5tfqjqaOpBqQsIiX25ouCE6xqcAuZ?=
+ =?us-ascii?q?6gZicG0psnxxnBa/GedYWD/xHtVP6JLDtli39od6izihav/US61OHxWde43E?=
+ =?us-ascii?q?xXoidDj9LCrGoC1wbJ5ciCUvZ9+0Ch1iuR2A3L8eFEJFw0lbLcK5483r48jp?=
+ =?us-ascii?q?oTvlrHHi/xgEj2kLWZdl8l+ui18OTreLTmppmSN49zkQHxLLghltajAeU4Lg?=
+ =?us-ascii?q?cOX2+b9f661LL/5k32XK9Gjvg3kqndqJzaJMIbqbClAwJNz4ou5BmyAy2m3d?=
+ =?us-ascii?q?gFh3ULMl1IdAydg4T0I13OJer3Dfa7g1SiijdrwPXGM6X6AprQNXjOi6vhfL?=
+ =?us-ascii?q?Zh5E5czwo/19Zf54lOBb0bL/LzXVHxuMTCDhAlKwy03/rnCNJl24IQR22PBK?=
+ =?us-ascii?q?+ZML7TsVKT6eIuLeyMa5UUuDb5MfQl6PDvjWIjlVADYKapwIMdaGqkEfR+P0?=
+ =?us-ascii?q?WZfX3sj88DEWcNvgo+SvbmiF+FUT5TfXmyWbk86S89CI+9EYjMXIatgLuH3C?=
+ =?us-ascii?q?e6ApJZfGRGBkqQHnfvcoWOQ+0MZz6KIs99jjwEUqCsRJM72hG1qgD7y6FqLv?=
+ =?us-ascii?q?HI9S0Yr53jydZ15+nNmhEo7DB7E96S33uRQGFzm2MCXyU207xnoUxh1leD1r?=
+ =?us-ascii?q?B1jOBCGtxI+fxIUh02NYXAwOx6Ed/yRwzBftOXR1a8WdimADcxTs4vzN8KeU?=
+ =?us-ascii?q?pyB9KijhXb1SqwH7AVj6CLBIAz8q/E3XjxIsF9y2zc1KkglFkrWc1POnejhq?=
+ =?us-ascii?q?Fh9gjfHYnJk1+Wl6yyb6QTwDbN9HufzWqJpExYVA9wUaPYXXEQf0fWtsr26V?=
+ =?us-ascii?q?/fT7+0CLQnLgtAxdeHKqtNd9LpkFFGS+n4NdTAbGK+hX2wCQyLxrySdorqfX?=
+ =?us-ascii?q?sS3CHHBEgDiQAT8m6MNRIiCSe5v2LeEDtuGEr0Y0zy9el+qXW7TlI7zgyRcU?=
+ =?us-ascii?q?1h2KS6+gQPifyfVfwTxLQEtzklqzluG1a9xd3WAcKapwV9ZKVcfc894FBf2G?=
+ =?us-ascii?q?LaqQNyIIegILxlhl4ZcAR6pF/h1xVtCoVHlMgqrW4qzA9oJaKfylNBeCuS3Y?=
+ =?us-ascii?q?rsNb3PNmny4BevZrbO2l7A1taW9boP6PU+q1n6vwGmCFAi83N53NlRyHac54?=
+ =?us-ascii?q?zGDA4VUZLvTEk77QN6qKvZYikg/YPbz2dgMa+qvTPY2dIpHPMvygy8cNdHLK?=
+ =?us-ascii?q?OECAjyHtUCB8e0Newqn0OkbgoeM+BP8K44Jsamd/yB2K6xIulshi6pjWNC4N?=
+ =?us-ascii?q?M17kXZyCd6SvPJl6QFyveXll+YWjH8kVaJvd/ykIFAIz4NAyyyxTWyV6BLYa?=
+ =?us-ascii?q?gnRpoGEWejJYWMw9x6g5P8EypD+EWLG0IN2MjvfwGbKVP6w1sDhgwsvXW7lH?=
+ =?us-ascii?q?7gnHRPmDYzo//ahXGfzg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DzAwAaQR9e/wHyM5BkDg4BAQEBAQcBAREBBAQBAYF7g?=
+ =?us-ascii?q?X2BbAEgEiqED4kDhl0GgRIliW6RSQkBAQEBAQEBAQE3AQGEQAKCIzgTAhABA?=
+ =?us-ascii?q?QEEAQEBAQEFAwEBbIVDgjspAYJ5AQEBAQIBIw8BBUEFCwsYAgIjAwICRhEGD?=
+ =?us-ascii?q?QYCAQGCYz+CVwUgpXN1gTKFSoNJgT6BDiiMMnmBB4ERJwwDgi8uPoQigzeCX?=
+ =?us-ascii?q?gSNRYJMh1+XVIJCgkmTYQYbgkeIA5Akq20igVgrCAIYCCEPO4JsUBgNlgxZI?=
+ =?us-ascii?q?wMwix2CQwEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Jan 2020 16:04:09 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 15 Jan 2020 16:48:04 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00FG3LJK122550;
-        Wed, 15 Jan 2020 11:03:26 -0500
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00FGl94F141602;
+        Wed, 15 Jan 2020 11:47:17 -0500
 Subject: Re: Perf Data on LSM in v5.3
 To:     Wenhui Zhang <wenhui@gwmail.gwu.edu>
 Cc:     John Johansen <john.johansen@canonical.com>,
@@ -106,15 +106,14 @@ References: <CAOSEQ1poqrUQdRc+ZLNbEoPqgd4MMomeYmefjca_mj-2zxrdUA@mail.gmail.com>
  <2a984c76-a499-53f6-68c5-5d3604094ba4@tycho.nsa.gov>
  <CAOSEQ1o3nhY-svtsFSSv+M=V+NchxmBbhY-FvqoTzJgMnZ1ydw@mail.gmail.com>
  <1479ac1a-b957-f907-b983-c0bcefd51457@tycho.nsa.gov>
- <fe62d7a7-5f7c-cb14-01b1-f3d7fef2862b@tycho.nsa.gov>
- <CAOSEQ1o6+uL-ATjQ_YXaJP9KxFTS3_b_bzeO7M8eiKbCB9dsyQ@mail.gmail.com>
+ <CAOSEQ1qPCtdsaieuXtWDEBEZAyddvLTNn8VDAJ-JWKeAP5PYsA@mail.gmail.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <c98000ea-df0e-1ab7-a0e2-b47d913f50c8@tycho.nsa.gov>
-Date:   Wed, 15 Jan 2020 11:04:50 -0500
+Message-ID: <057dfcd9-a843-827b-4472-41cfa27009e4@tycho.nsa.gov>
+Date:   Wed, 15 Jan 2020 11:48:39 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <CAOSEQ1o6+uL-ATjQ_YXaJP9KxFTS3_b_bzeO7M8eiKbCB9dsyQ@mail.gmail.com>
+In-Reply-To: <CAOSEQ1qPCtdsaieuXtWDEBEZAyddvLTNn8VDAJ-JWKeAP5PYsA@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
@@ -123,182 +122,38 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/15/20 10:59 AM, Wenhui Zhang wrote:
+On 1/15/20 10:56 AM, Wenhui Zhang wrote:
 > 
 > 
-> On Wed, Jan 15, 2020 at 10:41 AM Stephen Smalley <sds@tycho.nsa.gov 
+> On Wed, Jan 15, 2020 at 10:33 AM Stephen Smalley <sds@tycho.nsa.gov 
 > <mailto:sds@tycho.nsa.gov>> wrote:
+>     Could be bottleneck changes, could be the fact that your kernel config
+>     changes aren't limited to CONFIG_SECURITY* (e.g. PTI introduces
+>     non-trivial overheads), could be changes to LSM since that time (e.g.
+>     stacking support, moving security_ calls out-of-line, more hooks, ...),
+>     could be that running SELinux w/o policy is flooding the system logs
+>     with warnings or other messages since it wasn't really designed to be
+>     used that way past initialization.  Lots of options, can't tell without
+>     more info on your details.
 > 
->     On 1/15/20 10:34 AM, Stephen Smalley wrote:
->      > On 1/15/20 10:21 AM, Wenhui Zhang wrote:
->      >>
->      >> On Wed, Jan 15, 2020 at 9:08 AM Stephen Smalley
->     <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
->      >> <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>> wrote:
->      >>
->      >>     On 1/15/20 8:40 AM, Stephen Smalley wrote:
->      >>      > On 1/14/20 8:00 PM, Wenhui Zhang wrote:
->      >>      >> Hi, John:
->      >>      >>
->      >>      >> It seems like, the MAC hooks are default to*return 0 or
->     empty
->      >> void
->      >>      >> hooks* if CONFIG_SECURITY, CONFIG_SECURITY_NETWORK ,
->      >>      >> CONFIG_PAGE_TABLE_ISOLATION, CONFIG_SECURITY_INFINIBAND,
->      >>      >> CONFIG_SECURITY_PATH, CONFIG_INTEL_TXT,
->      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR,
->      >>      >>
->     CONFIG_HARDENED_USERCOPY, CONFIG_HARDENED_USERCOPY_FALLBACK *are
->      >>     NOT
->      >>      >> set*.
->      >>      >>
->      >>      >> If HOOKs are "return 0 or empty void hooks", MAC is not
->     enabled.
->      >>      >> In runtime of fs-benchmarks,
->     if CONFIG_DEFAULT_SECURITY_DAC=y,
->      >> then
->      >>      >> capability is enabled.
->      >>      >>
->      >>      >> Please correct me if I am wrong.
->      >>      >>
->      >>      >> For the first test, wo-sec is tested with:
->      >>      >> # CONFIG_SECURITY_DMESG_RESTRICT is not set
->      >>      >> # CONFIG_SECURITY is not set
->      >>      >> # CONFIG_SECURITYFS is not set
->      >>      >> # CONFIG_PAGE_TABLE_ISOLATION is not set
->      >>      >> # CONFIG_INTEL_TXT is not set
->      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
->      >>      >> # CONFIG_HARDENED_USERCOPY is not set
->      >>      >> CONFIG_FORTIFY_SOURCE=y
->      >>      >> # CONFIG_STATIC_USERMODEHELPER is not set
->      >>      >> CONFIG_DEFAULT_SECURITY_DAC=y
->      >>      >>
->      >>      >>
->      >>      >> For the second test, w-sec is tested with:
->      >>      >> # CONFIG_SECURITY_DMESG_RESTRICT is not set
->      >>      >> CONFIG_SECURITY=y
->      >>      >> CONFIG_SECURITYFS=y
->      >>      >> # CONFIG_SECURITY_NETWORK is not set
->      >>      >> CONFIG_PAGE_TABLE_ISOLATION=y
->      >>      >> CONFIG_SECURITY_INFINIBAND=y
->      >>      >> CONFIG_SECURITY_PATH=y
->      >>      >> CONFIG_INTEL_TXT=y
->      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
->      >>      >> CONFIG_HARDENED_USERCOPY=y
->      >>      >> CONFIG_HARDENED_USERCOPY_FALLBACK=y
->      >>      >> # CONFIG_HARDENED_USERCOPY_PAGESPAN is not set
->      >>      >> CONFIG_FORTIFY_SOURCE=y
->      >>      >> # CONFIG_STATIC_USERMODEHELPER is not set
->      >>      >> # CONFIG_SECURITY_SMACK is not set
->      >>      >> # CONFIG_SECURITY_TOMOYO is not set
->      >>      >> # CONFIG_SECURITY_APPARMOR is not set
->      >>      >> # CONFIG_SECURITY_LOADPIN is not set
->      >>      >> # CONFIG_SECURITY_YAMA is not set
->      >>      >> # CONFIG_SECURITY_SAFESETID is not set
->      >>      >> # CONFIG_INTEGRITY is not set
->      >>      >> CONFIG_DEFAULT_SECURITY_DAC=y
->      >>      >> #
->      >>      >>
->      >>
->      >>
->     CONFIG_LSM="yama,loadpin,safesetid,integrity,apparmor,selinux,smack,tomoyo"
+<snip>
 > 
->      >>
->      >>
->      >>      >>
->      >>      >
->      >>      > Your configs should only differ with respect to
->     CONFIG_SECURITY*
->      >>     if you
->      >>      > want to evaluate LSM, SELinux, etc overheads.
->      >> PAGE_TABLE_ISOLATION,
->      >>      > INTEL_TXT, and HARDENED_USERCOPY are not relevant to LSM
->     itself.
->      >>      >
->      >>      > Also, what benchmarks are you using?  Your own home-grown
->     ones, a
->      >>     set of
->      >>      > open source standard benchmarks (if so, which ones?). 
->     You should
->      >>      > include both micro and macro benchmarks in your suite.
->      >>      >
->      >>      > How stable are your results?  What kind of variance /
->     standard
->      >>     deviation
->      >>      > are you seeing?
->      >>      >
->      >>      > It is hard to get meaningful, reliable performance
->     measurements
->      >>     so going
->      >>      > down this road is not to be done lightly.
->      >>
->      >>     Also, I note that you don't enable CONFIG_SECURITY_NETWORK
->     above.
->      >> That
->      >>     means you aren't including the base LSM overhead for the
->     networking
->      >>     security hooks.  So if you then compare that against SELinux
->     (which
->      >>     requires CONFIG_SECURITY_NETWORK), you are going to end up
->      >> attributing
->      >>     the cost of both the LSM overhead and SELinux overhead all to
->      >> SELinux.
->      >>     If you truly want to isolate the base LSM overhead, you need to
->      >> enable
->      >>     all the hooks.
->      >>
->      >> I will give it a try for enabling CONFIG_SECURITY_NETWORK later
->     this
->      >> week, however I wonder if this would affect the test results
->     that much.
->      >> I am testing with LMBench 2.5 , with focusing on filesystem unit
->      >> tests, however not network stack at this time.
->      >> My understanding of why this result is so different from previous
->      >> paper 20 years ago, is that the Bottleneck changes.
->      >> As Chris was testing with 4 cores , each 700MHz CPU, and 128MB
->     memory,
->      >> with HDD (latency is about 20,000,000 ns for sequential read).
->      >> The  Bottleneck of accessing files w/ MAC are mostly on I/O.
->      >> However hardware setup is different now,  we have much larger and
->      >> faster memory (better prefetching as well), with SSD (latency is
->     about
->      >> 49,000 ns for sequential read). , while CPU speed is not
->     increasing as
->      >> much as that of I/O.
->      >> The Bottleneck of accessing files w/ MAC are mostly on CPU now.
->      >
->      > Don't know if lmbench is still a good benchmark and I recall
->     struggling
->      > with it even back then to get stable results.
->      >
->      > Could be bottleneck changes, could be the fact that your kernel
->     config
->      > changes aren't limited to CONFIG_SECURITY* (e.g. PTI introduces
->      > non-trivial overheads), could be changes to LSM since that time
->     (e.g.
->      > stacking support, moving security_ calls out-of-line, more hooks,
->     ...),
->      > could be that running SELinux w/o policy is flooding the system logs
->      > with warnings or other messages since it wasn't really designed
->     to be
->      > used that way past initialization.  Lots of options, can't tell
->     without
->      > more info on your details.
-> 
->     I'd think that these days one would leverage perf and/or lkp for Linux
->     kernel performance measurements, not lmbench.
-> 
-> 
-> Thanks so much, I will give it a try for lkp and let you know how it goes.
-> Maybe later next week or this weekend, we should have the results.
+> Yup, seems like there used to be 29 hooks back 20 years ago, and now we 
+> have 214 hooks with more placement locations for each.
+> I am still struggling with the white-list based stacking logic, please 
+> correct me if my understanding is wrong.
 
-Ok, please make sure your kernel configs are truly comparable (i.e. no 
-differences other than the right set of CONFIG_SECURITY* options), that 
-all of the same LSM hooks are enabled for comparing LSM-only versus 
-SELinux (i.e. CONFIG_SECURITY and CONFIG_SECURITY_NETWORK both enabled), 
-and consider using a distribution that actually supports SELinux out of 
-the box (e.g. Fedora) so that you can properly test SELinux with a 
-policy loaded in enforcing mode.  Similarly if you want to do the same 
-for AppArmor, except for it you'll need to enable CONFIG_SECURITY_PATH 
-as well for the pathname-based hooks and you'll want to use Ubuntu or 
-latest Debian to get a working policy.
+I don't think that's entirely accurate, since I believe the benchmarking 
+performed for that paper was done using the LSM kernel patch (which was 
+still out-of-tree at the time) which had a larger set of hooks than just 
+29.  The hooks were incrementally merged to mainline but that wasn't the 
+basis for the benchmarks IIRC. It is true however that the set of hooks 
+and their callers has grown over time.
+
+> I thought black-list  (i.e. firewall alike) logic might be easier to 
+> understand and reasoning about the performance.
+> By adding an off-line policy conflict/shadowing/redundant checker (i.e. 
+> FIREMAN alike) should solve the rest of the issue.
+
+Not sure I follow, but blacklisting is not a good approach for enforcing 
+MAC security goals.
