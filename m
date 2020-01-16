@@ -7,87 +7,87 @@ X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52424C33CB3
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 17:16:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0480C3F68F
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 17:18:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1DF5220730
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 17:16:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9CB242192A
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 17:18:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="GK/EI7HY"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="YCn1bAif"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390837AbgAPRQg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jan 2020 12:16:36 -0500
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:52204 "EHLO
-        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730682AbgAPRQa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 12:16:30 -0500
-X-EEMSG-check-017: 46542469|UPDC19PA19_ESA_OUT01.csd.disa.mil
+        id S2391354AbgAPRSE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jan 2020 12:18:04 -0500
+Received: from USFB19PA33.eemsg.mail.mil ([214.24.26.196]:65441 "EHLO
+        USFB19PA33.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391341AbgAPRSD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 12:18:03 -0500
+X-EEMSG-check-017: 45416219|USFB19PA33_ESA_OUT03.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,327,1574121600"; 
-   d="scan'208";a="46542469"
+   d="scan'208";a="45416219"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Jan 2020 17:16:26 +0000
+  by USFB19PA33.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Jan 2020 17:18:00 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579194986; x=1610730986;
+  s=tycho.nsa.gov; t=1579195080; x=1610731080;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=ByCV7QZAM0fuOYWaioB5pRTlkl1P9UW3wothFD7s1XU=;
-  b=GK/EI7HYBaCnRoXPngIs/Wvios5Gat8Pbz8D/zjNjzYu9CUDZIm/sXRN
-   9YwXCWhI89mtrMlSkyP3s6zrtkq9yoku6hnOrMamSpI4l/LjLjl/6y3Y3
-   VPlpYwBbBA4eAtOsv63x5ic3A4yF7BqdPDNSZ7CmZZctsCfICrPlrpN8J
-   I/KW+Kt7/8eJHMsm4T1OhWDqVqKj3gujX7WdQgXPcVTH1O63lZN9JXfts
-   3m3GTnQXoyLfX4veywMCa2YVr1/LbY/UH0Rc38/jOV2CpZYdvrugT0DTW
-   PNEcxLjZWp690DuXYlwpAoow2fPuHgJKP1XXZlXkCu146cq0RiVxKcrrT
-   Q==;
+  bh=I5WhR3Dg6g++zZ8FRywrh7Gkb1gmOmYZ2Zs32EUSWYY=;
+  b=YCn1bAifw4qCNwICM7JV0dOm3QvynpaHt1xvwrDNF9hifqJjSkKrHR8u
+   igEZHR0EDg8Mr0pyW8fqzqnJwcpfm8gQVse7JqubXOOmqXGXqXj5g7fIQ
+   1ATIf/tr6GmPw7zWS9Euua/vcpxLy3mFHRofTCB4UK8OrDQ1gvUs7p1bP
+   HU746+CVSstA1s7eDPyAARM8Lc6iSlFfIBTI7rmO16i/a6Oet54b1rVDD
+   2bPsBzQWsuf3jNngctCQcdcpLK2+WOXBBSUUfMmeaaEzFtns+Vqf4ZAir
+   k7OoI3xyXTY1cE2SAfquemdF/JdYBF1QWVHP0s5IGrrnoCUQx/R8cC5Q+
+   A==;
 X-IronPort-AV: E=Sophos;i="5.70,327,1574121600"; 
-   d="scan'208";a="37886890"
-IronPort-PHdr: =?us-ascii?q?9a23=3AK83nTx2+pjxuUDp/smDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZsesWKPrxwZ3uMQTl6Ol3ixeRBMOHsq4C07ed4vqoGTRZp8rY6zZaKN0Efi?=
- =?us-ascii?q?RGoP1epxYnDs+BBB+zB9/RRAt+Iv5/UkR49WqwK0lfFZW2TVTTpnqv8WxaQU?=
- =?us-ascii?q?2nZkJ6KevvB4Hdkdm82fys9J3PeQVIgye2ba9vIBmsogjdq8YbjZF+JqsxxR?=
- =?us-ascii?q?fEpmVEcPlSyW90OF6fhRnx6tq+8ZJ57yhcp/ct/NNcXKvneKg1UaZWByk8PW?=
- =?us-ascii?q?Av483ruxjDTQ+R6XYZT24bjBlGDRXb4R/jRpv+vTf0ueR72CmBIM35Vqs0Vi?=
- =?us-ascii?q?i476dqUxDnliEKPCMk/W7Ni8xwiKVboA+9pxF63oXZbp2ZOOZ4c6jAZt4RW3?=
- =?us-ascii?q?ZPUdhNWCxAGoO8bpUAD+wdPeZDsoLxo0ICoQaiCQWwAe/izDFHhmXy3aYnze?=
- =?us-ascii?q?ovFw/I1xEkE94XvnnZqND5OaEPWu630abI1y3OYe5I1zfz6IbGcR4vrv+DUr?=
- =?us-ascii?q?1ybcXfxlIiFx/Hg1iKtYDpIz2Y2+YLvmOG7+RgT+Wvi2s/pg9svjig2N8sio?=
- =?us-ascii?q?nXiYIT11vK6CB5z5wxJd28VkF6YcOvHZxLty6HLIt7Wd8iQmF0tyY6zb0Ko5?=
- =?us-ascii?q?i7fDMQx5g9yB7fbOKHfpGO7xn+V+iROS91iG9qdb+wnRq/8VWsxvfiWsS7zl?=
- =?us-ascii?q?pGtDdJn9/RvX4XzRPT8NKISv5l80ek3jaAyh7c5/lfIUAxiarbM5khwqMslp?=
- =?us-ascii?q?YLsUTMACv2mELuga+KbEok4Omo6/n8Yrn8p5+cMYF0igblMqswhsOzG/g4Mw?=
- =?us-ascii?q?gSUGib/uSwzrvj8lHiQLpWlPE2l6jZsJTCKcQaoK62HRNV354+5xuwADqqyt?=
- =?us-ascii?q?QVkWQdIF5bdx+LkZLlN0zWLPD9F/i/glCskDlxx/DBO73sGo7NIWXYkLr6Yb?=
- =?us-ascii?q?Z861JTyAo0zdxF4ZJUEasOLOj8Wk/2qtzUFgU5PBCsw+b7FNV90ZsTWWWKAq?=
- =?us-ascii?q?+eK6PSt0WH6f4xLOSXfo8apivyK/g/6P7yl3M2hVgdfayx15sNdH+4BuhmI1?=
- =?us-ascii?q?meYXf0mdcOD2MKvgs4TOz3h1yPSiBTZ3msUKIm/D07C5ypDZ3FRo+zhLyNxi?=
- =?us-ascii?q?C7HodZZmpeEFCDDW/od5mYW/cLcC+SOtVukiEAVbW6U48uzwyutAvjx7piKe?=
- =?us-ascii?q?rU/TcYuoz52Ndp4O3TkEJ6yTshKMKRyWyPB0RzhWUBTDI1lPR4pEtmzF6I3I?=
- =?us-ascii?q?BijvBYHMAV7PRMBENyLpPYzupnG/jsVQ/bONSEUlCrRpOhGz51Buo43ttGRk?=
- =?us-ascii?q?F6Adjq2gjKwi6CG7YIk/mOA5su/+TX2H2ndOhnzHOT77Usl1krRIN0MGSigq?=
- =?us-ascii?q?Nuv1zIC5Xhj1SSl6Hsc78VmiHK6jHQniK1oEhEXVsoAu3+VncFax6T9I+o6w?=
- =?us-ascii?q?=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DSBADXmCBe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YFtIBIqhBCJA4ZfAQEBBoESJYlukUkJAQEBAQEBAQEBNwEBhEACgiY4EwIQA?=
- =?us-ascii?q?QEBBAEBAQEBBQMBAWyFQ4I7KQGCegEFIwQRUQsOCgICJgICVwYBDAYCAQGCY?=
- =?us-ascii?q?z+CVyWsTX8zhUqDV4E+gQ4ojDZ5gQeBEScMA4JdPodZgl4EjVqJVkaXVoJDg?=
- =?us-ascii?q?kmTYQYbmnAtji+dFSKBWCsIAhgIIQ87gmxQGA2IDReOQSMDMI1sAQE?=
+   d="scan'208";a="37887018"
+IronPort-PHdr: =?us-ascii?q?9a23=3ABmYsaBJon4FNj02GoNmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgXKv79rarrMEGX3/hxlliBBdydt6sYzbKL+PG6ESxYuNDd6StEKMQNHz?=
+ =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
+ =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQZjId4Nqo8yh?=
+ =?us-ascii?q?TFr39Wd+9LwW9kOU+fkwzz68ut8pNv6Thct+4k+8VdTaj0YqM0QKBCAj87KW?=
+ =?us-ascii?q?41/srrtRfCTQuL+HQRV3gdnwRLDQbY8hz0R4/9vSTmuOVz3imaJtD2QqsvWT?=
+ =?us-ascii?q?u+9adrSQTnhzkBOjUk7WzYkM1wjKZcoBK8uxxyxpPfbY+JOPZieK7WYMgXTn?=
+ =?us-ascii?q?RdUMlPSyNBA5u8b4oRAOoHIeZYtJT2q18XoRejGQWgGObjxzlGiX/s2a0xzv?=
+ =?us-ascii?q?ovHwfI0gc9G94CqXrZodHwOKoUTOu7zrTHzS/bYv1Lxzn95ojGfBMvr/6CUr?=
+ =?us-ascii?q?1/c9bex0Y0GgPZjFids5DpMy+b2+kPtWWQ8upuVfioi24iswx/vySvydk0io?=
+ =?us-ascii?q?nJmI0VzE3P+zh8wIkvId24TFB0YN65G5ZXrCGVKpB2T9g+Q2BopCk6yroGtY?=
+ =?us-ascii?q?S9fCgR0psr3RHfa/uZc4WR5B/oSeWfIS9giX54d7+yiAy+/Ei9xuHmSMW530?=
+ =?us-ascii?q?hGojBYntTKq3sDzQbc6tKdRft45kqh3DGP2B3N5excOkA0kLbbK4Ymwr4tip?=
+ =?us-ascii?q?ofqUTDETHymEXxlKKWal8r+vKp6+T6ebXqvJ6cN4l6igH5KaQhhNCwDf4kMg?=
+ =?us-ascii?q?kOQ2eb+eO82Kfl/ULlW7VFkuc6kqzYsJDePcgbp6i5DBFJ0os79hqyADir3M?=
+ =?us-ascii?q?4YkHUaNl5JZh2Kg5bzN13TOPz4CO2wg1WokDdl3fDGObjhD43WLnfei7fsZq?=
+ =?us-ascii?q?p96k5AxwozytBT/ZRUCqobL/7pVU/xs8LYAgcjMwOo2+bnFMl91oQGVGKIB6?=
+ =?us-ascii?q?+ZN7jSsVmS6e0zPeaBf5UVtyjgJPgl/fHukWU1lkMafamsxZEXcmy3Hux6I0?=
+ =?us-ascii?q?WFZnrhmswBHnkOvgo/SuzqlVKDXCVNZ3a9Qa08/Cs3CIG4AofZQICinriB0D?=
+ =?us-ascii?q?28Hp1MaWBMEkqMHmvwd4WYR/cMbzqfItd7nTwZUbisUJch2guztA/+0rZnK+?=
+ =?us-ascii?q?3U+ioCtZ39ztR6++rTlRRhvQBzWuOb33uATSlRmXgOTjQ73+grpkl60VGK2q?=
+ =?us-ascii?q?VQmfFUFdVPofhOV1F+fYXRy+18FsDaRA3MZJGKRUygT9HgBis+CpoJysIKK2?=
+ =?us-ascii?q?N6HM+vxkTb1jeuK6ccirjOAZsz6K+a1H/0cZVT0XHDgZI9gkEmT80HDmivgq?=
+ =?us-ascii?q?py5kCHHILSu1mInKatM6IH1WjC83nVnjnGh11RTAMlCfaNZnsYfEaD6I2it0?=
+ =?us-ascii?q?4=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DTBADXmCBe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFtIBIqhBCJA4ZfAQEBBoESJYluiiWHJAkBAQEBAQEBAQE3AQGEQAKCJjgTA?=
+ =?us-ascii?q?hABAQEEAQEBAQEFAwEBbIVDgjspAYJ6AQUjBBFRCw4KAgImAgJXBgEMBgIBA?=
+ =?us-ascii?q?YJjP4JXJaxNfzOFSoNXgT6BDiiMNnmBB4E4DAOCXT6HWYJeBJcwRpdWgkOCS?=
+ =?us-ascii?q?ZNhBhuacC2OL50VIoFYKwgCGAghDzuCbFAYDYgNF45BIwMwjWwBAQ?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 16 Jan 2020 17:16:21 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 16 Jan 2020 17:17:58 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00GHFg2O037734;
-        Thu, 16 Jan 2020 12:15:42 -0500
-Subject: Re: [PATCH 5/6] selinux: convert cond_expr to array
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00GHHHBx037748;
+        Thu, 16 Jan 2020 12:17:18 -0500
+Subject: Re: [PATCH 6/6] selinux: generalize evaluate_cond_node()
 To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
         Paul Moore <paul@paul-moore.com>
 References: <20200116120439.303034-1-omosnace@redhat.com>
- <20200116120439.303034-6-omosnace@redhat.com>
+ <20200116120439.303034-7-omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <16478d80-ca30-8613-2152-239abac88d0c@tycho.nsa.gov>
-Date:   Thu, 16 Jan 2020 12:17:02 -0500
+Message-ID: <a05af421-42f1-3298-28a7-a3a88c1984e9@tycho.nsa.gov>
+Date:   Thu, 16 Jan 2020 12:18:37 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <20200116120439.303034-6-omosnace@redhat.com>
+In-Reply-To: <20200116120439.303034-7-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -97,204 +97,82 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 1/16/20 7:04 AM, Ondrej Mosnacek wrote:
-> Since it is fixed-size after allocation and we know the size beforehand,
-> using a plain old array is simpler and more efficient.
+> Both callers iterate the cond_list and call it for each node - turn it
+> into evaluate_cond_nodes(), which does the iteration for them.
 > 
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
 Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->   security/selinux/ss/conditional.c | 62 ++++++++++++-------------------
->   security/selinux/ss/conditional.h | 14 ++++---
->   2 files changed, 33 insertions(+), 43 deletions(-)
+>   security/selinux/ss/conditional.c | 10 +++++++++-
+>   security/selinux/ss/conditional.h |  2 +-
+>   security/selinux/ss/services.c    |  6 ++----
+>   3 files changed, 12 insertions(+), 6 deletions(-)
 > 
 > diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-> index b847fd2a6a51..8f9f2f3c86a0 100644
+> index 8f9f2f3c86a0..ad709ccea036 100644
 > --- a/security/selinux/ss/conditional.c
 > +++ b/security/selinux/ss/conditional.c
-> @@ -23,18 +23,19 @@
+> @@ -86,7 +86,7 @@ static int cond_evaluate_expr(struct policydb *p, struct cond_expr *expr)
+>    * list appropriately. If the result of the expression is undefined
+>    * all of the rules are disabled for safety.
 >    */
->   static int cond_evaluate_expr(struct policydb *p, struct cond_expr *expr)
+> -void evaluate_cond_node(struct policydb *p, struct cond_node *node)
+> +static void evaluate_cond_node(struct policydb *p, struct cond_node *node)
 >   {
-> -
-> -	struct cond_expr *cur;
-> +	u32 i;
->   	int s[COND_EXPR_MAXDEPTH];
->   	int sp = -1;
->   
-> -	for (cur = expr; cur; cur = cur->next) {
-> -		switch (cur->expr_type) {
-> +	for (i = 0; i < expr->len; i++) {
-> +		struct cond_expr_node *node = &expr->nodes[i];
-> +
-> +		switch (node->expr_type) {
->   		case COND_BOOL:
->   			if (sp == (COND_EXPR_MAXDEPTH - 1))
->   				return -1;
->   			sp++;
-> -			s[sp] = p->bool_val_to_struct[cur->bool - 1]->state;
-> +			s[sp] = p->bool_val_to_struct[node->bool - 1]->state;
->   			break;
->   		case COND_NOT:
->   			if (sp < 0)
-> @@ -91,7 +92,7 @@ void evaluate_cond_node(struct policydb *p, struct cond_node *node)
+>   	struct avtab_node *avnode;
 >   	int new_state;
->   	u32 i;
->   
-> -	new_state = cond_evaluate_expr(p, node->expr);
-> +	new_state = cond_evaluate_expr(p, &node->expr);
->   	if (new_state != node->cur_state) {
->   		node->cur_state = new_state;
->   		if (new_state == -1)
-> @@ -133,12 +134,7 @@ int cond_policydb_init(struct policydb *p)
->   
->   static void cond_node_destroy(struct cond_node *node)
->   {
-> -	struct cond_expr *cur_expr, *next_expr;
-> -
-> -	for (cur_expr = node->expr; cur_expr; cur_expr = next_expr) {
-> -		next_expr = cur_expr->next;
-> -		kfree(cur_expr);
-> -	}
-> +	kfree(node->expr.nodes);
->   	/* the avtab_ptr_t nodes are destroyed by the avtab */
->   	kfree(node->true_list.nodes);
->   	kfree(node->false_list.nodes);
-> @@ -354,7 +350,7 @@ static int cond_read_av_list(struct policydb *p, void *fp,
->   	return 0;
+> @@ -117,6 +117,14 @@ void evaluate_cond_node(struct policydb *p, struct cond_node *node)
+>   	}
 >   }
 >   
-> -static int expr_isvalid(struct policydb *p, struct cond_expr *expr)
-> +static int expr_node_isvalid(struct policydb *p, struct cond_expr_node *expr)
->   {
->   	if (expr->expr_type <= 0 || expr->expr_type > COND_LAST) {
->   		pr_err("SELinux: conditional expressions uses unknown operator.\n");
-> @@ -371,43 +367,37 @@ static int expr_isvalid(struct policydb *p, struct cond_expr *expr)
->   static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
->   {
->   	__le32 buf[2];
-> -	u32 len, i;
-> +	u32 i, len;
->   	int rc;
-> -	struct cond_expr *expr = NULL, *last = NULL;
->   
->   	rc = next_entry(buf, fp, sizeof(u32) * 2);
->   	if (rc)
-> -		goto err;
-> +		return rc;
->   
->   	node->cur_state = le32_to_cpu(buf[0]);
->   
->   	/* expr */
->   	len = le32_to_cpu(buf[1]);
-> +	node->expr.nodes = kcalloc(len, sizeof(*node->expr.nodes), GFP_KERNEL);
-> +	if (!node->expr.nodes)
-> +		return -ENOMEM;
-> +
-> +	node->expr.len = len;
->   
->   	for (i = 0; i < len; i++) {
-> +		struct cond_expr_node *expr = &node->expr.nodes[i];
-> +
->   		rc = next_entry(buf, fp, sizeof(u32) * 2);
->   		if (rc)
->   			goto err;
->   
-> -		rc = -ENOMEM;
-> -		expr = kzalloc(sizeof(*expr), GFP_KERNEL);
-> -		if (!expr)
-> -			goto err;
-> -
->   		expr->expr_type = le32_to_cpu(buf[0]);
->   		expr->bool = le32_to_cpu(buf[1]);
->   
-> -		if (!expr_isvalid(p, expr)) {
-> +		if (!expr_node_isvalid(p, expr)) {
->   			rc = -EINVAL;
-> -			kfree(expr);
->   			goto err;
->   		}
-> -
-> -		if (i == 0)
-> -			node->expr = expr;
-> -		else
-> -			last->next = expr;
-> -		last = expr;
->   	}
->   
->   	rc = cond_read_av_list(p, fp, &node->true_list, NULL);
-> @@ -512,27 +502,23 @@ static int cond_write_av_list(struct policydb *p,
->   static int cond_write_node(struct policydb *p, struct cond_node *node,
->   		    struct policy_file *fp)
->   {
-> -	struct cond_expr *cur_expr;
->   	__le32 buf[2];
->   	int rc;
-> -	u32 len = 0;
+> +void evaluate_cond_nodes(struct policydb *p)
+> +{
 > +	u32 i;
->   
->   	buf[0] = cpu_to_le32(node->cur_state);
->   	rc = put_entry(buf, sizeof(u32), 1, fp);
->   	if (rc)
->   		return rc;
->   
-> -	for (cur_expr = node->expr; cur_expr != NULL; cur_expr = cur_expr->next)
-> -		len++;
-> -
-> -	buf[0] = cpu_to_le32(len);
-> +	buf[0] = cpu_to_le32(node->expr.len);
->   	rc = put_entry(buf, sizeof(u32), 1, fp);
->   	if (rc)
->   		return rc;
->   
-> -	for (cur_expr = node->expr; cur_expr != NULL; cur_expr = cur_expr->next) {
-> -		buf[0] = cpu_to_le32(cur_expr->expr_type);
-> -		buf[1] = cpu_to_le32(cur_expr->bool);
-> +	for (i = 0; i < node->expr.len; i++) {
-> +		buf[0] = cpu_to_le32(node->expr.nodes[i].expr_type);
-> +		buf[1] = cpu_to_le32(node->expr.nodes[i].bool);
->   		rc = put_entry(buf, sizeof(u32), 2, fp);
->   		if (rc)
->   			return rc;
+> +
+> +	for (i = 0; i < p->cond_list_len; i++)
+> +		evaluate_cond_node(p, &p->cond_list[i]);
+> +}
+> +
+>   int cond_policydb_init(struct policydb *p)
+>   {
+>   	int rc;
 > diff --git a/security/selinux/ss/conditional.h b/security/selinux/ss/conditional.h
-> index 5f97f678440e..4677c6ff7450 100644
+> index 4677c6ff7450..b9eb888ffa76 100644
 > --- a/security/selinux/ss/conditional.h
 > +++ b/security/selinux/ss/conditional.h
-> @@ -19,7 +19,7 @@
->    * A conditional expression is a list of operators and operands
->    * in reverse polish notation.
->    */
-> -struct cond_expr {
-> +struct cond_expr_node {
->   #define COND_BOOL	1 /* plain bool */
->   #define COND_NOT	2 /* !bool */
->   #define COND_OR		3 /* bool || bool */
-> @@ -28,9 +28,13 @@ struct cond_expr {
->   #define COND_EQ		6 /* bool == bool */
->   #define COND_NEQ	7 /* bool != bool */
->   #define COND_LAST	COND_NEQ
-> -	__u32 expr_type;
-> -	__u32 bool;
-> -	struct cond_expr *next;
-> +	u32 expr_type;
-> +	u32 bool;
-> +};
-> +
-> +struct cond_expr {
-> +	struct cond_expr_node *nodes;
-> +	u32 len;
->   };
+> @@ -78,6 +78,6 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
+>   		struct av_decision *avd, struct extended_perms *xperms);
+>   void cond_compute_xperms(struct avtab *ctab, struct avtab_key *key,
+>   		struct extended_perms_decision *xpermd);
+> -void evaluate_cond_node(struct policydb *p, struct cond_node *node);
+> +void evaluate_cond_nodes(struct policydb *p);
+>   
+>   #endif /* _CONDITIONAL_H_ */
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index b0f71afcf4b8..887331a0cc3c 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2954,8 +2954,7 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
+>   			policydb->bool_val_to_struct[i]->state = 0;
+>   	}
+>   
+> -	for (i = 0; i < policydb->cond_list_len; i++)
+> -		evaluate_cond_node(policydb, &policydb->cond_list[i]);
+> +	evaluate_cond_nodes(policydb);
+>   
+>   	seqno = ++state->ss->latest_granting;
+>   	rc = 0;
+> @@ -3006,8 +3005,7 @@ static void security_preserve_bools(struct policydb *oldpolicydb,
+>   		if (booldatum)
+>   			booldatum->state = value;
+>   	}
+> -	for (i = 0; i < newpolicydb->cond_list_len; i++)
+> -		evaluate_cond_node(newpolicydb, &newpolicydb->cond_list[i]);
+> +	evaluate_cond_nodes(newpolicydb);
+>   }
 >   
 >   /*
-> @@ -52,7 +56,7 @@ struct cond_av_list {
->    */
->   struct cond_node {
->   	int cur_state;
-> -	struct cond_expr *expr;
-> +	struct cond_expr expr;
->   	struct cond_av_list true_list;
->   	struct cond_av_list false_list;
->   };
 > 
 
