@@ -2,160 +2,140 @@ Return-Path: <SRS0=jI/q=3F=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E49AC33CB1
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 16:19:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1771C33CB1
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 16:21:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6F62D206D5
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 16:19:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C7412206D9
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 16:21:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="c/ugtlBN"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YOujkYqz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726706AbgAPQTx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jan 2020 11:19:53 -0500
-Received: from UPDC19PA21.eemsg.mail.mil ([214.24.27.196]:55954 "EHLO
-        UPDC19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726726AbgAPQTx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 11:19:53 -0500
-X-EEMSG-check-017: 46591831|UPDC19PA21_ESA_OUT03.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,326,1574121600"; 
-   d="scan'208";a="46591831"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UPDC19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Jan 2020 16:19:49 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579191589; x=1610727589;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=Dfzo22eWEKTYdI6P6p1bP1lAZFzlgCXCtbXPZgPBcsw=;
-  b=c/ugtlBNuOg9T0wL4jIp7nBiTCEHE5NQRYMIattoP/Uraks4miLoTG7Y
-   gxI9CJ/I3J4ziYDtcC3qEJWqzDNQrtUE9V1rgQYfFbnmiiLjSwgglQAsk
-   kJCkdxry6mGoQtmtgA8tvk1djJN2x17VKH7JVJAYTcl3u3jUsfado6x9m
-   JMu9VjfVbKBbufPQtggETcDzobiAzjdL+Mfnixt30oRWmxSfNZyfIIVHN
-   udQz8NSuN+f6rpU7Jx1TKzaAeykK6M3lQu0cM4ckKWlWVHZ4Ly+nosOSy
-   LuGCukBWLjymklMTHOAulOYw8RX5RjLTpWLm+0L/5xPOg7HG3/luCpLAQ
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.70,326,1574121600"; 
-   d="scan'208";a="32033378"
-IronPort-PHdr: =?us-ascii?q?9a23=3AvBzXWhJcDVidVXIg4dmcpTZWNBhigK39O0sv0r?=
- =?us-ascii?q?FitYgXKv7yrarrMEGX3/hxlliBBdydt6sYzbKL+PC7ESxYuNDd6StEKMQNHz?=
- =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
- =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQZjId4Nqo8yh?=
- =?us-ascii?q?TFr3hGdu9LwW9kOU+fkwzz68ut8pNv6Thct+4k+8VdTaj0YqM0QKBCAj87KW?=
- =?us-ascii?q?41/srrtRfCTQuL+HQRV3gdnwRLDQbY8hz0R4/9vSTmuOVz3imaJtD2QqsvWT?=
- =?us-ascii?q?u+9adrSQTnhzkBOjUk7WzYkM1wjKZcoBK8uxxyxpPfbY+JOPZieK7WYMgXTn?=
- =?us-ascii?q?RdUMlPSyNBA5u8b4oRAOoHIeZYtJT2q18XoRejGQWgGObjxzlGiX/s2a0xzv?=
- =?us-ascii?q?ovHwfI0gc9G94CqXrZodHwOKoUTOu7zrTHzS/bYv1Lxzn95ojGfBMvr/6CUr?=
- =?us-ascii?q?1/c9bex0Y0GgPZjFids5DpMy+b2+kPtWWQ8upuVfioi24iswx/vySvydk0io?=
- =?us-ascii?q?nJmI0VzE3P+zh8wIkvId24TFB0YN65G5ZXrCGVKpB2T9g+Q2BopCk6yroGtY?=
- =?us-ascii?q?S9fCgR0psr3RHfa/uZc4WR5B/oSeifITB9hH1/ebK/gQ6//lK9xeLmU8m7zU?=
- =?us-ascii?q?xKoTBGktbSrHwCyxvT6s2BR/Bg/UmhwS6C2x3c5+xLO0w5lbfXJ4Q/zrM/iJ?=
- =?us-ascii?q?Yfq1nPEynrk0vslqCWbF8r+u2w5uTiZbXpu4GTOpdvigH7LqQugsu/AfkkMg?=
- =?us-ascii?q?QWX2iU5+C81Lr78E3lWrpKlPw2krTCsJzAJMQboKC5AwhO0ok99xmzFSum0d?=
- =?us-ascii?q?QEknkHK1JJYhSHgJTyO17SOvz4CPa/g1C0nDdqwfDJIKHhD43QInXMn7rtZ7?=
- =?us-ascii?q?Zw51NGxAYtwt1T+YhYBqwZLPL2QEDxtdjYDhEjMwyzxubqEM592Z4FWW+UHq?=
- =?us-ascii?q?+YML/dsV+P5u41JemMf5UatCzyK/gi+f7ilWU5lkMFfam1wZsXb2i1HvZ4LE?=
- =?us-ascii?q?WXb3rsnMwMEWgNvgo5Q+zqjEONXSRPaHa1WqI2/is7B56+DYffWoCth6SM3D?=
- =?us-ascii?q?ylEZ1SZ2BGDE2MEHjzeoWaVPcDdjiSLtVikjMaT7ihTZEu1RW0uA/90bpnIf?=
- =?us-ascii?q?Le+jcEupL7yNh1++rTmAkq9TNuEsSd13qAT3lukWMVQz86xaV/oUt6yleZz6?=
- =?us-ascii?q?d0meBXFdtW56ABbgBvF5PSwaREAtb+VxiJRcuORU7uFterDz8vZt02xNAKbg?=
- =?us-ascii?q?B2HND0yljY0i6rBaIFv6KECYZy8a/G2XX1YcFnxCXozq4k2mI6T9NPOGvuva?=
- =?us-ascii?q?t28wzeFsadiEmCv7q7fqQbmijW/SGMynTY7xIQaxJ5TaiQBSNXXUDRt9msox?=
- =?us-ascii?q?qZHrI=3D?=
-X-IPAS-Result: =?us-ascii?q?A2C5BAAsjCBe/wHyM5BbChwBAQEBAQcBAREBBAQBAYF7g?=
- =?us-ascii?q?X2BGFUgEiqEEIkDhl8BAQEGgTeJbpByA1QJAQEBAQEBAQEBKwwBAYRAAoImO?=
- =?us-ascii?q?BMCEAEBAQQBAQEBAQUDAQFshTcMgjspAYJ5AQEBAQIBIwQRQQULCxgCAiYCA?=
- =?us-ascii?q?lcGAQwGAgEBgmM/AYJWBSAPqyB1fzOFSoNVgTgGgQ4ojDZ5gQeBOA+CKDU+g?=
- =?us-ascii?q?mQDgTeDO4JeBJcwRpdWgkOCSYR0jm0GG5pwLY4viGCUNSI3gQ0MCCsIAhgII?=
- =?us-ascii?q?Q+DJ1AYDYgNF4NQinEjAzCNbAEB?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 16 Jan 2020 16:19:48 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00GGJ4lL014223;
-        Thu, 16 Jan 2020 11:19:07 -0500
-Subject: Re: [PATCH] selinux: map RTM_GETLINK to a privileged permission
-To:     Jeff Vander Stoep <jeffv@google.com>, selinux@vger.kernel.org
-Cc:     paul@paul-moore.com
-References: <20200116142653.61738-1-jeffv@google.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a064ee53-d5d4-4c81-d861-963ae13ef1e4@tycho.nsa.gov>
-Date:   Thu, 16 Jan 2020 11:20:31 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+        id S1726933AbgAPQVw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jan 2020 11:21:52 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:41462 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726867AbgAPQVw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 11:21:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579191711;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=3N7OqoLUmvvlWWKU6tThe0biTBZ6e8LL6Hyc/mDDk1U=;
+        b=YOujkYqzAQ2iO1ytOEEJPxXJcC8Xc2o5wYFVmj0KlUPvprqkRTzt1w/OVLbNIVoQgT5uh/
+        8d3kM+GJ47R700D4ZWiB3u4bfZbEDPln7HFRRH6Kcb/Qg79HfFblE2/b1SxaUGDF7zRAIr
+        D6OZlMQQ4DgWoah4tGgN1fR81zCvjHc=
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
+ [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-402-YBi3hoCeOfuxB0ouO4glOw-1; Thu, 16 Jan 2020 11:21:49 -0500
+X-MC-Unique: YBi3hoCeOfuxB0ouO4glOw-1
+Received: by mail-oi1-f197.google.com with SMTP id w205so8074593oie.13
+        for <selinux@vger.kernel.org>; Thu, 16 Jan 2020 08:21:49 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3N7OqoLUmvvlWWKU6tThe0biTBZ6e8LL6Hyc/mDDk1U=;
+        b=cvE4t4i+IcezxE0DiY8s+OopQG+dTdSHo0Qt2VQ1pZQuJl7jbNGDyinfYRtnCgCJMz
+         T3nt+GqRlUSr9dyq5jjlcRiZ80MnhXVUNqe853zZpyPI9CEWJK+DsApfGMABFOlAjaAT
+         PJ/JUOVuOiyu4nNy5KHxaRu+sZjYCkb8pnmv0paXp/d9Nm5iU6mywbMGVo6EVq9aBTXT
+         e3GY96UmIUPbiaHeHI2RNUrtA8OC8IE7pf10lRrvh+yeKDsMa5Dh1kuXMa9LENbhkLdI
+         P5+JFv+jhU5/TbSpMsUgHk0MflVwG+jNGBOTj5Rj3brthtUrBg7AGVEC5Y5wOq5p1c6m
+         Rm6w==
+X-Gm-Message-State: APjAAAUVlhcyOV0G/2cPufLHHbN9Mrs5ijB2C7emwnq2HbE98trjZp68
+        HTMDNKtpyYrT/LJH8Qpj3EBsu1S5oueZt3kT+OifnZX9qlKwFGe4uxEd/zgA35vM2QC6OEtXJ+X
+        I15KeDodxe2jqQ7ao65H3xu8CsTi+WTgZUg==
+X-Received: by 2002:aca:c30d:: with SMTP id t13mr4756167oif.166.1579191708984;
+        Thu, 16 Jan 2020 08:21:48 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxtrODb/BN3dEcMHlaUDK0aNakM9ndEuuyM5y/We23o5uSqYfg5zHUpsOsICHWTk+PbWfRSGTqK3O5Magk3MUI=
+X-Received: by 2002:aca:c30d:: with SMTP id t13mr4756138oif.166.1579191708668;
+ Thu, 16 Jan 2020 08:21:48 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20200116142653.61738-1-jeffv@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200116131928.315533-1-omosnace@redhat.com> <c26b26d4-9fcd-8802-bf3b-f5e0f75a0730@tycho.nsa.gov>
+ <ede9c1eb-2c60-44fd-336d-c8b802833393@tycho.nsa.gov>
+In-Reply-To: <ede9c1eb-2c60-44fd-336d-c8b802833393@tycho.nsa.gov>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 16 Jan 2020 17:21:37 +0100
+Message-ID: <CAFqZXNtuq2FYBbQenLpJarckXfmgyGC_f3XgB=d+ye_tSoLuuw@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix sparse warnings in policydb.c
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/16/20 9:26 AM, Jeff Vander Stoep wrote:
-> Persistent device identifiers like MAC addresses are sensitive
-> because they are (usually) unique and can be used to
-> identify/track a device or user [1]. The MAC address is
-> accessible via the RTM_GETLINK request message type of a netlink
-> route socket[2] which returns the RTM_NEWLINK message.
-> Mapping RTM_GETLINK to a separate permission enables restricting
-> access to the MAC address without changing the behavior for
-> other RTM_GET* message types.
-> 
-> [1] https://adamdrake.com/mac-addresses-udids-and-privacy.html
-> [2] Other access vectors like ioctl(SIOCGIFHWADDR) are already covered
-> by existing LSM hooks.
-> 
-> Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-> ---
-> diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-> index c97fdae8f71b..aa7064a629a0 100644
-> --- a/security/selinux/nlmsgtab.c
-> +++ b/security/selinux/nlmsgtab.c
-> @@ -208,3 +208,27 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
->   
->   	return err;
->   }
-> +
-> +static void nlmsg_set_getlink_perm(u32 perm)
-> +{
-> +	int i;
-> +
-> +	for (i = 0; i < sizeof(nlmsg_route_perms)/sizeof(nlmsg_perm); i++) {
+On Thu, Jan 16, 2020 at 5:10 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 1/16/20 11:08 AM, Stephen Smalley wrote:
+> > On 1/16/20 8:19 AM, Ondrej Mosnacek wrote:
+> >> Two places used u32 where there should have been __le32.
+> >>
+> >> Fixes sparse warnings:
+> >>    CHECK   [...]/security/selinux/ss/services.c
+> >> [...]/security/selinux/ss/policydb.c:2669:16: warning: incorrect type
+> >> in assignment (different base types)
+> >> [...]/security/selinux/ss/policydb.c:2669:16:    expected unsigned int
+> >> [...]/security/selinux/ss/policydb.c:2669:16:    got restricted __le32
+> >> [usertype]
+> >> [...]/security/selinux/ss/policydb.c:2674:24: warning: incorrect type
+> >> in assignment (different base types)
+> >> [...]/security/selinux/ss/policydb.c:2674:24:    expected unsigned int
+> >> [...]/security/selinux/ss/policydb.c:2674:24:    got restricted __le32
+> >> [usertype]
+> >> [...]/security/selinux/ss/policydb.c:2675:24: warning: incorrect type
+> >> in assignment (different base types)
+> >> [...]/security/selinux/ss/policydb.c:2675:24:    expected unsigned int
+> >> [...]/security/selinux/ss/policydb.c:2675:24:    got restricted __le32
+> >> [usertype]
+> >> [...]/security/selinux/ss/policydb.c:2676:24: warning: incorrect type
+> >> in assignment (different base types)
+> >> [...]/security/selinux/ss/policydb.c:2676:24:    expected unsigned int
+> >> [...]/security/selinux/ss/policydb.c:2676:24:    got restricted __le32
+> >> [usertype]
+> >> [...]/security/selinux/ss/policydb.c:2681:32: warning: incorrect type
+> >> in assignment (different base types)
+> >> [...]/security/selinux/ss/policydb.c:2681:32:    expected unsigned int
+> >> [...]/security/selinux/ss/policydb.c:2681:32:    got restricted __le32
+> >> [usertype]
+> >> [...]/security/selinux/ss/policydb.c:2701:16: warning: incorrect type
+> >> in assignment (different base types)
+> >> [...]/security/selinux/ss/policydb.c:2701:16:    expected unsigned int
+> >> [...]/security/selinux/ss/policydb.c:2701:16:    got restricted __le32
+> >> [usertype]
+> >> [...]/security/selinux/ss/policydb.c:2706:24: warning: incorrect type
+> >> in assignment (different base types)
+> >> [...]/security/selinux/ss/policydb.c:2706:24:    expected unsigned int
+> >> [...]/security/selinux/ss/policydb.c:2706:24:    got restricted __le32
+> >> [usertype]
+> >> [...]/security/selinux/ss/policydb.c:2707:24: warning: incorrect type
+> >> in assignment (different base types)
+> >> [...]/security/selinux/ss/policydb.c:2707:24:    expected unsigned int
+> >> [...]/security/selinux/ss/policydb.c:2707:24:    got restricted __le32
+> >> [usertype]
+> >>
+> >> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> >
+> > Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+>
+> However, note that checkpatch doesn't like your subject line.
+> WARNING: A patch subject line should describe the change not the tool
+> that found it
 
-Usually we'd use ARRAY_SIZE(nlmsg_route_perms) here.
+Hm, I run checkpatch.pl from a pre-commit git hook, so it likely only
+looks at the diff itself... I'll see if I can tweak the hook to check
+a full patch generated from the commit.
 
-> +		if (nlmsg_route_perms[i].nlmsg_type == RTM_GETLINK) {
-> +			nlmsg_route_perms[i].perm = perm;
-> +			break;
-> +		}
-> +	}
-> +}
-> +
-> +/**
-> + * The value permission guarding RTM_GETLINK changes if nlroute_getlink
+It has a good point, though. I'll reword the subject.
 
-Doesn't quite parse, maybe "The value of the permission" or just "The 
-permission".
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 0e8b94e8e156..910b924fa715 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
->   static struct selinux_ss selinux_ss;
-> @@ -2223,6 +2224,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
->   
->   		state->ss->sidtab = newsidtab;
->   		security_load_policycaps(state);
-> +		selinux_nlmsg_init();
->   		selinux_mark_initialized(state);
->   		seqno = ++state->ss->latest_granting;
->   		selinux_complete_init();
-> 
-
-You also need to call it after the other later call to 
-security_load_policycaps() for the policy reload case.
