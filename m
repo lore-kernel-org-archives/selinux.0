@@ -6,100 +6,82 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0606EC33CAF
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 19:33:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EDFDC33CB3
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 19:37:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CFAB2206D9
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 19:33:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 18C702073A
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 19:37:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="IIGbVp5f"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="lQeRJkmR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729345AbgAPTd3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jan 2020 14:33:29 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:42657 "EHLO
+        id S1730097AbgAPThc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jan 2020 14:37:32 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:36062 "EHLO
         mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729044AbgAPTd3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 14:33:29 -0500
-Received: by mail-lj1-f194.google.com with SMTP id y4so23875395ljj.9
-        for <selinux@vger.kernel.org>; Thu, 16 Jan 2020 11:33:28 -0800 (PST)
+        with ESMTP id S1729248AbgAPThc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 14:37:32 -0500
+Received: by mail-lj1-f194.google.com with SMTP id r19so23897742ljg.3
+        for <selinux@vger.kernel.org>; Thu, 16 Jan 2020 11:37:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=D4RHKOZKelC3geKpblrBLKeAEswsnkBhqDgjIN2ojg8=;
-        b=IIGbVp5fBm4iclpZHJbynFp/ZCPymI7IBx/8jbAlhGoEZMuyJTf5hmRhaZY51rJsev
-         S6TrrA4FkbPJkL7Ni+ZD6YXGU9sGrdbNiR5r+IVru5UBhJrbf8D7sAJJX211gYAFjse1
-         rmxPhHCRvOhBa3R9Ygw1XkT/rjSqTww0lLVo2NdRILBtMpsUTKs1wEc69ccooyZ845Os
-         RDZ4zgqlK3fDqub+duknPgRW5siIMlBpptJCm5m9NBWCWNHO2Zq683sC5xg2b/1xrQCd
-         Or5uD8UJMzHaDuRK9tpZ2lASDoIu3oOBC9XAE19+TBf4I2gWu2chiuzXQqq4A08+pTQC
-         6OtQ==
+        bh=J/6nixoSIoKE6eZ+cJNMdmi8y/6oky8cFSXcKfYMtxQ=;
+        b=lQeRJkmRDyrHLNcLnxExOdsvsc6kYdTstdedfLJdxBc2Hb3NbgtxdXq880Yfcy82zG
+         +B+Vj80m+NtyaXkPaj1oRCBWHZw+GQgQ30H1LhlD5+Kga/+5lKOt7WrVHgEFRKopB44a
+         RFWPlwiohqMayaO3MO4ek0DoQ9Ff1EfnmeIyaoDhopImoqVNumyuBCo9PDfxM1ouTBsY
+         DWUVkhfv5yaDU08IGVaS+B0+gdsSWikaE2NGLkHrZDFpqeqVJ+l8SQOT1CzlM+6bJ+Ym
+         K8Gxs5sKXmBofKEQrueCfPV/lt1FSA0dU8fbsE/pFEJOEhaTyAqPZHacl3xhe+JttXvx
+         cCxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=D4RHKOZKelC3geKpblrBLKeAEswsnkBhqDgjIN2ojg8=;
-        b=KykIoT57JUrn4c8G/pLNCLbIONRRdQsmZzfQYyMOiG8Cyuzz2Cawr+b2OaqKrz7Wkn
-         kzZN9q/eUHMmLH/dLiSyikKJYYCgvH/Fmlo7sXhL2XahGpO/yWXSVQ1aXP6SndERy1qk
-         bRqCB0YrlREU0XY1fnB6LdE9Zlmr0cB/t80amblzY4WgWtHvRTBmn+O31o+rIPt0UWBG
-         brihE68p1ml/sX1GTqdk3ye+Slsz1W9sO7DNfo0mmPDN1iCcoZQssgmROsXbU1fUIm0v
-         qezWHGKXQgS7zjUiBfrvg8ZGbZs2/oi1YzL27Y3wDYaRH1fMhP3P+vH9uUPVMXE2Hop0
-         +oEQ==
-X-Gm-Message-State: APjAAAWGoNnEcaeIEqCJbHvICHBSGy9zDbyfwzz7TyNOXIM3YxxJWp3l
-        2mvek3oJutnaOJOoI+03tnevI2drEIhABz23pkQ+s3c=
-X-Google-Smtp-Source: APXvYqwuYYB8iRLH/rW72+dnj0zP+MwOiHIR4QxJSRJ4D5Blg4DSgf+D254pgwbObQOgA3wf/B/W+nUGjEdwH0Rl1aY=
-X-Received: by 2002:a2e:8152:: with SMTP id t18mr3002321ljg.255.1579203207674;
- Thu, 16 Jan 2020 11:33:27 -0800 (PST)
+        bh=J/6nixoSIoKE6eZ+cJNMdmi8y/6oky8cFSXcKfYMtxQ=;
+        b=hYjExIDO2GfHD9AJvRc27ZJUuasl3i+uKQsIQsPhEbT6P5nc4GGs0Eu6XVrA+d80tU
+         vFc7dRtx39149EX2DuRT4vQgU8x/mSXhzpUT7gdN4uZAY3auZphaut8mLSCU58L6MazB
+         RG7Oz6vUxTF6yo/+BJfE8TwKt3UCah//smPi69/cap0DrlR15AvfhEhgbOAOv8vbqUJa
+         dyWrg1pHbMgiHjMg5+3GGURg+yNZGmE03Fo00t+tT/hQ1m+0mfN/BayMeafRue5yfuyQ
+         NC/1peGIg7LCfT7ZVPfK3a7lQjD2LyprIgkMwvD72e56AyngzDOIpEopciLrs6OF7t34
+         4kbQ==
+X-Gm-Message-State: APjAAAWfKLjEYSRUrj9mG7o69ewlu/TwYZb2TgFcPr4jPNixzEu6x/mJ
+        rIyXomfgBAtwcUV2bav5QBAMVhCqr6kelbZUL2vi
+X-Google-Smtp-Source: APXvYqwKAWhKu2+URonvJ2ikEe5O/sYBlf20qhEgS2M6oEN/BhsztPpWGHIRzliVuWewDjHKHrmByY0zmqg+gZCZzlw=
+X-Received: by 2002:a2e:870b:: with SMTP id m11mr3313585lji.93.1579203450159;
+ Thu, 16 Jan 2020 11:37:30 -0800 (PST)
 MIME-Version: 1.0
-References: <20200116184557.344610-1-omosnace@redhat.com>
-In-Reply-To: <20200116184557.344610-1-omosnace@redhat.com>
+References: <20200113150331.34108-1-yehs2007@zoho.com>
+In-Reply-To: <20200113150331.34108-1-yehs2007@zoho.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 16 Jan 2020 14:33:17 -0500
-Message-ID: <CAHC9VhSx50ZkXEfUd_WQS6M5SL5Ua0_n+vR1T0XjGikKR__yBg@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: fix wrong buffer types in policydb.c
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Thu, 16 Jan 2020 14:37:19 -0500
+Message-ID: <CAHC9VhQTa9VcO9Yq4e36zd8ZAVNDb3_tA-uSgmH_aMX2p5QXLA@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: remove redundant selinux_nlmsg_perm
+To:     Huaisheng Ye <yehs2007@zoho.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        James Morris <jmorris@namei.org>,
+        Serge Hallyn <serge@hallyn.com>, tyu1@lenovo.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Huaisheng Ye <yehs1@lenovo.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 16, 2020 at 1:46 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Mon, Jan 13, 2020 at 10:05 AM Huaisheng Ye <yehs2007@zoho.com> wrote:
+> From: Huaisheng Ye <yehs1@lenovo.com>
 >
-> Two places used u32 where there should have been __le32.
+> selinux_nlmsg_perm is used for only by selinux_netlink_send. Remove
+> the redundant function to simplify the code.
 >
-> Fixes sparse warnings:
->   CHECK   [...]/security/selinux/ss/services.c
-> [...]/security/selinux/ss/policydb.c:2669:16: warning: incorrect type in assignment (different base types)
-> [...]/security/selinux/ss/policydb.c:2669:16:    expected unsigned int
-> [...]/security/selinux/ss/policydb.c:2669:16:    got restricted __le32 [usertype]
-> [...]/security/selinux/ss/policydb.c:2674:24: warning: incorrect type in assignment (different base types)
-> [...]/security/selinux/ss/policydb.c:2674:24:    expected unsigned int
-> [...]/security/selinux/ss/policydb.c:2674:24:    got restricted __le32 [usertype]
-> [...]/security/selinux/ss/policydb.c:2675:24: warning: incorrect type in assignment (different base types)
-> [...]/security/selinux/ss/policydb.c:2675:24:    expected unsigned int
-> [...]/security/selinux/ss/policydb.c:2675:24:    got restricted __le32 [usertype]
-> [...]/security/selinux/ss/policydb.c:2676:24: warning: incorrect type in assignment (different base types)
-> [...]/security/selinux/ss/policydb.c:2676:24:    expected unsigned int
-> [...]/security/selinux/ss/policydb.c:2676:24:    got restricted __le32 [usertype]
-> [...]/security/selinux/ss/policydb.c:2681:32: warning: incorrect type in assignment (different base types)
-> [...]/security/selinux/ss/policydb.c:2681:32:    expected unsigned int
-> [...]/security/selinux/ss/policydb.c:2681:32:    got restricted __le32 [usertype]
-> [...]/security/selinux/ss/policydb.c:2701:16: warning: incorrect type in assignment (different base types)
-> [...]/security/selinux/ss/policydb.c:2701:16:    expected unsigned int
-> [...]/security/selinux/ss/policydb.c:2701:16:    got restricted __le32 [usertype]
-> [...]/security/selinux/ss/policydb.c:2706:24: warning: incorrect type in assignment (different base types)
-> [...]/security/selinux/ss/policydb.c:2706:24:    expected unsigned int
-> [...]/security/selinux/ss/policydb.c:2706:24:    got restricted __le32 [usertype]
-> [...]/security/selinux/ss/policydb.c:2707:24: warning: incorrect type in assignment (different base types)
-> [...]/security/selinux/ss/policydb.c:2707:24:    expected unsigned int
-> [...]/security/selinux/ss/policydb.c:2707:24:    got restricted __le32 [usertype]
+> Fix a typo by suggestion from Stephen.
 >
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Huaisheng Ye <yehs1@lenovo.com>
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  security/selinux/ss/policydb.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  security/selinux/hooks.c | 73 ++++++++++++++++++++++--------------------------
+>  1 file changed, 34 insertions(+), 39 deletions(-)
 
 Merged into selinux/next, thanks!
 
