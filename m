@@ -4,94 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24FA0C33CB6
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 09:00:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B943BC33CB1
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 12:04:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EEE04207E0
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 09:00:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B1642077C
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 12:04:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dOV5qnC8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TYg1+tfN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726684AbgAPJAu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jan 2020 04:00:50 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:37611 "EHLO
+        id S1726278AbgAPMEp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jan 2020 07:04:45 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:36013 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725973AbgAPJAu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 04:00:50 -0500
+        by vger.kernel.org with ESMTP id S1726018AbgAPMEp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 07:04:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579165249;
+        s=mimecast20190719; t=1579176284;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=cnPy8mcsaf04qiEz2VYIGdPmxKUaVVmknmwnIu8afHI=;
-        b=dOV5qnC8k+r50SanWYZVNyOOZJ1hnijz3IEXZiVMJtgXUZvEucjmNwTjyFzt7g/5SPI9cP
-        GOgR3EFrYgVEXZumfYX+YJ1JkO/VrAMlH7C4UGLHJTw61pNWD36btSSaAAJdYsR6AMqkg1
-        vhagtrYp2AZm+smC+mophJFHXQ3hUu4=
-Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
- [209.85.210.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-150-U1oxxu4VM9eQ2StpfBWIUw-1; Thu, 16 Jan 2020 04:00:47 -0500
-X-MC-Unique: U1oxxu4VM9eQ2StpfBWIUw-1
-Received: by mail-ot1-f69.google.com with SMTP id z13so11249645otp.7
-        for <selinux@vger.kernel.org>; Thu, 16 Jan 2020 01:00:47 -0800 (PST)
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=DWMo51Hpjb7ultzomU9Bz2fLquEp+tKulUoY+Ysx28k=;
+        b=TYg1+tfNh6BlZKRlisW0d4f9p/6GpVWmiAP6iH2UIhmzhVd18jKyB2Sz90tssO4yhhOpj6
+        iw8jgXCRYAVxj810P/tNbjtaSvv3apYInuGKFj3Z9HgMtTn6ZHl8f2lY7ZgXtk9KIYZF/U
+        ZIm/mc4q3su2u7+prZqfb3WBy8S5rGE=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-329-P6jqR1mZPyC6PuU3DbWjsw-1; Thu, 16 Jan 2020 07:04:43 -0500
+X-MC-Unique: P6jqR1mZPyC6PuU3DbWjsw-1
+Received: by mail-wm1-f71.google.com with SMTP id t4so1126314wmf.2
+        for <selinux@vger.kernel.org>; Thu, 16 Jan 2020 04:04:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=cnPy8mcsaf04qiEz2VYIGdPmxKUaVVmknmwnIu8afHI=;
-        b=s5kkSO8wTomEremh+n/a5xy1Qdapl/HmOgJ3lmsHu5tVq4tBDnnyLozfwfJP34UFk+
-         fCM7gEgXSmBecpOA311EgVMRsmcg5tqUOJ/EP+zhzPnQZi/s6uB7visEP9hSRSjoyTbw
-         7M/OKYdHOJarA/3MbHX98psBIpFIe+BxQnWZLkCAzoGOjFKQ9A1gz5jSrk6G0yG6MSlR
-         2JxVLe6znQ9dZh9MbNX220LBhaNtVpCpQ8pDhT8Y8b7CbkocYdaJaBzmpZrK0kpaAHDG
-         Wh/FDQIVGa6vV1PhCuzqIv9IKku6jGgj7ABd0fShpIIL7Rzh36TTvPb6A5YFCDeEWTjU
-         bDkA==
-X-Gm-Message-State: APjAAAUjYfjuzaOfCinA3crhDsmeMdyhYCHKZOJ6yvfovt25JTntoZEf
-        gYmZjVQMNZLYuqRf7yAFyAepv/AdebYTXNkI9nGeoO5IZO84qvHjOMNQqLc4AdLa5coEAwpxuQs
-        LnbxUBynkJx7gmv80RTJSgB/533eJwAhRxw==
-X-Received: by 2002:aca:f507:: with SMTP id t7mr3363517oih.156.1579165247071;
-        Thu, 16 Jan 2020 01:00:47 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyucSkxLFLtZhdZOjgnSwHT1VQrL/u6sGoShPvG2zC8gok2t4bXO8v8tWC+L64w8dehWy2E2iXAlWGX8tBK2To=
-X-Received: by 2002:aca:f507:: with SMTP id t7mr3363410oih.156.1579165244911;
- Thu, 16 Jan 2020 01:00:44 -0800 (PST)
-MIME-Version: 1.0
-References: <20200114144426.355523-1-richard_c_haines@btinternet.com>
- <20200114144426.355523-2-richard_c_haines@btinternet.com> <4c43a27d-6af6-4be0-611a-9564d898ff06@tycho.nsa.gov>
-In-Reply-To: <4c43a27d-6af6-4be0-611a-9564d898ff06@tycho.nsa.gov>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DWMo51Hpjb7ultzomU9Bz2fLquEp+tKulUoY+Ysx28k=;
+        b=Sj6WyAZNDzykEgZ3rS9SrR6QUcBKJHNzWDhHdDJzhqCVVe+/+Z52c0jyQGugwjqbT7
+         qbdJ/7ZXAO76U67NOZS/qh7P8XIidbR5/T0E0HA+mIKiBKY4HHARS/ybZblfeqxjWl+K
+         2VIJHoPMObHL+qakLmojSn0kv70AlDLJ7H1NIyYXsgIX2XsKI896nKvPDZcTkUGPeRPy
+         /7Lj8qIyXec6AHr5t0y6JRtUMT6zxvEPFE9zD8TPzEoR0dt7xe3NleheKImnljOHYT5f
+         b8YaC1QYv8UpYa1kMIcFizNiQpQKyjffbv4GejIBvUYUuGckSmSV4fP8CFBz5/sHiKgW
+         UkZg==
+X-Gm-Message-State: APjAAAVf/TONIUbug3LY98MikO/uzwyppcis5LagBvfJSLV6i82mMdD9
+        r0DvSVUmZbmq6k7t3frnceEdyYk2KgiX0a5sc+GZ5U7upBS20B50KKlUHt/ZTVC6uEloB8ouEib
+        7pPj2V6siPIYlasN7Bg==
+X-Received: by 2002:a5d:6b88:: with SMTP id n8mr3068760wrx.288.1579176281769;
+        Thu, 16 Jan 2020 04:04:41 -0800 (PST)
+X-Google-Smtp-Source: APXvYqw+uQrFpl8UQMvWoWFCTcmNfJBxko9fPefJeWoU+v2U/gnLzGQC379qjJDcAJ/ThobiEL+WJw==
+X-Received: by 2002:a5d:6b88:: with SMTP id n8mr3068732wrx.288.1579176281514;
+        Thu, 16 Jan 2020 04:04:41 -0800 (PST)
+Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id b67sm278117wmc.38.2020.01.16.04.04.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jan 2020 04:04:40 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 16 Jan 2020 10:00:33 +0100
-Message-ID: <CAFqZXNsqYzaaOSAuZ=1z3vrgvW8cJ0LKufEpvPdNqmrhXW5yhw@mail.gmail.com>
-Subject: Re: [PATCH V5 1/1] selinux-testsuite: Add filesystem tests
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Richard Haines <richard_c_haines@btinternet.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH 0/6] selinux: Assorted simplifications and cleanups
+Date:   Thu, 16 Jan 2020 13:04:33 +0100
+Message-Id: <20200116120439.303034-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.24.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jan 15, 2020 at 10:09 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 1/14/20 9:44 AM, Richard Haines wrote:
-> > Test filesystem permissions, setfscreatecon(3), file { quotaon } and
-> > changing file context via non and name-based type_transition rules.
-> >
-> >  From kernels 5.5 filesystem { watch } is also tested.
-> >
-> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->
-> This looks good to me and passes travis-ci and testing on Fedora.
-> Ondrej, how does it fare on RHEL?
+This series contains some simplifications that I discovered while
+working on another patch. I believe they also save some run time
+(although not in any perf-critical paths) and some memory overhead.
 
-Thanks for asking! Unfortunately the policy fails to build on RHEL-6
-due to lack of support for filename-based transitions... That part of
-the test needs to be somehow conditioned on $(MOD_POL_VERS) >= 11 and
-$(POL_VERS) >= 25. After I removed the two filetrans rules, only the
-expected two subtests failed, so the rest seems to be fine.
+The first patch is a cleanup in security_load_policy() that avoids a
+pointless allocation during initial policy load. The rest are
+cleanups/simplifications of the booleans-related code - mostly
+converting linked lists to arrays.
+
+Ondrej Mosnacek (6):
+  selinux: do not allocate ancillary buffer on first load
+  selinux: simplify security_preserve_bools()
+  selinux: convert cond_list to array
+  selinux: convert cond_av_list to array
+  selinux: convert cond_expr to array
+  selinux: generalize evaluate_cond_node()
+
+ security/selinux/include/conditional.h |   6 +-
+ security/selinux/selinuxfs.c           |   4 +-
+ security/selinux/ss/conditional.c      | 252 ++++++++++---------------
+ security/selinux/ss/conditional.h      |  27 +--
+ security/selinux/ss/policydb.c         |   2 +-
+ security/selinux/ss/policydb.h         |   3 +-
+ security/selinux/ss/services.c         |  95 ++++------
+ 7 files changed, 160 insertions(+), 229 deletions(-)
 
 -- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+2.24.1
 
