@@ -2,200 +2,185 @@ Return-Path: <SRS0=jI/q=3F=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC63AC33CB1
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 14:27:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D1BCC3F68F
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 16:02:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B17492051A
-	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 14:27:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB7BD2087E
+	for <selinux@archiver.kernel.org>; Thu, 16 Jan 2020 16:02:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="HDK8N5dm"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="R6Bh5Ilt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726371AbgAPO1F (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jan 2020 09:27:05 -0500
-Received: from mail-ed1-f73.google.com ([209.85.208.73]:54426 "EHLO
-        mail-ed1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726088AbgAPO1F (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 09:27:05 -0500
-Received: by mail-ed1-f73.google.com with SMTP id j6so14026389edt.21
-        for <selinux@vger.kernel.org>; Thu, 16 Jan 2020 06:27:03 -0800 (PST)
+        id S1726689AbgAPQC3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jan 2020 11:02:29 -0500
+Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:36243 "EHLO
+        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726706AbgAPQC3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jan 2020 11:02:29 -0500
+X-EEMSG-check-017: 46497600|UPDC19PA19_ESA_OUT01.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,326,1574121600"; 
+   d="scan'208";a="46497600"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 16 Jan 2020 16:02:25 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=jELZmjm3Hsw2JLNnK8wUTgICrgnjKlBSPiGBrTpDNpc=;
-        b=HDK8N5dmp14dBTCbzADZ/1Gh7XVvRWskVM8EylCtq6M2SKUWplc1ayqi2qmydgRHec
-         JPQcig5hGlOlcJBOJbP70XubovB/eZ9dsOGLYoos2cNXYEb+j3xzGmgWmWkeBm/F5pdq
-         N4Ae/+AtikAYgb+Y0jQBZFkE4b4BIpxcQEuG+TM3I5BSLmmgyqoEIChIePWXp9f593sP
-         xnvafPGVFcd1HWJgguxhf/vaEnjqX4bmwMFK7Qw9bCuC9RsthbpmovEX+uAaiwUZGLG1
-         9vnrPD054I0yFoAwcf5DZWxML05kf5dPbAuPLK9PVWoFuVZDiYC3fskY27IjlNj1CvvI
-         KdIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=jELZmjm3Hsw2JLNnK8wUTgICrgnjKlBSPiGBrTpDNpc=;
-        b=nUAj4Wgboe4oq3WqOsuHVDy/cNNaxl9mdukfue8V18oT+IRHgLpsLIMTZAd91Lw8vC
-         G5El7DD1beF5cQmOx4fc2GtvFgqaYWjXrBLEsj2YopN4dc1f53CSW9j50WnUI4TIhuug
-         jFXZqwSuq7s1baut6NF424JR/7zgdg7+oBzhKW2JvrkJxb2+t2Vu5Oo2T7X5IXD3crno
-         AkcUMFuGtnaGCd2oMjbhvjXtsZWgTOMdkz7XCLzYSr2QA5Ls25jddpF7V4OyiF2K/Yc1
-         Cy61LXTpN0d4t01118faYJJnsvvTB8OHyF0jkkWx3mj8/wIQfD9v+B+AMgT+mLwkuUZt
-         W96g==
-X-Gm-Message-State: APjAAAVveTvpW7BEMtlnrgvVkFbIi9eCdB/oH8b6miudDJbTSH23tutP
-        XZgZBYG4qdjPlkIcGw+djntnC996+9p6EanU7lWSDcce0B2wndYtfO6m/ZGng9lGEq7snnfupKd
-        SsTWXYeJP+1XLN1prUkN+pFLL/xrSNStbR38kjK+zy39ZYtl88BEB6C6Y6dJc
-X-Google-Smtp-Source: APXvYqzHjrh9ZWaI2A7HQiqUskQ9FeUI5YjWpyRMIeqZVCfu7h38G/hrVLAr5/0RBoqSPas1jZH6GaSMOg==
-X-Received: by 2002:a05:6402:22d4:: with SMTP id dm20mr33012061edb.353.1579184822328;
- Thu, 16 Jan 2020 06:27:02 -0800 (PST)
-Date:   Thu, 16 Jan 2020 15:26:53 +0100
-Message-Id: <20200116142653.61738-1-jeffv@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.25.0.rc1.283.g88dfdc4193-goog
-Subject: [PATCH] selinux: map RTM_GETLINK to a privileged permission
-From:   Jeff Vander Stoep <jeffv@google.com>
-To:     selinux@vger.kernel.org
-Cc:     paul@paul-moore.com, sds@tycho.nsa.gov,
-        Jeff Vander Stoep <jeffv@google.com>
-Content-Type: text/plain; charset="UTF-8"
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1579190545; x=1610726545;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=tvHD+axbdgNHMTClBu7ZAOnDN8vDHOJP+Mx4Xb9vmxM=;
+  b=R6Bh5IltR5R3zsx3Ipu4orOeJgLTTj+vWFPstc16eezfWKnG63m/p8X+
+   YH/wEg0S27aiX6D9nVwYwkeAkMEPKmCocECZAC1Oqrb9OVe55DtEaKr7w
+   BNDveSVcGmgFZdmdHTHAp8OdZBLtJROl4qy8YiGyhTBb5NRuKCoTVaO5m
+   XQd1OelwmkoIdWxea5E44SMLXJIxQxG5OiQH9IcvYWbcU83JoGfOPNGnW
+   MSatY0dOFTTeYzZFv2ukbG2UY67k35yGNdFFtLvByAIR3NtbAvsDWQyiK
+   pt9RGEzFFSL65mNuZR87t8V0g7NQXMQoT/oywStRVfuFpkLI1DUlAbNAi
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,326,1574121600"; 
+   d="scan'208";a="37880459"
+IronPort-PHdr: =?us-ascii?q?9a23=3A0EUbShfC5n8aOHa2uLKbTSP1lGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxc26YxyN2/xhgRfzUJnB7Loc0qyK6vymATFLsc7J8ChbNsAVDF?=
+ =?us-ascii?q?ld0YRetjdjKfbNMVf8Iv/uYn5yN+V5f3ghwUuGN1NIEt31fVzYry76xzcTHh?=
+ =?us-ascii?q?LiKVg9fbytScbdgMutyu+95YDYbRlWizqhe7NyKwi9oRnMusUMjoZuN6k8xg?=
+ =?us-ascii?q?HVrnZIdOhbxn9kLk+Xkxrg+8u85pFu/zletv4768JMTaD2dLkkQLJFCzgrL3?=
+ =?us-ascii?q?o779DxuxnZSguP6HocUmEInRdNHgPI8hL0UIrvvyXjruZy1zWUMsPwTbAvRD?=
+ =?us-ascii?q?St9LxrRwPyiCcGLDE27mfagdFtga1BoRKhoxt/w5PIYIyQKfFzcL/Rcc8cSG?=
+ =?us-ascii?q?FcRctaSTBPDZ2gYIsOF+oBPPhXr4/hp1sVsBCyARCgCP7zxjNUg3P726M10/?=
+ =?us-ascii?q?4lEQrbwgIuGdwAu2nQoNnsOqofVeW5wa/VxjvBcvxWwy/w5pXWfBAvof+CXr?=
+ =?us-ascii?q?x+fsTexkYtCwzLgU6dqZDnMj6PyugBr2aW4uhmWOmyi2AnsQZxoj23y8kxlo?=
+ =?us-ascii?q?nGmJoVylDa+iV/3Y07ONi4R1R/Yd6gDpRRtzyROoxtQsw/WGFlozo6y70atp?=
+ =?us-ascii?q?67eygG0pInxwXFZPCdfIiI5QzjWf+XLDxlinxlf7e/iAyz8Uim0uD8TtO70E?=
+ =?us-ascii?q?pWoSpFiNXAr2kB2wXI6seZVvR9412h2TeT1wHT7OxPPEM6lbLDJpI8zbM9mY?=
+ =?us-ascii?q?AfvETeEiPshkn7g7Gael859uWu9u/peK/ppoWGOI9xkgz+N6MuldGhDukgKQ?=
+ =?us-ascii?q?gOWnSb+fy71L3+4U31WLVKgeMykqneqJ3aOd4UprS4Aw9IyYYv8Re/DzGo0N?=
+ =?us-ascii?q?QfhnkIMk5KdAibj4npJ17OIPf4Ae25g1uwizdk2+rKPrjgApXJNnTDkbHhcq?=
+ =?us-ascii?q?hh60NE1QY+wt9S64hUB70cOv7/RED8uMLCAhMkKwC0xvzoCNR51oMQQ2KPBa?=
+ =?us-ascii?q?qZPbvJsVCV/eIiOPWMZY8Jtzb9LPgp/fjujWQjllMHcqmp2oUXZGiiHvt6O0?=
+ =?us-ascii?q?WZfWbsgtAZHGcNuwo+S/fqiFuYXjFPeXm/RLg86S8mB4KmF4jDWpqhj6CG3C?=
+ =?us-ascii?q?e+BpdWfHxJCkiQEXf0cIWJQ+wMZzyWIs9glDwESLegRpQ/1RGhqgD60aBrLu?=
+ =?us-ascii?q?nK9S0Cs5Lsytx16/fUlREo+jx+F96d3H2VT2FogmMIQCc73LhlrkxgzleOyr?=
+ =?us-ascii?q?B4jOZFFdxX/v9JVwA6NZnGz+NkEdz9RgXBftLaAGqhF/KgDSs8TJoUxMQIak?=
+ =?us-ascii?q?1wGJ32iRXExCyjCLI9jbGHBJUotKnb2i61b91wz3fAybkJkVYrWI1MOHegi6?=
+ =?us-ascii?q?o58BLcQ8bxmlid34Otcr4RlHrV/XqH5XKHoUUdVQl3S6iDVncaMBj4t9P8s3?=
+ =?us-ascii?q?jeQqeuBLJvCQ5IzcqPO+MecdHypUlXT/fkftLFaiS+nHnmVkXA/a+FcIe/Iz?=
+ =?us-ascii?q?ZV5y7aEkVR1llIrHs=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CuBABJiCBe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFtIBIqhBCJA4ZfAQEBBoE3iW6RSQkBAQEBAQEBAQE3AQGEQAKCJjgTAhABA?=
+ =?us-ascii?q?QEEAQEBAQEFAwEBbIVDgjspAYJ6AQUjBBFRCw4KAgImAgJXBgEMBgIBAYJjP?=
+ =?us-ascii?q?4JXJawbfzOFSoNWgT6BDiiMNnmBB4E4D4JdPodZgl4EjVqJVkaXVoJDgkmTY?=
+ =?us-ascii?q?QYbmnCOXJ0VIoFYKwgCGAghD4MnUBgNiA0XjkEjAzCNbAEB?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 16 Jan 2020 16:02:19 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00GG1SZw009272;
+        Thu, 16 Jan 2020 11:01:40 -0500
+Subject: Re: [PATCH 1/6] selinux: do not allocate ancillary buffer on first
+ load
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>
+References: <20200116120439.303034-1-omosnace@redhat.com>
+ <20200116120439.303034-2-omosnace@redhat.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <e2af6353-25a0-30ea-8d81-30ec0d67e7d2@tycho.nsa.gov>
+Date:   Thu, 16 Jan 2020 11:02:55 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.1
+MIME-Version: 1.0
+In-Reply-To: <20200116120439.303034-2-omosnace@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Persistent device identifiers like MAC addresses are sensitive
-because they are (usually) unique and can be used to
-identify/track a device or user [1]. The MAC address is
-accessible via the RTM_GETLINK request message type of a netlink
-route socket[2] which returns the RTM_NEWLINK message.
-Mapping RTM_GETLINK to a separate permission enables restricting
-access to the MAC address without changing the behavior for
-other RTM_GET* message types.
+On 1/16/20 7:04 AM, Ondrej Mosnacek wrote:
+> In security_load_policy(), we can defer allocating the newpolicydb
+> ancillary array to after checking state->initialized, thereby avoiding
+> the pointless allocation when loading policy the first time.
+> 
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-[1] https://adamdrake.com/mac-addresses-udids-and-privacy.html
-[2] Other access vectors like ioctl(SIOCGIFHWADDR) are already covered
-by existing LSM hooks.
+What are these relative to, because they don't apply for me on 
+selinux/next?  In particular they conflict with your 'treat atomic flags 
+more carefully' patch.
 
-Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
----
- security/selinux/include/classmap.h |  2 +-
- security/selinux/include/security.h |  9 +++++++++
- security/selinux/nlmsgtab.c         | 26 +++++++++++++++++++++++++-
- security/selinux/ss/services.c      |  4 +++-
- 4 files changed, 38 insertions(+), 3 deletions(-)
-
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 986f3ac14282..77ccd558890a 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -116,7 +116,7 @@ struct security_class_mapping secclass_map[] = {
- 	  { COMMON_IPC_PERMS, NULL } },
- 	{ "netlink_route_socket",
- 	  { COMMON_SOCK_PERMS,
--	    "nlmsg_read", "nlmsg_write", NULL } },
-+	    "nlmsg_read", "nlmsg_write", "nlmsg_readpriv", NULL } },
- 	{ "netlink_tcpdiag_socket",
- 	  { COMMON_SOCK_PERMS,
- 	    "nlmsg_read", "nlmsg_write", NULL } },
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index a39f9565d80b..1671b418ddcb 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -79,6 +79,7 @@ enum {
- 	POLICYDB_CAPABILITY_ALWAYSNETWORK,
- 	POLICYDB_CAPABILITY_CGROUPSECLABEL,
- 	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
-+	POLICYDB_CAPABILITY_NETLINK_ROUTE_GETLINK,
- 	__POLICYDB_CAPABILITY_MAX
- };
- #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-@@ -209,6 +210,13 @@ static inline bool selinux_policycap_nnp_nosuid_transition(void)
- 	return state->policycap[POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION];
- }
- 
-+static inline bool selinux_policycap_nlroute_getlink(void)
-+{
-+	struct selinux_state *state = &selinux_state;
-+
-+	return state->policycap[POLICYDB_CAPABILITY_NETLINK_ROUTE_GETLINK];
-+}
-+
- int security_mls_enabled(struct selinux_state *state);
- int security_load_policy(struct selinux_state *state,
- 			 void *data, size_t len);
-@@ -422,6 +430,7 @@ extern struct vfsmount *selinuxfs_mount;
- extern void selnl_notify_setenforce(int val);
- extern void selnl_notify_policyload(u32 seqno);
- extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
-+extern void selinux_nlmsg_init(void);
- 
- extern void avtab_cache_init(void);
- extern void ebitmap_cache_init(void);
-diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-index c97fdae8f71b..aa7064a629a0 100644
---- a/security/selinux/nlmsgtab.c
-+++ b/security/selinux/nlmsgtab.c
-@@ -25,7 +25,7 @@ struct nlmsg_perm {
- 	u32	perm;
- };
- 
--static const struct nlmsg_perm nlmsg_route_perms[] =
-+static struct nlmsg_perm nlmsg_route_perms[] =
- {
- 	{ RTM_NEWLINK,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
- 	{ RTM_DELLINK,		NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-@@ -208,3 +208,27 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
- 
- 	return err;
- }
-+
-+static void nlmsg_set_getlink_perm(u32 perm)
-+{
-+	int i;
-+
-+	for (i = 0; i < sizeof(nlmsg_route_perms)/sizeof(nlmsg_perm); i++) {
-+		if (nlmsg_route_perms[i].nlmsg_type == RTM_GETLINK) {
-+			nlmsg_route_perms[i].perm = perm;
-+			break;
-+		}
-+	}
-+}
-+
-+/**
-+ * The value permission guarding RTM_GETLINK changes if nlroute_getlink
-+ * policy capability is set.
-+ */
-+void selinux_nlmsg_init(void)
-+{
-+	if (selinux_policycap_nlroute_getlink())
-+		nlmsg_set_getlink_perm(NETLINK_ROUTE_SOCKET__NLMSG_READPRIV);
-+	else
-+		nlmsg_set_getlink_perm(NETLINK_ROUTE_SOCKET__NLMSG_READ);
-+}
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 0e8b94e8e156..910b924fa715 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -73,7 +73,8 @@ const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX] = {
- 	"extended_socket_class",
- 	"always_check_network",
- 	"cgroup_seclabel",
--	"nnp_nosuid_transition"
-+	"nnp_nosuid_transition",
-+	"netlink_route_getlink"
- };
- 
- static struct selinux_ss selinux_ss;
-@@ -2223,6 +2224,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
- 
- 		state->ss->sidtab = newsidtab;
- 		security_load_policycaps(state);
-+		selinux_nlmsg_init();
- 		selinux_mark_initialized(state);
- 		seqno = ++state->ss->latest_granting;
- 		selinux_complete_init();
--- 
-2.25.0.rc1.283.g88dfdc4193-goog
+> ---
+>   security/selinux/ss/services.c | 28 +++++++++++++---------------
+>   1 file changed, 13 insertions(+), 15 deletions(-)
+> 
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index 55cf42945cba..42ca9f6dbbf4 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -2183,26 +2183,17 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   	int rc = 0;
+>   	struct policy_file file = { data, len }, *fp = &file;
+>   
+> -	oldpolicydb = kcalloc(2, sizeof(*oldpolicydb), GFP_KERNEL);
+> -	if (!oldpolicydb) {
+> -		rc = -ENOMEM;
+> -		goto out;
+> -	}
+> -	newpolicydb = oldpolicydb + 1;
+> -
+>   	policydb = &state->ss->policydb;
+>   
+>   	newsidtab = kmalloc(sizeof(*newsidtab), GFP_KERNEL);
+> -	if (!newsidtab) {
+> -		rc = -ENOMEM;
+> -		goto out;
+> -	}
+> +	if (!newsidtab)
+> +		return -ENOMEM;
+>   
+>   	if (!state->initialized) {
+>   		rc = policydb_read(policydb, fp);
+>   		if (rc) {
+>   			kfree(newsidtab);
+> -			goto out;
+> +			return rc;
+>   		}
+>   
+>   		policydb->len = len;
+> @@ -2211,14 +2202,14 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   		if (rc) {
+>   			kfree(newsidtab);
+>   			policydb_destroy(policydb);
+> -			goto out;
+> +			return rc;
+>   		}
+>   
+>   		rc = policydb_load_isids(policydb, newsidtab);
+>   		if (rc) {
+>   			kfree(newsidtab);
+>   			policydb_destroy(policydb);
+> -			goto out;
+> +			return rc;
+>   		}
+>   
+>   		state->ss->sidtab = newsidtab;
+> @@ -2231,9 +2222,16 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   		selinux_status_update_policyload(state, seqno);
+>   		selinux_netlbl_cache_invalidate();
+>   		selinux_xfrm_notify_policyload();
+> -		goto out;
+> +		return 0;
+>   	}
+>   
+> +	oldpolicydb = kcalloc(2, sizeof(*oldpolicydb), GFP_KERNEL);
+> +	if (!oldpolicydb) {
+> +		kfree(newsidtab);
+> +		return -ENOMEM;
+> +	}
+> +	newpolicydb = oldpolicydb + 1;
+> +
+>   	rc = policydb_read(newpolicydb, fp);
+>   	if (rc) {
+>   		kfree(newsidtab);
+> 
 
