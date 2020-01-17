@@ -2,224 +2,255 @@ Return-Path: <SRS0=ftCu=3G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EE45C33CB1
-	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 12:38:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19AEEC33CB1
+	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 13:15:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BF19420730
-	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 12:37:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D9F9720728
+	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 13:15:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ueVgdR16"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aGKSx7Mu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726925AbgAQMh7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Jan 2020 07:37:59 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:35847 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726917AbgAQMh7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jan 2020 07:37:59 -0500
-Received: by mail-wr1-f66.google.com with SMTP id z3so22585151wru.3
-        for <selinux@vger.kernel.org>; Fri, 17 Jan 2020 04:37:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:references:date:in-reply-to:message-id
-         :user-agent:mime-version;
-        bh=t8SV5g/N1Ujw8YXEiMA8goK6pHEl3rKDEVHVl/tTyA0=;
-        b=ueVgdR161pdSmaEnjYV5DT2EXJ/PxEGHWSgaAL1s/xcEYVlsqoRRNNN4WF/YvJJK9s
-         xN3wNinihB2gQ+Gb+46x3XQmQW1ki7DiKKf3vOHFI52eOsPN56sUzLcGenZPOFxwBu8v
-         HjGfasQ7mlGBtJ1PNWFI1s4/Uq5REGVnG8F7Xn0lnh974fn0PjCMsTX7TS5sUBbSmR3i
-         usvNccwTmaOD2WYMfm7R6AGjQkalavAak/8C6WbNP6nmtcxFCcZ4nmuYL3krkjc7Tvb3
-         V6ncx7uSP930AuKrDA9jc9nXM9b/7j+KxlPSaRXha+w4VKm86cSQqHUNNqXRG00LMmld
-         e1Iw==
+        id S1726908AbgAQNPU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Jan 2020 08:15:20 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24040 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726329AbgAQNPU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jan 2020 08:15:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579266919;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=x/M0WoxFsburDsESKwVSd5K5XZRD8eYfp/HwirhlCek=;
+        b=aGKSx7MuB6UJ0wclEuRxGa1Rr2giZjProGjKhz1gdKgSkT+l8yPbUfCXrRofbeOewYvFm9
+        OKszRMuo1rnm5MBbMdju9DeuCwPJSU7zTBOQz0+HOYsKCYogcUQDaKvTtDBRFAn5Sy8jCD
+        k/QQGHxg/BAwXelhRoQ6OTFjT3J3qMQ=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-49-7QxrBtPwOd6nl7_rma5U_A-1; Fri, 17 Jan 2020 08:15:18 -0500
+X-MC-Unique: 7QxrBtPwOd6nl7_rma5U_A-1
+Received: by mail-wr1-f70.google.com with SMTP id u12so10508272wrt.15
+        for <selinux@vger.kernel.org>; Fri, 17 Jan 2020 05:15:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:references:date:in-reply-to
-         :message-id:user-agent:mime-version;
-        bh=t8SV5g/N1Ujw8YXEiMA8goK6pHEl3rKDEVHVl/tTyA0=;
-        b=SKwXtBz5mbplCZF7VeLg2B+wkLFmRsYmSetQNjGnvWMxRrxb8fkpG65v0MNTvc64E8
-         vR/krFJk4ofXb8o4TngzpPPa1m2Dkfj300LSBCH6y/720oFPtW31GftAQ0BMAFmba6Uo
-         8y2mOYpQH9tjlLGFN0fQQh2wDCbvAQ2747dv5KqtExiFHzuC7ierQWU5FL8Mtm0Q4zvk
-         l4rm1p3rO1WBTD8NPlWaVqyTFrIV+sNvGg9MBl4DIokiM8QGbflOfArkVJkLVMFKMBqH
-         wlqsMTHWIECvTgBGNSMbS/xfXOVNBWWErYtwUQgKtbbUaZKRsDMNbXAHgr8gKYZxvZIS
-         D4tQ==
-X-Gm-Message-State: APjAAAUXRoB5no0hsRxwTjie+7rBDjsZKLhe2ZQDb6FBku3buRZGIK72
-        o4SHYsfQR9V7N0nc8Cbfqi1sGYs7
-X-Google-Smtp-Source: APXvYqyNn1q50qVlI86bzW47qwI2eXndADTuIjFPGu+GFYq8QnJsHE9Vj6wui8EhiK0NQRyPKVkJbg==
-X-Received: by 2002:adf:ea0f:: with SMTP id q15mr2932708wrm.324.1579264677579;
-        Fri, 17 Jan 2020 04:37:57 -0800 (PST)
-Received: from brutus (brutus.defensec.nl. [2001:985:d55d::438])
-        by smtp.gmail.com with ESMTPSA id u1sm4187731wmc.5.2020.01.17.04.37.55
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=x/M0WoxFsburDsESKwVSd5K5XZRD8eYfp/HwirhlCek=;
+        b=RVQt89abnxFjkKUPt5e5nZx7CXnnv4Ks8ow8dOOdsLMzgERZczZ98XMimZP7kr9Jot
+         12ehpWpKqoVWkMTwrFwkNGZ0knJAYTrN7Pim+wjpFhq+1zklNtwFOe6yZU9jCFh12OBg
+         WpZrKqbteTPA75MrVR3q1MxLHTJeM3GXTZTvOX63i1iDKRXmU4QbrD11Wmz7nauGf2sL
+         +XXGX+jdjf4JHo8N4WF0x4ZWWNH75qeXL2faWXzv2MfiDXhxGO8cMSNWJQkdaV9LOGsI
+         NwFuPj4Q+BV83G6ETgjwC7KhH7md/6hUvymJnaK7YVFYdFy2xM0uOCtjj5Bp98aAKxz6
+         sUUg==
+X-Gm-Message-State: APjAAAUOCl5VbWGJgZ0BXto9BVsW50ujqBBCrn0GzMkHDQIZr2j8gzBT
+        DFz0PMhKnKthvmBdaDZaDpRTIfVHDoWHVtYVOG3Om7x4acITtdtYMVgFOu/9wVQDUPuGUdbXcRn
+        x0R1gomZxDh2QdnzO8w==
+X-Received: by 2002:a05:600c:118a:: with SMTP id i10mr4648996wmf.142.1579266916594;
+        Fri, 17 Jan 2020 05:15:16 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzOODwTThlikqbztqCA2XL3NBbw2hutyMUxj8s1dauuXUuJlXPInO2Ez5iVWBfo4OiIsz7NSw==
+X-Received: by 2002:a05:600c:118a:: with SMTP id i10mr4648968wmf.142.1579266916344;
+        Fri, 17 Jan 2020 05:15:16 -0800 (PST)
+Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id f1sm9378702wmc.45.2020.01.17.05.15.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jan 2020 04:37:56 -0800 (PST)
-From:   Dominick Grift <dac.override@gmail.com>
-To:     Jeffrey Vander Stoep <jeffv@google.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] selinux: map RTM_GETLINK to a privileged permission
-References: <20200116142653.61738-1-jeffv@google.com>
-        <CAHC9VhRSUhozBycHMZcMaJsibJDxNMsTsKVT2zOnW=5H4R4mdg@mail.gmail.com>
-        <CABXk95Au74Dg8PvxochStgUwhurDtokntvg9WD-WaJmMhHJ+hw@mail.gmail.com>
-Date:   Fri, 17 Jan 2020 13:37:54 +0100
-In-Reply-To: <CABXk95Au74Dg8PvxochStgUwhurDtokntvg9WD-WaJmMhHJ+hw@mail.gmail.com>
-        (Jeffrey Vander Stoep's message of "Fri, 17 Jan 2020 09:27:53 +0100")
-Message-ID: <87d0bii7h9.fsf@gmail.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
+        Fri, 17 Jan 2020 05:15:15 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] selinux: move status variables out of selinux_ss
+Date:   Fri, 17 Jan 2020 14:15:14 +0100
+Message-Id: <20200117131514.496122-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Jeffrey Vander Stoep <jeffv@google.com> writes:
+It fits more naturally in selinux_state, since it reflects also global
+state (the enforcing and policyload fields).
 
-> On Fri, Jan 17, 2020 at 1:32 AM Paul Moore <paul@paul-moore.com> wrote:
->>
->> On Thu, Jan 16, 2020 at 9:27 AM Jeff Vander Stoep <jeffv@google.com> wrote:
->> > Persistent device identifiers like MAC addresses are sensitive
->> > because they are (usually) unique and can be used to
->> > identify/track a device or user [1]. The MAC address is
->> > accessible via the RTM_GETLINK request message type of a netlink
->> > route socket[2] which returns the RTM_NEWLINK message.
->> > Mapping RTM_GETLINK to a separate permission enables restricting
->> > access to the MAC address without changing the behavior for
->> > other RTM_GET* message types.
->> >
->> > [1] https://adamdrake.com/mac-addresses-udids-and-privacy.html
->> > [2] Other access vectors like ioctl(SIOCGIFHWADDR) are already covered
->> > by existing LSM hooks.
->> >
->> > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/Makefile           |  4 ++--
+ security/selinux/hooks.c            |  1 +
+ security/selinux/include/security.h |  4 ++++
+ security/selinux/ss/services.c      |  2 --
+ security/selinux/ss/services.h      |  2 --
+ security/selinux/{ss => }/status.c  | 32 ++++++++++++++---------------
+ 6 files changed, 23 insertions(+), 22 deletions(-)
+ rename security/selinux/{ss => }/status.c (81%)
 
-Pardon my intrusion but I am trying to determine whether I would be able
-to leverage this functionality and I would appreciate any comments,
-suggestions etc.
-
-I have two commits:
-
-1. Adding nlmsg_readpriv to netlink_route_socket, and adding the
-netlink_route_getlink policy capability.
-
-This commit effectively changes nothing whether I have the polcap
-enabled or not.
-
-https://defensec.nl/gitweb/dssp2.git/commitdiff/83162d18c6f829de418921339269fa41b4e61882
-
-2. leveraging nlmsg_readpriv
-
-This adds a permissionx for "all netlink_route_socket ioctl except
-SIOCGIFHWADDR and two classpermissions that are basically the
-r_netlink_route_socket_perms and create_netlink_route_socket_perms
-equivalents but without ioctl and nlmsg_readpriv.
-
-https://defensec.nl/gitweb/dssp2.git/commit/1ab25105ede7a085f85c1b11b3abbc8e5b80dae5
-
-The idea is that domains that shouldnt have access to mac addresses (I
-suppose the majority) will use for example ...
-
-(allow mydomain self r_netlink_route_except_ioctl_and_nlmsg_readpriv_socket_perms)
-(allowx mydomain self netlink_route_socket_ioctl_except_SIOCGIFHWADDR)
-
-... whereas everything else will keep using the existing
-r_netlink_route_socket_perms or create_netlink_route_socket_perms
-
-Does this make sense to you, and are these all the *direct* access
-vectors to get mac addresses?
-
-I guess there would be indirect ways to get it from an entity that does
-have access to netlink_route_socket nlmsg_readpriv and SIOCGIFHWADDR but
-that is a different story.
-
->> > ---
->> >  security/selinux/include/classmap.h |  2 +-
->> >  security/selinux/include/security.h |  9 +++++++++
->> >  security/selinux/nlmsgtab.c         | 26 +++++++++++++++++++++++++-
->> >  security/selinux/ss/services.c      |  4 +++-
->> >  4 files changed, 38 insertions(+), 3 deletions(-)
->>
->> ...
->>
->> > diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
->> > index c97fdae8f71b..aa7064a629a0 100644
->> > --- a/security/selinux/nlmsgtab.c
->> > +++ b/security/selinux/nlmsgtab.c
->> > @@ -25,7 +25,7 @@ struct nlmsg_perm {
->> >         u32     perm;
->> >  };
->> >
->> > -static const struct nlmsg_perm nlmsg_route_perms[] =
->> > +static struct nlmsg_perm nlmsg_route_perms[] =
->> >  {
->> >         { RTM_NEWLINK,          NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
->> >         { RTM_DELLINK,          NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
->> > @@ -208,3 +208,27 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
->> >
->> >         return err;
->> >  }
->> > +
->> > +static void nlmsg_set_getlink_perm(u32 perm)
->> > +{
->> > +       int i;
->> > +
->> > +       for (i = 0; i < sizeof(nlmsg_route_perms)/sizeof(nlmsg_perm); i++) {
->> > +               if (nlmsg_route_perms[i].nlmsg_type == RTM_GETLINK) {
->> > +                       nlmsg_route_perms[i].perm = perm;
->> > +                       break;
->> > +               }
->> > +       }
->> > +}
->> > +
->> > +/**
->> > + * The value permission guarding RTM_GETLINK changes if nlroute_getlink
->> > + * policy capability is set.
->> > + */
->> > +void selinux_nlmsg_init(void)
->> > +{
->> > +       if (selinux_policycap_nlroute_getlink())
->> > +               nlmsg_set_getlink_perm(NETLINK_ROUTE_SOCKET__NLMSG_READPRIV);
->> > +       else
->> > +               nlmsg_set_getlink_perm(NETLINK_ROUTE_SOCKET__NLMSG_READ);
->> > +}
->>
->> Two comments, with the first being rather trivial:
->>
->> It might be nice to rename this to selinux_policycaps_init() or
->> something similar; that way we have some hope of collecting similar
->> policycaps related tweaks in one place.
->>
->> Our current handling of netlink messages is rather crude, especially
->> when you consider the significance of the netlink messages and the
->> rather coarse granularity when compared to other SELinux object
->> classes.  I believe some (most? all?) of this is due to the number of
->> netlink messages compared to the maximum number of permissions in an
->> object class.  Back when xperms were added, one of the motivations for
->> making it a general solution was to potentially use them for netlink;
->> we obviously haven't made the change in the netlink controls, but I
->> think this might be the right time to do it.
->
-> That's a very large change with some unanswered questions - like how to handle
-> generic netlink. I will have time later this year to make that change.
->
-> In the meantime, this change is small (ideal for backporting) and
-> consistent with
-> how we differentiate between levels of sensitivity on netlink_audit messages.
-> Would you consider taking v3 of this change with your suggested adjustment to
-> selinux_policycaps_init()?
->
-> (Apologies for the resend, gmail switched out of "plain text" mode so my initial
-> response wasn't delivered to the mailing list).
->
->>
->>
->> --
->> paul moore
->> www.paul-moore.com
-
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index 2000f95fb197..0c77ede1cc11 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -6,9 +6,9 @@
+ obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
+ 
+ selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
+-	     netnode.o netport.o \
++	     netnode.o netport.o status.o \
+ 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
+-	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/status.o
++	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o
+ 
+ selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
+ 
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 61085eb3cd24..f9224866d60a 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7156,6 +7156,7 @@ static __init int selinux_init(void)
+ 	selinux_state.checkreqprot = selinux_checkreqprot_boot;
+ 	selinux_ss_init(&selinux_state.ss);
+ 	selinux_avc_init(&selinux_state.avc);
++	mutex_init(&selinux_state.status_lock);
+ 
+ 	/* Set the security state for the initial task. */
+ 	cred_init_security();
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index a39f9565d80b..f3a621058aba 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -108,6 +108,10 @@ struct selinux_state {
+ 	bool checkreqprot;
+ 	bool initialized;
+ 	bool policycap[__POLICYDB_CAPABILITY_MAX];
++
++	struct page *status_page;
++	struct mutex status_lock;
++
+ 	struct selinux_avc *avc;
+ 	struct selinux_ss *ss;
+ } __randomize_layout;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 216ce602a2b5..5cf491768142 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -46,7 +46,6 @@
+ #include <linux/in.h>
+ #include <linux/sched.h>
+ #include <linux/audit.h>
+-#include <linux/mutex.h>
+ #include <linux/vmalloc.h>
+ #include <net/netlabel.h>
+ 
+@@ -81,7 +80,6 @@ static struct selinux_ss selinux_ss;
+ void selinux_ss_init(struct selinux_ss **ss)
+ {
+ 	rwlock_init(&selinux_ss.policy_rwlock);
+-	mutex_init(&selinux_ss.status_lock);
+ 	*ss = &selinux_ss;
+ }
+ 
+diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
+index c5896f39e8f6..e9bddf33e53d 100644
+--- a/security/selinux/ss/services.h
++++ b/security/selinux/ss/services.h
+@@ -29,8 +29,6 @@ struct selinux_ss {
+ 	rwlock_t policy_rwlock;
+ 	u32 latest_granting;
+ 	struct selinux_map map;
+-	struct page *status_page;
+-	struct mutex status_lock;
+ } __randomize_layout;
+ 
+ void services_compute_xperms_drivers(struct extended_perms *xperms,
+diff --git a/security/selinux/ss/status.c b/security/selinux/status.c
+similarity index 81%
+rename from security/selinux/ss/status.c
+rename to security/selinux/status.c
+index 3c554a442467..4bc8f809934c 100644
+--- a/security/selinux/ss/status.c
++++ b/security/selinux/status.c
+@@ -11,7 +11,7 @@
+ #include <linux/mm.h>
+ #include <linux/mutex.h>
+ #include "avc.h"
+-#include "services.h"
++#include "security.h"
+ 
+ /*
+  * The selinux_status_page shall be exposed to userspace applications
+@@ -44,12 +44,12 @@ struct page *selinux_kernel_status_page(struct selinux_state *state)
+ 	struct selinux_kernel_status   *status;
+ 	struct page		       *result = NULL;
+ 
+-	mutex_lock(&state->ss->status_lock);
+-	if (!state->ss->status_page) {
+-		state->ss->status_page = alloc_page(GFP_KERNEL|__GFP_ZERO);
++	mutex_lock(&state->status_lock);
++	if (!state->status_page) {
++		state->status_page = alloc_page(GFP_KERNEL|__GFP_ZERO);
+ 
+-		if (state->ss->status_page) {
+-			status = page_address(state->ss->status_page);
++		if (state->status_page) {
++			status = page_address(state->status_page);
+ 
+ 			status->version = SELINUX_KERNEL_STATUS_VERSION;
+ 			status->sequence = 0;
+@@ -65,8 +65,8 @@ struct page *selinux_kernel_status_page(struct selinux_state *state)
+ 				!security_get_allow_unknown(state);
+ 		}
+ 	}
+-	result = state->ss->status_page;
+-	mutex_unlock(&state->ss->status_lock);
++	result = state->status_page;
++	mutex_unlock(&state->status_lock);
+ 
+ 	return result;
+ }
+@@ -81,9 +81,9 @@ void selinux_status_update_setenforce(struct selinux_state *state,
+ {
+ 	struct selinux_kernel_status   *status;
+ 
+-	mutex_lock(&state->ss->status_lock);
+-	if (state->ss->status_page) {
+-		status = page_address(state->ss->status_page);
++	mutex_lock(&state->status_lock);
++	if (state->status_page) {
++		status = page_address(state->status_page);
+ 
+ 		status->sequence++;
+ 		smp_wmb();
+@@ -93,7 +93,7 @@ void selinux_status_update_setenforce(struct selinux_state *state,
+ 		smp_wmb();
+ 		status->sequence++;
+ 	}
+-	mutex_unlock(&state->ss->status_lock);
++	mutex_unlock(&state->status_lock);
+ }
+ 
+ /*
+@@ -107,9 +107,9 @@ void selinux_status_update_policyload(struct selinux_state *state,
+ {
+ 	struct selinux_kernel_status   *status;
+ 
+-	mutex_lock(&state->ss->status_lock);
+-	if (state->ss->status_page) {
+-		status = page_address(state->ss->status_page);
++	mutex_lock(&state->status_lock);
++	if (state->status_page) {
++		status = page_address(state->status_page);
+ 
+ 		status->sequence++;
+ 		smp_wmb();
+@@ -120,5 +120,5 @@ void selinux_status_update_policyload(struct selinux_state *state,
+ 		smp_wmb();
+ 		status->sequence++;
+ 	}
+-	mutex_unlock(&state->ss->status_lock);
++	mutex_unlock(&state->status_lock);
+ }
 -- 
-Key fingerprint = 5F4D 3CDB D3F8 3652 FBD8 02D5 3B6C 5F1D 2C7B 6B02
-https://sks-keyservers.net/pks/lookup?op=get&search=0x3B6C5F1D2C7B6B02
-Dominick Grift
+2.24.1
+
