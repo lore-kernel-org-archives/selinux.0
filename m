@@ -2,92 +2,91 @@ Return-Path: <SRS0=ftCu=3G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD6FDC33C9E
-	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 19:38:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABE0AC33C9E
+	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 19:48:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 798C320748
-	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 19:38:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C6532082F
+	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 19:48:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="h4h7yY10"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="qbFx8LSy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729316AbgAQTi5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Jan 2020 14:38:57 -0500
-Received: from UHIL19PA36.eemsg.mail.mil ([214.24.21.195]:24975 "EHLO
-        UHIL19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727573AbgAQTi5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jan 2020 14:38:57 -0500
-X-EEMSG-check-017: 67866312|UHIL19PA36_ESA_OUT02.csd.disa.mil
+        id S1729316AbgAQTsV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Jan 2020 14:48:21 -0500
+Received: from USAT19PA21.eemsg.mail.mil ([214.24.22.195]:34419 "EHLO
+        USAT19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727573AbgAQTsU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jan 2020 14:48:20 -0500
+X-EEMSG-check-017: 70999817|USAT19PA21_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,331,1574121600"; 
-   d="scan'208";a="67866312"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UHIL19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 17 Jan 2020 19:38:55 +0000
+   d="scan'208";a="70999817"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USAT19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 17 Jan 2020 19:47:53 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579289935; x=1610825935;
+  s=tycho.nsa.gov; t=1579290473; x=1610826473;
   h=subject:to:references:from:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=nQbiZItnFcTMS463ylFkDHhAZbsst0glNr3WOS2jGq0=;
-  b=h4h7yY10HwyPKF05HpRrwUJo3vfwAaZbgPrFeD/2gpCieg9TS4C50qPH
-   HK5I0ys14/01EiUIiii4PnnsySxepvpgcNkYnnrJyrVS7FgRuh59NQabx
-   YLLzZZXwreaObnhFb92floXHXFkkmk06qUB8N1v/CYw1Aw08OLiKlx/9Q
-   LDqHXVVV55ke5PCMGdB/bq3NF51Vbc2w1uNLFnHOaWZPR+vYspJZ4NoSc
-   5Y4wen/pNnyAwIUbdGujj4kM/7bKVgxrh3Bghh4NB1dACrdP4MpRwBu7F
-   s1IBKbT8VUz46H0MEP0VfuOzNveUofjqwYOUYWj7MNav+IQULG9FALWWv
+  bh=X5YIqqIiypm0/fyZvdfSa7SLtMzVMyrga8bqBvDBuk4=;
+  b=qbFx8LSygvNL/hZB+9U/gIW+iLo/5lafj93Pyo/utPIQK802EJpaJrBz
+   mqC8AAO231mdY95wQ/GBBJe7d001p6P+N+T3II8OvDtvXaw14Hy3Sf+md
+   PimMFS/c8FH82BQIP4z+zektfyQf1I8b4VNyX7WY1nXabcasRy6FWfLof
+   RCh1MmP2P3JdaTQsnn4DJX3/Sixnxj53Rs0OK7/AEmaBai5ObIjuGrp2p
+   4i/UeED22+qF+lW2Wz59MxB7Wt+g531Gq8Y2kVn7iFr4ifQT1Pkw0pJhg
+   cr/8bHdpWyQkpKjR5sVjhZcbFzO1+TplblpFApeJiSHaWdZz8WXXqrwKy
    g==;
 X-IronPort-AV: E=Sophos;i="5.70,331,1574121600"; 
-   d="scan'208";a="37959059"
-IronPort-PHdr: =?us-ascii?q?9a23=3ADNZV2hGz7lmuRrdLWt+x8p1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ76p868bnLW6fgltlLVR4KTs6sC17OK9fiwEjdaqdbZ6TZeKccKD0?=
- =?us-ascii?q?dEwewt3CUYSPafDkP6KPO4JwcbJ+9lEGFfwnegLEJOE9z/bVCB6le77DoVBw?=
- =?us-ascii?q?mtfVEtfre9FYHdldm42P6v8JPPfQpImCC9YbRvJxmqsAndrMYbjZZtJ6or1h?=
- =?us-ascii?q?fEoXREdupIyWh1IV6fgwvw6t2/8ZJ+/Slcoe4t+9JFXa7nY6k2ULtUASg8PW?=
- =?us-ascii?q?so/sPrrx7DTQWO5nsYTGoblwdDDhbG4h/nQJr/qzP2ueVh1iaUO832Vq00Vi?=
- =?us-ascii?q?+576h3Uh/oiTwIOCA//WrKl8F/lqNboBampxxi347ZZZyeOfRicq/Be94RWH?=
- =?us-ascii?q?FMVdhNWSNfHoy8bpMPD+sfMuZes4n9vEYFoR+nCQWxGO/j1jpEi3n40q0g1+?=
- =?us-ascii?q?QqDB/I0gouEdkTtHjYtdv4OaMXXe2z0aLGzyjMb+lO1Dng9obIfBAvr/KCU7?=
- =?us-ascii?q?1+fsXey1UgGQzeg1WMq4HoJS+Z2vgDvmWZ6edrSOKhi3QgqwF0ujWh29sshZ?=
- =?us-ascii?q?fRhoIV1F/E8zhyzpswJdKiTE57ZcCrEZtNvCydLIt5X9giTnp0uCc61rIGuZ?=
- =?us-ascii?q?m7cDIMyJQ83RHTcfOHc4+W4h/6UuuaPDR2hGp9db6iiBu//lKsx+3hWsWuzl?=
- =?us-ascii?q?pHoTRJnsPRun0Lyhfd8NKISuFn8UekwTuP0gfT5fxaLk0sjqrbLoIhwqY3lp?=
- =?us-ascii?q?oOrUTPBi/2l1vyjK+Rbkgk5vKn6/7mYrX7vZ+QLY50igfwMqQpgcywH/g3Ph?=
- =?us-ascii?q?ISX2mb5eu81Lrj8Vf/QLpWlf05jrPVsJXbJcQfvqK5AglV3Zg/6xunEjur39?=
- =?us-ascii?q?sVkWMHIV5YYh6LkYfkN0/ULPzlFfu/hk6jkDZvx/DIJL3hBZDNI2DYkLj8Zr?=
- =?us-ascii?q?Zw8FJcyQovwtBf4JJYELcBIOnpVUPru9zYCQE5PxSuw+n7ENV9yp8eWWWXD6?=
- =?us-ascii?q?+eNaPStkSI5uQ1LOaQeoAYoyz9JOY46P7ul3A5hUURcrWu3ZsScHq4BOhpI1?=
- =?us-ascii?q?2FYXrwhdcMCXwKsRQ6TOzrjl2CTDFSam2sX6Iz+D47EpiqDYTdSYC3hryOwi?=
- =?us-ascii?q?O7EodRZmBcBVCGCW3oeJmcW/cQdCKSJddskiQeWri8T48szgmuuxXny7pjN+?=
- =?us-ascii?q?bU/yoYtZX51Ndr/eHciRYy9TknR/iahkaLQ3t5nCstQCQw1atyogQpzVKEyq?=
- =?us-ascii?q?5xiPFwD9Ff5/pVFAw9MMiYh/d3D9H0RxLpYNiEUhClT8+gDDV3Scg+h5c2al?=
- =?us-ascii?q?t5U/CliQrOl36yCqIRv6SCGZhx96XbxXW3LMF4nSXozq4k2mI6T9NPOGvuva?=
- =?us-ascii?q?t28wzeFsadiEmCv7q7fqQbmijW/SGMynTY7xIQaxJ5TaiQBSNXXUDRt9msox?=
- =?us-ascii?q?qZHrI=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AWBACDDCJe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YINEiqEEYkDhmIGgRIliW6KJYckCQEBAQEBAQEBATcBAYRAAoIuOBMCEAEBA?=
- =?us-ascii?q?QQBAQEBAQUDAQFshUOCOykBgnoBBSMEEVELDgoCAiYCAlcGAQwGAgEBgmM/g?=
- =?us-ascii?q?lclrWV/M4VKgy+BPoEOKIwueYEHgTgMA4JdPodZgl4ElzBGl1aCQ4JJk2EGG?=
- =?us-ascii?q?5pyLY4vnRYigVgrCAIYCCEPO4JsUBgNiA0XjkEjAzCNZwEB?=
+   d="scan'208";a="32091291"
+IronPort-PHdr: =?us-ascii?q?9a23=3AGrWtoxNJ66o6dPqT4XAl6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0K/z5ocbcNUDSrc9gkEXOFd2Cra4d16yO4+u7AiRAuc/H7ClZNsQUFl?=
+ =?us-ascii?q?cssoY/p0QYGsmLCEn2frbBThcRO4B8bmJj5GyxKkNPGczzNBX4q3y26iMOSF?=
+ =?us-ascii?q?2kbVImbuv6FZTPgMupyuu854PcYxlShDq6fLh+MAi6oR/eu8ULjoZuMLo9xx?=
+ =?us-ascii?q?jGrnZGdeld2GdkKU6Okxrm6cq84ZBu/z5Mt/498sJLTLn3cbk/QbFEFjotLn?=
+ =?us-ascii?q?o75NfstRnNTAuP4mUTX2ALmRdWAAbL8Q/3UI7pviT1quRy1i+aPdbrTb8vQj?=
+ =?us-ascii?q?St871rSB7zhygZMTMy7XzahdZxjKJfpxKhugB/zovJa4ybKPZyYqXQds4BSG?=
+ =?us-ascii?q?FfQsheSTBOAoKkb4sOEeUBO/pYr5LgrFcKtBeyGBWgCP/qxjJOiHD2x6k62P?=
+ =?us-ascii?q?k/Hw/A0gIrAtYCvG3aodjxMasfV/2+wqvVwjXZd/5YxCnz6IbIfB4ir/+DU7?=
+ =?us-ascii?q?1/fsjNxkcgDA7FkledpJb5Mz+J2OkAsW6W5PdgW+K1jG4nrhl8rCWzxsgyko?=
+ =?us-ascii?q?nJhpwaylbZ/itkxYY6P9m4SEplbt+kDZBdsDqaOJZtQs45X2FpuDo1yr0BuZ?=
+ =?us-ascii?q?KheigK044oywTQa/yAbYiF+xTuX/uSLzdgnH9pZb2yihmo/UWg1+HwTNe43V?=
+ =?us-ascii?q?lUoiZfj9XBsG0G2QbJ5cidUPR9+1+s2TOI1w/O9O5JOVs0la/HK545xb4wi4?=
+ =?us-ascii?q?YTvVzDHiDonEX2i7ebdlk+9eiy6uTnf67mqoWdN49yhAH+Nb8uldKjDugiLg?=
+ =?us-ascii?q?gPX3SU+eS71LH5+032XK5KgeEsnqncsZDaIdwXpq+/AwBLzoYu8wuzAjip3d?=
+ =?us-ascii?q?gCnXQLMUhJdAyIgoT3IV3CPej0DfKljFStlDdryerGPrrkApjVNXjMjazhcK?=
+ =?us-ascii?q?1h609c1AUzzddf64hSCrEaOv3/QEDxtNvGDhMhKQy73/7nCMlh1oMZQW+PBa?=
+ =?us-ascii?q?qZMKTJsV+O/O0gP/eDaZQPuDnjNvcl5+ThjWMjlVABeqmp2IMdaGqkEfR+P0?=
+ =?us-ascii?q?WZfX3sj88aEWgUugo+TerqiECNUDNIeXayULwz5ishBIKlE4jDXIatj6KF3C?=
+ =?us-ascii?q?uhGZ1WfG9GAEiWEXj0b4WER+sMaCWKL895iDMESLyhRpQ51R60qQ/6z6NrLu?=
+ =?us-ascii?q?/T+i0fr5LsysJ56PHUlRE3pnRICJG61W2XQmM8u2QTQTY90aM39Ut4zUyF2K?=
+ =?us-ascii?q?N1q+ZVGdxa+7VCVQJscdbHwuh7Dc3ichzOc83PS1u8RNiiRzYrQZZ5+9YTZw?=
+ =?us-ascii?q?5YHNK4g1iXxyO3B5cNnqGPQZkz9bjRmXP2IpAu5WzB0fwak1Q+QsZJfVajj6?=
+ =?us-ascii?q?p7+hmbU5XFiG2Fhq2qcuIaxyeL+2Cdmznd9HpEWRJ9BP2WFUsUYVHb+JGgvR?=
+ =?us-ascii?q?LP?=
+X-IPAS-Result: =?us-ascii?q?A2AhAwAYDyJe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YINEiqEEYkDhmEGgTeJbpFJCQEBAQEBAQEBATcBAYRAAoIuOBMCEAEBAQQBA?=
+ =?us-ascii?q?QEBAQUDAQFshUOCOykBgnoBBSMVUQsOCgICJgICVwYBDAYCAQGCYz+CVyWtb?=
+ =?us-ascii?q?4EyhUqDMIE+gQ4ojC55gQeBOA+CXT6HWYJeBI1aiVZGl1aCQ4JJk2EGG5pyL?=
+ =?us-ascii?q?Y4vnRYigVgrCAIYCCEPgydQGA2WZSMDMI1nAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 17 Jan 2020 19:38:53 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 17 Jan 2020 19:47:33 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00HJcG81012058;
-        Fri, 17 Jan 2020 14:38:16 -0500
-Subject: Re: [PATCH v2 5/5] selinux: generalize evaluate_cond_node()
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00HJkshp021377;
+        Fri, 17 Jan 2020 14:46:56 -0500
+Subject: Re: [PATCH] selinux: move status variables out of selinux_ss
 To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
         Paul Moore <paul@paul-moore.com>
-References: <20200117085836.445797-1-omosnace@redhat.com>
- <20200117085836.445797-6-omosnace@redhat.com>
+References: <20200117131514.496122-1-omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <bf45fb6b-c262-d03e-5602-46cb1edb17ac@tycho.nsa.gov>
-Date:   Fri, 17 Jan 2020 14:39:36 -0500
+Message-ID: <f7e09f46-59b0-2bdf-d270-1ce292b33033@tycho.nsa.gov>
+Date:   Fri, 17 Jan 2020 14:48:14 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <20200117085836.445797-6-omosnace@redhat.com>
+In-Reply-To: <20200117131514.496122-1-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -96,83 +95,24 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/17/20 3:58 AM, Ondrej Mosnacek wrote:
-> Both callers iterate the cond_list and call it for each node - turn it
-> into evaluate_cond_nodes(), which does the iteration for them.
+On 1/17/20 8:15 AM, Ondrej Mosnacek wrote:
+> It fits more naturally in selinux_state, since it reflects also global
+> state (the enforcing and policyload fields).
 > 
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
 Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->   security/selinux/ss/conditional.c | 10 +++++++++-
->   security/selinux/ss/conditional.h |  2 +-
->   security/selinux/ss/services.c    |  6 ++----
->   3 files changed, 12 insertions(+), 6 deletions(-)
-> 
-> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-> index 8f9f2f3c86a0..ad709ccea036 100644
-> --- a/security/selinux/ss/conditional.c
-> +++ b/security/selinux/ss/conditional.c
-> @@ -86,7 +86,7 @@ static int cond_evaluate_expr(struct policydb *p, struct cond_expr *expr)
->    * list appropriately. If the result of the expression is undefined
->    * all of the rules are disabled for safety.
->    */
-> -void evaluate_cond_node(struct policydb *p, struct cond_node *node)
-> +static void evaluate_cond_node(struct policydb *p, struct cond_node *node)
->   {
->   	struct avtab_node *avnode;
->   	int new_state;
-> @@ -117,6 +117,14 @@ void evaluate_cond_node(struct policydb *p, struct cond_node *node)
->   	}
->   }
->   
-> +void evaluate_cond_nodes(struct policydb *p)
-> +{
-> +	u32 i;
-> +
-> +	for (i = 0; i < p->cond_list_len; i++)
-> +		evaluate_cond_node(p, &p->cond_list[i]);
-> +}
-> +
->   int cond_policydb_init(struct policydb *p)
->   {
->   	int rc;
-> diff --git a/security/selinux/ss/conditional.h b/security/selinux/ss/conditional.h
-> index 4677c6ff7450..b9eb888ffa76 100644
-> --- a/security/selinux/ss/conditional.h
-> +++ b/security/selinux/ss/conditional.h
-> @@ -78,6 +78,6 @@ void cond_compute_av(struct avtab *ctab, struct avtab_key *key,
->   		struct av_decision *avd, struct extended_perms *xperms);
->   void cond_compute_xperms(struct avtab *ctab, struct avtab_key *key,
->   		struct extended_perms_decision *xpermd);
-> -void evaluate_cond_node(struct policydb *p, struct cond_node *node);
-> +void evaluate_cond_nodes(struct policydb *p);
->   
->   #endif /* _CONDITIONAL_H_ */
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 8fc8ec317bb6..7fb7f2efe566 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -2958,8 +2958,7 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
->   			policydb->bool_val_to_struct[i]->state = 0;
->   	}
->   
-> -	for (i = 0; i < policydb->cond_list_len; i++)
-> -		evaluate_cond_node(policydb, &policydb->cond_list[i]);
-> +	evaluate_cond_nodes(policydb);
->   
->   	seqno = ++state->ss->latest_granting;
->   	rc = 0;
-> @@ -3012,8 +3011,7 @@ static int security_preserve_bools(struct selinux_state *state,
->   		if (booldatum)
->   			booldatum->state = bvalues[i];
->   	}
-> -	for (i = 0; i < policydb->cond_list_len; i++)
-> -		evaluate_cond_node(policydb, &policydb->cond_list[i]);
-> +	evaluate_cond_nodes(policydb);
->   
->   out:
->   	if (bnames) {
-> 
+>   security/selinux/Makefile           |  4 ++--
+>   security/selinux/hooks.c            |  1 +
+>   security/selinux/include/security.h |  4 ++++
+>   security/selinux/ss/services.c      |  2 --
+>   security/selinux/ss/services.h      |  2 --
+>   security/selinux/{ss => }/status.c  | 32 ++++++++++++++---------------
+>   6 files changed, 23 insertions(+), 22 deletions(-)
+>   rename security/selinux/{ss => }/status.c (81%)
+
+[...]
+
 
