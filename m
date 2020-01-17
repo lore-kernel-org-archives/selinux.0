@@ -2,168 +2,102 @@ Return-Path: <SRS0=ftCu=3G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 476ACC33CB1
-	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 08:28:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69294C33CB1
+	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 08:58:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1722820728
-	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 08:28:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A65F2072B
+	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 08:58:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="GJ1IWc99"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U0VXl6lU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729196AbgAQI2H (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Jan 2020 03:28:07 -0500
-Received: from mail-lj1-f194.google.com ([209.85.208.194]:44828 "EHLO
-        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727002AbgAQI2H (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jan 2020 03:28:07 -0500
-Received: by mail-lj1-f194.google.com with SMTP id q8so1770770ljj.11
-        for <selinux@vger.kernel.org>; Fri, 17 Jan 2020 00:28:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=W6vnz+Pn2pq+eJZDyFozEgm8JdknLWIc505/mS8ilIk=;
-        b=GJ1IWc99z2lHDs1BJe5jBU1IyPq6BIfG8RO1Dp+TrCNd+HzILNTJO80vXMiky/TACb
-         E4ILlY6JP4mAdbMiS+q3xdGYjsqc5HJl+HoNz7yufzi/dhSOyqp1LWPxDA5uyykkLECc
-         Sv4GOzHNRWtjAthg4yZygimiN/GwQ0CQfgSCDdVU4pCIby4N2VZy1gesst22n73F5xl6
-         yiHnjXhvaHjHk3uMzFVs9wUhD8bfZVGlD+gUGmGwGjIdhZqW3ioupq2z1v5dashz+v88
-         8I3JRAt9zJuG/0yH/Z20/Qxh/7qXGRVBTc30DR1H/L3Zt7dcxme7h+SJ+8WrVrOpBOEC
-         BeEA==
+        id S1729081AbgAQI6m (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Jan 2020 03:58:42 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:48629 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727531AbgAQI6m (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jan 2020 03:58:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579251521;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=jbzOvpeuyjW0OUajo1G7uCG1pCme7Gv8mTPW8J+7R/A=;
+        b=U0VXl6lUYPSL2tVEUOAOxc8POLMm1sF5+tT2/DiVglEB+dNtlLsFd86w4kjrjO1bn12cwr
+        8/FlxLBLg9JN2Bk7qJOs3SbsaG3XZbDddfYloz6/dM7k/xCMheQg27Dwn8cdHaU1W+1obn
+        NVC29bRNZUBs4ek19ojTNNp+yYdx6ps=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-161-gj91dKZANiu2GPTeLiumbA-1; Fri, 17 Jan 2020 03:58:40 -0500
+X-MC-Unique: gj91dKZANiu2GPTeLiumbA-1
+Received: by mail-wm1-f71.google.com with SMTP id g26so996049wmk.6
+        for <selinux@vger.kernel.org>; Fri, 17 Jan 2020 00:58:40 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=W6vnz+Pn2pq+eJZDyFozEgm8JdknLWIc505/mS8ilIk=;
-        b=iwu0T7ctYcBG/8n06j4fjn/28tj4gppvBbV3dF5DaCdwZwFfMoBuBygHAwCoQl7AJ2
-         toZJdmBGhJiDr3xkJkDhQQQQhdWjh+QvNsyYLV7xNG2JevwNokQbaSc0rRGc5NP+boZ2
-         nsWsjCOJRrhqoVZfu2skvIniFFcczke/VQnHntFcsYwebYfHPJvU9JcNf3Nws/8u8pql
-         2WB3UbYqBElIYQ33L6S5jwOic/prjYDECnZGhhIem/EuNBLX47/ohS2IjXo3ro2xvUxk
-         RkJZ+vuCi+/JZvdI101BWtu9RD2xBEt0OUuh47gdfmCHuidAoZ8evxfq0rfcw39S3xdn
-         ECFg==
-X-Gm-Message-State: APjAAAUAku/HgS8Paj2hhV1w0FkFTKhh+8fh0FrvyNa30zX2CUTaQSuB
-        TH8OF8lhcRDtYY0S2uQwu6QUArN8hSCOw5gU9NimR0ipzdQ=
-X-Google-Smtp-Source: APXvYqzISa+ZzOmjuPyXHceEtbvv3kDDY0th+JLTOKcuIIYHwG0kfap07TzSV1GXiIDmBOIwJfkvyME9kn4AHLSsaHQ=
-X-Received: by 2002:a2e:8916:: with SMTP id d22mr4612134lji.19.1579249685111;
- Fri, 17 Jan 2020 00:28:05 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jbzOvpeuyjW0OUajo1G7uCG1pCme7Gv8mTPW8J+7R/A=;
+        b=lbMfNQmDOLS0I6FqfA4fRH4CpJt9Tm+nw1CtiqQuibYMh5dZcTMyRPvbn20DPpe4px
+         UKzP2NJELjabWCR3jskaL+1cr3c8gA77jSKNzwU/MtyHZxIWJP62gIv4mBD7ic0763em
+         VFKSFu+5MwAM0A+LpB8k1ohqnmFD0GgPIGvmQmVpVdk5CFSBVp06+Kgwok3p2t5HN1SI
+         VpIHM/pv5tuwsUh4fgw6Cm3RKt0ObXakhH5HU8XHaNLBhdYDKU5j9CWWGjVIy9tQwQ12
+         WWDcMYBw8YfJCI3RrZLBMSvg4C8ZRwTovFLQe9sq108G6YJPkS9CtrBYk4AhlFZixC5l
+         nOrg==
+X-Gm-Message-State: APjAAAVftwe4a8V3yIVbkh6ljvVS4iF8NGnE6opgwTK7tGMLVZ4txEXU
+        hnIG0FdngxfZuYk31bVfj09VvJvmFmGlCdcfTi6YleLq2PMwGxv6RFV1EJSfGZ7LHfZyRqCTfxC
+        WAo29ZISEYIxLk87dGg==
+X-Received: by 2002:a7b:cc14:: with SMTP id f20mr3455770wmh.58.1579251519239;
+        Fri, 17 Jan 2020 00:58:39 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxRmOpjx3E14fbUX3N5MzitD+eNukeZvC6KMvkcIFw5sCFF5YK/R/NAyUGy6XyblUJgTyjf0Q==
+X-Received: by 2002:a7b:cc14:: with SMTP id f20mr3455758wmh.58.1579251519042;
+        Fri, 17 Jan 2020 00:58:39 -0800 (PST)
+Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id x18sm33391312wrr.75.2020.01.17.00.58.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jan 2020 00:58:38 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH v2 0/5] selinux: Assorted simplifications and cleanups
+Date:   Fri, 17 Jan 2020 09:58:31 +0100
+Message-Id: <20200117085836.445797-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-References: <20200116142653.61738-1-jeffv@google.com> <CAHC9VhRSUhozBycHMZcMaJsibJDxNMsTsKVT2zOnW=5H4R4mdg@mail.gmail.com>
-In-Reply-To: <CAHC9VhRSUhozBycHMZcMaJsibJDxNMsTsKVT2zOnW=5H4R4mdg@mail.gmail.com>
-From:   Jeffrey Vander Stoep <jeffv@google.com>
-Date:   Fri, 17 Jan 2020 09:27:53 +0100
-Message-ID: <CABXk95Au74Dg8PvxochStgUwhurDtokntvg9WD-WaJmMhHJ+hw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: map RTM_GETLINK to a privileged permission
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 17, 2020 at 1:32 AM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Thu, Jan 16, 2020 at 9:27 AM Jeff Vander Stoep <jeffv@google.com> wrote:
-> > Persistent device identifiers like MAC addresses are sensitive
-> > because they are (usually) unique and can be used to
-> > identify/track a device or user [1]. The MAC address is
-> > accessible via the RTM_GETLINK request message type of a netlink
-> > route socket[2] which returns the RTM_NEWLINK message.
-> > Mapping RTM_GETLINK to a separate permission enables restricting
-> > access to the MAC address without changing the behavior for
-> > other RTM_GET* message types.
-> >
-> > [1] https://adamdrake.com/mac-addresses-udids-and-privacy.html
-> > [2] Other access vectors like ioctl(SIOCGIFHWADDR) are already covered
-> > by existing LSM hooks.
-> >
-> > Signed-off-by: Jeff Vander Stoep <jeffv@google.com>
-> > ---
-> >  security/selinux/include/classmap.h |  2 +-
-> >  security/selinux/include/security.h |  9 +++++++++
-> >  security/selinux/nlmsgtab.c         | 26 +++++++++++++++++++++++++-
-> >  security/selinux/ss/services.c      |  4 +++-
-> >  4 files changed, 38 insertions(+), 3 deletions(-)
->
-> ...
->
-> > diff --git a/security/selinux/nlmsgtab.c b/security/selinux/nlmsgtab.c
-> > index c97fdae8f71b..aa7064a629a0 100644
-> > --- a/security/selinux/nlmsgtab.c
-> > +++ b/security/selinux/nlmsgtab.c
-> > @@ -25,7 +25,7 @@ struct nlmsg_perm {
-> >         u32     perm;
-> >  };
-> >
-> > -static const struct nlmsg_perm nlmsg_route_perms[] =
-> > +static struct nlmsg_perm nlmsg_route_perms[] =
-> >  {
-> >         { RTM_NEWLINK,          NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-> >         { RTM_DELLINK,          NETLINK_ROUTE_SOCKET__NLMSG_WRITE },
-> > @@ -208,3 +208,27 @@ int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm)
-> >
-> >         return err;
-> >  }
-> > +
-> > +static void nlmsg_set_getlink_perm(u32 perm)
-> > +{
-> > +       int i;
-> > +
-> > +       for (i = 0; i < sizeof(nlmsg_route_perms)/sizeof(nlmsg_perm); i++) {
-> > +               if (nlmsg_route_perms[i].nlmsg_type == RTM_GETLINK) {
-> > +                       nlmsg_route_perms[i].perm = perm;
-> > +                       break;
-> > +               }
-> > +       }
-> > +}
-> > +
-> > +/**
-> > + * The value permission guarding RTM_GETLINK changes if nlroute_getlink
-> > + * policy capability is set.
-> > + */
-> > +void selinux_nlmsg_init(void)
-> > +{
-> > +       if (selinux_policycap_nlroute_getlink())
-> > +               nlmsg_set_getlink_perm(NETLINK_ROUTE_SOCKET__NLMSG_READPRIV);
-> > +       else
-> > +               nlmsg_set_getlink_perm(NETLINK_ROUTE_SOCKET__NLMSG_READ);
-> > +}
->
-> Two comments, with the first being rather trivial:
->
-> It might be nice to rename this to selinux_policycaps_init() or
-> something similar; that way we have some hope of collecting similar
-> policycaps related tweaks in one place.
->
-> Our current handling of netlink messages is rather crude, especially
-> when you consider the significance of the netlink messages and the
-> rather coarse granularity when compared to other SELinux object
-> classes.  I believe some (most? all?) of this is due to the number of
-> netlink messages compared to the maximum number of permissions in an
-> object class.  Back when xperms were added, one of the motivations for
-> making it a general solution was to potentially use them for netlink;
-> we obviously haven't made the change in the netlink controls, but I
-> think this might be the right time to do it.
+This series contains some boolean code simplifications that I discovered
+while working on another patch. I believe they also save some run time
+(although not in any perf-critical paths) and some memory overhead.
 
-That's a very large change with some unanswered questions - like how to handle
-generic netlink. I will have time later this year to make that change.
+Changes in v2:
+ - drop already merged 1st patch
+ - drop the rewrite of security_preserve_bools(), keep only the
+   evaluate_cond_node() return type change (requested by Paul)
 
-In the meantime, this change is small (ideal for backporting) and
-consistent with
-how we differentiate between levels of sensitivity on netlink_audit messages.
-Would you consider taking v3 of this change with your suggested adjustment to
-selinux_policycaps_init()?
+Ondrej Mosnacek (5):
+  selinux: simplify evaluate_cond_node()
+  selinux: convert cond_list to array
+  selinux: convert cond_av_list to array
+  selinux: convert cond_expr to array
+  selinux: generalize evaluate_cond_node()
 
-(Apologies for the resend, gmail switched out of "plain text" mode so my initial
-response wasn't delivered to the mailing list).
+ security/selinux/include/conditional.h |   6 +-
+ security/selinux/selinuxfs.c           |   4 +-
+ security/selinux/ss/conditional.c      | 252 ++++++++++---------------
+ security/selinux/ss/conditional.h      |  27 +--
+ security/selinux/ss/policydb.c         |   2 +-
+ security/selinux/ss/policydb.h         |   3 +-
+ security/selinux/ss/services.c         |  32 ++--
+ 7 files changed, 137 insertions(+), 189 deletions(-)
 
->
->
-> --
-> paul moore
-> www.paul-moore.com
+-- 
+2.24.1
+
