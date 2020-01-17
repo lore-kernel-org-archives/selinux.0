@@ -7,65 +7,65 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93BC8C33CB3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F12CEC33CB7
 	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 08:58:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5E0C12072B
+	by mail.kernel.org (Postfix) with ESMTP id BCA0B2072B
 	for <selinux@archiver.kernel.org>; Fri, 17 Jan 2020 08:58:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IJL5BLXz"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MJsoZ9Lg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726479AbgAQI6s (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1727531AbgAQI6s (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Fri, 17 Jan 2020 03:58:48 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:42581 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727531AbgAQI6r (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jan 2020 03:58:47 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:31788 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729447AbgAQI6s (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jan 2020 03:58:48 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1579251526;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Gs2FevhIY5qg7ix5NuxjTRi08FFlGqxkkVWx8ba6YMo=;
-        b=IJL5BLXzrVbxHC35GDNkRIE7BNIm8tjeRoqkZWhTYhRN6bfTr0KcjKFMaQ/eZj8BjN2Z+U
-        0iXXq0VLwjCDDeKhQ6imzAcARfjwUFof5fI0m6UG441AAKB3Aj6RKGD8bM92y4zEwUhz5g
-        oXg9Xwu/RsKCuVrZ/H33Gs1fR4j9n0o=
+        bh=nGCEq82ehTrsFPHPtbf/4Nawb3kcxvSSNiHX55gJpWw=;
+        b=MJsoZ9LgE5/wph31uXR4b9WFZhMB2f1BN+9Ssn6phHQjneYT4E3RFReuHLq9SndjzWmVqA
+        QozaWlgYsD/mfgJhHmUJDh8II1wi2ac1I3KzO9wN+BzO+UvBjT2xb5rW6qo79ID/tTAVI/
+        kJwj6USKY85YdGvnNEg3SFPBwUufOUY=
 Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
  [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-347-btSc0Lc3POSps82pZpa5rA-1; Fri, 17 Jan 2020 03:58:44 -0500
-X-MC-Unique: btSc0Lc3POSps82pZpa5rA-1
-Received: by mail-wm1-f71.google.com with SMTP id w205so2008391wmb.5
-        for <selinux@vger.kernel.org>; Fri, 17 Jan 2020 00:58:44 -0800 (PST)
+ us-mta-364-H6JgMEEdPXKwStNvYahaxQ-1; Fri, 17 Jan 2020 03:58:43 -0500
+X-MC-Unique: H6JgMEEdPXKwStNvYahaxQ-1
+Received: by mail-wm1-f71.google.com with SMTP id s25so997941wmj.3
+        for <selinux@vger.kernel.org>; Fri, 17 Jan 2020 00:58:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Gs2FevhIY5qg7ix5NuxjTRi08FFlGqxkkVWx8ba6YMo=;
-        b=RWxsmdchzheidV9qVsWiNyeG3eTZbiHrt2PX0b4M2MR4YZsql0BjP5/EMqQkue5Kb4
-         Qrhf2dY5g0AwCzwJW1wVs6FTv4Ld2UB6meU0eaxiAqXHucPq55jQtZadakoYWHT3L3Hr
-         9V3L13sbEb0HOlgJsCPPke9GjocLLG2cUZ2A4zL1z07bhWgaEZ54lteW+6ovXDvxFgly
-         TrzO9Rj3KBGB2B0l6Y3jEn2ShBWnIq7HzcriRJux2PWBnakJr1ifUoSfEAaKawO/Hkwt
-         5vAKOprN/aCt6l6m/FA4eqYJY3m3fP6AvVmp4dc98UqnNCRER3AaCm1R7D/rvlPTx6hY
-         nNgQ==
-X-Gm-Message-State: APjAAAXO+N/kM/I+6H9GWDYz94YkIAKi427ggx7z6maopajI7wwZLSOc
-        qyqr+dr0lCrOJ/Q8sQZ72zat391QgCiBsziVmHe+GKif5ygFDEJb+RVjXuCGx5x7d02v7HeuTq3
-        lFlhkxXE3P0ldWITFmg==
-X-Received: by 2002:a5d:4392:: with SMTP id i18mr1893995wrq.199.1579251522985;
+        bh=nGCEq82ehTrsFPHPtbf/4Nawb3kcxvSSNiHX55gJpWw=;
+        b=RCGrjExVaIJwuiqHcQgNhk42necyFF4Gk3GfqNPYHTuagLRsxIrx8ro5lP+OFopAsf
+         4ph568xJ/kjpDiYhdjhuarh0ToHuxvQlUI+2nHj6dxM7SobLDLgFtA5f/oInB+T4MbVQ
+         2fz5Ht9BJPm6Z/oN2kbI5R+7Cb8aLq67+QugLWvpATjQkMSmJS3S5iSSqOnM8AO0MVnm
+         Vt+Nt6koUA2I9Fc1l9x4Gv+oGrkdYJim8QR4NvS686E5jbjhn43SEzJwvwpBLAEQSf23
+         16W8c+XwBJmDqZbZzrHXDBo4ZE9RaON/Z+SxYYCdeHdRlaZ57XmV2+7Lj4g6tz6lwwi6
+         NAtg==
+X-Gm-Message-State: APjAAAU354IZSu3SFcfZihyxaGDFN6X522GvIOAxxir7Gl+qgA6Tyw6o
+        de2KTIngQiCBErnGDriYd8wjiXLX+xI32akLqk15AqpPtaT7iK97AYKoB42SaQ0QSuSg9UK3tkE
+        lvrqjL7LlYK+CF2A9bw==
+X-Received: by 2002:adf:fac1:: with SMTP id a1mr1818514wrs.376.1579251522190;
         Fri, 17 Jan 2020 00:58:42 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzYHejBI3iBWw1v7IURq4ggQWjjruo4vzVSx0H2g0l5CAc473oHbhgx6ZsfSUrUWu2PGjceVQ==
-X-Received: by 2002:a5d:4392:: with SMTP id i18mr1893979wrq.199.1579251522700;
-        Fri, 17 Jan 2020 00:58:42 -0800 (PST)
+X-Google-Smtp-Source: APXvYqw5lG8Nvw6ZyL+Aoy455GDRrNsHGgDOv3xrBCly1T3H0eeafk87aeTdEaQgAAmUYBsBG62ysw==
+X-Received: by 2002:adf:fac1:: with SMTP id a1mr1818499wrs.376.1579251521880;
+        Fri, 17 Jan 2020 00:58:41 -0800 (PST)
 Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
         by smtp.gmail.com with ESMTPSA id x18sm33391312wrr.75.2020.01.17.00.58.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jan 2020 00:58:42 -0800 (PST)
+        Fri, 17 Jan 2020 00:58:41 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH v2 4/5] selinux: convert cond_expr to array
-Date:   Fri, 17 Jan 2020 09:58:35 +0100
-Message-Id: <20200117085836.445797-5-omosnace@redhat.com>
+Subject: [PATCH v2 3/5] selinux: convert cond_av_list to array
+Date:   Fri, 17 Jan 2020 09:58:34 +0100
+Message-Id: <20200117085836.445797-4-omosnace@redhat.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200117085836.445797-1-omosnace@redhat.com>
 References: <20200117085836.445797-1-omosnace@redhat.com>
@@ -82,197 +82,305 @@ using a plain old array is simpler and more efficient.
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- security/selinux/ss/conditional.c | 62 ++++++++++++-------------------
- security/selinux/ss/conditional.h | 14 ++++---
- 2 files changed, 33 insertions(+), 43 deletions(-)
+ security/selinux/ss/conditional.c | 125 ++++++++++++------------------
+ security/selinux/ss/conditional.h |   8 +-
+ 2 files changed, 53 insertions(+), 80 deletions(-)
 
 diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-index b847fd2a6a51..8f9f2f3c86a0 100644
+index c8a02c9b23ee..b847fd2a6a51 100644
 --- a/security/selinux/ss/conditional.c
 +++ b/security/selinux/ss/conditional.c
-@@ -23,18 +23,19 @@
+@@ -87,8 +87,9 @@ static int cond_evaluate_expr(struct policydb *p, struct cond_expr *expr)
   */
- static int cond_evaluate_expr(struct policydb *p, struct cond_expr *expr)
+ void evaluate_cond_node(struct policydb *p, struct cond_node *node)
  {
--
--	struct cond_expr *cur;
-+	u32 i;
- 	int s[COND_EXPR_MAXDEPTH];
- 	int sp = -1;
- 
--	for (cur = expr; cur; cur = cur->next) {
--		switch (cur->expr_type) {
-+	for (i = 0; i < expr->len; i++) {
-+		struct cond_expr_node *node = &expr->nodes[i];
-+
-+		switch (node->expr_type) {
- 		case COND_BOOL:
- 			if (sp == (COND_EXPR_MAXDEPTH - 1))
- 				return -1;
- 			sp++;
--			s[sp] = p->bool_val_to_struct[cur->bool - 1]->state;
-+			s[sp] = p->bool_val_to_struct[node->bool - 1]->state;
- 			break;
- 		case COND_NOT:
- 			if (sp < 0)
-@@ -91,7 +92,7 @@ void evaluate_cond_node(struct policydb *p, struct cond_node *node)
++	struct avtab_node *avnode;
  	int new_state;
- 	u32 i;
+-	struct cond_av_list *cur;
++	u32 i;
  
--	new_state = cond_evaluate_expr(p, node->expr);
-+	new_state = cond_evaluate_expr(p, &node->expr);
+ 	new_state = cond_evaluate_expr(p, node->expr);
  	if (new_state != node->cur_state) {
- 		node->cur_state = new_state;
+@@ -96,19 +97,21 @@ void evaluate_cond_node(struct policydb *p, struct cond_node *node)
  		if (new_state == -1)
-@@ -133,12 +134,7 @@ int cond_policydb_init(struct policydb *p)
+ 			pr_err("SELinux: expression result was undefined - disabling all rules.\n");
+ 		/* turn the rules on or off */
+-		for (cur = node->true_list; cur; cur = cur->next) {
++		for (i = 0; i < node->true_list.len; i++) {
++			avnode = node->true_list.nodes[i];
+ 			if (new_state <= 0)
+-				cur->node->key.specified &= ~AVTAB_ENABLED;
++				avnode->key.specified &= ~AVTAB_ENABLED;
+ 			else
+-				cur->node->key.specified |= AVTAB_ENABLED;
++				avnode->key.specified |= AVTAB_ENABLED;
+ 		}
  
- static void cond_node_destroy(struct cond_node *node)
- {
--	struct cond_expr *cur_expr, *next_expr;
--
--	for (cur_expr = node->expr; cur_expr; cur_expr = next_expr) {
--		next_expr = cur_expr->next;
--		kfree(cur_expr);
--	}
-+	kfree(node->expr.nodes);
- 	/* the avtab_ptr_t nodes are destroyed by the avtab */
- 	kfree(node->true_list.nodes);
- 	kfree(node->false_list.nodes);
-@@ -354,7 +350,7 @@ static int cond_read_av_list(struct policydb *p, void *fp,
+-		for (cur = node->false_list; cur; cur = cur->next) {
++		for (i = 0; i < node->false_list.len; i++) {
++			avnode = node->false_list.nodes[i];
+ 			/* -1 or 1 */
+ 			if (new_state)
+-				cur->node->key.specified &= ~AVTAB_ENABLED;
++				avnode->key.specified &= ~AVTAB_ENABLED;
+ 			else
+-				cur->node->key.specified |= AVTAB_ENABLED;
++				avnode->key.specified |= AVTAB_ENABLED;
+ 		}
+ 	}
+ }
+@@ -128,16 +131,6 @@ int cond_policydb_init(struct policydb *p)
  	return 0;
  }
  
--static int expr_isvalid(struct policydb *p, struct cond_expr *expr)
-+static int expr_node_isvalid(struct policydb *p, struct cond_expr_node *expr)
+-static void cond_av_list_destroy(struct cond_av_list *list)
+-{
+-	struct cond_av_list *cur, *next;
+-	for (cur = list; cur; cur = next) {
+-		next = cur->next;
+-		/* the avtab_ptr_t node is destroy by the avtab */
+-		kfree(cur);
+-	}
+-}
+-
+ static void cond_node_destroy(struct cond_node *node)
  {
- 	if (expr->expr_type <= 0 || expr->expr_type > COND_LAST) {
- 		pr_err("SELinux: conditional expressions uses unknown operator.\n");
-@@ -371,43 +367,37 @@ static int expr_isvalid(struct policydb *p, struct cond_expr *expr)
- static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
+ 	struct cond_expr *cur_expr, *next_expr;
+@@ -146,8 +139,9 @@ static void cond_node_destroy(struct cond_node *node)
+ 		next_expr = cur_expr->next;
+ 		kfree(cur_expr);
+ 	}
+-	cond_av_list_destroy(node->true_list);
+-	cond_av_list_destroy(node->false_list);
++	/* the avtab_ptr_t nodes are destroyed by the avtab */
++	kfree(node->true_list.nodes);
++	kfree(node->false_list.nodes);
+ }
+ 
+ static void cond_list_destroy(struct policydb *p)
+@@ -255,19 +249,17 @@ err:
+ 
+ struct cond_insertf_data {
+ 	struct policydb *p;
++	struct avtab_node **dst;
+ 	struct cond_av_list *other;
+-	struct cond_av_list *head;
+-	struct cond_av_list *tail;
+ };
+ 
+ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum *d, void *ptr)
  {
- 	__le32 buf[2];
--	u32 len, i;
-+	u32 i, len;
- 	int rc;
--	struct cond_expr *expr = NULL, *last = NULL;
+ 	struct cond_insertf_data *data = ptr;
+ 	struct policydb *p = data->p;
+-	struct cond_av_list *other = data->other, *list, *cur;
+ 	struct avtab_node *node_ptr;
+-	u8 found;
+-	int rc = -EINVAL;
++	u32 i;
++	bool found;
  
- 	rc = next_entry(buf, fp, sizeof(u32) * 2);
- 	if (rc)
--		goto err;
-+		return rc;
- 
- 	node->cur_state = le32_to_cpu(buf[0]);
- 
- 	/* expr */
- 	len = le32_to_cpu(buf[1]);
-+	node->expr.nodes = kcalloc(len, sizeof(*node->expr.nodes), GFP_KERNEL);
-+	if (!node->expr.nodes)
-+		return -ENOMEM;
-+
-+	node->expr.len = len;
- 
- 	for (i = 0; i < len; i++) {
-+		struct cond_expr_node *expr = &node->expr.nodes[i];
-+
- 		rc = next_entry(buf, fp, sizeof(u32) * 2);
- 		if (rc)
- 			goto err;
- 
--		rc = -ENOMEM;
--		expr = kzalloc(sizeof(*expr), GFP_KERNEL);
--		if (!expr)
+ 	/*
+ 	 * For type rules we have to make certain there aren't any
+@@ -277,7 +269,7 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
+ 	if (k->specified & AVTAB_TYPE) {
+ 		if (avtab_search(&p->te_avtab, k)) {
+ 			pr_err("SELinux: type rule already exists outside of a conditional.\n");
 -			goto err;
--
- 		expr->expr_type = le32_to_cpu(buf[0]);
- 		expr->bool = le32_to_cpu(buf[1]);
- 
--		if (!expr_isvalid(p, expr)) {
-+		if (!expr_node_isvalid(p, expr)) {
- 			rc = -EINVAL;
--			kfree(expr);
- 			goto err;
++			return -EINVAL;
  		}
+ 		/*
+ 		 * If we are reading the false list other will be a pointer to
+@@ -287,29 +279,29 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
+ 		 * If we are reading the true list (other == NULL) there shouldn't
+ 		 * be any other entries.
+ 		 */
+-		if (other) {
++		if (data->other) {
+ 			node_ptr = avtab_search_node(&p->te_cond_avtab, k);
+ 			if (node_ptr) {
+ 				if (avtab_search_node_next(node_ptr, k->specified)) {
+ 					pr_err("SELinux: too many conflicting type rules.\n");
+-					goto err;
++					return -EINVAL;
+ 				}
+-				found = 0;
+-				for (cur = other; cur; cur = cur->next) {
+-					if (cur->node == node_ptr) {
+-						found = 1;
++				found = false;
++				for (i = 0; i < data->other->len; i++) {
++					if (data->other->nodes[i] == node_ptr) {
++						found = true;
+ 						break;
+ 					}
+ 				}
+ 				if (!found) {
+ 					pr_err("SELinux: conflicting type rules.\n");
+-					goto err;
++					return -EINVAL;
+ 				}
+ 			}
+ 		} else {
+ 			if (avtab_search(&p->te_cond_avtab, k)) {
+ 				pr_err("SELinux: conflicting type rules when adding type rule for true.\n");
+-				goto err;
++				return -EINVAL;
+ 			}
+ 		}
+ 	}
+@@ -317,39 +309,22 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
+ 	node_ptr = avtab_insert_nonunique(&p->te_cond_avtab, k, d);
+ 	if (!node_ptr) {
+ 		pr_err("SELinux: could not insert rule.\n");
+-		rc = -ENOMEM;
+-		goto err;
+-	}
 -
--		if (i == 0)
--			node->expr = expr;
--		else
--			last->next = expr;
--		last = expr;
+-	list = kzalloc(sizeof(*list), GFP_KERNEL);
+-	if (!list) {
+-		rc = -ENOMEM;
+-		goto err;
++		return -ENOMEM;
  	}
  
- 	rc = cond_read_av_list(p, fp, &node->true_list, NULL);
-@@ -512,27 +502,23 @@ static int cond_write_av_list(struct policydb *p,
- static int cond_write_node(struct policydb *p, struct cond_node *node,
- 		    struct policy_file *fp)
- {
--	struct cond_expr *cur_expr;
- 	__le32 buf[2];
- 	int rc;
--	u32 len = 0;
-+	u32 i;
+-	list->node = node_ptr;
+-	if (!data->head)
+-		data->head = list;
+-	else
+-		data->tail->next = list;
+-	data->tail = list;
++	*data->dst = node_ptr;
+ 	return 0;
+-
+-err:
+-	cond_av_list_destroy(data->head);
+-	data->head = NULL;
+-	return rc;
+ }
  
- 	buf[0] = cpu_to_le32(node->cur_state);
- 	rc = put_entry(buf, sizeof(u32), 1, fp);
+-static int cond_read_av_list(struct policydb *p, void *fp, struct cond_av_list **ret_list, struct cond_av_list *other)
++static int cond_read_av_list(struct policydb *p, void *fp,
++			     struct cond_av_list *list,
++			     struct cond_av_list *other)
+ {
+-	int i, rc;
++	int rc;
+ 	__le32 buf[1];
+-	u32 len;
++	u32 i, len;
+ 	struct cond_insertf_data data;
+ 
+-	*ret_list = NULL;
+-
+ 	rc = next_entry(buf, fp, sizeof(u32));
  	if (rc)
  		return rc;
+@@ -358,18 +333,24 @@ static int cond_read_av_list(struct policydb *p, void *fp, struct cond_av_list *
+ 	if (len == 0)
+ 		return 0;
  
--	for (cur_expr = node->expr; cur_expr != NULL; cur_expr = cur_expr->next)
++	list->nodes = kcalloc(len, sizeof(*list->nodes), GFP_KERNEL);
++	if (!list->nodes)
++		return -ENOMEM;
++
+ 	data.p = p;
+ 	data.other = other;
+-	data.head = NULL;
+-	data.tail = NULL;
+ 	for (i = 0; i < len; i++) {
++		data.dst = &list->nodes[i];
+ 		rc = avtab_read_item(&p->te_cond_avtab, fp, p, cond_insertf,
+ 				     &data);
+-		if (rc)
++		if (rc) {
++			kfree(list->nodes);
++			list->nodes = NULL;
+ 			return rc;
++		}
+ 	}
+ 
+-	*ret_list = data.head;
++	list->len = len;
+ 	return 0;
+ }
+ 
+@@ -432,7 +413,7 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
+ 	rc = cond_read_av_list(p, fp, &node->true_list, NULL);
+ 	if (rc)
+ 		goto err;
+-	rc = cond_read_av_list(p, fp, &node->false_list, node->true_list);
++	rc = cond_read_av_list(p, fp, &node->false_list, &node->true_list);
+ 	if (rc)
+ 		goto err;
+ 	return 0;
+@@ -511,24 +492,16 @@ static int cond_write_av_list(struct policydb *p,
+ 			      struct cond_av_list *list, struct policy_file *fp)
+ {
+ 	__le32 buf[1];
+-	struct cond_av_list *cur_list;
+-	u32 len;
++	u32 i;
+ 	int rc;
+ 
+-	len = 0;
+-	for (cur_list = list; cur_list != NULL; cur_list = cur_list->next)
 -		len++;
 -
 -	buf[0] = cpu_to_le32(len);
-+	buf[0] = cpu_to_le32(node->expr.len);
++	buf[0] = cpu_to_le32(list->len);
  	rc = put_entry(buf, sizeof(u32), 1, fp);
  	if (rc)
  		return rc;
  
--	for (cur_expr = node->expr; cur_expr != NULL; cur_expr = cur_expr->next) {
--		buf[0] = cpu_to_le32(cur_expr->expr_type);
--		buf[1] = cpu_to_le32(cur_expr->bool);
-+	for (i = 0; i < node->expr.len; i++) {
-+		buf[0] = cpu_to_le32(node->expr.nodes[i].expr_type);
-+		buf[1] = cpu_to_le32(node->expr.nodes[i].bool);
- 		rc = put_entry(buf, sizeof(u32), 2, fp);
+-	if (len == 0)
+-		return 0;
+-
+-	for (cur_list = list; cur_list != NULL; cur_list = cur_list->next) {
+-		rc = avtab_write_item(p, cur_list->node, fp);
++	for (i = 0; i < list->len; i++) {
++		rc = avtab_write_item(p, list->nodes[i], fp);
  		if (rc)
  			return rc;
+ 	}
+@@ -565,10 +538,10 @@ static int cond_write_node(struct policydb *p, struct cond_node *node,
+ 			return rc;
+ 	}
+ 
+-	rc = cond_write_av_list(p, node->true_list, fp);
++	rc = cond_write_av_list(p, &node->true_list, fp);
+ 	if (rc)
+ 		return rc;
+-	rc = cond_write_av_list(p, node->false_list, fp);
++	rc = cond_write_av_list(p, &node->false_list, fp);
+ 	if (rc)
+ 		return rc;
+ 
 diff --git a/security/selinux/ss/conditional.h b/security/selinux/ss/conditional.h
-index 5f97f678440e..4677c6ff7450 100644
+index e474bdd3a0ed..5f97f678440e 100644
 --- a/security/selinux/ss/conditional.h
 +++ b/security/selinux/ss/conditional.h
-@@ -19,7 +19,7 @@
-  * A conditional expression is a list of operators and operands
-  * in reverse polish notation.
+@@ -39,8 +39,8 @@ struct cond_expr {
+  * struct is for that list.
   */
--struct cond_expr {
-+struct cond_expr_node {
- #define COND_BOOL	1 /* plain bool */
- #define COND_NOT	2 /* !bool */
- #define COND_OR		3 /* bool || bool */
-@@ -28,9 +28,13 @@ struct cond_expr {
- #define COND_EQ		6 /* bool == bool */
- #define COND_NEQ	7 /* bool != bool */
- #define COND_LAST	COND_NEQ
--	__u32 expr_type;
--	__u32 bool;
--	struct cond_expr *next;
-+	u32 expr_type;
-+	u32 bool;
-+};
-+
-+struct cond_expr {
-+	struct cond_expr_node *nodes;
+ struct cond_av_list {
+-	struct avtab_node *node;
+-	struct cond_av_list *next;
++	struct avtab_node **nodes;
 +	u32 len;
  };
  
  /*
-@@ -52,7 +56,7 @@ struct cond_av_list {
-  */
+@@ -53,8 +53,8 @@ struct cond_av_list {
  struct cond_node {
  	int cur_state;
--	struct cond_expr *expr;
-+	struct cond_expr expr;
- 	struct cond_av_list true_list;
- 	struct cond_av_list false_list;
+ 	struct cond_expr *expr;
+-	struct cond_av_list *true_list;
+-	struct cond_av_list *false_list;
++	struct cond_av_list true_list;
++	struct cond_av_list false_list;
  };
+ 
+ int cond_policydb_init(struct policydb *p);
 -- 
 2.24.1
 
