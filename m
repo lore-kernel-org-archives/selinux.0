@@ -6,31 +6,31 @@ X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C20CC33CAA
-	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 11:31:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E3F7C33CA1
+	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 11:32:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F167F20882
-	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 11:31:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F3FBD20882
+	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 11:32:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbgATLbC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jan 2020 06:31:02 -0500
-Received: from mga09.intel.com ([134.134.136.24]:59161 "EHLO mga09.intel.com"
+        id S1727026AbgATLcB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Jan 2020 06:32:01 -0500
+Received: from mga02.intel.com ([134.134.136.20]:45435 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbgATLbC (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 20 Jan 2020 06:31:02 -0500
+        id S1726589AbgATLcB (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 20 Jan 2020 06:32:01 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Jan 2020 03:31:01 -0800
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Jan 2020 03:32:00 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.70,341,1574150400"; 
-   d="scan'208";a="244381648"
+   d="scan'208";a="244381759"
 Received: from linux.intel.com ([10.54.29.200])
-  by orsmga002.jf.intel.com with ESMTP; 20 Jan 2020 03:31:01 -0800
+  by orsmga002.jf.intel.com with ESMTP; 20 Jan 2020 03:32:00 -0800
 Received: from [10.125.252.193] (abudanko-mobl.ccr.corp.intel.com [10.125.252.193])
-        by linux.intel.com (Postfix) with ESMTP id 8C6D05802C1;
-        Mon, 20 Jan 2020 03:30:52 -0800 (PST)
-Subject: [PATCH v5 07/10] powerpc/perf: open access for CAP_PERFMON privileged
+        by linux.intel.com (Postfix) with ESMTP id A440E5802C1;
+        Mon, 20 Jan 2020 03:31:50 -0800 (PST)
+Subject: [PATCH v5 08/10] parisc/perf: open access for CAP_PERFMON privileged
  process
 From:   Alexey Budankov <alexey.budankov@linux.intel.com>
 To:     Peter Zijlstra <peterz@infradead.org>,
@@ -70,8 +70,8 @@ Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
         oprofile-list@lists.sf.net
 References: <0548c832-7f4b-dc4c-8883-3f2b6d351a08@linux.intel.com>
 Organization: Intel Corp.
-Message-ID: <b74a3983-8e41-aba7-c18d-b16eff6fd5e5@linux.intel.com>
-Date:   Mon, 20 Jan 2020 14:30:51 +0300
+Message-ID: <cf23b65c-00cd-f3b5-5e74-fa3832bfb583@linux.intel.com>
+Date:   Mon, 20 Jan 2020 14:31:49 +0300
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
@@ -95,30 +95,23 @@ misuse the credentials and makes the operations more secure.
 
 Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
 ---
- arch/powerpc/perf/imc-pmu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/parisc/kernel/perf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
-index cb50a9e1fd2d..e837717492e4 100644
---- a/arch/powerpc/perf/imc-pmu.c
-+++ b/arch/powerpc/perf/imc-pmu.c
-@@ -898,7 +898,7 @@ static int thread_imc_event_init(struct perf_event *event)
- 	if (event->attr.type != event->pmu->type)
- 		return -ENOENT;
+diff --git a/arch/parisc/kernel/perf.c b/arch/parisc/kernel/perf.c
+index 676683641d00..c4208d027794 100644
+--- a/arch/parisc/kernel/perf.c
++++ b/arch/parisc/kernel/perf.c
+@@ -300,7 +300,7 @@ static ssize_t perf_write(struct file *file, const char __user *buf,
+ 	else
+ 		return -EFAULT;
  
 -	if (!capable(CAP_SYS_ADMIN))
 +	if (!perfmon_capable())
  		return -EACCES;
  
- 	/* Sampling not supported */
-@@ -1307,7 +1307,7 @@ static int trace_imc_event_init(struct perf_event *event)
- 	if (event->attr.type != event->pmu->type)
- 		return -ENOENT;
- 
--	if (!capable(CAP_SYS_ADMIN))
-+	if (!perfmon_capable())
- 		return -EACCES;
- 
- 	/* Return if this is a couting event */
+ 	if (count != sizeof(uint32_t))
 -- 
 2.20.1
+
+
