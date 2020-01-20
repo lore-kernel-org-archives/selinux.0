@@ -2,114 +2,102 @@ Return-Path: <SRS0=4oDv=3J=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB6EC3F68F
-	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 11:33:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29F57C2D0DB
+	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 12:51:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5D8A3208E4
-	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 11:33:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EDAD920678
+	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 12:51:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="e3jSJrCL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726876AbgATLdx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jan 2020 06:33:53 -0500
-Received: from mga01.intel.com ([192.55.52.88]:50762 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726589AbgATLdw (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 20 Jan 2020 06:33:52 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Jan 2020 03:33:52 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,341,1574150400"; 
-   d="scan'208";a="374296392"
-Received: from linux.intel.com ([10.54.29.200])
-  by orsmga004.jf.intel.com with ESMTP; 20 Jan 2020 03:33:52 -0800
-Received: from [10.125.252.193] (abudanko-mobl.ccr.corp.intel.com [10.125.252.193])
-        by linux.intel.com (Postfix) with ESMTP id E511D5803C5;
-        Mon, 20 Jan 2020 03:33:43 -0800 (PST)
-Subject: [PATCH v5 10/10] drivers/oprofile: open access for CAP_PERFMON
- privileged process
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
-        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "james.bottomley@hansenpartnership.com" 
-        <james.bottomley@hansenpartnership.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        James Morris <jmorris@namei.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Robert Richter <rric@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>
-Cc:     Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        linux-arm-kernel@lists.infradead.org,
-        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-        oprofile-list@lists.sf.net
-References: <0548c832-7f4b-dc4c-8883-3f2b6d351a08@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <196ea578-5079-a27f-07ca-23df0e38485c@linux.intel.com>
-Date:   Mon, 20 Jan 2020 14:33:42 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726626AbgATMvy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Jan 2020 07:51:54 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:40462 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726589AbgATMvy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jan 2020 07:51:54 -0500
+Received: by mail-lf1-f66.google.com with SMTP id i23so23957520lfo.7
+        for <selinux@vger.kernel.org>; Mon, 20 Jan 2020 04:51:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=/fGK30ptydnxrptyqZFAqNkrCG+MoVJR+T57pdWmCZs=;
+        b=e3jSJrCLmRNA3qUc90AE2+9jFzm9WatyssWDYVJOn1VyoUNgbH/j3HiyXh9Xxp+zgM
+         0wThJGl5Zrtj6OjPmYMjZTFypkPRmjlfpVNLqnK0F1XZw57SEyM0VEZaIZrdOb0DGqy7
+         AAFc5PTHwNugC7v+/Lrh8+Pk3+gtXPx06Dmpl0cQ4lOqwbIRhQTMp1rQsnCm397l7dJr
+         JpW6ZWsgnY+0rupyfd9tni3+4XeQ2vT5Wcdeukghv+cd7LGyHVYZ9e1I57aH50PPgPTF
+         gMT83HMnq7zAL+qep1Mg6LipBKFrxj0xhk7x6/2LxfubQtIvI1bj05y6vZATJVXMJcu/
+         wPMw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=/fGK30ptydnxrptyqZFAqNkrCG+MoVJR+T57pdWmCZs=;
+        b=uDN8sdV9a2jJRLHeJoF3PVJhCTrKvYHylBXJEBnJJmEGH16UzWEqbrPMOwbkZCbl5C
+         ilOg+oE9slfD10pG+osh1lUbYcIuFkIpjZ/V8a2PXmOsHU7DcSCHTuBAgokBIP//8Ilp
+         ZUOmEw2Gk38XAxAxoKITrvoPsIUHtraxDxyLluuKRhfc11yTfAeBFzMuFo1OBiVD911E
+         49MSd2X/ECbCCIVtX1vh0l3jVaJr8oUPuYMiwVA4mmRJt34GVwkWasijNnI1nmzuZMQU
+         k30K2Ot12yBKXgrBl3zHSUFfLdivV5eC4l7vb5yV273SWTChiyiWeddGCteg4uPRumYa
+         iaxg==
+X-Gm-Message-State: APjAAAWSgFsH+A7Ni+ZIDCbNwOVNNarDBPKQP6QdCNSyIIV++2AoNqm7
+        RwVOgX12tY5QCSepnj+vnVjP2aQrAZBIlSZIwXdS
+X-Google-Smtp-Source: APXvYqy+MviKJW+xM9qrHe/2bYWina/IYQzooZaRS9jlXU7Iv8xddbUTZDJ3HM1C49ndzr2JQsoEwmspGc+gQmrldeo=
+X-Received: by 2002:ac2:4946:: with SMTP id o6mr13606529lfi.170.1579524712147;
+ Mon, 20 Jan 2020 04:51:52 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <0548c832-7f4b-dc4c-8883-3f2b6d351a08@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200117202407.12344-1-sds@tycho.nsa.gov>
+In-Reply-To: <20200117202407.12344-1-sds@tycho.nsa.gov>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 20 Jan 2020 07:51:41 -0500
+Message-ID: <CAHC9VhS+YxOEsfDRjiiwkT9PdAdFLigG-n7cyLHL1ykBQED-Hw@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: fix regression introduced by move_mount(2) syscall
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org, omosnace@redhat.com, dhowells@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Fri, Jan 17, 2020 at 3:23 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> commit 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
+> introduced a new move_mount(2) system call and a corresponding new LSM
+> security_move_mount hook but did not implement this hook for any existing
+> LSM.  This creates a regression for SELinux with respect to consistent
+> checking of mounts; the existing selinux_mount hook checks mounton
+> permission to the mount point path.  Provide a SELinux hook
+> implementation for move_mount that applies this same check for
+> consistency.  In the future we may wish to add a new move_mount
+> filesystem permission and check as well, but this addresses
+> the immediate regression.
+>
+> Fixes: 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+> v2 drops the RFC prefix, changes the subject to make it more evident that
+> this is a regression fix, and drops the TBD comment from the hook.
+>
+>  security/selinux/hooks.c | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
 
-Open access to monitoring for CAP_PERFMON privileged processes.
-For backward compatibility reasons access to the monitoring remains
-open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN usage
-for secure monitoring is discouraged with respect to CAP_PERFMON
-capability. Providing the access under CAP_PERFMON capability singly,
-without the rest of CAP_SYS_ADMIN credentials, excludes chances to
-misuse the credentials and makes the operations more secure.
+This looks good to me too, thanks Stephen.  Because of the nature of
+this fix, I'm going to merge this into next now, even though we are at
+-rc7.  Since we are effectively treating this as another mount
+operation, and reusing the file:mounton permission, I don't believe
+there should be any widespread access denials on existing distros ...
+I assume you've at least tested this on Fedora and everything looked
+okay?
 
-Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
----
- drivers/oprofile/event_buffer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+It also looks like the fs tests Richard is working on includes tests
+for the move_mount() so I think we are covered as far as the
+selinux-testsuite is concerned.
 
-diff --git a/drivers/oprofile/event_buffer.c b/drivers/oprofile/event_buffer.c
-index 12ea4a4ad607..6c9edc8bbc95 100644
---- a/drivers/oprofile/event_buffer.c
-+++ b/drivers/oprofile/event_buffer.c
-@@ -113,7 +113,7 @@ static int event_buffer_open(struct inode *inode, struct file *file)
- {
- 	int err = -EPERM;
- 
--	if (!capable(CAP_SYS_ADMIN))
-+	if (!perfmon_capable())
- 		return -EPERM;
- 
- 	if (test_and_set_bit_lock(0, &buffer_opened))
 -- 
-2.20.1
+paul moore
+www.paul-moore.com
