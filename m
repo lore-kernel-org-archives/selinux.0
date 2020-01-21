@@ -1,64 +1,63 @@
-Return-Path: <SRS0=4oDv=3J=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=4+dM=3K=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A141C2D0DB
-	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 15:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D452C2D0CE
+	for <selinux@archiver.kernel.org>; Tue, 21 Jan 2020 14:21:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 19BA0217F4
-	for <selinux@archiver.kernel.org>; Mon, 20 Jan 2020 15:50:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28B102070C
+	for <selinux@archiver.kernel.org>; Tue, 21 Jan 2020 14:21:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WXVvF87A"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="BJ0RHi+q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726626AbgATPuK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jan 2020 10:50:10 -0500
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:35016 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726642AbgATPuK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jan 2020 10:50:10 -0500
-Received: by mail-wm1-f67.google.com with SMTP id p17so95924wmb.0
-        for <selinux@vger.kernel.org>; Mon, 20 Jan 2020 07:50:09 -0800 (PST)
+        id S1729008AbgAUOVo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Jan 2020 09:21:44 -0500
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:37853 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727508AbgAUOVo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jan 2020 09:21:44 -0500
+Received: by mail-lf1-f66.google.com with SMTP id b15so2425998lfc.4
+        for <selinux@vger.kernel.org>; Tue, 21 Jan 2020 06:21:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=q4iJPyqPFmm3if9D4Zcmoglena7vVReRL4G1xXMDjcs=;
-        b=WXVvF87A1dZEn73yXYK1hbuVjlFi0aDkUPBZX/2FFU3vOeLeKWfhkONhmPCHw61NeB
-         actxmhzPc5EGzYseyT5b6+7MN1cc4CBlyEtHMZmsFRxXj4R362NcWNPAnO4F0RoCHxMq
-         ZAT4SfEJ0PPD0H4jW3AryqfJuwY4aBcDJgxjwBJQ5pmgeEkigQ1w5YmlBf0HIaD8OFeb
-         UAYe5tAi5TAyvAfVAfJHBpKTZVqumPDOALCNiEqa7aK6YyjQocQ56kZp1zaR2eYel0Sv
-         3XRtuB6QOVxZx4uZeA8pkfa6K3I1SZXGgdHlXFB9tCqcn3sLlyOKHa2I/2BX2aSJVubN
-         pBrg==
+        bh=LaWAsuhw20Bni3MnmjCRP8MnUuoyndyuSnU94kuhLEE=;
+        b=BJ0RHi+qQcEUsf0B6LTnGh16oUEwHdiHkzlq/sdQleWujOpgrlNuuN0J1rLWHFmds1
+         ZlnkwWw69gh0hP2mYMjsRkF82KXGH3BMiinMsQ/+dajbrOczgTHaC8/2Ryfnjg7LqZWz
+         Ti5YcjHl8jiBrsYoj2b05tjm5UQKDtOOJGkZTklO03VB/7nFFiBMwtpw64gvSdTJX5c8
+         UbC/oqa5jhz6a7UFtjmD6lmgPOZoWdOSyFUBjKHMQst4BPQMnWmvD4frVh76NgZ3pgwW
+         SYpKFa04Y+ExHHT+5Yb18o3clrOnxM0XVpcu0vrr2Q6Ls5SFw+laoCy1ZJb76Ek4u6pE
+         b8Ow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=q4iJPyqPFmm3if9D4Zcmoglena7vVReRL4G1xXMDjcs=;
-        b=nhAo8O3Cn4urbWwJO0DT8QS8L5xZn5gnjFbvREDtG3Cdk/mIZ0Dfn/WvFkadILlzJU
-         rrm0U7hjPgnTlQqye/+8SI9qsoOTkEgLUhwpZbCkeqq45CvPXDV7I11D3pANH7N7FKpW
-         OOr6K3nYkIQHo0oRmXGw70KcL1rPV2IjBeTBDympQ8XgF2EIahIRfaIooQ3w4YZ+Xush
-         tKc38d9bWpRy/qvQjVy/9SRyzczZcs7WVS3ngI/RKpXBlxinJsxK633Cz2NESDTmcojm
-         /w9C4TDLkHQad3a0O3qPX/1TE6xhi98h0ZhDovTOybLm+caTzcaWLFuF2TXajNtJrwf/
-         O6Hg==
-X-Gm-Message-State: APjAAAVnhq6Z7YhzqDBk397HL/L7B2S5E9QuLr9xY4PKBc2EwGW2BnWZ
-        +CKoHRbaG4rcvOlAdjNdMXQmwpbnqqNsTEyjvfU=
-X-Google-Smtp-Source: APXvYqwhn62QrVxWk9UmMuONV7M1skhMOfgWtV2L5STABy9EJi1Cf0DHtgXGXRy24A62KcE8yiizB3gsJ/Kl9oJvL0I=
-X-Received: by 2002:a1c:6389:: with SMTP id x131mr20049705wmb.155.1579535409036;
- Mon, 20 Jan 2020 07:50:09 -0800 (PST)
+        bh=LaWAsuhw20Bni3MnmjCRP8MnUuoyndyuSnU94kuhLEE=;
+        b=HNNzucZOfzkVzelXgbSW5SqgMFXIs7bxBFlr4N6rr9TUdg3+PUa5dHzyQbn12r6YQg
+         PB/rsR95XK25cTFYDKn2O7mSKAl7XZ7/M03DrZnXYpcsDliz32Sz0HCkUjVevsPvYxjO
+         AQmcXNcMbDkUkpc5DVsR5rl0imM1Vql4MocCvtdcI+Oi7TaI9vWQYHoZTqD/ghXUY2kg
+         GKANP4dJMBBraj3fK6uguX+jEo4930VC29I8OOOQYSEZ1PftH4UtBvGJNmYYGhuj0bOt
+         iYNovKlsZp2bUGTHDfiB7wV0xKUt/JaTshOuXMn8fTzckh0mm4wKFGXfU1cF5iEZuzZz
+         1xCw==
+X-Gm-Message-State: APjAAAU8pZ3RduvCtMoamugSqTV4klZ52IdefReDdJIpzmRlGVkwcx1w
+        yQ1BWJQ+oRMMAvCy7NyOjVxsidlVfYhHUW20snZp
+X-Google-Smtp-Source: APXvYqwxnOzS5T2gSxHUkl+oMK+gZXYMCcQQH+jM13eR2OdYX68quest8XB6FLUcXmxVMjR/JlPq5fxUpHwn8moL6mw=
+X-Received: by 2002:ac2:4833:: with SMTP id 19mr2896678lft.211.1579616502425;
+ Tue, 21 Jan 2020 06:21:42 -0800 (PST)
 MIME-Version: 1.0
 References: <20200117202407.12344-1-sds@tycho.nsa.gov> <CAHC9VhS+YxOEsfDRjiiwkT9PdAdFLigG-n7cyLHL1ykBQED-Hw@mail.gmail.com>
- <CAB9W1A16ixsXmMkfbD7Z0WrXK+B0xWfNpBbOe+jOb6krOWrogw@mail.gmail.com> <CAB9W1A3G-23EYDOp0YvCXuQNq3N_XH64s53SyqacYCbnqupcQQ@mail.gmail.com>
-In-Reply-To: <CAB9W1A3G-23EYDOp0YvCXuQNq3N_XH64s53SyqacYCbnqupcQQ@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley@gmail.com>
-Date:   Mon, 20 Jan 2020 10:49:58 -0500
-Message-ID: <CAB9W1A3USsWW=pbdK8WjZdKpPLQSJ=TaxZE4Yzf0VYYdot+DfQ@mail.gmail.com>
+ <CAB9W1A16ixsXmMkfbD7Z0WrXK+B0xWfNpBbOe+jOb6krOWrogw@mail.gmail.com>
+In-Reply-To: <CAB9W1A16ixsXmMkfbD7Z0WrXK+B0xWfNpBbOe+jOb6krOWrogw@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 21 Jan 2020 09:21:30 -0500
+Message-ID: <CAHC9VhSzeNXxy0n2G2m+P4J2xNc=9HyLCL_jVExSiL3GyktHVg@mail.gmail.com>
 Subject: Re: [PATCH v2] selinux: fix regression introduced by move_mount(2) syscall
-To:     Paul Moore <paul@paul-moore.com>
+To:     Stephen Smalley <stephen.smalley@gmail.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org,
         omosnace@redhat.com, David Howells <dhowells@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
@@ -67,27 +66,31 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jan 20, 2020 at 10:43 AM Stephen Smalley
+On Mon, Jan 20, 2020 at 10:40 AM Stephen Smalley
 <stephen.smalley@gmail.com> wrote:
+> On Mon, Jan 20, 2020 at 7:52 AM Paul Moore <paul@paul-moore.com> wrote:
+> > This looks good to me too, thanks Stephen.  Because of the nature of
+> > this fix, I'm going to merge this into next now, even though we are at
+> > -rc7.  Since we are effectively treating this as another mount
+> > operation, and reusing the file:mounton permission, I don't believe
+> > there should be any widespread access denials on existing distros ...
+> > I assume you've at least tested this on Fedora and everything looked
+> > okay?
 >
-> On Mon, Jan 20, 2020 at 10:40 AM Stephen Smalley
-> <stephen.smalley@gmail.com> wrote:
-> >
-> > On Mon, Jan 20, 2020 at 7:52 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > It also looks like the fs tests Richard is working on includes tests
-> > > for the move_mount() so I think we are covered as far as the
-> > > selinux-testsuite is concerned.
-> >
-> > Not sure since those tests were just added in the latest version of
-> > his patches and at this point he would
-> > be running on kernels that lack this permission check.
->
-> Ah, never mind - I see that he mentioned that he applied my move_mount
-> patch before performing those tests.
-> That means that there should be a test failure on kernels >= 5.2 (i.e.
-> that have move_mount(2)) that lack this
-> patch IIUC.
+> I did basic boot testing plus selinux-testsuite on Fedora without any issues.
+> I'm not sure that Linux userspace (at least shipped in distros)
+> besides test/sample programs is using the new system calls yet.
+> And since anything that performed mounts previously using mount(2)
+> would have required mounton permission,
+> I would expect anything converted to use the new system calls would
+> likewise have that permission already.
 
-Never mind again; he has the move_mount test under a conditional that
-will get updated to be specific to a kernel version if/when my patch
-lands.
+It is the last sentence that I was getting at in my reply.  It seems
+reasonable to equate moving a mount to mounting a filesystem (which
+this patch does), and thus any domain which wants, and should have the
+permission, to move a mounted filesystem is likely to already have the
+file:mounton permission.
+
+-- 
+paul moore
+www.paul-moore.com
