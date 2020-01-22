@@ -1,94 +1,89 @@
-Return-Path: <SRS0=4+dM=3K=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=wfQh=3L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84557C2D0CE
-	for <selinux@archiver.kernel.org>; Tue, 21 Jan 2020 19:39:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D80FFC33CB6
+	for <selinux@archiver.kernel.org>; Wed, 22 Jan 2020 10:46:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 498F321835
-	for <selinux@archiver.kernel.org>; Tue, 21 Jan 2020 19:39:59 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Wdwq99XH"
+	by mail.kernel.org (Postfix) with ESMTP id B77FE24690
+	for <selinux@archiver.kernel.org>; Wed, 22 Jan 2020 10:46:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726926AbgAUTj7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Jan 2020 14:39:59 -0500
-Received: from USFB19PA31.eemsg.mail.mil ([214.24.26.194]:32184 "EHLO
-        USFB19PA31.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726229AbgAUTj6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jan 2020 14:39:58 -0500
-X-EEMSG-check-017: 46952568|USFB19PA31_ESA_OUT01.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,347,1574121600"; 
-   d="scan'208";a="46952568"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA31.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 21 Jan 2020 19:39:56 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579635597; x=1611171597;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=EHQxDod4fEgnVpmufMoZrg/y35yK3yxzncnNQTuOZFs=;
-  b=Wdwq99XHNAvn0zD/Zm31PTYEPdh2HuI9afsNZYxqJ4aIegIIbx+wDrCb
-   ZCypPtDPMeCyhg29XA1oDxYEFBuMBFe75PZ7A5wDj0UNpMc1l/Xxli13c
-   AJDw9O6sdGyEf/eOLkyF/4mfSHgUxuDxqnwz9N5gFsh3ahkXaZzBmhvyh
-   bR1RwUnWPR+HhOWQ1Z0XtnDMeRNLtyhuZQoQWh2wfQcito1UU9PItHcDX
-   cpSBYLb6Rd8/OmqgpM3bwOXh6iqN1rDPyh2qRtw68BQgV/1dTNiWkbLw4
-   mwDsfN49YKblIgqCVt7Y+YAzFOA1V/opNaNAEnYcRXK+RZyZlIAuU5Uf6
-   w==;
-X-IronPort-AV: E=Sophos;i="5.70,347,1574121600"; 
-   d="scan'208";a="32169812"
-IronPort-PHdr: =?us-ascii?q?9a23=3A/3nUDhSfVcVDlOGyW43BnCmKHNpsv+yvbD5Q0Y?=
- =?us-ascii?q?Iujvd0So/mwa6zYh2N2/xhgRfzUJnB7Loc0qyK6vymADxLuMzd+DBaKdoQDk?=
- =?us-ascii?q?RD0Z1X1yUbQ+e9QXXhK/DrayFoVO9jb3RCu0+BDE5OBczlbEfTqHDhpRQbGx?=
- =?us-ascii?q?H4KBYnbr+tQt2agMu4zf299IPOaAtUmjW9falyLBKrpgnNq8Uam4RvJrs+xx?=
- =?us-ascii?q?fTv3dFeOtayX52KV+cgh3w4tu88IN5/ylfpv4s+dRMXbnmc6g9ULdVECkoP2?=
- =?us-ascii?q?cp6cPxqBLNVxGP5nwSUmUXlhpHHQ3I5wzkU5nyryX3qPNz1DGVMsPqQ780Xy?=
- =?us-ascii?q?+i77pwRx/zlCgHLT85/3rJhcF2kalWvQiupx17w47TfYGVKP9zdb7TcN8GWW?=
- =?us-ascii?q?ZMWNtaWjdfCY2gcYQAE+sBPf5Zr4bjoVsOsQC+DhSoCO/21zNEmmP60ag83u?=
- =?us-ascii?q?svCwHG2BErEcwIvnrasd75ML4eXO6xwaXNyzjIcvFY1irn6IXQbx4vv/+MU7?=
- =?us-ascii?q?Jzf8Tfx0YgGAHKgUmfp4H+IzOY1P4Av3SH4+duV++ijXMspQFrojiow8chkp?=
- =?us-ascii?q?THhp4LxVDc9SV23oA1LsClRk5+e9GkFJ9QuD+aNoBrRc4iWHxnuD0hx70auZ?=
- =?us-ascii?q?+0YCgKyJM9yx7ZcPyIaZKE4h3kVOaPODp1gm9udry4hxa360egy+v8W9G30F?=
- =?us-ascii?q?lUtCpFlMfDtnQX2xzU8MiHRf1w9Vqi1zaXzw3f9+5JLE8umafbNpIt2KA8m5?=
- =?us-ascii?q?UNvUjZAyP7nlj9grWMeUU+4Oeo7vzqYrDhppCBKYB5khr+MqEymsynBuQ4Lx?=
- =?us-ascii?q?QOU3Cb+eui0L3j+lX0QKlQgf0sk6nZrYvaKd4apq6/DQ9V1Z0j5AijADu8zN?=
- =?us-ascii?q?QZnWUILFJCeB6diYjmJ0rOL+ziAfe6glSslC9nx/HAPrL/HpXANmXPnbjucL?=
- =?us-ascii?q?pn60NQ1RA/wc5Q6p5KEL0NPer/Wkrru9zZCh85PRa0w+HiCNhlzYMRRHmPD7?=
- =?us-ascii?q?SFMKLSrVCI5uUvL/OKZI8OojnxMfcl5/nwjXMhg18SYbGp3YcLaHC/BvlpOE?=
- =?us-ascii?q?SZYX7ogtsbDWgGpBA+TOvxh1KcSz5Te22yUrkz5jE+Eo2mDIPDSpqxj7yG2S?=
- =?us-ascii?q?exBodWaXxeClCQDXfocJ2JW+wSZyKWI89hlCEEVLe6Ro8/2hGhqhX6x6BkLu?=
- =?us-ascii?q?XK4C0Ys4zs1Nxv6+3UjxEy+m88M8PI7GCJS2B9mysyQDU7xrxk6Rh3y1OHl6?=
- =?us-ascii?q?M+mftSGMZP/NtGVw47MdjXyOksWP7oXQeURcuEUFarRJ2dBDg1St8gi4sVb1?=
- =?us-ascii?q?1VB8SpjheF2TGjRbASierYV9QP7qvA0i2pdI5GwHHc2fxk1gJ3Tw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CjAwAlUyde/wHyM5BlHQEBAQkBEQUFAYF7gX2BGFUgE?=
- =?us-ascii?q?iqEEokDhmgBAQEGgRIliW6PYoFnCQEBAQEBAQEBASsMAQGEQAKCNjgTAhABA?=
- =?us-ascii?q?QEEAQEBAQEFAwEBbIU3DII7KQGCegEFIxVBEAsOCgICJgICVwYNBgIBAYJjP?=
- =?us-ascii?q?wGCViUPrx2BMoVKgzWBOAaBDiqMLnmBB4E4DAOCXT6EFgESAYMvgl4EllFhR?=
- =?us-ascii?q?pdagkOCSYR0jm4GG4JHmDCQJ4cYlDYiZ3ErCAIYCCEPO4I4ATNQGA2RCIVdI?=
- =?us-ascii?q?wMwi1uCMgEB?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 21 Jan 2020 19:39:46 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00LJd5JY170925;
-        Tue, 21 Jan 2020 14:39:05 -0500
-Subject: Re: [PATCH] libselinux: update man pages for userspace policy
- enforcers
-To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     selinux@vger.kernel.org
-References: <20200117144813.55896-1-sds@tycho.nsa.gov>
- <CAFftDdrWB6Aa6=O30KwCx5uoFCHC6kTSU0P6feoCYYPrn_iHgw@mail.gmail.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <623d3ecf-51d0-2480-b52d-6d01d2897bc5@tycho.nsa.gov>
-Date:   Tue, 21 Jan 2020 14:40:31 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.3.1
+        id S1729793AbgAVKp6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 Jan 2020 05:45:58 -0500
+Received: from mga11.intel.com ([192.55.52.93]:4673 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729783AbgAVKp5 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 22 Jan 2020 05:45:57 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Jan 2020 02:45:56 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,349,1574150400"; 
+   d="scan'208";a="275571986"
+Received: from linux.intel.com ([10.54.29.200])
+  by FMSMGA003.fm.intel.com with ESMTP; 22 Jan 2020 02:45:53 -0800
+Received: from [10.125.253.5] (abudanko-mobl.ccr.corp.intel.com [10.125.253.5])
+        by linux.intel.com (Postfix) with ESMTP id E79D15803C5;
+        Wed, 22 Jan 2020 02:45:46 -0800 (PST)
+Subject: Re: [PATCH v5 01/10] capabilities: introduce CAP_PERFMON to kernel
+ and user space
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "james.bottomley@hansenpartnership.com" 
+        <james.bottomley@hansenpartnership.com>,
+        Serge Hallyn <serge@hallyn.com>,
+        James Morris <jmorris@namei.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        oprofile-list@lists.sf.net, Andy Lutomirski <luto@amacapital.net>
+References: <0548c832-7f4b-dc4c-8883-3f2b6d351a08@linux.intel.com>
+ <9b77124b-675d-5ac7-3741-edec575bd425@linux.intel.com>
+ <64cab472-806e-38c4-fb26-0ffbee485367@tycho.nsa.gov>
+ <05297eff-8e14-ccdf-55a4-870c64516de8@linux.intel.com>
+ <CAADnVQK-JzK-GUk4KOozn4c1xr=7TiCpB9Fi0QDC9nE6iVn8iQ@mail.gmail.com>
+ <537bdb28-c9e4-f44f-d665-25250065a6bb@linux.intel.com>
+Organization: Intel Corp.
+Message-ID: <63d9700f-231d-7973-5307-3e56a48c54cb@linux.intel.com>
+Date:   Wed, 22 Jan 2020 13:45:45 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <CAFftDdrWB6Aa6=O30KwCx5uoFCHC6kTSU0P6feoCYYPrn_iHgw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+In-Reply-To: <537bdb28-c9e4-f44f-d665-25250065a6bb@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
@@ -96,24 +91,114 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/17/20 10:26 AM, William Roberts wrote:
-> On Fri, Jan 17, 2020 at 8:47 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>
->> Despite deprecating use of flask.h and av_permissions.h back in 2014,
->> the man pages for avc_has_perm(3) and security_compute_av(3) were not
->> updated to provide instructions on how to dynamically map class/permission
->> names nor to encourage use of selinux_check_access(3) instead of these
->> interfaces.  Also, while selinux_set_mapping(3) supports dynamic
->> class/perm mapping at initialization, it does not support changes to
->> the class/perm values at runtime upon a policy reload, and no
->> instructions were provided on how to set up a callback to support
->> this case.  Update the man pages accordingly.
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Thanks, this patch is now applied.  For future reference, if you reply 
-with a full Acked-by: name <email> line, patchwork will automatically 
-mark that the patch has received an Ack in the A/R/T tags field which 
-makes it easy to track.  It doesn't recognize a bare Ack.
+On 21.01.2020 21:27, Alexey Budankov wrote:
+> 
+> On 21.01.2020 20:55, Alexei Starovoitov wrote:
+>> On Tue, Jan 21, 2020 at 9:31 AM Alexey Budankov
+>> <alexey.budankov@linux.intel.com> wrote:
+>>>
+>>>
+>>> On 21.01.2020 17:43, Stephen Smalley wrote:
+>>>> On 1/20/20 6:23 AM, Alexey Budankov wrote:
+>>>>>
+>>>>> Introduce CAP_PERFMON capability designed to secure system performance
+>>>>> monitoring and observability operations so that CAP_PERFMON would assist
+>>>>> CAP_SYS_ADMIN capability in its governing role for perf_events, i915_perf
+>>>>> and other performance monitoring and observability subsystems.
+>>>>>
+>>>>> CAP_PERFMON intends to harden system security and integrity during system
+>>>>> performance monitoring and observability operations by decreasing attack
+>>>>> surface that is available to a CAP_SYS_ADMIN privileged process [1].
+>>>>> Providing access to system performance monitoring and observability
+>>>>> operations under CAP_PERFMON capability singly, without the rest of
+>>>>> CAP_SYS_ADMIN credentials, excludes chances to misuse the credentials and
+>>>>> makes operation more secure.
+>>>>>
+>>>>> CAP_PERFMON intends to take over CAP_SYS_ADMIN credentials related to
+>>>>> system performance monitoring and observability operations and balance
+>>>>> amount of CAP_SYS_ADMIN credentials following the recommendations in the
+>>>>> capabilities man page [1] for CAP_SYS_ADMIN: "Note: this capability is
+>>>>> overloaded; see Notes to kernel developers, below."
+>>>>>
+>>>>> Although the software running under CAP_PERFMON can not ensure avoidance
+>>>>> of related hardware issues, the software can still mitigate these issues
+>>>>> following the official embargoed hardware issues mitigation procedure [2].
+>>>>> The bugs in the software itself could be fixed following the standard
+>>>>> kernel development process [3] to maintain and harden security of system
+>>>>> performance monitoring and observability operations.
+>>>>>
+>>>>> [1] http://man7.org/linux/man-pages/man7/capabilities.7.html
+>>>>> [2] https://www.kernel.org/doc/html/latest/process/embargoed-hardware-issues.html
+>>>>> [3] https://www.kernel.org/doc/html/latest/admin-guide/security-bugs.html
+>>>>>
+>>>>> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
+>>>>> ---
+>>>>>   include/linux/capability.h          | 12 ++++++++++++
+>>>>>   include/uapi/linux/capability.h     |  8 +++++++-
+>>>>>   security/selinux/include/classmap.h |  4 ++--
+>>>>>   3 files changed, 21 insertions(+), 3 deletions(-)
+>>>>>
+>>>>> diff --git a/include/linux/capability.h b/include/linux/capability.h
+>>>>> index ecce0f43c73a..8784969d91e1 100644
+>>>>> --- a/include/linux/capability.h
+>>>>> +++ b/include/linux/capability.h
+>>>>> @@ -251,6 +251,18 @@ extern bool privileged_wrt_inode_uidgid(struct user_namespace *ns, const struct
+>>>>>   extern bool capable_wrt_inode_uidgid(const struct inode *inode, int cap);
+>>>>>   extern bool file_ns_capable(const struct file *file, struct user_namespace *ns, int cap);
+>>>>>   extern bool ptracer_capable(struct task_struct *tsk, struct user_namespace *ns);
+>>>>> +static inline bool perfmon_capable(void)
+>>>>> +{
+>>>>> +    struct user_namespace *ns = &init_user_ns;
+>>>>> +
+>>>>> +    if (ns_capable_noaudit(ns, CAP_PERFMON))
+>>>>> +        return ns_capable(ns, CAP_PERFMON);
+>>>>> +
+>>>>> +    if (ns_capable_noaudit(ns, CAP_SYS_ADMIN))
+>>>>> +        return ns_capable(ns, CAP_SYS_ADMIN);
+>>>>> +
+>>>>> +    return false;
+>>>>> +}
+>>>>
+>>>> Why _noaudit()?  Normally only used when a permission failure is non-fatal to the operation.  Otherwise, we want the audit message.
 
-https://patchwork.kernel.org/project/selinux/list/
+So far so good, I suggest using the simplest version for v6:
+
+static inline bool perfmon_capable(void)
+{
+	return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
+}
+
+It keeps the implementation simple and readable. The implementation is more
+performant in the sense of calling the API - one capable() call for CAP_PERFMON
+privileged process.
+
+Yes, it bloats audit log for CAP_SYS_ADMIN privileged and unprivileged processes,
+but this bloating also advertises and leverages using more secure CAP_PERFMON
+based approach to use perf_event_open system call.
+
+~Alexey
+
+>>>
+>>> Some of ideas from v4 review.
+>>
+>> well, in the requested changes form v4 I wrote:
+>> return capable(CAP_PERFMON);
+>> instead of
+>> return false;
+> 
+> Aww, indeed. I was concerning exactly about it when updating the patch
+> and simply put false, missing the fact that capable() also logs.
+> 
+> I suppose the idea is originally from here [1].
+> BTW, Has it already seen any _more optimal_ implementation?
+> Anyway, original or optimized version could be reused for CAP_PERFMON.
+> 
+> ~Alexey
+> 
+> [1] https://patchwork.ozlabs.org/patch/1159243/
+> 
+>>
+>> That's what Andy suggested earlier for CAP_BPF.
+>> I think that should resolve Stephen's concern.
+>>
