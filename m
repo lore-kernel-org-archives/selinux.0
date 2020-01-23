@@ -2,105 +2,181 @@ Return-Path: <SRS0=1yCI=3M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E316C2D0DB
-	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 12:57:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 803A9C2D0DB
+	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 15:12:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7109224125
-	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 12:57:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5613621D7D
+	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 15:12:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Zbw5AtYb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KyIBbkES"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726260AbgAWM53 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 23 Jan 2020 07:57:29 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:36142 "EHLO
+        id S1728904AbgAWPMN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 23 Jan 2020 10:12:13 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:53873 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726240AbgAWM53 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 23 Jan 2020 07:57:29 -0500
+        with ESMTP id S1726240AbgAWPMK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 23 Jan 2020 10:12:10 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579784248;
+        s=mimecast20190719; t=1579792328;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=nlmmimid0sY1DeantLWMBQ/czSfJCxIUjm/zNfDLtVA=;
-        b=Zbw5AtYbPZhZm3z+ywYBuZGMpqqnGhUb1Ww0ekABJAL6QByIbr2QvtuRDcJknKOyZ2Lkv2
-        XPgmc0LZhD72QAp7gylXg9k0SkipDJgcu6C+wFTL4qL3HvuyURWPYCZF1Ix8EX7yeysZHq
-        pCDY1gnk+VT8dx0pXAUYUZLaRgcBGZo=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-66-1IurbjvKM1K1Mh-KuTyEwQ-1; Thu, 23 Jan 2020 07:57:19 -0500
-X-MC-Unique: 1IurbjvKM1K1Mh-KuTyEwQ-1
-Received: by mail-wr1-f71.google.com with SMTP id b13so1606249wrx.22
-        for <selinux@vger.kernel.org>; Thu, 23 Jan 2020 04:57:19 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nlmmimid0sY1DeantLWMBQ/czSfJCxIUjm/zNfDLtVA=;
-        b=dAZ7QdSDHgdjioSSKhQzUCwoNH1ImlpMuY3W4zrEsb+70gO+bpvVec7jYpvKu1QESz
-         XrHiIYGdfhUDqKTDYe5Hkgw7ltbZzNlfx63BojMBpSix4Kq6R0ozukIoxt4Fj+glz7GA
-         YWsyYBetXUTfqlj6e1u33XMa3/gn7g/Ty4cQ32x1Y3oRNq7nHGFaEOKhSr6+moJSa+HR
-         Jf5M3hufMasZ896WRwymAbS/3xdZCY6htCWDS9Ybp/CI1koAfNlSWqoKdmjNd6VDVX+O
-         e27oS/rewvR0+j3ypg3Kbqo9ZUkpRqB8VNjWfzCrASHeYotwMVNhQolf1FWoYpn0Za//
-         gJpA==
-X-Gm-Message-State: APjAAAU7Ru3GMf9JVtLyezMFeObJY3aTq0lRAGGoNUb/rN/miK8vXEmR
-        HZij08W4LvQ6nVZocHz8ZI2jzmVMGSXSFts3GiEZt4JGti01d2yHrj2TAla+1OjW0qzs3jhxf3b
-        1ZPOFhuGilDH/ILen1A==
-X-Received: by 2002:a7b:cb91:: with SMTP id m17mr3898858wmi.146.1579784238041;
-        Thu, 23 Jan 2020 04:57:18 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzn+wsth2BT/9vQJKyLy2n4ZeKIfrRApmcqGy8WALt9zxq7qsWZfjxgHTCvwuhDv83bluPGIw==
-X-Received: by 2002:a7b:cb91:: with SMTP id m17mr3898838wmi.146.1579784237790;
-        Thu, 23 Jan 2020 04:57:17 -0800 (PST)
-Received: from omos.redhat.com (ip-46.34.233.121.o2inet.sk. [46.34.233.121])
-        by smtp.gmail.com with ESMTPSA id d8sm2821028wrx.71.2020.01.23.04.57.16
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jan 2020 04:57:17 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH userspace v2 0/4] Fix build with -fno-common
-Date:   Thu, 23 Jan 2020 13:57:12 +0100
-Message-Id: <20200123125716.12662-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.24.1
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=TOTDTwuaI0Kk0LUy5rbPDT0f6tV/bdzpgd5A51iAmQw=;
+        b=KyIBbkES4Sn8zJIvDIcNBBkgGhsDHLXwMHNB+Ym8YfB3W/BuLIxjdLsyhmliy4hb5AWxdX
+        Ce9tEdabMBxNcl0EBb9TejZcFywVlaSpIbB8WOTW8dSxVKrOrM2oaVFOnknfrk0EsGEnvB
+        6v93V8QtbwAHwGzHrog0sgA9LuRnHfU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-207-dY3-Hz3EOVSB5G3kVMwjQA-1; Thu, 23 Jan 2020 10:12:04 -0500
+X-MC-Unique: dY3-Hz3EOVSB5G3kVMwjQA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EED9D18B5F95;
+        Thu, 23 Jan 2020 15:12:02 +0000 (UTC)
+Received: from warthog.procyon.org.uk (ovpn-120-49.rdu2.redhat.com [10.10.120.49])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A3DED8CCCB;
+        Thu, 23 Jan 2020 15:12:01 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <8ee40192da117d9cdf4eab1e63ab5f77b359801c.camel@btinternet.com>
+References: <8ee40192da117d9cdf4eab1e63ab5f77b359801c.camel@btinternet.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     dhowells@redhat.com,
+        Richard Haines <richard_c_haines@btinternet.com>,
+        keyrings@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: SELinux: How to split permissions for keys?
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <4057699.1579792320.1@warthog.procyon.org.uk>
+Content-Transfer-Encoding: quoted-printable
+Date:   Thu, 23 Jan 2020 15:12:00 +0000
+Message-ID: <4057700.1579792320@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-GCC 10 is going to enable -fno-common by default [1], so fix all build
-errors uncovered by it and add it to global CFLAGS to avoid introducing
-new bugs.
+Hi Stephen,
 
-Changes in v2:
- - remove also struct te_assert definition, which is also useless
- - redo cil_mem_error_handler to match commit 4459d635b8f1 as suggested
-   by Jim Carter
+I have patches to split the permissions that are used for keys to make the=
+m a
+bit finer grained and easier to use - and also to move to ACLs rather than
+fixed masks.  See patch "keys: Replace uid/gid/perm permissions checking w=
+ith
+an ACL" here:
 
-Travis build: [2]
+	https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/log=
+/?h=3Dkeys-acl
 
-[1] https://gcc.gnu.org/gcc-10/porting_to.html#common
-[2] https://travis-ci.org/WOnder93/selinux/builds/640875119
+However, I may not have managed the permission mask transformation inside
+SELinux correctly.  Could you lend an eyeball?  The change to the permissi=
+ons
+model is as follows:
 
-Ondrej Mosnacek (4):
-  libsepol: fix CIL_KEY_* build errors with -fno-common
-  libsepol: remove leftovers of cil_mem_error_handler
-  checkpolicy: remove unused te_assertions
-  Makefile: always build with -fno-common
+    The SETATTR permission is split to create two new permissions:
+    =
 
- Makefile                        |   3 +-
- checkpolicy/checkpolicy.h       |  14 --
- libsepol/cil/src/cil.c          | 162 ++++++++++++++++
- libsepol/cil/src/cil_internal.h | 322 ++++++++++++++++----------------
- libsepol/cil/src/cil_mem.h      |   1 -
- libsepol/cil/src/cil_strpool.c  |   8 +-
- 6 files changed, 329 insertions(+), 181 deletions(-)
+     (1) SET_SECURITY - which allows the key's owner, group and ACL to be
+         changed and a restriction to be placed on a keyring.
+    =
 
--- 
-2.24.1
+     (2) REVOKE - which allows a key to be revoked.
+    =
+
+    The SEARCH permission is split to create:
+    =
+
+     (1) SEARCH - which allows a keyring to be search and a key to be foun=
+d.
+    =
+
+     (2) JOIN - which allows a keyring to be joined as a session keyring.
+    =
+
+     (3) INVAL - which allows a key to be invalidated.
+    =
+
+    The WRITE permission is also split to create:
+    =
+
+     (1) WRITE - which allows a key's content to be altered and links to b=
+e
+         added, removed and replaced in a keyring.
+    =
+
+     (2) CLEAR - which allows a keyring to be cleared completely.  This is
+         split out to make it possible to give just this to an administrat=
+or.
+    =
+
+     (3) REVOKE - see above.
+
+The change to SELinux is attached below.
+
+Should the split be pushed down into the SELinux policy rather than trying=
+ to
+calculate it?
+
+Thanks,
+David
+---
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 116b4d644f68..c8db5235b01f 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6556,6 +6556,7 @@ static int selinux_key_permission(key_ref_t key_ref,
+ {
+ 	struct key *key;
+ 	struct key_security_struct *ksec;
++	unsigned oldstyle_perm;
+ 	u32 sid;
+ =
+
+ 	/* if no specific permissions are requested, we skip the
+@@ -6564,13 +6565,26 @@ static int selinux_key_permission(key_ref_t key_re=
+f,
+ 	if (perm =3D=3D 0)
+ 		return 0;
+ =
+
++	oldstyle_perm =3D perm & (KEY_NEED_VIEW | KEY_NEED_READ | KEY_NEED_WRITE=
+ |
++				KEY_NEED_SEARCH | KEY_NEED_LINK);
++	if (perm & KEY_NEED_SETSEC)
++		oldstyle_perm |=3D OLD_KEY_NEED_SETATTR;
++	if (perm & KEY_NEED_INVAL)
++		oldstyle_perm |=3D KEY_NEED_SEARCH;
++	if (perm & KEY_NEED_REVOKE && !(perm & OLD_KEY_NEED_SETATTR))
++		oldstyle_perm |=3D KEY_NEED_WRITE;
++	if (perm & KEY_NEED_JOIN)
++		oldstyle_perm |=3D KEY_NEED_SEARCH;
++	if (perm & KEY_NEED_CLEAR)
++		oldstyle_perm |=3D KEY_NEED_WRITE;
++
+ 	sid =3D cred_sid(cred);
+ =
+
+ 	key =3D key_ref_to_ptr(key_ref);
+ 	ksec =3D key->security;
+ =
+
+ 	return avc_has_perm(&selinux_state,
+-			    sid, ksec->sid, SECCLASS_KEY, perm, NULL);
++			    sid, ksec->sid, SECCLASS_KEY, oldstyle_perm, NULL);
+ }
+ =
+
+ static int selinux_key_getsecurity(struct key *key, char **_buffer)
 
