@@ -1,159 +1,165 @@
-Return-Path: <SRS0=wfQh=3L=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=1yCI=3M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D20F2C2D0DB
-	for <selinux@archiver.kernel.org>; Wed, 22 Jan 2020 18:53:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74809C33CAA
+	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 08:44:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A6AEE24656
-	for <selinux@archiver.kernel.org>; Wed, 22 Jan 2020 18:53:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3D1972467B
+	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 08:44:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="ZEsdf2bD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SdSFQn9e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725933AbgAVSx6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 22 Jan 2020 13:53:58 -0500
-Received: from UPDC19PA21.eemsg.mail.mil ([214.24.27.196]:4337 "EHLO
-        UPDC19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725884AbgAVSx5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 22 Jan 2020 13:53:57 -0500
-X-EEMSG-check-017: 48656030|UPDC19PA21_ESA_OUT03.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,350,1574121600"; 
-   d="scan'208";a="48656030"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 22 Jan 2020 18:53:53 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579719234; x=1611255234;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=+kbjf8pM2zyUj/ruHkFNZWMuJi8mnFgOgVfK3uiUE34=;
-  b=ZEsdf2bDa0sSQn38IHizX1S0So+PESlVnOgN8jLCi19zEwH1vGUQNrod
-   dFLJuK6ev4nulmGhMLMIaWaQ4BhtXNP0RdTF8pX2+zVpajEgD3oWAal2a
-   j8XtbIdAx15XEORpV9+zFAfi37E1L5TbwL1/xN+m6xDEDgBC6fL/N+2ev
-   gaKAdJWE/AgYDX6t3Hyp5yg9z0ogZxXLIaLJWoDrzSBJEF5KC3Ri7fjui
-   4VeLNVcN6KbAC2LRoScAmAR2QUhJaCIycjRO7UxiFa06iE+LzsFQF2Zot
-   KvkVC2YMhmFaayLd6xVfBPKU52bOJBOPOEn/yzdeEDk86N+K/Ow81UISa
-   g==;
-X-IronPort-AV: E=Sophos;i="5.70,350,1574121600"; 
-   d="scan'208";a="38121263"
-IronPort-PHdr: =?us-ascii?q?9a23=3Ah0o1uxxfozGl0WTXCy+O+j09IxM/srCxBDY+r6?=
- =?us-ascii?q?Qd2ukRIJqq85mqBkHD//Il1AaPAdyHragcwLOP6eigATVGvc/a9ihaMdRlbF?=
- =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
- =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMucQam5VuJro+xh?=
- =?us-ascii?q?fUv3dEZfldyWd0KV6OhRrx6dq88ZB5/yhMp/4t8tNLXLnncag/UbFWFiktPX?=
- =?us-ascii?q?ov5M3suxnDTA+P6WUZX24LjBdGABXL4Q/jUJvpvST0quRy2C+BPc3rVr80Qi?=
- =?us-ascii?q?it771qSBDzligKMSMy/XzNhcxxiKJbpw+hpwB6zoXJboyZKOZyc6XAdt4BW2?=
- =?us-ascii?q?FPQtheWDBAAoOkbosAEewBPfpDr4Lgo1cCtAayCRWwCO/qzDJHiGX23akn2O?=
- =?us-ascii?q?o/Fw/I0hErE9YXvHnaqNj5MaEfWv23wqbV1zXOd+5Y1ynz6IbIcR4vr/+DUr?=
- =?us-ascii?q?1yfsXNxkciDB/Fg1eKpID5Iz+Y2OYAvm6G5ORgT+KvjGsnphlzojmh2sgjkJ?=
- =?us-ascii?q?PJhp4LxlvZ8ih5wog0KsGiR05hfd6oDoBdtz2aNoRqQsMiRHtkuCAhyrIco5?=
- =?us-ascii?q?K7cy8KyIo+yhPZdveJcJCI7wr+WOueLjp0nnJodK+lixqs/kWs1PfwWtSy3V?=
- =?us-ascii?q?1XtCRKiMPMuWoI1xHL78iHTeZy8Vm51DaU0gDT9vlEIUcplarHM5IhwqA/lp?=
- =?us-ascii?q?4UsUnbAi/5gl/2jK6LdkU/4OSo6uLnYrvhpp+HKYB7lhvyMrgum8OjAeQ4NR?=
- =?us-ascii?q?ICX26H9uSnyLLv50j5QLROjvEuk6nZto7VJdgDq6KkDAJY3Zwv5haiAzu8zt?=
- =?us-ascii?q?gVkmcLIEhYdB6fiojmIVDOIPT2DfelhFSslS9mx/LIP7L9GJrNNGTDnKn6cL?=
- =?us-ascii?q?Zh609T1AozzddF65JSEbEOOuj/WkD2tNzGFhM5KRC7w/77CNVh0YMTQWWPAq?=
- =?us-ascii?q?qeMKPJt1+H/P4gLPeXaY8PpjnyNvgl6OTyjXMjhVAdeqyp14MNaH+kBvRmP1?=
- =?us-ascii?q?mZYX30j9caD2gKugs+TOr3iFyNSjNTeXmyULwm5j0hC4KpE53DRoazj7yFxi?=
- =?us-ascii?q?u7GYdWZm8VQmyLRFDue5+JWb8pbzmUK8RskXRQUr2mUIko3hyGrgL2y7N7aO?=
- =?us-ascii?q?HT/3tc/Ynu0Nlz+v37ix4/73p3At6b3mXLSHt7zU0SQDpj3r90qFZhkB/X07?=
- =?us-ascii?q?dziuZET/RP9vhJVUE8LpeawOtkXYOhEjndd8uEHQ71Cu6tBis8G5domI4D?=
-X-IPAS-Result: =?us-ascii?q?A2ARAwAimShe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YINEiqEEokDiC2UE4U9gWcJAQEBAQEBAQEBNwEBghOCLQKCPjgTAhABAQEEA?=
- =?us-ascii?q?QEBAQEFAwEBbIVDgjspAYJ6AQUjBBFRCwkFCgICJgICVwYBDAYCAQGCYz+Cf?=
- =?us-ascii?q?K9jfzOFSoMygT6BDiqNcECBEScPgl0+hDGDKIJeBIE/AYwSiWBGepZgBoI9l?=
- =?us-ascii?q?i0GG5p3LY4xnRkigVgrCkGBaIFOUBgNiA0XFY4sIwMwjWwBAQ?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 22 Jan 2020 18:53:52 +0000
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00MIrCH4033109;
-        Wed, 22 Jan 2020 13:53:12 -0500
-Subject: Re: [Non-DoD Source] [PATCH userspace 2/4] libsepol: remove unused
- cil_mem_error_handler
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-References: <20200122154655.257233-1-omosnace@redhat.com>
- <20200122154655.257233-3-omosnace@redhat.com>
-From:   jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <a730c6ee-c5b4-2eb2-60c8-a069a87ec0a4@tycho.nsa.gov>
-Date:   Wed, 22 Jan 2020 13:54:55 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+        id S1726205AbgAWIoq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 23 Jan 2020 03:44:46 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:23079 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725785AbgAWIoq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 23 Jan 2020 03:44:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579769084;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=oEObf4bVaRe1CqjpS5e7O0J8xQaq1gwvBFDbMBmft6o=;
+        b=SdSFQn9eRMks6HaPGAJiTiH8h95UvNwoGooAuGs5gZdAXEE/dNy+/4eqvxHRLuQrSJZPW7
+        ViwRfRwCMoltrDWHD9XOaEHrOWFlinTJq7/kKPtvLh7Gw4Q6popiUkwa0UkYRPXW0udi+o
+        W4vxb/KEWkIQMTaVSziEdsir7VAlGKQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-358-eoGTnOH_PJ2_U5dhcZJ5cA-1; Thu, 23 Jan 2020 03:44:42 -0500
+X-MC-Unique: eoGTnOH_PJ2_U5dhcZJ5cA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9C85A107ACC4;
+        Thu, 23 Jan 2020 08:44:41 +0000 (UTC)
+Received: from localhost (ovpn-204-109.brq.redhat.com [10.40.204.109])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 2FF27388;
+        Thu, 23 Jan 2020 08:44:40 +0000 (UTC)
+References: <20190509084204.26198-1-plautrba@redhat.com> <43a3624a-2217-f504-0195-13e4423c7b63@tycho.nsa.gov> <pjdsgtexwtm.fsf@redhat.com> <d533b6fe-9606-185d-caa6-8c71c09d7ee1@tycho.nsa.gov>
+User-agent: mu4e 1.2.0; emacs 26.3
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org,
+        William Roberts <bill.c.roberts@gmail.com>,
+        "Christopher J. PeBenito" <pebenito@ieee.org>
+Subject: Re: [PATCH] libselinux: Eliminate use of security_compute_user()
+In-reply-to: <d533b6fe-9606-185d-caa6-8c71c09d7ee1@tycho.nsa.gov>
+Date:   Thu, 23 Jan 2020 09:44:39 +0100
+Message-ID: <pjdmuaezhmw.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200122154655.257233-3-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/22/20 10:46 AM, Ondrej Mosnacek wrote:
-> It is declared in an internal header but never defined. Remove it.
-> 
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->   libsepol/cil/src/cil_mem.h     | 1 -
->   libsepol/cil/src/cil_strpool.c | 2 --
->   2 files changed, 3 deletions(-)
-> 
-> diff --git a/libsepol/cil/src/cil_mem.h b/libsepol/cil/src/cil_mem.h
-> index 902ce131..794f02a3 100644
-> --- a/libsepol/cil/src/cil_mem.h
-> +++ b/libsepol/cil/src/cil_mem.h
-> @@ -36,7 +36,6 @@ void *cil_calloc(size_t num_elements, size_t element_size);
->   void *cil_realloc(void *ptr, size_t size);
->   char *cil_strdup(const char *str);
->   int cil_asprintf(char **strp, const char *fmt, ...);
-> -void (*cil_mem_error_handler)(void);
->   
->   #endif /* CIL_MEM_H_ */
->   
-> diff --git a/libsepol/cil/src/cil_strpool.c b/libsepol/cil/src/cil_strpool.c
-> index 97d4c4b9..508541d6 100644
-> --- a/libsepol/cil/src/cil_strpool.c
-> +++ b/libsepol/cil/src/cil_strpool.c
-> @@ -80,7 +80,6 @@ char *cil_strpool_add(const char *str)
->   		int rc = hashtab_insert(cil_strpool_tab, (hashtab_key_t)strpool_ref->str, strpool_ref);
->   		if (rc != SEPOL_OK) {
->   			pthread_mutex_unlock(&cil_strpool_mutex);
-> -			(*cil_mem_error_handler)();
->   			pthread_mutex_lock(&cil_strpool_mutex);
->   		}
->   	}
 
-I removed the cil_mem_error_handler stuff last Fall (see commit 4459d635). I 
-guess that I must have missed these somehow.
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
-In the other places where I removed it, I replaced it with the inlined default 
-hanlder which consisted of the following:
+> On 5/16/19 11:07 AM, Petr Lautrbach wrote:
+>>
+>> Stephen Smalley <sds@tycho.nsa.gov> writes:
+>>
+>>> On 5/9/19 4:42 AM, Petr Lautrbach wrote:
+>>>> get_ordered_context_list() code used to ask the kernel to compute the
+>>>> complete
+>>>> set of reachable contexts using /sys/fs/selinux/user aka
+>>>> security_compute_user(). This set can be so huge so that it doesn't fit into
+>>>> a
+>>>> kernel page and security_compute_user() fails. Even if it doesn't fail,
+>>>> get_ordered_context_list() throws away the vast majority of the returned
+>>>> contexts because they don't match anything in
+>>>> /etc/selinux/targeted/contexts/default_contexts or
+>>>> /etc/selinux/targeted/contexts/users/
+>>>>
+>>>> get_ordered_context_list() is rewritten to compute set of contexts based on
+>>>> /etc/selinux/targeted/contexts/users/ and
+>>>> /etc/selinux/targeted/contexts/default_contexts files and to return only
+>>>> valid
+>>>> contexts, using security_check_context(), from this set.
+>>>>
+>>>> Fixes: https://github.com/SELinuxProject/selinux/issues/28
+>>>>
+>>>> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+>>>> ---
+> <snip>
+>>> I think the main potential stumbling block here is the MLS range component.
+>>> The
+>>> kernel policy defines the default level and allowed range for the (SELinux)
+>>> user, and uses this information in the kernel function
+>>> mls_setup_user_range(),
+>>> https://elixir.bootlin.com/linux/latest/source/security/selinux/ss/mls.c#L402, 
+>>>
+>>> to determine the most suitable MLS range for the user session, based on both
+>>> the
+>>> from-context and the user default and range from the kernel policy.  Just
+>>> using
+>>> the level from the from-context could fail if the user isn't authorized to
+>>> operate at that level, and even if the user is authorized to operate at that
+>>> level, it could introduce a change in the default behavior if the user's
+>>> default
+>>> level differs. I think when we have discussed this in the past on the list,
+>>> we
+>>> were going to either export the user's default level and range information
+>>> from
+>>> the kernel via selinuxfs and replicate the mls_setup_user_ranges() logic in
+>>> userspace, or have it automatically extracted from the kernel policy during
+>>> policy build into a userspace configuration file that could be used directly
+>>> by
+>>> userspace.  Or something like that.  This gets a bit tricky though in that
+>>> the
+>>> logic involves comparing MLS levels, which is intrinsically policy-specific
+>>> logic, and thus if we wanted to truly replicate it in userspace, we'd
+>>> probably
+>>> need to use libsepol.  Ugh. Maybe the kernel could just provide a simple
+>>> selinuxfs interface for computing the result of mls_setup_user_range() and
+>>> return that piece.
+>>>
+>>> That said, I don't know to what extent anyone is relying on this logic and to
+>>> what extent it is obsoleted by the use of the level/range from seusers.  It
+>>> looks like today we are replacing the level/range in the original
+>>> from-context
+>>> with the one from seusers before calling this code, in which case the
+>>> fromlevel
+>>> is in fact the one we ultimately want to use.  So perhaps this doesn't matter
+>>> and we can just go with your approach.
+>>
+>> The problem is much complicated than I originally thought and this
+>> patch changes the behavior of get_ordered_context_list what is probably
+>> not acceptable.
+>>
+>> I'll do more tests and think about it the light of new (for me)
+>> information.
+>>
+>> Thanks all for reviews and inputs.
+>
+> I would like to re-visit this patch again.  I did some looking at how
+> get_ordered_context_list() and its variant interfaces are currently being used
+> by callers, and at the internal logic of get_ordered_context_list() in userspace
+> and mls_setup_user_ranges() in the kernel.  Since we are already substituting
+> the range/level from seusers into the from-context before calling
+> security_compute_user(), and since the only sensible configuration of seusers
+> would be to use a range/level that falls within (or is identical to) the SELinux
+> user's authorized range, I don't think your patch is likely to break anything.
+> There are corner cases where it could yield a different result but I would be
+> surprised if such corner cases are in real use and arguably they would be
+> configuration errors.  Consequently, I think we should refresh your patch,
+> address any comments made on it previously, and submit it for merging and try it
+> out.  If we encounter any real world breakage from it, we can consider adding a
+> new selinuxfs node that exports the kernel's mls_setup_user_ranges() logic and
+> rework get_ordered_context_list() to use that to obtain the MLS portion of the
+> context, but I don't think it is worth doing that without a real example where
+> simply applying your patch breaks something.  Thoughts?
 
-   cil_log(CIL_ERR, "Failed to allocate memory\n");
-   exit(1);
 
-Since we are existing, the pthread_mutex_lock() call can be removed.
+No objection at the moment. But it'll take me few days, we're kind of busy
+when it's about https://www.devconf.info/cz/
 
-> @@ -104,7 +103,6 @@ void cil_strpool_init(void)
->   		cil_strpool_tab = hashtab_create(cil_strpool_hash, cil_strpool_compare, CIL_STRPOOL_TABLE_SIZE);
->   		if (cil_strpool_tab == NULL) {
->   			pthread_mutex_unlock(&cil_strpool_mutex);
-> -			(*cil_mem_error_handler)();
->   			return;
->   		}
->   	}
-> 
-
-Same thing here, but now the return won't be needed.
-
-Thanks,
-Jim
-
-
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
