@@ -2,129 +2,200 @@ Return-Path: <SRS0=1yCI=3M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-14.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0A33C2D0DB
-	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 18:33:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83CE0C2D0DB
+	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 19:33:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A786921569
-	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 18:33:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C85A21D7E
+	for <selinux@archiver.kernel.org>; Thu, 23 Jan 2020 19:33:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="X2cOoJdM"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="EwQF7S6l"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728842AbgAWSdH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 23 Jan 2020 13:33:07 -0500
-Received: from USFB19PA31.eemsg.mail.mil ([214.24.26.194]:58064 "EHLO
-        USFB19PA31.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726792AbgAWSdH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 23 Jan 2020 13:33:07 -0500
-X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Thu, 23 Jan 2020 13:33:06 EST
-X-EEMSG-check-017: 47891719|USFB19PA31_ESA_OUT01.csd.disa.mil
+        id S1728911AbgAWTdh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 23 Jan 2020 14:33:37 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:31086 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728842AbgAWTdg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 23 Jan 2020 14:33:36 -0500
+X-EEMSG-check-017: 48010098|USFB19PA36_ESA_OUT06.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,354,1574121600"; 
-   d="scan'208";a="47891719"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA31.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 23 Jan 2020 18:25:53 +0000
+   d="scan'208";a="48010098"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 23 Jan 2020 19:33:34 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579803954; x=1611339954;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=zfyweS8K5F6JbuJTeBZY9HtItjN3Qa3Pz2CwHb+5IfQ=;
-  b=X2cOoJdMihGKC0otCd509LUP6vX5kd295l23yNHnWNMJiPCb5PqxbpFa
-   R+GOwmSM4cqArJYE1rkwT6a2Z4ezhZ9WqOmOO9RsUt4U0hwSLicgpfDR8
-   WmmgcdSxrx5xTjR1IzJZ4FP0NK7XnMMhed+FGM9bNLygchvMwda3+leNB
-   rHiaGX9YKLKze4W+CCyp0Yx4CqbbDE/d2DDwTsWXmv453YRnarcMYbVRA
-   lwjO9dDUJtunlekfajVErWSGxa+fHgu4ylfMWYv/by1JhyKL1gXNFYuTg
-   tkf5IKhAd5Ls4ZxNrVtUn79T33YulqIeXh7ARTQWIhgi7dotXHS9xYsfM
+  s=tycho.nsa.gov; t=1579808015; x=1611344015;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=gAQWaW5ssjA78AlR4r6j93+j2JAtD18UZoRtWhvc4yA=;
+  b=EwQF7S6ljHGZxIOAeWq+Hxw7wpEDGXJbX3jApnMKKfaX3KoxUxMxvoFG
+   hcBnrXv6URWpRz3CQebEzfnYMPyuHEYp0aTpXBy5f1KCEUAbqOONH6IrW
+   iyaTaGOoPNlQ8m4BuOlhuFE1R7nS4eK1tpvVOxFjR/Vx1b5qI2Gx4KiHL
+   XUqUpBwIHLm1GDT0j/zLMgHtKT9rKTuRdrMCULTmQGLWUmNh5aOuED/I1
+   BochWiCfBq4yvP4Un2Vf/Jt16ESLUIHB/mjuhxL31/xwfLX+gLOqyZV8C
+   3r+eRJvSHN5sFUqZmuyoPIiKwdWzcRtbiAbr0U9r83uJJy7f9SLKLP8DI
    g==;
 X-IronPort-AV: E=Sophos;i="5.70,354,1574121600"; 
-   d="scan'208";a="38171849"
-IronPort-PHdr: =?us-ascii?q?9a23=3A6BxslxwjCKZR2OvXCy+O+j09IxM/srCxBDY+r6?=
- =?us-ascii?q?Qd2ukSIJqq85mqBkHD//Il1AaPAdyHragewLWN++C4ACpcuM3H6ChDOLV3FD?=
- =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
- =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjeu8UMn4duNKk9xx?=
- =?us-ascii?q?nHr3BVf+ha2X5kKUickhrh6Mq85oJv/zhVt/k868NOTKL2crgiQ7dFFjomKW?=
- =?us-ascii?q?c15MPqtRnHUwSC42YXX3sVnBRVHQXL9Qn2UZjtvCT0sOp9wzSaMtbtTb8oQz?=
- =?us-ascii?q?Si7rxkRwHuhSwaKjM26mDXish3jKJGvBKsogF0zoDIbI2JMvd1Y7jQds0GS2?=
- =?us-ascii?q?VfQslRVjRBAoKiYIsJE+oBJvtTo43kq1cTsReyGQygCeXhxT9Sgn/9wLM03e?=
- =?us-ascii?q?IvHwrb2AAsBtwDvXDRoNjzKawcU/26zLPQwDvecf1W1zfz5ovGfB8vrv6DX6?=
- =?us-ascii?q?5/f8XKxEkzFQ7IlEmcpZDrMj6X0OkGrmiV7/BnVeKqk2MnqQ9wrSS1ycc2lo?=
- =?us-ascii?q?nFmJ8ex1fG9SR33Ik6P8e4SFJlbdO/DJtRtz2VN4txQs84RWFoozw1xqcJuZ?=
- =?us-ascii?q?68YigH0ZIqzAPcZfyfa4WE/x3uWemLLTp4mX5pYqyzihms/US61+HxUNS/3k?=
- =?us-ascii?q?xQoSpfiNbMs2gA1xnU6seaVPRw5lyh2TOT1wDL7eFEPFw0mbLbK5E/xr4wkY?=
- =?us-ascii?q?IesVjZES/smUX2kbSWel8l+uiu5eTnZa7mqYGAOINulgH/Mrghmsy4AegiNA?=
- =?us-ascii?q?gBQ3Ob9vim2L3m/E35RK1GjvwwkqbHrJDXPdkXq6G2DgNP0osv9gyzAymp3d?=
- =?us-ascii?q?gGh3ULMUpJeBedgIjoP1HOLur4DfC6g1m0kjdqyezJMaf7ApXRMHTOi6vhfL?=
- =?us-ascii?q?Zh5E5czwo/19Zf54lOBb0bL/LzXVHxuMTCDhAlKwy03/rnCNJl24MZXGKPBb?=
- =?us-ascii?q?SZMKXIvlCU+O0iOPOMa5EItzb9Mfcl++TigmM+mV8YZaOpx4cYaGikHvR6JE?=
- =?us-ascii?q?WUeWHsjckFEWcLuAo+UePrhUacUT5ceXmyRbgw5jIlB4K8C4fMWIStjKaG3C?=
- =?us-ascii?q?ehEZ0FLlxBX3eKHW3ldc2hXOwKYSmfIYc1lTkDTr6oQIIJzxyitAbmjbFgK7?=
- =?us-ascii?q?yQsjYVsZPlychd+eLej1cx+CZyAsDb1HuCHE9umWZdRSA91bpj+wQpyEiI2L?=
- =?us-ascii?q?Jk2dREBNdT4LVPSQ58OpnCmb8pQ+vuUx7MK4/aAG2tRc+rVHRoFYM8?=
-X-IPAS-Result: =?us-ascii?q?A2B3AwDM4yle/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YFtIBIqhBKJA4gymzgJAQEBAQEBAQEBNwEBghOCLQKCQjgTAhABAQEEAQEBA?=
- =?us-ascii?q?QEFAwEBbIVDgjspAYJ6AQUjFVELCQUKAgImAgJXBgEMBgIBAYJjP4J8rQqBM?=
- =?us-ascii?q?oVKgzCBPoEOKo1xQIE4D4JdPoQSg0eCPCIEgT8Bi3iJfEaXWgaCPZYuBhuad?=
- =?us-ascii?q?45enRkigVgrCkGBaIFOUBgNiDmOLCMDMIsBgkMBAQ?=
+   d="scan'208";a="32270602"
+IronPort-PHdr: =?us-ascii?q?9a23=3AKbNe7hA29DBkgZUlGlrIUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSP37pc6wAkXT6L1XgUPTWs2DsrQY0raQ6fqrCTRIoc7Y9ixbK9oUD1?=
+ =?us-ascii?q?5NoP5VtjRoONSCB0z/IayiRA0BN+MGamVY+WqmO1NeAsf0ag6aiHSz6TkPBk?=
+ =?us-ascii?q?e3blItdaz6FYHIksu4yf259YHNbAVUnjq9Zq55IAmroQnLucQanIRvJrwvxh?=
+ =?us-ascii?q?fXrXdFePhazn5sKV6Pghrw/Mi98INt/ihKp/4t68tMWrjmcqolSrBVEC4oOH?=
+ =?us-ascii?q?0v6s3xshnDQwqP5n8CXWgTjxFFHQvL4gzkU5noqif1ufZz1yecPc3tULA7Qi?=
+ =?us-ascii?q?+i4LtxSB/pkygIKTg0+3zKh8NqjaJbpBWhpwFjw4PRfYqYOuZycr/bcNgHS2?=
+ =?us-ascii?q?VBRMJRXDFfDI26YYUEEu4NMf9WooT5olcDqwa1CwuxC+P10jJGhmH407A03e?=
+ =?us-ascii?q?oiFg/J0wMuEskSvHnXttj5KL0fXfypwKTO0D7Nb+lW2TD46IXQbx4hve+DXa?=
+ =?us-ascii?q?pwccXPz0kkCh7LjlCKpozhOzOayOQMuHWc4up7SO2vkHUqqx1xozezxscsjZ?=
+ =?us-ascii?q?PFhoQOyl/e7yl5z4E1JcOhRUN9fNWqHpxQtySAOIt3RMMvW25ouCcmyr0GpJ?=
+ =?us-ascii?q?60ZzIGx4ggxx7abfGMbouG4gr7WeqMLjp1i2hpdbKiixqo70StxfPwWtOp3F?=
+ =?us-ascii?q?tMsyFLiMPDtmoX2BzW8sWHT/x98Vq/1juXzADT7/1EIVgzlarGN54t2r4wmY?=
+ =?us-ascii?q?QXsUTEBiL2hF/5jLWXdkU54eik8eXnYrPopp+bLI97lB3xPr4yms2/Hes4Mg?=
+ =?us-ascii?q?8OU3Kd+eugz73s4Vf1QLBLjv0yiqXZsZbaKtoHpqOhHgNY3Yku5wy/Aju7yt?=
+ =?us-ascii?q?gUg3YKIExfdB6al4TpPkvBIPH8DfexmVSslzJryujdPrL8GZXANWTDkbf9cr?=
+ =?us-ascii?q?Z97E5Q0gwzzctF6J5OBbEBJ+zzVlfrtNPEFh85LxC0w+H/BdVn14MRRWKPDb?=
+ =?us-ascii?q?WDMKzPqVCH+vogI+mWa48UvjbyNeMl6uX1gn8lmF8de7Wp0oUNaHC+APtmP1?=
+ =?us-ascii?q?+VbmbrgtcECW0KpBYxTPT2iF2eVj5ef26yULgh5jE/E4+mFZ3MRp2pgLCY2S?=
+ =?us-ascii?q?e7GZpWZnpYBVyWDXjocICEUe8WaC2OOs9hjiAEVb+5Ro8m0BGusxT6y7x9Ie?=
+ =?us-ascii?q?XI5CIVrojj28Zo6O3Tjx4y6SZ4ANia02GIV2t0hH8HRycq3KBjpkxw0kyD3r?=
+ =?us-ascii?q?Z8g/xZE9xT+vxIXxwkNZ7T0eN6Ecr+WgHfcdeTTlapXNGmDSs2TtIrzN9dK3?=
+ =?us-ascii?q?p6Ts6vihHFwjqCHbAYjfqICYYy/6aa2GL+dOhnzHOT77Usl1krRIN0MGSigq?=
+ =?us-ascii?q?Nuv1zIC5Xhj1SSl6Hsc78VmiHK6jHQniK1oEhEXVsoAu3+VncFax6T9oX0?=
+X-IPAS-Result: =?us-ascii?q?A2BOAABD9Cle/wHyM5BlHQEBAQkBEQUFAYFnCAELAYF8g?=
+ =?us-ascii?q?RhVIBIqjDVghnADAQEGiyaPToF7CQEBAQEBAQEBARsQDAEBhECCRDQJDgIQA?=
+ =?us-ascii?q?QEBBAEBAQEBBQMBAWyFNwyCOymDMwFGgVGCZz8BglYlD65AiH+BPoE4AYc9h?=
+ =?us-ascii?q?HN5gQeBR4MbgksZAoFNhgQEjTgSijCXWoJDgkuEdY5oDBuCR5gvAYp+hSqHG?=
+ =?us-ascii?q?JQgOYFYKwgCGAghD4MnCUcYDYt0hlGEICMDMI1EAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 23 Jan 2020 18:25:47 +0000
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00NIP3ou184476;
-        Thu, 23 Jan 2020 13:25:03 -0500
-Subject: Re: [Non-DoD Source] [PATCH userspace v2 4/4] Makefile: always build
- with -fno-common
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-References: <20200123125716.12662-1-omosnace@redhat.com>
- <20200123125716.12662-5-omosnace@redhat.com>
-From:   jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <fb745330-9f6d-b4e4-93de-c7be8a3991bd@tycho.nsa.gov>
-Date:   Thu, 23 Jan 2020 13:26:46 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 23 Jan 2020 19:33:32 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00NJWl0U222319;
+        Thu, 23 Jan 2020 14:32:47 -0500
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+To:     selinux@vger.kernel.org
+Cc:     omosnace@redhat.com, paul@paul-moore.com,
+        richard_c_haines@btinternet.com,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] testsuite/policy: fixes for running on a labeled NFS mount
+Date:   Thu, 23 Jan 2020 14:34:15 -0500
+Message-Id: <20200123193415.34022-1-sds@tycho.nsa.gov>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <20200123125716.12662-5-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/23/20 7:57 AM, Ondrej Mosnacek wrote:
-> GCC 10 has it enabled by default and everything now builds OK with it,
-> so add it to CFLAGS to avoid breaking the build in the future.
-> 
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+When running the testsuite on a labeled NFS mount, certain
+additional permissions are required for nfsd and its kernel threads
+and for the nfs_t filesystem.  Allow them to avoid unnecessary
+failures on NFS.  Also declare test_setfscreatecon_newcon_t as a
+files_type() to ensure that it can be accessed as expected by
+unconfined domains; otherwise, cleanup and repeated runs are not
+guaranteed to work.  Saw denials for unconfined_t and kernel_t on
+test_fscreatecon_newcon_t when running over labeled NFS, but
+at least the unconfined_t access was possible even for running
+locally.
 
-For all four patches,
+With these changes, all of the "filesystem" tests pass on a labeled NFS
+mount.
 
-Acked-by: James Carter <jwcart2@tycho.nsa.gov>
+Certain test cases are still expected to fail over NFS; see
+https://github.com/SELinuxProject/selinux-testsuite/issues/32
+for more details.
 
-> ---
->   Makefile | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/Makefile b/Makefile
-> index c238dbc8..298cd2b7 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -16,7 +16,8 @@ else
->   		-Wstrict-prototypes \
->   		-Wundef \
->   		-Wunused \
-> -		-Wwrite-strings
-> +		-Wwrite-strings \
-> +		-fno-common
->   endif
->   
->   ifneq ($(DESTDIR),)
-> 
+Test sequence for labeled NFS is:
+$ cat nfs.sh
+MOUNT=/home # must be a top-level mount
+TESTDIR=$MOUNT/path/to/selinux-testsuite
+exportfs -orw,no_root_squash,security_label localhost:$MOUNT
+systemctl start nfs-server
+mkdir -p /mnt/selinux-testsuite
+mount -t nfs -o vers=4.2 localhost:$TESTDIR /mnt/selinux-testsuite
+pushd /mnt/selinux-testsuite
+make test
+popd
+umount /mnt/selinux-testsuite
+exportfs -u localhost:$TESTDIR
+systemctl stop nfs-server
 
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ policy/test_filesystem.te |  8 ++++++++
+ policy/test_sctp.te       | 18 ++++++++++++++++++
+ 2 files changed, 26 insertions(+)
 
+diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
+index a029a1b34404..c3c944affad4 100644
+--- a/policy/test_filesystem.te
++++ b/policy/test_filesystem.te
+@@ -41,6 +41,9 @@ files_search_all(test_filesystem_t)
+ fs_associate(test_filesystem_file_t)
+ fs_getattr_xattr_fs(test_filesystem_t)
+ 
++# Required when running the tests on a labeled NFS mount.
++fs_getattr_nfs(test_filesystem_t)
++
+ # Update quotas
+ fs_set_all_quotas(test_filesystem_t)
+ allow test_filesystem_t test_filesystem_file_t:file { quotaon };
+@@ -303,10 +306,15 @@ allow test_setfscreatecon_t test_file_t:dir { add_name write remove_name };
+ 
+ # Set new context on fs:
+ type test_setfscreatecon_newcon_t;
++files_type(test_setfscreatecon_newcon_t)
+ unconfined_runs_test(test_setfscreatecon_newcon_t)
+ fs_associate(test_setfscreatecon_newcon_t)
+ allow test_setfscreatecon_t test_setfscreatecon_newcon_t:dir { create getattr rmdir };
+ 
++# Permit creation of the new file in a NFS filesystem.
++# This is required when running the testsuite on a labeled NFS mount.
++allow test_setfscreatecon_newcon_t nfs_t:filesystem associate;
++
+ ################# deny process { setfscreate } #############
+ type test_no_setfscreatecon_t;
+ domain_type(test_no_setfscreatecon_t)
+diff --git a/policy/test_sctp.te b/policy/test_sctp.te
+index aedd3a01ba66..df8606ec7a35 100644
+--- a/policy/test_sctp.te
++++ b/policy/test_sctp.te
+@@ -12,6 +12,15 @@ type netlabel_sctp_peer_t;
+ corenet_in_generic_node(netlabel_sctp_peer_t)
+ corenet_in_generic_if(netlabel_sctp_peer_t)
+ 
++# Permit nfsd and its kernel threads to receive these packets.
++# This is required when running the testsuite on a labeled NFS mount.
++gen_require(`
++	type kernel_t;
++	type nfsd_t;
++')
++allow kernel_t netlabel_sctp_peer_t:peer recv;
++allow nfsd_t netlabel_sctp_peer_t:peer recv;
++
+ # Default label for CIPSO/CALIPSO:
+ gen_require(`
+ 	type netlabel_peer_t;
+@@ -89,6 +98,15 @@ allow test_sctp_client_t deny_assoc_sctp_peer_t:peer {recv };
+ corenet_inout_generic_node(deny_assoc_sctp_peer_t)
+ corenet_inout_generic_if(deny_assoc_sctp_peer_t)
+ 
++# Permit nfsd and its kernel threads to receive these packets.
++# This is required when running the testsuite on a labeled NFS mount.
++gen_require(`
++	type kernel_t;
++	type nfsd_t;
++')
++allow kernel_t deny_assoc_sctp_peer_t:peer recv;
++allow nfsd_t deny_assoc_sctp_peer_t:peer recv;
++
+ #
+ ############################# Connectx #################################
+ #
 -- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+2.24.1
+
