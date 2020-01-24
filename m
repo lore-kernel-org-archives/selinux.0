@@ -2,114 +2,218 @@ Return-Path: <SRS0=mP8O=3N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA3AAC2D0DB
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 13:12:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEA3DC2D0DB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 13:29:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BB13920838
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 13:12:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 908952075D
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 13:29:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iw9tDrf/"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="pxv4eVXk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387565AbgAXNMV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jan 2020 08:12:21 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:41373 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387486AbgAXNMV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 08:12:21 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579871539;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=JNVhcQVujxWes3ag+7lMmuio1muuLInyCRTsEe5OF+k=;
-        b=iw9tDrf/Y60Wz6pzW/vhT64j47mBbv+MlIR0PmHIRNqxgCD5Xu3E5ZtOox3otm9VfWRc+o
-        ozZBO+PEHYbF/tfGQpt3eBy7u2/rR0OsVfDV7igoLJcppgaIoYtr4UAIHIVTpOQv2Du9Zy
-        LHzftNELp0P7LKzPc3pMI55/6deuE1Q=
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
- [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-341-U6i93UVEMmeVzE6OD1wJjg-1; Fri, 24 Jan 2020 08:12:17 -0500
-X-MC-Unique: U6i93UVEMmeVzE6OD1wJjg-1
-Received: by mail-ot1-f70.google.com with SMTP id z13so841561otp.7
-        for <selinux@vger.kernel.org>; Fri, 24 Jan 2020 05:12:17 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JNVhcQVujxWes3ag+7lMmuio1muuLInyCRTsEe5OF+k=;
-        b=okxU0nsWKUx1TSbIyBPjU2BnSZDp+1B40kjU5HMId4h4cP2kioN8allX7V1Xe/PJ0j
-         mXD12Xl6SYcb/724oLuAD4vXzaPh3lSvPd+RdqjETc7CGQBQday9Lq1Oo7TEx0o6xaqc
-         soReMqNTPR5AwV5P3hHiqHeY2tgCfyVCcyMcs274pG3AMu4YtYrMTY8/I2X49untjFK/
-         0CKt8iDSy87TbVdOeV46Rj8GmM22AaPRdnmgclIvfs2B0uCRiRiuAidLlHpB7pLBHAeH
-         sDS+Baglcawb7YO7T83Ii+KA3U7d/wVdJ8lm+hfLjfqM72FDPQiUCcTOzvjQj07XMvyv
-         I/fA==
-X-Gm-Message-State: APjAAAUXyC8U6kgUGIyVWPjYziCDEqR0q2KUeG3ZGDxmxl4K7JvFrj+Y
-        jiNMLnPYvaerPRxrY/2g242HMb3q0AxaZVD6kFWrqqWkxF+XD+CBJoJDsNWL9pKkYbhCygMV/55
-        5pqGPjmCbs+SdNQ385dDQ5ekUqB6Q5MJqLw==
-X-Received: by 2002:aca:c30d:: with SMTP id t13mr1952749oif.166.1579871536499;
-        Fri, 24 Jan 2020 05:12:16 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyVs7INEGMt9xKyB4gqBB4pb/1EXDx9sE4rxwL2uKzQUpOhKWZXjxlR6R6gvoVLQsGwhVrj84RS2zZLX1UGVtw=
-X-Received: by 2002:aca:c30d:: with SMTP id t13mr1952731oif.166.1579871536227;
- Fri, 24 Jan 2020 05:12:16 -0800 (PST)
+        id S2387722AbgAXN3t (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jan 2020 08:29:49 -0500
+Received: from UPDC19PA24.eemsg.mail.mil ([214.24.27.199]:16907 "EHLO
+        UPDC19PA24.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387634AbgAXN3t (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 08:29:49 -0500
+X-EEMSG-check-017: 49328223|UPDC19PA24_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,357,1574121600"; 
+   d="scan'208";a="49328223"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA24.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 24 Jan 2020 13:29:45 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1579872585; x=1611408585;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=Rr08VRjjLk5Sh1rOF3sfT58GlrG+bDp+V/hz4op4M3U=;
+  b=pxv4eVXk7wNsOOBOj3J9zHiQ6S+czKnLUWnEflyMYUemobAWeNJ8P4m7
+   c0GvWY4mMnCDhA8wMDhnJSbe1XLaSXhUpmyoMEJAcur0/4ysNvdF/HIi4
+   enOR7QEx5LUnhkrMj/D+VNy00D4bgjPXyA0Pbro5vndn4aYNiqUef7b4S
+   73UK0lKqpZjSUVdg9PChYtmdXXIjcioL+5VdKxZvKeuHgiXFrUIhshPAV
+   Ht8Kt4rutxHn4LodeJIGWojkHxEh0lgw3i7smaMRyNDOFb+9//MViP+4F
+   2pCAPqRU2Hp7mFZrJ+wxPv4YjsQUYXslAouZbpyyH5IlNIEXfu2wSS/ZD
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,357,1574121600"; 
+   d="scan'208";a="38201264"
+IronPort-PHdr: =?us-ascii?q?9a23=3ATO/0HR2dOrmCRtJpsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseITKPad9pjvdHbS+e9qxAeQG9mCt7Qe16GK4uigATVGvc/a9ihaMdRlbF?=
+ =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
+ =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMucQam5VuJ6k+xh?=
+ =?us-ascii?q?bGpnZDZuBayX91KV6JkBvw+8m98IR//yhMvv4q6tJNX7j9c6kkV7JTES4oM3?=
+ =?us-ascii?q?oy5M3ltBnDSRWA634BWWgIkRRGHhbI4gjiUpj+riX1uOx92DKHPcLtVrA7RS?=
+ =?us-ascii?q?6i76ZwRxD2jioMKiM0/3vWisx0i6JbvQ6hqhliyIPafI2ZKPxzdb7TctMAQW?=
+ =?us-ascii?q?pKQ9hfWSpPDIiha4cDFuoMMOJdo4T7ulAArwaxBRO0Ce3y1DFIiH/406403e?=
+ =?us-ascii?q?svHg7J3hAvEd0VvXTIrtj4LrseXfy7waTKyzjIcvNY2S366IjNah0vvO2MUq?=
+ =?us-ascii?q?xoccrR10YvER7OgEiVqYP/OzOV0voCsmiG5OdnTuKglnUnphptojmv2sgsio?=
+ =?us-ascii?q?7JipgTylDf7yp12ok1JdqmSENiZ9OvDZhetzmCOodrTc4vTHtktSYnxrEcp5?=
+ =?us-ascii?q?K2czYGxI46yxPZdveJaZKH4gj5W+aUOTp4gXVld6+hiBuq6kigz/H8VtGz0F?=
+ =?us-ascii?q?ZXsipJitnMuW4J1xzU8sWHVuFy/l2g2TaSzADf8OBEIUY6larcMJ4u3KI/mo?=
+ =?us-ascii?q?APsUXDAiD2mEL2gLWQdko44ein9/7rYrDnpp+YL4N0iwf+PboymsGnHOg1PQ?=
+ =?us-ascii?q?cDU3Kb9OihzrHv40L0TKtQgvEriqXZtYrVJcUfpq63GQ9V1YMj5g6kDzi7y9?=
+ =?us-ascii?q?QVhmUHLVJZdxKHiIjlIVfOIOviAvuljFSslylry+jcPrL9GpXNMmTDkLD5cL?=
+ =?us-ascii?q?Zm9UFczAszzdZC55NbEbwBPv3zVVHrtNDCDR82LRa0w+D5B9V5zI8eXniPAq?=
+ =?us-ascii?q?CBOqPIrVCI/v4vI/WLZIINozn9Kvcl5/nojXIihFASY7Km3ZoNZ3C+BPhmJF?=
+ =?us-ascii?q?+ZYXW/yusGRHwHugs4UfzCllKPS3hQamy0UqZ64Ss0W6y8CoKWfZygmLyM2m?=
+ =?us-ascii?q?+AG5RSYm1XQgSXHWzAa5SPW/BKbjmbZMBmjGpXBvCaV4Y92ET250fBwL19I7?=
+ =?us-ascii?q?+Rp3wV?=
+X-IPAS-Result: =?us-ascii?q?A2BTAACp7ype/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWkFA?=
+ =?us-ascii?q?QELAYF8gW0gEiqEEokDhngGgTeJb4olhSmBewkBAQEBAQEBAQE3AQGEQAKCR?=
+ =?us-ascii?q?jYHDgIQAQEBBAEBAQEBBQMBAWyFQ4I7KYJ7AQUjBBFBEAsYAgImAgJXEwYCA?=
+ =?us-ascii?q?QGCVww/glclrHV/M4VKg0GBPoEOKgGMMHmBB4ERJw+CXT6HWYJeBI1ciVhGl?=
+ =?us-ascii?q?16CQ4JMk2UGG5p8LatBCSmBWCsIAhgIIQ+DJ1AYDYgNF45BIwMwjVYBAQ?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 24 Jan 2020 13:29:44 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00ODT2Q3210275;
+        Fri, 24 Jan 2020 08:29:02 -0500
+Subject: Re: [PATCH] libselinux: export flush_class_cache(), call it on
+ policyload
+To:     selinux@vger.kernel.org
+Cc:     bigon@debian.org
+References: <20200121162532.29494-1-sds@tycho.nsa.gov>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <2f5f7fa0-4db2-d2e8-2c57-6e28e4c5a770@tycho.nsa.gov>
+Date:   Fri, 24 Jan 2020 08:30:38 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.1
 MIME-Version: 1.0
-References: <20200123204004.25600-1-jwcart2@tycho.nsa.gov>
-In-Reply-To: <20200123204004.25600-1-jwcart2@tycho.nsa.gov>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 24 Jan 2020 14:12:05 +0100
-Message-ID: <CAFqZXNtkpV+E-Vpkeq2_2FitKQFFfu1bjDdaZFD5SA3gm9FfSg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Fix bug in cil_copy_avrule() in extended
- permission handling
-To:     James Carter <jwcart2@tycho.nsa.gov>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200121162532.29494-1-sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 23, 2020 at 9:39 PM James Carter <jwcart2@tycho.nsa.gov> wrote:
-> When copying an avrule with extended permissions (permx) in
-> cil_copy_avrule(), the check for a named permx checks the new permx
-> instead of the old one, so the check will always fail. This leads to a
-> segfault when trying to copy a named permx because there will be an
-> attempt to copy the nonexistent permx struct instead of the name of
-> the named permx.
->
-> Check whether the original is a named permx instead of the new one.
->
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+On 1/21/20 11:25 AM, Stephen Smalley wrote:
+> Rename flush_class_cache() to selinux_flush_class_cache(), export it
+> for direct use by userspace policy enforcers, and call it on all policy
+> load notifications rather than only when using selinux_check_access().
+> This ensures that policy reloads that change a userspace class or
+> permission value will be reflected by subsequent string_to_security_class()
+> or string_to_av_perm() calls.
+> 
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-(OK, this looks simple enough to try out my new maintainer "powers" :)
-
-Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+This is now applied.  This should resolve the lingering problems with 
+dbus-daemon not getting the updated class/permission values via 
+string_to_security_class/string_to_av_perm after a policy reload that 
+changes the dbus class.
 
 > ---
->  libsepol/cil/src/cil_copy_ast.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
-> index 7af00aaf..67dd8528 100644
-> --- a/libsepol/cil/src/cil_copy_ast.c
-> +++ b/libsepol/cil/src/cil_copy_ast.c
-> @@ -827,7 +827,7 @@ int cil_copy_avrule(struct cil_db *db, void *data, void **copy, __attribute__((u
->         if (!new->is_extended) {
->                 cil_copy_classperms_list(orig->perms.classperms, &new->perms.classperms);
->         } else {
-> -               if (new->perms.x.permx_str != NULL) {
-> +               if (orig->perms.x.permx_str != NULL) {
->                         new->perms.x.permx_str = orig->perms.x.permx_str;
->                 } else {
->                         cil_permissionx_init(&new->perms.x.permx);
-> --
-> 2.21.1
->
-
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+>   libselinux/include/selinux/selinux.h |  3 +++
+>   libselinux/src/avc_internal.c        |  2 ++
+>   libselinux/src/checkAccess.c         | 13 -------------
+>   libselinux/src/selinux_internal.h    |  3 +--
+>   libselinux/src/stringrep.c           |  4 +++-
+>   5 files changed, 9 insertions(+), 16 deletions(-)
+> 
+> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+> index fe46e681488d..7922d96b70c7 100644
+> --- a/libselinux/include/selinux/selinux.h
+> +++ b/libselinux/include/selinux/selinux.h
+> @@ -418,6 +418,9 @@ extern int security_av_string(security_class_t tclass,
+>   /* Display an access vector in a string representation. */
+>   extern void print_access_vector(security_class_t tclass, access_vector_t av);
+>   
+> +/* Flush the SELinux class cache, e.g. upon a policy reload. */
+> +extern void selinux_flush_class_cache(void);
+> +
+>   /* Set the function used by matchpathcon_init when displaying
+>      errors about the file_contexts configuration.  If not set,
+>      then this defaults to fprintf(stderr, fmt, ...). */
+> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
+> index 49cecc96daee..568a3d928ac1 100644
+> --- a/libselinux/src/avc_internal.c
+> +++ b/libselinux/src/avc_internal.c
+> @@ -23,6 +23,7 @@
+>   #include "callbacks.h"
+>   #include "selinux_netlink.h"
+>   #include "avc_internal.h"
+> +#include "selinux_internal.h"
+>   
+>   #ifndef NETLINK_SELINUX
+>   #define NETLINK_SELINUX 7
+> @@ -207,6 +208,7 @@ static int avc_netlink_process(void *buf)
+>   				avc_prefix, rc, errno);
+>   			return rc;
+>   		}
+> +		selinux_flush_class_cache();
+>   		rc = selinux_netlink_policyload(msg->seqno);
+>   		if (rc < 0)
+>   			return rc;
+> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
+> index 16bfcfb63f85..7227ffe51eac 100644
+> --- a/libselinux/src/checkAccess.c
+> +++ b/libselinux/src/checkAccess.c
+> @@ -10,25 +10,12 @@
+>   static pthread_once_t once = PTHREAD_ONCE_INIT;
+>   static int selinux_enabled;
+>   
+> -static int avc_reset_callback(uint32_t event __attribute__((unused)),
+> -		      security_id_t ssid __attribute__((unused)),
+> -		      security_id_t tsid __attribute__((unused)),
+> -		      security_class_t tclass __attribute__((unused)),
+> -		      access_vector_t perms __attribute__((unused)),
+> -		      access_vector_t *out_retained __attribute__((unused)))
+> -{
+> -	flush_class_cache();
+> -	return 0;
+> -}
+> -
+>   static void avc_init_once(void)
+>   {
+>   	selinux_enabled = is_selinux_enabled();
+>   	if (selinux_enabled == 1) {
+>   		if (avc_open(NULL, 0))
+>   			return;
+> -		avc_add_callback(avc_reset_callback, AVC_CALLBACK_RESET,
+> -				 0, 0, 0, 0);
+>   	}
+>   }
+>   
+> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
+> index 8b4bed2fd0d1..61b78aaa7c10 100644
+> --- a/libselinux/src/selinux_internal.h
+> +++ b/libselinux/src/selinux_internal.h
+> @@ -107,8 +107,7 @@ hidden_proto(selinux_trans_to_raw_context);
+>   hidden_proto(security_get_initial_context);
+>   hidden_proto(security_get_initial_context_raw);
+>   hidden_proto(selinux_reset_config);
+> -
+> -hidden void flush_class_cache(void);
+> +hidden_proto(selinux_flush_class_cache);
+>   
+>   extern int require_seusers hidden;
+>   extern int selinux_page_size hidden;
+> diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
+> index 4db95398e138..29757b750878 100644
+> --- a/libselinux/src/stringrep.c
+> +++ b/libselinux/src/stringrep.c
+> @@ -158,7 +158,7 @@ err1:
+>   	return NULL;
+>   }
+>   
+> -hidden void flush_class_cache(void)
+> +void selinux_flush_class_cache(void)
+>   {
+>   	struct discover_class_node *cur = discover_class_cache, *prev = NULL;
+>   	size_t i;
+> @@ -180,6 +180,8 @@ hidden void flush_class_cache(void)
+>   	discover_class_cache = NULL;
+>   }
+>   
+> +hidden_def(selinux_flush_class_cache)
+> +
+>   security_class_t string_to_security_class(const char *s)
+>   {
+>   	struct discover_class_node *node;
+> 
 
