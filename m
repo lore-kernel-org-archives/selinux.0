@@ -7,83 +7,84 @@ X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEA3DC2D0DB
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 13:29:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85000C2D0DB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 14:06:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 908952075D
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 13:29:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58A0E2075D
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 14:06:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="pxv4eVXk"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="bud8Nho3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387722AbgAXN3t (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jan 2020 08:29:49 -0500
-Received: from UPDC19PA24.eemsg.mail.mil ([214.24.27.199]:16907 "EHLO
-        UPDC19PA24.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387634AbgAXN3t (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 08:29:49 -0500
-X-EEMSG-check-017: 49328223|UPDC19PA24_ESA_OUT06.csd.disa.mil
+        id S2388202AbgAXOGm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jan 2020 09:06:42 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:54220 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387412AbgAXOGl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 09:06:41 -0500
+X-EEMSG-check-017: 48300488|USFB19PA36_ESA_OUT06.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,357,1574121600"; 
-   d="scan'208";a="49328223"
+   d="scan'208";a="48300488"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA24.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 24 Jan 2020 13:29:45 +0000
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 24 Jan 2020 14:06:40 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579872585; x=1611408585;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=Rr08VRjjLk5Sh1rOF3sfT58GlrG+bDp+V/hz4op4M3U=;
-  b=pxv4eVXk7wNsOOBOj3J9zHiQ6S+czKnLUWnEflyMYUemobAWeNJ8P4m7
-   c0GvWY4mMnCDhA8wMDhnJSbe1XLaSXhUpmyoMEJAcur0/4ysNvdF/HIi4
-   enOR7QEx5LUnhkrMj/D+VNy00D4bgjPXyA0Pbro5vndn4aYNiqUef7b4S
-   73UK0lKqpZjSUVdg9PChYtmdXXIjcioL+5VdKxZvKeuHgiXFrUIhshPAV
-   Ht8Kt4rutxHn4LodeJIGWojkHxEh0lgw3i7smaMRyNDOFb+9//MViP+4F
-   2pCAPqRU2Hp7mFZrJ+wxPv4YjsQUYXslAouZbpyyH5IlNIEXfu2wSS/ZD
-   A==;
+  s=tycho.nsa.gov; t=1579874800; x=1611410800;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=AB9mNVrfYwfxlw8OFgsYu+Nr58e3ZhBVmE8LhyAefXQ=;
+  b=bud8Nho3odTEhvomL2lVu+yUCG5HsK+3F1GbEhqRqBCYnX/XexH7LQS5
+   BueoM5J/MV0g+/gfGRaje7rcoWrt20N6UZZlpzjTCzZ73S/At3g5No0z8
+   CRgAGk0vt4UI8WWzI2HvvT7FiggTThzyWdTkwq26hx4u3D3yAq/8h6cg7
+   9+Pf55KQAMCwH6yhjoxfFBJ9xq95NO8waUULlQzSxATJgYsr0eDQz2yKw
+   yXl393eRkS+VrlDaP7mHvA2w8Pu9H7+EUip+H7+j40Dar/18geozp4coo
+   bVbcQnlGaye86Gm1z0ZwdGsfaGPzUlQg1bTCCuv7HuEYVlqdR3lTLkmJu
+   g==;
 X-IronPort-AV: E=Sophos;i="5.70,357,1574121600"; 
-   d="scan'208";a="38201264"
-IronPort-PHdr: =?us-ascii?q?9a23=3ATO/0HR2dOrmCRtJpsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZseITKPad9pjvdHbS+e9qxAeQG9mCt7Qe16GK4uigATVGvc/a9ihaMdRlbF?=
- =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
- =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMucQam5VuJ6k+xh?=
- =?us-ascii?q?bGpnZDZuBayX91KV6JkBvw+8m98IR//yhMvv4q6tJNX7j9c6kkV7JTES4oM3?=
- =?us-ascii?q?oy5M3ltBnDSRWA634BWWgIkRRGHhbI4gjiUpj+riX1uOx92DKHPcLtVrA7RS?=
- =?us-ascii?q?6i76ZwRxD2jioMKiM0/3vWisx0i6JbvQ6hqhliyIPafI2ZKPxzdb7TctMAQW?=
- =?us-ascii?q?pKQ9hfWSpPDIiha4cDFuoMMOJdo4T7ulAArwaxBRO0Ce3y1DFIiH/406403e?=
- =?us-ascii?q?svHg7J3hAvEd0VvXTIrtj4LrseXfy7waTKyzjIcvNY2S366IjNah0vvO2MUq?=
- =?us-ascii?q?xoccrR10YvER7OgEiVqYP/OzOV0voCsmiG5OdnTuKglnUnphptojmv2sgsio?=
- =?us-ascii?q?7JipgTylDf7yp12ok1JdqmSENiZ9OvDZhetzmCOodrTc4vTHtktSYnxrEcp5?=
- =?us-ascii?q?K2czYGxI46yxPZdveJaZKH4gj5W+aUOTp4gXVld6+hiBuq6kigz/H8VtGz0F?=
- =?us-ascii?q?ZXsipJitnMuW4J1xzU8sWHVuFy/l2g2TaSzADf8OBEIUY6larcMJ4u3KI/mo?=
- =?us-ascii?q?APsUXDAiD2mEL2gLWQdko44ein9/7rYrDnpp+YL4N0iwf+PboymsGnHOg1PQ?=
- =?us-ascii?q?cDU3Kb9OihzrHv40L0TKtQgvEriqXZtYrVJcUfpq63GQ9V1YMj5g6kDzi7y9?=
- =?us-ascii?q?QVhmUHLVJZdxKHiIjlIVfOIOviAvuljFSslylry+jcPrL9GpXNMmTDkLD5cL?=
- =?us-ascii?q?Zm9UFczAszzdZC55NbEbwBPv3zVVHrtNDCDR82LRa0w+D5B9V5zI8eXniPAq?=
- =?us-ascii?q?CBOqPIrVCI/v4vI/WLZIINozn9Kvcl5/nojXIihFASY7Km3ZoNZ3C+BPhmJF?=
- =?us-ascii?q?+ZYXW/yusGRHwHugs4UfzCllKPS3hQamy0UqZ64Ss0W6y8CoKWfZygmLyM2m?=
- =?us-ascii?q?+AG5RSYm1XQgSXHWzAa5SPW/BKbjmbZMBmjGpXBvCaV4Y92ET250fBwL19I7?=
- =?us-ascii?q?+Rp3wV?=
-X-IPAS-Result: =?us-ascii?q?A2BTAACp7ype/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWkFA?=
- =?us-ascii?q?QELAYF8gW0gEiqEEokDhngGgTeJb4olhSmBewkBAQEBAQEBAQE3AQGEQAKCR?=
- =?us-ascii?q?jYHDgIQAQEBBAEBAQEBBQMBAWyFQ4I7KYJ7AQUjBBFBEAsYAgImAgJXEwYCA?=
- =?us-ascii?q?QGCVww/glclrHV/M4VKg0GBPoEOKgGMMHmBB4ERJw+CXT6HWYJeBI1ciVhGl?=
- =?us-ascii?q?16CQ4JMk2UGG5p8LatBCSmBWCsIAhgIIQ+DJ1AYDYgNF45BIwMwjVYBAQ?=
+   d="scan'208";a="38203331"
+IronPort-PHdr: =?us-ascii?q?9a23=3AsYlgnBxDogF3LITXCy+O+j09IxM/srCxBDY+r6?=
+ =?us-ascii?q?Qd2ukVIJqq85mqBkHD//Il1AaPAdyHragYwLeG++C4ACpcuM3H6ChDOLV3FD?=
+ =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
+ =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjeu8UMn4dvJak9xx?=
+ =?us-ascii?q?vKr3BVf+ha2X5kKUickhrh6Mq85oJv/zhVt/k868NOTKL2crgiQ7dFFjomKW?=
+ =?us-ascii?q?c15MPqtRnHUwSC42YXX3sVnBRVHQXL9Qn2UZjtvCT0sOp9wzSaMtbtTb8oQz?=
+ =?us-ascii?q?Si7rxkRwHuhSwaKjM26mDXish3jKJGvBKsogF0zoDIbI2JMvd1Y7jQds0GS2?=
+ =?us-ascii?q?VfQslRVjRBAoKiYIsJE+oBJvtTo43kq1cTsReyGQygCeXhxT9Sgn/9wLM03e?=
+ =?us-ascii?q?IvHwrb2AAsBtwDvXDRoNjzKawcU/26zLPQwDvecf1W1zfz5ovGfB8vrv6DX6?=
+ =?us-ascii?q?5/f8XKxEkzFQ7IlEmcpZDrMj6X0OkGrmiV7/BnVeKqk2Mpth1xrSa3xscslI?=
+ =?us-ascii?q?bJgJ8exE3B9SpjxIY1IcO3SU5matOjC5tfqjqaOpBqQsIiX25ouCE6xqcAuZ?=
+ =?us-ascii?q?6gZicG0psnxxnBa/GedYWD/xHtVP6JLDtli39od6izihav/US61OHxWde43E?=
+ =?us-ascii?q?xXoidDj9LCrGoC1wbJ5ciCUvZ9+0Ch1iuR2A3L8eFEJFw0lbLcK5483r48jp?=
+ =?us-ascii?q?oTvlrHHi/xgEj2kLWZdl8l+ui18OTreLTmppmSN49zkQHxLLghltajAeU4Lg?=
+ =?us-ascii?q?cOX2+b9f661LL/5k32XK9Gjvg3kqndqJzaJMIbqbClAwJNz4ou5BmyAy2m3d?=
+ =?us-ascii?q?gFh3ULMl1IdAydg4T0I13OJer3Dfa7g1SiijdrwPXGM6X6AprQNXjOi6vhfL?=
+ =?us-ascii?q?Zh5E5czwo/19Zf54lOBb0bL/LzXVHxuMTCDhAlKwy03/rnCNJl24MGQ22PH6?=
+ =?us-ascii?q?uZPbjKsVCS++IvJ/CAZIoSuDb6Mfgq+eTigmM+mV8YZaOpx4cYaGikHvR6JE?=
+ =?us-ascii?q?WUeWHsjckFEWcLuAo+UePrhUacUT5ceXmyRbgw5jIlB4K8C4fMWIStjKaG3C?=
+ =?us-ascii?q?ehEZ0FLlxBX2iFDHOgUoKDQfpEPDqbP8tJijUZUf2kTIg72Felswqsj/J8I+?=
+ =?us-ascii?q?7V/DAInYzs2cIz5ODJkxw2sztuAJezyWaIGlpok3sISjl+56V2pUhw2x/Xyq?=
+ =?us-ascii?q?Rjq+BJHtxUofVSW0E1MoCKnL8yMMz7Rg+UJoTBc12hWNjzRGhqH98=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CVAAD49ype/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWoEA?=
+ =?us-ascii?q?QELAYF8gW0gEiqEEokDhngGgRIliW+RSQkBAQEBAQEBAQE3AQGEQAKCRjcGD?=
+ =?us-ascii?q?gIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGCeQEBAQEDIxVRCxUDAgImAgJXBgEMB?=
+ =?us-ascii?q?gIBAYJjP4JXJat2dYEyhUqDRIE+gQ4qAYwweYEHgTgMA4JdPodZgl4ElzRGl?=
+ =?us-ascii?q?16CQ4JMijqJKwYbmnwtjjOdHSOBWCsIAhgIIQ+DJ1AYDYgNF45BIwMwjVYBA?=
+ =?us-ascii?q?Q?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 24 Jan 2020 13:29:44 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 24 Jan 2020 14:06:38 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00ODT2Q3210275;
-        Fri, 24 Jan 2020 08:29:02 -0500
-Subject: Re: [PATCH] libselinux: export flush_class_cache(), call it on
- policyload
-To:     selinux@vger.kernel.org
-Cc:     bigon@debian.org
-References: <20200121162532.29494-1-sds@tycho.nsa.gov>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00OE5txg229288;
+        Fri, 24 Jan 2020 09:05:56 -0500
+Subject: Re: [PATCH] selinux-testsuite: move variable definitions out of
+ binder_common.h
+To:     Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org
+References: <157981918030.502116.11086856862222322471.stgit@chester>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <2f5f7fa0-4db2-d2e8-2c57-6e28e4c5a770@tycho.nsa.gov>
-Date:   Fri, 24 Jan 2020 08:30:38 -0500
+Message-ID: <a07232e1-9536-3020-89e5-c76f45cd35dc@tycho.nsa.gov>
+Date:   Fri, 24 Jan 2020 09:07:32 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <20200121162532.29494-1-sds@tycho.nsa.gov>
+In-Reply-To: <157981918030.502116.11086856862222322471.stgit@chester>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -92,128 +93,71 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/21/20 11:25 AM, Stephen Smalley wrote:
-> Rename flush_class_cache() to selinux_flush_class_cache(), export it
-> for direct use by userspace policy enforcers, and call it on all policy
-> load notifications rather than only when using selinux_check_access().
-> This ensures that policy reloads that change a userspace class or
-> permission value will be reflected by subsequent string_to_security_class()
-> or string_to_av_perm() calls.
+On 1/23/20 5:39 PM, Paul Moore wrote:
+> From: Paul Moore <paul@paul-moore.com>
 > 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Move the definitions of variables out of binder_common.h and into
+> binder_common.c in order to prevent compiler errors.
+> 
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
 
-This is now applied.  This should resolve the lingering problems with 
-dbus-daemon not getting the updated class/permission values via 
-string_to_security_class/string_to_av_perm after a policy reload that 
-changes the dbus class.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->   libselinux/include/selinux/selinux.h |  3 +++
->   libselinux/src/avc_internal.c        |  2 ++
->   libselinux/src/checkAccess.c         | 13 -------------
->   libselinux/src/selinux_internal.h    |  3 +--
->   libselinux/src/stringrep.c           |  4 +++-
->   5 files changed, 9 insertions(+), 16 deletions(-)
+>   tests/binder/binder_common.c |    4 ++++
+>   tests/binder/binder_common.h |   15 +++++++++++----
+>   2 files changed, 15 insertions(+), 4 deletions(-)
 > 
-> diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-> index fe46e681488d..7922d96b70c7 100644
-> --- a/libselinux/include/selinux/selinux.h
-> +++ b/libselinux/include/selinux/selinux.h
-> @@ -418,6 +418,9 @@ extern int security_av_string(security_class_t tclass,
->   /* Display an access vector in a string representation. */
->   extern void print_access_vector(security_class_t tclass, access_vector_t av);
+> diff --git a/tests/binder/binder_common.c b/tests/binder/binder_common.c
+> index 224238b..7cf6c74 100644
+> --- a/tests/binder/binder_common.c
+> +++ b/tests/binder/binder_common.c
+> @@ -16,6 +16,10 @@
 >   
-> +/* Flush the SELinux class cache, e.g. upon a policy reload. */
-> +extern void selinux_flush_class_cache(void);
+>   #include "binder_common.h"
+>   
+> +bool verbose;
+> +enum binder_test_fd_t fd_type;
+> +char *fd_type_str;
 > +
->   /* Set the function used by matchpathcon_init when displaying
->      errors about the file_contexts configuration.  If not set,
->      then this defaults to fprintf(stderr, fmt, ...). */
-> diff --git a/libselinux/src/avc_internal.c b/libselinux/src/avc_internal.c
-> index 49cecc96daee..568a3d928ac1 100644
-> --- a/libselinux/src/avc_internal.c
-> +++ b/libselinux/src/avc_internal.c
-> @@ -23,6 +23,7 @@
->   #include "callbacks.h"
->   #include "selinux_netlink.h"
->   #include "avc_internal.h"
-> +#include "selinux_internal.h"
->   
->   #ifndef NETLINK_SELINUX
->   #define NETLINK_SELINUX 7
-> @@ -207,6 +208,7 @@ static int avc_netlink_process(void *buf)
->   				avc_prefix, rc, errno);
->   			return rc;
->   		}
-> +		selinux_flush_class_cache();
->   		rc = selinux_netlink_policyload(msg->seqno);
->   		if (rc < 0)
->   			return rc;
-> diff --git a/libselinux/src/checkAccess.c b/libselinux/src/checkAccess.c
-> index 16bfcfb63f85..7227ffe51eac 100644
-> --- a/libselinux/src/checkAccess.c
-> +++ b/libselinux/src/checkAccess.c
-> @@ -10,25 +10,12 @@
->   static pthread_once_t once = PTHREAD_ONCE_INIT;
->   static int selinux_enabled;
->   
-> -static int avc_reset_callback(uint32_t event __attribute__((unused)),
-> -		      security_id_t ssid __attribute__((unused)),
-> -		      security_id_t tsid __attribute__((unused)),
-> -		      security_class_t tclass __attribute__((unused)),
-> -		      access_vector_t perms __attribute__((unused)),
-> -		      access_vector_t *out_retained __attribute__((unused)))
-> -{
-> -	flush_class_cache();
-> -	return 0;
-> -}
-> -
->   static void avc_init_once(void)
+>   const char *cmd_name(uint32_t cmd)
 >   {
->   	selinux_enabled = is_selinux_enabled();
->   	if (selinux_enabled == 1) {
->   		if (avc_open(NULL, 0))
->   			return;
-> -		avc_add_callback(avc_reset_callback, AVC_CALLBACK_RESET,
-> -				 0, 0, 0, 0);
->   	}
->   }
->   
-> diff --git a/libselinux/src/selinux_internal.h b/libselinux/src/selinux_internal.h
-> index 8b4bed2fd0d1..61b78aaa7c10 100644
-> --- a/libselinux/src/selinux_internal.h
-> +++ b/libselinux/src/selinux_internal.h
-> @@ -107,8 +107,7 @@ hidden_proto(selinux_trans_to_raw_context);
->   hidden_proto(security_get_initial_context);
->   hidden_proto(security_get_initial_context_raw);
->   hidden_proto(selinux_reset_config);
-> -
-> -hidden void flush_class_cache(void);
-> +hidden_proto(selinux_flush_class_cache);
->   
->   extern int require_seusers hidden;
->   extern int selinux_page_size hidden;
-> diff --git a/libselinux/src/stringrep.c b/libselinux/src/stringrep.c
-> index 4db95398e138..29757b750878 100644
-> --- a/libselinux/src/stringrep.c
-> +++ b/libselinux/src/stringrep.c
-> @@ -158,7 +158,7 @@ err1:
->   	return NULL;
->   }
->   
-> -hidden void flush_class_cache(void)
-> +void selinux_flush_class_cache(void)
->   {
->   	struct discover_class_node *cur = discover_class_cache, *prev = NULL;
->   	size_t i;
-> @@ -180,6 +180,8 @@ hidden void flush_class_cache(void)
->   	discover_class_cache = NULL;
->   }
->   
-> +hidden_def(selinux_flush_class_cache)
+>   	switch (cmd) {
+> diff --git a/tests/binder/binder_common.h b/tests/binder/binder_common.h
+> index f0245f3..f60860e 100644
+> --- a/tests/binder/binder_common.h
+> +++ b/tests/binder/binder_common.h
+> @@ -1,3 +1,6 @@
+> +#ifndef _BINDER_COMMON_H
+> +#define _BINDER_COMMON_H
 > +
->   security_class_t string_to_security_class(const char *s)
->   {
->   	struct discover_class_node *node;
+>   #include <errno.h>
+>   #include <fcntl.h>
+>   #include <inttypes.h>
+> @@ -42,16 +45,20 @@ enum {
+>   #define TEST_SERVICE_GET	290317 /* Sent by Client */
+>   #define TEST_SERVICE_SEND_FD	311019 /* Sent by Client */
+>   
+> -bool verbose;
+> +extern bool verbose;
+>   
+>   const char *cmd_name(uint32_t cmd);
+>   void print_trans_data(const struct binder_transaction_data *txn_in);
+>   int binder_write(int fd, void *data, size_t len);
+>   
+> -enum {
+> +enum binder_test_fd_t {
+>   	BINDER_FD,
+>   	BPF_MAP_FD,
+>   	BPF_PROG_FD,
+>   	BPF_TEST
+> -} fd_type;
+> -char *fd_type_str;
+> +};
+> +extern enum binder_test_fd_t fd_type;
+> +
+> +extern char *fd_type_str;
+> +
+> +#endif
 > 
 
