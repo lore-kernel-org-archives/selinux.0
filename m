@@ -2,108 +2,125 @@ Return-Path: <SRS0=mP8O=3N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCBD7C2D0DB
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 10:39:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E755C2D0DB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 11:16:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8B98E2070A
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 10:39:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 539FC2077C
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 11:16:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=perfinion-com.20150623.gappssmtp.com header.i=@perfinion-com.20150623.gappssmtp.com header.b="SUH4Ghd1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P6oy/wBG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbgAXKjX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jan 2020 05:39:23 -0500
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:41723 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725843AbgAXKjX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 05:39:23 -0500
-Received: by mail-pg1-f195.google.com with SMTP id x8so803384pgk.8
-        for <selinux@vger.kernel.org>; Fri, 24 Jan 2020 02:39:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=perfinion-com.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=MwowejhIkxhaOsyzADgOKoxK6j3Lx+MwQs4eBTNd6/g=;
-        b=SUH4Ghd1OV2lUwYMfLAKqYOKQuy2fsOkGbitR1Aiky+rSxbuPQ0hWLFPe+Yn/oXtqp
-         ER5jOuIlQ378/wZeR43xuwposj2cgQN6PwOK1MRV0SxdEW3PIm1JykmhSMaBTOivfY1a
-         i61U+bsMtg73qyqYPfEDqfka8KPFjzLGnz00SYUPJGBEpQH5Ojc2peAjICOqBE50XHFA
-         //YTGn3mVs55oVUBYaZUyqqD1Ta3lfy1uXNn5431tJ+Bk5g8Z6nENAdEcMH/v3LP9+77
-         zzPly0yy74XtJ7J8geag1eglA+Iiw2MWiF63sdZ1U89jh+BTqMRehoAZ5WzMNAePloaB
-         8POg==
+        id S2388621AbgAXLQO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jan 2020 06:16:14 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:31526 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2390331AbgAXLQM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 06:16:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1579864571;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=vsIbz664SY9Gm8gNm7i7Qd4lDz+cCdDAOYjvdUHoACo=;
+        b=P6oy/wBGlyxl/dDMROf9F0WSZ3HW/yRZ0JaxWNTZRaPbVar2GVjKZr5EsOwbdwV6YlJhQP
+        xBM92+wIF+76Xf2C9+YrG0tWGdjJhsX7zvc6/FOcnoAsGKq8BvT6tWya0y2sqZ0/lOKLcM
+        zTRSq5cBywLyvYfCzusCGnX/5CzU1cw=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-145-ojjx85X5OyeDznGUGKr0BQ-1; Fri, 24 Jan 2020 06:16:09 -0500
+X-MC-Unique: ojjx85X5OyeDznGUGKr0BQ-1
+Received: by mail-ot1-f70.google.com with SMTP id l13so701449otn.18
+        for <selinux@vger.kernel.org>; Fri, 24 Jan 2020 03:16:09 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=MwowejhIkxhaOsyzADgOKoxK6j3Lx+MwQs4eBTNd6/g=;
-        b=f40WSFBRpUL6kpSJ62m724sBPgbPeCAi8Ph7CT6bL0ibpUd+hcSaQWCchrRKwBOCS4
-         9U/lz3L0ZihdcwhlYTrwHH7nXDv7fR8FKjqW+pjs/r/mb051UjhIqPYDIXnrl8xVfN0V
-         I5vqMlAXXNF1WIJ335TRPRRAv0aIs79Tra1333eWsAPpjh+9uyEtCJcUatMFW8j6tK4R
-         L+fMnDKyuuH9s60kL9AffKIXUHLQuBW9fAfjdcruugWx0sxwcaXClZQPEks1bvCs469d
-         1swDuJaQin3H7oPuKvPjpye2+IyfgN3XtbjP05HF+45c4YTP9PgFyDOkuTk6/wj8fBZj
-         Xz1g==
-X-Gm-Message-State: APjAAAUO6Z9KXSnnonyCYgEprDHv9ki6I0BldkNBNevCowveLwUx39vH
-        N6vFJgChGBhz+HH6OH2pnAd/WsbNrtY=
-X-Google-Smtp-Source: APXvYqw7jMMHLVx3ZhphuR8qhQHJu7JG3nOsDp+QFVE3hg6eMk0BZH2/cSfoUl1RMLoZu/XFAUpneA==
-X-Received: by 2002:a65:4242:: with SMTP id d2mr3398221pgq.166.1579862362276;
-        Fri, 24 Jan 2020 02:39:22 -0800 (PST)
-Received: from localhost ([101.127.140.252])
-        by smtp.gmail.com with ESMTPSA id l2sm5950134pjt.31.2020.01.24.02.39.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jan 2020 02:39:21 -0800 (PST)
-Date:   Fri, 24 Jan 2020 18:39:18 +0800
-From:   Jason Zaman <jason@perfinion.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH userspace v2 0/4] Fix build with -fno-common
-Message-ID: <20200124103918.GA51061@baraddur.perfinion.com>
-References: <20200123125716.12662-1-omosnace@redhat.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vsIbz664SY9Gm8gNm7i7Qd4lDz+cCdDAOYjvdUHoACo=;
+        b=W3XQuTib3Je2kA/p1XUzRIhmsiY4/0BbST5hIdu2CwYz+NoL+Fzc5mpCTlB6ftno8S
+         KaXyELrjZpxu4PCR0YtLPCQg0YRK7QKSlMH0MTpNJTmtM/OeVekezeyQGaQN1fldOWy7
+         z2Gs2RYoRyivNVuy4bAm3yC/PlN3QTCnb+62bD8i9r9jKjgMgczh4xdjm4S/7JSYeaer
+         HP/nJJIaUP63xytO0eat5NOvUtiWaurMPiGzJm6G/c6XI+ocQnuk5OW1hBO+gYd+0Esr
+         XsNgn5YMT653mXn29ihiS6N+oOaQ4Yja+Zr5myh8taSKlY9n84zrjezFt70x7J9YskZx
+         y22Q==
+X-Gm-Message-State: APjAAAWoXNHWq9nEPBFWv8yCJNKQxb62JRDWld9RwDTZubPozqq4lusv
+        jS1cY+rH1R0yq0Tro7RBtapEdHtwiu1k1+944G3AmbHwtG8tuJnm1SGKfXbDzwDs+ue7KtkjXj3
+        0I2NDVBqCktnT0eG+F1PwcdZajYNEPFXn0w==
+X-Received: by 2002:a9d:68d1:: with SMTP id i17mr2164558oto.367.1579864568443;
+        Fri, 24 Jan 2020 03:16:08 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzN0HDVK+JjlK+Ai2tzkTErj3rh3UDezUuWXlFDj0HyDTJmgEULymM4d82b9nwwwuRK1aMe71lfq60r9ZsSPns=
+X-Received: by 2002:a9d:68d1:: with SMTP id i17mr2164542oto.367.1579864568151;
+ Fri, 24 Jan 2020 03:16:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200123125716.12662-1-omosnace@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200123125716.12662-1-omosnace@redhat.com> <20200124103918.GA51061@baraddur.perfinion.com>
+In-Reply-To: <20200124103918.GA51061@baraddur.perfinion.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 24 Jan 2020 12:15:57 +0100
+Message-ID: <CAFqZXNtffOz+NjX7eU3sOCrmbWSinY+mWGLaJcMTEEYWfK=abg@mail.gmail.com>
+Subject: Re: [PATCH userspace v2 0/4] Fix build with -fno-common
+To:     Jason Zaman <jason@perfinion.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jan 23, 2020 at 01:57:12PM +0100, Ondrej Mosnacek wrote:
-> GCC 10 is going to enable -fno-common by default [1], so fix all build
-> errors uncovered by it and add it to global CFLAGS to avoid introducing
-> new bugs.
+On Fri, Jan 24, 2020 at 11:39 AM Jason Zaman <jason@perfinion.com> wrote:
+> On Thu, Jan 23, 2020 at 01:57:12PM +0100, Ondrej Mosnacek wrote:
+> > GCC 10 is going to enable -fno-common by default [1], so fix all build
+> > errors uncovered by it and add it to global CFLAGS to avoid introducing
+> > new bugs.
+>
+> How far back does -fno-common go? Will this affect our minimum GCC
+> version at all? I assume it wont but figured I'd ask just in case.
 
-How far back does -fno-common go? Will this affect our minimum GCC
-version at all? I assume it wont but figured I'd ask just in case.
+Good question... It looks like it's been around since at least 1996:
 
--- Jason
+https://github.com/gcc-mirror/gcc/commit/9493f1421183f7c39598629fe60d37c599dfe2af
 
-> Changes in v2:
->  - remove also struct te_assert definition, which is also useless
->  - redo cil_mem_error_handler to match commit 4459d635b8f1 as suggested
->    by Jim Carter
-> 
-> Travis build: [2]
-> 
-> [1] https://gcc.gnu.org/gcc-10/porting_to.html#common
-> [2] https://travis-ci.org/WOnder93/selinux/builds/640875119
-> 
-> Ondrej Mosnacek (4):
->   libsepol: fix CIL_KEY_* build errors with -fno-common
->   libsepol: remove leftovers of cil_mem_error_handler
->   checkpolicy: remove unused te_assertions
->   Makefile: always build with -fno-common
-> 
->  Makefile                        |   3 +-
->  checkpolicy/checkpolicy.h       |  14 --
->  libsepol/cil/src/cil.c          | 162 ++++++++++++++++
->  libsepol/cil/src/cil_internal.h | 322 ++++++++++++++++----------------
->  libsepol/cil/src/cil_mem.h      |   1 -
->  libsepol/cil/src/cil_strpool.c  |   8 +-
->  6 files changed, 329 insertions(+), 181 deletions(-)
-> 
-> -- 
-> 2.24.1
-> 
+(That doesn't seem to be the commit that introduced it, but I hope it
+suffices as evidence :)
+
+>
+> -- Jason
+>
+> > Changes in v2:
+> >  - remove also struct te_assert definition, which is also useless
+> >  - redo cil_mem_error_handler to match commit 4459d635b8f1 as suggested
+> >    by Jim Carter
+> >
+> > Travis build: [2]
+> >
+> > [1] https://gcc.gnu.org/gcc-10/porting_to.html#common
+> > [2] https://travis-ci.org/WOnder93/selinux/builds/640875119
+> >
+> > Ondrej Mosnacek (4):
+> >   libsepol: fix CIL_KEY_* build errors with -fno-common
+> >   libsepol: remove leftovers of cil_mem_error_handler
+> >   checkpolicy: remove unused te_assertions
+> >   Makefile: always build with -fno-common
+> >
+> >  Makefile                        |   3 +-
+> >  checkpolicy/checkpolicy.h       |  14 --
+> >  libsepol/cil/src/cil.c          | 162 ++++++++++++++++
+> >  libsepol/cil/src/cil_internal.h | 322 ++++++++++++++++----------------
+> >  libsepol/cil/src/cil_mem.h      |   1 -
+> >  libsepol/cil/src/cil_strpool.c  |   8 +-
+> >  6 files changed, 329 insertions(+), 181 deletions(-)
+> >
+> > --
+> > 2.24.1
+> >
+>
+
+
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
