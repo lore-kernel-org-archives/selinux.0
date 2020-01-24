@@ -2,67 +2,68 @@ Return-Path: <SRS0=mP8O=3N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E755C2D0DB
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 11:16:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA3AAC2D0DB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 13:12:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 539FC2077C
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 11:16:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BB13920838
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 13:12:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P6oy/wBG"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iw9tDrf/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388621AbgAXLQO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jan 2020 06:16:14 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:31526 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2390331AbgAXLQM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 06:16:12 -0500
+        id S2387565AbgAXNMV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jan 2020 08:12:21 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:41373 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2387486AbgAXNMV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 08:12:21 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579864571;
+        s=mimecast20190719; t=1579871539;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=vsIbz664SY9Gm8gNm7i7Qd4lDz+cCdDAOYjvdUHoACo=;
-        b=P6oy/wBGlyxl/dDMROf9F0WSZ3HW/yRZ0JaxWNTZRaPbVar2GVjKZr5EsOwbdwV6YlJhQP
-        xBM92+wIF+76Xf2C9+YrG0tWGdjJhsX7zvc6/FOcnoAsGKq8BvT6tWya0y2sqZ0/lOKLcM
-        zTRSq5cBywLyvYfCzusCGnX/5CzU1cw=
+        bh=JNVhcQVujxWes3ag+7lMmuio1muuLInyCRTsEe5OF+k=;
+        b=iw9tDrf/Y60Wz6pzW/vhT64j47mBbv+MlIR0PmHIRNqxgCD5Xu3E5ZtOox3otm9VfWRc+o
+        ozZBO+PEHYbF/tfGQpt3eBy7u2/rR0OsVfDV7igoLJcppgaIoYtr4UAIHIVTpOQv2Du9Zy
+        LHzftNELp0P7LKzPc3pMI55/6deuE1Q=
 Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
  [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-145-ojjx85X5OyeDznGUGKr0BQ-1; Fri, 24 Jan 2020 06:16:09 -0500
-X-MC-Unique: ojjx85X5OyeDznGUGKr0BQ-1
-Received: by mail-ot1-f70.google.com with SMTP id l13so701449otn.18
-        for <selinux@vger.kernel.org>; Fri, 24 Jan 2020 03:16:09 -0800 (PST)
+ us-mta-341-U6i93UVEMmeVzE6OD1wJjg-1; Fri, 24 Jan 2020 08:12:17 -0500
+X-MC-Unique: U6i93UVEMmeVzE6OD1wJjg-1
+Received: by mail-ot1-f70.google.com with SMTP id z13so841561otp.7
+        for <selinux@vger.kernel.org>; Fri, 24 Jan 2020 05:12:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=vsIbz664SY9Gm8gNm7i7Qd4lDz+cCdDAOYjvdUHoACo=;
-        b=W3XQuTib3Je2kA/p1XUzRIhmsiY4/0BbST5hIdu2CwYz+NoL+Fzc5mpCTlB6ftno8S
-         KaXyELrjZpxu4PCR0YtLPCQg0YRK7QKSlMH0MTpNJTmtM/OeVekezeyQGaQN1fldOWy7
-         z2Gs2RYoRyivNVuy4bAm3yC/PlN3QTCnb+62bD8i9r9jKjgMgczh4xdjm4S/7JSYeaer
-         HP/nJJIaUP63xytO0eat5NOvUtiWaurMPiGzJm6G/c6XI+ocQnuk5OW1hBO+gYd+0Esr
-         XsNgn5YMT653mXn29ihiS6N+oOaQ4Yja+Zr5myh8taSKlY9n84zrjezFt70x7J9YskZx
-         y22Q==
-X-Gm-Message-State: APjAAAWoXNHWq9nEPBFWv8yCJNKQxb62JRDWld9RwDTZubPozqq4lusv
-        jS1cY+rH1R0yq0Tro7RBtapEdHtwiu1k1+944G3AmbHwtG8tuJnm1SGKfXbDzwDs+ue7KtkjXj3
-        0I2NDVBqCktnT0eG+F1PwcdZajYNEPFXn0w==
-X-Received: by 2002:a9d:68d1:: with SMTP id i17mr2164558oto.367.1579864568443;
-        Fri, 24 Jan 2020 03:16:08 -0800 (PST)
-X-Google-Smtp-Source: APXvYqzN0HDVK+JjlK+Ai2tzkTErj3rh3UDezUuWXlFDj0HyDTJmgEULymM4d82b9nwwwuRK1aMe71lfq60r9ZsSPns=
-X-Received: by 2002:a9d:68d1:: with SMTP id i17mr2164542oto.367.1579864568151;
- Fri, 24 Jan 2020 03:16:08 -0800 (PST)
+        bh=JNVhcQVujxWes3ag+7lMmuio1muuLInyCRTsEe5OF+k=;
+        b=okxU0nsWKUx1TSbIyBPjU2BnSZDp+1B40kjU5HMId4h4cP2kioN8allX7V1Xe/PJ0j
+         mXD12Xl6SYcb/724oLuAD4vXzaPh3lSvPd+RdqjETc7CGQBQday9Lq1Oo7TEx0o6xaqc
+         soReMqNTPR5AwV5P3hHiqHeY2tgCfyVCcyMcs274pG3AMu4YtYrMTY8/I2X49untjFK/
+         0CKt8iDSy87TbVdOeV46Rj8GmM22AaPRdnmgclIvfs2B0uCRiRiuAidLlHpB7pLBHAeH
+         sDS+Baglcawb7YO7T83Ii+KA3U7d/wVdJ8lm+hfLjfqM72FDPQiUCcTOzvjQj07XMvyv
+         I/fA==
+X-Gm-Message-State: APjAAAUXyC8U6kgUGIyVWPjYziCDEqR0q2KUeG3ZGDxmxl4K7JvFrj+Y
+        jiNMLnPYvaerPRxrY/2g242HMb3q0AxaZVD6kFWrqqWkxF+XD+CBJoJDsNWL9pKkYbhCygMV/55
+        5pqGPjmCbs+SdNQ385dDQ5ekUqB6Q5MJqLw==
+X-Received: by 2002:aca:c30d:: with SMTP id t13mr1952749oif.166.1579871536499;
+        Fri, 24 Jan 2020 05:12:16 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyVs7INEGMt9xKyB4gqBB4pb/1EXDx9sE4rxwL2uKzQUpOhKWZXjxlR6R6gvoVLQsGwhVrj84RS2zZLX1UGVtw=
+X-Received: by 2002:aca:c30d:: with SMTP id t13mr1952731oif.166.1579871536227;
+ Fri, 24 Jan 2020 05:12:16 -0800 (PST)
 MIME-Version: 1.0
-References: <20200123125716.12662-1-omosnace@redhat.com> <20200124103918.GA51061@baraddur.perfinion.com>
-In-Reply-To: <20200124103918.GA51061@baraddur.perfinion.com>
+References: <20200123204004.25600-1-jwcart2@tycho.nsa.gov>
+In-Reply-To: <20200123204004.25600-1-jwcart2@tycho.nsa.gov>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 24 Jan 2020 12:15:57 +0100
-Message-ID: <CAFqZXNtffOz+NjX7eU3sOCrmbWSinY+mWGLaJcMTEEYWfK=abg@mail.gmail.com>
-Subject: Re: [PATCH userspace v2 0/4] Fix build with -fno-common
-To:     Jason Zaman <jason@perfinion.com>
+Date:   Fri, 24 Jan 2020 14:12:05 +0100
+Message-ID: <CAFqZXNtkpV+E-Vpkeq2_2FitKQFFfu1bjDdaZFD5SA3gm9FfSg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Fix bug in cil_copy_avrule() in extended
+ permission handling
+To:     James Carter <jwcart2@tycho.nsa.gov>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -70,54 +71,42 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 24, 2020 at 11:39 AM Jason Zaman <jason@perfinion.com> wrote:
-> On Thu, Jan 23, 2020 at 01:57:12PM +0100, Ondrej Mosnacek wrote:
-> > GCC 10 is going to enable -fno-common by default [1], so fix all build
-> > errors uncovered by it and add it to global CFLAGS to avoid introducing
-> > new bugs.
+On Thu, Jan 23, 2020 at 9:39 PM James Carter <jwcart2@tycho.nsa.gov> wrote:
+> When copying an avrule with extended permissions (permx) in
+> cil_copy_avrule(), the check for a named permx checks the new permx
+> instead of the old one, so the check will always fail. This leads to a
+> segfault when trying to copy a named permx because there will be an
+> attempt to copy the nonexistent permx struct instead of the name of
+> the named permx.
 >
-> How far back does -fno-common go? Will this affect our minimum GCC
-> version at all? I assume it wont but figured I'd ask just in case.
-
-Good question... It looks like it's been around since at least 1996:
-
-https://github.com/gcc-mirror/gcc/commit/9493f1421183f7c39598629fe60d37c599dfe2af
-
-(That doesn't seem to be the commit that introduced it, but I hope it
-suffices as evidence :)
-
+> Check whether the original is a named permx instead of the new one.
 >
-> -- Jason
->
-> > Changes in v2:
-> >  - remove also struct te_assert definition, which is also useless
-> >  - redo cil_mem_error_handler to match commit 4459d635b8f1 as suggested
-> >    by Jim Carter
-> >
-> > Travis build: [2]
-> >
-> > [1] https://gcc.gnu.org/gcc-10/porting_to.html#common
-> > [2] https://travis-ci.org/WOnder93/selinux/builds/640875119
-> >
-> > Ondrej Mosnacek (4):
-> >   libsepol: fix CIL_KEY_* build errors with -fno-common
-> >   libsepol: remove leftovers of cil_mem_error_handler
-> >   checkpolicy: remove unused te_assertions
-> >   Makefile: always build with -fno-common
-> >
-> >  Makefile                        |   3 +-
-> >  checkpolicy/checkpolicy.h       |  14 --
-> >  libsepol/cil/src/cil.c          | 162 ++++++++++++++++
-> >  libsepol/cil/src/cil_internal.h | 322 ++++++++++++++++----------------
-> >  libsepol/cil/src/cil_mem.h      |   1 -
-> >  libsepol/cil/src/cil_strpool.c  |   8 +-
-> >  6 files changed, 329 insertions(+), 181 deletions(-)
-> >
-> > --
-> > 2.24.1
-> >
->
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 
+(OK, this looks simple enough to try out my new maintainer "powers" :)
+
+Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+> ---
+>  libsepol/cil/src/cil_copy_ast.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/libsepol/cil/src/cil_copy_ast.c b/libsepol/cil/src/cil_copy_ast.c
+> index 7af00aaf..67dd8528 100644
+> --- a/libsepol/cil/src/cil_copy_ast.c
+> +++ b/libsepol/cil/src/cil_copy_ast.c
+> @@ -827,7 +827,7 @@ int cil_copy_avrule(struct cil_db *db, void *data, void **copy, __attribute__((u
+>         if (!new->is_extended) {
+>                 cil_copy_classperms_list(orig->perms.classperms, &new->perms.classperms);
+>         } else {
+> -               if (new->perms.x.permx_str != NULL) {
+> +               if (orig->perms.x.permx_str != NULL) {
+>                         new->perms.x.permx_str = orig->perms.x.permx_str;
+>                 } else {
+>                         cil_permissionx_init(&new->perms.x.permx);
+> --
+> 2.21.1
+>
 
 -- 
 Ondrej Mosnacek <omosnace at redhat dot com>
