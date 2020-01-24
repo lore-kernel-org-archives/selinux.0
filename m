@@ -7,322 +7,121 @@ X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FAC5C2D0DB
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 14:56:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57931C2D0DB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 15:05:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4D6AE20704
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 14:56:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B6632071A
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 15:05:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="TFJG7ueE"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="d/IqQyBA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbgAXO4n (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jan 2020 09:56:43 -0500
-Received: from USFB19PA31.eemsg.mail.mil ([214.24.26.194]:64081 "EHLO
-        USFB19PA31.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729567AbgAXO4m (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 09:56:42 -0500
-X-EEMSG-check-017: 48247510|USFB19PA31_ESA_OUT01.csd.disa.mil
+        id S2387897AbgAXPFR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jan 2020 10:05:17 -0500
+Received: from USAT19PA23.eemsg.mail.mil ([214.24.22.197]:61379 "EHLO
+        USAT19PA23.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387432AbgAXPFR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 10:05:17 -0500
+X-EEMSG-check-017: 73058332|USAT19PA23_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,358,1574121600"; 
-   d="scan'208";a="48247510"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA31.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 24 Jan 2020 14:56:39 +0000
+   d="scan'208";a="73058332"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USAT19PA23.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 24 Jan 2020 15:04:51 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1579877800; x=1611413800;
-  h=subject:from:to:cc:references:message-id:date:
+  s=tycho.nsa.gov; t=1579878292; x=1611414292;
+  h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=gW8EhHcaICEciIUJcYl1I/CNSfoxNsLaim2LrI5pH6s=;
-  b=TFJG7ueE/YssaTle7Ilpf9C5c3eC7c3NXakmHYZaenxpsoAXpIBRoQLw
-   aZasZEIuxMxI/Y8/qCYTUk7iE96c3oVHhpyJuEulZY48gTfce0QGfWihW
-   iGrUsgLwmfOQG79yJvKnjRqc10mknvKy8/IIhJYtAJqY9huUbnbS/1zGA
-   C0hz5WgemSX5GAi+ZoU0/HbpYTLxEzmSGRlDqR5ny3BbLdg3a6XKZ9RfK
-   cgeGnvxnVgxUTIHY++EQL46lXdpIIPPRcmiak2pB4sqMryYhLvZl2dpo5
-   TvNO/zP/v9p9ky8fMdcPi8S16UImabnO1gRrfahZlFex5FAEww6pNzBGG
-   Q==;
+  bh=pjHC8dlzRVErH0cT3AvJfmCKGq+CN6PGM/fnAHUajqE=;
+  b=d/IqQyBAbBBeM6WrY93nPMAYuwy40dj3rjAC2qdhz/vDwl3xdh6BKEXO
+   0NEeQwCO903ZfXUXoSNtzD6/INUTVzxvpm3HBMeXco/PZmsw2VKzKuprj
+   /YmV22K+2Q7k3UxT45rGq4z56L2ong8M1xPIKZfE0EpJUxWt4MAIiqEYs
+   60cYHKkpzFbiDhuPN3lMl+J5wgagsE+xYuj3/sLf4PccufoyKa38wT8I3
+   c0h2scFYKvMlmPO8QH/wons/IF6iWrGEw1Za2dR4kdU0pFDSfAAPzdqvE
+   Daqnz9TgY3KUyoLJAvZR26PlQ1vXipaG/ndtCInZ0GtTEZRip8crEdTsz
+   g==;
 X-IronPort-AV: E=Sophos;i="5.70,358,1574121600"; 
-   d="scan'208";a="32296069"
-IronPort-PHdr: =?us-ascii?q?9a23=3AzfLuWB1JcJsPyMgnsmDT+DRfVm0co7zxezQtwd?=
- =?us-ascii?q?8ZsesSLvTxwZ3uMQTl6Ol3ixeRBMOHsq4C0bad7fCoGTRZp8rY6zZaKN0Efi?=
- =?us-ascii?q?RGoP1epxYnDs+BBB+zB9/RRAt+Iv5/UkR49WqwK0lfFZW2TVTTpnqv8WxaQU?=
- =?us-ascii?q?2nZkJ6KevvB4Hdkdm82fys9J3PeQVIgye2ba9vIBmsogjdq8YbjZF8Jqs+xR?=
- =?us-ascii?q?fEo3hFcPlSyW90OF6fhRnx6tq+8ZJ57yhcp/ct/NNcXKvneKg1UaZWByk8PW?=
- =?us-ascii?q?Av483ruxjDTQ+R6XYZT24bjBlGDRXb4R/jRpv+vTf0ueR72CmBIM35Vqs0Vi?=
- =?us-ascii?q?i476dqUxDnliEKPCMk/W7Ni8xwiKVboA+9pxF63oXZbp2ZOOZ4c6jAZt4RW3?=
- =?us-ascii?q?ZPUdhNWCxAGoO8bpUAD+wdPeZDsoLxo0ICoQaiCQWwAe/izDFHhmXy3aYnze?=
- =?us-ascii?q?ovFw/I1xEkE94XsHnZqND5OaEPWu630abI1y3OYe5W1znj5ojGcR4vrv+DUr?=
- =?us-ascii?q?1ybcXfxlIiFx/Gg1iKtYDpIz2Y2+YLvmOG7+RgT+Wvi2s/pg9svjig2N8sio?=
- =?us-ascii?q?nXiYIT11vK6CB5z5wxJd28VkF6YcOvHZxLty6HLIt7Wd8iQmF0tyY6zb0Ko5?=
- =?us-ascii?q?i7fDMQx5g9yB7fbOKHfpGO7xn+V+iROS91iG9qdb+wnRq/8VWsxvfiWsS7zl?=
- =?us-ascii?q?pGtDdJn9/RvX4XzRPT8NKISv5l80ek3jaAyh7c5/lfIUAxiarbM5khwqMslp?=
- =?us-ascii?q?YLsUTMACv2mELuga+KbEok4Omo6/n8Yrn8p5+cMYF0igblMqswhsOzG/g4Mw?=
- =?us-ascii?q?gSUGib/uSwzrvj8lHiQLpWlPE2l6jZsJTCKcQaoK62HRNV354+5xuwADqqyt?=
- =?us-ascii?q?QVkWQdIF5bdx+LkZLlN0zWLPD9F/i/glCskDlxx/DBO73sGo7NIWXYkLr6Yb?=
- =?us-ascii?q?Z861JTyAo0zdxF4ZJUEasOLOj8Wk/2qtzUFgU5PBCsw+b7FNV90ZsTWGyRDa?=
- =?us-ascii?q?+fMKPSrF6I6/kgI+iCYY8aojf9K/w/6/7hg345hEURcre00psKcHq4BOhpI1?=
- =?us-ascii?q?2FYXrwhdcMCWUKvg0+TOzsklGCUzlTZ3aoUKI6/TE0FoSmAJzfSY+3hryB2y?=
- =?us-ascii?q?G7HpxKaW9cDlCAC2vnd4KBW/0UciKdPtdhkiAYVbimU4IuyQuhtBTkxLtnNe?=
- =?us-ascii?q?fU4TEXtZL529ho6e3TkQ899SZtA8uByW6BVX17nmQNRzUuxqBwvVR9ykuf0a?=
- =?us-ascii?q?h/m/FXCcZc5+hXXQY6L5Lc1PB1C9DoVQLccNeJTEipQs+9DDEwSNIx38EBY0?=
- =?us-ascii?q?JnF9q+iRDD2jKgA6UJmLyTGJw07qXc0mDzJ8Z4zHbGzrMhj1g9QsZUM22pnK?=
- =?us-ascii?q?t/+BbSB4LTlEWZjamqf7wG3CHR7GeD0XaOvEZAXQ50UKXFW20fZ0TPodTi+E?=
- =?us-ascii?q?zNU6KuCa4mMgtdyc+OM65Katr0glVbQPfsJs/TY3y+m2iuHxaE3LCMY5Twe2?=
- =?us-ascii?q?UbwirdDFIIkwcJ/XaJLQI+HDuuo3rCDDxyElLie1js/vd6qHO6SE800g6LYl?=
- =?us-ascii?q?Z/17q65BEVn+aQS/AN0bIevicutTF0EEy639LMBNqKvxBhc7lEYdMh/FdH0n?=
- =?us-ascii?q?rUtw9jMZO+NKBtmlkecwN0v071yxp3Cp9Akc8vrHMr0QpyLLiU0FRbdzOXxZ?=
- =?us-ascii?q?rwIKHYKnHu/BCzbK7bwkne38iQ+qcA9fQ4qlPjsBiqFkU86XVn1cda03+H65?=
- =?us-ascii?q?XLFQYSVZXxUlgp+BRgvLHVeCo9557O1XJ2K6W0tCHN18grBOs90hygZctQML?=
- =?us-ascii?q?uYFA/uFM0XH9CuJ/Y3m1itdR8EJPpd9LMwP8+/cvuG36mrPPx+kz68kWtH54?=
- =?us-ascii?q?V9gQqw8H9DR+jIwpdN8fGR2ATPAyjxile8s+j4hoVNZDVUEXWijyXoGdgCSL?=
- =?us-ascii?q?d1eNMwFWq2I8Cxju57jprpVm8QoEWvHHsaycSpflyUdFW70gpOgxdE6Ue7kD?=
- =?us-ascii?q?e1mmQn2woiqbCSiWmXnrXv?=
-X-IPAS-Result: =?us-ascii?q?A2CEAwDTBCte/wHyM5BlDg8BAQEJAREFBQGBe4F4BYFtI?=
- =?us-ascii?q?BIqhBKJA4Z6BoE3iW+RSQkBAQEBAQEBAQE3AQGEQAKCRjgTAhABAQEEAQEBA?=
- =?us-ascii?q?QEFAwEBbIVDgjspAYJ6AQUjDwEFQRAJAhgCAiMDAgJGEQYNBgIBAYJjP4JXJ?=
- =?us-ascii?q?ZBvm3eBMokGgT6BDiqMMXmBB4E4D4IvLj6EAx+DN4JeBI1KgkyHZJdegkOCT?=
- =?us-ascii?q?JNlBhuCSIgKhEWLZat+IoFYKwgCGAghD4MnUBgNiA0XjWhZIwMwixMRF4IbA?=
- =?us-ascii?q?QE?=
+   d="scan'208";a="38208007"
+IronPort-PHdr: =?us-ascii?q?9a23=3AUTJDHhKF4wzF63uPvNmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgXL/z/rarrMEGX3/hxlliBBdydt6sYzbCK+P6wESxYuNDd6StEKMQNHz?=
+ =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
+ =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQZjId4NKo8xR?=
+ =?us-ascii?q?TFr3pLdu9LwW9kOU+fkwzz68ut8pNv6Thct+4k+8VdTaj0YqM0QKBCAj87KW?=
+ =?us-ascii?q?41/srrtRfCTQuL+HQRV3gdnwRLDQbY8hz0R4/9vSTmuOVz3imaJtD2QqsvWT?=
+ =?us-ascii?q?u+9adrSQTnhzkBOjUk7WzYkM1wjKZcoBK8uxxyxpPfbY+JOPZieK7WYMgXTn?=
+ =?us-ascii?q?RdUMlPSyNBA5u8b4oRAOoHIeZYtJT2q18XoRejGQWgGObjxzlGiX/s2a0xzv?=
+ =?us-ascii?q?ovHwfI0gc9G94CqXTZodHwOKoUTOu7zrTHzS/bYv1Lxzn95ojGfBMvr/6CUr?=
+ =?us-ascii?q?1/c9bex0Y0GgPZjFids5DpMy+b2+kPtWWQ8upuVfioi24iswx/vySvydk0io?=
+ =?us-ascii?q?nJmI0VzE3P+zh8wIkvId24TFB0YN65G5ZXrCGVKpB2T9g+Q2BopCk6yroGtY?=
+ =?us-ascii?q?S9fCgR0psr3RHfa/uZc4WR5B/oSeWfIS9giX54d7+yiAy+/Ei9xuHmSMW530?=
+ =?us-ascii?q?hGojBYntTKq3sDzQbc6tKdRft45kqh3DGP2B3N5excOkA0kLbbK4Ymwr4tip?=
+ =?us-ascii?q?ofqUTDETHymEXxlKKWal8r+vKp6+T6ebXqvJ6cN4l6igH5KaQhhNCwDf4kMg?=
+ =?us-ascii?q?kOQ2eb+eO82Kfl/ULlW7VFkuc6kqzYsJDePcgbp6i5DBFJ0os79hqyADir3M?=
+ =?us-ascii?q?4YkHUaNl5JZh2Kg5bzN13TOPz4CO2wg1WokDdl3fDGObjhD43WLnfei7fsZq?=
+ =?us-ascii?q?p96k5AxwozytBT/ZRUCqobL/7pVU/xs8LYAgcjMwOo2+bnFMl91oQGVG2TGK?=
+ =?us-ascii?q?CZK73dsF+T6+I0P+aMZJUauCvzK/gh+fHul2Y1lkMHcqWzwZQXb3W4FOx8I0?=
+ =?us-ascii?q?qFeXrsnssBEWASswUiVuPqk0ONUD5Ja3apQ6085is0CJ+oDYfHWI+tmqeM3C?=
+ =?us-ascii?q?a9Hp1KeG9GDkqAHmvvd4WBQ/0Mcj6dItd9kjwYUrisU40h1RSptA/g0bpnL/?=
+ =?us-ascii?q?HU9zYetZ350dh6+ezTmQs19TxuAMSXy3uNQH1snmMUWz8227hyoUh8yleFzK?=
+ =?us-ascii?q?h5jOVUFcdN6PxVTwc6L5/cz/B6CtzrXwLBecqGSEuiQtq4GjwxUN0xzMEUY0?=
+ =?us-ascii?q?pnGNWtkArD3yy0DL8RjbCLA4Y08q3E1XjrO8l902rG1LUmj1Q+WctAK2mmhq?=
+ =?us-ascii?q?959wjOCI/EiFuZl6m0eqQGxiLN93mMzXCIvE5GVA58S6LFXWoQZkHOt9T2+l?=
+ =?us-ascii?q?vCT6OyCbQgKgZBytCNJbVRatL1ilVGQ/TjNc/CbGKxgWewAhOIxrKRbIrvYW?=
+ =?us-ascii?q?kd2z/dCEccmQAJ4XmGLRQ+Bjumo2/GDjxuElLvY0X2/el8r3O7TlU7zweRb0?=
+ =?us-ascii?q?J/0bq44QIaiuaaS/MU2LIEuTsupC9wHFqnw93WDN+ArRJ7fKpAedM9/EtH1W?=
+ =?us-ascii?q?XBugxlIJOgKa9ihkMfcwRxpk/u1At4Cp9Gkcc0qHMn1wtyJbuc0FNGaTOXw4?=
+ =?us-ascii?q?r8OqbNJWnx4RCvcbTZ1kvY0NmI4KsP6uw4oU35vA61Dkoi72ln095N3nuE/J?=
+ =?us-ascii?q?rKEQ4SXInpUkkt6hh6o6jWYiw654PTz31jL7O4vSPF29IsV6MZzUOLdsxSIe?=
+ =?us-ascii?q?u/Hw/7DsMeCtLmfOcjgFW4RgkPPOlP+qo5JYatfr2N36v9eK5rlSmrnCJc64?=
+ =?us-ascii?q?B0z0yI+jBUS+jU0pJDyPadmkOFUjDmlla6msb+nI1FIzYIES73zSniGZ4Ufa?=
+ =?us-ascii?q?B5YJwKFXbrJsq729Fzr4DiVmQe91O5AV4Cnsizdl7adFH53AtNxWwJrnG93y?=
+ =?us-ascii?q?i11Tp5l3cutKXM8jbJxrHZaBcfOmNNDFJnhFPoLJn828sWR2C0fgMpk12j/k?=
+ =?us-ascii?q?+8yK9F8vcsZ1LPSFtFKnClZ1ppVbG94//bPp9C?=
+X-IPAS-Result: =?us-ascii?q?A2BwAgA5Bite/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFtIBKEPIkDhnoGgRIliW+PYoFnCQEBAQEBAQEBATcBAYRAAoJGOBMCEAEBA?=
+ =?us-ascii?q?QQBAQEBAQUDAQFshUOCOykBgnoBBSMVQRALGAICJgICVwYBDAgBAYJjP4JXJ?=
+ =?us-ascii?q?axqgTKFSoM6gT6BDiqMMXmBB4E4DAOCXT6EMYMogl4ElzRGl16CQ4JMk2UGG?=
+ =?us-ascii?q?4I4mESOYJ0eIoFYKwgCGAghD4MoTxgNlmUjA44GAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 24 Jan 2020 14:56:37 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 24 Jan 2020 15:04:51 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00OEtmE2257667;
-        Fri, 24 Jan 2020 09:55:48 -0500
-Subject: Re: Perf Data on LSM in v5.3
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00OF450c257797;
+        Fri, 24 Jan 2020 10:04:06 -0500
+Subject: Re: [PATCH v14 00/23] LSM: Module stacking for AppArmor
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
+References: <20200124002306.3552-1-casey.ref@schaufler-ca.com>
+ <20200124002306.3552-1-casey@schaufler-ca.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Wenhui Zhang <wenhui@gwmail.gwu.edu>
-Cc:     John Johansen <john.johansen@canonical.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Casey Schaufler <casey.schaufler@intel.com>,
-        James Morris <jmorris@namei.org>,
-        linux-security-module@vger.kernel.org,
-        SELinux <selinux@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        penguin-kernel@i-love.sakura.ne.jp,
-        Paul Moore <paul@paul-moore.com>
-References: <CAOSEQ1poqrUQdRc+ZLNbEoPqgd4MMomeYmefjca_mj-2zxrdUA@mail.gmail.com>
- <7ebd42d8-5392-90f6-fc08-4364176cfbb6@schaufler-ca.com>
- <CAOSEQ1p0q4gxVwN3MJkP=xxn4GUVaKsaArtQpxNy5rv7vYvVVw@mail.gmail.com>
- <abd4dddb-8968-2655-3d80-ce446451b3de@canonical.com>
- <CAOSEQ1rBu+wRzgk_Jh2RsZpf8Lv1+WUi-Pte-EsBMphnEr4SsQ@mail.gmail.com>
- <e7cfc960-32fb-7712-b21c-37999cf29430@tycho.nsa.gov>
- <2a984c76-a499-53f6-68c5-5d3604094ba4@tycho.nsa.gov>
- <CAOSEQ1o3nhY-svtsFSSv+M=V+NchxmBbhY-FvqoTzJgMnZ1ydw@mail.gmail.com>
- <1479ac1a-b957-f907-b983-c0bcefd51457@tycho.nsa.gov>
- <fe62d7a7-5f7c-cb14-01b1-f3d7fef2862b@tycho.nsa.gov>
- <CAOSEQ1o6+uL-ATjQ_YXaJP9KxFTS3_b_bzeO7M8eiKbCB9dsyQ@mail.gmail.com>
- <c98000ea-df0e-1ab7-a0e2-b47d913f50c8@tycho.nsa.gov>
-Message-ID: <6abc1c24-1dad-da7b-657f-94a3c046413a@tycho.nsa.gov>
-Date:   Fri, 24 Jan 2020 09:57:25 -0500
+Message-ID: <d1713ac1-6e87-b24a-6255-4b0dcc3ffa69@tycho.nsa.gov>
+Date:   Fri, 24 Jan 2020 10:05:42 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.3.1
 MIME-Version: 1.0
-In-Reply-To: <c98000ea-df0e-1ab7-a0e2-b47d913f50c8@tycho.nsa.gov>
+In-Reply-To: <20200124002306.3552-1-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/15/20 11:04 AM, Stephen Smalley wrote:
-> On 1/15/20 10:59 AM, Wenhui Zhang wrote:
->>
->>
->> On Wed, Jan 15, 2020 at 10:41 AM Stephen Smalley <sds@tycho.nsa.gov 
->> <mailto:sds@tycho.nsa.gov>> wrote:
->>
->>     On 1/15/20 10:34 AM, Stephen Smalley wrote:
->>      > On 1/15/20 10:21 AM, Wenhui Zhang wrote:
->>      >>
->>      >> On Wed, Jan 15, 2020 at 9:08 AM Stephen Smalley
->>     <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
->>      >> <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>> wrote:
->>      >>
->>      >>     On 1/15/20 8:40 AM, Stephen Smalley wrote:
->>      >>      > On 1/14/20 8:00 PM, Wenhui Zhang wrote:
->>      >>      >> Hi, John:
->>      >>      >>
->>      >>      >> It seems like, the MAC hooks are default to*return 0 or
->>     empty
->>      >> void
->>      >>      >> hooks* if CONFIG_SECURITY, CONFIG_SECURITY_NETWORK ,
->>      >>      >> CONFIG_PAGE_TABLE_ISOLATION, CONFIG_SECURITY_INFINIBAND,
->>      >>      >> CONFIG_SECURITY_PATH, CONFIG_INTEL_TXT,
->>      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR,
->>      >>      >>
->>     CONFIG_HARDENED_USERCOPY, CONFIG_HARDENED_USERCOPY_FALLBACK *are
->>      >>     NOT
->>      >>      >> set*.
->>      >>      >>
->>      >>      >> If HOOKs are "return 0 or empty void hooks", MAC is not
->>     enabled.
->>      >>      >> In runtime of fs-benchmarks,
->>     if CONFIG_DEFAULT_SECURITY_DAC=y,
->>      >> then
->>      >>      >> capability is enabled.
->>      >>      >>
->>      >>      >> Please correct me if I am wrong.
->>      >>      >>
->>      >>      >> For the first test, wo-sec is tested with:
->>      >>      >> # CONFIG_SECURITY_DMESG_RESTRICT is not set
->>      >>      >> # CONFIG_SECURITY is not set
->>      >>      >> # CONFIG_SECURITYFS is not set
->>      >>      >> # CONFIG_PAGE_TABLE_ISOLATION is not set
->>      >>      >> # CONFIG_INTEL_TXT is not set
->>      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
->>      >>      >> # CONFIG_HARDENED_USERCOPY is not set
->>      >>      >> CONFIG_FORTIFY_SOURCE=y
->>      >>      >> # CONFIG_STATIC_USERMODEHELPER is not set
->>      >>      >> CONFIG_DEFAULT_SECURITY_DAC=y
->>      >>      >>
->>      >>      >>
->>      >>      >> For the second test, w-sec is tested with:
->>      >>      >> # CONFIG_SECURITY_DMESG_RESTRICT is not set
->>      >>      >> CONFIG_SECURITY=y
->>      >>      >> CONFIG_SECURITYFS=y
->>      >>      >> # CONFIG_SECURITY_NETWORK is not set
->>      >>      >> CONFIG_PAGE_TABLE_ISOLATION=y
->>      >>      >> CONFIG_SECURITY_INFINIBAND=y
->>      >>      >> CONFIG_SECURITY_PATH=y
->>      >>      >> CONFIG_INTEL_TXT=y
->>      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
->>      >>      >> CONFIG_HARDENED_USERCOPY=y
->>      >>      >> CONFIG_HARDENED_USERCOPY_FALLBACK=y
->>      >>      >> # CONFIG_HARDENED_USERCOPY_PAGESPAN is not set
->>      >>      >> CONFIG_FORTIFY_SOURCE=y
->>      >>      >> # CONFIG_STATIC_USERMODEHELPER is not set
->>      >>      >> # CONFIG_SECURITY_SMACK is not set
->>      >>      >> # CONFIG_SECURITY_TOMOYO is not set
->>      >>      >> # CONFIG_SECURITY_APPARMOR is not set
->>      >>      >> # CONFIG_SECURITY_LOADPIN is not set
->>      >>      >> # CONFIG_SECURITY_YAMA is not set
->>      >>      >> # CONFIG_SECURITY_SAFESETID is not set
->>      >>      >> # CONFIG_INTEGRITY is not set
->>      >>      >> CONFIG_DEFAULT_SECURITY_DAC=y
->>      >>      >> #
->>      >>      >>
->>      >>
->>      >>
->>     
->> CONFIG_LSM="yama,loadpin,safesetid,integrity,apparmor,selinux,smack,tomoyo" 
->>
->>
->>      >>
->>      >>
->>      >>      >>
->>      >>      >
->>      >>      > Your configs should only differ with respect to
->>     CONFIG_SECURITY*
->>      >>     if you
->>      >>      > want to evaluate LSM, SELinux, etc overheads.
->>      >> PAGE_TABLE_ISOLATION,
->>      >>      > INTEL_TXT, and HARDENED_USERCOPY are not relevant to LSM
->>     itself.
->>      >>      >
->>      >>      > Also, what benchmarks are you using?  Your own home-grown
->>     ones, a
->>      >>     set of
->>      >>      > open source standard benchmarks (if so, which ones?). 
->>     You should
->>      >>      > include both micro and macro benchmarks in your suite.
->>      >>      >
->>      >>      > How stable are your results?  What kind of variance /
->>     standard
->>      >>     deviation
->>      >>      > are you seeing?
->>      >>      >
->>      >>      > It is hard to get meaningful, reliable performance
->>     measurements
->>      >>     so going
->>      >>      > down this road is not to be done lightly.
->>      >>
->>      >>     Also, I note that you don't enable CONFIG_SECURITY_NETWORK
->>     above.
->>      >> That
->>      >>     means you aren't including the base LSM overhead for the
->>     networking
->>      >>     security hooks.  So if you then compare that against SELinux
->>     (which
->>      >>     requires CONFIG_SECURITY_NETWORK), you are going to end up
->>      >> attributing
->>      >>     the cost of both the LSM overhead and SELinux overhead all to
->>      >> SELinux.
->>      >>     If you truly want to isolate the base LSM overhead, you 
->> need to
->>      >> enable
->>      >>     all the hooks.
->>      >>
->>      >> I will give it a try for enabling CONFIG_SECURITY_NETWORK later
->>     this
->>      >> week, however I wonder if this would affect the test results
->>     that much.
->>      >> I am testing with LMBench 2.5 , with focusing on filesystem unit
->>      >> tests, however not network stack at this time.
->>      >> My understanding of why this result is so different from previous
->>      >> paper 20 years ago, is that the Bottleneck changes.
->>      >> As Chris was testing with 4 cores , each 700MHz CPU, and 128MB
->>     memory,
->>      >> with HDD (latency is about 20,000,000 ns for sequential read).
->>      >> The  Bottleneck of accessing files w/ MAC are mostly on I/O.
->>      >> However hardware setup is different now,  we have much larger and
->>      >> faster memory (better prefetching as well), with SSD (latency is
->>     about
->>      >> 49,000 ns for sequential read). , while CPU speed is not
->>     increasing as
->>      >> much as that of I/O.
->>      >> The Bottleneck of accessing files w/ MAC are mostly on CPU now.
->>      >
->>      > Don't know if lmbench is still a good benchmark and I recall
->>     struggling
->>      > with it even back then to get stable results.
->>      >
->>      > Could be bottleneck changes, could be the fact that your kernel
->>     config
->>      > changes aren't limited to CONFIG_SECURITY* (e.g. PTI introduces
->>      > non-trivial overheads), could be changes to LSM since that time
->>     (e.g.
->>      > stacking support, moving security_ calls out-of-line, more hooks,
->>     ...),
->>      > could be that running SELinux w/o policy is flooding the system 
->> logs
->>      > with warnings or other messages since it wasn't really designed
->>     to be
->>      > used that way past initialization.  Lots of options, can't tell
->>     without
->>      > more info on your details.
->>
->>     I'd think that these days one would leverage perf and/or lkp for 
->> Linux
->>     kernel performance measurements, not lmbench.
->>
->>
->> Thanks so much, I will give it a try for lkp and let you know how it 
->> goes.
->> Maybe later next week or this weekend, we should have the results.
+On 1/23/20 7:22 PM, Casey Schaufler wrote:
+> This patchset provides the changes required for
+> the AppArmor security module to stack safely with any other.
 > 
-> Ok, please make sure your kernel configs are truly comparable (i.e. no 
-> differences other than the right set of CONFIG_SECURITY* options), that 
-> all of the same LSM hooks are enabled for comparing LSM-only versus 
-> SELinux (i.e. CONFIG_SECURITY and CONFIG_SECURITY_NETWORK both enabled), 
-> and consider using a distribution that actually supports SELinux out of 
-> the box (e.g. Fedora) so that you can properly test SELinux with a 
-> policy loaded in enforcing mode.  Similarly if you want to do the same 
-> for AppArmor, except for it you'll need to enable CONFIG_SECURITY_PATH 
-> as well for the pathname-based hooks and you'll want to use Ubuntu or 
-> latest Debian to get a working policy.
+> v14: Rebase to 5.5-rc5
+>       Incorporate feedback from v13
+>       - Use an array of audit rules (patch 0002)
+>       - Significant change, removed Acks (patch 0002)
+>       - Remove unneeded include (patch 0013)
+>       - Use context.len correctly (patch 0015)
+>       - Reorder code to be more sensible (patch 0016)
+>       - Drop SO_PEERCONTEXT as it's not needed yet (patch 0023)
 
-One last point that I should have mentioned: you should likely run your 
-benchmarks both under an unconfined profile/domain and under a confined 
-profile/domain (the latter could be one that you define specifically for 
-your benchmark that just allows it everything) at least for AppArmor. 
-The reason is that AppArmor has an intrinsic concept of unconfined since 
-it was designed for targeted enforcement and its hook functions directly 
-test for the unconfined label early and skip permission checking in that 
-case, so if you only collect data while running benchmarks unconfined, 
-you won't see the real overheads imposed on a confined profile/domain. 
-In contrast, SELinux has no intrinsic concept of unconfined since it was 
-designed for full system confinement (as applied in "strict" 
-configurations and in Android); if there is an unconfined domain, it is 
-merely defined through policy (i.e. there must be explicit allow rules 
-allowing it everything) and the hook functions invoke the same 
-permission checking for both unconfined and confined domains alike.
+Looks like you also dropped "LSM: Use lsmcontext in 
+security_dentry_init_security" entirely (was patch 16 in v13).
+
