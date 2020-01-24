@@ -2,133 +2,156 @@ Return-Path: <SRS0=mP8O=3N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F47CC2D0DB
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 19:41:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD0A3C2D0DB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 20:16:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4133020718
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 19:41:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 970B92077C
+	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 20:16:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WA93bDpl"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="S9T/nOxC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392079AbgAXTle (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jan 2020 14:41:34 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:24061 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2391181AbgAXTld (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 14:41:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1579894893;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=3Rq8G6GpQRQVyJmxN0yzVSoCKTO5aqgGyzzf3uVe3uE=;
-        b=WA93bDplZws4LDEd9Lj02SoezhA7p6nHbbslrhTzOcaJYE6kgRj/n0za8MbwLG8Dlno0E6
-        gce4igNbBK7zZUA7pO+KmcX6iyieIwX3soy9qF/yKDDHRFFpye7F6xgxzQFo+ZA6X4rJRq
-        JcSe1tT59JQC5niojwUXd90DrQnkWWk=
-Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
- [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-257-H9EWqhteO_Cy9lQ2yUTczw-1; Fri, 24 Jan 2020 14:41:30 -0500
-X-MC-Unique: H9EWqhteO_Cy9lQ2yUTczw-1
-Received: by mail-ot1-f72.google.com with SMTP id b10so1398740otp.3
-        for <selinux@vger.kernel.org>; Fri, 24 Jan 2020 11:41:30 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=3Rq8G6GpQRQVyJmxN0yzVSoCKTO5aqgGyzzf3uVe3uE=;
-        b=RQdxFPb6IZcLNniHhr8l5Jv3FZJTHzAaDr/+axQl1FcutUnG3z0AmhiSm1ESrJ3z4K
-         E11ODIB5krVC/S7KyENVx0qDttetlez5lzmH5Sv24x3aRkYfT8oKXih32OJHdXXJmEg4
-         uZDGA9Ihlg4Xvx7pl6AJwvSUyGbfEUlv700FfcIAh9b0oR0ckLi5O+42Ul2xoK/m2T+M
-         DbtzQLBiggcI8cwBmC/x194oWy0hF9LXznUeXJ1NoRaUwM1i+hXtfytBBhD8VjJuOCW7
-         VfyveVN64xX6nAnkwRZmRYCRH6KfKlkJ5+cNQtzFSOSb04eg+TOzE6sNX84R8pNEwa2i
-         IPzw==
-X-Gm-Message-State: APjAAAW1NlWKmlTFqCCiF3Upub2jNVBDoU2F0BHXWfWyEKOSNgu7hjO+
-        +rjfckxuk6e+9fjggE7kqJo4xuecRs3JzOJp/SLCiHxK5ZyWefhO3OZrNCA7Llo2MgCyjxoqDQh
-        BoezSJIdClTHX05zCS02XAyNyeSFpX44BSw==
-X-Received: by 2002:a9d:68d1:: with SMTP id i17mr3754535oto.367.1579894889963;
-        Fri, 24 Jan 2020 11:41:29 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyqLEhULMyOTcPHoRvfXDwD6jQAik7wJPbKDaVAWOQQtpKKtS6KOBdp5mZg4Rlz5p0xe4eQW+k6eqLe1KPS/eY=
-X-Received: by 2002:a9d:68d1:: with SMTP id i17mr3754527oto.367.1579894889676;
- Fri, 24 Jan 2020 11:41:29 -0800 (PST)
+        id S2404287AbgAXUQS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jan 2020 15:16:18 -0500
+Received: from UHIL19PA36.eemsg.mail.mil ([214.24.21.195]:19390 "EHLO
+        UHIL19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404262AbgAXUQS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 15:16:18 -0500
+X-EEMSG-check-017: 70244311|UHIL19PA36_ESA_OUT02.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,358,1574121600"; 
+   d="scan'208";a="70244311"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UHIL19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 24 Jan 2020 20:16:07 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1579896967; x=1611432967;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=T++MBPfrgD1DdEAf+Di1sxVUbaKMuzTF/mX7/jvoSTM=;
+  b=S9T/nOxCGOOAxUs4uScrdTnijYP+0BR5KD+Gekk51aT56HyVjMrwQbQb
+   i40rU8LtRKxTtDbEw1FKuK3gFroc2DnMQV2SKe5VEE6bP5SPKobdWMFVz
+   lkKfqqh/uVE9I9wKmehd4//QsMW3DxumOmAexsbSH2/51wjtRRckJpybH
+   gig/JoJqXm/rum5MDCD4UZYN5L1zIgFsPtMBcO1hS+CMlVPlZmriSvnA8
+   5hb+/4wyKJcHIpw36xR+7QpMa3ZDi0KsAlnYUslW6zY9kOaVt82uafD7L
+   U6XuSzuzKO1F59DThcNXJ0Knst5TSW2hhPI+VVVUifPZBzDXneZVbWwAG
+   w==;
+X-IronPort-AV: E=Sophos;i="5.70,358,1574121600"; 
+   d="scan'208";a="32316864"
+IronPort-PHdr: =?us-ascii?q?9a23=3A7JghAhaWsCZWul++gAwgSdD/LSx+4OfEezUN45?=
+ =?us-ascii?q?9isYplN5qZpsizYR7h7PlgxGXEQZ/co6odzbaP7+a6BCRAuc/H7ClZNsQUFl?=
+ =?us-ascii?q?cssoY/p0QYGsmLCEn2frbBThcRO4B8bmJj5GyxKkNPGczzNBX4q3y26iMOSF?=
+ =?us-ascii?q?2kbVImbuv6FZTPgMupyuu854PcYxlShDq6fLh+MAi6oR/eu8ULjoZuMLg9xx?=
+ =?us-ascii?q?vUqXdMZ+ha2HlkKF2Okxvy/Mu84IJv/yFNsP896sBMVrn3cb4lRrJCFjQmNG?=
+ =?us-ascii?q?415MzvtRbdSAaE+2URXGYLnBdWGgbJ9B71UIv/vSv8rep9xTKVPdbqQrAuWD?=
+ =?us-ascii?q?St9LlkRRn1gyoaLTE58WXXisttjKJHpR+quhJyz5LIbIyTKfFzZb3Wc88ESm?=
+ =?us-ascii?q?VdX8ZRTy1BDZ26b4sTFOoKIOJUo5Dgq1cSsReyAA+hC+31yj9Mm3T4w6s03e?=
+ =?us-ascii?q?o8Gg3CxQAsAdYDvHHSod7oNqkdTPq1wbHVwzvdYfNY2TTz5obGfR8uo/6DQb?=
+ =?us-ascii?q?1+fNHNyUQsDQ7JkkmcpILnMj6Ty+8Ds3Kb7+1lVe+3lmAntx9+oiCvxsgyjI?=
+ =?us-ascii?q?nCm58bylXe+iV9xIY6O925Q1N8bN6/DZRQrDqXN5d2Q8w+Q2Fovzw2yrsduZ?=
+ =?us-ascii?q?GhZiQKx5MnxwDGZvGBboOG4QrjWf6MLTp3i39pYrKyiwuo/US+xeDwSNO43E?=
+ =?us-ascii?q?tMoyFYiNfDrGoN2AbW6sWfT/t9+Vqu1iiX2gDI7+FEPVg0la3GK5492rIwlo?=
+ =?us-ascii?q?QcsUDEHiLuhEX5lrWWdkQ5+uiz8ejnY7PmppGbN49vlA7xLr4imtC/AOskMg?=
+ =?us-ascii?q?gOWHKX+eKg27344UL1WrBKjvwykqXBsZDaI9oUprKhDgNI3Ysu5AyzAje73N?=
+ =?us-ascii?q?gCg3UKI0xJdAiag4TxPlHBOvH4DfOxg1S2lzdrwujLPqb8DZXWNXXDjLfgcq?=
+ =?us-ascii?q?p9605b0gYzy8tf6IhOBrEOJ/LzRFf9tMbEAR8hLwy03+HnBc1h2YwEQmKAHK?=
+ =?us-ascii?q?+YPbjJsVCU5uIgOfSMZIERuDnjMfgp/uLhgmUjlVABeqmp2IMdaGqkEfR+P0?=
+ =?us-ascii?q?WZfX3sj88dHmgQpQoxUuzrhEeZUTFPZ3a9Rb885j8/CI24F4fOXYGtgLqd3C?=
+ =?us-ascii?q?ilGp1afHxJCleJEX3wbYWLR+8MaD6OIs9mijEEV72hS4g71RG0tQ/60KFqLu?=
+ =?us-ascii?q?zO9S0dq53j1cJ55+rJlRE97TZ0FdiS03mRT2FomWMFXzs23KF5oUxgxVaPyL?=
+ =?us-ascii?q?N4jOJEGtxO/fNJUxs6NJ7Fw+x/DND9Rx/BftOXR1u9XNWmDi8+Tsgrz98NfU?=
+ =?us-ascii?q?l9AdOigQ7H3yawBL8VjbOLDoQu8q3Ax3jxO9p9y3He2ak6kVYmRspPNWu7hq?=
+ =?us-ascii?q?9w7AXTGYHJnFuDl6qwdqQTwjTN9GGdwmqKpk1YVxRwUardV3AFekTWtcj55l?=
+ =?us-ascii?q?/FT7K2CrQoLBVOydWeJatNbd3pjk5LS+vjONTEZGKxnmawBQuNxr+Wa4rqYW?=
+ =?us-ascii?q?od1j3HCEcYiwAT4WqGNQ8mCyejpGLeDDpuGUjtY0Pr8elxsnW7TlQqwAGMdE?=
+ =?us-ascii?q?Buy6C6+hgShfyaSvMcwqgLuCM7pzpoG1a92srcC8CcqAp5YKVcfdQ97U9f1W?=
+ =?us-ascii?q?3HsQx9MYGgL6FkhlIHcAR4oVnu1xNpBYVEisUqrWomzA51KaKGzlxNbSiY0o?=
+ =?us-ascii?q?rzOr3KMGn95gqja6jI1V3E0taW4r8F6O4kpFX7oAGpCk0i/m1/09ZPznuc4o?=
+ =?us-ascii?q?7HDBIIXpLsVkY77h16p7bdYikn+YzYz2FjMa6xsmyK59V8L+I+xwfoRNxfOb?=
+ =?us-ascii?q?6KEALoW5kRDtOjOcQxkFigcxwAMfoX/6dyNMSjIb/O06ewMfcmhzmmhHlJ5I?=
+ =?us-ascii?q?1n+kOK6yd4DOXP2tJNwfSfxBGGTB/6hVKss4bwg48ALTUTGHevjDPpD5NLZ7?=
+ =?us-ascii?q?FjOIMMBXqqLuWpydhkwZ3gQXhV8BikHVxCkNSkfRuUckzVwwJdzwIUrGahlC?=
+ =?us-ascii?q?/+yCZ7wB8zqa/K5zDD2+TvclI8P2dPQGRzxQP3LZOck8ERXE/uaRMg0hSi+x?=
+ =?us-ascii?q?CplOBguK1jIjyLEg9zdC/sIjQnC/Hhuw=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BzAgC7TSte/wHyM5BdCBwBAQEBAQcBAREBBAQBAYF7g?=
+ =?us-ascii?q?X2BbSASKoQSiQOGegaBEiWJb5FJCQEBAQEBAQEBATcBAYRAAoJGOBMCEAEBA?=
+ =?us-ascii?q?QQBAQEBAQUDAQFshUOCOykBgnoBBSMPAQVBEAkCGAICJgICVwYBDAYCAQGCY?=
+ =?us-ascii?q?z+CVyWSM5t3gTKFSoM7gT6BDiqMMXmBB4E4DAOCKDU+hCSDNYJeBJd6l16CQ?=
+ =?us-ascii?q?4JMijqJKwYbmnyOYJ0eIoFYKwgCGAghD4MnUBgNiA0XjkEjAzCNVgEB?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 24 Jan 2020 20:16:03 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00OKF83E142203;
+        Fri, 24 Jan 2020 15:15:10 -0500
+Subject: Re: [PATCH v14 22/23] LSM: Add /proc attr entry for full LSM context
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
+References: <20200124002306.3552-1-casey@schaufler-ca.com>
+ <20200124002306.3552-23-casey@schaufler-ca.com>
+ <1de8338a-9c1c-c13b-16f0-e47ebec0e7ea@tycho.nsa.gov>
+ <f3dea066-1f6d-4b92-1a5b-dac25b58aae7@tycho.nsa.gov>
+ <9afb8d9d-a590-0e13-bf46-53a347ea15dd@schaufler-ca.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <6bd3e393-e1df-7117-d15a-81cb1946807b@tycho.nsa.gov>
+Date:   Fri, 24 Jan 2020 15:16:36 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.1
 MIME-Version: 1.0
-References: <20200120111113.23349-1-richard_c_haines@btinternet.com>
- <20200120111113.23349-3-richard_c_haines@btinternet.com> <8467a014-e9aa-c148-ebc3-25c79c1853c5@tycho.nsa.gov>
- <CAHC9VhTkhrdTPfhBMD=tBqVbCZBGdQS+fPHO1y4k79-CQrAPiw@mail.gmail.com>
-In-Reply-To: <CAHC9VhTkhrdTPfhBMD=tBqVbCZBGdQS+fPHO1y4k79-CQrAPiw@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 24 Jan 2020 20:41:18 +0100
-Message-ID: <CAFqZXNtPVFV9F2E7ngzbfvTjMa2WKSVnCzhKN3RHMRHF-_FQSA@mail.gmail.com>
-Subject: Re: [PATCH 2/2] selinux-testsuite: Add fs*(2) API filesystem tests
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <9afb8d9d-a590-0e13-bf46-53a347ea15dd@schaufler-ca.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 24, 2020 at 8:17 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Fri, Jan 24, 2020 at 10:12 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > On 1/20/20 6:11 AM, Richard Haines wrote:
-> > > Test filesystem permissions using the fsopen(2), fsconfig(2), fsmount(2),
-> > > fspick(2) and fsmount(2) api's introduced in kernel 5.2.
-> > >
-> > > Also tests move_mount(2) using open_tree(2).
-> > >
-> > > These tests use common code from tests/filesystem.
-> > >
-> > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> >
-> > Only question I have is whether we want to enable the move_mount test
-> > unconditionally and let it break on kernels with the regression.  Otherwise,
->
-> Historically we haven't broken the test suite for older kernels, but I
-> will admit that testing older kernels is no longer a priority for me.
+On 1/24/20 2:28 PM, Casey Schaufler wrote:
+> On 1/24/2020 8:20 AM, Stephen Smalley wrote:
+>> On 1/24/20 9:42 AM, Stephen Smalley wrote:
+>>> On 1/23/20 7:23 PM, Casey Schaufler wrote:
+>>>> Add an entry /proc/.../attr/context which displays the full
+>>>> process security "context" in compound format:'
+>>>>           lsm1\0value\0lsm2\0value\0...
+>>>> This entry is not writable.
+>>>>
+>>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>>> Cc: linux-api@vger.kernel.org
+>>>
+>>> As previously discussed, there are issues with AppArmor's implementation of getprocattr() particularly around the trailing newline that dbus-daemon and perhaps others would like to see go away in any new interface.  Hence, I don't think we should implement this new API using the existing getprocattr() hook lest it also be locked into the current behavior forever.
+>>
+>> Also, it would be good if whatever hook is introduced to support /proc/pid/attr/context could also be leveraged by the SO_PEERCONTEXT implementation in the future so that we are guaranteed a consistent result between the two interfaces, unlike the current situation for /proc/self/attr/current versus SO_PEERSEC.
+> 
+> I don't believe that a new hook is necessary, and that introducing one
+> just to deal with a '\n' would be pedantic. We really have two rational
+> options. AppArmor could drop the '\n' from their "context". Or, we can
+> simply document that the /proc/pid/attr/context interface will trim any
+> trailing whitespace. I understand that this would be a break from the
+> notion that the LSM infrastructure does not constrain what a module uses
+> for its own data. On the other hand, we have been saying that "context"s
+> are strings, and ignoring trailing whitespace is usual behavior for
+> strings.
 
-I'd say if we expect the bug to be fixed in the stable branches of all
-affected (& currently supported) kernel versions, we should just let
-the test run unconditionally. I see little value in trying to match
-the exact set of broken kernel versions. So my vote is to be strict
-and if that turns out to cause too much trouble, we can always add
-some check (and be more careful next time).
+Well, you can either introduce a new common underlying hook for use by 
+/proc/pid/attr/context and SO_PEERCONTEXT to produce the string that is 
+to be returned to userspace (in order to guarantee consistency in format 
+and allowing them to be directly compared, which I think is what the 
+dbus maintainers wanted), or you can modify every security module to 
+provide that guarantee in its existing getprocattr and getpeersec* hook 
+functions (SELinux already provides this guarantee; Smack and AppArmor 
+produce slightly different results with respect to \0 and/or \n), or you 
+can have the framework trim the values it gets from the security modules 
+before composing them.  But you need to do one of those things before 
+this interface gets merged upstream.
 
->
-> > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> >
-> > > ---
-> > >   tests/Makefile                   |   6 +
-> > >   tests/fs_filesystem/.gitignore   |   3 +
-> > >   tests/fs_filesystem/Makefile     |  16 +
-> > >   tests/fs_filesystem/fs_common.c  | 110 ++++
-> > >   tests/fs_filesystem/fs_common.h  |  30 ++
-> > >   tests/fs_filesystem/fsmount.c    |  89 ++++
-> > >   tests/fs_filesystem/fspick.c     |  68 +++
-> > >   tests/fs_filesystem/move_mount.c |  76 +++
-> > >   tests/fs_filesystem/test         | 833 +++++++++++++++++++++++++++++++
-> > >   9 files changed, 1231 insertions(+)
-> > >   create mode 100644 tests/fs_filesystem/.gitignore
-> > >   create mode 100644 tests/fs_filesystem/Makefile
-> > >   create mode 100644 tests/fs_filesystem/fs_common.c
-> > >   create mode 100644 tests/fs_filesystem/fs_common.h
-> > >   create mode 100644 tests/fs_filesystem/fsmount.c
-> > >   create mode 100644 tests/fs_filesystem/fspick.c
-> > >   create mode 100644 tests/fs_filesystem/move_mount.c
-> > >   create mode 100755 tests/fs_filesystem/test
->
-> --
-> paul moore
-> www.paul-moore.com
->
-
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+Aside from the trailing newline and \0 issues, AppArmor also has a 
+whitespace-separated (mode) field that may or may not be present in the 
+contexts it presently returns, ala "/usr/sbin/cupsd (enforce)".  Not 
+sure what they want for the new interfaces.
 
