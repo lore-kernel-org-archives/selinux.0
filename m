@@ -1,231 +1,921 @@
-Return-Path: <SRS0=mP8O=3N=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=1EHI=3P=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68580C35242
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 21:50:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA3C4C2D0DB
+	for <selinux@archiver.kernel.org>; Sun, 26 Jan 2020 10:58:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 37E0420838
-	for <selinux@archiver.kernel.org>; Fri, 24 Jan 2020 21:50:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57C872075D
+	for <selinux@archiver.kernel.org>; Sun, 26 Jan 2020 10:58:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="mRCFPvlk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UbOkN5WY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726545AbgAXVuD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jan 2020 16:50:03 -0500
-Received: from sonic305-28.consmr.mail.ne1.yahoo.com ([66.163.185.154]:37014
-        "EHLO sonic305-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726303AbgAXVuD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jan 2020 16:50:03 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1579902601; bh=OVi1PEOlMpxn61S7uOSyVC5bqA+UfIUzHtxxqfC3oxM=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=mRCFPvlkwz1w0C9cLhwKau+SFxj02oI2UloYpByNmo6lnx2d5IAm6yd9aiqS0n0eknYJItcmTmFwWWSWPxBX+q5PeVC59GQATicJCJAiNiWfjNphISW95A4ZcZwUlvWaMv9U/OR0AOvvLVzxVjGZDzv4gURHHXqrtgHyZ+7sZ1vYk2auzLr42fq3VMEG7ZFk3pBiX+G8mPcI4RTirl9u/Sc+b9LEEl+lRre8ZYi6MoTN1W8uPRUO6dplEs81uNGQS8prP5SoCNSRA2kt9tj8VkYZJW3USMVO95wXmkpDlGSQGtaCMVDkbe8dsX1XGR0i9Ve6sld4HmXyNZUSEm6BPQ==
-X-YMail-OSG: 8hlizQsVM1k9vQT7dtmM20fFWNFJrtndJyyf83MzzgVeWCFtnx7AWKvBTgEHe3M
- p4Fr1E0xEG3Qq8x2FuXc1mQ6lzDlIx.fB.P55q3g80r4WnS4SC_9jjFFRwQ7U4lzP2vsdIInOFac
- UCsI2EH159avM.IF_1r6Ff9jHcm97F7hvsxlN3y2ANWHyKsQwHixtnGLJBH0tfaGlUNX2kcq6ZYG
- TOuXhCnxzQnh82FqYT7W8e_wIklPCXxtFPaCivFJ0Juu.YqXfUCAwwMWDViWR2QFePxTzMd852lO
- 5lqY3lNy8DqYcqp.ezU.V_xviJFozFBVVxE8idFM2XBQ.jr7dsEeabgRWq2BdqYKBdNZfMgXQrd4
- GLx9ZgjfR96vWaIAZH7OIfJKCfiJVjznGxBpanMYVmYuaAQVKSOFqRYDVHO625oeyUQCdw_Cjx7s
- tgFdqQ3dj3Yh8fki.hmnivl5RbOFkhpc4Fjdv3UMNgdk4SVO08TJaY3.0hsB4SwKb52iRs89eJqa
- tDzTLkoBiGVlVmvReNzjppPNKNu0j4x3i.d9xAeEQH_H0u790azock_QwI9q8B0wvj.4yhhWzdLs
- OPnMlf7pGDphbwKz7oOlgdTi71ryBiiiRqvcBV4V9ljaITaL7wpFC.B9PwCypRxTEKF7T.n3bcLE
- W4dePy2m5Kx5SvQ6pcMfyrMW0bx7ZMOWF9gCrk.uZHJVGBFGuvdebIaABKNE4.J_sBSzfj8FLKBx
- _Amt2H5lYEKLZBa8.cboGr1xNagkRvShPbHOAalhVxqqRhNRi2M_5zAEOrep9b_Q14eQPqMhTX6I
- YpnXdCrAhXbNUzoKms3JntLiu9DHUg1M_UxLT2FbbmGnpMBnTjyyeO7Iq7IJlzkVr.0JT5ab4As7
- BrpS.MnB_OBeaK.2nOYLi.6CaeubrtXMy30mPdZj1HPpA0v0lmfj5Y3jSLsSAmcSLDPohvHPJqO2
- xNO8OK2E2bUQwOwcE5CfhQbQtLxLXd5ac4CUQRpCJYa6Kh7wmmlZqkESWEw5lLLupkwgPBX9nJAR
- N8dOUZXOtvRKc4mv.P1tsJI7p3q3ijX7LdOutpOIpM205qMTdWVwSYy1pux.we95.ZlGNOPHW_T4
- VKaHZ1N5T7CMsgPASxDZDnQK3nGb_c0ObAiBbRJ1Z4zY70LnGvgDQtKFaVE1fhxzFeyYr9joKUDp
- UIKeiehkkrH5zuYvGG9vS1VTu3HNiIeejJxU7l9l7EVnmfkOonXR2BCj.vVTyvQP3uY_kV16nEpg
- vt2G_KvXsog26R4uy2CJ0wNjogBjQverSh5UUsgIxspHGW51jRlNxdE1s0LGO5zhjEvihwFQm0nj
- 9a82GkVjr8vPGALxK_ZqoeRcJS_U9Lg5EJOoBpb.jzbQ_0vsjIExjs7_MN_rrm9fu6lsDCY9AsTL
- JXp9jsoqI8u5GF430A4ge4_JfIijVp8wS2NYE3IE-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic305.consmr.mail.ne1.yahoo.com with HTTP; Fri, 24 Jan 2020 21:50:01 +0000
-Received: by smtp422.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID d1abfe75034c326afd9c41cd6d2b08df;
-          Fri, 24 Jan 2020 21:49:56 +0000 (UTC)
-Subject: Re: [PATCH v14 00/23] LSM: Module stacking for AppArmor
-To:     Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
-        jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20200124002306.3552-1-casey.ref@schaufler-ca.com>
- <20200124002306.3552-1-casey@schaufler-ca.com>
- <22585291-b7e0-5a22-6682-168611d902fa@tycho.nsa.gov>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <6b717a13-3586-5854-0eee-617798f92d34@schaufler-ca.com>
-Date:   Fri, 24 Jan 2020 13:49:56 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1728899AbgAZK6C (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 26 Jan 2020 05:58:02 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:47587 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726436AbgAZK6B (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 26 Jan 2020 05:58:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580036279;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=E2n+WFkSqF2PjPFCqmb8PCRwBgwD0ReIG9fqluBv2ik=;
+        b=UbOkN5WYVTJFn9NGBjDXX3thl1aDFvKWBYXy6tuAQikGyzpSexvEwKN0UOo+NhtLZCNbDQ
+        ViShuic0w0TPUcGann4e5t9guGVrYrlYL0cwVBH9AGO8JILjUKsxu5CsomXTMGON+Xk47j
+        m68gxeJ4mMubmwqIphdr66kzNx/n8is=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-25-XNVlpNVLNruL6h2HtJmhLA-1; Sun, 26 Jan 2020 05:57:54 -0500
+X-MC-Unique: XNVlpNVLNruL6h2HtJmhLA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CFAED100550E;
+        Sun, 26 Jan 2020 10:57:53 +0000 (UTC)
+Received: from localhost (ovpn-204-34.brq.redhat.com [10.40.204.34])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 42B805C1BB;
+        Sun, 26 Jan 2020 10:57:52 +0000 (UTC)
+References: <20200121184017.18084-1-sds@tycho.nsa.gov>
+User-agent: mu4e 1.2.0; emacs 26.3
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH v4] libsepol,checkpolicy: remove use of hardcoded security class values
+In-reply-to: <20200121184017.18084-1-sds@tycho.nsa.gov>
+Date:   Sun, 26 Jan 2020 11:57:49 +0100
+Message-ID: <pjdeevmzdqq.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <22585291-b7e0-5a22-6682-168611d902fa@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.15116 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
+Content-Type: text/plain
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/24/2020 1:04 PM, Stephen Smalley wrote:
-> On 1/23/20 7:22 PM, Casey Schaufler wrote:
->> This patchset provides the changes required for
->> the AppArmor security module to stack safely with any other.
->>
->> v14: Rebase to 5.5-rc5
->>       Incorporate feedback from v13
->>       - Use an array of audit rules (patch 0002)
->>       - Significant change, removed Acks (patch 0002)
->>       - Remove unneeded include (patch 0013)
->>       - Use context.len correctly (patch 0015)
->>       - Reorder code to be more sensible (patch 0016)
->>       - Drop SO_PEERCONTEXT as it's not needed yet (patch 0023)
->
-> I don't know for sure if this is your bug, but it happens every time I boot with your patches applied and not at all on stock v5.5-rc5 so here it is.  Will try to bisect as time permits but not until next week. Trigger seems to be loading the tun driver.
 
-Thanks. I will have a look as well.
+Stephen Smalley <sds@tycho.nsa.gov> writes:
 
+> libsepol carried its own (outdated) copy of flask.h with the generated
+> security class and initial SID values for use by the policy
+> compiler and the forked copy of the security server code
+> leveraged by tools such as audit2why.  Convert libsepol and
+> checkpolicy entirely to looking up class values from the policy,
+> remove the SECCLASS_* definitions from its flask.h header, and move
+> the header with its remaining initial SID definitions private to
+> libsepol.  While we are here, fix the sepol_compute_sid() logic to
+> properly support features long since added to the policy and kernel,
+> although there are no users of it other than checkpolicy -d (debug)
+> and it is not exported to users of the shared library.  There
+> are still some residual differences between the kernel logic and
+> libsepol.
 >
-> [   67.726834] tun: Universal TUN/TAP device driver, 1.6
-> [   67.736657] ==================================================================
-> [   67.741335] BUG: KASAN: slab-out-of-bounds in sock_init_data+0x14a/0x5a0
-> [   67.745037] Read of size 4 at addr ffff88870afe8928 by task libvirtd/1238
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+
+The only problem I found running tests on this is related to SETools
+https://github.com/SELinuxProject/selinux/pull/200#issuecomment-577745225
+
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+> ---
+> v4 adds some handling to avoid bad behavior if no process class is defined
+> in policy.
 >
-> [   67.751861] CPU: 4 PID: 1238 Comm: libvirtd Tainted: G T 5.5.0-rc5+ #54
-> [   67.756250] Call Trace:
-> [   67.759510]  dump_stack+0xb8/0x110
-> [   67.761604]  print_address_description.constprop.0+0x1f/0x280
-> [   67.763768]  __kasan_report.cold+0x75/0x8f
-> [   67.765895]  ? sock_init_data+0x14a/0x5a0
-> [   67.768282]  kasan_report+0xe/0x20
-> [   67.770397]  sock_init_data+0x14a/0x5a0
-> [   67.772511]  tun_chr_open+0x1de/0x280 [tun]
-> [   67.774644]  misc_open+0x1cb/0x210
-> [   67.776820]  chrdev_open+0x15b/0x350
-> [   67.778917]  ? cdev_put.part.0+0x30/0x30
-> [   67.781030]  do_dentry_open+0x2cb/0x800
-> [   67.783135]  ? cdev_put.part.0+0x30/0x30
-> [   67.785225]  ? devcgroup_check_permission+0x11a/0x260
-> [   67.787321]  ? __x64_sys_fchdir+0xf0/0xf0
-> [   67.789418]  ? security_inode_permission+0x5b/0x70
-> [   67.791513]  path_openat+0x858/0x14a0
-> [   67.793589]  ? path_mountpoint+0x5e0/0x5e0
-> [   67.795719]  ? mark_lock+0xb8/0xb00
-> [   67.797786]  do_filp_open+0x11e/0x1b0
-> [   67.799840]  ? may_open_dev+0x60/0x60
-> [   67.801871]  ? match_held_lock+0x1b/0x240
-> [   67.803968]  ? lock_downgrade+0x360/0x360
-> [   67.805997]  ? do_raw_spin_lock+0x119/0x1d0
-> [   67.808041]  ? rwlock_bug.part.0+0x60/0x60
-> [   67.810099]  ? do_raw_spin_unlock+0xa3/0x130
-> [   67.812244]  ? _raw_spin_unlock+0x1f/0x30
-> [   67.814287]  ? __alloc_fd+0x143/0x2f0
-> [   67.816324]  do_sys_open+0x1f0/0x2d0
-> [   67.818358]  ? filp_open+0x50/0x50
-> [   67.820404]  ? trace_hardirqs_on_thunk+0x1a/0x1c
-> [   67.822447]  ? lockdep_hardirqs_off+0xbe/0x100
-> [   67.824473]  ? mark_held_locks+0x24/0x90
-> [   67.826484]  do_syscall_64+0x74/0xd0
-> [   67.828480]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> [   67.830478] RIP: 0033:0x7f1a2cce6074
-> [   67.832495] Code: 24 20 eb 8f 66 90 44 89 54 24 0c e8 86 f4 ff ff 44 8b 54 24 0c 44 89 e2 48 89 ee 41 89 c0 bf 9c ff ff ff b8 01 01 00 00 0f 05 <48> 3d 00 f0 ff ff 77 32 44 89 c7 89 44 24 0c e8 b8 f4 ff ff 8b 44
-> [   67.834760] RSP: 002b:00007f19e4af46d0 EFLAGS: 00000293 ORIG_RAX: 0000000000000101
-> [   67.837032] RAX: ffffffffffffffda RBX: 0000000000000000 RCX: 00007f1a2cce6074
-> [   67.839318] RDX: 0000000000000002 RSI: 00007f1a2d0bfb67 RDI: 00000000ffffff9c
-> [   67.841598] RBP: 00007f1a2d0bfb67 R08: 0000000000000000 R09: 00007f19e4af4914
-> [   67.843941] R10: 0000000000000000 R11: 0000000000000293 R12: 0000000000000002
-> [   67.846283] R13: 000000000000000d R14: 00007f19e4af4920 R15: 00007f1a2d0bfb67
+>  checkpolicy/checkmodule.c                     |  1 -
+>  checkpolicy/checkpolicy.c                     |  1 -
+>  checkpolicy/policy_define.c                   | 26 +++--
+>  checkpolicy/policy_parse.y                    |  1 -
+>  checkpolicy/test/dismod.c                     |  1 -
+>  libsepol/cil/src/cil_binary.c                 |  1 -
+>  libsepol/include/sepol/policydb/flask.h       | 94 -------------------
+>  libsepol/include/sepol/policydb/flask_types.h |  8 +-
+>  libsepol/include/sepol/policydb/policydb.h    |  5 +
+>  libsepol/src/av_permissions.h                 |  3 -
+>  libsepol/src/flask.h                          | 38 ++++++++
+>  libsepol/src/kernel_to_cil.c                  |  1 -
+>  libsepol/src/kernel_to_conf.c                 |  1 -
+>  libsepol/src/mls.c                            |  3 +-
+>  libsepol/src/policydb.c                       | 80 +++++++++++++++-
+>  libsepol/src/services.c                       | 88 +++++++++--------
+>  libsepol/src/sidtab.c                         |  2 +-
+>  libsepol/src/write.c                          | 28 ++++--
+>  18 files changed, 210 insertions(+), 172 deletions(-)
+>  delete mode 100644 libsepol/include/sepol/policydb/flask.h
+>  delete mode 100644 libsepol/src/av_permissions.h
+>  create mode 100644 libsepol/src/flask.h
 >
-> [   67.850936] Allocated by task 1238:
-> [   67.853241]  save_stack+0x1b/0x80
-> [   67.855533]  __kasan_kmalloc.constprop.0+0xc2/0xd0
-> [   67.857935]  sk_prot_alloc+0x115/0x170
-> [   67.860235]  sk_alloc+0x2f/0xa10
-> [   67.862541]  tun_chr_open+0x4d/0x280 [tun]
-> [   67.864894]  misc_open+0x1cb/0x210
-> [   67.867164]  chrdev_open+0x15b/0x350
-> [   67.869448]  do_dentry_open+0x2cb/0x800
-> [   67.871768]  path_openat+0x858/0x14a0
-> [   67.874041]  do_filp_open+0x11e/0x1b0
-> [   67.876328]  do_sys_open+0x1f0/0x2d0
-> [   67.878592]  do_syscall_64+0x74/0xd0
-> [   67.880899]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
->
-> [   67.885431] Freed by task 726:
-> [   67.887689]  save_stack+0x1b/0x80
-> [   67.889967]  __kasan_slab_free+0x12c/0x170
-> [   67.892197]  kfree+0xff/0x430
-> [   67.894444]  uevent_show+0x176/0x1b0
-> [   67.896709]  dev_attr_show+0x37/0x70
-> [   67.898940]  sysfs_kf_seq_show+0x119/0x210
-> [   67.901159]  seq_read+0x29d/0x720
-> [   67.903367]  vfs_read+0xf9/0x1f0
-> [   67.905538]  ksys_read+0xc9/0x160
-> [   67.907736]  do_syscall_64+0x74/0xd0
-> [   67.909889]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
->
-> [   67.914100] The buggy address belongs to the object at ffff88870afe8000
->                 which belongs to the cache kmalloc-4k of size 4096
-> [   67.918357] The buggy address is located 2344 bytes inside of
->                 4096-byte region [ffff88870afe8000, ffff88870afe9000)
-> [   67.922562] The buggy address belongs to the page:
-> [   67.924725] page:ffffea001c2bfa00 refcount:1 mapcount:0 mapping:ffff88881f00de00 index:0x0 compound_mapcount: 0
-> [   67.926926] raw: 0017ffe000010200 ffffea001c167a00 0000000200000002 ffff88881f00de00
-> [   67.929144] raw: 0000000000000000 0000000080040004 00000001ffffffff 0000000000000000
-> [   67.931362] page dumped because: kasan: bad access detected
->
-> [   67.936192] Memory state around the buggy address:
-> [   67.938438]  ffff88870afe8800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> [   67.941078]  ffff88870afe8880: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-> [   67.943393] >ffff88870afe8900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-> [   67.945709]                                   ^
-> [   67.948000]  ffff88870afe8980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-> [   67.950311]  ffff88870afe8a00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-> [   67.952629] ==================================================================
+> diff --git a/checkpolicy/checkmodule.c b/checkpolicy/checkmodule.c
+> index c9efaf8b442b..ba7a911b14df 100644
+> --- a/checkpolicy/checkmodule.c
+> +++ b/checkpolicy/checkmodule.c
+> @@ -25,7 +25,6 @@
+>  #include <sepol/policydb/policydb.h>
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/conditional.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/hierarchy.h>
+>  #include <sepol/policydb/expand.h>
+>  #include <sepol/policydb/link.h>
+> diff --git a/checkpolicy/checkpolicy.c b/checkpolicy/checkpolicy.c
+> index 7c5b63f82212..ed1516a6aa6a 100644
+> --- a/checkpolicy/checkpolicy.c
+> +++ b/checkpolicy/checkpolicy.c
+> @@ -85,7 +85,6 @@
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/hierarchy.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/expand.h>
+>  #include <sepol/policydb/link.h>
+>  
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index e295bc523258..c6733fa469c5 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -53,7 +53,6 @@
+>  #include <sepol/policydb/policydb.h>
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/conditional.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/hierarchy.h>
+>  #include <sepol/policydb/polcaps.h>
+>  #include "queue.h"
+> @@ -5509,7 +5508,9 @@ int define_genfs_context_helper(char *fstype, int has_type)
+>  {
+>  	struct genfs *genfs_p, *genfs, *newgenfs;
+>  	ocontext_t *newc, *c, *head, *p;
+> +	class_datum_t *cladatum;
+>  	char *type = NULL;
+> +	const char *sclass;
+>  	int len, len2;
+>  
+>  	if (policydbp->target_platform != SEPOL_TARGET_SELINUX) {
+> @@ -5571,30 +5572,39 @@ int define_genfs_context_helper(char *fstype, int has_type)
+>  		}
+>  		switch (type[0]) {
+>  		case 'b':
+> -			newc->v.sclass = SECCLASS_BLK_FILE;
+> +			sclass = "blk_file";
+>  			break;
+>  		case 'c':
+> -			newc->v.sclass = SECCLASS_CHR_FILE;
+> +			sclass = "chr_file";
+>  			break;
+>  		case 'd':
+> -			newc->v.sclass = SECCLASS_DIR;
+> +			sclass = "dir";
+>  			break;
+>  		case 'p':
+> -			newc->v.sclass = SECCLASS_FIFO_FILE;
+> +			sclass = "fifo_file";
+>  			break;
+>  		case 'l':
+> -			newc->v.sclass = SECCLASS_LNK_FILE;
+> +			sclass = "lnk_file";
+>  			break;
+>  		case 's':
+> -			newc->v.sclass = SECCLASS_SOCK_FILE;
+> +			sclass = "sock_file";
+>  			break;
+>  		case '-':
+> -			newc->v.sclass = SECCLASS_FILE;
+> +			sclass = "file";
+>  			break;
+>  		default:
+>  			yyerror2("invalid type %s", type);
+>  			goto fail;
+>  		}
+> +
+> +		cladatum = hashtab_search(policydbp->p_classes.table,
+> +					  sclass);
+> +		if (!cladatum) {
+> +			yyerror2("could not find class %s for "
+> +				 "genfscon statement", sclass);
+> +			goto fail;
+> +		}
+> +		newc->v.sclass = cladatum->s.value;
+>  	}
+>  	if (parse_security_context(&newc->context[0]))
+>  		goto fail;
+> diff --git a/checkpolicy/policy_parse.y b/checkpolicy/policy_parse.y
+> index abb7d88557e4..6098eb504d0c 100644
+> --- a/checkpolicy/policy_parse.y
+> +++ b/checkpolicy/policy_parse.y
+> @@ -46,7 +46,6 @@
+>  #include <sepol/policydb/policydb.h>
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/conditional.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/hierarchy.h>
+>  #include <sepol/policydb/polcaps.h>
+>  #include "queue.h"
+> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
+> index 996cf33fff0e..8d6be2ff9522 100644
+> --- a/checkpolicy/test/dismod.c
+> +++ b/checkpolicy/test/dismod.c
+> @@ -30,7 +30,6 @@
+>  #include <sepol/policydb/policydb.h>
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/conditional.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/link.h>
+>  #include <sepol/policydb/module.h>
+>  #include <sepol/policydb/util.h>
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+> index 4cf6f481fe76..f8e20d32f9f1 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -42,7 +42,6 @@
+>  #include <sepol/policydb/polcaps.h>
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/constraint.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/expand.h>
+>  #include <sepol/policydb/hierarchy.h>
+>  
+> diff --git a/libsepol/include/sepol/policydb/flask.h b/libsepol/include/sepol/policydb/flask.h
+> deleted file mode 100644
+> index 3134284b579f..000000000000
+> --- a/libsepol/include/sepol/policydb/flask.h
+> +++ /dev/null
+> @@ -1,94 +0,0 @@
+> -/* This file is automatically generated.  Do not edit. */
+> -#ifndef _SEPOL_POLICYDB_FLASK_H_
+> -#define _SEPOL_POLICYDB_FLASK_H_
+> -
+> -/*
+> - * Security object class definitions
+> - */
+> -#define SECCLASS_SECURITY                                1
+> -#define SECCLASS_PROCESS                                 2
+> -#define SECCLASS_SYSTEM                                  3
+> -#define SECCLASS_CAPABILITY                              4
+> -#define SECCLASS_FILESYSTEM                              5
+> -#define SECCLASS_FILE                                    6
+> -#define SECCLASS_DIR                                     7
+> -#define SECCLASS_FD                                      8
+> -#define SECCLASS_LNK_FILE                                9
+> -#define SECCLASS_CHR_FILE                                10
+> -#define SECCLASS_BLK_FILE                                11
+> -#define SECCLASS_SOCK_FILE                               12
+> -#define SECCLASS_FIFO_FILE                               13
+> -#define SECCLASS_SOCKET                                  14
+> -#define SECCLASS_TCP_SOCKET                              15
+> -#define SECCLASS_UDP_SOCKET                              16
+> -#define SECCLASS_RAWIP_SOCKET                            17
+> -#define SECCLASS_NODE                                    18
+> -#define SECCLASS_NETIF                                   19
+> -#define SECCLASS_NETLINK_SOCKET                          20
+> -#define SECCLASS_PACKET_SOCKET                           21
+> -#define SECCLASS_KEY_SOCKET                              22
+> -#define SECCLASS_UNIX_STREAM_SOCKET                      23
+> -#define SECCLASS_UNIX_DGRAM_SOCKET                       24
+> -#define SECCLASS_SEM                                     25
+> -#define SECCLASS_MSG                                     26
+> -#define SECCLASS_MSGQ                                    27
+> -#define SECCLASS_SHM                                     28
+> -#define SECCLASS_IPC                                     29
+> -#define SECCLASS_PASSWD                                  30
+> -#define SECCLASS_DRAWABLE                                31
+> -#define SECCLASS_WINDOW                                  32
+> -#define SECCLASS_GC                                      33
+> -#define SECCLASS_FONT                                    34
+> -#define SECCLASS_COLORMAP                                35
+> -#define SECCLASS_PROPERTY                                36
+> -#define SECCLASS_CURSOR                                  37
+> -#define SECCLASS_XCLIENT                                 38
+> -#define SECCLASS_XINPUT                                  39
+> -#define SECCLASS_XSERVER                                 40
+> -#define SECCLASS_XEXTENSION                              41
+> -#define SECCLASS_PAX                                     42
+> -#define SECCLASS_NETLINK_ROUTE_SOCKET                    43
+> -#define SECCLASS_NETLINK_FIREWALL_SOCKET                 44
+> -#define SECCLASS_NETLINK_TCPDIAG_SOCKET                  45
+> -#define SECCLASS_NETLINK_NFLOG_SOCKET                    46
+> -#define SECCLASS_NETLINK_XFRM_SOCKET                     47
+> -#define SECCLASS_NETLINK_SELINUX_SOCKET                  48
+> -#define SECCLASS_NETLINK_AUDIT_SOCKET                    49
+> -#define SECCLASS_NETLINK_IP6FW_SOCKET                    50
+> -#define SECCLASS_NETLINK_DNRT_SOCKET                     51
+> -#define SECCLASS_DBUS                                    52
+> -
+> -/*
+> - * Security identifier indices for initial entities
+> - */
+> -#define SECINITSID_KERNEL                               1
+> -#define SECINITSID_SECURITY                             2
+> -#define SECINITSID_UNLABELED                            3
+> -#define SECINITSID_FS                                   4
+> -#define SECINITSID_FILE                                 5
+> -#define SECINITSID_FILE_LABELS                          6
+> -#define SECINITSID_INIT                                 7
+> -#define SECINITSID_ANY_SOCKET                           8
+> -#define SECINITSID_PORT                                 9
+> -#define SECINITSID_NETIF                                10
+> -#define SECINITSID_NETMSG                               11
+> -#define SECINITSID_NODE                                 12
+> -#define SECINITSID_IGMP_PACKET                          13
+> -#define SECINITSID_ICMP_SOCKET                          14
+> -#define SECINITSID_TCP_SOCKET                           15
+> -#define SECINITSID_SYSCTL_MODPROBE                      16
+> -#define SECINITSID_SYSCTL                               17
+> -#define SECINITSID_SYSCTL_FS                            18
+> -#define SECINITSID_SYSCTL_KERNEL                        19
+> -#define SECINITSID_SYSCTL_NET                           20
+> -#define SECINITSID_SYSCTL_NET_UNIX                      21
+> -#define SECINITSID_SYSCTL_VM                            22
+> -#define SECINITSID_SYSCTL_DEV                           23
+> -#define SECINITSID_KMOD                                 24
+> -#define SECINITSID_POLICY                               25
+> -#define SECINITSID_SCMP_PACKET                          26
+> -#define SECINITSID_DEVNULL                              27
+> -
+> -#define SECINITSID_NUM                                  27
+> -
+> -#endif
+> diff --git a/libsepol/include/sepol/policydb/flask_types.h b/libsepol/include/sepol/policydb/flask_types.h
+> index 714176fd2a44..7bec5129fe1d 100644
+> --- a/libsepol/include/sepol/policydb/flask_types.h
+> +++ b/libsepol/include/sepol/policydb/flask_types.h
+> @@ -33,17 +33,13 @@ typedef char *sepol_security_context_t;
+>   * for a pair of SIDs.  The bits within an access vector
+>   * are interpreted differently depending on the class of
+>   * the object.  The access vector interpretations are specified
+> - * in flask/access_vectors, and the corresponding constants
+> - * for permissions are defined in the automatically generated
+> - * header file av_permissions.h.
+> + * in policy.
+>   */
+>  typedef uint32_t sepol_access_vector_t;
+>  
+>  /*
+>   * Each object class is identified by a fixed-size value.
+> - * The set of security classes is specified in flask/security_classes, 
+> - * with the corresponding constants defined in the automatically 
+> - * generated header file flask.h.
+> + * The set of security classes is specified in policy.
+>   */
+>  typedef uint16_t sepol_security_class_t;
+>  #define SEPOL_SECCLASS_NULL			0x0000	/* no class */
+> diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+> index b0d2fdfc43f8..81b63fefbb20 100644
+> --- a/libsepol/include/sepol/policydb/policydb.h
+> +++ b/libsepol/include/sepol/policydb/policydb.h
+> @@ -605,6 +605,11 @@ typedef struct policydb {
+>  	unsigned policyvers;
+>  
+>  	unsigned handle_unknown;
+> +
+> +	sepol_security_class_t process_class;
+> +	sepol_security_class_t dir_class;
+> +	sepol_access_vector_t process_trans;
+> +	sepol_access_vector_t process_trans_dyntrans;
+>  } policydb_t;
+>  
+>  struct sepol_policydb {
+> diff --git a/libsepol/src/av_permissions.h b/libsepol/src/av_permissions.h
+> deleted file mode 100644
+> index 97278ed91f63..000000000000
+> --- a/libsepol/src/av_permissions.h
+> +++ /dev/null
+> @@ -1,3 +0,0 @@
+> -/* Used by security_compute_av. */
+> -#define PROCESS__TRANSITION                       0x00000002UL
+> -#define PROCESS__DYNTRANSITION                    0x00800000UL
+> diff --git a/libsepol/src/flask.h b/libsepol/src/flask.h
+> new file mode 100644
+> index 000000000000..b4130bbcf544
+> --- /dev/null
+> +++ b/libsepol/src/flask.h
+> @@ -0,0 +1,38 @@
+> +/* This file is automatically generated.  Do not edit. */
+> +#ifndef _SEPOL_POLICYDB_FLASK_H_
+> +#define _SEPOL_POLICYDB_FLASK_H_
+> +
+> +/*
+> + * Security identifier indices for initial entities
+> + */
+> +#define SECINITSID_KERNEL                               1
+> +#define SECINITSID_SECURITY                             2
+> +#define SECINITSID_UNLABELED                            3
+> +#define SECINITSID_FS                                   4
+> +#define SECINITSID_FILE                                 5
+> +#define SECINITSID_FILE_LABELS                          6
+> +#define SECINITSID_INIT                                 7
+> +#define SECINITSID_ANY_SOCKET                           8
+> +#define SECINITSID_PORT                                 9
+> +#define SECINITSID_NETIF                                10
+> +#define SECINITSID_NETMSG                               11
+> +#define SECINITSID_NODE                                 12
+> +#define SECINITSID_IGMP_PACKET                          13
+> +#define SECINITSID_ICMP_SOCKET                          14
+> +#define SECINITSID_TCP_SOCKET                           15
+> +#define SECINITSID_SYSCTL_MODPROBE                      16
+> +#define SECINITSID_SYSCTL                               17
+> +#define SECINITSID_SYSCTL_FS                            18
+> +#define SECINITSID_SYSCTL_KERNEL                        19
+> +#define SECINITSID_SYSCTL_NET                           20
+> +#define SECINITSID_SYSCTL_NET_UNIX                      21
+> +#define SECINITSID_SYSCTL_VM                            22
+> +#define SECINITSID_SYSCTL_DEV                           23
+> +#define SECINITSID_KMOD                                 24
+> +#define SECINITSID_POLICY                               25
+> +#define SECINITSID_SCMP_PACKET                          26
+> +#define SECINITSID_DEVNULL                              27
+> +
+> +#define SECINITSID_NUM                                  27
+> +
+> +#endif
+> diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+> index ca2e4a9b265b..108767573e28 100644
+> --- a/libsepol/src/kernel_to_cil.c
+> +++ b/libsepol/src/kernel_to_cil.c
+> @@ -18,7 +18,6 @@
+>  
+>  #include <sepol/policydb/avtab.h>
+>  #include <sepol/policydb/conditional.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/hashtab.h>
+>  #include <sepol/policydb/polcaps.h>
+>  #include <sepol/policydb/policydb.h>
+> diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+> index b49661625e03..1c7b7d226e9e 100644
+> --- a/libsepol/src/kernel_to_conf.c
+> +++ b/libsepol/src/kernel_to_conf.c
+> @@ -17,7 +17,6 @@
+>  
+>  #include <sepol/policydb/avtab.h>
+>  #include <sepol/policydb/conditional.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/hashtab.h>
+>  #include <sepol/policydb/polcaps.h>
+>  #include <sepol/policydb/policydb.h>
+> diff --git a/libsepol/src/mls.c b/libsepol/src/mls.c
+> index 6ff9a8468879..1ee90cf8dee1 100644
+> --- a/libsepol/src/mls.c
+> +++ b/libsepol/src/mls.c
+> @@ -29,7 +29,6 @@
+>  
+>  #include <sepol/policydb/policydb.h>
+>  #include <sepol/policydb/services.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/context.h>
+>  
+>  #include <stdlib.h>
+> @@ -649,7 +648,7 @@ int mls_compute_sid(policydb_t * policydb,
+>  
+>  		/* Fallthrough */
+>  	case AVTAB_CHANGE:
+> -		if (tclass == SECCLASS_PROCESS)
+> +		if (tclass == policydb->process_class)
+>  			/* Use the process MLS attributes. */
+>  			return mls_copy_context(newcontext, scontext);
+>  		else
+> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> index 67037b6d7760..745e546baa3a 100644
+> --- a/libsepol/src/policydb.c
+> +++ b/libsepol/src/policydb.c
+> @@ -49,7 +49,6 @@
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/avrule_block.h>
+>  #include <sepol/policydb/util.h>
+> -#include <sepol/policydb/flask.h>
+>  
+>  #include "kernel_to_common.h"
+>  #include "private.h"
+> @@ -2562,7 +2561,7 @@ int role_trans_read(policydb_t *p, struct policy_file *fp)
+>  				return -1;
+>  			tr->tclass = le32_to_cpu(buf[0]);
+>  		} else
+> -			tr->tclass = SECCLASS_PROCESS;
+> +			tr->tclass = p->process_class;
+>  		ltr = tr;
+>  	}
+>  	return 0;
+> @@ -3457,7 +3456,7 @@ static int range_read(policydb_t * p, struct policy_file *fp)
+>  				goto err;
+>  			rt->target_class = le32_to_cpu(buf[0]);
+>  		} else
+> -			rt->target_class = SECCLASS_PROCESS;
+> +			rt->target_class = p->process_class;
+>  		r = calloc(1, sizeof(*r));
+>  		if (!r)
+>  			goto err;
+> @@ -3586,7 +3585,9 @@ static int role_trans_rule_read(policydb_t *p, role_trans_rule_t ** r,
+>  			if (ebitmap_read(&tr->classes, fp))
+>  				return -1;
+>  		} else {
+> -			if (ebitmap_set_bit(&tr->classes, SECCLASS_PROCESS - 1, 1))
+> +			if (!p->process_class)
+> +				return -1;
+> +			if (ebitmap_set_bit(&tr->classes, p->process_class - 1, 1))
+>  				return -1;
+>  		}
+>  
+> @@ -3963,6 +3964,51 @@ static int scope_read(policydb_t * p, int symnum, struct policy_file *fp)
+>  	return -1;
+>  }
+>  
+> +static sepol_security_class_t policydb_string_to_security_class(
+> +	struct policydb *policydb,
+> +	const char *class_name)
+> +{
+> +	class_datum_t *tclass_datum;
+> +
+> +	tclass_datum = hashtab_search(policydb->p_classes.table,
+> +				      (hashtab_key_t) class_name);
+> +	if (!tclass_datum)
+> +		return 0;
+> +	return tclass_datum->s.value;
+> +}
+> +
+> +static sepol_access_vector_t policydb_string_to_av_perm(
+> +	struct policydb *policydb,
+> +	sepol_security_class_t tclass,
+> +	const char *perm_name)
+> +{
+> +	class_datum_t *tclass_datum;
+> +	perm_datum_t *perm_datum;
+> +
+> +	if (!tclass || tclass > policydb->p_classes.nprim)
+> +		return 0;
+> +	tclass_datum = policydb->class_val_to_struct[tclass - 1];
+> +
+> +	perm_datum = (perm_datum_t *)
+> +			hashtab_search(tclass_datum->permissions.table,
+> +			(hashtab_key_t)perm_name);
+> +	if (perm_datum != NULL)
+> +		return 0x1U << (perm_datum->s.value - 1);
+> +
+> +	if (tclass_datum->comdatum == NULL)
+> +		return 0;
+> +
+> +	perm_datum = (perm_datum_t *)
+> +			hashtab_search(tclass_datum->comdatum->permissions.table,
+> +			(hashtab_key_t)perm_name);
+> +
+> +	if (perm_datum != NULL)
+> +		return 0x1U << (perm_datum->s.value - 1);
+> +
+> +	return 0;
+> +}
+> +
+> +
+>  /*
+>   * Read the configuration data from a policy database binary
+>   * representation file into a policy database structure.
+> @@ -4190,6 +4236,18 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+>  		p->symtab[i].nprim = nprim;
+>  	}
+>  
+> +	switch (p->target_platform) {
+> +	case SEPOL_TARGET_SELINUX:
+> +		p->process_class = policydb_string_to_security_class(p, "process");
+> +		p->dir_class = policydb_string_to_security_class(p, "dir");
+> +		break;
+> +	case SEPOL_TARGET_XEN:
+> +		p->process_class = policydb_string_to_security_class(p, "domain");
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+>  	if (policy_type == POLICY_KERN) {
+>  		if (avtab_read(&p->te_avtab, fp, r_policyvers))
+>  			goto bad;
+> @@ -4233,6 +4291,20 @@ int policydb_read(policydb_t * p, struct policy_file *fp, unsigned verbose)
+>  	if (policydb_index_classes(p))
+>  		goto bad;
+>  
+> +	switch (p->target_platform) {
+> +	case SEPOL_TARGET_SELINUX:
+> +		/* fall through */
+> +	case SEPOL_TARGET_XEN:
+> +		p->process_trans = policydb_string_to_av_perm(p, p->process_class,
+> +							      "transition");
+> +		p->process_trans_dyntrans = p->process_trans |
+> +			policydb_string_to_av_perm(p, p->process_class,
+> +						   "dyntransition");
+> +		break;
+> +	default:
+> +		break;
+> +	}
+> +
+>  	if (policydb_index_others(fp->handle, p, verbose))
+>  		goto bad;
+>  
+> diff --git a/libsepol/src/services.c b/libsepol/src/services.c
+> index 3758436f8e34..43cb29d6d39c 100644
+> --- a/libsepol/src/services.c
+> +++ b/libsepol/src/services.c
+> @@ -1,4 +1,3 @@
+> -
+>  /*
+>   * Author : Stephen Smalley, <sds@tycho.nsa.gov>
+>   */
+> @@ -59,15 +58,14 @@
+>  #include <sepol/policydb/sidtab.h>
+>  #include <sepol/policydb/services.h>
+>  #include <sepol/policydb/conditional.h>
+> -#include <sepol/policydb/flask.h>
+>  #include <sepol/policydb/util.h>
+>  
+>  #include "debug.h"
+>  #include "private.h"
+>  #include "context.h"
+> -#include "av_permissions.h"
+>  #include "dso.h"
+>  #include "mls.h"
+> +#include "flask.h"
+>  
+>  #define BUG() do { ERR(NULL, "Badness at %s:%d", __FILE__, __LINE__); } while (0)
+>  #define BUG_ON(x) do { if (x) ERR(NULL, "Badness at %s:%d", __FILE__, __LINE__); } while (0)
+> @@ -989,8 +987,8 @@ static int context_struct_compute_av(context_struct_t * scontext,
+>  	 * role is changing, then check the (current_role, new_role) 
+>  	 * pair.
+>  	 */
+> -	if (tclass == SECCLASS_PROCESS &&
+> -	    (avd->allowed & (PROCESS__TRANSITION | PROCESS__DYNTRANSITION)) &&
+> +	if (tclass == policydb->process_class &&
+> +	    (avd->allowed & policydb->process_trans_dyntrans) &&
+>  	    scontext->role != tcontext->role) {
+>  		for (ra = policydb->role_allow; ra; ra = ra->next) {
+>  			if (scontext->role == ra->role &&
+> @@ -998,8 +996,7 @@ static int context_struct_compute_av(context_struct_t * scontext,
+>  				break;
+>  		}
+>  		if (!ra)
+> -			avd->allowed = (avd->allowed) & ~(PROCESS__TRANSITION |
+> -							  PROCESS__DYNTRANSITION);
+> +			avd->allowed &= ~policydb->process_trans_dyntrans;
+>  	}
+>  
+>  	if (requested & ~avd->allowed) {
+> @@ -1361,6 +1358,7 @@ static int sepol_compute_sid(sepol_security_id_t ssid,
+>  			     sepol_security_class_t tclass,
+>  			     uint32_t specified, sepol_security_id_t * out_sid)
+>  {
+> +	struct class_datum *cladatum = NULL;
+>  	context_struct_t *scontext = 0, *tcontext = 0, newcontext;
+>  	struct role_trans *roletr = 0;
+>  	avtab_key_t avkey;
+> @@ -1381,14 +1379,22 @@ static int sepol_compute_sid(sepol_security_id_t ssid,
+>  		goto out;
+>  	}
+>  
+> +	if (tclass && tclass <= policydb->p_classes.nprim)
+> +		cladatum = policydb->class_val_to_struct[tclass - 1];
+> +
+>  	context_init(&newcontext);
+>  
+>  	/* Set the user identity. */
+>  	switch (specified) {
+>  	case AVTAB_TRANSITION:
+>  	case AVTAB_CHANGE:
+> -		/* Use the process user identity. */
+> -		newcontext.user = scontext->user;
+> +		if (cladatum && cladatum->default_user == DEFAULT_TARGET) {
+> +			newcontext.user = tcontext->user;
+> +		} else {
+> +			/* notice this gets both DEFAULT_SOURCE and unset */
+> +			/* Use the process user identity. */
+> +			newcontext.user = scontext->user;
+> +		}
+>  		break;
+>  	case AVTAB_MEMBER:
+>  		/* Use the related object owner. */
+> @@ -1396,18 +1402,31 @@ static int sepol_compute_sid(sepol_security_id_t ssid,
+>  		break;
+>  	}
+>  
+> -	/* Set the role and type to default values. */
+> -	switch (tclass) {
+> -	case SECCLASS_PROCESS:
+> -		/* Use the current role and type of process. */
+> +	/* Set the role to default values. */
+> +	if (cladatum && cladatum->default_role == DEFAULT_SOURCE) {
+>  		newcontext.role = scontext->role;
+> +	} else if (cladatum && cladatum->default_role == DEFAULT_TARGET) {
+> +		newcontext.role = tcontext->role;
+> +	} else {
+> +		if (tclass == policydb->process_class)
+> +			newcontext.role = scontext->role;
+> +		else
+> +			newcontext.role = OBJECT_R_VAL;
+> +	}
+> +
+> +	/* Set the type to default values. */
+> +	if (cladatum && cladatum->default_type == DEFAULT_SOURCE) {
+>  		newcontext.type = scontext->type;
+> -		break;
+> -	default:
+> -		/* Use the well-defined object role. */
+> -		newcontext.role = OBJECT_R_VAL;
+> -		/* Use the type of the related object. */
+> +	} else if (cladatum && cladatum->default_type == DEFAULT_TARGET) {
+>  		newcontext.type = tcontext->type;
+> +	} else {
+> +		if (tclass == policydb->process_class) {
+> +			/* Use the type of process. */
+> +			newcontext.type = scontext->type;
+> +		} else {
+> +			/* Use the type of the related object. */
+> +			newcontext.type = tcontext->type;
+> +		}
+>  	}
+>  
+>  	/* Look for a type transition/member/change rule. */
+> @@ -1435,23 +1454,18 @@ static int sepol_compute_sid(sepol_security_id_t ssid,
+>  	}
+>  
+>  	/* Check for class-specific changes. */
+> -	switch (tclass) {
+> -	case SECCLASS_PROCESS:
+> -		if (specified & AVTAB_TRANSITION) {
+> -			/* Look for a role transition rule. */
+> -			for (roletr = policydb->role_tr; roletr;
+> -			     roletr = roletr->next) {
+> -				if (roletr->role == scontext->role &&
+> -				    roletr->type == tcontext->type) {
+> -					/* Use the role transition rule. */
+> -					newcontext.role = roletr->new_role;
+> -					break;
+> -				}
+> +	if (specified & AVTAB_TRANSITION) {
+> +		/* Look for a role transition rule. */
+> +		for (roletr = policydb->role_tr; roletr;
+> +		     roletr = roletr->next) {
+> +			if (roletr->role == scontext->role &&
+> +			    roletr->type == tcontext->type &&
+> +			    roletr->tclass == tclass) {
+> +				/* Use the role transition rule. */
+> +				newcontext.role = roletr->new_role;
+> +				break;
+>  			}
+>  		}
+> -		break;
+> -	default:
+> -		break;
+>  	}
+>  
+>  	/* Set the MLS attributes.
+> @@ -2203,10 +2217,10 @@ int hidden sepol_get_user_sids(sepol_security_id_t fromsid,
+>  				continue;
+>  
+>  			rc = context_struct_compute_av(fromcon, &usercon,
+> -						       SECCLASS_PROCESS,
+> -						       PROCESS__TRANSITION,
+> +						       policydb->process_class,
+> +						       policydb->process_trans,
+>  						       &avd, &reason, NULL, 0);
+> -			if (rc || !(avd.allowed & PROCESS__TRANSITION))
+> +			if (rc || !(avd.allowed & policydb->process_trans))
+>  				continue;
+>  			rc = sepol_sidtab_context_to_sid(sidtab, &usercon,
+>  							 &sid);
+> @@ -2321,7 +2335,7 @@ int hidden sepol_fs_use(const char *fstype,
+>  		}
+>  		*sid = c->sid[0];
+>  	} else {
+> -		rc = sepol_genfs_sid(fstype, "/", SECCLASS_DIR, sid);
+> +		rc = sepol_genfs_sid(fstype, "/", policydb->dir_class, sid);
+>  		if (rc) {
+>  			*behavior = SECURITY_FS_USE_NONE;
+>  			rc = 0;
+> diff --git a/libsepol/src/sidtab.c b/libsepol/src/sidtab.c
+> index 23b2e8f33630..e6bf57161e52 100644
+> --- a/libsepol/src/sidtab.c
+> +++ b/libsepol/src/sidtab.c
+> @@ -14,7 +14,7 @@
+>  
+>  #include <sepol/policydb/sidtab.h>
+>  
+> -#include <sepol/policydb/flask.h>
+> +#include "flask.h"
+>  
+>  #define SIDTAB_HASH(sid) \
+>  (sid & SIDTAB_HASH_MASK)
+> diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+> index c6be2be2562e..7e634510d038 100644
+> --- a/libsepol/src/write.c
+> +++ b/libsepol/src/write.c
+> @@ -40,7 +40,6 @@
+>  #include <sepol/policydb/policydb.h>
+>  #include <sepol/policydb/conditional.h>
+>  #include <sepol/policydb/expand.h>
+> -#include <sepol/policydb/flask.h>
+>  
+>  #include "debug.h"
+>  #include "private.h"
+> @@ -514,7 +513,7 @@ static int role_trans_write(policydb_t *p, struct policy_file *fp)
+>  
+>  	nel = 0;
+>  	for (tr = r; tr; tr = tr->next)
+> -		if(new_roletr || tr->tclass == SECCLASS_PROCESS)
+> +		if(new_roletr || tr->tclass == p->process_class)
+>  			nel++;
+>  
+>  	buf[0] = cpu_to_le32(nel);
+> @@ -522,7 +521,7 @@ static int role_trans_write(policydb_t *p, struct policy_file *fp)
+>  	if (items != 1)
+>  		return POLICYDB_ERROR;
+>  	for (tr = r; tr; tr = tr->next) {
+> -		if (!new_roletr && tr->tclass != SECCLASS_PROCESS) {
+> +		if (!new_roletr && tr->tclass != p->process_class) {
+>  			if (!warning_issued)
+>  				WARN(fp->handle, "Discarding role_transition "
+>  				     "rules for security classes other than "
+> @@ -1574,6 +1573,7 @@ struct rangetrans_write_args {
+>  	size_t nel;
+>  	int new_rangetr;
+>  	struct policy_file *fp;
+> +	struct policydb *p;
+>  };
+>  
+>  static int rangetrans_count(hashtab_key_t key,
+> @@ -1582,11 +1582,12 @@ static int rangetrans_count(hashtab_key_t key,
+>  {
+>  	struct range_trans *rt = (struct range_trans *)key;
+>  	struct rangetrans_write_args *args = ptr;
+> +	struct policydb *p = args->p;
+>  
+>  	/* all range_transitions are written for the new format, only
+>  	   process related range_transitions are written for the old
+>  	   format, so count accordingly */
+> -	if (args->new_rangetr || rt->target_class == SECCLASS_PROCESS)
+> +	if (args->new_rangetr || rt->target_class == p->process_class)
+>  		args->nel++;
+>  	return 0;
+>  }
+> @@ -1598,12 +1599,13 @@ static int range_write_helper(hashtab_key_t key, void *data, void *ptr)
+>  	struct mls_range *r = data;
+>  	struct rangetrans_write_args *args = ptr;
+>  	struct policy_file *fp = args->fp;
+> +	struct policydb *p = args->p;
+>  	int new_rangetr = args->new_rangetr;
+>  	size_t items;
+>  	static int warning_issued = 0;
+>  	int rc;
+>  
+> -	if (!new_rangetr && rt->target_class != SECCLASS_PROCESS) {
+> +	if (!new_rangetr && rt->target_class != p->process_class) {
+>  		if (!warning_issued)
+>  			WARN(fp->handle, "Discarding range_transition "
+>  			     "rules for security classes other than "
+> @@ -1642,6 +1644,7 @@ static int range_write(policydb_t * p, struct policy_file *fp)
+>  	args.nel = 0;
+>  	args.new_rangetr = new_rangetr;
+>  	args.fp = fp;
+> +	args.p = p;
+>  	rc = hashtab_map(p->range_tr, rangetrans_count, &args);
+>  	if (rc)
+>  		return rc;
+> @@ -1766,13 +1769,18 @@ static int avrule_write_list(policydb_t *p, avrule_t * avrules,
+>  	return POLICYDB_SUCCESS;
+>  }
+>  
+> -static int only_process(ebitmap_t *in)
+> +static int only_process(ebitmap_t *in, struct policydb *p)
+>  {
+> -	unsigned int i;
+> +	unsigned int i, value;
+>  	ebitmap_node_t *node;
+>  
+> +	if (!p->process_class)
+> +		return 0;
+> +
+> +	value = p->process_class - 1;
+> +
+>  	ebitmap_for_each_positive_bit(in, node, i) {
+> -		if (i != SECCLASS_PROCESS - 1)
+> +		if (i != value)
+>  			return 0;
+>  	}
+>  	return 1;
+> @@ -1789,7 +1797,7 @@ static int role_trans_rule_write(policydb_t *p, role_trans_rule_t * t,
+>  	int new_role = p->policyvers >= MOD_POLICYDB_VERSION_ROLETRANS;
+>  
+>  	for (tr = t; tr; tr = tr->next)
+> -		if (new_role || only_process(&tr->classes))
+> +		if (new_role || only_process(&tr->classes, p))
+>  			nel++;
+>  
+>  	buf[0] = cpu_to_le32(nel);
+> @@ -1797,7 +1805,7 @@ static int role_trans_rule_write(policydb_t *p, role_trans_rule_t * t,
+>  	if (items != 1)
+>  		return POLICYDB_ERROR;
+>  	for (tr = t; tr; tr = tr->next) {
+> -		if (!new_role && !only_process(&tr->classes)) {
+> +		if (!new_role && !only_process(&tr->classes, p)) {
+>  			if (!warned)
+>  				WARN(fp->handle, "Discarding role_transition "
+>  					"rules for security classes other than "
+
+
