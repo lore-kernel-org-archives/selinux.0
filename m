@@ -2,163 +2,163 @@ Return-Path: <SRS0=e1+f=3Q=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A226C2D0DB
-	for <selinux@archiver.kernel.org>; Mon, 27 Jan 2020 17:34:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B250C2D0DB
+	for <selinux@archiver.kernel.org>; Mon, 27 Jan 2020 17:45:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2738B207FD
-	for <selinux@archiver.kernel.org>; Mon, 27 Jan 2020 17:34:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 45924214D8
+	for <selinux@archiver.kernel.org>; Mon, 27 Jan 2020 17:45:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="oD/eweId"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="afDaL0+E"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725990AbgA0Rek (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Jan 2020 12:34:40 -0500
-Received: from sonic316-26.consmr.mail.ne1.yahoo.com ([66.163.187.152]:45338
-        "EHLO sonic316-26.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725828AbgA0Rek (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Jan 2020 12:34:40 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1580146478; bh=A/ZYBcsKjndslC0dUgOAmvGgLpzj7T5uRCYfgFS3GvE=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=oD/eweIdtKTSTazSa57JvtWG/Ur6KJau1xTaDaXu0fn2kE7mHLIM15rWDnBv7CbzbrumR6S62Moz84mkhs7L5mo36hXdBO/EM7NkQWMVFEhP3qBa4B7FIXHkL0AVS0eI0ymgmlMG1gAnvhSnFspmhr6KtIMnwuex9ak8fk6f4HFiyeSRFXqxCIK9Q0Ya1kbiCvoHVYXNYByqOtPw23lObnZA8EXJrnPoUG35zG/nsCQtAjtHUfxHxRCXPIh487uusbeZbSqOK9yVRaOquwW+H64CXeZcb+zghECA3gz1mgbivkjP7h1pV/UoNj3JxaiP7KnPu220dtuhS1Sgagc81g==
-X-YMail-OSG: UIEmYk8VM1nUFo.TG2huX.9Yf51YUwgGeR8.Rvcw3gyDo4HZzBN2aLT_OB8VGHI
- kS7rbKIRDliKAg7ib45TdfcTIc_xLiJ1WKXWdY1T7GW4Puc4ZvA52vaO.m8o4Ab3iCESw8KADzma
- PGluHQSY602GWkHEtwo0iPPb3M4bof.lL2bsoa.CrE6RcXJVRQaqgwU72v8fP73E2wexNDoSxNly
- rOvNoSpi610HvpH20r8LrzJe6hreZa_6KZ3zRuASUqjWAF.f7bz4C01idFzW.vcFnfgAXoHkt13k
- 3qujb9Bprbg3lYbOop0IoE_Ib6LWK5mXONn3_kkJRxgIXCFnUr4PbIM275ZpzljexMIx1WafrCQF
- b4bACrL1105_87yi1A3cTBWk8zrnjaVBfB.bPlxev4nJOytcU840_VMc7oeMfALnYDCHpA783Vg0
- xUp8_wmq3XuF8FOdslHyRPtDuFBGoplpVr90QyXUgGv9MTOivh5Ka.AkpIcFY4WQLsqehA0Pnzx.
- .vWVaTnTfpA2M4p12oKeXMa0IVmeV3a2kMUgCIEo4iQH.qq.zIn354f8MMAqt1Q7xoD6yiV8UGKT
- v5_yG.1rixf38soN.FiiltyrA7DOX3ULseALlv6iBrqVQkvHQtjMXnXwBq_rXjBY.1ag7mvYjc4P
- WjlRlhFNAo7PsPH7eDT6rdd7Mkq7U.rKion58rhW33AlQc1lSSVeDw8snQztC_jqmW498bp_KRGQ
- b380DccyPa88oLc9YLtwSALuNIL4F6euqqj1WDW6U0zOTV3SYG5xS82WQoUu6027T2AtCFQdkba1
- CbJaYp9r1nMQJ5iHpzwmWym8OtnCM6b99YAabd3blil4Z95bpZgBwBQY5LnP470v4xWZEOv.8Dch
- 0m58RKwW38RfnQaLO0euItesA8IlIsmOcqwFtt.kvIC5AVCUcfcMsgqsMbu70hxulzVdycTJV9qA
- Kl6.lT3carJ4JpnfWNMcjbIYUJ1tfW1CmyAC7q2oNq.zmxQ9lfhctTVYdT6Fu5Zx4zdIkI4l2O_E
- N5qNg1UWqtvet4Xf8NlZfN7_TfRyjNbjf9J9B4YARcTnAyu3HQ9Z4klX7n4uNFTYPpsXnAX2_UuV
- 3SkcZV9hz54bALb22w8toJKqd50IGJjjB7qH.zjt4p3cileUt3ozvy.DmtUO2rFEkUilQEYWUc42
- 9wu05HdGCmzwyAjSRTT3Bfkgg_8GfrxfcMNKzB2pIFDLpQKbPv42zOWcyG7Z0jAzujHo0K5fvLxh
- FdT639sycg8aGvwzWQBXX4mYUfNSQiHFkCIrNVA458SyEdmQbgwBaZcQNo7qnEsu.I8D_xHIbDcN
- LQdxDicOW6m9ATstAdC38W80PRhnZDk0vj2NDmg0hkfMr2d9w12cc8Izs5q9hYRRX98HQcksJqIc
- FAD9Ls4YWSPs3Nwv.Ii_KXKdvS1f.Vw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Mon, 27 Jan 2020 17:34:38 +0000
-Received: by smtp429.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 0e6883b3604d029b21a83e85a9420c9f;
-          Mon, 27 Jan 2020 17:34:33 +0000 (UTC)
-Subject: Re: KASAN slab-out-of-bounds in tun_chr_open/sock_init_data (Was: Re:
- [PATCH v14 00/23] LSM: Module stacking for AppArmor)
-To:     Stephen Smalley <sds@tycho.nsa.gov>, casey.schaufler@intel.com,
-        jmorris@namei.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org
-Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        lorenzo@google.com, "David S. Miller" <davem@davemloft.net>,
-        amade@asmblr.net,
-        Linux Kernel Network Developers <netdev@vger.kernel.org>,
-        maxk@qti.qualcomm.com, Casey Schaufler <casey@schaufler-ca.com>
-References: <20200124002306.3552-1-casey.ref@schaufler-ca.com>
- <20200124002306.3552-1-casey@schaufler-ca.com>
- <22585291-b7e0-5a22-6682-168611d902fa@tycho.nsa.gov>
- <6b717a13-3586-5854-0eee-617798f92d34@schaufler-ca.com>
- <de97dc66-7f5b-21f0-cf3d-a1485acbc1c9@tycho.nsa.gov>
- <628f018e-5a88-295b-9e4d-b4c6a49645b5@tycho.nsa.gov>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <736cf361-1eaf-2d5e-ffc5-c5cda6e2ec7d@schaufler-ca.com>
-Date:   Mon, 27 Jan 2020 09:34:33 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.2
+        id S1725908AbgA0Rpn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Jan 2020 12:45:43 -0500
+Received: from USFB19PA32.eemsg.mail.mil ([214.24.26.195]:23985 "EHLO
+        USFB19PA32.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725893AbgA0Rpm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Jan 2020 12:45:42 -0500
+X-EEMSG-check-017: 49701800|USFB19PA32_ESA_OUT02.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,370,1574121600"; 
+   d="scan'208";a="49701800"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA32.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Jan 2020 17:45:39 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1580147139; x=1611683139;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=1HdatU0Z2FBe3cHUQ9IqYo2o3vMqWI2SiWq5bHQMuss=;
+  b=afDaL0+EdSJdxEfhkDJ1NGUEgXBc2pcgunHOxumnrXsm09xCdZSTtE6P
+   KUAKKeKWcDXZD/nL5Pc6PwTtMLU4jUGaYz0/BFJBZnPrDTt488dhRuQ6l
+   Wp82v43w275iSWK5ZrrgrdSLpB6qVri6N1r3YFzgdosjzp7ijhyYZijwF
+   xRrsXYgjuDrYUbomVx9S3bssxQh8nkUCJBJD86Si17xPRO4VqxAihZrD5
+   wj4T6EIAWSzOTMlsNpBemU01cbYObybozgc855ZagJDB0o7T1FDLBgz+5
+   I3O5H9Xm7NPJlU6X7JqNTAPZ/1OJw3YJ5M5pyiQYzk0e9PzBDg3CM7BL0
+   g==;
+X-IronPort-AV: E=Sophos;i="5.70,370,1574121600"; 
+   d="scan'208";a="32368456"
+IronPort-PHdr: =?us-ascii?q?9a23=3ABf9QHxCpz9eC5odKnMFaUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSP36rsmwAkXT6L1XgUPTWs2DsrQY0raQ6PqrADRYqdbZ6TZeKccKD0?=
+ =?us-ascii?q?dEwewt3CUYSPafDkP6KPO4JwcbJ+9lEGFfwnegLEJOE9z/bVCB6le77DoVBw?=
+ =?us-ascii?q?mtfVEtfre9FYHdldm42P6v8JPPfQpImCC9YbRvJxmqsAndrMYbjZZtJ6orxB?=
+ =?us-ascii?q?bFvHREd/lKyW90OFmfmwrw6tqq8JNs7ihdtegt+9JcXan/Yq81UaFWADM6Pm?=
+ =?us-ascii?q?4v+cblrwPDTQyB5nsdVmUZjB9FCBXb4R/5Q5n8rDL0uvJy1yeGM8L2S6s0WS?=
+ =?us-ascii?q?m54KdwVBDokiYHOCUn/2zRl8d9kbhUoBOlpxx43o7UfISYP+dwc6/BYd8XQ3?=
+ =?us-ascii?q?dKU91PXCJdHIyzc4oPD/IAPelGqYn9u0AOpga6CQW1Ge/j1iNEinrw0KI0ye?=
+ =?us-ascii?q?QhFRzN0hImEdwArX/YqMz5OakWXOywyqTD0DfNYO5M2Trl9YbGbB4hr/GPU7?=
+ =?us-ascii?q?x+f8XexksgGB/KgFiLtYzoPSmY2vgRv2WV7edtU/+khW49qwF2pzii3toiip?=
+ =?us-ascii?q?XXiYINylDL6yN5y5soK929UkF7ZdqkH4VQtiqHMIZ2Wd4tQ3pztSYmyrwJpZ?=
+ =?us-ascii?q?67fC8QxJQh3B7QceaLc4eP4hL9TeucJypzinxieLK6nRmy8E6gx/X/Vsaqyl?=
+ =?us-ascii?q?ZKqDRKkt3WunAKzRzT5c6KQeZ+8Ee5wTuDyg/e5+5eLU00iKbXMYAtz7Eump?=
+ =?us-ascii?q?YJrEjOGDL9ll/sg6+MbEok//Cl6+HgYrr7uJCRL5R0igTiMqQ2ncy/HPg4Ph?=
+ =?us-ascii?q?AOX2eF/eS806Xu/VHjT7VQj/02j7LZvIrbJcQdqK65BBRV3Zg/5BqlEzen0M?=
+ =?us-ascii?q?gXnXkALF5ffhKIk5PpNE3ULPD9DPe/h0ygkDZtx//YIr3sGojBI3fMnbv7fb?=
+ =?us-ascii?q?tx9lRQxBQ8wNxB/Z5YF6kNIPfpVU/wsNzYAAU5Mwuxw+v/E9Vyy5geVHmTAq?=
+ =?us-ascii?q?6ZLKzSsViI6vgpI+mXfoAZojn9K/875/L2l382hUcdfbW13ZsQcH24BPVmLF?=
+ =?us-ascii?q?mZYXX2mNcODH8FsRYmQ+zqklKCUDhTaGipX68n/T47FIOmDYHfRo+zmryB2j?=
+ =?us-ascii?q?m0HoFMam9aDVCMFG/id5+YVPcUdCKSPshhnyQfVbe/T48h1BeutBL1yrd8MO?=
+ =?us-ascii?q?rU9TMXtYj52Nh2+eLTjxcy+iJwD8iH1GGNVW50lHsSRzAqxKB/vVB9ylCb3K?=
+ =?us-ascii?q?h/hvxYEsdT5/VTXQgmK5HR1PZ6BM7vVQLBZNiJVEyqTcmhATE0Vtgx2cMBY1?=
+ =?us-ascii?q?5hG9W+iRDOxzKqDKUIl7yPH5E06rjT32X1J8pkznbG064hj0M4TcdVKWKmga?=
+ =?us-ascii?q?t/pEDvANvzkk6ZnrymPYQV3SjA7y/X12uFvEhCXDl7ZqXMXHYSfWPcsdX/+k?=
+ =?us-ascii?q?7YSbKyT78gN10FgdWPLqpMd83Bk1pLXrHgNc7Ybmb3nH2/QV6vwL+WYYiiXm?=
+ =?us-ascii?q?IG2izWBUtMxwcW+m2APAMzLj2sr2LXEHplEle5JwvU+PR64Fa8SVU5h1WSZl?=
+ =?us-ascii?q?Bl/6K85xpQgPubUf5V1bUB7nQPsTJxSW2h0srWBtzInA9oeKFRcJtp+1tc/X?=
+ =?us-ascii?q?7IvAx6eJq7JuZtgUBIIFc/hF/nyxgiUtYIqsMttn5/iVMpeK8=3D?=
+X-IPAS-Result: =?us-ascii?q?A2AWAwC2IC9e/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBe?=
+ =?us-ascii?q?AWBGFQhEiqEFIkDhnUBAQEBAQEGgTeJb5FJCQEBAQEBAQEBAS0KAQGEQAKCS?=
+ =?us-ascii?q?DgTAhABAQEEAQEBAQEFAwEBbIU3DII7KQGCegEFIxVRCxgCAiYCAlcGAQwGA?=
+ =?us-ascii?q?gEBgmM/AYJWJQ+sWYEyhDUBgRSDOIE+gQ4qjDh5gQeBOA+CXT6HWYI8IgSNU?=
+ =?us-ascii?q?oliRnqWZIJDgkyEdo5vBhuCSHiXPI5ggUqHGpQ6IoFYKwgCGAghD4MnCQo9G?=
+ =?us-ascii?q?A2cczSFKSMDMAIBAY4IAQE?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 27 Jan 2020 17:45:37 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00RHio1s036190;
+        Mon, 27 Jan 2020 12:44:53 -0500
+Subject: Re: [PATCH V2 0/2] selinux-testsuite: Add fs*(2) API filesystem tests
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+References: <20200127093249.3143-1-richard_c_haines@btinternet.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <29631d39-9d64-71b4-5fb7-8a0180466f73@tycho.nsa.gov>
+Date:   Mon, 27 Jan 2020 12:46:23 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <628f018e-5a88-295b-9e4d-b4c6a49645b5@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200127093249.3143-1-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-X-Mailer: WebService/1.1.15116 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/27/2020 8:56 AM, Stephen Smalley wrote:
-> On 1/27/20 11:14 AM, Stephen Smalley wrote:
->> On 1/24/20 4:49 PM, Casey Schaufler wrote:
->>> On 1/24/2020 1:04 PM, Stephen Smalley wrote:
->>>> On 1/23/20 7:22 PM, Casey Schaufler wrote:
->>>>> This patchset provides the changes required for
->>>>> the AppArmor security module to stack safely with any other.
->>>>>
->>>>> v14: Rebase to 5.5-rc5
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Incorporate feedback from v13
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - Use an array of audit rules =
-(patch 0002)
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - Significant change, removed =
-Acks (patch 0002)
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - Remove unneeded include (pat=
-ch 0013)
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - Use context.len correctly (p=
-atch 0015)
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - Reorder code to be more sens=
-ible (patch 0016)
->>>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 - Drop SO_PEERCONTEXT as it's =
-not needed yet (patch 0023)
->>>>
->>>> I don't know for sure if this is your bug, but it happens every time=
- I boot with your patches applied and not at all on stock v5.5-rc5 so her=
-e it is.=C2=A0 Will try to bisect as time permits but not until next week=
-=2E Trigger seems to be loading the tun driver.
->>>
->>> Thanks. I will have a look as well.
->>
->> Bisection led to the first patch in the series, "LSM: Infrastructure m=
-anagement of the sock security". Still not sure if the bug is in the patc=
-h itself or just being surfaced by it.
->
-> Looks like the bug is pre-existing to me and just exposed by your patch=
-=2E
+On 1/27/20 4:32 AM, Richard Haines wrote:
+> These patches update the current tests/filesystem to share code (patch 1)
+> with the fs*(2) API filesystem tests (patch 2).
+> 
+> V2 Changes:
+> 1) If kernel patch [1] installed move_mount test for denying FILE__MOUNTON
+>     should pass. If not installed, display 'Failed as kernel 5.x without
+>     "selinux: fix regression introduced by move_mount(2) syscall" patch'
+>     (as there is a regression that should be fixed).
+>     Note: Kernels 5.2 - 5.5 will fail unless [1] backported. 5.6 is expected
+>     to have [1].
+> 2) Move policy changes to patch 2.
 
-OK, thanks. I don't see how moving the allocation ought to have
-perturbed that, but it's good to know what happened.=20
+These look ok to me; we'll see if anyone else objects to the error message.
 
+One other item that occurred to me is that most of the current 
+filesystem and fs_filesystem tests are only exercising ext4 regardless 
+of the native filesystem in which you run the testsuite (e.g. if I run 
+it on a labeled NFS mount most of the tests end up running in the ext4 
+filesystem that is created and mounted rather than on labeled NFS 
+itself, and likewise if I run it on xfs or btrfs or ...).  For tests 
+where it does not matter (e.g. the type_transition tests) it might be 
+better to run those on the host/native filesystem directly so we can 
+more readily reuse those tests.  Obviously the mount tests themselves 
+require some other filesystem besides the one in which the testsuite 
+itself resides.  Don't know if people may want to make it easier to 
+substitute or add additional filesystem types for testing; you already 
+provide a fs_type variable in the test script but that requires patching 
+the script and still only supports testing one filesystem type at a time.
+
+> 
+> [1] https://lore.kernel.org/selinux/20200117202407.12344-1-sds@tycho.nsa.gov
+> 
+> Richard Haines (2):
+>    selinux-testsuite: Prepare for adding fs*(2) API tests
+>    selinux-testsuite: Add fs*(2) API filesystem tests
+> 
+>   policy/test_filesystem.te        |  18 +-
+>   tests/Makefile                   |   6 +
+>   tests/filesystem/Filesystem.pm   | 166 ++++++
+>   tests/filesystem/test            | 219 ++------
+>   tests/fs_filesystem/.gitignore   |   3 +
+>   tests/fs_filesystem/Makefile     |  16 +
+>   tests/fs_filesystem/fs_common.c  | 110 ++++
+>   tests/fs_filesystem/fs_common.h  |  30 ++
+>   tests/fs_filesystem/fsmount.c    |  89 ++++
+>   tests/fs_filesystem/fspick.c     |  68 +++
+>   tests/fs_filesystem/move_mount.c |  76 +++
+>   tests/fs_filesystem/test         | 835 +++++++++++++++++++++++++++++++
+>   tools/check-syntax               |   2 +-
+>   13 files changed, 1455 insertions(+), 183 deletions(-)
+>   create mode 100644 tests/filesystem/Filesystem.pm
+>   create mode 100644 tests/fs_filesystem/.gitignore
+>   create mode 100644 tests/fs_filesystem/Makefile
+>   create mode 100644 tests/fs_filesystem/fs_common.c
+>   create mode 100644 tests/fs_filesystem/fs_common.h
+>   create mode 100644 tests/fs_filesystem/fsmount.c
+>   create mode 100644 tests/fs_filesystem/fspick.c
+>   create mode 100644 tests/fs_filesystem/move_mount.c
+>   create mode 100755 tests/fs_filesystem/test
+> 
 
