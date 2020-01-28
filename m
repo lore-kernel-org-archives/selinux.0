@@ -2,192 +2,251 @@ Return-Path: <SRS0=EIhe=3R=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9F86C2D0DB
-	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 13:51:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99E38C33CB2
+	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 14:00:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7359E2173E
-	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 13:51:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 516A92173E
+	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 14:00:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="diQxNiIK"
+	dkim=pass (1024-bit key) header.d=tresys.onmicrosoft.com header.i=@tresys.onmicrosoft.com header.b="z7H7YcBb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726141AbgA1Nvb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Jan 2020 08:51:31 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:54174 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725852AbgA1Nvb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jan 2020 08:51:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580219489;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=xYwXigMHs9ibErg+EUOIdW+B0ZNS8vmFHtUCpU8Vzfc=;
-        b=diQxNiIKcOHqccAVuWVqUdGnUfcIv8e5qkU1Svej2C/VJICbs6ns1EcxOWXsWuau/EsR7p
-        sb/bi2hjYeSkkFDACZP5wxS6ecpSPC5ZUaH87uI1BCSbTaiLOooHWJMcI+rOW0KKQq+q/9
-        L2+L8xq5si+zq7AXCH2GIMXbv49ufsg=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-294-y8E3yn50MMqiNim3irseHQ-1; Tue, 28 Jan 2020 08:51:24 -0500
-X-MC-Unique: y8E3yn50MMqiNim3irseHQ-1
-Received: by mail-oi1-f197.google.com with SMTP id x75so3341543oix.3
-        for <selinux@vger.kernel.org>; Tue, 28 Jan 2020 05:51:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xYwXigMHs9ibErg+EUOIdW+B0ZNS8vmFHtUCpU8Vzfc=;
-        b=nyXgDgsZI1UtUUhQuO0IkSTh/an4acqDgXulwtxdmpJfzeTAaz/I0cw+CVhI4WVYwb
-         mNETWVah7+V0y5vqTQCszuzL0o48n5ngmp4HplbvCSbBCqBOTYrstKlnUxM7Aia9OJ+I
-         Ndi6Ck8nWxZ0hmRprWo9tnNZFK8tzH2+5Ew4EzQdh51uiJl9xKtkZX9KAzrk+tp0R0q4
-         oXbzeWtKmyEy+Damawt6qIA1mLc0v0fRqeTXgwwjZ3D/bBLWXBwGY+CZu2gcu/bMyPFC
-         vnRfts7huE6rNu5UIVFrx4vR0AS55SxQR77VsQq+aZ+Co2nOmqgyOvXyelRpqZpJkap5
-         FfgQ==
-X-Gm-Message-State: APjAAAXsg4lYs37HinXgsmexkgcaIT9BtnMgSJ9RUOG3WimhHKLfJ76t
-        1w+psRy2UYcZTWfUnPv3fFSjW7UXOHhHyYH2utgEFyr9aTIizhcQe8XE9DMCB9Fjgn6prrBFb/u
-        ID30dEJT+cXqNgbMmgq1ucGzOmGxKk3sfRA==
-X-Received: by 2002:a9d:7ccc:: with SMTP id r12mr17105160otn.22.1580219483345;
-        Tue, 28 Jan 2020 05:51:23 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwRvQI1gr/NFgoti/hhT7JXmXbeDFLVnhKG/bADBQcuYLCllybAUzHF3MW9GatHixvAK2KOIfLcBws0vdYKGo8=
-X-Received: by 2002:a9d:7ccc:: with SMTP id r12mr17105143otn.22.1580219483054;
- Tue, 28 Jan 2020 05:51:23 -0800 (PST)
+        id S1726257AbgA1OAb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Jan 2020 09:00:31 -0500
+Received: from mail-eopbgr680111.outbound.protection.outlook.com ([40.107.68.111]:24996
+        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726671AbgA1OAN (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 28 Jan 2020 09:00:13 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=W4teMrxoRiBTgi3mIMZQfdwZl865lqaXCWL2BUHnlpAAjsy3pmn5ocwYnpo9ylYJVRpx8QqJQhQLUKVxG3gfVns+Wjk0CTOa3N1sOX9T0SU2e+SKDOXckq8qcutOLhH5vQNhJWcakizNk/UU75Ds+vZod2tZt4CYU/MND0Q2NQz5wdH2QOoQL6dbrsZhOvRs6eXR0Z6Y93Bm+yQayG97fkGleiMb78Vjs8Nha/KJyP3ljYSyD+VrxNBxjh6slNKEPir6HsQmQ9GkvC1QxtQkjOsO5P01Rvy8iLZrrhLNTNIgkOn/fmFyPhjxgKU1LlQsrMrLxkcPvzUjq+b41Zl+3Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=caXrwH1xDOmT6ctjMiuCvqwnsYrkatsTxOkAFSiLQ/I=;
+ b=BZEVxcIUOycARK6vS5JRS8oaposee4izbw6egMIm9AAKQB2lwNiHE3I6Aldyu/BS0nrHHy/bwo9VliGr0bkXE+2niaBSJWkDDutbegZyOsp+YwrZH6NH1TO5DArUwkkO+Z4VJUcIWGa5avKqc7SgVpSsc5BNNq0ZTj0GXwgnbxD69YwooA/JC0K1BeTpl1GMFmVV48YOnwvoHj0jmbdMi+YV9rQDgZHK/3lgPowEE/vQxJA0a27dKmQ/mJ4qBq0WDUrkc8WZW8xrwHG/mKf/9LpQg8zYr7dAnwULeuadPnkbVAdC4NuGzMYH3w8obR70FZUno5vIRGcvuHvA8mfiOg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=tresys.com; dmarc=pass action=none header.from=tresys.com;
+ dkim=pass header.d=tresys.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=tresys.onmicrosoft.com; s=selector2-tresys-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=caXrwH1xDOmT6ctjMiuCvqwnsYrkatsTxOkAFSiLQ/I=;
+ b=z7H7YcBb2BHUy2zOTeP/K9p1gBy6kQkry0enHGVypJVvKVO1v4gRODz2RgYuUc/4nbR2DnfwKS/1WWYp+kWd2c7SMC9fZXtyCT2DYAKfDwtNBZSD5cJR+E3ZpaZbz8LQcGXpSj2fcs8vATdRzXSwNZemINEpfiEIQdkhENzPRAQ=
+Received: from BYAPR15MB3368.namprd15.prod.outlook.com (20.179.56.28) by
+ BYAPR15MB2680.namprd15.prod.outlook.com (20.179.156.205) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2665.20; Tue, 28 Jan 2020 14:00:09 +0000
+Received: from BYAPR15MB3368.namprd15.prod.outlook.com
+ ([fe80::cca6:ce5:5b0c:e97c]) by BYAPR15MB3368.namprd15.prod.outlook.com
+ ([fe80::cca6:ce5:5b0c:e97c%7]) with mapi id 15.20.2665.025; Tue, 28 Jan 2020
+ 14:00:08 +0000
+Received: from [10.1.12.63] (96.234.151.2) by MN2PR18CA0002.namprd18.prod.outlook.com (2603:10b6:208:23c::7) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2665.20 via Frontend Transport; Tue, 28 Jan 2020 14:00:08 +0000
+From:   "Lawrence, Stephen" <slawrence@tresys.com>
+To:     "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Subject: Re: CIL: another segfault producer
+Thread-Topic: CIL: another segfault producer
+Thread-Index: AQHV1dYLmvYn9JjtoUWIQw8LjzGrQagAGtAA
+Date:   Tue, 28 Jan 2020 14:00:08 +0000
+Message-ID: <486b1ea4-421e-dbf9-430e-db6566028d2f@tresys.com>
+References: <20200128122527.GA36656@brutus.lan>
+In-Reply-To: <20200128122527.GA36656@brutus.lan>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.2
+x-originating-ip: [96.234.151.2]
+x-clientproxiedby: MN2PR18CA0002.namprd18.prod.outlook.com
+ (2603:10b6:208:23c::7) To BYAPR15MB3368.namprd15.prod.outlook.com
+ (2603:10b6:a03:102::28)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=slawrence@tresys.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: fd27f51f-fe50-4cad-4f4b-08d7a3fa624f
+x-ms-traffictypediagnostic: BYAPR15MB2680:
+x-microsoft-antispam-prvs: <BYAPR15MB268034F3E5471449984AD32ED90A0@BYAPR15MB2680.namprd15.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:3173;
+x-forefront-prvs: 029651C7A1
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(136003)(376002)(396003)(366004)(39830400003)(346002)(199004)(189003)(2906002)(6916009)(508600001)(36756003)(316002)(53546011)(6486002)(31686004)(186003)(52116002)(16576012)(26005)(16526019)(5660300002)(81166006)(2616005)(956004)(8676002)(8936002)(81156014)(66556008)(66946007)(66476007)(66446008)(31696002)(71200400001)(64756008)(86362001);DIR:OUT;SFP:1102;SCL:1;SRVR:BYAPR15MB2680;H:BYAPR15MB3368.namprd15.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: tresys.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 6mXhTE6BY3027i5ErBbi92zGmrWWmX+UOfxPeUnZMu+E3/3tEOIFbJCnGLkevmnktfyFyyhN+NtrOCONXCG1AYSxVjeQDysqlGgAc3Ejvt6F2L3VuVcWGvfgEoCYT/T3cOqLQXpMG4fQn7+WYH2uJaZ1kCelC82g4aUqmTK5me9iw73pSWzj26XJfBB3qD8/ZibL/sgWOOrsxIxyoYmSXP4v9QdUOcOqMwDNR4Hqg7gYs29QsHxmFDk4lrVPeyVUvGoj3Sp98Au0YLJ/u1WicgNyT9ByMm6zi18Ku5ytumy/hFGpJDBuXtPQ8hMAPJMjMURTNf1npqY0gTQGKil4017NPWDRux+RtWsDeQj5GrVwNs7MJDTXzOoyE8p3//1oYnhUDD8ig1e9Ik1vxSmrI0YH/VIu1rK30D3N6Hqsil+afZNPpQyB2j7hCpfJVQVM
+x-ms-exchange-antispam-messagedata: sNJLJGrjjX+hbCsWmkn+TGt3NfjKAPBePnseqR83UBp9PkMBz7SWEsWJ/VQ/E8yu4tM9UkETjankVGJKtkfXsRR75orb51U7XiDgwqIU3RP10O+YevHqsK9dE+cvtX+dQFv3rVEPZzA0pCwLqNjmow==
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="Windows-1252"
+Content-ID: <9C810021CD628443B7782A3F734E2779@namprd15.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-References: <000000000000143de7059d2ba3e5@google.com> <000000000000fdbd71059d32a906@google.com>
- <CAHC9VhS_Bfywhp+6H03bY7LrQsBz+io672pSS0DpiZKFiz4L6g@mail.gmail.com>
-In-Reply-To: <CAHC9VhS_Bfywhp+6H03bY7LrQsBz+io672pSS0DpiZKFiz4L6g@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 28 Jan 2020 14:51:11 +0100
-Message-ID: <CAFqZXNsevSVXroCCBMaWHiVG9sh3Sb9ZDy3tYGDs=ONV8Mc25A@mail.gmail.com>
-Subject: Re: possible deadlock in sidtab_sid2str_put
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Jeff Vander Stoep <jeffv@google.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>,
-        Jann Horn <jannh@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        syzkaller-bugs@googlegroups.com,
-        syzbot <syzbot+61cba5033e2072d61806@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: tresys.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fd27f51f-fe50-4cad-4f4b-08d7a3fa624f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Jan 2020 14:00:08.5649
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a0d45667-6c07-4e88-868f-4ac9af95c7ed
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: WlUR34EnrHkq8xVlQvEThHu2jpdmvnjOg/oxD8XEUqZyQhIcb25WGKkuG+t8jqCL2t+T4Q4wIAF0fj/3DV2Bxw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR15MB2680
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jan 28, 2020 at 2:39 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Tue, Jan 28, 2020 at 7:50 AM syzbot
-> <syzbot+61cba5033e2072d61806@syzkaller.appspotmail.com> wrote:
-> >
-> > syzbot has found a reproducer for the following crash on:
-> >
-> > HEAD commit:    b0be0eff Merge tag 'x86-pti-2020-01-28' of git://git.kerne..
-> > git tree:       upstream
-> > console output: https://syzkaller.appspot.com/x/log.txt?x=1432aebee00000
-> > kernel config:  https://syzkaller.appspot.com/x/.config?x=9784e57c96a92f20
-> > dashboard link: https://syzkaller.appspot.com/bug?extid=61cba5033e2072d61806
-> > compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> > syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10088e95e00000
-> > C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=13fa605ee00000
-> >
-> > IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> > Reported-by: syzbot+61cba5033e2072d61806@syzkaller.appspotmail.com
-> >
-> > =====================================================
-> > WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected
-> > 5.5.0-syzkaller #0 Not tainted
-> > -----------------------------------------------------
-> > syz-executor305/10624 [HC0[0]:SC0[2]:HE1:SE0] is trying to acquire:
-> > ffff888098c14098 (&(&s->cache_lock)->rlock){+.+.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-> > ffff888098c14098 (&(&s->cache_lock)->rlock){+.+.}, at: sidtab_sid2str_put.part.0+0x36/0x880 security/selinux/ss/sidtab.c:533
-> >
-> > and this task is already holding:
-> > ffffffff89865770 (&(&nf_conntrack_locks[i])->rlock){+.-.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-> > ffffffff89865770 (&(&nf_conntrack_locks[i])->rlock){+.-.}, at: nf_conntrack_lock+0x17/0x70 net/netfilter/nf_conntrack_core.c:91
-> > which would create a new lock dependency:
-> >  (&(&nf_conntrack_locks[i])->rlock){+.-.} -> (&(&s->cache_lock)->rlock){+.+.}
-> >
-> > but this new dependency connects a SOFTIRQ-irq-safe lock:
-> >  (&(&nf_conntrack_locks[i])->rlock){+.-.}
-> >
-> > ... which became SOFTIRQ-irq-safe at:
-> >   lock_acquire+0x190/0x410 kernel/locking/lockdep.c:4484
-> >   __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
-> >   _raw_spin_lock+0x2f/0x40 kernel/locking/spinlock.c:151
-> >   spin_lock include/linux/spinlock.h:338 [inline]
-> >   nf_conntrack_lock+0x17/0x70 net/netfilter/nf_conntrack_core.c:91
->
-> ...
->
-> > to a SOFTIRQ-irq-unsafe lock:
-> >  (&(&s->cache_lock)->rlock){+.+.}
-> >
-> > ... which became SOFTIRQ-irq-unsafe at:
-> > ...
-> >   lock_acquire+0x190/0x410 kernel/locking/lockdep.c:4484
-> >   __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
-> >   _raw_spin_lock+0x2f/0x40 kernel/locking/spinlock.c:151
-> >   spin_lock include/linux/spinlock.h:338 [inline]
-> >   sidtab_sid2str_put.part.0+0x36/0x880 security/selinux/ss/sidtab.c:533
-> >   sidtab_sid2str_put+0xa0/0xc0 security/selinux/ss/sidtab.c:566
-> >   sidtab_entry_to_string security/selinux/ss/services.c:1279 [inline]
-> >   sidtab_entry_to_string+0xf2/0x110 security/selinux/ss/services.c:1266
-> >   security_sid_to_context_core+0x2c6/0x3c0 security/selinux/ss/services.c:1361
-> >   security_sid_to_context+0x34/0x40 security/selinux/ss/services.c:1384
-> >   avc_audit_post_callback+0x102/0x790 security/selinux/avc.c:709
-> >   common_lsm_audit+0x5ac/0x1e00 security/lsm_audit.c:466
-> >   slow_avc_audit+0x16a/0x1f0 security/selinux/avc.c:782
-> >   avc_audit security/selinux/include/avc.h:140 [inline]
-> >   avc_has_perm+0x543/0x610 security/selinux/avc.c:1185
-> >   inode_has_perm+0x1a8/0x230 security/selinux/hooks.c:1631
-> >   selinux_mmap_file+0x10a/0x1d0 security/selinux/hooks.c:3701
-> >   security_mmap_file+0xa4/0x1e0 security/security.c:1482
-> >   vm_mmap_pgoff+0xf0/0x230 mm/util.c:502
->
-> ...
->
-> > other info that might help us debug this:
-> >
-> >  Possible interrupt unsafe locking scenario:
-> >
-> >        CPU0                    CPU1
-> >        ----                    ----
-> >   lock(&(&s->cache_lock)->rlock);
-> >                                local_irq_disable();
-> >                                lock(&(&nf_conntrack_locks[i])->rlock);
-> >                                lock(&(&s->cache_lock)->rlock);
-> >   <Interrupt>
-> >     lock(&(&nf_conntrack_locks[i])->rlock);
-> >
-> >  *** DEADLOCK ***
-> >
-> > 4 locks held by syz-executor305/10624:
-> >  #0: ffffffff8c1acc68 (&table[i].mutex){+.+.}, at: nfnl_lock net/netfilter/nfnetlink.c:62 [inline]
-> >  #0: ffffffff8c1acc68 (&table[i].mutex){+.+.}, at: nfnetlink_rcv_msg+0x9ee/0xfb0 net/netfilter/nfnetlink.c:224
-> >  #1: ffff8880836415d8 (nlk_cb_mutex-NETFILTER){+.+.}, at: netlink_dump+0xe7/0xfb0 net/netlink/af_netlink.c:2199
-> >  #2: ffffffff89865770 (&(&nf_conntrack_locks[i])->rlock){+.-.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-> >  #2: ffffffff89865770 (&(&nf_conntrack_locks[i])->rlock){+.-.}, at: nf_conntrack_lock+0x17/0x70 net/netfilter/nf_conntrack_core.c:91
-> >  #3: ffffffff8b7df008 (&selinux_ss.policy_rwlock){.+.?}, at: security_sid_to_context_core+0x1ca/0x3c0 security/selinux/ss/services.c:1344
->
-> I think this is going to be tricky to fix due to the differing
-> contexts from which sidtab_sid2str_put() may be called.  We already
-> have a check for !in_task() in sidtab_sid2str_put(), do we want to add
-> a check for !in_serving_softirq() too?
+Looks to be an ordering issue with how we verify classmaps when they are
+nested. If you define (classmap common_appletalk_socket ...) before
+(classmap all_sockets ...), you'll get this error error:
 
-I don't think that is going to fix it. The issue here is that an
-interrupt may happen while we are holding the lock and in that
-interrupt we try to take some other lock, which another thread has
-taken before the cache lock... I'm afraid using the irqsave/irqrestore
-locking is the only possible fix here... (Either that or giving up on
-the proper least-recently-used logic.)
+Map class common_appletalk_socket does not have a classmapping for
+common_readwrite_socket_perms
+Map class common_appletalk_socket does not have a classmapping for
+common_create_socket_perms
 
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+So you're just missing the mapping for common_appletalk_sockets.
+
+The right fix for the segfault isn't immediately clear to me--might need
+to change some orderings or maybe even add another verify pass? But
+adding the mapping should resolve your segfault for now.
+
+
+On 1/28/20 7:25 AM, Dominick Grift wrote:
+> In trying to reduce points of failure in my policy I encountered another =
+segfault
+>=20
+> I want to centralize common permissions, for example common create and co=
+mmon read/write socket perms:
+>=20
+>  872 (classmap all_sockets                                               =
+           |
+>  873           (common_create_socket_perms common_readwrite_socket_perms)=
+)          |
+>  874                                                                     =
+           |
+>  875 (classmap common_alg_socket                                         =
+           |
+>  876           (common_create_socket_perms common_readwrite_socket_perms)=
+)          |
+>  877 (classmap common_appletalk_socket                                   =
+           |
+>  878           (common_create_socket_perms common_readwrite_socket_perms)=
+)          |
+>  879                                                                     =
+           |
+>  880 (classmapping                                                       =
+           |
+>  881  all_sockets                                                        =
+           |
+>  882  common_create_socket_perms                                         =
+           |
+>  883   (common_alg_socket                                                =
+           |
+>  884    (common_create_socket_perms)))                                   =
+           |
+>  885                                                                     =
+           |
+>  886 (classmapping                                                       =
+           |
+>  887  all_sockets                                                        =
+           |
+>  888  common_create_socket_perms                                         =
+           |
+>  889  (common_appletalk_socket                                           =
+           |
+>  890    (common_create_socket_perms)))                                   =
+           |
+>  891                                                                     =
+           |
+>  892 (classmapping                                                       =
+           |
+>  893  all_sockets                                                        =
+           |
+>  894  common_readwrite_socket_perms                                      =
+           |
+>  895   (common_alg_socket                                                =
+           |
+>  896    (common_readwrite_socket_perms)))                                =
+           |
+>  897                                                                     =
+           |
+>  898 (classmapping                                                       =
+           |
+>  899  all_sockets                                                        =
+           |
+>  900  common_readwrite_socket_perms                                      =
+           |
+>  901  (common_appletalk_socket                                           =
+           |
+>  902    (common_readwrite_socket_perms)))                                =
+           |
+>  903                                                                     =
+           |
+>  904 (classmapping                                                       =
+           |
+>  905  common_alg_socket                                                  =
+           |
+>  906  common_create_socket_perms                                         =
+           |
+>  907  (alg_socket                                                        =
+           |
+>  908   (append bind connect create getattr getopt ioctl read setattr seto=
+pt shutdown|
+>  909           write)))                                                  =
+           |
+>  910                                                                     =
+           |
+>  911 (classmapping                                                       =
+           |
+>  912  common_alg_socket                                                  =
+           |
+>  913  common_readwrite_socket_perms                                      =
+           |
+>  914  (alg_socket                                                        =
+           |
+>  915   (append bind connect getattr getopt ioctl read setattr setopt shut=
+down       |
+>  916           write)))                                                  =
+           |
+>  917                                                                     =
+           |
+>  918 (classpermission create_alg_socket_perms)                           =
+           |
+>  919                                                                     =
+           |
+>  920 (classpermissionset                                                 =
+           |
+>  921  create_alg_socket_perms                                            =
+           |
+>  922  (common_alg_socket                                                 =
+           |
+>  923   (common_create_socket_perms)))                                    =
+           |
+>  924                                                                     =
+           |
+>  925 (classpermission readwrite_alg_socket_perms)                        =
+           |
+>  926                                                                     =
+           |
+>  927 (classpermissionset                                                 =
+           |
+>  928  readwrite_alg_socket_perms                                         =
+           |
+>  929  (common_alg_socket                                                 =
+           |
+>  930   (common_readwrite_socket_perms)))                                 =
+           |
+>=20
+> <snip>
+> Building AST from Parse Tree
+> Destroying Parse Tree
+> Resolving AST
+> Qualifying Names
+> Compile post process
+> make: *** [Makefile:21: policy.32] Segmentation fault (core dumped)
+>=20
 
