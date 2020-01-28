@@ -2,335 +2,134 @@ Return-Path: <SRS0=EIhe=3R=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-10.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DDD5C2D0DB
-	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 18:04:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6D2DC2D0DB
+	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 18:12:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 185B02173E
-	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 18:04:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D527214AF
+	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 18:12:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="h+gnh2Q+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726323AbgA1SEW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Jan 2020 13:04:22 -0500
-Received: from agnus.defensec.nl ([80.100.19.56]:41174 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726066AbgA1SEW (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 28 Jan 2020 13:04:22 -0500
-Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id D79EF132060C;
-        Tue, 28 Jan 2020 19:04:20 +0100 (CET)
-Date:   Tue, 28 Jan 2020 19:04:18 +0100
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH] libsepol,checkpolicy: support omitting unused initial
- sid contexts
-Message-ID: <20200128180418.GC36656@brutus.lan>
-Mail-Followup-To: Stephen Smalley <sds@tycho.nsa.gov>,
-        selinux@vger.kernel.org
-References: <20200128172600.12896-1-sds@tycho.nsa.gov>
+        id S1726702AbgA1SMy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Jan 2020 13:12:54 -0500
+Received: from USFB19PA34.eemsg.mail.mil ([214.24.26.197]:65334 "EHLO
+        USFB19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726699AbgA1SMy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jan 2020 13:12:54 -0500
+X-EEMSG-check-017: 49971697|USFB19PA34_ESA_OUT04.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,374,1574121600"; 
+   d="scan'208";a="49971697"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 28 Jan 2020 18:12:47 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1580235167; x=1611771167;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=enTIGEaq3runzAZ6QdCHIBXTfggn33Kj6gRBj51EjBk=;
+  b=h+gnh2Q+qUSCaVCHGJJPWIdstHmVL1OH/v5POKTGbMhb+Nm0xaY52cEm
+   Bi0eLHNrpyTZCAImmVKQKYf2E50bIhZCL5PkyoGorNyWjB0q9+wVrUj4e
+   vqDT6vkgKV1NsoH0vRhlR4JkwsFAsxCKVTVQQj1HS2iNTTeipx0otFm05
+   5hlfYik8F71oJnKO6+YeDDWs+l8NlkvuBFfIAMLxPNnBeNl7YhaYFEfOD
+   3FN6W0MioJIfSnUu0ljU5069brXq9Z2dxsn9adFblXYs3PEYYH77v1ou3
+   UsRR/Ch1hnTa6wW1N92fgi/OoJuaB8ABU7WEjAM3Q0ov1YE3XTb/zMxOb
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,374,1574121600"; 
+   d="scan'208";a="38359333"
+IronPort-PHdr: =?us-ascii?q?9a23=3AoQ4cNhXZXLJrSfMyLBbqctbJyN3V8LGtZVwlr6?=
+ =?us-ascii?q?E/grcLSJyIuqrYbRCOt8tkgFKBZ4jH8fUM07OQ7/m8Hzdcqs/Z6jhCKMUKC0?=
+ =?us-ascii?q?Zez51O3kQJO42sMQXDNvnkbig3ToxpdWRO2DWFC3VTA9v0fFbIo3e/vnY4Ex?=
+ =?us-ascii?q?T7MhdpdKyuQtaBx8u42Pqv9JLNfg5GmCSyYa9oLBWxsA7dqtQajZFtJ6osxR?=
+ =?us-ascii?q?bFuHVFdutZyW91OV6fgQv36sOs8JJ+6ShdtO8t+sBaXanmY6g0SKFTASg7PW?=
+ =?us-ascii?q?wy+MDlrwTIQxGV5nsbXGUWkx5IDBbA4RrnQJr/sTb0u/Rk1iWCMsL4Ub47WT?=
+ =?us-ascii?q?K576d2UxDokzsINyQ48G7MlMN9ir9QrQ+7qBx+x47UZ5yVNOZ7c6jAc94WWX?=
+ =?us-ascii?q?ZNU8BMXCNPGIO8a5YEAfQHM+hWsoLxo0ICoBW6CAWpAu7k1z1GiWLs3aAizu?=
+ =?us-ascii?q?ovDw/G0gwjEdwAvnvbo9f6O7sdX+2u0KnFzy/OY+9K1Trz6oXFdA0qr/GWXb?=
+ =?us-ascii?q?J3dMrc0VQhFx/bgVWIqYzqITWV3fkQvWie9eVgUeavhHAnqgpspTWv3dojip?=
+ =?us-ascii?q?LSi4IJylHL6SV5wIEvKd2+U050e8SoEJRXtyGELoZ7RN4pTW9vuCY/0LIGuJ?=
+ =?us-ascii?q?i7cTAFyJQm2x7fa+GHfJOS7h3/U+aRJDF1j29mdrKnnxu+7Eetx+LmWsS0zV?=
+ =?us-ascii?q?pGtDRJn9bSunwXyhDe7NWMROFn8Ue7wzmP0hje6uRDIU8pi6XWM4Uhwrsslp?=
+ =?us-ascii?q?oLtkTDAzP2lF32jKCIckUk/fCl6/j9bbX8p5+cKpR0hhv/MqQolMy/Bv84PR?=
+ =?us-ascii?q?YSUGSB5eS91KHs/U3+QLlQiP05jrLZv4zAKcQep665BxdZ0ocl6xmhEzeryM?=
+ =?us-ascii?q?kUkHYIIV5feB+LkpLlN0/BLfzmF/uznkygkDJxyPDHOr3hDI/NLn/GkLr5Zr?=
+ =?us-ascii?q?Zy9lVcxREvzdFf+51UCrYBLOj1Wk/qrtPUFBA5Mwuqw+r/EtVyypseWX6TAq?=
+ =?us-ascii?q?+eKK7SqUWH5v8rI+SXfI8aoiv9K/w86/7rin85nkUdcrez0ZQLb3C4G+xsI1?=
+ =?us-ascii?q?+Fbnr0ntcBDWAKsxIlTOP0jF2CUDhTZ2u9Xq8n+DE7B5ypDZ3ZSoCunrOBxi?=
+ =?us-ascii?q?G7EYNSZmxcDVCMC3jofZ2eW/gQcCKSPtNhkjscWLimTo8h0gqutAngxLV7MO?=
+ =?us-ascii?q?XZ4TcYuoz+29h1/eLTiQs++iBzD8SYgCmxSDRsl34Mbyc/waQ6pEt60FrF2q?=
+ =?us-ascii?q?990NJCEtkG3O9ESgc3M9bnyuV+D93jElbacsyhVEetQtLgByo4CN023YldMA?=
+ =?us-ascii?q?5GB9y+g0WbjGKRCLgPmunOX805?=
+X-IPAS-Result: =?us-ascii?q?A2DVAAAYeDBe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWoEA?=
+ =?us-ascii?q?QELAYF8gRhUIRIqhBSJA4Z7AwaBEiWJb5FJCQEBAQEBAQEBASsMAQGEQAKCS?=
+ =?us-ascii?q?jcGDgIQAQEBBAEBAQEBBQMBAWyFNwyCOymCewEFIxVBEAsYAgImAgJXEwYCA?=
+ =?us-ascii?q?QGCYz8BglYlD64lgTKFSoNCgTgGgQ4qAYw3eYEHgREnDAOCXT6CZAKCMIJDg?=
+ =?us-ascii?q?l4EjVgEiHdhRpdegkOCTIR2jm8GG4JImDSQKocalDkjgVgrCAIYCCEPgydQG?=
+ =?us-ascii?q?A2OKReDUIpxIwMwjjABAQ?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 28 Jan 2020 18:12:44 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00SIBtx6229598;
+        Tue, 28 Jan 2020 13:11:56 -0500
+Subject: Re: [PATCH] selinux: remove unused initial SIDs and improve handling
+To:     paul@paul-moore.com
+Cc:     selinux@vger.kernel.org, omosnace@redhat.com
+References: <20200127205507.3317-1-sds@tycho.nsa.gov>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <22a8f384-6799-5e61-df30-0dd3b251d0c3@tycho.nsa.gov>
+Date:   Tue, 28 Jan 2020 13:13:31 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
-Content-Disposition: inline
-In-Reply-To: <20200128172600.12896-1-sds@tycho.nsa.gov>
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+In-Reply-To: <20200127205507.3317-1-sds@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-
---xesSdrSSBC0PokLI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Jan 28, 2020 at 12:26:00PM -0500, Stephen Smalley wrote:
-> Remove restrictions in libsepol and checkpolicy that required all
-> declared initial SIDs to be assigned a context.  With this patch,
-> it is possible to build and load a policy that drops the sid <sidname>
-> <context> declarations for the unused initial SIDs.  It is still
-> required to retain the sid <sidname> declarations (in the flask
-> definitions) in order to preserve the initial SID ordering/values.
-> The unused initial SIDs can be renamed, e.g. to add an unused_
-> prefix or similar, if desired, since the names used in the policy
-> are not stored in the kernel binary policy.
->=20
-> In CIL policies, the (sid ...) and (sidorder (...)) statements
-> must be left intact for compatibility but the (sidcontext ...)
-> statements for the unused initial SIDs can be omitted after this change.
->=20
-> With current kernels, if one removes an unused initial SID context
-> from policy, builds policy with this change applied and loads the
-> policy into the kernel, cat /sys/fs/selinux/initial_contexts/<sidname>
-> will show the unlabeled context.  With the kernel patch to remove unused
-> initial SIDs, the /sys/fs/selinux/initial_contexts/<sidname>
-> file will not be created for unused initial SIDs in the first place.
->=20
-> NB If an unused initial SID was assigned a context different from
-> the unlabeled context in existing policy, then it is not safe to
-> remove that initial SID context from policy and reload policy on
-> the running kernel that was booted with the original policy.  This
-> is because that kernel may have assigned that SID to various kernel
-> objects already and those objects will then be treated as having
-> the unlabeled context after the removal.  In refpolicy, examples
-> of such initial SIDs are the "fs" SID and the "sysctl" SID.  Even
-> though these initial SIDs are not directly used (in code) by the current
-> kernel, their contexts are being applied to filesystems and sysctl files =
-by
-> policy and therefore the SIDs are being assigned to objects.
->=20
-> NB The "sysctl" SID was in use by the kernel up until
-> commit 8e6c96935fcc1ed3dbebc96fddfef3f2f2395afc ("security/selinux:
-> fix /proc/sys/ labeling) circa v2.6.39.  Removing its context from
-> policy will break kernels < 2.6.39.
->=20
+On 1/27/20 3:55 PM, Stephen Smalley wrote:
+> Remove initial SIDs that have never been used or are no longer
+> used by the kernel from its string table, which is also used
+> to generate the SECINITSID_* symbols referenced in code.
+> Update the code to gracefully handle the fact that these can
+> now be NULL. Stop treating it as an error if a policy defines
+> additional initial SIDs unknown to the kernel, or if the policy
+> leaves one of the unused initial SIDs without a defined context.
+> Fix the incorrect usage of the name from the ocontext in error
+> messages when loading initial SIDs since these are not presently
+> written to the kernel policy and are therefore always NULL.
+> 
+> This is a first step toward enabling future evolution of
+> initial SIDs. Further changes are required to both userspace
+> and the kernel to fully address
+> https://github.com/SELinuxProject/selinux-kernel/issues/12
+> but this takes a small step toward that end.  NB Even with
+> this change, one cannot yet add or remove initial SIDs in
+> policy without breakage; separate changes to the policy
+> compiler are still necessary.  Further, fully decoupling
+> the policy and kernel initial SID values will require a policy
+> format/version change to include the SID names in the
+> kernel policy so that they can be dynamically mapped at
+> policy load.
+> 
 > Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Thanks
+Review welcome but do not merge (should have marked it RFC); I have a v2 
+in progress.
 
 > ---
->  checkpolicy/test/dismod.c     |  6 +++--
->  libsepol/cil/src/cil_binary.c |  4 ++-
->  libsepol/cil/src/cil_verify.c | 10 -------
->  libsepol/src/expand.c         |  8 ++----
->  libsepol/src/policydb.c       | 51 ++++++++++++++++++++++++-----------
->  5 files changed, 44 insertions(+), 35 deletions(-)
->=20
-> diff --git a/checkpolicy/test/dismod.c b/checkpolicy/test/dismod.c
-> index 8d6be2ff9522..49d610d94b00 100644
-> --- a/checkpolicy/test/dismod.c
-> +++ b/checkpolicy/test/dismod.c
-> @@ -441,11 +441,13 @@ void display_initial_sids(policydb_t * p, FILE * fp)
-> =20
->  	fprintf(fp, "Initial SIDs:\n");
->  	for (cur =3D p->ocontexts[OCON_ISID]; cur !=3D NULL; cur =3D cur->next)=
- {
-> +		if (!cur->context[0].user)
-> +			continue;
->  		user =3D p->p_user_val_to_name[cur->context[0].user - 1];
->  		role =3D p->p_role_val_to_name[cur->context[0].role - 1];
->  		type =3D p->p_type_val_to_name[cur->context[0].type - 1];
-> -		fprintf(fp, "\t%s: sid %d, context %s:%s:%s\n",
-> -			cur->u.name, cur->sid[0], user, role, type);
-> +		fprintf(fp, "\tsid %d, context %s:%s:%s\n",
-> +			cur->sid[0], user, role, type);
->  	}
->  #if 0
->  	fprintf(fp, "Policy Initial SIDs:\n");
-> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
-> index f8e20d32f9f1..e52b6679c289 100644
-> --- a/libsepol/cil/src/cil_binary.c
-> +++ b/libsepol/cil/src/cil_binary.c
-> @@ -3067,9 +3067,11 @@ int cil_sidorder_to_policydb(policydb_t *pdb, cons=
-t struct cil_db *db)
->  		struct cil_sid *cil_sid =3D (struct cil_sid*)curr->data;
->  		struct cil_context *cil_context =3D cil_sid->context;
-> =20
-> +		/* even if no context, we must preserve initial SID values */
-> +		count++;
-> +
->  		if (cil_context !=3D NULL) {
->  			ocontext_t *new_ocon =3D cil_add_ocontext(&pdb->ocontexts[OCON_ISID],=
- &tail);
-> -			count++;
->  			new_ocon->sid[0] =3D count;
->  			new_ocon->u.name =3D cil_strdup(cil_sid->datum.fqn);
->  			rc =3D __cil_context_to_sepol_context(pdb, cil_context, &new_ocon->co=
-ntext[0]);
-> diff --git a/libsepol/cil/src/cil_verify.c b/libsepol/cil/src/cil_verify.c
-> index 018514dc1bb9..0367a8e58273 100644
-> --- a/libsepol/cil/src/cil_verify.c
-> +++ b/libsepol/cil/src/cil_verify.c
-> @@ -428,22 +428,12 @@ int __cil_verify_ordered(struct cil_tree_node *curr=
-ent, enum cil_flavor flavor)
->  int __cil_verify_initsids(struct cil_list *sids)
->  {
->  	int rc =3D SEPOL_OK;
-> -	struct cil_list_item *i;
-> =20
->  	if (sids->head =3D=3D NULL) {
->  		cil_log(CIL_ERR, "At least one initial sid must be defined in the poli=
-cy\n");
->  		return SEPOL_ERR;
->  	}
-> =20
-> -	cil_list_for_each(i, sids) {
-> -		struct cil_sid *sid =3D i->data;
-> -		if (sid->context =3D=3D NULL) {
-> -			struct cil_tree_node *node =3D sid->datum.nodes->head->data;
-> -			cil_tree_log(node, CIL_ERR, "No context assigned to SID %s declared",=
-sid->datum.name);
-> -			rc =3D SEPOL_ERR;
-> -		}
-> -	}
-> -
->  	return rc;
->  }
-> =20
-> diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
-> index 796121cf5ad8..5f8e75c38632 100644
-> --- a/libsepol/src/expand.c
-> +++ b/libsepol/src/expand.c
-> @@ -2159,6 +2159,8 @@ static int ocontext_copy_selinux(expand_state_t *st=
-ate)
->  	for (i =3D 0; i < OCON_NUM; i++) {
->  		l =3D NULL;
->  		for (c =3D state->base->ocontexts[i]; c; c =3D c->next) {
-> +			if (i =3D=3D OCON_ISID && c->context[0].user =3D=3D 0)
-> +				continue;
->  			n =3D malloc(sizeof(ocontext_t));
->  			if (!n) {
->  				ERR(state->handle, "Out of memory!");
-> @@ -2172,12 +2174,6 @@ static int ocontext_copy_selinux(expand_state_t *s=
-tate)
->  			l =3D n;
->  			switch (i) {
->  			case OCON_ISID:
-> -				if (c->context[0].user =3D=3D 0) {
-> -					ERR(state->handle,
-> -					    "Missing context for %s initial sid",
-> -					    c->u.name);
-> -					return -1;
-> -				}
->  				n->sid[0] =3D c->sid[0];
->  				break;
->  			case OCON_FS:	/* FALLTHROUGH */
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index 745e546baa3a..03360c88e7d3 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -1610,10 +1610,8 @@ int policydb_load_isids(policydb_t * p, sidtab_t *=
- s)
-> =20
->  	head =3D p->ocontexts[OCON_ISID];
->  	for (c =3D head; c; c =3D c->next) {
-> -		if (!c->context[0].user) {
-> -			ERR(NULL, "SID %s was never defined", c->u.name);
-> -			return -1;
-> -		}
-> +		if (!c->context[0].user)
-> +			continue;
->  		if (sepol_sidtab_insert(s, c->sid[0], &c->context[0])) {
->  			ERR(NULL, "unable to load initial SID %s", c->u.name);
->  			return -1;
-> @@ -2020,12 +2018,8 @@ static int mls_range_to_semantic(mls_range_t * r, =
-mls_semantic_range_t * sr)
->  	return 0;
->  }
-> =20
-> -/*
-> - * Read and validate a security context structure
-> - * from a policydb binary representation file.
-> - */
-> -static int context_read_and_validate(context_struct_t * c,
-> -				     policydb_t * p, struct policy_file *fp)
-> +static int context_read_no_validate(context_struct_t * c,
-> +				    policydb_t * p, struct policy_file *fp)
->  {
->  	uint32_t buf[3];
->  	int rc;
-> @@ -2049,6 +2043,19 @@ static int context_read_and_validate(context_struc=
-t_t * c,
->  		}
->  	}
-> =20
-> +	return 0;
-> +}
-> +
-> +/*
-> + * Read and validate a security context structure
-> + * from a policydb binary representation file.
-> + */
-> +static int context_read_and_validate(context_struct_t * c,
-> +				     policydb_t * p, struct policy_file *fp)
-> +{
-> +	if (context_read_no_validate(c, p, fp))
-> +		return -1;
-> +
->  	if (!policydb_context_isvalid(p, c)) {
->  		ERR(fp->handle, "invalid security context");
->  		context_destroy(c);
-> @@ -2797,6 +2804,7 @@ static int ocontext_read_selinux(struct policydb_co=
-mpat_info *info,
->  	unsigned int i, j;
->  	size_t nel, len;
->  	ocontext_t *l, *c;
-> +	context_struct_t tmpc;
->  	uint32_t buf[8];
->  	int rc;
-> =20
-> @@ -2807,6 +2815,22 @@ static int ocontext_read_selinux(struct policydb_c=
-ompat_info *info,
->  		nel =3D le32_to_cpu(buf[0]);
->  		l =3D NULL;
->  		for (j =3D 0; j < nel; j++) {
-> +			if (i =3D=3D OCON_ISID) {
-> +				rc =3D next_entry(buf, fp, sizeof(uint32_t));
-> +				if (rc < 0)
-> +					return -1;
-> +				context_init(&tmpc);
-> +				if (context_read_no_validate
-> +				    (&tmpc, p, fp))
-> +					return -1;
-> +				if (!tmpc.user)
-> +					continue;
-> +				if (!policydb_context_isvalid(p, &tmpc)) {
-> +				  ERR(fp->handle, "invalid security context");
-> +				  context_destroy(&tmpc);
-> +				  return -1;
-> +				}
-> +			}
->  			c =3D calloc(1, sizeof(ocontext_t));
->  			if (!c) {
->  				return -1;
-> @@ -2819,13 +2843,8 @@ static int ocontext_read_selinux(struct policydb_c=
-ompat_info *info,
->  			l =3D c;
->  			switch (i) {
->  			case OCON_ISID:
-> -				rc =3D next_entry(buf, fp, sizeof(uint32_t));
-> -				if (rc < 0)
-> -					return -1;
->  				c->sid[0] =3D le32_to_cpu(buf[0]);
-> -				if (context_read_and_validate
-> -				    (&c->context[0], p, fp))
-> -					return -1;
-> +				memcpy(&c->context[0], &tmpc, sizeof tmpc);
->  				break;
->  			case OCON_FS:
->  			case OCON_NETIF:
-> --=20
-> 2.24.1
->=20
+>   scripts/selinux/genheaders/genheaders.c       | 11 +++-
+>   .../selinux/include/initial_sid_to_string.h   | 57 +++++++++----------
+>   security/selinux/selinuxfs.c                  |  6 +-
+>   security/selinux/ss/policydb.c                | 28 ++++++---
+>   security/selinux/ss/services.c                | 26 ++++-----
+>   5 files changed, 73 insertions(+), 55 deletions(-)
 
---=20
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
-
---xesSdrSSBC0PokLI
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEe2FOk94VrgBPlhBrAlFoDzf+eRMFAl4wd5wACgkQAlFoDzf+
-eRPXYRAAkDljLIMje7YLnXCUBaoSHGyBhMfMhwCx/X08mFEbfjaCpFj+r1dJVLhL
-s5RY20unPjpD3F/w4rjL9Hv5NZyRDWQ/twWPzWlPxGmmQV31YvV6BrSNh03iESiD
-NKQFSDZqr9c/bOncahcRzRxNAqPlEnD9Fa7SNt5eiRipoLEu4Xnd//1LFdNVAV0V
-4yyvGUMFfqgNPT4ZqrS5EmTreLDhMpIUeCQaVOWaPCh/vvLBlmdOX+qX78/IiWZu
-d5UcQqRaQHDYQjhL7Obfdw43VeqvgVq+gzjBU7m6Fe8PUiZYv/HMRBhNZyfbJhni
-jSCPhXwxuYJle0WHoOhH34yNdYPuT/LVSe3QCSg+6kUSGthNiTnY+Bfb/BSyscrE
-Evt5TE5F/8ocIQzMw3QBc5TeKlFCjjVdQQKqBBl8a3ve6nvHbWjoNLZAQrvlBtTo
-DWQ13Z8KWOlZXHsWEaIwJNIMVdfQK3uY9qz1HGJD2IIQyA9K4JgvR9mLAIBgj2N+
-NaDSWKduAKBAVG0Q5A6JLbS8vkXZ/zlPd0spPn3CPdOv1FnOPk4UE43aS9QZcauG
-yWW0ETAUpWOxL+9ldnbuSseveIV8KGXCXEvUqbaj7+hfL1C9uosZu9hdTfjATuW5
-RpdAcpqtnHesxosV80aiIMZ13idCj+Z4AIAPjtrZgAl1tqig2J4=
-=Pmzd
------END PGP SIGNATURE-----
-
---xesSdrSSBC0PokLI--
+[...]
