@@ -2,95 +2,204 @@ Return-Path: <SRS0=EIhe=3R=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62B45C33CB3
-	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 09:54:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED4E3C2D0DB
+	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 12:25:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2C47824686
-	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 09:54:27 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HLGuZzzP"
+	by mail.kernel.org (Postfix) with ESMTP id BE8B624687
+	for <selinux@archiver.kernel.org>; Tue, 28 Jan 2020 12:25:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725881AbgA1Jy0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Jan 2020 04:54:26 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:38708 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725853AbgA1Jy0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jan 2020 04:54:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580205265;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=n+qT/SYn9CBlwS06VJNVbjd/6JyYXgkIv7Bhz+ukung=;
-        b=HLGuZzzPZzQ8RGIEHAXdsL2gfaBBxly4+a99gDC+5p6L3rN7S4BfH61cRR4FYRNt8vNR21
-        XoqKY2kiyoEc3Z4cj5PT0h5wN5k0DhS6VowS6yWWWTFkUYlLI7FbFNfxF/Uz5zp9eVQ9uW
-        D1ICKGmtCVsTzr+dqRFfEzArIdwoftc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-293-DvRJkB7PN_GDBFJhIRo1Ug-1; Tue, 28 Jan 2020 04:54:24 -0500
-X-MC-Unique: DvRJkB7PN_GDBFJhIRo1Ug-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 02E7D13EB
-        for <selinux@vger.kernel.org>; Tue, 28 Jan 2020 09:54:23 +0000 (UTC)
-Received: from localhost (unknown [10.34.245.65])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9B43919C58;
-        Tue, 28 Jan 2020 09:54:22 +0000 (UTC)
-References: <20200123125716.12662-1-omosnace@redhat.com> <20200123125716.12662-5-omosnace@redhat.com>
-User-agent: mu4e 1.2.0; emacs 26.3
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH userspace v2 4/4] Makefile: always build with -fno-common
-In-reply-to: <20200123125716.12662-5-omosnace@redhat.com>
-Date:   Tue, 28 Jan 2020 10:54:20 +0100
-Message-ID: <pjdblqnzz1v.fsf@redhat.com>
+        id S1726059AbgA1MZd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Jan 2020 07:25:33 -0500
+Received: from agnus.defensec.nl ([80.100.19.56]:40986 "EHLO agnus.defensec.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725948AbgA1MZd (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 28 Jan 2020 07:25:33 -0500
+Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id CA50B132060C
+        for <selinux@vger.kernel.org>; Tue, 28 Jan 2020 13:25:29 +0100 (CET)
+Date:   Tue, 28 Jan 2020 13:25:27 +0100
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     selinux@vger.kernel.org
+Subject: CIL: another segfault producer
+Message-ID: <20200128122527.GA36656@brutus.lan>
+Mail-Followup-To: selinux@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="k+w/mQv8wyuph6w0"
+Content-Disposition: inline
+User-Agent: Every email client sucks, this one just sucks less.
+X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
-Ondrej Mosnacek <omosnace@redhat.com> writes:
+--k+w/mQv8wyuph6w0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> GCC 10 has it enabled by default and everything now builds OK with it,
-> so add it to CFLAGS to avoid breaking the build in the future.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  Makefile | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/Makefile b/Makefile
-> index c238dbc8..298cd2b7 100644
-> --- a/Makefile
-> +++ b/Makefile
-> @@ -16,7 +16,8 @@ else
->  		-Wstrict-prototypes \
->  		-Wundef \
->  		-Wunused \
-> -		-Wwrite-strings
-> +		-Wwrite-strings \
-> +		-fno-common
->  endif
->  
->  ifneq ($(DESTDIR),)
+In trying to reduce points of failure in my policy I encountered another se=
+gfault
 
+I want to centralize common permissions, for example common create and comm=
+on read/write socket perms:
 
-This change applies only when you run a build from root directory.
-Would it make sense to propagate it also to libsepol/src/Makefile and
-checkpolicy/Makefile so it's used when users builds components from
-released tar balls?
+ 872 (classmap all_sockets                                                 =
+         |
+ 873           (common_create_socket_perms common_readwrite_socket_perms)) =
+         |
+ 874                                                                       =
+         |
+ 875 (classmap common_alg_socket                                           =
+         |
+ 876           (common_create_socket_perms common_readwrite_socket_perms)) =
+         |
+ 877 (classmap common_appletalk_socket                                     =
+         |
+ 878           (common_create_socket_perms common_readwrite_socket_perms)) =
+         |
+ 879                                                                       =
+         |
+ 880 (classmapping                                                         =
+         |
+ 881  all_sockets                                                          =
+         |
+ 882  common_create_socket_perms                                           =
+         |
+ 883   (common_alg_socket                                                  =
+         |
+ 884    (common_create_socket_perms)))                                     =
+         |
+ 885                                                                       =
+         |
+ 886 (classmapping                                                         =
+         |
+ 887  all_sockets                                                          =
+         |
+ 888  common_create_socket_perms                                           =
+         |
+ 889  (common_appletalk_socket                                             =
+         |
+ 890    (common_create_socket_perms)))                                     =
+         |
+ 891                                                                       =
+         |
+ 892 (classmapping                                                         =
+         |
+ 893  all_sockets                                                          =
+         |
+ 894  common_readwrite_socket_perms                                        =
+         |
+ 895   (common_alg_socket                                                  =
+         |
+ 896    (common_readwrite_socket_perms)))                                  =
+         |
+ 897                                                                       =
+         |
+ 898 (classmapping                                                         =
+         |
+ 899  all_sockets                                                          =
+         |
+ 900  common_readwrite_socket_perms                                        =
+         |
+ 901  (common_appletalk_socket                                             =
+         |
+ 902    (common_readwrite_socket_perms)))                                  =
+         |
+ 903                                                                       =
+         |
+ 904 (classmapping                                                         =
+         |
+ 905  common_alg_socket                                                    =
+         |
+ 906  common_create_socket_perms                                           =
+         |
+ 907  (alg_socket                                                          =
+         |
+ 908   (append bind connect create getattr getopt ioctl read setattr setopt=
+ shutdown|
+ 909           write)))                                                    =
+         |
+ 910                                                                       =
+         |
+ 911 (classmapping                                                         =
+         |
+ 912  common_alg_socket                                                    =
+         |
+ 913  common_readwrite_socket_perms                                        =
+         |
+ 914  (alg_socket                                                          =
+         |
+ 915   (append bind connect getattr getopt ioctl read setattr setopt shutdo=
+wn       |
+ 916           write)))                                                    =
+         |
+ 917                                                                       =
+         |
+ 918 (classpermission create_alg_socket_perms)                             =
+         |
+ 919                                                                       =
+         |
+ 920 (classpermissionset                                                   =
+         |
+ 921  create_alg_socket_perms                                              =
+         |
+ 922  (common_alg_socket                                                   =
+         |
+ 923   (common_create_socket_perms)))                                      =
+         |
+ 924                                                                       =
+         |
+ 925 (classpermission readwrite_alg_socket_perms)                          =
+         |
+ 926                                                                       =
+         |
+ 927 (classpermissionset                                                   =
+         |
+ 928  readwrite_alg_socket_perms                                           =
+         |
+ 929  (common_alg_socket                                                   =
+         |
+ 930   (common_readwrite_socket_perms)))                                   =
+         |
 
+<snip>
+Building AST from Parse Tree
+Destroying Parse Tree
+Resolving AST
+Qualifying Names
+Compile post process
+make: *** [Makefile:21: policy.32] Segmentation fault (core dumped)
 
+--=20
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
 
+--k+w/mQv8wyuph6w0
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEe2FOk94VrgBPlhBrAlFoDzf+eRMFAl4wKDEACgkQAlFoDzf+
+eRNBTg//alyKG6oi1xwXzxj1dMBNg9OK0s8IXw6bRPeJ4ptq+l93VK2Q2yYVrDTb
+KPRZ+4ZB/Tiych4yAB1vM0TTo+ZDOQeSEB64vcUyjcYPx3hzn8iJa+O/GTAcUIDK
+D5tuSGQrOB+yy0xEGPTQdz0LPXu4/JDPfvFQejgTHR+a2JXRLIpBWbIXwWARpLTo
+1bARbjqivcMQJVjsTFUxT9vnYfgtmMkMvYxTSBMkcTmvd5Svw2ATqJfrk/kXZUMT
+Oz7cZKNQokpXCmp58QK2GmTI0EBxbMhv8oAdy2ynhAr/EKc4rVl+yyktf5Oy+947
+yGciuJe1Utb5/Qzi5lZA686qpwkybo28PUVN9kse744eNz1Fq4pqwXxF7grbz2kH
+B6j1kRbUvyxhqVejxDGgPPUSKoQPCFjfWZj7JVQ4pMpIGEk1AP+v+jDorPjp3AWC
+AIec0RmVoCVyLRlSVIOW+EEW8dSF5PDUkix9vZIelz9V4S78LLzJI2wwPDTkBlFh
+bVXtK66EJ1fE75qBzkQSqnsSWOSVzHducEmpSmQ3KS0qF+ZKmSVmvAUAOpUWs3wB
+SO2GcPmm0P+jbtRVK8pkVM2bAjijSOBM2o2Bb/IY0RbaNQlfNB+O+QUUgmGLiNBR
+otPVa7XQgqPl4KNxddVOnzKsQf3ddcpBvo1pSWCnUGFqox1zm8c=
+=NU9H
+-----END PGP SIGNATURE-----
+
+--k+w/mQv8wyuph6w0--
