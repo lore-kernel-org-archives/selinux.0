@@ -2,155 +2,369 @@ Return-Path: <SRS0=m98w=3S=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4D42C2D0DB
-	for <selinux@archiver.kernel.org>; Wed, 29 Jan 2020 19:29:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A853AC33CB7
+	for <selinux@archiver.kernel.org>; Wed, 29 Jan 2020 20:28:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A933820663
-	for <selinux@archiver.kernel.org>; Wed, 29 Jan 2020 19:29:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8112C20702
+	for <selinux@archiver.kernel.org>; Wed, 29 Jan 2020 20:28:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Pfg6NzrQ"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="KNNBkpbL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726708AbgA2T3U (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Jan 2020 14:29:20 -0500
-Received: from USFB19PA34.eemsg.mail.mil ([214.24.26.197]:57054 "EHLO
-        USFB19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726298AbgA2T3U (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jan 2020 14:29:20 -0500
-X-EEMSG-check-017: 50681046|USFB19PA34_ESA_OUT04.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,378,1574121600"; 
-   d="scan'208";a="50681046"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 29 Jan 2020 19:29:17 +0000
+        id S1727107AbgA2U2n (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Jan 2020 15:28:43 -0500
+Received: from UPDC19PA24.eemsg.mail.mil ([214.24.27.199]:42070 "EHLO
+        UPDC19PA24.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727103AbgA2U2n (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jan 2020 15:28:43 -0500
+X-EEMSG-check-017: 51496060|UPDC19PA24_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,379,1574121600"; 
+   d="scan'208";a="51496060"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA24.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 29 Jan 2020 20:28:38 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1580326158; x=1611862158;
-  h=subject:from:to:cc:references:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=w1izRsHWmocrHCtANnEFZGDcw6LvieTVwc78Vzlq/xE=;
-  b=Pfg6NzrQz4okXmQC8QCRm1oscakCJSzevrEps6/A9cUkES1rYbPvYMu+
-   +pDYxFYUABM4T/8PHGZ3x3Obxf8577qwP9Csx9toFUyTaOQ5JCRPkCKZh
-   uPnjNvnxzjRQeDi53ATIJHRa/o50ZiObo4+WwSpU82MpFBv7HLVvFfTt1
-   LlpPWNl2zLD1STc9ncqTe4kHK9vdsSU6n29z8u+4j5WKacetc6ThmTkiw
-   ZvQ3qonv+c7F8XgqzVCHlSvoYDP2/uR25aCUotyqhcFd3EKuWWLoIU0ch
-   b/WfnXGaqf04EJHdIC5aAnmTOzK1KntHL0cpQA1AfyH+fIYR0o2yisJu3
+  s=tycho.nsa.gov; t=1580329718; x=1611865718;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Yf92bjS1Sz/3Gx2zzw5y1c52MBW3Jy7bwrLUGq9BKx0=;
+  b=KNNBkpbLlnjprOAfNuroDHTUWwLTqO9cekDiFQDc9MSoGS4g7ctMTM9+
+   edGDHgkvfbVdwBU0Dk5awUVWDKlxP/M6X52PhH17G3gPcA8i6Ij7w6dZ2
+   wD9DkEkUnRAYO3JHznsWCbxDXW+98ZA2KkK5ZUifDds8uogEw9fDahme7
+   k2FZdS15gOodABVxh8czcO1BlRrNt2fA5mav76L6qSXerUivOkSyXWwXt
+   uevQGEB/ZqSDvwetfnH2Bx5mEZ17Qv8u7tE1UxOTjgXzS20GCxNyv9Alp
+   Zukaljym4bwuLjWpMHAUj82JN1mXvumeZzDf8nZmJ1m/rbx4w3VV+dgss
    g==;
-X-IronPort-AV: E=Sophos;i="5.70,378,1574121600"; 
-   d="scan'208";a="32472638"
-IronPort-PHdr: =?us-ascii?q?9a23=3Akt7THxW466zx4Caoel7A7s/PFCvV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYZRSEvKdThVPEFb/W9+hDw7KP9fy5BSpbv93Y6ipKMMQVEU?=
- =?us-ascii?q?Nc0oNOx01oKfXGIHWzFOTtYS0+EZYKf35e1Fb/D3JoHt3jbUbZuHy44G1aMB?=
- =?us-ascii?q?z+MQ1oOra9QdaK3Iy42O+o5pLcfRhDiiajbrNuNhW2qhjautULjYd4Jas91x?=
- =?us-ascii?q?TErmFGdulXym9kOEyfkwjh7cu04JJv7j5ctv08+8NOS6n2Y7g0QblFBzk6Lm?=
- =?us-ascii?q?4549HmuwPeRgWV/HscVWsWkhtMAwfb6RzxQ4n8vCjnuOdjwSeWJcL5Q6w6Vj?=
- =?us-ascii?q?Sk9KdrVQTniDwbOD4j8WHYkdJ/gaRGqx+8vRN/worUYIaINPpie67WYN0XSX?=
- =?us-ascii?q?ZdUstXSidODJm8b48SBOQfO+hWoZT2q18XoRawAQSgAeXiwSJKiHDrx603y/?=
- =?us-ascii?q?kvHwHY0gwuHNwAvnrbo9r3O6gOXu6417XIwDbZYv9KxTvw5orFfxY8qv+MR7?=
- =?us-ascii?q?Jwds/RxFEyGQPZkFqQsYzlMC2T1u8Qrmab6vBvVeari2E5qwB6vz+ixtwxhY?=
- =?us-ascii?q?nSnY8V1lDF+jl5wIYyP9G4TlV7bsS+HJtfsCGaKZJ7T8U/SG9mvyY6z6cJuZ?=
- =?us-ascii?q?+9fCUSx5QnxgLfa/yac4eT+B7sSOGRITJ+iXl4e7y/nw6//VWvx+DzTMW50E?=
- =?us-ascii?q?tGojBbntTDqHwBzQHf586aQfVn5EihwyyA1wXL5+FBJkA7iLTUJoY6wr41ip?=
- =?us-ascii?q?oTqUPDHjLqmEnujK+ZaEEk+u+w5uT7eLrmvJ6cN5Jvig3kM6QunMK/AeMjMg?=
- =?us-ascii?q?cQQ2eX4/i81b3/8k35R7VGlPs2nbXCsJ/GP8gbo6+5AwtN3oYi7RawESum3c?=
- =?us-ascii?q?wFkXQII19JYhKKg5XzN13QL/30E+2zj0m0nDdu3f/GP7nhApvXLnjElbfsZa?=
- =?us-ascii?q?195FNHyAco0dBe545bCrEGIP7pXE/xr8bXAgU2Mwyz3ebrEM992Z8GWWKTHq?=
- =?us-ascii?q?+ZN7vfsUSW6eIrIumMYpIVuTnmJvg76P7hk2U5lUUefaa3x5sXbm63HvB8L0?=
- =?us-ascii?q?Wee3rsjc8LEX0WsQomUOzqlFqCXCZUZ3a3WKI8/Tc7B5i6AojdXY2tmqKO0z?=
- =?us-ascii?q?q7HpJMemBKEEyDEXDtd4+cQfcDdDqSItN9kjwDTbWhU5Uu1QyqtALh07poNP?=
- =?us-ascii?q?fU+ikBuZLm09h14PfTmg8o+TNoCMSd1nmHT3tokWMQWz82wKd/rFRnyleCza?=
- =?us-ascii?q?d4g+ZXFcZO6PxRTgg1LZ7cwPZ7C9D0RA3BZcyER026QtWnBzExUsw+w8UIY0?=
- =?us-ascii?q?ljB9WulAzM3y2vA+xdq7veH5Ew86TBz1DvKMtnjXXLzq8six8hWMQcG3ehg/?=
- =?us-ascii?q?tE6wXLB4PP236cnqKueLVUiDXB70+f3GGOuwdeSwc2XqLbCyNMLnDKpMj0sx?=
- =?us-ascii?q?uRB4SlDq4qZ04amMM=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DSAgD12zFe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YEYVAEgEiqEFIkDhlkGgTeJb5FJCQEBAQEBAQEBASsMAQGEQAKCTjgTAhABA?=
- =?us-ascii?q?QEEAQEBAQEFAwEBbIU3DII7KYJ7AQUjDwEFQRAJAhgCAiYCAlcTBgIBAYJjP?=
- =?us-ascii?q?wGCViUPkgebeIEyiHSBPoEOKow6eYEHgTgPgl0+gksZAoFNY4JDgl4EjTgSi?=
- =?us-ascii?q?jCXXoJDgkyEdo5vBhuaf4p/jEWUOiKBWCsIAhgIIQ+DJwlHGA2SEIZRhCAjA?=
- =?us-ascii?q?zCORwEB?=
+X-IronPort-AV: E=Sophos;i="5.70,379,1574121600"; 
+   d="scan'208";a="38427954"
+IronPort-PHdr: =?us-ascii?q?9a23=3Ap7wQkh1MMYV28elKsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZsesWKP3xwZ3uMQTl6Ol3ixeRBMOHsq4C0LSd6vu7ESxYuNDd6StEKMQNHz?=
+ =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
+ =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQZjId4JKs8yx?=
+ =?us-ascii?q?TFrmZGdulY2GhkIU6fkwvm6sq/4ZJu/T5ct+49+8JFTK73Y7k2QbtEATo8Lm?=
+ =?us-ascii?q?s7/tfrtR7NTQuO4nsTTGAbmQdWDgbG8R/3QI7/vjP1ueRh1iaaO9b2Ta0vVj?=
+ =?us-ascii?q?S586hrUh7ohzwZODM/7Wral9Z/jKNfoBKmuhx/34vZa5ybOfZiYq/Qe84RSm?=
+ =?us-ascii?q?RbXsZVSidPHIWyYYUSBOYFJOpVoY3wq14IoBCjBwejGfnvxydIiHHowKM03e?=
+ =?us-ascii?q?cvHwbJ0wIvBN8CrHfZoc/pOKoITey50K/FxijDYfNM3jf97ZDFfA09of6SRb?=
+ =?us-ascii?q?JwcdTeyU8yHA3Yi1Wfs4jlPzeL2eUNrmOW6PFgWv+0i2M8twFwoiSgxscrio?=
+ =?us-ascii?q?XTgIIV0UrL+T92wIYyO921UUh2asOqHptXsiGVLYp2QsU6TmFnuSY61r0GuY?=
+ =?us-ascii?q?OgcyQQ1JsnwBvfZvqaeIaL+hLuTPudLDh3iX5/eL+zmgy+/Vavx+HiTMW4zV?=
+ =?us-ascii?q?BHpTdfnNbWrHACzRnT59CCSvt640iuxy6C1xvW6uFYOUA0krfbK4I5zr4wiJ?=
+ =?us-ascii?q?UTtUPDEzfqmErslq+Wd1gk+vOy5+TmZLXmqJicN5RqhQ7iKKguhsy+Dvg4Mg?=
+ =?us-ascii?q?gJRWSb//iz1Kb/8kHjRbVKj/k2nrHYsJDcO8sbura0DxJa34ss8RqyDyqq3M?=
+ =?us-ascii?q?4GkXQIMl5JYg+Lg5DsO17UIfD4Cfm/g06rkDdu3/3GJaDuAo7WI3jfkLbuYb?=
+ =?us-ascii?q?Z960lGxAo11tBQ/YhYCr4GIPLtQkPxrsDXDgclMwyoxObqEM991oICVmKPGK?=
+ =?us-ascii?q?CZKr7dvkeU6e03I+mDfo4VuDDjJPg+/PPhlmM5mV4bfam1w5QXcna4Eep6I0?=
+ =?us-ascii?q?mDfXXshdIBG38QvgUiVOzqlEGCUTlLana1WqI84So7CIS8AojfWI+gm6aB0z?=
+ =?us-ascii?q?mmEZ1WfG9GFkqAHmvvd4WBQ/0Mcj6dItd9kjwYUrisU5Qh2g+qtA/7zbpnM+?=
+ =?us-ascii?q?XV9zYGtZLsytd1/ffflRIs+jxuCcSSzWWNQ3tznmMSSD88xLp/rlBlylefza?=
+ =?us-ascii?q?h4hORVFcRJ6PNUVgc3LobcwPZnC9D2Qw7Be9CJSFG8Qtq4Gz0+UtUxw9pdK3?=
+ =?us-ascii?q?p6Ts2rkxTrxyO3B/oQkLuRCdo/9aeP8WL2IpNG13ve1KQnx2IjS89LOHzu0r?=
+ =?us-ascii?q?Vz7CDPFoXJlAOfjK/seqMCin2evFyfxHaD6RkLGDV7Vr/ICDVEN0Y=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BTAABO6DFe/wHyM5BmHQEBAQkBEQUFAYFoBwELAYF8g?=
+ =?us-ascii?q?RhUASASKo0XhloGiyaPToF7CQEBAQEBAQEBARsQDAEBhECCUDUIDgIQAQEBB?=
+ =?us-ascii?q?AEBAQEBBQMBAWyFNwyCOymDMwFGgVGCZz8BglYlD689iHuBPoE4AYdBhHh5g?=
+ =?us-ascii?q?QeBR4MbgksZAoFNhgQEl3qXXoJDgkyEdo5pDBuafgGKf4xFlCQBN4FYKwgCG?=
+ =?us-ascii?q?AghD4MnCUcYDZIQhlGEICMDMI5HAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 29 Jan 2020 19:29:16 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 29 Jan 2020 20:28:34 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00TJSTE6227928;
-        Wed, 29 Jan 2020 14:28:29 -0500
-Subject: Re: [PATCH] testsuite/policy: fixes for running on a labeled NFS
- mount
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00TKRkuV259121;
+        Wed, 29 Jan 2020 15:27:48 -0500
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     selinux@vger.kernel.org
-Cc:     omosnace@redhat.com, paul@paul-moore.com,
-        richard_c_haines@btinternet.com
-References: <20200123193415.34022-1-sds@tycho.nsa.gov>
- <7cf87c7f-c190-165d-a000-4238a03b91d4@tycho.nsa.gov>
-Message-ID: <cb308cdd-e0ee-0ddc-990a-902457264409@tycho.nsa.gov>
-Date:   Wed, 29 Jan 2020 14:30:05 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+To:     paul@paul-moore.com
+Cc:     selinux@vger.kernel.org, omosnace@redhat.com,
+        richard_c_haines@btinternet.com,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] testsuite: enable running over labeled NFS
+Date:   Wed, 29 Jan 2020 15:29:22 -0500
+Message-Id: <20200129202922.88027-1-sds@tycho.nsa.gov>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <7cf87c7f-c190-165d-a000-4238a03b91d4@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/29/20 1:44 PM, Stephen Smalley wrote:
-> On 1/23/20 2:34 PM, Stephen Smalley wrote:
->> When running the testsuite on a labeled NFS mount, certain
->> additional permissions are required for nfsd and its kernel threads
->> and for the nfs_t filesystem.  Allow them to avoid unnecessary
->> failures on NFS.  Also declare test_setfscreatecon_newcon_t as a
->> files_type() to ensure that it can be accessed as expected by
->> unconfined domains; otherwise, cleanup and repeated runs are not
->> guaranteed to work.  Saw denials for unconfined_t and kernel_t on
->> test_fscreatecon_newcon_t when running over labeled NFS, but
->> at least the unconfined_t access was possible even for running
->> locally.
->>
->> With these changes, all of the "filesystem" tests pass on a labeled NFS
->> mount.
->>
->> Certain test cases are still expected to fail over NFS; see
->> https://github.com/SELinuxProject/selinux-testsuite/issues/32
->> for more details.
->>
->> Test sequence for labeled NFS is:
->> $ cat nfs.sh
->> MOUNT=/home # must be a top-level mount
->> TESTDIR=$MOUNT/path/to/selinux-testsuite
->> exportfs -orw,no_root_squash,security_label localhost:$MOUNT
->> systemctl start nfs-server
->> mkdir -p /mnt/selinux-testsuite
->> mount -t nfs -o vers=4.2 localhost:$TESTDIR /mnt/selinux-testsuite
->> pushd /mnt/selinux-testsuite
->> make test
->> popd
->> umount /mnt/selinux-testsuite
->> exportfs -u localhost:$MOUNT
->> systemctl stop nfs-server
->>
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> ---
->>   policy/test_filesystem.te |  8 ++++++++
->>   policy/test_sctp.te       | 18 ++++++++++++++++++
->>   2 files changed, 26 insertions(+)
-> 
-> I went ahead and applied this. Further policy changes will be needed to 
-> support testing on labeled NFS once more of the filesystem and/or 
-> fs_filesystem tests are migrated to running in the host/native 
-> filesystem rather than within the ext4 mount created by the test itself. 
->   I'd like to get to the point where we can fully run the testsuite on 
-> labeled NFS, which will require making some other tests conditional on 
-> filesystem type.  Then hopefully those who are running the testsuite 
-> automatically could also add the above nfs.sh script or something 
-> similar to their test harness and start exercising labeled NFS on a 
-> regular basis to catch regressions.
+Certain tests cannot succeed on nfs and therefore should
+be skipped in that case.  This allows the testsuite to
+be run on a labeled NFS mount as described below without
+triggering any (additional) failures relative to running
+on a local filesystem like ext4.
 
-Looks like my sample nfs.sh script above isn't quite right; need to 
-start nfs-server before the exportfs.
+The tests that are skipped or modified and the corresponding rationale is:
+file: 1 test skipped - flock not supported over NFS
+capable_file: all tests skipped - file capabilities not supported over NFS
+capable_sys: 1 test skipped - CAP_SYS_RAWIO not supported over NFS
+overlay: all tests skipped - NFS not supported as an upperdir
+mac_admin: one test modified - undefined contexts not exported over NFS
+
+This partly addresses
+https://github.com/SELinuxProject/selinux-testsuite/issues/32.
+
+Test sequence for labeled NFS is:
+$ cat nfs.sh
+MOUNT=/home # must be a top-level mount
+TESTDIR=$MOUNT/path/to/selinux-testsuite
+systemctl start nfs-server
+exportfs -orw,no_root_squash,security_label localhost:$MOUNT
+mkdir -p /mnt/selinux-testsuite
+mount -t nfs -o vers=4.2 localhost:$TESTDIR /mnt/selinux-testsuite
+pushd /mnt/selinux-testsuite
+make test
+popd
+umount /mnt/selinux-testsuite
+exportfs -u localhost:$MOUNT
+systemctl stop nfs-server
+
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ tests/capable_file/test | 28 +++++++++++++++++++---------
+ tests/capable_sys/test  | 32 +++++++++++++++++++++++---------
+ tests/file/test         | 22 +++++++++++++++++-----
+ tests/mac_admin/test    | 18 ++++++++++++++----
+ tests/overlay/test      | 11 ++++++++---
+ 5 files changed, 81 insertions(+), 30 deletions(-)
+
+diff --git a/tests/capable_file/test b/tests/capable_file/test
+index 12322d320dd4..8d0acc9742af 100755
+--- a/tests/capable_file/test
++++ b/tests/capable_file/test
+@@ -3,11 +3,21 @@
+ # This test performs capability tests for file operations.
+ #
+ 
+-use Test;
+-BEGIN { plan tests => 10 }
++use Test::More;
+ 
+-$basedir = $0;
+-$basedir =~ s|(.*)/[^/]*|$1|;
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    $isnfs = `stat -f --print %T $basedir`;
++
++    if ( $isnfs eq "nfs" ) {
++        plan skip_all => "file capabilities not supported over NFS";
++    }
++    else {
++        plan tests => 10;
++    }
++}
+ 
+ # Clean up from a previous run
+ system "rm -f $basedir/temp_file 2>&1";
+@@ -20,12 +30,12 @@ system "rm -f $basedir/temp_file2 2>&1";
+ system "touch $basedir/temp_file 2>&1";
+ $result =
+   system "runcon -t test_fcap_t -- chown daemon $basedir/temp_file 2>&1";
+-ok( $result, 0 );
++ok( $result eq 0 );
+ 
+ # CAP_FOWNER
+ system "chown daemon.tty $basedir/temp_file 2>&1";
+ $result = system "runcon -t test_fcap_t -- chmod 0400 $basedir/temp_file 2>&1";
+-ok( $result, 0 );
++ok( $result eq 0 );
+ 
+ # CAP_FSETID
+ $fn   = "$basedir/temp_file";
+@@ -42,12 +52,12 @@ ok($result);
+ # CAP_LEASE
+ $result = system
+   "runcon -t test_fcap_t --  $basedir/test_lease $basedir/temp_file 2>&1";
+-ok( $result, 0 );
++ok( $result eq 0 );
+ 
+ # CAP_MKNOD
+ $result =
+   system "runcon -t test_fcap_t -- mknod $basedir/temp_file2 c 5 5 2>&1";
+-ok( $result, 0 );
++ok( $result eq 0 );
+ 
+ # Cleanup time.
+ system "rm -f $basedir/temp_file 2>&1";
+@@ -79,7 +89,7 @@ if ( $mode eq ( stat($fn) )[2] ) {
+ }
+ 
+ # prior mode should be same as current mode
+-ok( $result, 0 );
++ok( $result eq 0 );
+ 
+ # CAP_LEASE - Needs DAC_OVERRIDE
+ $result = system
+diff --git a/tests/capable_sys/test b/tests/capable_sys/test
+index 2d9edf450800..cd50ebcada1b 100755
+--- a/tests/capable_sys/test
++++ b/tests/capable_sys/test
+@@ -1,13 +1,23 @@
+ #!/usr/bin/perl
+ #
+-# This test performs checks for network-related capabilties.
++# This test performs checks for system-related capabilties.
+ #
+ 
+ use Test;
+-BEGIN { plan tests => 8 }
+ 
+-$basedir = $0;
+-$basedir =~ s|(.*)/[^/]*|$1|;
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    $isnfs = `stat -f --print %T $basedir`;
++
++    $test_count = 7;
++    if ( $isnfs ne "nfs" ) {
++        $test_count += 1;
++    }
++
++    plan tests => $test_count;
++}
+ 
+ # Clean up from a previous run
+ system "rm -f $basedir/temp_file 2>&1";
+@@ -16,11 +26,15 @@ system "rm -f $basedir/temp_file 2>&1";
+ # Tests for the good domain.
+ #
+ 
+-# CAP_SYS_RAWIO
+-system "touch $basedir/temp_file 2>&1";
+-$result =
+-  system "runcon -t test_scap_t -- $basedir/test_rawio $basedir/temp_file 2>&1";
+-ok( $result, 0 );
++if ( $isnfs ne "nfs" ) {
++
++    # CAP_SYS_RAWIO
++    system "touch $basedir/temp_file 2>&1";
++    $result =
++      system
++      "runcon -t test_scap_t -- $basedir/test_rawio $basedir/temp_file 2>&1";
++    ok( $result, 0 );
++}
+ 
+ # CAP_SYS_CHROOT
+ $result = system "runcon -t test_scap_t -- $basedir/test_chroot $basedir/ 2>&1";
+diff --git a/tests/file/test b/tests/file/test
+index 5e080fc6d4e9..465054802fc5 100755
+--- a/tests/file/test
++++ b/tests/file/test
+@@ -4,10 +4,20 @@
+ #
+ 
+ use Test;
+-BEGIN { plan tests => 16 }
+ 
+-$basedir = $0;
+-$basedir =~ s|(.*)/[^/]*|$1|;
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    $isnfs = `stat -f --print %T $basedir`;
++
++    $test_count = 15;
++    if ( $isnfs ne "nfs" ) {
++        $test_count++;
++    }
++
++    plan tests => $test_count;
++}
+ 
+ #
+ # Clean up from a previous run
+@@ -72,9 +82,11 @@ $result = system
+ "runcon -t test_fileop_t -- $basedir/test_mprotect $basedir/temp_file $good_file_sid 2>&1";
+ ok( $result, 0 );
+ 
+-$result = system
++if ( $isnfs ne "nfs" ) {
++    $result = system
+ "runcon -t test_fileop_t -- $basedir/test_lock $basedir/temp_file $good_file_sid 2>&1";
+-ok( $result, 0 );
++    ok( $result, 0 );
++}
+ 
+ $result = system
+ "runcon -t test_fileop_t -- $basedir/test_rw $basedir/temp_file $good_file_sid 2>&1";
+diff --git a/tests/mac_admin/test b/tests/mac_admin/test
+index e8e0bbf8cf19..32161f391643 100755
+--- a/tests/mac_admin/test
++++ b/tests/mac_admin/test
+@@ -1,10 +1,15 @@
+ #!/usr/bin/perl
+ 
+ use Test;
+-BEGIN { plan tests => 8 }
+ 
+-$basedir = $0;
+-$basedir =~ s|(.*)/[^/]*|$1|;
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    $isnfs = `stat -f --print %T $basedir`;
++
++    plan tests => 8;
++}
+ 
+ # Verify that test_mac_admin_t can relabel a file to an undefined context.
+ system("rm -f $basedir/test_file; touch $basedir/test_file");
+@@ -36,7 +41,12 @@ ok( $result, 0 );    # we expect this to succeed.
+ # Verify that test_mac_admin_t sees the undefined label value.
+ $result = `runcon -t test_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
+ chomp($result);
+-ok( $result, "UNDEFINED" );
++if ( $isnfs ne "nfs" ) {
++    ok( $result, "UNDEFINED" );
++}
++else {
++    ok( $result, "unlabeled_t" );
++}
+ 
+ # Verify that test_no_mac_admin_t sees the unlabeled context.
+ $result = `runcon -t test_no_mac_admin_t -- secon -t -f $basedir/test_dir 2>&1`;
+diff --git a/tests/overlay/test b/tests/overlay/test
+index 33eb0d1c2178..72affdfaa7ff 100755
+--- a/tests/overlay/test
++++ b/tests/overlay/test
+@@ -2,10 +2,18 @@
+ use Test::More;
+ 
+ BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    $isnfs = `stat -f --print %T $basedir`;
++
+     # check if kernel supports overlayfs and SELinux labeling
+     if ( system("grep -q security_inode_copy_up /proc/kallsyms") ) {
+         plan skip_all => "overlayfs not supported with SELinux in this kernel";
+     }
++    elsif ( $isnfs eq "nfs" ) {
++        plan skip_all => "overlayfs upperdir not supported on NFS";
++    }
+     else {
+         plan tests => 119;
+     }
+@@ -695,9 +703,6 @@ sub test_93_1 {
+     return;
+ }
+ 
+-$basedir = $0;
+-$basedir =~ s|(.*)/[^/]*|$1|;
+-
+ cleanup();
+ 
+ sub nocontext_test {
+-- 
+2.24.1
 
