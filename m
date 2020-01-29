@@ -2,98 +2,127 @@ Return-Path: <SRS0=m98w=3S=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE2CDC2D0DB
-	for <selinux@archiver.kernel.org>; Wed, 29 Jan 2020 16:45:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2B7EC2D0DB
+	for <selinux@archiver.kernel.org>; Wed, 29 Jan 2020 18:21:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B9A70207FD
-	for <selinux@archiver.kernel.org>; Wed, 29 Jan 2020 16:45:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C270206D4
+	for <selinux@archiver.kernel.org>; Wed, 29 Jan 2020 18:21:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="FHuRwcQI"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="AylT3BU4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726498AbgA2Qpt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Jan 2020 11:45:49 -0500
-Received: from mail-vs1-f66.google.com ([209.85.217.66]:43337 "EHLO
-        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726647AbgA2Qpt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jan 2020 11:45:49 -0500
-Received: by mail-vs1-f66.google.com with SMTP id 7so110875vsr.10
-        for <selinux@vger.kernel.org>; Wed, 29 Jan 2020 08:45:48 -0800 (PST)
+        id S1727290AbgA2SVY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Jan 2020 13:21:24 -0500
+Received: from UPDC19PA21.eemsg.mail.mil ([214.24.27.196]:10505 "EHLO
+        UPDC19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727035AbgA2SVY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jan 2020 13:21:24 -0500
+X-EEMSG-check-017: 51548370|UPDC19PA21_ESA_OUT03.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,378,1574121600"; 
+   d="scan'208";a="51548370"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 29 Jan 2020 18:21:14 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=LdmYpbmfWUCZFo4/ZO68tO8na1kRkHd2ptsUR1EcnFc=;
-        b=FHuRwcQIiIgp7ILC1bIFtGFxD5rg5rQLluHm9uM1gJg6swoCSrpU0lZ6mFtfUrE0x6
-         PHEK79iicR6F4BN8HUMWVja1O6NIVO2ErLbKshBoUMCH4X1jILNMgfPRVqwK7LsK2zbZ
-         0u04ddkrYFNsNKriA4/0uXuRGPIDL15bjd6bgsvQwXTcehcaYyKd9cjbZCJB0hYNSJin
-         r4i+eLJx1WIPbeBb92Dx/CweBIIkBTjkewFfXjWDjaAZDKo3wyw9EoQfrdh+i5VboEc+
-         rGgmOv1S/h4ECLdywht526Oa7v+rBk7eHpChTnXefh35KV2AWxAovwV7ajissmV3spAA
-         v9OA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=LdmYpbmfWUCZFo4/ZO68tO8na1kRkHd2ptsUR1EcnFc=;
-        b=URWpUDHq1zlEr9+9nKOVJM6pMmi6TnDh8RprH61K6FeBAm2vTLLDNsWMJSQ3iH1D9H
-         LUR8Mq1uNQr272tasGSTcNj1quSbUNf0oGpXhY3y7DS2cIIa8L0OUi4ZFQ78oBBptRcE
-         NAp+NXezKZdU71go4n6TA5hHyLmXH0YJuYswVKKjZAGxKx1zBLkM4bkFm3NBv77Viwpe
-         cKgH0WzQfbeEjh0ZR5femQBRPPDnCSwh8PnfLmFHLS6nxwyI7wSrBCtjg3yUe1PYFi9u
-         x6UlXRH8Xx0ZFsyNnbgBBhHEZJG2KDL4bFIp41fATeZ9DT3/7HN1WdXSfMyGbkE6ynt2
-         2ksA==
-X-Gm-Message-State: APjAAAVFHALnrtVwB88rlU3qWdMODIvL1XTxV4efegdi6ef36veHm9gq
-        RBMZsvqAOgRz0NgaEgiNGNBw9uLIBj5eDZHZGtl4OcQC
-X-Google-Smtp-Source: APXvYqz/RZIUon36Yf95yRvUw0gPkBF8g2gNODzIHfMatTP0ePH4W567PZpm0TnSj0BklO9EITWxwwFagpobF53k59A=
-X-Received: by 2002:a67:5e45:: with SMTP id s66mr212139vsb.200.1580316347912;
- Wed, 29 Jan 2020 08:45:47 -0800 (PST)
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1580322074; x=1611858074;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=f6LZ9lDuoazjVK0S+lajdXnx82SKQFpWGfBqzO4Co0o=;
+  b=AylT3BU4GZFNtHaUKCMcuvvlSSchK/oekQ631vA+kYPbP9Wg0oziv84g
+   d+8lPdWcE4hmmcJHQ6lWZDOg8wYRYFMblbn6HQVio554yQaN1aLhCGE9e
+   uU30LMa2R8X3h2zqTAe88jzeAbbIEAyGZH486uj43zvj4Bh0F/YKuoeDS
+   68C45EjQAjzAetvrDz4/X5hSMbofkeL6LVkvTQjl8LjQsUQJWx6IW6LdZ
+   OqhPWlsTHXIeiCOVwy2oph9J2NumP8DhYeCmL77npedRW2EKPVoM62mm2
+   8OYQl71wcLcgiQsJZeVMIGhcrvhB0ubDNlowCSw4tbv2f5YeVyuf0SaQR
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,378,1574121600"; 
+   d="scan'208";a="38419909"
+IronPort-PHdr: =?us-ascii?q?9a23=3AkSgXEB9kQQ5P9v9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B21OwcTK2v8tzYMVDF4r011RmVBNmdsKwP0rKG++C4ACpcuM3H6ChDOLV3FD?=
+ =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
+ =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjeu8UMj4ZvK6k9xg?=
+ =?us-ascii?q?bVrnZLZu9awX9kKU+Jkxvz+8u98oRv/zhMt/4k6sVNTbj0c6MkQLJCET8oKX?=
+ =?us-ascii?q?o15MrltRnCSQuA+H4RWXgInxRLHgbI8gj0Uo/+vSXmuOV93jKaPdDtQrAvRT?=
+ =?us-ascii?q?ui9aZrRwT2hyoBKjU07XvYis10jKJcvRKhuxlyyJPabY2JKPZzeL7WcMgETm?=
+ =?us-ascii?q?RdQMleSy1BApu9b4QRCeoBIf1YpJT5q1cXsBeyGRWgCObpxzBGnH/22bAx3f?=
+ =?us-ascii?q?onHw/IwQcsG8sCvXrQodnwMqoZTOK7w7TSzTjbcv1Yxzn95ojLfB4vr/6DUr?=
+ =?us-ascii?q?B/ftbex0Q0CwPIjE+dpZD5Mz6b1OkAtXWQ4ep6VeKojm4qsxx/oiSxycc0io?=
+ =?us-ascii?q?nGmIQVwU3Z+yV82ok1Idm4R1B7YNW5F5ZQrDyVN5BtT8M+Q2BnpCY6yroctZ?=
+ =?us-ascii?q?69ZygF0o4rxxHYa/yZaoWF5A/oWuWJITpgmX5od72yiwyy/ES90OHwSMa53E?=
+ =?us-ascii?q?hQoiZYlNTHq2oD2AbJ6sedT/tw5kKh2TGS2A/N8uxEOkU0lbbDK54m374wio?=
+ =?us-ascii?q?IfsUTdES/yn0X7lLOWeV8++uip9uTnea/qpp6aN496jQH+KbohldClDeQkMg?=
+ =?us-ascii?q?kBQ2ib+eOm2L3l4UL5W6lFguczkqnYtJDWPcUbpqinDA9Jyosv9hmyAji83N?=
+ =?us-ascii?q?kYgHULNkxJdR2Zg4TzJl3COPX4Au2+g1Sonjdr3ffGPrj5D5XWM3fDi6zsfa?=
+ =?us-ascii?q?p96kFAyAozyspT55RPCr4bOv7zVUjxtMLAAh8jLwO02/rnCMl61o4GQ2KPA7?=
+ =?us-ascii?q?OWMKPIvl+S++0gO/WDa5cVuDnnKvgl4eDhjWQilFAGYamp3J0XaGymEfR8JU?=
+ =?us-ascii?q?WWf2bsjs0dHmcNuwo0VPbqh0GaUT5Pe3ayWLox5iolB4KiDIfDQJ2tgbOa0S?=
+ =?us-ascii?q?elEZ1ZeHpGBkqPEXj2bYWEXekDaCaILs9miDwEWuvpd4h07xCltAbgx/JHJ+?=
+ =?us-ascii?q?vS9zZQ4Yji39h8/eHkniYy/D1yAt+12X2MSX15hGUFW3k926Up5QRmx1OC17?=
+ =?us-ascii?q?Voq+JXGMYV5P5TVAo+c5nGwL9UEdf3Dzndc8+JRVDuedCvBTU8X5pl2NMVS1?=
+ =?us-ascii?q?psENWlyBbY1mylBKFDxO/DP4A97q+Jhyu5HM160XuTkfB63lQ=3D?=
+X-IPAS-Result: =?us-ascii?q?A2B6AwBmzDFe/wHyM5BmHQEBAQkBEQUFAYF7gX2BbAEgE?=
+ =?us-ascii?q?iqEFIkDhlsGgRIliW+RSQkBAQEBAQEBAQE3AQGEQAKCTjgTAhABAQEEAQEBA?=
+ =?us-ascii?q?QEFAwEBbIVDgjspAYJ6AQUjFVELGAICJgICVwYBDAYCAQGCYz+CSwMJJa4Ig?=
+ =?us-ascii?q?TKFSoMtgT6BDiqMOnmBB4E4DAOCXT6CG4U+gjwiBJc0RogqjzSCQ4JMk2UGG?=
+ =?us-ascii?q?5p/jmCdHiKBWCsIAhgIIQ+DJ1AYDZ0BIwMwjkcBAQ?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 29 Jan 2020 18:21:04 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00TIKEPT196085;
+        Wed, 29 Jan 2020 13:20:19 -0500
+Subject: Re: [PATCH V2 2/2] selinux-testsuite: Add fs*(2) API filesystem tests
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+References: <20200127093249.3143-1-richard_c_haines@btinternet.com>
+ <20200127093249.3143-3-richard_c_haines@btinternet.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <4138a048-2300-26bb-4d1b-f5026055fd04@tycho.nsa.gov>
+Date:   Wed, 29 Jan 2020 13:21:50 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-References: <20200124184221.322248-1-cgzones@googlemail.com>
- <20200128191656.111902-1-cgzones@googlemail.com> <fea9b8ba-c95b-3629-fcc8-6f6d7a345b71@tycho.nsa.gov>
-In-Reply-To: <fea9b8ba-c95b-3629-fcc8-6f6d7a345b71@tycho.nsa.gov>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Wed, 29 Jan 2020 17:45:36 +0100
-Message-ID: <CAJ2a_DdWRL+rpAJc4z9dwJoPFQ8NKtqaiQ052KdQYBS_B4O16Q@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux: allow kernfs symlinks to inherit parent
- directory context
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200127093249.3143-3-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Am Mi., 29. Jan. 2020 um 14:34 Uhr schrieb Stephen Smalley <sds@tycho.nsa.gov>:
-> This looks fine to me code-wise.  Have you tried enabling this new
-> policy capability in policy and seeing the effects of it?  I remember a
-> problem in the way-back time that motivated adding the S_ISLNK()
-> exception for proc.  IIRC, the issue was that policies specified
-> "genfscon proc /net system_u:object_r:proc_net_t:s0" to label everything
-> under /proc/net with proc_net_t by default, and when /proc/net was
-> changed to be a symlink to /proc/self/net as part of the network
-> namespaces work, this caused the symlink to be labeled proc_net_t, but
-> since previously there were no symlinks labeled proc_net_t, no processes
-> were allowed to read/follow the symlink and existing systems broke.
-> Exempting symlinks caused the /proc/net symlink to be labeled proc_t
-> instead, which was already widely allowed.  To avoid this problem when
-> enabling this capability, you will either need to allow
-> proc_net_t:lnk_file read widely or you will need to change the genfscon
-> statement to avoid labeling the symlink (there is an optional file mode
-> field in genfscon statements similar to that of file_contexts, e.g.
->   genfscon proc /net -d system_u:object_r:proc_net_t:s0
->   genfscon proc /net -- system_u:object_r:proc_net_t:s0
-> would only label directories and regular files with proc_net_t.
+On 1/27/20 4:32 AM, Richard Haines wrote:
+> Test filesystem permissions using the fsopen(2), fsconfig(2), fsmount(2),
+> fspick(2) and fsmount(2) api's introduced in kernel 5.2.
+> 
+> Also tests move_mount(2) using open_tree(2).
+> 
+> These tests use common code from tests/filesystem.
+> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>   policy/test_filesystem.te        |  18 +-
+>   tests/Makefile                   |   6 +
+>   tests/fs_filesystem/.gitignore   |   3 +
+>   tests/fs_filesystem/Makefile     |  16 +
+>   tests/fs_filesystem/fs_common.c  | 110 ++++
+>   tests/fs_filesystem/fs_common.h  |  30 ++
+>   tests/fs_filesystem/fsmount.c    |  89 ++++
+>   tests/fs_filesystem/fspick.c     |  68 +++
+>   tests/fs_filesystem/move_mount.c |  76 +++
+>   tests/fs_filesystem/test         | 835 +++++++++++++++++++++++++++++++
+>   10 files changed, 1249 insertions(+), 2 deletions(-)
+>   create mode 100644 tests/fs_filesystem/.gitignore
+>   create mode 100644 tests/fs_filesystem/Makefile
+>   create mode 100644 tests/fs_filesystem/fs_common.c
+>   create mode 100644 tests/fs_filesystem/fs_common.h
+>   create mode 100644 tests/fs_filesystem/fsmount.c
+>   create mode 100644 tests/fs_filesystem/fspick.c
+>   create mode 100644 tests/fs_filesystem/move_mount.c
+>   create mode 100755 tests/fs_filesystem/test
 
-I tested it with a refpolicy alike policy, where
-kernel_read_network_state() allows access to symlinks [1].
-Just systemd pid 1 wants to read the symlink only without reading any
-files, so I added kernel_search_network_state(systemd_t).
+These are now applied.
 
-[1]: https://github.com/SELinuxProject/refpolicy/blob/7e191b008e70ca535ceca2405967ddddd2ed975d/policy/modules/kernel/kernel.if#L1437
