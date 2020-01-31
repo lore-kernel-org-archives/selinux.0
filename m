@@ -6,56 +6,56 @@ X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15616C33CB2
-	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 04:22:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3403C33CB2
+	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 04:24:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AA2DE205F4
-	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 04:22:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C2A52082E
+	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 04:24:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="MMSPVNs7"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="F60JnfAF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727949AbgAaEWX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jan 2020 23:22:23 -0500
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:42277 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727933AbgAaEWX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jan 2020 23:22:23 -0500
-Received: by mail-ed1-f67.google.com with SMTP id e10so6317245edv.9
-        for <selinux@vger.kernel.org>; Thu, 30 Jan 2020 20:22:21 -0800 (PST)
+        id S1727933AbgAaEYn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jan 2020 23:24:43 -0500
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:41654 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727448AbgAaEYn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jan 2020 23:24:43 -0500
+Received: by mail-ed1-f65.google.com with SMTP id c26so6336577eds.8
+        for <selinux@vger.kernel.org>; Thu, 30 Jan 2020 20:24:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=qzPZQaDxgL+LxPf6LoENpbGstS7DdqrEXPXkc8bd+7o=;
-        b=MMSPVNs7e5tzwwhl2TRX4SSyAWui23C2J+fRGkg/dY3Q8qF5ZYvgkKoXFM6yoxxKSt
-         myrp6zF2/NT6JxK4ap/LGFMbiisuCplZnoZP2qbb6YMQDhE5SlJMuLpPFgV57wxPYam9
-         p+yJIWjaUI+Yc9c0TjWHej7Ofj3/v5QQ+lJUtyrKQouOl5LmuFKIDQcq/S9bLRxAe9OQ
-         VWpxA+WOKJIpmmVj2EhMjC3Xzh7/d07MsmgthfTws2zK3ld91yCEmirWtDtmE7XVzFU7
-         onZlqx5wgA80WlSgoiMT4ltyOAmxBu5fwRzOchQMnCI4XnJ0M909z33mgE5WC/IRGQyi
-         zVIg==
+        bh=Qefcsgr+aIZYUjUoj3PSe8yr+He/pWYTYeXdGHDkVFI=;
+        b=F60JnfAFe07z7j5fVClR+8ipuPu8Y68Q86XRS9BcOQwbrSPvcWQuBpLO4qNsI6Pirg
+         21E00Md1ltmPG9+ZZS1HHrmM7Hx+gonhLCCz7wUVdiNTw7ukcdjAL81H8HOVwX1Xd5rz
+         unjvcrrVmiFGX0gZvmTUqGzw3fxF4Dya8wCpKow3KYpb/uajRp7BV1yPNb7TLL6cPL43
+         agzurNy8VjobRE7/EgYIpcc42+r0Sfsw6c4fEoQALfgc58zomniar92BHjetx0YyyHwJ
+         HGaQyoLEMzOHAMSraX4RR8F4GhEfTXqdpLvPSshRPe9fPzXiEHLp5bo9c8273IRRJ4zM
+         OuDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=qzPZQaDxgL+LxPf6LoENpbGstS7DdqrEXPXkc8bd+7o=;
-        b=jtYqLTPKgvCBLnjv1hkcDK94OuPcdq5jkvBQTHHtRZ37/P9wftVfN4ZVAIBSOgBLV/
-         eiJo1DOjNdQMtp/vcJQ1MfyAPt7WVq3AEVNgDsJEx38bWU367dCKE28ROxGtzPMm8pjy
-         quEoB/ynvb6e32WDqJMke4YWb8VxD9joQp1M1Q8LmL79sQokqTz3SaTel3Q9As1ygDVL
-         BHo4amwGKKm0RD+tEBA7gi+9dXV4nbOq/1N5f3IR+36+3rEwyHxZvTJYYTC5OZ2VIANb
-         1rkdqZ7kqjFxwOxHkGtNIH59OFHKSEkX6QebeHYn/KrsANDB3+hdRA2ajghrIBf1l3qk
-         Nucg==
-X-Gm-Message-State: APjAAAXeI+53A6tiZZqIzIeb64HRxkG/vmtgxV3nGwXgIexBW9SSPs11
-        15QgYbm0UsKfKo+khSQ+n3OiJ927/YxVYFfcsqbLaNRjag==
-X-Google-Smtp-Source: APXvYqy4dPqaAYNldGLZKSfWWiAaahSHUapEsT5bgD72jJR4I0umRS+Dly9LsKaKOeIWRIDOcypA0AfKxckbQXjYHdk=
-X-Received: by 2002:aa7:db55:: with SMTP id n21mr6690639edt.31.1580444541071;
- Thu, 30 Jan 2020 20:22:21 -0800 (PST)
+        bh=Qefcsgr+aIZYUjUoj3PSe8yr+He/pWYTYeXdGHDkVFI=;
+        b=ps9v9Hvq7Z5VXSkIdiwwgBE5iZ1I5nSy/XWm25OYAVMWVB9o5TuXq+54B40tbyMIHo
+         oboE4zy8hez5ZbMcsbEf47Jn1vYSOvq2cB9h2v/IB5ssZcws3AQMMyf1rurgVrtTrpFD
+         XIic04JH4Mj8edBRPV/77GLf9gMECv1MvQ0ksqPqxsEp6pkVOrdZZiCeCi6rlYjJVw/d
+         ZbIkcbEtTUmQNGyuchP3N4rUetbE2CN5tBUR2NYbbpCQXzCpWDG3QJoKsAgKjVwnNJMQ
+         Om94m+I/lXCdgO3O1vdE8wDRa96iBiBv1JXw6uj4qBalyYvxi7UEMx8b/OuYZVdbbW2r
+         ESxQ==
+X-Gm-Message-State: APjAAAUq1GCrZXmQlHBQVSgcSXTHDabzgMcb6+4Q3EtSpV9FmkJ6y1w5
+        lTNuDtgBc6A+0Pe3eGnJbrz816iS70rPYLhqJ78W
+X-Google-Smtp-Source: APXvYqxSo711xf/v0nJq+NvTG90kNiX2eJlUq+Heb8BK1C/uHixd4EEViO3iMvVT9AQpl0bczVkSUdwxGeAlrEwaaBU=
+X-Received: by 2002:a17:906:c299:: with SMTP id r25mr7210307ejz.272.1580444680123;
+ Thu, 30 Jan 2020 20:24:40 -0800 (PST)
 MIME-Version: 1.0
-References: <20200117085836.445797-1-omosnace@redhat.com> <20200117085836.445797-5-omosnace@redhat.com>
-In-Reply-To: <20200117085836.445797-5-omosnace@redhat.com>
+References: <20200117085836.445797-1-omosnace@redhat.com> <20200117085836.445797-6-omosnace@redhat.com>
+In-Reply-To: <20200117085836.445797-6-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 30 Jan 2020 23:22:10 -0500
-Message-ID: <CAHC9VhRo2JhRSJ=2XxF4u5wm1640ycQmJ5H9nLjmw-2N-V9NrQ@mail.gmail.com>
-Subject: Re: [PATCH v2 4/5] selinux: convert cond_expr to array
+Date:   Thu, 30 Jan 2020 23:24:29 -0500
+Message-ID: <CAHC9VhQyZ3UQWZv1o_YjGQ2A27zLK8u6npo4w1s=Agi-35b1hA@mail.gmail.com>
+Subject: Re: [PATCH v2 5/5] selinux: generalize evaluate_cond_node()
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
@@ -66,19 +66,17 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Fri, Jan 17, 2020 at 3:58 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Since it is fixed-size after allocation and we know the size beforehand,
-> using a plain old array is simpler and more efficient.
+> Both callers iterate the cond_list and call it for each node - turn it
+> into evaluate_cond_nodes(), which does the iteration for them.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  security/selinux/ss/conditional.c | 62 ++++++++++++-------------------
->  security/selinux/ss/conditional.h | 14 ++++---
->  2 files changed, 33 insertions(+), 43 deletions(-)
+>  security/selinux/ss/conditional.c | 10 +++++++++-
+>  security/selinux/ss/conditional.h |  2 +-
+>  security/selinux/ss/services.c    |  6 ++----
+>  3 files changed, 12 insertions(+), 6 deletions(-)
 
-This patch looks fine, but since I think you may need to respin at
-least one of the earlier patches I'm going to hold off on merging this
-for now.
+Also looks good, but I'm holding off pending a potential respin.
 
 -- 
 paul moore
