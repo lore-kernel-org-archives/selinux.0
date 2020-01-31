@@ -2,106 +2,123 @@ Return-Path: <SRS0=DB+f=3U=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+X-Spam-Status: No, score=-5.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63B56C33CB2
-	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 12:55:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19145C33CB7
+	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 13:30:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1E82F20705
-	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 12:55:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D830820CC7
+	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 13:30:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Je1bXqD3"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="qym8plBw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728500AbgAaMzz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 Jan 2020 07:55:55 -0500
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:46361 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728479AbgAaMzz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 31 Jan 2020 07:55:55 -0500
-Received: by mail-ed1-f67.google.com with SMTP id m8so7606837edi.13
-        for <selinux@vger.kernel.org>; Fri, 31 Jan 2020 04:55:54 -0800 (PST)
+        id S1728856AbgAaNaV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 Jan 2020 08:30:21 -0500
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:42459 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728893AbgAaNaS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 Jan 2020 08:30:18 -0500
+Received: by mail-ed1-f65.google.com with SMTP id e10so7742764edv.9
+        for <selinux@vger.kernel.org>; Fri, 31 Jan 2020 05:30:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=cbaD30OhV748+1YHwxUQDOnzR5rNjTAvrfDF5+aexyQ=;
-        b=Je1bXqD3EBIUj0MxZt2KvaqliAA/d+EPlobzsvBcwMmNSTAanQaGa20RewqqkdsrzL
-         ruKZwzcYR2kVtTYL87y6nWaxrfRRu7N7TkBkMECzEErQmXPslZDqP6LLKYfIL7zMJReW
-         jPSBH6wlhMnBfusc4QjbMABknMgpFAYh692nzFjeIhRLE2yUWYOI+Nxru/KRhbdP8Uir
-         HAbSF6wnYylwJXQEtPdMRiBjS16xFtxpvnTuztUhK5rsq4lAfs6+mjyMzWAmNeRXVOwO
-         U9BqyGKk9exISn/QfpKvB5kjMo/izUSrzay3ptR5wyYHmsbJgK6UACmedwDRHi9pP1vm
-         8DTw==
+         :cc:content-transfer-encoding;
+        bh=TlGGw4278SFcconiBmLZdSBNPZa1KSN3iJIFQUl5hLA=;
+        b=qym8plBw+kdHrBllsZAmZ/QoEsMSwhYzlb75JK1mc7ICFOjq3qeBUi8SToOM+0isjM
+         z+l3xHLUpl50XdtF+tUl1y8McmyEnQ9L0BWdpc0y66Tk/AipOtUd30dZEF+XaTIQpH+7
+         YcvoJQt4U5DWhBfNIPhQN+sdY0LYdZGytZjaU4Qz8BggyBHWoNdcJra9MWy7oPZ+iGri
+         Acdw7KP1DoX7ryjwFY37pH8618kQoTkX1HXCAFRiiODt9YffCUoa01wDZ707bPqwOmy3
+         dvM8ll6dD6Mwavlo6XHSeNYSIhfsqUCqNRf5FDAxf3QT0hb4AbCv25ETdsNIOWWwObwJ
+         bTvQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=cbaD30OhV748+1YHwxUQDOnzR5rNjTAvrfDF5+aexyQ=;
-        b=EYgycwPT0vTwJAXYcytZZjSw7E/Nt9FFl6PVM04Mmd/iK9kFr1465fudMD5tFqCDZz
-         43eEjD5PAt1NaV7JAq02hOR3oN2SfxbkMeTePI4VN1r/68LxSvKf15M4fRR6je/x3Y6V
-         SSzQ5DNnIszwqkokuoMZ6Gi/8mKE1S1mYPv9xenEvHUDvZnYWBTF2zQT95R5AWrE44dD
-         G5z1PFm4XBbaEK0cgiXDSTGhz5DwcHZnnQGUipIhscypG5QT9Wspx9pzAKBlL6mU8NCA
-         Byq640E7wrnPtJVDZuxtIcNwRKBCK+FE8PKcMckM4oH46M3JKuEa4F3PZwH+PP7uhsBZ
-         U1fA==
-X-Gm-Message-State: APjAAAU1Wtva5bZrufZtmDzL+39RwRal5KzfTGeq2xkrAHvrEt9rTLjN
-        QqlXS+xZ2wAQErl4t4V2WPBr+r/kAr5QnvkArU5KAaK7BDVs
-X-Google-Smtp-Source: APXvYqwd3KUpi2gGZ7D82BlJk14YtXtk0bGDKexmH3h1dGzHGDI5lwKpWZcO2M746gdjc62t23u45zYGlAB0r6W6p8I=
-X-Received: by 2002:a05:6402:61a:: with SMTP id n26mr51928edv.135.1580475353590;
- Fri, 31 Jan 2020 04:55:53 -0800 (PST)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=TlGGw4278SFcconiBmLZdSBNPZa1KSN3iJIFQUl5hLA=;
+        b=RSbA/gxmZqH0NzG+J2jA/sLzhXyGlZBnfPqwvQDA+kBKqWpvV0vbb5tdIGZiwTyuM1
+         G08tKLNcAyQrC1XbQuQdoC4eBX7Zpl7gntHTYNxgdyrbXsXkn1mTBc4esGOoq1KHV/ZE
+         zZFZUwTmy4yOBbLH9w6SNba1CCEFJ2xH3qCas4FL8VYo0CZJN2R6Ws2X3uLnzR4dnfWj
+         DADAAIR4oKCR4fVyECNBTnQ5fBgwr1GG9p2FEGpbIxDaiaSF6yDD4L+jqAdh5koncJLS
+         a/0oNP/482uy1V2Mt/6HKDqz6F7XGBaX1W6DY2KGQSTiSc4N32whO+zoeHNytMl3Z40W
+         f3Aw==
+X-Gm-Message-State: APjAAAVq5KnQOS2p4f/MHASed+rH88K+qV3KQaB7PALgkTPNKq/K+A1D
+        5vgHsgACCuNpS5p/2seCdaAY+u83z1Rr1nKSYcfW
+X-Google-Smtp-Source: APXvYqz9SY/gcvqPHhn5eQuuldHWQZxjN07zvMk8f/HGgnFHVMRvzsl3MHF/fl7S6vLwtbmgntEimbfS7NhCRvihU/U=
+X-Received: by 2002:a50:a7a5:: with SMTP id i34mr263607edc.128.1580477415938;
+ Fri, 31 Jan 2020 05:30:15 -0800 (PST)
 MIME-Version: 1.0
-References: <dc87965f-e3e8-f9d0-ee1f-07ba14ac3575@virtuozzo.com>
-In-Reply-To: <dc87965f-e3e8-f9d0-ee1f-07ba14ac3575@virtuozzo.com>
+References: <20200124184221.322248-1-cgzones@googlemail.com>
+ <20200128191656.111902-1-cgzones@googlemail.com> <fea9b8ba-c95b-3629-fcc8-6f6d7a345b71@tycho.nsa.gov>
+ <CAJ2a_DdWRL+rpAJc4z9dwJoPFQ8NKtqaiQ052KdQYBS_B4O16Q@mail.gmail.com>
+In-Reply-To: <CAJ2a_DdWRL+rpAJc4z9dwJoPFQ8NKtqaiQ052KdQYBS_B4O16Q@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 31 Jan 2020 07:55:42 -0500
-Message-ID: <CAHC9VhR3oV=d7S+PELcCg+Qt7hjV_GJYGmqMdCNvsxAWCJYfHA@mail.gmail.com>
-Subject: Re: [PATCH 1/1] sel_avc_get_stat_idx should increase position index
-To:     Vasily Averin <vvs@virtuozzo.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        Eric Paris <eparis@parisplace.org>
+Date:   Fri, 31 Jan 2020 08:30:04 -0500
+Message-ID: <CAHC9VhRXtTW_iG4mNbE3bjFqbjpAc+3+hqMfpHNJqEU2vcxhig@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: allow kernfs symlinks to inherit parent
+ directory context
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 24, 2020 at 1:33 AM Vasily Averin <vvs@virtuozzo.com> wrote:
+On Wed, Jan 29, 2020 at 11:45 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+> Am Mi., 29. Jan. 2020 um 14:34 Uhr schrieb Stephen Smalley <sds@tycho.nsa=
+.gov>:
+> > This looks fine to me code-wise.  Have you tried enabling this new
+> > policy capability in policy and seeing the effects of it?  I remember a
+> > problem in the way-back time that motivated adding the S_ISLNK()
+> > exception for proc.  IIRC, the issue was that policies specified
+> > "genfscon proc /net system_u:object_r:proc_net_t:s0" to label everythin=
+g
+> > under /proc/net with proc_net_t by default, and when /proc/net was
+> > changed to be a symlink to /proc/self/net as part of the network
+> > namespaces work, this caused the symlink to be labeled proc_net_t, but
+> > since previously there were no symlinks labeled proc_net_t, no processe=
+s
+> > were allowed to read/follow the symlink and existing systems broke.
+> > Exempting symlinks caused the /proc/net symlink to be labeled proc_t
+> > instead, which was already widely allowed.  To avoid this problem when
+> > enabling this capability, you will either need to allow
+> > proc_net_t:lnk_file read widely or you will need to change the genfscon
+> > statement to avoid labeling the symlink (there is an optional file mode
+> > field in genfscon statements similar to that of file_contexts, e.g.
+> >   genfscon proc /net -d system_u:object_r:proc_net_t:s0
+> >   genfscon proc /net -- system_u:object_r:proc_net_t:s0
+> > would only label directories and regular files with proc_net_t.
 >
-> if seq_file .next fuction does not change position index,
-> read after some lseek can generate unexpected output.
+> I tested it with a refpolicy alike policy, where
+> kernel_read_network_state() allows access to symlinks [1].
+> Just systemd pid 1 wants to read the symlink only without reading any
+> files, so I added kernel_search_network_state(systemd_t).
 >
-> https://bugzilla.kernel.org/show_bug.cgi?id=206283
-> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-> ---
->  security/selinux/selinuxfs.c | 1 +
->  1 file changed, 1 insertion(+)
+> [1]: https://github.com/SELinuxProject/refpolicy/blob/7e191b008e70ca535ce=
+ca2405967ddddd2ed975d/policy/modules/kernel/kernel.if#L1437
 
-It would be very nice if you could update this patch similar to what
-you did for the keys subsystem (archive link below).  You included
-most of that information in your cover letter, but unfortunately cover
-letters don't make their way into the git log, only the individual
-commit descriptions.
+Thanks.  FWIW, I think the netns procfs case is a little different
+simply because it was a change in the core kernel behavior and not a
+change in the access controls.  While we have tricks, e.g. policy
+capabilities, to help with migrating users/admins to new access
+control changes, we don't always have the same abilities when the core
+kernel changes.
 
-https://lore.kernel.org/linux-security-module/af9dcaa7-6e4f-281a-2bae-fb605cc55d2d@virtuozzo.com
+One could make the argument that the netns procfs change was a "break
+userspace" type of change, but I doubt you would have gotten far with
+that because well ... containers.
 
-Thank you.
+Anyway, I've gone ahead and queued the patch up in selinux/next, you
+should see it in the tree once the merge window closes.
 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index ee94fa4..ad5530e 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -1504,6 +1504,7 @@ static struct avc_cache_stats *sel_avc_get_stat_idx(loff_t *idx)
->                 *idx = cpu + 1;
->                 return &per_cpu(avc_cache_stats, cpu);
->         }
-> +       (*idx)++;
->         return NULL;
->  }
->
-> --
-> 1.8.3.1
-
--- 
+--=20
 paul moore
 www.paul-moore.com
