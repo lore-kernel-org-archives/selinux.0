@@ -7,56 +7,56 @@ X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62A78C33CB2
-	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 04:05:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C6C6C33CB2
+	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 04:17:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2878120705
-	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 04:05:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E5D0820702
+	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 04:17:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="bbxmVwfB"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="N4NNjaQS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727910AbgAaEF2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jan 2020 23:05:28 -0500
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:35643 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727448AbgAaEF2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jan 2020 23:05:28 -0500
-Received: by mail-ed1-f66.google.com with SMTP id f8so6347757edv.2
-        for <selinux@vger.kernel.org>; Thu, 30 Jan 2020 20:05:25 -0800 (PST)
+        id S1727924AbgAaERU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jan 2020 23:17:20 -0500
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:44522 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727448AbgAaERU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jan 2020 23:17:20 -0500
+Received: by mail-ed1-f65.google.com with SMTP id g19so6306311eds.11
+        for <selinux@vger.kernel.org>; Thu, 30 Jan 2020 20:17:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=HnqJHAOX5mnyD5y524AvMTZZMSysI3Y433w3GaR3GxQ=;
-        b=bbxmVwfBfPHrPnd2KdzI7pjCjQoJjMBxplFrLh/Lmmb8AxwwGY7g2Eqs+7Ir16DDwX
-         KHvwM91fKtF1uPONFleVNa8DxvrL4OmHnAgTipLOp/oBhI38b/NRdTZJJoFJHdnrAQdO
-         jW2W66aDwW0ndlc6c6kLvWmrqLzoW6AdRrpi2oEXiHpGu8WeodrcZl5YoazPH1PjU1kV
-         7SaTO8YHbSYiYySrkeCzuHE9ZWWgHXvzW2+aUSYmKJnFvwxGsEIGxCg6YJHp0BGnC5Dt
-         FF9wPiMU58UOoJSyPkympNOHtR5015olWz8x5Spb1BR608HQYibg8MY93XZPapyUMEnt
-         h9mg==
+        bh=zKaUoaM4vVt/hwDFD7jvTS9CnOWCv3EOflNKIGr9NJ0=;
+        b=N4NNjaQS8+ft9ziYmA88Rrt4NHR9F+t1Qj7sy3rPRppZzWOedHowx6juEc4L6LWF12
+         1xlnwcfAqp7B8yzdR0oaFX/D0dlqzMBhqEimkG2HhNvin1QH/GniwYwq6QuGOPe7MdLK
+         w29z6xUnrxT/QdCPzpzirqiVpd+vCbJpm1Z+z/vUD5bBLIznNkw+xUNQHJ22FOh7p8mX
+         Eatcj9N2p+w1tDPkFuGB79N/5zYirA/lSJoM5cVCjZxGBlDxsvBwZGhMKwzas8nkcvK1
+         U4bzLi2k3VyBdLgQnWWRWKUaU1ft8Qy8fdKK+uGGq0pp3CKTTTAVYn9k4JAuifPtmwTB
+         mScA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=HnqJHAOX5mnyD5y524AvMTZZMSysI3Y433w3GaR3GxQ=;
-        b=dEMlQx+kXvZqnbHnHvIJ8kIf2c0AYs8woidhpW2X8rPzllZmRZV9srNYGGEw2OhlYz
-         iBXDCxjY0yxP62donW0x4NFAr4Edk9Paa+mimFCHPNidSmoc5OcvTBCGlv0HV1e5ncao
-         XbyWwXWRfYk4RcSPM2KIY9aTbGieuFUnGs9Wuk6TfEURsnQUEF8GQsnuh6MeaFVbhadI
-         TlCjdDg66kWQI55ZrjjSsb7wz8kqPbmbbEqJ4eBmN9oKXtXKzpOlb1cUcY0FsTcHsV93
-         aWCYR8Os9hu0BQCJJ3b9NcWIhQojMCSxVFXd8gF36nwD2Ae4i7sa+/E5kfWCCUf1a8EP
-         4R6A==
-X-Gm-Message-State: APjAAAWXtm1yJEbl2nSdIjhKKoYkCzFzOM5GH3yatUB9sS/WzQm3bYG7
-        ISQy7zj3xFb+J2ctt8ehbdqZ1jf+FsL+CFycrqwR
-X-Google-Smtp-Source: APXvYqzffDxlM7keIIsvKeGA+aZqNRfe6Wzu1S9YL+hsp3tNSoYEzlJKghN0hbTeFjXsZgRyrgU8t2q5xic0wpV9iyg=
-X-Received: by 2002:aa7:cd49:: with SMTP id v9mr6775935edw.269.1580443524135;
- Thu, 30 Jan 2020 20:05:24 -0800 (PST)
+        bh=zKaUoaM4vVt/hwDFD7jvTS9CnOWCv3EOflNKIGr9NJ0=;
+        b=UMxG6hmvKQdM4wRt88wJz2Ebl2y9HghqODmapJSpjjNY9ckRw2sWqo+sSD7y0poTZq
+         coq9zPJ+q+PFQtE391tDYCbJ9hIOaJjoLeRiTVE+od9JEo8bktMfi2rafLOUwKC0YTpY
+         L7PgT685I/pT+rXLrxn1dQrHZPZkEzlU5ELm0m20r+K9WuvRj3RPjaeTuf40GIQPM/1D
+         SW8GK9RBA8ft9ItCu2o1t36BouoHNWCy5ciYYTmN6stCyaKHCnEOptaYX55G7PnmZBtX
+         J7E/JuUE6cBLy4sdhTOA7Qa/1mZyEqF8MgR85oRbsq0KHS3qyA+tDfTKCFN1gbefi8qr
+         zgpg==
+X-Gm-Message-State: APjAAAVsJqHfQu1BA6zcsc17J20MqPaRmO9OYR9nzgsERWgWgHYgjIIy
+        iQWoznEW9+tccZFHnZkQFip1qJpHEANRtF40B1w4
+X-Google-Smtp-Source: APXvYqz09Qj4Uv6elENzZeHSUzJcI528aAFXesST1eYujG12o96e0zCU09Z1UPFXYoH6LgBNt4rxsjmLpwMYlQs0Pqw=
+X-Received: by 2002:a17:906:22cf:: with SMTP id q15mr6846838eja.77.1580444238722;
+ Thu, 30 Jan 2020 20:17:18 -0800 (PST)
 MIME-Version: 1.0
-References: <20200117085836.445797-1-omosnace@redhat.com> <20200117085836.445797-3-omosnace@redhat.com>
-In-Reply-To: <20200117085836.445797-3-omosnace@redhat.com>
+References: <20200117085836.445797-1-omosnace@redhat.com> <20200117085836.445797-4-omosnace@redhat.com>
+In-Reply-To: <20200117085836.445797-4-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 30 Jan 2020 23:05:13 -0500
-Message-ID: <CAHC9VhSNBR1kJHrn4Z-eu4NTj09Y6Vrwu3h7MU+UHac3+g_jCg@mail.gmail.com>
-Subject: Re: [PATCH v2 2/5] selinux: convert cond_list to array
+Date:   Thu, 30 Jan 2020 23:17:07 -0500
+Message-ID: <CAHC9VhRaZ+OjcoM8=3xvDofVvnGV+4j0Y6i+gYjR6RU=zqTCjA@mail.gmail.com>
+Subject: Re: [PATCH v2 3/5] selinux: convert cond_av_list to array
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
@@ -66,144 +66,81 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On Fri, Jan 17, 2020 at 3:58 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
 > Since it is fixed-size after allocation and we know the size beforehand,
 > using a plain old array is simpler and more efficient.
 >
-> While there, also fix signedness of some related variables/parameters.
->
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Reviewed-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
->  security/selinux/include/conditional.h |  6 +--
->  security/selinux/selinuxfs.c           |  4 +-
->  security/selinux/ss/conditional.c      | 54 ++++++++++----------------
->  security/selinux/ss/conditional.h      |  3 +-
->  security/selinux/ss/policydb.c         |  2 +-
->  security/selinux/ss/policydb.h         |  3 +-
->  security/selinux/ss/services.c         | 28 ++++++-------
->  7 files changed, 43 insertions(+), 57 deletions(-)
->
-> diff --git a/security/selinux/include/conditional.h b/security/selinux/include/conditional.h
-> index 0ab316f61da0..ffb9a33341f8 100644
-> --- a/security/selinux/include/conditional.h
-> +++ b/security/selinux/include/conditional.h
-> @@ -14,12 +14,12 @@
->  #include "security.h"
->
->  int security_get_bools(struct selinux_state *state,
-> -                      int *len, char ***names, int **values);
-> +                      u32 *len, char ***names, int **values);
->
->  int security_set_bools(struct selinux_state *state,
-> -                      int len, int *values);
-> +                      u32 len, int *values);
+>  security/selinux/ss/conditional.c | 125 ++++++++++++------------------
+>  security/selinux/ss/conditional.h |   8 +-
+>  2 files changed, 53 insertions(+), 80 deletions(-)
 
-In the future, if you're making changes like this, you might as well
-put it all on one line (it fits under 80 chars).
-
->  int security_get_bool_value(struct selinux_state *state,
-> -                           int index);
-> +                           u32 index);
-
-Same here.
+...
 
 > diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-> index 04593062008d..c8a02c9b23ee 100644
+> index c8a02c9b23ee..b847fd2a6a51 100644
 > --- a/security/selinux/ss/conditional.c
 > +++ b/security/selinux/ss/conditional.c
-> @@ -119,6 +119,7 @@ int cond_policydb_init(struct policydb *p)
+> @@ -255,19 +249,17 @@ err:
 >
->         p->bool_val_to_struct = NULL;
->         p->cond_list = NULL;
-> +       p->cond_list_len = 0;
+>  struct cond_insertf_data {
+>         struct policydb *p;
+> +       struct avtab_node **dst;
+>         struct cond_av_list *other;
+> -       struct cond_av_list *head;
+> -       struct cond_av_list *tail;
+>  };
 >
->         rc = avtab_init(&p->te_cond_avtab);
->         if (rc)
-> @@ -147,27 +148,22 @@ static void cond_node_destroy(struct cond_node *node)
->         }
->         cond_av_list_destroy(node->true_list);
->         cond_av_list_destroy(node->false_list);
-> -       kfree(node);
->  }
->
-> -static void cond_list_destroy(struct cond_node *list)
-> +static void cond_list_destroy(struct policydb *p)
+>  static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum *d, void *ptr)
 >  {
-> -       struct cond_node *next, *cur;
+>         struct cond_insertf_data *data = ptr;
+>         struct policydb *p = data->p;
+> -       struct cond_av_list *other = data->other, *list, *cur;
+>         struct avtab_node *node_ptr;
+> -       u8 found;
+> -       int rc = -EINVAL;
 > +       u32 i;
+> +       bool found;
 >
-> -       if (list == NULL)
-> -               return;
-> -
-> -       for (cur = list; cur; cur = next) {
-> -               next = cur->next;
-> -               cond_node_destroy(cur);
-> -       }
-> +       for (i = 0; i < p->cond_list_len; i++)
-> +               cond_node_destroy(&p->cond_list[i]);
-> +       kfree(p->cond_list);
->  }
->
->  void cond_policydb_destroy(struct policydb *p)
->  {
->         kfree(p->bool_val_to_struct);
->         avtab_destroy(&p->te_cond_avtab);
-> -       cond_list_destroy(p->cond_list);
-> +       cond_list_destroy(p);
->  }
->
->  int cond_init_bool_indexes(struct policydb *p)
-> @@ -447,7 +443,6 @@ err:
->
->  int cond_read_list(struct policydb *p, void *fp)
->  {
-> -       struct cond_node *node, *last = NULL;
->         __le32 buf[1];
->         u32 i, len;
->         int rc;
-> @@ -458,29 +453,24 @@ int cond_read_list(struct policydb *p, void *fp)
->
->         len = le32_to_cpu(buf[0]);
->
-> +       p->cond_list = kcalloc(len, sizeof(*p->cond_list), GFP_KERNEL);
-> +       if (!p->cond_list)
-> +               return rc;
-> +
->         rc = avtab_alloc(&(p->te_cond_avtab), p->te_avtab.nel);
->         if (rc)
->                 goto err;
->
->         for (i = 0; i < len; i++) {
-> -               rc = -ENOMEM;
-> -               node = kzalloc(sizeof(*node), GFP_KERNEL);
-> -               if (!node)
+>         /*
+>          * For type rules we have to make certain there aren't any
+> @@ -277,7 +269,7 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
+>         if (k->specified & AVTAB_TYPE) {
+>                 if (avtab_search(&p->te_avtab, k)) {
+>                         pr_err("SELinux: type rule already exists outside of a conditional.\n");
 > -                       goto err;
-> -
-> -               rc = cond_read_node(p, node, fp);
-> +               rc = cond_read_node(p, &p->cond_list[i], fp);
->                 if (rc)
->                         goto err;
-> -
-> -               if (i == 0)
-> -                       p->cond_list = node;
-> -               else
-> -                       last->next = node;
-> -               last = node;
->         }
-> +
-> +       p->cond_list_len = len;
+> +                       return -EINVAL;
+>                 }
+>                 /*
+>                  * If we are reading the false list other will be a pointer to
+> @@ -287,29 +279,29 @@ static int cond_insertf(struct avtab *a, struct avtab_key *k, struct avtab_datum
+>                  * If we are reading the true list (other == NULL) there shouldn't
+>                  * be any other entries.
+>                  */
+> -               if (other) {
+> +               if (data->other) {
+>                         node_ptr = avtab_search_node(&p->te_cond_avtab, k);
+>                         if (node_ptr) {
+>                                 if (avtab_search_node_next(node_ptr, k->specified)) {
+>                                         pr_err("SELinux: too many conflicting type rules.\n");
+> -                                       goto err;
+> +                                       return -EINVAL;
+>                                 }
+> -                               found = 0;
+> -                               for (cur = other; cur; cur = cur->next) {
+> -                                       if (cur->node == node_ptr) {
+> -                                               found = 1;
+> +                               found = false;
+> +                               for (i = 0; i < data->other->len; i++) {
+> +                                       if (data->other->nodes[i] == node_ptr) {
+> +                                               found = true;
+>                                                 break;
+>                                         }
+>                                 }
 
-Hmmm.  Since we don't update p->cond_list_len until here, if we fail
-in the for-loop above and end up jumping to "err" we might not cleanup
-all the nodes, right?
-
->         return 0;
->  err:
-> -       cond_list_destroy(p->cond_list);
-> +       cond_list_destroy(p);
->         p->cond_list = NULL;
->         return rc;
->  }
+Can you explain why you got rid of the "other" variable in this
+function?  It seems like it would be nice in the loop above.
 
 -- 
 paul moore
