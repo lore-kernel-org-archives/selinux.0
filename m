@@ -2,60 +2,103 @@ Return-Path: <SRS0=DB+f=3U=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55CBBC2D0DB
-	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 19:15:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA45AC2D0DB
+	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 19:49:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 02293206F0
-	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 19:15:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0F2620707
+	for <selinux@archiver.kernel.org>; Fri, 31 Jan 2020 19:49:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RiDD9AZ1"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="TuE1ajHX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726017AbgAaTPh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 Jan 2020 14:15:37 -0500
-Received: from sonic315-22.consmr.mail.bf2.yahoo.com ([74.6.134.196]:33378
-        "EHLO sonic315-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725978AbgAaTPh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 31 Jan 2020 14:15:37 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1580498133; bh=+HMZ1cNkdNn0Xm67ZFi1VgVmua/C4u4lizvOrWvjHVk=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=RiDD9AZ1aeOKoUyAN8wwm6zBs/vvsB0wzy8qwbDOwQvKY+r2xIunVsR0hNW1CLkKC6EH/o1XX2SSSNVQhlt8ewJV3kOL4th7L1pX5AlaEckmiPbXEfG5H7uhhZP+wGkibAHSWM8rnwvGcvHuAM0a2wjGgWdmqLUBCkaAGxt/HbIQw0ZbD1gvX5JU3FvZGU/OEeKY9q7OA2iUsmF1uLkD+/rghrc/0syjBaVnhSzEdnIYm7XRVUU8yuEsB4DSljk90onqaH+RkFTR9PpAd+Tw7MfECGLvuLfqHae3X0hkTQyJ/h5qf/ByCnfq6o5tt3EeWxmXSWwk/gCPYpeMF1eJXQ==
-X-YMail-OSG: s073JVQVM1kABIc6kXirvZe9qRP3gYn5vglZj.b3yZ5z5ara5_3vb1iR2gLe9Ug
- RGcG_bde4_v8HRsAenxVsF.LqpKrbcgpEPBXT3St9lSCHtVIOwhSlISXKPRPGPzy1bv0kMSXzd6w
- 9BI9yzOLKaGt3ADHm3DVfJ0k5cG3Th_Na6IswcbhvQwzWrt62dFQVkO9ra_RNavACS458r.BJ_XZ
- u.XPQZN0LuUTo19peAqZhwex.BBiE6fruWws348owHIQ6.KxMYs2T9E9H5iX4fjueVbMoMYjFTIY
- 2ND38dnAjWBP0skX8Ku2cdYr_NLtyresLlaf5SQ_G9GXrWYM32IWTzOwCkxfoxY5g4AwHeLiZXxc
- T4itbVNj8lERgqwScGX2NssL90a.1cZJPWc6UXlTgEr9c_P3puV0_1SePJEmdU94ayF5qTzxkRI8
- pvlbgyZvM6nz_9L67rfoYi1kNAhe4qbcjZTXAHWXfdlaypRonn2F3Qrc4kJaA2Xbr6eUWDEP46gr
- PpQVaxwhV51_TFG3XCFPaauGzQDsIrAWai8ica8MPrjHW4vtdNdTVF4lEvuk226cc0vjcB5aeL.A
- PbKAtSqmXBchOJQjIi7W78FmkFhIjQeaaAnfzz6kAgHrMps9BiqV8PXAhbNcFAg_Qh4y7YKTaCtU
- Nd2WgDlEc2sae5Pukjt_4iuLtAb9pZb0M4Gw1iCDGBw1MSAd2CBgoEG8m6awLjfBuGp4O5bQgef1
- Qk9YnNiDHLkVYZ.sDacSIQYkGXGczZKFn5_zHiaaW4CQ9xwBDVUyX4UdC.D3ZzE5T48L0XUDyCT7
- 70NYofACRwwZt2hxFbAS2fsyobt0NpPtLrK9uejGb5n6u9NKqM9.Q8_jpqlUY7lSi_D_VRSK6kuy
- m4SfdaQ.3E0SdI0qcSTuVysujbP5_0ymEfvn_oV_PTGa.SGE.poKndb9ntXi46sEmdKohtFVXJu0
- A_.oeUGhe8isHQnIRGB2oC46lPQaqMa7sEmrKAnEACe2C72q3OPUz2TbzMo0vM9imDguxS6zwdOJ
- 3Zb5Bf5R.xYFVt.bIgKIK6FOrw162oWcWeAKV149iJMKHRQ98vp1muG5_k25nqK6G4kI.DgpOrRm
- dbLJhq6rEyyzDI8AcNOJVwcn4joTXGkwTtXVetCXMQAYSnzzYokOF0boiYpUtF2lBNWDJi6UekVN
- mZkWarOt_JS._TDVSG_TXlbWKlPgV2VYvBFENFroVvkBNAGggH7f5nFLmXeoSO.qIZeHDduuFsLH
- 75cux9YHqd5Ppc5oefNkX21pvkXZ3dyIe7da5jjXeLEaBX6ygtICLaqsrOtCBaEPp8HquSEVr9m3
- LnnphjARVblBptzWZMpHVeu3sU39wLyqEkwsTS7YdpteIPxzBBOZG3j70.O4p4nBb_UykY4EEiQl
- c2Ih6xZ2F3IBFdHm3q7YOYD0yh7qnhjak
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.bf2.yahoo.com with HTTP; Fri, 31 Jan 2020 19:15:33 +0000
-Received: by smtp408.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 9c3599fd7b7b5227ab5bb2874628a14e;
-          Fri, 31 Jan 2020 19:15:31 +0000 (UTC)
+        id S1726086AbgAaTt4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 Jan 2020 14:49:56 -0500
+Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:55713 "EHLO
+        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726074AbgAaTt4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 Jan 2020 14:49:56 -0500
+X-EEMSG-check-017: 52728752|UPDC19PA22_ESA_OUT04.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,386,1574121600"; 
+   d="scan'208";a="52728752"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 31 Jan 2020 19:49:51 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1580500192; x=1612036192;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=8Rdw6KkFq1TvJ0bsrY92FGP1caDjSUyMylJunPjAU2g=;
+  b=TuE1ajHXW3ek+vc6YgHrhnHAH0jFNRtC9WWjN6ZqwJ98FRM/uxWEbgDD
+   49TUQqyaOZZ6A/IRfBtRl4bwJvhFdPI8KTI/q93WgsGJN6d57jy1fK6pV
+   e8qG7Dz+rsjIlgUKN0F1Oe6BtHvmeHsSYcoaTZjEMQvgk+/wjCdovNA19
+   8324Dsd9DdAe2eD4nsELAmnEHCK26u0VLI63wKpjxerd/rNvRsEW3nTt4
+   SIiTi7WYXMNbnHl0f6qYCfEpSizALoUb8hrXNJ6rFDZN/gAJdGWKju9Lp
+   nR1AfMCCdHCv5P/gF0iLfX/Mkn1B/Lmw9+mYoGT9DP0uw3Fz/gF3ilaih
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,386,1574121600"; 
+   d="scan'208";a="38533078"
+IronPort-PHdr: =?us-ascii?q?9a23=3AuoWbLx/kHli6+v9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B+1ugRIJqq85mqBkHD//Il1AaPAdyHra4cwLOM6+igATVGvc/a9ihaMdRlbF?=
+ =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
+ =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMucQam4RvJro+xh?=
+ =?us-ascii?q?fUvHdEZ/ldyWd0KV6OhRrx6dq88ZB5/yhMp/4t8tNLXLnncag/UbFWFiktPX?=
+ =?us-ascii?q?ov5M3suxnDTA+P6WUZX24LjBdGABXL4Q/jUJvpvST0quRy2C+BPc3rVr80Qi?=
+ =?us-ascii?q?it771qSBDzligKMSMy/XzNhcxxiKJbpw+hpwB6zoXJboyZKOZyc6XAdt4BW2?=
+ =?us-ascii?q?FPQtheWDBAAoOkbosAEewBPfpDr4Lgo1cCtAayCRWwCO/qzDJHiGX23akn2O?=
+ =?us-ascii?q?o/Fw/I0hErE9YXvHjKqNj5MaEfWv23wqbV1zXOd+5Y1ynz6IbIcR4vr/+DUr?=
+ =?us-ascii?q?1yfsXNxkciDB/Fg1aKpID5Iz+Y2OYAvm6G5ORgT+KvjGsnphlsrDiz2Mgsko?=
+ =?us-ascii?q?nJiZwTylvZ6Ct5xZw6Jdm8SEFlYd+vDZxdtzqHOIttWc4iX2Fptzo6yr0Bo5?=
+ =?us-ascii?q?K7ejMKx449yx7QbPyHbZGF7xT+X+ifJjd4gWhqeLO5hxuq6kiv1On8Vsiy0F?=
+ =?us-ascii?q?ZXoStFisPMtncP1xPN9seHVuFx/kC72TaAzwzT5eZEIUc7larfNZEt2KI/lp?=
+ =?us-ascii?q?0WsUnFAyT4m132gbeLekgr9eWk8eTqbqj8qpOCOIJ4lBvyPrkol8eiG+o3KB?=
+ =?us-ascii?q?IOUHKe+emk0b3j+lD2T6tSg/0tl6nZrIjaJcMGpq6lGwNV0pgs6xK4Dzq+zN?=
+ =?us-ascii?q?QXh2MHLFNYeBKclYTpOlfOIP7/DfeknVujjC1nx+zGP7L9ApXNKWLPkLH9cr?=
+ =?us-ascii?q?Zm90FQ0g8zzdFb555MC7EBJuz8WlPpudDFARI0PBa4zub6BNlnyI8TVnyDDr?=
+ =?us-ascii?q?WEPK/KtF+H/OMvI+2CZI8Pvzb9LuAo5+Xzgn8iglIdYamo0ocXaHC/BPhmJV?=
+ =?us-ascii?q?6ZbmD2jtcOFmcKoBIyTPb2h12aTT5Te3GyUroy5z4lDoKmDZrDRoG2jbyO0i?=
+ =?us-ascii?q?a7G4dZZmFCClyWHnfpeZiEV+0SZy2PP89riiYEWqS5S489yRGusxf3y7hgLu?=
+ =?us-ascii?q?rU/C0Ur5Dj1N915+LJkxEy7iJ7D8KG3m6RVW50mGQIRzk33K9ju0N9zk2P3r?=
+ =?us-ascii?q?R/g/xdDdZT/e9GUh8mNZ7AyOx3E8z9VRjaftiXSFerWc6mDi0xTt0r3t8ObU?=
+ =?us-ascii?q?J9FMu4jhzawyWlGaUZmKCMBJwx6qjcxWT+J95hy3ba06ksl0UpTdFUNWK4hq?=
+ =?us-ascii?q?9z7RPTCJLJk0qDiqaqe6Ac0zDX9GqYzGqOul1YXxB0UanfQX8fYU7Wp8zj5k?=
+ =?us-ascii?q?zeV7+uFagnMgxZxM6AL6tKbcfpjU9HRPf4I9neZXi+m2KuChaJ3L+Ma5Dqe2?=
+ =?us-ascii?q?oF1iXHFEcEixwT/WqBNQUmAiehomTeDCFhFF72eEPj7/VxqG6hTk810wGLb1?=
+ =?us-ascii?q?Rt17+y+hEImPycT+0c06kauCcutTp0Bkyx39HIBNqaoQpuYqFcbck64Fdd2m?=
+ =?us-ascii?q?LTrxZ9MYC4L6B+ml4edBx6v1jw2BVzC4VAl9UqrXwxwQpsJqKXzklBeymb3Z?=
+ =?us-ascii?q?/uIL3XLHf9/BS1Z67RwFHe386c+r0T5/Qgt1XjoAapG1Ih83p5zdZVyGeT5p?=
+ =?us-ascii?q?LNDAoRSp/+TkY39wJ9p7HfYyk9+obU2WdrMamuvT/Iw8gpC/c9yha8Y9dfN7?=
+ =?us-ascii?q?uJFBfsHM0cCMiuNe0qm16wYhIHIu9S7qg0MN2id/ad2a6nJeJgnDW4jWtZ+o?=
+ =?us-ascii?q?x9yViD9ylhSu7SxZkJ2feY0RWdWzf+lFerqtr3lpxcZTEOAmq/zjDpBJZLaa?=
+ =?us-ascii?q?1veYYGEn+uLNeqxtV6npLtXnlY9Fm5B1wYwsOmZR2Sb1mulTFXgHsap3y6mG?=
+ =?us-ascii?q?OKzzVynHl9saeZ3DHP6+v9cRMGPihEW3QkgFvxd9ualdcfCXO0YhApmR3t3k?=
+ =?us-ascii?q?Pzw6xWtewrNGXIaVtZdCjxaWd5W+2/saTUMJ0H048hrSgCCLf0WludULOo5k?=
+ =?us-ascii?q?JAgi4=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DEBgArhDRe/wHyM5BlDhABCxyDcwWBGFUgEoQ+iQOGW?=
+ =?us-ascii?q?AEBAQEBAQaBN4lvkHBZCQEBAQEBAQEBAS0KAQGEQAKCVTgTAhABAQEEAQEBA?=
+ =?us-ascii?q?QEFAwEBbIU3DII7KQGDAQEBAQECASMPAQVBBQsJAhgCAiYCAlcGDQgBARqCS?=
+ =?us-ascii?q?T8BglYFIA8DkjGbA3WBMoQ1AYEUg0eBPoEOKow6eYEHgREnD4IvLj6CZAKEc?=
+ =?us-ascii?q?4JeBI1Igk+HZnuWaIJFgk6Ed4VHiS0GG4JIeIcVkDCXR5RCIjeBISsIAhgII?=
+ =?us-ascii?q?Q87gm0HAUcYDY4pF4NQhRSFBFkjA455AQE?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 31 Jan 2020 19:49:44 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 00VJmh8r175284;
+        Fri, 31 Jan 2020 14:48:45 -0500
 Subject: Re: Perf Data on LSM in v5.3
-To:     Wenhui Zhang <wenhui@gwmail.gwu.edu>,
-        Stephen Smalley <sds@tycho.nsa.gov>
+To:     Wenhui Zhang <wenhui@gwmail.gwu.edu>
 Cc:     John Johansen <john.johansen@canonical.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Casey Schaufler <casey.schaufler@intel.com>,
         James Morris <jmorris@namei.org>,
         linux-security-module@vger.kernel.org,
         SELinux <selinux@vger.kernel.org>,
         Kees Cook <keescook@chromium.org>,
         penguin-kernel@i-love.sakura.ne.jp,
-        Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
+        Paul Moore <paul@paul-moore.com>
 References: <CAOSEQ1poqrUQdRc+ZLNbEoPqgd4MMomeYmefjca_mj-2zxrdUA@mail.gmail.com>
  <7ebd42d8-5392-90f6-fc08-4364176cfbb6@schaufler-ca.com>
  <CAOSEQ1p0q4gxVwN3MJkP=xxn4GUVaKsaArtQpxNy5rv7vYvVVw@mail.gmail.com>
@@ -70,315 +113,83 @@ References: <CAOSEQ1poqrUQdRc+ZLNbEoPqgd4MMomeYmefjca_mj-2zxrdUA@mail.gmail.com>
  <c98000ea-df0e-1ab7-a0e2-b47d913f50c8@tycho.nsa.gov>
  <6abc1c24-1dad-da7b-657f-94a3c046413a@tycho.nsa.gov>
  <CAOSEQ1rOQ50WjvvUSeVpf0RREenP_59u34yx1YQE1YdigzOXcg@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <6f06bde2-b54c-a32c-4062-2ac680628aea@schaufler-ca.com>
-Date:   Fri, 31 Jan 2020 11:15:30 -0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.2
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <c757fd5b-b6b8-b969-d71a-9d615d738798@tycho.nsa.gov>
+Date:   Fri, 31 Jan 2020 14:50:22 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
 In-Reply-To: <CAOSEQ1rOQ50WjvvUSeVpf0RREenP_59u34yx1YQE1YdigzOXcg@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-X-Mailer: WebService/1.1.15113 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/31/2020 11:08 AM, Wenhui Zhang wrote:
+On 1/31/20 2:08 PM, Wenhui Zhang wrote:
 > Hi, Smalley:
-> DAC, MAC and SELinux's performance data is performed, and it seems like our conclusion is consistent with our previous evaluation.
+> DAC, MAC and SELinux's performance data is performed, and it seems like 
+> our conclusion is consistent with our previous evaluation.
 > Please see here (configuration files are included as well):
->  5.3.0-results <https://drive.google.com/drive/folders/1NPkHYoffPnkvMlXIM5ytrqzBThLwXx86>
+> 5.3.0-results 
+> <https://drive.google.com/drive/folders/1NPkHYoffPnkvMlXIM5ytrqzBThLwXx86>
 > I am trying to test other modules (SMACK, Apparmor, Integrity etc. )
->
-> However what confused me a lot is the Kconfig file in ./linux/security/Kconfig:
+
+Still looks like there are some unrelated differences in kernel configs 
+among dac, mac, and selinux that aren't actually related to what you are 
+testing.  Also, looks like there is a typo in your CONFIG_LSM for 
+selinux-config.txt, not sure what effect that has if any.
+
+Looks like you are only running micro benchmarks?
+
+What did you use as your base distribution?  Fedora 31?  Is SELinux 
+running enforcing with a policy loaded, and no denials during the 
+benchmark runs (i.e. no avc:  denied messages in ausearch -m AVC -ts 
+boot or journalctl -b output)?  Is the benchmark running in unconfined_t 
+or some other context?
+
+> However what confused me a lot is the Kconfig file in 
+> ./linux/security/Kconfig:
 > config LSM
->         string "Ordered list of enabled LSMs"
->         default "newmodule,yama,loadpin,safesetid,integrity,smack,selinux,tomoyo,apparmor" if DEFAULT_SECURITY_SMACK
->         default "newmodule,yama,loadpin,safesetid,integrity,apparmor,selinux,smack,tomoyo" if DEFAULT_SECURITY_APPARMOR
->         default "newmodule,yama,loadpin,safesetid,integrity,tomoyo" if DEFAULT_SECURITY_TOMOYO
->         default "newmodule,yama,loadpin,safesetid,integrity" if DEFAULT_SECURITY_DAC
->         default "newmodule,yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor"
-> IMHO, it seems like it is a little confusing, changing it to below maybe make it a lilttle more clear:
+>          string "Ordered list of enabled LSMs"
+>          default 
+> "newmodule,yama,loadpin,safesetid,integrity,smack,selinux,tomoyo,apparmor" 
+> if DEFAULT_SECURITY_SMACK
+>          default 
+> "newmodule,yama,loadpin,safesetid,integrity,apparmor,selinux,smack,tomoyo" 
+> if DEFAULT_SECURITY_APPARMOR
+>          default "newmodule,yama,loadpin,safesetid,integrity,tomoyo" if 
+> DEFAULT_SECURITY_TOMOYO
+>          default "newmodule,yama,loadpin,safesetid,integrity" if 
+> DEFAULT_SECURITY_DAC
+>          default 
+> "newmodule,yama,loadpin,safesetid,integrity,selinux,smack,tomoyo,apparmor"
+> IMHO, it seems like it is a little confusing, changing it to below maybe 
+> make it a lilttle more clear:
 > config LSM
->         string "Ordered list of enabled LSMs"
->         default "newmodule,yama,loadpin,safesetid,integrity, tomoyo, apparmor, selinux, smack" if DEFAULT_SECURITY_SMACK
->         default "newmodule,yama,loadpin,safesetid,integrity,tomoyo, smack, selinux, apparmor" if DEFAULT_SECURITY_APPARMOR
->         default "newmodule,yama,loadpin,safesetid,integrity,tomoyo" if DEFAULT_SECURITY_TOMOYO
->         default "" if DEFAULT_SECURITY_DAC *# could we leave this to empty string*
->         default "newmodule,yama,loadpin,safesetid,integrity,*selinux,smack,tomoyo,apparmor"  # on Ubuntu, apparmor be the the dedault, however on centos etc, maybe selinux be the default, on andriod smack as default  *
+>          string "Ordered list of enabled LSMs"
+>          default "newmodule,yama,loadpin,safesetid,integrity, tomoyo, 
+> apparmor, selinux, smack" if DEFAULT_SECURITY_SMACK
+>          default "newmodule,yama,loadpin,safesetid,integrity,tomoyo, 
+> smack, selinux, apparmor" if DEFAULT_SECURITY_APPARMOR
+>          default "newmodule,yama,loadpin,safesetid,integrity,tomoyo" if 
+> DEFAULT_SECURITY_TOMOYO
+>          default "" if DEFAULT_SECURITY_DAC *# could we leave this to 
+> empty string*
+>          default 
+> "newmodule,yama,loadpin,safesetid,integrity,*selinux,smack,tomoyo,apparmor"  
+> # on Ubuntu, apparmor be the the dedault, however on centos etc, maybe 
+> selinux be the default, on andriod smack as default *
 > Any suggestions on clean up the code on this part please?
->
-The ordering is historical. The "major" security modules are
-listed in the order they where accepted into Linus' tree.
 
-BTW, as much as I'd like it to be true, Android would not use
-Smack as its default.
+I could be wrong but I think the ordering is to preserve the old 
+behavior of DEFAULT_SECURITY_FOO while still allowing future stacking 
+if/when it is supported by the respective modules.  So the default major 
+module has to precede any other major modules in the list in order to 
+win at registration time.
 
->
-> On Fri, Jan 24, 2020 at 9:56 AM Stephen Smalley <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>> wrote:
->
->     On 1/15/20 11:04 AM, Stephen Smalley wrote:
->     > On 1/15/20 10:59 AM, Wenhui Zhang wrote:
->     >>
->     >>
->     >> On Wed, Jan 15, 2020 at 10:41 AM Stephen Smalley <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>
->     >> <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>> wrote:
->     >>
->     >>     On 1/15/20 10:34 AM, Stephen Smalley wrote:
->     >>      > On 1/15/20 10:21 AM, Wenhui Zhang wrote:
->     >>      >>
->     >>      >> On Wed, Jan 15, 2020 at 9:08 AM Stephen Smalley
->     >>     <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov> <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>
->     >>      >> <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov> <mailto:sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>>> wrote:
->     >>      >>
->     >>      >>     On 1/15/20 8:40 AM, Stephen Smalley wrote:
->     >>      >>      > On 1/14/20 8:00 PM, Wenhui Zhang wrote:
->     >>      >>      >> Hi, John:
->     >>      >>      >>
->     >>      >>      >> It seems like, the MAC hooks are default to*return 0 or
->     >>     empty
->     >>      >> void
->     >>      >>      >> hooks* if CONFIG_SECURITY, CONFIG_SECURITY_NETWORK ,
->     >>      >>      >> CONFIG_PAGE_TABLE_ISOLATION, CONFIG_SECURITY_INFINIBAND,
->     >>      >>      >> CONFIG_SECURITY_PATH, CONFIG_INTEL_TXT,
->     >>      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR,
->     >>      >>      >>
->     >>     CONFIG_HARDENED_USERCOPY, CONFIG_HARDENED_USERCOPY_FALLBACK *are
->     >>      >>     NOT
->     >>      >>      >> set*.
->     >>      >>      >>
->     >>      >>      >> If HOOKs are "return 0 or empty void hooks", MAC is not
->     >>     enabled.
->     >>      >>      >> In runtime of fs-benchmarks,
->     >>     if CONFIG_DEFAULT_SECURITY_DAC=y,
->     >>      >> then
->     >>      >>      >> capability is enabled.
->     >>      >>      >>
->     >>      >>      >> Please correct me if I am wrong.
->     >>      >>      >>
->     >>      >>      >> For the first test, wo-sec is tested with:
->     >>      >>      >> # CONFIG_SECURITY_DMESG_RESTRICT is not set
->     >>      >>      >> # CONFIG_SECURITY is not set
->     >>      >>      >> # CONFIG_SECURITYFS is not set
->     >>      >>      >> # CONFIG_PAGE_TABLE_ISOLATION is not set
->     >>      >>      >> # CONFIG_INTEL_TXT is not set
->     >>      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
->     >>      >>      >> # CONFIG_HARDENED_USERCOPY is not set
->     >>      >>      >> CONFIG_FORTIFY_SOURCE=y
->     >>      >>      >> # CONFIG_STATIC_USERMODEHELPER is not set
->     >>      >>      >> CONFIG_DEFAULT_SECURITY_DAC=y
->     >>      >>      >>
->     >>      >>      >>
->     >>      >>      >> For the second test, w-sec is tested with:
->     >>      >>      >> # CONFIG_SECURITY_DMESG_RESTRICT is not set
->     >>      >>      >> CONFIG_SECURITY=y
->     >>      >>      >> CONFIG_SECURITYFS=y
->     >>      >>      >> # CONFIG_SECURITY_NETWORK is not set
->     >>      >>      >> CONFIG_PAGE_TABLE_ISOLATION=y
->     >>      >>      >> CONFIG_SECURITY_INFINIBAND=y
->     >>      >>      >> CONFIG_SECURITY_PATH=y
->     >>      >>      >> CONFIG_INTEL_TXT=y
->     >>      >>      >> CONFIG_HAVE_HARDENED_USERCOPY_ALLOCATOR=y
->     >>      >>      >> CONFIG_HARDENED_USERCOPY=y
->     >>      >>      >> CONFIG_HARDENED_USERCOPY_FALLBACK=y
->     >>      >>      >> # CONFIG_HARDENED_USERCOPY_PAGESPAN is not set
->     >>      >>      >> CONFIG_FORTIFY_SOURCE=y
->     >>      >>      >> # CONFIG_STATIC_USERMODEHELPER is not set
->     >>      >>      >> # CONFIG_SECURITY_SMACK is not set
->     >>      >>      >> # CONFIG_SECURITY_TOMOYO is not set
->     >>      >>      >> # CONFIG_SECURITY_APPARMOR is not set
->     >>      >>      >> # CONFIG_SECURITY_LOADPIN is not set
->     >>      >>      >> # CONFIG_SECURITY_YAMA is not set
->     >>      >>      >> # CONFIG_SECURITY_SAFESETID is not set
->     >>      >>      >> # CONFIG_INTEGRITY is not set
->     >>      >>      >> CONFIG_DEFAULT_SECURITY_DAC=y
->     >>      >>      >> #
->     >>      >>      >>
->     >>      >>
->     >>      >>
->     >>     
->     >> CONFIG_LSM="yama,loadpin,safesetid,integrity,apparmor,selinux,smack,tomoyo"
->     >>
->     >>
->     >>      >>
->     >>      >>
->     >>      >>      >>
->     >>      >>      >
->     >>      >>      > Your configs should only differ with respect to
->     >>     CONFIG_SECURITY*
->     >>      >>     if you
->     >>      >>      > want to evaluate LSM, SELinux, etc overheads.
->     >>      >> PAGE_TABLE_ISOLATION,
->     >>      >>      > INTEL_TXT, and HARDENED_USERCOPY are not relevant to LSM
->     >>     itself.
->     >>      >>      >
->     >>      >>      > Also, what benchmarks are you using?  Your own home-grown
->     >>     ones, a
->     >>      >>     set of
->     >>      >>      > open source standard benchmarks (if so, which ones?).
->     >>     You should
->     >>      >>      > include both micro and macro benchmarks in your suite.
->     >>      >>      >
->     >>      >>      > How stable are your results?  What kind of variance /
->     >>     standard
->     >>      >>     deviation
->     >>      >>      > are you seeing?
->     >>      >>      >
->     >>      >>      > It is hard to get meaningful, reliable performance
->     >>     measurements
->     >>      >>     so going
->     >>      >>      > down this road is not to be done lightly.
->     >>      >>
->     >>      >>     Also, I note that you don't enable CONFIG_SECURITY_NETWORK
->     >>     above.
->     >>      >> That
->     >>      >>     means you aren't including the base LSM overhead for the
->     >>     networking
->     >>      >>     security hooks.  So if you then compare that against SELinux
->     >>     (which
->     >>      >>     requires CONFIG_SECURITY_NETWORK), you are going to end up
->     >>      >> attributing
->     >>      >>     the cost of both the LSM overhead and SELinux overhead all to
->     >>      >> SELinux.
->     >>      >>     If you truly want to isolate the base LSM overhead, you
->     >> need to
->     >>      >> enable
->     >>      >>     all the hooks.
->     >>      >>
->     >>      >> I will give it a try for enabling CONFIG_SECURITY_NETWORK later
->     >>     this
->     >>      >> week, however I wonder if this would affect the test results
->     >>     that much.
->     >>      >> I am testing with LMBench 2.5 , with focusing on filesystem unit
->     >>      >> tests, however not network stack at this time.
->     >>      >> My understanding of why this result is so different from previous
->     >>      >> paper 20 years ago, is that the Bottleneck changes.
->     >>      >> As Chris was testing with 4 cores , each 700MHz CPU, and 128MB
->     >>     memory,
->     >>      >> with HDD (latency is about 20,000,000 ns for sequential read).
->     >>      >> The  Bottleneck of accessing files w/ MAC are mostly on I/O.
->     >>      >> However hardware setup is different now,  we have much larger and
->     >>      >> faster memory (better prefetching as well), with SSD (latency is
->     >>     about
->     >>      >> 49,000 ns for sequential read). , while CPU speed is not
->     >>     increasing as
->     >>      >> much as that of I/O.
->     >>      >> The Bottleneck of accessing files w/ MAC are mostly on CPU now.
->     >>      >
->     >>      > Don't know if lmbench is still a good benchmark and I recall
->     >>     struggling
->     >>      > with it even back then to get stable results.
->     >>      >
->     >>      > Could be bottleneck changes, could be the fact that your kernel
->     >>     config
->     >>      > changes aren't limited to CONFIG_SECURITY* (e.g. PTI introduces
->     >>      > non-trivial overheads), could be changes to LSM since that time
->     >>     (e.g.
->     >>      > stacking support, moving security_ calls out-of-line, more hooks,
->     >>     ...),
->     >>      > could be that running SELinux w/o policy is flooding the system
->     >> logs
->     >>      > with warnings or other messages since it wasn't really designed
->     >>     to be
->     >>      > used that way past initialization.  Lots of options, can't tell
->     >>     without
->     >>      > more info on your details.
->     >>
->     >>     I'd think that these days one would leverage perf and/or lkp for
->     >> Linux
->     >>     kernel performance measurements, not lmbench.
->     >>
->     >>
->     >> Thanks so much, I will give it a try for lkp and let you know how it
->     >> goes.
->     >> Maybe later next week or this weekend, we should have the results.
->     >
->     > Ok, please make sure your kernel configs are truly comparable (i.e. no
->     > differences other than the right set of CONFIG_SECURITY* options), that
->     > all of the same LSM hooks are enabled for comparing LSM-only versus
->     > SELinux (i.e. CONFIG_SECURITY and CONFIG_SECURITY_NETWORK both enabled),
->     > and consider using a distribution that actually supports SELinux out of
->     > the box (e.g. Fedora) so that you can properly test SELinux with a
->     > policy loaded in enforcing mode.  Similarly if you want to do the same
->     > for AppArmor, except for it you'll need to enable CONFIG_SECURITY_PATH
->     > as well for the pathname-based hooks and you'll want to use Ubuntu or
->     > latest Debian to get a working policy.
->
->     One last point that I should have mentioned: you should likely run your
->     benchmarks both under an unconfined profile/domain and under a confined
->     profile/domain (the latter could be one that you define specifically for
->     your benchmark that just allows it everything) at least for AppArmor.
->     The reason is that AppArmor has an intrinsic concept of unconfined since
->     it was designed for targeted enforcement and its hook functions directly
->     test for the unconfined label early and skip permission checking in that
->     case, so if you only collect data while running benchmarks unconfined,
->     you won't see the real overheads imposed on a confined profile/domain.
->     In contrast, SELinux has no intrinsic concept of unconfined since it was
->     designed for full system confinement (as applied in "strict"
->     configurations and in Android); if there is an unconfined domain, it is
->     merely defined through policy (i.e. there must be explicit allow rules
->     allowing it everything) and the hook functions invoke the same
->     permission checking for both unconfined and confined domains alike.
->
->
->
-> -- 
-> V/R,
->  
-> Wenhui Zhang
->  
-> Email: wenhui@gwmail.gwu.edu <mailto:wenhui@gwmail.gwu.edu>
->            Telephone: 1-(703) 424 3193
->           
->  
->  
->  
->
->
+BTW Android uses SELinux [1], not Smack.
+
+[1] http://selinuxproject.org/page/SEAndroid
