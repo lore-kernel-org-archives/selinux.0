@@ -2,301 +2,136 @@ Return-Path: <SRS0=lcCQ=3X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C631FC33CAC
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:12:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B484AC33CAC
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:33:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 85F7E2080D
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:12:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 870612086A
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:33:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="AQkyl+lI"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="FLY9KCV9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbgBCNML (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Feb 2020 08:12:11 -0500
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:37391 "EHLO
-        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727526AbgBCNMK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 08:12:10 -0500
-X-EEMSG-check-017: 53298529|UPDC19PA19_ESA_OUT01.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,397,1574121600"; 
-   d="scan'208";a="53298529"
+        id S1727073AbgBCNdp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Feb 2020 08:33:45 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:52707 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727066AbgBCNdp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 08:33:45 -0500
+X-EEMSG-check-017: 52496594|USFB19PA36_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,398,1574121600"; 
+   d="scan'208";a="52496594"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Feb 2020 13:12:05 +0000
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Feb 2020 13:33:43 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1580735526; x=1612271526;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=bsrULKEkgZDGmAsNsDsRPCAXWpJCsAVicucmGfYRxRg=;
-  b=AQkyl+lIq5V7dOrZANyVlOF8kHc8MKcaPcZlwQhXRD+GmEPUXuUAm2lz
-   WYbbSHX5UpXJ8Zul4iwsdzxPBXbJcLJwtTrCkf4CiYQlkPvrvl+tFfoTP
-   /eNSVZOvJMUowAQiFQUDimH8uuTnLA3bxPmG0kmeicPclx01y8jJHHURM
-   lUR260mEX/W8uAcpMBmvj+ICG8S/nfzQp6Cc8NaUwtFmDxMgde4fjLqaN
-   MTaf+AxXQsE4si2jM5qdMvIP5LT5MaIUOEnAN75SbKJj1Tnz+rATRXlJo
-   N2/WyNxHDSMQFGQcsIgmjvqTP7f3WWABwu6OzDxDcK+7CvK1R1UmlF+CH
+  s=tycho.nsa.gov; t=1580736823; x=1612272823;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=3z3P+OIcLA3CVLDxZSaHvU9/h82w4PqnBg2RBAMTTT4=;
+  b=FLY9KCV9tnmV5WYVEYrrUdZBlXNJRB2zkOlH3GnhBC0Dzl8ppQWcAvCW
+   kVQYMYlyjCzZg5krl9U2C2PtTVcug8vDF1twc/fjyZkRuz9d9lOauxahN
+   6tCFer+2l0NKrZYMJ7+83X0/Lk3jSu+dwEbtXcb696+msQ2fIn+1teS0a
+   xxTLyUELXZGDHK4pWkHKiFeh1Bk3fiK+Rswch0gaEGCUTdQORzHWJUSlS
+   +ZYhQYPnwHrfgNk3QAgJxwiBLAxytIEJzZWxs6hHfxUe9BtkqrJ2Dxg3/
+   vKDcquRF2Irz6dx1hXzjABBiIeDuzG2QD/DmRtBKgQm7H6Hs2nWUpMaUR
    g==;
-X-IronPort-AV: E=Sophos;i="5.70,397,1574121600"; 
-   d="scan'208";a="38575293"
-IronPort-PHdr: =?us-ascii?q?9a23=3AHmYzFhK/mWfwu6UWLNmcpTZWNBhigK39O0sv0r?=
- =?us-ascii?q?FitYgXKfvzrarrMEGX3/hxlliBBdydt6sYzbaJ+Py9ESxYuNDd6StEKMQNHz?=
- =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
- =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQZjId4Jas8yB?=
- =?us-ascii?q?TFr3RIdu9LwW9kOU+fkwzz68ut8pNv6Thct+4k+8VdTaj0YqM0QKBCAj87KW?=
- =?us-ascii?q?41/srrtRfCTQuL+HQRV3gdnwRLDQbY8hz0R4/9vSTmuOVz3imaJtD2QqsvWT?=
- =?us-ascii?q?u+9adrSQTnhzkBOjUk7WzYkM1wjKZcoBK8uxxyxpPfbY+JOPZieK7WYMgXTn?=
- =?us-ascii?q?RdUMlPSyNBA5u8b4oRAOoHIeZYtJT2q18XoRejGQWgGObjxzlGiX/s2a0xzv?=
- =?us-ascii?q?ovHwfI0gc9G94CqXrZodHwOKoUTOu7zrTHzS/bYv1Lxzn95ojGfBMvr/6CUr?=
- =?us-ascii?q?1/c9bex0Y0GgPZjFids5DpMy+b2+kPtWWQ8upuVfioi24iswx/vySvydk0io?=
- =?us-ascii?q?nJmI0VzE3P+zh8wIkvId24TFB0YN65G5ZXrCGVKpB2T9g+Q2BopCk6yroGtY?=
- =?us-ascii?q?S9fCgR0psr3RHfa/uZc4WR5B/oSeifITB9hH1/ebK/gQ6/8Uu+xe3mUMm7zl?=
- =?us-ascii?q?JKojBCktnWuXAA0QHY5MufSvZl40us1jmC2xrT5+1ZO0w4i6XWJ4A7zrItkJ?=
- =?us-ascii?q?cYrF7NETXsmErsia+bbkAk+u+15Ov5erjmvZqcN5NsigH5L6QuhtSzAeQmPQ?=
- =?us-ascii?q?gKWGiW4fi826f5/U34XbVKlec6kqjfsJDUIsQbvbC2DBNP3oY/6xewEzem0N?=
- =?us-ascii?q?MCkXkBMF1FYw6Ig5LsO1HPJPD0Ffa/g1Kynzd33/3KI7LsD5rXInXDjbvtZ6?=
- =?us-ascii?q?hx5kFCxAYp0NxT/5dUBasAIPL3VE/xrtvYDhohPgyv3unnE85w1p8eWG2TAq?=
- =?us-ascii?q?+ZN7nesVmT5u01OeWMa4gVuCjlJ/g/+/HulWM5mUMafaSxx5sXaWy3HvR8LE?=
- =?us-ascii?q?WDfHXjmssOHn8KvgUkTezqjkONUSVIanmpQ6I85zc7CJ64AofZQICinqCB0D?=
- =?us-ascii?q?2nEZ1RY2BMEkqMHmvwd4WYR/cMbzqfLdJhkjwDW7muVYsh1RW1tALh0bpoMP?=
- =?us-ascii?q?fb+i0CupL/ztR6++rTlRQq/zxuE8udy32NT31znm4QXz85xr1/oUhmx1eby6?=
- =?us-ascii?q?d4nvhYGcVW5/NOVQc6L4DTw/ZmBND1XwLLZs2JR0q+QtW6HTExSco8w9wQbE?=
- =?us-ascii?q?d9AdWijxbD3yWxA7IOibyLC4I78rjG03jyOcl90XDG27clj1U8RctPL2KmjL?=
- =?us-ascii?q?Zl9wfPH47Jj1mZl6GyeKQHwiHN8GaDzWyTvEBXSwNwT6rFUm4FZkfMrtT2+F?=
- =?us-ascii?q?nCT7mwBrQjKAdBztSCKqRSYN3zkVpGXOvjOMjZY2+pn2ewBBCIxq6DbYbzYG?=
- =?us-ascii?q?USwjnSCFUekwAS4XaHNREyBiKmo23DETxuEUzgbljy8elxtny7VFU4zwKUYE?=
- =?us-ascii?q?170bq65BoVieabS/MJ0bIOoD0hpClsHFahw9LWDMKNpw5gfKVafNM8705L1W?=
- =?us-ascii?q?HHuAxnOJyvMaRii0UAcwR4oUzuzQ97CoZensgwqnMl0g5yJbif0FNbeDPLla?=
- =?us-ascii?q?z3b4fWIWn75hznS6fX3FzFmIKM+6wP4e40nF7UvAioEEc523970t9J3mGa64?=
- =?us-ascii?q?mMBw0XB9a5fk8p9hQyh7bFby05/MuA2X1rLqSwtiTqwd8lBOI5jB2neoEbeL?=
- =?us-ascii?q?uNCQvaC8QHA42rL+swlh6iaRdXEvpV8fsPI86+d/aAkJWuNeJkkSPu2X9L+6?=
- =?us-ascii?q?hhw0mM8Gx6UeeO0JEblaLLljCbXivx2Q/y+vv8nppJMHRLRTuy?=
-X-IPAS-Result: =?us-ascii?q?A2DlAgAAGzhe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YEYVSASKoQUiQOGWQEBAQEBAQaBN4lvj2KBZwkBAQEBAQEBAQEtCgEBhEACg?=
- =?us-ascii?q?lg4EwIQAQEBBAEBAQEBBQMBAWyFNwyCOykBgwIBBSMVQRALGAICJgICVwYBD?=
- =?us-ascii?q?AYCAQGCYz8BglYlD6tNgTKENQGBFINNgTgGgQ4qjDp5gQeBOA+CLy4+gksZB?=
- =?us-ascii?q?BqBFAESAQeDKoJeBIdehVxKiTRGe5ZpgkWCToR4hUeJLQYbgkiIDpAyjmGIZ?=
- =?us-ascii?q?5REIjcwcSsIAhgIIQ87gm0SPRgNjiQFF4hkhV0jAzIBAYxCERcCgTpfAQE?=
+X-IronPort-AV: E=Sophos;i="5.70,398,1574121600"; 
+   d="scan'208";a="38576507"
+IronPort-PHdr: =?us-ascii?q?9a23=3A81dwxhZ9Qj0sXYIHcjDDdsT/LSx+4OfEezUN45?=
+ =?us-ascii?q?9isYplN5qZrsyzbnLW6fgltlLVR4KTs6sC17OK9fy/EjFYqdbZ6TZeKccKD0?=
+ =?us-ascii?q?dEwewt3CUYSPafDkP6KPO4JwcbJ+9lEGFfwnegLEJOE9z/bVCB6le77DoVBw?=
+ =?us-ascii?q?mtfVEtfre9FYHdldm42P6v8JPPfQpImCC9YbRvJxmqsAndrMYbjZZtJ6orxR?=
+ =?us-ascii?q?bEoHREduRKyWh1IV6fgwvw6t2/8ZJ+/Slcoe4t+9JFXa7nY6k2ULtUASg8PW?=
+ =?us-ascii?q?so/sPrrx7DTQWO5nsYTGoblwdDDhbG4h/nQJr/qzP2ueVh1iaUO832Vq00Vi?=
+ =?us-ascii?q?+576h3Uh/oiTwIOCA//WrKl8F/lqNboBampxxi347ZZZyeOfRicq/Be94RWG?=
+ =?us-ascii?q?ROXtxVVydcHI2yaYUBBPcFMepBoYTwo14CoB2jDgeuGezv0CdFiGLo06000+?=
+ =?us-ascii?q?ovEg/I0wIvEN0MrHvao874NLsRXO2v0KXE0TvOYvFQ1Dzg6IbIaBchofSUUL?=
+ =?us-ascii?q?xtbcre11EvFwPbgVWWtIfrIjaV2f4Js2if8eVhVf+khmk8qw5suTii3dssi4?=
+ =?us-ascii?q?nViYIVzVDI7yN5wJ0vKtGiR057ZsCkHYJWuiqHNIV2WtsvT3xntSs10LELuY?=
+ =?us-ascii?q?O3cDIUxJko2RLTceGLfo6V6Rz5TumROy13hHd9dbK6gBa97Favx/XnVsmxzF?=
+ =?us-ascii?q?ZKti1FksTQtnwV1xzc9MyHSvxl80e9wzmPzQHT6vxfIUwulKrbLZAhwrkrlp?=
+ =?us-ascii?q?UNrUvPBDP2mUXqg6+WcUUo4O6o5Pj8Yrr6vJOcMo50igXmPqQvnMywH/g4Px?=
+ =?us-ascii?q?ATU2WU9umwzr3u8VDjTLlUgfA6jLPVvI3CKcQevKG5AgtV0og56xa4CjeryM?=
+ =?us-ascii?q?8YkmQcLF9eZBKGj5TmO1HJIPziC/e/mE6jnC1kx/DBIL3tGo/NIWTbkLf9Yb?=
+ =?us-ascii?q?Z97FZRxxY8zdFe4JJUDK8OIOnoV0/+s9zYCRA5MwiqzObiEtp914ceVXiTDa?=
+ =?us-ascii?q?+eNaPYqUWI6f43I+mQeI8Vvy7wK+M76P7qjH85n0IdfKay0JsJZ3C3AO5mL1?=
+ =?us-ascii?q?+aYXXymNcBF3kFvg4kQOztkl2CXm0bW3HndKIm5yonCYugOqhdWpy2i7yMlH?=
+ =?us-ascii?q?OwEY9RYG1dIl+LFnjseoCNWvNKYyWXdIspiTEAVL68W6c/2hy08gz30bxqKq?=
+ =?us-ascii?q?zT4CJLm4jk0Y1O++DLlRw0vQdxBsCZ3nDFG3p4hUsUVjQ22+Z5ukU7xVCdh/?=
+ =?us-ascii?q?sry8dEHMBesqsaGjwxMoTRmqkhWt0=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DUAACrIDhe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWoEA?=
+ =?us-ascii?q?QELAYF8gW0gEiqEFIkDhlwBAQaBEiWJb4olhyQJAQEBAQEBAQEBNwEBhEACg?=
+ =?us-ascii?q?lg3Bg4CEAEBAQQBAQEBAQUDAQFshUOCOymDAwEFIw8BBVELGAICJgICVwYBD?=
+ =?us-ascii?q?AYCAQGCYz+CSwMJJatcgTKFSoJODWKBPoEOKgGMOXmBB4ERJwwDgl0+ghuFQ?=
+ =?us-ascii?q?IJeBJd+l2SCRYJOk2wGG5sILY40nSojgVgrCAIYCCEPgydQGA2OKReOQSMDM?=
+ =?us-ascii?q?I8JAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 03 Feb 2020 13:12:04 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 03 Feb 2020 13:33:23 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 013DBC5q143972;
-        Mon, 3 Feb 2020 08:11:12 -0500
-Subject: Re: SELinux: How to split permissions for keys?
-To:     Richard Haines <richard_c_haines@btinternet.com>,
-        David Howells <dhowells@redhat.com>, paul@paul-moore.com
-Cc:     keyrings@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <8ee40192da117d9cdf4eab1e63ab5f77b359801c.camel@btinternet.com>
- <4057700.1579792320@warthog.procyon.org.uk>
- <de2c5cda-567b-d310-42f7-46a2c20969c4@tycho.nsa.gov>
- <50f98f04-d00e-ae54-9a90-d0ff10be515a@tycho.nsa.gov>
- <459818a9ad1c808298bf3d7c9bcb130323d30e97.camel@btinternet.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 013DWY6k154436;
+        Mon, 3 Feb 2020 08:32:35 -0500
+Subject: Re: [PATCH] libsepol: add support for new polcap
+ genfs_seclabel_symlinks
+To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
+        selinux@vger.kernel.org
+References: <20200131183900.3507-1-cgzones@googlemail.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3d1923ec-f02b-6be7-b0c0-d3d6f539b034@tycho.nsa.gov>
-Date:   Mon, 3 Feb 2020 08:13:13 -0500
+Message-ID: <35cc375a-1c8e-5394-3ab5-55741374fa15@tycho.nsa.gov>
+Date:   Mon, 3 Feb 2020 08:34:36 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <459818a9ad1c808298bf3d7c9bcb130323d30e97.camel@btinternet.com>
+In-Reply-To: <20200131183900.3507-1-cgzones@googlemail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/2/20 2:30 PM, Richard Haines wrote:
-> On Thu, 2020-01-23 at 15:35 -0500, Stephen Smalley wrote:
->> On 1/23/20 10:46 AM, Stephen Smalley wrote:
->>> On 1/23/20 10:12 AM, David Howells wrote:
->>>> Hi Stephen,
->>>>
->>>> I have patches to split the permissions that are used for keys to
->>>> make
->>>> them a
->>>> bit finer grained and easier to use - and also to move to ACLs
->>>> rather
->>>> than
->>>> fixed masks.  See patch "keys: Replace uid/gid/perm permissions
->>>> checking with
->>>> an ACL" here:
->>>>
->>>>      
->>>> https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/log/?h=keys-acl
->>>>   
->>>>
->>>>
->>>> However, I may not have managed the permission mask
->>>> transformation inside
->>>> SELinux correctly.  Could you lend an eyeball?  The change to
->>>> the
->>>> permissions
->>>> model is as follows:
->>>>
->>>>       The SETATTR permission is split to create two new
->>>> permissions:
->>>>        (1) SET_SECURITY - which allows the key's owner, group and
->>>> ACL
->>>> to be
->>>>            changed and a restriction to be placed on a keyring.
->>>>        (2) REVOKE - which allows a key to be revoked.
->>>>       The SEARCH permission is split to create:
->>>>        (1) SEARCH - which allows a keyring to be search and a key
->>>> to be
->>>> found.
->>>>        (2) JOIN - which allows a keyring to be joined as a
->>>> session
->>>> keyring.
->>>>        (3) INVAL - which allows a key to be invalidated.
->>>>       The WRITE permission is also split to create:
->>>>        (1) WRITE - which allows a key's content to be altered and
->>>> links
->>>> to be
->>>>            added, removed and replaced in a keyring.
->>>>        (2) CLEAR - which allows a keyring to be cleared
->>>> completely.
->>>> This is
->>>>            split out to make it possible to give just this to an
->>>> administrator.
->>>>        (3) REVOKE - see above.
->>>>
->>>> The change to SELinux is attached below.
->>>>
->>>> Should the split be pushed down into the SELinux policy rather
->>>> than
->>>> trying to
->>>> calculate it?
->>>
->>> My understanding is that you must provide full backward
->>> compatibility
->>> with existing policies; hence, you must ensure that you always
->>> check the
->>> same SELinux permission(s) for the same operation when using an
->>> existing
->>> policy.
->>>
->>> In order to support finer-grained distinctions in SELinux with
->>> future
->>> policies, you can define a new SELinux policy capability along with
->>> the
->>> new permissions, and if the policy capability is enabled in the
->>> policy,
->>> check the new permissions rather than the old ones. A recent
->>> example of
->>> adding a new policy capability and using it can be seen in:
->>> https://lore.kernel.org/selinux/20200116194530.8696-1-jeffv@google.com/T/#u
->>> although that patch was rejected for other reasons.
->>>
->>> Another example was when we introduced fine-grained distinctions
->>> for all
->>> network address families, commit
->>> da69a5306ab92e07224da54aafee8b1dccf024f6.
->>>
->>> The new policy capability also needs to be defined in libsepol for
->>> use
->>> by the policy compiler; an example can be seen in:
->>> https://lore.kernel.org/selinux/20170714164801.6346-1-sds@tycho.nsa.gov/
->>>
->>> Then future policies can declare the policy capability when they
->>> are
->>> ready to start using the new permissions instead of the old.
->>>
->>>> Thanks,
->>>> David
->>>> ---
->>>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
->>>> index 116b4d644f68..c8db5235b01f 100644
->>>> --- a/security/selinux/hooks.c
->>>> +++ b/security/selinux/hooks.c
->>>> @@ -6556,6 +6556,7 @@ static int
->>>> selinux_key_permission(key_ref_t
->>>> key_ref,
->>>>    {
->>>>        struct key *key;
->>>>        struct key_security_struct *ksec;
->>>> +    unsigned oldstyle_perm;
->>>>        u32 sid;
->>>>        /* if no specific permissions are requested, we skip the
->>>> @@ -6564,13 +6565,26 @@ static int
->>>> selinux_key_permission(key_ref_t
->>>> key_ref,
->>>>        if (perm == 0)
->>>>            return 0;
->>>> +    oldstyle_perm = perm & (KEY_NEED_VIEW | KEY_NEED_READ |
->>>> KEY_NEED_WRITE |
->>>> +                KEY_NEED_SEARCH | KEY_NEED_LINK);
->>>> +    if (perm & KEY_NEED_SETSEC)
->>>> +        oldstyle_perm |= OLD_KEY_NEED_SETATTR;
->>>> +    if (perm & KEY_NEED_INVAL)
->>>> +        oldstyle_perm |= KEY_NEED_SEARCH;
->>>> +    if (perm & KEY_NEED_REVOKE && !(perm &
->>>> OLD_KEY_NEED_SETATTR))
->>>> +        oldstyle_perm |= KEY_NEED_WRITE;
->>>> +    if (perm & KEY_NEED_JOIN)
->>>> +        oldstyle_perm |= KEY_NEED_SEARCH;
->>>> +    if (perm & KEY_NEED_CLEAR)
->>>> +        oldstyle_perm |= KEY_NEED_WRITE;
->>>> +
->>>
->>> I don't know offhand if this ensures that the same SELinux
->>> permission is
->>> always checked as it would have been previously for the same
->>> operation+arguments.  That's what you have to preserve for
->>> existing
->>> policies.
->>
->> As Richard pointed out in his email, your key-acl series replaces
->> two
->> different old permissions (LINK, SEARCH) with a single permission
->> (JOIN)
->> in different callers, so by the time we reach the SELinux hook we
->> cannot
->> map it back unambiguously and provide full backward
->> compatibility.  The
->> REVOKE case also seems fragile although there you seem to distinguish
->> by
->> sometimes passing in OLD_KEY_NEED_SETATTR and sometimes not?  You'll
->> have to fix the JOIN case to avoid userspace breakage.
->>
->> You may want to go ahead and explicitly translate all of the
->> KEY_NEED
->> permissions to SELinux permissions rather than passing the key
->> permissions directly here to avoid requiring that the values always
->> match.  The SELinux permission symbols are of the form
->> CLASS__PERMISSION
->> (NB double underscore), e.g. KEY__SETATTR, generated automatically
->> from
->> the security/selinux/include/classmap.h tables to the
->> security/selinux/av_permissions.h generated header. Most hooks
->> perform
->> such translation, e.g. file_mask_to_av().  You will almost certainly
->> need to do this if/when you introduce support for the new permissions
->> to
->> SELinux.
+On 1/31/20 1:39 PM, Christian Göttsche wrote:
+> Add support for new SELinux policy capability genfs_seclabel_symlinks.
+> With this capability enabled symlinks on kernel filesystems will receive
+> contexts based on genfscon statements, like directories and files,
+> and not be restricted to the respective filesystem root sid.
 > 
-> 
-> This problem has now been fixed in [1].
-> It passes the current selinux-test-suite (except test/fs_filesystem
-> regression).
-> 
-> As the fix now includes a new 'key_perms' policy capability to allow
-> use of the extended key permissions, I've updated libsepol and the
-> selinux-testsuite test/keys to test these.
-> 
-> I'll submit two RFC patches that will allow [1] to be tested with
-> 'key_perms' true or false.
-> 
-> [1]
-> https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/commit/?h=keys-next
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 
-Was that kernel patch ever posted to selinux list and/or the selinux 
-kernel maintainers?  I don't recall seeing it.  If not, please send it 
-to the selinux list for review; at least one selinux maintainer should 
-ack it before it gets accepted into any other tree.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-
+> ---
+>   libsepol/include/sepol/policydb/polcaps.h | 1 +
+>   libsepol/src/polcaps.c                    | 1 +
+>   2 files changed, 2 insertions(+)
+> 
+> diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
+> index dc9356a6..40669fb5 100644
+> --- a/libsepol/include/sepol/policydb/polcaps.h
+> +++ b/libsepol/include/sepol/policydb/polcaps.h
+> @@ -13,6 +13,7 @@ enum {
+>   	POLICYDB_CAPABILITY_ALWAYSNETWORK,
+>   	POLICYDB_CAPABILITY_CGROUPSECLABEL,
+>   	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
+> +	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
+>   	__POLICYDB_CAPABILITY_MAX
+>   };
+>   #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
+> diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
+> index b9dc3526..67ed5786 100644
+> --- a/libsepol/src/polcaps.c
+> +++ b/libsepol/src/polcaps.c
+> @@ -12,6 +12,7 @@ static const char *polcap_names[] = {
+>   	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
+>   	"cgroup_seclabel",		/* POLICYDB_CAPABILITY_SECLABEL */
+>   	"nnp_nosuid_transition",	/* POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION */
+> +	"genfs_seclabel_symlinks",	/* POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
+>   	NULL
+>   };
+>   
+> 
 
