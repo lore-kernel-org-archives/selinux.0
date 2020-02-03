@@ -4,134 +4,146 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B484AC33CAC
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:33:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27786C33CAC
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:37:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 870612086A
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:33:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E36502087E
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:36:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="FLY9KCV9"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="BnwVzxhK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727073AbgBCNdp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Feb 2020 08:33:45 -0500
-Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:52707 "EHLO
-        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727066AbgBCNdp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 08:33:45 -0500
-X-EEMSG-check-017: 52496594|USFB19PA36_ESA_OUT06.csd.disa.mil
+        id S1726082AbgBCNg7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Feb 2020 08:36:59 -0500
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:37499 "EHLO
+        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726561AbgBCNg7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 08:36:59 -0500
+X-EEMSG-check-017: 53427087|UPDC19PA20_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,398,1574121600"; 
-   d="scan'208";a="52496594"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Feb 2020 13:33:43 +0000
+   d="scan'208";a="53427087"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Feb 2020 13:36:54 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1580736823; x=1612272823;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=3z3P+OIcLA3CVLDxZSaHvU9/h82w4PqnBg2RBAMTTT4=;
-  b=FLY9KCV9tnmV5WYVEYrrUdZBlXNJRB2zkOlH3GnhBC0Dzl8ppQWcAvCW
-   kVQYMYlyjCzZg5krl9U2C2PtTVcug8vDF1twc/fjyZkRuz9d9lOauxahN
-   6tCFer+2l0NKrZYMJ7+83X0/Lk3jSu+dwEbtXcb696+msQ2fIn+1teS0a
-   xxTLyUELXZGDHK4pWkHKiFeh1Bk3fiK+Rswch0gaEGCUTdQORzHWJUSlS
-   +ZYhQYPnwHrfgNk3QAgJxwiBLAxytIEJzZWxs6hHfxUe9BtkqrJ2Dxg3/
-   vKDcquRF2Irz6dx1hXzjABBiIeDuzG2QD/DmRtBKgQm7H6Hs2nWUpMaUR
+  s=tycho.nsa.gov; t=1580737014; x=1612273014;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=s1FnkH28N4Zw2fh21mMjid1efUXDCGNMHVTkhXhiKpA=;
+  b=BnwVzxhKjl5adUlOj1m3zYtv/ch3mSvLL5lFj5zRRGL0dMxXqA09IjqS
+   /Iv9aDbt3fhDtiLdOiLO7wUeJswetpXHnM1K2dBjBRubOpXZN1tVAZQbc
+   Fn8BG5829fXDqGyDiRoD37vMx7TQ+Z9gCr5G+k1a1r2vKAxG4/laWYr2K
+   uBY3i8LyjGElg2Hi8i72D26Liq3kTinbt1I426CJIAhy7quZ2zXf5B0jz
+   9HCXK5aqx4kDWJppVMhSOAHfwXlUkeBwTp3iTPYIIInnk9QbBrqHrLccP
+   A6W6pn6eVQRitbNm36MVoi4AVz8pgkSBkeSC7rdE8IjI/z6TE9aVZpcuU
    g==;
 X-IronPort-AV: E=Sophos;i="5.70,398,1574121600"; 
-   d="scan'208";a="38576507"
-IronPort-PHdr: =?us-ascii?q?9a23=3A81dwxhZ9Qj0sXYIHcjDDdsT/LSx+4OfEezUN45?=
- =?us-ascii?q?9isYplN5qZrsyzbnLW6fgltlLVR4KTs6sC17OK9fy/EjFYqdbZ6TZeKccKD0?=
- =?us-ascii?q?dEwewt3CUYSPafDkP6KPO4JwcbJ+9lEGFfwnegLEJOE9z/bVCB6le77DoVBw?=
- =?us-ascii?q?mtfVEtfre9FYHdldm42P6v8JPPfQpImCC9YbRvJxmqsAndrMYbjZZtJ6orxR?=
- =?us-ascii?q?bEoHREduRKyWh1IV6fgwvw6t2/8ZJ+/Slcoe4t+9JFXa7nY6k2ULtUASg8PW?=
- =?us-ascii?q?so/sPrrx7DTQWO5nsYTGoblwdDDhbG4h/nQJr/qzP2ueVh1iaUO832Vq00Vi?=
- =?us-ascii?q?+576h3Uh/oiTwIOCA//WrKl8F/lqNboBampxxi347ZZZyeOfRicq/Be94RWG?=
- =?us-ascii?q?ROXtxVVydcHI2yaYUBBPcFMepBoYTwo14CoB2jDgeuGezv0CdFiGLo06000+?=
- =?us-ascii?q?ovEg/I0wIvEN0MrHvao874NLsRXO2v0KXE0TvOYvFQ1Dzg6IbIaBchofSUUL?=
- =?us-ascii?q?xtbcre11EvFwPbgVWWtIfrIjaV2f4Js2if8eVhVf+khmk8qw5suTii3dssi4?=
- =?us-ascii?q?nViYIVzVDI7yN5wJ0vKtGiR057ZsCkHYJWuiqHNIV2WtsvT3xntSs10LELuY?=
- =?us-ascii?q?O3cDIUxJko2RLTceGLfo6V6Rz5TumROy13hHd9dbK6gBa97Favx/XnVsmxzF?=
- =?us-ascii?q?ZKti1FksTQtnwV1xzc9MyHSvxl80e9wzmPzQHT6vxfIUwulKrbLZAhwrkrlp?=
- =?us-ascii?q?UNrUvPBDP2mUXqg6+WcUUo4O6o5Pj8Yrr6vJOcMo50igXmPqQvnMywH/g4Px?=
- =?us-ascii?q?ATU2WU9umwzr3u8VDjTLlUgfA6jLPVvI3CKcQevKG5AgtV0og56xa4CjeryM?=
- =?us-ascii?q?8YkmQcLF9eZBKGj5TmO1HJIPziC/e/mE6jnC1kx/DBIL3tGo/NIWTbkLf9Yb?=
- =?us-ascii?q?Z97FZRxxY8zdFe4JJUDK8OIOnoV0/+s9zYCRA5MwiqzObiEtp914ceVXiTDa?=
- =?us-ascii?q?+eNaPYqUWI6f43I+mQeI8Vvy7wK+M76P7qjH85n0IdfKay0JsJZ3C3AO5mL1?=
- =?us-ascii?q?+aYXXymNcBF3kFvg4kQOztkl2CXm0bW3HndKIm5yonCYugOqhdWpy2i7yMlH?=
- =?us-ascii?q?OwEY9RYG1dIl+LFnjseoCNWvNKYyWXdIspiTEAVL68W6c/2hy08gz30bxqKq?=
- =?us-ascii?q?zT4CJLm4jk0Y1O++DLlRw0vQdxBsCZ3nDFG3p4hUsUVjQ22+Z5ukU7xVCdh/?=
- =?us-ascii?q?sry8dEHMBesqsaGjwxMoTRmqkhWt0=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DUAACrIDhe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWoEA?=
- =?us-ascii?q?QELAYF8gW0gEiqEFIkDhlwBAQaBEiWJb4olhyQJAQEBAQEBAQEBNwEBhEACg?=
- =?us-ascii?q?lg3Bg4CEAEBAQQBAQEBAQUDAQFshUOCOymDAwEFIw8BBVELGAICJgICVwYBD?=
- =?us-ascii?q?AYCAQGCYz+CSwMJJatcgTKFSoJODWKBPoEOKgGMOXmBB4ERJwwDgl0+ghuFQ?=
- =?us-ascii?q?IJeBJd+l2SCRYJOk2wGG5sILY40nSojgVgrCAIYCCEPgydQGA2OKReOQSMDM?=
- =?us-ascii?q?I8JAQE?=
+   d="scan'208";a="32602059"
+IronPort-PHdr: =?us-ascii?q?9a23=3AFBmaOBMTEVw9jItEgjEl6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0K/j+osbcNUDSrc9gkEXOFd2Cra4d16yK7Ou9ASRAuc/H7ClZNsQUFl?=
+ =?us-ascii?q?cssoY/p0QYGsmLCEn2frbBThcRO4B8bmJj5GyxKkNPGczzNBX4q3y26iMOSF?=
+ =?us-ascii?q?2kbVImbuv6FZTPgMupyuu854PcYxlShDq6fLh+MAi6oR/eu8ULjoZuMKk8xx?=
+ =?us-ascii?q?nGrnZIZ+hd2GdkKU6Okxrm6cq84ZBu/z5Mt/498sJLTLn3cbk/QbFEFjotLn?=
+ =?us-ascii?q?o75NfstRnNTAuP4mUTX2ALmRdWAAbL8Q/3UI7pviT1quRy1i+aPdbrTb8vQj?=
+ =?us-ascii?q?St871rSB7zhygZMTMy7XzahdZxjKJfpxKhugB/zovJa4ybKPZyYqXQds4BSG?=
+ =?us-ascii?q?FfQsheSTBOAoKkb4sOEeUBO/pYr5LgrFcKtBeyGBWgCP/qxjJOiHD2x6k62P?=
+ =?us-ascii?q?k/Hw/A0gIrAtYCvG3aodjxMasfV/2+wqvVwjXZd/5YxCnz6IbIfB4ir/+DU7?=
+ =?us-ascii?q?1/fsjNxkcgDA7FkledpJb5Mz+J2OkAsW6W5PdgW+K1jG4nrhl8rCWzxsgyko?=
+ =?us-ascii?q?nJhpwaylbZ/itkxYY6P9m4SEplbt+kDZBdsDqaOJZtQs45X2FpuDo1yr0BuZ?=
+ =?us-ascii?q?KheigK044oywTQa/yAbYiF+xTuX/uSLzdgnH9pZb2yihmo/UWg1+HwTNe43V?=
+ =?us-ascii?q?lUoiZfj9XBsG0G2QbJ5cidUPR9+1+s2TOI1w/O9O5JOVs0la/HK545xb4wi4?=
+ =?us-ascii?q?YTvVzDHiDonEX2i7ebdlk+9eiy6uTnf67mqoWdN49yhAH+Nb8uldKjDugiLg?=
+ =?us-ascii?q?gPX3SU+eS71LH5+032XK5KgeEsnqncsZDaIdwXpq+/AwBLzoYu8wuzAjip3d?=
+ =?us-ascii?q?gCnXQLMUhJdAyIgoT3IV3CPej0DfKljFStlDdryerGPrrkApjVNXjMjazhcK?=
+ =?us-ascii?q?1h609c1AUzzddf64hSCrEaOv3/QEDxtNvGDhMhKQy73/7nCMlh1oMZQW+PAr?=
+ =?us-ascii?q?WZMKLPvl6I/O0iOOaMZIgSuDbyL/gq+eTigmM+mV8YZaOpx4cYaGikHvR6JE?=
+ =?us-ascii?q?WUeWLsjc0cEWcOpQc+VPbliECGUTJKYnayWKU85islB468EYjDQYWtiqSb3C?=
+ =?us-ascii?q?inBp1WenxGCleUHHj2b4WLQe0MaCOJIsJ6ijwLT6KhS4461RG2sA/10aZoIf?=
+ =?us-ascii?q?TO9i0fr5Lj28B/5/fPmhEq6Tx0E8Od3nmPT25qkGMISSE20btwoUx6zVeD3q?=
+ =?us-ascii?q?x4jOJCGdNP4PNJVx8wNYTAwOxiF9DyRgXBc8+SSFm8RtWnATAwT9I3w9IVeU?=
+ =?us-ascii?q?l9HcitjgrE3yqrHrAZjaCEBJsx8qjExXj+O959y2ra1Kkml1QmWdVANWmnhq?=
+ =?us-ascii?q?556gjSCJXEk1uWl6m0b6QQxi3N+3mZzWqIok5YVBR8UaLfXXAQfkHWt8j25l?=
+ =?us-ascii?q?veT7+yDrQqKg9Byc+EKqtXZdzllFZGS+n5ONTYfW2xn3y9BQiHxrySdormYW?=
+ =?us-ascii?q?Yd0zvHCEgCjQ8T+WyKNQ8kBieuu2jeFiBhFUrzY0Pw9ulzsHC7QVEuzwGMcU?=
+ =?us-ascii?q?Jh06O5+gILivOGTvMexagLuCE8pDVuG1a93s/ZB8CcqApmeaUPKe86tXdd1G?=
+ =?us-ascii?q?7IvkRDN5i7JrprhENWJwRtvk//3j14DYJPlcVsp3Qvmk46EauF1BtkcDSC0N?=
+ =?us-ascii?q?ikIrTKLkHq9Q2rLqvR3UvTlt2R//FLoNkiql6rhAizF1Fqp3h/2sNUyFOE74?=
+ =?us-ascii?q?/LFxIWWJn8FEEt+E4+75PXbCd12YrS2XB2eZKotTLak4YrCeUr1D6veNBQNK?=
+ =?us-ascii?q?7CHwj3RYlSIsG0K6QRkly4fAMCdLRJ/aolLdKgX/KA1LSsPeomlzWj2yAP+4?=
+ =?us-ascii?q?1500SR5wJiRePSmZUI2feV2k2ATTi4xFOgtN3n3INJfzcfGkKhxiX+Qo1cfK?=
+ =?us-ascii?q?t/ecAME2j9Ddeww4BFm5P1W3NevGWmDlcC1d7hLQGedHThzAZQ0gIRunXhli?=
+ =?us-ascii?q?ymmW8n2wo1p7aSiXSdi9/pcwAKbysSHzhv?=
+X-IPAS-Result: =?us-ascii?q?A2AVAAA6IThe/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
+ =?us-ascii?q?QICAQEBAYFqAgEBAQELAYF8gW0gEiqEFIkDhlwBAQaBN4lvkHIDVAkBAQEBA?=
+ =?us-ascii?q?QEBAQE3AQGEQAKCWDcGDgIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGDAgEFIwQRQ?=
+ =?us-ascii?q?RALGAICJgICVwYBDAYCAQGCYz+CVyWrYH8zhUqDQYE+gQ4qAYUdDIcQeYEHg?=
+ =?us-ascii?q?TgPgl0+hBKDSYI8IgSWV2FGl2SCRYJOk2wGG5sIjmGdKiM3gSErCAIYCCEPg?=
+ =?us-ascii?q?ydQGA2cLAFUIwMwjEaCQwEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 03 Feb 2020 13:33:23 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 03 Feb 2020 13:36:53 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 013DWY6k154436;
-        Mon, 3 Feb 2020 08:32:35 -0500
-Subject: Re: [PATCH] libsepol: add support for new polcap
- genfs_seclabel_symlinks
-To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>,
-        selinux@vger.kernel.org
-References: <20200131183900.3507-1-cgzones@googlemail.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 013Da30M154637;
+        Mon, 3 Feb 2020 08:36:03 -0500
+Subject: Re: [PATCH] selinux: Fix typo in filesystem name
+To:     Hridya Valsaraju <hridya@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Mark Salyzyn <salyzyn@android.com>, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     kernel-team@android.com
+References: <20200202014624.75356-1-hridya@google.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <35cc375a-1c8e-5394-3ab5-55741374fa15@tycho.nsa.gov>
-Date:   Mon, 3 Feb 2020 08:34:36 -0500
+Message-ID: <63958eb9-0b65-00f2-76fa-799c3a933f7b@tycho.nsa.gov>
+Date:   Mon, 3 Feb 2020 08:38:05 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200131183900.3507-1-cgzones@googlemail.com>
+In-Reply-To: <20200202014624.75356-1-hridya@google.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/31/20 1:39 PM, Christian Göttsche wrote:
-> Add support for new SELinux policy capability genfs_seclabel_symlinks.
-> With this capability enabled symlinks on kernel filesystems will receive
-> contexts based on genfscon statements, like directories and files,
-> and not be restricted to the respective filesystem root sid.
+On 2/1/20 8:46 PM, Hridya Valsaraju wrote:
+> Correct the filesystem name to "binder" to enable
+> genfscon per-file labelling for binderfs.
 > 
-> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> Fixes: 7a4b5194747 ("selinux: allow per-file labelling for binderfs")
+> Signed-off-by: Hridya Valsaraju <hridya@google.com>
 
 Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->   libsepol/include/sepol/policydb/polcaps.h | 1 +
->   libsepol/src/polcaps.c                    | 1 +
->   2 files changed, 2 insertions(+)
 > 
-> diff --git a/libsepol/include/sepol/policydb/polcaps.h b/libsepol/include/sepol/policydb/polcaps.h
-> index dc9356a6..40669fb5 100644
-> --- a/libsepol/include/sepol/policydb/polcaps.h
-> +++ b/libsepol/include/sepol/policydb/polcaps.h
-> @@ -13,6 +13,7 @@ enum {
->   	POLICYDB_CAPABILITY_ALWAYSNETWORK,
->   	POLICYDB_CAPABILITY_CGROUPSECLABEL,
->   	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
-> +	POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS,
->   	__POLICYDB_CAPABILITY_MAX
->   };
->   #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
-> diff --git a/libsepol/src/polcaps.c b/libsepol/src/polcaps.c
-> index b9dc3526..67ed5786 100644
-> --- a/libsepol/src/polcaps.c
-> +++ b/libsepol/src/polcaps.c
-> @@ -12,6 +12,7 @@ static const char *polcap_names[] = {
->   	"always_check_network",		/* POLICYDB_CAPABILITY_ALWAYSNETWORK */
->   	"cgroup_seclabel",		/* POLICYDB_CAPABILITY_SECLABEL */
->   	"nnp_nosuid_transition",	/* POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION */
-> +	"genfs_seclabel_symlinks",	/* POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS */
->   	NULL
->   };
+> Hello,
+> 
+> I seem to have made the typo/mistake during a rebase. Sorry about that
+> :(
+> 
+> Thanks,
+> Hridya
+> 
+>   security/selinux/hooks.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 89fe3a805129..d67a80b0d8a8 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -699,7 +699,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
+>   
+>   	if (!strcmp(sb->s_type->name, "debugfs") ||
+>   	    !strcmp(sb->s_type->name, "tracefs") ||
+> -	    !strcmp(sb->s_type->name, "binderfs") ||
+> +	    !strcmp(sb->s_type->name, "binder") ||
+>   	    !strcmp(sb->s_type->name, "pstore"))
+>   		sbsec->flags |= SE_SBGENFS;
 >   
 > 
 
