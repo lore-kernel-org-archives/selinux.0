@@ -4,141 +4,125 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91EB2C35247
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 19:36:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D5ADC35247
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 19:42:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 597FE2051A
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 19:36:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F8AF2051A
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 19:42:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="n9S1dFUj"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="AvTWym5Q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726018AbgBCTgs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Feb 2020 14:36:48 -0500
-Received: from UPDC19PA23.eemsg.mail.mil ([214.24.27.198]:51790 "EHLO
-        UPDC19PA23.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725372AbgBCTgs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 14:36:48 -0500
-X-EEMSG-check-017: 53728343|UPDC19PA23_ESA_OUT05.csd.disa.mil
+        id S1726224AbgBCTm6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Feb 2020 14:42:58 -0500
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:45650 "EHLO
+        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726018AbgBCTm6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 14:42:58 -0500
+X-EEMSG-check-017: 53626107|UPDC19PA20_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,398,1574121600"; 
-   d="scan'208";a="53728343"
+   d="scan'208";a="53626107"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA23.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Feb 2020 19:36:38 +0000
+  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Feb 2020 19:42:53 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1580758604; x=1612294604;
-  h=subject:from:to:cc:references:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=Nz1TtZ+IEXgYM+n+AhtW/swRr0n6GVumGdQLLRLyf10=;
-  b=n9S1dFUj3ou8c27WE3MEr5LJRUMQZamDy9aYrg0Yy9uYv2pHIngWq3Fa
-   tNvnZWvhWL29iyYoybDMp56lLz+9SPLxYSDmDN+ssc0nVAAkN6rrSnsGG
-   K+zetoadflfMhW17PYGX3SjFOg7DNTV/5F//AH88QMCCBCsr7cn+WpeS6
-   eBdYxTlOyNsYpKeShl507hvAxopQxMxzYiv9g9lY5A6/+Uojql3GbsCsh
-   cviHVakrC5kkZsPirqWXEnKFTGD7hZ6StuUEArcwZkUAaXnxAbQIwECQr
-   eDGKirzuPYa0EO/aa8HpgEvekFIN5u+B+WqPeo+AtSD13ZXHSwcXCo9c4
-   g==;
+  s=tycho.nsa.gov; t=1580758973; x=1612294973;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=GoQUNcmcIWUkWfiDFHWEoGJxkyQu8gIEFiGBIRvzFJ4=;
+  b=AvTWym5QXb4kcGDQkdL2At1KuwniOJsufQ8iZ7jpQl3J+2fxBPILWFhj
+   uy9ZfnNuq/Tuv6zYpSEd3Sxc8rU0ybjiXeGVhTp1MEA0lkJ7F9Czenn5Y
+   M3ySIju3wSkrASPmx448a2tHLURYNNjXBTH3SSt6WTFN/N4G8wBaiIffK
+   sbvy8I/ozToygaUx5p765hDW75ul7jDNOx0vdxsku4Wt/iPRjmwXOf4m3
+   so5q0IPyrAS6ZQtVOU/g6xm7msrx/MQ831Dg9evI3ythoKovHzlUsA5jC
+   dyvM0/S2GMpT0DPbNIzEGu7n9+QBxcPeHJu1yf6cGSJLyIKPeBj8NiKFz
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.70,398,1574121600"; 
-   d="scan'208";a="38609981"
-IronPort-PHdr: =?us-ascii?q?9a23=3ALWcMGh8dfE1lOf9uRHKM819IXTAuvvDOBiVQ1K?=
- =?us-ascii?q?B+1uoRIJqq85mqBkHD//Il1AaPAdyHra4bwLOM6eigATVGvc/a9ihaMdRlbF?=
- =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
- =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMucQam4RvJ6Q+xh?=
- =?us-ascii?q?fUvHdEZfldyWd0KV6OhRrx6dq88ZB5/yhMp/4t8tNLXLnncag/UbFWFiktPX?=
- =?us-ascii?q?ov5M3suxnDTA+P6WUZX24LjBdGABXL4Q/jUJvpvST0quRy2C+BPc3rVr80Qi?=
- =?us-ascii?q?it771qSBDzligKMSMy/XzNhcxxiKJbpw+hpwB6zoXJboyZKOZyc6XAdt4BW2?=
- =?us-ascii?q?FPQtheWDBAAoOkbosAEewBPfpDr4Lgo1cCtAayCRWwCO/qzDJHiGX23akn2O?=
- =?us-ascii?q?o/Fw/I0hErE9YXvHnUqNj5MaEfWv23wqbV1zXOd+5Y1zfj5ojGcR4vr/+DUr?=
- =?us-ascii?q?1yfsXNxkciDB/Fg1aKpID5Iz+Y2OYAvm6G5ORgT+KvjGsnphlsrDiz2Mgsko?=
- =?us-ascii?q?nJiZwTylvZ6Ct5xZw6Jdm8SEFlYd+vDZxdtzqHOIttWc4iX2Fptzo6yr0Bo5?=
- =?us-ascii?q?K7ejMKx449yx7QbPyHbZGF7xT+X+iSOTd1nG9pdb2wihqo8UWs1/fwWte73V?=
- =?us-ascii?q?pUtCZJj9/BvW0X2RPJ8MiIUP5981+k2TaIyg/c9PlJIVsxlarHM54hxaMwlo?=
- =?us-ascii?q?YLvUTDACD2nEL2gbeKdko+4Oio6vnnYq78qp+dMY90hAb+Mr8wlcOjG+g4Lg?=
- =?us-ascii?q?gPUHSb+eS7zrHj+1H2QK5WgfEsl6nZsZTaKdwapq6/HQBVzp4u5wuwAjqpyt?=
- =?us-ascii?q?gVnWQLIEhbdB+IkYTlIUzCLOj9DfilglSslDlrx+rBPr3kGpjNNWXMkKz6cL?=
- =?us-ascii?q?Zh609T1AozzddF65JSEbEOOuj/WkD2tNzGFhM5KRC7w/77CNVh0YMTQX6ADb?=
- =?us-ascii?q?WCMKzMsV6F/fkvLPWMZIAPpTb9Jfwl6OD0jXMghVASZ7Ol0ocQaHC9Bv5mOV?=
- =?us-ascii?q?mWYWLwgtcdFmcHphYxQ/bxiFKcUT9ffW2yUL485j4hFYKmA4PDSZ63gLGa3S?=
- =?us-ascii?q?e7GIFWaX5CClyWDXjocICEUe8WaC2OOs9hjiAEVb+5Ro8j0BGusxX6y6BmLu?=
- =?us-ascii?q?rP4SAYs4js1N1r6O3Sjx0y8iZ0D8uF2WGXU250hn8IRyMx3K1npUx9y1GD0b?=
- =?us-ascii?q?V3gvBBDtxc+e9GUhogNZ7d0+x7C8n+WgfGftiUVVamRsupDCovTtI+3dAOeV?=
- =?us-ascii?q?xxG9a8gRDZ2SqlHbsVm6aMBJwu/aLWx2LxKNply3bayKkhiEErQtBROm2ih6?=
- =?us-ascii?q?5/8RXTBoHSnkWHmKala74c0DTO9Gid12qOul9XUApqXaXCR3AfaVPcrc7l6U?=
- =?us-ascii?q?PaU7+uFbMnPxNCycGcNKRKccHmjVJBRPfgI9nRf2Kxm323BRaNx7OMcY/qd3?=
- =?us-ascii?q?8a3CXHB0gOixoT8mqeNQgiGiehpHrTDD5pFVLvZUPg6+t+qHS7TkAuyQGKdF?=
- =?us-ascii?q?Nu17yu9xEJn/OcTfQT3rQFuCg9sTp0GEyx0M7RC9qFvwBhZrlTYcsh4Fdb0m?=
- =?us-ascii?q?LUrxR9MYKmL6Btm14ecgJ3s1rt1xppEIVAl9YlrHcxwQpzMK6Y1FRBdy2G0p?=
- =?us-ascii?q?zqIb3YMGry/A21a6HMwF3e1siZ9r0N6PQgs1/jph2mFlI+83V71NlYy2Oc6Y?=
- =?us-ascii?q?/XDAoWSp/xSlw49wV+p73DZyk94ITU1WdyPqWurjDC3NcpV6MZzUOLdsxSIe?=
- =?us-ascii?q?u/Hw/7DsMeCtLmfOcjgFW4RgkPPOlP+qo5JYatfr2N36v9eK5rlSmrnCJc64?=
- =?us-ascii?q?B0z0yI+jBUS+jU0pJDyPadmkOFUjDmlla6msb+nI1FIzYIES73zSniGZ4Ufa?=
- =?us-ascii?q?B5YJwKFXbrJsq729Fzr4DiVmQe91O5AV4Cnsizdl7adFH53AtNxWwJrnG93y?=
- =?us-ascii?q?i11Tp5l3cutKXM8jbJxrHZaBcfOmNNDFJnhFPoLJn828sWR2C0fgMpk12j/k?=
- =?us-ascii?q?+8yK9F8vcsZ1LPSFtFKnClZ1ppVbG94//bPp9C?=
-X-IPAS-Result: =?us-ascii?q?A2D6AACKdThe/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBe4F9gW0gEoQ+iQOGXwEBBoESJYlvkUkJAQEBAQEBAQEBNwEBhEACglg4E?=
- =?us-ascii?q?wIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGDAgEFIw8BBUEQCxgCAiYCAlcGAQwIA?=
- =?us-ascii?q?QGCYz+CVyWsfIEyiROBPoEOKogshA55gQeBOAwDgl0+h1uCXgSWV4Enl2SCR?=
- =?us-ascii?q?YJOk2wGG5sIjmGdKyKBWCsIAhgIIQ+DKE8YDZ0BIwOPOQEB?=
+   d="scan'208";a="38610274"
+IronPort-PHdr: =?us-ascii?q?9a23=3A/T/MZRA5q/aGKIYRyfO5UyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSPX/r8bcNUDSrc9gkEXOFd2Cra4d16yK7Ou5AzZIoc7Y9ixbK9oUD1?=
+ =?us-ascii?q?5NoP5VtjRoONSCB0z/IayiRA0BN+MGamVY+WqmO1NeAsf0ag6aiHSz6TkPBk?=
+ =?us-ascii?q?e3blItdaz6FYHIksu4yf259YHNbAVUnjq9Zq55IAmroQnLucQanIRvJrw+xx?=
+ =?us-ascii?q?bLrXdEZvpayX11Ll6Xgxrw+9288ZF+/yleof4t69JMXaDndKkkULJUCygrPX?=
+ =?us-ascii?q?oo78PxrxnDSgWP5noYUmoIlxdDHhbI4hLnUJrvqyX2ruVy1jWUMs3wVrA0RC?=
+ =?us-ascii?q?+t77x3Rx/yiScILCA2/WfKgcFtlq1boRahpxtiw47IZYyeKfRzcr/Bcd4cWG?=
+ =?us-ascii?q?FMRdhaWTBfDYygbosPF+sBMvher4nhvFsFsB+yCRCxCO/z1jNEg3n70qMg0+?=
+ =?us-ascii?q?QlDArIwgouEdwTu3jQtdn4NKMfXeWzwaLVzzvMculW1C/g5obWfBAvofKCU7?=
+ =?us-ascii?q?x+fsXey0YgCwzLg06MqYHnJT6ZyvgBvmaZ4udmSOmhi3QnqwZ0ojW3xMcthJ?=
+ =?us-ascii?q?XGiZgPylDY6yly3YE4Jd+2SUFne9GkCodQuz+BOotqQsItX2FouCEgxr0Aop?=
+ =?us-ascii?q?60ZjIGyJsgxx7BcvGKdZWD7BH7VOuJPDt1i31odKi/ihqv60Ss1OLxWteu3F?=
+ =?us-ascii?q?pXqCdOj8PCuWoX1xPJ78iKUv59/kC81jmRzw3T8eREIVwslarcNp4h3qY8lp?=
+ =?us-ascii?q?oNvkTHGS/7gFn2g7WMdkUl5+io8P7rYrTgpp+SMI90kR/xPbg0lsyjAeU3Lg?=
+ =?us-ascii?q?gOX2+B9eS6yLLj5lH2TK9Pjv03lqnVqJHaJcIFqa6lGwJZz4ku5hmlAzqmzd?=
+ =?us-ascii?q?gUh2cLIV1bdB6dkoTlI1TOL+r5Dfe7jVSsijBrx/XeM73jDJTCMmLMkK39fb?=
+ =?us-ascii?q?pj8ENc1Aoywsxf55JTEL0BJunzVVXruNzXCR85LRS4w/z7B9VlyoMeRWWPD7?=
+ =?us-ascii?q?eEP6zMt1+I5/kvI+6Xa48Ppjn8Kvsl5/nwjXIill8deLOm3ZoTaHyiAvtmJE?=
+ =?us-ascii?q?CZa2L2gtgdCWcKohY+TOvyhV2ZTzFTY3eyX6Qh5jA0E4+mE4jDSZ63gLCb3y?=
+ =?us-ascii?q?e0AIdWZmZYBVCIC3vocJ+EW/hfIB6Vd+NslD0fHZ+rUYIz1haw/Fv2xrxmNe?=
+ =?us-ascii?q?3e4CAKtpX9/Ndw7uzX0xo18GowR9+Q12CLUnFcgGwFXXk10bp5rEg7zU2Mgo?=
+ =?us-ascii?q?ZihPkNF8NY7ulVCE9uN4HXxvZmUfjuSwnBeZGPU1/gTdK4V2JiBuktysMDNh?=
+ =?us-ascii?q?4uU+6piQrOim/zXu4Y?=
+X-IPAS-Result: =?us-ascii?q?A2BwAADgdjhe/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
+ =?us-ascii?q?QICAQEBAYF7gX2BbAEgEiqEFIkDh3klmzgJAQEBAQEBAQEBNwEBghOCLQKCW?=
+ =?us-ascii?q?DgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYMCAQUjFVELCQ8CAiYCAlcGAQwGA?=
+ =?us-ascii?q?gEBgmM/gnysfYEyhUqDTIE+gQ4qhR4MiFBAgTgMA4IvLj6HW4JeBIE/AYwUi?=
+ =?us-ascii?q?WRGe5ZpBoI/ljoGG4JIjFaLao5hnSsigVgrCkGBaIFOUBgNjlWOLCMDMI8JA?=
+ =?us-ascii?q?QE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 03 Feb 2020 19:36:37 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 013JZbQg082047;
-        Mon, 3 Feb 2020 14:35:40 -0500
-Subject: Re: [PATCH v14 22/23] LSM: Add /proc attr entry for full LSM context
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com
-References: <20200124002306.3552-1-casey@schaufler-ca.com>
- <20200124002306.3552-23-casey@schaufler-ca.com>
- <1de8338a-9c1c-c13b-16f0-e47ebec0e7ea@tycho.nsa.gov>
- <f3dea066-1f6d-4b92-1a5b-dac25b58aae7@tycho.nsa.gov>
- <9afb8d9d-a590-0e13-bf46-53a347ea15dd@schaufler-ca.com>
- <6bd3e393-e1df-7117-d15a-81cb1946807b@tycho.nsa.gov>
- <446935fa-2926-c346-a273-ae1ecbb072cd@schaufler-ca.com>
- <09d96236-715a-344a-38bc-c05208698125@tycho.nsa.gov>
-Message-ID: <cdb0ba7f-2863-d721-7ec2-1e01464e2b41@tycho.nsa.gov>
-Date:   Mon, 3 Feb 2020 14:37:43 -0500
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 03 Feb 2020 19:42:52 +0000
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 013Jg1m6082409;
+        Mon, 3 Feb 2020 14:42:01 -0500
+Subject: Re: [Non-DoD Source] rangetranstion in cil fails and doesn't produce
+ explanatory output
+To:     Denis Obrezkov <denisobrezkov@gmail.com>, selinux@vger.kernel.org
+References: <6a4178fa-72fd-22af-519b-16cd2ec6c3a1@gmail.com>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <94ba5f15-2615-cbd3-1e00-222c7bbb6bf7@tycho.nsa.gov>
+Date:   Mon, 3 Feb 2020 14:44:12 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <09d96236-715a-344a-38bc-c05208698125@tycho.nsa.gov>
+In-Reply-To: <6a4178fa-72fd-22af-519b-16cd2ec6c3a1@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/3/20 1:54 PM, Stephen Smalley wrote:
-> I'd suggest something like the following instead:
-> * @getprocattr
-> *   Get the value of process attribute @name for task @p into a buffer
-> *   allocated by the security module and returned via @value.  The
-> *   caller will free the returned buffer via kfree.  The set of
-> *   attribute names is fixed by proc but the format of @value is up
-> *   to the security module authors except for the "context" attribute,
-> *   whose value is required to be a NUL-terminated printable ASCII
-> *   string without trailing whitespace.
-> *   @p the task whose attribute is being fetched
-> *   @name the name of the process attribute being fetched
-> *   @value set to point to the buffer containing the attribute value
-> *   Return the length of @value including the NUL on success, or -errno 
-> on error.
+On 2/3/20 7:21 AM, Denis Obrezkov wrote:
+> Hello,
 > 
-> The printable ASCII bit is based on what the dbus maintainer requested 
-> in previous discussions.  The question of whether the terminating NUL 
-> should be included in the returned length was otherwise left ambiguous 
-> and inconsistent in your patch among the different security modules; if 
-> you prefer not including it in the length returned by the security 
-> modules, you'll need to adjust SELinux at least to not do so for "context".
+> I am trying to make rangetransition work, this is my cil file:
+> (type foo)
+> (type bar)
+> (allow foo bar (file (ioctl read write create getattr setattr lock
+> relabelfrom relabelto append unlink link rename execute swapon quotaon
+> mounton)))
+> (rangetransition foo bar process s0)
+> 
+> Now, I am trying to install it:
+> semodule -i lximage.cil
+> 
+> Failed to resolve rangetransition statement at
+> /var/lib/selinux/refpolicy_mcs/tmp/modules/400/lximage/cil:4
+> semodule:  Failed!
+> 
+> I use Debian Testing with refpolicy enforced. Policy type = mcs.
+> What is wrong with my module? How can I get more explanatory output?
+> 
 
-BTW, I think the above guarantees with the exception of no trailing 
-whitespace and whether the NUL byte is included or excluded from length 
-are in reality also required for "current" (and SO_PEERSEC) or existing 
-userspace will break.
+For more information you can use semodule -v -i lximage.cil
+
+In your case, CIL is particular in its syntax and wants:
+(rangetransition foo bar process ((s0) (s0)))
+
+Jim
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
