@@ -2,168 +2,233 @@ Return-Path: <SRS0=lcCQ=3X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4721DC3524D
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 08:50:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45F33C3524D
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 09:05:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1C0C220658
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 08:50:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0FA5C20661
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 09:05:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ToZcqyaK"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZvQYzGa+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727441AbgBCIua (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Feb 2020 03:50:30 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42296 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727509AbgBCIua (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 03:50:30 -0500
+        id S1727559AbgBCJFa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Feb 2020 04:05:30 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:50994 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727133AbgBCJFa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 04:05:30 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580719829;
+        s=mimecast20190719; t=1580720727;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=vUM64qeKRuz8SHX3m3j5QVhSYQvKEaAvRv8Xf5ExScA=;
-        b=ToZcqyaKJ9LhLXA8PiAcdjhYSZJ4uqNvY4YdmWbXQUZO1VoO4As/pqJNItv1w6HMlK1OxG
-        NIjwCDM2aD9+cghDMxNhhX8MxTMEGM7hdxX61kZK2oplRS30NX1nEXtu/fy8Yx7s/FUPHP
-        OzhLH55KwwSWCRmaoZ9kAYYXhZo/rb8=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-332-PkEStXo8MCKGervhC4WNFQ-1; Mon, 03 Feb 2020 03:50:27 -0500
-X-MC-Unique: PkEStXo8MCKGervhC4WNFQ-1
-Received: by mail-wm1-f71.google.com with SMTP id s25so4533652wmj.3
-        for <selinux@vger.kernel.org>; Mon, 03 Feb 2020 00:50:27 -0800 (PST)
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=AT1BB0colRNZMgWo4Fi++KzJPoh/TwCjoISH08zVIRs=;
+        b=ZvQYzGa+80xJ8eImjmr+04vuaRYVamdbALv2SUMpDiUijOYA7QpuQkjNBXNwAYhCB3IdAK
+        tUAK5X+YuOE+MoKKgZI15PLv+Ewr0YafzTCu0jpBDfWzQq78WXARagxIRSD77WdwPQD8nu
+        tuwgrl98qvUyzm7mhbSItE4WlaeATOM=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-318-MB3gTUvJOeq4-b-WxjqixQ-1; Mon, 03 Feb 2020 04:05:23 -0500
+X-MC-Unique: MB3gTUvJOeq4-b-WxjqixQ-1
+Received: by mail-ot1-f72.google.com with SMTP id 39so4446956otb.8
+        for <selinux@vger.kernel.org>; Mon, 03 Feb 2020 01:05:22 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=vUM64qeKRuz8SHX3m3j5QVhSYQvKEaAvRv8Xf5ExScA=;
-        b=EfKvrAZbTtS7QUvpUuKG6F4XQ2XzwE+xrf2Ew1dAYNSrFiRXWUcF5d4Xn8zeSPK/H/
-         EIvCPgexAWImtt1VEk0A7gRkaNmgDekBvBEWBebTLVBLEL+1Gps1EL2AIRSmLhcOqatg
-         nLeYycxtJRpiNOEsqhD5uCfrGfwicbgQzf0XY9Dd6C3u76ElfpErrC2d61wnYm7ulkFH
-         FvzYVfm6Zoue97DxcRBQeK0H9bD4vqyn6E7tZ4sEGgpJu566Vf+RJLvu4WnnjNXUIqu6
-         04UwiYhbU+sM1xAOOlCsM3i4IOnbiHiHWcrfsG6/f0l/DlV3RElcJaoE+vxJqJ+vvI0o
-         W1Vw==
-X-Gm-Message-State: APjAAAVqKEfHTA7PjTNASjabb9F5v2T1yxtNwFBlvEsoh2LGc/32IXdY
-        dRq/0wELbyKgBdr5NlX3rJD8WPKNvPWKN644wkt+klFFnvhYgGv3POXNJNu9dH1Jbdd01BPKK+i
-        eCDGjEZQp92OwuOTAPQ==
-X-Received: by 2002:a1c:7dd4:: with SMTP id y203mr28224907wmc.67.1580719826319;
-        Mon, 03 Feb 2020 00:50:26 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwxkBx5ZvvxMhQtC2mKnre41XTTce83Hkq93+Jjazzf8u1gQ5s/ySIy99ZUj4OcUGtgooiEyg==
-X-Received: by 2002:a1c:7dd4:: with SMTP id y203mr28224840wmc.67.1580719825713;
-        Mon, 03 Feb 2020 00:50:25 -0800 (PST)
-Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id 133sm16265749wmd.5.2020.02.03.00.50.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Feb 2020 00:50:25 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        syzbot+61cba5033e2072d61806@syzkaller.appspotmail.com
-Subject: [PATCH] selinux: fix sidtab string cache locking
-Date:   Mon,  3 Feb 2020 09:50:23 +0100
-Message-Id: <20200203085023.360612-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.24.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AT1BB0colRNZMgWo4Fi++KzJPoh/TwCjoISH08zVIRs=;
+        b=n4xUpEmlWQ/yF2a9+vTQDDdIyMKX5B5elKs5KriRb+nI7zt97kbjEYI+LlsBH58XAU
+         Nvxs6RzmmXxg3x0y7QYFyEOAH3ZEcg0o+3VNFOEBUpo3jTOlJkPD5BAqLManQbPHJO83
+         GCeailxeOyFBB96/1V40IgmSXcgYa1V/DF99Z+wkOAdlCdQm3i3Z/HDUXGOH6j60Z041
+         hUvQ0F/WQAKnvdR3iQm2y5QigXGrjd8iKctgjwQZHv4LQuWrJ3qyP+Oqu0VSonaqmu6w
+         AS6zU7CNv1njNXjVnlx9IQrgpFftQw7yvZ7rqIEKmyWrRI4hDH3Vf65irgUwXBEIKK8g
+         o/4Q==
+X-Gm-Message-State: APjAAAV0z7mQ2xdAJ7+0D9D7xr6iBqW7SHjUCW6oZoWY1Ijv35a8wR+W
+        bSwhShQ8W4hJ/GeDTzYkyjdqUavRzq8mzgV//MvexpZd3zDMRDXTI/SZ/+M2X4l57IDUHM+fWAV
+        AlRF3rsLo4ALeQScBijrimIBnhMsibA774w==
+X-Received: by 2002:a05:6808:48e:: with SMTP id z14mr14186768oid.26.1580720721895;
+        Mon, 03 Feb 2020 01:05:21 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyTrZE1dDtbK31tUhfXNmA3gF+KLkclLuZMMi4RmWUclxv9jpbCu9xutNGJ1Tjq1TkKIG2Oex4cwN4W8iXEqLE=
+X-Received: by 2002:a05:6808:48e:: with SMTP id z14mr14186746oid.26.1580720721495;
+ Mon, 03 Feb 2020 01:05:21 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200117085836.445797-1-omosnace@redhat.com> <20200117085836.445797-3-omosnace@redhat.com>
+ <CAHC9VhSNBR1kJHrn4Z-eu4NTj09Y6Vrwu3h7MU+UHac3+g_jCg@mail.gmail.com>
+In-Reply-To: <CAHC9VhSNBR1kJHrn4Z-eu4NTj09Y6Vrwu3h7MU+UHac3+g_jCg@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 3 Feb 2020 10:05:10 +0100
+Message-ID: <CAFqZXNs0ciPRSDVc7Vn469oZwJRTLRMm6PEsMsS796z+pNm6=Q@mail.gmail.com>
+Subject: Re: [PATCH v2 2/5] selinux: convert cond_list to array
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Avoiding taking a lock in an IRQ context is not enough to prevent
-deadlocks, as discovered by syzbot:
+On Fri, Jan 31, 2020 at 5:05 AM Paul Moore <paul@paul-moore.com> wrote:
+> On Fri, Jan 17, 2020 at 3:58 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > Since it is fixed-size after allocation and we know the size beforehand,
+> > using a plain old array is simpler and more efficient.
+> >
+> > While there, also fix signedness of some related variables/parameters.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  security/selinux/include/conditional.h |  6 +--
+> >  security/selinux/selinuxfs.c           |  4 +-
+> >  security/selinux/ss/conditional.c      | 54 ++++++++++----------------
+> >  security/selinux/ss/conditional.h      |  3 +-
+> >  security/selinux/ss/policydb.c         |  2 +-
+> >  security/selinux/ss/policydb.h         |  3 +-
+> >  security/selinux/ss/services.c         | 28 ++++++-------
+> >  7 files changed, 43 insertions(+), 57 deletions(-)
+> >
+> > diff --git a/security/selinux/include/conditional.h b/security/selinux/include/conditional.h
+> > index 0ab316f61da0..ffb9a33341f8 100644
+> > --- a/security/selinux/include/conditional.h
+> > +++ b/security/selinux/include/conditional.h
+> > @@ -14,12 +14,12 @@
+> >  #include "security.h"
+> >
+> >  int security_get_bools(struct selinux_state *state,
+> > -                      int *len, char ***names, int **values);
+> > +                      u32 *len, char ***names, int **values);
+> >
+> >  int security_set_bools(struct selinux_state *state,
+> > -                      int len, int *values);
+> > +                      u32 len, int *values);
+>
+> In the future, if you're making changes like this, you might as well
+> put it all on one line (it fits under 80 chars).
 
-===
-WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected
-5.5.0-syzkaller #0 Not tainted
------------------------------------------------------
-syz-executor.0/8927 [HC0[0]:SC0[2]:HE1:SE0] is trying to acquire:
-ffff888027c94098 (&(&s->cache_lock)->rlock){+.+.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-ffff888027c94098 (&(&s->cache_lock)->rlock){+.+.}, at: sidtab_sid2str_put.part.0+0x36/0x880 security/selinux/ss/sidtab.c:533
+Good point, will do that in v3.
 
-and this task is already holding:
-ffffffff898639b0 (&(&nf_conntrack_locks[i])->rlock){+.-.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-ffffffff898639b0 (&(&nf_conntrack_locks[i])->rlock){+.-.}, at: nf_conntrack_lock+0x17/0x70 net/netfilter/nf_conntrack_core.c:91
-which would create a new lock dependency:
- (&(&nf_conntrack_locks[i])->rlock){+.-.} -> (&(&s->cache_lock)->rlock){+.+.}
+>
+> >  int security_get_bool_value(struct selinux_state *state,
+> > -                           int index);
+> > +                           u32 index);
+>
+> Same here.
+>
+> > diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+> > index 04593062008d..c8a02c9b23ee 100644
+> > --- a/security/selinux/ss/conditional.c
+> > +++ b/security/selinux/ss/conditional.c
+> > @@ -119,6 +119,7 @@ int cond_policydb_init(struct policydb *p)
+> >
+> >         p->bool_val_to_struct = NULL;
+> >         p->cond_list = NULL;
+> > +       p->cond_list_len = 0;
+> >
+> >         rc = avtab_init(&p->te_cond_avtab);
+> >         if (rc)
+> > @@ -147,27 +148,22 @@ static void cond_node_destroy(struct cond_node *node)
+> >         }
+> >         cond_av_list_destroy(node->true_list);
+> >         cond_av_list_destroy(node->false_list);
+> > -       kfree(node);
+> >  }
+> >
+> > -static void cond_list_destroy(struct cond_node *list)
+> > +static void cond_list_destroy(struct policydb *p)
+> >  {
+> > -       struct cond_node *next, *cur;
+> > +       u32 i;
+> >
+> > -       if (list == NULL)
+> > -               return;
+> > -
+> > -       for (cur = list; cur; cur = next) {
+> > -               next = cur->next;
+> > -               cond_node_destroy(cur);
+> > -       }
+> > +       for (i = 0; i < p->cond_list_len; i++)
+> > +               cond_node_destroy(&p->cond_list[i]);
+> > +       kfree(p->cond_list);
+> >  }
+> >
+> >  void cond_policydb_destroy(struct policydb *p)
+> >  {
+> >         kfree(p->bool_val_to_struct);
+> >         avtab_destroy(&p->te_cond_avtab);
+> > -       cond_list_destroy(p->cond_list);
+> > +       cond_list_destroy(p);
+> >  }
+> >
+> >  int cond_init_bool_indexes(struct policydb *p)
+> > @@ -447,7 +443,6 @@ err:
+> >
+> >  int cond_read_list(struct policydb *p, void *fp)
+> >  {
+> > -       struct cond_node *node, *last = NULL;
+> >         __le32 buf[1];
+> >         u32 i, len;
+> >         int rc;
+> > @@ -458,29 +453,24 @@ int cond_read_list(struct policydb *p, void *fp)
+> >
+> >         len = le32_to_cpu(buf[0]);
+> >
+> > +       p->cond_list = kcalloc(len, sizeof(*p->cond_list), GFP_KERNEL);
+> > +       if (!p->cond_list)
+> > +               return rc;
+> > +
+> >         rc = avtab_alloc(&(p->te_cond_avtab), p->te_avtab.nel);
+> >         if (rc)
+> >                 goto err;
+> >
+> >         for (i = 0; i < len; i++) {
+> > -               rc = -ENOMEM;
+> > -               node = kzalloc(sizeof(*node), GFP_KERNEL);
+> > -               if (!node)
+> > -                       goto err;
+> > -
+> > -               rc = cond_read_node(p, node, fp);
+> > +               rc = cond_read_node(p, &p->cond_list[i], fp);
+> >                 if (rc)
+> >                         goto err;
+> > -
+> > -               if (i == 0)
+> > -                       p->cond_list = node;
+> > -               else
+> > -                       last->next = node;
+> > -               last = node;
+> >         }
+> > +
+> > +       p->cond_list_len = len;
+>
+> Hmmm.  Since we don't update p->cond_list_len until here, if we fail
+> in the for-loop above and end up jumping to "err" we might not cleanup
+> all the nodes, right?
 
-but this new dependency connects a SOFTIRQ-irq-safe lock:
- (&(&nf_conntrack_locks[i])->rlock){+.-.}
+You're right. I'll fix it by moving the p->cond_list_len assignment
+before the for-loop - since the array is zero-initialized by
+kcalloc(), cond_node_destroy() can be called safely also on unread
+items. (That is a bit inefficient, but I see little value in
+micro-optimizing the error path.)
 
-[...]
+>
+> >         return 0;
+> >  err:
+> > -       cond_list_destroy(p->cond_list);
+> > +       cond_list_destroy(p);
+> >         p->cond_list = NULL;
+> >         return rc;
+> >  }
+>
+> --
+> paul moore
+> www.paul-moore.com
 
-other info that might help us debug this:
-
- Possible interrupt unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&(&s->cache_lock)->rlock);
-                               local_irq_disable();
-                               lock(&(&nf_conntrack_locks[i])->rlock);
-                               lock(&(&s->cache_lock)->rlock);
-  <Interrupt>
-    lock(&(&nf_conntrack_locks[i])->rlock);
-
- *** DEADLOCK ***
-[...]
-===
-
-Fix this by simply locking with irqsave/irqrestore and stop giving up on
-!in_task(). It makes the locking a bit slower, but it shouldn't make a
-big difference in real workloads. Under the scenario from [1] (only
-cache hits) it only increased the runtime overhead from the
-security_secid_to_secctx() function from ~2% to ~3% (it was ~5-65%
-before introducing the cache).
-
-[1] https://bugzilla.redhat.com/show_bug.cgi?id=1733259
-
-Fixes: d97bd23c2d7d ("selinux: cache the SID -> context string translation")
-Reported-by: syzbot+61cba5033e2072d61806@syzkaller.appspotmail.com
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/ss/sidtab.c | 12 +++---------
- 1 file changed, 3 insertions(+), 9 deletions(-)
-
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index a308ce1e6a13..f511ffccb131 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -518,19 +518,13 @@ void sidtab_sid2str_put(struct sidtab *s, struct sidtab_entry *entry,
- 			const char *str, u32 str_len)
- {
- 	struct sidtab_str_cache *cache, *victim = NULL;
-+	unsigned long flags;
- 
- 	/* do not cache invalid contexts */
- 	if (entry->context.len)
- 		return;
- 
--	/*
--	 * Skip the put operation when in non-task context to avoid the need
--	 * to disable interrupts while holding s->cache_lock.
--	 */
--	if (!in_task())
--		return;
--
--	spin_lock(&s->cache_lock);
-+	spin_lock_irqsave(&s->cache_lock, flags);
- 
- 	cache = rcu_dereference_protected(entry->cache,
- 					  lockdep_is_held(&s->cache_lock));
-@@ -561,7 +555,7 @@ void sidtab_sid2str_put(struct sidtab *s, struct sidtab_entry *entry,
- 	rcu_assign_pointer(entry->cache, cache);
- 
- out_unlock:
--	spin_unlock(&s->cache_lock);
-+	spin_unlock_irqrestore(&s->cache_lock, flags);
- 	kfree_rcu(victim, rcu_member);
- }
- 
 -- 
-2.24.1
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
