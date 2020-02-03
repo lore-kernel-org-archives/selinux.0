@@ -2,157 +2,293 @@ Return-Path: <SRS0=lcCQ=3X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5588C33CAC
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:40:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59D73C33CAC
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 14:03:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B379321582
-	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 13:40:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0506420CC7
+	for <selinux@archiver.kernel.org>; Mon,  3 Feb 2020 14:03:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="EFsnpG7J"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="l9foF+Ks"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727191AbgBCNkn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Feb 2020 08:40:43 -0500
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:15490 "EHLO
-        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727311AbgBCNkn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 08:40:43 -0500
-X-EEMSG-check-017: 53309517|UPDC19PA19_ESA_OUT01.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,398,1574121600"; 
-   d="scan'208";a="53309517"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 03 Feb 2020 13:40:40 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1580737240; x=1612273240;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=pxDeWNDvCoNIs9YrssjPx5yT7kQ9EvRnSxpaQ02PO+M=;
-  b=EFsnpG7JLWGBGCzB375zEBmbIteUjTqIXDxktVpzbR8u3YzoQKJ0/gtE
-   s0OzeR5jVmd1zG6uH3pFo0JDbmxZedQs5WgNRL7fGs5Ux8cVK2R/uEpdE
-   BgIM5uDtAqVQXRi/PTRzHDLNEZLCw5ESoZ5/6AVfENAaCpC+GInHXjhy0
-   heesjza7q4PkLzUywr7NCZdf26cyZRGXhcEiXWxqNRax+Mkl3QnaxTJAl
-   CAMMjM86EQ1mEsQlPO9tC8pPYP5lCJZV47koC8HjiIDxY+rWgzxEIP9l0
-   NsxUTG/95oWMrRUt9IarplJvAOqIQiTV9aV2mYHc8nAZRKcIx5Kzi71MA
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.70,398,1574121600"; 
-   d="scan'208";a="38577035"
-IronPort-PHdr: =?us-ascii?q?9a23=3AdOc3DxToHGXQC9bTeBYqNeQTVdpsv+yvbD5Q0Y?=
- =?us-ascii?q?Iujvd0So/mwa67ZRyBt8tkgFKBZ4jH8fUM07OQ7/m8HzBfqsvZ+DBaKdoQDk?=
- =?us-ascii?q?RD0Z1X1yUbQ+e9QXXhK/DrayFoVO9jb3RCu0+BDE5OBczlbEfTqHDhpRQbGx?=
- =?us-ascii?q?H4KBYnbr+tQt2agMu4zf299IPOaAtUmjW9falyLBKrpgnNq8Uam4RvJrs+xx?=
- =?us-ascii?q?fTrXZFeetayGN0KVmOmxrw+tq88IRs/ihNtf8t7dJMXbn/c68lUbFWETMqPn?=
- =?us-ascii?q?wv6sb2rxfDVwyP5nUdUmUSjBVFBhXO4Q/5UJnsrCb0r/Jx1yaGM8L4S7A0Qi?=
- =?us-ascii?q?mi4LxwSBD0kicHNiU2/3/Rh8dtka9UuhOhpxh4w47JfIGYMed1c63Bcd8GQ2?=
- =?us-ascii?q?dKQ91cXDJdDIyic4QPDvIBPedGoIn7u1sOtga1CQ21CO/y1jNEmnr60Ks03O?=
- =?us-ascii?q?Q7FQHNwRIuEdQAvn/JqNn5LakfXOSwwKTO0D7Nbe5Z2S3l5YbVbB4hr/GCU7?=
- =?us-ascii?q?F+f8XfxkYgFR/KgFqLpIz5PT6YzPgBv3SV4udiU++klm4pqxt2ojiq3soil5?=
- =?us-ascii?q?XJiZwNylDE6yp5xps+K8C9SEFhZd6kFIVftiGHPIZxWcMtXnpotT0myrwGpZ?=
- =?us-ascii?q?G7fC8KxI4hxx7EcfOLaYeI4hX9VOuIJzpzmXxreLW6hxmo8EigzPXxVtOq31?=
- =?us-ascii?q?lXripKiMXMumoR2BzU78iKTOZ28ES52TuXygze5e5JLVo0mKbGMZIt3LE9mo?=
- =?us-ascii?q?QJvUjeGCL9hV/4g7WMdko+/+il8+HnYrL7qZCCL4J0kQT+Mrg2msy4HOQ4Lh?=
- =?us-ascii?q?ACX2iF9uS4073u5VH5T69Qjv03j6nZq4rWJcUdpq63BA9VyZgs5AqlAze60N?=
- =?us-ascii?q?UXgXkHLFVfdBKBk4fpIE3BLOr9Dfe+h1SgiDZrx/bYMb39GpjBM3fOnbj7cb?=
- =?us-ascii?q?t99kJQ0hQ/wN9B655OF70NOPfzVVXwtNzcAB85KQu0w+P/BdVmy4weQnmCAr?=
- =?us-ascii?q?OZMazOsV+I4fgjI++XZIAPojr9JP8l5+D2gX8jhVAdZbWp3YcQaH2gGfRmJk?=
- =?us-ascii?q?KZYWHqgtgbDWgFoBEzTPb0h1KfUT5cfWqyU7gg6TE8DYKsFZ3DSZy1gLydwC?=
- =?us-ascii?q?e7GYVbZntYBVCIEHfocZiEWvgXZSKMLc9ujCYEWaKiS4A/zxGushH1y759Iu?=
- =?us-ascii?q?rT4C0Yuorp1MJp6O3LiREy6Tt0AtyF026XUmF0mngFRycs06BipUxx01KD0a?=
- =?us-ascii?q?9/g/xCC9Nf/e9GUgA/NZTE1ex1F8jyWh7dfteOUFumWdWnADAqQdI2398CZE?=
- =?us-ascii?q?dwF8i+gR/YxSWnA6MZmrKFCZMq7K7Qw3r8K9hgxHvHyaUsjEUqT8pUOG29hq?=
- =?us-ascii?q?9+9gvTCJTNk0Wdiamqb74Q0zTV9Geb1mqOpEZYUBJ1UarfXHAfYlHaosj+5k?=
- =?us-ascii?q?PHHPeSDuEANAdbxMzKD6xRbNTigFYOEPDmP8/Yamm8s329CRaB2vWHa4+8Py?=
- =?us-ascii?q?0G0SHcDlUUux4c8GzANgUkACql5WXEA3gmLVvyZwvJ9u5kpTvvVkYpyymSZl?=
- =?us-ascii?q?Blkr+y/QQYw/ebTqVA8KgDvXIatzhsHFu7l+nTAt6EqhspKL5Qevsh8VxH0i?=
- =?us-ascii?q?TfrAU7MZu+efMxzmUCehh66hu9ny58DZ9NxI1z9yIn?=
-X-IPAS-Result: =?us-ascii?q?A2C2AADwIThe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgWoEA?=
- =?us-ascii?q?QELAYF8gRhVIBIqhBSJA4ZcAQEGgTeJb5FJCQEBAQEBAQEBASsMAQGEQAKCW?=
- =?us-ascii?q?DcGDgIQAQEBBAEBAQEBBQMBAWyFNwyCOykBgwIBBSMEEUEQCw4KAgImAgJXB?=
- =?us-ascii?q?gEMBgIBAYJjPwGCViUPq1Z/M4VKg0GBOAaBDioBjDl5gQeBOA+CXT6CZAQag?=
- =?us-ascii?q?UmDEIJeBI1eiVpGl2SCRYJOhHiFR4ktBhubCI5hiGeUQyOBWCsIAhgIIQ+DJ?=
- =?us-ascii?q?1AYDY4pF4NQinEjAzACjwcBAQ?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 03 Feb 2020 13:40:37 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 013DdmUB154846;
-        Mon, 3 Feb 2020 08:39:49 -0500
-Subject: Re: [PATCH] selinux: fix sidtab string cache locking
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>
-Cc:     syzbot+61cba5033e2072d61806@syzkaller.appspotmail.com
-References: <20200203085023.360612-1-omosnace@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <8dbc1ed9-7c6a-a745-0d6f-8975d32f591d@tycho.nsa.gov>
-Date:   Mon, 3 Feb 2020 08:41:50 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1727815AbgBCODt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Feb 2020 09:03:49 -0500
+Received: from mailomta22-sa.btinternet.com ([213.120.69.28]:20897 "EHLO
+        sa-prd-fep-046.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726836AbgBCODt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Feb 2020 09:03:49 -0500
+Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
+          by sa-prd-fep-046.btinternet.com with ESMTP
+          id <20200203140346.QMSD7796.sa-prd-fep-046.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Mon, 3 Feb 2020 14:03:46 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1580738626; 
+        bh=odtDPqYBh+p2C4keV0mqKOGARWyqpAI0msrk7QF3YVA=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=l9foF+KsqM9edasn0NcSVuYLaVVcDeVblpIClnx+kn33CuKCT0RZqxUMql0Xbui6zOS6I9cTFONKKlFdOZyzvog3TgpUgUGIkg0wMS2EBlToLvTrGQrlS4+//iXLR7E+1/KTcl6nlPZjZQxUdvIWvRKE7I+ogNSkniW641LSY6t4MBVNIUshYzkBQwZaPn1zWasFg0FYkLOGO3acyNMVjGhb67qNjaYCuBBMVwMXhhilDuJ9lvMLQd5KMDJ5V6Lr/W8F+kTbKWGzne0e2TpOhg8oSDZfK+C6Cj3Z/9r4UPJQrbhqgHYZ9kezjPY/2e3Ij0kdDvHx/IcrizvBKJHu1A==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [31.51.79.157]
+X-OWM-Source-IP: 31.51.79.157 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrgeejgdehkecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepfedurdehuddrjeelrdduheejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrhedurdejledrudehjedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoeguhhhofigvlhhlshesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeokhgvhihrihhnghhssehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeolhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeolhhinhhugidqshgvtghurhhithihqdhmohguuhhlvgesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghp
+        thhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgushesthihtghhohdrnhhsrgdrghhovheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (31.51.79.157) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
+        id 5E1A2CBA0388ACAD; Mon, 3 Feb 2020 14:03:45 +0000
+Message-ID: <de8d82ba7db7abdf2a72d88c8cbc590e289f5f6f.camel@btinternet.com>
+Subject: Re: SELinux: How to split permissions for keys?
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        David Howells <dhowells@redhat.com>, paul@paul-moore.com
+Cc:     keyrings@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Mon, 03 Feb 2020 14:03:44 +0000
+In-Reply-To: <3d1923ec-f02b-6be7-b0c0-d3d6f539b034@tycho.nsa.gov>
+References: <8ee40192da117d9cdf4eab1e63ab5f77b359801c.camel@btinternet.com>
+         <4057700.1579792320@warthog.procyon.org.uk>
+         <de2c5cda-567b-d310-42f7-46a2c20969c4@tycho.nsa.gov>
+         <50f98f04-d00e-ae54-9a90-d0ff10be515a@tycho.nsa.gov>
+         <459818a9ad1c808298bf3d7c9bcb130323d30e97.camel@btinternet.com>
+         <3d1923ec-f02b-6be7-b0c0-d3d6f539b034@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.2 (3.34.2-1.fc31) 
 MIME-Version: 1.0
-In-Reply-To: <20200203085023.360612-1-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/3/20 3:50 AM, Ondrej Mosnacek wrote:
-> Avoiding taking a lock in an IRQ context is not enough to prevent
-> deadlocks, as discovered by syzbot:
+On Mon, 2020-02-03 at 08:13 -0500, Stephen Smalley wrote:
+> On 2/2/20 2:30 PM, Richard Haines wrote:
+> > On Thu, 2020-01-23 at 15:35 -0500, Stephen Smalley wrote:
+> > > On 1/23/20 10:46 AM, Stephen Smalley wrote:
+> > > > On 1/23/20 10:12 AM, David Howells wrote:
+> > > > > Hi Stephen,
+> > > > > 
+> > > > > I have patches to split the permissions that are used for
+> > > > > keys to
+> > > > > make
+> > > > > them a
+> > > > > bit finer grained and easier to use - and also to move to
+> > > > > ACLs
+> > > > > rather
+> > > > > than
+> > > > > fixed masks.  See patch "keys: Replace uid/gid/perm
+> > > > > permissions
+> > > > > checking with
+> > > > > an ACL" here:
+> > > > > 
+> > > > >      
+> > > > > https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/log/?h=keys-acl
+> > > > >   
+> > > > > 
+> > > > > 
+> > > > > However, I may not have managed the permission mask
+> > > > > transformation inside
+> > > > > SELinux correctly.  Could you lend an eyeball?  The change to
+> > > > > the
+> > > > > permissions
+> > > > > model is as follows:
+> > > > > 
+> > > > >       The SETATTR permission is split to create two new
+> > > > > permissions:
+> > > > >        (1) SET_SECURITY - which allows the key's owner, group
+> > > > > and
+> > > > > ACL
+> > > > > to be
+> > > > >            changed and a restriction to be placed on a
+> > > > > keyring.
+> > > > >        (2) REVOKE - which allows a key to be revoked.
+> > > > >       The SEARCH permission is split to create:
+> > > > >        (1) SEARCH - which allows a keyring to be search and a
+> > > > > key
+> > > > > to be
+> > > > > found.
+> > > > >        (2) JOIN - which allows a keyring to be joined as a
+> > > > > session
+> > > > > keyring.
+> > > > >        (3) INVAL - which allows a key to be invalidated.
+> > > > >       The WRITE permission is also split to create:
+> > > > >        (1) WRITE - which allows a key's content to be altered
+> > > > > and
+> > > > > links
+> > > > > to be
+> > > > >            added, removed and replaced in a keyring.
+> > > > >        (2) CLEAR - which allows a keyring to be cleared
+> > > > > completely.
+> > > > > This is
+> > > > >            split out to make it possible to give just this to
+> > > > > an
+> > > > > administrator.
+> > > > >        (3) REVOKE - see above.
+> > > > > 
+> > > > > The change to SELinux is attached below.
+> > > > > 
+> > > > > Should the split be pushed down into the SELinux policy
+> > > > > rather
+> > > > > than
+> > > > > trying to
+> > > > > calculate it?
+> > > > 
+> > > > My understanding is that you must provide full backward
+> > > > compatibility
+> > > > with existing policies; hence, you must ensure that you always
+> > > > check the
+> > > > same SELinux permission(s) for the same operation when using an
+> > > > existing
+> > > > policy.
+> > > > 
+> > > > In order to support finer-grained distinctions in SELinux with
+> > > > future
+> > > > policies, you can define a new SELinux policy capability along
+> > > > with
+> > > > the
+> > > > new permissions, and if the policy capability is enabled in the
+> > > > policy,
+> > > > check the new permissions rather than the old ones. A recent
+> > > > example of
+> > > > adding a new policy capability and using it can be seen in:
+> > > > https://lore.kernel.org/selinux/20200116194530.8696-1-jeffv@google.com/T/#u
+> > > > although that patch was rejected for other reasons.
+> > > > 
+> > > > Another example was when we introduced fine-grained
+> > > > distinctions
+> > > > for all
+> > > > network address families, commit
+> > > > da69a5306ab92e07224da54aafee8b1dccf024f6.
+> > > > 
+> > > > The new policy capability also needs to be defined in libsepol
+> > > > for
+> > > > use
+> > > > by the policy compiler; an example can be seen in:
+> > > > https://lore.kernel.org/selinux/20170714164801.6346-1-sds@tycho.nsa.gov/
+> > > > 
+> > > > Then future policies can declare the policy capability when
+> > > > they
+> > > > are
+> > > > ready to start using the new permissions instead of the old.
+> > > > 
+> > > > > Thanks,
+> > > > > David
+> > > > > ---
+> > > > > diff --git a/security/selinux/hooks.c
+> > > > > b/security/selinux/hooks.c
+> > > > > index 116b4d644f68..c8db5235b01f 100644
+> > > > > --- a/security/selinux/hooks.c
+> > > > > +++ b/security/selinux/hooks.c
+> > > > > @@ -6556,6 +6556,7 @@ static int
+> > > > > selinux_key_permission(key_ref_t
+> > > > > key_ref,
+> > > > >    {
+> > > > >        struct key *key;
+> > > > >        struct key_security_struct *ksec;
+> > > > > +    unsigned oldstyle_perm;
+> > > > >        u32 sid;
+> > > > >        /* if no specific permissions are requested, we skip
+> > > > > the
+> > > > > @@ -6564,13 +6565,26 @@ static int
+> > > > > selinux_key_permission(key_ref_t
+> > > > > key_ref,
+> > > > >        if (perm == 0)
+> > > > >            return 0;
+> > > > > +    oldstyle_perm = perm & (KEY_NEED_VIEW | KEY_NEED_READ |
+> > > > > KEY_NEED_WRITE |
+> > > > > +                KEY_NEED_SEARCH | KEY_NEED_LINK);
+> > > > > +    if (perm & KEY_NEED_SETSEC)
+> > > > > +        oldstyle_perm |= OLD_KEY_NEED_SETATTR;
+> > > > > +    if (perm & KEY_NEED_INVAL)
+> > > > > +        oldstyle_perm |= KEY_NEED_SEARCH;
+> > > > > +    if (perm & KEY_NEED_REVOKE && !(perm &
+> > > > > OLD_KEY_NEED_SETATTR))
+> > > > > +        oldstyle_perm |= KEY_NEED_WRITE;
+> > > > > +    if (perm & KEY_NEED_JOIN)
+> > > > > +        oldstyle_perm |= KEY_NEED_SEARCH;
+> > > > > +    if (perm & KEY_NEED_CLEAR)
+> > > > > +        oldstyle_perm |= KEY_NEED_WRITE;
+> > > > > +
+> > > > 
+> > > > I don't know offhand if this ensures that the same SELinux
+> > > > permission is
+> > > > always checked as it would have been previously for the same
+> > > > operation+arguments.  That's what you have to preserve for
+> > > > existing
+> > > > policies.
+> > > 
+> > > As Richard pointed out in his email, your key-acl series replaces
+> > > two
+> > > different old permissions (LINK, SEARCH) with a single permission
+> > > (JOIN)
+> > > in different callers, so by the time we reach the SELinux hook we
+> > > cannot
+> > > map it back unambiguously and provide full backward
+> > > compatibility.  The
+> > > REVOKE case also seems fragile although there you seem to
+> > > distinguish
+> > > by
+> > > sometimes passing in OLD_KEY_NEED_SETATTR and sometimes
+> > > not?  You'll
+> > > have to fix the JOIN case to avoid userspace breakage.
+> > > 
+> > > You may want to go ahead and explicitly translate all of the
+> > > KEY_NEED
+> > > permissions to SELinux permissions rather than passing the key
+> > > permissions directly here to avoid requiring that the values
+> > > always
+> > > match.  The SELinux permission symbols are of the form
+> > > CLASS__PERMISSION
+> > > (NB double underscore), e.g. KEY__SETATTR, generated
+> > > automatically
+> > > from
+> > > the security/selinux/include/classmap.h tables to the
+> > > security/selinux/av_permissions.h generated header. Most hooks
+> > > perform
+> > > such translation, e.g. file_mask_to_av().  You will almost
+> > > certainly
+> > > need to do this if/when you introduce support for the new
+> > > permissions
+> > > to
+> > > SELinux.
+> > 
+> > This problem has now been fixed in [1].
+> > It passes the current selinux-test-suite (except test/fs_filesystem
+> > regression).
+> > 
+> > As the fix now includes a new 'key_perms' policy capability to
+> > allow
+> > use of the extended key permissions, I've updated libsepol and the
+> > selinux-testsuite test/keys to test these.
+> > 
+> > I'll submit two RFC patches that will allow [1] to be tested with
+> > 'key_perms' true or false.
+> > 
+> > [1]
+> > https://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs.git/commit/?h=keys-next
 > 
-> ===
-> WARNING: SOFTIRQ-safe -> SOFTIRQ-unsafe lock order detected
-> 5.5.0-syzkaller #0 Not tainted
-> -----------------------------------------------------
-> syz-executor.0/8927 [HC0[0]:SC0[2]:HE1:SE0] is trying to acquire:
-> ffff888027c94098 (&(&s->cache_lock)->rlock){+.+.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-> ffff888027c94098 (&(&s->cache_lock)->rlock){+.+.}, at: sidtab_sid2str_put.part.0+0x36/0x880 security/selinux/ss/sidtab.c:533
+> Was that kernel patch ever posted to selinux list and/or the selinux 
+> kernel maintainers?  I don't recall seeing it.  If not, please send
+> it 
+> to the selinux list for review; at least one selinux maintainer
+> should 
+> ack it before it gets accepted into any other tree.
 > 
-> and this task is already holding:
-> ffffffff898639b0 (&(&nf_conntrack_locks[i])->rlock){+.-.}, at: spin_lock include/linux/spinlock.h:338 [inline]
-> ffffffff898639b0 (&(&nf_conntrack_locks[i])->rlock){+.-.}, at: nf_conntrack_lock+0x17/0x70 net/netfilter/nf_conntrack_core.c:91
-> which would create a new lock dependency:
->   (&(&nf_conntrack_locks[i])->rlock){+.-.} -> (&(&s->cache_lock)->rlock){+.+.}
 > 
-> but this new dependency connects a SOFTIRQ-irq-safe lock:
->   (&(&nf_conntrack_locks[i])->rlock){+.-.}
-> 
-> [...]
-> 
-> other info that might help us debug this:
-> 
->   Possible interrupt unsafe locking scenario:
-> 
->         CPU0                    CPU1
->         ----                    ----
->    lock(&(&s->cache_lock)->rlock);
->                                 local_irq_disable();
->                                 lock(&(&nf_conntrack_locks[i])->rlock);
->                                 lock(&(&s->cache_lock)->rlock);
->    <Interrupt>
->      lock(&(&nf_conntrack_locks[i])->rlock);
-> 
->   *** DEADLOCK ***
-> [...]
-> ===
-> 
-> Fix this by simply locking with irqsave/irqrestore and stop giving up on
-> !in_task(). It makes the locking a bit slower, but it shouldn't make a
-> big difference in real workloads. Under the scenario from [1] (only
-> cache hits) it only increased the runtime overhead from the
-> security_secid_to_secctx() function from ~2% to ~3% (it was ~5-65%
-> before introducing the cache).
-> 
-> [1] https://bugzilla.redhat.com/show_bug.cgi?id=1733259
-> 
-> Fixes: d97bd23c2d7d ("selinux: cache the SID -> context string translation")
-> Reported-by: syzbot+61cba5033e2072d61806@syzkaller.appspotmail.com
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Not formally. I did post it in a discussion about keys in [2]. Since
+then it's been modified to support the split permissions.
 
-[...]
+I've extracted the patch from [1] and will post that to list for
+comments.
+
+
+[2] 
+https://lore.kernel.org/selinux/35455b30b5185780628e92c98ec8191c70f39bde.camel@btinternet.com/
+
+> 
+
