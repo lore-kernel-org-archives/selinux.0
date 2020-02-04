@@ -2,424 +2,540 @@ Return-Path: <SRS0=kuBz=3Y=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5004EC3524D
-	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 14:37:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A53D0C2D0B1
+	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 15:01:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 132072082E
-	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 14:37:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E6442087E
+	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 15:01:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="OhIWaqCV"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SPTpS2FG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727250AbgBDOhM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Feb 2020 09:37:12 -0500
-Received: from mailomta26-re.btinternet.com ([213.120.69.119]:34773 "EHLO
-        re-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727302AbgBDOhM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Feb 2020 09:37:12 -0500
-Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
-          by re-prd-fep-044.btinternet.com with ESMTP
-          id <20200204143710.XOEV28737.re-prd-fep-044.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Tue, 4 Feb 2020 14:37:10 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1580827030; 
-        bh=gFmcoErQlqEfwFa7rXWrY+qQImlv+K6Vaf7+sqK4eL4=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=OhIWaqCVJ2bLei7S0YRbvKP9mqlwCubgYMQ5//r8yeWpBPctkFj9sGLWGtcgJSieZhHPNeNFKDIplRVDpNkc/1m7azeRRwO9ZHXAp8661gub6l8W07UoLQ6cQ/gIQPTI2aegChPJagNyzVdmQJJylrxbaC/e5a6+udpQBLhlDsy7AuQB5u8pYn7cbDRSglSPIytlZYKq1jK8IUXwKEUmE5YW9oDHtSUef4l+1kdp2wW6ZTkAjcwmkVSVxcIIgcIGF1+vbXsoogygpjyh+MUUNkYpsie73YAPju1NuPjjq/k8Ih9N4EDTBImrfdaiJrVPFae2HED6r/2RwNcjBJ9+Tw==
-Authentication-Results: btinternet.com; none
-X-Originating-IP: [31.49.56.10]
-X-OWM-Source-IP: 31.49.56.10 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrgeelgdeiiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeefuddrgeelrdehiedruddtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehiedruddtpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (31.49.56.10) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.337) (authenticated as richard_c_haines@btinternet.com)
-        id 5E207A3302CE304E; Tue, 4 Feb 2020 14:37:10 +0000
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [RFC PATCH 1/1] selinux-testsuite: Test all mount option context types
-Date:   Tue,  4 Feb 2020 14:37:07 +0000
-Message-Id: <20200204143707.318337-2-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200204143707.318337-1-richard_c_haines@btinternet.com>
-References: <20200204143707.318337-1-richard_c_haines@btinternet.com>
+        id S1727314AbgBDPBw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Feb 2020 10:01:52 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:41926 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727258AbgBDPBw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Feb 2020 10:01:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1580828510;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=fy64BdcDXDME7+zqI9oAe0ypQOTQcQpb2keC3SGlC8k=;
+        b=SPTpS2FGmlGAoBAckK05dzl+rUM2DVF7kYodYRAeusEYCguXQb/1bd3ODGZeQnmkooTWqZ
+        YFNtaePwNT/9cpgInACbOj8nYVJ5Ts/7Ik6zma726B2BEeRHF1fQNTSwVL4RWj565FtVFq
+        d+QeUkv1ry5AvWUXvAhyWYkvfnutqAc=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-44-gyhol3bsNhOw-E9Br4smeg-1; Tue, 04 Feb 2020 10:01:34 -0500
+X-MC-Unique: gyhol3bsNhOw-E9Br4smeg-1
+Received: by mail-ot1-f72.google.com with SMTP id f25so11146800otq.15
+        for <selinux@vger.kernel.org>; Tue, 04 Feb 2020 07:01:34 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=fy64BdcDXDME7+zqI9oAe0ypQOTQcQpb2keC3SGlC8k=;
+        b=HItMgf8tI17o7BeHbuKPbUSytnYYZTbr+NHINEWMpfLlDLktQ68uXYPMx4SVwrG6dl
+         trcRPkIuCGt9N52DQ1k3b2C3b8GQeD1OfUrPmdRsOCDN5Tm33zOUwqzyF/DmnjaEUBcH
+         vM6wEkbYQr6KHZgSTqxG6Kt/ycMlZwcen1ige04gkiuzBycepU9g2Gbnq0/Tyi9wx2AF
+         IvmH07eOFp/Bs+lFSDtedRKZ+EWaAYWEKtqX0nrdFWiZhUS6N9NycDsHBHAy8+lfOP1z
+         BZa5wh/TBuWPPDMKIDpQRm+iUDbuRmZF1G5Y40IgjNb9rr2c21wXMnP2/X7uLjEIhTKe
+         VCFw==
+X-Gm-Message-State: APjAAAUpECzS8B8rF1y2NeeU5fsLxbrkoyK2gXk4EMBzCjT3KcVl8nCG
+        hx2zO0PFDTAP/Qq8r3HM6g+OPnOlJrlAntVLQo0dsiOXCIJfE3Q9d5PZz5aS8wh2h//TDFttw+s
+        uEv7UV4FeggP4YY5xfcUtpV1EBENIuGtHZg==
+X-Received: by 2002:aca:1108:: with SMTP id 8mr3717839oir.127.1580828492926;
+        Tue, 04 Feb 2020 07:01:32 -0800 (PST)
+X-Google-Smtp-Source: APXvYqx1c8cfXPatxe8HWfp/GKs1ULN2KUuTeBc+VYgNkNIsCBIjv2RXb+gqWXy/La3V36nv9A+ylhMbvuenxASXjhQ=
+X-Received: by 2002:aca:1108:: with SMTP id 8mr3717706oir.127.1580828491617;
+ Tue, 04 Feb 2020 07:01:31 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200116213937.77795-1-dev@lynxeye.de> <2d1a3d66-c2ee-f7ea-a884-11ac9150d994@tycho.nsa.gov>
+In-Reply-To: <2d1a3d66-c2ee-f7ea-a884-11ac9150d994@tycho.nsa.gov>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 4 Feb 2020 16:01:20 +0100
+Message-ID: <CAFqZXNtJ2h-HPwzV9t1bizVB2=xWh=s3jY5aqXG1x86b+oEMYg@mail.gmail.com>
+Subject: Re: [PATCH RFC] selinux: policydb - convert filename trans hash to rhashtable
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Lucas Stach <dev@lynxeye.de>, Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Test supported filesystems for mount options: context, defcontext,
-rootcontext and fscontext. The tests use fsconfig(2) and therefore does
-not actually mount the filesystem to a target.
+On Fri, Jan 17, 2020 at 8:11 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 1/16/20 4:39 PM, Lucas Stach wrote:
+> > The current hash is too small for current usages in, e.g. the Fedora standard
+> > policy. On file creates a considerable amount of CPU time is spent walking the
+> > the hash chains. Increasing the number of hash buckets somewhat mitigates the
+> > issue, but doesn't completely get rid of the long hash chains.
+> >
+> > This patch does take the bit more invasive route by converting the filename
+> > trans hash to a rhashtable to allow this hash to scale with load.
+> >
+> > fs_mark create benchmark on a SSD device, no ramdisk:
+> > Count          Size       Files/sec     App Overhead
+> > before:
+> > 10000          512        512.3           147715
+> > after:
+> > 10000          512        572.3            75141
+> >
+> > filenametr_cmp(), which was the topmost function in the CPU cycle trace before
+> > at ~5% of the overall CPU time, is now down in the noise.
+>
+> Thank you for working on this.  IMHO, Fedora overuses name-based type
+> transitions but that's another topic. I haven't yet investigated the
+> root cause but with your patch applied, I see some test failures related
+> to name-based transitions:
+>
+> [...]
+> #   Failed test at overlay/test line 439.
+> overlay/test ................ 114/119 # Looks like you failed 1 test of 119.
+> [...]
+> filesystem/test ............. 3/70 File context error, expected:
+>         test_filesystem_filenametranscon1_t
+> got:
+>         test_filesystem_filetranscon_t
+>
+> #   Failed test at filesystem/test line 279.
+> File context error, expected:
+>         test_filesystem_filenametranscon2_t
+> got:
+>         test_filesystem_filetranscon_t
+>
+> #   Failed test at filesystem/test line 286.
+> filesystem/test ............. 68/70 # Looks like you failed 2 tests of 70.
+>
+> You can reproduce by cloning the selinux-testsuite from
+> https://github.com/SELinuxProject/selinux-testsuite, applying the
+> filesystem tests patch from
+> https://patchwork.kernel.org/patch/11337659/,
+> and following the README.md instructions.
 
-All /sbin/mkfs.* entries are read and if supported, tested with each option.
+I think I figured out what's wrong - see below.
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
- policy/test_filesystem.te      |  12 +++
- tests/Makefile                 |   2 +-
- tests/filesystem/Filesystem.pm |  19 +++-
- tests/fs_contexts/.gitignore   |   1 +
- tests/fs_contexts/Makefile     |  13 +++
- tests/fs_contexts/fsconfig.c   |  72 ++++++++++++++++
- tests/fs_contexts/test         | 153 +++++++++++++++++++++++++++++++++
- 7 files changed, 268 insertions(+), 4 deletions(-)
- create mode 100644 tests/fs_contexts/.gitignore
- create mode 100644 tests/fs_contexts/Makefile
- create mode 100644 tests/fs_contexts/fsconfig.c
- create mode 100755 tests/fs_contexts/test
+>
+> >
+> > Signed-off-by: Lucas Stach <dev@lynxeye.de>
+> > ---
+> >   security/selinux/ss/policydb.c | 140 +++++++++++++++++++++++----------
+> >   security/selinux/ss/policydb.h |  14 ++--
+> >   security/selinux/ss/services.c |  31 +-------
+> >   3 files changed, 109 insertions(+), 76 deletions(-)
+> >
+> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> > index e20624a68f5d..d059317c15b6 100644
+> > --- a/security/selinux/ss/policydb.c
+> > +++ b/security/selinux/ss/policydb.c
+> > @@ -34,6 +34,7 @@
+> >   #include <linux/string.h>
+> >   #include <linux/errno.h>
+> >   #include <linux/audit.h>
+> > +#include <linux/rhashtable.h>
+> >   #include "security.h"
+> >
+> >   #include "policydb.h"
+> > @@ -334,15 +335,13 @@ static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap) =
+> >       cat_destroy,
+> >   };
+> >
+> > -static int filenametr_destroy(void *key, void *datum, void *p)
+> > +static void filenametr_destroy(void *ptr, void *arg)
+> >   {
+> > -     struct filename_trans *ft = key;
+> > +     struct filename_trans *ft = ptr;
+> >
+> >       kfree(ft->name);
+> > -     kfree(key);
+> > -     kfree(datum);
+> > +     kfree(ft);
+> >       cond_resched();
+> > -     return 0;
+> >   }
+> >
+> >   static int range_tr_destroy(void *key, void *datum, void *p)
+> > @@ -404,9 +403,9 @@ static int roles_init(struct policydb *p)
+> >       return rc;
+> >   }
+> >
+> > -static u32 filenametr_hash(struct hashtab *h, const void *k)
+> > +static u32 filenametr_hash(const void *data, u32 len, u32 seed)
+> >   {
+> > -     const struct filename_trans *ft = k;
+> > +     const struct filename_trans *ft = data;
+> >       unsigned long hash;
+> >       unsigned int byte_num;
+> >       unsigned char focus;
+> > @@ -416,13 +415,15 @@ static u32 filenametr_hash(struct hashtab *h, const void *k)
+> >       byte_num = 0;
+> >       while ((focus = ft->name[byte_num++]))
+> >               hash = partial_name_hash(focus, hash);
+> > -     return hash & (h->size - 1);
+> > +
+> > +     return end_name_hash(hash);
+> >   }
+> >
+> > -static int filenametr_cmp(struct hashtab *h, const void *k1, const void *k2)
+> > +static int filenametr_cmp(struct rhashtable_compare_arg *arg,
+> > +                       const void *obj)
+> >   {
+> > -     const struct filename_trans *ft1 = k1;
+> > -     const struct filename_trans *ft2 = k2;
+> > +     const struct filename_trans *ft1 = arg->key;
+> > +     const struct filename_trans *ft2 = obj;
+> >       int v;
+> >
+> >       v = ft1->stype - ft2->stype;
+> > @@ -441,6 +442,39 @@ static int filenametr_cmp(struct hashtab *h, const void *k1, const void *k2)
+> >
+> >   }
+> >
+> > +static const struct rhashtable_params filename_trans_hashparams = {
+> > +     .nelem_hint             = 1024,
+> > +     .head_offset            = offsetof(struct filename_trans, hash_head),
 
-diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
-index 4ff493a..220f79e 100644
---- a/policy/test_filesystem.te
-+++ b/policy/test_filesystem.te
-@@ -6,6 +6,9 @@
- attribute filesystemdomain;
- kernel_setsched(filesystemdomain)
- 
-+# For module filesystems
-+kernel_request_load_module(filesystemdomain)
-+
- #################### Create test file contexts ######################
- type test_filesystem_filecon_t;
- files_type(test_filesystem_filecon_t)
-@@ -58,6 +61,15 @@ type_transition test_filesystem_t test_filesystem_file_t:file test_filesystem_fi
- allow test_filesystem_t test_filesystem_filetranscon_t:file { create getattr open write relabelfrom };
- dontaudit unconfined_t test_filesystem_filetranscon_t:file { getattr read };
- 
-+#
-+# For fs_contexts tests
-+#
-+allow test_filesystem_t test_filesystem_file_t:filesystem { mount relabelfrom relabelto };
-+allow test_filesystem_t unlabeled_t:filesystem { relabelfrom };
-+# For fs_context test rootcontext= minix
-+allow test_filesystem_file_t unlabeled_t:filesystem { associate };
-+allow test_filesystem_t unlabeled_t:filesystem { mount };
-+
- #################### Deny filesystem { relabelfrom } ######################
- # hooks.c may_context_mount_sb_relabel() FILESYSTEM__RELABELFROM
- type test_filesystem_sb_relabel_no_relabelfrom_t;
-diff --git a/tests/Makefile b/tests/Makefile
-index 46a1641..87708fb 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -100,7 +100,7 @@ endif
- 
- ifeq ($(shell grep -q filesystem $(POLDEV)/include/support/all_perms.spt && echo true),true)
- ifneq ($(shell ./kvercmp $$(uname -r) 5.2),-1)
--SUBDIRS += fs_filesystem
-+SUBDIRS += fs_filesystem fs_contexts
- endif
- endif
- 
-diff --git a/tests/filesystem/Filesystem.pm b/tests/filesystem/Filesystem.pm
-index 3d4194d..680bf0b 100644
---- a/tests/filesystem/Filesystem.pm
-+++ b/tests/filesystem/Filesystem.pm
-@@ -111,17 +111,30 @@ sub attach_dev {
- 
- sub make_fs {
-     my ( $mk_type, $mk_dev, $mk_dir ) = @_;
-+
-+    if ( $mk_type eq "btrfs" or $mk_type eq "reiserfs" ) {
-+        $count = "count=27904";
-+    }
-+    else {
-+        $count = "count=4096";
-+    }
-+
-     print "Create $mk_dir/fstest with dd\n";
--    $result = system(
--        "dd if=/dev/zero of=$mk_dir/fstest bs=1024 count=10240 2>/dev/null");
-+    $result =
-+      system("dd if=/dev/zero of=$mk_dir/fstest bs=4096 $count 2>/dev/null");
-     if ( $result != 0 ) {
-         print "dd failed to create $mk_dir/fstest\n";
-     }
- 
-     attach_dev( $mk_dev, $mk_dir );
- 
-+    $opt = " ";
-+    if ( $mk_type eq "reiserfs" ) {
-+        $opt = "-q";    # Otherwise asks to proceed
-+    }
-+
-     print "Make $mk_type filesystem on $mk_dev\n";
--    $result = system("mkfs.$mk_type -I 256 $mk_dev >& /dev/null");
-+    $result = system("mkfs.$mk_type $opt $mk_dev >& /dev/null");
-     if ( $result != 0 ) {
-         system("losetup -d $mk_dev 2>/dev/null");
-         print "mkfs.$mk_type failed to create filesystem on $mk_dev\n";
-diff --git a/tests/fs_contexts/.gitignore b/tests/fs_contexts/.gitignore
-new file mode 100644
-index 0000000..c870437
---- /dev/null
-+++ b/tests/fs_contexts/.gitignore
-@@ -0,0 +1 @@
-+fsconfig
-diff --git a/tests/fs_contexts/Makefile b/tests/fs_contexts/Makefile
-new file mode 100644
-index 0000000..012c4fa
---- /dev/null
-+++ b/tests/fs_contexts/Makefile
-@@ -0,0 +1,13 @@
-+TARGETS = fsconfig
-+USE_FS = ../fs_filesystem
-+DEPS = $(USE_FS)/fs_common.c $(USE_FS)/fs_common.h
-+LDLIBS += -lselinux
-+
-+all: $(TARGETS)
-+	@set -e; for i in $(USE_FS); do $(MAKE) -C $$i all ; done
-+
-+clean:
-+	rm -f $(TARGETS)
-+	@set -e; for i in $(USE_FS); do $(MAKE) -C $$i clean ; done
-+
-+$(TARGETS): $(DEPS)
-diff --git a/tests/fs_contexts/fsconfig.c b/tests/fs_contexts/fsconfig.c
-new file mode 100644
-index 0000000..e4cd8d8
---- /dev/null
-+++ b/tests/fs_contexts/fsconfig.c
-@@ -0,0 +1,72 @@
-+#include "../fs_filesystem/fs_common.h"
-+
-+static void print_usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s -s src -f fs_type -o options [-v]\n"
-+		"Where:\n\t"
-+		"-s  Source path\n\t"
-+		"-f  Filesystem type\n\t"
-+		"-o  Options list (comma separated list)\n\t"
-+		"-v  Print information.\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	int opt, result, fsfd;
-+	char *context, *src = NULL, *opts1, *fs_type = NULL, *opts = NULL;
-+	bool verbose = false;
-+
-+	while ((opt = getopt(argc, argv, "s:f:o:v")) != -1) {
-+		switch (opt) {
-+		case 's':
-+			src = optarg;
-+			break;
-+		case 'f':
-+			fs_type = optarg;
-+			break;
-+		case 'o':
-+			opts = optarg;
-+			break;
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			print_usage(argv[0]);
-+		}
-+	}
-+
-+	if (!src || !fs_type || !opts)
-+		print_usage(argv[0]);
-+
-+	if (verbose) {
-+		result = getcon(&context);
-+		if (result < 0) {
-+			fprintf(stderr, "Failed to obtain process context\n");
-+			return -1;
-+		}
-+		printf("Process context:\n\t%s\n", context);
-+		free(context);
-+	}
-+
-+	fsfd = fsopen(fs_type, 0);
-+	if (fsfd < 0) {
-+		fprintf(stderr, "Failed fsopen(2): %s\n", strerror(errno));
-+		return -1;
-+	}
-+
-+	opts1 = strdup(opts);
-+
-+	/* fsconfig_opts() will return 0 or errno from fsconfig(2) */
-+	result = fsconfig_opts(fsfd, src, NULL, opts, verbose);
-+	if (result) {
-+		fprintf(stderr, "Failed config_opts\n");
-+		return result;
-+	}
-+	if (verbose)
-+		printf("Successfully added options: %s\n", opts1);
-+
-+	close(fsfd);
-+	return 0;
-+}
-diff --git a/tests/fs_contexts/test b/tests/fs_contexts/test
-new file mode 100755
-index 0000000..8437dcb
---- /dev/null
-+++ b/tests/fs_contexts/test
-@@ -0,0 +1,153 @@
-+#!/usr/bin/perl
-+use Test::More;
-+
-+my @mkfs_list;
-+my @fs_type_list;
-+
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    # Load common subroutines.
-+    use File::Basename qw(dirname);
-+    use Cwd qw(abs_path);
-+    use lib dirname( abs_path $0) . '/../filesystem';
-+    use Filesystem
-+      qw(udisks2_stop udisks2_restart get_loop_dev make_fs mk_mntpoint_1 cleanup1 reaper);
-+
-+    # Options: -v = Verbose, -e enable udisks(8) daemon
-+    $v = " ";
-+
-+    # MUST stop udisksd(8) as it interferes with creating/deleting
-+    # filesystems during these tests
-+    $disable_udisks = 1;
-+    $udisks2_status = 0;
-+    foreach $arg (@ARGV) {
-+        if ( $arg eq "-v" ) {
-+            $v = $arg;
-+        }
-+        elsif ( $arg eq "-e" ) {
-+            $disable_udisks = 0;
-+        }
-+    }
-+
-+    my @mkfs_list = map { chomp; $_ } `find /sbin/mkfs.* -printf "%f\n"`;
-+    $i = 0;
-+    foreach my $fstype (@mkfs_list) {
-+        @split_fn = split( /\./, $fstype );
-+        if ( $split_fn[1] eq "cramfs" ) {
-+            print "$split_fn[1] - unsupported\n";
-+            next;
-+        }
-+        elsif ($split_fn[1] eq "btrfs"
-+            or $split_fn[1] eq "ext2"
-+            or $split_fn[1] eq "ext3"
-+            or $split_fn[1] eq "ext4"
-+            or $split_fn[1] eq "fat"
-+            or $split_fn[1] eq "hfsplus"
-+            or $split_fn[1] eq "minix"
-+            or $split_fn[1] eq "msdos"
-+            or $split_fn[1] eq "ntfs"
-+            or $split_fn[1] eq "reiserfs"
-+            or $split_fn[1] eq "vfat"
-+            or $split_fn[1] eq "xfs" )
-+        {
-+            $fs_type_list[$i] = $split_fn[1];
-+            print "$split_fn[1] - supported\n";
-+            $i++;
-+        }
-+    }
-+
-+    plan tests => ( $i * 4 );
-+}
-+
-+# Keep a list of devices used for removal at end of test.
-+$device_count = 0;
-+my @device_list;
-+
-+if ($disable_udisks) {
-+    $udisks2_status = udisks2_stop();
-+}
-+
-+$context_opt     = "context=system_u:object_r:test_filesystem_file_t:s0";
-+$rootcontext_opt = "rootcontext=system_u:object_r:test_filesystem_file_t:s0";
-+$defcontext_opt  = "defcontext=system_u:object_r:test_filesystem_file_t:s0";
-+$fscontext_opt   = "fscontext=system_u:object_r:test_filesystem_file_t:s0";
-+
-+foreach my $fs_type (@fs_type_list) {
-+    mk_mntpoint_1("$basedir/mntpoint");
-+    ( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
-+    make_fs( $fs_type, $dev, $basedir );
-+
-+    if ( $fs_type eq "ntfs" ) {
-+        $fs_type = "fuseblk";
-+    }
-+    if ( $fs_type eq "fat" ) {
-+        $fs_type = "vfat";
-+    }
-+
-+    # Test context
-+    print "Testing context= for $fs_type\n";
-+    $result = system(
-+"runcon -t test_filesystem_t $basedir/fsconfig $v -f $fs_type -s $dev -o $context_opt 2>&1"
-+    );
-+    if ( $fs_type eq "fuseblk" ) {    # This is expected to fail
-+        ok(1);
-+    }
-+    else {
-+        ok( $result eq 0 );
-+    }
-+
-+    # Test defcontext
-+    print "Testing defcontext= for $fs_type\n";
-+    $result = system(
-+"runcon -t test_filesystem_t $basedir/fsconfig $v -f $fs_type -s $dev -o $defcontext_opt 2>&1"
-+    );
-+    if (   $fs_type eq "vfat"
-+        or $fs_type eq "hfsplus"
-+        or $fs_type eq "minix"
-+        or $fs_type eq "msdos"
-+        or $fs_type eq "fuseblk"
-+        or $fs_type eq "reiserfs" )
-+    {    # These are expected to fail
-+        ok(1);
-+    }
-+    else {
-+        ok( $result eq 0 );
-+    }
-+
-+    # Test rootcontext
-+    print "Testing rootcontext= for $fs_type\n";
-+    $result = system(
-+"runcon -t test_filesystem_t $basedir/fsconfig $v -f $fs_type -s $dev -o $rootcontext_opt 2>&1"
-+    );
-+    if ( $fs_type eq "fuseblk" ) {    # This is expected to fail
-+        ok(1);
-+    }
-+    else {
-+        ok( $result eq 0 );
-+    }
-+
-+    # Test fscontext
-+    print "Testing fscontext= for $fs_type\n";
-+    $result = system(
-+"runcon -t test_filesystem_t $basedir/fsconfig $v -f $fs_type -s $dev -o $fscontext_opt 2>&1"
-+    );
-+    if ( $fs_type eq "fuseblk" ) {    # This is expected to fail
-+        ok(1);
-+    }
-+    else {
-+        ok( $result eq 0 );
-+    }
-+
-+    cleanup1( $basedir, $dev );
-+}
-+
-+cleanup1( $basedir, $dev );
-+reaper( \@device_list, $basedir, $v );
-+
-+if ($disable_udisks) {
-+    udisks2_restart($udisks2_status);
-+}
-+
-+exit;
+You need to add:
+
++.hashfn = filenametr_hash,
+
+here so that the key is correctly hashed on lookup. After applying
+this fix, the selinux-testuite passes for me with this patch.
+
+> > +     .obj_hashfn             = filenametr_hash,
+> > +     .obj_cmpfn              = filenametr_cmp,
+> > +};
+> > +
+> > +void policydb_filename_compute_type(struct policydb *policydb,
+> > +                                 struct context *newcontext,
+> > +                                 u32 stype, u32 ttype, u16 tclass,
+> > +                                 const char *objname)
+> > +{
+> > +     struct filename_trans key, *ft;
+> > +
+> > +     /*
+> > +      * Most filename trans rules are going to live in specific directories
+> > +      * like /dev or /var/run.  This bitmap will quickly skip rule searches
+> > +      * if the ttype does not contain any rules.
+> > +      */
+> > +     if (!ebitmap_get_bit(&policydb->filename_trans_ttypes, ttype))
+> > +             return;
+> > +
+> > +     key.stype = stype;
+> > +     key.ttype = ttype;
+> > +     key.tclass = tclass;
+> > +     key.name = objname;
+> > +
+> > +     ft = rhashtable_lookup(&policydb->filename_trans, &key,
+> > +                            filename_trans_hashparams);
+> > +     if (ft)
+> > +             newcontext->type = ft->otype;
+> > +}
+> > +
+> >   static u32 rangetr_hash(struct hashtab *h, const void *k)
+> >   {
+> >       const struct range_trans *key = k;
+> > @@ -494,12 +528,7 @@ static int policydb_init(struct policydb *p)
+> >       if (rc)
+> >               goto out;
+> >
+> > -     p->filename_trans = hashtab_create(filenametr_hash, filenametr_cmp,
+> > -                                        (1 << 10));
+> > -     if (!p->filename_trans) {
+> > -             rc = -ENOMEM;
+> > -             goto out;
+> > -     }
+> > +     rhashtable_init(&p->filename_trans, &filename_trans_hashparams);
+> >
+> >       p->range_tr = hashtab_create(rangetr_hash, rangetr_cmp, 256);
+> >       if (!p->range_tr) {
+> > @@ -513,7 +542,7 @@ static int policydb_init(struct policydb *p)
+> >
+> >       return 0;
+> >   out:
+> > -     hashtab_destroy(p->filename_trans);
+> > +     rhashtable_destroy(&p->filename_trans);
+> >       hashtab_destroy(p->range_tr);
+> >       for (i = 0; i < SYM_NUM; i++) {
+> >               hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
+> > @@ -831,8 +860,8 @@ void policydb_destroy(struct policydb *p)
+> >       }
+> >       kfree(lra);
+> >
+> > -     hashtab_map(p->filename_trans, filenametr_destroy, NULL);
+> > -     hashtab_destroy(p->filename_trans);
+> > +     rhashtable_free_and_destroy(&p->filename_trans, filenametr_destroy,
+> > +                                 NULL);
+> >
+> >       hashtab_map(p->range_tr, range_tr_destroy, NULL);
+> >       hashtab_destroy(p->range_tr);
+> > @@ -1878,7 +1907,6 @@ static int range_read(struct policydb *p, void *fp)
+> >   static int filename_trans_read(struct policydb *p, void *fp)
+> >   {
+> >       struct filename_trans *ft;
+> > -     struct filename_trans_datum *otype;
+> >       char *name;
+> >       u32 nel, len;
+> >       __le32 buf[4];
+> > @@ -1893,7 +1921,6 @@ static int filename_trans_read(struct policydb *p, void *fp)
+> >       nel = le32_to_cpu(buf[0]);
+> >
+> >       for (i = 0; i < nel; i++) {
+> > -             otype = NULL;
+> >               name = NULL;
+> >
+> >               rc = -ENOMEM;
+> > @@ -1901,11 +1928,6 @@ static int filename_trans_read(struct policydb *p, void *fp)
+> >               if (!ft)
+> >                       goto out;
+> >
+> > -             rc = -ENOMEM;
+> > -             otype = kmalloc(sizeof(*otype), GFP_KERNEL);
+> > -             if (!otype)
+> > -                     goto out;
+> > -
+> >               /* length of the path component string */
+> >               rc = next_entry(buf, fp, sizeof(u32));
+> >               if (rc)
+> > @@ -1926,14 +1948,14 @@ static int filename_trans_read(struct policydb *p, void *fp)
+> >               ft->stype = le32_to_cpu(buf[0]);
+> >               ft->ttype = le32_to_cpu(buf[1]);
+> >               ft->tclass = le32_to_cpu(buf[2]);
+> > -
+> > -             otype->otype = le32_to_cpu(buf[3]);
+> > +             ft->otype = le32_to_cpu(buf[3]);
+> >
+> >               rc = ebitmap_set_bit(&p->filename_trans_ttypes, ft->ttype, 1);
+> >               if (rc)
+> >                       goto out;
+> >
+> > -             rc = hashtab_insert(p->filename_trans, ft, otype);
+> > +             rc = rhashtable_insert_fast(&p->filename_trans, &ft->hash_head,
+> > +                                         filename_trans_hashparams);
+> >               if (rc) {
+> >                       /*
+> >                        * Do not return -EEXIST to the caller, or the system
+> > @@ -1944,15 +1966,12 @@ static int filename_trans_read(struct policydb *p, void *fp)
+> >                       /* But free memory to avoid memory leak. */
+> >                       kfree(ft);
+> >                       kfree(name);
+> > -                     kfree(otype);
+> >               }
+> >       }
+> > -     hash_eval(p->filename_trans, "filenametr");
+> >       return 0;
+> >   out:
+> >       kfree(ft);
+> >       kfree(name);
+> > -     kfree(otype);
+> >
+> >       return rc;
+> >   }
+> > @@ -3323,12 +3342,10 @@ static int range_write(struct policydb *p, void *fp)
+> >       return 0;
+> >   }
+> >
+> > -static int filename_write_helper(void *key, void *data, void *ptr)
+> > +static int filename_write_helper(struct filename_trans *ft,
+> > +                              struct policy_file *fp)
+> >   {
+> >       __le32 buf[4];
+> > -     struct filename_trans *ft = key;
+> > -     struct filename_trans_datum *otype = data;
+> > -     void *fp = ptr;
+> >       int rc;
+> >       u32 len;
+> >
+> > @@ -3345,7 +3362,7 @@ static int filename_write_helper(void *key, void *data, void *ptr)
+> >       buf[0] = cpu_to_le32(ft->stype);
+> >       buf[1] = cpu_to_le32(ft->ttype);
+> >       buf[2] = cpu_to_le32(ft->tclass);
+> > -     buf[3] = cpu_to_le32(otype->otype);
+> > +     buf[3] = cpu_to_le32(ft->otype);
+> >
+> >       rc = put_entry(buf, sizeof(u32), 4, fp);
+> >       if (rc)
+> > @@ -3356,15 +3373,34 @@ static int filename_write_helper(void *key, void *data, void *ptr)
+> >
+> >   static int filename_trans_write(struct policydb *p, void *fp)
+> >   {
+> > -     u32 nel;
+> > +     u32 nel = 0;
+> >       __le32 buf[1];
+> > -     int rc;
+> > +     int rc = 0;
+> > +     struct rhashtable_iter iter;
+> >
+> >       if (p->policyvers < POLICYDB_VERSION_FILENAME_TRANS)
+> >               return 0;
+> >
+> > -     nel = 0;
+> > -     rc = hashtab_map(p->filename_trans, hashtab_cnt, &nel);
+> > +     rhashtable_walk_enter(&p->filename_trans, &iter);
+> > +     rhashtable_walk_start(&iter);
+> > +     for(;;) {
+> > +             struct filename_trans *trans;
+> > +
+> > +             trans = rhashtable_walk_next(&iter);
+> > +             if (!trans)
+> > +                     break;
+> > +             if (IS_ERR(trans)) {
+> > +                     if (PTR_ERR(trans) == -EAGAIN) {
+> > +                             nel = 0;
+> > +                             continue;
+> > +                     }
+> > +                     rc = PTR_ERR(trans);
+> > +                     break;
+> > +             }
+> > +             nel++;
+> > +     };
+> > +     rhashtable_walk_stop(&iter);
+> > +     rhashtable_walk_exit(&iter);
+> >       if (rc)
+> >               return rc;
+> >
+> > @@ -3373,7 +3409,25 @@ static int filename_trans_write(struct policydb *p, void *fp)
+> >       if (rc)
+> >               return rc;
+> >
+> > -     rc = hashtab_map(p->filename_trans, filename_write_helper, fp);
+> > +     rhashtable_walk_enter(&p->filename_trans, &iter);
+> > +     rhashtable_walk_start(&iter);
+> > +     for(;;) {
+> > +             struct filename_trans *trans;
+> > +
+> > +             trans = rhashtable_walk_next(&iter);
+> > +             if (!trans)
+> > +                     break;
+> > +             if (IS_ERR(trans)) {
+> > +                     if (PTR_ERR(trans) == -EAGAIN) {
+> > +                             continue;
+> > +                     }
+> > +                     rc = PTR_ERR(trans);
+> > +                     break;
+> > +             }
+> > +             filename_write_helper(trans, fp);
+> > +     };
+> > +     rhashtable_walk_stop(&iter);
+> > +     rhashtable_walk_exit(&iter);
+> >       if (rc)
+> >               return rc;
+> >
+> > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
+> > index bc56b14e2216..f1d2f5166af2 100644
+> > --- a/security/selinux/ss/policydb.h
+> > +++ b/security/selinux/ss/policydb.h
+> > @@ -29,6 +29,7 @@
+> >   #include "mls_types.h"
+> >   #include "context.h"
+> >   #include "constraint.h"
+> > +#include <linux/rhashtable.h>
+> >
+> >   /*
+> >    * A datum type is defined for each kind of symbol
+> > @@ -90,16 +91,14 @@ struct role_trans {
+> >   };
+> >
+> >   struct filename_trans {
+> > +     struct rhash_head hash_head;
+> > +     u32 otype;
+> >       u32 stype;              /* current process */
+> >       u32 ttype;              /* parent dir context */
+> >       u16 tclass;             /* class of new object */
+> >       const char *name;       /* last path component */
+> >   };
+> >
+> > -struct filename_trans_datum {
+> > -     u32 otype;              /* expected of new object */
+> > -};
+> > -
+> >   struct role_allow {
+> >       u32 role;               /* current role */
+> >       u32 new_role;           /* new role */
+> > @@ -266,7 +265,7 @@ struct policydb {
+> >       /* quickly exclude lookups when parent ttype has no rules */
+> >       struct ebitmap filename_trans_ttypes;
+> >       /* actual set of filename_trans rules */
+> > -     struct hashtab *filename_trans;
+> > +     struct rhashtable filename_trans;
+> >
+> >       /* bools indexed by (value - 1) */
+> >       struct cond_bool_datum **bool_val_to_struct;
+> > @@ -318,6 +317,11 @@ extern int policydb_role_isvalid(struct policydb *p, unsigned int role);
+> >   extern int policydb_read(struct policydb *p, void *fp);
+> >   extern int policydb_write(struct policydb *p, void *fp);
+> >
+> > +void policydb_filename_compute_type(struct policydb *policydb,
+> > +                                 struct context *newcontext,
+> > +                                 u32 stype, u32 ttype, u16 tclass,
+> > +                                 const char *objname);
+> > +
+> >   #define PERM_SYMTAB_SIZE 32
+> >
+> >   #define POLICYDB_CONFIG_MLS    1
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index a5813c7629c1..60a98d900dd3 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -1607,32 +1607,6 @@ static int compute_sid_handle_invalid_context(
+> >       return -EACCES;
+> >   }
+> >
+> > -static void filename_compute_type(struct policydb *policydb,
+> > -                               struct context *newcontext,
+> > -                               u32 stype, u32 ttype, u16 tclass,
+> > -                               const char *objname)
+> > -{
+> > -     struct filename_trans ft;
+> > -     struct filename_trans_datum *otype;
+> > -
+> > -     /*
+> > -      * Most filename trans rules are going to live in specific directories
+> > -      * like /dev or /var/run.  This bitmap will quickly skip rule searches
+> > -      * if the ttype does not contain any rules.
+> > -      */
+> > -     if (!ebitmap_get_bit(&policydb->filename_trans_ttypes, ttype))
+> > -             return;
+> > -
+> > -     ft.stype = stype;
+> > -     ft.ttype = ttype;
+> > -     ft.tclass = tclass;
+> > -     ft.name = objname;
+> > -
+> > -     otype = hashtab_search(policydb->filename_trans, &ft);
+> > -     if (otype)
+> > -             newcontext->type = otype->otype;
+> > -}
+> > -
+> >   static int security_compute_sid(struct selinux_state *state,
+> >                               u32 ssid,
+> >                               u32 tsid,
+> > @@ -1770,8 +1744,9 @@ static int security_compute_sid(struct selinux_state *state,
+> >
+> >       /* if we have a objname this is a file trans check so check those rules */
+> >       if (objname)
+> > -             filename_compute_type(policydb, &newcontext, scontext->type,
+> > -                                   tcontext->type, tclass, objname);
+> > +             policydb_filename_compute_type(policydb, &newcontext,
+> > +                                            scontext->type, tcontext->type,
+> > +                                            tclass, objname);
+> >
+> >       /* Check for class-specific changes. */
+> >       if (specified & AVTAB_TRANSITION) {
+> >
+>
+
 -- 
-2.24.1
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
