@@ -2,424 +2,157 @@ Return-Path: <SRS0=kuBz=3Y=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBD86C35247
-	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 19:46:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAE37C35247
+	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 19:59:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9F64F2082E
-	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 19:46:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B925920674
+	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 19:59:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GPDHJA36"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="B5x2t86z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727394AbgBDTqm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Feb 2020 14:46:42 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:40328 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727382AbgBDTqm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Feb 2020 14:46:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580845600;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WGktWXsZrsgTz9L6aeYEsqCBJ1SoWXmpX2iPZk1ZhgE=;
-        b=GPDHJA36h5sqkurxsSExvNnJBgl6ZmEZzDQBlzHRo5AbCPqmVVDhcFyjQJFxS5vHlUoRCU
-        Quog6sLg5t/ycQ062XBN/ScxCBj+EiCkt9kvC57QQB2rZ3KSPCy/7dsIi/U2ygsQQm41sn
-        Ezc1NJriWGeiQJNeFmQE5vO4F46PNR0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-390-HQZ0lcpkNBCXZX-KHk6jzQ-1; Tue, 04 Feb 2020 14:46:17 -0500
-X-MC-Unique: HQZ0lcpkNBCXZX-KHk6jzQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2B66ADB23
-        for <selinux@vger.kernel.org>; Tue,  4 Feb 2020 19:46:16 +0000 (UTC)
-Received: from workstation.redhat.com (ovpn-204-39.brq.redhat.com [10.40.204.39])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A65725C1B5;
-        Tue,  4 Feb 2020 19:46:14 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH v2] libselinux: Eliminate use of security_compute_user()
-Date:   Tue,  4 Feb 2020 20:46:03 +0100
-Message-Id: <20200204194603.525561-1-plautrba@redhat.com>
+        id S1727486AbgBDT7j (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Feb 2020 14:59:39 -0500
+Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:17241 "EHLO
+        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727450AbgBDT7j (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Feb 2020 14:59:39 -0500
+X-EEMSG-check-017: 54303445|UPDC19PA22_ESA_OUT04.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,403,1574121600"; 
+   d="scan'208";a="54303445"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Feb 2020 18:21:54 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1580840515; x=1612376515;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=0chuA4uokmmPLbXLFOtvpyRRhJVnAfRUJP1xRrLxnhw=;
+  b=B5x2t86zAPMTVYW+Q2HxtuD8NjN9FFloJ50GaLpBGTGrmkDGfNBCbIH4
+   ZmtbsBJID77IRl+/VIbI99rse3NBj7a+xl3y6hQUg88u5qL/aV1eNu2HU
+   DBPG8nmsgJA6fYiRj3JxybSf9+ZnnL5hNRmxFabqGY/qprWS2SU6IHeLM
+   OqQdAOdoL5MJKsBWks7ypOtQuhL7qh92KZQzLqc0Sy50AzNyxk272W97R
+   wG76AQpiCWFnpdIHuKTMosraF7kJKPT2060hp1YgJ2K2g9QH7X46TmzBL
+   Fde5HkSWE6ftLkBnh3upMSiybEaLSLDZufFKIKTDMp9nTpKRZ/gaz05Bf
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,402,1574121600"; 
+   d="scan'208";a="38660833"
+IronPort-PHdr: =?us-ascii?q?9a23=3AVh8hzx8wE4Ua4v9uRHKM819IXTAuvvDOBiVQ1K?=
+ =?us-ascii?q?B21OwcTK2v8tzYMVDF4r011RmVBNmdt6MP0rKN++C4ACpcuM3H6ChDOLV3FD?=
+ =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
+ =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjeu8UMjoZvLqk9xg?=
+ =?us-ascii?q?bVrnZGZu9awX9kKU+Jkxvz+8u98oRv/zhMt/4k6sVNTbj0c6MkQLJCET8oKX?=
+ =?us-ascii?q?o15MrltRnCSQuA+H4RWXgInxRLHgbI8gj0Uo/+vSXmuOV93jKaPdDtQrAvRT?=
+ =?us-ascii?q?ui9aZrRwT2hyoBKjU07XvYis10jKJcvRKhuxlyyJPabY2JKPZzeL7WcMgETm?=
+ =?us-ascii?q?RdQMleSy1BApu9b4QRCeoBIf1YpJT5q1cXsBeyGRWgCObpxzBGnH/22bAx3f?=
+ =?us-ascii?q?onHw/IwQcsG8sCvXTQodnwMqoZTOK7w7TSzTjbcv1Yxzn95ojLfB4vr/6DUr?=
+ =?us-ascii?q?B/ftbex0Q0CwPIjE+dpZD5Mz6b1OkAtXWQ4ep6VeKojm4qsxx/oiSxycc0io?=
+ =?us-ascii?q?nGmIQVwU3Z+yV82ok1Idm4R1B7YNW5F5ZQrDyVN5BtT8M+Q2BnpCY6yroctZ?=
+ =?us-ascii?q?69ZygF0o4rxxHYa/yZaoWF5A/oWuWJITpgmX5od72yiwyy/ES90OHwSMa53E?=
+ =?us-ascii?q?hQoiZYlNTHq2oD2AbJ6sedT/tw5kKh2TGS2A/N8uxEOkU0lbbDK54m374wio?=
+ =?us-ascii?q?IfsUTdES/yn0X7lLOWeV8++uip9uTnea/qpp6aN496jQH+KbohldClDeQkMg?=
+ =?us-ascii?q?kBQ2ib+eOm2L3l4UL5W6lFguczkqnYtJDWPcUbpqinDA9Jyosv9hmyAji83N?=
+ =?us-ascii?q?kYgHULNkxJdR2Zg4TzJl3COPX4Au2+g1Sonjdr3ffGPrj5D5XWM3fDi6zsfa?=
+ =?us-ascii?q?p96kFAyAozyspT55RPCr4bOv7zVUjxtMLAAh8jLwO02/rnCMl61o4GQ2KPA7?=
+ =?us-ascii?q?OWMKPIvl+S++0gO/WDa5cVuDnnKvgl4eDhjWQilFAGYamp3J0XaGymEfR8JU?=
+ =?us-ascii?q?WWf2bsjs0dHmcNuwo0VPbqh0GaUT5Pe3ayWLox5iolB4KiDIfDQJ2tgbOa0S?=
+ =?us-ascii?q?elEZ1ZeHpGBkqPEXj2bYWEXekDaCaILs9miDwEWuvpd4h07xCltAbgx/JHJ+?=
+ =?us-ascii?q?vS9zZQ4Yji39h8/eHkniYy/D1yAt+12X2MSX15hGUFW3k926Up5QRmx1OC17?=
+ =?us-ascii?q?Voq+JXGMYV5P5TVAo+c5nGwL9UEdf3Dzndc8+JRVDuedCvBTU8X5pl2NMVS1?=
+ =?us-ascii?q?psENWlyBbY1mylBKFDxO/DP4A97q+Jhyu5HM160XuTkfB83lQ=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DZAABatTle/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
+ =?us-ascii?q?QGBe4F9gRhVIBIqhBSJA4ZmAQEBBoE3iW+RSQkBAQEBAQEBAQEjFAEBhEACg?=
+ =?us-ascii?q?ls4EwIQAQEBBAEBAQEBBQMBAWyFNwyCOykBgwEBAQEBAgEjFVELGAICJgICV?=
+ =?us-ascii?q?wYBDAgBAYJjPwGCVgUgrFh1gTKFSoM+gT6BDiqMPHmBB4E4D4IoNT6BDoE9h?=
+ =?us-ascii?q?RCCXgSNVIllRnuWaYJFgk6Ee450BhuDQJdIjmGdKyKBWCsIAhgIIQ+DJwlHG?=
+ =?us-ascii?q?A2TRIQUhSkjAzCOTQEB?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Feb 2020 18:21:52 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 014IL1N7270121;
+        Tue, 4 Feb 2020 13:21:02 -0500
+Subject: Re: [RFC PATCH 0/1] selinux-testsuite: Test all mount option context
+ types
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+References: <20200204143707.318337-1-richard_c_haines@btinternet.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <ad706239-69a1-eeae-31ce-ac8b70081613@tycho.nsa.gov>
+Date:   Tue, 4 Feb 2020 13:22:46 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200204143707.318337-1-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-get_ordered_context_list() code used to ask the kernel to compute the com=
-plete
-set of reachable contexts using /sys/fs/selinux/user aka
-security_compute_user(). This set can be so huge so that it doesn't fit i=
-nto a
-kernel page and security_compute_user() fails. Even if it doesn't fail,
-get_ordered_context_list() throws away the vast majority of the returned
-contexts because they don't match anything in
-/etc/selinux/targeted/contexts/default_contexts or
-/etc/selinux/targeted/contexts/users/
+On 2/4/20 9:37 AM, Richard Haines wrote:
+> Not sure how useful these tests are but using them as a starter for running
+> tests on all supported filesystems (that I could find).
+> 
+> These test all the *context= mount options by reading /sbin/mkfs.* entries.
+> I've failed/passed tests based on what I have seen, however some could be
+> wrong.
 
-get_ordered_context_list() is rewritten to compute set of contexts based =
-on
-/etc/selinux/targeted/contexts/users/ and
-/etc/selinux/targeted/contexts/default_contexts files and to return only =
-valid
-contexts, using security_check_context(), from this set.
+A few preliminary comments:
 
-Fixes: https://github.com/SELinuxProject/selinux/issues/28
+- The existence of /sbin/mkfs.foo does not guarantee that the kernel 
+config enables the foo filesystem,
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
+- I'm not sure that we really want to test all of these filesystem types 
+all the time; my earlier comments were more directed at enabling us to 
+apply as many of the existing filesystem + fs_filesystem tests as 
+possible to whatever filesystem type is in use as the native/host 
+filesystem type in which selinux-testsuite lives as is the case for all 
+other tests, so that distributions with different defaults will get 
+their own defaults tested automatically (e.g. ext4 vs xfs vs btrfs) when 
+run on their distribution and labeled NFS will be fully exercised when 
+running nfs.sh,
 
-This is second version of https://patchwork.kernel.org/patch/10936883/ up=
-dated
-based on comments in the thread:
+- Only exercising fsconfig(2) without actually mounting won't tell us if 
+the context is actually being applied as expected, unlike the existing 
+filesystem tests,
 
-- fixed indentation
-- error when the size of partial context is too big
-- dropped two free(usercon_str)
-- parsing continues only if the partial context can't be parsed
+- Fail/pass shouldn't be based on what we happen to see when we run the 
+test but on what is known to be the actual correct behavior. Offhand, 
+the only cases expected to fail if allowed by policy would be use of any 
+of the context mount options in a non-init user namespace (except for 
+tmpfs/ramfs/devpts) or use of defcontext= with a filesystem type that 
+isn't fs_use_xattr in policy or using native labeling (labeled NFS).
 
-Tested on Fedora using python3 and atd:
+> 
+> Notes:
+> 1) As I use fsconfig(2), the btrfs tests will always fail as there is a
+>     bug somewhere in the kernel (being investigated).
+> 2) I have had to disable udisks as that interferes with the tests. You can
+>     keep it enabled by ./test -e.
+>     I think there is really a problem with udisks getting in the way as I
+>     rapidly fsopen(fd), fsconfig(2) close(fd) for each test (on my system
+>     this equals 48 times).
+> 
+> Richard Haines (1):
+>    selinux-testsuite: Test all mount option context types
+> 
+>   policy/test_filesystem.te      |  12 +++
+>   tests/Makefile                 |   2 +-
+>   tests/filesystem/Filesystem.pm |  19 +++-
+>   tests/fs_contexts/.gitignore   |   1 +
+>   tests/fs_contexts/Makefile     |  13 +++
+>   tests/fs_contexts/fsconfig.c   |  72 ++++++++++++++++
+>   tests/fs_contexts/test         | 153 +++++++++++++++++++++++++++++++++
+>   7 files changed, 268 insertions(+), 4 deletions(-)
+>   create mode 100644 tests/fs_contexts/.gitignore
+>   create mode 100644 tests/fs_contexts/Makefile
+>   create mode 100644 tests/fs_contexts/fsconfig.c
+>   create mode 100755 tests/fs_contexts/test
 
-Before:
-
-# python3
->>> import selinux
->>> selinux.get_ordered_context_list("staff_u", "system_u:system_r:crond_=
-t:s0-s0:c0.c1023")
-['staff_u:unconfined_r:unconfined_t:s0']
-
-[staff@localhost ~]$ at now + 1 minutes <<EOF
-id -Z > /tmp/id-Z
-EOF
-[staff@localhost ~]$ cat /tmp/id-Z
-staff_u:unconfined_r:unconfined_t:s0
-
-
-After:
->>> selinux.get_ordered_context_list("staff_u", "system_u:system_r:crond_=
-t:s0-s0:c0.c1023")
-['staff_u:staff_r:staff_t:s0-s0:c0.c1023', 'staff_u:staff_r:cronjob_t:s0-=
-s0:c0.c1023', 'staff_u:staff_r:staff_t:s0-s0:c0.c1023', 'staff_u:sysadm_r=
-:sysadm_t:s0-s0:c0.c1023', 'staff_u:unconfined_r:unconfined_t:s0-s0:c0.c1=
-023', 'staff_u:staff_r:cronjob_t:s0-s0:c0.c1023', 'staff_u:sysadm_r:cronj=
-ob_t:s0-s0:c0.c1023', 'staff_u:system_r:system_cronjob_t:s0-s0:c0.c1023',=
- 'staff_u:unconfined_r:unconfined_cronjob_t:s0-s0:c0.c1023']
-
-[staff@localhost ~]$ cat /tmp/id-Z=20
-staff_u:staff_r:staff_t:s0-s0:c0.c1023
-
- libselinux/src/get_context_list.c | 197 +++++++++++-------------------
- 1 file changed, 74 insertions(+), 123 deletions(-)
-
-diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_conte=
-xt_list.c
-index 689e46589f30..a3dcaea2ffc4 100644
---- a/libselinux/src/get_context_list.c
-+++ b/libselinux/src/get_context_list.c
-@@ -2,6 +2,7 @@
- #include <errno.h>
- #include <stdio.h>
- #include <stdio_ext.h>
-+#include <stdint.h>
- #include <stdlib.h>
- #include <string.h>
- #include <ctype.h>
-@@ -114,61 +115,25 @@ int get_default_context(const char *user,
- 	return 0;
- }
-=20
--static int find_partialcon(char ** list,
--			   unsigned int nreach, char *part)
--{
--	const char *conrole, *contype;
--	char *partrole, *parttype, *ptr;
--	context_t con;
--	unsigned int i;
--
--	partrole =3D part;
--	ptr =3D part;
--	while (*ptr && !isspace(*ptr) && *ptr !=3D ':')
--		ptr++;
--	if (*ptr !=3D ':')
--		return -1;
--	*ptr++ =3D 0;
--	parttype =3D ptr;
--	while (*ptr && !isspace(*ptr) && *ptr !=3D ':')
--		ptr++;
--	*ptr =3D 0;
--
--	for (i =3D 0; i < nreach; i++) {
--		con =3D context_new(list[i]);
--		if (!con)
--			return -1;
--		conrole =3D context_role_get(con);
--		contype =3D context_type_get(con);
--		if (!conrole || !contype) {
--			context_free(con);
--			return -1;
--		}
--		if (!strcmp(conrole, partrole) && !strcmp(contype, parttype)) {
--			context_free(con);
--			return i;
--		}
--		context_free(con);
--	}
--
--	return -1;
--}
--
--static int get_context_order(FILE * fp,
-+static int get_context_user(FILE * fp,
- 			     char * fromcon,
--			     char ** reachable,
--			     unsigned int nreach,
--			     unsigned int *ordering, unsigned int *nordered)
-+			     const char * user,
-+			     char ***reachable,
-+			     unsigned int *nreachable)
- {
- 	char *start, *end =3D NULL;
- 	char *line =3D NULL;
--	size_t line_len =3D 0;
-+	size_t line_len =3D 0, usercon_len;
-+	size_t user_len =3D strlen(user);
- 	ssize_t len;
- 	int found =3D 0;
--	const char *fromrole, *fromtype;
-+	const char *fromrole, *fromtype, *fromlevel;
- 	char *linerole, *linetype;
--	unsigned int i;
-+	char **new_reachable =3D NULL;
-+	char *usercon_str;
- 	context_t con;
-+	context_t usercon;
-+
- 	int rc;
-=20
- 	errno =3D -EINVAL;
-@@ -180,6 +145,7 @@ static int get_context_order(FILE * fp,
- 		return -1;
- 	fromrole =3D context_role_get(con);
- 	fromtype =3D context_type_get(con);
-+	fromlevel =3D context_range_get(con);
- 	if (!fromrole || !fromtype) {
- 		context_free(con);
- 		return -1;
-@@ -243,23 +209,66 @@ static int get_context_order(FILE * fp,
- 		if (*end)
- 			*end++ =3D 0;
-=20
--		/* Check for a match in the reachable list. */
--		rc =3D find_partialcon(reachable, nreach, start);
--		if (rc < 0) {
--			/* No match, skip it. */
-+		/* Check whether a new context is valid */
-+		if (SIZE_MAX - user_len < strlen(start) + 1) {
-+			fprintf(stderr, "%s: one of partial contexts is too big\n", __FUNCTIO=
-N__);
-+			errno =3D EINVAL;
-+			rc =3D -1;
-+			goto out;
-+		}
-+		usercon_len =3D user_len + strlen(start) + 1;
-+		usercon_str =3D malloc(usercon_len);
-+		if (!usercon_str) {
-+			rc =3D -1;
-+			goto out;
-+		}
-+
-+		/* set range from fromcon in the new usercon */
-+		snprintf(usercon_str, usercon_len - 1, "%s:%s", user, start);
-+		usercon =3D context_new(usercon_str);
-+		free(usercon_str);
-+		if (!usercon) {
-+			if (errno !=3D EINVAL) {
-+				rc =3D -1;
-+				goto out;
-+			}
-+			fprintf(stderr,
-+				"%s: can't create a context from %s, skipping\n",
-+				__FUNCTION__, usercon_str);
- 			start =3D end;
- 			continue;
- 		}
--
--		/* If a match is found and the entry is not already ordered
--		   (e.g. due to prior match in prior config file), then set
--		   the ordering for it. */
--		i =3D rc;
--		if (ordering[i] =3D=3D nreach)
--			ordering[i] =3D (*nordered)++;
-+		context_range_set(usercon, fromlevel);
-+		usercon_str =3D context_str(usercon);
-+
-+		if (security_check_context(usercon_str) =3D=3D 0) {
-+			if (*nreachable =3D=3D 0) {
-+				new_reachable =3D malloc(2 * sizeof(char *));
-+				if (!new_reachable) {
-+					context_free(usercon);
-+					rc =3D -1;
-+					goto out;
-+				}
-+			} else {
-+				new_reachable =3D realloc(*reachable, (*nreachable + 2) * sizeof(cha=
-r *));
-+				if (!new_reachable) {
-+					context_free(usercon);
-+					rc =3D -1;
-+					goto out;
-+				}
-+			}
-+			new_reachable[*nreachable] =3D strdup(usercon_str);
-+			if (new_reachable[*nreachable] =3D=3D NULL) {
-+				rc =3D -1;
-+				goto out;
-+			}
-+			new_reachable[*nreachable + 1] =3D 0;
-+			*reachable =3D new_reachable;
-+			*nreachable +=3D 1;
-+		}
-+		context_free(usercon);
- 		start =3D end;
- 	}
--
- 	rc =3D 0;
-=20
-       out:
-@@ -313,21 +322,6 @@ static int get_failsafe_context(const char *user, ch=
-ar ** newcon)
- 	return 0;
- }
-=20
--struct context_order {
--	char * con;
--	unsigned int order;
--};
--
--static int order_compare(const void *A, const void *B)
--{
--	const struct context_order *c1 =3D A, *c2 =3D B;
--	if (c1->order < c2->order)
--		return -1;
--	else if (c1->order > c2->order)
--		return 1;
--	return strcmp(c1->con, c2->con);
--}
--
- int get_ordered_context_list_with_level(const char *user,
- 					const char *level,
- 					char * fromcon,
-@@ -395,11 +389,8 @@ int get_ordered_context_list(const char *user,
- 			     char *** list)
- {
- 	char **reachable =3D NULL;
--	unsigned int *ordering =3D NULL;
--	struct context_order *co =3D NULL;
--	char **ptr;
- 	int rc =3D 0;
--	unsigned int nreach =3D 0, nordered =3D 0, freefrom =3D 0, i;
-+	unsigned nreachable =3D 0, freefrom =3D 0;
- 	FILE *fp;
- 	char *fname =3D NULL;
- 	size_t fname_len;
-@@ -413,23 +404,6 @@ int get_ordered_context_list(const char *user,
- 		freefrom =3D 1;
- 	}
-=20
--	/* Determine the set of reachable contexts for the user. */
--	rc =3D security_compute_user(fromcon, user, &reachable);
--	if (rc < 0)
--		goto failsafe;
--	nreach =3D 0;
--	for (ptr =3D reachable; *ptr; ptr++)
--		nreach++;
--	if (!nreach)
--		goto failsafe;
--
--	/* Initialize ordering array. */
--	ordering =3D malloc(nreach * sizeof(unsigned int));
--	if (!ordering)
--		goto failsafe;
--	for (i =3D 0; i < nreach; i++)
--		ordering[i] =3D nreach;
--
- 	/* Determine the ordering to apply from the optional per-user config
- 	   and from the global config. */
- 	fname_len =3D strlen(user_contexts_path) + strlen(user) + 2;
-@@ -440,8 +414,8 @@ int get_ordered_context_list(const char *user,
- 	fp =3D fopen(fname, "re");
- 	if (fp) {
- 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
--		rc =3D get_context_order(fp, fromcon, reachable, nreach, ordering,
--				       &nordered);
-+		rc =3D get_context_user(fp, fromcon, user, &reachable, &nreachable);
-+
- 		fclose(fp);
- 		if (rc < 0 && errno !=3D ENOENT) {
- 			fprintf(stderr,
-@@ -454,8 +428,7 @@ int get_ordered_context_list(const char *user,
- 	fp =3D fopen(selinux_default_context_path(), "re");
- 	if (fp) {
- 		__fsetlocking(fp, FSETLOCKING_BYCALLER);
--		rc =3D get_context_order(fp, fromcon, reachable, nreach, ordering,
--				       &nordered);
-+		rc =3D get_context_user(fp, fromcon, user, &reachable, &nreachable);
- 		fclose(fp);
- 		if (rc < 0 && errno !=3D ENOENT) {
- 			fprintf(stderr,
-@@ -463,40 +436,18 @@ int get_ordered_context_list(const char *user,
- 				__FUNCTION__, selinux_default_context_path());
- 			/* Fall through */
- 		}
--		rc =3D 0;
-+		rc =3D nreachable;
- 	}
-=20
--	if (!nordered)
-+	if (!nreachable)
- 		goto failsafe;
-=20
--	/* Apply the ordering. */
--	co =3D malloc(nreach * sizeof(struct context_order));
--	if (!co)
--		goto failsafe;
--	for (i =3D 0; i < nreach; i++) {
--		co[i].con =3D reachable[i];
--		co[i].order =3D ordering[i];
--	}
--	qsort(co, nreach, sizeof(struct context_order), order_compare);
--	for (i =3D 0; i < nreach; i++)
--		reachable[i] =3D co[i].con;
--	free(co);
--
--	/* Only report the ordered entries to the caller. */
--	if (nordered <=3D nreach) {
--		for (i =3D nordered; i < nreach; i++)
--			free(reachable[i]);
--		reachable[nordered] =3D NULL;
--		rc =3D nordered;
--	}
--
-       out:
- 	if (rc > 0)
- 		*list =3D reachable;
- 	else
- 		freeconary(reachable);
-=20
--	free(ordering);
- 	if (freefrom)
- 		freecon(fromcon);
-=20
---=20
-2.24.1
 
