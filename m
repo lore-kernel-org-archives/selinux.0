@@ -2,540 +2,181 @@ Return-Path: <SRS0=kuBz=3Y=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A53D0C2D0B1
-	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 15:01:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 018EAC35247
+	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 15:39:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5E6442087E
-	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 15:01:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE28A20674
+	for <selinux@archiver.kernel.org>; Tue,  4 Feb 2020 15:39:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SPTpS2FG"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="JI+b2b8i"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727314AbgBDPBw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Feb 2020 10:01:52 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:41926 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727258AbgBDPBw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Feb 2020 10:01:52 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1580828510;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=fy64BdcDXDME7+zqI9oAe0ypQOTQcQpb2keC3SGlC8k=;
-        b=SPTpS2FGmlGAoBAckK05dzl+rUM2DVF7kYodYRAeusEYCguXQb/1bd3ODGZeQnmkooTWqZ
-        YFNtaePwNT/9cpgInACbOj8nYVJ5Ts/7Ik6zma726B2BEeRHF1fQNTSwVL4RWj565FtVFq
-        d+QeUkv1ry5AvWUXvAhyWYkvfnutqAc=
-Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
- [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-44-gyhol3bsNhOw-E9Br4smeg-1; Tue, 04 Feb 2020 10:01:34 -0500
-X-MC-Unique: gyhol3bsNhOw-E9Br4smeg-1
-Received: by mail-ot1-f72.google.com with SMTP id f25so11146800otq.15
-        for <selinux@vger.kernel.org>; Tue, 04 Feb 2020 07:01:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=fy64BdcDXDME7+zqI9oAe0ypQOTQcQpb2keC3SGlC8k=;
-        b=HItMgf8tI17o7BeHbuKPbUSytnYYZTbr+NHINEWMpfLlDLktQ68uXYPMx4SVwrG6dl
-         trcRPkIuCGt9N52DQ1k3b2C3b8GQeD1OfUrPmdRsOCDN5Tm33zOUwqzyF/DmnjaEUBcH
-         vM6wEkbYQr6KHZgSTqxG6Kt/ycMlZwcen1ige04gkiuzBycepU9g2Gbnq0/Tyi9wx2AF
-         IvmH07eOFp/Bs+lFSDtedRKZ+EWaAYWEKtqX0nrdFWiZhUS6N9NycDsHBHAy8+lfOP1z
-         BZa5wh/TBuWPPDMKIDpQRm+iUDbuRmZF1G5Y40IgjNb9rr2c21wXMnP2/X7uLjEIhTKe
-         VCFw==
-X-Gm-Message-State: APjAAAUpECzS8B8rF1y2NeeU5fsLxbrkoyK2gXk4EMBzCjT3KcVl8nCG
-        hx2zO0PFDTAP/Qq8r3HM6g+OPnOlJrlAntVLQo0dsiOXCIJfE3Q9d5PZz5aS8wh2h//TDFttw+s
-        uEv7UV4FeggP4YY5xfcUtpV1EBENIuGtHZg==
-X-Received: by 2002:aca:1108:: with SMTP id 8mr3717839oir.127.1580828492926;
-        Tue, 04 Feb 2020 07:01:32 -0800 (PST)
-X-Google-Smtp-Source: APXvYqx1c8cfXPatxe8HWfp/GKs1ULN2KUuTeBc+VYgNkNIsCBIjv2RXb+gqWXy/La3V36nv9A+ylhMbvuenxASXjhQ=
-X-Received: by 2002:aca:1108:: with SMTP id 8mr3717706oir.127.1580828491617;
- Tue, 04 Feb 2020 07:01:31 -0800 (PST)
-MIME-Version: 1.0
-References: <20200116213937.77795-1-dev@lynxeye.de> <2d1a3d66-c2ee-f7ea-a884-11ac9150d994@tycho.nsa.gov>
-In-Reply-To: <2d1a3d66-c2ee-f7ea-a884-11ac9150d994@tycho.nsa.gov>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 4 Feb 2020 16:01:20 +0100
-Message-ID: <CAFqZXNtJ2h-HPwzV9t1bizVB2=xWh=s3jY5aqXG1x86b+oEMYg@mail.gmail.com>
-Subject: Re: [PATCH RFC] selinux: policydb - convert filename trans hash to rhashtable
-To:     Stephen Smalley <sds@tycho.nsa.gov>
+        id S1727305AbgBDPjQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Feb 2020 10:39:16 -0500
+Received: from UPDC19PA24.eemsg.mail.mil ([214.24.27.199]:32015 "EHLO
+        UPDC19PA24.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727290AbgBDPjQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Feb 2020 10:39:16 -0500
+X-EEMSG-check-017: 54086496|UPDC19PA24_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,402,1574121600"; 
+   d="scan'208";a="54086496"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA24.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 04 Feb 2020 15:31:30 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1580830290; x=1612366290;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=gs0nSkbJQkf/VEtAgp330XvlFSh/7fT5YY9yO2wOFaU=;
+  b=JI+b2b8i1J/hgKivQANGc4uOUgt4BD9RbigqOjQu6wPa7b0ojK49K+sd
+   gTiVru4Mo8lcg+HMOQxi1+/K2IaDaMaJRDsypXL+SWFwCKLf2d5CYY4C+
+   23KCf+Ag0CwP6FEuvlw1tNRoHF3Gck3bbgJ62ZE1B1fMwvZqqFy7QhRiw
+   9lvIeZgQ4hlgULbXZmaU48h5lMwmRPlFROiTXlqbDte5UtHCxGt2TfsOZ
+   Z6ZhMO00jzAWoL3uni7Q7TmWB1jwLzWAsYrOVOpiuB0Me45kVy7GEO8UW
+   otRVlJFVglmiu/3xXQrizVC2k3BTOiysC/wNhL2GBP9QLlJp5Oc0djHCa
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.70,402,1574121600"; 
+   d="scan'208";a="38646045"
+IronPort-PHdr: =?us-ascii?q?9a23=3A0aY6kRQqq0M02pQmHJzo9pkdM9psv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa67ZhaGt8tkgFKBZ4jH8fUM07OQ7/m8HzBRqsna+DBaKdoQDk?=
+ =?us-ascii?q?RD0Z1X1yUbQ+e9QXXhK/DrayFoVO9jb3RCu0+BDE5OBczlbEfTqHDhpRQbGx?=
+ =?us-ascii?q?H4KBYnbr+tQt2agMu4zf299IPOaAtUmjW9falyLBKrpgnNq8Uam4RvJrs+xx?=
+ =?us-ascii?q?fTrXZFf+tayGFmKFmOmxrw+tq88IRs/ihNtf8t7dJMXbn/c68lUbFWETMqPn?=
+ =?us-ascii?q?wv6sb2rxfDVwyP5nUdUmUSjBVFBhXO4Q/5UJnsrCb0r/Jx1yaGM8L4S7A0Qi?=
+ =?us-ascii?q?mi4LxwSBD0kicHNiU2/3/Rh8dtka9UuhOhpxh4w47JfIGYMed1c63Bcd8GQ2?=
+ =?us-ascii?q?dKQ91cXDJdDIyic4QPDvIBPedGoIn7u1sOtga1CQ21CO/y1jNEmnr60Ks03O?=
+ =?us-ascii?q?Q7FQHNwRIuEdQAvn/JqNn5LbkeXOSwwKTO0D7Nbe5Z2S3l5YbVbB4hr/GCU7?=
+ =?us-ascii?q?F+f8XfxkYgFR/KgFqLpIz5PT6YzPgBv3SV4udiU++klm4pqxt2ojiq3soil5?=
+ =?us-ascii?q?XJiZwNylDE6yp5xps+K8C9SEFhZd6kFIVftiGHPIZxWcMtXnpotT0myrwGpZ?=
+ =?us-ascii?q?G7fC8KxI4hxx7EcfOLaYeI4hX9VOuIJzpzmXxreLW6hxmo8EigzPXxVsqq31?=
+ =?us-ascii?q?ZQqCpKjN3MumoK1xzJ5ciLUvR9/ka92TaPygDc8ftILlwzlareLZMq370+lo?=
+ =?us-ascii?q?ILvEjeESL7l1/6ga+Lekk+5OSl5Prrbq/7qpKaKoR6kBvxMr40lcy6Gek4Nw?=
+ =?us-ascii?q?8OUHWF9umkz73j+FH5QK1Njv0rjqnVqJDaKtofpq6+GwJVzpws6wy+Dze7y9?=
+ =?us-ascii?q?QUh3gHLFRLeBKAlIjmJU3BLOrkDfa/n1uskDBry+rAPrL9GZXCMmLPkLLgfb?=
+ =?us-ascii?q?Z580JcyQwzws5D559MF70ML/3+VlXxudDFFBM1LQO5z/j9BNlgzo8eXHiAAq?=
+ =?us-ascii?q?6dMKPcq1+I4ecvLvGXZIAIozbwMOQl5v7ygn85nl8RZ6+p3YANZ3yiEfRmJF?=
+ =?us-ascii?q?uZbWL2gtgdCWcKohY+TOvyhV2FVD5TYG2yX6Qm6T4nFo2rFp3DSZ6wj7yBxi?=
+ =?us-ascii?q?i7AodaaXxBClCJCX3obZmLW+8QaCKOJc9siiELWqa/S4I60RGvtAn6yrV5Ie?=
+ =?us-ascii?q?vU5CIUr4/s28Zt7e3JiR4y7SB0D9ia02yVV2F7hH4IRzst0aBnu0N911OD3b?=
+ =?us-ascii?q?F9g/xfEtxT/e1GXh0mOp7byuxwE8ryVR7ZfteVVFamRc2rASovQdI1wt8OZV?=
+ =?us-ascii?q?t9Gtq5gxDd0CqlHaUVm6aIBJMq6KLc2Wb+J8Jnx3bBzqkhgEEsQtFTOm2+mq?=
+ =?us-ascii?q?5/6w/TCpbNk0WYkaaqaKsd0DfO9Gid12qOul9XUAprXKXbUnAQeFHWoc765k?=
+ =?us-ascii?q?zcVb+uD6ooMg9bxc6FMKtKZcXjjU9aS/f7JNTef2Wxln+qBRaJ2ryMbJDle3?=
+ =?us-ascii?q?8A0yrFFEcLiwAT8myHNQg4GCihuHnTAydyFVLuZUPs7fdxqGm9TkAq0wGGdV?=
+ =?us-ascii?q?Fu172w+k1dufvJbPUfxL8G8AImsDN9F1u+l4bRDt2boQNqcY1GbN896UsB3m?=
+ =?us-ascii?q?Xc4V9TJJulept+i0YefgI/hEbn0xF6G80UisQxhG87xwp1b6SD2RVOcC3Ojs?=
+ =?us-ascii?q?O4AaHeNmSnpEPnUKXRwFyLlY/Mq6o=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DQAABkjTle/wHyM5BlGwEBAQEBAQEFAQEBEQEBAwMBA?=
+ =?us-ascii?q?QGBe4F9gRhUIRIqhBSJA4ZoBoESJYEBiG6RSQkBAQEBAQEBAQErDAEBhEACg?=
+ =?us-ascii?q?ls4EwIQAQEBBAEBAQEBBQMBAWyFNwyCOykBgwEBAQEBAgEjFUEFCwsOCgICJ?=
+ =?us-ascii?q?gICVwYNBgIBAYJjPwGCVgUgD6wPdYEyhDUBgRSDP4E+gQ4qjDx5gQeBEScMA?=
+ =?us-ascii?q?4IoNT6CZAKEdYI8IgSNVIJEhkBhRnuWaYJFgk6Ee450BhuDQJMChEaERJMEl?=
+ =?us-ascii?q?EQigVgrCAIYCCEPgycJRxgNjigBF4NQhAiBDIVdIwMwjw0BAQ?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 04 Feb 2020 15:31:28 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 014FUblg176210;
+        Tue, 4 Feb 2020 10:30:38 -0500
+Subject: Re: [PATCH RFC] selinux: policydb - convert filename trans hash to
+ rhashtable
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     Lucas Stach <dev@lynxeye.de>, Paul Moore <paul@paul-moore.com>,
         SElinux list <selinux@vger.kernel.org>,
         Linux kernel mailing list <linux-kernel@vger.kernel.org>,
         Richard Haines <richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset="UTF-8"
+References: <20200116213937.77795-1-dev@lynxeye.de>
+ <2d1a3d66-c2ee-f7ea-a884-11ac9150d994@tycho.nsa.gov>
+ <CAFqZXNtJ2h-HPwzV9t1bizVB2=xWh=s3jY5aqXG1x86b+oEMYg@mail.gmail.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <f821809b-548d-fd95-6574-7c74c634353e@tycho.nsa.gov>
+Date:   Tue, 4 Feb 2020 10:32:20 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <CAFqZXNtJ2h-HPwzV9t1bizVB2=xWh=s3jY5aqXG1x86b+oEMYg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 17, 2020 at 8:11 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 1/16/20 4:39 PM, Lucas Stach wrote:
-> > The current hash is too small for current usages in, e.g. the Fedora standard
-> > policy. On file creates a considerable amount of CPU time is spent walking the
-> > the hash chains. Increasing the number of hash buckets somewhat mitigates the
-> > issue, but doesn't completely get rid of the long hash chains.
-> >
-> > This patch does take the bit more invasive route by converting the filename
-> > trans hash to a rhashtable to allow this hash to scale with load.
-> >
-> > fs_mark create benchmark on a SSD device, no ramdisk:
-> > Count          Size       Files/sec     App Overhead
-> > before:
-> > 10000          512        512.3           147715
-> > after:
-> > 10000          512        572.3            75141
-> >
-> > filenametr_cmp(), which was the topmost function in the CPU cycle trace before
-> > at ~5% of the overall CPU time, is now down in the noise.
->
-> Thank you for working on this.  IMHO, Fedora overuses name-based type
-> transitions but that's another topic. I haven't yet investigated the
-> root cause but with your patch applied, I see some test failures related
-> to name-based transitions:
->
-> [...]
-> #   Failed test at overlay/test line 439.
-> overlay/test ................ 114/119 # Looks like you failed 1 test of 119.
-> [...]
-> filesystem/test ............. 3/70 File context error, expected:
->         test_filesystem_filenametranscon1_t
-> got:
->         test_filesystem_filetranscon_t
->
-> #   Failed test at filesystem/test line 279.
-> File context error, expected:
->         test_filesystem_filenametranscon2_t
-> got:
->         test_filesystem_filetranscon_t
->
-> #   Failed test at filesystem/test line 286.
-> filesystem/test ............. 68/70 # Looks like you failed 2 tests of 70.
->
-> You can reproduce by cloning the selinux-testsuite from
-> https://github.com/SELinuxProject/selinux-testsuite, applying the
-> filesystem tests patch from
-> https://patchwork.kernel.org/patch/11337659/,
-> and following the README.md instructions.
+On 2/4/20 10:01 AM, Ondrej Mosnacek wrote:
+> On Fri, Jan 17, 2020 at 8:11 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>> On 1/16/20 4:39 PM, Lucas Stach wrote:
+>>> The current hash is too small for current usages in, e.g. the Fedora standard
+>>> policy. On file creates a considerable amount of CPU time is spent walking the
+>>> the hash chains. Increasing the number of hash buckets somewhat mitigates the
+>>> issue, but doesn't completely get rid of the long hash chains.
+>>>
+>>> This patch does take the bit more invasive route by converting the filename
+>>> trans hash to a rhashtable to allow this hash to scale with load.
+>>>
+>>> fs_mark create benchmark on a SSD device, no ramdisk:
+>>> Count          Size       Files/sec     App Overhead
+>>> before:
+>>> 10000          512        512.3           147715
+>>> after:
+>>> 10000          512        572.3            75141
+>>>
+>>> filenametr_cmp(), which was the topmost function in the CPU cycle trace before
+>>> at ~5% of the overall CPU time, is now down in the noise.
+>>
+>> Thank you for working on this.  IMHO, Fedora overuses name-based type
+>> transitions but that's another topic. I haven't yet investigated the
+>> root cause but with your patch applied, I see some test failures related
+>> to name-based transitions:
+>>
+>> [...]
+>> #   Failed test at overlay/test line 439.
+>> overlay/test ................ 114/119 # Looks like you failed 1 test of 119.
+>> [...]
+>> filesystem/test ............. 3/70 File context error, expected:
+>>          test_filesystem_filenametranscon1_t
+>> got:
+>>          test_filesystem_filetranscon_t
+>>
+>> #   Failed test at filesystem/test line 279.
+>> File context error, expected:
+>>          test_filesystem_filenametranscon2_t
+>> got:
+>>          test_filesystem_filetranscon_t
+>>
+>> #   Failed test at filesystem/test line 286.
+>> filesystem/test ............. 68/70 # Looks like you failed 2 tests of 70.
+>>
+>> You can reproduce by cloning the selinux-testsuite from
+>> https://github.com/SELinuxProject/selinux-testsuite, applying the
+>> filesystem tests patch from
+>> https://patchwork.kernel.org/patch/11337659/,
+>> and following the README.md instructions.
+> 
+> I think I figured out what's wrong - see below.
+> <snip>
+>>> @@ -441,6 +442,39 @@ static int filenametr_cmp(struct hashtab *h, const void *k1, const void *k2)
+>>>
+>>>    }
+>>>
+>>> +static const struct rhashtable_params filename_trans_hashparams = {
+>>> +     .nelem_hint             = 1024,
+>>> +     .head_offset            = offsetof(struct filename_trans, hash_head),
+> 
+> You need to add:
+> 
+> +.hashfn = filenametr_hash,
+> 
+> here so that the key is correctly hashed on lookup. After applying
+> this fix, the selinux-testuite passes for me with this patch.
 
-I think I figured out what's wrong - see below.
+Hmm..does that then make the .obj_hashfn assignment below unnecessary or 
+is that required too?  I'm unclear on the difference.
 
->
-> >
-> > Signed-off-by: Lucas Stach <dev@lynxeye.de>
-> > ---
-> >   security/selinux/ss/policydb.c | 140 +++++++++++++++++++++++----------
-> >   security/selinux/ss/policydb.h |  14 ++--
-> >   security/selinux/ss/services.c |  31 +-------
-> >   3 files changed, 109 insertions(+), 76 deletions(-)
-> >
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> > index e20624a68f5d..d059317c15b6 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -34,6 +34,7 @@
-> >   #include <linux/string.h>
-> >   #include <linux/errno.h>
-> >   #include <linux/audit.h>
-> > +#include <linux/rhashtable.h>
-> >   #include "security.h"
-> >
-> >   #include "policydb.h"
-> > @@ -334,15 +335,13 @@ static int (*destroy_f[SYM_NUM]) (void *key, void *datum, void *datap) =
-> >       cat_destroy,
-> >   };
-> >
-> > -static int filenametr_destroy(void *key, void *datum, void *p)
-> > +static void filenametr_destroy(void *ptr, void *arg)
-> >   {
-> > -     struct filename_trans *ft = key;
-> > +     struct filename_trans *ft = ptr;
-> >
-> >       kfree(ft->name);
-> > -     kfree(key);
-> > -     kfree(datum);
-> > +     kfree(ft);
-> >       cond_resched();
-> > -     return 0;
-> >   }
-> >
-> >   static int range_tr_destroy(void *key, void *datum, void *p)
-> > @@ -404,9 +403,9 @@ static int roles_init(struct policydb *p)
-> >       return rc;
-> >   }
-> >
-> > -static u32 filenametr_hash(struct hashtab *h, const void *k)
-> > +static u32 filenametr_hash(const void *data, u32 len, u32 seed)
-> >   {
-> > -     const struct filename_trans *ft = k;
-> > +     const struct filename_trans *ft = data;
-> >       unsigned long hash;
-> >       unsigned int byte_num;
-> >       unsigned char focus;
-> > @@ -416,13 +415,15 @@ static u32 filenametr_hash(struct hashtab *h, const void *k)
-> >       byte_num = 0;
-> >       while ((focus = ft->name[byte_num++]))
-> >               hash = partial_name_hash(focus, hash);
-> > -     return hash & (h->size - 1);
-> > +
-> > +     return end_name_hash(hash);
-> >   }
-> >
-> > -static int filenametr_cmp(struct hashtab *h, const void *k1, const void *k2)
-> > +static int filenametr_cmp(struct rhashtable_compare_arg *arg,
-> > +                       const void *obj)
-> >   {
-> > -     const struct filename_trans *ft1 = k1;
-> > -     const struct filename_trans *ft2 = k2;
-> > +     const struct filename_trans *ft1 = arg->key;
-> > +     const struct filename_trans *ft2 = obj;
-> >       int v;
-> >
-> >       v = ft1->stype - ft2->stype;
-> > @@ -441,6 +442,39 @@ static int filenametr_cmp(struct hashtab *h, const void *k1, const void *k2)
-> >
-> >   }
-> >
-> > +static const struct rhashtable_params filename_trans_hashparams = {
-> > +     .nelem_hint             = 1024,
-> > +     .head_offset            = offsetof(struct filename_trans, hash_head),
-
-You need to add:
-
-+.hashfn = filenametr_hash,
-
-here so that the key is correctly hashed on lookup. After applying
-this fix, the selinux-testuite passes for me with this patch.
-
-> > +     .obj_hashfn             = filenametr_hash,
-> > +     .obj_cmpfn              = filenametr_cmp,
-> > +};
-> > +
-> > +void policydb_filename_compute_type(struct policydb *policydb,
-> > +                                 struct context *newcontext,
-> > +                                 u32 stype, u32 ttype, u16 tclass,
-> > +                                 const char *objname)
-> > +{
-> > +     struct filename_trans key, *ft;
-> > +
-> > +     /*
-> > +      * Most filename trans rules are going to live in specific directories
-> > +      * like /dev or /var/run.  This bitmap will quickly skip rule searches
-> > +      * if the ttype does not contain any rules.
-> > +      */
-> > +     if (!ebitmap_get_bit(&policydb->filename_trans_ttypes, ttype))
-> > +             return;
-> > +
-> > +     key.stype = stype;
-> > +     key.ttype = ttype;
-> > +     key.tclass = tclass;
-> > +     key.name = objname;
-> > +
-> > +     ft = rhashtable_lookup(&policydb->filename_trans, &key,
-> > +                            filename_trans_hashparams);
-> > +     if (ft)
-> > +             newcontext->type = ft->otype;
-> > +}
-> > +
-> >   static u32 rangetr_hash(struct hashtab *h, const void *k)
-> >   {
-> >       const struct range_trans *key = k;
-> > @@ -494,12 +528,7 @@ static int policydb_init(struct policydb *p)
-> >       if (rc)
-> >               goto out;
-> >
-> > -     p->filename_trans = hashtab_create(filenametr_hash, filenametr_cmp,
-> > -                                        (1 << 10));
-> > -     if (!p->filename_trans) {
-> > -             rc = -ENOMEM;
-> > -             goto out;
-> > -     }
-> > +     rhashtable_init(&p->filename_trans, &filename_trans_hashparams);
-> >
-> >       p->range_tr = hashtab_create(rangetr_hash, rangetr_cmp, 256);
-> >       if (!p->range_tr) {
-> > @@ -513,7 +542,7 @@ static int policydb_init(struct policydb *p)
-> >
-> >       return 0;
-> >   out:
-> > -     hashtab_destroy(p->filename_trans);
-> > +     rhashtable_destroy(&p->filename_trans);
-> >       hashtab_destroy(p->range_tr);
-> >       for (i = 0; i < SYM_NUM; i++) {
-> >               hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
-> > @@ -831,8 +860,8 @@ void policydb_destroy(struct policydb *p)
-> >       }
-> >       kfree(lra);
-> >
-> > -     hashtab_map(p->filename_trans, filenametr_destroy, NULL);
-> > -     hashtab_destroy(p->filename_trans);
-> > +     rhashtable_free_and_destroy(&p->filename_trans, filenametr_destroy,
-> > +                                 NULL);
-> >
-> >       hashtab_map(p->range_tr, range_tr_destroy, NULL);
-> >       hashtab_destroy(p->range_tr);
-> > @@ -1878,7 +1907,6 @@ static int range_read(struct policydb *p, void *fp)
-> >   static int filename_trans_read(struct policydb *p, void *fp)
-> >   {
-> >       struct filename_trans *ft;
-> > -     struct filename_trans_datum *otype;
-> >       char *name;
-> >       u32 nel, len;
-> >       __le32 buf[4];
-> > @@ -1893,7 +1921,6 @@ static int filename_trans_read(struct policydb *p, void *fp)
-> >       nel = le32_to_cpu(buf[0]);
-> >
-> >       for (i = 0; i < nel; i++) {
-> > -             otype = NULL;
-> >               name = NULL;
-> >
-> >               rc = -ENOMEM;
-> > @@ -1901,11 +1928,6 @@ static int filename_trans_read(struct policydb *p, void *fp)
-> >               if (!ft)
-> >                       goto out;
-> >
-> > -             rc = -ENOMEM;
-> > -             otype = kmalloc(sizeof(*otype), GFP_KERNEL);
-> > -             if (!otype)
-> > -                     goto out;
-> > -
-> >               /* length of the path component string */
-> >               rc = next_entry(buf, fp, sizeof(u32));
-> >               if (rc)
-> > @@ -1926,14 +1948,14 @@ static int filename_trans_read(struct policydb *p, void *fp)
-> >               ft->stype = le32_to_cpu(buf[0]);
-> >               ft->ttype = le32_to_cpu(buf[1]);
-> >               ft->tclass = le32_to_cpu(buf[2]);
-> > -
-> > -             otype->otype = le32_to_cpu(buf[3]);
-> > +             ft->otype = le32_to_cpu(buf[3]);
-> >
-> >               rc = ebitmap_set_bit(&p->filename_trans_ttypes, ft->ttype, 1);
-> >               if (rc)
-> >                       goto out;
-> >
-> > -             rc = hashtab_insert(p->filename_trans, ft, otype);
-> > +             rc = rhashtable_insert_fast(&p->filename_trans, &ft->hash_head,
-> > +                                         filename_trans_hashparams);
-> >               if (rc) {
-> >                       /*
-> >                        * Do not return -EEXIST to the caller, or the system
-> > @@ -1944,15 +1966,12 @@ static int filename_trans_read(struct policydb *p, void *fp)
-> >                       /* But free memory to avoid memory leak. */
-> >                       kfree(ft);
-> >                       kfree(name);
-> > -                     kfree(otype);
-> >               }
-> >       }
-> > -     hash_eval(p->filename_trans, "filenametr");
-> >       return 0;
-> >   out:
-> >       kfree(ft);
-> >       kfree(name);
-> > -     kfree(otype);
-> >
-> >       return rc;
-> >   }
-> > @@ -3323,12 +3342,10 @@ static int range_write(struct policydb *p, void *fp)
-> >       return 0;
-> >   }
-> >
-> > -static int filename_write_helper(void *key, void *data, void *ptr)
-> > +static int filename_write_helper(struct filename_trans *ft,
-> > +                              struct policy_file *fp)
-> >   {
-> >       __le32 buf[4];
-> > -     struct filename_trans *ft = key;
-> > -     struct filename_trans_datum *otype = data;
-> > -     void *fp = ptr;
-> >       int rc;
-> >       u32 len;
-> >
-> > @@ -3345,7 +3362,7 @@ static int filename_write_helper(void *key, void *data, void *ptr)
-> >       buf[0] = cpu_to_le32(ft->stype);
-> >       buf[1] = cpu_to_le32(ft->ttype);
-> >       buf[2] = cpu_to_le32(ft->tclass);
-> > -     buf[3] = cpu_to_le32(otype->otype);
-> > +     buf[3] = cpu_to_le32(ft->otype);
-> >
-> >       rc = put_entry(buf, sizeof(u32), 4, fp);
-> >       if (rc)
-> > @@ -3356,15 +3373,34 @@ static int filename_write_helper(void *key, void *data, void *ptr)
-> >
-> >   static int filename_trans_write(struct policydb *p, void *fp)
-> >   {
-> > -     u32 nel;
-> > +     u32 nel = 0;
-> >       __le32 buf[1];
-> > -     int rc;
-> > +     int rc = 0;
-> > +     struct rhashtable_iter iter;
-> >
-> >       if (p->policyvers < POLICYDB_VERSION_FILENAME_TRANS)
-> >               return 0;
-> >
-> > -     nel = 0;
-> > -     rc = hashtab_map(p->filename_trans, hashtab_cnt, &nel);
-> > +     rhashtable_walk_enter(&p->filename_trans, &iter);
-> > +     rhashtable_walk_start(&iter);
-> > +     for(;;) {
-> > +             struct filename_trans *trans;
-> > +
-> > +             trans = rhashtable_walk_next(&iter);
-> > +             if (!trans)
-> > +                     break;
-> > +             if (IS_ERR(trans)) {
-> > +                     if (PTR_ERR(trans) == -EAGAIN) {
-> > +                             nel = 0;
-> > +                             continue;
-> > +                     }
-> > +                     rc = PTR_ERR(trans);
-> > +                     break;
-> > +             }
-> > +             nel++;
-> > +     };
-> > +     rhashtable_walk_stop(&iter);
-> > +     rhashtable_walk_exit(&iter);
-> >       if (rc)
-> >               return rc;
-> >
-> > @@ -3373,7 +3409,25 @@ static int filename_trans_write(struct policydb *p, void *fp)
-> >       if (rc)
-> >               return rc;
-> >
-> > -     rc = hashtab_map(p->filename_trans, filename_write_helper, fp);
-> > +     rhashtable_walk_enter(&p->filename_trans, &iter);
-> > +     rhashtable_walk_start(&iter);
-> > +     for(;;) {
-> > +             struct filename_trans *trans;
-> > +
-> > +             trans = rhashtable_walk_next(&iter);
-> > +             if (!trans)
-> > +                     break;
-> > +             if (IS_ERR(trans)) {
-> > +                     if (PTR_ERR(trans) == -EAGAIN) {
-> > +                             continue;
-> > +                     }
-> > +                     rc = PTR_ERR(trans);
-> > +                     break;
-> > +             }
-> > +             filename_write_helper(trans, fp);
-> > +     };
-> > +     rhashtable_walk_stop(&iter);
-> > +     rhashtable_walk_exit(&iter);
-> >       if (rc)
-> >               return rc;
-> >
-> > diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-> > index bc56b14e2216..f1d2f5166af2 100644
-> > --- a/security/selinux/ss/policydb.h
-> > +++ b/security/selinux/ss/policydb.h
-> > @@ -29,6 +29,7 @@
-> >   #include "mls_types.h"
-> >   #include "context.h"
-> >   #include "constraint.h"
-> > +#include <linux/rhashtable.h>
-> >
-> >   /*
-> >    * A datum type is defined for each kind of symbol
-> > @@ -90,16 +91,14 @@ struct role_trans {
-> >   };
-> >
-> >   struct filename_trans {
-> > +     struct rhash_head hash_head;
-> > +     u32 otype;
-> >       u32 stype;              /* current process */
-> >       u32 ttype;              /* parent dir context */
-> >       u16 tclass;             /* class of new object */
-> >       const char *name;       /* last path component */
-> >   };
-> >
-> > -struct filename_trans_datum {
-> > -     u32 otype;              /* expected of new object */
-> > -};
-> > -
-> >   struct role_allow {
-> >       u32 role;               /* current role */
-> >       u32 new_role;           /* new role */
-> > @@ -266,7 +265,7 @@ struct policydb {
-> >       /* quickly exclude lookups when parent ttype has no rules */
-> >       struct ebitmap filename_trans_ttypes;
-> >       /* actual set of filename_trans rules */
-> > -     struct hashtab *filename_trans;
-> > +     struct rhashtable filename_trans;
-> >
-> >       /* bools indexed by (value - 1) */
-> >       struct cond_bool_datum **bool_val_to_struct;
-> > @@ -318,6 +317,11 @@ extern int policydb_role_isvalid(struct policydb *p, unsigned int role);
-> >   extern int policydb_read(struct policydb *p, void *fp);
-> >   extern int policydb_write(struct policydb *p, void *fp);
-> >
-> > +void policydb_filename_compute_type(struct policydb *policydb,
-> > +                                 struct context *newcontext,
-> > +                                 u32 stype, u32 ttype, u16 tclass,
-> > +                                 const char *objname);
-> > +
-> >   #define PERM_SYMTAB_SIZE 32
-> >
-> >   #define POLICYDB_CONFIG_MLS    1
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > index a5813c7629c1..60a98d900dd3 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -1607,32 +1607,6 @@ static int compute_sid_handle_invalid_context(
-> >       return -EACCES;
-> >   }
-> >
-> > -static void filename_compute_type(struct policydb *policydb,
-> > -                               struct context *newcontext,
-> > -                               u32 stype, u32 ttype, u16 tclass,
-> > -                               const char *objname)
-> > -{
-> > -     struct filename_trans ft;
-> > -     struct filename_trans_datum *otype;
-> > -
-> > -     /*
-> > -      * Most filename trans rules are going to live in specific directories
-> > -      * like /dev or /var/run.  This bitmap will quickly skip rule searches
-> > -      * if the ttype does not contain any rules.
-> > -      */
-> > -     if (!ebitmap_get_bit(&policydb->filename_trans_ttypes, ttype))
-> > -             return;
-> > -
-> > -     ft.stype = stype;
-> > -     ft.ttype = ttype;
-> > -     ft.tclass = tclass;
-> > -     ft.name = objname;
-> > -
-> > -     otype = hashtab_search(policydb->filename_trans, &ft);
-> > -     if (otype)
-> > -             newcontext->type = otype->otype;
-> > -}
-> > -
-> >   static int security_compute_sid(struct selinux_state *state,
-> >                               u32 ssid,
-> >                               u32 tsid,
-> > @@ -1770,8 +1744,9 @@ static int security_compute_sid(struct selinux_state *state,
-> >
-> >       /* if we have a objname this is a file trans check so check those rules */
-> >       if (objname)
-> > -             filename_compute_type(policydb, &newcontext, scontext->type,
-> > -                                   tcontext->type, tclass, objname);
-> > +             policydb_filename_compute_type(policydb, &newcontext,
-> > +                                            scontext->type, tcontext->type,
-> > +                                            tclass, objname);
-> >
-> >       /* Check for class-specific changes. */
-> >       if (specified & AVTAB_TRANSITION) {
-> >
->
-
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+> 
+>>> +     .obj_hashfn             = filenametr_hash,
+>>> +     .obj_cmpfn              = filenametr_cmp,
+>>> +};
