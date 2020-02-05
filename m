@@ -2,96 +2,93 @@ Return-Path: <SRS0=nqp0=3Z=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+X-Spam-Status: No, score=-10.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 192AEC35247
-	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 15:56:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA223C35247
+	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 17:08:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DAA5020702
-	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 15:56:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 92C1A217F4
+	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 17:08:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="fp69LdGO"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="OUXkr0DC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727473AbgBEP4N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Feb 2020 10:56:13 -0500
-Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:65102 "EHLO
-        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727355AbgBEP4N (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Feb 2020 10:56:13 -0500
-X-EEMSG-check-017: 55062876|UPDC19PA20_ESA_OUT02.csd.disa.mil
+        id S1726678AbgBERIk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Feb 2020 12:08:40 -0500
+Received: from UPDC19PA23.eemsg.mail.mil ([214.24.27.198]:18640 "EHLO
+        UPDC19PA23.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726534AbgBERIk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Feb 2020 12:08:40 -0500
+X-EEMSG-check-017: 55233209|UPDC19PA23_ESA_OUT05.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,406,1574121600"; 
-   d="scan'208";a="55062876"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 05 Feb 2020 15:56:07 +0000
+   d="scan'208";a="55233209"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA23.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 05 Feb 2020 17:08:35 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1580918167; x=1612454167;
+  s=tycho.nsa.gov; t=1580922516; x=1612458516;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=pLFoiDFQ0p+4rt6tvRvR4HVvVAJkmT81Jugu8hRnU2o=;
-  b=fp69LdGO6EGiEzputMaOOG0GOcHYzplYv3OnaSSo2F5F94lnqvyxmvzM
-   A5LpuNR+IVbcnvLsZM6nvCKittaDjNq8KOmlWBCy+QAJxe3vHAGmyPhcj
-   9+TyzCJowRR9RzAThvL0lRSeNFs8TlkQeTrmiBodr9x8KoA4yj7GLk2MZ
-   tNeH2rcFrjyHDFlF/8Kwa1Dvlp62SoWqoDrnFnvlWMRlCNXyuFOr/3piM
-   Sb66ngV3xrl8IW9bE7jOPtYo6BlNIFxipUKBCHLT9MVB/PociE3rmDlyU
-   6rO6qLdXXktkY2hiuuolF3Rg5zoq+jqEdqW64dDOe/QLmffdSNawN3b84
-   g==;
+  bh=8cWE8/zVkMuQ71Nnb4evM/+Ejfey30UmJB1uosMpp1k=;
+  b=OUXkr0DCowv0thyvAb9jEkvKDwL/yG74fhl+CdEGOuQ4vh83rIhrs0ME
+   Hs64gXJ9pDVK8TBiEPffwPDCC+rBJvQWgGdXDJ82t5pmah5sutF4GNqoP
+   CCI/cVizsiLzjZpkA5WUq4Xg+cJ13Kj2mS2aKHgsphoGoZearGp4dAqfc
+   xmySz533CHnfHzeRXhWTQPBYmceItmCqJhZAiwrKV8sP+uB04iCjxNJUU
+   eCvyNt1Mi8CaUdNzclxlULJXhrGdAbdWgEGTOFCergJX6zEZfJ/ljMmVQ
+   TJT7y70MbeRJCmqtkM0HhMg60v+kyvhXlSZhqOLVlEBvlgGrUMvgqiS3x
+   A==;
 X-IronPort-AV: E=Sophos;i="5.70,406,1574121600"; 
-   d="scan'208";a="38703918"
-IronPort-PHdr: =?us-ascii?q?9a23=3AyN5c4hNcEfLceqPxe6ol6mtUPXoX/o7sNwtQ0K?=
- =?us-ascii?q?IMzox0K/zzp8bcNUDSrc9gkEXOFd2Cra4d16yL6uu/CCRAuc/H7ClZNsQUFl?=
- =?us-ascii?q?cssoY/p0QYGsmLCEn2frbBThcRO4B8bmJj5GyxKkNPGczzNBX4q3y26iMOSF?=
- =?us-ascii?q?2kbVImbuv6FZTPgMupyuu854PcYxlShDq6fLh+MAi6oR/eu8ULjoZuMKY8xg?=
- =?us-ascii?q?bGrnZKf+ld2GdkKU6Okxrm6cq84ZBu/z5Mt/498sJLTLn3cbk/QbFEFjotLn?=
- =?us-ascii?q?o75NfstRnNTAuP4mUTX2ALmRdWAAbL8Q/3UI7pviT1quRy1i+aPdbrTb8vQj?=
- =?us-ascii?q?St871rSB7zhygZMTMy7XzahdZxjKJfpxKhugB/zovJa4ybKPZyYqXQds4BSG?=
- =?us-ascii?q?FfQsheSTBOAoKkb4sOEeUBO/pYr5LgrFcKtBeyGBWgCP/qxjJOiHD2x6k62P?=
- =?us-ascii?q?k/Hw/A0gIrAtYCvG3KoNjxMasfV/2+wqvVwjXZd/5YxCnz6IbIfB4ir/+DU7?=
- =?us-ascii?q?1/fsjNxkcgDA7FkledpJb5Mz+J2OkAsW6W5PdgW+K1jG4nrhl8rCWzxsgyko?=
- =?us-ascii?q?nJhpwaylbZ/itkxYY6P9m4SEplbt+kDZBdsDqaOJZtQs45X2FpuDo1yr0BuZ?=
- =?us-ascii?q?KheigK044oywTQa/yAbYiF+xTuX/ufLzd/gXJqYrO/hxCq/Eij1OL8TM+030?=
- =?us-ascii?q?hOriZfldnMrH8N2hrO4caEUvtw5lqt1DmA2gzJ6uxIPFo4mbTUJpI/2LI8i5?=
- =?us-ascii?q?weulnZECDsgkX5lqqWe10h+uiv9uvofK3rpoSZN49okgH+NbkumtCnDeQ4LA?=
- =?us-ascii?q?cOW2+b9Pyg1LL55035QahKjuYsnqnYtpDaK8MbprWnDABJyIoj9xa+ACum0N?=
- =?us-ascii?q?Qfh3UHKk5KeAmbgITzPlHOIfT4Ae++g1Sqjjhr2+jLMqDuD5jCNHTOkKrtca?=
- =?us-ascii?q?xj50NT1gY/181T64pRCr4bIfLzXkHxtMbfDh88KwG02PvoCM5m24MCWWOAHq?=
- =?us-ascii?q?+ZMKTIvV+O/eIgOfOAZIASuDbjM/Ql/eLhjWclmV8BeqmkxYUXaG6jHvl9PU?=
- =?us-ascii?q?WZYGDsgsscEWcNvws/TevqhEeeXj5UYna4R7g86S0jCIK6EYfDQZiggKef0y?=
- =?us-ascii?q?e/H51WYH1GC1+XHHf2eIWLRe0MZDiRIsB/iDwEU6auS4s72RGprg/6xKJtLv?=
- =?us-ascii?q?DI9S0AqZLjyN916vXLlR4o6Dx0C9+Q03mXQGFpmmMEXjo23Kd4oUxn1FiPy7?=
- =?us-ascii?q?R3g/tdFdZL/fNGTh86NYLAz+x9E939RBrBcc2TSFanWdWrGikxQcgrw98PeE?=
- =?us-ascii?q?Z9A9GigQrf0CW0GbMVkKaLBJNnup7bikb4PMd52j7vyqQ7jl9uFtVRLkW4h7?=
- =?us-ascii?q?Rj6g/BFYmPmEKcweLibqkY3SjQ5E+dwmeU+kJVSgh9VePCR39MSFHRqIHC+k?=
- =?us-ascii?q?7aT7KoQY8iOw9FxN/KfrBGcfX1nF5GQ7HlI92YbGWvzTTjTS2Uz6+BOdK5M1?=
- =?us-ascii?q?4W2z/QXQ1dyVEe?=
-X-IPAS-Result: =?us-ascii?q?A2BoAAD25Dpe/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF7gX2BGFUgEiqEFYkDhmQGgTeJcIonhyQJAQEBAQEBAQEBKwwBA?=
- =?us-ascii?q?YRAAoJeOBMCEAEBAQQBAQEBAQUDAQFshTcMgjspAYMCAQUjFUEQCw4KAgImA?=
- =?us-ascii?q?gJXBgEMBgIBAYJjPwGCViUPrCWBMoVKg1OBOAaBDiqMPHmBB4ERJw+CXT6CZ?=
- =?us-ascii?q?AQahFmCXgSXOkaXZoJEgk6EfI5zBhuCSIxXi2otjjWIapRGIoFYKwgCGAghD?=
- =?us-ascii?q?4MnUBgNjiYaiGSFXSMDMAKOTQEB?=
+   d="scan'208";a="32717346"
+IronPort-PHdr: =?us-ascii?q?9a23=3AUwT19xBLtiigulH3Sk+tUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSP37pciwAkXT6L1XgUPTWs2DsrQY0raQ7vmrCDdIoc7Y9ixbK9oUD1?=
+ =?us-ascii?q?5NoP5VtjRoONSCB0z/IayiRA0BN+MGamVY+WqmO1NeAsf0ag6aiHSz6TkPBk?=
+ =?us-ascii?q?e3blItdaz6FYHIksu4yf259YHNbAVUnjq9Zq55IAmroQnLucQanIRvJrwxxx?=
+ =?us-ascii?q?fUrXdFf+pbzn5sKV6Pghrw/Mi98INt/ihKp/4t68tMWrjmcqolSrBVEC4oOH?=
+ =?us-ascii?q?0v6s3xshnDQwqP5n8CXWgTjxFFHQvL4gzkU5noqif1ufZz1yecPc3tULA7Qi?=
+ =?us-ascii?q?+i4LtxSB/pkygIKTg0+3zKh8NqjaJbpBWhpwFjw4PRfYqYOuZycr/bcNgHS2?=
+ =?us-ascii?q?VBRMJRXDFfDI26YYUEEu4NMf9WooT5olcDqwa1CwuxC+P10jJGm2H43aM63e?=
+ =?us-ascii?q?oiHw/J0gMvENASv3rbt9j1KKUfXPqpwKXUwzjObfVb0ir95ojSdRAhpOmBU6?=
+ =?us-ascii?q?9sccXP0UkvFx3KjlONooL4OjOazOANs2yF4OtgSOmijHUnpBxqojW02sctip?=
+ =?us-ascii?q?XGhoISylze8yV525w6Kce3SE58f96pCZ1dvDyUOYtxR8MtWWBouCAix70JuJ?=
+ =?us-ascii?q?67YCgKyIk8yBLFd/OHdI2I7xT+X+iSOTd1nG9pdb2wihqo8UWs1/fwWte73V?=
+ =?us-ascii?q?pUtCZJj9/BvW0X2RPJ8MiIUP5981+k2TaIyg/c9PlJIVsxlarHM54hxaMwlo?=
+ =?us-ascii?q?YLvUTDACD2nEL2gbeKdko+4Oio6vnnYq78qp+dMY90hAb+Mr8wlcOjG+g4Lg?=
+ =?us-ascii?q?gPUHSb+eS7zrHj+1H2QK5WgfEsl6nZsZTaKdwapq6/HQBVzp4u5wuwAjqpyt?=
+ =?us-ascii?q?gVnWQLIEhbdB+IkYTlIUzCLOj9DfilglSslDlrx+rBPr3kGpjNNWXMkKz6cL?=
+ =?us-ascii?q?Zh609T1AozzddF65JSEbEOOuj/WkD2tNzGFhM5KRC7w/77CNVh0YMTQXqPDb?=
+ =?us-ascii?q?WEMKPWqlKI/vggI/SIZIMMvTb9LP8l5+TwgnMjhVAdeqyp14MNaH+kBvRmP1?=
+ =?us-ascii?q?mZYX30j9caD2gKugs+TOr3iFyNSjNTeXmyULwm5j0hC4KpE53DRoazj7yFxi?=
+ =?us-ascii?q?u7GYdWZm9eAFCWDXjob5mEW+sLaC+KJc9hlzsEVaOnS4A7yR6hqhT3y6B5Ie?=
+ =?us-ascii?q?XJ+i0Xr47j2MJp6O3UkBE47SZ0ANiF02GRU2F0mXsFRyU33K9joUxy0E2D3r?=
+ =?us-ascii?q?VgjPNEDdNT5+lGUgY8NZHC1Ox3EMv9Wh7AftePVFapXM+mATcvQdIt2dMBf0?=
+ =?us-ascii?q?F9G9DxxizEijKjHrs9j7WWANkx9aXG0j76IMMu5WzB0fwak1Q+QsZJfVajj6?=
+ =?us-ascii?q?p7+hmbU5XFiG2Fhq2qcuIaxyeL+2Cdmznd9HpEWRJ9BP2WFUsUYVHb+JGit0?=
+ =?us-ascii?q?4=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DpAwAA9jpe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YEYVSASKoQViQOGZAaBEiWJcJFLCQEBAQEBAQEBASsMAQGEQAKCXjgTAhABA?=
+ =?us-ascii?q?QEEAQEBAQEFAwEBbIU3DII7KYMDAQUjFUEQCxgCAiYCAlcTBgIBAYJjPwGCV?=
+ =?us-ascii?q?iUPrHiBMoVKg1KBPoEOKow8eYEHgTgMA4JdPoJLGQKBTWWCQ4JeBJc6Rogwj?=
+ =?us-ascii?q?zaCRIJOhHyOcwYCGZsJiwCMTJRGIoFYKwgCGAghD4MnCUcYDZIQhlGEICMDM?=
+ =?us-ascii?q?I5PAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 05 Feb 2020 15:55:58 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 05 Feb 2020 17:08:34 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 015Fsvl2153965;
-        Wed, 5 Feb 2020 10:55:04 -0500
-Subject: Re: [PATCH v2] selinux: sel_avc_get_stat_idx should increase position
- index
-To:     Vasily Averin <vvs@virtuozzo.com>, selinux@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>
-References: <CAHC9VhR3oV=d7S+PELcCg+Qt7hjV_GJYGmqMdCNvsxAWCJYfHA@mail.gmail.com>
- <441c893b-5cfa-1675-c568-2c04b3bb841a@virtuozzo.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 015H7ffl195165;
+        Wed, 5 Feb 2020 12:07:42 -0500
+Subject: Re: [PATCH] testsuite: enable running over labeled NFS
+To:     paul@paul-moore.com
+Cc:     selinux@vger.kernel.org, omosnace@redhat.com,
+        richard_c_haines@btinternet.com
+References: <20200129202922.88027-1-sds@tycho.nsa.gov>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <9a789c80-de00-b4d6-b31a-43da31d6af85@tycho.nsa.gov>
-Date:   Wed, 5 Feb 2020 10:56:51 -0500
+Message-ID: <89070869-6054-3691-4f36-ecb2787bcd72@tycho.nsa.gov>
+Date:   Wed, 5 Feb 2020 12:09:35 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <441c893b-5cfa-1675-c568-2c04b3bb841a@virtuozzo.com>
+In-Reply-To: <20200129202922.88027-1-sds@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -100,56 +97,50 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/1/20 2:47 AM, Vasily Averin wrote:
-> If seq_file .next function does not change position index,
-> read after some lseek can generate unexpected output.
+On 1/29/20 3:29 PM, Stephen Smalley wrote:
+> Certain tests cannot succeed on nfs and therefore should
+> be skipped in that case.  This allows the testsuite to
+> be run on a labeled NFS mount as described below without
+> triggering any (additional) failures relative to running
+> on a local filesystem like ext4.
 > 
-> $ dd if=/sys/fs/selinux/avc/cache_stats # usual output
-> lookups hits misses allocations reclaims frees
-> 817223 810034 7189 7189 6992 7037
-> 1934894 1926896 7998 7998 7632 7683
-> 1322812 1317176 5636 5636 5456 5507
-> 1560571 1551548 9023 9023 9056 9115
-> 0+1 records in
-> 0+1 records out
-> 189 bytes copied, 5,1564e-05 s, 3,7 MB/s
+> The tests that are skipped or modified and the corresponding rationale is:
+> file: 1 test skipped - flock not supported over NFS
+> capable_file: all tests skipped - file capabilities not supported over NFS
+> capable_sys: 1 test skipped - CAP_SYS_RAWIO not supported over NFS
+> overlay: all tests skipped - NFS not supported as an upperdir
+> mac_admin: one test modified - undefined contexts not exported over NFS
 > 
-> $# read after lseek to midle of last line
-> $ dd if=/sys/fs/selinux/avc/cache_stats bs=180 skip=1
-> dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
-> 056 9115   <<<< end of last line
-> 1560571 1551548 9023 9023 9056 9115  <<< whole last line once again
-> 0+1 records in
-> 0+1 records out
-> 45 bytes copied, 8,7221e-05 s, 516 kB/s
+> This partly addresses
+> https://github.com/SELinuxProject/selinux-testsuite/issues/32.
 > 
-> $# read after lseek beyond  end of of file
-> $ dd if=/sys/fs/selinux/avc/cache_stats bs=1000 skip=1
-> dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
-> 1560571 1551548 9023 9023 9056 9115  <<<< generates whole last line
-> 0+1 records in
-> 0+1 records out
-> 36 bytes copied, 9,0934e-05 s, 396 kB/s
+> Test sequence for labeled NFS is:
+> $ cat nfs.sh
+> MOUNT=/home # must be a top-level mount
+> TESTDIR=$MOUNT/path/to/selinux-testsuite
+> systemctl start nfs-server
+> exportfs -orw,no_root_squash,security_label localhost:$MOUNT
+> mkdir -p /mnt/selinux-testsuite
+> mount -t nfs -o vers=4.2 localhost:$TESTDIR /mnt/selinux-testsuite
+> pushd /mnt/selinux-testsuite
+> make test
+> popd
+> umount /mnt/selinux-testsuite
+> exportfs -u localhost:$MOUNT
+> systemctl stop nfs-server
 > 
-> https://bugzilla.kernel.org/show_bug.cgi?id=206283
-> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+This is now applied.
 
 > ---
->   security/selinux/selinuxfs.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index ee94fa4..ad5530e 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -1504,6 +1504,7 @@ static struct avc_cache_stats *sel_avc_get_stat_idx(loff_t *idx)
->   		*idx = cpu + 1;
->   		return &per_cpu(avc_cache_stats, cpu);
->   	}
-> +	(*idx)++;
->   	return NULL;
->   }
+>   tests/capable_file/test | 28 +++++++++++++++++++---------
+>   tests/capable_sys/test  | 32 +++++++++++++++++++++++---------
+>   tests/file/test         | 22 +++++++++++++++++-----
+>   tests/mac_admin/test    | 18 ++++++++++++++----
+>   tests/overlay/test      | 11 ++++++++---
+>   5 files changed, 81 insertions(+), 30 deletions(-)
+
+[...]
 
 
