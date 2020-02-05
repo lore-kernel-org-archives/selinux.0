@@ -2,87 +2,96 @@ Return-Path: <SRS0=nqp0=3Z=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95122C35247
-	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 15:43:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 192AEC35247
+	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 15:56:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 690D5217BA
-	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 15:43:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DAA5020702
+	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 15:56:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="O54oxZ/9"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="fp69LdGO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726534AbgBEPnQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Feb 2020 10:43:16 -0500
-Received: from USFB19PA32.eemsg.mail.mil ([214.24.26.195]:18711 "EHLO
-        USFB19PA32.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726678AbgBEPnP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Feb 2020 10:43:15 -0500
-X-EEMSG-check-017: 53416414|USFB19PA32_ESA_OUT02.csd.disa.mil
+        id S1727473AbgBEP4N (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Feb 2020 10:56:13 -0500
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:65102 "EHLO
+        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727355AbgBEP4N (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Feb 2020 10:56:13 -0500
+X-EEMSG-check-017: 55062876|UPDC19PA20_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,406,1574121600"; 
-   d="scan'208";a="53416414"
+   d="scan'208";a="55062876"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA32.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 05 Feb 2020 15:43:10 +0000
+  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 05 Feb 2020 15:56:07 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1580917391; x=1612453391;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=KieQE3OjkV1zbE9yEVeUEY2Hc8UeHiYPx0audhtldTY=;
-  b=O54oxZ/9xAhsFTHkSAjdsbmUfwh/MB+Xc5Io521a07uNUklHKv2tstkY
-   V1vtJHdaa7QOo9ydUuwWXR2SL077plAcqAELG4MRBn5+ZoNyUPtHFsgFw
-   e4rPfXI/q2vN+Xp2HUzawYHb0lIzChGMX/HpzTLV/lzSjylUTnOZA8Ejs
-   Zh01zC21rTS5q3L0XAlB03SrKo2uWzl0WiH4Ik1xS2ke6eMMhk5gH6zLZ
-   q/4wHSc92376r4wUahAo8iDg8kqrlNxUy07o+J3/e8nHqIkZiyT5yVF/J
-   MAcJi7WhNL26k/2+SBuiIo9KOT8H1LC5IPPlW2//4D4wneaIaLs9wiKPr
-   w==;
+  s=tycho.nsa.gov; t=1580918167; x=1612454167;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=pLFoiDFQ0p+4rt6tvRvR4HVvVAJkmT81Jugu8hRnU2o=;
+  b=fp69LdGO6EGiEzputMaOOG0GOcHYzplYv3OnaSSo2F5F94lnqvyxmvzM
+   A5LpuNR+IVbcnvLsZM6nvCKittaDjNq8KOmlWBCy+QAJxe3vHAGmyPhcj
+   9+TyzCJowRR9RzAThvL0lRSeNFs8TlkQeTrmiBodr9x8KoA4yj7GLk2MZ
+   tNeH2rcFrjyHDFlF/8Kwa1Dvlp62SoWqoDrnFnvlWMRlCNXyuFOr/3piM
+   Sb66ngV3xrl8IW9bE7jOPtYo6BlNIFxipUKBCHLT9MVB/PociE3rmDlyU
+   6rO6qLdXXktkY2hiuuolF3Rg5zoq+jqEdqW64dDOe/QLmffdSNawN3b84
+   g==;
 X-IronPort-AV: E=Sophos;i="5.70,406,1574121600"; 
-   d="scan'208";a="38703160"
-IronPort-PHdr: =?us-ascii?q?9a23=3A3PQo0xUnK1DdnjrVZbRQujD5IxzV8LGtZVwlr6?=
- =?us-ascii?q?E/grcLSJyIuqrYbByEt8tkgFKBZ4jH8fUM07OQ7/m8HzFZqsnf+DBaKdoQDk?=
- =?us-ascii?q?RD0Z1X1yUbQ+e9QXXhK/DrayFoVO9jb3RCu0+BDE5OBczlbEfTqHDhpRQbGx?=
- =?us-ascii?q?H4KBYnbr+tQt2agMu4zf299IPOaAtUmjW9falyLBKrpgnNq8Uam4RvJrs+xx?=
- =?us-ascii?q?fTonZEZutayGFpKFmOmxrw+tq88IRs/ihNtf8t7dJMXbn/c68lUbFWETMqPn?=
- =?us-ascii?q?wv6sb2rxfDVwyP5nUdUmUSjBVFBhXO4Q/5UJnsrCb0r/Jx1yaGM8L4S7A0Qi?=
- =?us-ascii?q?mi4LxwSBD0kicHNiU2/3/Rh8dtka9UuhOhpxh4w47JfIGYMed1c63Bcd8GQ2?=
- =?us-ascii?q?dKQ91cXDJdDIyic4QPDvIBPedGoIn7u1sOtga1CQ21CO/y1jNEmnr60Ks03O?=
- =?us-ascii?q?Q7FQHNwRIuEdQAvn/JqNn5LakfXOSwwKTO0D7Nbe5Z2S3l5YbVbB4hr/GCU7?=
- =?us-ascii?q?F+f8XfxkYgFR/KgFqLpIz5PT6YzPgBv3SV4udiU++klm4pqxt2ojiq3soil5?=
- =?us-ascii?q?XJiZwNylDE6yp5xps+K8C9SEFhZd6kFIVftiGHPIZxWcMtXnpotT0myrwGpZ?=
- =?us-ascii?q?G7fC8KxI4hxx7EcfOLaYeI4hX9VOuIJzpzmXFreKqnihqv/kWtxffwW8mp3F?=
- =?us-ascii?q?pQsCZIncfAumoQ2xHV98OJUOFy/l271jaKzw3T7+ZELl0qmqfDMJ4hx6Iwlo?=
- =?us-ascii?q?IUsUTeAi/6gEX2g7GSdkUj4uWo9/7oYq/npp+BLI94kAD+MqIgmsy4GuQ3LB?=
- =?us-ascii?q?QBU3KH+eW8yLLj/Ur5TK9MjvIqianWrIrWJcEapq69GwNV04Aj5AijDzq+zd?=
- =?us-ascii?q?gVknYKIEhFdR6alYTlJV7DLO7iAfuim1islS1kx/HCPr3vGJXNKX3Dna/6fb?=
- =?us-ascii?q?lg8E5R0xYzzNBD6JJUDbENOvTzWlTru9DCAR85NBK0z/79CNphzoMeRX6PAq?=
- =?us-ascii?q?iBPaPJr1CI4uMvI++RZI4aozv9Nfcl6OD0jXMjml8SY7Op3Z0JZ3C8BPhmJF?=
- =?us-ascii?q?+ZYXW/yusGREUDuwclBMfjkkGPS3YHZWm5VrggvBknGYmmCsHFXYnrj7ufim?=
- =?us-ascii?q?PzBZBSZ2ZbGniSHnryMYaJQfEBbGSVOMAyvCYDUO2aV4I51Ryo/DT/wr5jI/?=
- =?us-ascii?q?ucrjYUrrr/xdN14KvVjhh0+jtqWZfOm1qRRn15yztbDwQ927py9AkkkQaO?=
-X-IPAS-Result: =?us-ascii?q?A2BWAwA34Tpe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YFtIBIWFIQViQOHeyWJcIonhyQJAQEBAQEBAQEBNwEBhEACgl44EwIQAQEBB?=
- =?us-ascii?q?AEBAQEBBQMBAWyFQ4I7KQGDAgEFIxVRCw4KAgImAgJXBgEMBgIBAYJjPysBg?=
- =?us-ascii?q?islrEiBMoVKg0mBPoEOKow8ggCBEScMA4IvLj6HW4JeBI1eiVxGl2aCRIJOk?=
- =?us-ascii?q?28GG5sJizSDLp0wIoFYKwgCGAghD4MnUBgNjikXFY4sIwMwjk8BAQ?=
+   d="scan'208";a="38703918"
+IronPort-PHdr: =?us-ascii?q?9a23=3AyN5c4hNcEfLceqPxe6ol6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0K/zzp8bcNUDSrc9gkEXOFd2Cra4d16yL6uu/CCRAuc/H7ClZNsQUFl?=
+ =?us-ascii?q?cssoY/p0QYGsmLCEn2frbBThcRO4B8bmJj5GyxKkNPGczzNBX4q3y26iMOSF?=
+ =?us-ascii?q?2kbVImbuv6FZTPgMupyuu854PcYxlShDq6fLh+MAi6oR/eu8ULjoZuMKY8xg?=
+ =?us-ascii?q?bGrnZKf+ld2GdkKU6Okxrm6cq84ZBu/z5Mt/498sJLTLn3cbk/QbFEFjotLn?=
+ =?us-ascii?q?o75NfstRnNTAuP4mUTX2ALmRdWAAbL8Q/3UI7pviT1quRy1i+aPdbrTb8vQj?=
+ =?us-ascii?q?St871rSB7zhygZMTMy7XzahdZxjKJfpxKhugB/zovJa4ybKPZyYqXQds4BSG?=
+ =?us-ascii?q?FfQsheSTBOAoKkb4sOEeUBO/pYr5LgrFcKtBeyGBWgCP/qxjJOiHD2x6k62P?=
+ =?us-ascii?q?k/Hw/A0gIrAtYCvG3KoNjxMasfV/2+wqvVwjXZd/5YxCnz6IbIfB4ir/+DU7?=
+ =?us-ascii?q?1/fsjNxkcgDA7FkledpJb5Mz+J2OkAsW6W5PdgW+K1jG4nrhl8rCWzxsgyko?=
+ =?us-ascii?q?nJhpwaylbZ/itkxYY6P9m4SEplbt+kDZBdsDqaOJZtQs45X2FpuDo1yr0BuZ?=
+ =?us-ascii?q?KheigK044oywTQa/yAbYiF+xTuX/ufLzd/gXJqYrO/hxCq/Eij1OL8TM+030?=
+ =?us-ascii?q?hOriZfldnMrH8N2hrO4caEUvtw5lqt1DmA2gzJ6uxIPFo4mbTUJpI/2LI8i5?=
+ =?us-ascii?q?weulnZECDsgkX5lqqWe10h+uiv9uvofK3rpoSZN49okgH+NbkumtCnDeQ4LA?=
+ =?us-ascii?q?cOW2+b9Pyg1LL55035QahKjuYsnqnYtpDaK8MbprWnDABJyIoj9xa+ACum0N?=
+ =?us-ascii?q?Qfh3UHKk5KeAmbgITzPlHOIfT4Ae++g1Sqjjhr2+jLMqDuD5jCNHTOkKrtca?=
+ =?us-ascii?q?xj50NT1gY/181T64pRCr4bIfLzXkHxtMbfDh88KwG02PvoCM5m24MCWWOAHq?=
+ =?us-ascii?q?+ZMKTIvV+O/eIgOfOAZIASuDbjM/Ql/eLhjWclmV8BeqmkxYUXaG6jHvl9PU?=
+ =?us-ascii?q?WZYGDsgsscEWcNvws/TevqhEeeXj5UYna4R7g86S0jCIK6EYfDQZiggKef0y?=
+ =?us-ascii?q?e/H51WYH1GC1+XHHf2eIWLRe0MZDiRIsB/iDwEU6auS4s72RGprg/6xKJtLv?=
+ =?us-ascii?q?DI9S0AqZLjyN916vXLlR4o6Dx0C9+Q03mXQGFpmmMEXjo23Kd4oUxn1FiPy7?=
+ =?us-ascii?q?R3g/tdFdZL/fNGTh86NYLAz+x9E939RBrBcc2TSFanWdWrGikxQcgrw98PeE?=
+ =?us-ascii?q?Z9A9GigQrf0CW0GbMVkKaLBJNnup7bikb4PMd52j7vyqQ7jl9uFtVRLkW4h7?=
+ =?us-ascii?q?Rj6g/BFYmPmEKcweLibqkY3SjQ5E+dwmeU+kJVSgh9VePCR39MSFHRqIHC+k?=
+ =?us-ascii?q?7aT7KoQY8iOw9FxN/KfrBGcfX1nF5GQ7HlI92YbGWvzTTjTS2Uz6+BOdK5M1?=
+ =?us-ascii?q?4W2z/QXQ1dyVEe?=
+X-IPAS-Result: =?us-ascii?q?A2BoAAD25Dpe/wHyM5BlGgEBAQEBAQEBAQMBAQEBEQEBA?=
+ =?us-ascii?q?QICAQEBAYF7gX2BGFUgEiqEFYkDhmQGgTeJcIonhyQJAQEBAQEBAQEBKwwBA?=
+ =?us-ascii?q?YRAAoJeOBMCEAEBAQQBAQEBAQUDAQFshTcMgjspAYMCAQUjFUEQCw4KAgImA?=
+ =?us-ascii?q?gJXBgEMBgIBAYJjPwGCViUPrCWBMoVKg1OBOAaBDiqMPHmBB4ERJw+CXT6CZ?=
+ =?us-ascii?q?AQahFmCXgSXOkaXZoJEgk6EfI5zBhuCSIxXi2otjjWIapRGIoFYKwgCGAghD?=
+ =?us-ascii?q?4MnUBgNjiYaiGSFXSMDMAKOTQEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 05 Feb 2020 15:43:09 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 05 Feb 2020 15:55:58 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 015FgIN0153243;
-        Wed, 5 Feb 2020 10:42:18 -0500
-Subject: Re: [PATCH] libsepol/cil: Rewrite verification of map classes and
- classpermissionsets
-To:     James Carter <jwcart2@tycho.nsa.gov>, selinux@vger.kernel.org
-References: <20200131202450.25665-1-jwcart2@tycho.nsa.gov>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 015Fsvl2153965;
+        Wed, 5 Feb 2020 10:55:04 -0500
+Subject: Re: [PATCH v2] selinux: sel_avc_get_stat_idx should increase position
+ index
+To:     Vasily Averin <vvs@virtuozzo.com>, selinux@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>
+References: <CAHC9VhR3oV=d7S+PELcCg+Qt7hjV_GJYGmqMdCNvsxAWCJYfHA@mail.gmail.com>
+ <441c893b-5cfa-1675-c568-2c04b3bb841a@virtuozzo.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <ac11d80b-c9fe-725b-8690-40abab87595f@tycho.nsa.gov>
-Date:   Wed, 5 Feb 2020 10:44:12 -0500
+Message-ID: <9a789c80-de00-b4d6-b31a-43da31d6af85@tycho.nsa.gov>
+Date:   Wed, 5 Feb 2020 10:56:51 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200131202450.25665-1-jwcart2@tycho.nsa.gov>
+In-Reply-To: <441c893b-5cfa-1675-c568-2c04b3bb841a@virtuozzo.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -91,51 +100,56 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/31/20 3:24 PM, James Carter wrote:
-> The classperms associated with each map class permission and with each
-> classpermissionset are verified in __cil_verify_classperms() which had
-> multiple problems with how it did the verification.
+On 2/1/20 2:47 AM, Vasily Averin wrote:
+> If seq_file .next function does not change position index,
+> read after some lseek can generate unexpected output.
 > 
-> 1) Verification was short-circuited when the first normal class is found.
->    The second classpermissionset statement below would not have been
->    verified.
->      (classpermission cp1)
->      (classpermissionset cp1 (CLASS (PERM)))
->      (classpermissionset cp1 cp2)
+> $ dd if=/sys/fs/selinux/avc/cache_stats # usual output
+> lookups hits misses allocations reclaims frees
+> 817223 810034 7189 7189 6992 7037
+> 1934894 1926896 7998 7998 7632 7683
+> 1322812 1317176 5636 5636 5456 5507
+> 1560571 1551548 9023 9023 9056 9115
+> 0+1 records in
+> 0+1 records out
+> 189 bytes copied, 5,1564e-05 s, 3,7 MB/s
 > 
-> 2) The classperms of a map class permission and classpermissionset were
-> not checked for being NULL before the function recursively called itself.
-> This would result in a segfault if the missing map or set was referred to
-> before the classmap or classpermission occured. This error was reported by
-> Dominick Grift (dominick.grift@defensec.nl).
->    These rules would cause a segfault.
->      (classmap cm1 (mp1))
->      (classmapping cm1 mp1 (cm2 (mp2)))
->      (classmap cm2 (mp2))
->    But an error would be produced for these rules.
->      (classmap cm1 (mp1))
->      (classmap cm2 (mp2))
->      (classmapping cm2 mp2 (cm1 (mp1)))
+> $# read after lseek to midle of last line
+> $ dd if=/sys/fs/selinux/avc/cache_stats bs=180 skip=1
+> dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+> 056 9115   <<<< end of last line
+> 1560571 1551548 9023 9023 9056 9115  <<< whole last line once again
+> 0+1 records in
+> 0+1 records out
+> 45 bytes copied, 8,7221e-05 s, 516 kB/s
 > 
-> 3) The loop detection logic was incomplete and could only detect a loop
-> with a certain statement ordering.
->    These rules would cause a stack overflow.
->      (classmap cm1 (mp1))
->      (classmapping cm1 mp1 (cm2 (mp2)))
->      (classmap cm2 (mp2))
->      (classmapping cm2 mp2 (cm3 (mp3)))
->      (classmap cm3 (mp3))
->      (classmapping cm3 mp3 (cm2 (mp2)))
+> $# read after lseek beyond  end of of file
+> $ dd if=/sys/fs/selinux/avc/cache_stats bs=1000 skip=1
+> dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+> 1560571 1551548 9023 9023 9056 9115  <<<< generates whole last line
+> 0+1 records in
+> 0+1 records out
+> 36 bytes copied, 9,0934e-05 s, 396 kB/s
 > 
-> Rewrote __cil_verify_classperms() to fix these errors.
-> 
-> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> https://bugzilla.kernel.org/show_bug.cgi?id=206283
+> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 
 Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
 > ---
->   libsepol/cil/src/cil_verify.c | 83 ++++++++++++++++-------------------
->   1 file changed, 37 insertions(+), 46 deletions(-)
+>   security/selinux/selinuxfs.c | 1 +
+>   1 file changed, 1 insertion(+)
+> 
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index ee94fa4..ad5530e 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -1504,6 +1504,7 @@ static struct avc_cache_stats *sel_avc_get_stat_idx(loff_t *idx)
+>   		*idx = cpu + 1;
+>   		return &per_cpu(avc_cache_stats, cpu);
+>   	}
+> +	(*idx)++;
+>   	return NULL;
+>   }
 
-[...]
 
