@@ -7,97 +7,123 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34384C35247
-	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 23:18:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB1B0C35247
+	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 23:21:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 093CD2072B
-	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 23:18:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 878A62072B
+	for <selinux@archiver.kernel.org>; Wed,  5 Feb 2020 23:21:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="haCPoFTX"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="vo5MQ6K/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727170AbgBEXSW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Feb 2020 18:18:22 -0500
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:44940 "EHLO
+        id S1727170AbgBEXV0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Feb 2020 18:21:26 -0500
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:43042 "EHLO
         mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727149AbgBEXSW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Feb 2020 18:18:22 -0500
-Received: by mail-ed1-f67.google.com with SMTP id g19so3892091eds.11
-        for <selinux@vger.kernel.org>; Wed, 05 Feb 2020 15:18:21 -0800 (PST)
+        with ESMTP id S1727149AbgBEXVZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Feb 2020 18:21:25 -0500
+Received: by mail-ed1-f67.google.com with SMTP id dc19so3891132edb.10
+        for <selinux@vger.kernel.org>; Wed, 05 Feb 2020 15:21:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=/yPHQgk5l9M0uG8WfLlc/T29sIHXAdBAzb2aZffX87o=;
-        b=haCPoFTXaldRhpfYr9XsOnDhJDgnrxG5uK4/QS+vJow/j1rRTTtB3+9Dn1UU0GpVkJ
-         5XMIeOHTzVNn4iYKuFRERaBupMhA7jpHnbG+gC5hJjFe6rO/m4D1obWmUP/bagKuSgqp
-         klZnkzrTnXRsGcfJ72tVZkAFIZ29RN//nhS3jFavE2oqxLoTjOpWWZAPOtvkUeR2FEoz
-         JArQWjSrwaLkqI0aQlBntg1EJ630x9l5LYGEkRhvcLeEEqUlvmDtWGkb659chVXPNbe5
-         gyvt2xuFEFAKk3hb7kQMMC1Dz/iRRKDpcpVMQXE+eJhRyMMChh4Ulp/wSQXpQhGCl+l8
-         XE8w==
+        bh=Nac0OcsMqrzxHo9VlvWmwuwRU03Enoj5FoP2F5tzkIY=;
+        b=vo5MQ6K/wlkswomziYvdauNPRCcG0xqhhqZ/Gy9cV1gsnrwg8JF8xqCC4RW9/s0qX0
+         c3cnHR5wBgPuPfszk3yiNcQJsK7MCQXPF7PR3cCmwsOAe0ryrzO67ybZgFTIlvMsbNcW
+         cT0kh0pL5IcvJmj9fcwp8BFlMt3G96LAb/mzD3/7TtYAvANJ3xCHiS0cEGMAxHX7X6Gx
+         ln/8UJ7iORrmvkU+XrfqOU+ZTwPfqwwpxtC/rwSUDlw6mVIF/JE8B5Uwmj+IrXRNfd70
+         a+DnAARxCQDwJFDhy6i0m4LS9xI2TZfNYpwB1363kcDY6jsrWQDZNlCuyPlcqsOPZIMm
+         m/HQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=/yPHQgk5l9M0uG8WfLlc/T29sIHXAdBAzb2aZffX87o=;
-        b=LPgIgEtprM88AsjOVur8nVlIOyy0W3Ic3c7ckqP729U19GUoXb0eif3Zr0WTtRQb5/
-         cyVRF8nlipk9xBl2vFVinWKT7vFSpGmV/D7eCgyFbBvK3coaabCoUyfWhuw4MhBc0OGL
-         Ji6l3vpKpoP9G1Ofb5jsKT09zAuIO+hGfI8K8mI/okInz4CWsoT3tjV6LDgthIoAJ6A2
-         Qhj5nnuTYNwxhCR0A5mdcoUud27zFNyelsNESESJ2PtuQG8fhAhUSLnP/KUzeack6BNz
-         hkBhJRz02qExOqeLs3D5v/U3K/6w4OyvY+urt1YPvmWu57iAzlW2U/oCo8JunHZg8xOs
-         /2/Q==
-X-Gm-Message-State: APjAAAXTVjU4O/xpv1dgro2r2vnynChCYQv1WRyqGyM58Gx6e90c001E
-        oEpokOQDAzLbdIaRdvwgVNVIk6+5vGnVauW6Nr6pfgKKTQ==
-X-Google-Smtp-Source: APXvYqzv3zmXH3t4F7lXd92ukfha+aVUaJxBYhdRCSIZ8b59VgZFYceOmtfFaxbXr2fnK8BWM1toPBwjZbWgDPwtmWE=
-X-Received: by 2002:aa7:cd49:: with SMTP id v9mr456018edw.269.1580944700400;
- Wed, 05 Feb 2020 15:18:20 -0800 (PST)
+        bh=Nac0OcsMqrzxHo9VlvWmwuwRU03Enoj5FoP2F5tzkIY=;
+        b=aNUDWdo+hc1r+aICDAEpBwDNH++Zc8IXuiw0+qhDZtJEM/+rM0WR3YKiXS0DT6D4yj
+         nDzPfUHfJaa3DPtZKnbf6WEzaqJ+fkcsEX5oieNvAgvUGlm1mF38IcdCs9G4Xx2Mk5xO
+         ZYBswC6JP8N6ZGfBlPp4GE+DL31Qbn//F8IppjnhvqtQ/xaMhrNvI/4iq8fKEPLJVOta
+         9auaEPFPKPXw1Ah7inx1B/fKhNuAFKrBZAlUaQsGid1eSlRKv3iXANFdaX6tHZ1vkIuy
+         iqiPXqB7onEKFYpoPVsYiS9uTZCtJ+vIphMicmkvcAgwXm7bRSfFF8PubdjUg431FDcB
+         A/7A==
+X-Gm-Message-State: APjAAAVL89jUJWoifjgei3VC/6FK/gxtgO5/RHA7njmcUxBsV+22ul6D
+        R4HyccduzW/tH8rrkJkINjAvtw55A0uhmrd2qBlK
+X-Google-Smtp-Source: APXvYqwYFkgb8CkRf+dyAwav8mZ8GCzB5l9Ewvt7aCXolIq0ea4x2T0EPp7rFmXJmWnphvWh17vxyMSioie+RVoNarM=
+X-Received: by 2002:a50:ec1a:: with SMTP id g26mr483118edr.164.1580944883981;
+ Wed, 05 Feb 2020 15:21:23 -0800 (PST)
 MIME-Version: 1.0
-References: <20200131230017.199775-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20200131230017.199775-1-richard_c_haines@btinternet.com>
+References: <CAHC9VhR3oV=d7S+PELcCg+Qt7hjV_GJYGmqMdCNvsxAWCJYfHA@mail.gmail.com>
+ <441c893b-5cfa-1675-c568-2c04b3bb841a@virtuozzo.com>
+In-Reply-To: <441c893b-5cfa-1675-c568-2c04b3bb841a@virtuozzo.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 5 Feb 2020 18:18:09 -0500
-Message-ID: <CAHC9VhQ=GQ7smodGjSD1iVOxpWCRNaCV8Ov+LYwZRVXoZWvgAw@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: Binder goto brexit fix
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org
+Date:   Wed, 5 Feb 2020 18:21:13 -0500
+Message-ID: <CAHC9VhQ0qqHLWqmYbKMnfkXB6NFQyocjemEcLT9508uJPaTSPg@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: sel_avc_get_stat_idx should increase position index
+To:     Vasily Averin <vvs@virtuozzo.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jan 31, 2020 at 6:00 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> Now the deed is done, correct the final leaving date.
-> Could not resist adding the relevant dates to complement the 'goto brexit'
-> statements.
+On Sat, Feb 1, 2020 at 2:49 AM Vasily Averin <vvs@virtuozzo.com> wrote:
 >
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> If seq_file .next function does not change position index,
+> read after some lseek can generate unexpected output.
+>
+> $ dd if=/sys/fs/selinux/avc/cache_stats # usual output
+> lookups hits misses allocations reclaims frees
+> 817223 810034 7189 7189 6992 7037
+> 1934894 1926896 7998 7998 7632 7683
+> 1322812 1317176 5636 5636 5456 5507
+> 1560571 1551548 9023 9023 9056 9115
+> 0+1 records in
+> 0+1 records out
+> 189 bytes copied, 5,1564e-05 s, 3,7 MB/s
+>
+> $# read after lseek to midle of last line
+> $ dd if=/sys/fs/selinux/avc/cache_stats bs=180 skip=1
+> dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+> 056 9115   <<<< end of last line
+> 1560571 1551548 9023 9023 9056 9115  <<< whole last line once again
+> 0+1 records in
+> 0+1 records out
+> 45 bytes copied, 8,7221e-05 s, 516 kB/s
+>
+> $# read after lseek beyond  end of of file
+> $ dd if=/sys/fs/selinux/avc/cache_stats bs=1000 skip=1
+> dd: /sys/fs/selinux/avc/cache_stats: cannot skip to specified offset
+> 1560571 1551548 9023 9023 9056 9115  <<<< generates whole last line
+> 0+1 records in
+> 0+1 records out
+> 36 bytes copied, 9,0934e-05 s, 396 kB/s
+>
+> https://bugzilla.kernel.org/show_bug.cgi?id=206283
+> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 > ---
-> Before anyone asks regarding '240616' It's the result that counts !!!
->
->  tests/binder/binder_common.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  security/selinux/selinuxfs.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-Without venturing into a political discussion, I feel the joke
-deserves the proper magic number.
+This is better, thank you.  I've queued this up for selinux/next,
+you'll see it in the repo once the merge window closes.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
-
-> diff --git a/tests/binder/binder_common.h b/tests/binder/binder_common.h
-> index f60860e..319b5dd 100644
-> --- a/tests/binder/binder_common.h
-> +++ b/tests/binder/binder_common.h
-> @@ -43,7 +43,7 @@ enum {
->   */
->  #define TEST_SERVICE_ADD       240616 /* Sent by Service Provider */
->  #define TEST_SERVICE_GET       290317 /* Sent by Client */
-> -#define TEST_SERVICE_SEND_FD   311019 /* Sent by Client */
-> +#define TEST_SERVICE_SEND_FD   310120 /* Sent by Client */
->
->  extern bool verbose;
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index ee94fa4..ad5530e 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -1504,6 +1504,7 @@ static struct avc_cache_stats *sel_avc_get_stat_idx(loff_t *idx)
+>                 *idx = cpu + 1;
+>                 return &per_cpu(avc_cache_stats, cpu);
+>         }
+> +       (*idx)++;
+>         return NULL;
+>  }
 >
 > --
-> 2.24.1
+> 1.8.3.1
+>
+
 
 -- 
 paul moore
