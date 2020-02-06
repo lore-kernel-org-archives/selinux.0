@@ -2,194 +2,147 @@ Return-Path: <SRS0=oQIx=32=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97507C33CAC
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 16:02:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 770C9C33CAC
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 16:03:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 61EF821775
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 16:02:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4ADCD20838
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 16:03:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="oDhqkKbZ"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="BbRaP2eI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727305AbgBFQCR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Feb 2020 11:02:17 -0500
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:27557 "EHLO
-        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726925AbgBFQCR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 11:02:17 -0500
-X-EEMSG-check-017: 55573217|UPDC19PA19_ESA_OUT01.csd.disa.mil
+        id S1727305AbgBFQDb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Feb 2020 11:03:31 -0500
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:10701 "EHLO
+        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727138AbgBFQDa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 11:03:30 -0500
+X-EEMSG-check-017: 55691129|UPDC19PA20_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,410,1574121600"; 
-   d="scan'208";a="55573217"
+   d="scan'208";a="55691129"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2020 16:02:14 +0000
+  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2020 16:03:15 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581004934; x=1612540934;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=ZcdZ9KSJAn/9jMb5pUPX7B+YzH+iLEM0BGs9IQdLh3A=;
-  b=oDhqkKbZY3AXwJ45S5B0CrArDfYy4EUsMSrTH4pN+dXto3AzbmN4yRYP
-   xj6K/oJdWKMyWfJPO+fGo3493DYXB5kXfc71ZO4S4Wl89fbylce2eDO5A
-   MquNzo1IwpM9uuIJX/HTig3RvO8DhE7v6OrYNgHuEr8vXZEDHbjEnQZKk
-   jFvKgR5IvFK+crsdclMGa7Pf8zjEisxFvG3Sx4jY2aHHTxFQPDiX4r4Y0
-   vHQOVGsdiVSdNz1ObQBh8D9YdMbsd4ybTzVlVwsjg+QkCYZgkpJEbcMgx
-   LbkLYUDngeJK5FzE+/n9cQQ1vXKz8mgUww4plXvJdL9H9QHggEezRRXXt
-   w==;
+  s=tycho.nsa.gov; t=1581004996; x=1612540996;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=8cnBPdKCcZwMpUZeLc8Sm4KzOktm9HHzPc0nvRkaVUM=;
+  b=BbRaP2eIMKTZfuojM5q7ZlnDwZX2Evd/qQtdkHoTjfQPQiMNhOhkUNwh
+   zFMIhIJ7iSDG+GnC2iOcY0q8uVdDJZL+UfoixbZmQWbncIWliGjod/dss
+   09B8wrPhkIEd/x9u06t9P7iuUwBX8SxxoruzoRDmNM0dBgYioqgQp4xVw
+   sFOrLlmkeEvyMpQw02X7DLUu+6qnFl4ajdsMRHIBk27QT/0NhTfRHbztr
+   cAjVo2wX6RIzdEf9ZlZRSrmwGiB7iuTq7BqCQyuUocc359F/jEj/qpaTB
+   gddOgbsMSjpdOiGLuBvZ2v/Y3V8Ucboof3oB2IGui+XM4nzWpld6k5Wjo
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.70,410,1574121600"; 
-   d="scan'208";a="38761376"
-IronPort-PHdr: =?us-ascii?q?9a23=3ALND8ExfFAbo7DPmf0gA6Q0JglGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxc27YBSN2/xhgRfzUJnB7Loc0qyK6vymBDdLsc/J8ChbNsAVDF?=
- =?us-ascii?q?ld0YRetjdjKfbNMVf8Iv/uYn5yN+V5f3ghwUuGN1NIEt31fVzYry76xzcTHh?=
- =?us-ascii?q?LiKVg9fbytScbdgMutyu+95YDYbRlWizqhe7NyKwi9oRnMusUMjoZuN6k8xg?=
- =?us-ascii?q?HJr3ZGdOhbxn5kLk+Xkxrg+8u85pFu/zletv4768JMTaD2dLkkQLJFCzgrL3?=
- =?us-ascii?q?o779DxuxnZSguP6HocUmEInRdNHgPI8hL0UIrvvyXjruZy1zWUMsPwTbAvRD?=
- =?us-ascii?q?St9LxrRwPyiCcGLDE27mfagdFtga1BoRKhoxt/w5PIYIyQKfFzcL/Rcc8cSG?=
- =?us-ascii?q?FcRctaSTBPDZ2gYIsOF+oBPPhXr4/hp1sVsBCyARCgCP7zxjNUg3P726M10/?=
- =?us-ascii?q?4lEQrbwgIuGdwAu2nQoNnsKqsfVeW5wa/VxjvBcvxWwy/w5pXWfBAvof+CXr?=
- =?us-ascii?q?x+fsTexkYtCwzLgU6dqZDnMj6PyugBr2aW4uhmWOmyi2AnsQZxoj23y8kxlo?=
- =?us-ascii?q?nGmJoVylDa+iV/3Y07ONi4R1R/Yd6gDpRRtzyROoxtQsw/WGFlozo6y70atp?=
- =?us-ascii?q?67eygG0pInxwXFZPCdfIiI5QzjWf+XLDxlinxlf7e/iAyz8Uim0uD8Vde70E?=
- =?us-ascii?q?xMriVbltnArHcN1wbc6sWBV/Bz/V+h1C6S2w3c5exIO0A5mbfBJ5I/zbM8iI?=
- =?us-ascii?q?AfvVnFEyTrgkv5lrWWeV8h+uWw7uTnZajpqYGEOo9vjwH+LrwumsuiAeQkKg?=
- =?us-ascii?q?QOX3aU+eC71LD74U32Wq9KjvwrkqnCqpzaJMIbpqC+Aw9OzIks9wyzDyum0d?=
- =?us-ascii?q?sEnXkHK0hJeBSbgIjyJ17COvX4Dfa7g1i0kTdrwe7JPqH5D5nQIXXOn63tcL?=
- =?us-ascii?q?Zg50JG1gY+ws5T64hJBr0ZJfL8QE7xtNjWDh8jNAy0xv7qCM5g2YMFQm+PHq?=
- =?us-ascii?q?+YP7/SsV+P/O4vJfKMa5UPtDbyLPgl+ebijWUlll8FYampwZwXZWiiHvRnP0?=
- =?us-ascii?q?qZYWDjgs0cHmgSogUxVOzqh0eDUT5VeXmyRLkx6SonCIKnC4fDWp6igKaH3C?=
- =?us-ascii?q?ilAp1afHxJCleJEX3wbYWLR+8MaD6OIs9mijEETqauS4sg1RGoqQ/7xKFqLv?=
- =?us-ascii?q?Tb+iIGr5Lvztt16PPJlRE06zN0C96R02aXT2F7hmkIXSM53LhjoUxhzVeOyb?=
- =?us-ascii?q?V3g/xfFd1d+fxJVgM6NYXHwuxgFd/9RwLBcc2VSFq8XtqmBjQxRMorw9ASe0?=
- =?us-ascii?q?Z9B8mijhfb0iqyGbAViriLCYcs8q3GwnjxI99xy3PB1KkmlVkpXNFDOnGhhq?=
- =?us-ascii?q?56pEDvANvzkk6ZnrymPYQV3SjA7y/X12uFvEhCXDl7ZqXMXHYSfWPcsdX/+k?=
- =?us-ascii?q?7YSbKyT78gN10FgdWPLqpMd83Bk1pLXrHgNc7Ybmb3nH2/QV6ExrSTYY7uYE?=
- =?us-ascii?q?0H0SndAVRCmAcWrlicMg1rPTusu2LTCnRVEFvrZ079ub1lpGiTUl4/zwbMaV?=
- =?us-ascii?q?ZokbWy5EhG1rSnV/oP0+dc628aoDJuEQP4hoiHBg=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2BXAADaNzxe/wHyM5BmGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYF7gX2BGFQhEiqEFYkDhmQBAQEGgRIliXCPZIFnCQEBAQEBAQEBA?=
- =?us-ascii?q?S0KAQGEQAKCYTgTAhABAQEEAQEBAQEFAwEBbIU3DII7KQGDAQEBAQECASMEE?=
- =?us-ascii?q?UEQCxgCAiYCAlcGAQwGAgEBgmM/AYJKAwkFIA+rLHV/M4Q1AYEUg12BOAaBD?=
- =?us-ascii?q?iqMPXmBB4E4DAOCLy4+ghuBewESAYMxgl4Ell1hRpdngkSCToR8jnYGG4JIj?=
- =?us-ascii?q?FiLa45igUuHIZRIImdxKwgCGAghD4MnEz0YDY4pF4hkhV0jAzACAYwEERcCg?=
- =?us-ascii?q?hkBAQ?=
+   d="scan'208";a="38761459"
+IronPort-PHdr: =?us-ascii?q?9a23=3AEE+CxxeyiXCo+bc9ou7zfl1IlGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxcS5Yx7h7PlgxGXEQZ/co6odzbaP7+a9AidQuN7B6ClELMUXEU?=
+ =?us-ascii?q?ddyI0/pE8JOIa9E0r1LfrnPWQRPf9pcxtbxUy9KlVfA83kZlff8TWY5D8WHQ?=
+ =?us-ascii?q?jjZ0IufrymUoHdgN6q2O+s5pbdfxtHhCanYbN1MR66sRjdutMZjId/Jas90B?=
+ =?us-ascii?q?vEr3VHd+lV2G9jOFafkwrh6suq85Nv7ipdt+g9+8JcVKnxYrg1Q6FfADk6KW?=
+ =?us-ascii?q?4++dfltQPETQuB53scVnsZnx9VCAXb7x/0Q4n8vDLiuuVyxCeVM8v2TaspWT?=
+ =?us-ascii?q?u59KdkVAXoiCYcODEn9mzcl9F9g7haoBKloBx/3pLUbYSIP/dwYq/RYdUXTn?=
+ =?us-ascii?q?dPUcZLUyxKH52yYY0BAeEcOepUtofwql8LoRa4GAKiBv7gyiVQi3Hrw6M63e?=
+ =?us-ascii?q?QvHwLI0gMuEN0BsmjbotruOacOUu241rXEwSnNYv5U3zr29YjGcgomofGJRb?=
+ =?us-ascii?q?9wc8TQxlU1GAPfklWct5HuMjSX1uUDr2eU9fBgVf6xh2M8twFwoiSgxscrio?=
+ =?us-ascii?q?XTgIIV0UrL+T92wIYyO921UUh2asOnHptIryyWKoR7T8w4T2xopSo20KMKtJ?=
+ =?us-ascii?q?GlcCQQ1ZgqwQPUZeadfIiS+B3jUf6cITJ/hH14Zr2ynw2y8U28yu3kUcm0zU?=
+ =?us-ascii?q?pKojJFktbSsnAN0ATe6tSdRftn/0ehxC2P2xrS6uFCL0A0krHbJIA9zbIqip?=
+ =?us-ascii?q?oSsVjMHi/xmEnsiq+Zal4k9fSy5+TiY7XmooeQN45yig7gLqQjgtGzDOs3Pw?=
+ =?us-ascii?q?QUX2WX5P6w2KPs8EHnWrlGk+U6kqzDv5DbIcQbqLS5AwhQ0os76Ra+ASup38?=
+ =?us-ascii?q?4CnXkbMl5IYw6Hjoj1NFHOJ/D0F/G/g0+2nztxyPDGOaPhDo3XLnffiLfhYa?=
+ =?us-ascii?q?p960lExQoo099f45NUCrccIPP8QULxqtPYAQEjMwCuwOboFs991oUAVmKLGK?=
+ =?us-ascii?q?OZN7nSsVDbrt4odtKQaZcVtTC1EP0s4/rjnDdtglMGVbW41psQLnajF7JpJF?=
+ =?us-ascii?q?vPJTL3j9MAF3oalhQxQfasi1CYVzNXIXGoUPES/DY+XYC5Bo7ZWtrl1L6e1y?=
+ =?us-ascii?q?6hAsd+enFNClfKF2zhMYqDRaFfO2qpPsZ9n2lcBvCaQIg72ETr7173?=
+X-IPAS-Result: =?us-ascii?q?A2ATAwDaNzxe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFsIRIWFIQViQOHfyWUF4ckCQEBAQEBAQEBATcBAYRAAoJhOBMCEAEBAQQBA?=
+ =?us-ascii?q?QEBAQUDAQFshUOCOymDAwEFIw8BBVEJAgkFCgICJgICVwYBDAYCAQGCYz8rA?=
+ =?us-ascii?q?YJQkDibeIEyhUqDXYE+gQ4qjX1AgREnDAOCLy4+h1uCXgSBPwGMIooiiDGPN?=
+ =?us-ascii?q?gaCPpZABhubC4s0gy6dNCKBWCsKQYFogU5QGA2OKRcVjiwjAzCOSgEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Feb 2020 16:02:12 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 016G1LlZ121848;
-        Thu, 6 Feb 2020 11:01:21 -0500
-Subject: Re: security/selinux: Add support for new key permissions
-To:     Richard Haines <richard_c_haines@btinternet.com>,
-        selinux@vger.kernel.org, dhowells@redhat.com
-Cc:     paul@paul-moore.com
-References: <20200203141343.29133-1-richard_c_haines@btinternet.com>
- <c6fcea12-53c5-35b3-5ccd-58c5c15e48c1@tycho.nsa.gov>
- <5da8163ffe9b96660740f4ec64abf4a7c47553de.camel@btinternet.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <9663ec06-1b8a-3051-a942-131bd5eead3c@tycho.nsa.gov>
-Date:   Thu, 6 Feb 2020 11:03:15 -0500
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Feb 2020 16:03:13 +0000
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 016G2Msk121908;
+        Thu, 6 Feb 2020 11:02:22 -0500
+Subject: Re: [PATCH] libsepol/cil: Rewrite verification of map classes and
+ classpermissionsets
+To:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
+References: <20200131202450.25665-1-jwcart2@tycho.nsa.gov>
+ <ac11d80b-c9fe-725b-8690-40abab87595f@tycho.nsa.gov>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <fff130df-5318-62e3-2476-703b2b071248@tycho.nsa.gov>
+Date:   Thu, 6 Feb 2020 11:04:32 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <5da8163ffe9b96660740f4ec64abf4a7c47553de.camel@btinternet.com>
+In-Reply-To: <ac11d80b-c9fe-725b-8690-40abab87595f@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/3/20 10:42 AM, Richard Haines wrote:
-> On Mon, 2020-02-03 at 10:29 -0500, Stephen Smalley wrote:
->> On 2/3/20 9:13 AM, Richard Haines wrote:
->>> Add a new 'key_perms' policy capability and support for the
->>> additional
->>> key permissions: inval, revoke, join, clear
+On 2/5/20 10:44 AM, Stephen Smalley wrote:
+> On 1/31/20 3:24 PM, James Carter wrote:
+>> The classperms associated with each map class permission and with each
+>> classpermissionset are verified in __cil_verify_classperms() which had
+>> multiple problems with how it did the verification.
 >>
->> For future reference, subject line should have [PATCH] prefix; git
->> send-email will do this for you automatically.  Also, the subsystem
->> prefix would conventionally be "keys,selinux:" to indicates that it
->> touches the keys and selinux subsystems, no need for "security/".
+>> 1) Verification was short-circuited when the first normal class is found.
+>>    The second classpermissionset statement below would not have been
+>>    verified.
+>>      (classpermission cp1)
+>>      (classpermissionset cp1 (CLASS (PERM)))
+>>      (classpermissionset cp1 cp2)
 >>
->>> Also fixes JOIN -> LINK permission translation when policy
->>> capability 'keys_perms' = 0;
->>>
->>> The current "setattr" perm name remains and is used for
->>> KEY_NEED_SETSEC.
->>> This gives the following permissions for the 'key' class:
->>>
->>> create	Create a key or keyring.
->>> view	View attributes.
->>> read	Read contents.
->>> write	Update or modify.
->>> search	Search (keyring) or find (key).
->>> link	Link a key into the keyring.
->>> setattr	kernel < 5.X Change permissions on a keyring.
->>> 	kernel >= 5.X Set owner, group, ACL.
->>> inval	Invalidate key.
->>> revoke	Revoke key.
->>> join	Join keyring as session.
->>> clear	Clear a keyring.
->>>
->>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
->>> Signed-off-by: David Howells <dhowells@redhat.com>
->>> ---
-
->>> diff --git a/security/keys/keyctl.c b/security/keys/keyctl.c
->>> index a0c97d4d8251..65e1c0c3feb1 100644
->>> --- a/security/keys/keyctl.c
->>> +++ b/security/keys/keyctl.c
->>> @@ -1592,7 +1592,8 @@ long keyctl_session_to_parent(void)
->>>    	struct cred *cred;
->>>    	int ret;
->>>    
->>> -	keyring_r = lookup_user_key(KEY_SPEC_SESSION_KEYRING, 0,
->>> KEY_NEED_JOIN);
->>> +	keyring_r = lookup_user_key(KEY_SPEC_SESSION_KEYRING, 0,
->>> +				    KEY_NEED_PARENT_JOIN);
+>> 2) The classperms of a map class permission and classpermissionset were
+>> not checked for being NULL before the function recursively called itself.
+>> This would result in a segfault if the missing map or set was referred to
+>> before the classmap or classpermission occured. This error was reported by
+>> Dominick Grift (dominick.grift@defensec.nl).
+>>    These rules would cause a segfault.
+>>      (classmap cm1 (mp1))
+>>      (classmapping cm1 mp1 (cm2 (mp2)))
+>>      (classmap cm2 (mp2))
+>>    But an error would be produced for these rules.
+>>      (classmap cm1 (mp1))
+>>      (classmap cm2 (mp2))
+>>      (classmapping cm2 mp2 (cm1 (mp1)))
 >>
->> I'm unclear on how this works with the regular key permission
->> checking
->> (not SELinux).  There is no KEY_ACE_PARENT_JOIN permission AFAICT
->> and
->> the check would fail if the regular permissions were only
->> KEY_ACE_JOIN.
->> What we need is an additional flag that will get ignored by
->> key_permission() for its permission checking but signify to SELinux
->> that
->> different handling is required here.
+>> 3) The loop detection logic was incomplete and could only detect a loop
+>> with a certain statement ordering.
+>>    These rules would cause a stack overflow.
+>>      (classmap cm1 (mp1))
+>>      (classmapping cm1 mp1 (cm2 (mp2)))
+>>      (classmap cm2 (mp2))
+>>      (classmapping cm2 mp2 (cm3 (mp3)))
+>>      (classmap cm3 (mp3))
+>>      (classmapping cm3 mp3 (cm2 (mp2)))
+>>
+>> Rewrote __cil_verify_classperms() to fix these errors.
+>>
+>> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
 > 
-> David will need to answer this.
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> 
+>> ---
+>>   libsepol/cil/src/cil_verify.c | 83 ++++++++++++++++-------------------
+>>   1 file changed, 37 insertions(+), 46 deletions(-)
+> 
+> [...]
+> 
 
-Until this gets resolved, this patch must not go into mainline. 
-Otherwise we're looking at a potential userspace ABI issue when/if it 
-gets resolved.
+Applied.
 
->>> diff --git a/security/selinux/include/security.h
->>> b/security/selinux/include/security.h
->>> index ae840634e3c7..6b264b6d9d31 100644
->>> --- a/security/selinux/include/security.h
->>> +++ b/security/selinux/include/security.h
->>> @@ -79,6 +79,7 @@ enum {
->>>    	POLICYDB_CAPABILITY_ALWAYSNETWORK,
->>>    	POLICYDB_CAPABILITY_CGROUPSECLABEL,
->>>    	POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION,
->>> +	POLICYDB_CAPABILITY_KEYPERMS,
->>>    	__POLICYDB_CAPABILITY_MAX
->>>    };
->>>    #define POLICYDB_CAPABILITY_MAX (__POLICYDB_CAPABILITY_MAX - 1)
->>> @@ -178,6 +179,13 @@ static inline bool
->>> selinux_policycap_nnp_nosuid_transition(void)
->>
->> This will collide with
->> https://lore.kernel.org/selinux/20200128191656.111902-1-cgzones@googlemail.com/
->> so we'll have to sort out which one goes first.
-
-Already noted this elsewhere but for the sake of ensuring it is noted in 
-this thread too: the key_perms capability will need to be added after 
-the genfs_seclabel_symlinks capability since the latter is already 
-queued on selinux/next and the corresponding libsepol patch has been 
-merged upstream.
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
