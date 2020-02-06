@@ -7,142 +7,134 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 770C9C33CAC
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 16:03:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1994C33CAC
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 16:10:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4ADCD20838
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 16:03:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9AE7821775
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 16:10:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="BbRaP2eI"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="p06uxb4x"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727305AbgBFQDb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Feb 2020 11:03:31 -0500
-Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:10701 "EHLO
-        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727138AbgBFQDa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 11:03:30 -0500
-X-EEMSG-check-017: 55691129|UPDC19PA20_ESA_OUT02.csd.disa.mil
+        id S1727522AbgBFQK4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Feb 2020 11:10:56 -0500
+Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:41400 "EHLO
+        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727060AbgBFQKz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 11:10:55 -0500
+X-EEMSG-check-017: 55563002|UPDC19PA22_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,410,1574121600"; 
-   d="scan'208";a="55691129"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2020 16:03:15 +0000
+   d="scan'208";a="55563002"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2020 16:10:45 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581004996; x=1612540996;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=8cnBPdKCcZwMpUZeLc8Sm4KzOktm9HHzPc0nvRkaVUM=;
-  b=BbRaP2eIMKTZfuojM5q7ZlnDwZX2Evd/qQtdkHoTjfQPQiMNhOhkUNwh
-   zFMIhIJ7iSDG+GnC2iOcY0q8uVdDJZL+UfoixbZmQWbncIWliGjod/dss
-   09B8wrPhkIEd/x9u06t9P7iuUwBX8SxxoruzoRDmNM0dBgYioqgQp4xVw
-   sFOrLlmkeEvyMpQw02X7DLUu+6qnFl4ajdsMRHIBk27QT/0NhTfRHbztr
-   cAjVo2wX6RIzdEf9ZlZRSrmwGiB7iuTq7BqCQyuUocc359F/jEj/qpaTB
-   gddOgbsMSjpdOiGLuBvZ2v/Y3V8Ucboof3oB2IGui+XM4nzWpld6k5Wjo
-   Q==;
+  s=tycho.nsa.gov; t=1581005446; x=1612541446;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=+ojRFYKT7YNH4xZ7d/hDlDIr2dUe/e16dlsanCcqxoU=;
+  b=p06uxb4xLir6OCkJE2U5jbBnOEGk/P+4OmDAq7GI03kDcA/T6kyuxL9h
+   BYTPL09sRoo+et7qdzTIp5lDaqOG/c6NI7egxPkDDtN1ZacdWz/gouEYk
+   36+GxQ4kyrDHhvmalkf34ANAUl+iKTKhI36VX5DIQHyW4F6QUEIMK9t9Z
+   WvBCK1o3slZHa85rCdw1MUNGmJQwCOGuUusAKXAuznnpd/6XPuwwM+x/I
+   bAY+ZXMr8ekzO7XkoXowJ20sor9W3xGgUgB9T8hgVNzXr8Y8xPoDaIjFU
+   l/g4QXLmctivrGNc1fSLJclYeUIldL/gEZQ7+TE8m0wXB8+KgpKuVrf2C
+   w==;
 X-IronPort-AV: E=Sophos;i="5.70,410,1574121600"; 
-   d="scan'208";a="38761459"
-IronPort-PHdr: =?us-ascii?q?9a23=3AEE+CxxeyiXCo+bc9ou7zfl1IlGMj4u6mDksu8p?=
- =?us-ascii?q?Mizoh2WeGdxcS5Yx7h7PlgxGXEQZ/co6odzbaP7+a9AidQuN7B6ClELMUXEU?=
- =?us-ascii?q?ddyI0/pE8JOIa9E0r1LfrnPWQRPf9pcxtbxUy9KlVfA83kZlff8TWY5D8WHQ?=
- =?us-ascii?q?jjZ0IufrymUoHdgN6q2O+s5pbdfxtHhCanYbN1MR66sRjdutMZjId/Jas90B?=
- =?us-ascii?q?vEr3VHd+lV2G9jOFafkwrh6suq85Nv7ipdt+g9+8JcVKnxYrg1Q6FfADk6KW?=
- =?us-ascii?q?4++dfltQPETQuB53scVnsZnx9VCAXb7x/0Q4n8vDLiuuVyxCeVM8v2TaspWT?=
- =?us-ascii?q?u59KdkVAXoiCYcODEn9mzcl9F9g7haoBKloBx/3pLUbYSIP/dwYq/RYdUXTn?=
- =?us-ascii?q?dPUcZLUyxKH52yYY0BAeEcOepUtofwql8LoRa4GAKiBv7gyiVQi3Hrw6M63e?=
- =?us-ascii?q?QvHwLI0gMuEN0BsmjbotruOacOUu241rXEwSnNYv5U3zr29YjGcgomofGJRb?=
- =?us-ascii?q?9wc8TQxlU1GAPfklWct5HuMjSX1uUDr2eU9fBgVf6xh2M8twFwoiSgxscrio?=
- =?us-ascii?q?XTgIIV0UrL+T92wIYyO921UUh2asOnHptIryyWKoR7T8w4T2xopSo20KMKtJ?=
- =?us-ascii?q?GlcCQQ1ZgqwQPUZeadfIiS+B3jUf6cITJ/hH14Zr2ynw2y8U28yu3kUcm0zU?=
- =?us-ascii?q?pKojJFktbSsnAN0ATe6tSdRftn/0ehxC2P2xrS6uFCL0A0krHbJIA9zbIqip?=
- =?us-ascii?q?oSsVjMHi/xmEnsiq+Zal4k9fSy5+TiY7XmooeQN45yig7gLqQjgtGzDOs3Pw?=
- =?us-ascii?q?QUX2WX5P6w2KPs8EHnWrlGk+U6kqzDv5DbIcQbqLS5AwhQ0os76Ra+ASup38?=
- =?us-ascii?q?4CnXkbMl5IYw6Hjoj1NFHOJ/D0F/G/g0+2nztxyPDGOaPhDo3XLnffiLfhYa?=
- =?us-ascii?q?p960lExQoo099f45NUCrccIPP8QULxqtPYAQEjMwCuwOboFs991oUAVmKLGK?=
- =?us-ascii?q?OZN7nSsVDbrt4odtKQaZcVtTC1EP0s4/rjnDdtglMGVbW41psQLnajF7JpJF?=
- =?us-ascii?q?vPJTL3j9MAF3oalhQxQfasi1CYVzNXIXGoUPES/DY+XYC5Bo7ZWtrl1L6e1y?=
- =?us-ascii?q?6hAsd+enFNClfKF2zhMYqDRaFfO2qpPsZ9n2lcBvCaQIg72ETr7173?=
-X-IPAS-Result: =?us-ascii?q?A2ATAwDaNzxe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YFsIRIWFIQViQOHfyWUF4ckCQEBAQEBAQEBATcBAYRAAoJhOBMCEAEBAQQBA?=
- =?us-ascii?q?QEBAQUDAQFshUOCOymDAwEFIw8BBVEJAgkFCgICJgICVwYBDAYCAQGCYz8rA?=
- =?us-ascii?q?YJQkDibeIEyhUqDXYE+gQ4qjX1AgREnDAOCLy4+h1uCXgSBPwGMIooiiDGPN?=
- =?us-ascii?q?gaCPpZABhubC4s0gy6dNCKBWCsKQYFogU5QGA2OKRcVjiwjAzCOSgEB?=
+   d="scan'208";a="32766272"
+IronPort-PHdr: =?us-ascii?q?9a23=3A1wOI+R1kwVnY6cv/smDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZsesWKPvxwZ3uMQTl6Ol3ixeRBMOHsq4C1rGd4/moGTRZp8rY6zZaKN0Efi?=
+ =?us-ascii?q?RGoP1epxYnDs+BBB+zB9/RRAt+Iv5/UkR49WqwK0lfFZW2TVTTpnqv8WxaQU?=
+ =?us-ascii?q?2nZkJ6KevvB4Hdkdm82fys9J3PeQVIgye2ba9vIBmsogjdq8YbjZFiJ6s/xR?=
+ =?us-ascii?q?fEoWZEcPlSyW90OF6fhRnx6tq+8ZJ57yhcp/ct/NNcXKvneKg1UaZWByk8PW?=
+ =?us-ascii?q?Av483ruxjDTQ+R6XYZT24bjBlGDRXb4R/jRpv+vTf0ueR72CmBIM35Vqs0Vi?=
+ =?us-ascii?q?i476dqUxDnliEKPCMk/W7Ni8xwiKVboA+9pxF63oXZbp2ZOOZ4c6jAZt4RW3?=
+ =?us-ascii?q?ZPUdhNWCxAGoO8bpUAD+wdPeZDsoLxo0ICoQaiCQWwAe/izDFHhmXy3aYnze?=
+ =?us-ascii?q?ovFw/I1xEkE94XvnnZqND5OaEPWu630abI1y3OYe5I1zfz6IbGcR4vrv+DUr?=
+ =?us-ascii?q?1ybcXfxlIiFx/Hg1iKtYDpIz2Y2+YLvmOG7+RgT+Wvi2s/pg9svjig2N8sio?=
+ =?us-ascii?q?nXiYIT11vK6CB5z5wxJd28VkF6YcOvHZxLty6HLIt7Wd8iQmF0tyY6zb0Ko5?=
+ =?us-ascii?q?i7fDMQx5g9yB7fbOKHfpGO7xn+V+iROS91iG9qdb+wnRq/8VWsxvfiWsS7zl?=
+ =?us-ascii?q?pGtDdJn9/RvX4XzRPT8NKISv5l80ek3jaAyh7c5/lfIUAxiarbM5khwqMslp?=
+ =?us-ascii?q?YLsUTMACv2mELuga+KbEok4Omo6/n8Yrn8p5+cMYF0igblMqswhsOzG/g4Mw?=
+ =?us-ascii?q?gSUGib/uSwzrvj8lHiQLpWlPE2l6jZsJTCKcQaoK62HRNV354+5xuwADqqyt?=
+ =?us-ascii?q?QVkWQdIF5bdx+LkZLlN0zWLPD9F/i/glCskDlxx/DBO73sGo7NIWXYkLr6Yb?=
+ =?us-ascii?q?Z861JTyAo0zdxF4ZJUEasOLOj8Wk/2qtzUFgU5PBCsw+b7FNV90ZsTWXiOAq?=
+ =?us-ascii?q?CFMKPdq0WI6f83LOaQfIAVuCzyK/kj5/Hwln80gkQSfbWo3ZsRdHC3AO5mI0?=
+ =?us-ascii?q?OHbnrwmNsODWAKvg8mRuzwlFKCSSJTZ2q1X68k/TE0FoamDYbFRoCwj72Mxz?=
+ =?us-ascii?q?m7HpJIaWBcEFyMEmnnd5+CW/gSbCKeOMhhkiYLVbK5UY8uyQmutBPmy7pgNu?=
+ =?us-ascii?q?fb5y0YtZXt1ddr4+3TkQoy+CduD8uDzm6NT3t7nn8SSzAq26B/pB819lDW66?=
+ =?us-ascii?q?lzg/VCGZRz7vJPXxxyYYTdxOxzEdzFUTXBd9aPRU2OSMmnBy08VNQ835kFZE?=
+ =?us-ascii?q?MrX525gxTC2Te6K6EamqbNB5Eu9K/YmX/rKJVT0XHDgZI9gkEmT80HDmivgq?=
+ =?us-ascii?q?py5kCHHILSu1mInKatM6IH1WjC83nVnjnGh11RTAMlCfaNZnsYfEaD6I2it0?=
+ =?us-ascii?q?4=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DsAAAiOTxe/wHyM5BmGwEBAQEBAQEFAQEBEQEBAwMBA?=
+ =?us-ascii?q?QGBe4F9gWwhEiqEFYkDhmMBAQEGgRIliXCRSwkBAQEBAQEBAQE3AQGEQAKCY?=
+ =?us-ascii?q?TgTAhABAQEEAQEBAQEFAwEBbIVDgjspAYMCAQUjFUEQCxgCAiYCAlcGAQwGA?=
+ =?us-ascii?q?gEBgmM/gksDCSWsNYEyhUqDVYE+gQ4qjD15gQeBOAwDgl0+ghuFQIJeBJZdY?=
+ =?us-ascii?q?UaXZ4JEgk6TcgYbgkiMWItrjmKBS5tpIoFYKwgCGAghD4MnUBgNjikXjkEjA?=
+ =?us-ascii?q?zCMByqCGQEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Feb 2020 16:03:13 +0000
-Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 016G2Msk121908;
-        Thu, 6 Feb 2020 11:02:22 -0500
-Subject: Re: [PATCH] libsepol/cil: Rewrite verification of map classes and
- classpermissionsets
-To:     Stephen Smalley <sds@tycho.nsa.gov>, selinux@vger.kernel.org
-References: <20200131202450.25665-1-jwcart2@tycho.nsa.gov>
- <ac11d80b-c9fe-725b-8690-40abab87595f@tycho.nsa.gov>
-From:   jwcart2 <jwcart2@tycho.nsa.gov>
-Message-ID: <fff130df-5318-62e3-2476-703b2b071248@tycho.nsa.gov>
-Date:   Thu, 6 Feb 2020 11:04:32 -0500
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 06 Feb 2020 16:10:44 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 016G9qET122333;
+        Thu, 6 Feb 2020 11:09:53 -0500
+Subject: Re: [RFC PATCH 1/1] selinux-testsuite: Add additional key permission
+ tests
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+Cc:     dhowells@redhat.com
+References: <20200202193508.15056-1-richard_c_haines@btinternet.com>
+ <20200202193508.15056-2-richard_c_haines@btinternet.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <5a899c4c-dc1c-8019-e9af-cb387eb338c5@tycho.nsa.gov>
+Date:   Thu, 6 Feb 2020 11:11:47 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <ac11d80b-c9fe-725b-8690-40abab87595f@tycho.nsa.gov>
+In-Reply-To: <20200202193508.15056-2-richard_c_haines@btinternet.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/5/20 10:44 AM, Stephen Smalley wrote:
-> On 1/31/20 3:24 PM, James Carter wrote:
->> The classperms associated with each map class permission and with each
->> classpermissionset are verified in __cil_verify_classperms() which had
->> multiple problems with how it did the verification.
->>
->> 1) Verification was short-circuited when the first normal class is found.
->>    The second classpermissionset statement below would not have been
->>    verified.
->>      (classpermission cp1)
->>      (classpermissionset cp1 (CLASS (PERM)))
->>      (classpermissionset cp1 cp2)
->>
->> 2) The classperms of a map class permission and classpermissionset were
->> not checked for being NULL before the function recursively called itself.
->> This would result in a segfault if the missing map or set was referred to
->> before the classmap or classpermission occured. This error was reported by
->> Dominick Grift (dominick.grift@defensec.nl).
->>    These rules would cause a segfault.
->>      (classmap cm1 (mp1))
->>      (classmapping cm1 mp1 (cm2 (mp2)))
->>      (classmap cm2 (mp2))
->>    But an error would be produced for these rules.
->>      (classmap cm1 (mp1))
->>      (classmap cm2 (mp2))
->>      (classmapping cm2 mp2 (cm1 (mp1)))
->>
->> 3) The loop detection logic was incomplete and could only detect a loop
->> with a certain statement ordering.
->>    These rules would cause a stack overflow.
->>      (classmap cm1 (mp1))
->>      (classmapping cm1 mp1 (cm2 (mp2)))
->>      (classmap cm2 (mp2))
->>      (classmapping cm2 mp2 (cm3 (mp3)))
->>      (classmap cm3 (mp3))
->>      (classmapping cm3 mp3 (cm2 (mp2)))
->>
->> Rewrote __cil_verify_classperms() to fix these errors.
->>
->> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+On 2/2/20 2:35 PM, Richard Haines wrote:
+> Tests the new inval, revoke, join and clear permissions associated
+> with the key class that were added in kernel 5.x.
 > 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Note: These tests require a kernel patch (for key perms + policy
+> capability "key_perms"), and a libsepol patch.
 > 
->> ---
->>   libsepol/cil/src/cil_verify.c | 83 ++++++++++++++++-------------------
->>   1 file changed, 37 insertions(+), 46 deletions(-)
+> Permissions overview:
+> The current "setattr" perm name remains and is used for KEY_NEED_SETSEC.
+> This gives the following permissions for the 'key' class:
+> create	Create a key or keyring.
+> view	View attributes.
+> read	Read contents.
+> write	Update or modify.
+> search	Search (keyring) or find (key).
+> link	Link a key into the keyring.
+> setattr	kernel < 5.x Change permissions on a keyring.
+> 	kernel >= 5.x Set owner, group, ACL.
+> inval	Invalidate key.
+> revoke	Revoke key.
+> join	Join keyring as session.
+> clear	Clear a keyring.
 > 
-> [...]
-> 
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>   policy/test_keys.te          | 139 ++++++++++++++++++++++++++++-------
+>   tests/keys/keyctl.c          |  39 ++++++++++
+>   tests/keys/keyring_service.c |  12 ++-
+>   tests/keys/request_keys.c    |  70 ++++++++++++++----
+>   tests/keys/test              |  63 ++++++++++++++--
+>   5 files changed, 273 insertions(+), 50 deletions(-)
 
-Applied.
+I'm going to defer real review of this patch until the kernel patch is 
+finalized, but I did want to note that ultimately you are going to need 
+to split up the test_keys.te file and only use the new permissions in a 
+separate file conditionally enabled based on whether they are defined in 
+all_perms.spt; otherwise, test policy build will break on existing systems.
 
--- 
-James Carter <jwcart2@tycho.nsa.gov>
-National Security Agency
+
