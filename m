@@ -2,133 +2,175 @@ Return-Path: <SRS0=oQIx=32=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-19.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD353C33CAC
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 17:41:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 532DAC33CAC
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 18:03:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 82D6220659
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 17:41:55 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ngP4xCY6"
+	by mail.kernel.org (Postfix) with ESMTP id 27B6621775
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 18:03:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727630AbgBFRlz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Feb 2020 12:41:55 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:42305 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727390AbgBFRlz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 12:41:55 -0500
-Received: by mail-wr1-f67.google.com with SMTP id k11so8218733wrd.9
-        for <selinux@vger.kernel.org>; Thu, 06 Feb 2020 09:41:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=U9OXcPG12UwPDGhba8aZ3jjsJVsDnAQO2tciRVW5geM=;
-        b=ngP4xCY6wacbOmTHhsdVSF55kYaEkRBzdNC8IfeIIDmlXeTpghQhsdfTcqEOact+Z8
-         45/VpoCP29aWKah4DwRmKwNs9rB5TnJQMP3eoL3o/e/NxbxkPEDV2ug2LllijRL7uCt1
-         ZrvYPmZ3ZoP9z8eHheKw7Hoz02m5DRcSGZS2iXLBYre6cHLXbEtp5o4XZ9b1qMR6HO4A
-         MG97uN8mP70pXGy9OOZwpB2DuXyMPS/xT+MTZKfRygbX/FcMTu+7/1ERA4ugH+WWpkzp
-         WpT4m6ifOEQlHgemP3J31mMROxAuru0BVPIT/PNUaWkh/TGJcn2KIMRuD1Z2goXHfkTN
-         aYyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=U9OXcPG12UwPDGhba8aZ3jjsJVsDnAQO2tciRVW5geM=;
-        b=QgZeePJM4UwEdRN1xSca6fOSYBT6ruoJzk0QRtxCwrD79Kg4WZW1Rr/JPQ1t5Te7Uu
-         8pkCb7lBFYUOf2o2gsh5wDgT5TcYA4ILSrmhdGjuobWFXqpWcJVtkbUQtQXhrxpCy7Ro
-         PAhnHi0HOFkG/BbeQ+Ti99yHbBNvmhKK+GsKzFYbT5P+7miY+Vbth2eZxW3kGXG5NhAU
-         pV60KBEwDyiHsZPaJLa+3LbjG7pCU7WlvDwZYNFrj4NxRkvucjXPVxPosCVri2ornD9x
-         cZ/uNE3VNorhR5O+pusQTN0UNNpp4CFZJF1GBvv1CoLn288Wk6ts+FJVKF/EjG3+4yYh
-         fYRg==
-X-Gm-Message-State: APjAAAUx8fFxxFlW96LySa3k+mo44Ufgmtx6D62fxePxpyzdXXpQOH41
-        WfhizCNv50u6y9zFLfTpv1X8R3mJuUduXqrh3CyV4w==
-X-Google-Smtp-Source: APXvYqzjet/hfRBYfmZFgn0400om2VW1KPBkeTebjwpDzwK/tu31IXYR6QjG29lShPEHGwpObeWmwfJOA7LMKGTzCvE=
-X-Received: by 2002:adf:e683:: with SMTP id r3mr5226274wrm.38.1581010912572;
- Thu, 06 Feb 2020 09:41:52 -0800 (PST)
+        id S1727685AbgBFSDo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Feb 2020 13:03:44 -0500
+Received: from mga04.intel.com ([192.55.52.120]:38928 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727662AbgBFSDo (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 6 Feb 2020 13:03:44 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 Feb 2020 10:03:43 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,410,1574150400"; 
+   d="scan'208";a="236053402"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga006.jf.intel.com with ESMTP; 06 Feb 2020 10:03:42 -0800
+Received: from [10.251.88.4] (abudanko-mobl.ccr.corp.intel.com [10.251.88.4])
+        by linux.intel.com (Postfix) with ESMTP id 1AA19580698;
+        Thu,  6 Feb 2020 10:03:32 -0800 (PST)
+Subject: Re: [PATCH v5 01/10] capabilities: introduce CAP_PERFMON to kernel
+ and user space
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Serge Hallyn <serge@hallyn.com>,
+        James Morris <jmorris@namei.org>
+Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Will Deacon <will.deacon@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        oprofile-list@lists.sf.net, Andy Lutomirski <luto@amacapital.net>
+References: <0548c832-7f4b-dc4c-8883-3f2b6d351a08@linux.intel.com>
+ <9b77124b-675d-5ac7-3741-edec575bd425@linux.intel.com>
+ <64cab472-806e-38c4-fb26-0ffbee485367@tycho.nsa.gov>
+ <05297eff-8e14-ccdf-55a4-870c64516de8@linux.intel.com>
+ <CAADnVQK-JzK-GUk4KOozn4c1xr=7TiCpB9Fi0QDC9nE6iVn8iQ@mail.gmail.com>
+ <537bdb28-c9e4-f44f-d665-25250065a6bb@linux.intel.com>
+ <63d9700f-231d-7973-5307-3e56a48c54cb@linux.intel.com>
+ <d7213569-9578-7201-6106-f5ebc95bd6be@tycho.nsa.gov>
+ <ac0dbab7-de47-ee34-bb88-4c43d3538b7d@linux.intel.com>
+Organization: Intel Corp.
+Message-ID: <2b608e26-354b-3df9-aea9-58e56dc0c5e5@linux.intel.com>
+Date:   Thu, 6 Feb 2020 21:03:31 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.2
 MIME-Version: 1.0
-References: <20200206165527.211350-1-smoreland@google.com> <91465612-2fb2-5985-ba45-d4d9fcf0f70c@tycho.nsa.gov>
- <c61fc8f6-55c2-c717-5090-e535b7bdbb4f@tycho.nsa.gov>
-In-Reply-To: <c61fc8f6-55c2-c717-5090-e535b7bdbb4f@tycho.nsa.gov>
-From:   Steven Moreland <smoreland@google.com>
-Date:   Thu, 6 Feb 2020 09:41:41 -0800
-Message-ID: <CAKLm694DMH0JCpHuT4HgMd4yCNJZPFMpex8iEiRF9kRjPb0d6g@mail.gmail.com>
-Subject: Re: [PATCH] security: selinux: allow per-file labeling for bpffs
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     paul@paul-moore.com, eparis@parisplace.org, keescook@chromium.org,
-        anton@enomsg.org, Colin Cross <ccross@android.com>,
-        tony.luck@intel.com, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-team@android.com,
-        "Connor O'Brien" <connoro@google.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <ac0dbab7-de47-ee34-bb88-4c43d3538b7d@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 6, 2020 at 9:35 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> On 2/6/20 12:21 PM, Stephen Smalley wrote:
-> > On 2/6/20 11:55 AM, Steven Moreland wrote:
-> >> From: Connor O'Brien <connoro@google.com>
-> >>
-> >> Add support for genfscon per-file labeling of bpffs files. This allows
-> >> for separate permissions for different pinned bpf objects, which may
-> >> be completely unrelated to each other.
-> >
-> > Do you want bpf fs to also support userspace labeling of files via
-> > setxattr()?  If so, you'll want to also add it to
-> > selinux_is_genfs_special_handling() as well.
-> >
 
-Android doesn't currently have this use case.
+On 22.01.2020 17:25, Alexey Budankov wrote:
+> 
+> On 22.01.2020 17:07, Stephen Smalley wrote:
+>> On 1/22/20 5:45 AM, Alexey Budankov wrote:
+>>>
+>>> On 21.01.2020 21:27, Alexey Budankov wrote:
+>>>>
+>>>> On 21.01.2020 20:55, Alexei Starovoitov wrote:
+>>>>> On Tue, Jan 21, 2020 at 9:31 AM Alexey Budankov
+>>>>> <alexey.budankov@linux.intel.com> wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 21.01.2020 17:43, Stephen Smalley wrote:
+>>>>>>> On 1/20/20 6:23 AM, Alexey Budankov wrote:
+>>>>>>>>
+>>>>>>>> Introduce CAP_PERFMON capability designed to secure system performance
+>>>>>>>> monitoring and observability operations so that CAP_PERFMON would assist
+>>>>>>>> CAP_SYS_ADMIN capability in its governing role for perf_events, i915_perf
+>>>>>>>> and other performance monitoring and observability subsystems.
+>>>>>>>>
+>>>>>>>> CAP_PERFMON intends to harden system security and integrity during system
+>>>>>>>> performance monitoring and observability operations by decreasing attack
+>>>>>>>> surface that is available to a CAP_SYS_ADMIN privileged process [1].
+>>>>>>>> Providing access to system performance monitoring and observability
+>>>>>>>> operations under CAP_PERFMON capability singly, without the rest of
+>>>>>>>> CAP_SYS_ADMIN credentials, excludes chances to misuse the credentials and
+>>>>>>>> makes operation more secure.
+>>>>>>>>
+>>>>>>>> CAP_PERFMON intends to take over CAP_SYS_ADMIN credentials related to
+>>>>>>>> system performance monitoring and observability operations and balance
+>>>>>>>> amount of CAP_SYS_ADMIN credentials following the recommendations in the
+>>>>>>>> capabilities man page [1] for CAP_SYS_ADMIN: "Note: this capability is
+>>>>>>>> overloaded; see Notes to kernel developers, below."
+>>>>>>>>
+>>>>>>>> Although the software running under CAP_PERFMON can not ensure avoidance
+>>>>>>>> of related hardware issues, the software can still mitigate these issues
+>>>>>>>> following the official embargoed hardware issues mitigation procedure [2].
+>>>>>>>> The bugs in the software itself could be fixed following the standard
+>>>>>>>> kernel development process [3] to maintain and harden security of system
+>>>>>>>> performance monitoring and observability operations.
+>>>>>>>>
+>>>>>>>> [1] http://man7.org/linux/man-pages/man7/capabilities.7.html
+>>>>>>>> [2] https://www.kernel.org/doc/html/latest/process/embargoed-hardware-issues.html
+>>>>>>>> [3] https://www.kernel.org/doc/html/latest/admin-guide/security-bugs.html
+<SNIP>
+>>>>>>>>
+>>>>>>>> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
+>>>>>>>
+>>>>>>> Why _noaudit()?  Normally only used when a permission failure is non-fatal to the operation.  Otherwise, we want the audit message.
+>>>
+>>> So far so good, I suggest using the simplest version for v6:
+>>>
+>>> static inline bool perfmon_capable(void)
+>>> {
+>>>     return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
+>>> }
+>>>
+>>> It keeps the implementation simple and readable. The implementation is more
+>>> performant in the sense of calling the API - one capable() call for CAP_PERFMON
+>>> privileged process.
+>>>
+>>> Yes, it bloats audit log for CAP_SYS_ADMIN privileged and unprivileged processes,
+>>> but this bloating also advertises and leverages using more secure CAP_PERFMON
+>>> based approach to use perf_event_open system call.
+>>
+>> I can live with that.  We just need to document that when you see both a CAP_PERFMON and a CAP_SYS_ADMIN audit message for a process, try only allowing CAP_PERFMON first and see if that resolves the issue.  We have a similar issue with CAP_DAC_READ_SEARCH versus CAP_DAC_OVERRIDE.
+> 
+> perf security [1] document can be updated, at least, to align and document 
+> this audit logging specifics.
 
-> > The only caveat I would note here is that it appears that bpf fs
-> > supports rename, link, unlink, rmdir etc by userspace, which means that
-> > name-based labeling via genfscon isn't necessarily safe/stable.  See
-> > https://github.com/SELinuxProject/selinux-kernel/issues/2
-> >
+And I plan to update the document right after this patch set is accepted.
+Feel free to let me know of the places in the kernel docs that also
+require update w.r.t CAP_PERFMON extension.
 
-Android restricts ownership of these files to a single process (bpfloader) and
-so this isn't a concern in our architecture. Is it a concern in general?
+~Alexey
 
-> >> Change-Id: I03ae28d3afea70acd6dc53ebf810b34b357b6eb5
-> >
-> > Drop Change-Ids from patches submitted upstream please since they aren't
-> > meaningful outside of Android.
-> >
-
-Yeah, will resubmit, thanks.
-
-> >> Signed-off-by: Connor O'Brien <connoro@google.com>
-> >> Signed-off-by: Steven Moreland <smoreland@google.com>
-> >> ---
-> >>   security/selinux/hooks.c | 1 +
-> >>   1 file changed, 1 insertion(+)
-> >>
-> >> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> >> index de4887742d7c..4f9396e6ce8c 100644
-> >> --- a/security/selinux/hooks.c
-> >> +++ b/security/selinux/hooks.c
-> >> @@ -872,6 +872,7 @@ static int selinux_set_mnt_opts(struct super_block
-> >> *sb,
-> >>           !strcmp(sb->s_type->name, "sysfs") ||
-> >>           !strcmp(sb->s_type->name, "pstore") ||
-> >>           !strcmp(sb->s_type->name, "binder") ||
-> >> +        !strcmp(sb->s_type->name, "bpf") ||
-> >>           !strcmp(sb->s_type->name, "cgroup") ||
-> >>           !strcmp(sb->s_type->name, "cgroup2"))
-> >>           sbsec->flags |= SE_SBGENFS;
-> >>
->
-> Also, your patch appears to be based on an old kernel and won't apply
-> upstream; see
-> https://github.com/SELinuxProject/selinux-kernel/blob/master/README.md
->
-
-Will resubmit, thanks.
+> 
+> ~Alexey
+> 
+> [1] https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
+> 
