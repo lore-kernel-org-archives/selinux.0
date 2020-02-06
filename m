@@ -7,82 +7,88 @@ X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFB40C33CAC
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 15:45:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BECEC33CAC
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 15:48:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ABC9E214AF
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 15:45:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2AB8A214AF
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 15:48:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="hM5oLo4A"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="hop9NlML"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727620AbgBFPpy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Feb 2020 10:45:54 -0500
-Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:22447 "EHLO
-        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727060AbgBFPpx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 10:45:53 -0500
-X-EEMSG-check-017: 53449509|USFB19PA36_ESA_OUT06.csd.disa.mil
+        id S1727440AbgBFPsn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Feb 2020 10:48:43 -0500
+Received: from UPDC19PA23.eemsg.mail.mil ([214.24.27.198]:19144 "EHLO
+        UPDC19PA23.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727389AbgBFPsn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 10:48:43 -0500
+X-EEMSG-check-017: 55815733|UPDC19PA23_ESA_OUT05.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,410,1574121600"; 
-   d="scan'208";a="53449509"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2020 15:45:52 +0000
+   d="scan'208";a="55815733"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA23.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2020 15:48:41 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581003952; x=1612539952;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=mDZub8nnCsHitc2hxMNb7MT3aXJ5f8xXyLojiMK5NUw=;
-  b=hM5oLo4A4swyOcSKiVXjeJcArjpA81ak2VTaLUAzojPDglaY0XLjN189
-   iwZoja3GeLCDmHSeTdW1VIexi1c5wwsFC923/9bhRqcqtMVYOZsRF5m9j
-   xQan23U6VgGkUy5NhF5kKX+hFnPMFzVTb1nFmg8hyM9U8//KhlZmtqxe1
-   g1Gr0ZHL0zr7c8nfDBkeKNOuXcA7yJwQlqzvCwNGGlsqoCV67tWRyonwP
-   9L1ZG6wzBLsYIs4kN/UbHseoqtTiabpxyE8G8m++1nOqQJbyMlZxLkWNA
-   dnfuNmUvi0Y6anM78UC5vaxuv1lugDBVdtJHs9YpQuI16lqoOcSocOMhZ
+  s=tycho.nsa.gov; t=1581004121; x=1612540121;
+  h=subject:from:to:references:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=3CBBJjVv81Y8DfZxCm0Vf3FzVn/2MUkLXjGyrW6zlog=;
+  b=hop9NlMLsuy3pk8/Hswzbz4rxWXHyUN3UGYynEcurZSUq6hMDgnn/sFx
+   I27hugWAIc8o8W5urIPotnwgh3jjowFxeQs5VI6z6J4i6tZHV3gaSuwsN
+   XEHAXEoq7NpElexMf9AdXEp5BgEtAIg71lgJV2VROsIHNF2VZsAXAkqjD
+   5clxq3rOZVsvc3zpBke2KMHQ1K07l2RkF9NJhiQOhhpE5Hp6hFpSEeaHP
+   dwZeogMFUdep9s8O7r2MqGMQmjYBqsDS5qt5tT3U8w/JzvZIw3WjkwjE0
+   r6urY3YXkd+408YUYH3ZslrZabU3ATTzJUclpnuaizaStyyCT5KG4mXfB
    Q==;
 X-IronPort-AV: E=Sophos;i="5.70,410,1574121600"; 
-   d="scan'208";a="38759739"
-IronPort-PHdr: =?us-ascii?q?9a23=3A0E52rh9x5DrZmP9uRHKM819IXTAuvvDOBiVQ1K?=
- =?us-ascii?q?B30+4cTK2v8tzYMVDF4r011RmVBNmdtqkP1LWe8/i5HzBZutDZ6DFKWacPfi?=
- =?us-ascii?q?dNsd8RkQ0kDZzNImzAB9muURYHGt9fXkRu5XCxPBsdMs//Y1rPvi/6tmZKSV?=
- =?us-ascii?q?3wOgVvO+v6BJPZgdip2OCu4Z3TZBhDiCagbb9oIxi6sArcutMWjIZsJao8yB?=
- =?us-ascii?q?nEqWZMd+hK2G9kP12ekwvy68uq4JJv7yFcsO89+sBdVqn3Y742RqFCAjQ8NG?=
- =?us-ascii?q?A16szrtR3dQgaK+3ARTGYYnAdWDgbc9B31UYv/vSX8tupmxSmVJtb2QqwuWT?=
- =?us-ascii?q?Sj9KhkVhnlgzoaOjEj8WHXjstwjL9HoB+kuhdyzZLYbJ2TOfFjcKzdZ9caTn?=
- =?us-ascii?q?dfUMhXWSJKH4ewY5IPAucFOOpVqZT2qVkTohukHQSiGf3hyjFIiHH106M13e?=
- =?us-ascii?q?suHgPa0wIvBN8OrHbZoc/pOKsOX+24zq/FxijDYfNM3jf97ZDFfA09of6SRb?=
- =?us-ascii?q?JwcdTeyU8yHA3Yi1Wfs4jlPzeL2eUNrmOW6PFgWv+0i2M8twFwoiSgxscrio?=
- =?us-ascii?q?XTgIIV0UrL+T92wIYyO921UUh2asOnHptIryyWKoR7T8w4T2xopSo20KMKtJ?=
- =?us-ascii?q?GlcCQQ1ZgqwQPUZeadfIiS+B3jUf6cITJ/hH14Zr2ynw2y8U28yu3kUcm0zU?=
- =?us-ascii?q?pKojJFktbSsnAN0ATe6tSdRftn/0ehxC2P2xrS6uFCL0A0krHbJIA9zbIqip?=
- =?us-ascii?q?oSsVjMHi/xmEnsiq+Zal4k9fSy5+TiY7XmooeQN45yig7gLqQjgtGzDOs3Pw?=
- =?us-ascii?q?QUX2WX5P6w2KPs8EHnWrlGk+U6kqzDv5DbIcQbqLS5AwhQ0os78BawEiym3c?=
- =?us-ascii?q?8EnXgHMF1FeBWHg5LvO1HVOv/0F/i/g1OykDtz3fDJIqXhAonRLnjEiLrhZq?=
- =?us-ascii?q?hy60pdyAo10NBe6IlZCq8OIP3tQE/9rt/YAQEjMwyy3ennDM9x1oQEWWKAUe?=
- =?us-ascii?q?elN/bJvFuJ4P8/C/eDaZVTuzvnLfUhofn0giwXg1gYKJK10IMXZXbwJfFvJ0?=
- =?us-ascii?q?GUcDK4mdsaOXsbtQo5CurxgRuNViAFNCX6ZL41+jxuUNHuNozEXI34xeHQ0Q?=
- =?us-ascii?q?=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AeAQBnNDxe/wHyM5BmHQEBAQkBEQUFAYFqBQELAYF8g?=
- =?us-ascii?q?WwhEiqEFYkDhmQBAQEGgTeJcJFLCQEBAQEBAQEBATcBAYRAAoJhNwYOAhABA?=
- =?us-ascii?q?QEEAQEBAQEFAwEBbIVDgjspgwMBBSMVQRALGAICJgICVxMGAgEBgmM/glclr?=
- =?us-ascii?q?DGBMoVKg2mBPoEOKgGMPHmBB4E4D4JdPoUYgkOCXgSXPkaIMY82gkSCTopCi?=
- =?us-ascii?q?TAGG5sLrBUjgVgrCAIYCCEPgydQGA2OKRcVjiwjAzCOSgEB?=
+   d="scan'208";a="32764356"
+IronPort-PHdr: =?us-ascii?q?9a23=3A+ndKFBc4tElZ9BsyVmyE7fD3lGMj4u6mDksu8p?=
+ =?us-ascii?q?Mizoh2WeGdxcW9Zx7h7PlgxGXEQZ/co6odzbaP7+a9Aidfvt7B6ClELMUXEU?=
+ =?us-ascii?q?ddyI0/pE8JOIa9E0r1LfrnPWQRPf9pcxtbxUy9KlVfA83kZlff8TWY5D8WHQ?=
+ =?us-ascii?q?jjZ0IufrymUoHdgN6q2O+s5pbdfxtHhCanYbN1MR66sRjdutMZjId/Jas90B?=
+ =?us-ascii?q?vEr3VHd+lUx25jOFafkwrh6suq85Nv7ipdt+g9+8JcVKnxYrg1Q6FfADk6KW?=
+ =?us-ascii?q?4++dfltQPETQuB53scVnsZnx9VCAXb7x/0Q4n8vDLiuuVyxCeVM8v2TaspWT?=
+ =?us-ascii?q?u59KdkVAXoiCYcODEn9mzcl9F9g7haoBKloBx/3pLUbYSIP/dwYq/RYdUXTn?=
+ =?us-ascii?q?daU81PSyJOHJ+zb4oXD+oAI+lYqZX9p0ATphe6HAWgGf/jxiNNinLw06I6ye?=
+ =?us-ascii?q?AhGhzY0gImEdwFrXDYoMz7OaoWVOy4yrTDwzfeYPNMwTrz9YjGfA4vof+PU7?=
+ =?us-ascii?q?x/f8XexkszGA3KlViQtY7oMimJ2ugRvWWW7extXv+vhW49rAFxpyCiyNowio?=
+ =?us-ascii?q?bXnoIVyk7L9SNky4goIN23Ukp7Ydq6H5pQqiqXMJB2Td45Q2xzpCY7yqEJuZ?=
+ =?us-ascii?q?68fCQQzpQn3ATQZ+aIc4iP/BLuTeCcKip7inJ9YL+zmhm//Ee6xuD8S8W4yk?=
+ =?us-ascii?q?hGoyVbntXWq3wA0QHY5NKdRftn5Eih3C6C1wXU6u5ZP085jbHbK5s9wr4okZ?=
+ =?us-ascii?q?oTrFjDEjf2mEroiK+WcV0p+vSy5OT9Y7Xmu4ScO5V1igH4PKQunde/DvokPQ?=
+ =?us-ascii?q?QUQ2ia+fiz1L3k/UHjRrVFkuY2nbXDvJDfJMQbora1Aw5T0ok99xayFyqq3d?=
+ =?us-ascii?q?sXkHUdLF9JZQiLg5bmNl3QOvz0EO+zg1G2nzdqw/DGMKfhApLILnXbi7fuYK?=
+ =?us-ascii?q?195lVAyAsz0d9f55VUBqsHIPLoQED9rtPYDhgnMwCs2eboFM191p8CWWKIGq?=
+ =?us-ascii?q?KZKqLSvkOI5u01OemDeZcatyrlJPgl/fHujHk5lkEGfaSyxpQXdHG4HvJ6I0?=
+ =?us-ascii?q?qHe3rshMkOEXsQsgUiS+zqjUWIUSRPaHaqQ6I8+jY7BZq9DYjdQoCtgbqB3D?=
+ =?us-ascii?q?q0H5BNeGBGBU6DEW3ye4WHRfgMciSSLdFlkjAeUrihUYAhhlmSs1rAyrFnJ/?=
+ =?us-ascii?q?DYsg0RtJTuz5Ah/ezYlRgo+Qt/OMSU0meAVEl+gmIOWzIs2q1j50d6zwHHmb?=
+ =?us-ascii?q?N1h/1eCMx7+fxESEE5OITawug8DMr9CSzbedLcc0qrWtWrB3kKS9s1x9IfKx?=
+ =?us-ascii?q?JmF86KkgHI3y3sBaQc0bOMGspnoernw3HtKpMlmD793647ggxjG5AeOA=3D?=
+ =?us-ascii?q?=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DAAgBnNDxe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFsIRIqhBWJA4ZkAQEBBoE3iXCRSwkBAQEBAQEBAQE3AQGEQAKCYTgTAhABA?=
+ =?us-ascii?q?QEEAQEBAQEFAwEBbIVDgjspAYMCAQUjFVELGAICJgICVwYBDAYCAQGCYz+CS?=
+ =?us-ascii?q?wMJJawxgTKJM4E+gQ4qjD15gQeBOA+CXT6CG4VAgl4Elz5GiDGPNoJEgk6Tc?=
+ =?us-ascii?q?gYbgjiYUy2ONZ00IoFYKwgCGAghD4MnUBgNnQEjAzCOSgEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Feb 2020 15:45:49 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 06 Feb 2020 15:48:39 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 016FixCE111542;
-        Thu, 6 Feb 2020 10:44:59 -0500
-Subject: Re: [PATCH v2] libsepol,checkpolicy: support omitting unused initial
- sid contexts
-To:     selinux@vger.kernel.org
-Cc:     jwcart2@tycho.nsa.gov
-References: <20200129150104.50720-1-sds@tycho.nsa.gov>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 016Flm72111705;
+        Thu, 6 Feb 2020 10:47:48 -0500
+Subject: Re: [PATCH 1/1] selinux-testsuite: Add watch_sb and watch_mount
+ checks
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <503fabdb-fe25-3bd2-dc4a-af0b4217bf72@tycho.nsa.gov>
-Date:   Thu, 6 Feb 2020 10:46:53 -0500
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+References: <20200130190732.110012-1-richard_c_haines@btinternet.com>
+ <20200130190732.110012-2-richard_c_haines@btinternet.com>
+ <19defad5-2e33-8da5-ad91-c8bd4042f11b@tycho.nsa.gov>
+Message-ID: <64e281ab-5a3a-913a-1ea4-d5eb0348e92f@tycho.nsa.gov>
+Date:   Thu, 6 Feb 2020 10:49:42 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200129150104.50720-1-sds@tycho.nsa.gov>
+In-Reply-To: <19defad5-2e33-8da5-ad91-c8bd4042f11b@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -91,50 +97,21 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 1/29/20 10:01 AM, Stephen Smalley wrote:
-> Remove restrictions in libsepol and checkpolicy that required all
-> declared initial SIDs to be assigned a context.  With this patch,
-> it is possible to build and load a policy that drops the sid <sidname>
-> <context> declarations for the unused initial SIDs.  It is still
-> required to retain the sid <sidname> declarations (in the flask
-> definitions) in order to preserve the initial SID ordering/values.
-> The unused initial SIDs can be renamed, e.g. to add an unused_
-> prefix or similar, if desired, since the names used in the policy
-> are not stored in the kernel binary policy.
+On 2/4/20 8:44 AM, Stephen Smalley wrote:
+> On 1/30/20 2:07 PM, Richard Haines wrote:
+>> Test watch_sb and watch_mount permissions.
+>> The policy is contained in test_filesystem_notify.te as it can then be
+>> built if the policy supports the permissions.
+>>
+>> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 > 
-> In CIL policies, the (sid ...) and (sidorder (...)) statements
-> must be left intact for compatibility but the (sidcontext ...)
-> statements for the unused initial SIDs can be omitted after this change.
+> Tested with and without the watch permissions defined in base.cil and 
+> all_perms.spt; everything worked as expected.
 > 
-> With current kernels, if one removes an unused initial SID context
-> from policy, builds policy with this change applied and loads the
-> policy into the kernel, cat /sys/fs/selinux/initial_contexts/<sidname>
-> will show the unlabeled context.  With the kernel patch to remove unused
-> initial SIDs, the /sys/fs/selinux/initial_contexts/<sidname>
-> file will not be created for unused initial SIDs in the first place.
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 > 
-> NB If an unused initial SID was assigned a context different from
-> the unlabeled context in existing policy, then it is not safe to
-> remove that initial SID context from policy and reload policy on
-> the running kernel that was booted with the original policy.  This
-> is because that kernel may have assigned that SID to various kernel
-> objects already and those objects will then be treated as having
-> the unlabeled context after the removal.  In refpolicy, examples
-> of such initial SIDs are the "fs" SID and the "sysctl" SID.  Even
-> though these initial SIDs are not directly used (in code) by the current
-> kernel, their contexts are being applied to filesystems and sysctl files by
-> policy and therefore the SIDs are being assigned to objects.
-> 
-> NB The "sysctl" SID was in use by the kernel up until
-> commit 8e6c96935fcc1ed3dbebc96fddfef3f2f2395afc ("security/selinux:
-> fix /proc/sys/ labeling) circa v2.6.39.  Removing its context from
-> policy will cause sysctl(2) or /proc/sys accesses to end up
-> performing permission checks against the unlabeled context and
-> likely encounter denials for kernels < 2.6.39.
-> 
-> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-> ---
+>> ---
 
-This is now applied.
+Applied.
 
-[...]
+
