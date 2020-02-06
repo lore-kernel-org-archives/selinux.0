@@ -2,108 +2,154 @@ Return-Path: <SRS0=oQIx=32=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F04D7C33CAC
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 18:12:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7F70C352A2
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 18:22:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BD62821775
-	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 18:12:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6D35820659
+	for <selinux@archiver.kernel.org>; Thu,  6 Feb 2020 18:22:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="n8uMxpds"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="CxF9L7Gx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727768AbgBFSMK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Feb 2020 13:12:10 -0500
-Received: from USFB19PA32.eemsg.mail.mil ([214.24.26.195]:19294 "EHLO
-        USFB19PA32.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727747AbgBFSMK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 13:12:10 -0500
-X-EEMSG-check-017: 53882841|USFB19PA32_ESA_OUT02.csd.disa.mil
+        id S1727788AbgBFSWe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Feb 2020 13:22:34 -0500
+Received: from UPDC19PA20.eemsg.mail.mil ([214.24.27.195]:49774 "EHLO
+        UPDC19PA20.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727703AbgBFSWd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Feb 2020 13:22:33 -0500
+X-EEMSG-check-017: 55793019|UPDC19PA20_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,410,1574121600"; 
-   d="scan'208";a="53882841"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by USFB19PA32.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2020 18:12:07 +0000
+   d="scan'208";a="55793019"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA20.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 06 Feb 2020 18:22:29 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581012727; x=1612548727;
+  s=tycho.nsa.gov; t=1581013349; x=1612549349;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=4PMo+gFw18rYhgteclnTPCAGX/Iu/u9vd7kkq3t2kyQ=;
-  b=n8uMxpdsZhMMOJs+2xi+SY2f37i0wGEAA4A9IipF4VcAynCt25wICUDH
-   qHXzCARgrVw2q728SgZGsp9hobu70nAjht/1jIZB1tqLNBUfba4uWU/oh
-   eBUx6YoRGJ/Fvo2Cw7WAR+uQnqzocucyjen6JN5uVVuEgEn6HYBlkG7r9
-   sDLTky5vEPkQFnm4UYv+4wlMt1tJi5qJmVbLKNNao7fr9UZwPFBy/7vR0
-   W0tWi5M8qjvRpHgxOw6OVat2j/96w5AMmMab+5o48pgkJY+e28qkgoqdU
-   lFAOp7kV927UBJHDylDU1tHa3KkHU/v59MeiMui0ZC1urO5iAUfM4iNTX
+  bh=DztAPQ93eRcJAbhp841pIFS9gTvcTatSHOWa1u0UGrs=;
+  b=CxF9L7Gx3VQOIFZx4PrCtxkmXlg0Gvg/xIMATGJTVXtAZx4etFbzmcgs
+   saOc9bkplmunzJkfZGy91tC+xMEPpdoKOSNxNTcCOxXD9xjiMPwnzf+n+
+   6yBZDHaJnHiUIET1QHOyAT8srSbZH4hR5ZeV8wLgbSKfCib0SD2c/DS0i
+   pw5puvQ7BglolfLY+kvZv7zKmlwG0ckD8fAqKHRBUQpBqWb0ogGRfynZI
+   ipYBgb7RLjqhRgIIxugTUlTXfDpeN80mlE6+XbRbOecQNkC1UWQpAdUJR
+   DBCPMW/Lq7H6RKoDOyIabVQsOVoaBRGI61T4snMbFkeLo57YyGAjuZWrw
    w==;
 X-IronPort-AV: E=Sophos;i="5.70,410,1574121600"; 
-   d="scan'208";a="32775798"
-IronPort-PHdr: =?us-ascii?q?9a23=3ArUarUBzSYtHf5m7XCy+O+j09IxM/srCxBDY+r6?=
- =?us-ascii?q?Qd0u4QLfad9pjvdHbS+e9qxAeQG9mCt7QZ0KGP6/+oGTRZp8rY6zZaKN0Efi?=
- =?us-ascii?q?RGoP1epxYnDs+BBB+zB9/RRAt+Iv5/UkR49WqwK0lfFZW2TVTTpnqv8WxaQU?=
- =?us-ascii?q?2nZkJ6KevvB4Hdkdm82fys9J3PeQVIgye2ba9vIBmsogjdq8YbjZFiJ6s/xR?=
- =?us-ascii?q?fFv2dEduZLzm9sOV6fggzw68it8JNt6Shcp+4t+8tdWqjmYqo0SqBVAi47OG?=
- =?us-ascii?q?4v/s3rshfDTQqL5nQCV2gdjwRFDQvY4hzkR5n9qiT1uPZz1ymcJs32UKs7WS?=
- =?us-ascii?q?++4KdxSR/nkzkIOjgk+2zKkMNwjaZboBW8pxxjxoPffY+YOOZicq7bYNgXXn?=
- =?us-ascii?q?RKUNpPWCNdA4O8d4oPAPQHPeZEtIn2ul8CoQKjCQWwGO/jzzlFiXHs3a0+zu?=
- =?us-ascii?q?8vDwfI0gI9FN4KqXjZotH4OKIUXOuozqfH0C/DYutL1znj5ojGchMvr/+CUr?=
- =?us-ascii?q?1/c8Xe1UYhGhjZjliSs4HpIy+Z2+oPvmWd8uFuVfivi2kiqwxpvzav2tkjip?=
- =?us-ascii?q?HJho0LzFDP6Dh3wIMvKt28TE50f96lG4ZXuiGBKoR2WdgvQ31ouSkmyr0Gvo?=
- =?us-ascii?q?S3fC4RyJs93RLfZPuHc5aR7x/lSe2fLzB4hHd/d7K+gRa/6UegyuzgVsm0zV?=
- =?us-ascii?q?ZFtTBJncXLtnAI0RHY98uJSuNl80u81juC2Brf5+FZLUwui6bWJIAtzqQtmp?=
- =?us-ascii?q?cVrE/NBDX5mF/sg6+Tbkgk/++o5Pn5bbj+vZ+cMpN0ihn5MqQzhsyzGeQ4PR?=
- =?us-ascii?q?YKX2ic4em8yKfs/Vf4QLVXlf06iKjZsJbUJcQcva62HRNa3pw/6xe/Ezim0N?=
- =?us-ascii?q?MYkWMBLF1ZYxKIk5LlO1TPIPD8Ffu/glKsnyl3x/3eI7HsDZrAImLDnbv8Z7?=
- =?us-ascii?q?px9UFRxBQpwdxC/55UD6sOIPP3Wk//rtzYCRo5PhSvw+n6E9VwzZ8eWGKTDa?=
- =?us-ascii?q?+ZN6Peq1mI5vk1LOWWa48Vvyj9J+A/5/HylX85hUMdfa6x0JsMbXC4Ge5mLF?=
- =?us-ascii?q?udYXX2hNcODHwHvgU5TOzth12CVSBca2yuUKI74zExEJimApvbRoCxnLyB2z?=
- =?us-ascii?q?+2HoVMaWBbDlCBCm/oeJ+ZW/cIcS6SJ8hhkjseVbe/UYMuyRautAriwbp9Mu?=
- =?us-ascii?q?XU4jEYtY7k1NVt+eLTjQs99SZ1D8SGyGyNV3t7nnkJRz8txKB/pVZyxUud3q?=
- =?us-ascii?q?RihPxYD9NT7etTUggmLZ7c0/B6C9fqVwLCYNiGVk2mTcmhATE2TdI82MMBY0?=
- =?us-ascii?q?ZnG9WlixDD3jeqA7oPm7yMHpw0/brW32LtKMZl13bGyK4hgkE8TctJKW2mga?=
- =?us-ascii?q?h/+hPNCI7PlEWZkr2qdasG0C7K7meDwnKEvFtEXw5oTaXFQXcfa1PKotvl/E?=
- =?us-ascii?q?PCSKSuCa88PwRbz86NN7FKatrojVpbXvvsJNPeY2epkWeqGRmI3q+MbJbte2?=
- =?us-ascii?q?gFwCXdD04EkgAJ8XaCKAgxGiShrnnfDDxoCVLgfUfs/fNip3O8S08+1xuKYF?=
- =?us-ascii?q?F517qp5h4VguSRS+gN0bIAuSchrSh0HVmm0tLIBNqPuRBhcL9fYdwj+ldH03?=
- =?us-ascii?q?zWtwhnMpynNaBiiUYUcx5rsEP2yxV3FoJAnNAurHMrygpyNK2Z3EpCdzyGx5?=
- =?us-ascii?q?DwPKPYKm3p8RCxZK7ZxEve3MyV+qgR8vQ4rUvsvAWzGkol6XVn3MFf02GA6Z?=
- =?us-ascii?q?XSEAoSTZXxX1409xdkvbHaZDcy54fN2X1wL6a7qDrC1skzC+sj1xmgZdBfMK?=
- =?us-ascii?q?KZGwPoD8IaAM2uIvQwm1e1dhIEIPxS9KksMsy6cPuG3qirPOF6nDKhlmlH74?=
- =?us-ascii?q?d90kWD9yp4VOHExYoKw/ad3ljPazCpt0usrM3x0aVDfzwWF2yzgXz/AYlLa6?=
- =?us-ascii?q?l7e4ojBmCpLMm6gN55gsi+dWRf8QuYG14e2MKvMSGXZlj50BwYgV8bulS7iC?=
- =?us-ascii?q?C4yHpyiDhvoa2Bin+di9/+fQYKbzYYDFJpik3hdM3t1IEX?=
-X-IPAS-Result: =?us-ascii?q?A2DUAgCOVjxe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YEYVCESKoQViQOGZQEBAQaBEiWJcJB0A1QJAQEBAQEBAQEBKwwBAYRAAoJhO?=
- =?us-ascii?q?BMCEAEBAQQBAQEBAQUDAQFshTcMgjspAYMBAQEBAQMjFUEQCw4EAwMCAiYCA?=
- =?us-ascii?q?kkOBg0GAgEBgmM/AYJWJQ+sJnWBMoVKg2GBOAaBDiqMPXmBB4E4DAOCXT6CZ?=
- =?us-ascii?q?AKEdYI8IgSWXWFGl2eCRIJOhHyOdgYbmwuXTpRIIjeBISsIAhgIIQ+DJ1AYD?=
- =?us-ascii?q?ZIQinEjAzCMByyCFwEB?=
+   d="scan'208";a="38772825"
+IronPort-PHdr: =?us-ascii?q?9a23=3A5QlaRBQOpU7ljCg2Jv4l02NbAdpsv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa64YxWAt8tkgFKBZ4jH8fUM07OQ7/m8HzFbqs/Y6DhCKMUKC0?=
+ =?us-ascii?q?Zez51O3kQJO42sMQXDNvnkbig3ToxpdWRO2DWFC3VTA9v0fFbIo3e/vnY4Ex?=
+ =?us-ascii?q?T7MhdpdKyuQtaBx8u42Pqv9JLNfg5GmCSyYa9oLBWxsA7dqtQajZFtJ6osxR?=
+ =?us-ascii?q?bFuHtFdupZyW91OF6fgwv36sOs8JJ+6ShdtO8t+sBaXanmY6g0SKFTASg7PW?=
+ =?us-ascii?q?wy+MDlrwTIQxGV5nsbXGUWkx5IDBbA4RrnQJr/sTb0u/Rk1iWCMsL4Ub47WT?=
+ =?us-ascii?q?K576d2UxDokzsINyQ48G7MlMN9ir9QrQ+7qBx+x47UZ5yVNOZ7c6jAc94WWX?=
+ =?us-ascii?q?ZNU8BMXCFaHIiyc5UAAPYAPeZAronyuV0OrQelBQKxAO/j0yJEimPq0aE/1e?=
+ =?us-ascii?q?kuHxvG3Ag9FNwQtnraosj+OKMLXeyryKTEyDPOZO5U1zjg8ojFag0vr++CXb?=
+ =?us-ascii?q?xwcsTfx0cgGAzHgVqMpoLoJC+V2+YXvmSH8+ZtW+Cihmg6oA9xuDivwcIsh5?=
+ =?us-ascii?q?HUiIIJ1F/E7SV5z5gzJdalVUB7ZMSrEJ9Uty6EN4p9X8QvQ3p1tyYh0bAGpZ?=
+ =?us-ascii?q?66czQKyJQg3RLfbeeHfJKS7hLsU+aRPy51iXR4c7yxgBay9FKvyuz6VsSs01?=
+ =?us-ascii?q?ZFsDBFkt/SuXAJzRDT7dKHSvRl8kekwzmP0QLe5vtDIUAumqrWLYMqzL0olp?=
+ =?us-ascii?q?cLrEjOESD7lF/2gaOLbEko5Oel5/r9brn7oJKXKpV6hRvkMqs0n8yyGeE4Mg?=
+ =?us-ascii?q?8TUGeF4em8z7jj/VHhQLVNk/02jrHVsJDEKsQfoa60GxNV3Zw56xa+Ejemy8?=
+ =?us-ascii?q?4UnXgBLFJLfxKHlJbmNE3ULPDkDfawn1SskDBxy/DAIrLhGYnCImLGkLfgeb?=
+ =?us-ascii?q?Zx809cyAwtwtBD/59YF74MLf3pVkLxqdDUFAE1PgOqz+r9FdlxzoYeVniOAq?=
+ =?us-ascii?q?+dPqPSq1iI5uc3LumXeYAVoy3wK+Ql5vHyjX85nkURfa+y3ZQNcny4EfNmI1?=
+ =?us-ascii?q?uBbXr2ntgBCXsKvhY5TOHyklKCVSBcZnmsUKM8/D00E5+mAprZSYCrg7yB2z?=
+ =?us-ascii?q?m7E4ZSZmBHDFCMDHjpe5+FW/cKdCKdPMthniYYWrimTo8rzQuuuxPiy7p7Mu?=
+ =?us-ascii?q?rU/TUVtZDm1Nhy/e3TjxAy9SdvAsSbyW6NSn97nmISSz8xxqB/rlR3yk2f3q?=
+ =?us-ascii?q?hgn/xYCdtT6utSUggkL57cwPJ1BsvyWg3beteJTFanQtO8DT4tSdIxxscEY1?=
+ =?us-ascii?q?xhFNW6khDDwy2qDqcNl7OVGJw77Ljc3nnqKsZ8zXbG2rMhgEM7TcRRL2Kpm7?=
+ =?us-ascii?q?Rz9w/JB47Gi0+ZjbqldbwA3C7R82eO1XCBs11dUAFuSqjFXm4QZlHQrdvn4k?=
+ =?us-ascii?q?POVbiuCa4oMgFZ086NNrNKasH1jVVBXPrjPdXeY2S+m2e3HhuI3K2DY5fqe2?=
+ =?us-ascii?q?oHwCXRElQLkwcW/XyeLwgxGj+ho37CDDxpDV/vYUTs8e54qHyhVU841QWKYF?=
+ =?us-ascii?q?dh17qp+x4Vg+KTS/UI07IAuSchrSh0HVmn09LXDdqAuxRufKFGbdwh51dH0H?=
+ =?us-ascii?q?rTtxZhMZy4M6BimlkefhxtsEP1yxV6EYZAntYwrHMs0gVyLbiU0FRbdzOXxZ?=
+ =?us-ascii?q?rwIKHYKnHu/BCzbK7bwl/f0NeS+qcL8/k4qEvsvBuvFkU893Vryd5V02GT5p?=
+ =?us-ascii?q?/SFgodTYrxUlor9xh9v7zaejMy557Q1X1xKqm5qSTC1MgsBOQ+0BmsZdBfML?=
+ =?us-ascii?q?mLFAXqCc0VG9CuKPA2m1iudh8EOfhS+7AvMsy4c/uG3LCkPPxlnD28i2RL+o?=
+ =?us-ascii?q?F93V+W+yVmV+7Cx4wFzO2A3gubSzf8i0+svdr0mY1fYTESH2y/yTXrBYJLZ6?=
+ =?us-ascii?q?1ye5oLBnmqI8Gt2tp+gJvtUWZC9FG/H1MGxNOpeR2KYlzh0g1Q0UsWrGejmS?=
+ =?us-ascii?q?u5yTx0ji0prrCY3CzIwuTjewALNXNVS2N6l1fjPZC0j8wGXEivdwUmigGl6l?=
+ =?us-ascii?q?z8x6havqt/KXLeQUhPfyjxIGFiVrW/uqCebM5I7ZMiqT9XX/ikYVCGVr79pA?=
+ =?us-ascii?q?MX0yLnH2tD3z80bSqqupXnkBFhkm2dL2x8rH/DdsFx3xvQ+NvcRftJ1DocWC?=
+ =?us-ascii?q?Z4kSXXBkS7P9Sx/9WUkJPDsvukWG+6TJ1cbzTkzYOauyun/2FlHRq/n/WrkN?=
+ =?us-ascii?q?39DQc6yTP718VtVSjQqBb8Y4/r17m1MO5+fUlnGkX868xkFYF6iYYwmp4Q1m?=
+ =?us-ascii?q?YAhpmP/noIj33zMdNF1qL6dnYNQiQLw9HN6gj/xEJjNm6Jx57+VniFw8thYc?=
+ =?us-ascii?q?W6bX0S2i4k4MBKBqiV4adAnSt0uVq4sRnRbeJznjcH1/Qh9mMVjP8SuAou0i?=
+ =?us-ascii?q?WdBagSEVNfPSz2mBSC98q+o7lPZGazbbiw01JzndSgDLGEvwFdV2/1eow8Ei?=
+ =?us-ascii?q?Bs88V/KlPM0GHz6439fdnQas8ctgCQkxjelOVVNp0xmeQQhSZ9OmLyo2cly+?=
+ =?us-ascii?q?glghxqx526u5KHK2p19qKjHhFYLiH1Z98U+jz1lqZRgMKW34GpHpV8FTQGR4?=
+ =?us-ascii?q?XoTf22HzIIr/jnNBiBECc6qniFHbrTBwif6F1pr3jXCZCkK2mXJGUFzdVlXB?=
+ =?us-ascii?q?SdIE1fgAYJXDQ1h5I2DBqqxMn4fEd6+D8R/Fj4pQVIyu9zMxn/U3zfpBuzaj?=
+ =?us-ascii?q?suSZifKhRW7htY6EjIL8OR9P98Eztf/p27owyHMnabaBhQDWEVRkyEAEjuPr?=
+ =?us-ascii?q?2v5dnG7uiZCfK+L+PSbrmXtONRSemIyImr0otn5DaMKt6PMmNlD/w63kpMR2?=
+ =?us-ascii?q?t2G9/DlzUIUSwXmDrHb9SHqxek5i13sse//ezvWALu44uPFrRTPcx3+x+sm6?=
+ =?us-ascii?q?eDNvWQizpiJDZG2ZMD22XIxKIc3FEMkSFucSeiEbAauS7KVqLQlbddDwQHZC?=
+ =?us-ascii?q?NrKMtI86U80xFKOc7DkNP10bB4jv8xC1hbTFDhnsCpZdcWI2ymMFPHBV2LNK?=
+ =?us-ascii?q?idJTHR2MH3b7mwSbtOg+VI5FWMvmOyF0LzMyXLvSTlXhasNv8E2CifMQxTqc?=
+ =?us-ascii?q?e3bxpkD2vkUvriaxumIJl2iyE7xfs/gXaccSY+OD1xaAtoqaeK7DgQ1vd6HH?=
+ =?us-ascii?q?Zb72FNK+CBliff6PPXfNJeivZxDSk8t+te5GU8g+9O4TtLSdR1kS/Wv9goqF?=
+ =?us-ascii?q?ajxK3H8jd7XQAGmDdJgJmXp0wqbb3U6pRaS17F+hwX5GmdAhhMoMFqXJmnkr?=
+ =?us-ascii?q?pWw9zDk+rYIS1c+tbU+oMQCoDxJcaAeC4oOh/kMD3ZFg0ISXisL26JwwR8lv?=
+ =?us-ascii?q?6VvliSqp4zsNC4nZsIRbhzTlE5FvoGTE9iGYpGaN11WTQimKXdiMcI+Xu4oR?=
+ =?us-ascii?q?/5QMRco4CBV/SODPGpIzGcx/EQZRwPx7rja4AaNpH63UFkQl17mpnaXUvWQd?=
+ =?us-ascii?q?1J5CZma1lw6GxJ/WhzTyUIx0v/bR2q4WMUC7bglwUqoghze+Ig8HHr+VhhYh?=
+ =?us-ascii?q?L1pS802GU8kN7ih3jFbz/1KI+zUJtQBi6ysFI+ZNezew9oaUWXlEdnOS3eTq?=
+ =?us-ascii?q?kZ26NpaGR2kyfHsJ5FELhbV6ISJFc1xPqXbvgsmXlYrii9wEZBrb/AEZZKmQ?=
+ =?us-ascii?q?8ufISppnQG2g4lZcNjdoLKI68c9URdnqKDuGeT0+k1xAIPbxIW/Hi6ZD8DuE?=
+ =?us-ascii?q?tOMKIvYSWv4Lo/ukS5hzJfdT1UBLIRqfVw+xZ4Yr7Rwg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2DbAgDbWDxe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YEYVCESKoQViQOGZQEBAQaBEiWJcJFLCQEBAQEBAQEBAS0KAQGBTIIvRQKCY?=
+ =?us-ascii?q?TgTAhABAQEEAQEBAQEFAwEBbIU3DII7KQGDAgEFIxUtFBALGAICJgICVwYBD?=
+ =?us-ascii?q?AYCAQGCYz8BglYlD60kgTKESUFAg1SBPoEOKolagmN5gQeBOAwDgl0+gmQBA?=
+ =?us-ascii?q?gEChHGCXgSQHIciRpdngkSCToR8jnYGG4JIeIcYkDMtjjWBS4chlEgigVgrC?=
+ =?us-ascii?q?AIYCCEPgycJFjEYDY4pFxWIT4UIAVQjAzACBQaOPQEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 06 Feb 2020 18:12:06 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 06 Feb 2020 18:22:26 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 016IB5E8194581;
-        Thu, 6 Feb 2020 13:11:06 -0500
-Subject: Re: [PATCH] security: selinux: allow per-file labeling for bpffs
-To:     Steven Moreland <smoreland@google.com>
-Cc:     paul@paul-moore.com, eparis@parisplace.org, keescook@chromium.org,
-        anton@enomsg.org, Colin Cross <ccross@android.com>,
-        tony.luck@intel.com, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-team@android.com,
-        "Connor O'Brien" <connoro@google.com>
-References: <20200206165527.211350-1-smoreland@google.com>
- <91465612-2fb2-5985-ba45-d4d9fcf0f70c@tycho.nsa.gov>
- <c61fc8f6-55c2-c717-5090-e535b7bdbb4f@tycho.nsa.gov>
- <CAKLm694DMH0JCpHuT4HgMd4yCNJZPFMpex8iEiRF9kRjPb0d6g@mail.gmail.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 016ILOKQ195174;
+        Thu, 6 Feb 2020 13:21:24 -0500
+Subject: Re: [PATCH v6 01/10] capabilities: introduce CAP_PERFMON to kernel
+ and user space
+To:     Alexey Budankov <alexey.budankov@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Andi Kleen <ak@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        oprofile-list@lists.sf.net
+References: <576a6141-36d4-14c0-b395-8d195892b916@linux.intel.com>
+ <a4c5da70-b6d1-b133-9b64-34e164834b03@linux.intel.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <a8321785-902d-9186-fcf5-ee12a362a207@tycho.nsa.gov>
-Date:   Thu, 6 Feb 2020 13:12:53 -0500
+Message-ID: <5be0f67c-17e2-7861-37f3-a0f8a82be8f0@tycho.nsa.gov>
+Date:   Thu, 6 Feb 2020 13:23:12 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <CAKLm694DMH0JCpHuT4HgMd4yCNJZPFMpex8iEiRF9kRjPb0d6g@mail.gmail.com>
+In-Reply-To: <a4c5da70-b6d1-b133-9b64-34e164834b03@linux.intel.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -112,49 +158,116 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/6/20 12:41 PM, Steven Moreland wrote:
-> On Thu, Feb 6, 2020 at 9:35 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->>
->> On 2/6/20 12:21 PM, Stephen Smalley wrote:
->>> On 2/6/20 11:55 AM, Steven Moreland wrote:
->>>> From: Connor O'Brien <connoro@google.com>
->>>>
->>>> Add support for genfscon per-file labeling of bpffs files. This allows
->>>> for separate permissions for different pinned bpf objects, which may
->>>> be completely unrelated to each other.
->>>
->>> Do you want bpf fs to also support userspace labeling of files via
->>> setxattr()?  If so, you'll want to also add it to
->>> selinux_is_genfs_special_handling() as well.
->>>
+On 2/5/20 12:30 PM, Alexey Budankov wrote:
 > 
-> Android doesn't currently have this use case.
+> Introduce CAP_PERFMON capability designed to secure system performance
+> monitoring and observability operations so that CAP_PERFMON would assist
+> CAP_SYS_ADMIN capability in its governing role for performance monitoring
+> and observability subsystems.
 > 
->>> The only caveat I would note here is that it appears that bpf fs
->>> supports rename, link, unlink, rmdir etc by userspace, which means that
->>> name-based labeling via genfscon isn't necessarily safe/stable.  See
->>> https://github.com/SELinuxProject/selinux-kernel/issues/2
->>>
+> CAP_PERFMON hardens system security and integrity during performance
+> monitoring and observability operations by decreasing attack surface that
+> is available to a CAP_SYS_ADMIN privileged process [2]. Providing the access
+> to system performance monitoring and observability operations under CAP_PERFMON
+> capability singly, without the rest of CAP_SYS_ADMIN credentials, excludes
+> chances to misuse the credentials and makes the operation more secure.
+> Thus, CAP_PERFMON implements the principal of least privilege for performance
+> monitoring and observability operations (POSIX IEEE 1003.1e: 2.2.2.39 principle
+> of least privilege: A security design principle that states that a process
+> or program be granted only those privileges (e.g., capabilities) necessary
+> to accomplish its legitimate function, and only for the time that such
+> privileges are actually required)
 > 
-> Android restricts ownership of these files to a single process (bpfloader) and
-> so this isn't a concern in our architecture. Is it a concern in general?
+> CAP_PERFMON meets the demand to secure system performance monitoring and
+> observability operations for adoption in security sensitive, restricted,
+> multiuser production environments (e.g. HPC clusters, cloud and virtual compute
+> environments), where root or CAP_SYS_ADMIN credentials are not available to
+> mass users of a system, and securely unblocks accessibility of system performance monitoring and observability operations beyond root and CAP_SYS_ADMIN use cases.
+> 
+> CAP_PERFMON takes over CAP_SYS_ADMIN credentials related to system performance
+> monitoring and observability operations and balances amount of CAP_SYS_ADMIN
+> credentials following the recommendations in the capabilities man page [1]
+> for CAP_SYS_ADMIN: "Note: this capability is overloaded; see Notes to kernel
+> developers, below." For backward compatibility reasons access to system
+> performance monitoring and observability subsystems of the kernel remains
+> open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN capability
+> usage for secure system performance monitoring and observability operations
+> is discouraged with respect to the designed CAP_PERFMON capability.
+> 
+> Although the software running under CAP_PERFMON can not ensure avoidance
+> of related hardware issues, the software can still mitigate these issues
+> following the official hardware issues mitigation procedure [2]. The bugs
+> in the software itself can be fixed following the standard kernel development
+> process [3] to maintain and harden security of system performance monitoring
+> and observability operations.
+> 
+> [1] http://man7.org/linux/man-pages/man7/capabilities.7.html
+> [2] https://www.kernel.org/doc/html/latest/process/embargoed-hardware-issues.html
+> [3] https://www.kernel.org/doc/html/latest/admin-guide/security-bugs.html
+> 
+> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
 
-I guess if the inodes are pinned in memory, then only the original name 
-under which the file is created will be relevant to determining the 
-label and subsequent rename/link operations won't have any effect. So as 
-long as the bpfloader creates the files with the same names being 
-specified in policy, that should line up and be stable for the lifecycle 
-of the inode.
+This will require a small update to the selinux-testsuite to correctly 
+reflect the new capability requirements, but that's easy enough.
 
-The alternative model is to have bpfloader look up a context from the 
-userspace file_contexts configuration via selabel_lookup(3) and friends, 
-and set it on the file explicitly.  That's what e.g. ueventd does for 
-device nodes.  However, one difference here is that you could currently 
-only do this via setxattr()/setfilecon() after creating the file so that 
-the file would temporarily exist in the default label for bpf fs, if 
-that matters.  ueventd can instead use setfscreatecon(3) before creating 
-the file so that it is originally created in the right label but that 
-requires the filesystem to call security_inode_init_security() from its 
-function that originally creates the inode, which tmpfs/devtmpfs does 
-but bpf does not.  So you'd have to add that to the bpf filesystem code 
-if you wanted to support setfscreatecon(3) on it.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+> ---
+>   include/linux/capability.h          | 4 ++++
+>   include/uapi/linux/capability.h     | 8 +++++++-
+>   security/selinux/include/classmap.h | 4 ++--
+>   3 files changed, 13 insertions(+), 3 deletions(-)
+> 
+> diff --git a/include/linux/capability.h b/include/linux/capability.h
+> index ecce0f43c73a..027d7e4a853b 100644
+> --- a/include/linux/capability.h
+> +++ b/include/linux/capability.h
+> @@ -251,6 +251,10 @@ extern bool privileged_wrt_inode_uidgid(struct user_namespace *ns, const struct
+>   extern bool capable_wrt_inode_uidgid(const struct inode *inode, int cap);
+>   extern bool file_ns_capable(const struct file *file, struct user_namespace *ns, int cap);
+>   extern bool ptracer_capable(struct task_struct *tsk, struct user_namespace *ns);
+> +static inline bool perfmon_capable(void)
+> +{
+> +	return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
+> +}
+>   
+>   /* audit system wants to get cap info from files as well */
+>   extern int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data *cpu_caps);
+> diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
+> index 240fdb9a60f6..8b416e5f3afa 100644
+> --- a/include/uapi/linux/capability.h
+> +++ b/include/uapi/linux/capability.h
+> @@ -366,8 +366,14 @@ struct vfs_ns_cap_data {
+>   
+>   #define CAP_AUDIT_READ		37
+>   
+> +/*
+> + * Allow system performance and observability privileged operations
+> + * using perf_events, i915_perf and other kernel subsystems
+> + */
+> +
+> +#define CAP_PERFMON		38
+>   
+> -#define CAP_LAST_CAP         CAP_AUDIT_READ
+> +#define CAP_LAST_CAP         CAP_PERFMON
+>   
+>   #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
+>   
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index 7db24855e12d..c599b0c2b0e7 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -27,9 +27,9 @@
+>   	    "audit_control", "setfcap"
+>   
+>   #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+> -		"wake_alarm", "block_suspend", "audit_read"
+> +		"wake_alarm", "block_suspend", "audit_read", "perfmon"
+>   
+> -#if CAP_LAST_CAP > CAP_AUDIT_READ
+> +#if CAP_LAST_CAP > CAP_PERFMON
+>   #error New capability defined, please update COMMON_CAP2_PERMS.
+>   #endif
+>   
+> 
+
