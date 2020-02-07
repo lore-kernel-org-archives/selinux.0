@@ -7,102 +7,85 @@ X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47274C2BA83
-	for <selinux@archiver.kernel.org>; Fri,  7 Feb 2020 18:11:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 581B1C2BA83
+	for <selinux@archiver.kernel.org>; Fri,  7 Feb 2020 19:38:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1E89220726
-	for <selinux@archiver.kernel.org>; Fri,  7 Feb 2020 18:11:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 146A920726
+	for <selinux@archiver.kernel.org>; Fri,  7 Feb 2020 19:38:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Uk5qSdvR"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="o0l3xQct"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726901AbgBGSLj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 Feb 2020 13:11:39 -0500
-Received: from UPDC19PA23.eemsg.mail.mil ([214.24.27.198]:21480 "EHLO
-        UPDC19PA23.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726900AbgBGSLj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 Feb 2020 13:11:39 -0500
-X-EEMSG-check-017: 56597871|UPDC19PA23_ESA_OUT05.csd.disa.mil
+        id S1727076AbgBGTic (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 Feb 2020 14:38:32 -0500
+Received: from UPDC19PA22.eemsg.mail.mil ([214.24.27.197]:59640 "EHLO
+        UPDC19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726956AbgBGTic (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 Feb 2020 14:38:32 -0500
+X-EEMSG-check-017: 56378330|UPDC19PA22_ESA_OUT04.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,414,1574121600"; 
-   d="scan'208";a="56597871"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UPDC19PA23.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 07 Feb 2020 18:11:33 +0000
+   d="scan'208";a="56378330"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UPDC19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 07 Feb 2020 19:38:29 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581099094; x=1612635094;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=K7jj1GrHZg8AAeT/X2O4ajUwp0SOVaygIuVhfSYglgg=;
-  b=Uk5qSdvRiAaLj5pn+tyIKaDGubRmJKFPcRrihW3VKC9r24qK0N/lnMKd
-   CWjbVXQDB/0IdB8KNZ+4pvjTf9nFTTy9XXVNguBKrFPy/dmAkN8/2GsHl
-   3JIPAGMSG9unhDIeLNh0RzQRmR4QbxY6MdyHjl2tiEfq18hYN5+rq55/X
-   KQdY9S/YZAAfNDeN6aE+IqJ8SIyU5KrUcGXPtsSRwbo9rJh1JXFP8tw79
-   gof3bDCpW2mZz5JnH5geKJJQR0nAd4sX+NxoEPOpe5/y+OX2KvJ4Q93UX
-   twXT5lZhaoPTtsi98y+DNt6cKRDgbw+0wCaN0ThQ/q22Gk8fSus9oiGHf
-   w==;
+  s=tycho.nsa.gov; t=1581104309; x=1612640309;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=gVdZE2KbcxEEPcTAVh0KpcNWhgGhNC/xGFyXwldL/g0=;
+  b=o0l3xQctJQ8yLkNXEA6++FL90A8UQnKlxYMHYfYyiLMr1XI6foPzsYXA
+   FKZ/wXrQoERQ5chxHMuq5yGf0F2jEcodKjjf3HuN35JWBvkxAAsdqMpa2
+   Ybnes2SOSsAnnG+dv8RdnpMBAFBkgP19TzGJkESSR+QJ8nylZFNMLmMZ9
+   Tl0d6evfBifK9awT5ZE8MP9d5x9TBHaTXzNlRcU2FuchzcpUlHOsGWiYm
+   Du/giJzMhoHb1V0VTe6mxTODfX32hkACVlvGgeK+VZa2DWli+AUh02kJB
+   NfbneKQFZJ/Y04hJr9ha7F3HkJZXNKhnBbwPquoCmenujCu9PgXUfNS5u
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.70,414,1574121600"; 
-   d="scan'208";a="32823065"
-IronPort-PHdr: =?us-ascii?q?9a23=3Af6Z2aRIIWs2Eb6i8+tmcpTZWNBhigK39O0sv0r?=
- =?us-ascii?q?FitYgXLP/+rarrMEGX3/hxlliBBdydt6sYzbeL+Pm4CSRAuc/H7ClZNsQUFl?=
- =?us-ascii?q?cssoY/p0QYGsmLCEn2frbBThcRO4B8bmJj5GyxKkNPGczzNBX4q3y26iMOSF?=
- =?us-ascii?q?2kbVImbuv6FZTPgMupyuu854PcYxlShDq6fLh+MAi6oR/eu8ULjoZuMKY8xx?=
- =?us-ascii?q?vGrndVZ+hbxn5jKVaPkxrh/Mu984Nv/ipKt/4968JMVLjxcrglQ7BfEDkoKX?=
- =?us-ascii?q?0+6tfxtRnEQwuP538cXXsTnxFVHQXL7wz0U4novCfiueVzxCeVPcvtTbApQj?=
- =?us-ascii?q?ui9LtkSAXpiCgcKTE09nzch9Fqg6JapBKhoAF/w5LRbYqIOvdyYr/RcNUHTm?=
- =?us-ascii?q?daQM1fSzJODZ+9b4sXDuoOI+BYr5Xmp1ATqReyHBSgCP/zxjNNgHL507c60+?=
- =?us-ascii?q?A8Gg/Y2gIuEc8FvHDNoNj7MKoeVOa4x7TKwzredfNbwSrz5pbGch4hov+CU7?=
- =?us-ascii?q?x/fsXTxkYzGA3IlUmQpI7/Mj+JyugAvWqW4ux9XuyvkW4nrARxryCyyMcwlI?=
- =?us-ascii?q?bJnoIVxU7C9S5k3Yg1IMe3SEp/YdG6EJpbqiaXN5BrTcM5WGxopCY7xaEGuZ?=
- =?us-ascii?q?68ZiQKzo8nyATFZ/yIdIiI/AvuWeCMKjl7nHJoYK+zihm9/ES6yuDwS9O43E?=
- =?us-ascii?q?hFoyZbiNXAq3YA3AHJ5MedUPty5EKh1C6K1wDU9+5LP1g5lbHeK5492r4wkY?=
- =?us-ascii?q?cTsVjbEi/2hkr2iKiWe104+uey8eTnY6jmpoSGO491jAH+PKMumtehDuskKA?=
- =?us-ascii?q?QOQ2ia9vi81L3k50H5RqlFjuYqnaXDtZDaJMAbqra4Aw9TzIkj9w6yAyqp3d?=
- =?us-ascii?q?kXh3UKLE9JdAiZg4XmJV3COu30Ae+6g1u2kTdrw/7GPqfmApXINnXDi6rufa?=
- =?us-ascii?q?1m5k5AyAs80dBf55VOBrEHO/L8QFX9tNPfDh8nKwC02froCM1h1oMCXmKCGr?=
- =?us-ascii?q?SZMKbVsV+S+O0vJ/ODZIkItzvmJPgl4PnujXA9mVADZ6WmwZwXaHWgFPR8P0?=
- =?us-ascii?q?qZeWbsgssGEWoSpgoxVvHqiFmZXD5LfXmyQqY86ig+CIKhCofDXJ6ijKad0y?=
- =?us-ascii?q?e8G51cfnpGBUyUEXf0a4WEXO8BZzyKIsB7iDwEVKOhRpQ51R60rg/6yqFnLv?=
- =?us-ascii?q?LQ+iICqZ3sysJ55+rJlRE97TZ0FdiS03mRT2FomWMFXzw2075hrkxm1liD1q?=
- =?us-ascii?q?94g/9DGNNP5/NJSAA6NZvdz+xnDtD+QAXBfs2GSFy+WNWpHSkxTs4tw98Je0?=
- =?us-ascii?q?tyAdOijgzE3yqsGLIaibqLBJsx8qLH0Hj9PcF9y2zJ1KM5lVkpXtNPNXG6hq?=
- =?us-ascii?q?547wXcG5LGk1+el6axbqQRxzTC9GGewmqUu0FYURN/Xb/ZUnAYY0vctc756V?=
- =?us-ascii?q?/aT7+yFbQnNRNMydKFKqtMatzll1FGROr/N9TdeG+xmmGwBQqWybOIdoblZ2?=
- =?us-ascii?q?Id3CDFAkgejw8T5WqGNRQ5Biq5uGLREjhuFVPpY0Px/uhzs227TkAqwAGQdU?=
- =?us-ascii?q?Fh1KS6+gQThfOCT/MfxLUEuD0uqz9sBlayw8rWC8acpwpmZKhcZdI94FFa1W?=
- =?us-ascii?q?PWrgB9PYKvL7pkhlEAdwR6pF3u1xppBYVai8Qqr20lzBB0Ka2G1FNNbTSY3Y?=
- =?us-ascii?q?r/OrfPMGn94Aiva7LK2lHZyNuW+bkA6O4+q1r9uAGlD1Yi/Gt93NlQyHaT/J?=
- =?us-ascii?q?PKAxcIUZL2U0Y46gJ2qK3dYik4/4nUz2FjMbGosj/e3NIkHPcqyhGmf9dZN6?=
- =?us-ascii?q?OEDgjyHtYVB8ipL+wqlFypYQweMO9O8640OpDuS/zT47KmIutm1Behl2lD6Y?=
- =?us-ascii?q?ZxmhaX8i1mR+rB2ZotzPaf0Q+KETz7iQHl+tj+hIRsfTgPGi+6zi/+CchaYa?=
- =?us-ascii?q?g2NYsTAH2vOOWvz89/nIbpUnVVslm5CBdO28KkYhGVaF/V1g1K0kEWvHnhnj?=
- =?us-ascii?q?G3i3R9lS0uqIKS2ivL2OukcwAIfiZAT3NllkzEKI64ldcbUA6jaA1t3Aei41?=
- =?us-ascii?q?e8w7VQp4x+KXXeRQFDeC2yZ3pvVqq2q6qqfcFC8tUrvD9RXeD6ZkqVDvb5oh?=
- =?us-ascii?q?0Hw2bgEnFYyTQTaT6noNP6kgZ8hWbbK2x86DLadNt2yBOa+NHVQNZY2DYcQy?=
- =?us-ascii?q?h0zzLQAwuSJd6sqO6Imo/Dv+b2bGeoUpleYGG/1o+bnDeq7m1tRxuklra8nc?=
- =?us-ascii?q?OxQlty6jPyy9Q/DXaAlx37eIS+kv3hYO8=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DpAADwpz1e/wHyM5BmGwEBAQEBAQEFAQEBEQEBAwMBA?=
- =?us-ascii?q?QGBe4F9gW0gEiqEFYkDhmcGgTeJcJB0A1QJAQEBAQEBAQEBNwEBhEACgmc4E?=
- =?us-ascii?q?wIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGDAQEBAQEDIwQRQRALDgcDAgImAgJXB?=
- =?us-ascii?q?gEMBgIBAYJjP4JXJa5ddX8zhUqDbIE+gQ4qjD15gQeBOA+CXT6HW4I8IgSWX?=
- =?us-ascii?q?2NGl2qCRIJOk3gGG5sPjmSdNiI3gSErCAIYCCEPgydQGA2cLFUjAzCOaAEB?=
+   d="scan'208";a="38835038"
+IronPort-PHdr: =?us-ascii?q?9a23=3AMfdOExL5osGhRAH+ONmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgfKfvxwZ3uMQTl6Ol3ixeRBMOHsq4C1red6vq9ESxYuNDd6StEKMQNHz?=
+ =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
+ =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQZjId4Kqs8yh?=
+ =?us-ascii?q?TFrmZWd+lW2GhkIU6fkwvm6sq/4ZJu/T5ct+49+8JFTK73Y7k2QbtEATo8Lm?=
+ =?us-ascii?q?s7/tfrtR7NTQuO4nsTTGAbmQdWDgbG8R/3QI7/vjP1ueRh1iaaO9b2Ta0vVj?=
+ =?us-ascii?q?S586hrUh7ohzwZODM/7Wral9Z/jKNfoBKmuhx/34vZa5ybOfZiYq/Qe84RSH?=
+ =?us-ascii?q?FfVchNSSNOHoK8b5MOD+UfO+ZYs5L9rEYKoRenGAWgGP/jxjpOi3D4x6061/?=
+ =?us-ascii?q?kqHx/A0gIuAtkCtG3YodvxOasXV+2+0avGwijZb/5OxDnz9obIfBAir/+CU7?=
+ =?us-ascii?q?1/fsjexlUgGQ7eklWdq5boMy+J2ukDsWWW6fdrW+K1i24grgF8ujqvx8kwhY?=
+ =?us-ascii?q?bTnIIV1k7I/jh+zYY3K9y3VFR0YcS4EJdOrCyaK4t3Td8iQ2Fvoio6zKYGto?=
+ =?us-ascii?q?ShcCgFz5Qn2QfSZvqaeIaL+hLuTPudLDh3iX5/eL+zmgy+/Vavx+HiTMW4zV?=
+ =?us-ascii?q?BHpTdfnNbWrHACzRnT59CCSvt640iuxy6C1xvW6uFYOUA0krfbK4I5zr4wiJ?=
+ =?us-ascii?q?UTtUPDEzfqmErslq+Wd1gk+vOy5+TmZLXmqJicN5RqhQ7iKKguhsy+Dvg4Mg?=
+ =?us-ascii?q?gJRWSb//iz1Kb/8kHjRbVKj/k2nrHYsJDcO8sbura0DxJa34ss8RqyDyqq3M?=
+ =?us-ascii?q?4GkXQIMl5JYg+Lg5DsO17UIfD4Cfm/g06rkDdu3/3GPLPgDYnXIXjZjLftY6?=
+ =?us-ascii?q?1w61JcyQUvzdBf4IhYCrcaIP3pQEPxu9vYDgEhPwyu3+nnEMl91p8ZWW+XBa?=
+ =?us-ascii?q?+ZNaTSsUSO5u01P+aDepQYuCzjJPc45/7hl2M5lUUBcqmu2JsdcGq4Eeh+I0?=
+ =?us-ascii?q?WFfXrshc8MEXwUsQo6TezqjkCCUDFIanasUKIz+Cs7BJilDYjdXICthqKO3C?=
+ =?us-ascii?q?OhEp1RfGBGBQPELXC9UIOIQfoOIAeVOclomTEHHeymTog60xiluSfgxrZnJ/?=
+ =?us-ascii?q?aS8Sod49arz9Vx5uvOhTks+jFuSceQyWeASydzhGxbaSUx2fV9vkd00EvZmf?=
+ =?us-ascii?q?x6nPdRD8AJz+9YWQc9c5jHxqp1DM6kCVGJRcuAVFvzGobuOjo2VN9khoZVMk?=
+ =?us-ascii?q?s=3D?=
+X-IPAS-Result: =?us-ascii?q?A2ApCgC5uz1e/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFtIBIqhBWJA4gjmVSBZwkBAQEBAQEBAQE3AQGCE4ItAoJnOBMCEAEBAQQBA?=
+ =?us-ascii?q?QEBAQUDAQFshUOCOykBgwIBBSMEEQ9CCwkFCgICJgICVwYBDAYCAQGCYz+Cf?=
+ =?us-ascii?q?K9XfzODNYIVg1OBPoEOKoFchlOFTkCBEScPgl0+hC0EgyqCXgSBPwGMGAqIf?=
+ =?us-ascii?q?WNGfJZuBoI+lkYGG5sPiwKDYp02IoFYKwpBgWiBTlAYDY4oARcVjiwjAzCOa?=
+ =?us-ascii?q?AEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 07 Feb 2020 18:11:05 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 017IA9pv143157;
-        Fri, 7 Feb 2020 13:10:09 -0500
-Subject: Re: [PATCH v3] security: selinux: allow per-file labeling for bpffs
-To:     Steven Moreland <smoreland@google.com>, paul@paul-moore.com,
-        eparis@parisplace.org, keescook@chromium.org, anton@enomsg.org,
-        ccross@android.com, tony.luck@intel.com, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kernel-team@android.com
-Cc:     "Connor O'Brien" <connoro@google.com>
-References: <20200207180148.235161-1-smoreland@google.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <63fdead2-bb8d-55ea-2d8f-41fc90d036d8@tycho.nsa.gov>
-Date:   Fri, 7 Feb 2020 13:12:04 -0500
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 07 Feb 2020 19:38:27 +0000
+Received: from moss-lions.infosec.tycho.ncsc.mil (moss-lions [192.168.25.4])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 017JbZPx193268;
+        Fri, 7 Feb 2020 14:37:35 -0500
+Subject: Re: [Non-DoD Source] [PATCH userspace] libsepol/cil: remove
+ unnecessary hash tables
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20200207145816.43814-1-omosnace@redhat.com>
+From:   jwcart2 <jwcart2@tycho.nsa.gov>
+Message-ID: <bc64aa15-fc26-2f09-bd2b-871f3a9055ea@tycho.nsa.gov>
+Date:   Fri, 7 Feb 2020 14:39:55 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200207180148.235161-1-smoreland@google.com>
+In-Reply-To: <20200207145816.43814-1-omosnace@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -111,33 +94,377 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/7/20 1:01 PM, Steven Moreland wrote:
-> From: Connor O'Brien <connoro@google.com>
+On 2/7/20 9:58 AM, Ondrej Mosnacek wrote:
+> The filename_- and range_trans_table ancillary hash tables in
+> cil_binary.c just duplicate the final policydb content and can be simply
+> removed.
 > 
-> Add support for genfscon per-file labeling of bpffs files. This allows
-> for separate permissions for different pinned bpf objects, which may
-> be completely unrelated to each other.
-> 
-> Signed-off-by: Connor O'Brien <connoro@google.com>
-> Signed-off-by: Steven Moreland <smoreland@google.com>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Acked-by: James Carter <jwcart2@tycho.nsa.gov>
 
 > ---
->   security/selinux/hooks.c | 1 +
->   1 file changed, 1 insertion(+)
 > 
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index d9e8b2131a65..18f8cd47729c 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -699,6 +699,7 @@ static int selinux_set_mnt_opts(struct super_block *sb,
->   	if (!strcmp(sb->s_type->name, "debugfs") ||
->   	    !strcmp(sb->s_type->name, "tracefs") ||
->   	    !strcmp(sb->s_type->name, "binderfs") ||
-> +	    !strcmp(sb->s_type->name, "bpf") ||
->   	    !strcmp(sb->s_type->name, "pstore"))
->   		sbsec->flags |= SE_SBGENFS;
+> Maybe I'm missing something, but it seems to me that these two hash
+> tables serve no purpose and can be removed.
+> 
+>   libsepol/cil/src/cil_binary.c | 123 +++++-----------------------------
+>   libsepol/cil/src/cil_binary.h |   6 +-
+>   2 files changed, 20 insertions(+), 109 deletions(-)
+> 
+> diff --git a/libsepol/cil/src/cil_binary.c b/libsepol/cil/src/cil_binary.c
+> index 376491f7..03d53e1f 100644
+> --- a/libsepol/cil/src/cil_binary.c
+> +++ b/libsepol/cil/src/cil_binary.c
+> @@ -59,8 +59,6 @@
+>   /* There are 44000 filename_trans in current fedora policy. 1.33 times this is the recommended
+>    * size of a hashtable. The next power of 2 of this is 2 ** 16.
+>    */
+> -#define FILENAME_TRANS_TABLE_SIZE (1 << 16)
+> -#define RANGE_TRANS_TABLE_SIZE (1 << 13)
+>   #define ROLE_TRANS_TABLE_SIZE (1 << 10)
+>   #define AVRULEX_TABLE_SIZE (1 <<  10)
+>   #define PERMS_PER_CLASS 32
+> @@ -70,8 +68,6 @@ struct cil_args_binary {
+>   	policydb_t *pdb;
+>   	struct cil_list *neverallows;
+>   	int pass;
+> -	hashtab_t filename_trans_table;
+> -	hashtab_t range_trans_table;
+>   	hashtab_t role_trans_table;
+>   	hashtab_t avrulex_ioctl_table;
+>   	void **type_value_to_cil;
+> @@ -82,7 +78,6 @@ struct cil_args_booleanif {
+>   	policydb_t *pdb;
+>   	cond_node_t *cond_node;
+>   	enum cil_flavor cond_flavor;
+> -	hashtab_t filename_trans_table;
+>   };
 >   
+>   static int __cil_get_sepol_user_datum(policydb_t *pdb, struct cil_symtab_datum *datum, user_datum_t **sepol_user)
+> @@ -1129,7 +1124,7 @@ int cil_type_rule_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+>   	return  __cil_type_rule_to_avtab(pdb, db, cil_rule, NULL, CIL_FALSE);
+>   }
+>   
+> -int __cil_typetransition_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_nametypetransition *typetrans, cond_node_t *cond_node, enum cil_flavor cond_flavor, hashtab_t filename_trans_table)
+> +int __cil_typetransition_to_avtab(policydb_t *pdb, const struct cil_db *db, struct cil_nametypetransition *typetrans, cond_node_t *cond_node, enum cil_flavor cond_flavor)
+>   {
+>   	int rc = SEPOL_ERR;
+>   	type_datum_t *sepol_src = NULL;
+> @@ -1179,7 +1174,6 @@ int __cil_typetransition_to_avtab(policydb_t *pdb, const struct cil_db *db, stru
+>   			if (rc != SEPOL_OK) goto exit;
+>   
+>   			cil_list_for_each(c, class_list) {
+> -				int add = CIL_TRUE;
+>   				rc = __cil_get_sepol_class_datum(pdb, DATUM(c->data), &sepol_obj);
+>   				if (rc != SEPOL_OK) goto exit;
+>   
+> @@ -1191,11 +1185,13 @@ int __cil_typetransition_to_avtab(policydb_t *pdb, const struct cil_db *db, stru
+>   				newkey->name = cil_strdup(name);
+>   				newdatum->otype = sepol_result->s.value;
+>   
+> -				rc = hashtab_insert(filename_trans_table, (hashtab_key_t)newkey, newdatum);
+> +				rc = hashtab_insert(pdb->filename_trans,
+> +						    (hashtab_key_t)newkey,
+> +						    newdatum);
+>   				if (rc != SEPOL_OK) {
+>   					if (rc == SEPOL_EEXIST) {
+> -						add = CIL_FALSE;
+> -						otype = hashtab_search(filename_trans_table, (hashtab_key_t)newkey);
+> +						otype = hashtab_search(pdb->filename_trans,
+> +								(hashtab_key_t)newkey);
+>   						if (newdatum->otype != otype->otype) {
+>   							cil_log(CIL_ERR, "Conflicting name type transition rules\n");
+>   						} else {
+> @@ -1204,17 +1200,6 @@ int __cil_typetransition_to_avtab(policydb_t *pdb, const struct cil_db *db, stru
+>   					} else {
+>   						cil_log(CIL_ERR, "Out of memory\n");
+>   					}
+> -				}
+> -
+> -				if (add == CIL_TRUE) {
+> -					rc = hashtab_insert(pdb->filename_trans,
+> -							    (hashtab_key_t)newkey,
+> -							    newdatum);
+> -					if (rc != SEPOL_OK) {
+> -						cil_log(CIL_ERR, "Out of memory\n");
+> -						goto exit;
+> -					}
+> -				} else {
+>   					free(newkey->name);
+>   					free(newkey);
+>   					free(newdatum);
+> @@ -1235,9 +1220,9 @@ exit:
+>   	return rc;
+>   }
+>   
+> -int cil_typetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_nametypetransition *typetrans, hashtab_t filename_trans_table)
+> +int cil_typetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_nametypetransition *typetrans)
+>   {
+> -	return  __cil_typetransition_to_avtab(pdb, db, typetrans, NULL, CIL_FALSE, filename_trans_table);
+> +	return  __cil_typetransition_to_avtab(pdb, db, typetrans, NULL, CIL_FALSE);
+>   }
+>   
+>   int __perm_str_to_datum(char *perm_str, class_datum_t *sepol_class, uint32_t *datum)
+> @@ -1925,7 +1910,6 @@ int __cil_cond_to_policydb_helper(struct cil_tree_node *node, __attribute__((unu
+>   	struct cil_type_rule *cil_type_rule;
+>   	struct cil_avrule *cil_avrule;
+>   	struct cil_nametypetransition *cil_typetrans;
+> -	hashtab_t filename_trans_table = args->filename_trans_table;
+>   
+>   	flavor = node->flavor;
+>   	switch (flavor) {
+> @@ -1936,7 +1920,7 @@ int __cil_cond_to_policydb_helper(struct cil_tree_node *node, __attribute__((unu
+>   			cil_tree_log(node, CIL_ERR,"Invalid typetransition statement");
+>   			goto exit;
+>   		}
+> -		rc = __cil_typetransition_to_avtab(pdb, db, cil_typetrans, cond_node, cond_flavor, filename_trans_table);
+> +		rc = __cil_typetransition_to_avtab(pdb, db, cil_typetrans, cond_node, cond_flavor);
+>   		if (rc != SEPOL_OK) {
+>   			cil_tree_log(node, CIL_ERR, "Failed to insert type transition into avtab");
+>   			goto exit;
+> @@ -2205,7 +2189,7 @@ static int __cil_cond_expr_to_sepol_expr(policydb_t *pdb, struct cil_list *cil_e
+>   	return SEPOL_OK;
+>   }
+>   
+> -int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node, hashtab_t filename_trans_table)
+> +int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node)
+>   {
+>   	int rc = SEPOL_ERR;
+>   	struct cil_args_booleanif bool_args;
+> @@ -2280,7 +2264,6 @@ int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+>   	bool_args.db = db;
+>   	bool_args.pdb = pdb;
+>   	bool_args.cond_node = cond_node;
+> -	bool_args.filename_trans_table = filename_trans_table;
+>   
+>   	if (true_node != NULL) {
+>   		bool_args.cond_flavor = CIL_CONDTRUE;
+> @@ -3089,7 +3072,7 @@ exit:
+>   	return rc;
+>   }
+>   
+> -int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_rangetransition *rangetrans, hashtab_t range_trans_table)
+> +int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_rangetransition *rangetrans)
+>   {
+>   	int rc = SEPOL_ERR;
+>   	type_datum_t *sepol_src = NULL;
+> @@ -3121,7 +3104,6 @@ int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, st
+>   			if (rc != SEPOL_OK) goto exit;
+>   
+>   			cil_list_for_each(c, class_list) {
+> -				int add = CIL_TRUE;
+>   				rc = __cil_get_sepol_class_datum(pdb, DATUM(c->data), &sepol_class);
+>   				if (rc != SEPOL_OK) goto exit;
+>   
+> @@ -3137,11 +3119,10 @@ int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, st
+>   					goto exit;
+>   				}
+>   
+> -				rc = hashtab_insert(range_trans_table, (hashtab_key_t)newkey, newdatum);
+> +				rc = hashtab_insert(pdb->range_tr, (hashtab_key_t)newkey, newdatum);
+>   				if (rc != SEPOL_OK) {
+>   					if (rc == SEPOL_EEXIST) {
+> -						add = CIL_FALSE;
+> -						o_range = hashtab_search(range_trans_table, (hashtab_key_t)newkey);
+> +						o_range = hashtab_search(pdb->range_tr, (hashtab_key_t)newkey);
+>   						if (!mls_range_eq(newdatum, o_range)) {
+>   							cil_log(CIL_ERR, "Conflicting Range transition rules\n");
+>   						} else {
+> @@ -3150,27 +3131,13 @@ int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, st
+>   					} else {
+>   						cil_log(CIL_ERR, "Out of memory\n");
+>   					}
+> -				}
+> -
+> -				if (add == CIL_TRUE) {
+> -					rc = hashtab_insert(pdb->range_tr,
+> -							    (hashtab_key_t)newkey,
+> -							    newdatum);
+> -					if (rc != SEPOL_OK) {
+> -						mls_range_destroy(newdatum);
+> -						free(newdatum);
+> -						free(newkey);
+> -						cil_log(CIL_ERR, "Out of memory\n");
+> -						goto exit;
+> -					}
+> -				} else {
+>   					mls_range_destroy(newdatum);
+>   					free(newdatum);
+>   					free(newkey);
+>   					if (rc != SEPOL_OK) {
+>   						goto exit;
+>   					}
+> -				}	
+> +				}
+>   			}
+>   		}
+>   	}
+> @@ -3639,16 +3606,12 @@ int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+>   	struct cil_args_binary *args = extra_args;
+>   	const struct cil_db *db;
+>   	policydb_t *pdb;
+> -	hashtab_t filename_trans_table;
+> -	hashtab_t range_trans_table;
+>   	hashtab_t role_trans_table;
+>   	void **type_value_to_cil;
+>   
+>   	db = args->db;
+>   	pdb = args->pdb;
+>   	pass = args->pass;
+> -	filename_trans_table = args->filename_trans_table;
+> -	range_trans_table = args->range_trans_table;
+>   	role_trans_table = args->role_trans_table;
+>   	type_value_to_cil = args->type_value_to_cil;
+>   
+> @@ -3747,7 +3710,7 @@ int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+>   		  /*rc = cil_roleattributeset_to_policydb(pdb, node->data);*/
+>   			break;
+>   		case CIL_NAMETYPETRANSITION:
+> -			rc = cil_typetransition_to_policydb(pdb, db, node->data, filename_trans_table);
+> +			rc = cil_typetransition_to_policydb(pdb, db, node->data);
+>   			break;
+>   		case CIL_CONSTRAIN:
+>   			rc = cil_constrain_to_policydb(pdb, db, node->data);
+> @@ -3767,7 +3730,7 @@ int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+>   			break;
+>   		case CIL_RANGETRANSITION:
+>   			if (pdb->mls == CIL_TRUE) {
+> -				rc = cil_rangetransition_to_policydb(pdb, db, node->data, range_trans_table);
+> +				rc = cil_rangetransition_to_policydb(pdb, db, node->data);
+>   			}
+>   			break;
+>   		case CIL_DEFAULTUSER:
+> @@ -3785,7 +3748,7 @@ int __cil_node_to_policydb(struct cil_tree_node *node, void *extra_args)
+>   	case 3:
+>   		switch (node->flavor) {
+>   		case CIL_BOOLEANIF:
+> -			rc = cil_booleanif_to_policydb(pdb, db, node, filename_trans_table);
+> +			rc = cil_booleanif_to_policydb(pdb, db, node);
+>   			break;
+>   		case CIL_AVRULE: {
+>   				struct cil_avrule *rule = node->data;
+> @@ -4193,40 +4156,6 @@ exit:
+>   	return rc;
+>   }
+>   
+> -static unsigned int filename_trans_hash(hashtab_t h, const_hashtab_key_t key)
+> -{
+> -	const filename_trans_t *k = (const filename_trans_t *)key;
+> -	return ((k->tclass + (k->ttype << 2) +
+> -				(k->stype << 9)) & (h->size - 1));
+> -}
+> -
+> -static int filename_trans_compare(hashtab_t h
+> -             __attribute__ ((unused)), const_hashtab_key_t key1,
+> -			              const_hashtab_key_t key2)
+> -{
+> -	const filename_trans_t *a = (const filename_trans_t *)key1;
+> -	const filename_trans_t *b = (const filename_trans_t *)key2;
+> -
+> -	return a->stype != b->stype || a->ttype != b->ttype || a->tclass != b->tclass || strcmp(a->name, b->name);
+> -}
+> -
+> -static unsigned int range_trans_hash(hashtab_t h, const_hashtab_key_t key)
+> -{
+> -	const range_trans_t *k = (const range_trans_t *)key;
+> -	return ((k->target_class + (k->target_type << 2) +
+> -				(k->source_type << 5)) & (h->size - 1));
+> -}
+> -
+> -static int range_trans_compare(hashtab_t h
+> -             __attribute__ ((unused)), const_hashtab_key_t key1,
+> -			              const_hashtab_key_t key2)
+> -{
+> -	const range_trans_t *a = (const range_trans_t *)key1;
+> -	const range_trans_t *b = (const range_trans_t *)key2;
+> -
+> -	return a->source_type != b->source_type || a->target_type != b->target_type || a->target_class != b->target_class;
+> -}
+> -
+>   static unsigned int role_trans_hash(hashtab_t h, const_hashtab_key_t key)
+>   {
+>   	const role_trans_t *k = (const role_trans_t *)key;
+> @@ -4872,8 +4801,6 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+>   	struct cil_args_binary extra_args;
+>   	policydb_t *pdb = &policydb->p;
+>   	struct cil_list *neverallows = NULL;
+> -	hashtab_t filename_trans_table = NULL;
+> -	hashtab_t range_trans_table = NULL;
+>   	hashtab_t role_trans_table = NULL;
+>   	hashtab_t avrulex_ioctl_table = NULL;
+>   	void **type_value_to_cil = NULL;
+> @@ -4911,18 +4838,6 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+>   		goto exit;
+>   	}
+>   
+> -	filename_trans_table = hashtab_create(filename_trans_hash, filename_trans_compare, FILENAME_TRANS_TABLE_SIZE);
+> -	if (!filename_trans_table) {
+> -		cil_log(CIL_INFO, "Failure to create hashtab for filename_trans\n");
+> -		goto exit;
+> -	}
+> -
+> -	range_trans_table = hashtab_create(range_trans_hash, range_trans_compare, RANGE_TRANS_TABLE_SIZE);
+> -	if (!range_trans_table) {
+> -		cil_log(CIL_INFO, "Failure to create hashtab for range_trans\n");
+> -		goto exit;
+> -	}
+> -
+>   	role_trans_table = hashtab_create(role_trans_hash, role_trans_compare, ROLE_TRANS_TABLE_SIZE);
+>   	if (!role_trans_table) {
+>   		cil_log(CIL_INFO, "Failure to create hashtab for role_trans\n");
+> @@ -4940,8 +4855,6 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+>   	extra_args.db = db;
+>   	extra_args.pdb = pdb;
+>   	extra_args.neverallows = neverallows;
+> -	extra_args.filename_trans_table = filename_trans_table;
+> -	extra_args.range_trans_table = range_trans_table;
+>   	extra_args.role_trans_table = role_trans_table;
+>   	extra_args.avrulex_ioctl_table = avrulex_ioctl_table;
+>   	extra_args.type_value_to_cil = type_value_to_cil;
+> @@ -5039,8 +4952,6 @@ int cil_binary_create_allocated_pdb(const struct cil_db *db, sepol_policydb_t *p
+>   	rc = SEPOL_OK;
+>   
+>   exit:
+> -	hashtab_destroy(filename_trans_table);
+> -	hashtab_destroy(range_trans_table);
+>   	hashtab_destroy(role_trans_table);
+>   	hashtab_destroy(avrulex_ioctl_table);
+>   	free(type_value_to_cil);
+> diff --git a/libsepol/cil/src/cil_binary.h b/libsepol/cil/src/cil_binary.h
+> index 1004df45..0b6e3b79 100644
+> --- a/libsepol/cil/src/cil_binary.h
+> +++ b/libsepol/cil/src/cil_binary.h
+> @@ -263,7 +263,7 @@ int cil_avrule_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_
+>    *
+>    * @return SEPOL_OK upon success or an error otherwise.
+>    */
+> -int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node, hashtab_t filename_trans_table);
+> +int cil_booleanif_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_tree_node *node);
+>   
+>   /**
+>    * Insert cil role transition structure into sepol policydb.
+> @@ -293,7 +293,7 @@ int cil_roleallow_to_policydb(policydb_t *pdb, const struct cil_db *db, struct c
+>    *
+>    * @return SEPOL_OK upon success or SEPOL_ERR upon error.
+>    */
+> -int cil_typetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_nametypetransition *typetrans, hashtab_t filename_trans_table);
+> +int cil_typetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_nametypetransition *typetrans);
+>   
+>   /**
+>    * Insert cil constrain/mlsconstrain structure(s) into sepol policydb.
+> @@ -327,7 +327,7 @@ int cil_sepol_level_define(policydb_t *pdb, struct cil_sens *cil_sens);
+>    *
+>    * @return SEPOL_OK upon success or an error otherwise.
+>    */
+> -int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_rangetransition *rangetrans, hashtab_t range_trans_table);
+> +int cil_rangetransition_to_policydb(policydb_t *pdb, const struct cil_db *db, struct cil_rangetransition *rangetrans);
+>   
+>   /**
+>    * Insert cil ibpkeycon structure into sepol policydb.
 > 
 
+
+-- 
+James Carter <jwcart2@tycho.nsa.gov>
+National Security Agency
