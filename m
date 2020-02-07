@@ -2,124 +2,93 @@ Return-Path: <SRS0=TwHm=33=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54B3BC352A2
-	for <selinux@archiver.kernel.org>; Fri,  7 Feb 2020 13:39:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F14CC04EB5
+	for <selinux@archiver.kernel.org>; Fri,  7 Feb 2020 14:37:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 35F9B21775
-	for <selinux@archiver.kernel.org>; Fri,  7 Feb 2020 13:39:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5523121741
+	for <selinux@archiver.kernel.org>; Fri,  7 Feb 2020 14:37:54 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="hMCbcBCQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727018AbgBGNjX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 Feb 2020 08:39:23 -0500
-Received: from mga17.intel.com ([192.55.52.151]:44098 "EHLO mga17.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726861AbgBGNjW (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 7 Feb 2020 08:39:22 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Feb 2020 05:39:21 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,413,1574150400"; 
-   d="scan'208";a="220798400"
-Received: from linux.intel.com ([10.54.29.200])
-  by orsmga007.jf.intel.com with ESMTP; 07 Feb 2020 05:39:21 -0800
-Received: from [10.125.252.178] (abudanko-mobl.ccr.corp.intel.com [10.125.252.178])
-        by linux.intel.com (Postfix) with ESMTP id 7EB57580458;
-        Fri,  7 Feb 2020 05:39:13 -0800 (PST)
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-Subject: Re: [PATCH v5 01/10] capabilities: introduce CAP_PERFMON to kernel
- and user space
-To:     Thomas Gleixner <tglx@linutronix.de>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Serge Hallyn <serge@hallyn.com>,
-        James Morris <jmorris@namei.org>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
-        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Will Deacon <will.deacon@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Robert Richter <rric@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-        oprofile-list@lists.sf.net, Andy Lutomirski <luto@amacapital.net>
-References: <875zgizkyk.fsf@nanos.tec.linutronix.de>
-Organization: Intel Corp.
-Message-ID: <7d6f4210-423f-e454-3910-9f8e17dff1aa@linux.intel.com>
-Date:   Fri, 7 Feb 2020 16:39:12 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.2
+        id S1727026AbgBGOhy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 Feb 2020 09:37:54 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:37643 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726674AbgBGOhx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 Feb 2020 09:37:53 -0500
+Received: by mail-wm1-f66.google.com with SMTP id f129so3044363wmf.2
+        for <selinux@vger.kernel.org>; Fri, 07 Feb 2020 06:37:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jtrYDgCH6hh436xXc6nmTI2p9Jfl2D0sejcWpGKKjxY=;
+        b=hMCbcBCQtUrivRy/hPxpTnDX0whIXtUsdB6569ufDZbtUBfxCmi4F0vnv8JN0Cncfq
+         pDXDIDa6c/RjXIATD0C+LjNe1TKXpGStCCz/L0xM2rFZLTYhwFC96nyQfplqymfadKoZ
+         BDJidmuBMdlijb5pP43o9HKu2FmdhDkzGdDQweHznBj88qaoSjk7eyg6BgRKSQF+hf+8
+         VH0HtVYr8cTSTAgLu0TXjjHDJwze8r0kGcuYMkTugpMWcagk8sbiZeC2rRCdLeCHFXrx
+         Xn/5Jpft6Cd8YVc6oNekJUhANlckkW2FhOAQFnNHBnN4WEN6wvYh7kep+8eBxkOJF0QX
+         EkyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jtrYDgCH6hh436xXc6nmTI2p9Jfl2D0sejcWpGKKjxY=;
+        b=ffqWvnet/yXxbRcTcLK9yjFAIaZsNkgaW1gIqohGZgR1P3FVv7RK+6zvSUO/FcP2sf
+         tuwlaazSFSYo8R8aZOPqzCxklNK9aiRYAFCP70DSt02yjOV6iPv0l+EGGO+TbwTWEC71
+         6sRZ52J/JyqMZTcosd3Su3OqCexgr2TFGPNHK6I8azStf8+HCjjq2jPI4shytMWqDRJt
+         6KELFf1X85MVi21r3vCBGhashfGO8F7C6D7HO+Zt7OXWTc97XNKEflncqWCuOAKmk0B0
+         j1Jhwo0L0h8+9O5sIPM0hbkoK+PTj4L3wmpx/NyIWyPIEHJVB5g/MqDG1fSnJq4BB5Zh
+         qnYQ==
+X-Gm-Message-State: APjAAAX9eJGf8Zv7OfZZPp6aF2ZSz9CQujH00fSvROiiLX2TagfY7rZo
+        JqqWUBbdi5ACj511IkHgDdTI6ezs
+X-Google-Smtp-Source: APXvYqxL7KiBl/5NUD1jmPR9KFKiNdhZy3LJ6bkMki5eOzpU2J9rHPNejcCaEKduo5/DoOrNUDwl7w==
+X-Received: by 2002:a05:600c:214f:: with SMTP id v15mr4815187wml.110.1581086271461;
+        Fri, 07 Feb 2020 06:37:51 -0800 (PST)
+Received: from desktopdebian.localdomain (x4d0aee2e.dyn.telefonica.de. [77.10.238.46])
+        by smtp.gmail.com with ESMTPSA id s8sm3590729wmh.26.2020.02.07.06.37.50
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 07 Feb 2020 06:37:50 -0800 (PST)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libselinux: drop error return from is_selinux_enabled.3
+Date:   Fri,  7 Feb 2020 15:37:44 +0100
+Message-Id: <20200207143744.9944-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.25.0
 MIME-Version: 1.0
-In-Reply-To: <875zgizkyk.fsf@nanos.tec.linutronix.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+is_selinux_enabled() does never return -1, do not say so in the manpage.
 
-On 07.02.2020 14:38, Thomas Gleixner wrote:
-> Alexey Budankov <alexey.budankov@linux.intel.com> writes:
->> On 22.01.2020 17:25, Alexey Budankov wrote:
->>> On 22.01.2020 17:07, Stephen Smalley wrote:
->>>>> It keeps the implementation simple and readable. The implementation is more
->>>>> performant in the sense of calling the API - one capable() call for CAP_PERFMON
->>>>> privileged process.
->>>>>
->>>>> Yes, it bloats audit log for CAP_SYS_ADMIN privileged and unprivileged processes,
->>>>> but this bloating also advertises and leverages using more secure CAP_PERFMON
->>>>> based approach to use perf_event_open system call.
->>>>
->>>> I can live with that.  We just need to document that when you see
->>>> both a CAP_PERFMON and a CAP_SYS_ADMIN audit message for a process,
->>>> try only allowing CAP_PERFMON first and see if that resolves the
->>>> issue.  We have a similar issue with CAP_DAC_READ_SEARCH versus
->>>> CAP_DAC_OVERRIDE.
->>>
->>> perf security [1] document can be updated, at least, to align and document 
->>> this audit logging specifics.
->>
->> And I plan to update the document right after this patch set is accepted.
->> Feel free to let me know of the places in the kernel docs that also
->> require update w.r.t CAP_PERFMON extension.
-> 
-> The documentation update wants be part of the patch set and not planned
-> to be done _after_ the patch set is merged.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/man/man3/is_selinux_enabled.3 | 1 -
+ 1 file changed, 1 deletion(-)
 
-Well, accepted. It is going to make patches #11 and beyond.
+diff --git a/libselinux/man/man3/is_selinux_enabled.3 b/libselinux/man/man3/is_selinux_enabled.3
+index df62c225..a887b48c 100644
+--- a/libselinux/man/man3/is_selinux_enabled.3
++++ b/libselinux/man/man3/is_selinux_enabled.3
+@@ -15,7 +15,6 @@ is_selinux_mls_enabled \- check whether SELinux is enabled for (Multi Level Secu
+ .SH "DESCRIPTION"
+ .BR is_selinux_enabled ()
+ returns 1 if SELinux is running or 0 if it is not. 
+-On error, \-1 is returned.
+ 
+ .BR is_selinux_mls_enabled ()
+ returns 1 if SELinux is capable of running in MLS mode or 0 if it is not. To
+-- 
+2.25.0
 
-Thanks,
-Alexey
-
-> 
-> Thanks,
-> 
->         tglx
-> 
