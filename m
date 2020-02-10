@@ -2,90 +2,90 @@ Return-Path: <SRS0=Rep/=36=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAC85C352A3
-	for <selinux@archiver.kernel.org>; Mon, 10 Feb 2020 14:21:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBCE7C352A5
+	for <selinux@archiver.kernel.org>; Mon, 10 Feb 2020 14:35:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B5CB32082F
-	for <selinux@archiver.kernel.org>; Mon, 10 Feb 2020 14:21:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A290E2082F
+	for <selinux@archiver.kernel.org>; Mon, 10 Feb 2020 14:35:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="AgUhkGPh"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="OnyjQ/Hy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727563AbgBJOV7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 10 Feb 2020 09:21:59 -0500
-Received: from USFB19PA33.eemsg.mail.mil ([214.24.26.196]:39711 "EHLO
-        USFB19PA33.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727481AbgBJOV6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 10 Feb 2020 09:21:58 -0500
-X-EEMSG-check-017: 54413112|USFB19PA33_ESA_OUT03.csd.disa.mil
+        id S1727484AbgBJOfN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 10 Feb 2020 09:35:13 -0500
+Received: from UPDC19PA23.eemsg.mail.mil ([214.24.27.198]:31714 "EHLO
+        UPDC19PA23.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726961AbgBJOfN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 10 Feb 2020 09:35:13 -0500
+X-EEMSG-check-017: 57547256|UPDC19PA23_ESA_OUT05.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,425,1574121600"; 
-   d="scan'208";a="54413112"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA33.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Feb 2020 14:21:54 +0000
+   d="scan'208";a="57547256"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by UPDC19PA23.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 10 Feb 2020 14:35:07 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581344517; x=1612880517;
-  h=subject:to:references:from:message-id:date:mime-version:
+  s=tycho.nsa.gov; t=1581345308; x=1612881308;
+  h=subject:from:to:references:message-id:date:mime-version:
    in-reply-to:content-transfer-encoding;
-  bh=s8uvl8CyWM97kp6WH57V0Gj/9FmNfR1w0+utmX/0SwA=;
-  b=AgUhkGPhS88uL/efFI4ZtQy8bjapHBLH1vLvhgce14JRARGjHyiSUI1u
-   ncRjvBZAtM0NqQnUiMmIVLZk8WHyT7gUSsgc2Pn9JHYrL6yopJNN0DIgH
-   btJCwLbNfRr6Rtw4RGtEvLtddQO2fV5VadxYJJM8eu/i4lfptpaRAMmA+
-   LzlXYGgnlJn7RChmd9jYHXPfwDSsmylMsdj2ltPstO8f9/LaUizFl74Ax
-   0szCHLdFQ0cq9B923Jq2qtzRz9kYs8wn3i1vJxpYJcBtGlWzcQCp/cx9E
-   0MZ3IZvf+TJWwAhmREpVHYJXf5U+BhdTs4HIpzXixsnGCK8OMwmOeMixu
-   Q==;
+  bh=qAndqAlfCaeKb5sYTSO4FstGvCY0AOjNaq8NHNUKVcc=;
+  b=OnyjQ/HysUo1azr/Po/PqHjgkzZx4FoZ4P2RaUXsf/xxeBZLUg9Q2uF0
+   PCtqH/j4bwAza2fxVr2CIDAS/xsmG4MotsMfUdf4hTLlUI8UpNm8TrDLK
+   a58hFJflK+0zPAYBMVnk8s24Z5IrVGBFhY/R5IHCCetcWIXwEqava6LTe
+   6m9k3aNugorFro05yoTcpzW8mT5ZcDSvQrfFD4H/BPxsgzM9nHzENeAUG
+   ER+81fMIP8sGeJFGl/Dt+LO88mJNEu6ufkCKkaTDWZjs75KevP5udhPVp
+   yiyVaKKgEliwRAEcowXr28HAIqH8UQqU5QrjwTBweeOJI8M9I3k7LI4of
+   w==;
 X-IronPort-AV: E=Sophos;i="5.70,425,1574121600"; 
-   d="scan'208";a="38883105"
-IronPort-PHdr: =?us-ascii?q?9a23=3AgrYVShEts5t3dfCNPTGgEJ1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7yoMmwAkXT6L1XgUPTWs2DsrQY0raQ7fmrBzRIoc7Y9ixbK9oUD1?=
- =?us-ascii?q?5NoP5VtjRoONSCB0z/IayiRA0BN+MGamVY+WqmO1NeAsf0ag6aiHSz6TkPBk?=
- =?us-ascii?q?e3blItdaz6FYHIksu4yf259YHNbAVUnjq9Zq55IAmroQnLucQanIRvJrwwxx?=
- =?us-ascii?q?fUrXdFevhazn5sKV6Pghrw/Mi98INt/ihKp/4t68tMWrjmcqolSrBVEC4oOH?=
- =?us-ascii?q?0v6s3xshnDQwqP5n8CXWgTjxFFHQvL4gzkU5noqif1ufZz1yecPc3tULA7Qi?=
- =?us-ascii?q?+i4LtxSB/pkygIKTg0+3zKh8NqjaJbpBWhpwFjw4PRfYqYOuZycr/bcNgHXm?=
- =?us-ascii?q?dKQNpfWDJdDYO9d4sPDvQOPeBEr4nmulACqQKyCRSwCO/zzzNFgHH53bc+0+?=
- =?us-ascii?q?88Dw/I2gIuFM8KvHjNotj4MKIeXOaox6fK0DrDdetb1yrj5ojGch4vov+CUr?=
- =?us-ascii?q?x/fsXT1UYhGBjIjkmSpIH/Iz+ZyuoAvmqd4uF9VeyvkWknqwRprzay2scjlJ?=
- =?us-ascii?q?HJhoILxVDC6C533YM1Kse8SE5/f9GlEIZbuiaBN4RrWcMvWH1ouSYmxb0Gvp?=
- =?us-ascii?q?63Zi4KyI89yBLFZPyHdJaI7wvlWe2MLzl4g3dld6i+hxa06UWgxez8VtW00F?=
- =?us-ascii?q?ZXtSVJiMXDtncI1xHV98OJSeN981+81TuA2A3f8OFJLV0umabFJJMt3KQ8mo?=
- =?us-ascii?q?cVvE/eBCH5gl/2g7WTdkg8/+io7Pnobav+q5+HMo90lhn+MqMzmsyjGeg4Mh?=
- =?us-ascii?q?YBX2yc+emkyL3s51f5QLRXjv0tiKXZsZbaJcocpq6iHQBazpwv6wq/Dji60N?=
- =?us-ascii?q?QYmmMLLFRZdxKck4flIVTOIPH8DfunglSslilkx+zeM7H8DZjAIWLPnbf8cb?=
- =?us-ascii?q?pn9UJRxxQ/wcpC655MD7EOOvPzWkv/tNzCCR85NhS5w/36B9VmzY4eRWKODb?=
- =?us-ascii?q?OZMKPVq1OI4PkvLPOWaI8avzb9NeAp5+Tygn8hhV8dYa6p0IMPaHC8BPtmPl?=
- =?us-ascii?q?mZYWD3jdgbCmoKpBQxQ/HqiFKYTT5ffWq9X6U55jsjEoKpEZ/DRpyxgLyGxC?=
- =?us-ascii?q?q7BYNZZmRHClCKDHfpeJ6JW+kDaC2MOM9tiD8EWqa7S48nyx6usBX2y719Lu?=
- =?us-ascii?q?rbqWUkssfb2cRvr8naiA0o/zV/D4zJy2WEUn1ulGogXTI63Klj50d6zwHHmb?=
- =?us-ascii?q?N1h/1eCMx7+fxESEE5OITawug8DMr9CSzbedLcc0qrWtWrB3kKS9s1x9IfKx?=
- =?us-ascii?q?JmF86KkgHI3y3sBaQc0bOMGspnoernw3HtKpMlmD793647ggxjG5AeOA=3D?=
- =?us-ascii?q?=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DlAgCoZUFe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YEYVSASKoQViQOGYwEBAQaBN4lwiieHJAkBAQEBAQEBAQErDAEBg3tFAoJpO?=
- =?us-ascii?q?BMCEAEBAQQBAQEBAQUDAQFshTcMgjspAYMBAQEBAQIBIxVGCwsOCgICJgICV?=
- =?us-ascii?q?wYBDAYCAQGCYz8BglYFIA+mUHWBMoVKgySBOAaBDiqMPXmBB4ERJw+CXT6CZ?=
- =?us-ascii?q?AKEdYJeBJdCRogyjziCRIJOhH6OegYbmw8tjjeIbJRKIoFYKwgCGAghDzuCb?=
- =?us-ascii?q?FAYDZIQinEjAzCOaAEB?=
+   d="scan'208";a="32867121"
+IronPort-PHdr: =?us-ascii?q?9a23=3A7Be98RPrRoGrbsqsRgEl6mtUPXoX/o7sNwtQ0K?=
+ =?us-ascii?q?IMzox0I//zrarrMEGX3/hxlliBBdydt6sYzbSP+P65ESxYuNDd6StEKMQNHz?=
+ =?us-ascii?q?Y+yuwu1zQ6B8CEDUCpZNXLVAcdWPp4aVl+4nugOlJUEsutL3fbo3m18CJAUk?=
+ =?us-ascii?q?6nbVk9Kev6AJPdgNqq3O6u5ZLTfx9IhD2gar9uMRm6twrcutQZjId4K6s91x?=
+ =?us-ascii?q?TFr3pVd+9LwW9kOU+fkwzz68ut8pNv6Thct+4k+8VdTaj0YqM0QKBCAj87KW?=
+ =?us-ascii?q?41/srrtRfCTQuL+HQRV3gdnwRLDQbY8hz0R4/9vSTmuOVz3imaJtD2QqsvWT?=
+ =?us-ascii?q?u+9adrSQTnhzkBOjUk7WzYkM1wjKZcoBK8uxxyxpPfbY+JOPZieK7WYMgXTn?=
+ =?us-ascii?q?RdUMlPSyNBA5u8b4oRAOoHIeZYtJT2q18XoRejGQWgGObjxzlGiX/s2a0xzv?=
+ =?us-ascii?q?ovHwfI0gc9G94CqXrZodHwOKoUTOu7zrTHzS/bYv1L2Tnz9obIfBMvr/6CUr?=
+ =?us-ascii?q?1/c9bex0Y0GgPZjFids5DpMy+b2+kPtWWQ8upuVfioi24iswx/vySvydk0io?=
+ =?us-ascii?q?nJmI0VzE3P+zh8wIkvId24TFB0YN65G5ZXrCGVKpB2T9g+Q2BopCk6yroGtY?=
+ =?us-ascii?q?S9fCgR0psr3RHfa/uZc4WR5B/oSeWfIS9giX54d7+yiAy+/Ei9xuHmSMW530?=
+ =?us-ascii?q?hGojBYntTKq3sDzQbc6tKdRft45kqh3DGP2B3N5excOkA0kLbbK4Ymwr4tip?=
+ =?us-ascii?q?ofqUTDETHymEXxlKKWal8r+vKp6+T6ebXqvJ6cN4l6igH5KaQhhNCwDf4kMg?=
+ =?us-ascii?q?kOQ2eb+eO82Kfl/ULlW7VFkuc6kqzYsJDePcgbp6i5DBFJ0os79hqyADir3M?=
+ =?us-ascii?q?4YkHUaNl5JZh2Kg5bzN13TOPz4CO2wg1WokDdl3fDGObjhD43WLnfei7fsZq?=
+ =?us-ascii?q?p96k5AxwozytBT/ZRUCqobL/7pVU/xs8LYAgcjMwOo2+bnFMl91oQGVGKIB6?=
+ =?us-ascii?q?+ZN7jSsVmS6e0zPeaBf5UVtyjgJPgl/fHukWU1lkMafamsxZEXcmy3Hux6I0?=
+ =?us-ascii?q?WFZnrhmswBHnkOvgo/SuzqlVKDXCVNZ3a9Qa08/Cs3CIG4AofZQICinriB0D?=
+ =?us-ascii?q?28Hp1MaWAVQmyLRFDue5+JWb8pbzmUK8RskXRQUr2mUIko3hyGrgL2y7N7aO?=
+ =?us-ascii?q?HT/3tc/Ynu0Nlz+v37ix4/73p3At6b3mXLSHt7zU0SQDpj57xyuUxwzB+41K?=
+ =?us-ascii?q?F8h/FJXYhI6+hhThYxNZmayfdzTd/1RFSSLZ+yVF+6T4D+UnkKRdUrzopLOh?=
+ =?us-ascii?q?0sFg=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2D6AgAYaUFe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFtIBIqhBWJA4ZkAQEBBoESJYlwhXuLUAkBAQEBAQEBAQE3AQGENgoCgmo4E?=
+ =?us-ascii?q?wIQAQEBBAEBAQEBBQMBAWyFQ4I7KQGDAgEFIxVRCw4KAgImAgJXBgEMBgIBA?=
+ =?us-ascii?q?YJjP4JXJadagTKIb4E+gQ4qjD15gQeBOAwDgl0+gQ6GTYJeBJdCRpdqgkSCT?=
+ =?us-ascii?q?pN4BhuCOAGYVo5knTYigVgrCAIYCCEPgydQGA2dASMDMI5oAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 10 Feb 2020 14:21:49 +0000
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 10 Feb 2020 14:35:06 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01AEKsAu262904;
-        Mon, 10 Feb 2020 09:20:54 -0500
-Subject: Re: [PATCH v3] libselinux: Eliminate use of security_compute_user()
-To:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
-References: <20200208073607.21229-1-plautrba@redhat.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01AEYBK8263049;
+        Mon, 10 Feb 2020 09:34:11 -0500
+Subject: Re: [PATCH 2/2] Travis-CI: test that DEBUG build works
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <19672e97-151e-ead0-0a1f-b3148e35344f@tycho.nsa.gov>
-Date:   Mon, 10 Feb 2020 09:23:20 -0500
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20200206131901.535779-1-omosnace@redhat.com>
+ <20200206131901.535779-3-omosnace@redhat.com>
+ <6fd93c7d-e5fe-b5ce-d5cc-b11125b9c587@tycho.nsa.gov>
+Message-ID: <df62aa07-b071-6160-f913-e7b25242744e@tycho.nsa.gov>
+Date:   Mon, 10 Feb 2020 09:36:37 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200208073607.21229-1-plautrba@redhat.com>
+In-Reply-To: <6fd93c7d-e5fe-b5ce-d5cc-b11125b9c587@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -94,140 +94,10 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/8/20 2:36 AM, Petr Lautrbach wrote:
-> get_ordered_context_list() code used to ask the kernel to compute the complete
-> set of reachable contexts using /sys/fs/selinux/user aka
-> security_compute_user(). This set can be so huge so that it doesn't fit into a
-> kernel page and security_compute_user() fails. Even if it doesn't fail,
-> get_ordered_context_list() throws away the vast majority of the returned
-> contexts because they don't match anything in
-> /etc/selinux/targeted/contexts/default_contexts or
-> /etc/selinux/targeted/contexts/users/
+On 2/7/20 4:27 PM, Stephen Smalley wrote:
+> On 2/6/20 8:19 AM, Ondrej Mosnacek wrote:
+>> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > 
-> get_ordered_context_list() is rewritten to compute set of contexts based on
-> /etc/selinux/targeted/contexts/users/ and
-> /etc/selinux/targeted/contexts/default_contexts files and to return only valid
-> contexts, using security_check_context(), from this set.
-> 
-> Fixes: https://github.com/SELinuxProject/selinux/issues/28
-> 
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> ---
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-> diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
-> index 689e46589f30..cc39f8c6a96c 100644
-> --- a/libselinux/src/get_context_list.c
-> +++ b/libselinux/src/get_context_list.c
-
-> @@ -243,23 +222,89 @@ static int get_context_order(FILE * fp,
->   		if (*end)
->   			*end++ = 0;
->   
-> -		/* Check for a match in the reachable list. */
-> -		rc = find_partialcon(reachable, nreach, start);
-> -		if (rc < 0) {
-> -			/* No match, skip it. */
-> +		/* Check whether a new context is valid */
-> +		if (SIZE_MAX - user_len < strlen(start) + 1) {
-> +			fprintf(stderr, "%s: one of partial contexts is too big\n", __FUNCTION__);
-> +			errno = EINVAL;
-> +			rc = -1;
-> +			goto out;
-> +		}
-> +		usercon_len = user_len + strlen(start) + 1;
-> +		usercon_str = malloc(usercon_len);
-> +		if (!usercon_str) {
-> +			rc = -1;
-> +			goto out;
-> +		}
-> +
-> +		/* set range from fromcon in the new usercon */
-> +		snprintf(usercon_str, usercon_len - 1, "%s:%s", user, start);
-> +		usercon = context_new(usercon_str);
-> +		if (!usercon) {
-> +			if (errno != EINVAL) {
-> +				free(usercon_str);
-> +				rc = -1;
-> +				goto out;
-> +			}
-> +			fprintf(stderr,
-> +				"%s: can't create a context from %s, skipping\n",
-> +				__FUNCTION__, usercon_str);
-> +			free(usercon_str);
-> +			start = end;
-> +			continue;
-> +		}
-> +		if (context_range_set(usercon, fromlevel) != 0) {
-> +			if (errno != EINVAL) {
-> +				free(usercon_str);
-> +				rc = -1;
-> +				goto out;
-> +			}
-> +			fprintf(stderr,
-> +			    "%s: can't set a new range %s for %s, skipping\n",
-> +			    __FUNCTION__, fromlevel, usercon_str);
-> +			free(usercon_str);
-
-I'd think we could always treat this as a fatal error but up to you. 
-Regardless, we need to also do a context_free(usercon); here or we will 
-leak the memory.
-
->   			start = end;
->   			continue;
->   		}
-> +		free(usercon_str);
-> +		usercon_str = context_str(usercon);
-> +		if (!usercon_str) {
-> +			rc = -1;
-
-context_free(usercon); needed here as well.
-
-> +			goto out;
-> +		}
->   
-> -		/* If a match is found and the entry is not already ordered
-> -		   (e.g. due to prior match in prior config file), then set
-> -		   the ordering for it. */
-> -		i = rc;
-> -		if (ordering[i] == nreach)
-> -			ordering[i] = (*nordered)++;
-> +		/* check whether usercon is already in reachable */
-> +		if (is_in_reachable(*reachable, usercon_str)) {
-> +			start = end;
-
-And again.
-
-> +			continue;
-> +		}
-> +		if (security_check_context(usercon_str) == 0) {
-> +			if (*nreachable == 0) {
-> +				new_reachable = malloc(2 * sizeof(char *));
-> +				if (!new_reachable) {
-> +					context_free(usercon);
-> +					rc = -1;
-> +					goto out;
-> +				}
-> +			} else {
-> +				new_reachable = realloc(*reachable, (*nreachable + 2) * sizeof(char *));
-> +				if (!new_reachable) {
-> +					context_free(usercon);
-> +					rc = -1;
-> +					goto out;
-> +				}
-> +			}
-> +			new_reachable[*nreachable] = strdup(usercon_str);
-> +			if (new_reachable[*nreachable] == NULL) {
-> +				rc = -1;
-> +				goto out;
-> +			}
-> +			new_reachable[*nreachable + 1] = 0;
-> +			*reachable = new_reachable;
-> +			*nreachable += 1;
-> +		}
-> +		context_free(usercon);
->   		start = end;
->   	}
-> -
->   	rc = 0;
->   
->         out:
+Both patches applied.
