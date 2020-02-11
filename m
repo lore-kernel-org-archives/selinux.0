@@ -2,149 +2,122 @@ Return-Path: <SRS0=fAir=37=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAD6CC352A3
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 14:52:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B274C352A3
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 15:03:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A34D320675
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 14:52:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F2DE920675
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 15:03:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="E75bQ5SX"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="FZTJ1jJF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729904AbgBKOwR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Feb 2020 09:52:17 -0500
-Received: from USFB19PA31.eemsg.mail.mil ([214.24.26.194]:10465 "EHLO
-        USFB19PA31.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729831AbgBKOwR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 09:52:17 -0500
-X-EEMSG-check-017: 54700617|USFB19PA31_ESA_OUT01.csd.disa.mil
+        id S1727682AbgBKPDh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Feb 2020 10:03:37 -0500
+Received: from UPDC19PA24.eemsg.mail.mil ([214.24.27.199]:34845 "EHLO
+        UPDC19PA24.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727111AbgBKPDh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 10:03:37 -0500
+X-EEMSG-check-017: 57751647|UPDC19PA24_ESA_OUT06.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,428,1574121600"; 
-   d="scan'208";a="54700617"
+   d="scan'208";a="57751647"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA31.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 11 Feb 2020 14:52:15 +0000
+  by UPDC19PA24.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 11 Feb 2020 15:03:32 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581432735; x=1612968735;
-  h=subject:from:to:references:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=f7E5XCSvIxM1SAaGk9iUkKhKY0I/eann6W2E//Fr2PU=;
-  b=E75bQ5SXXUNNP9h99YW0JvVtdZYRapZq7KJRhOliaWqrsKVu9CbzGXB4
-   tHSWcoJ6pNW0lLHtaKIt41LbVKgbp4dxjr3tpi+O9HD/rS7C5eixq3sV5
-   H0LFyc9iv8tnwTYUmWYDsqpmofUoa6Lwo4kTEhap8OqGX5gOZF2SgGPed
-   QVazmNjO5gVa3Mn0FFRor5uAwQIs8ppURXdmKeQ7GRmciZwGmMsBFiT4H
-   E7bYOltQosibVwM+LLRrz/xh+vqKckDw7Wyb+NguhkWCppFO/uR3PhJoD
-   YxpytP9df3XGl6pdTVkCkixZ7ZDoka9w7l8NLN1jx+rYjh1ycpIfRlRm3
-   A==;
+  s=tycho.nsa.gov; t=1581433412; x=1612969412;
+  h=subject:to:references:cc:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=3e2UX75hVK7e4IXfR2MQCMhra/YORn0osj8blcCS1xc=;
+  b=FZTJ1jJFqfGauqFHOO0i5lBqkZtI7DZbydjfWHUOw3Wzr36rMfxJG1P1
+   /psoUTFnT+xSvKw6E5Bh/uPz9LHls1jsgIkB41CKz0vPVzqtwMEs9wdYm
+   sbCpqZzP16TOeKDYsATelGX++d8U6iAY2vF8GRxMBumjN/s4KDxpKG+2L
+   w1Itz+iPCjS376eTpwXKefUYojxmmLKCmsrs9RWCR4SJ6qofgcTjkmrCU
+   g1DpsAdFL8MhQFA7rkJlrchE+b40eVZssprxn3l532CDPdQn2mKEiEjIx
+   NRFSDjSg4mWrWz1Zi/CS5mdyW3D8+Yd5Rt4OVyDXfTUhX+7WapeOQMSOe
+   Q==;
 X-IronPort-AV: E=Sophos;i="5.70,428,1574121600"; 
-   d="scan'208";a="38947816"
-IronPort-PHdr: =?us-ascii?q?9a23=3AiqOclBQVGANmxPrn21dITMcg6Npsv+yvbD5Q0Y?=
- =?us-ascii?q?Iujvd0So/mwa67ZBKGt8tkgFKBZ4jH8fUM07OQ7/m8HzJbqsjf+Fk5M7VyFD?=
- =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
- =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjeu8UMgIZvJKk9xx?=
- =?us-ascii?q?rIr3BVZ+lY2GRkKE6ckBr7+sq+5oNo/T5Ku/Im+c5AUKH6cLo9QLdFEjkoMH?=
- =?us-ascii?q?076dPyuxXbQgSB+nUTUmMNkhpVGAfF9w31Xo3wsiThqOVw3jSRMNDsQrA1XT?=
- =?us-ascii?q?Si6LprSAPthSwaOTM17H3bh8pth69AvhmvuwJwzJLVYIGNNfpxYKXdfc8BRW?=
- =?us-ascii?q?FcWspdTjFNDp+gY4cKCecOM/xYr43grFUQqxWwCxSnCOf2xjJGgnL62Ks32P?=
- =?us-ascii?q?kjHw7bxgwtB88AvnTKotX7N6kcX+66w6bKwjrfYP1bwiv95YvSfxw9vf2BU7?=
- =?us-ascii?q?B9fMzMwkcvDQPFiVCQpJT4MTOJyOsNq2ib4PRmVemylmAnrht+ojyrxsgyio?=
- =?us-ascii?q?jCm4UYykvZ+iVi24s1Od25R1J7Yd6jCpdQsTqaOJFsTsMtRGFopj83x7sbsp?=
- =?us-ascii?q?C1eygKzY4oxx/Za/GffImH/hXjW/uPLjp8nn5qYqq/hw60/EO9yeP8TtG53E?=
- =?us-ascii?q?tFoydKiNXBtm0B2wbN5sWIVPdx5Fqt1DCS3A7J8O5EO1o7la/DJp4kxb4/i4?=
- =?us-ascii?q?QcvFzYHi/zhEX2lKiWdlg4+uSw6+TofLHmppiEOo9okA7+KKUumtGkAegiMw?=
- =?us-ascii?q?gOWWab+eOn1LL94UL1WqlKj/0qnanZt5DWP8IbqbKiAwBJyIoj7he/DzO+3N?=
- =?us-ascii?q?QZm3kIMk5FdQqag4XmNFzCOvD1Aeqlj1iynzpn2erKMqD5DpXINHfDkbPhfb?=
- =?us-ascii?q?hn605bzQo+1ctf6I9PCrwaPPLyWlP+tNzfDhMjNQy02PzoBM9y1oMZR2KDGr?=
- =?us-ascii?q?WZP7/KsV+U+uIvJPGBZIkTuDb+MPUl6PnujXg2mV8ZY6alx4cYaHe9Hv5+OU?=
- =?us-ascii?q?WWfWLsgssdEWcNpgc+V/LliFmDUT5VenazULkx5i80CI24F4fPXIOtj6Kb3C?=
- =?us-ascii?q?e9AJJWYnpKCleWEXfnb4+EQesDaDqOIs99lTwJTaKhS4492hGurgD60adoIf?=
- =?us-ascii?q?LI9SIAtZLsztl15+vNmhEp7jF7FNid02CLT2FogGwIXTk2075joUBn1liD1q?=
- =?us-ascii?q?140LRkEol15vhKGiQgPJrR0e1xC5imXATCVtiOT1miT5OtBjRnCpoqztsPZV?=
- =?us-ascii?q?ttM8utgwqF3CewBbIR0buRC9h8yKPX33HrK45dwnfA2bJp20MnSctGL2GRjZ?=
- =?us-ascii?q?l//gnVCpXhmVmYkbqnb6IRwGjG82LVnkSUu0QNaxJ9SaXIWzgkY0LSqdnorh?=
- =?us-ascii?q?fZQ6SGFaUsMgwHz9WLbKRNdIu63h19WP7/NYGGMCqKkGCqCEPNn+jdYQ=3D?=
- =?us-ascii?q?=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CbBQCou0Je/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXsCg?=
- =?us-ascii?q?XuBbSASKoQViQOGaAEBAQaBEiWJcJB0A1QJAQEBAQEBAQEBNwEBhEACgms4E?=
- =?us-ascii?q?wIQAQEBBAEBAQEBBQMBAWyFQ0IWAYFiKQGDAgEFIw8BBVEJAg4KAgImAgJXB?=
- =?us-ascii?q?gEMBgIBAYJjP4JXJY8wm3mBMokAgT6BDioBjDx5gQeBOAwDgl0+h1uCPCIEl?=
- =?us-ascii?q?l+BKZdqgkSCTpN4BgIZmw8tjjedNiI3gSErCAIYCCEPgydQGA2OKAEXjkEjA?=
- =?us-ascii?q?zCLC4NdAQE?=
+   d="scan'208";a="38948806"
+IronPort-PHdr: =?us-ascii?q?9a23=3A8cTG8xVTtKStnXYc5k3TUQw9HDDV8LGtZVwlr6?=
+ =?us-ascii?q?E/grcLSJyIuqrYZRSHv6dThVPEFb/W9+hDw7KP9fy5BSpeut3f4DgrS99laV?=
+ =?us-ascii?q?wssY0uhQsuAcqIWwXQDcXBSGgEJvlET0Jv5HqhMEJYS47UblzWpWCuv3ZJQk?=
+ =?us-ascii?q?2sfQV6Kf7oFYHMks+5y/69+4HJYwVPmTGxfa5+IA+5oAnMucQam4pvJ6g+xh?=
+ =?us-ascii?q?bIoXZDZvhby35vKV+PkBnw4du98oR++CpKofIh8MBAUaT+f6smSLFTESorPW?=
+ =?us-ascii?q?Mo6sD1rBfPVQSA6GcSXWUQiRpIHhPK7ArmUZfrsyv1rfRy1S+HNsDrV780WD?=
+ =?us-ascii?q?Ci76B2SB/0jSoMKjA0/H3LhsF2kalWuwyqqQBhzIHIYYGVLPt+cb3bfdMGXm?=
+ =?us-ascii?q?pKQ8JdWzVcDo+gc4cDCuwMMuhCr4n5ulAAsx2wCwexD+/r0zNFiHv70ag83u?=
+ =?us-ascii?q?88Ew/JwRYgEsoTvnrKotX7NKQcX+67w6bHzzrMc/xY1Czh6IXKaB0tve2AUL?=
+ =?us-ascii?q?xyfMfX1EIhFxnFjlKVqYH9Ij2VyvoCs3Cb7+V+U+KklnMpqwRrrTirwscjlI?=
+ =?us-ascii?q?nIjZ8Sx1Df6Cp52504JcG4SUFnYd6kF4FctyeBN4RsWM8iTGZouDgjx7AApJ?=
+ =?us-ascii?q?W1ci8KyJE9yB7ebfyKa4eI4hP/VOaRPDd3n2hpd664hxa390Wr1+7yVtGs3V?=
+ =?us-ascii?q?pXoSdIncPAu3AQ2xDJ9MSKReVx8l281TuJygvd8PtLIVoumqreM5Mhx7kwmY?=
+ =?us-ascii?q?cNvknbBS/2nVn2jLeRdkU55uik8+Tnbavipp+bL4J0lhvxMr4vmsyiGuQ0KA?=
+ =?us-ascii?q?kOX26V+eS7z73s41H2TK9Wjvw2jqbZsJfaKd4dpqGlGA9azpwv6xO+DzeiyN?=
+ =?us-ascii?q?gYnH8HI0xZeB+fkoTkNF7DLOr4APuimVigjjhmy+7cMrH8GpnNK2LMkLblfb?=
+ =?us-ascii?q?Zz8U5czw8zwMhE551JEbEMO+7zW0/tu9zYCR81KQq0w/39B9ln2YMeXnyPDr?=
+ =?us-ascii?q?eDMKzOqV+I+v4vI+6UaY8NvDbyMeUl5+L0jXAig1AQZrOp0oUKZ3C4BPtmP1?=
+ =?us-ascii?q?+VbmbrgtcECW0KpBYxTPT2iF2eVj5ef22yULw45jE6DoKmEIjCS5uzgLyOwi?=
+ =?us-ascii?q?i7BIdaZmNYBVCWF3fnaYGEV+0LaCKILc9riiYEWqS5S489yRGusxf3y71iLu?=
+ =?us-ascii?q?rT4S0Ys4js28Rr6ODIjxE96yF7D8SH3GGRVW17gmQIRzpllJx49HRw1k3L9a?=
+ =?us-ascii?q?Fln+ZSHNdTr6dRVg4nKYTWxsRgBtzyUx6HddCMHhLuWdiiADcsXvovzNIUJU?=
+ =?us-ascii?q?VwAdOvilbExSX5LaUSkumwGJEs8q/al0P0LsJ5xmeOgLItlHE6U8BPMiugna?=
+ =?us-ascii?q?c5+A/NUd2a236FnrqnIPxPlBXG832OmC/X5xBV?=
+X-IPAS-Result: =?us-ascii?q?A2DjAgCou0Je/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YEYVSASKoQViQOGaAEBAQaBN4lwiieHJAkBAQEBAQEBAQErDAEBg3tFAoJrO?=
+ =?us-ascii?q?BMCEAEBAQQBAQEBAQUDAQFshTcMgjspAYMCAQUjFUEQCw4KAgImAgJXBgEMB?=
+ =?us-ascii?q?gIBAYJjPwGCViUPqxqBMoVKgzaBOAaBDiqMPXmBB4E4D4JdPoJkAoR1gl4El?=
+ =?us-ascii?q?0JGl2qCRIJOhH6OegYbmw8tjjeIbJRKIoFYKwgCGAghD4MnUBgNkhCKcSMDM?=
+ =?us-ascii?q?I5oAQE?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 11 Feb 2020 14:52:14 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 11 Feb 2020 15:03:29 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01BEpIQb171888;
-        Tue, 11 Feb 2020 09:51:19 -0500
-Subject: Re: [PATCH] label_file.c: Fix MAC build
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01BF2Xnc181333;
+        Tue, 11 Feb 2020 10:02:33 -0500
+Subject: Re: [PATCH v5] libselinux: Eliminate use of security_compute_user()
+To:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
+References: <20200211101438.403297-1-plautrba@redhat.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-To:     Nick Kralevich <nnk@google.com>, selinux@vger.kernel.org,
-        Richard Haines <richard_c_haines@btinternet.com>
-References: <20200207230032.210843-1-nnk@google.com>
- <92a60e95-f304-5361-82dc-89a3c3590962@tycho.nsa.gov>
-Message-ID: <19856785-351e-6b74-13ad-f0f40ae1755a@tycho.nsa.gov>
-Date:   Tue, 11 Feb 2020 09:53:20 -0500
+Message-ID: <46e177f4-bd5b-5c69-f8a6-acf1736bc62e@tycho.nsa.gov>
+Date:   Tue, 11 Feb 2020 10:04:35 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <92a60e95-f304-5361-82dc-89a3c3590962@tycho.nsa.gov>
+In-Reply-To: <20200211101438.403297-1-plautrba@redhat.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/10/20 3:49 PM, Stephen Smalley wrote:
-> On 2/7/20 6:00 PM, Nick Kralevich wrote:
->> On Android, the label_file.c file is compiled for all platforms,
->> including OSX. OSX has a slightly different prototype for the
->> getxattr function.
->>
->> ssize_t getxattr(const char *path, const char *name, void *value, 
->> size_t size, u_int32_t position, int options);
->>
->> which causes a compile error when compiling libselinux on OSX.
->>
->>    ```
->>    external/selinux/libselinux/src/label_file.c:1038:37: error: too 
->> few arguments to function call, expected 6, have 4
->>                                         read_digest, SHA1_HASH_SIZE);
->>                                                                  ^
->>    
->> /Applications/Xcode9.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.13.sdk/usr/include/sys/xattr.h:61:1: 
->> note: 'getxattr' declared here
->>    ssize_t getxattr(const char *path, const char *name, void *value, 
->> size_t size, u_int32_t position, int options);
->>    ^
->>    1 error generated.
->>    ```
->>
->> On OSX builds, add the additional arguments so that the code compiles.
->>
->> As both SELinux labels and the restorecon partial digest are stored in
->> extended attributes, it's theoretically possible that someone
->> could assign SELinux labels and hash digests on OSX filesystems.
->> Doing so would be extremely weird and completely untested, but
->> theoretically possible.
->>
->> Signed-off-by: Nick Kralevich <nnk@google.com>
+On 2/11/20 5:14 AM, Petr Lautrbach wrote:
+> get_ordered_context_list() code used to ask the kernel to compute the complete
+> set of reachable contexts using /sys/fs/selinux/user aka
+> security_compute_user(). This set can be so huge so that it doesn't fit into a
+> kernel page and security_compute_user() fails. Even if it doesn't fail,
+> get_ordered_context_list() throws away the vast majority of the returned
+> contexts because they don't match anything in
+> /etc/selinux/targeted/contexts/default_contexts or
+> /etc/selinux/targeted/contexts/users/
 > 
-> Wondering why the getxattr() call isn't done in the selinux_restorecon 
-> code instead, or why this is needed as a separate selabel_ interface at 
-> all. Probably too late though to change it though without breaking API/ABI.
+> get_ordered_context_list() is rewritten to compute set of contexts based on
+> /etc/selinux/targeted/contexts/users/ and
+> /etc/selinux/targeted/contexts/default_contexts files and to return only valid
+> contexts, using security_check_context(), from this set.
 > 
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/28
+> 
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-This is now applied.  Unless there is a real reason to export it outside 
-libselinux, we may wish to remove 
-selabel_get_digests_all_partial_matches() from label.h and the man 
-pages, drop the sample util, possibly add a selinux_log() deprecation 
-warning to the selabel_get_digests_all_partial_matches() function to 
-discourage any further use, and switch selinux_restorecon over to using 
-its own private copy of the same logic.  Then maybe someday we can drop 
-it, but that would technically be an ABI break even if there are no 
-other users beyond the sample util.
+This looks fine to me; I'll wait to see if Ondrej has any further 
+comments, but you can add my:
+
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+
+Then maybe in a decade we can actually remove /sys/fs/selinux/user...
+
