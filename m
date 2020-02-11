@@ -2,223 +2,154 @@ Return-Path: <SRS0=fAir=37=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8525C35242
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 22:56:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1051EC35242
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 23:13:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8368C2086A
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 22:56:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D22E920714
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 23:13:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="WfyYSNDP"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="F5lHcnfj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727690AbgBKW4i (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Feb 2020 17:56:38 -0500
-Received: from mail-pj1-f74.google.com ([209.85.216.74]:60182 "EHLO
-        mail-pj1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727798AbgBKW4Q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 17:56:16 -0500
-Received: by mail-pj1-f74.google.com with SMTP id e4so30324pjj.9
-        for <selinux@vger.kernel.org>; Tue, 11 Feb 2020 14:56:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to;
-        bh=SfqbTtIZ891t7TDE9ou6HfiwogoYL0L+vInmvzqifsw=;
-        b=WfyYSNDPN67RlUiW7x9XkianhYsJOBw/+w3G/mDYOLSvddwfe6D+t/ixXuvoc+wr/l
-         Bz5hewdVukRwZ+dkHapInvhSRuw4keyjs8m2id82QO+o58jzCFe8LAw1b6CztNsELJWZ
-         fualBZEutVuaJyL6SViqeDpn6v+eP545tu4qZ1H1kmVlhiJqpaOUEnxEOWDv3jQyc8y6
-         40XY0SpJ8MlJgm0IkmJIcgbnhTAn1GdPNt6o+wXWaNF0+krC2gYLUngwMdRnjly24uis
-         Ps09LZegEIx5tkwacAba3KtVqx9AYa/bKa+bslSYOAq58Q9NSnziLbYRP2FjqM6hHAbB
-         voTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to;
-        bh=SfqbTtIZ891t7TDE9ou6HfiwogoYL0L+vInmvzqifsw=;
-        b=TV2Gc6Lk1ZoZs/qYGs0NWTORfbr3tZLeL7CBzWpBLISMjXTWnFVieclBa24eoV75ed
-         H13NthCrJjXWUfqZL435WNrWo4HOPTr6ztdqD1T8hZVdRT6+mnZKEEIuA6EGw3ke7VcQ
-         s5p+hhTmgRu50dBP4+kZ1hte1STO1L/CC36JiR38Gys13Iylhry1JzCcjQTJ66NSi1aL
-         PJQK8VjdbN7GqmdubCzOGQl3ixpHuz7TfzS0+FqQiTQrq+R1yVSubNlzJ6D0Qvn5vgN6
-         HudoJ4+IFCwzhS/S8AEiD2B8y7vB0bdVTSNM9zEMQgIaS+qCpDyI2ofxEdXM7YLC6iJi
-         mEmQ==
-X-Gm-Message-State: APjAAAVEUeaHjK9KxVool6tuM0pVmiMLbredxGBHNn4qCabYS/saZGTr
-        yE24GRNdto2+3mAvOfWJ51HE4g7/hIk=
-X-Google-Smtp-Source: APXvYqxcOZR72yGyDyJvUedgz3YRRybV+KpcT1SSXjtHbgMmPun7x8fbFMkY5AOwdjKTmF9bxkn/7qXoxf0=
-X-Received: by 2002:a63:502:: with SMTP id 2mr9605820pgf.364.1581461774275;
- Tue, 11 Feb 2020 14:56:14 -0800 (PST)
-Date:   Tue, 11 Feb 2020 14:55:43 -0800
-In-Reply-To: <20200211225547.235083-1-dancol@google.com>
-Message-Id: <20200211225547.235083-3-dancol@google.com>
-Mime-Version: 1.0
-References: <20200211225547.235083-1-dancol@google.com>
-X-Mailer: git-send-email 2.25.0.225.g125e21ebc7-goog
-Subject: [PATCH v2 2/6] Add a concept of a "secure" anonymous file
-From:   Daniel Colascione <dancol@google.com>
-To:     dancol@google.com, timmurray@google.com, nosh@google.com,
-        nnk@google.com, lokeshgidra@google.com,
+        id S1727927AbgBKXNq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Feb 2020 18:13:46 -0500
+Received: from sonic304-28.consmr.mail.ne1.yahoo.com ([66.163.191.154]:42300
+        "EHLO sonic304-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727798AbgBKXNq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 18:13:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1581462824; bh=4CqsCWSj75Z56jDcVXICXqJheNKDOCZND7DXRw7Kr18=; h=Subject:To:References:Cc:From:Date:In-Reply-To:From:Subject; b=F5lHcnfjLSjbFv9sifAQnp3lodAMxv/v+ghCk447qISQMv0nUj3lDt1cCGLkulcztdNi3HHLOcCSHyxfV6AeNF5x2ub1OmxYcDL3Z7ekDb9YYP2SclTV8D1Xa4wfTNTTivBLCYHZ79voHHeU8+aMyH/Z8FlEJwcomOzZwMU160N2AElnwIULN2RES/2Os7HFHl/O856ke3HSyETKoXo77X16MkvcOfx/ZeEwddTYy5KjehDHklqb2UryVXo9ASYbbwjmBi1aAdSvHco7nDV4x8JD786n6Q+mfCjBfyWZLaSo2L5Qk4YqNMr2tpLY6h1cNVBXNr23wvAIhOKdnMY01Q==
+X-YMail-OSG: r9SLAdMVM1miPnxkcMcOvCKsqByVmK1roS_EFPENuZXcluyYEd81Y.vN_JSKc.Z
+ A9Atc9jL9jkunRJQVtLK1Ed2jzByquJO2Q0NjY4kB9XAAKuy3a5BOpnuEi0BAbRwyDjBv.1S5qsR
+ xrobZqRn_mvJh_EIskaeh_gfNJDQy3fJi1oN0WZWA2ybszsXncqcxxjoNymj9aaXgBpyqq8FXyBM
+ 9_qvJzaKe.Njil_Nec.MRkCYr16jBRqlvxSFdmJI2MpudnKQeUwkZaA7eyB6Atp2JC0L_DLmpz0Q
+ DlpB_m9md59qDK1JrJKfkD8Zl5D6.2heHRcY3Vialh6aYydGl8q2IrJfCgmniJ58yESo1Vn.jvFs
+ Ikfzqw7lBSSGJpZyNbxXyVhtsejkRaXynqrKByfeqPTLJItepRgl_gmkh9qnjZ7w6gukG2sgynsh
+ oXUdw961ugBBa8dTzJPS27wrdkYoZFenOLGZrTqzxcVIEvoWknF3pP_dwriI7QPPU6gTOQt0XJVT
+ c75RDt_.8_END3o10L7P2XwH6.jH0jSfzulms0IB2eePFLFs7y.R0lAYImPqQiqZhS_EQCRiIRPw
+ dC2wUEj.EzHIgxLcrclQieVTq8SsTsDB9PQ6QrV5kNEeVstmm.u5W8S_b4pSm0l4y_t5KjGIoHlp
+ cYzToJHPnLoc.9y6pdzHRglaUj3j2DhrqXVC16rCKNubpXPBYOTS4WCtM7K3jG1dAyxwr_hRAudV
+ .u0SOXgLzZ.PXL.WemAntMVWCzNbI5su8wotZF1aljn_icOTM2.awtof7YuySI._NRYg2SwneI.C
+ EEXYy0GzmahutLP7.vMPh2ndZfkVZS.uc.0Lo0N5ZyAcfgPRECpXVX7euyNJ6ti2xT86WqYge.ov
+ EJvPWl1qQewOXyyQA8.10dxoQCf77r581WThfkoZNxmZH3LJ5oBO.0wf8aAWU44Jfh7__4yqkdqW
+ .MDjUffpYukVFP4M5x9D14KktiVB2BpvuJPiIIENs7LATeppdB0FoXD3WVUBVrrxPcj0dKexxd91
+ oVjDngAW8oyKmnYAOoCuzGnh.4cyvhVABm2lCjcns8DSdimRPKxEb167mLRwNLMbGLY30qigB18A
+ AQYy6FkddjXVs3.975Y5VLp0ayRvRmtxSViI0jfLEGq8yDZTvJyvWI_SA6tt6z86Vyof7X_ea8Yt
+ G_B4YfMXzDdcCMFHqDhJigGUBVMi.f9QqWXhd9IQcEs1aQANHINDHqHZ9lITDD0NL2xuFXJZ6uRe
+ ywt3kPHIKLdQxH8iCitdqKOgdammZWdO9EnxqeybhTeeoIJDucugzfDDr75jA5eYSvd5hPEx8FNg
+ yxqj2oRpe.ny7qjz2MYQIMP0yyvh3KJQnU4wLdKim_N.6VV1T3GL8mIDSZGNeZMZtXiZ8_z4pHYh
+ 30.Asv4mJ4BKACWmqWfjO2Z6UinhfgwxV4Z804mLdoncHTt993pBsElosBk4HGedZqd3L
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic304.consmr.mail.ne1.yahoo.com with HTTP; Tue, 11 Feb 2020 23:13:44 +0000
+Received: by smtp429.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 713b4cd5bc6631751294315c0d8be81a;
+          Tue, 11 Feb 2020 23:13:40 +0000 (UTC)
+Subject: Re: [PATCH v2 0/6] Harden userfaultfd
+To:     Daniel Colascione <dancol@google.com>, timmurray@google.com,
+        nosh@google.com, nnk@google.com, lokeshgidra@google.com,
         linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
         selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+References: <20200211225547.235083-1-dancol@google.com>
+Cc:     Casey Schaufler <casey@schaufler-ca.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ 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
+ abzjfg==
+Message-ID: <9ae20f6e-c5c0-4fd7-5b61-77218d19480b@schaufler-ca.com>
+Date:   Tue, 11 Feb 2020 15:13:40 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
+MIME-Version: 1.0
+In-Reply-To: <20200211225547.235083-1-dancol@google.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.15199 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_181)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-A secure anonymous file is one we hooked up to its own inode (as
-opposed to the shared inode we use for non-secure anonymous files). A
-new selinux hook gives security modules a chance to initialize, label,
-and veto the creation of these secure anonymous files. Security
-modules had limit ability to interact with non-secure anonymous files
-due to all of these files sharing a single inode.
+On 2/11/2020 2:55 PM, Daniel Colascione wrote:
+> Userfaultfd in unprivileged contexts could be potentially very
+> useful. We'd like to harden userfaultfd to make such unprivileged use
+> less risky. This patch series allows SELinux to manage userfaultfd
+> file descriptors and allows administrators to limit userfaultfd to
+> servicing user-mode faults, increasing the difficulty of using
+> userfaultfd in exploit chains invoking delaying kernel faults.
+>
+> A new anon_inodes interface allows callers to opt into SELinux
+> management of anonymous file objects. In this mode, anon_inodes
+> creates new ephemeral inodes for anonymous file objects instead of
+> reusing a singleton dummy inode. A new LSM hook gives security modules
+> an opportunity to configure and veto these ephemeral inodes.
+>
+> Existing anon_inodes users must opt into the new functionality.
+>
+> Daniel Colascione (6):
+>   Add a new flags-accepting interface for anonymous inodes
+>   Add a concept of a "secure" anonymous file
+>   Teach SELinux about a new userfaultfd class
+>   Wire UFFD up to SELinux
+>   Let userfaultfd opt out of handling kernel-mode faults
+>   Add a new sysctl for limiting userfaultfd to user mode faults
 
-Signed-off-by: Daniel Colascione <dancol@google.com>
----
- fs/anon_inodes.c          | 45 ++++++++++++++++++++++++++++++---------
- include/linux/lsm_hooks.h |  8 +++++++
- include/linux/security.h  |  2 ++
- security/security.c       |  8 +++++++
- 4 files changed, 53 insertions(+), 10 deletions(-)
+This must be posted to the linux Security Module list
+<linux-security-module@vger.kernel.org>
 
-diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-index caa36019afca..d68d76523ad3 100644
---- a/fs/anon_inodes.c
-+++ b/fs/anon_inodes.c
-@@ -55,6 +55,23 @@ static struct file_system_type anon_inode_fs_type = {
- 	.kill_sb	= kill_anon_super,
- };
- 
-+struct inode *anon_inode_make_secure_inode(const char *name,
-+					   const struct file_operations *fops)
-+{
-+	struct inode *inode;
-+	int error;
-+	inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
-+	if (IS_ERR(inode))
-+		return ERR_PTR(PTR_ERR(inode));
-+	inode->i_flags &= ~S_PRIVATE;
-+	error =	security_inode_init_security_anon(inode, name, fops);
-+	if (error) {
-+		iput(inode);
-+		return ERR_PTR(error);
-+	}
-+	return inode;
-+}
-+
- /**
-  * anon_inode_getfile2 - creates a new file instance by hooking it up to
-  *                       an anonymous inode, and a dentry that describe
-@@ -72,7 +89,9 @@ static struct file_system_type anon_inode_fs_type = {
-  * hence saving memory and avoiding code duplication for the file/inode/dentry
-  * setup.  Returns the newly created file* or an error pointer.
-  *
-- * anon_inode_flags must be zero.
-+ * If anon_inode_flags contains ANON_INODE_SECURE, create a new inode
-+ * and enable security checks for it. Otherwise, attach a new file to
-+ * a singleton placeholder inode with security checks disabled.
-  */
- struct file *anon_inode_getfile2(const char *name,
- 				 const struct file_operations *fops,
-@@ -81,17 +100,23 @@ struct file *anon_inode_getfile2(const char *name,
- 	struct inode *inode;
- 	struct file *file;
- 
--	if (anon_inode_flags)
-+	if (anon_inode_flags & ~ANON_INODE_SECURE)
- 		return ERR_PTR(-EINVAL);
- 
--	inode =	anon_inode_inode;
--	if (IS_ERR(inode))
--		return ERR_PTR(-ENODEV);
--	/*
--	 * We know the anon_inode inode count is always
--	 * greater than zero, so ihold() is safe.
--	 */
--	ihold(inode);
-+	if (anon_inode_flags & ANON_INODE_SECURE) {
-+		inode =	anon_inode_make_secure_inode(name, fops);
-+		if (IS_ERR(inode))
-+			return ERR_PTR(PTR_ERR(inode));
-+	} else {
-+		inode =	anon_inode_inode;
-+		if (IS_ERR(inode))
-+			return ERR_PTR(-ENODEV);
-+		/*
-+		 * We know the anon_inode inode count is always
-+		 * greater than zero, so ihold() is safe.
-+		 */
-+		ihold(inode);
-+	}
- 
- 	if (fops->owner && !try_module_get(fops->owner)) {
- 		file = ERR_PTR(-ENOENT);
-diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-index 20d8cf194fb7..ba208ce5711d 100644
---- a/include/linux/lsm_hooks.h
-+++ b/include/linux/lsm_hooks.h
-@@ -215,6 +215,10 @@
-  *	Returns 0 if @name and @value have been successfully set,
-  *	-EOPNOTSUPP if no security attribute is needed, or
-  *	-ENOMEM on memory allocation failure.
-+ * @inode_init_security_anon:
-+ *      Set up a secure anonymous inode.
-+ *	Returns 0 on success. Returns -EPERM if	the security module denies
-+ *	the creation of this inode.
-  * @inode_create:
-  *	Check permission to create a regular file.
-  *	@dir contains inode structure of the parent of the new file.
-@@ -1552,6 +1556,9 @@ union security_list_options {
- 					const struct qstr *qstr,
- 					const char **name, void **value,
- 					size_t *len);
-+	int (*inode_init_security_anon)(struct inode *inode,
-+					const char *name,
-+					const struct file_operations *fops);
- 	int (*inode_create)(struct inode *dir, struct dentry *dentry,
- 				umode_t mode);
- 	int (*inode_link)(struct dentry *old_dentry, struct inode *dir,
-@@ -1884,6 +1891,7 @@ struct security_hook_heads {
- 	struct hlist_head inode_alloc_security;
- 	struct hlist_head inode_free_security;
- 	struct hlist_head inode_init_security;
-+	struct hlist_head inode_init_security_anon;
- 	struct hlist_head inode_create;
- 	struct hlist_head inode_link;
- 	struct hlist_head inode_unlink;
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 64b19f050343..8625b647dd0b 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -320,6 +320,8 @@ void security_inode_free(struct inode *inode);
- int security_inode_init_security(struct inode *inode, struct inode *dir,
- 				 const struct qstr *qstr,
- 				 initxattrs initxattrs, void *fs_data);
-+int security_inode_init_security_anon(struct inode *inode, const char *name,
-+				      const struct file_operations *fops);
- int security_old_inode_init_security(struct inode *inode, struct inode *dir,
- 				     const struct qstr *qstr, const char **name,
- 				     void **value, size_t *len);
-diff --git a/security/security.c b/security/security.c
-index 565bc9b67276..78dc6096b30f 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1033,6 +1033,14 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
- }
- EXPORT_SYMBOL(security_inode_init_security);
- 
-+int
-+security_inode_init_security_anon(struct inode *inode,
-+				  const char *name,
-+				  const struct file_operations *fops)
-+{
-+	return call_int_hook(inode_init_security_anon, 0, inode, name, fops);
-+}
-+
- int security_old_inode_init_security(struct inode *inode, struct inode *dir,
- 				     const struct qstr *qstr, const char **name,
- 				     void **value, size_t *len)
--- 
-2.25.0.225.g125e21ebc7-goog
-
+>
+>  Documentation/admin-guide/sysctl/vm.rst | 13 ++++
+>  fs/anon_inodes.c                        | 89 +++++++++++++++++--------
+>  fs/userfaultfd.c                        | 29 ++++++--
+>  include/linux/anon_inodes.h             | 27 ++++++--
+>  include/linux/lsm_hooks.h               |  8 +++
+>  include/linux/security.h                |  2 +
+>  include/linux/userfaultfd_k.h           |  3 +
+>  include/uapi/linux/userfaultfd.h        |  9 +++
+>  kernel/sysctl.c                         |  9 +++
+>  security/security.c                     |  8 +++
+>  security/selinux/hooks.c                | 68 +++++++++++++++++++
+>  security/selinux/include/classmap.h     |  2 +
+>  12 files changed, 229 insertions(+), 38 deletions(-)
+>
