@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-17.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
 	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8243AC3B187
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 22:56:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65F62C3B187
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 22:56:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 503922073C
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 22:56:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3CFCD20714
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 22:56:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gxgroxdp"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dcDpEH7Z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727836AbgBKW4S (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Feb 2020 17:56:18 -0500
-Received: from mail-pl1-f202.google.com ([209.85.214.202]:34371 "EHLO
-        mail-pl1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727797AbgBKW4R (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 17:56:17 -0500
-Received: by mail-pl1-f202.google.com with SMTP id j8so26060plk.1
-        for <selinux@vger.kernel.org>; Tue, 11 Feb 2020 14:56:17 -0800 (PST)
+        id S1727858AbgBKW40 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Feb 2020 17:56:26 -0500
+Received: from mail-yw1-f74.google.com ([209.85.161.74]:34773 "EHLO
+        mail-yw1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727906AbgBKW40 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 17:56:26 -0500
+Received: by mail-yw1-f74.google.com with SMTP id o1so313295ywl.1
+        for <selinux@vger.kernel.org>; Tue, 11 Feb 2020 14:56:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to;
-        bh=vHcKO3QArnYrq5IS1lBB+LSw7l3zk+6PTDFMKlLqjVY=;
-        b=gxgroxdpy5apY+CiXlDvZ3ykbKxa6+DwISy7zYL64iaChm9WJXkU2eLLN7um5g8isj
-         BOhtMjfkisilUoD1Djqg2bvSgeeDHdBVCYxg2Ut2KaCKn2bl6700QGsUZD+HoyobtI+E
-         WiwDPOQmNQpSTpbyT6EdUAc4+QZV3rZA5o/dXf4j8wiHg3U3a3pxbBgMQ/16RGiBTBTX
-         ajTB2PSHjdqaBEHWdmpxBJKkTVtdeF+C8Tvar0wr/jL0Ka+18+lZ9tN2a3pflblIv5vq
-         vVR55P8bXSH7XwmnU+/GxqhJ/TP+Ku/aEAUmTpRXwSmZwzNylmwgsWmfUyDmDQEZkrFf
-         wfOg==
+        bh=aOL9U/iY2dMKzhjMVeVV6Ai5vMkOfKpOd0BcDILMuYA=;
+        b=dcDpEH7ZN45igP4l8mc9PLVcF4M9BgFDWIlzqYNPFVHD6Z9a751NvNdASr+aSkxqGo
+         hQ1XpwVZvmIanE1Ex5O04cjcsPkuZVxJAfOCqRqyiPxgoy1ysb6uxY3UGdHfafMSX1MU
+         fTeN9/ZqOmoZXeHp5x+PY060mJJ/fE8HJF+tBMze97Qu/dFQrzoasWRUYb2tXGqKUKYo
+         bChRMEJPWxfwTZKUbB2x5blZWDc93pOqsuHp/kZZCSWvmA/er+k58DSej0RKcNcSDyRM
+         DcPDwp14VI4GIRj2OGVYPhefz4RsPm7OZMkVfFDpukpkiDh+ff0A61+ElYpQWuqcMJRW
+         mJrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to;
-        bh=vHcKO3QArnYrq5IS1lBB+LSw7l3zk+6PTDFMKlLqjVY=;
-        b=oNpFUyUGvnBYAjwGdFUlvF58utYRkPSz+5eRIT5WuBLrzZfYqaxGJOob/I7qfFwOt+
-         YMSHN3zZKSRcGLb6/s5Bc0ECae5JzzC2fnuun9VDLH95BqFjIoH/On7wcMqc7g6jO5o0
-         iWBs/kHBVor90AN42OZmFBwR+ZejGb83sHiuCw5RHW6kiLqm7bIq8SeEFMJMFUQL1hqE
-         VyHxIwr0H4wLQJ1h0M9frLottU6JHgMQQJyQLxlYQV/HR8vqMLlFLfX1eXgexG1tJtvK
-         6UKD85Fgeedj7ICvfAJ8/+4j01jA19aZCVt0HzBKE8pspic6y7jo9aOYYYtuPiFY3cuW
-         oaig==
-X-Gm-Message-State: APjAAAXpk9rk/5X5ZhA7J39ihlp9FJpaKPSW6ETGN6bqs68j5DFOYdbI
-        7KisT/a5AlJ2LlJRa1zWjCGVLrsb7tw=
-X-Google-Smtp-Source: APXvYqzJIL6WHUsPALso0TDvxO22ttnZWGbNBfpf2ul38VP3YBkBW8QGBonli8y5cLEtZ7ZHBcRd9HxSwbo=
-X-Received: by 2002:a63:594a:: with SMTP id j10mr9436698pgm.227.1581461776754;
- Tue, 11 Feb 2020 14:56:16 -0800 (PST)
-Date:   Tue, 11 Feb 2020 14:55:44 -0800
+        bh=aOL9U/iY2dMKzhjMVeVV6Ai5vMkOfKpOd0BcDILMuYA=;
+        b=iiLKveWr0gPysUSt+gyuWrs50sCcyxCYuIiF06+5AJsULtD8o1YC/+/ZF54J4OUZoa
+         S81f3faNGSbuXukpsU374uVNbH80sQwD8XdKpGt8KIpi4AwPLSUIb9WDE3z2+44tk7Fc
+         sNN9+WKmB0Qm44VZ6VubPD9YsZw3VJqL+KabKCjJUSdxPmzlwawODOnmQdD1yVWuAuN0
+         iWQmFqwP2jdmZ0NRjvyVb0uzO5KRdc6cFhzz6qiJ10XxOftogEiCCUQo6EgD30efG55G
+         l30ONRDCkoCSLVXuth1Wrdopx1IjwoJamzEyGmzioYduQBdd9BJEYklIxB3D8JkbWbhE
+         0olA==
+X-Gm-Message-State: APjAAAWHeUvc5l/h2xHR3H8rQs2K4WKqRf95xwbA1bzRWwhj5cxG+gjr
+        STjg8PQQJOTf/s7KyLlHWnfbTTa/mnU=
+X-Google-Smtp-Source: APXvYqzllhiKHdQpM4uPNwyqX+Good3/YFtj2svIu2Spz84zHU9aLEFd2AKu32ak6wuV1+Ian4qkJ4nZyhg=
+X-Received: by 2002:a0d:e2d1:: with SMTP id l200mr7607645ywe.122.1581461784825;
+ Tue, 11 Feb 2020 14:56:24 -0800 (PST)
+Date:   Tue, 11 Feb 2020 14:55:47 -0800
 In-Reply-To: <20200211225547.235083-1-dancol@google.com>
-Message-Id: <20200211225547.235083-4-dancol@google.com>
+Message-Id: <20200211225547.235083-7-dancol@google.com>
 Mime-Version: 1.0
 References: <20200211225547.235083-1-dancol@google.com>
 X-Mailer: git-send-email 2.25.0.225.g125e21ebc7-goog
-Subject: [PATCH v2 3/6] Teach SELinux about a new userfaultfd class
+Subject: [PATCH v2 6/6] Add a new sysctl for limiting userfaultfd to user mode faults
 From:   Daniel Colascione <dancol@google.com>
 To:     dancol@google.com, timmurray@google.com, nosh@google.com,
         nnk@google.com, lokeshgidra@google.com,
@@ -67,161 +67,110 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Use the secure anonymous inode LSM hook we just added to let SELinux
-policy place restrictions on userfaultfd use. The create operation
-applies to processes creating new instances of these file objects;
-transfer between processes is covered by restrictions on read, write,
-and ioctl access already checked inside selinux_file_receive.
+Add a new sysctl knob unprivileged_userfaultfd_user_mode_only.
+This sysctl can be set to either zero or one. When zero (the default)
+the system lets all users call userfaultfd with or without
+UFFD_USER_MODE_ONLY, modulo other access controls. When
+unprivileged_userfaultfd_user_mode_only is set to one, users without
+CAP_SYS_PTRACE must pass UFFD_USER_MODE_ONLY to userfaultfd or the API
+will fail with EPERM. This facility allows administrators to reduce
+the likelihood that an attacker with access to userfaultfd can delay
+faulting kernel code to widen timing windows for other exploits.
 
 Signed-off-by: Daniel Colascione <dancol@google.com>
 ---
- fs/userfaultfd.c                    |  4 +-
- include/linux/userfaultfd_k.h       |  2 +
- security/selinux/hooks.c            | 68 +++++++++++++++++++++++++++++
- security/selinux/include/classmap.h |  2 +
- 4 files changed, 73 insertions(+), 3 deletions(-)
+ Documentation/admin-guide/sysctl/vm.rst | 13 +++++++++++++
+ fs/userfaultfd.c                        | 11 ++++++++++-
+ include/linux/userfaultfd_k.h           |  1 +
+ kernel/sysctl.c                         |  9 +++++++++
+ 4 files changed, 33 insertions(+), 1 deletion(-)
 
+diff --git a/Documentation/admin-guide/sysctl/vm.rst b/Documentation/admin-guide/sysctl/vm.rst
+index 64aeee1009ca..1f416aff68b9 100644
+--- a/Documentation/admin-guide/sysctl/vm.rst
++++ b/Documentation/admin-guide/sysctl/vm.rst
+@@ -847,6 +847,19 @@ privileged users (with SYS_CAP_PTRACE capability).
+ 
+ The default value is 1.
+ 
++unprivileged_userfaultfd_user_mode_only
++========================================
++
++This flag controls whether unprivileged users can use the userfaultfd
++system calls to handle page faults in kernel mode.  If set to zero,
++userfaultfd works with or without UFFD_USER_MODE_ONLY, modulo
++unprivileged_userfaultfd above.  If set to one, users without
++SYS_CAP_PTRACE must pass UFFD_USER_MODE_ONLY in order for userfaultfd
++to succeed.  Prohibiting use of userfaultfd for handling faults from
++kernel mode may make certain vulnerabilities more difficult
++to exploit.
++
++The default value is 0.
+ 
+ user_reserve_kbytes
+ ===================
 diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-index 37df7c9eedb1..07b0f6e03849 100644
+index 47825a804d63..d39bdf177f8c 100644
 --- a/fs/userfaultfd.c
 +++ b/fs/userfaultfd.c
-@@ -1014,8 +1014,6 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
- 	}
- }
+@@ -29,6 +29,7 @@
+ #include <linux/hugetlb.h>
  
--static const struct file_operations userfaultfd_fops;
--
- static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
- 				  struct userfaultfd_ctx *new,
- 				  struct uffd_msg *msg)
-@@ -1920,7 +1918,7 @@ static void userfaultfd_show_fdinfo(struct seq_file *m, struct file *f)
- }
- #endif
+ int sysctl_unprivileged_userfaultfd __read_mostly = 1;
++int sysctl_unprivileged_userfaultfd_user_mode_only __read_mostly = 0;
  
--static const struct file_operations userfaultfd_fops = {
-+const struct file_operations userfaultfd_fops = {
- #ifdef CONFIG_PROC_FS
- 	.show_fdinfo	= userfaultfd_show_fdinfo,
- #endif
+ static struct kmem_cache *userfaultfd_ctx_cachep __read_mostly;
+ 
+@@ -1951,8 +1952,16 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	static const int uffd_flags = UFFD_USER_MODE_ONLY;
+ 	struct userfaultfd_ctx *ctx;
+ 	int fd;
++	bool need_cap_check = false;
+ 
+-	if (!sysctl_unprivileged_userfaultfd && !capable(CAP_SYS_PTRACE))
++	if (!sysctl_unprivileged_userfaultfd)
++		need_cap_check = true;
++
++	if (sysctl_unprivileged_userfaultfd_user_mode_only &&
++	    (flags & UFFD_USER_MODE_ONLY) == 0)
++		need_cap_check = true;
++
++	if (need_cap_check && !capable(CAP_SYS_PTRACE))
+ 		return -EPERM;
+ 
+ 	BUG_ON(!current->mm);
 diff --git a/include/linux/userfaultfd_k.h b/include/linux/userfaultfd_k.h
-index ac9d71e24b81..549c8b0cca52 100644
+index 549c8b0cca52..efe14abb2dc8 100644
 --- a/include/linux/userfaultfd_k.h
 +++ b/include/linux/userfaultfd_k.h
-@@ -30,6 +30,8 @@
+@@ -29,6 +29,7 @@
+ #define UFFD_FLAGS_SET (EFD_SHARED_FCNTL_FLAGS)
  
  extern int sysctl_unprivileged_userfaultfd;
++extern int sysctl_unprivileged_userfaultfd_user_mode_only;
  
-+extern const struct file_operations userfaultfd_fops;
-+
- extern vm_fault_t handle_userfault(struct vm_fault *vmf, unsigned long reason);
+ extern const struct file_operations userfaultfd_fops;
  
- extern ssize_t mcopy_atomic(struct mm_struct *dst_mm, unsigned long dst_start,
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1659b59fb5d7..e178f6f40e93 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -92,6 +92,10 @@
- #include <linux/fsnotify.h>
- #include <linux/fanotify.h>
- 
-+#ifdef CONFIG_USERFAULTFD
-+#include <linux/userfaultfd_k.h>
-+#endif
-+
- #include "avc.h"
- #include "objsec.h"
- #include "netif.h"
-@@ -2915,6 +2919,69 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 	return 0;
- }
- 
-+static int selinux_inode_init_security_anon(struct inode *inode,
-+					    const char *name,
-+					    const struct file_operations *fops)
-+{
-+	const struct task_security_struct *tsec = selinux_cred(current_cred());
-+	struct common_audit_data ad;
-+	struct inode_security_struct *isec;
-+
-+	if (unlikely(IS_PRIVATE(inode)))
-+		return 0;
-+
-+	/*
-+	 * We shouldn't be creating secure anonymous inodes before LSM
-+	 * initialization completes.
-+	 */
-+	if (unlikely(!selinux_state.initialized))
-+		return -EBUSY;
-+
-+	isec = selinux_inode(inode);
-+
-+	/*
-+	 * We only get here once per ephemeral inode.  The inode has
-+	 * been initialized via inode_alloc_security but is otherwise
-+	 * untouched, so check that the state is as
-+	 * inode_alloc_security left it.
-+	 */
-+	BUG_ON(isec->initialized != LABEL_INVALID);
-+	BUG_ON(isec->sclass != SECCLASS_FILE);
-+
-+#ifdef CONFIG_USERFAULTFD
-+	if (fops == &userfaultfd_fops)
-+		isec->sclass = SECCLASS_UFFD;
-+#endif
-+
-+	if (isec->sclass == SECCLASS_FILE) {
-+		printk(KERN_WARNING "refusing to create secure anonymous inode "
-+		       "of unknown type");
-+		return -EOPNOTSUPP;
-+	}
-+	/*
-+	 * Always give secure anonymous inodes the sid of the
-+	 * creating task.
-+	 */
-+
-+	isec->sid = tsec->sid;
-+	isec->initialized = LABEL_INITIALIZED;
-+
-+	/*
-+	 * Now that we've initialized security, check whether we're
-+	 * allowed to actually create this type of anonymous inode.
-+	 */
-+
-+	ad.type = LSM_AUDIT_DATA_INODE;
-+	ad.u.inode = inode;
-+
-+	return avc_has_perm(&selinux_state,
-+			    tsec->sid,
-+			    isec->sid,
-+			    isec->sclass,
-+			    FILE__CREATE,
-+			    &ad);
-+}
-+
- static int selinux_inode_create(struct inode *dir, struct dentry *dentry, umode_t mode)
- {
- 	return may_create(dir, dentry, SECCLASS_FILE);
-@@ -6923,6 +6990,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 
- 	LSM_HOOK_INIT(inode_free_security, selinux_inode_free_security),
- 	LSM_HOOK_INIT(inode_init_security, selinux_inode_init_security),
-+	LSM_HOOK_INIT(inode_init_security_anon, selinux_inode_init_security_anon),
- 	LSM_HOOK_INIT(inode_create, selinux_inode_create),
- 	LSM_HOOK_INIT(inode_link, selinux_inode_link),
- 	LSM_HOOK_INIT(inode_unlink, selinux_inode_unlink),
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 986f3ac14282..6d4f9ebf2017 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -248,6 +248,8 @@ struct security_class_mapping secclass_map[] = {
- 	  {"open", "cpu", "kernel", "tracepoint", "read", "write"} },
- 	{ "lockdown",
- 	  { "integrity", "confidentiality", NULL } },
-+	{ "uffd",
-+	  { COMMON_FILE_PERMS, NULL } },
- 	{ NULL }
-   };
- 
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index d396aaaf19a3..0650063c3741 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -1740,6 +1740,15 @@ static struct ctl_table vm_table[] = {
+ 		.extra1		= SYSCTL_ZERO,
+ 		.extra2		= SYSCTL_ONE,
+ 	},
++	{
++		.procname	= "unprivileged_userfaultfd_user_mode_only",
++		.data		= &sysctl_unprivileged_userfaultfd_user_mode_only,
++		.maxlen		= sizeof(sysctl_unprivileged_userfaultfd_user_mode_only),
++		.mode		= 0644,
++		.proc_handler	= proc_dointvec_minmax,
++		.extra1		= SYSCTL_ZERO,
++		.extra2		= SYSCTL_ONE,
++	},
+ #endif
+ 	{ }
+ };
 -- 
 2.25.0.225.g125e21ebc7-goog
 
