@@ -2,167 +2,446 @@ Return-Path: <SRS0=fAir=37=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81324C35242
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 20:51:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EDB1EC3B187
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 21:25:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5228E20659
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 20:51:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5FDF20870
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 21:25:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="MshYUG4w"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SZcFRR5u"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728510AbgBKUvX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Feb 2020 15:51:23 -0500
-Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:24523 "EHLO
-        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727786AbgBKUvW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 15:51:22 -0500
-X-EEMSG-check-017: 55050982|USFB19PA36_ESA_OUT06.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,428,1574121600"; 
-   d="scan'208";a="55050982"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 11 Feb 2020 20:51:18 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581454279; x=1612990279;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=umlf7E9VKbQwuI3xwwlW3S5aijXiKnbFhMNmZW/zuBs=;
-  b=MshYUG4wQI9H35fQcU/oh0wCz1n2cCfYbczsUe2m8G4sa+GcHy3pkdUe
-   iCT6oNc+aR7qH6st8KGBwXSAYKlp8kXpsZaJmjY/o5uBRYh+13ecyAOcC
-   oJagljxNGuX+F7W9WGiKoRXcoj6EahX4qwlZMgsBKjPZ5bQtDLCbcqaV5
-   dHgeUvHyJLKYd5XFHJdKr8+ch3t9xgaIacPYzu8WvlXdYy2v2HOIThqS5
-   C/ArlZUh12fKlqHxIsyFI1JsuT5ErXA4sUZJCIQI79wrY92OCfYJQY5jG
-   Ylp4t5w29G82x58SJ0EcJV4kDST2dp4XzJQjzvXG4CWQ7F82kcsavuX9v
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.70,428,1574121600"; 
-   d="scan'208";a="38978776"
-IronPort-PHdr: =?us-ascii?q?9a23=3AeL1VSRGvHlqMIdpJnUDmiZ1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ76p8i6bnLW6fgltlLVR4KTs6sC17OK9f67EjVbvd6oizMrTt9lb1?=
- =?us-ascii?q?c9k8IYnggtUoauKHbQC7rUVRE8B9lIT1R//nu2YgB/Ecf6YEDO8DXptWZBUh?=
- =?us-ascii?q?rwOhBoKevrB4Xck9q41/yo+53Ufg5EmCexbal9IRmrogjdrMgbjIVtJqosxB?=
- =?us-ascii?q?bErWZDdvhLy29vOV+ckBHw69uq8pV+6SpQofUh98BBUaX+Yas1SKFTASolPW?=
- =?us-ascii?q?4o+sDlrAHPQgST6HQSVGUWiQdIDBPe7B7mRJfxszD1ufR71SKHIMD5V7E0WT?=
- =?us-ascii?q?Cl76d2VB/ljToMOjAl/G3LjMF7kblWqwy9qRNh34HUYZmVNPtgcaPbYdMaXn?=
- =?us-ascii?q?dKUsJIWyBcHo+wc44DAuwPMuZCq4n2ukUAox2wCwKxAO/j0yFEi3vz0aA8zu?=
- =?us-ascii?q?8vExzJ3BY4EtwTrnrUotX7OqQcX++7w6bHzynMYfxN1Dfh6oXFaAwtre2CUL?=
- =?us-ascii?q?9yd8fa1EkhFxnCjlWVsYHrIi+V2foVs2ib8eVgU/+khXMiqw5rpjivwtkji4?=
- =?us-ascii?q?nUjY8S0VDL6D55zZ0pJdy4VEF7YdmkHIFWtyGBLYR6WMwiQ2Z2uCsjzLANpJ?=
- =?us-ascii?q?C1fC8PyJs9xh7fbeSKc4uW7RL5UuaePzN4iGhieLKliBa/91WrxO7kVsSszV?=
- =?us-ascii?q?pHoSVInsPMu3wQzRDf9MeKRuVn8ku83zuEyhrd5fteIU8ukKrWM5shwrktmZ?=
- =?us-ascii?q?UNqUnDBSr2mFnujK+Ra0Uk5vCk6+T5bbXioZ+RL5N0hRvkMqQvh8y/Gv40Mg?=
- =?us-ascii?q?kIX2iV/uS8z6Ps8lHjTLVWjvw5jqnZsJfAKcQduqG5GBNa3pwm6xa+CzeqyN?=
- =?us-ascii?q?UYnX8ZI1JZYB+LkofkNl7ULP34EPuzmUqgnTh1y/zcI7HtGpDNIWLCkLflc7?=
- =?us-ascii?q?Z98UlcyA8rwNBE+p1UEaoMIO7zW0DttNzYCQU1Mwqvw+n9Etl92YQeWXyXDq?=
- =?us-ascii?q?+DLKzSqUOI5v4oI+SUY48VvTH9K+Mj5/H0kXA2h0QQfbO30pQKaHC3BOhmL1?=
- =?us-ascii?q?+Fbnrrh9cLCX0KsRYmTOz2lF2CViZeZ22sUKI45zE7Dp+mDIjYS4Czj7yOwj?=
- =?us-ascii?q?27EodVZm9YEFCMF2nnd4GeV/cLciKSLddrkiYYWri5V48hyRauuRfiy7V9M+?=
- =?us-ascii?q?rU/jYVtYr529ho4+3fjBQy9TtzD8SHzW6BVX17nmQNR2x+4Kcqhkpx0FqBmY?=
- =?us-ascii?q?1/mPpRHtFQr6dOVwAhM5fXwsRgBtzyUx6HddCMHhLuWdiiADcsXvovzNIUJU?=
- =?us-ascii?q?VwAdOvilbExSXuS4ccirjDIZsz6K+Ui2D4OsJV03/b0OwkiF48T41EMmjw1Y?=
- =?us-ascii?q?Bl8A2GPJLEi0WUke6RcK0Y2CPcvDOYwXGmoFBTUAk2V77MG38YeB2F/pzC+k?=
- =?us-ascii?q?reQur2WvwcOQxbxJvHc/EbZw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2DiAgDXEkNe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YEYVSASKoQViQOGZwEBAQaBN4EBiG+RSwkBAQEBAQEBAQEtCgEBhEACgms4E?=
- =?us-ascii?q?wIQAQEBBAEBAQEBBQMBAWyFNwyCOykBgwIBBSMEEVELDgoCAiYCAlcGAQwGA?=
- =?us-ascii?q?gEBgmM/AYJWJQ+sIH8zhDUBgRSDP4E4BoEOKow9eYEHgREnD4IoNT6ENYMmg?=
- =?us-ascii?q?jwiBI1iiWBGl2qCRIJOhH6OegYbmw+OZIhslEoigVgrCAIYCCEPO4I4ATMTP?=
- =?us-ascii?q?RgNjigBF4hkhV0jAzACAYwjgkIBAQ?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 11 Feb 2020 20:51:15 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01BKoKaH082532;
-        Tue, 11 Feb 2020 15:50:21 -0500
-Subject: Re: [PATCH 2/2] selinux: optimize storage of filename transitions
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>
-References: <20200211163953.12231-1-omosnace@redhat.com>
- <20200211163953.12231-3-omosnace@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <19a1cea7-42d5-8cbe-722a-dc05cc6a38a3@tycho.nsa.gov>
-Date:   Tue, 11 Feb 2020 15:52:14 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1727602AbgBKVZh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Feb 2020 16:25:37 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:31443 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726968AbgBKVZh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 16:25:37 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1581456334;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=SGhMLbnamBzPLvl/MJ5klDvmdceqdvO6mHeWtI2B2To=;
+        b=SZcFRR5ukdMYf5KHV6ezrC50r5UeJ5vanQw34b5uuxQpORDaHtzKLljPMYnEpFKrKXzFvT
+        pyVTkWlx/hz8E8sEnO8Wr7ODzPynIOuYTbcp3Azk49WPTaJMoDHuI3BHQWTrI3x58zb8MJ
+        LsS2o0jPaYQ4M9BKuaRdcRgYd2BFSBE=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-358-trhcs0tqPfSeDaetGI-WyQ-1; Tue, 11 Feb 2020 16:19:25 -0500
+X-MC-Unique: trhcs0tqPfSeDaetGI-WyQ-1
+Received: by mail-ot1-f70.google.com with SMTP id d16so7735241otq.19
+        for <selinux@vger.kernel.org>; Tue, 11 Feb 2020 13:19:25 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SGhMLbnamBzPLvl/MJ5klDvmdceqdvO6mHeWtI2B2To=;
+        b=tEkWfNfMRRTUt2sMqLWXCWeJrRDGmvsYzkd2e5RrGEAG+Jb0eAEXPgjf6Mqbzqp759
+         H2n8/aNsCU7oohJggaV72Tt5m6d13m3/XhymXtmg+oE29RL4g0epf2qWFwhWE7wvzuSa
+         ivbHUV3ZQGm99Gk9az2EvVZlLEK6YzWVVw3p6jhvIg+zqTduV78K6SiXoS6sBk2dG/U/
+         WyO0uZ7ZUUKfEmK7/ZHbXvKTuJdGXtjvHwDUpwk7qssHPmF208RouTEemIxdfXGpw4Vx
+         blcrnIrQM2NUvh74PRHV8PAq50n529ldoZngmgoQt6d5EaV/WnOF5JLO5sMzLGTCoP1B
+         v1mQ==
+X-Gm-Message-State: APjAAAWfR3I3eOZDKUvsa3QzFmN8WWqy0RtMilt5fNLsYilRFi9J0yIy
+        qgM6MbLnZP5yS80319vkEJ61Gk5q3skIRdF90Z1VYUanFOQgKPEYs3Sn1QG75Mz8910lxNQrDkU
+        db3e5ZnhnalBKUndxoJ7it53HuYdOk9UklQ==
+X-Received: by 2002:a05:6808:48e:: with SMTP id z14mr4245571oid.26.1581455964497;
+        Tue, 11 Feb 2020 13:19:24 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzQSUE7txKpK+RYMUHscbDfqmUb6Y1nZ9TQUq6RhBI3Bo256MHYOOi/J7rFPo9IUy8RJDmbopUj6ht/N3R3k0Q=
+X-Received: by 2002:a05:6808:48e:: with SMTP id z14mr4245561oid.26.1581455964003;
+ Tue, 11 Feb 2020 13:19:24 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20200211163953.12231-3-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200211101438.403297-1-plautrba@redhat.com>
+In-Reply-To: <20200211101438.403297-1-plautrba@redhat.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 11 Feb 2020 22:19:12 +0100
+Message-ID: <CAFqZXNu7rFu6CQN0fhQefjmZGDLBuZhjuGH6VfGcBHCwGNyDZg@mail.gmail.com>
+Subject: Re: [PATCH v5] libselinux: Eliminate use of security_compute_user()
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/11/20 11:39 AM, Ondrej Mosnacek wrote:
-> In these rules, each rule with the same (target type, target class,
-> filename) values is (in practice) always mapped to the same result type.
-> Therefore, it is much more efficient to group the rules by (ttype,
-> tclass, filename).
-> 
-> Thus, this patch drops the stype field from the key and changes the
-> datum to be a linked list of one or more structures that contain a
-> result type and an ebitmap of source types that map the given target to
-> the given result type under the given filename. The size of the hash
-> table is also incremented to 2048 to be more optimal for Fedora policy
-> (which currently has ~2500 unique (ttype, tclass, filename) tuples,
-> regardless of whether the 'unconfined' module is enabled).
-> 
-> Not only does this dramtically reduce memory usage when the policy
-> contains a lot of unconfined domains (ergo a lot of filename based
-> transitions), but it also slightly reduces memory usage of strongly
-> confined policies (modeled on Fedora policy with 'unconfined' module
-> disabled) and significantly reduces lookup times of these rules on
-> Fedora (roughly matches the performance of the rhashtable conversion
-> patch [1] posted recently to selinux@vger.kernel.org).
-> 
-> An obvious next step is to change binary policy format to match this
-> layout, so that disk space is also saved. However, since that requires
-> more work (including matching userspace changes) and this patch is
-> already beneficial on its own, I'm posting it separately.
-> 
-> Performance/memory usage comparison:
-> 
-> Kernel           | Policy load | Policy load   | Mem usage | Mem usage     | openbench
->                   |             | (-unconfined) |           | (-unconfined) | (createfiles)
-> -----------------|-------------|---------------|-----------|---------------|--------------
-> reference        |       1,30s |         0,91s |      90MB |          77MB | 55 us/file
-> rhashtable patch |       0.98s |         0,85s |      85MB |          75MB | 38 us/file
-> this patch       |       0,95s |         0,87s |      75MB |          75MB | 40 us/file
-> 
-> (Memory usage is measured after boot. With SELinux disabled the memory
-> usage was ~60MB on the same system.)
-> 
-> [1] https://lore.kernel.org/selinux/20200116213937.77795-1-dev@lynxeye.de/T/
-> 
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->   security/selinux/ss/policydb.c | 175 ++++++++++++++++++++-------------
->   security/selinux/ss/policydb.h |   8 +-
->   security/selinux/ss/services.c |  16 +--
->   3 files changed, 120 insertions(+), 79 deletions(-)
-> 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 981797bfc547..62283033bb7d 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -1882,64 +1884,93 @@ out:
->   
->   static int filename_trans_read_one(struct policydb *p, void *fp)
->   {
-<snip>
-> +	exists = false;
-> +	last = NULL;
-> +	datum = hashtab_search(p->filename_trans, &key);
-> +	while (datum) {
-> +		if (ebitmap_get_bit(&datum->stypes, stype - 1)) {
-> +			exists = true;
-> +			break;
-> +		}
-> +		if (datum->otype == otype) {
-> +			last = NULL;
+I found one memory leak and one style nit, please see below. Otherwise
+the patch looks good to me (but I only checked the code flow - I don't
+understand the whole context well enough to fully judge its
+correctness).
 
-Why set last to NULL here?  Seemingly unused afterward if datum is non-NULL?
+On Tue, Feb 11, 2020 at 11:14 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> get_ordered_context_list() code used to ask the kernel to compute the complete
+> set of reachable contexts using /sys/fs/selinux/user aka
+> security_compute_user(). This set can be so huge so that it doesn't fit into a
+> kernel page and security_compute_user() fails. Even if it doesn't fail,
+> get_ordered_context_list() throws away the vast majority of the returned
+> contexts because they don't match anything in
+> /etc/selinux/targeted/contexts/default_contexts or
+> /etc/selinux/targeted/contexts/users/
+>
+> get_ordered_context_list() is rewritten to compute set of contexts based on
+> /etc/selinux/targeted/contexts/users/ and
+> /etc/selinux/targeted/contexts/default_contexts files and to return only valid
+> contexts, using security_check_context(), from this set.
+>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/28
+>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> ---
+>
+> v5 changes:
+>
+> - context_free(usercon) when is_in_reachable() finds a duplicate
+>
+> I see some value in reporting problem context during parsing a file and skipping this context
+> so I left the code after usercon = context_new(usercon_str) untouched.
+>
+>
+>  libselinux/src/get_context_list.c | 214 ++++++++++++++----------------
+>  1 file changed, 98 insertions(+), 116 deletions(-)
+>
+> diff --git a/libselinux/src/get_context_list.c b/libselinux/src/get_context_list.c
+> index 689e46589f30..6078d980cde1 100644
+> --- a/libselinux/src/get_context_list.c
+> +++ b/libselinux/src/get_context_list.c
+> @@ -2,6 +2,7 @@
+>  #include <errno.h>
+>  #include <stdio.h>
+>  #include <stdio_ext.h>
+> +#include <stdint.h>
+>  #include <stdlib.h>
+>  #include <string.h>
+>  #include <ctype.h>
+> @@ -114,61 +115,38 @@ int get_default_context(const char *user,
+>         return 0;
+>  }
+>
+> -static int find_partialcon(char ** list,
+> -                          unsigned int nreach, char *part)
+> +static int is_in_reachable(char **reachable, const char *usercon_str)
+>  {
+> -       const char *conrole, *contype;
+> -       char *partrole, *parttype, *ptr;
+> -       context_t con;
+> -       unsigned int i;
+> +       if (!reachable)
+> +               return 0;
+>
+> -       partrole = part;
+> -       ptr = part;
+> -       while (*ptr && !isspace(*ptr) && *ptr != ':')
+> -               ptr++;
+> -       if (*ptr != ':')
+> -               return -1;
+> -       *ptr++ = 0;
+> -       parttype = ptr;
+> -       while (*ptr && !isspace(*ptr) && *ptr != ':')
+> -               ptr++;
+> -       *ptr = 0;
+> -
+> -       for (i = 0; i < nreach; i++) {
+> -               con = context_new(list[i]);
+> -               if (!con)
+> -                       return -1;
+> -               conrole = context_role_get(con);
+> -               contype = context_type_get(con);
+> -               if (!conrole || !contype) {
+> -                       context_free(con);
+> -                       return -1;
+> -               }
+> -               if (!strcmp(conrole, partrole) && !strcmp(contype, parttype)) {
+> -                       context_free(con);
+> -                       return i;
+> +       for (; *reachable != NULL; reachable++) {
+> +               if (strcmp(*reachable, usercon_str) == 0) {
+> +                       return 1;
+>                 }
+> -               context_free(con);
+>         }
+> -
+> -       return -1;
+> +       return 0;
+>  }
+>
+> -static int get_context_order(FILE * fp,
+> +static int get_context_user(FILE * fp,
+>                              char * fromcon,
+> -                            char ** reachable,
+> -                            unsigned int nreach,
+> -                            unsigned int *ordering, unsigned int *nordered)
+> +                            const char * user,
+> +                            char ***reachable,
+> +                            unsigned int *nreachable)
+>  {
+>         char *start, *end = NULL;
+>         char *line = NULL;
+> -       size_t line_len = 0;
+> +       size_t line_len = 0, usercon_len;
+> +       size_t user_len = strlen(user);
+>         ssize_t len;
+>         int found = 0;
+> -       const char *fromrole, *fromtype;
+> +       const char *fromrole, *fromtype, *fromlevel;
+>         char *linerole, *linetype;
+> -       unsigned int i;
+> +       char **new_reachable = NULL;
+> +       char *usercon_str;
+>         context_t con;
+> +       context_t usercon;
+> +
+>         int rc;
+>
+>         errno = -EINVAL;
+
+This is not your bug, but this should be just "errno = EINVAL". Should
+probably be fixed in another patch...
+
+> @@ -180,6 +158,7 @@ static int get_context_order(FILE * fp,
+>                 return -1;
+>         fromrole = context_role_get(con);
+>         fromtype = context_type_get(con);
+> +       fromlevel = context_range_get(con);
+>         if (!fromrole || !fromtype) {
+>                 context_free(con);
+>                 return -1;
+> @@ -243,23 +222,84 @@ static int get_context_order(FILE * fp,
+>                 if (*end)
+>                         *end++ = 0;
+>
+> -               /* Check for a match in the reachable list. */
+> -               rc = find_partialcon(reachable, nreach, start);
+> -               if (rc < 0) {
+> -                       /* No match, skip it. */
+> +               /* Check whether a new context is valid */
+> +               if (SIZE_MAX - user_len < strlen(start) + 2) {
+> +                       fprintf(stderr, "%s: one of partial contexts is too big\n", __FUNCTION__);
+> +                       errno = EINVAL;
+> +                       rc = -1;
+> +                       goto out;
+> +               }
+> +               usercon_len = user_len + strlen(start) + 2;
+> +               usercon_str = malloc(usercon_len);
+> +               if (!usercon_str) {
+> +                       rc = -1;
+> +                       goto out;
+> +               }
+> +
+> +               /* set range from fromcon in the new usercon */
+> +               snprintf(usercon_str, usercon_len, "%s:%s", user, start);
+> +               usercon = context_new(usercon_str);
+> +               if (!usercon) {
+> +                       if (errno != EINVAL) {
+> +                               free(usercon_str);
+> +                               rc = -1;
+> +                               goto out;
+> +                       }
+> +                       fprintf(stderr,
+> +                               "%s: can't create a context from %s, skipping\n",
+> +                               __FUNCTION__, usercon_str);
+> +                       free(usercon_str);
+>                         start = end;
+>                         continue;
+>                 }
+> +               free(usercon_str);
+> +               if (context_range_set(usercon, fromlevel) != 0) {
+> +                       context_free(usercon);
+> +                       rc = -1;
+> +                       goto out;
+> +               }
+> +               usercon_str = context_str(usercon);
+
+You can do context_free(usercon) right here (it's not used beyond this
+line) and avoid doing it in all the paths after here.
+
+> +               if (!usercon_str) {
+> +                       context_free(usercon);
+> +                       rc = -1;
+> +                       goto out;
+> +               }
+>
+> -               /* If a match is found and the entry is not already ordered
+> -                  (e.g. due to prior match in prior config file), then set
+> -                  the ordering for it. */
+> -               i = rc;
+> -               if (ordering[i] == nreach)
+> -                       ordering[i] = (*nordered)++;
+> +               /* check whether usercon is already in reachable */
+> +               if (is_in_reachable(*reachable, usercon_str)) {
+> +                       context_free(usercon);
+> +                       start = end;
+> +                       continue;
+> +               }
+> +               if (security_check_context(usercon_str) == 0) {
+> +                       if (*nreachable == 0) {
+> +                               new_reachable = malloc(2 * sizeof(char *));
+> +                               if (!new_reachable) {
+> +                                       context_free(usercon);
+> +                                       rc = -1;
+> +                                       goto out;
+> +                               }
+> +                       } else {
+> +                               new_reachable = realloc(*reachable, (*nreachable + 2) * sizeof(char *));
+> +                               if (!new_reachable) {
+> +                                       context_free(usercon);
+> +                                       rc = -1;
+> +                                       goto out;
+> +                               }
+> +                       }
+> +                       new_reachable[*nreachable] = strdup(usercon_str);
+> +                       if (new_reachable[*nreachable] == NULL) {
+
+Unless I'm mistaken, you should free new_reachable here, otherwise it leaks.
+
+> +                               context_free(usercon);
+> +                               rc = -1;
+> +                               goto out;
+> +                       }
+> +                       new_reachable[*nreachable + 1] = 0;
+> +                       *reachable = new_reachable;
+> +                       *nreachable += 1;
+> +               }
+> +               context_free(usercon);
+>                 start = end;
+>         }
+> -
+>         rc = 0;
+>
+>        out:
+> @@ -313,21 +353,6 @@ static int get_failsafe_context(const char *user, char ** newcon)
+>         return 0;
+>  }
+>
+> -struct context_order {
+> -       char * con;
+> -       unsigned int order;
+> -};
+> -
+> -static int order_compare(const void *A, const void *B)
+> -{
+> -       const struct context_order *c1 = A, *c2 = B;
+> -       if (c1->order < c2->order)
+> -               return -1;
+> -       else if (c1->order > c2->order)
+> -               return 1;
+> -       return strcmp(c1->con, c2->con);
+> -}
+> -
+>  int get_ordered_context_list_with_level(const char *user,
+>                                         const char *level,
+>                                         char * fromcon,
+> @@ -395,11 +420,8 @@ int get_ordered_context_list(const char *user,
+>                              char *** list)
+>  {
+>         char **reachable = NULL;
+> -       unsigned int *ordering = NULL;
+> -       struct context_order *co = NULL;
+> -       char **ptr;
+>         int rc = 0;
+> -       unsigned int nreach = 0, nordered = 0, freefrom = 0, i;
+> +       unsigned nreachable = 0, freefrom = 0;
+>         FILE *fp;
+>         char *fname = NULL;
+>         size_t fname_len;
+> @@ -413,23 +435,6 @@ int get_ordered_context_list(const char *user,
+>                 freefrom = 1;
+>         }
+>
+> -       /* Determine the set of reachable contexts for the user. */
+> -       rc = security_compute_user(fromcon, user, &reachable);
+> -       if (rc < 0)
+> -               goto failsafe;
+> -       nreach = 0;
+> -       for (ptr = reachable; *ptr; ptr++)
+> -               nreach++;
+> -       if (!nreach)
+> -               goto failsafe;
+> -
+> -       /* Initialize ordering array. */
+> -       ordering = malloc(nreach * sizeof(unsigned int));
+> -       if (!ordering)
+> -               goto failsafe;
+> -       for (i = 0; i < nreach; i++)
+> -               ordering[i] = nreach;
+> -
+>         /* Determine the ordering to apply from the optional per-user config
+>            and from the global config. */
+>         fname_len = strlen(user_contexts_path) + strlen(user) + 2;
+> @@ -440,8 +445,8 @@ int get_ordered_context_list(const char *user,
+>         fp = fopen(fname, "re");
+>         if (fp) {
+>                 __fsetlocking(fp, FSETLOCKING_BYCALLER);
+> -               rc = get_context_order(fp, fromcon, reachable, nreach, ordering,
+> -                                      &nordered);
+> +               rc = get_context_user(fp, fromcon, user, &reachable, &nreachable);
+> +
+>                 fclose(fp);
+>                 if (rc < 0 && errno != ENOENT) {
+>                         fprintf(stderr,
+> @@ -454,8 +459,7 @@ int get_ordered_context_list(const char *user,
+>         fp = fopen(selinux_default_context_path(), "re");
+>         if (fp) {
+>                 __fsetlocking(fp, FSETLOCKING_BYCALLER);
+> -               rc = get_context_order(fp, fromcon, reachable, nreach, ordering,
+> -                                      &nordered);
+> +               rc = get_context_user(fp, fromcon, user, &reachable, &nreachable);
+>                 fclose(fp);
+>                 if (rc < 0 && errno != ENOENT) {
+>                         fprintf(stderr,
+> @@ -463,40 +467,18 @@ int get_ordered_context_list(const char *user,
+>                                 __FUNCTION__, selinux_default_context_path());
+>                         /* Fall through */
+>                 }
+> -               rc = 0;
+> +               rc = nreachable;
+>         }
+>
+> -       if (!nordered)
+> +       if (!nreachable)
+>                 goto failsafe;
+>
+> -       /* Apply the ordering. */
+> -       co = malloc(nreach * sizeof(struct context_order));
+> -       if (!co)
+> -               goto failsafe;
+> -       for (i = 0; i < nreach; i++) {
+> -               co[i].con = reachable[i];
+> -               co[i].order = ordering[i];
+> -       }
+> -       qsort(co, nreach, sizeof(struct context_order), order_compare);
+> -       for (i = 0; i < nreach; i++)
+> -               reachable[i] = co[i].con;
+> -       free(co);
+> -
+> -       /* Only report the ordered entries to the caller. */
+> -       if (nordered <= nreach) {
+> -               for (i = nordered; i < nreach; i++)
+> -                       free(reachable[i]);
+> -               reachable[nordered] = NULL;
+> -               rc = nordered;
+> -       }
+> -
+>        out:
+>         if (rc > 0)
+>                 *list = reachable;
+>         else
+>                 freeconary(reachable);
+>
+> -       free(ordering);
+>         if (freefrom)
+>                 freecon(fromcon);
+>
+> --
+> 2.25.0
+>
+
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
