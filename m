@@ -2,104 +2,84 @@ Return-Path: <SRS0=fAir=37=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B59AFC35242
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 19:12:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE2BCC35242
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 19:12:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9E891206D7
-	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 19:12:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81C8620873
+	for <selinux@archiver.kernel.org>; Tue, 11 Feb 2020 19:12:42 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="W/xxFfUh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730444AbgBKTMJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Feb 2020 14:12:09 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:57399 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730438AbgBKTMI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 14:12:08 -0500
-Received: from static-50-53-33-191.bvtn.or.frontiernet.net ([50.53.33.191] helo=[192.168.192.153])
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <john.johansen@canonical.com>)
-        id 1j1ax0-0000Pg-JT; Tue, 11 Feb 2020 19:12:02 +0000
-Subject: Re: [PATCH v14 22/23] LSM: Add /proc attr entry for full LSM context
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Simon McVittie <smcv@collabora.com>
-Cc:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        keescook@chromium.org, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com
-References: <20200124002306.3552-1-casey@schaufler-ca.com>
- <20200124002306.3552-23-casey@schaufler-ca.com>
- <1de8338a-9c1c-c13b-16f0-e47ebec0e7ea@tycho.nsa.gov>
- <f3dea066-1f6d-4b92-1a5b-dac25b58aae7@tycho.nsa.gov>
- <9afb8d9d-a590-0e13-bf46-53a347ea15dd@schaufler-ca.com>
- <6bd3e393-e1df-7117-d15a-81cb1946807b@tycho.nsa.gov>
- <446935fa-2926-c346-a273-ae1ecbb072cd@schaufler-ca.com>
- <09d96236-715a-344a-38bc-c05208698125@tycho.nsa.gov>
- <20200210115611.GA13930@horizon>
- <94aaf6c8-cc69-5804-2d45-3b8c96689331@tycho.nsa.gov>
- <04442c9f-430e-c922-b078-7cff8f36a45f@tycho.nsa.gov>
- <37fa9076-6f15-0261-3bcf-1883236f9c3f@schaufler-ca.com>
- <422e5db4-1b61-0048-b608-78881f5fa4b4@canonical.com>
- <af6b224c-4a32-40fa-77ae-1e2a5580054f@tycho.nsa.gov>
- <d3dfd552-cab1-f50e-f207-b6308d0d5990@canonical.com>
- <397af078-a44b-6fcd-e125-8fdb0b441097@schaufler-ca.com>
-From:   John Johansen <john.johansen@canonical.com>
-Organization: Canonical
-Message-ID: <3082a7ec-9c09-d5a3-c83f-0afec8595afe@canonical.com>
-Date:   Tue, 11 Feb 2020 11:11:58 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1729964AbgBKTMm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Feb 2020 14:12:42 -0500
+Received: from mail-vs1-f68.google.com ([209.85.217.68]:38027 "EHLO
+        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729547AbgBKTMm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 14:12:42 -0500
+Received: by mail-vs1-f68.google.com with SMTP id r18so7048812vso.5
+        for <selinux@vger.kernel.org>; Tue, 11 Feb 2020 11:12:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=VHMXIarMsKeRQ9b5T1J1vnk3kOcKOJasKGs7SUe6fIs=;
+        b=W/xxFfUhYbNdb9ERqk4PM5dZHFn2+iN4/0syAWJV9F9U/ITya/oW/Pmd8HsAA4Vmkn
+         lflOCuwn2p1SA4YfHzflU/WWiSUTqwN1KaZ+8+f0IqDJCMbNRQpxPSxMt7jO+P9hKe9Y
+         qatXoVR/fOmGEVTa3WtNa+8fV9IXhEY3S12lXQCtEDWr/JYFlxeeYqsB/rlG355Ufbe9
+         nf1oZNszW3X/ZD0WYAfddUbIEGo34pxg/KY54jyTNL0FDVe40CqVKA9ahl3cF5ezOQr3
+         e8ZeygNtXiwtZwPkbjUmThK/i212R9d+GuQt/o+iX4jLPtI9s76d7PBK7erIy9XvhzKg
+         6wsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=VHMXIarMsKeRQ9b5T1J1vnk3kOcKOJasKGs7SUe6fIs=;
+        b=tkP36YKbcERXl+ql1Yv2ABxynoHz7YJ0w5wDhkFo38vVZfg1QmrcXq9BH1OpaKU+Fs
+         QSdrd2nEMQ8z3Ploq0AH+S2ClYWz5bHlBAjPmIKKiCbSBU7EqQpi8aAvuG0WKvy7sz5z
+         sNJ11b0tDbVQIhFybXb3P/AHZGDhz9GOp/Kh9P6UXkIafMkuHrLYQ4mLwRqlDuW4EuYq
+         Dq1CaJoVltQClISwcIZGsOdTWAjfTzbKIypokEErRuMA1ySBTNYjHATPwv0dz7wHCnZr
+         EpuC3jKRJhGSXE3BX9KfF568xQVTzQBX1VCcq8/LMXQZPy9XQX/LAtExV3b24ElzMZLe
+         j15Q==
+X-Gm-Message-State: APjAAAUxmq4xgyKBDtQL/F6HAOSecuqF/h7WinZOb8daHRLicaJbL+tu
+        i9UuxQxmaZ+H+aH5dRzMHjU7BllaexmZ8uuHwW0=
+X-Google-Smtp-Source: APXvYqxTE+CdoVDsspGmGhfRn5SVPQZN75kg+85aBxqaU3JgRgGycQuIJbKvJ5/6Z3RV5KDiP4CzQVEMnhMYhc68LSQ=
+X-Received: by 2002:a67:5e45:: with SMTP id s66mr10155047vsb.200.1581448361080;
+ Tue, 11 Feb 2020 11:12:41 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <397af078-a44b-6fcd-e125-8fdb0b441097@schaufler-ca.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
+References: <20200207143744.9944-1-cgzones@googlemail.com> <pjd36bm4dat.fsf@redhat.com>
+ <53df5cb3-798c-66da-604b-94e7e48c5803@tycho.nsa.gov>
+In-Reply-To: <53df5cb3-798c-66da-604b-94e7e48c5803@tycho.nsa.gov>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 11 Feb 2020 20:12:30 +0100
+Message-ID: <CAJ2a_Dc4Ud9EeP6WN9xHP0sn9vsgjgZWz7LM2xF_2_kLV9AydA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: drop error return from is_selinux_enabled.3
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/11/20 10:35 AM, Casey Schaufler wrote:
-> On 2/11/2020 9:58 AM, John Johansen wrote:
->> On 2/11/20 7:59 AM, Stephen Smalley wrote:
->>> On 2/10/20 2:00 PM, John Johansen wrote:
->>>> On 2/10/20 10:32 AM, Casey Schaufler wrote:
->>>>> Because attr/context (and later, SO_PEERCONTEXT) are new interfaces
->>>>> there is no need to exactly duplicate what is in attr/current (later
->>>>> SO_PEERSEC). I already plan to omit the "mode" component of the
->>>>> AppArmor data in the AppArmor hook, as was discussed earlier. I would
->>>>> prefer ASCII, but if AppArmor needs bytestrings, that's what we'll
->>>>> have to do.
->>>>>
->>>>
->>>> sadly, to not break userspace its a byte string because that is what the path based profile names are. AppArmor does support a more limited non path based profile name but I can't guarantee that is what userspace is using in policy.
->>>
->>> Ok, so /proc/pid/attr/context and SO_PEERCONTEXT have to be defined as returning bytestrings.
->>>
->>> So far we've talked about having AppArmor drop the trailing newline, be consistent with regard to whether the terminating NUL is included or excluded, and drop the mode field from what it returns for /proc/pid/attr/context and SO_PEERCONTEXT versus the current /proc/pid/attr/current and SO_PEERSEC.  Is that correct?
->>>
->>> How do we envision a liblsm processing the value returned from /proc/pid/attr/context or SO_PEEERCONTEXT?
-> 
-> There hasn't been any serious thought put into liblsm. To date
-> there hasn't been an LSM level interface to worry about except
-> for /sys/kernel/security/lsm. My notions of what a liblsm ought
-> provide would seem archaic to most of the people here. I can make
-> proposals if there's a notion that liblsm makes sense.
-> 
-> 
->>> It can certainly split it up per LSM.  But can it then take the apparmor portion of the context and pass that to existing libapparmor interfaces without breakage?  Or will the changes to the format described above create issues there?
->>>
->>>
->> libapparmor can handle the changes. It does not require the mode string, currently anything unconfined does not include it, and we have already done experiments with dropping it in other cases. The trailing '\n' is handled conditionally so only if its there; this is well tested as the currently out of upstream af_unix socket mediation that is used by dbus does not include a trailing '\n' on the SO_PEERSEC.
-> 
-> So it doesn't seem that there would be significant difficulties
-> switching from "current" to "context". It won't be transparent,
-> but we're providing "display" to address that.
-> 
-> 
-right
+Am Fr., 7. Feb. 2020 um 18:51 Uhr schrieb Stephen Smalley <sds@tycho.nsa.go=
+v>:
+>
+> On 2/7/20 10:39 AM, Petr Lautrbach wrote:
+> >
+> > Christian G=C3=B6ttsche <cgzones@googlemail.com> writes:
+> >
+> >> is_selinux_enabled() does never return -1, do not say so in the manpag=
+e.
 
+I am having second thoughts about this:
+With the current inaccurate documentation the worst effect are dead
+error handlers in client code.
+But when removed now, after a potential SELinux rework (either kernel
+or userland) in some years it might be way harder to re-introduce
+error checking in all client applications.
