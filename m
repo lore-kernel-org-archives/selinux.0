@@ -7,41 +7,41 @@ X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF556C2BA83
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 10:13:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0277C2BA83
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 10:41:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6650C2082F
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 10:13:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 574A0206D7
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 10:41:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bwm+JQui"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PQOK+90S"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725781AbgBLKNe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Feb 2020 05:13:34 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:41317 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725710AbgBLKNd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Feb 2020 05:13:33 -0500
+        id S1725887AbgBLKlf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Feb 2020 05:41:35 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:40190 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725710AbgBLKlf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Feb 2020 05:41:35 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1581502412;
+        s=mimecast20190719; t=1581504093;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=Thtk8l3muid3WEe7rJRY+QDfDjIPObx0+rlHKtq3kv8=;
-        b=Bwm+JQui/IFoMYWTK0LVM/JXf1byctgzZ4BBOSXcC12aIEM07vFceuPXDoyQkisd841dtz
-        EzJiaiD+8JY2u05vyCVgSgYeENswnbY9Upo/lto7KfXouAwbfQBkpoRh5nP0a/dFOIBAjr
-        2i+HxEQ2y9a9Y+zOgYliYtsZfC4sVfo=
+        bh=RP2mKOBnWMDZpGBko0GImP1uNyJ9k342Cs0EWW2cb7E=;
+        b=PQOK+90SBNTaJahh53NP77xlpa6ZYvEk3gEzHBJQXOXyqlz9KIJePpMHla7wkQwYsjAuSn
+        aWPw3u+JtAtUvbB1WHm3D8LEeMsySBLdstcRsLoheB4vslh3yIH2xvsCnjn6WlukF96jdi
+        7U7BcNdzjzl0X/4I2Xumv54yjkpRbeY=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-330-EXwWOXI9Mj2881bd8H_97Q-1; Wed, 12 Feb 2020 05:13:25 -0500
-X-MC-Unique: EXwWOXI9Mj2881bd8H_97Q-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+ us-mta-426-_AzcN9QkPOOrJrkApRWveQ-1; Wed, 12 Feb 2020 05:41:29 -0500
+X-MC-Unique: _AzcN9QkPOOrJrkApRWveQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1198C13F8
-        for <selinux@vger.kernel.org>; Wed, 12 Feb 2020 10:13:25 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E2491107ACCA
+        for <selinux@vger.kernel.org>; Wed, 12 Feb 2020 10:41:28 +0000 (UTC)
 Received: from localhost (unknown [10.43.12.182])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8408F88836;
-        Wed, 12 Feb 2020 10:13:24 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 621CA1001B07;
+        Wed, 12 Feb 2020 10:41:28 +0000 (UTC)
 References: <20200211101438.403297-1-plautrba@redhat.com>
  <CAFqZXNu7rFu6CQN0fhQefjmZGDLBuZhjuGH6VfGcBHCwGNyDZg@mail.gmail.com>
 User-agent: mu4e 1.2.0; emacs 27.0.60
@@ -51,11 +51,11 @@ Cc:     Petr Lautrbach <plautrba@redhat.com>,
         SElinux list <selinux@vger.kernel.org>
 Subject: Re: [PATCH v5] libselinux: Eliminate use of security_compute_user()
 In-reply-to: <CAFqZXNu7rFu6CQN0fhQefjmZGDLBuZhjuGH6VfGcBHCwGNyDZg@mail.gmail.com>
-Date:   Wed, 12 Feb 2020 11:13:23 +0100
-Message-ID: <pjdh7zw8664.fsf@redhat.com>
+Date:   Wed, 12 Feb 2020 11:41:26 +0100
+Message-ID: <pjdftfg84vd.fsf@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -68,9 +68,7 @@ Ondrej Mosnacek <omosnace@redhat.com> writes:
 > the patch looks good to me (but I only checked the code flow - I don't
 > understand the whole context well enough to fully judge its
 > correctness).
-
-Thanks! I'll apply your suggestions and resend the patch 
-
+>
 > On Tue, Feb 11, 2020 at 11:14 AM Petr Lautrbach <plautrba@redhat.com> wrote:
 >> get_ordered_context_list() code used to ask the kernel to compute the complete
 >> set of reachable contexts using /sys/fs/selinux/user aka
@@ -254,7 +252,11 @@ Thanks! I'll apply your suggestions and resend the patch
 >
 > You can do context_free(usercon) right here (it's not used beyond this
 > line) and avoid doing it in all the paths after here.
->
+
+It's used indirectly via usercon_str which points to
+usercon->ptr->current_str which is destroyed by context_free(usercon)
+
+
 >> +               if (!usercon_str) {
 >> +                       context_free(usercon);
 >> +                       rc = -1;
@@ -292,7 +294,14 @@ Thanks! I'll apply your suggestions and resend the patch
 >> +                       new_reachable[*nreachable] = strdup(usercon_str);
 >> +                       if (new_reachable[*nreachable] == NULL) {
 >
-> Unless I'm mistaken, you should free new_reachable here, otherwise it leaks.
+> Unless I'm mistaken, you should free new_reachable here, otherwise it
+> leaks.
+
+free new_reachable would destroy already found reachable's. But
+*reachable should be updated to new_reachable at this point as the
+original reachable is destroyed at this moment.
+
+
 >
 >> +                               context_free(usercon);
 >> +                               rc = -1;
@@ -435,9 +444,4 @@ Thanks! I'll apply your suggestions and resend the patch
 >> --
 >> 2.25.0
 >>
-
-
--- 
-()  ascii ribbon campaign - against html e-mail 
-/\  www.asciiribbon.org   - against proprietary attachments
 
