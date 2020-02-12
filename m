@@ -2,135 +2,168 @@ Return-Path: <SRS0=d/HA=4A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28539C352A3
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 03:17:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DBB3AC2BA83
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 07:51:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F206A206D7
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 03:17:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD831206DB
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 07:51:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="uj1wCy2g"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="nhg3rKGm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727602AbgBLDRa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Feb 2020 22:17:30 -0500
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:40187 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727801AbgBLDR3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Feb 2020 22:17:29 -0500
-Received: by mail-ed1-f66.google.com with SMTP id p3so684824edx.7
-        for <selinux@vger.kernel.org>; Tue, 11 Feb 2020 19:17:27 -0800 (PST)
+        id S1728381AbgBLHvB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Feb 2020 02:51:01 -0500
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:39065 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728354AbgBLHvB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Feb 2020 02:51:01 -0500
+Received: by mail-pg1-f194.google.com with SMTP id j15so769225pgm.6
+        for <selinux@vger.kernel.org>; Tue, 11 Feb 2020 23:51:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RE15EJdsIKQxzRJbIxCFVMJk+0seSzUjqA6IxkKMdfg=;
-        b=uj1wCy2gPcCZ7S0AqU83K19vwujH6Ply0s+P839a507GXDuVJ9UCPZM7BTeN3SVrxC
-         G6Eq8RvMDyjxdDNAEOIfrViZlwMxEsbHxm5eiQiXIUzywzwWV0UzFce5IOmncS+MEuo1
-         9IU0AQW1kaFebYy6+WKjDu9CaC3dIH9RadhTkJex6VkgeRrL7vLnxTLOoHLsfr6A+Bf+
-         MY33psuPYIm2DbE7fj7419TLPxz/R+tElbTiifLgwrhEi4J/14HYFBG6Q4RxU+YTsnuS
-         lYWNKP4fRpaa9+nbtrL3L3qh1PZUVzU/VuNU7pY1uXxhd8LNY2BbQLUDaEBU2CMqW8sm
-         E9Ow==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=yiz9WBSdL7NQOdvbn80An19iJZYDNk/obNeFYG2L8Bs=;
+        b=nhg3rKGmLf/ztkCT+0gU6qiovpFdDomiRBtx3D5rpDSWaazkpSyqNkRTpVLBE9itSC
+         Y7XnYaE4y5gNB0j5dMsvQxQI9z8S0g219xc81Yv/dTG9AvrN2ditkF9z9IIJ60b6K0Cs
+         kOsenjKrpqo7cf+WM5hrgiUr1mMxkX8CsxpAc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RE15EJdsIKQxzRJbIxCFVMJk+0seSzUjqA6IxkKMdfg=;
-        b=P/r9RSdqtR1QrJSFD2Ornh6xaKn31bqZg8JM/fWcs2NKruIHYCS3PYuu6n/RNJC0qA
-         ULLzY4UpBB4x265eEeUeC542urLQMIFYB5wbFXSQk29X/X1WpTQ5UpaY7ir2wpzJ15Sv
-         fDEWlSlI7jOME0EDYSw5KZcgWr7bx6eKjiwvjb/63TWzNSkSM+hdtFdJs1ug14kJ59sF
-         N2YO4RZNQhwB4kppWIF7nLOKLK7gc30G8WXHVKFZJPrHUhqECWSzfo3EAofuVhdCeAbK
-         Yr3+TZ685PrsPfw+9jhfwE7cTg1Udzb/pNJsnhYB9AdfCmHeErS3IMIpZc16aH81mtYe
-         pKOA==
-X-Gm-Message-State: APjAAAXPOjujHVxkm9/Ky+poVejlAuWmRMOLphf7AV5aZEHp7HPJHosK
-        ju0bkcZmi2vAgBVl1IfeordaqGDA4pkG6RPCgSGL
-X-Google-Smtp-Source: APXvYqyHCiiN6oXTN7ZQP6ljA4ERUQofXGYHnq8vJHGmwB1jP9aWiO76pTg6f5hjJhdy3qSVCbxPsXIMiRBsXV0d2hY=
-X-Received: by 2002:a50:a7a5:: with SMTP id i34mr8996071edc.128.1581477447006;
- Tue, 11 Feb 2020 19:17:27 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=yiz9WBSdL7NQOdvbn80An19iJZYDNk/obNeFYG2L8Bs=;
+        b=KiZEktjnMYNbybzZbgNn/XdY4h0+8pgD23IS/QBUk1bxerfcjKwMl27d+pWfIcoh9q
+         /oL47m14/r+/Gq5RNfK3wK/yhjJcb9TuAYHldWR2ZxBvAq+pZ/V4ez2+9OwV1GBhuvoj
+         zusoihCLrH+JdM5w1+5KhLh7eNYT6c4W31gpi5a1xobAoUEa2WEM/faTX88JVOLo4Fg7
+         9Scuo8/E45RPppv8viiWUtdkvDogE1RhbEe5VzRyB+t7cVwcvcUqJ81uyNpD8Z1tR56K
+         YWksPPLsB7eLJpHlOORiABqkIpGMOo5lwiT1q4iwGynW2TorTlosQREughRLE0h4jnmj
+         PwZA==
+X-Gm-Message-State: APjAAAUu8IiQTUV59Xe49EJOTJZUZGLe39tlW+ccd/pgACepREXrLarq
+        72RPvD/6oXLHkYtA98m8mIdC7Q==
+X-Google-Smtp-Source: APXvYqyPQNw1fJJzxrr+Vej5UzAZPt9dUWwkqtIGchQ+MVvd9EJarctCHQVbAN0x96enDO2Wl9uRtg==
+X-Received: by 2002:a63:5558:: with SMTP id f24mr6981271pgm.92.1581493860306;
+        Tue, 11 Feb 2020 23:51:00 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id b98sm5858832pjc.16.2020.02.11.23.50.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Feb 2020 23:50:59 -0800 (PST)
+Date:   Tue, 11 Feb 2020 23:50:58 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Daniel Colascione <dancol@google.com>
+Cc:     timmurray@google.com, nosh@google.com, nnk@google.com,
+        lokeshgidra@google.com, linux-kernel@vger.kernel.org,
+        linux-api@vger.kernel.org, selinux@vger.kernel.org,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>,
+        linux-security-module@vger.kernel.org
+Subject: Re: [PATCH v2 0/6] Harden userfaultfd
+Message-ID: <202002112332.BE71455@keescook>
+References: <20200211225547.235083-1-dancol@google.com>
 MIME-Version: 1.0
-References: <20200206165527.211350-1-smoreland@google.com> <91465612-2fb2-5985-ba45-d4d9fcf0f70c@tycho.nsa.gov>
- <c61fc8f6-55c2-c717-5090-e535b7bdbb4f@tycho.nsa.gov> <CAKLm694DMH0JCpHuT4HgMd4yCNJZPFMpex8iEiRF9kRjPb0d6g@mail.gmail.com>
- <a8321785-902d-9186-fcf5-ee12a362a207@tycho.nsa.gov>
-In-Reply-To: <a8321785-902d-9186-fcf5-ee12a362a207@tycho.nsa.gov>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 11 Feb 2020 22:17:16 -0500
-Message-ID: <CAHC9VhQVcgQ7ZKXi+Umm51WNgfNSzNX7Zoe=MyaLo1rRm-uUtA@mail.gmail.com>
-Subject: Re: [PATCH] security: selinux: allow per-file labeling for bpffs
-To:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Steven Moreland <smoreland@google.com>,
-        Colin Cross <ccross@android.com>,
-        "Connor O'Brien" <connoro@google.com>, kernel-team@android.com
-Cc:     Eric Paris <eparis@parisplace.org>, keescook@chromium.org,
-        anton@enomsg.org, tony.luck@intel.com, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200211225547.235083-1-dancol@google.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 6, 2020 at 1:12 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 2/6/20 12:41 PM, Steven Moreland wrote:
-> > On Thu, Feb 6, 2020 at 9:35 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >>
-> >> On 2/6/20 12:21 PM, Stephen Smalley wrote:
-> >>> On 2/6/20 11:55 AM, Steven Moreland wrote:
-> >>>> From: Connor O'Brien <connoro@google.com>
-> >>>>
-> >>>> Add support for genfscon per-file labeling of bpffs files. This allows
-> >>>> for separate permissions for different pinned bpf objects, which may
-> >>>> be completely unrelated to each other.
-> >>>
-> >>> Do you want bpf fs to also support userspace labeling of files via
-> >>> setxattr()?  If so, you'll want to also add it to
-> >>> selinux_is_genfs_special_handling() as well.
-> >>>
-> >
-> > Android doesn't currently have this use case.
-> >
-> >>> The only caveat I would note here is that it appears that bpf fs
-> >>> supports rename, link, unlink, rmdir etc by userspace, which means that
-> >>> name-based labeling via genfscon isn't necessarily safe/stable.  See
-> >>> https://github.com/SELinuxProject/selinux-kernel/issues/2
-> >>>
-> >
-> > Android restricts ownership of these files to a single process (bpfloader) and
-> > so this isn't a concern in our architecture. Is it a concern in general?
->
-> I guess if the inodes are pinned in memory, then only the original name
-> under which the file is created will be relevant to determining the
-> label and subsequent rename/link operations won't have any effect. So as
-> long as the bpfloader creates the files with the same names being
-> specified in policy, that should line up and be stable for the lifecycle
-> of the inode.
->
-> The alternative model is to have bpfloader look up a context from the
-> userspace file_contexts configuration via selabel_lookup(3) and friends,
-> and set it on the file explicitly.  That's what e.g. ueventd does for
-> device nodes.  However, one difference here is that you could currently
-> only do this via setxattr()/setfilecon() after creating the file so that
-> the file would temporarily exist in the default label for bpf fs, if
-> that matters.  ueventd can instead use setfscreatecon(3) before creating
-> the file so that it is originally created in the right label but that
-> requires the filesystem to call security_inode_init_security() from its
-> function that originally creates the inode, which tmpfs/devtmpfs does
-> but bpf does not.  So you'd have to add that to the bpf filesystem code
-> if you wanted to support setfscreatecon(3) on it.
+Hi!
 
-Considering the relative maturity of bpf, and bpffs, I think it's okay
-to take this small step right now, with the understanding that more
-work may need to be done, depending on how this is generally adopted
-by distros and users (for those of you not following the other thread,
-I've merged the v3 draft of this patch).
+Firstly, thanks for working on this! It's been on my TODO list for a
+while. :)
 
-However, I've been noticing a trend from the Android folks of tossing
-patches over the wall without much thought beyond the Android use
-case.  I understand the Android devs have a job to do, and products to
-focus on, but I would strongly encourage them to think a bit longer
-about more general use cases before submitting patches upstream.
+Casey already recommended including the LSM list to CC (since this is a
+new LSM -- there are many LSMs). Additionally, the series should
+probably be sent _to_ the userfaultfd maintainers:
+	Andrea Arcangeli <aarcange@redhat.com>
+	Mike Rapoport <rppt@linux.ibm.com>
+and I'd also CC a couple other people that have done recent work:
+	Peter Xu <peterx@redhat.com>
+	Jann Horn <jannh@google.com>
+
+More notes below...
+
+On Tue, Feb 11, 2020 at 02:55:41PM -0800, Daniel Colascione wrote:
+> Userfaultfd in unprivileged contexts could be potentially very
+> useful. We'd like to harden userfaultfd to make such unprivileged use
+> less risky. This patch series allows SELinux to manage userfaultfd
+> file descriptors and allows administrators to limit userfaultfd to
+> servicing user-mode faults, increasing the difficulty of using
+> userfaultfd in exploit chains invoking delaying kernel faults.
+
+I actually think these are two very different goals and likely the
+series could be split into two for them. One is LSM hooking of
+userfaultfd and the SELinux attachment, and the other is the user-mode
+fault restrictions. And they would likely go via separate trees (LSM
+through James's LSM tree, and probably akpm's -mm tree for the sysctl).
+
+> A new anon_inodes interface allows callers to opt into SELinux
+> management of anonymous file objects. In this mode, anon_inodes
+> creates new ephemeral inodes for anonymous file objects instead of
+> reusing a singleton dummy inode. A new LSM hook gives security modules
+> an opportunity to configure and veto these ephemeral inodes.
+> 
+> Existing anon_inodes users must opt into the new functionality.
+> 
+> Daniel Colascione (6):
+>   Add a new flags-accepting interface for anonymous inodes
+>   Add a concept of a "secure" anonymous file
+>   Teach SELinux about a new userfaultfd class
+>   Wire UFFD up to SELinux
+
+The above is the first "series"... I don't have much opinion about it,
+though I do like the idea of making userfaultfd visible to the LSM.
+
+>   Let userfaultfd opt out of handling kernel-mode faults
+>   Add a new sysctl for limiting userfaultfd to user mode faults
+
+Now this I'm very interested in. Can you go into more detail about two
+things:
+
+- What is the threat being solved? (I understand the threat, but detailing
+  it in the commit log is important for people who don't know it. Existing
+  commit cefdca0a86be517bc390fc4541e3674b8e7803b0 gets into some of the
+  details already, but I'd like to see reference to external sources like
+  https://duasynt.com/blog/linux-kernel-heap-spray)
+
+- Why is this needed in addition to the existing vm.unprivileged_userfaultfd
+  sysctl? (And should this maybe just be another setting for that
+  sysctl, like "2"?)
+
+As to the mechanics of the change, I'm not sure I like the idea of adding
+a UAPI flag for this. Why not just retain the permission check done at
+open() and if kernelmode faults aren't allowed, ignore them? This would
+require no changes to existing programs and gains the desired defense.
+(And, I think, the sysctl value could be bumped to "2" as that's a
+better default state -- does qemu actually need kernelmode traps?)
+
+Thanks again for the patches!
+
+-Kees
+
+> 
+>  Documentation/admin-guide/sysctl/vm.rst | 13 ++++
+>  fs/anon_inodes.c                        | 89 +++++++++++++++++--------
+>  fs/userfaultfd.c                        | 29 ++++++--
+>  include/linux/anon_inodes.h             | 27 ++++++--
+>  include/linux/lsm_hooks.h               |  8 +++
+>  include/linux/security.h                |  2 +
+>  include/linux/userfaultfd_k.h           |  3 +
+>  include/uapi/linux/userfaultfd.h        |  9 +++
+>  kernel/sysctl.c                         |  9 +++
+>  security/security.c                     |  8 +++
+>  security/selinux/hooks.c                | 68 +++++++++++++++++++
+>  security/selinux/include/classmap.h     |  2 +
+>  12 files changed, 229 insertions(+), 38 deletions(-)
+> 
+> -- 
+> 2.25.0.225.g125e21ebc7-goog
+> 
 
 -- 
-paul moore
-www.paul-moore.com
+Kees Cook
