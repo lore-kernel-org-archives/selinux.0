@@ -2,296 +2,186 @@ Return-Path: <SRS0=d/HA=4A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0D34C352A4
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 17:08:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43353C3B186
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 17:12:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A4C04206D7
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 17:08:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 109E82168B
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 17:12:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="HrG1I0rk"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gE65b1Yd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728650AbgBLRIm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Feb 2020 12:08:42 -0500
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:60793 "EHLO
-        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727429AbgBLRIl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Feb 2020 12:08:41 -0500
-X-EEMSG-check-017: 58191195|UPDC19PA19_ESA_OUT01.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,433,1574121600"; 
-   d="scan'208";a="58191195"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 12 Feb 2020 17:08:34 +0000
+        id S1727458AbgBLRMk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Feb 2020 12:12:40 -0500
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:43204 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727429AbgBLRMk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Feb 2020 12:12:40 -0500
+Received: by mail-lj1-f196.google.com with SMTP id a13so3186443ljm.10
+        for <selinux@vger.kernel.org>; Wed, 12 Feb 2020 09:12:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581527315; x=1613063315;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=aWcpaQ2lwYKfT5rmL/YVmNrCq+9+F5btAHN8rXcBXIY=;
-  b=HrG1I0rkOyakdXQ/7bU4lUhHSs0Me8d41vd68voZXmrCXJjsLwY+lBwr
-   A12kpFjHTjZnGMZsleO26intMkILsqSikKDPJjuZ8xCbZyCdnbzleEwEN
-   pLZkg+H5jMgnyOeY60bdkxIK7Iq2Y0urk891CaEA6NK/eAetBm0iScqdS
-   N6I3egcqeVHEAaKmNILMWCKFOE5YzZSHpLSuxPeTuo6IlRzeN5IjOUbeP
-   basvRuUZ7jHzK+zbek40wAsg0aTPPmYWpThvvADFUG7EJ8bkDM70s81yw
-   EkdPo9nVqx3cGs+0j9z9CQ2z0nhKR7eIfEiboX/Nn5+tA9uRxkrmKDu4u
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.70,433,1574121600"; 
-   d="scan'208";a="39023161"
-IronPort-PHdr: =?us-ascii?q?9a23=3AI5+WUxQ9NnkZQh44LeZYh5jg9dpsv+yvbD5Q0Y?=
- =?us-ascii?q?Iujvd0So/mwa65ZRSPt8tkgFKBZ4jH8fUM07OQ7/m8HzJdqsfe+Fk5M7VyFD?=
- =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
- =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjeu8UMgIZvKqk9xx?=
- =?us-ascii?q?/Lr3BVZ+lY2GRkKE6ckBr7+sq+5oNo/T5Ku/Im+c5AUKH6cLo9QLdFEjkoMH?=
- =?us-ascii?q?076dPyuxXbQgSB+nUTUmMNkhpVGAfF9w31Xo3wsiThqOVw3jSRMNDsQrA1XT?=
- =?us-ascii?q?Si6LprSAPthSwaOTM17H3bh8pth69AvhmvuwJwzJLVYIGNNfpxYKXdfc8BRW?=
- =?us-ascii?q?FcWspdTjFNDp+gY4cKCecOM/xYr43grFUQqxWwCxSnCOf2xjJGgnL62Ks32P?=
- =?us-ascii?q?kjHw7bxgwtB88AvmrarNv1N6kcX+66w6bKwjrfYP1bwiv95YvSfxw9vf2BU7?=
- =?us-ascii?q?B9fMzMwkcvDQPFiVCQpJT4MTOJyOsNq2ib4PRmVemylmAnrht+ojyrxsgyio?=
- =?us-ascii?q?jCm4UYykvZ+iVi24s1Od25R1J7Yd6jCpdQsTqaOJFsTsMtRGFopj83x7sbsp?=
- =?us-ascii?q?C4ZCgH0IkryhHQZvCdc4WE/wjvWPieLDtmnn5pZbSyjAuo/0e60O3zTMy03U?=
- =?us-ascii?q?5PripCj9bDqGgA1wfW6sibUvt9+Vqh2SqX2wDT9O5EJUc0mLLHK5E72L4wl4?=
- =?us-ascii?q?cTsV/ZEi/3nkX2gqiWdl469ee08ejnfrXnqYOcN49zkA3+NLghmtejDugiNw?=
- =?us-ascii?q?gOXmyb9fy91L3l40L5XK1HguA5n6TWqpzXJdkXqrSnDwJazIov8QuzAy+j0N?=
- =?us-ascii?q?sCnHkHKFxFeAiAj4jsI1zOO+33DeykjlSwkDZk2/DGPrr7DpXLNXjMiq3tfb?=
- =?us-ascii?q?l6605C0AYz18xQ54pICrEdJ/L+QlX+tNjGAR42LQO1w/zrB85g1owDQ22PBK?=
- =?us-ascii?q?yZMKTMsVKT4uIvIu+MZJIauTrnKvgl4eLugmE9mVMHYaap2p4XYmiiHvt6O0?=
- =?us-ascii?q?WZfWbsgtAZHGgQugoxUuPrh0ODUTJJfHayQ7gz5is8CIK4CofDR5ytgLuf3C?=
- =?us-ascii?q?qgEZ1WY3pJClGIEXvya4qEXPIMYjqIIsB9ijwESaShS4g52BG2qgD616RoLv?=
- =?us-ascii?q?DV+yADtJLj0tZ15/fJmh4v6zN7FdmS33uKT2FukWMCXyU207xnoUxh1leD1r?=
- =?us-ascii?q?B1jOZEGtxW+fxESQQ6OoDGz+x8Fd/yXhjNftCTSFapWt+mGy0+Tsotw98SZE?=
- =?us-ascii?q?ZwA9CijhHF3yqlBL8YjKaLC4Ip/aLcxXfxO9xxxGrB1Kkkl1MmWNdANXW6hq?=
- =?us-ascii?q?5j8AjeH4zJnF+fl6arb6gc2i/N9GSezWqKpk5VSwpwUaTDXXACaUrat9X55k?=
- =?us-ascii?q?XeT7CwDbQrKBdOycmHKqFScN3mkU1GROv/ONTZe2+xmWCwBRGOxryWd4rmYW?=
- =?us-ascii?q?Ed0z/dCEgYkgAT+2iJNQ4lCyelomLeCiFuFF31b0Pt9+l+tG20Tksuww6WaE?=
- =?us-ascii?q?1h0qK/+gQJivyEV/MTwrUEtT87qzVzAVm9xdPWC9WHpwZ7YqVcYM094FZc2G?=
- =?us-ascii?q?LYsQx9IoKvL6R4ilECdAR3ulvk1w9rBYVYjcgqsHQqwRJpJq2G1lNBdyiV3Z?=
- =?us-ascii?q?PuNb3NLGn94hSvZ7TK1VHEytmW4acP6PU+q1Xspg2pEVAi83p/2dlPz3Sc/o?=
- =?us-ascii?q?nKDBYVUZ/pSkY47QV6p7XHYikm/I7UzmdjMayvvTDYwd4pA/Elyhm4dddFLK?=
- =?us-ascii?q?yEDBPyE9EdB8W2Lewqg0amYwkaM+BW8K47Idmmd/6c166tJupgnS+pgX5d74?=
- =?us-ascii?q?BgykiM7TZzSvbU35YZxPGVxgmHWC35jFi/qcD7g5tLZTYOHmqjzijkAYpRab?=
- =?us-ascii?q?NyfIsQCWehOcu3xs5giJ7rQ35X7kSjB08A2MC3YxqSdFz93QxI1UgNvXOnni?=
- =?us-ascii?q?64xSRukz41tqqfwDDOw+P6eRocJGFLXmZigkn3LIi0ld8aWEyobggvlBe/+U?=
- =?us-ascii?q?n6wK1brrxlL2bPWUdIYzT2L2Z6X6uys7qCZNRP6IkpsSVMS+m8Z0qVSrvjrB?=
- =?us-ascii?q?sbyS/jGHFexD8jfTGwppr5hwB6iH6aLHtronvZeMVwxRPF6NPBW/FexCYJRC?=
- =?us-ascii?q?5+iTTMHFe8Jdyp8c+ImJfEt+C0T3ihWYFLcSn30YOAszO25WhwDh2lnPC/gM?=
- =?us-ascii?q?fnERUm0S//zdZqUzjHoQ3mbYnx0qS2K/5ofk5tBFXk8cp1Bpl+kpcshJEXwX?=
- =?us-ascii?q?UanI+V/XsbnmroMtVUx7j+bHwTSj4P2dLV5xLl2EJ7JHKT2435TmmdwtdmZ9?=
- =?us-ascii?q?SieGwWwT494ttJCKiK9rxEmzV6ol6ioQLWe/h9kS8XyeEy534Cn+EJpA0twz?=
- =?us-ascii?q?2fArAVGUlYJjbjmg+S79+gsapXZHygcaSq2EVimtChCamIohtAV3bhZpciAS?=
- =?us-ascii?q?hw491lP1LPy3Dz7oDkeN/NbdMcrBGUkhHAj/RLJ5I1jPYFmS1nOWflt30/1+?=
- =?us-ascii?q?E7lQBu3Y29vIWfNWpt5ri2AhhZNjLvYcMe4T7tjaFZnsaZ24CgAI9tFSkMXJ?=
- =?us-ascii?q?vtVfioCi4dtez7NwaSFz0xsnabGb7CHQCE8khmtHLPHI6wOn6NJ3kW19BiSw?=
- =?us-ascii?q?OcJEBFnA8UWzA6lIYjFg+23MzhbFt55jcJ61HirhtD1O1pOAP5UmjCugiocC?=
- =?us-ascii?q?04SIOfLBpX9QFC50TVMc2Y7u9oGyFY/5uhrBGCK2CBZgRIC30JVVKAB1z5Ir?=
- =?us-ascii?q?au4tzA+fCCBuWiN/vOfamOqetGWveO352v14tm/jaRNsWJMXlvFP471VRZXX?=
- =?us-ascii?q?B/BcvZny8DSysNlyLCd8Sbvguz+jVrrsCj9/TmQBnv5YyJC7tdNdVv+g22jr?=
- =?us-ascii?q?yZN+GKmiZ5KDBY1pwXyH/G07cTxkIdiyZrdzO1C7QPqTbNTL7Mmq9QFxMbby?=
- =?us-ascii?q?JzNMxO760i2glBI8Hbhsnx1rFiiP46FllEWkL7msGtZMwKJXqwNFLBBEaXKr?=
- =?us-ascii?q?uGISfHzN3wYaO5UbdQlvlbtwWsuTaHFE/uJiiDlzbtVxGgKuxMiCCbPBpDuI?=
- =?us-ascii?q?GhaBZtDm7jTNPpaxGhLdB4kyU8wacoiXPSKW4cLT98fltJrr2R6yNYn/p+F3?=
- =?us-ascii?q?VC7nV7N+mEnTiW7+3DJ5YIvvtkHD50m/hZ4Hsk0btV6j9LRPhvlCvVtN5urE?=
- =?us-ascii?q?mskvOTxTp/TBpOtjFLiZqPvUVjP6XZ65ZBVW/f/B0T8WqQFg4Kp9p5Ctzvoq?=
- =?us-ascii?q?xQz9/Pm7/uKDdG7d3Z5tUcB8fKJ8KdKnYhMgTmGCTSDAQbST6nL2bfh1ZSkP?=
- =?us-ascii?q?uK7H2asoA6qoTwmJoJUrJbT0I6FvcbCkRjAdwDL4x6Xi0rkbGFls4E/3m+ow?=
- =?us-ascii?q?fLRMVcoJ/HUuieAfL1KDaWlbNEfQcHwavkLYQPMY32w01ial9mnIvUH0rcRN?=
- =?us-ascii?q?9NoiNubwIvpEVN8WN+TnEo207/ZAOt+mEcGuCpkREokQt+Yvgt9DD041stIV?=
- =?us-ascii?q?rKviQwmlErmdr5mTCRbCLxLKCoUIFSCir0sVUxM5ziTwZtdwKyh01kNCzYSL?=
- =?us-ascii?q?9Kkbtgen5kiBXGtZtMB/FcV6tEbwEUxf2NYPUoy1tcoD29xUBb/evFFYdilA?=
- =?us-ascii?q?wyfJ6ornJA3R9jbdEtJazIOKVF10VfibyQviKz0uAxwRQeJ1oW8G+Ify4JuU?=
- =?us-ascii?q?gIOaM9KCqz5OBs7haCmzRbcmgWS/Uquu5q9l86O+mYyyLg0rhDKl2+NuCGNa?=
- =?us-ascii?q?yZoW3AmdeLQlwuzEMIkVdK/bxt3McnckqUTFwvzKCLGxQIM8rCJxtVYNBP+3?=
- =?us-ascii?q?fNZymBrP/BwZVvP4WyDuroV/OBtL4IgkK4GwYkB4AM7sUHHpmx30DUNN/nI6?=
- =?us-ascii?q?AfyRUj/QjrOU6FA+pTeBKQizoHvc6/w4Ft3YVHJTESH399MSOp6bbTvAMqh+?=
- =?us-ascii?q?CDXNguaHcAQoQELm42WNG9myNBuHRAFCO30uUXyAiD6z/zuD3cDD39b9p4eP?=
- =?us-ascii?q?eZfhdsCNCt+TUj6Ki6k0XX8pvEK2H8K9tipsfF6fkGqJafF/NUUb59vl/Ym4?=
- =?us-ascii?q?lFW3yqVHXCHsSwJ5fqd4Yjd8T0CnemUlOljzI5VcHxM8ixLvvAvQa9bIJZoI?=
- =?us-ascii?q?SKlBo+Oca7FTYAU0N5o+wT6bM6bxAPapw4ZgDAswU4Krz5IQGE39HoSGGof2?=
- =?us-ascii?q?h4Vf5amN6maqRXwixkVeqzzH8tX9lu1OWs2VIcT5ENyBfFzLCsYJcIAnu7IW?=
- =?us-ascii?q?BUZwia/XlxrGNmLOtnh75kkR4=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CrAwCYMERe/wHyM5BmHQEBAQkBEQUFAYF7gX2BbSASK?=
- =?us-ascii?q?oQUiQOGZQEBAQEBAQaBN4lwkUoJAQEBAQEBAQEBNwQBAYRAAoJtOBMCEAEBA?=
- =?us-ascii?q?QUBAQEBAQUDAQFshUOCOykBgwIBBR0GBAsBBUEQCQIYAgImAgJXBg0GAgEBg?=
- =?us-ascii?q?lcMP4JXJZAjm3l/M4VKg0WBPoEOKow+eYEHgREnD4JdPodbgl4EjU2CT4dvf?=
- =?us-ascii?q?JZvgkSCT4pGiTYGHIJIiBKQOy2reSKBWCsIAhgIIQ+DJ1AYDY4pFxWOLCMDM?=
- =?us-ascii?q?AKRXwEB?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 12 Feb 2020 17:08:33 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01CH7OZD127971;
-        Wed, 12 Feb 2020 12:07:25 -0500
-Subject: Re: [PATCH v5 01/10] capabilities: introduce CAP_PERFMON to kernel
- and user space
-To:     Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
-        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "james.bottomley@hansenpartnership.com" 
-        <james.bottomley@hansenpartnership.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        James Morris <jmorris@namei.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Robert Richter <rric@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-        oprofile-list@lists.sf.net, Andy Lutomirski <luto@amacapital.net>
-References: <0548c832-7f4b-dc4c-8883-3f2b6d351a08@linux.intel.com>
- <9b77124b-675d-5ac7-3741-edec575bd425@linux.intel.com>
- <64cab472-806e-38c4-fb26-0ffbee485367@tycho.nsa.gov>
- <05297eff-8e14-ccdf-55a4-870c64516de8@linux.intel.com>
- <CAADnVQK-JzK-GUk4KOozn4c1xr=7TiCpB9Fi0QDC9nE6iVn8iQ@mail.gmail.com>
- <537bdb28-c9e4-f44f-d665-25250065a6bb@linux.intel.com>
- <63d9700f-231d-7973-5307-3e56a48c54cb@linux.intel.com>
- <d7213569-9578-7201-6106-f5ebc95bd6be@tycho.nsa.gov>
- <2e38c33d-f085-1320-8cc2-45f74b6ad86d@linux.intel.com>
- <dd6a1382-7b2f-a6e6-a1ac-009566d7f556@tycho.nsa.gov>
- <8141da2e-49cf-c02d-69e9-8a7cbdc91431@linux.intel.com>
- <7c367905-e8c9-7665-d923-c850e05c757a@tycho.nsa.gov>
- <280e6644-c129-15f6-ea5c-0f66bf764e0f@tycho.nsa.gov>
- <950cc6a4-5823-d607-1210-6f62c96cf67f@linux.intel.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <46751eb9-deca-53cc-95fb-1602cfdf62a2@tycho.nsa.gov>
-Date:   Wed, 12 Feb 2020 12:09:27 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rwo0z8hfwKW8dm+jdLGk+O1WJMW5uNc4qUsCsEIwvs8=;
+        b=gE65b1Yd2Wh6XHXYwmu/c9CKJBy+Ws32WYuWa+/niiYwv8vUvoGbn1U37V3MujwSqy
+         mH+LjaP+x63KnU2IbSBcx8+NiAhxkIQYwSc8YwMdNZLpq2it5+AVaw9VQGuEGa6UKPPR
+         ezBIYI+6LJbYJUiMRnQ5MJxVYYEcgW/zXz6a3CWi8S7SRAgi+6ng4JmXmX7lGdw8HjWJ
+         +zOP9rYdIq7UX6OAiXjWLvpRY3XkufloC3t4AETi/Qz/xZqs8etfWTN3NUQouNaSrJf4
+         hFVn/JQ3eZHNsyf2nxuubKcJJZoA8fd1gQuPK3UYtvvWzHubUwxJ5Sv8UNwMwUmeooV5
+         MxaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rwo0z8hfwKW8dm+jdLGk+O1WJMW5uNc4qUsCsEIwvs8=;
+        b=AlylmDg22/Hoo/vgJhACPHfPjhuKOqzjxuY6i/oR55slmIMHfcHx6Z49+YSywjAJSK
+         ppmN9DFimk+5yYpd9KZzTfifDhzkqY+oKwvDFbP1igGr1J80XfgrYdvGl5b9/o17IiHh
+         IiuT8MCYX397fY7IMU5ESj88jxr3Qyz1CFmefqA5xu+znI0lp1sLgKSYD0Ptjvs318zv
+         IbbASpR/hbGYyoa2NQQInBPw88CtxchUx9rtLY330FBO7poKrUwGX11LuhEv5nkj7ChL
+         CCbjnz4qg7Prv4vIxMeI4ckhTFKfeFb+3+5DZO3e/4oE4J6qPk/DVh2uDqzu9Kro1rZJ
+         fw3Q==
+X-Gm-Message-State: APjAAAUC4DY6R3/dVVVuRW5p2BnBpEi4+IVG9J0ogvvplWaCWaTUiV3W
+        LT8GtZlUVtPFck7OgFz9/he6nDayJf6qeh+33kpAIw==
+X-Google-Smtp-Source: APXvYqzY9e3KLachS/myU+/0mcUI2neod0a7EVtvHqf8eiEdgn1uuyZlXOPUph4HCp5xA57zsmk6uApwpSXMfGrV/WE=
+X-Received: by 2002:a2e:9157:: with SMTP id q23mr8345506ljg.196.1581527556981;
+ Wed, 12 Feb 2020 09:12:36 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <950cc6a4-5823-d607-1210-6f62c96cf67f@linux.intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20200211225547.235083-1-dancol@google.com> <202002112332.BE71455@keescook>
+In-Reply-To: <202002112332.BE71455@keescook>
+From:   Daniel Colascione <dancol@google.com>
+Date:   Wed, 12 Feb 2020 09:12:00 -0800
+Message-ID: <CAKOZuesS1_O0OuePwSN2Kc4b-vyokiV=MvBd4nDi=umBKM6v6w@mail.gmail.com>
+Subject: Re: [PATCH v2 0/6] Harden userfaultfd
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Tim Murray <timmurray@google.com>, Nosh Minwalla <nosh@google.com>,
+        Nick Kralevich <nnk@google.com>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Linux API <linux-api@vger.kernel.org>, selinux@vger.kernel.org,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Peter Xu <peterx@redhat.com>, Jann Horn <jannh@google.com>,
+        LSM List <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/12/20 11:56 AM, Alexey Budankov wrote:
-> 
-> 
-> On 12.02.2020 18:45, Stephen Smalley wrote:
->> On 2/12/20 10:21 AM, Stephen Smalley wrote:
->>> On 2/12/20 8:53 AM, Alexey Budankov wrote:
->>>> On 12.02.2020 16:32, Stephen Smalley wrote:
->>>>> On 2/12/20 3:53 AM, Alexey Budankov wrote:
->>>>>> Hi Stephen,
->>>>>>
->>>>>> On 22.01.2020 17:07, Stephen Smalley wrote:
->>>>>>> On 1/22/20 5:45 AM, Alexey Budankov wrote:
->>>>>>>>
->>>>>>>> On 21.01.2020 21:27, Alexey Budankov wrote:
->>>>>>>>>
->>>>>>>>> On 21.01.2020 20:55, Alexei Starovoitov wrote:
->>>>>>>>>> On Tue, Jan 21, 2020 at 9:31 AM Alexey Budankov
->>>>>>>>>> <alexey.budankov@linux.intel.com> wrote:
->>>>>>>>>>>
->>>>>>>>>>>
->>>>>>>>>>> On 21.01.2020 17:43, Stephen Smalley wrote:
->>>>>>>>>>>> On 1/20/20 6:23 AM, Alexey Budankov wrote:
->>>>>>>>>>>>>
->>>>>> <SNIP>
->>>>>>>>>>>>> Introduce CAP_PERFMON capability designed to secure system performance
->>>>>>>>>>>>
->>>>>>>>>>>> Why _noaudit()?  Normally only used when a permission failure is non-fatal to the operation.  Otherwise, we want the audit message.
->>>>>>>>
->>>>>>>> So far so good, I suggest using the simplest version for v6:
->>>>>>>>
->>>>>>>> static inline bool perfmon_capable(void)
->>>>>>>> {
->>>>>>>>        return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
->>>>>>>> }
->>>>>>>>
->>>>>>>> It keeps the implementation simple and readable. The implementation is more
->>>>>>>> performant in the sense of calling the API - one capable() call for CAP_PERFMON
->>>>>>>> privileged process.
->>>>>>>>
->>>>>>>> Yes, it bloats audit log for CAP_SYS_ADMIN privileged and unprivileged processes,
->>>>>>>> but this bloating also advertises and leverages using more secure CAP_PERFMON
->>>>>>>> based approach to use perf_event_open system call.
->>>>>>>
->>>>>>> I can live with that.  We just need to document that when you see both a CAP_PERFMON and a CAP_SYS_ADMIN audit message for a process, try only allowing CAP_PERFMON first and see if that resolves the issue.  We have a similar issue with CAP_DAC_READ_SEARCH versus CAP_DAC_OVERRIDE.
->>>>>>
->>>>>> I am trying to reproduce this double logging with CAP_PERFMON.
->>>>>> I am using the refpolicy version with enabled perf_event tclass [1], in permissive mode.
->>>>>> When running perf stat -a I am observing this AVC audit messages:
->>>>>>
->>>>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { open } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
->>>>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { kernel } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
->>>>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { cpu } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
->>>>>> type=AVC msg=audit(1581496695.666:8692): avc:  denied  { write } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
->>>>>>
->>>>>> However there is no capability related messages around. I suppose my refpolicy should
->>>>>> be modified somehow to observe capability related AVCs.
->>>>>>
->>>>>> Could you please comment or clarify on how to enable caps related AVCs in order
->>>>>> to test the concerned logging.
->>>>>
->>>>> The new perfmon permission has to be defined in your policy; you'll have a message in dmesg about "Permission perfmon in class capability2 not defined in policy.".  You can either add it to the common cap2 definition in refpolicy/policy/flask/access_vectors and rebuild your policy or extract your base module as CIL, add it there, and insert the updated module.
->>>>
->>>> Yes, I already have it like this:
->>>> common cap2
->>>> {
->>>> <------>mac_override<--># unused by SELinux
->>>> <------>mac_admin
->>>> <------>syslog
->>>> <------>wake_alarm
->>>> <------>block_suspend
->>>> <------>audit_read
->>>> <------>perfmon
->>>> }
->>>>
->>>> dmesg stopped reporting perfmon as not defined but audit.log still doesn't report CAP_PERFMON denials.
->>>> BTW, audit even doesn't report CAP_SYS_ADMIN denials, however perfmon_capable() does check for it.
->>>
->>> Some denials may be silenced by dontaudit rules; semodule -DB will strip those and semodule -B will restore them.  Other possibility is that the process doesn't have CAP_PERFMON in its effective set and therefore never reaches SELinux at all; denied first by the capability module.
->>
->> Also, the fact that your denials are showing up in user_systemd_t suggests that something is off in your policy or userspace/distro; I assume that is a domain type for the systemd --user instance, but your shell and commands shouldn't be running in that domain (user_t would be more appropriate for that).
-> 
-> It is user_t for local terminal session:
-> ps -Z
-> LABEL                             PID TTY          TIME CMD
-> user_u:user_r:user_t            11317 pts/9    00:00:00 bash
-> user_u:user_r:user_t            11796 pts/9    00:00:00 ps
-> 
-> For local terminal root session:
-> ps -Z
-> LABEL                             PID TTY          TIME CMD
-> user_u:user_r:user_su_t          2926 pts/3    00:00:00 bash
-> user_u:user_r:user_su_t         10995 pts/3    00:00:00 ps
-> 
-> For remote ssh session:
-> ps -Z
-> LABEL                             PID TTY          TIME CMD
-> user_u:user_r:user_t             7540 pts/8    00:00:00 ps
-> user_u:user_r:user_systemd_t     8875 pts/8    00:00:00 bash
+Thanks for taking a look and for the fast reply!
 
-That's a bug in either your policy or your userspace/distro integration. 
-  In any event, unless user_systemd_t is allowed all capability2 
-permissions by your policy, you should see the denials if CAP_PERFMON is 
-set in the effective capability set of the process.
+On Tue, Feb 11, 2020 at 11:51 PM Kees Cook <keescook@chromium.org> wrote:
+>
+> Hi!
+>
+> Firstly, thanks for working on this! It's been on my TODO list for a
+> while. :)
+>
+> Casey already recommended including the LSM list to CC (since this is a
+> new LSM -- there are many LSMs). Additionally, the series should
+> probably be sent _to_ the userfaultfd maintainers:
+>         Andrea Arcangeli <aarcange@redhat.com>
+>         Mike Rapoport <rppt@linux.ibm.com>
+> and I'd also CC a couple other people that have done recent work:
+>         Peter Xu <peterx@redhat.com>
+>         Jann Horn <jannh@google.com>
+>
+> More notes below...
 
+In general, in the event that a patch series doesn't include all
+needed parties on the to-line, what's the right way to fix the
+situation without spamming everyone and forking the thread? In this
+case, since I'm splitting the patch series anyway, I can just expand
+the to-line in the reroll.
+
+> On Tue, Feb 11, 2020 at 02:55:41PM -0800, Daniel Colascione wrote:
+> > Userfaultfd in unprivileged contexts could be potentially very
+> > useful. We'd like to harden userfaultfd to make such unprivileged use
+> > less risky. This patch series allows SELinux to manage userfaultfd
+> > file descriptors and allows administrators to limit userfaultfd to
+> > servicing user-mode faults, increasing the difficulty of using
+> > userfaultfd in exploit chains invoking delaying kernel faults.
+>
+> I actually think these are two very different goals and likely the
+> series could be split into two for them. One is LSM hooking of
+> userfaultfd and the SELinux attachment, and the other is the user-mode
+> fault restrictions. And they would likely go via separate trees (LSM
+> through James's LSM tree, and probably akpm's -mm tree for the sysctl).
+>
+> > A new anon_inodes interface allows callers to opt into SELinux
+> > management of anonymous file objects. In this mode, anon_inodes
+> > creates new ephemeral inodes for anonymous file objects instead of
+> > reusing a singleton dummy inode. A new LSM hook gives security modules
+> > an opportunity to configure and veto these ephemeral inodes.
+> >
+> > Existing anon_inodes users must opt into the new functionality.
+> >
+> > Daniel Colascione (6):
+> >   Add a new flags-accepting interface for anonymous inodes
+> >   Add a concept of a "secure" anonymous file
+> >   Teach SELinux about a new userfaultfd class
+> >   Wire UFFD up to SELinux
+>
+> The above is the first "series"... I don't have much opinion about it,
+> though I do like the idea of making userfaultfd visible to the LSM.
+
+Yeah. The interesting part there is the anon_inodes API change. I'll
+split that half of the series out.
+
+> >   Let userfaultfd opt out of handling kernel-mode faults
+> >   Add a new sysctl for limiting userfaultfd to user mode faults
+>
+> Now this I'm very interested in. Can you go into more detail about two
+> things:
+>
+> - What is the threat being solved? (I understand the threat, but detailing
+>   it in the commit log is important for people who don't know it. Existing
+>   commit cefdca0a86be517bc390fc4541e3674b8e7803b0 gets into some of the
+>   details already, but I'd like to see reference to external sources like
+>   https://duasynt.com/blog/linux-kernel-heap-spray)
+
+Sure. I can add a reference to that and a more general discussion of
+how delaying kernel fault handling can broaden race windows for other
+exploits.
+
+> - Why is this needed in addition to the existing vm.unprivileged_userfaultfd
+>   sysctl? (And should this maybe just be another setting for that
+>   sysctl, like "2"?)
+
+We want to use UFFD for a new garbage collector in Android, and we
+want unprivileged processes to be able to use this new garbage
+collector. Giving them CAP_SYS_PTRACE is dangerous.
+
+> As to the mechanics of the change, I'm not sure I like the idea of adding
+> a UAPI flag for this. Why not just retain the permission check done at
+> open() and if kernelmode faults aren't allowed, ignore them? This would
+> require no changes to existing programs and gains the desired defense.
+
+As Jann mentions below, it's a matter of the kernel's contractual
+obligation to userspace. Right now, userfaultfd(2) either succeeds or
+it fails with one of the enumerated error codes. You're proposing
+having the userfaultfd(2) succeed but return a file descriptor that
+doesn't do the job the kernel promised it would do. If we were to
+adopt your proposal, an application would see UFFD succeed, then see
+unexpeced EFAULTs from system calls, which would probably cause the
+application to malfunctioning in exciting ways. An explicit "sorry, I
+can't do that" error code is better: an application that gets an error
+code from userfaultfd(2) can fall back to something else, but an
+application that silently gets an underfeatured UFFD doesn't know
+anything is wrong until it's too late. The additional flag preserves
+the UFFD contract and gives applications a way to probe for feature
+support.
+
+> (And, I think, the sysctl value could be bumped to "2" as that's a
+> better default state -- does qemu actually need kernelmode traps?)
+
+I prefer a default of one for regular systems because I don't want to
+make experimentation with novel ways to use UFFD more difficult, and a
+default of two would require users go out of their way to handle user
+faults, and few will. For a more constrained system like Android, two
+is fine.
