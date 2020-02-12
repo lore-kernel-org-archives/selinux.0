@@ -2,201 +2,296 @@ Return-Path: <SRS0=d/HA=4A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3DFFC2BA83
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 17:04:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0D34C352A4
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 17:08:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9EEC7206D7
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 17:04:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4C04206D7
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 17:08:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="TBT8+Nal"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="HrG1I0rk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728650AbgBLREj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Feb 2020 12:04:39 -0500
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:59993 "EHLO
+        id S1728650AbgBLRIm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Feb 2020 12:08:42 -0500
+Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:60793 "EHLO
         UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726728AbgBLREj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Feb 2020 12:04:39 -0500
-X-EEMSG-check-017: 58189367|UPDC19PA19_ESA_OUT01.csd.disa.mil
+        with ESMTP id S1727429AbgBLRIl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Feb 2020 12:08:41 -0500
+X-EEMSG-check-017: 58191195|UPDC19PA19_ESA_OUT01.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,433,1574121600"; 
-   d="scan'208";a="58189367"
+   d="scan'208";a="58191195"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 12 Feb 2020 17:04:34 +0000
+  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 12 Feb 2020 17:08:34 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581527075; x=1613063075;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=zKp7U0pFTqFM/FgNluPbvsZXi8mhH1PMiDNjsoIC9oU=;
-  b=TBT8+NaloQ+lHEc2oW5+lmie5efNkEGMyZMV6fayso8VjLiuYIMdwZ7T
-   9Ej9fhspWaih2+zFQxEgu6fgapv6FZau1/BCLAFk4s6FIZSHBkyKvPp3x
-   FOSKVLG4LZ06noA+nSP1E8E7TYXlV7j1BIv++e16/Wu5PfiPai5ehTr5S
-   bCNJov2rWnfnoiv9QmGzbyVF23yqAGssHEO8sIgUg5xt1Ha0uANgyerZF
-   XPVVRiEPavbdOxTwi9AUhbzcQvjzafjO1sPN5x2AmOwIP25aD8UiGGzvC
-   epvzRxmWL319idzLoxnj7JisXg+x0ASHOk4vqJqSzi5m+2cVI/1VQUCL4
+  s=tycho.nsa.gov; t=1581527315; x=1613063315;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=aWcpaQ2lwYKfT5rmL/YVmNrCq+9+F5btAHN8rXcBXIY=;
+  b=HrG1I0rkOyakdXQ/7bU4lUhHSs0Me8d41vd68voZXmrCXJjsLwY+lBwr
+   A12kpFjHTjZnGMZsleO26intMkILsqSikKDPJjuZ8xCbZyCdnbzleEwEN
+   pLZkg+H5jMgnyOeY60bdkxIK7Iq2Y0urk891CaEA6NK/eAetBm0iScqdS
+   N6I3egcqeVHEAaKmNILMWCKFOE5YzZSHpLSuxPeTuo6IlRzeN5IjOUbeP
+   basvRuUZ7jHzK+zbek40wAsg0aTPPmYWpThvvADFUG7EJ8bkDM70s81yw
+   EkdPo9nVqx3cGs+0j9z9CQ2z0nhKR7eIfEiboX/Nn5+tA9uRxkrmKDu4u
    Q==;
 X-IronPort-AV: E=Sophos;i="5.70,433,1574121600"; 
-   d="scan'208";a="39022781"
-IronPort-PHdr: =?us-ascii?q?9a23=3Ah0m23BwvIYbAiafXCy+O+j09IxM/srCxBDY+r6?=
- =?us-ascii?q?Qd0ukeLfad9pjvdHbS+e9qxAeQG9mCt7Qa1qGH7ujJYi8p39WoiDg6aptCVh?=
- =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
- =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagbr5+NhS7oAXeusQSgYZpN7o8xA?=
- =?us-ascii?q?bOrnZUdOtawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
- =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
- =?us-ascii?q?mp8qlmRAP0hCoBKjU063/chNBug61HoRKhvx1/zJDSYIGJL/p1Y6fRccoHSW?=
- =?us-ascii?q?ZdQspdUipMDY2mb4sLEuEPI+BWoYfgrFcKtBezCw2hCObpxzRVhHH5wLc63v?=
- =?us-ascii?q?w8Hw/Y0gwuH9EAvnrao9r6NqgdTe+7wbLUzTjBdf5axSvx5YbKfx0nvPqCXa?=
- =?us-ascii?q?hwcc3UyUQ3Cg3FkkufqZTlPzyL0OQGrnWV7+96WuKrj24otQFwqSWoy8c3l4?=
- =?us-ascii?q?bJnZkYykzE9CplwIY1Ise0SEhgYdG+CpdQuCaaN5VvT84kXmpmuz46x6UbtZ?=
- =?us-ascii?q?O0cyUG0pQqywPFZ/CZfIWE/AjvWPuXLDxlnnxqYqi/iAy38UW4z+38UdS730?=
- =?us-ascii?q?hSoypel9nMqmgN1xvO6sibUvd9/lmu2TKI1w3L9uFLO1o0lavGK5462LIwl5?=
- =?us-ascii?q?wTsUrEHi/thkr5kLWadlkk++e06+TnZa/qppmAOI9vlg7yKKEums27AeggMw?=
- =?us-ascii?q?gOWXaU+fik2bH+8kD0T69Gg/0rnqXDrpzXKtoXqrSkDwNN14Ys8Re/DzOo0N?=
- =?us-ascii?q?QCmnkHKUpIeAmagIjyIFzOPPD5Auu/g1SrijtrwevGMaf7DpXCKXjDjq/tfa?=
- =?us-ascii?q?xh5E5E1Aoz0ddf6opJBb4bJvL8RkjxtNjDAx82NAy0xOnnCNFj2Y8ERW2PBa?=
- =?us-ascii?q?qZOrvIsVCU/uIvP/WMZIgNtTbhKvgl4vvujWIjmV8HZ6ao3YAaaH+/HvRhLE?=
- =?us-ascii?q?WZZWTjjs0dHmcNuwo0VPbqh0GaUT5Pe3ayWLox5jc8CIK9DYfOXY+tgLuG3C?=
- =?us-ascii?q?e0Gp1ZeHpKBUyLEXftb4+EQesDaDqOIs99lTwJTb6hS4ki1Ry1uw/6zL1nLu?=
- =?us-ascii?q?XQ+iIGr57syN915+jLnxEo6TN0F9id032KT2xsmmMIQDw2075koUx9xVeD0L?=
- =?us-ascii?q?V3g+ZCGtFI6PNJVQA6NZHYz+NkEdz9RgXBftKRQla8XtqmGS0xTs42w9IWZ0?=
- =?us-ascii?q?Z9GtOijg3M3iazAL8aiaaLBJoq/aLYxHXxOcl9xGjc1KU7jFkpXNFPNWu4ia?=
- =?us-ascii?q?577QTTAJTJk0qBnaawaascxDLN9HuEzWeWuEFYUQhwUbjKXHwGfETWtdX561?=
- =?us-ascii?q?jcT7+hF7snKBFNyc2cJatQbN3mk1FGSO3kONTEbGK7g32wCgqQxrOQcIrqfH?=
- =?us-ascii?q?0Q3D7DB0gAkgAT+2uGNAclCye/rGLREiZuGUjsY0zy6+l+rm20TksuwwGNdU?=
- =?us-ascii?q?1h2On9xhlAqfWaSv4XlpkDvC46oDRzGlv1i97fDdGHoyJue6JTZd5761BCgy?=
- =?us-ascii?q?aRqw14O4G6NalzrlEZdAtzsgXl0BAzQoNHisgCo3Qtww5/b6mf1RcJcTWb9Z?=
- =?us-ascii?q?/3PbLTJy/5+xXrI6rR2VzF0NmX9r0GwPs/rFrnsUeiEU9mu3Fm1cRFlniR/J?=
- =?us-ascii?q?PHCCIMXp/rFEU67R53o/fdeCZ5r4fV02B8dKCssxfc1N8zQugo0BCte5FYKq?=
- =?us-ascii?q?zAXBT/F8wcGtiGNuMngR6qYwgCMeQU87Q7bO28cP7T47KmJOZtmnqdiG1D5I?=
- =?us-ascii?q?1smhaX+zFUVv/D35FDxeqRmASASWGv3x+arsnrlNUcNnkpFW2lxH2hXdUAaw?=
- =?us-ascii?q?=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CIAgBCL0Re/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YFtIBIqhBSJA4ZlAQEBAQEBBoE3iXCQcwNUCQEBAQEBAQEBATcEAQGEQAKCb?=
- =?us-ascii?q?TgTAhABAQEFAQEBAQEFAwEBbIVDgjspAYMCAQUjBBFRCw4KAgImAgJXBgEJA?=
- =?us-ascii?q?wYCAQGCYz+CVyWsEX8zhUqDRYE+gQ4qjD55gQeBOA+CLy4+h1uCXgSWYWRGl?=
- =?us-ascii?q?2uCRIJPk3wGHIJIiBIFhEWLcY5onT4iN4EhKwgCGAghD4MnUBgNjikXjkEjA?=
- =?us-ascii?q?zCRYQEB?=
+   d="scan'208";a="39023161"
+IronPort-PHdr: =?us-ascii?q?9a23=3AI5+WUxQ9NnkZQh44LeZYh5jg9dpsv+yvbD5Q0Y?=
+ =?us-ascii?q?Iujvd0So/mwa65ZRSPt8tkgFKBZ4jH8fUM07OQ7/m8HzJdqsfe+Fk5M7VyFD?=
+ =?us-ascii?q?Y9wf0MmAIhBMPXQWbaF9XNKxIAIcJZSVV+9Gu6O0UGUOz3ZlnVv2HgpWVKQk?=
+ =?us-ascii?q?a3OgV6PPn6FZDPhMqrye+y54fTYwJVjzahfL9+Nhq7oRjeu8UMgIZvKqk9xx?=
+ =?us-ascii?q?/Lr3BVZ+lY2GRkKE6ckBr7+sq+5oNo/T5Ku/Im+c5AUKH6cLo9QLdFEjkoMH?=
+ =?us-ascii?q?076dPyuxXbQgSB+nUTUmMNkhpVGAfF9w31Xo3wsiThqOVw3jSRMNDsQrA1XT?=
+ =?us-ascii?q?Si6LprSAPthSwaOTM17H3bh8pth69AvhmvuwJwzJLVYIGNNfpxYKXdfc8BRW?=
+ =?us-ascii?q?FcWspdTjFNDp+gY4cKCecOM/xYr43grFUQqxWwCxSnCOf2xjJGgnL62Ks32P?=
+ =?us-ascii?q?kjHw7bxgwtB88AvmrarNv1N6kcX+66w6bKwjrfYP1bwiv95YvSfxw9vf2BU7?=
+ =?us-ascii?q?B9fMzMwkcvDQPFiVCQpJT4MTOJyOsNq2ib4PRmVemylmAnrht+ojyrxsgyio?=
+ =?us-ascii?q?jCm4UYykvZ+iVi24s1Od25R1J7Yd6jCpdQsTqaOJFsTsMtRGFopj83x7sbsp?=
+ =?us-ascii?q?C4ZCgH0IkryhHQZvCdc4WE/wjvWPieLDtmnn5pZbSyjAuo/0e60O3zTMy03U?=
+ =?us-ascii?q?5PripCj9bDqGgA1wfW6sibUvt9+Vqh2SqX2wDT9O5EJUc0mLLHK5E72L4wl4?=
+ =?us-ascii?q?cTsV/ZEi/3nkX2gqiWdl469ee08ejnfrXnqYOcN49zkA3+NLghmtejDugiNw?=
+ =?us-ascii?q?gOXmyb9fy91L3l40L5XK1HguA5n6TWqpzXJdkXqrSnDwJazIov8QuzAy+j0N?=
+ =?us-ascii?q?sCnHkHKFxFeAiAj4jsI1zOO+33DeykjlSwkDZk2/DGPrr7DpXLNXjMiq3tfb?=
+ =?us-ascii?q?l6605C0AYz18xQ54pICrEdJ/L+QlX+tNjGAR42LQO1w/zrB85g1owDQ22PBK?=
+ =?us-ascii?q?yZMKTMsVKT4uIvIu+MZJIauTrnKvgl4eLugmE9mVMHYaap2p4XYmiiHvt6O0?=
+ =?us-ascii?q?WZfWbsgtAZHGgQugoxUuPrh0ODUTJJfHayQ7gz5is8CIK4CofDR5ytgLuf3C?=
+ =?us-ascii?q?qgEZ1WY3pJClGIEXvya4qEXPIMYjqIIsB9ijwESaShS4g52BG2qgD616RoLv?=
+ =?us-ascii?q?DV+yADtJLj0tZ15/fJmh4v6zN7FdmS33uKT2FukWMCXyU207xnoUxh1leD1r?=
+ =?us-ascii?q?B1jOZEGtxW+fxESQQ6OoDGz+x8Fd/yXhjNftCTSFapWt+mGy0+Tsotw98SZE?=
+ =?us-ascii?q?ZwA9CijhHF3yqlBL8YjKaLC4Ip/aLcxXfxO9xxxGrB1Kkkl1MmWNdANXW6hq?=
+ =?us-ascii?q?5j8AjeH4zJnF+fl6arb6gc2i/N9GSezWqKpk5VSwpwUaTDXXACaUrat9X55k?=
+ =?us-ascii?q?XeT7CwDbQrKBdOycmHKqFScN3mkU1GROv/ONTZe2+xmWCwBRGOxryWd4rmYW?=
+ =?us-ascii?q?Ed0z/dCEgYkgAT+2iJNQ4lCyelomLeCiFuFF31b0Pt9+l+tG20Tksuww6WaE?=
+ =?us-ascii?q?1h0qK/+gQJivyEV/MTwrUEtT87qzVzAVm9xdPWC9WHpwZ7YqVcYM094FZc2G?=
+ =?us-ascii?q?LYsQx9IoKvL6R4ilECdAR3ulvk1w9rBYVYjcgqsHQqwRJpJq2G1lNBdyiV3Z?=
+ =?us-ascii?q?PuNb3NLGn94hSvZ7TK1VHEytmW4acP6PU+q1Xspg2pEVAi83p/2dlPz3Sc/o?=
+ =?us-ascii?q?nKDBYVUZ/pSkY47QV6p7XHYikm/I7UzmdjMayvvTDYwd4pA/Elyhm4dddFLK?=
+ =?us-ascii?q?yEDBPyE9EdB8W2Lewqg0amYwkaM+BW8K47Idmmd/6c166tJupgnS+pgX5d74?=
+ =?us-ascii?q?BgykiM7TZzSvbU35YZxPGVxgmHWC35jFi/qcD7g5tLZTYOHmqjzijkAYpRab?=
+ =?us-ascii?q?NyfIsQCWehOcu3xs5giJ7rQ35X7kSjB08A2MC3YxqSdFz93QxI1UgNvXOnni?=
+ =?us-ascii?q?64xSRukz41tqqfwDDOw+P6eRocJGFLXmZigkn3LIi0ld8aWEyobggvlBe/+U?=
+ =?us-ascii?q?n6wK1brrxlL2bPWUdIYzT2L2Z6X6uys7qCZNRP6IkpsSVMS+m8Z0qVSrvjrB?=
+ =?us-ascii?q?sbyS/jGHFexD8jfTGwppr5hwB6iH6aLHtronvZeMVwxRPF6NPBW/FexCYJRC?=
+ =?us-ascii?q?5+iTTMHFe8Jdyp8c+ImJfEt+C0T3ihWYFLcSn30YOAszO25WhwDh2lnPC/gM?=
+ =?us-ascii?q?fnERUm0S//zdZqUzjHoQ3mbYnx0qS2K/5ofk5tBFXk8cp1Bpl+kpcshJEXwX?=
+ =?us-ascii?q?UanI+V/XsbnmroMtVUx7j+bHwTSj4P2dLV5xLl2EJ7JHKT2435TmmdwtdmZ9?=
+ =?us-ascii?q?SieGwWwT494ttJCKiK9rxEmzV6ol6ioQLWe/h9kS8XyeEy534Cn+EJpA0twz?=
+ =?us-ascii?q?2fArAVGUlYJjbjmg+S79+gsapXZHygcaSq2EVimtChCamIohtAV3bhZpciAS?=
+ =?us-ascii?q?hw491lP1LPy3Dz7oDkeN/NbdMcrBGUkhHAj/RLJ5I1jPYFmS1nOWflt30/1+?=
+ =?us-ascii?q?E7lQBu3Y29vIWfNWpt5ri2AhhZNjLvYcMe4T7tjaFZnsaZ24CgAI9tFSkMXJ?=
+ =?us-ascii?q?vtVfioCi4dtez7NwaSFz0xsnabGb7CHQCE8khmtHLPHI6wOn6NJ3kW19BiSw?=
+ =?us-ascii?q?OcJEBFnA8UWzA6lIYjFg+23MzhbFt55jcJ61HirhtD1O1pOAP5UmjCugiocC?=
+ =?us-ascii?q?04SIOfLBpX9QFC50TVMc2Y7u9oGyFY/5uhrBGCK2CBZgRIC30JVVKAB1z5Ir?=
+ =?us-ascii?q?au4tzA+fCCBuWiN/vOfamOqetGWveO352v14tm/jaRNsWJMXlvFP471VRZXX?=
+ =?us-ascii?q?B/BcvZny8DSysNlyLCd8Sbvguz+jVrrsCj9/TmQBnv5YyJC7tdNdVv+g22jr?=
+ =?us-ascii?q?yZN+GKmiZ5KDBY1pwXyH/G07cTxkIdiyZrdzO1C7QPqTbNTL7Mmq9QFxMbby?=
+ =?us-ascii?q?JzNMxO760i2glBI8Hbhsnx1rFiiP46FllEWkL7msGtZMwKJXqwNFLBBEaXKr?=
+ =?us-ascii?q?uGISfHzN3wYaO5UbdQlvlbtwWsuTaHFE/uJiiDlzbtVxGgKuxMiCCbPBpDuI?=
+ =?us-ascii?q?GhaBZtDm7jTNPpaxGhLdB4kyU8wacoiXPSKW4cLT98fltJrr2R6yNYn/p+F3?=
+ =?us-ascii?q?VC7nV7N+mEnTiW7+3DJ5YIvvtkHD50m/hZ4Hsk0btV6j9LRPhvlCvVtN5urE?=
+ =?us-ascii?q?mskvOTxTp/TBpOtjFLiZqPvUVjP6XZ65ZBVW/f/B0T8WqQFg4Kp9p5Ctzvoq?=
+ =?us-ascii?q?xQz9/Pm7/uKDdG7d3Z5tUcB8fKJ8KdKnYhMgTmGCTSDAQbST6nL2bfh1ZSkP?=
+ =?us-ascii?q?uK7H2asoA6qoTwmJoJUrJbT0I6FvcbCkRjAdwDL4x6Xi0rkbGFls4E/3m+ow?=
+ =?us-ascii?q?fLRMVcoJ/HUuieAfL1KDaWlbNEfQcHwavkLYQPMY32w01ial9mnIvUH0rcRN?=
+ =?us-ascii?q?9NoiNubwIvpEVN8WN+TnEo207/ZAOt+mEcGuCpkREokQt+Yvgt9DD041stIV?=
+ =?us-ascii?q?rKviQwmlErmdr5mTCRbCLxLKCoUIFSCir0sVUxM5ziTwZtdwKyh01kNCzYSL?=
+ =?us-ascii?q?9Kkbtgen5kiBXGtZtMB/FcV6tEbwEUxf2NYPUoy1tcoD29xUBb/evFFYdilA?=
+ =?us-ascii?q?wyfJ6ornJA3R9jbdEtJazIOKVF10VfibyQviKz0uAxwRQeJ1oW8G+Ify4JuU?=
+ =?us-ascii?q?gIOaM9KCqz5OBs7haCmzRbcmgWS/Uquu5q9l86O+mYyyLg0rhDKl2+NuCGNa?=
+ =?us-ascii?q?yZoW3AmdeLQlwuzEMIkVdK/bxt3McnckqUTFwvzKCLGxQIM8rCJxtVYNBP+3?=
+ =?us-ascii?q?fNZymBrP/BwZVvP4WyDuroV/OBtL4IgkK4GwYkB4AM7sUHHpmx30DUNN/nI6?=
+ =?us-ascii?q?AfyRUj/QjrOU6FA+pTeBKQizoHvc6/w4Ft3YVHJTESH399MSOp6bbTvAMqh+?=
+ =?us-ascii?q?CDXNguaHcAQoQELm42WNG9myNBuHRAFCO30uUXyAiD6z/zuD3cDD39b9p4eP?=
+ =?us-ascii?q?eZfhdsCNCt+TUj6Ki6k0XX8pvEK2H8K9tipsfF6fkGqJafF/NUUb59vl/Ym4?=
+ =?us-ascii?q?lFW3yqVHXCHsSwJ5fqd4Yjd8T0CnemUlOljzI5VcHxM8ixLvvAvQa9bIJZoI?=
+ =?us-ascii?q?SKlBo+Oca7FTYAU0N5o+wT6bM6bxAPapw4ZgDAswU4Krz5IQGE39HoSGGof2?=
+ =?us-ascii?q?h4Vf5amN6maqRXwixkVeqzzH8tX9lu1OWs2VIcT5ENyBfFzLCsYJcIAnu7IW?=
+ =?us-ascii?q?BUZwia/XlxrGNmLOtnh75kkR4=3D?=
+X-IPAS-Result: =?us-ascii?q?A2CrAwCYMERe/wHyM5BmHQEBAQkBEQUFAYF7gX2BbSASK?=
+ =?us-ascii?q?oQUiQOGZQEBAQEBAQaBN4lwkUoJAQEBAQEBAQEBNwQBAYRAAoJtOBMCEAEBA?=
+ =?us-ascii?q?QUBAQEBAQUDAQFshUOCOykBgwIBBR0GBAsBBUEQCQIYAgImAgJXBg0GAgEBg?=
+ =?us-ascii?q?lcMP4JXJZAjm3l/M4VKg0WBPoEOKow+eYEHgREnD4JdPodbgl4EjU2CT4dvf?=
+ =?us-ascii?q?JZvgkSCT4pGiTYGHIJIiBKQOy2reSKBWCsIAhgIIQ+DJ1AYDY4pFxWOLCMDM?=
+ =?us-ascii?q?AKRXwEB?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 12 Feb 2020 17:04:33 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 12 Feb 2020 17:08:33 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01CH3ZOp127896;
-        Wed, 12 Feb 2020 12:03:35 -0500
-Subject: Re: [PATCH v2 3/6] Teach SELinux about a new userfaultfd class
-To:     Daniel Colascione <dancol@google.com>, timmurray@google.com,
-        nosh@google.com, nnk@google.com, lokeshgidra@google.com,
-        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
-        selinux@vger.kernel.org
-References: <20200211225547.235083-1-dancol@google.com>
- <20200211225547.235083-4-dancol@google.com>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01CH7OZD127971;
+        Wed, 12 Feb 2020 12:07:25 -0500
+Subject: Re: [PATCH v5 01/10] capabilities: introduce CAP_PERFMON to kernel
+ and user space
+To:     Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        "james.bottomley@hansenpartnership.com" 
+        <james.bottomley@hansenpartnership.com>,
+        Serge Hallyn <serge@hallyn.com>,
+        James Morris <jmorris@namei.org>,
+        Will Deacon <will.deacon@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        oprofile-list@lists.sf.net, Andy Lutomirski <luto@amacapital.net>
+References: <0548c832-7f4b-dc4c-8883-3f2b6d351a08@linux.intel.com>
+ <9b77124b-675d-5ac7-3741-edec575bd425@linux.intel.com>
+ <64cab472-806e-38c4-fb26-0ffbee485367@tycho.nsa.gov>
+ <05297eff-8e14-ccdf-55a4-870c64516de8@linux.intel.com>
+ <CAADnVQK-JzK-GUk4KOozn4c1xr=7TiCpB9Fi0QDC9nE6iVn8iQ@mail.gmail.com>
+ <537bdb28-c9e4-f44f-d665-25250065a6bb@linux.intel.com>
+ <63d9700f-231d-7973-5307-3e56a48c54cb@linux.intel.com>
+ <d7213569-9578-7201-6106-f5ebc95bd6be@tycho.nsa.gov>
+ <2e38c33d-f085-1320-8cc2-45f74b6ad86d@linux.intel.com>
+ <dd6a1382-7b2f-a6e6-a1ac-009566d7f556@tycho.nsa.gov>
+ <8141da2e-49cf-c02d-69e9-8a7cbdc91431@linux.intel.com>
+ <7c367905-e8c9-7665-d923-c850e05c757a@tycho.nsa.gov>
+ <280e6644-c129-15f6-ea5c-0f66bf764e0f@tycho.nsa.gov>
+ <950cc6a4-5823-d607-1210-6f62c96cf67f@linux.intel.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <ef13d728-9f1e-5e38-28a1-7ed7134840e4@tycho.nsa.gov>
-Date:   Wed, 12 Feb 2020 12:05:38 -0500
+Message-ID: <46751eb9-deca-53cc-95fb-1602cfdf62a2@tycho.nsa.gov>
+Date:   Wed, 12 Feb 2020 12:09:27 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200211225547.235083-4-dancol@google.com>
+In-Reply-To: <950cc6a4-5823-d607-1210-6f62c96cf67f@linux.intel.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/11/20 5:55 PM, Daniel Colascione wrote:
-> Use the secure anonymous inode LSM hook we just added to let SELinux
-> policy place restrictions on userfaultfd use. The create operation
-> applies to processes creating new instances of these file objects;
-> transfer between processes is covered by restrictions on read, write,
-> and ioctl access already checked inside selinux_file_receive.
+On 2/12/20 11:56 AM, Alexey Budankov wrote:
 > 
-> Signed-off-by: Daniel Colascione <dancol@google.com>
+> 
+> On 12.02.2020 18:45, Stephen Smalley wrote:
+>> On 2/12/20 10:21 AM, Stephen Smalley wrote:
+>>> On 2/12/20 8:53 AM, Alexey Budankov wrote:
+>>>> On 12.02.2020 16:32, Stephen Smalley wrote:
+>>>>> On 2/12/20 3:53 AM, Alexey Budankov wrote:
+>>>>>> Hi Stephen,
+>>>>>>
+>>>>>> On 22.01.2020 17:07, Stephen Smalley wrote:
+>>>>>>> On 1/22/20 5:45 AM, Alexey Budankov wrote:
+>>>>>>>>
+>>>>>>>> On 21.01.2020 21:27, Alexey Budankov wrote:
+>>>>>>>>>
+>>>>>>>>> On 21.01.2020 20:55, Alexei Starovoitov wrote:
+>>>>>>>>>> On Tue, Jan 21, 2020 at 9:31 AM Alexey Budankov
+>>>>>>>>>> <alexey.budankov@linux.intel.com> wrote:
+>>>>>>>>>>>
+>>>>>>>>>>>
+>>>>>>>>>>> On 21.01.2020 17:43, Stephen Smalley wrote:
+>>>>>>>>>>>> On 1/20/20 6:23 AM, Alexey Budankov wrote:
+>>>>>>>>>>>>>
+>>>>>> <SNIP>
+>>>>>>>>>>>>> Introduce CAP_PERFMON capability designed to secure system performance
+>>>>>>>>>>>>
+>>>>>>>>>>>> Why _noaudit()?  Normally only used when a permission failure is non-fatal to the operation.  Otherwise, we want the audit message.
+>>>>>>>>
+>>>>>>>> So far so good, I suggest using the simplest version for v6:
+>>>>>>>>
+>>>>>>>> static inline bool perfmon_capable(void)
+>>>>>>>> {
+>>>>>>>>        return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
+>>>>>>>> }
+>>>>>>>>
+>>>>>>>> It keeps the implementation simple and readable. The implementation is more
+>>>>>>>> performant in the sense of calling the API - one capable() call for CAP_PERFMON
+>>>>>>>> privileged process.
+>>>>>>>>
+>>>>>>>> Yes, it bloats audit log for CAP_SYS_ADMIN privileged and unprivileged processes,
+>>>>>>>> but this bloating also advertises and leverages using more secure CAP_PERFMON
+>>>>>>>> based approach to use perf_event_open system call.
+>>>>>>>
+>>>>>>> I can live with that.  We just need to document that when you see both a CAP_PERFMON and a CAP_SYS_ADMIN audit message for a process, try only allowing CAP_PERFMON first and see if that resolves the issue.  We have a similar issue with CAP_DAC_READ_SEARCH versus CAP_DAC_OVERRIDE.
+>>>>>>
+>>>>>> I am trying to reproduce this double logging with CAP_PERFMON.
+>>>>>> I am using the refpolicy version with enabled perf_event tclass [1], in permissive mode.
+>>>>>> When running perf stat -a I am observing this AVC audit messages:
+>>>>>>
+>>>>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { open } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
+>>>>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { kernel } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
+>>>>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { cpu } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
+>>>>>> type=AVC msg=audit(1581496695.666:8692): avc:  denied  { write } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
+>>>>>>
+>>>>>> However there is no capability related messages around. I suppose my refpolicy should
+>>>>>> be modified somehow to observe capability related AVCs.
+>>>>>>
+>>>>>> Could you please comment or clarify on how to enable caps related AVCs in order
+>>>>>> to test the concerned logging.
+>>>>>
+>>>>> The new perfmon permission has to be defined in your policy; you'll have a message in dmesg about "Permission perfmon in class capability2 not defined in policy.".  You can either add it to the common cap2 definition in refpolicy/policy/flask/access_vectors and rebuild your policy or extract your base module as CIL, add it there, and insert the updated module.
+>>>>
+>>>> Yes, I already have it like this:
+>>>> common cap2
+>>>> {
+>>>> <------>mac_override<--># unused by SELinux
+>>>> <------>mac_admin
+>>>> <------>syslog
+>>>> <------>wake_alarm
+>>>> <------>block_suspend
+>>>> <------>audit_read
+>>>> <------>perfmon
+>>>> }
+>>>>
+>>>> dmesg stopped reporting perfmon as not defined but audit.log still doesn't report CAP_PERFMON denials.
+>>>> BTW, audit even doesn't report CAP_SYS_ADMIN denials, however perfmon_capable() does check for it.
+>>>
+>>> Some denials may be silenced by dontaudit rules; semodule -DB will strip those and semodule -B will restore them.  Other possibility is that the process doesn't have CAP_PERFMON in its effective set and therefore never reaches SELinux at all; denied first by the capability module.
+>>
+>> Also, the fact that your denials are showing up in user_systemd_t suggests that something is off in your policy or userspace/distro; I assume that is a domain type for the systemd --user instance, but your shell and commands shouldn't be running in that domain (user_t would be more appropriate for that).
+> 
+> It is user_t for local terminal session:
+> ps -Z
+> LABEL                             PID TTY          TIME CMD
+> user_u:user_r:user_t            11317 pts/9    00:00:00 bash
+> user_u:user_r:user_t            11796 pts/9    00:00:00 ps
+> 
+> For local terminal root session:
+> ps -Z
+> LABEL                             PID TTY          TIME CMD
+> user_u:user_r:user_su_t          2926 pts/3    00:00:00 bash
+> user_u:user_r:user_su_t         10995 pts/3    00:00:00 ps
+> 
+> For remote ssh session:
+> ps -Z
+> LABEL                             PID TTY          TIME CMD
+> user_u:user_r:user_t             7540 pts/8    00:00:00 ps
+> user_u:user_r:user_systemd_t     8875 pts/8    00:00:00 bash
 
-(please add linux-fsdevel and viro to the cc for future versions of this 
-patch since it changes the VFS)
+That's a bug in either your policy or your userspace/distro integration. 
+  In any event, unless user_systemd_t is allowed all capability2 
+permissions by your policy, you should see the denials if CAP_PERFMON is 
+set in the effective capability set of the process.
 
-> ---
-> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> index 1659b59fb5d7..e178f6f40e93 100644
-> --- a/security/selinux/hooks.c
-> +++ b/security/selinux/hooks.c
-> @@ -2915,6 +2919,69 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
->   	return 0;
->   }
->   
-> +static int selinux_inode_init_security_anon(struct inode *inode,
-> +					    const char *name,
-> +					    const struct file_operations *fops)
-> +{
-> +	const struct task_security_struct *tsec = selinux_cred(current_cred());
-> +	struct common_audit_data ad;
-> +	struct inode_security_struct *isec;
-> +
-> +	if (unlikely(IS_PRIVATE(inode)))
-> +		return 0;
-
-Seems like this is precluded by the caller and would be a bug?  If 
-needed at all, take it to the security_inode_init_security_anon() so it 
-doesn't have to be repeated in each security module.
-
-> +
-> +	/*
-> +	 * We shouldn't be creating secure anonymous inodes before LSM
-> +	 * initialization completes.
-> +	 */
-> +	if (unlikely(!selinux_state.initialized))
-> +		return -EBUSY;
-
-I don't think this is viable; any arbitrary actions are possible before 
-policy is loaded, and a Linux distro can be brought up fully with 
-SELinux enabled and no policy loaded.  You'll just need to have a 
-default behavior prior to initialization.
-
-> +
-> +	isec = selinux_inode(inode);
-> +
-> +	/*
-> +	 * We only get here once per ephemeral inode.  The inode has
-> +	 * been initialized via inode_alloc_security but is otherwise
-> +	 * untouched, so check that the state is as
-> +	 * inode_alloc_security left it.
-> +	 */
-> +	BUG_ON(isec->initialized != LABEL_INVALID);
-> +	BUG_ON(isec->sclass != SECCLASS_FILE);
-
-I think the kernel discourages overuse of BUG_ON/BUG/...
-
-> +
-> +#ifdef CONFIG_USERFAULTFD
-> +	if (fops == &userfaultfd_fops)
-> +		isec->sclass = SECCLASS_UFFD;
-> +#endif
-
-Not sure we want or need to introduce a new security class for each user 
-of anonymous inodes since the permissions should be the same as for 
-file.  Also not sure we want to be testing fops for each such case.  We 
-were looking at possibly leveraging the name as a key and using 
-security_transition_sid() to generate a distinct SID/context/type for 
-the inode via type_transition rules in policy.  We have some WIP along 
-those lines.
-
-> +
-> +	if (isec->sclass == SECCLASS_FILE) {
-> +		printk(KERN_WARNING "refusing to create secure anonymous inode "
-> +		       "of unknown type");
-> +		return -EOPNOTSUPP;
-> +	}
-> +	/*
-> +	 * Always give secure anonymous inodes the sid of the
-> +	 * creating task.
-> +	 */
-> +
-> +	isec->sid = tsec->sid;
-
-This doesn't generalize for other users of anonymous inodes, e.g. the 
-/dev/kvm case where we'd rather inherit the SID and class from the 
-original /dev/kvm inode itself.
