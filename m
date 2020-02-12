@@ -2,178 +2,192 @@ Return-Path: <SRS0=d/HA=4A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B404C2BA83
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 16:16:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA793C2BA83
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 16:36:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5A0492168B
-	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 16:16:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7622C21734
+	for <selinux@archiver.kernel.org>; Wed, 12 Feb 2020 16:36:31 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="QujyKR1R"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728555AbgBLQQp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Feb 2020 11:16:45 -0500
-Received: from mga03.intel.com ([134.134.136.65]:7182 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728073AbgBLQQp (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 12 Feb 2020 11:16:45 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Feb 2020 08:16:43 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,433,1574150400"; 
-   d="scan'208";a="237749520"
-Received: from linux.intel.com ([10.54.29.200])
-  by orsmga006.jf.intel.com with ESMTP; 12 Feb 2020 08:16:42 -0800
-Received: from [10.252.13.176] (abudanko-mobl.ccr.corp.intel.com [10.252.13.176])
-        by linux.intel.com (Postfix) with ESMTP id F2D1D5803DA;
-        Wed, 12 Feb 2020 08:16:32 -0800 (PST)
-Subject: Re: [PATCH v5 01/10] capabilities: introduce CAP_PERFMON to kernel
- and user space
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
-        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "james.bottomley@hansenpartnership.com" 
-        <james.bottomley@hansenpartnership.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        James Morris <jmorris@namei.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Robert Richter <rric@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
-        oprofile-list@lists.sf.net, Andy Lutomirski <luto@amacapital.net>
-References: <0548c832-7f4b-dc4c-8883-3f2b6d351a08@linux.intel.com>
- <9b77124b-675d-5ac7-3741-edec575bd425@linux.intel.com>
- <64cab472-806e-38c4-fb26-0ffbee485367@tycho.nsa.gov>
- <05297eff-8e14-ccdf-55a4-870c64516de8@linux.intel.com>
- <CAADnVQK-JzK-GUk4KOozn4c1xr=7TiCpB9Fi0QDC9nE6iVn8iQ@mail.gmail.com>
- <537bdb28-c9e4-f44f-d665-25250065a6bb@linux.intel.com>
- <63d9700f-231d-7973-5307-3e56a48c54cb@linux.intel.com>
- <d7213569-9578-7201-6106-f5ebc95bd6be@tycho.nsa.gov>
- <2e38c33d-f085-1320-8cc2-45f74b6ad86d@linux.intel.com>
- <dd6a1382-7b2f-a6e6-a1ac-009566d7f556@tycho.nsa.gov>
- <8141da2e-49cf-c02d-69e9-8a7cbdc91431@linux.intel.com>
- <7c367905-e8c9-7665-d923-c850e05c757a@tycho.nsa.gov>
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <220e87bf-226e-ca35-acc0-89dc82dc7811@linux.intel.com>
-Date:   Wed, 12 Feb 2020 19:16:31 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.2
+        id S1727582AbgBLQgb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Feb 2020 11:36:31 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:4165 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727548AbgBLQga (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Feb 2020 11:36:30 -0500
+X-EEMSG-check-017: 55389972|USFB19PA36_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,433,1574121600"; 
+   d="scan'208";a="55389972"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 12 Feb 2020 16:36:26 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1581525386; x=1613061386;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=dGCMDfsKmGrlFlNJBg2rwo75WopPAbuNo6kwiTDcoLM=;
+  b=QujyKR1RD14xM+SW94xoq+aeSHvnUwkre8pCMnFuPHS/9FKVgIoyj4Zi
+   SMo676P/dn1q7mB6kTj78Vlfe1PHfaZFed48zoflTIhedvVwtppr3hfjy
+   KSsDR49Pf3rB8YF0HfoCJtGf3dExOhD6pxq2YRCr954/cQJU4Q+Mx7TED
+   MI5pMVKRrok4ZPbiiKh8kkLVGj6TtK6KH7UxgTJh4O6qMNCMD4C8IsfRg
+   jC2kGckZdtDGR6dgGCukKf+AH++rmeG5cHUTK543LLlJlQaPizAGdQ1dc
+   nLVkhbD9G88AZyxDLXpECJFBy2AhYBj01WAvX7LVrQaznXJtMBbaoJdu6
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,433,1574121600"; 
+   d="scan'208";a="39019811"
+IronPort-PHdr: =?us-ascii?q?9a23=3A/thMbxJTgyoff2skGtmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgXKfT8rarrMEGX3/hxlliBBdydt6sYzbSL+PG4EUU7or+/81k6OKRWUB?=
+ =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
+ =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba59IRmsrAjctsYajI9+Jq0s1h?=
+ =?us-ascii?q?bHv3xEdvhZym9vOV+dhQv36N2q/J5k/SRQuvYh+NBFXK7nYak2TqFWASo/PW?=
+ =?us-ascii?q?wt68LlqRfMTQ2U5nsBSWoWiQZHAxLE7B7hQJj8tDbxu/dn1ymbOc32Sq00WS?=
+ =?us-ascii?q?in4qx2RhLklDsLOjgk+2zMlMd+kLxUrw6gpxxnwo7bfoeVNOZlfqjAed8WXH?=
+ =?us-ascii?q?dNUtpNWyBEBI6zYZEPD+4cNuhGqYfzqUYFoR+nCQSiAO7jzzlFjWL006Inye?=
+ =?us-ascii?q?QsCRzI0hIuH9wOs3raotv6O6gQXu+pw6fF1inDYvFM1Dvh9ITFfBIsrPeRVr?=
+ =?us-ascii?q?xwa8rRzkwvGhvYgFWMt4PlJzOV2foLs2OG8uRgUPigi2ojqw5vojmk28Ahip?=
+ =?us-ascii?q?LUiYIO0V3E6SV4z5o1Jd2/UkJ7Z8WkH4FKuyGVMIt2XNovTmd1syg50r0LoY?=
+ =?us-ascii?q?O3cScFxZg9xxPTduaLf5aH7x79TuqdPDF1j29/dr2lnRa9602gx/X5VsmzzV?=
+ =?us-ascii?q?lFsDJIksLJtnARzxzT7dWHSudl8kehxzmP0wfT5/lYIU8uj6rbKoMhwqUqmp?=
+ =?us-ascii?q?oSt0TDECj2mF7og6CKbEkk5uip5PjnYrXhvJOcMZN7ihriPag0n8y/AOA4Ph?=
+ =?us-ascii?q?APX2id5+u8yKXu8VD2TbhFlPE7krTVvIrEKckUuKK1GRJZ3p4m6xmlDjem1N?=
+ =?us-ascii?q?oYnWMALFJAYB+HlJXmO0rVLfDkDfawn1SskDBxy/DAJb3uGI/BLnfEkLf/Zb?=
+ =?us-ascii?q?p98VJTyBIvzdBD4JJZEqwOL+j1WkDts9zYCgQ0MwOzw+bgB9V90p0RVXiTDa?=
+ =?us-ascii?q?+eNaPYqUWI6f43I+mQeI8Vvy7wK+Qk5/7riH85hEUdfbOz0poXc324EfNmI0?=
+ =?us-ascii?q?KWYXronNgNC3sFvg07TObykl2NTSZTZ2quX6I7/jw7DoWmDZzDRo22j7yB2y?=
+ =?us-ascii?q?C7HpJSZm9YEFyDDXDod4CcUfcWdC2SOtNhkiADVbW5TY8h0xKuuRT1y7pgKe?=
+ =?us-ascii?q?rU9SkYuoz52Ndp4O3TkAk49SZoAMSFz2GNU2Z0k3sMRz8x36Bwv1d9yleM0a?=
+ =?us-ascii?q?h5nvNYD8Zc6uhGUgc9Mp7cwOh6BM7oVg3dedeJTU6sQs+6DjEpUtIx39gObl?=
+ =?us-ascii?q?55G9WjiBDDwiWrD6YWl7OVHpw09LzT33zqKsZjxHbJyrMhg0MlQsRRL22mgL?=
+ =?us-ascii?q?Bw9wzJC47OiUWZmL6gdb4A0y7V6GeD0W2OsVlcUA5xV6XFQH8ealLMotTh50?=
+ =?us-ascii?q?PPVKGuCbs5PQtb08KCKbVFasfvjVpYQPfvItPeY3i+m22oHxaH2quMbJb2e2?=
+ =?us-ascii?q?UaxCjdE1YLkwQS/XaAKAg/CTyso3zRDDNwD1LjeUDs/vdkqHO9UEA0yxuGb0?=
+ =?us-ascii?q?p717q6qVYpgqmwQvUS07ZMkyAloi5/HVG70pqCB9OGrA1lVKpbZtw57RFM0m?=
+ =?us-ascii?q?eP80RhP5mlMrp4j082fANwsEfjkR5wD8EIl88xrFslyw19La/e21REM3ue25?=
+ =?us-ascii?q?PYNbrQJW3/uhuobuqe3lbd3c2W9aYD8v0QpFLkswWkUEEl9jEv19hTzmvZ5Z?=
+ =?us-ascii?q?jQCgcWeYz+X1xx9BVgobzeJC4n6Mec0XxqLLnxuyfD88wmCfFjyRu6edpbdq?=
+ =?us-ascii?q?SeG0u6CMAeBs6zOMQ0lFWzKBEJJuZf8OgzJcz1WeGB3fuQIOt4nD+gxV9C6Y?=
+ =?us-ascii?q?R531PEozFwUcbUzp0FxLeexQLBWDDi2gTy+vvrkJxJMGlBVlG0zjLpUcsIPf?=
+ =?us-ascii?q?x/?=
+X-IPAS-Result: =?us-ascii?q?A2DEBABoKERe/wHyM5BlHAEBAQEBBwEBEQEEBAEBgXsCg?=
+ =?us-ascii?q?XuBbSASKoQUiQOGZAEBAQEBAQaBN4lwkHMDVAkBAQEBAQEBAQE3BAEBhEACg?=
+ =?us-ascii?q?m04EwIQAQEBBQEBAQEBBQMBAWyFQ0IWAYFiKQGDAgEFIwQRUQsOCgICJgICV?=
+ =?us-ascii?q?wYBDAYCAQGCYz+CVyWsAn8zg0yBfoNAgT6BDioBjD15gQeBOA+CKDU+h1uCX?=
+ =?us-ascii?q?gSNYoh/ZEaXa4JEgk+KRok2BhyCSIgSBZA2jmidPiI3gSErCAIYCCEPgydQG?=
+ =?us-ascii?q?A2OKReOQSMDMI4Ig1kBAQ?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 12 Feb 2020 16:36:23 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01CGZRS0109004;
+        Wed, 12 Feb 2020 11:35:27 -0500
+Subject: Re: [PATCH v2 1/6] Add a new flags-accepting interface for anonymous
+ inodes
+To:     Daniel Colascione <dancol@google.com>, timmurray@google.com,
+        nosh@google.com, nnk@google.com, lokeshgidra@google.com,
+        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
+        selinux@vger.kernel.org
+References: <20200211225547.235083-1-dancol@google.com>
+ <20200211225547.235083-2-dancol@google.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <88ea16bd-38be-b4f9-dfb3-e0626f5b6aaf@tycho.nsa.gov>
+Date:   Wed, 12 Feb 2020 11:37:29 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <7c367905-e8c9-7665-d923-c850e05c757a@tycho.nsa.gov>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20200211225547.235083-2-dancol@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 12.02.2020 18:21, Stephen Smalley wrote:
-> On 2/12/20 8:53 AM, Alexey Budankov wrote:
->> On 12.02.2020 16:32, Stephen Smalley wrote:
->>> On 2/12/20 3:53 AM, Alexey Budankov wrote:
->>>> Hi Stephen,
->>>>
->>>> On 22.01.2020 17:07, Stephen Smalley wrote:
->>>>> On 1/22/20 5:45 AM, Alexey Budankov wrote:
->>>>>>
->>>>>> On 21.01.2020 21:27, Alexey Budankov wrote:
->>>>>>>
->>>>>>> On 21.01.2020 20:55, Alexei Starovoitov wrote:
->>>>>>>> On Tue, Jan 21, 2020 at 9:31 AM Alexey Budankov
->>>>>>>> <alexey.budankov@linux.intel.com> wrote:
->>>>>>>>>
->>>>>>>>>
->>>>>>>>> On 21.01.2020 17:43, Stephen Smalley wrote:
->>>>>>>>>> On 1/20/20 6:23 AM, Alexey Budankov wrote:
->>>>>>>>>>>
->>>> <SNIP>
->>>>>>>>>>> Introduce CAP_PERFMON capability designed to secure system performance
->>>>>>>>>>
->>>>>>>>>> Why _noaudit()?  Normally only used when a permission failure is non-fatal to the operation.  Otherwise, we want the audit message.
->>>>>>
->>>>>> So far so good, I suggest using the simplest version for v6:
->>>>>>
->>>>>> static inline bool perfmon_capable(void)
->>>>>> {
->>>>>>       return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
->>>>>> }
->>>>>>
->>>>>> It keeps the implementation simple and readable. The implementation is more
->>>>>> performant in the sense of calling the API - one capable() call for CAP_PERFMON
->>>>>> privileged process.
->>>>>>
->>>>>> Yes, it bloats audit log for CAP_SYS_ADMIN privileged and unprivileged processes,
->>>>>> but this bloating also advertises and leverages using more secure CAP_PERFMON
->>>>>> based approach to use perf_event_open system call.
->>>>>
->>>>> I can live with that.  We just need to document that when you see both a CAP_PERFMON and a CAP_SYS_ADMIN audit message for a process, try only allowing CAP_PERFMON first and see if that resolves the issue.  We have a similar issue with CAP_DAC_READ_SEARCH versus CAP_DAC_OVERRIDE.
->>>>
->>>> I am trying to reproduce this double logging with CAP_PERFMON.
->>>> I am using the refpolicy version with enabled perf_event tclass [1], in permissive mode.
->>>> When running perf stat -a I am observing this AVC audit messages:
->>>>
->>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { open } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
->>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { kernel } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
->>>> type=AVC msg=audit(1581496695.666:8691): avc:  denied  { cpu } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
->>>> type=AVC msg=audit(1581496695.666:8692): avc:  denied  { write } for  pid=2779 comm="perf" scontext=user_u:user_r:user_systemd_t tcontext=user_u:user_r:user_systemd_t tclass=perf_event permissive=1
->>>>
->>>> However there is no capability related messages around. I suppose my refpolicy should
->>>> be modified somehow to observe capability related AVCs.
->>>>
->>>> Could you please comment or clarify on how to enable caps related AVCs in order
->>>> to test the concerned logging.
->>>
->>> The new perfmon permission has to be defined in your policy; you'll have a message in dmesg about "Permission perfmon in class capability2 not defined in policy.".  You can either add it to the common cap2 definition in refpolicy/policy/flask/access_vectors and rebuild your policy or extract your base module as CIL, add it there, and insert the updated module.
->>
->> Yes, I already have it like this:
->> common cap2
->> {
->> <------>mac_override<--># unused by SELinux
->> <------>mac_admin
->> <------>syslog
->> <------>wake_alarm
->> <------>block_suspend
->> <------>audit_read
->> <------>perfmon
->> }
->>
->> dmesg stopped reporting perfmon as not defined but audit.log still doesn't report CAP_PERFMON denials.
->> BTW, audit even doesn't report CAP_SYS_ADMIN denials, however perfmon_capable() does check for it.
+On 2/11/20 5:55 PM, Daniel Colascione wrote:
+> Add functions forwarding from the old names to the new ones so we
+> don't need to change any callers.
 > 
-> Some denials may be silenced by dontaudit rules; semodule -DB will strip those and semodule -B will restore them.  Other possibility is that the process doesn't have CAP_PERFMON in its effective set and therefore never reaches SELinux at all; denied first by the capability module.
+> Signed-off-by: Daniel Colascione <dancol@google.com>
 
-Yes, that all makes sense.
-selinux_capable() calls avc_audit() logging but cap_capable() doesn't, so proper order matters.
-I am doing debug tracing of the kernel code to reveal the exact reasons.
+(please add linux-fsdevel, viro to cc on future versions of this patch 
+since this is a VFS change)
 
-~Alexey
+> ---
+>   fs/anon_inodes.c            | 62 ++++++++++++++++++++++---------------
+>   include/linux/anon_inodes.h | 27 +++++++++++++---
+>   2 files changed, 59 insertions(+), 30 deletions(-)
+> 
+> diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+> index 89714308c25b..caa36019afca 100644
+> --- a/fs/anon_inodes.c
+> +++ b/fs/anon_inodes.c
+> @@ -56,60 +56,71 @@ static struct file_system_type anon_inode_fs_type = {
+>   };
+>   
+>   /**
+> - * anon_inode_getfile - creates a new file instance by hooking it up to an
+> - *                      anonymous inode, and a dentry that describe the "class"
+> - *                      of the file
+> + * anon_inode_getfile2 - creates a new file instance by hooking it up to
+> + *                       an anonymous inode, and a dentry that describe
+> + *                       the "class" of the file
+
+Not going to bikeshed on names but anon_inode_getfile_flags or _secure 
+or something would be more descriptive.
+
+>    *
+>    * @name:    [in]    name of the "class" of the new file
+>    * @fops:    [in]    file operations for the new file
+>    * @priv:    [in]    private data for the new file (will be file's private_data)
+> - * @flags:   [in]    flags
+> + * @flags:   [in]    flags for the file
+> + * @anon_inode_flags: [in] flags for anon_inode*
+
+Do we really envision ever needing more than one new flag here?  If not, 
+then making it a bool secure parameter or encoding it as an 
+unused/ignored flag bit in the existing flags argument would seem 
+preferable.
+
+In some cases, we actually want the "anon inode" to inherit the security 
+context of a related inode (e.g. ioctls on /dev/kvm can create anon 
+inodes representing VMs, vCPUs, etc and further ioctls are performed on 
+those inodes), in which case we may need the caller to pass in the 
+related inode as well.
+
+>    *
+> - * Creates a new file by hooking it on a single inode. This is useful for files
+> + * Creates a new file by hooking it on an unspecified inode. This is useful for files
+>    * that do not need to have a full-fledged inode in order to operate correctly.
+>    * All the files created with anon_inode_getfile() will share a single inode,
+>    * hence saving memory and avoiding code duplication for the file/inode/dentry
+>    * setup.  Returns the newly created file* or an error pointer.
+> + *
+> + * anon_inode_flags must be zero.
+>    */
+> -struct file *anon_inode_getfile(const char *name,
+> -				const struct file_operations *fops,
+> -				void *priv, int flags)
+> +struct file *anon_inode_getfile2(const char *name,
+> +				 const struct file_operations *fops,
+> +				 void *priv, int flags, int anon_inode_flags)
+>   {
+> +	struct inode *inode;
+>   	struct file *file;
+>   
+> -	if (IS_ERR(anon_inode_inode))
+> -		return ERR_PTR(-ENODEV);
+> -
+> -	if (fops->owner && !try_module_get(fops->owner))
+> -		return ERR_PTR(-ENOENT);
+> +	if (anon_inode_flags)
+> +		return ERR_PTR(-EINVAL);
+
+Not sure this is how it is normally done (i.e. one patch to just 
+introduce an extended interface but disallow all use of it, then a 
+separate patch to introduce the first use).  Would recommend combining; 
+otherwise reviewers can't see how it will be used without looking at both.
