@@ -4,399 +4,133 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5ECDC352A3
-	for <selinux@archiver.kernel.org>; Thu, 13 Feb 2020 19:46:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DABCC352A3
+	for <selinux@archiver.kernel.org>; Thu, 13 Feb 2020 20:54:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A3F262086A
-	for <selinux@archiver.kernel.org>; Thu, 13 Feb 2020 19:46:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28FFB2168B
+	for <selinux@archiver.kernel.org>; Thu, 13 Feb 2020 20:54:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="blwOHwFE"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="YWkHqNqd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728337AbgBMTqj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Feb 2020 14:46:39 -0500
-Received: from UPDC19PA19.eemsg.mail.mil ([214.24.27.194]:2660 "EHLO
-        UPDC19PA19.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727910AbgBMTqj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Feb 2020 14:46:39 -0500
-X-EEMSG-check-017: 58603417|UPDC19PA19_ESA_OUT01.csd.disa.mil
-X-EEMSG-Attachment-filename: kvm.cil, userfaultfd.cil, kvm.c, userfaultfd.c
-X-EEMSG-Attachment-filesize: 1115, 621, 2234, 870
-X-IronPort-AV: E=Sophos;i="5.70,437,1574121600"; 
-   d="c'?cil'?scan'208";a="58603417"
-Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
-  by UPDC19PA19.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Feb 2020 19:46:35 +0000
+        id S1728223AbgBMUyx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Feb 2020 15:54:53 -0500
+Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:60373 "EHLO
+        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728288AbgBMUyx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Feb 2020 15:54:53 -0500
+X-EEMSG-check-017: 55962556|USFB19PA36_ESA_OUT06.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,438,1574121600"; 
+   d="scan'208";a="55962556"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 13 Feb 2020 20:54:50 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581623195; x=1613159195;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to;
-  bh=ALUVptGGMslrhVQNJqMME0pB8k6xyz3v2MmpazMeWm8=;
-  b=blwOHwFEIRoBz1pQCdvuuFMFRqgUCJrwa4Z2kljWeRaAAd2pf7VjSZLa
-   xW4QLcklFwNOnEky73WtxAodMTmJucwNT0+vgP4oqICSC8FO6DUBitU02
-   8FqF/fJdtcIOaK+cH/h+6tlqmq2c6DhwyiL/aGjpVKo4Rt2yKsGbeH624
-   O6KKgy9d/G/l/JCK+dNp1CuEqQX+V6Q/wK4iT38HXRS5iE/yeQzxexmTV
-   FVVbmMKQyVM12ACTPPBMb0YTrAr0HBIrgoN9s0FuiepMwBCrYZ7AeXL0M
-   9Rd01NSEVL5gQc86UhJluWol6x6BqBG57V4UTbdoq5y+dY7t38v4HWKlk
+  s=tycho.nsa.gov; t=1581627291; x=1613163291;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=+o3VCmZk4dfLFGcsvWLbH5cDZP2xGa1k5gyjDi1cbXs=;
+  b=YWkHqNqdm0YVA1CNJhUP6ZI1laE+OiWZozeErJi2LQ6EJIo8VfglMfMW
+   EwaMLrTPj9HdKpWytAjZBGXPYDEzeezFesDoIr7vxvZSmaTj7BWhNEJKS
+   urDGmxQDIpHYvEVDrMSzpoqCYkmT47NqAB9rniLIahRuUP8kTamsIIJC3
+   Ks5P4QRW/s9KzUho0266pD7MCu2FudDPbYjV+M/PM8awHMtG2sS0e140f
+   mYePtKT5ZqGaelOMOTAzJrwAOoS/Fh/pswDh9VMR4WELJ2UpnN0Jf2vW9
+   H+3gyO0b9P2j39vi1TaqsJTFUJsQdpl9fPJcZgapCuXM81xEto3yWEI6k
    A==;
-X-Attachment-Exists: TRUE
-X-IronPort-AV: E=Sophos;i="5.70,437,1574121600"; 
-   d="c'?cil'?scan'208";a="33048248"
-IronPort-PHdr: =?us-ascii?q?9a23=3ASRMxeRDGx9+11N8fnhiVUyQJP3N1i/DPJgcQr6?=
- =?us-ascii?q?AfoPdwSP35p8qwAkXT6L1XgUPTWs2DsrQY0raQ7fCrADZfqb+681k8M7V0Hy?=
- =?us-ascii?q?cfjssXmwFySOWkMmbcaMDQUiohAc5ZX0Vk9XzoeWJcGcL5ekGA6ibqtW1aFR?=
- =?us-ascii?q?rwLxd6KfroEYDOkcu3y/qy+5rOaAlUmTaxe7x/IAi5oAnLt8QbgoRuJrsvxh?=
- =?us-ascii?q?bLv3BFZ/lYyWR0KF2cmBrx+t2+94N5/SRKvPIh+c9AUaHkcKk9ULdVEjcoPX?=
- =?us-ascii?q?0r6cPyrRXMQheB6XUaUmUNjxpHGBPF4w3gXpfwqST1qOxw0zSHMMLsTLA0XT?=
- =?us-ascii?q?Oi77p3SBLtlSwKOSI1/H3Rh8dtgq1buhahrAFhzYDSbo+eKf5ycrrdcN4eQG?=
- =?us-ascii?q?ZMWNtaWS5cDYOmd4YBEvQPPehYoYf+qVUBoxSxCguwC+70zz9EmmX70Lcm3+?=
- =?us-ascii?q?kvEwzL2hErEdIUsHTTqdX4LLocUfyrw6nQzTXMcfVW0irg5ojNaB8hpfWMUq?=
- =?us-ascii?q?xwcMHMzkQvDB7Kjk6LpIz5PzKayuQNs2+B4+pmTuKgkXQrqw52ojix38ohjJ?=
- =?us-ascii?q?TCiIENyl3c6Cl0z4k4Kce4RUJme9KoDpRduz+AO4drRM4pXntmtzwgyrIcvJ?=
- =?us-ascii?q?62ZC0KyJM6yBHBc/GHaI2I4g77VOaWPDd4mGppeLKhiBa29kit0vH8WdOu0F?=
- =?us-ascii?q?ZLsypFicPAtnEL1xzd7ciHUeVy8Vu71TaT1wHc9uFEIUcumardN5Eh2aI/mo?=
- =?us-ascii?q?AWsUTCGi/6gET2jKmIeUU44uWk9uvqb7r8qpKcKoN4kB/yP6swlsClHOg0Kg?=
- =?us-ascii?q?0OUHKa+eS42r3j50r5QLBSg/0tj6bZq4vXJdgbp6GlAw9V1Zwv6xCkDzi8yt?=
- =?us-ascii?q?gYkn4HLExddBKdk4fpI03OIOz/DfqnmFSjjjNrx/HAPr38DZTANWbDkLj/cr?=
- =?us-ascii?q?Zn8UJcyxQ8zcpZ551KDrENOvXzWlX+tNbAFB82LxS0w/r7CNV6zo4eXWOPAq?=
- =?us-ascii?q?mEMKLdqFOI/fwgLPWRZI8PuTb9N/gk6+frjX8+hFAdYK2p0oUMZXCmEfRpPV?=
- =?us-ascii?q?+ZbWDvgtgfC2cKuBQxTOjwhF2FSz5TaG64X7gg6TEjFIKmEYDDS5ipgLyA2i?=
- =?us-ascii?q?e7A5JXanlIClCXDHjnaZuEVOkIaC+JPM9hnSILVaK7R48iyx6urgn6xKRjLu?=
- =?us-ascii?q?bO/S0Yr53j3sBv5+LPjREy6SB0D8OF3mGOUWF0m3gFRyE53K9hu0xx0FSD3r?=
- =?us-ascii?q?Zig/xeC9NT4+lFUgAgNZ7T1+Z6Ecz9WhrdfteVT1arWsumATArTtI22NIPYl?=
- =?us-ascii?q?hyG9OjjhDdxSaqB74Vl7qWBJ076K7c2GLxJ8lnx3bb16krl0MmTddXNW26mq?=
- =?us-ascii?q?5/8BDeB5bTnEWEk6anbrwc0zTQ9GeH1GaOuUZYUAlqUarbR3wQekzWrdHh7E?=
- =?us-ascii?q?PYU7CuEagnMhdGycOaN6RFcNvpgklBRPfnI9nebGWxm2C/BRaM2LyAdpble2?=
- =?us-ascii?q?IY3C/FEkgLjxgT/WqaNQg5HiqhpWTeDD91GFLgZEPs9uZ+qHelQUMu0w6KaE?=
- =?us-ascii?q?hhhPKJ/UsOiPidTe4D9qwLtT1nqDhuGlu5mdXMBImuvQ1kKZ5AbMs97VEP7m?=
- =?us-ascii?q?fQswhwL9T0NKx5rkIPeARw+UX13lN4DZsWwptil28j0AcncfHQ61hGbT7NmM?=
- =?us-ascii?q?2hNw=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2AtAwAtpkVe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
- =?us-ascii?q?YEYVSAShD6JA4ZfBoE3iXCRSgkBAQEBAQEBAQEDIBQEAQGEQAKCcDgTAhABA?=
- =?us-ascii?q?QEFAQEBAQEFAwEBbIVDgjspgwMBBSMEUhALGCoCAgJVEwgBAYJjPwGCViWuB?=
- =?us-ascii?q?n8zhUqDPIEuEIE4gVOKa3mBB4E4D4JdPoRignmCXgSNTYl4DTl8lm+CRIJPg?=
- =?us-ascii?q?R6CO4Eljn4GHIJIjF6LcS2reSKBWCsIAhgIIQ+DJwlHGA2BGo0PFxWOLCMDj?=
- =?us-ascii?q?Q4sghcBAQ?=
+X-IronPort-AV: E=Sophos;i="5.70,438,1574121600"; 
+   d="scan'208";a="39104966"
+IronPort-PHdr: =?us-ascii?q?9a23=3AcZRbaRK05s/TlLWnINmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgfLvXxwZ3uMQTl6Ol3ixeRBMOHsq4C1bqd6vy7EUU7or+/81k6OKRWUB?=
+ =?us-ascii?q?EEjchE1ycBO+WiTXPBEfjxciYhF95DXlI2t1uyMExSBdqsLwaK+i764jEdAA?=
+ =?us-ascii?q?jwOhRoLerpBIHSk9631+ev8JHPfglEnjWwba59IRmsrAjctcYajZZtJ6s/1x?=
+ =?us-ascii?q?DEvmZGd+NKyGxnIl6egwzy7dqq8p559CRQtfMh98peXqj/Yq81U79WAik4Pm?=
+ =?us-ascii?q?4s/MHkugXNQgWJ5nsHT2UZiQFIDBTf7BH7RZj+rC33vfdg1SaAPM32Sbc0WS?=
+ =?us-ascii?q?m+76puVRTlhjsLOyI//WrKkcF7kr5Vrwy9qBx+247UYZ+aNPxifqPGYNgWQX?=
+ =?us-ascii?q?NNUttNWyBdB4+xaYUAD/AFPe1FsYfzoVUApga6CQW1BO7izjpEi3nr1qM4zu?=
+ =?us-ascii?q?shCxnL0hE+EdIAsHrar9v7O6kdXu+30KbGwi7Ob+9U1Drn9ITEbh4srPOKUL?=
+ =?us-ascii?q?ltccTR004vFwbdg1uNtYzqISuV1uQTvGid8uFuSOevhHQjqwF1vDeuxtonh4?=
+ =?us-ascii?q?7Sho0I0VDJ7jl5wYYpKt24T053e9ikEIBKuC2AOIt2Rd0iTnhutS0nybMGoY?=
+ =?us-ascii?q?a2cDUFxZko3RLSa+GLf5KW7h/sSuqdOyp0iXR4c7ylnRmy61KvyujkW8mx11?=
+ =?us-ascii?q?ZFszRKn8HXtnAIyxzT8s+HSuZh/ku52TaAyQTT6uZcLEAoj6XbMZ8hwqMrlp?=
+ =?us-ascii?q?YJsETDGCH2mELtjKCIakoo4PSo6uT7bbXmoZ+QLYl0hR3lMqsygMC/BOU4Mg?=
+ =?us-ascii?q?wWU2ia/+SzyqHj8FXkTLhFgfA6iKnUvI3AKcgFqaO1HRVZ3ps75xa6FTim0d?=
+ =?us-ascii?q?AYnXcdLFJCfRKKl5PpNEzVIP3jEfe+g0ijkDdsx/zcOL3hGY/CImLMkLfmY7?=
+ =?us-ascii?q?Zx81RcxxYrzdBD+5JUDakMIOjyWkDttNzXFAU5PBGszOn7ENp91pkRWWOJAq?=
+ =?us-ascii?q?CHK6PfqkSH5v4uI+mKeI8apiz9K/476P7yl3M2hVgdfayx15sNdH+4BuhmI1?=
+ =?us-ascii?q?meYXf0mdcOD2MKvgs4TOz3h1yPSiBTZ3msUKIm/D07C5ypDZ3FRo+zhLyNxi?=
+ =?us-ascii?q?C7HodZZjMONlfZK3bjd4yeV78sYSOUL9QpxiYFXrioUYMW3iauvQ78xqFPJP?=
+ =?us-ascii?q?bV/DEVr5TuyJ5+4OiF0Vkp+Dh1CdmN+3+CQnsynW4SQTIymqdlrh9T0FCGhJ?=
+ =?us-ascii?q?NkjuRYGNob3PZAVgM3JNaI1OBhI8zjUQLGONGSQRCpRcvwUmJ5dc4439JbOx?=
+ =?us-ascii?q?U1IN6llB2WmnP3UrI=3D?=
+X-IPAS-Result: =?us-ascii?q?A2C7AgC9tkVe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YEYVSASKoQUiQOGXwaBN4lwkUoJAQEBAQEBAQEBIxQEAQGEQAKCcDgTAhABA?=
+ =?us-ascii?q?QEFAQEBAQEFAwEBbIU3DII7KQGDAQEBAQECASMVRgsLGAICJgICVwYBDAgBA?=
+ =?us-ascii?q?YJjPwGCVgUgrRN1gTKFSoNHgT6BDiqMPnmBB4E4D4JdPoJLhRCCPCIEl0VGl?=
+ =?us-ascii?q?2uCRIJPhH6OfgYcmxeOaJ0+IoFYKwgCGAghDzuCbAlHGA2YYYQgIwMwjyEBA?=
+ =?us-ascii?q?Q?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 13 Feb 2020 19:46:33 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 13 Feb 2020 20:54:49 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01DJjbsW102736;
-        Thu, 13 Feb 2020 14:45:37 -0500
-Subject: Re: [RFC PATCH] security,anon_inodes,kvm: enable security support for
- anon inodes
-To:     selinux@vger.kernel.org
-Cc:     linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, kvm@vger.kernel.org,
-        viro@zeniv.linux.org.uk, paul@paul-moore.com, dancol@google.com,
-        nnk@google.com
-References: <20200213194157.5877-1-sds@tycho.nsa.gov>
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01DKrppu131389;
+        Thu, 13 Feb 2020 15:53:52 -0500
+Subject: Re: [RFC PATCH 0/1] selinux-testsuite: Use native filesystem for fs
+ tests
+To:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org
+References: <20200213163037.14494-1-richard_c_haines@btinternet.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <513f6230-1fb3-dbb5-5f75-53cd02b91b28@tycho.nsa.gov>
-Date:   Thu, 13 Feb 2020 14:47:35 -0500
+Message-ID: <9ee7126b-b021-b384-ecb5-615f041d0a09@tycho.nsa.gov>
+Date:   Thu, 13 Feb 2020 15:55:50 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <20200213194157.5877-1-sds@tycho.nsa.gov>
-Content-Type: multipart/mixed;
- boundary="------------936176FE2E25230FE1E6A035"
+In-Reply-To: <20200213163037.14494-1-richard_c_haines@btinternet.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------936176FE2E25230FE1E6A035
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On 2/13/20 11:30 AM, Richard Haines wrote:
+> This is a first attempt at running the filesystem and fs_filesystem tests
+> on the native filesystem.
+> 
+> It supports NFS when using the tools/nfs.sh script. NFS will support options
+> with rootcontext and fscontext, however due to the fsconfig(2) they bug will
+> not pass with these (see note in nfs.sh).
+> 
+> The filesystem types supported are: ext2, ext3, ext4, xfs, btrfs, hfsplus,
+> reiserfs, nfs4. If not in this list, tests are skipped. I'm not sure what
+> others need supporting, these seem reasonable and available on Fedora.
 
-On 2/13/20 2:41 PM, Stephen Smalley wrote:
-> An example of a sample program and policy will follow in a follow-up
-> to this patch to demonstrate the effect on userfaultfd and kvm.
+Didn't receive the patch but will comment on a few items in your cover 
+letter.
 
-Attached are example test programs and policies to demonstrate the 
-change in behavior before and after this RFC patch for userfaultfd and 
-kvm.  The test policies can be edited to selectively allow specific 
-permissions for testing various scenarios, but with the defaults in 
-them, one should see the following behavior:
+Offhand, I'd suggest pruning it to just ext4, xfs, and nfs4.  There is 
+no separate ext3 filesystem in the kernel anymore (ext4 provides the 
+implementation for both ext3 and ext4).  ext2 and reiserfs seem to be 
+legacy filesystems and reiserfs never supported SELinux well to my 
+knowledge.  btrfs SELinux support seems to not be well supported; absent 
+a distro supporting them both that seems unlikely to change. hfsplus is 
+orphaned per MAINTAINERS and not likely to be used as a primary 
+filesystem for SELinux regardless.
 
-sudo semodule -i kvm.cil userfaultfd.cil
-make kvm userfaultfd
+> I've had to add a number of policy rules to support these types, however
+> I've made no attempt to consolidate them. Most are for supporting rootcontext
+> and fscontext on NFS. Rules for the 'context' option were many more so
+> decided not to add them - any views on this.
 
-Before:
+Wasn't sure what issue you are encountering there.  Could you use an 
+attribute ala file_type and/or fs_type or the corresponding refpolicy 
+interfaces to allow what you need with just a few rules?
+> When testing btrfs, most tests will fail on tests/fs_filesystem due to
+> the fsconfig(2) bug.
 
-(no labeling/access control applied by SELinux to userfaultfd files or 
-to anon inodes created by kvm)
-
-$ ./userfaultfd
-api: 170
-features: 510
-ioctls: 9223372036854775811
-
-read: Resource temporarily unavailable
-
-$ ./kvm
-api version: 12
-
-created vm
-
-created vcpu
-
-rax: 0
-rbx: 0
-rcx: 0
-rdx: 1536
-rdi: 0
-rsi: 0
-rsp: 0
-rbp: 0
-r8: 0
-r9: 0
-r10: 0
-r11: 0
-r12: 0
-r13: 0
-r14: 0
-r15: 0
-rip: 65520
-rflags: 2
-
-created device
-
-checked device attr
-
-After:
-
-(SELinux ioctl whitelisting used to selectively deny access)
-
-./userfaultfd
-UFFDIO_API: Permission denied
-
-$ ./kvm
-api version: 12
-
-created vm
-
-created vcpu
-
-KVM_GET_REGS: Permission denied
-
---------------936176FE2E25230FE1E6A035
-Content-Type: application/vnd.ms-artgalry;
- name="kvm.cil"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="kvm.cil"
-
-OyBVbmNvbW1lbnQgb25lIG9mIHRoZSBhbGxvd3ggbGluZXMgYmVsb3cgdG8gdGVzdC4KOyBD
-dXJyZW50bHkgdGhlIDR0aCBvbmUgaXMgdW5jb21tZW50ZWQ7IGNvbW1lbnQgdGhhdCBvdXQg
-aWYgdHJ5aW5nIGFub3RoZXIuCgo7IE5vbmUKOyhhbGxvd3ggdW5jb25maW5lZF90IGt2bV9k
-ZXZpY2VfdCAoaW9jdGwgY2hyX2ZpbGUgKCgweDAwKSkpKQoKOyBLVk1fR0VUX0FQSV9WRVJT
-SU9OCjsoYWxsb3d4IHVuY29uZmluZWRfdCBrdm1fZGV2aWNlX3QgKGlvY3RsIGNocl9maWxl
-ICgoMHhhZTAwKSkpKQoKOyBLVk1fR0VUX0FQSV9WRVJTSU9OCUtWTV9DUkVBVEVfVk0KOyhh
-bGxvd3ggdW5jb25maW5lZF90IGt2bV9kZXZpY2VfdCAoaW9jdGwgY2hyX2ZpbGUgKCgweGFl
-MDAgMHhhZTAxKSkpKQoKOyBLVk1fR0VUX0FQSV9WRVJTSU9OCUtWTV9DUkVBVEVfVk0JS1ZN
-X0NSRUFURV9WQ1BVCihhbGxvd3ggdW5jb25maW5lZF90IGt2bV9kZXZpY2VfdCAoaW9jdGwg
-Y2hyX2ZpbGUgKCgweGFlMDAgMHhhZTAxIDB4YWU0MSkpKSkKCjsgS1ZNX0dFVF9BUElfVkVS
-U0lPTglLVk1fQ1JFQVRFX1ZNCUtWTV9DUkVBVEVfVkNQVQlLVk1fR0VUX1JFR1MKOyhhbGxv
-d3ggdW5jb25maW5lZF90IGt2bV9kZXZpY2VfdCAoaW9jdGwgY2hyX2ZpbGUgKCgweGFlMDAg
-MHhhZTAxIDB4YWU0MSAweGFlODEpKSkpCgo7IEtWTV9HRVRfQVBJX1ZFUlNJT04gICAgICAg
-IEtWTV9DUkVBVEVfVk0gICAgICAgIEtWTV9DUkVBVEVfVkNQVQo7IEtWTV9HRVRfUkVHUyAg
-ICAgICAgICAgICAgIEtWTV9DUkVBVEVfREVWSUNFCjsoYWxsb3d4IHVuY29uZmluZWRfdCBr
-dm1fZGV2aWNlX3QgKGlvY3RsIGNocl9maWxlICgoMHhhZTAwIDB4YWUwMSAweGFlNDEgMHhh
-ZTgxIDB4YWVlMCkpKSkKCjsgS1ZNX0dFVF9BUElfVkVSU0lPTiAgICAgICAgS1ZNX0NSRUFU
-RV9WTSAgICAgICAgS1ZNX0NSRUFURV9WQ1BVCjsgS1ZNX0dFVF9SRUdTICAgICAgICAgICAg
-ICAgS1ZNX0NSRUFURV9ERVZJQ0UgICAgS1ZNX0hBU19ERVZJQ0VfQVRUUgo7KGFsbG93eCB1
-bmNvbmZpbmVkX3Qga3ZtX2RldmljZV90IChpb2N0bCBjaHJfZmlsZSAoKDB4YWUwMCAweGFl
-MDEgMHhhZTQxIDB4YWU4MSAweGFlZTAgMHhhZWUzKSkpKQo=
---------------936176FE2E25230FE1E6A035
-Content-Type: application/vnd.ms-artgalry;
- name="userfaultfd.cil"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="userfaultfd.cil"
-
-KHR5cGUgdWZmZF90KQoKOyBMYWJlbCB0aGUgVUZGRCB3aXRoIHVmZmRfdDsgdGhpcyBjYW4g
-YmUgc3BlY2lhbGl6ZWQgcGVyIGRvbWFpbgoodHlwZXRyYW5zaXRpb24gdW5jb25maW5lZF90
-IHVuY29uZmluZWRfdCBmaWxlICJbdXNlcmZhdWx0ZmRdIiAgIHVmZmRfdCkKCjsgUGVybWl0
-IHJlYWQoKSBhbmQgaW9jdGwoKSBvbiB0aGUgVUZGRC4KOyBDb21tZW50IG91dCBpZiB5b3Ug
-d2FudCB0byB0ZXN0IHJlYWQgb3IgYmFzaWMgaW9jdGwgZW5mb3JjZW1lbnQuCihhbGxvdyB1
-bmNvbmZpbmVkX3QgdWZmZF90IChmaWxlIChyZWFkKSkpCihhbGxvdyB1bmNvbmZpbmVkX3Qg
-dWZmZF90IChmaWxlIChpb2N0bCkpKQoKOyBVbmNvbW1lbnQgb25lIG9mIHRoZSBhbGxvd3gg
-bGluZXMgYmVsb3cgdG8gdGVzdCBpb2N0bCB3aGl0ZWxpc3RpbmcuCjsgQ3VycmVudGx5IHRo
-ZSAxc3Qgb25lIGlzIHVuY29tbWVudGVkOyBjb21tZW50IHRoYXQgb3V0IGlmIHRyeWluZyBh
-bm90aGVyLgoKOyBOb25lCihhbGxvd3ggdW5jb25maW5lZF90IHVmZmRfdCAoaW9jdGwgZmls
-ZSAoKDB4MDApKSkpCgo7IFVGRkRJT19BUEkKOyhhbGxvd3ggdW5jb25maW5lZF90IHVmZmRf
-dCAoaW9jdGwgZmlsZSAoKDB4YWEzZikpKSkK
---------------936176FE2E25230FE1E6A035
-Content-Type: text/x-csrc; charset=UTF-8;
- name="kvm.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="kvm.c"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <linux/kvm.h>
-
-void print_regs(const struct kvm_regs *regs)
-{
-	printf("rax: %llu\n", regs->rax);
-	printf("rbx: %llu\n", regs->rbx);
-	printf("rcx: %llu\n", regs->rcx);
-	printf("rdx: %llu\n", regs->rdx);
-	printf("rdi: %llu\n", regs->rdi);
-	printf("rsi: %llu\n", regs->rsi);
-	printf("rsp: %llu\n", regs->rsp);
-	printf("rbp: %llu\n", regs->rbp);
-	printf("r8: %llu\n", regs->r8);
-	printf("r9: %llu\n", regs->r9);
-	printf("r10: %llu\n", regs->r10);
-	printf("r11: %llu\n", regs->r11);
-	printf("r12: %llu\n", regs->r12);
-	printf("r13: %llu\n", regs->r13);
-	printf("r14: %llu\n", regs->r14);
-	printf("r15: %llu\n", regs->r15);
-	printf("rip: %llu\n", regs->rip);
-	printf("rflags: %llu\n", regs->rflags);
-
-	printf("\n");
-}
-
-void print_device_attr(const struct kvm_device_attr *dev_attr)
-{
-	printf("flags: %u\n", dev_attr->flags);
-	printf("group: %u\n", dev_attr->group);
-	printf("attr: %llu\n", dev_attr->attr);
-	printf("addr: %llu\n", dev_attr->addr);
-
-	printf("\n");
-}
-
-int main(void)
-{
-	int fd = open("/dev/kvm", O_RDWR);
-	if (fd < 0) {
-		perror("/dev/kvm");
-		return -1;
-	}
-
-	int ret = ioctl(fd, KVM_GET_API_VERSION, 0);
-	if (ret < 0) {
-		perror("KVM_GET_API_VERSION");
-		return -1;
-	}
-
-	printf("api version: %d\n\n", ret);
-
-	int vmfd = ioctl(fd, KVM_CREATE_VM, 0);
-	if (vmfd < 0) {
-		perror("KVM_CREATE_VM");
-		return -1;
-	}
-
-	printf("created vm\n\n");
-
-	int vcpufd = ioctl(vmfd, KVM_CREATE_VCPU, 0);
-	if (vcpufd < 0) {
-		perror("KVM_CREATE_VCPU");
-		return -1;
-	}
-
-	printf("created vcpu\n\n");
-
-	struct kvm_regs regs;
-	if (ioctl(vcpufd, KVM_GET_REGS, &regs) < 0) {
-		perror("KVM_GET_REGS");
-		return -1;
-	}
-
-	print_regs(&regs);
-
-	struct kvm_create_device dev = {0};
-	dev.type = KVM_DEV_TYPE_VFIO;
-
-	if (ioctl(vmfd, KVM_CREATE_DEVICE, &dev) < 0) {
-		perror("KVM_CREATE_DEVICE");
-		return -1;
-	}
-
-	printf("created device\n\n");
-
-	struct kvm_device_attr dev_attr = {0};
-	dev_attr.group = KVM_DEV_VFIO_GROUP;
-	dev_attr.attr = KVM_DEV_VFIO_GROUP_ADD;
-	if (ioctl(dev.fd, KVM_HAS_DEVICE_ATTR, &dev_attr) < 0) {
-		perror("KVM_HAS_DEVICE_ATTR");
-		return -1;
-	}
-
-	printf("checked device attr\n\n");
-
-	return 0;
-}
-
---------------936176FE2E25230FE1E6A035
-Content-Type: text/x-csrc; charset=UTF-8;
- name="userfaultfd.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="userfaultfd.c"
-
-#include <stdio.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#include <sys/types.h>
-#include <sys/ioctl.h>
-#include <sys/syscall.h>
-
-#include <linux/userfaultfd.h>
-
-void print_api(const struct uffdio_api *api)
-{
-	printf("api: %llu\n", api->api);
-	printf("features: %llu\n", api->features);
-	printf("ioctls: %llu\n", api->ioctls);
-
-	printf("\n");
-}
-
-int main(void)
-{
-	long uffd = syscall(__NR_userfaultfd, O_CLOEXEC | O_NONBLOCK);
-	if (uffd < 0) {
-		perror("syscall(userfaultfd)");
-		return -1;
-	}
-
-	struct uffdio_api api = {0};
-	api.api = UFFD_API;
-	if (ioctl(uffd, UFFDIO_API, &api) < 0) {
-		perror("UFFDIO_API");
-		return -1;
-	}
-
-	print_api(&api);
-
-	struct uffd_msg msg = {0};
-	ssize_t count = read(uffd, &msg, sizeof(msg));
-	if (count < 0) {
-		perror("read");
-		return -1;
-	} else if (count == 0) {
-		printf("read EOF\n\n");
-	}
-
-	printf("read uffd\n\n");
-
-	return 0;
-}
-
---------------936176FE2E25230FE1E6A035--
+Yes, I'm disinclined to include btrfs in our testing until/unless a 
+SELinux maintainer is using a distro that defaults to it (or the 
+maintainer defaults to using it regardless) and ensures that it is kept 
+functioning.
