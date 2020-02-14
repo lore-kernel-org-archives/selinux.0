@@ -7,91 +7,86 @@ X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C165C2BA83
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 13:16:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F023C2BA83
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 13:18:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6C7272086A
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 13:16:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D41032187F
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 13:18:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="iGyEzuNb"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="PNoyjdWg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729256AbgBNNQV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Feb 2020 08:16:21 -0500
-Received: from USAT19PA22.eemsg.mail.mil ([214.24.22.196]:24581 "EHLO
-        USAT19PA22.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728336AbgBNNQU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 14 Feb 2020 08:16:20 -0500
-X-EEMSG-check-017: 78012772|USAT19PA22_ESA_OUT03.csd.disa.mil
+        id S1727822AbgBNNSx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Feb 2020 08:18:53 -0500
+Received: from USFB19PA32.eemsg.mail.mil ([214.24.26.195]:64482 "EHLO
+        USFB19PA32.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728452AbgBNNSx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Feb 2020 08:18:53 -0500
+X-EEMSG-check-017: 56494688|USFB19PA32_ESA_OUT02.csd.disa.mil
 X-IronPort-AV: E=Sophos;i="5.70,440,1574121600"; 
-   d="scan'208";a="78012772"
+   d="scan'208";a="56494688"
 Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USAT19PA22.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 14 Feb 2020 13:16:18 +0000
+  by USFB19PA32.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 14 Feb 2020 13:18:51 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1581686179; x=1613222179;
+  s=tycho.nsa.gov; t=1581686332; x=1613222332;
   h=subject:to:cc:references:from:message-id:date:
    mime-version:in-reply-to:content-transfer-encoding;
-  bh=Rx1W+R1ZR+iU1R3mY2P11aY6t1aWDLRB9rTUS9wKs68=;
-  b=iGyEzuNbjk4ge0xZFNkQi30Q/oSvmF/I6K9hkiNUubwCjkKoCjAe57rX
-   AJQKS8m5R0AmT4j3V7+B5GyrOI2FJfaOHZzG7HVPUlCybJZAByEr+F5hn
-   Iaq5C+W83jkCFVzZEeyfxyJwBPSDfONU3nvDie8+0SXeV8lIPIKp//pPP
-   Nacx+1Ja5kPRmu6d6Z8dHkpv4ewjytDMGYWSLSS6iIEQGuf1Jg++UlWaC
-   HWO1ZSr0rwRdn7ilKB6pznYBlGIFF9uydz+80t6tJmZgKtk2NHACsJX4q
-   /0tRgIfOdqODr+d2xpFXXK+iUkNVCW0UzCaRnHu8fXBoGLALcmg7WMdB4
-   Q==;
+  bh=P3N9ytbWCHfZKo+6tcT0wJkmWcogZ8QoAj49wG7FU84=;
+  b=PNoyjdWgVK30A/HxiC/w1BrUlR1RApEvyjjDfyreJz453LJ+b2hh9gsY
+   3gSvyJf/75OvhY1/TKgES2I/GEAlGNQJOmz2z3H/nvw2RePyc5Wghus7r
+   xYefaS6UJLhXJB/o6Rx8jMdCTvZoz3/YUR7J6wQ3k7kld5kyruYLLYE94
+   vAN3jOJPnYoa5ARm8JrwZNsFlg5gCM/AauyQz3e1UEjzhDkwlahSnnD1Y
+   auJMgBV8C09Y18Rxvcu8TjUGZBv+aa573o3QpAaBdjVbp15b393ClxMEE
+   7dyAta27hsp/CMFIelnC0GM+ym3opDFZJu6d96daIUl7HpYujUS+I2g19
+   g==;
 X-IronPort-AV: E=Sophos;i="5.70,440,1574121600"; 
-   d="scan'208";a="39125970"
-IronPort-PHdr: =?us-ascii?q?9a23=3Ac+5N7h+ll0YX+/9uRHKM819IXTAuvvDOBiVQ1K?=
- =?us-ascii?q?B+0+sVIJqq85mqBkHD//Il1AaPAdyHra0cwLaH+4nbGkU+or+5+EgYd5JNUx?=
- =?us-ascii?q?JXwe43pCcHRPC/NEvgMfTxZDY7FskRHHVs/nW8LFQHUJ2mPw6arXK99yMdFQ?=
- =?us-ascii?q?viPgRpOOv1BpTSj8Oq3Oyu5pHfeQpFiCeybL9oLhi6sQrdu8YSjIB/Nqs/1x?=
- =?us-ascii?q?zFr2dHdOhR2W5mP0+YkQzm5se38p5j8iBQtOwk+sVdT6j0fLk2QKJBAjg+PG?=
- =?us-ascii?q?87+MPktR/YTQuS/XQcSXkZkgBJAwfe8h73WIr6vzbguep83CmaOtD2TawxVD?=
- =?us-ascii?q?+/4apnVAPkhSEaPDMi7mrZltJ/g75aoBK5phxw3YjUYJ2ONPFjeq/RZM4WSX?=
- =?us-ascii?q?ZdUspUUSFODJm8b48SBOQfO+hWoZT2q18XoRa+AQSgAeXiwSJKiHDrx603y/?=
- =?us-ascii?q?kvHx/I3AIgHNwAvnrbo9r3O6gOXu6417XIwDfZYv9KxTvw5orFfxY8qv+MR7?=
- =?us-ascii?q?Jwds/RxFEyGQPZkFqQsYzlMC2T1u8Qrmab6vBvVeari2E5qwB6vz+ixtwxhY?=
- =?us-ascii?q?nSnY8V1lDF+jl5wIYyP9G4TlV7bsS+HJtfsCGaKZJ7T8U/SG9roCY30qAKtJ?=
- =?us-ascii?q?G0cSQQyJkr2gTTZ+KIfoSW+B7vSeCcKipiin1/YrKwnROy/FClyu37S8a7zk?=
- =?us-ascii?q?5HrjFAktnQrnAN0AHT6tSfRvt94Eih3TGP2hjP6u5eO0A0lLfbK4U7zr4xkJ?=
- =?us-ascii?q?oTv0PDHjTol0rqlqOWakUl9fSo6+TgeLnmoIOTN5RohQ3kN6Qum8i/Dfw5Mg?=
- =?us-ascii?q?gIQWeb5fyx2KDs8ED2WrlHjuA6nrPHvJ3VO8gXvLO1DxdQ0ok56ha/Czmm0M?=
- =?us-ascii?q?4fnXkCNF9FYw+Ij5PyNlHSIPH3Efe/g1O2nDdt3PDJJKftAprKLnjdiLvhZ6?=
- =?us-ascii?q?py61ZAyAovytBS/4pUBascIPL3QULxrMbXDgI9MwCtxubnD9J91pkAVm6VHq?=
- =?us-ascii?q?CZN6bSu0eS5u0zO+mMeJMVuDHlJvg++fHuiX45mVkAfaimxpYXdn+4Eep8I0?=
- =?us-ascii?q?mDYnrjnM0BEWEUsQo6VuDqj0eCUTFLbXaoQ608/i07CJ6hDYrbQYCthbuB3D?=
- =?us-ascii?q?y9HpJMem9JFEuBEW32eIqZW/cDcj6SLtV9nTwDULirU5Uh2g22tA/m17pnKf?=
- =?us-ascii?q?LZ+jcZtZ3/1Nh6/ffTmgwq+jNoF8ud03uCT2BynmwWXD87x7twoVB8yleFza?=
- =?us-ascii?q?h3neZYFdpN6PNVSAs1KZncz+kpQ+z1DzrIY9PBbVGhWNjuVSk4U9YZ29YTZw?=
- =?us-ascii?q?N4HNK4g1bI2C/8UJEPkLneP4A56qLR2TDKIs95z3vXnP06g0IOXtpENWrggL?=
- =?us-ascii?q?V2sQfUGdiawA2ii6+2ePFEj2b2/2CZwD/L5RwJXQ=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CUAAD2nEZe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgWoEA?=
- =?us-ascii?q?QELAYF8gRhVIBIqhBSJA4ZaAQEEBoE3iXCRSgkBAQEBAQEBAQEjFAQBAYRAA?=
- =?us-ascii?q?oIlNwYOAhABAQEFAQEBAQEFAwEBbIU3DII7KQGDAgEFIxVBEAsYAgImAgJXB?=
- =?us-ascii?q?g0GAgEBgmM/AYJWJa15gTKFSoNNgT6BDioBjD15gQeBOA+CXT6CS4UQgl4El?=
- =?us-ascii?q?0dGl22CRIJPhH6OfgYcgjmBCpdVrCYjgVgrCAIYCCEPgycJRxgNlhiCSYQgI?=
- =?us-ascii?q?wMwkFgBAQ?=
+   d="scan'208";a="39126248"
+IronPort-PHdr: =?us-ascii?q?9a23=3AGvqC0R3KwbzYdGnCsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseMVL/ad9pjvdHbS+e9qxAeQG9mCt7Qb06GK4ujJYi8p39WoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagbr5+Nhe7oRneusQZhYZpN7o8xA?=
+ =?us-ascii?q?bOrnZUdOtawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
+ =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
+ =?us-ascii?q?mp8qlmRAP0hCoBKjU063/chNBug61HoRKhvx1/zJDSYIGJL/p1Y6fRccoHSW?=
+ =?us-ascii?q?ZdQspdUipMDY2mb4sLEuEPI+BWoYfgrFcKtBezBQ2hCObpxzRVhHH5wLc63v?=
+ =?us-ascii?q?w8Hw/Y0gwuH9EAvnrao9r6NqgdTe+7wbLUzTjBdf5axSvx5YbKfx0nvPqCXa?=
+ =?us-ascii?q?hwcc3UyUQ3Cg3FkkufqZTlPzyL0OQGrnWV7+96WuKrj24otQFwqSWoy8c3l4?=
+ =?us-ascii?q?bJnZkYykzE9CplwIY1Ise0SEhgYdG+CpdQuCaaN5VvT84kXmpmuz46x6UbtZ?=
+ =?us-ascii?q?O0cyUG0pQqywPFZ/CZfIWE/AjvWPuXLDxlnnxqYqi/iAy38UW4z+38UdS730?=
+ =?us-ascii?q?hSoypel9nMqmgN1xvO6sibUvd9/lmu2TKI1w3L9uFLO1o0lavGK5462LIwl5?=
+ =?us-ascii?q?wTsUrEHi/thkr5kLWadlkk++e06+TnZa/qppmAOI9vlg7yKKEums27AeggMw?=
+ =?us-ascii?q?gOWXaU+fik2bH+8kD0T69Gg/0rnqXDrpzXKtoXqrSkDwNN14Ys8Re/DzOo0N?=
+ =?us-ascii?q?QCmnkHKUpIeAmagIjyIFzOPPD5Auu/g1SrijtrwevGMaf7DpXCKXjDjq/tfa?=
+ =?us-ascii?q?xh5E5E1Aoz0ddf6opMCr4bPfLzXlT8tMTCAR8kNwy42uPnCNJ61oMER22DGL?=
+ =?us-ascii?q?OWMKTXsVWQ/OIgP/GMZJMJuDb6M/Ul/ODhjXs4mV8bYKmo0oAaaG63Hvt4OU?=
+ =?us-ascii?q?WVe3nsjckbEWcMoAU+SPbmiFqYUT5cf3yyRb4z5iknCIK6CofOXoetgLmG3C?=
+ =?us-ascii?q?egGJ1ZfHxJBU6XHHfyaYqLRvcMZziOIsN7jjMEUr2hGMcd0kSWvRL+g59gKf?=
+ =?us-ascii?q?DZsnkAvI/n/MB8+umWkBY17zEyBMOYhTKjVWZxy1gUSic20aY3mkl0zlOOwO?=
+ =?us-ascii?q?AsmPBDPcBC7PNOFAEhPNjTyPIsWIO6YR7IYtrcEAXued6hGzxkC4tsktI=3D?=
+X-IPAS-Result: =?us-ascii?q?A2ByAgD2nEZe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFtIBKEPokDhloBAQQGgTeJcI9jgWcJAQEBAQEBAQEBNwQBAYRAAoIlOBMCE?=
+ =?us-ascii?q?AEBAQUBAQEBAQUDAQFshUOCOykBgwEBAQEBAgEjFUEFCwsYAgImAgJXBg0IA?=
+ =?us-ascii?q?QGCYz+CVwUgrQR1gTKFSoNNgT6BDiqMPnmBB4ERJw+BX34+hBYBEgGDMYJeB?=
+ =?us-ascii?q?JdHRpdtgkSCT5N8BhybGKwnImdxKwgCGAghD4MoTxgNnQEjA45WgjIBAQ?=
 Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 14 Feb 2020 13:16:18 +0000
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 14 Feb 2020 13:18:50 +0000
 Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01EDFKvB081330;
-        Fri, 14 Feb 2020 08:15:20 -0500
-Subject: Re: [PATCH v3 2/2] testsuite: add further nfs tests
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01EDHsFN081349;
+        Fri, 14 Feb 2020 08:17:54 -0500
+Subject: Re: [PATCH v2] selinux: remove unused initial SIDs and improve
+ handling
 To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org, omosnace@redhat.com,
-        richard_c_haines@btinternet.com
-References: <20200130202239.11498-1-sds@tycho.nsa.gov>
- <20200130202239.11498-2-sds@tycho.nsa.gov>
- <306f9a78-695c-dfd3-3524-3814997fac51@tycho.nsa.gov>
- <099d42f9-f26a-be99-8bac-f151812a4726@tycho.nsa.gov>
- <CAHC9VhQMPEcgQVid2L4a4iO=2DUW+vwM1_vVxf0+KAum5+bYnA@mail.gmail.com>
+Cc:     selinux@vger.kernel.org, omosnace@redhat.com
+References: <20200129164256.3190-1-sds@tycho.nsa.gov>
+ <966793d8-4bd2-5d3e-d674-d900c0728f98@tycho.nsa.gov>
+ <CAHC9VhSQ4K-rVe=Y2wwk=7oY-6r67_M8DMo1VvyYUsXD-FOiUg@mail.gmail.com>
 From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <e5de947b-4b80-6f1e-8dc5-c434c1fa6201@tycho.nsa.gov>
-Date:   Fri, 14 Feb 2020 08:17:25 -0500
+Message-ID: <eddd809f-a388-249e-35d2-244ff1870629@tycho.nsa.gov>
+Date:   Fri, 14 Feb 2020 08:19:58 -0500
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.4.1
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhQMPEcgQVid2L4a4iO=2DUW+vwM1_vVxf0+KAum5+bYnA@mail.gmail.com>
+In-Reply-To: <CAHC9VhSQ4K-rVe=Y2wwk=7oY-6r67_M8DMo1VvyYUsXD-FOiUg@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -100,16 +95,27 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/13/20 5:12 PM, Paul Moore wrote:
-> On Thu, Feb 6, 2020 at 11:36 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->> It would be good if we could get tools/nfs.sh running on kernels going
->> forward in addition to regular runs of selinux-testsuite.
-> 
-> I've never tried this ... is it possible to mount a NFS mount over
-> loopback?  What about labeled NFS?
+On 2/13/20 5:34 PM, Paul Moore wrote:
+> First let me climb up on my current favorite soapbox ... This is a
+> perfect example of an email where you could have trimmed the bulk of
+> it in your reply to the original patch posting. ;)
 
-Yes to both.  That's how tools/nfs.sh works.  I added instructions to 
-the README.md as part of the patch for dependencies and running it, but 
-it isn't run by default.
+Ah, sorry about that.  On the positive side, I have definitely increased 
+how often and how much I am trimming.  I just don't always remember still.
+
+> Yes, I've been somewhat avoiding this patch simply because I'm not yet
+> sure what I think of all this yet, and since it affects the
+> kernel-userspace API it needs some careful thought.  In other words,
+> yes, I see this patch and the associated GH issue, but no I don't have
+> any real comments yet.
+> 
+> Sorry.
+
+FWIW, this patch alone doesn't truly change the userspace API (aside 
+from making it possible to add new initial SIDs in the future without 
+errors, which in fact is just restoring to the behavior we had 
+originally).  It just removes things that are never used and lays the 
+groundwork for future evolution.
+
 
 
