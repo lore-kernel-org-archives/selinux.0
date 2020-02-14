@@ -7,45 +7,45 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D17DC3B1B5
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 18:12:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6074C3B1B5
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 18:13:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 615AB2187F
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 18:12:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8CAF32168B
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 18:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581703977;
-	bh=ekYjyNCK8N49Zy3Z98Cf9hLx+id4hjIpCRRgjkWzGX4=;
+	s=default; t=1581703996;
+	bh=W3YAjjAqQeAdyuTJsmpIGGIqG3trqt6js3AePwn5yyo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=UE41UY42L4yRsBrOXsInHugEXOknOsNEhFvmuUHwRIhf3HQTDJOrXTAPnJelCvtn8
-	 KKqoiWjMR3sB79JvjdnCYZB6P+jTeZKbNg6jXwbF9kYHify1Kbvl76dkJt/YFAFPWM
-	 M/6MSFIiT4WbyXOrm4UCj6IR8tEQxRL2Emo2YZ84=
+	b=Md/VBoysCAW4xX32Yl92/rHrC0zBRscypVnE3vPfJwcdE2oQ+NcLDgv39AS8ig/3J
+	 M2yDk+2Fgxap+3Jt8w7j4zRxX2O+3VQh4Xy/WCCKADwBZSR7yAjqxXvkIKZyBis0BM
+	 ukehow8USNMRhtsRnhR8+omItk4ApZKdmbb2dISg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393368AbgBNSMx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Feb 2020 13:12:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60256 "EHLO mail.kernel.org"
+        id S2393383AbgBNSNO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Feb 2020 13:13:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731004AbgBNPxB (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:53:01 -0500
+        id S1731065AbgBNPwu (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Fri, 14 Feb 2020 10:52:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE56C24649;
-        Fri, 14 Feb 2020 15:52:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7A3724686;
+        Fri, 14 Feb 2020 15:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695580;
-        bh=ekYjyNCK8N49Zy3Z98Cf9hLx+id4hjIpCRRgjkWzGX4=;
+        s=default; t=1581695569;
+        bh=W3YAjjAqQeAdyuTJsmpIGGIqG3trqt6js3AePwn5yyo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pN1IfJ+IDglbjMo9V6xRYl6Y1dXUtkHEGGPRxV3Z5KfF8LQVHxzWvihfNYGey3uOv
-         6oJga1K2xDUYg0/zQ/AcY0+FYYh6YDX5F33cNhGEj9hNdex9TOHuZ8D6XIwOG1LeN3
-         Fk7pKunesyjJjtcYQJKEcC/465t916jpB+LSAfnU=
+        b=GY9drZzc4bLkWMlvMIMJuQ5E8pc+MNHfP8VqjdiOqXadmW9HpBdw3gfdL4jM+mXIz
+         hXLcfGPFIB9TM26m953xWXAx9cSDSmz1yiloy20w5jBfuriLrs7Re5yFh1Cpz+npGP
+         9xugG96Rl4XaNyu8yUO+RvtM/KNnoRspWMh+FgaI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>, rsiddoji@codeaurora.org,
-        Stephen Smalley <sds@tycho.nsa.gov>,
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>, Will Deacon <will@kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 190/542] selinux: ensure we cleanup the internal AVC counters on error in avc_insert()
-Date:   Fri, 14 Feb 2020 10:43:02 -0500
-Message-Id: <20200214154854.6746-190-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 181/542] selinux: revert "stop passing MAY_NOT_BLOCK to the AVC upon follow_link"
+Date:   Fri, 14 Feb 2020 10:42:53 -0500
+Message-Id: <20200214154854.6746-181-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
 References: <20200214154854.6746-1-sashal@kernel.org>
@@ -58,92 +58,100 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Stephen Smalley <sds@tycho.nsa.gov>
 
-[ Upstream commit d8db60cb23e49a92cf8cada3297395c7fa50fdf8 ]
+[ Upstream commit 1a37079c236d55fb31ebbf4b59945dab8ec8764c ]
 
-Fix avc_insert() to call avc_node_kill() if we've already allocated
-an AVC node and the code fails to insert the node in the cache.
+This reverts commit e46e01eebbbc ("selinux: stop passing MAY_NOT_BLOCK
+to the AVC upon follow_link"). The correct fix is to instead fall
+back to ref-walk if audit is required irrespective of the specific
+audit data type.  This is done in the next commit.
 
-Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
-Reported-by: rsiddoji@codeaurora.org
-Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Fixes: e46e01eebbbc ("selinux: stop passing MAY_NOT_BLOCK to the AVC upon follow_link")
+Reported-by: Will Deacon <will@kernel.org>
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/avc.c | 51 ++++++++++++++++++++----------------------
- 1 file changed, 24 insertions(+), 27 deletions(-)
+ security/selinux/avc.c         | 24 ++++++++++++++++++++++--
+ security/selinux/hooks.c       |  5 +++--
+ security/selinux/include/avc.h |  5 +++++
+ 3 files changed, 30 insertions(+), 4 deletions(-)
 
 diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 23dc888ae3056..6646300f7ccb2 100644
+index ecd3829996aa4..74c43ebe34bb8 100644
 --- a/security/selinux/avc.c
 +++ b/security/selinux/avc.c
-@@ -617,40 +617,37 @@ static struct avc_node *avc_insert(struct selinux_avc *avc,
- 	struct avc_node *pos, *node = NULL;
- 	int hvalue;
- 	unsigned long flag;
-+	spinlock_t *lock;
-+	struct hlist_head *head;
- 
- 	if (avc_latest_notif_update(avc, avd->seqno, 1))
--		goto out;
-+		return NULL;
- 
- 	node = avc_alloc_node(avc);
--	if (node) {
--		struct hlist_head *head;
--		spinlock_t *lock;
--		int rc = 0;
--
--		hvalue = avc_hash(ssid, tsid, tclass);
--		avc_node_populate(node, ssid, tsid, tclass, avd);
--		rc = avc_xperms_populate(node, xp_node);
--		if (rc) {
--			kmem_cache_free(avc_node_cachep, node);
--			return NULL;
--		}
--		head = &avc->avc_cache.slots[hvalue];
--		lock = &avc->avc_cache.slots_lock[hvalue];
-+	if (!node)
-+		return NULL;
- 
--		spin_lock_irqsave(lock, flag);
--		hlist_for_each_entry(pos, head, list) {
--			if (pos->ae.ssid == ssid &&
--			    pos->ae.tsid == tsid &&
--			    pos->ae.tclass == tclass) {
--				avc_node_replace(avc, node, pos);
--				goto found;
--			}
-+	avc_node_populate(node, ssid, tsid, tclass, avd);
-+	if (avc_xperms_populate(node, xp_node)) {
-+		avc_node_kill(avc, node);
-+		return NULL;
-+	}
-+
-+	hvalue = avc_hash(ssid, tsid, tclass);
-+	head = &avc->avc_cache.slots[hvalue];
-+	lock = &avc->avc_cache.slots_lock[hvalue];
-+	spin_lock_irqsave(lock, flag);
-+	hlist_for_each_entry(pos, head, list) {
-+		if (pos->ae.ssid == ssid &&
-+			pos->ae.tsid == tsid &&
-+			pos->ae.tclass == tclass) {
-+			avc_node_replace(avc, node, pos);
-+			goto found;
- 		}
--		hlist_add_head_rcu(&node->list, head);
--found:
--		spin_unlock_irqrestore(lock, flag);
- 	}
--out:
-+	hlist_add_head_rcu(&node->list, head);
-+found:
-+	spin_unlock_irqrestore(lock, flag);
- 	return node;
+@@ -862,8 +862,9 @@ static int avc_update_node(struct selinux_avc *avc,
+ 	 * permissive mode that only appear when in enforcing mode.
+ 	 *
+ 	 * See the corresponding handling in slow_avc_audit(), and the
+-	 * logic in selinux_inode_permission for the MAY_NOT_BLOCK flag,
+-	 * which is transliterated into AVC_NONBLOCKING.
++	 * logic in selinux_inode_follow_link and selinux_inode_permission
++	 * for the VFS MAY_NOT_BLOCK flag, which is transliterated into
++	 * AVC_NONBLOCKING for avc_has_perm_noaudit().
+ 	 */
+ 	if (flags & AVC_NONBLOCKING)
+ 		return 0;
+@@ -1205,6 +1206,25 @@ int avc_has_perm(struct selinux_state *state, u32 ssid, u32 tsid, u16 tclass,
+ 	return rc;
  }
  
++int avc_has_perm_flags(struct selinux_state *state,
++		       u32 ssid, u32 tsid, u16 tclass, u32 requested,
++		       struct common_audit_data *auditdata,
++		       int flags)
++{
++	struct av_decision avd;
++	int rc, rc2;
++
++	rc = avc_has_perm_noaudit(state, ssid, tsid, tclass, requested,
++				  (flags & MAY_NOT_BLOCK) ? AVC_NONBLOCKING : 0,
++				  &avd);
++
++	rc2 = avc_audit(state, ssid, tsid, tclass, requested, &avd, rc,
++			auditdata, flags);
++	if (rc2)
++		return rc2;
++	return rc;
++}
++
+ u32 avc_policy_seqno(struct selinux_state *state)
+ {
+ 	return state->avc->avc_cache.latest_notif;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 116b4d644f689..710a4fffa66f4 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3004,8 +3004,9 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
+ 	if (IS_ERR(isec))
+ 		return PTR_ERR(isec);
+ 
+-	return avc_has_perm(&selinux_state,
+-			    sid, isec->sid, isec->sclass, FILE__READ, &ad);
++	return avc_has_perm_flags(&selinux_state,
++				  sid, isec->sid, isec->sclass, FILE__READ, &ad,
++				  rcu ? MAY_NOT_BLOCK : 0);
+ }
+ 
+ static noinline int audit_inode_permission(struct inode *inode,
+diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
+index 7be0e1e90e8be..74ea50977c201 100644
+--- a/security/selinux/include/avc.h
++++ b/security/selinux/include/avc.h
+@@ -153,6 +153,11 @@ int avc_has_perm(struct selinux_state *state,
+ 		 u32 ssid, u32 tsid,
+ 		 u16 tclass, u32 requested,
+ 		 struct common_audit_data *auditdata);
++int avc_has_perm_flags(struct selinux_state *state,
++		       u32 ssid, u32 tsid,
++		       u16 tclass, u32 requested,
++		       struct common_audit_data *auditdata,
++		       int flags);
+ 
+ int avc_has_extended_perms(struct selinux_state *state,
+ 			   u32 ssid, u32 tsid, u16 tclass, u32 requested,
 -- 
 2.20.1
 
