@@ -2,213 +2,191 @@ Return-Path: <SRS0=qygk=4C=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+X-Spam-Status: No, score=-11.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 273B1C3B1A9
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 17:11:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7884DC2BA83
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 17:21:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id EC19520637
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 17:11:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581700268;
-	bh=nfuiEToh8iAo7zF9jE6osmZpRN7Rd4q3isqck//PNyo=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=AuIkVgoKQDP9xD9ysGD/pc/EyEuVNcl30R3xndLFy9nJUPG3Au+W6xlJsUFFVJTWz
-	 sKIGL8yKMoqdco73oyLwowB2d8e4gbGc8hXq4JZveQt6JtRHwCdpWCZ/PkXAF7D1GZ
-	 fNUpaqVg8CKjsGnty2ajqGM2cM3ru1bChR6OfNuI=
+	by mail.kernel.org (Postfix) with ESMTP id 446FF20637
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 17:21:46 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Vrn2eOFl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392175AbgBNQNc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Feb 2020 11:13:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42084 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390336AbgBNQNb (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:13:31 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79D8E246AA;
-        Fri, 14 Feb 2020 16:13:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696810;
-        bh=nfuiEToh8iAo7zF9jE6osmZpRN7Rd4q3isqck//PNyo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hCgnW7EJ4156JMOet7Z/baVSke9tK/RBdw20iIxVjNnMNapJyVogi6+coH1b1W9f6
-         YUmd5MzU8KU25ETQE45b2qw492kTz60qju2n5s7G6XKIl8DtZHuVFnEKkqWutvOBRN
-         pQeiAlmJL/MhN/6prYDxWk1pzvIDATx+7vUGhl3w=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, Will Deacon <will@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 080/252] selinux: fall back to ref-walk if audit is required
-Date:   Fri, 14 Feb 2020 11:08:55 -0500
-Message-Id: <20200214161147.15842-80-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
-References: <20200214161147.15842-1-sashal@kernel.org>
+        id S2391444AbgBNRVp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Feb 2020 12:21:45 -0500
+Received: from mail-oi1-f195.google.com ([209.85.167.195]:42022 "EHLO
+        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2391569AbgBNRVo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Feb 2020 12:21:44 -0500
+Received: by mail-oi1-f195.google.com with SMTP id j132so10103200oih.9
+        for <selinux@vger.kernel.org>; Fri, 14 Feb 2020 09:21:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=lyrhKNeMU7eJT6PQUqEykdJHGU1Beqa7yTElEjUp1E0=;
+        b=Vrn2eOFlzFF/53jUFp1t0oYF9TfJcGmQyncWKIriM2ZXKwsnnVwXyPEwMYBT9SoOvv
+         M9+pzijsccF6LKpwqVNwH7arNG/hJkR82XFRmVPyeQfsr2WEzgiC7PjODsswCoLGSpaY
+         LaKRFh+AbvxODIzDTc9/KjTYvCJBjUXvMcY0lndjCM6xdnpAlg8uqBx3b/me3q46lm3g
+         3BVL3n1uIIzcduNMraAfMFs20elqdxaKxcGWiqzInJy8oFts0UuFlfQstgm5hh/nVuyG
+         KEqS6DZpZ/3ejce9GGRl8uDlBf7GeSu1Ldi9wOUcn9yptQaljIzYAeog+BBmqeGJgZ48
+         s6NQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=lyrhKNeMU7eJT6PQUqEykdJHGU1Beqa7yTElEjUp1E0=;
+        b=MmUC31ucCebO7QJdNas5lV1c3Azl0zLpGEA+KYKkyCals027e70paiy1zSSEpYSAOi
+         su0sKU0rD/Kd5joxJqH4yEpggbEW4l+bYdRJJtOiT7Sjieh+ZfnkpbtyZucfbXwiOCAc
+         nHBnavgyPhmn/ihHi9KIzf0JppkvobRTUFy3xJ4gMrUKoIz/jxJtpuYjiUsQGDpIxSy5
+         9WT4kunKQcep5Q8gNKUjrAG5lWGE0MpEJIBYqtN4hRx5ckBExoZsIwBP0TiORukrG7ew
+         TKF8V/mErx08n7XB0lq6hnUqK38ucZO4tGYMomOs+UnNPr8OZesRPfbDViKfynEF6fTz
+         /sig==
+X-Gm-Message-State: APjAAAXoWnU9ftdbggMCc3njIxREmJ5y+bDqKklPUhGHCt1ohUzEnzFj
+        LomX/c7WpPlX+WCHmxJfTrYhuaceccJvYou5Oyl6bw==
+X-Google-Smtp-Source: APXvYqzW5wCMUPDZUW8FlhlD0lFevf/gsf9pfcTNJvNRaLJB2Qb+Yl5ryjulc4AOX27A438sIlR0pFuhqlw/4hCWscQ=
+X-Received: by 2002:a54:458d:: with SMTP id z13mr2670272oib.32.1581700902393;
+ Fri, 14 Feb 2020 09:21:42 -0800 (PST)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20200211225547.235083-1-dancol@google.com> <20200214032635.75434-1-dancol@google.com>
+ <20200214032635.75434-3-dancol@google.com> <9ca03838-8686-0007-0971-ee63bf5031da@tycho.nsa.gov>
+In-Reply-To: <9ca03838-8686-0007-0971-ee63bf5031da@tycho.nsa.gov>
+From:   Daniel Colascione <dancol@google.com>
+Date:   Fri, 14 Feb 2020 09:21:04 -0800
+Message-ID: <CAKOZuev-=7Lgu35E3tzpHQn0m_KAvvrqi+ZJr1dpqRjHERRSqg@mail.gmail.com>
+Subject: Re: [PATCH 2/3] Teach SELinux about anonymous inodes
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Tim Murray <timmurray@google.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>, paul@paul-moore.com,
+        Nick Kralevich <nnk@google.com>,
+        Lokesh Gidra <lokeshgidra@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
+On Fri, Feb 14, 2020 at 8:38 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>
+> On 2/13/20 10:26 PM, Daniel Colascione wrote:
+> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> > index 1659b59fb5d7..6de0892620b3 100644
+> > --- a/security/selinux/hooks.c
+> > +++ b/security/selinux/hooks.c
+> > @@ -2915,6 +2915,62 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+> >       return 0;
+> >   }
+> >
+> > +static int selinux_inode_init_security_anon(struct inode *inode,
+> > +                                         const struct qstr *name,
+> > +                                         const struct file_operations *fops,
+> > +                                         const struct inode *context_inode)
+> > +{
+> > +     const struct task_security_struct *tsec = selinux_cred(current_cred());
+> > +     struct common_audit_data ad;
+> > +     struct inode_security_struct *isec;
+> > +     int rc;
+> > +
+> > +     if (unlikely(IS_PRIVATE(inode)))
+> > +             return 0;
+>
+> This is not possible since the caller clears S_PRIVATE before calling
+> and it would be a bug to call the hook on an inode that was intended to
+> be private, so we shouldn't check it here.
+>
+> > +
+> > +     if (unlikely(!selinux_state.initialized))
+> > +             return 0;
+>
+> Are we doing this to defer initialization until selinux_complete_init()
+> - that's normally why we bail in the !initialized case?  Not entirely
+> sure what will happen in such a situation since we won't have the
+> context_inode or the allocating task information at that time, so we
+> certainly won't get the same result - probably they would all be labeled
+> with whatever anon_inodefs is assigned via genfscon or
+> SECINITSID_UNLABELED by default.
+> If we instead just drop this test and
+> proceed, we'll inherit the context inode SID if specified or we'll call
+> security_transition_sid(), which in the !initialized case will just
+> return the tsid i.e. tsec->sid, so it will be labeled with the creating
+> task SID (SECINITSID_KERNEL prior to initialization).  Then the
+> avc_has_perm() call will pass because everything gets allowed until
+> initialization. So you could drop this check and userfaultfds created
+> before policy load would get the kernel SID, or you can keep it and they
+> will get the unlabeled SID.  Preference?
 
-[ Upstream commit 0188d5c025ca8fe756ba3193bd7d150139af5a88 ]
+The kernel SID seems safer. Thanks for the explanation!
 
-commit bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
-passed down the rcu flag to the SELinux AVC, but failed to adjust the
-test in slow_avc_audit() to also return -ECHILD on LSM_AUDIT_DATA_DENTRY.
-Previously, we only returned -ECHILD if generating an audit record with
-LSM_AUDIT_DATA_INODE since this was only relevant from inode_permission.
-Move the handling of MAY_NOT_BLOCK to avc_audit() and its inlined
-equivalent in selinux_inode_permission() immediately after we determine
-that audit is required, and always fall back to ref-walk in this case.
+> > +
+> > +     isec = selinux_inode(inode);
+> > +
+> > +     /*
+> > +      * We only get here once per ephemeral inode.  The inode has
+> > +      * been initialized via inode_alloc_security but is otherwise
+> > +      * untouched.
+> > +      */
+> > +
+> > +     if (context_inode) {
+> > +             struct inode_security_struct *context_isec =
+> > +                     selinux_inode(context_inode);
+> > +             if (IS_ERR(context_isec))
+> > +                     return PTR_ERR(context_isec);
+>
+> This isn't possible AFAICT so you don't need to test for it or handle
+> it.  In fact, even the test for NULL in selinux_inode() is bogus and
+> should get dropped AFAICT; we always allocate an inode security blob
+> even before policy load so it would be a bug if we ever had a NULL there.
 
-Fixes: bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
-Reported-by: Will Deacon <will@kernel.org>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- security/selinux/avc.c         | 24 +++++-------------------
- security/selinux/hooks.c       | 11 +++++++----
- security/selinux/include/avc.h |  8 +++++---
- 3 files changed, 17 insertions(+), 26 deletions(-)
+Thanks. Will fix.
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 5de18a6d5c3f0..0622cae510461 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -496,7 +496,7 @@ static inline int avc_xperms_audit(struct selinux_state *state,
- 	if (likely(!audited))
- 		return 0;
- 	return slow_avc_audit(state, ssid, tsid, tclass, requested,
--			audited, denied, result, ad, 0);
-+			audited, denied, result, ad);
- }
- 
- static void avc_node_free(struct rcu_head *rhead)
-@@ -766,8 +766,7 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
- noinline int slow_avc_audit(struct selinux_state *state,
- 			    u32 ssid, u32 tsid, u16 tclass,
- 			    u32 requested, u32 audited, u32 denied, int result,
--			    struct common_audit_data *a,
--			    unsigned int flags)
-+			    struct common_audit_data *a)
- {
- 	struct common_audit_data stack_data;
- 	struct selinux_audit_data sad;
-@@ -777,17 +776,6 @@ noinline int slow_avc_audit(struct selinux_state *state,
- 		a->type = LSM_AUDIT_DATA_NONE;
- 	}
- 
--	/*
--	 * When in a RCU walk do the audit on the RCU retry.  This is because
--	 * the collection of the dname in an inode audit message is not RCU
--	 * safe.  Note this may drop some audits when the situation changes
--	 * during retry. However this is logically just as if the operation
--	 * happened a little later.
--	 */
--	if ((a->type == LSM_AUDIT_DATA_INODE) &&
--	    (flags & MAY_NOT_BLOCK))
--		return -ECHILD;
--
- 	sad.tclass = tclass;
- 	sad.requested = requested;
- 	sad.ssid = ssid;
-@@ -860,16 +848,14 @@ static int avc_update_node(struct selinux_avc *avc,
- 	/*
- 	 * If we are in a non-blocking code path, e.g. VFS RCU walk,
- 	 * then we must not add permissions to a cache entry
--	 * because we cannot safely audit the denial.  Otherwise,
-+	 * because we will not audit the denial.  Otherwise,
- 	 * during the subsequent blocking retry (e.g. VFS ref walk), we
- 	 * will find the permissions already granted in the cache entry
- 	 * and won't audit anything at all, leading to silent denials in
- 	 * permissive mode that only appear when in enforcing mode.
- 	 *
--	 * See the corresponding handling in slow_avc_audit(), and the
--	 * logic in selinux_inode_follow_link and selinux_inode_permission
--	 * for the VFS MAY_NOT_BLOCK flag, which is transliterated into
--	 * AVC_NONBLOCKING for avc_has_perm_noaudit().
-+	 * See the corresponding handling of MAY_NOT_BLOCK in avc_audit()
-+	 * and selinux_inode_permission().
- 	 */
- 	if (flags & AVC_NONBLOCKING)
- 		return 0;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 040c843968dc6..c574285966f9d 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3171,8 +3171,7 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
- 
- static noinline int audit_inode_permission(struct inode *inode,
- 					   u32 perms, u32 audited, u32 denied,
--					   int result,
--					   unsigned flags)
-+					   int result)
- {
- 	struct common_audit_data ad;
- 	struct inode_security_struct *isec = inode->i_security;
-@@ -3183,7 +3182,7 @@ static noinline int audit_inode_permission(struct inode *inode,
- 
- 	rc = slow_avc_audit(&selinux_state,
- 			    current_sid(), isec->sid, isec->sclass, perms,
--			    audited, denied, result, &ad, flags);
-+			    audited, denied, result, &ad);
- 	if (rc)
- 		return rc;
- 	return 0;
-@@ -3230,7 +3229,11 @@ static int selinux_inode_permission(struct inode *inode, int mask)
- 	if (likely(!audited))
- 		return rc;
- 
--	rc2 = audit_inode_permission(inode, perms, audited, denied, rc, flags);
-+	/* fall back to ref-walk if we have to generate audit */
-+	if (flags & MAY_NOT_BLOCK)
-+		return -ECHILD;
-+
-+	rc2 = audit_inode_permission(inode, perms, audited, denied, rc);
- 	if (rc2)
- 		return rc2;
- 	return rc;
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 74ea50977c201..cf4cc3ef959b5 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -100,8 +100,7 @@ static inline u32 avc_audit_required(u32 requested,
- int slow_avc_audit(struct selinux_state *state,
- 		   u32 ssid, u32 tsid, u16 tclass,
- 		   u32 requested, u32 audited, u32 denied, int result,
--		   struct common_audit_data *a,
--		   unsigned flags);
-+		   struct common_audit_data *a);
- 
- /**
-  * avc_audit - Audit the granting or denial of permissions.
-@@ -135,9 +134,12 @@ static inline int avc_audit(struct selinux_state *state,
- 	audited = avc_audit_required(requested, avd, result, 0, &denied);
- 	if (likely(!audited))
- 		return 0;
-+	/* fall back to ref-walk if we have to generate audit */
-+	if (flags & MAY_NOT_BLOCK)
-+		return -ECHILD;
- 	return slow_avc_audit(state, ssid, tsid, tclass,
- 			      requested, audited, denied, result,
--			      a, flags);
-+			      a);
- }
- 
- #define AVC_STRICT 1 /* Ignore permissive mode. */
--- 
-2.20.1
+> > +             isec->sid = context_isec->sid;
+> > +     } else {
+> > +             rc = security_transition_sid(
+> > +                     &selinux_state, tsec->sid, tsec->sid,
+> > +                     SECCLASS_FILE, name, &isec->sid);
+> > +             if (rc)
+> > +                     return rc;
+> > +     }
+>
+> Since you switched to using security_transition_sid(), you are not using
+> the fops parameter anymore nor comparing with userfaultfd_fops, so you
+> could drop the parameter from the hook and leave the latter static in
+> the first patch.
 
+That's true, but I figured different LSMs might want different rules
+that depend on the fops. I'm also okay with removing this parameter
+for now, since we're not using it.
+
+> That's assuming you are ok with having to define these type_transition
+> rules for the userfaultfd case instead of having your own separate
+> security class.  Wondering how many different anon inode names/classes
+> there are in the kernel today and how much they change over time; for a
+> small, relatively stable set, separate classes might be ok; for a large,
+> dynamic set, type transitions should scale better.
+
+I think we can get away without a class per anonymous-inode-type. I do
+wonder whether we need a class for all anonymous inodes, though: if we
+just give them the file class and use the anon inode type name for the
+type_transition rule, isn't it possible that the type_transition rule
+might also fire for plain files with the same names in the last path
+component and the same originating sid? (Maybe I'm not understanding
+type_transition rules properly.) Using a class to encompass all
+anonymous inodes would address this problem (assuming the problem
+exists in the first place).
+
+> We might still need
+> to create a mapping table in SELinux from the names to some stable
+> identifier for the policy lookup if we can't rely on the names being stable.
+
+Sure. The anonymous inode type names have historically been stable,
+though, so maybe we can just use the names from anon_inodes directly
+for now and then add some kind of remapping if we want to change those
+names in the core, remaping to the old name for SELinux
+type_transition purposes.
