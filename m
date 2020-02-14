@@ -2,254 +2,316 @@ Return-Path: <SRS0=qygk=4C=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C309C35242
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 22:14:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C8F0C35242
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 23:42:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0444A20726
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 22:14:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 00842222C4
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 23:42:10 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="fZ8lp1TM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727653AbgBNWN6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Feb 2020 17:13:58 -0500
-Received: from mga03.intel.com ([134.134.136.65]:13171 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725946AbgBNWN6 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 14 Feb 2020 17:13:58 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Feb 2020 14:13:56 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,442,1574150400"; 
-   d="gz'50?scan'50,208,50";a="257665148"
-Received: from lkp-server01.sh.intel.com (HELO lkp-server01) ([10.239.97.150])
-  by fmsmga004.fm.intel.com with ESMTP; 14 Feb 2020 14:13:52 -0800
-Received: from kbuild by lkp-server01 with local (Exim 4.89)
-        (envelope-from <lkp@intel.com>)
-        id 1j2jDc-000CEm-44; Sat, 15 Feb 2020 06:13:52 +0800
-Date:   Sat, 15 Feb 2020 06:13:47 +0800
-From:   kbuild test robot <lkp@intel.com>
-To:     Daniel Colascione <dancol@google.com>
-Cc:     kbuild-all@lists.01.org, dancol@google.com, timmurray@google.com,
-        nosh@google.com, nnk@google.com, lokeshgidra@google.com,
-        linux-kernel@vger.kernel.org, linux-api@vger.kernel.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH v2 2/6] Add a concept of a "secure" anonymous file
-Message-ID: <202002150657.5YrE7Byp%lkp@intel.com>
-References: <20200211225547.235083-3-dancol@google.com>
+        id S1728204AbgBNXmK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Feb 2020 18:42:10 -0500
+Received: from sonic310-31.consmr.mail.ne1.yahoo.com ([66.163.186.212]:44388
+        "EHLO sonic310-31.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726861AbgBNXmK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Feb 2020 18:42:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1581723728; bh=qhvqF6Jn+QOAUnOLxEZbn7Blt9ezJQXRBkS262eUScM=; h=From:To:Cc:Subject:Date:References:From:Subject; b=fZ8lp1TMmN8fTm0NRPQm/gMbiOPBxzY3jgBT+6pw6+a+sWc5xcgFXBCE3NaLJwFwODDjuEAiq+JvE8WSjtAn9uXWEJiN1vX8pb1/Aw3Nqrs876dp4E8iAHXEYdv7coRSsK84jslhvoljx2utt7vw3GYmJixH0m932D0lSkipBzrCtPdm/hjV0AuZx/uyuSM94bXeSABIpgW3Zekz63k9CMOgZrSnIt66ckgVQpHJahbYveQVXYKEb3wNQdXbhPweEPjfN/952j428uVS9nNLWdxePwcMagHS9yCLuOIc/nbtPhKuBjtmIjqK9kSiWS91dVF843zTAu5H46D4G53XLQ==
+X-YMail-OSG: 4k5rzw4VM1kcLri2LxtU28ysOvWjG8xCebopa6LXmKsGkGM075HCzqJIsQdaGBO
+ Fug587oeY8OXvxCwdWbbh3TwxoBkV0vvy77uLvIKVgDMbXZLEoJ1OAvZpmswBOAxZYljeFEeepFJ
+ PXvfzDfCAXeDeXVl.EFqLqxEd7Y.5oIbgGTU5lXYlReteB38tC.fykcIkYysM6_0XfjLFGbKjtEx
+ bvBCXDtCq6kAuLiZ800t3K7wQ9J9zenL5WtCtpcys5q.Kv5HfRWLKBnofpPfAMCHYx6JXTCXna..
+ DJ50Nyg6mWVInsK1I.IMqOKaD_I.C1Gtobub.SnQZiOYHMuiVMZHeeVU8ZDO_GAqMiecU1ySxzbm
+ _IUedDOxtHCtxaj32KzIehbYw_jz80gabHcqdqrw1COcSUY.zTUr5QLdTcf2Vkl1Ri4v6qbAWKV1
+ xXJWnr8pI89cWi2FU_IsLbvKsUbYv2JH07e_LRA_Ud5c.4f.He44zSoUUnIUWsmxOmYs9u_kbEse
+ Z1EIyiacy7tJzxOTmw5lYgzqd4ZK1xC0HUsqyUFPb1DTFiRTbqC9PUQ9EqnA7FSFm7dfPelcCr.d
+ biWn6Z5O0HRJ7XpBK7T_nwu8BpCLOZax9Ub7gTsxPDJWaLBYvImkoROQKbGF7tNtg2BgfzGlmVpj
+ cL6IHe6_jFItwTlYLUX2Nedz3OIqImWGu7Xal1iSANZ4CwiZw5o2q6SZtmTVHFLZRzX_A2B0JoDZ
+ 0yAyy6zp_uiYDxNW4EocELI8ASsZEq84kS0aXRSfalxdB9uGQJc_4NwslermYFgNvv7VJ6geopCj
+ O2CQFbTezTE.RyIAL3LL8Qu0VY7AunUzkvN13s3U48wVRNcMTjoI2EAkv4LHAHH1NovpCA26iGcy
+ 1Ou6x076aMOc630wVXnx0lwD_w7fBzHqklRKKXBpbU7fhFtwcUEatT6okltXYuYF88Dpvf_Oie3R
+ qWak0c22XIRNgqD0WHBJI1L5q_BbefoAq7U0O2gPYqi2WGjFqNZV31YF3lKDQsyZspityADfyU2V
+ l0pdqWNbqRUtsbZQ7WT883lKl1kcRf.HTuWUzWsfNtcV6ANelXzMYWIpCz641YsJLOt345OY4.k8
+ Cz.1zrSXfyED79_a8YGSZ9JHkLdOk7hebVimRXRpuaL_SuvR7Nova8_uz8tBiTSP9dye4.6tYEb.
+ qlxf2WTVPMu0JiPOSvNtylqlAGBwWcba9ufDlDtURQifpM_pEJGNkmZYrAqTeeeTj2fEi7j1jFqd
+ 7au3pGiKWJwAgphf7h_IPgDwhh4qiU9sEaN0zzLb6mThQ0TijRSamcJjsezTU5HF_NnCWZZxJAgd
+ q5hMRmQ7gQIf9935tG5SWo5wUjzc7kO51AEUgbLm3PvjqTjjDaxPs9XfWBxWhaqr039HiV0sdw3w
+ 9pK.tbxxaWzsyRf55OjAFqZ4GK09kqFy70As9wbE0.sq8ZpeKSL9ug6Vqi26GxD4afyNNYEr02Wm
+ _fG7tKaM-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Fri, 14 Feb 2020 23:42:08 +0000
+Received: by smtp428.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 4657fbe77e4c20ee04927285b6183fa3;
+          Fri, 14 Feb 2020 23:42:06 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov
+Subject: [PATCH v15 00/23] LSM: Module stacking for AppArmor
+Date:   Fri, 14 Feb 2020 15:41:40 -0800
+Message-Id: <20200214234203.7086-1-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-In-Reply-To: <20200211225547.235083-3-dancol@google.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+References: <20200214234203.7086-1-casey.ref@schaufler-ca.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+This patchset provides the changes required for
+the AppArmor security module to stack safely with any other.
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+v15: Rebase to 5.6-rc1
+     - Revise IMA data use (patch 0002)
+     Incorporate feedback from v14
+     - Fix lockdown module registration naming (patch 0002)
+     - Revise how /proc/self/attr/context is gathered. (patch 0022)
+     - Revise access modes on /proc/self/attr/context. (patch 0022)
+     - Revise documentation on LSM external interfaces. (patch 0022)
 
-Hi Daniel,
+v14: Rebase to 5.5-rc5
+     Incorporate feedback from v13
+     - Use an array of audit rules (patch 0002)
+     - Significant change, removed Acks (patch 0002)
+     - Remove unneeded include (patch 0013)
+     - Use context.len correctly (patch 0015)
+     - Reorder code to be more sensible (patch 0016)
+     - Drop SO_PEERCONTEXT as it's not needed yet (patch 0023)
 
-Thank you for the patch! Yet something to improve:
+v13: Rebase to 5.5-rc2
+     Incorporate feedback from v12
+     - Print lsmblob size with %z (Patch 0002)
+     - Convert lockdown LSM initialization. (Patch 0002)
+     - Restore error check in nft_secmark_compute_secid (Patch 0006)
+     - Correct blob scaffolding in ima_must_appraise() (Patch 0009)
+     - Make security_setprocattr() clearer (Patch 0013)
+     - Use lsm_task_display more widely (Patch 0013)
+     - Use passed size in lsmcontext_init() (Patch 0014)
+     - Don't add a smack_release_secctx() hook (Patch 0014)
+     - Don't print warning in security_release_secctx() (Patch 0014)
+     - Don't duplicate the label in nfs4_label_init_security() (Patch 0016)
+     - Remove reviewed-by as code has significant change (Patch 0016)
+     - Send the entire lsmblob for Tag 6 (Patch 0019)
+     - Fix description of socket_getpeersec_stream parameters (Patch 0023)
+     - Retain LSMBLOB_FIRST. What was I thinking? (Patch 0023)
+     - Add compound context to LSM documentation (Patch 0023)
 
-[auto build test ERROR on pcmoore-selinux/next]
-[also build test ERROR on security/next-testing linux/master linus/master v5.6-rc1 next-20200214]
-[if your patch is applied to the wrong git tree, please drop us a note to help
-improve the system. BTW, we also suggest to use '--base' option to specify the
-base tree in git format-patch, please see https://stackoverflow.com/a/37406982]
+v12: Rebase to 5.5-rc1
+     Fixed a couple of incorrect contractions in the text.
 
-url:    https://github.com/0day-ci/linux/commits/Daniel-Colascione/Harden-userfaultfd/20200215-034039
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git next
-config: i386-tinyconfig (attached as .config)
-compiler: gcc-7 (Debian 7.5.0-4) 7.5.0
-reproduce:
-        # save the attached .config to linux build tree
-        make ARCH=i386 
+v11: Rebase to 5.4-rc6
+     Incorporate feedback from v10
+     - Disambiguate reading /proc/.../attr/display by restricting
+       all use of the interface to the current process.
+     - Fix a merge error in AppArmor's display attribute check
 
-If you fix the issue, kindly add following tag
-Reported-by: kbuild test robot <lkp@intel.com>
+v10: Ask the security modules if the display can be changed.
 
-All errors (new ones prefixed by >>):
+v9: There is no version 9
 
-   fs/anon_inodes.c: In function 'anon_inode_make_secure_inode':
->> fs/anon_inodes.c:67:10: error: implicit declaration of function 'security_inode_init_security_anon'; did you mean 'security_inode_init_security'? [-Werror=implicit-function-declaration]
-     error = security_inode_init_security_anon(inode, name, fops);
-             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-             security_inode_init_security
-   cc1: some warnings being treated as errors
+v8: Incorporate feedback from v7
+    - Minor clean-up in display value management
+    - refactor "compound" context creation to use a common
+      append_ctx() function.
 
-vim +67 fs/anon_inodes.c
+v7: Incorporate feedback from v6
+    - Make setting the display a privileged operation. The
+      availability of compound contexts reduces the need for
+      setting the display.
 
-    57	
-    58	struct inode *anon_inode_make_secure_inode(const char *name,
-    59						   const struct file_operations *fops)
-    60	{
-    61		struct inode *inode;
-    62		int error;
-    63		inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
-    64		if (IS_ERR(inode))
-    65			return ERR_PTR(PTR_ERR(inode));
-    66		inode->i_flags &= ~S_PRIVATE;
-  > 67		error =	security_inode_init_security_anon(inode, name, fops);
-    68		if (error) {
-    69			iput(inode);
-    70			return ERR_PTR(error);
-    71		}
-    72		return inode;
-    73	}
-    74	
+v6: Incorporate feedback from v5
+    - Add subj_<lsm>= and obj_<lsm>= fields to audit records
+    - Add /proc/.../attr/context to get the full context in
+      lsmname\0value\0... format as suggested by Simon McVittie
+    - Add SO_PEERCONTEXT for getsockopt() to get the full context
+      in the same format, also suggested by Simon McVittie.
+    - Add /sys/kernel/security/lsm_display_default to provide
+      the display default value.
 
+v5: Incorporate feedback from v4
+    - Initialize the lsmcontext in security_secid_to_secctx()
+    - Clear the lsmcontext in all security_release_secctx() cases
+    - Don't use the "display" on strictly internal context
+      interfaces.
+    - The SELinux binder hooks check for cases where the context
+      "display" isn't compatible with SELinux.
+
+v4: Incorporate feedback from v3
+    - Mark new lsm_<blob>_alloc functions static
+    - Replace the lsm and slot fields of the security_hook_list
+      with a pointer to a LSM allocated lsm_id structure. The
+      LSM identifies if it needs a slot explicitly. Use the
+      lsm_id rather than make security_add_hooks return the
+      slot value.
+    - Validate slot values used in security.c
+    - Reworked the "display" process attribute handling so that
+      it works right and doesn't use goofy list processing.
+    - fix display value check in dentry_init_security
+    - Replace audit_log of secids with '?' instead of deleting
+      the audit log
+
+v3: Incorporate feedback from v2
+    - Make lsmblob parameter and variable names more
+      meaningful, changing "le" and "l" to "blob".
+    - Improve consistency of constant naming.
+    - Do more sanity checking during LSM initialization.
+    - Be a bit clearer about what is temporary scaffolding.
+    - Rather than clutter security_getpeersec_dgram with
+      otherwise unnecessary checks remove the apparmor
+      stub, which does nothing useful.
+
+Patch 0001 moves management of the sock security blob
+from the individual modules to the infrastructure.
+
+Patches 0002-0012 replace system use of a "secid" with
+a structure "lsmblob" containing information from the
+security modules to be held and reused later. At this
+point lsmblob contains an array of u32 secids, one "slot"
+for each of the security modules compiled into the
+kernel that used secids. A "slot" is allocated when
+a security module requests one.
+The infrastructure is changed to use the slot number
+to pass the correct secid to or from the security module
+hooks.
+
+It is important that the lsmblob be a fixed size entity
+that does not have to be allocated. Several of the places
+where it is used would have performance and/or locking
+issues with dynamic allocation.
+
+Patch 0013 provides a mechanism for a process to
+identify which security module's hooks should be used
+when displaying or converting a security context string.
+A new interface /proc/self/attr/display contains the name
+of the security module to show. Reading from this file
+will present the name of the module, while writing to
+it will set the value. Only names of active security
+modules are accepted. Internally, the name is translated
+to the appropriate "slot" number for the module which
+is then stored in the task security blob. Setting the
+display requires that all modules using the /proc interfaces
+allow the transition. The "display" of other processess
+can be neither read nor written. All suggested cases
+for reading the display of a different process have race
+conditions.
+
+Patch 0014 Starts the process of changing how a security
+context is represented. Since it is possible for a
+security context to have been generated by more than one
+security module it is now necessary to note which module
+created a security context so that the correct "release"
+hook can be called. There are several places where the
+module that created a security context cannot be inferred.
+
+This is achieved by introducing a "lsmcontext" structure
+which contains the context string, its length and the
+"slot" number of the security module that created it.
+The security_release_secctx() interface is changed,
+replacing the (string,len) pointer pair with a lsmcontext
+pointer.
+
+Patches 0015-0017 convert the security interfaces from
+(string,len) pointer pairs to a lsmcontext pointer.
+The slot number identifying the creating module is
+added by the infrastructure. Where the security context
+is stored for extended periods the data type is changed.
+
+The Netlabel code is converted to save lsmblob structures
+instead of secids in Patch 0018.
+
+Patch 0019 adds checks to the binder hooks which verify
+that if both ends of a transaction use the same "display".
+
+Patches 0020-0021 add addition data to the audit records
+to identify the LSM specific data for all active modules.
+
+Patch 0022 adds a new interfaces for getting the
+compound security contexts.
+
+Finally, with all interference on the AppArmor hooks
+removed, Patch 0023 removes the exclusive bit from
+AppArmor. An unnecessary stub hook was also removed.
+
+The Ubuntu project is using an earlier version of
+this patchset in their distribution to enable stacking
+for containers.
+
+Performance measurements to date have the change
+within the "noise". The sockperf and dbench results
+are on the order of 0.2% to 0.8% difference, with
+better performance being as common as worse. The
+benchmarks were run with AppArmor and Smack on Ubuntu.
+
+https://github.com/cschaufler/lsm-stacking.git#stack-5.6-rc1-v15
+
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 ---
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
-
---tKW2IUtsqtDRztdT
-Content-Type: application/gzip
-Content-Disposition: attachment; filename=".config.gz"
-Content-Transfer-Encoding: base64
-
-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
-aAAA
-
---tKW2IUtsqtDRztdT--
+ Documentation/security/lsm.rst          |  22 ++
+ drivers/android/binder.c                |  26 +-
+ fs/ceph/xattr.c                         |   6 +-
+ fs/nfs/nfs4proc.c                       |   8 +-
+ fs/nfsd/nfs4xdr.c                       |  20 +-
+ fs/proc/base.c                          |   2 +
+ include/linux/audit.h                   |   5 +-
+ include/linux/cred.h                    |   3 +-
+ include/linux/lsm_hooks.h               |  34 ++-
+ include/linux/security.h                | 159 ++++++++--
+ include/net/af_unix.h                   |   2 +-
+ include/net/netlabel.h                  |   8 +-
+ include/net/scm.h                       |  15 +-
+ kernel/audit.c                          |  78 +++--
+ kernel/audit.h                          |   9 +-
+ kernel/audit_fsnotify.c                 |   1 +
+ kernel/auditfilter.c                    |  34 ++-
+ kernel/auditsc.c                        | 139 +++++----
+ kernel/cred.c                           |  12 +-
+ net/ipv4/cipso_ipv4.c                   |  23 +-
+ net/ipv4/ip_sockglue.c                  |  12 +-
+ net/netfilter/nf_conntrack_netlink.c    |  20 +-
+ net/netfilter/nf_conntrack_standalone.c |  11 +-
+ net/netfilter/nfnetlink_queue.c         |  26 +-
+ net/netfilter/nft_meta.c                |  12 +-
+ net/netfilter/xt_SECMARK.c              |   5 +-
+ net/netlabel/netlabel_kapi.c            |   6 +-
+ net/netlabel/netlabel_unlabeled.c       |  98 +++---
+ net/netlabel/netlabel_unlabeled.h       |   2 +-
+ net/netlabel/netlabel_user.c            |  13 +-
+ net/netlabel/netlabel_user.h            |   6 +-
+ net/unix/af_unix.c                      |   6 +-
+ net/xfrm/xfrm_policy.c                  |   2 +
+ net/xfrm/xfrm_state.c                   |   2 +
+ security/apparmor/include/apparmor.h    |   3 +-
+ security/apparmor/include/net.h         |   6 +-
+ security/apparmor/include/procattr.h    |   2 +-
+ security/apparmor/lsm.c                 | 105 ++++---
+ security/apparmor/procattr.c            |  22 +-
+ security/commoncap.c                    |   7 +-
+ security/integrity/ima/ima.h            |  15 +-
+ security/integrity/ima/ima_api.c        |  11 +-
+ security/integrity/ima/ima_appraise.c   |   6 +-
+ security/integrity/ima/ima_main.c       |  42 +--
+ security/integrity/ima/ima_policy.c     |  53 ++--
+ security/integrity/integrity_audit.c    |   1 +
+ security/loadpin/loadpin.c              |   8 +-
+ security/lockdown/lockdown.c            |   7 +-
+ security/safesetid/lsm.c                |   8 +-
+ security/security.c                     | 525 +++++++++++++++++++++++++++++---
+ security/selinux/hooks.c                |  99 +++---
+ security/selinux/include/classmap.h     |   2 +-
+ security/selinux/include/objsec.h       |   5 +
+ security/selinux/include/security.h     |   1 +
+ security/selinux/netlabel.c             |  25 +-
+ security/selinux/ss/services.c          |   4 +-
+ security/smack/smack.h                  |   6 +
+ security/smack/smack_lsm.c              |  83 ++---
+ security/smack/smack_netfilter.c        |   8 +-
+ security/smack/smackfs.c                |  10 +-
+ security/tomoyo/tomoyo.c                |   8 +-
+ security/yama/yama_lsm.c                |   7 +-
+ 62 files changed, 1350 insertions(+), 556 deletions(-)
