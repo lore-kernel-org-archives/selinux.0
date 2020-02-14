@@ -2,115 +2,199 @@ Return-Path: <SRS0=qygk=4C=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38370C3B1A6
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 17:23:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF1E1C2BA83
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 17:33:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 13A5B2082F
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 17:23:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581701014;
-	bh=FqLsbdvy18ocGeZkFW4cQQKjgKjQZOzZP80pZtfOvKE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=gGGAZr3Pp5dLhspCcGEBWCatX289RWFWulDOjnBLvG1xQDTgPA96QIeFaOERXUp/J
-	 fbyijXEZQd8F0uI5CneOdJKywGjdp5DEB7wuX6jC/raiOvdUvoU5vosD+VmYqUSqxg
-	 XNu+/A0a3aHaLjjFM9RdOMjw1Arm7NaZ2HNEX44Y=
+	by mail.kernel.org (Postfix) with ESMTP id 9FC9F2168B
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 17:33:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="QR7fGnKd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391277AbgBNQJ2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Feb 2020 11:09:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33846 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391270AbgBNQJ2 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 14 Feb 2020 11:09:28 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BA51222C2;
-        Fri, 14 Feb 2020 16:09:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581696567;
-        bh=FqLsbdvy18ocGeZkFW4cQQKjgKjQZOzZP80pZtfOvKE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p/BjOwzpBry3/geEMKQqTinb5xowPnEo70ihWYD/0/hOk9frTEk862kc0rxjZGgf7
-         np3KZ4WBQ+ib3OzmEEvNs4/R8MCiJASDm92XCzaE/2ewWuZ4RmBKqqDcwSuZO2mF58
-         BcFZaFwksi3Ol0OQZjLG3dEEH+S9v+f9767L/7z0=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 357/459] selinux: fix regression introduced by move_mount(2) syscall
-Date:   Fri, 14 Feb 2020 11:00:07 -0500
-Message-Id: <20200214160149.11681-357-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
-References: <20200214160149.11681-1-sashal@kernel.org>
+        id S2390648AbgBNRdB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Feb 2020 12:33:01 -0500
+Received: from UCOL19PA37.eemsg.mail.mil ([214.24.24.197]:60335 "EHLO
+        UCOL19PA37.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390455AbgBNQGf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Feb 2020 11:06:35 -0500
+X-EEMSG-check-017: 76796021|UCOL19PA37_ESA_OUT04.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,441,1574121600"; 
+   d="scan'208";a="76796021"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by UCOL19PA37.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 14 Feb 2020 16:06:30 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1581696390; x=1613232390;
+  h=subject:to:cc:references:from:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=pkuyM9BpXgAmo35Ot9rhpzPQQM9SFT5CnmiggrmTKDI=;
+  b=QR7fGnKdOV7G+wPK0XPFMlIJzKO8yBxIZXP6pXFCT41AfLRKTNuIK5AV
+   RFAKCMd00b3CQcbAAySH51e4EuoE94tCGmeXhrWIr7iCZgq4kP7RakEby
+   ktYjhrusBVEaHfZpGUQkgFrnrF1sDdpfN8/ZdyN0gWzjRTRtHUyzR71GL
+   /Ql/ouN8SfE/iCOfO/tCDKrxZ/NljqD1ah2NtslwUgDb5IExcd1f80h6/
+   VtCnd7QPYa/aAFFVMvdnqIwtz1i+1Meu1sXOyz2udPgHml+FZ87McHhOb
+   W45f+RC7F+LUydVmnp5E2En3KD1565hJsXJg6taCotZKtqAzNdcgLQTsZ
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,441,1574121600"; 
+   d="scan'208";a="39137111"
+IronPort-PHdr: =?us-ascii?q?9a23=3A4pCgqBCRARvRfDj+JdDCUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSP36oMSwAkXT6L1XgUPTWs2DsrQY0raQ7PirCTdIyK3CmU5BWaQEbw?=
+ =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
+ =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRq7oR/Tu8UKjodvKag8wQ?=
+ =?us-ascii?q?bVr3VVfOhb2WxnKVWPkhjm+8y+5oRj8yNeu/Ig885PT6D3dLkmQLJbETorLX?=
+ =?us-ascii?q?k76NXkuhffQwSP4GAcUngNnRpTHwfF9hD6UYzvvSb8q+FwxTOVPczyTbAzRD?=
+ =?us-ascii?q?Si86JmQwLmhSsbKzI09nzch9duh6xHvh2uux1/w5bVYI6LMvp+Yrjdds4eSW?=
+ =?us-ascii?q?ZYQ8pdSzBNDoa6YoQBFeoBOftToZf7qVUAsBCyARCgCP3rxzNNgHL9wK803P?=
+ =?us-ascii?q?k7EQzewQIuAdwOvnTXotv7OqgdXuK6w7XHwzjYc/Nb2y3w5JTUfh0vo/yBW6?=
+ =?us-ascii?q?97f8rLyUkoEgPIlkieqZD7MDON1uQCrW6b5Pd9W+KqkWEnrwVxrSavx8wxjY?=
+ =?us-ascii?q?TJnZ8aykvf+CVlwIc6Od24SElhbd6iC5tfrTuWN4RxQsM8WmxlvjsxxL4euZ?=
+ =?us-ascii?q?OjYSQHx5sqywTfZvCaaYSE/B3uWPiLLTtlgn9uZaixiAyo8Ue6z+3xTsy00F?=
+ =?us-ascii?q?FXoSVbitTMrXUN1wDL6siAV/t94l+t2TaR2ADX7eFJOVw0mrDBK54g374wjY?=
+ =?us-ascii?q?AfsUXFHi/4n0X2l7GZeVk+9ui06+XofrXmppiGO49ylg7+Kbghlta6AeQ5Ng?=
+ =?us-ascii?q?gCR2mb+eKi273/5UD1XbpHg/IsnqTZrZzWP9oXq6GnDwNPz4ov8xO/AC2n0N?=
+ =?us-ascii?q?Qck3kHNlVFeBefgojyJl7OO+v1Deu/gluwkDdrwOrKPrv6AprXNHTDn7Dhfa?=
+ =?us-ascii?q?hl505G1AUz1cxf545TCrwZO/L8QFTxtNzCAR89KAG0wPjoCM971owAXWKDGK?=
+ =?us-ascii?q?iZMLndsVWQ/OIgP/GMZJMJuDb6M/Ul4//ujXkkmV4SZKWp3oUYaGq+Hvt4J0?=
+ =?us-ascii?q?WUemTsgtgfHmcQpAY+T/LliEeEUTFNY3a+RaU85is0CIi+F4fMWpitgKCd3C?=
+ =?us-ascii?q?e8BpBWfXxGBUqXHnfsaYqJQOkMaC2MLc97iDAEVqauS5Un1R6wsA/20b1nLv?=
+ =?us-ascii?q?Db+icAr5LsyMB15/HPlRE17TF0F96S03yJT2xvhmMHXSI23KRmrUx4zVeD1r?=
+ =?us-ascii?q?J4jOJCGdNP4PNJVx8wNYTAwOxiF9DyRgXBc8+TSFa9Q9WpHCw+TtUzw98PeE?=
+ =?us-ascii?q?tyB9KigQ3d0CWwHr8VjbuLBIYu/a7G2HjxPcl9wW7c1KY9l1kmXtdPNWq+i6?=
+ =?us-ascii?q?5k6QfTA4/Jk0OEl6elbqkcwiHN+3mZzWaUv0FXThRwUaPbUnAbfEfWqs755k?=
+ =?us-ascii?q?yRB4OpXI8uKQtIgeqPNKpMIonyhE5GTfPLO9nEZW+13WCqCkDMjreNapf6Pm?=
+ =?us-ascii?q?YQxiPQDGAanA0Ju3WLLw4zAmGmuW2aRCdyHFjrbmvy/uRk7nC2VEk5y0eNdU?=
+ =?us-ascii?q?Iy+aCy/0sumfGES/4VlokBsSMlpiQ8SE2xxPrKGtGAoExnZ6wabtQjtgQUnV?=
+ =?us-ascii?q?nFvhBwa8TzZ5tpgUQTJkEu5RLj?=
+X-IPAS-Result: =?us-ascii?q?A2BMAAAPxUZe/wHyM5BmGgEBAQEBAQEBAQMBAQEBEQEBA?=
+ =?us-ascii?q?QICAQEBAYF7gX2BbSASKoQUiQOGWQEBBAaBN4lwkUoJAQEBAQEBAQEBNwQBA?=
+ =?us-ascii?q?YRAAoIlOBMCEAEBAQUBAQEBAQUDAQFshUOCOykBgwEBAQEBAyMEEUEQCxUDA?=
+ =?us-ascii?q?gIfBwICVwYBDAYCAQGCYz+CVyWtInV/M4VKg0aBPoEOKow+eYEHgREnD4JdP?=
+ =?us-ascii?q?odbgl4EjWSJY0aXbYJEgk+TfAYcmxgtjjudPyKBWCsIAhgIIQ87gmxQGA2OK?=
+ =?us-ascii?q?RcVjiwjAzCQWAEB?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 14 Feb 2020 16:06:29 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01EG5UMo166729;
+        Fri, 14 Feb 2020 11:05:30 -0500
+Subject: Re: [PATCH AUTOSEL 5.5 190/542] selinux: ensure we cleanup the
+ internal AVC counters on error in avc_insert()
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>, rsiddoji@codeaurora.org,
+        selinux@vger.kernel.org
+References: <20200214154854.6746-1-sashal@kernel.org>
+ <20200214154854.6746-190-sashal@kernel.org>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <64b56666-4e4a-10e0-0a1d-60ee28615d23@tycho.nsa.gov>
+Date:   Fri, 14 Feb 2020 11:07:37 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200214154854.6746-190-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
+On 2/14/20 10:43 AM, Sasha Levin wrote:
+> From: Paul Moore <paul@paul-moore.com>
+> 
+> [ Upstream commit d8db60cb23e49a92cf8cada3297395c7fa50fdf8 ]
+> 
+> Fix avc_insert() to call avc_node_kill() if we've already allocated
+> an AVC node and the code fails to insert the node in the cache.
+> 
+> Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
+> Reported-by: rsiddoji@codeaurora.org
+> Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-[ Upstream commit 98aa00345de54b8340dc2ddcd87f446d33387b5e ]
+You should also apply 030b995ad9ece9fa2d218af4429c1c78c2342096 
+("selinux: ensure we cleanup the internal AVC counters on error in 
+avc_update()") which fixes one additional instance of the same kind of 
+bug not addressed by this patch.
 
-commit 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
-introduced a new move_mount(2) system call and a corresponding new LSM
-security_move_mount hook but did not implement this hook for any existing
-LSM.  This creates a regression for SELinux with respect to consistent
-checking of mounts; the existing selinux_mount hook checks mounton
-permission to the mount point path.  Provide a SELinux hook
-implementation for move_mount that applies this same check for
-consistency.  In the future we may wish to add a new move_mount
-filesystem permission and check as well, but this addresses
-the immediate regression.
-
-Fixes: 2db154b3ea8e ("vfs: syscall: Add move_mount(2) to move mounts around")
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- security/selinux/hooks.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 44e2f46d46d2c..39410913a6949 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2766,6 +2766,14 @@ static int selinux_mount(const char *dev_name,
- 		return path_has_perm(cred, path, FILE__MOUNTON);
- }
- 
-+static int selinux_move_mount(const struct path *from_path,
-+			      const struct path *to_path)
-+{
-+	const struct cred *cred = current_cred();
-+
-+	return path_has_perm(cred, to_path, FILE__MOUNTON);
-+}
-+
- static int selinux_umount(struct vfsmount *mnt, int flags)
- {
- 	const struct cred *cred = current_cred();
-@@ -6838,6 +6846,8 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 	LSM_HOOK_INIT(sb_clone_mnt_opts, selinux_sb_clone_mnt_opts),
- 	LSM_HOOK_INIT(sb_add_mnt_opt, selinux_add_mnt_opt),
- 
-+	LSM_HOOK_INIT(move_mount, selinux_move_mount),
-+
- 	LSM_HOOK_INIT(dentry_init_security, selinux_dentry_init_security),
- 	LSM_HOOK_INIT(dentry_create_files_as, selinux_dentry_create_files_as),
- 
--- 
-2.20.1
+> ---
+>   security/selinux/avc.c | 51 ++++++++++++++++++++----------------------
+>   1 file changed, 24 insertions(+), 27 deletions(-)
+> 
+> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+> index 23dc888ae3056..6646300f7ccb2 100644
+> --- a/security/selinux/avc.c
+> +++ b/security/selinux/avc.c
+> @@ -617,40 +617,37 @@ static struct avc_node *avc_insert(struct selinux_avc *avc,
+>   	struct avc_node *pos, *node = NULL;
+>   	int hvalue;
+>   	unsigned long flag;
+> +	spinlock_t *lock;
+> +	struct hlist_head *head;
+>   
+>   	if (avc_latest_notif_update(avc, avd->seqno, 1))
+> -		goto out;
+> +		return NULL;
+>   
+>   	node = avc_alloc_node(avc);
+> -	if (node) {
+> -		struct hlist_head *head;
+> -		spinlock_t *lock;
+> -		int rc = 0;
+> -
+> -		hvalue = avc_hash(ssid, tsid, tclass);
+> -		avc_node_populate(node, ssid, tsid, tclass, avd);
+> -		rc = avc_xperms_populate(node, xp_node);
+> -		if (rc) {
+> -			kmem_cache_free(avc_node_cachep, node);
+> -			return NULL;
+> -		}
+> -		head = &avc->avc_cache.slots[hvalue];
+> -		lock = &avc->avc_cache.slots_lock[hvalue];
+> +	if (!node)
+> +		return NULL;
+>   
+> -		spin_lock_irqsave(lock, flag);
+> -		hlist_for_each_entry(pos, head, list) {
+> -			if (pos->ae.ssid == ssid &&
+> -			    pos->ae.tsid == tsid &&
+> -			    pos->ae.tclass == tclass) {
+> -				avc_node_replace(avc, node, pos);
+> -				goto found;
+> -			}
+> +	avc_node_populate(node, ssid, tsid, tclass, avd);
+> +	if (avc_xperms_populate(node, xp_node)) {
+> +		avc_node_kill(avc, node);
+> +		return NULL;
+> +	}
+> +
+> +	hvalue = avc_hash(ssid, tsid, tclass);
+> +	head = &avc->avc_cache.slots[hvalue];
+> +	lock = &avc->avc_cache.slots_lock[hvalue];
+> +	spin_lock_irqsave(lock, flag);
+> +	hlist_for_each_entry(pos, head, list) {
+> +		if (pos->ae.ssid == ssid &&
+> +			pos->ae.tsid == tsid &&
+> +			pos->ae.tclass == tclass) {
+> +			avc_node_replace(avc, node, pos);
+> +			goto found;
+>   		}
+> -		hlist_add_head_rcu(&node->list, head);
+> -found:
+> -		spin_unlock_irqrestore(lock, flag);
+>   	}
+> -out:
+> +	hlist_add_head_rcu(&node->list, head);
+> +found:
+> +	spin_unlock_irqrestore(lock, flag);
+>   	return node;
+>   }
+>   
+> 
 
