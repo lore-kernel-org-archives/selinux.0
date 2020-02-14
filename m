@@ -2,268 +2,176 @@ Return-Path: <SRS0=qygk=4C=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41FD1C3B192
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 00:35:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F606C3B18F
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 03:27:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F15CC2168B
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 00:35:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EBC1D2168B
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 03:27:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="MIiGl0YA"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="m8Bsd5O0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727604AbgBNAf4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Feb 2020 19:35:56 -0500
-Received: from mail-ed1-f66.google.com ([209.85.208.66]:33353 "EHLO
-        mail-ed1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727594AbgBNAf4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Feb 2020 19:35:56 -0500
-Received: by mail-ed1-f66.google.com with SMTP id r21so9151135edq.0
-        for <selinux@vger.kernel.org>; Thu, 13 Feb 2020 16:35:53 -0800 (PST)
+        id S1728562AbgBND1F (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Feb 2020 22:27:05 -0500
+Received: from mail-pl1-f201.google.com ([209.85.214.201]:38406 "EHLO
+        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728648AbgBND1C (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Feb 2020 22:27:02 -0500
+Received: by mail-pl1-f201.google.com with SMTP id t17so4402383ply.5
+        for <selinux@vger.kernel.org>; Thu, 13 Feb 2020 19:27:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=WElCLdP43eu7ktNsP5QgKN3VwWTAf46l9TANut/ZGzQ=;
-        b=MIiGl0YA5D2BlA0YnhHjhA/tl/ArB3MBkzXu9K9OdMvIMi4ifjZr/AYmiNKu1Ls8P6
-         BQhoL+8BgdTW9tyA6b2l+KFy4dYPPV61W6mJ/i6jkHgGCH0mxHMC1Xb8yqclCqTwY9dm
-         uOD5vkVXoDu4adCREEcdt5jTD0U2fQ82HlK8Jw9aZSrzqoYj94OyREiWB9GwTfEASySt
-         e/1Fy4icIoUfRasPqJebTjbH4RqGU2DdQrY686ORU2qo5SKnU7Kwq0RihFbyYbDsAZf3
-         DpHgZd1pFrnXMUY48OFVM6DHO+vpfETE2gEmb0MGsKu6OlXgnTJDd6IguLjfCtC6rA+G
-         6q3A==
+        bh=fKf7Qy7FXarC79v0tJzZ3+R2Ba3CQFsER7P1EGsqsHY=;
+        b=m8Bsd5O0fYTKXemGllMkb7FkRhDEMVPj/GtwwVndphe2KtvZwDgPMvOndFJ1Me9mR6
+         qchUsPUoP5EMZyWtPHuhw/3WRcCKJ9AJpFVvSqDmZYbjLUufy2ZPyY2E1CWK6dvjq+TW
+         5/FD9kOtqSSGOtpUCyyqsW5UppSVE95es/30cP5meRBUMbYnjjkHCprogKIm8kn7EnNc
+         DUPF38vxu4j3W4ZB28OXlCzWb7otenUgLwLYUb7x9KbAP937VsvwyYvAUPc+BmGY4m0W
+         6c3h1C3PFYeapH9/kxLyE5PkmDq3X8R+UfxQj585upTsNCWPx7ZVgF57E1OsvjcEU5Sn
+         xSKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WElCLdP43eu7ktNsP5QgKN3VwWTAf46l9TANut/ZGzQ=;
-        b=kXVURt0SXcvYOyEuLoF5nesYzuVdIPG0eAjregYeMzPUCJXNunH/gxwF1oBSzeYdWV
-         +JE3DDgBOBF2UvUx+UFwN+GFXrBw2vsHZ/AgYaoJBCre9NKjTEmQloVfVUh9AiNLyZ4W
-         nNswAyZzj/uAD3MfzcgaqnKTukJ9Z0ORJ0DP+ONYKgZ+ODOVoApIAzQ6uu3ZaFIaiJbK
-         A6n8wTGw6Ib4fxn62Ic8HTMtk7G12tpNAE9wpvMILzEu0+Gc1doqMQQTmjUALib+CBhH
-         a66owriugg/wPKrctnGvEwP3PDbsOzVr7R8NLUqFHxPnCZ2izoHcmM9wrGPLBdLgaJk7
-         mt2A==
-X-Gm-Message-State: APjAAAW3P8X2pZysddx2SCofzhsPjRl4rEDsqIIB19YDf5cjOEsYcd5y
-        7t4Nl+I3R/x6nW7pEkus951JBqgpXzlxCjAamGGp
-X-Google-Smtp-Source: APXvYqxPbWpfP+OAHzSuWOnan2P84T4q99Qi3IQ6+FuzmzmUrJMqHbKaYgGtAJOnvclQNFbTrDTiBP5dUI8VWN9W7Eg=
-X-Received: by 2002:a50:a7a5:: with SMTP id i34mr276788edc.128.1581640552476;
- Thu, 13 Feb 2020 16:35:52 -0800 (PST)
-MIME-Version: 1.0
-References: <20200212112255.105678-1-omosnace@redhat.com> <20200212112255.105678-3-omosnace@redhat.com>
-In-Reply-To: <20200212112255.105678-3-omosnace@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 13 Feb 2020 19:35:41 -0500
-Message-ID: <CAHC9VhRwqRLNgycuX_MSYE83tFJBiresfiYRcz3RYX9Le+pTSw@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] selinux: optimize storage of filename transitions
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=fKf7Qy7FXarC79v0tJzZ3+R2Ba3CQFsER7P1EGsqsHY=;
+        b=bQDsO+jSlQPBuQG2PFfe+k4Q4MnjDtVeUWFxdxQom762aCJQzru7amrRBqlK4WdZXf
+         uoQosr5gUyGs/oNFNb9p2ZGcGeSNCqpITwEpm9clAT1SjnUJnQS24HLZjMtxOUES1O22
+         XnFzttpZtpe11BZKUBD3Kry6VIQJk4PzupIGua6idjFWKl37nrJEIz5X5RL1HoviVQEz
+         Ks4MidBDU+WH/Le9eWukVoxDPbRmXRYFcsLdAx5mTR2iOSNqhnaFCBSO3L7Cz8pAtuBa
+         ZVeAZV8ISrprrGeZRJgzVXhQrQQ0YtxUR+0M6R/BomqKcLi7PBpeDPybydQD8kWZjFKv
+         yVtQ==
+X-Gm-Message-State: APjAAAWdUf7aloo/X/Zb9vqNcgSSE9CLZ7vd3E8NZNTSEvWCWCZCApkR
+        YabvPuGlQOtcvkC8DmwyVeWwKSzsJ2U=
+X-Google-Smtp-Source: APXvYqz2fnuE3DjoH2Z9nK9q0f7PKQ3B4Sm4/6hfEOXXSIs9x+fZJnAlRyTJsD2KVimPXLIKVGevufbrNME=
+X-Received: by 2002:a63:f0a:: with SMTP id e10mr1105943pgl.402.1581650821043;
+ Thu, 13 Feb 2020 19:27:01 -0800 (PST)
+Date:   Thu, 13 Feb 2020 19:26:34 -0800
+In-Reply-To: <20200214032635.75434-1-dancol@google.com>
+Message-Id: <20200214032635.75434-3-dancol@google.com>
+Mime-Version: 1.0
+References: <20200211225547.235083-1-dancol@google.com> <20200214032635.75434-1-dancol@google.com>
+X-Mailer: git-send-email 2.25.0.265.gbab2e86ba0-goog
+Subject: [PATCH 2/3] Teach SELinux about anonymous inodes
+From:   Daniel Colascione <dancol@google.com>
+To:     timmurray@google.com, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, viro@zeniv.linux.org.uk, paul@paul-moore.com,
+        nnk@google.com, sds@tycho.nsa.gov, lokeshgidra@google.com
+Cc:     Daniel Colascione <dancol@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Feb 12, 2020 at 6:23 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> In these rules, each rule with the same (target type, target class,
-> filename) values is (in practice) always mapped to the same result type.
-> Therefore, it is much more efficient to group the rules by (ttype,
-> tclass, filename).
->
-> Thus, this patch drops the stype field from the key and changes the
-> datum to be a linked list of one or more structures that contain a
-> result type and an ebitmap of source types that map the given target to
-> the given result type under the given filename. The size of the hash
-> table is also incremented to 2048 to be more optimal for Fedora policy
-> (which currently has ~2500 unique (ttype, tclass, filename) tuples,
-> regardless of whether the 'unconfined' module is enabled).
->
-> Not only does this dramtically reduce memory usage when the policy
-> contains a lot of unconfined domains (ergo a lot of filename based
-> transitions), but it also slightly reduces memory usage of strongly
-> confined policies (modeled on Fedora policy with 'unconfined' module
-> disabled) and significantly reduces lookup times of these rules on
-> Fedora (roughly matches the performance of the rhashtable conversion
-> patch [1] posted recently to selinux@vger.kernel.org).
->
-> An obvious next step is to change binary policy format to match this
-> layout, so that disk space is also saved. However, since that requires
-> more work (including matching userspace changes) and this patch is
-> already beneficial on its own, I'm posting it separately.
->
-> Performance/memory usage comparison:
->
-> Kernel           | Policy load | Policy load   | Mem usage | Mem usage     | openbench
->                  |             | (-unconfined) |           | (-unconfined) | (createfiles)
-> -----------------|-------------|---------------|-----------|---------------|--------------
-> reference        |       1,30s |         0,91s |      90MB |          77MB | 55 us/file
-> rhashtable patch |       0.98s |         0,85s |      85MB |          75MB | 38 us/file
-> this patch       |       0,95s |         0,87s |      75MB |          75MB | 40 us/file
->
-> (Memory usage is measured after boot. With SELinux disabled the memory
-> usage was ~60MB on the same system.)
->
-> [1] https://lore.kernel.org/selinux/20200116213937.77795-1-dev@lynxeye.de/T/
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/ss/policydb.c | 173 ++++++++++++++++++++-------------
->  security/selinux/ss/policydb.h |   8 +-
->  security/selinux/ss/services.c |  16 +--
->  3 files changed, 118 insertions(+), 79 deletions(-)
+This change uses the anon_inodes and LSM infrastructure introduced in
+the previous patch to give SELinux the ability to control
+anonymous-inode files that are created using the new _secure()
+anon_inodes functions.
 
-...
+A SELinux policy author detects and controls these anonymous inodes by
+adding a name-based type_transition rule that assigns a new security
+type to anonymous-inode files created in some domain. The name used
+for the name-based transition is the name associated with the
+anonymous inode for file listings --- e.g., "[userfaultfd]" or
+"[perf_event]".
 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 981797bfc547..d8b72718e793 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -1882,64 +1884,91 @@ out:
->
->  static int filename_trans_read_one(struct policydb *p, void *fp)
->  {
-> -       struct filename_trans *ft;
-> -       struct filename_trans_datum *otype = NULL;
-> +       struct filename_trans_key key, *ft = NULL;
-> +       struct filename_trans_datum *datum, *last, *newdatum = NULL;
-> +       uintptr_t stype, otype;
->         char *name = NULL;
->         u32 len;
->         __le32 buf[4];
->         int rc;
-> -
-> -       ft = kzalloc(sizeof(*ft), GFP_KERNEL);
-> -       if (!ft)
-> -               return -ENOMEM;
-> -
-> -       rc = -ENOMEM;
-> -       otype = kmalloc(sizeof(*otype), GFP_KERNEL);
-> -       if (!otype)
-> -               goto out;
-> +       bool already_there;
->
->         /* length of the path component string */
->         rc = next_entry(buf, fp, sizeof(u32));
->         if (rc)
-> -               goto out;
-> +               return rc;
->         len = le32_to_cpu(buf[0]);
->
->         /* path component string */
->         rc = str_read(&name, GFP_KERNEL, fp, len);
->         if (rc)
-> -               goto out;
-> -
-> -       ft->name = name;
-> +               return rc;
->
->         rc = next_entry(buf, fp, sizeof(u32) * 4);
->         if (rc)
->                 goto out;
->
-> -       ft->stype = le32_to_cpu(buf[0]);
-> -       ft->ttype = le32_to_cpu(buf[1]);
-> -       ft->tclass = le32_to_cpu(buf[2]);
-> +       stype = le32_to_cpu(buf[0]);
-> +       key.ttype = le32_to_cpu(buf[1]);
-> +       key.tclass = le32_to_cpu(buf[2]);
-> +       key.name = name;
+Example:
 
-We don't really need the "name" variable anymore do we, we can just
-use "key.name" instead, right?
+type uffd_t;
+type_transition sysadm_t sysadm_t : file uffd_t "[userfaultfd]";
+allow sysadm_t uffd_t:file { create };
 
->
-> -       otype->otype = le32_to_cpu(buf[3]);
-> +       otype = le32_to_cpu(buf[3]);
->
-> -       rc = ebitmap_set_bit(&p->filename_trans_ttypes, ft->ttype, 1);
-> -       if (rc)
-> -               goto out;
-> +       already_there = false;
-> +       last = NULL;
-> +       datum = hashtab_search(p->filename_trans, &key);
-> +       while (datum) {
-> +               if (unlikely(ebitmap_get_bit(&datum->stypes, stype - 1))) {
-> +                       already_there = true;
-> +                       break;
+(The next patch in this series is necessary for making userfaultfd
+support this new interface.  The example above is just
+for exposition.)
 
-Considering the "already_there" check below simply jumps to "out", why
-do we need to add the "already_there" variable, can't we simply jump
-to the "out" label here?  Am I missing something?
+Signed-off-by: Daniel Colascione <dancol@google.com>
+---
+ security/selinux/hooks.c | 57 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
-> +               }
-> +               if (likely(datum->otype == otype))
-> +                       break;
-> +               last = datum;
-> +               datum = datum->next;
-> +       }
-> +       if (unlikely(already_there))
-> +               goto out; /* conflicting/duplicate rules are ignored */
-> +       if (!datum) {
-> +               rc = -ENOMEM;
-> +               newdatum = kmalloc(sizeof(*newdatum), GFP_KERNEL);
-> +               if (!newdatum)
-> +                       goto out;
-
-By definition "datum" will be NULL here so we can get rid of
-"newdatum" and just reuse "datum", yes?  I think the only place where
-we would have to worry about the kfree(datum) in the "out" jump label
-would be in this (!datum) if block which should be okay ...
-
-> -       rc = hashtab_insert(p->filename_trans, ft, otype);
-> -       if (rc) {
-> -               /*
-> -                * Do not return -EEXIST to the caller, or the system
-> -                * will not boot.
-> -                */
-> -               if (rc == -EEXIST)
-> -                       rc = 0;
-> -               goto out;
-> +               ebitmap_init(&newdatum->stypes);
-> +               newdatum->otype = otype;
-> +               newdatum->next = NULL;
-> +
-> +               if (unlikely(last)) {
-> +                       last->next = newdatum;
-> +               } else {
-> +                       rc = -ENOMEM;
-> +                       ft = kzalloc(sizeof(*ft), GFP_KERNEL);
-> +                       if (!ft)
-> +                               goto out;
-> +
-> +                       *ft = key;
-
-Off the top of my head I don't know the answer to this, and I worry it
-may fall into the category of "undefined behavior", but if we are
-assigning an entire struct to another dynamically allocated variable
-using "=" is the kzalloc() necessary?  Could we save ourselves a few
-cycles and safely use kmalloc() for "ft"?
-
-> +                       rc = hashtab_insert(p->filename_trans, ft, newdatum);
-> +                       if (rc)
-> +                               goto out;
-> +                       name = NULL;
-> +
-> +                       rc = ebitmap_set_bit(&p->filename_trans_ttypes,
-> +                                            key.ttype, 1);
-> +                       if (rc)
-> +                               return rc;
-> +               }
-> +               datum = newdatum;
->         }
-> -       return 0;
-> +       kfree(name);
-> +       return ebitmap_set_bit(&datum->stypes, stype - 1, 1);
-> +
->  out:
->         kfree(ft);
->         kfree(name);
-> -       kfree(otype);
-> +       kfree(newdatum);
->         return rc;
->  }
-
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 1659b59fb5d7..6de0892620b3 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -2915,6 +2915,62 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
+ 	return 0;
+ }
+ 
++static int selinux_inode_init_security_anon(struct inode *inode,
++					    const struct qstr *name,
++					    const struct file_operations *fops,
++					    const struct inode *context_inode)
++{
++	const struct task_security_struct *tsec = selinux_cred(current_cred());
++	struct common_audit_data ad;
++	struct inode_security_struct *isec;
++	int rc;
++
++	if (unlikely(IS_PRIVATE(inode)))
++		return 0;
++
++	if (unlikely(!selinux_state.initialized))
++		return 0;
++
++	isec = selinux_inode(inode);
++
++	/*
++	 * We only get here once per ephemeral inode.  The inode has
++	 * been initialized via inode_alloc_security but is otherwise
++	 * untouched.
++	 */
++
++	if (context_inode) {
++		struct inode_security_struct *context_isec =
++			selinux_inode(context_inode);
++		if (IS_ERR(context_isec))
++			return PTR_ERR(context_isec);
++		isec->sid = context_isec->sid;
++	} else {
++		rc = security_transition_sid(
++			&selinux_state, tsec->sid, tsec->sid,
++			SECCLASS_FILE, name, &isec->sid);
++		if (rc)
++			return rc;
++	}
++
++	isec->initialized = LABEL_INITIALIZED;
++
++	/*
++	 * Now that we've initialized security, check whether we're
++	 * allowed to actually create this type of anonymous inode.
++	 */
++
++	ad.type = LSM_AUDIT_DATA_INODE;
++	ad.u.inode = inode;
++
++	return avc_has_perm(&selinux_state,
++			    tsec->sid,
++			    isec->sid,
++			    isec->sclass,
++			    FILE__CREATE,
++			    &ad);
++}
++
+ static int selinux_inode_create(struct inode *dir, struct dentry *dentry, umode_t mode)
+ {
+ 	return may_create(dir, dentry, SECCLASS_FILE);
+@@ -6923,6 +6979,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
+ 
+ 	LSM_HOOK_INIT(inode_free_security, selinux_inode_free_security),
+ 	LSM_HOOK_INIT(inode_init_security, selinux_inode_init_security),
++	LSM_HOOK_INIT(inode_init_security_anon, selinux_inode_init_security_anon),
+ 	LSM_HOOK_INIT(inode_create, selinux_inode_create),
+ 	LSM_HOOK_INIT(inode_link, selinux_inode_link),
+ 	LSM_HOOK_INIT(inode_unlink, selinux_inode_unlink),
 -- 
-paul moore
-www.paul-moore.com
+2.25.0.265.gbab2e86ba0-goog
+
