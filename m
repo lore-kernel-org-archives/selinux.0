@@ -2,213 +2,195 @@ Return-Path: <SRS0=qygk=4C=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04479C2BA83
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 18:13:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F29B5C2BA83
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 18:19:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BDFBD2168B
-	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 18:13:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1581704006;
-	bh=NxMffSOESIW+bMXrMPcjHNtF+diko20IoXMTj2k3+Fs=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=HllJ1b6SAxEPwb3Sl+sx9Ehl/4wZjsLuzmSLip9picy9Se9ygQbi/Bp7IGLF8OMxT
-	 ggQZ6F5WmGTJYB+TkMCBXs95rD9oJh8XQmYwqYkCzb+tsuJ/N2I8kf/gNpsw41RyZS
-	 KwrOJXNKC7m6qrbDsJR0wL/fTVbNUGLsM0hYy1cU=
+	by mail.kernel.org (Postfix) with ESMTP id BD396222C2
+	for <selinux@archiver.kernel.org>; Fri, 14 Feb 2020 18:19:47 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="fayNFbuq"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2393378AbgBNSNN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 14 Feb 2020 13:13:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59780 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731075AbgBNPwv (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 14 Feb 2020 10:52:51 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3428824649;
-        Fri, 14 Feb 2020 15:52:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1581695571;
-        bh=NxMffSOESIW+bMXrMPcjHNtF+diko20IoXMTj2k3+Fs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m87H3/qIHT9Cn8N0ZmNMrHr1/IJAnS2jmZA4RxIPC73SWAjv8TKDjW/25nIVyKwHc
-         yfVTsy6WTDh3enR3B9ZDbflf0VpnBHVk6gcinlhPMf5uXwDt+SgfR4r26SzXhiM/VR
-         XdnIyvyXu9WjyoCY2BkQGY0+/GJj/QlqTR6SUsJA=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>, Will Deacon <will@kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Moore <paul@paul-moore.com>,
-        Sasha Levin <sashal@kernel.org>, selinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.5 182/542] selinux: fall back to ref-walk if audit is required
-Date:   Fri, 14 Feb 2020 10:42:54 -0500
-Message-Id: <20200214154854.6746-182-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
-References: <20200214154854.6746-1-sashal@kernel.org>
+        id S2394771AbgBNSTq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 14 Feb 2020 13:19:46 -0500
+Received: from USFB19PA32.eemsg.mail.mil ([214.24.26.195]:53174 "EHLO
+        USFB19PA32.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2394770AbgBNSTp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 14 Feb 2020 13:19:45 -0500
+X-EEMSG-check-017: 56603579|USFB19PA32_ESA_OUT02.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,441,1574121600"; 
+   d="scan'208";a="56603579"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA32.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 14 Feb 2020 18:19:42 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1581704383; x=1613240383;
+  h=subject:from:to:references:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=1D/nkGWZojJe8wAtdJo6OugCugfPkXEf7UDlNGpi83A=;
+  b=fayNFbuqPohiqPCMAZUqWRHJTK8W6iGQdmVGrBkfXZNqVw/nbykhWIc2
+   6zoqlB5Lzq9e08MYoTVjZxB2enLcd1nCfUmmGGsAORQPavzH4ktKszW5p
+   BIgHNZQquT98BzdmB5hVgAW7jTHbMcQdJOIhk/IXpM1j2xkRLL/ypBmyD
+   a7R+wejq0an1QQHQZRqx+VmcCndFzgrUyCemLp3TSpJcJOBS7rlMblKQN
+   UhNdR921xusBWBjb8PHZ5CVNy2tP/SqX+CLbI6TCi/yCbhhbj1cMQA42x
+   FDo5MzbQ18AHkzxno/HS708nLBTPP8BZHmvajauSHnp+O+IWf0OirnZ2d
+   A==;
+X-IronPort-AV: E=Sophos;i="5.70,441,1574121600"; 
+   d="scan'208";a="33088628"
+IronPort-PHdr: =?us-ascii?q?9a23=3AE1WkcRAdh9Cc3WHRYTEFUyQJP3N1i/DPJgcQr6?=
+ =?us-ascii?q?AfoPdwSPX+pcbcNUDSrc9gkEXOFd2Cra4d16yJ6+u5ADVIyK3CmU5BWaQEbw?=
+ =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
+ =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRq7oR/Tu8UKjoduN7s9xg?=
+ =?us-ascii?q?bUqXZUZupawn9lKl2Ukxvg/Mm74YRt8z5Xu/Iv9s5AVbv1cqElRrFGDzooLn?=
+ =?us-ascii?q?446tTzuRbMUQWA6H0cUn4LkhVTGAjK8Av6XpbqvSTksOd2xTSXMtf3TbAwXj?=
+ =?us-ascii?q?Si8rtrRRr1gyoJKzI17GfagdFrgalFvByuuQBww4/MYIGUKvV+eL/dfcgHTm?=
+ =?us-ascii?q?ZFR8pdSjBNDp+5Y4YJAeUBJ+JYpJTjqVUIoxW1GA2gCPrhxzJMg3P727Ax3e?=
+ =?us-ascii?q?Y8HgHcxAEuAtIAvmrarNv2OqkdX++6w6vUwjvMdP5WxTTw5ZLUfhw9r/yBX7?=
+ =?us-ascii?q?R9etfRx0k1EAPFi02dp5H5PzyLzuQNs3aU7+x9Xuyyjm4osQVxojyxycYsl4?=
+ =?us-ascii?q?LEgZkVxU3f9Shi3IY0JcG3SE58YdK+FptQrDuVO5F5QsMlXWFloSA3waAFt5?=
+ =?us-ascii?q?6jZCUG1ZsqyhHFZ/GHboSE+AzvWemPLTtimX5ofq+0iQyo/ki60OL8U9G50F?=
+ =?us-ascii?q?NNriVYjNbBrmsN1xnP6sifTft941uh1S6P1w/N7uFEJlg5lbbBJJ47w74wi4?=
+ =?us-ascii?q?ETvV7CHi/wlkX2i7SWeVs49eSy9+TmYqnppp+bN4NujAHxLr8uldClDeQ9Mw?=
+ =?us-ascii?q?gOW3CX+eW61LL94U30WKhGg/I5n6XDsJ3WON4XqrC2DgNLyIov9g6zDzK839?=
+ =?us-ascii?q?QZmXkHIkhFeBWCj4XxIFHBPev4AOyjg1WsjDhrx/fGMqfnApXWNHfPirjhfb?=
+ =?us-ascii?q?Fj60JE0go80chf545ICrEGOP/zXUrxtNvDDh8/KQO73/joBc5n1owARG2PAr?=
+ =?us-ascii?q?WWML/IvVCU4eIvJvGGZJUJtzblN/gl+/nugGcimVADeamp3J0XaG23H/l9PU?=
+ =?us-ascii?q?WZbmTjgs0bHWcJoAU+Vurqh0OGUTJJYHayRa08tXkHD9eBC4vZS4Llpbua2i?=
+ =?us-ascii?q?6wE54eMmdDDUuKGHzlX5+JV/cFdGSZJco31nQfWLygTZIx/Q+huRW8yLd9KO?=
+ =?us-ascii?q?fQvCoCutar9tFw6vabvhgo6TFuR5CfzGqEVX0utn8ZTD8xmqZkqApyzUnVgo?=
+ =?us-ascii?q?ZihPkNLsBe//NEVE8BMJfYy+FrQ4TpVhnpYsaCSFHgRM6vRz42UIRikJc1f0?=
+ =?us-ascii?q?9hFoD63Vj41C2wDupQzufaCQ=3D=3D?=
+X-IPAS-Result: =?us-ascii?q?A2B1AgDF40Ze/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFtIBIqhBSJA4ZZAQEEBoESJYlwkUoJAQEBAQEBAQEBNwQBAYRAAoIlOBMCE?=
+ =?us-ascii?q?AEBAQUBAQEBAQUDAQFshUOCOykBgwIBBSMECwEFUQkCDgoCAiYCAlcGAQwGA?=
+ =?us-ascii?q?gEBgmM/glclkj+beX8ziSGBPoEOKow+eYEHgTgMA4JdPodbgl4EmA2XbYJEg?=
+ =?us-ascii?q?k+TfAYCGpsYjmidPyKBWCsIAhgIIQ+DJ1AYDY4pF45BIwMwkFgBAQ?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 14 Feb 2020 18:19:41 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01EIIgRw233398;
+        Fri, 14 Feb 2020 13:18:43 -0500
+Subject: Re: [PATCH userspace v2] libsepol: cache ebitmap cardinality value
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
+        James Carter <jwcart2@tycho.nsa.gov>
+References: <20200213133959.14217-1-omosnace@redhat.com>
+ <1a11d058-eee1-41c5-9686-da01ecf6ea33@tycho.nsa.gov>
+Message-ID: <68198406-85ad-4a99-7549-15b8c4e0a517@tycho.nsa.gov>
+Date:   Fri, 14 Feb 2020 13:20:51 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
+In-Reply-To: <1a11d058-eee1-41c5-9686-da01ecf6ea33@tycho.nsa.gov>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
+On 2/14/20 12:38 PM, Stephen Smalley wrote:
+> On 2/13/20 8:39 AM, Ondrej Mosnacek wrote:
+>> According to profiling of semodule -BN, ebitmap_cardinality() is called
+>> quite often and contributes a lot to the total runtime. Cache its result
+>> in the ebitmap struct to reduce this overhead. The cached value is
+>> invalidated on most modifying operations, but ebitmap_cardinality() is
+>> usually called once the ebitmap doesn't change any more.
+>>
+>> After this patch, the time to do 'semodule -BN' on Fedora Rawhide has
+>> decreased from ~14.6s to ~12.4s (2.2s saved).
+>>
+>> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> 
+> This seems fine but I was wondering how many of the callers of 
+> ebitmap_cardinality() actually need anything more than ebitmap_length()?
 
-[ Upstream commit 0188d5c025ca8fe756ba3193bd7d150139af5a88 ]
+Regardless,
 
-commit bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
-passed down the rcu flag to the SELinux AVC, but failed to adjust the
-test in slow_avc_audit() to also return -ECHILD on LSM_AUDIT_DATA_DENTRY.
-Previously, we only returned -ECHILD if generating an audit record with
-LSM_AUDIT_DATA_INODE since this was only relevant from inode_permission.
-Move the handling of MAY_NOT_BLOCK to avc_audit() and its inlined
-equivalent in selinux_inode_permission() immediately after we determine
-that audit is required, and always fall back to ref-walk in this case.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Fixes: bda0be7ad994 ("security: make inode_follow_link RCU-walk aware")
-Reported-by: Will Deacon <will@kernel.org>
-Suggested-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- security/selinux/avc.c         | 24 +++++-------------------
- security/selinux/hooks.c       | 11 +++++++----
- security/selinux/include/avc.h |  8 +++++---
- 3 files changed, 17 insertions(+), 26 deletions(-)
-
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 74c43ebe34bb8..23dc888ae3056 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -424,7 +424,7 @@ static inline int avc_xperms_audit(struct selinux_state *state,
- 	if (likely(!audited))
- 		return 0;
- 	return slow_avc_audit(state, ssid, tsid, tclass, requested,
--			audited, denied, result, ad, 0);
-+			audited, denied, result, ad);
- }
- 
- static void avc_node_free(struct rcu_head *rhead)
-@@ -758,8 +758,7 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
- noinline int slow_avc_audit(struct selinux_state *state,
- 			    u32 ssid, u32 tsid, u16 tclass,
- 			    u32 requested, u32 audited, u32 denied, int result,
--			    struct common_audit_data *a,
--			    unsigned int flags)
-+			    struct common_audit_data *a)
- {
- 	struct common_audit_data stack_data;
- 	struct selinux_audit_data sad;
-@@ -772,17 +771,6 @@ noinline int slow_avc_audit(struct selinux_state *state,
- 		a->type = LSM_AUDIT_DATA_NONE;
- 	}
- 
--	/*
--	 * When in a RCU walk do the audit on the RCU retry.  This is because
--	 * the collection of the dname in an inode audit message is not RCU
--	 * safe.  Note this may drop some audits when the situation changes
--	 * during retry. However this is logically just as if the operation
--	 * happened a little later.
--	 */
--	if ((a->type == LSM_AUDIT_DATA_INODE) &&
--	    (flags & MAY_NOT_BLOCK))
--		return -ECHILD;
--
- 	sad.tclass = tclass;
- 	sad.requested = requested;
- 	sad.ssid = ssid;
-@@ -855,16 +843,14 @@ static int avc_update_node(struct selinux_avc *avc,
- 	/*
- 	 * If we are in a non-blocking code path, e.g. VFS RCU walk,
- 	 * then we must not add permissions to a cache entry
--	 * because we cannot safely audit the denial.  Otherwise,
-+	 * because we will not audit the denial.  Otherwise,
- 	 * during the subsequent blocking retry (e.g. VFS ref walk), we
- 	 * will find the permissions already granted in the cache entry
- 	 * and won't audit anything at all, leading to silent denials in
- 	 * permissive mode that only appear when in enforcing mode.
- 	 *
--	 * See the corresponding handling in slow_avc_audit(), and the
--	 * logic in selinux_inode_follow_link and selinux_inode_permission
--	 * for the VFS MAY_NOT_BLOCK flag, which is transliterated into
--	 * AVC_NONBLOCKING for avc_has_perm_noaudit().
-+	 * See the corresponding handling of MAY_NOT_BLOCK in avc_audit()
-+	 * and selinux_inode_permission().
- 	 */
- 	if (flags & AVC_NONBLOCKING)
- 		return 0;
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 710a4fffa66f4..65641c61ecb94 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3011,8 +3011,7 @@ static int selinux_inode_follow_link(struct dentry *dentry, struct inode *inode,
- 
- static noinline int audit_inode_permission(struct inode *inode,
- 					   u32 perms, u32 audited, u32 denied,
--					   int result,
--					   unsigned flags)
-+					   int result)
- {
- 	struct common_audit_data ad;
- 	struct inode_security_struct *isec = selinux_inode(inode);
-@@ -3023,7 +3022,7 @@ static noinline int audit_inode_permission(struct inode *inode,
- 
- 	rc = slow_avc_audit(&selinux_state,
- 			    current_sid(), isec->sid, isec->sclass, perms,
--			    audited, denied, result, &ad, flags);
-+			    audited, denied, result, &ad);
- 	if (rc)
- 		return rc;
- 	return 0;
-@@ -3070,7 +3069,11 @@ static int selinux_inode_permission(struct inode *inode, int mask)
- 	if (likely(!audited))
- 		return rc;
- 
--	rc2 = audit_inode_permission(inode, perms, audited, denied, rc, flags);
-+	/* fall back to ref-walk if we have to generate audit */
-+	if (flags & MAY_NOT_BLOCK)
-+		return -ECHILD;
-+
-+	rc2 = audit_inode_permission(inode, perms, audited, denied, rc);
- 	if (rc2)
- 		return rc2;
- 	return rc;
-diff --git a/security/selinux/include/avc.h b/security/selinux/include/avc.h
-index 74ea50977c201..cf4cc3ef959b5 100644
---- a/security/selinux/include/avc.h
-+++ b/security/selinux/include/avc.h
-@@ -100,8 +100,7 @@ static inline u32 avc_audit_required(u32 requested,
- int slow_avc_audit(struct selinux_state *state,
- 		   u32 ssid, u32 tsid, u16 tclass,
- 		   u32 requested, u32 audited, u32 denied, int result,
--		   struct common_audit_data *a,
--		   unsigned flags);
-+		   struct common_audit_data *a);
- 
- /**
-  * avc_audit - Audit the granting or denial of permissions.
-@@ -135,9 +134,12 @@ static inline int avc_audit(struct selinux_state *state,
- 	audited = avc_audit_required(requested, avd, result, 0, &denied);
- 	if (likely(!audited))
- 		return 0;
-+	/* fall back to ref-walk if we have to generate audit */
-+	if (flags & MAY_NOT_BLOCK)
-+		return -ECHILD;
- 	return slow_avc_audit(state, ssid, tsid, tclass,
- 			      requested, audited, denied, result,
--			      a, flags);
-+			      a);
- }
- 
- #define AVC_STRICT 1 /* Ignore permissive mode. */
--- 
-2.20.1
+> 
+>> ---
+>>
+>> v2: corrected time values in commit message
+>>
+>>   libsepol/include/sepol/policydb/ebitmap.h |  1 +
+>>   libsepol/src/ebitmap.c                    | 10 ++++++++++
+>>   2 files changed, 11 insertions(+)
+>>
+>> diff --git a/libsepol/include/sepol/policydb/ebitmap.h 
+>> b/libsepol/include/sepol/policydb/ebitmap.h
+>> index e62df01c..53fafdaa 100644
+>> --- a/libsepol/include/sepol/policydb/ebitmap.h
+>> +++ b/libsepol/include/sepol/policydb/ebitmap.h
+>> @@ -37,6 +37,7 @@ typedef struct ebitmap_node {
+>>   typedef struct ebitmap {
+>>       ebitmap_node_t *node;    /* first node in the bitmap */
+>>       uint32_t highbit;    /* highest position in the total bitmap */
+>> +    unsigned int cardinality;    /* cached value of cardinality */
+>>   } ebitmap_t;
+>>   #define ebitmap_length(e) ((e)->highbit)
+>> diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+>> index 6c9951b7..d23444ce 100644
+>> --- a/libsepol/src/ebitmap.c
+>> +++ b/libsepol/src/ebitmap.c
+>> @@ -67,6 +67,7 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t * 
+>> e1)
+>>       ebitmap_destroy(dst);
+>>       dst->node = tmp.node;
+>>       dst->highbit = tmp.highbit;
+>> +    dst->cardinality = 0;
+>>       return 0;
+>>   }
+>> @@ -128,9 +129,14 @@ int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, 
+>> ebitmap_t *e2, unsigned int ma
+>>   unsigned int ebitmap_cardinality(ebitmap_t *e1)
+>>   {
+>>       unsigned int i, count = 0;
+>> +
+>> +    if (e1->cardinality || e1->highbit == 0)
+>> +        return e1->cardinality;
+>> +
+>>       for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
+>>           if (ebitmap_get_bit(e1, i))
+>>               count++;
+>> +    e1->cardinality = count;
+>>       return count;
+>>   }
+>> @@ -194,6 +200,7 @@ int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * 
+>> src)
+>>       }
+>>       dst->highbit = src->highbit;
+>> +    dst->cardinality = src->cardinality;
+>>       return 0;
+>>   }
+>> @@ -309,6 +316,7 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int 
+>> bit, int value)
+>>                       free(n);
+>>                   }
+>>               }
+>> +            e->cardinality = 0; /* invalidate cached cardinality */
+>>               return 0;
+>>           }
+>>           prev = n;
+>> @@ -339,6 +347,7 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int 
+>> bit, int value)
+>>           e->node = new;
+>>       }
+>> +    e->cardinality = 0; /* invalidate cached cardinality */
+>>       return 0;
+>>   }
+>> @@ -358,6 +367,7 @@ void ebitmap_destroy(ebitmap_t * e)
+>>       e->highbit = 0;
+>>       e->node = 0;
+>> +    e->cardinality = 0;
+>>       return;
+>>   }
+>>
+> 
 
