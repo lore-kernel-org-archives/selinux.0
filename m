@@ -2,36 +2,37 @@ Return-Path: <SRS0=OI58=4F=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A51CAC7619D
-	for <selinux@archiver.kernel.org>; Mon, 17 Feb 2020 08:11:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42263C7619B
+	for <selinux@archiver.kernel.org>; Mon, 17 Feb 2020 08:12:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8332120718
-	for <selinux@archiver.kernel.org>; Mon, 17 Feb 2020 08:11:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 24521207FD
+	for <selinux@archiver.kernel.org>; Mon, 17 Feb 2020 08:12:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbgBQILm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Feb 2020 03:11:42 -0500
-Received: from mga17.intel.com ([192.55.52.151]:49106 "EHLO mga17.intel.com"
+        id S1727931AbgBQIMS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Feb 2020 03:12:18 -0500
+Received: from mga11.intel.com ([192.55.52.93]:17774 "EHLO mga11.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726414AbgBQILl (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 17 Feb 2020 03:11:41 -0500
+        id S1726414AbgBQIMS (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 17 Feb 2020 03:12:18 -0500
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Feb 2020 00:11:41 -0800
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 17 Feb 2020 00:12:17 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.70,451,1574150400"; 
-   d="scan'208";a="282456021"
+   d="scan'208";a="258193483"
 Received: from linux.intel.com ([10.54.29.200])
-  by FMSMGA003.fm.intel.com with ESMTP; 17 Feb 2020 00:11:40 -0800
+  by fmsmga004.fm.intel.com with ESMTP; 17 Feb 2020 00:12:17 -0800
 Received: from [10.125.252.180] (abudanko-mobl.ccr.corp.intel.com [10.125.252.180])
-        by linux.intel.com (Postfix) with ESMTP id BFCDE5804A2;
-        Mon, 17 Feb 2020 00:11:33 -0800 (PST)
-Subject: [PATCH v7 09/12] drivers/perf: open access for CAP_PERFMON privileged
- process
+        by linux.intel.com (Postfix) with ESMTP id 11B485804A2;
+        Mon, 17 Feb 2020 00:12:10 -0800 (PST)
+Subject: [PATCH v7 10/12] drivers/oprofile: open access for CAP_PERFMON
+ privileged process
 From:   Alexey Budankov <alexey.budankov@linux.intel.com>
 To:     James Morris <jmorris@namei.org>, Serge Hallyn <serge@hallyn.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
@@ -61,8 +62,8 @@ Cc:     Andi Kleen <ak@linux.intel.com>,
         linux-man@vger.kernel.org
 References: <c8de937a-0b3a-7147-f5ef-69f467e87a13@linux.intel.com>
 Organization: Intel Corp.
-Message-ID: <48baecd5-a015-3dbf-f774-9f2caee13893@linux.intel.com>
-Date:   Mon, 17 Feb 2020 11:11:32 +0300
+Message-ID: <046beedf-e074-58e2-579d-df535799169c@linux.intel.com>
+Date:   Mon, 17 Feb 2020 11:12:09 +0300
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
  Thunderbird/68.5.0
 MIME-Version: 1.0
@@ -85,8 +86,8 @@ CAP_PERFMON implements the principal of least privilege for performance
 monitoring and observability operations (POSIX IEEE 1003.1e 2.2.2.39
 principle of least privilege: A security design principle that states
 that a process or program be granted only those privileges (e.g.,
-capabilities) necessary to accomplish its legitimate function, and
-only for the time that such privileges are actually required)
+capabilities) necessary to accomplish its legitimate function, and only
+for the time that such privileges are actually required)
 
 For backward compatibility reasons access to the monitoring remains
 open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN usage
@@ -95,31 +96,22 @@ capability.
 
 Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
 ---
- drivers/perf/arm_spe_pmu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/oprofile/event_buffer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
-index 4e4984a55cd1..5dff81bc3324 100644
---- a/drivers/perf/arm_spe_pmu.c
-+++ b/drivers/perf/arm_spe_pmu.c
-@@ -274,7 +274,7 @@ static u64 arm_spe_event_to_pmscr(struct perf_event *event)
- 	if (!attr->exclude_kernel)
- 		reg |= BIT(SYS_PMSCR_EL1_E1SPE_SHIFT);
+diff --git a/drivers/oprofile/event_buffer.c b/drivers/oprofile/event_buffer.c
+index 12ea4a4ad607..6c9edc8bbc95 100644
+--- a/drivers/oprofile/event_buffer.c
++++ b/drivers/oprofile/event_buffer.c
+@@ -113,7 +113,7 @@ static int event_buffer_open(struct inode *inode, struct file *file)
+ {
+ 	int err = -EPERM;
  
--	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && capable(CAP_SYS_ADMIN))
-+	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && perfmon_capable())
- 		reg |= BIT(SYS_PMSCR_EL1_CX_SHIFT);
+-	if (!capable(CAP_SYS_ADMIN))
++	if (!perfmon_capable())
+ 		return -EPERM;
  
- 	return reg;
-@@ -700,7 +700,7 @@ static int arm_spe_pmu_event_init(struct perf_event *event)
- 		return -EOPNOTSUPP;
- 
- 	reg = arm_spe_event_to_pmscr(event);
--	if (!capable(CAP_SYS_ADMIN) &&
-+	if (!perfmon_capable() &&
- 	    (reg & (BIT(SYS_PMSCR_EL1_PA_SHIFT) |
- 		    BIT(SYS_PMSCR_EL1_CX_SHIFT) |
- 		    BIT(SYS_PMSCR_EL1_PCT_SHIFT))))
+ 	if (test_and_set_bit_lock(0, &buffer_opened))
 -- 
 2.20.1
 
