@@ -7,123 +7,173 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC48AC34026
-	for <selinux@archiver.kernel.org>; Tue, 18 Feb 2020 15:22:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79B22C34026
+	for <selinux@archiver.kernel.org>; Tue, 18 Feb 2020 15:22:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C14B420679
-	for <selinux@archiver.kernel.org>; Tue, 18 Feb 2020 15:22:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4B8A720679
+	for <selinux@archiver.kernel.org>; Tue, 18 Feb 2020 15:22:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MKrf3RVJ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZrbFXY9m"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726770AbgBRPWL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Feb 2020 10:22:11 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:39763 "EHLO
+        id S1726761AbgBRPWl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Feb 2020 10:22:41 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:39316 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726721AbgBRPWL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Feb 2020 10:22:11 -0500
+        with ESMTP id S1726721AbgBRPWk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Feb 2020 10:22:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582039330;
+        s=mimecast20190719; t=1582039359;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=vA4rrRE4b+DlLDQq1PaekVWIbhIV0G4sZ8n4I0nYZrI=;
-        b=MKrf3RVJ/CjNiGfaMQzWn3OyYbQkeQ/2wPe9uRh1rNO/rPjZAH8j8Tyy48zq6y3Gna5Qvk
-        x6btsWdykH7EruBZYtSrJa6Z/3ODWd70AGVgrblFyesuWoeFxE/jaUMP9uVMYqIwX2CVqa
-        /nFPK4kiNGX9SbyFl9F9uuY9SvQfMw0=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-68-5InW8PjXO4ehG2DVrflD1Q-1; Tue, 18 Feb 2020 10:22:07 -0500
-X-MC-Unique: 5InW8PjXO4ehG2DVrflD1Q-1
-Received: by mail-oi1-f197.google.com with SMTP id 199so242165oie.10
-        for <selinux@vger.kernel.org>; Tue, 18 Feb 2020 07:22:07 -0800 (PST)
+        bh=1ISHjABOj/0x6vYdYg2A+ZvwZIePFe+073aW5PR4yq0=;
+        b=ZrbFXY9m1e0CVdOxTliT+OLj7lzg+j44iB8o0/8xn3qEHqL6W/Fgq8Xywywu3s2H6O0C86
+        n94zXuFDE7AjqvuPSOIBiZBZ6q3Ba06pDisLQdbhLBYQYxAWSb8geSa4c3jz7a3LGftEUn
+        mnkSYLhwu8SHs3mBHXuksmXSrOH6oGs=
+Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
+ [209.85.210.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-146-SBhrpSzLPkmVEzdheVcAIA-1; Tue, 18 Feb 2020 10:22:35 -0500
+X-MC-Unique: SBhrpSzLPkmVEzdheVcAIA-1
+Received: by mail-ot1-f69.google.com with SMTP id 39so12539906otb.8
+        for <selinux@vger.kernel.org>; Tue, 18 Feb 2020 07:22:35 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=vA4rrRE4b+DlLDQq1PaekVWIbhIV0G4sZ8n4I0nYZrI=;
-        b=mdv2TjIT6h7SRLvuZ9HYO26ilrxPswpgzBuq0A7zIQxRS1xpU31mwqXF5F3jSi/X7x
-         SttjBOiStA+OAJOifO4pPVuOk5iSwy1P5149clQ2bi9ohIXTIDnINE4GZ4HDWDuOSFnL
-         7aOnVZsSRmL+REu8Wvk2ySdiGNs9gt0OC/zZfDMRAGLw+LQiRXoD/GvFtmrfj+9gwaid
-         KHuPBZ36i1pmKv8z7D8pJKh+p3U2sNXoVzscOkz1iL/l+bO34E0DJNpOly57skcgsYlS
-         hAZc/AF3kpK3fHZ5G33BJdmRboJ79lM6hoIaC5bU89luKXaHeryq8Fzro9ot28VJG5+T
-         ioIQ==
-X-Gm-Message-State: APjAAAUBDBsvCy2o1UtOjaWOMvAoo1X3tpXD1myaVwe+j4yB3wxZEp0Z
-        q0HQWiz/QkFvYdUc5pFxy7wiIqjueY4DOuUJn4uWiGnhnangUjkM0zXPxTkEd89fggFKew24jbP
-        PGoBImziT0rsEbamTMoVrS2QqQI+/T5LJCA==
-X-Received: by 2002:a9d:53c2:: with SMTP id i2mr15099113oth.43.1582039326366;
-        Tue, 18 Feb 2020 07:22:06 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyZRl/Yu/EqhtaE3ikBwmEiBusq1tai28qxQPJKfH/vOZHHqHNf7Nc8eUB7kXganPuEKAoCsspwsUIuUnLIGV8=
-X-Received: by 2002:a9d:53c2:: with SMTP id i2mr15099097oth.43.1582039326063;
- Tue, 18 Feb 2020 07:22:06 -0800 (PST)
+        bh=1ISHjABOj/0x6vYdYg2A+ZvwZIePFe+073aW5PR4yq0=;
+        b=tI/fIJsS0gEMPCmmvY4Iuzd7wMzHgNc65wlhzwjlNgELDoO1aao/ePlw1XXM4NJfcd
+         AMNLAofcLkrD/M1EviYBYtAkdR8qTeqX8K99DFYl+x+n+5cohoTNUJOfILIovjXZiD0q
+         2+qf5g32nKHsk9vOn6sTlMt6N+aRi36Dj2gOXeIBtvrSF55CCBBqNgzNAdsbX8vdjwN0
+         M0eQZrr/qKTkLC6P1NzworNPznwHcdz35Ymo1lApDJ5dr/53IpsdzlebJEQPgy6zF6R6
+         RnjDfk10IvopWUWSJXkLg4Gt2BHCPUfpvAvaTxW4MhTtu/R1FGI0/bIapArI9u+li2qK
+         NyLA==
+X-Gm-Message-State: APjAAAUvAXHelIZUwk8T1TZKpMvmRP7D6DhBEbhoGthRxMGgR55TMwQc
+        kqpsqu1s1+4X+FkUlz4vcnDmLZbE5Z8chO9GOx7H6lon+rOXzMxLelKvTy5OFlz37CnfnMP1Fh/
+        xLJ/vsWxipxbYGYGSgrOuXwGU4DasgSv1xw==
+X-Received: by 2002:aca:1108:: with SMTP id 8mr1586173oir.127.1582039354001;
+        Tue, 18 Feb 2020 07:22:34 -0800 (PST)
+X-Google-Smtp-Source: APXvYqw1QJCWW7fpu/TjPR42vho3xhTxgSFJp9mlOlimLK7ZtyMIEsCFvq9ub1EwKt+bG5+DCBdK3TkD6ZnKcBFX4XA=
+X-Received: by 2002:aca:1108:: with SMTP id 8mr1586147oir.127.1582039353747;
+ Tue, 18 Feb 2020 07:22:33 -0800 (PST)
 MIME-Version: 1.0
-References: <20200217114943.67607-1-omosnace@redhat.com> <072c5073-3810-e2fd-ee54-fe8a5dc163df@tycho.nsa.gov>
-In-Reply-To: <072c5073-3810-e2fd-ee54-fe8a5dc163df@tycho.nsa.gov>
+References: <20200213133959.14217-1-omosnace@redhat.com>
+In-Reply-To: <20200213133959.14217-1-omosnace@redhat.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 18 Feb 2020 16:21:55 +0100
-Message-ID: <CAFqZXNsm8TPp=60CLu6u2NH4oFBioXb_y1mLnVxvuWa=S9Qzfg@mail.gmail.com>
-Subject: Re: [PATCH] selinux: reduce the use of hard-coded hash sizes
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
+Date:   Tue, 18 Feb 2020 16:22:22 +0100
+Message-ID: <CAFqZXNuxHYN_cMY1+PfUFrwu6dQyG5qc7LGPU8VbUAyTXRF_Wg@mail.gmail.com>
+Subject: Re: [PATCH userspace v2] libsepol: cache ebitmap cardinality value
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Feb 18, 2020 at 3:59 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> On 2/17/20 6:49 AM, Ondrej Mosnacek wrote:
-> > Instead allocate hash tables with just the right size based on the
-> > actual number of elements (which is almost always known beforehand, we
-> > just need to defer the hashtab allocation to the right time). The only
-> > case when we don't know the size (with the current policy format) is the
-> > new filename transitions hashtable. Here I just left the existing value.
-> >
-> > After this patch, the time to load Fedora policy on x86_64 decreases
-> > from 950 ms to 220 ms. If the unconfined module is removed, it decreases
-> > from 870 ms to 170 ms. It is also likely that other operations are going
-> > to be faster, mainly string_to_context_struct() or mls_compute_sid(),
-> > but I didn't try to quantify that.
-> >
-> > The memory usage increases a bit after this patch, but only by ~1-2 MB
-> > (it is hard to measure precisely). I believe it is a small price to pay
-> > for the increased performance.
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >   security/selinux/ss/hashtab.c  | 21 ++++++++++++--
-> >   security/selinux/ss/hashtab.h  |  2 +-
-> >   security/selinux/ss/policydb.c | 53 +++++++++++++---------------------
-> >   security/selinux/ss/policydb.h |  2 --
-> >   4 files changed, 40 insertions(+), 38 deletions(-)
-> >
-> > diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
-> > index ebfdaa31ee32..554a91ef3f06 100644
-> > --- a/security/selinux/ss/hashtab.c
-> > +++ b/security/selinux/ss/hashtab.c
-> > @@ -27,6 +41,9 @@ struct hashtab *hashtab_create(u32 (*hash_value)(struct hashtab *h, const void *
-> >       p->nel = 0;
-> >       p->hash_value = hash_value;
-> >       p->keycmp = keycmp;
-> > +     if (!size)
-> > +             return p;
-> > +
-> >       p->htable = kmalloc_array(size, sizeof(*p->htable), GFP_KERNEL);
-> >       if (!p->htable) {
-> >               kfree(p);
+On Thu, Feb 13, 2020 at 2:40 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> According to profiling of semodule -BN, ebitmap_cardinality() is called
+> quite often and contributes a lot to the total runtime. Cache its result
+> in the ebitmap struct to reduce this overhead. The cached value is
+> invalidated on most modifying operations, but ebitmap_cardinality() is
+> usually called once the ebitmap doesn't change any more.
 >
-> Thanks, this looks promising.  However, I was wondering: if we end up
-> with size == 0 (e.g. policy happens to have an empty table), does the
-> rest of the hashtab_* code always correctly handle the fact that
-> ->htable could be NULL?  Doesn't look obviously safe to me on a quick look.
+> After this patch, the time to do 'semodule -BN' on Fedora Rawhide has
+> decreased from ~14.6s to ~12.4s (2.2s saved).
 
-Hm... it seems I didn't think this through when I was trying to handle
-this case. I was rebasing this patch all over the place as I was
-working on other changes in parallel, so maybe I just lost the safety
-somewhere along the way... I think I will just clamp the minimum size
-to 1, as that seems both safer and simpler. The extra 8-byte
-allocation shouldn't cost much (there are only O(number of classes +
-commons) hash tables and these make no sense to have 0 entries).
+I have no idea why, but I'm now getting completely different times
+(10.9s vs. 8.9s) with the same builds on the same setup... I can no
+longer reproduce the slower times anywhere (F31/locally/...) so I have
+to assume it was some kind of glitch. Since the numbers show a similar
+magnitude of speed-up (and they depend on a bunch of HW/SW factors
+anyway), I'm not going to do another respin. The applying person (most
+likely Stephen) is free to fix the numbers when applying if they wish
+to do so.
+
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>
+> v2: corrected time values in commit message
+>
+>  libsepol/include/sepol/policydb/ebitmap.h |  1 +
+>  libsepol/src/ebitmap.c                    | 10 ++++++++++
+>  2 files changed, 11 insertions(+)
+>
+> diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
+> index e62df01c..53fafdaa 100644
+> --- a/libsepol/include/sepol/policydb/ebitmap.h
+> +++ b/libsepol/include/sepol/policydb/ebitmap.h
+> @@ -37,6 +37,7 @@ typedef struct ebitmap_node {
+>  typedef struct ebitmap {
+>         ebitmap_node_t *node;   /* first node in the bitmap */
+>         uint32_t highbit;       /* highest position in the total bitmap */
+> +       unsigned int cardinality;       /* cached value of cardinality */
+>  } ebitmap_t;
+>
+>  #define ebitmap_length(e) ((e)->highbit)
+> diff --git a/libsepol/src/ebitmap.c b/libsepol/src/ebitmap.c
+> index 6c9951b7..d23444ce 100644
+> --- a/libsepol/src/ebitmap.c
+> +++ b/libsepol/src/ebitmap.c
+> @@ -67,6 +67,7 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1)
+>         ebitmap_destroy(dst);
+>         dst->node = tmp.node;
+>         dst->highbit = tmp.highbit;
+> +       dst->cardinality = 0;
+>
+>         return 0;
+>  }
+> @@ -128,9 +129,14 @@ int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, unsigned int ma
+>  unsigned int ebitmap_cardinality(ebitmap_t *e1)
+>  {
+>         unsigned int i, count = 0;
+> +
+> +       if (e1->cardinality || e1->highbit == 0)
+> +               return e1->cardinality;
+> +
+>         for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
+>                 if (ebitmap_get_bit(e1, i))
+>                         count++;
+> +       e1->cardinality = count;
+>         return count;
+>  }
+>
+> @@ -194,6 +200,7 @@ int ebitmap_cpy(ebitmap_t * dst, const ebitmap_t * src)
+>         }
+>
+>         dst->highbit = src->highbit;
+> +       dst->cardinality = src->cardinality;
+>         return 0;
+>  }
+>
+> @@ -309,6 +316,7 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, int value)
+>                                         free(n);
+>                                 }
+>                         }
+> +                       e->cardinality = 0; /* invalidate cached cardinality */
+>                         return 0;
+>                 }
+>                 prev = n;
+> @@ -339,6 +347,7 @@ int ebitmap_set_bit(ebitmap_t * e, unsigned int bit, int value)
+>                 e->node = new;
+>         }
+>
+> +       e->cardinality = 0; /* invalidate cached cardinality */
+>         return 0;
+>  }
+>
+> @@ -358,6 +367,7 @@ void ebitmap_destroy(ebitmap_t * e)
+>
+>         e->highbit = 0;
+>         e->node = 0;
+> +       e->cardinality = 0;
+>         return;
+>  }
+>
+> --
+> 2.24.1
+>
+
 
 --
 Ondrej Mosnacek <omosnace at redhat dot com>
