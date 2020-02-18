@@ -6,22 +6,22 @@ X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9CB1C34049
-	for <selinux@archiver.kernel.org>; Tue, 18 Feb 2020 19:45:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A97CC34047
+	for <selinux@archiver.kernel.org>; Tue, 18 Feb 2020 19:46:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 836B621D56
-	for <selinux@archiver.kernel.org>; Tue, 18 Feb 2020 19:45:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6385721D56
+	for <selinux@archiver.kernel.org>; Tue, 18 Feb 2020 19:46:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726403AbgBRTpm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Feb 2020 14:45:42 -0500
-Received: from namei.org ([65.99.196.166]:46900 "EHLO namei.org"
+        id S1726481AbgBRTqM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Feb 2020 14:46:12 -0500
+Received: from namei.org ([65.99.196.166]:46926 "EHLO namei.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726283AbgBRTpm (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 18 Feb 2020 14:45:42 -0500
+        id S1726339AbgBRTqM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 18 Feb 2020 14:46:12 -0500
 Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id 01IJhv9J016349;
-        Tue, 18 Feb 2020 19:43:58 GMT
-Date:   Wed, 19 Feb 2020 06:43:57 +1100 (AEDT)
+        by namei.org (8.14.4/8.14.4) with ESMTP id 01IJiQMI016417;
+        Tue, 18 Feb 2020 19:44:26 GMT
+Date:   Wed, 19 Feb 2020 06:44:26 +1100 (AEDT)
 From:   James Morris <jmorris@namei.org>
 To:     Alexey Budankov <alexey.budankov@linux.intel.com>
 cc:     Serge Hallyn <serge@hallyn.com>,
@@ -50,11 +50,11 @@ cc:     Serge Hallyn <serge@hallyn.com>,
         oprofile-list@lists.sf.net,
         "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
         linux-man@vger.kernel.org
-Subject: Re: [PATCH v7 09/12] drivers/perf: open access for CAP_PERFMON
+Subject: Re: [PATCH v7 10/12] drivers/oprofile: open access for CAP_PERFMON
  privileged process
-In-Reply-To: <48baecd5-a015-3dbf-f774-9f2caee13893@linux.intel.com>
-Message-ID: <alpine.LRH.2.21.2002190643390.10165@namei.org>
-References: <c8de937a-0b3a-7147-f5ef-69f467e87a13@linux.intel.com> <48baecd5-a015-3dbf-f774-9f2caee13893@linux.intel.com>
+In-Reply-To: <046beedf-e074-58e2-579d-df535799169c@linux.intel.com>
+Message-ID: <alpine.LRH.2.21.2002190644070.10165@namei.org>
+References: <c8de937a-0b3a-7147-f5ef-69f467e87a13@linux.intel.com> <046beedf-e074-58e2-579d-df535799169c@linux.intel.com>
 User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
