@@ -7,65 +7,65 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D848C34050
-	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 13:45:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EB88C34047
+	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 13:45:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E9F0D24654
-	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 13:45:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D970020801
+	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 13:45:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YDBexKuR"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LKTJxMvS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726558AbgBSNpb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Feb 2020 08:45:31 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:44414 "EHLO
+        id S1726548AbgBSNpc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Feb 2020 08:45:32 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:29677 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726548AbgBSNpb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Feb 2020 08:45:31 -0500
+        with ESMTP id S1726622AbgBSNpc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Feb 2020 08:45:32 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582119930;
+        s=mimecast20190719; t=1582119931;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=FhMlmbi0K8oYlUQr3O0miIXTcXkIKPd2vYBx0tsnyu8=;
-        b=YDBexKuRAeHCDFiKjY22gB9ac2hR9BhqfZKTnhdguG1o4Vq1HQ+h+5wDu91kkfB4xqK/oZ
-        jKAgyyf6QRSVOwCyktfcoik41dSHpw4SwJ6H2dFpheER5XWsPi5LqQSySwS8lwiWa7+woP
-        S8IY+2wj5sRsjN7/EtUquFKXVMfWcDM=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-409-QpNCZ5beMZy9FJ67IAALWA-1; Wed, 19 Feb 2020 08:45:28 -0500
-X-MC-Unique: QpNCZ5beMZy9FJ67IAALWA-1
-Received: by mail-wr1-f72.google.com with SMTP id d8so66645wrq.12
+        bh=Eme0H3g7355A6BXxdMbiHTAf7hUx3WPYUkWPBTmXjoo=;
+        b=LKTJxMvSeYW15GQdVciybQii6aTV2maCk4lOgMGz8ut7bVV0M/tzqdCcP/3tjHuPyK8gdA
+        aDEYQYZKBXY+fxy/gqGaeRDYhw9I3fv3c+sPeLSNNSKz1B8c3wU3BIHYyg1q3MPqJdbNZb
+        qqkiKAcC2BOQtzsGbw4Em20DCk5eUCU=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-179-srOZgpNfPGStBtR-ymIiSQ-1; Wed, 19 Feb 2020 08:45:27 -0500
+X-MC-Unique: srOZgpNfPGStBtR-ymIiSQ-1
+Received: by mail-wr1-f70.google.com with SMTP id d8so66637wrq.12
         for <selinux@vger.kernel.org>; Wed, 19 Feb 2020 05:45:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=FhMlmbi0K8oYlUQr3O0miIXTcXkIKPd2vYBx0tsnyu8=;
-        b=IAxr74/lY1q0HkL6WdAJKH2SokQrelBo0UyyaBW/De+Uotz9dwe0iUyHXLjVU7BRg8
-         ji82JC7dObVjvKWnZ6gWPz/EqnKbRWnEL9JXu/SeuX6e60rbIkIE1e1DEYjWEH8+Qz5P
-         duRkGjtmDaOhxEcxjk1rNWl+lcDLu4Xon31XsKg5mnlKmT5AjSa4sly9irwNh45XKNRl
-         vXOZzARk5WlHao0g8WVJuI7IQRg97/maWaAk/rNzzU7C+iDzwR5EvaXIc2BjrC7RpQV/
-         wlkhp16jom0meEyTiO+/5DVFLarh8cFNk4FDZcr9TK4fJAy1dPYHhZeHrPkxIx+jMuwR
-         QDVg==
-X-Gm-Message-State: APjAAAXLQu98q5IZ7OK+mCSkBmUKmX5pGJ4rPYRRtVhvBeuXYQT2X5Y9
-        SZbxfpPLDHaNb14lktun14cxG+KGju9jYCByTuMu0UXrqosDDGq+R/5ZdjRdzbrEEHEUcKTh5l4
-        VYE2lJ1eamBxwznAcdg==
-X-Received: by 2002:a1c:f003:: with SMTP id a3mr10538741wmb.41.1582119925730;
-        Wed, 19 Feb 2020 05:45:25 -0800 (PST)
-X-Google-Smtp-Source: APXvYqw4RV8MK0NVZAR6HFrWPa6yVbyPIxzxIngZwx7Ckf90XjdHvPVu9xOZMeMUJpufxCbGXv+4FQ==
-X-Received: by 2002:a1c:f003:: with SMTP id a3mr10538715wmb.41.1582119925299;
-        Wed, 19 Feb 2020 05:45:25 -0800 (PST)
+        bh=Eme0H3g7355A6BXxdMbiHTAf7hUx3WPYUkWPBTmXjoo=;
+        b=HO2aldbOXJtgUV3WVFCU0K+TNF4h/luIFJPyYL24nfFTMcmabGRz8oT003HfvajMsE
+         eaTBI39pJVra3OA9JPs+8sofax6wqoIxUD/LzMLnxU3zKiJYqskIBkJ0AjmpLsCakdbp
+         JaJrYKaFu3IUFOV4A/jZ0LK/YKem2HstZ7IUZjd99XYtLIcv/OF5C63Aufubvse6LE0A
+         1BSwTPlqT9rgnlPSjHnw56TioHu8Be/OrGoBwOeGqyt2xjl0l5MWgqWnYQGMZChoD+Vm
+         7F/uNuGLHUiuEC8Nz1QwnT/zjSfWwYZCMHiIThFqz8u6c+bpAr/VWIdMpo34uzlc1dCF
+         Y1JA==
+X-Gm-Message-State: APjAAAXFpSRppOJnozd5Erl34c4iH+zTltn0RrKTL+pEChK40LxsJPLc
+        QN6VrH8qnMzZ+wL8B8wd4jrOgTvt++RGIx9sUjNm8PuKyl5qqCwLTPA5ESGU+IfaTzubV+bGiPd
+        wonyfEpWLqFDvKVrElQ==
+X-Received: by 2002:adf:fd87:: with SMTP id d7mr37928344wrr.226.1582119926291;
+        Wed, 19 Feb 2020 05:45:26 -0800 (PST)
+X-Google-Smtp-Source: APXvYqy8yBH1p96+ImZ1RO+xBN2Ox2BkP2B7ije7KXDpaY//qZAQO74ZBvPYid+WfZAxdkkcK8kOjg==
+X-Received: by 2002:adf:fd87:: with SMTP id d7mr37928324wrr.226.1582119926053;
+        Wed, 19 Feb 2020 05:45:26 -0800 (PST)
 Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id f11sm3036558wml.3.2020.02.19.05.45.24
+        by smtp.gmail.com with ESMTPSA id f11sm3036558wml.3.2020.02.19.05.45.25
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Feb 2020 05:45:24 -0800 (PST)
+        Wed, 19 Feb 2020 05:45:25 -0800 (PST)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH 1/2] libsepol,newrole: remove unused hashtab functions
-Date:   Wed, 19 Feb 2020 14:45:21 +0100
-Message-Id: <20200219134522.230822-2-omosnace@redhat.com>
+Subject: [PATCH 2/2] libsepol: grow hashtab dynamically
+Date:   Wed, 19 Feb 2020 14:45:22 +0100
+Message-Id: <20200219134522.230822-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200219134522.230822-1-omosnace@redhat.com>
 References: <20200219134522.230822-1-omosnace@redhat.com>
@@ -76,315 +76,79 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-hashtab_replace() and hashtab_map_remove_on_error() aren't used
-anywhere, no need to keep them around...
+Detect when the hashtab's load factor gets too high and try to grow it
+and rehash it in such case. If the reallocation fails, just keep the
+hashtab at its current size, since this is not a fatal error (it will
+just be slower).
+
+This speeds up semodule -BN on Fedora from ~8.9s to ~7.2s (1.7 seconds
+saved).
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- libsepol/include/sepol/policydb/hashtab.h | 28 --------
- libsepol/src/hashtab.c                    | 85 -----------------------
- policycoreutils/newrole/hashtab.c         | 85 -----------------------
- policycoreutils/newrole/hashtab.h         | 28 --------
- 4 files changed, 226 deletions(-)
+ libsepol/src/hashtab.c | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-diff --git a/libsepol/include/sepol/policydb/hashtab.h b/libsepol/include/sepol/policydb/hashtab.h
-index ca5ba862..dca8c983 100644
---- a/libsepol/include/sepol/policydb/hashtab.h
-+++ b/libsepol/include/sepol/policydb/hashtab.h
-@@ -79,20 +79,6 @@ extern int hashtab_remove(hashtab_t h, hashtab_key_t k,
- 					   hashtab_datum_t d,
- 					   void *args), void *args);
- 
--/*
--   Insert or replace the specified (key, datum) pair in the specified
--   hash table.  If an entry for the specified key already exists,
--   then the specified destroy function is applied to (key,datum,args)
--   for the entry prior to replacing the entry's contents.
--
--   Returns SEPOL_ENOMEM if insufficient space is available or
--   SEPOL_OK otherwise.
-- */
--extern int hashtab_replace(hashtab_t h, hashtab_key_t k, hashtab_datum_t d,
--			   void (*destroy) (hashtab_key_t k,
--					    hashtab_datum_t d,
--					    void *args), void *args);
--
- /*
-    Searches for the entry with the specified key in the hash table.
- 
-@@ -122,20 +108,6 @@ extern int hashtab_map(hashtab_t h,
- 				     hashtab_datum_t d,
- 				     void *args), void *args);
- 
--/*
--   Same as hashtab_map, except that if apply returns a non-zero status,
--   then the (key,datum) pair will be removed from the hashtab and the
--   destroy function will be applied to (key,datum,args).
-- */
--extern void hashtab_map_remove_on_error(hashtab_t h,
--					int (*apply) (hashtab_key_t k,
--						      hashtab_datum_t d,
--						      void *args),
--					void (*destroy) (hashtab_key_t k,
--							 hashtab_datum_t d,
--							 void *args),
--					void *args);
--
- extern void hashtab_hash_eval(hashtab_t h, char *tag);
- 
- #ifdef __cplusplus
 diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
-index f5407ab6..9590b359 100644
+index 9590b359..fe9c55b8 100644
 --- a/libsepol/src/hashtab.c
 +++ b/libsepol/src/hashtab.c
-@@ -133,48 +133,6 @@ int hashtab_remove(hashtab_t h, hashtab_key_t key,
- 	return SEPOL_OK;
+@@ -63,6 +63,46 @@ hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
+ 	return p;
  }
  
--int hashtab_replace(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum,
--		    void (*destroy) (hashtab_key_t k,
--				     hashtab_datum_t d, void *args), void *args)
--{
--	int hvalue;
--	hashtab_ptr_t prev, cur, newnode;
--
--	if (!h)
--		return SEPOL_ENOMEM;
--
--	hvalue = h->hash_value(h, key);
--	prev = NULL;
--	cur = h->htable[hvalue];
--	while (cur != NULL && h->keycmp(h, key, cur->key) > 0) {
--		prev = cur;
--		cur = cur->next;
--	}
--
--	if (cur && (h->keycmp(h, key, cur->key) == 0)) {
--		if (destroy)
--			destroy(cur->key, cur->datum, args);
--		cur->key = key;
--		cur->datum = datum;
--	} else {
--		newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
--		if (newnode == NULL)
--			return SEPOL_ENOMEM;
--		memset(newnode, 0, sizeof(struct hashtab_node));
--		newnode->key = key;
--		newnode->datum = datum;
--		if (prev) {
--			newnode->next = prev->next;
--			prev->next = newnode;
--		} else {
--			newnode->next = h->htable[hvalue];
--			h->htable[hvalue] = newnode;
--		}
--	}
--
--	return SEPOL_OK;
--}
--
- hashtab_datum_t hashtab_search(hashtab_t h, const_hashtab_key_t key)
++static void hashtab_check_resize(hashtab_t h)
++{
++	unsigned int hvalue, i, old_size, new_size = h->size;
++	hashtab_ptr_t *new_htable, *dst, cur, next, tmp;
++
++	while (new_size <= h->nel && new_size * 2 != 0)
++		new_size *= 2;
++
++	if (h->size == new_size)
++		return;
++
++	new_htable = calloc(new_size, sizeof(*new_htable));
++	if (!new_htable)
++		return;
++
++	old_size = h->size;
++	h->size = new_size;
++
++	/* Move all elements to the new htable */
++	for (i = 0; i < old_size; i++) {
++		cur = h->htable[i];
++		while (cur != NULL) {
++			next = cur->next;
++
++			hvalue = h->hash_value(h, cur->key);
++			dst = &new_htable[hvalue];
++			while (*dst && h->keycmp(h, cur->key, (*dst)->key) > 0)
++				dst = &(*dst)->next;
++
++			tmp = *dst;
++			*dst = cur;
++			cur->next = tmp;
++
++			cur = next;
++		}
++	}
++	free(h->htable);
++	h->htable = new_htable;
++}
++
+ int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
  {
+ 	int hvalue;
+@@ -71,6 +111,8 @@ int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
+ 	if (!h)
+ 		return SEPOL_ENOMEM;
  
-@@ -241,49 +199,6 @@ int hashtab_map(hashtab_t h,
- 	return SEPOL_OK;
- }
- 
--void hashtab_map_remove_on_error(hashtab_t h,
--				 int (*apply) (hashtab_key_t k,
--					       hashtab_datum_t d,
--					       void *args),
--				 void (*destroy) (hashtab_key_t k,
--						  hashtab_datum_t d,
--						  void *args), void *args)
--{
--	unsigned int i;
--	int ret;
--	hashtab_ptr_t last, cur, temp;
--
--	if (!h)
--		return;
--
--	for (i = 0; i < h->size; i++) {
--		last = NULL;
--		cur = h->htable[i];
--		while (cur != NULL) {
--			ret = apply(cur->key, cur->datum, args);
--			if (ret) {
--				if (last) {
--					last->next = cur->next;
--				} else {
--					h->htable[i] = cur->next;
--				}
--
--				temp = cur;
--				cur = cur->next;
--				if (destroy)
--					destroy(temp->key, temp->datum, args);
--				free(temp);
--				h->nel--;
--			} else {
--				last = cur;
--				cur = cur->next;
--			}
--		}
--	}
--
--	return;
--}
--
- void hashtab_hash_eval(hashtab_t h, char *tag)
- {
- 	unsigned int i;
-diff --git a/policycoreutils/newrole/hashtab.c b/policycoreutils/newrole/hashtab.c
-index 24c65c49..bc502836 100644
---- a/policycoreutils/newrole/hashtab.c
-+++ b/policycoreutils/newrole/hashtab.c
-@@ -112,48 +112,6 @@ int hashtab_remove(hashtab_t h, hashtab_key_t key,
- 	return HASHTAB_SUCCESS;
- }
- 
--int hashtab_replace(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum,
--		    void (*destroy) (hashtab_key_t k,
--				     hashtab_datum_t d, void *args), void *args)
--{
--	int hvalue;
--	hashtab_ptr_t prev, cur, newnode;
--
--	if (!h)
--		return HASHTAB_OVERFLOW;
--
--	hvalue = h->hash_value(h, key);
--	prev = NULL;
--	cur = h->htable[hvalue];
--	while (cur != NULL && h->keycmp(h, key, cur->key) > 0) {
--		prev = cur;
--		cur = cur->next;
--	}
--
--	if (cur && (h->keycmp(h, key, cur->key) == 0)) {
--		if (destroy)
--			destroy(cur->key, cur->datum, args);
--		cur->key = key;
--		cur->datum = datum;
--	} else {
--		newnode = (hashtab_ptr_t) malloc(sizeof(hashtab_node_t));
--		if (newnode == NULL)
--			return HASHTAB_OVERFLOW;
--		memset(newnode, 0, sizeof(struct hashtab_node));
--		newnode->key = key;
--		newnode->datum = datum;
--		if (prev) {
--			newnode->next = prev->next;
--			prev->next = newnode;
--		} else {
--			newnode->next = h->htable[hvalue];
--			h->htable[hvalue] = newnode;
--		}
--	}
--
--	return HASHTAB_SUCCESS;
--}
--
- hashtab_datum_t hashtab_search(hashtab_t h, const_hashtab_key_t key)
- {
- 
-@@ -220,49 +178,6 @@ int hashtab_map(hashtab_t h,
- 	return HASHTAB_SUCCESS;
- }
- 
--void hashtab_map_remove_on_error(hashtab_t h,
--				 int (*apply) (hashtab_key_t k,
--					       hashtab_datum_t d,
--					       void *args),
--				 void (*destroy) (hashtab_key_t k,
--						  hashtab_datum_t d,
--						  void *args), void *args)
--{
--	unsigned int i;
--	int ret;
--	hashtab_ptr_t last, cur, temp;
--
--	if (!h)
--		return;
--
--	for (i = 0; i < h->size; i++) {
--		last = NULL;
--		cur = h->htable[i];
--		while (cur != NULL) {
--			ret = apply(cur->key, cur->datum, args);
--			if (ret) {
--				if (last) {
--					last->next = cur->next;
--				} else {
--					h->htable[i] = cur->next;
--				}
--
--				temp = cur;
--				cur = cur->next;
--				if (destroy)
--					destroy(temp->key, temp->datum, args);
--				free(temp);
--				h->nel--;
--			} else {
--				last = cur;
--				cur = cur->next;
--			}
--		}
--	}
--
--	return;
--}
--
- void hashtab_hash_eval(hashtab_t h, char *tag)
- {
- 	unsigned int i;
-diff --git a/policycoreutils/newrole/hashtab.h b/policycoreutils/newrole/hashtab.h
-index ad5559ba..092b96a9 100644
---- a/policycoreutils/newrole/hashtab.h
-+++ b/policycoreutils/newrole/hashtab.h
-@@ -81,20 +81,6 @@ extern int hashtab_remove(hashtab_t h, hashtab_key_t k,
- 					   hashtab_datum_t d,
- 					   void *args), void *args);
- 
--/*
--   Insert or replace the specified (key, datum) pair in the specified
--   hash table.  If an entry for the specified key already exists,
--   then the specified destroy function is applied to (key,datum,args)
--   for the entry prior to replacing the entry's contents.
--
--   Returns HASHTAB_OVERFLOW if insufficient space is available or
--   HASHTAB_SUCCESS otherwise.
-- */
--extern int hashtab_replace(hashtab_t h, hashtab_key_t k, hashtab_datum_t d,
--			   void (*destroy) (hashtab_key_t k,
--					    hashtab_datum_t d,
--					    void *args), void *args);
--
- /*
-    Searches for the entry with the specified key in the hash table.
- 
-@@ -124,20 +110,6 @@ extern int hashtab_map(hashtab_t h,
- 				     hashtab_datum_t d,
- 				     void *args), void *args);
- 
--/*
--   Same as hashtab_map, except that if apply returns a non-zero status,
--   then the (key,datum) pair will be removed from the hashtab and the
--   destroy function will be applied to (key,datum,args).
-- */
--extern void hashtab_map_remove_on_error(hashtab_t h,
--					int (*apply) (hashtab_key_t k,
--						      hashtab_datum_t d,
--						      void *args),
--					void (*destroy) (hashtab_key_t k,
--							 hashtab_datum_t d,
--							 void *args),
--					void *args);
--
- extern void hashtab_hash_eval(hashtab_t h, char *tag);
- 
- #endif
++	hashtab_check_resize(h);
++
+ 	hvalue = h->hash_value(h, key);
+ 	prev = NULL;
+ 	cur = h->htable[hvalue];
 -- 
 2.24.1
 
