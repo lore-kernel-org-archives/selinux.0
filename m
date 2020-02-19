@@ -2,98 +2,105 @@ Return-Path: <SRS0=Oqwf=4H=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7938C34022
-	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 07:54:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4227C34050
+	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 08:25:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AB52C21D56
-	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 07:54:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8D922208E4
+	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 08:25:58 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZjtL84kK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726508AbgBSHyp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Feb 2020 02:54:45 -0500
-Received: from mga07.intel.com ([134.134.136.100]:6491 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726156AbgBSHyp (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 19 Feb 2020 02:54:45 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 18 Feb 2020 23:54:43 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.70,459,1574150400"; 
-   d="scan'208";a="436148633"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga006.fm.intel.com with ESMTP; 18 Feb 2020 23:54:42 -0800
-Received: from [10.125.252.130] (abudanko-mobl.ccr.corp.intel.com [10.125.252.130])
-        by linux.intel.com (Postfix) with ESMTP id 40E9A580270;
-        Tue, 18 Feb 2020 23:54:36 -0800 (PST)
-Subject: Re: [PATCH v7 01/12] capabilities: introduce CAP_PERFMON to kernel
- and user space
-To:     James Morris <jmorris@namei.org>
-Cc:     Serge Hallyn <serge@hallyn.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Helge Deller <deller@gmx.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        oprofile-list@lists.sf.net,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        linux-man@vger.kernel.org
-References: <c8de937a-0b3a-7147-f5ef-69f467e87a13@linux.intel.com>
- <f56fbb5c-1477-44d5-7346-85a1ca0869dc@linux.intel.com>
- <alpine.LRH.2.21.2002190621180.10165@namei.org>
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <4664bbc7-e4ef-5d6e-7f71-96e5567fcf60@linux.intel.com>
-Date:   Wed, 19 Feb 2020 10:54:35 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+        id S1726651AbgBSIZ6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Feb 2020 03:25:58 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:48771 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726647AbgBSIZ6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Feb 2020 03:25:58 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1582100756;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=wtJWfY2ycYed/QiHs0/W5jwGSnZ64bMnxXCk0p3Usss=;
+        b=ZjtL84kKBh3XsG4+Ebi7IMUjhck3ZUESQJB1LDzi/hZONnkepGxavD/p+3d7c/YOoYUr0g
+        gC7LqaGTzFmk5t0gVRGMlChaZyI4DIV3VTStvdKkORx+9nvp12LTxMsP36IsofVB+A5Zmx
+        +m6oBrj/kKnPgG5akcm8y/ruWJl3VcI=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-361--NESsoadMWy4daSIU4H5vw-1; Wed, 19 Feb 2020 03:25:52 -0500
+X-MC-Unique: -NESsoadMWy4daSIU4H5vw-1
+Received: by mail-ot1-f70.google.com with SMTP id 39so14010822otr.21
+        for <selinux@vger.kernel.org>; Wed, 19 Feb 2020 00:25:52 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wtJWfY2ycYed/QiHs0/W5jwGSnZ64bMnxXCk0p3Usss=;
+        b=SgKeAvcGeiNOCw3aIKP486BVqEsT09lUilGp8uSg89nb/jbxfSiSMMqDQmu/VlhqIu
+         zHpzrL3tTyb1M17xuOfi56+b9g+ajN3AmyXqvROe+4VN5osrp3qNfwqmtz3BVNw0EQEb
+         PUXd9gj4Fy3spyaIcqx0YY/kb3NkHvCojX2ouoEcqoRs25Rc0wFG5XFAG0edn5wLP1X6
+         6IhsKVedPb/6RM5zRnISiS8Z5VzzjJ6WcaQeuB78hMqRVJemYv0Tns9kCALpgFT9pgTD
+         /EPGFmI1pOB99orUCIzrfM0ztgW5fIenXl7GuqxD9ku+Exbv1JyeG9FsApn/PdbNl16p
+         /BDA==
+X-Gm-Message-State: APjAAAX2fzQC3ph1hhRSEO8ZBcdLUPfAtRyfS6tTGl60Hcc4szG/Pbxr
+        AzKbxL8F5QIzRyi22acPXNZSeQBRaNv8/YT5SV8+M1da+yLPyKcUQX7pw0NwwlWJ3YiwYoHf3wJ
+        bhii6rEI+WDAweWQGDKzY3LMi8uR+GHDgdg==
+X-Received: by 2002:a9d:53c2:: with SMTP id i2mr17582126oth.43.1582100751468;
+        Wed, 19 Feb 2020 00:25:51 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyqolGfl/tCa4gquqmv+361MceGxXVzc+Cx1VwWuasUBvPLcqIMtJ+GqaZHKPkzhFb7PPmvrMMCt6J5unzUJxM=
+X-Received: by 2002:a9d:53c2:: with SMTP id i2mr17582114oth.43.1582100751099;
+ Wed, 19 Feb 2020 00:25:51 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <alpine.LRH.2.21.2002190621180.10165@namei.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200218203911.30502-1-jwcart2@tycho.nsa.gov>
+In-Reply-To: <20200218203911.30502-1-jwcart2@tycho.nsa.gov>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Wed, 19 Feb 2020 09:25:40 +0100
+Message-ID: <CAFqZXNth6mpsSJ1--czyyfSXCbHTD26MzR+u3UhF5Qn8meHKLg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol: Use ebitmap_length() to check for an empty ebitmap
+To:     James Carter <jwcart2@tycho.nsa.gov>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Tue, Feb 18, 2020 at 9:45 PM James Carter <jwcart2@tycho.nsa.gov> wrote:
+> When checking whether or not an ebitmap has any bits set, use
+> ebitmap_length() instead of ebitmap_cardinality().
+>
+> There is no need to find out how many bits are set, if all that is
+> needed is to determine if any bits are set at all.
+>
+> Signed-off-by: James Carter <jwcart2@tycho.nsa.gov>
+> ---
+>  libsepol/src/kernel_to_cil.c  | 10 +++++-----
+>  libsepol/src/kernel_to_conf.c |  8 ++++----
+>  libsepol/src/module_to_cil.c  | 16 ++++++++--------
+>  3 files changed, 17 insertions(+), 17 deletions(-)
 
-On 18.02.2020 22:21, James Morris wrote:
-> On Mon, 17 Feb 2020, Alexey Budankov wrote:
-> 
->>
->> Introduce CAP_PERFMON capability designed to secure system performance
->> monitoring and observability operations so that CAP_PERFMON would assist
->> CAP_SYS_ADMIN capability in its governing role for performance
->> monitoring and observability subsystems.
-> 
-> 
-> Acked-by: James Morris <jamorris@linux.microsoft.com>
+Thanks, this looks good! Although I'm thinking if we shouldn't add a
+specific function for this, e.g.:
 
-Thanks James! 
-I appreciate your involvement and collaboration 
-w.r.t to the whole patch set.
+static inline bool ebitmap_is_empty(ebitmap_t *e)
+{
+        return ebitmap_length(e) == 0;
+}
 
-Gratefully,
-Alexey
+...because ebitmap_length() is kind of an implementation detail and it
+is easy to confuse ebitmap_length() and ebitmap_cardinality(). Note
+there are already some existing callers of ebitmap_length() that would
+also need converting to ebitmap_is_empty() in that case.
+
+<diff snipped>
+
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
