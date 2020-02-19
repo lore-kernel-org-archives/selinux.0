@@ -2,117 +2,93 @@ Return-Path: <SRS0=Oqwf=4H=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 755CFC34047
-	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 13:33:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 287D5C34047
+	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 13:45:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4A82024654
-	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 13:33:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F164F20801
+	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 13:45:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="YI5gU0ge"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ar1ti4nk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726551AbgBSNdi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Feb 2020 08:33:38 -0500
-Received: from USFB19PA36.eemsg.mail.mil ([214.24.26.199]:61163 "EHLO
-        USFB19PA36.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726548AbgBSNdh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Feb 2020 08:33:37 -0500
-X-EEMSG-check-017: 57432848|USFB19PA36_ESA_OUT06.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.70,459,1574121600"; 
-   d="scan'208";a="57432848"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by USFB19PA36.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 19 Feb 2020 13:33:34 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1582119215; x=1613655215;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=HDa+z+CRsWiUzymMX9xqaWsxMjI/LWXau41Av0sIoY8=;
-  b=YI5gU0gecAWQTW9n/DgykLj0Qv1n/bMZUl7xQx0ISWN3HcPNMZYgy1ek
-   eWJXqH4l1JbPyWKyUOlnKiOwY7fHVhktmyc+k16oVACZZpHMM/R6MGpVW
-   gfg7woAZwH9TTHKunjh3X/k2EwubsJft1l9s7A2T2pxRLo/cJY0W5bhME
-   MK0QamCubjcSW/Jnw6hCa1zTS9vnR+LsgFziq9El7LQwqqZE5UQK/BCSZ
-   UzSAVh5wRhh9m3jSZk44q2DIhnGVdZylqACWfweLo30nGVMUPRUbw4xPJ
-   Oua1O6rnGOHRHQx1U3/ti/wMG4rZsjLJXQO1kvZ0ep1rDcng1gaPkbrz4
-   A==;
-X-IronPort-AV: E=Sophos;i="5.70,459,1574121600"; 
-   d="scan'208";a="39276956"
-IronPort-PHdr: =?us-ascii?q?9a23=3AJMgQyRE7TDc5kW8uakf/Zp1GYnF86YWxBRYc79?=
- =?us-ascii?q?8ds5kLTJ7yrsWwAkXT6L1XgUPTWs2DsrQY0raQ4/irBDVIyK3CmU5BWaQEbw?=
- =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
- =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRq7oR/Su8UKjodvKrs9wQ?=
- =?us-ascii?q?bVr3VVfOhb2WxnKVWPkhjm+8y+5oRj8yNeu/Ig885PT6D3dLkmQLJbETorLX?=
- =?us-ascii?q?k76NXkuhffQwSP4GAcUngNnRpTHwfF9hD6UYzvvSb8q+FwxTOVPczyTbAzRD?=
- =?us-ascii?q?Si86JmQwLmhSsbKzI09nzch9duh6xHvh2uux1/w5bVYI6LMvp+Yrjdds4eSW?=
- =?us-ascii?q?ZYQ8pdSzBNDoa6YoQBFeoBOftToZf7qVUAsBCyARCgCe3rxzNNgHL9wK803P?=
- =?us-ascii?q?k7EQzewQIuAdwOvnTXotv7OqgdXuK6w7XHwzjYc/Nb2y3w5JTUfh0vo/yBW6?=
- =?us-ascii?q?97f8rLyUkoEgPIlkieqZD7MDON1uQCrW6b5Pd9W+KqkWEnrwVxrSavx8wxjY?=
- =?us-ascii?q?TJnZ8aykvf+CVlwIc6Od24SElhbd6iC5tfrTuWN4RxQsM8WmxlvjsxxL4euZ?=
- =?us-ascii?q?OjYSQHx5sqywTfZvCaaYSE/B3uWPiLLTtlgn9uZaixiAyo8Ue6z+3xTsy00F?=
- =?us-ascii?q?FXoSVbitTMrXUN1wDL6siAV/t94l+t2TaR2ADX7eFJOVw0mrDBK54g374wjY?=
- =?us-ascii?q?AfsUXFHi/4n0X2l7GZeVk+9ui06+XofrXmppiGO49ylg7+Kbghlta6AeQ5Ng?=
- =?us-ascii?q?gCR2mb+eKi273/5UD1XbpHg/IsnqTZrZzWP9oXq6GnDwNPz4ov8xO/AC2n0N?=
- =?us-ascii?q?Qck3kHNlVFeBefgojyJl7OO+v1Deu/gluwkDdrwOrKPrv6AprXNHTDn7Dhfa?=
- =?us-ascii?q?hl505G1AUz1cxf545TCrwZJ/LzX0jxtMfeDhAjLwO73f3qCM9j2YwDWWKAGL?=
- =?us-ascii?q?OZPLnOvl+P4+IlO/OMa5MNuDbhN/gl4ObjjWQnll8ZfKmp24YXaX+jE/R4LE?=
- =?us-ascii?q?WWf2Dsjs0CEWgUpAo+SvLliFmYXT5UfXayULo25isnB4K+EYfDWoetjaSZ3C?=
- =?us-ascii?q?ihA51WYntLCkiWHnf1c4WIQvIMaCWVIs97jDMIT6SuS4gk1ULmiAiv7LxrNO?=
- =?us-ascii?q?fWsggfrpTq39V2r7nUkBYp8zV/AuyH3m2NRn0ylWQNEXt+x617oEpg2n+d3q?=
- =?us-ascii?q?Vixf9VD9pe47VOSAh+fabV0ugyLtf1QA+JKs+AVVKOWty7BXQ0SdUrzpkFZE?=
- =?us-ascii?q?MrSPu4iRWW5DanG78YkfSwAZUw9q/NlyzqK91V12fN1K5niUIvBMRIKzv11e?=
- =?us-ascii?q?ZE6wHPCtuRwA2inKGwePFZhXWc+Q=3D=3D?=
-X-IPAS-Result: =?us-ascii?q?A2CPAADyN01e/wHyM5BmHAEBAQEBBwEBEQEEBAEBgWoEA?=
- =?us-ascii?q?QELAYF8gWwBMiqEFIkDhlIBAQEBAQEGgTeJcI9jgWcJAQEBAQEBAQEBNwQBA?=
- =?us-ascii?q?YRAAoIoNwYOAhABAQEFAQEBAQEFAwEBbIVDgjspAYMCAQUjFVELDgoCAiYCA?=
- =?us-ascii?q?lcGAQwGAgEBgmM/glclrV2BMoVKg2yBPoEOKgGMPXmBB4E4D4JdPoQxgyqCX?=
- =?us-ascii?q?gSXV0aXdIJFglCUCgYcmyuOb51VI4FYKwgCGAghD4MnUBgNjigYjkEjAzCPE?=
- =?us-ascii?q?wEB?=
-Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 19 Feb 2020 13:33:32 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
-        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01JDWVl0137363;
-        Wed, 19 Feb 2020 08:32:32 -0500
-Subject: Re: [PATCH v2] selinux: reduce the use of hard-coded hash sizes
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>
-References: <20200219093255.157758-1-omosnace@redhat.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <5778e7a4-4ea3-b97f-b746-0b9372d33f34@tycho.nsa.gov>
-Date:   Wed, 19 Feb 2020 08:34:44 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.4.1
+        id S1726551AbgBSNp3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Feb 2020 08:45:29 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:20386 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726548AbgBSNp3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Feb 2020 08:45:29 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1582119928;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=cW7BVVhMX0pStihipSg5G4Xq1gyUcr5hkUNC9YH5V64=;
+        b=Ar1ti4nktd8Wbx7g5hCg/Efu4XPsxdwX7trVTEiogprVqZNehGvuyOkCCL4C4aJ9vLiwPj
+        WpU9/ZTq+vY3pctdaZQqdATbrr6ene8udBe7r0/I8nsZ/BZZpPfxJa+qPJTu9N/m264A6h
+        5Nvix+9P+iWK5mEqfi5ONAm44vlSU9M=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-382-FEQWqimLOFCDySwIaV5cGA-1; Wed, 19 Feb 2020 08:45:26 -0500
+X-MC-Unique: FEQWqimLOFCDySwIaV5cGA-1
+Received: by mail-wr1-f69.google.com with SMTP id d7so71122wrx.9
+        for <selinux@vger.kernel.org>; Wed, 19 Feb 2020 05:45:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=cW7BVVhMX0pStihipSg5G4Xq1gyUcr5hkUNC9YH5V64=;
+        b=V4wzdEdOwL1pqoo4t3/KURDe83e6i8/TZvVsgWpePaKXtWXgGEQ1NzBC3Fo6xjOe5a
+         BYfr2kC0dweEeZMFeD9e7lL56PFDSA1iebUC2TaXAo91YAF2Atu/8YXT25TaCO57yZc0
+         FDtSpXZ/bW8Qosd0X5/B1kb7Gv3ouOatxaffkAUTJoa0leUpvCIWBuRRc1WAWELU9VCs
+         //vZ7LVPz23BfyDX8CzMODNCsjO2BvJFsfESnoUHQs8VgcdpZcbtsTnPx499vISiHQpr
+         nwTykZX/P/Frb5wqID9PGII8GHaUhn6F1tNm4dmKFopy5sMh5chTNP0dxVVCGg+NUHrR
+         lDYQ==
+X-Gm-Message-State: APjAAAU+aXI3qWWZWTEIJ0iNGBEghUA87NK/5FXsubjxlFTAelNQmTwY
+        bZWU7m2stBm8f1Y3V93065+Y5DCINLbiH4qlNTTvmwl7q4s/K5VDu+89VqviWp9LaHQLZ5PfVjY
+        if22xaGfps6EnNgN/0Q==
+X-Received: by 2002:adf:e74a:: with SMTP id c10mr38115422wrn.254.1582119924775;
+        Wed, 19 Feb 2020 05:45:24 -0800 (PST)
+X-Google-Smtp-Source: APXvYqz/+YRUMUSD1v2rKJsJhW6bGaWvLwisnltCT3JJQS/GdUKW67OguyXIycTNHpNWDY1WQmltiQ==
+X-Received: by 2002:adf:e74a:: with SMTP id c10mr38115402wrn.254.1582119924550;
+        Wed, 19 Feb 2020 05:45:24 -0800 (PST)
+Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id f11sm3036558wml.3.2020.02.19.05.45.23
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Feb 2020 05:45:23 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH 0/2] libsepol: Grow hashtab dynamically
+Date:   Wed, 19 Feb 2020 14:45:20 +0100
+Message-Id: <20200219134522.230822-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <20200219093255.157758-1-omosnace@redhat.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2/19/20 4:32 AM, Ondrej Mosnacek wrote:
-> Instead allocate hash tables with just the right size based on the
-> actual number of elements (which is almost always known beforehand, we
-> just need to defer the hashtab allocation to the right time). The only
-> case when we don't know the size (with the current policy format) is the
-> new filename transitions hashtable. Here I just left the existing value.
-> 
-> After this patch, the time to load Fedora policy on x86_64 decreases
-> from 950 ms to 220 ms. If the unconfined module is removed, it decreases
-> from 870 ms to 170 ms. It is also likely that other operations are going
-> to be faster, mainly string_to_context_struct() or mls_compute_sid(),
-> but I didn't try to quantify that.
-> 
-> The memory usage increases a bit after this patch, but only by ~1-2 MB
-> (it is hard to measure precisely). I believe it is a small price to pay
-> for the increased performance.
-> 
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+The first patch is just a cleanup to have a single hashtab function that
+can add elements, simplifying slightly the second patch, which
+implements the actual auto-growing of hash tables.
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Please see the log messages of the patches for more details.
+
+Ondrej Mosnacek (2):
+  libsepol,newrole: remove unused hashtab functions
+  libsepol: grow hashtab dynamically
+
+ libsepol/include/sepol/policydb/hashtab.h |  28 -----
+ libsepol/src/hashtab.c                    | 127 +++++++---------------
+ policycoreutils/newrole/hashtab.c         |  85 ---------------
+ policycoreutils/newrole/hashtab.h         |  28 -----
+ 4 files changed, 42 insertions(+), 226 deletions(-)
+
+-- 
+2.24.1
 
