@@ -2,160 +2,104 @@ Return-Path: <SRS0=Oqwf=4H=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C8E1C34052
-	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 15:33:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16C34C34053
+	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 15:42:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 50F2A24654
-	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 15:33:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E36DD24654
+	for <selinux@archiver.kernel.org>; Wed, 19 Feb 2020 15:42:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G2oeRq00"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="Fk2mrpL4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726922AbgBSPdd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Feb 2020 10:33:33 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:23769 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726821AbgBSPdc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Feb 2020 10:33:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582126412;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=8gwlMnxOi2uo2xe05E+YBtcFDLypBKWCwomNSVs1+HI=;
-        b=G2oeRq00777Hi6YHpRfKbAMDExMN0XOmG7WfPg5NHlyOw6BNRlwYt69Mufy6ybDJHoGPHy
-        bKY8IknOa283wl8OZ16C5V9Uz18Qcu2dSCgaFk5651C7A56yTfMhWkl8G9zs545o300BYB
-        db30pjms1RWMigdS7ExdU6lSQXjVRj4=
-Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
- [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-408-xLwEV8lcMqeLlJlkgcp1kg-1; Wed, 19 Feb 2020 10:33:29 -0500
-X-MC-Unique: xLwEV8lcMqeLlJlkgcp1kg-1
-Received: by mail-ot1-f72.google.com with SMTP id n22so347733otr.23
-        for <selinux@vger.kernel.org>; Wed, 19 Feb 2020 07:33:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=8gwlMnxOi2uo2xe05E+YBtcFDLypBKWCwomNSVs1+HI=;
-        b=oIYoJqjiNhZkwAuJFCrZHm7nIVSvsirUQZ80JB+LJQQiSDANSceTTpj+W2jz/ewhUB
-         bKJHsKsc9reKbLuDfRlToVtIW2fZbJ4AGWa9Mhe3bq6oQeT1C4aE6QeWhgnuko9PTjHG
-         dTbkpOi6H2SDle/M9hPNkPBkJKDXCkdmImOjNE+9ClWTbTEXVeSKFSyyXfFm0VNV0U6P
-         y9icvacsgqjsyRW9X5TY17jnPOcbAkBIacM+fBxLgVCVRXYTm8AbEocMMB1m9KQioUJk
-         FOn2mnze9eX3itm+mEiiEzvgDCqdef3xapJQoqroeY3B9oibvMkBHVVBEJt9oRdXkXjZ
-         eWbA==
-X-Gm-Message-State: APjAAAUdiBa8+rJhYed3/JUdh9YLMjE9VoTnQHeCNivD8/+fk1eRDmjw
-        rPdKGHdPntEXVVVlhHO8Q7T4Y/oPdAOcZyCwOLqTntGzzw454v5vT9IYdOxDxHeZ1jpJQsjK0yw
-        kCluFgECt7sXWBcQdnw8/S8YH6N+Ruoz2bg==
-X-Received: by 2002:aca:1108:: with SMTP id 8mr5023357oir.127.1582126408291;
-        Wed, 19 Feb 2020 07:33:28 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwdVomvvZMaZmMrWbe7SsGDipWW0dl6oH3hr8KWjzZ8/cnqtyRaUrCbrskZol9OHh6gVppa/Fa11Sz/MHhu59s=
-X-Received: by 2002:aca:1108:: with SMTP id 8mr5023345oir.127.1582126408008;
- Wed, 19 Feb 2020 07:33:28 -0800 (PST)
-MIME-Version: 1.0
-References: <20200219134522.230822-1-omosnace@redhat.com> <20200219134522.230822-3-omosnace@redhat.com>
-In-Reply-To: <20200219134522.230822-3-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 19 Feb 2020 16:33:17 +0100
-Message-ID: <CAFqZXNsFRCnc5g1+hgv48XE0kgfpX=kXrAenTXAyWqoxY+OxwA@mail.gmail.com>
+        id S1726722AbgBSPmM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Feb 2020 10:42:12 -0500
+Received: from USFB19PA33.eemsg.mail.mil ([214.24.26.196]:45065 "EHLO
+        USFB19PA33.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726604AbgBSPmM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Feb 2020 10:42:12 -0500
+X-EEMSG-check-017: 57421712|USFB19PA33_ESA_OUT03.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.70,461,1574121600"; 
+   d="scan'208";a="57421712"
+Received: from emsm-gh1-uea10.ncsc.mil ([214.29.60.2])
+  by USFB19PA33.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 19 Feb 2020 15:42:08 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1582126929; x=1613662929;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=yTUFeTKu+j04/o24yp3i2KuS559+Z/IK3RsLa9wv0RY=;
+  b=Fk2mrpL4IuBC8IuUU5AB6WYg0BbmWNW/XE+ZSjJE7dvSIR0Cj8ROBWuF
+   PubiRyPwzm5yW61StxqegwzDgpvC7k0W5zxJKW0D2ij63Z2Z3u9AEyqTA
+   Gdn2b3po6uk6T7Utf50gPxMxMZOberxEbWy1K1iG14o4RfkYqkMH8paae
+   oNboIrxodCl6CKjdl/V4vSkg9VCpx65GskP/hswTwQyyK1dLxtxhld+f4
+   KtWjinkYuXHakBq6LoWVaBg1ywo+QVllQLfkhscZWXpYFja3PhX1irz1e
+   ZT+rjMXoLI437587F4LV3DgTDSaamMCfzDAPJ4qFCCG76q9QFeeYOgxYx
+   w==;
+X-IronPort-AV: E=Sophos;i="5.70,461,1574121600"; 
+   d="scan'208";a="33211055"
+IronPort-PHdr: =?us-ascii?q?9a23=3ApyW43B2y/uct40uXsmDT+DRfVm0co7zxezQtwd?=
+ =?us-ascii?q?8ZseMXK/ad9pjvdHbS+e9qxAeQG9mCt7QU06GJ4+jJYi8p39WoiDg6aptCVh?=
+ =?us-ascii?q?sI2409vjcLJ4q7M3D9N+PgdCcgHc5PBxdP9nC/NlVJSo6lPwWB6nK94iQPFR?=
+ =?us-ascii?q?rhKAF7Ovr6GpLIj8Swyuu+54Dfbx9HiTagbr5+Nha7oRneusQUgoZpN7o8xA?=
+ =?us-ascii?q?bOrnZUdOtawn9lK0iOlBjm/Mew+5Bj8yVUu/0/8sNLTLv3caclQ7FGFToqK2?=
+ =?us-ascii?q?866tHluhnFVguP+2ATUn4KnRpSAgjK9w/1U5HsuSbnrOV92S2aPcrrTbAoXD?=
+ =?us-ascii?q?mp8qlmRAP0hCoBKjU063/chNBug61HoRKhvx1/zJDSYIGJL/p1Y6fRccoHSW?=
+ =?us-ascii?q?ZdQspdUipMDY2mb4sLEuEPI+BWoYfgrFcKtBezCw2hCObpxzRVhHH5wLc63v?=
+ =?us-ascii?q?w8Hw/Y0gwuH9EAvnrao9r6NqgdTe+7wbLUzTjBdf5axSvx5YbKfx0nvPqCXa?=
+ =?us-ascii?q?hwcc3UyUQ3Cg3FkkufqZTlPzyL0OQGrnWV7+96WuKrj24otQFwqSWoy8c3l4?=
+ =?us-ascii?q?bJnZkYykzE9CplwIY1Ise0SEhgYdG+CpdQuCaaN5VvT84kXmpmuz46x6UbtZ?=
+ =?us-ascii?q?O0cyUG0pQqywPFZ/CZfIWE/AjvWPuXLDxlnnxqYqi/iAy38UW4z+38UdS730?=
+ =?us-ascii?q?hSoypel9nMqmgN1xvO6sibUvd9/lmu2TKI1w3L9uFLO1o0lavGK5462LIwl5?=
+ =?us-ascii?q?wTsUrEHi/thkr5kLWadlkk++e06+TnZa/qppmAOI9vlg7yKKEums27AeggMw?=
+ =?us-ascii?q?gOWXaU+fik2bH+8kD0T69Gg/0rnqXDrpzXKtoXqrSkDwNN14Ys8Re/DzOo0N?=
+ =?us-ascii?q?QCmnkHKUpIeAmagIjyIFzOPPD5Auu/g1SrijtrwevGMaf7DpXCKXjDjq/tfa?=
+ =?us-ascii?q?xh5E5E1Aoz0ddf6opTCrEEJ/LzQUnxu8bEARAnKAG02fjoB8h91owERWKDGL?=
+ =?us-ascii?q?OWMKTXsVWQ/OIgP/GMZJMJuDb6M/Ul/ODhjXs4mV8bYKmo0oAaaG63Hvt4OU?=
+ =?us-ascii?q?WVe3nsjckbEWcMoAU+SPbmiFqYUT5cND6OWPcb4D0hBYDuKIDYQImmjb/JiC?=
+ =?us-ascii?q?C+GYZQb2tLIkqBHXfha8OPXPJaLGqJL8tglCEUfaauRpVn1hy0sgL+jb19Ib?=
+ =?us-ascii?q?n64Cod4Kn/2cB16uubrhQ78Th5HozJyG2WZ31llWMPATkt1eZwplIrmQTL6r?=
+ =?us-ascii?q?Rxn/ENTY8b3PhOSApvcMeHnuE=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BbAgCVVk1e/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXuBf?=
+ =?us-ascii?q?YFsATIqhBSJA4ZSAQEBAQEBBoE3iXCRSgkBAQEBAQEBAQE3BAEBhEACgig4E?=
+ =?us-ascii?q?wIQAQEBBQEBAQEBBQMBAWyFQ4I7KQGDAgEFIxVRCw4KAgImAgJXBgEMBgIBA?=
+ =?us-ascii?q?YJjP4JXJa15gTKFSoNpgT6BDiqMPnmBB4E4D4JdPodbgl4El1dGl3SCRYJQl?=
+ =?us-ascii?q?AoGHII5mHKOb51WIoFYKwgCGAghD4MnUBgNnQEjAzCPEwEB?=
+Received: from tarius.tycho.ncsc.mil (HELO tarius.infosec.tycho.ncsc.mil) ([144.51.242.1])
+  by EMSM-GH1-UEA10.NCSC.MIL with ESMTP; 19 Feb 2020 15:42:07 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto [192.168.25.131])
+        by tarius.infosec.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 01JFf4DP203307;
+        Wed, 19 Feb 2020 10:41:04 -0500
 Subject: Re: [PATCH 2/2] libsepol: grow hashtab dynamically
-To:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20200219134522.230822-1-omosnace@redhat.com>
+ <20200219134522.230822-3-omosnace@redhat.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <8f880fdb-2a7b-a52d-be84-5c3e501873de@tycho.nsa.gov>
+Date:   Wed, 19 Feb 2020 10:43:11 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
+MIME-Version: 1.0
+In-Reply-To: <20200219134522.230822-3-omosnace@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Feb 19, 2020 at 2:45 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On 2/19/20 8:45 AM, Ondrej Mosnacek wrote:
 > Detect when the hashtab's load factor gets too high and try to grow it
 > and rehash it in such case. If the reallocation fails, just keep the
 > hashtab at its current size, since this is not a fatal error (it will
 > just be slower).
->
+> 
 > This speeds up semodule -BN on Fedora from ~8.9s to ~7.2s (1.7 seconds
 > saved).
->
+> 
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  libsepol/src/hashtab.c | 42 ++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 42 insertions(+)
->
-> diff --git a/libsepol/src/hashtab.c b/libsepol/src/hashtab.c
-> index 9590b359..fe9c55b8 100644
-> --- a/libsepol/src/hashtab.c
-> +++ b/libsepol/src/hashtab.c
-> @@ -63,6 +63,46 @@ hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
->         return p;
->  }
->
-> +static void hashtab_check_resize(hashtab_t h)
-> +{
-> +       unsigned int hvalue, i, old_size, new_size = h->size;
-> +       hashtab_ptr_t *new_htable, *dst, cur, next, tmp;
-> +
-> +       while (new_size <= h->nel && new_size * 2 != 0)
-> +               new_size *= 2;
-> +
-> +       if (h->size == new_size)
-> +               return;
-> +
-> +       new_htable = calloc(new_size, sizeof(*new_htable));
-> +       if (!new_htable)
-> +               return;
-> +
-> +       old_size = h->size;
-> +       h->size = new_size;
-> +
-> +       /* Move all elements to the new htable */
-> +       for (i = 0; i < old_size; i++) {
-> +               cur = h->htable[i];
-> +               while (cur != NULL) {
-> +                       next = cur->next;
-> +
-> +                       hvalue = h->hash_value(h, cur->key);
-> +                       dst = &new_htable[hvalue];
-> +                       while (*dst && h->keycmp(h, cur->key, (*dst)->key) > 0)
-> +                               dst = &(*dst)->next;
-> +
-> +                       tmp = *dst;
-> +                       *dst = cur;
-> +                       cur->next = tmp;
-
-I just realized that I can get rid of one assignment and the 'tmp' variable:
-https://github.com/WOnder93/selinux/commit/a43e718d20b30603e1a8cd428c8d8b656a672153
-
-Let me respin the patch...
-
-> +
-> +                       cur = next;
-> +               }
-> +       }
-> +       free(h->htable);
-> +       h->htable = new_htable;
-> +}
-> +
->  int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
->  {
->         int hvalue;
-> @@ -71,6 +111,8 @@ int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
->         if (!h)
->                 return SEPOL_ENOMEM;
->
-> +       hashtab_check_resize(h);
-> +
->         hvalue = h->hash_value(h, key);
->         prev = NULL;
->         cur = h->htable[hvalue];
-> --
-> 2.24.1
->
-
-
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
