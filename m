@@ -2,86 +2,112 @@ Return-Path: <SRS0=5MQ6=4I=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21D75C11D0C
-	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 16:40:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2280C11D0C
+	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 18:10:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DF57620801
-	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 16:40:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1582216804;
-	bh=PqIjxGt93AjPELMvVrU2wYetUIUHuYPZgdc3HCIgm3k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=b3bXeQeDbjbc54KqHUj7HCWS9LYuK7JvpG7qQcGiT4B+B+giuAy4exgpzlwKUt0n/
-	 Ts5WkX2X/bHVMOSV1EMNmT7ApmueuCyHZhId++maF8qpm4on7NK565rs5r1g79y99i
-	 8ekQWNlONcpmYJuC2ZuklQbadt0N6ljUM1vzOg2A=
+	by mail.kernel.org (Postfix) with ESMTP id CD1802467A
+	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 18:10:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="O4duGARd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728134AbgBTQkD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Feb 2020 11:40:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45550 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728090AbgBTQkD (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 20 Feb 2020 11:40:03 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9EFDE207FD;
-        Thu, 20 Feb 2020 16:40:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1582216802;
-        bh=PqIjxGt93AjPELMvVrU2wYetUIUHuYPZgdc3HCIgm3k=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=H4j8QyF/I0J6liLlhOQF7i+TJe+fnAR9AOelLlYOgFf9aMhnhS8+ZHGbNtogrpEJ2
-         Og9Qk1IZiQSugdI+6weBt8zE3GT7ui+HqCZHRwYRUwJKJJeJcu7Imez1kZ5/1kNHwW
-         NTdKgGYOj28UpU3emLOrJ+Udzya/NyJijlVU4IwY=
-Date:   Thu, 20 Feb 2020 11:40:01 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Paul Moore <paul@paul-moore.com>, rsiddoji@codeaurora.org,
-        selinux@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.5 190/542] selinux: ensure we cleanup the
- internal AVC counters on error in avc_insert()
-Message-ID: <20200220164001.GD1734@sasha-vm>
-References: <20200214154854.6746-1-sashal@kernel.org>
- <20200214154854.6746-190-sashal@kernel.org>
- <64b56666-4e4a-10e0-0a1d-60ee28615d23@tycho.nsa.gov>
+        id S1727298AbgBTSKh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Feb 2020 13:10:37 -0500
+Received: from mailomta20-re.btinternet.com ([213.120.69.113]:38451 "EHLO
+        re-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726699AbgBTSKh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Feb 2020 13:10:37 -0500
+Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
+          by re-prd-fep-049.btinternet.com with ESMTP
+          id <20200220181034.MGGB15162.re-prd-fep-049.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Thu, 20 Feb 2020 18:10:34 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1582222234; 
+        bh=22Go1tvo5JB66+aZkVivMVo/98BRlLtg4ElYbUY40d8=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=O4duGARdZAUEztYkZD0VHwUSF3Q88daM9RsgxbO8CpzU0RWwxzrQ+2X3cb5/fFsqZNTi42eN5dIXgcck5qXA5wIDg41q+m29JoXllXm6m/nu+FrASE7CH5CoRLuJNWfrqwTi1n0xVZfrRXU8VTTHkXrTF+iQJbSI3DGseDlUNaA4zI3NSsxDbbGPEBWN1i4B70bFS9XyCF2doJtFr4eB+Vpyze7qYOLYrM0yVz0/On9cOpgYPqaBh+KOWVErri0cn45dwh6V7F7FWwJEta2c0deDydw9usAw3cRm6v/W6M1WOncc0OZjJc8wPGdSjsAl7kmrIOt2qiVuNHd2LoUXUw==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.134.4.49]
+X-OWM-Source-IP: 86.134.4.49 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrkedvgdduudduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkeeirddufeegrdegrdegleenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddufeegrdegrdegledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoeguhhhofigvlhhlshesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.134.4.49) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5E3A181A026A5EB1; Thu, 20 Feb 2020 18:10:34 +0000
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     dhowells@redhat.com
+Cc:     selinux@vger.kernel.org, sds@tycho.nsa.gov, paul@paul-moore.com,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: [RFC PATCH 0/1] selinux: Add support for new key permissions
+Date:   Thu, 20 Feb 2020 18:10:30 +0000
+Message-Id: <20200220181031.156674-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <64b56666-4e4a-10e0-0a1d-60ee28615d23@tycho.nsa.gov>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 11:07:37AM -0500, Stephen Smalley wrote:
->On 2/14/20 10:43 AM, Sasha Levin wrote:
->>From: Paul Moore <paul@paul-moore.com>
->>
->>[ Upstream commit d8db60cb23e49a92cf8cada3297395c7fa50fdf8 ]
->>
->>Fix avc_insert() to call avc_node_kill() if we've already allocated
->>an AVC node and the code fails to insert the node in the cache.
->>
->>Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
->>Reported-by: rsiddoji@codeaurora.org
->>Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
->>Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
->>Signed-off-by: Paul Moore <paul@paul-moore.com>
->>Signed-off-by: Sasha Levin <sashal@kernel.org>
->
->You should also apply 030b995ad9ece9fa2d218af4429c1c78c2342096 
->("selinux: ensure we cleanup the internal AVC counters on error in 
->avc_update()") which fixes one additional instance of the same kind of 
->bug not addressed by this patch.
+I've been running this patch on my system for a few weeks now with no
+problems, therefore I conclude that the key service only passes one
+permission at a time.
 
-I took that patch as well, thank you.
+Listed below is the output from the kernel logs regarding the permission
+translations.
+
+key_perms polcap = 0
+entry_perm: 0x0001 exit_perm: 0x0001 view
+entry_perm: 0x0002 exit_perm: 0x0002 read
+entry_perm: 0x0004 exit_perm: 0x0004 write
+entry_perm: 0x0008 exit_perm: 0x0008 search
+entry_perm: 0x0010 exit_perm: 0x0010 link
+entry_perm: 0x0020 exit_perm: 0x0020 setsec
+entry_perm: 0x0040 exit_perm: 0x0008 inval/search
+entry_perm: 0x0080 exit_perm: 0x0004 revoke/write
+entry_perm: 0x0100 exit_perm: 0x0008 join/search
+entry_perm: 0x0200 exit_perm: 0x0004 clear/write
+entry_perm: 0x0400 exit_perm: 0x0010 parent_join/link
+
+key_perms polcap = 1
+entry_perm: 0x0001 exit_perm: 0x0001 view
+entry_perm: 0x0002 exit_perm: 0x0002 read
+entry_perm: 0x0004 exit_perm: 0x0004 write
+entry_perm: 0x0008 exit_perm: 0x0008 search
+entry_perm: 0x0010 exit_perm: 0x0010 link
+entry_perm: 0x0020 exit_perm: 0x0020 setsec
+entry_perm: 0x0040 exit_perm: 0x0080 inval
+entry_perm: 0x0080 exit_perm: 0x0100 revoke
+entry_perm: 0x0100 exit_perm: 0x0200 join
+entry_perm: 0x0200 exit_perm: 0x0400 clear
+entry_perm: 0x0400 exit_perm: 0x0200 parent_join/join
+
+<---     key.h       ---->   <-- av_permissions.h -->
+KEY_NEED_VIEW        0x001   KEY__VIEW    0x00000001U
+KEY_NEED_READ        0x002   KEY__READ    0x00000002U
+KEY_NEED_WRITE       0x004   KEY__WRITE   0x00000004U
+KEY_NEED_SEARCH      0x008   KEY__SEARCH  0x00000008U
+KEY_NEED_LINK        0x010   KEY__LINK    0x00000010U
+KEY_NEED_SETSEC      0x020   KEY__SETATTR 0x00000020U
+KEY_NEED_INVAL       0x040   KEY__INVAL   0x00000080U
+KEY_NEED_REVOKE      0x080   KEY__REVOKE  0x00000100U
+KEY_NEED_JOIN        0x100   KEY__JOIN    0x00000200U
+KEY_NEED_CLEAR       0x200   KEY__CLEAR   0x00000400U
+KEY_NEED_PARENT_JOIN 0x400   KEY__JOIN    0x00000200U
+
+Richard Haines (1):
+  selinux: Add support for new key permissions
+
+ security/selinux/hooks.c            | 123 ++++++++++++++++------------
+ security/selinux/include/security.h |  10 +--
+ security/selinux/ss/services.c      |   4 +-
+ 3 files changed, 76 insertions(+), 61 deletions(-)
 
 -- 
-Thanks,
-Sasha
+2.24.1
+
