@@ -2,68 +2,86 @@ Return-Path: <SRS0=5MQ6=4I=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08528C11D0C
-	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 16:08:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21D75C11D0C
+	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 16:40:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C94FF207FD
-	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 16:08:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="swx9XM/m"
+	by mail.kernel.org (Postfix) with ESMTP id DF57620801
+	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 16:40:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1582216804;
+	bh=PqIjxGt93AjPELMvVrU2wYetUIUHuYPZgdc3HCIgm3k=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=b3bXeQeDbjbc54KqHUj7HCWS9LYuK7JvpG7qQcGiT4B+B+giuAy4exgpzlwKUt0n/
+	 Ts5WkX2X/bHVMOSV1EMNmT7ApmueuCyHZhId++maF8qpm4on7NK565rs5r1g79y99i
+	 8ekQWNlONcpmYJuC2ZuklQbadt0N6ljUM1vzOg2A=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728503AbgBTQIc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Feb 2020 11:08:32 -0500
-Received: from bombadil.infradead.org ([198.137.202.133]:58518 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728567AbgBTQIc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Feb 2020 11:08:32 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
-        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=PSD95E/5nOio2I64Rg9zUcEs1lPAbzeAuwNLTIjTQnk=; b=swx9XM/m86RZZK3DD07OXvMC65
-        WKcpWf4L7uaNrS+msvs3nsYkb3YL2EyeoXYIwEFpkkcDgxMVnFHewdWtfnNRXex7yYQk7d5IWvZcC
-        Q3gNr+BqZ3eS3a/G03zNfUXT+P4ll4TU+pQY83/fPSPWXpOt8Py3ef5rTV6E9NWqA3vqTwveQUrRU
-        Pi8dG1sGgEmEe5awYKSepM2KfoL2Qwo38tFORCK9/PLLbCZUf8lTX4ViCxtp56R6qjsxQqzn49bm5
-        FSAB/WDrs+2vRyw4YY+000EOSmSZLh4k9H885g/lDY7zZL8AUD9xxXT6cvIfrTfUOFO78BD8yG1EK
-        AaswhsrQ==;
-Received: from hch by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1j4oNA-0003tW-Ta; Thu, 20 Feb 2020 16:08:20 +0000
-Date:   Thu, 20 Feb 2020 08:08:20 -0800
-From:   Christoph Hellwig <hch@infradead.org>
+        id S1728134AbgBTQkD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Feb 2020 11:40:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45550 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728090AbgBTQkD (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 20 Feb 2020 11:40:03 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EFDE207FD;
+        Thu, 20 Feb 2020 16:40:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1582216802;
+        bh=PqIjxGt93AjPELMvVrU2wYetUIUHuYPZgdc3HCIgm3k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=H4j8QyF/I0J6liLlhOQF7i+TJe+fnAR9AOelLlYOgFf9aMhnhS8+ZHGbNtogrpEJ2
+         Og9Qk1IZiQSugdI+6weBt8zE3GT7ui+HqCZHRwYRUwJKJJeJcu7Imez1kZ5/1kNHwW
+         NTdKgGYOj28UpU3emLOrJ+Udzya/NyJijlVU4IwY=
+Date:   Thu, 20 Feb 2020 11:40:01 -0500
+From:   Sasha Levin <sashal@kernel.org>
 To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Christoph Hellwig <hch@infradead.org>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        paul@paul-moore.com, linux-xfs@vger.kernel.org,
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Paul Moore <paul@paul-moore.com>, rsiddoji@codeaurora.org,
         selinux@vger.kernel.org
-Subject: Re: [PATCH 0/1] selinux: Add xfs quota command types
-Message-ID: <20200220160820.GA14640@infradead.org>
-References: <20200220153234.152426-1-richard_c_haines@btinternet.com>
- <20200220155731.GU9506@magnolia>
- <20200220155938.GA1306@infradead.org>
- <2862d0b2-e0a9-149d-16e5-22c3f5f82e9e@tycho.nsa.gov>
+Subject: Re: [PATCH AUTOSEL 5.5 190/542] selinux: ensure we cleanup the
+ internal AVC counters on error in avc_insert()
+Message-ID: <20200220164001.GD1734@sasha-vm>
+References: <20200214154854.6746-1-sashal@kernel.org>
+ <20200214154854.6746-190-sashal@kernel.org>
+ <64b56666-4e4a-10e0-0a1d-60ee28615d23@tycho.nsa.gov>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <2862d0b2-e0a9-149d-16e5-22c3f5f82e9e@tycho.nsa.gov>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <64b56666-4e4a-10e0-0a1d-60ee28615d23@tycho.nsa.gov>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 20, 2020 at 11:06:10AM -0500, Stephen Smalley wrote:
-> > The dquot_* routines are not generic quota code, but a specific
-> > implementation used by most non-XFS file systems.  So if there is a bug
-> > it is that the security call is not in the generic dispatch code.
-> 
-> Hmm...any reason the security hook call couldn't be taken to
-> quota_quotaon()?
+On Fri, Feb 14, 2020 at 11:07:37AM -0500, Stephen Smalley wrote:
+>On 2/14/20 10:43 AM, Sasha Levin wrote:
+>>From: Paul Moore <paul@paul-moore.com>
+>>
+>>[ Upstream commit d8db60cb23e49a92cf8cada3297395c7fa50fdf8 ]
+>>
+>>Fix avc_insert() to call avc_node_kill() if we've already allocated
+>>an AVC node and the code fails to insert the node in the cache.
+>>
+>>Fixes: fa1aa143ac4a ("selinux: extended permissions for ioctls")
+>>Reported-by: rsiddoji@codeaurora.org
+>>Suggested-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+>>Signed-off-by: Paul Moore <paul@paul-moore.com>
+>>Signed-off-by: Sasha Levin <sashal@kernel.org>
+>
+>You should also apply 030b995ad9ece9fa2d218af4429c1c78c2342096 
+>("selinux: ensure we cleanup the internal AVC counters on error in 
+>avc_update()") which fixes one additional instance of the same kind of 
+>bug not addressed by this patch.
 
-I haven't touched the quota code for a while, but yes, the existing
-calls should move to the quota_* routines in fs/quota/quota.c.  Note
-that you still need to add checks, e.g. for Q_XSETQLIM.
+I took that patch as well, thank you.
+
+-- 
+Thanks,
+Sasha
