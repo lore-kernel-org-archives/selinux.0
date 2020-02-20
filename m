@@ -2,95 +2,129 @@ Return-Path: <SRS0=5MQ6=4I=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B12EC5ACC4
-	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 01:33:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF399C11D09
+	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 13:05:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 069B02465D
-	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 01:33:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="jtbv9xv1"
+	by mail.kernel.org (Postfix) with ESMTP id A105124670
+	for <selinux@archiver.kernel.org>; Thu, 20 Feb 2020 13:05:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726962AbgBTBdR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Feb 2020 20:33:17 -0500
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:35631 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726784AbgBTBdR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Feb 2020 20:33:17 -0500
-Received: by mail-ed1-f67.google.com with SMTP id y25so9512226edi.2
-        for <selinux@vger.kernel.org>; Wed, 19 Feb 2020 17:33:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=j77dQs+yd9qzXCy9U1fBmgMotbAqwan0g5ePOW5pm5Y=;
-        b=jtbv9xv1FCmvWdo9L9dEIqTs02yUZ85zga9tma4kUahVoK2Sle8vNcVh2gF926q56F
-         2j36GvKcrvP9tf5zEJ79kFCRvuULsXazQsBstS+vQg4u/cl6spz4yc81baLCb29i9oUh
-         h+wWgjZwaJqFI7v0HSY5DD5wZPjQVCx38AK86e1Dq7cdaGaSTA8NG5y4HklAU8eDicQj
-         knhfPFKC7S6HyN6U2VD2gEUpjbZeAA5pVoJXAOxDBBmp7DsTzjKJhliFfDKFJYCl1Bo7
-         XI0hdPCzq6gbXYcxxitL+2S8WYUkK8K46MkziH3d5USMpprchdqLUrGBCWsg6D0r1bKa
-         IR+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=j77dQs+yd9qzXCy9U1fBmgMotbAqwan0g5ePOW5pm5Y=;
-        b=bVP4bM6Z6yd/mnVe75FW+yfMt3r3s/aVi74Nzoz2pm8/EuTDF4hq0g9KtrBFpr497L
-         AIxxPETXWzQsM+vI1YBed4nC98DCvCgoP1aR0WqLCkRSrHxP4ESUUXShRIAUyhWIn7bf
-         kg3Rh4hJ8m3ZuOSJNJruK9TRsz2D1BfYfl4chsAIGEK52/wMHmGFfEL+qgpEw8ylQTOf
-         g5LvmKMM0Rng8EEzP2A3du0KxlUKyxyz91mi56XX0ApuOBJadAXcfS0c3r37Ftsv4xVj
-         oKr3s7Uxp3HT4iD0KUXqEg54DaUl3KdfkDwHyc3RmtXJWPQ8Y1YFq2/09+3qco+jAPnM
-         N26A==
-X-Gm-Message-State: APjAAAVKS52CKKyMpCVEeKIdHFn3atnjKLaYqilw5y5KNk8sHROC/oxy
-        hlIanVJSqwH6spFWYjwlhRq+paTXmhnt8GsFkIfJ
-X-Google-Smtp-Source: APXvYqwjtvbj5/Mq4VDhbOPrlYYz8o/837jR/DMlxzksYaFdyZLZiNTG1di2p4kdPbGDO+AFbH/hhmbVEOmPBiKhd44=
-X-Received: by 2002:a50:fd15:: with SMTP id i21mr25945580eds.12.1582162395398;
- Wed, 19 Feb 2020 17:33:15 -0800 (PST)
+        id S1728065AbgBTNFj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Feb 2020 08:05:39 -0500
+Received: from mga03.intel.com ([134.134.136.65]:57895 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727989AbgBTNFj (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 20 Feb 2020 08:05:39 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Feb 2020 05:05:23 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,464,1574150400"; 
+   d="scan'208";a="283399590"
+Received: from linux.intel.com ([10.54.29.200])
+  by FMSMGA003.fm.intel.com with ESMTP; 20 Feb 2020 05:05:21 -0800
+Received: from [10.125.252.166] (abudanko-mobl.ccr.corp.intel.com [10.125.252.166])
+        by linux.intel.com (Postfix) with ESMTP id 253CC580472;
+        Thu, 20 Feb 2020 05:05:12 -0800 (PST)
+Subject: Re: [PATCH v5 01/10] capabilities: introduce CAP_PERFMON to kernel
+ and user space
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Serge Hallyn <serge@hallyn.com>,
+        James Morris <jmorris@namei.org>
+Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        "jani.nikula@linux.intel.com" <jani.nikula@linux.intel.com>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        "rodrigo.vivi@intel.com" <rodrigo.vivi@intel.com>,
+        "benh@kernel.crashing.org" <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Will Deacon <will.deacon@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Robert Richter <rric@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "linux-perf-users@vger.kernel.org" <linux-perf-users@vger.kernel.org>,
+        oprofile-list@lists.sf.net, Andy Lutomirski <luto@amacapital.net>
+References: <875zgizkyk.fsf@nanos.tec.linutronix.de>
+ <7d6f4210-423f-e454-3910-9f8e17dff1aa@linux.intel.com>
+Organization: Intel Corp.
+Message-ID: <95aa57e6-4d78-39df-386c-a98734f19777@linux.intel.com>
+Date:   Thu, 20 Feb 2020 16:05:11 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-References: <20200130202239.11498-1-sds@tycho.nsa.gov> <20200130202239.11498-2-sds@tycho.nsa.gov>
- <306f9a78-695c-dfd3-3524-3814997fac51@tycho.nsa.gov> <099d42f9-f26a-be99-8bac-f151812a4726@tycho.nsa.gov>
- <CAHC9VhQMPEcgQVid2L4a4iO=2DUW+vwM1_vVxf0+KAum5+bYnA@mail.gmail.com> <e5de947b-4b80-6f1e-8dc5-c434c1fa6201@tycho.nsa.gov>
-In-Reply-To: <e5de947b-4b80-6f1e-8dc5-c434c1fa6201@tycho.nsa.gov>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 19 Feb 2020 20:33:04 -0500
-Message-ID: <CAHC9VhRaYdctY7YmZGg5q_4-12sWMNeVd-HYXTOoQ_kfembzeg@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] testsuite: add further nfs tests
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     selinux@vger.kernel.org, omosnace@redhat.com,
-        richard_c_haines@btinternet.com
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <7d6f4210-423f-e454-3910-9f8e17dff1aa@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 8:16 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
->
-> On 2/13/20 5:12 PM, Paul Moore wrote:
-> > On Thu, Feb 6, 2020 at 11:36 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> >> It would be good if we could get tools/nfs.sh running on kernels going
-> >> forward in addition to regular runs of selinux-testsuite.
-> >
-> > I've never tried this ... is it possible to mount a NFS mount over
-> > loopback?  What about labeled NFS?
->
-> Yes to both.  That's how tools/nfs.sh works.  I added instructions to
-> the README.md as part of the patch for dependencies and running it, but
-> it isn't run by default.
 
-[Apologies to Stephen who is getting two copies of this, I forgot to
-hit reply-all on my original response]
+On 07.02.2020 16:39, Alexey Budankov wrote:
+> 
+> On 07.02.2020 14:38, Thomas Gleixner wrote:
+>> Alexey Budankov <alexey.budankov@linux.intel.com> writes:
+>>> On 22.01.2020 17:25, Alexey Budankov wrote:
+>>>> On 22.01.2020 17:07, Stephen Smalley wrote:
+>>>>>> It keeps the implementation simple and readable. The implementation is more
+>>>>>> performant in the sense of calling the API - one capable() call for CAP_PERFMON
+>>>>>> privileged process.
+>>>>>>
+>>>>>> Yes, it bloats audit log for CAP_SYS_ADMIN privileged and unprivileged processes,
+>>>>>> but this bloating also advertises and leverages using more secure CAP_PERFMON
+>>>>>> based approach to use perf_event_open system call.
+>>>>>
+>>>>> I can live with that.  We just need to document that when you see
+>>>>> both a CAP_PERFMON and a CAP_SYS_ADMIN audit message for a process,
+>>>>> try only allowing CAP_PERFMON first and see if that resolves the
+>>>>> issue.  We have a similar issue with CAP_DAC_READ_SEARCH versus
+>>>>> CAP_DAC_OVERRIDE.
+>>>>
+>>>> perf security [1] document can be updated, at least, to align and document 
+>>>> this audit logging specifics.
+>>>
+>>> And I plan to update the document right after this patch set is accepted.
+>>> Feel free to let me know of the places in the kernel docs that also
+>>> require update w.r.t CAP_PERFMON extension.
+>>
+>> The documentation update wants be part of the patch set and not planned
+>> to be done _after_ the patch set is merged.
+> 
+> Well, accepted. It is going to make patches #11 and beyond.
 
-Thanks.  I'll look into adding that to my automated testing.
+Patches #11 and #12 of v7 [1] contain information on CAP_PERFMON intention and usage.
+Patch for man-pages [2] extends perf_event_open.2 documentation.
 
-I also need to set something up to check to see what other subsystems
-drop in security/selinux both in the linux-next tree as well as in
-Linus' tree during the -rcX phase.  The keys patch is the latest
-snafu, but there have been others.
+Thanks,
+Alexey
 
--- 
-paul moore
-www.paul-moore.com
+---
+[1] https://lore.kernel.org/lkml/c8de937a-0b3a-7147-f5ef-69f467e87a13@linux.intel.com/
+[2] https://lore.kernel.org/lkml/18d1083d-efe5-f5f8-c531-d142c0e5c1a8@linux.intel.com/
+
