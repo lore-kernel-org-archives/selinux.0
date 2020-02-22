@@ -6,85 +6,103 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEFDFC35666
-	for <selinux@archiver.kernel.org>; Sat, 22 Feb 2020 19:49:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A4C1C35666
+	for <selinux@archiver.kernel.org>; Sat, 22 Feb 2020 21:33:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 87FB4206EF
-	for <selinux@archiver.kernel.org>; Sat, 22 Feb 2020 19:49:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5B93120707
+	for <selinux@archiver.kernel.org>; Sat, 22 Feb 2020 21:33:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="NoLB8KKM"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="SFxN8Jib"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726758AbgBVTt3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 22 Feb 2020 14:49:29 -0500
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:33184 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726550AbgBVTt3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 22 Feb 2020 14:49:29 -0500
-Received: by mail-ed1-f68.google.com with SMTP id r21so6858025edq.0
-        for <selinux@vger.kernel.org>; Sat, 22 Feb 2020 11:49:26 -0800 (PST)
+        id S1726845AbgBVVds (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 22 Feb 2020 16:33:48 -0500
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:44099 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726828AbgBVVds (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 22 Feb 2020 16:33:48 -0500
+Received: by mail-ed1-f65.google.com with SMTP id g19so6981790eds.11
+        for <selinux@vger.kernel.org>; Sat, 22 Feb 2020 13:33:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=7JYLJKT/hQhs6KreC3CzVzSZgkLBmMBMygUpecQo/Ig=;
-        b=NoLB8KKMnfnSgBN0x935CKSXlBQr+CiCZeKwwIJVLKyJ077BKO4XgTCvaNfiQZ8BG7
-         g35Jwbxszi5+8QKJqrQp7SLcGgVpJWJ5J9aBjHlA/z3qh2K27R9ofVc3vRW7+atmQ6ZS
-         CpFVNGnkbNFlcX17OT/7ygHmyXycCZutgIDdUL9FvoVyuK9jwdfYFrFSifOzWEztejtV
-         LV0v4XspUiqX5OvVkccUoNzVwo1/iXOOWbEy39vdsWg2thZLR4z8zOuQH1VQCKHVyFym
-         y03KuWfyp/7Y2GzhSlkW12tSPKel68J1O1yWrXn8DYhV2rGhgG/g65EjM8TJ8L7BUoFn
-         T3cw==
+        bh=R5AaB/5Rxid4xbRiER0IWBTV/tQmyXidioy8cpSd3kM=;
+        b=SFxN8Jib/Y1+nBhZ1eHW+3RwldBZt1gcRrgF1kwE/YrXX4/Pj5z7m9yocoqay9Ip1t
+         NvAT3g1vEVkR0GUReC6P4PoZQH6LzydU2Q8VL7p4FZD3hHMWAVoYzfUATG7adkCDkENM
+         34fHrkyo2BudlUC3Qn+1eiaDfLZmexz999Qpv6AUyQpbHRWp5ibixJAjFUe0FBYmXswO
+         sYgwzkIbjMHv+hIT8Mfckxqi7MxwRcbbPp1wy+Vz+9+HHELDdMnspalFbek9H/JYuJcz
+         7Jp83StmOamXbz2OxXOabZWCAaIdDRU9hP2WqYys5udtDTRJbWxTKepgdZunlZxAWnm5
+         CCrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=7JYLJKT/hQhs6KreC3CzVzSZgkLBmMBMygUpecQo/Ig=;
-        b=bFWSIBoXtGviVIx+bgY0d0Xtr9yqVsy4EiQo6pPB8gz434uuQpBEEhBnLbiDP2JznG
-         rk1zh9qJpFLuN84Kx1f+jaF1k0vB1WBOtkQI2Gz/GjnZUPwoHbub9HZuW+G/b+zNwaKZ
-         xzq28j8rAr1jXOMstmGXEkvUP4kWbSTj1VlNo4H68/ZsXiz9uH/DIlRwhbwzpIWrjHg/
-         u8RXC8InXmcPIqpJsg4ru6UsQmU3Z38SvWgFa5lqQDGxsvaYYvT6dBBTisEXYKCaN4WO
-         LckpsjTYlyaxTTZhagBvlqrpGvWk5HzBbzbLSWWgz+XEXksQU4K9Cm2+xsl32JUIl3xu
-         nJlQ==
-X-Gm-Message-State: APjAAAWCXEHzl2AXNNpR4XXQBEJO+0SR1gEO3QdHG5bWRYxaBuiWQSrK
-        PuOr2LB2dlx7H0DHUtDuJu69uuV8WxsoS5K7qEyt
-X-Google-Smtp-Source: APXvYqyAoIgaMVG07BP0crmGCNOJTZLLbPrr1b3JOXJUMDT67NRb2gouWu4bjjIeU0vNtjFgbsPywwmXYYf3zyzSxBs=
-X-Received: by 2002:a17:906:22cf:: with SMTP id q15mr39636640eja.77.1582400966197;
- Sat, 22 Feb 2020 11:49:26 -0800 (PST)
+        bh=R5AaB/5Rxid4xbRiER0IWBTV/tQmyXidioy8cpSd3kM=;
+        b=Q1CmYLxZ4b/0VLRxdJR/p7RGlogvD0LZXMCjmgSLJVdb9/hAeaVxX2TiH1pQE0BuZT
+         y21NKvZqu8276S0ey99XIbLWv0UJ5rITafhzQrTob8p10gKNHFvSjTL287518DiL0MBx
+         gz7geOIFn5d2AlMWL91Zxd7zYujA6Q9452g5RlEXrYKeJiZ+Ocbgo9aGsdLu2WWGnVZo
+         yMIiTMStqJruF4YwV2U+ZmdUunRoFphsakQFcqL3oQqVcY+H3EOzeWPPIS+IPqVbm0aL
+         dlKfl/MgnUmvoHn17Zbl0zeZAwbf+h9jnHNXLwEpUyN0PdJDGNdGOWOQaKDgY2XnY8Kn
+         f68A==
+X-Gm-Message-State: APjAAAVtPRiUFZIgH6ItGVbBnuvhNUBf+PSY9jzT3X+QWTRAHZpfA0Qt
+        lHbUwNA0RIOXgDepc+bHrD9x4DdA/v9z5QUYrV5Y9PXv3zZ8
+X-Google-Smtp-Source: APXvYqwz2xjkWe28PLhjs1c5+xlwyMgz2ZHIqhA+456jHvVDDqkdUft0tPT8UKibrE964FFTudOgryBQvB7YKit9vyA=
+X-Received: by 2002:a50:ec1a:: with SMTP id g26mr38578069edr.164.1582407225167;
+ Sat, 22 Feb 2020 13:33:45 -0800 (PST)
 MIME-Version: 1.0
-References: <20200220153234.152426-1-richard_c_haines@btinternet.com>
- <20200220155731.GU9506@magnolia> <20200220155938.GA1306@infradead.org>
- <2862d0b2-e0a9-149d-16e5-22c3f5f82e9e@tycho.nsa.gov> <20200220160820.GA14640@infradead.org>
-In-Reply-To: <20200220160820.GA14640@infradead.org>
+References: <20200129164256.3190-1-sds@tycho.nsa.gov> <CAFqZXNsk_fyPuLDz-jtjtjzJR5rZmBAKgFzPk3Z0y35ahyaeRw@mail.gmail.com>
+ <f9f12adf-51b1-3ba5-fef2-f290b69d974e@tycho.nsa.gov>
+In-Reply-To: <f9f12adf-51b1-3ba5-fef2-f290b69d974e@tycho.nsa.gov>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Sat, 22 Feb 2020 14:49:15 -0500
-Message-ID: <CAHC9VhRXo=EZ4HbLa_W_waL4xtdE6M92em7aNh=wm_7hpozJ7g@mail.gmail.com>
-Subject: Re: [PATCH 0/1] selinux: Add xfs quota command types
-To:     Christoph Hellwig <hch@infradead.org>,
-        Richard Haines <richard_c_haines@btinternet.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        linux-xfs@vger.kernel.org, selinux@vger.kernel.org
+Date:   Sat, 22 Feb 2020 16:33:34 -0500
+Message-ID: <CAHC9VhQ8W4id4_v+YN9qXwzp-baa+57bcaqm3vSkZ4QaxkKVQg@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: remove unused initial SIDs and improve handling
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 20, 2020 at 11:08 AM Christoph Hellwig <hch@infradead.org> wrote:
->
-> On Thu, Feb 20, 2020 at 11:06:10AM -0500, Stephen Smalley wrote:
-> > > The dquot_* routines are not generic quota code, but a specific
-> > > implementation used by most non-XFS file systems.  So if there is a bug
-> > > it is that the security call is not in the generic dispatch code.
+On Fri, Feb 14, 2020 at 8:22 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> On 2/14/20 7:46 AM, Ondrej Mosnacek wrote:
+> > On Wed, Jan 29, 2020 at 5:42 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> >> Fully decoupling the policy and kernel initial SID values will
+> >> require introducing a mapping between them and dyhamically
 > >
-> > Hmm...any reason the security hook call couldn't be taken to
-> > quota_quotaon()?
+> > Nit: s/dyhamically/dynamically/
 >
-> I haven't touched the quota code for a while, but yes, the existing
-> calls should move to the quota_* routines in fs/quota/quota.c.  Note
-> that you still need to add checks, e.g. for Q_XSETQLIM.
+> Ah, thanks; will fix if I need to re-spin.
 
-Who wanted to submit a patch for this?  Christoph were you planning on
-fixing this?  If not, Richard, do you want to give it a try?
+Normally this would fall under the category of something I could
+fix-up during a merge, but I think there are a few changes, mostly
+documentation, that we should add to this patch.
+
+First off, I know MLS is the policy everyone wants to forget, but it
+*is* used so let's not cause them any more pain then they are already
+feeling.  That should add a few initial SIDs back into the list, but I
+think it still frees up plenty.
+
+Second, when we load the initial SIDs, in policydb_load_isids(), you
+show an error if one of these isid's is assigned a context:
+
++ if (sid == SECSID_NULL) {
++   pr_err("SELinux:  SID null was assigned a context.\n");
+
+... I would suggest that we also display the SID number like below so
+that policy devs have a better idea of which isid is causing the
+problem:
+
++ if (sid == SECSID_NULL) {
++   pr_err("SELinux:  SID null(%u) was assigned a context.\n", sid);
+
+Lastly, and most importantly, there is a lot of good discussion,
+including a "roadmap" in the GH issue, let's try to capture that in
+this patch description (maybe minus your retirement plans Stephen
+<g>).  I have no idea where GH may be in a few years, but the git log
+is FOREVER ;)
 
 -- 
 paul moore
