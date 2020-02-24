@@ -2,99 +2,137 @@ Return-Path: <SRS0=m/sx=4M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 948EAC38BE0
-	for <selinux@archiver.kernel.org>; Mon, 24 Feb 2020 18:27:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3499C38BE1
+	for <selinux@archiver.kernel.org>; Mon, 24 Feb 2020 18:52:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7420720838
-	for <selinux@archiver.kernel.org>; Mon, 24 Feb 2020 18:27:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9E8F2080D
+	for <selinux@archiver.kernel.org>; Mon, 24 Feb 2020 18:52:20 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A1y/E2Mu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbgBXS1F (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Feb 2020 13:27:05 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:48928 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727711AbgBXS1F (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Feb 2020 13:27:05 -0500
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 01OIJkPb037372
-        for <selinux@vger.kernel.org>; Mon, 24 Feb 2020 13:27:03 -0500
-Received: from e06smtp01.uk.ibm.com (e06smtp01.uk.ibm.com [195.75.94.97])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 2yax44rwx8-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <selinux@vger.kernel.org>; Mon, 24 Feb 2020 13:27:03 -0500
-Received: from localhost
-        by e06smtp01.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <selinux@vger.kernel.org> from <zohar@linux.ibm.com>;
-        Mon, 24 Feb 2020 18:27:01 -0000
-Received: from b06avi18626390.portsmouth.uk.ibm.com (9.149.26.192)
-        by e06smtp01.uk.ibm.com (192.168.101.131) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Mon, 24 Feb 2020 18:26:57 -0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 01OIPxE141091426
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 24 Feb 2020 18:25:59 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 47CE8AE051;
-        Mon, 24 Feb 2020 18:26:56 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C81FDAE04D;
-        Mon, 24 Feb 2020 18:26:54 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.85.188.252])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 24 Feb 2020 18:26:54 +0000 (GMT)
-Subject: Re: [PATCH v15 03/23] LSM: Use lsmblob in security_audit_rule_match
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Casey Schaufler <casey@schaufler-ca.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov
-Date:   Mon, 24 Feb 2020 13:26:54 -0500
-In-Reply-To: <20200214234203.7086-4-casey@schaufler-ca.com>
-References: <20200214234203.7086-1-casey@schaufler-ca.com>
-         <20200214234203.7086-4-casey@schaufler-ca.com>
+        id S1726663AbgBXSwU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Feb 2020 13:52:20 -0500
+Received: from mail-il1-f195.google.com ([209.85.166.195]:46046 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726652AbgBXSwU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Feb 2020 13:52:20 -0500
+Received: by mail-il1-f195.google.com with SMTP id p8so323157iln.12
+        for <selinux@vger.kernel.org>; Mon, 24 Feb 2020 10:52:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EhGFq9zt4/ioPQEGrcyIVqXLz7qgGlQB/NoM0nnbwfE=;
+        b=A1y/E2MuIzpISOUthIPg+2Ks4GIxsshUYX+f2cAxouT7kxwDMufIuT14MnrnJiat5u
+         4OTOEVhk5FczqBB+n/ghC2T5rQ7OoSSC2lgJMZ2RvjavSARPOnSYEJirRyYl4XGJMj/0
+         +sEYGKiKDSEtDgZhey4r6KbC8gBbavMuxRVawzwijbA/qsOvwHMoDDNYsAG+8DuTKw1e
+         XH+G1r4k69sskYseUVaEmwE9xJI1Koo1nHR7NpVSJtTVOSMkauL5AgPKqcK1AhhCzxNA
+         8PsX0dfULpiY61K+y4HS805eu0FnqzLOaSWtusyRW0sxn3FsbUz2hP7uxair2kbncnQz
+         BwQQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EhGFq9zt4/ioPQEGrcyIVqXLz7qgGlQB/NoM0nnbwfE=;
+        b=KupC8SPhO8Chr/0c+A06T5CBXcC+wd6g0WMhwFU00uMeX4UlXmQ/iGp2XQYcSe4rqx
+         16RvizAIsovUqKm6txPqz4pF+aLgaTChv4MGj0XbmMZWq5qGqssrBtK9MYv+//F8a24j
+         PWBo4rTJkpotEbHLHzt3ZSTs+jMo7UzmrtjzG+ALSfAoY73EIs9XdPDSpbzapYdaqP5s
+         uBO/gcAH0A+WE11nPTiyjg9rHWolZc+PgGA2ofKs4IEa7hRIi4oLeTa31AIMb1rTNqWD
+         63/IwNULrsGEfewdsz6zbNPSnh5OIh22QDZ+x6l4GEPTqQAbSZtDLZEPOXS76VjswpNE
+         uKGw==
+X-Gm-Message-State: APjAAAXkH2Hwfo1jyWNC7gQSpiemNE75NBpulQ9XeIqcOvuQ7W6HNaUT
+        zBjkYjSSr+kPy21UPtBjPMJCaNMhlKXOI8t3zh/FhA==
+X-Google-Smtp-Source: APXvYqwUPKdq4as0ic04zqRyPwLlJCxbFNNz5FxrVTSc0w2LkpTeRT6wi/9sb5xw9biJ0o3ivUmFZRLF1Ox4Mq1jyIY=
+X-Received: by 2002:a92:d2:: with SMTP id 201mr63201771ila.22.1582570339435;
+ Mon, 24 Feb 2020 10:52:19 -0800 (PST)
+MIME-Version: 1.0
+References: <20200221083819.1124890-1-plautrba@redhat.com> <CAFftDdqzTnhO4ii+r9jweBGMtvwrezi-T1_utoCe-V=v+rfPVA@mail.gmail.com>
+ <2b98a7da-e186-1013-1286-27d751e75536@tycho.nsa.gov> <CAFftDdo_A5KCwj1szdf-JMV5CbCet58sPe2gJ4v9wKCHOd=1KA@mail.gmail.com>
+In-Reply-To: <CAFftDdo_A5KCwj1szdf-JMV5CbCet58sPe2gJ4v9wKCHOd=1KA@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Mon, 24 Feb 2020 12:52:08 -0600
+Message-ID: <CAFftDdqs0OVnMTAbn8_1_G+djMKfseev+05eBW6bPU5ug0mcbA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: deprecate security_compute_user(), update man pages
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-x-cbid: 20022418-4275-0000-0000-000003A5102A
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 20022418-4276-0000-0000-000038B92427
-Message-Id: <1582568814.10443.149.camel@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.572
- definitions=2020-02-24_07:2020-02-21,2020-02-24 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- adultscore=0 mlxlogscore=999 suspectscore=0 spamscore=0 priorityscore=1501
- impostorscore=0 mlxscore=0 malwarescore=0 phishscore=0 bulkscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2001150001 definitions=main-2002240135
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 2020-02-14 at 15:41 -0800, Casey Schaufler wrote:
+On Mon, Feb 24, 2020 at 12:44 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+>
+>
+> On Mon, Feb 24, 2020 at 11:00 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+>>
+>> On 2/24/20 11:49 AM, William Roberts wrote:
+>> > On Fri, Feb 21, 2020 at 2:40 AM Petr Lautrbach <plautrba@redhat.com
+>> > <mailto:plautrba@redhat.com>> wrote:
+>> >
+>> >     From: Stephen Smalley <sds@tycho.nsa.gov <mailto:sds@tycho.nsa.gov>>
+>> >
+>> >     commit 1f89c4e7879fcf6da5d8d1b025dcc03371f30fc9 ("libselinux: Eliminate
+>> >     use of security_compute_user()") eliminated the use of
+>> >     security_compute_user() by get_ordered_context_list().  Deprecate
+>> >     all use of security_compute_user() by updating the headers and man
+>> >     pages and logging a warning message on any calls to it.  Remove
+>> >     the example utility that called the interface. While here, also
+>> >     fix the documentation of correct usage of the user argument to these
+>> >     interfaces.
+>> >
+>> >     Fixes: https://github.com/SELinuxProject/selinux/issues/70
+>> >     Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov
+>> >     <mailto:sds@tycho.nsa.gov>>
+>> >     Acked-by: Petr Lautrbach <plautrba@redhat.com
+>> >     <mailto:plautrba@redhat.com>>
+>> >     ---
+>>
+>> >     diff --git a/libselinux/include/selinux/selinux.h
+>> >     b/libselinux/include/selinux/selinux.h
+>> >     index 883d8b85742c..6a512b383325 100644
+>> >     --- a/libselinux/include/selinux/selinux.h
+>> >     +++ b/libselinux/include/selinux/selinux.h
+>> >     @@ -246,8 +246,12 @@ extern int security_compute_member_raw(const
+>> >     char * scon,
+>> >                                             security_class_t tclass,
+>> >                                             char ** newcon);
+>> >
+>> >     -/* Compute the set of reachable user contexts and set *con to refer to
+>> >     -   the NULL-terminated array of contexts.  Caller must free via
+>> >     freeconary. */
+>> >     +/*
+>> >     + * Compute the set of reachable user contexts and set *con to refer to
+>> >     + * the NULL-terminated array of contexts.  Caller must free via
+>> >     freeconary.
+>> >     + * These interfaces are deprecated.  Use get_ordered_context_list() or
+>> >     + * one of its variant interfaces instead.
+>> >     + */
+>> >       extern int security_compute_user(const char * scon,
+>> >                                       const char *username,
+>> >                                       char *** con);
+>> >
+>> >
+>> > Any reason we're not tagging this with __attribute__ ((deprecated));?
+>>
+>> Doesn't appear that we've ever used that.  Is it widely supported across
+>> compilers and versions or limited to recent gcc?
+>>
+>
+> Its at least since GCC 3.3 and it's been supported in every clang compiler version I am aware of (linked to 3.3).
+> https://gcc.gnu.org/onlinedocs/gcc-3.3/gcc/Type-Attributes.html
+> https://releases.llvm.org/3.3/tools/clang/docs/LanguageExtensions.html
+>
 
-<snip>
+Sorry for the HTML, apparently Google stopped making that my default
+when replying...
 
-> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-> index 624ed1a34842..ad48b7b60cff 100644
-> --- a/security/integrity/ima/ima_policy.c
-> +++ b/security/integrity/ima/ima_policy.c
-> @@ -476,6 +476,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
->  	for (i = 0; i < MAX_LSM_RULES; i++) {
->  		int rc = 0;
->  		u32 osid;
-> +		struct lsmblob blob;
-
-A new local lsmblob variable is defined here with the same name as the
-function variable.
-
-Mimi
-
+>
