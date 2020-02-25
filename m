@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89814C35E10
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 20:02:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50039C35E13
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 20:02:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5B579218AC
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 20:02:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2482921744
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 20:02:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AqXeCmY5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lPGeq4zf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731665AbgBYUCm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Feb 2020 15:02:42 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:38939 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731645AbgBYUCl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 15:02:41 -0500
-Received: by mail-pl1-f193.google.com with SMTP id g6so243982plp.6
-        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 12:02:41 -0800 (PST)
+        id S1731645AbgBYUCo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Feb 2020 15:02:44 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:44493 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730961AbgBYUCn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 15:02:43 -0500
+Received: by mail-pf1-f194.google.com with SMTP id y5so104616pfb.11
+        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 12:02:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=p1GByf6fsu6kmddAau9KLY0+hGhmNnwPe1Shj/m1U6Q=;
-        b=AqXeCmY5IvPepWRvxoeKzkTP2Tdn+bclC6xw/XTDZo6CEMsi4RvdGbs3NVE9U3azoh
-         mxLYIf3e71fth1lkgXfee7L1CUWXeNesDv4C5dluij/VEjHvezKoiEUGM9MN0ZPzqvAS
-         3j2G7d5i0vK8foAQ6eQvA91hTH9KvzmJ6BowOnmBc72aS1cJkRo1NnkYJTXtXBlV9Y0j
-         jGmOZu5qX2I3N6twiUUcrxvG8EC1KyGwZ3K7I+6cYWTTvXBB5/WwR0vCN2E5bDUrwoXR
-         uN5DIfDvzmm7HKNYzXr/Cmzy7XOgKtbAUvXU/u7Bj8pofSS70jrU0JruZfWKfSZRVu23
-         xKSA==
+        bh=zHxmTPEui+mxUxYinqadrYA5tGM9Ed/b3Ly4CRgFNRo=;
+        b=lPGeq4zf/AB2rrXxwW02GVMMqHjisV1w30nRS12xm0+qFIzxcArW9IRMwjeoA65Anc
+         8dFCLNffXytHayGIpbMErgmPwEFCxhJgHTXaG+ahWhqCy4LgHvEYgtFLAOHHXn8XqeQ1
+         jwgJhR7JLzvPthLPxlYsH+q0uyt+K4hPApb81tXCv67iSgo3EnMHNERmPlXwTPbGT05C
+         jNal8MIIAESPdQYMf/o2P+JZUz5nhh83E5I4IxxMNtUo1qt7azCV5Wu8wB65RkpGRmnT
+         oFx2PZI3ghxtBlAMO6Dk64P4J0nc9QQtiY3t8+vtOwsiRNy0+/upzlHpyCergMy/M9hp
+         CZDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=p1GByf6fsu6kmddAau9KLY0+hGhmNnwPe1Shj/m1U6Q=;
-        b=oYa2aD3Mqhpgpjo0Cch0jhwEj42gUUQpyXm0dT5GplG7ijfSG3bP2Xk8yygMhGptcy
-         pLTKCc6fYx/MaVt1xsG/55hJTvY5BuFDT4wXGNO5GGCEQ1NgFQz+OeZK4PfKuybMViaw
-         +VN0s56y5toZOoS5r4j24ARAvtUTJQQA3YibkCctaxRv6Alb3P9IDoJLunczBz1i+ADj
-         uCdpenyM5EojsjEp64kulit0UHVktcI7fZA9KsZ9l0VY7MYt0M2jTQe1CNiPoCbVQlaK
-         b8JqJj/k2Tu3evQK0wj3wIigB7drqt5q+NkllS5fp5vIQDI2Xjjva1EF9XhXehrC8YFg
-         qZ5A==
-X-Gm-Message-State: APjAAAWkiCtgojlTmLqmoipJgDJUZJvktGkL/2hjxYj0mSDcK1WvYy53
-        pxgAlx71w635qsCO7MbF28c=
-X-Google-Smtp-Source: APXvYqyTmxm7oPa5/0LdAXKRKDKTtqL4sVPsxpDBAUO1ZRUaPfNk9NqP/5rjPaL6M8si7HEf24IQhw==
-X-Received: by 2002:a17:90a:c390:: with SMTP id h16mr742388pjt.131.1582660961068;
-        Tue, 25 Feb 2020 12:02:41 -0800 (PST)
+        bh=zHxmTPEui+mxUxYinqadrYA5tGM9Ed/b3Ly4CRgFNRo=;
+        b=SFhtY6ET6bK+RTcNOthdMKZD2hrvHPEtvyOtnBvJyf/sWSOpyYrPtI3F0qF0wkGRtJ
+         sB9RRPwCDaeRJ8oC/VX3yUKJhy+keFQYFmlqK9iq3w9uPuHKX+sBXFiUT/O5cmkS/SnV
+         aYvkBvSAY9bjwdA+6xnxbB012CrW4Q+WlNSARokcKf/gyD2srJcchwN4YfLwZtc9kiXB
+         weELedR6MDT9pPELg8Qc62drlx1/lIJdLa9eSOao0sZBB6QicYKVY9ggWeTa06eyLbw3
+         GFGgp5RrOfEbKPVAyg0GUY3eVG+789yUG0yNrhLRKMmFHtDa36H/aHG5BhbjUc5AgN7L
+         srhg==
+X-Gm-Message-State: APjAAAUkc+SnpXoT1jtIE3+vkSvLWayNfUsLQSghjFZAXoxW2lGMIVXr
+        Sghs1f/1jXYhpAL+ltPWW80=
+X-Google-Smtp-Source: APXvYqxwFoOqCw7RPCZDlYttQlQy/a7pvTPVUQZB4xihwM3ucq3tC9ox36WZhxcBZlg2N/u+KThaNg==
+X-Received: by 2002:aa7:9304:: with SMTP id 4mr411282pfj.76.1582660962991;
+        Tue, 25 Feb 2020 12:02:42 -0800 (PST)
 Received: from localhost.localdomain (fmdmzpr03-ext.fm.intel.com. [192.55.54.38])
-        by smtp.gmail.com with ESMTPSA id v29sm10636362pgc.72.2020.02.25.12.02.39
+        by smtp.gmail.com with ESMTPSA id v29sm10636362pgc.72.2020.02.25.12.02.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Feb 2020 12:02:40 -0800 (PST)
+        Tue, 25 Feb 2020 12:02:42 -0800 (PST)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     sds@tycho.nsa.gov, plautrba@redhat.com, selinux@vger.kernel.org
 Cc:     William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH 02/17] selinux_booleans_path: annotate deprecated
-Date:   Tue, 25 Feb 2020 14:02:04 -0600
-Message-Id: <20200225200219.6163-3-william.c.roberts@intel.com>
+Subject: [PATCH 03/17] selinux_booleans_path: annotate deprecated
+Date:   Tue, 25 Feb 2020 14:02:05 -0600
+Message-Id: <20200225200219.6163-4-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200225200219.6163-1-william.c.roberts@intel.com>
 References: <20200225200219.6163-1-william.c.roberts@intel.com>
@@ -77,18 +77,18 @@ Signed-off-by: William Roberts <william.c.roberts@intel.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index ee808dd954ad..97834cc842dd 100644
+index 97834cc842dd..0f77debaa06c 100644
 --- a/libselinux/include/selinux/selinux.h
 +++ b/libselinux/include/selinux/selinux.h
-@@ -321,7 +321,7 @@ extern int security_set_boolean_list(size_t boolcnt,
- /* Load policy boolean settings. Deprecated as local policy booleans no
-  * longer supported. Will always return -1.
-  */
--extern int security_load_booleans(char *path);
-+extern int security_load_booleans(char *path) __attribute__ ((deprecated));
- 
- /* Check the validity of a security context. */
- extern int security_check_context(const char * con);
+@@ -571,7 +571,7 @@ extern const char *selinux_contexts_path(void);
+ extern const char *selinux_securetty_types_path(void);
+ extern const char *selinux_booleans_subs_path(void);
+ /* Deprecated as local policy booleans no longer supported. */
+-extern const char *selinux_booleans_path(void);
++extern const char *selinux_booleans_path(void) __attribute__ ((deprecated));
+ extern const char *selinux_customizable_types_path(void);
+ /* Deprecated as policy ./users no longer supported. */
+ extern const char *selinux_users_path(void);
 -- 
 2.17.1
 
