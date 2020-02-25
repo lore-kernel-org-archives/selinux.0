@@ -2,62 +2,52 @@ Return-Path: <SRS0=F/Jq=4N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9CED9C35E04
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 17:54:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB6A9C35E01
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 18:13:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6FEF121927
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 17:54:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B730120CC7
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 18:13:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="pvSuQ00m"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="ifUZQ3y1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730209AbgBYRyI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Feb 2020 12:54:08 -0500
-Received: from mailomta9-sa.btinternet.com ([213.120.69.15]:27658 "EHLO
-        sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730864AbgBYRyH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 12:54:07 -0500
-Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
-          by sa-prd-fep-047.btinternet.com with ESMTP
-          id <20200225175404.GOCI7408.sa-prd-fep-047.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
-          Tue, 25 Feb 2020 17:54:04 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1582653244; 
-        bh=l6epApwVc9fmpwE1MJjiYAHLYjGtuTd6FxT4oYdC+DQ=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=pvSuQ00mK1UFM9J+iGBTrEluo0iS+ZUp9ObqzkOuJ1DVd9VGvl7F3cf26EWUTnoGycqK1y9BZT+cOWnoEQkXUIdXaOK7PP+zoc8fc8mUDrP+qK9k3GQnWCmiXbxZNJeAKQRE1WDFYUyYOsL7jYQC2kdEHNY0ys9VqbJMGuj2y2K+ftKobHj12XSokcg0pPqNrNwyuDx0CdPotfimbuh6y9i6RZmSCcyoch+I88Z8kkonvZRUT2z3OfHtMFEnCFhlcBiwgsLE6NQQ3K1pmVNKT3h+UNyA6jey7SD1YfBM6ufUf3WH2S7kwqZ5nwJHiMFvgfujoGtaVQ2jDzXfjkbfww==
+        id S1730017AbgBYSN0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Feb 2020 13:13:26 -0500
+Received: from mailomta18-re.btinternet.com ([213.120.69.111]:25074 "EHLO
+        re-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728367AbgBYSN0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 13:13:26 -0500
+Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
+          by re-prd-fep-044.btinternet.com with ESMTP
+          id <20200225181324.DCYK7315.re-prd-fep-044.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Tue, 25 Feb 2020 18:13:24 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1582654404; 
+        bh=JI1l4DllsYBo1CKbunW+WrAkC6q+S5ZmvHu8WA2cr5A=;
+        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
+        b=ifUZQ3y1A/5CWBT6SkCxDpdK999q1kDJFx5MrOdb2Wr6SGCuZ2678VMk56lJ2koNbGmaYm0H75sehHIzXiF/A44vOrlZ/izApDBf/cvcxmqDaaH4PraOeHjlCi2XDyfJud5nmNUzv3gPd0E9qsvWXnICglG5ufOEaknPT876FlNZxbRlrx19y+hkqHJ98z48hh9srP7ChYybwV0JEajsyhHVcTlCPw3mJT0SWu1eevOSZtvoqlAvBABlbN57JemJxzb6CxDABUtG652PIfn3HVE8twqQ1KLcUPZp4ePZSnMgKq2mSGHyAjKkqo/F4b/nJ0/DEhGFCuM9pGo0bYThBA==
 Authentication-Results: btinternet.com;
     auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
 X-Originating-IP: [31.49.58.0]
 X-OWM-Source-IP: 31.49.58.0 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrledvgddutdehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepfedurdegledrheekrddtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoegurghrrhhitghkrdifohhnghesohhrrggtlhgvrdgtohhmqedprhgtphhtthhopeeohhgthhesihhnfhhrrgguvggrugdrohhrgheqpdhrtghpthhtohepoehlihhnuhigqdigfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvsheshhhothhmrghilhdrtghomheqpdhrtghpthhtohepoehsughs
-        sehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrledvgddutdelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepfedurdegledrheekrddtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehomhhoshhnrggtvgesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (31.49.58.0) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A24110336F644; Tue, 25 Feb 2020 17:54:04 +0000
-Message-ID: <575bec416692e93b599520f34d625de8d46bfb07.camel@btinternet.com>
-Subject: Re: [PATCH 0/1] selinux: Add xfs quota command types
+Received: from localhost.localdomain (31.49.58.0) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5E3A16DE0330AB22; Tue, 25 Feb 2020 18:13:24 +0000
+Message-ID: <d3c9a8fed62999b0162847da0f250c8e40c40255.camel@btinternet.com>
+Subject: Re: [PATCH testsuite v2] tests/sctp: fix setting of the SCTP_EVENTS
+ sockopt
 From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>, linux-xfs@vger.kernel.org,
-        selinux@vger.kernel.org
-Date:   Tue, 25 Feb 2020 17:54:03 +0000
-In-Reply-To: <20200225041327.GE6740@magnolia>
-References: <20200220153234.152426-1-richard_c_haines@btinternet.com>
-         <20200220155731.GU9506@magnolia> <20200220155938.GA1306@infradead.org>
-         <2862d0b2-e0a9-149d-16e5-22c3f5f82e9e@tycho.nsa.gov>
-         <20200220160820.GA14640@infradead.org>
-         <CAHC9VhRXo=EZ4HbLa_W_waL4xtdE6M92em7aNh=wm_7hpozJ7g@mail.gmail.com>
-         <5c1f2125a44006d7ff8bda6d9a1075d2177aeaf0.camel@btinternet.com>
-         <20200225041327.GE6740@magnolia>
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Date:   Tue, 25 Feb 2020 18:13:23 +0000
+In-Reply-To: <20200225094529.178623-1-omosnace@redhat.com>
+References: <20200225094529.178623-1-omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 User-Agent: Evolution 3.34.3 (3.34.3-1.fc31) 
 MIME-Version: 1.0
@@ -67,162 +57,166 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 2020-02-24 at 20:13 -0800, Darrick J. Wong wrote:
-> On Mon, Feb 24, 2020 at 04:41:17PM +0000, Richard Haines wrote:
-> > On Sat, 2020-02-22 at 14:49 -0500, Paul Moore wrote:
-> > > On Thu, Feb 20, 2020 at 11:08 AM Christoph Hellwig <
-> > > hch@infradead.org
-> > > > wrote:
-> > > > On Thu, Feb 20, 2020 at 11:06:10AM -0500, Stephen Smalley
-> > > > wrote:
-> > > > > > The dquot_* routines are not generic quota code, but a
-> > > > > > specific
-> > > > > > implementation used by most non-XFS file systems.  So if
-> > > > > > there
-> > > > > > is a bug
-> > > > > > it is that the security call is not in the generic dispatch
-> > > > > > code.
-> > > > > 
-> > > > > Hmm...any reason the security hook call couldn't be taken to
-> > > > > quota_quotaon()?
-> > > > 
-> > > > I haven't touched the quota code for a while, but yes, the
-> > > > existing
-> > > > calls should move to the quota_* routines in
-> > > > fs/quota/quota.c.  Note
-> > > > that you still need to add checks, e.g. for Q_XSETQLIM.
-> > > 
-> > > Who wanted to submit a patch for this?  Christoph were you
-> > > planning
-> > > on
-> > > fixing this?  If not, Richard, do you want to give it a try?
-> > > 
-> > 
-> > I've had a go at this and found I can (almost) get it working. I've
-> > attached a sample patch just in case anyone is interested.
+On Tue, 2020-02-25 at 10:45 +0100, Ondrej Mosnacek wrote:
+> First, the setting of SCTP_EVENTS socket option in sctp_server.c is
+> completely wrong -- it assumes little-endian byte order and uses a
+> plain
+> int instead of the dedicated sctp_event_subscribe struct.
 > 
-> Almost?  Are you talking about the weird looking dentry?
+> Second, the usage in sctp_peeloff_server.c is correct, but it may
+> lead
+> to errors when the SCTP header definitions are newer than what the
+> kernel supports. In such case the size of struct sctp_event_subscribe
+> may be higher than the kernel's version and the setsockopt(2) may
+> fail
+> with -EINVAL due to the 'optlen > sizeof(struct
+> sctp_event_subscribe)'
+> check in net/sctp/socket.c:sctp_setsockopt_events().
 > 
-> > However if the calls do need to move to fs/quota/quota.c, then I
-> > think
-> > the xfs team are best placed to do this (I've had my playtime).
-> > 
-> > 
-> > diff --git a/fs/xfs/xfs_quotaops.c b/fs/xfs/xfs_quotaops.c
-> > index 38669e827..c02cf9a63 100644
-> > --- a/fs/xfs/xfs_quotaops.c
-> > +++ b/fs/xfs/xfs_quotaops.c
-> > @@ -14,7 +14,7 @@
-> >  #include "xfs_trans.h"
-> >  #include "xfs_icache.h"
-> >  #include "xfs_qm.h"
-> > -
-> > +#include <linux/security.h>
-> >  
-> >  static void
-> >  xfs_qm_fill_state(
-> > @@ -161,11 +161,15 @@ xfs_quota_enable(
-> >  	unsigned int		uflags)
-> >  {
-> >  	struct xfs_mount	*mp = XFS_M(sb);
-> > +	struct dentry		*dentry = mp->m_super->s_root;
-> >  
-> >  	if (sb_rdonly(sb))
-> >  		return -EROFS;
-> >  	if (!XFS_IS_QUOTA_RUNNING(mp))
-> >  		return -ENOSYS;
-> > +	/* Emulates dquot_quota_on() Labeled correctly */
-> > +	if (!security_quota_on(dentry))
-> > +		return -EACCES;
-> >  
-> >  	return xfs_qm_scall_quotaon(mp, xfs_quota_flags(uflags));
-> >  }
-> > diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
-> > index 2094386af..59855d060 100644
-> > --- a/fs/xfs/xfs_super.c
-> > +++ b/fs/xfs/xfs_super.c
-> > @@ -39,6 +39,7 @@
-> >  #include <linux/magic.h>
-> >  #include <linux/fs_context.h>
-> >  #include <linux/fs_parser.h>
-> > +#include <linux/security.h>
-> >  
-> >  static const struct super_operations xfs_super_operations;
-> >  
-> > @@ -1507,6 +1508,22 @@ xfs_fc_fill_super(
-> >  		goto out_unmount;
-> >  	}
-> >  
-> > +	/*
-> > +	 * Emulates dquot_quota_on_mount() and works, however the
-> > dentry
-> > +	 * is unlabeled:
-> > +	 *    allow test_filesystem_t unlabeled_t:dir { quotaon };
-> > +	 */
-> > +	struct xfs_mount	*mpx = XFS_M(sb);
-> > +	struct dentry		*dentry = mpx->m_super->s_root;
-> > +	if (XFS_IS_QUOTA_RUNNING(mp)) {
-> > +		error = security_quota_on(dentry);
+> To fix this, introduce a common function that does what the
+> sctp_peeloff_server's set_subscr_events() did, but also truncates the
+> optlen to only those fields that we use.
 > 
-> Er... I'm not sure if this is doing what you really want it
-> to?  Mostly
-> because I don't know what the quota security hooks are supposed to
-> activate against? :)
-> 
-> The other three filesystems (ext4/f2fs/reiserfs) keep their quota
-> files
-> linked off the root directory, and dquot_quota_on_mount looks up the
-> dentry for a root directory quota file and feeds that into
-> security_quota_on.
-> 
-> This patch calls it on XFS' root directory itself (quota inodes are
-> not
-> linked in the directory tree at all on xfs), which I guess is the
-> best
-> you can do, but might not be what the security hooks is expecting.
-> 
-> <shrug> Apologies for my unfamiliarity.
+> Fixes: c38b57ffdac4 ("selinux-testsuite: Add SCTP test support")
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-Thanks for your comments.
-What I was trying to achieve is obtain a dentry for the root directory
-to call the security hooks with. My reasoning was that as xfs quotas
-are 'internal' (i.e. not files as in ext4 etc.), then using this as a
-reference, I could check that the SELinux 'quotaon' permission was set
-on this to allow quotas to be used (if set as mount options), if not
-fail the mount.
-Once mounted with quotas enabled, I could then use quotactl(2) to turn
-them off/on, get stats etc. providing of course the mount directory
-also had the SELinux quotamod and quotaget permissions as well (hence
-the hook in xfs_quota_enable()).
+Just tested this with no problems. Thanks for the fixes.
 
-As I don't know the xfs code at all, I was just experimenting to test
-my theory, however the xfs dev team is better placed to resolve this as
-its been suggested that the calls are moved to fs/quota/quota.c.
+Acked-by: Richard Haines <richard_c_haines@btinternet.com>
 
-
+> ---
 > 
-> --D
+> v2: check the result of second set_subscr_events() call in
+>     sctp_peeloff_server.c
 > 
-> > +		if (error) {
-> > +			dput(sb->s_root);
-> > +			sb->s_root = NULL;
-> > +			goto out_unmount;
-> > +		}
-> > +	}
-> > +
-> >  	return 0;
-> >  
-> >   out_filestream_unmount:
-> > diff --git a/security/security.c b/security/security.c
-> > index db7b574c9..ac0cc9872 100644
-> > --- a/security/security.c
-> > +++ b/security/security.c
-> > @@ -770,6 +770,7 @@ int security_quota_on(struct dentry *dentry)
-> >  {
-> >  	return call_int_hook(quota_on, 0, dentry);
-> >  }
-> > +EXPORT_SYMBOL(security_quota_on);
-> >  
-> >  int security_syslog(int type)
-> >  {
+>  tests/sctp/sctp_common.c         | 20 +++++++++++++++++++
+>  tests/sctp/sctp_common.h         |  1 +
+>  tests/sctp/sctp_peeloff_server.c | 33 +++++++++++++-----------------
+> --
+>  tests/sctp/sctp_server.c         |  2 +-
+>  4 files changed, 35 insertions(+), 21 deletions(-)
+> 
+> diff --git a/tests/sctp/sctp_common.c b/tests/sctp/sctp_common.c
+> index 100ab22..089af2a 100644
+> --- a/tests/sctp/sctp_common.c
+> +++ b/tests/sctp/sctp_common.c
+> @@ -1,5 +1,8 @@
+>  #include "sctp_common.h"
+>  
+> +#define member_size(type, member) sizeof(((type *)0)->member)
+> +#define sizeof_up_to(type, member) (offsetof(type, member) +
+> member_size(type, member))
+> +
+>  void print_context(int fd, char *text)
+>  {
+>  	char *context;
+> @@ -99,3 +102,20 @@ void print_ip_option(int fd, bool ipv4, char
+> *text)
+>  		printf("%s No IP Options set\n", text);
+>  	}
+>  }
+> +
+> +int set_subscr_events(int fd, int data_io, int association)
+> +{
+> +	struct sctp_event_subscribe subscr_events;
+> +
+> +	memset(&subscr_events, 0, sizeof(subscr_events));
+> +	subscr_events.sctp_data_io_event = data_io;
+> +	subscr_events.sctp_association_event = association;
+> +
+> +	/*
+> +	 * Truncate optlen to just the fields we touch to avoid errors
+> when
+> +	 * the uapi headers are newer than the running kernel.
+> +	 */
+> +	return setsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS,
+> &subscr_events,
+> +			  sizeof_up_to(struct sctp_event_subscribe,
+> +				       sctp_association_event));
+> +}
+> diff --git a/tests/sctp/sctp_common.h b/tests/sctp/sctp_common.h
+> index d5c1397..351ee37 100644
+> --- a/tests/sctp/sctp_common.h
+> +++ b/tests/sctp/sctp_common.h
+> @@ -25,3 +25,4 @@ void print_context(int fd, char *text);
+>  void print_addr_info(struct sockaddr *sin, char *text);
+>  char *get_ip_option(int fd, bool ipv4, socklen_t *opt_len);
+>  void print_ip_option(int fd, bool ipv4, char *text);
+> +int set_subscr_events(int fd, int data_io, int association);
+> diff --git a/tests/sctp/sctp_peeloff_server.c
+> b/tests/sctp/sctp_peeloff_server.c
+> index 4a5110a..8350cb4 100644
+> --- a/tests/sctp/sctp_peeloff_server.c
+> +++ b/tests/sctp/sctp_peeloff_server.c
+> @@ -16,24 +16,6 @@ static void usage(char *progname)
+>  	exit(1);
+>  }
+>  
+> -static void set_subscr_events(int fd, int value)
+> -{
+> -	int result;
+> -	struct sctp_event_subscribe subscr_events;
+> -
+> -	memset(&subscr_events, 0, sizeof(subscr_events));
+> -	subscr_events.sctp_association_event = value;
+> -	/* subscr_events.sctp_data_io_event = value; */
+> -
+> -	result = setsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS,
+> -			    &subscr_events, sizeof(subscr_events));
+> -	if (result < 0) {
+> -		perror("Server setsockopt: SCTP_EVENTS");
+> -		close(fd);
+> -		exit(1);
+> -	}
+> -}
+> -
+>  static sctp_assoc_t handle_event(void *buf)
+>  {
+>  	union sctp_notification *snp = buf;
+> @@ -166,7 +148,13 @@ int main(int argc, char **argv)
+>  	}
+>  
+>  	do {
+> -		set_subscr_events(sock, 1); /* Get assoc_id for
+> sctp_peeloff() */
+> +		/* Get assoc_id for sctp_peeloff() */
+> +		result = set_subscr_events(sock, 0, 1);
+> +		if (result < 0) {
+> +			perror("Server setsockopt: SCTP_EVENTS");
+> +			close(sock);
+> +			exit(1);
+> +		}
+>  		sinlen = sizeof(sin);
+>  		flags = 0;
+>  
+> @@ -192,7 +180,12 @@ int main(int argc, char **argv)
+>  				exit(1);
+>  			}
+>  			/* No more notifications */
+> -			set_subscr_events(sock, 0);
+> +			result = set_subscr_events(sock, 0, 0);
+> +			if (result < 0) {
+> +				perror("Server setsockopt:
+> SCTP_EVENTS");
+> +				close(sock);
+> +				exit(1);
+> +			}
+>  
+>  			peeloff_sk = sctp_peeloff(sock, assoc_id);
+>  			if (peeloff_sk < 0) {
+> diff --git a/tests/sctp/sctp_server.c b/tests/sctp/sctp_server.c
+> index 4659ed1..7f2cd20 100644
+> --- a/tests/sctp/sctp_server.c
+> +++ b/tests/sctp/sctp_server.c
+> @@ -134,7 +134,7 @@ int main(int argc, char **argv)
+>  	}
+>  
+>  	/* Enables sctp_data_io_events for sctp_recvmsg(3) for
+> assoc_id. */
+> -	result = setsockopt(sock, SOL_SCTP, SCTP_EVENTS, &on,
+> sizeof(on));
+> +	result = set_subscr_events(sock, on, 0);
+>  	if (result < 0) {
+>  		perror("Server setsockopt: SCTP_EVENTS");
+>  		close(sock);
 
