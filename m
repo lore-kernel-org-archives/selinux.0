@@ -2,94 +2,116 @@ Return-Path: <SRS0=F/Jq=4N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 444C3C35E0E
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 21:06:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2E0AC35E15
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 21:33:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0AD3C20675
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 21:06:12 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FQuToyQS"
+	by mail.kernel.org (Postfix) with ESMTP id C387620838
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 21:33:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728383AbgBYVGM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Feb 2020 16:06:12 -0500
-Received: from mail-io1-f67.google.com ([209.85.166.67]:45124 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728315AbgBYVGM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 16:06:12 -0500
-Received: by mail-io1-f67.google.com with SMTP id w9so824013iob.12
-        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 13:06:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zKteOkIuul1j8vU0ryHqLFikrmECj7NkGgox7Xp8qa8=;
-        b=FQuToyQSgg1d57WlGizyfdR3e//XoUmnrbahZXJvhEzvjZdFQ4YcrLUeX/DIcRw3lt
-         n+h5QZP4i9iK4XlKO5TkEoaZtESoeglt6TnblNPQAfSYyza/4XNUVzKmdoe6AolCNhnO
-         2CX5NdbLnItgcO5KjYcf0EbjsvE0n0j4esKON76CSrfKYJ2oZpyZo9EFxSpDNTp9d0Ql
-         EcslSBs9MRj1UjIXgB8sIx5/NGf+lqsug6u/uRXgYodli5XVXB5QNPWffkWsOz2JEBti
-         Y0G5hfrTsSewghf4OCA7r6MZAN4Nd41kpF6uswvtHe9Z39AQfYxhhFUUyNWqlhTWFmPu
-         WSeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zKteOkIuul1j8vU0ryHqLFikrmECj7NkGgox7Xp8qa8=;
-        b=BqWGvackV9jpCHUdgPc3eCIXn4bgjt2DYuRv8qS0uHNXIP5YMjSuJUXz8tk9h3pJpR
-         fq3lcHGIaSVitiOW1Ac96QWytsoJkmfXjtQ57hXTaj5pCeCQPunh/399F3WX9gMbSWAO
-         EwQp+fx3YkHgX9v5Pf1Qtd9DugzTuRFyRQoOF27G4l2L/6owuobyfCMSYEfJB0wxJrM4
-         GLa1ZjQ6+hIBqaPstIaKp8XHz06SfulcZZ5SupX1qWammRVz28qklAYmCTlNvWOOJ+pi
-         S7Gj+KIDpjKqH5oLJOTRfmksPf0bP0ZLwB9BcmM2LMCPTLqFH8Rr5FEPWSh5ybiU5R7L
-         kr1A==
-X-Gm-Message-State: APjAAAUmm91r+yEWCHMyWzIlRZxc4UxGeMKP15OgXNVec761BnrbhfRR
-        NhY9XvXbcq5NRezcNB5h61ljSmGXdjiiqDhCXKo=
-X-Google-Smtp-Source: APXvYqw0QqXKOVLXd3vrg0bW8fbNYFImNkjpuCIWwt1nj1TanwiqnL72JqlkzrTx17rerE+mMV/UTwAIAf/Kx36BsSk=
-X-Received: by 2002:a05:6638:198:: with SMTP id a24mr557241jaq.27.1582664771545;
- Tue, 25 Feb 2020 13:06:11 -0800 (PST)
+        id S1726953AbgBYVdi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Feb 2020 16:33:38 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:52549 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726130AbgBYVdi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 16:33:38 -0500
+X-Greylist: delayed 503 seconds by postgrey-1.27 at vger.kernel.org; Tue, 25 Feb 2020 16:33:37 EST
+Received: from mail-oi1-f177.google.com (mail-oi1-f177.google.com [209.85.167.177])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 3502C564876
+        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 22:25:10 +0100 (CET)
+Received: by mail-oi1-f177.google.com with SMTP id q84so819877oic.4
+        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 13:25:10 -0800 (PST)
+X-Gm-Message-State: APjAAAXuJOrKtMweHUg2530hLNP8i5Yp7rdzNXisqvUvrCUndgCr+KA8
+        TwAEdBegwXar+Sa8am+q/DPLXQzNOKIa2Px3CvA=
+X-Google-Smtp-Source: APXvYqx9OFCTAa6bZYYdazoUtkPr1oh6ePsE69VE06GqHc8H4qQmxc9twGlbrABwNj2B4vI/j+vTdwkLt4HKMQYuiTQ=
+X-Received: by 2002:aca:dc45:: with SMTP id t66mr710521oig.39.1582665908926;
+ Tue, 25 Feb 2020 13:25:08 -0800 (PST)
 MIME-Version: 1.0
-References: <20200225200219.6163-1-william.c.roberts@intel.com> <CAEjxPJ42+p_Ppo6SqJCu-em2HXv1hyaY6ziCb0TrqTMBLg_Gag@mail.gmail.com>
-In-Reply-To: <CAEjxPJ42+p_Ppo6SqJCu-em2HXv1hyaY6ziCb0TrqTMBLg_Gag@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Tue, 25 Feb 2020 15:06:01 -0600
-Message-ID: <CAFftDdpG-t4Zo9Ro8xJyxkd6zQ8FoyaTqfQrvG8kcbtP94Xf1Q@mail.gmail.com>
-Subject: Re: Annotate Deprecated Functions in libselinux
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org
+References: <20200213133959.14217-1-omosnace@redhat.com> <CAFqZXNuxHYN_cMY1+PfUFrwu6dQyG5qc7LGPU8VbUAyTXRF_Wg@mail.gmail.com>
+ <7d80365c-d2ea-f167-0757-6038becdb5fc@tycho.nsa.gov> <CAFqZXNuvL1KQwahXPJKngr_p7sON0SNM=5Mecao0QhAGfRTN2g@mail.gmail.com>
+In-Reply-To: <CAFqZXNuvL1KQwahXPJKngr_p7sON0SNM=5Mecao0QhAGfRTN2g@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Tue, 25 Feb 2020 22:24:58 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7==_-vg1e3LV-Wbf94PjFu86pxc3-J6BqJ_Qa73uaj+pkw@mail.gmail.com>
+Message-ID: <CAJfZ7==_-vg1e3LV-Wbf94PjFu86pxc3-J6BqJ_Qa73uaj+pkw@mail.gmail.com>
+Subject: Re: [PATCH userspace v2] libsepol: cache ebitmap cardinality value
+To:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Feb 25 22:25:10 2020 +0100 (CET))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Feb 25, 2020 at 2:49 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Tue, Feb 18, 2020 at 5:01 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> On Tue, Feb 25, 2020 at 3:03 PM <bill.c.roberts@gmail.com> wrote:
-> > The annoying part is internal users of the routines. We could always make
-> > a v2 version of the function for internal callers, and leave the old
-> > interfaces intact to work around the warnings, or just pragma them out.
-> > This series pragma's them out.
+> On Tue, Feb 18, 2020 at 4:40 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > On 2/18/20 10:22 AM, Ondrej Mosnacek wrote:
+> > > On Thu, Feb 13, 2020 at 2:40 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > >> According to profiling of semodule -BN, ebitmap_cardinality() is called
+> > >> quite often and contributes a lot to the total runtime. Cache its result
+> > >> in the ebitmap struct to reduce this overhead. The cached value is
+> > >> invalidated on most modifying operations, but ebitmap_cardinality() is
+> > >> usually called once the ebitmap doesn't change any more.
+> > >>
+> > >> After this patch, the time to do 'semodule -BN' on Fedora Rawhide has
+> > >> decreased from ~14.6s to ~12.4s (2.2s saved).
+> > >
+> > > I have no idea why, but I'm now getting completely different times
+> > > (10.9s vs. 8.9s) with the same builds on the same setup... I can no
+> > > longer reproduce the slower times anywhere (F31/locally/...) so I have
+> > > to assume it was some kind of glitch. Since the numbers show a similar
+> > > magnitude of speed-up (and they depend on a bunch of HW/SW factors
+> > > anyway), I'm not going to do another respin. The applying person (most
+> > > likely Stephen) is free to fix the numbers when applying if they wish
+> > > to do so.
 > >
-> > diagnostic push has been supported since GCC v4.6. Earlier versions will
-> > warn on this, and the sideffect is that the diagnostic ignored pragma
-> > will be valid for the rest of the file. Clang has similair support thats
-> > been around *at least* since clang 6.0.
+> > Thanks, applied with fixed times (although I don't really think it
+> > matters very much).  Maybe you're also picking up the difference from
+> > the "libsepol/cil: remove unnecessary hash tables" change.
 >
-> My inclination (and others are free to disagree) would be to rename
-> the deprecated functions for internal users (and mark them hidden),
-> and add stubs for the old interfaces that call the hidden functions to
-> avoid the need for this pragma.
+> No, that was actually the reason for the first correction.
 
-I'm actually leaning that way myself after thinking about it more.
+Hello,
+About performance issues, the current implementation of
+ebitmap_cardinality() is quadratic:
 
-> Also, FWIW, there is a push to remove
-> the hidden_def/hidden_proto stuff for LTO, see
-> https://github.com/SELinuxProject/selinux/issues/204, although I don't
-> yet know how that will turn out for libselinux.
+for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
+    if (ebitmap_get_bit(e1, i))
+        count++;
 
-Good to know.
+... because ebitmap_get_bit() browse the bitmap:
+
+while (n && (n->startbit <= bit)) {
+   if ((n->startbit + MAPSIZE) > bit) {
+      /*... */
+
+A few years ago, I tried modifying this function to make it linear in
+the bitmap size:
+
+unsigned int ebitmap_cardinality(ebitmap_t *e1)
+{
+    unsigned int count = 0;
+    ebitmap_node_t *n;
+
+   for (n = e1->node; n; n = n->next) {
+        count += __builtin_popcountll(n->map);
+    }
+    return count;
+}
+
+... but never actually sent a patch for this, because I wanted to
+assess how __builtin_popcountll() was supported by several compilers
+beforehand. Would this be helpful to gain even more performance gain?
+
+Cheers,
+Nicolas
+
