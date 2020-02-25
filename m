@@ -2,439 +2,217 @@ Return-Path: <SRS0=F/Jq=4N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1ABAAC35DEA
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 01:55:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2E98C35DF2
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 04:14:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CC181218AC
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 01:55:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7688124653
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 04:14:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="J/YHUHkb"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="oWONewEx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728226AbgBYBzI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Feb 2020 20:55:08 -0500
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:37455 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726962AbgBYBzI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Feb 2020 20:55:08 -0500
-Received: by mail-ed1-f65.google.com with SMTP id t7so14340939edr.4
-        for <selinux@vger.kernel.org>; Mon, 24 Feb 2020 17:55:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=YP481kTLkBgv+2KO+729KVuiGurZz/LtBiQbRGMh2Q8=;
-        b=J/YHUHkbURqyl/zVIkZhvbslKZtdbbPBa4A7fetobs2GOcoDAWwZoF9Dc9VMl5XJG/
-         y6cI5iDeN/BfpwlDDFKQuT0zrTpwDHeDe4BFPh6BekOrDglxn+5K6W4zBS8LsaE7fkdB
-         35wH8zbAh7aiKV2sY2W86GnN59S69bRe+ffDxhlK/WHCxZiRn6sCZo6CmpdliqAqotfR
-         xwzEmjjPuYikM1ABecVB6Ub/++W14hb3jTcR09wXHmax+a5LaI11aM542xGCqAMi70Nj
-         F+SRyVtAK0YXKQgLy5Gp5ICcD/w+r7LOoJSIdeTBqK4hAc/6py1YBtKWcSNArUeXSYkk
-         XHqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=YP481kTLkBgv+2KO+729KVuiGurZz/LtBiQbRGMh2Q8=;
-        b=XI9Y1v1jrBgx9P8g3TDMmVPx3QuP2G9fQUXggn51kXVtTFGcX7TwUFw48O+b6br8W+
-         O1KH1Y0QQiP7MPzBoAK7Q2xhnyQNURndY/7vFnebLf12gVq157ArnSFM7edWR+eZqc/L
-         cqmfeD+7FDsY6rurNQX9jIMNME9xd3p52Zi1JOTxnadQ9fvidXeepGVOVw+MrsKY+K5j
-         vrDdnYOG6xARcaP6oRfle3Bfwl0nsQjsqigv6C65Gk+q07letuasX44otkve3HX0UR3Z
-         zZiozHBXo9qWsFhdq9ORCZwP/4SVMR/QQYAdrknZiu8jLY9JYLJnUZHeH3bTlhzKG4LR
-         uhSQ==
-X-Gm-Message-State: APjAAAUsaQ0Rr6Xr5xfS9egnrHRlRgg5fJtCeCacFpw/SCFKGlzKhq6m
-        KKKPDuo+OIDJsulyHrKIGlL33b9qPLZWC7nDOER68bs=
-X-Google-Smtp-Source: APXvYqxkk7paE161GZQbRGIhTuTAzhFAAM0Mqada56GvXF8rKzUKWn0I2D0VQCrG6imTgZBqDQntl7xv9kYP67eD3sM=
-X-Received: by 2002:a50:e108:: with SMTP id h8mr46605102edl.196.1582595704110;
- Mon, 24 Feb 2020 17:55:04 -0800 (PST)
+        id S1728869AbgBYEOv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Feb 2020 23:14:51 -0500
+Received: from aserp2120.oracle.com ([141.146.126.78]:39704 "EHLO
+        aserp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726962AbgBYEOu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Feb 2020 23:14:50 -0500
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+        by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01P4DcT1062880;
+        Tue, 25 Feb 2020 04:13:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2020-01-29;
+ bh=Chkr7AdsoEVQRYjiT9vzBx7CnTRVBZCgy/kHpKRgyUQ=;
+ b=oWONewExLFzSDJ0NeAJSz3xsM1oq40+pMjVpHRTfmDRkx1YUwjdBUFKmsHHzPvKWQf6f
+ O2SHO1v3alxob5LEJ/NoEKkjweX5U+qMErzHt8R1AYC6/mvIWH9lHdeR04yKkTJvzlLM
+ 7okqMSfReTHKoolsCQ+4oVRqfWIUn1RRM3BOyhwpCOH4O6ag/FXLx+yAGSc1LK4X4HIV
+ UfHQ+qupH3UrABLqPXQ8lUfrVemVPwxUinRYSeLEIqFMgxPBwNTWkzUFejKAr9OSvR3S
+ hOxEqtKuJ2qDKPLvrEpN3jmx+XikoqYuCLmq1NuaBCGSw3YqQtMOantGIyLnzvihbhff yA== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by aserp2120.oracle.com with ESMTP id 2ybvr4qrw0-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Feb 2020 04:13:38 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 01P4C6Rk021118;
+        Tue, 25 Feb 2020 04:13:33 GMT
+Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
+        by userp3030.oracle.com with ESMTP id 2ybdsjc2u7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 Feb 2020 04:13:33 +0000
+Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
+        by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 01P4DT46029220;
+        Tue, 25 Feb 2020 04:13:31 GMT
+Received: from localhost (/10.159.137.222)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Mon, 24 Feb 2020 20:13:28 -0800
+Date:   Mon, 24 Feb 2020 20:13:27 -0800
+From:   "Darrick J. Wong" <darrick.wong@oracle.com>
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Christoph Hellwig <hch@infradead.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>, linux-xfs@vger.kernel.org,
+        selinux@vger.kernel.org
+Subject: Re: [PATCH 0/1] selinux: Add xfs quota command types
+Message-ID: <20200225041327.GE6740@magnolia>
+References: <20200220153234.152426-1-richard_c_haines@btinternet.com>
+ <20200220155731.GU9506@magnolia>
+ <20200220155938.GA1306@infradead.org>
+ <2862d0b2-e0a9-149d-16e5-22c3f5f82e9e@tycho.nsa.gov>
+ <20200220160820.GA14640@infradead.org>
+ <CAHC9VhRXo=EZ4HbLa_W_waL4xtdE6M92em7aNh=wm_7hpozJ7g@mail.gmail.com>
+ <5c1f2125a44006d7ff8bda6d9a1075d2177aeaf0.camel@btinternet.com>
 MIME-Version: 1.0
-References: <20200224161023.116134-1-sds@tycho.nsa.gov>
-In-Reply-To: <20200224161023.116134-1-sds@tycho.nsa.gov>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 24 Feb 2020 20:54:53 -0500
-Message-ID: <CAHC9VhRhzeLCYHEavt6qFePFDgg8btbG2JQTQmmDMXiGu7-JPQ@mail.gmail.com>
-Subject: Fwd: [PATCH v4] selinux: remove unused initial SIDs and improve handling
-To:     selinux@vger.kernel.org
-Cc:     omosnace@redhat.com, pebenito@ieee.org,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5c1f2125a44006d7ff8bda6d9a1075d2177aeaf0.camel@btinternet.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9541 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 suspectscore=0 spamscore=0
+ malwarescore=0 mlxscore=0 bulkscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2001150001
+ definitions=main-2002250032
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9541 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 spamscore=0
+ clxscore=1015 adultscore=0 lowpriorityscore=0 malwarescore=0
+ priorityscore=1501 mlxscore=0 impostorscore=0 suspectscore=0 phishscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2001150001 definitions=main-2002250032
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-FWD'ing this to the mailing list while Stephen is having problems posting.
+On Mon, Feb 24, 2020 at 04:41:17PM +0000, Richard Haines wrote:
+> On Sat, 2020-02-22 at 14:49 -0500, Paul Moore wrote:
+> > On Thu, Feb 20, 2020 at 11:08 AM Christoph Hellwig <hch@infradead.org
+> > > wrote:
+> > > On Thu, Feb 20, 2020 at 11:06:10AM -0500, Stephen Smalley wrote:
+> > > > > The dquot_* routines are not generic quota code, but a specific
+> > > > > implementation used by most non-XFS file systems.  So if there
+> > > > > is a bug
+> > > > > it is that the security call is not in the generic dispatch
+> > > > > code.
+> > > > 
+> > > > Hmm...any reason the security hook call couldn't be taken to
+> > > > quota_quotaon()?
+> > > 
+> > > I haven't touched the quota code for a while, but yes, the existing
+> > > calls should move to the quota_* routines in
+> > > fs/quota/quota.c.  Note
+> > > that you still need to add checks, e.g. for Q_XSETQLIM.
+> > 
+> > Who wanted to submit a patch for this?  Christoph were you planning
+> > on
+> > fixing this?  If not, Richard, do you want to give it a try?
+> > 
+> 
+> I've had a go at this and found I can (almost) get it working. I've
+> attached a sample patch just in case anyone is interested.
 
----------- Forwarded message ---------
-From: Stephen Smalley <sds@tycho.nsa.gov>
-Date: Mon, Feb 24, 2020 at 11:09 AM
-Subject: [PATCH v4] selinux: remove unused initial SIDs and improve handling
-To: <selinux@vger.kernel.org>
-Cc: <paul@paul-moore.com>, <omosnace@redhat.com>, <pebenito@ieee.org>,
-Stephen Smalley <sds@tycho.nsa.gov>
+Almost?  Are you talking about the weird looking dentry?
 
+> However if the calls do need to move to fs/quota/quota.c, then I think
+> the xfs team are best placed to do this (I've had my playtime).
+> 
+> 
 
-Remove initial SIDs that have never been used or are no longer used by
-the kernel from its string table, which is also used to generate the
-SECINITSID_* symbols referenced in code.  Update the code to
-gracefully handle the fact that these can now be NULL. Stop treating
-it as an error if a policy defines additional initial SIDs unknown to
-the kernel.  Do not load unused initial SID contexts into the sidtab.
-Fix the incorrect usage of the name from the ocontext in error
-messages when loading initial SIDs since these are not presently
-written to the kernel policy and are therefore always NULL.
+> diff --git a/fs/xfs/xfs_quotaops.c b/fs/xfs/xfs_quotaops.c
+> index 38669e827..c02cf9a63 100644
+> --- a/fs/xfs/xfs_quotaops.c
+> +++ b/fs/xfs/xfs_quotaops.c
+> @@ -14,7 +14,7 @@
+>  #include "xfs_trans.h"
+>  #include "xfs_icache.h"
+>  #include "xfs_qm.h"
+> -
+> +#include <linux/security.h>
+>  
+>  static void
+>  xfs_qm_fill_state(
+> @@ -161,11 +161,15 @@ xfs_quota_enable(
+>  	unsigned int		uflags)
+>  {
+>  	struct xfs_mount	*mp = XFS_M(sb);
+> +	struct dentry		*dentry = mp->m_super->s_root;
+>  
+>  	if (sb_rdonly(sb))
+>  		return -EROFS;
+>  	if (!XFS_IS_QUOTA_RUNNING(mp))
+>  		return -ENOSYS;
+> +	/* Emulates dquot_quota_on() Labeled correctly */
+> +	if (!security_quota_on(dentry))
+> +		return -EACCES;
+>  
+>  	return xfs_qm_scall_quotaon(mp, xfs_quota_flags(uflags));
+>  }
+> diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
+> index 2094386af..59855d060 100644
+> --- a/fs/xfs/xfs_super.c
+> +++ b/fs/xfs/xfs_super.c
+> @@ -39,6 +39,7 @@
+>  #include <linux/magic.h>
+>  #include <linux/fs_context.h>
+>  #include <linux/fs_parser.h>
+> +#include <linux/security.h>
+>  
+>  static const struct super_operations xfs_super_operations;
+>  
+> @@ -1507,6 +1508,22 @@ xfs_fc_fill_super(
+>  		goto out_unmount;
+>  	}
+>  
+> +	/*
+> +	 * Emulates dquot_quota_on_mount() and works, however the dentry
+> +	 * is unlabeled:
+> +	 *    allow test_filesystem_t unlabeled_t:dir { quotaon };
+> +	 */
+> +	struct xfs_mount	*mpx = XFS_M(sb);
+> +	struct dentry		*dentry = mpx->m_super->s_root;
+> +	if (XFS_IS_QUOTA_RUNNING(mp)) {
+> +		error = security_quota_on(dentry);
 
-After this change, it is possible to safely reclaim and reuse some of
-the unused initial SIDs without compatibility issues.  Specifically,
-unused initial SIDs that were being assigned the same context as the
-unlabeled initial SID in policies can be reclaimed and reused for
-another purpose, with existing policies still treating them as having
-the unlabeled context and future policies having the option of mapping
-them to a more specific context.  For example, this could have been
-used when the infiniband labeling support was introduced to define
-initial SIDs for the default pkey and endport SIDs similar to the
-handling of port/netif/node SIDs rather than always using
-SECINITSID_UNLABELED as the default.
+Er... I'm not sure if this is doing what you really want it to?  Mostly
+because I don't know what the quota security hooks are supposed to
+activate against? :)
 
-The set of safely reclaimable unused initial SIDs across all known
-policies is igmp_packet (13), icmp_socket (14), tcp_socket (15), kmod
-(24), policy (25), and scmp_packet (26); these initial SIDs were
-assigned the same context as unlabeled in all known policies including
-mls.  If only considering non-mls policies (i.e. assuming that mls
-users always upgrade policy with their kernels), the set of safely
-reclaimable unused initial SIDs further includes file_labels (6), init
-(7), sysctl_modprobe (16), and sysctl_fs (18) through sysctl_dev (23).
+The other three filesystems (ext4/f2fs/reiserfs) keep their quota files
+linked off the root directory, and dquot_quota_on_mount looks up the
+dentry for a root directory quota file and feeds that into
+security_quota_on.
 
-Adding new initial SIDs beyond SECINITSID_NUM to policy unfortunately
-became a fatal error in commit 24ed7fdae669 ("selinux: use separate
-table for initial SID lookup") and even before that it could cause
-problems on a policy reload (collision between the new initial SID and
-one allocated at runtime) ever since commit 42596eafdd75 ("selinux:
-load the initial SIDs upon every policy load") so we cannot safely
-start adding new initial SIDs to policies beyond SECINITSID_NUM (27)
-until such a time as all such kernels do not need to be supported and
-only those that include this commit are relevant. That is not a big
-deal since we haven't added a new initial SID since 2004 (v2.6.7) and
-we have plenty of unused ones we can reclaim if we truly need one.
+This patch calls it on XFS' root directory itself (quota inodes are not
+linked in the directory tree at all on xfs), which I guess is the best
+you can do, but might not be what the security hooks is expecting.
 
-If we want to avoid the wasted storage in initial_sid_to_string[]
-and/or sidtab->isids[] for the unused initial SIDs, we could introduce
-an indirection between the kernel initial SID values and the policy
-initial SID values and just map the policy SID values in the ocontexts
-to the kernel values during policy_load_isids(). Originally I thought
-we'd do this by preserving the initial SID names in the kernel policy
-and creating a mapping at load time like we do for the security
-classes and permissions but that would require a new kernel policy
-format version and associated changes to libsepol/checkpolicy and I'm
-not sure it is justified. Simpler approach is just to create a fixed
-mapping table in the kernel from the existing fixed policy values to
-the kernel values. Less flexible but probably sufficient.
+<shrug> Apologies for my unfamiliarity.
 
-A separate selinux userspace change was applied in
-https://github.com/SELinuxProject/selinux/commit/8677ce5e8f592950ae6f14cea1b68a20ddc1ac25
-to enable removal of most of the unused initial SID contexts from
-policies, but there is no dependency between that change and this one.
-That change permits removing all of the unused initial SID contexts
-from policy except for the fs and sysctl SID contexts.  The initial
-SID declarations themselves would remain in policy to preserve the
-values of subsequent ones but the contexts can be dropped.  If/when
-the kernel decides to reuse one of them, future policies can change
-the name and start assigning a context again without breaking
-compatibility.
+--D
 
-Here is how I would envision staging changes to the initial SIDs in a
-compatible manner after this commit is applied:
+> +		if (error) {
+> +			dput(sb->s_root);
+> +			sb->s_root = NULL;
+> +			goto out_unmount;
+> +		}
+> +	}
+> +
+>  	return 0;
+>  
+>   out_filestream_unmount:
+> diff --git a/security/security.c b/security/security.c
+> index db7b574c9..ac0cc9872 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -770,6 +770,7 @@ int security_quota_on(struct dentry *dentry)
+>  {
+>  	return call_int_hook(quota_on, 0, dentry);
+>  }
+> +EXPORT_SYMBOL(security_quota_on);
+>  
+>  int security_syslog(int type)
+>  {
 
-1. At any time after this commit is applied, the kernel could choose
-to reclaim one of the safely reclaimable unused initial SIDs listed
-above for a new purpose (i.e. replace its NULL entry in the
-initial_sid_to_string[] table with a new name and start using the
-newly generated SECINITSID_name symbol in code), and refpolicy could
-at that time rename its declaration of that initial SID to reflect its
-new purpose and start assigning it a context going
-forward. Existing/old policies would map the reclaimed initial SID to
-the unlabeled context, so that would be the initial default behavior
-until policies are updated. This doesn't depend on the selinux
-userspace change; it will work with existing policies and userspace.
-
-2. In 6 months or so we'll have another SELinux userspace release that
-will include the libsepol/checkpolicy support for omitting unused
-initial SID contexts.
-
-3. At any time after that release, refpolicy can make that release its
-minimum build requirement and drop the sid context statements (but not
-the sid declarations) for all of the unused initial SIDs except for
-fs and sysctl, which must remain for compatibility on policy
-reload with old kernels and for compatibility with kernels that were
-still using SECINITSID_SYSCTL (< 2.6.39). This doesn't depend on this
-kernel commit; it will work with previous kernels as well.
-
-4. After N years for some value of N, refpolicy decides that it no
-longer cares about policy reload compatibility for kernels that
-predate this kernel commit, and refpolicy drops the fs and sysctl
-SID contexts from policy too (but retains the declarations).
-
-5. After M years for some value of M, the kernel decides that it no
-longer cares about compatibility with refpolicies that predate step 4
-(dropping the fs and sysctl SIDs), and those two SIDs also become
-safely reclaimable.  This step is optional and need not ever occur unless
-we decide that the need to reclaim those two SIDs outweighs the
-compatibility cost.
-
-6. After O years for some value of O, refpolicy decides that it no
-longer cares about policy load (not just reload) compatibility for
-kernels that predate this kernel commit, and both kernel and refpolicy
-can then start adding and using new initial SIDs beyond 27. This does
-not depend on the previous change (step 5) and can occur independent
-of it.
-
-Fixes: https://github.com/SELinuxProject/selinux-kernel/issues/12
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
-v4 fixes the commit hashes that I cut-and-pasted from the GH issue
-comments to be the proper length and added the one-line descriptions.
-Oddly checkpatch.pl didn't catch that originally.
-
- scripts/selinux/genheaders/genheaders.c       | 11 +++-
- .../selinux/include/initial_sid_to_string.h   | 57 +++++++++----------
- security/selinux/selinuxfs.c                  |  6 +-
- security/selinux/ss/policydb.c                | 25 ++++----
- security/selinux/ss/services.c                | 26 ++++-----
- 5 files changed, 66 insertions(+), 59 deletions(-)
-
-diff --git a/scripts/selinux/genheaders/genheaders.c
-b/scripts/selinux/genheaders/genheaders.c
-index 544ca126a8a8..f355b3e0e968 100644
---- a/scripts/selinux/genheaders/genheaders.c
-+++ b/scripts/selinux/genheaders/genheaders.c
-@@ -67,8 +67,12 @@ int main(int argc, char *argv[])
-        }
-
-        isids_len = sizeof(initial_sid_to_string) / sizeof (char *);
--       for (i = 1; i < isids_len; i++)
--               initial_sid_to_string[i] = stoupperx(initial_sid_to_string[i]);
-+       for (i = 1; i < isids_len; i++) {
-+               const char *s = initial_sid_to_string[i];
-+
-+               if (s)
-+                       initial_sid_to_string[i] = stoupperx(s);
-+       }
-
-        fprintf(fout, "/* This file is automatically generated.  Do
-not edit. */\n");
-        fprintf(fout, "#ifndef _SELINUX_FLASK_H_\n#define
-_SELINUX_FLASK_H_\n\n");
-@@ -82,7 +86,8 @@ int main(int argc, char *argv[])
-
-        for (i = 1; i < isids_len; i++) {
-                const char *s = initial_sid_to_string[i];
--               fprintf(fout, "#define SECINITSID_%-39s %2d\n", s, i);
-+               if (s)
-+                       fprintf(fout, "#define SECINITSID_%-39s %2d\n", s, i);
-        }
-        fprintf(fout, "\n#define SECINITSID_NUM %d\n", i-1);
-        fprintf(fout, "\nstatic inline bool
-security_is_socket_class(u16 kern_tclass)\n");
-diff --git a/security/selinux/include/initial_sid_to_string.h
-b/security/selinux/include/initial_sid_to_string.h
-index 4f93f697f71c..5d332aeb8b6c 100644
---- a/security/selinux/include/initial_sid_to_string.h
-+++ b/security/selinux/include/initial_sid_to_string.h
-@@ -1,34 +1,33 @@
- /* SPDX-License-Identifier: GPL-2.0 */
--/* This file is automatically generated.  Do not edit. */
- static const char *initial_sid_to_string[] =
- {
--    "null",
--    "kernel",
--    "security",
--    "unlabeled",
--    "fs",
--    "file",
--    "file_labels",
--    "init",
--    "any_socket",
--    "port",
--    "netif",
--    "netmsg",
--    "node",
--    "igmp_packet",
--    "icmp_socket",
--    "tcp_socket",
--    "sysctl_modprobe",
--    "sysctl",
--    "sysctl_fs",
--    "sysctl_kernel",
--    "sysctl_net",
--    "sysctl_net_unix",
--    "sysctl_vm",
--    "sysctl_dev",
--    "kmod",
--    "policy",
--    "scmp_packet",
--    "devnull",
-+       NULL,
-+       "kernel",
-+       "security",
-+       "unlabeled",
-+       NULL,
-+       "file",
-+       NULL,
-+       NULL,
-+       "any_socket",
-+       "port",
-+       "netif",
-+       "netmsg",
-+       "node",
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       NULL,
-+       "devnull",
- };
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 533ab170ad52..4781314c2510 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -1701,7 +1701,11 @@ static int sel_make_initcon_files(struct dentry *dir)
-        for (i = 1; i <= SECINITSID_NUM; i++) {
-                struct inode *inode;
-                struct dentry *dentry;
--               dentry = d_alloc_name(dir, security_get_initial_sid_context(i));
-+               const char *s = security_get_initial_sid_context(i);
-+
-+               if (!s)
-+                       continue;
-+               dentry = d_alloc_name(dir, s);
-                if (!dentry)
-                        return -ENOMEM;
-
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 32b3a8acf96f..406fb02d80ae 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -867,29 +867,28 @@ int policydb_load_isids(struct policydb *p,
-struct sidtab *s)
-
-        head = p->ocontexts[OCON_ISID];
-        for (c = head; c; c = c->next) {
--               rc = -EINVAL;
--               if (!c->context[0].user) {
--                       pr_err("SELinux:  SID %s was never defined.\n",
--                               c->u.name);
--                       sidtab_destroy(s);
--                       goto out;
--               }
--               if (c->sid[0] == SECSID_NULL || c->sid[0] > SECINITSID_NUM) {
--                       pr_err("SELinux:  Initial SID %s out of range.\n",
--                               c->u.name);
-+               u32 sid = c->sid[0];
-+               const char *name = security_get_initial_sid_context(sid);
-+
-+               if (sid == SECSID_NULL) {
-+                       pr_err("SELinux:  SID 0 was assigned a context.\n");
-                        sidtab_destroy(s);
-                        goto out;
-                }
-+
-+               /* Ignore initial SIDs unused by this kernel. */
-+               if (!name)
-+                       continue;
-+
-                rc = context_add_hash(p, &c->context[0]);
-                if (rc) {
-                        sidtab_destroy(s);
-                        goto out;
-                }
--
--               rc = sidtab_set_initial(s, c->sid[0], &c->context[0]);
-+               rc = sidtab_set_initial(s, sid, &c->context[0]);
-                if (rc) {
-                        pr_err("SELinux:  unable to load initial SID %s.\n",
--                               c->u.name);
-+                              name);
-                        sidtab_destroy(s);
-                        goto out;
-                }
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index f90e6550eec8..8ad34fd031d1 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1322,23 +1322,22 @@ static int security_sid_to_context_core(struct
-selinux_state *state,
-        if (!selinux_initialized(state)) {
-                if (sid <= SECINITSID_NUM) {
-                        char *scontextp;
-+                       const char *s = initial_sid_to_string[sid];
-
--                       *scontext_len = strlen(initial_sid_to_string[sid]) + 1;
-+                       if (!s)
-+                               return -EINVAL;
-+                       *scontext_len = strlen(s) + 1;
-                        if (!scontext)
--                               goto out;
--                       scontextp = kmemdup(initial_sid_to_string[sid],
--                                           *scontext_len, GFP_ATOMIC);
--                       if (!scontextp) {
--                               rc = -ENOMEM;
--                               goto out;
--                       }
-+                               return 0;
-+                       scontextp = kmemdup(s, *scontext_len, GFP_ATOMIC);
-+                       if (!scontextp)
-+                               return -ENOMEM;
-                        *scontext = scontextp;
--                       goto out;
-+                       return 0;
-                }
-                pr_err("SELinux: %s:  called before initial "
-                       "load_policy on unknown SID %d\n", __func__, sid);
--               rc = -EINVAL;
--               goto out;
-+               return -EINVAL;
-        }
-        read_lock(&state->ss->policy_rwlock);
-        policydb = &state->ss->policydb;
-@@ -1362,7 +1361,6 @@ static int security_sid_to_context_core(struct
-selinux_state *state,
-
- out_unlock:
-        read_unlock(&state->ss->policy_rwlock);
--out:
-        return rc;
-
- }
-@@ -1552,7 +1550,9 @@ static int security_context_to_sid_core(struct
-selinux_state *state,
-                int i;
-
-                for (i = 1; i < SECINITSID_NUM; i++) {
--                       if (!strcmp(initial_sid_to_string[i], scontext2)) {
-+                       const char *s = initial_sid_to_string[i];
-+
-+                       if (s && !strcmp(s, scontext2)) {
-                                *sid = i;
-                                goto out;
-                        }
---
-2.24.1
-
-
-
--- 
-paul moore
-www.paul-moore.com
