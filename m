@@ -2,221 +2,178 @@ Return-Path: <SRS0=F/Jq=4N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB6A9C35E01
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 18:13:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8C3CC35E01
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 19:20:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B730120CC7
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 18:13:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 78B182082F
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 19:20:54 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="ifUZQ3y1"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="ZZWuVl85"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730017AbgBYSN0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Feb 2020 13:13:26 -0500
-Received: from mailomta18-re.btinternet.com ([213.120.69.111]:25074 "EHLO
-        re-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728367AbgBYSN0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 13:13:26 -0500
-Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
-          by re-prd-fep-044.btinternet.com with ESMTP
-          id <20200225181324.DCYK7315.re-prd-fep-044.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Tue, 25 Feb 2020 18:13:24 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1582654404; 
-        bh=JI1l4DllsYBo1CKbunW+WrAkC6q+S5ZmvHu8WA2cr5A=;
-        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
-        b=ifUZQ3y1A/5CWBT6SkCxDpdK999q1kDJFx5MrOdb2Wr6SGCuZ2678VMk56lJ2koNbGmaYm0H75sehHIzXiF/A44vOrlZ/izApDBf/cvcxmqDaaH4PraOeHjlCi2XDyfJud5nmNUzv3gPd0E9qsvWXnICglG5ufOEaknPT876FlNZxbRlrx19y+hkqHJ98z48hh9srP7ChYybwV0JEajsyhHVcTlCPw3mJT0SWu1eevOSZtvoqlAvBABlbN57JemJxzb6CxDABUtG652PIfn3HVE8twqQ1KLcUPZp4ePZSnMgKq2mSGHyAjKkqo/F4b/nJ0/DEhGFCuM9pGo0bYThBA==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [31.49.58.0]
-X-OWM-Source-IP: 31.49.58.0 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrledvgddutdelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepfedurdegledrheekrddtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrgeelrdehkedrtddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehomhhoshhnrggtvgesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (31.49.58.0) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A16DE0330AB22; Tue, 25 Feb 2020 18:13:24 +0000
-Message-ID: <d3c9a8fed62999b0162847da0f250c8e40c40255.camel@btinternet.com>
-Subject: Re: [PATCH testsuite v2] tests/sctp: fix setting of the SCTP_EVENTS
- sockopt
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Date:   Tue, 25 Feb 2020 18:13:23 +0000
-In-Reply-To: <20200225094529.178623-1-omosnace@redhat.com>
-References: <20200225094529.178623-1-omosnace@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.3 (3.34.3-1.fc31) 
+        id S1730999AbgBYTUy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Feb 2020 14:20:54 -0500
+Received: from mail-vk1-f194.google.com ([209.85.221.194]:44206 "EHLO
+        mail-vk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727298AbgBYTUy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 14:20:54 -0500
+Received: by mail-vk1-f194.google.com with SMTP id y184so62085vkc.11
+        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 11:20:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=/jjy6jiYXtX1LjRixPl7iH3X4idWtpaEvBjf0TWMp7E=;
+        b=ZZWuVl85Y/swdZhYvz8Y1I4DwiJRk8goTTPZngUQaQGs8yOVOzYGAtPiuUj4CaSmZy
+         CDRSa0Tbkf+9XJE6rVw+zZRB9qJWRgmshTG3rOMqB2vTfoYKzpF/54NCPyjfLqroYdsC
+         KSH7j5BzI7Z73Wk/mL+9FBTFoqwpv3tnL80r/Iw1n9CSfBnoCp55e+n6VE7WqlqZp4wc
+         CNegJf4mXowEfntbcTMXjz10L16seEBsBDAW81ZezHTehdekfjal4k9QLw+VDIhcY/pz
+         TH3Bzz5VCVPRe+RZjsNrEvhiEbZrHJNOoiWoZLEBZxyhf2+tqekh90lBrfZ02++HjRVu
+         HNYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=/jjy6jiYXtX1LjRixPl7iH3X4idWtpaEvBjf0TWMp7E=;
+        b=ZQU67wL7LxT0KeVYv6ZsWsSflhwFKaTPEKd7HWTSVt4wP6LjP2HSIR24AJjoNOUPOi
+         wWHOKW0nT5bLbaIAQsQdBqLW57cCW01Keu52KxNNrJ91I4tlhOt8LMAR76htJs3m0ArR
+         nnzdhXdEc4PXfEMPJJIXSNe8vzhN5f5NF6DYhND+7TPFAwOG00vErucUoWkuDKgkRMOy
+         tXw6WG6+RFETMcEcyyOFmxn9YmmqKZX1/bbBfhiZk1mQGx20k+9m5u/tUlo0NOK3WXj2
+         Dd8OZCRzFF1JiVDalT6kOCgcXkM/GOIpYV9mdjYFU/TEqvLH/Hfa/gg15swJnFFF57nU
+         R+vQ==
+X-Gm-Message-State: APjAAAVr67Or4L+WXNeyfIR7ThDG5lkz+ns/JsaU510uqdAOyjeqVGni
+        AH8lRWKo3UxfcOKY3QFY+isnl35YWpn+/Ri+GWwSu+ZTjYc=
+X-Google-Smtp-Source: APXvYqwH+AvPyLISGPNAhzwwaVcF8YsJN5TCA06hBQn1NOlGVakIV92VgIEUHwQrywKTAt+0Pt2sHg2DlFyOPedmOuo=
+X-Received: by 2002:a1f:7d43:: with SMTP id y64mr369165vkc.15.1582658452609;
+ Tue, 25 Feb 2020 11:20:52 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+References: <CAJ2a_DdN4koR+9+5UvYSp8U0KGA8Gq_ND9qTdAu6b8yQYmy82A@mail.gmail.com>
+ <069d698d-9067-fc90-e666-b35d919df2ee@tycho.nsa.gov> <c2dea4c1-d67b-d872-284f-acde6e9ba58a@tycho.nsa.gov>
+ <CAHC9VhTp0CesJurTf3y8VbwnWTpVTTZJAYEs2Mun+F6MCjvUsQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhTp0CesJurTf3y8VbwnWTpVTTZJAYEs2Mun+F6MCjvUsQ@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Tue, 25 Feb 2020 20:20:41 +0100
+Message-ID: <CAJ2a_DfjV5ZWtnHfbOHYm0NrZcFy5MTTH2D79bJoMFFVyM=J6A@mail.gmail.com>
+Subject: Re: How to see SELinux denials late at shutdown
+To:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2020-02-25 at 10:45 +0100, Ondrej Mosnacek wrote:
-> First, the setting of SCTP_EVENTS socket option in sctp_server.c is
-> completely wrong -- it assumes little-endian byte order and uses a
-> plain
-> int instead of the dedicated sctp_event_subscribe struct.
-> 
-> Second, the usage in sctp_peeloff_server.c is correct, but it may
-> lead
-> to errors when the SCTP header definitions are newer than what the
-> kernel supports. In such case the size of struct sctp_event_subscribe
-> may be higher than the kernel's version and the setsockopt(2) may
-> fail
-> with -EINVAL due to the 'optlen > sizeof(struct
-> sctp_event_subscribe)'
-> check in net/sctp/socket.c:sctp_setsockopt_events().
-> 
-> To fix this, introduce a common function that does what the
-> sctp_peeloff_server's set_subscr_events() did, but also truncates the
-> optlen to only those fields that we use.
-> 
-> Fixes: c38b57ffdac4 ("selinux-testsuite: Add SCTP test support")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> On 11/12/19 8:08 AM, Christian G=C3=B6ttsche wrote:
+> While trying to confine systemd-shutdown, I am unable to see any
+> SELinux denials late at shutdown.
+> I tested on Debian sid with systemd 242/243 and Linux 4.19.67-2/5.3.9-1.
+> The command line is: `BOOT_IMAGE=3D/boot/vmlinuz-5.3.0-2-amd64
+> root=3DUUID=3D0a22bd66-a082-4b76-b96b-ca5cff3ffdf6 ro security=3Dselinux
+> console=3DttyS0 console=3Dtty0 log_buf_len=3D1M printk.devkmsg=3Don`.
+> When running poweroff or reboot, systemd-shutdown stalls but no denial
+> is printed.
+> With a script like [1] dmesg does not print any information.
+> In permissive mode the system powers off/reboots, but no denials are
+> printed.
+> Trying to stop auditd/systemd-journald beforehand does not help.
+>
+> Does the kernel itself shuts down the ring buffer, or can systemd
+> interfere somehow?
 
-Just tested this with no problems. Thanks for the fixes.
+For the record:
 
-Acked-by: Richard Haines <richard_c_haines@btinternet.com>
+With a custom kernel I was able to retrieve the denials and confine
+systemd-shutdown.
 
-> ---
-> 
-> v2: check the result of second set_subscr_events() call in
->     sctp_peeloff_server.c
-> 
->  tests/sctp/sctp_common.c         | 20 +++++++++++++++++++
->  tests/sctp/sctp_common.h         |  1 +
->  tests/sctp/sctp_peeloff_server.c | 33 +++++++++++++-----------------
-> --
->  tests/sctp/sctp_server.c         |  2 +-
->  4 files changed, 35 insertions(+), 21 deletions(-)
-> 
-> diff --git a/tests/sctp/sctp_common.c b/tests/sctp/sctp_common.c
-> index 100ab22..089af2a 100644
-> --- a/tests/sctp/sctp_common.c
-> +++ b/tests/sctp/sctp_common.c
-> @@ -1,5 +1,8 @@
->  #include "sctp_common.h"
->  
-> +#define member_size(type, member) sizeof(((type *)0)->member)
-> +#define sizeof_up_to(type, member) (offsetof(type, member) +
-> member_size(type, member))
-> +
->  void print_context(int fd, char *text)
->  {
->  	char *context;
-> @@ -99,3 +102,20 @@ void print_ip_option(int fd, bool ipv4, char
-> *text)
->  		printf("%s No IP Options set\n", text);
->  	}
->  }
-> +
-> +int set_subscr_events(int fd, int data_io, int association)
-> +{
-> +	struct sctp_event_subscribe subscr_events;
-> +
-> +	memset(&subscr_events, 0, sizeof(subscr_events));
-> +	subscr_events.sctp_data_io_event = data_io;
-> +	subscr_events.sctp_association_event = association;
-> +
-> +	/*
-> +	 * Truncate optlen to just the fields we touch to avoid errors
-> when
-> +	 * the uapi headers are newer than the running kernel.
-> +	 */
-> +	return setsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS,
-> &subscr_events,
-> +			  sizeof_up_to(struct sctp_event_subscribe,
-> +				       sctp_association_event));
-> +}
-> diff --git a/tests/sctp/sctp_common.h b/tests/sctp/sctp_common.h
-> index d5c1397..351ee37 100644
-> --- a/tests/sctp/sctp_common.h
-> +++ b/tests/sctp/sctp_common.h
-> @@ -25,3 +25,4 @@ void print_context(int fd, char *text);
->  void print_addr_info(struct sockaddr *sin, char *text);
->  char *get_ip_option(int fd, bool ipv4, socklen_t *opt_len);
->  void print_ip_option(int fd, bool ipv4, char *text);
-> +int set_subscr_events(int fd, int data_io, int association);
-> diff --git a/tests/sctp/sctp_peeloff_server.c
-> b/tests/sctp/sctp_peeloff_server.c
-> index 4a5110a..8350cb4 100644
-> --- a/tests/sctp/sctp_peeloff_server.c
-> +++ b/tests/sctp/sctp_peeloff_server.c
-> @@ -16,24 +16,6 @@ static void usage(char *progname)
->  	exit(1);
->  }
->  
-> -static void set_subscr_events(int fd, int value)
-> -{
-> -	int result;
-> -	struct sctp_event_subscribe subscr_events;
-> -
-> -	memset(&subscr_events, 0, sizeof(subscr_events));
-> -	subscr_events.sctp_association_event = value;
-> -	/* subscr_events.sctp_data_io_event = value; */
-> -
-> -	result = setsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS,
-> -			    &subscr_events, sizeof(subscr_events));
-> -	if (result < 0) {
-> -		perror("Server setsockopt: SCTP_EVENTS");
-> -		close(fd);
-> -		exit(1);
-> -	}
-> -}
-> -
->  static sctp_assoc_t handle_event(void *buf)
->  {
->  	union sctp_notification *snp = buf;
-> @@ -166,7 +148,13 @@ int main(int argc, char **argv)
->  	}
->  
->  	do {
-> -		set_subscr_events(sock, 1); /* Get assoc_id for
-> sctp_peeloff() */
-> +		/* Get assoc_id for sctp_peeloff() */
-> +		result = set_subscr_events(sock, 0, 1);
-> +		if (result < 0) {
-> +			perror("Server setsockopt: SCTP_EVENTS");
-> +			close(sock);
-> +			exit(1);
-> +		}
->  		sinlen = sizeof(sin);
->  		flags = 0;
->  
-> @@ -192,7 +180,12 @@ int main(int argc, char **argv)
->  				exit(1);
->  			}
->  			/* No more notifications */
-> -			set_subscr_events(sock, 0);
-> +			result = set_subscr_events(sock, 0, 0);
-> +			if (result < 0) {
-> +				perror("Server setsockopt:
-> SCTP_EVENTS");
-> +				close(sock);
-> +				exit(1);
-> +			}
->  
->  			peeloff_sk = sctp_peeloff(sock, assoc_id);
->  			if (peeloff_sk < 0) {
-> diff --git a/tests/sctp/sctp_server.c b/tests/sctp/sctp_server.c
-> index 4659ed1..7f2cd20 100644
-> --- a/tests/sctp/sctp_server.c
-> +++ b/tests/sctp/sctp_server.c
-> @@ -134,7 +134,7 @@ int main(int argc, char **argv)
->  	}
->  
->  	/* Enables sctp_data_io_events for sctp_recvmsg(3) for
-> assoc_id. */
-> -	result = setsockopt(sock, SOL_SCTP, SCTP_EVENTS, &on,
-> sizeof(on));
-> +	result = set_subscr_events(sock, on, 0);
->  	if (result < 0) {
->  		perror("Server setsockopt: SCTP_EVENTS");
->  		close(sock);
+---
+ security/selinux/avc.c | 58 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index d18cb32a242a..26c440f022ce 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -751,6 +751,62 @@ static void avc_audit_post_callback(struct
+audit_buffer *ab, void *a)
+     }
+ }
+
++static void dump_avc_to_console(const struct selinux_audit_data *sad)
++{
++    u32 av =3D sad->audited;
++    char perm_str[128];
++    const char **perms;
++    int i, perm;
++    char *scontext =3D NULL, *tcontext =3D NULL;
++    u32 context_len;
++
++    if (av =3D=3D 0) {
++        snprintf(perm_str, sizeof(perm_str), " null");
++    } else {
++        perms =3D secclass_map[sad->tclass-1].perms;
++
++        snprintf(perm_str, sizeof(perm_str), " {");
++
++        i =3D 0;
++        perm =3D 1;
++
++        while (i < (sizeof(av) * 8)) {
++            if ((perm & av) && perms[i]) {
++                strncat(perm_str, " ",
++                    sizeof(perm_str) - strlen(perm_str)
++                             - 1);
++                strncat(perm_str, perms[i],
++                    sizeof(perm_str) - strlen(perm_str)
++                             - 1);
++                av &=3D ~perm;
++            }
++            i++;
++            perm <<=3D 1;
++        }
++
++        if (av)
++            strncat(perm_str, " UNKNOWN",
++                sizeof(perm_str) - strlen(perm_str) - 1);
++
++        strncat(perm_str, " }", sizeof(perm_str) - strlen(perm_str)
++                             - 1);
++    }
++
++    security_sid_to_context(sad->state, sad->ssid, &scontext, &context_len=
+);
++    security_sid_to_context(sad->state, sad->tsid, &tcontext, &context_len=
+);
++
++    pr_warn("SELinux avc: %s %s for scontext=3D%s tcontext=3D%s tclass=3D%=
+s
+permissive=3D%d\n",
++        sad->denied ? "denied" : "granted",
++        perm_str,
++        scontext ? scontext : "KERNEL SID",
++        tcontext ? tcontext : "KERNEL SID",
++        secclass_map[sad->tclass-1].name,
++        sad->denied ? (sad->result ? 0 : 1) : -1);
++
++    kfree(scontext);
++    kfree(tcontext);
++}
++
+ /* This is the slow part of avc audit with big stack footprint */
+ noinline int slow_avc_audit(struct selinux_state *state,
+                 u32 ssid, u32 tsid, u16 tclass,
+@@ -779,6 +835,8 @@ noinline int slow_avc_audit(struct selinux_state *state=
+,
+
+     a->selinux_audit_data =3D &sad;
+
++    dump_avc_to_console(&sad);
++
+     common_lsm_audit(a, avc_audit_pre_callback, avc_audit_post_callback);
+     return 0;
+ }
+--=20
+2.25.1
