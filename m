@@ -2,219 +2,293 @@ Return-Path: <SRS0=F/Jq=4N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 268F0C35DFB
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 09:45:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53D88C35DFE
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 09:56:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E6796218AC
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 09:45:39 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P64+83DV"
+	by mail.kernel.org (Postfix) with ESMTP id 18DFA21744
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 09:56:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729043AbgBYJpj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Feb 2020 04:45:39 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:25069 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726587AbgBYJpi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 04:45:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582623937;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=WbcRWJUVG75A7jqJKwU5gh8plKr4MefhiXJLkY6ocyY=;
-        b=P64+83DVgCJpDgyW025tq4/ViAsmFY7XSVDsLmLqDpftFVaDCaaZdqvKsKckfBvsRwQtFI
-        nzrubh96j3e6qi1uGT4a1ptftl4X+A4iV66Lf/nCmWw1pjA8qzOwZETEZIIJj73bgVaHcg
-        n1mDoSfsTC8QCj+S3T14F+gJyr43Ayc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-434-jNzdZOoWPxmxXMwuc3oIMQ-1; Tue, 25 Feb 2020 04:45:35 -0500
-X-MC-Unique: jNzdZOoWPxmxXMwuc3oIMQ-1
-Received: by mail-wr1-f69.google.com with SMTP id o9so7048011wrw.14
-        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 01:45:35 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=WbcRWJUVG75A7jqJKwU5gh8plKr4MefhiXJLkY6ocyY=;
-        b=HH0iGOtvs2BTifGlhUhb7U24ujuNatNtoxfWsjilEiW1x1yA/JV/t5svlEPysmTEsZ
-         501ZSVd8umBZTlWBo90cfR3Ii9ZX+VwNhqDgN4/GXl60vt/38zEdnESWbnBQrB5LH9+8
-         XDZzEMDjeOFwSmeAU1FcFAtpcFOLpDU2tYFIn8mChy3Urt6y1Gn8vJUya+pTcpwoOSSM
-         Dn7fV8KQrvNjNO3Te4LsiaH8cctYhCTJvucIHiq6dM8QnxxrHH+/4bSXRVkgrcQfLsG9
-         yDKootZhJM/D5fvmyjNiGOzyiHcPq9ZjxaVX0Dlv41ZrD1YVEhwHFhccIWGcX87qVanR
-         E86g==
-X-Gm-Message-State: APjAAAWk1FPVfr1weqVE/cyj060H3h8kCfxaBpvGBN4BXnLWv4rp/YLG
-        mnx0lwFYaAFLXSCvZ/Y+SQT3jHaozlBdDFKatJ0pwM6mlQvdWbQTwdmoFyA19H/LXE0xU3ZYuY4
-        PZTmQs/z0uuFssTwxag==
-X-Received: by 2002:adf:cd11:: with SMTP id w17mr75299605wrm.66.1582623934391;
-        Tue, 25 Feb 2020 01:45:34 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwz3YZeZtTdfOjogXcyzxzFNVAmvtzE2SSA1gk0j64fRXSm5Ew5fYM4KMA31+XzMTgMmsKfVw==
-X-Received: by 2002:adf:cd11:: with SMTP id w17mr75299582wrm.66.1582623934118;
-        Tue, 25 Feb 2020 01:45:34 -0800 (PST)
-Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id 18sm3532909wmf.1.2020.02.25.01.45.33
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Feb 2020 01:45:33 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite v2] tests/sctp: fix setting of the SCTP_EVENTS sockopt
-Date:   Tue, 25 Feb 2020 10:45:29 +0100
-Message-Id: <20200225094529.178623-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.24.1
+        id S1729349AbgBYJ4D (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Feb 2020 04:56:03 -0500
+Received: from mga03.intel.com ([134.134.136.65]:23639 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725788AbgBYJ4D (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 25 Feb 2020 04:56:03 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 Feb 2020 01:56:01 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,483,1574150400"; 
+   d="scan'208";a="317039975"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga001.jf.intel.com with ESMTP; 25 Feb 2020 01:56:01 -0800
+Received: from [10.125.253.45] (abudanko-mobl.ccr.corp.intel.com [10.125.253.45])
+        by linux.intel.com (Postfix) with ESMTP id 3429A58052E;
+        Tue, 25 Feb 2020 01:55:54 -0800 (PST)
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+Subject: Re: [PATCH v7 00/12] Introduce CAP_PERFMON to secure system
+ performance monitoring and observability
+To:     James Morris <jmorris@namei.org>, Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>,
+        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Helge Deller <deller@gmx.de>,
+        Thomas Gleixner <tglx@linutronix.de>
+Cc:     Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
+        oprofile-list@lists.sf.net,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        linux-man@vger.kernel.org
+References: <c8de937a-0b3a-7147-f5ef-69f467e87a13@linux.intel.com>
+Organization: Intel Corp.
+Message-ID: <3ae0bed5-204e-de81-7647-5f0d8106cd67@linux.intel.com>
+Date:   Tue, 25 Feb 2020 12:55:54 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <c8de937a-0b3a-7147-f5ef-69f467e87a13@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-First, the setting of SCTP_EVENTS socket option in sctp_server.c is
-completely wrong -- it assumes little-endian byte order and uses a plain
-int instead of the dedicated sctp_event_subscribe struct.
 
-Second, the usage in sctp_peeloff_server.c is correct, but it may lead
-to errors when the SCTP header definitions are newer than what the
-kernel supports. In such case the size of struct sctp_event_subscribe
-may be higher than the kernel's version and the setsockopt(2) may fail
-with -EINVAL due to the 'optlen > sizeof(struct sctp_event_subscribe)'
-check in net/sctp/socket.c:sctp_setsockopt_events().
+Hi,
 
-To fix this, introduce a common function that does what the
-sctp_peeloff_server's set_subscr_events() did, but also truncates the
-optlen to only those fields that we use.
+Is there anything else I could do in order to move the changes forward
+or is something still missing from this patch set?
+Could you please share you mind?
 
-Fixes: c38b57ffdac4 ("selinux-testsuite: Add SCTP test support")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
+Thanks,
+Alexey
 
-v2: check the result of second set_subscr_events() call in
-    sctp_peeloff_server.c
-
- tests/sctp/sctp_common.c         | 20 +++++++++++++++++++
- tests/sctp/sctp_common.h         |  1 +
- tests/sctp/sctp_peeloff_server.c | 33 +++++++++++++-------------------
- tests/sctp/sctp_server.c         |  2 +-
- 4 files changed, 35 insertions(+), 21 deletions(-)
-
-diff --git a/tests/sctp/sctp_common.c b/tests/sctp/sctp_common.c
-index 100ab22..089af2a 100644
---- a/tests/sctp/sctp_common.c
-+++ b/tests/sctp/sctp_common.c
-@@ -1,5 +1,8 @@
- #include "sctp_common.h"
- 
-+#define member_size(type, member) sizeof(((type *)0)->member)
-+#define sizeof_up_to(type, member) (offsetof(type, member) + member_size(type, member))
-+
- void print_context(int fd, char *text)
- {
- 	char *context;
-@@ -99,3 +102,20 @@ void print_ip_option(int fd, bool ipv4, char *text)
- 		printf("%s No IP Options set\n", text);
- 	}
- }
-+
-+int set_subscr_events(int fd, int data_io, int association)
-+{
-+	struct sctp_event_subscribe subscr_events;
-+
-+	memset(&subscr_events, 0, sizeof(subscr_events));
-+	subscr_events.sctp_data_io_event = data_io;
-+	subscr_events.sctp_association_event = association;
-+
-+	/*
-+	 * Truncate optlen to just the fields we touch to avoid errors when
-+	 * the uapi headers are newer than the running kernel.
-+	 */
-+	return setsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS, &subscr_events,
-+			  sizeof_up_to(struct sctp_event_subscribe,
-+				       sctp_association_event));
-+}
-diff --git a/tests/sctp/sctp_common.h b/tests/sctp/sctp_common.h
-index d5c1397..351ee37 100644
---- a/tests/sctp/sctp_common.h
-+++ b/tests/sctp/sctp_common.h
-@@ -25,3 +25,4 @@ void print_context(int fd, char *text);
- void print_addr_info(struct sockaddr *sin, char *text);
- char *get_ip_option(int fd, bool ipv4, socklen_t *opt_len);
- void print_ip_option(int fd, bool ipv4, char *text);
-+int set_subscr_events(int fd, int data_io, int association);
-diff --git a/tests/sctp/sctp_peeloff_server.c b/tests/sctp/sctp_peeloff_server.c
-index 4a5110a..8350cb4 100644
---- a/tests/sctp/sctp_peeloff_server.c
-+++ b/tests/sctp/sctp_peeloff_server.c
-@@ -16,24 +16,6 @@ static void usage(char *progname)
- 	exit(1);
- }
- 
--static void set_subscr_events(int fd, int value)
--{
--	int result;
--	struct sctp_event_subscribe subscr_events;
--
--	memset(&subscr_events, 0, sizeof(subscr_events));
--	subscr_events.sctp_association_event = value;
--	/* subscr_events.sctp_data_io_event = value; */
--
--	result = setsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS,
--			    &subscr_events, sizeof(subscr_events));
--	if (result < 0) {
--		perror("Server setsockopt: SCTP_EVENTS");
--		close(fd);
--		exit(1);
--	}
--}
--
- static sctp_assoc_t handle_event(void *buf)
- {
- 	union sctp_notification *snp = buf;
-@@ -166,7 +148,13 @@ int main(int argc, char **argv)
- 	}
- 
- 	do {
--		set_subscr_events(sock, 1); /* Get assoc_id for sctp_peeloff() */
-+		/* Get assoc_id for sctp_peeloff() */
-+		result = set_subscr_events(sock, 0, 1);
-+		if (result < 0) {
-+			perror("Server setsockopt: SCTP_EVENTS");
-+			close(sock);
-+			exit(1);
-+		}
- 		sinlen = sizeof(sin);
- 		flags = 0;
- 
-@@ -192,7 +180,12 @@ int main(int argc, char **argv)
- 				exit(1);
- 			}
- 			/* No more notifications */
--			set_subscr_events(sock, 0);
-+			result = set_subscr_events(sock, 0, 0);
-+			if (result < 0) {
-+				perror("Server setsockopt: SCTP_EVENTS");
-+				close(sock);
-+				exit(1);
-+			}
- 
- 			peeloff_sk = sctp_peeloff(sock, assoc_id);
- 			if (peeloff_sk < 0) {
-diff --git a/tests/sctp/sctp_server.c b/tests/sctp/sctp_server.c
-index 4659ed1..7f2cd20 100644
---- a/tests/sctp/sctp_server.c
-+++ b/tests/sctp/sctp_server.c
-@@ -134,7 +134,7 @@ int main(int argc, char **argv)
- 	}
- 
- 	/* Enables sctp_data_io_events for sctp_recvmsg(3) for assoc_id. */
--	result = setsockopt(sock, SOL_SCTP, SCTP_EVENTS, &on, sizeof(on));
-+	result = set_subscr_events(sock, on, 0);
- 	if (result < 0) {
- 		perror("Server setsockopt: SCTP_EVENTS");
- 		close(sock);
--- 
-2.24.1
-
+On 17.02.2020 11:02, Alexey Budankov wrote:
+> 
+> Currently access to perf_events, i915_perf and other performance
+> monitoring and observability subsystems of the kernel is open only for
+> a privileged process [1] with CAP_SYS_ADMIN capability enabled in the
+> process effective set [2].
+> 
+> This patch set introduces CAP_PERFMON capability designed to secure
+> system performance monitoring and observability operations so that
+> CAP_PERFMON would assist CAP_SYS_ADMIN capability in its governing role
+> for performance monitoring and observability subsystems of the kernel.
+> 
+> CAP_PERFMON intends to harden system security and integrity during
+> performance monitoring and observability operations by decreasing attack
+> surface that is available to a CAP_SYS_ADMIN privileged process [2].
+> Providing the access to performance monitoring and observability
+> operations under CAP_PERFMON capability singly, without the rest of
+> CAP_SYS_ADMIN credentials, excludes chances to misuse the credentials
+> and makes the operation more secure. Thus, CAP_PERFMON implements the
+> principal of least privilege for performance monitoring and
+> observability operations (POSIX IEEE 1003.1e: 2.2.2.39 principle of
+> least privilege: A security design principle that states that a process
+> or program be granted only those privileges (e.g., capabilities)
+> necessary to accomplish its legitimate function, and only for the time
+> that such privileges are actually required)
+> 
+> CAP_PERFMON intends to meet the demand to secure system performance
+> monitoring and observability operations for adoption in security
+> sensitive, restricted, multiuser production environments (e.g. HPC
+> clusters, cloud and virtual compute environments), where root or
+> CAP_SYS_ADMIN credentials are not available to mass users of a system,
+> and securely unblock accessibility of system performance monitoring and
+> observability operations beyond root and CAP_SYS_ADMIN use cases.
+> 
+> CAP_PERFMON intends to take over CAP_SYS_ADMIN credentials related to
+> system performance monitoring and observability operations and balance
+> amount of CAP_SYS_ADMIN credentials following the recommendations in
+> the capabilities man page [2] for CAP_SYS_ADMIN: "Note: this capability
+> is overloaded; see Notes to kernel developers, below." For backward
+> compatibility reasons access to system performance monitoring and
+> observability subsystems of the kernel remains open for CAP_SYS_ADMIN
+> privileged processes but CAP_SYS_ADMIN capability usage for secure
+> system performance monitoring and observability operations is
+> discouraged with respect to the designed CAP_PERFMON capability.
+> 
+> Possible alternative solution to this system security hardening,
+> capabilities balancing task of making performance monitoring and
+> observability operations more secure and accessible could be to use
+> the existing CAP_SYS_PTRACE capability to govern system performance
+> monitoring and observability subsystems. However CAP_SYS_PTRACE
+> capability still provides users with more credentials than are
+> required for secure performance monitoring and observability
+> operations and this excess is avoided by the designed CAP_PERFMON.
+> 
+> Although software running under CAP_PERFMON can not ensure avoidance of
+> related hardware issues, the software can still mitigate those issues
+> following the official hardware issues mitigation procedure [3]. The
+> bugs in the software itself can be fixed following the standard kernel
+> development process [4] to maintain and harden security of system
+> performance monitoring and observability operations. Finally, the patch
+> set is shaped in the way that simplifies backtracking procedure of
+> possible induced issues [5] as much as possible.
+> 
+> The patch set is for tip perf/core repository:
+> git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip perf/core
+> sha1: fdb64822443ec9fb8c3a74b598a74790ae8d2e22
+> 
+> ---
+> Changes in v7:
+> - updated and extended kernel.rst and perf-security.rst documentation 
+>   files with the information about CAP_PERFMON capability and its use cases
+> - documented the case of double audit logging of CAP_PERFMON and CAP_SYS_ADMIN
+>   capabilities on a SELinux enabled system
+> Changes in v6:
+> - avoided noaudit checks in perfmon_capable() to explicitly advertise
+>   CAP_PERFMON usage thru audit logs to secure system performance
+>   monitoring and observability
+> Changes in v5:
+> - renamed CAP_SYS_PERFMON to CAP_PERFMON
+> - extended perfmon_capable() with noaudit checks
+> Changes in v4:
+> - converted perfmon_capable() into an inline function
+> - made perf_events kprobes, uprobes, hw breakpoints and namespaces data
+>   available to CAP_SYS_PERFMON privileged processes
+> - applied perfmon_capable() to drivers/perf and drivers/oprofile
+> - extended __cmd_ftrace() with support of CAP_SYS_PERFMON
+> Changes in v3:
+> - implemented perfmon_capable() macros aggregating required capabilities
+>   checks
+> Changes in v2:
+> - made perf_events trace points available to CAP_SYS_PERFMON privileged
+>   processes
+> - made perf_event_paranoid_check() treat CAP_SYS_PERFMON equally to
+>   CAP_SYS_ADMIN
+> - applied CAP_SYS_PERFMON to i915_perf, bpf_trace, powerpc and parisc
+>   system performance monitoring and observability related subsystems
+> 
+> ---
+> Alexey Budankov (12):
+>   capabilities: introduce CAP_PERFMON to kernel and user space
+>   perf/core: open access to the core for CAP_PERFMON privileged process
+>   perf/core: open access to probes for CAP_PERFMON privileged process
+>   perf tool: extend Perf tool with CAP_PERFMON capability support
+>   drm/i915/perf: open access for CAP_PERFMON privileged process
+>   trace/bpf_trace: open access for CAP_PERFMON privileged process
+>   powerpc/perf: open access for CAP_PERFMON privileged process
+>   parisc/perf: open access for CAP_PERFMON privileged process
+>   drivers/perf: open access for CAP_PERFMON privileged process
+>   drivers/oprofile: open access for CAP_PERFMON privileged process
+>   doc/admin-guide: update perf-security.rst with CAP_PERFMON information
+>   doc/admin-guide: update kernel.rst with CAP_PERFMON information
+> 
+>  Documentation/admin-guide/perf-security.rst | 65 +++++++++++++--------
+>  Documentation/admin-guide/sysctl/kernel.rst | 16 +++--
+>  arch/parisc/kernel/perf.c                   |  2 +-
+>  arch/powerpc/perf/imc-pmu.c                 |  4 +-
+>  drivers/gpu/drm/i915/i915_perf.c            | 13 ++---
+>  drivers/oprofile/event_buffer.c             |  2 +-
+>  drivers/perf/arm_spe_pmu.c                  |  4 +-
+>  include/linux/capability.h                  |  4 ++
+>  include/linux/perf_event.h                  |  6 +-
+>  include/uapi/linux/capability.h             |  8 ++-
+>  kernel/events/core.c                        |  6 +-
+>  kernel/trace/bpf_trace.c                    |  2 +-
+>  security/selinux/include/classmap.h         |  4 +-
+>  tools/perf/builtin-ftrace.c                 |  5 +-
+>  tools/perf/design.txt                       |  3 +-
+>  tools/perf/util/cap.h                       |  4 ++
+>  tools/perf/util/evsel.c                     | 10 ++--
+>  tools/perf/util/util.c                      |  1 +
+>  18 files changed, 98 insertions(+), 61 deletions(-)
+> 
+> ---
+> Validation (Intel Skylake, 8 cores, Fedora 29, 5.5.0-rc3+, x86_64):
+> 
+> libcap library [6], [7], [8] and Perf tool can be used to apply
+> CAP_PERFMON capability for secure system performance monitoring and
+> observability beyond the scope permitted by the system wide
+> perf_event_paranoid kernel setting [9] and below are the steps for
+> evaluation:
+> 
+>   - patch, build and boot the kernel
+>   - patch, build Perf tool e.g. to /home/user/perf
+>   ...
+>   # git clone git://git.kernel.org/pub/scm/libs/libcap/libcap.git libcap
+>   # pushd libcap
+>   # patch libcap/include/uapi/linux/capabilities.h with [PATCH 1]
+>   # make
+>   # pushd progs
+>   # ./setcap "cap_perfmon,cap_sys_ptrace,cap_syslog=ep" /home/user/perf
+>   # ./setcap -v "cap_perfmon,cap_sys_ptrace,cap_syslog=ep" /home/user/perf
+>   /home/user/perf: OK
+>   # ./getcap /home/user/perf
+>   /home/user/perf = cap_sys_ptrace,cap_syslog,cap_perfmon+ep
+>   # echo 2 > /proc/sys/kernel/perf_event_paranoid
+>   # cat /proc/sys/kernel/perf_event_paranoid 
+>   2
+>   ...
+>   $ /home/user/perf top
+>     ... works as expected ...
+>   $ cat /proc/`pidof perf`/status
+>   Name:	perf
+>   Umask:	0002
+>   State:	S (sleeping)
+>   Tgid:	2958
+>   Ngid:	0
+>   Pid:	2958
+>   PPid:	9847
+>   TracerPid:	0
+>   Uid:	500	500	500	500
+>   Gid:	500	500	500	500
+>   FDSize:	256
+>   ...
+>   CapInh:	0000000000000000
+>   CapPrm:	0000004400080000
+>   CapEff:	0000004400080000 => 01000100 00000000 00001000 00000000 00000000
+>                                      cap_perfmon,cap_sys_ptrace,cap_syslog
+>   CapBnd:	0000007fffffffff
+>   CapAmb:	0000000000000000
+>   NoNewPrivs:	0
+>   Seccomp:	0
+>   Speculation_Store_Bypass:	thread vulnerable
+>   Cpus_allowed:	ff
+>   Cpus_allowed_list:	0-7
+>   ...
+> 
+> Usage of cap_perfmon effectively avoids unused credentials excess:
+> 
+> - with cap_sys_admin:
+>   CapEff:	0000007fffffffff => 01111111 11111111 11111111 11111111 11111111
+> 
+> - with cap_perfmon:
+>   CapEff:	0000004400080000 => 01000100 00000000 00001000 00000000 00000000
+>                                     38   34               19
+>                                perfmon   syslog           sys_ptrace
+> 
+> ---
+> [1] https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
+> [2] http://man7.org/linux/man-pages/man7/capabilities.7.html
+> [3] https://www.kernel.org/doc/html/latest/process/embargoed-hardware-issues.html
+> [4] https://www.kernel.org/doc/html/latest/admin-guide/security-bugs.html
+> [5] https://www.kernel.org/doc/html/latest/process/management-style.html#decisions
+> [6] http://man7.org/linux/man-pages/man8/setcap.8.html
+> [7] https://git.kernel.org/pub/scm/libs/libcap/libcap.git
+> [8] https://sites.google.com/site/fullycapable/, posix_1003.1e-990310.pdf
+> [9] http://man7.org/linux/man-pages/man2/perf_event_open.2.html
+> 
