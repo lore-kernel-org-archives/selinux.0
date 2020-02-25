@@ -8,59 +8,59 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80F4FC35E01
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 20:03:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D77EEC35E04
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 20:03:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5505121556
-	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 20:03:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB17721556
+	for <selinux@archiver.kernel.org>; Tue, 25 Feb 2020 20:03:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o4jfSlXt"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hlyop63e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731223AbgBYUDG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Feb 2020 15:03:06 -0500
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:33596 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728162AbgBYUDF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 15:03:05 -0500
-Received: by mail-pf1-f195.google.com with SMTP id n7so131862pfn.0
-        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 12:03:05 -0800 (PST)
+        id S1731449AbgBYUDH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Feb 2020 15:03:07 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:39298 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728162AbgBYUDH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Feb 2020 15:03:07 -0500
+Received: by mail-pj1-f67.google.com with SMTP id e9so184546pjr.4
+        for <selinux@vger.kernel.org>; Tue, 25 Feb 2020 12:03:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=crs6SVimy4Jek7MEn4C+0oC2hWg9PvZMOqLc5C+Mf8g=;
-        b=o4jfSlXtKdlN1Uoq+crxB8vRL0U8mHHxrMp89+qLerzaxpmb7FzEQnDONxDdvH5GG/
-         ocee2pmkaWCbx+olPz6VTLr5baqYXgVCi30SMrUQS3KQ0VinsiwjK7voRVWkvnZpX4kk
-         T14LnQG6HX8z9p3T2T0xT96OmwQrs2JTyOBGdrhdSd5dE3RYpVvS+W7lBJZgf8fnPaEo
-         MB2PxvcalKETtmQjLncbXkGNBfzTlDOMYqSBx965BbSKj1IaoSs0OUZ6ruNUlqe/L2xP
-         JPA/4rT+bZIsW3vwZjAmd8/+Dw8ELwEAC1oDZZJytajjvdMRlKe67ueiioH0Qv2bDz11
-         8ttQ==
+        bh=+5ji0qf9xxgPhc+Nmd1gWKTklZ3TKBMYpM1qRp9y2Kg=;
+        b=hlyop63ej/CxCDG1fiyWCMOI7jhrWN7Wdva9Ox+9iWJQqylHhPCwGPMu60HL+xlbKU
+         pczeGsenr7x0Enqo0Q0W18oRC/cLsc6Bh4r5ZWRogeAD/PszwogCn2YPm0+aTtVMND0K
+         cs3LzKrogUi1RAgx1nTkwMJf2inzZjAd9fDJhnUBofK3hgyw6hgn88e/30PAlkAjJiBE
+         ddvOoIVOSXY2hxg9I+mCbLkueHVy2uWfj3GoV6FxLL3MB9rDdZY/31LctUZm91l4b2U/
+         sTwP6Z3VLvV7bmdGGCkoYqWlXVaG2LX6NjKEG6AWN+sRNXepBNKmAgt5pn9Fz/4JLIiM
+         D+ZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=crs6SVimy4Jek7MEn4C+0oC2hWg9PvZMOqLc5C+Mf8g=;
-        b=LeKMKuq+t6ifnQjEj0E8aAf/FgrO1aCsJnRpG4K9CKgX/um8VwG0BBD85JmU8+ywjY
-         z6yByayCWrrjPmx1n5xY1Wym7U/Dtg1zIF/Np8ZqeTk+CU2TKqPCX5JKPtVkjX5U0g0A
-         ofPu0Jiio185PnFle2kPyqBOQJc5XplKjHRugPTZMJGOHGhH/kBsbhOp+0UJHaYyzvON
-         qUPeSMQZ3KiOZ7J29q/59rFV85+VyV2iA+Rvs7RwJtOMbfxJ9b/hd4nsKHTPjGX8LfiR
-         Q5B+tslYEyBHr0G4bWP7WrRNCitwz36CfKU3DuJ0D3mYTkCJZ5r3FCHhKRy3XXC3MQHN
-         YgWg==
-X-Gm-Message-State: APjAAAUsFuG9WJYS2SOstyyvRsYhn8/rXWQSH5w9jsoQHHW90XY7b+2m
-        sP0H+uh6A5Ifav3Ifa0u5r0=
-X-Google-Smtp-Source: APXvYqzX5XOJ4ChY1YVxUYIeEHwW4rqRvVe8FZC9NXvA/N4I5B8YGzAI+JsLkqEc0AxnCtKRbf1Eog==
-X-Received: by 2002:a62:5343:: with SMTP id h64mr350008pfb.171.1582660984552;
-        Tue, 25 Feb 2020 12:03:04 -0800 (PST)
+        bh=+5ji0qf9xxgPhc+Nmd1gWKTklZ3TKBMYpM1qRp9y2Kg=;
+        b=Odg3AzYvr6VsSbpYNaOVujkBXZkee9SjjaBfX3YynCYME7HiZyu5NaWYJDLkAnCxY7
+         O4E4nanOAjtHzN2dXMj+J+Iw64YwPCzmV82V12zNT/hPLUpyvtVy6qoDvKtvBqL22CpH
+         BvGzBhiMm7MB41W2RiS+LnwTo6m1lOW74SLnegF8zbBqNYz0KW3rk/i1z/e3MlEzWF8D
+         mLSrldcMq7jTm8uvLJAfeXspWj75sSrGquDmuDBGQwooBs9firrEMD2wsZAQAdeGZoNO
+         wZrC3BvM+0wHMcpheozVr+aaLmJ1FATmtRKLXWc1RdBd6YQQo9+OgB4iE5yV/rM2EU6q
+         G7UA==
+X-Gm-Message-State: APjAAAVHJSiLInkb7svNRELk5k8QODycRPRACOBn3cWS4wufj2yp2GSs
+        ixzCyBXXQrx24M/d/CPWLBo=
+X-Google-Smtp-Source: APXvYqz5RoPhIMwa91zhv153Rdiz6woDw36eDCwXCO/2WFNWgoh5TeIOsRKUMcfeWGvEgLnDJ7oQqQ==
+X-Received: by 2002:a17:90b:3c9:: with SMTP id go9mr776523pjb.7.1582660986536;
+        Tue, 25 Feb 2020 12:03:06 -0800 (PST)
 Received: from localhost.localdomain (fmdmzpr03-ext.fm.intel.com. [192.55.54.38])
-        by smtp.gmail.com with ESMTPSA id v29sm10636362pgc.72.2020.02.25.12.03.03
+        by smtp.gmail.com with ESMTPSA id v29sm10636362pgc.72.2020.02.25.12.03.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Feb 2020 12:03:04 -0800 (PST)
+        Tue, 25 Feb 2020 12:03:05 -0800 (PST)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     sds@tycho.nsa.gov, plautrba@redhat.com, selinux@vger.kernel.org
 Cc:     William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH 15/17] avc_open: mark allowed use of avc_init
-Date:   Tue, 25 Feb 2020 14:02:17 -0600
-Message-Id: <20200225200219.6163-16-william.c.roberts@intel.com>
+Subject: [PATCH 16/17] src/matchpathcon: allow use of deprecated funcs
+Date:   Tue, 25 Feb 2020 14:02:18 -0600
+Message-Id: <20200225200219.6163-17-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200225200219.6163-1-william.c.roberts@intel.com>
 References: <20200225200219.6163-1-william.c.roberts@intel.com>
@@ -71,32 +71,40 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: William Roberts <william.c.roberts@intel.com>
 
-avc_init is deprecated, however avc_open internally uses it.
-Mark this deprecated use as OK. Another approach could be to
-define an avc_init2 as a hidden, internal symbol and call that, but this
-was seemed simpler and clear.
+Internally users of deprecated functions are ok so allow it.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/src/avc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ libselinux/src/matchpathcon.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-index 5230efd2323a..7d30f0052f7c 100644
---- a/libselinux/src/avc.c
-+++ b/libselinux/src/avc.c
-@@ -156,8 +156,10 @@ int avc_open(struct selinux_opt *opts, unsigned nopts)
- 			avc_enforcing = !!opts[nopts].value;
- 			break;
- 		}
--
+diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
+index 05a5cfa4cfd5..2e5aa347b52b 100644
+--- a/libselinux/src/matchpathcon.c
++++ b/libselinux/src/matchpathcon.c
+@@ -317,7 +317,10 @@ void matchpathcon_filespec_destroy(void)
+ 
+ static void matchpathcon_thread_destructor(void __attribute__((unused)) *ptr)
+ {
 +#pragma GCC diagnostic push
 +#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
- 	return avc_init("avc", NULL, NULL, NULL, NULL);
+ 	matchpathcon_fini();
 +#pragma GCC diagnostic pop
  }
  
- int avc_init(const char *prefix,
+ void __attribute__((destructor)) matchpathcon_lib_destructor(void);
+@@ -451,8 +454,10 @@ int matchpathcon(const char *path, mode_t mode, char ** con)
+ 
+ int matchpathcon_index(const char *name, mode_t mode, char ** con)
+ {
++#pragma GCC diagnostic push
++#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+ 	int i = matchpathcon(name, mode, con);
+-
++#pragma GCC diagnostic pop
+ 	if (i < 0)
+ 		return -1;
+ 
 -- 
 2.17.1
 
