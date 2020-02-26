@@ -2,322 +2,351 @@ Return-Path: <SRS0=jqI3=4O=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 471F3C4BA12
-	for <selinux@archiver.kernel.org>; Wed, 26 Feb 2020 15:55:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7D19C4BA21
+	for <selinux@archiver.kernel.org>; Wed, 26 Feb 2020 19:17:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0E812222C2
-	for <selinux@archiver.kernel.org>; Wed, 26 Feb 2020 15:55:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8340F20656
+	for <selinux@archiver.kernel.org>; Wed, 26 Feb 2020 19:17:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i0mw/rXx"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y0qNC/K3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728499AbgBZPzA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Feb 2020 10:55:00 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:55647 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728470AbgBZPzA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Feb 2020 10:55:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582732498;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=YtBCFit32zevDjrLbnfahzcFDYWTFvTQWzVmOmPXGi8=;
-        b=i0mw/rXxjxIym1N8w35YDRQhc62zIeRJf2qyeu+WK0Yd0PJWKqLncSa8L/rLJrwRvFiUCq
-        4doSP0vIWo8won+qxu0lDl5E5kTPqQNETKZ8eQ5mv+1+YL6JZ7JWFJRHxi6gx77MIPsbit
-        oPx+AKa9QN/gCOFNn9itsikRYtnHUDc=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-469-Yqy3U-CUNJ-AeliWy8Dqyg-1; Wed, 26 Feb 2020 10:54:56 -0500
-X-MC-Unique: Yqy3U-CUNJ-AeliWy8Dqyg-1
-Received: by mail-wr1-f71.google.com with SMTP id h4so1653522wrp.13
-        for <selinux@vger.kernel.org>; Wed, 26 Feb 2020 07:54:56 -0800 (PST)
+        id S1727126AbgBZTRE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Feb 2020 14:17:04 -0500
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:40265 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727035AbgBZTRE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Feb 2020 14:17:04 -0500
+Received: by mail-qk1-f194.google.com with SMTP id m2so591223qka.7
+        for <selinux@vger.kernel.org>; Wed, 26 Feb 2020 11:17:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=sfwHcdKetwk3+yXB6dXsU3hntgoEn4+MsCuEQPR5fAY=;
+        b=Y0qNC/K3t7mu/HzER6pOfjyO/sFvxFRTtbfw4GrYElTxU4/nJ5Tm/dlF8dFTeWt9C7
+         1uyVv/ZoFnJVVjGH7NTBkkyKCNljkyansLAQ9w4HP5rddRXa7pfxtaiJ3jJz2NaaXuxw
+         Hy9/PcQ0BfOXGnJrnK/HcFBzmkw5PSh6TueBlf4I752Pr8/o4y80Z/VdZLAdCKQv0TMB
+         2j3gEKLp6WPK5II8F3Vawgg7ThVNtZ6vIkkKwHjL74y7UZsnLFDRbDaeuLk+JHeuBGuy
+         sK/78cjPpxWDUYpAFhjHrQg9htOTWftt57nrCjnyWNbf+fwvq2s1uXplZ0bKLScpmZ4Q
+         FVmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=YtBCFit32zevDjrLbnfahzcFDYWTFvTQWzVmOmPXGi8=;
-        b=nNVKPNu9LZ1urMhBvhKHyS3c1z8zfhB1qt1gygPjl9/SEa2BDOxlTNFcILjvNp7fZ8
-         f58ZRiNweZh0F71vaDjJNC0YgWFU1FZ/P/M6kNY68UozVgAFP163KVKi4XHJRUZjgFfJ
-         CFer3S+gQyQeghaQCgOvo4y7MIfUFoV7Pqw7YiBKo5YLdhhJXckROyGfLW25C4+3LWsk
-         qmjjMX2oyxbjr9itK1K9vh8LVfIFuevY7aZrAsijbdhFibFb1rss75YUC4LOkJrFswu1
-         MWwGyl19hqaWWmAoQqEfei0Na5/gCF7A7ocwkIyv8HZC7Hupz7I4SDaatuwXqrrmBTQY
-         4MOw==
-X-Gm-Message-State: APjAAAXId33LcDUk6JJqHDiWn0LECKIqx+11f38HWKG7J23BHERSY6d3
-        j76Jm8++4eVHnYQdmx4Xelz7v/3vri3ln5ISbbFeMf6mfJxBk9OdDk/gHYyW9+PjIDVr6815UCk
-        5MpYcVrOYfQmtrz9Zhw==
-X-Received: by 2002:adf:ec50:: with SMTP id w16mr296935wrn.9.1582732495275;
-        Wed, 26 Feb 2020 07:54:55 -0800 (PST)
-X-Google-Smtp-Source: APXvYqykWbT7fkMR8PHddoL9lPwHvuxDvsY8DgsTAC6l204injnMp+kJP+Di5dJrSR5jVX4VgyyChg==
-X-Received: by 2002:adf:ec50:: with SMTP id w16mr296914wrn.9.1582732494933;
-        Wed, 26 Feb 2020 07:54:54 -0800 (PST)
-Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id a9sm4000901wrn.3.2020.02.26.07.54.53
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=sfwHcdKetwk3+yXB6dXsU3hntgoEn4+MsCuEQPR5fAY=;
+        b=WWkkmb5ppUss+aN3LOzh7XODJSkMK5N+r79ucgrcphRngn/2I1RZsl59hFHVsZWEjB
+         7cRTHnExdRo8OhdL3CzkJljg5OfyWoM58HPf9MW0nASaYBIiwrVlTs4LmlBdQ7KIdxSQ
+         7N/+9QpqHEDcO0pRnwzjJ8jho7KleCysGC9AOQzYrZ63bDUOf5RJogZRJDpqql24qHx4
+         P0WdF+eU4BdMRXmGIbVj7Me//OHOS7GPizBwUl3ZsbD4wsCcYMIIg4VbBGM2RL8KHSf8
+         HPRg/hdyfjlHoTXODtIgrBjjF+u1jhblfWHuykDZ8P9F03jb7LFbFHoqkjlGMFlipRom
+         BkOw==
+X-Gm-Message-State: APjAAAWTHPEJailR1uOZNC2rkBt+9m9KFX0C3YQe+4pca5ykhL0u76bw
+        DHaHYJmTNghYmJ3qnFbS+Jo4sh/aX1Q=
+X-Google-Smtp-Source: APXvYqzFGqtLurPENW97JVkIgBrCv4U1cur2zF9MKSVKLtDT1139Bln6Jsos+bxBEEMf75A91l1+6A==
+X-Received: by 2002:a37:2710:: with SMTP id n16mr683604qkn.235.1582744622445;
+        Wed, 26 Feb 2020 11:17:02 -0800 (PST)
+Received: from r21-ubuntu-01.ltsnet.net ([65.127.220.137])
+        by smtp.googlemail.com with ESMTPSA id t37sm1688425qth.0.2020.02.26.11.17.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Feb 2020 07:54:54 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH v3] selinux: reduce the use of hard-coded hash sizes
-Date:   Wed, 26 Feb 2020 16:54:52 +0100
-Message-Id: <20200226155452.301544-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.24.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Wed, 26 Feb 2020 11:17:01 -0800 (PST)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     jwcart2@tycho.nsa.gov, James Carter <jwcart2@gmail.com>
+Subject: [PATCH V2] libsepol: Create the macro ebitmap_is_empty() and use it where needed
+Date:   Wed, 26 Feb 2020 14:16:59 -0500
+Message-Id: <20200226191659.6552-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Instead allocate hash tables with just the right size based on the
-actual number of elements (which is almost always known beforehand, we
-just need to defer the hashtab allocation to the right time). The only
-case when we don't know the size (with the current policy format) is the
-new filename transitions hashtable. Here I just left the existing value.
+Create the macro ebitmap_is_empty() to check if an ebitmap is empty.
+Use ebitmap_is_empty(), instead of ebitmap_cardinality() or
+ebitmap_length(), to check whether or not an ebitmap is empty.
 
-After this patch, the time to load Fedora policy on x86_64 decreases
-from 790 ms to 167 ms. If the unconfined module is removed, it decreases
-from 750 ms to 122 ms. It is also likely that other operations are going
-to be faster, mainly string_to_context_struct() or mls_compute_sid(),
-but I didn't try to quantify that.
-
-The memory usage of all hash table arrays increases from ~58 KB to
-~163 KB (with Fedora policy on x86_64).
-
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
+V2: Removed unnecessary parentheses
 
-Changed in v3:
- - switch to simpler and more logical hash size heuristic
- - add comment explaining the choice of the heuristic
+ libsepol/include/sepol/policydb/ebitmap.h |  1 +
+ libsepol/src/assertion.c                  | 12 ++++++------
+ libsepol/src/expand.c                     |  2 +-
+ libsepol/src/kernel_to_cil.c              | 10 +++++-----
+ libsepol/src/kernel_to_conf.c             |  8 ++++----
+ libsepol/src/module_to_cil.c              | 22 +++++++++++-----------
+ 6 files changed, 28 insertions(+), 27 deletions(-)
 
-Changed in v2:
- - guard against h->size == 0 in hashtab_search() and hashtab_insert()
-
- security/selinux/ss/hashtab.c  | 28 +++++++++++++++---
- security/selinux/ss/hashtab.h  |  2 +-
- security/selinux/ss/policydb.c | 53 +++++++++++++---------------------
- security/selinux/ss/policydb.h |  2 --
- 4 files changed, 45 insertions(+), 40 deletions(-)
-
-diff --git a/security/selinux/ss/hashtab.c b/security/selinux/ss/hashtab.c
-index ebfdaa31ee32..883f19d32c28 100644
---- a/security/selinux/ss/hashtab.c
-+++ b/security/selinux/ss/hashtab.c
-@@ -12,12 +12,29 @@
+diff --git a/libsepol/include/sepol/policydb/ebitmap.h b/libsepol/include/sepol/policydb/ebitmap.h
+index 53fafdaa..1abfdd71 100644
+--- a/libsepol/include/sepol/policydb/ebitmap.h
++++ b/libsepol/include/sepol/policydb/ebitmap.h
+@@ -40,6 +40,7 @@ typedef struct ebitmap {
+ 	unsigned int cardinality;	/* cached value of cardinality */
+ } ebitmap_t;
  
- static struct kmem_cache *hashtab_node_cachep;
- 
-+/*
-+ * Here we simply round the number of elements up to the nearest power of two.
-+ * I tried also other options like rouding down or rounding to the closest
-+ * power of two (up or down based on which is closer), but I was unable to
-+ * find any significant difference in lookup/insert performance that would
-+ * justify switching to a different (less intuitive) formula. It could be that
-+ * a different formula is actually more optimal, but any future changes here
-+ * should be supported with performance/memory usage data.
-+ *
-+ * The total memory used by the htable arrays (only) with Fedora policy loaded
-+ * is approximately 163 KB at the time of writing.
-+ */
-+static u32 hashtab_compute_size(u32 nel)
-+{
-+	return nel == 0 ? 0 : roundup_pow_of_two(nel);
-+}
-+
- struct hashtab *hashtab_create(u32 (*hash_value)(struct hashtab *h, const void *key),
- 			       int (*keycmp)(struct hashtab *h, const void *key1, const void *key2),
--			       u32 size)
-+			       u32 nel_hint)
- {
- 	struct hashtab *p;
--	u32 i;
-+	u32 i, size = hashtab_compute_size(nel_hint);
- 
- 	p = kzalloc(sizeof(*p), GFP_KERNEL);
- 	if (!p)
-@@ -27,6 +44,9 @@ struct hashtab *hashtab_create(u32 (*hash_value)(struct hashtab *h, const void *
- 	p->nel = 0;
- 	p->hash_value = hash_value;
- 	p->keycmp = keycmp;
-+	if (!size)
-+		return p;
-+
- 	p->htable = kmalloc_array(size, sizeof(*p->htable), GFP_KERNEL);
- 	if (!p->htable) {
- 		kfree(p);
-@@ -46,7 +66,7 @@ int hashtab_insert(struct hashtab *h, void *key, void *datum)
- 
- 	cond_resched();
- 
--	if (!h || h->nel == HASHTAB_MAX_NODES)
-+	if (!h || !h->size || h->nel == HASHTAB_MAX_NODES)
- 		return -EINVAL;
- 
- 	hvalue = h->hash_value(h, key);
-@@ -82,7 +102,7 @@ void *hashtab_search(struct hashtab *h, const void *key)
- 	u32 hvalue;
- 	struct hashtab_node *cur;
- 
--	if (!h)
-+	if (!h || !h->size)
- 		return NULL;
- 
- 	hvalue = h->hash_value(h, key);
-diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
-index 3e3e42bfd150..dde54d9ff01c 100644
---- a/security/selinux/ss/hashtab.h
-+++ b/security/selinux/ss/hashtab.h
-@@ -42,7 +42,7 @@ struct hashtab_info {
-  */
- struct hashtab *hashtab_create(u32 (*hash_value)(struct hashtab *h, const void *key),
- 			       int (*keycmp)(struct hashtab *h, const void *key1, const void *key2),
--			       u32 size);
-+			       u32 nel_hint);
- 
- /*
-  * Inserts the specified (key, datum) pair into the specified hash table.
-diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 32b3a8acf96f..7ca8c74efba3 100644
---- a/security/selinux/ss/policydb.c
-+++ b/security/selinux/ss/policydb.c
-@@ -56,17 +56,6 @@ static const char *symtab_name[SYM_NUM] = {
- };
- #endif
- 
--static unsigned int symtab_sizes[SYM_NUM] = {
--	2,
--	32,
--	16,
--	512,
--	128,
--	16,
--	16,
--	16,
--};
--
- struct policydb_compat_info {
- 	int version;
- 	int sym_num;
-@@ -478,20 +467,10 @@ static int policydb_init(struct policydb *p)
- 
- 	memset(p, 0, sizeof(*p));
- 
--	for (i = 0; i < SYM_NUM; i++) {
--		rc = symtab_init(&p->symtab[i], symtab_sizes[i]);
--		if (rc)
--			goto out;
--	}
--
- 	rc = avtab_init(&p->te_avtab);
++#define ebitmap_is_empty(e) (((e)->highbit) == 0)
+ #define ebitmap_length(e) ((e)->highbit)
+ #define ebitmap_startbit(e) ((e)->node ? (e)->node->startbit : 0)
+ #define ebitmap_startnode(e) ((e)->node)
+diff --git a/libsepol/src/assertion.c b/libsepol/src/assertion.c
+index 1181edc2..266f67d7 100644
+--- a/libsepol/src/assertion.c
++++ b/libsepol/src/assertion.c
+@@ -234,7 +234,7 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
  	if (rc)
- 		goto out;
+ 		goto oom;
  
--	rc = roles_init(p);
--	if (rc)
--		goto out;
--
- 	rc = cond_policydb_init(p);
- 	if (rc)
- 		goto out;
-@@ -503,20 +482,12 @@ static int policydb_init(struct policydb *p)
- 		goto out;
+-	if (ebitmap_length(&src_matches) == 0)
++	if (ebitmap_is_empty(&src_matches))
+ 		goto exit;
+ 
+ 	rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types, &p->attr_type_map[k->target_type -1]);
+@@ -249,14 +249,14 @@ static int report_assertion_avtab_matches(avtab_key_t *k, avtab_datum_t *d, void
+ 		if (rc)
+ 			goto oom;
+ 
+-		if (ebitmap_length(&self_matches) > 0) {
++		if (!ebitmap_is_empty(&self_matches)) {
+ 			rc = ebitmap_union(&tgt_matches, &self_matches);
+ 			if (rc)
+ 				goto oom;
+ 		}
  	}
  
--	p->range_tr = hashtab_create(rangetr_hash, rangetr_cmp, 256);
--	if (!p->range_tr) {
--		rc = -ENOMEM;
--		goto out;
--	}
--
- 	ebitmap_init(&p->filename_trans_ttypes);
- 	ebitmap_init(&p->policycaps);
- 	ebitmap_init(&p->permissive_map);
+-	if (ebitmap_length(&tgt_matches) == 0)
++	if (ebitmap_is_empty(&tgt_matches))
+ 		goto exit;
  
- 	return 0;
- out:
--	hashtab_destroy(p->filename_trans);
--	hashtab_destroy(p->range_tr);
- 	for (i = 0; i < SYM_NUM; i++) {
- 		hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
- 		hashtab_destroy(p->symtab[i].table);
-@@ -1142,12 +1113,12 @@ static int common_read(struct policydb *p, struct hashtab *h, void *fp)
- 
- 	len = le32_to_cpu(buf[0]);
- 	comdatum->value = le32_to_cpu(buf[1]);
-+	nel = le32_to_cpu(buf[3]);
- 
--	rc = symtab_init(&comdatum->permissions, PERM_SYMTAB_SIZE);
-+	rc = symtab_init(&comdatum->permissions, nel);
+ 	for (cp = avrule->perms; cp; cp = cp->next) {
+@@ -394,7 +394,7 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
  	if (rc)
- 		goto bad;
- 	comdatum->permissions.nprim = le32_to_cpu(buf[2]);
--	nel = le32_to_cpu(buf[3]);
+ 		goto oom;
  
- 	rc = str_read(&key, GFP_KERNEL, fp, len);
- 	if (rc)
-@@ -1308,12 +1279,12 @@ static int class_read(struct policydb *p, struct hashtab *h, void *fp)
- 	len = le32_to_cpu(buf[0]);
- 	len2 = le32_to_cpu(buf[1]);
- 	cladatum->value = le32_to_cpu(buf[2]);
-+	nel = le32_to_cpu(buf[4]);
+-	if (ebitmap_length(&src_matches) == 0)
++	if (ebitmap_is_empty(&src_matches))
+ 		goto exit;
  
--	rc = symtab_init(&cladatum->permissions, PERM_SYMTAB_SIZE);
-+	rc = symtab_init(&cladatum->permissions, nel);
- 	if (rc)
- 		goto bad;
- 	cladatum->permissions.nprim = le32_to_cpu(buf[3]);
--	nel = le32_to_cpu(buf[4]);
+ 	rc = ebitmap_and(&tgt_matches, &avrule->ttypes.types,
+@@ -411,14 +411,14 @@ static int check_assertion_extended_permissions(avrule_t *avrule, avtab_t *avtab
+ 		if (rc)
+ 			goto oom;
  
- 	ncons = le32_to_cpu(buf[5]);
- 
-@@ -1826,6 +1797,11 @@ static int range_read(struct policydb *p, void *fp)
- 		return rc;
- 
- 	nel = le32_to_cpu(buf[0]);
-+
-+	p->range_tr = hashtab_create(rangetr_hash, rangetr_cmp, nel);
-+	if (!p->range_tr)
-+		return -ENOMEM;
-+
- 	for (i = 0; i < nel; i++) {
- 		rc = -ENOMEM;
- 		rt = kzalloc(sizeof(*rt), GFP_KERNEL);
-@@ -2418,6 +2394,17 @@ int policydb_read(struct policydb *p, void *fp)
- 			goto bad;
- 		nprim = le32_to_cpu(buf[0]);
- 		nel = le32_to_cpu(buf[1]);
-+
-+		rc = symtab_init(&p->symtab[i], nel);
-+		if (rc)
-+			goto out;
-+
-+		if (i == SYM_ROLES) {
-+			rc = roles_init(p);
-+			if (rc)
-+				goto out;
-+		}
-+
- 		for (j = 0; j < nel; j++) {
- 			rc = read_f[i](p, p->symtab[i].table, fp);
+-		if (ebitmap_length(&self_matches) > 0) {
++		if (!ebitmap_is_empty(&self_matches)) {
+ 			rc = ebitmap_union(&tgt_matches, &self_matches);
  			if (rc)
-diff --git a/security/selinux/ss/policydb.h b/security/selinux/ss/policydb.h
-index 41ad78a1f17b..72e2932fb12d 100644
---- a/security/selinux/ss/policydb.h
-+++ b/security/selinux/ss/policydb.h
-@@ -321,8 +321,6 @@ extern int policydb_role_isvalid(struct policydb *p, unsigned int role);
- extern int policydb_read(struct policydb *p, void *fp);
- extern int policydb_write(struct policydb *p, void *fp);
+ 				goto oom;
+ 		}
+ 	}
  
--#define PERM_SYMTAB_SIZE 32
--
- #define POLICYDB_CONFIG_MLS    1
+-	if (ebitmap_length(&tgt_matches) == 0)
++	if (ebitmap_is_empty(&tgt_matches))
+ 		goto exit;
  
- /* the config flags related to unknown classes/perms are bits 2 and 3 */
+ 	for (cp = avrule->perms; cp; cp = cp->next) {
+diff --git a/libsepol/src/expand.c b/libsepol/src/expand.c
+index 5738b598..529e1d35 100644
+--- a/libsepol/src/expand.c
++++ b/libsepol/src/expand.c
+@@ -2504,7 +2504,7 @@ int type_set_expand(type_set_t * set, ebitmap_t * t, policydb_t * p,
+ 	unsigned int i;
+ 	ebitmap_t types, neg_types;
+ 	ebitmap_node_t *tnode;
+-	unsigned char expand = alwaysexpand || ebitmap_length(&set->negset) || set->flags;
++	unsigned char expand = alwaysexpand || !ebitmap_is_empty(&set->negset) || set->flags;
+ 	type_datum_t *type;
+ 	int rc =-1;
+ 
+diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
+index ca2e4a9b..89933807 100644
+--- a/libsepol/src/kernel_to_cil.c
++++ b/libsepol/src/kernel_to_cil.c
+@@ -1101,7 +1101,7 @@ static int write_sensitivitycategory_rules_to_cil(FILE *out, struct policydb *pd
+ 		}
+ 		if (level->isalias) continue;
+ 
+-		if (ebitmap_cardinality(&level->level->cat) > 0) {
++		if (!ebitmap_is_empty(&level->level->cat)) {
+ 			cats = cats_ebitmap_to_str(&level->level->cat, pdb->p_cat_val_to_name);
+ 			sepol_printf(out, "(sensitivitycategory %s %s)\n", name, cats);
+ 			free(cats);
+@@ -1502,7 +1502,7 @@ static int write_type_attribute_sets_to_cil(FILE *out, struct policydb *pdb)
+ 		if (attr->flavor != TYPE_ATTRIB) continue;
+ 		name = pdb->p_type_val_to_name[i];
+ 		typemap = &pdb->attr_type_map[i];
+-		if (ebitmap_cardinality(typemap) == 0) continue;
++		if (ebitmap_is_empty(typemap)) continue;
+ 		types = ebitmap_to_str(typemap, pdb->p_type_val_to_name, 1);
+ 		if (!types) {
+ 			rc = -1;
+@@ -1879,7 +1879,7 @@ static char *level_to_str(struct policydb *pdb, struct mls_level *level)
+ 	char *sens_str = pdb->p_sens_val_to_name[level->sens - 1];
+ 	char *cats_str;
+ 
+-	if (ebitmap_cardinality(cats) > 0) {
++	if (!ebitmap_is_empty(cats)) {
+ 		cats_str = cats_ebitmap_to_str(cats, pdb->p_cat_val_to_name);
+ 		level_str = create_str("(%s %s)", 2, sens_str, cats_str);
+ 		free(cats_str);
+@@ -2188,7 +2188,7 @@ static int write_role_decl_rules_to_cil(FILE *out, struct policydb *pdb)
+ 			goto exit;
+ 		}
+ 		types = &role->types.types;
+-		if (types && (ebitmap_cardinality(types) > 0)) {
++		if (types && !ebitmap_is_empty(types)) {
+ 			rc = strs_init(&type_strs, pdb->p_types.nprim);
+ 			if (rc != 0) {
+ 				goto exit;
+@@ -2373,7 +2373,7 @@ static int write_user_decl_rules_to_cil(FILE *out, struct policydb *pdb)
+ 		}
+ 
+ 		roles = &user->roles.roles;
+-		if (roles && (ebitmap_cardinality(roles) > 0)) {
++		if (roles && !ebitmap_is_empty(roles)) {
+ 			rc = strs_init(&role_strs, pdb->p_roles.nprim);
+ 			if (rc != 0) {
+ 				goto exit;
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index b4966162..b96a9b76 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -1090,7 +1090,7 @@ static int write_level_rules_to_conf(FILE *out, struct policydb *pdb)
+ 		}
+ 		if (level->isalias) continue;
+ 
+-		if (ebitmap_cardinality(&level->level->cat) > 0) {
++		if (!ebitmap_is_empty(&level->level->cat)) {
+ 			cats = cats_ebitmap_to_str(&level->level->cat, pdb->p_cat_val_to_name);
+ 			sepol_printf(out, "level %s:%s;\n", name, cats);
+ 			free(cats);
+@@ -1859,7 +1859,7 @@ static char *level_to_str(struct policydb *pdb, struct mls_level *level)
+ 	char *sens_str = pdb->p_sens_val_to_name[level->sens - 1];
+ 	char *cats_str;
+ 
+-	if (ebitmap_cardinality(cats) > 0) {
++	if (!ebitmap_is_empty(cats)) {
+ 		cats_str = cats_ebitmap_to_str(cats, pdb->p_cat_val_to_name);
+ 		level_str = create_str("%s:%s", 2, sens_str, cats_str);
+ 		free(cats_str);
+@@ -2145,7 +2145,7 @@ static int write_role_decl_rules_to_conf(FILE *out, struct policydb *pdb)
+ 			rc = -1;
+ 			goto exit;
+ 		}
+-		if (ebitmap_cardinality(&role->types.types) == 0) continue;
++		if (ebitmap_is_empty(&role->types.types)) continue;
+ 		types = ebitmap_to_str(&role->types.types, pdb->p_type_val_to_name, 1);
+ 		if (!types) {
+ 			rc = -1;
+@@ -2298,7 +2298,7 @@ static int write_user_decl_rules_to_conf(FILE *out, struct policydb *pdb)
+ 		}
+ 		sepol_printf(out, "user %s", name);
+ 
+-		if (ebitmap_cardinality(&user->roles.roles) > 0) {
++		if (!ebitmap_is_empty(&user->roles.roles)) {
+ 			roles = ebitmap_to_str(&user->roles.roles,
+ 					       pdb->p_role_val_to_name, 1);
+ 			if (!roles) {
+diff --git a/libsepol/src/module_to_cil.c b/libsepol/src/module_to_cil.c
+index e20c3d44..6fe7d336 100644
+--- a/libsepol/src/module_to_cil.c
++++ b/libsepol/src/module_to_cil.c
+@@ -829,8 +829,8 @@ static int cil_print_attr_strs(int indent, struct policydb *pdb, int is_type, vo
+ 		pos = &ts->types;
+ 		neg = &ts->negset;
+ 		flags = ts->flags;
+-		has_positive = pos && (ebitmap_length(pos) > 0);
+-		has_negative = neg && (ebitmap_length(neg) > 0);
++		has_positive = pos && !ebitmap_is_empty(pos);
++		has_negative = neg && !ebitmap_is_empty(neg);
+ 	} else {
+ 		kind = "role";
+ 		val_to_name = pdb->p_role_val_to_name;
+@@ -838,7 +838,7 @@ static int cil_print_attr_strs(int indent, struct policydb *pdb, int is_type, vo
+ 		pos = &rs->roles;
+ 		neg = NULL;
+ 		flags = rs->flags;
+-		has_positive = pos && (ebitmap_length(pos) > 0);
++		has_positive = pos && !ebitmap_is_empty(pos);
+ 		has_negative = 0;
+ 	}
+ 
+@@ -1056,7 +1056,7 @@ static int process_typeset(struct policydb *pdb, struct type_set *ts, struct lis
+ 	*names = NULL;
+ 	*num_names = 0;
+ 
+-	if (ebitmap_length(&ts->negset) > 0 || ts->flags != 0) {
++	if (!ebitmap_is_empty(&ts->negset) || ts->flags != 0) {
+ 		rc = set_to_names(pdb, 1, ts, attr_list, names, num_names);
+ 		if (rc != 0) {
+ 			goto exit;
+@@ -2069,7 +2069,7 @@ static int class_order_to_cil(int indent, struct policydb *pdb, struct ebitmap o
+ 	struct ebitmap_node *node;
+ 	uint32_t i;
+ 
+-	if (ebitmap_cardinality(&order) == 0) {
++	if (ebitmap_is_empty(&order)) {
+ 		return 0;
+ 	}
+ 
+@@ -2175,7 +2175,7 @@ static int role_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 			cil_println(indent, "(roleattribute %s)", key);
+ 		}
+ 
+-		if (ebitmap_cardinality(&role->roles) > 0) {
++		if (!ebitmap_is_empty(&role->roles)) {
+ 			cil_indent(indent);
+ 			cil_printf("(roleattributeset %s (", key);
+ 			ebitmap_for_each_positive_bit(&role->roles, node, i) {
+@@ -2269,7 +2269,7 @@ static int type_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 			cil_printf(")\n");
+ 		}
+ 
+-		if (ebitmap_cardinality(&type->types) > 0) {
++		if (!ebitmap_is_empty(&type->types)) {
+ 			cil_indent(indent);
+ 			cil_printf("(typeattributeset %s (", key);
+ 			ebitmap_to_cil(pdb, &type->types, SYM_TYPES);
+@@ -2372,7 +2372,7 @@ static int sens_to_cil(int indent, struct policydb *pdb, struct avrule_block *UN
+ 		}
+ 	}
+ 
+-	if (ebitmap_cardinality(&level->level->cat) > 0) {
++	if (!ebitmap_is_empty(&level->level->cat)) {
+ 		cil_indent(indent);
+ 		cil_printf("(sensitivitycategory %s (", key);
+ 		ebitmap_to_cil(pdb, &level->level->cat, SYM_CATS);
+@@ -2387,7 +2387,7 @@ static int sens_order_to_cil(int indent, struct policydb *pdb, struct ebitmap or
+ 	struct ebitmap_node *node;
+ 	uint32_t i;
+ 
+-	if (ebitmap_cardinality(&order) == 0) {
++	if (ebitmap_is_empty(&order)) {
+ 		return 0;
+ 	}
+ 
+@@ -2427,7 +2427,7 @@ static int cat_order_to_cil(int indent, struct policydb *pdb, struct ebitmap ord
+ 	struct ebitmap_node *node;
+ 	uint32_t i;
+ 
+-	if (ebitmap_cardinality(&order) == 0) {
++	if (ebitmap_is_empty(&order)) {
+ 		rc = 0;
+ 		goto exit;
+ 	}
+@@ -2478,7 +2478,7 @@ static int level_to_cil(struct policydb *pdb, struct mls_level *level)
+ 
+ 	cil_printf("(%s", pdb->p_sens_val_to_name[level->sens - 1]);
+ 
+-	if (ebitmap_cardinality(map) > 0) {
++	if (!ebitmap_is_empty(map)) {
+ 		cil_printf("(");
+ 		ebitmap_to_cil(pdb, map, SYM_CATS);
+ 		cil_printf(")");
 -- 
-2.24.1
+2.17.1
 
