@@ -2,111 +2,194 @@ Return-Path: <SRS0=jqI3=4O=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B51ACC4BA13
-	for <selinux@archiver.kernel.org>; Wed, 26 Feb 2020 15:19:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC232C4BA13
+	for <selinux@archiver.kernel.org>; Wed, 26 Feb 2020 15:40:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 86B9020838
-	for <selinux@archiver.kernel.org>; Wed, 26 Feb 2020 15:19:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A753624684
+	for <selinux@archiver.kernel.org>; Wed, 26 Feb 2020 15:40:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mwUNC+9q"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AgpvzLbM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727893AbgBZPTk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 26 Feb 2020 10:19:40 -0500
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:36667 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727023AbgBZPTk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 26 Feb 2020 10:19:40 -0500
-Received: by mail-oi1-f194.google.com with SMTP id c16so3388659oic.3;
-        Wed, 26 Feb 2020 07:19:39 -0800 (PST)
+        id S1728117AbgBZPkE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 26 Feb 2020 10:40:04 -0500
+Received: from mail-il1-f196.google.com ([209.85.166.196]:35325 "EHLO
+        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728060AbgBZPkE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 26 Feb 2020 10:40:04 -0500
+Received: by mail-il1-f196.google.com with SMTP id g126so2758880ilh.2
+        for <selinux@vger.kernel.org>; Wed, 26 Feb 2020 07:40:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=HPLI71nQNjvEjndIWOMzn92Whnbzm/DTK7IrM4ZvySQ=;
-        b=mwUNC+9qhtuZtmscaGI33pnOTIVI9BGvuTVR8FRYkPWCCqkR/TdRPwIPZ6yjvMo5nv
-         DEpuv8q0Pj1KA8n9DcqKAoKAJbvFj4LM1GTp3H3sUm59xCHznnwDo/ot0pthb+4XdVMt
-         1qYENsfS65SmlAqkwPTe2gcKX1+AzHHMEU1zIhmNiSe8b0dICSXivarkDe15AhnA+bE5
-         SDtIm4LS+leYNfSTpCxggfRMb5U7MSjb0NXtUSsrYcukBz6j8JhKsvYmfIUcj3SGFLsV
-         IP3GrRPBLxpQtagjWTPE8uhjK9A843d2ynYB/JuYgMxsEuXlZAXqu7gw0rrQjuekCCFv
-         9B1w==
+        bh=Bx8s61jlVI9flCa0ozX+NDISvk+/JY4e01BLokoJMLY=;
+        b=AgpvzLbM2vfjB1RCJbHj4Fel4+Kvjd/65qGcoxFYDObi5nKG/sVh4P32rIsPb7Ee4x
+         +UB6+g7eHrwnuOEZAgb3mXx9g9Qyc2T9C73hWYl1WVLuS0KgvW+hxPZC/ZIqm3VmExWh
+         sDbtMiRE1j0oso6bFK+wWLkzSaQao4QJ6IWJGKUIJe8jbvBojKvKyhuvb0lU3D5mHUk5
+         aRI5HqlfK9OxsqPnxgMcBj9Bq7SgzVT40VUBlDWbh6ir6P+l23wZUXFJClpkN8WtYkta
+         CtmC3edp+i6DyfehI1DcVPacslbqncsj2UzNvpin63R7HkQFKla6eXOD+vL5cFUXd91+
+         oOfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=HPLI71nQNjvEjndIWOMzn92Whnbzm/DTK7IrM4ZvySQ=;
-        b=JFKXMGuPphYu1W7Pxa7oFZju6dmPVf9MPzNB65STpekdKrGks9D7VxyZQgJNEg58We
-         97FOvuYmuH2OrGywEZ8VHDrQN1r1chQ7UepCr8uGCXna/Cum3ovxhScyibEsdLdi2bSC
-         9aw7MoZmKsk/h0CV5HminpyJeTt4EqzkUJxtLrtOgGdyGFXoXVJcrsnI/0m+Rr/ZVMpa
-         vopb9P4N9s8eV+E22J8RSGwcDtvATVMofVX8uNdBTmQkg5I54gVzsLpBbsI4xX4y3Od4
-         a4+rrLZSfA4H6b8UFyDyfISOqAeJTILU0hpzUuaWWWCflkvpnI/lwXnkrL3osyzE0MbR
-         i4UA==
-X-Gm-Message-State: APjAAAXK5FtsD9iSGtShCi5NRMAdGLuw2QEcSmHBxOGYku+7/UiY0d+t
-        Z5oeaorY4+Zi275eOsA1Tyf9hVk0pZpyDyIBliw=
-X-Google-Smtp-Source: APXvYqyTM5+Hs5hflJiSWJxm2Y+HsmeaGuG1Pg1ulrWF/HjbV7pwkNnM0MroT9wMdEGr09pCh7ohEED/KZ9DICzTrEM=
-X-Received: by 2002:aca:f05:: with SMTP id 5mr3603942oip.140.1582730379191;
- Wed, 26 Feb 2020 07:19:39 -0800 (PST)
+        bh=Bx8s61jlVI9flCa0ozX+NDISvk+/JY4e01BLokoJMLY=;
+        b=UYbygtz/MTSJCsrVRqy9JQYPGhX1A8jvVkdQ2RLkl8X0NCqEPxEtDknyaUQ5WOgpPc
+         sRYuTMsRnKpL5s8Zs7MS3G74Lkkr9/P5KtDtQCFGyN8RL4Pm7ts/T11QyFULsdywh4Bo
+         JjlRVqpWqaIry2uaV5HtDDnC2KRRqQ90P8zUbvnfH6rF2TFRERjShM5oOJTw9oNau88z
+         EPkFqBqWz0h9CGSIwJBe/bw/zN/qL4p3NSVVf50QbrwarN5wXqiCrMI7vYaPOAwGh+4i
+         izzeLtBIhgA/ILoxj/UYMRL4jCSDIAxbB9zL4QPWpbrRGSUn7xk+pJXZBoXVU4G8lTec
+         dVSg==
+X-Gm-Message-State: APjAAAWia16netDLBZiPQcIBzPRO8pRmb/YAkB5f405ssrHiHCQ23I/r
+        nfGufXszCX3jvQZBa6yXPnQFaPBreY+FI+7EFZfhmg==
+X-Google-Smtp-Source: APXvYqxJ4cEdc2FA9CbQsEp8Ka0kWALx+MUjUR06LJXzQwqn/bpezYNJAhTwefR+ex09lsI0T80mdGm23eb2RJXINF0=
+X-Received: by 2002:a92:9ad3:: with SMTP id c80mr5823284ill.141.1582731603041;
+ Wed, 26 Feb 2020 07:40:03 -0800 (PST)
 MIME-Version: 1.0
-References: <20200220153234.152426-1-richard_c_haines@btinternet.com>
- <20200220155731.GU9506@magnolia> <20200220155938.GA1306@infradead.org>
- <2862d0b2-e0a9-149d-16e5-22c3f5f82e9e@tycho.nsa.gov> <20200220160820.GA14640@infradead.org>
- <CAHC9VhRXo=EZ4HbLa_W_waL4xtdE6M92em7aNh=wm_7hpozJ7g@mail.gmail.com>
- <5c1f2125a44006d7ff8bda6d9a1075d2177aeaf0.camel@btinternet.com>
- <20200225041327.GE6740@magnolia> <575bec416692e93b599520f34d625de8d46bfb07.camel@btinternet.com>
- <20200225213533.GW6740@magnolia>
-In-Reply-To: <20200225213533.GW6740@magnolia>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 26 Feb 2020 10:21:19 -0500
-Message-ID: <CAEjxPJ4f44MX-MO3GiL+bBwq9nJbHArexTUeUe6HGPiGNyJP4g@mail.gmail.com>
-Subject: Re: [PATCH 0/1] selinux: Add xfs quota command types
-To:     "Darrick J. Wong" <darrick.wong@oracle.com>
-Cc:     Richard Haines <richard_c_haines@btinternet.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>, linux-xfs@vger.kernel.org,
-        selinux@vger.kernel.org
+References: <20200213133959.14217-1-omosnace@redhat.com> <CAFqZXNuxHYN_cMY1+PfUFrwu6dQyG5qc7LGPU8VbUAyTXRF_Wg@mail.gmail.com>
+ <7d80365c-d2ea-f167-0757-6038becdb5fc@tycho.nsa.gov> <CAFqZXNuvL1KQwahXPJKngr_p7sON0SNM=5Mecao0QhAGfRTN2g@mail.gmail.com>
+ <CAJfZ7==_-vg1e3LV-Wbf94PjFu86pxc3-J6BqJ_Qa73uaj+pkw@mail.gmail.com>
+ <CAFftDdrEqVV-q-nJZmPUEYwr56YPPGPjv3WE2400QkTqyTo-rQ@mail.gmail.com> <CAFqZXNvaA7QA7SQryU-nm8Az72MDOxg69S8MpkiidND0FFR0-w@mail.gmail.com>
+In-Reply-To: <CAFqZXNvaA7QA7SQryU-nm8Az72MDOxg69S8MpkiidND0FFR0-w@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Wed, 26 Feb 2020 09:39:52 -0600
+Message-ID: <CAFftDdoJQ+V-Lz=c+RO3BXQ1KXOj84j8Vbebf3So2+XhoP51gA@mail.gmail.com>
+Subject: Re: [PATCH userspace v2] libsepol: cache ebitmap cardinality value
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Feb 25, 2020 at 4:36 PM Darrick J. Wong <darrick.wong@oracle.com> wrote:
-> Hmm, maybe let's back up a step here.  What's the purpose of being able
-> to set quota_on privileges on a file?  Is it so that sysadmins can
-> designate a particular file as a "quota" file and thereby prevent the
-> kernel from being tricked into loading some other file as the quota data
-> file?
-
-Yes.
-
-> I ask this because AFAICT in ext4, the "usrjquota=<path>" mount options
-> are for the old quota system wherein quotas are files that are managed
-> separately from the filesystem.
+On Wed, Feb 26, 2020 at 7:23 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> The new ext4 quota system links the quota inode pointers only from the
-> superblock, and it calls dquot_load_quota_inode, which doesn't seem to
-> have a security callout.  Seeing as there's no user-visible file for new
-> style quotas, I don't see why you'd need a selinux hook either.
+> On Tue, Feb 25, 2020 at 10:57 PM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+> > On Tue, Feb 25, 2020 at 3:33 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> > >
+> > > On Tue, Feb 18, 2020 at 5:01 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > >
+> > > > On Tue, Feb 18, 2020 at 4:40 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> > > > > On 2/18/20 10:22 AM, Ondrej Mosnacek wrote:
+> > > > > > On Thu, Feb 13, 2020 at 2:40 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > > > >> According to profiling of semodule -BN, ebitmap_cardinality() is called
+> > > > > >> quite often and contributes a lot to the total runtime. Cache its result
+> > > > > >> in the ebitmap struct to reduce this overhead. The cached value is
+> > > > > >> invalidated on most modifying operations, but ebitmap_cardinality() is
+> > > > > >> usually called once the ebitmap doesn't change any more.
+> > > > > >>
+> > > > > >> After this patch, the time to do 'semodule -BN' on Fedora Rawhide has
+> > > > > >> decreased from ~14.6s to ~12.4s (2.2s saved).
+> > > > > >
+> > > > > > I have no idea why, but I'm now getting completely different times
+> > > > > > (10.9s vs. 8.9s) with the same builds on the same setup... I can no
+> > > > > > longer reproduce the slower times anywhere (F31/locally/...) so I have
+> > > > > > to assume it was some kind of glitch. Since the numbers show a similar
+> > > > > > magnitude of speed-up (and they depend on a bunch of HW/SW factors
+> > > > > > anyway), I'm not going to do another respin. The applying person (most
+> > > > > > likely Stephen) is free to fix the numbers when applying if they wish
+> > > > > > to do so.
+> > > > >
+> > > > > Thanks, applied with fixed times (although I don't really think it
+> > > > > matters very much).  Maybe you're also picking up the difference from
+> > > > > the "libsepol/cil: remove unnecessary hash tables" change.
+> > > >
+> > > > No, that was actually the reason for the first correction.
+> > >
+> > > Hello,
+> > > About performance issues, the current implementation of
+> > > ebitmap_cardinality() is quadratic:
+> > >
+> > > for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
+> > >     if (ebitmap_get_bit(e1, i))
+> > >         count++;
+> > >
+> > > ... because ebitmap_get_bit() browse the bitmap:
+> > >
+> > > while (n && (n->startbit <= bit)) {
+> > >    if ((n->startbit + MAPSIZE) > bit) {
+> > >       /*... */
 >
-> I guess it could be generally useful to be able to be able to apply the
-> same quota_on labels to root directories of filesystems that have new
-> style quotas that one can apply to quota files on fses with old style
-> quotas... but (a) I don't see that being the case right now, and (b) if
-> you're trying to /add/ that functionality then yes it ought to be in
-> fs/quota/... and yes xfs will have to play catch up once it's there.
+> Hm... I didn't realize that the function is actually quadratic.
 >
-> Is there already a precedent for setting quota_on labels to the root
-> dir?  It's entirely possible that I'm simply unaware of what's going on
-> in fs/quota/ because xfs mostly does its own things wrt quota.
+> > >
+> > > A few years ago, I tried modifying this function to make it linear in
+> > > the bitmap size:
+> > >
+> > > unsigned int ebitmap_cardinality(ebitmap_t *e1)
+> > > {
+> > >     unsigned int count = 0;
+> > >     ebitmap_node_t *n;
+> > >
+> > >    for (n = e1->node; n; n = n->next) {
+> > >         count += __builtin_popcountll(n->map);
+> > >     }
+> > >     return count;
+> > > }
+> > >
+> > > ... but never actually sent a patch for this, because I wanted to
+> > > assess how __builtin_popcountll() was supported by several compilers
+> > > beforehand. Would this be helpful to gain even more performance gain?
+> >
+> > Every architecture I've used has an instruction it boils down to:
+> > x86 - POPCNT
+> > ARM (neon): vcnt
+>
+> Note that the compiler will only emit these instructions if you
+> compile with the right target platform (-mpopcnt or something that
+> includes it on x86_64). Portable generic builds will usually not use
+> it. Still, even without the special instruction __builtin_popcountll()
+> should generate more optimal code than the naive
+> add-each-bit-one-by-one approach. For example, I came up with this
+> pure C implementation of 64-bit popcount [1] that both GCC and Clang
+> can compile down to ~36 instructions. The generic version of
+> __builtin_popcountll() likely does something similar. (Actually, here
+> is what Clang seems to use [2], which is pretty close.)
+>
+> FWIW, I tested the __builtin_popcountll() version with the caching
+> patch reverted (built without popcnt support) and it actually
+> performed even better than the old code + caching (it went down to
+> ~0.11% of semodule -B running time). A naive popcount implementation
+> without caching didn't perform as good (was slower than the old code +
+> caching).
+>
+> So... we could just open-code some good generic C implementation
+> (cleanly written and properly commented, of course) and then we
+> wouldn't have to rely on the compiler builtin. OTOH, the SELinux
+> userspace already uses non-standard compiler extensions
+> (__attribute__(...)), so maybe sticking to pure C is not worth it...
+> Either way I think we should revert the caching patch along with
+> switching to an optimized implementation (it would no longer be worth
+> the added complexity IMO).
 
-Ok, in that case I'd say we don't need the hook to be called at all in
-the cases where
-the quota inode is private to the superblock and not directly exposed
-to userspace.
-So no change required to xfs or fs/quota and we can skip/ignore the test when
-not using usrquota=...
++2 using the compiler intrinsic. In all reality, for libselinux
+targets, their are
+two compilers, gcc and clang and they have full support for this.
+
+>
+> [1] https://gcc.godbolt.org/z/39W7qa
+> [2] https://github.com/llvm-mirror/compiler-rt/blob/master/lib/builtins/popcountdi2.c
+>
+> >
+> > For others, (do they even matter at this point) I would imagine GCC
+> > does something relatively sane.
+> >
+> > >
+> > > Cheers,
+> > > Nicolas
+> > >
+> >
+> --
+> Ondrej Mosnacek <omosnace at redhat dot com>
+> Software Engineer, Security Technologies
+> Red Hat, Inc.
+>
