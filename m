@@ -2,99 +2,82 @@ Return-Path: <SRS0=cYHv=4P=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BDFFC11D3D
-	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 16:32:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACC2AC11D3D
+	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 17:12:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 164EB246A1
-	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 16:32:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7611F2469B
+	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 17:12:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IMh1412+"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aaNLPZpO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730195AbgB0Qcq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Feb 2020 11:32:46 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:33412 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730194AbgB0Qcq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 11:32:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1582821165;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=ulx9bAO0xhsrKifgB/UkBF/yfYT00HqFuhNZy/CknwM=;
-        b=IMh1412+MYVjkt7h7fjd1YbJRrN27+EacorLt5gEqM8Ma7j99M7oq7jGdxI8oFDZl4YyET
-        waC76fOWO7DO9yWdRHqlpVsrIhSxtzSuGNedLod/yO02BQiu/wKF2PMfOsX1wKHVWgp9jd
-        M1QsadgRgkPyMTjvmC4mpJlVOGjPYfI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-158-7fuvGqd2P5GRnvsaooEZUA-1; Thu, 27 Feb 2020 11:32:39 -0500
-X-MC-Unique: 7fuvGqd2P5GRnvsaooEZUA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 379F91007284;
-        Thu, 27 Feb 2020 16:32:38 +0000 (UTC)
-Received: from localhost (ovpn-205-3.brq.redhat.com [10.40.205.3])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id C0F3160BE2;
-        Thu, 27 Feb 2020 16:32:37 +0000 (UTC)
-References: <20200221083819.1124890-1-plautrba@redhat.com>
- <CAB9W1A2_hSh4j7_KP2Bbi57942yEJO9xy65XxPJxoFdckZRocg@mail.gmail.com>
-User-agent: mu4e 1.2.0; emacs 27.0.60
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Stephen Smalley <stephen.smalley@gmail.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Subject: Re: [PATCH] libselinux: deprecate security_compute_user(), update
- man pages
-In-reply-to: <CAB9W1A2_hSh4j7_KP2Bbi57942yEJO9xy65XxPJxoFdckZRocg@mail.gmail.com>
-Date:   Thu, 27 Feb 2020 17:32:36 +0100
-Message-ID: <pjdlfoo6lej.fsf@redhat.com>
+        id S1729500AbgB0RMj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Feb 2020 12:12:39 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:36088 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728389AbgB0RMi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 12:12:38 -0500
+Received: by mail-ot1-f68.google.com with SMTP id j20so3654866otq.3
+        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 09:12:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=qeNByKSzp02vBAE7CQ7YKpnnlAXHOv08LeYTzEfzjSg=;
+        b=aaNLPZpOFVksRE+1W//GL39WYcjJHlVyC/OtKavkwuGKZimaf/y9E3FUi3OdjhyKeo
+         Np7YgBJ6/8u1oXFZ8q9XlBI1K9RAO+bP4dE954XQyKJ39ArrMCfo2AdMP971QsXSPAaf
+         lBBKb9zVpJzIQQlHXfnXe9OLzF/ETHotYE+yB5Huo/fKWD15w9zmmaf2M2edkFhCy2v4
+         O+tc5LsLMI1bi4+qBOP+3wWODR69s/GkRZ4FSP14bBUtPU1Gn4wXB8xdUzC4lSD62wfs
+         OSr+p3shW0m7+IO6MAUs+9cIf13U9H6uMoVSahROcq24NiQs2iSt3Bnh2tHZyA/ql7ja
+         D/Kw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=qeNByKSzp02vBAE7CQ7YKpnnlAXHOv08LeYTzEfzjSg=;
+        b=ltw6Pn2TDVsSOWhZ9oIcUg3HaF1SCUX1u/N9bp6O73Oq9AXM9fD4d1rWTWuZskR6ui
+         V/c2zTIL3fgaHxB4LQCTwfVI4aKRukQeTiQkfXXiJpMDK0IuXdu686MuA3rtLsuI9Wk9
+         6U8d6TPwwHr7BoXVV7FdoEcIAgX+imuyFxZT532sTslyOq0gkPjpaS5c+DwsEMNcxcUN
+         QC21nYZHWWOkj5ZkiBbvVMjMUv3GWLrm7YfEAauU8oqRS/47PTwxhT8cWXioibQTtDIT
+         e3Q4HEuQPVcPt1BkI0uIHj0TeHYx9Ycn56jj7i89IlKv9UkoK1c+c3OQJj9gA57CYleK
+         u7Mw==
+X-Gm-Message-State: APjAAAUo7yBDFW0ZbjdvSF+f5QNLIy6w86QKUfXCnUZRqXjrsrr3RAk9
+        V1U/cb/klYfw12W75kx38mG/pDxMdaEKAnxCs6upAQ==
+X-Google-Smtp-Source: APXvYqwzEYqu0cwf/BuGagiwc6d9GxglDi87dkP2jOcPJlqGphYrDVkmoDgpux/Q9P38QuiHiWQAmRtVP49S5/h1fBY=
+X-Received: by 2002:a05:6830:140b:: with SMTP id v11mr612807otp.340.1582823558043;
+ Thu, 27 Feb 2020 09:12:38 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+References: <20200221131825.91499-1-richard_c_haines@btinternet.com> <CAB9W1A0Cyg577HvJ8hnhWbvC697QSLmym07hi=Faip1j0gdLRQ@mail.gmail.com>
+In-Reply-To: <CAB9W1A0Cyg577HvJ8hnhWbvC697QSLmym07hi=Faip1j0gdLRQ@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 27 Feb 2020 12:13:46 -0500
+Message-ID: <CAEjxPJ6ii71KmnynLTjG5bO5iR7Ova0b9LqaVKgaoA1DjLB9vA@mail.gmail.com>
+Subject: Re: [PATCH V2] selinux-testsuite: Allow nfs test script to close cleanly
+To:     Stephen Smalley <stephen.smalley@gmail.com>
+Cc:     Richard Haines <richard_c_haines@btinternet.com>,
+        selinux@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-
-Stephen Smalley <stephen.smalley@gmail.com> writes:
-
-> On Fri, Feb 21, 2020 at 3:40 AM Petr Lautrbach <plautrba@redhat.com> wrote:
->>
->> From: Stephen Smalley <sds@tycho.nsa.gov>
->>
->> commit 1f89c4e7879fcf6da5d8d1b025dcc03371f30fc9 ("libselinux: Eliminate
->> use of security_compute_user()") eliminated the use of
->> security_compute_user() by get_ordered_context_list().  Deprecate
->> all use of security_compute_user() by updating the headers and man
->> pages and logging a warning message on any calls to it.  Remove
->> the example utility that called the interface. While here, also
->> fix the documentation of correct usage of the user argument to these
->> interfaces.
->>
->> Fixes: https://github.com/SELinuxProject/selinux/issues/70
->> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->> Acked-by: Petr Lautrbach <plautrba@redhat.com>
->> ---
->>
->> It looks like the original email didn't get to the mailing list. Therefore
->> I'm resending it for a broader audience.
+On Tue, Feb 25, 2020 at 9:06 AM Stephen Smalley
+<stephen.smalley@gmail.com> wrote:
 >
-> Can this be merged?
+> On Fri, Feb 21, 2020 at 8:18 AM Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> >
+> > Whenever a failure, close NFS cleanly.
+> >
+> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+>
+> I'm not much of a shell programmer but this looks good to me.
+>
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-I'm sorry I mis-read
-https://lore.kernel.org/selinux/CAFftDdqKkRc5S236+OjXJkfJaHVw8F-1XicHUb2aaxYqZK1QSQ@mail.gmail.com/
-and I though that there would be a re-spin, but the mail says that it will
-be follow up.
-
-It's merged now. Thanks!
-
-
-Petr
-
+Applied.
