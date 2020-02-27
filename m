@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CF17C3F2C0
-	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 21:32:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4379BC3F2C2
+	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 21:34:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2EFF824677
-	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 21:32:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 15F5B24677
+	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 21:34:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bp9Iz9VT"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GcW053if"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729697AbgB0Vb7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Feb 2020 16:31:59 -0500
-Received: from mail-io1-f48.google.com ([209.85.166.48]:33142 "EHLO
-        mail-io1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726758AbgB0Vb7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 16:31:59 -0500
-Received: by mail-io1-f48.google.com with SMTP id z8so1167209ioh.0
-        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 13:31:59 -0800 (PST)
+        id S1729534AbgB0Vey (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Feb 2020 16:34:54 -0500
+Received: from mail-il1-f180.google.com ([209.85.166.180]:43910 "EHLO
+        mail-il1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726460AbgB0Vey (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 16:34:54 -0500
+Received: by mail-il1-f180.google.com with SMTP id p78so889593ilb.10
+        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 13:34:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=pG3DRUaQHUL/RDKvlw4JNMaYYl0+U9kM30S1/i9iqRY=;
-        b=Bp9Iz9VTqjjCCitdtadHaCR5ZkwF4XltDAgRNHuYfqCjw0WHiMslrAlTDimuNMWCqW
-         +atK73bfPK2nFVLKJDw5DkofO3SgxDEhWr0xhWv7V1belVk8UhVCEpdV68iZixv9Ui5r
-         H81xDC9NigKNrqOk6SMiAqdF9kDN/SRUNMA874TeTUCyBXkqbT2SQyIHRrcE1EwQIr9J
-         gpxJtC+Z2OWvRdPsPdY2ypFiYAvkWvEZV0IFNMpxOhO0dYiP8bBCUOkrv8mxqiVf0+w1
-         7c1bl4I0XP5C/1yUE8MFVUfSLKu0XsiAbJuZ8bfERd93wha9oOiJHJT+3/FoCK04cRER
-         WfZA==
+        bh=K6Spdyi5VN+EFMiFz445u9kJ1zzBqzRRsob+1EIfEsU=;
+        b=GcW053if2TDUuMnT1AvzLayyIqg9O5wKpqQg/Fmb3iYCYfqrc4wwo9TtkfxUoJO0vz
+         yxpSdjrjtf2nlHSdhOQ28x80jyd5V1gjXLpOfcunDBWGxdjTmBVuOFgoJ1Gwdr5WFAdF
+         gyY++8ekvX3T6mAeY7aZT95F/PyMuxMeWpBp22y0i4PD8ZBWJ9gRVzrPCwoUm0xp+gPE
+         OZc3EeEUxhKgRJsoN6OW4Q19/c0yjYSemIhxd8KCwQZMxFh3auCmRgCrND9bvWzJ9E7c
+         kvn2G6myBAY7kzQA32u4jueWoYOxd9HKFjkXnlJ06G9B8yiajxeIebJzJ371VNlybXx4
+         MBxw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=pG3DRUaQHUL/RDKvlw4JNMaYYl0+U9kM30S1/i9iqRY=;
-        b=db2bbUIc2qIZg31sqqAv7amIyl6wNsRcjm7+q0jCGZzzbgPVmm82J+UES4FaeMUanL
-         ctQNQDWLl/hcKxaJqPGSR7BYaAXYEQW1svZ6fv3xPicYKpwpORyg4O0hOwplS4JNCL/N
-         YaP3IP6IjPxwL+fDC5ZfkOE7Nr2YySfnrFV/XO9nw8ViVM6lUWvrle5HT67ds2p/XtCy
-         HfriDYnAG0zRpmbh6/fWFSzRMUtDSRgIrepmKVrBFRQViq1Os7rbNKvqqOlsElyQoCMl
-         ky/22Fv68EAo2cxIXDandL8dPtOuXXHb5Ir6NDR41ztZhIwbGKZNPbkQZcFgspIwMsjs
-         ZzEA==
-X-Gm-Message-State: APjAAAXrrxV6Az08a9NxzCkxX4IsBoojS6xi5UlWnN+iGxBmXg1amce1
-        lSCi4xSsafKntAOYzpexFo/6QsyMhhA9IiIE1PzuXA==
-X-Google-Smtp-Source: APXvYqxIItH43fQz+X2HT1Ajy95XoJP1WGM8eceMZ+SB65OtabSq0OKK3VeMVmwThTobVKfAjVdqBtGIOAQ+cMt1YO4=
-X-Received: by 2002:a05:6638:198:: with SMTP id a24mr733533jaq.27.1582839119110;
- Thu, 27 Feb 2020 13:31:59 -0800 (PST)
+        bh=K6Spdyi5VN+EFMiFz445u9kJ1zzBqzRRsob+1EIfEsU=;
+        b=tA6ic2mp6UjHf9dBSYabLaPdT3B9OGqMR4J9UtEHuol3tsF7Ko8/zjXYYQ3mwEqoYA
+         msaiWCW2AMGd6csuC4yFb+Z/DMvAgXk7jkYQ3Stfm7g6xbg4ytdzattb2XfeewYoAfnc
+         Mhi7+po5RtBNvEaPQ0LopyLJGfiN7WLZj4NkFFUYlzKv/tDrYyltcL/H2Al/Nx7r+54Y
+         e3ZnAYmn8Mv7IiwYgcF79aPfR+7m8x3gX6rEZOWAA5VFU0qyewkRaDudHw3iRD1HK+5c
+         639YdUPq/crPkCK2cEyFgzCTIBHdG8rlEdsZh4edpOjCqN4RuWvJ3lVSM6yLJWnjBmkr
+         WHqg==
+X-Gm-Message-State: APjAAAUNqmanGFV6SfmkIDbq18YFuWSI+TBUffQ1kbVUR21p1s8zcyQO
+        yq26VQlXsri/vHtHTZ3a7QKFSoHRP6wQ17/QzgIV/Q==
+X-Google-Smtp-Source: APXvYqzHnHoESEuuF/SasAW273A9ij7FNu1CpUwSBQVBQosJy1oQaJJYirCEKSL7cjani0c1JbVyBZ1iaMBK80jlSNA=
+X-Received: by 2002:a92:811c:: with SMTP id e28mr1384325ild.22.1582839293707;
+ Thu, 27 Feb 2020 13:34:53 -0800 (PST)
 MIME-Version: 1.0
 References: <20200225200219.6163-1-william.c.roberts@intel.com>
  <CAEjxPJ42+p_Ppo6SqJCu-em2HXv1hyaY6ziCb0TrqTMBLg_Gag@mail.gmail.com>
@@ -58,15 +58,16 @@ References: <20200225200219.6163-1-william.c.roberts@intel.com>
  <CAEjxPJ4wZw=g1QW9gSPL_2tu9E12oJnX2OYPmTKCZqZQH6StKw@mail.gmail.com>
  <CAFqZXNtRmp-TiNupX3xgOWiBYun4gK0E3TJcoo4-_b2RF2+Duw@mail.gmail.com>
  <19b672ed-e4d6-5c14-6839-a9203690b7e1@redhat.com> <CAFftDdri97VAa8jwN+3JcLW90mFXjEBMfPnynix=ZpYW6R51rA@mail.gmail.com>
- <741730b7-fc5d-21a1-8722-fd964153d4dc@redhat.com>
-In-Reply-To: <741730b7-fc5d-21a1-8722-fd964153d4dc@redhat.com>
+ <CAEjxPJ7=WO0CO3Wj=KLMzH56Fg=WMbjjJHN+qAh+e30juKdVgw@mail.gmail.com>
+ <CAFftDdpx7UsNqgSUwZsQBnTGHUTrOkT5d7n-rGCn1djTVTjvFQ@mail.gmail.com> <CAEjxPJ7aR_bd79yQMb+KwJUZBMkOFRfntgqjDpTh1zrV5nw4sw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7aR_bd79yQMb+KwJUZBMkOFRfntgqjDpTh1zrV5nw4sw@mail.gmail.com>
 From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 27 Feb 2020 15:31:47 -0600
-Message-ID: <CAFftDdpH2G69O13CfLSyE85NLRvmF81460QUZoVjgzBuYRvuXg@mail.gmail.com>
+Date:   Thu, 27 Feb 2020 15:34:41 -0600
+Message-ID: <CAFftDdqtjac92yfbumnGXjfa4tba3ghN0WBqbn9dM7myhjQ4Nw@mail.gmail.com>
 Subject: Re: Annotate Deprecated Functions in libselinux
-To:     Ulrich Drepper <drepper@redhat.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ulrich Drepper <drepper@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
         Stephen Smalley <sds@tycho.nsa.gov>,
         Petr Lautrbach <plautrba@redhat.com>,
         SElinux list <selinux@vger.kernel.org>
@@ -76,21 +77,48 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-<snip>
-
+On Thu, Feb 27, 2020 at 3:31 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> > This seems like it might be good for specific issues, but I don't see how this
-> > infrastructure really prevents or fixes anything besides complicating the code,
-> > perhaps enlighten me?
+> On Thu, Feb 27, 2020 at 4:19 PM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+> >
+> > On Thu, Feb 27, 2020 at 3:11 PM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > That just controls what is exported.  The hidden_proto/hidden_def
+> > > stuff is to ensure that when libselinux calls one of its own exported
+> > > symbols, that symbol resolves to the actual libselinux implementation
+> > > and not something provided by some other DSO earlier in the search
+> > > path, which is otherwise possible.
+> >
+> > Sure, but do we actually care about that?
+> >
+> > If we actually do care, we could throw a script in the build to make sure
+> > anything in the linker script map is not used internally.
+> >
+> > Right now, all this DSO hygiene and look up protection is opt-in, which
+> > usually always results in missed cases. With the linker script, it's opt-out,
+> > which is usually always how you want to do things.
 >
-> Again, it's a semantic change in addition to a performance regression.
-> Didn't you read the part where I suggested just using this one compiler
-> option?  How much less work are you willing to invest?
->
+> There are lots of cases where libselinux calls one of its own exported
+> symbols, so you can't just prohibit that.
+> -fno-semantic-interposition sounds like the right solution to me, and
+> appears to be the default in clang.
 
-No I saw that, and it's it's fine and all and we can add it, but
-it limits us to gcc 5.3+.
+Interesting to note.
 
-But we would still need a map file for basic hygiene on what we are exporting.
+> Dropping the hidden_def/hidden_proto stuff without enabling
+> -fno-semantic-interposition could potentially break because
+> libselinux could suddenly start using some external implementation of
+> one of its own functions.
 
-But this still seems like solving a problem that practically doesn't exist.
+Conjecture.
+
+> Adding a map file and defaulting to hidden visibility would be a good
+> idea but is separate.
+
+IIUC, not really, the current code attempts to limit our exported symbols.
+
+You would need both the compiler option and a map file to keep functional
+parity with whats there. Which is fine, that's easy enough to do and should
+be some welcome housekeeping.
