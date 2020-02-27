@@ -8,60 +8,60 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76FCFC3F2C6
-	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 23:01:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72939C3F2C2
+	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 23:01:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 491B624699
-	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 23:01:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 48C502469F
+	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 23:01:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CimnsLYW"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PcPSVSCe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729753AbgB0XBp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1729637AbgB0XBp (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Thu, 27 Feb 2020 18:01:45 -0500
-Received: from mail-pj1-f65.google.com ([209.85.216.65]:39082 "EHLO
-        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729740AbgB0XBo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 18:01:44 -0500
-Received: by mail-pj1-f65.google.com with SMTP id e9so424544pjr.4
-        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 15:01:42 -0800 (PST)
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:45321 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729750AbgB0XBp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 18:01:45 -0500
+Received: by mail-pl1-f194.google.com with SMTP id b22so402151pls.12
+        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 15:01:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=NLCy5wAvWVD2u0F8d+QCHPjwvw2Q4FFL8KdhB7Bv9MM=;
-        b=CimnsLYWqeViolun/KxypkG8sshRIC8qIokGsmurlVSavxMoCLBfwhFdJfCUNrO1b7
-         dhv02UYdzwBEre2pAAy8TtaJXS6FsHce+4tugbJdE5Mb24lDXLykXix0pLkMLz5ZPVIM
-         I1yq3f6Q2W8VS+2CNVnLNwvTT/liV5IY+fmWY+FcL1Oo8oetCWnAfCmc+/9QemqXik3D
-         lDMZh8bkv85KGy5wKUtUPDp3hqgtL5PryHus00MRXcpsfS7nWkmC3U7oVa6rOaTEMiw3
-         GIhxokpFohXkhxc2F/bY4DfR8ESnAR0pVnUVvvFJpAngOJSyQ4QH0YzhrsGdHewN0PLS
-         SKGw==
+        bh=9cWmergXQjpYeDU27/T5iwBI/AQC3o/+UVxWX7FVHc0=;
+        b=PcPSVSCeOj+nrjlNvnz+9TZpuitkVEplDSVtNF8jvQ8+A/FqcUb2FTnS0tH9aMJJfi
+         X7UA2D6AiOVL4UGSPXLnE2i3Y3kWsgHRy64lLhzd14E5FqOY3f/mvaWDZMUh8d9V/lqk
+         y/07yCwYNWlEv2brsu2gBbsJ62Bn6ms2PMPZrJ/lTpx+dHOldBZBLrKbViTOYvjEYIbf
+         xFak0PnrCicb09dsqFD5nQej5MRHblXqknjjeE0+aCLQ8iw5PQxC4tMD9Yg/qlXTf3Wg
+         984XIIBmgYOHAF+UquscWfGxKSBSLQ99qYiWLZuvZuAWTd72hRjcXR5DgK9ACyCa9lY8
+         uazw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=NLCy5wAvWVD2u0F8d+QCHPjwvw2Q4FFL8KdhB7Bv9MM=;
-        b=o/rXKJjxlkwUXFW/js7ciWFvUmX6b8eLGWtXdPAMSdKsgCjSGDHEw474DTJZjS2VoI
-         J3wLBcnUSNJPLhONoTeZ+0J6k8Wi0XkWkXrlbHVwubjfm0zA5/C4PT2+HhpM/NXbKTw8
-         X/e2HMQvTXswNIks9+HOmL5Kej03//Y8+bTC/8ADJyJd0PeYw5eJf+WV9zAgEYNafbtg
-         ZT5Lr4Q97Eeg0Nvwyh0ltXVT5xJdO0p88dcyVdthmFjtQofKfSJooh3ygIDdXTYCdMI8
-         8PzRs+GVpMu+58hQG/5Jr4qC2g6VQaxGfwGNNiwxkNVt1HEGR/StGc8dcmy2SYb1GpXF
-         IkqA==
-X-Gm-Message-State: APjAAAVcLKI56SdeDrQZoHRuZJ0cjzd61+mhO19NUsBF/bK/LFykQSvc
-        yGXcB2iaPKLjw/TL4hrjgP/Ji9K4
-X-Google-Smtp-Source: APXvYqwcMbATOqgmkHqXQPve1ljv0pZhkq/Gpq6JsWGMg1QKQM+pY0fYzCflBxPw/Ncs73dISVQYFw==
-X-Received: by 2002:a17:902:9a4c:: with SMTP id x12mr1020732plv.297.1582844501884;
-        Thu, 27 Feb 2020 15:01:41 -0800 (PST)
+        bh=9cWmergXQjpYeDU27/T5iwBI/AQC3o/+UVxWX7FVHc0=;
+        b=sdWJA4ztqO8+hZL3k4RceIMYxuBtkPsCcyGmdzs69h37TvT70anqJXOIobBNEfe4Eq
+         JL5pGTDgwlR/KuBj/DN1fTxh4zl2biop31zdjj0UuZiibj8cAMrxxBgkItUpknuIZw8z
+         3MYArbEYsX/vqyQ+yO0d6Xb2tCzjkGCxuOHdUQvwuXJ2vqgCegCXT1aJj0BUnBf8G9FY
+         zs1YXkb2/qo1wFrseIRYpvVr325E4VDbVOKsrff3LBndUjSzm29Bq5jesFKzDVWuXMwH
+         P+qx71UWoMajii2JfjbIcxCPjh69LsyI9WZownOaxINfv6o7OID9rilM0MKxvDCT9re3
+         TnOQ==
+X-Gm-Message-State: APjAAAU/OkziFPqNIWoS7RUbmxE30OUeml0VAvv+rRCgdZ2qvP5BD0WN
+        9zpyJn7bJZkXORqYGc59CuLmzCsg
+X-Google-Smtp-Source: APXvYqxf005fI/2lukTe/BBgSOvAgmytlDeeM/hCd9OQ4XBBY960cylDgL6SgCcUgAXZYgnj+C3o1A==
+X-Received: by 2002:a17:902:264:: with SMTP id 91mr1087912plc.335.1582844504009;
+        Thu, 27 Feb 2020 15:01:44 -0800 (PST)
 Received: from localhost.localdomain ([192.55.54.40])
-        by smtp.gmail.com with ESMTPSA id b27sm7749969pgl.77.2020.02.27.15.01.40
+        by smtp.gmail.com with ESMTPSA id b27sm7749969pgl.77.2020.02.27.15.01.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Feb 2020 15:01:41 -0800 (PST)
+        Thu, 27 Feb 2020 15:01:43 -0800 (PST)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     selinux@vger.kernel.org, drepper@redhat.com, omosnace@redhat.com,
         stephen.smalley.work@gmail.com, plautrba@redhat.com
 Cc:     William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH 2/3] Makefile: add -fno-semantic-interposition
-Date:   Thu, 27 Feb 2020 17:01:28 -0600
-Message-Id: <20200227230129.31166-3-william.c.roberts@intel.com>
+Subject: [PATCH 3/3] Makefile: add linker script to minimize exports
+Date:   Thu, 27 Feb 2020 17:01:29 -0600
+Message-Id: <20200227230129.31166-4-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200227230129.31166-1-william.c.roberts@intel.com>
 References: <20200227230129.31166-1-william.c.roberts@intel.com>
@@ -72,31 +72,295 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: William Roberts <william.c.roberts@intel.com>
 
-Add -fno-semantic-interposition to CFLAGS. This will restore
-the DSO infrastructures protections to insure internal callers
-of exported symbols call into libselinux and not something laoding first
-in the library list.
+Add a linker script that exports only what was previosly exported by
+libselinux.
 
-Clang has this enabled by default.
+This was checked by generating an old export map (from master):
+nm --defined-only -g ./src/libselinux.so | cut -d' ' -f 3-3 | grep -v '^_' > old.map
+
+Then creating a new one for this library after this patch is applied:
+nm --defined-only -g ./src/libselinux.so | cut -d' ' -f 3-3 | grep -v '^_' > new.map
+
+And diffing them:
+diff old.map new.map
+
+Fixes: #179
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/src/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ libselinux/src/Makefile       |   2 +-
+ libselinux/src/libselinux.map | 249 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 250 insertions(+), 1 deletion(-)
+ create mode 100644 libselinux/src/libselinux.map
 
 diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 7f5a5d7418e9..c76110fbc650 100644
+index c76110fbc650..f74dbeb983dd 100644
 --- a/libselinux/src/Makefile
 +++ b/libselinux/src/Makefile
-@@ -65,7 +65,7 @@ EXTRA_CFLAGS = -fipa-pure-const -Wlogical-op -Wpacked-bitfield-compat -Wsync-nan
- 	-Wcoverage-mismatch -Wcpp -Wformat-contains-nul -Wnormalized=nfc -Wsuggest-attribute=const \
- 	-Wsuggest-attribute=noreturn -Wsuggest-attribute=pure -Wtrampolines -Wjump-misses-init \
- 	-Wno-suggest-attribute=pure -Wno-suggest-attribute=const -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 \
--	-Wstrict-overflow=5
-+	-Wstrict-overflow=5 -fno-semantic-interposition
- else
- EXTRA_CFLAGS = -Wunused-command-line-argument
- endif
+@@ -90,7 +90,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
+           -Werror -Wno-aggregate-return -Wno-redundant-decls \
+           $(EXTRA_CFLAGS)
+ 
+-LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-z,relro
++LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-z,relro-Wl,--version-script=libselinux.map
+ 
+ ifeq ($(OS), Darwin)
+ override CFLAGS += -I/opt/local/include
+diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
+new file mode 100644
+index 000000000000..823abeee9a36
+--- /dev/null
++++ b/libselinux/src/libselinux.map
+@@ -0,0 +1,249 @@
++{
++  global:
++    avc_add_callback;
++    avc_audit;
++    avc_av_stats;
++    avc_cache_stats;
++    avc_cleanup;
++    avc_compute_create;
++    avc_compute_member;
++    avc_context_to_sid;
++    avc_context_to_sid_raw;
++    avc_destroy;
++    avc_get_initial_sid;
++    avc_has_perm;
++    avc_has_perm_noaudit;
++    avc_init;
++    avc_netlink_acquire_fd;
++    avc_netlink_check_nb;
++    avc_netlink_close;
++    avc_netlink_loop;
++    avc_netlink_open;
++    avc_netlink_release_fd;
++    avc_open;
++    avc_reset;
++    avc_sid_stats;
++    avc_sid_to_context;
++    avc_sid_to_context_raw;
++    checkPasswdAccess;
++    context_free;
++    context_new;
++    context_range_get;
++    context_range_set;
++    context_role_get;
++    context_role_set;
++    context_str;
++    context_type_get;
++    context_type_set;
++    context_user_get;
++    context_user_set;
++    dir_xattr_list;
++    fgetfilecon;
++    fgetfilecon_raw;
++    fini_selinuxmnt;
++    freecon;
++    freeconary;
++    fsetfilecon;
++    fsetfilecon_raw;
++    getcon;
++    getcon_raw;
++    get_default_context;
++    get_default_context_with_level;
++    get_default_context_with_role;
++    get_default_context_with_rolelevel;
++    get_default_type;
++    getexeccon;
++    getexeccon_raw;
++    getfilecon;
++    getfilecon_raw;
++    getfscreatecon;
++    getfscreatecon_raw;
++    getkeycreatecon;
++    getkeycreatecon_raw;
++    get_ordered_context_list;
++    get_ordered_context_list_with_level;
++    getpeercon;
++    getpeercon_raw;
++    getpidcon;
++    getpidcon_raw;
++    getprevcon;
++    getprevcon_raw;
++    getseuser;
++    getseuserbyname;
++    getsockcreatecon;
++    getsockcreatecon_raw;
++    is_context_customizable;
++    is_selinux_enabled;
++    is_selinux_mls_enabled;
++    lgetfilecon;
++    lgetfilecon_raw;
++    lsetfilecon;
++    lsetfilecon_raw;
++    manual_user_enter_context;
++    map_class;
++    map_decision;
++    map_perm;
++    matchmediacon;
++    matchpathcon;
++    matchpathcon_checkmatches;
++    matchpathcon_filespec_add;
++    matchpathcon_filespec_destroy;
++    matchpathcon_filespec_eval;
++    matchpathcon_fini;
++    matchpathcon_index;
++    matchpathcon_init;
++    matchpathcon_init_prefix;
++    mode_to_security_class;
++    myprintf_compat;
++    print_access_vector;
++    query_user_context;
++    realpath_not_final;
++    rpm_execcon;
++    security_av_perm_to_string;
++    security_av_string;
++    security_canonicalize_context;
++    security_canonicalize_context_raw;
++    security_check_context;
++    security_check_context_raw;
++    security_class_to_string;
++    security_commit_booleans;
++    security_compute_av;
++    security_compute_av_flags;
++    security_compute_av_flags_raw;
++    security_compute_av_raw;
++    security_compute_create;
++    security_compute_create_name;
++    security_compute_create_name_raw;
++    security_compute_create_raw;
++    security_compute_member;
++    security_compute_member_raw;
++    security_compute_relabel;
++    security_compute_relabel_raw;
++    security_compute_user;
++    security_compute_user_raw;
++    security_deny_unknown;
++    security_disable;
++    security_get_boolean_active;
++    security_get_boolean_names;
++    security_get_boolean_pending;
++    security_get_checkreqprot;
++    security_getenforce;
++    security_get_initial_context;
++    security_get_initial_context_raw;
++    security_load_booleans;
++    security_load_policy;
++    security_policyvers;
++    security_reject_unknown;
++    security_set_boolean;
++    security_set_boolean_list;
++    security_setenforce;
++    security_validatetrans;
++    security_validatetrans_raw;
++    selabel_close;
++    selabel_cmp;
++    selabel_digest;
++    selabel_get_digests_all_partial_matches;
++    selabel_hash_all_partial_matches;
++    selabel_lookup;
++    selabel_lookup_best_match;
++    selabel_lookup_best_match_raw;
++    selabel_lookup_raw;
++    selabel_open;
++    selabel_partial_match;
++    selabel_stats;
++    selinux_binary_policy_path;
++    selinux_booleans_path;
++    selinux_booleans_subs_path;
++    selinux_boolean_sub;
++    selinux_check_access;
++    selinux_check_passwd_access;
++    selinux_check_securetty_context;
++    selinux_colors_path;
++    selinux_contexts_path;
++    selinux_current_policy_path;
++    selinux_customizable_types_path;
++    selinux_default_context_path;
++    selinux_default_type_path;
++    selinux_failsafe_context_path;
++    selinux_file_context_cmp;
++    selinux_file_context_homedir_path;
++    selinux_file_context_local_path;
++    selinux_file_context_path;
++    selinux_file_context_subs_dist_path;
++    selinux_file_context_subs_path;
++    selinux_file_context_verify;
++    selinux_flush_class_cache;
++    selinuxfs_exists;
++    selinux_get_callback;
++    selinux_getenforcemode;
++    selinux_getpolicytype;
++    selinux_homedir_context_path;
++    selinux_init_load_policy;
++    selinux_lsetfilecon_default;
++    selinux_lxc_contexts_path;
++    selinux_media_context_path;
++    selinux_mkload_policy;
++    selinux_mnt;
++    selinux_netfilter_context_path;
++    selinux_openrc_contexts_path;
++    selinux_openssh_contexts_path;
++    selinux_path;
++    selinux_policy_root;
++    selinux_raw_context_to_color;
++    selinux_raw_to_trans_context;
++    selinux_removable_context_path;
++    selinux_reset_config;
++    selinux_restorecon;
++    selinux_restorecon_default_handle;
++    selinux_restorecon_set_alt_rootpath;
++    selinux_restorecon_set_exclude_list;
++    selinux_restorecon_set_sehandle;
++    selinux_restorecon_xattr;
++    selinux_securetty_types_path;
++    selinux_sepgsql_context_path;
++    selinux_set_callback;
++    selinux_set_mapping;
++    selinux_set_policy_root;
++    selinux_snapperd_contexts_path;
++    selinux_status_close;
++    selinux_status_deny_unknown;
++    selinux_status_getenforce;
++    selinux_status_open;
++    selinux_status_policyload;
++    selinux_status_updated;
++    selinux_systemd_contexts_path;
++    selinux_translations_path;
++    selinux_trans_to_raw_context;
++    selinux_user_contexts_path;
++    selinux_usersconf_path;
++    selinux_users_path;
++    selinux_virtual_domain_context_path;
++    selinux_virtual_image_context_path;
++    selinux_x_context_path;
++    setcon;
++    setcon_raw;
++    setexeccon;
++    setexeccon_raw;
++    setexecfilecon;
++    setfilecon;
++    setfilecon_raw;
++    setfscreatecon;
++    setfscreatecon_raw;
++    setkeycreatecon;
++    setkeycreatecon_raw;
++    set_matchpathcon_canoncon;
++    set_matchpathcon_flags;
++    set_matchpathcon_invalidcon;
++    set_matchpathcon_printf;
++    set_selinuxmnt;
++    setsockcreatecon;
++    setsockcreatecon_raw;
++    sidget;
++    sidput;
++    string_to_av_perm;
++    string_to_security_class;
++    unmap_class;
++    unmap_perm;
++  local:
++    *;
++};
 -- 
 2.17.1
 
