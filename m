@@ -2,121 +2,91 @@ Return-Path: <SRS0=cYHv=4P=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9038FC11D3D
-	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 15:56:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCDA7C11D3D
+	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 16:03:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6065224688
-	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 15:56:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9F4192469C
+	for <selinux@archiver.kernel.org>; Thu, 27 Feb 2020 16:03:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="CCv0+b0X"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GrK1Su8y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729158AbgB0P4n (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Feb 2020 10:56:43 -0500
-Received: from mail-vs1-f49.google.com ([209.85.217.49]:35537 "EHLO
-        mail-vs1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729274AbgB0P4m (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 10:56:42 -0500
-Received: by mail-vs1-f49.google.com with SMTP id u26so2176420vsg.2
-        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 07:56:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=vFu1vtlEKPNBBhNbrFmWde86SVUizK5GShRgF2MPoYA=;
-        b=CCv0+b0XeqeKZ0xSaSGYUvSSgtGLXToVdhHMLosP3SQAoFYY5OZNa2uiUsIRYFYSi5
-         kczS1ER/Ai6E0TFxdVeuW9lmaLBHoFxPk2RJmSk5uEDmiPhL935ZjdthIX/DYHVdjmQO
-         qhGBY+lpGYG4JN9kqdWp35sROSGK/x1gREW/X3rB2IbYTat7joJzHqAFr7fh9jfq6s6w
-         9ozFAY0eCbMqUvbP+7ySRcXO/9jI+TOSCCeeNpknKoLD/T+5u+I16kPtizgRVDA47cPW
-         /WCfG/gzQLPUHqeopaVBgAxjaJvjyS0G42ln3zbdf8Fw30i0kf6+3SnDaSEcv7oQZ2Vz
-         OgDQ==
+        id S1729425AbgB0QDE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Feb 2020 11:03:04 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:35802 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729235AbgB0QDE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 11:03:04 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1582819383;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=422MM+dX8SeyrozZfwnYxcqpPJs5evrxiAguBDF1Z7Q=;
+        b=GrK1Su8yI9uMbTTDAzPYthAlwVbegbehElAz1KbpTzeviYdPkmgdt6JkdoUZpzkBa/1tum
+        nrI6ymyd/057n+9PZMvMQDVP7JOxxEQzUcGtLB4n7pnr3PxvmDuTezxeQNYxOAfNg9ZqGH
+        jXbsb7hprSZx8qNP+b/9OswmURcOQM8=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-135-hib09oviNEmgXAlDGDNJyA-1; Thu, 27 Feb 2020 11:03:01 -0500
+X-MC-Unique: hib09oviNEmgXAlDGDNJyA-1
+Received: by mail-wr1-f72.google.com with SMTP id m15so19945wrs.22
+        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 08:03:01 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=vFu1vtlEKPNBBhNbrFmWde86SVUizK5GShRgF2MPoYA=;
-        b=NLukBuqFhvHL85G2BzcrgQahbW+bKt9BBGNIqkzXaUW/W8JcD8vUxRras7boxJG334
-         1HMSu/Hb/1hB1tndcFG3mlmXCqpPQZ8D3JyGHYsHHZ+qbpaQgAT5A0tfmoIGgyycdQVO
-         Eonf3o0mdBfpP0kBgH1vfteHgiGW0sGgo0Zm0Oj1B/zxJkRsF8uWd1cyVno/taADjZzU
-         1g2Wpzc4Q2GRjEPPbowo8T+QxLVpO9WvtXaFOmSXWnzfQ5S/h/ek78wbXOLExofuFa5D
-         xW8wD2RpiezSZ93FBJDEwnmGhRYZUhUdsQXjRS+/D0+UDG+yzhZdzt3oXKmi8SfKNFmb
-         qWGA==
-X-Gm-Message-State: APjAAAUzfPyHyFspin0S77fEyTbgIIe7Pvg4qamzvEHBgUl1exQZ07xE
-        /v6U4QYrVeBOUdExV1sRVbakDjswKssJGAIBXwwoiBYH
-X-Google-Smtp-Source: APXvYqyp3b5QMpzTR5z71aOTpeBz3pCdxat4VdD15Aqq5hJ5lymeThDQWUJJ/LSIKXaQmTBUxt1wnQKYkLB4xzI+aDQ=
-X-Received: by 2002:a67:5e45:: with SMTP id s66mr3029861vsb.200.1582818999662;
- Thu, 27 Feb 2020 07:56:39 -0800 (PST)
-MIME-Version: 1.0
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Thu, 27 Feb 2020 16:56:28 +0100
-Message-ID: <CAJ2a_DcSXAPM-Etzs8O=5sUqY=qnM+WTU7p3u22yvEu0VTZ7GQ@mail.gmail.com>
-Subject: wrong secmark labels for ipsec packets from local service
+        bh=422MM+dX8SeyrozZfwnYxcqpPJs5evrxiAguBDF1Z7Q=;
+        b=fdppekj9v0iuPLBSFTMPfJF7I1iL9jInLgidOEF6AuM7JntMAXvmKo1WQu/xL86sQ+
+         dW2pqOYyKGVPPf8L+BNixllisJ+7l2uazR6huJBDu8gt3HgVW+q+L5X1UVJCH6uvU3u4
+         CVFCdVCJEzdRB/mV+0MH20Zx4aF7PalnHarY3Uxi4lHMRPrXGAL4h5xc68DgIyU5ePVJ
+         UKxf1+NCqY4jPzaaJAy/QzuTb6wLZJYDQnfboZKsjAHR04fUTAj/L8uiccgVQ2T88RI0
+         TJOeZyLxn26fNQzQMPM+pzsyYydIc3YH5B8C9l+aE1NX5wPup693yKHkG8H2qoKFlFEB
+         lU1g==
+X-Gm-Message-State: APjAAAV1lduS0XTUP8I3XNWRXivx3LxiHfjYNgcJZdh4tC48kfBxl8RK
+        gi86kNTk1EQGx+Oj7WCG7f/zPY4Cyskl0FO0FgTpxEItsyjOS5ThvLc58YY+Ulqm+wJdFvqDKmc
+        7axIkC+Vm9gQAHIyQxw==
+X-Received: by 2002:a5d:69cb:: with SMTP id s11mr5256443wrw.47.1582819380032;
+        Thu, 27 Feb 2020 08:03:00 -0800 (PST)
+X-Google-Smtp-Source: APXvYqy5sQbrJJSfsEEI2oLxCIqRE7nl9hCJOEls7W9asuz9vLtvL2SNa2ht7BpyooNBWjVW5tLchg==
+X-Received: by 2002:a5d:69cb:: with SMTP id s11mr5256419wrw.47.1582819379778;
+        Thu, 27 Feb 2020 08:02:59 -0800 (PST)
+Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id d17sm8063456wmb.36.2020.02.27.08.02.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Feb 2020 08:02:59 -0800 (PST)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        James Carter <jwcart2@tycho.nsa.gov>
+Subject: [PATCH 0/3] libsepol: Speed up policy optimization
+Date:   Thu, 27 Feb 2020 17:02:54 +0100
+Message-Id: <20200227160257.340737-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.24.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+This series contains two small changes (these don't seem to affect
+performance measurably, but are nonetheless logical) and a patch that
+changes how the policy optimization "type_map" helper structure is
+represented, which speeds up the whole process.
 
-I am trying to confine network labeling via secmark and have an issue
-regarding ipsec vpn packets.
+Ondrej Mosnacek (3):
+  libsepol: skip unnecessary check in build_type_map()
+  libsepol: optimize inner loop in build_type_map()
+  libsepol: speed up policy optimization
 
-Connections from clients are labeled correctly with
-'ipsecnat_server_packet_t' and accessing external services (e.g.
-google.com) over the vpn is working for clients.
+ libsepol/src/optimize.c | 119 +++++++++++++++++++++++++++++++---------
+ 1 file changed, 94 insertions(+), 25 deletions(-)
 
-What's causing problems is accessing local services, services running
-on the same host as the vpn server.
+-- 
+2.24.1
 
-When trying to access such, I am getting these packets and denials:
-
-Dec 31 11:54:50 server kernel: nft_est IN=3D OUT=3Deth0 SRC=3Dhost_ip
-DST=3Dvpnclient_ip LEN=3D1476 TOS=3D0x00 PREC=3D0x00 TTL=3D64 ID=3D0 DF PRO=
-TO=3DUDP
-SPT=3D4500 DPT=3D56602 LEN=3D1456
-Dec 31 11:54:51 server kernel: nft_est IN=3D OUT=3Deth0 SRC=3Dhost_ip
-DST=3Dvpnclient_ip LEN=3D1476 TOS=3D0x00 PREC=3D0x00 TTL=3D64 ID=3D0 DF PRO=
-TO=3DUDP
-SPT=3D4500 DPT=3D56602 LEN=3D1456
-Dec 31 11:54:52 server audit[0]: AVC avc:  denied  { send } for  pid=3D0
-comm=3D"swapper/0" saddr=3Dhost_ip src=3D4500 daddr=3Dvpnclient_ip dest=3D5=
-6602
-netif=3Deth0 scontext=3Dsystem_u:system_r:dovecot_t:s0
-tcontext=3Dsystem_u:object_r:ipsecnat_server_packet_t:s0 tclass=3Dpacket
-permissive=3D0
-Dec 31 11:54:54 server audit[9]: AVC avc:  denied  { send } for  pid=3D9
-comm=3D"ksoftirqd/0" saddr=3Dhost_ip src=3D4500 daddr=3Dvpnclient_ip
-dest=3D56602 netif=3Deth0 scontext=3Dsystem_u:system_r:dovecot_t:s0
-tcontext=3Dsystem_u:object_r:ipsecnat_server_packet_t:s0 tclass=3Dpacket
-permissive=3D0
-
-The kernel processes a established response packet originating at port
-4500 towards the vpn-client (so the packet label of
-'ipsecnat_server_packet_t' is sensible), but the source context is
-still the local service (dovecot with 'dovecot_t').
-From my point of view Dovecot should not be able to send packets
-originating at port 4500 and I'd like not to allow the dovecot domain
-(and other local service domain like webservers) to send packets
-labeled 'ipsecnat_server_packet_t'.
-
-Is there a possibility to change the source context of these packets
-to the domain context of the vpn-server cause I do not see a
-possibility to change the packet context to something permitted (like
-'pop_server_packet_t')?
-
-Best regards,
-     Christian G=C3=B6ttsche
-
-
-system information:
-Linux desktopdebian 5.4.0-4-amd64 #1 SMP Debian 5.4.19-1 (2020-02-13)
-x86_64 GNU/Linux
-nftables v0.9.3 (Topsy)
-Linux strongSwan U5.8.2/K5.4.0-4-amd64
