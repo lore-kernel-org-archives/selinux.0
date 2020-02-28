@@ -2,107 +2,98 @@ Return-Path: <SRS0=XvAr=4Q=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF55BC3F2C6
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 00:27:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0294C3F2C6
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 00:36:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 80886246A0
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 00:27:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 89245246A0
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 00:36:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="NGAIqSEp"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="nCU1EbhR"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730050AbgB1A1b (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 27 Feb 2020 19:27:31 -0500
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:44276 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729984AbgB1A1b (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 19:27:31 -0500
-Received: by mail-ed1-f67.google.com with SMTP id g19so1222667eds.11
-        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 16:27:28 -0800 (PST)
+        id S1730034AbgB1Ag4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 27 Feb 2020 19:36:56 -0500
+Received: from mail-qk1-f194.google.com ([209.85.222.194]:38771 "EHLO
+        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729984AbgB1Ag4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 27 Feb 2020 19:36:56 -0500
+Received: by mail-qk1-f194.google.com with SMTP id z19so1423488qkj.5
+        for <selinux@vger.kernel.org>; Thu, 27 Feb 2020 16:36:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=7hhk7PUuG2uwctHCYBLJrzlfm+pGgI2SDPKhJXoXTP4=;
-        b=NGAIqSEprGyY+jxUHbj2Pc/AeO0/1IbJHZsDQzF3TK16dRsSaHiDWEpL2Q/z6/2Ljc
-         KimNqbHiOZB2/z9ODuYJqzecpBQuUtt/94SrThff9opeqBis6St+4AHxk04gI85zkIuQ
-         UzRzC4wSe5s1xg89dPKwFh/Fbn9+utPtWzK1tGnb7yaocOcSDL2quZRQDiIS1O5+KrE5
-         cjUjmmIRoEYWnrcgPkdhblHW31AuDh0Z7mFv0y51kd7uy1aeaurI4+PL6oBIOi3hJ+yY
-         aDajDcR9od2jcZXMW7rN8AJf8a+1E3M1TtrsALLPTZdicGb7ibOAr8oeTQyI2gTa4TNR
-         pnaQ==
+        bh=Xa/VZybxSsIgs76xZxNdg8tCTbSNvadILR1A0qk70+U=;
+        b=nCU1EbhRfioR1LhtKzvWzc69SiK7mT0s5oWcd1EbvNwDHaurt+ineYAMzJM7I1P2Ek
+         zDamE3AuOuLgx28dj5x1PRwOCyPeiccEVovo8AdTwf4LXc9+uJlW8E5FcAbrgDtftTGj
+         a29kvi7CHQYIvWqvBEFaeh7mJTPaNPa1Ra2t4sxm2xe38MOTiFSdkkUOuN+YUkbuIDtG
+         4KrMoR2QNkwA/uVU6Oy0V3do5hcScOWsPMgfXDwnidW9sRtf/2KQ68zNvOVWN2b5choN
+         JSv1E6UQZz4Q0/GhEu9kEBTrAAjeewjA3gJ4idrabXRdSui14fEE/MUmTHv2wnCO5HAF
+         0CDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=7hhk7PUuG2uwctHCYBLJrzlfm+pGgI2SDPKhJXoXTP4=;
-        b=aBlYKmit6BG6cna0JICQ9dvoICS6TntVYheITzHts4AvdSMJ9KypZoB7TvLkvvSU4J
-         yruG/LEMa5+r8C6URINA9esvVHPIwYbFmdMW6UQvGbpWcik70n1jPBOpfpTwe5z3UQlm
-         VilYcPveg3R15kP8LwZ29EUyZVTBITBpwti62ss07ve8HRs0JMuKA9E3ncMI3VxLHj6e
-         soEOWOS1l+WjRz6Zmrx+ywfzry4gSN4Xo5g1t+wZYNxrOHaTIQj09gGmRfDl+hEF15J0
-         iHQs7zj2HBdMdsp2x1Ne1Ch1yrVFlh0jPq6bqsMDR7kNCFJK1xqAPhhlTYlbVFQWKHqP
-         teVg==
-X-Gm-Message-State: APjAAAXWAt5OPr9Osc1EoZWR4u7I0wqdpqiwI1Hztgv9iga9yEzWKSkI
-        m3ZPf+Xt4cicFBO/iEewuz0MHRHh32ENgw4fiqB/
-X-Google-Smtp-Source: APXvYqyp+xCdohjXGZD7ZEjNdY/ANY+LKRa3CL9XE50ycy3NKe3E887xlMebyW7CDeKER1BgS6aPinQ3yeqrdXKIHF8=
-X-Received: by 2002:a05:6402:309b:: with SMTP id de27mr1088079edb.269.1582849648082;
- Thu, 27 Feb 2020 16:27:28 -0800 (PST)
+        bh=Xa/VZybxSsIgs76xZxNdg8tCTbSNvadILR1A0qk70+U=;
+        b=WlTSHT6BbBYv1rJAxsPjGHafH2D7D/Q0VWBGBsG13JDjgvs2OkmoXETZ3jBn3sy1dj
+         YxWNlBzZIQVF/bTMFXKmathVqpMIXrJBYYiYGWOIAU8wqRLbq0RqKxhcaWeyRcIbgaaL
+         3ppSWZcVPDl7YDlfyypHiOAmoy8ugzVLThCP1djYkzO/bJXNREqS7rQZh1Tw9BbN3DeZ
+         PDosyZeC+i+uNkDlJygOyqitNrKszyy5Ll+qLcN039v6d8oBnIaiwoo85feZYsTWeTXt
+         TJvdyLT51wL2K4DyhrXcR2EJsW1c7d4JNPRZaUX7r3QLcaGBXaxgp4l3FlVRiNFqqIAi
+         7HRA==
+X-Gm-Message-State: APjAAAXEGxEgZqrQ1oPPLXRpzEgDUQcmHjfiqfZ50XxSBtZNdknnF3El
+        6FE9SIde7OhIEeDtMitgeF/f5TIJxOSy2QlO+Zdr
+X-Google-Smtp-Source: APXvYqx3Q9xysbF+kpZcyRxsOXB8mAHok4CuTZvPgnYMzbqHP6ZzjNe3jZYqYDYqHAniyFafTZyN8eLcI+lNr91O0rA=
+X-Received: by 2002:a05:620a:102a:: with SMTP id a10mr2319350qkk.108.1582850213553;
+ Thu, 27 Feb 2020 16:36:53 -0800 (PST)
 MIME-Version: 1.0
-References: <20200226155452.301544-1-omosnace@redhat.com>
-In-Reply-To: <20200226155452.301544-1-omosnace@redhat.com>
+References: <20200224161023.116134-1-sds@tycho.nsa.gov>
+In-Reply-To: <20200224161023.116134-1-sds@tycho.nsa.gov>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 27 Feb 2020 19:27:17 -0500
-Message-ID: <CAHC9VhRWx5r=7fzh1UmL4Pcn_tDMJYLWvakv8uSqr23jcZ5U_g@mail.gmail.com>
-Subject: Re: [PATCH v3] selinux: reduce the use of hard-coded hash sizes
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Thu, 27 Feb 2020 19:36:42 -0500
+Message-ID: <CAHC9VhSFAmGEMqG=MxiKHrNGb2r6tyhomzrB3AaKNW_XSJTBJw@mail.gmail.com>
+Subject: Re: [PATCH v4] selinux: remove unused initial SIDs and improve handling
+To:     Stephen Smalley <sds@tycho.nsa.gov>
+Cc:     selinux@vger.kernel.org, omosnace@redhat.com, pebenito@ieee.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Feb 26, 2020 at 10:55 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Mon, Feb 24, 2020 at 11:09 AM Stephen Smalley <sds@tycho.nsa.gov> wrote:
 >
-> Instead allocate hash tables with just the right size based on the
-> actual number of elements (which is almost always known beforehand, we
-> just need to defer the hashtab allocation to the right time). The only
-> case when we don't know the size (with the current policy format) is the
-> new filename transitions hashtable. Here I just left the existing value.
->
-> After this patch, the time to load Fedora policy on x86_64 decreases
-> from 790 ms to 167 ms. If the unconfined module is removed, it decreases
-> from 750 ms to 122 ms. It is also likely that other operations are going
-> to be faster, mainly string_to_context_struct() or mls_compute_sid(),
-> but I didn't try to quantify that.
->
-> The memory usage of all hash table arrays increases from ~58 KB to
-> ~163 KB (with Fedora policy on x86_64).
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Remove initial SIDs that have never been used or are no longer used by
+> the kernel from its string table, which is also used to generate the
+> SECINITSID_* symbols referenced in code.  Update the code to
+> gracefully handle the fact that these can now be NULL. Stop treating
+> it as an error if a policy defines additional initial SIDs unknown to
+> the kernel.  Do not load unused initial SID contexts into the sidtab.
+> Fix the incorrect usage of the name from the ocontext in error
+> messages when loading initial SIDs since these are not presently
+> written to the kernel policy and are therefore always NULL.
+
+...
+
+> Fixes: https://github.com/SELinuxProject/selinux-kernel/issues/12
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 > ---
+> v4 fixes the commit hashes that I cut-and-pasted from the GH issue
+> comments to be the proper length and added the one-line descriptions.
+> Oddly checkpatch.pl didn't catch that originally.
 >
-> Changed in v3:
->  - switch to simpler and more logical hash size heuristic
->  - add comment explaining the choice of the heuristic
->
-> Changed in v2:
->  - guard against h->size == 0 in hashtab_search() and hashtab_insert()
->
->  security/selinux/ss/hashtab.c  | 28 +++++++++++++++---
->  security/selinux/ss/hashtab.h  |  2 +-
->  security/selinux/ss/policydb.c | 53 +++++++++++++---------------------
->  security/selinux/ss/policydb.h |  2 --
->  4 files changed, 45 insertions(+), 40 deletions(-)
+>  scripts/selinux/genheaders/genheaders.c       | 11 +++-
+>  .../selinux/include/initial_sid_to_string.h   | 57 +++++++++----------
+>  security/selinux/selinuxfs.c                  |  6 +-
+>  security/selinux/ss/policydb.c                | 25 ++++----
+>  security/selinux/ss/services.c                | 26 ++++-----
+>  5 files changed, 66 insertions(+), 59 deletions(-)
 
-Thanks Ondrej, this looks better; merged into selinux/next.
-
-Also, changing the hash heuristic in v3 really shrunk the memory usage
-compared to v2 without much impact on performance - a ~100k increase
-in memory is a small price to pay for the policy load improvement.
-Well done.
+Merged into selinux/next, thanks Stephen.
 
 -- 
 paul moore
