@@ -2,88 +2,109 @@ Return-Path: <SRS0=XvAr=4Q=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E110C3F2D2
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 15:40:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 612A2C3F2D2
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 15:49:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id DE4AE20684
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 15:40:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 372AB2469D
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 15:49:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lzGXFFBh"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qzOnBZXa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726905AbgB1Pkp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Feb 2020 10:40:45 -0500
-Received: from mail-io1-f65.google.com ([209.85.166.65]:36147 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726650AbgB1Pkp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 10:40:45 -0500
-Received: by mail-io1-f65.google.com with SMTP id d15so3865858iog.3
-        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 07:40:45 -0800 (PST)
+        id S1727027AbgB1PtI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Feb 2020 10:49:08 -0500
+Received: from mail-pj1-f50.google.com ([209.85.216.50]:35589 "EHLO
+        mail-pj1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726971AbgB1PtI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 10:49:08 -0500
+Received: by mail-pj1-f50.google.com with SMTP id q39so1459920pjc.0
+        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 07:49:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Ya1ARH/f4VmeZhb5NxBNLhCwQEFzIXi13gmxAgUsLdI=;
-        b=lzGXFFBh5o5K5UZDvR3iuAaujRvtoUSs/Aiqp/xRUnh/UmXVLhNWcSoJTWvQzX60LK
-         6pyzTRhAhVPXxaa/Xz4F9Be2XO0edEeOeKO+JnyXg6UucpDZubMJWACIBeR+q6gyX35x
-         CI9DC2lycka4ukseZjJ5lYIQfDSbn/248Dtc3JBqsfa6ARkXXBmQfULDg7sanQchcp/e
-         R8E8mbC8kMEU8JMH76/i3ywQ9eVLPajCeF/Fpt7CMAmHn3RjGVFVOEx2oLHsfQC4LSXw
-         y0pLjDwkJAcKnziRqtEMi4V4uqyZewGM78v+dG5dY1R218u4ZFdSXM+8pzp49XMGxiwL
-         /RrA==
+        h=from:to:subject:date:message-id:in-reply-to:references;
+        bh=vpD+qxQ0HuLs0ggqWOT+ZDQYfcLOukr5omhhZ6gRiyk=;
+        b=qzOnBZXaM2bd6leyeQc8hTA2C6YnK09xu/mapIPu882ZNDX8ajo2mdDqWs+xfA5Xth
+         ER+vWEb8wy4FttDnexmY/DiiHizIQ+Fb+www6Ylu/JgGgpxxES6JsQU/ghH0A15l7ISO
+         WPunqXRDpkJgyEkEXtzd4wYVj8yuZEPrGvzMpZOGilYszTUQbHhggSCJggM8h+15SClQ
+         IhsVoUBfe0t5UQuz/HyhBXMBMN6HR/SV7Sy5mOHyUeAm+NZFa3aoDoPr4qmbrMdBcHHC
+         BEzQpSzCbx4F16wJwXeJ+a6VvF/UgXKa2M1gcCuvHdcJPtCrtZml6hBehOsTEhhQbKG4
+         CdUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Ya1ARH/f4VmeZhb5NxBNLhCwQEFzIXi13gmxAgUsLdI=;
-        b=l9QbJuWs/pMMBl3L3abm7ckAhUhLNbH86Bt1qNJtLeKRZP1nWbGtz30hPIVXTRUEsb
-         IYobgbLoZCPK6skM2399e7RxPNABehev7VUb4DfcUNkX0S24/8WKH+C7EC9bljFwvwRi
-         a3w4krj9Md/apDdwYWOnelRd5ThbCt3wNGpYPxIjMtnjnk8XgS82mOPrqLUbbSPD3uuR
-         39ilRgc9DKRBQgIxqyhmrNKfXch66mvbynt3dgT08Z8ax1e5P1i/cYQ7TOadJ8JrzR3K
-         Ibwp9LkKmQJOdKqvPPbCVPpeKM657ojnJwG6z0cNG+I6sB3+R0OH/R2c781L0nXGbceS
-         mEIg==
-X-Gm-Message-State: APjAAAXE10oxNtQ8gwPqh4iS2ukBddBiQ80S8DyKYW1bSI37Ugh2gQ3n
-        vQUSmu+2Bh+A+E5DFlmbjBCaUZYTkFfPFYTFHOjctA==
-X-Google-Smtp-Source: APXvYqxMITCqfqrkI0+mAVp6ROf//VNWQAMaDYOJ66P1vq1bFuQm0mZMFAcVUpfNWFIjZnUNTI8daI2b3Xv4dNmqO1w=
-X-Received: by 2002:a05:6638:24f:: with SMTP id w15mr3970860jaq.130.1582904444737;
- Fri, 28 Feb 2020 07:40:44 -0800 (PST)
-MIME-Version: 1.0
-References: <CAEjxPJ4ae=FLqEDofLwSP0PEeqUqh1WtoSVFb9TrafMhawfhPg@mail.gmail.com>
- <20200228140524.2404-1-william.c.roberts@intel.com> <20200228140524.2404-5-william.c.roberts@intel.com>
- <CAEjxPJ52jwNh+TGnUkgGur=3hpdLPiT5cRZ6_Fzhy5aOOYGPjg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ52jwNh+TGnUkgGur=3hpdLPiT5cRZ6_Fzhy5aOOYGPjg@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 28 Feb 2020 09:40:33 -0600
-Message-ID: <CAFftDdpP4GUQJTJBN+LS8JwYcUNb+ZMChQUFCssHXLip_GLbaQ@mail.gmail.com>
-Subject: Re: [PATCH v2 4/4] libselinux: drop symbols from map
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Ulrich Drepper <drepper@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        William Roberts <william.c.roberts@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references;
+        bh=vpD+qxQ0HuLs0ggqWOT+ZDQYfcLOukr5omhhZ6gRiyk=;
+        b=DKnlpfb2lMGzqt0hK9x881i1gZcuRxiFYLK/MKLD872BCa1LOdRZkMGmWawHVNqYBH
+         IJP/DGQ09lA0RSf4khSDsgv3HpgFqfHfLlMbEXYdjqhny36i4bduY1bvqeXpRXEVr7qZ
+         gXJyzE45utYwiubC+i3V3jqphjT21QIo4oSVjQtrQR1zU6KGVJ2/keJ9Xhal99FqRf4T
+         W+JOFgDHuHw6DWQhkeeetG00NOnbrSCnvvwcxoUGIoT50ZZwrW/znZg2Y4K09oZ84/FN
+         J/Knl+u31n5dgy/CXO/O3phDqIFa/NPw1WlcXMbQ9GQbSjfQlfgPgZ/ciz/cqynjtmb/
+         7+fw==
+X-Gm-Message-State: APjAAAWKrwg/S4toBGhJ4OTTiiMRke0b5dQBirBhKKiraIYqIuUbiQpW
+        Punofn0Sx8oXGgNC3nV2qU8sJh+t
+X-Google-Smtp-Source: APXvYqz+i/gygcGRRC1Yqh+qfBhcoLqgLkxPClGs4Hlot17IhtrjBn6TOtQ/eIf5nyVg5b/pJBmGDA==
+X-Received: by 2002:a17:902:9b8a:: with SMTP id y10mr4431629plp.114.1582904945635;
+        Fri, 28 Feb 2020 07:49:05 -0800 (PST)
+Received: from localhost.localdomain ([134.134.137.79])
+        by smtp.gmail.com with ESMTPSA id w18sm12091796pfq.167.2020.02.28.07.49.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Feb 2020 07:49:05 -0800 (PST)
+From:   bill.c.roberts@gmail.com
+X-Google-Original-From: william.c.roberts@intel.com
+To:     selinux@vger.kernel.org, drepper@redhat.com, omosnace@redhat.com,
+        stephen.smalley.work@gmail.com, plautrba@redhat.com
+Subject: [V3] libselinux: drop dso.h
+Date:   Fri, 28 Feb 2020 09:48:53 -0600
+Message-Id: <20200228154857.587-1-william.c.roberts@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200227230129.31166-1-william.c.roberts@intel.com>
+References: <20200227230129.31166-1-william.c.roberts@intel.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 9:38 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Fri, Feb 28, 2020 at 9:05 AM <bill.c.roberts@gmail.com> wrote:
-> >
-> > From: William Roberts <william.c.roberts@intel.com>
-> >
-> > Previously, libselinux was exporting the following symbols:
-> >   - dir_xattr_list;
-> >   - myprintf_compat;
-> >   - unmap_class;
-> >   - unmap_perm;
->
-> I had also suggested removing map_class, map_decision, map_perm.
+Version 3:
+  - Add more symbols that should be dropped from the dso:
+    - map_class;
+    - map_decision;
+    - map_perm;
 
-Yes you did, I can't believe I skipped over them.
+Version 2:
+  - adds a version to the linker script LIBSELINUX_1.0
+  - Adds a patch to drop some additional symbols from the dso:
+    - dir_xattr_list
+    - myprintf_compat
+    - unmap_class
+    - unmap_perm
+
+This four part patch series drops the dso.h and hidden_*
+macros.
+
+The old dso.h functionality provided libselinux with both control over
+external exported symbols as well as ensuring internal callers call into
+libselinux and not a symbol with the same name loaded by the linker
+earlier in the library list.
+
+The functionality is replaced by a linker script that requires public
+API to explicitly be opt-in. The old method required that internal API
+be explicitly annotated, and everything else is public. This should help
+make it easier to control libselinux DSO hygene going forward.
+
+The second functionality is replaced by compiler option
+-fno-semantic-interposition
+
+Note that clang has this enabled by default, and thus doesn't need it.
+
+See:
+  - https://stackoverflow.com/questions/35745543/new-option-in-gcc-5-3-fno-semantic-interposition
+
+[PATCH v3 1/4] dso: drop hidden_proto and hidden_def
+[PATCH v3 2/4] Makefile: add -fno-semantic-interposition
+[PATCH v3 3/4] Makefile: add linker script to minimize exports
+[PATCH v3 4/4] libselinux: drop symbols from map
+
