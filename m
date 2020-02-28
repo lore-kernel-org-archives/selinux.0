@@ -8,57 +8,58 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90CADC3F2D2
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:34:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73823C3F2D2
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:38:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 655642469D
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:34:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3CDF224699
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:38:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MZzGlhgH"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P++ZTZA5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726614AbgB1Ner (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Feb 2020 08:34:47 -0500
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:45813 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726562AbgB1Neq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 08:34:46 -0500
-Received: by mail-ot1-f67.google.com with SMTP id 59so2515790otp.12
-        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 05:34:46 -0800 (PST)
+        id S1726602AbgB1NiQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Feb 2020 08:38:16 -0500
+Received: from mail-il1-f195.google.com ([209.85.166.195]:42747 "EHLO
+        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725796AbgB1NiP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 08:38:15 -0500
+Received: by mail-il1-f195.google.com with SMTP id x2so2701795ila.9
+        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 05:38:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=4nTCNv5VMw0pmNnCE5WDrQOIa2MhRe8isZgJwIZB0Tw=;
-        b=MZzGlhgHVQyknk+ZsQKEqWZN2ianOe9NmoAFjf7qQMCO/ZOCJ2zS7ki6LNMePN1LNd
-         gOEtmzET9XwmxNFlNNYkDCta9jbGJz54TMedMvbkUZRvP1iyAF358yLeazjR8OyzP08m
-         lY+KUFa3KECIM0tjJA+jx+mRtb7JazwUrW0IN2BdhjDJykZCxYv5STinFacLx7zOsYTx
-         av9HDw8yrYXqBPODFOxEw/hve8J61SVMrBr4RkfIJ6Ucx40bUfGKew6f1iacnt5QvchT
-         a4ETp+CN3Jj802ormrWRkSmLVazmKhw7pNXqVkbajqs6URWiV5uSGIkliRR2ySq/7JSk
-         vt0A==
+        bh=e4Yuu28GJt2hLKyKc1Qgej2/TiMhuQGewOT7QYqR2SQ=;
+        b=P++ZTZA5U/7VYXY8FFBcE+Sk77S80m1COY1l/8GkGFYfAL5jq7GrUUAZnx3Rb12Bjo
+         l0/EsdwnJ40Yo3wN6PGJp1uMmK2KmzngQFRMwMxHF4F2fuiM0b29m4dZsicRNAz1WAI6
+         38vyMBOrL0K5Aa7u7Wr51BTCmcr//aLO5n10S+y0xWb5jA17A4zmqtpKp6ACTcuRejSQ
+         tUobmzUZxeAL6pO7y2XT3Rhbxwf7wmpCrd8VNH2NQL7PwFwAdzxY9tjv3DDKX0sV5YYx
+         PM2LVkWR5Zvwrmv1fM6ryKTq9IX9rce4r7QGGU79304SbWwhOsZ8OZ6gqcE92H+CKKBa
+         GtlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=4nTCNv5VMw0pmNnCE5WDrQOIa2MhRe8isZgJwIZB0Tw=;
-        b=SMrOjp0ZTsqb+qNSu4GCd/Zq5b4kWVNV/NHU3pX426jBos5tVJfK6YAwVWwFe5EZYx
-         iV08BGb1EkYAikb2i9KpKXf6TQ+RFv0SlqiYB8NLgCn5y1PZ/glempCfm7iED0mSC+6p
-         nfe1y5pUh7fq/0i1UHV0+/YhgoKwpW/KF/3/yDhEoP1xsoh47WWatydk6nxDeFC4VKRL
-         7zQvlaYXIQUskuFvQXI+8DD2Rjesc5CJhIdgyUgpf7GRj/BR0mFwaDmoDT9YJ8ZSTRkW
-         D0cl+t3dcnAcYr628w0PT0PKwiH2ObMjomSzyJa6IkN8q5By0eiaUOJsfo7iK9kfGrMb
-         8kaQ==
-X-Gm-Message-State: APjAAAXYW8iqFfhYDKwdHmLMWQGk8PVkFiBUm28XzjdNKCpHaSjBkSAg
-        otZKGE52tyTFgp+4/IsqRmc4NgF1pxMc0pJOSaE=
-X-Google-Smtp-Source: APXvYqwSr02/kk3ovfRzBUgyirbGehAO9lBL8HUZXQLmR9AzE5V8kgWPIu3t9j9huw6zd4BVSh/0MJ7X2t0rewo1z+o=
-X-Received: by 2002:a9d:6457:: with SMTP id m23mr3387123otl.162.1582896886044;
- Fri, 28 Feb 2020 05:34:46 -0800 (PST)
+        bh=e4Yuu28GJt2hLKyKc1Qgej2/TiMhuQGewOT7QYqR2SQ=;
+        b=R0AYDVczsv74MGAbJ3O9BhIEEw6Ki9J4Qkow9zqFUCaqlUUobqzZ6PgG71lLPtekQN
+         Qvb0of04UOWHkZ/HlHKF6bI3i2gthsnbYcbG5LvaLQo6VwkIvXNxGQ7a6TXpKDO7NFWE
+         MCn5Q1/kOQdva/g3wQ+HGykvkWL9/VM3hp8qWDPBAlhZRrxKJLVDdb8sRTEY2+0L03z2
+         55R8EigSUd1aM38hNacFmz6CfGnhqi3jAwdY69oSJuhYkfTGZwflGFN3qLPJVWk1RAAi
+         qQmh5LP3Uz5F2kJfL5aGPC4kgUxtxEXmr5x0OftZ8bfaVd8YicnyD5udS4s4n/0vmApP
+         BSUw==
+X-Gm-Message-State: APjAAAUoJDQ8CDg4aUWbMI96JwC8oA6GQrgfbd0kPAcrSAjutbUgJ4QZ
+        t1Za/7nWKoBnyNeu5GkHq17YHmpC8GjkuiY9J5ajog==
+X-Google-Smtp-Source: APXvYqzLudQ811Ly2JV3kttxMqw0PnoZg0n7D0zRosT+/1iOO5fB2P9pGY3rGpvwepDDbkK6Wa2oUtxUsGCrMyodUts=
+X-Received: by 2002:a05:6e02:14e:: with SMTP id j14mr4140516ilr.129.1582897094771;
+ Fri, 28 Feb 2020 05:38:14 -0800 (PST)
 MIME-Version: 1.0
-References: <20200227230129.31166-1-william.c.roberts@intel.com> <20200227230129.31166-4-william.c.roberts@intel.com>
-In-Reply-To: <20200227230129.31166-4-william.c.roberts@intel.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 28 Feb 2020 08:36:02 -0500
-Message-ID: <CAEjxPJ4ae=FLqEDofLwSP0PEeqUqh1WtoSVFb9TrafMhawfhPg@mail.gmail.com>
+References: <20200227230129.31166-1-william.c.roberts@intel.com>
+ <20200227230129.31166-4-william.c.roberts@intel.com> <CAEjxPJ4ae=FLqEDofLwSP0PEeqUqh1WtoSVFb9TrafMhawfhPg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4ae=FLqEDofLwSP0PEeqUqh1WtoSVFb9TrafMhawfhPg@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Fri, 28 Feb 2020 07:38:03 -0600
+Message-ID: <CAFftDdqo3M_dU7NboUvFRT4t6yhF+mtHDH6viadJHfDdoTRH7w@mail.gmail.com>
 Subject: Re: [PATCH 3/3] Makefile: add linker script to minimize exports
-To:     William Roberts <bill.c.roberts@gmail.com>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         Ulrich Drepper <drepper@redhat.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
@@ -70,61 +71,72 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Feb 27, 2020 at 6:01 PM <bill.c.roberts@gmail.com> wrote:
+On Fri, Feb 28, 2020 at 7:34 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> From: William Roberts <william.c.roberts@intel.com>
+> On Thu, Feb 27, 2020 at 6:01 PM <bill.c.roberts@gmail.com> wrote:
+> >
+> > From: William Roberts <william.c.roberts@intel.com>
+> >
+> > Add a linker script that exports only what was previosly exported by
+> > libselinux.
+> >
+> > This was checked by generating an old export map (from master):
+> > nm --defined-only -g ./src/libselinux.so | cut -d' ' -f 3-3 | grep -v '^_' > old.map
+> >
+> > Then creating a new one for this library after this patch is applied:
+> > nm --defined-only -g ./src/libselinux.so | cut -d' ' -f 3-3 | grep -v '^_' > new.map
+> >
+> > And diffing them:
+> > diff old.map new.map
+> >
+> > Fixes: #179
+> >
+> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> > ---
+> >  libselinux/src/Makefile       |   2 +-
+> >  libselinux/src/libselinux.map | 249 ++++++++++++++++++++++++++++++++++
+> >  2 files changed, 250 insertions(+), 1 deletion(-)
+> >  create mode 100644 libselinux/src/libselinux.map
+> >
 >
-> Add a linker script that exports only what was previosly exported by
-> libselinux.
+> > diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
+> > new file mode 100644
+> > index 000000000000..823abeee9a36
+> > --- /dev/null
+> > +++ b/libselinux/src/libselinux.map
+> > @@ -0,0 +1,249 @@
+> > +{
+> > +  global:
 >
-> This was checked by generating an old export map (from master):
-> nm --defined-only -g ./src/libselinux.so | cut -d' ' -f 3-3 | grep -v '^_' > old.map
+> Our other map files (for libsepol and libsemanage) have a versioned
+> symbolic name before the {, ala
+> LIBSELINUX_1.0 {
+
+Ok will add.
+
 >
-> Then creating a new one for this library after this patch is applied:
-> nm --defined-only -g ./src/libselinux.so | cut -d' ' -f 3-3 | grep -v '^_' > new.map
+> > +    dir_xattr_list;
 >
-> And diffing them:
-> diff old.map new.map
+> I doubt this was intentionally made public and certainly isn't
+> declared in the public headers.  Can we hide it?
 >
-> Fixes: #179
+> > +    map_class;
+> > +    map_decision;
+> > +    map_perm;
 >
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> ---
->  libselinux/src/Makefile       |   2 +-
->  libselinux/src/libselinux.map | 249 ++++++++++++++++++++++++++++++++++
->  2 files changed, 250 insertions(+), 1 deletion(-)
->  create mode 100644 libselinux/src/libselinux.map
+> Ditto for these three.
 >
+> > +    myprintf_compat;
+>
+> And again.
+>
+> > +    unmap_class;
+> > +    unmap_perm;
+>
+> Likewise.
 
-> diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-> new file mode 100644
-> index 000000000000..823abeee9a36
-> --- /dev/null
-> +++ b/libselinux/src/libselinux.map
-> @@ -0,0 +1,249 @@
-> +{
-> +  global:
-
-Our other map files (for libsepol and libsemanage) have a versioned
-symbolic name before the {, ala
-LIBSELINUX_1.0 {
-
-> +    dir_xattr_list;
-
-I doubt this was intentionally made public and certainly isn't
-declared in the public headers.  Can we hide it?
-
-> +    map_class;
-> +    map_decision;
-> +    map_perm;
-
-Ditto for these three.
-
-> +    myprintf_compat;
-
-And again.
-
-> +    unmap_class;
-> +    unmap_perm;
-
-Likewise.
+Perfect, I was wondering if this was overzealous, but I didn't want to
+break things.
+Will drop these. This provides evidence that opting in to hide symbols, wasn't
+doing what we expected.
