@@ -2,87 +2,137 @@ Return-Path: <SRS0=XvAr=4Q=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9E94C3F2CD
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B29BC3F2CD
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:32:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7B40E246B6
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:16:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3A8B22469D
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:32:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WXSvAIiL"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RAv8+UD3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725884AbgB1NQp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Feb 2020 08:16:45 -0500
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:38942 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725876AbgB1NQp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 08:16:45 -0500
-Received: by mail-ot1-f67.google.com with SMTP id x97so2505934ota.6
-        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 05:16:44 -0800 (PST)
+        id S1726579AbgB1Nc3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Feb 2020 08:32:29 -0500
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:37407 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726413AbgB1Nc2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 08:32:28 -0500
+Received: by mail-pg1-f193.google.com with SMTP id z12so1547183pgl.4
+        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 05:32:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=73jkFDgDNFDtPb/rtTNH4yz7VbKB264E7XUdHWqNXQo=;
-        b=WXSvAIiLXavo1L8RO3e9bj2ZLgJFC/T65a03/8/V78qaeKj1SGQqvb1UDBE8E47MXA
-         rjenHdtL4T3WoLYJMUdLdJpVULV8s25UEKIwDMqahbeJxYKWMJlychUWGa21dobUIvZS
-         VcdEg/FaEJR+mCd8jDQpUIwPWHPKuTVOHA9gC/MF+t0IlmM8sM11yLv+4jZu9C+3y0t4
-         0B/aqQN9TsG88xb+Qj1w6weSOQlx7BzofKX6eHI6+tDfhetRdP4udmQSzY37c4uUv5ak
-         ih2E6jASHFbruY/zudKvqPvDK26jHsFWRab5O8oUMdhwK7it+MRtYDC5QBYpWD3cpXFH
-         7E5A==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=9Rlq5oVkxSX8db+jDUw+H7Im2GVqUXUi+exDwS5eohA=;
+        b=RAv8+UD3vDbGZNNpXeh8Azr/HueWjYRd2ZGuiVpsYqUTV5t2kRv3NzgNQXWtC3Eto3
+         Hzyd0waoWVotiSCD0HKFF6+f5CRQViVAotDmTIGMIfNZB9mYKkfUccWHpI0/Zgn1WvHg
+         ipQGTg3GsyhnwIfmJvuKFwsSaWRnUyJF5VayB379Xm+wXDjTVpwNIBBfuSFjlGjXrtSo
+         U38Z3KN2+a9rGaR5+2VwOAqCa2X1upTKcqrzFK1usM8xNLZuiUS40T5cKqcuhczsjVza
+         kX28KfrNR/kMhFwvsx5x+e9ElfRleKK7v3uHFyBii8HxxjVN6qZ3bY7ZeRnvfZhXPTHP
+         1gMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=73jkFDgDNFDtPb/rtTNH4yz7VbKB264E7XUdHWqNXQo=;
-        b=towvWpOm8gTEKnWDC2UqkV83uukUW91N4ztZSHQOQYTqtdH6f8IADChvBr/XP18vW0
-         riDsEkect/VkKvsVqTZl4VOm1v3mCfCpdPVbc/j22iAh+IqJmfl1undv4MykRGJzwfEs
-         b5af/k9s/Eot/mGLFuuJwsYc6atYjN4rISS7Gx0+Ch4BxJhKWgaQQ+2sJi5oh584+CsX
-         /KpZ+WkVeI75lPDe1ElZu6lxnndSE9/kea47SmlETFowwp3h4I6N8UBLO2PKQGoGYOhJ
-         iRmPVchIlr5G8mVGevn/Z7Cedl7gog/6bzK3XkP8bxkQ4FbblJbQ7lLTf7aAfDVLRawg
-         bKCA==
-X-Gm-Message-State: APjAAAXDAm97RR70kdv2gdkgNWfDBGTA2oA0Gd5VP8gOkYrOU6Ut1FCW
-        oStJxfMA4l1/UGnp9iB1SnASf9UH+PwNrhIU3x8tzw==
-X-Google-Smtp-Source: APXvYqxqssqRJO7fa/DBxbbVuRqAI2a/Q5FxlnGHzLNSEXYGi9sgQCDo6BIKMa7hKXnnXIvt4PHdU7c3yIL4B/nK0NQ=
-X-Received: by 2002:a05:6830:140b:: with SMTP id v11mr3257009otp.340.1582895804031;
- Fri, 28 Feb 2020 05:16:44 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=9Rlq5oVkxSX8db+jDUw+H7Im2GVqUXUi+exDwS5eohA=;
+        b=nrzOox1Q9wa1/julNPJ4i637tTjUJ7JXSG/qZtNzI/ZFoNYNXi1JMm/MP5Fc78yNS7
+         FjqvpEmHCrNJ+zjWzbB1BTlxW30PTEVe7qBScqL6Y2jbiYbBdJA3XxCd6LyaFpwNFWuV
+         4WXgVPUnKIqJ9XKcueFv/qyH36DQlOBOiHF+5qtfodqahLp8tiQOLoayzk/h4CX78jsk
+         QRt9kvz2W2kPZOjdV/36wiON3Cvo6bxqjWZGftHAFx/CWrpLRfBhA63HsXLGUieB1IvD
+         OAE395qStj7Q/iPd4rTEoIP3CWl/rW+1XKQP6Pt0UYI7HGBxnd/AVMyIkxyZ73mW0/jI
+         z8SQ==
+X-Gm-Message-State: APjAAAXWPILtc0PdvdGIzANI9fQxSoahwlJhjzYCHYLbkLAnnLZXpgUx
+        W8WPpQ3FWC5TtzTi+ACM7ykLhHbm
+X-Google-Smtp-Source: APXvYqxi3mojIs8sjgUTyG03n/EBNTSW3mOehkV4b7eyG7emCAy9X2Cp10H76fw5koGJmQdnTTI6Tg==
+X-Received: by 2002:aa7:8191:: with SMTP id g17mr4600308pfi.25.1582896747398;
+        Fri, 28 Feb 2020 05:32:27 -0800 (PST)
+Received: from localhost.localdomain ([192.55.54.40])
+        by smtp.gmail.com with ESMTPSA id dw10sm2453686pjb.11.2020.02.28.05.32.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Feb 2020 05:32:26 -0800 (PST)
+From:   bill.c.roberts@gmail.com
+X-Google-Original-From: william.c.roberts@intel.com
+To:     selinux@vger.kernel.org, omosnace@redhat.com
+Cc:     William Roberts <william.c.roberts@intel.com>
+Subject: [PATCH] libsemanage: check libsepol version
+Date:   Fri, 28 Feb 2020 07:32:07 -0600
+Message-Id: <20200228133207.32441-1-william.c.roberts@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <CAFftDdr0uCE106AYCgs27nubTntevz40WiFzMr7rn4sFrdWazQ@mail.gmail.com>
+References: <CAFftDdr0uCE106AYCgs27nubTntevz40WiFzMr7rn4sFrdWazQ@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200225094529.178623-1-omosnace@redhat.com>
-In-Reply-To: <20200225094529.178623-1-omosnace@redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 28 Feb 2020 08:18:00 -0500
-Message-ID: <CAEjxPJ7=5yPzv+PCmtTsuN_osgmkxWGab4CN9y7k5LTEoT-dJg@mail.gmail.com>
-Subject: Re: [PATCH testsuite v2] tests/sctp: fix setting of the SCTP_EVENTS sockopt
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Feb 25, 2020 at 4:51 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> First, the setting of SCTP_EVENTS socket option in sctp_server.c is
-> completely wrong -- it assumes little-endian byte order and uses a plain
-> int instead of the dedicated sctp_event_subscribe struct.
->
-> Second, the usage in sctp_peeloff_server.c is correct, but it may lead
-> to errors when the SCTP header definitions are newer than what the
-> kernel supports. In such case the size of struct sctp_event_subscribe
-> may be higher than the kernel's version and the setsockopt(2) may fail
-> with -EINVAL due to the 'optlen > sizeof(struct sctp_event_subscribe)'
-> check in net/sctp/socket.c:sctp_setsockopt_events().
->
-> To fix this, introduce a common function that does what the
-> sctp_peeloff_server's set_subscr_events() did, but also truncates the
-> optlen to only those fields that we use.
->
-> Fixes: c38b57ffdac4 ("selinux-testsuite: Add SCTP test support")
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+From: William Roberts <william.c.roberts@intel.com>
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+If libsepol is older than version 3.0, the required routine
+sepol_policydb_optimize will not be present. Use pkg-config to get the
+modversion and check that it is 3.0 or higher.
+
+This can manifest as a compilation issue:
+direct_api.c: In function ‘semanage_direct_commit’:
+direct_api.c:1466:13: error: implicit declaration of function ‘sepol_policydb_optimize’; did you mean ‘sepol_policydb_to_image’? [-Werror=implicit-function-declaration]
+     retval = sepol_policydb_optimize(out);
+
+Which is not really clear on how to check.
+
+Signed-off-by: William Roberts <william.c.roberts@intel.com>
+---
+ libsemanage/src/Makefile | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index f6780dc6048e..a329797fe1cc 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -65,6 +65,14 @@ SWIG = swig -Wall -python -o $(SWIGCOUT) -outdir ./
+ 
+ SWIGRUBY = swig -Wall -ruby -o $(SWIGRUBYCOUT) -outdir ./
+ 
++sepol-version-check:
++	@v=$$($(PKG_CONFIG) --modversion libsepol); \
++	major=$$(echo "$$v" | cut -d"." -f 1-1); \
++	if [ "$$major" -lt 3 ]; then \
++		>&2 echo "libsepol is required to be version 3.0 or higher, got: $$v"; \
++		exit 1; \
++	fi
++
+ all: $(LIBA) $(LIBSO) $(LIBPC)
+ 
+ pywrap: all $(SWIGSO)
+@@ -83,12 +91,12 @@ $(SWIGSO): $(SWIGLOBJ)
+ $(SWIGRUBYSO): $(SWIGRUBYLOBJ)
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -L. -shared -o $@ $^ -lsemanage $(RUBYLIBS)
+ 
+-$(LIBA): $(OBJS)
+-	$(AR) rcs $@ $^
++$(LIBA): sepol-version-check $(OBJS)
++	$(AR) rcs $@ $(filter-out $<,$^)
+ 	$(RANLIB) $@
+ 
+-$(LIBSO): $(LOBJS)
+-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $^ -lsepol -laudit -lselinux -lbz2 -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
++$(LIBSO): sepol-version-check $(LOBJS)
++	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(filter-out $<,$^) -lsepol -laudit -lselinux -lbz2 -Wl,-soname,$(LIBSO),--version-script=libsemanage.map,-z,defs
+ 	ln -sf $@ $(TARGET)
+ 
+ $(LIBPC): $(LIBPC).in ../VERSION
+@@ -163,4 +171,4 @@ distclean: clean
+ indent:
+ 	../../scripts/Lindent $(filter-out $(GENERATED),$(wildcard *.[ch]))
+ 
+-.PHONY: all clean pywrap rubywrap swigify install install-pywrap install-rubywrap distclean
++.PHONY: all clean pywrap rubywrap swigify install install-pywrap install-rubywrap distclean sepol-version-check
+-- 
+2.17.1
+
