@@ -4,98 +4,83 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBD54C3F2CD
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 17:20:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64E26C3F2D2
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 18:07:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id AFA4324695
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 17:20:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3C545246A0
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 18:07:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CDW1+mxj"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TstZP91u"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726536AbgB1RUr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Feb 2020 12:20:47 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:44075 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726366AbgB1RUr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 12:20:47 -0500
-Received: by mail-oi1-f195.google.com with SMTP id d62so3522011oia.11
-        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 09:20:46 -0800 (PST)
+        id S1726103AbgB1SHg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Feb 2020 13:07:36 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:40613 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725730AbgB1SHg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 13:07:36 -0500
+Received: by mail-ot1-f68.google.com with SMTP id a36so3409576otb.7
+        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 10:07:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=A9Fb/fznksxyrl4Bw6Tl76pBHeca2lFqctxvtfpvHrc=;
-        b=CDW1+mxjZodhJLIM3RDZZNzOQRExKCJ2R1ps/045cNjNKoCp0GB2HqDPNUQ4Ro12Sj
-         VSxPNe5vtb9bbrC/dHLQf5lqoOgQzQqCqlMFRrn94B5T2q23Q66uGPuZ1KJOc2fwI4sv
-         imI5mrpt2cWLjejqDtG+5if0LNxYLTn3t1oa2vZhI712JhtkZFdE0YLcHiiMcj5erqF4
-         QsRBvLg0W5AAUcPTYBtQ6dYBQmZapIp9uqdkN0X0nz3q0Q25Olfha/N0K5STBXptnp7J
-         M307m9qO7IlT1eb65COotERGBZgMJJguXl1xleULoEfZspYWYfTBvfgjb+fUl4PKaqdM
-         lrFQ==
+        bh=3c67KyinWy2WDqzoIZnAGt7bmcIdmTzij9euLf354OE=;
+        b=TstZP91u5q87QvGELiAqZ/ZTs9UrUH4totzswnn6L4y5P7QtAYYOtDWoNNE3hCxoKn
+         l4ucnEluH0Lr8+WHKIaHIdcMiUG3gPbI8y67KdqG0uPbvzoKa7tIF1RYDyqOLLfEqRSG
+         9bsH7a8bKAlgNZ/s2+dftNggkTSBS6AYJ9XjN+ci3bQmecLXkERgREglqMiZORtGaPd6
+         oGdrWzfxYk3NXBJMf543IYV6qPtxN+2/VK1qwzH3SuQNmAGLEtCrucyFUQTYEMUV2UOT
+         YXlz/55YPWFLFTVFUryXbdUGVSGGdB8B/6HCsBgI0fhEtKW3Z5+uEYwUY/rPQuVAfGkl
+         ng1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=A9Fb/fznksxyrl4Bw6Tl76pBHeca2lFqctxvtfpvHrc=;
-        b=CmYWF5q2yCtZUT4ODv1MS1IER1WXHp6gOyeZ3B1nLv4yKAC9Tvz9KK6ZdLzn5twv+H
-         JBYCcME4KmNBYMzNpOXUzc42iUoTWnG/hp8FNgHA4HWsfdVyNgPd9s8YO+TznT55cagL
-         QKYV54tPV0H3FnuY6LInwH2k1Th+LqUsJCKjcpmUV+sYCYgbJjWmfki8O1QXGfCBArP/
-         xZ3IrWjRUqEqoEG1UkK9qfuaFG5t9YUXYRUn0djH+MorGdT7CPZ3D/NgI3wB30akOZiE
-         tUYM2AcVJk0o1DS0I2xTx43d6ydvDLol9KiPa+wSr4a8U03HRlEHNpEUb/QcQ9AbHdzo
-         MrSQ==
-X-Gm-Message-State: APjAAAXGf5bL//LDBwbQl0PXtYSj0ACJznBOoLrglenTzU+IhHIPwG0f
-        9Pg/3z/orDgq6qYnHGo5nn81U6vk/8mBTZL11uE=
-X-Google-Smtp-Source: APXvYqweEDuxWiMKI8jYKkKo1NocYBJl3pm78AC9oRw5D3NWEGlTcIQAX/S/X8LA/u9lwo1/D2biV5X7HspeMGkC9EA=
-X-Received: by 2002:a05:6808:48c:: with SMTP id z12mr3825243oid.92.1582910446367;
- Fri, 28 Feb 2020 09:20:46 -0800 (PST)
+        bh=3c67KyinWy2WDqzoIZnAGt7bmcIdmTzij9euLf354OE=;
+        b=cmfqPAFDpouD9njW3x18Iq0DNW0bIlEH9hJKCfWD3J7L20S6onuFmU3sCHPRrDpymJ
+         yejR8XQuxnyiiW/QkceM9XAClRJuubeuNl7PtlvorhCRDGL/XVZLLcSnFf0JKsU3RA5T
+         UQSZLnVp+a+27dX9p2m8boN/I0bTvu8CzuAx9uZfS8hKM1zMRckSw35oIGgTK3q+//+M
+         VGgf17W/gfXJcLzZ75jOGEL+v29+AN/bSo34r/8qGxvJ+pAu68sLyI5IoVSMnVeI6I14
+         YvDHGpZb0eGfGhwIQE9u0m2rS2DycnZajOR2+GC/R+Cs+bgpLfA+AX13oQw9Y0n2GKzr
+         9F9g==
+X-Gm-Message-State: APjAAAWiQqxzheA0iFTnlQCW8j7cP58+vJGOSoCl67OPVK1Z8oIXR7yI
+        uzTXPXbiOfkw+SFQc5CehE6lBB5ie4ixbOcl/Mo=
+X-Google-Smtp-Source: APXvYqyisewZAFZkTn7sDd/aXXFHr0XW9oUs5DzAUUjob4GNi9Qw62LDDb2l7oNw3a9Df8ORCLbKbPiWqbDe2o3XGZ8=
+X-Received: by 2002:a9d:7590:: with SMTP id s16mr4056817otk.89.1582913255730;
+ Fri, 28 Feb 2020 10:07:35 -0800 (PST)
 MIME-Version: 1.0
-References: <20200220181031.156674-1-richard_c_haines@btinternet.com>
- <20200220181031.156674-2-richard_c_haines@btinternet.com> <c5d6ae72-4f5d-fe41-c025-0eaa4616b7eb@tycho.nsa.gov>
- <103614.1582905334@warthog.procyon.org.uk>
-In-Reply-To: <103614.1582905334@warthog.procyon.org.uk>
+References: <20200227160257.340737-1-omosnace@redhat.com>
+In-Reply-To: <20200227160257.340737-1-omosnace@redhat.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 28 Feb 2020 12:22:04 -0500
-Message-ID: <CAEjxPJ576NeKrvopJaUOLqpD_ZnW6Fj9HGeQ6nFxv1CqP0N8dw@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/1] selinux: Add support for new key permissions
-To:     David Howells <dhowells@redhat.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Richard Haines <richard_c_haines@btinternet.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
+Date:   Fri, 28 Feb 2020 13:08:53 -0500
+Message-ID: <CAEjxPJ76uFc62tPhH_2FLN58kwh_7kbA356QzDR8T-gogGiW=w@mail.gmail.com>
+Subject: Re: [PATCH 0/3] libsepol: Speed up policy optimization
+To:     Ondrej Mosnacek <omosnace@redhat.com>, jwcart2@gmail.com
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        James Carter <jwcart2@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 10:56 AM David Howells <dhowells@redhat.com> wrote:
+On Thu, Feb 27, 2020 at 11:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Stephen Smalley <sds@tycho.nsa.gov> wrote:
+> This series contains two small changes (these don't seem to affect
+> performance measurably, but are nonetheless logical) and a patch that
+> changes how the policy optimization "type_map" helper structure is
+> represented, which speeds up the whole process.
 >
-> > Regardless, we need to revert the original patch and create a new one that
-> > addresses the KEY_NEED_PARENT_JOIN issue I mentioned and that adds the
-> > key_perms capability in the right place in the first place, not apply a fix on
-> > top.
->
-> I think the problem is that selinux_key_permission() is munging the new perm
-> set into the old perm set and then passing that to avc_has_perm().  Really, we
-> need to work backwards if the SELinux policy is described in terms of the old
-> perm set.
->
-> Is there any way to make that possible?
+> Ondrej Mosnacek (3):
+>   libsepol: skip unnecessary check in build_type_map()
+>   libsepol: optimize inner loop in build_type_map()
+>   libsepol: speed up policy optimization
 
-That's not the problem.  The problem is that security_key_permission()
-needs to be passed something (an additional flag or
-a different permission) in order to differentiate the two different
-callers so that SELinux can support both the old logic (when the
-new key_perms capability is disabled) and the new logic (when it is
-enabled). The old patch tried to do this by introducing a new
-KEY_NEED_PARENT_JOIN permission.  But it didn't expose this as a
-KEY_ACE value and therefore creates a conflict/inconsistency
-between the ACE permissions and the internal permissions.  Either it
-needs to be exposed as a legitimate ACE value too, or
-it needs to be handled differently, e.g. as an additional
-kernel-internal flag that gets passed down so SELinux can distinguish
-them.
+Not a comment on the patches themselves, but this made me wonder if
+the optimization support is actually tested by our travis
+configuration.
+Doesn't appear to be (e.g. no usage of -O/--optimize or semanage.conf
+with optimize-policy true).
