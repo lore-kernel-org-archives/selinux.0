@@ -2,107 +2,103 @@ Return-Path: <SRS0=XvAr=4Q=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59817C3F2CD
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:59:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3224C3F2D2
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 14:05:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1A23D2051A
-	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 13:59:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BC5AF2051A
+	for <selinux@archiver.kernel.org>; Fri, 28 Feb 2020 14:05:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MjlKwEXI"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ja98rwMS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbgB1N7Q (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 28 Feb 2020 08:59:16 -0500
-Received: from mail-il1-f193.google.com ([209.85.166.193]:42964 "EHLO
-        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725796AbgB1N7Q (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 08:59:16 -0500
-Received: by mail-il1-f193.google.com with SMTP id x2so2755893ila.9
-        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 05:59:16 -0800 (PST)
+        id S1725892AbgB1OFk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 28 Feb 2020 09:05:40 -0500
+Received: from mail-pj1-f50.google.com ([209.85.216.50]:50422 "EHLO
+        mail-pj1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726829AbgB1OFk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 28 Feb 2020 09:05:40 -0500
+Received: by mail-pj1-f50.google.com with SMTP id r67so1355511pjb.0
+        for <selinux@vger.kernel.org>; Fri, 28 Feb 2020 06:05:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KbgjzTbJgVVanrcVQjS2hVGO3l/VSlXUGGStosnj3eY=;
-        b=MjlKwEXIHpPNJk1Tq8PE/IWcwpFBVHxKnydTMB8AYgpaBDbipBwLBKs/0xgWi3NM7n
-         MuXOfbx5x4/zCkNKXvLDouIlfWfbabWZYmzOslyOI2WMXQHGIb5AaU2gqFX3LEaeDLJy
-         N0NKmTySWOo4kq1qVS5Ik4nKNnXv6c0BMEqvfvcm5QEH1OuKB2yrleWNLWR96iDox2V3
-         +uKUahxQUnfFBBDsRjtytUsM1h0oQ0fFLmZxC8j3jnfHE31PTw4NwbgDCFk+aVm2bB0x
-         +F3fjCtC5eVuKYNZ/+8u01juKVm7BnEkSDxlSj/k1OiJaaisumpsCECSExs3J01Ug8IM
-         Yp4w==
+        h=from:to:subject:date:message-id:in-reply-to:references;
+        bh=r5bN0njgymJd9lmpyrjOFhHpulbLo4fMz5ngLO3yFj4=;
+        b=ja98rwMSHrGbimYT+sRVvIUmJzhP2J6T1Eja5cZnQxq6J/P+LLHV/XtSMlbj5B0Pe9
+         C7whx3jtaFhu5jAsZrr4jks8ZSl01v9bE/IxLoZyv+SIN2tJJI8sozkEfkwOXlUEcezI
+         mnm3O+dpwIlOG6jJHkcGQ4g4bdrKyuIZApVmkSDpDojQf1965JlYuWy7vhh6EhcfBU/g
+         HcFfiCRhEH09zY6kCZunfd8x1TbXn8diS+Y8XVCD3YJqRYFGuYzBGzKaKFOvW/fITiBe
+         XCeCJpJcIuXcvEBM0fdVkw1F3mYo53UPO1qdJV3ean5QSzh9ckq+QFzGXIj+1yF3ZY70
+         8IVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KbgjzTbJgVVanrcVQjS2hVGO3l/VSlXUGGStosnj3eY=;
-        b=jVnjoB8PqHwASJYrDp0rguolIU1StPLPa3QfJap8ZQjlVgd2TtYRgDOEUochsL1A/5
-         L/rPA7Z9G5QoYUA5BouRizlFdDE3shvVFi+ZQdJ/pIUHCR/oPqXgX5PYXFB9IHOUD6+v
-         ds7wSHF3Wz2DV7IpkC/6Qb3LSBfOArsfMz1xGVsW79jXS70jqrxpeleEqk2C6Kx+fHTs
-         nwS6zqY3CirVvQshgVqtNlKOCLtn/UMEPjw7FAzslVb4cpEa/6lcT5OFQXkpVuqR0sos
-         Ll6yvgN4kd3KSDbVZnADHKN7g++C1G47rS7VtC50m99PEhpa8uoKRGNak07Ii0GjwiOS
-         veTA==
-X-Gm-Message-State: APjAAAUW1b3vV781Z8h9u3l8EnDESo+q1iPsD09uCcv3MLoy3e7nPHTf
-        hp2+/uECLOIZ9LH7gK/hpusVkk9pYgn4u/3QpBE=
-X-Google-Smtp-Source: APXvYqyGV8Im3F0RSPu51lRjDahxMQbRiyLd55eOWfjxueZC8mODbt9z3gkNXJZYTy5+jIkacManlK0VhnxEN5JGaiU=
-X-Received: by 2002:a92:811c:: with SMTP id e28mr4635901ild.22.1582898355508;
- Fri, 28 Feb 2020 05:59:15 -0800 (PST)
-MIME-Version: 1.0
-References: <20200227230129.31166-1-william.c.roberts@intel.com>
- <20200227230129.31166-3-william.c.roberts@intel.com> <CAEjxPJ7bLsGHQ4-wz19ntft=GYvWMLL5bZd8hAimbu1hzc5+Ew@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7bLsGHQ4-wz19ntft=GYvWMLL5bZd8hAimbu1hzc5+Ew@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 28 Feb 2020 07:59:03 -0600
-Message-ID: <CAFftDdrNcbOWGa-o3TaeagF1TL7NnFxk2Osm_rembw+HH1wACw@mail.gmail.com>
-Subject: Re: [PATCH 2/3] Makefile: add -fno-semantic-interposition
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Ulrich Drepper <drepper@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        William Roberts <william.c.roberts@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references;
+        bh=r5bN0njgymJd9lmpyrjOFhHpulbLo4fMz5ngLO3yFj4=;
+        b=lloa867nzmj1WSABwwBPLx0Txt/a/b9XuP0N48w3wLRzhrPGrbPOqCAangLVVb/EiS
+         LKJMDGQx7Aj33bKDeaGdFotfV0kIIsAS5msIh0UvxYEHCrKdtQbckLcevjYwFlgQ7iPb
+         BSIZSulPTKZvVKeibl3d9Dsu4KiaEO4+63qj10ef7R9WOMA7Rnu+HVFpAhenagUGLWF8
+         Zx7oNsPmgwOxfwrh/CAA2ZSJIGTpJ5OLTnOD3wv2gEk8wH/zaqJgFXj64A3tw6iqaS3P
+         AG9O7qLBiw7YqmTHrSkNgYi6ASbH5jlNmjwa+DPL0NKfdOLyCmjwSH7sihKUNTwn8x+S
+         jBTA==
+X-Gm-Message-State: APjAAAV2u6gjtdCPChxKdqEEdUFlzWehRXYms2ax2gMF6IY3OM7gxD+i
+        zMSuR+YYDPkh30Wx2vJNHuqrntT0
+X-Google-Smtp-Source: APXvYqxYRlUE8Zxld1a6bl9l+QqKsovTY65f4mOQo/nnB4+T0dUlN3Sn7mdhMvm+/sFP5ojlIsmNQA==
+X-Received: by 2002:a17:902:401:: with SMTP id 1mr4142512ple.177.1582898738654;
+        Fri, 28 Feb 2020 06:05:38 -0800 (PST)
+Received: from localhost.localdomain ([192.55.54.40])
+        by smtp.gmail.com with ESMTPSA id t11sm2656903pjo.21.2020.02.28.06.05.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Feb 2020 06:05:38 -0800 (PST)
+From:   bill.c.roberts@gmail.com
+X-Google-Original-From: william.c.roberts@intel.com
+To:     selinux@vger.kernel.org, drepper@redhat.com, omosnace@redhat.com,
+        stephen.smalley.work@gmail.com, plautrba@redhat.com
+Subject: [V2] libselinux: drop dso.h
+Date:   Fri, 28 Feb 2020 08:05:20 -0600
+Message-Id: <20200228140524.2404-1-william.c.roberts@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <CAEjxPJ4ae=FLqEDofLwSP0PEeqUqh1WtoSVFb9TrafMhawfhPg@mail.gmail.com>
+References: <CAEjxPJ4ae=FLqEDofLwSP0PEeqUqh1WtoSVFb9TrafMhawfhPg@mail.gmail.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 7:50 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, Feb 27, 2020 at 6:01 PM <bill.c.roberts@gmail.com> wrote:
-> >
-> > From: William Roberts <william.c.roberts@intel.com>
-> >
-> > Add -fno-semantic-interposition to CFLAGS. This will restore
-> > the DSO infrastructures protections to insure internal callers
-> > of exported symbols call into libselinux and not something laoding first
-> > in the library list.
-> >
-> > Clang has this enabled by default.
-> >
-> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
->
-> I'm fine with this but since Nicolas pointed out the option of using
-> -Bsymbolic to
-> the linker as an alternative to hidden_def/hidden_proto in
-> https://github.com/SELinuxProject/selinux/issues/204#issuecomment-591092288
-> I was wondering how they differ.  I guess -Bsymbolic only affects the
-> linker while -fno-semantic-interposition
-> permits the compiler to further optimize the code.
+Version 2:
+  - adds a version to the linker script LIBSELINUX_1.0
+  - Adds a patch to drop some additional symbols from the dso.
+    - dir_xattr_list
+    - myprintf_compat
+    - unmap_class
+    - unmap_perm
 
-That's my understanding of the difference as well. -B is only link
-time, so the compiler can't
-really optimize the calls, but IIUC the compiler can only optimize
-whats in the compilation
-unit, so it can only optimize call sites for calls within the compilation unit.
+This four part patch series drops the dso.h and hidden_*
+macros.
 
--B also only works for elf builds, so we would conditionally need to
-modify LDFLAGS based
-on host type. The compiler option is just a clang/gcc split, which is
-already there. To go
-to symbolic we would have to conditionally set that... a tad bit more work :-p
+The old dso.h functionality provided libselinux with both control over
+external exported symbols as well as ensuring internal callers call into
+libselinux and not a symbol with the same name loaded by the linker
+earlier in the library list.
+
+The functionality is replaced by a linker script that requires public
+API to explicitly be opt-in. The old method required that internal API
+be explicitly annotated, and everything else is public. This should help
+make it easier to control libselinux DSO hygene going forward.
+
+The second functionality is replaced by compiler option
+-fno-semantic-interposition
+
+Note that clang has this enabled by default, and thus doesn't need it.
+
+See:
+  - https://stackoverflow.com/questions/35745543/new-option-in-gcc-5-3-fno-semantic-interposition
+
+[PATCH v2 1/4] dso: drop hidden_proto and hidden_def
+[PATCH v2 2/4] Makefile: add -fno-semantic-interposition
+[PATCH v2 3/4] Makefile: add linker script to minimize exports
+[PATCH v2 4/4] libselinux: drop symbols from map
+
