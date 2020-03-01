@@ -2,99 +2,117 @@ Return-Path: <SRS0=f16w=4S=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73105C3F2D1
-	for <selinux@archiver.kernel.org>; Sun,  1 Mar 2020 20:05:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8CA0C3F2D1
+	for <selinux@archiver.kernel.org>; Sun,  1 Mar 2020 20:21:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4EDBE24697
-	for <selinux@archiver.kernel.org>; Sun,  1 Mar 2020 20:05:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A2005246BE
+	for <selinux@archiver.kernel.org>; Sun,  1 Mar 2020 20:21:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725970AbgCAUFO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 1 Mar 2020 15:05:14 -0500
-Received: from mx1.polytechnique.org ([129.104.30.34]:56728 "EHLO
+        id S1726490AbgCAUV4 convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Sun, 1 Mar 2020 15:21:56 -0500
+Received: from mx1.polytechnique.org ([129.104.30.34]:58667 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725895AbgCAUFO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 1 Mar 2020 15:05:14 -0500
-Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
+        with ESMTP id S1726418AbgCAUV4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 1 Mar 2020 15:21:56 -0500
+Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id B5D6B56485F
-        for <selinux@vger.kernel.org>; Sun,  1 Mar 2020 21:05:10 +0100 (CET)
-Received: by mail-oi1-f179.google.com with SMTP id 5so2685514oiy.4
-        for <selinux@vger.kernel.org>; Sun, 01 Mar 2020 12:05:10 -0800 (PST)
-X-Gm-Message-State: APjAAAVaNRbwvfpTadSBXoigpzmIU8CEbdyLOnB3nEWFZU6pd7TUDZ3j
-        q7hU2aDfxkwa5PVozRtkrBKqg46Sfq9uGFArJBI=
-X-Google-Smtp-Source: APXvYqxOCGJFa2i9axiDz6id88XT6ODBDM7Dv4na4NUTqb8gEI+c2rAZxcAgKDcJyioK20+kBvMgd+9we5il2a5bYrY=
-X-Received: by 2002:a05:6808:983:: with SMTP id a3mr3781395oic.172.1583093109781;
- Sun, 01 Mar 2020 12:05:09 -0800 (PST)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id D8AE3561246
+        for <selinux@vger.kernel.org>; Sun,  1 Mar 2020 21:21:51 +0100 (CET)
+Received: by mail-ot1-f53.google.com with SMTP id g96so7628924otb.13
+        for <selinux@vger.kernel.org>; Sun, 01 Mar 2020 12:21:51 -0800 (PST)
+X-Gm-Message-State: APjAAAWqR+vhlCTziKt3sjmEa/HUxvprVRYnZlyCMW/c9w1N/NrKzSE1
+        CRDyO4rw/oCLWujrD9i1TL/dv8ApK7pLqNkiw6A=
+X-Google-Smtp-Source: APXvYqw/TVPSMEE2wXp+dKystumCcjMmQ8g528uvlTmyKPF5u+EuPUwgAkEb0m8XOon6/nNqXjU30gsh+zzfrFXZy8w=
+X-Received: by 2002:a05:6830:18d4:: with SMTP id v20mr10912378ote.29.1583094110704;
+ Sun, 01 Mar 2020 12:21:50 -0800 (PST)
 MIME-Version: 1.0
-References: <20200227230129.31166-1-william.c.roberts@intel.com>
- <20200228154857.587-1-william.c.roberts@intel.com> <20200228154857.587-4-william.c.roberts@intel.com>
- <CAEjxPJ7CuMf5QeW_jjEonRN=kfcpTV8c4UnUMyEjyb2hee1YXg@mail.gmail.com>
- <CAFftDdpeP39qvXNTe06EWkc3Kp_TMu5bGOf8WN6Q-k2Cehn_3w@mail.gmail.com> <CAEjxPJ7tt7T1NaYcG6B+k9smtcjrM0WXQXDXjnx5A=FNPLPt4w@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7tt7T1NaYcG6B+k9smtcjrM0WXQXDXjnx5A=FNPLPt4w@mail.gmail.com>
+References: <CAFftDdr0uCE106AYCgs27nubTntevz40WiFzMr7rn4sFrdWazQ@mail.gmail.com>
+ <20200228133207.32441-1-william.c.roberts@intel.com> <CAJfZ7==oAidx6pT5jK1C-r=i-qEM2tESVLWiCkN-v53u7uXtEw@mail.gmail.com>
+ <CAFftDdo6ndA=uHW9Ujr2WA4cvMMN_+tJezZYaTL7vXNnafK0ig@mail.gmail.com>
+In-Reply-To: <CAFftDdo6ndA=uHW9Ujr2WA4cvMMN_+tJezZYaTL7vXNnafK0ig@mail.gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 1 Mar 2020 21:04:57 +0100
-X-Gmail-Original-Message-ID: <CAJfZ7==a2-XorqoSBM-hBO_HhdBSuYX30NyG-=FM6XF8uzMXBw@mail.gmail.com>
-Message-ID: <CAJfZ7==a2-XorqoSBM-hBO_HhdBSuYX30NyG-=FM6XF8uzMXBw@mail.gmail.com>
-Subject: Re: [PATCH v3 3/4] Makefile: add linker script to minimize exports
+Date:   Sun, 1 Mar 2020 21:21:39 +0100
+X-Gmail-Original-Message-ID: <CAJfZ7=mtc=9NdK=rs_BenvG2O1n6KG=Gb7oPYTdrzu9KdRBxRw@mail.gmail.com>
+Message-ID: <CAJfZ7=mtc=9NdK=rs_BenvG2O1n6KG=Gb7oPYTdrzu9KdRBxRw@mail.gmail.com>
+Subject: Re: [PATCH] libsemanage: check libsepol version
 To:     William Roberts <bill.c.roberts@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Ulrich Drepper <drepper@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Mar  1 21:05:11 2020 +0100 (CET))
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Mar  1 21:21:52 2020 +0100 (CET))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 28, 2020 at 8:04 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Sun, Mar 1, 2020 at 8:53 PM William Roberts <bill.c.roberts@gmail.com> wrote:
 >
-> On Fri, Feb 28, 2020 at 1:43 PM William Roberts
-> <bill.c.roberts@gmail.com> wrote:
+> On Sun, Mar 1, 2020 at 1:25 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
 > >
-> > On Fri, Feb 28, 2020 at 12:35 PM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
+> > On Fri, Feb 28, 2020 at 2:32 PM <bill.c.roberts@gmail.com> wrote:
 > > >
-> > > On Fri, Feb 28, 2020 at 10:49 AM <bill.c.roberts@gmail.com> wrote:
-> > > > diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> > > > index c76110fbc650..f74dbeb983dd 100644
-> > > > --- a/libselinux/src/Makefile
-> > > > +++ b/libselinux/src/Makefile
-> > > > @@ -90,7 +90,7 @@ CFLAGS ?= -O -Wall -W -Wundef -Wformat-y2k -Wformat-security -Winit-self -Wmissi
-> > > >            -Werror -Wno-aggregate-return -Wno-redundant-decls \
-> > > >            $(EXTRA_CFLAGS)
-> > > >
-> > > > -LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-z,relro
-> > > > +LD_SONAME_FLAGS=-soname,$(LIBSO),-z,defs,-z,relro-Wl,--version-script=libselinux.map
+> > > From: William Roberts <william.c.roberts@intel.com>
 > > >
-> > > /usr/bin/ld: warning: -z relro-Wl ignored
-> > > I guess you meant relro,-Wl but you don't want that either.  -Wl has
-> > > to precede all the flags and it is already pre-pended later in the
-> > > Makefile.
+> > > If libsepol is older than version 3.0, the required routine
+> > > sepol_policydb_optimize will not be present. Use pkg-config to get the
+> > > modversion and check that it is 3.0 or higher.
+> > >
+> > > This can manifest as a compilation issue:
+> > > direct_api.c: In function ‘semanage_direct_commit’:
+> > > direct_api.c:1466:13: error: implicit declaration of function ‘sepol_policydb_optimize’; did you mean ‘sepol_policydb_to_image’? [-Werror=implicit-function-declaration]
+> > >      retval = sepol_policydb_optimize(out);
+> > >
+> > > Which is not really clear on how to check.
 > >
-> > Grumble, did I ever say I *hate* Makefiles! v4 coming, im going to
-> > hold them so I can coalesce any other feedback
-> > into v4.
+> > >From my point of view, this kind of dependency management is something
+> > that is more suited in a package management system than in a Makefile.
+> > It makes sense to check for libsepol version if there is some kind of
+> > optional features that gets enabled according to it (in a similar way
+> > as a --with-... statement in build systems using autoconf) or if there
+> > is a fall back to another compatible source code (and the Makefile
+> > would "route" the building process to the right .c file). But these
+> > reasons do not match what you are doing in this change.
 >
-> (restored cc; I accidentally only replied to you)
+> Since we don't use autotools, selinux makefiles have to be smarter. We
+> already use
+> PKG_CONFIG to get various flags, which would normally be handled in a
+> configure script, which if we had autotools, would also be a place to check
+> dependency versions.
+>
+> >
+> > Why do you need this patch, instead of stating in the package to use
+> > for libsemanage that it depends on libsepol>=3.0?
+>
+> We should document that as well, but make software smarter, not people.
+> If we can provide a better error message, without a huge burden of
+> work or maintenance
+> I always vote to do it. In this case, it's pretty simple to do, since
+> we already have the infrastructure for
+> PKG_CONFIG in the Makefiles.
 
-While at it, I personally prefer if options -soname and
---version-script come first (like in libsepol/src/Makefile). This way,
-it is "easier" for packagers to make a difference between options that
-are really required and the options that could be removed if the need
-arises (-z,defs,-z,relro). But this is nitpicking, so feel free to
-ignore my comment.
+Adding a magic Makefile target which is later removed for a variable
+using $(filter-out $<,$^) makes things a little bit more complex, but
+I can agree with this.
+On the other hand, since I began packaging SELinux libraries for Arch
+Linux, I found several releases that needed to bump such a dependency
+version. For example, if I remember correctly libsemanage 2.4 requires
+libsepol>=2.4, same for 2.5, 2.6... but libsemanage 2.9 could work
+with libsepol 2.8 (I usually tries building with older versions when
+packaging a release for Arch Linux, and the history is available for
+example on https://aur.archlinux.org/cgit/aur.git/log/?h=libsemanage).
 
-Thanks,
+This being said, what about adding some logic to force libsemange
+version X.Y to depend on libsepol>=X.Y and libselinux>=X.Y? The
+version is already available in libsemanage/VERSION and this file
+could be used to implement such a check.
+
 Nicolas
 
