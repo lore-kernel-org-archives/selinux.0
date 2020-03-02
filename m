@@ -2,70 +2,64 @@ Return-Path: <SRS0=NbdY=4T=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 972FBC3F2D1
-	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 15:46:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45CBDC3F2D1
+	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 16:30:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6E15321556
-	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 15:46:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 15D5021556
+	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 16:30:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A93w34uX"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="exqhoJj9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727072AbgCBPqR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Mar 2020 10:46:17 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:46739 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726751AbgCBPqQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Mar 2020 10:46:16 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583163975;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=KzWPgMqYxqkAznlrtKOlrqrt1C9KlltvESYFHwQuQLY=;
-        b=A93w34uXAt4kRMWAJkLfBxxlOAolwWwdY0CkRJwP0lGwmxofIydB5NUYCtmLE9Htj6tuXU
-        UBeSN7GsnUPdyj2EwOUocPu2WKvjNeTNxD+MFK+dANElkghnUjZJTjNXCZQsT/aQPb9as7
-        lUUGwMt2fNDnZDqtmYBGL/xDGxO/8C4=
-Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
- [209.85.210.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-292-mWTQGKONNE2osw5AHiPVGg-1; Mon, 02 Mar 2020 10:46:12 -0500
-X-MC-Unique: mWTQGKONNE2osw5AHiPVGg-1
-Received: by mail-ot1-f69.google.com with SMTP id s22so129188otr.20
-        for <selinux@vger.kernel.org>; Mon, 02 Mar 2020 07:46:12 -0800 (PST)
+        id S1726872AbgCBQaU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Mar 2020 11:30:20 -0500
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:46234 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726775AbgCBQaU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Mar 2020 11:30:20 -0500
+Received: by mail-oi1-f194.google.com with SMTP id a22so10844352oid.13
+        for <selinux@vger.kernel.org>; Mon, 02 Mar 2020 08:30:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1YG6t5IRdjYt/xh5RgBA6cL88aW4cutVC4OHSNydLDg=;
+        b=exqhoJj92u9fM5dGUA1LXD/QQxQypF/fIbj1prDVYkAQ+Z+5BnXsy7drepNi+fNXEU
+         6++EdtAXqhph+eA546VW17ukXVF5narJ/A0RhwF6qj/zMTcOmKVeXvaWujq64HMyiW6u
+         v5WQyfb1Oea95pbP/NhJ6K1imIsGozA0QQ+e6tXeZakycSxkSdgDfIkZ+fTc3EJfNZgk
+         QYbxER6TwdpapOWguT6u+w3Yizmu5asv1pCup/Ge84GdfrEbZMwd0BhA8h7aBGK9Vpt4
+         Bud088hgWm4TmlwxFKhxX6YBiI8UXZcFTfzUKvEfr5UENjRlgcfqxwM1JdQikJQDt5t0
+         R3+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=KzWPgMqYxqkAznlrtKOlrqrt1C9KlltvESYFHwQuQLY=;
-        b=gj/oEwjq5mEhx3BdkH0BW5uVEKEawyAAv8HSZFOZAS0+IPzMC/M6UsQv+npb4F5VEU
-         G3WvF6LrFsaA8bJg0qMsECldSGHZ8w5KHtJUUEa8Sj/iZ5H90e9VFjw24o9+q+WHse/H
-         as7yNIGDXVe9AKH9POiFLXfkKihzQHuSIX24RA0MoEOxjHrFJszLlRgaaexZItl0oc91
-         SugN3jkJfsi/ythQnjAp6KKzuq+bP5Ndi2oQ8Q3KrHcFPpILDwzT47If3ruU2F4/DjvX
-         qM4ahSusJPrid/h9mhrnjn9Km/XPLdYDBwFXzfL7oQoasWmLEvRo5xUEiNC5ITk71IAy
-         lVDA==
-X-Gm-Message-State: APjAAAXlZMEeXQWuqsIkqQ2MYExq33uMROdxlrOLTUW7BCzKUPU178Ub
-        mjfHwgN642cN3DTNlcvfi+x0qmMp6pMAb9wYihnsSvgNVRFP4KKNXZYJi+Edj6YEreM7wSz/kxx
-        j3qJvfMO7xC5sEa8B2PmmEFWG212ANtQlUg==
-X-Received: by 2002:a05:6830:1081:: with SMTP id y1mr13139568oto.367.1583163971404;
-        Mon, 02 Mar 2020 07:46:11 -0800 (PST)
-X-Google-Smtp-Source: APXvYqz5xHt3WXuBafnOpRHafOLcJ71oGvTMqJGNaPPzuxNjk6JLezkOxJ90YTq9wo1dXxHzQ+jpOTwFeo07nnXeu40=
-X-Received: by 2002:a05:6830:1081:: with SMTP id y1mr13139554oto.367.1583163971044;
- Mon, 02 Mar 2020 07:46:11 -0800 (PST)
+        bh=1YG6t5IRdjYt/xh5RgBA6cL88aW4cutVC4OHSNydLDg=;
+        b=EfDN1Lj4QVanHnqDDsnwouI5Dzs1bixM+ZjIcFVWjamMUz8G8NlZMTiiijyQdrDWHV
+         4eiA9L0oql3WaOszqg6nVxcr+XYOxh7f8wfOuGzmGz8vDHc7jJzGw5KjiHA/AWO+k3TC
+         17LQYZWea2GKWii6ekbbQGrAaDBAFZLUhwpFi1gTwmE9yU4Uw6P1FR4QFzaCu73WvIGp
+         VY17P4RweFr60ER2nWbU9fLkPSs8TD4GTVjULAZ+ShRTsRiq9d+n1Q05NJd5Vk20CYv8
+         bWpzJH3oGOQVOD1dOSNqTiQ5RupOBHWJ8rF+88aCsNbAuhvOxSPFkdz/WsmlkrBITrRm
+         hwPg==
+X-Gm-Message-State: ANhLgQ3HpKb76Ad4tDMiYIW1paC1p8lRKIIrhu8f2MD0fvL45qhdctUs
+        gqrV2IUl+STa6340z0V2fyP7+uvRJFXDfeGI+qyrXw==
+X-Google-Smtp-Source: ADFU+vuyiuJouL5IOqeB6Lkoh2Mx28pUYOcoJi9VZkK4ZfOTOuvTJ+gZ65i7WjKANVLk2BkN7MeKhLDx4Z201xXQGOM=
+X-Received: by 2002:aca:4a86:: with SMTP id x128mr220819oia.29.1583166619959;
+ Mon, 02 Mar 2020 08:30:19 -0800 (PST)
 MIME-Version: 1.0
-References: <20200227160257.340737-1-omosnace@redhat.com> <CAEjxPJ76uFc62tPhH_2FLN58kwh_7kbA356QzDR8T-gogGiW=w@mail.gmail.com>
- <CAEjxPJ4rjrtgDSZh163oNrXf3uX0uo+rNzreZ7M7py7MOwN8gw@mail.gmail.com> <CAEjxPJ7mEu2E76Z=nVvZLtpFr6kDz449F+XCuO=RdUjScz3auw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7mEu2E76Z=nVvZLtpFr6kDz449F+XCuO=RdUjScz3auw@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 2 Mar 2020 16:46:00 +0100
-Message-ID: <CAFqZXNt477qLVy-5B+MRy_Bvw5fqLWMeOFQDfkGfXD_i=SYghQ@mail.gmail.com>
-Subject: Re: [PATCH 0/3] libsepol: Speed up policy optimization
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     James Carter <jwcart2@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
+References: <20200227160257.340737-1-omosnace@redhat.com> <20200227160257.340737-3-omosnace@redhat.com>
+ <CAP+JOzSRMFHF0FXOtkfjAsignPhX0UyEzyWAQiM-8LPQii-ULw@mail.gmail.com>
+In-Reply-To: <CAP+JOzSRMFHF0FXOtkfjAsignPhX0UyEzyWAQiM-8LPQii-ULw@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 2 Mar 2020 11:31:47 -0500
+Message-ID: <CAP+JOzS8WWfMTcxtB2n6JZVkjaN0+azw4g+ea7iZS8R_b0gAxw@mail.gmail.com>
+Subject: Re: [PATCH 2/3] libsepol: optimize inner loop in build_type_map()
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
         James Carter <jwcart2@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -73,72 +67,46 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 2, 2020 at 3:57 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Mon, Mar 2, 2020 at 9:50 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+On Mon, Mar 2, 2020 at 10:24 AM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Thu, Feb 27, 2020 at 11:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > On Fri, Feb 28, 2020 at 1:08 PM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-> > > On Thu, Feb 27, 2020 at 11:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > >
-> > > > This series contains two small changes (these don't seem to affect
-> > > > performance measurably, but are nonetheless logical) and a patch that
-> > > > changes how the policy optimization "type_map" helper structure is
-> > > > represented, which speeds up the whole process.
-> > > >
-> > > > Ondrej Mosnacek (3):
-> > > >   libsepol: skip unnecessary check in build_type_map()
-> > > >   libsepol: optimize inner loop in build_type_map()
-> > > >   libsepol: speed up policy optimization
-> > >
-> > > Not a comment on the patches themselves, but this made me wonder if
-> > > the optimization support is actually tested by our travis
-> > > configuration.
-> > > Doesn't appear to be (e.g. no usage of -O/--optimize or semanage.conf
-> > > with optimize-policy true).
-
-Yeah, there is currently no test for this. I have something hackish
-that I used locally - I'll try to convert it to something more usable
-an automated and integrate it into the repo.
-
+> > Only attributes can be a superset of another attribute, so we can skip
+> > non-attributes right away.
 > >
-> > Adding optimize-policy = true to /etc/selinux/semanage.conf and
-> > running semodule -BN before and after these patches yields different
-> > binary kernel policy files (policy.32).
-> > Is that expected?
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  libsepol/src/optimize.c | 3 +++
+> >  1 file changed, 3 insertions(+)
+> >
+> > diff --git a/libsepol/src/optimize.c b/libsepol/src/optimize.c
+> > index 4d835d47..2b5102af 100644
+> > --- a/libsepol/src/optimize.c
+> > +++ b/libsepol/src/optimize.c
+> > @@ -50,6 +50,9 @@ static ebitmap_t *build_type_map(const policydb_t *p)
+> >                         for (k = 0; k < p->p_types.nprim; k++) {
+> >                                 ebitmap_t *types_k = &p->attr_type_map[k];
+> >
+> > +                               if (p->type_val_to_struct[k]->flavor != TYPE_ATTRIB)
+> > +                                       continue;
+> > +
 >
-> Here is one example difference between the policies, along with what
-> was present in the original unoptimized policy:
-> $ sesearch -A -s guest_t -t guest_t -c context -p contains policy.32.unoptimized
-> allow guest_t guest_t:context contains;
-> allow guest_usertype guest_usertype:context contains;
+> I haven't tested this yet, but I suspect that this is what is causing
+> the difference noted by Stephen. A type is a superset of itself.
 >
-> $ sesearch -A -s guest_t -t guest_t -c context -p contains
-> policy.32.optimizedbefore
-> allow guest_t guest_t:context contains;
->
-> $ sesearch -A -s guest_t -t guest_t -c context -p contains
-> policy.32.optimizedafter
-> allow guest_usertype guest_usertype:context contains;
->
-> Seems like the code prior to these changes yielded a more optimal
-> policy since guest_usertype only has a single type in it.
 
-Hm... this is probably a consequence of the second patch. Types are no
-longer considered a superset of an attribute containing a single type,
-so the single-type rule gets removed instead of the attribute one...
-But even before it picked the first rule only by chance (it was first
-in order). I would say that picking a single-type rule over an
-attribute rule in this case is outside of the scope of the algorithm.
-Shouldn't the compiler automatically expand each attribute that has
-less than 5 types in it? I recall seeing something in the code that
-did this. I think this was in the CIL part of libsepol, so maybe it
-applies only when compiling from CIL?
+This is definitely what is causing the change. Your explanation is
+correct. This prevents a type from being considered as a super set of
+an attribute that only contains that type.
 
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+Jim
 
+> Jim
+>
+>
+> >                                 if (ebitmap_contains(types_k, types_i)) {
+> >                                         if (ebitmap_set_bit(&map[i], k, 1))
+> >                                                 goto err;
+> > --
+> > 2.24.1
+> >
