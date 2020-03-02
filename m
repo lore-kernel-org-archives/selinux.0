@@ -2,301 +2,92 @@ Return-Path: <SRS0=NbdY=4T=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD391C3F2D5
-	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 00:19:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EE1FC3F2D2
+	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 12:50:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7B21824697
-	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 00:19:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 209BA21739
+	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 12:50:31 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UMUgpIyx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726775AbgCBATa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 1 Mar 2020 19:19:30 -0500
-Received: from mail.hallyn.com ([178.63.66.53]:59076 "EHLO mail.hallyn.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726562AbgCBATa (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sun, 1 Mar 2020 19:19:30 -0500
-Received: from sl (122.sub-174-235-8.myvzw.com [174.235.8.122])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: serge)
-        by mail.hallyn.com (Postfix) with ESMTPSA id 4C54066E;
-        Sun,  1 Mar 2020 18:19:19 -0600 (CST)
-Date:   Sun, 1 Mar 2020 18:19:13 -0600
-From:   Serge Hallyn <serge@hallyn.com>
-To:     Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc:     James Morris <jmorris@namei.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        "joonas.lahtinen@linux.intel.com" <joonas.lahtinen@linux.intel.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Helge Deller <deller@gmx.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-man@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
-        "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        oprofile-list@lists.sf.net, Jiri Olsa <jolsa@redhat.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Subject: Re: [Intel-gfx] [PATCH v7 00/12] Introduce CAP_PERFMON to secure
- system performance monitoring and observability
-Message-ID: <20200302001913.GA21145@sl>
-References: <c8de937a-0b3a-7147-f5ef-69f467e87a13@linux.intel.com>
- <3ae0bed5-204e-de81-7647-5f0d8106cd67@linux.intel.com>
+        id S1727519AbgCBMua (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Mar 2020 07:50:30 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:38676 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727484AbgCBMua (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Mar 2020 07:50:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583153429;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=uMDkjnys4DRu20XEQeEziR8HSEYWiutGkqmInOzSMCI=;
+        b=UMUgpIyx6e/m+N3rpdXShsZ/iYOec0gMDF2puK4iJF+NpM928MsJauz3y2E/qqwN00GsIn
+        NwUsOfKCTnM5a85nas1MhtEHvuOr2sj84JSpphGRgaDMEZYoimfMAGPgH2qGOfrdp6fauM
+        ytkHSve70vzzi1hoeLLXbc8BQfZbNdY=
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com
+ [209.85.210.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-220-784T10P2Mnez1ecu0Ywl2A-1; Mon, 02 Mar 2020 07:50:28 -0500
+X-MC-Unique: 784T10P2Mnez1ecu0Ywl2A-1
+Received: by mail-ot1-f72.google.com with SMTP id s11so4579934otq.22
+        for <selinux@vger.kernel.org>; Mon, 02 Mar 2020 04:50:27 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uMDkjnys4DRu20XEQeEziR8HSEYWiutGkqmInOzSMCI=;
+        b=tjDAuP99yrpT+w0UP25UP+pXMlBNTbA77FpWtoWpZ9p8BiNo1d6mCUDkB2AQW1plBt
+         FRuDjdtD1oGgJGJQP0bkIKHwkVav2kPwFVKmcJMPwinR4X9V3i1vVjY11Ur8yyC8zRO7
+         bbi1xrANWWGUqz4hwuEvXCCD8M85SVBGsKfrwuL0iD1wsxYUSvFvEP/V8AKWxcTS7deB
+         A136wsHBz4aA6hYLZIzJ6JPiOvFI+4pI1DTeRVijHyahspXJhLBfSZKJ0l93KuGqgKAh
+         /DEJUaBL5vwtIZ5Y90xoOO47Jj2j4QrEvBcDVuL+3TTvzqpeLnXFh0c4AVWsyHBZPW9E
+         2XCA==
+X-Gm-Message-State: APjAAAV7JuF4HsInEW9gpK3IMEHT8wiNmfsMwYsImBNbU60U8lOvcRQl
+        3JKilNnYwynU6U6VZL0U7Mv3hrBGScFjaNNto8lJrtWrT/q09r81s1UW0PydEn7jFh+s7KUqCmG
+        q6t1paXw02nHXO7k6IBfyy7EkeusJfy50Iw==
+X-Received: by 2002:a9d:4782:: with SMTP id b2mr8738946otf.66.1583153427073;
+        Mon, 02 Mar 2020 04:50:27 -0800 (PST)
+X-Google-Smtp-Source: APXvYqzmf2rfbhjlQdOs75fsrNJbmSkCBoLH98fnP39o3Y2WBALh6WyL1EFnr0E5+9bVesalI7NOT7NBWTZ3bzWxyng=
+X-Received: by 2002:a9d:4782:: with SMTP id b2mr8738927otf.66.1583153426778;
+ Mon, 02 Mar 2020 04:50:26 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3ae0bed5-204e-de81-7647-5f0d8106cd67@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20200226191659.6552-1-jwcart2@gmail.com> <CAFqZXNukDbprW41R_Hhb2HTXdunDq47eQikBt7FaygFHuz-63w@mail.gmail.com>
+In-Reply-To: <CAFqZXNukDbprW41R_Hhb2HTXdunDq47eQikBt7FaygFHuz-63w@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 2 Mar 2020 13:50:15 +0100
+Message-ID: <CAFqZXNshZCyPE0_i0AMw3NxaufpOsEEZ1fRiYzzhce_XQpFVnQ@mail.gmail.com>
+Subject: Re: [PATCH V2] libsepol: Create the macro ebitmap_is_empty() and use
+ it where needed
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        James Carter <jwcart2@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Thanks, this looks good to me, in keeping with the CAP_SYSLOG break.
+On Thu, Feb 27, 2020 at 9:31 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Wed, Feb 26, 2020 at 8:17 PM James Carter <jwcart2@gmail.com> wrote:
+> > Create the macro ebitmap_is_empty() to check if an ebitmap is empty.
+> > Use ebitmap_is_empty(), instead of ebitmap_cardinality() or
+> > ebitmap_length(), to check whether or not an ebitmap is empty.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+>
+> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
+> Thank you!
 
-Acked-by: Serge E. Hallyn <serge@hallyn.com>
+Applied.
 
-for the set.
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
-James/Ingo/Peter, if noone has remaining objections, whose branch
-should these go in through?
-
-thanks,
--serge
-
-On Tue, Feb 25, 2020 at 12:55:54PM +0300, Alexey Budankov wrote:
-> 
-> Hi,
-> 
-> Is there anything else I could do in order to move the changes forward
-> or is something still missing from this patch set?
-> Could you please share you mind?
-> 
-> Thanks,
-> Alexey
-> 
-> On 17.02.2020 11:02, Alexey Budankov wrote:
-> > 
-> > Currently access to perf_events, i915_perf and other performance
-> > monitoring and observability subsystems of the kernel is open only for
-> > a privileged process [1] with CAP_SYS_ADMIN capability enabled in the
-> > process effective set [2].
-> > 
-> > This patch set introduces CAP_PERFMON capability designed to secure
-> > system performance monitoring and observability operations so that
-> > CAP_PERFMON would assist CAP_SYS_ADMIN capability in its governing role
-> > for performance monitoring and observability subsystems of the kernel.
-> > 
-> > CAP_PERFMON intends to harden system security and integrity during
-> > performance monitoring and observability operations by decreasing attack
-> > surface that is available to a CAP_SYS_ADMIN privileged process [2].
-> > Providing the access to performance monitoring and observability
-> > operations under CAP_PERFMON capability singly, without the rest of
-> > CAP_SYS_ADMIN credentials, excludes chances to misuse the credentials
-> > and makes the operation more secure. Thus, CAP_PERFMON implements the
-> > principal of least privilege for performance monitoring and
-> > observability operations (POSIX IEEE 1003.1e: 2.2.2.39 principle of
-> > least privilege: A security design principle that states that a process
-> > or program be granted only those privileges (e.g., capabilities)
-> > necessary to accomplish its legitimate function, and only for the time
-> > that such privileges are actually required)
-> > 
-> > CAP_PERFMON intends to meet the demand to secure system performance
-> > monitoring and observability operations for adoption in security
-> > sensitive, restricted, multiuser production environments (e.g. HPC
-> > clusters, cloud and virtual compute environments), where root or
-> > CAP_SYS_ADMIN credentials are not available to mass users of a system,
-> > and securely unblock accessibility of system performance monitoring and
-> > observability operations beyond root and CAP_SYS_ADMIN use cases.
-> > 
-> > CAP_PERFMON intends to take over CAP_SYS_ADMIN credentials related to
-> > system performance monitoring and observability operations and balance
-> > amount of CAP_SYS_ADMIN credentials following the recommendations in
-> > the capabilities man page [2] for CAP_SYS_ADMIN: "Note: this capability
-> > is overloaded; see Notes to kernel developers, below." For backward
-> > compatibility reasons access to system performance monitoring and
-> > observability subsystems of the kernel remains open for CAP_SYS_ADMIN
-> > privileged processes but CAP_SYS_ADMIN capability usage for secure
-> > system performance monitoring and observability operations is
-> > discouraged with respect to the designed CAP_PERFMON capability.
-> > 
-> > Possible alternative solution to this system security hardening,
-> > capabilities balancing task of making performance monitoring and
-> > observability operations more secure and accessible could be to use
-> > the existing CAP_SYS_PTRACE capability to govern system performance
-> > monitoring and observability subsystems. However CAP_SYS_PTRACE
-> > capability still provides users with more credentials than are
-> > required for secure performance monitoring and observability
-> > operations and this excess is avoided by the designed CAP_PERFMON.
-> > 
-> > Although software running under CAP_PERFMON can not ensure avoidance of
-> > related hardware issues, the software can still mitigate those issues
-> > following the official hardware issues mitigation procedure [3]. The
-> > bugs in the software itself can be fixed following the standard kernel
-> > development process [4] to maintain and harden security of system
-> > performance monitoring and observability operations. Finally, the patch
-> > set is shaped in the way that simplifies backtracking procedure of
-> > possible induced issues [5] as much as possible.
-> > 
-> > The patch set is for tip perf/core repository:
-> > git://git.kernel.org/pub/scm/linux/kernel/git/tip/tip perf/core
-> > sha1: fdb64822443ec9fb8c3a74b598a74790ae8d2e22
-> > 
-> > ---
-> > Changes in v7:
-> > - updated and extended kernel.rst and perf-security.rst documentation 
-> >   files with the information about CAP_PERFMON capability and its use cases
-> > - documented the case of double audit logging of CAP_PERFMON and CAP_SYS_ADMIN
-> >   capabilities on a SELinux enabled system
-> > Changes in v6:
-> > - avoided noaudit checks in perfmon_capable() to explicitly advertise
-> >   CAP_PERFMON usage thru audit logs to secure system performance
-> >   monitoring and observability
-> > Changes in v5:
-> > - renamed CAP_SYS_PERFMON to CAP_PERFMON
-> > - extended perfmon_capable() with noaudit checks
-> > Changes in v4:
-> > - converted perfmon_capable() into an inline function
-> > - made perf_events kprobes, uprobes, hw breakpoints and namespaces data
-> >   available to CAP_SYS_PERFMON privileged processes
-> > - applied perfmon_capable() to drivers/perf and drivers/oprofile
-> > - extended __cmd_ftrace() with support of CAP_SYS_PERFMON
-> > Changes in v3:
-> > - implemented perfmon_capable() macros aggregating required capabilities
-> >   checks
-> > Changes in v2:
-> > - made perf_events trace points available to CAP_SYS_PERFMON privileged
-> >   processes
-> > - made perf_event_paranoid_check() treat CAP_SYS_PERFMON equally to
-> >   CAP_SYS_ADMIN
-> > - applied CAP_SYS_PERFMON to i915_perf, bpf_trace, powerpc and parisc
-> >   system performance monitoring and observability related subsystems
-> > 
-> > ---
-> > Alexey Budankov (12):
-> >   capabilities: introduce CAP_PERFMON to kernel and user space
-> >   perf/core: open access to the core for CAP_PERFMON privileged process
-> >   perf/core: open access to probes for CAP_PERFMON privileged process
-> >   perf tool: extend Perf tool with CAP_PERFMON capability support
-> >   drm/i915/perf: open access for CAP_PERFMON privileged process
-> >   trace/bpf_trace: open access for CAP_PERFMON privileged process
-> >   powerpc/perf: open access for CAP_PERFMON privileged process
-> >   parisc/perf: open access for CAP_PERFMON privileged process
-> >   drivers/perf: open access for CAP_PERFMON privileged process
-> >   drivers/oprofile: open access for CAP_PERFMON privileged process
-> >   doc/admin-guide: update perf-security.rst with CAP_PERFMON information
-> >   doc/admin-guide: update kernel.rst with CAP_PERFMON information
-> > 
-> >  Documentation/admin-guide/perf-security.rst | 65 +++++++++++++--------
-> >  Documentation/admin-guide/sysctl/kernel.rst | 16 +++--
-> >  arch/parisc/kernel/perf.c                   |  2 +-
-> >  arch/powerpc/perf/imc-pmu.c                 |  4 +-
-> >  drivers/gpu/drm/i915/i915_perf.c            | 13 ++---
-> >  drivers/oprofile/event_buffer.c             |  2 +-
-> >  drivers/perf/arm_spe_pmu.c                  |  4 +-
-> >  include/linux/capability.h                  |  4 ++
-> >  include/linux/perf_event.h                  |  6 +-
-> >  include/uapi/linux/capability.h             |  8 ++-
-> >  kernel/events/core.c                        |  6 +-
-> >  kernel/trace/bpf_trace.c                    |  2 +-
-> >  security/selinux/include/classmap.h         |  4 +-
-> >  tools/perf/builtin-ftrace.c                 |  5 +-
-> >  tools/perf/design.txt                       |  3 +-
-> >  tools/perf/util/cap.h                       |  4 ++
-> >  tools/perf/util/evsel.c                     | 10 ++--
-> >  tools/perf/util/util.c                      |  1 +
-> >  18 files changed, 98 insertions(+), 61 deletions(-)
-> > 
-> > ---
-> > Validation (Intel Skylake, 8 cores, Fedora 29, 5.5.0-rc3+, x86_64):
-> > 
-> > libcap library [6], [7], [8] and Perf tool can be used to apply
-> > CAP_PERFMON capability for secure system performance monitoring and
-> > observability beyond the scope permitted by the system wide
-> > perf_event_paranoid kernel setting [9] and below are the steps for
-> > evaluation:
-> > 
-> >   - patch, build and boot the kernel
-> >   - patch, build Perf tool e.g. to /home/user/perf
-> >   ...
-> >   # git clone git://git.kernel.org/pub/scm/libs/libcap/libcap.git libcap
-> >   # pushd libcap
-> >   # patch libcap/include/uapi/linux/capabilities.h with [PATCH 1]
-> >   # make
-> >   # pushd progs
-> >   # ./setcap "cap_perfmon,cap_sys_ptrace,cap_syslog=ep" /home/user/perf
-> >   # ./setcap -v "cap_perfmon,cap_sys_ptrace,cap_syslog=ep" /home/user/perf
-> >   /home/user/perf: OK
-> >   # ./getcap /home/user/perf
-> >   /home/user/perf = cap_sys_ptrace,cap_syslog,cap_perfmon+ep
-> >   # echo 2 > /proc/sys/kernel/perf_event_paranoid
-> >   # cat /proc/sys/kernel/perf_event_paranoid 
-> >   2
-> >   ...
-> >   $ /home/user/perf top
-> >     ... works as expected ...
-> >   $ cat /proc/`pidof perf`/status
-> >   Name:	perf
-> >   Umask:	0002
-> >   State:	S (sleeping)
-> >   Tgid:	2958
-> >   Ngid:	0
-> >   Pid:	2958
-> >   PPid:	9847
-> >   TracerPid:	0
-> >   Uid:	500	500	500	500
-> >   Gid:	500	500	500	500
-> >   FDSize:	256
-> >   ...
-> >   CapInh:	0000000000000000
-> >   CapPrm:	0000004400080000
-> >   CapEff:	0000004400080000 => 01000100 00000000 00001000 00000000 00000000
-> >                                      cap_perfmon,cap_sys_ptrace,cap_syslog
-> >   CapBnd:	0000007fffffffff
-> >   CapAmb:	0000000000000000
-> >   NoNewPrivs:	0
-> >   Seccomp:	0
-> >   Speculation_Store_Bypass:	thread vulnerable
-> >   Cpus_allowed:	ff
-> >   Cpus_allowed_list:	0-7
-> >   ...
-> > 
-> > Usage of cap_perfmon effectively avoids unused credentials excess:
-> > 
-> > - with cap_sys_admin:
-> >   CapEff:	0000007fffffffff => 01111111 11111111 11111111 11111111 11111111
-> > 
-> > - with cap_perfmon:
-> >   CapEff:	0000004400080000 => 01000100 00000000 00001000 00000000 00000000
-> >                                     38   34               19
-> >                                perfmon   syslog           sys_ptrace
-> > 
-> > ---
-> > [1] https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
-> > [2] http://man7.org/linux/man-pages/man7/capabilities.7.html
-> > [3] https://www.kernel.org/doc/html/latest/process/embargoed-hardware-issues.html
-> > [4] https://www.kernel.org/doc/html/latest/admin-guide/security-bugs.html
-> > [5] https://www.kernel.org/doc/html/latest/process/management-style.html#decisions
-> > [6] http://man7.org/linux/man-pages/man8/setcap.8.html
-> > [7] https://git.kernel.org/pub/scm/libs/libcap/libcap.git
-> > [8] https://sites.google.com/site/fullycapable/, posix_1003.1e-990310.pdf
-> > [9] http://man7.org/linux/man-pages/man2/perf_event_open.2.html
-> > 
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
