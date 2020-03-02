@@ -2,98 +2,118 @@ Return-Path: <SRS0=NbdY=4T=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54307C3F2D1
-	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 18:54:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44BE9C3F2D7
+	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 19:11:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 27A9821775
-	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 18:54:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E2ED2173E
+	for <selinux@archiver.kernel.org>; Mon,  2 Mar 2020 19:11:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vbiwGwZz"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PdT33Mdz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727372AbgCBSya (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 2 Mar 2020 13:54:30 -0500
-Received: from mail-oi1-f173.google.com ([209.85.167.173]:40071 "EHLO
-        mail-oi1-f173.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726451AbgCBSya (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 2 Mar 2020 13:54:30 -0500
-Received: by mail-oi1-f173.google.com with SMTP id j80so288812oih.7
-        for <selinux@vger.kernel.org>; Mon, 02 Mar 2020 10:54:30 -0800 (PST)
+        id S1727126AbgCBTLM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 2 Mar 2020 14:11:12 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:40852 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727234AbgCBTLM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 2 Mar 2020 14:11:12 -0500
+Received: by mail-ot1-f65.google.com with SMTP id x19so372848otp.7
+        for <selinux@vger.kernel.org>; Mon, 02 Mar 2020 11:11:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=nrIYwJsX0FBLw2q2orjMNQeuq9J3c1sWQnDZ/WdP9NA=;
-        b=vbiwGwZzhXEJNhLgnDbintEr52KQmJLjzTxXI9udHaDUD3SAsMEWaeRx5Du7bevq7A
-         F6FXQXewTkHwQnq6hd6nWJl4LUqRNHp/H+KLKVHolNZUwwXuRoPBh2YnqgpjyRZo8r96
-         dJqZRnmLVYI4fS4SpMty6X6NrJ/E6Wh01JM0wxMnTBk7Hh7PZh9sa2vY+nY9GO7SCwTQ
-         1j6uK7ubl5tX5kBgUy76FrgmaQ9lOLAKYJfKvx9JgA395qSae4IGUN+V0Gfx6rWcapYb
-         OsTyCtysBhv+gmbRPl3Op9bhcDCv9MsgHsY4Yq7MwqrtRHygZm4UeuzvZr/eRVlxFdBR
-         C/Vw==
+         :cc;
+        bh=35AmAzAjOap0cCQQzAK8cHH5BHbCtPmnqSDr5kZ/4XY=;
+        b=PdT33MdzcRv1OHaYztO0XsaO5dBzkZMViK3hxiFodqxht+aOe+zIpfrYt+wwZ/Pr3N
+         itpokDKyqzz4Obz+pL4fQBWmkP9KObmURPShyGahdpH25Xzop/u5uNYyR4qjKYZLxF91
+         gHbDf4mJ5JGtTfxlmdxgUVsBFmvO/74awuszV+M+uC9K+AKPRSR/AIkxu8ukHjxmpEGi
+         SgjR/H02jTKpsJuXDstBGT+enIuAAOew5G3W4Nhorx0XNteqhK0J+SdLZQERJPtr5QoC
+         bBHYGqelPB2MJfRS/QLeHwvowVkHKyX4+iIJdiaCZmBqNZ0R9Z/PVa/AtUoc9aXXm1jW
+         ZUxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=nrIYwJsX0FBLw2q2orjMNQeuq9J3c1sWQnDZ/WdP9NA=;
-        b=QFZHFXIji6ZC3E9I6h0vawfkGs6q66JG7vu0ehHkzeUVzY9ZQ9qy3yvHioGuzdo/Pa
-         1ROttc0U2r+1JE2veQ1awXPwRW5PRrIsLXiq5jOMomSRCKUi/au3J8sCZ0y5iyUq38/L
-         kPbneQ9qa3Y6/i3fMkwqLgxbwlHasF5cQJhE/Gx8rHpy5WmYWW+6zPCMCo9kpjDkoCEJ
-         dXE5Gpcv13PhEmNTMqTw4RMav0/BWG3MNqFNMIz3Iadg5piO4RKxT89tFgcJl3h/GJo0
-         CiGrEminGQH3wvBecYoN0Wrp1jy0hL8qXjT6r3hCfu102tgLUTmCx5sLDEOrcHcAnNNj
-         44Jg==
-X-Gm-Message-State: ANhLgQ0NXdF1iskMWzFiQvJmduCCOQf+s4vm1MVyrAv6XCzq789626DN
-        4XM8lQRira2Wd19NmPflCkhCcn6ca3TPYZo146Y8Tg==
-X-Google-Smtp-Source: ADFU+vv5pBImNMFDrfO5MtrHsV34bRbzYgGe89flU+7WeLWKxLuY75qdMU/I9EpOU5K7rEuVdHixzi9mFu3c27C+t4A=
-X-Received: by 2002:aca:ad54:: with SMTP id w81mr3691oie.172.1583175269828;
- Mon, 02 Mar 2020 10:54:29 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=35AmAzAjOap0cCQQzAK8cHH5BHbCtPmnqSDr5kZ/4XY=;
+        b=G2KHfwoxCP6Oj0dNMnzoNP21lMXXIBOpoH0NaeMIcmBGI34+qsWbxeearq+t3pnIMg
+         mzbLleQ0eaoJl2QV4TU/worHTWTkvaSABfgGsK4X6Z2yrD6Nz5maAPWRJ7Gy0OsZfwjo
+         +AiJeCL69tOVRil21mC3ZL4C2TYC3ScDBkThOIF+0PptBAKbzogP+bxUE7ge6X16DM74
+         LyPtb7s14cehHmu4fWDJlmuir+pUpb6svZpjy6wnbxNJg+hArTQigUOf6y8lKk2VEIA9
+         fYhHnGVOvWrhQbgG1tIbxR+FXWYVK/OlUqLTPWjC6xBxHtCN4WFnxQeyEhXnR4k2Fg+y
+         Z2DA==
+X-Gm-Message-State: ANhLgQ2pzlNyAQeVs9aWOZKy97P2TcPxjBJ6iPLeUnb0iBpOVyG0U9MK
+        pPc+n2mqb+bxA18PaRq/SIss6dhZ8jfwo/SVeF1dFw==
+X-Google-Smtp-Source: ADFU+vttNVLsewjWDWD0NlHFPxrTukoB0NZyx8kDeVJQ3DQ2DpzbE8QTcqgqzFBw2NX9JwB+PtqMNXkjJDGcjJf6vxo=
+X-Received: by 2002:a9d:68d9:: with SMTP id i25mr508525oto.135.1583176271889;
+ Mon, 02 Mar 2020 11:11:11 -0800 (PST)
 MIME-Version: 1.0
-References: <CAJ2a_DdmVfru8dcuEqeQkceVv_UskSYBw=qickHG6SOCEAbPsA@mail.gmail.com>
-In-Reply-To: <CAJ2a_DdmVfru8dcuEqeQkceVv_UskSYBw=qickHG6SOCEAbPsA@mail.gmail.com>
+References: <20200226155452.301544-1-omosnace@redhat.com>
+In-Reply-To: <20200226155452.301544-1-omosnace@redhat.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 2 Mar 2020 13:56:16 -0500
-Message-ID: <CAEjxPJ6XdUe5zUTLxiHGBqa9AsiYT7JLVhdg=x9m6qerAg09rA@mail.gmail.com>
-Subject: Re: target context of security:setbool permission check
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Mon, 2 Mar 2020 14:12:58 -0500
+Message-ID: <CAEjxPJ5M=iaVBQQGT8QqnHsndXKzxvRMSxSNbm3arNwXnmu4GQ@mail.gmail.com>
+Subject: Re: [PATCH v3] selinux: reduce the use of hard-coded hash sizes
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 2, 2020 at 10:44 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Wed, Feb 26, 2020 at 10:55 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Hi,
+> Instead allocate hash tables with just the right size based on the
+> actual number of elements (which is almost always known beforehand, we
+> just need to defer the hashtab allocation to the right time). The only
+> case when we don't know the size (with the current policy format) is the
+> new filename transitions hashtable. Here I just left the existing value.
 >
-> currently the target context of the security:setbool permission check
-> is hardcoded to the security-initial-sid.[1][2]
-> Nowadays it is possible to label the boolean pseudo files via genfscon.
+> After this patch, the time to load Fedora policy on x86_64 decreases
+> from 790 ms to 167 ms. If the unconfined module is removed, it decreases
+> from 750 ms to 122 ms. It is also likely that other operations are going
+> to be faster, mainly string_to_context_struct() or mls_compute_sid(),
+> but I didn't try to quantify that.
 >
-> Is this by design or did nobody yet make it possible to base the check
-> on the actual file-context?
+> The memory usage of all hash table arrays increases from ~58 KB to
+> ~163 KB (with Fedora policy on x86_64).
 >
-> Or is the current access limitation to booleans via the file:write
-> permission to the boolean pseudo-files sufficient?
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
 
-I would think the file write check suffices if you want that level of
-granularity, while keeping the setbool check as
-a coarse-grained control over who can set booleans at all.  setbool is
-also used to control the ability to commit
-pending bools.  Most of the security permissions predate selinuxfs
-itself and harken back to the original system call interface
-although that wouldn't be the case for booleans.
-
-
-
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index 32b3a8acf96f..7ca8c74efba3 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -503,20 +482,12 @@ static int policydb_init(struct policydb *p)
+>                 goto out;
+>         }
 >
+> -       p->range_tr = hashtab_create(rangetr_hash, rangetr_cmp, 256);
+> -       if (!p->range_tr) {
+> -               rc = -ENOMEM;
+> -               goto out;
+> -       }
+> -
+>         ebitmap_init(&p->filename_trans_ttypes);
+>         ebitmap_init(&p->policycaps);
+>         ebitmap_init(&p->permissive_map);
 >
-> [1]: https://github.com/torvalds/linux/blob/b1dba2473114588be3df916bf629a=
-61bdcc83737/security/selinux/selinuxfs.c#L1234
-> [2]: https://github.com/torvalds/linux/blob/b1dba2473114588be3df916bf629a=
-61bdcc83737/security/selinux/selinuxfs.c#L1290
+>         return 0;
+>  out:
+> -       hashtab_destroy(p->filename_trans);
+> -       hashtab_destroy(p->range_tr);
+>         for (i = 0; i < SYM_NUM; i++) {
+>                 hashtab_map(p->symtab[i].table, destroy_f[i], NULL);
+>                 hashtab_destroy(p->symtab[i].table);
+
+Sorry, just pointed out to me that this left the symtab destruction
+code in the out path of policydb_init()
+even though we are no longer creating them there.  Harmless but should
+be dropped.
