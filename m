@@ -2,148 +2,326 @@ Return-Path: <SRS0=d3z6=4V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68B6EC3F2CD
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 14:36:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E806C3F2CD
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 14:37:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4440B20838
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 14:36:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0355E20838
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 14:37:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729589AbgCDOgx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Mar 2020 09:36:53 -0500
-Received: from agnus.defensec.nl ([80.100.19.56]:46820 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729588AbgCDOgx (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 4 Mar 2020 09:36:53 -0500
-Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 2E421132006F;
-        Wed,  4 Mar 2020 15:36:51 +0100 (CET)
-Date:   Wed, 4 Mar 2020 15:36:50 +0100
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Subject: Re: strange pam selinux issue
-Message-ID: <20200304143650.GB1032355@brutus.lan>
-Mail-Followup-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-References: <20200304072940.GA1026144@brutus.lan>
- <20200304074251.GA1032355@brutus.lan>
- <CAEjxPJ4o114iFykhm-m7knLx2qfFoO_pnZt66im+Yk6pSbLBmg@mail.gmail.com>
+        id S1729487AbgCDOhO convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Wed, 4 Mar 2020 09:37:14 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24902 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726740AbgCDOhO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Mar 2020 09:37:14 -0500
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-469-_yZxS1EPP5CFRYZGihITAw-1; Wed, 04 Mar 2020 09:37:06 -0500
+X-MC-Unique: _yZxS1EPP5CFRYZGihITAw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2F9148018A9;
+        Wed,  4 Mar 2020 14:37:04 +0000 (UTC)
+Received: from aion.usersys.redhat.com (ovpn-120-213.rdu2.redhat.com [10.10.120.213])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 3789790796;
+        Wed,  4 Mar 2020 14:37:03 +0000 (UTC)
+Received: by aion.usersys.redhat.com (Postfix, from userid 1000)
+        id 7A4F81A0107; Wed,  4 Mar 2020 09:37:01 -0500 (EST)
+Date:   Wed, 4 Mar 2020 09:37:01 -0500
+From:   Scott Mayhew <smayhew@redhat.com>
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
+        bfields@fieldses.org, paul@paul-moore.com, sds@tycho.nsa.gov,
+        linux-nfs@vger.kernel.org, selinux@vger.kernel.org
+Subject: Re: [PATCH] NFS: Ensure security label is set for root inode
+Message-ID: <20200304143701.GB3175@aion.usersys.redhat.com>
+References: <20200303225837.1557210-1-smayhew@redhat.com>
+ <6bb287d1687dc87fe9abc11d475b3b9df061f775.camel@btinternet.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="oC1+HKm2/end4ao3"
+In-Reply-To: <6bb287d1687dc87fe9abc11d475b3b9df061f775.camel@btinternet.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aion.usersys.redhat.com
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <CAEjxPJ4o114iFykhm-m7knLx2qfFoO_pnZt66im+Yk6pSbLBmg@mail.gmail.com>
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Wed, 04 Mar 2020, Richard Haines wrote:
 
---oC1+HKm2/end4ao3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Tue, 2020-03-03 at 17:58 -0500, Scott Mayhew wrote:
+> > When using NFSv4.2, the security label for the root inode should be
+> > set
+> > via a call to nfs_setsecurity() during the mount process, otherwise
+> > the
+> > inode will appear as unlabeled for up to acdirmin seconds.  Currently
+> > the label for the root inode is allocated, retrieved, and freed
+> > entirely
+> > witin nfs4_proc_get_root().
+> > 
+> > Add a field for the label to the nfs_fattr struct, and allocate &
+> > free
+> > the label in nfs_get_root(), where we also add a call to
+> > nfs_setsecurity().  Note that for the call to nfs_setsecurity() to
+> > succeed, it's necessary to also move the logic calling
+> > security_sb_{set,clone}_security() from nfs_get_tree_common() down
+> > into
+> > nfs_get_root()... otherwise the SBLABEL_MNT flag will not be set in
+> > the
+> > super_block's security flags and nfs_setsecurity() will silently
+> > fail.
+> 
+> I built and tested this patch on selinux-next (note that the NFS module
+> is a few patches behind).
+> The unlabeled problem is solved, however using:
+> 
+> mount -t nfs -o
+> vers=4.2,rootcontext=system_u:object_r:test_filesystem_file_t:s0
+> localhost:$TESTDIR /mnt/selinux-testsuite
+> 
+> I get the message:
+>     mount.nfs: an incorrect mount option was specified
+> with a log entry:
+>     SELinux: mount invalid.  Same superblock, different security
+> settings for (dev 0:42, type nfs)
+> 
+> If I use "fscontext=" instead then works okay. Using no context option
+> also works. I guess the rootcontext= option should still work ???
 
-On Wed, Mar 04, 2020 at 09:22:42AM -0500, Stephen Smalley wrote:
-> On Wed, Mar 4, 2020 at 2:44 AM Dominick Grift
-> <dominick.grift@defensec.nl> wrote:
-> >
-> > On Wed, Mar 04, 2020 at 08:29:40AM +0100, Dominick Grift wrote:
-> > > The easiest way to explain this is as follows.
-> > >
-> > > Consider this scenario:
-> > >
-> > > # seinfo -xuwheel.id
-> > >
-> > > Users: 1
-> > >    user wheel.id roles wheel.role level s0 range s0;
-> > >
-> > > # selinuxconlist wheel.id sys.id:sys.role:sys.isid:s0
-> > > wheel.id:wheel.role:user.systemd.subj:s0
-> > >
-> > > Now consider this scenario:
-> > >
-> > > # echo '(userrole wheel.id sys.role)' > hack.cil && semodule -i hack.=
-cil
-> > >
-> > > # seinfo -xuwheel.id
-> > >
-> > > Users: 1
-> > >    user wheel.id roles { wheel.role sys.role } level s0 range s0;
-> > >
-> > > Here is the issue:
-> > >
-> > > # selinuxconlist wheel.id sys.id:sys.role:sys.isid:s0
-> > > wheel.id:sys.role:sys.isid:s0
-> >
-> > For completeness:
-> >
-> > # cat /etc/selinux/dssp3-mcs/contexts/users/wheel.id
-> > sys.role:login.subj:s0 wheel.role:user.subj:s0
-> > sys.role:ssh.daemon.subj:s0 wheel.role:user.ssh.subj:s0
-> > sys.role:sys.isid:s0 wheel.role:user.systemd.subj:s0
->=20
-> Are you using libselinux with or without the commit to stop using
-> security_compute_user()?
-> If still using security_compute_user(), what does compute_user
-> sys.id:sys.role:sys.isid:s0 wheel.id display?
-> If you don't have compute_user (it is in libselinux/utils but not sure
-> Fedora packages it), you can also just
-> strace -s 4096 -o trace.txt selinuxconlist wheel.id sys.id:sys.role:sys.i=
-sid:s0
-> and see what it read back from /sys/fs/selinux/user.
+Thanks for testing.  It definitely wasn't my intention to break
+anything, so I'll look into it.
 
-Thanks, it does not even seems to read /etc/selinux/dssp3-mcs/contexts/user=
-s/wheel.id...
-I am not if my libselinux has or has not security_compute_user():
+-Scott
+> 
+> > 
+> > Reported-by: Richard Haines <richard_c_haines@btinternet.com>
+> > Signed-off-by: Scott Mayhew <smayhew@redhat.com>
+> > ---
+> >  fs/nfs/getroot.c        | 39 +++++++++++++++++++++++++++++++++++----
+> >  fs/nfs/nfs4proc.c       | 12 +++---------
+> >  fs/nfs/super.c          | 25 -------------------------
+> >  include/linux/nfs_xdr.h |  1 +
+> >  4 files changed, 39 insertions(+), 38 deletions(-)
+> > 
+> > diff --git a/fs/nfs/getroot.c b/fs/nfs/getroot.c
+> > index b012c2668a1f..6d0628149390 100644
+> > --- a/fs/nfs/getroot.c
+> > +++ b/fs/nfs/getroot.c
+> > @@ -73,6 +73,7 @@ int nfs_get_root(struct super_block *s, struct
+> > fs_context *fc)
+> >  	struct inode *inode;
+> >  	char *name;
+> >  	int error = -ENOMEM;
+> > +	unsigned long kflags = 0, kflags_out = 0;
+> >  
+> >  	name = kstrdup(fc->source, GFP_KERNEL);
+> >  	if (!name)
+> > @@ -83,11 +84,14 @@ int nfs_get_root(struct super_block *s, struct
+> > fs_context *fc)
+> >  	if (fsinfo.fattr == NULL)
+> >  		goto out_name;
+> >  
+> > +	fsinfo.fattr->label = nfs4_label_alloc(server, GFP_KERNEL);
+> > +	if (IS_ERR(fsinfo.fattr->label))
+> > +		goto out_fattr;
+> >  	error = server->nfs_client->rpc_ops->getroot(server, ctx-
+> > >mntfh, &fsinfo);
+> >  	if (error < 0) {
+> >  		dprintk("nfs_get_root: getattr error = %d\n", -error);
+> >  		nfs_errorf(fc, "NFS: Couldn't getattr on root");
+> > -		goto out_fattr;
+> > +		goto out_label;
+> >  	}
+> >  
+> >  	inode = nfs_fhget(s, ctx->mntfh, fsinfo.fattr, NULL);
+> > @@ -95,12 +99,12 @@ int nfs_get_root(struct super_block *s, struct
+> > fs_context *fc)
+> >  		dprintk("nfs_get_root: get root inode failed\n");
+> >  		error = PTR_ERR(inode);
+> >  		nfs_errorf(fc, "NFS: Couldn't get root inode");
+> > -		goto out_fattr;
+> > +		goto out_label;
+> >  	}
+> >  
+> >  	error = nfs_superblock_set_dummy_root(s, inode);
+> >  	if (error != 0)
+> > -		goto out_fattr;
+> > +		goto out_label;
+> >  
+> >  	/* root dentries normally start off anonymous and get spliced
+> > in later
+> >  	 * if the dentry tree reaches them; however if the dentry
+> > already
+> > @@ -111,7 +115,7 @@ int nfs_get_root(struct super_block *s, struct
+> > fs_context *fc)
+> >  		dprintk("nfs_get_root: get root dentry failed\n");
+> >  		error = PTR_ERR(root);
+> >  		nfs_errorf(fc, "NFS: Couldn't get root dentry");
+> > -		goto out_fattr;
+> > +		goto out_label;
+> >  	}
+> >  
+> >  	security_d_instantiate(root, inode);
+> > @@ -123,12 +127,39 @@ int nfs_get_root(struct super_block *s, struct
+> > fs_context *fc)
+> >  	}
+> >  	spin_unlock(&root->d_lock);
+> >  	fc->root = root;
+> > +	if (NFS_SB(s)->caps & NFS_CAP_SECURITY_LABEL)
+> > +		kflags |= SECURITY_LSM_NATIVE_LABELS;
+> > +	if (ctx->clone_data.sb) {
+> > +		if (d_inode(fc->root)->i_fop != &nfs_dir_operations) {
+> > +			error = -ESTALE;
+> > +			goto error_splat_root;
+> > +		}
+> > +		/* clone any lsm security options from the parent to
+> > the new sb */
+> > +		error = security_sb_clone_mnt_opts(ctx->clone_data.sb,
+> > s, kflags,
+> > +				&kflags_out);
+> > +	} else {
+> > +		error = security_sb_set_mnt_opts(s, fc->security,
+> > +							kflags,
+> > &kflags_out);
+> > +	}
+> > +	if (error)
+> > +		goto error_splat_root;
+> > +	if (NFS_SB(s)->caps & NFS_CAP_SECURITY_LABEL &&
+> > +		!(kflags_out & SECURITY_LSM_NATIVE_LABELS))
+> > +		NFS_SB(s)->caps &= ~NFS_CAP_SECURITY_LABEL;
+> > +
+> > +	nfs_setsecurity(inode, fsinfo.fattr, fsinfo.fattr->label);
+> >  	error = 0;
+> >  
+> > +out_label:
+> > +	nfs4_label_free(fsinfo.fattr->label);
+> >  out_fattr:
+> >  	nfs_free_fattr(fsinfo.fattr);
+> >  out_name:
+> >  	kfree(name);
+> >  out:
+> >  	return error;
+> > +error_splat_root:
+> > +	dput(fc->root);
+> > +	fc->root = NULL;
+> > +	goto out_label;
+> >  }
+> > diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+> > index 69b7ab7a5815..cb34e840e4fb 100644
+> > --- a/fs/nfs/nfs4proc.c
+> > +++ b/fs/nfs/nfs4proc.c
+> > @@ -4002,7 +4002,7 @@ static int nfs4_proc_get_root(struct nfs_server
+> > *server, struct nfs_fh *mntfh,
+> >  {
+> >  	int error;
+> >  	struct nfs_fattr *fattr = info->fattr;
+> > -	struct nfs4_label *label = NULL;
+> > +	struct nfs4_label *label = fattr->label;
+> >  
+> >  	error = nfs4_server_capabilities(server, mntfh);
+> >  	if (error < 0) {
+> > @@ -4010,23 +4010,17 @@ static int nfs4_proc_get_root(struct
+> > nfs_server *server, struct nfs_fh *mntfh,
+> >  		return error;
+> >  	}
+> >  
+> > -	label = nfs4_label_alloc(server, GFP_KERNEL);
+> > -	if (IS_ERR(label))
+> > -		return PTR_ERR(label);
+> > -
+> >  	error = nfs4_proc_getattr(server, mntfh, fattr, label, NULL);
+> >  	if (error < 0) {
+> >  		dprintk("nfs4_get_root: getattr error = %d\n", -error);
+> > -		goto err_free_label;
+> > +		goto out;
+> >  	}
+> >  
+> >  	if (fattr->valid & NFS_ATTR_FATTR_FSID &&
+> >  	    !nfs_fsid_equal(&server->fsid, &fattr->fsid))
+> >  		memcpy(&server->fsid, &fattr->fsid, sizeof(server-
+> > >fsid));
+> >  
+> > -err_free_label:
+> > -	nfs4_label_free(label);
+> > -
+> > +out:
+> >  	return error;
+> >  }
+> >  
+> > diff --git a/fs/nfs/super.c b/fs/nfs/super.c
+> > index dada09b391c6..bb14bede6da5 100644
+> > --- a/fs/nfs/super.c
+> > +++ b/fs/nfs/super.c
+> > @@ -1179,7 +1179,6 @@ int nfs_get_tree_common(struct fs_context *fc)
+> >  	struct super_block *s;
+> >  	int (*compare_super)(struct super_block *, struct fs_context *)
+> > = nfs_compare_super;
+> >  	struct nfs_server *server = ctx->server;
+> > -	unsigned long kflags = 0, kflags_out = 0;
+> >  	int error;
+> >  
+> >  	ctx->server = NULL;
+> > @@ -1239,26 +1238,6 @@ int nfs_get_tree_common(struct fs_context *fc)
+> >  		goto error_splat_super;
+> >  	}
+> >  
+> > -	if (NFS_SB(s)->caps & NFS_CAP_SECURITY_LABEL)
+> > -		kflags |= SECURITY_LSM_NATIVE_LABELS;
+> > -	if (ctx->clone_data.sb) {
+> > -		if (d_inode(fc->root)->i_fop != &nfs_dir_operations) {
+> > -			error = -ESTALE;
+> > -			goto error_splat_root;
+> > -		}
+> > -		/* clone any lsm security options from the parent to
+> > the new sb */
+> > -		error = security_sb_clone_mnt_opts(ctx->clone_data.sb,
+> > s, kflags,
+> > -				&kflags_out);
+> > -	} else {
+> > -		error = security_sb_set_mnt_opts(s, fc->security,
+> > -							kflags,
+> > &kflags_out);
+> > -	}
+> > -	if (error)
+> > -		goto error_splat_root;
+> > -	if (NFS_SB(s)->caps & NFS_CAP_SECURITY_LABEL &&
+> > -		!(kflags_out & SECURITY_LSM_NATIVE_LABELS))
+> > -		NFS_SB(s)->caps &= ~NFS_CAP_SECURITY_LABEL;
+> > -
+> >  	s->s_flags |= SB_ACTIVE;
+> >  	error = 0;
+> >  
+> > @@ -1268,10 +1247,6 @@ int nfs_get_tree_common(struct fs_context *fc)
+> >  out_err_nosb:
+> >  	nfs_free_server(server);
+> >  	goto out;
+> > -
+> > -error_splat_root:
+> > -	dput(fc->root);
+> > -	fc->root = NULL;
+> >  error_splat_super:
+> >  	deactivate_locked_super(s);
+> >  	goto out;
+> > diff --git a/include/linux/nfs_xdr.h b/include/linux/nfs_xdr.h
+> > index 94c77ed55ce1..6838c149f335 100644
+> > --- a/include/linux/nfs_xdr.h
+> > +++ b/include/linux/nfs_xdr.h
+> > @@ -75,6 +75,7 @@ struct nfs_fattr {
+> >  	struct nfs4_string	*owner_name;
+> >  	struct nfs4_string	*group_name;
+> >  	struct nfs4_threshold	*mdsthreshold;	/* pNFS threshold
+> > hints */
+> > +	struct nfs4_label	*label;
+> >  };
+> >  
+> >  #define NFS_ATTR_FATTR_TYPE		(1U << 0)
+> 
 
-# rpm -qa libselinux
-libselinux-3.0-3.fc32.x86_64
-
-openat(AT_FDCWD, "/sys/fs/selinux/user", O_RDWR|O_CLOEXEC) =3D 3
-write(3, "sys.id:sys.role:sys.isid:s0 wheel.id", 36) =3D -1 ERANGE (Numeric=
-al result out of range)
-close(3)                                =3D 0
-openat(AT_FDCWD, "/etc/selinux/dssp3-mcs/contexts/failsafe_context", O_RDON=
-LY|O_CLOEXEC) =3D 3
-fstat(3, {st_mode=3DS_IFREG|0644, st_size=3D21, ...}) =3D 0
-read(3, "sys.role:sys.isid:s0\n", 4096) =3D 21
-close(3)                                =3D 0
-openat(AT_FDCWD, "/sys/fs/selinux/context", O_RDWR|O_CLOEXEC) =3D 3
-write(3, "wheel.id:sys.role:sys.isid:s0\0", 30) =3D 30
-close(3)                                =3D 0
-fstat(1, {st_mode=3DS_IFCHR|0620, st_rdev=3Dmakedev(0x88, 0), ...}) =3D 0
-write(1, "wheel.id:sys.role:sys.isid:s0\n", 30) =3D 30
-
---=20
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
-
---oC1+HKm2/end4ao3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEe2FOk94VrgBPlhBrAlFoDzf+eRMFAl5fvPwACgkQAlFoDzf+
-eRNVTA/+PIQSXis/b/uWMetc+ReavfxEJBGcUQ0hkKZLNrX0pClni3IadnLdqyTP
-MlIbiDv/XpntECKZIqsmLJ9NhGD1Cq2Fs+dzuXZOHl5T+XT5UB7sRREcXhDg2ctN
-6hYIwMua4rAj1oYhCZZ/rIn3Mgn7sE+wx74DQbbP/NNKSwq5pDbW9G9jdQt8UDne
-2orsVN8F2Fw8TlgMjLIVUAn+xbjvfbW/aZnVrsFIA1dSI2UUeWtDlYLPAtHcjCri
-BlGbrTdhwa//MpATCLsZTc7yku33jVugejFHZNUImRGC2CS8Bk3Bm5biWAzsK6uA
-9GylCMMV6chYPuZu9jNzq9Deen7+Tq4wk8Q2TpsdQ4c9u7cCc1QEbsNL4C3iTFA8
-HFjbd810pYuHEtmwu02i48lvZ71AH9Jg4AVTa5824qC8/ujVGM0vPFYFKnfu+G83
-jMOOxUut+r6yovZ0klAIpiU8BAms9zbpITiEUDXbJcNRpRzUdORBKqlJAP3ZU3WE
-2MEd6q9Id4HMElUo+ha23zmkr18tstPY/DXAxl+0PmMIcIqzKlfEAtomimK5/sC8
-STY8wK6LOfg/UGUMsN5lbDgTYhzLcpxE3c0ANUDuh2ioZKwtfjpbT3ydG8cbMdNB
-xBbua1Sfw3WEFaHXb7OF/tw8/ftrashx5KelXzSVYjROxWiFV+M=
-=4G5N
------END PGP SIGNATURE-----
-
---oC1+HKm2/end4ao3--
