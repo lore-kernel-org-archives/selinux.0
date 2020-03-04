@@ -2,111 +2,125 @@ Return-Path: <SRS0=d3z6=4V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAAC8C3F2CD
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:28:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9EA4C3F2CD
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:32:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9725621739
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:28:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E52C21739
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:32:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DRQxkxgA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727084AbgCDP2d (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Mar 2020 10:28:33 -0500
-Received: from agnus.defensec.nl ([80.100.19.56]:46922 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729501AbgCDP2d (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 4 Mar 2020 10:28:33 -0500
-Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 9F260132006F;
-        Wed,  4 Mar 2020 16:28:31 +0100 (CET)
-Date:   Wed, 4 Mar 2020 16:28:29 +0100
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Subject: Re: strange pam selinux issue
-Message-ID: <20200304152829.GE1032355@brutus.lan>
-Mail-Followup-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-References: <20200304072940.GA1026144@brutus.lan>
- <CAEjxPJ4qQgoMq6so-qGMm6fL5CKRKxC-TJXjxmEe=Qv2DAHGTQ@mail.gmail.com>
- <20200304144726.GD1032355@brutus.lan>
- <CAEjxPJ5=YT-EttK8iE5h4Z7A59nJd6pTD1sUR=5sR8UajmrsNw@mail.gmail.com>
+        id S1726579AbgCDPcC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Mar 2020 10:32:02 -0500
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:41566 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725897AbgCDPcC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Mar 2020 10:32:02 -0500
+Received: by mail-oi1-f194.google.com with SMTP id i1so2460445oie.8
+        for <selinux@vger.kernel.org>; Wed, 04 Mar 2020 07:32:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SQPhqPIL+jDftvR+xFm9CsZjlFdK8WlxHbgS5N2Ubvk=;
+        b=DRQxkxgAynPSUn3qszNSFRM2PJwYTB2Pl5p+rEy+BubcFfFzddQkABxEHhjQ0lSAHA
+         9e63qu5tVtDBWGty1HaS9brh6qRD+UsKF3nZUcDw3u8QPhOG22rG5jtVCK5o5zJgcggI
+         TJqMJzN0iLSqZsKzm5CzLkXG/TN7w9tYdNTIMDw7qoyel2BPLIhYRX0+dHsiTcp8fupo
+         rYPQWsJVzpPmxsNqbYEx3pCeXHwPJuGOv3DuKA4tT6u7w15neKvoLivT0uDXZTBol30T
+         1jaViuLzWqsyu9E0Pqvzob6zpY1iMMM8WucD4yC4rfsEgiDd0unLAHu4s6xEpDbahfuR
+         dBkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SQPhqPIL+jDftvR+xFm9CsZjlFdK8WlxHbgS5N2Ubvk=;
+        b=ffuiNrVdvbImYhjkAjxKRcR3PafYnXZIcPXOB6lG4ZGWPeNT2LFt/DwGqkHZK+Wgou
+         CpXmwOtMkqiyicMXsguVM+21/FmVElARlOkxLqEpkyzNwd15o/hEpZvG+cfWAX58NGN6
+         hxaRBWFDA3lTAwq6nji2FfXXEiHqrhIEUKvUTCYL3+oTQBkxtdCAAs4DVWZjyBm+k14A
+         Cq6BTV/m/lCtyd0dfJf8FE1BuStRuW7e9gHGMCbtwDD6j/3xfLtNMeuF2KD82lI3EU0g
+         n4+Y4FHvatik9SjeH+TvdvDf+HoeW7f+yY+511adx4FId+yXeS+pHZ473ZGSFC8TIBRT
+         zMVQ==
+X-Gm-Message-State: ANhLgQ0UdedYnMInVxPdN83iDMshTWvpfc7b9mEs4ifC7bTZeswkvkg2
+        0iyUFaeku3eVxNv76bbhydemco2WD+Gw3+h2Fbw=
+X-Google-Smtp-Source: ADFU+vsuscBU3a8bL8gJWyeOYrvTdpmJx6ST8XjINX72NT7OjgHguuY8+q4uktvx6wU4XT+jByYGTuwQ8Yf0uwKwzy4=
+X-Received: by 2002:a05:6808:8ee:: with SMTP id d14mr2017360oic.138.1583335921535;
+ Wed, 04 Mar 2020 07:32:01 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="vv4Sf/kQfcwinyKX"
-Content-Disposition: inline
-In-Reply-To: <CAEjxPJ5=YT-EttK8iE5h4Z7A59nJd6pTD1sUR=5sR8UajmrsNw@mail.gmail.com>
-User-Agent: Every email client sucks, this one just sucks less.
-X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+References: <20200227160257.340737-1-omosnace@redhat.com> <CAEjxPJ76uFc62tPhH_2FLN58kwh_7kbA356QzDR8T-gogGiW=w@mail.gmail.com>
+ <CAEjxPJ4rjrtgDSZh163oNrXf3uX0uo+rNzreZ7M7py7MOwN8gw@mail.gmail.com>
+ <CAEjxPJ7mEu2E76Z=nVvZLtpFr6kDz449F+XCuO=RdUjScz3auw@mail.gmail.com>
+ <CAFqZXNt477qLVy-5B+MRy_Bvw5fqLWMeOFQDfkGfXD_i=SYghQ@mail.gmail.com>
+ <CAEjxPJ66CZL6-+KbRKwicYuj50uvcTjr-O81LC+BhQGO-jaKew@mail.gmail.com>
+ <CAEjxPJ5VMy5aRX_2_OB_4gwDmKAve+TMu-BJeSmqsWmM-PxRCg@mail.gmail.com>
+ <CAFqZXNub7i2OyqWqU2snePw+XBfJxauh-0n2zgZy_q58sZovSw@mail.gmail.com>
+ <CAFqZXNunTQfLAc7JAfZyvynPS0s=ADK0fbT1rXrcUCsMiDk9HA@mail.gmail.com> <CAEjxPJ5-nzostsGnca1OcVT9hm6XWP9F1ceFCU3--RAzLHXERQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5-nzostsGnca1OcVT9hm6XWP9F1ceFCU3--RAzLHXERQ@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 4 Mar 2020 10:33:26 -0500
+Message-ID: <CAP+JOzR4YKKaNw8FwF85OJfSny40tRWVu8iEJsmEx41-nHF9aQ@mail.gmail.com>
+Subject: Re: [PATCH 0/3] libsepol: Speed up policy optimization
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        James Carter <jwcart2@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-
---vv4Sf/kQfcwinyKX
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Mar 04, 2020 at 10:19:54AM -0500, Stephen Smalley wrote:
-> On Wed, Mar 4, 2020 at 9:47 AM Dominick Grift
-> <dominick.grift@defensec.nl> wrote:
-> > Practically yes name-based type transitions but other than that it make=
-s the experience much simpler if you have just one unconfined system domain.
-> > I actually kind of got that idea from you when you mentioned the three =
-domain model.
->=20
-> Not sure that was me but whatever.
-
-That is what I thought when you mentioned it, but I am glad you did because=
- I was a bit too focussed on least privilege.
-A bit of corner cutting here and there can be a good thing. Besides it is f=
-un to explore alternatives.
-
->=20
-> > Its also used by pam_selinux env_params (which in turn is used by ssh f=
-or "ssh user/role/level@host")
-> > The problem is that the default_type for ssh and sudo sessions may diff=
-er (ie. default_type is not really a default_type)
->=20
-> Fair enough; originally it was only used by newrole and only if a type
-> wasn't explicitly specified via -t.  Maybe
-> get_default_context_with_role(3)
-> would be better since it can take into account the caller context.
->=20
-> > > Probably needs to be converted to using selinux_check_access().
+On Wed, Mar 4, 2020 at 9:25 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Wed, Mar 4, 2020 at 4:07 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > I played with this a bit by recompiling the local binary policy with
+> > secilc and then comparing the CIL of both binary policies (I used this
+> > script [1]) and the results are a bit confusing... There is no
+> > difference in result between -X 0 and -X 1 [2] and in both cases it
+> > removes some unused attributes (those are only referenced from
+> > neverallow rules) that were in the original policy
+> > (/etc/selinux/targeted/policy/policy.31 from my Fedora 31 machine),
+> > but not in the one recompiled via checkpolicy -C + secilc... At least
+> > I was able to confirm that secilc -X 2 really removes the attributes
+> > that have only one type and reduces the policy size by a few
+> > kilobytes.
 > >
-> > We hit that same isssue when we revisted mdp a while ago. Removing the =
-env_params was a quick fix for that then.
->=20
-> Well, the right fix is to use selinux_check_access().
+> > I suspect that the reason for the unremoved attributes in the policy
+> > built by semodule are due to a bug in libsepol: It seems that when it
+> > starts with a cildb that has the neverallow rules in the input policy
+> > + has disable_neverallow set, it removes the rules but not the
+> > attributes that are used only in them. Only when it reads the policy
+> > again, it identifies these unused attributes (since there are no
+> > longer any neverallow rules in the input) and removes them
+> > unconditionally. It could be something else, but if I'm right then I
+> > think libsepol should be fixed to remove the unused attributes right
+> > away. I don't dare digging into the CIL code to investigate it, though
+> > ;)
+>
+> James will have to confirm the details but IIRC we had to keep
+> attributes in the policy
+> when they are referenced by a neverallow in order to avoid breaking
+> Android because
+> it uses the attribute definition from the policy as part of CTS
+> validation of OEM policies
+> (it extracts the neverallows from the AOSP policy, extracts the binary
+> policy from the device,
+> and checks the neverallows against the device policy).
+>
 
---=20
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-Dominick Grift
+Steve is correct, we keep attributes that appear in neverallow rules
+to avoid breaking Android. We also keep attributes that appear in
+typeattributesets for attributes that appear in neverallow rules.
 
---vv4Sf/kQfcwinyKX
-Content-Type: application/pgp-signature; name="signature.asc"
+See commits 67b410e80f0917bf1b378997cac0dddf1e6406f7 (libsepol/cil:
+Keep attributes used by generated attributes in neverallow rules) and
+0be23c3f15fdbef35a57d8586aeeae9b1f7606cc (libsepol/cil: Add ability to
+expand some attributes in binary policy) for more details.
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEe2FOk94VrgBPlhBrAlFoDzf+eRMFAl5fyRcACgkQAlFoDzf+
-eROOJw//bpAyUxTn1J4Jq/dy0PuRIlF/AnjtG2nAvoKNlAV8n9DbNhm5t142D1No
-5cBeoTCBplzCPnQp73qMn2AY0O/I2YO1FjTu8CSVR9NFtndH77rAffhogmHCVNMi
-HYmrzIm6ckMpWkqMxTlJ3EI7rL47nf4RZTDIA5KM2E6AvW7ydvrxiEzRci2Sxhia
-xeeQIhHcdNr72FxGMvzgTkmDFHV7JKIVPGPAXo9kgS0IWyA1grpLrsuWHtjTb9jH
-ty9N6Uc+NU+A08rMON3w0JTB6ujumVWb3zoeGnCFvr5JcEDhWtweunKhLXeNE9aI
-f5G32d+g4nyoCka/aNbRyRmifR60KmpH8uj6xDgzFvy+XRU3yCKy2OXAsqdS5oOK
-XpOFq2eBJQvcYnawMoWXzINgRWHi/xxDcRZqDFP35iECvyfR8g6lIm71ojIai7im
-BPGAX9e3dv2tiWOIGhH7Ko5iJLT9SCGDp1l3zXnPwfgjodahjfiO1QP15HaDTZWN
-rRCTzNwLE8En9jnBd9isWX4XAPYAx48VQP6MkKrVbQkrzL1BJqVH+tA83cUCHS7L
-5ivPHScVGaNZG/N+S8YCFGl0U+JfX8cqOUCjZMaL/2lychYscVU+0cpHM453lXec
-NtqNJk5zT9pOuInnxiRqoOM4DZujeeDIaN813QusNIsi8n9yc5U=
-=zFGs
------END PGP SIGNATURE-----
-
---vv4Sf/kQfcwinyKX--
+Jim
