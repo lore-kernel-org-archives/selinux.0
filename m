@@ -2,93 +2,160 @@ Return-Path: <SRS0=d3z6=4V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E6BCC3F2CD
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 14:39:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26AC6C3F2D1
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 14:40:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 646D720866
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 14:39:07 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aT6rNCK9"
+	by mail.kernel.org (Postfix) with ESMTP id 03A8320866
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 14:40:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726752AbgCDOjH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Mar 2020 09:39:07 -0500
-Received: from mail-ot1-f51.google.com ([209.85.210.51]:41472 "EHLO
-        mail-ot1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726579AbgCDOjG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Mar 2020 09:39:06 -0500
-Received: by mail-ot1-f51.google.com with SMTP id v19so2201026ote.8
-        for <selinux@vger.kernel.org>; Wed, 04 Mar 2020 06:39:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=678V0LQrEykEoWmnPJ+QR6iX3QdWXtaU5NNMsuJI/Mk=;
-        b=aT6rNCK9mfQbuCDTU51bF6tisj8uGlOmuiLjHWjja2WimpK1RFF3lHBPVLLYNsMIuE
-         T7yAOtu9JI4s2cBkD4VYP/UsiCZgQHMUpcF6R1FjZVi6Q9NHdr9kxTqE7bpde6ufjQxW
-         m8e+OdooKrstjrLCeKkNQuAHsQ7yEeChe3D1EElYAlVEdVhsWkrkher7kHCrRv8TKcb8
-         5U5SSwa2LlILi3CKhPbapzESAODo++0FtmeaC8l4T1ZFULKp2jXo4gSC6jODMlN0ZDll
-         tuW3cTiy8Mif4fm10BQn7c8LyQTkMGBcRQ7S10imDZgpp8Vumoh833DiLVx07mOKK2V2
-         l5UA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=678V0LQrEykEoWmnPJ+QR6iX3QdWXtaU5NNMsuJI/Mk=;
-        b=iFvbpYuwPShBQ+DoXFYgn0x5vgYFtIg+XvuLEcklcWaw1ccn/nkoFI6D8FQubzchtr
-         4I23fU7oqA5K0J0ptUaLT0hvmW2Al45cHfwqscC0lCko3QE2PZxV5JCcg9yDK1yid5/B
-         7+hBpHX34o5zSMxGFZewRjY/5C1ASR117omSf7qQ2w1ur58K2OffDQ/z51aMmqDtG5Vu
-         uMsCb6PbOWguSO7aIWrecBYvm8Z6QSvdOEkjX+OBbvmXSP+F8VwhAOwOPulCpjMpeMK+
-         mIpeOtS6SXzybGfasT/HJWEfjFrvcRhHAhbceCxk/BW0Meh2sykmJBRTq0uMskAZW3XH
-         UuMw==
-X-Gm-Message-State: ANhLgQ09MTEpqLgZ/pskOogx8G2KNCqvYvIaSu0X6AbUyd2l2rD2Qy0Q
-        Go+XCNgaGtLQ1Ay/n199gGonGYUHq+q/ihAMEkJvEA==
-X-Google-Smtp-Source: ADFU+vvJE6Ssek4TC4aKIRQTlyMlKHVJpHumeJpOUIW1xrGo8a64hbX5Blyr9hhBNF7Xt8zpkh0YEA7mdI7jQnGhEZE=
-X-Received: by 2002:a9d:6289:: with SMTP id x9mr2614762otk.340.1583332745739;
- Wed, 04 Mar 2020 06:39:05 -0800 (PST)
-MIME-Version: 1.0
-References: <20200304072940.GA1026144@brutus.lan>
-In-Reply-To: <20200304072940.GA1026144@brutus.lan>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 4 Mar 2020 09:40:17 -0500
-Message-ID: <CAEjxPJ4qQgoMq6so-qGMm6fL5CKRKxC-TJXjxmEe=Qv2DAHGTQ@mail.gmail.com>
+        id S1727308AbgCDOkb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Mar 2020 09:40:31 -0500
+Received: from agnus.defensec.nl ([80.100.19.56]:46850 "EHLO agnus.defensec.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726740AbgCDOkb (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 4 Mar 2020 09:40:31 -0500
+Received: from brutus.lan (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 0AEA3132006F;
+        Wed,  4 Mar 2020 15:40:29 +0100 (CET)
+Date:   Wed, 4 Mar 2020 15:40:27 +0100
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
 Subject: Re: strange pam selinux issue
-To:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Message-ID: <20200304144027.GC1032355@brutus.lan>
+Mail-Followup-To: Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
+References: <20200304072940.GA1026144@brutus.lan>
+ <20200304074251.GA1032355@brutus.lan>
+ <CAEjxPJ4o114iFykhm-m7knLx2qfFoO_pnZt66im+Yk6pSbLBmg@mail.gmail.com>
+ <20200304143650.GB1032355@brutus.lan>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ghzN8eJ9Qlbqn3iT"
+Content-Disposition: inline
+In-Reply-To: <20200304143650.GB1032355@brutus.lan>
+User-Agent: Every email client sucks, this one just sucks less.
+X-PGP-Key: https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 4, 2020 at 2:30 AM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
-> Some semi irrelevant background:
->
-> I am designing an improved "targeted" policy. Common targeted policies
-> are inefficient because they have several "unconfined" domains.
-> Unconfined domains are expensive because they have a lot of rules associated with them.
-> They're essentially all the same. Just duplicates.
 
-Why can't you just define a single unconfined attribute with
-associated allow rules, and then define multiple domains that
-have that attribute?  Where is the duplication occurring?  Name-based
-type transitions?  IMHO, those should be used far more
-sparsely than they are presently in Fedora and there has been some
-optimization recently in how they are internally represented.
+--ghzN8eJ9Qlbqn3iT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> I decided to have just one unconfined domain: "the system", and everything that is not targeted ends up in the system domain.
-> So now I want to have a confined login shell with role access to the system a'la: staff_u:staff_r:staff_t -> staff_u:unconfined_r:unconfined_t
-> pam_selinux seemingly cannot deal with this scenario as shown above. pam_selinux has many other issues. One of them is its concept of
-> "default_type". There is no such thing as a "default_type" and implying that there is a "default_type" causes issues.
+On Wed, Mar 04, 2020 at 03:36:50PM +0100, Dominick Grift wrote:
+> On Wed, Mar 04, 2020 at 09:22:42AM -0500, Stephen Smalley wrote:
+> > On Wed, Mar 4, 2020 at 2:44 AM Dominick Grift
+> > <dominick.grift@defensec.nl> wrote:
+> > >
+> > > On Wed, Mar 04, 2020 at 08:29:40AM +0100, Dominick Grift wrote:
+> > > > The easiest way to explain this is as follows.
+> > > >
+> > > > Consider this scenario:
+> > > >
+> > > > # seinfo -xuwheel.id
+> > > >
+> > > > Users: 1
+> > > >    user wheel.id roles wheel.role level s0 range s0;
+> > > >
+> > > > # selinuxconlist wheel.id sys.id:sys.role:sys.isid:s0
+> > > > wheel.id:wheel.role:user.systemd.subj:s0
+> > > >
+> > > > Now consider this scenario:
+> > > >
+> > > > # echo '(userrole wheel.id sys.role)' > hack.cil && semodule -i hac=
+k.cil
+> > > >
+> > > > # seinfo -xuwheel.id
+> > > >
+> > > > Users: 1
+> > > >    user wheel.id roles { wheel.role sys.role } level s0 range s0;
+> > > >
+> > > > Here is the issue:
+> > > >
+> > > > # selinuxconlist wheel.id sys.id:sys.role:sys.isid:s0
+> > > > wheel.id:sys.role:sys.isid:s0
+> > >
+> > > For completeness:
+> > >
+> > > # cat /etc/selinux/dssp3-mcs/contexts/users/wheel.id
+> > > sys.role:login.subj:s0 wheel.role:user.subj:s0
+> > > sys.role:ssh.daemon.subj:s0 wheel.role:user.ssh.subj:s0
+> > > sys.role:sys.isid:s0 wheel.role:user.systemd.subj:s0
+> >=20
+> > Are you using libselinux with or without the commit to stop using
+> > security_compute_user()?
+> > If still using security_compute_user(), what does compute_user
+> > sys.id:sys.role:sys.isid:s0 wheel.id display?
+> > If you don't have compute_user (it is in libselinux/utils but not sure
+> > Fedora packages it), you can also just
+> > strace -s 4096 -o trace.txt selinuxconlist wheel.id sys.id:sys.role:sys=
+=2Eisid:s0
+> > and see what it read back from /sys/fs/selinux/user.
+>=20
+> Thanks, it does not even seems to read /etc/selinux/dssp3-mcs/contexts/us=
+ers/wheel.id...
+> I am not if my libselinux has or has not security_compute_user():
 
-default_type was to support providing a default type to use when only
-a role was specified to e.g. newrole or pam_selinux.  Not sure that's
-a problem.
+Scratch that, the reference to /sys/fs/selinux/user in the trace below impl=
+ies that security_compute_user() is still there
+>=20
+> # rpm -qa libselinux
+> libselinux-3.0-3.fc32.x86_64
+>=20
+> openat(AT_FDCWD, "/sys/fs/selinux/user", O_RDWR|O_CLOEXEC) =3D 3
+> write(3, "sys.id:sys.role:sys.isid:s0 wheel.id", 36) =3D -1 ERANGE (Numer=
+ical result out of range)
+> close(3)                                =3D 0
+> openat(AT_FDCWD, "/etc/selinux/dssp3-mcs/contexts/failsafe_context", O_RD=
+ONLY|O_CLOEXEC) =3D 3
+> fstat(3, {st_mode=3DS_IFREG|0644, st_size=3D21, ...}) =3D 0
+> read(3, "sys.role:sys.isid:s0\n", 4096) =3D 21
+> close(3)                                =3D 0
+> openat(AT_FDCWD, "/sys/fs/selinux/context", O_RDWR|O_CLOEXEC) =3D 3
+> write(3, "wheel.id:sys.role:sys.isid:s0\0", 30) =3D 30
+> close(3)                                =3D 0
+> fstat(1, {st_mode=3DS_IFCHR|0620, st_rdev=3Dmakedev(0x88, 0), ...}) =3D 0
+> write(1, "wheel.id:sys.role:sys.isid:s0\n", 30) =3D 30
+>=20
+> --=20
+> gpg --locate-keys dominick.grift@defensec.nl
+> Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+> Dominick Grift
 
-> There are other issues related to this as well: the env_params option depends on the "context contains" access vector being present.
-> It will not work even if you have handle_unknown=allow set.
 
-Probably needs to be converted to using selinux_check_access().
+
+--=20
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+Dominick Grift
+
+--ghzN8eJ9Qlbqn3iT
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEe2FOk94VrgBPlhBrAlFoDzf+eRMFAl5fvdUACgkQAlFoDzf+
+eRPM9Q//Y523P4CxpIk1fH56it1pZ65qWvHlgbJomf27Dijtf+y+xvYTKuKOof3p
+uPHFbGhf0nkv0IydXOCOzMuGgcSHdY0HtFlU/tpQl2VA3Q+t6UCzsvgKNRzgq+U2
+oAJCv+/MNLL25VXpaiU/TY422VqhD4SlxnnRsUBuBK1JYIg6l83PD8LxyLsW/rNX
+WabYP0E+NILZbOwqvg5Gt2teVBeyWqaKuE1prkVFFuptHYDFvaXMyy22Xz9922NY
+bUKW9GZCG4yHVPPmJM/8jkItD7Jz2gi4yV799fTpJ45FbDRrREZzjQ/5y6KKEMj/
+D5vlMhBSJkgt1EmPzuKTZYUbAOFriN6YSG6rbe6zvP5e+achGQfV6og7Y2SevS6X
+7Uv4gjhtkCi3WbpQvOOwRiBProcuIleXAK9XGBpnEL4fQARP4XJSWslHoHpDNsql
+SpVS1jGALxhBIEdsZja5AIIEga8+sXGHJDkHts0qfnUoaiVFqwTwO5Jj5B0eg0dI
+Cw412SXwOfEOpsmqaMqovveKp2qbz34Zh9kpBVa5fIrvQm3FriJ4RlYCrW7Y+PEI
+1EH8VblynClPxYska+92AOIZzFYV6X54hW60gpMWxUtDIi3h0bFkSaW6KLEowBmP
+RqRB5RK1plvugAHkSYSPCYlZ4QjM3KRzo12/SL4Dgtbvg8vqe8U=
+=ugJB
+-----END PGP SIGNATURE-----
+
+--ghzN8eJ9Qlbqn3iT--
