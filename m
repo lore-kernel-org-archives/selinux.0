@@ -2,129 +2,81 @@ Return-Path: <SRS0=d3z6=4V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3D9FC3F2D1
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:37:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3162C3F2D1
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 16:54:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A7B0924658
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:37:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A641021D56
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 16:54:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZvgYzyf7"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E7cgsG55"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbgCDPhN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Mar 2020 10:37:13 -0500
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:33873 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726579AbgCDPhN (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Mar 2020 10:37:13 -0500
-Received: by mail-ot1-f67.google.com with SMTP id j16so2443279otl.1;
-        Wed, 04 Mar 2020 07:37:11 -0800 (PST)
+        id S1729717AbgCDQyY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Mar 2020 11:54:24 -0500
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:43004 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725765AbgCDQyY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Mar 2020 11:54:24 -0500
+Received: by mail-ot1-f65.google.com with SMTP id 66so2673766otd.9
+        for <selinux@vger.kernel.org>; Wed, 04 Mar 2020 08:54:23 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=VSIkyzu6LT+yZC1iEhGXy/GV05/86RiyGtMKqrUMOPQ=;
-        b=ZvgYzyf7HYZwUGHye/JuPAz+yg6j6lCxpDnRVYcK4BSojzfQvvYLYuWwpeFqn+h7Yr
-         lBQD/RfLDi5ahp48Wkmq5LEfTgKOshmeKfHuAS1yfJ5r5Sq9uGepbRkqvDNmqZasYnBz
-         A5GJODEro1n29KhOu+1ii5IPU9S9/sFX3lgOkeMUzWltcbKrFGJnoSFUvkOw9jY34lvY
-         ibevYyNl3EBIdhj5dmrHdE72Q/Yu/hx+B91ExIQgUlY46X5qm16WXH95uxPjBw6eexTL
-         vEaD0U1tMgckXL8rsU2sKgCCmzx8rlbd8Fhcf3l2WINAqEXdy/rrZCegwPS0skJAbLUe
-         Q7qA==
+        bh=Mko5tCHXb9wOubxn95W0/k8MzI52agciYni1sb6mJdk=;
+        b=E7cgsG55bO6lj7skjkAxmTPQEEDD4ogzX4UJe1pxag9P4hM9VkHUCN8PR99nx1MIZP
+         nOYvuBtl3MWPHHI85c9nt/BHZ8OImbmQp66/aAgNSltsu+fG9gt7jVGPM+DtFcTQaeIq
+         YPRvMeJANYuzqaCe7yX5TmwR6e4sF3jw5VJu21SvtAJuwNgNRio5bOKKoB/kIDcFiDP3
+         9W2zvbbL7Fo0b4sBv0m87r6p4K2i/nvBGsloeKYSTXDdJ5pNK7QCNYCLVgNKBgr+OfN8
+         aB79BdA+qRliutZqdAiysck0rXNkWBLngFA9djXi9bgxS3Fo3EJe5gArQNPJMBe8xUpK
+         uExw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=VSIkyzu6LT+yZC1iEhGXy/GV05/86RiyGtMKqrUMOPQ=;
-        b=CVQQEoJ2Qbek5oeJDhJxhpa3auOQP0zKEicb4mSy7AmQOneuMvIt+GnyCO5MVamPYB
-         B/hHAhY6kEhlIDew3+w5qvAguG8V/bq2Uhi1S5NH26bcgovWysgTboomfMgw5+7gIdwD
-         k+GQ4iCHUvRKKn+W9W4MurcVorP91l2BYEmNINYSphPIPMIhxuHBHZx0ZBG66gfXG4T1
-         jaZdXwq1/5ixla1bJYZDkisSxJ5+j8Fln/p9QTKoK20p3su7EjhaMAz9AA4oN2nnkewN
-         QddClGwcMS/97rj6itO3bzLelP4wDaX95RkNeebDrtDXw2zdpd1vxLbWM3qjrNDtLE3Y
-         5JKg==
-X-Gm-Message-State: ANhLgQ1dCbHtNzZK9T8nVStTkCWABDPbuFUSJmlmIFpJN5VuLd08L4AU
-        hsF/vMmXBxggc5XVziSpD/5/pWEOIwvvFUE9A5s=
-X-Google-Smtp-Source: ADFU+vuvOCk6OfC0NXimGuihvNMdo69P5BBTXqm/igZCkbWSNcGc3bwxy1CzZtiBEvv1w8fTkyzYfg9yiEcLD59abPk=
-X-Received: by 2002:a9d:6457:: with SMTP id m23mr2870056otl.162.1583336230671;
- Wed, 04 Mar 2020 07:37:10 -0800 (PST)
+        bh=Mko5tCHXb9wOubxn95W0/k8MzI52agciYni1sb6mJdk=;
+        b=PPSxuJdXSemCc5Et83Pxl0+GYb9MUqxDXQqmIvf3eO6Y8eKcGobUPZrhgRD5P/J0zS
+         lSMeW46kcll8T0i8sVbU+BGMzmwd3LhtDb1x+9eCnhWcaV7bPzcieM3Sb6fmrrxHqkp3
+         S7CmXjvAlKTOmRMrS0DiRHni8YEIevUpOgzOH+sPV9sBnAWGmAfXkBSLj4bEqA+/L1zw
+         psOzkW9X130IDLPm9dST/MFVEzKw6teBi1N1l/ubT6ESiNObRODdXz61LiEpFIM8iu4Q
+         EFHwwgOqjwgNzWJbO5LVg2r1OxqTwck4F3DZa0T7KyKZ4l6F8pNiUizPZCiBA30rPypa
+         dBnQ==
+X-Gm-Message-State: ANhLgQ1OX3LjMsB+dcfEVKTMklujfzoKVsbGK2o80muvDErYQVYCCniQ
+        STn75XXDI53430pHOUNB+D4TUQQCyWTVN7WkwQs=
+X-Google-Smtp-Source: ADFU+vtaAJBMUNOlSYvcsi7AqBWAhjrsK85vikWsmMLhxFSjWOLMyh1D8ywGiQdmciinn/nAh5qt+Pr3vLg+BFIQkn4=
+X-Received: by 2002:a9d:6e85:: with SMTP id a5mr2951667otr.89.1583340861157;
+ Wed, 04 Mar 2020 08:54:21 -0800 (PST)
 MIME-Version: 1.0
-References: <20200303225837.1557210-1-smayhew@redhat.com> <6bb287d1687dc87fe9abc11d475b3b9df061f775.camel@btinternet.com>
- <20200304143701.GB3175@aion.usersys.redhat.com>
-In-Reply-To: <20200304143701.GB3175@aion.usersys.redhat.com>
+References: <20200303085233.137371-1-omosnace@redhat.com>
+In-Reply-To: <20200303085233.137371-1-omosnace@redhat.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 4 Mar 2020 10:38:15 -0500
-Message-ID: <CAEjxPJ7A1KRJ3+o0-edW3byYBSjGa7=KnU5QaYCiVt6Lq6ZfpA@mail.gmail.com>
-Subject: Re: [PATCH] NFS: Ensure security label is set for root inode
-To:     Scott Mayhew <smayhew@redhat.com>
-Cc:     Richard Haines <richard_c_haines@btinternet.com>,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        bfields@fieldses.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, linux-nfs@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Wed, 4 Mar 2020 11:55:26 -0500
+Message-ID: <CAEjxPJ5XHa2JLMf_BmhHV=LNBUe7qgM8Le6_PMX=jYjGb2OXvA@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests: add test for default_range glblub support
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Joshua Brindle <joshua.brindle@crunchydata.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 4, 2020 at 9:37 AM Scott Mayhew <smayhew@redhat.com> wrote:
+On Tue, Mar 3, 2020 at 3:54 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> On Wed, 04 Mar 2020, Richard Haines wrote:
-> > I built and tested this patch on selinux-next (note that the NFS module
-> > is a few patches behind).
-> > The unlabeled problem is solved, however using:
-> >
-> > mount -t nfs -o
-> > vers=4.2,rootcontext=system_u:object_r:test_filesystem_file_t:s0
-> > localhost:$TESTDIR /mnt/selinux-testsuite
-> >
-> > I get the message:
-> >     mount.nfs: an incorrect mount option was specified
-> > with a log entry:
-> >     SELinux: mount invalid.  Same superblock, different security
-> > settings for (dev 0:42, type nfs)
-> >
-> > If I use "fscontext=" instead then works okay. Using no context option
-> > also works. I guess the rootcontext= option should still work ???
+> Adds a basic test for the "glblub" default_range mode introduced in
+> kernel commit [1] and userspace commit [2]. The test vectors are taken
+> from the original commit messages.
 >
-> Thanks for testing.  It definitely wasn't my intention to break
-> anything, so I'll look into it.
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=42345b68c2e3e2b6549fc34b937ff44240dfc3b6
+> [2] https://github.com/SELinuxProject/selinux/commit/9ba35fe8c280b7c91ec65b138d9f13e44ededaa9
+>
+> Cc: Joshua Brindle <joshua.brindle@crunchydata.com>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-I'm not sure that rootcontext= should be supported or is supportable
-over labeled NFS.
-It's primary use case is to allow assigning a specific context other
-than the default policy-defined one
-to the root directory for filesystems that support labeling but don't
-have existing labels on their root
-directories, e.g. tmpfs mounts.  Even if we set the rootcontext based
-on rootcontext= during mount(2),
-it would likely get overridden by subsequent attribute fetches from
-the server I would think (e.g. it probably
-already switches to the context from the server after 30 seconds or
-so?). As long as the separate context= option
-continues to work correctly on NFS, I'm not overly concerned about this.
-
-I should note that we are getting similar errors though when trying to
-specify any context-related
-mount options on NFS via the new fsconfig(2) system call, see
-https://github.com/SELinuxProject/selinux-kernel/issues/49
-I don't know if this change in when security_sb_set_mnt_opts() will
-alter that situation any.
-
-Also, FYI, we have recently made it possible to run the
-selinux-testsuite without errors within a labeled NFS
-mount.  If you clone
-https://github.com/SELinuxProject/selinux-testsuite/ and follow the
-README.md
-instructions including the NFS section and run ./tools/nfs.sh, it will
-export and mount the testsuite directory
-via labeled NFS over loopback and run all tests that can be supported
-over NFS, and then runs a few specific
-tests for context= mount options (but not the other mount options at
-present).  It still needs some further
-enhancements as per
-https://github.com/SELinuxProject/selinux-testsuite/issues/32#issuecomment-582992492
-but it at least provides some degree of regression testing.
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
