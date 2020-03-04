@@ -7,81 +7,81 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95A93C3F2CD
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:09:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B4CDC3F2CD
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:18:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6A59121741
-	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:09:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DAB321775
+	for <selinux@archiver.kernel.org>; Wed,  4 Mar 2020 15:18:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="brSa49qv"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E2pHqfCf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726275AbgCDPJv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 4 Mar 2020 10:09:51 -0500
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:34813 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725795AbgCDPJu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 4 Mar 2020 10:09:50 -0500
-Received: by mail-oi1-f193.google.com with SMTP id g6so2419007oiy.1
-        for <selinux@vger.kernel.org>; Wed, 04 Mar 2020 07:09:48 -0800 (PST)
+        id S1729658AbgCDPSu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 4 Mar 2020 10:18:50 -0500
+Received: from mail-ot1-f53.google.com ([209.85.210.53]:42409 "EHLO
+        mail-ot1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728365AbgCDPSt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 4 Mar 2020 10:18:49 -0500
+Received: by mail-ot1-f53.google.com with SMTP id 66so2330066otd.9
+        for <selinux@vger.kernel.org>; Wed, 04 Mar 2020 07:18:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=+nL6uspM2J46VyikhGiJpN6Zh1NOS1+zGzMUpaj810c=;
-        b=brSa49qvsujWCHr4qPDpkFTo9P+9cPkqLOag9tx/5ef++HDjC/3U+QNqzMlcA3AfMA
-         V31DLZ0xGZ07qL0TrlAFfdzmwWWqqTKijmR4gOJa8yUpVGYJTE89x+SBKYwYTb6OIxQz
-         MzFIgcJCkHgts2Rmvf3DTgE3gTGLpZAYeLtsaJYqwcF/lb97up8OBXkkZmLt2mGvdFXq
-         R2eWAsnHimZgVET1hl/nNoHh1NNNDf1Pd4sVaoqGPXL6rv/wDpWxuZ2w4b5xRa3iOGiC
-         9+wAaZtgq2biKOcQ8K6Zp5tYgdOdarAAzb8QImXCT9PiOYyiZu9nJYaTYqNWXWcYWnjC
-         Rc9Q==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=D6mWX1ZxeDRMOueNj4ubdYX/fdH5zQH/1qr4Z3MtE+Y=;
+        b=E2pHqfCfnPP7rWT4Mu4hnuG3FNykRDIyBlYfDAwSirN0cGhtc+tvtvWRrUrAovd2GG
+         HkW9TQawNXAYUaJ3f8zJQ82rkpbUsxY2JFhHF+85KKLSxiyztJrIMZUeeMpR4tvlSDml
+         Z/VkQYZdOrW4LDjx5s2h6nRXklMbCnseZkBo4F/naLAPu5gHG1bETgBnpUfF4iaE9asJ
+         QkEt2cC0VGuEBZjbAfkTvMB/uGak4CHeeciY9a8qnTtvMXXaAe/qu9oILlhwdF+z9cEo
+         SvlXt8o8Z6pMzMGjClJa6ZtLqvGhsjSZjtGrzZoVCuFgMWpkAygmoVHWcN5AuepKZxKo
+         mo6A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=+nL6uspM2J46VyikhGiJpN6Zh1NOS1+zGzMUpaj810c=;
-        b=JitQ3cWYGtbc1wBNu+EzBsIQ3mYXQ6/w6z4717nSYTvvpy/Q4/1er7kueYAHwifgyS
-         /gKHIlmeVqv/uLDiD5w44WNsKmGK7fUTXkC6lH+Ek0iKzl0J5PYouxDW1rAK2LkCR9hL
-         Zt5o7CoM6o8wlTOcbhERYCqHGrOqSsU301byQ4iYoRlXZ9Omxx1KEa2sgqvIwS9x0K/P
-         KyYJ7OcYEMV7xIFOCR/f4iK9oKNgc9B4xQ93dAUrq8p2PARSVh1hLm8LDhRfeKDoiycj
-         Xx1emH35XwVJ/lK/MVBdHvdhvY6LPkHN1bqIriCey6e2mMFXP4/6yqhnS6k6UPLaGu0l
-         GTbg==
-X-Gm-Message-State: ANhLgQ3dK5ghp1UZRHYyN3TyQMTEeiYpPofvs3Qp9wiohypV9rl6FUMU
-        FBs1vJcPXz9U76ltVcru1a3+FHcNPebSraoCoVJIrQ==
-X-Google-Smtp-Source: ADFU+vsd7IGNSkGSi9iy3QoKolISrPFNQ5hAOAmk0gmA2J3sFGu6JvPHz7xjy5tvJk6KVbGPYacUVxwPcMzReyNKIYU=
-X-Received: by 2002:aca:d40c:: with SMTP id l12mr2094776oig.65.1583334588401;
- Wed, 04 Mar 2020 07:09:48 -0800 (PST)
+         :message-id:subject:to;
+        bh=D6mWX1ZxeDRMOueNj4ubdYX/fdH5zQH/1qr4Z3MtE+Y=;
+        b=e3hqAmA1Ibo99669u9u21ByL2gyA32VcfXTna49LOE4/NtB7/WtauQChpcfPJcPRWK
+         e9nqZJxIMUm1J8Z20uE5nW+PkkJ3P7bD5QjyA7TXSNZB/gKQ5Pa4IGq+SYdCXjrF8ZCC
+         0VHPDvfPkotXlkyS+4uckIpPvwT5bfahS43SWxEAugXFouKliUouBeOrOfu2PZzj4dqT
+         6fWhFZNbHgI+odi+NiUZqelL8xNCnp/2kQV0imfEbRJwx0NDuG25r6AyKpCq85frO7lW
+         N7QRaGSKYm18rQ0+oGyesvvd9pT7Vy6CisoMnruEnzxGGXp5BR2fsAS/9nnoCR5g0A0R
+         N5Fg==
+X-Gm-Message-State: ANhLgQ2eTpr0qs/wxJNTYCe35KEE9dGPr+QNCSQrNFCDuSgjCRGP/7Ja
+        zQbIZdW26fJZINqFlJtsi+BpNKz04uFX6NyN3OyXgw==
+X-Google-Smtp-Source: ADFU+vufIghoJRai0p1CIYZhLIRtMA19CjjIJnO+PHNryOv8+UnVhNWtCl+PRXelRmNGo5sVBWx2GtjzMMeZdIkVF3M=
+X-Received: by 2002:a9d:6e85:: with SMTP id a5mr2607853otr.89.1583335129330;
+ Wed, 04 Mar 2020 07:18:49 -0800 (PST)
 MIME-Version: 1.0
-References: <20200304072940.GA1026144@brutus.lan> <20200304074251.GA1032355@brutus.lan>
- <CAEjxPJ4o114iFykhm-m7knLx2qfFoO_pnZt66im+Yk6pSbLBmg@mail.gmail.com>
- <20200304143650.GB1032355@brutus.lan> <CAEjxPJ4OPGWnc1uPDmqSuFnbFhzGYxenSyZ7WmxtnJ3Y2BdAzQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4OPGWnc1uPDmqSuFnbFhzGYxenSyZ7WmxtnJ3Y2BdAzQ@mail.gmail.com>
+References: <20200304072940.GA1026144@brutus.lan> <CAEjxPJ4qQgoMq6so-qGMm6fL5CKRKxC-TJXjxmEe=Qv2DAHGTQ@mail.gmail.com>
+ <20200304144726.GD1032355@brutus.lan>
+In-Reply-To: <20200304144726.GD1032355@brutus.lan>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 4 Mar 2020 10:10:52 -0500
-Message-ID: <CAEjxPJ5T3jeAvF_EGfsctWxzRvda55LEnGd52ei2Z-LG_TDcAg@mail.gmail.com>
+Date:   Wed, 4 Mar 2020 10:19:54 -0500
+Message-ID: <CAEjxPJ5=YT-EttK8iE5h4Z7A59nJd6pTD1sUR=5sR8UajmrsNw@mail.gmail.com>
 Subject: Re: strange pam selinux issue
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 4, 2020 at 9:46 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> This shows that your libselinux is still calling
-> security_compute_user() from get_ordered_context_list().
-> In this case, because the source context is allowed to transition to
-> many other contexts, the result returned via
-> /sys/fs/selinux/user would exceed the maximum size supported by the
-> kernel interface (one page of contexts),
-> and therefore it fails.  Then get_ordered_context_list() falls back to
-> the failsafe_context.
->
-> If you update to libselinux git, you will stop using
-> security_compute_user() and hence /sys/fs/selinux/user entirely.
+On Wed, Mar 4, 2020 at 9:47 AM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
+> Practically yes name-based type transitions but other than that it makes the experience much simpler if you have just one unconfined system domain.
+> I actually kind of got that idea from you when you mentioned the three domain model.
 
-BTW, Fedora ran into this limit some time ago and prune outbound
-transitions from init_t and perhaps other "unconfined"
-domains to workaround it.  But getting rid of security_compute_user()
-and /sys/fs/selinux/user is the better solution.
+Not sure that was me but whatever.
+
+> Its also used by pam_selinux env_params (which in turn is used by ssh for "ssh user/role/level@host")
+> The problem is that the default_type for ssh and sudo sessions may differ (ie. default_type is not really a default_type)
+
+Fair enough; originally it was only used by newrole and only if a type
+wasn't explicitly specified via -t.  Maybe
+get_default_context_with_role(3)
+would be better since it can take into account the caller context.
+
+> > Probably needs to be converted to using selinux_check_access().
+>
+> We hit that same isssue when we revisted mdp a while ago. Removing the env_params was a quick fix for that then.
+
+Well, the right fix is to use selinux_check_access().
