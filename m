@@ -2,106 +2,133 @@ Return-Path: <SRS0=pcXh=4W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40C5AC3F2CD
-	for <selinux@archiver.kernel.org>; Thu,  5 Mar 2020 13:53:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7272AC3F2D1
+	for <selinux@archiver.kernel.org>; Thu,  5 Mar 2020 16:12:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1524E2073B
-	for <selinux@archiver.kernel.org>; Thu,  5 Mar 2020 13:53:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 49DBA207FD
+	for <selinux@archiver.kernel.org>; Thu,  5 Mar 2020 16:12:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PyC8pJlN"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZB9sIfvL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726036AbgCENxo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 5 Mar 2020 08:53:44 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:32758 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726020AbgCENxo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 5 Mar 2020 08:53:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583416423;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=AAhmDKFKy5El4RC6OpkftZKgdbcbmiqXVp8yAOXv4rw=;
-        b=PyC8pJlNdbSmxHAcs6ITxnktPm+fCkumsjAZtm0f8ZY4pjroyXDnvFUDX3h/jHbxjtWvUP
-        kbVWAeeizXxbMxIqsD13EnnQ8Ceyt4ITiObP0pHnWcdfNZfregkjnMa5kQIlSzVh9YD1og
-        lpOJ1QCGOvPAFF2njnHL1r8/YOO5nRc=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-280--68vJRKxP9y6JeKcKL8JhQ-1; Thu, 05 Mar 2020 08:53:41 -0500
-X-MC-Unique: -68vJRKxP9y6JeKcKL8JhQ-1
-Received: by mail-wr1-f71.google.com with SMTP id p11so2333479wrn.10
-        for <selinux@vger.kernel.org>; Thu, 05 Mar 2020 05:53:41 -0800 (PST)
+        id S1726974AbgCEQMi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 5 Mar 2020 11:12:38 -0500
+Received: from mail-il1-f175.google.com ([209.85.166.175]:38910 "EHLO
+        mail-il1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726173AbgCEQMi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 5 Mar 2020 11:12:38 -0500
+Received: by mail-il1-f175.google.com with SMTP id f5so5502240ilq.5
+        for <selinux@vger.kernel.org>; Thu, 05 Mar 2020 08:12:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WNDC03srt396rh86JPHuOo37Qk+RtBruFhaPkRQaswk=;
+        b=ZB9sIfvLS/SCUJJB6Tr+IGHPgEzl6EAn+FNyz+ye8VyXTz9YPuCSgTO0093YURvZs4
+         b4ypmmc2u6nBKuwWdL/3n6ZPLGYgI1T5nlOIdZCcNHYEoD1HFPzgzauVH3yn5+FXYNKi
+         m2tTagrOw0wEKeeW0wruNOTxyiNmfBUtshHHTtRQMnRrkcu5hZyJtJ4h6+JhqSGMz38N
+         KXnUbsiNBk4rI2YoOarHyTWg2SWCKcFFZ5S1IrOvbHZuD3kSxfJgfmrV04DVryXGfi1y
+         GiTs8lM+4RK+j2YClHvWPk2id7GgV1/HPYHpbAUwN829psbIlsp7hCQMUFBHORSTXQDF
+         I/DQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=AAhmDKFKy5El4RC6OpkftZKgdbcbmiqXVp8yAOXv4rw=;
-        b=UQPt3k84JtXvOsDxyef+REexTR5+zSDMMtjLl58w+iYehrMmR6l9vdBGFhopJ38Za8
-         PV+lx4K/f3ZuaMTMk9dGOVPGiSOYLtLQneYo+LzAqAE6Z5nfgohlPXBgsKVK6uyqf1y7
-         8fFIgsBLUgv5d7VLZNKRcPJt8Z7WFxFgCoS/XFn6U9z4/OUmHp5qJL7KninWZH02Eb+9
-         0VPmkCJq6LGyt0+S6Ekr+2mMMqHNGIZiJXvBe/pwF6HYqMwi/D1VDCjNbOp/7LzO3CxZ
-         CzCR4C+gNiH1R8WidkakMfk9WNyNYNbvS6i48Vdm5GsPvYlbCJgqK3zIrkxfC5z2jOzk
-         PoFw==
-X-Gm-Message-State: ANhLgQ3QX0GIv7hUrhPYfV3Vbb4gSTyQ2fU9UQ/ajNXAo4lwY7gDBtlb
-        UxB3ha1wbk4eeb15mwCk2WbSAnAdbVHD8XrEMyzLxF6criqK1JTVbquL/QsWdZ2n5tJnXpdQ/Th
-        aNfOGGe4xK4V7FnqFEA==
-X-Received: by 2002:a7b:c446:: with SMTP id l6mr9444140wmi.94.1583416420316;
-        Thu, 05 Mar 2020 05:53:40 -0800 (PST)
-X-Google-Smtp-Source: ADFU+vuQnwVi3XtawWgK+QraHmBUvX7UKXOUvtv9YljKV+W2OfyOiKzZ2P1RJ4fFGvoVsraLAooxqw==
-X-Received: by 2002:a7b:c446:: with SMTP id l6mr9444066wmi.94.1583416419199;
-        Thu, 05 Mar 2020 05:53:39 -0800 (PST)
-Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id u20sm8679061wmj.14.2020.03.05.05.53.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Mar 2020 05:53:38 -0800 (PST)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        James Carter <jwcart2@gmail.com>
-Subject: [RFC PATCH v2] libsepol/cil: raise default attrs_expand_size to 2
-Date:   Thu,  5 Mar 2020 14:53:37 +0100
-Message-Id: <20200305135337.113248-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.24.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WNDC03srt396rh86JPHuOo37Qk+RtBruFhaPkRQaswk=;
+        b=cSJQuk1qA1i1nL7W0JrxDohcs44SuoCHSrh2q0xPC72Q/VNI8ERxsBM3YXjm9wyf9h
+         m/7zmQMoq0nNO1+t+z1LRlglphR7Io98ARoXWPzbDslJJjNbajEOSo6skI8kT0WF1H0j
+         un9IknsghDSrYElDkXPz9Sl5Pw1akmy4wUipYZLvmbS5j9inFZJbTCDU/ich+Jur7j04
+         ylSvn7mhoPTWVFyRCzHNwkEn3RSQUWhLO6+dRQVxKMmN/HkjcL/Y9lM07nf5M4AJ9aWs
+         kCpBGRA2b9mkJi0CcoSiBe/nfNXj4drqlheTRNtT+skd/rhdlYggxiKLhj8eNyF3LFvw
+         wD4w==
+X-Gm-Message-State: ANhLgQ0EpOEmcWEDTbQVukgcJhcIKNzUUUeM5xdRyPbgNhDnx3yo1iCC
+        jLK+Gs865mkxBiNpWjx5czCjY8IRv47+F/mmdOU=
+X-Google-Smtp-Source: ADFU+vsL0atiBlo+el8CXq+U2ibnWVFbBlusyd+deUiBOT17NSaVPdZr/abokaHk2rHC+jO1+9E40BiQBuOgoB9zdjI=
+X-Received: by 2002:a05:6e02:14e:: with SMTP id j14mr8396928ilr.129.1583424756254;
+ Thu, 05 Mar 2020 08:12:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAJfZ7==wU4R7VG3=gKpEoWKFKpP6tHiwN-0_O89-vp0w-ByPRw@mail.gmail.com>
+ <20200302164112.10669-1-william.c.roberts@intel.com> <CAEjxPJ4sURPgJuTzGX_MBu-nThwn9NCWDKj0z39Pum8Mhh3axg@mail.gmail.com>
+ <pjdd09r6ki8.fsf@redhat.com>
+In-Reply-To: <pjdd09r6ki8.fsf@redhat.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Thu, 5 Mar 2020 10:12:24 -0600
+Message-ID: <CAFftDdob6kA2XbsaLLKPND7uRFPFJyBwnzcPQPJ+pZsNw+vBzg@mail.gmail.com>
+Subject: Re: [V4] libselinux: drop dso.h
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>,
+        Ulrich Drepper <drepper@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The value attrs_expand_size == 1 removes all empty attributes, but it
-also makes sense to expand all attributes that have only one type. This
-removes some redundant rules (there is sometimes the same rule for the
-type and the attribute) and reduces the number of attributes that the
-kernel has to go through when looking up rules.
+On Thu, Mar 5, 2020 at 6:42 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+>
+> Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+>
+> > On Mon, Mar 2, 2020 at 11:41 AM <bill.c.roberts@gmail.com> wrote:
+> >>
+> >> Version 4:
+> >>   - Fix linker option warnings.
+> >>   - Move map file to begining of options.
+> >>
+> >> Version 3:
+> >>   - Add more symbols that should be dropped from the dso:
+> >>     - map_class;
+> >>     - map_decision;
+> >>     - map_perm;
+> >>
+> >> Version 2:
+> >>   - adds a version to the linker script LIBSELINUX_1.0
+> >>   - Adds a patch to drop some additional symbols from the dso:
+> >>     - dir_xattr_list
+> >>     - myprintf_compat
+> >>     - unmap_class
+> >>     - unmap_perm
+> >>
+> >> This four part patch series drops the dso.h and hidden_*
+> >> macros.
+> >>
+> >> The old dso.h functionality provided libselinux with both control over
+> >> external exported symbols as well as ensuring internal callers call into
+> >> libselinux and not a symbol with the same name loaded by the linker
+> >> earlier in the library list.
+> >>
+> >> The functionality is replaced by a linker script that requires public
+> >> API to explicitly be opt-in. The old method required that internal API
+> >> be explicitly annotated, and everything else is public. This should help
+> >> make it easier to control libselinux DSO hygene going forward.
+> >>
+> >> The second functionality is replaced by compiler option
+> >> -fno-semantic-interposition
+> >>
+> >> Note that clang has this enabled by default, and thus doesn't need it.
+> >>
+> >> See:
+> >>   - https://stackoverflow.com/questions/35745543/new-option-in-gcc-5-3-fno-semantic-interposition
+> >>
+> >> [PATCH v4 1/4] dso: drop hidden_proto and hidden_def
+> >> [PATCH v4 2/4] Makefile: add -fno-semantic-interposition
+> >> [PATCH v4 3/4] Makefile: add linker script to minimize exports
+> >> [PATCH v4 4/4] libselinux: drop symbols from map
+> >
+> > This looks fine to me but I'd like at least one of the distro
+> > maintainers to ack it (especially the last one).
+>
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+>
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
-
-v2: fix typos (Tne -> The; cointains -> contains)
-
- libsepol/cil/src/cil.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index d222ad3a..c010ca2a 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -452,7 +452,8 @@ void cil_db_init(struct cil_db **db)
- 	(*db)->disable_dontaudit = CIL_FALSE;
- 	(*db)->disable_neverallow = CIL_FALSE;
- 	(*db)->attrs_expand_generated = CIL_FALSE;
--	(*db)->attrs_expand_size = 1;
-+	/* 2 == remove attributes that contain none or just 1 type */
-+	(*db)->attrs_expand_size = 2;
- 	(*db)->preserve_tunables = CIL_FALSE;
- 	(*db)->handle_unknown = -1;
- 	(*db)->mls = -1;
--- 
-2.24.1
-
+Thanks staged:
+https://github.com/SELinuxProject/selinux/pull/205
