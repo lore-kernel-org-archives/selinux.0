@@ -2,103 +2,102 @@ Return-Path: <SRS0=Zw2N=4X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82860C10DCE
-	for <selinux@archiver.kernel.org>; Fri,  6 Mar 2020 17:46:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1D87C10DCE
+	for <selinux@archiver.kernel.org>; Fri,  6 Mar 2020 20:37:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 5C68120656
-	for <selinux@archiver.kernel.org>; Fri,  6 Mar 2020 17:46:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 748AE206CC
+	for <selinux@archiver.kernel.org>; Fri,  6 Mar 2020 20:37:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DuH/5daW"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="TeavJ82P"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726269AbgCFRqT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 Mar 2020 12:46:19 -0500
-Received: from mail-il1-f195.google.com ([209.85.166.195]:46143 "EHLO
-        mail-il1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726178AbgCFRqT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 6 Mar 2020 12:46:19 -0500
-Received: by mail-il1-f195.google.com with SMTP id e8so2758579ilc.13
-        for <selinux@vger.kernel.org>; Fri, 06 Mar 2020 09:46:19 -0800 (PST)
+        id S1726194AbgCFUhz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 6 Mar 2020 15:37:55 -0500
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:42210 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725873AbgCFUhy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 6 Mar 2020 15:37:54 -0500
+Received: by mail-ed1-f67.google.com with SMTP id n18so3992938edw.9
+        for <selinux@vger.kernel.org>; Fri, 06 Mar 2020 12:37:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=TgbRYFH2eIS4vxEY89TUtKPBhUcJ8rZDPnpSLk9e0Mc=;
-        b=DuH/5daWJFt4ymut0ygnxoa3tBASv7Hp6iMIHQv/CaNDCyK5UaPZJZuaXOeg2fiKB/
-         Fn39BSB6w88CnC5JbEtCaT9kG+bzu3eU3wMtErR0mDBoW77TXqF8KTVGxUYATQUbXE9W
-         Cl5p+zpY5a8haLLLHYb6oYA2+1+m6J2sN6EqeeJ+/J2fF+FzcqzXUj9a2putrOqKG41Z
-         bvHoT2g1PdsmIQv54wfqeqnyf0F0Wlf/qeiE0MaSN+F0J+9VaWzT/a0np6lDCcsQx5Ji
-         ZinS6QGCMPqODwJgvtvI1SeYwGTeBqZt2b9cIDtYFvaK59Z91Tf07N6c1v/Wc+0RUdN1
-         +9kw==
+        bh=Nc8dLNN9aOjew0rb0AyDFlPIotiwljk6L7LwU9CoY10=;
+        b=TeavJ82PVNrWgBa3Kaj34DHtzXPK4yDqitgn5cX8deyk3QjDbzI1l1OixBgCb1DfwI
+         wCXPZtk1dK5esrg8/8KHMK2negu+JVKQdi/PUsvQqVvyXNssROZccrDFJEoP4B/Rs0a8
+         dE2QJQy82pU7wQGv4lfBO+Xsx4Q2kJStpe8sD2ERkKJ6UjFO3xRKx0CHAOrfRj17NhBf
+         DEs7xgaBW0x1/nJnAwN7567VfYQ5OKJSVlYnNcYoDL89vIm2gcBse3PDXN8WpVG0EWQO
+         Op74AyI6uofWk9uCFnpEga2Oj9ztkNu7FX5c62rfVHRCBn7kCsx3XGhTNJKUSM/JKXBc
+         r9OQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=TgbRYFH2eIS4vxEY89TUtKPBhUcJ8rZDPnpSLk9e0Mc=;
-        b=oeVIw/hBBCfJO0knNG9hb1ve2TA6uHovg3uIaXRDqQUstYv+rUziNNZac6vYkroDHy
-         Ove/nsCNb5dwgxogQNk/zptOVXTjotG8HRWdhszZhcCFKvR0DZdCFrPw0hp/TjZdqa3u
-         qRepQyRzjJmao7E920zbcz/gQYCfyJ7BHnePtKQSeINNn5DU7p/M14cHnJ5NF9+Zi/14
-         5RW9tipJT4iOiyA85OaFrf+u9PsaIfwWbIxxrLjzCYUPBhCKaHRKDhs6Aex0XOV0XkQn
-         334o8iilbladHR2H/RYwSh9V5F05jhzX/sT/1FivPK6xrvrzCyzJBSOx6VfCkk2zc5v4
-         +Omg==
-X-Gm-Message-State: ANhLgQ0knd5tnRh2EydRGUiRy2dJMDfPDfpddu7K8gCrNA9APG/7lyp0
-        wcP4Zw7oaRHfRZ0fVfIH62tPSVxQgGwqJ7Hc5EZPVVYB
-X-Google-Smtp-Source: ADFU+vsuzsZk3mYFGc7SHJedwuKceieNrXPU33dtfZeiOU7cjqNOO5imKUk+28kLBMfIVsrQwxXM2T09K2Pw0y5cdjg=
-X-Received: by 2002:a92:5cc7:: with SMTP id d68mr4284842ilg.163.1583516778910;
- Fri, 06 Mar 2020 09:46:18 -0800 (PST)
+        bh=Nc8dLNN9aOjew0rb0AyDFlPIotiwljk6L7LwU9CoY10=;
+        b=H/mQps8C+m49Tu63njz+JRamazJeZL5Fkdx0IJncRGfcXRX8VYYQkhfLZWJLflJWZe
+         Q0NcqbDrvq7Vy+U7EtCP1C/2duIr3XUcxtql1ZSHtHHyxSfzWGEh5ipdjBa8E+u+t8xx
+         yr0jkMdS/u64kOBoPNol7OIM6uSpEE7F5FyyqAsQnHAUCSs3wSHQ/d4lvmGcbGFBDbjD
+         QX2m3/auLLyvS0R4jZFkMJCv7CT/zqFb/PqV7mCdyA1vv0V28viNnWG/XLslkxIVGWiD
+         bLc+FpSF2XS5Li0HQRpnOTNJgXqRJIeAHSP9Lp+jCYZTWaygjdKEGMOb6qkzVjOg0Op0
+         TK+Q==
+X-Gm-Message-State: ANhLgQ2m+QmKn6Z4QKVUivg70kLESnXKaOT/Lm/uxFxFCXRIManZc6fn
+        l/CAH6235+hj/538eGLR5Dmrsj9Mc4FyjFrrv8S3
+X-Google-Smtp-Source: ADFU+vvKRyFN7oavHoXHT0qlUXDxV64JJo3Roxl2z0iASYRJ1QWc3S2r3faRTib91H3Dqu4KWhawUy2usvuXTV7uV9E=
+X-Received: by 2002:a50:a7a5:: with SMTP id i34mr5318390edc.128.1583527072852;
+ Fri, 06 Mar 2020 12:37:52 -0800 (PST)
 MIME-Version: 1.0
-References: <CAFftDdp8TtcWRSA2PPWGaq1SPB81y7cF+w3ThbKr-BniEx9Gmw@mail.gmail.com>
- <CAEjxPJ7AMmRH-5y_WLx_b9rKdvq823FnJJ2HBBWAdDSQL3rnpg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7AMmRH-5y_WLx_b9rKdvq823FnJJ2HBBWAdDSQL3rnpg@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 6 Mar 2020 11:46:07 -0600
-Message-ID: <CAFftDdqbkFfd_ZyY54dGXjm6wOD2Ji_MWArmtupYV7p5w=3AkQ@mail.gmail.com>
-Subject: Re: libsepol: drop dso question on CFLAGS (package maintainers weigh
- in please)
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200214234203.7086-1-casey@schaufler-ca.com> <20200214234203.7086-2-casey@schaufler-ca.com>
+In-Reply-To: <20200214234203.7086-2-casey@schaufler-ca.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 6 Mar 2020 15:37:41 -0500
+Message-ID: <CAHC9VhS8KF-BzCFLjDNLWmg1q5-bgfJ9LvPcHy_4sWtPsYaPKA@mail.gmail.com>
+Subject: Re: [PATCH v15 01/23] LSM: Infrastructure management of the sock security
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        keescook@chromium.org, john.johansen@canonical.com,
+        penguin-kernel@i-love.sakura.ne.jp,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 6, 2020 at 10:24 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Fri, Feb 14, 2020 at 6:42 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
 >
-> On Fri, Mar 6, 2020 at 9:52 AM William Roberts <bill.c.roberts@gmail.com> wrote:
-> >
-> > The libsepol/src/Makefile has the below lines for CFLAGS:
-> >
-> > CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
-> >
-> > override CFLAGS += -I. -I../include -D_GNU_SOURCE
-> >
-> > Does anyone have a preference where I add the -fno-semantic-interposition?
-> >
-> > I was thinking the conditional assignment because of the comment made
-> > about packagers overriding things on the selinux drop dso patch
-> > series.
+> Move management of the sock->sk_security blob out
+> of the individual security modules and into the security
+> infrastructure. Instead of allocating the blobs from within
+> the modules the modules tell the infrastructure how much
+> space is required, and the space is allocated there.
 >
-> I am not a package maintainer but regardless of how this gets added
-> (and I think in the libselinux case
-> it ends up being part of the conditional assignment), we need to make
-> sure that maintainers are strongly
-> encouraged to add it to their builds to preserve existing behavior.
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Reviewed-by: John Johansen <john.johansen@canonical.com>
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> ---
+>  include/linux/lsm_hooks.h         |  1 +
+>  security/apparmor/include/net.h   |  6 ++-
+>  security/apparmor/lsm.c           | 38 ++++-----------
+>  security/security.c               | 36 +++++++++++++-
+>  security/selinux/hooks.c          | 78 +++++++++++++++----------------
+>  security/selinux/include/objsec.h |  5 ++
+>  security/selinux/netlabel.c       | 23 ++++-----
+>  security/smack/smack.h            |  5 ++
+>  security/smack/smack_lsm.c        | 64 ++++++++++++-------------
+>  security/smack/smack_netfilter.c  |  8 ++--
+>  10 files changed, 144 insertions(+), 120 deletions(-)
 
-Definitely.
+Stephen already ACK'd this patch, but more acks/reviews are always
+better so you can add my ACK as well.
 
-The same would go for libselinux, its on EXTRA_CFLAGS which eventually
-gets conditionally assigned to CFLAGS.
+Acked-by: Paul Moore <paul@paul-moore.com>
 
-I would imagine if you set custom CFLAGS when building a package, you better
-make sure it's perfect. You won't necessarily get a wrong lib, but you could get
-something undesirable for a host of reasons (hardening flags omitted, etc).
-
-I could definitely see an argument to add this no matter what for gcc builds
-(omit for clang) and make it non-override-able. But the package folks seemed
-to frown on that.
+-- 
+paul moore
+www.paul-moore.com
