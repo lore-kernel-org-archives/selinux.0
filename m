@@ -2,102 +2,140 @@ Return-Path: <SRS0=Zw2N=4X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1D87C10DCE
-	for <selinux@archiver.kernel.org>; Fri,  6 Mar 2020 20:37:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59ADAC10F25
+	for <selinux@archiver.kernel.org>; Fri,  6 Mar 2020 22:01:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 748AE206CC
-	for <selinux@archiver.kernel.org>; Fri,  6 Mar 2020 20:37:55 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="TeavJ82P"
+	by mail.kernel.org (Postfix) with ESMTP id 3845E206E6
+	for <selinux@archiver.kernel.org>; Fri,  6 Mar 2020 22:01:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726194AbgCFUhz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 Mar 2020 15:37:55 -0500
-Received: from mail-ed1-f67.google.com ([209.85.208.67]:42210 "EHLO
-        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725873AbgCFUhy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 6 Mar 2020 15:37:54 -0500
-Received: by mail-ed1-f67.google.com with SMTP id n18so3992938edw.9
-        for <selinux@vger.kernel.org>; Fri, 06 Mar 2020 12:37:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Nc8dLNN9aOjew0rb0AyDFlPIotiwljk6L7LwU9CoY10=;
-        b=TeavJ82PVNrWgBa3Kaj34DHtzXPK4yDqitgn5cX8deyk3QjDbzI1l1OixBgCb1DfwI
-         wCXPZtk1dK5esrg8/8KHMK2negu+JVKQdi/PUsvQqVvyXNssROZccrDFJEoP4B/Rs0a8
-         dE2QJQy82pU7wQGv4lfBO+Xsx4Q2kJStpe8sD2ERkKJ6UjFO3xRKx0CHAOrfRj17NhBf
-         DEs7xgaBW0x1/nJnAwN7567VfYQ5OKJSVlYnNcYoDL89vIm2gcBse3PDXN8WpVG0EWQO
-         Op74AyI6uofWk9uCFnpEga2Oj9ztkNu7FX5c62rfVHRCBn7kCsx3XGhTNJKUSM/JKXBc
-         r9OQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Nc8dLNN9aOjew0rb0AyDFlPIotiwljk6L7LwU9CoY10=;
-        b=H/mQps8C+m49Tu63njz+JRamazJeZL5Fkdx0IJncRGfcXRX8VYYQkhfLZWJLflJWZe
-         Q0NcqbDrvq7Vy+U7EtCP1C/2duIr3XUcxtql1ZSHtHHyxSfzWGEh5ipdjBa8E+u+t8xx
-         yr0jkMdS/u64kOBoPNol7OIM6uSpEE7F5FyyqAsQnHAUCSs3wSHQ/d4lvmGcbGFBDbjD
-         QX2m3/auLLyvS0R4jZFkMJCv7CT/zqFb/PqV7mCdyA1vv0V28viNnWG/XLslkxIVGWiD
-         bLc+FpSF2XS5Li0HQRpnOTNJgXqRJIeAHSP9Lp+jCYZTWaygjdKEGMOb6qkzVjOg0Op0
-         TK+Q==
-X-Gm-Message-State: ANhLgQ2m+QmKn6Z4QKVUivg70kLESnXKaOT/Lm/uxFxFCXRIManZc6fn
-        l/CAH6235+hj/538eGLR5Dmrsj9Mc4FyjFrrv8S3
-X-Google-Smtp-Source: ADFU+vvKRyFN7oavHoXHT0qlUXDxV64JJo3Roxl2z0iASYRJ1QWc3S2r3faRTib91H3Dqu4KWhawUy2usvuXTV7uV9E=
-X-Received: by 2002:a50:a7a5:: with SMTP id i34mr5318390edc.128.1583527072852;
- Fri, 06 Mar 2020 12:37:52 -0800 (PST)
+        id S1726171AbgCFWBl convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Fri, 6 Mar 2020 17:01:41 -0500
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:49915 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726090AbgCFWBl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 6 Mar 2020 17:01:41 -0500
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-159-girT2cKGN6qj0ciNYhcecg-1; Fri, 06 Mar 2020 17:01:36 -0500
+X-MC-Unique: girT2cKGN6qj0ciNYhcecg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A891A800D54;
+        Fri,  6 Mar 2020 22:01:34 +0000 (UTC)
+Received: from aion.usersys.redhat.com (ovpn-120-213.rdu2.redhat.com [10.10.120.213])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CAB4F5C28D;
+        Fri,  6 Mar 2020 22:01:33 +0000 (UTC)
+Received: by aion.usersys.redhat.com (Postfix, from userid 1000)
+        id F18AF1A0110; Fri,  6 Mar 2020 17:01:32 -0500 (EST)
+Date:   Fri, 6 Mar 2020 17:01:32 -0500
+From:   Scott Mayhew <smayhew@redhat.com>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Richard Haines <richard_c_haines@btinternet.com>,
+        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
+        bfields@fieldses.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, linux-nfs@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>
+Subject: Re: [PATCH] NFS: Ensure security label is set for root inode
+Message-ID: <20200306220132.GD3175@aion.usersys.redhat.com>
+References: <20200303225837.1557210-1-smayhew@redhat.com>
+ <6bb287d1687dc87fe9abc11d475b3b9df061f775.camel@btinternet.com>
+ <20200304143701.GB3175@aion.usersys.redhat.com>
+ <CAEjxPJ7A1KRJ3+o0-edW3byYBSjGa7=KnU5QaYCiVt6Lq6ZfpA@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200214234203.7086-1-casey@schaufler-ca.com> <20200214234203.7086-2-casey@schaufler-ca.com>
-In-Reply-To: <20200214234203.7086-2-casey@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 6 Mar 2020 15:37:41 -0500
-Message-ID: <CAHC9VhS8KF-BzCFLjDNLWmg1q5-bgfJ9LvPcHy_4sWtPsYaPKA@mail.gmail.com>
-Subject: Re: [PATCH v15 01/23] LSM: Infrastructure management of the sock security
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAEjxPJ7A1KRJ3+o0-edW3byYBSjGa7=KnU5QaYCiVt6Lq6ZfpA@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aion.usersys.redhat.com
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 6:42 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->
-> Move management of the sock->sk_security blob out
-> of the individual security modules and into the security
-> infrastructure. Instead of allocating the blobs from within
-> the modules the modules tell the infrastructure how much
-> space is required, and the space is allocated there.
->
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-> Reviewed-by: John Johansen <john.johansen@canonical.com>
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->  include/linux/lsm_hooks.h         |  1 +
->  security/apparmor/include/net.h   |  6 ++-
->  security/apparmor/lsm.c           | 38 ++++-----------
->  security/security.c               | 36 +++++++++++++-
->  security/selinux/hooks.c          | 78 +++++++++++++++----------------
->  security/selinux/include/objsec.h |  5 ++
->  security/selinux/netlabel.c       | 23 ++++-----
->  security/smack/smack.h            |  5 ++
->  security/smack/smack_lsm.c        | 64 ++++++++++++-------------
->  security/smack/smack_netfilter.c  |  8 ++--
->  10 files changed, 144 insertions(+), 120 deletions(-)
+On Wed, 04 Mar 2020, Stephen Smalley wrote:
 
-Stephen already ACK'd this patch, but more acks/reviews are always
-better so you can add my ACK as well.
+> On Wed, Mar 4, 2020 at 9:37 AM Scott Mayhew <smayhew@redhat.com> wrote:
+> >
+> > On Wed, 04 Mar 2020, Richard Haines wrote:
+> > > I built and tested this patch on selinux-next (note that the NFS module
+> > > is a few patches behind).
+> > > The unlabeled problem is solved, however using:
+> > >
+> > > mount -t nfs -o
+> > > vers=4.2,rootcontext=system_u:object_r:test_filesystem_file_t:s0
+> > > localhost:$TESTDIR /mnt/selinux-testsuite
+> > >
+> > > I get the message:
+> > >     mount.nfs: an incorrect mount option was specified
+> > > with a log entry:
+> > >     SELinux: mount invalid.  Same superblock, different security
+> > > settings for (dev 0:42, type nfs)
+> > >
+> > > If I use "fscontext=" instead then works okay. Using no context option
+> > > also works. I guess the rootcontext= option should still work ???
+> >
+> > Thanks for testing.  It definitely wasn't my intention to break
+> > anything, so I'll look into it.
+> 
+> I'm not sure that rootcontext= should be supported or is supportable
+> over labeled NFS.
 
-Acked-by: Paul Moore <paul@paul-moore.com>
+Should rootcontext= be supported for NFS versions < 4.2?  If not then
+maybe it that option should be rejected for nfs and nfs4 fstypes in
+selinux_set_mnt_opts().
 
--- 
-paul moore
-www.paul-moore.com
+> It's primary use case is to allow assigning a specific context other
+> than the default policy-defined one
+> to the root directory for filesystems that support labeling but don't
+> have existing labels on their root
+> directories, e.g. tmpfs mounts.  Even if we set the rootcontext based
+> on rootcontext= during mount(2),
+> it would likely get overridden by subsequent attribute fetches from
+> the server I would think (e.g. it probably
+> already switches to the context from the server after 30 seconds or
+
+Yes, that's what happens.  If we wanted to retain that behavior moving
+forward, then we need to avoid calling nfs_setsecurity() for the root
+inode when the rootcontext= option was used.  To do that, I think we'd
+need to add a flag that could be passed back to NFS via the
+set_kern_flags parameter of selinux_set_mnt_opts().
+
+> so?). As long as the separate context= option
+> continues to work correctly on NFS, I'm not overly concerned about this.
+
+Yep, the context= option still works.
+> 
+> I should note that we are getting similar errors though when trying to
+> specify any context-related
+> mount options on NFS via the new fsconfig(2) system call, see
+> https://github.com/SELinuxProject/selinux-kernel/issues/49
+> I don't know if this change in when security_sb_set_mnt_opts() will
+> alter that situation any.
+> 
+> Also, FYI, we have recently made it possible to run the
+> selinux-testsuite without errors within a labeled NFS
+> mount.  If you clone
+> https://github.com/SELinuxProject/selinux-testsuite/ and follow the
+> README.md
+> instructions including the NFS section and run ./tools/nfs.sh, it will
+> export and mount the testsuite directory
+> via labeled NFS over loopback and run all tests that can be supported
+> over NFS, and then runs a few specific
+> tests for context= mount options (but not the other mount options at
+> present).  It still needs some further
+> enhancements as per
+> https://github.com/SELinuxProject/selinux-testsuite/issues/32#issuecomment-582992492
+> but it at least provides some degree of regression testing.
+
+Thanks.  I ran this a few times and aside from an exportfs bug
+everything passed.  I'll be sure to run this in the future too.
+
+-Scott
+
