@@ -1,154 +1,173 @@
-Return-Path: <SRS0=kVhJ=4Y=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=n8Xp=4Z=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A92CCC3F2C6
-	for <selinux@archiver.kernel.org>; Sat,  7 Mar 2020 02:14:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 845BAC10DCE
+	for <selinux@archiver.kernel.org>; Sun,  8 Mar 2020 17:47:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 82BAE206E6
-	for <selinux@archiver.kernel.org>; Sat,  7 Mar 2020 02:14:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57AE3206D5
+	for <selinux@archiver.kernel.org>; Sun,  8 Mar 2020 17:47:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="a4uiYIZF"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="GbeFN2nE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726259AbgCGCOt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 6 Mar 2020 21:14:49 -0500
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:39291 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726269AbgCGCOt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 6 Mar 2020 21:14:49 -0500
-Received: by mail-ed1-f65.google.com with SMTP id m13so4749584edb.6
-        for <selinux@vger.kernel.org>; Fri, 06 Mar 2020 18:14:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jgA+GvZHpxvqH3AlWIOKDGZc5EP123kI9OgSbOMqtU4=;
-        b=a4uiYIZFMxKAVY9caf6/FpeTpmWiKGsYh2zhBSXh2tjTxcvnQZDh1k1jPiqpt9nhmd
-         dcNE7FVI7VYb/nvWpVcD2L7UTGlcuRbagmv9CwDIvgTBuhfkVjItugNluzwURXEDCe5E
-         znHHI48tbJYxxPIEykXI5oorZrbUWUxYzjnulx099xdAABSJD7llM9J8mTEfwXRZMUH9
-         rkXrSiZf7kG0VXDCkN01hIDpztQ2SOtAheJPMhESjQKN+c20rXEldCKAHhb7LhDJ868w
-         S0SPWizxGIzlEvw3ilmTNiBhl5L8dteEVu/PuZyo8mqeo82A9ZvYxIkR8C37YnBeI/e+
-         xDUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jgA+GvZHpxvqH3AlWIOKDGZc5EP123kI9OgSbOMqtU4=;
-        b=R+Lv3YFsBfgPYAacgNSIxqLpt8/WgSAaoAxr4MsIa3qmvwhC27U579GpqSuV/EoDNG
-         OYaqilk0uHKnac7xGx+jVsIcvXCZA19B4Jsk1hEkn8oFEY+COlHVHaNWT7d2W6s8lwmu
-         8gI2kkEP5WdULvttTuvIE92nHyif7uuBwtr9OwxsWnSOPAaRY9C8vuP24koSFlfZAF7z
-         VWx/SH6L0Vu/YmHhCXaxWGAKeoRqG7Azi8nBxAQ2JXhAYqykYU6dEi3a/j4v10lsYlE0
-         UB+N7n+pNgvEmNWcX6ebnRPsHCq+P1PqoY/6zlwyEyFtFZjlyNJ2JBk5o/UOx9qvlTDe
-         +L5A==
-X-Gm-Message-State: ANhLgQ3LSZyP3SOFzPMnfjCVr6vuCpMPkcRDcckGp2Hmt9hlpgTRJ3j2
-        7MfruUL7UnzYWbQX18apI9wSe9ilX2/8Islj5e9JAkU=
-X-Google-Smtp-Source: ADFU+vsLgoAW6B9s9yosK5UWrnm/hMReRrYEzZF6nV3yNR9ckjGMUDJe3X2Yp1ar/5qpmDzKMknrG7Xsm98SZHuY4X0=
-X-Received: by 2002:aa7:c1d3:: with SMTP id d19mr6310409edp.12.1583547286144;
- Fri, 06 Mar 2020 18:14:46 -0800 (PST)
-MIME-Version: 1.0
-References: <20200214234203.7086-1-casey@schaufler-ca.com> <20200214234203.7086-19-casey@schaufler-ca.com>
-In-Reply-To: <20200214234203.7086-19-casey@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 6 Mar 2020 21:14:35 -0500
-Message-ID: <CAHC9VhREcdFNtJkXkUrwtbu8GA_h2T5CJ9hAQCU0PSpd5yLGgg@mail.gmail.com>
-Subject: Re: [PATCH v15 18/23] NET: Store LSM netlabel data in a lsmblob
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        keescook@chromium.org, john.johansen@canonical.com,
-        penguin-kernel@i-love.sakura.ne.jp,
-        Stephen Smalley <sds@tycho.nsa.gov>
+        id S1726303AbgCHRrQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 8 Mar 2020 13:47:16 -0400
+Received: from mailomta1-re.btinternet.com ([213.120.69.94]:26788 "EHLO
+        re-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726279AbgCHRrQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 8 Mar 2020 13:47:16 -0400
+Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
+          by re-prd-fep-044.btinternet.com with ESMTP
+          id <20200308174713.YAF16865.re-prd-fep-044.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Sun, 8 Mar 2020 17:47:13 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1583689633; 
+        bh=MgatK+4FHcWh3IlaOJnDEIMpRwe8HhketPCBA2Zzp+o=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=GbeFN2nEpHxB+7YbuGEM+WJT0PDRuxjaI/Gyl+dTnp4n04m6mUFM7sMcnWmFTs7iRW9uqL1Hv3tkUZTilbcLs0lkuSEnF+nlmOYpSUEfgMTeWhP7bCRGGbOnptF0oqVCBCKJe150OULlxRz/5RXlrpO1rpfotmSG3F6qphlgrZZQYzVQJbtWTIotVSc2nrs5vDl5y+KI425qdKp6I6fM/AGobI7wWozO47RYHVI6tPnWC4qR2qQ5I7R73FaByApDtSyfny4REXgueKjEv4yzB5P3jTdFFqL0PpRszN8dufpVnnafITwHc+CwKJ9ZptrjTeHNcGfrG3I0GAIrMNQ1+A==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [31.51.79.181]
+X-OWM-Source-IP: 31.51.79.181 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrudduiedguddtjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphepfedurdehuddrjeelrddukedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeefuddrhedurdejledrudekuddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoegrnhhnrgdrshgthhhumhgrkhgvrhesnhgvthgrphhprdgtohhmqedprhgtphhtthhopeeosghfihgvlhgushesfhhivghlughsvghsrdhorhhgqedprhgtphhtthhopeeolhhinhhugidqnhhfshesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgr
+        ihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgushesthihtghhohdrnhhsrgdrghhovheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeoshhmrgihhhgvfiesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeoshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhmqedprhgtphhtthhopeeothhrohhnugdrmhihkhhlvggsuhhstheshhgrmhhmvghrshhprggtvgdrtghomheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (31.51.79.181) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5E3A16DE04FEE9DA; Sun, 8 Mar 2020 17:47:13 +0000
+Message-ID: <dc704637496883ac7c21c196aeae4e1ab37f76fa.camel@btinternet.com>
+Subject: Re: [PATCH] NFS: Ensure security label is set for root inode
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Scott Mayhew <smayhew@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
+        bfields@fieldses.org, Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, linux-nfs@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>
+Date:   Sun, 08 Mar 2020 17:47:07 +0000
+In-Reply-To: <20200306220132.GD3175@aion.usersys.redhat.com>
+References: <20200303225837.1557210-1-smayhew@redhat.com>
+         <6bb287d1687dc87fe9abc11d475b3b9df061f775.camel@btinternet.com>
+         <20200304143701.GB3175@aion.usersys.redhat.com>
+         <CAEjxPJ7A1KRJ3+o0-edW3byYBSjGa7=KnU5QaYCiVt6Lq6ZfpA@mail.gmail.com>
+         <20200306220132.GD3175@aion.usersys.redhat.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Feb 14, 2020 at 6:45 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
->
-> Netlabel uses LSM interfaces requiring an lsmblob and
-> the internal storage is used to pass information between
-> these interfaces, so change the internal data from a secid
-> to a lsmblob. Update the netlabel interfaces and their
-> callers to accommodate the change. This requires that the
-> modules using netlabel use the lsm_id.slot to access the
-> correct secid when using netlabel.
->
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-> Reviewed-by: John Johansen <john.johansen@canonical.com>
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> ---
->  include/net/netlabel.h              |  8 ++--
->  net/ipv4/cipso_ipv4.c               | 23 +++++++-----
->  net/netlabel/netlabel_kapi.c        |  6 +--
->  net/netlabel/netlabel_unlabeled.c   | 57 +++++++++++------------------
->  net/netlabel/netlabel_unlabeled.h   |  2 +-
->  security/selinux/hooks.c            |  2 +-
->  security/selinux/include/security.h |  1 +
->  security/selinux/netlabel.c         |  2 +-
->  security/selinux/ss/services.c      |  4 +-
->  security/smack/smack.h              |  1 +
->  security/smack/smack_lsm.c          |  5 ++-
->  security/smack/smackfs.c            | 10 +++--
->  12 files changed, 59 insertions(+), 62 deletions(-)
+On Fri, 2020-03-06 at 17:01 -0500, Scott Mayhew wrote:
+> On Wed, 04 Mar 2020, Stephen Smalley wrote:
+> 
+> > On Wed, Mar 4, 2020 at 9:37 AM Scott Mayhew <smayhew@redhat.com>
+> > wrote:
+> > > On Wed, 04 Mar 2020, Richard Haines wrote:
+> > > > I built and tested this patch on selinux-next (note that the
+> > > > NFS module
+> > > > is a few patches behind).
+> > > > The unlabeled problem is solved, however using:
+> > > > 
+> > > > mount -t nfs -o
+> > > > vers=4.2,rootcontext=system_u:object_r:test_filesystem_file_t:s
+> > > > 0
+> > > > localhost:$TESTDIR /mnt/selinux-testsuite
+> > > > 
+> > > > I get the message:
+> > > >     mount.nfs: an incorrect mount option was specified
+> > > > with a log entry:
+> > > >     SELinux: mount invalid.  Same superblock, different
+> > > > security
+> > > > settings for (dev 0:42, type nfs)
+> > > > 
+> > > > If I use "fscontext=" instead then works okay. Using no context
+> > > > option
+> > > > also works. I guess the rootcontext= option should still work
+> > > > ???
+> > > 
+> > > Thanks for testing.  It definitely wasn't my intention to break
+> > > anything, so I'll look into it.
+> > 
+> > I'm not sure that rootcontext= should be supported or is
+> > supportable
+> > over labeled NFS.
+> 
+> Should rootcontext= be supported for NFS versions < 4.2?  If not then
+> maybe it that option should be rejected for nfs and nfs4 fstypes in
+> selinux_set_mnt_opts().
+> 
+> > It's primary use case is to allow assigning a specific context
+> > other
+> > than the default policy-defined one
+> > to the root directory for filesystems that support labeling but
+> > don't
+> > have existing labels on their root
+> > directories, e.g. tmpfs mounts.  Even if we set the rootcontext
+> > based
+> > on rootcontext= during mount(2),
+> > it would likely get overridden by subsequent attribute fetches from
+> > the server I would think (e.g. it probably
+> > already switches to the context from the server after 30 seconds or
+> 
+> Yes, that's what happens.  If we wanted to retain that behavior
+> moving
+> forward, then we need to avoid calling nfs_setsecurity() for the root
+> inode when the rootcontext= option was used.  To do that, I think
+> we'd
+> need to add a flag that could be passed back to NFS via the
+> set_kern_flags parameter of selinux_set_mnt_opts().
+> 
+> > so?). As long as the separate context= option
+> > continues to work correctly on NFS, I'm not overly concerned about
+> > this.
+> 
+> Yep, the context= option still works.
+> > I should note that we are getting similar errors though when trying
+> > to
+> > specify any context-related
+> > mount options on NFS via the new fsconfig(2) system call, see
+> > https://github.com/SELinuxProject/selinux-kernel/issues/49
+I've done further testing and found that with this patch the
+fsconfig(2) problem is also resolved for nfs (provided the rootcontext
+is not specified).
 
-...
+> > I don't know if this change in when security_sb_set_mnt_opts() will
+> > alter that situation any.
+> > 
+> > Also, FYI, we have recently made it possible to run the
+> > selinux-testsuite without errors within a labeled NFS
+> > mount.  If you clone
+> > https://github.com/SELinuxProject/selinux-testsuite/ and follow the
+> > README.md
+> > instructions including the NFS section and run ./tools/nfs.sh, it
+> > will
+> > export and mount the testsuite directory
+> > via labeled NFS over loopback and run all tests that can be
+> > supported
+> > over NFS, and then runs a few specific
+> > tests for context= mount options (but not the other mount options
+> > at
+> > present).  It still needs some further
+> > enhancements as per
+> > https://github.com/SELinuxProject/selinux-testsuite/issues/32#issuecomment-582992492
+> > but it at least provides some degree of regression testing.
+Could you describe how I could test these, also are there any other
+SELinux tests that may be useful (with howto's). I'm almost ready to
+post another set of RFC test patches, but can add more.
 
+> 
+> Thanks.  I ran this a few times and aside from an exportfs bug
+> everything passed.  I'll be sure to run this in the future too.
+> 
+> -Scott
+> 
 
-> diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
-> index 376882215919..adb9dffc3952 100644
-> --- a/net/ipv4/cipso_ipv4.c
-> +++ b/net/ipv4/cipso_ipv4.c
-> @@ -106,15 +106,17 @@ int cipso_v4_rbm_strictvalid = 1;
->  /* Base length of the local tag (non-standard tag).
->   *  Tag definition (may change between kernel versions)
->   *
-> - * 0          8          16         24         32
-> - * +----------+----------+----------+----------+
-> - * | 10000000 | 00000110 | 32-bit secid value  |
-> - * +----------+----------+----------+----------+
-> - * | in (host byte order)|
-> - * +----------+----------+
-> - *
-> + * 0          8          16                    16 + sizeof(struct lsmblob)
-> + * +----------+----------+---------------------+
-> + * | 10000000 | 00000110 | LSM blob data       |
-> + * +----------+----------+---------------------+
-> + *
-> + * All secid and flag fields are in host byte order.
-> + * The lsmblob structure size varies depending on which
-> + * Linux security modules are built in the kernel.
-> + * The data is opaque.
->   */
-> -#define CIPSO_V4_TAG_LOC_BLEN         6
-> +#define CIPSO_V4_TAG_LOC_BLEN         (2 + sizeof(struct lsmblob))
-
-This isn't as bad as the sk_buff.cb limitation so I'm not going to
-worry too much about it, but just to be safe I think we should put a
-compile-time check to ensure that the local tag is within the bounds
-of the IPv4 option limit.  If we don't put a check I worry that there
-is a chance someone could get a very rude surprise at some point in
-the future (yes, this is highly unlikely, but still possible).
-
->  /*
->   * Helper Functions
-> @@ -1467,7 +1469,8 @@ static int cipso_v4_gentag_loc(const struct cipso_v4_doi *doi_def,
->
->         buffer[0] = CIPSO_V4_TAG_LOCAL;
->         buffer[1] = CIPSO_V4_TAG_LOC_BLEN;
-> -       *(u32 *)&buffer[2] = secattr->attr.secid;
-> +       memcpy(&buffer[2], &secattr->attr.lsmblob,
-> +              sizeof(secattr->attr.lsmblob));
->
->         return CIPSO_V4_TAG_LOC_BLEN;
->  }
-
--- 
-paul moore
-www.paul-moore.com
