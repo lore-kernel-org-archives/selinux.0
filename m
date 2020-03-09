@@ -2,120 +2,103 @@ Return-Path: <SRS0=v7Ke=42=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00863C10F27
-	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 13:12:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10F6AC10F27
+	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 13:15:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CDA6E2253D
-	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 13:12:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D938721D7E
+	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 13:15:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jgmg7AQO"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RGgNwVvo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726402AbgCINMo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Mar 2020 09:12:44 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:36596 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725956AbgCINMo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Mar 2020 09:12:44 -0400
-Received: by mail-oi1-f193.google.com with SMTP id t24so10089272oij.3;
-        Mon, 09 Mar 2020 06:12:43 -0700 (PDT)
+        id S1726402AbgCINPq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Mar 2020 09:15:46 -0400
+Received: from mail-oi1-f194.google.com ([209.85.167.194]:32980 "EHLO
+        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726426AbgCINPq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Mar 2020 09:15:46 -0400
+Received: by mail-oi1-f194.google.com with SMTP id q81so10093125oig.0
+        for <selinux@vger.kernel.org>; Mon, 09 Mar 2020 06:15:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=YMXkCHfi6tRjigLBwiP/Sb8yB6KUUIstGIL9eSbm0bM=;
-        b=jgmg7AQODy6ArktDYFhSC5bvkoB84U/ZJaWMvQCDcDb0xjtZovx2vu6MsllR5obLkx
-         r26y2Yrs6uCYe8ISzVfIxisOp56N76S/BSC0Bi1ClmUVRt/w1HxcTYfdnwZ0SGP4MluD
-         vtbBl+9UuyX61nK3/4mcWprAHgl8Dwda0Ry56rPFZMWOdQyqTd1kbgoQneqPE/JWHXso
-         3uMoP6vtMfvJ6RSvdJS0pY+0zISDb9E2KhroK3+gKb9NVB74sP4C33DFj4iz6PPWrfu3
-         wYYZVly9LpY6ydONDIcZ1v8T6Wu94y+1n7Ro9I8VaPtBGsKgw6xYLvMMFPpRuNYXG6/w
-         +T0w==
+        bh=UC+8usVzqAv4MCQX3BaH38pS74LzmtsNIixG29J6ld0=;
+        b=RGgNwVvoxi0//SFQ7lHbHJyw1Qrl0vsmJNFcQ8DXRPKakG9qcvSh5BTIywrFcb73hO
+         PD2ovtzIOlGZoJGid+pJKNrqoOiNJJ4D+qxpbgYpcEod560BcBn/AkwQaznlZ8eBaiRh
+         enDmDDMANlsU8RKMdqt5rtQVGDb4nnOF9KzbcihO6Y73rvSyjyrxcRJEm4vNYjPt5fvm
+         csT10+n41f7wdtS8Fg1OU6xWS/FXGcigy1VoIofxiJcFXUrdTydFNllbcVTXOPcZuBJp
+         n5cjCC+zaVij6HpJzTAc3r1IVcndj2coZDRIfJJ9KK+Jg1lMPEKjB1h5JaYYW1Xuv9Nb
+         /T5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=YMXkCHfi6tRjigLBwiP/Sb8yB6KUUIstGIL9eSbm0bM=;
-        b=VhvxBa4qVnePAZpJLcYoolU2jdF2MPTEhGXIGfSm9bNomGZ/DmaonnKnzogtt3CviC
-         fgkGPg3Rgq4D1lIv4LO9Q4/li7xBgeiqCXRG2tzr3TxpoHCD/9sqFyNvKBN3Fy98KFrj
-         owBcTBXtbwghe6hdxvnskSp5lZFNmsPOGgEQ1vinzgHKDjzMlrTYp0fmAwpwpR0Ckdbj
-         X5a01r5Zg2Yz/54XNR09JT8EA2uKfg0+a2shPhQaWZsGxmKFtgoKmB0twssJ5tYu+n0S
-         6PLXzF68qh0oGmFenqOfntAvTIJT/8OQ3y7r0UVamdFS5Cgp+o2shb+toJmTd/zRfWjb
-         X49A==
-X-Gm-Message-State: ANhLgQ3v4dzmZnKN0ZRdhQcPe92XzEumFfqbplt09ejkibS6hDX0s39a
-        quLonF8XA31s2hU2cc9pphey6FsyHgU/4ji4SZdpzlGs
-X-Google-Smtp-Source: ADFU+vtGXNpeFPg+WeR7uhlMwhqgvgsClXO+332D7czk0EJc5VEHbsNbQzkY+WapxbTIOYnxmQkej9W2Yz0lNAN5RhI=
-X-Received: by 2002:a05:6808:34c:: with SMTP id j12mr10737228oie.92.1583759563233;
- Mon, 09 Mar 2020 06:12:43 -0700 (PDT)
+        bh=UC+8usVzqAv4MCQX3BaH38pS74LzmtsNIixG29J6ld0=;
+        b=OzY8qQx69bQducS1NJOLOOG4gnSct3L5Xr8c7y8bGTJHXZZPp019hZ3ZwHUIQjN63D
+         p194zSPIGmJ8ZjPdavLr2xPzoRMGO6vz3p/1GHBxYBaXzvFeGRkzFHr6C0+d7S8fMtCR
+         KpTMZqmhuGxSX8re1Du/o0yedkJ47NVv9LKWwuqceExAmAQjUpcGFBB3j2aMSesYZz/N
+         dYwJGmiN2AK8RfAmX4Qepdhas79VdVTp9xy/booq35hPLhmRy7WsdteH4FN7Q8LB+LVF
+         +xrIBvbxnVDdWrMzoJTU4Lwg3Xi+Ikn0ew0EUvrHpUWjCir2bIi6DJCQCiyMsKJycSCR
+         QJGg==
+X-Gm-Message-State: ANhLgQ24FogZsIY/gu1UzwLT9mQRVKizjdGUXCTQhODZ9IheZ0E1/LtG
+        SA4a6yLgR4OeXys1SoVp7xR6Fwmv8909Wkr94tw=
+X-Google-Smtp-Source: ADFU+vsWcp4B/cDuUw0NJREsxtTDfbhlTaDqLJqTEVXZJc3nFANbgubT7FEZsUHv7E26OMjiVv4ZR7mo21Mf16pzZnU=
+X-Received: by 2002:aca:4b57:: with SMTP id y84mr11482975oia.16.1583759745677;
+ Mon, 09 Mar 2020 06:15:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200303225837.1557210-1-smayhew@redhat.com> <6bb287d1687dc87fe9abc11d475b3b9df061f775.camel@btinternet.com>
- <20200304143701.GB3175@aion.usersys.redhat.com> <CAEjxPJ7A1KRJ3+o0-edW3byYBSjGa7=KnU5QaYCiVt6Lq6ZfpA@mail.gmail.com>
- <20200306220132.GD3175@aion.usersys.redhat.com>
-In-Reply-To: <20200306220132.GD3175@aion.usersys.redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 9 Mar 2020 09:14:19 -0400
-Message-ID: <CAEjxPJ4MhEOVsZLopVgKNF-E2-OwuL3a-c167ngO68B6uUdqNw@mail.gmail.com>
-Subject: Re: [PATCH] NFS: Ensure security label is set for root inode
-To:     Scott Mayhew <smayhew@redhat.com>
-Cc:     Richard Haines <richard_c_haines@btinternet.com>,
-        trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        bfields@fieldses.org, Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>, linux-nfs@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>
+References: <20200305135337.113248-1-omosnace@redhat.com>
+In-Reply-To: <20200305135337.113248-1-omosnace@redhat.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 9 Mar 2020 09:17:11 -0400
+Message-ID: <CAP+JOzT1_b+b_xMPag99239CZ5xF6wPvdt8VrNRyfsuMJYHuug@mail.gmail.com>
+Subject: Re: [RFC PATCH v2] libsepol/cil: raise default attrs_expand_size to 2
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 6, 2020 at 5:01 PM Scott Mayhew <smayhew@redhat.com> wrote:
+On Thu, Mar 5, 2020 at 8:53 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> On Wed, 04 Mar 2020, Stephen Smalley wrote:
-> > I'm not sure that rootcontext= should be supported or is supportable
-> > over labeled NFS.
+> The value attrs_expand_size == 1 removes all empty attributes, but it
+> also makes sense to expand all attributes that have only one type. This
+> removes some redundant rules (there is sometimes the same rule for the
+> type and the attribute) and reduces the number of attributes that the
+> kernel has to go through when looking up rules.
 >
-> Should rootcontext= be supported for NFS versions < 4.2?  If not then
-> maybe it that option should be rejected for nfs and nfs4 fstypes in
-> selinux_set_mnt_opts().
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-Looks like it gets ignored currently?
-$ sudo exportfs -orw,no_root_squash localhost:/home
-$ sudo mkdir -p /mnt/selinux-testsuite
-$ sudo mount -t nfs -o vers=4.0,rootcontext=system_u:object_r:etc_t:s0
-localhost:/home/sds/selinux-testsuite /mnt/selinux-testsuite
-$ ls -Zd /mnt/selinux-testsuite
-system_u:object_r:nfs_t:s0 /mnt/selinux-testsuite
-$ mount | grep testsuite
-localhost:/home/sds/selinux-testsuite on /mnt/selinux-testsuite type
-nfs4 (rw,relatime,rootcontext=system_u:object_r:etc_t:s0,vers=4.0,rsize=1048576,wsize=1048576,namlen=255,hard,proto=tcp6,timeo=600,retrans=2,sec=sys,clientaddr=::1,local_lock=none,addr=::1)
+Acked-by: James Carter <jwcart2@gmail.com>
 
-I don't think we need to support it, but I don't know if we explicitly
-need to test and reject it for nfs/nfs4.
-
-> > It's primary use case is to allow assigning a specific context other
-> > than the default policy-defined one
-> > to the root directory for filesystems that support labeling but don't
-> > have existing labels on their root
-> > directories, e.g. tmpfs mounts.  Even if we set the rootcontext based
-> > on rootcontext= during mount(2),
-> > it would likely get overridden by subsequent attribute fetches from
-> > the server I would think (e.g. it probably
-> > already switches to the context from the server after 30 seconds or
+> ---
 >
-> Yes, that's what happens.  If we wanted to retain that behavior moving
-> forward, then we need to avoid calling nfs_setsecurity() for the root
-> inode when the rootcontext= option was used.  To do that, I think we'd
-> need to add a flag that could be passed back to NFS via the
-> set_kern_flags parameter of selinux_set_mnt_opts().
-
-Doesn't seem justified.
-
-> > so?). As long as the separate context= option
-> > continues to work correctly on NFS, I'm not overly concerned about this.
+> v2: fix typos (Tne -> The; cointains -> contains)
 >
-> Yep, the context= option still works.
-
-Great, then I have no objections to this patch.
+>  libsepol/cil/src/cil.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> index d222ad3a..c010ca2a 100644
+> --- a/libsepol/cil/src/cil.c
+> +++ b/libsepol/cil/src/cil.c
+> @@ -452,7 +452,8 @@ void cil_db_init(struct cil_db **db)
+>         (*db)->disable_dontaudit = CIL_FALSE;
+>         (*db)->disable_neverallow = CIL_FALSE;
+>         (*db)->attrs_expand_generated = CIL_FALSE;
+> -       (*db)->attrs_expand_size = 1;
+> +       /* 2 == remove attributes that contain none or just 1 type */
+> +       (*db)->attrs_expand_size = 2;
+>         (*db)->preserve_tunables = CIL_FALSE;
+>         (*db)->handle_unknown = -1;
+>         (*db)->mls = -1;
+> --
+> 2.24.1
+>
