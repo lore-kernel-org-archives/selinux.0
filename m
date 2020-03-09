@@ -2,189 +2,91 @@ Return-Path: <SRS0=v7Ke=42=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D990C10F27
-	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 16:41:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 940A4C10F27
+	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 18:04:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id ED1EA222C3
-	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 16:41:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6A24A215A4
+	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 18:04:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="ISPm9QQm"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V0AAX2JE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727146AbgCIQlu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Mar 2020 12:41:50 -0400
-Received: from mailomta5-sa.btinternet.com ([213.120.69.11]:31529 "EHLO
-        sa-prd-fep-040.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727061AbgCIQlu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Mar 2020 12:41:50 -0400
-Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
-          by sa-prd-fep-040.btinternet.com with ESMTP
-          id <20200309164145.GMZM30239.sa-prd-fep-040.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Mon, 9 Mar 2020 16:41:45 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1583772105; 
-        bh=LSy2qrTqIK3RE+estOpnakZt4GtKNxZMwAEUAH+Vrpw=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=ISPm9QQmIiUtnvijyv0+4YVATdn16+FWuxF/8dR/jHQSnx5jhYd3O+rpB9a1cTwwlhN8sGZ9K6QC2i7uI7+Hs80hZmaNsyn2WSHk3XMHnzRoC3gUHvM32n/K0/pF69QThRL5LNUMBXNQ2HZaUBTmCC5ESk9sIM9sDnV8NlrMLT91qC6LPMWKfYTu66rSo2//s+XMyxW5bCSXtLoDRFrQ0zZsZ5GVn5RPRk+uV0FCJW1HKazAAgGGJmqMAjywv9usvOG4m2948IwGwcHwMuM/f+iAEsUGlPDu0hU3g6/Tk9EKSawLlUinnwqzcBAba3wuIRdeOwdma1ik0SYnjWHY+A==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [86.134.5.48]
-X-OWM-Source-IP: 86.134.5.48 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedruddukedgledvucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucffohhmrghinhepghhithhhuhgsrdgtohhmnecukfhppeekiedrudefgedrhedrgeeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudefgedrhedrgeekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeorghnnhgrrdhstghhuhhmrghkvghrsehnvghtrghpphdrtghomheqpdhrtghpthhtohepoegsfhhivghlughssehfihgvlhgushgvshdrohhrgheqpdhrtghpthhtohepoehlihhnuhigqdhnfhhssehvghgvrhdrkhgvrhhnvghlrdhorhhgqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgv
-        sheshhhothhmrghilhdrtghomheqpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehsmhgrhihhvgifsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehsthgvphhhvghnrdhsmhgrlhhlvgihrdifohhrkhesghhmrghilhdrtghomheqpdhrtghpthhtohepoehtrhhonhgurdhmhihklhgvsghushhtsehhrghmmhgvrhhsphgrtggvrdgtohhmqe
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (86.134.5.48) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A27DB052917A6; Mon, 9 Mar 2020 16:41:45 +0000
-Message-ID: <41dadf5423aa1b9c0910ac3d805e6caf785dec8f.camel@btinternet.com>
+        id S1726462AbgCISEp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Mar 2020 14:04:45 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:42459 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726169AbgCISEo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Mar 2020 14:04:44 -0400
+Received: by mail-ot1-f68.google.com with SMTP id 66so10472243otd.9;
+        Mon, 09 Mar 2020 11:04:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=hgs8oWpZQnH5qRObxG0wmFLSg6UwmwwZ+TH8F8blMGY=;
+        b=V0AAX2JEPmWjiBIj6+GqL4IfltS75Sodc8a3O0FKTKmqMsncMtb/iTxvF2Wvne73+r
+         tB1BI/uD017aqDR3b6upC27TDpLI1iD2C1KuTl5pm6YeiwpWq3kR2Vewv9X6FYesa/k5
+         DG+wsc6ugMwdaPf9Esocze28A7kIrKVp32Umzwu96q1Wj80+KXqT2qU/wd7h/TeAL6tT
+         8JK4rd9cRzx/oq5BeOysgZBVCywOGWMk+cBzgHzthlLy8NSWTD2PCbGB0Ftn5WSUTJz9
+         O7aql6nxnx+y/Tb2GqLW8A+w8cYc3Obt3eVediPRTI4qbwOKmQ4F/JJUjovJLZO107De
+         8Jhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=hgs8oWpZQnH5qRObxG0wmFLSg6UwmwwZ+TH8F8blMGY=;
+        b=Xs409BdSLtS8AFG9defLwUWpAkj2cHFAk/kTjGZKsbBnoJDDjSebiGf4Np5gtUy3XF
+         o85bnuUofMGyUB3XneuLa9bb12waVvu43gqTNtDaNcX5G8beTMjnzkA6XQbGJOZa6tqF
+         BI/zJNS5gpb2AhqSJLrMMlBBlGIntpxJpvTYYJwJy25EQHhs1HkP0FkMqIymopPHX5XX
+         SYXo20PrpbsRWsQoX4l9329gfNO2iZpFyQi5enrFXorbZE5ZNUNICsegkrO10uhaLEr+
+         vAFCEVR1yXG+b2+MA7hCAirezp7Zd7b7TpSgs0K6aho5SKBonQ7Jqs5SD/ZjV6APog36
+         YQTA==
+X-Gm-Message-State: ANhLgQ2rybNtILeuTVPbttFvNJQ+78qsW3kp5+Zq6aR7nARMKO9lBnyh
+        PVxIuk6TQgjVi7q5wPMMBx0YT8kG3Cxw4zBilYs=
+X-Google-Smtp-Source: ADFU+vvuCym1VqUJJQ1j/4xBlxkOHwytSA3QSAMv8CtyXx3hlu33pGs1cvaltYOHCdm0WkkoxN64R59gTOAUoyeeqH4=
+X-Received: by 2002:a9d:67c3:: with SMTP id c3mr5584575otn.340.1583777083488;
+ Mon, 09 Mar 2020 11:04:43 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200303225837.1557210-1-smayhew@redhat.com> <6bb287d1687dc87fe9abc11d475b3b9df061f775.camel@btinternet.com>
+ <20200304143701.GB3175@aion.usersys.redhat.com> <CAEjxPJ7A1KRJ3+o0-edW3byYBSjGa7=KnU5QaYCiVt6Lq6ZfpA@mail.gmail.com>
+ <20200306220132.GD3175@aion.usersys.redhat.com> <dc704637496883ac7c21c196aeae4e1ab37f76fa.camel@btinternet.com>
+ <CAEjxPJ6pLLGQ2ywfjkanDNZc1isVV8=6sJmoYFy8shaSGr972A@mail.gmail.com> <41dadf5423aa1b9c0910ac3d805e6caf785dec8f.camel@btinternet.com>
+In-Reply-To: <41dadf5423aa1b9c0910ac3d805e6caf785dec8f.camel@btinternet.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 9 Mar 2020 14:05:34 -0400
+Message-ID: <CAEjxPJ7p2=ajPT2c8qJKwAtv6uwtNAKRwVcg5rzck5B6KNsHUw@mail.gmail.com>
 Subject: Re: [PATCH] NFS: Ensure security label is set for root inode
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Scott Mayhew <smayhew@redhat.com>
-Cc:     trond.myklebust@hammerspace.com, anna.schumaker@netapp.com,
-        bfields@fieldses.org, Paul Moore <paul@paul-moore.com>,
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     Scott Mayhew <smayhew@redhat.com>, trond.myklebust@hammerspace.com,
+        anna.schumaker@netapp.com, bfields@fieldses.org,
+        Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <sds@tycho.nsa.gov>, linux-nfs@vger.kernel.org,
         SElinux list <selinux@vger.kernel.org>
-Date:   Mon, 09 Mar 2020 16:41:44 +0000
-In-Reply-To: <CAEjxPJ6pLLGQ2ywfjkanDNZc1isVV8=6sJmoYFy8shaSGr972A@mail.gmail.com>
-References: <20200303225837.1557210-1-smayhew@redhat.com>
-         <6bb287d1687dc87fe9abc11d475b3b9df061f775.camel@btinternet.com>
-         <20200304143701.GB3175@aion.usersys.redhat.com>
-         <CAEjxPJ7A1KRJ3+o0-edW3byYBSjGa7=KnU5QaYCiVt6Lq6ZfpA@mail.gmail.com>
-         <20200306220132.GD3175@aion.usersys.redhat.com>
-         <dc704637496883ac7c21c196aeae4e1ab37f76fa.camel@btinternet.com>
-         <CAEjxPJ6pLLGQ2ywfjkanDNZc1isVV8=6sJmoYFy8shaSGr972A@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, 2020-03-09 at 09:35 -0400, Stephen Smalley wrote:
-> On Sun, Mar 8, 2020 at 1:47 PM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > On Fri, 2020-03-06 at 17:01 -0500, Scott Mayhew wrote:
-> > > On Wed, 04 Mar 2020, Stephen Smalley wrote:
-> > > > I should note that we are getting similar errors though when
-> > > > trying
-> > > > to
-> > > > specify any context-related
-> > > > mount options on NFS via the new fsconfig(2) system call, see
-> > > > https://github.com/SELinuxProject/selinux-kernel/issues/49
-> > I've done further testing and found that with this patch the
-> > fsconfig(2) problem is also resolved for nfs (provided the
-> > rootcontext
-> > is not specified).
-> 
-> Excellent, two bugs fixed with one patch!
-> 
-> > > > It still needs some further
-> > > > enhancements as per
-> > > > https://github.com/SELinuxProject/selinux-testsuite/issues/32#issuecomment-582992492
-> > > > but it at least provides some degree of regression testing.
-> > Could you describe how I could test these, also are there any other
-> > SELinux tests that may be useful (with howto's). I'm almost ready
-> > to
-> > post another set of RFC test patches, but can add more.
-> 
-> The ones identified in that github issue comment would simply be
-> additional tests in tools/nfs.sh
-> unless they happen to already be covered by your fs/filesystem tests
-> once those are applied to the
-> host/native filesystem instead of just ext4.  The test cases are:
-> 
-> 0. Test the bug fixed by this patch, i.e. perform mount of a
-> security_label exported filesystem, check the label of the mounted
-> directory to confirm it isn't unlabeled.
-> That's a NFS-specific test, goes in tools/nfs.sh.
-> 
-> 1. Mount the same filesystem twice with two different sets of context
-> mount options, check that mount(2) fails with errno EINVAL.
+On Mon, Mar 9, 2020 at 12:41 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+>
+> On Mon, 2020-03-09 at 09:35 -0400, Stephen Smalley wrote:
+> > 1. Mount the same filesystem twice with two different sets of context
+> > mount options, check that mount(2) fails with errno EINVAL.
+>
+> I've tests for the first part already, however with NFS it returns
+> EBUSY (using mount(2) or the fixed fsconfig(2)). On ext4, xfs & vfat it
+> does return EINVAL. I guess another NFS bug. Also mount(8) ignores the
+> error and just carries on. Here is a test using the testsuite mount(2):
 
-I've tests for the first part already, however with NFS it returns
-EBUSY (using mount(2) or the fixed fsconfig(2)). On ext4, xfs & vfat it
-does return EINVAL. I guess another NFS bug. Also mount(8) ignores the
-error and just carries on. Here is a test using the testsuite mount(2):
-
-tools/nfs-mount2.sh
-#!/bin/sh -e
-MOUNT=`stat --print %m .`
-TESTDIR=`pwd`
-NET="nfsvers=4.2,proto=tcp,clientaddr=127.0.0.1,addr=127.0.0.1"
-
-function err_exit() {
-    echo "Error on line: $1 - Closing down NFS"
-    umount /mnt/selinux-testsuite
-    exportfs -u localhost:$MOUNT
-    rmdir /mnt/selinux-testsuite
-    systemctl stop nfs-server
-    exit 1
-}
-
-trap 'err_exit $LINENO' ERR
-
-systemctl start nfs-server
-exportfs -orw,no_root_squash,security_label localhost:$MOUNT
-mkdir -p /mnt/selinux-testsuite
-
-tests/filesystem/mount -v -f nfs -o vers=4.2,$NET -s localhost:$TESTDIR
--t /mnt/selinux-testsuite
-
-tests/filesystem/mount -v -f nfs -o
-vers=4.2,$NET,context=system_u:object_r:etc_t:s0 -s localhost:$TESTDIR
--t /mnt/selinux-testsuite
-echo "Testing context mount of a security_label export."
-fctx=`secon -t -f /mnt/selinux-testsuite`
-if [ "$fctx" != "etc_t" ]; then
-    echo "Context mount failed: got $fctx instead of etc_t."
-    err_exit $LINENO
-fi
-umount /mnt/selinux-testsuite
-echo "Done"
-exportfs -u localhost:$MOUNT
-rmdir /mnt/selinux-testsuite
-systemctl stop nfs-server
-
-> Test cases might include a) mount first without any context mount
-> options, then try mounting a 2nd time with context mount options and
-> vice versa, b) mounting
-> with the same set of context options (e.g. both using context=) but
-> different context values, c) mounting with different sets of context
-> options (e.g. one uses
-> context=, the other uses fscontext=).  This test could be done in
-> fs/filesystem for any filesystem type, not NFS-specific.
-> 
-> 2. Mount a security_label exported NFS filesystem twice, confirm that
-> NFS security labeling support isn't silently disabled by trying to
-> set a label on a file and confirm it is set (fixed by  kernel commit
-> 3815a245b50124f0865415dcb606a034e97494d4).  This would go in
-> tools/nfs.sh
-> since it is NFS-specific.
-> 
-> 3. Perform a context= mount of a security_label exported NFS
-> filesystem, check that pre-existing files within the mount show up
-> with the context= value
-> not the underlying xattr value (fixed by kernel commit
-> 0b4d3452b8b4a5309b4445b900e3cec022cca95a). My original version of
-> tools/nfs.sh actually would have caught this because it was testing
-> the context of the nfs.sh script file itself within the context mount
-> but I dropped it back to only checking the top-level mount directory
-> when I moved tools/nfs.sh to avoid depending on a fixed location for
-> it, so it won't be caught currently. We could just change it back to
-> testing the context of a pre-existing file within the mount; any file
-> will do.  This would go in tools/nfs.sh, NFS-specific.
-> 
-> 4. Ensuring that all of the tests/filesystem and tests/fs_filesystem
-> tests that make sense for NFS are being run on the labeled NFS mount
-> itself when run via tools/nfs.sh and not just on an ext4 mount
-> created
-> by the test script.
-
+Looks like selinux_cmp_sb_context() returns -EBUSY on error instead of -EINVAL.
+This goes back to 094f7b69ea738d7d619cba449d2af97159949459 ("selinux:
+make security_sb_clone_mnt_opts return an error on context mismatch").
+I guess you can just make the test accept either -EINVAL or -EBUSY for
+the time being and we'll have to consider
+whether we want to change it and what would break if we did.
