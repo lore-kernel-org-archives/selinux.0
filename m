@@ -2,117 +2,85 @@ Return-Path: <SRS0=v7Ke=42=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05EDDC10F27
-	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 12:05:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6A00C10F27
+	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 12:40:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D00B12067C
-	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 12:05:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7C95920674
+	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 12:40:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jHVRN8b0"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uYLKfKAk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726215AbgCIMFw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Mar 2020 08:05:52 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42048 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725942AbgCIMFw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Mar 2020 08:05:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583755551;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=/I/mxCyTZ8R7iiMtXcOy3OgpYFXmSqSlnsxJXl9KeLs=;
-        b=jHVRN8b0r3X0iiec3sYNt5dSiwOIu1VyODTuCxtJfJa+6LbScR6iyTeTSkpOHr6BclIFR4
-        sqklQAdRdEykSQ3jW7kA0mqN5vQQeGRTqQnfsTjqT/+ldYwcqLsp3y6foEozoKHmaHVEDE
-        O1tMkDqy6kb77zYAbMZT5ZP2nH77nIA=
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
- [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-66-ZQR95KrIOAa8qwMGJ91__w-1; Mon, 09 Mar 2020 08:05:49 -0400
-X-MC-Unique: ZQR95KrIOAa8qwMGJ91__w-1
-Received: by mail-oi1-f200.google.com with SMTP id d131so76533oif.21
-        for <selinux@vger.kernel.org>; Mon, 09 Mar 2020 05:05:49 -0700 (PDT)
+        id S1726403AbgCIMks (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Mar 2020 08:40:48 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:42369 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725956AbgCIMks (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Mar 2020 08:40:48 -0400
+Received: by mail-ot1-f67.google.com with SMTP id 66so9331430otd.9
+        for <selinux@vger.kernel.org>; Mon, 09 Mar 2020 05:40:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ErYw9u39yB++x2Nx3w0GG4Rtf3bptwNbbRQVjYGRQQc=;
+        b=uYLKfKAkvUR+LZpcV6TT521PFfsOluDPxrcrFFsgeKLsb0Xl/k6c0C0wKNUIuyOGQQ
+         ADSDeLNOQohGhBTCGl4zIeC4GkKF9ENtfZuvZpDuR7P9RzYpquu8UTnMtjAk7ckOb6Xg
+         cf/cP7o0IsKZ1sMHgXMGeBaQ9Pf9EdZzp5GsyihFavlTWOivMxa0NV/bBzoZmve4LNW/
+         ZkCK443F9vfXZNoSbRsb0DowzU7474k/e8DtRCzPx4bzeDPBw059Ss0k2VMbUDF3/XIK
+         JJy4yieioLqFbkUSsE502IjR2UxWlXaNf3PxADLgzGN95z7VHycR1hcoikoS5cPBi1Su
+         qCbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=/I/mxCyTZ8R7iiMtXcOy3OgpYFXmSqSlnsxJXl9KeLs=;
-        b=VNNO4PStp0gvVrlquaGA0gH44S/hEymjjHFnYDRTS63N+z0ooJR9cNuas7uaPmI4At
-         uYegzcm4ZXzCMoiXcuPON0tWsyHi22ToJjpgOsbDAvulH6SUmOsaZL4chgNgo/o2ssON
-         +fhzEhLB/df+DRellcx2GsWkyyr5li1jW67mho3SQp4L08PvqUkNbsdCA5Z9RCnBLT1n
-         pj6K2KNPk24PMsbFL8Te0w2XSCCDHD10QFAM3ImTZ2Vo4/AiT1DUTsB0fG3fcNs2PFbt
-         kRcpeMQGOXpd0XigsRvwKJ1QBhZDpNLxHP1JhBiBvPnhJ45k/U2FwGJLqnVLX/awLYFF
-         Fh8Q==
-X-Gm-Message-State: ANhLgQ19H0HXJATogwdeL2DLPLm5eUIxEc7xkbnhxie6oIwX+MK+1H+Z
-        K/k3vnpIL8vfPsy6+LxPPAqXAYF4XbLuZtfFMPWjHLWh8wYQvyh47HFnwTIL3RasdpVL42ylf9f
-        evpI/5tAq1b+FE4qXmVdIlu+HdUebwGX7Lg==
-X-Received: by 2002:a9d:19c8:: with SMTP id k66mr1024447otk.43.1583755546852;
-        Mon, 09 Mar 2020 05:05:46 -0700 (PDT)
-X-Google-Smtp-Source: ADFU+vvMdAgXSk7o8R8ByKjHad4VUR4JYMx3IGCLLEA2jznvbnOMCS1fHyzTeajqCkc7oB/bvx9JPi/F/A+8dax6BfI=
-X-Received: by 2002:a9d:19c8:: with SMTP id k66mr1024421otk.43.1583755546481;
- Mon, 09 Mar 2020 05:05:46 -0700 (PDT)
+        bh=ErYw9u39yB++x2Nx3w0GG4Rtf3bptwNbbRQVjYGRQQc=;
+        b=LBtCk/nRjAoU8XSi2tP+luFB/rFQb+DxyBtTRr0+W2F4ZmBngnmIdG8ETlCs2GrDyx
+         0jgqUCD3HdAqjQ/hpfsdwpe1UU/XyZP23y/cvWk+eyWXD3jjYrhkBo6kESUyyhTqdWZa
+         5TtQ2SAwlPoRAZvXeaRceqYdWRAlhiy3nt8LZEDW/hB5JlI8R9nnG8Ek0oaLQ85DLwEN
+         QmSPBVUakPpYfNafXEZyXUaJJmB/ba5pD5n7RagfXZubog6Tp6EvFmo696CvsdESJgS1
+         8p6SiJF0mVhxgQX1VCziMgiT4W0D77SeQeyMkFLkep2p9pRqB7ijOsJgxpwjoMx8JK9w
+         cPTw==
+X-Gm-Message-State: ANhLgQ0g8j1PoU7LKKarrRn4O+RE3+o9hL4rLOCqQZV1JVZie/Z6O5Ns
+        WhOtbc1GLhuYP3BROJo48oCR1T4C/eg3MYl8bak=
+X-Google-Smtp-Source: ADFU+vstKSnlusoaDlmPqfwYvuK2pNV80ZCVSxe+LX7VL8OjwLu9FrLB4XAyHtscZjp5Yd8mowQLxoIJybUORqYWk3M=
+X-Received: by 2002:a9d:76c9:: with SMTP id p9mr12819651otl.135.1583757647134;
+ Mon, 09 Mar 2020 05:40:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200304212831.18292-1-jwcart2@gmail.com>
-In-Reply-To: <20200304212831.18292-1-jwcart2@gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 9 Mar 2020 13:05:35 +0100
-Message-ID: <CAFqZXNsv_rn0XY_0fUu3nh6XUHoW2G4htBVyLTGDtvEDjabqVA@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Do not check flavor when checking for
- duplicate parameters
-To:     James Carter <jwcart2@gmail.com>
+References: <20200303094813.142288-1-omosnace@redhat.com> <CAEjxPJ5rMJZhCE=N8HzbGRUJ+X+e7zwJW=XucUpd7zvaghA=RA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5rMJZhCE=N8HzbGRUJ+X+e7zwJW=XucUpd7zvaghA=RA@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 9 Mar 2020 08:42:23 -0400
+Message-ID: <CAEjxPJ5zi3PCcRGgaejJvOdK+E5KjzuMrMjqrndtZyDfZ-eHxw@mail.gmail.com>
+Subject: Re: [PATCH] Revert "libsepol: cache ebitmap cardinality value"
+To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
-        James Carter <jwcart2@tycho.nsa.gov>
+        Nicolas Iooss <nicolas.iooss@m4x.org>,
+        William Roberts <bill.c.roberts@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 4, 2020 at 10:28 PM James Carter <jwcart2@gmail.com> wrote:
-> A parameter of a macro was only considered to be a duplicate if it
-> matched both the name and flavor of another parameter. While it is
-> true that CIL is able to differentiate between those two parameters,
-> there is no reason to use the same name for two macro parameters and
-> it is better to return an error for what is probably an error.
+On Tue, Mar 3, 2020 at 2:15 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Remove the check of the flavors when checking for duplicate parameters.
+> On Tue, Mar 3, 2020 at 4:58 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > This reverts commit 542e878690ea1e310bed9adda6dcb28ca8cd1d53.
+> >
+> > After 6968ea977501 ("libsepol: make ebitmap_cardinality() of linear
+> > complexity"), the caching only saves ~0.06 % of total semodule -BN
+> > running time (on x86_64 without using the POPCNT instruction), so it's
+> > no longer worth the added complexity.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 >
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-> ---
->  libsepol/cil/src/cil_build_ast.c | 8 +++-----
->  1 file changed, 3 insertions(+), 5 deletions(-)
->
-> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-> index 307b1ee3..fcecdc4f 100644
-> --- a/libsepol/cil/src/cil_build_ast.c
-> +++ b/libsepol/cil/src/cil_build_ast.c
-> @@ -5304,11 +5304,9 @@ int cil_gen_macro(struct cil_db *db, struct cil_tree_node *parse_current, struct
->                 struct cil_list_item *curr_param;
->                 cil_list_for_each(curr_param, macro->params) {
->                         if (param->str == ((struct cil_param*)curr_param->data)->str) {
-> -                               if (param->flavor == ((struct cil_param*)curr_param->data)->flavor) {
-> -                                       cil_log(CIL_ERR, "Duplicate parameter\n");
-> -                                       cil_destroy_param(param);
-> -                                       goto exit;
-> -                               }
-> +                               cil_log(CIL_ERR, "Duplicate parameter\n");
-> +                               cil_destroy_param(param);
-> +                               goto exit;
->                         }
->                 }
->
-> --
-> 2.17.1
->
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 
-Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
-
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+Applied.
