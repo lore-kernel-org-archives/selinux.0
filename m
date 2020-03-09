@@ -7,61 +7,62 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37012C10F27
-	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 12:03:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05EDDC10F27
+	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 12:05:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0B9D220866
-	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 12:03:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D00B12067C
+	for <selinux@archiver.kernel.org>; Mon,  9 Mar 2020 12:05:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NYYyJzEq"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jHVRN8b0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726217AbgCIMDc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 9 Mar 2020 08:03:32 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:29568 "EHLO
+        id S1726215AbgCIMFw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 9 Mar 2020 08:05:52 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42048 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726215AbgCIMDc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 9 Mar 2020 08:03:32 -0400
+        by vger.kernel.org with ESMTP id S1725942AbgCIMFw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 9 Mar 2020 08:05:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583755411;
+        s=mimecast20190719; t=1583755551;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=WqweAHD5lFSc/0aJv8GqZm54Ywvjuj0Dfv29CjEjbeU=;
-        b=NYYyJzEqMUVuAIp8j9flDYG8QHyX5neXnkx1IEqAlbYaDwmmWtha8dpbot5vMcYgd4zF8t
-        WCNrqZV1vjebd3hZZyjfWKVi2BjE/bV9u6LWSNyY1+Yoj+oAf93jbccW0eEM/+EgsAgygy
-        r5xmvCw5cicN6cVyxwQcPE4VUUGcsR4=
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
- [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-42-SiWfHdFlPeG5p1hifjsYJQ-1; Mon, 09 Mar 2020 08:03:30 -0400
-X-MC-Unique: SiWfHdFlPeG5p1hifjsYJQ-1
-Received: by mail-ot1-f70.google.com with SMTP id t19so6436480otp.2
-        for <selinux@vger.kernel.org>; Mon, 09 Mar 2020 05:03:30 -0700 (PDT)
+        bh=/I/mxCyTZ8R7iiMtXcOy3OgpYFXmSqSlnsxJXl9KeLs=;
+        b=jHVRN8b0r3X0iiec3sYNt5dSiwOIu1VyODTuCxtJfJa+6LbScR6iyTeTSkpOHr6BclIFR4
+        sqklQAdRdEykSQ3jW7kA0mqN5vQQeGRTqQnfsTjqT/+ldYwcqLsp3y6foEozoKHmaHVEDE
+        O1tMkDqy6kb77zYAbMZT5ZP2nH77nIA=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-66-ZQR95KrIOAa8qwMGJ91__w-1; Mon, 09 Mar 2020 08:05:49 -0400
+X-MC-Unique: ZQR95KrIOAa8qwMGJ91__w-1
+Received: by mail-oi1-f200.google.com with SMTP id d131so76533oif.21
+        for <selinux@vger.kernel.org>; Mon, 09 Mar 2020 05:05:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=WqweAHD5lFSc/0aJv8GqZm54Ywvjuj0Dfv29CjEjbeU=;
-        b=R36owuBBU3Gb04ZdinmV49uP2RUSC520pfmtsfoyxXBTVAjowItk+XWQtO7apQXIXq
-         CeaCeknaGuxE/W6ZaON21SY9e529DmDEWj0zwsGDnk+hyfCSMxcbKJisRtujLt7P6/mL
-         POqISfeceGP+oOoNJaH3OXzQt86DDnb12piidn17qldnSRwTM9gtQltG3ySH7vfNUOn9
-         JqEEM5j3Q9Tj1phVyOxWCgsnQph1h5rO9lfvlTMhWfrIKsx6G8ymMI1Xe0GGVAx2YaOZ
-         wSPKr0D4aaOTlddYJUuVDfkAIgxZOwtQA5gmrJRU1BKt+9QwRR7KVJ9hPsVNaVti5fwa
-         gujQ==
-X-Gm-Message-State: ANhLgQ32NcRSqLQQAohilQBnEpnKKec29odtUpReXvdqiBV+fqOev8by
-        R6JDtS5iQWBoSZFqKFRQBGLdqswQZlszcZI1btJAJ4TdyfNLlz/3p8u98nEoOsHK0fxZt1m3kRD
-        nL3pttE6fTqqE95+UMKTziZin6DK1jRMJQg==
-X-Received: by 2002:a05:6830:1081:: with SMTP id y1mr12286258oto.367.1583755408854;
-        Mon, 09 Mar 2020 05:03:28 -0700 (PDT)
-X-Google-Smtp-Source: ADFU+vtBZ80arDKlvPFsoqlP+4wUm4hMK4EZ24RICZl7o3M7b/icpk93AL9UgyBdpJgI9TlRBkY5Mz+SIacklaOVEJc=
-X-Received: by 2002:a05:6830:1081:: with SMTP id y1mr12286236oto.367.1583755408545;
- Mon, 09 Mar 2020 05:03:28 -0700 (PDT)
+        bh=/I/mxCyTZ8R7iiMtXcOy3OgpYFXmSqSlnsxJXl9KeLs=;
+        b=VNNO4PStp0gvVrlquaGA0gH44S/hEymjjHFnYDRTS63N+z0ooJR9cNuas7uaPmI4At
+         uYegzcm4ZXzCMoiXcuPON0tWsyHi22ToJjpgOsbDAvulH6SUmOsaZL4chgNgo/o2ssON
+         +fhzEhLB/df+DRellcx2GsWkyyr5li1jW67mho3SQp4L08PvqUkNbsdCA5Z9RCnBLT1n
+         pj6K2KNPk24PMsbFL8Te0w2XSCCDHD10QFAM3ImTZ2Vo4/AiT1DUTsB0fG3fcNs2PFbt
+         kRcpeMQGOXpd0XigsRvwKJ1QBhZDpNLxHP1JhBiBvPnhJ45k/U2FwGJLqnVLX/awLYFF
+         Fh8Q==
+X-Gm-Message-State: ANhLgQ19H0HXJATogwdeL2DLPLm5eUIxEc7xkbnhxie6oIwX+MK+1H+Z
+        K/k3vnpIL8vfPsy6+LxPPAqXAYF4XbLuZtfFMPWjHLWh8wYQvyh47HFnwTIL3RasdpVL42ylf9f
+        evpI/5tAq1b+FE4qXmVdIlu+HdUebwGX7Lg==
+X-Received: by 2002:a9d:19c8:: with SMTP id k66mr1024447otk.43.1583755546852;
+        Mon, 09 Mar 2020 05:05:46 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vvMdAgXSk7o8R8ByKjHad4VUR4JYMx3IGCLLEA2jznvbnOMCS1fHyzTeajqCkc7oB/bvx9JPi/F/A+8dax6BfI=
+X-Received: by 2002:a9d:19c8:: with SMTP id k66mr1024421otk.43.1583755546481;
+ Mon, 09 Mar 2020 05:05:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200304212811.18242-1-jwcart2@gmail.com>
-In-Reply-To: <20200304212811.18242-1-jwcart2@gmail.com>
+References: <20200304212831.18292-1-jwcart2@gmail.com>
+In-Reply-To: <20200304212831.18292-1-jwcart2@gmail.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 9 Mar 2020 13:03:17 +0100
-Message-ID: <CAFqZXNu-oovsELRzzDU9nb4r50azdztOVetW7ohFY1kK2Xr8+g@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/cil: Check if name is a macro parameter first
+Date:   Mon, 9 Mar 2020 13:05:35 +0100
+Message-ID: <CAFqZXNsv_rn0XY_0fUu3nh6XUHoW2G4htBVyLTGDtvEDjabqVA@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Do not check flavor when checking for
+ duplicate parameters
 To:     James Carter <jwcart2@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         James Carter <jwcart2@tycho.nsa.gov>
@@ -72,67 +73,45 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On Wed, Mar 4, 2020 at 10:28 PM James Carter <jwcart2@gmail.com> wrote:
-> Type transition file names are stored in a symbol table. Before the
-> name is added, the symbol table is searched to see if the name had
-> already been inserted. If it has, then the already existing datum is
-> returned. If it has not, then the name is added if either the
-> typetransition rule does not occur in a macro or the name is not one
-> of the macro parameters.
+> A parameter of a macro was only considered to be a duplicate if it
+> matched both the name and flavor of another parameter. While it is
+> true that CIL is able to differentiate between those two parameters,
+> there is no reason to use the same name for two macro parameters and
+> it is better to return an error for what is probably an error.
 >
-> Checking for a previous insertion before checking if the name is a
-> macro parameter can cause a macro parameter to be treated as the
-> actual name if a previous type transition file name is the same as
-> the parameter.
->
-> Now check the name to see if it a macro paramter before checking for
-> its existence in the symbol table.
+> Remove the check of the flavors when checking for duplicate parameters.
 >
 > Signed-off-by: James Carter <jwcart2@gmail.com>
 > ---
->  libsepol/cil/src/cil_resolve_ast.c | 16 ++++++++--------
->  1 file changed, 8 insertions(+), 8 deletions(-)
+>  libsepol/cil/src/cil_build_ast.c | 8 +++-----
+>  1 file changed, 3 insertions(+), 5 deletions(-)
 >
-> diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
-> index 87575860..daf873be 100644
-> --- a/libsepol/cil/src/cil_resolve_ast.c
-> +++ b/libsepol/cil/src/cil_resolve_ast.c
-> @@ -76,14 +76,6 @@ static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key,
->         enum cil_sym_index sym_index;
->         struct cil_symtab_datum *datum = NULL;
->
-> -       cil_flavor_to_symtab_index(CIL_NAME, &sym_index);
-> -       symtab = &((struct cil_root *)db->ast->root->data)->symtab[sym_index];
-> -
-> -       cil_symtab_get_datum(symtab, key, &datum);
-> -       if (datum != NULL) {
-> -               return (struct cil_name *)datum;
-> -       }
-> -
->         if (parent->flavor == CIL_CALL) {
->                 struct cil_call *call = parent->data;
->                 macro = call->macro;
-> @@ -99,6 +91,14 @@ static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key,
+> diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
+> index 307b1ee3..fcecdc4f 100644
+> --- a/libsepol/cil/src/cil_build_ast.c
+> +++ b/libsepol/cil/src/cil_build_ast.c
+> @@ -5304,11 +5304,9 @@ int cil_gen_macro(struct cil_db *db, struct cil_tree_node *parse_current, struct
+>                 struct cil_list_item *curr_param;
+>                 cil_list_for_each(curr_param, macro->params) {
+>                         if (param->str == ((struct cil_param*)curr_param->data)->str) {
+> -                               if (param->flavor == ((struct cil_param*)curr_param->data)->flavor) {
+> -                                       cil_log(CIL_ERR, "Duplicate parameter\n");
+> -                                       cil_destroy_param(param);
+> -                                       goto exit;
+> -                               }
+> +                               cil_log(CIL_ERR, "Duplicate parameter\n");
+> +                               cil_destroy_param(param);
+> +                               goto exit;
+>                         }
 >                 }
->         }
 >
-> +       cil_flavor_to_symtab_index(CIL_NAME, &sym_index);
-> +       symtab = &((struct cil_root *)db->ast->root->data)->symtab[sym_index];
-> +
-> +       cil_symtab_get_datum(symtab, key, &datum);
-> +       if (datum != NULL) {
-> +               return (struct cil_name *)datum;
-> +       }
-> +
->         cil_name_init(&name);
->         cil_symtab_insert(symtab, key, (struct cil_symtab_datum *)name, ast_node);
->         cil_list_append(db->names, CIL_NAME, name);
 > --
 > 2.17.1
 >
 
 Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
 
--- 
+--
 Ondrej Mosnacek <omosnace at redhat dot com>
 Software Engineer, Security Technologies
 Red Hat, Inc.
