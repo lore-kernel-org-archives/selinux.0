@@ -7,130 +7,90 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D355C10F27
-	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 13:30:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A893C10F27
+	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 14:54:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2F93120873
-	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 13:30:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id ADDDD2071B
+	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 14:54:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O63n39Ul"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JiUVljtj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729473AbgCKNaf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Mar 2020 09:30:35 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:32790 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729103AbgCKNaf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Mar 2020 09:30:35 -0400
-Received: by mail-oi1-f194.google.com with SMTP id r7so1886512oij.0;
-        Wed, 11 Mar 2020 06:30:35 -0700 (PDT)
+        id S1729718AbgCKOyO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Mar 2020 10:54:14 -0400
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:34010 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729309AbgCKOyO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Mar 2020 10:54:14 -0400
+Received: by mail-ot1-f68.google.com with SMTP id j16so2253561otl.1
+        for <selinux@vger.kernel.org>; Wed, 11 Mar 2020 07:54:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ZsSuSLKEfu3I1SAJl6xAjr3wjSOLPeFy3yPY3Iv28F8=;
-        b=O63n39UljFStteXPWaHbRbdpOd2uAMy0s5j2fnaLfILxlCicixRYjHxQw6QvFk++1b
-         VaGfDRjDs1bbaWSa4F64rl+av5D5RoudRzzzYBvbXP8ZHU6oiBIUnnud29vhj85vpwHu
-         LHpSKss9nDNTi3xXzDulVL99eHFHJgf9/eYIQk2qA9+HwTifaclc4a9B7vluubeFe+eM
-         LWsG3GcAZOYFOp8996mmBZ177nTLZzQNxrbEXCCH7Aj4mGIMNkT5rKcUwm/kBge5Epa/
-         hbTvvnIXyorhpxoO9xjdlF8PkkXrEpHn7RUAN89qb4Dh+48hY9BfwZkHd3NPSydmQUGl
-         jVLA==
+        bh=gdTKOHRcNvUjs9w8M4cO/IAC8O2Qtd+bQT2kT1sSVF0=;
+        b=JiUVljtjc86FiCx1wjceBYR8uwTHeqdI/vSPGd++b5c/43Nbe3J9PCp0y9i+kb6aUK
+         i7AkBa4G2Z51pdfqYMCSVZTxVF54JUKFKGxqpZSrxN86lUCZf+nskib3OCdFsKlXIGYi
+         njCvVBA2ZQVY94nnuJIxhJUa+mDkgnwK9NIYPAChBe+H1tEk29lxaT9LFA22nNKU6Mu5
+         3QjLKLvnUjwEJYRqGjQmHMN2xL7xXFF18B8AdSKh+gntqHSuLim75Mx4kkWu9iLCoPe0
+         5ZvXiPjJ8I+U/BjHO8PkOPmkmjBxcRH9DlwDx1v1WJYyVKQXSz+RokEgegqlHdlfkEwY
+         gSBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ZsSuSLKEfu3I1SAJl6xAjr3wjSOLPeFy3yPY3Iv28F8=;
-        b=sJhqy5qCwY0coQYSHPGsdHIv1pvXGIA2RrPP7XlRXdlUBOLlbEhFnkI0eOF/mXArN/
-         ZPDJTzZkqO0rKX2yKZMumj1GDmKcbaKxbHMGyfICT031H8XWlaVFUiF2wbRI+6etejim
-         2YHQqKjdNBUZ8/2c5ijy53w4BQS0RzdaAqqxYK2tCldp+T6/jXswvjmMxmMMka+PLoP5
-         +1AUhwbWvcE0Y5V+0ipx8+Bl0bDWBNANq7luye9lYPkKwwCXkvNN5ocVjcRul5KQXHSH
-         GuIHVKHLGtZ5uq3gsEAqvryKiqEqnGj0l+WW2jJNN4l+RxM769GbYe4VgalV57I5Uwyh
-         i3FA==
-X-Gm-Message-State: ANhLgQ2XuStqeHLMwv6499PxPg8aaFarLDeb1BvQWVRyHz1F8ewfZjqB
-        7CKWCzyuj5YE0YZRmWiGBAUn1O3eyuTstF4uv1A=
-X-Google-Smtp-Source: ADFU+vtFqcIvIEMwdHZH1rUNUjfICLAyZmD0fE5Ggd/lDRNjab4mHbySl80mFwEwNzKaMPjOQGEMFq6AFbJCgSHIM9c=
-X-Received: by 2002:aca:3544:: with SMTP id c65mr1865799oia.160.1583933434832;
- Wed, 11 Mar 2020 06:30:34 -0700 (PDT)
+        bh=gdTKOHRcNvUjs9w8M4cO/IAC8O2Qtd+bQT2kT1sSVF0=;
+        b=KcXSh9wPEv5xRX3NUnxnIBPr64CaJflJcJ/javZZ7azso7om7YAJVMv5jFQJZMJVDH
+         KBfPbfNqIIUA4CO5qivgCMqydJTRpdxOAl7Z857YJ8W0RC2XJLYcY/dvIGgwwnWY55UL
+         EP7JjgeN3pKv3FerqzIr3DJTgntf0/AXQzYORIDJL9jzGH1FYundmayjPn0I2re6LSUx
+         tNSrMdLt2yZpuC1PJ9OZXECH9fotyrM97wLQqEPwFPB3kb5OUOMQpGUjI9CSuPpurbsa
+         Oj4uo9sSzGaOsNUAsnSSAtyjjmyBoQ6LzLfUyJ9UjjyS2oADaR/GXOx0/n8j0oKah2f6
+         TU7Q==
+X-Gm-Message-State: ANhLgQ0n7RJ0MTWNg0HXr5fVY6975+R0If8ap0j002Msd57qzN7Qv1r3
+        QS/50cA4rb/D1fz0trlL+Cailn8mHHA8iuFpVPU=
+X-Google-Smtp-Source: ADFU+vt1MQ7LHpV6IF6lfFwzi7mbH35cg5Fb1YTMz9QoZLVx0VqOBG420YfCoo55IADcQsPCHzq1uxgfx6sORkfmfHw=
+X-Received: by 2002:a9d:76c9:: with SMTP id p9mr2645633otl.135.1583938453195;
+ Wed, 11 Mar 2020 07:54:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200213194157.5877-1-sds@tycho.nsa.gov> <CAHC9VhSsjrgu2Jn+yiV5Bz_wt2x5bgEXdhjqLA+duWYNo4gOtw@mail.gmail.com>
- <eb2dbe22-91af-17c6-3dfb-d9ec619a4d7a@schaufler-ca.com> <CAKOZueuus6fVqrKsfNgSYGo-kXJ3f6Mv_NJZStY1Uo934=SjDw@mail.gmail.com>
- <CAKOZuetUvu=maOmHXjCqkHaYEN5Sf+pKBc3BZ+qpy1tE1NJ9xQ@mail.gmail.com>
- <CAEjxPJ4+NM6-tfOeZ6UQfas6=KxtBTAk6f23GEyLomFn3K3qew@mail.gmail.com> <CAKOZuevcz+fvfhRXPx2iZGtkk6+FjVj3ZSaGGT8DfwsOJR0k3A@mail.gmail.com>
-In-Reply-To: <CAKOZuevcz+fvfhRXPx2iZGtkk6+FjVj3ZSaGGT8DfwsOJR0k3A@mail.gmail.com>
+References: <20200310162456.32240-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20200310162456.32240-1-richard_c_haines@btinternet.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 11 Mar 2020 09:31:34 -0400
-Message-ID: <CAEjxPJ7DykRX7Q1NLhtRh123rjAvW4t6symJ5ochth+iCyg3kg@mail.gmail.com>
-Subject: Re: [RFC PATCH] security,anon_inodes,kvm: enable security support for
- anon inodes
-To:     Daniel Colascione <dancol@google.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        Sandeep Patil <sspatil@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        SElinux list <selinux@vger.kernel.org>, kvm@vger.kernel.org,
-        Nick Kralevich <nnk@google.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
+Date:   Wed, 11 Mar 2020 10:55:05 -0400
+Message-ID: <CAEjxPJ4USNdqFY40vPnviLPHSZR22Tpq0y1L+LauJenKXRw6HA@mail.gmail.com>
+Subject: Re: [RFC V3 PATCH 0/2] selinux-testsuite: Use native filesystem for tests
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Scott Mayhew <smayhew@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 10, 2020 at 5:51 PM Daniel Colascione <dancol@google.com> wrote:
+On Tue, Mar 10, 2020 at 12:25 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
 >
-> On Tue, Mar 10, 2020 at 11:25 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Tue, Mar 10, 2020 at 2:11 PM Daniel Colascione <dancol@google.com> wrote:
-> > >
-> > > On Thu, Feb 20, 2020 at 10:50 AM Daniel Colascione <dancol@google.com> wrote:
-> > > >
-> > > > On Thu, Feb 20, 2020 at 10:11 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > > >
-> > > > > On 2/17/2020 4:14 PM, Paul Moore wrote:
-> > > > > > On Thu, Feb 13, 2020 at 2:41 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > > > >> We are primarily posting this RFC patch now so that the two different
-> > > > > >> approaches can be concretely compared.  We anticipate a hybrid of the
-> > > > > >> two approaches being the likely outcome in the end.  In particular
-> > > > > >> if support for allocating a separate inode for each of these files
-> > > > > >> is acceptable, then we would favor storing the security information
-> > > > > >> in the inode security blob and using it instead of the file security
-> > > > > >> blob.
-> > > > > > Bringing this back up in hopes of attracting some attention from the
-> > > > > > fs-devel crowd and Al.  As Stephen already mentioned, from a SELinux
-> > > > > > perspective we would prefer to attach the security blob to the inode
-> > > > > > as opposed to the file struct; does anyone have any objections to
-> > > > > > that?
-> > > > >
-> > > > > Sorry for the delay - been sick the past few days.
-> > > > >
-> > > > > I agree that the inode is a better place than the file for information
-> > > > > about the inode. This is especially true for Smack, which uses
-> > > > > multiple extended attributes in some cases. I don't believe that any
-> > > > > except the access label will be relevant to anonymous inodes, but
-> > > > > I can imagine security modules with policies that would.
-> > > > >
-> > > > > I am always an advocate of full xattr support. It goes a long
-> > > > > way in reducing the number and complexity of special case interfaces.
-> > > >
-> > > > It sounds like we have broad consensus on using the inode to hold
-> > > > security information, implying that anon_inodes should create new
-> > > > inodes. Do any of the VFS people want to object?
-> > >
-> > > Ping?
-> >
-> > I'd recommend refreshing your patch series to incorporate feedback on
-> > the previous version and re-post,
-> > including viro and linux-fsdevel on the cc, and see if they have any
-> > comments on it.
+> If you test on the selinux-next kernel (that has the XFS patch [1]) with
+> the "NFS: Ensure security label is set for root inode" patch [2], then all
+> tests should pass. Anything else will give varying amounts of fails.
 >
-> I don't think there's anything in the patch series that needs to
-> change right now. AFAICT, we're still just waiting on comment from the
-> VFS people, who should be on this thread. Did I miss something?
+> The filesystem types tested are: ext4, xfs, vfat and nfs4.
+>
+> I've revamped the nfs.sh to handle tests that require specific mount
+> options, these plus many more are now in tests/nfs_filesystem. This only
+> gets run by nfs.sh.
 
-There was some discussion on the SELinux bits in patch 2/3.  I would
-take the silence on
-the vfs bits as implicit acceptance until you hear otherwise and just
-submit a v2 that addresses
-the SELinux bits.
+I don't really understand why you moved tests that could only be run
+from nfs.sh out of it into
+tests/nfs_filesystem?
+
+>
+> There are two minor workarounds involving multiple mounts returning EBUSY.
+> These are either bugs or features.
+>
+> Not tested on travis.
+
+travis will require you to add the new dependencies to the packages
+list in .travis.yml.  You can test this yourself by
+pushing a branch with your changes to your own clone on GitHub and
+checking travis-ci.org for the result.
