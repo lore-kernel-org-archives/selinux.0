@@ -2,89 +2,106 @@ Return-Path: <SRS0=h1bs=44=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD62DC2BAEE
-	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 20:06:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2575C2BB1D
+	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 21:09:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B8CE920739
-	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 20:06:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 946E02074F
+	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 21:09:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TecqeIK4"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="oqS9E5ly"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387449AbgCKUGr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Mar 2020 16:06:47 -0400
-Received: from mail-qk1-f195.google.com ([209.85.222.195]:39592 "EHLO
-        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387405AbgCKUGq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Mar 2020 16:06:46 -0400
-Received: by mail-qk1-f195.google.com with SMTP id e16so3399878qkl.6
-        for <selinux@vger.kernel.org>; Wed, 11 Mar 2020 13:06:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=TAt81c2HdFkmftRqyWaJuvimbz5jIXyBZKzls6skKx8=;
-        b=TecqeIK4bub2iUsWVJJJ/DKRaOnogmaAH4hZKU7eT8WoKXw3d8QthSCZ8HoY1qtXDx
-         TeYRoJopOWqZFtXdklHfEgKWs5f+l14QE2qJ3zHbAfKniuFms+RiLYHzvvx5a2YeJrMQ
-         cU1DXCWvSO80WGm82bsHB36FgKINiqK7wtjCLtd/CwnEkiTJuCEYXWC2bqwF0uxRz8yf
-         XDZswAsEsBldes9fQrgr3FIv+D/BCCt3fym/qLrOmC9nvHJ81wTKV4POfnr64LA39oMk
-         Hz1o/mQ58BxQENTQlp0ZcVhwq5msjYP555S+aWxJnMAtfYxI/7hNc9ebTJNcPCxVAOCG
-         ieuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=TAt81c2HdFkmftRqyWaJuvimbz5jIXyBZKzls6skKx8=;
-        b=roZDe7IX3HtKnkZW8qVOlMlJJw2sQZ9VWFLrmhTyaVByUhQBMGriMi/P3O0Pti8/s6
-         TCunXgTVcjI7wFhuhSCgThIYZ+W3rVjq5VpMUovSXOihaWgGnhl3ltMpgcPGF3OrrovO
-         DLvYpcgrj2B56FgMdTPRXqShjw1Qj3XWIlIE3geYOaYrfhF1+YuDz+NNC2zDkWdZeNvF
-         xVaA20ByyG5PHqvIRvpV8jAujetDTZfGfGyrtPP1MGNF7drGxaRhwqCCPa4HLJvvXIko
-         ssAY3q5epsT+acGsXkhxJcHXknh6Q/tRrKjPlZ35/W0CKcSjg5r/N213qJ7sxV5sDjOh
-         Su3Q==
-X-Gm-Message-State: ANhLgQ0HMHHUsO/AxkRuCxv0le7noG02GYyjPifF3IAOxDO4nI5R+JmI
-        0zJSb27vu5kjeVc4Rg4ZpVU=
-X-Google-Smtp-Source: ADFU+vsdOTYmCmpZ2PNtP4hzEVTMPrSavUGggsoTQXpeTzttG3Qi4zxvXPafWC8d6iY+6si4o/zktQ==
-X-Received: by 2002:a37:cc5:: with SMTP id 188mr4639385qkm.161.1583957205630;
-        Wed, 11 Mar 2020 13:06:45 -0700 (PDT)
-Received: from r21-ubuntu-01.ltsnet.net ([65.127.220.137])
-        by smtp.gmail.com with ESMTPSA id g2sm25736700qkb.27.2020.03.11.13.06.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 11 Mar 2020 13:06:44 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     paul@paul-moore.com
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [PATCH] MAINTAINERS: Update my email address
-Date:   Wed, 11 Mar 2020 16:05:51 -0400
-Message-Id: <20200311200551.9306-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        id S1729309AbgCKVJd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Mar 2020 17:09:33 -0400
+Received: from mailomta19-sa.btinternet.com ([213.120.69.25]:33491 "EHLO
+        sa-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729202AbgCKVJc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Mar 2020 17:09:32 -0400
+Received: from sa-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.38.7])
+          by sa-prd-fep-048.btinternet.com with ESMTP
+          id <20200311210929.HYXG23502.sa-prd-fep-048.btinternet.com@sa-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Wed, 11 Mar 2020 21:09:29 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1583960969; 
+        bh=GIBLv6M8kFVn9KOWRi0WjOoF/PpK7dUl51nnon1Y8bc=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=oqS9E5lycCtvS4mtVanmYUSbuHvyJFD2VUNGvts19wYpEmtHw/d93XpfAwkjo2kaqLetiNHwIX3I50oJ/PN/suDwxUaNq4w93pqrzbnJ2ZwTJ/rGLyE8HDgBNoUlnd25NNY1AcjPvBqVTXhVzUy9Vh1Uaguf+9rgEPKY+fpvQAwjwqg+vEPp1EibnLyTeOdCuZVVn9j+vAgjwqt4BUMEhSHm4N9MxlPpCV8mDFBO6QglOh07zrKAB8Aqu4+3Vefwzoh5UabK6Mi1d1WXnkpVNR0ht0395TbK5NSWw0h2ZntPVHd50SWAnfEVXwnvaYkG47ia9sljGzXmmOT2SrFPrQ==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [81.153.63.157]
+X-OWM-Source-IP: 81.153.63.157 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedruddvfedgfedtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepkedurdduheefrdeifedrudehjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkedurdduheefrdeifedrudehjedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvsheshhhothhmrghilhdrtghomheqpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehsmhgrhihhvgifsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehsthgvphhhvghnrdhsmhgrlhhlvgihrdifohhrkhesghhmrghilhdrtghomheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (81.153.63.157) by sa-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5E3A27DB05774D90; Wed, 11 Mar 2020 21:09:29 +0000
+Message-ID: <0246f7121c3c18731273b3812f068ee1bcdb96a3.camel@btinternet.com>
+Subject: Re: [RFC V3 PATCH 0/2] selinux-testsuite: Use native filesystem for
+ tests
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Scott Mayhew <smayhew@redhat.com>
+Date:   Wed, 11 Mar 2020 21:09:28 +0000
+In-Reply-To: <CAEjxPJ54UEMrNU+NBKtJoffB_gyErFbzsLrHj3EbVRMmA+EWmQ@mail.gmail.com>
+References: <20200310162456.32240-1-richard_c_haines@btinternet.com>
+         <CAEjxPJ4USNdqFY40vPnviLPHSZR22Tpq0y1L+LauJenKXRw6HA@mail.gmail.com>
+         <5b317d8b29fbf7d56238a136254b53b042becf96.camel@btinternet.com>
+         <CAEjxPJ54UEMrNU+NBKtJoffB_gyErFbzsLrHj3EbVRMmA+EWmQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Stephen Smalley <sds@tycho.nsa.gov>
+On Wed, 2020-03-11 at 14:02 -0400, Stephen Smalley wrote:
+> On Wed, Mar 11, 2020 at 1:52 PM Richard Haines
+> <richard_c_haines@btinternet.com> wrote:
+> > On Wed, 2020-03-11 at 10:55 -0400, Stephen Smalley wrote:
+> > > On Tue, Mar 10, 2020 at 12:25 PM Richard Haines
+> > > <richard_c_haines@btinternet.com> wrote:
+> > > > I've revamped the nfs.sh to handle tests that require specific
+> > > > mount
+> > > > options, these plus many more are now in tests/nfs_filesystem.
+> > > > This
+> > > > only
+> > > > gets run by nfs.sh.
+> > > 
+> > > I don't really understand why you moved tests that could only be
+> > > run
+> > > from nfs.sh out of it into
+> > > tests/nfs_filesystem?
+> > 
+> > I only moved them as it seemed more in keeping with the testsuite.
+> > Would you prefer them in the shell script ? I don't mind either
+> > way.
+> 
+> Previously they weren't dependent on the test policy (weren't running
+> in any test domain
+> or using any test types) and were only testing NFS labeling behavior.
+> I think you switched
+> them over to running in test domains and on test files/directories.
+> If we stay with the former,
+> then keeping them in nfs.sh makes more sense.  If we choose the
+> latter, then moving them as
+> you have done makes more sense.  Not sure about the tradeoffs here.
 
-Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
----
- MAINTAINERS | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I'll leave as is for now and see how it goes.
+> 
+> One thing to double check is that if you move them and there is a
+> failure, is that failure reported
+> properly and propagated up to the shell script in a way that causes
+> the entire test to fail.  Might be
+> but I haven't confirmed it.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 0b370797e8a6..e343b2c75fbc 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -14974,7 +14974,7 @@ X:	security/selinux/
- 
- SELINUX SECURITY MODULE
- M:	Paul Moore <paul@paul-moore.com>
--M:	Stephen Smalley <sds@tycho.nsa.gov>
-+M:	Stephen Smalley <stephen.smalley.work@gmail.com>
- M:	Eric Paris <eparis@parisplace.org>
- L:	selinux@vger.kernel.org
- W:	https://selinuxproject.org
--- 
-2.17.1
+It does now. I've fixed all the highlighted problems now. Will send new
+patch set tomorrow. Thanks for feedback.
 
