@@ -1,163 +1,142 @@
-Return-Path: <SRS0=d7nf=43=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=h1bs=44=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=no
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E173C10DCE
-	for <selinux@archiver.kernel.org>; Tue, 10 Mar 2020 21:51:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0476EC10F27
+	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 11:43:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 0F3DD2071B
-	for <selinux@archiver.kernel.org>; Tue, 10 Mar 2020 21:51:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CB63721D7E
+	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 11:43:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ML2h3mAT"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AmCjbvP5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726283AbgCJVvF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 10 Mar 2020 17:51:05 -0400
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:34765 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726273AbgCJVvF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 10 Mar 2020 17:51:05 -0400
-Received: by mail-ot1-f65.google.com with SMTP id j16so14788709otl.1
-        for <selinux@vger.kernel.org>; Tue, 10 Mar 2020 14:51:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Vb0GLcs/8L01cTZ3HReaJOKCCqFsvClKHIQrRrGWG3I=;
-        b=ML2h3mATLzke2m39a1Y6P/zDeHMxWqmWXR8CmeCANV0lcaQJmDMP4U3tgRYj3VwNVk
-         gcrsdaOTXdOK+JjqpLxko+kEbnGIn7QupEmi+2Q0b4vwqC6coa38rR0r7QcCru31DAfk
-         sP5TSdEzlau5ApuVktDVZXO2kqn+tioqibI+YdajtqBI/IN2FQIVXJjbMrmTR6N8aagK
-         4bYw66E+LCk5utYxoMeGj/mgh0bXybW9Hy21qFbJP8VzcWirKwIuqM4fg53vOIcf2M5G
-         457LG5EtugTnBxKo2TqABdeUV2BIWYtxrAYSp56R1HBngCTQ7tFbkZP+oMTR4otrECVK
-         bGtg==
+        id S1729140AbgCKLne (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Mar 2020 07:43:34 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:38335 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729130AbgCKLne (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Mar 2020 07:43:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1583927013;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=aMtp2QAQ4TdZ6hLuqTZg4WwBcJ/lXcZ2UiciorMSk8M=;
+        b=AmCjbvP5H1QIXm/8S2b4pQyx1ey0MNVnVML2fNoWEFk78NoRBUmevckox97T/dYblIzlWh
+        HWcivXiYlv1fGHhtx+lZ24SqYtFRhKcvHADqlTaL8h1dM7uhi14MtRgfx7TttuoGRDA60O
+        YfUZWxyYqW0i0P5QcrO14JXdqOe6IqY=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-234-8GbnbxW3OAWotfjsg-Q0Sg-1; Wed, 11 Mar 2020 07:43:29 -0400
+X-MC-Unique: 8GbnbxW3OAWotfjsg-Q0Sg-1
+Received: by mail-oi1-f200.google.com with SMTP id q130so875860oia.12
+        for <selinux@vger.kernel.org>; Wed, 11 Mar 2020 04:43:29 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Vb0GLcs/8L01cTZ3HReaJOKCCqFsvClKHIQrRrGWG3I=;
-        b=GIgUfiZXmXuqptDte2Y2opB1QLI9SRyHua6ESNP/g09zXV7hREth3RZL10IB+fBF+K
-         XyqaMigLpMiNrs+15JrT24Ko5ds9KorNCgFRJTUBo/+Jj6jlMOZcg6wOlliGHrzFrG+O
-         kjXSHG+6yYvr2QFd7tmJIVJP3NrflIAi1QFRNXqIz0ecGgpAKamlkjeUlDCCkbzrJlHh
-         2a6QW53QXAitrdc8Jyw4OJh6P1f9mi0Psge+nuDJGT4lxQswvJrKzNNgA3ybhrH1Ni1v
-         CW1VlYghhh47X8tuwe+Cdcj/pQJUl11Fqrq341P68A6cLoVXsfQUxoJy+UPUY6KMVtWW
-         TpjA==
-X-Gm-Message-State: ANhLgQ2Pz1E0/w2QYARkhpoF2BJ+gnKV9AuNYJY7ITjC90vHHflBybG+
-        2qo9W3GAtwUHe7uCD06oZnFG4cFtS5RCQIFNy0gK+A==
-X-Google-Smtp-Source: ADFU+vv6rIwq0naQzaPUTbSTkQPR9MrTSMoZs8D8+Kw1FxXqF+vvTQ6t7/pUXhQZwCfMKjxzfvYNNNcfLsXZgyFIH1w=
-X-Received: by 2002:a9d:2028:: with SMTP id n37mr19373893ota.127.1583877064482;
- Tue, 10 Mar 2020 14:51:04 -0700 (PDT)
+        bh=aMtp2QAQ4TdZ6hLuqTZg4WwBcJ/lXcZ2UiciorMSk8M=;
+        b=LDRCjt5zGhvBlRoZw3+T/YI6OOyKAhqOzooiPa0/AcxtTEJTDN7l1sEkvVIHzmLQpd
+         oLUVJbD25TVmRABkR+VGT3ARDx1rIatSg1Ws4uax/JNoir2RQxF7rJaFHQTCzFTeipei
+         x1tLahzPUxhx8WfZwUE/i0mAkNqDdq99eNqrz0y3r6/0KoB6a1wvtpgBbTWIpbA3yKpS
+         LrMDzluMw5Gzh7KNeSkAoebzQMHsIHZVzk1BWcWcK7oc7pBNFwyUxsV8C9kqeinybJGT
+         mAv+nQtjzF2JDP9HsHdVTWz2GpUF24D52DSt/LYKKIM+lJmoSVDUCdmCHW9Jzk/1E6+F
+         fkog==
+X-Gm-Message-State: ANhLgQ1zYyKicHkJjZoWk2R7n1cgrTaFsrnq+jg3tujqcgcwR5doF5GB
+        hpAP+40JamJe10t2PbBjSLS9zbarlU0SLQmPWkk7P7RwRREKbENk8FS/Xk2gnE5OylMP6cTxUEg
+        SJqgXQh032OGly8KdepuSEScdmAX/p+usIA==
+X-Received: by 2002:a9d:7458:: with SMTP id p24mr2047407otk.197.1583927008209;
+        Wed, 11 Mar 2020 04:43:28 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vtWQaxo3/mBLiIo/eZNZUllPv20VZ2+3QMdmsb8wxxlWJ+i/61+4+e0ahO0Ed8g5jzONFNwF3rkaaHzsdAuwtE=
+X-Received: by 2002:a9d:7458:: with SMTP id p24mr2047392otk.197.1583927007888;
+ Wed, 11 Mar 2020 04:43:27 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200213194157.5877-1-sds@tycho.nsa.gov> <CAHC9VhSsjrgu2Jn+yiV5Bz_wt2x5bgEXdhjqLA+duWYNo4gOtw@mail.gmail.com>
- <eb2dbe22-91af-17c6-3dfb-d9ec619a4d7a@schaufler-ca.com> <CAKOZueuus6fVqrKsfNgSYGo-kXJ3f6Mv_NJZStY1Uo934=SjDw@mail.gmail.com>
- <CAKOZuetUvu=maOmHXjCqkHaYEN5Sf+pKBc3BZ+qpy1tE1NJ9xQ@mail.gmail.com> <CAEjxPJ4+NM6-tfOeZ6UQfas6=KxtBTAk6f23GEyLomFn3K3qew@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4+NM6-tfOeZ6UQfas6=KxtBTAk6f23GEyLomFn3K3qew@mail.gmail.com>
-From:   Daniel Colascione <dancol@google.com>
-Date:   Tue, 10 Mar 2020 14:50:27 -0700
-Message-ID: <CAKOZuevcz+fvfhRXPx2iZGtkk6+FjVj3ZSaGGT8DfwsOJR0k3A@mail.gmail.com>
-Subject: Re: [RFC PATCH] security,anon_inodes,kvm: enable security support for
- anon inodes
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>,
-        Sandeep Patil <sspatil@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        SElinux list <selinux@vger.kernel.org>, kvm@vger.kernel.org,
-        Nick Kralevich <nnk@google.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
+References: <20200304212811.18242-1-jwcart2@gmail.com> <CAFqZXNu-oovsELRzzDU9nb4r50azdztOVetW7ohFY1kK2Xr8+g@mail.gmail.com>
+In-Reply-To: <CAFqZXNu-oovsELRzzDU9nb4r50azdztOVetW7ohFY1kK2Xr8+g@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Wed, 11 Mar 2020 12:43:16 +0100
+Message-ID: <CAFqZXNt3w9bUJyKcdpGk8Y8UoHH4FYBU+swDoh4UmTh1t-4r1A@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/cil: Check if name is a macro parameter first
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        James Carter <jwcart2@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 10, 2020 at 11:25 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Tue, Mar 10, 2020 at 2:11 PM Daniel Colascione <dancol@google.com> wrote:
+On Mon, Mar 9, 2020 at 1:03 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Wed, Mar 4, 2020 at 10:28 PM James Carter <jwcart2@gmail.com> wrote:
+> > Type transition file names are stored in a symbol table. Before the
+> > name is added, the symbol table is searched to see if the name had
+> > already been inserted. If it has, then the already existing datum is
+> > returned. If it has not, then the name is added if either the
+> > typetransition rule does not occur in a macro or the name is not one
+> > of the macro parameters.
 > >
-> > On Thu, Feb 20, 2020 at 10:50 AM Daniel Colascione <dancol@google.com> wrote:
-> > >
-> > > On Thu, Feb 20, 2020 at 10:11 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> > > >
-> > > > On 2/17/2020 4:14 PM, Paul Moore wrote:
-> > > > > On Thu, Feb 13, 2020 at 2:41 PM Stephen Smalley <sds@tycho.nsa.gov> wrote:
-> > > > >> Add support for labeling and controlling access to files attached to anon
-> > > > >> inodes. Introduce extended interfaces for creating such files to permit
-> > > > >> passing a related file as an input to decide how to label the anon
-> > > > >> inode. Define a security hook for initializing the anon inode security
-> > > > >> attributes. Security attributes are either inherited from a related file
-> > > > >> or determined based on some combination of the creating task and policy
-> > > > >> (in the case of SELinux, using type_transition rules).  As an
-> > > > >> example user of the inheritance support, convert kvm to use the new
-> > > > >> interface for passing the related file so that the anon inode can inherit
-> > > > >> the security attributes of /dev/kvm and provide consistent access control
-> > > > >> for subsequent ioctl operations.  Other users of anon inodes, including
-> > > > >> userfaultfd, will default to the transition-based mechanism instead.
-> > > > >>
-> > > > >> Compared to the series in
-> > > > >> https://lore.kernel.org/selinux/20200211225547.235083-1-dancol@google.com/,
-> > > > >> this approach differs in that it does not require creation of a separate
-> > > > >> anonymous inode for each file (instead storing the per-instance security
-> > > > >> information in the file security blob), it applies labeling and control
-> > > > >> to all users of anonymous inodes rather than requiring opt-in via a new
-> > > > >> flag, it supports labeling based on a related inode if provided,
-> > > > >> it relies on type transitions to compute the label of the anon inode
-> > > > >> when there is no related inode, and it does not require introducing a new
-> > > > >> security class for each user of anonymous inodes.
-> > > > >>
-> > > > >> On the other hand, the approach in this patch does expose the name passed
-> > > > >> by the creator of the anon inode to the policy (an indirect mapping could
-> > > > >> be provided within SELinux if these names aren't considered to be stable),
-> > > > >> requires the definition of type_transition rules to distinguish userfaultfd
-> > > > >> inodes from proc inodes based on type since they share the same class,
-> > > > >> doesn't support denying the creation of anonymous inodes (making the hook
-> > > > >> added by this patch return something other than void is problematic due to
-> > > > >> it being called after the file is already allocated and error handling in
-> > > > >> the callers can't presently account for this scenario and end up calling
-> > > > >> release methods multiple times), and may be more expensive
-> > > > >> (security_transition_sid overhead on each anon inode allocation).
-> > > > >>
-> > > > >> We are primarily posting this RFC patch now so that the two different
-> > > > >> approaches can be concretely compared.  We anticipate a hybrid of the
-> > > > >> two approaches being the likely outcome in the end.  In particular
-> > > > >> if support for allocating a separate inode for each of these files
-> > > > >> is acceptable, then we would favor storing the security information
-> > > > >> in the inode security blob and using it instead of the file security
-> > > > >> blob.
-> > > > > Bringing this back up in hopes of attracting some attention from the
-> > > > > fs-devel crowd and Al.  As Stephen already mentioned, from a SELinux
-> > > > > perspective we would prefer to attach the security blob to the inode
-> > > > > as opposed to the file struct; does anyone have any objections to
-> > > > > that?
-> > > >
-> > > > Sorry for the delay - been sick the past few days.
-> > > >
-> > > > I agree that the inode is a better place than the file for information
-> > > > about the inode. This is especially true for Smack, which uses
-> > > > multiple extended attributes in some cases. I don't believe that any
-> > > > except the access label will be relevant to anonymous inodes, but
-> > > > I can imagine security modules with policies that would.
-> > > >
-> > > > I am always an advocate of full xattr support. It goes a long
-> > > > way in reducing the number and complexity of special case interfaces.
-> > >
-> > > It sounds like we have broad consensus on using the inode to hold
-> > > security information, implying that anon_inodes should create new
-> > > inodes. Do any of the VFS people want to object?
+> > Checking for a previous insertion before checking if the name is a
+> > macro parameter can cause a macro parameter to be treated as the
+> > actual name if a previous type transition file name is the same as
+> > the parameter.
 > >
-> > Ping?
+> > Now check the name to see if it a macro paramter before checking for
+> > its existence in the symbol table.
+> >
+> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > ---
+> >  libsepol/cil/src/cil_resolve_ast.c | 16 ++++++++--------
+> >  1 file changed, 8 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/libsepol/cil/src/cil_resolve_ast.c b/libsepol/cil/src/cil_resolve_ast.c
+> > index 87575860..daf873be 100644
+> > --- a/libsepol/cil/src/cil_resolve_ast.c
+> > +++ b/libsepol/cil/src/cil_resolve_ast.c
+> > @@ -76,14 +76,6 @@ static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key,
+> >         enum cil_sym_index sym_index;
+> >         struct cil_symtab_datum *datum = NULL;
+> >
+> > -       cil_flavor_to_symtab_index(CIL_NAME, &sym_index);
+> > -       symtab = &((struct cil_root *)db->ast->root->data)->symtab[sym_index];
+> > -
+> > -       cil_symtab_get_datum(symtab, key, &datum);
+> > -       if (datum != NULL) {
+> > -               return (struct cil_name *)datum;
+> > -       }
+> > -
+> >         if (parent->flavor == CIL_CALL) {
+> >                 struct cil_call *call = parent->data;
+> >                 macro = call->macro;
+> > @@ -99,6 +91,14 @@ static struct cil_name * __cil_insert_name(struct cil_db *db, hashtab_key_t key,
+> >                 }
+> >         }
+> >
+> > +       cil_flavor_to_symtab_index(CIL_NAME, &sym_index);
+> > +       symtab = &((struct cil_root *)db->ast->root->data)->symtab[sym_index];
+> > +
+> > +       cil_symtab_get_datum(symtab, key, &datum);
+> > +       if (datum != NULL) {
+> > +               return (struct cil_name *)datum;
+> > +       }
+> > +
+> >         cil_name_init(&name);
+> >         cil_symtab_insert(symtab, key, (struct cil_symtab_datum *)name, ast_node);
+> >         cil_list_append(db->names, CIL_NAME, name);
+> > --
+> > 2.17.1
+> >
 >
-> I'd recommend refreshing your patch series to incorporate feedback on
-> the previous version and re-post,
-> including viro and linux-fsdevel on the cc, and see if they have any
-> comments on it.
+> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-I don't think there's anything in the patch series that needs to
-change right now. AFAICT, we're still just waiting on comment from the
-VFS people, who should be on this thread. Did I miss something?
+Applied, thanks.
+
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
