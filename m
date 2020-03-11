@@ -2,106 +2,89 @@ Return-Path: <SRS0=h1bs=44=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04CF9C4CEC0
-	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 18:53:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD62DC2BAEE
+	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 20:06:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id C711D20736
-	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 18:53:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B8CE920739
+	for <selinux@archiver.kernel.org>; Wed, 11 Mar 2020 20:06:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q+Lu5GUt"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TecqeIK4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730705AbgCKSxx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 11 Mar 2020 14:53:53 -0400
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:39867 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730849AbgCKSxx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 11 Mar 2020 14:53:53 -0400
-Received: by mail-ot1-f68.google.com with SMTP id a9so3213697otl.6
-        for <selinux@vger.kernel.org>; Wed, 11 Mar 2020 11:53:52 -0700 (PDT)
+        id S2387449AbgCKUGr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 11 Mar 2020 16:06:47 -0400
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:39592 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387405AbgCKUGq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 11 Mar 2020 16:06:46 -0400
+Received: by mail-qk1-f195.google.com with SMTP id e16so3399878qkl.6
+        for <selinux@vger.kernel.org>; Wed, 11 Mar 2020 13:06:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wdJCWewEbnBv/Zm/Z+MsCON8A++W+Jg0e4SL73LPNUU=;
-        b=q+Lu5GUtRdQk1E5xQ62T58fyj+BY9cfvAIB8/zVxYqQphivG6zNEbj4+NlGQppPwGb
-         9oxKaWHPAtAfWYk31YsD10H+JwVmXYyByCGcIxDsPz1HWYOqkKSlqfo22ZKltGg9XrEL
-         vXpg3qEKZmKusJd8Qymy0CfU2ntztRa3oBIP5O33aZHzn9YEeNv6yYrT+Tnbso/h6iN6
-         gEKUMvzowHjNnhPHWCxCmxlZwZhQHOwHpaINV5zb/odPNc9PO2BluHZD0Lffd6s0h0G9
-         t6CKqo0D2LvuOEiySvv47tEBFIKdEotxlall7W4V36WMXA0whzVyeTrXSxDR2zGTd9fM
-         dZZQ==
+        h=from:to:cc:subject:date:message-id;
+        bh=TAt81c2HdFkmftRqyWaJuvimbz5jIXyBZKzls6skKx8=;
+        b=TecqeIK4bub2iUsWVJJJ/DKRaOnogmaAH4hZKU7eT8WoKXw3d8QthSCZ8HoY1qtXDx
+         TeYRoJopOWqZFtXdklHfEgKWs5f+l14QE2qJ3zHbAfKniuFms+RiLYHzvvx5a2YeJrMQ
+         cU1DXCWvSO80WGm82bsHB36FgKINiqK7wtjCLtd/CwnEkiTJuCEYXWC2bqwF0uxRz8yf
+         XDZswAsEsBldes9fQrgr3FIv+D/BCCt3fym/qLrOmC9nvHJ81wTKV4POfnr64LA39oMk
+         Hz1o/mQ58BxQENTQlp0ZcVhwq5msjYP555S+aWxJnMAtfYxI/7hNc9ebTJNcPCxVAOCG
+         ieuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wdJCWewEbnBv/Zm/Z+MsCON8A++W+Jg0e4SL73LPNUU=;
-        b=f0o95ykwSVeDkEWN5UacLiRb8FWsss6XbGv3IysqF8AjjN9lwj42XQDAiIJIOBcV2M
-         KeG2KmLmAkyskPeQ8mHV7kwi/B2Ht0JjEa/mPk4uj+ft7VLa9RcdP8f7HkPo9sqWfqii
-         xwdtCPCjK8RUIj77EjxHukqSybGh74FHJfZwGN1lwWV7aKfiSsU0+9DHBMR+qCFpthY6
-         rP+ljwftHPM0SAfkmkeRuKLxE6BGrDwKSH8/O2fl5mKOaXZMp6gdQPT7EVWLCNL26JxB
-         FyI3UnrJLWilCTBVsM+6Pqp5lLwAJti4Yp5ycwZlmg5BzLCCq8CEMq5pRIEVTXbyaZJP
-         BKew==
-X-Gm-Message-State: ANhLgQ3X7KcbekCDeKRmGbfjpACfnRw4mXmEGcaB2V4bzjdA3fcQbJw6
-        kSghzhkda5rA2u1J2I2jmQkDlibg6hwPxGoERYw=
-X-Google-Smtp-Source: ADFU+vsGabHugJOr3guCyW3fcJEKCDxWgYhrf0r4f8UybiyQ1AfpVcoDfKAnTIV4232SQNTakDsXiSDS3P+Qh/PLtw4=
-X-Received: by 2002:a9d:76c9:: with SMTP id p9mr3442400otl.135.1583952832070;
- Wed, 11 Mar 2020 11:53:52 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200309152539.8581-1-william.c.roberts@intel.com>
- <20200310210854.466-1-william.c.roberts@intel.com> <20200310210854.466-4-william.c.roberts@intel.com>
- <CAEjxPJ4FTpQRTp2ChKrsyYUZMwicKQ_vT=BCgCDdpXLGLtODCA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4FTpQRTp2ChKrsyYUZMwicKQ_vT=BCgCDdpXLGLtODCA@mail.gmail.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=TAt81c2HdFkmftRqyWaJuvimbz5jIXyBZKzls6skKx8=;
+        b=roZDe7IX3HtKnkZW8qVOlMlJJw2sQZ9VWFLrmhTyaVByUhQBMGriMi/P3O0Pti8/s6
+         TCunXgTVcjI7wFhuhSCgThIYZ+W3rVjq5VpMUovSXOihaWgGnhl3ltMpgcPGF3OrrovO
+         DLvYpcgrj2B56FgMdTPRXqShjw1Qj3XWIlIE3geYOaYrfhF1+YuDz+NNC2zDkWdZeNvF
+         xVaA20ByyG5PHqvIRvpV8jAujetDTZfGfGyrtPP1MGNF7drGxaRhwqCCPa4HLJvvXIko
+         ssAY3q5epsT+acGsXkhxJcHXknh6Q/tRrKjPlZ35/W0CKcSjg5r/N213qJ7sxV5sDjOh
+         Su3Q==
+X-Gm-Message-State: ANhLgQ0HMHHUsO/AxkRuCxv0le7noG02GYyjPifF3IAOxDO4nI5R+JmI
+        0zJSb27vu5kjeVc4Rg4ZpVU=
+X-Google-Smtp-Source: ADFU+vsdOTYmCmpZ2PNtP4hzEVTMPrSavUGggsoTQXpeTzttG3Qi4zxvXPafWC8d6iY+6si4o/zktQ==
+X-Received: by 2002:a37:cc5:: with SMTP id 188mr4639385qkm.161.1583957205630;
+        Wed, 11 Mar 2020 13:06:45 -0700 (PDT)
+Received: from r21-ubuntu-01.ltsnet.net ([65.127.220.137])
+        by smtp.gmail.com with ESMTPSA id g2sm25736700qkb.27.2020.03.11.13.06.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 11 Mar 2020 13:06:44 -0700 (PDT)
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 11 Mar 2020 14:54:44 -0400
-Message-ID: <CAEjxPJ4jwxi8sDkwkG9EiusTPHC_qPK2Aq6v8YhsTSc-MouoPA@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] lbespol: remove wild cards in mapfile
-To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Ulrich Drepper <drepper@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        William Roberts <william.c.roberts@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+To:     paul@paul-moore.com
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH] MAINTAINERS: Update my email address
+Date:   Wed, 11 Mar 2020 16:05:51 -0400
+Message-Id: <20200311200551.9306-1-stephen.smalley.work@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 11, 2020 at 2:53 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Tue, Mar 10, 2020 at 5:09 PM <bill.c.roberts@gmail.com> wrote:
-> >
-> > From: William Roberts <william.c.roberts@intel.com>
-> >
-> > With the old hidden_def and hidden_proto DSO infrastructure removed,
-> > correctness of the map file becomes paramount, as it is what filters out
-> > public API. Because of this, the wild cards should not be used, as it
-> > lets some functions through that should not be made public API. Thus
-> > remove the wild cards, and sort the list.
-> >
-> > Additionally, verify that nothing changed in external symbols as well:
-> >
-> > This was checked by generating an old export map (from master):
-> > nm --defined-only -g ./src/libsepol.so | cut -d' ' -f 3-3 | grep -v '^_' > old.map
-> >
-> > Then creating a new one for this library after this patch is applied:
-> > nm --defined-only -g ./src/libsepol.so | cut -d' ' -f 3-3 | grep -v '^_' > new.map
-> >
-> > And diffing them:
-> > diff old.map new.map
-> >
-> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
->
-> Other than the typo in the subject line,
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
->
-> This should fix https://github.com/SELinuxProject/selinux/issues/204
+From: Stephen Smalley <sds@tycho.nsa.gov>
 
-and https://github.com/SELinuxProject/selinux/issues/165
+Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+---
+ MAINTAINERS | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 0b370797e8a6..e343b2c75fbc 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -14974,7 +14974,7 @@ X:	security/selinux/
+ 
+ SELINUX SECURITY MODULE
+ M:	Paul Moore <paul@paul-moore.com>
+-M:	Stephen Smalley <sds@tycho.nsa.gov>
++M:	Stephen Smalley <stephen.smalley.work@gmail.com>
+ M:	Eric Paris <eparis@parisplace.org>
+ L:	selinux@vger.kernel.org
+ W:	https://selinuxproject.org
+-- 
+2.17.1
+
