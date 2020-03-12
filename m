@@ -2,126 +2,96 @@ Return-Path: <SRS0=6SNF=45=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E69A8C10DCE
-	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 14:05:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88605C2BB1D
+	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 15:01:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BD4AA206E7
-	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 14:05:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 56C2C206BE
+	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 15:01:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FWGwv3Bo"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="0xoqEs2k"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727365AbgCLOF6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Mar 2020 10:05:58 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:41413 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727123AbgCLOF6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Mar 2020 10:05:58 -0400
-Received: by mail-io1-f65.google.com with SMTP id m25so5770326ioo.8
-        for <selinux@vger.kernel.org>; Thu, 12 Mar 2020 07:05:57 -0700 (PDT)
+        id S1727196AbgCLPBe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Mar 2020 11:01:34 -0400
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:40996 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727241AbgCLPBd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Mar 2020 11:01:33 -0400
+Received: by mail-ed1-f68.google.com with SMTP id m25so7784426edq.8
+        for <selinux@vger.kernel.org>; Thu, 12 Mar 2020 08:01:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=NmCtvPVoO4mgxUNi3BdBWx/fyR7O+SZ7peUQ1OBCvyI=;
-        b=FWGwv3BoGEABlFz2WkRNXg2yrD3CGqMVHYjm/IZHUJiH3WRqu7gr+wLVz26sQA+8oo
-         u8PTHpJJA1YjF4biw3Lj//1p0vIPLywgvxl/cRyzMBnOcUzk4exeRCJHwICr8wY927Kv
-         PFSkK+5mVovwkl+zElsbkdE86yHN+ZMb+r/HGgyzrqzqjp/2zkhF6HbSSQDHjath6k0A
-         76BEQ0ITN9CKnBl5zQsJpnPrNQmPns6O5goA4NTkndH4K5vu2Pma/rIEIniyWQi3ch4v
-         G/a5STrfc4RD1Xkq9aQgPOCWzX1c59ydp1erh43JWs0j2852WHwyfIafY7WA6apxiSjM
-         ZxRA==
+        bh=EKoaPQev/MRWLO0G4hKp+pGK6Th2Ntn2OaPXZ3kTqOk=;
+        b=0xoqEs2k7Y06PEHkLVm6FG7TsdfFdzAjMN3ApP482qXwMtovzGiKqb8X2z+wyWueqK
+         De7RKcUF4c+hbIQdcqrUND7aOcJePcVP30XTO9Mce594q8KQMi5T9jC61v1YdmZfLU0H
+         U5xfRQu1Ir1MTKAKyzut3iyG+NHJkxInt415MDsZVr4VHwVZMm2IKOXi75SmmAOVujEw
+         JCgXuIAbyZblEQ7zKdjckXN8htm1VggwKTgXJOKCNAXm88xmwJQGg8bSOlytvGCZ3v3G
+         JeiEJUJmE6ol6GUgaMi64GJMp5LBexkCnGYVOmAul2vsrFmWF+sNMvwElgD62FfNH0Y8
+         ae6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=NmCtvPVoO4mgxUNi3BdBWx/fyR7O+SZ7peUQ1OBCvyI=;
-        b=k6uZGXKEOa72KIb9XZ0Muv7Hmz9MeZpGDj6x6Eoetmr9R+QVoKHG4MXrEfh6lQPqEp
-         gM4FnlfXauGCJgYjr807JMpszoSOMSIBLzeYpfUsglPQo99IHxwi3qQHd9npUO+jWTNe
-         UDQUOEC8jY5hYVGe8FtXNJhyYxUvWMAA2jiQQ3BY6z3uEVrkJCnX0xlCCq5spKK/Fvw2
-         NxXo3B01YxxsgSJF9L3vIv8n8UAguIXxZNGSCUutMFtLjok8dSMdzGWUzDutdsYF//RU
-         hcSGGolxQF277Ihcqy/bcMBoJQFvNC7KblgdL0TRWdJzngv9OQok8KEP61DrKkIydauD
-         jOxw==
-X-Gm-Message-State: ANhLgQ297bKXNMMg3dOBoY4B0nMcBTBq7hopQmRI94BOmmC+ScIEwegl
-        mbQbUWYZLQlhcHUyF8urkxdO27LBJ+icAc3BcQI=
-X-Google-Smtp-Source: ADFU+vtM144PtBRD8bLEpOQcOSY+spgMb5zk4y0h9589Pb3etmW0UM35PnFoRfWBgHNR+z4cJWsU7CPTnijE+81RRiw=
-X-Received: by 2002:a02:7a07:: with SMTP id a7mr7731205jac.77.1584021956795;
- Thu, 12 Mar 2020 07:05:56 -0700 (PDT)
+        bh=EKoaPQev/MRWLO0G4hKp+pGK6Th2Ntn2OaPXZ3kTqOk=;
+        b=mYfnu7oGbhR8sMh/UNzlQl0J4Jb10J/SjXveKwt2dAEMZcxz4TUydyXooBHf9blovW
+         8Wc7lIuqBv/F6mTk3zEkPhY/006kkmB7aHLZRe+YIxSexMFmBVOTvd3fphSCoMFrndFJ
+         sawS1zOdsfzBHINwEABU4HrNfEvUPCQ0vZ6JlwejlJ56hOeI9nNaBSPObp/KM+9CeRu+
+         p0q15Gr/1FtblwTjJjW1PlYuUilUNOzUhNq3/FEvC5c0+NUUe1YCh4PfJFhC1PWqfoXs
+         ujtm3EVk93+Yu3yczyLV4c2CMHtBl4GsvGEd89gqrU3DF6TGAr/G5bWg/pepIPFwEeve
+         7UxQ==
+X-Gm-Message-State: ANhLgQ267ROad7y0cD/KMcNDEPmnLdHCH+N4/5/2JaRNCLKZetPBQsuY
+        AkTTnSz0MZNZQoX6lIpmTzx2SkusCC1juVmcxa37
+X-Google-Smtp-Source: ADFU+vu3LQZGvzr1DGVxzMxkoIm0bjosn76smAUryMroTJfTzuwXhTIdK7dLwEh07NvxVSGiLfrkmd74LfZf2lnZkyQ=
+X-Received: by 2002:a05:6402:282:: with SMTP id l2mr8243909edv.269.1584025292144;
+ Thu, 12 Mar 2020 08:01:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAJfZ7==wU4R7VG3=gKpEoWKFKpP6tHiwN-0_O89-vp0w-ByPRw@mail.gmail.com>
- <20200302164112.10669-1-william.c.roberts@intel.com> <CAEjxPJ4sURPgJuTzGX_MBu-nThwn9NCWDKj0z39Pum8Mhh3axg@mail.gmail.com>
- <pjdd09r6ki8.fsf@redhat.com> <CAFftDdob6kA2XbsaLLKPND7uRFPFJyBwnzcPQPJ+pZsNw+vBzg@mail.gmail.com>
- <CAFftDdo2grFfgkFhSmw_XSeyu3Eo9wKvThqNyAjD73EoJdXJYQ@mail.gmail.com> <CAEjxPJ7wqdhF5G_2n1EsGjuvHdZhLG6Ww4dEkZ+HJjbffFjDVA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7wqdhF5G_2n1EsGjuvHdZhLG6Ww4dEkZ+HJjbffFjDVA@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 12 Mar 2020 09:05:44 -0500
-Message-ID: <CAFftDdpQ2LFifgD4j=usv8WUpN1=xV2S_aOQcbN+MFomYQGrYg@mail.gmail.com>
-Subject: Re: [V4] libselinux: drop dso.h
+References: <20200311200551.9306-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20200311200551.9306-1-stephen.smalley.work@gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 12 Mar 2020 11:01:21 -0400
+Message-ID: <CAHC9VhSozFswmubx916UtgJyv1o1njC9j-4L90bb714t-on27g@mail.gmail.com>
+Subject: Re: [PATCH] MAINTAINERS: Update my email address
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>,
-        Nicolas Iooss <nicolas.iooss@m4x.org>,
-        Ulrich Drepper <drepper@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        William Roberts <william.c.roberts@intel.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Mar 11, 2020 at 1:14 PM Stephen Smalley
+On Wed, Mar 11, 2020 at 4:06 PM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Thu, Mar 5, 2020 at 2:09 PM William Roberts <bill.c.roberts@gmail.com> wrote:
-> >
-> > On Thu, Mar 5, 2020 at 10:12 AM William Roberts
-> > <bill.c.roberts@gmail.com> wrote:
-> > >
-> > > On Thu, Mar 5, 2020 at 6:42 AM Petr Lautrbach <plautrba@redhat.com> wrote:
-> > > >
-> > > >
-> > > > Stephen Smalley <stephen.smalley.work@gmail.com> writes:
-> > > >
-> > > > > On Mon, Mar 2, 2020 at 11:41 AM <bill.c.roberts@gmail.com> wrote:
-> > > > >> [PATCH v4 1/4] dso: drop hidden_proto and hidden_def
-> > > > >> [PATCH v4 2/4] Makefile: add -fno-semantic-interposition
-> > > > >> [PATCH v4 3/4] Makefile: add linker script to minimize exports
-> > > > >> [PATCH v4 4/4] libselinux: drop symbols from map
-> > > > >
-> > > > > This looks fine to me but I'd like at least one of the distro
-> > > > > maintainers to ack it (especially the last one).
-> > > >
-> > > > Acked-by: Petr Lautrbach <plautrba@redhat.com>
-> > > >
-> > >
-> > > Thanks staged:
-> > > https://github.com/SELinuxProject/selinux/pull/205
-> >
-> > merged.
+> From: Stephen Smalley <sds@tycho.nsa.gov>
 >
-> I've noticed a change since this was applied; if I build userspace
-> against the updated libselinux, the dynamic loader will
-> print a warning if it is run on a system with the older libselinux, ala:
-> $ /sbin/restorecon -v /etc
-> /sbin/restorecon: /lib64/libselinux.so.1: no version information
-> available (required by /sbin/restorecon)
-> It still works since there was no real change in the ABI but I don't
-> know if this is a concern for distros.
+> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
+> ---
+>  MAINTAINERS | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-I replicated this and looked into it, AFAICT its relatively harmless since,
-as you point out, we're not breaking ABI.
+Merged into selinux/next, thanks Stephen.
 
-But If I understand your comment (paraphrasing), "userspace should all
-be updated together"
-from:
-  - https://lore.kernel.org/selinux/CAEjxPJ4UPBWSP0E4pjR+F6uKMZNHK9J7LTL1gVznpwyJh9UWNA@mail.gmail.com/
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 0b370797e8a6..e343b2c75fbc 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -14974,7 +14974,7 @@ X:      security/selinux/
+>
+>  SELINUX SECURITY MODULE
+>  M:     Paul Moore <paul@paul-moore.com>
+> -M:     Stephen Smalley <sds@tycho.nsa.gov>
+> +M:     Stephen Smalley <stephen.smalley.work@gmail.com>
+>  M:     Eric Paris <eparis@parisplace.org>
+>  L:     selinux@vger.kernel.org
+>  W:     https://selinuxproject.org
+> --
+> 2.17.1
 
-Then it really shouldn't be an issue.
-
-A lot of what I read on the version stuff was written by Urlich, so he
-might weigh in with more
-information and perhaps a way to correct this.
+-- 
+paul moore
+www.paul-moore.com
