@@ -2,108 +2,120 @@ Return-Path: <SRS0=6SNF=45=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2473C1975A
-	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 06:53:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA524C1975A
+	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 08:40:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A0CC220578
-	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 06:53:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 87B3D206FA
+	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 08:40:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F6WUhivT"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dj8343gg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387971AbgCLGxW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Mar 2020 02:53:22 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:32282 "EHLO
+        id S1726487AbgCLIkI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Mar 2020 04:40:08 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:58482 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387831AbgCLGxW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Mar 2020 02:53:22 -0400
+        by vger.kernel.org with ESMTP id S1725980AbgCLIkH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Mar 2020 04:40:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1583996001;
+        s=mimecast20190719; t=1584002406;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=aobFzibg4Y9N/YXhPfZjWq3KzFn+rSBYcgDicC445F0=;
-        b=F6WUhivTE4CSvpkGuJPkI6fQeOMGbYADRh4YgjOw5Cjz9cr+4nopdTX/ZMODpTsKoj38DP
-        jIobg+JGYtdSnMXCrEoJB0HYhomRcHBhljb89KN1flQVHUX0C9odsukrKaMGed70PIynxQ
-        IxJD8PTehnBRB+8AZursygIXXx6xTAo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-403-f8Rr4hZUOcqdOZM2PE2LXg-1; Thu, 12 Mar 2020 02:53:17 -0400
-X-MC-Unique: f8Rr4hZUOcqdOZM2PE2LXg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5E310189D6C0;
-        Thu, 12 Mar 2020 06:53:16 +0000 (UTC)
-Received: from localhost (ovpn-204-216.brq.redhat.com [10.40.204.216])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D78125D9E5;
-        Thu, 12 Mar 2020 06:53:15 +0000 (UTC)
-References: <20200121184017.18084-1-sds@tycho.nsa.gov>
- <pjdeevmzdqq.fsf@redhat.com>
- <0acce760-fce8-3744-cea7-b6d4249ea754@tycho.nsa.gov>
- <pjda766zaox.fsf@redhat.com>
- <431cc5f6-e666-e875-a4fd-4d98b414d82f@tycho.nsa.gov>
-User-agent: mu4e 1.2.0; emacs 27.0.90
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Stephen Smalley <sds@tycho.nsa.gov>
-Cc:     Petr Lautrbach <plautrba@redhat.com>, selinux@vger.kernel.org,
-        "Christopher J. PeBenito" <pebenito@ieee.org>,
-        stephen.smalley.work@gmail.com
-Subject: Re: [PATCH v4] libsepol, checkpolicy: remove use of hardcoded
- security class values
-In-reply-to: <431cc5f6-e666-e875-a4fd-4d98b414d82f@tycho.nsa.gov>
-Date:   Thu, 12 Mar 2020 07:53:14 +0100
-Message-ID: <pjdimjaawth.fsf@redhat.com>
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=uarTr4vtiZmSZst8np06EInr6Z3VbxfONv/v1YTqFuI=;
+        b=Dj8343ggL1EIzYHG28VY1Dk+2SyQQfNzRWqF+y0Q4gu3RFTS3RBcwFF+/8Ny4JByuD8IEj
+        gLgCzGUhwaUqq/5Z7r2D5mcg1/pYtT5szHUzeGBUqW7UES+ERO5FAi6qW+yCJGbKvKouwX
+        qNVUhmRX9yeJNbf38KiKCgrzv3AOTF4=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-225-QN7-URQOM42IrreKR4_GDA-1; Thu, 12 Mar 2020 04:40:04 -0400
+X-MC-Unique: QN7-URQOM42IrreKR4_GDA-1
+Received: by mail-wm1-f72.google.com with SMTP id a13so1848035wme.7
+        for <selinux@vger.kernel.org>; Thu, 12 Mar 2020 01:40:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uarTr4vtiZmSZst8np06EInr6Z3VbxfONv/v1YTqFuI=;
+        b=WPNC3RDu5vA2X5YaLzHksX1Fi/FfGRVeOnMQiolJplhC9vti8uuiw4kt1dOlVvbw18
+         SGM32TeKMFnMvwdny7ls+qu+vLmFB4UfyWPAzn4ttpEmpHmi0EgjaIwoL0sAgaSQCghB
+         3p4tzSFVj1bhaathg7bVtcTt01d/ksJHA4bXzPqSMmM3H5P6BbtBItlkLp5PbZHktDZZ
+         plC/8KWGoc80d4/2olbKqjDUCfll8XwWVCivmMT5hUa5BkmMMdIe+xgm40wnoZWLmi+i
+         aylNv2aFSfkN8bK409lCg59v5NRSfodF2q46PcWqxFdY/UvS+BIFtVPeYI3zV3S08XPR
+         oIxQ==
+X-Gm-Message-State: ANhLgQ2FeU5nSOW5nCxeHO+jZzU6lVktegLyNKm7FDGpl91UY6n30O3Q
+        XMs08O314xNvSj9hkzM6lNT2SEgM58M1L0HvERq327+UNQardgW/bZCMQJlPU/Y0ohOdW6pkHDW
+        jEDnmFvkZOji6UCwA9Q==
+X-Received: by 2002:a5d:62c9:: with SMTP id o9mr10005657wrv.2.1584002403290;
+        Thu, 12 Mar 2020 01:40:03 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vsAdODMjuC7JcZWnedtr7Rj/RYBc8EXvzvmepMKmsj9gRYOhNBecEX8kdt6r180/wBVmUAsEg==
+X-Received: by 2002:a5d:62c9:: with SMTP id o9mr10005613wrv.2.1584002402950;
+        Thu, 12 Mar 2020 01:40:02 -0700 (PDT)
+Received: from omos.redhat.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id k126sm11649260wme.4.2020.03.12.01.40.02
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Mar 2020 01:40:02 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH testsuite] tests/bpf: ask for unlimited RLIMIT_MEMLOCK
+Date:   Thu, 12 Mar 2020 09:40:01 +0100
+Message-Id: <20200312084001.101645-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Currently the code sets it to at most 128K, but this is not enough in
+some aarch64/ppc64le environments. Therefore, stop guessing the magic
+threshold and just set it straight to RLIM_INFINITY.
 
-Stephen Smalley <sds@tycho.nsa.gov> writes:
+Fixes: 8f0f980a4ad5 ("selinux-testsuite: Add BPF tests")
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ tests/bpf/bpf_common.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-> On 1/29/20 7:52 AM, Petr Lautrbach wrote:
->> Stephen Smalley <sds@tycho.nsa.gov> writes:
->> 
->>> On 1/26/20 5:57 AM, Petr Lautrbach wrote:
->>>>
->>>> Stephen Smalley <sds@tycho.nsa.gov> writes:
->>>>
->>>>> libsepol carried its own (outdated) copy of flask.h with the generated
->>>>> security class and initial SID values for use by the policy
->>>>> compiler and the forked copy of the security server code
->>>>> leveraged by tools such as audit2why.  Convert libsepol and
->>>>> checkpolicy entirely to looking up class values from the policy,
->>>>> remove the SECCLASS_* definitions from its flask.h header, and move
->>>>> the header with its remaining initial SID definitions private to
->>>>> libsepol.  While we are here, fix the sepol_compute_sid() logic to
->>>>> properly support features long since added to the policy and kernel,
->>>>> although there are no users of it other than checkpolicy -d (debug)
->>>>> and it is not exported to users of the shared library.  There
->>>>> are still some residual differences between the kernel logic and
->>>>> libsepol.
->>>>>
->>>>> Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
->>>>
->>>>
->>>> The only problem I found running tests on this is related to SETools
->>>> https://github.com/SELinuxProject/selinux/pull/200#issuecomment-577745225
->>>>
->>>> Acked-by: Petr Lautrbach <plautrba@redhat.com>
->>>
->>> Thanks.  I guess the question is whether we should wait to merge it until
->>> setools has a corresponding fix ready or go ahead.
->> https://github.com/SELinuxProject/setools/issues/39
->> Lets wait until there's a response from Christopher.
->
-> setools issue has been resolved, so this should now be mergeable.
-
-Applied, thanks.
+diff --git a/tests/bpf/bpf_common.c b/tests/bpf/bpf_common.c
+index 681e2eb..f499034 100644
+--- a/tests/bpf/bpf_common.c
++++ b/tests/bpf/bpf_common.c
+@@ -41,24 +41,16 @@ int create_bpf_prog(void)
+ 
+ /*
+  * The default RLIMIT_MEMLOCK is normally 64K, however BPF map/prog requires
+- * more than this so double it unless RLIM_INFINITY is set.
++ * more than this (the actual threshold varying across arches) so set it to
++ * RLIM_INFINITY.
+  */
+ void bpf_setrlimit(void)
+ {
+ 	int result;
+ 	struct rlimit r;
+ 
+-	result = getrlimit(RLIMIT_MEMLOCK, &r);
+-	if (result < 0) {
+-		fprintf(stderr, "Failed to get resource limit: %s\n",
+-			strerror(errno));
+-		exit(-1);
+-	}
+-
+-	if (r.rlim_cur != RLIM_INFINITY && r.rlim_cur <= (64 * 1024)) {
+-		r.rlim_cur *= 2;
+-		r.rlim_max *= 2;
+-	}
++	r.rlim_cur = RLIM_INFINITY;
++	r.rlim_max = RLIM_INFINITY;
+ 
+ 	result = setrlimit(RLIMIT_MEMLOCK, &r);
+ 	if (result < 0) {
+-- 
+2.24.1
 
