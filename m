@@ -2,155 +2,112 @@ Return-Path: <SRS0=6SNF=45=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46F12C1975A
-	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 13:15:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A17EC10DCE
+	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 13:59:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 17C8320663
-	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 13:15:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F3707206E7
+	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 13:59:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PFXiKzjK"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rtPV4MHc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725978AbgCLNPI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Mar 2020 09:15:08 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:49040 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727192AbgCLNPI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Mar 2020 09:15:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1584018907;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=SS/15Ch/CdYmepGJb/AIIBMchNI/NbD2Dtzxe+IF6AQ=;
-        b=PFXiKzjKqUdDhzaiKv3MdX/mrz7fGQY5wH4YfBxhhsQC/ckBbWIFmwtzRg/HoTfJ4CqWPR
-        OZYtmfARh16OwzjaO4PB4xh1Qcmh/5kxKebdTVAa5ta8Q2CYHL7XJku4z1j9Qp3cc0phIj
-        TwzlbfxsinRly1Hxk9er8tu9YGvIo78=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-58-LwUT6VWMOIe5MId3Bb64UA-1; Thu, 12 Mar 2020 09:15:03 -0400
-X-MC-Unique: LwUT6VWMOIe5MId3Bb64UA-1
-Received: by mail-ot1-f71.google.com with SMTP id 31so3333219otl.11
-        for <selinux@vger.kernel.org>; Thu, 12 Mar 2020 06:15:02 -0700 (PDT)
+        id S1727392AbgCLN73 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Mar 2020 09:59:29 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:36523 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727309AbgCLN73 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Mar 2020 09:59:29 -0400
+Received: by mail-io1-f66.google.com with SMTP id d15so5760159iog.3
+        for <selinux@vger.kernel.org>; Thu, 12 Mar 2020 06:59:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Ozs4kijNyGEf8dotXB1CVZ/uuXlPoDQuzIPrKEAsoOM=;
+        b=rtPV4MHcxzNlGUbFzCLZRE8n2VbNLLzPqGCOx2ZhKd1FaXbtCSHHlrEb1ipHE370x0
+         CHXH6HurAR0GFldJ8KoRTQmmY2ZbrQ0NP3/LkEY6O0pnK5EA12KgKqOYS0StExSLZ32a
+         t8Eekn6M1CCQFEgXNQSiPwfLKAeX9Vi1CCTHwl5XFTJ+9kitseTJF8Bg0sVXjNSirJkA
+         yIupfiLUcFPQuQzgHK1d2BLKrj+8cl431f0+VRr0KCi7YgaE6YmDiZs0g69rgEXkoS+g
+         n20M94DqPgcQ2Gu26qyjlVR0Gq6iXBBaYM4jSOxT6L79bsSQrxojXmjbQ8pSBWCXu7WL
+         txPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=SS/15Ch/CdYmepGJb/AIIBMchNI/NbD2Dtzxe+IF6AQ=;
-        b=NHLOp08twcInDZfmW+KZm64EEXb/FXhUMYPGxj+MFL0Fg4H4c6RWLgSUuyFTqOIYPv
-         ey0XxMVI7MW8rjorW/petotRmOs433kDxwTYnYHlTzZV+UMmFzBb1jVLOTcX+g6K1eFK
-         VwbEI26r/4WVNcN5oiG/0kPuO35Xy622sWZso54oPvzsrM1Gn+ogH6d4k7aQPRAVHwp4
-         otjQ6d2KIV21ngUwZrq+sPZPkfTqCWW3IhXn97pHoA6oyIl2gL+WDypj3bL1lZY3718/
-         L/g2xauINcyH8QRvss2vW6mTMjnEgMQLCaxGtwyO2oYxZKb6K0pjiGCU12BnIuCgHxpA
-         XVFg==
-X-Gm-Message-State: ANhLgQ0kOcsYasjbTilfv0J8x1cvl/+bkgJvMzSnUG8dLGbDvTvzFg7F
-        HZZPurB2HmiW9jD62erZRDUPBPDQErZnMkoOiGOjeTRlXzqMkmWaToTmdZII5rwGBDw6NYgFvoo
-        gd0IUGydRF9XXh7jbuMnABB5zX6jLy05uLQ==
-X-Received: by 2002:a9d:77d0:: with SMTP id w16mr6344351otl.66.1584018901423;
-        Thu, 12 Mar 2020 06:15:01 -0700 (PDT)
-X-Google-Smtp-Source: ADFU+vsmpPEHhtupYlEnbaQdhxs5Xl3NZdfwv6fJASFomsEC9oBeA8/Azo2ZeuELp6xTVVUzn0FciWE31rXtKoDNFRA=
-X-Received: by 2002:a9d:77d0:: with SMTP id w16mr6344327otl.66.1584018900957;
- Thu, 12 Mar 2020 06:15:00 -0700 (PDT)
+        bh=Ozs4kijNyGEf8dotXB1CVZ/uuXlPoDQuzIPrKEAsoOM=;
+        b=X0xD4rjP8sF2TWUhTEW0+Ig2h8EGW5Y70neiRiH+0TnD5zDnhH0cexmsp1G+dqvJme
+         hUPIySIPl7c2bMmWgRNcbbMfVnantS7Fz7cdXM4vARYPWSeA71tLi5zk07pg45sdqZ43
+         SS9mHYxbd+jlH4K0wo0Sk2+q4QG0+bfrcnBIgXV4GD1nBAFz3Zc0Xj2hTrkE6JKzD5PW
+         qTwf+0SGQjRnq8DZpPfGT5BZQ1J0DSRMYf2qIKtltckvf3xHVO4fpI4+M8NhDZj+p1Xg
+         M9wQw9KfeBQV5a7LNquI+88FsovBHjaaEMPHAM/0wgbkZRnQIxFxBWDjKi+SxYxJymPG
+         r3bA==
+X-Gm-Message-State: ANhLgQ14E7u9//sYT+Ud+0wEvNhQDQVc1GsONRhVVLAxgMc9acnXcvUy
+        1JaPabLDRzheDT9oW4Q/OqOaTZb1zP9rRHiAmbM=
+X-Google-Smtp-Source: ADFU+vsXL95JQQkS27z+w/XM4OnZeYo2GZkeMfYf5Om7PN6BLqU4Lqfiq8UCSYw3sv+WOu+WAA7UMs/47rAvXn3o3sc=
+X-Received: by 2002:a5d:9708:: with SMTP id h8mr7763389iol.141.1584021568421;
+ Thu, 12 Mar 2020 06:59:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200312084001.101645-1-omosnace@redhat.com> <CAHC9VhSD-mLS8C1f+n+8F81ed4nSonWmj=gdDT=YGsG9gm0Cqg@mail.gmail.com>
-In-Reply-To: <CAHC9VhSD-mLS8C1f+n+8F81ed4nSonWmj=gdDT=YGsG9gm0Cqg@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 12 Mar 2020 14:14:50 +0100
-Message-ID: <CAFqZXNt3Bq-wUgnVYpzWnN8GxZn+HFtLJMe9wpPVzxLxJUhayQ@mail.gmail.com>
-Subject: Re: [PATCH testsuite] tests/bpf: ask for unlimited RLIMIT_MEMLOCK
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200309152539.8581-1-william.c.roberts@intel.com>
+ <20200310210854.466-1-william.c.roberts@intel.com> <20200310210854.466-4-william.c.roberts@intel.com>
+ <CAEjxPJ4FTpQRTp2ChKrsyYUZMwicKQ_vT=BCgCDdpXLGLtODCA@mail.gmail.com> <CAEjxPJ4jwxi8sDkwkG9EiusTPHC_qPK2Aq6v8YhsTSc-MouoPA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4jwxi8sDkwkG9EiusTPHC_qPK2Aq6v8YhsTSc-MouoPA@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Thu, 12 Mar 2020 08:59:16 -0500
+Message-ID: <CAFftDdoVwg2hvb_oiYzjpAO6_EPTXRiWQejtGBtN+8-B2O1kpg@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] lbespol: remove wild cards in mapfile
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Ulrich Drepper <drepper@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Petr Lautrbach <plautrba@redhat.com>,
+        William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 12, 2020 at 1:36 PM Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, Mar 12, 2020 at 4:40 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > Currently the code sets it to at most 128K, but this is not enough in
-> > some aarch64/ppc64le environments. Therefore, stop guessing the magic
-> > threshold and just set it straight to RLIM_INFINITY.
+I will fix the subject and add the Fixes: #165 to the commit when I
+stage them if thats ok?
+
+On Wed, Mar 11, 2020 at 1:53 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Wed, Mar 11, 2020 at 2:53 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
 > >
-> > Fixes: 8f0f980a4ad5 ("selinux-testsuite: Add BPF tests")
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  tests/bpf/bpf_common.c | 16 ++++------------
-> >  1 file changed, 4 insertions(+), 12 deletions(-)
->
-> I have to make a similar fix to the audit-testsuite earlier this week,
-> I didn't think to check the selinux-testsuite because the bpf tests
-> were running just fine on my aarch64 test system.  Sorry about that, I
-> should have checked regardless.
-
-No problem, I had kept the bpf subtest disabled on non-x86_64 in our
-testing for some time, since it was failing there and I didn't know
-why. Once I saw your audit-testsuite patch I realized that it was
-probably the same issue so I did some testing and indeed the
-RLIMIT_MEMLOCK was the cause so I put together a patch.
-
->
-> One small style nit below, but otherwise ...
->
-> Acked-by: Paul Moore <paul@paul-moore.com>
->
-> > diff --git a/tests/bpf/bpf_common.c b/tests/bpf/bpf_common.c
-> > index 681e2eb..f499034 100644
-> > --- a/tests/bpf/bpf_common.c
-> > +++ b/tests/bpf/bpf_common.c
-> > @@ -41,24 +41,16 @@ int create_bpf_prog(void)
+> > On Tue, Mar 10, 2020 at 5:09 PM <bill.c.roberts@gmail.com> wrote:
+> > >
+> > > From: William Roberts <william.c.roberts@intel.com>
+> > >
+> > > With the old hidden_def and hidden_proto DSO infrastructure removed,
+> > > correctness of the map file becomes paramount, as it is what filters out
+> > > public API. Because of this, the wild cards should not be used, as it
+> > > lets some functions through that should not be made public API. Thus
+> > > remove the wild cards, and sort the list.
+> > >
+> > > Additionally, verify that nothing changed in external symbols as well:
+> > >
+> > > This was checked by generating an old export map (from master):
+> > > nm --defined-only -g ./src/libsepol.so | cut -d' ' -f 3-3 | grep -v '^_' > old.map
+> > >
+> > > Then creating a new one for this library after this patch is applied:
+> > > nm --defined-only -g ./src/libsepol.so | cut -d' ' -f 3-3 | grep -v '^_' > new.map
+> > >
+> > > And diffing them:
+> > > diff old.map new.map
+> > >
+> > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
 > >
-> >  /*
-> >   * The default RLIMIT_MEMLOCK is normally 64K, however BPF map/prog requires
-> > - * more than this so double it unless RLIM_INFINITY is set.
-> > + * more than this (the actual threshold varying across arches) so set it to
-> > + * RLIM_INFINITY.
-> >   */
-> >  void bpf_setrlimit(void)
-> >  {
-> >         int result;
-> >         struct rlimit r;
+> > Other than the typo in the subject line,
+> > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 > >
-> > -       result = getrlimit(RLIMIT_MEMLOCK, &r);
-> > -       if (result < 0) {
-> > -               fprintf(stderr, "Failed to get resource limit: %s\n",
-> > -                       strerror(errno));
-> > -               exit(-1);
-> > -       }
-> > -
-> > -       if (r.rlim_cur != RLIM_INFINITY && r.rlim_cur <= (64 * 1024)) {
-> > -               r.rlim_cur *= 2;
-> > -               r.rlim_max *= 2;
-> > -       }
-> > +       r.rlim_cur = RLIM_INFINITY;
-> > +       r.rlim_max = RLIM_INFINITY;
+> > This should fix https://github.com/SELinuxProject/selinux/issues/204
 >
-> If you really want to simplify things you could assign those values
-> when you declare "r":
->
-> struct rlimit r = {
->   .rlim_cur = RLIM_INFINITY,
->   .rlim_max = RLIM_INFINITY };
-
-True, but I don't think the difference is big enough to respin the patch.
-
->
-> >         result = setrlimit(RLIMIT_MEMLOCK, &r);
-> >         if (result < 0) {
-> > --
-> > 2.24.1
->
-> --
-> paul moore
-> www.paul-moore.com
->
-
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+> and https://github.com/SELinuxProject/selinux/issues/165
