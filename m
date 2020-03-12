@@ -2,70 +2,70 @@ Return-Path: <SRS0=6SNF=45=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A17EC10DCE
-	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 13:59:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E69A8C10DCE
+	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 14:05:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id F3707206E7
-	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 13:59:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BD4AA206E7
+	for <selinux@archiver.kernel.org>; Thu, 12 Mar 2020 14:05:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rtPV4MHc"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FWGwv3Bo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727392AbgCLN73 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 12 Mar 2020 09:59:29 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:36523 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727309AbgCLN73 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 12 Mar 2020 09:59:29 -0400
-Received: by mail-io1-f66.google.com with SMTP id d15so5760159iog.3
-        for <selinux@vger.kernel.org>; Thu, 12 Mar 2020 06:59:29 -0700 (PDT)
+        id S1727365AbgCLOF6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 12 Mar 2020 10:05:58 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:41413 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727123AbgCLOF6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 12 Mar 2020 10:05:58 -0400
+Received: by mail-io1-f65.google.com with SMTP id m25so5770326ioo.8
+        for <selinux@vger.kernel.org>; Thu, 12 Mar 2020 07:05:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Ozs4kijNyGEf8dotXB1CVZ/uuXlPoDQuzIPrKEAsoOM=;
-        b=rtPV4MHcxzNlGUbFzCLZRE8n2VbNLLzPqGCOx2ZhKd1FaXbtCSHHlrEb1ipHE370x0
-         CHXH6HurAR0GFldJ8KoRTQmmY2ZbrQ0NP3/LkEY6O0pnK5EA12KgKqOYS0StExSLZ32a
-         t8Eekn6M1CCQFEgXNQSiPwfLKAeX9Vi1CCTHwl5XFTJ+9kitseTJF8Bg0sVXjNSirJkA
-         yIupfiLUcFPQuQzgHK1d2BLKrj+8cl431f0+VRr0KCi7YgaE6YmDiZs0g69rgEXkoS+g
-         n20M94DqPgcQ2Gu26qyjlVR0Gq6iXBBaYM4jSOxT6L79bsSQrxojXmjbQ8pSBWCXu7WL
-         txPg==
+        bh=NmCtvPVoO4mgxUNi3BdBWx/fyR7O+SZ7peUQ1OBCvyI=;
+        b=FWGwv3BoGEABlFz2WkRNXg2yrD3CGqMVHYjm/IZHUJiH3WRqu7gr+wLVz26sQA+8oo
+         u8PTHpJJA1YjF4biw3Lj//1p0vIPLywgvxl/cRyzMBnOcUzk4exeRCJHwICr8wY927Kv
+         PFSkK+5mVovwkl+zElsbkdE86yHN+ZMb+r/HGgyzrqzqjp/2zkhF6HbSSQDHjath6k0A
+         76BEQ0ITN9CKnBl5zQsJpnPrNQmPns6O5goA4NTkndH4K5vu2Pma/rIEIniyWQi3ch4v
+         G/a5STrfc4RD1Xkq9aQgPOCWzX1c59ydp1erh43JWs0j2852WHwyfIafY7WA6apxiSjM
+         ZxRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Ozs4kijNyGEf8dotXB1CVZ/uuXlPoDQuzIPrKEAsoOM=;
-        b=X0xD4rjP8sF2TWUhTEW0+Ig2h8EGW5Y70neiRiH+0TnD5zDnhH0cexmsp1G+dqvJme
-         hUPIySIPl7c2bMmWgRNcbbMfVnantS7Fz7cdXM4vARYPWSeA71tLi5zk07pg45sdqZ43
-         SS9mHYxbd+jlH4K0wo0Sk2+q4QG0+bfrcnBIgXV4GD1nBAFz3Zc0Xj2hTrkE6JKzD5PW
-         qTwf+0SGQjRnq8DZpPfGT5BZQ1J0DSRMYf2qIKtltckvf3xHVO4fpI4+M8NhDZj+p1Xg
-         M9wQw9KfeBQV5a7LNquI+88FsovBHjaaEMPHAM/0wgbkZRnQIxFxBWDjKi+SxYxJymPG
-         r3bA==
-X-Gm-Message-State: ANhLgQ14E7u9//sYT+Ud+0wEvNhQDQVc1GsONRhVVLAxgMc9acnXcvUy
-        1JaPabLDRzheDT9oW4Q/OqOaTZb1zP9rRHiAmbM=
-X-Google-Smtp-Source: ADFU+vsXL95JQQkS27z+w/XM4OnZeYo2GZkeMfYf5Om7PN6BLqU4Lqfiq8UCSYw3sv+WOu+WAA7UMs/47rAvXn3o3sc=
-X-Received: by 2002:a5d:9708:: with SMTP id h8mr7763389iol.141.1584021568421;
- Thu, 12 Mar 2020 06:59:28 -0700 (PDT)
+        bh=NmCtvPVoO4mgxUNi3BdBWx/fyR7O+SZ7peUQ1OBCvyI=;
+        b=k6uZGXKEOa72KIb9XZ0Muv7Hmz9MeZpGDj6x6Eoetmr9R+QVoKHG4MXrEfh6lQPqEp
+         gM4FnlfXauGCJgYjr807JMpszoSOMSIBLzeYpfUsglPQo99IHxwi3qQHd9npUO+jWTNe
+         UDQUOEC8jY5hYVGe8FtXNJhyYxUvWMAA2jiQQ3BY6z3uEVrkJCnX0xlCCq5spKK/Fvw2
+         NxXo3B01YxxsgSJF9L3vIv8n8UAguIXxZNGSCUutMFtLjok8dSMdzGWUzDutdsYF//RU
+         hcSGGolxQF277Ihcqy/bcMBoJQFvNC7KblgdL0TRWdJzngv9OQok8KEP61DrKkIydauD
+         jOxw==
+X-Gm-Message-State: ANhLgQ297bKXNMMg3dOBoY4B0nMcBTBq7hopQmRI94BOmmC+ScIEwegl
+        mbQbUWYZLQlhcHUyF8urkxdO27LBJ+icAc3BcQI=
+X-Google-Smtp-Source: ADFU+vtM144PtBRD8bLEpOQcOSY+spgMb5zk4y0h9589Pb3etmW0UM35PnFoRfWBgHNR+z4cJWsU7CPTnijE+81RRiw=
+X-Received: by 2002:a02:7a07:: with SMTP id a7mr7731205jac.77.1584021956795;
+ Thu, 12 Mar 2020 07:05:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200309152539.8581-1-william.c.roberts@intel.com>
- <20200310210854.466-1-william.c.roberts@intel.com> <20200310210854.466-4-william.c.roberts@intel.com>
- <CAEjxPJ4FTpQRTp2ChKrsyYUZMwicKQ_vT=BCgCDdpXLGLtODCA@mail.gmail.com> <CAEjxPJ4jwxi8sDkwkG9EiusTPHC_qPK2Aq6v8YhsTSc-MouoPA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4jwxi8sDkwkG9EiusTPHC_qPK2Aq6v8YhsTSc-MouoPA@mail.gmail.com>
+References: <CAJfZ7==wU4R7VG3=gKpEoWKFKpP6tHiwN-0_O89-vp0w-ByPRw@mail.gmail.com>
+ <20200302164112.10669-1-william.c.roberts@intel.com> <CAEjxPJ4sURPgJuTzGX_MBu-nThwn9NCWDKj0z39Pum8Mhh3axg@mail.gmail.com>
+ <pjdd09r6ki8.fsf@redhat.com> <CAFftDdob6kA2XbsaLLKPND7uRFPFJyBwnzcPQPJ+pZsNw+vBzg@mail.gmail.com>
+ <CAFftDdo2grFfgkFhSmw_XSeyu3Eo9wKvThqNyAjD73EoJdXJYQ@mail.gmail.com> <CAEjxPJ7wqdhF5G_2n1EsGjuvHdZhLG6Ww4dEkZ+HJjbffFjDVA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7wqdhF5G_2n1EsGjuvHdZhLG6Ww4dEkZ+HJjbffFjDVA@mail.gmail.com>
 From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 12 Mar 2020 08:59:16 -0500
-Message-ID: <CAFftDdoVwg2hvb_oiYzjpAO6_EPTXRiWQejtGBtN+8-B2O1kpg@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] lbespol: remove wild cards in mapfile
+Date:   Thu, 12 Mar 2020 09:05:44 -0500
+Message-ID: <CAFftDdpQ2LFifgD4j=usv8WUpN1=xV2S_aOQcbN+MFomYQGrYg@mail.gmail.com>
+Subject: Re: [V4] libselinux: drop dso.h
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        SElinux list <selinux@vger.kernel.org>,
+Cc:     Petr Lautrbach <plautrba@redhat.com>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>,
         Ulrich Drepper <drepper@redhat.com>,
         Ondrej Mosnacek <omosnace@redhat.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
         William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -73,41 +73,55 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I will fix the subject and add the Fixes: #165 to the commit when I
-stage them if thats ok?
-
-On Wed, Mar 11, 2020 at 1:53 PM Stephen Smalley
+On Wed, Mar 11, 2020 at 1:14 PM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Wed, Mar 11, 2020 at 2:53 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+> On Thu, Mar 5, 2020 at 2:09 PM William Roberts <bill.c.roberts@gmail.com> wrote:
 > >
-> > On Tue, Mar 10, 2020 at 5:09 PM <bill.c.roberts@gmail.com> wrote:
+> > On Thu, Mar 5, 2020 at 10:12 AM William Roberts
+> > <bill.c.roberts@gmail.com> wrote:
 > > >
-> > > From: William Roberts <william.c.roberts@intel.com>
+> > > On Thu, Mar 5, 2020 at 6:42 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> > > >
+> > > >
+> > > > Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+> > > >
+> > > > > On Mon, Mar 2, 2020 at 11:41 AM <bill.c.roberts@gmail.com> wrote:
+> > > > >> [PATCH v4 1/4] dso: drop hidden_proto and hidden_def
+> > > > >> [PATCH v4 2/4] Makefile: add -fno-semantic-interposition
+> > > > >> [PATCH v4 3/4] Makefile: add linker script to minimize exports
+> > > > >> [PATCH v4 4/4] libselinux: drop symbols from map
+> > > > >
+> > > > > This looks fine to me but I'd like at least one of the distro
+> > > > > maintainers to ack it (especially the last one).
+> > > >
+> > > > Acked-by: Petr Lautrbach <plautrba@redhat.com>
+> > > >
 > > >
-> > > With the old hidden_def and hidden_proto DSO infrastructure removed,
-> > > correctness of the map file becomes paramount, as it is what filters out
-> > > public API. Because of this, the wild cards should not be used, as it
-> > > lets some functions through that should not be made public API. Thus
-> > > remove the wild cards, and sort the list.
-> > >
-> > > Additionally, verify that nothing changed in external symbols as well:
-> > >
-> > > This was checked by generating an old export map (from master):
-> > > nm --defined-only -g ./src/libsepol.so | cut -d' ' -f 3-3 | grep -v '^_' > old.map
-> > >
-> > > Then creating a new one for this library after this patch is applied:
-> > > nm --defined-only -g ./src/libsepol.so | cut -d' ' -f 3-3 | grep -v '^_' > new.map
-> > >
-> > > And diffing them:
-> > > diff old.map new.map
-> > >
-> > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> > > Thanks staged:
+> > > https://github.com/SELinuxProject/selinux/pull/205
 > >
-> > Other than the typo in the subject line,
-> > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-> >
-> > This should fix https://github.com/SELinuxProject/selinux/issues/204
+> > merged.
 >
-> and https://github.com/SELinuxProject/selinux/issues/165
+> I've noticed a change since this was applied; if I build userspace
+> against the updated libselinux, the dynamic loader will
+> print a warning if it is run on a system with the older libselinux, ala:
+> $ /sbin/restorecon -v /etc
+> /sbin/restorecon: /lib64/libselinux.so.1: no version information
+> available (required by /sbin/restorecon)
+> It still works since there was no real change in the ABI but I don't
+> know if this is a concern for distros.
+
+I replicated this and looked into it, AFAICT its relatively harmless since,
+as you point out, we're not breaking ABI.
+
+But If I understand your comment (paraphrasing), "userspace should all
+be updated together"
+from:
+  - https://lore.kernel.org/selinux/CAEjxPJ4UPBWSP0E4pjR+F6uKMZNHK9J7LTL1gVznpwyJh9UWNA@mail.gmail.com/
+
+Then it really shouldn't be an issue.
+
+A lot of what I read on the version stuff was written by Urlich, so he
+might weigh in with more
+information and perhaps a way to correct this.
