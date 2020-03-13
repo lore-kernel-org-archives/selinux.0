@@ -2,147 +2,154 @@ Return-Path: <SRS0=2KQY=46=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C7E1C10DCE
-	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 15:46:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91235C10DCE
+	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 15:56:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6F1AF20724
-	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 15:46:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 56BCA2072C
+	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 15:56:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KlUpkVOC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="khiCbGXd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726902AbgCMPqd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 13 Mar 2020 11:46:33 -0400
-Received: from mail-oi1-f196.google.com ([209.85.167.196]:43936 "EHLO
-        mail-oi1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726832AbgCMPqc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 13 Mar 2020 11:46:32 -0400
-Received: by mail-oi1-f196.google.com with SMTP id p125so9816363oif.10
-        for <selinux@vger.kernel.org>; Fri, 13 Mar 2020 08:46:32 -0700 (PDT)
+        id S1726442AbgCMP4R (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 13 Mar 2020 11:56:17 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:37451 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726406AbgCMP4Q (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 13 Mar 2020 11:56:16 -0400
+Received: by mail-ot1-f65.google.com with SMTP id i12so5323392otp.4
+        for <selinux@vger.kernel.org>; Fri, 13 Mar 2020 08:56:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=FFOrxiY+i6I6J5uDIGDBG2mqCbkE9i0oc6FVQa+gf/4=;
-        b=KlUpkVOC+ChAYP41gMbXwSdoD62+/mH3o/M0seBB4RFFEhYPf5pbZRiE3ytwHrGDlB
-         lfnLwvHNKojx7QTqnwZNHTl8jba7WPjXB5eHpmYyNw5vP+uCqVqthLxOeRTjqgXEskjc
-         qgy/iEZEQMZJb81JO7mwR/y4ijda7ZGtl3kyKInCRoW+SatTMKREe0iXHFN8LnoqDCtw
-         TyCepurqOEuqJs2C+Fyam91PeW/un8zB/7jueYjWC+6mLGFnZsmZHZ4CYtNbzT2wLtML
-         T+BJ6gZWDufga0ZfIIlEH1+oT2n0ohqqm9ICU/Jefpp1CZwy/2fX6W0IxfZdKivwS7Bq
-         M10w==
+        bh=OL70V98bjaeTpEsGsce6GBCcyxbMOeWz75t3M1myGJM=;
+        b=khiCbGXdBtc3FYDTDWqilUFZATDEl1XeTOepJregS6qRCWOu3YMZeIw/aHqVwHMEk4
+         0yIeZKTijM1/TlhkDgkc90oxxsrCmVdTTEWOOV5DMj341ptmBsu4vaSQHTCFOWS9NOyo
+         KeeXx8+Iwk1CwePajQzjC66UytYibQuQNusQAB9dUE/3Dhv+MHVhGaMKUE+tJpIvUVqX
+         n/Ni1bxoVYjoNVJnw46D/lcChYhAofmQK0a3awxucvqMhwsb+VddvUMu9AYhjhrldEfT
+         WGsWQn8db1vdYTTZB8xeuK+vzpxEZB7oQ7X2KIFKHVvyTRoYNtyBoPMnFD4YiUquS8Zu
+         gH9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=FFOrxiY+i6I6J5uDIGDBG2mqCbkE9i0oc6FVQa+gf/4=;
-        b=OReC1A4qnd4OLgW3TJnFPFbYvOCQAaracjHV6wvK/fIi7Wewef30D1kSA/X9TNHH/v
-         S7g4iaDSHk9SHpGvlBna84N/rUbTHxibd8xHP8ANO/dEHGSXDqkdm51sDjy6nN5RUmDF
-         a2X4Ue3MwKoL7eU9UK0P7cR80fnBp2qeGw3BEC7D/QXeWM/8lV6mlytfdB8OEhcDEWYq
-         /mL08SiDZ2Bj4uzY2GGLdJKqes3HZSNhM9vfaOV1O/Ft45hUYT8QN4XKfJhDFbwu5FzA
-         ObhkZfcZoCZcz9wGswWsL1E/ApRWbGqwGfPEb+RZu6HjP1MYwG/6UOauz8TL4E4OErzN
-         nOsA==
-X-Gm-Message-State: ANhLgQ30WAqLkFG9qf0Ub+sj0U+0PDVRtBKkW7/0H1c+eAa8kW8ORmSd
-        QkdySvr3ijEJ8rMeib58TbF8l2u6VZ1ygRpb4u8=
-X-Google-Smtp-Source: ADFU+vsOpyLe9TKa5tzdXFBuLgUxhuu89VmxYr8c/2VM7+ZX0OSeHiXlMDlylt/syjk7t2JGF5+T/j4RGqLXR138qBo=
-X-Received: by 2002:aca:5191:: with SMTP id f139mr7732586oib.140.1584114391950;
- Fri, 13 Mar 2020 08:46:31 -0700 (PDT)
+        bh=OL70V98bjaeTpEsGsce6GBCcyxbMOeWz75t3M1myGJM=;
+        b=ek6s+Cl7Sw8/Sqb2bMp16VIRnaQtDAIRFAASwr9fZltoNTYD0VwI1cI+gOhI7ww093
+         e5X2MM2rmyuyEcdIZIy7YxGjWliF//NF+X5edrxCBGBG2PWoABPlRs2kp8NiiXYktbhw
+         nM+44WDBAU54GTTXvJVvrz24SKqFenh9A/b4+LRxjLOPB0PlmWJPY26p2Pa4Lewvng05
+         NcMp9jrZ2rzefsgec1LD6CQqSDWZVOi04mf0P3sbjUVoFLOGuSiGFF+myAdDUaM1AtiX
+         irs0KzedHL7+uq/xa4U3hpVaF2HHVGekvUlyuSzdC/wWWe+qGte/IUs3ghSaP1F+4UUv
+         VNrg==
+X-Gm-Message-State: ANhLgQ2VCkx0aIems9B6Fa9qWOJquTSNslDcecDDzqwoDqygqJ/oEvQc
+        CxfOKGEfRDdsN34zZPDdz7+xVb3Q7P2Q11LrROtXOA==
+X-Google-Smtp-Source: ADFU+vuWaae2xOXH28mzrU+qKwNOfDfbZ6S68a31YopBrT4sXG1CTeExH1BjdftwvbNTBn0JNVCwVquE5qmrMGjIQnE=
+X-Received: by 2002:a05:6830:2391:: with SMTP id l17mr11877850ots.339.1584114975951;
+ Fri, 13 Mar 2020 08:56:15 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200312113637.20355-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20200312113637.20355-1-richard_c_haines@btinternet.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 13 Mar 2020 11:47:25 -0400
-Message-ID: <CAEjxPJ7Ds4J=7hO9K-B1pLXUfCgx4vFbMth-3nQW9x_4xV7S0Q@mail.gmail.com>
-Subject: Re: [PATCH 0/2] selinux-testsuite: Use native filesystem for tests
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Scott Mayhew <smayhew@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+References: <20200313112921.166817-1-omosnace@redhat.com> <CAP+JOzQmr1McXTO49xw60MvLy-4tE9QfSFYj-B+5HXHa=QqB3A@mail.gmail.com>
+In-Reply-To: <CAP+JOzQmr1McXTO49xw60MvLy-4tE9QfSFYj-B+5HXHa=QqB3A@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 13 Mar 2020 11:57:36 -0400
+Message-ID: <CAP+JOzTQQx6aM81QyVe0yoiPJeDU+7xE6nn=0UMAB1EZ_c9ryA@mail.gmail.com>
+Subject: Re: [PATCH] secilc: add basic test for policy optimization
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="0000000000006d44c805a0be8298"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Mar 12, 2020 at 7:37 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
+--0000000000006d44c805a0be8298
+Content-Type: text/plain; charset="UTF-8"
+
+On Fri, Mar 13, 2020 at 10:01 AM James Carter <jwcart2@gmail.com> wrote:
 >
-> If you test on the selinux-next kernel (that has the XFS patch [1]) with
-> the "NFS: Ensure security label is set for root inode" patch [2], then all
-> tests should pass. Anything else will give varying amounts of fails.
+> On Fri, Mar 13, 2020 at 7:30 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+<snip>
 >
-> The filesystem types tested are: ext4, xfs, vfat and nfs4.
+> I can trim these policies and make them smaller. I'll send you smaller versions.
 >
-> I've revamped the nfs.sh to handle tests that require specific mount
-> options, these plus many more are now in tests/nfs_filesystem. This only
-> gets run by nfs.sh.
->
-> There are two minor workarounds involving multiple mounts returning EBUSY.
-> These are either bugs or features.
->
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/patch/security/selinux?id=e4cfa05e9bfe286457082477b32ecd17737bdbce
-> [2] https://lore.kernel.org/selinux/20200303225837.1557210-1-smayhew@redhat.com/
 
-Still failing for me:
-filesystem/test ............. 13/27 Failed mount(2): Permission denied
-filesystem/test ............. 18/27
-#   Failed test at filesystem/test line 679.
-Failed umount(2): Invalid argument
+Try these two attached policies. I've removed everything not related
+to the redundant rules.
 
-#   Failed test at filesystem/test line 690.
-Failed mount(2): Permission denied
-filesystem/test ............. 21/27
-#   Failed test at filesystem/test line 714.
-Failed umount(2): Invalid argument
+Jim
 
-#   Failed test at filesystem/test line 726.
-Failed mount(2): Permission denied
+--0000000000006d44c805a0be8298
+Content-Type: application/vnd.ms-artgalry; name="opt-input.cil"
+Content-Disposition: attachment; filename="opt-input.cil"
+Content-Transfer-Encoding: base64
+Content-ID: <f_k7qd6ip40>
+X-Attachment-Id: f_k7qd6ip40
 
-#   Failed test at filesystem/test line 750.
-filesystem/test ............. 25/27
-#   Failed test at filesystem/test line 756.
-Failed umount(2): Invalid argument
+KGhhbmRsZXVua25vd24gZGVueSkKKGNsYXNzIGNsMDEgKHAwMWEgcDAxYiBwMTFhIHAxMWIpKQoo
+Y2xhc3NvcmRlciAoY2wwMSkpCihzaWQga2VybmVsKQooc2lkb3JkZXIgKGtlcm5lbCkpCihtbHMg
+dHJ1ZSkKKHNlbnNpdGl2aXR5IHMwMSkKKHNlbnNpdGl2aXR5b3JkZXIgKHMwMSkpCihjYXRlZ29y
+eSBjMDEpCihjYXRlZ29yeW9yZGVyIChjMDEpKQooc2Vuc2l0aXZpdHljYXRlZ29yeSBzMDEgKGMw
+MSkpCih0eXBlYXR0cmlidXRlIGF0MDEpCih0eXBlYXR0cmlidXRlIGF0MDIpCihib29sZWFuIGIw
+MSBmYWxzZSkKKHR5cGUgdHAwMSkKKHR5cGUgdHAwMikKKHR5cGUgdHAwNCkKKHR5cGUgdHByMSkK
+KHR5cGUgdHByMikKKHR5cGUgdHByMykKKHR5cGUgdHByNCkKKHR5cGUgdHByNSkKKHR5cGVhdHRy
+aWJ1dGVzZXQgYXQwMSAodHAwMSkpCih0eXBlYXR0cmlidXRlc2V0IGF0MDIgKHRwMDEgdHAwMikp
+CihhbGxvdyBhdDAyIHRwcjEgKGNsMDEgKHAxMWEgcDAxYSBwMDFiKSkpCihhbGxvdyBhdDAyIHRw
+cjMgKGNsMDEgKHAxMWEgcDAxYSBwMDFiKSkpCihhbGxvdyB0cDAxIGF0MDEgKGNsMDEgKHAxMWIp
+KSkKKGFsbG93IHRwMDEgc2VsZiAoY2wwMSAocDExYSBwMDFhKSkpCihhbGxvdyB0cDAxIHRwMDEg
+KGNsMDEgKHAwMWIpKSkKKGFsbG93IHRwMDEgdHByMSAoY2wwMSAocDExYSBwMTFiIHAwMWEgcDAx
+YikpKQooYWxsb3cgdHAwMiB0cHIxIChjbDAxIChwMTFhIHAwMWEpKSkKKGRvbnRhdWRpdCBhdDAy
+IHRwcjIgKGNsMDEgKHAxMWEgcDAxYSBwMDFiKSkpCihkb250YXVkaXQgYXQwMiB0cHI0IChjbDAx
+IChwMTFhIHAwMWEgcDAxYikpKQooZG9udGF1ZGl0IHRwMDEgdHByMiAoY2wwMSAocDExYSBwMTFi
+IHAwMWEgcDAxYikpKQooZG9udGF1ZGl0IHRwMDIgdHByMiAoY2wwMSAocDExYSBwMDFhKSkpCihi
+b29sZWFuaWYgKGIwMSkKICAgICh0cnVlCiAgICAgICAgKGFsbG93IHRwMDEgdHByMyAoY2wwMSAo
+cDExYSBwMTFiIHAwMWEgcDAxYikpKQogICAgICAgIChhbGxvdyB0cDAxIHRwcjUgKGNsMDEgKHAx
+MWEgcDExYiBwMDFhIHAwMWIpKSkKICAgICAgICAoYWxsb3cgdHAwMiB0cHIzIChjbDAxIChwMTFh
+IHAwMWEpKSkKICAgICAgICAoYWxsb3cgdHAwMiB0cHI1IChjbDAxIChwMTFhIHAwMWEpKSkKICAg
+ICAgICAoZG9udGF1ZGl0IHRwMDEgdHByNCAoY2wwMSAocDExYSBwMTFiIHAwMWEgcDAxYikpKQog
+ICAgICAgIChkb250YXVkaXQgdHAwMiB0cHI0IChjbDAxIChwMTFhIHAwMWEpKSkKICAgICkKICAg
+IChmYWxzZQogICAgICAgIChhbGxvdyBhdDAyIHRwcjUgKGNsMDEgKHAxMWEgcDAxYSBwMDFiKSkp
+CiAgICApCikKKHJvbGUgb2JqZWN0X3IpCihyb2xlIHJsMDEpCihyb2xldHlwZSBybDAxIHRwMDEp
+Cihyb2xldHlwZSBvYmplY3RfciB0cDAxKQoocm9sZXR5cGUgb2JqZWN0X3IgdHAwMikKKHJvbGV0
+eXBlIG9iamVjdF9yIHRwMDQpCihyb2xldHlwZSBvYmplY3RfciB0cHIxKQoocm9sZXR5cGUgb2Jq
+ZWN0X3IgdHByMikKKHJvbGV0eXBlIG9iamVjdF9yIHRwcjMpCihyb2xldHlwZSBvYmplY3RfciB0
+cHI0KQoocm9sZXR5cGUgb2JqZWN0X3IgdHByNSkKKHVzZXIgdXMwMSkKKHVzZXJyb2xlIHVzMDEg
+b2JqZWN0X3IpCih1c2Vycm9sZSB1czAxIHJsMDEpCih1c2VybGV2ZWwgdXMwMSAoczAxKSkKKHVz
+ZXJyYW5nZSB1czAxICgoczAxKSAoczAxKSkpCihzaWRjb250ZXh0IGtlcm5lbCAodXMwMSBybDAx
+IHRwMDEgKChzMDEpIChzMDEpKSkpCg==
+--0000000000006d44c805a0be8298
+Content-Type: application/vnd.ms-artgalry; name="opt-expected.cil"
+Content-Disposition: attachment; filename="opt-expected.cil"
+Content-Transfer-Encoding: base64
+Content-ID: <f_k7qd6p0m1>
+X-Attachment-Id: f_k7qd6p0m1
 
-#   Failed test at filesystem/test line 763.
-# Looks like you failed 7 tests of 27.
-filesystem/test ............. Dubious, test returned 7 (wstat 1792, 0x700)
-Failed 7/27 subtests
-fs_filesystem/test .......... 18/26 Failed fsconfig(2): Permission denied
-Failed config_opts
-
-#   Failed test at fs_filesystem/test line 706.
-fs_filesystem/test .......... 20/26 Failed umount(2): Invalid argument
-
-#   Failed test at fs_filesystem/test line 717.
-Failed fsconfig(2): Permission denied
-Failed config_opts
-fs_filesystem/test .......... 23/26
-#   Failed test at fs_filesystem/test line 780.
-
-#   Failed test at fs_filesystem/test line 786.
-Failed umount(2): Invalid argument
-
-#   Failed test at fs_filesystem/test line 794.
-fs_filesystem/test .......... 26/26 # Looks like you failed 5 tests of 26.
-fs_filesystem/test .......... Dubious, test returned 5 (wstat 1280, 0x500)
-Failed 5/26 subtests
-
-Test Summary Report
--------------------
-filesystem/test           (Wstat: 1792 Tests: 27 Failed: 7)
-  Failed tests:  18, 20-21, 23-26
-  Non-zero exit status: 7
-fs_filesystem/test        (Wstat: 1280 Tests: 26 Failed: 5)
-  Failed tests:  19, 21, 23-25
-  Non-zero exit status: 5
-Files=63, Tests=623, 164 wallclock secs ( 0.36 usr  0.99 sys +  2.77
-cusr 48.23 csys = 52.35 CPU)
-Result: FAIL
-Failed 2/63 test programs. 12/623 subtests failed.
-make: *** [Makefile:133: test] Error 5
-make: Leaving directory '/mnt/selinux-testsuite/tests'
-Test failed on line: 72 - Closing down NFS
+KGhhbmRsZXVua25vd24gZGVueSkKKGNsYXNzIGNsMDEgKHAwMWEgcDAxYiBwMTFhIHAxMWIpKQoo
+Y2xhc3NvcmRlciAoY2wwMSkpCihzaWQga2VybmVsKQooc2lkb3JkZXIgKGtlcm5lbCkpCihtbHMg
+dHJ1ZSkKKHNlbnNpdGl2aXR5IHMwMSkKKHNlbnNpdGl2aXR5b3JkZXIgKHMwMSkpCihjYXRlZ29y
+eSBjMDEpCihjYXRlZ29yeW9yZGVyIChjMDEpKQooc2Vuc2l0aXZpdHljYXRlZ29yeSBzMDEgKGMw
+MSkpCih0eXBlYXR0cmlidXRlIGF0MDIpCihib29sZWFuIGIwMSBmYWxzZSkKKHR5cGUgdHAwMSkK
+KHR5cGUgdHAwMikKKHR5cGUgdHAwNCkKKHR5cGUgdHByMSkKKHR5cGUgdHByMikKKHR5cGUgdHBy
+MykKKHR5cGUgdHByNCkKKHR5cGUgdHByNSkKKHR5cGVhdHRyaWJ1dGVzZXQgYXQwMiAodHAwMSB0
+cDAyKSkKKGFsbG93IGF0MDIgdHByMSAoY2wwMSAocDAxYSBwMDFiIHAxMWEpKSkKKGFsbG93IGF0
+MDIgdHByMyAoY2wwMSAocDAxYSBwMDFiIHAxMWEpKSkKKGFsbG93IHRwMDEgc2VsZiAoY2wwMSAo
+cDAxYSBwMDFiIHAxMWEgcDExYikpKQooYWxsb3cgdHAwMSB0cHIxIChjbDAxIChwMTFiKSkpCihk
+b250YXVkaXQgYXQwMiB0cHIyIChjbDAxIChwMDFhIHAwMWIgcDExYSkpKQooZG9udGF1ZGl0IGF0
+MDIgdHByNCAoY2wwMSAocDAxYSBwMDFiIHAxMWEpKSkKKGRvbnRhdWRpdCB0cDAxIHRwcjIgKGNs
+MDEgKHAxMWIpKSkKKGJvb2xlYW5pZiBiMDEKICAgICh0cnVlCiAgICAgICAgKGFsbG93IHRwMDEg
+dHByMyAoY2wwMSAocDExYikpKQogICAgICAgIChhbGxvdyB0cDAxIHRwcjUgKGNsMDEgKHAwMWEg
+cDAxYiBwMTFhIHAxMWIpKSkKICAgICAgICAoYWxsb3cgdHAwMiB0cHI1IChjbDAxIChwMDFhIHAx
+MWEpKSkKICAgICAgICAoZG9udGF1ZGl0IHRwMDEgdHByNCAoY2wwMSAocDExYikpKQogICAgKQog
+ICAgKGZhbHNlCiAgICAgICAgKGFsbG93IGF0MDIgdHByNSAoY2wwMSAocDAxYSBwMDFiIHAxMWEp
+KSkKICAgICkKKQoocm9sZSBvYmplY3RfcikKKHJvbGUgcmwwMSkKKHJvbGV0eXBlIHJsMDEgdHAw
+MSkKKHJvbGV0eXBlIG9iamVjdF9yIHRwMDEpCihyb2xldHlwZSBvYmplY3RfciB0cDAyKQoocm9s
+ZXR5cGUgb2JqZWN0X3IgdHAwNCkKKHJvbGV0eXBlIG9iamVjdF9yIHRwcjEpCihyb2xldHlwZSBv
+YmplY3RfciB0cHIyKQoocm9sZXR5cGUgb2JqZWN0X3IgdHByMykKKHJvbGV0eXBlIG9iamVjdF9y
+IHRwcjQpCihyb2xldHlwZSBvYmplY3RfciB0cHI1KQoodXNlciB1czAxKQoodXNlcnJvbGUgdXMw
+MSBvYmplY3RfcikKKHVzZXJyb2xlIHVzMDEgcmwwMSkKKHVzZXJsZXZlbCB1czAxIChzMDEpKQoo
+dXNlcnJhbmdlIHVzMDEgKChzMDEpIChzMDEpKSkKKHNpZGNvbnRleHQga2VybmVsICh1czAxIHJs
+MDEgdHAwMSAoKHMwMSkgKHMwMSkpKSkK
+--0000000000006d44c805a0be8298--
