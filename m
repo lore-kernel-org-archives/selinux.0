@@ -8,58 +8,61 @@ X-Spam-Status: No, score=-8.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4437CC10DCE
-	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 14:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52613C2BB1D
+	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 14:27:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id E31A92073E
-	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 14:27:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A5FC206FA
+	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 14:27:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g2bVQTuE"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AWyOmIp3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726477AbgCMO1V (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 13 Mar 2020 10:27:21 -0400
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:36687 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726406AbgCMO1V (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 13 Mar 2020 10:27:21 -0400
-Received: by mail-qk1-f196.google.com with SMTP id u25so12778260qkk.3
-        for <selinux@vger.kernel.org>; Fri, 13 Mar 2020 07:27:19 -0700 (PDT)
+        id S1726551AbgCMO10 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 13 Mar 2020 10:27:26 -0400
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:37384 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726406AbgCMO10 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 13 Mar 2020 10:27:26 -0400
+Received: by mail-qk1-f195.google.com with SMTP id z25so7870072qkj.4
+        for <selinux@vger.kernel.org>; Fri, 13 Mar 2020 07:27:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=0uQ5LE+3Xw7xbvLflYb2Ndfif7ZybFjKvLV97yOC4Iw=;
-        b=g2bVQTuE1tNEfOuATerrLZxrj2p6XJkenJIgePWhw5RlvsVTgRWdtLPNCDAJGL0ika
-         5pDyVKBWm21vuTd6ZQ+MMCbJc74orpHMm1OqU7kEAT85a4/DdXeSHSAVkZXoFNjRe9rZ
-         4bRkrLitcKCrmgNgY4g3BCcWgybnriEJklk543JpwOZtr1K3N5MLudhMpcwW0lO5jkpS
-         Q5jHfciuxNtS2i1hB1kA6PDRD6Arx6tBkbeTz5PkPio8gAZjXgHWHQ2P2o6QjKDyg6z0
-         NpCweBDZWQQckdtWRZ5GIpqpdNUQUZ/zYQNGgZyfUZbBvVrbJKPtsF7dz5LmpixRVNEk
-         arBA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=3iADymvBkWK6kf1LDGIc4QMbyppxKgQPV6oobjbBAp0=;
+        b=AWyOmIp3uLENv6GVMTHKiSmUqiM5rmrDlhrb6mmp1TEaPG3RKF6vwyc7Pixajtm+h2
+         hp6wbb7qWTKsKuGvF94IlVvT+MgoMlU5JXuRKI6+xWecR4vBxzpzGkoyoPVP5FvHd6PM
+         YUH8qnytXvfa2nwn3OGS9nTawnV7wXeNG577AgX3ozDcKwtVI3mBQv3vzBgFlo0Hnx83
+         ReZ/eV5DsD6ZhYM9WaHhKz3PNp7QGiSQXFed5gVxOdyd+KVPXx91qpIyAjjQ4KPr8QF0
+         ul9K1coNpyse8mvtVcfQIPd5CC2i1OLDEGxrE85ihhMtin1xI9BV9BFCJ895WNDoFOqd
+         wf6g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=0uQ5LE+3Xw7xbvLflYb2Ndfif7ZybFjKvLV97yOC4Iw=;
-        b=CYfHVhvcO5X6t+yk89mR2sbQaOiy8/WRTFnVBYHLZRKLq6zvzclJ6p+GZrohEUOP0i
-         OOHBNEpGGjWWlvbGc2rMMw6SSxfenHsAxXXqxSBLIt5S9+FYs3iW+/GrlbzZCamji15O
-         FxRn50VxMFuI0PS+lcsOaOe2sb67Va2zY7otdwcIe/DxyZneBryWtYd1YV9JTTmdkBvY
-         urn/zyJ3FbMkjFniAKKWNC5Sj8/xAAKKQNzK4eDgflmymQ6FnXObNCaqL/FxK86FXzBX
-         4drtaAJGd+0S7gUEsLKvEHTLJ93jOdEtzNM9+Z3gpwOOg9EadFUlmIbJ/eVoSvxDfoZv
-         qJFQ==
-X-Gm-Message-State: ANhLgQ2kKCfdlfsxHWmFvx2ZK0FEETlk0PlCu42wMzQpN5CwLneZcrj2
-        q/3EiBw7s7fC3dBQno3yqXA=
-X-Google-Smtp-Source: ADFU+vujkSu3N+k1YmErLCiRVC+pC3DiQfeQ3qa1z8Rajk5ECFlJpYWJP+SaNv8afxD4CPv6WbcyDQ==
-X-Received: by 2002:a37:67c2:: with SMTP id b185mr12993288qkc.292.1584109638564;
-        Fri, 13 Mar 2020 07:27:18 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=3iADymvBkWK6kf1LDGIc4QMbyppxKgQPV6oobjbBAp0=;
+        b=ksujnNDea5IVEFHv+mu2EBLaGQvZX89z7BsZkKuvKJwC0vRn2BaAnoYPLfp05rKNTB
+         58zfzWMyMYlfq53X6uLCQyGHLi+VUspgNlz6Va8ksZRQa4owfE9EjpA7ao1n8PJNIMHC
+         IE0hRvNr00XBA3x+MBm9xnoYgwxfst1d1KR5Ht+JRkQV4Ca+0SSLTXxcZ+zuk+NIKmbk
+         wAJn6eBkxwghZeo4S1mDrc0ry4JRJqB5hPw1SLXcBie5KR0IBu/x09yMGqVfVAFv7m+i
+         nwcGnuzZ81XRaqhtDxs4ipMhU9a1t6bG7K7j4Dp9VaBJRm0KS4F4PFTLARDReh8gxEX5
+         nSgw==
+X-Gm-Message-State: ANhLgQ07tNfHzPgMWOhB2VYBP1mGvdByhoQI0GglkoCBkneg9aNDfb3K
+        yMbLGtRBTl4uZr5EljVms9Y=
+X-Google-Smtp-Source: ADFU+vtdsrUV5J9KzzQNqgzYG4T6gC1DFLt+JJq6h4OkBmhMKru1Y5TeWM/0TqMCsnFq+DQEZCaVkQ==
+X-Received: by 2002:a37:5907:: with SMTP id n7mr13313069qkb.227.1584109641348;
+        Fri, 13 Mar 2020 07:27:21 -0700 (PDT)
 Received: from r21-ubuntu-01.ltsnet.net ([65.127.220.137])
-        by smtp.gmail.com with ESMTPSA id a15sm2906139qko.122.2020.03.13.07.27.17
+        by smtp.gmail.com with ESMTPSA id a15sm2906139qko.122.2020.03.13.07.27.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Mar 2020 07:27:18 -0700 (PDT)
+        Fri, 13 Mar 2020 07:27:20 -0700 (PDT)
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
 To:     paul@paul-moore.com
 Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
-Subject: [RFC PATCH 1/5] selinux-testsuite: add tests/sandbox/nodir_no_allow.cil
-Date:   Fri, 13 Mar 2020 10:26:51 -0400
-Message-Id: <20200313142655.29424-1-stephen.smalley.work@gmail.com>
+Subject: [RFC PATCH 2/5] selinux-testsuite: add tests/sandbox/nodir_rx_allow.cil
+Date:   Fri, 13 Mar 2020 10:26:52 -0400
+Message-Id: <20200313142655.29424-2-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200313142655.29424-1-stephen.smalley.work@gmail.com>
+References: <20200313142655.29424-1-stephen.smalley.work@gmail.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
@@ -69,16 +72,16 @@ From: Stephen Smalley <sds@tycho.nsa.gov>
 
 Signed-off-by: Stephen Smalley <sds@tycho.nsa.gov>
 ---
- tests/sandbox/nodir_no_allow.cil | 609 +++++++++++++++++++++++++++++++
- 1 file changed, 609 insertions(+)
- create mode 100644 tests/sandbox/nodir_no_allow.cil
+ tests/sandbox/nodir_rx_allow.cil | 612 +++++++++++++++++++++++++++++++
+ 1 file changed, 612 insertions(+)
+ create mode 100644 tests/sandbox/nodir_rx_allow.cil
 
-diff --git a/tests/sandbox/nodir_no_allow.cil b/tests/sandbox/nodir_no_allow.cil
+diff --git a/tests/sandbox/nodir_rx_allow.cil b/tests/sandbox/nodir_rx_allow.cil
 new file mode 100644
-index 0000000..dfb987a
+index 0000000..cc31660
 --- /dev/null
-+++ b/tests/sandbox/nodir_no_allow.cil
-@@ -0,0 +1,609 @@
++++ b/tests/sandbox/nodir_rx_allow.cil
+@@ -0,0 +1,612 @@
 +; This information is NOT compiled into a sandbox policy, it is here just to
 +; make the cil compiler happy. For now, we leave it here with dummy information.
 +(sid SID)
@@ -97,7 +100,7 @@ index 0000000..dfb987a
 +(sidcontext SID (USER ROLE test_sandbox_dir_t ((SENS)(SENS))))
 +
 +; type: test_sandbox_nodir_t
-+; perms: no
++; perms: rx
 +; mode: allow
 +
 +(class security (compute_av compute_create compute_member check_context load_policy compute_relabel compute_user setenforce setbool setsecparam setcheckreqprot read_policy validate_trans))
@@ -688,6 +691,9 @@ index 0000000..dfb987a
 +(allow test_sandbox_nodir_t var_t (lnk_file (getattr read)))
 +(allow test_sandbox_nodir_t bin_t (file (execmod getattr execute ioctl map open read)))
 +(allow test_sandbox_nodir_t zero_device_t (chr_file (append getattr ioctl lock open read write)))
++
++(allow test_sandbox_nodir_t test_sandbox_dir_t (dir (getattr open read search)))
++(allow test_sandbox_nodir_t test_sandbox_dir_t (file (getattr)))
 -- 
 2.17.1
 
