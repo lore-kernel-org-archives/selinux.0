@@ -1,167 +1,283 @@
-Return-Path: <SRS0=2KQY=46=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=RXLG=5B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA99CC10DCE
-	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 21:11:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2446EC0044D
+	for <selinux@archiver.kernel.org>; Mon, 16 Mar 2020 09:55:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 6D1CB2074E
-	for <selinux@archiver.kernel.org>; Fri, 13 Mar 2020 21:11:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DA8EB20663
+	for <selinux@archiver.kernel.org>; Mon, 16 Mar 2020 09:55:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="nSZntJB1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LpDgNakm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726480AbgCMVLC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 13 Mar 2020 17:11:02 -0400
-Received: from mailomta31-sa.btinternet.com ([213.120.69.37]:55641 "EHLO
-        sa-prd-fep-045.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726543AbgCMVLC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 13 Mar 2020 17:11:02 -0400
-Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
-          by sa-prd-fep-045.btinternet.com with ESMTP
-          id <20200313211058.SYJT5147.sa-prd-fep-045.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
-          Fri, 13 Mar 2020 21:10:58 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1584133858; 
-        bh=w12wGd4/ZkciM8WQf7nsQT45JD0sPTYnBLo0+fjlGog=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=nSZntJB18O2oBwe5wbWlPhuK5WkDFEHR/KktMAE6FdQdXGYHtB10tMUy8Af4twmubx2tNQx7DH+8A3JHQlUUEuWhc/h6eztfJRQW7/INys05njZfFnpb2ggW1Hewt7Ue4Sbm7iIOZRLic4vmbOfmxwQFUtPjIuJBR7+cykXSBm8lvLLrzOlBslkBaUjqAmjHPjUim2pn1fQz5ZnhQDK8rhEVs2LEBRnl47vLFKPn88/mq9ZeG6c0/E4FkBsKGpSVCIeU/mmRZPl7wyzAc7rEmBfag7TUCv0UDCQBqDAZ0WnrKY1tGoUcI8fCudFJD8Lzjy5cod6YwaLdLbsmWtNTQg==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [31.49.56.74]
-X-OWM-Source-IP: 31.49.56.74 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedruddvjedgudegiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepfedurdegledrheeirdejgeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepfedurdegledrheeirdejgedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvsheshhhothhmrghilhdrtghomheqpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehsmhgrhihhvgifsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehsthgvphhhvghnrdhsmhgrlhhlvgihrdif
-        ohhrkhesghhmrghilhdrtghomheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (31.49.56.74) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A241105C79D85; Fri, 13 Mar 2020 21:10:58 +0000
-Message-ID: <fe0082164fd1357027568ed719036977708f6085.camel@btinternet.com>
-Subject: Re: [PATCH 0/2] selinux-testsuite: Use native filesystem for tests
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Scott Mayhew <smayhew@redhat.com>
-Date:   Fri, 13 Mar 2020 21:10:59 +0000
-In-Reply-To: <CAEjxPJ4NE+V67GTyiAaBb3ZX_mc5kiCOnL9pDotLb2m9z-nLWg@mail.gmail.com>
-References: <20200312113637.20355-1-richard_c_haines@btinternet.com>
-         <CAEjxPJ7Ds4J=7hO9K-B1pLXUfCgx4vFbMth-3nQW9x_4xV7S0Q@mail.gmail.com>
-         <CAEjxPJ7kjzaj4bz9=_oTJrLAYmDKfMZsC_eAGDj_N7Kbxm=omg@mail.gmail.com>
-         <CAEjxPJ4D7odh+f4mx==Z1YPV0=XtdLY2B9wTvfO-p4d7FZyzug@mail.gmail.com>
-         <280fe687e65a9e316d4637281f31c9cf7adfdf5f.camel@btinternet.com>
-         <CAEjxPJ4NE+V67GTyiAaBb3ZX_mc5kiCOnL9pDotLb2m9z-nLWg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+        id S1730421AbgCPJzf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Mar 2020 05:55:35 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:50183 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730423AbgCPJzf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Mar 2020 05:55:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1584352533;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Wsgt4vWlscGuOQeWZQpaYQV5iCmAQ9fH4xN/BxTZF9A=;
+        b=LpDgNakmIh2s/pHvQMMOF38ldIKEGe6bWB4yNt6TAjexrB+WZv9IB/vK633we9D2U1XwcK
+        mndW9lojgCuFw0QvOGNml7qHBV/JSrqCreIJ0HC1aJbAzVyrDFT0wai0HSKVBoT1yxsbuq
+        +FRD7Q6Xm4WyxwdDhpoR1wGyEabPHOg=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-348-dpZNzdZANYm64X2NDO00Rg-1; Mon, 16 Mar 2020 05:55:29 -0400
+X-MC-Unique: dpZNzdZANYm64X2NDO00Rg-1
+Received: by mail-wm1-f70.google.com with SMTP id z16so499231wmi.2
+        for <selinux@vger.kernel.org>; Mon, 16 Mar 2020 02:55:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Wsgt4vWlscGuOQeWZQpaYQV5iCmAQ9fH4xN/BxTZF9A=;
+        b=oTq87ybWFb8vT6IeyFJ6aUcJbsAsro0UhkO9ex2HEMIFUQr5+8Q9nNNM688DAlO2lu
+         SS3Pll2VcLl3DWKegNUjdm84g5aE9h+rdJ4oWVBqCwplJRX0mLn4V3jGHgE34x0kDCVK
+         eQz99vdud68iS9UjuhhXJmpmE/0yNcmLUMGIpRaQDXSaaLxvoLqijFx0zInY+/s7zcjt
+         GzTf1MQK13s4dfLdxjAEgO4miCs/fA6mLUUqxIcfR6gLdtosnAwT+t6TiNqev+tNrH9k
+         NdXOYj0MFG90jZrHcr14tiYlZt3ZBtZy5m1ir6VHRgIRNtOAJ+td4+Ry1ea6VDqNfnLW
+         NpZA==
+X-Gm-Message-State: ANhLgQ2n+sOTbQ+7S+To1QftX5K8ocQtCs4NxgIw3Bg/9dHPywExoC0h
+        /8SFyQMQFT+kJBSUB4qoUrub5wa5yG9BOYllAMNu9iOc4+JfM+tkdgz1HT7WJPGV7YsbfCsKcQO
+        E0IEV3EcGoSf0gpeKvw==
+X-Received: by 2002:adf:8023:: with SMTP id 32mr24936418wrk.189.1584352527495;
+        Mon, 16 Mar 2020 02:55:27 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vsUTU0hQ5GVQRVoj7Tu3jhjDYWPQ/rsxu8y0xIHBJaQz0lHtrYvEqwupXzrhHGlhGaNZMEpJA==
+X-Received: by 2002:adf:8023:: with SMTP id 32mr24936392wrk.189.1584352527186;
+        Mon, 16 Mar 2020 02:55:27 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
+        by smtp.gmail.com with ESMTPSA id l5sm28279284wml.3.2020.03.16.02.55.25
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Mar 2020 02:55:26 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH v2] secilc: add basic test for policy optimization
+Date:   Mon, 16 Mar 2020 10:55:23 +0100
+Message-Id: <20200316095523.335474-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, 2020-03-13 at 14:22 -0400, Stephen Smalley wrote:
-> On Fri, Mar 13, 2020 at 2:18 PM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > On Fri, 2020-03-13 at 13:21 -0400, Stephen Smalley wrote:
-> > > On Fri, Mar 13, 2020 at 12:04 PM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > > On Fri, Mar 13, 2020 at 11:47 AM Stephen Smalley
-> > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > On Thu, Mar 12, 2020 at 7:37 AM Richard Haines
-> > > > > <richard_c_haines@btinternet.com> wrote:
-> > > > > > If you test on the selinux-next kernel (that has the XFS
-> > > > > > patch
-> > > > > > [1]) with
-> > > > > > the "NFS: Ensure security label is set for root inode"
-> > > > > > patch
-> > > > > > [2], then all
-> > > > > > tests should pass. Anything else will give varying amounts
-> > > > > > of
-> > > > > > fails.
-> > > > > > 
-> > > > > > The filesystem types tested are: ext4, xfs, vfat and nfs4.
-> > > > > > 
-> > > > > > I've revamped the nfs.sh to handle tests that require
-> > > > > > specific
-> > > > > > mount
-> > > > > > options, these plus many more are now in
-> > > > > > tests/nfs_filesystem.
-> > > > > > This only
-> > > > > > gets run by nfs.sh.
-> > > > > > 
-> > > > > > There are two minor workarounds involving multiple mounts
-> > > > > > returning EBUSY.
-> > > > > > These are either bugs or features.
-> > > > > > 
-> > > > > > [1]
-> > > > > > https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/patch/security/selinux?id=e4cfa05e9bfe286457082477b32ecd17737bdbce
-> > > > > > [2]
-> > > > > > https://lore.kernel.org/selinux/20200303225837.1557210-1-smayhew@redhat.com/
-> > > > > 
-> > > > > Still failing for me:
-> > > > > filesystem/test ............. 13/27 Failed mount(2):
-> > > > > Permission
-> > > > > denied
-> > > > > filesystem/test ............. 18/27
-> > > > 
-> > > > Sorry, that's on me.  Wrong kernel.  Will retry...
-> > > 
-> > > Same failures with the right kernel.  If I am reading it
-> > > correctly,
-> > > the first failure is on this test:
-> > > 
-> > > print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
-> > > print "Using mount options:\n\t$mount_opts\n";
-> > > $result = system(
-> > > "runcon -t test_filesystem_no_getattr_t $basedir/mount -s $dev -t
-> > > $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
-> > > );
-> > > ok( $result eq 0 );
-> > > 
-> > > Looks like the denial was:
-> > > type=SYSCALL msg=audit(03/13/2020 13:11:37.805:1605) :
-> > > arch=x86_64
-> > > syscall=mount success=no exit=EACCES(Permission denied)
-> > > a0=0x7ffc28975328 a1=0x7ffc2897536b a2=0x7ffc28975386 a3=0x0
-> > > items=14
-> > > ppid=15745 pid=15886 auid=sds uid=root gid=root euid=root
-> > > suid=root
-> > > fsuid=root egid=root sgid=root fsgid=root tty=pts0 ses=1
-> > > comm=mount
-> > > exe=/mnt/selinux-testsuite/tests/filesystem/mount
-> > > subj=unconfined_u:unconfined_r:test_filesystem_no_getattr_t:s0-
-> > > s0:c0.c1023
-> > > key=(null)
-> > > type=AVC msg=audit(03/13/2020 13:11:37.805:1605) :
-> > > avc:  denied  {
-> > > search } for  pid=15886 comm=mount name=sds dev="0:49"
-> > > ino=17039361
-> > > scontext=unconfined_u:unconfined_r:test_filesystem_no_getattr_t:s
-> > > 0-
-> > > s0:c0.c1023
-> > > tcontext=unconfined_u:object_r:user_home_dir_t:s0 tclass=dir
-> > > permissive=0
-> > 
-> > So far I have not managed to see this problem before or after a
-> > restorecon. I'll investigate further and see what I can find !!!
-> 
-> I was wondering if it has to do with where the testsuite directory is
-> located.
-> In my case, under my $HOME. Most of the test domains don't need
-> access to
-> the parent directories of the test subdir because they only use
-> relative pathnames
-> but a few do require this.
+Add a simple test for secilc -O to make sure that it produces the
+expected output. This might produce some false positives when the output
+of secilc/checkpolicy changes slightly, in which case the expected CIL
+will need to be updated along with the change.
 
-Could you try adding
-"userdom_search_user_home_content(filesystemdomain)" to
-test_filesystem.te as I had that in RFC V3 patch but removed it when I
-ran restorecon my system.
+The test should normally work even with a checkpolicy built from an
+older tree, as long as it produces the same CIL output, so it uses the
+checkpolicy it finds in PATH by default.
 
+The test policy is taken from an e-mail from James Carter:
+https://lore.kernel.org/selinux/CAP+JOzTQQx6aM81QyVe0yoiPJeDU+7xE6nn=0UMAB1EZ_c9ryA@mail.gmail.com/T/
+
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+
+v2:
+ - move test policies to the 'test' subdirectory
+ - use a simplified test policy supplied by James
+
+ secilc/.gitignore            |  2 ++
+ secilc/Makefile              |  9 +++++
+ secilc/test/opt-expected.cil | 57 +++++++++++++++++++++++++++++++
+ secilc/test/opt-input.cil    | 65 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 133 insertions(+)
+ create mode 100644 secilc/test/opt-expected.cil
+ create mode 100644 secilc/test/opt-input.cil
+
+diff --git a/secilc/.gitignore b/secilc/.gitignore
+index 2d3ff405..164523b0 100644
+--- a/secilc/.gitignore
++++ b/secilc/.gitignore
+@@ -7,3 +7,5 @@ file_contexts
+ docs/html
+ docs/pdf
+ docs/tmp
++opt-actual.bin
++opt-actual.cil
+diff --git a/secilc/Makefile b/secilc/Makefile
+index 16640098..d4a1c35a 100644
+--- a/secilc/Makefile
++++ b/secilc/Makefile
+@@ -13,6 +13,10 @@ SECIL2CONF_OBJS := $(patsubst %.c,%.o,$(SECIL2CONF_SRCS))
+ SECILC_MANPAGE = secilc.8
+ SECIL2CONF_MANPAGE = secil2conf.8
+ XMLTO = xmlto
++DIFF = diff
++
++CHECKPOLICY = checkpolicy
++POL_VERS = $(shell $(CHECKPOLICY) -V | cut -f 1 -d ' ')
+ 
+ CFLAGS ?= -Wall -Wshadow -Wextra -Wundef -Wmissing-format-attribute -Wcast-align -Wstrict-prototypes -Wpointer-arith -Wunused
+ 
+@@ -26,6 +30,9 @@ $(SECILC): $(SECILC_OBJS)
+ 
+ test: $(SECILC)
+ 	./$(SECILC) test/policy.cil
++	./$(SECILC) -c $(POL_VERS) -O -M 1 -f /dev/null -o opt-actual.bin test/opt-input.cil
++	$(CHECKPOLICY) -b -C -M -o opt-actual.cil opt-actual.bin >/dev/null
++	$(DIFF) test/opt-expected.cil opt-actual.cil
+ 
+ $(SECIL2CONF): $(SECIL2CONF_OBJS)
+ 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+@@ -58,6 +65,8 @@ clean:
+ 	rm -f file_contexts
+ 	rm -f $(SECILC_MANPAGE)
+ 	rm -f $(SECIL2CONF_MANPAGE)
++	rm -f opt-actual.cil
++	rm -f opt-actual.bin
+ 	$(MAKE) -C docs clean
+ 
+ relabel:
+diff --git a/secilc/test/opt-expected.cil b/secilc/test/opt-expected.cil
+new file mode 100644
+index 00000000..73ac9045
+--- /dev/null
++++ b/secilc/test/opt-expected.cil
+@@ -0,0 +1,57 @@
++(handleunknown deny)
++(class cl01 (p01a p01b p11a p11b))
++(classorder (cl01))
++(sid kernel)
++(sidorder (kernel))
++(mls true)
++(sensitivity s01)
++(sensitivityorder (s01))
++(category c01)
++(categoryorder (c01))
++(sensitivitycategory s01 (c01))
++(typeattribute at02)
++(boolean b01 false)
++(type tp01)
++(type tp02)
++(type tp04)
++(type tpr1)
++(type tpr2)
++(type tpr3)
++(type tpr4)
++(type tpr5)
++(typeattributeset at02 (tp01 tp02))
++(allow at02 tpr1 (cl01 (p01a p01b p11a)))
++(allow at02 tpr3 (cl01 (p01a p01b p11a)))
++(allow tp01 self (cl01 (p01a p01b p11a p11b)))
++(allow tp01 tpr1 (cl01 (p11b)))
++(dontaudit at02 tpr2 (cl01 (p01a p01b p11a)))
++(dontaudit at02 tpr4 (cl01 (p01a p01b p11a)))
++(dontaudit tp01 tpr2 (cl01 (p11b)))
++(booleanif b01
++    (true
++        (allow tp01 tpr3 (cl01 (p11b)))
++        (allow tp01 tpr5 (cl01 (p01a p01b p11a p11b)))
++        (allow tp02 tpr5 (cl01 (p01a p11a)))
++        (dontaudit tp01 tpr4 (cl01 (p11b)))
++    )
++    (false
++        (allow at02 tpr5 (cl01 (p01a p01b p11a)))
++    )
++)
++(role object_r)
++(role rl01)
++(roletype rl01 tp01)
++(roletype object_r tp01)
++(roletype object_r tp02)
++(roletype object_r tp04)
++(roletype object_r tpr1)
++(roletype object_r tpr2)
++(roletype object_r tpr3)
++(roletype object_r tpr4)
++(roletype object_r tpr5)
++(user us01)
++(userrole us01 object_r)
++(userrole us01 rl01)
++(userlevel us01 (s01))
++(userrange us01 ((s01) (s01)))
++(sidcontext kernel (us01 rl01 tp01 ((s01) (s01))))
+diff --git a/secilc/test/opt-input.cil b/secilc/test/opt-input.cil
+new file mode 100644
+index 00000000..5bb6c266
+--- /dev/null
++++ b/secilc/test/opt-input.cil
+@@ -0,0 +1,65 @@
++(handleunknown deny)
++(class cl01 (p01a p01b p11a p11b))
++(classorder (cl01))
++(sid kernel)
++(sidorder (kernel))
++(mls true)
++(sensitivity s01)
++(sensitivityorder (s01))
++(category c01)
++(categoryorder (c01))
++(sensitivitycategory s01 (c01))
++(typeattribute at01)
++(typeattribute at02)
++(boolean b01 false)
++(type tp01)
++(type tp02)
++(type tp04)
++(type tpr1)
++(type tpr2)
++(type tpr3)
++(type tpr4)
++(type tpr5)
++(typeattributeset at01 (tp01))
++(typeattributeset at02 (tp01 tp02))
++(allow at02 tpr1 (cl01 (p11a p01a p01b)))
++(allow at02 tpr3 (cl01 (p11a p01a p01b)))
++(allow tp01 at01 (cl01 (p11b)))
++(allow tp01 self (cl01 (p11a p01a)))
++(allow tp01 tp01 (cl01 (p01b)))
++(allow tp01 tpr1 (cl01 (p11a p11b p01a p01b)))
++(allow tp02 tpr1 (cl01 (p11a p01a)))
++(dontaudit at02 tpr2 (cl01 (p11a p01a p01b)))
++(dontaudit at02 tpr4 (cl01 (p11a p01a p01b)))
++(dontaudit tp01 tpr2 (cl01 (p11a p11b p01a p01b)))
++(dontaudit tp02 tpr2 (cl01 (p11a p01a)))
++(booleanif (b01)
++    (true
++        (allow tp01 tpr3 (cl01 (p11a p11b p01a p01b)))
++        (allow tp01 tpr5 (cl01 (p11a p11b p01a p01b)))
++        (allow tp02 tpr3 (cl01 (p11a p01a)))
++        (allow tp02 tpr5 (cl01 (p11a p01a)))
++        (dontaudit tp01 tpr4 (cl01 (p11a p11b p01a p01b)))
++        (dontaudit tp02 tpr4 (cl01 (p11a p01a)))
++    )
++    (false
++        (allow at02 tpr5 (cl01 (p11a p01a p01b)))
++    )
++)
++(role object_r)
++(role rl01)
++(roletype rl01 tp01)
++(roletype object_r tp01)
++(roletype object_r tp02)
++(roletype object_r tp04)
++(roletype object_r tpr1)
++(roletype object_r tpr2)
++(roletype object_r tpr3)
++(roletype object_r tpr4)
++(roletype object_r tpr5)
++(user us01)
++(userrole us01 object_r)
++(userrole us01 rl01)
++(userlevel us01 (s01))
++(userrange us01 ((s01) (s01)))
++(sidcontext kernel (us01 rl01 tp01 ((s01) (s01))))
+-- 
+2.24.1
 
