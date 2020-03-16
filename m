@@ -2,77 +2,46 @@ Return-Path: <SRS0=RXLG=5B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DF5AC2BB1D
-	for <selinux@archiver.kernel.org>; Mon, 16 Mar 2020 19:24:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E10DC0044D
+	for <selinux@archiver.kernel.org>; Mon, 16 Mar 2020 20:30:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 24A7320753
-	for <selinux@archiver.kernel.org>; Mon, 16 Mar 2020 19:24:59 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rn4ERgJL"
+	by mail.kernel.org (Postfix) with ESMTP id 2A32B20674
+	for <selinux@archiver.kernel.org>; Mon, 16 Mar 2020 20:30:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732392AbgCPTY6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 16 Mar 2020 15:24:58 -0400
-Received: from mail-wm1-f52.google.com ([209.85.128.52]:37988 "EHLO
-        mail-wm1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732366AbgCPTY6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 16 Mar 2020 15:24:58 -0400
-Received: by mail-wm1-f52.google.com with SMTP id t13so13043604wmi.3
-        for <selinux@vger.kernel.org>; Mon, 16 Mar 2020 12:24:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:references:date:in-reply-to:message-id
-         :user-agent:mime-version;
-        bh=98sTTJqA9eJs2IZWPtD4hKVVaSm6jJ7mR4bpAgcrhxE=;
-        b=Rn4ERgJLi7jmMBRjf2ovpTBx9dSl45NpJkBgenkdYJVdmWzWYq0TJpTchISsppXtib
-         L2hwnwWtZT8tSJTFurLWcH0Fcu6RwC2EAucoScmwLtf17oRxbnDfJbxEJ9dsLOVr9okb
-         XZbSY3UjXCDo87v69SlShIZ7IqCBhYjQv87fGuB/PYXvEKAYJNBlzHsmkuePIUeHQugo
-         UZ/+iy6TdUZP11iec5MbvuROTDqtZBpdlRzH8IqrB40BgufsrT6LsH3lysqX8x/3JSL9
-         f9QYR/cS+EaKwV25ldRxG1FLUMzm3ualcp9SCJbLPFcbXEXvUn3QIIy2s2X2zWULdFXz
-         malg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:references:date:in-reply-to
-         :message-id:user-agent:mime-version;
-        bh=98sTTJqA9eJs2IZWPtD4hKVVaSm6jJ7mR4bpAgcrhxE=;
-        b=Nggjr1YdbY0dFyecV75GyDvHXmgAoXABv3oyToSUwYZa4fKU/dfOecjATu5LcAwmJk
-         pmc0dD/kk08JxQ4q0LfHMXj+jNwgj7x9v52dBj+VT0ViAAu90w2CIQOp9tNnEg8nVvfK
-         OzKpJr+ZOnTP0thfmQ2xskOsS3pRq7BuJQkBHFPwR1vTF/UtoPiIdN/Ax0qukstZAMFO
-         k+ECnnUmZewCMnFOMpAyV6fipgJgRyp/zpeWheXbOO1OLWTt5ovjg5EBVZXn3m//IXuW
-         LTuXmbulCDUtrEHz+WvLniuLPy9Ioj/n9rBKb+QyocEGQXQQRazLbQyXxXSytrcA9Feh
-         Wpiw==
-X-Gm-Message-State: ANhLgQ1oj1E69kYufhBIlWW3ln+aQMuDrDdc94elKDs0ZQrR5Z8nT97G
-        dFL37SKuwbB/5V7oPqun+wB/ZWQ+
-X-Google-Smtp-Source: ADFU+vu3UInsrbIkFSadwn2AmEQa0lb7T5zM5b+iBT/R9m0MWMhFgMVuEA6jtxFrHPHyzgZE/QLHNg==
-X-Received: by 2002:a1c:1b0e:: with SMTP id b14mr661959wmb.8.1584386695809;
-        Mon, 16 Mar 2020 12:24:55 -0700 (PDT)
-Received: from brutus (brutus.defensec.nl. [2001:985:d55d::438])
-        by smtp.gmail.com with ESMTPSA id r18sm1196823wro.13.2020.03.16.12.24.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2020 12:24:55 -0700 (PDT)
-From:   Dominick Grift <dac.override@gmail.com>
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     selinux@vger.kernel.org
+        id S1732520AbgCPUaX convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Mon, 16 Mar 2020 16:30:23 -0400
+Received: from [37.139.156.29] ([37.139.156.29]:19732 "EHLO
+        SELDSEGREL01.sonyericsson.com" rhost-flags-FAIL-FAIL-OK-OK)
+        by vger.kernel.org with ESMTP id S1732516AbgCPUaX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 16 Mar 2020 16:30:23 -0400
+X-Greylist: delayed 602 seconds by postgrey-1.27 at vger.kernel.org; Mon, 16 Mar 2020 16:30:22 EDT
 Subject: Re: Policy module to allow a domain transition
+To:     Alan Stern <stern@rowland.harvard.edu>
 References: <Pine.LNX.4.44L0.2003161146070.8175-100000@netrider.rowland.org>
-Date:   Mon, 16 Mar 2020 20:24:54 +0100
-In-Reply-To: <Pine.LNX.4.44L0.2003161146070.8175-100000@netrider.rowland.org>
-        (Alan Stern's message of "Mon, 16 Mar 2020 12:04:48 -0400 (EDT)")
-Message-ID: <87y2s0gl15.fsf@gmail.com>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
+From:   peter enderborg <peter.enderborg@sony.com>
+CC:     <selinux@vger.kernel.org>
+Message-ID: <c9b092e8-caa5-52dd-1efb-1a5ab324a68f@sony.com>
+Date:   Mon, 16 Mar 2020 21:20:18 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <Pine.LNX.4.44L0.2003161146070.8175-100000@netrider.rowland.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-GB
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=Rffu9Glv c=1 sm=1 tr=0 a=Jtaq2Av1iV2Yg7i8w6AGMw==:117 a=jpOVt7BSZ2e4Z31A5e1TngXxSK0=:19 a=IkcTkHD0fZMA:10 a=SS2py6AdgQ4A:10 a=1d-GhT9I8uALa4Tgr6MA:9 a=QEXdDO2ut3YA:10
+X-SEG-SpamProfiler-Score: 0
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> writes:
-
+On 3/16/20 5:04 PM, Alan Stern wrote:
 > If this is not the the right forum for this discussion, please redirect
 > me to some place more appropriate.  Where to go for good advice on the
 > trickier details of selinux is not obvious.
@@ -112,33 +81,38 @@ Alan Stern <stern@rowland.harvard.edu> writes:
 >
 > 	allow unconfined_service_t sshd_exec_t:file { execute
 > 		execute_no_trans getattr ioctl map open read };
-
-That would be redundant. unconfined_service_t already has broad access
-and from a unconfined_service_t perspective you just need to tell
-selinux what to do:
-
-type_transition unconfined_service_t sshd_exec_t:process sshd_t;
-
-That will tell selinux that processes types should transition from
-unconfined_service_t to sshd_t when processes with type
-unconfined_service_t execute files with type sshd_exec_t.
-
-When you do this and try it out then some avc denials will likely
-surface regarding access that sshd_t processes may need to
-unconfined_service_t processes. (for example sending a child terminated
-signal, but possibly others as well)
-
 >
 > basically just a copy an existing policy for inetd_t and 
 > sshd_exec_t.  Is that the right way to go about this?  Is there 
 > something better?
->
+
+The hole idea with MAC is that you should explicit declare what is allowed.
+
+Starting with anything unconfined is a bad idea for anything that is seen
+from the internet. If you do it for the security your tcpserver should have it's own
+domain that is not unconfined. And then you can give rules on what it is allowed
+to start.  So you need to create a tcpservice_service_t, so your rule should be
+
+allow tcpservice_service_t sshd_exec_t:file { execute
+		execute_no_trans getattr ioctl map open read };
+
+/* execute_no_trans is probably not what you want */
+
+ But you do NOT want
+
+allow tcpservice_service_t unconfined_t:process dyntransition;
+
+
+On fedora it would be like:
+
+allow tcpservice_service_t sshd_t:process dyntransition;
+
+and sshd is then allowed to create unconfined shell or what ever.
+ 
+
 > Thank you,
 >
 > Alan Stern
 >
+>
 
--- 
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
