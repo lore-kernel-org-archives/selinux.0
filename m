@@ -2,122 +2,286 @@ Return-Path: <SRS0=MhFn=5D=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA6C4C10DCE
-	for <selinux@archiver.kernel.org>; Wed, 18 Mar 2020 15:11:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48A2DC10DCE
+	for <selinux@archiver.kernel.org>; Wed, 18 Mar 2020 18:03:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8C79320757
-	for <selinux@archiver.kernel.org>; Wed, 18 Mar 2020 15:11:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1584544302;
-	bh=1MNA2h6wtq/dlobzeRGT0bdRHCTK6CaoKiK8KMOfsR8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=vKCFwnNR9ApaEumOZlCpez4cMbnZspsIL8Z37i9TvYgMrTAkymtoyTRTxdACm/pty
-	 A5WPxK8A3MLrDEej8fow56W3TzA/Y585KSM0ln4oOTSom2Z8KyMZJf2z2xQcmD9GxS
-	 WnSWywiQ4pEjec7yJ5zKydRnJPqUdRSsbyChhL/4=
+	by mail.kernel.org (Postfix) with ESMTP id 1A2B020719
+	for <selinux@archiver.kernel.org>; Wed, 18 Mar 2020 18:03:05 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l1LzXMXg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726781AbgCRPLm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Mar 2020 11:11:42 -0400
-Received: from mail-qt1-f175.google.com ([209.85.160.175]:32940 "EHLO
-        mail-qt1-f175.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726777AbgCRPLm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Mar 2020 11:11:42 -0400
-Received: by mail-qt1-f175.google.com with SMTP id d22so20984443qtn.0
-        for <selinux@vger.kernel.org>; Wed, 18 Mar 2020 08:11:40 -0700 (PDT)
+        id S1726638AbgCRSDE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 18 Mar 2020 14:03:04 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:44214 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726596AbgCRSDE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 18 Mar 2020 14:03:04 -0400
+Received: by mail-ot1-f67.google.com with SMTP id a49so23721521otc.11
+        for <selinux@vger.kernel.org>; Wed, 18 Mar 2020 11:03:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=cBYW0UwDlFqu6Mtk8zs15gpSjZXGrnPCv8HSY8PeaT0=;
-        b=VGb3LVLiXwJHppvy1PJ5viaUtQq+yRxv0xYQMYLhA7NJiDYj6YNREKhCHK+rDPsb6S
-         xqnGaPocCFPRQPCXu4a/vi0jJzORmLz+vF8+QfE0QrY/SHWabn9E/bd6Snd/iedJ6g8j
-         3ndGB0tkKe5GbiCxjKZhV95jk9OfUH9cIEad8=
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=wNFpxy8RFCAMLGf5izSt7S54RSG0zgyZt5hyhavnIiI=;
+        b=l1LzXMXgnBOkE7Ahwn1J3CYcCnlBM+wY2XEweP3wnsDQbHILcwjP/hVsJwwLfzdovD
+         b3Fp0kL8XZW5zb7KINYH0e/xqD09fY+wWMZADOa9XYNlQmvU7ukrFT6VMwAc9SlvzQJJ
+         iYKfzwEKE1GQtFi1jUIIqvpXsOK5umHFyvjk68dygte6tvjOXbw7sVPAhLhKfVOKYk4D
+         P9RAdz/wZvHbUSvxmchTTpUCBpGRKz6MdHts6U81CnGj9cdeGpbe/zTOjhhEvHcCGbT9
+         7yivnF1M3EP13cLgYU4AJjlQfP9YjuBeS9Q406xiHGV2WMSnqxb3Vf3fz9P1Ue99fA+u
+         DaPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=cBYW0UwDlFqu6Mtk8zs15gpSjZXGrnPCv8HSY8PeaT0=;
-        b=eAIHegkUqV+geo6/7zU72IeWZHLviUDdmP4Evc0sldYN04fR1pwZ1QyPxo8VfVOKUk
-         wlu3XFXwxhMpiklnzEIbSYLyGDfAs9infgarJv0FqrKWVPPQnSfYqLSzXsuSOvnA8PPN
-         5LNmfUDatWcnHofnTCQVtiT5TWq1IifEeRSqz/lO9HpVbqWhqKvrsH6XaTW45XbMhU/8
-         W+yI6Vyo4IPbQIKW4LKvcyb3/pQ8qXMkSJM0hPLj+2cWzan6IQT9n6VYdLsYZnIAddhC
-         bZ3DrmUpEb3mhwoYR15Cxhij8A33VGsFLAwoYBip48m6Ar5c4+WNP9pTzMt1z87imQFJ
-         3y4Q==
-X-Gm-Message-State: ANhLgQ3rjoptEIYVw6//fk8lLTCXbP2R22GsHvHbqiLKHDI+99FcnEpM
-        Ls9Swocepi+MH0Aifw6bFwnp9+ynGTDcBg==
-X-Google-Smtp-Source: ADFU+vvUA72DBxyNp4q1pMyzL84thCC7GSkB4NfFgcsfz3Whg9bCEaA9sHL3dUFzLZZ257AFmZgX8g==
-X-Received: by 2002:ac8:6f58:: with SMTP id n24mr4820237qtv.63.1584544299759;
-        Wed, 18 Mar 2020 08:11:39 -0700 (PDT)
-Received: from chatter.i7.local (107-179-243-71.cpe.teksavvy.com. [107.179.243.71])
-        by smtp.gmail.com with ESMTPSA id k66sm4275984qke.10.2020.03.18.08.11.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Mar 2020 08:11:38 -0700 (PDT)
-Date:   Wed, 18 Mar 2020 11:11:36 -0400
-From:   Konstantin Ryabitsev <konstantin@linuxfoundation.org>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org, linux-audit@redhat.com
-Subject: Re: Looking for help testing patch attestation
-Message-ID: <20200318151136.kfjf6sdkjikptuwj@chatter.i7.local>
-Mail-Followup-To: Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        linux-audit@redhat.com
-References: <20200317221237.vrkru2kdc63zq3vi@chatter.i7.local>
- <CAHC9VhTF8MH7UodKLGmAmMNzUeh-68W92pivnBgJfGhWV5F7HQ@mail.gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=wNFpxy8RFCAMLGf5izSt7S54RSG0zgyZt5hyhavnIiI=;
+        b=pDgmMycI6cZtzzAw/2BMG2xmH4U0THAaSK0UgbN8SkkkpzId+UCgEjSg3S28f/dXke
+         R2coV15G+XHYelYpxuaLmdjigTrdGNSAHZGK2dCldLoDY7gRSvptgxkH2m7UOIq3tWmv
+         IiZmv/dMfTcLjUTOaaKLHyPHY7pDPdCUsqxO3942VP97E6XLVjhbkMRNvr2v0Uy12JUG
+         6DsAzTATrFt/VXRkdjsRjVQZ9AzMQlQZay9TFsCz361Y6G60j8xcr71wrdd5h/wpHn41
+         avqCvWwhVMe9d0KXKMBsvhGIM27wQ01yQJWc9nKUHRZDnKp9JW4SWUQC2h64oC4Mqh7M
+         PXGg==
+X-Gm-Message-State: ANhLgQ0ohIo9AZ8l5uzmplTK91PPAvQYXvHFoE75Xelirk+vH4GWd9OI
+        BI0RK1XKYhEist5FinOcLbac8mFn7amVAVnXfII=
+X-Google-Smtp-Source: ADFU+vsUP6Yn4g0LQd9ui+uELFYKE973Dq+DmTDjYTlXjqxW8CYqstOUHSClthOv0J3R3kf2rIZFhlEsJVpIQAosaiA=
+X-Received: by 2002:a05:6830:4008:: with SMTP id h8mr5096620ots.295.1584554578025;
+ Wed, 18 Mar 2020 11:02:58 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhTF8MH7UodKLGmAmMNzUeh-68W92pivnBgJfGhWV5F7HQ@mail.gmail.com>
+References: <20200316095523.335474-1-omosnace@redhat.com> <CAP+JOzSxrhyXDjVUG_vLZygWKYKtqMAd5U3Xj0k=wQsCo9w6ug@mail.gmail.com>
+In-Reply-To: <CAP+JOzSxrhyXDjVUG_vLZygWKYKtqMAd5U3Xj0k=wQsCo9w6ug@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 18 Mar 2020 14:04:26 -0400
+Message-ID: <CAP+JOzR1tG3mntHeQRLtvMZkRuni2vSEnCTCxJu1XMbk6JEk7A@mail.gmail.com>
+Subject: Re: [PATCH v2] secilc: add basic test for policy optimization
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 17, 2020 at 06:51:38PM -0400, Paul Moore wrote:
-> You might want to extend this test to the LSM list as well.  I'm
-> refraining from CC'ing them on this email because I don't want to
-> spoil your beta test rollout, but I think it would be a good thing to
-> do.
+On Mon, Mar 16, 2020 at 10:08 AM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Mon, Mar 16, 2020 at 5:55 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > Add a simple test for secilc -O to make sure that it produces the
+> > expected output. This might produce some false positives when the output
+> > of secilc/checkpolicy changes slightly, in which case the expected CIL
+> > will need to be updated along with the change.
+> >
+> > The test should normally work even with a checkpolicy built from an
+> > older tree, as long as it produces the same CIL output, so it uses the
+> > checkpolicy it finds in PATH by default.
+> >
+> > The test policy is taken from an e-mail from James Carter:
+> > https://lore.kernel.org/selinux/CAP+JOzTQQx6aM81QyVe0yoiPJeDU+7xE6nn=0UMAB1EZ_c9ryA@mail.gmail.com/T/
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
+> Acked-by: James Carter <jwcart2@gmail.com>
+>
 
-I'll do that, thanks! I'll also loop in kernel-hardening folks.
+Applied. Thanks,
+Jim
 
-> Speaking as the person who merges patches for both the SELinux and
-> audit kernel subsystems, I look at every patch I merge; I don't
-> blindly merge patches (even from certain "trusted" individuals).
-> Simply put, I've always considered that to be part of the job.  While
-> the patch attestation could provide some assurance about who created
-> the patch (assuming a reasonable web-of-trust), and that it hadn't
-> been tampered with, I feel it is more important to review correctness
-> than it is to guarantee provenance.  If you ever develop a tool which
-> can help with the correctness part, I'll gladly jump to the front of
-> the line to test that one! ;)
 
-Yes I understand -- I view this as an auxiliary feature that helps 
-maintainers in their duties, but certainly doesn't aim to replace due 
-diligence. I am most worried about the following scenario:
-
-1. a maintainer receives a long series of patches that arrives into 
-   their inbox
-2. they carefully review the patches and decide to merge them
-3. they use "b4 am" to grab that patch series from lore.kernel.org
-4. however, the archive has been manipulated and returns patches 
-   containing malicious edits, which get merged because the maintainer 
-   assumes that what "b4 am" returns is the same as what they reviewed
-
-Cryptographic attestations helps hedge against this scenario by removing 
-any implicit trust from the centralized system like lore.kernel.org (or 
-patchwork.kernel.org, for that matter).
-
-> Having said that, I'm happy to see work going into tools like this,
-> and at some point I'll look into adding it into my workflow for an
-> extra level of safety (although I'm on the fence about making it
-> mandatory for submissions).  Sorry to disappoint, but I'm probably not
-> the best test monkey right now.
-
-All good, this is why I'm casting the net wide looking for initial 
-adopters. :)
-
-Best regards,
-Konstantin
+> > ---
+> >
+> > v2:
+> >  - move test policies to the 'test' subdirectory
+> >  - use a simplified test policy supplied by James
+> >
+> >  secilc/.gitignore            |  2 ++
+> >  secilc/Makefile              |  9 +++++
+> >  secilc/test/opt-expected.cil | 57 +++++++++++++++++++++++++++++++
+> >  secilc/test/opt-input.cil    | 65 ++++++++++++++++++++++++++++++++++++
+> >  4 files changed, 133 insertions(+)
+> >  create mode 100644 secilc/test/opt-expected.cil
+> >  create mode 100644 secilc/test/opt-input.cil
+> >
+> > diff --git a/secilc/.gitignore b/secilc/.gitignore
+> > index 2d3ff405..164523b0 100644
+> > --- a/secilc/.gitignore
+> > +++ b/secilc/.gitignore
+> > @@ -7,3 +7,5 @@ file_contexts
+> >  docs/html
+> >  docs/pdf
+> >  docs/tmp
+> > +opt-actual.bin
+> > +opt-actual.cil
+> > diff --git a/secilc/Makefile b/secilc/Makefile
+> > index 16640098..d4a1c35a 100644
+> > --- a/secilc/Makefile
+> > +++ b/secilc/Makefile
+> > @@ -13,6 +13,10 @@ SECIL2CONF_OBJS := $(patsubst %.c,%.o,$(SECIL2CONF_SRCS))
+> >  SECILC_MANPAGE = secilc.8
+> >  SECIL2CONF_MANPAGE = secil2conf.8
+> >  XMLTO = xmlto
+> > +DIFF = diff
+> > +
+> > +CHECKPOLICY = checkpolicy
+> > +POL_VERS = $(shell $(CHECKPOLICY) -V | cut -f 1 -d ' ')
+> >
+> >  CFLAGS ?= -Wall -Wshadow -Wextra -Wundef -Wmissing-format-attribute -Wcast-align -Wstrict-prototypes -Wpointer-arith -Wunused
+> >
+> > @@ -26,6 +30,9 @@ $(SECILC): $(SECILC_OBJS)
+> >
+> >  test: $(SECILC)
+> >         ./$(SECILC) test/policy.cil
+> > +       ./$(SECILC) -c $(POL_VERS) -O -M 1 -f /dev/null -o opt-actual.bin test/opt-input.cil
+> > +       $(CHECKPOLICY) -b -C -M -o opt-actual.cil opt-actual.bin >/dev/null
+> > +       $(DIFF) test/opt-expected.cil opt-actual.cil
+> >
+> >  $(SECIL2CONF): $(SECIL2CONF_OBJS)
+> >         $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
+> > @@ -58,6 +65,8 @@ clean:
+> >         rm -f file_contexts
+> >         rm -f $(SECILC_MANPAGE)
+> >         rm -f $(SECIL2CONF_MANPAGE)
+> > +       rm -f opt-actual.cil
+> > +       rm -f opt-actual.bin
+> >         $(MAKE) -C docs clean
+> >
+> >  relabel:
+> > diff --git a/secilc/test/opt-expected.cil b/secilc/test/opt-expected.cil
+> > new file mode 100644
+> > index 00000000..73ac9045
+> > --- /dev/null
+> > +++ b/secilc/test/opt-expected.cil
+> > @@ -0,0 +1,57 @@
+> > +(handleunknown deny)
+> > +(class cl01 (p01a p01b p11a p11b))
+> > +(classorder (cl01))
+> > +(sid kernel)
+> > +(sidorder (kernel))
+> > +(mls true)
+> > +(sensitivity s01)
+> > +(sensitivityorder (s01))
+> > +(category c01)
+> > +(categoryorder (c01))
+> > +(sensitivitycategory s01 (c01))
+> > +(typeattribute at02)
+> > +(boolean b01 false)
+> > +(type tp01)
+> > +(type tp02)
+> > +(type tp04)
+> > +(type tpr1)
+> > +(type tpr2)
+> > +(type tpr3)
+> > +(type tpr4)
+> > +(type tpr5)
+> > +(typeattributeset at02 (tp01 tp02))
+> > +(allow at02 tpr1 (cl01 (p01a p01b p11a)))
+> > +(allow at02 tpr3 (cl01 (p01a p01b p11a)))
+> > +(allow tp01 self (cl01 (p01a p01b p11a p11b)))
+> > +(allow tp01 tpr1 (cl01 (p11b)))
+> > +(dontaudit at02 tpr2 (cl01 (p01a p01b p11a)))
+> > +(dontaudit at02 tpr4 (cl01 (p01a p01b p11a)))
+> > +(dontaudit tp01 tpr2 (cl01 (p11b)))
+> > +(booleanif b01
+> > +    (true
+> > +        (allow tp01 tpr3 (cl01 (p11b)))
+> > +        (allow tp01 tpr5 (cl01 (p01a p01b p11a p11b)))
+> > +        (allow tp02 tpr5 (cl01 (p01a p11a)))
+> > +        (dontaudit tp01 tpr4 (cl01 (p11b)))
+> > +    )
+> > +    (false
+> > +        (allow at02 tpr5 (cl01 (p01a p01b p11a)))
+> > +    )
+> > +)
+> > +(role object_r)
+> > +(role rl01)
+> > +(roletype rl01 tp01)
+> > +(roletype object_r tp01)
+> > +(roletype object_r tp02)
+> > +(roletype object_r tp04)
+> > +(roletype object_r tpr1)
+> > +(roletype object_r tpr2)
+> > +(roletype object_r tpr3)
+> > +(roletype object_r tpr4)
+> > +(roletype object_r tpr5)
+> > +(user us01)
+> > +(userrole us01 object_r)
+> > +(userrole us01 rl01)
+> > +(userlevel us01 (s01))
+> > +(userrange us01 ((s01) (s01)))
+> > +(sidcontext kernel (us01 rl01 tp01 ((s01) (s01))))
+> > diff --git a/secilc/test/opt-input.cil b/secilc/test/opt-input.cil
+> > new file mode 100644
+> > index 00000000..5bb6c266
+> > --- /dev/null
+> > +++ b/secilc/test/opt-input.cil
+> > @@ -0,0 +1,65 @@
+> > +(handleunknown deny)
+> > +(class cl01 (p01a p01b p11a p11b))
+> > +(classorder (cl01))
+> > +(sid kernel)
+> > +(sidorder (kernel))
+> > +(mls true)
+> > +(sensitivity s01)
+> > +(sensitivityorder (s01))
+> > +(category c01)
+> > +(categoryorder (c01))
+> > +(sensitivitycategory s01 (c01))
+> > +(typeattribute at01)
+> > +(typeattribute at02)
+> > +(boolean b01 false)
+> > +(type tp01)
+> > +(type tp02)
+> > +(type tp04)
+> > +(type tpr1)
+> > +(type tpr2)
+> > +(type tpr3)
+> > +(type tpr4)
+> > +(type tpr5)
+> > +(typeattributeset at01 (tp01))
+> > +(typeattributeset at02 (tp01 tp02))
+> > +(allow at02 tpr1 (cl01 (p11a p01a p01b)))
+> > +(allow at02 tpr3 (cl01 (p11a p01a p01b)))
+> > +(allow tp01 at01 (cl01 (p11b)))
+> > +(allow tp01 self (cl01 (p11a p01a)))
+> > +(allow tp01 tp01 (cl01 (p01b)))
+> > +(allow tp01 tpr1 (cl01 (p11a p11b p01a p01b)))
+> > +(allow tp02 tpr1 (cl01 (p11a p01a)))
+> > +(dontaudit at02 tpr2 (cl01 (p11a p01a p01b)))
+> > +(dontaudit at02 tpr4 (cl01 (p11a p01a p01b)))
+> > +(dontaudit tp01 tpr2 (cl01 (p11a p11b p01a p01b)))
+> > +(dontaudit tp02 tpr2 (cl01 (p11a p01a)))
+> > +(booleanif (b01)
+> > +    (true
+> > +        (allow tp01 tpr3 (cl01 (p11a p11b p01a p01b)))
+> > +        (allow tp01 tpr5 (cl01 (p11a p11b p01a p01b)))
+> > +        (allow tp02 tpr3 (cl01 (p11a p01a)))
+> > +        (allow tp02 tpr5 (cl01 (p11a p01a)))
+> > +        (dontaudit tp01 tpr4 (cl01 (p11a p11b p01a p01b)))
+> > +        (dontaudit tp02 tpr4 (cl01 (p11a p01a)))
+> > +    )
+> > +    (false
+> > +        (allow at02 tpr5 (cl01 (p11a p01a p01b)))
+> > +    )
+> > +)
+> > +(role object_r)
+> > +(role rl01)
+> > +(roletype rl01 tp01)
+> > +(roletype object_r tp01)
+> > +(roletype object_r tp02)
+> > +(roletype object_r tp04)
+> > +(roletype object_r tpr1)
+> > +(roletype object_r tpr2)
+> > +(roletype object_r tpr3)
+> > +(roletype object_r tpr4)
+> > +(roletype object_r tpr5)
+> > +(user us01)
+> > +(userrole us01 object_r)
+> > +(userrole us01 rl01)
+> > +(userlevel us01 (s01))
+> > +(userrange us01 ((s01) (s01)))
+> > +(sidcontext kernel (us01 rl01 tp01 ((s01) (s01))))
+> > --
+> > 2.24.1
+> >
