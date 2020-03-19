@@ -1,287 +1,355 @@
-Return-Path: <SRS0=MhFn=5D=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=B1VM=5E=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.3 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48A2DC10DCE
-	for <selinux@archiver.kernel.org>; Wed, 18 Mar 2020 18:03:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85352C4332D
+	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 06:23:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 1A2B020719
-	for <selinux@archiver.kernel.org>; Wed, 18 Mar 2020 18:03:05 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l1LzXMXg"
+	by mail.kernel.org (Postfix) with ESMTP id 4E80320714
+	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 06:23:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbgCRSDE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 18 Mar 2020 14:03:04 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:44214 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726596AbgCRSDE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 18 Mar 2020 14:03:04 -0400
-Received: by mail-ot1-f67.google.com with SMTP id a49so23721521otc.11
-        for <selinux@vger.kernel.org>; Wed, 18 Mar 2020 11:03:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wNFpxy8RFCAMLGf5izSt7S54RSG0zgyZt5hyhavnIiI=;
-        b=l1LzXMXgnBOkE7Ahwn1J3CYcCnlBM+wY2XEweP3wnsDQbHILcwjP/hVsJwwLfzdovD
-         b3Fp0kL8XZW5zb7KINYH0e/xqD09fY+wWMZADOa9XYNlQmvU7ukrFT6VMwAc9SlvzQJJ
-         iYKfzwEKE1GQtFi1jUIIqvpXsOK5umHFyvjk68dygte6tvjOXbw7sVPAhLhKfVOKYk4D
-         P9RAdz/wZvHbUSvxmchTTpUCBpGRKz6MdHts6U81CnGj9cdeGpbe/zTOjhhEvHcCGbT9
-         7yivnF1M3EP13cLgYU4AJjlQfP9YjuBeS9Q406xiHGV2WMSnqxb3Vf3fz9P1Ue99fA+u
-         DaPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wNFpxy8RFCAMLGf5izSt7S54RSG0zgyZt5hyhavnIiI=;
-        b=pDgmMycI6cZtzzAw/2BMG2xmH4U0THAaSK0UgbN8SkkkpzId+UCgEjSg3S28f/dXke
-         R2coV15G+XHYelYpxuaLmdjigTrdGNSAHZGK2dCldLoDY7gRSvptgxkH2m7UOIq3tWmv
-         IiZmv/dMfTcLjUTOaaKLHyPHY7pDPdCUsqxO3942VP97E6XLVjhbkMRNvr2v0Uy12JUG
-         6DsAzTATrFt/VXRkdjsRjVQZ9AzMQlQZay9TFsCz361Y6G60j8xcr71wrdd5h/wpHn41
-         avqCvWwhVMe9d0KXKMBsvhGIM27wQ01yQJWc9nKUHRZDnKp9JW4SWUQC2h64oC4Mqh7M
-         PXGg==
-X-Gm-Message-State: ANhLgQ0ohIo9AZ8l5uzmplTK91PPAvQYXvHFoE75Xelirk+vH4GWd9OI
-        BI0RK1XKYhEist5FinOcLbac8mFn7amVAVnXfII=
-X-Google-Smtp-Source: ADFU+vsUP6Yn4g0LQd9ui+uELFYKE973Dq+DmTDjYTlXjqxW8CYqstOUHSClthOv0J3R3kf2rIZFhlEsJVpIQAosaiA=
-X-Received: by 2002:a05:6830:4008:: with SMTP id h8mr5096620ots.295.1584554578025;
- Wed, 18 Mar 2020 11:02:58 -0700 (PDT)
+        id S1726589AbgCSGXx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Mar 2020 02:23:53 -0400
+Received: from mga01.intel.com ([192.55.52.88]:50413 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725767AbgCSGXx (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 19 Mar 2020 02:23:53 -0400
+IronPort-SDR: 0y3S/Iujc6Tc0dBScMjK0PV2rgKJ58yCj1lgrPUqCkUZpsa7AS4M3EmmvSFNGxIablfk+FwX1j
+ qiVrMzKJPRFQ==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2020 23:23:37 -0700
+IronPort-SDR: U0DSjPfJikY2HWcaU2QwiF2ptyOrLrkLSuNAuiU53ZVxBzjcKR9yLKoq1w7KgFFKiTbJ2ZCCXu
+ aTPpa6K9XmnQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.70,570,1574150400"; 
+   d="scan'208";a="263636207"
+Received: from linux.intel.com ([10.54.29.200])
+  by orsmga002.jf.intel.com with ESMTP; 18 Mar 2020 23:23:36 -0700
+Received: from [10.249.228.137] (abudanko-mobl.ccr.corp.intel.com [10.249.228.137])
+        by linux.intel.com (Postfix) with ESMTP id EA715580270;
+        Wed, 18 Mar 2020 23:23:31 -0700 (PDT)
+Subject: Re: [PATCH v1] perf tool: make Perf tool aware of SELinux access
+ control
+From:   Alexey Budankov <alexey.budankov@linux.intel.com>
+To:     Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Jiri Olsa <jolsa@redhat.com>
+Cc:     Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>
+References: <b8a0669e-36e4-a0e8-fd35-3dbd890d2170@linux.intel.com>
+Organization: Intel Corp.
+Message-ID: <f5ed60b2-4a61-dc72-bfd5-6d0af74bc152@linux.intel.com>
+Date:   Thu, 19 Mar 2020 09:23:30 +0300
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-References: <20200316095523.335474-1-omosnace@redhat.com> <CAP+JOzSxrhyXDjVUG_vLZygWKYKtqMAd5U3Xj0k=wQsCo9w6ug@mail.gmail.com>
-In-Reply-To: <CAP+JOzSxrhyXDjVUG_vLZygWKYKtqMAd5U3Xj0k=wQsCo9w6ug@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 18 Mar 2020 14:04:26 -0400
-Message-ID: <CAP+JOzR1tG3mntHeQRLtvMZkRuni2vSEnCTCxJu1XMbk6JEk7A@mail.gmail.com>
-Subject: Re: [PATCH v2] secilc: add basic test for policy optimization
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <b8a0669e-36e4-a0e8-fd35-3dbd890d2170@linux.intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Mar 16, 2020 at 10:08 AM James Carter <jwcart2@gmail.com> wrote:
->
-> On Mon, Mar 16, 2020 at 5:55 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > Add a simple test for secilc -O to make sure that it produces the
-> > expected output. This might produce some false positives when the output
-> > of secilc/checkpolicy changes slightly, in which case the expected CIL
-> > will need to be updated along with the change.
-> >
-> > The test should normally work even with a checkpolicy built from an
-> > older tree, as long as it produces the same CIL output, so it uses the
-> > checkpolicy it finds in PATH by default.
-> >
-> > The test policy is taken from an e-mail from James Carter:
-> > https://lore.kernel.org/selinux/CAP+JOzTQQx6aM81QyVe0yoiPJeDU+7xE6nn=0UMAB1EZ_c9ryA@mail.gmail.com/T/
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->
-> Acked-by: James Carter <jwcart2@gmail.com>
->
+Hi,
 
-Applied. Thanks,
-Jim
+Is there any thougts, comments or questions so far?
+Please share you mind.
 
+Thanks,
+Alexey
 
-> > ---
-> >
-> > v2:
-> >  - move test policies to the 'test' subdirectory
-> >  - use a simplified test policy supplied by James
-> >
-> >  secilc/.gitignore            |  2 ++
-> >  secilc/Makefile              |  9 +++++
-> >  secilc/test/opt-expected.cil | 57 +++++++++++++++++++++++++++++++
-> >  secilc/test/opt-input.cil    | 65 ++++++++++++++++++++++++++++++++++++
-> >  4 files changed, 133 insertions(+)
-> >  create mode 100644 secilc/test/opt-expected.cil
-> >  create mode 100644 secilc/test/opt-input.cil
-> >
-> > diff --git a/secilc/.gitignore b/secilc/.gitignore
-> > index 2d3ff405..164523b0 100644
-> > --- a/secilc/.gitignore
-> > +++ b/secilc/.gitignore
-> > @@ -7,3 +7,5 @@ file_contexts
-> >  docs/html
-> >  docs/pdf
-> >  docs/tmp
-> > +opt-actual.bin
-> > +opt-actual.cil
-> > diff --git a/secilc/Makefile b/secilc/Makefile
-> > index 16640098..d4a1c35a 100644
-> > --- a/secilc/Makefile
-> > +++ b/secilc/Makefile
-> > @@ -13,6 +13,10 @@ SECIL2CONF_OBJS := $(patsubst %.c,%.o,$(SECIL2CONF_SRCS))
-> >  SECILC_MANPAGE = secilc.8
-> >  SECIL2CONF_MANPAGE = secil2conf.8
-> >  XMLTO = xmlto
-> > +DIFF = diff
-> > +
-> > +CHECKPOLICY = checkpolicy
-> > +POL_VERS = $(shell $(CHECKPOLICY) -V | cut -f 1 -d ' ')
-> >
-> >  CFLAGS ?= -Wall -Wshadow -Wextra -Wundef -Wmissing-format-attribute -Wcast-align -Wstrict-prototypes -Wpointer-arith -Wunused
-> >
-> > @@ -26,6 +30,9 @@ $(SECILC): $(SECILC_OBJS)
-> >
-> >  test: $(SECILC)
-> >         ./$(SECILC) test/policy.cil
-> > +       ./$(SECILC) -c $(POL_VERS) -O -M 1 -f /dev/null -o opt-actual.bin test/opt-input.cil
-> > +       $(CHECKPOLICY) -b -C -M -o opt-actual.cil opt-actual.bin >/dev/null
-> > +       $(DIFF) test/opt-expected.cil opt-actual.cil
-> >
-> >  $(SECIL2CONF): $(SECIL2CONF_OBJS)
-> >         $(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^ $(LDLIBS)
-> > @@ -58,6 +65,8 @@ clean:
-> >         rm -f file_contexts
-> >         rm -f $(SECILC_MANPAGE)
-> >         rm -f $(SECIL2CONF_MANPAGE)
-> > +       rm -f opt-actual.cil
-> > +       rm -f opt-actual.bin
-> >         $(MAKE) -C docs clean
-> >
-> >  relabel:
-> > diff --git a/secilc/test/opt-expected.cil b/secilc/test/opt-expected.cil
-> > new file mode 100644
-> > index 00000000..73ac9045
-> > --- /dev/null
-> > +++ b/secilc/test/opt-expected.cil
-> > @@ -0,0 +1,57 @@
-> > +(handleunknown deny)
-> > +(class cl01 (p01a p01b p11a p11b))
-> > +(classorder (cl01))
-> > +(sid kernel)
-> > +(sidorder (kernel))
-> > +(mls true)
-> > +(sensitivity s01)
-> > +(sensitivityorder (s01))
-> > +(category c01)
-> > +(categoryorder (c01))
-> > +(sensitivitycategory s01 (c01))
-> > +(typeattribute at02)
-> > +(boolean b01 false)
-> > +(type tp01)
-> > +(type tp02)
-> > +(type tp04)
-> > +(type tpr1)
-> > +(type tpr2)
-> > +(type tpr3)
-> > +(type tpr4)
-> > +(type tpr5)
-> > +(typeattributeset at02 (tp01 tp02))
-> > +(allow at02 tpr1 (cl01 (p01a p01b p11a)))
-> > +(allow at02 tpr3 (cl01 (p01a p01b p11a)))
-> > +(allow tp01 self (cl01 (p01a p01b p11a p11b)))
-> > +(allow tp01 tpr1 (cl01 (p11b)))
-> > +(dontaudit at02 tpr2 (cl01 (p01a p01b p11a)))
-> > +(dontaudit at02 tpr4 (cl01 (p01a p01b p11a)))
-> > +(dontaudit tp01 tpr2 (cl01 (p11b)))
-> > +(booleanif b01
-> > +    (true
-> > +        (allow tp01 tpr3 (cl01 (p11b)))
-> > +        (allow tp01 tpr5 (cl01 (p01a p01b p11a p11b)))
-> > +        (allow tp02 tpr5 (cl01 (p01a p11a)))
-> > +        (dontaudit tp01 tpr4 (cl01 (p11b)))
-> > +    )
-> > +    (false
-> > +        (allow at02 tpr5 (cl01 (p01a p01b p11a)))
-> > +    )
-> > +)
-> > +(role object_r)
-> > +(role rl01)
-> > +(roletype rl01 tp01)
-> > +(roletype object_r tp01)
-> > +(roletype object_r tp02)
-> > +(roletype object_r tp04)
-> > +(roletype object_r tpr1)
-> > +(roletype object_r tpr2)
-> > +(roletype object_r tpr3)
-> > +(roletype object_r tpr4)
-> > +(roletype object_r tpr5)
-> > +(user us01)
-> > +(userrole us01 object_r)
-> > +(userrole us01 rl01)
-> > +(userlevel us01 (s01))
-> > +(userrange us01 ((s01) (s01)))
-> > +(sidcontext kernel (us01 rl01 tp01 ((s01) (s01))))
-> > diff --git a/secilc/test/opt-input.cil b/secilc/test/opt-input.cil
-> > new file mode 100644
-> > index 00000000..5bb6c266
-> > --- /dev/null
-> > +++ b/secilc/test/opt-input.cil
-> > @@ -0,0 +1,65 @@
-> > +(handleunknown deny)
-> > +(class cl01 (p01a p01b p11a p11b))
-> > +(classorder (cl01))
-> > +(sid kernel)
-> > +(sidorder (kernel))
-> > +(mls true)
-> > +(sensitivity s01)
-> > +(sensitivityorder (s01))
-> > +(category c01)
-> > +(categoryorder (c01))
-> > +(sensitivitycategory s01 (c01))
-> > +(typeattribute at01)
-> > +(typeattribute at02)
-> > +(boolean b01 false)
-> > +(type tp01)
-> > +(type tp02)
-> > +(type tp04)
-> > +(type tpr1)
-> > +(type tpr2)
-> > +(type tpr3)
-> > +(type tpr4)
-> > +(type tpr5)
-> > +(typeattributeset at01 (tp01))
-> > +(typeattributeset at02 (tp01 tp02))
-> > +(allow at02 tpr1 (cl01 (p11a p01a p01b)))
-> > +(allow at02 tpr3 (cl01 (p11a p01a p01b)))
-> > +(allow tp01 at01 (cl01 (p11b)))
-> > +(allow tp01 self (cl01 (p11a p01a)))
-> > +(allow tp01 tp01 (cl01 (p01b)))
-> > +(allow tp01 tpr1 (cl01 (p11a p11b p01a p01b)))
-> > +(allow tp02 tpr1 (cl01 (p11a p01a)))
-> > +(dontaudit at02 tpr2 (cl01 (p11a p01a p01b)))
-> > +(dontaudit at02 tpr4 (cl01 (p11a p01a p01b)))
-> > +(dontaudit tp01 tpr2 (cl01 (p11a p11b p01a p01b)))
-> > +(dontaudit tp02 tpr2 (cl01 (p11a p01a)))
-> > +(booleanif (b01)
-> > +    (true
-> > +        (allow tp01 tpr3 (cl01 (p11a p11b p01a p01b)))
-> > +        (allow tp01 tpr5 (cl01 (p11a p11b p01a p01b)))
-> > +        (allow tp02 tpr3 (cl01 (p11a p01a)))
-> > +        (allow tp02 tpr5 (cl01 (p11a p01a)))
-> > +        (dontaudit tp01 tpr4 (cl01 (p11a p11b p01a p01b)))
-> > +        (dontaudit tp02 tpr4 (cl01 (p11a p01a)))
-> > +    )
-> > +    (false
-> > +        (allow at02 tpr5 (cl01 (p11a p01a p01b)))
-> > +    )
-> > +)
-> > +(role object_r)
-> > +(role rl01)
-> > +(roletype rl01 tp01)
-> > +(roletype object_r tp01)
-> > +(roletype object_r tp02)
-> > +(roletype object_r tp04)
-> > +(roletype object_r tpr1)
-> > +(roletype object_r tpr2)
-> > +(roletype object_r tpr3)
-> > +(roletype object_r tpr4)
-> > +(roletype object_r tpr5)
-> > +(user us01)
-> > +(userrole us01 object_r)
-> > +(userrole us01 rl01)
-> > +(userlevel us01 (s01))
-> > +(userrange us01 ((s01) (s01)))
-> > +(sidcontext kernel (us01 rl01 tp01 ((s01) (s01))))
-> > --
-> > 2.24.1
-> >
+On 13.03.2020 20:27, Alexey Budankov wrote:
+> 
+> Extend Perf tool with the check of /sys/fs/selinux/enforce value and notify 
+> in case access to perf_event_open() syscall is restricted by the enforced 
+> SELinux policy settings.
+> 
+> Testing and evaluation (Fedora 31 x86_64 with enforced Targeted policy extended
+> by perf_event class (see refpolicy [1] master branch)):
+> 
+> [root@host ~]# ps -Z
+> LABEL                               PID TTY          TIME CMD
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 3960 pts/1 00:00:00 bash
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4167 pts/1 00:00:00 ps
+> 
+> [root@host ~]# ls -alhZ /usr/local/bin/
+> total 56M
+> drwxr-xr-x.  2 root root       system_u:object_r:bin_t:s0     4.0K Mar  4 12:27 .
+> drwxr-xr-x. 12 root root       system_u:object_r:usr_t:s0     4.0K Jul 25  2019 ..
+> -rwxr-xr-x.  1 root root       system_u:object_r:bin_t:s0     4.1M Jan 23  2017 bash
+> -rwxr-xr-x.  1 root root       system_u:object_r:bin_t:s0     4.1M Jan 23  2017 bash.before_shellshock_patch
+> ...
+> -rwxr-xr-x.  1 root root       system_u:object_r:bin_t:s0      372 May 14  2019 flask
+> -rwxr-xr-x.  1 root root       unconfined_u:object_r:bin_t:s0  24M Mar  4 12:15 perf     <== unprivileged users (perf_event_paranoid)
+> -rwxr-x---.  1 root perf_users unconfined_u:object_r:bin_t:s0  24M Mar  4 12:19 perf.cap <== perf_users (CAP_SYS_ADMIN)
+> -rwxr-xr-x.  1 root root       system_u:object_r:bin_t:s0      44K Dec  8  2016 spiff
+> ...
+> lrwxrwxrwx.  1 root root       system_u:object_r:bin_t:s0        4 Aug 21  2018 zstdmt -> zstd
+> 
+> [root@host ~]# getenforce
+> Enforcing
+> 
+> === Access by unprivileged user ===
+> 
+> [user@host ~]$ ps -Z
+> LABEL                               PID TTY          TIME CMD
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4043 pts/2 00:00:00 bash
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4168 pts/2 00:00:00 ps
+> 
+> [user@host ~]$ /usr/local/bin/perf stat -- ls
+> Error:
+> Access to performance monitoring and observability operations is limited.
+> SELinux Enforcing mode is enabled and can limit access to performance
+> monitoring and observability operations. Inspect system audit records
+> for more perf_event access control information and adjusting the policy.
+> Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
+> access to performance monitoring and observability operations for users
+> without CAP_SYS_ADMIN capability. perf_event_paranoid setting is -1:
+>   -1: Allow use of (almost) all events by all users
+>       Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
+>> = 0: Disallow raw and ftrace function tracepoint access
+>> = 1: Disallow CPU event access
+>> = 2: Disallow kernel profiling
+> To make the adjusted perf_event_paranoid setting permanent preserve it
+> in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)
+> 
+> [root@host ~]# journalctl --follow
+> ... audit[4186]: AVC avc:  denied  { open } for  pid=4186 comm="perf" scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=perf_event permissive=0
+> ... audit[4186]: AVC avc:  denied  { open } for  pid=4186 comm="perf" scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=perf_event permissive=0
+> ... setroubleshoot[4194]: SELinux is preventing perf from open access on the perf_event labeled unconfined_t. For complete SELinux messages run: sealert -l 9a6f3db2-3d8f-461e-afad-0b5c3a9c3b9d
+> ... python3[4194]: SELinux is preventing perf from open access on the perf_event labeled unconfined_t.
+>                                           
+>                                           *****  Plugin catchall (100. confidence) suggests   **************************
+>                                           
+>                                           If you believe that perf should be allowed open access on perf_event labeled unconfined_t by default.
+>                                           Then you should report this as a bug.
+>                                           You can generate a local policy module to allow this access.
+>                                           Do
+>                                           allow this access for now by executing:
+>                                           # ausearch -c 'perf' --raw | audit2allow -M my-perf
+>                                           # semodule -X 300 -i my-perf.pp
+>                                           
+> === Access by perf privileged user ===
+> 
+> [user@host ~]$ ps -Z
+> LABEL                               PID TTY          TIME CMD
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4043 pts/2 00:00:00 bash
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4168 pts/2 00:00:00 ps
+> 
+> [user@host ~]$ libcap/progs/getcap /usr/local/bin/perf.cap
+> /usr/local/bin/perf.cap = cap_sys_ptrace,cap_syslog,cap_sys_admin+ep
+> 
+> [user@host ~]$ /usr/local/bin/perf.cap stat -- ls
+> Error:
+> Access to performance monitoring and observability operations is limited.
+> SELinux Enforcing mode is enabled and can limit access to performance
+> monitoring and observability operations. Inspect system audit records
+> for more perf_event access control information and adjusting the policy.
+> Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
+> access to performance monitoring and observability operations for users
+> without CAP_SYS_ADMIN capability. perf_event_paranoid setting is -1:
+>   -1: Allow use of (almost) all events by all users
+>       Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
+>> = 0: Disallow raw and ftrace function tracepoint access
+>> = 1: Disallow CPU event access
+>> = 2: Disallow kernel profiling
+> To make the adjusted perf_event_paranoid setting permanent preserve it
+> in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)
+> 
+> [root@host ~]# journalctl --follow
+> 
+> ... audit[3926]: AVC avc:  denied  { open } for  pid=3926 comm="perf.cap" scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=perf_event permissive=0
+> ... audit[3926]: AVC avc:  denied  { open } for  pid=3926 comm="perf.cap" scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=perf_event permissive=0
+> 
+> ... setroubleshoot[3934]: SELinux is preventing perf from open access on the perf_event labeled unconfined_t. For complete SELinux messages run: sealert -l 9a6f3db2-3d8f-461e-afad-0b5c3a9c3b9d
+> ... python3[3934]: SELinux is preventing perf from open access on the perf_event labeled unconfined_t.
+>                                           
+>                                           *****  Plugin catchall (100. confidence) suggests   **************************
+>                                           
+>                                           If you believe that perf should be allowed open access on perf_event labeled unconfined_t by default.
+>                                           Then you should report this as a bug.
+>                                           You can generate a local policy module to allow this access.
+>                                           Do
+>                                           allow this access for now by executing:
+>                                           # ausearch -c 'perf' --raw | audit2allow -M my-perf
+>                                           # semodule -X 300 -i my-perf.pp
+>                                           
+> === Open access to performance monitoring and observability operations in unconfined_t domain ===
+> 
+> [root@host ~]# ausearch -c 'perf' --raw | audit2allow -M my-perf && cat my-perf.te
+> 
+> module my-perf 1.0;
+> 
+> require {
+> 	type unconfined_t;
+> 	class perf_event { cpu kernel open read tracepoint write };
+> }
+> 
+> #============= unconfined_t ==============
+> allow unconfined_t self:perf_event { cpu kernel open read tracepoint write };
+> 
+> [root@host ~]# semodule -X 300 -i my-perf.pp
+> 
+> [user@host ~]$ ps -Z
+> LABEL                               PID TTY          TIME CMD
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4043 pts/2 00:00:00 bash
+> unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 4168 pts/2 00:00:00 ps
+> 
+> [user@host ~]$ /usr/local/bin/perf stat -- ls
+> Desktop  Documents  Downloads  intel  Music  perf.data	perf.data.old  Pictures  Public  Templates  Videos
+> 
+>  Performance counter stats for 'ls':
+> 
+>               0.72 msec task-clock:u              #    0.655 CPUs utilized          
+>                  0      context-switches:u        #    0.000 K/sec                  
+>                  0      cpu-migrations:u          #    0.000 K/sec                  
+>                 98      page-faults:u             #    0.137 M/sec                  
+>            908,356      cycles:u                  #    1.266 GHz                    
+>            729,984      instructions:u            #    0.80  insn per cycle         
+>            142,774      branches:u                #  198.968 M/sec                  
+>              8,238      branch-misses:u           #    5.77% of all branches        
+> 
+>        0.001095239 seconds time elapsed
+> 
+>        0.001147000 seconds user
+>        0.000000000 seconds sys
+> 
+> [user@host ~]$ /usr/local/bin/perf stat -a
+> Error:
+> Access to performance monitoring and observability operations is limited.
+> SELinux Enforcing mode is enabled and can limit access to performance
+> monitoring and observability operations. Inspect system audit records
+> for more perf_event access control information and adjusting the policy.
+> Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
+> access to performance monitoring and observability operations for users
+> without CAP_SYS_ADMIN capability. perf_event_paranoid setting is -1:
+>   -1: Allow use of (almost) all events by all users
+>       Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
+>> = 0: Disallow raw and ftrace function tracepoint access
+>> = 1: Disallow CPU event access
+>> = 2: Disallow kernel profiling
+> To make the adjusted perf_event_paranoid setting permanent preserve it
+> in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)
+> 
+> [user@host ~]$ /usr/local/bin/perf.cap stat -a
+> ^C
+>  Performance counter stats for 'system wide':
+> 
+>          13,427.05 msec cpu-clock                 #    7.997 CPUs utilized          
+>                783      context-switches          #    0.058 K/sec                  
+>                 29      cpu-migrations            #    0.002 K/sec                  
+>                  6      page-faults               #    0.000 K/sec                  
+>        161,084,874      cycles                    #    0.012 GHz                    
+>        146,823,131      instructions              #    0.91  insn per cycle         
+>         12,164,802      branches                  #    0.906 M/sec                  
+>            380,350      branch-misses             #    3.13% of all branches        
+> 
+>        1.678938906 seconds time elapsed
+> 
+> [1] https://github.com/SELinuxProject/refpolicy
+> 
+> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
+> ---
+>  tools/perf/util/cloexec.c |  4 ++--
+>  tools/perf/util/evsel.c   | 40 +++++++++++++++++++++++----------------
+>  2 files changed, 26 insertions(+), 18 deletions(-)
+> 
+> diff --git a/tools/perf/util/cloexec.c b/tools/perf/util/cloexec.c
+> index a12872f2856a..9c8ec816261b 100644
+> --- a/tools/perf/util/cloexec.c
+> +++ b/tools/perf/util/cloexec.c
+> @@ -65,7 +65,7 @@ static int perf_flag_probe(void)
+>  		return 1;
+>  	}
+>  
+> -	WARN_ONCE(err != EINVAL && err != EBUSY,
+> +	WARN_ONCE(err != EINVAL && err != EBUSY && err != EACCES,
+>  		  "perf_event_open(..., PERF_FLAG_FD_CLOEXEC) failed with unexpected error %d (%s)\n",
+>  		  err, str_error_r(err, sbuf, sizeof(sbuf)));
+>  
+> @@ -83,7 +83,7 @@ static int perf_flag_probe(void)
+>  	if (fd >= 0)
+>  		close(fd);
+>  
+> -	if (WARN_ONCE(fd < 0 && err != EBUSY,
+> +	if (WARN_ONCE(fd < 0 && err != EBUSY && err != EACCES,
+>  		      "perf_event_open(..., 0) failed unexpectedly with error %d (%s)\n",
+>  		      err, str_error_r(err, sbuf, sizeof(sbuf))))
+>  		return -1;
+> diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
+> index 816d930d774e..f03ce1d362d3 100644
+> --- a/tools/perf/util/evsel.c
+> +++ b/tools/perf/util/evsel.c
+> @@ -2493,32 +2493,40 @@ int perf_evsel__open_strerror(struct evsel *evsel, struct target *target,
+>  			      int err, char *msg, size_t size)
+>  {
+>  	char sbuf[STRERR_BUFSIZE];
+> -	int printed = 0;
+> +	int printed = 0, enforced = 0;
+>  
+>  	switch (err) {
+>  	case EPERM:
+>  	case EACCES:
+> +		printed += scnprintf(msg + printed, size - printed,
+> +			"Access to performance monitoring and observability operations is limited.\n");
+> +
+> +		if (!sysfs__read_int("fs/selinux/enforce", &enforced)) {
+> +			if (enforced) {
+> +				printed += scnprintf(msg + printed, size - printed,
+> +					"SELinux Enforcing mode is enabled and can limit access to performance\n"
+> +					"monitoring and observability operations. Inspect system audit records\n"
+> +					"for more perf_event access control information and adjusting the policy.\n");
+> +			}
+> +		}
+> +
+>  		if (err == EPERM)
+> -			printed = scnprintf(msg, size,
+> -				"No permission to enable %s event.\n\n",
+> +			printed += scnprintf(msg, size,
+> +				"No permission to enable %s event.\n",
+>  				perf_evsel__name(evsel));
+>  
+>  		return scnprintf(msg + printed, size - printed,
+> -		 "You may not have permission to collect %sstats.\n\n"
+> -		 "Consider tweaking /proc/sys/kernel/perf_event_paranoid,\n"
+> -		 "which controls use of the performance events system by\n"
+> -		 "unprivileged users (without CAP_SYS_ADMIN).\n\n"
+> -		 "The current value is %d:\n\n"
+> +		 "Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open\n"
+> +		 "access to performance monitoring and observability operations for users\n"
+> +		 "without CAP_SYS_ADMIN capability. perf_event_paranoid setting is %d:\n"
+>  		 "  -1: Allow use of (almost) all events by all users\n"
+>  		 "      Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK\n"
+> -		 ">= 0: Disallow ftrace function tracepoint by users without CAP_SYS_ADMIN\n"
+> -		 "      Disallow raw tracepoint access by users without CAP_SYS_ADMIN\n"
+> -		 ">= 1: Disallow CPU event access by users without CAP_SYS_ADMIN\n"
+> -		 ">= 2: Disallow kernel profiling by users without CAP_SYS_ADMIN\n\n"
+> -		 "To make this setting permanent, edit /etc/sysctl.conf too, e.g.:\n\n"
+> -		 "	kernel.perf_event_paranoid = -1\n" ,
+> -				 target->system_wide ? "system-wide " : "",
+> -				 perf_event_paranoid());
+> +		 ">= 0: Disallow raw and ftrace function tracepoint access\n"
+> +		 ">= 1: Disallow CPU event access\n"
+> +		 ">= 2: Disallow kernel profiling\n"
+> +		 "To make the adjusted perf_event_paranoid setting permanent preserve it\n"
+> +		 "in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)",
+> +		 perf_event_paranoid());
+>  	case ENOENT:
+>  		return scnprintf(msg, size, "The %s event is not supported.",
+>  				 perf_evsel__name(evsel));
+> 
