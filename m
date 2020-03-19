@@ -7,57 +7,57 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D249C4332E
-	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 19:37:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 370CCC4332D
+	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 19:38:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 662B62070A
-	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 19:37:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F2BFE2072D
+	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 19:38:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tRGVH4sX"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="B5KHucer"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725817AbgCSThg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Mar 2020 15:37:36 -0400
-Received: from mail-oi1-f193.google.com ([209.85.167.193]:45885 "EHLO
-        mail-oi1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725768AbgCSThg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Mar 2020 15:37:36 -0400
-Received: by mail-oi1-f193.google.com with SMTP id 9so3955825oiq.12
-        for <selinux@vger.kernel.org>; Thu, 19 Mar 2020 12:37:35 -0700 (PDT)
+        id S1726936AbgCSTiB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Mar 2020 15:38:01 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:37611 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726063AbgCSTiB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Mar 2020 15:38:01 -0400
+Received: by mail-ot1-f65.google.com with SMTP id i12so3681523otp.4
+        for <selinux@vger.kernel.org>; Thu, 19 Mar 2020 12:38:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=3AHCLuZw4348kyw5fAMUpmcnaugKRYDlRZr9GCwAnL4=;
-        b=tRGVH4sXuuw9Qlq1iAqflULU92vhq9EI4tC3EZArAUhMcDFSYJRvMK1yjmiOv2UCG8
-         IQONDCJAJoOxwqCNzEO8wxRd955wDGE/r5LKD1hJW8Wq6svz/4yGXtfu+Z6Kdv3KyPb8
-         YA6aZUraomCj6FBdF8wv6CRSog0tc3U48kx+LBdEBxPLwrjnm1sEX8KnEd0VfKTRgpoe
-         8PkU0DVZu5yTua07UQE8T+CyoGi6troH+7vqqWAOWcXt73TJHZlbXlFe1UUUSKzwL0xn
-         6oZyOVDudkgznmOkQxtb0jAJwbm3xr3YSYku+JzHvrwlL1VKf4s3whZJyaK0GW2sOApM
-         P5wQ==
+        bh=IASiWHRZ/UNF28eXo96IZXDNcFP0r3luFN03V331IxI=;
+        b=B5KHucerMlwGkTJEiVMR5dnc1jsbuxsJrzHQtW50RE6gcwdWJVR8bq4bQZEfcKeKAx
+         Bn1Vp5WUiZ5D+F9Kf6HN2m5mst1eGaZHFORlFybakClNwQOdDAKDGtsm0kA+VyWN4CF/
+         jvXXIECHUQUKmxz4KFbsDAfRG1Vg7UmSDon4YsCZkZBeVFkTJBclv4OFmOKiZf4U8Vih
+         NaYka9liTwLA63/6+qCTvjjfe6Uekz6RmTWxCU/4BUGI8REQ7RGrJol1Mnaoz5mLN5nt
+         xqOqEtmgltxN0VqX0Jv4X9x0DqJ04L99T9laDFMRXrBQUWPW2QGwt+UVJsyaKem3yuvj
+         kHYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=3AHCLuZw4348kyw5fAMUpmcnaugKRYDlRZr9GCwAnL4=;
-        b=YyCRriGvbJW+uU9G0lzItYdnNs41GTGUX7eem+6EG1g1mbou+QvszgKJ4j+6wjIEf/
-         6N5kCl/Kd2VIx9n5HQ63ZWqggZjCj8XPTeHWM4Z6kqjtUwNhBy6+Iv2UUmqW5HsZ4Vjo
-         JQ6QWkwBc3/HI18Rm3/bKZaqctgxap/ssULRypScNazUw8gIdkuYWzZMyCUpHuI8G4Xf
-         /iq00TR/92mzHhiOf3BMX/zsi0Ky4pZcux5YQmIMlCnpuMAgrISYrv318ehntQPLU9Mt
-         bR9Z7uhM+42sR7VNu9YN0KqORu64PWr8NzF5HRIgn9tC5COQcSuzjypcDnsZ1nK+OksA
-         rxCw==
-X-Gm-Message-State: ANhLgQ1hrDoZo8sh0/BcgvNcLc6OTvO3wOTtKZJdOnReq/wnmm3Y8wrL
-        EDWRIiT7ANXcQ7j8sAWsdIwYa7keACr+bYgsynQ=
-X-Google-Smtp-Source: ADFU+vsyhKMmz4RCEK0TsFP41I6rSpWKhyqv3+Zk3igh9PAKndkcjIqNDz9fNhmZVbsk8hAZIkWYslJwYhxuHCjOM0E=
-X-Received: by 2002:aca:be56:: with SMTP id o83mr3720040oif.25.1584646655488;
- Thu, 19 Mar 2020 12:37:35 -0700 (PDT)
+        bh=IASiWHRZ/UNF28eXo96IZXDNcFP0r3luFN03V331IxI=;
+        b=SngPVcImS3KKu0WapXDopRrSKu4np5ev6Ss/8R1HMq7BmdfJc0zamCJJcE7slWWu8e
+         Y9sP9SlyKFmsdtMxJlnvk1C3LAD/eUVzEFXzKL+cas3vwh2MeTo571wb8876TawUEoeH
+         qrSd4qApFhMiql8CauT9fNpaZu41WByDiNNB0273S7nFaV0syGe3eeyh8FxGwjyE3d7X
+         aMWuch3IDFosLWytOzJJUY7Ca6/OnQxcmrrQ78u1ctEszUiNiBwWYwCsEgl0igeZhrp6
+         cxpgnfgI9bmJ4KfvZoWznRQV4tXorSNmwoCkopUEPaB9DvxVjok4B1Hlyh9VNBi/FqUd
+         UhCg==
+X-Gm-Message-State: ANhLgQ1MVgGruIXq7XjuweZmKuNVVsK7B1IA2BAUeVL59ebAL+5QLAI4
+        o893lDH/TsxUWN1J21mi114L4sf5nKu2mPpBEZc=
+X-Google-Smtp-Source: ADFU+vtqG4/LRTSJv0/Stdzb7vddoAQOctKGjszuP2YPwvxGXsEA+ABXa8L+4VkbL5CfMhrKAfpqgpWBk6YcVPD1dVw=
+X-Received: by 2002:a9d:5607:: with SMTP id e7mr3911638oti.196.1584646680638;
+ Thu, 19 Mar 2020 12:38:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200227160257.340737-1-omosnace@redhat.com> <20200227160257.340737-2-omosnace@redhat.com>
- <CAEjxPJ7=e_RT0sEFr8i4pNyKmz2F3zVfScswWp6vwzO3CH3eGw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7=e_RT0sEFr8i4pNyKmz2F3zVfScswWp6vwzO3CH3eGw@mail.gmail.com>
+References: <20200227160257.340737-1-omosnace@redhat.com> <20200227160257.340737-3-omosnace@redhat.com>
+ <CAEjxPJ7cduc9M41JsCQMi60T6-jq+ijR7epjOjmK6UtoHh7ipA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7cduc9M41JsCQMi60T6-jq+ijR7epjOjmK6UtoHh7ipA@mail.gmail.com>
 From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 19 Mar 2020 15:39:02 -0400
-Message-ID: <CAP+JOzSCdsxFUMht=ET7xE2ntFXSsX=KJ0PLPD-Cf_pChK=z=A@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libsepol: skip unnecessary check in build_type_map()
+Date:   Thu, 19 Mar 2020 15:39:27 -0400
+Message-ID: <CAP+JOzS4OF8p9HPV2udAsFKSRUT2pOOKQWohyzmxw6HnhOAo+Q@mail.gmail.com>
+Subject: Re: [PATCH 2/3] libsepol: optimize inner loop in build_type_map()
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
         SElinux list <selinux@vger.kernel.org>,
@@ -69,14 +69,13 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Mar 17, 2020 at 2:20 PM Stephen Smalley
+On Tue, Mar 17, 2020 at 2:22 PM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
 > On Thu, Feb 27, 2020 at 11:03 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > I copy-pasted it from a different part of the code, which had to deal
-> > with policydb that isn't final yet. Since we only deal with the final
-> > kernel policy here, we can skip the check for the type datum being NULL.
+> > Only attributes can be a superset of another attribute, so we can skip
+> > non-attributes right away.
 > >
 > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 >
