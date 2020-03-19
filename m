@@ -7,61 +7,61 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22D48C4332D
-	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 15:10:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2DF9C4332D
+	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 15:20:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D27F82072D
-	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 15:10:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 879F420658
+	for <selinux@archiver.kernel.org>; Thu, 19 Mar 2020 15:20:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="Mc4+Ja7Z"
+	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="Ti9L/zBS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727001AbgCSPKY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 19 Mar 2020 11:10:24 -0400
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:45876 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726871AbgCSPKY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 19 Mar 2020 11:10:24 -0400
-Received: by mail-qk1-f194.google.com with SMTP id c145so3318062qke.12
-        for <selinux@vger.kernel.org>; Thu, 19 Mar 2020 08:10:21 -0700 (PDT)
+        id S1727222AbgCSPUD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 19 Mar 2020 11:20:03 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:42789 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727001AbgCSPUD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 19 Mar 2020 11:20:03 -0400
+Received: by mail-qt1-f195.google.com with SMTP id g16so2083624qtp.9
+        for <selinux@vger.kernel.org>; Thu, 19 Mar 2020 08:20:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=/04C0YzdzEKC2drcmaltg1CoqgsCzFVFvzObtG/5Ztg=;
-        b=Mc4+Ja7ZmGJJr7rKch9MMvjTyjW5ne+9XYdGK0wkufezYCYPhPDOmtJebrRh1Usadd
-         sXjH/LfIT21oJsaSYEgxq8rbiv4sQ86EutTHMlEvVY5z9vXQ4VELYpZG/EvWkbSUaYtZ
-         tRZlaGZctGOxgD5nJ6HOxBlK9B5E72dNMsm0wcsF7lzem2vrjCP/3AwfigTtOl8doEsu
-         B8FASHMXK2OAuvdmTL98T4RprVfS+UlAzBj9f2P37fcKGgp0dzVZxQ9FBg0z65KVYzpF
-         SISfv8M9Lj/bulstQLF17cLsKmoxkAop6fBaQotYWCjX044WP9bjY9+DJljRjhFO2G7O
-         GNvg==
+        bh=nGB7bofuXmjSzCkO8nVZ+Afpxr1G4Vzm7C+BLXS7AGE=;
+        b=Ti9L/zBSMmGr0ePmRC8e1imnCZca2jf+bzyM6UKnbrUe/0+fssrgcksHCcwrS9rJZ5
+         hh4y43QSobvtb97aKljGlgd6Vy7Ug1S6lGgelbyvD7WY9CxZC5FE+Zhq5nFUXfK4vle6
+         MbyEiMP3fbg8sLioPvyJsGBr16SYWWLvMcjUiUCrhJ9mfVV91M412AhGf0B20Tj4bPBc
+         SZ+aVJd+oS3fs1KxVZmtvwzXWs+Vkv5rMRHWn4CBTpJfv3qE2Gc3xAErzsT4lyl161gK
+         /lD/3IF7o3T3qkSYvVwoSLj8xzNH+un3MIchq6mZ0fiENG/Rnb1BaQiZVh52HsR3Fvud
+         0lNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=/04C0YzdzEKC2drcmaltg1CoqgsCzFVFvzObtG/5Ztg=;
-        b=gcP8MYTr/HSGB8odQN5ti6rDMFjTG4k7vlnNuGDMu7wSB3pACcqiC3f3oCthrZNpUo
-         33cHjpYJwlAnAE7AMyuQy0YtEvTEUYeik3bNI6lAGecLkM9f+ujwzaOpxN6Bx9P5qY3q
-         qSERmOYLprFFJUrl5oY59sphV2Fg0mJFiLDPREBJ5XZPEpI5x7J/K8qlqSwyo0aEu5Hs
-         W92FKdkmhhmb1/YSXShKAIXc3mNn+R84QjV0p3CidVbKB5xaruloUYUfs7bsXCAutgzS
-         sldeuMYWGTegNZ1R5oDAwCe9u8nPDUYOMl0GVdDkX5KBG0TA8rql3NsUF0w9DFQv4Sgr
-         Dlwg==
-X-Gm-Message-State: ANhLgQ1nGwEtuTPZpknH4Lau8uUJ1GO7UXToP8mAqKatxZdTNifYCM5l
-        dh4Z/KdPX5ZiOZsA6zLjzSN/eRB/sCQ=
-X-Google-Smtp-Source: ADFU+vtB7UTIwAmE2z2APSUyqVtDdTxJ7ie/7Gxu6jwcXUj6cCU/SwZ/0EOmipFjjZpTOahKsLhRrA==
-X-Received: by 2002:a37:7c47:: with SMTP id x68mr3515579qkc.8.1584630620422;
-        Thu, 19 Mar 2020 08:10:20 -0700 (PDT)
+        bh=nGB7bofuXmjSzCkO8nVZ+Afpxr1G4Vzm7C+BLXS7AGE=;
+        b=I3DBy90ZELdzO+NI6tzy6Z495EdskMwzIazioNsxfjwcC2wZQUI0DMHCwYTsUBg7Rv
+         jz4O+orZJ5ra3l6SrZ3+zSJ5xPJQs4h/HmgPni9/fvB/e36JeuUlHyaajYbm+r5rsuAC
+         Id0+JW5ufWHyt19MAb/Keds6rUAVdgvg4tAw4gHYAZBtUuWbfTNcBqWaRkb6RKzDpoSD
+         WZhMH6X6+6h/rqsobCGHMOkfKPHDsGpi5yFecBlizpqvEx1uCtwmdKktt8MGZMbFEOUk
+         rIn596XR2RtAw5bBB/iEkJ/ctn3eDGIZToIU0XqzKklOPZUwQzE98iNiVFwIu4CTO746
+         IKhw==
+X-Gm-Message-State: ANhLgQ1FGWVAkJAI44BKfL9NqTTdG4G3ZzUKv+LFW3dKcz39YW82GOC3
+        6hRA1H8/AY3XJm+8lFWRR+T8fZRSPrU=
+X-Google-Smtp-Source: ADFU+vtpZlDjCI8ganaBD3vEZwmc7hvMEfrmL5HaWrUwGhREBoQxyjNmDK6SGaSucPtyEV7IewjxGw==
+X-Received: by 2002:ac8:17f9:: with SMTP id r54mr3419757qtk.285.1584631200875;
+        Thu, 19 Mar 2020 08:20:00 -0700 (PDT)
 Received: from fedora30.localdomain (pool-71-121-242-40.bltmmd.fios.verizon.net. [71.121.242.40])
-        by smtp.gmail.com with ESMTPSA id l18sm1595228qke.132.2020.03.19.08.10.19
+        by smtp.gmail.com with ESMTPSA id w21sm1637784qkf.60.2020.03.19.08.20.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 19 Mar 2020 08:10:19 -0700 (PDT)
+        Thu, 19 Mar 2020 08:20:00 -0700 (PDT)
 From:   Joshua Brindle <joshua.brindle@crunchydata.com>
 To:     selinux@vger.kernel.org
 Cc:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
         omosnace@redhat.com,
         Joshua Brindle <joshua.brindle@crunchydata.com>
-Subject: [PATCH v3] Add tests for default_range glblub
-Date:   Thu, 19 Mar 2020 08:09:53 -0700
-Message-Id: <20200319150952.15685-1-joshua.brindle@crunchydata.com>
+Subject: [PATCH v4] Add tests for default_range glblub
+Date:   Thu, 19 Mar 2020 08:19:49 -0700
+Message-Id: <20200319151948.15747-1-joshua.brindle@crunchydata.com>
 X-Mailer: git-send-email 2.21.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -142,7 +142,7 @@ index cf8d431..dfe601b 100644
  	rm -rf test_policy tmp
 diff --git a/policy/test_add_levels.cil b/policy/test_add_levels.cil
 new file mode 100644
-index 0000000..09215f4
+index 0000000..374e970
 --- /dev/null
 +++ b/policy/test_add_levels.cil
 @@ -0,0 +1,34 @@
@@ -176,10 +176,10 @@ index 0000000..09215f4
 +(sensitivitycategory s14 (range c0 c1023))
 +(sensitivity s15)
 +(sensitivitycategory s15 (range c0 c1023))
-+(sensitivityorder (s0 s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 s13 s14 s15 ))
++(sensitivityorder (s0 s1 s2 s3 s4 s5 s6 s7 s8 s9 s10 s11 s12 s13 s14 s15))
 +
-+(selinuxuser system_u system_u ((s0) (s15((range c0 c1023) ))))
-+(userrange system_u ((s0 ) (s15 (range c0 c1023))))
++(selinuxuser system_u system_u ((s0) (s15 (range c0 c1023))))
++(userrange system_u ((s0) (s15 (range c0 c1023))))
 diff --git a/policy/test_glblub.cil b/policy/test_glblub.cil
 new file mode 100644
 index 0000000..b1b81da
