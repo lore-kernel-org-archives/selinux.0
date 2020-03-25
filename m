@@ -2,397 +2,145 @@ Return-Path: <SRS0=pblC=5K=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-11.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15F9AC1975A
-	for <selinux@archiver.kernel.org>; Wed, 25 Mar 2020 16:23:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3405AC2D0E7
+	for <selinux@archiver.kernel.org>; Wed, 25 Mar 2020 23:02:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CB55E206F8
-	for <selinux@archiver.kernel.org>; Wed, 25 Mar 2020 16:23:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0BE622073E
+	for <selinux@archiver.kernel.org>; Wed, 25 Mar 2020 23:02:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="dghXMZ6B"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pErYkr8S"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727439AbgCYQXx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Mar 2020 12:23:53 -0400
-Received: from mailomta28-sa.btinternet.com ([213.120.69.34]:40952 "EHLO
-        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727386AbgCYQXx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Mar 2020 12:23:53 -0400
-Received: from sa-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.38.5])
-          by sa-prd-fep-043.btinternet.com with ESMTP
-          id <20200325162349.JEMT3871.sa-prd-fep-043.btinternet.com@sa-prd-rgout-002.btmx-prd.synchronoss.net>;
-          Wed, 25 Mar 2020 16:23:49 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1585153429; 
-        bh=GrejNEsxTySJyA6sXPRQ4AKvw8C78/HDSRoZ97cvLCY=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=dghXMZ6BwiXJO/cY0XyZClib87dRjWSRviJo5lR9QSmCJjd+G5c/Q6EFk3zZJNYZbmywTbPznUKWXtLofdMZdBst4uauhS6l1rPyiwY9XZSljVPAiPr6yHgYiCYqBO7MPaj/31bWIY/pzRPATtqd4mEAoHFKHamdzm7hyW+hBZKc7jbWupTAERAht2Hi6YJi3NqnllcD2Vyl8cS2wnIa+i12SSmgwvwQGvzEja60JQvUD2eJE74h0r9qIFn1iImAsTzryn4TLh3gFRDRgTeIIAvVzwWlduIHs8aPiyblK9+F28JDpQZ/I0kihytFFinZTAb/s0s8XqE13V19wIma9A==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [213.122.112.51]
-X-OWM-Source-IP: 213.122.112.51 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrudehgedgieefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggesmhdtreertderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepvddufedruddvvddrudduvddrhedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedvudefrdduvddvrdduuddvrdehuddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehomhhoshhnrggtvgesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehsmhgrhihhvgifsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehsthgvphhhvghnrdhsmhgrlhhlvgihrdifohhrkhesghhmrghilhdrtghomheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-Received: from localhost.localdomain (213.122.112.51) by sa-prd-rgout-002.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A254B07B55FC6; Wed, 25 Mar 2020 16:23:49 +0000
-Message-ID: <b1eb50fcc7de8c6347c30feb82806bfe8ed706ff.camel@btinternet.com>
-Subject: Re: [PATCH V2 0/2] selinux-testsuite: Use native filesystem for
- tests
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Scott Mayhew <smayhew@redhat.com>
-Date:   Wed, 25 Mar 2020 16:23:47 +0000
-In-Reply-To: <CAEjxPJ5K7Aa=6sJ236b1Qoa9VUePpEJyY=S0bNF2cm3Gd_dqMw@mail.gmail.com>
-References: <20200325130900.15047-1-richard_c_haines@btinternet.com>
-         <CAEjxPJ5K7Aa=6sJ236b1Qoa9VUePpEJyY=S0bNF2cm3Gd_dqMw@mail.gmail.com>
-Content-Type: multipart/mixed; boundary="=-vthvgmvZlsYSwk0tu/Qr"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
-MIME-Version: 1.0
+        id S1727505AbgCYXC4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 25 Mar 2020 19:02:56 -0400
+Received: from mail-pf1-f202.google.com ([209.85.210.202]:37336 "EHLO
+        mail-pf1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727461AbgCYXC4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 25 Mar 2020 19:02:56 -0400
+Received: by mail-pf1-f202.google.com with SMTP id n28so3539924pfq.4
+        for <selinux@vger.kernel.org>; Wed, 25 Mar 2020 16:02:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=bbByUOh82ool+SbMsA1rd5UPSytjb2ekUWaOBWg/qH4=;
+        b=pErYkr8SQ3js+o0QvaCZ2l96awDpkh8EUrjdNxFzM5tLCD4mbraW9JddFtQK0HyshT
+         Avi04q5RiTad5YbeGKaK3qQDIhPmHtahpbjhp5ypqqp+ISs/DtHKySkISX00+naohPBc
+         fD3TM90efw7F9/2EnWg7pGK8DCYDlEqC0oNDigZIPpWkrmi6AIFt6BNa1XFMFl7CJiAV
+         hOVMaSzmXzi4wiklS783i7sQOVKxezXdi9uI4PDANgNCZwRz2ZppnvtKA8qRImOl3799
+         C2kTOSxfz7k/WCYqwqQHvko0fPJ2rYwW0Ofl7E40p6/OWTpnb50TopRg525DkYJy2QEP
+         maug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=bbByUOh82ool+SbMsA1rd5UPSytjb2ekUWaOBWg/qH4=;
+        b=WleimNCUmpevRa9MwHZstCR8eGwnSCqWUG0fmBZ2LmEu9D8myBTwo73FOdabGsCHbX
+         2N0hWWbr0Hd8S4PON5RD9A/iExkOdPYpf3M9wvnQc8nXPWkvTqwcbpjcMFD8iR3v3dGM
+         Qne4cPeHmV2l5dDYxDBosnSyefQtqqlPqMwLjOVVksdXXhpeCOjw3FfGIqhZQzFt54hy
+         hbxsuV4xAeK8J7tjlET70/u1BNL88Seo2haKBHtoXVh4qPU7GZD3zY6FmOncPsowLnan
+         opyxMPdrw1nz9IMl6+zn/pVFEHEUWBuQ8nR6+0drts6OSVyp18Ii87jp1sCVPenk8dIV
+         tfaQ==
+X-Gm-Message-State: ANhLgQ2dYw8PpAqnGRaVFFSl+eRu8W7Mm8bxvxQ7PCJeJBQHBDqUUFiD
+        QeD0nl2aL0SdTmtUybBmCZ3p1Zcxc0Q=
+X-Google-Smtp-Source: ADFU+vtou3JvMD6bdJEzfSY7dZ8y8OPdFIieV20IdIhHvT/Kq/C6dfCeM9T+fChX6v9277hrJ2rP5pCwomI=
+X-Received: by 2002:a17:90a:a484:: with SMTP id z4mr6308167pjp.77.1585177373743;
+ Wed, 25 Mar 2020 16:02:53 -0700 (PDT)
+Date:   Wed, 25 Mar 2020 16:02:43 -0700
+In-Reply-To: <20200214032635.75434-1-dancol@google.com>
+Message-Id: <20200325230245.184786-1-dancol@google.com>
+Mime-Version: 1.0
+References: <20200214032635.75434-1-dancol@google.com>
+X-Mailer: git-send-email 2.25.1.696.g5e7596f4ac-goog
+Subject: [PATCH v2 0/3] SELinux support for anonymous inodes and UFFD
+From:   Daniel Colascione <dancol@google.com>
+To:     timmurray@google.com, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, viro@zeniv.linux.org.uk, paul@paul-moore.com,
+        nnk@google.com, sds@tycho.nsa.gov, lokeshgidra@google.com
+Cc:     Daniel Colascione <dancol@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Userfaultfd in unprivileged contexts could be potentially very
+useful. We'd like to harden userfaultfd to make such unprivileged use
+less risky. This patch series allows SELinux to manage userfaultfd
+file descriptors and in the future, other kinds of
+anonymous-inode-based file descriptor.  SELinux policy authors can
+apply policy types to anonymous inodes by providing name-based
+transition rules keyed off the anonymous inode internal name (
+"[userfaultfd]" in the case of userfaultfd(2) file descriptors) and
+applying policy to the new SIDs thus produced.
 
---=-vthvgmvZlsYSwk0tu/Qr
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Inside the kernel, a pair of new anon_inodes interface,
+anon_inode_getfile_secure and anon_inode_getfd_secure, allow callers
+to opt into this SELinux management. In this new "secure" mode,
+anon_inodes creates new ephemeral inodes for anonymous file objects
+instead of reusing the normal anon_inodes singleton dummy inode. A new
+LSM hook gives security modules an opportunity to configure and veto
+these ephemeral inodes.
 
-On Wed, 2020-03-25 at 10:56 -0400, Stephen Smalley wrote:
-> On Wed, Mar 25, 2020 at 9:09 AM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > If tested on the selinux-next kernel (that has the XFS patch [1])
-> > with
-> > the "NFS: Ensure security label is set for root inode" patch [2],
-> > then all
-> > tests should pass. Anything else will give varying amounts of
-> > fails.
-> > 
-> > The filesystem types tested are: ext4, xfs, vfat and nfs4.
-> > 
-> > [1] 
-> > https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/patch/security/selinux?id=e4cfa05e9bfe286457082477b32ecd17737bdbce
-> > [2] 
-> > https://lore.kernel.org/selinux/20200303225837.1557210-1-smayhew@redhat.com/
-> 
-> Thanks, with this version of the patches, make test and
-> ./tools/nfs.sh
-> pass for me on the selinux next branch.
-> Still need to review all the changes and confirm that it is all
-> functioning as expected (e.g. getting the expected permission
-> denials).
+This patch series is one of two fork of [1] and is an
+alternative to [2].
 
-Attached are the (cleaned up) audit2allow entries for the fs test
-denials I've been using as a reference over the various updates. Watch
-is configured and using selinux-next kernel.
+The primary difference between the two patch series is that this
+partch series creates a unique inode for each "secure" anonymous
+inode, while the other patch series ([2]) continues using the
+singleton dummy anonymous inode and adds a way to attach SELinux
+security information directly to file objects.
 
+I prefer the approach in this patch series because 1) it's a smaller
+patch than [2], and 2) it produces a more regular security
+architecture: in this patch series, secure anonymous inodes aren't
+S_PRIVATE and they maintain the SELinux property that the label for a
+file is in its inode. We do need an additional inode per anonymous
+file, but per-struct-file inode creation doesn't seem to be a problem
+for pipes and sockets.
 
-> Ondrej, how does this fare on RHEL-8, both with respect to
-> differences
-> there in policy/userspace and with respect to default use of
-> xfs instead of ext4?
+The previous version of this feature ([1]) created a new SELinux
+security class for userfaultfd file descriptors. This version adopts
+the generic transition-based approach of [2].
 
---=-vthvgmvZlsYSwk0tu/Qr
-Content-Disposition: attachment; filename="filesystem.avc"
-Content-Type: text/plain; name="filesystem.avc"; charset="UTF-8"
-Content-Transfer-Encoding: base64
+This patch series also differs from [2] in that it doesn't affect all
+anonymous inodes right away --- instead requiring anon_inodes callers
+to opt in --- but this difference isn't one of basic approach. The
+important question to resolve is whether we should be creating new
+inodes or enhancing per-file data.
 
-dGVzdHMvZmlsZXN5c3RlbS90ZXN0IC1mIGV4dDQKPT09PT09PT09PT09PT09PT09PT09PT09IDgz
-IHRlc3RzID09PT09PT09PT09PT09PT09PQoKIz09PT09PT09PT09PT0gdGVzdF9maWxlX25vX3F1
-b3Rhb25fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVfbm9fcXVvdGFvbl90IHNlbGY6
-ZmlsZSBxdW90YW9uOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX2lub2RlX3JlbGFi
-ZWxfbm9fYXNzb2NpYXRlX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX2lu
-b2RlX3JlbGFiZWxfbm9fYXNzb2NpYXRlX3QgZnNfdDpmaWxlc3lzdGVtIGFzc29jaWF0ZTsKCiM9
-PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub19nZXRhdHRyX3QgPT09PT09PT09PT09PT0K
-YWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX2dldGF0dHJfdCBmc190OmZpbGVzeXN0ZW0gZ2V0YXR0
-cjsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub19pbm9kZV9ub19yZWxhYmVsZnJv
-bV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub19pbm9kZV9ub19yZWxh
-YmVsZnJvbV90IGZzX3Q6ZmlsZXN5c3RlbSByZWxhYmVsZnJvbTsKCiM9PT09PT09PT09PT09IHRl
-c3RfZmlsZXN5c3RlbV9ub19tb3VudF90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5
-c3RlbV9ub19tb3VudF90IGZzX3Q6ZmlsZXN5c3RlbSBtb3VudDsKCiM9PT09PT09PT09PT09IHRl
-c3RfZmlsZXN5c3RlbV9ub19xdW90YWdldF90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmls
-ZXN5c3RlbV9ub19xdW90YWdldF90IHNlbGY6ZmlsZXN5c3RlbSBxdW90YWdldDsKCiM9PT09PT09
-PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub19xdW90YW1vZF90ID09PT09PT09PT09PT09CmFsbG93
-IHRlc3RfZmlsZXN5c3RlbV9ub19xdW90YW1vZF90IHNlbGY6ZmlsZXN5c3RlbSBxdW90YW1vZDsK
-CiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub19yZW1vdW50X3QgPT09PT09PT09PT09
-PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3JlbW91bnRfdCBmc190OmZpbGVzeXN0ZW0gcmVt
-b3VudDsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub191bm1vdW50X3QgPT09PT09
-PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3VubW91bnRfdCBmc190OmZpbGVzeXN0
-ZW0gdW5tb3VudDsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9tb3Vu
-dF90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9tb3VudF90
-IHNlbGY6ZGlyIHdhdGNoX21vdW50OwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX25v
-X3dhdGNoX3NiX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3dhdGNo
-X3NiX3Qgc2VsZjpkaXIgd2F0Y2hfc2I7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1f
-bm9fd2F0Y2hfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hf
-dCBzZWxmOmZpbGVzeXN0ZW0gd2F0Y2g7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1f
-c2JfcmVsYWJlbF9ub19yZWxhYmVsZnJvbV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmls
-ZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFiZWxmcm9tX3QgZnNfdDpmaWxlc3lzdGVtIHJlbGFi
-ZWxmcm9tOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFiZWxfbm9fcmVs
-YWJlbHRvX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFiZWxf
-bm9fcmVsYWJlbHRvX3Qgc2VsZjpmaWxlc3lzdGVtIHJlbGFiZWx0bzsKCiM9PT09PT09PT09PT09
-IHRlc3Rfbm9fc2V0ZnNjcmVhdGVjb25fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X25vX3Nl
-dGZzY3JlYXRlY29uX3Qgc2VsZjpwcm9jZXNzIHNldGZzY3JlYXRlOwoKIz09PT09PT09PT09PT0g
-dW5jb25maW5lZF90ID09PT09PT09PT09PT09CmFsbG93IHVuY29uZmluZWRfdCB0ZXN0X2ZpbGVz
-eXN0ZW1faW5vZGVfc2V0eGF0dHJfbm9fYXNzb2NpYXRlX3Q6ZmlsZXN5c3RlbSBhc3NvY2lhdGU7
-CgojPT09PT09PT09PT09PSB1bmxhYmVsZWRfdCA9PT09PT09PT09PT09PQphbGxvdyB1bmxhYmVs
-ZWRfdCB0ZXN0X2ZpbGVzeXN0ZW1fbWF5X2NyZWF0ZV9ub19hc3NvY2lhdGVfdDpmaWxlc3lzdGVt
-IGFzc29jaWF0ZTsKCiMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjCgp0ZXN0cy9maWxlc3lzdGVtL3Rl
-c3QgLWYgeGZzCj09PT09PT09PT09PT09PT09PT09PT09PSA3NiB0ZXN0cyA9PT09PT09PT09PT09
-PT09PT0KCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9pbm9kZV9yZWxhYmVsX25vX2Fz
-c29jaWF0ZV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9pbm9kZV9yZWxh
-YmVsX25vX2Fzc29jaWF0ZV90IGZzX3Q6ZmlsZXN5c3RlbSBhc3NvY2lhdGU7CgojPT09PT09PT09
-PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fZ2V0YXR0cl90ID09PT09PT09PT09PT09CmFsbG93IHRl
-c3RfZmlsZXN5c3RlbV9ub19nZXRhdHRyX3QgZnNfdDpmaWxlc3lzdGVtIGdldGF0dHI7CgojPT09
-PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJlbGZyb21fdCA9PT09
-PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJlbGZyb21f
-dCBmc190OmZpbGVzeXN0ZW0gcmVsYWJlbGZyb207CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVz
-eXN0ZW1fbm9fbW91bnRfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9f
-bW91bnRfdCBmc190OmZpbGVzeXN0ZW0gbW91bnQ7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVz
-eXN0ZW1fbm9fcXVvdGFnZXRfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1f
-bm9fcXVvdGFnZXRfdCBzZWxmOmZpbGVzeXN0ZW0gcXVvdGFnZXQ7CgojPT09PT09PT09PT09PSB0
-ZXN0X2ZpbGVzeXN0ZW1fbm9fcXVvdGFtb2RfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2Zp
-bGVzeXN0ZW1fbm9fcXVvdGFtb2RfdCBzZWxmOmZpbGVzeXN0ZW0gcXVvdGFtb2Q7CgojPT09PT09
-PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fcmVtb3VudF90ID09PT09PT09PT09PT09CmFsbG93
-IHRlc3RfZmlsZXN5c3RlbV9ub19yZW1vdW50X3QgZnNfdDpmaWxlc3lzdGVtIHJlbW91bnQ7Cgoj
-PT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fdW5tb3VudF90ID09PT09PT09PT09PT09
-CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub191bm1vdW50X3QgZnNfdDpmaWxlc3lzdGVtIHVubW91
-bnQ7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCA9PT09
-PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCBzZWxmOmRp
-ciB3YXRjaF9tb3VudDsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9z
-Yl90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9zYl90IHNl
-bGY6ZGlyIHdhdGNoX3NiOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX25vX3dhdGNo
-X3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3dhdGNoX3Qgc2VsZjpm
-aWxlc3lzdGVtIHdhdGNoOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFi
-ZWxfbm9fcmVsYWJlbGZyb21fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1f
-c2JfcmVsYWJlbF9ub19yZWxhYmVsZnJvbV90IGZzX3Q6ZmlsZXN5c3RlbSByZWxhYmVsZnJvbTsK
-CiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFiZWx0b190
-ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFi
-ZWx0b190IHNlbGY6ZmlsZXN5c3RlbSByZWxhYmVsdG87CgojPT09PT09PT09PT09PSB0ZXN0X25v
-X3NldGZzY3JlYXRlY29uX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9ub19zZXRmc2NyZWF0
-ZWNvbl90IHNlbGY6cHJvY2VzcyBzZXRmc2NyZWF0ZTsKCiM9PT09PT09PT09PT09IHVuY29uZmlu
-ZWRfdCA9PT09PT09PT09PT09PQphbGxvdyB1bmNvbmZpbmVkX3QgdGVzdF9maWxlc3lzdGVtX2lu
-b2RlX3NldHhhdHRyX25vX2Fzc29jaWF0ZV90OmZpbGVzeXN0ZW0gYXNzb2NpYXRlOwoKIz09PT09
-PT09PT09PT0gdW5sYWJlbGVkX3QgPT09PT09PT09PT09PT0KYWxsb3cgdW5sYWJlbGVkX3QgdGVz
-dF9maWxlc3lzdGVtX21heV9jcmVhdGVfbm9fYXNzb2NpYXRlX3Q6ZmlsZXN5c3RlbSBhc3NvY2lh
-dGU7CgoKIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKCnRlc3RzL2ZpbGVzeXN0ZW0vdGVzdCAtZiB2
-ZmF0Cj09PT09PT09PT09PT09PT09PT09PT09PSA1NCB0ZXN0cyA9PT09PT09PT09PT09PT09PT0K
-CiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9pbm9kZV9yZWxhYmVsX25vX2Fzc29jaWF0
-ZV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9pbm9kZV9yZWxhYmVsX25v
-X2Fzc29jaWF0ZV90IGRvc2ZzX3Q6ZmlsZXN5c3RlbSBhc3NvY2lhdGU7CgojPT09PT09PT09PT09
-PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fZ2V0YXR0cl90ID09PT09PT09PT09PT09CmFsbG93IHRlc3Rf
-ZmlsZXN5c3RlbV9ub19nZXRhdHRyX3QgZnNfdDpmaWxlc3lzdGVtIGdldGF0dHI7CgojPT09PT09
-PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJlbGZyb21fdCA9PT09PT09
-PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJlbGZyb21fdCBk
-b3Nmc190OmZpbGVzeXN0ZW0gcmVsYWJlbGZyb207CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVz
-eXN0ZW1fbm9fbW91bnRfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9f
-bW91bnRfdCBkb3Nmc190OmZpbGVzeXN0ZW0gbW91bnQ7CgojPT09PT09PT09PT09PSB0ZXN0X2Zp
-bGVzeXN0ZW1fbm9fcmVtb3VudF90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3Rl
-bV9ub19yZW1vdW50X3QgZG9zZnNfdDpmaWxlc3lzdGVtIHJlbW91bnQ7CgojPT09PT09PT09PT09
-PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fdW5tb3VudF90ID09PT09PT09PT09PT09CmFsbG93IHRlc3Rf
-ZmlsZXN5c3RlbV9ub191bm1vdW50X3QgZG9zZnNfdDpmaWxlc3lzdGVtIHVubW91bnQ7CgojPT09
-PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCA9PT09PT09PT09PT09
-PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCBzZWxmOmRpciB3YXRjaF9t
-b3VudDsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9zYl90ID09PT09
-PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9zYl90IHNlbGY6ZGlyIHdh
-dGNoX3NiOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX25vX3dhdGNoX3QgPT09PT09
-PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3dhdGNoX3Qgc2VsZjpmaWxlc3lzdGVt
-IHdhdGNoOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFiZWxfbm9fcmVs
-YWJlbGZyb21fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fc2JfcmVsYWJl
-bF9ub19yZWxhYmVsZnJvbV90IGRvc2ZzX3Q6ZmlsZXN5c3RlbSByZWxhYmVsZnJvbTsKCiM9PT09
-PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFiZWx0b190ID09PT09
-PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFiZWx0b190
-IHNlbGY6ZmlsZXN5c3RlbSByZWxhYmVsdG87CgojPT09PT09PT09PT09PSB0ZXN0X25vX3NldGZz
-Y3JlYXRlY29uX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9ub19zZXRmc2NyZWF0ZWNvbl90
-IHNlbGY6cHJvY2VzcyBzZXRmc2NyZWF0ZTsK
+Changes from the first version of the patch:
 
+  - Removed some error checks
+  - Defined a new anon_inode SELinux class to resolve the
+    ambiguity in [3]
+  - Inherit sclass as well as descriptor from context inode
 
---=-vthvgmvZlsYSwk0tu/Qr
-Content-Disposition: attachment; filename="fs_filesystem.avc"
-Content-Type: text/plain; name="fs_filesystem.avc"; charset="UTF-8"
-Content-Transfer-Encoding: base64
+[1] https://lore.kernel.org/lkml/20200211225547.235083-1-dancol@google.com/
+[2] https://lore.kernel.org/linux-fsdevel/20200213194157.5877-1-sds@tycho.nsa.gov/
+[3] https://lore.kernel.org/lkml/23f725ca-5b5a-5938-fcc8-5bbbfc9ba9bc@tycho.nsa.gov/
 
-dGVzdHMvZnNfZmlsZXN5c3RlbS90ZXN0IC1mIGV4dDQKPT09PT09PT09PT09PT09PT09PT09PT09
-IDgyIHRlc3RzID09PT09PT09PT09PT09PT09PQoKIz09PT09PT09PT09PT0gdGVzdF9maWxlX25v
-X3F1b3Rhb25fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVfbm9fcXVvdGFvbl90IHNl
-bGY6ZmlsZSBxdW90YW9uOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX2lub2RlX3Jl
-bGFiZWxfbm9fYXNzb2NpYXRlX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVt
-X2lub2RlX3JlbGFiZWxfbm9fYXNzb2NpYXRlX3QgZnNfdDpmaWxlc3lzdGVtIGFzc29jaWF0ZTsK
-CiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub19nZXRhdHRyX3QgPT09PT09PT09PT09
-PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX2dldGF0dHJfdCBmc190OmZpbGVzeXN0ZW0gZ2V0
-YXR0cjsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub19pbm9kZV9ub19yZWxhYmVs
-ZnJvbV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub19pbm9kZV9ub19y
-ZWxhYmVsZnJvbV90IGZzX3Q6ZmlsZXN5c3RlbSByZWxhYmVsZnJvbTsKCiM9PT09PT09PT09PT09
-IHRlc3RfZmlsZXN5c3RlbV9ub19tb3VudF90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmls
-ZXN5c3RlbV9ub19tb3VudF90IGZzX3Q6ZmlsZXN5c3RlbSBtb3VudDsKCiM9PT09PT09PT09PT09
-IHRlc3RfZmlsZXN5c3RlbV9ub19xdW90YWdldF90ID09PT09PT09PT09PT09CmFsbG93IHRlc3Rf
-ZmlsZXN5c3RlbV9ub19xdW90YWdldF90IHNlbGY6ZmlsZXN5c3RlbSBxdW90YWdldDsKCiM9PT09
-PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub19xdW90YW1vZF90ID09PT09PT09PT09PT09CmFs
-bG93IHRlc3RfZmlsZXN5c3RlbV9ub19xdW90YW1vZF90IHNlbGY6ZmlsZXN5c3RlbSBxdW90YW1v
-ZDsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub191bm1vdW50X3QgPT09PT09PT09
-PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3VubW91bnRfdCBmc190OmZpbGVzeXN0ZW0g
-dW5tb3VudDsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9tb3VudF90
-ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9tb3VudF90IHNl
-bGY6ZGlyIHdhdGNoX21vdW50OwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX25vX3dh
-dGNoX3NiX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3dhdGNoX3Ni
-X3Qgc2VsZjpkaXIgd2F0Y2hfc2I7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9f
-d2F0Y2hfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfdCBz
-ZWxmOmZpbGVzeXN0ZW0gd2F0Y2g7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fc2Jf
-cmVsYWJlbF9ub19yZWxhYmVsZnJvbV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5
-c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFiZWxmcm9tX3QgZnNfdDpmaWxlc3lzdGVtIHJlbGFiZWxm
-cm9tOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFiZWxfbm9fcmVsYWJl
-bHRvX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFiZWxfbm9f
-cmVsYWJlbHRvX3Qgc2VsZjpmaWxlc3lzdGVtIHJlbGFiZWx0bzsKCiM9PT09PT09PT09PT09IHRl
-c3RfbW92ZV9tb3VudF9ub19tb3VudG9uX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9tb3Zl
-X21vdW50X25vX21vdW50b25fdCB0ZXN0X2ZpbGVfdDpkaXIgbW91bnRvbjsKCiM9PT09PT09PT09
-PT09IHRlc3Rfbm9fc2V0ZnNjcmVhdGVjb25fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X25v
-X3NldGZzY3JlYXRlY29uX3Qgc2VsZjpwcm9jZXNzIHNldGZzY3JlYXRlOwoKIz09PT09PT09PT09
-PT0gdW5jb25maW5lZF90ID09PT09PT09PT09PT09CmFsbG93IHVuY29uZmluZWRfdCB0ZXN0X2Zp
-bGVzeXN0ZW1faW5vZGVfc2V0eGF0dHJfbm9fYXNzb2NpYXRlX3Q6ZmlsZXN5c3RlbSBhc3NvY2lh
-dGU7CgojPT09PT09PT09PT09PSB1bmxhYmVsZWRfdCA9PT09PT09PT09PT09PQphbGxvdyB1bmxh
-YmVsZWRfdCB0ZXN0X2ZpbGVzeXN0ZW1fbWF5X2NyZWF0ZV9ub19hc3NvY2lhdGVfdDpmaWxlc3lz
-dGVtIGFzc29jaWF0ZTsKCiMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjCgp0ZXN0cy9mc19maWxlc3lz
-dGVtL3Rlc3QgLWYgeGZzCj09PT09PT09PT09PT09PT09PT09PT09PSA3NSB0ZXN0cyA9PT09PT09
-PT09PT09PT09PT0KCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9pbm9kZV9yZWxhYmVs
-X25vX2Fzc29jaWF0ZV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9pbm9k
-ZV9yZWxhYmVsX25vX2Fzc29jaWF0ZV90IGZzX3Q6ZmlsZXN5c3RlbSBhc3NvY2lhdGU7CgojPT09
-PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fZ2V0YXR0cl90ID09PT09PT09PT09PT09CmFs
-bG93IHRlc3RfZmlsZXN5c3RlbV9ub19nZXRhdHRyX3QgZnNfdDpmaWxlc3lzdGVtIGdldGF0dHI7
-CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJlbGZyb21f
-dCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJl
-bGZyb21fdCBmc190OmZpbGVzeXN0ZW0gcmVsYWJlbGZyb207CgojPT09PT09PT09PT09PSB0ZXN0
-X2ZpbGVzeXN0ZW1fbm9fbW91bnRfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0
-ZW1fbm9fbW91bnRfdCBmc190OmZpbGVzeXN0ZW0gbW91bnQ7CgojPT09PT09PT09PT09PSB0ZXN0
-X2ZpbGVzeXN0ZW1fbm9fcXVvdGFnZXRfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVz
-eXN0ZW1fbm9fcXVvdGFnZXRfdCBzZWxmOmZpbGVzeXN0ZW0gcXVvdGFnZXQ7CgojPT09PT09PT09
-PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fcXVvdGFtb2RfdCA9PT09PT09PT09PT09PQphbGxvdyB0
-ZXN0X2ZpbGVzeXN0ZW1fbm9fcXVvdGFtb2RfdCBzZWxmOmZpbGVzeXN0ZW0gcXVvdGFtb2Q7Cgoj
-PT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fdW5tb3VudF90ID09PT09PT09PT09PT09
-CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub191bm1vdW50X3QgZnNfdDpmaWxlc3lzdGVtIHVubW91
-bnQ7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCA9PT09
-PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCBzZWxmOmRp
-ciB3YXRjaF9tb3VudDsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9z
-Yl90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9zYl90IHNl
-bGY6ZGlyIHdhdGNoX3NiOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX25vX3dhdGNo
-X3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3dhdGNoX3Qgc2VsZjpm
-aWxlc3lzdGVtIHdhdGNoOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFi
-ZWxfbm9fcmVsYWJlbGZyb21fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1f
-c2JfcmVsYWJlbF9ub19yZWxhYmVsZnJvbV90IGZzX3Q6ZmlsZXN5c3RlbSByZWxhYmVsZnJvbTsK
-CiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFiZWx0b190
-ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFi
-ZWx0b190IHNlbGY6ZmlsZXN5c3RlbSByZWxhYmVsdG87CgojPT09PT09PT09PT09PSB0ZXN0X21v
-dmVfbW91bnRfbm9fbW91bnRvbl90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfbW92ZV9tb3Vu
-dF9ub19tb3VudG9uX3QgdGVzdF9maWxlX3Q6ZGlyIG1vdW50b247CgojPT09PT09PT09PT09PSB0
-ZXN0X25vX3NldGZzY3JlYXRlY29uX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9ub19zZXRm
-c2NyZWF0ZWNvbl90IHNlbGY6cHJvY2VzcyBzZXRmc2NyZWF0ZTsKCiM9PT09PT09PT09PT09IHVu
-Y29uZmluZWRfdCA9PT09PT09PT09PT09PQphbGxvdyB1bmNvbmZpbmVkX3QgdGVzdF9maWxlc3lz
-dGVtX2lub2RlX3NldHhhdHRyX25vX2Fzc29jaWF0ZV90OmZpbGVzeXN0ZW0gYXNzb2NpYXRlOwoK
-Iz09PT09PT09PT09PT0gdW5sYWJlbGVkX3QgPT09PT09PT09PT09PT0KYWxsb3cgdW5sYWJlbGVk
-X3QgdGVzdF9maWxlc3lzdGVtX21heV9jcmVhdGVfbm9fYXNzb2NpYXRlX3Q6ZmlsZXN5c3RlbSBh
-c3NvY2lhdGU7CgoKIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMKCnRlc3RzL2ZzX2ZpbGVzeXN0ZW0v
-dGVzdCAtZiB2ZmF0Cj09PT09PT09PT09PT09PT09PT09PT09PSA1MyB0ZXN0cyA9PT09PT09PT09
-PT09PT09PT0KCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9pbm9kZV9yZWxhYmVsX25v
-X2Fzc29jaWF0ZV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9pbm9kZV9y
-ZWxhYmVsX25vX2Fzc29jaWF0ZV90IGRvc2ZzX3Q6ZmlsZXN5c3RlbSBhc3NvY2lhdGU7CgojPT09
-PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fZ2V0YXR0cl90ID09PT09PT09PT09PT09CmFs
-bG93IHRlc3RfZmlsZXN5c3RlbV9ub19nZXRhdHRyX3QgZnNfdDpmaWxlc3lzdGVtIGdldGF0dHI7
-CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJlbGZyb21f
-dCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJl
-bGZyb21fdCBkb3Nmc190OmZpbGVzeXN0ZW0gcmVsYWJlbGZyb207CgojPT09PT09PT09PT09PSB0
-ZXN0X2ZpbGVzeXN0ZW1fbm9fbW91bnRfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVz
-eXN0ZW1fbm9fbW91bnRfdCBkb3Nmc190OmZpbGVzeXN0ZW0gbW91bnQ7CgojPT09PT09PT09PT09
-PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fdW5tb3VudF90ID09PT09PT09PT09PT09CmFsbG93IHRlc3Rf
-ZmlsZXN5c3RlbV9ub191bm1vdW50X3QgZG9zZnNfdDpmaWxlc3lzdGVtIHVubW91bnQ7CgojPT09
-PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCA9PT09PT09PT09PT09
-PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCBzZWxmOmRpciB3YXRjaF9t
-b3VudDsKCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9zYl90ID09PT09
-PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9ub193YXRjaF9zYl90IHNlbGY6ZGlyIHdh
-dGNoX3NiOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX25vX3dhdGNoX3QgPT09PT09
-PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX3dhdGNoX3Qgc2VsZjpmaWxlc3lzdGVt
-IHdhdGNoOwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFiZWxfbm9fcmVs
-YWJlbGZyb21fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fc2JfcmVsYWJl
-bF9ub19yZWxhYmVsZnJvbV90IGRvc2ZzX3Q6ZmlsZXN5c3RlbSByZWxhYmVsZnJvbTsKCiM9PT09
-PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFiZWx0b190ID09PT09
-PT09PT09PT09CmFsbG93IHRlc3RfZmlsZXN5c3RlbV9zYl9yZWxhYmVsX25vX3JlbGFiZWx0b190
-IHNlbGY6ZmlsZXN5c3RlbSByZWxhYmVsdG87CgojPT09PT09PT09PT09PSB0ZXN0X21vdmVfbW91
-bnRfbm9fbW91bnRvbl90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfbW92ZV9tb3VudF9ub19t
-b3VudG9uX3QgdGVzdF9maWxlX3Q6ZGlyIG1vdW50b247CgojPT09PT09PT09PT09PSB0ZXN0X25v
-X3NldGZzY3JlYXRlY29uX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9ub19zZXRmc2NyZWF0
-ZWNvbl90IHNlbGY6cHJvY2VzcyBzZXRmc2NyZWF0ZTsK
+Daniel Colascione (3):
+  Add a new LSM-supporting anonymous inode interface
+  Teach SELinux about anonymous inodes
+  Wire UFFD up to SELinux
 
+ fs/anon_inodes.c                    | 196 ++++++++++++++++++++++------
+ fs/userfaultfd.c                    |  30 ++++-
+ include/linux/anon_inodes.h         |  13 ++
+ include/linux/lsm_hooks.h           |   9 ++
+ include/linux/security.h            |   4 +
+ security/security.c                 |  10 ++
+ security/selinux/hooks.c            |  54 ++++++++
+ security/selinux/include/classmap.h |   2 +
+ 8 files changed, 272 insertions(+), 46 deletions(-)
 
---=-vthvgmvZlsYSwk0tu/Qr
-Content-Disposition: attachment; filename="nfs.avc"
-Content-Type: text/plain; name="nfs.avc"; charset="UTF-8"
-Content-Transfer-Encoding: base64
-
-dG9vbHMvbmZzLnNoIG5mc19maWxlc3lzdGVtCj09PT09PT09PT09PT09PT09PT09PT09PSA1NiB0
-ZXN0cyA9PT09PT09PT09PT09PT09PT0KCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9p
-bm9kZV9yZWxhYmVsX25vX2Fzc29jaWF0ZV90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmls
-ZXN5c3RlbV9pbm9kZV9yZWxhYmVsX25vX2Fzc29jaWF0ZV90IHNlbGY6ZmlsZXN5c3RlbSBhc3Nv
-Y2lhdGU7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9fcmVsYWJl
-bGZyb21fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9faW5vZGVfbm9f
-cmVsYWJlbGZyb21fdCBuZnNfdDpmaWxlc3lzdGVtIHJlbGFiZWxmcm9tOwoKIz09PT09PT09PT09
-PT0gdGVzdF9maWxlc3lzdGVtX3NiX3JlbGFiZWxfbm9fcmVsYWJlbGZyb21fdCA9PT09PT09PT09
-PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fc2JfcmVsYWJlbF9ub19yZWxhYmVsZnJvbV90IG5m
-c190OmZpbGVzeXN0ZW0gcmVsYWJlbGZyb207CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0
-ZW1fc2JfcmVsYWJlbF9ub19yZWxhYmVsdG9fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2Zp
-bGVzeXN0ZW1fc2JfcmVsYWJlbF9ub19yZWxhYmVsdG9fdCBzZWxmOmZpbGVzeXN0ZW0gcmVsYWJl
-bHRvOwoKIz09PT09PT09PT09PT0gdW5jb25maW5lZF90ID09PT09PT09PT09PT09CmFsbG93IHVu
-Y29uZmluZWRfdCB0ZXN0X2ZpbGVzeXN0ZW1faW5vZGVfc2V0eGF0dHJfbm9fYXNzb2NpYXRlX3Q6
-ZmlsZXN5c3RlbSBhc3NvY2lhdGU7CmFsbG93IHVuY29uZmluZWRfdCB0ZXN0X2ZpbGVzeXN0ZW1f
-bWF5X2NyZWF0ZV9ub19hc3NvY2lhdGVfdDpmaWxlc3lzdGVtIGFzc29jaWF0ZTsKCiMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjCgp0b29scy9uZnMuc2ggZnNfZmlsZXN5c3RlbQo9PT09PT09PT09PT09
-PT09PT09PT09PT0gMzcgdGVzdHMgPT09PT09PT09PT09PT09PT09CgojPT09PT09PT09PT09PSB0
-ZXN0X2ZpbGVzeXN0ZW1fbm9fZ2V0YXR0cl90ID09PT09PT09PT09PT09CmFsbG93IHRlc3RfZmls
-ZXN5c3RlbV9ub19nZXRhdHRyX3QgbmZzX3Q6ZmlsZXN5c3RlbSBnZXRhdHRyOwoKIz09PT09PT09
-PT09PT0gdGVzdF9maWxlc3lzdGVtX25vX21vdW50X3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVz
-dF9maWxlc3lzdGVtX25vX21vdW50X3QgbmZzX3Q6ZmlsZXN5c3RlbSBtb3VudDsKCiM9PT09PT09
-PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub191bm1vdW50X3QgPT09PT09PT09PT09PT0KYWxsb3cg
-dGVzdF9maWxlc3lzdGVtX25vX3VubW91bnRfdCBuZnNfdDpmaWxlc3lzdGVtIHVubW91bnQ7Cgoj
-PT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCA9PT09PT09PT09
-PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCB0ZXN0X2ZpbGVfdDpk
-aXIgd2F0Y2hfbW91bnQ7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hf
-c2JfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfc2JfdCB0
-ZXN0X2ZpbGVfdDpkaXIgd2F0Y2hfc2I7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1f
-bm9fd2F0Y2hfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hf
-dCBuZnNfdDpmaWxlc3lzdGVtIHdhdGNoOwoKIz09PT09PT09PT09PT0gdGVzdF9tb3ZlX21vdW50
-X25vX21vdW50b25fdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X21vdmVfbW91bnRfbm9fbW91
-bnRvbl90IHRlc3RfZmlsZV90OmRpciBtb3VudG9uOwoKIz09PT09PT09PT09PT0gdGVzdF9ub19z
-ZXRmc2NyZWF0ZWNvbl90ID09PT09PT09PT09PT09CmFsbG93IHRlc3Rfbm9fc2V0ZnNjcmVhdGVj
-b25fdCBzZWxmOnByb2Nlc3Mgc2V0ZnNjcmVhdGU7CgoKIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMj
-IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMK
-CnRvb2xzL25mcy5zaCBmaWxlc3lzdGVtCj09PT09PT09PT09PT09PT09PT09PT09PSAzOCB0ZXN0
-cyA9PT09PT09PT09PT09PT09PT0KCiM9PT09PT09PT09PT09IHRlc3RfZmlsZXN5c3RlbV9ub19n
-ZXRhdHRyX3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lzdGVtX25vX2dldGF0dHJf
-dCBuZnNfdDpmaWxlc3lzdGVtIGdldGF0dHI7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0
-ZW1fbm9fbW91bnRfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fbW91
-bnRfdCBuZnNfdDpmaWxlc3lzdGVtIG1vdW50OwoKIz09PT09PT09PT09PT0gdGVzdF9maWxlc3lz
-dGVtX25vX3JlbW91bnRfdCA9PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9f
-cmVtb3VudF90IG5mc190OmZpbGVzeXN0ZW0gcmVtb3VudDsKCiM9PT09PT09PT09PT09IHRlc3Rf
-ZmlsZXN5c3RlbV9ub191bm1vdW50X3QgPT09PT09PT09PT09PT0KYWxsb3cgdGVzdF9maWxlc3lz
-dGVtX25vX3VubW91bnRfdCBuZnNfdDpmaWxlc3lzdGVtIHVubW91bnQ7CgojPT09PT09PT09PT09
-PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCA9PT09PT09PT09PT09PQphbGxvdyB0
-ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfbW91bnRfdCB0ZXN0X2ZpbGVfdDpkaXIgd2F0Y2hfbW91
-bnQ7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfc2JfdCA9PT09PT09
-PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfc2JfdCB0ZXN0X2ZpbGVfdDpk
-aXIgd2F0Y2hfc2I7CgojPT09PT09PT09PT09PSB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfdCA9
-PT09PT09PT09PT09PQphbGxvdyB0ZXN0X2ZpbGVzeXN0ZW1fbm9fd2F0Y2hfdCBuZnNfdDpmaWxl
-c3lzdGVtIHdhdGNoOwoKIz09PT09PT09PT09PT0gdGVzdF9ub19zZXRmc2NyZWF0ZWNvbl90ID09
-PT09PT09PT09PT09CmFsbG93IHRlc3Rfbm9fc2V0ZnNjcmVhdGVjb25fdCBzZWxmOnByb2Nlc3Mg
-c2V0ZnNjcmVhdGU7Cg==
-
-
---=-vthvgmvZlsYSwk0tu/Qr--
+-- 
+2.25.1.696.g5e7596f4ac-goog
 
