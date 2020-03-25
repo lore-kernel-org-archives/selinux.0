@@ -7,45 +7,45 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98953C1975A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A53FC43331
 	for <selinux@archiver.kernel.org>; Wed, 25 Mar 2020 13:09:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 66B7B2078A
+	by mail.kernel.org (Postfix) with ESMTP id 0645A20772
 	for <selinux@archiver.kernel.org>; Wed, 25 Mar 2020 13:09:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="nmcFpeiY"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="nZ6stDNT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727279AbgCYNJP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1727275AbgCYNJP (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 25 Mar 2020 09:09:15 -0400
-Received: from mailomta32-re.btinternet.com ([213.120.69.125]:41146 "EHLO
-        re-prd-fep-041.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727129AbgCYNJP (ORCPT
+Received: from mailomta12-re.btinternet.com ([213.120.69.105]:27531 "EHLO
+        re-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727279AbgCYNJP (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 25 Mar 2020 09:09:15 -0400
 Received: from re-prd-rgout-002.btmx-prd.synchronoss.net ([10.2.54.5])
-          by re-prd-fep-041.btinternet.com with ESMTP
-          id <20200325130909.AIO16007.re-prd-fep-041.btinternet.com@re-prd-rgout-002.btmx-prd.synchronoss.net>;
-          Wed, 25 Mar 2020 13:09:09 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1585141749; 
-        bh=B8OH+p0/9YVJrBiLhqxiv4DhyN/rFTCXhDJ4u5yZORU=;
+          by re-prd-fep-043.btinternet.com with ESMTP
+          id <20200325130907.ILGV28489.re-prd-fep-043.btinternet.com@re-prd-rgout-002.btmx-prd.synchronoss.net>;
+          Wed, 25 Mar 2020 13:09:07 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1585141747; 
+        bh=TfvXF0hQ2Sh0P55on4aziebtjCxniofGGrifZUBxeuQ=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=nmcFpeiYEU5VdkrFt5A9nINfuvO60B77ALH6vyk6fM/8au8/Uh1YCttH+kRzCdbyFTPchcCwwvA10u5V8cKoh4vyVfKgTdvnOTY9j/+FlExAp2SYob/UjBpOuIvKQDmwxq7vEmpYQpB+EpTCGuoqnywVkpCrg5ZGdUyxVI7sR2rPBqG8YIAeK6uT4s9NwbgFvsmm7rGIORBRaOH03F2XOieFar37YurqUBq7IJG9Bzk9aJbgk1PeaWHlWNVUZh3V06NqcrH7BgsT4P+TQNEUquqk9B2PQrCi9bxO/h9H4C/NJ0uYxK3mmC1sAP2q7lRtgOf3YQ8bhXnBSOyQTQD9Yw==
+        b=nZ6stDNTDYNKTWt7iJ9mCQ21yi1zMcPnjdwAOOHA8PpXyopYjJnEFO4ZEC79ILhK3YttY3pPX0qDIg2kdWdPt39diNoUkivQUa3eRK9VbQRyxNi5xjiAE8+g9Jj59ZQ1RD5oxJ4l0P3V/Eae3UOYq4VKjUOz8KG6fYLaQe+sf+syWbodyLbIqp9XmsjS/7fZd181RQPE3TVPTlynAmZq0xTX3cK6nyT6BfP2xLOrmNAdadke/SUbXedhrvbuJRHuDXgCrKgQUt8clJLn1q8ZxiNfSO9iig2ahtfpde+uDjHoS147x9zj64Un/U3xo7QYiuaGrwFlxo/EieGmVCo4Zw==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [213.122.112.51]
 X-OWM-Source-IP: 213.122.112.51 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrudehgedgvdefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepvddufedruddvvddrudduvddrhedunecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedvudefrdduvddvrdduuddvrdehuddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehsmhgrhihhvgifsehrvgguhhgrthdrtghomheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgedugedrudehgedgvdefucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucfkphepvddufedruddvvddrudduvddrhedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedvudefrdduvddvrdduuddvrdehuddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsughssehthigthhhordhnshgrrdhgohhvqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheqpdhrtghpthhtohepoehsmhgrhihhvgifsehrvgguhhgrthdrtghomheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 Received: from localhost.localdomain (213.122.112.51) by re-prd-rgout-002.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A15B60796A252; Wed, 25 Mar 2020 13:09:08 +0000
+        id 5E3A15B60796A22E; Wed, 25 Mar 2020 13:09:07 +0000
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     selinux@vger.kernel.org, sds@tycho.nsa.gov
 Cc:     smayhew@redhat.com,
         Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V2 2/2] selinux-testsuite: Use native filesystem for tests - Part 2
-Date:   Wed, 25 Mar 2020 13:09:00 +0000
-Message-Id: <20200325130900.15047-3-richard_c_haines@btinternet.com>
+Subject: [PATCH V2 1/2] selinux-testsuite: Use native filesystem for tests - Part 1
+Date:   Wed, 25 Mar 2020 13:08:59 +0000
+Message-Id: <20200325130900.15047-2-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200325130900.15047-1-richard_c_haines@btinternet.com>
 References: <20200325130900.15047-1-richard_c_haines@btinternet.com>
@@ -57,73 +57,528 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 Use the filesystem type that the selinux-testsuite is running from to be
-used for tests/fs_filesystem.
+used for tests/filesystem. Tested types: ext4, xfs, vfat and nfs.
 
-Add tests/nfs_filesystem to run tests only via tools/nfs.sh. This allows
-tests on initial NFS mounts.
+If testing locally -f <fs_type> can be used to test a specific type.
+
+For NFS the following example shows how this should be run:
+    ./tools/nfs.sh filesystem -v
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- tests/fs_filesystem/Makefile  |    3 -
- tests/fs_filesystem/fsmount.c |    5 +-
- tests/fs_filesystem/test      | 1300 +++++++++++++++++++++------------
- tests/nfs_filesystem/Makefile |    2 +
- tests/nfs_filesystem/test     |  362 +++++++++
- 5 files changed, 1184 insertions(+), 488 deletions(-)
- create mode 100644 tests/nfs_filesystem/Makefile
- create mode 100755 tests/nfs_filesystem/test
+ .travis.yml                          |    2 +
+ README.md                            |   15 +-
+ defconfig                            |    6 +
+ policy/test_filesystem.te            |   90 +-
+ policy/test_filesystem_name_trans.te |    6 +
+ policy/test_filesystem_notify.te     |   41 +-
+ tests/filesystem/.gitignore          |    1 +
+ tests/filesystem/Filesystem.pm       |  111 ++-
+ tests/filesystem/Makefile            |    3 +-
+ tests/filesystem/test                | 1199 ++++++++++++++++----------
+ tests/filesystem/xfs_quotas_test.c   |   96 +++
+ tests/nfsruntests.pl                 |    5 +
+ tools/nfs.sh                         |  127 ++-
+ 13 files changed, 1187 insertions(+), 515 deletions(-)
+ create mode 100644 tests/filesystem/xfs_quotas_test.c
+ create mode 100755 tests/nfsruntests.pl
 
-diff --git a/tests/fs_filesystem/Makefile b/tests/fs_filesystem/Makefile
-index f7ae89d..9224860 100644
---- a/tests/fs_filesystem/Makefile
-+++ b/tests/fs_filesystem/Makefile
-@@ -1,9 +1,6 @@
- TARGETS = fsmount fspick move_mount
--
- DEPS = fs_common.c fs_common.h
--
+diff --git a/.travis.yml b/.travis.yml
+index 2c8e416..18ab6b9 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -12,6 +12,8 @@ addons:
+       - libcap-dev
+       - libdbus-glib-1-dev
+       - xmlto
++      - xfslibs-dev
++      - uuid-dev
+ 
+ cache:
+   directories:
+diff --git a/README.md b/README.md
+index 27c9d56..b36494e 100644
+--- a/README.md
++++ b/README.md
+@@ -54,7 +54,7 @@ similar dependencies):
+ * libbpf-devel _(tools used by the bpf tests)_
+ * keyutils-libs-devel _(tools used by the keys tests)_
+ * kernel-devel _(used by the kernel module tests)_
+-* quota _(used by the filesystem tests)_
++* quota, xfsprogs-devel and libuuid-devel _(used by the filesystem tests)_
+ 
+ On a modern Fedora system you can install these dependencies with the
+ following command:
+@@ -73,7 +73,9 @@ following command:
+ 		libbpf-devel \
+ 		keyutils-libs-devel \
+ 		kernel-devel \
+-		quota
++		quota \
++		xfsprogs-devel \
++		libuuid-devel
+ 
+ The testsuite requires a pre-existing base policy configuration of SELinux,
+ using either the old example policy or the reference policy as the baseline.
+@@ -164,6 +166,15 @@ security_label export option and will test default NFS file labeling
+ in the absence of any options.  When finished, it will unmount and
+ unexport the mount and then stop the nfs-server.
+ 
++There is also an option to allow individual tests to be run on NFS as
++shown by the following example (ensure a valid policy is loaded):
++
++       # cd selinux-testsuite
++       # ./tools/nfs.sh nfs_filesystem -v
++
++Any test will then be run on a security_label exported filesystem without
++any *context= option set.
++
+ ## Running the Tests
+ 
+ Create a shell with the `unconfined_r` or `sysadm_r` role and the Linux
+diff --git a/defconfig b/defconfig
+index 8419e40..00bf9f3 100644
+--- a/defconfig
++++ b/defconfig
+@@ -104,3 +104,9 @@ CONFIG_NFS_V4_SECURITY_LABEL=y
+ CONFIG_NFSD=m
+ CONFIG_NFSD_V4=y
+ CONFIG_NFSD_V4_SECURITY_LABEL=y
++
++# Test XFS and VFAT filesystems.
++# This is not required for SELinux operation itself.
++CONFIG_XFS_FS=m
++CONFIG_XFS_QUOTA=y
++CONFIG_VFAT_FS=m
+diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
+index 09f9d4a..7d73cbf 100644
+--- a/policy/test_filesystem.te
++++ b/policy/test_filesystem.te
+@@ -6,6 +6,9 @@
+ attribute filesystemdomain;
+ kernel_setsched(filesystemdomain)
+ 
++# For module filesystems
++kernel_request_load_module(filesystemdomain)
++
+ #################### Create test file contexts ######################
+ type test_filesystem_filecon_t;
+ files_type(test_filesystem_filecon_t)
+@@ -26,10 +29,10 @@ typeattribute test_filesystem_t filesystemdomain;
+ 
+ allow test_filesystem_t self:capability { sys_admin };
+ allow test_filesystem_t self:filesystem { mount remount quotamod relabelfrom relabelto unmount quotaget };
+-allow test_filesystem_t test_file_t:dir { add_name mounton write remove_name rmdir };
++allow test_filesystem_t test_file_t:dir { add_name mounton read write remove_name rmdir relabelfrom };
+ # Create test file
+-allow test_filesystem_t test_filesystem_file_t:dir { read add_name write search };
+-allow test_filesystem_t test_filesystem_file_t:file { open getattr create write relabelfrom relabelto };
++allow test_filesystem_t test_filesystem_file_t:dir { read add_name write search mounton };
++allow test_filesystem_t test_filesystem_file_t:file { open getattr create read write relabelfrom relabelto };
+ 
+ fs_mount_all_fs(test_filesystem_t)
+ fs_remount_all_fs(test_filesystem_t)
+@@ -58,6 +61,10 @@ type_transition test_filesystem_t test_filesystem_file_t:file test_filesystem_fi
+ allow test_filesystem_t test_filesystem_filetranscon_t:file { create getattr open write relabelfrom };
+ dontaudit unconfined_t test_filesystem_filetranscon_t:file { getattr read };
+ 
++# For NFS
++type_transition test_filesystem_t test_file_t:file test_filesystem_filetranscon_t;
++allow test_filesystem_filetranscon_t test_filesystem_file_t:filesystem { associate };
++
+ #################### Deny filesystem { relabelfrom } ######################
+ # hooks.c may_context_mount_sb_relabel() FILESYSTEM__RELABELFROM
+ type test_filesystem_sb_relabel_no_relabelfrom_t;
+@@ -182,9 +189,12 @@ typeattribute test_file_no_quotaon_t testdomain;
+ typeattribute test_file_no_quotaon_t filesystemdomain;
+ 
+ allow test_file_no_quotaon_t self:capability { sys_admin };
+-allow test_file_no_quotaon_t self:filesystem { quotamod relabelto mount unmount relabelfrom };
++allow test_file_no_quotaon_t self:filesystem { quotamod quotaget relabelto mount unmount relabelfrom };
+ allow test_file_no_quotaon_t test_file_t:dir { mounton write remove_name rmdir };
+ # neverallow test_file_no_quotaon_t self:file { quotaon };
++
++# For XFS:
++# neverallow allow test_file_no_quotaon_t self:dir { quotaon };
+ fs_mount_all_fs(test_file_no_quotaon_t)
+ fs_relabelfrom_all_fs(test_file_no_quotaon_t)
+ fs_associate(test_file_no_quotaon_t)
+@@ -249,8 +259,8 @@ fs_mount_all_fs(test_move_mount_no_mounton_t)
+ fs_unmount_all_fs(test_move_mount_no_mounton_t)
+ fs_relabelfrom_all_fs(test_move_mount_no_mounton_t)
+ fs_associate(test_move_mount_no_mounton_t)
+-allow test_move_mount_no_mounton_t test_file_t:dir { mounton write remove_name rmdir };
+-# neverallow test_move_mount_no_mounton_t self:dir { mounton };
++allow test_move_mount_no_mounton_t test_file_t:dir { write remove_name rmdir };
++# neverallow test_move_mount_no_mounton_t test_file_t:dir { mounton };
+ 
+ #################### Deny filesystem { unmount } ######################
+ # hooks.c selinux_umount() FILESYSTEM__UNMOUNT
+@@ -312,7 +322,7 @@ allow test_setfscreatecon_t test_setfscreatecon_newcon_t:dir { create getattr rm
+ 
+ # Permit creation of the new file in a NFS filesystem.
+ # This is required when running the testsuite on a labeled NFS mount.
+-allow test_setfscreatecon_newcon_t nfs_t:filesystem associate;
++allow test_setfscreatecon_newcon_t nfs_t:filesystem { associate };
+ 
+ ################# deny process { setfscreate } #############
+ type test_no_setfscreatecon_t;
+@@ -342,7 +352,7 @@ allow test_filesystem_fscontext_t test_filesystem_fscontext_fs_t:file { create g
+ allow test_filesystem_fscontext_t test_filesystem_fscontext_fs_t:filesystem { mount relabelto unmount };
+ fs_relabelfrom_all_fs(test_filesystem_fscontext_t)
+ files_search_all(test_filesystem_fscontext_t)
+-allow test_filesystem_filecon_t test_filesystem_fscontext_fs_t:filesystem associate;
++allow test_filesystem_filecon_t test_filesystem_fscontext_fs_t:filesystem { associate };
+ 
+ ########### Test context= #################
+ type test_filesystem_context_t;
+@@ -373,6 +383,70 @@ allow test_filesystem_fscontext_t test_filesystem_context_file_t:file { create g
+ allow test_filesystem_context_t test_file_t:dir { relabelfrom };
+ allow test_filesystem_context_t unlabeled_t:dir { mounton relabelto };
+ 
++#
++####################### Rules for nfs_filesystem/test ###################
++#
++files_mounton_mnt(filesystemdomain)
++files_mounton_all_poly_members(test_filesystem_t)
++fs_search_nfs(filesystemdomain)
++
++allow test_filesystem_t unlabeled_t:dir { relabelto };
++allow test_filesystem_t etc_t:filesystem { relabelto relabelfrom mount unmount };
++
++allow test_filesystem_sb_relabel_no_relabelfrom_t self:filesystem { mount relabelto };
++allow test_filesystem_sb_relabel_no_relabelfrom_t self:filesystem { mount };
++
++allow test_filesystem_may_create_no_associate_t nfs_t:filesystem { associate };
++allow test_filesystem_may_create_no_associate_t unconfined_t:file { getattr relabelto };
++allow test_filesystem_may_create_no_associate_t test_file_t:dir { add_name };
++allow test_filesystem_may_create_no_associate_t test_file_t:file { create write relabelfrom };
++allow test_filesystem_may_create_no_associate_t test_filesystem_file_t:filesystem { mount unmount relabelto };
++allow test_file_t test_filesystem_may_create_no_associate_t:filesystem { associate };
++allow unconfined_t test_filesystem_may_create_no_associate_t:filesystem { getattr mount relabelto unmount };
++# neverallow unconfined_t test_filesystem_may_create_no_associate_t:filesystem { associate };
++
++allow test_filesystem_inode_setxattr_no_associate_t unconfined_t:file { getattr open read write };
++allow test_filesystem_inode_setxattr_no_associate_t nfs_t:filesystem { associate };
++allow test_filesystem_inode_setxattr_no_associate_t test_file_t:dir { add_name };
++allow test_filesystem_inode_setxattr_no_associate_t test_file_t:file { create relabelfrom write };
++allow test_file_t test_filesystem_inode_setxattr_no_associate_t:filesystem { associate };
++allow unconfined_t test_filesystem_inode_setxattr_no_associate_t:filesystem { getattr mount relabelfrom relabelto unmount };
++# neverallow unconfined_t test_filesystem_inode_setxattr_no_associate_t:filesystem { associate };
++
++#
++############### Rules for NFS mount ##################
++#
++userdom_search_user_home_content(filesystemdomain)
++allow test_filesystem_t test_filesystem_file_t:filesystem { getattr mount remount unmount relabelto relabelfrom };
++allow test_filesystem_t test_file_t:file { create write relabelfrom };
++allow test_file_t test_filesystem_file_t:filesystem { associate };
++allow test_setfscreatecon_newcon_t test_filesystem_file_t:filesystem { associate };
++allow test_filesystem_filecon_t test_filesystem_file_t:filesystem { associate };
++allow test_filesystem_no_getattr_t test_filesystem_file_t:filesystem { mount unmount relabelfrom relabelto };
++allow test_filesystem_no_getattr_t test_filesystem_file_t:dir { search mounton };
++allow test_filesystem_no_mount_t test_filesystem_file_t:filesystem { relabelfrom relabelto };
++allow test_filesystem_no_mount_t test_filesystem_file_t:dir { search mounton };
++allow test_filesystem_no_remount_t test_filesystem_file_t:filesystem { mount unmount relabelfrom relabelto };
++allow test_filesystem_no_remount_t test_filesystem_file_t:dir { search mounton };
++allow test_filesystem_no_unmount_t test_filesystem_file_t:filesystem { mount relabelfrom relabelto };
++allow test_filesystem_no_unmount_t test_filesystem_file_t:dir { search mounton };
++allow test_move_mount_no_mounton_t test_filesystem_file_t:filesystem { relabelto mount };
++allow test_move_mount_no_mounton_t test_filesystem_file_t:dir { search };
++
++#
++############ Rules for VFAT ##############################
++#
++gen_require(`
++	type dosfs_t;
++')
++allow test_filesystem_t dosfs_t:file { open getattr write };
++allow test_filesystem_context_t dosfs_t:file { open getattr write };
++allow test_filesystem_no_getattr_t dosfs_t:filesystem { associate };
++allow test_filesystem_no_mount_t dosfs_t:filesystem { associate };
++allow test_filesystem_no_remount_t dosfs_t:filesystem { associate };
++allow test_filesystem_no_unmount_t dosfs_t:filesystem { associate };
++allow test_move_mount_no_mounton_t dosfs_t:filesystem { associate };
++
+ #
+ ########### Allow these domains to be entered from sysadm domain ############
+ #
+diff --git a/policy/test_filesystem_name_trans.te b/policy/test_filesystem_name_trans.te
+index ce04601..7e336e4 100644
+--- a/policy/test_filesystem_name_trans.te
++++ b/policy/test_filesystem_name_trans.te
+@@ -18,3 +18,9 @@ fs_associate(test_filesystem_filenametranscon2_t)
+ type_transition test_filesystem_t test_filesystem_file_t:file test_filesystem_filenametranscon2_t "name_trans_test_file2";
+ allow test_filesystem_t test_filesystem_filenametranscon2_t:file { create getattr open write };
+ dontaudit unconfined_t test_filesystem_filenametranscon2_t:file { getattr read };
++
++### NFS Rules ##########
++type_transition test_filesystem_t test_file_t:file test_filesystem_filenametranscon1_t "name_trans_test_file1";
++type_transition test_filesystem_t test_file_t:file test_filesystem_filenametranscon2_t "name_trans_test_file2";
++allow test_filesystem_filenametranscon1_t test_filesystem_file_t:filesystem { associate };
++allow test_filesystem_filenametranscon2_t test_filesystem_file_t:filesystem { associate };
+diff --git a/policy/test_filesystem_notify.te b/policy/test_filesystem_notify.te
+index 3e8a246..94570ac 100644
+--- a/policy/test_filesystem_notify.te
++++ b/policy/test_filesystem_notify.te
+@@ -5,12 +5,39 @@
+ ################# Test all functions ##########################
+ # For fanotify tests
+ allow test_filesystem_t self:filesystem { watch };
+-# Until 'fs_watch_all_fs(test_filesystem_t)' in Policy use:
+-gen_require(`
+-	type fs_t;
+-')
+ allow test_filesystem_t fs_t:filesystem { watch };
+ allow test_filesystem_t test_filesystem_file_t:dir { watch_sb watch_mount };
++# For nfs
++allow test_filesystem_t nfs_t:filesystem { watch };
++allow test_filesystem_t test_file_t:dir { watch_mount watch_sb };
++# For vfat
++allow test_filesystem_t dosfs_t:filesystem { watch };
++
++#
++############### Rules for NFS mount with rootcontext option #################
++#
++userdom_search_user_home_content(filesystemdomain)
++allow test_filesystem_no_watch_mount_t nfs_t:filesystem { unmount };
++allow test_filesystem_no_watch_mount_t test_filesystem_file_t:dir { search };
++allow test_filesystem_no_watch_sb_t nfs_t:filesystem { unmount watch };
++allow test_filesystem_no_watch_sb_t test_filesystem_file_t:dir { search };
++allow test_filesystem_no_watch_t nfs_t:filesystem { unmount };
++allow test_filesystem_no_watch_t test_filesystem_file_t:dir { search };
++
++#
++############### Rules for NFS mount with no context option ##################
++#
++allow test_filesystem_no_watch_mount_t nfs_t:dir { search };
++allow test_filesystem_no_watch_sb_t nfs_t:dir { search };
++allow test_filesystem_no_watch_t nfs_t:dir { search };
++
++#
++############### Rules for NFS mount with fscontext option ####################
++#
++allow test_filesystem_no_watch_mount_t test_filesystem_file_t:filesystem { mount unmount relabelto };
++allow test_filesystem_no_watch_sb_t test_filesystem_file_t:filesystem { mount unmount relabelto watch };
++allow test_filesystem_no_watch_t test_filesystem_file_t:filesystem { mount unmount relabelto };
++allow test_filesystem_t test_filesystem_file_t:filesystem { watch };
+ 
+ #################### Deny filesystem { watch } ######################
+ # hooks.c selinux_path_notify() FILESYSTEM__WATCH
+@@ -22,7 +49,7 @@ typeattribute test_filesystem_no_watch_t filesystemdomain;
+ 
+ allow test_filesystem_no_watch_t self:capability { sys_admin };
+ allow test_filesystem_no_watch_t self:filesystem { associate relabelto mount unmount relabelfrom };
+-allow test_filesystem_no_watch_t test_file_t:dir { mounton write remove_name rmdir };
++allow test_filesystem_no_watch_t test_file_t:dir { mounton read write remove_name rmdir watch_sb };
+ fs_mount_all_fs(test_filesystem_no_watch_t)
+ fs_relabelfrom_all_fs(test_filesystem_no_watch_t)
+ fs_associate(test_filesystem_no_watch_t)
+@@ -37,7 +64,7 @@ typeattribute test_filesystem_no_watch_sb_t filesystemdomain;
+ 
+ allow test_filesystem_no_watch_sb_t self:capability { sys_admin };
+ allow test_filesystem_no_watch_sb_t self:filesystem { watch associate relabelto mount unmount relabelfrom };
+-allow test_filesystem_no_watch_sb_t test_file_t:dir { mounton write remove_name rmdir };
++allow test_filesystem_no_watch_sb_t test_file_t:dir { mounton read write remove_name rmdir };
+ 
+ fs_mount_all_fs(test_filesystem_no_watch_sb_t)
+ fs_relabelfrom_all_fs(test_filesystem_no_watch_sb_t)
+@@ -53,7 +80,7 @@ typeattribute test_filesystem_no_watch_mount_t filesystemdomain;
+ 
+ allow test_filesystem_no_watch_mount_t self:capability { sys_admin };
+ allow test_filesystem_no_watch_mount_t self:filesystem { watch associate relabelto mount unmount relabelfrom };
+-allow test_filesystem_no_watch_mount_t test_file_t:dir { mounton write remove_name rmdir };
++allow test_filesystem_no_watch_mount_t test_file_t:dir { mounton read write remove_name rmdir };
+ 
+ fs_mount_all_fs(test_filesystem_no_watch_mount_t)
+ fs_relabelfrom_all_fs(test_filesystem_no_watch_mount_t)
+diff --git a/tests/filesystem/.gitignore b/tests/filesystem/.gitignore
+index 5ac18d0..e76fcd3 100644
+--- a/tests/filesystem/.gitignore
++++ b/tests/filesystem/.gitignore
+@@ -9,3 +9,4 @@ check_file_context
+ check_mount_context
+ create_file
+ grim_reaper
++xfs_quotas_test
+diff --git a/tests/filesystem/Filesystem.pm b/tests/filesystem/Filesystem.pm
+index a08570a..2365ce8 100644
+--- a/tests/filesystem/Filesystem.pm
++++ b/tests/filesystem/Filesystem.pm
+@@ -1,10 +1,10 @@
+ package Filesystem;
+ use Exporter qw(import);
+ our @EXPORT_OK =
+-  qw(check_config udisks2_stop udisks2_restart get_loop_dev attach_dev make_fs mk_mntpoint_1 mk_mntpoint_2 cleanup cleanup1 reaper);
++  qw(check_config udisks2_stop udisks2_restart get_loop_dev attach_dev make_fs mk_mntpoint_1 mk_mntpoint_2 cleanup cleanup1 reaper nfs_gen_opts);
+ 
+ sub check_config {
+-    my ( $base, $fanotify_fs ) = @_;
++    my ( $base, $fanotify_fs, $nfs_enabled, $vfat_enabled ) = @_;
+ 
+     $tst_count = 0;
+ 
+@@ -25,15 +25,26 @@ sub check_config {
+     $mod_pol_vers      = `checkmodule -V | cut -f 2 -d '-'`;
+     $max_kernel_policy = `cat /sys/fs/selinux/policyvers`;
+ 
+-    if ( $mod_pol_vers >= 11 and $pol_vers >= 25 and $max_kernel_policy >= 25 )
+-    {
+-        $name_trans = 1;
+-        $tst_count += 2;
++    if ( not $vfat_enabled ) {
++        if (    $mod_pol_vers >= 11
++            and $pol_vers >= 25
++            and $max_kernel_policy >= 25 )
++        {
++            $name_trans = 1;
++            $tst_count += 2;
++        }
++    }
++
++    $type_trans = 0;
++    if ( not $vfat_enabled ) {
++        $type_trans = 1;
++        $tst_count += 1;
+     }
+-    return ( $tst_count, $watch, $name_trans );
++
++    return ( $tst_count, $watch, $name_trans, $type_trans );
+ }
+ 
+-# Optionally stop the udisks(8) daemon, then restart on exit.
++# Stop the udisks(8) daemon, then restart on exit.
+ sub udisks2_stop {
+     $status = 0;
+ 
+@@ -112,8 +123,9 @@ sub attach_dev {
+ sub make_fs {
+     my ( $mk_type, $mk_dev, $mk_dir ) = @_;
+     print "Create $mk_dir/fstest with dd\n";
+-    $result = system(
+-        "dd if=/dev/zero of=$mk_dir/fstest bs=1024 count=10240 2>/dev/null");
++    $result =
++      system(
++        "dd if=/dev/zero of=$mk_dir/fstest bs=4096 count=4096 2>/dev/null");
+     if ( $result != 0 ) {
+         print "dd failed to create $mk_dir/fstest\n";
+     }
+@@ -121,7 +133,7 @@ sub make_fs {
+     attach_dev( $mk_dev, $mk_dir );
+ 
+     print "Make $mk_type filesystem on $mk_dev\n";
+-    $result = system("mkfs.$mk_type -I 256 $mk_dev >& /dev/null");
++    $result = system("mkfs.$mk_type $mk_dev >& /dev/null");
+     if ( $result != 0 ) {
+         system("losetup -d $mk_dev 2>/dev/null");
+         print "mkfs.$mk_type failed to create filesystem on $mk_dev\n";
+@@ -164,3 +176,80 @@ sub reaper {
+         system("$base/grim_reaper -t $n $v 2>/dev/null");
+     }
+ }
++
++sub nfs_gen_opts {
++
++    my ( $type, $base, $filesys ) = @_;
++
++    $mnt_entry = `findmnt -fUln -t $type -T $base`;
++    my @mnt_item = split " ", $mnt_entry;
++
++    $tgt  = $mnt_item[0];
++    $src  = $mnt_item[1];
++    $type = $mnt_item[2];
++
++    # Use a common $dev entry for all tests
++    $dev = "$src/tests/$filesys/mntpoint";
++
++    # Build mandatory nfs options, some of which mount.nfs(8) would resolve
++    ($clientaddr) = ( $mnt_item[3] =~ /clientaddr=([^,\/]+)/ );
++    chomp($clientaddr);
++    $clientaddr = "clientaddr=$clientaddr";
++
++    # Remove items that could match e.g. clientaddr, addr
++    $mnt_item[3] =~ s/clientaddr=$clientaddr/xxxx/i;
++    ($addr) = ( $mnt_item[3] =~ /addr=([^,\/]+)/ );
++    chomp($addr);
++    $addr = "addr=$addr";
++    $mnt_item[3] =~ s/addr=$addr/xxxx/i;
++    ($proto) = ( $mnt_item[3] =~ /proto=([^,\/]+)/ );
++    chomp($proto);
++    $proto = "proto=$proto";
++    ($vers) = ( $mnt_item[3] =~ /vers=([^,\/]+)/ );
++    chomp($vers);
++    $vers = "vers=$vers";
++
++    $fs_context    = " ";
++    $fscontext     = " ";
++    $seclabel      = " ";
++    $seclabel_type = 0;     # No seclabel = 0, fscontext = 1, context = 2
++    ($fscontext) = ( $mnt_item[3] =~ /fscontext=([^,\/]+)/ );
++    $mnt_item[3] =~ s/fscontext=$fs_context/xxxx/i;
++    ($context) = ( $mnt_item[3] =~ /context=([^,\/]+)/ );
++
++    if ( defined $fscontext ) {
++        $seclabel      = "fscontext=$fscontext";
++        $seclabel_type = 1;
++    }
++    elsif ( defined $context ) {
++        $seclabel      = "context=$context";
++        $seclabel_type = 2;
++    }
++    chomp($seclabel);
++
++    # Use a common set of NFS options. Note fsconfig(2) returns
++    # 'Invalid argument' if a blank entry (as $seclabel can be) is passed
++    # as a parameter (as NFS sees this as an invalid option).
++    if ( $seclabel eq " " ) {
++        $nfs_mount_opts = "$vers,$proto,$clientaddr,$addr";
++    }
++    else {
++        $nfs_mount_opts = "$vers,$proto,$clientaddr,$addr,$seclabel";
++    }
++
++    # Build option for testing 'SELinux: mount invalid. Same superblock,...'
++    # that returns EBUSY. Depends on what the initial mount set as its value
++    $inval_seclabel = $seclabel;
++    if ( $seclabel_type eq 0 ) {
++        $inval_seclabel = "context=system_u:object_r:test_filesystem_file_t:s0";
++    }
++    elsif ( $seclabel_type eq 1 ) {
++        $inval_seclabel =~ s/fscontext/context/i;
++    }
++    elsif ( $seclabel_type eq 2 ) {
++        $inval_seclabel =~ s/context/fscontext/i;
++    }
++    $nfs_inval_mount_opts = "$vers,$proto,$clientaddr,$addr,$inval_seclabel";
++
++    return ( $dev, $nfs_mount_opts, $nfs_inval_mount_opts, $seclabel_type );
++}
+diff --git a/tests/filesystem/Makefile b/tests/filesystem/Makefile
+index d2fad63..a863ea2 100644
+--- a/tests/filesystem/Makefile
++++ b/tests/filesystem/Makefile
+@@ -2,7 +2,8 @@
+ #export CFLAGS += -DHAVE_FS_WATCH_PERM
+ 
+ TARGETS = mount umount quotas_test statfs_test create_file_change_context \
+-fs_relabel check_file_context grim_reaper check_mount_context create_file
++fs_relabel check_file_context grim_reaper check_mount_context create_file \
++xfs_quotas_test
+ 
  LDLIBS += -lselinux
--
- USE_FS = ../filesystem
  
- all: $(TARGETS)
-diff --git a/tests/fs_filesystem/fsmount.c b/tests/fs_filesystem/fsmount.c
-index 320d82a..3eefbe5 100644
---- a/tests/fs_filesystem/fsmount.c
-+++ b/tests/fs_filesystem/fsmount.c
-@@ -15,7 +15,7 @@ static void print_usage(char *progname)
- 
- int main(int argc, char *argv[])
- {
--	int opt, result, fsfd, mfd;
-+	int opt, result, fsfd, mfd, save_errno;
- 	char *context, *src = NULL, *tgt = NULL, *fs_type = NULL, *opts = NULL;
- 	bool verbose = false;
- 
-@@ -79,9 +79,10 @@ int main(int argc, char *argv[])
- 	close(fsfd);
- 
- 	result = move_mount(mfd, "", AT_FDCWD, tgt, MOVE_MOUNT_F_EMPTY_PATH);
-+	save_errno = errno;
- 	if (result < 0) {
- 		fprintf(stderr, "Failed move_mount(2): %s\n", strerror(errno));
--		return -1;
-+		return save_errno;
- 	}
- 	close(mfd);
- 
-diff --git a/tests/fs_filesystem/test b/tests/fs_filesystem/test
-index 0bf9631..5dcc89d 100755
---- a/tests/fs_filesystem/test
-+++ b/tests/fs_filesystem/test
-@@ -1,43 +1,144 @@
+diff --git a/tests/filesystem/test b/tests/filesystem/test
+index 78faf72..149cc29 100755
+--- a/tests/filesystem/test
++++ b/tests/filesystem/test
+@@ -1,39 +1,131 @@
  #!/usr/bin/perl
  use Test::More;
  
 +# Load common subroutines.
 +use File::Basename qw(dirname);
 +use Cwd qw(abs_path);
-+use lib dirname( abs_path $0) . '/../filesystem';
++use lib dirname( abs_path $0);
 +use Filesystem
 +  qw(check_config udisks2_stop udisks2_restart get_loop_dev attach_dev make_fs mk_mntpoint_1 mk_mntpoint_2 cleanup cleanup1 reaper nfs_gen_opts);
 +
@@ -131,19 +586,17 @@ index 0bf9631..5dcc89d 100755
      $basedir = $0;
      $basedir =~ s|(.*)/[^/]*|$1|;
  
--    # Load common subroutines from filesystem/Filesystem.pm
+-    # Load common subroutines.
 -    use File::Basename qw(dirname);
 -    use Cwd qw(abs_path);
--    use lib dirname( abs_path $0) . '/../filesystem';
+-    use lib dirname( abs_path $0);
 -    use Filesystem
 -      qw(check_config udisks2_stop udisks2_restart get_loop_dev attach_dev make_fs mk_mntpoint_1 mk_mntpoint_2 cleanup cleanup1 reaper);
 -
-     # Some code in tests/filesystem is reused
-     $filesystem_dir = "$basedir/../filesystem";
--    $test_count     = 66;
- 
+-    $test_count = 68;
+-
 -    # Options: -v = Verbose, -d disable udisks(8) daemon
-+    # Options: -v = Verbose, -e enable udisks(8) daemon, -f filesystem type
++    # Options: -v Verbose, -e enable udisks(8) daemon, -f filesystem type
      $v              = " ";
 -    $disable_udisks = 0;
 +    $disable_udisks = 1;
@@ -162,7 +615,7 @@ index 0bf9631..5dcc89d 100755
 -            $disable_udisks = 1;
 +        elsif ( $arg eq "-e" ) {
 +            $disable_udisks = 0;
-         }
++        }
 +        elsif ( $arg eq "-f" ) {
 +            $fs_type = $ARGV[ $i + 1 ];
 +        }
@@ -171,7 +624,7 @@ index 0bf9631..5dcc89d 100755
 +
 +    # If NFS specified inform how to run
 +    if ( $fs_type eq "nfs" or $fs_type eq "nfs4" ) {
-+        plan skip_all => "To run NFS use 'tools/nfs.sh fs_filesystem [-v]'";
++        plan skip_all => "To run NFS use 'tools/nfs.sh filesystem [-v]'";
 +    }
 +
 +    # Get filesystem type if not specified
@@ -180,12 +633,12 @@ index 0bf9631..5dcc89d 100755
 +        chomp $fs_type;
 +    }
 +
-+    # Obtain an appropriate set of mount options for NFS
++    # Obtain an appropriate set of mount options for NFS.
 +    # rootcontext is not supported.
 +    # $seclabel_type: No seclabel = 0, fscontext = 1, context = 2
 +    if ( $fs_type eq "nfs4" or $fs_type eq "nfs" ) {
 +        ( $dev, $nfs_mount_opts, $nfs_inval_mount_opts, $seclabel_type ) =
-+          nfs_gen_opts( $fs_type, $basedir, "fs_filesystem" );
++          nfs_gen_opts( $fs_type, $basedir, "filesystem" );
 +        $nfs_enabled = 1;
 +    }
 +    elsif ( $fs_type eq "vfat" ) {
@@ -195,37 +648,29 @@ index 0bf9631..5dcc89d 100755
 +    # XFS supports quotas internally and therefore does not require calling
 +    # security_quota_on().
 +    if ( $fs_type eq "xfs" ) {
-+        $test_count   = 61;
++        $test_count   = 62;
 +        $quota_checks = 1;
 +    }
 +    elsif ( $fs_type eq "nfs4" or $fs_type eq "nfs" ) {
-+        $test_count   = 54;
++        $test_count   = 55;
 +        $quota_checks = 0;
 +    }
 +    elsif ( $fs_type eq "vfat" ) {
-+        $test_count   = 54;
++        $test_count   = 55;
 +        $quota_checks = 0;
 +    }
 +    else {
-+        $test_count = 68;
-     }
- 
-     # Check if watch and/or named type_transition rules configured
--    ( $addit, $test_watch, $test_name_trans ) =
--      check_config( $basedir, "$filesystem_dir/fanotify_fs" );
-+    ( $addit, $test_watch, $test_name_trans, $test_type_trans ) =
-+      check_config( $basedir, "$filesystem_dir/fanotify_fs", $nfs_enabled,
-+        $vfat_enabled );
++        $test_count = 69;
++    }
 +
 +    if ($nfs_enabled) {
- 
--    plan tests => ( $test_count += $addit );
-+        # hooks.c may_create() FILESYSTEM__ASSOCIATE is tested via
++
++        # hooks.c may_create() FILESYSTEM__ASSOCIATE is tested via the
 +        # may_create_no_associate() test in nfs_filesystem/test
 +        $test_count -= 3;
 +
 +        # hooks.c selinux_inode_setxattr() FILESYSTEM__ASSOCIATE is tested
-+        # via inode_setxattr_no_associate() test in nfs_filesystem/test
++        # via the inode_setxattr_no_associate() test in nfs_filesystem/test
 +        $test_count -= 3;
 +
 +        # Remove additional Test Invalid Mount tests
@@ -242,84 +687,74 @@ index 0bf9631..5dcc89d 100755
 +        # Removed if fscontext option set in a test
 +        elsif ( $seclabel_type eq 1 ) {
 +            $test_count -= 1;
-+        }
-+    }
+         }
+     }
 +    elsif ($vfat_enabled) {
 +
 +        # For hooks.c may_create() FILESYSTEM__ASSOCIATE as not supported
 +        $test_count -= 3;
 +
-+        # For hooks.c selinux_inode_setxattr() FILESYSTEM__ASSOCIATE
-+        # as not supported
++        # For hooks.c selinux_inode_setxattr() FILESYSTEM__ASSOCIATE as
++        # not supported
 +        $test_count -= 3;
 +
 +        # For tests with defcontext= options as not supported
 +        $test_count -= 6;
 +    }
-+
+ 
+     # Check if watch and/or named type_transition rules configured
+-    ( $addit, $test_watch, $test_name_trans ) =
+-      check_config( $basedir, "$basedir/fanotify_fs" );
++    ( $addit, $test_watch, $test_name_trans, $test_type_trans ) =
++      check_config( $basedir, "$basedir/fanotify_fs", $nfs_enabled,
++        $vfat_enabled );
+ 
+-    plan tests => ( $test_count += $addit );
 +    $test_count += $addit;
 +    plan tests => $test_count;
  }
  
--# Set initial filesystem type
--$fs_type = "ext4";
 +print "Testing filesystem fs_type: $fs_type\n";
 +
-+# Generate an absolute path to a private mount
-+$cwd = `pwd 2>/dev/null`;
-+chomp($cwd);
-+$private_path = "$cwd";
-+if ( $basedir eq "." ) {
-+    $private_path = "$cwd/mntpoint";
-+}
-+else {
-+    $private_path = "$cwd/$basedir/mntpoint";
-+}
+ # mount(2) MS_BIND | MS_PRIVATE requires an absolute path to a private mount
+ # point before MS_MOVE
+ $cwd = `pwd 2>/dev/null`;
+@@ -46,9 +138,6 @@ else {
+     $private_path = "$cwd/$basedir/mntpoint";
+ }
  
+-# Set initial filesystem type
+-$fs_type = "ext4";
+-
  # Keep a list of devices used for removal at end of test.
  $device_count = 0;
-@@ -49,36 +150,83 @@ if ($disable_udisks) {
+ my @device_list;
+@@ -63,73 +152,108 @@ cleanup($basedir);
+ system("mkdir -p $basedir/mntpoint 2>/dev/null");
  
- cleanup($basedir);
+ print "Test setfscreatecon(3)\n";
+-$result = system
+-"runcon -t test_setfscreatecon_t $basedir/fs_relabel $v -b $basedir/mntpoint -t test_setfscreatecon_newcon_t";
++$result = system(
++"runcon -t test_setfscreatecon_t $basedir/fs_relabel $v -b $basedir/mntpoint -t test_setfscreatecon_newcon_t"
++);
+ ok( $result eq 0 );
  
--############### Test Basic Mount/Unmount ##########################
--mk_mntpoint_1("$basedir/mntpoint");
+-$result = system
+-"runcon -t test_no_setfscreatecon_t $basedir/fs_relabel $v -b $basedir/mntpoint -t test_setfscreatecon_newcon_t 2>&1";
++$result = system(
++"runcon -t test_no_setfscreatecon_t $basedir/fs_relabel $v -b $basedir/mntpoint -t test_setfscreatecon_newcon_t 2>&1"
++);
+ ok( $result >> 8 eq 13 );
+ 
+ system("rm -rf $basedir/mntpoint 2>/dev/null");
+ 
+ ############### Test Basic Mount/Unmount ##########################
+ mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$mount_opts1 =
 -"quota,usrquota,grpquota,defcontext=system_u:object_r:test_filesystem_file_t:s0";
-+############### Test setfscreatecon(3) ##########################
-+system("mkdir -p $basedir/mntpoint 2>/dev/null");
- 
--print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
--print "Using mount options:\n\t$mount_opts1\n";
--$result = system(
--"runcon -t test_filesystem_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts1 $v"
-+print "Test setfscreatecon(3)\n";
-+$result = (
-+    system
-+"runcon -t test_setfscreatecon_t $filesystem_dir/fs_relabel $v -b $basedir/mntpoint -t test_setfscreatecon_newcon_t"
- );
- ok( $result eq 0 );
- 
--# On RHEL-6, there is a type transition to quota_t when running quotacheck
--# as unconfined_t. Using "runcon `id -Z` quotacheck ..." resolves this.
--print "Running quotacheck(8) to init user/group quota files\n";
--$result = system("runcon `id -Z` quotacheck -ugF vfsv0 $basedir/mntpoint/mp1");
--ok( $result eq 0 );
--
--print "Toggle User & Group quotas on/off\n";
- $result = system(
--"runcon -t test_filesystem_t $filesystem_dir/quotas_test -s $dev -t $basedir/mntpoint/mp1/aquota.user $v"
-+"runcon -t test_no_setfscreatecon_t $filesystem_dir/fs_relabel $v -b $basedir/mntpoint -t test_setfscreatecon_newcon_t 2>&1"
- );
--ok( $result eq 0 );
-+ok( $result >> 8 eq 13 );
-+
-+system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+############### Test Basic Mount/Unmount ##########################
-+mk_mntpoint_1($private_path);
 +
 +if ($nfs_enabled) {
 +    $mount_opts = $nfs_mount_opts;
@@ -341,40 +776,59 @@ index 0bf9631..5dcc89d 100755
 +        $mount_opts = "rootcontext=system_u:object_r:test_filesystem_file_t:s0";
 +    }
 +}
-+
-+print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
+ 
+ print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
+-print "Using mount options:\n\t$mount_opts1\n";
 +print "Using mount options:\n\t$mount_opts\n";
-+
  $result = system(
--"runcon -t test_filesystem_t $filesystem_dir/quotas_test -s $dev -t $basedir/mntpoint/mp1/aquota.group $v"
-+"runcon -t test_filesystem_t $basedir/fsmount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts $v"
+-"runcon -t test_filesystem_t $basedir/mount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts1 $v"
++"runcon -t test_filesystem_t $basedir/mount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts $v"
  );
  ok( $result eq 0 );
  
+ print "Then remount\n";
+ $result = system(
+-"runcon -t test_filesystem_t $basedir/mount -r -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts1 $v"
++"runcon -t test_filesystem_t $basedir/mount -r -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts $v"
+ );
+ ok( $result eq 0 );
+ 
+-print "Running quotacheck(8) to init user/group quota files\n";
 +if ($quota_checks) {
 +    if ( $fs_type eq "xfs" ) {
 +        print "# XFS quota test with mount options: uquota,prjquota\n";
 +        $result = system(
-+"runcon -t test_filesystem_t $filesystem_dir/xfs_quotas_test $v -s $dev"
-+        );
++            "runcon -t test_filesystem_t $basedir/xfs_quotas_test $v -s $dev");
 +        ok( $result eq 0 );
 +    }
 +    else {
 +        print "Running quotacheck(8) to init user/group quota files\n";
-+
+ 
+-# On RHEL-6, there is a type transition to quota_t when running quotacheck
+-# as unconfined_t. Using "runcon `id -Z` quotacheck ..." resolves this.
+-$result = system("runcon `id -Z` quotacheck -ugF vfsv0 $private_path/mp1");
+-ok( $result eq 0 );
 +      # On RHEL-6, there is a type transition to quota_t when running quotacheck
 +      # as unconfined_t. Using "runcon `id -Z` quotacheck ..." resolves this.
 +        $result =
 +          system("runcon `id -Z` quotacheck -ugF vfsv0 $private_path/mp1");
 +        ok( $result eq 0 );
-+
+ 
+-print "Toggle User & Group quotas on/off\n";
+-$result = system(
 +        print "Toggle User & Group quotas on/off\n";
 +        $result = system(
-+"runcon -t test_filesystem_t $filesystem_dir/quotas_test -s $dev -t $private_path/mp1/aquota.user $v"
+ "runcon -t test_filesystem_t $basedir/quotas_test -s $dev -t $private_path/mp1/aquota.user $v"
+-);
+-ok( $result eq 0 );
+-$result = system(
 +        );
 +        ok( $result eq 0 );
 +        $result = system(
-+"runcon -t test_filesystem_t $filesystem_dir/quotas_test -s $dev -t $private_path/mp1/aquota.group $v"
+ "runcon -t test_filesystem_t $basedir/quotas_test -s $dev -t $private_path/mp1/aquota.group $v"
+-);
+-ok( $result eq 0 );
+-
 +        );
 +        ok( $result eq 0 );
 +    }
@@ -382,8 +836,7 @@ index 0bf9631..5dcc89d 100755
  print "Get statfs(2)\n";
  $result =
    system(
-@@ -86,26 +234,32 @@ $result =
-   );
+     "runcon -t test_filesystem_t $basedir/statfs_test -t $basedir/mntpoint $v");
  ok( $result eq 0 );
  
 -print
@@ -392,11 +845,10 @@ index 0bf9631..5dcc89d 100755
  "Creating 'trans_test_file' and checking context changed via type_transition rule\n";
 -$result =
 -  system(
--"runcon -t test_filesystem_t $filesystem_dir/create_file -f $basedir/mntpoint/mp1/trans_test_file -e test_filesystem_filetranscon_t $v"
++    $result = system(
+ "runcon -t test_filesystem_t $basedir/create_file -f $private_path/mp1/trans_test_file -e test_filesystem_filetranscon_t $v"
 -  );
 -ok( $result eq 0 );
-+    $result = system(
-+"runcon -t test_filesystem_t $filesystem_dir/create_file -f $private_path/mp1/trans_test_file -e test_filesystem_filetranscon_t $v"
 +    );
 +    ok( $result eq 0 );
 +}
@@ -404,8 +856,7 @@ index 0bf9631..5dcc89d 100755
  print "Creating 'test_file' and changing its context via setfilecon(3)\n";
  $result =
    system(
--"runcon -t test_filesystem_t $filesystem_dir/create_file_change_context -t test_filesystem_filecon_t -f $basedir/mntpoint/mp1/test_file $v"
-+"runcon -t test_filesystem_t $filesystem_dir/create_file_change_context -t test_filesystem_filecon_t -f $private_path/mp1/test_file $v"
+ "runcon -t test_filesystem_t $basedir/create_file_change_context -t test_filesystem_filecon_t -f $private_path/mp1/test_file $v"
    );
 -ok( $result eq 0 );
 +if ($vfat_enabled) {
@@ -417,81 +868,10 @@ index 0bf9631..5dcc89d 100755
  
  if ($test_name_trans) {
      print
- "Creating 'name_trans_test_file1' and checking context changed via name-based type_transition rule\n";
-     $result = system(
--"runcon -t test_filesystem_t $filesystem_dir/create_file -f $basedir/mntpoint/mp1/name_trans_test_file1 -e test_filesystem_filenametranscon1_t $v"
-+"runcon -t test_filesystem_t $filesystem_dir/create_file -f $private_path/mp1/name_trans_test_file1 -e test_filesystem_filenametranscon1_t $v"
-     );
-     ok( $result eq 0 );
- 
-@@ -134,7 +288,7 @@ if ($test_watch) {
- print "Unmount filesystem from $basedir/mntpoint/mp1\n";
- $result =
-   system(
--"runcon -t test_filesystem_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
-+    "runcon -t test_filesystem_t $filesystem_dir/umount -t $private_path/mp1 $v"
-   );
- ok( $result eq 0 );
- 
-@@ -142,60 +296,74 @@ print "Removing: $dev $basedir/mntpoint $basedir/fstest\n";
- cleanup1( $basedir, $dev );
+@@ -171,10 +295,15 @@ cleanup1( $basedir, $dev );
  
  ############### Test Move Mount ##########################
--mk_mntpoint_1("$basedir/mntpoint");
--( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
--make_fs( $fs_type, $dev, $basedir );
--$mount_opts2 =
--"quota,usrquota,grpquota,rootcontext=system_u:object_r:test_filesystem_file_t:s0";
-+mk_mntpoint_1($private_path);
-+
-+if ($nfs_enabled) {
-+    $mount_opts = $nfs_mount_opts;
-+}
-+else {
-+    ( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
-+    make_fs( $fs_type, $dev, $basedir );
-+    $mount_opts = "rootcontext=system_u:object_r:test_filesystem_file_t:s0";
-+}
- 
- print "Mount on $basedir/mntpoint/mp1\n";
- $result = system(
--"runcon -t test_filesystem_t  $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts2 $v"
-+"runcon -t test_filesystem_t  $basedir/fsmount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts $v"
- );
- ok( $result eq 0 );
- 
--mk_mntpoint_2("$basedir/mntpoint");
-+mk_mntpoint_2($private_path);
- 
- print "Now move_mount(2) filesystem to $basedir/mntpoint/mp2\n";
- $result = system(
--"runcon -t test_filesystem_t $basedir/move_mount -s $basedir/mntpoint/mp1 -t $basedir/mntpoint/mp2 $v"
-+"runcon -t test_filesystem_t $basedir/move_mount -s $private_path/mp1 -t $private_path/mp2 $v"
- );
- ok( $result eq 0 );
- 
- print "Unmount filesystem from $basedir/mntpoint/mp2\n";
- $result =
-   system(
--"runcon -t test_filesystem_t $filesystem_dir/umount -t $basedir/mntpoint/mp2 $v"
-+    "runcon -t test_filesystem_t $filesystem_dir/umount -t $private_path/mp2 $v"
-   );
- ok( $result eq 0 );
- 
- print "Unmount filesystem from $basedir/mntpoint/mp1\n";
- $result =
-   system(
--"runcon -t test_filesystem_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
-+    "runcon -t test_filesystem_t $filesystem_dir/umount -t $private_path/mp1 $v"
-   );
- ok( $result eq 0 );
- 
- print "Removing: $dev $basedir/mntpoint $basedir/fstest\n";
- cleanup1( $basedir, $dev );
- 
--############### Test Change Mount Options ##########################
-+############### Test Change Mount Option ##########################
- mk_mntpoint_1("$basedir/mntpoint");
+ mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$mount_opts2 =
@@ -506,36 +886,30 @@ index 0bf9631..5dcc89d 100755
 +    $mount_opts = "rootcontext=system_u:object_r:test_filesystem_file_t:s0";
 +}
  
- print "Mount on $basedir/mntpoint/mp1\n";
+ print "Set mount MS_BIND on filesystem\n";
  $result = system(
--"runcon -t test_filesystem_t  $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts2 $v"
-+"runcon -t test_filesystem_t  $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
-+);
-+ok( $result eq 0 );
-+
-+print "Change 'rw' option to 'ro' and back to 'rw' with fspick(2)\n";
-+$result = system(
-+"runcon -t test_filesystem_t $basedir/fspick -t $basedir/mntpoint/mp1 -o ro $v"
+@@ -190,9 +319,9 @@ ok( $result eq 0 );
+ mk_mntpoint_2($private_path);
+ 
+ print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
+-print "Using mount options:\n\t$mount_opts2\n";
++print "Using mount options:\n\t$mount_opts\n";
+ $result = system(
+-"runcon -t test_filesystem_t $basedir/mount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts2 $v"
++"runcon -t test_filesystem_t $basedir/mount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts $v"
  );
  ok( $result eq 0 );
  
--$change_opts = "rootcontext=system_u:object_r:test_filesystem_file_t:s0";
--print "Now change options with fspick(2)\n";
- $result = system(
--"runcon -t test_filesystem_t $basedir/fspick -t $basedir/mntpoint/mp1 -o $change_opts $v"
-+"runcon -t test_filesystem_t $basedir/fspick -t $basedir/mntpoint/mp1 -o rw $v"
- );
- ok( $result eq 0 );
- 
-@@ -211,223 +379,305 @@ cleanup1( $basedir, $dev );
+@@ -217,223 +346,311 @@ cleanup1( $basedir, $dev );
  
  ############### Deny filesystem { relabelfrom } ##########################
  # hooks.c may_context_mount_sb_relabel() FILESYSTEM__RELABELFROM
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_relabelfrom =
 -  "defcontext=system_u:object_r:test_filesystem_sb_relabel_no_relabelfrom_t:s0";
++#
 +# Also tested in nfs_filesystem/test
 +#
 +if ( ( $nfs_enabled and $seclabel_type ne 0 ) or not $nfs_enabled ) {
@@ -544,7 +918,7 @@ index 0bf9631..5dcc89d 100755
 -print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 -print "Using mount options:\n\t$opts_no_relabelfrom\n";
 -$result = system(
--"runcon -t test_filesystem_sb_relabel_no_relabelfrom_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_relabelfrom $v 2>&1"
+-"runcon -t test_filesystem_sb_relabel_no_relabelfrom_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_relabelfrom $v 2>&1"
 -);
 -ok( $result >> 8 eq 13 );
 +    if ($nfs_enabled) {
@@ -562,7 +936,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$mount_opts\n";
 +    $result = system(
-+"runcon -t test_filesystem_sb_relabel_no_relabelfrom_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
++"runcon -t test_filesystem_sb_relabel_no_relabelfrom_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
 +    );
 +    ok( $result >> 8 eq 13 );
 +
@@ -572,11 +946,12 @@ index 0bf9631..5dcc89d 100755
  
  ############### Deny filesystem { relabelto } ##########################
  # hooks.c may_context_mount_sb_relabel() FILESYSTEM__RELABELTO
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_relabelto =
 -  "fscontext=system_u:object_r:test_filesystem_sb_relabel_no_relabelto_t:s0";
++#
 +# Also tested in nfs_filesystem/test
 +#
 +if ( ( $nfs_enabled and $seclabel_type eq 1 ) or not $nfs_enabled ) {
@@ -585,7 +960,7 @@ index 0bf9631..5dcc89d 100755
 -print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 -print "Using mount options:\n\t$opts_no_relabelto\n";
 -$result = system(
--"runcon -t test_filesystem_sb_relabel_no_relabelto_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_relabelto $v 2>&1"
+-"runcon -t test_filesystem_sb_relabel_no_relabelto_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_relabelto $v 2>&1"
 -);
 -ok( $result >> 8 eq 13 );
 +    if ($nfs_enabled) {
@@ -603,7 +978,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$mount_opts\n";
 +    $result = system(
-+"runcon -t test_filesystem_sb_relabel_no_relabelto_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
++"runcon -t test_filesystem_sb_relabel_no_relabelto_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
 +    );
 +    ok( $result >> 8 eq 13 );
 +
@@ -613,11 +988,12 @@ index 0bf9631..5dcc89d 100755
  
  ############### Deny filesystem { relabelfrom } ##########################
  # hooks.c may_context_mount_inode_relabel() FILESYSTEM__RELABELFROM
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_relabelfrom =
 -  "rootcontext=system_u:object_r:test_filesystem_no_inode_no_relabelfrom_t:s0";
++#
 +# Also tested in nfs_filesystem/test
 +#
 +if ( ( $nfs_enabled and $seclabel_type ne 0 ) or not $nfs_enabled ) {
@@ -626,7 +1002,7 @@ index 0bf9631..5dcc89d 100755
 -print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 -print "Using mount options:\n\t$opts_no_relabelfrom\n";
 -$result = system(
--"runcon -t test_filesystem_no_inode_no_relabelfrom_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_relabelfrom $v 2>&1"
+-"runcon -t test_filesystem_no_inode_no_relabelfrom_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_relabelfrom $v 2>&1"
 -);
 -ok( $result >> 8 eq 13 );
 +    if ($nfs_enabled) {
@@ -644,7 +1020,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$mount_opts\n";
 +    $result = system(
-+"runcon -t test_filesystem_no_inode_no_relabelfrom_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
++"runcon -t test_filesystem_no_inode_no_relabelfrom_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
 +    );
 +    ok( $result >> 8 eq 13 );
  
@@ -653,9 +1029,10 @@ index 0bf9631..5dcc89d 100755
 +}
  ############### Deny filesystem { associate } ##########################
  # hooks.c may_context_mount_inode_relabel() FILESYSTEM__ASSOCIATE
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
++#
 +# Tested in nfs_filesystem/test
 +#
 +if ( not $nfs_enabled ) {
@@ -672,13 +1049,13 @@ index 0bf9631..5dcc89d 100755
 -print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 -print "Using mount options:\n\t$opts_no_associate\n";
 -$result = system(
--"runcon -t test_filesystem_inode_relabel_no_associate_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_associate $v 2>&1"
+-"runcon -t test_filesystem_inode_relabel_no_associate_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_associate $v 2>&1"
 -);
 -ok( $result >> 8 eq 13 );
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$mount_opts\n";
 +    $result = system(
-+"runcon -t test_filesystem_inode_relabel_no_associate_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
++"runcon -t test_filesystem_inode_relabel_no_associate_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
 +    );
 +    ok( $result >> 8 eq 13 );
  
@@ -690,9 +1067,10 @@ index 0bf9631..5dcc89d 100755
  
  ############### Deny filesystem { associate } ##########################
  # hooks.c may_create() FILESYSTEM__ASSOCIATE
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
++#
 +# Tested in nfs_filesystem/test
 +#
 +if ( not $nfs_enabled and not $vfat_enabled ) {
@@ -710,13 +1088,13 @@ index 0bf9631..5dcc89d 100755
 -print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 -print "Using mount options:\n\t$opts_no_associate_file\n";
 -$result = system(
--"runcon -t test_filesystem_may_create_no_associate_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_associate_file $v"
+-"runcon -t test_filesystem_may_create_no_associate_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_associate_file $v"
 -);
 -ok( $result eq 0 );
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$mount_opts\n";
 +    $result = system(
-+"runcon -t test_filesystem_may_create_no_associate_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
++"runcon -t test_filesystem_may_create_no_associate_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
 +    );
 +    ok( $result eq 0 );
  
@@ -725,7 +1103,7 @@ index 0bf9631..5dcc89d 100755
 -  system(
 +    print "Creating test file $basedir/mntpoint/mp1/test_file\n";
 +    $result = system(
- "runcon -t test_filesystem_may_create_no_associate_t $filesystem_dir/create_file_change_context -t unconfined_t -f $basedir/mntpoint/mp1/test_file $v 2>&1"
+ "runcon -t test_filesystem_may_create_no_associate_t $basedir/create_file_change_context -t unconfined_t -f $basedir/mntpoint/mp1/test_file $v 2>&1"
 -  );
 -ok( $result >> 8 eq 13 );
 +    );
@@ -736,7 +1114,7 @@ index 0bf9631..5dcc89d 100755
 -  system(
 +    print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +    $result = system(
- "runcon -t test_filesystem_may_create_no_associate_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_may_create_no_associate_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -  );
 -ok( $result eq 0 );
 +    );
@@ -750,7 +1128,7 @@ index 0bf9631..5dcc89d 100755
  
 -############### Deny filesystem { quotamod } ##########################
 -# hooks.c selinux_quotactl() FILESYSTEM__QUOTAMOD
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_quotamod =
@@ -777,7 +1155,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$opts_no_quotamod\n";
 +    $result = system(
- "runcon -t test_filesystem_no_quotamod_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_quotamod $v 2>&1"
+ "runcon -t test_filesystem_no_quotamod_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_quotamod $v 2>&1"
 -);
 -ok( $result eq 0 );
 +    );
@@ -786,13 +1164,10 @@ index 0bf9631..5dcc89d 100755
 -# No need to run quotacheck(8) as never gets far enough to read quota file
 -print "Toggle User & Group quotas on/off\n";
 -$result = system(
--"runcon -t test_filesystem_no_quotamod_t $filesystem_dir/quotas_test -s $dev -t $basedir/mntpoint/mp1/aquota.user $v 2>&1"
--);
--ok( $result >> 8 eq 13 );
 +    if ( $fs_type eq "xfs" ) {
 +        print "Toggle xfs quotas on/off\n";
 +        $result = system(
-+"runcon -t test_filesystem_no_quotamod_t $filesystem_dir/xfs_quotas_test -s $dev $v 2>&1"
++"runcon -t test_filesystem_no_quotamod_t $basedir/xfs_quotas_test -s $dev $v 2>&1"
 +        );
 +        ok( $result >> 8 eq 13 );
 +    }
@@ -800,7 +1175,9 @@ index 0bf9631..5dcc89d 100755
 +      # No need to run quotacheck(8) as never gets far enough to read quota file
 +        print "Toggle User & Group quotas on/off\n";
 +        $result = system(
-+"runcon -t test_filesystem_no_quotamod_t $filesystem_dir/quotas_test -s $dev -t $private_path/mp1/aquota.user $v 2>&1"
+ "runcon -t test_filesystem_no_quotamod_t $basedir/quotas_test -s $dev -t $private_path/mp1/aquota.user $v 2>&1"
+-);
+-ok( $result >> 8 eq 13 );
 +        );
 +        ok( $result >> 8 eq 13 );
 +    }
@@ -809,7 +1186,7 @@ index 0bf9631..5dcc89d 100755
 -$result = system(
 +    print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +    $result = system(
- "runcon -t test_filesystem_no_quotamod_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_no_quotamod_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -);
 -ok( $result eq 0 );
 +    );
@@ -822,7 +1199,7 @@ index 0bf9631..5dcc89d 100755
  
 -############### Deny filesystem { quotaget } ##########################
 -# hooks.c selinux_quotactl() FILESYSTEM__QUOTAGET
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_quotaget =
@@ -848,25 +1225,22 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$opts_no_quotaget\n";
 +    $result = system(
- "runcon -t test_filesystem_no_quotaget_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_quotaget $v"
+ "runcon -t test_filesystem_no_quotaget_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_quotaget $v"
 -);
 -ok( $result eq 0 );
 -
 -print "Running quotacheck(8) to init user/group quota files\n";
--$result = system("runcon `id -Z` quotacheck -ugF vfsv0 $basedir/mntpoint/mp1");
+-$result = system("runcon `id -Z` quotacheck -ugF vfsv0 $private_path/mp1");
 -ok( $result eq 0 );
 +    );
 +    ok( $result eq 0 );
  
 -print "Toggle User & Group quotas on/off\n";
 -$result = system(
--"runcon -t test_filesystem_no_quotaget_t $filesystem_dir/quotas_test -s $dev -t $basedir/mntpoint/mp1/aquota.user $v 2>&1"
--);
--ok( $result >> 8 eq 13 );
 +    if ( $fs_type eq "xfs" ) {
 +        print "Toggle xfs quotas on/off\n";
 +        $result = system(
-+"runcon -t test_filesystem_no_quotaget_t $filesystem_dir/xfs_quotas_test -s $dev $v 2>&1"
++"runcon -t test_filesystem_no_quotaget_t $basedir/xfs_quotas_test -s $dev $v 2>&1"
 +        );
 +        ok( $result >> 8 eq 13 );
 +    }
@@ -878,7 +1252,9 @@ index 0bf9631..5dcc89d 100755
 +
 +        print "Toggle User & Group quotas on/off\n";
 +        $result = system(
-+"runcon -t test_filesystem_no_quotaget_t $filesystem_dir/quotas_test -s $dev -t $private_path/mp1/aquota.user $v 2>&1"
+ "runcon -t test_filesystem_no_quotaget_t $basedir/quotas_test -s $dev -t $private_path/mp1/aquota.user $v 2>&1"
+-);
+-ok( $result >> 8 eq 13 );
 +        );
 +        ok( $result >> 8 eq 13 );
 +    }
@@ -887,43 +1263,27 @@ index 0bf9631..5dcc89d 100755
 -$result = system(
 +    print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +    $result = system(
- "runcon -t test_filesystem_no_quotaget_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_no_quotaget_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -);
 -ok( $result eq 0 );
 -
 -print "Removing: $dev $basedir/mntpoint $basedir/fstest\n";
 -cleanup1( $basedir, $dev );
--
++    );
++    ok( $result eq 0 );
+ 
 -############### Deny file { quotaon } ##########################
 -# hooks.c selinux_quota_on() FILE__QUOTAON
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_quotaon =
 -  "quota,usrquota,grpquota,context=system_u:object_r:test_file_no_quotaon_t:s0";
--
--print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
--print "Using mount options:\n\t$opts_no_quotaon\n";
--$result = system(
--"runcon -t test_file_no_quotaon_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_quotaon $v"
--);
--ok( $result eq 0 );
--
--print "Running quotacheck(8) to init user/group quota files\n";
--$result = system("runcon `id -Z` quotacheck -ugF vfsv0 $basedir/mntpoint/mp1");
--ok( $result eq 0 );
-+    );
-+    ok( $result eq 0 );
- 
--print "Toggle User quotas on/off\n";
--$result = system(
--"runcon -t test_file_no_quotaon_t $filesystem_dir/quotas_test -s $dev -t $basedir/mntpoint/mp1/aquota.user $v 2>&1"
--);
--ok( $result >> 8 eq 13 );
 +    print "Removing: $dev $basedir/mntpoint $basedir/fstest\n";
 +    cleanup1( $basedir, $dev );
  
--print "Unmount filesystem from $basedir/mntpoint/mp1\n";
+-print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
+-print "Using mount options:\n\t$opts_no_quotaon\n";
 -$result = system(
 +    ############### Deny file { quotaon } ##########################
 +    # hooks.c selinux_quota_on() FILE__QUOTAON
@@ -936,27 +1296,39 @@ index 0bf9631..5dcc89d 100755
 +
 +        $opts_no_quotaon =
 +"quota,usrquota,grpquota,context=system_u:object_r:test_file_no_quotaon_t:s0";
++
 +        print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +        print "Using mount options:\n\t$opts_no_quotaon\n";
 +        $result = system(
-+"runcon -t test_file_no_quotaon_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_quotaon $v"
+ "runcon -t test_file_no_quotaon_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_quotaon $v"
+-);
+-ok( $result eq 0 );
 +        );
 +        ok( $result eq 0 );
-+
+ 
+-print "Running quotacheck(8) to init user/group quota files\n";
+-$result = system("runcon `id -Z` quotacheck -ugF vfsv0 $private_path/mp1");
+-ok( $result eq 0 );
 +        print "Running quotacheck(8) to init user/group quota files\n";
 +        $result =
 +          system("runcon `id -Z` quotacheck -ugF vfsv0 $private_path/mp1");
 +        ok( $result eq 0 );
-+
+ 
+-print "Toggle User quotas on/off\n";
+-$result = system(
 +        print "Toggle User quotas on/off\n";
 +        $result = system(
-+"runcon -t test_file_no_quotaon_t $filesystem_dir/quotas_test -s $dev -t $private_path/mp1/aquota.user $v 2>&1"
+ "runcon -t test_file_no_quotaon_t $basedir/quotas_test -s $dev -t $private_path/mp1/aquota.user $v 2>&1"
+-);
+-ok( $result >> 8 eq 13 );
 +        );
 +        ok( $result >> 8 eq 13 );
-+
+ 
+-print "Unmount filesystem from $basedir/mntpoint/mp1\n";
+-$result = system(
 +        print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +        $result = system(
- "runcon -t test_file_no_quotaon_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_file_no_quotaon_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -);
 -ok( $result eq 0 );
 +        );
@@ -971,11 +1343,10 @@ index 0bf9631..5dcc89d 100755
  
  ############### Deny filesystem { mount } ##########################
  # hooks.c selinux_sb_kern_mount() FILESYSTEM__MOUNT
--mk_mntpoint_1("$basedir/mntpoint");
+ mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_mount = "rootcontext=system_u:object_r:test_filesystem_no_mount_t:s0";
-+mk_mntpoint_1($private_path);
 +
 +if ($nfs_enabled) {
 +    $mount_opts = $nfs_mount_opts;
@@ -990,21 +1361,19 @@ index 0bf9631..5dcc89d 100755
 -print "Using mount options:\n\t$opts_no_mount\n";
 +print "Using mount options:\n\t$mount_opts\n";
  $result = system(
--"runcon -t test_filesystem_no_mount_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_mount $v 2>&1"
-+"runcon -t test_filesystem_no_mount_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
+-"runcon -t test_filesystem_no_mount_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_mount $v 2>&1"
++"runcon -t test_filesystem_no_mount_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
  );
  ok( $result >> 8 eq 13 );
  
-@@ -436,16 +686,22 @@ cleanup1( $basedir, $dev );
- 
+@@ -443,15 +660,21 @@ cleanup1( $basedir, $dev );
  ############### Deny filesystem { getattr } ##########################
  # hooks.c selinux_sb_statfs() FILESYSTEM__GETATTR
--mk_mntpoint_1("$basedir/mntpoint");
+ mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_getattr =
 -  "rootcontext=system_u:object_r:test_filesystem_no_getattr_t:s0";
-+mk_mntpoint_1($private_path);
 +
 +if ($nfs_enabled) {
 +    $mount_opts = $nfs_mount_opts;
@@ -1020,26 +1389,20 @@ index 0bf9631..5dcc89d 100755
 -print "Using mount options:\n\t$opts_no_getattr\n";
 +print "Using mount options:\n\t$mount_opts\n";
  $result = system(
--"runcon -t test_filesystem_no_getattr_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_getattr $v"
-+"runcon -t test_filesystem_no_getattr_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
+-"runcon -t test_filesystem_no_getattr_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_getattr $v"
++"runcon -t test_filesystem_no_getattr_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
  );
  ok( $result eq 0 );
  
-@@ -466,21 +722,22 @@ cleanup1( $basedir, $dev );
- ################ Deny file { mounton } ##########################
- # hooks.c selinux_move_mount() FILE__MOUNTON
- mk_mntpoint_1("$basedir/mntpoint");
+@@ -472,21 +695,27 @@ cleanup1( $basedir, $dev );
+ ############### Deny filesystem { remount } ##########################
+ # hooks.c selinux_mount() FILESYSTEM__REMOUNT
+ mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_remount =
--  "rootcontext=system_u:object_r:test_move_mount_no_mounton_t:s0";
- 
--print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
--print "Using mount options:\n\t$opts_no_remount\n";
--$result = system(
--"runcon -t test_move_mount_no_mounton_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_remount $v"
--);
--ok( $result eq 0 );
+-  "rootcontext=system_u:object_r:test_filesystem_no_remount_t:s0";
++
 +if ($nfs_enabled) {
 +    $mount_opts = $nfs_mount_opts;
 +}
@@ -1047,40 +1410,33 @@ index 0bf9631..5dcc89d 100755
 +    ( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 +    make_fs( $fs_type, $dev, $basedir );
 +    $mount_opts =
-+      "rootcontext=system_u:object_r:test_move_mount_no_mounton_t:s0";
++      "rootcontext=system_u:object_r:test_filesystem_no_remount_t:s0";
 +}
  
--print "Now move filesystem. This operation should fail\n";
-+print
-+"Mount and move the $fs_type filesystem onto $basedir/mntpoint/mp1 - This operation should fail\n";
+ print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
+-print "Using mount options:\n\t$opts_no_remount\n";
 +print "Using mount options:\n\t$mount_opts\n";
  $result = system(
--"runcon -t test_move_mount_no_mounton_t $basedir/move_mount -s $basedir/mntpoint/mp1 -t $basedir/mntpoint/mp1 $v 2>&1"
-+"runcon -t test_move_mount_no_mounton_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
+-"runcon -t test_filesystem_no_remount_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_remount $v"
++"runcon -t test_filesystem_no_remount_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
  );
- if ( $result eq 0 ) {
-     $kvercur = `uname -r`;
-@@ -497,27 +754,28 @@ if ( $result eq 0 ) {
- else {
-     ok( $result >> 8 eq 13 );
- }
--print "Unmount filesystem from $basedir/mntpoint/mp1\n";
--$result = system(
--"runcon -t test_move_mount_no_mounton_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
--);
--ok( $result eq 0 );
+ ok( $result eq 0 );
  
- print "Removing: $dev $basedir/mntpoint $basedir/fstest\n";
- cleanup1( $basedir, $dev );
+ print "Then remount\n";
+ $result = system(
+-"runcon -t test_filesystem_no_remount_t $basedir/mount -r -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_remount $v 2>&1"
++"runcon -t test_filesystem_no_remount_t $basedir/mount -r -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v 2>&1"
+ );
+ ok( $result >> 8 eq 13 );
  
+@@ -502,15 +731,21 @@ cleanup1( $basedir, $dev );
  ############### Deny filesystem { unmount } ##########################
  # hooks.c selinux_umount() FILESYSTEM__UNMOUNT
--mk_mntpoint_1("$basedir/mntpoint");
+ mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_unmount =
 -  "rootcontext=system_u:object_r:test_filesystem_no_unmount_t:s0";
-+mk_mntpoint_1($private_path);
 +
 +if ($nfs_enabled) {
 +    $mount_opts = $nfs_mount_opts;
@@ -1096,20 +1452,21 @@ index 0bf9631..5dcc89d 100755
 -print "Using mount options:\n\t$opts_no_unmount\n";
 +print "Using mount options:\n\t$mount_opts\n";
  $result = system(
--"runcon -t test_filesystem_no_unmount_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_unmount $v"
-+"runcon -t test_filesystem_no_unmount_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
+-"runcon -t test_filesystem_no_unmount_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_unmount $v"
++"runcon -t test_filesystem_no_unmount_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
  );
  ok( $result eq 0 );
  
-@@ -540,48 +798,55 @@ cleanup1( $basedir, $dev );
+@@ -532,48 +767,56 @@ cleanup1( $basedir, $dev );
  
  ############### Deny filesystem { associate }  ##########################
  # hooks.c selinux_inode_setxattr() FILESYSTEM__ASSOCIATE
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$opts_no_associate_xattr =
 -"defcontext=system_u:object_r:test_filesystem_inode_setxattr_no_associate_t:s0,fscontext=system_u:object_r:test_filesystem_inode_setxattr_no_associate_t:s0";
++#
 +# Tested in nfs_filesystem/test
 +#
 +if ( not $nfs_enabled and not $vfat_enabled ) {
@@ -1122,13 +1479,13 @@ index 0bf9631..5dcc89d 100755
 -print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 -print "Using mount options:\n\t$opts_no_associate_xattr\n";
 -$result = system(
--"runcon -t test_filesystem_inode_setxattr_no_associate_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_associate_xattr $v"
+-"runcon -t test_filesystem_inode_setxattr_no_associate_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_associate_xattr $v"
 -);
 -ok( $result eq 0 );
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$mount_opts\n";
 +    $result = system(
-+"runcon -t test_filesystem_inode_setxattr_no_associate_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
++"runcon -t test_filesystem_inode_setxattr_no_associate_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
 +    );
 +    ok( $result eq 0 );
  
@@ -1136,7 +1493,7 @@ index 0bf9631..5dcc89d 100755
 -$result =
 -  system(
 +    $result = system(
- "runcon -t test_filesystem_inode_setxattr_no_associate_t $filesystem_dir/create_file_change_context -t unconfined_t -f $basedir/mntpoint/mp1/test_file $v 2>&1"
+ "runcon -t test_filesystem_inode_setxattr_no_associate_t $basedir/create_file_change_context -t unconfined_t -f $basedir/mntpoint/mp1/test_file $v 2>&1"
 -  );
 -ok( $result >> 8 eq 13 );
 +    );
@@ -1147,7 +1504,7 @@ index 0bf9631..5dcc89d 100755
 -  system(
 +    print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +    $result = system(
- "runcon -t test_filesystem_inode_setxattr_no_associate_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_inode_setxattr_no_associate_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -  );
 -ok( $result eq 0 );
 +    );
@@ -1162,11 +1519,10 @@ index 0bf9631..5dcc89d 100755
  if ($test_watch) {
      ############### Deny filesystem { watch }  ##########################
      # hooks.c selinux_path_notify() FILESYSTEM__WATCH
--    mk_mntpoint_1("$basedir/mntpoint");
+     mk_mntpoint_1($private_path);
 -    ( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -    make_fs( $fs_type, $dev, $basedir );
 -    $opts_no_watch = "context=system_u:object_r:test_filesystem_no_watch_t:s0";
-+    mk_mntpoint_1($private_path);
 +
 +    if ($nfs_enabled) {
 +        $mount_opts = $nfs_mount_opts;
@@ -1181,21 +1537,19 @@ index 0bf9631..5dcc89d 100755
 -    print "Using mount options:\n\t$opts_no_watch\n";
 +    print "Using mount options:\n\t$mount_opts\n";
      $result = system(
--"runcon -t test_filesystem_no_watch_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_watch $v"
-+"runcon -t test_filesystem_no_watch_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
+-"runcon -t test_filesystem_no_watch_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_watch $v"
++"runcon -t test_filesystem_no_watch_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
      );
      ok( $result eq 0 );
  
-@@ -602,16 +867,22 @@ if ($test_watch) {
- 
+@@ -595,15 +838,21 @@ if ($test_watch) {
      ############### Deny file { watch_sb }  ##########################
      # hooks.c selinux_path_notify() FILE__WATCH_SB
--    mk_mntpoint_1("$basedir/mntpoint");
+     mk_mntpoint_1($private_path);
 -    ( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -    make_fs( $fs_type, $dev, $basedir );
 -    $opts_no_watch_sb =
 -      "context=system_u:object_r:test_filesystem_no_watch_sb_t:s0";
-+    mk_mntpoint_1($private_path);
 +
 +    if ($nfs_enabled) {
 +        $mount_opts = $nfs_mount_opts;
@@ -1211,21 +1565,19 @@ index 0bf9631..5dcc89d 100755
 -    print "Using mount options:\n\t$opts_no_watch_sb\n";
 +    print "Using mount options:\n\t$mount_opts\n";
      $result = system(
--"runcon -t test_filesystem_no_watch_sb_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_watch_sb $v"
-+"runcon -t test_filesystem_no_watch_sb_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
+-"runcon -t test_filesystem_no_watch_sb_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_watch_sb $v"
++"runcon -t test_filesystem_no_watch_sb_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
      );
      ok( $result eq 0 );
  
-@@ -632,16 +903,22 @@ if ($test_watch) {
- 
+@@ -625,15 +874,21 @@ if ($test_watch) {
      ############### Deny file { watch_mount }  ##########################
      # hooks.c selinux_path_notify() FILE__WATCH_MOUNT
--    mk_mntpoint_1("$basedir/mntpoint");
+     mk_mntpoint_1($private_path);
 -    ( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -    make_fs( $fs_type, $dev, $basedir );
 -    $opts_no_watch_mount =
 -      "context=system_u:object_r:test_filesystem_no_watch_mount_t:s0";
-+    mk_mntpoint_1($private_path);
 +
 +    if ($nfs_enabled) {
 +        $mount_opts = $nfs_mount_opts;
@@ -1241,12 +1593,12 @@ index 0bf9631..5dcc89d 100755
 -    print "Using mount options:\n\t$opts_no_watch_mount\n";
 +    print "Using mount options:\n\t$mount_opts\n";
      $result = system(
--"runcon -t test_filesystem_no_watch_mount_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_watch_mount $v"
-+"runcon -t test_filesystem_no_watch_mount_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
+-"runcon -t test_filesystem_no_watch_mount_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $opts_no_watch_mount $v"
++"runcon -t test_filesystem_no_watch_mount_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $mount_opts $v"
      );
      ok( $result eq 0 );
  
-@@ -661,238 +938,295 @@ if ($test_watch) {
+@@ -653,236 +908,294 @@ if ($test_watch) {
      cleanup1( $basedir, $dev );
  }
  
@@ -1259,15 +1611,14 @@ index 0bf9631..5dcc89d 100755
 -#               was set to something else), and that setfilecon/setxattr() on
 -#               files within the mount fails with errno EOPNOTSUPP.
 -##########################################################################
--mk_mntpoint_1("$basedir/mntpoint");
--( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
--make_fs( $fs_type, $dev, $basedir );
 +############### Test Invalid Mount ##########################
 +# This will generate a log entry "SELinux: mount invalid. Same superblock,
 +#    different security settings for (dev 0:49, type nfs4)"
 +# Note that NFS is already mounted at this point by nfs.sh
 +#
-+mk_mntpoint_1($private_path);
+ mk_mntpoint_1($private_path);
+-( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
+-make_fs( $fs_type, $dev, $basedir );
  
 -# Mount with xttrs to create a file with specific context.
 -$context1_opts =
@@ -1287,24 +1638,25 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$mount_opts\n";
 +    $result = system(
-+"runcon -t test_filesystem_t $basedir/fsmount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts $v"
++"runcon -t test_filesystem_t $basedir/mount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_opts $v"
 +    );
 +    ok( $result eq 0 );
 +}
 +
 +print "Test 'Invalid Mount' $fs_type filesystem on $private_path/mp1\n";
++print "Mount $fs_type filesystem on $private_path/mp1\n";
 +print "Using mount options:\n\t$mount_inval_opts\n";
  $result = system(
--"runcon -t test_filesystem_context_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $context1_opts $v"
-+"runcon -t test_filesystem_t $basedir/fsmount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_inval_opts $v 2>&1"
+-"runcon -t test_filesystem_context_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $context1_opts $v"
++"runcon -t test_filesystem_t $basedir/mount -s $dev -t $private_path/mp1 -f $fs_type -o $mount_inval_opts $v 2>&1"
  );
 -ok( $result eq 0 );
 +if ( $nfs_enabled and $result >> 8 eq 16 ) {
 +    ok( 1, "Returned EBUSY, known bug" );
 +}
-+else {    # Still gets mounted, so need to unmount
++else {
 +    system(
-+"runcon -t test_filesystem_t $filesystem_dir/umount -t $private_path/mp1 $v 2>&1"
++"runcon -t test_filesystem_t $basedir/umount -t $private_path/mp1 $v 2>&1"
 +    );
 +    ok( $result >> 8 eq 22 );    # EINVAL
 +}
@@ -1313,14 +1665,9 @@ index 0bf9631..5dcc89d 100755
 -print "Creating test file $basedir/mntpoint/mp1/test_file\n";
 -$result =
 -  system(
--"runcon -t test_filesystem_context_t $filesystem_dir/create_file_change_context -t test_filesystem_filecon_t -f $basedir/mntpoint/mp1/test_file $v"
--  );
--ok( $result eq 0 );
 +print "Removing: $basedir/mntpoint\n";
 +cleanup1( $basedir, $dev );
- 
--print "Unmount filesystem from $basedir/mntpoint/mp1\n";
--$result = system(
++
 +if ( not $nfs_enabled ) {
 +    ##########################################################################
 +    # context     - Useful when mounting filesystems that do not support
@@ -1346,7 +1693,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$context1_opts\n";
 +    $result = system(
-+"runcon -t test_filesystem_context_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $context1_opts $v"
++"runcon -t test_filesystem_context_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $context1_opts $v"
 +    );
 +    ok( $result eq 0 );
 +
@@ -1354,7 +1701,9 @@ index 0bf9631..5dcc89d 100755
 +    print "Creating test file $basedir/mntpoint/mp1/test_file\n";
 +    $result =
 +      system(
-+"runcon -t test_filesystem_context_t $filesystem_dir/create_file_change_context -t test_filesystem_filecon_t -f $private_path/mp1/test_file $v"
+ "runcon -t test_filesystem_context_t $basedir/create_file_change_context -t test_filesystem_filecon_t -f $private_path/mp1/test_file $v"
+-  );
+-ok( $result eq 0 );
 +      );
 +    if ($vfat_enabled) {
 +        ok( $result >> 8 eq 95 );    # EOPNOTSUPP
@@ -1362,10 +1711,12 @@ index 0bf9631..5dcc89d 100755
 +    else {
 +        ok( $result eq 0 );
 +    }
-+
+ 
+-print "Unmount filesystem from $basedir/mntpoint/mp1\n";
+-$result = system(
 +    print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +    $result = system(
- "runcon -t test_filesystem_context_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_context_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -);
 -ok( $result eq 0 );
 +    );
@@ -1391,7 +1742,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$context2_opts\n";
 +    $result = system(
- "runcon -t test_filesystem_context_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $context2_opts $v"
+ "runcon -t test_filesystem_context_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $context2_opts $v"
 -);
 -ok( $result eq 0 );
 +    );
@@ -1401,13 +1752,12 @@ index 0bf9631..5dcc89d 100755
 -print "Check test file context $basedir/mntpoint/mp1/test_file\n";
 -$result =
 -  system(
--"runcon -t test_filesystem_context_t $filesystem_dir/check_file_context -f $basedir/mntpoint/mp1/test_file -e system_u:object_r:test_filesystem_context_file_t:s0 $v"
--  );
--ok( $result eq 0 );
 +    print "Check test file context $basedir/mntpoint/mp1/test_file\n";
 +    $result =
 +      system(
-+"runcon -t test_filesystem_context_t $filesystem_dir/check_file_context -f $private_path/mp1/test_file -e system_u:object_r:test_filesystem_context_file_t:s0 $v"
+ "runcon -t test_filesystem_context_t $basedir/check_file_context -f $private_path/mp1/test_file -e system_u:object_r:test_filesystem_context_file_t:s0 $v"
+-  );
+-ok( $result eq 0 );
 +      );
 +    ok( $result eq 0 );
  
@@ -1415,13 +1765,12 @@ index 0bf9631..5dcc89d 100755
 -print "Creating test file $basedir/mntpoint/mp1/test_file\n";
 -$result =
 -  system(
--"runcon -t test_filesystem_context_t $filesystem_dir/create_file_change_context -t test_filesystem_filecon_t -f $basedir/mntpoint/mp1/test_file $v 2>/dev/null"
--  );
--ok( $result >> 8 eq 95 );
 +    print "Creating test file $basedir/mntpoint/mp1/test_file\n";
 +    $result =
 +      system(
-+"runcon -t test_filesystem_context_t $filesystem_dir/create_file_change_context -t test_filesystem_filecon_t -f $private_path/mp1/test_file $v 2>/dev/null"
+ "runcon -t test_filesystem_context_t $basedir/create_file_change_context -t test_filesystem_filecon_t -f $private_path/mp1/test_file $v 2>/dev/null"
+-  );
+-ok( $result >> 8 eq 95 );
 +      );
 +    ok( $result >> 8 eq 95 );
  
@@ -1431,7 +1780,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +    $result =
 +      system(
- "runcon -t test_filesystem_context_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_context_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -  );
 -ok( $result eq 0 );
 +      );
@@ -1450,7 +1799,7 @@ index 0bf9631..5dcc89d 100755
 -#               context of the root directory matches rootcontext= after
 -#               the mount operation.
 -##########################################################################
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$root_opts = "rootcontext=system_u:object_r:test_filesystem_context_file_t:s0";
@@ -1478,7 +1827,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Resetting MP to unlabeled_t $basedir/mntpoint/mp1\n";
 +    $result =
 +      system(
- "runcon -t test_filesystem_context_t $filesystem_dir/check_mount_context -r -m $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_context_t $basedir/check_mount_context -r -m $basedir/mntpoint/mp1 $v"
 -  );
 -ok( $result eq 0 );
 +      );
@@ -1490,7 +1839,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$root_opts\n";
 +    $result = system(
- "runcon -t test_filesystem_context_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $root_opts $v"
+ "runcon -t test_filesystem_context_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $root_opts $v"
 -);
 -ok( $result eq 0 );
 +    );
@@ -1504,7 +1853,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Check MP context $basedir/mntpoint/mp1\n";
 +    $result =
 +      system(
- "runcon -t test_filesystem_context_t $filesystem_dir/check_mount_context -m $basedir/mntpoint/mp1 -e system_u:object_r:test_filesystem_context_file_t:s0 $v"
+ "runcon -t test_filesystem_context_t $basedir/check_mount_context -m $basedir/mntpoint/mp1 -e system_u:object_r:test_filesystem_context_file_t:s0 $v"
 -  );
 -ok( $result eq 0 );
 +      );
@@ -1514,7 +1863,7 @@ index 0bf9631..5dcc89d 100755
 -$result = system(
 +    print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +    $result = system(
- "runcon -t test_filesystem_context_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_context_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -);
 -ok( $result eq 0 );
 -
@@ -1531,7 +1880,7 @@ index 0bf9631..5dcc89d 100755
 -#               that they are mapped to the specified defcontext upon mount,
 -#               where defcontext differs from the policy default.
 -##########################################################################
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -make_fs( $fs_type, $dev, $basedir );
 -$test_opts = "context=system_u:object_r:test_filesystem_context_file_t:s0";
@@ -1562,7 +1911,7 @@ index 0bf9631..5dcc89d 100755
 +        print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +        print "Using mount options:\n\t$test_opts\n";
 +        $result = system(
- "runcon -t test_filesystem_context_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $test_opts $v"
+ "runcon -t test_filesystem_context_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $test_opts $v"
 -);
 -ok( $result eq 0 );
 +        );
@@ -1576,7 +1925,7 @@ index 0bf9631..5dcc89d 100755
 +        #   system_u:object_r:test_filesystem_context_file_t:s0 from $test_opts
 +        print "Creating test file $basedir/mntpoint/mp1/test_file\n";
 +        $result = system(
- "runcon -u system_u -t test_filesystem_fscontext_t $filesystem_dir/create_file -f $basedir/mntpoint/mp1/test_file -e test_filesystem_context_file_t $v"
+ "runcon -u system_u -t test_filesystem_fscontext_t $basedir/create_file -f $basedir/mntpoint/mp1/test_file -e test_filesystem_context_file_t $v"
 -  );
 -ok( $result eq 0 );
 +        );
@@ -1586,7 +1935,7 @@ index 0bf9631..5dcc89d 100755
 -$result = system(
 +        print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +        $result = system(
- "runcon -t test_filesystem_context_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_context_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -);
 -ok( $result eq 0 );
 -
@@ -1614,7 +1963,7 @@ index 0bf9631..5dcc89d 100755
 +        print "Mount $fs_type filesystem on $basedir/mntpoint/mp1\n";
 +        print "Using mount options:\n\t$defcontext_opts\n";
 +        $result = system(
- "runcon -t test_filesystem_context_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $defcontext_opts $v"
+ "runcon -t test_filesystem_context_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $defcontext_opts $v"
 -);
 -ok( $result eq 0 );
 +        );
@@ -1626,7 +1975,7 @@ index 0bf9631..5dcc89d 100755
 -  system(
 +        print "Check test file context $basedir/mntpoint/mp1/test_file\n";
 +        $result = system(
- "runcon -t test_filesystem_context_t $filesystem_dir/check_file_context -f $basedir/mntpoint/mp1/test_file -e system_u:object_r:test_filesystem_filecon_t:s0 $v"
+ "runcon -t test_filesystem_context_t $basedir/check_file_context -f $basedir/mntpoint/mp1/test_file -e system_u:object_r:test_filesystem_filecon_t:s0 $v"
 -  );
 -ok( $result eq 0 );
 +        );
@@ -1637,7 +1986,7 @@ index 0bf9631..5dcc89d 100755
 -  system(
 +        print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +        $result = system(
- "runcon -t test_filesystem_context_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_context_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -  );
 -ok( $result eq 0 );
 +        );
@@ -1657,7 +2006,7 @@ index 0bf9631..5dcc89d 100755
 -#               then create a file within it, checking its context.
 -##########################################################################
 -$fs_type = "tmpfs";
--mk_mntpoint_1("$basedir/mntpoint");
+-mk_mntpoint_1($private_path);
 -( $dev, $device_count ) = get_loop_dev( \@device_list, $device_count );
 -$fscontext_opts =
 +    ##########################################################################
@@ -1681,7 +2030,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Mount tmpfs filesystem on $basedir/mntpoint/mp1\n";
 +    print "Using mount options:\n\t$fscontext_opts\n";
 +    $result = system(
- "runcon -t test_filesystem_fscontext_t $basedir/fsmount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $fscontext_opts $v"
+ "runcon -t test_filesystem_fscontext_t $basedir/mount -s $dev -t $basedir/mntpoint/mp1 -f $fs_type -o $fscontext_opts $v"
 -);
 -ok( $result eq 0 );
 +    );
@@ -1690,13 +2039,12 @@ index 0bf9631..5dcc89d 100755
 -print "Creating test file $basedir/mntpoint/mp1/test_file\n";
 -$result =
 -  system(
--"runcon -t test_filesystem_fscontext_t $filesystem_dir/create_file_change_context -t test_filesystem_filecon_t -f $basedir/mntpoint/mp1/test_file $v"
--  );
--ok( $result eq 0 );
 +    print "Creating test file $basedir/mntpoint/mp1/test_file\n";
 +    $result =
 +      system(
-+"runcon -t test_filesystem_fscontext_t $filesystem_dir/create_file_change_context -t test_filesystem_filecon_t -f $private_path/mp1/test_file $v"
+ "runcon -t test_filesystem_fscontext_t $basedir/create_file_change_context -t test_filesystem_filecon_t -f $private_path/mp1/test_file $v"
+-  );
+-ok( $result eq 0 );
 +      );
 +    ok( $result eq 0 );
  
@@ -1706,7 +2054,7 @@ index 0bf9631..5dcc89d 100755
 +    print "Unmount filesystem from $basedir/mntpoint/mp1\n";
 +    $result =
 +      system(
- "runcon -t test_filesystem_fscontext_t $filesystem_dir/umount -t $basedir/mntpoint/mp1 $v"
+ "runcon -t test_filesystem_fscontext_t $basedir/umount -t $basedir/mntpoint/mp1 $v"
 -  );
 -ok( $result eq 0 );
 +      );
@@ -1718,387 +2066,280 @@ index 0bf9631..5dcc89d 100755
 +    cleanup1( $basedir, $dev );
 +}
  
--reaper( \@device_list, $filesystem_dir, $v );
-+reaper( \@device_list, $basedir, $v );
+ reaper( \@device_list, $basedir, $v );
  
- if ($disable_udisks) {
-     udisks2_restart($udisks2_status);
-diff --git a/tests/nfs_filesystem/Makefile b/tests/nfs_filesystem/Makefile
+diff --git a/tests/filesystem/xfs_quotas_test.c b/tests/filesystem/xfs_quotas_test.c
 new file mode 100644
-index 0000000..e7c006f
+index 0000000..fd4475f
 --- /dev/null
-+++ b/tests/nfs_filesystem/Makefile
-@@ -0,0 +1,2 @@
-+all:
-+clean:
-diff --git a/tests/nfs_filesystem/test b/tests/nfs_filesystem/test
++++ b/tests/filesystem/xfs_quotas_test.c
+@@ -0,0 +1,96 @@
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <errno.h>
++#include <stdbool.h>
++#include <sys/quota.h>
++#include <xfs/xqm.h>
++#include <selinux/selinux.h>
++
++static void print_usage(char *progname)
++{
++	fprintf(stderr,
++		"usage:  %s -s src [-v]\n"
++		"Where:\n\t"
++		"-s  Source\n\t"
++		"-v  Print information.\n", progname);
++	exit(-1);
++}
++
++int main(int argc, char *argv[])
++{
++	int opt, result, qcmd, save_err;
++	char *context, *src = NULL;
++	bool verbose = false;
++	int on_flags = XFS_QUOTA_UDQ_ACCT | XFS_QUOTA_UDQ_ENFD;
++	int off_flags = XFS_QUOTA_UDQ_ENFD;
++	struct fs_quota_stat q_stat;
++
++	while ((opt = getopt(argc, argv, "s:v")) != -1) {
++		switch (opt) {
++		case 's':
++			src = optarg;
++			break;
++		case 'v':
++			verbose = true;
++			break;
++		default:
++			print_usage(argv[0]);
++		}
++	}
++
++	if (!src)
++		print_usage(argv[0]);
++
++	if (verbose) {
++		result = getcon(&context);
++		if (result < 0) {
++			fprintf(stderr, "Failed to obtain process context\n");
++			return -1;
++		}
++		printf("Process context:\n\t%s\n", context);
++		free(context);
++	}
++
++	/* This requires FILESYSTEM__QUOTAGET */
++	qcmd = QCMD(Q_XGETQSTAT, USRQUOTA);
++	result = quotactl(qcmd, src, 0, (void *)&q_stat);
++	save_err = errno;
++	if (result < 0) {
++		fprintf(stderr, "quotactl(Q_XGETQSTAT, USRQUOTA) Failed: %s\n",
++			strerror(errno));
++		return save_err;
++	}
++	if (verbose)
++		printf("XFS Q_XGETQSTAT Version: %d Flags: 0x%04x Number of dquots: %d\n",
++		       q_stat.qs_version, q_stat.qs_flags, q_stat.qs_incoredqs);
++
++	/*
++	 * The tests turn XFS quotas on, therefore need to turn off then on
++	 * These require FILESYSTEM__QUOTAMOD
++	 */
++	qcmd = QCMD(Q_XQUOTAOFF, USRQUOTA);
++	result = quotactl(qcmd, src, 0, (void *)&off_flags);
++	save_err = errno;
++	if (result < 0) {
++		fprintf(stderr, "quotactl(Q_XQUOTAOFF, USRQUOTA) Failed: %s\n",
++			strerror(errno));
++		return save_err;
++	}
++	if (verbose)
++		printf("XFS User Quota - OFF\n");
++
++	qcmd = QCMD(Q_XQUOTAON, USRQUOTA);
++	result = quotactl(qcmd, src, 0, (void *)&on_flags);
++	save_err = errno;
++	if (result < 0) {
++		fprintf(stderr, "quotactl(Q_XQUOTAON, USRQUOTA) Failed: %s\n",
++			strerror(errno));
++		return save_err;
++	}
++	if (verbose)
++		printf("XFS User Quota - ON\n");
++
++	return 0;
++}
+diff --git a/tests/nfsruntests.pl b/tests/nfsruntests.pl
 new file mode 100755
-index 0000000..e43da67
+index 0000000..c3f0626
 --- /dev/null
-+++ b/tests/nfs_filesystem/test
-@@ -0,0 +1,362 @@
++++ b/tests/nfsruntests.pl
+@@ -0,0 +1,5 @@
 +#!/usr/bin/perl
-+use Test::More;
++use Test::Harness;
 +
-+# These are specific NFS tests that must run on an initial mount with various
-+# context mount options.
++@test = "$ARGV[0]";
++runtests(@test);
+diff --git a/tools/nfs.sh b/tools/nfs.sh
+index 7ba4cfc..cf4912c 100755
+--- a/tools/nfs.sh
++++ b/tools/nfs.sh
+@@ -1,12 +1,17 @@
+ #!/bin/sh -e
+ MOUNT=`stat --print %m .`
+ TESTDIR=`pwd`
+-MAKE_TEST=0
++POPD=0
++FS_CTX="fscontext=system_u:object_r:test_filesystem_file_t:s0"
++# To run individual tests on NFS with -v option:
++RUN_TEST=$1
++V=$2
+ 
+ function err_exit() {
+-    if [ $MAKE_TEST -eq 1 ]; then
+-        echo "Closing down NFS"
+-        popd
++    set +e # Turn off exit on error
++    if [ $POPD -eq 1 ]; then
++        echo "Test failed on line: $1 - Closing down NFS"
++        popd >/dev/null 2>&1
+     else
+         echo "Error on line: $1 - Closing down NFS"
+     fi
+@@ -14,57 +19,93 @@ function err_exit() {
+     exportfs -u localhost:$MOUNT
+     rmdir /mnt/selinux-testsuite
+     systemctl stop nfs-server
++    echo "NFS Closed down"
+     exit 1
+ }
+ 
+ trap 'err_exit $LINENO' ERR
+ 
++function run_test() {
++    trap 'err_exit $LINENO' ERR
++
++    # Make all required for tests
++    make -C tests/fs_filesystem
++    if [ $2 ]; then
++        cd tests/$1
++        ./test $2
++        cd ../../
++    else
++        cd tests
++        ./nfsruntests.pl $1/test
++        cd ../
++    fi
++    if [ $POPD -eq 1 ]; then
++        popd >/dev/null 2>&1
++        umount /mnt/selinux-testsuite
++    fi
++    exportfs -u localhost:$MOUNT
++    rmdir /mnt/selinux-testsuite
++    systemctl stop nfs-server
++    echo "NFS test $1 complete"
++    exit 0
++}
++
++# Required by nfs_filesystem/test
++export NFS_TESTDIR=$TESTDIR
++export NFS_MOUNT=$MOUNT
 +#
-+# This script is entered with the following set by tools/nfs.sh:
-+#    export NFS_TESTDIR=$TESTDIR
-+#    export NFS_MOUNT=$MOUNT
-+#    exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
-+
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    $filesystem_dir    = "$basedir/../filesystem";
-+    $fs_filesystem_dir = "$basedir/../fs_filesystem";
-+
-+    $testdir = $ENV{'NFS_TESTDIR'};
-+    $mount   = $ENV{'NFS_MOUNT'};
-+    if ( defined $testdir and defined $mount ) {
-+        $fs_type = "nfs";
-+        $dev     = "localhost:$testdir";
-+        $target  = "/mnt/selinux-testsuite";
-+    }
-+    else {
-+        plan skip_all => "These tests must be run via tools/nfs.sh";
-+    }
-+
-+    # Allow info to be shown.
-+    $v = $ARGV[0];
-+    if ($v) {
-+        if ( $v ne "-v" ) {
-+            plan skip_all => "Invalid option (use -v)";
-+        }
-+    }
-+    else {
-+        $v = " ";
-+    }
-+
-+    plan tests => 56;
-+}
-+
-+# Set for testing mount(2) on first run
-+$mount_cmd = "$filesystem_dir/mount";
-+$test_msg  = "Using mount(2)";
-+$net_opts  = "nfsvers=4.2,proto=tcp,clientaddr=127.0.0.1,addr=127.0.0.1";
-+
-+$i = 0;
-+while ( $i < 2 ) {
-+
-+    #
-+    # Perform mount of a security_label exported filesystem, check the
-+    # label of the mounted directory to confirm it isn't unlabeled.
-+    # Fixed by kernel commit 28d4d0e16f09c1865e2ec8a7d89ca7057a5cf7ae
-+    # "When using NFSv4.2, the security label for the root inode should be set"
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+
-+    # Setting MP to unlabeled_t
-+    $result =
-+      system(
-+"runcon -t test_filesystem_t $filesystem_dir/check_mount_context -r -m $basedir/mntpoint/mp1 $v"
-+      );
-+    ok( $result eq 0 );
-+
-+    $mount_opts =
-+      "$net_opts,context=system_u:object_r:test_filesystem_file_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts"
-+    );
-+    ok( $result eq 0, $test_msg );
-+
-+    # Check MP context
-+    $result = system(
-+"runcon -t test_filesystem_t $filesystem_dir/check_mount_context -m $target/tests/nfs_filesystem/mntpoint/mp1 -e system_u:object_r:test_filesystem_file_t:s0 $v"
-+    );
-+    ok( $result eq 0 );
-+
-+    $result =
-+      system(
-+        "runcon -t test_filesystem_t $filesystem_dir/umount $v -t $target");
-+    ok( $result eq 0, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Mount a security_label exported NFS filesystem twice, confirm that
-+    # NFS security labeling support isn't silently disabled by trying to
-+    # set a label on a file and confirm it is set.
-+    # Fixed by kernel commit 3815a245b50124f0865415dcb606a034e97494d4
-+    # "security/selinux: fix SECURITY_LSM_NATIVE_LABELS on reused superblock"
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+
-+    $mount_opts = $net_opts;
-+    $result     = system(
-+"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts"
-+    );
-+    ok( $result eq 0, $test_msg );
-+
-+    # First mount(2) ok, second currently fails with EBUSY
-+    $result = system(
-+"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
-+    );
-+    if ( $i eq 0 and $result >> 8 eq 16 ) {
-+        ok( 1, "$test_msg - returned EBUSY, possible bug/feature" );
-+    }
-+    else {
-+        ok( $result eq 0 );
-+    }
-+
-+    # Create file and change context via type_transition rule, check ok:
-+    $result = system(
-+"runcon -t test_filesystem_t $filesystem_dir/create_file -f $target/tests/nfs_filesystem/mntpoint/mp1/test_file -e test_filesystem_filetranscon_t $v"
-+    );
-+    ok( $result eq 0 );
-+
-+    $result =
-+      system(
-+        "runcon -t test_filesystem_t $filesystem_dir/umount $v -t $target");
-+    ok( $result eq 0, $test_msg );
-+
-+    system(
-+        "runcon -t test_filesystem_t $filesystem_dir/umount $v -t $target 2>&1"
-+    );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Perform a context= mount of a security_label exported NFS
-+    # filesystem, check that pre-existing files within the mount show up
-+    # with the context= value not the underlying xattr value.
-+    # Fixed by kernel commit 0b4d3452b8b4a5309b4445b900e3cec022cca95a
-+    # "security/selinux: allow security_sb_clone_mnt_opts to enable/disable
-+    # native labeling behavior"
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+
-+    $result = system(
-+"runcon -t test_filesystem_t $filesystem_dir/create_file -f $basedir/mntpoint/mp1/test_file -e test_filesystem_filetranscon_t $v"
-+    );
-+    ok( $result eq 0 );
-+
-+    $mount_opts =
-+      "$net_opts,context=system_u:object_r:test_filesystem_file_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts"
-+    );
-+    ok( $result eq 0, $test_msg );
-+
-+    $result = system(
-+"runcon -t test_filesystem_t $filesystem_dir/check_file_context -f $target/tests/nfs_filesystem/mntpoint/mp1/test_file -e system_u:object_r:test_filesystem_file_t:s0 $v"
-+    );
-+    ok( $result eq 0 );
-+
-+    $result =
-+      system(
-+        "runcon -t test_filesystem_t $filesystem_dir/umount $v -t $target");
-+    ok( $result eq 0, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Deny filesystem { relabelfrom } for hooks.c may_context_mount_sb_relabel()
-+    #
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+    $mount_opts =
-+"$net_opts,fscontext=system_u:object_r:test_filesystem_sb_relabel_no_relabelfrom_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_sb_relabel_no_relabelfrom_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
-+    );
-+    ok( $result >> 8 eq 13, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Deny filesystem { relabelto } for hooks.c may_context_mount_sb_relabel()
-+    #
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+    $mount_opts =
-+"$net_opts,fscontext=system_u:object_r:test_filesystem_sb_relabel_no_relabelto_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_sb_relabel_no_relabelto_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
-+    );
-+    ok( $result >> 8 eq 13, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Deny filesystem { associate } for hooks.c
-+    # may_context_mount_inode_relabel()
-+    #
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+    $mount_opts =
-+"$net_opts,context=system_u:object_r:test_filesystem_inode_relabel_no_associate_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_inode_relabel_no_associate_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
-+    );
-+    ok( $result >> 8 eq 13, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Deny filesystem { relabelfrom } for hooks.c
-+    # may_context_mount_inode_relabel()
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+    $mount_opts =
-+      "$net_opts,fscontext=system_u:object_r:test_filesystem_file_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_no_inode_no_relabelfrom_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts 2>&1"
-+    );
-+    ok( $result >> 8 eq 13, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Deny filesystem { associate } for hooks.c may_create()
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+
-+    system("rm -f $target/tests/nfs_filesystem/mntpoint/mp1/test_file");
-+
-+    $mount_opts =
-+"$net_opts,fscontext=system_u:object_r:test_filesystem_may_create_no_associate_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_may_create_no_associate_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts"
-+    );
-+    ok( $result eq 0, $test_msg );
-+
-+    $result = system(
-+"runcon -t test_filesystem_may_create_no_associate_t $filesystem_dir/create_file_change_context $v -t unconfined_t -f $target/tests/nfs_filesystem/mntpoint/mp1/test_file 2>&1"
-+    );
-+    ok( $result >> 8 eq 13, $test_msg );    # EACCES
-+
-+    $result = system(
-+"runcon -t test_filesystem_may_create_no_associate_t $filesystem_dir/umount $v -t $target"
-+    );
-+    ok( $result eq 0, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Deny filesystem { associate } for hooks.c selinux_inode_setxattr()
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+    $mount_opts =
-+"$net_opts,fscontext=system_u:object_r:test_filesystem_inode_setxattr_no_associate_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_inode_setxattr_no_associate_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts"
-+    );
-+    ok( $result eq 0, $test_msg );
-+
-+    $result = system(
-+"runcon -t test_filesystem_inode_setxattr_no_associate_t $filesystem_dir/create_file_change_context $v -t unconfined_t -f $target/tests/nfs_filesystem/mntpoint/mp1/test_file 2>&1"
-+    );
-+    ok( $result >> 8 eq 13, $test_msg );    # EACCES
-+
-+    $result = system(
-+"runcon -t test_filesystem_inode_setxattr_no_associate_t $filesystem_dir/umount $v -t $target"
-+    );
-+    ok( $result eq 0, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Test context mounts when exported with security_label.
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+    $mount_opts = "$net_opts,context=system_u:object_r:etc_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts"
-+    );
-+    $fctx = `secon -t -f $target`;
-+    chomp($fctx);
-+    if ( $fctx ne "etc_t" ) {
-+        ok( 0, "$test_msg - got $fctx instead of etc_t" );
-+    }
-+    else {
-+        ok( $result eq 0, $test_msg );
-+    }
-+
-+    $result =
-+      system(
-+        "runcon -t test_filesystem_t $filesystem_dir/umount $v -t $target");
-+    ok( $result eq 0, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Test context mounts when not exported with security_label.
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+    `exportfs -u localhost:$mount`;
-+    `exportfs -o rw,no_root_squash localhost:$mount`;
-+    $mount_opts = "$net_opts,context=system_u:object_r:etc_t:s0";
-+
-+    $result = system(
-+"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts"
-+    );
-+    $fctx = `secon -t -f $target`;
-+    chomp($fctx);
-+    if ( $fctx ne "etc_t" ) {
-+        ok( 0, "$test_msg - got $fctx instead of etc_t" );
-+    }
-+    else {
-+        ok( $result eq 0, $test_msg );
-+    }
-+
-+    $result =
-+      system(
-+        "runcon -t test_filesystem_t $filesystem_dir/umount $v -t $target");
-+    ok( $result eq 0, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    #
-+    # Test non-context mount when not exported with security_label.
-+    #
-+    system("mkdir -p $basedir/mntpoint/mp1 2>/dev/null");
-+    $mount_opts = $net_opts;
-+
-+    $result = system(
-+"runcon -t test_filesystem_t $mount_cmd $v -s $dev -t $target -f $fs_type -o $mount_opts"
-+    );
-+    $fctx = `secon -t -f $target`;
-+    chomp($fctx);
-+    if ( $fctx ne "nfs_t" ) {
-+        ok( 0, "$test_msg - got $fctx instead of nfs_t" );
-+    }
-+    else {
-+        ok( $result eq 0, $test_msg );
-+    }
-+
-+    $result =
-+      system(
-+        "runcon -t test_filesystem_t $filesystem_dir/umount $v -t $target");
-+    ok( $result eq 0, $test_msg );
-+
-+    system("rm -rf $basedir/mntpoint 2>/dev/null");
-+
-+    # Reset for testing fsopen(2), fsconfig(2), fsmount(2) and move_mount(2)
-+    $mount_cmd = "$fs_filesystem_dir/fsmount";
-+    $test_msg  = "Using fsmount(2)";
-+    `exportfs -o rw,no_root_squash,security_label localhost:$mount`;
-+    $i++;
-+}
-+
-+exit;
+ systemctl start nfs-server
+-# Run the full testsuite on a labeled NFS mount.
+-exportfs -orw,no_root_squash,security_label localhost:$MOUNT
++# Run the testsuite on a labeled NFS mount.
++exportfs -o rw,no_root_squash,security_label localhost:$MOUNT
+ mkdir -p /mnt/selinux-testsuite
++#
++if [ $RUN_TEST ] && [ $RUN_TEST = 'nfs_filesystem' ]; then
++    run_test $RUN_TEST $V
++fi
++#
++echo "Run selinux-testsuite with no NFS mount context option"
+ mount -t nfs -o vers=4.2 localhost:$TESTDIR /mnt/selinux-testsuite
+-pushd /mnt/selinux-testsuite
+-MAKE_TEST=1
+-make test
+-MAKE_TEST=0
+-popd
+-umount /mnt/selinux-testsuite
+-
+-# Test context mounts when exported with security_label.
+-mount -t nfs -o vers=4.2,context=system_u:object_r:etc_t:s0 localhost:$TESTDIR /mnt/selinux-testsuite
+-echo "Testing context mount of a security_label export."
+-fctx=`secon -t -f /mnt/selinux-testsuite`
+-if [ "$fctx" != "etc_t" ]; then
+-    echo "Context mount failed: got $fctx instead of etc_t."
+-    err_exit $LINENO
++pushd /mnt/selinux-testsuite >/dev/null 2>&1
++POPD=1
++if [ $RUN_TEST ]; then
++    run_test $RUN_TEST $V
++else
++    make -C policy load
++    make -C tests test
+ fi
++POPD=0
++popd >/dev/null 2>&1
+ umount /mnt/selinux-testsuite
+-exportfs -u localhost:$MOUNT
+-
+-# Test context mounts when not exported with security_label.
+-exportfs -orw,no_root_squash localhost:$MOUNT
+-mount -t nfs -o vers=4.2,context=system_u:object_r:etc_t:s0 localhost:$TESTDIR /mnt/selinux-testsuite
+-echo "Testing context mount of a non-security_label export."
+-fctx=`secon -t -f /mnt/selinux-testsuite`
+-if [ "$fctx" != "etc_t" ]; then
+-    echo "Context mount failed: got $fctx instead of etc_t."
+-    err_exit $LINENO
+-fi
++#
++echo -e "Run 'filesystem' tests with mount context option:\n\t$FS_CTX"
++mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
++pushd /mnt/selinux-testsuite >/dev/null 2>&1
++POPD=1
++cd tests
++./nfsruntests.pl filesystem/test
++cd ../
++POPD=0
++popd >/dev/null 2>&1
+ umount /mnt/selinux-testsuite
+-
+-# Test non-context mount when not exported with security_label.
+-mount -t nfs -o vers=4.2 localhost:$TESTDIR /mnt/selinux-testsuite
+-echo "Testing non-context mount of a non-security_label export."
+-fctx=`secon -t -f /mnt/selinux-testsuite`
+-if [ "$fctx" != "nfs_t" ]; then
+-    echo "Context mount failed: got $fctx instead of nfs_t."
+-    err_exit $LINENO
+-fi
++#
++echo -e "Run 'fs_filesystem' tests with mount context option:\n\t$FS_CTX"
++mount -t nfs -o vers=4.2,$FS_CTX localhost:$TESTDIR /mnt/selinux-testsuite
++pushd /mnt/selinux-testsuite >/dev/null 2>&1
++POPD=1
++cd tests
++./nfsruntests.pl fs_filesystem/test
++cd ../
++POPD=0
++popd >/dev/null 2>&1
+ umount /mnt/selinux-testsuite
+-
+-# All done.
+-echo "Done"
++#
++echo "Run NFS context specific tests"
++cd tests
++./nfsruntests.pl nfs_filesystem/test
++cd ../
++#
++make -C policy unload
+ exportfs -u localhost:$MOUNT
+ rmdir /mnt/selinux-testsuite
+ systemctl stop nfs-server
++echo "NFS tests successfully completed"
 -- 
 2.24.1
 
