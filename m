@@ -2,113 +2,122 @@ Return-Path: <SRS0=8enA=5L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0EDDC43331
-	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 15:27:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 207BEC43331
+	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 15:35:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B0E052073E
-	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 15:27:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E0CD220714
+	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 15:35:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="BXhjDA9D"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ghyPGZif"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728524AbgCZP1N (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 26 Mar 2020 11:27:13 -0400
-Received: from UCOL19PA39.eemsg.mail.mil ([214.24.24.199]:48968 "EHLO
-        UCOL19PA39.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728326AbgCZP1N (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 26 Mar 2020 11:27:13 -0400
-X-Greylist: delayed 427 seconds by postgrey-1.27 at vger.kernel.org; Thu, 26 Mar 2020 11:27:12 EDT
-X-EEMSG-check-017: 92394058|UCOL19PA39_ESA_OUT06.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.72,308,1580774400"; 
-   d="scan'208";a="92394058"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UCOL19PA39.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 26 Mar 2020 15:18:40 +0000
+        id S1727612AbgCZPfO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 26 Mar 2020 11:35:14 -0400
+Received: from mail-io1-f65.google.com ([209.85.166.65]:37891 "EHLO
+        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726296AbgCZPfO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 26 Mar 2020 11:35:14 -0400
+Received: by mail-io1-f65.google.com with SMTP id m15so6480874iob.5
+        for <selinux@vger.kernel.org>; Thu, 26 Mar 2020 08:35:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1585235920; x=1616771920;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=YjRwbhfVitgBG37Hu86QmSmz7RP7EteWc6/78cgvmlc=;
-  b=BXhjDA9D/21tPWm6j5iGFPPyL5AXa9wVjms3ydIbDlHcrQfPFB7vOOgn
-   Rjj4AV3KFU06XFVOb4+5Lr+HImsns8JrLJGyqHq5JnZQ1GNbT2paH2Gmv
-   tBemMFw7EfXERV+p9ihNoE1y41kqSx1+mSRytFTaJhhMiX8AlKFRjfIQX
-   wi8t6es1DYeiRIALKnvFZxG+ncgndsru3hYckrz6SqoyI7cG0D7b4+xQp
-   PHiWm4E28Cj7EawSsld5RwEnsgXVTLDFaWhSBAvODZa84RenmiKRlxIXV
-   qVEyufhRqHkqlWZg/umhHlX8S/K83ldE4Bpy8x/B89mRDV26kKo6AG8iJ
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.72,308,1580774400"; 
-   d="scan'208";a="41078747"
-IronPort-PHdr: =?us-ascii?q?9a23=3Ap6xlABM/JpL5jJMgegEl6mtUPXoX/o7sNwtQ0K?=
- =?us-ascii?q?IMzox0I/T+rarrMEGX3/hxlliBBdydt6sYzbOL7Ou4CCQp2tWojjMrSNR0TR?=
- =?us-ascii?q?gLiMEbzUQLIfWuLgnFFsPsdDEwB89YVVVorDmROElRH9viNRWJ+iXhpTEdFQ?=
- =?us-ascii?q?/iOgVrO+/7BpDdj9it1+C15pbffxhEiCCybL9vIxi6txjdu8kUjIdtNqo8zg?=
- =?us-ascii?q?bCr2dVdehR2W5nKlWfkgrm6Myt5pBj6SNQu/wg985ET6r3erkzQKJbAjo7LW?=
- =?us-ascii?q?07/dXnuhbfQwSB4HscSXgWnQFTAwfZ9hH6X4z+vTX8u+FgxSSVJ8z2TbQzWT?=
- =?us-ascii?q?S/86dmTQLjhSkbOzIl9mzcl9d9h7xHrh2/uxN/wpbUYICLO/p4YqPdZs4RSW?=
- =?us-ascii?q?5YUspMSyBNHoawYo0BAOobOeZTspfzqV0AoxCjAQWgHe3ixztNinLwwKY00f?=
- =?us-ascii?q?kuERve0QI9AdwOvnTaotb7OqgcXu+6zrXHwzrYYvNK2zrw8pTEfgwvrPyOW7?=
- =?us-ascii?q?97bMrfyVMoFwPAllietJDlMC2N1uQNrWeb6fdrW/+qi2E9rwFxpiagx8cxgY?=
- =?us-ascii?q?TOnYIa10vE+D5lwIc1OdK4SEl7bcSiEJtLrS6WLYR2QsQ8Q2xxvisx174IuY?=
- =?us-ascii?q?ajcSQXx5kqyATTZvyaf4SS/B7uW/idLS1liH9jZbmxnQy98VK6xe35TsS01V?=
- =?us-ascii?q?FKoTdbndTUrXAN0gDT6tCASvtg4ketwTaP2B7X6uFDOU00ibDUK4Qgwr4tjZ?=
- =?us-ascii?q?ofq1jDHy/ql0X2i6+abEMk9fSz6+v7eLnmo56cN4tshgH/NKQhhNC/DPwlPg?=
- =?us-ascii?q?UBUGWX4+Sx2KD58UHnT7hGkOc6nrTBvJDfP8sbp6q5AwFP0oYk7hayFyym38?=
- =?us-ascii?q?kDnXQcMFJEeA6Ij4juO13UJvD4Fu2wj06jkDds2fDKJqfhDYnVLnjfjLfheq?=
- =?us-ascii?q?5w61RdyAUvzdBQ/YhUBawZL/3vQkDxtMbXDh4/MwOq2ObqE85y1p8fWWKJHq?=
- =?us-ascii?q?+WLrnSsVmW6eIzOeWDeIgVuDPlIfg/+/HulWM5mUMafaSxxpsYdnS4HvVgI0?=
- =?us-ascii?q?WEbnvhmckBEWgUsQokVuDqi0ONUSRVZ3msW6Iw/DY7CJipDY3bXICinKSB3D?=
- =?us-ascii?q?unHp1Rfm1GEVWMHm3odoWERfgNZjmfItV/nTMZVbiuUZMh2Quyuw/9zro0Zt?=
- =?us-ascii?q?bTrxcZvpLqztQ9x+TSkxwpvWhuDs+d2nuBeGpDnmoJQTIt9KpjoEphx02F3L?=
- =?us-ascii?q?Q+iPtdQ5gb/P5NUwEnJbbCwOFgTdP/QATMepGOUln1bM+hBGQKUt8pw9IIK3?=
- =?us-ascii?q?14EtGmgwGLizGmGJcJhreLA9oy6aua0H/vcZUug03a3bUs2gF1CvBEMner0+?=
- =?us-ascii?q?smrFne?=
-X-IPAS-Result: =?us-ascii?q?A2AUAACWxnxe/wHyM5BmGgEBAQEBAQEBAQMBAQEBEQEBA?=
- =?us-ascii?q?QICAQEBAYFqAgEBAQELAYF8LGxVMiqEGo9RBoE3iXqRTQoBAQEBAQEBAQEjE?=
- =?us-ascii?q?QECBAEBhEQCgi8kNwYOAhABAQEFAQEBAQEFAwEBbIVWDII7KQGCfwEFIxVBE?=
- =?us-ascii?q?AsYAgImAgJXBgEMBgIBAYJjPwGCSwMJJa1sgTKFS4NegT6BDioBjC4aeYEHg?=
- =?us-ascii?q?TgPgl4+ghswhRGCPCIEmACYVYJGglaFCY8kBh2CO5kkhFCKQZ4FI4FYKwgCG?=
- =?us-ascii?q?AghD4MnCUcYDZhhhCAlAzCBBgEBjh0BAQ?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 26 Mar 2020 15:18:39 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 02QFIx8L082776;
-        Thu, 26 Mar 2020 11:18:59 -0400
-Subject: Re: [PATCH V2 1/2] selinux-testsuite: Use native filesystem for tests
- - Part 1
-To:     Richard Haines <richard_c_haines@btinternet.com>,
-        selinux@vger.kernel.org
-Cc:     smayhew@redhat.com
-References: <20200325130900.15047-1-richard_c_haines@btinternet.com>
- <20200325130900.15047-2-richard_c_haines@btinternet.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <3252199b-fadf-227f-251b-4b42a2dc267b@tycho.nsa.gov>
-Date:   Thu, 26 Mar 2020 11:19:50 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=QhiXM1YOxuKZjWkEB8R+f+KI6KvUOBr//qdKWzVpuEg=;
+        b=ghyPGZifUIc8gsXGUw/Twjp5VD0C5otpjZomjdtROjPaIkPyTrCWGdvadAzVOkzAYH
+         cOYn1q0qugjan2ERbnuTccoMNWiiOedIMiLX3AGM0ZxPklHYKioiKmK2LcXCbo84R+hf
+         S2UPpFXQW7nYTRET73hn3488/Iwf+DDiEJCIgq5nZjxZ1iUtJheNYu3Q3X3g0cVjLlRn
+         Z6n7/5xaxojHd3Mxbwwl1GlQnj28Se3C2fn95QgzrYpAfhwzusC6abNMjXMMUy6zpLoX
+         PB6Uda5X597ipNy8g2xa0YVBkh+YwhtOKmgDZdasLqh5gSDzRNcdAQV3ki57vdBZOe1p
+         htZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=QhiXM1YOxuKZjWkEB8R+f+KI6KvUOBr//qdKWzVpuEg=;
+        b=YIIb0jxlJ7/xUUquNBaCtJ7bJYAHnl9oo7IGf75vx3BcZUHUOC34NL2VRKHjAb2GYC
+         ZmnI/BLABGNFRRPdrdMGcEVsfzrjD15F7iS6WGGEOIRTOz8GFBSed4IrlxeMqzKQ5gjg
+         QQa9DPIJ0/YzPHGGstfRfqnReugu3h1X0J45qqHPm6PKvYjJG6xgkuuOkMMcqimKOyI3
+         BJYfzbqLdfEIaFOQTHiHtkT36bWku8zGmw/RHM0BLSWQJbtu390a5bAp8Nj3yWdyxTaQ
+         /lT6AUoH2NeOUp801ds4Spp5oRP6VipuGhLxfweHAULkz0pPlZVJASCKvFrkvhiLmRT6
+         2vow==
+X-Gm-Message-State: ANhLgQ2uxzfsv0OveBfAXgKzWjpKFolzJymlwPXwwIvmpRpxKcYlDRIb
+        vzIpKFGv3Fhyfu1eBdyZh/75fZQ8+1UzGl+3bAA=
+X-Google-Smtp-Source: ADFU+vuwixpgM6ieX9xr4qkroPAskVuX1n+DQEImyMoVSy19rTxZU6axCpBg1I90Zpi42UAPxUcwnXRNJTrLsnhsvDs=
+X-Received: by 2002:a02:bb11:: with SMTP id y17mr8688840jan.130.1585236913251;
+ Thu, 26 Mar 2020 08:35:13 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200325130900.15047-2-richard_c_haines@btinternet.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CAFftDdqYnjyrXYRpUhaXere+jz-RXXWM9qPF5w1vzyi3SZOYKg@mail.gmail.com>
+ <20200319194853.15709-1-william.c.roberts@intel.com> <CAFqZXNtZLpdtreN1D5=FU+L8Rm10OpUu=jD4nzEqor7g50f3qw@mail.gmail.com>
+ <CAFftDdoizXnNMOsyPdSeU15VmOgjpeAEU80DLLGSLzgyUC5gpQ@mail.gmail.com> <CAGB+Vh7VOy_y2W7rxmaWAOyBQxQz5foFNL1T2hog0er4mnEQ4g@mail.gmail.com>
+In-Reply-To: <CAGB+Vh7VOy_y2W7rxmaWAOyBQxQz5foFNL1T2hog0er4mnEQ4g@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Thu, 26 Mar 2020 10:35:02 -0500
+Message-ID: <CAFftDdo8D3h=cag8cO3M2r0zL-DmaWGWXyzeDF3ZWeSbm64qYg@mail.gmail.com>
+Subject: Re: [PATCH] cil: drop remaining dso.h include
+To:     Joshua Brindle <joshua.brindle@crunchydata.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        William Roberts <william.c.roberts@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 3/25/20 9:08 AM, Richard Haines wrote:
-> Use the filesystem type that the selinux-testsuite is running from to be
-> used for tests/filesystem. Tested types: ext4, xfs, vfat and nfs.
-> 
-> If testing locally -f <fs_type> can be used to test a specific type.
-> 
-> For NFS the following example shows how this should be run:
->      ./tools/nfs.sh filesystem -v
-> 
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+On Thu, Mar 26, 2020 at 10:17 AM Joshua Brindle
+<joshua.brindle@crunchydata.com> wrote:
+>
+> On Mon, Mar 23, 2020 at 11:35 AM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+> >
+> > On Fri, Mar 20, 2020 at 3:08 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > >
+> > > On Thu, Mar 19, 2020 at 8:49 PM <bill.c.roberts@gmail.com> wrote:
+> > > > From: William Roberts <william.c.roberts@intel.com>
+> > > >
+> > > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> > > > ---
+> > > >  libsepol/cil/src/cil.c | 1 -
+> > > >  1 file changed, 1 deletion(-)
+> > > >
+> > > > diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> > > > index c010ca2aeaf4..12cc28eff389 100644
+> > > > --- a/libsepol/cil/src/cil.c
+> > > > +++ b/libsepol/cil/src/cil.c
+> > > > @@ -50,7 +50,6 @@
+> > > >  #include "cil_binary.h"
+> > > >  #include "cil_policy.h"
+> > > >  #include "cil_strpool.h"
+> > > > -#include "dso.h"
+> > > >
+> > > >  #ifndef DISABLE_SYMVER
+> > > >  asm(".symver cil_build_policydb_pdb,        cil_build_policydb@LIBSEPOL_1.0");
+> > > > --
+> > > > 2.17.1
+> > > >
+> > >
+> > > Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > >
+> > Merged: https://github.com/SELinuxProject/selinux/pull/210
+> >
+> > Thanks
+>
+> It looks like this change broke building on MacOS:
+>
+> <inline asm>:1:1: error: unknown directive
+> .symver cil_build_policydb_pdb,        cil_build_policydb@LIBSEPOL_1.0
+> ^
+>
+> (on all of them).
+>
+> Previously dso.h defined DISABLE_SYMVER for Android and Apple, is
+> support for those intended to go away?
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-
+No, patches forthcoming.
