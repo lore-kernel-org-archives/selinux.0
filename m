@@ -7,56 +7,56 @@ X-Spam-Status: No, score=-17.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
 	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3A4AC2D0EC
-	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 18:15:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16D3FC43331
+	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 18:15:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 9E0832073E
-	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 18:15:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E04D62076A
+	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 18:15:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AXA5gS6S"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="De+vdbSm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727541AbgCZSPY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 26 Mar 2020 14:15:24 -0400
-Received: from mail-pj1-f74.google.com ([209.85.216.74]:37513 "EHLO
-        mail-pj1-f74.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728326AbgCZSPW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 26 Mar 2020 14:15:22 -0400
-Received: by mail-pj1-f74.google.com with SMTP id d9so4911988pjs.2
-        for <selinux@vger.kernel.org>; Thu, 26 Mar 2020 11:15:21 -0700 (PDT)
+        id S1728466AbgCZSP1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 26 Mar 2020 14:15:27 -0400
+Received: from mail-pl1-f201.google.com ([209.85.214.201]:53544 "EHLO
+        mail-pl1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728463AbgCZSP0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 26 Mar 2020 14:15:26 -0400
+Received: by mail-pl1-f201.google.com with SMTP id 2so4856629plb.20
+        for <selinux@vger.kernel.org>; Thu, 26 Mar 2020 11:15:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20161025;
         h=date:in-reply-to:message-id:mime-version:references:subject:from:to
          :cc;
-        bh=9GDXsfdPczBi7v6sQvXYnauY2/NgUYZJiwGuOoj9VaM=;
-        b=AXA5gS6SkSmd0/XuDxbbqNVaCihLDe9+DmMAZcsBrzmrtTpSW7/rl+hyD7F6T2jA+l
-         cdMN7WpPpdDFzVeeBCYY1AUl7GpaZ1Db3vhI9cCX2HylCgJ7lHkWPWwtcNmxbW14CnCR
-         S3emEKPzIKKv4RNY5kk1UyJvwjD+mi6SHYyj9LaBEqy1l5ATak4ev+4W0J+YD7Zrx/sG
-         nuWlJwd2ON0rWDSA1Hzt0tZYt8Veq7dH8iq/R5jTwf2VSvd38+yGKT9gMvXq20hHcAQC
-         EdilpRDOkpjD4DXinfQNe4rWYvb9abbqcotitsgNMPkhg9FvMoWzfmlfPUM0AqRvSiPx
-         ALyw==
+        bh=REBj1fgB1itW3afNpdBeCKHTfmMER4muP4nMI9CXCW4=;
+        b=De+vdbSmZ4eV+CJ+UxFZBhShe8zH/Qk26KK8CRGODde3/2Qi8B5S/N2lYhGdR9yD2U
+         hPM6WHzB1LTjWX/roz7FcosVAFpwn9uha+5en/xMUBaugZcCu/YIBgBvQGtBUpZUwWZQ
+         Yi7CBHzjA1yN9GVu/Z7i9C+4Xry+g5D46J3/OZB/pkaasGKOwmkWPkmFiuWRffJrTY8Z
+         kTsCbX7z3IaVClheuxQ8416BFeCjQSRbWgs1GcEoe6K1yA68Zeue9kMNA9Id9SjEM81w
+         iXBmQJlFNC0CXF/4xW50ke/+f3lnOzc0rz+264IkbICCJIlYAFn96I220W+S6izkKbst
+         kpMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:in-reply-to:message-id:mime-version
          :references:subject:from:to:cc;
-        bh=9GDXsfdPczBi7v6sQvXYnauY2/NgUYZJiwGuOoj9VaM=;
-        b=RCB6d8/wPGE/18Tfz0E0klf6dq461t+8BauD0PNlx7Cc/vE4oquBrQT1ekMsxPANCf
-         ageu7FZ7WH4zjWGDPben212GynKzKFzS84zyqACd4GzXZb+zzBqcDZVSPQ/pxLpIgnvP
-         NRNoBamx1OgqyvUZgaPqHc8oJfZI9FQdHbgyyn1NYFn3hOt2m4IKz9M0AQ5OmTOwvU1E
-         AlFsE4jj7KXJmVUdUnZRqmo7Nn5x/T4G/sxs5eB45fqLoDk82rQ+h3Saj9+ydM8plcqj
-         fkxfHLncuQv/GWnSaSQO6lV84pW997Z4GMIP0UEdZJw+su3E8cQjGGEJTu8EKgx2KlYw
-         /CEA==
-X-Gm-Message-State: ANhLgQ1vMo8WUZxLMfsVebOqKjOfHi4BsiZAmowRopgT5XN92Rmr4Mxj
-        3xRf4QRbQ1+JgxkpKjLSpu+a6F4ED4Y=
-X-Google-Smtp-Source: ADFU+vuSN0yISqvXhTDaFBgwUzE9zYiTA6xLb5Jqy1lqmi6Or7i+l9KljGPyXE07LbTrKwVVneYQ+TQnMzc=
-X-Received: by 2002:a17:90a:be0b:: with SMTP id a11mr1407192pjs.56.1585246521251;
- Thu, 26 Mar 2020 11:15:21 -0700 (PDT)
-Date:   Thu, 26 Mar 2020 11:14:55 -0700
+        bh=REBj1fgB1itW3afNpdBeCKHTfmMER4muP4nMI9CXCW4=;
+        b=KasZzeKdTF6SDP4DY1ClKCKYeVtXou5PbZO4bTGhGE7q3WbIhoBrxkvr9kN/D7/k+B
+         bEmsbmyxWyACtEk7MXDwV0kCrHnrQhOZhY4w/2v6ZPaySi6yHHkvqfjmEPKrpj7+KpKz
+         gRhtKmkui1Yw+2g3D27thmTnZ+FQFaQkM/xByOfPcSzflO3mRRFs98ksM4TL/ITL9bnT
+         jGY2sPmezXQwsE0gSnYvmg8ivs+Rx117fSeU5ZhZWI2NP0cbnnbHOAhY1o/48u+h+/In
+         71weY7M5Qma0agiuns69XeQNGQnnnefVi9BZHYm3vn0oEMVteZFfgozQkZgL9E6RIeNS
+         X8Hw==
+X-Gm-Message-State: ANhLgQ097zxeaVHB9ig5isYlv+uCJ9RQFJQtV2ZqpzugBqwklcjZNVhP
+        nC6YGmzKbm/HLkFnXPEbncnqd6idIZ0=
+X-Google-Smtp-Source: ADFU+vuC4qedai97AsQzom+MPyQbpmPdnQ6oRFaE8QGT9W4/tlMA0F0FEEUIYjLnEYqJfkFHHc97xMWVyOA=
+X-Received: by 2002:a63:ff53:: with SMTP id s19mr9927452pgk.247.1585246525869;
+ Thu, 26 Mar 2020 11:15:25 -0700 (PDT)
+Date:   Thu, 26 Mar 2020 11:14:56 -0700
 In-Reply-To: <20200326181456.132742-1-dancol@google.com>
-Message-Id: <20200326181456.132742-3-dancol@google.com>
+Message-Id: <20200326181456.132742-4-dancol@google.com>
 Mime-Version: 1.0
 References: <20200214032635.75434-1-dancol@google.com> <20200326181456.132742-1-dancol@google.com>
 X-Mailer: git-send-email 2.25.1.696.g5e7596f4ac-goog
-Subject: [PATCH v3 2/3] Teach SELinux about anonymous inodes
+Subject: [PATCH v3 3/3] Wire UFFD up to SELinux
 From:   Daniel Colascione <dancol@google.com>
 To:     timmurray@google.com, selinux@vger.kernel.org,
         linux-security-module@vger.kernel.org,
@@ -71,119 +71,93 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This change uses the anon_inodes and LSM infrastructure introduced in
-the previous patch to give SELinux the ability to control
-anonymous-inode files that are created using the new _secure()
-anon_inodes functions.
-
-A SELinux policy author detects and controls these anonymous inodes by
-adding a name-based type_transition rule that assigns a new security
-type to anonymous-inode files created in some domain. The name used
-for the name-based transition is the name associated with the
-anonymous inode for file listings --- e.g., "[userfaultfd]" or
-"[perf_event]".
-
-Example:
-
-type uffd_t;
-type_transition sysadm_t sysadm_t : anon_inode uffd_t "[userfaultfd]";
-allow sysadm_t uffd_t:anon_inode { create };
-
-(The next patch in this series is necessary for making userfaultfd
-support this new interface.  The example above is just
-for exposition.)
+This change gives userfaultfd file descriptors a real security
+context, allowing policy to act on them.
 
 Signed-off-by: Daniel Colascione <dancol@google.com>
 ---
- security/selinux/hooks.c            | 54 +++++++++++++++++++++++++++++
- security/selinux/include/classmap.h |  2 ++
- 2 files changed, 56 insertions(+)
+ fs/userfaultfd.c | 34 +++++++++++++++++++++++++++++-----
+ 1 file changed, 29 insertions(+), 5 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 1659b59fb5d7..b9eb45c2e4e5 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -2915,6 +2915,59 @@ static int selinux_inode_init_security(struct inode *inode, struct inode *dir,
- 	return 0;
+diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
+index 07b0f6e03849..78ff5d898733 100644
+--- a/fs/userfaultfd.c
++++ b/fs/userfaultfd.c
+@@ -76,6 +76,8 @@ struct userfaultfd_ctx {
+ 	bool mmap_changing;
+ 	/* mm with one ore more vmas attached to this userfaultfd_ctx */
+ 	struct mm_struct *mm;
++	/* The inode that owns this context --- not a strong reference.  */
++	const struct inode *owner;
+ };
+ 
+ struct userfaultfd_fork_ctx {
+@@ -1014,14 +1016,18 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
+ 	}
  }
  
-+static int selinux_inode_init_security_anon(struct inode *inode,
-+					    const struct qstr *name,
-+					    const struct file_operations *fops,
-+					    const struct inode *context_inode)
-+{
-+	const struct task_security_struct *tsec = selinux_cred(current_cred());
-+	struct common_audit_data ad;
-+	struct inode_security_struct *isec;
-+	int rc;
++static const struct file_operations userfaultfd_fops;
 +
-+	if (unlikely(!selinux_state.initialized))
-+		return 0;
-+
-+	isec = selinux_inode(inode);
-+
-+	/*
-+	 * We only get here once per ephemeral inode.  The inode has
-+	 * been initialized via inode_alloc_security but is otherwise
-+	 * untouched.
-+	 */
-+
-+	if (context_inode) {
-+		struct inode_security_struct *context_isec =
-+			selinux_inode(context_inode);
-+		isec->sclass = context_isec->sclass;
-+		isec->sid = context_isec->sid;
-+	} else {
-+		isec->sclass = SECCLASS_ANON_INODE;
-+		rc = security_transition_sid(
-+			&selinux_state, tsec->sid, tsec->sid,
-+			SECCLASS_FILE, name, &isec->sid);
-+		if (rc)
-+			return rc;
+ static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
+ 				  struct userfaultfd_ctx *new,
+ 				  struct uffd_msg *msg)
+ {
+ 	int fd;
+ 
+-	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, new,
+-			      O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
++	fd = anon_inode_getfd_secure(
++		"[userfaultfd]", &userfaultfd_fops, new,
++		O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS),
++		ctx->owner);
+ 	if (fd < 0)
+ 		return fd;
+ 
+@@ -1918,7 +1924,7 @@ static void userfaultfd_show_fdinfo(struct seq_file *m, struct file *f)
+ }
+ #endif
+ 
+-const struct file_operations userfaultfd_fops = {
++static const struct file_operations userfaultfd_fops = {
+ #ifdef CONFIG_PROC_FS
+ 	.show_fdinfo	= userfaultfd_show_fdinfo,
+ #endif
+@@ -1943,6 +1949,7 @@ static void init_once_userfaultfd_ctx(void *mem)
+ 
+ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ {
++	struct file *file;
+ 	struct userfaultfd_ctx *ctx;
+ 	int fd;
+ 
+@@ -1972,8 +1979,25 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
+ 	/* prevent the mm struct to be freed */
+ 	mmgrab(ctx->mm);
+ 
+-	fd = anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
+-			      O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
++	file = anon_inode_getfile_secure(
++		"[userfaultfd]", &userfaultfd_fops, ctx,
++		O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS),
++		NULL);
++	if (IS_ERR(file)) {
++		fd = PTR_ERR(file);
++		goto out;
 +	}
 +
-+	isec->initialized = LABEL_INITIALIZED;
++	fd = get_unused_fd_flags(O_RDONLY | O_CLOEXEC);
++	if (fd < 0) {
++		fput(file);
++		goto out;
++	}
 +
-+	/*
-+	 * Now that we've initialized security, check whether we're
-+	 * allowed to actually create this type of anonymous inode.
-+	 */
++	ctx->owner = file_inode(file);
++	fd_install(fd, file);
 +
-+	ad.type = LSM_AUDIT_DATA_INODE;
-+	ad.u.inode = inode;
-+
-+	return avc_has_perm(&selinux_state,
-+			    tsec->sid,
-+			    isec->sid,
-+			    isec->sclass,
-+			    FILE__CREATE,
-+			    &ad);
-+}
-+
- static int selinux_inode_create(struct inode *dir, struct dentry *dentry, umode_t mode)
- {
- 	return may_create(dir, dentry, SECCLASS_FILE);
-@@ -6923,6 +6976,7 @@ static struct security_hook_list selinux_hooks[] __lsm_ro_after_init = {
- 
- 	LSM_HOOK_INIT(inode_free_security, selinux_inode_free_security),
- 	LSM_HOOK_INIT(inode_init_security, selinux_inode_init_security),
-+	LSM_HOOK_INIT(inode_init_security_anon, selinux_inode_init_security_anon),
- 	LSM_HOOK_INIT(inode_create, selinux_inode_create),
- 	LSM_HOOK_INIT(inode_link, selinux_inode_link),
- 	LSM_HOOK_INIT(inode_unlink, selinux_inode_unlink),
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 986f3ac14282..263750b6aaac 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -248,6 +248,8 @@ struct security_class_mapping secclass_map[] = {
- 	  {"open", "cpu", "kernel", "tracepoint", "read", "write"} },
- 	{ "lockdown",
- 	  { "integrity", "confidentiality", NULL } },
-+	{ "anon_inode",
-+	  { COMMON_FILE_PERMS, NULL } },
- 	{ NULL }
-   };
- 
++out:
+ 	if (fd < 0) {
+ 		mmdrop(ctx->mm);
+ 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
 -- 
 2.25.1.696.g5e7596f4ac-goog
 
