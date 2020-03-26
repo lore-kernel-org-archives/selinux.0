@@ -2,105 +2,82 @@ Return-Path: <SRS0=8enA=5L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 067A7C43331
-	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 15:46:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40C8FC43331
+	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 15:48:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D241A2076A
-	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 15:46:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 18B312076A
+	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 15:48:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EK4tYDed"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vQbHhKI2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727934AbgCZPqy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 26 Mar 2020 11:46:54 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:38157 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727835AbgCZPqy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 26 Mar 2020 11:46:54 -0400
-Received: by mail-pg1-f196.google.com with SMTP id x7so3065765pgh.5
-        for <selinux@vger.kernel.org>; Thu, 26 Mar 2020 08:46:53 -0700 (PDT)
+        id S1727502AbgCZPsB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 26 Mar 2020 11:48:01 -0400
+Received: from mail-io1-f51.google.com ([209.85.166.51]:39135 "EHLO
+        mail-io1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726336AbgCZPsB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 26 Mar 2020 11:48:01 -0400
+Received: by mail-io1-f51.google.com with SMTP id c19so6525678ioo.6
+        for <selinux@vger.kernel.org>; Thu, 26 Mar 2020 08:48:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=V4R+2m0SslUGosRISq6fCCA+ryxQy4LzW0+qTno59YM=;
-        b=EK4tYDed7I7TmVsHNQj1MaFauow+Ghv6fqyuMS07YEsVKzuvpmYC8aNlsGECyYuLFc
-         Tqmd1RbLPbMEjkSljyDU/I121wxz7FHXOMz6oCV6Lg0xAGaKIniaqBwRco183AcyOHkA
-         iL7/oCx5yHI/0h7QntTbvKYzVn5/jXWy2TQjlgUcnsnUY6v4bahw3YtqsyBVK/27NsVC
-         +HFAxjW41nOrvOsqf7nZE76a6+3FA+NkvG4prvGf0bbm7FuXe4LGkbllti+CTvJ9HCNE
-         NUDOK0yaKMVitrbwgDuwbJ/F3becam2bYplT/VyOEHCFamaEg3GZQWdFK6ZSnrCnW3fJ
-         va3Q==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EVrvvPKZDDcbKbGiPeHo32rc3IBtGGpL6LPPeh+r320=;
+        b=vQbHhKI2QrubDpv3ZdM14dlsPTpoxp+p0MD5+gwfDhZsCFTbXKpmjLhejNEDCp2OcF
+         AuqDrpRZ53ky4hZjBIqthlb70zsU/GmvZQV9tuaD4OPAX7/aqm4QqM8ct3rVqUsXUK+5
+         ZwM4WHrB6EjyqKe9vtsjo+V9sAmM0A1hNLe02UnrHlW9qijedz4MZ3oA19O9UMD0qZmK
+         2XMQ7/QKfPUd30cT1RFbWW8OcGuyGH1h4VMARQAd8caAUdLVaT1syh1Ycwb8fIki/r/1
+         uSgStZK4juh8H/eBggEIEauSgXWz8J2j/t215V4ymEkBkuaEqP18q1rb8u52q6BaJCcL
+         FxEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=V4R+2m0SslUGosRISq6fCCA+ryxQy4LzW0+qTno59YM=;
-        b=kncLefPWDlpc0DUMun8jTMi8Zoh8z3Jzmr86hsMz6zJtWRRsz9GLBZILgdYj/wVZFh
-         AeZK6hibteOkH3zPqYDsRUfnOnE5GmtzbGy1deK1ilI+B5W/cYPLu9VirzNpmkJhuB86
-         Fh5q223kgeSU4CVcCrl9dTh/D+4gnN6M6ZZr5P4ZJBRLg27oUiwem+GhstPqYy+hgDr5
-         adpANfaglJRPavW1pEaeoeIBi4MReuwADXqJt15/1wDpQ7SFEex+yogXvJf6FkP7apbz
-         rIQNB5CetDxI7knQYsLPAv0PW9dLS5pjQkzOWS7SsKdVurUrfbnJyjKMmFiCBzLJlIGt
-         zoIg==
-X-Gm-Message-State: ANhLgQ02fczXDcYxAnU034dazJB95XPgVhuM9/drpPi+HmvjA5SnS2ha
-        FOLGRVFKhiYCDnH3R3wkmY66WwN8aSE=
-X-Google-Smtp-Source: ADFU+vtO1JNXl/bpTpred2fBL/irZ8mZitbgWHMcAxcAmQNgFVWGYocTs/mFWspPQDhSvA+/S7c+0A==
-X-Received: by 2002:a63:257:: with SMTP id 84mr8877052pgc.304.1585237613000;
-        Thu, 26 Mar 2020 08:46:53 -0700 (PDT)
-Received: from localhost.localdomain ([192.55.54.42])
-        by smtp.gmail.com with ESMTPSA id s62sm934359pgb.94.2020.03.26.08.46.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Mar 2020 08:46:52 -0700 (PDT)
-From:   bill.c.roberts@gmail.com
-X-Google-Original-From: william.c.roberts@intel.com
-To:     joshua.brindle@crunchydata.com
-Cc:     bill.c.roberts@gmail.com, omosnace@redhat.com,
-        selinux@vger.kernel.org, stephen.smalley.work@gmail.com,
-        william.c.roberts@intel.com
-Subject: [PATCH 2/2] cil: re-enable DISABLE_SYMVER define
-Date:   Thu, 26 Mar 2020 10:46:41 -0500
-Message-Id: <20200326154641.7253-3-william.c.roberts@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200326154641.7253-1-william.c.roberts@intel.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EVrvvPKZDDcbKbGiPeHo32rc3IBtGGpL6LPPeh+r320=;
+        b=RaB4yCyNMwqnt6EZjqqqy7wXhkwH5HI+239L/XE3GirvdJDIqHubNuCHJAEzjcdOxz
+         +6aMaEIqBE3slSUoM8B90boD5LNUSlOnX17LZAO2/vkFKjg9yhOEREzObzi6FEBvytwZ
+         GXtMFGM0QuKKKEMCybxmIsQxs+kk22V6w+Qz7J6b/9XI6JQDBSuAiKnQ48M69/4NgRw4
+         7qQx+fTgyNIU3U2YUtqZvKykodf8wmltOr1nAFK/YoXFCjq45ScQW1+f+2Ioh3RwRht4
+         3ClNAoJyEO/yrHFQpPIZheLAqyCc3lN/elyRrSPurhx77Fz7111Izh4BCHqtyJEANqwE
+         R/mQ==
+X-Gm-Message-State: ANhLgQ3cNqwxmpNXpqyQ4unlHsc2TJ5Dtj7eL9xt3MM0YVVQhOnNEty5
+        K76dwqO8sGanyPYqIWO0gJJzcNeoTAmR9QEtn6M=
+X-Google-Smtp-Source: ADFU+vvsWaoL1g99EvbTDNOIcucRirP4k9XW6vxR/lFX1bcax2mzZU8w2M/CU4739tnMcw+1Z3J1tbdEpnnQ05Tj0tY=
+X-Received: by 2002:a02:bb11:: with SMTP id y17mr8733404jan.130.1585237678563;
+ Thu, 26 Mar 2020 08:47:58 -0700 (PDT)
+MIME-Version: 1.0
 References: <CAGB+Vh7VOy_y2W7rxmaWAOyBQxQz5foFNL1T2hog0er4mnEQ4g@mail.gmail.com>
  <20200326154641.7253-1-william.c.roberts@intel.com>
+In-Reply-To: <20200326154641.7253-1-william.c.roberts@intel.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Thu, 26 Mar 2020 10:47:47 -0500
+Message-ID: <CAFftDdp8Us2aSmAD5Q+MR3y6WvR2QAbC+_tFGmCwZbWh+0CBTA@mail.gmail.com>
+Subject: Re: cil: Fix DISABLE_SYMVER support and drop last dso.h
+To:     Joshua Brindle <joshua.brindle@crunchydata.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        William Roberts <william.c.roberts@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: William Roberts <william.c.roberts@intel.com>
+Josh can you run this on Mac build, I don't have one anymore.
 
-Fix issues like:
-<inline asm>:1:1: error: unknown directive
-.symver cil_build_policydb_pdb,        cil_build_policydb@LIBSEPOL_1.0
-
-Which was caused by the DISABLE_SYMVER define not being defined
-for static, Mac or Android builds.
-
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- libsepol/cil/src/cil.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-index 12cc28eff389..c8e27c04c954 100644
---- a/libsepol/cil/src/cil.c
-+++ b/libsepol/cil/src/cil.c
-@@ -51,6 +51,10 @@
- #include "cil_policy.h"
- #include "cil_strpool.h"
- 
-+#if !defined(SHARED) || defined(ANDROID) || defined(__APPLE__)
-+    #define DISABLE_SYMVER 1
-+#endif
-+
- #ifndef DISABLE_SYMVER
- asm(".symver cil_build_policydb_pdb,        cil_build_policydb@LIBSEPOL_1.0");
- asm(".symver cil_build_policydb_create_pdb, cil_build_policydb@@LIBSEPOL_1.1");
--- 
-2.17.1
-
+On Thu, Mar 26, 2020 at 10:46 AM <bill.c.roberts@gmail.com> wrote:
+>
+> I missed a dso.h file in cil code, and broke the DISABLE_SYMVER support.
+> this deletes that file and restores DISABLE_SYMVER support.
+>
+> Sorry...
+>
+> [PATCH 1/2] cil: rm dead dso.h file
+> [PATCH 2/2] cil: re-enable DISABLE_SYMVER define
+>
