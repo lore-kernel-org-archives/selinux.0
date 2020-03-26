@@ -1,217 +1,280 @@
-Return-Path: <SRS0=pblC=5K=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=8enA=5L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16AD0C2D0E7
-	for <selinux@archiver.kernel.org>; Wed, 25 Mar 2020 23:49:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05749C43331
+	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 14:01:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id D8CD42073E
-	for <selinux@archiver.kernel.org>; Wed, 25 Mar 2020 23:49:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B00C20748
+	for <selinux@archiver.kernel.org>; Thu, 26 Mar 2020 14:01:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="pqDtOzTm"
+	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="osTE6e8t"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727539AbgCYXtV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 25 Mar 2020 19:49:21 -0400
-Received: from sonic307-16.consmr.mail.ne1.yahoo.com ([66.163.190.39]:33732
-        "EHLO sonic307-16.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727460AbgCYXtU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 25 Mar 2020 19:49:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1585180158; bh=iB4QO2xpcy8z3Txx1jPJgB74/wRX3hSgbjzkB+XNUwQ=; h=Subject:To:References:From:Date:In-Reply-To:From:Subject; b=pqDtOzTmIr80hamOnVtFisWaduCQ2/ogyXTEG+cG/AsJ4q1nDGo1UTh2dAoF1tBbQnKxBRU/JTRhVdoejzOZsPbf0okOzjix1wQOlItSxPqLJjDO85+m4HV59XGNdY+qkAb5ggNDWoL5a39Cl0qp9KncTYtnmNrh93H0RF/+m4UINu6uYg2t4x4ZTtlrsC2g0OsbtATGzLvljxIE5KtgOoG9tle0x81V6nTB8nofySWTw7OhAX0Me9D9RadT/uAhylm0LvQFGordtyC0T+PxYBg2bkQH3gcophcc3lhC97dxBnzGlQ0MtoLlXsFkXn7KuyPsvnDcC0VaBFKmQky52g==
-X-YMail-OSG: rTZDQN4VM1kejYoFLE.vQK84bqq5OBrJk2Nyvv82C5_S8cvQCtmP4iMbk61fwGM
- cYodcunZTUBKewV7ZQOSHsbmiK1KuBlvNdSHSy9gkmzy0XVckEBujyFtm8OwB7ZHRMY60Fs0KmoX
- .Ikx.JWmqUPaoFsY4xfeKYOWGY_2Nx4e.0M3LCtUkXXDihBaJUQzm.7MZQlp8Lf5CR.DpOx3o8yo
- DtJU55nO5CEy0M7RLpSjUCz_3j1M1jUI7FDA984qk4HwJODUetgoAYxzuiWB8zkPqsX14_GCoGlW
- Rjr2Fa.hmONjhmqE20WtnX1CbTTQbA1tv4fLTF20O6xJ7Axg0lf4.fdKoOP8HXG8PHQzAMtTYVMe
- 6wAkOtDWqKE9BY75hrYyjg1hs91jjuUAub0M5YAswT7mVXqrOsM88tCLnQDzAf2Pe0Tx.knkgNf3
- LvYPuB0VPs.UokxQN7t9Ue2ERTwf_OUM26rLgoDGtaX46EqRKyWf_gLWFpqyk5FUUAWc80A.RrFR
- ImMPNao3ugZrXh13qMXM9IcnwHKJF5W8d7N5OBYF_mZ4hch1MSw3tvNw9s98H1XRoZZCQxoohdei
- rSd3ZmNnUbQZb6Zt_b11QieY5BxBe_jui41SBCFKaspaXQ0cG.kGGXjlv8gR6UChdGep9QNrnMFF
- pr9OoPjNwana2TmYVvlNfxJozUIi5gbAbQlRR0QrQ4palNw.gVGW_r._.sY3eahGH4Ns4j.cWWX8
- KYlU8RMGgOIJBAd2jQ93o83wtSNM3TmQEo9Br7XuNG_l_4a4yA1_6ZSNCX9V.sH.uDjxRI35Bc0o
- ReTglBNEe594BIucTIhmTwhm2hTB_N28N2ujt.djM68aZ5rqMHE6IL.luf2C3uu6KjBPlUihEKDB
- 8bvXYNDH8TyAcirgtsAwkei9zamB7K1H9_KU_IvV1jtNaD9.xYyNf0N58mKoLY.thf51gxsndeyZ
- 3e0d0ybTspHQE87AcDc0mtYAK.6KlxBwjcZJpE0GleApekQnrd4L8QCx86kNTsgtefU1_923BgS.
- KNl6muiVRQFQ0WOihWBMfZkodTMJfSfyG_gsehDLLWMkuC4JpJP.J1NFoI4iP_L5di1if.dQgq4s
- f.AoVUfMEtaILafvn4Aoo88_mmCQEOplZvgadCD0OPH2jPuqht7_HgLH5QrJN5o_tD2TiQl0wjSO
- 5uMXgUJNWMK2y1dddMm7cs.5lBrPL6teVC_nzm6hj2C5B3A_v5SdcH2hfONImjDeG1evPnzkaBS9
- Gh.cDSIU93Kk_lSgB6Aw2XEKP1qJjDlK5Jxkxu_kQl1g_pd4gUYyYoNkwcMexFRmc66iYIOhRRMP
- EAKQB1sIGtVcPEZodbC.EBUN7dXQvoWGKYtm4Gjkq253XsqC_8ldVsNQjPkldDw5VRxRPggjWYrV
- .KVtR8VeDSea_BZYynN_RY.ZO_gTvHRvIOLswXZG9
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Wed, 25 Mar 2020 23:49:18 +0000
-Received: by smtp403.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 45a1b035f502c324341a01a9b5e8669b;
-          Wed, 25 Mar 2020 23:49:16 +0000 (UTC)
-Subject: Re: [PATCH v2 3/3] Wire UFFD up to SELinux
+        id S1727800AbgCZOBv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 26 Mar 2020 10:01:51 -0400
+Received: from USAT19PA21.eemsg.mail.mil ([214.24.22.195]:29294 "EHLO
+        USAT19PA21.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727719AbgCZOBu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 26 Mar 2020 10:01:50 -0400
+X-Greylist: delayed 429 seconds by postgrey-1.27 at vger.kernel.org; Thu, 26 Mar 2020 10:01:50 EDT
+X-EEMSG-check-017: 93790637|USAT19PA21_ESA_OUT02.csd.disa.mil
+X-IronPort-AV: E=Sophos;i="5.72,308,1580774400"; 
+   d="scan'208";a="93790637"
+Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
+  by USAT19PA21.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 26 Mar 2020 13:52:55 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
+  s=tycho.nsa.gov; t=1585230776; x=1616766776;
+  h=subject:to:references:from:message-id:date:mime-version:
+   in-reply-to:content-transfer-encoding;
+  bh=PRC5UfyWl6IQ9UBuNWcLsZqqpUd9T1BiCJFbZ2b2SoE=;
+  b=osTE6e8tDFBpk1+AZovXnOout+0P/pqcK96IUpeTktdzyvUtLanmNSGr
+   uQxkbqhPkcaOmaL3v6CLZw5TGfVdPknqwx7Tk2jF2LMeQD+ehC9mP2+du
+   1vmROI8EObRDdcfSfZKbSpQfD3Li/Fmcxqol7dl9ArG/1eu05MNOT4a6a
+   1OGQnYPlCCPSOzDx7Dl70iFo32Ch/fquTpzMj0crWzCzZhwmD0W8PsdIK
+   Tz6ZcCVf9gdPxKt1Da4c3efLz4Sv87uUoO6sKRgTdjzV47LK+X1Z+8/5n
+   F2hpkPuG6mvDUa+ybb3i3Lh8R8+Kwdej7KASsL4GaiJgHXfuP2v2h/fFa
+   A==;
+X-IronPort-AV: E=Sophos;i="5.72,308,1580774400"; 
+   d="scan'208";a="41068397"
+IronPort-PHdr: =?us-ascii?q?9a23=3AL8nUcxJ7TqnkjlexidmcpTZWNBhigK39O0sv0r?=
+ =?us-ascii?q?FitYgXLfv4rarrMEGX3/hxlliBBdydt6sYzbOL7eu9BCQp2tWojjMrSNR0TR?=
+ =?us-ascii?q?gLiMEbzUQLIfWuLgnFFsPsdDEwB89YVVVorDmROElRH9viNRWJ+iXhpTEdFQ?=
+ =?us-ascii?q?/iOgVrO+/7BpDdj9it1+C15pbffxhEiCCybL9vIxi6txjdu8kXjIdtKqs8yg?=
+ =?us-ascii?q?bCr2dVdehR2W5nKlWfkgrm6Myt5pBj6SNQu/wg985ET6r3erkzQKJbAjo7LW?=
+ =?us-ascii?q?07/dXnuhbfQwSB4HscSXgWnQFTAwfZ9hH6X4z+vTX8u+FgxSSVJ8z2TbQzWT?=
+ =?us-ascii?q?S/86dmTQLjhSkbOzIl9mzcl9d9h7xHrh2/uxN/wpbUYICLO/p4YqPdZs4RSW?=
+ =?us-ascii?q?5YUspMSyBNHoawYo0BAOobOeZTspfzqV0AoxCjAQWgHe3ixztNinLwwKY00f?=
+ =?us-ascii?q?kuERve0QI9AdwOvnTaotb7OqgcXu+6zrXHwzrYYvNK2zrw8pTEfgwvrPyOW7?=
+ =?us-ascii?q?97bMrfyVMoFwPAllietJDlMC2N1uQNrWeb6fdrW/+qi2E9rwFxpiagx8cxgY?=
+ =?us-ascii?q?TOnYIa10vE+D5lwIc1OdK4SEl7bcSiEJtLrS6WLYR2QsQ8Q2xxvisx174IuY?=
+ =?us-ascii?q?ajcSQXx5kqyATTZvyaf4SS/B7uW/idLS1liH9jZbmxnQy98VK6xe35TsS01V?=
+ =?us-ascii?q?FKoTdbndTUrXAN0gDT6tCASvtg4ketwTaP2B7X6uFDOU00ibDUK4Qgwr4tjZ?=
+ =?us-ascii?q?ofq1jDHy/ql0X2i6+abEMk9fSz6+v7eLnmo56cN4tshgH/NKQhhNC/DPwlPg?=
+ =?us-ascii?q?UBUGWX4+Sx2KD58UHnT7hGkOc6nrTBvJDfP8sbp6q5AwFP0oYk7hayFyym38?=
+ =?us-ascii?q?kDnXQcMFJEeA6Ij4juO13UJvD4Fu2wj06jkDds2fDKJqfhDYnVLnjfjLfheq?=
+ =?us-ascii?q?5w5FNGxwo10d9f4JZUB6oOIPL0XU/xu9jYAQEjPwOoxObnDc131pkCVmKXHq?=
+ =?us-ascii?q?+ZLKTSvEeU5uIuJumMYZIVuCznK/c/5//jlnA5mVgafamm2ZsYdmq0EehhI0?=
+ =?us-ascii?q?WceXDsmMsOEX8WvgoiS+znkEaCXiBXZ3azWaI8+z46BZm4DYfMWI+tmqaN3C?=
+ =?us-ascii?q?SlEZ1MYGBJFFSMHW3vd4WeVPcGcDiSLdN5kjwYSbihTJcs1RWvtA/81rpmIf?=
+ =?us-ascii?q?PY+jYGup3/ydh1/ezTlQ0y9DBtCsSd1HyCT3xwnmwWXDI2wq9/rlJnyluZ0q?=
+ =?us-ascii?q?h3neZYFdpN6PNNSAs6MoTcz+NiAdDoRg3BZsuJSEqhQti+BTExT9Qxw8IBYk?=
+ =?us-ascii?q?pkFdWilQ3M0DS0A7ALk7yGH4I08q3C0HjrPcp9yGjJ1LMnj1Y4RstDL2qmhr?=
+ =?us-ascii?q?Rw9wLLHY7Gj12Zl7q2daQbxCPN8GaDzWyTvEBXSQJwUrvKXWoZZkTIqdT0/V?=
+ =?us-ascii?q?3CT7CwBrQ9KAdBytCNKrFMatL3iVVKXvDjOM7RY2ipgWe/GQ6Ixq+QbIrtY2?=
+ =?us-ascii?q?gd3zvdCE0fngAN8naJKxI+Cj2io23AFjxuE0zgY0f2/el5snO7QVc+zxuWYE?=
+ =?us-ascii?q?15y7q15hkViOSCS/MSxLIEvzwsqjRqE1a73tLWFcCMpw5gfKVafNM8701L1W?=
+ =?us-ascii?q?XDtwxyJJCgMqNijEYEcwtrp0Puywl3CoJYnMgytnwq0Q5yJLmA0FxbajOY2Y?=
+ =?us-ascii?q?n8OrjQKmn15hCgdbTa1U3Z0NaT4q0P8ug3q03/vAG1EUov63Nn099W03aH6Z?=
+ =?us-ascii?q?XKCw0SUZ31Ukkp7RR1u7baYiwl7YPOyXJsKbW0siPF298xAOslzRWgcMlEMK?=
+ =?us-ascii?q?OEGw/yEtAVB9K0J+ExlFipaRUEPO9W9KEqJc+pa/yG2KuzNuZ6gD2mlXhH4J?=
+ =?us-ascii?q?x60k+U9Sp8T+nI34wfw/GZxQuKTDH8g02kss/pmIBIfzYSHnCwyXusOIkESq?=
+ =?us-ascii?q?R0fIsPQUypJ8SszdR5gZOlD3JR8lWkA3sJ38imfRfUZFv4i0kYyUUSpGG9gy?=
+ =?us-ascii?q?Kp5zNzlD4to+yU2ymKi//vcBsBJ35jWmZvlxHvLJKygtRcW1KnK0AtlR249Q?=
+ =?us-ascii?q?PhyqNGvqVjPizWRktVeyXeMW5vSO2zu6CEbsoJ74kn9W1TUeKhcRWUUbLwvR?=
+ =?us-ascii?q?Ye+z3sEnEYxz0hcTyu/JLjkFgyjGObMWY2r3fDf8x07QnQ6caaRvNL2DcCAi?=
+ =?us-ascii?q?5ihn2fBUa5F8em8M/SlJrZtO26EWW7WdkbbyjxyquSuS26+ytuABuij7a0gN?=
+ =?us-ascii?q?KhDAt+mTfyyt1CTSzVqFP5ZY7x2uKxNucjNk9uB3fz7M11How4mYw1wNkU3n?=
+ =?us-ascii?q?sXnZWa/HYdmE/8NtJU3a+4Z30IAXYpytvY+0DA31d5L2nBk4D8UW+Hw9BJYd?=
+ =?us-ascii?q?C/b2JQ3TgyuZNkEqCRuYdYkDN1r1zwlgfYZfxwj39J0vc1wGILiOEO/gw2x2?=
+ =?us-ascii?q?OSBa5EThoQBjDlixndt4P2l65Qfmv6NOHrhUc=3D?=
+X-IPAS-Result: =?us-ascii?q?A2BhBwDYsnxe/wHyM5BmHAEBAQEBBwEBEQEEBAEBgXsCg?=
+ =?us-ascii?q?XssgUEyKoQajn1UBoESJYl6kHYDVAoBAQEBAQEBAQE0AQIEAQGERAKCLyQ4E?=
+ =?us-ascii?q?wIQAQEBBQEBAQEBBQMBAWyFYkIWAYFiKQGCfgEBAQECASMEEUYLCw4KAgImA?=
+ =?us-ascii?q?gJXBgEMBgIBAYJjP4JYBSCseXV/M4NMgX+DWYE+gQ4qAYg1g3kaeYEHgTgMA?=
+ =?us-ascii?q?4IpBy4+h1yCXgSXD3GJD49GgkaCVopciVEGHZtfjxGeBiI3gSErCAIYCCEPg?=
+ =?us-ascii?q?ydQGA2OKReNbFUlAzCBBgEBikyDUQEB?=
+Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
+  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 26 Mar 2020 13:52:50 +0000
+Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
+        by tarius.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 02QDr2ef044380;
+        Thu, 26 Mar 2020 09:53:06 -0400
+Subject: Re: [PATCH v2 1/3] Add a new LSM-supporting anonymous inode interface
 To:     Daniel Colascione <dancol@google.com>, timmurray@google.com,
         selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org, viro@zeniv.linux.org.uk, paul@paul-moore.com,
-        nnk@google.com, sds@tycho.nsa.gov, lokeshgidra@google.com,
-        Casey Schaufler <casey@schaufler-ca.com>
+        nnk@google.com, lokeshgidra@google.com,
+        James Morris <jmorris@namei.org>
 References: <20200214032635.75434-1-dancol@google.com>
- <20200325230245.184786-4-dancol@google.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <a8d0938c-6ab5-0323-8e98-35e7d3232282@schaufler-ca.com>
-Date:   Wed, 25 Mar 2020 16:49:14 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ <20200325230245.184786-2-dancol@google.com>
+From:   Stephen Smalley <sds@tycho.nsa.gov>
+Message-ID: <70f7260d-d5b9-4035-c8a6-219c7637f601@tycho.nsa.gov>
+Date:   Thu, 26 Mar 2020 09:53:59 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.6.0
 MIME-Version: 1.0
-In-Reply-To: <20200325230245.184786-4-dancol@google.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20200325230245.184786-2-dancol@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
-X-Mailer: WebService/1.1.15518 hermes Apache-HttpAsyncClient/4.1.4 (Java/1.8.0_242)
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 3/25/2020 4:02 PM, Daniel Colascione wrote:
-> This change gives userfaultfd file descriptors a real security
-> context, allowing policy to act on them.
-
-You should change the title to "Wire UFFD up to secure anon inodes".
-This code should support any LSM that wants to control anon inodes.
-If it doesn't, it isn't correct.
-
-All references to SELinux behavior (i.e. assigning a "security context")
-should be restricted to the SELinux specific bits of the patch set. You
-should be describing how any LSM can use this, not just the LSM you've
-targeted.
-
->
+On 3/25/20 7:02 PM, Daniel Colascione wrote:
+> This change adds two new functions, anon_inode_getfile_secure and
+> anon_inode_getfd_secure, that create anonymous-node files with
+> individual non-S_PRIVATE inodes to which security modules can apply
+> policy. Existing callers continue using the original singleton-inode
+> kind of anonymous-inode file. We can transition anonymous inode users
+> to the new kind of anonymous inode in individual patches for the sake
+> of bisection and review.
+> 
+> The new functions accept an optional context_inode parameter that
+> callers can use to provide additional contextual information to
+> security modules, e.g., indicating that one anonymous struct file is a
+> logical child of another, allowing a security model to propagate
+> security information from one to the other.
+> 
 > Signed-off-by: Daniel Colascione <dancol@google.com>
 > ---
->  fs/userfaultfd.c | 34 +++++++++++++++++++++++++++++-----
->  1 file changed, 29 insertions(+), 5 deletions(-)
->
+
+> diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
+> index 89714308c25b..114a04fc1db4 100644
+> --- a/fs/anon_inodes.c
+> +++ b/fs/anon_inodes.c
+> @@ -55,75 +55,135 @@ static struct file_system_type anon_inode_fs_type = {
+>   	.kill_sb	= kill_anon_super,
+>   };
+>   
+> -/**
+> - * anon_inode_getfile - creates a new file instance by hooking it up to an
+> - *                      anonymous inode, and a dentry that describe the "class"
+> - *                      of the file
+> - *
+> - * @name:    [in]    name of the "class" of the new file
+> - * @fops:    [in]    file operations for the new file
+> - * @priv:    [in]    private data for the new file (will be file's private_data)
+> - * @flags:   [in]    flags
+> - *
+> - * Creates a new file by hooking it on a single inode. This is useful for files
+> - * that do not need to have a full-fledged inode in order to operate correctly.
+> - * All the files created with anon_inode_getfile() will share a single inode,
+> - * hence saving memory and avoiding code duplication for the file/inode/dentry
+> - * setup.  Returns the newly created file* or an error pointer.
+> - */
+> -struct file *anon_inode_getfile(const char *name,
+> -				const struct file_operations *fops,
+> -				void *priv, int flags)
+> +static struct inode *anon_inode_make_secure_inode(
+> +	const char *name,
+> +	const struct inode *context_inode,
+> +	const struct file_operations *fops)
+> +{
+> +	struct inode *inode;
+> +	const struct qstr qname = QSTR_INIT(name, strlen(name));
+> +	int error;
+> +
+> +	inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
+> +	if (IS_ERR(inode))
+> +		return ERR_PTR(PTR_ERR(inode));
+
+Just return inode here?
+
+> +	inode->i_flags &= ~S_PRIVATE;
+> +	error =	security_inode_init_security_anon(
+> +		inode, &qname, fops, context_inode);
+
+Would drop fops argument to the security hook until we have an actual 
+user of it; one can always add it later.
+
+
 > diff --git a/fs/userfaultfd.c b/fs/userfaultfd.c
-> index 07b0f6e03849..78ff5d898733 100644
+> index 37df7c9eedb1..07b0f6e03849 100644
 > --- a/fs/userfaultfd.c
 > +++ b/fs/userfaultfd.c
-> @@ -76,6 +76,8 @@ struct userfaultfd_ctx {
->  	bool mmap_changing;
->  	/* mm with one ore more vmas attached to this userfaultfd_ctx */
->  	struct mm_struct *mm;
-> +	/* The inode that owns this context --- not a strong reference.  */
-> +	const struct inode *owner;
->  };
-> =20
->  struct userfaultfd_fork_ctx {
-> @@ -1014,14 +1016,18 @@ static __poll_t userfaultfd_poll(struct file *f=
-ile, poll_table *wait)
->  	}
->  }
-> =20
-> +static const struct file_operations userfaultfd_fops;
+> @@ -1014,8 +1014,6 @@ static __poll_t userfaultfd_poll(struct file *file, poll_table *wait)
+>   	}
+>   }
+>   
+> -static const struct file_operations userfaultfd_fops;
+> -
+>   static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
+>   				  struct userfaultfd_ctx *new,
+>   				  struct uffd_msg *msg)
+> @@ -1920,7 +1918,7 @@ static void userfaultfd_show_fdinfo(struct seq_file *m, struct file *f)
+>   }
+>   #endif
+>   
+> -static const struct file_operations userfaultfd_fops = {
+> +const struct file_operations userfaultfd_fops = {
+>   #ifdef CONFIG_PROC_FS
+>   	.show_fdinfo	= userfaultfd_show_fdinfo,
+>   #endif
+
+These changes can be dropped entirely AFAICT.
+
+> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+> index 20d8cf194fb7..de5d37e388df 100644
+> --- a/include/linux/lsm_hooks.h
+> +++ b/include/linux/lsm_hooks.h
+> @@ -215,6 +215,10 @@
+>    *	Returns 0 if @name and @value have been successfully set,
+>    *	-EOPNOTSUPP if no security attribute is needed, or
+>    *	-ENOMEM on memory allocation failure.
+> + * @inode_init_security_anon:
+> + *      Set up a secure anonymous inode.
+> + *	Returns 0 on success. Returns -EPERM if	the security module denies
+> + *	the creation of this inode.
+
+I'd favor describing the arguments (@name, @context_inode) too.
+
+>    * @inode_create:
+>    *	Check permission to create a regular file.
+>    *	@dir contains inode structure of the parent of the new file.
+> @@ -1552,6 +1556,10 @@ union security_list_options {
+>   					const struct qstr *qstr,
+>   					const char **name, void **value,
+>   					size_t *len);
+> +	int (*inode_init_security_anon)(struct inode *inode,
+> +					const struct qstr *name,
+> +					const struct file_operations *fops,
+> +					const struct inode *context_inode);
+>   	int (*inode_create)(struct inode *dir, struct dentry *dentry,
+
+Can drop the fops argument.
+
+> diff --git a/include/linux/security.h b/include/linux/security.h
+> index 64b19f050343..8ea76af0be7a 100644
+> --- a/include/linux/security.h
+> +++ b/include/linux/security.h
+> @@ -320,6 +320,10 @@ void security_inode_free(struct inode *inode);
+>   int security_inode_init_security(struct inode *inode, struct inode *dir,
+>   				 const struct qstr *qstr,
+>   				 initxattrs initxattrs, void *fs_data);
+> +int security_inode_init_security_anon(struct inode *inode,
+> +				      const struct qstr *name,
+> +				      const struct file_operations *fops,
+> +				      const struct inode *context_inode);
+
+Ditto
+
+> diff --git a/security/security.c b/security/security.c
+> index 565bc9b67276..d06f3969c030 100644
+> --- a/security/security.c
+> +++ b/security/security.c
+> @@ -1033,6 +1033,16 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
+>   }
+>   EXPORT_SYMBOL(security_inode_init_security);
+>   
+> +int
+> +security_inode_init_security_anon(struct inode *inode,
+> +				  const struct qstr *name,
+> +				  const struct file_operations *fops,
+> +				  const struct inode *context_inode)
+> +{
+> +	return call_int_hook(inode_init_security_anon, 0, inode, name,
+> +			     fops, context_inode);
+> +}
 > +
->  static int resolve_userfault_fork(struct userfaultfd_ctx *ctx,
->  				  struct userfaultfd_ctx *new,
->  				  struct uffd_msg *msg)
->  {
->  	int fd;
-> =20
-> -	fd =3D anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, new,
-> -			      O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS));
-> +	fd =3D anon_inode_getfd_secure(
-> +		"[userfaultfd]", &userfaultfd_fops, new,
-> +		O_RDWR | (new->flags & UFFD_SHARED_FCNTL_FLAGS),
-> +		ctx->owner);
->  	if (fd < 0)
->  		return fd;
-> =20
-> @@ -1918,7 +1924,7 @@ static void userfaultfd_show_fdinfo(struct seq_fi=
-le *m, struct file *f)
->  }
->  #endif
-> =20
-> -const struct file_operations userfaultfd_fops =3D {
-> +static const struct file_operations userfaultfd_fops =3D {
->  #ifdef CONFIG_PROC_FS
->  	.show_fdinfo	=3D userfaultfd_show_fdinfo,
->  #endif
-> @@ -1943,6 +1949,7 @@ static void init_once_userfaultfd_ctx(void *mem)
-> =20
->  SYSCALL_DEFINE1(userfaultfd, int, flags)
->  {
-> +	struct file *file;
->  	struct userfaultfd_ctx *ctx;
->  	int fd;
-> =20
-> @@ -1972,8 +1979,25 @@ SYSCALL_DEFINE1(userfaultfd, int, flags)
->  	/* prevent the mm struct to be freed */
->  	mmgrab(ctx->mm);
-> =20
-> -	fd =3D anon_inode_getfd("[userfaultfd]", &userfaultfd_fops, ctx,
-> -			      O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
-> +	file =3D anon_inode_getfile_secure(
-> +		"[userfaultfd]", &userfaultfd_fops, ctx,
-> +		O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS),
-> +		NULL);
-> +	if (IS_ERR(file)) {
-> +		fd =3D PTR_ERR(file);
-> +		goto out;
-> +	}
-> +
-> +	fd =3D get_unused_fd_flags(O_RDONLY | O_CLOEXEC);
-> +	if (fd < 0) {
-> +		fput(file);
-> +		goto out;
-> +	}
-> +
-> +	ctx->owner =3D file_inode(file);
-> +	fd_install(fd, file);
-> +
-> +out:
->  	if (fd < 0) {
->  		mmdrop(ctx->mm);
->  		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
+
+And again.
+
 
