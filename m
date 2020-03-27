@@ -2,145 +2,87 @@ Return-Path: <SRS0=745E=5M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F422C43331
-	for <selinux@archiver.kernel.org>; Fri, 27 Mar 2020 13:41:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DABFEC43331
+	for <selinux@archiver.kernel.org>; Fri, 27 Mar 2020 14:27:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 564F220658
-	for <selinux@archiver.kernel.org>; Fri, 27 Mar 2020 13:41:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AAB7A206F6
+	for <selinux@archiver.kernel.org>; Fri, 27 Mar 2020 14:27:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=tycho.nsa.gov header.i=@tycho.nsa.gov header.b="MypQwT1d"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T5fbKtLo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726698AbgC0NlN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 27 Mar 2020 09:41:13 -0400
-Received: from UCOL19PA34.eemsg.mail.mil ([214.24.24.194]:49554 "EHLO
-        UCOL19PA34.eemsg.mail.mil" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726540AbgC0NlM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 27 Mar 2020 09:41:12 -0400
-X-EEMSG-check-017: 93004792|UCOL19PA34_ESA_OUT01.csd.disa.mil
-X-IronPort-AV: E=Sophos;i="5.72,312,1580774400"; 
-   d="scan'208";a="93004792"
-Received: from emsm-gh1-uea11.ncsc.mil ([214.29.60.3])
-  by UCOL19PA34.eemsg.mail.mil with ESMTP/TLS/DHE-RSA-AES256-SHA256; 27 Mar 2020 13:40:35 +0000
+        id S1726656AbgC0O1e (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 27 Mar 2020 10:27:34 -0400
+Received: from mail-io1-f43.google.com ([209.85.166.43]:39206 "EHLO
+        mail-io1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726770AbgC0O1d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 27 Mar 2020 10:27:33 -0400
+Received: by mail-io1-f43.google.com with SMTP id c19so9989691ioo.6
+        for <selinux@vger.kernel.org>; Fri, 27 Mar 2020 07:27:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tycho.nsa.gov; i=@tycho.nsa.gov; q=dns/txt;
-  s=tycho.nsa.gov; t=1585316435; x=1616852435;
-  h=subject:to:references:from:message-id:date:mime-version:
-   in-reply-to:content-transfer-encoding;
-  bh=aclVecdxZ7tQS+v8MD4ZG7hm+P1deCZxL8udM9zRKeU=;
-  b=MypQwT1dXy8417Jcg8xituSqrVreuAFTeeSQht102Uf0z2h4mnkjSPhi
-   Op1Z9ggvZHachdVfHZp+C+eJKuxGWojI3H7foqRsxRJu4SmiRj+tdNzWI
-   S28hmTLUZlE7JDwGVzmlh3xHflw3ym91b/Jg934qZ6akrsIeLDdmNR6sZ
-   k27Il7YJ0fdcgCZ6vqxAX3who5F+YxFGlSY3EbE6NAr9it+mnY4ntoiru
-   cTqyPNYwdXg5MzuxumW7kTR4aPtbKfW+aT/XwOOWWKAZsabHaPtcTzpGL
-   /oPMl5tjF50sjsiSQ9a6wZJkiLryt0pc+woE1hq71GqALMG4U1TRwmLsc
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.72,312,1580774400"; 
-   d="scan'208";a="41132479"
-IronPort-PHdr: =?us-ascii?q?9a23=3Ay0nKExM9NvOs4ut7KLYl6mtUPXoX/o7sNwtQ0K?=
- =?us-ascii?q?IMzox0K/v+r8bcNUDSrc9gkEXOFd2Cra4d16yP7vGrBDVIyK3CmU5BWaQEbw?=
- =?us-ascii?q?UCh8QSkl5oK+++Imq/EsTXaTcnFt9JTl5v8iLzG0FUHMHjew+a+SXqvnYdFR?=
- =?us-ascii?q?rlKAV6OPn+FJLMgMSrzeCy/IDYbxlViDanbr5+MRq7oR/MusQWhYZuJaY8xg?=
- =?us-ascii?q?bUqXZUZupawn9lKl2Ukxvg/Mm74YRt8z5Xu/Iv9s5AVbv1cqElRrFGDzooLn?=
- =?us-ascii?q?446tTzuRbMUQWA6H0cUn4LkhVTGAjK8Av6XpbqvSTksOd2xTSXMtf3TbAwXj?=
- =?us-ascii?q?Si8rtrRRr1gyoJKzI17GfagdFrgalFvByuuQBww4/MYIGUKvV+eL/dfcgHTm?=
- =?us-ascii?q?ZFR8pdSjBNDp+5Y4YJAeUBJ+JYpJTjqVUIoxW1GA2gCPrhxzJMg3P727Ax3e?=
- =?us-ascii?q?Y8HgHcxAEuAswAsHrUotv2OqkdX++6w6vUwjvMdP5WxTXw5ZLUfhw9r/yBX7?=
- =?us-ascii?q?R9etfRx0k1EAPFi02dp5H5PzyLzuQNs3aU7+x9Xuyyjm4osQVxojyxycYsl4?=
- =?us-ascii?q?LEgZkVxU3f9Shi3IY0JcG3SE58YdK+FptQrDuVO5F5QsMlXWFloSA3waAFt5?=
- =?us-ascii?q?6jZCUG1ZsqyhHFZ/GHboSE+AzvWemPLTtimX5ofq+0iQyo/ki60OL8U9G50F?=
- =?us-ascii?q?NNriVYjNbBrmsN1xnP6sifTft941uh1S6P1w/N7uFEJlg5lbbBJJ47w74wi4?=
- =?us-ascii?q?ETvV7fHi72hEr2jKiWel8i+ue08OTofq/qppqdN49wkg3+M6IuldKjAekgLw?=
- =?us-ascii?q?QDUGeW9f682bH+50H1XrpHguMsnqXEqJzaIN4Upq+9Aw9byIYj7BO/Ai+90N?=
- =?us-ascii?q?sFhnkKN05FeRKbgIjpPFHCOvb4DeyljFi2nzdrwO7GMqX7AprRNnjDjKvhfb?=
- =?us-ascii?q?Fl5kFB0gUzy8xQ55VQCrwaL/LzXUjxtNPcDhAnKQC73+HnCNBl3IMERW2PGr?=
- =?us-ascii?q?OZML/VsVKQ+uIvIuyMZIoIuDbnMfgq/f7vgGQ2mV8aeqmp0p8XZ26iEvt6JE?=
- =?us-ascii?q?WZZGLmgs0dHmcSogo+UOvqhUWZUTFNY3ayXqQ85iw0CY+9E4fDSZ6igKab0C?=
- =?us-ascii?q?e4AJJWfGZGBU6IEXvycIWEQfgMYjqIIsB9ijwESaShS4g52BGqtQ/6zadnL+?=
- =?us-ascii?q?XN9i0Dq53syMV15/fSlREu9T14FsGd02aQQGFpmmMHWSQ73L5woUNj0FePy6?=
- =?us-ascii?q?t4jOJCFdxV+fxJVh02NZnGz+x1E9ryQB7Ofs+VSFa6RdWrGTUxTtM3w98TbE?=
- =?us-ascii?q?dxAtuijgve0CW0Hb8aibiLCYcq8qLTwXfxPdxxy3XY26k7iVkpXM9POXehhq?=
- =?us-ascii?q?5l+AjZH5TJnFmBl6a2aaQc2zbA9GOCzWqIoUFZXxd8UabbUnAFYEvZs9D561?=
- =?us-ascii?q?jcT7+hF7snKBFNyc2cJatQbN3mk1FGSO3kONTEbGK7g32wCgqQxrOQcIrqfH?=
- =?us-ascii?q?0Q3CbDCEgBiA0T43mGOhYkBiu7oGLREiZuFVTxbEPo6+V+r2m7TkAsxQGQc0?=
- =?us-ascii?q?Jhz6a1+gIShfGEVfMT36gEuCA6pjR1Alm92dPWC8SaqwplfaVcZ8494Vhd2W?=
- =?us-ascii?q?LerQx9MYasL71hhlQGaQR4o1vu1wlrCoVHicUqtGklzBd2Ka+DyFNObS6Y3Z?=
- =?us-ascii?q?TpNr3SLWny+wqvZLDM1l7C19aW/78F6O4kpFX7oAGpCk0i/m1h09lT0HuR/Z?=
- =?us-ascii?q?rKDA0VUZL+VkY46QJ2qK3dYik4/4nUz2FjMbGosj/e3NIkHO8lyhGjf9hBK6?=
- =?us-ascii?q?OEFADyE8wHCMi0MuMngFepbhUDPOBd8K47IdmqeOeB2K6uJOxghi6pjXxb4I?=
- =?us-ascii?q?Bh1UKB7yh8SuvP35Yf2fGY3xCHWiz6jFi7t8D4h4FEaSsVHmqlxii3TLJWM4?=
- =?us-ascii?q?F7e4cGDS+FJMm+3d5/gJjgEypU/VioAFcu18iudh6fKVf62FsUnVgWpHm6gz?=
- =?us-ascii?q?Gx3hR7lDYmqqfZ1yvLh6z5eR4GPHNbbHdtgE2qIoWuid0eGk+yYExhkBqj+F?=
- =?us-ascii?q?a/3KVQub5+M3iWREBEYiz7B39tX7H2tbeYZcNLrpQyvmEfVOW6fEDfRKXxrg?=
- =?us-ascii?q?UX1wv9EGZEgjM2bTenvtP+hRM+wGacKmtj6XnUY8d9wT/B69HGA/1cxDwLQG?=
- =?us-ascii?q?9/kzaTTluiOvG38tiO0ZTOqOazUySmTJIXOTfq14Sopia95HMsBRy5guD1nc?=
- =?us-ascii?q?foVxU5lWfj3sRufT3BsRK5Z47szan8OuViOgFuAlzU5M19FYVz1IA3gdVY3X?=
- =?us-ascii?q?8Zi46V8nsLi27bPtJc1qbzKnEKQHpDwdvS+hLkw2VlJ3eExsT+THrO7NFmYo?=
- =?us-ascii?q?yBfm4O2i87p/tPAaOQ4a0MyTB5uXKkvAnRZr57hT5bxvwwvi1Jy9oVsRYgm3?=
- =?us-ascii?q?3OSosZGlNVaGm1zEWF?=
-X-IPAS-Result: =?us-ascii?q?A2AKAQAhAX5e/wHyM5BmHAEBAQEBBwEBEQEEBAEBgWoEA?=
- =?us-ascii?q?QELAYF8LIFAATIqhBqOfFIBAQaBCggliXuQdgNUCgEBAQEBAQEBATQBAgQBA?=
- =?us-ascii?q?YREAoIxJDcGDgIQAQEBBQEBAQEBBQMBAWyFYoI7KQGDDAEFIxVRCw4KAgImA?=
- =?us-ascii?q?gJXBgEMBgIBAYJjP4JYJaxLgTKFS4NtgT6BDioBjC4aeYEHgTgMA4JePodgg?=
- =?us-ascii?q?l4ElxFxmFuCRoJWlDAGHZtpjxSeCiM3gSErCAIYCCEPgydQGA2cLFUlAzCBB?=
- =?us-ascii?q?gEBjX4BAQ?=
-Received: from tarius.tycho.ncsc.mil ([144.51.242.1])
-  by emsm-gh1-uea11.NCSC.MIL with ESMTP; 27 Mar 2020 13:40:34 +0000
-Received: from moss-pluto.infosec.tycho.ncsc.mil (moss-pluto.infosec.tycho.ncsc.mil [192.168.25.131])
-        by tarius.tycho.ncsc.mil (8.14.7/8.14.4) with ESMTP id 02RDevOf212468;
-        Fri, 27 Mar 2020 09:40:57 -0400
-Subject: Re: [PATCH v4 2/3] Teach SELinux about anonymous inodes
-To:     Daniel Colascione <dancol@google.com>, timmurray@google.com,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, viro@zeniv.linux.org.uk, paul@paul-moore.com,
-        nnk@google.com, lokeshgidra@google.com, jmorris@namei.org
-References: <20200326181456.132742-1-dancol@google.com>
- <20200326200634.222009-1-dancol@google.com>
- <20200326200634.222009-3-dancol@google.com>
-From:   Stephen Smalley <sds@tycho.nsa.gov>
-Message-ID: <118df484-7971-54e7-2a62-a07afc3c627d@tycho.nsa.gov>
-Date:   Fri, 27 Mar 2020 09:41:55 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=MUnUFnPERDnn7etQyQvfPIEOQtiKOO19I5v33BgJgCQ=;
+        b=T5fbKtLoizYAY2KU5ec2gyhaZK/laIo6imZ/QYm9rsF0Kh9K+INBB6HMHTqKk8GOuf
+         ZlHkCB9aClaKzHvtx91gDn40TC9QCppAF0tLb+T0H7GoDf0/n5hoP4XUeFD39qjBh07d
+         0wf5GHSiA1pwHCEVRzYCA1Xl+wto8borqVQLdZmJQaPJfMoIvEeJlScJ/ML5uQ/VWrGl
+         ltp9+mG03v6zM4mkjcesMYKwqhrDWowpyQqSiCn6scYZE9zuPpmR2FWDXbO/3ND/02Ua
+         gkj2kv3MWtCN59KS7MvRWw6Gkiln3lFEjcmFF4i48TAMp8aEVtXVWHbpVB58FPUKQQ97
+         HMeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=MUnUFnPERDnn7etQyQvfPIEOQtiKOO19I5v33BgJgCQ=;
+        b=JJB3wyTgvLmr9geL+vh8ghvxGHaWgJekqBHvqIuZE18KaSRJL9Lod/DxyvAmfV2e19
+         rDbn7LoU2p3cbOM0xaIdENKGDHkXHwSBFpSshqGXJOxV6MSfXJ+JgIwYsh9GKJaVMp3b
+         eX2KQgrFDO+72X7FazkG3dsZh7prSLfj+sJcQq/gAv/FxMnpYnIetdMRqHzFzf7wEt3V
+         pQF/LbVUhdKwas4vV+/kmgTX1VdXhnYLSFPHo7TH85B4D4Rjo1RIzIQpu2XlWvDfXKMr
+         lKAQRzZ6Bw4byART27U70tVGKseBH7Unto7W6YQUPeD1fUJ16iMPOq0cadc0cLCbkLJF
+         DyVA==
+X-Gm-Message-State: ANhLgQ3POFgDzCmrG82j/k+V7hIN17aNxOV/4r/HPNfuNiNm07qylhjf
+        OcgdOoYnL4zJz8cY2LmovYONQxvqQsBNho/yl+0=
+X-Google-Smtp-Source: ADFU+vtwwPfFsMexYfw+3eEzxp349UtsM2P/R1f7wPwZdjpPlSGU9jCVW/BlWpL/o2R2wCMLptjRPvbcnmmbd5v6E5g=
+X-Received: by 2002:a05:6602:25d1:: with SMTP id d17mr802255iop.88.1585319252641;
+ Fri, 27 Mar 2020 07:27:32 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200326200634.222009-3-dancol@google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CAGB+Vh7VOy_y2W7rxmaWAOyBQxQz5foFNL1T2hog0er4mnEQ4g@mail.gmail.com>
+ <20200326154641.7253-1-william.c.roberts@intel.com> <CAFftDdp8Us2aSmAD5Q+MR3y6WvR2QAbC+_tFGmCwZbWh+0CBTA@mail.gmail.com>
+ <CAGB+Vh5P-VKru1-ztYRBe4sr7OdeOpAzATGEBHkj6Q6i6s3mYw@mail.gmail.com> <CAFftDdqqjgCBgN+LsV0d0ejHz5mBhuMgLhCHankaCDexFFEY2A@mail.gmail.com>
+In-Reply-To: <CAFftDdqqjgCBgN+LsV0d0ejHz5mBhuMgLhCHankaCDexFFEY2A@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Fri, 27 Mar 2020 09:27:21 -0500
+Message-ID: <CAFftDdrLuq3Dg+jgB=xW8e+r6WE1qB3iQrpAmLFDta2K+aUP4Q@mail.gmail.com>
+Subject: Re: cil: Fix DISABLE_SYMVER support and drop last dso.h
+To:     Joshua Brindle <joshua.brindle@crunchydata.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        William Roberts <william.c.roberts@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 3/26/20 4:06 PM, Daniel Colascione wrote:
-> This change uses the anon_inodes and LSM infrastructure introduced in
-> the previous patch to give SELinux the ability to control
-> anonymous-inode files that are created using the new _secure()
-> anon_inodes functions.
-> 
-> A SELinux policy author detects and controls these anonymous inodes by
-> adding a name-based type_transition rule that assigns a new security
-> type to anonymous-inode files created in some domain. The name used
-> for the name-based transition is the name associated with the
-> anonymous inode for file listings --- e.g., "[userfaultfd]" or
-> "[perf_event]".
-> 
-> Example:
-> 
-> type uffd_t;
-> type_transition sysadm_t sysadm_t : anon_inode uffd_t "[userfaultfd]";
-> allow sysadm_t uffd_t:anon_inode { create };
-> 
-> (The next patch in this series is necessary for making userfaultfd
-> support this new interface.  The example above is just
-> for exposition.)
-> 
-> Signed-off-by: Daniel Colascione <dancol@google.com>
-
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-
+On Thu, Mar 26, 2020 at 11:18 AM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+> > > Josh can you run this on Mac build, I don't have one anymore.
+> > >
+> >
+> > LGTM
+> >
+> > Acked-by: Joshua Brindle <joshua.brindle@crunchydata.com>
+> Thanks!
+>
+> Staged: https://github.com/SELinuxProject/selinux/pull/214
+>
+> Will merge tomorrow afternoon unless I hear otherwise.
+Merged: https://github.com/SELinuxProject/selinux/pull/214
