@@ -2,71 +2,74 @@ Return-Path: <SRS0=0b+K=5N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 45B04C43331
-	for <selinux@archiver.kernel.org>; Sat, 28 Mar 2020 12:46:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22D0FC2D0ED
+	for <selinux@archiver.kernel.org>; Sat, 28 Mar 2020 12:46:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 02FF320723
+	by mail.kernel.org (Postfix) with ESMTP id D9E72206E6
 	for <selinux@archiver.kernel.org>; Sat, 28 Mar 2020 12:46:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dg+o8EU9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ScowabZ0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726353AbgC1MqB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 28 Mar 2020 08:46:01 -0400
-Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:30372 "EHLO
+        id S1726290AbgC1MqC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 28 Mar 2020 08:46:02 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([216.205.24.74]:23062 "EHLO
         us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726290AbgC1MqB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 28 Mar 2020 08:46:01 -0400
+        by vger.kernel.org with ESMTP id S1726268AbgC1MqC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 28 Mar 2020 08:46:02 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1585399560;
+        s=mimecast20190719; t=1585399559;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=wd8ziv+HGAv/zDdK8rd18zEi8T01NST2lViyTQM5bFQ=;
-        b=dg+o8EU9EV3xQZNe2DMb5fNexxjMkNQu1pTLxv86TITAQl26Bbg9UV6tvIjzonZE4zlig+
-        3AuoDkSiCDeOSYynDPx/dsaSlYrBzzt0yrhnRqFBED0eeQEhlKRbKYKeVXqBsmnfnEf46J
-        EM2eKq/KD1eQelHAwWLB4GkVYQBm2NY=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-338-Jjb0H849NHGxRw6f9mJBzQ-1; Sat, 28 Mar 2020 08:45:55 -0400
-X-MC-Unique: Jjb0H849NHGxRw6f9mJBzQ-1
-Received: by mail-wr1-f72.google.com with SMTP id l17so6200582wro.3
-        for <selinux@vger.kernel.org>; Sat, 28 Mar 2020 05:45:55 -0700 (PDT)
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=A5U+HHMYndcR7H45eFUGiQvb9LtUXZAKgB8h/5Jyvus=;
+        b=ScowabZ016ljSDgLmZuZXxqnR1+hm+FoE9BGWYmuRHQOalzvsWM3blsPIg334mxQG++NUE
+        iq7FIldhmp6DlU2SYX2nYgUGE6M8CA6THITIU/Zfvyghu+TqAbrMuOugE0j6LSRbZphPH0
+        PASikfQVxwRt3aTa2h1vXlHazEaFUm0=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-397-Ed7u1YqOMAOtP0PDnOyd3Q-1; Sat, 28 Mar 2020 08:45:58 -0400
+X-MC-Unique: Ed7u1YqOMAOtP0PDnOyd3Q-1
+Received: by mail-wr1-f70.google.com with SMTP id m15so6208729wrb.0
+        for <selinux@vger.kernel.org>; Sat, 28 Mar 2020 05:45:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=wd8ziv+HGAv/zDdK8rd18zEi8T01NST2lViyTQM5bFQ=;
-        b=GEqOBYDwzevKlcL1fB69PH8lzeM8+1nYnJcc62tBIlZGBEU6s6t7Us5aqIG3h8znJ9
-         /ETKgQtFJFAPw5tehPzs09LnTXLgLHnllZ50eTUt5W5fPmQWSbgqwHmKzpp6DL5UfnW2
-         VVz2d0mnGS7yLGF2W8Y60PDEGbNOiO6JjRULv5hDGo+B35ecLkgkX8E0xNGqBLC7qT8c
-         ZfrkyF6RRVmZouo7ct/r31VnJ0ZrdnztbYxrJYy2SG/dX2xdW5OWPKxVCWrQWDTk3uBh
-         iV79vanPTnpa9EUiGs17nEYWSZL4mKWSZtHRat5gxhZgqYA4X4gPC9ePxEgXW5sJDq4T
-         mWOA==
-X-Gm-Message-State: ANhLgQ1QZFlu5u/WMewLlIj+C0uZSJ3kUBfgbmzBm4ZY2osl5mfUxzBF
-        Kwm1I4Tj2D+PQpdqOzHVq8f1CJ/zm6QSOMPl+4jbidZoJSzEUlwNahiohSQT+YUDFUzFZ9XqAtY
-        JzIkZI0Tz0/gjQMLiBw==
-X-Received: by 2002:adf:f1c4:: with SMTP id z4mr5098586wro.342.1585399554307;
-        Sat, 28 Mar 2020 05:45:54 -0700 (PDT)
-X-Google-Smtp-Source: ADFU+vt1eEihAId6GvFvjPwIfJ8nMQR2DY7MZhAkmXuneyyJ55YRBUX1KGnDuKXdbuEM69O/3UAL8g==
-X-Received: by 2002:adf:f1c4:: with SMTP id z4mr5098563wro.342.1585399554066;
-        Sat, 28 Mar 2020 05:45:54 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=A5U+HHMYndcR7H45eFUGiQvb9LtUXZAKgB8h/5Jyvus=;
+        b=DOPLxXiII2NEty+tFeObgXy2SXJZDbr1g1dvKK5vUCi917ie+bYKYWbkamNlXYyKuW
+         Gjq5LGiPN12TvjfbTgfTnb7SM+sgnTx55swNIe3MEBWHBwRojDE1UctF7tP8vlp/fqmW
+         q85U+n4V73YoCTvtLKetllZvjwxftyimgwLpmtM1Sg/ZR3FnmEZRh3gRtqQj+tufnjPP
+         TgKCUes8PcVtQjmQzBhH2GYoryW7Vnufu4bJz48dFQC9GkEwLQWyLPEY/jR4JS7oBtQk
+         jKoWcxkfND5Qm4aEiPXfSjFL/rhKeiy8sgb0t2p0nMouG4FY8atFz2LfGohdWuO2f1EV
+         qasw==
+X-Gm-Message-State: ANhLgQ1JCw7rQ+NBB6uc0rO6bKgGnlbZ4cssFDaxt6cGkekI0h7RLOCF
+        AsOBoHQjgeBZwO+v3g3BIfqWzPI0aDi1GOgKooOvQRRJMhVWGaMGVyqzodMjFiRPncxTaRM66lX
+        VuwJyfUA5iBQuvBJe1g==
+X-Received: by 2002:a5d:6605:: with SMTP id n5mr4654834wru.303.1585399556692;
+        Sat, 28 Mar 2020 05:45:56 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vvA0TUz5l9+jp/sV3jBCVhWM9+UwXIJODN7fS2m83gdnHigYd2ODE0j74pkDCjutVrp5PprLw==
+X-Received: by 2002:a5d:6605:: with SMTP id n5mr4654817wru.303.1585399556393;
+        Sat, 28 Mar 2020 05:45:56 -0700 (PDT)
 Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
-        by smtp.gmail.com with ESMTPSA id y200sm12349156wmc.20.2020.03.28.05.45.52
+        by smtp.gmail.com with ESMTPSA id y200sm12349156wmc.20.2020.03.28.05.45.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Mar 2020 05:45:53 -0700 (PDT)
+        Sat, 28 Mar 2020 05:45:55 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         Chris PeBenito <pebenito@ieee.org>
-Subject: [PATCH v2 0/2] userspace: Implement new format of filename trans rules
-Date:   Sat, 28 Mar 2020 13:45:48 +0100
-Message-Id: <20200328124550.199568-1-omosnace@redhat.com>
+Subject: [PATCH v2 2/2] libsepol: implement POLICYDB_VERSION_COMP_FTRANS
+Date:   Sat, 28 Mar 2020 13:45:50 +0100
+Message-Id: <20200328124550.199568-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20200328124550.199568-1-omosnace@redhat.com>
+References: <20200328124550.199568-1-omosnace@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -74,45 +77,400 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-These patches are the userspace side of the kernel change posted at [1].
+Implement a new, more space-efficient form of storing filename
+transitions in the binary policy. The internal structures have already
+been converted to this new representation; this patch just implements
+reading/writing an equivalent representation from/to the binary policy.
 
-The first patch changes libsepol's internal representation of filename
-transition rules in a way similar to kernel commit c3a276111ea2
-("selinux: optimize storage of filename transitions") [2].
+This new format reduces the size of Fedora policy from 7.6 MB to only
+3.3 MB (with policy optimization enabled in both cases). With the
+unconfined module disabled, the size is reduced from 3.3 MB to 2.4 MB.
 
-The second patch then builds upon that and implements reading and
-writing of a new binary policy format that uses this representation also
-in the data layout.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ libsepol/include/sepol/policydb/policydb.h |   3 +-
+ libsepol/src/policydb.c                    | 218 +++++++++++++++++----
+ libsepol/src/write.c                       |  72 ++++++-
+ 3 files changed, 242 insertions(+), 51 deletions(-)
 
-See individual patches for more details.
-
-NOTE: This series unfortunately breaks the build of setools. Moreover,
-when an existing build of setools dynamically links against the new
-libsepol, it segfaults. Sadly, there doesn't seem to be a nice way of
-handling this, since setools relies on non-public libsepol policydb
-API/ABI.
-
-Changes in v2:
- - fixed counting rules when reading the new policy format
-
-[1] https://lore.kernel.org/selinux/20200327151941.95619-1-omosnace@redhat.com/T/
-[2] https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?id=c3a276111ea2572399281988b3129683e2a6b60b
-
-Ondrej Mosnacek (2):
-  libsepol,checkpolicy: optimize storage of filename transitions
-  libsepol: implement POLICYDB_VERSION_COMP_FTRANS
-
- checkpolicy/policy_define.c                |  52 ++--
- checkpolicy/test/dispol.c                  |  27 +-
- libsepol/cil/src/cil_binary.c              |  29 +-
- libsepol/include/sepol/policydb/policydb.h |  18 +-
- libsepol/src/expand.c                      |  60 +---
- libsepol/src/kernel_to_cil.c               |  24 +-
- libsepol/src/kernel_to_conf.c              |  24 +-
- libsepol/src/policydb.c                    | 314 ++++++++++++++++-----
- libsepol/src/write.c                       | 100 +++++--
- 9 files changed, 441 insertions(+), 207 deletions(-)
-
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index c3180c61..9ef43abc 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -755,10 +755,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define POLICYDB_VERSION_XPERMS_IOCTL	30 /* Linux-specific */
+ #define POLICYDB_VERSION_INFINIBAND		31 /* Linux-specific */
+ #define POLICYDB_VERSION_GLBLUB		32
++#define POLICYDB_VERSION_COMP_FTRANS	33 /* compressed filename transitions */
+ 
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_GLBLUB
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_COMP_FTRANS
+ 
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_BASE		4
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index 6b121d66..18ce1912 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -200,6 +200,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .ocon_num = OCON_IBENDPORT + 1,
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
++	{
++	 .type = POLICY_KERN,
++	 .version = POLICYDB_VERSION_COMP_FTRANS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_IBENDPORT + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
+ 	{
+ 	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+@@ -2661,73 +2668,202 @@ int policydb_filetrans_insert(policydb_t *p, uint32_t stype, uint32_t ttype,
+ 	return ebitmap_set_bit(&datum->stypes, stype - 1, 1);
+ }
+ 
+-int filename_trans_read(policydb_t *p, struct policy_file *fp)
++static int filename_trans_read_one_old(policydb_t *p, struct policy_file *fp)
+ {
+-	unsigned int i;
+-	uint32_t buf[4], nel, len, stype, ttype, tclass, otype;
++	uint32_t buf[4], len, stype, ttype, tclass, otype;
++	char *name = NULL;
+ 	int rc;
+-	char *name;
+ 
+ 	rc = next_entry(buf, fp, sizeof(uint32_t));
+ 	if (rc < 0)
+ 		return -1;
+-	nel = le32_to_cpu(buf[0]);
++	len = le32_to_cpu(buf[0]);
++	if (zero_or_saturated(len))
++		return -1;
+ 
+-	for (i = 0; i < nel; i++) {
+-		name = NULL;
++	name = calloc(len + 1, sizeof(*name));
++	if (!name)
++		return -1;
+ 
+-		rc = next_entry(buf, fp, sizeof(uint32_t));
+-		if (rc < 0)
+-			goto err;
+-		len = le32_to_cpu(buf[0]);
+-		if (zero_or_saturated(len))
++	rc = next_entry(name, fp, len);
++	if (rc < 0)
++		goto err;
++
++	rc = next_entry(buf, fp, sizeof(uint32_t) * 4);
++	if (rc < 0)
++		goto err;
++
++	stype  = le32_to_cpu(buf[0]);
++	ttype  = le32_to_cpu(buf[1]);
++	tclass = le32_to_cpu(buf[2]);
++	otype  = le32_to_cpu(buf[3]);
++
++	rc = policydb_filetrans_insert(p, stype, ttype, tclass, name, &name,
++				       otype, NULL);
++	if (rc) {
++		if (rc != SEPOL_EEXIST)
+ 			goto err;
++		/*
++		 * Some old policies were wrongly generated with
++		 * duplicate filename transition rules.  For backward
++		 * compatibility, do not reject such policies, just
++		 * issue a warning and ignore the duplicate.
++		 */
++		WARN(fp->handle,
++		     "Duplicate name-based type_transition %s %s:%s \"%s\":  %s, ignoring",
++		     p->p_type_val_to_name[stype - 1],
++		     p->p_type_val_to_name[ttype - 1],
++		     p->p_class_val_to_name[tclass - 1],
++		     name,
++		     p->p_type_val_to_name[otype - 1]);
++		/* continue, ignoring this one */
++	}
++	free(name);
++	return 0;
++err:
++	free(name);
++	return -1;
++}
++
++static int filename_trans_check_datum(filename_trans_datum_t *datum)
++{
++	ebitmap_t stypes, otypes;
++
++	ebitmap_init(&stypes);
++	ebitmap_init(&otypes);
++
++	while (datum) {
++		if (ebitmap_get_bit(&otypes, datum->otype))
++			return -1;
++
++		if (ebitmap_set_bit(&otypes, datum->otype, 1))
++			return -1;
+ 
+-		name = calloc(len + 1, sizeof(*name));
+-		if (!name)
++		if (ebitmap_match_any(&stypes, &datum->stypes))
++			return -1;
++
++		if (ebitmap_union(&stypes, &datum->stypes))
++			return -1;
++	}
++	return 0;
++}
++
++static int filename_trans_read_one_new(policydb_t *p, struct policy_file *fp)
++{
++	filename_trans_key_t *ft = NULL;
++	filename_trans_datum_t **dst, *datum, *first = NULL;
++	unsigned int i;
++	uint32_t buf[3], len, ttype, tclass, ndatum;
++	char *name = NULL;
++	int rc;
++
++	rc = next_entry(buf, fp, sizeof(uint32_t));
++	if (rc < 0)
++		return -1;
++	len = le32_to_cpu(buf[0]);
++	if (zero_or_saturated(len))
++		return -1;
++
++	name = calloc(len + 1, sizeof(*name));
++	if (!name)
++		return -1;
++
++	rc = next_entry(name, fp, len);
++	if (rc < 0)
++		goto err;
++
++	rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
++	if (rc < 0)
++		goto err;
++
++	ttype = le32_to_cpu(buf[0]);
++	tclass = le32_to_cpu(buf[1]);
++	ndatum = le32_to_cpu(buf[2]);
++	if (ndatum == 0)
++		goto err;
++
++	dst = &first;
++	for (i = 0; i < ndatum; i++) {
++		datum = malloc(sizeof(*datum));
++		if (!datum)
+ 			goto err;
+ 
+-		rc = next_entry(name, fp, len);
++		*dst = datum;
++
++		/* ebitmap_read() will at least init the bitmap */
++		rc = ebitmap_read(&datum->stypes, fp);
+ 		if (rc < 0)
+ 			goto err;
+ 
+-		rc = next_entry(buf, fp, sizeof(uint32_t) * 4);
++		rc = next_entry(buf, fp, sizeof(uint32_t));
+ 		if (rc < 0)
+ 			goto err;
+ 
+-		stype  = le32_to_cpu(buf[0]);
+-		ttype  = le32_to_cpu(buf[1]);
+-		tclass = le32_to_cpu(buf[2]);
+-		otype  = le32_to_cpu(buf[3]);
++		datum->otype = le32_to_cpu(buf[0]);
+ 
+-		rc = policydb_filetrans_insert(p, stype, ttype, tclass, name,
+-					       &name, otype, NULL);
+-		if (rc) {
+-			if (rc != SEPOL_EEXIST)
+-				goto err;
+-			/*
+-			 * Some old policies were wrongly generated with
+-			 * duplicate filename transition rules.  For backward
+-			 * compatibility, do not reject such policies, just
+-			 * issue a warning and ignore the duplicate.
+-			 */
+-			WARN(fp->handle,
+-			     "Duplicate name-based type_transition %s %s:%s \"%s\":  %s, ignoring",
+-			     p->p_type_val_to_name[stype - 1],
+-			     p->p_type_val_to_name[ttype - 1],
+-			     p->p_class_val_to_name[tclass - 1],
+-			     name,
+-			     p->p_type_val_to_name[otype - 1]);
+-			/* continue, ignoring this one */
+-		}
+-		free(name);
++		p->filename_trans_count += ebitmap_cardinality(&datum->stypes);
++
++		dst = &datum->next;
+ 	}
++	*dst = NULL;
++
++	if (ndatum > 1 && filename_trans_check_datum(first))
++		goto err;
++
++	ft = malloc(sizeof(*ft));
++	if (!ft)
++		goto err;
++
++	ft->ttype = ttype;
++	ft->tclass = tclass;
++	ft->name = name;
++
++	rc = hashtab_insert(p->filename_trans, (hashtab_key_t)ft,
++			    (hashtab_datum_t)first);
++	if (rc)
++		goto err;
++
+ 	return 0;
+ err:
++	free(ft);
+ 	free(name);
++	while (first) {
++		datum = first;
++		first = first->next;
++
++		ebitmap_destroy(&datum->stypes);
++		free(datum);
++	}
+ 	return -1;
+ }
+ 
++int filename_trans_read(policydb_t *p, struct policy_file *fp)
++{
++	unsigned int i;
++	uint32_t buf[1], nel;
++	int rc;
++
++	rc = next_entry(buf, fp, sizeof(uint32_t));
++	if (rc < 0)
++		return -1;
++	nel = le32_to_cpu(buf[0]);
++
++	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
++		for (i = 0; i < nel; i++) {
++			rc = filename_trans_read_one_old(p, fp);
++			if (rc < 0)
++				return -1;
++		}
++	} else {
++		for (i = 0; i < nel; i++) {
++			rc = filename_trans_read_one_new(p, fp);
++			if (rc < 0)
++				return -1;
++		}
++	}
++	return 0;
++}
++
+ static int ocontext_read_xen(struct policydb_compat_info *info,
+ 	policydb_t *p, struct policy_file *fp)
+ {
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index d3aee8d5..9c74d9f5 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -569,7 +569,7 @@ static int role_allow_write(role_allow_t * r, struct policy_file *fp)
+ 	return POLICYDB_SUCCESS;
+ }
+ 
+-static int filename_write_helper(hashtab_key_t key, void *data, void *ptr)
++static int filename_write_one_old(hashtab_key_t key, void *data, void *ptr)
+ {
+ 	uint32_t bit, buf[4];
+ 	size_t items, len;
+@@ -605,6 +605,54 @@ static int filename_write_helper(hashtab_key_t key, void *data, void *ptr)
+ 	return 0;
+ }
+ 
++static int filename_write_one_new(hashtab_key_t key, void *data, void *ptr)
++{
++	uint32_t buf[3];
++	size_t items, len, ndatum;
++	filename_trans_key_t *ft = (filename_trans_key_t *)key;
++	filename_trans_datum_t *datum;
++	void *fp = ptr;
++
++	len = strlen(ft->name);
++	buf[0] = cpu_to_le32(len);
++	items = put_entry(buf, sizeof(uint32_t), 1, fp);
++	if (items != 1)
++		return POLICYDB_ERROR;
++
++	items = put_entry(ft->name, sizeof(char), len, fp);
++	if (items != len)
++		return POLICYDB_ERROR;
++
++	ndatum = 0;
++	datum = data;
++	do {
++		ndatum++;
++		datum = datum->next;
++	} while (datum);
++
++	buf[0] = cpu_to_le32(ft->ttype);
++	buf[1] = cpu_to_le32(ft->tclass);
++	buf[2] = cpu_to_le32(ndatum);
++	items = put_entry(buf, sizeof(uint32_t), 3, fp);
++	if (items != 3)
++		return POLICYDB_ERROR;
++
++	datum = data;
++	do {
++		if (ebitmap_write(&datum->stypes, fp))
++			return POLICYDB_ERROR;
++
++		buf[0] = cpu_to_le32(datum->otype);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
++
++		datum = datum->next;
++	} while (datum);
++
++	return 0;
++}
++
+ static int filename_trans_write(struct policydb *p, void *fp)
+ {
+ 	size_t items;
+@@ -614,16 +662,22 @@ static int filename_trans_write(struct policydb *p, void *fp)
+ 	if (p->policyvers < POLICYDB_VERSION_FILENAME_TRANS)
+ 		return 0;
+ 
+-	buf[0] = cpu_to_le32(p->filename_trans_count);
+-	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+-	if (items != 1)
+-		return POLICYDB_ERROR;
++	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
++		buf[0] = cpu_to_le32(p->filename_trans_count);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
+ 
+-	rc = hashtab_map(p->filename_trans, filename_write_helper, fp);
+-	if (rc)
+-		return rc;
++		rc = hashtab_map(p->filename_trans, filename_write_one_old, fp);
++	} else {
++		buf[0] = cpu_to_le32(p->filename_trans->nel);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
+ 
+-	return 0;
++		rc = hashtab_map(p->filename_trans, filename_write_one_new, fp);
++	}
++	return rc;
+ }
+ 
+ static int role_set_write(role_set_t * x, struct policy_file *fp)
 -- 
 2.25.1
 
