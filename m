@@ -1,116 +1,118 @@
-Return-Path: <SRS0=745E=5M=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=0b+K=5N=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4B0FC43331
-	for <selinux@archiver.kernel.org>; Fri, 27 Mar 2020 22:45:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45B04C43331
+	for <selinux@archiver.kernel.org>; Sat, 28 Mar 2020 12:46:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 681572071B
-	for <selinux@archiver.kernel.org>; Fri, 27 Mar 2020 22:45:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 02FF320723
+	for <selinux@archiver.kernel.org>; Sat, 28 Mar 2020 12:46:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xSOnox+1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dg+o8EU9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727702AbgC0WpD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 27 Mar 2020 18:45:03 -0400
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:35719 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727620AbgC0WpD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 27 Mar 2020 18:45:03 -0400
-Received: by mail-ed1-f65.google.com with SMTP id a20so13300399edj.2
-        for <selinux@vger.kernel.org>; Fri, 27 Mar 2020 15:45:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/LGuc0QqW9HR71Y1NNbAkC8Bf5W/OzoGDIgpyPzWX5k=;
-        b=xSOnox+1TN9e9prVqWp62ZCF3N/UkOZnjrZvSo7uZZHGBIs480j52MjNHh+TbQoueQ
-         DVqn7TmWHGc3Nu/z7VBqVnEHJ53ndRea5gywFzuSDnMCz3fQdoR25ZMt2x7hb1P8V25W
-         IfO+S+4V7ixws6ZtcIaQArFxwnKE75D9vC1Pv246btnV03YxkXfMiIXaju+QBWEbPVsB
-         DiIOkT2ejeaX5DcN93WU5FVtzcD10HpTGZkIvQAEFX7710KHXupTRPnHnxtWOzTNw49a
-         aqS9exTHbBGD6cEnFFiMc2s1GchbIdLRf9tY1V4ACtXUnNZgNF5orFPB9hF8mjOeTCJC
-         Wkvg==
+        id S1726353AbgC1MqB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 28 Mar 2020 08:46:01 -0400
+Received: from us-smtp-delivery-74.mimecast.com ([63.128.21.74]:30372 "EHLO
+        us-smtp-delivery-74.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726290AbgC1MqB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 28 Mar 2020 08:46:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1585399560;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=wd8ziv+HGAv/zDdK8rd18zEi8T01NST2lViyTQM5bFQ=;
+        b=dg+o8EU9EV3xQZNe2DMb5fNexxjMkNQu1pTLxv86TITAQl26Bbg9UV6tvIjzonZE4zlig+
+        3AuoDkSiCDeOSYynDPx/dsaSlYrBzzt0yrhnRqFBED0eeQEhlKRbKYKeVXqBsmnfnEf46J
+        EM2eKq/KD1eQelHAwWLB4GkVYQBm2NY=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-338-Jjb0H849NHGxRw6f9mJBzQ-1; Sat, 28 Mar 2020 08:45:55 -0400
+X-MC-Unique: Jjb0H849NHGxRw6f9mJBzQ-1
+Received: by mail-wr1-f72.google.com with SMTP id l17so6200582wro.3
+        for <selinux@vger.kernel.org>; Sat, 28 Mar 2020 05:45:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/LGuc0QqW9HR71Y1NNbAkC8Bf5W/OzoGDIgpyPzWX5k=;
-        b=SI547xPzNwQuMt4+VSA8ytbF9tNm1vgvu/budyYMueiQhYPBfQrjzhMQm2HiRjUOY6
-         xn4ycBuJqDe/iRvPX1xUHkhRKKM5cYhJqdS4QPBqwknGlxGu8mp7B+dvbf9EVtaq10iU
-         WYJfKlAoC35RLLGPi8hXb3DwDm2OCrVyNQh7wVbPV9sJC0i+lhBhMS1PgLfHtcpnydxe
-         of2+JX7rkiA2gtJdXWQYNPtFVwEgoXqFaxiJK7bOVmNsuL6IAvZJVo2sPJ8tCT6aOKIv
-         LHvmyHgPpCqZn4amNN10h39M/ushRSbfV1OTu7oR0rTvMRFasVnH5SNREnBlJFWM5Q9M
-         QZFw==
-X-Gm-Message-State: ANhLgQ1nsiXdbHO10alfYnj1SX1x2xQUxqyFKjDERw0qM/eYE4MhRCOl
-        vpv2mX51Saj3G9EyIQtZGq1W34S1OYfwNFA/dVi0
-X-Google-Smtp-Source: ADFU+vtPz2f20HeMrGRumvzvtd33Lj903GfTooGJ3K0DV5XYxoq4cFDiri2nBc6zrER/kask/V6CYP3kgc4C49YuTBQ=
-X-Received: by 2002:aa7:dd01:: with SMTP id i1mr1459195edv.164.1585349100363;
- Fri, 27 Mar 2020 15:45:00 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=wd8ziv+HGAv/zDdK8rd18zEi8T01NST2lViyTQM5bFQ=;
+        b=GEqOBYDwzevKlcL1fB69PH8lzeM8+1nYnJcc62tBIlZGBEU6s6t7Us5aqIG3h8znJ9
+         /ETKgQtFJFAPw5tehPzs09LnTXLgLHnllZ50eTUt5W5fPmQWSbgqwHmKzpp6DL5UfnW2
+         VVz2d0mnGS7yLGF2W8Y60PDEGbNOiO6JjRULv5hDGo+B35ecLkgkX8E0xNGqBLC7qT8c
+         ZfrkyF6RRVmZouo7ct/r31VnJ0ZrdnztbYxrJYy2SG/dX2xdW5OWPKxVCWrQWDTk3uBh
+         iV79vanPTnpa9EUiGs17nEYWSZL4mKWSZtHRat5gxhZgqYA4X4gPC9ePxEgXW5sJDq4T
+         mWOA==
+X-Gm-Message-State: ANhLgQ1QZFlu5u/WMewLlIj+C0uZSJ3kUBfgbmzBm4ZY2osl5mfUxzBF
+        Kwm1I4Tj2D+PQpdqOzHVq8f1CJ/zm6QSOMPl+4jbidZoJSzEUlwNahiohSQT+YUDFUzFZ9XqAtY
+        JzIkZI0Tz0/gjQMLiBw==
+X-Received: by 2002:adf:f1c4:: with SMTP id z4mr5098586wro.342.1585399554307;
+        Sat, 28 Mar 2020 05:45:54 -0700 (PDT)
+X-Google-Smtp-Source: ADFU+vt1eEihAId6GvFvjPwIfJ8nMQR2DY7MZhAkmXuneyyJ55YRBUX1KGnDuKXdbuEM69O/3UAL8g==
+X-Received: by 2002:adf:f1c4:: with SMTP id z4mr5098563wro.342.1585399554066;
+        Sat, 28 Mar 2020 05:45:54 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
+        by smtp.gmail.com with ESMTPSA id y200sm12349156wmc.20.2020.03.28.05.45.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 28 Mar 2020 05:45:53 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Chris PeBenito <pebenito@ieee.org>
+Subject: [PATCH v2 0/2] userspace: Implement new format of filename trans rules
+Date:   Sat, 28 Mar 2020 13:45:48 +0100
+Message-Id: <20200328124550.199568-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-References: <20200327174402.351334-1-colin.king@canonical.com>
-In-Reply-To: <20200327174402.351334-1-colin.king@canonical.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 27 Mar 2020 18:44:49 -0400
-Message-ID: <CAHC9VhQOdoNXHjymbMCh1p0Bun5+bzxykhWzPNtjcwoEJ0cAjA@mail.gmail.com>
-Subject: Re: [PATCH] selinux: clean up indentation issue with assignment statement
-To:     Colin King <colin.king@canonical.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org,
-        kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Mar 27, 2020 at 1:44 PM Colin King <colin.king@canonical.com> wrote:
->
-> From: Colin Ian King <colin.king@canonical.com>
->
-> The assignment of e->type_names is indented one level too deep,
-> clean this up by removing the extraneous tab.
->
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> ---
->  security/selinux/ss/policydb.c | 7 +++----
->  1 file changed, 3 insertions(+), 4 deletions(-)
+These patches are the userspace side of the kernel change posted at [1].
 
-I generally dislike style/formatting only changes, but one could argue
-that this is just plain wrong regardless of how you like your code to
-look.
+The first patch changes libsepol's internal representation of filename
+transition rules in a way similar to kernel commit c3a276111ea2
+("selinux: optimize storage of filename transitions") [2].
 
-I also dislike merging changes into selinux/next when we are at -rc7,
-but this is trivial and obviously correct.
+The second patch then builds upon that and implements reading and
+writing of a new binary policy format that uses this representation also
+in the data layout.
 
-However, despite not wanting to merge this into selinux/next I decided
-to do just that - thanks for the fix. :)
+See individual patches for more details.
 
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 932b2b9bcdb2..70ecdc78efbd 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -1219,10 +1219,9 @@ static int read_cons_helper(struct policydb *p,
->                                 if (rc)
->                                         return rc;
->                                 if (p->policyvers >=
-> -                                       POLICYDB_VERSION_CONSTRAINT_NAMES) {
-> -                                               e->type_names = kzalloc(sizeof
-> -                                               (*e->type_names),
-> -                                               GFP_KERNEL);
-> +                                   POLICYDB_VERSION_CONSTRAINT_NAMES) {
-> +                                       e->type_names = kzalloc(sizeof
-> +                                               (*e->type_names), GFP_KERNEL);
->                                         if (!e->type_names)
->                                                 return -ENOMEM;
->                                         type_set_init(e->type_names);
-> --
-> 2.25.1
+NOTE: This series unfortunately breaks the build of setools. Moreover,
+when an existing build of setools dynamically links against the new
+libsepol, it segfaults. Sadly, there doesn't seem to be a nice way of
+handling this, since setools relies on non-public libsepol policydb
+API/ABI.
+
+Changes in v2:
+ - fixed counting rules when reading the new policy format
+
+[1] https://lore.kernel.org/selinux/20200327151941.95619-1-omosnace@redhat.com/T/
+[2] https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?id=c3a276111ea2572399281988b3129683e2a6b60b
+
+Ondrej Mosnacek (2):
+  libsepol,checkpolicy: optimize storage of filename transitions
+  libsepol: implement POLICYDB_VERSION_COMP_FTRANS
+
+ checkpolicy/policy_define.c                |  52 ++--
+ checkpolicy/test/dispol.c                  |  27 +-
+ libsepol/cil/src/cil_binary.c              |  29 +-
+ libsepol/include/sepol/policydb/policydb.h |  18 +-
+ libsepol/src/expand.c                      |  60 +---
+ libsepol/src/kernel_to_cil.c               |  24 +-
+ libsepol/src/kernel_to_conf.c              |  24 +-
+ libsepol/src/policydb.c                    | 314 ++++++++++++++++-----
+ libsepol/src/write.c                       | 100 +++++--
+ 9 files changed, 441 insertions(+), 207 deletions(-)
 
 -- 
-paul moore
-www.paul-moore.com
+2.25.1
+
