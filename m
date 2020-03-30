@@ -2,74 +2,69 @@ Return-Path: <SRS0=MU1A=5P=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.5 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3DE4C43331
-	for <selinux@archiver.kernel.org>; Mon, 30 Mar 2020 06:13:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B2B7C43331
+	for <selinux@archiver.kernel.org>; Mon, 30 Mar 2020 13:05:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id A0FA820786
-	for <selinux@archiver.kernel.org>; Mon, 30 Mar 2020 06:13:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 58D8620733
+	for <selinux@archiver.kernel.org>; Mon, 30 Mar 2020 13:05:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hBO8Ul+n"
+	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="XlEJVwUX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728489AbgC3GNp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 30 Mar 2020 02:13:45 -0400
-Received: from mail-lj1-f196.google.com ([209.85.208.196]:38813 "EHLO
-        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728065AbgC3GNo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 30 Mar 2020 02:13:44 -0400
-Received: by mail-lj1-f196.google.com with SMTP id w1so16735276ljh.5
-        for <selinux@vger.kernel.org>; Sun, 29 Mar 2020 23:13:43 -0700 (PDT)
+        id S1729985AbgC3NFi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Mar 2020 09:05:38 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:42474 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729862AbgC3NFh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 Mar 2020 09:05:37 -0400
+Received: by mail-qt1-f193.google.com with SMTP id t9so14875263qto.9
+        for <selinux@vger.kernel.org>; Mon, 30 Mar 2020 06:05:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=jLzvyQvOYjTk3IL7IL6uXnFn1PRQWqWKhhej8bk5L3Q=;
-        b=hBO8Ul+nD3oaR5c+a0LHM9ATeTvNn0xVVuI1So3KofSpmFpIxI6OZbtL/0pWmCNPeK
-         pAi4De8sZbpJPmIzPo6X76rvK2gXxkNWJGwB9c9rE/5Q4D6TRIGxBL/6gXFvRPjyf4hJ
-         Ue78ea9hwJR1MhYnJB7ZhIEpZu75uIwNU41Ldcdxd4ypmSCHaIvE4Z8Bf1fb7BzkP30m
-         +aN4zZJBy3Z6TOQawHthzd28OSC7z0E2ibaxWrDcrArTtIJ7j3UWqOebhDlDN4tL72T9
-         SbGe3yraeV1+3+LWupCymUOKqmB4tSGUGYU6EoveS3SywnqJErSbt4HGfLT58hyICisO
-         CVFg==
+        d=ieee.org; s=google;
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-language:content-transfer-encoding;
+        bh=HPFYTm8rBugEI1VD9vpw672WdO7Arw9oh3IR7kBQNyY=;
+        b=XlEJVwUXtQzc4Yc8jYg6LPX+dh63flG8UjagBXc+rzzjrxXnUsQc+2B5XTOb3HIE6k
+         RRQRAJwCftir3x8nDq9+XI0hpFSrBj5u4dPKf1lBynKPiNV1ISPbBHv565niskI7S6vF
+         2uN9zs1VttQi7hkEs4d5Sd01JDYeWaGvR0hMI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+        h=x-gm-message-state:subject:to:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=jLzvyQvOYjTk3IL7IL6uXnFn1PRQWqWKhhej8bk5L3Q=;
-        b=oPKeO2/cWtxn9skM51SZHdNWj6dlqE8f1Kd/Ks/qipGy0aNuxaA6W23Oksp1umjitk
-         Lihs3LJDvoUW2pzA3+w+gnOJLiM3AP0MbPbYCIreEUhICNbHApjiMbA2Ve2vrrPPE+bH
-         nZLNmLeIyEeg4HkfnEpmvJogbG8enSIAQtwyEgjnAqpv6IvNbIexTY1aJbVoWrYSfqOB
-         kbGBXUoJLxb34u9aa9xW6tm6Y4qWM9qtvoaRBTL9uIrYq7s+PtIrbWG+9Z4ALeLVKWpH
-         dNV5+BI84rxF3tXZJT/uTm3+Kiwd7+c30JcuXEX5bsjnXGGTlDK15X4QpkayCJMmEtYM
-         +3lg==
-X-Gm-Message-State: AGi0PuasFfJZla57JRHEdU1l2nfnGSvTybxG46lKBUadyRV+MNDK0ywr
-        KSZhDkn0CGb/BmYdlk8h8YKNBnIm3cg=
-X-Google-Smtp-Source: APiQypLOJ2eENszLCpve0Y1n7nirR3jk/mVBK8XJ83yB8umXuXQvLJSii7juM8fJ79xJIZzhaWCeJg==
-X-Received: by 2002:a2e:88d4:: with SMTP id a20mr6049508ljk.119.1585548822830;
-        Sun, 29 Mar 2020 23:13:42 -0700 (PDT)
-Received: from [192.168.1.38] (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
-        by smtp.gmail.com with ESMTPSA id q23sm429532lfj.96.2020.03.29.23.13.41
+        bh=HPFYTm8rBugEI1VD9vpw672WdO7Arw9oh3IR7kBQNyY=;
+        b=V5fbvfIl7VXGa7h7OpB9JfZDEi2YrAvb0+kMBKQ5nAwuyHzxbZ9ZdIXRHMp51aOjLZ
+         6JWydATecNmOJLpTSUkFB98aksoUKd0Ot+V1LH29g3aLi2kQn7M2QezfNx9kBddYiOtm
+         CB/DiytoLpn0utlWQuq1gtPG0rp3HIKzlbDXbCqRWsYdpyw6AcYpd80NxCNljvEGOkZL
+         eOmCZwcWhxifUbmnk38H0kb5vuyTT4YPHGEuM8m3LiQCnJyiDS46Wc/Rn1eTJ3v+vvJ6
+         80V44Vx5pzbIKk9Ba/owEqNCawTtJZOHfzg83sZLifwqfrmV25E2sjwbPVbEmLVaLr7v
+         OzaQ==
+X-Gm-Message-State: ANhLgQ3dRL3KNwHbzD+gllyzscyb7pFn1Qz3u3ReZQOT8HGo9Ir2ZfyF
+        3t544efrmsNlFtfz5MEB8H8anwWsdl4=
+X-Google-Smtp-Source: ADFU+vuQcD0sj2xLQbZHi4cC2WXwf4BP139LK5USe2FJ3CXRjttDmasNKlwL2aZ+mepSvREFkHk4BA==
+X-Received: by 2002:ac8:2921:: with SMTP id y30mr11455492qty.161.1585573534443;
+        Mon, 30 Mar 2020 06:05:34 -0700 (PDT)
+Received: from fedora.pebenito.net (pool-108-15-23-247.bltmmd.fios.verizon.net. [108.15.23.247])
+        by smtp.gmail.com with ESMTPSA id q7sm190195qkn.118.2020.03.30.06.05.33
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 29 Mar 2020 23:13:42 -0700 (PDT)
-Subject: Re: [PATCH] libselinux: mount selinuxfs nodev,noexec,nosuid
-To:     Stephen Smalley <stephen.smalley@gmail.com>
-Cc:     Dominick Grift <dominick.grift@defensec.nl>,
-        selinux@vger.kernel.org
-References: <f4e6ddb4-66ac-45d1-04a6-67bfd9fd225e@gmail.com>
- <ypjla73zwlx4.fsf@defensec.nl>
- <33246601-c460-46c6-6a5a-fbcbd48d2858@gmail.com>
- <CAB9W1A3d7OyJESduertxmr=p0sN5j5JD=q01x8i8Vi5yKhs5Pg@mail.gmail.com>
-From:   Topi Miettinen <toiwoton@gmail.com>
-Message-ID: <50b369ba-cb70-b085-7b12-9c91be6a4e17@gmail.com>
-Date:   Mon, 30 Mar 2020 09:13:40 +0300
+        Mon, 30 Mar 2020 06:05:33 -0700 (PDT)
+Subject: Re: [PATCH 0/2] userspace: Implement new format of filename trans
+ rules
+To:     Stephen Smalley <sds@tycho.nsa.gov>,
+        Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <20200327152107.95915-1-omosnace@redhat.com>
+ <daeae1d9-de29-aae0-6bde-3ad3427a5d42@tycho.nsa.gov>
+From:   Chris PeBenito <pebenito@ieee.org>
+Message-ID: <7549b0e2-f845-1c3a-d9d5-314cb2b9225f@ieee.org>
+Date:   Mon, 30 Mar 2020 09:05:32 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.5.0
+ Thunderbird/68.6.0
 MIME-Version: 1.0
-In-Reply-To: <CAB9W1A3d7OyJESduertxmr=p0sN5j5JD=q01x8i8Vi5yKhs5Pg@mail.gmail.com>
+In-Reply-To: <daeae1d9-de29-aae0-6bde-3ad3427a5d42@tycho.nsa.gov>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -78,66 +73,49 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 29.3.2020 23.44, Stephen Smalley wrote:
-> On Sun, Mar 29, 2020 at 7:30 AM Topi Miettinen <toiwoton@gmail.com> wrote:
+On 3/27/20 3:21 PM, Stephen Smalley wrote:
+> On 3/27/20 11:21 AM, Ondrej Mosnacek wrote:
+>> These patches are the userspace side of the kernel change posted at [1].
 >>
->> On 29.3.2020 12.27, Dominick Grift wrote:
->>> Topi Miettinen <toiwoton@gmail.com> writes:
->>>
->>>> Mount selinuxfs with mount flags nodev,noexec and nosuid. It's not
->>>> likely that this has any effect, but it's visually more pleasing.
->>>
->>> will nodev interfere with this?
->>>
->>>     File: /sys/fs/selinux/null
->>>     Size: 0               Blocks: 0          IO Block: 4096   character special file
->>> Device: 15h/21d Inode: 23          Links: 1     Device type: 1,3
->>> Access: (0666/crw-rw-rw-)  Uid: (    0/    root)   Gid: (    0/    root)
->>> Context: sys.id:sys.role:null.isid:s0
->>> Access: 2020-03-28 13:04:05.578999988 +0100
->>> Modify: 2020-03-28 13:04:05.578999988 +0100
->>> Change: 2020-03-28 13:04:05.578999988 +0100
->>>    Birth: -
->>>
->>> /sys/fs/selinux/null: character special (1/3)
+>> The first patch changes libsepol's internal representation of filename
+>> transition rules in a way similar to kernel commit c3a276111ea2
+>> ("selinux: optimize storage of filename transitions") [2].
 >>
->> That device does not give me joy. Yes, the patch prevents it from being
->> used. But I didn't see any problems in the logs, even with something
->> else mounted over it (adding InaccessiblePaths=/sys/fs/selinux/null to
->> systemd unit files). The device file was added pretty early to Linux,
->> perhaps it was needed then, but not anymore?
+>> The second patch then builds upon that and implements reading and
+>> writing of a new binary policy format that uses this representation also
+>> in the data layout.
 >>
->> Judging from internet searches, maybe it's only used by Android. They
->> seem to use a forked version of libselinux anyway.
+>> See individual patches for more details.
+>>
+>> NOTE: This series unfortunately breaks the build of setools. Moreover,
+>> when an existing build of setools dynamically links against the new
+>> libsepol, it segfaults. Sadly, there doesn't seem to be a nice way of
+>> handling this, since setools relies on non-public libsepol policydb
+>> API/ABI.
 > 
-> /sys/fs/selinux/null is used by the kernel; SELinux closes any open
-> file descriptors not authorized for the new process context upon a
-> context-changing exec, and replaces them with a reference to
-> /sys/fs/selinux/null.  This was introduced because /dev/null couldn't
-> be guaranteed to exist or be available at all times. nodev likely has
-> no effect on this usage because it is probably only checked when a
-> userspace process tries to open it.
+> I think this has happened before a few years ago when we made a 
+> different change to those structures, and required updates on the 
+> setools side.
+> 
+> Maybe we need to figure out what setools needs to be encapsulated and 
+> exported as part of the libsepol public ABI/API, and then stop having it 
+> peer into libsepol internals?
 
-Perhaps then the device should not be visible to user space at all, or 
-at least not usable (which is the effect of MS_NODEV)? The file 
-descriptor replacement thing seems to work also when /sys{,/fs/selinux} 
-is not mounted in the mount namespace of the process, at least I haven't 
-seen any problems.
+I'd be fine with that :)
 
-> That said, I don't really understand what you think you are gaining by
-> adding these mount options to selinuxfs.  What threat are you
-> mitigating?   It is a kernel pseudo filesystem that doesn't support
-> dynamic file creation by userspace and whose contents are entirely
-> determined by the kernel.
+Ultimately SETools does 2 thing for the policy access:
+* iterate over the entire policy, reading data out of the various objects
+* use linkages between objects in the policy, e.g. get the 
+type/attributes from an AV rule, get types from an attribute, etc. using 
+the stuff like class_val_to_struct as needed.
 
-I don't think there's any change to threat situation (a process which 
-shouldn't have access to /dev/null, gains access by using 
-/sys/fs/selinux/null? Not very credible) or even any other effect from 
-this change, but I don't like it when selinuxfs always shows up when I 
-grep for filesystems without nodev/noexec/nosuid. So the gain is visual.
+So if sufficient functionality to do dispol was exported, that would get 
+close to all that was needed.  There are some optimizations I made by 
+digging at the structs a bit more than the above, but that could 
+potentially be dropped if libsepol has sufficient support.  See 
+<https://github.com/SELinuxProject/setools/blob/master/setools/policyrep/selinuxpolicy.pxi#L673> 
+for the policy loading code.
 
-What's the purpose and gain of having the filesystem mounted with 
-dev,exec,suid, which for other filesystems than selinuxfs are the more 
-dangerous options?
 
--Topi
+-- 
+Chris PeBenito
