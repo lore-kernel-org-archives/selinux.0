@@ -1,192 +1,212 @@
-Return-Path: <SRS0=MU1A=5P=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=ncaB=5Q=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=FROM_LOCAL_HEX,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06E11C43331
-	for <selinux@archiver.kernel.org>; Mon, 30 Mar 2020 16:41:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC04FC2D0EE
+	for <selinux@archiver.kernel.org>; Tue, 31 Mar 2020 00:38:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id CC86D20578
-	for <selinux@archiver.kernel.org>; Mon, 30 Mar 2020 16:41:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 748D320784
+	for <selinux@archiver.kernel.org>; Tue, 31 Mar 2020 00:38:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="bmi90RGs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727899AbgC3QlP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 30 Mar 2020 12:41:15 -0400
-Received: from mail-il1-f197.google.com ([209.85.166.197]:44190 "EHLO
-        mail-il1-f197.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727441AbgC3QlP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 30 Mar 2020 12:41:15 -0400
-Received: by mail-il1-f197.google.com with SMTP id b15so14136512ilh.11
-        for <selinux@vger.kernel.org>; Mon, 30 Mar 2020 09:41:14 -0700 (PDT)
+        id S1729623AbgCaAi2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 30 Mar 2020 20:38:28 -0400
+Received: from mail-ed1-f68.google.com ([209.85.208.68]:43462 "EHLO
+        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729468AbgCaAi1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 30 Mar 2020 20:38:27 -0400
+Received: by mail-ed1-f68.google.com with SMTP id bd14so23049217edb.10
+        for <selinux@vger.kernel.org>; Mon, 30 Mar 2020 17:38:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=gErK/ycbJv6uqf+b3FCQW59lfsmjwCyYyXfDMASF3Kk=;
+        b=bmi90RGsEkcS9xmzCDYV77nBmN8IBmwM/+Y8QthDzbikrqfYed/KIeivKZhM+fHGGi
+         YoMt9bctZEnfzv14hxqz0MZVnzUpH+tnNKrA30nZGmkyyGd4eO3VCRUeywUBJVdugXBR
+         BRffgH77n9eYL2YuB4X8DOm094puYLo4d/KeNs3sO9aJHnmOvd71uy++X49H3idJKolm
+         dhCBThw6rj0AfycOdLL/OHv1zNKF2RNjyvY6WbxZuW22Ex266CtkHAoL6DnSlfdejJop
+         wWAW4DlTqm2QDjzkmUP3GvKIFSE2vr51sN/eTIx6TlrmJvLbrTQPREqIl/Ya6BkosqF1
+         OXJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=J392luCNfWRWxhPZVD+EzyJ0PTGAErJoBStDUC9J4Zk=;
-        b=ALg6Q/MHSMe4wLgA0C4ZEtIONmK7TtE3B1mTmyoINmv31htIHreC7CmMhaeDoPFgV8
-         ioz/6ZndLI5F84X7jblbSvZmnTDBf8nzi/KJBmjTITOLrulLoq9CeDOhvpCi22eC4LYc
-         R73oxvRojFdLY64jlvcJgXk+qxTWPyEUd770iAgWhuC+XPP1dvtcvhkA/RT0UQ9KRga0
-         FWJpp+1XRcb4RPCO6HIjlnrIqqbvF79xKF1Dk7jTN2VpbEvCLi0fut2kNrZsGQi7Rq/s
-         uDEmSCu5LY3vfs7lsxL1DYsT0j8eDk3LCD+99B1qCQTE7k/WFpjiV92tDqAh91sbi1Gf
-         y0Kw==
-X-Gm-Message-State: ANhLgQ2hWbar+dObEDYwVimSfTFKcrQkmIF/Zbt+7RuUB8AGTvyyfqSE
-        fLjaVFc/jH8g9todP2UI7ydq2BpxS0OHYR44KIsvgxsAVphX
-X-Google-Smtp-Source: ADFU+vsymLPDiPA2g5MIUzyCHCea3vA0ojr2x8lphgAtvW8cqlCQPZ3Wy9PYZav0sWndRkClAxRhE3aAfWrAQY6yvQPQ3ONDW3X+
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc
+         :content-transfer-encoding;
+        bh=gErK/ycbJv6uqf+b3FCQW59lfsmjwCyYyXfDMASF3Kk=;
+        b=TD4aesArYIDvE8K/VVjYV0rv2ViXLHzvpdR8C9rPMthTeaFQdosFJGaeTp96jgIDtp
+         TyvPaHh+2hrJxSCodGww1b6KG7iRycjb9OibArEhH4zycZ/fx0kR2XKFL0PIzhauqPTY
+         ZaNOBOZH/Qc0m33/N4ORAbaPcqHtmgHlVYRUAQV4ljXjT7ynIHhdo0vgdKgiVspsLb8E
+         3zQdv3IU2zLmXbOuO8V3r2DaatWwGlwHiiGqBt8XtjfjxHDODOJsH7mtSKvHcVr5jHPn
+         l4tvtqVZkomXVOh32jkeBDZdaAa3Eux8MT/N01u/DmytYfDKk6l+j9NehSyr9k4dWFci
+         c+hA==
+X-Gm-Message-State: ANhLgQ1m0gdQikIj4fpguqfIO5QvG0vo716T5AZm9NWzYd2NCvu9NnlH
+        euwqBgobAHM4EyJhmNZr9+DjxQRbQLwSjyDQba0J
+X-Google-Smtp-Source: ADFU+vvbmDfTAgpqjM3WtkbVSAeOOdDuxDWDFm6MYhl+NVQcodlPN0Tw+SISf0OLn2BcCUowitkP+UC1bMW5+D2ypsU=
+X-Received: by 2002:aa7:db56:: with SMTP id n22mr13804870edt.269.1585615105547;
+ Mon, 30 Mar 2020 17:38:25 -0700 (PDT)
 MIME-Version: 1.0
-X-Received: by 2002:a6b:7d0c:: with SMTP id c12mr11248274ioq.83.1585586473946;
- Mon, 30 Mar 2020 09:41:13 -0700 (PDT)
-Date:   Mon, 30 Mar 2020 09:41:13 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000008a567905a2151e07@google.com>
-Subject: KASAN: slab-out-of-bounds Read in selinux_xfrm_alloc_user
-From:   syzbot <syzbot+9bc8c4f42b3e1d0274fe@syzkaller.appspotmail.com>
-To:     eparis@parisplace.org, linux-kernel@vger.kernel.org,
-        paul@paul-moore.com, sds@tycho.nsa.gov, selinux@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 30 Mar 2020 20:38:17 -0400
+Message-ID: <CAHC9VhQoqpqiFncTP1w0+--hGTwcm57LXgrXVsGnNqcRSof1WA@mail.gmail.com>
+Subject: [GIT PULL] SELinux patches for v5.7
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+Hi Linus,
 
-syzbot found the following crash on:
+We've got twenty SELinux patches for the v5.7 merge window, the
+highlights are below.  Beyond the highlights there a couple of things
+I want to call out in this pull request: a merge conflict, and a
+maintainer screw-up.
 
-HEAD commit:    906c4043 Merge branch 'i2c/for-current' of git://git.kerne..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=14f4a825e00000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=27392dd2975fd692
-dashboard link: https://syzkaller.appspot.com/bug?extid=9bc8c4f42b3e1d0274fe
-compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1160f46de00000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=107c7c97e00000
+The merge conflict is in security/selinux/hooks.c and is against a
+binder fs name fix we sent during the v5.6-rcX cycle; the fixup is
+trivial but if you need me to fix it, let me know.  The maintainer
+screw-up deals with the second patch from the top of the pull request,
+the NFS fix.  The screw-up isn't the fact that this is a NFS patch, we
+talked to the NFS guys and they are okay with it.  The issue is that
+the commit date is today - during the merge window - which doesn't
+reflect the testing the patch received.  The reality is that I merged
+this patch back on March 12th, and it has been part of our testing
+ever since, but when putting this pull request together I noticed that
+I had dropped the subject line from the patch when I was merging it.
+Not wanting a malformed commit, I popped the top two patches from the
+stack and restored the missing subject line; this had the unfortunate
+side effect of making it look like the two top patches were just
+merged today - my apologies.
 
-Bisection is inconclusive: the bug happens on the oldest tested release.
+Regardless, here are the highlights:
 
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=133ca825e00000
-final crash:    https://syzkaller.appspot.com/x/report.txt?x=10bca825e00000
-console output: https://syzkaller.appspot.com/x/log.txt?x=173ca825e00000
+- Deprecate setting /sys/fs/selinux/checkreqprot to 1.  This flag was
+originally created to deal with legacy userspace and the
+READ_IMPLIES_EXEC personality flag.  We changed the default from 1 to
+0 back in Linux v4.4 and now we are taking the next step of
+deprecating it, at some point in the future we will take the final
+step of rejecting 1.
+- Allow kernfs symlinks to inherit the SELinux label of the parent
+directory.  In order to preserve backwards compatibility this is
+protected by the genfs_seclabel_symlinks SELinux policy capability.
+- Optimize how we store filename transitions in the kernel, resulting
+in some significant improvements to policy load times.
+- Do a better job calculating our internal hash table sizes which
+resulted in additional policy load improvements and likely general
+SELinux performance improvements as well.
+- Remove the unused initial SIDs (labels) and improve how we handle
+initial SIDs.
+- Enable per-file labeling for the bpf filesystem.
+- Ensure that we properly label NFS v4.2 filesystems to avoid a
+temporary unlabeled condition.
+- Add some missing XFS quota command types to the SELinux quota access cont=
+rols.
+- Fix a problem where we were not updating the seq_file position index
+correctly in selinuxfs.
+- We consolidate some duplicated code into helper functions.
+- A number of list to array conversions.
+- Update Stephen Smalley's email address in MAINTAINERS.
 
-IMPORTANT: if you fix the bug, please add the following tag to the commit:
-Reported-by: syzbot+9bc8c4f42b3e1d0274fe@syzkaller.appspotmail.com
+Thanks,
+-Paul
+--
+The following changes since commit bb6d3fb354c5ee8d6bde2d576eb7220ea09862b9=
+:
 
-==================================================================
-BUG: KASAN: slab-out-of-bounds in memcpy include/linux/string.h:381 [inline]
-BUG: KASAN: slab-out-of-bounds in selinux_xfrm_alloc_user+0x23e/0x450 security/selinux/xfrm.c:99
-Read of size 768 at addr ffff88808d161934 by task syz-executor391/7036
+ Linux 5.6-rc1 (2020-02-09 16:08:48 -0800)
 
-CPU: 0 PID: 7036 Comm: syz-executor391 Not tainted 5.6.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x188/0x20d lib/dump_stack.c:118
- print_address_description.constprop.0.cold+0xd3/0x315 mm/kasan/report.c:374
- __kasan_report.cold+0x1a/0x32 mm/kasan/report.c:506
- kasan_report+0xe/0x20 mm/kasan/common.c:641
- check_memory_region_inline mm/kasan/generic.c:185 [inline]
- check_memory_region+0x128/0x190 mm/kasan/generic.c:192
- memcpy+0x20/0x50 mm/kasan/common.c:127
- memcpy include/linux/string.h:381 [inline]
- selinux_xfrm_alloc_user+0x23e/0x450 security/selinux/xfrm.c:99
- security_xfrm_policy_alloc+0x6c/0xb0 security/security.c:2263
- copy_from_user_sec_ctx net/xfrm/xfrm_user.c:1462 [inline]
- xfrm_policy_construct+0x2a8/0x660 net/xfrm/xfrm_user.c:1627
- xfrm_add_acquire+0x215/0x9f0 net/xfrm/xfrm_user.c:2280
- xfrm_user_rcv_msg+0x414/0x700 net/xfrm/xfrm_user.c:2676
- netlink_rcv_skb+0x15a/0x410 net/netlink/af_netlink.c:2469
- xfrm_netlink_rcv+0x6b/0x90 net/xfrm/xfrm_user.c:2684
- netlink_unicast_kernel net/netlink/af_netlink.c:1303 [inline]
- netlink_unicast+0x537/0x740 net/netlink/af_netlink.c:1329
- netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6b9/0x7d0 net/socket.c:2345
- ___sys_sendmsg+0x100/0x170 net/socket.c:2399
- __sys_sendmsg+0xec/0x1b0 net/socket.c:2432
- do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x4405f9
-Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
-RSP: 002b:00007fffabe06278 EFLAGS: 00000246 ORIG_RAX: 000000000000002e
-RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 00000000004405f9
-RDX: 0000000000000000 RSI: 0000000020000080 RDI: 0000000000000003
-RBP: 00000000006ca018 R08: 0000000000000000 R09: 00000000004002c8
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000401e80
-R13: 0000000000401f10 R14: 0000000000000000 R15: 0000000000000000
+are available in the Git repository at:
 
-Allocated by task 7036:
- save_stack+0x1b/0x80 mm/kasan/common.c:72
- set_track mm/kasan/common.c:80 [inline]
- __kasan_kmalloc mm/kasan/common.c:515 [inline]
- __kasan_kmalloc.constprop.0+0xbf/0xd0 mm/kasan/common.c:488
- __kmalloc_reserve.isra.0+0x39/0xe0 net/core/skbuff.c:142
- __alloc_skb+0xef/0x5a0 net/core/skbuff.c:210
- alloc_skb include/linux/skbuff.h:1083 [inline]
- netlink_alloc_large_skb net/netlink/af_netlink.c:1175 [inline]
- netlink_sendmsg+0x97b/0xe10 net/netlink/af_netlink.c:1893
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6b9/0x7d0 net/socket.c:2345
- ___sys_sendmsg+0x100/0x170 net/socket.c:2399
- __sys_sendmsg+0xec/0x1b0 net/socket.c:2432
- do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git
+   tags/selinux-pr-20200330
 
-Freed by task 5010:
- save_stack+0x1b/0x80 mm/kasan/common.c:72
- set_track mm/kasan/common.c:80 [inline]
- kasan_set_free_info mm/kasan/common.c:337 [inline]
- __kasan_slab_free+0xf7/0x140 mm/kasan/common.c:476
- __cache_free mm/slab.c:3426 [inline]
- kfree+0x109/0x2b0 mm/slab.c:3757
- skb_free_head+0x8b/0xa0 net/core/skbuff.c:590
- skb_release_data+0x42e/0x8b0 net/core/skbuff.c:610
- skb_release_all+0x46/0x60 net/core/skbuff.c:664
- __kfree_skb net/core/skbuff.c:678 [inline]
- consume_skb net/core/skbuff.c:837 [inline]
- consume_skb+0xf3/0x400 net/core/skbuff.c:831
- netlink_unicast_kernel net/netlink/af_netlink.c:1304 [inline]
- netlink_unicast+0x53f/0x740 net/netlink/af_netlink.c:1329
- netlink_sendmsg+0x882/0xe10 net/netlink/af_netlink.c:1918
- sock_sendmsg_nosec net/socket.c:652 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:672
- ____sys_sendmsg+0x6b9/0x7d0 net/socket.c:2345
- ___sys_sendmsg+0x100/0x170 net/socket.c:2399
- __sys_sendmsg+0xec/0x1b0 net/socket.c:2432
- do_syscall_64+0xf6/0x7d0 arch/x86/entry/common.c:294
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+for you to fetch changes up to c753924b628551564b6eea3c9896e4a95aa25ed9:
 
-The buggy address belongs to the object at ffff88808d161800
- which belongs to the cache kmalloc-1k of size 1024
-The buggy address is located 308 bytes inside of
- 1024-byte region [ffff88808d161800, ffff88808d161c00)
-The buggy address belongs to the page:
-page:ffffea0002345840 refcount:1 mapcount:0 mapping:ffff8880aa000c40 index:0x0
-flags: 0xfffe0000000200(slab)
-raw: 00fffe0000000200 ffffea00023d3008 ffffea00029cb048 ffff8880aa000c40
-raw: 0000000000000000 ffff88808d161000 0000000100000002 0000000000000000
-page dumped because: kasan: bad access detected
+ selinux: clean up indentation issue with assignment statement
+   (2020-03-30 19:57:07 -0400)
 
-Memory state around the buggy address:
- ffff88808d161b00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff88808d161b80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff88808d161c00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                   ^
- ffff88808d161c80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff88808d161d00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-==================================================================
+----------------------------------------------------------------
+selinux/stable-5.7 PR 20200330
 
+----------------------------------------------------------------
+Christian G=C3=B6ttsche (1):
+     selinux: allow kernfs symlinks to inherit parent directory context
 
----
-This bug is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+Colin Ian King (1):
+     selinux: clean up indentation issue with assignment statement
 
-syzbot will keep track of this bug report. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
-syzbot can test patches for this bug, for details see:
-https://goo.gl/tpsmEJ#testing-patches
+Connor O'Brien (1):
+     security: selinux: allow per-file labeling for bpffs
+
+Ondrej Mosnacek (10):
+     selinux: move status variables out of selinux_ss
+     selinux: simplify evaluate_cond_node()
+     selinux: convert cond_list to array
+     selinux: convert cond_av_list to array
+     selinux: convert cond_expr to array
+     selinux: generalize evaluate_cond_node()
+     selinux: factor out loop body from filename_trans_read()
+     selinux: optimize storage of filename transitions
+     selinux: reduce the use of hard-coded hash sizes
+     selinux: clean up error path in policydb_init()
+
+Paul Moore (1):
+     selinux: avtab_init() and cond_policydb_init() return void
+
+Richard Haines (1):
+     selinux: Add xfs quota command types
+
+Scott Mayhew (1):
+     NFS: Ensure security label is set for root inode
+
+Stephen Smalley (3):
+     Documentation,selinux: deprecate setting checkreqprot to 1
+     selinux: remove unused initial SIDs and improve handling
+     MAINTAINERS: Update my email address
+
+Vasily Averin (1):
+     selinux: sel_avc_get_stat_idx should increase position index
+
+.../ABI/obsolete/sysfs-selinux-checkreqprot        |  23 ++
+Documentation/admin-guide/kernel-parameters.txt    |   1 +
+MAINTAINERS                                        |   3 +-
+fs/nfs/getroot.c                                   |  39 ++-
+fs/nfs/nfs4proc.c                                  |  12 +-
+fs/nfs/super.c                                     |  25 --
+include/linux/nfs_xdr.h                            |   1 +
+scripts/selinux/genheaders/genheaders.c            |  11 +-
+security/selinux/Kconfig                           |   3 +
+security/selinux/Makefile                          |   4 +-
+security/selinux/hooks.c                           |  18 +-
+security/selinux/include/conditional.h             |   8 +-
+security/selinux/include/initial_sid_to_string.h   |  57 ++--
+security/selinux/include/security.h                |  12 +
+security/selinux/selinuxfs.c                       |  19 +-
+security/selinux/ss/avtab.c                        |   3 +-
+security/selinux/ss/avtab.h                        |   2 +-
+security/selinux/ss/conditional.c                  | 259 +++++-------
+security/selinux/ss/conditional.h                  |  29 +-
+security/selinux/ss/hashtab.c                      |  28 +-
+security/selinux/ss/hashtab.h                      |   2 +-
+security/selinux/ss/policydb.c                     | 326 ++++++++---------
+security/selinux/ss/policydb.h                     |  13 +-
+security/selinux/ss/services.c                     |  79 +++--
+security/selinux/ss/services.h                     |   2 -
+security/selinux/{ss =3D> }/status.c                 |  32 +-
+26 files changed, 521 insertions(+), 490 deletions(-)
+create mode 100644 Documentation/ABI/obsolete/sysfs-selinux-checkreqprot
+rename security/selinux/{ss =3D> }/status.c (81%)
+
+--=20
+paul moore
+www.paul-moore.com
