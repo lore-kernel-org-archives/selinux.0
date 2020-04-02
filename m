@@ -2,122 +2,74 @@ Return-Path: <SRS0=xdbR=5S=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90AC1C18E5B
-	for <selinux@archiver.kernel.org>; Thu,  2 Apr 2020 08:54:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13B04C43331
+	for <selinux@archiver.kernel.org>; Thu,  2 Apr 2020 13:40:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 71B1F2080C
-	for <selinux@archiver.kernel.org>; Thu,  2 Apr 2020 08:54:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A806C206E9
+	for <selinux@archiver.kernel.org>; Thu,  2 Apr 2020 13:40:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="l9odtNzp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387823AbgDBIyr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 2 Apr 2020 04:54:47 -0400
-Received: from mga11.intel.com ([192.55.52.93]:58575 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387749AbgDBIyq (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 2 Apr 2020 04:54:46 -0400
-IronPort-SDR: 9BniBOi08GuztXs5LKVQkquolCZVCzIUknvp59r9zdkFE2HvLNBR+tUu1xz5kpwTJ1KIbybMBV
- J7BcvbSQx3Zw==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2020 01:54:46 -0700
-IronPort-SDR: lWWDpjbJ8ako7fuY2uAUqBQixFmLUhXwmqEfSoWqQrm2CqU0NUhFFVsPF2bcI0MZ7mpRxB1Fa5
- NaMqQCJarI0A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,335,1580803200"; 
-   d="scan'208";a="267959741"
-Received: from linux.intel.com ([10.54.29.200])
-  by orsmga002.jf.intel.com with ESMTP; 02 Apr 2020 01:54:45 -0700
-Received: from [10.249.226.252] (abudanko-mobl.ccr.corp.intel.com [10.249.226.252])
-        by linux.intel.com (Postfix) with ESMTP id CE205580544;
-        Thu,  2 Apr 2020 01:54:40 -0700 (PDT)
-Subject: [PATCH v8 12/12] doc/admin-guide: update kernel.rst with CAP_PERFMON
- information
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-To:     Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        Namhyung Kim <namhyung@kernel.org>
-Cc:     Serge Hallyn <serge@hallyn.com>, Jiri Olsa <jolsa@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        linux-man@vger.kernel.org
-References: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <84c32383-14a2-fa35-16b6-f9e59bd37240@linux.intel.com>
-Date:   Thu, 2 Apr 2020 11:54:39 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        id S2388584AbgDBNkI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 2 Apr 2020 09:40:08 -0400
+Received: from mailomta19-sa.btinternet.com ([213.120.69.25]:26259 "EHLO
+        sa-prd-fep-045.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2388520AbgDBNkI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 2 Apr 2020 09:40:08 -0400
+Received: from sa-prd-rgout-001.btmx-prd.synchronoss.net ([10.2.38.4])
+          by sa-prd-fep-045.btinternet.com with ESMTP
+          id <20200402134005.SASC3855.sa-prd-fep-045.btinternet.com@sa-prd-rgout-001.btmx-prd.synchronoss.net>;
+          Thu, 2 Apr 2020 14:40:05 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1585834805; 
+        bh=pVcpNzXR0r8999sMbw6TYPjPgmSML1uSN0xu2fa9VYs=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=l9odtNzpByZ980qjjDOoLqi1wIQwOwAZC2JC3yfEj0XL4cfH8TS9tE0bUDKtde1REsQ1LAKA/0Zu6fcYThwPfoGolw77mEjOd2lGglXfTX/FSiyeGWu5kcoONCo6aI9bMWValp0aMgHjA3JBfiLfx/MMIW5tVZDNiiXMfJQEMqbaZ3uYkFRy/L6XGK3mUNxGTTwPQZkaU8nxS7ovRTXZSPdYns1eozv0PyAk/Z22MuV/f8i+mc8W+nxYyQTh4a+mSEplJ64bkciE91uE5q6mA3DWAIK0/j8d9Uw/NeKe/QwU4YEExuoeGwSWYm1JzvS/+ZtDnIQFXDjJu01D0Hv0pQ==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.154.154.198]
+X-OWM-Source-IP: 86.154.154.198 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduhedrtdeggdeitdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecukfhppeekiedrudehgedrudehgedrudelkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirdduheegrdduheegrdduleekpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+Received: from localhost.localdomain (86.154.154.198) by sa-prd-rgout-001.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5E3A2411093A20CB; Thu, 2 Apr 2020 14:40:05 +0100
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] selinux-testsuite: Add notify gitignore file
+Date:   Thu,  2 Apr 2020 14:39:45 +0100
+Message-Id: <20200402133945.8427-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
-In-Reply-To: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Add .gitignore to stop format-patch sucking in binaries
 
-Update kernel.rst documentation file with the information
-related to usage of CAP_PERFMON capability to secure performance
-monitoring and observability operations in system.
-
-Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- Documentation/admin-guide/sysctl/kernel.rst | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ tests/notify/.gitignore | 2 ++
+ 1 file changed, 2 insertions(+)
+ create mode 100644 tests/notify/.gitignore
 
-diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
-index def074807cee..b06ae9389809 100644
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -720,20 +720,26 @@ perf_event_paranoid:
- ====================
- 
- Controls use of the performance events system by unprivileged
--users (without CAP_SYS_ADMIN).  The default value is 2.
-+users (without CAP_PERFMON). The default value is 2.
-+
-+For backward compatibility reasons access to system performance
-+monitoring and observability remains open for CAP_SYS_ADMIN
-+privileged processes but CAP_SYS_ADMIN usage for secure system
-+performance monitoring and observability operations is discouraged
-+with respect to CAP_PERFMON use cases.
- 
- ===  ==================================================================
-  -1  Allow use of (almost) all events by all users
- 
-      Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
- 
-->=0  Disallow ftrace function tracepoint by users without CAP_SYS_ADMIN
-+>=0  Disallow ftrace function tracepoint by users without CAP_PERFMON
- 
--     Disallow raw tracepoint access by users without CAP_SYS_ADMIN
-+     Disallow raw tracepoint access by users without CAP_PERFMON
- 
-->=1  Disallow CPU event access by users without CAP_SYS_ADMIN
-+>=1  Disallow CPU event access by users without CAP_PERFMON
- 
-->=2  Disallow kernel profiling by users without CAP_SYS_ADMIN
-+>=2  Disallow kernel profiling by users without CAP_PERFMON
- ===  ==================================================================
- 
- 
+diff --git a/tests/notify/.gitignore b/tests/notify/.gitignore
+new file mode 100644
+index 0000000..fd7c5db
+--- /dev/null
++++ b/tests/notify/.gitignore
+@@ -0,0 +1,2 @@
++test_inotify
++test_fanotify
 -- 
 2.24.1
 
