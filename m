@@ -4,38 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46C3BC10F26
-	for <selinux@archiver.kernel.org>; Thu,  2 Apr 2020 08:49:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C129FC43331
+	for <selinux@archiver.kernel.org>; Thu,  2 Apr 2020 08:49:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 26B42208E4
-	for <selinux@archiver.kernel.org>; Thu,  2 Apr 2020 08:49:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A1B3B208FE
+	for <selinux@archiver.kernel.org>; Thu,  2 Apr 2020 08:49:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387580AbgDBItC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 2 Apr 2020 04:49:02 -0400
-Received: from mga04.intel.com ([192.55.52.120]:20397 "EHLO mga04.intel.com"
+        id S2387773AbgDBItx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 2 Apr 2020 04:49:53 -0400
+Received: from mga05.intel.com ([192.55.52.43]:46966 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728612AbgDBItC (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 2 Apr 2020 04:49:02 -0400
-IronPort-SDR: 3vozcRsLbC9/d8nEG+LNwpellc3rhNmFex3SXXY55ZTHEFW8piQWGDK3CAeCnNu0VExXjX4egK
- DfvO1PZ/jepg==
+        id S1728612AbgDBItx (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 2 Apr 2020 04:49:53 -0400
+IronPort-SDR: lg1F17We97+bBt0s3cRjh4HZ0Vsiv20BbQ1XduZG2jIB+JN2MM+5F7fJXhN9YlW/fR+QZEq8NG
+ okNSG03i1HFA==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2020 01:49:01 -0700
-IronPort-SDR: 4clKvFjPAfLVgzNHn0x2hTvGXx1liUSAeafeOQdFIRnBLl+uZAtxxeyGnJwFDTDmnB1mSWrMxd
- T6IRvue0134A==
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Apr 2020 01:49:42 -0700
+IronPort-SDR: x2I/w4oYJVQyDLuhYVX5JgKoqTCgS056OzKSGU7ZXHmII/YThuUwHJ1y0qnR3q3vDUOkjNmeW4
+ kE1KJg9gKaxw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.72,335,1580803200"; 
-   d="scan'208";a="273484844"
+   d="scan'208";a="284705996"
 Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga004.fm.intel.com with ESMTP; 02 Apr 2020 01:49:00 -0700
+  by fmsmga002.fm.intel.com with ESMTP; 02 Apr 2020 01:49:42 -0700
 Received: from [10.249.226.252] (abudanko-mobl.ccr.corp.intel.com [10.249.226.252])
-        by linux.intel.com (Postfix) with ESMTP id 12177580781;
-        Thu,  2 Apr 2020 01:48:55 -0700 (PDT)
-Subject: [PATCH v8 06/12] trace/bpf_trace: open access for CAP_PERFMON
- privileged process
+        by linux.intel.com (Postfix) with ESMTP id 7BB13580544;
+        Thu,  2 Apr 2020 01:49:37 -0700 (PDT)
+Subject: [PATCH v8 07/12] powerpc/perf: open access for CAP_PERFMON privileged
+ process
 From:   Alexey Budankov <alexey.budankov@linux.intel.com>
 To:     Peter Zijlstra <peterz@infradead.org>,
         Arnaldo Carvalho de Melo <acme@kernel.org>,
@@ -58,8 +59,8 @@ Cc:     Serge Hallyn <serge@hallyn.com>, Jiri Olsa <jolsa@redhat.com>,
         linux-man@vger.kernel.org
 References: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
 Organization: Intel Corp.
-Message-ID: <c0a0ae47-8b6e-ff3e-416b-3cd1faaf71c0@linux.intel.com>
-Date:   Thu, 2 Apr 2020 11:48:54 +0300
+Message-ID: <ac98cd9f-b59e-673c-c70d-180b3e7695d2@linux.intel.com>
+Date:   Thu, 2 Apr 2020 11:49:36 +0300
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
  Thunderbird/68.6.0
 MIME-Version: 1.0
@@ -73,45 +74,53 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
-Open access to bpf_trace monitoring for CAP_PERFMON privileged process.
-Providing the access under CAP_PERFMON capability singly, without the
-rest of CAP_SYS_ADMIN credentials, excludes chances to misuse the
-credentials and makes operation more secure.
+Open access to monitoring for CAP_PERFMON privileged process.
+Providing the access under CAP_PERFMON capability singly, without
+the rest of CAP_SYS_ADMIN credentials, excludes chances to misuse
+the credentials and makes operation more secure.
 
 CAP_PERFMON implements the principal of least privilege for performance
 monitoring and observability operations (POSIX IEEE 1003.1e 2.2.2.39
 principle of least privilege: A security design principle that states
 that a process or program be granted only those privileges (e.g.,
-capabilities) necessary to accomplish its legitimate function, and only
-for the time that such privileges are actually required)
+capabilities) necessary to accomplish its legitimate function, and
+only for the time that such privileges are actually required)
 
-For backward compatibility reasons access to bpf_trace monitoring
-remains open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN
-usage for secure bpf_trace monitoring is discouraged with respect to
-CAP_PERFMON capability.
+For backward compatibility reasons access to the monitoring remains
+open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN usage
+for secure monitoring is discouraged with respect to CAP_PERFMON
+capability.
 
 Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
-Acked-by: Song Liu <songliubraving@fb.com>
+Acked-by: Anju T Sudhakar<anju@linux.vnet.ibm.com>
 Acked-by: James Morris <jamorris@linux.microsoft.com>
 Reviewed-by: James Morris <jamorris@linux.microsoft.com>
 ---
- kernel/trace/bpf_trace.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/perf/imc-pmu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
-index 19e793aa441a..70e8249eebe5 100644
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -1416,7 +1416,7 @@ int perf_event_query_prog_array(struct perf_event *event, void __user *info)
- 	u32 *ids, prog_cnt, ids_len;
- 	int ret;
+diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
+index cb50a9e1fd2d..e837717492e4 100644
+--- a/arch/powerpc/perf/imc-pmu.c
++++ b/arch/powerpc/perf/imc-pmu.c
+@@ -898,7 +898,7 @@ static int thread_imc_event_init(struct perf_event *event)
+ 	if (event->attr.type != event->pmu->type)
+ 		return -ENOENT;
  
 -	if (!capable(CAP_SYS_ADMIN))
 +	if (!perfmon_capable())
- 		return -EPERM;
- 	if (event->attr.type != PERF_TYPE_TRACEPOINT)
- 		return -EINVAL;
+ 		return -EACCES;
+ 
+ 	/* Sampling not supported */
+@@ -1307,7 +1307,7 @@ static int trace_imc_event_init(struct perf_event *event)
+ 	if (event->attr.type != event->pmu->type)
+ 		return -ENOENT;
+ 
+-	if (!capable(CAP_SYS_ADMIN))
++	if (!perfmon_capable())
+ 		return -EACCES;
+ 
+ 	/* Return if this is a couting event */
 -- 
 2.24.1
-
 
