@@ -1,115 +1,64 @@
-Return-Path: <SRS0=UcA6=5U=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=gmKd=5V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7CDFC2BA1B
-	for <selinux@archiver.kernel.org>; Sat,  4 Apr 2020 08:18:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 359A2C2BA19
+	for <selinux@archiver.kernel.org>; Sun,  5 Apr 2020 09:54:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B8820206B8
-	for <selinux@archiver.kernel.org>; Sat,  4 Apr 2020 08:18:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F291320675
+	for <selinux@archiver.kernel.org>; Sun,  5 Apr 2020 09:54:22 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=coker.com.au header.i=@coker.com.au header.b="1e8+kEzU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725872AbgDDISN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 4 Apr 2020 04:18:13 -0400
-Received: from mga03.intel.com ([134.134.136.65]:7558 "EHLO mga03.intel.com"
+        id S1726491AbgDEJyW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 5 Apr 2020 05:54:22 -0400
+Received: from smtp.sws.net.au ([46.4.88.250]:46036 "EHLO smtp.sws.net.au"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725730AbgDDISM (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sat, 4 Apr 2020 04:18:12 -0400
-IronPort-SDR: pTuOzoX0oZHsGbI1XX2yEEA6qKwf7IfXTx/lOlXAbGcPolN93BENPMATfk/3WfEPwa700Z/GC8
- qza/HhhG/gTQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Apr 2020 01:18:11 -0700
-IronPort-SDR: oWNvoibv/NVKa6nUxJdw9GnxF7+JVv9j3/h3sDQzlGAbdflpMLM9iNTXJpIG5pdiQp8BytKN+t
- lB0vFI0Ft37w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,343,1580803200"; 
-   d="scan'208";a="451544685"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga006.fm.intel.com with ESMTP; 04 Apr 2020 01:18:10 -0700
-Received: from [10.249.93.66] (abudanko-mobl.ccr.corp.intel.com [10.249.93.66])
-        by linux.intel.com (Postfix) with ESMTP id 764C65802C8;
-        Sat,  4 Apr 2020 01:18:03 -0700 (PDT)
-Subject: Re: [PATCH v8 04/12] perf tool: extend Perf tool with CAP_PERFMON
- capability support
-To:     Namhyung Kim <namhyung@kernel.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        Serge Hallyn <serge@hallyn.com>, Jiri Olsa <jolsa@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        linux-man@vger.kernel.org
-References: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
- <a66d5648-2b8e-577e-e1f2-1d56c017ab5e@linux.intel.com>
- <CAM9d7cgRczLcyUi1y96a=87Hh3BhFgRUS8Kw=DBg4C0hVYj2HQ@mail.gmail.com>
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <ab15a8af-26a6-f8e7-cd7a-6b3fde99eaf9@linux.intel.com>
-Date:   Sat, 4 Apr 2020 11:18:01 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        id S1726455AbgDEJyW (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Sun, 5 Apr 2020 05:54:22 -0400
+X-Greylist: delayed 453 seconds by postgrey-1.27 at vger.kernel.org; Sun, 05 Apr 2020 05:54:22 EDT
+Received: from liv.localnet (localhost [127.0.0.1])
+        by smtp.sws.net.au (Postfix) with ESMTP id D3D2CF0EA
+        for <selinux@vger.kernel.org>; Sun,  5 Apr 2020 19:46:46 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=coker.com.au;
+        s=2008; t=1586080008;
+        bh=Oed4ArNKFhtOFHYhkMdd+TeQK+r3hVssHrmlKu/kMcY=; l=494;
+        h=From:To:Subject:Date:From;
+        b=1e8+kEzUQQfZZbVC4ve3LR9KEBs/GHXkm2g0ntJqyt3j7eNs8pFF0TvdIhT/Ti923
+         PN5XUVUA0rutUVZ6AmwbDL6RPiuO2oNx9KZkGqE8Ib0pygNk8nJz2R87MO8hVL7juK
+         Uc24853LzobnOgPlI/dQiEO7U48W/7kiALs5dsTU=
+From:   Russell Coker <russell@coker.com.au>
+To:     selinux@vger.kernel.org
+Subject: libsepol releases
+Date:   Sun, 05 Apr 2020 19:46:37 +1000
+Message-ID: <3581425.j52oWYpJar@liv>
 MIME-Version: 1.0
-In-Reply-To: <CAM9d7cgRczLcyUi1y96a=87Hh3BhFgRUS8Kw=DBg4C0hVYj2HQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Namhyung,
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=955154
 
-On 04.04.2020 5:18, Namhyung Kim wrote:
-> Hello,
-> 
-> On Thu, Apr 2, 2020 at 5:47 PM Alexey Budankov
-> <alexey.budankov@linux.intel.com> wrote:
->>
->>
->> Extend error messages to mention CAP_PERFMON capability as an option
->> to substitute CAP_SYS_ADMIN capability for secure system performance
->> monitoring and observability operations. Make perf_event_paranoid_check()
->> and __cmd_ftrace() to be aware of CAP_PERFMON capability.
->>
->> CAP_PERFMON implements the principal of least privilege for performance
->> monitoring and observability operations (POSIX IEEE 1003.1e 2.2.2.39
->> principle of least privilege: A security design principle that states
->> that a process or program be granted only those privileges (e.g.,
->> capabilities) necessary to accomplish its legitimate function, and only
->> for the time that such privileges are actually required)
->>
->> For backward compatibility reasons access to perf_events subsystem remains
->> open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN usage for
->> secure perf_events monitoring is discouraged with respect to CAP_PERFMON
->> capability.
->>
->> Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
->> Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-> 
-> Acked-by: Namhyung Kim <namhyung@kernel.org>
+We have the above Debian bug report requesting a GIT patch for libsepol for 
+GCC-10 support.
 
-Thanks! I appreciate you involvement and effort.
+https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=955286
 
-~Alexey
+We also have the above for a policy constraint error.
 
-> 
-> Thanks
-> Namhyung
-> 
+Could we have a new upstream release soon to cover all GCC-10 issues as well 
+as any other important things?  Maybe version 3.0.1?
+
+-- 
+My Main Blog         http://etbe.coker.com.au/
+My Documents Blog    http://doc.coker.com.au/
+
+
+
