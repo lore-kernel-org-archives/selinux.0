@@ -1,100 +1,81 @@
-Return-Path: <SRS0=gmKd=5V=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=MX5b=5W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 532A4C2BA15
-	for <selinux@archiver.kernel.org>; Sun,  5 Apr 2020 15:51:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4950C2BA19
+	for <selinux@archiver.kernel.org>; Mon,  6 Apr 2020 14:16:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 347F8206B8
-	for <selinux@archiver.kernel.org>; Sun,  5 Apr 2020 15:51:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A446523B44
+	for <selinux@archiver.kernel.org>; Mon,  6 Apr 2020 14:16:46 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jUVQjcY0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727126AbgDEPvf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 5 Apr 2020 11:51:35 -0400
-Received: from mga01.intel.com ([192.55.52.88]:48229 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726765AbgDEPvf (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Sun, 5 Apr 2020 11:51:35 -0400
-IronPort-SDR: y8Ex2z7lktRRQ6kZaK9rzACJ0DrZEg31sPoaGIdh1/F4rJqiJQO7+KCsvlCLZJpsHjaYGwZKov
- DZF0ZAwrOrpQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Apr 2020 08:51:34 -0700
-IronPort-SDR: 9H+VnNHNmgemh7OdAcgvyRmttnueGqPJX5owQ9JxCcyH7agdmWjuOTmGrPJaB/mjN5Azw8eXx/
- eZb8TElDz0eQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.72,348,1580803200"; 
-   d="scan'208";a="296445177"
-Received: from linux.intel.com ([10.54.29.200])
-  by FMSMGA003.fm.intel.com with ESMTP; 05 Apr 2020 08:51:34 -0700
-Received: from [10.249.231.111] (abudanko-mobl.ccr.corp.intel.com [10.249.231.111])
-        by linux.intel.com (Postfix) with ESMTP id 4251358033E;
-        Sun,  5 Apr 2020 08:51:30 -0700 (PDT)
-Subject: Re: [PATCH v8 12/12] doc/admin-guide: update kernel.rst with
- CAP_PERFMON information
-To:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Serge Hallyn <serge@hallyn.com>, Jiri Olsa <jolsa@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        linux-man@vger.kernel.org
-References: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
- <84c32383-14a2-fa35-16b6-f9e59bd37240@linux.intel.com>
- <20200405141029.GA16896@kernel.org>
- <eb7fd0bd-4043-b51c-9b19-ee0a1d1849e9@linux.intel.com>
- <966244a1-2a2d-8e47-b805-2effa46fe8cd@linux.intel.com>
- <20200405150557.GP9917@kernel.org>
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <50b54ca3-2edb-d2be-e42e-57e0de12a052@linux.intel.com>
-Date:   Sun, 5 Apr 2020 18:51:29 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
+        id S1728598AbgDFOQq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Apr 2020 10:16:46 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:20389 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728591AbgDFOQp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Apr 2020 10:16:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586182604;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=5QHUdyA6EGZqOqtb0YatXKrsVwhMEXCKcgqnvY6+xTM=;
+        b=jUVQjcY05oKQbBE2/uM0MW+IjSjrC+sLlSysuxv1b6BOgo3sA3hB0nVzX5pu7n8NH5D8NN
+        ucCXDw186mJShWlXkOek1vIRas33QW0mbXLxbxkgI8G3hVjWmVw/n9EnnZJzmwdDbJZsVp
+        nibR3Pqrg9AlOD1hV4FzkYFQrjbzThc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-45-xGOEcLQINxuupjUuuxJOzg-1; Mon, 06 Apr 2020 10:16:26 -0400
+X-MC-Unique: xGOEcLQINxuupjUuuxJOzg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D48AFB7480F
+        for <selinux@vger.kernel.org>; Mon,  6 Apr 2020 14:16:16 +0000 (UTC)
+Received: from localhost.localdomain.com (unknown [10.40.196.89])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3DC81119581
+        for <selinux@vger.kernel.org>; Mon,  6 Apr 2020 14:16:16 +0000 (UTC)
+From:   Richard Filo <rfilo@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] libselinux: Add missing errno setup
+Date:   Mon,  6 Apr 2020 16:16:04 +0200
+Message-Id: <20200406141604.69308-1-rfilo@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200405150557.GP9917@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+fixes: https://src.fedoraproject.org/tests/selinux/issue/51
 
-On 05.04.2020 18:05, Arnaldo Carvalho de Melo wrote:
-> Em Sun, Apr 05, 2020 at 05:54:37PM +0300, Alexey Budankov escreveu:
->>
->> On 05.04.2020 17:41, Alexey Budankov wrote:
->>>
->>> On 05.04.2020 17:10, Arnaldo Carvalho de Melo wrote:
->>>> Em Thu, Apr 02, 2020 at 11:54:39AM +0300, Alexey Budankov escreveu:
->>>>>
->>>>> Update kernel.rst documentation file with the information
->>>>> related to usage of CAP_PERFMON capability to secure performance
->>>>> monitoring and observability operations in system.
->>>>
->>>> This one is failing in my perf/core branch, please take a look. I'm
->>
->> Please try applying this:
-> 
-> Thanks, applied with the original commit log message,
+Errno is not set to ENOENT when lookup_all() doesn't find any match.
+---
+ libselinux/src/label_file.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-Thanks,
-Alexey
+diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
+index 300625c2..113bb9b7 100644
+--- a/libselinux/src/label_file.c
++++ b/libselinux/src/label_file.c
+@@ -948,6 +948,8 @@ static const struct spec **lookup_all(struct selabel_=
+handle *rec,
+ 			goto finish;
+ 		}
+ 	}
++	if (result && !result[0])=20
++		errno =3D ENOENT;
+=20
+ finish:
+ 	free(clean_key);
+--=20
+2.25.2
+
