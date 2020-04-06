@@ -4,47 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02243C2BA1A
-	for <selinux@archiver.kernel.org>; Mon,  6 Apr 2020 20:32:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60A6BC2BA1A
+	for <selinux@archiver.kernel.org>; Mon,  6 Apr 2020 20:40:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id BCC6C2072A
-	for <selinux@archiver.kernel.org>; Mon,  6 Apr 2020 20:32:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1258E2072A
+	for <selinux@archiver.kernel.org>; Mon,  6 Apr 2020 20:40:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="lrkE7qnV"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="bBqUPRDF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726310AbgDFUc5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Apr 2020 16:32:57 -0400
-Received: from sonic306-27.consmr.mail.ne1.yahoo.com ([66.163.189.89]:44291
+        id S1725995AbgDFUko (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Apr 2020 16:40:44 -0400
+Received: from sonic306-27.consmr.mail.ne1.yahoo.com ([66.163.189.89]:44161
         "EHLO sonic306-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726197AbgDFUc5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Apr 2020 16:32:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1586205174; bh=07RxbwAYxdKzaEWFrRtckoqoMx7n8almVlTczK2aHcA=; h=From:To:Cc:Subject:Date:References:From:Subject; b=lrkE7qnVJvcck5DaeKO4o7c5UV653Jt+DfUDWwqRHjEcEki+VfkvBZ6OpLGNw1u1JYBnjXhBAcp4KNteAsvuYpKv2Ee5hGmFnOXelwKxO039ua2eDhMVnz64Yw3m97MP1gzGykE4q6G3nBcDU1cFEfmdIz2SUlAPCunuONQLdr6K5/PxNXkdVBqk4H9Z2nBEenSqX+RWqw6JpHVay7pP7PxOnEX4zjyBz1C9QNw+r1un9XdBcrfQpuB4frHHKNHMP1+k0XfIThuJjkJUZSwjiWjq6Tyox7ve02R2+PuuRBTHAo/bomirr4Pd7WXwFs5RQeto+ZspzRywDEq+IEbNew==
-X-YMail-OSG: lH9F04gVM1nMivSZuKm7G6EApfHXCIlg4_rrmUYSozSpf0yR_W3grRDJSDhVYiD
- gkp.hSWOLzzUF_zYHZ_PDMgzSE7pYN6ep2qoPUOQqm7fCj9nJ3oi0ys45MKZxUD2mHaXG50ecBxj
- upFB2mD9nIb72T9eNRFcU9CcCD2KkdC4jI9Psgl2EaN9tyIvK_Og7GGBYV2ETqvoBX83OeNzu_q3
- 2gdRcmnD.7bBBNsACBp422izrx7I4uV_Ihk1Yzhix8GAO1s6MsCzXGBw4rgwxUT2A_Hs_rncYn7m
- pcYgmPYjz4XsVTvWpIUspHwkGi6Doo6JazYYVq.hdNgnsdSNe7OuG2CoCCXT3C2c8LA94NmwUoJc
- TKtUBR8OSqi4zQPoiFMG2FaBCXfpEk2ISQso3yExXA8n9OSTO6bFiPOy1oQNBrnGDcW9isK1zEEY
- C4tYvZ4ZsvXfq1YiPU_N_W4eL5JMp7IMXrXgJZe7Q.Iyx.nnROiMblzBTvxuVVxDk1E57.NhVGeA
- b1N1spAWkfQ0HWLp3OZJfGiI1bFh2kqtd9PDV2XCG_DDUUyOkXkWATMVsbmsgT_c3ekPICGYv8Sn
- aNMvauSuSC0h_gQhVPCv6aCSQVB97A4zmqq1SCGvAtl9sFe9c_KThe46ue3J1ih1LQmp8Qx0liq_
- kA704q3vMifttQzjtUAbS0XPYyU.NnBQBM8vv.psBDYB_sMcAB.TO8RfxyzsuPtdLd3s1kdxtwjn
- bhoNa4xg.zmllXvuLbUd1KVynRl4WNO6hkWQai3.OcLFj87oIRcSDEu8vCccXG5oN7M0BkCyNba_
- FJ7AcECt75YrOaEKIW7J.82CxtXokmCuOVmdqlNThzRdG2EOd2ATvt_MLttUVqf5wewJhjmgMcs5
- KLLOtqG4tmeYjn3bP_3LQx04oE8Vz2qofUWxIaHGB2.5CbXhN.gH5MWAROlEzXI4lLQ4dYGSK6RL
- .ta.FVfx4djand.h_6dea.943fun0B1Un85twIgxx.ULFMdwFm2d9u4HQ6GgNnmW6cpRX0g3IQR8
- WbYU9VsAmWCdWwAqdw.L.5QYZ1_NG_Py9FXwtKMUKkxE_M5QIr3k4hQR9ae0KKu8zbvLeiPiwqqS
- Lz1a5VvcAszsmsCTb0atOcHhZ_irZVbFnAT0fdH41rxKQAHVH63gx3qFl5JOuBetXTRGbCdRlymk
- TdO5X4yjeEpAf4cyx0Wz7xd8VdWO4q8u84HmZuQIgw2mdpqA5MuGy23icE.oVtyIw2jyuxo3Y.kw
- W0.FwR1vNZzcOwG8cBWjr9.JCg.5fZZ0RzyuWBrCFowMScRudTvUHZJGF8suyAODuPm4l1zctk1U
- 0E9_Sfct1_aSv23ojzIkiJfUxvpNKeNavWjwwKBDFhR_LIMRaTwmsqsnY_.rsrHWPRGB4sX0Vhqx
- 49tMmI7GDpwZVrV1mNQEFRIieFvxrUZCY3_ioqbbsOjxSS_bkgrRvojnl3tKt7x9xoBJk
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 6 Apr 2020 20:32:54 +0000
-Received: by smtp425.mail.gq1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 9fcf7e00425023fdab52f7ee4fe38a97;
-          Mon, 06 Apr 2020 20:32:49 +0000 (UTC)
+        by vger.kernel.org with ESMTP id S1725933AbgDFUko (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Apr 2020 16:40:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1586205643; bh=07RxbwAYxdKzaEWFrRtckoqoMx7n8almVlTczK2aHcA=; h=From:To:Cc:Subject:Date:References:From:Subject; b=bBqUPRDFy3lVIRY2CJyTJ2xO4QZN91EllYA7hH8ekCAlIJrLXiqzrQF75/DmlDDM3nusQzDSU61XteVecaur6MqSG95T7VdToMINysRHqKU169KgH0XbKT+ez0SZgG0+hkwJYIghR28gHUVd/kEP4zKY3+WXc2tqnoFpQdLrR9MxbKZJO4oSSB8dMCaimxzCxtZ9s6deTrCfQ0IOJm8pnm7gEdBJ7P6soKuIE1sqUr/7WQJbK2MQVJF0VkooeicAPXrw9I6YdFBOwfXFgxGd7Zf+wX6ZTvVNIwIGrBPk176xaLqC5MtF6GKxHL+ZnsZPC0sWBaL+uLUN6vaZeC3jUQ==
+X-YMail-OSG: yov..lEVM1l.6fCsRX3XVDwQD7bTCofR8SbrWPwypquDXHZkN6o7Yif2cDbG1Kg
+ zU.3oyud7iyc3_O427Mlz93pcYuFKCXBtyfyc39mmSxoAlqhowkZjbaJ7lfiCvvQTeLvUzBkUJOS
+ WGD1H7a9kgRJGalkTftTjQ.63VQ7dAN4Sr3qUv.qCkF7JSmgFhvb6TH1Yzi8vZCI_j.U3bi67.9h
+ ztH2JzyhPZOZbr6xPut5DicUhp9AIerHBXoi8bO3OGHz6kpIum2uzNKcuyUV.tEpWoz2kBO5ZeRh
+ li.2LRUqW73QRcO9nlX_3R_M3qhMLM4Gnfo_zebv8kK8NRhIBki_Ype_NkDQvuPEMWk055deIDs4
+ HO1XsOwxxeOO6DN46xvZ4Ijzs96FeaL3kl93_DHWMCR7S1IUEPxSmOFtoxKzjpm3kHKVj3VCGHld
+ GKQICSw8Ouq27PtjrEIJ4WWzcAKmGhNDZPdCBFI8NTfgbR_SIDHLphzMlt6vNif2UHNYZWTD7jg7
+ VKLstgO4gT1dkfXBYlliHiDH2UQMWg7FVSnsSQQDweyMu_fQlwvBMYI.9S16AS4DMV9Hi.d69uxa
+ vcoO9gh3mMLqtOh3bTzIHxASRkOE5n2Cpsi9pJf5QRcfvbtBOpFgUD1WUh7x9kf.fuAHy.a8Bxo_
+ 9k424NgtB5lsUjOJ01SFlgSeP8ip.EzwVhK1V3n_NpxyVwFVNXVYssqP6Je5iLPRSBd_UJHokFov
+ 203er_1NINQViKhTjox89qA8OKP.hUMno177FeL4siXzHYufFuIgzGsTS8_GOjeA4BiuN5r6IQTQ
+ hNVLCXyodI_9NSaNUDUWjHJZxKj25ugywyUQ.rLPq0p9oEtcawvBn_Gz0PDZQaYQCRaI_jSvr2Jj
+ sGVAwz9ztTSKdBLn07vjYPNE07.amCOfMxahETFoAoGemq6KkTsof656zZn1fcSm4ZwHOgDqkaUm
+ d5HlK1oMUzNEuD.o5o6PT6DzZf2QsTNeTuS73BZ5MIbKrI7q5o8KVcg3v7UOeoXYwumn87kfuupw
+ R_K2au0kPup6ucqV363MOHm.CIxb84uMpxpI.st16L62MYPv3OL_2RQnzL5Zj3MFDVhdYZVoDaod
+ OJ_6ktajJy.wslCka9zBpFF5x8.FIqPxtedTZKf8X1PzYQTv.phK7C8g7WNiKGEinnggqwlT.O.P
+ GXVWsG69jDnrj7IaRIA.GOLwAC.LPHQ2dGl0oTCryWrYFWF01JvuMIgZRny7i3s5IInV0dXdRpI4
+ u0Qj1G4SObSmqnv7fR.vPDB2r85xh9Q0p.kyd66T4a_pEgzUmNsjxoJB.6pgcwAysTXCt4LbYea5
+ pfrOKAX9hRb9JIeCbEzW2vCNeCMAIg2B0vLx2pVsXV2_M.fYV0bz3CmtDvMjX3yD5Flr6TePmacZ
+ 5ejaxLeAmPI4wQnTMQdek5NRfSl1ECOcNfzZH8Oaqj3NgtAQW59ZjK8CQbWcW6plvyJk-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.ne1.yahoo.com with HTTP; Mon, 6 Apr 2020 20:40:43 +0000
+Received: by smtp418.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 061ea7ac6ba9231258b10caa630a4aef;
+          Mon, 06 Apr 2020 20:40:40 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
@@ -52,12 +52,12 @@ Cc:     casey@schaufler-ca.com, keescook@chromium.org,
         john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
         paul@paul-moore.com, sds@tycho.nsa.gov, linux-audit@redhat.com
 Subject: [PATCH v15 00/23] LSM: Module stacking for AppArmor
-Date:   Mon,  6 Apr 2020 13:32:46 -0700
-Message-Id: <20200406203246.42079-1-casey@schaufler-ca.com>
+Date:   Mon,  6 Apr 2020 13:40:14 -0700
+Message-Id: <20200406204037.42262-1-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.24.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-References: <20200406203246.42079-1-casey.ref@schaufler-ca.com>
+References: <20200406204037.42262-1-casey.ref@schaufler-ca.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
