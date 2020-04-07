@@ -2,103 +2,115 @@ Return-Path: <SRS0=OuNA=5X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-11.7 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5B56C2D0EC
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 19:11:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55E77C2D0EC
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 20:27:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 7912D2076E
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 19:11:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FjrbPETd"
+	by mail.kernel.org (Postfix) with ESMTP id 2904B20748
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 20:27:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726795AbgDGTLO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Apr 2020 15:11:14 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:48657 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726332AbgDGTLO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Apr 2020 15:11:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586286673;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Sdcxcm94hmtRRuwbD4xQJ0ZuA4NWf668nF9/5g3jGyg=;
-        b=FjrbPETdvlGDjQGMEBEAp66HpP7MzKMa55igTK8M1slXX/8B9Jjpvtk5yu2y6Q7h/+9s1v
-        U2giq41nCloaLm1FWifLkSjWkrKr9fylUuPnWRq0aOMsuKcUR6xduW7GEkb5kYvO8MRX84
-        Qs4c7KQ/5Y0mMvpD9JC5EiCkVnCbhrk=
-Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
- [209.85.210.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-3-bdxZpBV1PVSS3Y8i1hQbCg-1; Tue, 07 Apr 2020 15:11:04 -0400
-X-MC-Unique: bdxZpBV1PVSS3Y8i1hQbCg-1
-Received: by mail-ot1-f69.google.com with SMTP id x89so3488462otb.12
-        for <selinux@vger.kernel.org>; Tue, 07 Apr 2020 12:11:04 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Sdcxcm94hmtRRuwbD4xQJ0ZuA4NWf668nF9/5g3jGyg=;
-        b=j72MZ6zzFCuRc+wzDrJhkubDPYGXS84/4fQLK1TE2rAoo9en58fpCMBudPP+LXN9vQ
-         f7LwXxrDMyotCO2l+WaSspOt9kjyvxHzb6kJcN1bcXLosX8M3ax9EKqADvx78owEgFHU
-         GGVk4oCmev7voN5ksoaFCP+jGnEdRqJS4yGm0Zf8smdw0h/iQkdoiGEhulZqaz949eWY
-         CUw3BR0dOrzG/92sauZBYWwr/1n5BmVSDYrgWDaAB/MzfyFWUUbmsEskc7nUbAUUVTO4
-         awi2+1CqgE0uRZoNKmbWg3bgssyOy2TmkJESYH/PohUIN9AHT211x3Qv4HrIIu1+O+4M
-         fx8Q==
-X-Gm-Message-State: AGi0PuZmQ0nl2JkNKK185gbRtRqOqDYbaFFQAO8RcE6bKvWNyyJPDnpd
-        4XdkO/4KhkUL/ogva+7dcTwkbSWFjIy6JppvhlRI7khq1SIaN9SYNHqd4MR/pJ1JnWDjVUbbdvs
-        wPLfZFv+XhYX2NWU/baxc9mhOHdeb4vJAig==
-X-Received: by 2002:aca:488a:: with SMTP id v132mr293414oia.166.1586286663689;
-        Tue, 07 Apr 2020 12:11:03 -0700 (PDT)
-X-Google-Smtp-Source: APiQypJOq/b909elLKjov23RvissYXGDAFNcFNNpohd5HxOAi32urPGiaziRxobG7RvoLVS2cG9ssmtgFGYJfHSQvW8=
-X-Received: by 2002:aca:488a:: with SMTP id v132mr293398oia.166.1586286663443;
- Tue, 07 Apr 2020 12:11:03 -0700 (PDT)
+        id S1726329AbgDGU1N convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>); Tue, 7 Apr 2020 16:27:13 -0400
+Received: from mga06.intel.com ([134.134.136.31]:50498 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726277AbgDGU1N (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 7 Apr 2020 16:27:13 -0400
+IronPort-SDR: bmUwuqZGvzvAD2TUi3DwVSLzEIjWhQXcML7LlHXztrHfSQ7GVDFrVuKrqOHMPLqMz/g53UR8rg
+ AWLh5QOnso0g==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Apr 2020 13:27:13 -0700
+IronPort-SDR: msxL9aYDGRrfvMNfRlViTVgQQ2fsk4qx0LSpOae3wW4Y9Nyw3hOBVowll8RDht0UpKTL2dEI+H
+ bJ9Gkfu0t2jQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,356,1580803200"; 
+   d="scan'208";a="242170124"
+Received: from orsmsx109.amr.corp.intel.com ([10.22.240.7])
+  by fmsmga007.fm.intel.com with ESMTP; 07 Apr 2020 13:27:12 -0700
+Received: from orsmsx152.amr.corp.intel.com (10.22.226.39) by
+ ORSMSX109.amr.corp.intel.com (10.22.240.7) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Tue, 7 Apr 2020 13:27:12 -0700
+Received: from orsmsx101.amr.corp.intel.com ([169.254.8.225]) by
+ ORSMSX152.amr.corp.intel.com ([169.254.8.204]) with mapi id 14.03.0439.000;
+ Tue, 7 Apr 2020 13:27:12 -0700
+From:   "Roberts, William C" <william.c.roberts@intel.com>
+To:     "aduskett@gmail.com" <aduskett@gmail.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Subject: RE: [PATCH 1/1] fix building against musl and uClibc libc libraries.
+Thread-Topic: [PATCH 1/1] fix building against musl and uClibc libc
+ libraries.
+Thread-Index: AQHWDQxUJypi840W/ki7b0jYXJYVf6huGuoA
+Date:   Tue, 7 Apr 2020 20:27:11 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC5649EBB79F@ORSMSX101.amr.corp.intel.com>
+References: <20200407184239.2700998-1-aduskett@gmail.com>
+In-Reply-To: <20200407184239.2700998-1-aduskett@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.139]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <20200402133945.8427-1-richard_c_haines@btinternet.com> <CAFqZXNvp=yAyNM84vOxFdMaNAQ_=FTL00favpQr1mJ4GG261Lg@mail.gmail.com>
-In-Reply-To: <CAFqZXNvp=yAyNM84vOxFdMaNAQ_=FTL00favpQr1mJ4GG261Lg@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 7 Apr 2020 21:10:52 +0200
-Message-ID: <CAFqZXNu3FD9KfAa335mYRgQJXYP6xrukvdDN6Qn-ncGDJppryQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: Add notify gitignore file
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 2, 2020 at 3:53 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Thu, Apr 2, 2020 at 3:40 PM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > Add .gitignore to stop format-patch sucking in binaries
-> >
-> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> > ---
-> >  tests/notify/.gitignore | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >  create mode 100644 tests/notify/.gitignore
-> >
-> > diff --git a/tests/notify/.gitignore b/tests/notify/.gitignore
-> > new file mode 100644
-> > index 0000000..fd7c5db
-> > --- /dev/null
-> > +++ b/tests/notify/.gitignore
-> > @@ -0,0 +1,2 @@
-> > +test_inotify
-> > +test_fanotify
-> > --
-> > 2.24.1
-> >
->
-> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+> -----Original Message-----
+> From: selinux-owner@vger.kernel.org [mailto:selinux-owner@vger.kernel.org]
+> On Behalf Of aduskett@gmail.com
+> Sent: Tuesday, April 7, 2020 1:43 PM
+> To: selinux@vger.kernel.org
+> Cc: Adam Duskett <Aduskett@gmail.com>
+> Subject: [PATCH 1/1] fix building against musl and uClibc libc libraries.
+> 
+> From: Adam Duskett <Aduskett@gmail.com>
+> 
+> Currently, the src/Makefile provides the FTS_LDLIBS when building against musl
+> or uClibc. However, this is missing from utils/Makefile, which causes linking to fail.
+> 
+> Add the FTS_LDLIBS variable to the LDLIBS variable in utils/Makefile to fix
+> compiling against uClibc and musl.
+> 
+> Signed-off-by: Adam Duskett <Aduskett@gmail.com>
+> ---
+>  libselinux/utils/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile index
+> 36150638..a5632b7c 100644
+> --- a/libselinux/utils/Makefile
+> +++ b/libselinux/utils/Makefile
+> @@ -45,7 +45,7 @@ endif
+> 
+>  override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS)
+> $(PCRE_CFLAGS)  override LDFLAGS += -L../src -override LDLIBS += -lselinux
+> +override LDLIBS += -lselinux $(FTS_LDLIBS)
+>  PCRE_LDLIBS ?= -lpcre
+> 
+>  ifeq ($(ANDROID_HOST),y)
+> --
+> 2.25.1
 
-Now applied. Thanks and sorry for the delay.
+If you want me to use the PR you have open, force push your branch to update the commit
+message. Else I'll have to create a new-pr and close your old one.
 
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+Your open PR is here:
+https://github.com/SELinuxProject/selinux/pull/193
 
+Something like:
+git pull --rebase origin master
+git push aduskett HEAD:fix-musl-and-uclibc-builds
+
+would be ideal.
+
+Acked-by: William Roberts <william.c.roberts@intel.com>
