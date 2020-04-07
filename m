@@ -2,116 +2,116 @@ Return-Path: <SRS0=OuNA=5X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8467C2BA16
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 08:59:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4F73C2BB1D
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 11:45:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B9E88206F7
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 08:59:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9446D20678
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 11:45:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cf62QyyX"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="rhsqU6Pg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbgDGI7d (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Apr 2020 04:59:33 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:41965 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726353AbgDGI7d (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Apr 2020 04:59:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586249972;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=7ifwB8gR15mauHIDjEWzXIpY1UtXOpyuFQq7MAQFO3E=;
-        b=Cf62QyyXfaRjWQzmESZhx3jWEmCwg31iDAOlEruM/qSVkEW12ii4ptYWEo7cmWDZgUoBxu
-        IduGwMyB6UJ9AiGqQbe8L3ZtiHQ+k+Nz3eVGSgMLDyYrphqu/w8he6xF5A/0P3ZBVeFn2v
-        eWT8oYPSIukAlC798SoNDJtj5jQoPQk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-27-fO4pLihJM9OerqhmHL4ucw-1; Tue, 07 Apr 2020 04:59:30 -0400
-X-MC-Unique: fO4pLihJM9OerqhmHL4ucw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF8E91083E83;
-        Tue,  7 Apr 2020 08:59:28 +0000 (UTC)
-Received: from workstation (unknown [10.40.194.143])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id CB2E09DD64;
-        Tue,  7 Apr 2020 08:59:26 +0000 (UTC)
-Date:   Tue, 7 Apr 2020 10:59:22 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     Russell Coker <russell@coker.com.au>
-Cc:     selinux@vger.kernel.org
-Subject: Re: libsepol releases
-Message-ID: <20200407085922.GA438349@workstation>
-References: <3581425.j52oWYpJar@liv>
+        id S1728054AbgDGLpZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Apr 2020 07:45:25 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:45880 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726399AbgDGLpZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Apr 2020 07:45:25 -0400
+Received: by mail-wr1-f66.google.com with SMTP id v5so3453661wrp.12
+        for <selinux@vger.kernel.org>; Tue, 07 Apr 2020 04:45:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ioEaUl/s9NHA5qh7qkn/dLhOhW19KIiagRG6TRqJr0I=;
+        b=rhsqU6PgmTXEZi12plC0f6yRN7HGNjwLxmcC6WLIig+/FOBIljGXpq65I2qWCjU45Q
+         kUKKrySSd/zO2lJRpWQ97wzeHVX2XTfcC3GmJa5w73lvmCHOKH5gZgNt73dMPXQ0du26
+         Mgj1PQ+n2GzRM++j0QeBSFbB5x1gRVWtC1Z/lvFy+pAPI67/MG4oojLmTgOyVdFzVBp+
+         +fzVKen1SLnj6I3q6gYENSOKYdFX8pmCKB5LQyfyKbUJCl/GMsc2XJvSf35UgkBeKDud
+         llYnoGISyc4ETWryx4sewXRcHEo6RfsuGSKqitMSSWs+n2RF+x9oa9SXFwbprpGdENId
+         V6fA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ioEaUl/s9NHA5qh7qkn/dLhOhW19KIiagRG6TRqJr0I=;
+        b=ByRM+BoGrIkH6w+IVzSaE/ZiVLKqurI18hmTj6ly9Qu8ZeeHwqtSQPlh6dhND/B/ui
+         FTOJpa8v/lq1y0zuDEQkw5cRVQsmqC5t+3RLOs59k0kUKuypGHmvC1SShA4F9J8P7Urf
+         1mxjwGJRPAoVBzm6UYuCA3cs6y49JPOFjuaWubjZvbYeSIgm6ZSarmMgwKJc8mca6tHt
+         sL09Grb62/g2N7XySBX0ejp29E1jlxv+C0Jvnxi/d67DfZF/uREIpDw1Pzr1F04zhEjN
+         hXgPvXkHAQYTsKeIzz/585hIloq9JHMet9Wj7C/E7IYsLd8Aoxg/GA0rGyG9V8p6Qr3y
+         i5rQ==
+X-Gm-Message-State: AGi0PuZGN/zQ2Aaa79cppO749qOrO1V4SStyI9ADCMekskY12bACrGpk
+        uvxafyOYGAn1NsP+/Wuv0AqPART8
+X-Google-Smtp-Source: APiQypJoH4dqNHLDisu/yxDpB9BiHDdMbhpKBhcsHys41SSPYZJMD26iiMnziHgLav4gPy0v25QsBw==
+X-Received: by 2002:adf:dd10:: with SMTP id a16mr2323783wrm.26.1586259920889;
+        Tue, 07 Apr 2020 04:45:20 -0700 (PDT)
+Received: from debianHome.localdomain (x4d01eb9e.dyn.telefonica.de. [77.1.235.158])
+        by smtp.gmail.com with ESMTPSA id y7sm29576925wrq.54.2020.04.07.04.45.20
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2020 04:45:20 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH] tree-wide: install python libraries on Debian with appropriate option
+Date:   Tue,  7 Apr 2020 13:45:14 +0200
+Message-Id: <20200407114514.40253-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.26.0
 MIME-Version: 1.0
-In-Reply-To: <3581425.j52oWYpJar@liv>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---n8g4imXOkfNTN/H1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Debian the `distutils` module is patched, so `get_python_lib()` returns by default `/usr/lib/python3/dist-packages` (no minor version).
 
-On Sun, Apr 05, 2020 at 07:46:37PM +1000, Russell Coker wrote:
-> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D955154
->=20
-> We have the above Debian bug report requesting a GIT patch for libsepol f=
-or=20
-> GCC-10 support.
->=20
-> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D955286
->=20
-> We also have the above for a policy constraint error.
->=20
-> Could we have a new upstream release soon to cover all GCC-10 issues as w=
-ell=20
-> as any other important things?  Maybe version 3.0.1?
->=20
+But `setuptools` affecting setup.py is not patched to create the library directory at `/usr/lib/python3/dist-packages` by default, rather than a command line argument `--install-layout deb` is added.
 
+Add this option to `python setup.py install` invocation on Debian.
 
-It's more than 4 months since the latest release so I think it's worth it t=
-o release 3.1.
+See https://www.debian.org/doc/packaging-manuals/python-policy/packaging_tools.html section B.1.
 
-If there's no objection, I'll send a heads up that we'll release 3.1-rc1 ne=
-xt week.
+Fixes: https://github.com/SELinuxProject/selinux/issues/187
 
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/src/Makefile  | 2 +-
+ python/sepolicy/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Petr
-
-
---n8g4imXOkfNTN/H1
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6MQOQACgkQviIJHj72
-InU/xQ//R6qAS3c7X2Kvd6QRohfmE/k1HEqSrn03L2LfgRlcxs2tffzq9bDGmysU
-tX6KGTkQl08OH65JY7pnWobB9xgZsj5naYYQayKMYspOo9+VV/6JOHvweGzAsk0G
-BhqX1grIzablg9XpU/GIZvb4YD1MaozGAtmvB/tZPc4FOZ84yQZzWskVoXfrVVx/
-ed+tcv1JUq6OPdBZVo4eGcLqCIzOaeVoEXflEi60RsNqgm0VeNDGvfH3futYFIqQ
-LPwG0cfankNnE4W2OAa2kfk9ZYGkVYn++QotQ7001sbsL4oWlK8wRJ6A3X6/oZZ5
-k2OKWhhKNVuy1zUGquqacBDi7q1nq+5GHlQpQdmaA9QokztZ/iuOUVy161Yioi++
-W3uIpV0rFHKn/nbx2BdI9GxMNk7uqwwaWOW01b4+r6ByKDXfOFiD0vlv+Gr44qAx
-OIa4FaJqjIAwXv7Ajwas9nW1kxiS+2alo4NvVEWIqPa0d/HjOtgYRSv2vyCDozcY
-e43MSyyArQO59ITk03biH4SAoqZVigUV6VS8CfL4QsPGgmBjscU1ghc1kXmMH2+Z
-fJXWL2EOa3Uj65VsGTtxHhxX/NJOBRPFs3LDXVlE8daf11aj31u/KwdS+U61qqm2
-rzsb5vrQXiKoFg0cTPVC8JiiWoV2+SEdqalKHBBwVT4N8IjxqX4=
-=6asT
------END PGP SIGNATURE-----
-
---n8g4imXOkfNTN/H1--
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 2d1c654e..3efbe3aa 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -173,7 +173,7 @@ install: all
+ 	ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
+ 
+ install-pywrap: pywrap
+-	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)`
++	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` `grep -qxF ID=debian /etc/os-release && echo --install-layout deb`
+ 	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
+ 	ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
+ 
+diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
+index 69f29fa9..54cd27ca 100644
+--- a/python/sepolicy/Makefile
++++ b/python/sepolicy/Makefile
+@@ -27,7 +27,7 @@ test:
+ 	@$(PYTHON) test_sepolicy.py -v
+ 
+ install:
+-	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)`
++	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` `grep -qxF ID=debian /etc/os-release && echo --install-layout deb`
+ 	[ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
+ 	install -m 755 sepolicy.py $(DESTDIR)$(BINDIR)/sepolicy
+ 	(cd $(DESTDIR)$(BINDIR); ln -sf sepolicy sepolgen)
+-- 
+2.26.0
 
