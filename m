@@ -2,128 +2,116 @@ Return-Path: <SRS0=OuNA=5X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68DEFC2BA1A
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 00:27:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8467C2BA16
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 08:59:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 37E7B2072A
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 00:27:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B9E88206F7
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 08:59:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="g4zJXlli"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cf62QyyX"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726303AbgDGA1T (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Apr 2020 20:27:19 -0400
-Received: from sonic311-31.consmr.mail.ne1.yahoo.com ([66.163.188.212]:44617
-        "EHLO sonic311-31.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726277AbgDGA1T (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Apr 2020 20:27:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1586219238; bh=FbskZu1uJmt74RwlZaMCKCQ2JxCUUFNQy9qKTk6yMgg=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=g4zJXlliYXtTilKF7g6zp+wAU8t2J1vAFDoSB9XK+Wo5av8DLJtYo5Z+wElC/cKzZY4i/3ZNuJdq4+a0Kb5Hn+h1UZPPfiu0Jv3X3KUcI/9W9xCTVDVoLfnuG625CAA9RZ5lNVGdDQp9VF34Cgq+gHCDTPSB7E9XGkTnwh21UCRG/S9GFtxmz998SQ9/FBmqriX+F1jp9scTWy2jFnlHrYKhAfM5MtCP+bOweB/RkgHcAZ0daV+7f/2bTqXuB0ZdEU8vW20h0Mf4QZAnvXXQfb8i1BhOE9zW9gIefVrxR7pAzDk37dhB8kj2Pey9+xhG45sldAobdWQlD1IlxqqARw==
-X-YMail-OSG: 2ZZ7EmoVM1m1RmrGzpha4baPQ1qzlWD8qhPSY9Vk2ct_OgnsNLIQOdZgRQDeJeu
- 8lrT2PflhdzlbFeIo6eXAmAEmatdrjElwpRPZqHtDxqJrrh9BSOTz_t.6QSASY__wtP94t5gBHF8
- Q8zlGA1dc.7L8NLQWtJ.hllDF3K8Yh.P6T2zR4.haIxWi_NIjffnr8TL6Yuq2nl342JfBTTqL.nq
- pszkvdmGKrHoPyyPYuAobg8_l4DL7i9R.xyqBXO2NgyRE6R5QowVXvZs6ldFQVinvVEpOnm1Mxni
- 4LzxkuaQqdr.MJJfRk2RNjrAz.jaSJavIRpTNZqFCCYHBkp1jeupur52R9N.0mnzttlTLmBxNiCv
- ScoHcwZhHrmgPsAGEK5UfqcZInpMLQIBZgfnCdsSW9geThX96QYCrBOfdGkrSiiSk7kbm3l8kxw1
- IlgC2xZ05M3KUFMnQY_d2rBbxh.wtQBd7wcPlHYvolGA6e03EBlp7F6jvJV2ie5qksYBWqmxKPT3
- ACx8X2_QELz99WROPeN1kjlaWYDmzMfelT1qSbqv6tYg6nH8DXVD8.gZrBRzOGejup0eHeWKiF8A
- uX2BwkLrmErxynDjcSp8EkUgnK5FReoMMYcZCdc49ZXZVr6ml7gpBNDG3QrepHGmT0SnMLfAb1JK
- TAkc4nGiXp40S4woqzgTdq59hogPFEaKK0HZ_U9Vv_5aaZzbcReDfaSvxePLI8zmG9faGgL4xJbn
- zdqocjRo0BWd.MikVi.st.kaFimXVinmY469Odt4wkqsQqaftA2gOvApNw8CiHr_ZDl6v5Df5fIk
- IYAksJhEbjdRWWAb8LDrxg8nN9vRbBQVKMA9238MdAaW.TC90fX4ECLzM_ntWyIy_QKafov7_i99
- v6DiZ.hdzcnX5ewkTG8RKztU5.bFbQPwcosPqu_ylTU9XGzfkztS2_ADFksS2QLoRgvSInDn.e7H
- zvPeBbdijzBszDc0Ln_aZGV5is_sw.n7bEL8sn1_Jo1zHHmyLF3Uhs.Pd1VJ.7b4aqJUmEuYz8UT
- J19bO3c5jn9WHJ5lbUsaxj5omaihpLo.W0iv5pscBgCnahGvs.SQC2F2pslKV62ei1ubsnenFeMJ
- KmeEevS55hoGQkOQHdFc9QnfFLyQn5lIo9Cu513uyg99AeZgpTwEgL4ZMmqHkNP56oyuLuuE1Gek
- 3OP4ANfHUf3nO6hoiRjsJ4l1rqmUBIJgWKykyK16KBJ3Q5qcfOnnQehT3fZLdGVjvCqr.j59IP6B
- Qhm5xdU1ygt6rrRcnIcQAXvfuhUHsLv4y6ZvtLVTiZ6iof1P6Yko.0zRzZd2H2etzW_efNvXRVid
- vpHGup.uRUcYs2s7ssNCpo4VgA9VM_Y56mBqBWk2jGGsZBreExzFY9MJx2XtnM0EDuINQwOnbvNl
- FuUd7En8vaEJr55muuYkNGAhRC4vXCSbYpFSjpxX4lGMe.qzRSJKX0ZTDfR1P
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.ne1.yahoo.com with HTTP; Tue, 7 Apr 2020 00:27:18 +0000
-Received: by smtp431.mail.ne1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 7593e4dc8c01eb675fc5184df100ea11;
-          Tue, 07 Apr 2020 00:27:16 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     casey@schaufler-ca.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov, linux-audit@redhat.com
-Subject: [PATCH v16 23/23] AppArmor: Remove the exclusive flag
-Date:   Mon,  6 Apr 2020 17:01:59 -0700
-Message-Id: <20200407000159.43602-24-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200407000159.43602-1-casey@schaufler-ca.com>
-References: <20200407000159.43602-1-casey@schaufler-ca.com>
+        id S1726687AbgDGI7d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Apr 2020 04:59:33 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:41965 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726353AbgDGI7d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Apr 2020 04:59:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586249972;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=7ifwB8gR15mauHIDjEWzXIpY1UtXOpyuFQq7MAQFO3E=;
+        b=Cf62QyyXfaRjWQzmESZhx3jWEmCwg31iDAOlEruM/qSVkEW12ii4ptYWEo7cmWDZgUoBxu
+        IduGwMyB6UJ9AiGqQbe8L3ZtiHQ+k+Nz3eVGSgMLDyYrphqu/w8he6xF5A/0P3ZBVeFn2v
+        eWT8oYPSIukAlC798SoNDJtj5jQoPQk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-27-fO4pLihJM9OerqhmHL4ucw-1; Tue, 07 Apr 2020 04:59:30 -0400
+X-MC-Unique: fO4pLihJM9OerqhmHL4ucw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF8E91083E83;
+        Tue,  7 Apr 2020 08:59:28 +0000 (UTC)
+Received: from workstation (unknown [10.40.194.143])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CB2E09DD64;
+        Tue,  7 Apr 2020 08:59:26 +0000 (UTC)
+Date:   Tue, 7 Apr 2020 10:59:22 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     Russell Coker <russell@coker.com.au>
+Cc:     selinux@vger.kernel.org
+Subject: Re: libsepol releases
+Message-ID: <20200407085922.GA438349@workstation>
+References: <3581425.j52oWYpJar@liv>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <3581425.j52oWYpJar@liv>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="n8g4imXOkfNTN/H1"
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-With the inclusion of the "display" process attribute
-mechanism AppArmor no longer needs to be treated as an
-"exclusive" security module. Remove the flag that indicates
-it is exclusive. Remove the stub getpeersec_dgram AppArmor
-hook as it has no effect in the single LSM case and
-interferes in the multiple LSM case.
+--n8g4imXOkfNTN/H1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- security/apparmor/lsm.c | 20 +-------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+On Sun, Apr 05, 2020 at 07:46:37PM +1000, Russell Coker wrote:
+> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D955154
+>=20
+> We have the above Debian bug report requesting a GIT patch for libsepol f=
+or=20
+> GCC-10 support.
+>=20
+> https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D955286
+>=20
+> We also have the above for a policy constraint error.
+>=20
+> Could we have a new upstream release soon to cover all GCC-10 issues as w=
+ell=20
+> as any other important things?  Maybe version 3.0.1?
+>=20
 
-diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
-index 02f305ab2c69..07729c28275e 100644
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -1124,22 +1124,6 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
- 	return error;
- }
- 
--/**
-- * apparmor_socket_getpeersec_dgram - get security label of packet
-- * @sock: the peer socket
-- * @skb: packet data
-- * @secid: pointer to where to put the secid of the packet
-- *
-- * Sets the netlabel socket state on sk from parent
-- */
--static int apparmor_socket_getpeersec_dgram(struct socket *sock,
--					    struct sk_buff *skb, u32 *secid)
--
--{
--	/* TODO: requires secid support */
--	return -ENOPROTOOPT;
--}
--
- /**
-  * apparmor_sock_graft - Initialize newly created socket
-  * @sk: child sock
-@@ -1243,8 +1227,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
- #endif
- 	LSM_HOOK_INIT(socket_getpeersec_stream,
- 		      apparmor_socket_getpeersec_stream),
--	LSM_HOOK_INIT(socket_getpeersec_dgram,
--		      apparmor_socket_getpeersec_dgram),
- 	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
- #ifdef CONFIG_NETWORK_SECMARK
- 	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
-@@ -1913,7 +1895,7 @@ static int __init apparmor_init(void)
- 
- DEFINE_LSM(apparmor) = {
- 	.name = "apparmor",
--	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
-+	.flags = LSM_FLAG_LEGACY_MAJOR,
- 	.enabled = &apparmor_enabled,
- 	.blobs = &apparmor_blob_sizes,
- 	.init = apparmor_init,
--- 
-2.24.1
+
+It's more than 4 months since the latest release so I think it's worth it t=
+o release 3.1.
+
+If there's no objection, I'll send a heads up that we'll release 3.1-rc1 ne=
+xt week.
+
+
+Petr
+
+
+--n8g4imXOkfNTN/H1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6MQOQACgkQviIJHj72
+InU/xQ//R6qAS3c7X2Kvd6QRohfmE/k1HEqSrn03L2LfgRlcxs2tffzq9bDGmysU
+tX6KGTkQl08OH65JY7pnWobB9xgZsj5naYYQayKMYspOo9+VV/6JOHvweGzAsk0G
+BhqX1grIzablg9XpU/GIZvb4YD1MaozGAtmvB/tZPc4FOZ84yQZzWskVoXfrVVx/
+ed+tcv1JUq6OPdBZVo4eGcLqCIzOaeVoEXflEi60RsNqgm0VeNDGvfH3futYFIqQ
+LPwG0cfankNnE4W2OAa2kfk9ZYGkVYn++QotQ7001sbsL4oWlK8wRJ6A3X6/oZZ5
+k2OKWhhKNVuy1zUGquqacBDi7q1nq+5GHlQpQdmaA9QokztZ/iuOUVy161Yioi++
+W3uIpV0rFHKn/nbx2BdI9GxMNk7uqwwaWOW01b4+r6ByKDXfOFiD0vlv+Gr44qAx
+OIa4FaJqjIAwXv7Ajwas9nW1kxiS+2alo4NvVEWIqPa0d/HjOtgYRSv2vyCDozcY
+e43MSyyArQO59ITk03biH4SAoqZVigUV6VS8CfL4QsPGgmBjscU1ghc1kXmMH2+Z
+fJXWL2EOa3Uj65VsGTtxHhxX/NJOBRPFs3LDXVlE8daf11aj31u/KwdS+U61qqm2
+rzsb5vrQXiKoFg0cTPVC8JiiWoV2+SEdqalKHBBwVT4N8IjxqX4=
+=6asT
+-----END PGP SIGNATURE-----
+
+--n8g4imXOkfNTN/H1--
 
