@@ -2,103 +2,105 @@ Return-Path: <SRS0=OuNA=5X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAEA4C2D0EC
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 21:02:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBF76C2D0EC
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 22:57:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B7CB12075E
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 21:02:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9027F20730
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 22:57:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U6RIzGSt"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q9fh/BnD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726610AbgDGVCj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Apr 2020 17:02:39 -0400
-Received: from mail-pj1-f65.google.com ([209.85.216.65]:54797 "EHLO
-        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726608AbgDGVCj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Apr 2020 17:02:39 -0400
-Received: by mail-pj1-f65.google.com with SMTP id np9so263367pjb.4
-        for <selinux@vger.kernel.org>; Tue, 07 Apr 2020 14:02:38 -0700 (PDT)
+        id S1726386AbgDGW5L (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Apr 2020 18:57:11 -0400
+Received: from mail-il1-f194.google.com ([209.85.166.194]:45020 "EHLO
+        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726380AbgDGW5L (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Apr 2020 18:57:11 -0400
+Received: by mail-il1-f194.google.com with SMTP id j69so4905159ila.11
+        for <selinux@vger.kernel.org>; Tue, 07 Apr 2020 15:57:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=h6I8zN/d/xmujFE3HUglqlgdXoJtBRDJCR0QtM2uGfc=;
-        b=U6RIzGStUehO6/iJ4XfnmodvRB0k+Sv4h2gmN/E9QZW4Y7zRwb4/pSJ7+l1P3laE4L
-         27szeOpH+lmGaYrHVqS7E9M4XyGBiOMw4kBtfW5p16yVXCkFaEOdW5no5SbiGqrWX47h
-         QjLW2KE9KsGjcPRgphb3bLKhAJBjNbMHTddZLlAm8ZVtLbNueK6kGl4VpCYbunPke4/U
-         TLy0l/+tSj5kspCqGopheN8LFzgVa3bUazW8ycoQuQOjMPsab12S06oV8sw2FgTnY+JB
-         YVLMicXpyn2KMsn0qvowHbVwX83cxnkOGOi+FCDRJaWyh+C+WDwX3k0BCCBhQfB0EifQ
-         GyNQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=o1APmSoydMFIY758H+3//x3fFM51zYt2ogFdylglndI=;
+        b=Q9fh/BnDUhvqO3llTwWDrytfLANcX2He//rsFl44vMwb0LzH99SsbvYzGuOEWYBpVo
+         ta8UQRUlY4sMf9IVjXY3QaH8c/WqVDX5mYmYua75lO4OvIWs3qRRFomGeLRVLiiN+fv9
+         qorZQjG5uLSgl6mmh3ntcgIzpOEt/TyQCVAWOF3z4EZieoVcYr1j86OfDshbmFUdreJg
+         hYVwfanWFEpd7zbwxqjhkb3JTZgJ2taCVVK6V3CLkmiOvvHd60CvpX2g8AujL3uDY40V
+         rZx+Z1y7QTAI2uMrD6xCpEl6N/3TlRqHLdUouUGpRBKe7kKrC1SGMePW+UMAKebhlOG1
+         6GUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=h6I8zN/d/xmujFE3HUglqlgdXoJtBRDJCR0QtM2uGfc=;
-        b=CWcgShcTQdF0dqj3+p1RVYYULoXw3G+P15UQ372fRXY04Od8TXDnvl8ON04sfrhlA+
-         PpQL9Yr+RzFdNndtpSauUhFyer9JqjYD+hPjZa/7i+dIgOuaMRHKtz343tJLo062M2uX
-         q17/LulbqW1q3fYtvKeAP39MS5U5Hdkoo7nXQl7AQqOVhrbU83cE2s0uFi2xvRxBcmZa
-         3zh78fgqyplFwaXlD/d2O7jN51f5LJjKslTfg4gll6Ne/nymrQWKi8F1nn102H7MBGUa
-         NK+T9lbTK8fOeJfC8nPbEzzY5bnMc0l/I4uhVo2Rthl6Q5Tca3nV+C/CWkE9Swh1bkXb
-         JwaQ==
-X-Gm-Message-State: AGi0PuZesazNWOHxenzXVseteDN+AhI1KipYQRGJjODwGOtM+RtrZRoB
-        XdbskHA92wB2m27MYh0aT5Gibfn5
-X-Google-Smtp-Source: APiQypI5hBCte22KMVrGuqzQcccmxUc34cYDXaAjbhxtkQN4BBAvZ/mZiiAWEZ8a4vk8unAgGM/NkQ==
-X-Received: by 2002:a17:90a:fb94:: with SMTP id cp20mr1339576pjb.117.1586293358068;
-        Tue, 07 Apr 2020 14:02:38 -0700 (PDT)
-Received: from localhost.localdomain ([47.149.8.172])
-        by smtp.gmail.com with ESMTPSA id y3sm14610871pfy.158.2020.04.07.14.02.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2020 14:02:37 -0700 (PDT)
-From:   aduskett@gmail.com
-To:     selinux@vger.kernel.org
-Cc:     Adam Duskett <Aduskett@gmail.com>
-Subject: [PATCH v2 1/1] fix building against musl and uClibc libc libraries.
-Date:   Tue,  7 Apr 2020 14:02:35 -0700
-Message-Id: <20200407210235.3282295-1-aduskett@gmail.com>
-X-Mailer: git-send-email 2.25.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=o1APmSoydMFIY758H+3//x3fFM51zYt2ogFdylglndI=;
+        b=EwVVPI/X8yoTLOC+lVNnUuCnrxhENOz/J+NSr6wTU/kaCEZrpJyqDEw8SVU7MR30/h
+         OAYZnF/ZfLIuxe07GAFLEZyVwKNopqinH3ursFJ7mRJHAsQ+YZwa/q9tw+pkASYBFapW
+         tye8qeiyr6Ewh3wVEWRSK15rP/oHlcEBtwJUaMLMYDc524yPVkgC9++pdjDdrf1Hkm5O
+         cedEZ+KEmLJxcs7L0AFHJW2QSy51AIF6lpGcIfZOqSSu5jL6rKYr11WmQIIgiq4Kwo21
+         sNTomWsNUA2uxYDoMmdQA14PnekYVhdbUr7sEduo51lwLrvX6etfwjM7/LDIbxMhL3MU
+         3vNg==
+X-Gm-Message-State: AGi0PuYBvd29ppvMUbw3eA4bx6lGZNkBaV3qeiGTF8xYSBHU8yMPJUzB
+        nCGDTogEfH7P8iPnv4OmosmV5+ffk3Mv9PAZx/ps4NLh
+X-Google-Smtp-Source: APiQypL5XmzzNJpV1fzAUZw947+jv3LeQhmkLzLGeQ/qEdt2n98X40BfUJovyEA9/CsUFVnHkI0t4irgf1A0JApj66g=
+X-Received: by 2002:a92:dd02:: with SMTP id n2mr4742382ilm.129.1586300229766;
+ Tue, 07 Apr 2020 15:57:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200407210235.3282295-1-aduskett@gmail.com>
+In-Reply-To: <20200407210235.3282295-1-aduskett@gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Tue, 7 Apr 2020 17:56:58 -0500
+Message-ID: <CAFftDdpjxT1h8NQyWRtgzqvxr0yrXyA26JBEOrRH9iHGkHvxpA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] fix building against musl and uClibc libc libraries.
+To:     Adam Duskett <aduskett@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Adam Duskett <Aduskett@gmail.com>
+On Tue, Apr 7, 2020 at 4:02 PM <aduskett@gmail.com> wrote:
+>
+> From: Adam Duskett <Aduskett@gmail.com>
+>
+> Currently, the src/Makefile provides the FTS_LDLIBS when building against musl
+> or uClibc. However, this is missing from utils/Makefile, which causes linking
+> to fail.
+>
+> Add the FTS_LDLIBS variable to the LDLIBS variable in utils/Makefile to fix
+> compiling against uClibc and musl.
+>
+> Signed-off-by: Adam Duskett <Aduskett@gmail.com>
+> ---
+> Changes v1 -> v2:
+>   - Updated the patch series to the latest master.
+>
+>  libselinux/utils/Makefile | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+> index 36150638..a5632b7c 100644
+> --- a/libselinux/utils/Makefile
+> +++ b/libselinux/utils/Makefile
+> @@ -45,7 +45,7 @@ endif
+>
+>  override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
+>  override LDFLAGS += -L../src
+> -override LDLIBS += -lselinux
+> +override LDLIBS += -lselinux $(FTS_LDLIBS)
+>  PCRE_LDLIBS ?= -lpcre
+>
+>  ifeq ($(ANDROID_HOST),y)
+> --
+> 2.25.2
+>
 
-Currently, the src/Makefile provides the FTS_LDLIBS when building against musl
-or uClibc. However, this is missing from utils/Makefile, which causes linking
-to fail.
-
-Add the FTS_LDLIBS variable to the LDLIBS variable in utils/Makefile to fix
-compiling against uClibc and musl.
-
-Signed-off-by: Adam Duskett <Aduskett@gmail.com>
----
-Changes v1 -> v2:
-  - Updated the patch series to the latest master.
-
- libselinux/utils/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-index 36150638..a5632b7c 100644
---- a/libselinux/utils/Makefile
-+++ b/libselinux/utils/Makefile
-@@ -45,7 +45,7 @@ endif
- 
- override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
- override LDFLAGS += -L../src
--override LDLIBS += -lselinux
-+override LDLIBS += -lselinux $(FTS_LDLIBS)
- PCRE_LDLIBS ?= -lpcre
- 
- ifeq ($(ANDROID_HOST),y)
--- 
-2.25.2
-
+I appreciate your thoroughness, but you don't really need to resend a
+patch rebased on top of master unless
+their are merge conflicts.
