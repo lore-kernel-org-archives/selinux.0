@@ -2,145 +2,165 @@ Return-Path: <SRS0=OuNA=5X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF32CC2BA80
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 13:38:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A890C2BB85
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 14:30:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 8E491206F7
-	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 13:38:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 615112072A
+	for <selinux@archiver.kernel.org>; Tue,  7 Apr 2020 14:30:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T8gEDEWd"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lditmRVv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728705AbgDGNiq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Apr 2020 09:38:46 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:38615 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728482AbgDGNip (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Apr 2020 09:38:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586266725;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=1XGG2Heiwq+3/p3OSTtMnVbKyLLHuowJYyWeJTJ85ak=;
-        b=T8gEDEWdARylZDY1HPGemt8aZ0li8FA8TQhX8M3s388Lh583i/5HPkCVYU9ktyp/zhqreM
-        Iq7WGXgPY4bbGaAYdILL/jJ1U6gvgI+qVs+X7+naBJA6crQy7aH1UZAp7O5I4+CP+D+oQY
-        VQKPpRyk8fan7RvjmCaBmZxM/XTZSGQ=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-388-849gNmLbMgik94S0yjk9Xw-1; Tue, 07 Apr 2020 09:38:39 -0400
-X-MC-Unique: 849gNmLbMgik94S0yjk9Xw-1
-Received: by mail-ot1-f71.google.com with SMTP id 22so2560996otg.21
-        for <selinux@vger.kernel.org>; Tue, 07 Apr 2020 06:38:39 -0700 (PDT)
+        id S1729071AbgDGOaT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Apr 2020 10:30:19 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:40376 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728573AbgDGOaT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Apr 2020 10:30:19 -0400
+Received: by mail-qt1-f193.google.com with SMTP id y25so2771046qtv.7;
+        Tue, 07 Apr 2020 07:30:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=wAYrV6F6G+t5gtx1fZuHs6BGJWDWpkiLa+6bzhMBPMw=;
+        b=lditmRVv/LcoROMCq/bKinCSCXK7kSIPrd2WRkQgfMAG5iVrBZ7uZka/PsnKohQP4j
+         5Ig6xbokfQxWbvrqqOP7Fe0/tljFqjZ80Gbua+AN6PMXq9s4R68pYsgeD7r1Fqj3pNs/
+         IsJOdPJ5t4WGOqRjC0s5L83yp/k8PHgJatpA0ED1TX7i2eDBvs0ELJvtm9oE+S+iWZcJ
+         bcp4PUVjR/UGlyu0CDmP1DmVV6MGtCGjLpoDfAMr7gwkoH0eoRQKU/i8LwAwcoASeSjp
+         Ylh8TlsWTOmutTIIZ3KXodzQRUC7kb6ikoJSb/vTaeiBtaot8jodWWYa5xiD4kkggAO8
+         O9Hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1XGG2Heiwq+3/p3OSTtMnVbKyLLHuowJYyWeJTJ85ak=;
-        b=Uy0lrdKTGkPAVAAOWYwUmY28OaHSv6go7qFsGka7bMU2luJ1ismHSNDU4fnWEa/N6q
-         qMdZ9MOnwJWouP7p9dtly2bVrND+/hMj1N/yrW9Ehbl+7PE0vwHc7I93WlFbyYaewyjE
-         OOLHoHgpPhsdrT37OAlHTffSxOnJAt011S3uGrVG3Q9vFhkcGN8G2QoXGIjGuo3Bwd2u
-         uD2WFd9Q1O8aDBFt0dv86bbKSV0muCauRXENca4z2p8NdcQKtg0SXIj76Juv8oIlileP
-         KW7c8zxzlZZD82i6kW4+yqD5tAeSaI6HQ6hdVgVq6espUUbcG4//CfvQtgJ+ExS5iaK4
-         7LuA==
-X-Gm-Message-State: AGi0PuYsXaI8EO7p7HnfrkdGLK0P/L8Lo1JpUkhpHRpQocw3L3TvBjf0
-        xPximqEw37nX5R1TGbgaHRYKT3yXRo/Qn/1/krd6X+SqfKTc1qK0sDwc9+flIxVcY3dz6+ZXLUT
-        GPxX6tw8x6uw2QKsbiPgwJAseQh5VV9q/cQ==
-X-Received: by 2002:aca:d68e:: with SMTP id n136mr1759875oig.103.1586266718559;
-        Tue, 07 Apr 2020 06:38:38 -0700 (PDT)
-X-Google-Smtp-Source: APiQypJSXO/uxlx4U5XhZws9N6r0XO3Zi8YJ1EB4z35dQX+ADmZdW39x/UiB7/gMGq3qg23CD+RixQFttpCBM2JVZAk=
-X-Received: by 2002:aca:d68e:: with SMTP id n136mr1759851oig.103.1586266718262;
- Tue, 07 Apr 2020 06:38:38 -0700 (PDT)
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=wAYrV6F6G+t5gtx1fZuHs6BGJWDWpkiLa+6bzhMBPMw=;
+        b=klGKSMdb9pok0vM8+5rEtqTOiArlmHLU+Kve4ocDwdG09FbTaV7Mc27+IeZ9ThwIwX
+         Nvqg6CBbr5FvWTQnJAJjfdq3BHO9i31dfUXKsODLOnWIARszw/rWqCW7xEVAC90C+/OV
+         z5XC40CKpbJZDBKWGkOmSVGzIPIrQHNtpvtelFCtQLofvGzGdY27NEzNTEY2Uf26eJhD
+         XjzFR7dv7MWH/MV/il/gUAU4ObyVS4RE6Ig5+fs3J6GQup3JobAkmZupi0FrZ+F3U1f4
+         99oX+pjSvCJOg8XuVxWJST7fUdtgObX/x1KPdHLEG8p6mElOM107gPlG/CQQ5F8mjWUC
+         HLjQ==
+X-Gm-Message-State: AGi0PuZT3gcd9jkFlExgCvwNttPLoWgCnQuz3z/9ObHy1r1/G6rBhkMM
+        0LDYsa0DQ3YNpp443PnEL8M=
+X-Google-Smtp-Source: APiQypIGrLW0bPlJckdtYiMlXs17H02JiQkfUDEoX+VYMNZN6nQVg3T1qcLOBfWIiE8HKabTPloJSQ==
+X-Received: by 2002:aed:29e1:: with SMTP id o88mr2530139qtd.251.1586269817494;
+        Tue, 07 Apr 2020 07:30:17 -0700 (PDT)
+Received: from quaco.ghostprotocols.net ([179.97.37.151])
+        by smtp.gmail.com with ESMTPSA id w30sm17976587qtw.21.2020.04.07.07.30.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2020 07:30:16 -0700 (PDT)
+From:   Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
+X-Google-Original-From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
+        id 67DAA409A3; Tue,  7 Apr 2020 11:30:14 -0300 (-03)
+Date:   Tue, 7 Apr 2020 11:30:14 -0300
+To:     Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Serge Hallyn <serge@hallyn.com>, Jiri Olsa <jolsa@redhat.com>,
+        Song Liu <songliubraving@fb.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        linux-man@vger.kernel.org
+Subject: Re: [PATCH v8 00/12] Introduce CAP_PERFMON to secure system
+ performance monitoring and observability
+Message-ID: <20200407143014.GD11186@kernel.org>
+References: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
 MIME-Version: 1.0
-References: <20200407114514.40253-1-cgzones@googlemail.com>
-In-Reply-To: <20200407114514.40253-1-cgzones@googlemail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 7 Apr 2020 15:38:27 +0200
-Message-ID: <CAFqZXNtjLkhFAr3skqmop0eciDmzdFbnTzeAaQODgeDDzLHNnw@mail.gmail.com>
-Subject: Re: [PATCH] tree-wide: install python libraries on Debian with
- appropriate option
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
+X-Url:  http://acmel.wordpress.com
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 7, 2020 at 1:45 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
-> On Debian the `distutils` module is patched, so `get_python_lib()` return=
-s by default `/usr/lib/python3/dist-packages` (no minor version).
->
-> But `setuptools` affecting setup.py is not patched to create the library =
-directory at `/usr/lib/python3/dist-packages` by default, rather than a com=
-mand line argument `--install-layout deb` is added.
->
-> Add this option to `python setup.py install` invocation on Debian.
->
-> See https://www.debian.org/doc/packaging-manuals/python-policy/packaging_=
-tools.html section B.1.
->
-> Fixes: https://github.com/SELinuxProject/selinux/issues/187
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libselinux/src/Makefile  | 2 +-
->  python/sepolicy/Makefile | 2 +-
->  2 files changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-> index 2d1c654e..3efbe3aa 100644
-> --- a/libselinux/src/Makefile
-> +++ b/libselinux/src/Makefile
-> @@ -173,7 +173,7 @@ install: all
->         ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBD=
-IR)/$(TARGET)
->
->  install-pywrap: pywrap
-> -       $(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTD=
-IR)" && echo --root $(DESTDIR)`
-> +       $(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTD=
-IR)" && echo --root $(DESTDIR)` `grep -qxF ID=3Ddebian /etc/os-release && e=
-cho --install-layout deb`
+Em Thu, Apr 02, 2020 at 11:42:05AM +0300, Alexey Budankov escreveu:
+> This patch set introduces CAP_PERFMON capability designed to secure
+> system performance monitoring and observability operations so that
+> CAP_PERFMON would assist CAP_SYS_ADMIN capability in its governing role
+> for performance monitoring and observability subsystems of the kernel.
 
-Wouldn't it be cleaner to instead add something like
-$(PYTHON_SETUP_ARGS) and build with 'make
-PYTHON_SETUP_ARGS=3D--install-layout=3Ddeb ...' on Debian?
+So, what am I doing wrong?
 
->         install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__i=
-nit__.py
->         ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYC=
-EXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
->
-> diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
-> index 69f29fa9..54cd27ca 100644
-> --- a/python/sepolicy/Makefile
-> +++ b/python/sepolicy/Makefile
-> @@ -27,7 +27,7 @@ test:
->         @$(PYTHON) test_sepolicy.py -v
->
->  install:
-> -       $(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTD=
-IR)" && echo --root $(DESTDIR)`
-> +       $(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTD=
-IR)" && echo --root $(DESTDIR)` `grep -qxF ID=3Ddebian /etc/os-release && e=
-cho --install-layout deb`
->         [ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
->         install -m 755 sepolicy.py $(DESTDIR)$(BINDIR)/sepolicy
->         (cd $(DESTDIR)$(BINDIR); ln -sf sepolicy sepolgen)
-> --
-> 2.26.0
->
+[perf@five ~]$ type perf
+perf is hashed (/home/perf/bin/perf)
+[perf@five ~]$
+[perf@five ~]$ ls -lahF /home/perf/bin/perf
+-rwxr-x---. 1 root perf_users 24M Apr  7 10:34 /home/perf/bin/perf*
+[perf@five ~]$
+[perf@five ~]$ getcap /home/perf/bin/perf
+[perf@five ~]$ perf top --stdio
+Error:
+You may not have permission to collect system-wide stats.
 
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+Consider tweaking /proc/sys/kernel/perf_event_paranoid,
+which controls use of the performance events system by
+unprivileged users (without CAP_PERFMON or CAP_SYS_ADMIN).
 
+The current value is 2:
+
+  -1: Allow use of (almost) all events by all users
+      Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
+>= 0: Disallow ftrace function tracepoint by users without CAP_PERFMON or CAP_SYS_ADMIN
+      Disallow raw tracepoint access by users without CAP_SYS_PERFMON or CAP_SYS_ADMIN
+>= 1: Disallow CPU event access by users without CAP_PERFMON or CAP_SYS_ADMIN
+>= 2: Disallow kernel profiling by users without CAP_PERFMON or CAP_SYS_ADMIN
+
+To make this setting permanent, edit /etc/sysctl.conf too, e.g.:
+
+	kernel.perf_event_paranoid = -1
+
+[perf@five ~]$
+
+Ok, the message says I  need to have CAP_PERFMON, lets do it, using an
+unpatched libcap that doesn't know about it but we can use 38,
+CAP_PERFMON value instead, and I tested this with a patched libcap as
+well, same results:
+
+As root:
+
+[root@five bin]# setcap "38,cap_sys_ptrace,cap_syslog=ep" perf
+[root@five bin]#
+
+Back to the 'perf' user in the 'perf_users' group, ok, so now 'perf
+record -a' works for system wide sampling of cycles:u, i.e. only
+userspace samples, but 'perf top' is failing:
+
+[perf@five ~]$ type perf
+perf is hashed (/home/perf/bin/perf)
+[perf@five ~]$ getcap /home/perf/bin/perf
+/home/perf/bin/perf = cap_sys_ptrace,cap_syslog,38+ep
+[perf@five ~]$ groups
+perf perf_users
+[perf@five ~]$ id
+uid=1002(perf) gid=1002(perf) groups=1002(perf),1003(perf_users) context=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
+[perf@five ~]$ perf top --stdio
+Error:
+Failed to mmap with 1 (Operation not permitted)
+[perf@five ~]$ perf record -a
+^C[ perf record: Woken up 1 times to write data ]
+[ perf record: Captured and wrote 1.177 MB perf.data (1552 samples) ]
+
+[perf@five ~]$ perf evlist
+cycles:u
+[perf@five ~]$
+
+- Arnaldo
