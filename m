@@ -2,102 +2,141 @@ Return-Path: <SRS0=RcjK=5Y=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E7E7C2D0EA
-	for <selinux@archiver.kernel.org>; Wed,  8 Apr 2020 09:08:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B076DC2D0EA
+	for <selinux@archiver.kernel.org>; Wed,  8 Apr 2020 10:19:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id B6FB92074F
-	for <selinux@archiver.kernel.org>; Wed,  8 Apr 2020 09:08:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82DF720771
+	for <selinux@archiver.kernel.org>; Wed,  8 Apr 2020 10:19:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S7AkllpH"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="h6HqB36Q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726795AbgDHJIQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Apr 2020 05:08:16 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:60253 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726775AbgDHJIQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Apr 2020 05:08:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586336895;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=m0Id8T047mWeL0hqFZpuotQZxr8D83lsMn0Xkkzurjs=;
-        b=S7AkllpHVtYErdiNoJ+eoqliR2GVUQ/mgfxif4Eh+WyJZOTqk0A6OT5fk0DljxU8rWes/w
-        to0/atTuaXQbnNnh9hIXeXLRoVTt4oHS5g5zl5z0849HcTKvGqB763TgUbp/lWhe4bOl65
-        6C0c91aS41gS4JQZx+5UIAwnbRsSkww=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-395-pTjIWEe0PoOp_8NuwMqi2g-1; Wed, 08 Apr 2020 05:08:13 -0400
-X-MC-Unique: pTjIWEe0PoOp_8NuwMqi2g-1
-Received: by mail-wr1-f72.google.com with SMTP id h95so3639780wrh.11
-        for <selinux@vger.kernel.org>; Wed, 08 Apr 2020 02:08:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=m0Id8T047mWeL0hqFZpuotQZxr8D83lsMn0Xkkzurjs=;
-        b=kwrPx6zxKnteK9cP77kjIeHBgQVG1Szko6NRq+gD8qNwhrsWnR4ujTkdSP2NkuTjvu
-         IaUHFe3VEvBD61ti7yvne6e6K4Z7m31laRPF0vtJFsEaR5l2NtrOS8sk4KGm4VpK8PVY
-         M7d1owv67O60o4iPR3e1eDx8OyrfX07jOr/7pphwdGxzifDJgwMsTOECTDL3oL0hwVmQ
-         t+CFgQR12Y55KZeeTj02CLrCQqf6bAFPVTUIJuMLwlP3HOp8MUsmHJZZzuqp04G4r8up
-         lg8HsGx5PpF99Cgbkukd+JGNMg+VRjseH5dMqtfc6p/mS0gksvJaKQDYt7FIvl4Nk34J
-         uKYA==
-X-Gm-Message-State: AGi0PuYGAFJqMlOe13w9PXZVKSJmQiuknbuKkKGW4x9A6PdRyWFqbL9F
-        K2RwgaKnevNmuwUxhA7pypdDnVhDTzqp5m5J+8Kki+dHwWQKT2Rf+DcmB/I9ZXbEBTtRKVt9T3x
-        Frp+Nhkcya/Jzir0t/w==
-X-Received: by 2002:a05:600c:4102:: with SMTP id j2mr3793557wmi.159.1586336891936;
-        Wed, 08 Apr 2020 02:08:11 -0700 (PDT)
-X-Google-Smtp-Source: APiQypIRRL6VlC/x12dwIOxc4XF3F5YipUEuQvjEJaG99Ib0M+quARXjM3JI7qXywhHSBFQT8TAgww==
-X-Received: by 2002:a05:600c:4102:: with SMTP id j2mr3793536wmi.159.1586336891700;
-        Wed, 08 Apr 2020 02:08:11 -0700 (PDT)
-Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
-        by smtp.gmail.com with ESMTPSA id y7sm33763116wrq.54.2020.04.08.02.08.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Apr 2020 02:08:10 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Jeff Vander Stoep <jeffv@google.com>
-Subject: [PATCH] selinux: drop unnecessary smp_load_acquire() call
-Date:   Wed,  8 Apr 2020 11:08:08 +0200
-Message-Id: <20200408090808.1219529-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.25.2
+        id S1727941AbgDHKTl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Apr 2020 06:19:41 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:40846 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726521AbgDHKTk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Apr 2020 06:19:40 -0400
+Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 752B420B4737;
+        Wed,  8 Apr 2020 03:19:39 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 752B420B4737
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1586341180;
+        bh=VEgymowXS2QT/1anQwq+eRkRBbBRYxE6H/1TZdqBpfk=;
+        h=To:Cc:From:Subject:Date:From;
+        b=h6HqB36Qw1laYbDWb5ngYhIpA1irhLyOxMLZZAPTeeCY6FLL2zBTShVGhliAyiuea
+         HwekIYGeYlmlYudb1n/d3ANKWdM7S/rZyG+8+Gd0Mu/yEXQU/lGMN3OZY7V8xkUtFe
+         PqoXWgz3MvG9DKPYaQ3FCj2Qdf/TyLmzAphOOE/U=
+To:     linux-integrity@vger.kernel.org, zohar@linux.ibm.com,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        dm-devel@redhat.com
+Cc:     jmorris@namei.org, chpebeni@linux.microsoft.com,
+        nramas@linux.microsoft.com, balajib@microsoft.com,
+        sashal@kernel.org, suredd@microsoft.com
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Subject: [RFC] IMA: New IMA measurements for dm-crypt and selinux
+Message-ID: <f92bef0f-eb40-0e07-540c-321134e4b070@linux.microsoft.com>
+Date:   Wed, 8 Apr 2020 03:19:38 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.4.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In commit 66f8e2f03c02 ("selinux: sidtab reverse lookup hash table") the
-corresponding load is moved under the spin lock, so there is no race
-possible and we can read the count directly. The smp_store_release() is
-still needed to avoid racing with the lock-free readers.
+The goals of the kernel integrity subsystem are to detect if files have
+been accidentally or maliciously altered, both remotely and locally,
+appraise a file's measurement against a "good" value stored as an
+extended attribute, and enforce local file integrity [1].
 
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/ss/sidtab.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+To achieve these goals, IMA subsystem measures several in-memory
+constructs and files.
 
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index a308ce1e6a13..f90397284a57 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -276,8 +276,7 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
- 	if (*sid)
- 		goto out_unlock;
- 
--	/* read entries only after reading count */
--	count = smp_load_acquire(&s->count);
-+	count = s->count;
- 	convert = s->convert;
- 
- 	/* bail out if we already reached max entries */
--- 
-2.25.2
+We propose to measure constructs in dm-crypt and selinux to further
+enhance measuring capabilities of IMA.
 
+If there is existing or planned work to measure dm-crypt and selinux
+constructs, we would like to contribute to that.
+
+dm-crypt is a subsystem used for encryption of the block device, which
+is essential for ensuring protection of data and secrets at rest.
+
+Measuring encryption status of the device will ensure the device is not
+maliciously reporting false encryption status - thus, it can be
+entrusted with sensitive data to be protected at rest.
+
+SELinux is an implementation of mandatory access controls (MAC) on
+Linux. Mandatory access controls allow an administrator of a system to
+define how applications and users can access different resources - such
+as files, devices, networks and inter-process communication. With
+SELinux an administrator can differentiate a user from the applications
+a user runs [2].
+
+Measuring SELinux status and various SELinux policies can help ensure
+mandatory access control of the system is not compromised.
+
+Proposal:
+---------
+A. Measuring dmcrypt constructs:
+     We can add an IMA hook in crypt_ctr() present in
+     drivers/md/dm-crypt.c, so that IMA can start measuring the status of
+     various dm-crypt targets (represented by crypt_target struct - also
+     defined in dm-crypt.c).
+     The mapping table[3] has information of devices being encrypted
+     (start sector, size, target name, cypher, key, device path, and
+     other optional parameters.)
+     e.g.
+     0 417792 crypt serpent-cbc-essiv:sha256
+     a7f67ad520bd83b9725df6ebd76c3eee 0 /dev/sdb 0 1 allow_discards
+
+     We can pass various attributes of mapping table to IMA through a key
+     value pair of various dmcrypt constructs.
+
+     Proposed Function Signature of the IMA hook:
+     void ima_dmcrypt_status(void *dmcrypt_status, int len);
+
+B. Measuring selinux constructs:
+     We propose to add an IMA hook in enforcing_set() present under
+     security/selinux/include/security.h.
+     enforcing_set() sets the selinux state to enforcing/permissive etc.
+     and is called from key places like selinux_init(),
+     sel_write_enforce() etc.
+     The hook will measure various attributes related to selinux status.
+     Majority of the attributes are present in the struct selinux_state
+     present in security/selinux/include/security.h
+     e.g.
+     $sestatus
+            SELinux status:              enabled
+            SELinuxfs mount:             /sys/fs/selinux
+            SELinux root directory:      /etc/selinux
+            Loaded policy name:          default
+            Current mode:                permissive
+            Mode from config file:       permissive
+            Policy MLS status:           enabled
+            Policy deny_unknown status:  allowed
+            Memory protection checking:  requested (insecure)
+            Max kernel policy version:   32
+
+     The above attributes will be serialized into a set of key=value
+     pairs when passed to IMA for measurement.
+
+     Proposed Function Signature of the IMA hook:
+     void ima_selinux_status(void *selinux_status, int len);
+
+Please provide comments\feedback on the proposal.
+
+Thanks,
+Tushar
+
+[1] https://sourceforge.net/p/linux-ima/wiki/Home/
+[2] https://selinuxproject.org/page/FAQ
+[3] https://gitlab.com/cryptsetup/cryptsetup/wikis/DMCrypt
