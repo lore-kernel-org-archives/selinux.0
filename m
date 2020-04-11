@@ -1,81 +1,118 @@
-Return-Path: <SRS0=bvjE=52=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=oRYu=53=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DFF4C2D0EC
-	for <selinux@archiver.kernel.org>; Fri, 10 Apr 2020 21:45:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 970B6C2BA19
+	for <selinux@archiver.kernel.org>; Sat, 11 Apr 2020 19:05:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 4FA6B207FF
-	for <selinux@archiver.kernel.org>; Fri, 10 Apr 2020 21:45:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6035B20708
+	for <selinux@archiver.kernel.org>; Sat, 11 Apr 2020 19:05:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rlccEwT2"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TH+P+l7r"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726626AbgDJVpj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Apr 2020 17:45:39 -0400
-Received: from mail-il1-f193.google.com ([209.85.166.193]:38182 "EHLO
-        mail-il1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726594AbgDJVpj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Apr 2020 17:45:39 -0400
-Received: by mail-il1-f193.google.com with SMTP id n13so3099716ilm.5
-        for <selinux@vger.kernel.org>; Fri, 10 Apr 2020 14:45:39 -0700 (PDT)
+        id S1726129AbgDKTFX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 11 Apr 2020 15:05:23 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:37169 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726725AbgDKTFX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 11 Apr 2020 15:05:23 -0400
+Received: by mail-wr1-f67.google.com with SMTP id w10so5867680wrm.4;
+        Sat, 11 Apr 2020 12:05:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=+ayvkT1MHfHe1uATm16WB6orEpbVrEceLipUDimz1I0=;
-        b=rlccEwT2scF2+ekhY8gEoUZNCXbx0BuHaFJsmkLb19Zw3H0Q280MYF8zagJiWjc1wf
-         aBaAE/38ingGPTHwGfbzIT97Jyc28A+muBLUWTQeAXeMlk02kHSTbn8mjeLCwBiLOcwW
-         WEvEbfUqjyY+QZjP3MB1jvLyP/hz1edXWv9NyFN1neon1bmaVFeQrIBl4sPlPFrY9xXO
-         5zRMGjsoViaMTww3vLMAeqAf5tr6MjIjZgb4/QqUAe4ZX4XlfkwPnTx4ANKYiEArPAqy
-         clG+rNWfUkXghZspeHWhE9PC+9cF/M+2aXqTLciZJ1qjLrbxGMHQ7lEcxSQ4vo62SaD+
-         GcwA==
+        bh=JJ7hnNFhk/mxUWoU/yAmjq9znKBHBG2b6AkM8126D5U=;
+        b=TH+P+l7rsmuAQ6hTbNyVs6lp/hvmL+1S5REtZKsQKG+cwgHbKS3IBC2ehBRCGXd8FW
+         Uh0YXgBhhPW27yaWBe9P8HimTmsswTX2YuhIOx3TOJO4YmOY9R23AROxbqdS/A6h42uY
+         BCfEbhzll/JNHX6FNa9/TMKY6D39S+cpSly35YyWP+2clduPrPeV47G5hW47iBhUEeq4
+         33wLGfK+gcHuso5D2IxMemQrVHg99hfHltH+Uj7E3djXSAcHsrZUKdyXLbMoeLYrT1eG
+         Bw6ACWVsftDd1f9WVJU7qVN04QDsNXQfoshiRFWRDmFjKu7rGG+lJNnJbgd2b2lT2zGN
+         zkEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=+ayvkT1MHfHe1uATm16WB6orEpbVrEceLipUDimz1I0=;
-        b=m0kGJ052mSytSzutPP1GKAKKSJQlKJ4D0lBN+iNrbQXQhCFEg3vZ6zvivA5hHE0vBJ
-         IXxAEBP+zOuai8Ba+KRvawylFMP6Q6sLEI9Ylqh2GbMLJ0OYxWwnKMPbtlizfDKBqa+t
-         ri2JYzuxyj8Etw/yY081/0ZX7+PodrrBRajX/SKlS7ZOXIrHvmS2AHcYe9Yk8kyRS+6e
-         xjekhthcR5/IyahHB9dxnLQprZq5lP1ZFL+iL27PvVKb8Qf0f2ZWw0+lJVNWdM9e7IIo
-         fNV7i1WMXIitS3k/XNP1zgCTewXgEq9YEnMXoZATWRQzssWRACsSOxsb8FK2J3lBfWX6
-         5N/A==
-X-Gm-Message-State: AGi0PubnJUYAI+q0JEdkxf8GF8Tbs4rQ//HLs79flUyi7NvBtdGPbWny
-        rmX7eNLqLXDPqYl/37Lx64gTEbpQILLco28fZ9g=
-X-Google-Smtp-Source: APiQypKPgM/IL7pypu5aQRg1sBnGFmVWOceHa6TJY76Cb6xkdjE/EWVC8+mGfn+N/9p/AmGO1qFTCu43s+B4AEtW5/s=
-X-Received: by 2002:a92:c6c8:: with SMTP id v8mr785914ilm.129.1586555138925;
- Fri, 10 Apr 2020 14:45:38 -0700 (PDT)
+        bh=JJ7hnNFhk/mxUWoU/yAmjq9znKBHBG2b6AkM8126D5U=;
+        b=VO7vX7ZGk8rDoQlsNT8Ds/pxgkyCJ7CPDWYVCL3qnh/oBnuDndcPYbEwajKm++VOQE
+         D00hs9D6BJ5OAe9cmwURmw0T7445fsHwbXIgTPOEYjNEFepPOH/HuFt0RR0bSsvflXgM
+         1w3+OGrW1YxpLDEGEukFMhbzMCO0CEJem/cASjkRgPtNIJnmv0pfNdvBrh7vbRhrpL9h
+         Z4LTfltNwjP+7oraWvLvEA0Y5nwPJwYbwtGNIc1JtohTQNOyd2urH1e1j0nQ2qN92v0L
+         dzniNhhiNBw02Q6Wtd1FA1q4NvasJ2OsvwVb/YccoP4VQj+URcQE6bIGcTd4/dHaz8yW
+         x70w==
+X-Gm-Message-State: AGi0PuaRHx4sxpGpYvkVM2EavMfxECfjRBJNrP66H6qO1qZLFL4NVHeD
+        +rIKafyLylGQpD+WxQ+RrMeta5nXv8CDVox3iOg=
+X-Google-Smtp-Source: APiQypJfCKuBECqeq8oDEtF/Z00WuOl3uUYTl8M4KrnDNnIXPvozYKdyuDjc253Vbg821RFqmPypKE6hVppwiaGCPwU=
+X-Received: by 2002:a5d:4111:: with SMTP id l17mr11678394wrp.271.1586631919839;
+ Sat, 11 Apr 2020 12:05:19 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200407184239.2700998-1-aduskett@gmail.com> <476DC76E7D1DF2438D32BFADF679FC5649EBB79F@ORSMSX101.amr.corp.intel.com>
- <CAFSsvmpmhuRD2gWj8ZaRkmZ42DoUM0evfb4tfJTgm8yu=qf2Jg@mail.gmail.com>
- <CAFSsvmrcyhA2xdyAp2vQwN+pqwtK8Tj4uGKicKZfiBCy5pf8BQ@mail.gmail.com> <CAFftDdqN5hXaRZN2LStJkkmfsW-D0b1jeUowwDwr==oaybVOSg@mail.gmail.com>
-In-Reply-To: <CAFftDdqN5hXaRZN2LStJkkmfsW-D0b1jeUowwDwr==oaybVOSg@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 10 Apr 2020 16:45:27 -0500
-Message-ID: <CAFftDdqDzSFY-Gh8hQgDchG56=0gPnEHDi4QOvxFZbESQ=NJvQ@mail.gmail.com>
-Subject: Re: [PATCH 1/1] fix building against musl and uClibc libc libraries.
-To:     Adam Duskett <aduskett@gmail.com>
-Cc:     "Roberts, William C" <william.c.roberts@intel.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+References: <f92bef0f-eb40-0e07-540c-321134e4b070@linux.microsoft.com>
+In-Reply-To: <f92bef0f-eb40-0e07-540c-321134e4b070@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley@gmail.com>
+Date:   Sat, 11 Apr 2020 15:05:07 -0400
+Message-ID: <CAB9W1A1=JyOV3-+6jn3xX-M+GKWBB2cCNh-VWB_kzf+YiR_d2Q@mail.gmail.com>
+Subject: Re: [RFC] IMA: New IMA measurements for dm-crypt and selinux
+To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Cc:     linux-integrity@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SELinux <selinux@vger.kernel.org>, dm-devel@redhat.com,
+        James Morris <jmorris@namei.org>, chpebeni@linux.microsoft.com,
+        nramas@linux.microsoft.com, balajib@microsoft.com,
+        sashal@kernel.org, suredd@microsoft.com
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 7, 2020 at 4:02 PM William Roberts <bill.c.roberts@gmail.com> wrote:
+On Wed, Apr 8, 2020 at 6:28 AM Tushar Sugandhi
+<tusharsu@linux.microsoft.com> wrote:
+> Measuring SELinux status and various SELinux policies can help ensure
+> mandatory access control of the system is not compromised.
+<snip>
+> B. Measuring selinux constructs:
+>      We propose to add an IMA hook in enforcing_set() present under
+>      security/selinux/include/security.h.
+>      enforcing_set() sets the selinux state to enforcing/permissive etc.
+>      and is called from key places like selinux_init(),
+>      sel_write_enforce() etc.
+>      The hook will measure various attributes related to selinux status.
+>      Majority of the attributes are present in the struct selinux_state
+>      present in security/selinux/include/security.h
+>      e.g.
+>      $sestatus
+>             SELinux status:              enabled
+>             SELinuxfs mount:             /sys/fs/selinux
+>             SELinux root directory:      /etc/selinux
+>             Loaded policy name:          default
+>             Current mode:                permissive
+>             Mode from config file:       permissive
+>             Policy MLS status:           enabled
+>             Policy deny_unknown status:  allowed
+>             Memory protection checking:  requested (insecure)
+>             Max kernel policy version:   32
 >
-> On Tue, Apr 7, 2020 at 3:54 PM Adam Duskett <aduskett@gmail.com> wrote:
-> >
-> > I just ended up making a new branch that has the latest updated
-> > commits and a new PR with an SOB line.
-> >
-> > https://github.com/SELinuxProject/selinux/pull/218
+>      The above attributes will be serialized into a set of key=value
+>      pairs when passed to IMA for measurement.
+>
+>      Proposed Function Signature of the IMA hook:
+>      void ima_selinux_status(void *selinux_status, int len);
 
-merged:
-https://github.com/SELinuxProject/selinux/pull/218
+This won't detect changes to any of these state variables via a kernel
+write vulnerability,
+so it would be good to provide a way to trigger measurement of the
+current values on
+demand.
+You'll also likely want to measure parts of the child structures of
+selinux_state, e.g. selinux_ss,
+especially selinux_map and policydb.  You can simplify measurement of
+the policydb by
+serializing it first via policydb_write() and hashing the result. I
+suppose one question is whether you can do all of this
+already from userspace by just having userspace read
+/sys/fs/selinux/enforce, /sys/fs/selinux/policy, etc.
