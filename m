@@ -2,126 +2,120 @@ Return-Path: <SRS0=FN9z=54=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5403CC2BB85
-	for <selinux@archiver.kernel.org>; Sun, 12 Apr 2020 08:15:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38C0BC2BA2B
+	for <selinux@archiver.kernel.org>; Sun, 12 Apr 2020 08:33:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.kernel.org (Postfix) with ESMTP id 2D23620709
-	for <selinux@archiver.kernel.org>; Sun, 12 Apr 2020 08:15:21 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iRvO0GRY"
+	by mail.kernel.org (Postfix) with ESMTP id 14BC5206DA
+	for <selinux@archiver.kernel.org>; Sun, 12 Apr 2020 08:33:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726837AbgDLIPT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 12 Apr 2020 04:15:19 -0400
-Received: from mail-il1-f194.google.com ([209.85.166.194]:41593 "EHLO
-        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725832AbgDLIPT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 12 Apr 2020 04:15:19 -0400
-Received: by mail-il1-f194.google.com with SMTP id f82so2564546ilh.8;
-        Sun, 12 Apr 2020 01:15:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=c/Lb56tGiXdOhLm4M0kNSqw6FPBoSkeoJ2b2tzoaiUg=;
-        b=iRvO0GRYfEo4FFqysv7xd+IiXgg0sCKSfGiHmvfUxmpMGq6KSHM0FgxKyAerPrSXUy
-         ygV2w/l83K4YkNx3WLdTN5oIQSbVKFKsHYjTJY9hCD26mBcf+XPK5/seWl+kUUqcJd/j
-         QNgLhyQHicAa8q182Ay4mCTd7ZSSZnliZHzDse9zKEXKMZThNX93DXxHWMX/xth0KG+P
-         56zSOOcfPOuykxyB3GhIV6/4JGfUgk7FhvHzES9vbVEQCS8p/Or9cogYC7jMTP9Yb3Hf
-         Rw2h1jfTgxVbdwm/lQTETv9ln5tS6086/Vtk9Xmfz8JbkuIecdGuPQauxqD2mMIMQJ6S
-         sSxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=c/Lb56tGiXdOhLm4M0kNSqw6FPBoSkeoJ2b2tzoaiUg=;
-        b=TkiWVOOkzDl+QnJtUDX7cZmJIoknklZH5QjxOWnbIXBGqcPnCweKEFL0HNUyCrQSOG
-         Hz7TgDWZCmbLYMu0Lw1bnlrLORDU7PwCKiqdY0lHQRra7YLK0UXbE+4u3a3fBUaIeZw2
-         +g22leqSBoxqAh7g3UtntcUOxUXmxi25i2WDL2V/273Fp0eTHOBvJY0KV/OrN6dSgcvX
-         oPd5TEk50NcMXbUM45D5aA6ISIrmnMo5P169Xm7W8OLA0hzw7RiiHy+kKQm0T8Ec5b3X
-         D6zUNuPRqI7OJK81MHXk+hRVh+63mDehvd44dcQojWhfLVr4+KULxBP1HcyTgnE/FC/H
-         wPSg==
-X-Gm-Message-State: AGi0PuYUGhMbl1soWbnDuc42eu6nqnvbCB9LqiVrpVXkH5trjmERHoDx
-        dbo/8H8VkiZlxbbHd/UGyoFOA9us4th2NhiFRy2vycru6nk=
-X-Google-Smtp-Source: APiQypLrgetzg3xkZ+c4aa3/NRG/TMq0oNUgTRtFJ+4YwTFwuFx2KOSYw7Q3K9sS6y5hElbohZU31ooLD7r7jKIxFiI=
-X-Received: by 2002:a92:dc43:: with SMTP id x3mr4747407ilq.102.1586679317629;
- Sun, 12 Apr 2020 01:15:17 -0700 (PDT)
+        id S1725873AbgDLIdL convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Sun, 12 Apr 2020 04:33:11 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:48247 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725832AbgDLIdK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 12 Apr 2020 04:33:10 -0400
+Received: from mail-ot1-f44.google.com (mail-ot1-f44.google.com [209.85.210.44])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 02DFF5612D0
+        for <selinux@vger.kernel.org>; Sun, 12 Apr 2020 10:24:57 +0200 (CEST)
+Received: by mail-ot1-f44.google.com with SMTP id 60so6142315otl.12
+        for <selinux@vger.kernel.org>; Sun, 12 Apr 2020 01:24:56 -0700 (PDT)
+X-Gm-Message-State: AGi0PuYiL9ytB5kO7p/Dtpim2/iUgUomor3Vc3CYOzQnY6cwiU8uCaUp
+        0ftK+1S3NnwNpsCf3gziGR00ySjFoTi39iljmEw=
+X-Google-Smtp-Source: APiQypJau/jMd9xksD4K7asXVM/QJFy1uOOUKJhV0lgqVriRmeMjLyGDL122Q9N+6hFNPiMnuZBgZpnX3RSN1NozWD8=
+X-Received: by 2002:a05:6830:14:: with SMTP id c20mr9745954otp.279.1586679895948;
+ Sun, 12 Apr 2020 01:24:55 -0700 (PDT)
 MIME-Version: 1.0
-References: <f92bef0f-eb40-0e07-540c-321134e4b070@linux.microsoft.com> <CAB9W1A1=JyOV3-+6jn3xX-M+GKWBB2cCNh-VWB_kzf+YiR_d2Q@mail.gmail.com>
-In-Reply-To: <CAB9W1A1=JyOV3-+6jn3xX-M+GKWBB2cCNh-VWB_kzf+YiR_d2Q@mail.gmail.com>
-From:   "Lev R. Oshvang ." <levonshe@gmail.com>
-Date:   Sun, 12 Apr 2020 11:15:06 +0300
-Message-ID: <CAP22eLGJbSvUU=W0Jp=gvOFv-nxLC8YTnta3OU2PKbh746MCkQ@mail.gmail.com>
-Subject: Re: [RFC] IMA: New IMA measurements for dm-crypt and selinux
-To:     Stephen Smalley <stephen.smalley@gmail.com>
-Cc:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        linux-integrity@vger.kernel.org, Mimi Zohar <zohar@linux.ibm.com>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SELinux <selinux@vger.kernel.org>, dm-devel@redhat.com,
-        James Morris <jmorris@namei.org>, chpebeni@linux.microsoft.com,
-        nramas@linux.microsoft.com, balajib@microsoft.com,
-        sashal@kernel.org, suredd@microsoft.com
+References: <20200407115849.41225-1-cgzones@googlemail.com>
+In-Reply-To: <20200407115849.41225-1-cgzones@googlemail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sun, 12 Apr 2020 10:24:44 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=kDRkdx=J_40VCVXTH5kFeV-ynupPTghbQY70ByNsAF7Q@mail.gmail.com>
+Message-ID: <CAJfZ7=kDRkdx=J_40VCVXTH5kFeV-ynupPTghbQY70ByNsAF7Q@mail.gmail.com>
+Subject: Re: [PATCH] tree-wide: use python module importlib instead of the
+ deprecated imp
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Apr 12 10:24:57 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Apr 11, 2020 at 10:07 PM Stephen Smalley
-<stephen.smalley@gmail.com> wrote:
+On Tue, Apr 7, 2020 at 1:59 PM Christian Göttsche
+<cgzones@googlemail.com> wrote:
 >
-> On Wed, Apr 8, 2020 at 6:28 AM Tushar Sugandhi
-> <tusharsu@linux.microsoft.com> wrote:
-> > Measuring SELinux status and various SELinux policies can help ensure
-> > mandatory access control of the system is not compromised.
-> <snip>
-> > B. Measuring selinux constructs:
-> >      We propose to add an IMA hook in enforcing_set() present under
-> >      security/selinux/include/security.h.
-> >      enforcing_set() sets the selinux state to enforcing/permissive etc.
-> >      and is called from key places like selinux_init(),
-> >      sel_write_enforce() etc.
-> >      The hook will measure various attributes related to selinux status.
-> >      Majority of the attributes are present in the struct selinux_state
-> >      present in security/selinux/include/security.h
-> >      e.g.
-> >      $sestatus
-> >             SELinux status:              enabled
-> >             SELinuxfs mount:             /sys/fs/selinux
-> >             SELinux root directory:      /etc/selinux
-> >             Loaded policy name:          default
-> >             Current mode:                permissive
-> >             Mode from config file:       permissive
-> >             Policy MLS status:           enabled
-> >             Policy deny_unknown status:  allowed
-> >             Memory protection checking:  requested (insecure)
-> >             Max kernel policy version:   32
-> >
-> >      The above attributes will be serialized into a set of key=value
-> >      pairs when passed to IMA for measurement.
-> >
-> >      Proposed Function Signature of the IMA hook:
-> >      void ima_selinux_status(void *selinux_status, int len);
+> Replace
 >
-> This won't detect changes to any of these state variables via a kernel
-> write vulnerability,
-> so it would be good to provide a way to trigger measurement of the
-> current values on
-> demand.
-> You'll also likely want to measure parts of the child structures of
-> selinux_state, e.g. selinux_ss,
-> especially selinux_map and policydb.  You can simplify measurement of
-> the policydb by
-> serializing it first via policydb_write() and hashing the result. I
-> suppose one question is whether you can do all of this
-> already from userspace by just having userspace read
-> /sys/fs/selinux/enforce, /sys/fs/selinux/policy, etc.
+> python3 -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])'
+> <string>:1: DeprecationWarning: the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses
+> .cpython-38-x86_64-linux-gnu.so
+>
+> with
+>
+> python3 -c 'import importlib;print(importlib.machinery.EXTENSION_SUFFIXES[0])'
+> .cpython-38-x86_64-linux-gnu.so
+>
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+>  libselinux/src/Makefile  | 2 +-
+>  libsemanage/src/Makefile | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 2d1c654e..ddb5e013 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -15,7 +15,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+>  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+>  PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+>  PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
+> -PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
+> +PYCEXT ?= $(shell $(PYTHON) -c 'import importlib;print(importlib.machinery.EXTENSION_SUFFIXES[0])')
+>  RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+>  RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+>  RUBYINSTALL ?= $(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+> index 606ce1c6..00aee063 100644
+> --- a/libsemanage/src/Makefile
+> +++ b/libsemanage/src/Makefile
+> @@ -14,7 +14,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+>  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+>  PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+>  PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
+> -PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
+> +PYCEXT ?= $(shell $(PYTHON) -c 'import importlib;print(importlib.machinery.EXTENSION_SUFFIXES[0])')
+>  RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+>  RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+>  RUBYINSTALL ?= $(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
 
-It sees to me that  LKRG (kernel run time guard)  takes the role of
-measuring kernel structures.  Perhaps you need to consult with LKRG
-guys.
-Lev.
+Hello,
+Thanks for your patch, but this does not seem to work on Python 3.5:
+
+python3.5 -c 'import importlib;print(importlib.machinery.EXTENSION_SUFFIXES[0])'
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+AttributeError: module 'importlib' has no attribute 'machinery'
+
+importlib.machinery.EXTENSION_SUFFIXES has been available since Python
+3.3, but in module importlib.machinery. This works:
+
+python3.5 -c 'import
+importlib.machinery;print(importlib.machinery.EXTENSION_SUFFIXES[0])'
+.cpython-35m-x86_64-linux-gnu.so
+
+Could you update your patch in order to use "import
+importlib.machinery" instead of "import importlib"?
+
+Thanks,
+Nicolas
+
