@@ -2,548 +2,170 @@ Return-Path: <SRS0=t5D9=55=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3153C2BBFD
-	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 14:18:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F663C352B6
+	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 16:14:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8EB312075E
-	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 14:18:59 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WbQMGZdu"
+	by mail.kernel.org (Postfix) with ESMTP id 5874420732
+	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 16:14:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730530AbgDMOS5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Apr 2020 10:18:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59206 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730546AbgDMOSx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Apr 2020 10:18:53 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9295C0A3BDC
-        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 07:18:52 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id w20so9462955iob.2
-        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 07:18:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lhJ2r74dFQjBTlj6qnX5CmF4iprPfCv76u8RhPN46EI=;
-        b=WbQMGZdui3pfazkd4r8uwve4hvOzedG58bwQlE/9V4fjeaDl+U+vF+RG5At1EbGVWd
-         NQosvvc185+b1VWILoCyZZi1x+npDYx1XPAj/8mGbxxFHLlvMqCG54mVHlmlVJFdkM8J
-         1UDm3Cb9VR1lw1+H2r+Tf8bMZ+Q8BDdyd/0ShO4BqpoBVoItgKszcMWwW9NSlXDDMopp
-         f963cEVD4yvIPtGrtTFtiuy1JQtkNP3xerPGjb9yqL9hAjtSN7LplqiFJFsULp8xvwOc
-         y+wy//3yTHl/fcUXu3H8+mIHYNwVxvSfpX2QKiiHW+EQdA2af6cfjiuoUZlizMMXmYgu
-         /vLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lhJ2r74dFQjBTlj6qnX5CmF4iprPfCv76u8RhPN46EI=;
-        b=WH7gVGOIgyFZPkJWELAR0fF8nLWhS/Nf6EsWJlFk3MQZYZSvJByRnsrvqs0dwVc0pW
-         PNm1q5A14fEqU3bhjHAABqXmWpkBsuSEjx/n8Ej+kiQ2o4S9otK+uT9Hzk6OyxTKH7XW
-         bL8+alYltbdPEssgQD2vMICs3pOSaHttFh7SJzAcuvcvI05lit+bdT8Dn3d3b29KzXnl
-         0IOD+Tv9LPJrbtdrq4NH1DWZT2cMntjlef13jgNjK0yT1eFnRT3kPd8Gge/rMiQ3qU5P
-         RgikKZoxdqyLtip2nDeNTw+rFTcptkrXF/vGZ3U77w72QB9PExaxJ0GTwc28lwoAsqcj
-         hlhg==
-X-Gm-Message-State: AGi0PuYdiSlYa0358ZpBMkLQCs0cbBfe/eppG+uKHm+3v5K9LGL0je1Y
-        /67Y6jgahNW+/PgwX7G1BgCaBUQi6G0tqZnwOSI=
-X-Google-Smtp-Source: APiQypL1vIuCIunichQdwJM0nNvHp4XTbOLm5YqiRpJbfn5nHckONMvOgNEL+pAs0IhejiDU0DZLe3skONZqbihQE3w=
-X-Received: by 2002:a02:cbc6:: with SMTP id u6mr16659577jaq.27.1586787531978;
- Mon, 13 Apr 2020 07:18:51 -0700 (PDT)
+        id S1731362AbgDMQOr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Apr 2020 12:14:47 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:40956 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731324AbgDMQOq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Apr 2020 12:14:46 -0400
+Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id CBFFD561250
+        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 18:14:42 +0200 (CEST)
+Received: by mail-oi1-f175.google.com with SMTP id q204so7771590oia.13
+        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 09:14:42 -0700 (PDT)
+X-Gm-Message-State: AGi0PuaHR3eF5r3PDmet959eVE6MraZjbKemZsOkF1P1wMQ7q7HOmnCi
+        sU1BtDajPoQ6aPFH2HAT8dwktE2GPPru3gG2zRE=
+X-Google-Smtp-Source: APiQypIG+II+Y5qP5KhXCjqQszUo16bTGCAWi41DyMluopkvrSkgC6to/Zal9xfPeo09e1YmjgcPrTT296UI/Ar04Qw=
+X-Received: by 2002:aca:d68a:: with SMTP id n132mr12612024oig.40.1586794481751;
+ Mon, 13 Apr 2020 09:14:41 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200412081001.23246-1-nicolas.iooss@m4x.org>
-In-Reply-To: <20200412081001.23246-1-nicolas.iooss@m4x.org>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Mon, 13 Apr 2020 09:18:40 -0500
-Message-ID: <CAFftDdpmF6H21DmDLaYwJW9QQx3hBq7i14SEsKeA=ktPE0brKA@mail.gmail.com>
+References: <20200412081001.23246-1-nicolas.iooss@m4x.org> <CAFftDdpmF6H21DmDLaYwJW9QQx3hBq7i14SEsKeA=ktPE0brKA@mail.gmail.com>
+In-Reply-To: <CAFftDdpmF6H21DmDLaYwJW9QQx3hBq7i14SEsKeA=ktPE0brKA@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Mon, 13 Apr 2020 18:14:30 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==YbLMj4mKtD9KRA5YE=ySBMKZ9V45OfD1Uod5rPhzhRw@mail.gmail.com>
+Message-ID: <CAJfZ7==YbLMj4mKtD9KRA5YE=ySBMKZ9V45OfD1Uod5rPhzhRw@mail.gmail.com>
 Subject: Re: [PATCH 1/3] libselinux: add missing glue code to grab errno in
  Python bindings
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+To:     William Roberts <bill.c.roberts@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Apr 13 18:14:43 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Apr 12, 2020 at 3:12 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Mon, Apr 13, 2020 at 4:18 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
 >
-> The Python bindings for libselinux expose functions such as
-> avc_has_perm(), get_ordered_context_list(), etc. When these functions
-> encounter an error, they set errno accordingly and return a negative
-> value. In order to get the value of errno from Python code, it needs to
-> be "forwarded" in a way. This is achieved by glue code in
-> selinuxswig_python_exception.i, which implement raising an OSError
-> exception from the value of errno.
+> On Sun, Apr 12, 2020 at 3:12 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > The Python bindings for libselinux expose functions such as
+> > avc_has_perm(), get_ordered_context_list(), etc. When these functions
+> > encounter an error, they set errno accordingly and return a negative
+> > value. In order to get the value of errno from Python code, it needs to
+> > be "forwarded" in a way. This is achieved by glue code in
+> > selinuxswig_python_exception.i, which implement raising an OSError
+> > exception from the value of errno.
+> >
+> > selinuxswig_python_exception.i was only generating glue code from
+> > functions declared in selinux.h and not in other headers. Add other
+> > headers.
+> >
+> > selinuxswig_python_exception.i is generated by "bash exception.sh". Mark
+> > the fact that exception.sh is a Bash script by adding a shebang. This
+> > makes "shellcheck" not warn about the Bash array which is used to list
+> > header files.
+> >
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > ---
+> >  libselinux/src/exception.sh                   |  18 +-
+> >  libselinux/src/selinuxswig_python_exception.i | 396 ++++++++++++++++++
+> >  2 files changed, 412 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
+> > index 33ceef804af5..644c7a05ec54 100755
+> > --- a/libselinux/src/exception.sh
+> > +++ b/libselinux/src/exception.sh
+> > @@ -1,3 +1,5 @@
+> > +#!/bin/bash
+> > +
+> >  function except() {
+> >  case $1 in
+> >      selinux_file_context_cmp) # ignore
+> > @@ -15,10 +17,22 @@ echo "
+> >  ;;
+> >  esac
+> >  }
+> > -if ! ${CC:-gcc} -x c -c -I../include -o temp.o - -aux-info temp.aux < ../include/selinux/selinux.h
+> > +
+> > +# Make sure that selinux.h is included first in order not to depend on the order
+> > +# in which "#include <selinux/selinux.h>" appears in other files.
+> > +FILE_LIST=(
+> > +    ../include/selinux/selinux.h
+> > +    ../include/selinux/avc.h
+> > +    ../include/selinux/context.h
+> > +    ../include/selinux/get_context_list.h
+> > +    ../include/selinux/get_default_type.h
+> > +    ../include/selinux/label.h
+> > +    ../include/selinux/restorecon.h
+> > +)
+> > +if ! cat "${FILE_LIST[@]}" | ${CC:-gcc} -x c -c -I../include -o temp.o - -aux-info temp.aux
+> >  then
+> >      # clang does not support -aux-info so fall back to gcc
+> > -    gcc -x c -c -I../include -o temp.o - -aux-info temp.aux < ../include/selinux/selinux.h
+> > +    cat "${FILE_LIST[@]}" | gcc -x c -c -I../include -o temp.o - -aux-info temp.aux
+> >  fi
+> >  for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except $i ; done
+> >  rm -f -- temp.aux temp.o
+> > diff --git a/libselinux/src/selinuxswig_python_exception.i b/libselinux/src/selinuxswig_python_exception.i
+> > index cf6582595ee7..9f1f86a5564d 100644
+> > --- a/libselinux/src/selinuxswig_python_exception.i
+> > +++ b/libselinux/src/selinuxswig_python_exception.i
+> > @@ -952,3 +952,399 @@
+> >    }
+> >  }
+> >
+> > +
+> > +%exception avc_sid_to_context {
+> > +  $action
+> > +  if (result < 0) {
+> > +     PyErr_SetFromErrno(PyExc_OSError);
+> > +     SWIG_fail;
+> > +  }
+> > +}
+> > +
+> > +
+> > +%exception avc_sid_to_context_raw {
+> > +  $action
+> > +  if (result < 0) {
+> > +     PyErr_SetFromErrno(PyExc_OSError);
+> > +     SWIG_fail;
+> > +  }
+> > +}
+[...]
 >
-> selinuxswig_python_exception.i was only generating glue code from
-> functions declared in selinux.h and not in other headers. Add other
-> headers.
->
-> selinuxswig_python_exception.i is generated by "bash exception.sh". Mark
-> the fact that exception.sh is a Bash script by adding a shebang. This
-> makes "shellcheck" not warn about the Bash array which is used to list
-> header files.
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> ---
->  libselinux/src/exception.sh                   |  18 +-
->  libselinux/src/selinuxswig_python_exception.i | 396 ++++++++++++++++++
->  2 files changed, 412 insertions(+), 2 deletions(-)
->
-> diff --git a/libselinux/src/exception.sh b/libselinux/src/exception.sh
-> index 33ceef804af5..644c7a05ec54 100755
-> --- a/libselinux/src/exception.sh
-> +++ b/libselinux/src/exception.sh
-> @@ -1,3 +1,5 @@
-> +#!/bin/bash
-> +
->  function except() {
->  case $1 in
->      selinux_file_context_cmp) # ignore
-> @@ -15,10 +17,22 @@ echo "
->  ;;
->  esac
->  }
-> -if ! ${CC:-gcc} -x c -c -I../include -o temp.o - -aux-info temp.aux < ../include/selinux/selinux.h
-> +
-> +# Make sure that selinux.h is included first in order not to depend on the order
-> +# in which "#include <selinux/selinux.h>" appears in other files.
-> +FILE_LIST=(
-> +    ../include/selinux/selinux.h
-> +    ../include/selinux/avc.h
-> +    ../include/selinux/context.h
-> +    ../include/selinux/get_context_list.h
-> +    ../include/selinux/get_default_type.h
-> +    ../include/selinux/label.h
-> +    ../include/selinux/restorecon.h
-> +)
-> +if ! cat "${FILE_LIST[@]}" | ${CC:-gcc} -x c -c -I../include -o temp.o - -aux-info temp.aux
->  then
->      # clang does not support -aux-info so fall back to gcc
-> -    gcc -x c -c -I../include -o temp.o - -aux-info temp.aux < ../include/selinux/selinux.h
-> +    cat "${FILE_LIST[@]}" | gcc -x c -c -I../include -o temp.o - -aux-info temp.aux
->  fi
->  for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do except $i ; done
->  rm -f -- temp.aux temp.o
-> diff --git a/libselinux/src/selinuxswig_python_exception.i b/libselinux/src/selinuxswig_python_exception.i
-> index cf6582595ee7..9f1f86a5564d 100644
-> --- a/libselinux/src/selinuxswig_python_exception.i
-> +++ b/libselinux/src/selinuxswig_python_exception.i
-> @@ -952,3 +952,399 @@
->    }
->  }
->
-> +
-> +%exception avc_sid_to_context {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_sid_to_context_raw {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_context_to_sid {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_context_to_sid_raw {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception sidget {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception sidput {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_get_initial_sid {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_init {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_open {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_reset {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_has_perm_noaudit {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_has_perm {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_compute_create {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_compute_member {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_add_callback {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_netlink_open {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_netlink_acquire_fd {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception avc_netlink_check_nb {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selinux_status_open {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selinux_status_updated {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selinux_status_getenforce {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selinux_status_policyload {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selinux_status_deny_unknown {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception context_type_set {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception context_range_set {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception context_role_set {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception context_user_set {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception get_ordered_context_list {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception get_ordered_context_list_with_level {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception get_default_context {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception get_default_context_with_level {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception get_default_context_with_role {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception get_default_context_with_rolelevel {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception query_user_context {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception manual_user_enter_context {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception get_default_type {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selabel_lookup {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selabel_lookup_raw {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selabel_lookup_best_match {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selabel_lookup_best_match_raw {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selabel_digest {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selinux_restorecon {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selinux_restorecon_set_alt_rootpath {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> +
-> +%exception selinux_restorecon_xattr {
-> +  $action
-> +  if (result < 0) {
-> +     PyErr_SetFromErrno(PyExc_OSError);
-> +     SWIG_fail;
-> +  }
-> +}
-> +
-> --
-> 2.26.0
->
+> A few comments:
+> - overall looks fine, builds and works as expected.
+> - Why the double newline space on the exception swig file? The other
+> .i files seem to do a single newline?
+>   is their something I am missing with syntax?
+> - I have the following whitespace warning:
+> Applying: libselinux: add missing glue code to grab errno in Python bindings
+> .git/rebase-apply/patch:444: new blank line at EOF.
+> +
+> warning: 1 line adds whitespace errors.
 
-A few comments:
-- overall looks fine, builds and works as expected.
-- Why the double newline space on the exception swig file? The other
-.i files seem to do a single newline?
-  is their something I am missing with syntax?
-- I have the following whitespace warning:
-Applying: libselinux: add missing glue code to grab errno in Python bindings
-.git/rebase-apply/patch:444: new blank line at EOF.
-+
-warning: 1 line adds whitespace errors.
+The last two points are due to the way the file is generated, by exception.sh:
+
+echo "
+%exception $1 {
+  \$action
+  if (result < 0) {
+     PyErr_SetFromErrno(PyExc_OSError);
+     SWIG_fail;
+  }
+}
+"
+... this introduces blank lines both before and after each exception
+blocks. We could remove the one after the block by using }" in the
+shell script. I will submit a patch that does this once this patch is
+merged, as this makes the file cleaner.
+
+Thanks,
+Nicolas
+
