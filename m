@@ -2,134 +2,162 @@ Return-Path: <SRS0=t5D9=55=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06F30C2BA19
-	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 17:48:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 152B1C2BA19
+	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 17:49:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE8212063A
-	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 17:48:39 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gA8oAYbC"
+	by mail.kernel.org (Postfix) with ESMTP id E7A5A2063A
+	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 17:49:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387424AbgDMRsj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Apr 2020 13:48:39 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:23364 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2387436AbgDMRsj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Apr 2020 13:48:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586800117;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=vWUTPbYWAoEUYC4XEPobf5xrH8FY2tB9rfmUCEXZteg=;
-        b=gA8oAYbCjZmdRXWDhgIyQzuHpzw9GzzsOgXR4NgEZivvhKgdWYfy99I/BZBsP5xXzruzhM
-        lzVmadhdGkVSYvzJBapgGfDhVuzq5w9dCsNGmtZEUZaTh/XqpTcIWV5Uso4wX9Ycp2nfqi
-        5KfLID92UCV+EOU1N2UK+kQ3S/QVw8Y=
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
- [209.85.167.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-263-5jw-dckAMDaY20ZRNl-RqQ-1; Mon, 13 Apr 2020 13:48:32 -0400
-X-MC-Unique: 5jw-dckAMDaY20ZRNl-RqQ-1
-Received: by mail-oi1-f198.google.com with SMTP id x24so8077878oie.3
-        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 10:48:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vWUTPbYWAoEUYC4XEPobf5xrH8FY2tB9rfmUCEXZteg=;
-        b=LZ8H0pX16DmCG1okU/zU3bextPXzVeIGPgWhvhvVHGVtH8aQg5aTl/k4Dt9inu3oUQ
-         BTYe36aujVoZ6xptVa9uHDru+zXZ1SMBf1mfN8Agp+6vQDU+B/thFC2Ol2TH5AQSC8zr
-         TCnXrW1W/FNZn0+71AuApHxa4cAKeeuTTP43NkwcRXWLHS+vu0jdMYCztaGEu9PgkOy1
-         Vh77ojv7YazX7b4KXpyb6s+Bn+NWE2185V0VbBzN8Hz2E7vcTwtn3XPQOy5lDmmIj27O
-         E+GEybBJe1edGlaRbee/1cxdxfA6v2irwsEi8VAA5z28fbafFgCFMQwph8eeuiZLGJvD
-         IK4w==
-X-Gm-Message-State: AGi0Pub62Piv4IjyRP2onwKRPc9D394ePj4s6spWkmy1cXUBtkJa9LsI
-        PoBFe9g4JBRllTxv8G+RFERoBu4nEnQ+erFhsdwWbXiQg+PPhs2rxPaAVwFQgUiZhxtGUiOi3yt
-        N69xcAsViwwE3khfrbITgSeCfQKXPwivpcA==
-X-Received: by 2002:aca:b104:: with SMTP id a4mr10354674oif.103.1586800111283;
-        Mon, 13 Apr 2020 10:48:31 -0700 (PDT)
-X-Google-Smtp-Source: APiQypKpkjPEgWlIr/mM6dltj0iYO34p6ugR7Fh9HIZMa0sINTs+ZysmbG4I/d5ro8ngkSRJtm5bNkxnSVKDwGREY50=
-X-Received: by 2002:aca:b104:: with SMTP id a4mr10354663oif.103.1586800111015;
- Mon, 13 Apr 2020 10:48:31 -0700 (PDT)
+        id S2387448AbgDMRtW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Apr 2020 13:49:22 -0400
+Received: from mga07.intel.com ([134.134.136.100]:63613 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2387436AbgDMRtU (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 13 Apr 2020 13:49:20 -0400
+IronPort-SDR: o5SL1s7aSM3jFV2296Db+o9OLxssTDmc6E+0p2a1M4oDhSp2OQOevcTGJFesUaIZsPNbm2zsoe
+ WWVzGlqGRwGw==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Apr 2020 10:49:18 -0700
+IronPort-SDR: CDsJ/1QE4DchdjPfP4fu2y/JMzufgzcr2Z008MnOQlbwrQKb0rwRigxTU4PUZFwqZQul/OfOo9
+ jbbN/2lXOwqQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.72,378,1580803200"; 
+   d="scan'208";a="399680779"
+Received: from orsmsx105.amr.corp.intel.com ([10.22.225.132])
+  by orsmga004.jf.intel.com with ESMTP; 13 Apr 2020 10:49:18 -0700
+Received: from orsmsx122.amr.corp.intel.com (10.22.225.227) by
+ ORSMSX105.amr.corp.intel.com (10.22.225.132) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Mon, 13 Apr 2020 10:49:17 -0700
+Received: from orsmsx101.amr.corp.intel.com ([169.254.8.204]) by
+ ORSMSX122.amr.corp.intel.com ([169.254.11.34]) with mapi id 14.03.0439.000;
+ Mon, 13 Apr 2020 10:49:17 -0700
+From:   "Roberts, William C" <william.c.roberts@intel.com>
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>,
+        William Roberts <bill.c.roberts@gmail.com>
+CC:     SElinux list <selinux@vger.kernel.org>
+Subject: RE: [PATCH 1/3] libselinux: add missing glue code to grab errno in
+ Python bindings
+Thread-Topic: [PATCH 1/3] libselinux: add missing glue code to grab errno in
+ Python bindings
+Thread-Index: AQHWEKHOqcpzHBZ+EEmt4MAMKh4GYKh3kPAAgAAgXQD//6QlEA==
+Date:   Mon, 13 Apr 2020 17:49:17 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC5649ECC02C@ORSMSX101.amr.corp.intel.com>
+References: <20200412081001.23246-1-nicolas.iooss@m4x.org>
+ <CAFftDdpmF6H21DmDLaYwJW9QQx3hBq7i14SEsKeA=ktPE0brKA@mail.gmail.com>
+ <CAJfZ7==YbLMj4mKtD9KRA5YE=ySBMKZ9V45OfD1Uod5rPhzhRw@mail.gmail.com>
+In-Reply-To: <CAJfZ7==YbLMj4mKtD9KRA5YE=ySBMKZ9V45OfD1Uod5rPhzhRw@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.138]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <202004130917.435ED43FDB@keescook>
-In-Reply-To: <202004130917.435ED43FDB@keescook>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 13 Apr 2020 19:48:19 +0200
-Message-ID: <CAFqZXNtJsrSN22=NtQksOsacC=SkwKB9SLxH4NX-NMa9MUK+Jg@mail.gmail.com>
-Subject: Re: Coverity: filename_trans_read_one(): Resource leaks
-To:     coverity-bot <keescook@chromium.org>
-Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
-        Paul Moore <paul@paul-moore.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        linux-next@vger.kernel.org, SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 13, 2020 at 6:18 PM coverity-bot <keescook@chromium.org> wrote:
-> Hello!
->
-> This is an experimental automated report about issues detected by Coverity
-> from a scan of next-20200413 as part of the linux-next weekly scan project:
-> https://scan.coverity.com/projects/linux-next-weekly-scan
->
-> You're getting this email because you were associated with the identified
-> lines of code (noted below) that were touched by commits:
->
->   Tue Feb 18 12:27:34 2020 +0100
->     c3a276111ea2 ("selinux: optimize storage of filename transitions")
->
-> Coverity reported the following:
->
-> *** CID 1461665:  Resource leaks  (RESOURCE_LEAK)
-> /security/selinux/ss/policydb.c: 1862 in filename_trans_read_one()
-> 1856                    return rc;
-> 1857            len = le32_to_cpu(buf[0]);
-> 1858
-> 1859            /* path component string */
-> 1860            rc = str_read(&name, GFP_KERNEL, fp, len);
-> 1861            if (rc)
-> vvv     CID 1461665:  Resource leaks  (RESOURCE_LEAK)
-> vvv     Variable "name" going out of scope leaks the storage it points to.
-> 1862                    return rc;
-> 1863
-> 1864            rc = next_entry(buf, fp, sizeof(u32) * 4);
-> 1865            if (rc)
-> 1866                    goto out;
-> 1867
-
-Right, I missed the fact that str_read() may give us back an allocated
-pointer even if it returns an error. I'll send a fix probably
-tomorrow. And I plan to have a look at refactoring the function so it
-cleans up upon error on its own (+ updating the caller accordingly).
-Its current interface just begs for trouble...
-
-Thank you for running the bot, Kees! It's cool :)
-
->
-> If this is a false positive, please let us know so we can mark it as
-> such, or teach the Coverity rules to be smarter. If not, please make
-> sure fixes get into linux-next. :) For patches fixing this, please
-> include these lines (but double-check the "Fixes" first):
->
-> Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-> Addresses-Coverity-ID: 1461665 ("Resource leaks")
-> Fixes: c3a276111ea2 ("selinux: optimize storage of filename transitions")
->
-> Thanks for your attention!
->
-> --
-> Coverity-bot
->
-
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBzZWxpbnV4LW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOnNlbGludXgtb3duZXJAdmdlci5rZXJuZWwub3JnXQ0KPiBPbiBC
+ZWhhbGYgT2YgTmljb2xhcyBJb29zcw0KPiBTZW50OiBNb25kYXksIEFwcmlsIDEzLCAyMDIwIDEx
+OjE1IEFNDQo+IFRvOiBXaWxsaWFtIFJvYmVydHMgPGJpbGwuYy5yb2JlcnRzQGdtYWlsLmNvbT4N
+Cj4gQ2M6IFNFbGludXggbGlzdCA8c2VsaW51eEB2Z2VyLmtlcm5lbC5vcmc+DQo+IFN1YmplY3Q6
+IFJlOiBbUEFUQ0ggMS8zXSBsaWJzZWxpbnV4OiBhZGQgbWlzc2luZyBnbHVlIGNvZGUgdG8gZ3Jh
+YiBlcnJubyBpbiBQeXRob24NCj4gYmluZGluZ3MNCj4gDQo+IE9uIE1vbiwgQXByIDEzLCAyMDIw
+IGF0IDQ6MTggUE0gV2lsbGlhbSBSb2JlcnRzIDxiaWxsLmMucm9iZXJ0c0BnbWFpbC5jb20+DQo+
+IHdyb3RlOg0KPiA+DQo+ID4gT24gU3VuLCBBcHIgMTIsIDIwMjAgYXQgMzoxMiBBTSBOaWNvbGFz
+IElvb3NzIDxuaWNvbGFzLmlvb3NzQG00eC5vcmc+IHdyb3RlOg0KPiA+ID4NCj4gPiA+IFRoZSBQ
+eXRob24gYmluZGluZ3MgZm9yIGxpYnNlbGludXggZXhwb3NlIGZ1bmN0aW9ucyBzdWNoIGFzDQo+
+ID4gPiBhdmNfaGFzX3Blcm0oKSwgZ2V0X29yZGVyZWRfY29udGV4dF9saXN0KCksIGV0Yy4gV2hl
+biB0aGVzZQ0KPiA+ID4gZnVuY3Rpb25zIGVuY291bnRlciBhbiBlcnJvciwgdGhleSBzZXQgZXJy
+bm8gYWNjb3JkaW5nbHkgYW5kIHJldHVybg0KPiA+ID4gYSBuZWdhdGl2ZSB2YWx1ZS4gSW4gb3Jk
+ZXIgdG8gZ2V0IHRoZSB2YWx1ZSBvZiBlcnJubyBmcm9tIFB5dGhvbg0KPiA+ID4gY29kZSwgaXQg
+bmVlZHMgdG8gYmUgImZvcndhcmRlZCIgaW4gYSB3YXkuIFRoaXMgaXMgYWNoaWV2ZWQgYnkgZ2x1
+ZQ0KPiA+ID4gY29kZSBpbiBzZWxpbnV4c3dpZ19weXRob25fZXhjZXB0aW9uLmksIHdoaWNoIGlt
+cGxlbWVudCByYWlzaW5nIGFuDQo+ID4gPiBPU0Vycm9yIGV4Y2VwdGlvbiBmcm9tIHRoZSB2YWx1
+ZSBvZiBlcnJuby4NCj4gPiA+DQo+ID4gPiBzZWxpbnV4c3dpZ19weXRob25fZXhjZXB0aW9uLmkg
+d2FzIG9ubHkgZ2VuZXJhdGluZyBnbHVlIGNvZGUgZnJvbQ0KPiA+ID4gZnVuY3Rpb25zIGRlY2xh
+cmVkIGluIHNlbGludXguaCBhbmQgbm90IGluIG90aGVyIGhlYWRlcnMuIEFkZCBvdGhlcg0KPiA+
+ID4gaGVhZGVycy4NCj4gPiA+DQo+ID4gPiBzZWxpbnV4c3dpZ19weXRob25fZXhjZXB0aW9uLmkg
+aXMgZ2VuZXJhdGVkIGJ5ICJiYXNoIGV4Y2VwdGlvbi5zaCIuDQo+ID4gPiBNYXJrIHRoZSBmYWN0
+IHRoYXQgZXhjZXB0aW9uLnNoIGlzIGEgQmFzaCBzY3JpcHQgYnkgYWRkaW5nIGENCj4gPiA+IHNo
+ZWJhbmcuIFRoaXMgbWFrZXMgInNoZWxsY2hlY2siIG5vdCB3YXJuIGFib3V0IHRoZSBCYXNoIGFy
+cmF5IHdoaWNoDQo+ID4gPiBpcyB1c2VkIHRvIGxpc3QgaGVhZGVyIGZpbGVzLg0KPiA+ID4NCj4g
+PiA+IFNpZ25lZC1vZmYtYnk6IE5pY29sYXMgSW9vc3MgPG5pY29sYXMuaW9vc3NAbTR4Lm9yZz4N
+Cj4gPiA+IC0tLQ0KPiA+ID4gIGxpYnNlbGludXgvc3JjL2V4Y2VwdGlvbi5zaCAgICAgICAgICAg
+ICAgICAgICB8ICAxOCArLQ0KPiA+ID4gIGxpYnNlbGludXgvc3JjL3NlbGludXhzd2lnX3B5dGhv
+bl9leGNlcHRpb24uaSB8IDM5Ng0KPiA+ID4gKysrKysrKysrKysrKysrKysrDQo+ID4gPiAgMiBm
+aWxlcyBjaGFuZ2VkLCA0MTIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4gPiA+DQo+
+ID4gPiBkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9zcmMvZXhjZXB0aW9uLnNoDQo+ID4gPiBiL2xp
+YnNlbGludXgvc3JjL2V4Y2VwdGlvbi5zaCBpbmRleCAzM2NlZWY4MDRhZjUuLjY0NGM3YTA1ZWM1
+NA0KPiA+ID4gMTAwNzU1DQo+ID4gPiAtLS0gYS9saWJzZWxpbnV4L3NyYy9leGNlcHRpb24uc2gN
+Cj4gPiA+ICsrKyBiL2xpYnNlbGludXgvc3JjL2V4Y2VwdGlvbi5zaA0KPiA+ID4gQEAgLTEsMyAr
+MSw1IEBADQo+ID4gPiArIyEvYmluL2Jhc2gNCj4gPiA+ICsNCj4gPiA+ICBmdW5jdGlvbiBleGNl
+cHQoKSB7DQo+ID4gPiAgY2FzZSAkMSBpbg0KPiA+ID4gICAgICBzZWxpbnV4X2ZpbGVfY29udGV4
+dF9jbXApICMgaWdub3JlIEBAIC0xNSwxMCArMTcsMjIgQEAgZWNobyAiDQo+ID4gPiAgOzsNCj4g
+PiA+ICBlc2FjDQo+ID4gPiAgfQ0KPiA+ID4gLWlmICEgJHtDQzotZ2NjfSAteCBjIC1jIC1JLi4v
+aW5jbHVkZSAtbyB0ZW1wLm8gLSAtYXV4LWluZm8gdGVtcC5hdXgNCj4gPiA+IDwgLi4vaW5jbHVk
+ZS9zZWxpbnV4L3NlbGludXguaA0KPiA+ID4gKw0KPiA+ID4gKyMgTWFrZSBzdXJlIHRoYXQgc2Vs
+aW51eC5oIGlzIGluY2x1ZGVkIGZpcnN0IGluIG9yZGVyIG5vdCB0byBkZXBlbmQNCj4gPiA+ICtv
+biB0aGUgb3JkZXIgIyBpbiB3aGljaCAiI2luY2x1ZGUgPHNlbGludXgvc2VsaW51eC5oPiIgYXBw
+ZWFycyBpbiBvdGhlciBmaWxlcy4NCj4gPiA+ICtGSUxFX0xJU1Q9KA0KPiA+ID4gKyAgICAuLi9p
+bmNsdWRlL3NlbGludXgvc2VsaW51eC5oDQo+ID4gPiArICAgIC4uL2luY2x1ZGUvc2VsaW51eC9h
+dmMuaA0KPiA+ID4gKyAgICAuLi9pbmNsdWRlL3NlbGludXgvY29udGV4dC5oDQo+ID4gPiArICAg
+IC4uL2luY2x1ZGUvc2VsaW51eC9nZXRfY29udGV4dF9saXN0LmgNCj4gPiA+ICsgICAgLi4vaW5j
+bHVkZS9zZWxpbnV4L2dldF9kZWZhdWx0X3R5cGUuaA0KPiA+ID4gKyAgICAuLi9pbmNsdWRlL3Nl
+bGludXgvbGFiZWwuaA0KPiA+ID4gKyAgICAuLi9pbmNsdWRlL3NlbGludXgvcmVzdG9yZWNvbi5o
+DQo+ID4gPiArKQ0KPiA+ID4gK2lmICEgY2F0ICIke0ZJTEVfTElTVFtAXX0iIHwgJHtDQzotZ2Nj
+fSAteCBjIC1jIC1JLi4vaW5jbHVkZSAtbw0KPiA+ID4gK3RlbXAubyAtIC1hdXgtaW5mbyB0ZW1w
+LmF1eA0KPiA+ID4gIHRoZW4NCj4gPiA+ICAgICAgIyBjbGFuZyBkb2VzIG5vdCBzdXBwb3J0IC1h
+dXgtaW5mbyBzbyBmYWxsIGJhY2sgdG8gZ2NjDQo+ID4gPiAtICAgIGdjYyAteCBjIC1jIC1JLi4v
+aW5jbHVkZSAtbyB0ZW1wLm8gLSAtYXV4LWluZm8gdGVtcC5hdXggPA0KPiAuLi9pbmNsdWRlL3Nl
+bGludXgvc2VsaW51eC5oDQo+ID4gPiArICAgIGNhdCAiJHtGSUxFX0xJU1RbQF19IiB8IGdjYyAt
+eCBjIC1jIC1JLi4vaW5jbHVkZSAtbyB0ZW1wLm8gLQ0KPiA+ID4gKyAtYXV4LWluZm8gdGVtcC5h
+dXgNCj4gPiA+ICBmaQ0KPiA+ID4gIGZvciBpIGluIGBhd2sgJy88c3RkaW4+LipleHRlcm4gaW50
+LyB7IHByaW50ICQ2IH0nIHRlbXAuYXV4YDsgZG8NCj4gPiA+IGV4Y2VwdCAkaSA7IGRvbmUgIHJt
+IC1mIC0tIHRlbXAuYXV4IHRlbXAubyBkaWZmIC0tZ2l0DQo+ID4gPiBhL2xpYnNlbGludXgvc3Jj
+L3NlbGludXhzd2lnX3B5dGhvbl9leGNlcHRpb24uaQ0KPiA+ID4gYi9saWJzZWxpbnV4L3NyYy9z
+ZWxpbnV4c3dpZ19weXRob25fZXhjZXB0aW9uLmkNCj4gPiA+IGluZGV4IGNmNjU4MjU5NWVlNy4u
+OWYxZjg2YTU1NjRkIDEwMDY0NA0KPiA+ID4gLS0tIGEvbGlic2VsaW51eC9zcmMvc2VsaW51eHN3
+aWdfcHl0aG9uX2V4Y2VwdGlvbi5pDQo+ID4gPiArKysgYi9saWJzZWxpbnV4L3NyYy9zZWxpbnV4
+c3dpZ19weXRob25fZXhjZXB0aW9uLmkNCj4gPiA+IEBAIC05NTIsMyArOTUyLDM5OSBAQA0KPiA+
+ID4gICAgfQ0KPiA+ID4gIH0NCj4gPiA+DQo+ID4gPiArDQo+ID4gPiArJWV4Y2VwdGlvbiBhdmNf
+c2lkX3RvX2NvbnRleHQgew0KPiA+ID4gKyAgJGFjdGlvbg0KPiA+ID4gKyAgaWYgKHJlc3VsdCA8
+IDApIHsNCj4gPiA+ICsgICAgIFB5RXJyX1NldEZyb21FcnJubyhQeUV4Y19PU0Vycm9yKTsNCj4g
+PiA+ICsgICAgIFNXSUdfZmFpbDsNCj4gPiA+ICsgIH0NCj4gPiA+ICt9DQo+ID4gPiArDQo+ID4g
+PiArDQo+ID4gPiArJWV4Y2VwdGlvbiBhdmNfc2lkX3RvX2NvbnRleHRfcmF3IHsNCj4gPiA+ICsg
+ICRhY3Rpb24NCj4gPiA+ICsgIGlmIChyZXN1bHQgPCAwKSB7DQo+ID4gPiArICAgICBQeUVycl9T
+ZXRGcm9tRXJybm8oUHlFeGNfT1NFcnJvcik7DQo+ID4gPiArICAgICBTV0lHX2ZhaWw7DQo+ID4g
+PiArICB9DQo+ID4gPiArfQ0KPiBbLi4uXQ0KPiA+DQo+ID4gQSBmZXcgY29tbWVudHM6DQo+ID4g
+LSBvdmVyYWxsIGxvb2tzIGZpbmUsIGJ1aWxkcyBhbmQgd29ya3MgYXMgZXhwZWN0ZWQuDQo+ID4g
+LSBXaHkgdGhlIGRvdWJsZSBuZXdsaW5lIHNwYWNlIG9uIHRoZSBleGNlcHRpb24gc3dpZyBmaWxl
+PyBUaGUgb3RoZXINCj4gPiAuaSBmaWxlcyBzZWVtIHRvIGRvIGEgc2luZ2xlIG5ld2xpbmU/DQo+
+ID4gICBpcyB0aGVpciBzb21ldGhpbmcgSSBhbSBtaXNzaW5nIHdpdGggc3ludGF4Pw0KPiA+IC0g
+SSBoYXZlIHRoZSBmb2xsb3dpbmcgd2hpdGVzcGFjZSB3YXJuaW5nOg0KPiA+IEFwcGx5aW5nOiBs
+aWJzZWxpbnV4OiBhZGQgbWlzc2luZyBnbHVlIGNvZGUgdG8gZ3JhYiBlcnJubyBpbiBQeXRob24N
+Cj4gPiBiaW5kaW5ncw0KPiA+IC5naXQvcmViYXNlLWFwcGx5L3BhdGNoOjQ0NDogbmV3IGJsYW5r
+IGxpbmUgYXQgRU9GLg0KPiA+ICsNCj4gPiB3YXJuaW5nOiAxIGxpbmUgYWRkcyB3aGl0ZXNwYWNl
+IGVycm9ycy4NCj4gDQo+IFRoZSBsYXN0IHR3byBwb2ludHMgYXJlIGR1ZSB0byB0aGUgd2F5IHRo
+ZSBmaWxlIGlzIGdlbmVyYXRlZCwgYnkgZXhjZXB0aW9uLnNoOg0KPiANCj4gZWNobyAiDQo+ICVl
+eGNlcHRpb24gJDEgew0KPiAgIFwkYWN0aW9uDQo+ICAgaWYgKHJlc3VsdCA8IDApIHsNCj4gICAg
+ICBQeUVycl9TZXRGcm9tRXJybm8oUHlFeGNfT1NFcnJvcik7DQo+ICAgICAgU1dJR19mYWlsOw0K
+PiAgIH0NCj4gfQ0KPiAiDQo+IC4uLiB0aGlzIGludHJvZHVjZXMgYmxhbmsgbGluZXMgYm90aCBi
+ZWZvcmUgYW5kIGFmdGVyIGVhY2ggZXhjZXB0aW9uIGJsb2Nrcy4gV2UNCj4gY291bGQgcmVtb3Zl
+IHRoZSBvbmUgYWZ0ZXIgdGhlIGJsb2NrIGJ5IHVzaW5nIH0iIGluIHRoZSBzaGVsbCBzY3JpcHQu
+IEkgd2lsbCBzdWJtaXQgYQ0KPiBwYXRjaCB0aGF0IGRvZXMgdGhpcyBvbmNlIHRoaXMgcGF0Y2gg
+aXMgbWVyZ2VkLCBhcyB0aGlzIG1ha2VzIHRoZSBmaWxlIGNsZWFuZXIuDQoNCldGTS4gVGhhbmtz
+IGZvciBmaXhpbmcgdGhpcywgSSB1c2VkIHRoZSBweXRob24gYmluZGluZ3MgZW9ucyBhZ28gYW5k
+IHJlbWVtYmVyDQpiZWluZyBmcnVzdHJhdGVkIEkgZGlkbid0IGdldCByZWFsbHkgZ29vZCBlcnJv
+cnMuDQoNCkFja2VkLWJ5OiBXaWxsaWFtIFJvYmVydHMgPHdpbGxpYW0uYy5yb2JlcnRzQGludGVs
+LmNvbT4NCg==
