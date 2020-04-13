@@ -8,63 +8,63 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ECA4C2BA19
-	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 13:03:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27694C2BA19
+	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 13:04:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 24C962072C
-	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 13:03:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 03E732072C
+	for <selinux@archiver.kernel.org>; Mon, 13 Apr 2020 13:04:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ClZFkw1B"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kpqjJn6v"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727931AbgDMNDO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Apr 2020 09:03:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38578 "EHLO
+        id S1729727AbgDMNEF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Apr 2020 09:04:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727954AbgDMNDO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 13 Apr 2020 09:03:14 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC4BDC0A3BE2
-        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 06:03:12 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id np9so3799796pjb.4
-        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 06:03:12 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1727954AbgDMNEF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Apr 2020 09:04:05 -0400
+Received: from mail-pg1-x541.google.com (mail-pg1-x541.google.com [IPv6:2607:f8b0:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A81C0A3BE2
+        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 06:04:04 -0700 (PDT)
+Received: by mail-pg1-x541.google.com with SMTP id i3so392821pgk.1
+        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 06:04:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
         bh=bhGxa8/BsJXmYNu/avTJZdI46VSdtL1iMSMz+/eHO3U=;
-        b=ClZFkw1B/iqkPyFdUiwVuCPjQOrAuOYPD/drN1hHtztK+PI1vms8Pgw3Ub4KgVu+A0
-         Bp0qm8yIhIWSMSuhZXy7JJFYmOpbdLc7GQrq8tJW/ACG0DHl8dxf4FFM+fiSRx33iPZ8
-         WWPcbW5MOYz7obKmgQY67Cvmn+K6OT258ilyBYwcX0fEHdNVObNVIvneN+SQIgZSrdes
-         RaEtEDGW0jS8Oj/Gpb4HUcItH1y3qXglND82V29FuPyHnM3QmxEOue8CqwSALUBrO4Ll
-         dMwsWz5x+3ivJYQS0Zz6vPSNpZB+tLUry2DRnYCUzWdUNMXKMc8xH1uaveYwuUxGH3jP
-         zqwA==
+        b=kpqjJn6vqri2s8G87KxGTHnxung3YiDqq6mwQvpoxKatZYUU5I3E7t6afgQG32ZIaW
+         /w0W+RAGjNxWBKqpOu2FhTEa0RfOO+vuHKyLMXGXQ+PYCP6JcZv7IJk9pdD4hEYoscC0
+         Z5Z1/aodOVVVQ+E3aCZoSTUDkLVo+QcTN5071/pGUgi3opl25yw730doVJ2sdXD1OZBq
+         iMYS8hyEUQAk/NQNwMcq9Ttdj//b5ghjbDB31zwX+eOSianlN+T8f+6u6nX6rj8V+PdN
+         Oy+ATWnUTNZecfsHSMGMoZhMdzm3mtGBHuVHjTBagq4/yqPai3flC3YTMefScwPmNSTX
+         t/rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
         bh=bhGxa8/BsJXmYNu/avTJZdI46VSdtL1iMSMz+/eHO3U=;
-        b=lEqWU0sBLYVzIyAA0chjiomU7a/cRVCy6rMo63pK0em2d57FvONbXtLvs7aUdpVhwC
-         TFVT4jefIqdemz76XNOGPHx7bpk/q07FtDRzaM3/Jt+ADMVAVdNFpWVm3JAC1WtqeZ0U
-         9n5yEoC8MxPmVB+aS70Z71zoC1FvAOk9qr5trm9Y1haBSxglvN8IRCdcL6rDnXCjj07x
-         VuWLAZzVDyHOWaJRgBfgb2ULu2IufPaMIC4Mu8mgC29eStDdJGMoR/7fXyeL+4bjxVqe
-         ctjJ4euWtz3lJvPbK7MmkeRQp7OxdhTNBlZy89xGsJn00t/88D3+axNbSuBpEgG04Ufn
-         b8mw==
-X-Gm-Message-State: AGi0PuYhqF0ke/OmSDgyLCcdvVcbayTLUpvav6YcYWDdwNToQsGook3c
-        6jrfWCKgfxzI36/oCD2c9XU=
-X-Google-Smtp-Source: APiQypK9PK6iKaAKn8y9/8NnbXqkrT4F+WYpeXZ0NSOJiW1Iiu+6C/HFf+C3KrQXwHqjx0mhN/uHyQ==
-X-Received: by 2002:a17:90a:22e9:: with SMTP id s96mr19564906pjc.46.1586782992132;
-        Mon, 13 Apr 2020 06:03:12 -0700 (PDT)
-Received: from localhost.localdomain ([192.55.55.43])
-        by smtp.gmail.com with ESMTPSA id b21sm3622856pfb.130.2020.04.13.06.03.10
+        b=d22MlpeUkEP6WBEH61ACPHee5QQ+Fb6vCzTYg+9dbgjTYkz1vWdSc1bfadFTsGCx5F
+         WEQRroYra0OX3RVeSzhGG3xmhBKlUhlmbBjcF84mL1CGVhPS9a1ho01bsZKpkzbHz+Nl
+         GDI7Qj5irJvRoywg/sr6gA52TPtyShwJI9EL1x81/uOCd40nFoOPGr79Q+9Fn7/ejh+z
+         /3CehABYTAx1yESXfw5nikuYrAsqu4Tsx3DANF51InJA1C0vFH36299HExlj/yHImSMD
+         5xKGChAOVYFXpjjCezJnVlE6H8Wnjzcy4e7DvzB4XTVu5LV10nXU/Azc+2QwXQHgysZD
+         91Kw==
+X-Gm-Message-State: AGi0Pual4A6fUkS4S3O+eUpOK25E1E7J7Xy/MuPsUBdAy2ncshoB6rDw
+        uuhoDx/E9dtJ99q3ACiBM3E=
+X-Google-Smtp-Source: APiQypL7DjUztostoMC0bP4znPm5fTZG7HdtzkGKXBS5nzw5jXlIkT/y4ebFInTgsRtZb2oyLMC1JQ==
+X-Received: by 2002:a62:55c7:: with SMTP id j190mr17275177pfb.65.1586783044458;
+        Mon, 13 Apr 2020 06:04:04 -0700 (PDT)
+Received: from localhost.localdomain ([134.134.139.76])
+        by smtp.gmail.com with ESMTPSA id g3sm7909344pgd.64.2020.04.13.06.04.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Apr 2020 06:03:11 -0700 (PDT)
+        Mon, 13 Apr 2020 06:04:04 -0700 (PDT)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     bill.c.roberts@gmail.com
 Cc:     nicolas.iooss@m4x.org, selinux@vger.kernel.org,
         william.c.roberts@intel.com
-Subject: [PATCH 1/2] libsemanage: fix linker script symbol versions
-Date:   Mon, 13 Apr 2020 08:02:47 -0500
-Message-Id: <20200413130248.25296-1-william.c.roberts@intel.com>
+Subject: [PATCH v2 1/2] libsemanage: fix linker script symbol versions
+Date:   Mon, 13 Apr 2020 08:03:58 -0500
+Message-Id: <20200413130359.25372-1-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <CAFftDdrJcmNoU6cJ56HRGeg-R6T3bfcxU1zU5xBEmMtxnHNgfw@mail.gmail.com>
 References: <CAFftDdrJcmNoU6cJ56HRGeg-R6T3bfcxU1zU5xBEmMtxnHNgfw@mail.gmail.com>
