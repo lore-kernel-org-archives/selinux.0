@@ -2,159 +2,111 @@ Return-Path: <SRS0=NJTS=56=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68696C2BA19
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 17:27:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51224C2BB1D
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 20:44:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 50D9620678
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 17:27:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2DA6B2064A
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 20:44:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407664AbgDNR14 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Apr 2020 13:27:56 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:42146 "EHLO
+        id S1730676AbgDNUoL convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Apr 2020 16:44:11 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:54652 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2407655AbgDNR1y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Apr 2020 13:27:54 -0400
-Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
+        with ESMTP id S1730657AbgDNUoJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Apr 2020 16:44:09 -0400
+Received: from mail-ot1-f45.google.com (mail-ot1-f45.google.com [209.85.210.45])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id F29AA564684
-        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 19:27:50 +0200 (CEST)
-Received: by mail-oi1-f180.google.com with SMTP id k133so10387224oih.12
-        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 10:27:50 -0700 (PDT)
-X-Gm-Message-State: AGi0PuZiWM46/cN37yUP9v3AdIq0fpLCzyO0zqA3g83BI7r6Yst9noV3
-        h3DxF7k/KNbKZKMCzL9JOCLukibAIvWCMRZnB6c=
-X-Google-Smtp-Source: APiQypKagHDyl41s3JOnqqesTj7/zsM/WAeSYwO60hd4HIphnIYgCJts339iT71vWKNc18trSYY3kWYEnD13sPwbpeY=
-X-Received: by 2002:aca:d68a:: with SMTP id n132mr16744451oig.40.1586885269924;
- Tue, 14 Apr 2020 10:27:49 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 83A0C5606B0
+        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 22:44:06 +0200 (CEST)
+Received: by mail-ot1-f45.google.com with SMTP id l21so1115964otd.9
+        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 13:44:06 -0700 (PDT)
+X-Gm-Message-State: AGi0PuZ2yd8hVGWlXVwImFU3Au44mz/EcFGHa2rvFZeRRhuWK9VyvwF1
+        Zuov5mRGVubWy7vfMBo+MTsmO0zrXsa6qjSCDM4=
+X-Google-Smtp-Source: APiQypIfjDR0V4m8d/1HQMhdNSYbpGwUsSh3P6m2VLS4Xb2gTmwuskwhlyCXtbAQQ70+lcDOagZS+71t6O/DguAYITU=
+X-Received: by 2002:a05:6830:14:: with SMTP id c20mr18759066otp.279.1586897045500;
+ Tue, 14 Apr 2020 13:44:05 -0700 (PDT)
 MIME-Version: 1.0
-References: <2203189.X40rEyH0Y1@liv>
-In-Reply-To: <2203189.X40rEyH0Y1@liv>
+References: <20200407115849.41225-1-cgzones@googlemail.com> <20200414100606.14601-1-cgzones@googlemail.com>
+In-Reply-To: <20200414100606.14601-1-cgzones@googlemail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Tue, 14 Apr 2020 19:27:38 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7==9L2PZkbBO22=RapRKvdiZQ1Fj7jgEhNSUcZ1hTDyKPA@mail.gmail.com>
-Message-ID: <CAJfZ7==9L2PZkbBO22=RapRKvdiZQ1Fj7jgEhNSUcZ1hTDyKPA@mail.gmail.com>
-Subject: Re: semodule -i and load_policy coredumps on version 3.0 - not latest GIT
-To:     Russell Coker <russell@coker.com.au>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Laurent Bigonville <bigon@debian.org>
+Date:   Tue, 14 Apr 2020 22:43:54 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==zGCfimy_JZqNERoZATZvk5SxdcLbw3u6psta4F5q1BQ@mail.gmail.com>
+Message-ID: <CAJfZ7==zGCfimy_JZqNERoZATZvk5SxdcLbw3u6psta4F5q1BQ@mail.gmail.com>
+Subject: Re: [PATCH v2] tree-wide: use python module importlib instead of the
+ deprecated imp
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Apr 14 19:27:51 2020 +0200 (CEST))
+Content-Transfer-Encoding: 8BIT
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Apr 14 22:44:07 2020 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 2:29 AM Russell Coker <russell@coker.com.au> wrote:
+On Tue, Apr 14, 2020 at 12:06 PM Christian Göttsche
+<cgzones@googlemail.com> wrote:
 >
-> I'm getting core dumps from inserting modules, I can repeatedly run semodule
-> with the same module and have it crash some times and not others.  But it
-> crashes more often if I have 2 slightly different modules of the same name and
-> alternate between inserting them.
+> Replace
 >
-> while semodule -i pol/toadd.pp && sleep 8 && semodule -i pol2/toadd.pp &&
-> sleep 8 ; do date ; done
+> python3 -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])'
+> <string>:1: DeprecationWarning: the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses
+> .cpython-38-x86_64-linux-gnu.so
 >
-> The above shell command is pretty good at causing SEGVs.
+> with
 >
-> This happens regularly with libsepol version 3.0 (which is in Debian/
-> Unstable), so far I have not reproduced it with the latest git version of
-> libsepol.  While I'm not certain the bug is fixed in the latest git version, I
-> think it's very likely to be fixed (I'll have to run tests for another couple
-> of days to be convinced).  Have libsepol developers knowingly fixed such a bug?
+> python3 -c 'import importlib.machinery;print(importlib.machinery.EXTENSION_SUFFIXES[0])'
+> .cpython-38-x86_64-linux-gnu.so
 >
-> Here's coredumpctl output from semodule (at the time libsepol wasn't compiled
-> with debugging symbols):
+> Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+> ---
+> v2: use 'import importlib.machinery;' for python 3.5 compatibility
+>     thanks to Nicolas Iooss
 >
-> Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
-> Core was generated by `/usr/sbin/semodule -i toadd.pp'.
-> Program terminated with signal SIGSEGV, Segmentation fault.
-> #0  __strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:120
-> 120     ../sysdeps/x86_64/multiarch/../strlen.S: No such file or directory.
-> (gdb) bt
-> #0  __strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:120
-> #1  0x00007ff2128cf756 in __vfprintf_internal (s=s@entry=0x7ffecc31daa0,
->     format=format@entry=0x7ff212af88f9 "Error: Unknown keyword %s\n",
->     ap=ap@entry=0x7ffecc31de40, mode_flags=mode_flags@entry=2)
->     at vfprintf-internal.c:1688
-> #2  0x00007ff2128e11f6 in __vsnprintf_internal (
->     string=0x7ffecc31dc20 "Error: Unknown keyword ", maxlen=<optimized out>,
->     format=0x7ff212af88f9 "Error: Unknown keyword %s\n", args=0x7ffecc31de40,
->     mode_flags=2) at vsnprintf.c:114
+>  libselinux/src/Makefile  | 2 +-
+>  libsemanage/src/Makefile | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
 >
-> Here's one from load_policy which I believe is related.  Running semodule -i
-> repeatedly on the same file doesn't seem to cause a problem (I've had a loop of
-> that run for hours without a SEGV) but it happened quickly when alternately
-> loading 2 slightly different files.
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 2d1c654e..9992221f 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -15,7 +15,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+>  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+>  PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+>  PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
+> -PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
+> +PYCEXT ?= $(shell $(PYTHON) -c 'import importlib.machinery;print(importlib.machinery.EXTENSION_SUFFIXES[0])')
+>  RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+>  RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+>  RUBYINSTALL ?= $(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+> diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+> index 606ce1c6..a0eb3747 100644
+> --- a/libsemanage/src/Makefile
+> +++ b/libsemanage/src/Makefile
+> @@ -14,7 +14,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+>  PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+>  PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+>  PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
+> -PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
+> +PYCEXT ?= $(shell $(PYTHON) -c 'import importlib.machinery;print(importlib.machinery.EXTENSION_SUFFIXES[0])')
+>  RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+>  RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+>  RUBYINSTALL ?= $(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+> --
+> 2.26.0
 >
->   Command Line: /sbin/load_policy
->     Executable: /usr/sbin/load_policy
->        Boot ID: 8727799a8e0b44f1885f1b4c681efea9
->     Machine ID: 384a085cdf4a437cae153168e34245f4
->       Hostname: play
->        Storage: /var/lib/systemd/coredump/core.load_policy.
-> 0.8727799a8e0b44f188>
->        Message: Process 70655 (load_policy) of user 0 dumped core.
->
->                 Stack trace of thread 70655:
->                 #0  0x00007f0716a6685d ebitmap_destroy (libsepol.so.1 +
-> 0x1185d)
->                 #1  0x00007f0716a635eb constraint_expr_destroy (libsepol.so.1
-> +>
->                 #2  0x00007f0716aa7d71 class_destroy (libsepol.so.1 + 0x52d71)
->                 #3  0x00007f0716a73893 hashtab_map (libsepol.so.1 + 0x1e893)
->                 #4  0x00007f0716aa86b6 symtabs_destroy (libsepol.so.1 +
-> 0x536b6)
->                 #5  0x00007f0716aa822b policydb_destroy (libsepol.so.1 +
-> 0x5322>
->                 #6  0x00007f0716ab091a policydb_to_image (libsepol.so.1 +
-> 0x5b9>
->                 #7  0x00007f0716ab0e08 sepol_policydb_to_image (libsepol.so.1
-> +>
->                 #8  0x00007f0716a3eadc selinux_mkload_policy (libselinux.so.1
-> +>
->                 #9  0x00005560e76d12bf n/a (load_policy + 0x12bf)
->                 #10 0x00007f071688de0b __libc_start_main (libc.so.6 + 0x26e0b)
->                 #11 0x00005560e76d134a n/a (load_policy + 0x134a)
-[...]
 
-Hello,
-This looks a pretty difficult issue. The facts that it is not easily
-reproducible and that the stack trace changes even though the 2
-modules you are testing do not are interesting. They imply that there
-is some randomness involved. As far as I remember the code I've read
-so far, SELinux's userspace utilities written in C do not use random
-numbers. So this non-reproducibility could be caused by something
-else, like the order in which files are listed in directories in your
-filesystem (for example in /var/lib/selinux...) or the ASLR (Address
-Space Layout Randomization).
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-The first trace seems to hint a buffer overflow. A failure in
-ebitmap_destroy() when destructing a policydb object (with
-policydb_destroy()) is likely to mean that the object was corrupted in
-some way. This makes the hypothesis "you don't have reproducibility
-because of ASLR" likely, if for example pointers get used and the
-execution path changes depending on their raw values.
-In order to test this hypothesis, could you run the while loop with
-ASLR disabled ? For example with "setarch $(uname -m) -R semodule -i
-pol/toadd.pp"? Does it continue to fail randomly?
-
-In order to test whether this bug is a buffer overflow, another thing
-you could do would be to recompile semodule, libsepol and libsemanage
-with the Address Sanitizer (for example by cloning the git repository
-at the 3.0 tag, running "make DESTDIR=$HOME/selinux-asan CC='gcc
--no-pie -fsanitize=address' install" and configuring your
-LD_LIBRARY_PATH and PATH to the newly built files). This might show
-where a buffer overflow occurs.
-
-For "Have libsepol developers knowingly fixed such a bug?", recent
-commits changed a few things in libsepol's internals and I do not know
-of commits that would specifically fix the bug you have.
-
-Best,
+I will merge this tomorrow if nobody complains.
+Thanks,
 Nicolas
 
