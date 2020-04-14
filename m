@@ -7,61 +7,62 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36530C2BA19
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:54:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EE0BC2BA19
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:59:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0FD69206D5
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:54:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3B47620732
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:59:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BYBWOpKP"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JGcJnOE3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438688AbgDNKyu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Apr 2020 06:54:50 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:45585 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2438454AbgDNKyp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Apr 2020 06:54:45 -0400
+        id S2438845AbgDNK7X (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Apr 2020 06:59:23 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:28703 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2438850AbgDNK7O (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Apr 2020 06:59:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1586861682;
+        s=mimecast20190719; t=1586861948;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=MW+aNfzs3D4COi2BSgfuslmfAT8XS6hyrvfVSZnnAKU=;
-        b=BYBWOpKPdITbPMfnzsf+bBDTbd88BMXAK7wE/N02hsOs4ZSxrF5Iz1ZgmkF3BMQHezr/Bg
-        mhtug6o4kP/R+5nr0N3yuUzMp4nFA/+rDBZJLCPP8iFIS4+6Z+1RKaCdgdEftcxPHtbXGc
-        KolHSPSx6vAu0RyvpOg8dH4GST0XOLM=
-Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
- [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-351--0T7NBsqM8KtZ_KbW4yIbg-1; Tue, 14 Apr 2020 06:54:38 -0400
-X-MC-Unique: -0T7NBsqM8KtZ_KbW4yIbg-1
-Received: by mail-oi1-f197.google.com with SMTP id w7so4445762oic.12
-        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 03:54:38 -0700 (PDT)
+        bh=XijXHPvk3wM0yu015daqXBYEZibjzz5FxDDKtNrsac8=;
+        b=JGcJnOE3xpE5QYMbqURHDej5qNKn9qi3V5aqWS9ZQSjPa9rVGlBywIlo6VmVCKYWxSb1sY
+        UWUhx0jZOO+9vsGT5NhLIom2ARRMTn7Eqe2pfkH6sb40V4PJ6v7DUvNXu9gYMdrozPXLZi
+        O9UPAueT/TMJUt6Dz+U/z0MPRVDdmhk=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-364-s_4aTQzzOAmVK1rSOP-xGw-1; Tue, 14 Apr 2020 06:59:07 -0400
+X-MC-Unique: s_4aTQzzOAmVK1rSOP-xGw-1
+Received: by mail-oi1-f200.google.com with SMTP id l2so4826388oih.19
+        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 03:59:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=MW+aNfzs3D4COi2BSgfuslmfAT8XS6hyrvfVSZnnAKU=;
-        b=EUfnVw+DclJ8jDm2psCvUl8RKb7Kdmg5mgg6sfLPm3LPSfCEjduBXGPGLGOGtPqPg7
-         ZaYNMTp4sy3HU98VWz31/GjaBNic9ay688NJtnq0MjaLzDwLs+0ChtoWsmjQIL8HaR9E
-         gj2NF/fr5EYlwlQ+QBjYHrNL9elQ0t5xZsOH+f2eGmmXjvGQXgkzAxtia/FiML6T9M49
-         vKMSAqLwdJZl3yMMuQ9sgbdtHLB5WvZ7YMIH99x4z+PCcMFwX9DD7HnmM5FWuN/NhhYg
-         EijgE/pB7Ad/dMtHL5W8Z5Pf0+fAI0NcJEqQbTgFG1AGbCKPwOWOnE+9BYFMawbGVZJU
-         qJrQ==
-X-Gm-Message-State: AGi0PuZ+ePvMsa/+wfR2gbGVhXDjZXeceynJyHzsa7O3tSI2Y1raf11P
-        tzNUwdpY1CPen9dlwvwl6gMuJSCfUS3eebLLk9Tkj1ohMizabLJUrWe1tZ/YUp318cZ2EkBFOl1
-        wJAnCcCAm/JfoZ51FiRXOXlXclei415+11g==
-X-Received: by 2002:aca:488a:: with SMTP id v132mr15245195oia.166.1586861677600;
-        Tue, 14 Apr 2020 03:54:37 -0700 (PDT)
-X-Google-Smtp-Source: APiQypJQtLzxmslPUDMYm+GHnxtAihy/44rv/YRNCyn9y3J3K4zxjxbpDTd6epJ8ZlNv9ZRaibbOTctd8vYwv7ivMbw=
-X-Received: by 2002:aca:488a:: with SMTP id v132mr15245178oia.166.1586861677332;
- Tue, 14 Apr 2020 03:54:37 -0700 (PDT)
+        bh=XijXHPvk3wM0yu015daqXBYEZibjzz5FxDDKtNrsac8=;
+        b=m16cwA5IXkSWfpGY09FHTCCg0adZ12Y4aUJkIOjWBhesEE5IsTWE/dSxD81ESqmIaN
+         SktwRHJy9ZRbCsV89RfPcw7X2DqwdO/cBXg2f4ukx2H66CZ/vM3iCkxf4HnnVk/iZxqI
+         rG32cI8mYNk+Dz/rpSGz8TD9S3bvy1uBB5vCYBHg6j8WhvNuy4DbLlb/mlktMYydjaRS
+         df4nCPpVV14sixR1+dWxvYJcpCgnUusYg7waaZwiB313BN9z4xlByJThi+GWYH3GkE2O
+         5HRUR0SuNq3bXUXUkkNElS0mnAik8pWl16e9Xk2Y8feYQu4H0vRgjzJcQtM6nODTTHjh
+         Glnw==
+X-Gm-Message-State: AGi0PuYkfC15r9kIaaIm9s0nd0DnvnUJI0PZYmTn68w+lYyRQfb/I161
+        oBHVS16mNcjtXGJgABIFDmFqA41Wj9Uhs5WIzXPkNQVojJo0m3N6SfuJq2b4HGU2indXyOxrXQn
+        Ci0TgdY1sN02J7rJdkr7IHfnYV/ncuB27eA==
+X-Received: by 2002:a9d:2d89:: with SMTP id g9mr4701720otb.367.1586861946398;
+        Tue, 14 Apr 2020 03:59:06 -0700 (PDT)
+X-Google-Smtp-Source: APiQypIWmG42klsiMPcsLgLc5bamxHlDtCEHoU/TgJPyttGQv1KsPasnpNZdd5uonkfylI2QK0X5XMUlBSXVAqvGuvs=
+X-Received: by 2002:a9d:2d89:: with SMTP id g9mr4701699otb.367.1586861946078;
+ Tue, 14 Apr 2020 03:59:06 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200408182416.30995-1-siarhei.liakh@concurrent-rt.com> <20200408182416.30995-8-siarhei.liakh@concurrent-rt.com>
-In-Reply-To: <20200408182416.30995-8-siarhei.liakh@concurrent-rt.com>
+References: <20200408182416.30995-1-siarhei.liakh@concurrent-rt.com> <20200408182416.30995-5-siarhei.liakh@concurrent-rt.com>
+In-Reply-To: <20200408182416.30995-5-siarhei.liakh@concurrent-rt.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 14 Apr 2020 12:54:26 +0200
-Message-ID: <CAFqZXNt4+O6Ys-5Xb8mrXyvSsVt6NanuHxkq0oN7BPok-ecvOQ@mail.gmail.com>
-Subject: Re: [PATCH 7/9] SELinux: Expose filename_tr hash table sizing via Kconfig
+Date:   Tue, 14 Apr 2020 12:58:54 +0200
+Message-ID: <CAFqZXNt9nAzzEFps8PafP8zC7sE7Q4YuST67xiSezPzz3ofApQ@mail.gmail.com>
+Subject: Re: [PATCH 4/9] SELinux: Replace custom hash in avtab with generic
+ lookup3 from the library
 To:     siarhei.liakh@concurrent-rt.com
 Cc:     SElinux list <selinux@vger.kernel.org>, colin.king@canonical.com,
         Eric Paris <eparis@parisplace.org>,
@@ -76,71 +77,128 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Siarhei,
+Hi,
 
 On Wed, Apr 8, 2020 at 8:24 PM <siarhei.liakh@concurrent-rt.com> wrote:
 >
 > From: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
 >
-> This change exposes previously hardcoded filename_tr sizing via Kconfig,
-> which provides a more convenient tuning mechanism for downstream distributions.
-> Default sizing is not affected.
+> This patch replaces local copy of custom implementation of MurmurHash3 in
+> avtab.c with existing generic implementation of lookup3 from the standard
+> Linux library. The library version of hash used to mix 3 x u32 values is
+> comparable to the custom implementation in run time complexity and bit
+> avalanche. This change allows to reduce the amount of custom code with has
+> to be maintained, while preserving overall performance of the hash table
+> in question.
+>
+> Before (MurmurHash3):
+> rules:  282731 entries and 64534/65536 buckets used, longest chain length 17
+> sum of chain length^2 1522043
+>
+> After (lookup3):
+> rules:  282731 entries and 64572/65536 buckets used, longest chain length 16
+> sum of chain length^2 1517651
+>
+> Please note that either hash can show a slight [dis]advantage over the other
+> depending purely on actual rule sets loaded and number of buckets configured.
+
+FWIW, I did a quick check comparing the duration of
+context_struct_compute_av() (triggered by forcing AVC misses) with and
+without this patch (i.e. its fixed version - see below) and there
+seems to be no measurable difference. I didn't compare the bucket
+occupancy stats, but I expect them to be equivalent or slightly
+better, as data from your commit message also shows. So considering
+that it removes a chunk of ugly code while not regressing in
+performance, I'm in favor of this patch (assuming issues below are
+fixed).
+
 >
 > Signed-off-by: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
 > ---
 > Please CC me directly in all replies.
 >
->  security/selinux/Kconfig       | 10 ++++++++++
->  security/selinux/ss/policydb.c |  3 ++-
->  2 files changed, 12 insertions(+), 1 deletion(-)
+>  security/selinux/ss/avtab.c | 39 +++++--------------------------------
+>  1 file changed, 5 insertions(+), 34 deletions(-)
 >
-> diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-> index b7ced53ffd76..23ec741b1ce6 100644
-> --- a/security/selinux/Kconfig
-> +++ b/security/selinux/Kconfig
-> @@ -123,6 +123,16 @@ config SECURITY_SELINUX_AVTAB_HASH_BITS
->           footprint at price of hash table lookup efficiency. One bucket
->           per 10 to 100 rules is reasonable.
+> diff --git a/security/selinux/ss/avtab.c b/security/selinux/ss/avtab.c
+> index 01b300a4a882..58f0de17e463 100644
+> --- a/security/selinux/ss/avtab.c
+> +++ b/security/selinux/ss/avtab.c
+> @@ -20,49 +20,20 @@
+>  #include <linux/kernel.h>
+>  #include <linux/slab.h>
+>  #include <linux/errno.h>
+> +#include <linux/jhash.h>
+>  #include "avtab.h"
+>  #include "policydb.h"
 >
-> +config SECURITY_SELINUX_PDB_FILE_TR_HASH_BITS
-> +       int "Number of slots (buckets) for File Transitions hash table, expressed as number of bits (i.e. 2^n)"
-> +       depends on SECURITY_SELINUX
-> +       range 1 32
-> +       default "11"
-> +       help
-> +         This is a power of 2 representing the number of slots (buckets)
-> +         used for File Transitions hash table. Smaller value reduces memory
-> +         footprint at price of hash table lookup efficiency.
-> +
->  config SECURITY_SELINUX_CHECKREQPROT_VALUE
->         int "NSA SELinux checkreqprot default value"
->         depends on SECURITY_SELINUX
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 0d03036ca20d..f2d809dffb25 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -496,7 +496,8 @@ static int policydb_init(struct policydb *p)
->         cond_policydb_init(p);
+>  static struct kmem_cache *avtab_node_cachep;
+>  static struct kmem_cache *avtab_xperms_cachep;
 >
->         p->filename_trans = hashtab_create(filenametr_hash, filenametr_cmp,
-> -                                          (1 << 11));
-> +                          (1 << CONFIG_SECURITY_SELINUX_PDB_FILE_TR_HASH_BITS));
-> +
->         if (!p->filename_trans)
->                 return -ENOMEM;
+> -/* Based on MurmurHash3, written by Austin Appleby and placed in the
+> - * public domain.
+> +/*
+
+Your patch has a trailing space after the '*' in the above line.
+Please remove it.
+
+> + * Use existing Bob Jenkins' lookup3 hash from the library
+>   */
+>  static inline int avtab_hash(struct avtab_key *keyp, u32 mask)
+>  {
+> -       static const u32 c1 = 0xcc9e2d51;
+> -       static const u32 c2 = 0x1b873593;
+> -       static const u32 r1 = 15;
+> -       static const u32 r2 = 13;
+> -       static const u32 m  = 5;
+> -       static const u32 n  = 0xe6546b64;
+> -
+> -       u32 hash = 0;
+> -
+> -#define mix(input) { \
+> -       u32 v = input; \
+> -       v *= c1; \
+> -       v = (v << r1) | (v >> (32 - r1)); \
+> -       v *= c2; \
+> -       hash ^= v; \
+> -       hash = (hash << r2) | (hash >> (32 - r2)); \
+> -       hash = hash * m + n; \
+> -}
+> -
+> -       mix(keyp->target_class);
+> -       mix(keyp->target_type);
+> -       mix(keyp->source_type);
+> -
+> -#undef mix
+> -
+> -       hash ^= hash >> 16;
+> -       hash *= 0x85ebca6b;
+> -       hash ^= hash >> 13;
+> -       hash *= 0xc2b2ae35;
+> -       hash ^= hash >> 16;
+> -
+> -       return hash & mask;
+> +       return jhash_3words(keyp->target_class, keyp->target_type,
+> +                               keyp->source_type) & mask;
+
+This function takes 4 arguments, not 3. (I can see you mentioned in
+your reply to Paul that you accidentally sent an older version of the
+patches, so I hope you have this already fixed in the final version.)
+
+Also, please align the second line properly (start of
+"keyp->source_type" should be aligned with the end of "jhash_3words("
+on the previous line). Please also check for similar whitespace issues
+in the rest of the patches, since I didn't have a closer look at those
+yet.
+
+Thanks,
+
+>  }
 >
+>  static struct avtab_node*
 > --
 > 2.17.1
-
-Note that this patch in particular won't be needed after (if) [1] gets
-merged. Then for all policies built by new userspace the number of
-elements will be known before the hashtab creation and it will be
-passed to hashtab_create() directly (as is already done for the other
-hashtabs). The hard-coded size will only be used in the
-backwards-compat code path (when a policy built by an older userspace
-is loaded) and thus won't be worth tuning any more.
-
-[1] https://patchwork.kernel.org/patch/11462503/
+>
 
 --
 Ondrej Mosnacek <omosnace at redhat dot com>
