@@ -2,109 +2,148 @@ Return-Path: <SRS0=NJTS=56=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D500FC352B6
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:06:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36530C2BA19
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:54:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B07C22075E
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:06:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0FD69206D5
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:54:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mHef8kwr"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BYBWOpKP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2438097AbgDNKGv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Apr 2020 06:06:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54138 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2438121AbgDNKGr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Apr 2020 06:06:47 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6479FC061A0E;
-        Tue, 14 Apr 2020 03:06:46 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id d2so11053359ilc.0;
-        Tue, 14 Apr 2020 03:06:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=GbydlPiIItolcocBG5rOceoTVirC9APRMvqPzphfqlo=;
-        b=mHef8kwrpLi4rmsSVlKLN7Fs4yIYaefU56m6v/R4gvxN399128TzjJ1sPCETotHedH
-         xYteSe4RKKwSXcSkvLfWsO0hBWCGxLde5oeLr1UB6gt4+2iQqBq8CHSA1+H/hRsVckQV
-         1Wv2V3NKi1IgSX++wIUR9JHiRqE9BUNVkN8FABWOQerX7+Xl0QeC27ESXSHoGFtCl0jN
-         /gxmYj0qR4Mjh/nWFMSIqRii2ldWBtlBE1q8wkz1Uy8LZaTbxjtGFz1D5fBHJ/F2PKEA
-         NbcTf1LTwBJFg9T05iBH+tBfu3+PU83vK09ZX6Yp1OBfACULHLicqN9b64t76IXO8eyB
-         9foQ==
+        id S2438688AbgDNKyu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Apr 2020 06:54:50 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:45585 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2438454AbgDNKyp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Apr 2020 06:54:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1586861682;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=MW+aNfzs3D4COi2BSgfuslmfAT8XS6hyrvfVSZnnAKU=;
+        b=BYBWOpKPdITbPMfnzsf+bBDTbd88BMXAK7wE/N02hsOs4ZSxrF5Iz1ZgmkF3BMQHezr/Bg
+        mhtug6o4kP/R+5nr0N3yuUzMp4nFA/+rDBZJLCPP8iFIS4+6Z+1RKaCdgdEftcxPHtbXGc
+        KolHSPSx6vAu0RyvpOg8dH4GST0XOLM=
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
+ [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-351--0T7NBsqM8KtZ_KbW4yIbg-1; Tue, 14 Apr 2020 06:54:38 -0400
+X-MC-Unique: -0T7NBsqM8KtZ_KbW4yIbg-1
+Received: by mail-oi1-f197.google.com with SMTP id w7so4445762oic.12
+        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 03:54:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=GbydlPiIItolcocBG5rOceoTVirC9APRMvqPzphfqlo=;
-        b=IyLEAzwqWmQnMGi+2BguFDOqTI3reaPbPrQoUpcdl2QUrZ3f3vGDtARFOxoQpvVs2+
-         8JGfPJchY7Qnn+l2U1E4w/RrvPfBUVI3bmjXbQuezlR4XR8q60b2hQkzgXUlWDXPF6Cj
-         d7jgcy75EE5/mKbgDZIs1j6ClE8yKHfTznLPnKTYdl9+RlSAuK5SDpsR+MTezZJxJ4t2
-         jpTafatPYmjpqD0EOYNN+AyOQSyWqUjor/r8fhM9O4zW51/HYCO3dxGt/SNH5dJE8ZLL
-         MfsnZx0aj+SS8/mdsg+NFcrh1NHxN/6XkeTKt5yT/okraWPWwhhXdEncrrdeGKKi+dao
-         wb7w==
-X-Gm-Message-State: AGi0PuaeCpGPyg6pGOLxT5+TE7Qadhek45NG0wHGUzSzyeYKfbaGwIdD
-        95E2HFS0HoVhWaYYBDNkisG8B5n+N0o3CR2FSCM=
-X-Google-Smtp-Source: APiQypJWmkXUW3rbwvOceWTXYIJLKf5bRmo5eOdXLdcYV9U6pi2N3q72+/Kb7qs0WTkPgXcT8JiiHYk0rvvg2vdbkT0=
-X-Received: by 2002:a92:8f49:: with SMTP id j70mr21022494ild.117.1586858805678;
- Tue, 14 Apr 2020 03:06:45 -0700 (PDT)
+        bh=MW+aNfzs3D4COi2BSgfuslmfAT8XS6hyrvfVSZnnAKU=;
+        b=EUfnVw+DclJ8jDm2psCvUl8RKb7Kdmg5mgg6sfLPm3LPSfCEjduBXGPGLGOGtPqPg7
+         ZaYNMTp4sy3HU98VWz31/GjaBNic9ay688NJtnq0MjaLzDwLs+0ChtoWsmjQIL8HaR9E
+         gj2NF/fr5EYlwlQ+QBjYHrNL9elQ0t5xZsOH+f2eGmmXjvGQXgkzAxtia/FiML6T9M49
+         vKMSAqLwdJZl3yMMuQ9sgbdtHLB5WvZ7YMIH99x4z+PCcMFwX9DD7HnmM5FWuN/NhhYg
+         EijgE/pB7Ad/dMtHL5W8Z5Pf0+fAI0NcJEqQbTgFG1AGbCKPwOWOnE+9BYFMawbGVZJU
+         qJrQ==
+X-Gm-Message-State: AGi0PuZ+ePvMsa/+wfR2gbGVhXDjZXeceynJyHzsa7O3tSI2Y1raf11P
+        tzNUwdpY1CPen9dlwvwl6gMuJSCfUS3eebLLk9Tkj1ohMizabLJUrWe1tZ/YUp318cZ2EkBFOl1
+        wJAnCcCAm/JfoZ51FiRXOXlXclei415+11g==
+X-Received: by 2002:aca:488a:: with SMTP id v132mr15245195oia.166.1586861677600;
+        Tue, 14 Apr 2020 03:54:37 -0700 (PDT)
+X-Google-Smtp-Source: APiQypJQtLzxmslPUDMYm+GHnxtAihy/44rv/YRNCyn9y3J3K4zxjxbpDTd6epJ8ZlNv9ZRaibbOTctd8vYwv7ivMbw=
+X-Received: by 2002:aca:488a:: with SMTP id v132mr15245178oia.166.1586861677332;
+ Tue, 14 Apr 2020 03:54:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <f92bef0f-eb40-0e07-540c-321134e4b070@linux.microsoft.com>
- <CAB9W1A1=JyOV3-+6jn3xX-M+GKWBB2cCNh-VWB_kzf+YiR_d2Q@mail.gmail.com>
- <CAP22eLGJbSvUU=W0Jp=gvOFv-nxLC8YTnta3OU2PKbh746MCkQ@mail.gmail.com> <1586826679.7311.174.camel@linux.ibm.com>
-In-Reply-To: <1586826679.7311.174.camel@linux.ibm.com>
-From:   "Lev R. Oshvang ." <levonshe@gmail.com>
-Date:   Tue, 14 Apr 2020 13:06:34 +0300
-Message-ID: <CAP22eLGBxy7_Q8dMoJTjBsrhveqhfh7nibzBCqrtWKhXzY74fQ@mail.gmail.com>
-Subject: Re: [RFC] IMA: New IMA measurements for dm-crypt and selinux
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Stephen Smalley <stephen.smalley@gmail.com>,
-        Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        linux-integrity@vger.kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SELinux <selinux@vger.kernel.org>, dm-devel@redhat.com,
-        James Morris <jmorris@namei.org>, chpebeni@linux.microsoft.com,
-        nramas@linux.microsoft.com, balajib@microsoft.com,
-        sashal@kernel.org, suredd@microsoft.com
+References: <20200408182416.30995-1-siarhei.liakh@concurrent-rt.com> <20200408182416.30995-8-siarhei.liakh@concurrent-rt.com>
+In-Reply-To: <20200408182416.30995-8-siarhei.liakh@concurrent-rt.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 14 Apr 2020 12:54:26 +0200
+Message-ID: <CAFqZXNt4+O6Ys-5Xb8mrXyvSsVt6NanuHxkq0oN7BPok-ecvOQ@mail.gmail.com>
+Subject: Re: [PATCH 7/9] SELinux: Expose filename_tr hash table sizing via Kconfig
+To:     siarhei.liakh@concurrent-rt.com
+Cc:     SElinux list <selinux@vger.kernel.org>, colin.king@canonical.com,
+        Eric Paris <eparis@parisplace.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Apr 14, 2020 at 4:11 AM Mimi Zohar <zohar@linux.ibm.com> wrote:
->
-> On Sun, 2020-04-12 at 11:15 +0300, Lev R. Oshvang . wrote:
-> > On Sat, Apr 11, 2020 at 10:07 PM Stephen Smalley
-> > It sees to me that  LKRG (kernel run time guard)  takes the role of
-> > measuring kernel structures.  Perhaps you need to consult with LKRG
-> > guys.
->
-> There definitely sounds like there is some overlap.  LKRG seems to be
-> measuring kernel structures for enforcing local integrity.  In the
-> context of IMA, measurements are included in the IMA measurement list
-> and used to extend a TPM PCR so that it can be quoted.
->
-> A generic method for measuring structures and including them in the
-> IMA measurement list sounds interesting.
->
-> Mimi
->
-I frankly do not understand the threat model.
-Secure boot or TPM provides trust in encryption/decryption keys
-dm-crypt/dm-verify use.
-When dm-verify discovers that the disk image is modified it will just
-do not allow the system to work ( mount roots, etc).
-So imagine that adversary took control of TPM  and changed the keys
-dm-verify work with in order to sign malicious content on disk. In
-this case, remote attestation should alert of compromised TPM, no
-matter whether dmvery keys or other keys were forged.
+Hi Siarhei,
 
-SELinux is another story and I think a run-time check of SElinux
-structures fits well into LKRG. IMA only provide guarantees that
-SELinux (or any other LSM) control files and attributes were intact.
+On Wed, Apr 8, 2020 at 8:24 PM <siarhei.liakh@concurrent-rt.com> wrote:
+>
+> From: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+>
+> This change exposes previously hardcoded filename_tr sizing via Kconfig,
+> which provides a more convenient tuning mechanism for downstream distributions.
+> Default sizing is not affected.
+>
+> Signed-off-by: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+> ---
+> Please CC me directly in all replies.
+>
+>  security/selinux/Kconfig       | 10 ++++++++++
+>  security/selinux/ss/policydb.c |  3 ++-
+>  2 files changed, 12 insertions(+), 1 deletion(-)
+>
+> diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+> index b7ced53ffd76..23ec741b1ce6 100644
+> --- a/security/selinux/Kconfig
+> +++ b/security/selinux/Kconfig
+> @@ -123,6 +123,16 @@ config SECURITY_SELINUX_AVTAB_HASH_BITS
+>           footprint at price of hash table lookup efficiency. One bucket
+>           per 10 to 100 rules is reasonable.
+>
+> +config SECURITY_SELINUX_PDB_FILE_TR_HASH_BITS
+> +       int "Number of slots (buckets) for File Transitions hash table, expressed as number of bits (i.e. 2^n)"
+> +       depends on SECURITY_SELINUX
+> +       range 1 32
+> +       default "11"
+> +       help
+> +         This is a power of 2 representing the number of slots (buckets)
+> +         used for File Transitions hash table. Smaller value reduces memory
+> +         footprint at price of hash table lookup efficiency.
+> +
+>  config SECURITY_SELINUX_CHECKREQPROT_VALUE
+>         int "NSA SELinux checkreqprot default value"
+>         depends on SECURITY_SELINUX
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index 0d03036ca20d..f2d809dffb25 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -496,7 +496,8 @@ static int policydb_init(struct policydb *p)
+>         cond_policydb_init(p);
+>
+>         p->filename_trans = hashtab_create(filenametr_hash, filenametr_cmp,
+> -                                          (1 << 11));
+> +                          (1 << CONFIG_SECURITY_SELINUX_PDB_FILE_TR_HASH_BITS));
+> +
+>         if (!p->filename_trans)
+>                 return -ENOMEM;
+>
+> --
+> 2.17.1
+
+Note that this patch in particular won't be needed after (if) [1] gets
+merged. Then for all policies built by new userspace the number of
+elements will be known before the hashtab creation and it will be
+passed to hashtab_create() directly (as is already done for the other
+hashtabs). The hard-coded size will only be used in the
+backwards-compat code path (when a policy built by an older userspace
+is loaded) and thus won't be worth tuning any more.
+
+[1] https://patchwork.kernel.org/patch/11462503/
+
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
