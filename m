@@ -2,293 +2,100 @@ Return-Path: <SRS0=NJTS=56=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DDAB5C2BA2B
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 00:29:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1E56C2BB86
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 01:11:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9D97720656
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 00:29:17 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=coker.com.au header.i=@coker.com.au header.b="a4bJikZ0"
+	by mail.kernel.org (Postfix) with ESMTP id A7DB520768
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 01:11:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390453AbgDNA3R (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Apr 2020 20:29:17 -0400
-Received: from smtp.sws.net.au ([46.4.88.250]:40504 "EHLO smtp.sws.net.au"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727914AbgDNA3Q (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 13 Apr 2020 20:29:16 -0400
-Received: from liv.localnet (localhost [127.0.0.1])
-        by smtp.sws.net.au (Postfix) with ESMTP id EA9D4F207;
-        Tue, 14 Apr 2020 10:29:08 +1000 (AEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=coker.com.au;
-        s=2008; t=1586824149;
-        bh=/4rwEsQWuL2dsYT+zxiASh7c0kIJf/YFS15qayVaTPo=; l=9984;
-        h=From:To:Subject:Date:From;
-        b=a4bJikZ0CIAkFStZ3lrk2/4inUzk1+GCCVaXzQqNca42BuKmmdUNo430AIasI2SJr
-         G4MAJPrZQnrhIiBAcf35BXENjsvsacYcjzvlwyNDfx/CZtWqevevaQFLiGJLj+QxAY
-         2vK09669AtpchKYPS08XQDDtIHel8RReAvfKNCQU=
-From:   Russell Coker <russell@coker.com.au>
-To:     selinux@vger.kernel.org, bigon@debian.org
-Subject: semodule -i and load_policy coredumps on version 3.0 - not latest GIT
-Date:   Tue, 14 Apr 2020 10:29:04 +1000
-Message-ID: <2203189.X40rEyH0Y1@liv>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+        id S1728658AbgDNBLq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Apr 2020 21:11:46 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55358 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728397AbgDNBLp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Apr 2020 21:11:45 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 03E13EBv138982
+        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 21:11:44 -0400
+Received: from e06smtp04.uk.ibm.com (e06smtp04.uk.ibm.com [195.75.94.100])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 30cw6q0vrg-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <selinux@vger.kernel.org>; Mon, 13 Apr 2020 21:11:43 -0400
+Received: from localhost
+        by e06smtp04.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <selinux@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Tue, 14 Apr 2020 02:11:07 +0100
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (9.149.109.195)
+        by e06smtp04.uk.ibm.com (192.168.101.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Tue, 14 Apr 2020 02:11:04 +0100
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 03E1BbiY59244662
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 14 Apr 2020 01:11:37 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 3B1584C040;
+        Tue, 14 Apr 2020 01:11:37 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id DB06F4C04A;
+        Tue, 14 Apr 2020 01:11:35 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.85.203.105])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 14 Apr 2020 01:11:35 +0000 (GMT)
+Subject: Re: [RFC] IMA: New IMA measurements for dm-crypt and selinux
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     "Lev R. Oshvang ." <levonshe@gmail.com>,
+        Stephen Smalley <stephen.smalley@gmail.com>
+Cc:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
+        linux-integrity@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SELinux <selinux@vger.kernel.org>, dm-devel@redhat.com,
+        James Morris <jmorris@namei.org>, chpebeni@linux.microsoft.com,
+        nramas@linux.microsoft.com, balajib@microsoft.com,
+        sashal@kernel.org, suredd@microsoft.com
+In-Reply-To: <CAP22eLGJbSvUU=W0Jp=gvOFv-nxLC8YTnta3OU2PKbh746MCkQ@mail.gmail.com>
+References: <f92bef0f-eb40-0e07-540c-321134e4b070@linux.microsoft.com>
+         <CAB9W1A1=JyOV3-+6jn3xX-M+GKWBB2cCNh-VWB_kzf+YiR_d2Q@mail.gmail.com>
+         <CAP22eLGJbSvUU=W0Jp=gvOFv-nxLC8YTnta3OU2PKbh746MCkQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Date:   Mon, 13 Apr 2020 21:11:19 -0400
+Mime-Version: 1.0
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 20041401-0016-0000-0000-000003040B42
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 20041401-0017-0000-0000-00003367FE21
+Message-Id: <1586826679.7311.174.camel@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.138,18.0.676
+ definitions=2020-04-13_11:2020-04-13,2020-04-13 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
+ bulkscore=0 phishscore=0 suspectscore=0 priorityscore=1501 clxscore=1011
+ impostorscore=0 mlxscore=0 spamscore=0 mlxlogscore=999 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2003020000
+ definitions=main-2004140006
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I'm getting core dumps from inserting modules, I can repeatedly run semodule 
-with the same module and have it crash some times and not others.  But it 
-crashes more often if I have 2 slightly different modules of the same name and 
-alternate between inserting them.
+On Sun, 2020-04-12 at 11:15 +0300, Lev R. Oshvang . wrote:
+> On Sat, Apr 11, 2020 at 10:07 PM Stephen Smalley
+> It sees to me that  LKRG (kernel run time guard)  takes the role of
+> measuring kernel structures.  Perhaps you need to consult with LKRG
+> guys.
 
-while semodule -i pol/toadd.pp && sleep 8 && semodule -i pol2/toadd.pp && 
-sleep 8 ; do date ; done
+There definitely sounds like there is some overlap.  LKRG seems to be
+measuring kernel structures for enforcing local integrity.  In the
+context of IMA, measurements are included in the IMA measurement list
+and used to extend a TPM PCR so that it can be quoted.
 
-The above shell command is pretty good at causing SEGVs.
+A generic method for measuring structures and including them in the
+IMA measurement list sounds interesting.
 
-This happens regularly with libsepol version 3.0 (which is in Debian/
-Unstable), so far I have not reproduced it with the latest git version of 
-libsepol.  While I'm not certain the bug is fixed in the latest git version, I 
-think it's very likely to be fixed (I'll have to run tests for another couple 
-of days to be convinced).  Have libsepol developers knowingly fixed such a bug?
-
-Here's coredumpctl output from semodule (at the time libsepol wasn't compiled 
-with debugging symbols):
-
-Using host libthread_db library "/lib/x86_64-linux-gnu/libthread_db.so.1".
-Core was generated by `/usr/sbin/semodule -i toadd.pp'.
-Program terminated with signal SIGSEGV, Segmentation fault.
-#0  __strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:120
-120     ../sysdeps/x86_64/multiarch/../strlen.S: No such file or directory.
-(gdb) bt
-#0  __strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:120
-#1  0x00007ff2128cf756 in __vfprintf_internal (s=s@entry=0x7ffecc31daa0, 
-    format=format@entry=0x7ff212af88f9 "Error: Unknown keyword %s\n", 
-    ap=ap@entry=0x7ffecc31de40, mode_flags=mode_flags@entry=2)
-    at vfprintf-internal.c:1688
-#2  0x00007ff2128e11f6 in __vsnprintf_internal (
-    string=0x7ffecc31dc20 "Error: Unknown keyword ", maxlen=<optimized out>, 
-    format=0x7ff212af88f9 "Error: Unknown keyword %s\n", args=0x7ffecc31de40, 
-    mode_flags=2) at vsnprintf.c:114
-
-Here's one from load_policy which I believe is related.  Running semodule -i 
-repeatedly on the same file doesn't seem to cause a problem (I've had a loop of 
-that run for hours without a SEGV) but it happened quickly when alternately 
-loading 2 slightly different files.
-
-  Command Line: /sbin/load_policy
-    Executable: /usr/sbin/load_policy
-       Boot ID: 8727799a8e0b44f1885f1b4c681efea9
-    Machine ID: 384a085cdf4a437cae153168e34245f4
-      Hostname: play
-       Storage: /var/lib/systemd/coredump/core.load_policy.
-0.8727799a8e0b44f188>
-       Message: Process 70655 (load_policy) of user 0 dumped core.
-                
-                Stack trace of thread 70655:
-                #0  0x00007f0716a6685d ebitmap_destroy (libsepol.so.1 + 
-0x1185d)
-                #1  0x00007f0716a635eb constraint_expr_destroy (libsepol.so.1 
-+>
-                #2  0x00007f0716aa7d71 class_destroy (libsepol.so.1 + 0x52d71)
-                #3  0x00007f0716a73893 hashtab_map (libsepol.so.1 + 0x1e893)
-                #4  0x00007f0716aa86b6 symtabs_destroy (libsepol.so.1 + 
-0x536b6)
-                #5  0x00007f0716aa822b policydb_destroy (libsepol.so.1 + 
-0x5322>
-                #6  0x00007f0716ab091a policydb_to_image (libsepol.so.1 + 
-0x5b9>
-                #7  0x00007f0716ab0e08 sepol_policydb_to_image (libsepol.so.1 
-+>
-                #8  0x00007f0716a3eadc selinux_mkload_policy (libselinux.so.1 
-+>
-                #9  0x00005560e76d12bf n/a (load_policy + 0x12bf)
-                #10 0x00007f071688de0b __libc_start_main (libc.so.6 + 0x26e0b)
-                #11 0x00005560e76d134a n/a (load_policy + 0x134a)
-
-Here's one from semodule -i:
-
-  Command Line: semodule -i pol2/toadd.pp
-    Executable: /usr/sbin/semodule
-       Boot ID: 8727799a8e0b44f1885f1b4c681efea9
-    Machine ID: 384a085cdf4a437cae153168e34245f4
-      Hostname: play
-       Storage: /var/lib/systemd/coredump/core.semodule.
-0.8727799a8e0b44f1885f1>
-       Message: Process 92165 (semodule) of user 0 dumped core.
-                
-                Stack trace of thread 92165:
-                #0  0x00007ff72cde6d9d __cil_build_ast_node_helper 
-(libsepol.so>
-                #1  0x00007ff72ce08721 cil_tree_walk_core (libsepol.so.1 + 
-0xaf>
-                #2  0x00007ff72ce08884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #3  0x00007ff72ce08793 cil_tree_walk_core (libsepol.so.1 + 
-0xaf>
-                #4  0x00007ff72ce08884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #5  0x00007ff72cde8bdf cil_build_ast (libsepol.so.1 + 0x8fbdf)
-                #6  0x00007ff72cdc9c25 cil_compile_nopdb (libsepol.so.1 + 
-0x70c>
-                #7  0x00007ff72cd2d9b9 n/a (libsemanage.so.1 + 0x169b9)
-                #8  0x00007ff72cd32e2e semanage_commit (libsemanage.so.1 + 
-0x1b>
-                #9  0x000055caa80921f4 n/a (semodule + 0x31f4)
-
-
-  Command Line: semodule -i pol/toadd.pp
-    Executable: /usr/sbin/semodule
-       Boot ID: 8727799a8e0b44f1885f1b4c681efea9
-    Machine ID: 384a085cdf4a437cae153168e34245f4
-      Hostname: play
-       Storage: /var/lib/systemd/coredump/core.semodule.
-0.8727799a8e0b44f1885f1b4c681efea9.97315.1586589967000000000000.lz4
-       Message: Process 97315 (semodule) of user 0 dumped core.
-                
-                Stack trace of thread 97315:
-                #0  0x00007fb79a99897e cil_list_destroy (libsepol.so.1 + 
-0x9797e)
-                #1  0x00007fb79a9a5339 cil_reset_classperms (libsepol.so.1 + 
-0xa4339)
-                #2  0x00007fb79a9a53c1 cil_reset_classperms_list (libsepol.so.
-1 + 0xa43c1)
-                #3  0x00007fb79a9a574d cil_reset_avrule (libsepol.so.1 + 
-0xa474d)
-                #4  0x00007fb79a9a5ed5 __cil_reset_node (libsepol.so.1 + 
-0xa4ed5)
-                #5  0x00007fb79a9b0721 cil_tree_walk_core (libsepol.so.1 + 
-0xaf721)
-                #6  0x00007fb79a9b0884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #7  0x00007fb79a9b0793 cil_tree_walk_core (libsepol.so.1 + 
-0xaf793)
-                #8  0x00007fb79a9b0884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #9  0x00007fb79a9b0793 cil_tree_walk_core (libsepol.so.1 + 
-0xaf793)
-                #10 0x00007fb79a9b0884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #11 0x00007fb79a9b0793 cil_tree_walk_core (libsepol.so.1 + 
-0xaf793)
-                #12 0x00007fb79a9b0884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #13 0x00007fb79a9b0793 cil_tree_walk_core (libsepol.so.1 + 
-0xaf793)
-                #14 0x00007fb79a9b0884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #15 0x00007fb79a9b0793 cil_tree_walk_core (libsepol.so.1 + 
-0xaf793)
-                #16 0x00007fb79a9b0884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #17 0x00007fb79a9b0793 cil_tree_walk_core (libsepol.so.1 + 
-0xaf793)
-                #18 0x00007fb79a9b0884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #19 0x00007fb79a9b0793 cil_tree_walk_core (libsepol.so.1 + 
-0xaf793)
-                #20 0x00007fb79a9b0884 cil_tree_walk (libsepol.so.1 + 0xaf884)
-                #21 0x00007fb79a9a6137 cil_reset_ast (libsepol.so.1 + 0xa5137)
-                #22 0x00007fb79a9ae84f cil_resolve_ast (libsepol.so.1 + 
-0xad84f)
-                #23 0x00007fb79a971c9b cil_compile_nopdb (libsepol.so.1 + 
-0x70c9b)
-                #24 0x00007fb79a8d59b9 n/a (libsemanage.so.1 + 0x169b9)
-                #25 0x00007fb79a8dae2e semanage_commit (libsemanage.so.1 + 
-0x1be2e)
-                #26 0x0000565277c421f4 n/a (semodule + 0x31f4)
-                #27 0x00007fb79a722e0b __libc_start_main (libc.so.6 + 0x26e0b)
-                #28 0x0000565277c4271a n/a (semodule + 0x371a)
-
-
-  Command Line: semodule -i pol/toadd.pp
-    Executable: /usr/sbin/semodule
-       Boot ID: 587ecc120f8d44d38475a9fa1e067f66
-    Machine ID: 384a085cdf4a437cae153168e34245f4
-      Hostname: play
-       Storage: /var/lib/systemd/coredump/core.semodule.
-0.587ecc120f8d44d38475a>
-       Message: Process 17359 (semodule) of user 0 dumped core.
-                
-                Stack trace of thread 17359:
-                #0  0x00007f4aa083c956 cil_list_destroy (libsepol.so.1 + 
-0x9795>
-                #1  0x00007f4aa0827e4e cil_destroy_classperms (libsepol.so.1 + 
->
-                #2  0x00007f4aa0828082 cil_destroy_classperms_list 
-(libsepol.so>
-                #3  0x00007f4aa082a923 cil_destroy_avrule (libsepol.so.1 + 
-0x85>
-                #4  0x00007f4aa0816438 cil_destroy_data (libsepol.so.1 + 
-0x7143>
-                #5  0x00007f4aa08546a4 cil_tree_node_destroy (libsepol.so.1 + 
-0>
-                #6  0x00007f4aa085455c cil_tree_children_destroy (libsepol.so.
-1>
-                #7  0x00007f4aa0854491 cil_tree_subtree_destroy (libsepol.so.1 
->
-                #8  0x00007f4aa085445a cil_tree_destroy (libsepol.so.1 + 
-0xaf45>
-                #9  0x00007f4aa0815842 cil_db_destroy (libsepol.so.1 + 
-0x70842)
-                #10 0x00007f4aa0779b47 n/a (libsemanage.so.1 + 0x16b47)
-                #11 0x00007f4aa077ee2e semanage_commit (libsemanage.so.1 + 
-0x1b>
-                #12 0x0000561cbbe3c1f4 n/a (semodule + 0x31f4)
-                #13 0x00007f4aa05c6e0b __libc_start_main (libc.so.6 + 0x26e0b)
-                #14 0x0000561cbbe3c71a n/a (semodule + 0x371a)
-
-Here's one of the smaller entries in my collection of valgrind outputs from 
-semodule having problems.  They all appear to be uninitialised memory.
-
-Memcheck, a memory error detector
-Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
-Using Valgrind-3.15.0 and LibVEX; rerun with -h for copyright info
-Command: semodule -i pol/toadd.pp
-
-Conditional jump or move depends on uninitialised value(s)
-   at 0x48FA768: cil_tree_walk_core (cil_tree.c:283)
-   by 0x48FA883: cil_tree_walk (cil_tree.c:316)
-   by 0x48FA792: cil_tree_walk_core (cil_tree.c:284)
-   by 0x48FA883: cil_tree_walk (cil_tree.c:316)
-   by 0x48F8510: cil_resolve_ast (cil_resolve_ast.c:3928)
-   by 0x48BBC9A: cil_compile@@LIBSEPOL_1.1 (cil.c:571)
-   by 0x49489B8: ??? (in /usr/lib/x86_64-linux-gnu/libsemanage.so.1)
-   by 0x494DE2D: semanage_commit (in /usr/lib/x86_64-linux-gnu/libsemanage.so.
-1)
-   by 0x10B1F3: ??? (in /usr/sbin/semodule)
-   by 0x499AE0A: (below main) (libc-start.c:308)
-
-Conditional jump or move depends on uninitialised value(s)
-   at 0x48FA4F3: cil_tree_children_destroy (cil_tree.c:190)
-   by 0x48FA490: cil_tree_subtree_destroy (cil_tree.c:172)
-   by 0x48FA459: cil_tree_destroy (cil_tree.c:165)
-   by 0x48BB841: cil_db_destroy (cil.c:470)
-   by 0x4948B46: ??? (in /usr/lib/x86_64-linux-gnu/libsemanage.so.1)
-   by 0x494DE2D: semanage_commit (in /usr/lib/x86_64-linux-gnu/libsemanage.so.
-1)
-   by 0x10B1F3: ??? (in /usr/sbin/semodule)
-   by 0x499AE0A: (below main) (libc-start.c:308)
-
-
-HEAP SUMMARY:
-    in use at exit: 5,595 bytes in 114 blocks
-  total heap usage: 14,200,981 allocs, 14,200,867 frees, 2,058,178,500 bytes 
-allocated
-
-LEAK SUMMARY:
-   definitely lost: 0 bytes in 0 blocks
-   indirectly lost: 0 bytes in 0 blocks
-     possibly lost: 0 bytes in 0 blocks
-   still reachable: 5,595 bytes in 114 blocks
-        suppressed: 0 bytes in 0 blocks
-Rerun with --leak-check=full to see details of leaked memory
-
-For lists of detected and suppressed errors, rerun with: -s
-ERROR SUMMARY: 54 errors from 2 contexts (suppressed: 0 from 0)
-
-
--- 
-My Main Blog         http://etbe.coker.com.au/
-My Documents Blog    http://doc.coker.com.au/
-
-
+Mimi
 
