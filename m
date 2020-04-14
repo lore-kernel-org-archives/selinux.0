@@ -2,94 +2,125 @@ Return-Path: <SRS0=NJTS=56=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1C56C2BA19
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 08:11:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C61E3C2BA19
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:06:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D0A6C20767
-	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 08:11:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B5C520732
+	for <selinux@archiver.kernel.org>; Tue, 14 Apr 2020 10:06:51 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="ehES+TnH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407041AbgDNIL6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Apr 2020 04:11:58 -0400
-Received: from szxga07-in.huawei.com ([45.249.212.35]:35926 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2407026AbgDNIL4 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 14 Apr 2020 04:11:56 -0400
-Received: from DGGEMS405-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id D2AD1250E5F5107F30E6;
-        Tue, 14 Apr 2020 16:11:52 +0800 (CST)
-Received: from linux-lmwb.huawei.com (10.175.103.112) by
- DGGEMS405-HUB.china.huawei.com (10.3.19.205) with Microsoft SMTP Server id
- 14.3.487.0; Tue, 14 Apr 2020 16:11:45 +0800
-From:   Zou Wei <zou_wei@huawei.com>
-To:     <paul@paul-moore.com>, <stephen.smalley.work@gmail.com>,
-        <eparis@parisplace.org>, <selinux@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     Zou Wei <zou_wei@huawei.com>
-Subject: [PATCH -next] selinux: fix warning Comparison to bool
-Date:   Tue, 14 Apr 2020 16:18:07 +0800
-Message-ID: <1586852287-67588-1-git-send-email-zou_wei@huawei.com>
-X-Mailer: git-send-email 2.6.2
+        id S2438122AbgDNKGt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Apr 2020 06:06:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54136 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S2438097AbgDNKGp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Apr 2020 06:06:45 -0400
+Received: from mail-wm1-x342.google.com (mail-wm1-x342.google.com [IPv6:2a00:1450:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7692AC061A0C
+        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 03:06:45 -0700 (PDT)
+Received: by mail-wm1-x342.google.com with SMTP id o81so6758560wmo.2
+        for <selinux@vger.kernel.org>; Tue, 14 Apr 2020 03:06:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=il1BSP4B82kWHEdRf6Qm9ONq370SsTup8MsCaJizDI8=;
+        b=ehES+TnHM350jdbDAZbjRHdng2+KX1xGnAkKvV9idpWKrCbIUwddvVRW8RX2RS6fEI
+         FIugbKB8ATqF6CO/wJ5pdlapi/WHdtzomKPwK2pqBsLfjXO8xXnJGiYoFDuRzPzLS2II
+         nveh5Vc7VdZTzhiZgkZP84KDGCdHszp0lZTgwsQ88AGyM8qIZkFpQeKB+Fz2UD2fanin
+         BhlhB6b9pftGvXdDHM8bjRRbTbgtcSPh+ZV2t2I1FoZBCm5ybSIxvYyZOA7RI0cc2VnQ
+         xsEwvI/v1SL15Pp8Iz1nVE1i1tzy7aU8LBVZB0rJ9jbrXEzKvEzJZQJOZasJqGnjgRNL
+         Lo6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=il1BSP4B82kWHEdRf6Qm9ONq370SsTup8MsCaJizDI8=;
+        b=LD9cyeqMoqZEMbaZJDSs8yZaQPW9EcwCgj9JKiExEpwzwkXanbUTIfKy2FyGYa7URU
+         Gg61zbsjD8iPnwzFiIm+sv010twObc39/jkrrEf3aTBNaHaEnO8Cq4AHMDoCBVuAA9MV
+         Sbrnl84UEJCFYfJkhwj2BNWsdpAIyFN62BGSV7ydeUevdj1C/KE+ool6FEbwGtpBzOeE
+         tMM7cFZ7nPDhV09bZyNbSNdOM+ywViaPYzAE9Nxd7DsGuIWVHw+zgQDS76CI8Bsdc7z8
+         YASF0hXxRCrxlPN4SiN9fmcsWOogFwMnj2c3R8kHzU4BH/hDB1gnYvLL+LUJWQfqwqP3
+         z5+Q==
+X-Gm-Message-State: AGi0PuZkIqDK19AnwD7blC4EpWXZlDjNbSnCTs3jqpd4Y3HlQpnKDd4J
+        GN6We0ZTFS+llMA4fyfJEt385Cb+
+X-Google-Smtp-Source: APiQypIXt12HkHS3wYNDnqmJVTqeEUn2udqkVaiTNRARRrYoNXxB4IxYBEx/6Oram7dUHkdsGdQ7WQ==
+X-Received: by 2002:a1c:9e43:: with SMTP id h64mr19844220wme.0.1586858803821;
+        Tue, 14 Apr 2020 03:06:43 -0700 (PDT)
+Received: from dlaptop.localdomain (x4d000dcc.dyn.telefonica.de. [77.0.13.204])
+        by smtp.gmail.com with ESMTPSA id o11sm18065825wme.13.2020.04.14.03.06.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Apr 2020 03:06:43 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH v2] tree-wide: use python module importlib instead of the deprecated imp
+Date:   Tue, 14 Apr 2020 12:06:06 +0200
+Message-Id: <20200414100606.14601-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.26.0
+In-Reply-To: <20200407115849.41225-1-cgzones@googlemail.com>
+References: <20200407115849.41225-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.103.112]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-fix below warnings reported by coccicheck
+Replace
 
-security/selinux/ss/mls.c:539:39-43: WARNING: Comparison to bool
-security/selinux/ss/services.c:1815:46-50: WARNING: Comparison to bool
-security/selinux/ss/services.c:1827:46-50: WARNING: Comparison to bool
+python3 -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])'
+<string>:1: DeprecationWarning: the imp module is deprecated in favour of importlib; see the module's documentation for alternative uses
+.cpython-38-x86_64-linux-gnu.so
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
+with
+
+python3 -c 'import importlib.machinery;print(importlib.machinery.EXTENSION_SUFFIXES[0])'
+.cpython-38-x86_64-linux-gnu.so
+
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
- security/selinux/ss/mls.c      | 2 +-
- security/selinux/ss/services.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+v2: use 'import importlib.machinery;' for python 3.5 compatibility
+    thanks to Nicolas Iooss
 
-diff --git a/security/selinux/ss/mls.c b/security/selinux/ss/mls.c
-index ec5e3d1..6a5d7d0 100644
---- a/security/selinux/ss/mls.c
-+++ b/security/selinux/ss/mls.c
-@@ -536,7 +536,7 @@ int mls_compute_sid(struct policydb *p,
- 
- 		/* Fallthrough */
- 	case AVTAB_CHANGE:
--		if ((tclass == p->process_class) || (sock == true))
-+		if ((tclass == p->process_class) || sock)
- 			/* Use the process MLS attributes. */
- 			return mls_context_cpy(newcontext, scontext);
- 		else
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 8ad34fd..3b592d1 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -1812,7 +1812,7 @@ static int security_compute_sid(struct selinux_state *state,
- 	} else if (cladatum && cladatum->default_role == DEFAULT_TARGET) {
- 		newcontext.role = tcontext->role;
- 	} else {
--		if ((tclass == policydb->process_class) || (sock == true))
-+		if ((tclass == policydb->process_class) || sock)
- 			newcontext.role = scontext->role;
- 		else
- 			newcontext.role = OBJECT_R_VAL;
-@@ -1824,7 +1824,7 @@ static int security_compute_sid(struct selinux_state *state,
- 	} else if (cladatum && cladatum->default_type == DEFAULT_TARGET) {
- 		newcontext.type = tcontext->type;
- 	} else {
--		if ((tclass == policydb->process_class) || (sock == true)) {
-+		if ((tclass == policydb->process_class) || sock) {
- 			/* Use the type of process. */
- 			newcontext.type = scontext->type;
- 		} else {
+ libselinux/src/Makefile  | 2 +-
+ libsemanage/src/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 2d1c654e..9992221f 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -15,7 +15,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+ PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+ PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
+-PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
++PYCEXT ?= $(shell $(PYTHON) -c 'import importlib.machinery;print(importlib.machinery.EXTENSION_SUFFIXES[0])')
+ RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+ RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+ RUBYINSTALL ?= $(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
+diff --git a/libsemanage/src/Makefile b/libsemanage/src/Makefile
+index 606ce1c6..a0eb3747 100644
+--- a/libsemanage/src/Makefile
++++ b/libsemanage/src/Makefile
+@@ -14,7 +14,7 @@ INCLUDEDIR ?= $(PREFIX)/include
+ PYINC ?= $(shell $(PKG_CONFIG) --cflags $(PYPREFIX))
+ PYLIBS ?= $(shell $(PKG_CONFIG) --libs $(PYPREFIX))
+ PYTHONLIBDIR ?= $(shell $(PYTHON) -c "from distutils.sysconfig import *; print(get_python_lib(plat_specific=1, prefix='$(PREFIX)'))")
+-PYCEXT ?= $(shell $(PYTHON) -c 'import imp;print([s for s,m,t in imp.get_suffixes() if t == imp.C_EXTENSION][0])')
++PYCEXT ?= $(shell $(PYTHON) -c 'import importlib.machinery;print(importlib.machinery.EXTENSION_SUFFIXES[0])')
+ RUBYINC ?= $(shell $(RUBY) -e 'puts "-I" + RbConfig::CONFIG["rubyarchhdrdir"] + " -I" + RbConfig::CONFIG["rubyhdrdir"]')
+ RUBYLIBS ?= $(shell $(RUBY) -e 'puts "-L" + RbConfig::CONFIG["libdir"] + " -L" + RbConfig::CONFIG["archlibdir"] + " " + RbConfig::CONFIG["LIBRUBYARG_SHARED"]')
+ RUBYINSTALL ?= $(shell $(RUBY) -e 'puts RbConfig::CONFIG["vendorarchdir"]')
 -- 
-2.6.2
+2.26.0
 
