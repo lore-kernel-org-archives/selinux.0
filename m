@@ -7,188 +7,134 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5CFEC2BB85
-	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 09:50:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CB8DC2BB85
+	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 09:51:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BF7B72063A
-	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 09:50:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DD90821D7A
+	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 09:51:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VOBiBgO5"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LE8cJPMw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2504090AbgDPJum (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Apr 2020 05:50:42 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:50777 "EHLO
+        id S2504259AbgDPJvj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Apr 2020 05:51:39 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24355 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2503627AbgDPJuj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Apr 2020 05:50:39 -0400
+        with ESMTP id S2504220AbgDPJvf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Apr 2020 05:51:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1587030636;
+        s=mimecast20190719; t=1587030694;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=iHMqy1+sD3TFhCKrzNBpTaeB98djPlJCNL87smhr6Bo=;
-        b=VOBiBgO5KvMRxB5uy6f0qBuTl1xyxN/CzOv/6mPTBcsAbW7SAVOdVlxCUW63HezNRzxYaa
-        xopuAb3OE6ySP5tVIfW50FUy72FL7IwxyYIq1VjYQ7PeoW5gM34+bWQTaR4xlTcVtVr32S
-        EvF8sEt3ZlSG7lSI/zc7quebeEmdO/Q=
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
- [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-265-C6H703H_MKmHB6zcpeeqzQ-1; Thu, 16 Apr 2020 05:50:35 -0400
-X-MC-Unique: C6H703H_MKmHB6zcpeeqzQ-1
-Received: by mail-ot1-f70.google.com with SMTP id n3so2790483otk.22
-        for <selinux@vger.kernel.org>; Thu, 16 Apr 2020 02:50:35 -0700 (PDT)
+        bh=EnHfCAUNinSq34WXVXmIlIAejvHDdPnWm0xbq9pJpy8=;
+        b=LE8cJPMw9JRRQN2VdF28Sk6A0KY7d+X++HFusqqCPVfc2tjr/36HW/stQjbYpXFq4PwTRD
+        zK7kjy/vBHrvvzKIkWlG6RY4dHnJMx7/nydLBTcZtk5TGKkyPf+t4BQKslhZHbVOgohljU
+        08WUyGtxDc0W4OYRr5iyNdIE7o1eNfk=
+Received: from mail-oi1-f197.google.com (mail-oi1-f197.google.com
+ [209.85.167.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-17-YHiZl_oRPlq7sMQQhJtQmg-1; Thu, 16 Apr 2020 05:51:32 -0400
+X-MC-Unique: YHiZl_oRPlq7sMQQhJtQmg-1
+Received: by mail-oi1-f197.google.com with SMTP id w7so10312268oic.12
+        for <selinux@vger.kernel.org>; Thu, 16 Apr 2020 02:51:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=iHMqy1+sD3TFhCKrzNBpTaeB98djPlJCNL87smhr6Bo=;
-        b=MuXPaw9w480hHzYiZY2kna8Tutv2+YM9kO3r8WpBYXHMpVNi8EB+Ge4/6Y0tdEEYe4
-         syE0FpCf3OFPoZ42srmZYP1jYbVMps8iyet2WdHYv5n+4O3YF4zFpMAkyERNfP+gQtKD
-         88tGqEmtAaylMsHaWQtybXN14XSXz81KQzIm9KiWZeIvKdHe24lyznp3+Q2E3pmoUS2p
-         qHbAs4szx2Im7W+oPAyy2t1Lgs6M707xuuAaZ+kkOOzQH6Otowgjqxg17zN+mLMcoHt5
-         GhagQqrIFa8PdDb/8lOwNCKT5OTiG23DNo+9A+ALpwBsctkyYUw4RFAS7ZfJYMBpjbxd
-         Q00g==
-X-Gm-Message-State: AGi0Pua7du/rsshbCFBMuB68/uOrIe9yDF/yg+FKg6bqeucnBkyWRC09
-        A2gMUSSym/uVTet/c16aYqg/YqwhDqAwtMB18ZKjbXy+xIDcrA7nnK3s16I4OJ+h7xEDpFL+NBQ
-        sJu2kREe3/BrpNZkXZ/gc2fR/JA3j27KfrQ==
-X-Received: by 2002:aca:488a:: with SMTP id v132mr2390217oia.166.1587030633977;
-        Thu, 16 Apr 2020 02:50:33 -0700 (PDT)
-X-Google-Smtp-Source: APiQypKYdEmwl8W1zpXqAJFwOlAxbvslyIV/cW8kfp/xAKUA963mUq+/qLW36n6sax6oECJVXqcYbU5XLpW3B1rRd1M=
-X-Received: by 2002:aca:488a:: with SMTP id v132mr2390206oia.166.1587030633516;
- Thu, 16 Apr 2020 02:50:33 -0700 (PDT)
+        bh=EnHfCAUNinSq34WXVXmIlIAejvHDdPnWm0xbq9pJpy8=;
+        b=BIqS9Xr/dMccPNSgkyF5dATgIwnfTooALrhFbpJp7wRKT9la0HeIsJo1aEqlzFA5cX
+         kLoz81McBOHnasSURKbLkO4Xmvg7YlYUilDGf/lh2ANGk/tp1MKHHt1orrKZVCSRyMpG
+         iexCilhR3CLNzcnIhtWy5ZjNZwh8tG+FaLiqsXQqXGPlOGI/Qlpb7xHZ1vaAYZ0oLya6
+         cFTLcSQYs7qeohXlaKWuEIazSmagIgMsvtndMWwl3pK1F/vDCfH8EPN4tBgkGYo/XzTN
+         28B1LsuNH84aQJS/G6P0L4HcAKMz0n+wcuxGrbvcTTCmwtNM/UrgGup9vi+nBZTqgmqN
+         8V/g==
+X-Gm-Message-State: AGi0Pua2k3WsFkDdP4+dL68rQTCrnKDM9vrZiFweMne59/IzlzsJLkdN
+        kOhH22TXYq6ydg+7gv70RP+9hnZ/1LiIbL5qwVXfMrg3k8VSAZtD52fxZNdiW+JBJHy/uzrb2g/
+        1J5HA0CIQL8mgl3G0VqdFqLnEDQb82zfC2Q==
+X-Received: by 2002:a9d:69d5:: with SMTP id v21mr26459401oto.197.1587030691123;
+        Thu, 16 Apr 2020 02:51:31 -0700 (PDT)
+X-Google-Smtp-Source: APiQypIIHL7AjayKOCpLtgIaWwzx2ku1GdHow+pf9r4rYSgRYpLz3u1uLKiWs6KMkQtx+7imVbg6kq9PWU/eSiRYBvo=
+X-Received: by 2002:a9d:69d5:: with SMTP id v21mr26459390oto.197.1587030690825;
+ Thu, 16 Apr 2020 02:51:30 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200409081248.1273383-1-omosnace@redhat.com> <20200409081248.1273383-2-omosnace@redhat.com>
- <CAHC9VhTGJ7kxjzaL5eiJ7g42qjgDeLPUowTrzvpkUJupNWkNpA@mail.gmail.com>
-In-Reply-To: <CAHC9VhTGJ7kxjzaL5eiJ7g42qjgDeLPUowTrzvpkUJupNWkNpA@mail.gmail.com>
+References: <20200407182858.1149087-1-omosnace@redhat.com> <CAHC9VhQu0B8KwBLP+qD9JvtyFJS-X3ANThp8EytG4R0scyzoCA@mail.gmail.com>
+In-Reply-To: <CAHC9VhQu0B8KwBLP+qD9JvtyFJS-X3ANThp8EytG4R0scyzoCA@mail.gmail.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 16 Apr 2020 11:50:22 +0200
-Message-ID: <CAFqZXNu6AnC7wrDV9a2kF1zjqxAB9vZyaUcrNw80BQqnOD8tAQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] selinux: hash context structure directly
+Date:   Thu, 16 Apr 2020 11:51:19 +0200
+Message-ID: <CAFqZXNtcvX2TkBkicaddk07HUQS37vTdbupOgK=3EXw5pP78SQ@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: store role transitions in a hash table
 To:     Paul Moore <paul@paul-moore.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Jeff Vander Stoep <jeffv@google.com>
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 16, 2020 at 2:56 AM Paul Moore <paul@paul-moore.com> wrote:
-> On Thu, Apr 9, 2020 at 4:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Thu, Apr 16, 2020 at 3:41 AM Paul Moore <paul@paul-moore.com> wrote:
+> On Tue, Apr 7, 2020 at 2:29 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > Always hashing the string representation is inefficient. Just hash the
-> > contents of the structure directly (using jhash). If the context is
-> > invalid (str & len are set), then hash the string as before, otherwise
-> > hash the structured data. Any context that is valid under the given
-> > policy should always be structured, and also any context that is invalid
-> > should be never structured, so the hashes should always match for the
-> > same context. The fact that context_cmp() also follows this logic
-> > further reinforces this assumption.
-> >
-> > Since the context hashing function is now faster (about 10 times), this
-> > patch decreases the overhead of security_transition_sid(), which is
-> > called from many hooks.
-> >
-> > The jhash function seemed as a good choice, since it is used as the
-> > default hashing algorithm in rhashtable.
+> > Currently, they are stored in a linked list, which adds significant
+> > overhead to security_transition_sid(). On Fedora, with 428 role
+> > transitions in policy, converting this list to a hash table cuts down
+> > its run time by about 50%. This was measured by running 'stress-ng --msg
+> > 1 --msg-ops 100000' under perf with and without this patch.
 > >
 > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > > ---
-> >  security/selinux/Makefile      |  2 +-
-> >  security/selinux/ss/context.c  | 28 ++++++++++++
-> >  security/selinux/ss/context.h  |  6 ++-
-> >  security/selinux/ss/ebitmap.c  | 14 ++++++
-> >  security/selinux/ss/ebitmap.h  |  1 +
-> >  security/selinux/ss/policydb.c |  7 +--
-> >  security/selinux/ss/services.c | 80 ++++++++++++++--------------------
-> >  security/selinux/ss/services.h |  3 --
-> >  8 files changed, 82 insertions(+), 59 deletions(-)
-> >  create mode 100644 security/selinux/ss/context.c
+> >
+> > v2:
+> >  - fix typo scontext->tcontext in security_compute_sid()
+> >  - suggest a better command for testing in the commit msg
+> >
+> >  security/selinux/ss/policydb.c | 138 ++++++++++++++++++++++-----------
+> >  security/selinux/ss/policydb.h |   8 +-
+> >  security/selinux/ss/services.c |  21 +++--
+> >  3 files changed, 107 insertions(+), 60 deletions(-)
 >
 > ...
 >
-> > diff --git a/security/selinux/ss/context.c b/security/selinux/ss/context.c
-> > new file mode 100644
-> > index 000000000000..7ca32683056d
-> > --- /dev/null
-> > +++ b/security/selinux/ss/context.c
-> > @@ -0,0 +1,28 @@
-> > +// SPDX-License-Identifier: GPL-2.0
-> > +/*
-> > + * Implementations of the security context functions.
-> > + *
-> > + * Author: Ondrej Mosnacek <omosnacek@gmail.com>
-> > + * Copyright (C) 2018 Red Hat, Inc.
->
-> I think your clock is a bit off ... ;)
->
-> Joking aside, copyright dates are important so please fix this (also
-> because it is a copyright related issue, it isn't something I want to
-> fix during the merge).
-
-Ah, I copy-pasted the boilerplate from elsewhere and forgot to fix the
-year... No problem, I'll send a fixed patch.
-
->
-> > + */
-> > +
-> > +#include <linux/jhash.h>
-> > +
-> > +#include "context.h"
-> > +#include "mls.h"
-> > +
-> > +u32 context_compute_hash(const struct context *c)
-> > +{
-> > +       u32 hash = 0;
-> > +
-> > +       if (c->len)
-> > +               return full_name_hash(NULL, c->str, c->len);
-> > +
-> > +       hash = jhash_3words(c->user, c->role, c->type, hash);
-> > +       hash = jhash_2words(c->range.level[0].sens,
-> > +                           c->range.level[1].sens, hash);
-> > +       hash = ebitmap_hash(&c->range.level[0].cat, hash);
-> > +       hash = ebitmap_hash(&c->range.level[1].cat, hash);
->
-> Most other places we try to abstract away the mls_range details by
-> having an associated mls_XXX(...) function, it seems like that would
-> be a good idea here too.  How about adding a mls_context_hash(), or
-> similarly named function and calling it here.
-
-Good point... I'm a little wary of adding yet another nested function
-call to something that should be fast (and that will do only a few
-operations on its own), but I suppose I can just make it an inline
-function.
-
->
-> > +       return hash;
-> > +}
-[...]
-> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > index 8ad34fd031d1..2099355e9a7d 100644
-> > --- a/security/selinux/ss/services.c
-> > +++ b/security/selinux/ss/services.c
-> > @@ -1490,38 +1490,11 @@ out:
-> >         return rc;
+> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> > index 70ecdc78efbd..4f0cfffd008d 100644
+> > --- a/security/selinux/ss/policydb.c
+> > +++ b/security/selinux/ss/policydb.c
+> > @@ -458,6 +465,30 @@ static int rangetr_cmp(struct hashtab *h, const void *k1, const void *k2)
+> >         return v;
 > >  }
 > >
-> > -int context_add_hash(struct policydb *policydb,
-> > -                    struct context *context)
-> > +static int context_struct_to_sid(struct sidtab *sidtab, struct context *context,
-> > +                                u32 *sid)
+> > +static u32 role_trans_hash(struct hashtab *h, const void *k)
+> > +{
+> > +       const struct role_trans_key *key = k;
+> > +
+> > +       return (key->role + (key->type << 3) + (key->tclass << 5)) &
+> > +               (h->size - 1);
+> > +}
+> > +
+> > +static int role_trans_cmp(struct hashtab *h, const void *k1, const void *k2)
+> > +{
+> > +       const struct role_trans_key *key1 = k1, *key2 = k2;
+> > +       int v;
+> > +
+> > +       v = key1->role - key2->role;
+> > +       if (v)
+> > +               return v;
+> > +
+> > +       v = key1->type - key2->type;
+> > +       if (v)
+> > +               return v;
+> > +
+> > +       return key1->tclass - key2->tclass;
 >
-> Since you need to respin this patchset anyway, and patch 2/2 deals
-> with the move to sidtab, I think it might be better to keep the
-> context_struct_to_sid() arguments the same and not swap the first
-> argument for the sidtab.  If you keep the first argument as the state
-> it makes this patch much more focused on the change at hand and leaves
-> patch 2/2 dedicated to just the sidtab move.
+> Why just a simple boolean statement?
+>
+>   return key1->role != key2->role || \
+>          key1->type != key2->type || \
+>          key1->tclass != key2->tclass;
 
-Also a good point. I wanted to emphasize that the computation no
-longer depends on policydb, but I agree that it adds an unnecessary
-churn to this patch. I'll amend it as you suggest.
+Because hashtab sorts the entries in each bucket, so it needs a proper
+sort function. Other such functions (rangetr_cmp(), filenametr_cmp())
+do a similar thing.
 
-Thanks,
 
 --
 Ondrej Mosnacek <omosnace at redhat dot com>
