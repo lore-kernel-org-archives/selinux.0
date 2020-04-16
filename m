@@ -8,63 +8,63 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3152DC2BB55
-	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 15:44:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1A5DC352BE
+	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 15:44:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C9B920732
-	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 15:44:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7DAB9214AF
+	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 15:44:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uCQ2t5Fm"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jwkCsiUl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2395459AbgDPPod (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Apr 2020 11:44:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48784 "EHLO
+        id S2406241AbgDPPof (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Apr 2020 11:44:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S2442475AbgDPPob (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Apr 2020 11:44:31 -0400
-Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC08EC061A10
-        for <selinux@vger.kernel.org>; Thu, 16 Apr 2020 08:44:30 -0700 (PDT)
-Received: by mail-pg1-x542.google.com with SMTP id i3so1830780pgk.1
-        for <selinux@vger.kernel.org>; Thu, 16 Apr 2020 08:44:30 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S2442510AbgDPPoc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Apr 2020 11:44:32 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FDCC061A0C
+        for <selinux@vger.kernel.org>; Thu, 16 Apr 2020 08:44:32 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id a22so1522216pjk.5
+        for <selinux@vger.kernel.org>; Thu, 16 Apr 2020 08:44:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=U1To/FE2fo06GVscvLcra+k1YFjbs4QDa36op6rS+9Q=;
-        b=uCQ2t5Fmg/2qCCETh/D2qdMGRo701M67dH+hPyNE0LtLgzt13QLRd7dQaXlRBctstd
-         hQQ58BfEU59yGxH9c+B2YoM0vYoNw56r3EpGvqzNHfMsPe3LHSl/LpylxZtjS8do403X
-         1/+pzFvy/pioKbSrg6raKXPclPMJ48H/WpdeLjyPmq+6maNg9fckINn4DIqjI/mg2+NC
-         U/Y2PDwMvwWKf5PmRTJ05PODYNbBkZZ1mOodldvDSROWf2v6Hl8UKPEMzqA3u1+Eq61V
-         AATOlI/ysVW06TXcxt46ItYrq9l9sfqDZsiX1lhUPG97L534m31yvLgtsw1xn7oZkII6
-         vOLg==
+        bh=ThytxPAXFKfJwqL1E34wdemZ6YzRL2kXegLVFr+oRIk=;
+        b=jwkCsiUlganqK8GCKG+pL9/jRBE6K1xbyHxTlyMK27hhx+3PCtBgayKEMufmTuPF1q
+         XtDIL/RZK/yrb7HRG5h/LUwO/lEInIzLvtNM0IAID4LYKM7kqblYY1KWSngs9Vo7jJhL
+         lO4TKvCSO2yTRi1J1toesy0+JW4/u4pPmxIOlAfdJxmfzxCEbEuHHBAaIZ3bzf+PmdC2
+         dbxY0HBhtPv33GZBNTP4fQ05wXWrFc+Aa0KabqaKH2l0WeOftJpJtuEIyEFfItA72vD0
+         i3tMeIWSZgKbUq4nsM3NtQUosxRPK5U5E+i94FpL4j069bpzJYluNYa2wZ0QlumtvPLF
+         MuFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=U1To/FE2fo06GVscvLcra+k1YFjbs4QDa36op6rS+9Q=;
-        b=G4lQXsvYdRPsNXVVIUKMa3SbgbYBvoje3cP5yNg6EKAU1122izH5/ANIL7Tjv5T8nK
-         DWFj5puMswhrLdyNCC6E7xSd1ijWO7iy6XWpAdEggtbhKk2/bPM8DNQPJrdqSA8AE/Ue
-         Bdr4GgdUwnIo1J2ipG4KBLZvqGB0dlBM2zqRV5DxM9AZlMyXA5gmjnFtH1yKGju5PiUs
-         Np0bT3z9G/7pClds5WUpQ5d78x0Zc0J6MpO8IvnnaWgCxCiG+05TFL811QnBizk9KhSB
-         9HtesZuOikFVOSPKVi15CsO0FsE8hqSYc7k03PdryGMVVVMVjJ5M4Tkqh3Et2aTdFQo0
-         xZ4A==
-X-Gm-Message-State: AGi0PuaD8Ssdg108rGFYns8q1s9cox4TQIbVu8ztqU09tf2mE9iaXq+j
-        9pZInzCv3nVkc+TWMqBr68w=
-X-Google-Smtp-Source: APiQypJO7qFaWgNce6zeOx/bQnSLcuLGLVzvqfUJVy0ofRvBoAIFL8GBzpwR7xgq3XgwYktAMQbxHQ==
-X-Received: by 2002:a65:498f:: with SMTP id r15mr23544492pgs.345.1587051870251;
-        Thu, 16 Apr 2020 08:44:30 -0700 (PDT)
+        bh=ThytxPAXFKfJwqL1E34wdemZ6YzRL2kXegLVFr+oRIk=;
+        b=Aa5DOPPATYzSCi+TKJMpelJCELU5jIF42T5MmkEdwtNDwRTZmwdMl+HQ7j/bUnVzWe
+         ScOhxeHWkc97k1akDDjDe7GbnNq1SoaCiDdr4cUsBpJWrGVwUcqyIdljJv0xBaKUDCQz
+         lz19xz29UhQKeyPx1xEt324IpI/c9qOfoNMJbOhXz7ySgWa3SvvsxNwNUC6TAK4QeOX8
+         70XZAyUYC5R5bR/TvM05zhAbASYwjkVq/o7o1J7GiZcDjYJfKPrUSruDV9D//OjjU45y
+         e0FVoqH9b43aQnS52JaMsIN2hfruY+6Tv/h+1s2QW6PMxPofTs48gychiNKztBqSxqYn
+         xwDA==
+X-Gm-Message-State: AGi0PubuKP1S15+5hAzdohapMprmXiKQiqgdBAASRXdJPl256FgFg9jL
+        UU7loFAEPspI2UMm8cmsDdxAmE+t1Hs=
+X-Google-Smtp-Source: APiQypJSHAodTtdRDwSAGialKRZmTOBVJDFbtlvvag+pFRUl4GWOU7O7bdgP3EHEBF5+H3goqFsnwg==
+X-Received: by 2002:a17:90b:190c:: with SMTP id mp12mr6014816pjb.109.1587051871825;
+        Thu, 16 Apr 2020 08:44:31 -0700 (PDT)
 Received: from localhost.localdomain ([192.55.55.45])
-        by smtp.gmail.com with ESMTPSA id g25sm16888626pfh.55.2020.04.16.08.44.28
+        by smtp.gmail.com with ESMTPSA id g25sm16888626pfh.55.2020.04.16.08.44.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Apr 2020 08:44:29 -0700 (PDT)
+        Thu, 16 Apr 2020 08:44:31 -0700 (PDT)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     bill.c.roberts@gmail.com
 Cc:     plautrba@redhat.com, sds@tycho.nsa.gov, selinux@vger.kernel.org,
         William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH v2 14/18] matchpathcon: create internal matchpathcon_fini interface
-Date:   Thu, 16 Apr 2020 10:43:48 -0500
-Message-Id: <20200416154352.21619-15-william.c.roberts@intel.com>
+Subject: [PATCH v2 15/18] matchpathcon: create internal matchpathcon interface
+Date:   Thu, 16 Apr 2020 10:43:49 -0500
+Message-Id: <20200416154352.21619-16-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200416154352.21619-1-william.c.roberts@intel.com>
 References: <20200225200219.6163-1-william.c.roberts@intel.com>
@@ -76,71 +76,52 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: William Roberts <william.c.roberts@intel.com>
 
-Now that matchpathcon_fini is marked deprecated, create an
-matchpathcon_fini2 interface for internal users. We create
-a new header file for matchpathcon_internal interfaces.
+Now that matchpathcon is marked deprecated, create an
+matchpathcon2 interface for internal users.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/src/matchpathcon.c          | 10 ++++++++--
- libselinux/src/matchpathcon_internal.h |  6 ++++++
- 2 files changed, 14 insertions(+), 2 deletions(-)
- create mode 100644 libselinux/src/matchpathcon_internal.h
+ libselinux/src/matchpathcon.c          | 8 ++++++--
+ libselinux/src/matchpathcon_internal.h | 2 ++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
 diff --git a/libselinux/src/matchpathcon.c b/libselinux/src/matchpathcon.c
-index bddf77a49ce1..8515c88c2bb8 100644
+index 8515c88c2bb8..88539e627f5d 100644
 --- a/libselinux/src/matchpathcon.c
 +++ b/libselinux/src/matchpathcon.c
-@@ -3,6 +3,7 @@
- #include <errno.h>
- #include <stdio.h>
- #include "selinux_internal.h"
-+#include "matchpathcon_internal.h"
- #include "label_internal.h"
- #include "callbacks.h"
- #include <limits.h>
-@@ -317,7 +318,7 @@ void matchpathcon_filespec_destroy(void)
- 
- static void matchpathcon_thread_destructor(void __attribute__((unused)) *ptr)
- {
--	matchpathcon_fini();
-+	matchpathcon_fini2();
+@@ -433,7 +433,11 @@ out:
+ 	return rc;
  }
  
- void __attribute__((destructor)) matchpathcon_lib_destructor(void);
-@@ -357,7 +358,7 @@ int matchpathcon_init(const char *path)
- 	return matchpathcon_init_prefix(path, NULL);
- }
- 
--void matchpathcon_fini(void)
-+void matchpathcon_fini2(void)
- {
- 	free_array_elts();
- 
-@@ -367,6 +368,11 @@ void matchpathcon_fini(void)
- 	}
- }
- 
-+void matchpathcon_fini(void)
-+{
-+	matchpathcon_fini2();
+-int matchpathcon(const char *path, mode_t mode, char ** con)
++int matchpathcon(const char *path, mode_t mode, char ** con) {
++	return matchpathcon2(path, mode, con);
 +}
 +
- /*
-  * We do not want to resolve a symlink to a real path if it is the final
-  * component of the name.  Thus we split the pathname on the last "/" and
++int matchpathcon2(const char *path, mode_t mode, char ** con)
+ {
+ 	char stackpath[PATH_MAX + 1];
+ 	char *p = NULL;
+@@ -456,7 +460,7 @@ int matchpathcon(const char *path, mode_t mode, char ** con)
+ 
+ int matchpathcon_index(const char *name, mode_t mode, char ** con)
+ {
+-	int i = matchpathcon(name, mode, con);
++	int i = matchpathcon2(name, mode, con);
+ 
+ 	if (i < 0)
+ 		return -1;
 diff --git a/libselinux/src/matchpathcon_internal.h b/libselinux/src/matchpathcon_internal.h
-new file mode 100644
-index 000000000000..3affa687327f
---- /dev/null
+index 3affa687327f..c63bcecfec89 100644
+--- a/libselinux/src/matchpathcon_internal.h
 +++ b/libselinux/src/matchpathcon_internal.h
-@@ -0,0 +1,6 @@
-+#ifndef SRC_MATCHPATHCON_INTERNAL_H_
-+#define SRC_MATCHPATHCON_INTERNAL_H_
+@@ -3,4 +3,6 @@
+ 
+ void matchpathcon_fini2(void);
+ 
++int matchpathcon2(const char *path, mode_t mode, char ** con);
 +
-+void matchpathcon_fini2(void);
-+
-+#endif
+ #endif
 -- 
 2.17.1
 
