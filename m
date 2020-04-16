@@ -7,66 +7,66 @@ X-Spam-Status: No, score=-9.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AC59C2BB85
-	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 12:41:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5444DC352BE
+	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 12:41:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 03A9C21D79
-	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 12:41:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2858E21D7E
+	for <selinux@archiver.kernel.org>; Thu, 16 Apr 2020 12:41:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gNGaW+eU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J7xQWxb7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2635842AbgDPMla (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Apr 2020 08:41:30 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:33953 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2635932AbgDPMlV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Apr 2020 08:41:21 -0400
+        id S2635824AbgDPMlc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Apr 2020 08:41:32 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:47593 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2635936AbgDPMlZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Apr 2020 08:41:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1587040879;
+        s=mimecast20190719; t=1587040880;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=VTdd+SFC3x/LQjo+ihbdXExenqAqD3leY7J3lJesSV4=;
-        b=gNGaW+eUuK77b7qzrV/GR9NqvDTX8Nmseqq/iRqrT+VQSdg9U/ATjEuekI1Tu0si/fDb/Q
-        3GHi0b9ECWFEhx8yHM/y67FAfng/xbvwzRC+sHWGWDInI8OfyE/ZMGcLKy3q2YrCMU4QY4
-        NxOKHE33l1NFCYwBvg49pwKqNkWEs6k=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-125--jD5JtHYPbW3lW8qchJMrQ-1; Thu, 16 Apr 2020 08:41:17 -0400
-X-MC-Unique: -jD5JtHYPbW3lW8qchJMrQ-1
-Received: by mail-wr1-f70.google.com with SMTP id q10so1639988wrv.10
-        for <selinux@vger.kernel.org>; Thu, 16 Apr 2020 05:41:17 -0700 (PDT)
+        bh=P60Gahpgfw5dNlKHuhuzBou9E5M6glchSl9e0TaQ4G8=;
+        b=J7xQWxb7ttaumoF1+Um6iYnEWbKH+JEwvSv+Sz/ALCJ2yq/Zh8b8aJM8u6g5Wges4wjbnO
+        k7qUFA5YQvOKS5CKi7T9wfAJ+W3U8i4NGr02fnOPRQGV12R5waV6++Ju1CxZN9R3zOUIC/
+        B6wRGUlgn/8fm07Q7MHd2z+2DxrC6C0=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-18-pXx2QLrePfur_0YWvD7uIA-1; Thu, 16 Apr 2020 08:41:19 -0400
+X-MC-Unique: pXx2QLrePfur_0YWvD7uIA-1
+Received: by mail-wm1-f71.google.com with SMTP id f17so1132119wmm.5
+        for <selinux@vger.kernel.org>; Thu, 16 Apr 2020 05:41:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=VTdd+SFC3x/LQjo+ihbdXExenqAqD3leY7J3lJesSV4=;
-        b=Bdw2I+BmLDKIt/FkXBPtZUviXfmpIkOQqa+COAXC3/jjO3UFFA2h7GHyV0H+9KWhqx
-         XCMBgjMBe8FTiiUP0mmEAeBoFT13T1B1DPuOGcBVlST26jmZQbBeNm73ZCXPI0HNQNrk
-         8EXYPWaFvGoYm5J0JLSxCSqB/R/9Jb7g5LDUmjzz7XEJwSheRg+CtnBx90MDzArrqA2D
-         +SUbJk2m1ngzzC7u9VYHzS2nTNgEY1WACGJKf+X3NNyyxm93ewL3qwPPxv8GAVB88w2A
-         hKwvC1squnL5M3vQqKSoVPVxAwWXdHnqFhoow2s0/RCvRdGsupluz5lhdqtDD77sFkmU
-         Qswg==
-X-Gm-Message-State: AGi0Pua9cit6Gip9ibwHKoAz1TC/OcAMStAhmP2QOmW+5x1gc+SZ12nw
-        efUObI2vUXqQr3x3P41iR04Sz3U2Nqdwdo4IFIz8wf9MngpZwJ0KqDeOsjnRygyqqUFe7KmfeVd
-        0MsuXf5MDAoXGae90Ig==
-X-Received: by 2002:adf:f986:: with SMTP id f6mr18557277wrr.221.1587040875727;
-        Thu, 16 Apr 2020 05:41:15 -0700 (PDT)
-X-Google-Smtp-Source: APiQypLhwOn9tVKUm7cBRa4ToqSkchLr0TOi6gV2Z6rmw8YBmw9tgF3KStUkK22SOyxG1djdc1mVBg==
-X-Received: by 2002:adf:f986:: with SMTP id f6mr18557251wrr.221.1587040875429;
-        Thu, 16 Apr 2020 05:41:15 -0700 (PDT)
+        bh=P60Gahpgfw5dNlKHuhuzBou9E5M6glchSl9e0TaQ4G8=;
+        b=VnqmpDV5/rmppVNGHCLLFLkbuNb29aQe1Saf4Zk8+b2lsTTAF8yXkUN6gcOQz9Gf6p
+         S4ORL7bBLxfbkBq8nd6WLQ5QfRw/y4kUhSpocCC/fpgG1iS4oIlE4k+f1DBhB8/wMW5E
+         vuko8OYR1DmzN5X+5UPC685Np6D2P+rvR2pgejHoSvXpZJrwoN7spE+8YSULtDX8v+26
+         hNWLDSSLKXWvywibiuRMb+fB67Xyjt586H6rVWDd4MLNpjQcqI0EbeM8vbEso+nRXzUH
+         laPh0MAAkUflF0ZwgL6D2iriap2h8g190hmV3GU+2HZgFzlAJ7vEa9V9cbdUJg1oGw01
+         D0zA==
+X-Gm-Message-State: AGi0PubbC+k8X+21pdr85Aif5/P0vPG1C765E/iRJOOESqEh4apEN+vS
+        6keKmaXxezt3wE7rUDlYrFZ5kPGSFciMGNobqguS5kfWoPK2dJDtVk+YAuJjIBNGiIvWg5KJP6w
+        QdB6ksxjQQO8FThcKDQ==
+X-Received: by 2002:adf:f54c:: with SMTP id j12mr32681848wrp.183.1587040877564;
+        Thu, 16 Apr 2020 05:41:17 -0700 (PDT)
+X-Google-Smtp-Source: APiQypIEMIwECGrGEHpAS0T+kqz9VZfo7SsFTp5ZxvgDmQo4bvrLZahawr8lAxuv7jWhO1HwRelwig==
+X-Received: by 2002:adf:f54c:: with SMTP id j12mr32681809wrp.183.1587040877044;
+        Thu, 16 Apr 2020 05:41:17 -0700 (PDT)
 Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
-        by smtp.gmail.com with ESMTPSA id w6sm24059333wrm.86.2020.04.16.05.41.14
+        by smtp.gmail.com with ESMTPSA id w6sm24059333wrm.86.2020.04.16.05.41.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Apr 2020 05:41:14 -0700 (PDT)
+        Thu, 16 Apr 2020 05:41:15 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Stephen Smalley <sds@tycho.nsa.gov>,
         Jeff Vander Stoep <jeffv@google.com>
-Subject: [PATCH v2 1/2] selinux: hash context structure directly
-Date:   Thu, 16 Apr 2020 14:41:09 +0200
-Message-Id: <20200416124110.541408-2-omosnace@redhat.com>
+Subject: [PATCH v2 2/2] selinux: move context hashing under sidtab
+Date:   Thu, 16 Apr 2020 14:41:10 +0200
+Message-Id: <20200416124110.541408-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.25.2
 In-Reply-To: <20200416124110.541408-1-omosnace@redhat.com>
 References: <20200416124110.541408-1-omosnace@redhat.com>
@@ -77,272 +77,480 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Always hashing the string representation is inefficient. Just hash the
-contents of the structure directly (using jhash). If the context is
-invalid (str & len are set), then hash the string as before, otherwise
-hash the structured data. Any context that is valid under the given
-policy should always be structured, and also any context that is invalid
-should be never structured, so the hashes should always match for the
-same context. The fact that context_cmp() also follows this logic
-further reinforces this assumption.
-
-Since the context hashing function is now faster (about 10 times), this
-patch decreases the overhead of security_transition_sid(), which is
-called from many hooks.
-
-The jhash function seemed as a good choice, since it is used as the
-default hashing algorithm in rhashtable.
+Now that context hash computation no longer depends on policydb, we can
+simplify things by moving the context hashing completely under sidtab.
+The hash is still cached in sidtab entries, but not for the in-flight
+context structures.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- security/selinux/Makefile      |  2 +-
- security/selinux/ss/context.c  | 24 +++++++++++++++++++++++
- security/selinux/ss/context.h  |  6 ++++--
- security/selinux/ss/ebitmap.c  | 14 ++++++++++++++
- security/selinux/ss/ebitmap.h  |  1 +
- security/selinux/ss/mls.h      | 11 +++++++++++
- security/selinux/ss/policydb.c |  7 ++-----
- security/selinux/ss/services.c | 35 ++++------------------------------
- security/selinux/ss/services.h |  3 ---
- 9 files changed, 61 insertions(+), 42 deletions(-)
- create mode 100644 security/selinux/ss/context.c
+ security/selinux/ss/context.h  | 11 +------
+ security/selinux/ss/policydb.c |  2 --
+ security/selinux/ss/services.c | 59 +++++++++++++++-------------------
+ security/selinux/ss/sidtab.c   | 32 ++++++++++--------
+ security/selinux/ss/sidtab.h   |  1 +
+ 5 files changed, 47 insertions(+), 58 deletions(-)
 
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index 0c77ede1cc11..4d8e0e8adf0b 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -8,7 +8,7 @@ obj-$(CONFIG_SECURITY_SELINUX) := selinux.o
- selinux-y := avc.o hooks.o selinuxfs.o netlink.o nlmsgtab.o netif.o \
- 	     netnode.o netport.o status.o \
- 	     ss/ebitmap.o ss/hashtab.o ss/symtab.o ss/sidtab.o ss/avtab.o \
--	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o
-+	     ss/policydb.o ss/services.o ss/conditional.o ss/mls.o ss/context.o
- 
- selinux-$(CONFIG_SECURITY_NETWORK_XFRM) += xfrm.o
- 
-diff --git a/security/selinux/ss/context.c b/security/selinux/ss/context.c
-new file mode 100644
-index 000000000000..cc0895dc7b0f
---- /dev/null
-+++ b/security/selinux/ss/context.c
-@@ -0,0 +1,24 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Implementations of the security context functions.
-+ *
-+ * Author: Ondrej Mosnacek <omosnacek@gmail.com>
-+ * Copyright (C) 2018 Red Hat, Inc.
-+ */
-+
-+#include <linux/jhash.h>
-+
-+#include "context.h"
-+#include "mls.h"
-+
-+u32 context_compute_hash(const struct context *c)
-+{
-+	u32 hash = 0;
-+
-+	if (c->len)
-+		return full_name_hash(NULL, c->str, c->len);
-+
-+	hash = jhash_3words(c->user, c->role, c->type, hash);
-+	hash = mls_range_hash(&c->range, hash);
-+	return hash;
-+}
 diff --git a/security/selinux/ss/context.h b/security/selinux/ss/context.h
-index 3ba044fe02ed..e7ae7e21449b 100644
+index e7ae7e21449b..62990aa1ec9e 100644
 --- a/security/selinux/ss/context.h
 +++ b/security/selinux/ss/context.h
-@@ -196,9 +196,11 @@ static inline int context_cmp(struct context *c1, struct context *c2)
- 		mls_context_cmp(c1, c2));
- }
+@@ -31,7 +31,6 @@ struct context {
+ 	u32 len;        /* length of string in bytes */
+ 	struct mls_range range;
+ 	char *str;	/* string representation if context cannot be mapped. */
+-	u32 hash;	/* a hash of the string representation */
+ };
  
--static inline unsigned int context_compute_hash(const char *s)
-+u32 context_compute_hash(const struct context *c);
-+
-+static inline void context_add_hash(struct context *context)
- {
--	return full_name_hash(NULL, s, strlen(s));
-+	context->hash = context_compute_hash(context);
- }
- 
- #endif	/* _SS_CONTEXT_H_ */
-diff --git a/security/selinux/ss/ebitmap.c b/security/selinux/ss/ebitmap.c
-index c8c3663111e2..14bedc95c6dc 100644
---- a/security/selinux/ss/ebitmap.c
-+++ b/security/selinux/ss/ebitmap.c
-@@ -19,6 +19,7 @@
- #include <linux/kernel.h>
- #include <linux/slab.h>
- #include <linux/errno.h>
-+#include <linux/jhash.h>
- #include <net/netlabel.h>
- #include "ebitmap.h"
- #include "policydb.h"
-@@ -542,6 +543,19 @@ int ebitmap_write(struct ebitmap *e, void *fp)
+ static inline void mls_context_init(struct context *c)
+@@ -169,13 +168,12 @@ static inline int context_cpy(struct context *dst, struct context *src)
+ 		kfree(dst->str);
+ 		return rc;
+ 	}
+-	dst->hash = src->hash;
  	return 0;
  }
  
-+u32 ebitmap_hash(const struct ebitmap *e, u32 hash)
-+{
-+	struct ebitmap_node *node;
-+
-+	/* need to change hash even if ebitmap is empty */
-+	hash = jhash_1word(e->highbit, hash);
-+	for (node = e->node; node; node = node->next) {
-+		hash = jhash_1word(node->startbit, hash);
-+		hash = jhash(node->maps, sizeof(node->maps), hash);
-+	}
-+	return hash;
-+}
-+
- void __init ebitmap_cache_init(void)
+ static inline void context_destroy(struct context *c)
  {
- 	ebitmap_node_cachep = kmem_cache_create("ebitmap_node",
-diff --git a/security/selinux/ss/ebitmap.h b/security/selinux/ss/ebitmap.h
-index 9a23b81b8832..9eb2d0af2805 100644
---- a/security/selinux/ss/ebitmap.h
-+++ b/security/selinux/ss/ebitmap.h
-@@ -131,6 +131,7 @@ int ebitmap_set_bit(struct ebitmap *e, unsigned long bit, int value);
- void ebitmap_destroy(struct ebitmap *e);
- int ebitmap_read(struct ebitmap *e, void *fp);
- int ebitmap_write(struct ebitmap *e, void *fp);
-+u32 ebitmap_hash(const struct ebitmap *e, u32 hash);
+-	c->user = c->role = c->type = c->hash = 0;
++	c->user = c->role = c->type = 0;
+ 	kfree(c->str);
+ 	c->str = NULL;
+ 	c->len = 0;
+@@ -184,8 +182,6 @@ static inline void context_destroy(struct context *c)
  
- #ifdef CONFIG_NETLABEL
- int ebitmap_netlbl_export(struct ebitmap *ebmap,
-diff --git a/security/selinux/ss/mls.h b/security/selinux/ss/mls.h
-index 7954b1e60b64..15cacde0ff61 100644
---- a/security/selinux/ss/mls.h
-+++ b/security/selinux/ss/mls.h
-@@ -22,7 +22,10 @@
- #ifndef _SS_MLS_H_
- #define _SS_MLS_H_
+ static inline int context_cmp(struct context *c1, struct context *c2)
+ {
+-	if (c1->hash && c2->hash && (c1->hash != c2->hash))
+-		return 0;
+ 	if (c1->len && c2->len)
+ 		return (c1->len == c2->len && !strcmp(c1->str, c2->str));
+ 	if (c1->len || c2->len)
+@@ -198,10 +194,5 @@ static inline int context_cmp(struct context *c1, struct context *c2)
  
-+#include <linux/jhash.h>
-+
- #include "context.h"
-+#include "ebitmap.h"
- #include "policydb.h"
+ u32 context_compute_hash(const struct context *c);
  
- int mls_compute_context_len(struct policydb *p, struct context *context);
-@@ -101,5 +104,13 @@ static inline int mls_import_netlbl_cat(struct policydb *p,
- }
- #endif
- 
-+static inline u32 mls_range_hash(const struct mls_range *r, u32 hash)
-+{
-+	hash = jhash_2words(r->level[0].sens, r->level[1].sens, hash);
-+	hash = ebitmap_hash(&r->level[0].cat, hash);
-+	hash = ebitmap_hash(&r->level[1].cat, hash);
-+	return hash;
-+}
-+
- #endif	/* _SS_MLS_H */
+-static inline void context_add_hash(struct context *context)
+-{
+-	context->hash = context_compute_hash(context);
+-}
+-
+ #endif	/* _SS_CONTEXT_H_ */
  
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 70ecdc78efbd..ac6c0a214fc5 100644
+index ac6c0a214fc5..f00f5851638f 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -836,11 +836,8 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
+@@ -836,8 +836,6 @@ int policydb_load_isids(struct policydb *p, struct sidtab *s)
  		if (!name)
  			continue;
  
--		rc = context_add_hash(p, &c->context[0]);
--		if (rc) {
--			sidtab_destroy(s);
--			goto out;
--		}
-+		context_add_hash(&c->context[0]);
-+
+-		context_add_hash(&c->context[0]);
+-
  		rc = sidtab_set_initial(s, sid, &c->context[0]);
  		if (rc) {
  			pr_err("SELinux:  unable to load initial SID %s.\n",
 diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 8ad34fd031d1..e4ee6d5ed825 100644
+index e4ee6d5ed825..512cee09ee10 100644
 --- a/security/selinux/ss/services.c
 +++ b/security/selinux/ss/services.c
-@@ -1490,38 +1490,13 @@ out:
+@@ -1490,17 +1490,6 @@ out:
  	return rc;
  }
  
--int context_add_hash(struct policydb *policydb,
--		     struct context *context)
+-static int context_struct_to_sid(struct selinux_state *state,
+-				 struct context *context, u32 *sid)
 -{
--	int rc;
--	char *str;
--	int len;
+-	struct sidtab *sidtab = state->ss->sidtab;
 -
--	if (context->str) {
--		context->hash = context_compute_hash(context->str);
--	} else {
--		rc = context_struct_to_string(policydb, context,
--					      &str, &len);
--		if (rc)
--			return rc;
--		context->hash = context_compute_hash(str);
--		kfree(str);
--	}
--	return 0;
+-	if (!context->hash)
+-		context_add_hash(context);
+-
+-	return sidtab_context_to_sid(sidtab, context, sid);
 -}
 -
- static int context_struct_to_sid(struct selinux_state *state,
- 				 struct context *context, u32 *sid)
- {
--	int rc;
- 	struct sidtab *sidtab = state->ss->sidtab;
--	struct policydb *policydb = &state->ss->policydb;
- 
--	if (!context->hash) {
--		rc = context_add_hash(policydb, context);
--		if (rc)
--			return rc;
--	}
-+	if (!context->hash)
-+		context_add_hash(context);
- 
- 	return sidtab_context_to_sid(sidtab, context, sid);
- }
-@@ -2120,9 +2095,7 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
+ static int security_context_to_sid_core(struct selinux_state *state,
+ 					const char *scontext, u32 scontext_len,
+ 					u32 *sid, u32 def_sid, gfp_t gfp_flags,
+@@ -1555,7 +1544,7 @@ static int security_context_to_sid_core(struct selinux_state *state,
+ 		str = NULL;
+ 	} else if (rc)
+ 		goto out_unlock;
+-	rc = context_struct_to_sid(state, &context, sid);
++	rc = sidtab_context_to_sid(sidtab, &context, sid);
+ 	context_destroy(&context);
+ out_unlock:
+ 	read_unlock(&state->ss->policy_rwlock);
+@@ -1866,7 +1855,7 @@ static int security_compute_sid(struct selinux_state *state,
+ 			goto out_unlock;
+ 	}
+ 	/* Obtain the sid for the context. */
+-	rc = context_struct_to_sid(state, &newcontext, out_sid);
++	rc = sidtab_context_to_sid(sidtab, &newcontext, out_sid);
+ out_unlock:
+ 	read_unlock(&state->ss->policy_rwlock);
+ 	context_destroy(&newcontext);
+@@ -2018,7 +2007,6 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
+ 			context_init(newc);
+ 			newc->str = s;
+ 			newc->len = oldc->len;
+-			newc->hash = oldc->hash;
+ 			return 0;
+ 		}
+ 		kfree(s);
+@@ -2095,8 +2083,6 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
  			goto bad;
  	}
  
--	rc = context_add_hash(args->newp, newc);
--	if (rc)
--		goto bad;
-+	context_add_hash(newc);
- 
+-	context_add_hash(newc);
+-
  	return 0;
  bad:
-@@ -2133,7 +2106,7 @@ bad:
+ 	/* Map old representation to string and save it. */
+@@ -2106,7 +2092,6 @@ bad:
  	context_destroy(newc);
  	newc->str = s;
  	newc->len = len;
--	newc->hash = context_compute_hash(s);
-+	context_add_hash(newc);
+-	context_add_hash(newc);
  	pr_info("SELinux:  Context %s became invalid (unmapped).\n",
  		newc->str);
  	return 0;
-diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
-index e9bddf33e53d..a06f3d835216 100644
---- a/security/selinux/ss/services.h
-+++ b/security/selinux/ss/services.h
-@@ -8,7 +8,6 @@
- #define _SS_SERVICES_H_
+@@ -2323,12 +2308,14 @@ int security_port_sid(struct selinux_state *state,
+ 		      u8 protocol, u16 port, u32 *out_sid)
+ {
+ 	struct policydb *policydb;
++	struct sidtab *sidtab;
+ 	struct ocontext *c;
+ 	int rc = 0;
  
- #include "policydb.h"
--#include "context.h"
+ 	read_lock(&state->ss->policy_rwlock);
  
- /* Mapping for a single class */
- struct selinux_mapping {
-@@ -37,6 +36,4 @@ void services_compute_xperms_drivers(struct extended_perms *xperms,
- void services_compute_xperms_decision(struct extended_perms_decision *xpermd,
- 					struct avtab_node *node);
+ 	policydb = &state->ss->policydb;
++	sidtab = state->ss->sidtab;
  
--int context_add_hash(struct policydb *policydb, struct context *context);
+ 	c = policydb->ocontexts[OCON_PORT];
+ 	while (c) {
+@@ -2341,7 +2328,7 @@ int security_port_sid(struct selinux_state *state,
+ 
+ 	if (c) {
+ 		if (!c->sid[0]) {
+-			rc = context_struct_to_sid(state, &c->context[0],
++			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+ 						   &c->sid[0]);
+ 			if (rc)
+ 				goto out;
+@@ -2366,12 +2353,14 @@ int security_ib_pkey_sid(struct selinux_state *state,
+ 			 u64 subnet_prefix, u16 pkey_num, u32 *out_sid)
+ {
+ 	struct policydb *policydb;
++	struct sidtab *sidtab;
+ 	struct ocontext *c;
+ 	int rc = 0;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
+ 	policydb = &state->ss->policydb;
++	sidtab = state->ss->sidtab;
+ 
+ 	c = policydb->ocontexts[OCON_IBPKEY];
+ 	while (c) {
+@@ -2385,7 +2374,7 @@ int security_ib_pkey_sid(struct selinux_state *state,
+ 
+ 	if (c) {
+ 		if (!c->sid[0]) {
+-			rc = context_struct_to_sid(state,
++			rc = sidtab_context_to_sid(sidtab,
+ 						   &c->context[0],
+ 						   &c->sid[0]);
+ 			if (rc)
+@@ -2410,12 +2399,14 @@ int security_ib_endport_sid(struct selinux_state *state,
+ 			    const char *dev_name, u8 port_num, u32 *out_sid)
+ {
+ 	struct policydb *policydb;
++	struct sidtab *sidtab;
+ 	struct ocontext *c;
+ 	int rc = 0;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
+ 	policydb = &state->ss->policydb;
++	sidtab = state->ss->sidtab;
+ 
+ 	c = policydb->ocontexts[OCON_IBENDPORT];
+ 	while (c) {
+@@ -2430,7 +2421,7 @@ int security_ib_endport_sid(struct selinux_state *state,
+ 
+ 	if (c) {
+ 		if (!c->sid[0]) {
+-			rc = context_struct_to_sid(state, &c->context[0],
++			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+ 						   &c->sid[0]);
+ 			if (rc)
+ 				goto out;
+@@ -2453,12 +2444,14 @@ int security_netif_sid(struct selinux_state *state,
+ 		       char *name, u32 *if_sid)
+ {
+ 	struct policydb *policydb;
++	struct sidtab *sidtab;
+ 	int rc = 0;
+ 	struct ocontext *c;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
+ 	policydb = &state->ss->policydb;
++	sidtab = state->ss->sidtab;
+ 
+ 	c = policydb->ocontexts[OCON_NETIF];
+ 	while (c) {
+@@ -2469,11 +2462,11 @@ int security_netif_sid(struct selinux_state *state,
+ 
+ 	if (c) {
+ 		if (!c->sid[0] || !c->sid[1]) {
+-			rc = context_struct_to_sid(state, &c->context[0],
++			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+ 						   &c->sid[0]);
+ 			if (rc)
+ 				goto out;
+-			rc = context_struct_to_sid(state, &c->context[1],
++			rc = sidtab_context_to_sid(sidtab, &c->context[1],
+ 						   &c->sid[1]);
+ 			if (rc)
+ 				goto out;
+@@ -2514,12 +2507,14 @@ int security_node_sid(struct selinux_state *state,
+ 		      u32 *out_sid)
+ {
+ 	struct policydb *policydb;
++	struct sidtab *sidtab;
+ 	int rc;
+ 	struct ocontext *c;
+ 
+ 	read_lock(&state->ss->policy_rwlock);
+ 
+ 	policydb = &state->ss->policydb;
++	sidtab = state->ss->sidtab;
+ 
+ 	switch (domain) {
+ 	case AF_INET: {
+@@ -2561,7 +2556,7 @@ int security_node_sid(struct selinux_state *state,
+ 
+ 	if (c) {
+ 		if (!c->sid[0]) {
+-			rc = context_struct_to_sid(state,
++			rc = sidtab_context_to_sid(sidtab,
+ 						   &c->context[0],
+ 						   &c->sid[0]);
+ 			if (rc)
+@@ -2645,17 +2640,12 @@ int security_get_user_sids(struct selinux_state *state,
+ 		usercon.role = i + 1;
+ 		ebitmap_for_each_positive_bit(&role->types, tnode, j) {
+ 			usercon.type = j + 1;
+-			/*
+-			 * The same context struct is reused here so the hash
+-			 * must be reset.
+-			 */
+-			usercon.hash = 0;
+ 
+ 			if (mls_setup_user_range(policydb, fromcon, user,
+ 						 &usercon))
+ 				continue;
+ 
+-			rc = context_struct_to_sid(state, &usercon, &sid);
++			rc = sidtab_context_to_sid(sidtab, &usercon, &sid);
+ 			if (rc)
+ 				goto out_unlock;
+ 			if (mynel < maxnel) {
+@@ -2726,6 +2716,7 @@ static inline int __security_genfs_sid(struct selinux_state *state,
+ 				       u32 *sid)
+ {
+ 	struct policydb *policydb = &state->ss->policydb;
++	struct sidtab *sidtab = state->ss->sidtab;
+ 	int len;
+ 	u16 sclass;
+ 	struct genfs *genfs;
+@@ -2760,7 +2751,7 @@ static inline int __security_genfs_sid(struct selinux_state *state,
+ 		goto out;
+ 
+ 	if (!c->sid[0]) {
+-		rc = context_struct_to_sid(state, &c->context[0], &c->sid[0]);
++		rc = sidtab_context_to_sid(sidtab, &c->context[0], &c->sid[0]);
+ 		if (rc)
+ 			goto out;
+ 	}
+@@ -2802,6 +2793,7 @@ int security_genfs_sid(struct selinux_state *state,
+ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+ {
+ 	struct policydb *policydb;
++	struct sidtab *sidtab;
+ 	int rc = 0;
+ 	struct ocontext *c;
+ 	struct superblock_security_struct *sbsec = sb->s_security;
+@@ -2810,6 +2802,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+ 	read_lock(&state->ss->policy_rwlock);
+ 
+ 	policydb = &state->ss->policydb;
++	sidtab = state->ss->sidtab;
+ 
+ 	c = policydb->ocontexts[OCON_FSUSE];
+ 	while (c) {
+@@ -2821,7 +2814,7 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
+ 	if (c) {
+ 		sbsec->behavior = c->v.behavior;
+ 		if (!c->sid[0]) {
+-			rc = context_struct_to_sid(state, &c->context[0],
++			rc = sidtab_context_to_sid(sidtab, &c->context[0],
+ 						   &c->sid[0]);
+ 			if (rc)
+ 				goto out;
+@@ -3069,7 +3062,7 @@ int security_sid_mls_copy(struct selinux_state *state,
+ 			goto out_unlock;
+ 		}
+ 	}
+-	rc = context_struct_to_sid(state, &newcon, new_sid);
++	rc = sidtab_context_to_sid(sidtab, &newcon, new_sid);
+ out_unlock:
+ 	read_unlock(&state->ss->policy_rwlock);
+ 	context_destroy(&newcon);
+@@ -3662,7 +3655,7 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
+ 		if (!mls_context_isvalid(policydb, &ctx_new))
+ 			goto out_free;
+ 
+-		rc = context_struct_to_sid(state, &ctx_new, sid);
++		rc = sidtab_context_to_sid(sidtab, &ctx_new, sid);
+ 		if (rc)
+ 			goto out_free;
+ 
+diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
+index a308ce1e6a13..8012a6f7ef89 100644
+--- a/security/selinux/ss/sidtab.c
++++ b/security/selinux/ss/sidtab.c
+@@ -54,14 +54,15 @@ int sidtab_init(struct sidtab *s)
+ 	return 0;
+ }
+ 
+-static u32 context_to_sid(struct sidtab *s, struct context *context)
++static u32 context_to_sid(struct sidtab *s, struct context *context, u32 hash)
+ {
+ 	struct sidtab_entry *entry;
+ 	u32 sid = 0;
+ 
+ 	rcu_read_lock();
+-	hash_for_each_possible_rcu(s->context_to_sid, entry, list,
+-				   context->hash) {
++	hash_for_each_possible_rcu(s->context_to_sid, entry, list, hash) {
++		if (entry->hash != hash)
++			continue;
+ 		if (context_cmp(&entry->context, context)) {
+ 			sid = entry->sid;
+ 			break;
+@@ -74,6 +75,7 @@ static u32 context_to_sid(struct sidtab *s, struct context *context)
+ int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
+ {
+ 	struct sidtab_isid_entry *isid;
++	u32 hash;
+ 	int rc;
+ 
+ 	if (sid == 0 || sid > SECINITSID_NUM)
+@@ -90,15 +92,18 @@ int sidtab_set_initial(struct sidtab *s, u32 sid, struct context *context)
+ #endif
+ 	isid->set = 1;
+ 
++	hash = context_compute_hash(context);
++
+ 	/*
+ 	 * Multiple initial sids may map to the same context. Check that this
+ 	 * context is not already represented in the context_to_sid hashtable
+ 	 * to avoid duplicate entries and long linked lists upon hash
+ 	 * collision.
+ 	 */
+-	if (!context_to_sid(s, context)) {
++	if (!context_to_sid(s, context, hash)) {
+ 		isid->entry.sid = sid;
+-		hash_add(s->context_to_sid, &isid->entry.list, context->hash);
++		isid->entry.hash = hash;
++		hash_add(s->context_to_sid, &isid->entry.list, hash);
+ 	}
+ 
+ 	return 0;
+@@ -259,12 +264,12 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
+ 			  u32 *sid)
+ {
+ 	unsigned long flags;
+-	u32 count;
++	u32 count, hash = context_compute_hash(context);
+ 	struct sidtab_convert_params *convert;
+ 	struct sidtab_entry *dst, *dst_convert;
+ 	int rc;
+ 
+-	*sid = context_to_sid(s, context);
++	*sid = context_to_sid(s, context, hash);
+ 	if (*sid)
+ 		return 0;
+ 
+@@ -272,7 +277,7 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
+ 	spin_lock_irqsave(&s->lock, flags);
+ 
+ 	rc = 0;
+-	*sid = context_to_sid(s, context);
++	*sid = context_to_sid(s, context, hash);
+ 	if (*sid)
+ 		goto out_unlock;
+ 
+@@ -292,6 +297,7 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
+ 		goto out_unlock;
+ 
+ 	dst->sid = index_to_sid(count);
++	dst->hash = hash;
+ 
+ 	rc = context_cpy(&dst->context, context);
+ 	if (rc)
+@@ -316,10 +322,11 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
+ 			goto out_unlock;
+ 		}
+ 		dst_convert->sid = index_to_sid(count);
++		dst_convert->hash = context_compute_hash(&dst_convert->context);
+ 		convert->target->count = count + 1;
+ 
+ 		hash_add_rcu(convert->target->context_to_sid,
+-			     &dst_convert->list, dst_convert->context.hash);
++			     &dst_convert->list, dst_convert->hash);
+ 	}
+ 
+ 	if (context->len)
+@@ -330,7 +337,7 @@ int sidtab_context_to_sid(struct sidtab *s, struct context *context,
+ 
+ 	/* write entries before updating count */
+ 	smp_store_release(&s->count, count + 1);
+-	hash_add_rcu(s->context_to_sid, &dst->list, dst->context.hash);
++	hash_add_rcu(s->context_to_sid, &dst->list, dst->hash);
+ 
+ 	rc = 0;
+ out_unlock:
+@@ -346,10 +353,9 @@ static void sidtab_convert_hashtable(struct sidtab *s, u32 count)
+ 	for (i = 0; i < count; i++) {
+ 		entry = sidtab_do_lookup(s, i, 0);
+ 		entry->sid = index_to_sid(i);
++		entry->hash = context_compute_hash(&entry->context);
+ 
+-		hash_add_rcu(s->context_to_sid, &entry->list,
+-			     entry->context.hash);
 -
- #endif	/* _SS_SERVICES_H_ */
++		hash_add_rcu(s->context_to_sid, &entry->list, entry->hash);
+ 	}
+ }
+ 
+diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
+index 3311d9f236c0..f2a84560b8b3 100644
+--- a/security/selinux/ss/sidtab.h
++++ b/security/selinux/ss/sidtab.h
+@@ -19,6 +19,7 @@
+ 
+ struct sidtab_entry {
+ 	u32 sid;
++	u32 hash;
+ 	struct context context;
+ #if CONFIG_SECURITY_SELINUX_SID2STR_CACHE_SIZE > 0
+ 	struct sidtab_str_cache __rcu *cache;
 -- 
 2.25.2
 
