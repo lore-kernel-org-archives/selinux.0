@@ -2,87 +2,99 @@ Return-Path: <SRS0=6dkg=6B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7947C2D0EF
-	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 20:09:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5EFAC2BB1D
+	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 20:44:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9FDA2221EC
-	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 20:09:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 651C3221EC
+	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 20:44:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="cnt0WJZV"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Is9tZ6Fj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730705AbgDQUJN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Apr 2020 16:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59876 "EHLO
+        id S1725800AbgDQUod (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Apr 2020 16:44:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730573AbgDQUJM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Apr 2020 16:09:12 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EE16C061A0C
-        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 13:09:12 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id s3so2483763eji.6
-        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 13:09:12 -0700 (PDT)
+        with ESMTP id S1726079AbgDQUob (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Apr 2020 16:44:31 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 146B7C061A0C
+        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 13:44:31 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id s10so2449577edy.9
+        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 13:44:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=zoZznSpCyUvc8fgJPyCTVlVm7SRAQUYsp6K8PnU/nEY=;
-        b=cnt0WJZVimgp6olkgVT4++ILU7b9NHi+lMM+r/05hsQofhqtuELyko7BgZjdlPSc62
-         vybLKJagJtcnkjMGRIUfFLmk16djyLSjy720w3yK700YnyeoWKC2Guj7j9gNhMNbKLg2
-         5Fn9US0TBvKb7hsxyOBhFWMibOlGvBYyYWTc7CrT95IFSuSWZzg80TqvJGu9JocBZ0x9
-         RD3GEODLO0mVsdz2vm8A/H/lSKtKIEq7WWsyicy63oaeiu7TPAub05ZzSli2ZGySg9Wn
-         HDmXO3fYWwNErqgzmpRemwEmA9qEJNrK8VrK4qE987HaWkbWD+78ztzvrJ2/cXtbTwV6
-         McOg==
+        bh=6AuQdqYUKYqxX80Yvnj1E7DzF5xtQ/B37Pv5YeoYXbg=;
+        b=Is9tZ6FjqINjPIcWbpqrUQIlfACdE9wMHdfDo8vYYvwTiwuzlEvid42kH+22yXVOIE
+         NZ0VTcz7aXGp8qRe+8xuIYbXQJuCszBwXyxnlAGOrKGuNO9Px91cPYYkMRsaNQVUy451
+         rfwFkqt6yUFFuutWVWWxSdozgy7vDCoEbuNd4cwzyj83QA+Q5iTx8MK8oAM0vHyCl6lA
+         20Gvhob8bbzPfJjTjWZg6ntua0DajzJTvnmMDVGTvTrjERvu6iiZ7n7n/Y1oAEEzEbLF
+         z4ZhY/gliWDwpttxJkTuPbAyUhSSBV2a53K9UtgY9oO8QVxPzCNqNikig6hoZsVwgijX
+         MH4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=zoZznSpCyUvc8fgJPyCTVlVm7SRAQUYsp6K8PnU/nEY=;
-        b=kkFcwJ8m95d3D9mXqNiHd+jWBHEe2XfW2iFWhFAg2/80FUR15tcw5pI3kd7w3NU64w
-         I69nKNANHHdX3cCyxVl4V7Q1XDFQf527lzvOW1zbLhhEHW3ngQ6TVwZNlrESUnnT0FeK
-         3kXYG8v+hn3EDObU17+knOJOSFb22kLQh1DZBI6/fvSbRE5EXa7cOPYsDPpZl3kTdbAV
-         t1Vqbl/VuJpHcMJfAPSe/P0y/bfLpDORlk0KQFFe7xil14cfWM54xvXDWMOlHBNklOpM
-         PCWkfuUTTccnhyWJsGNV9/nZDQQL37KXWKLSMrCxbTBDyQE3wbRznLwmAzr7gvBUk/sQ
-         4ATQ==
-X-Gm-Message-State: AGi0PuZqnSTyVD2wj7tEjwc64M1yn3R33MV2sMa46xtwiB/q0Ruv7D/w
-        CH64GA1m1OSc5C4zPcZkXB6eqUiht69pxEfGGPvu
-X-Google-Smtp-Source: APiQypIvCkbC92vm+Y1OMRFFaTDYlCRNde9HDIwSf6twMvsX+Syy65R/Ifmjh0QBQfiqMFPwsJk0AIjbRweb4FG/1rU=
-X-Received: by 2002:a17:906:f288:: with SMTP id gu8mr4844452ejb.281.1587154151093;
- Fri, 17 Apr 2020 13:09:11 -0700 (PDT)
+        bh=6AuQdqYUKYqxX80Yvnj1E7DzF5xtQ/B37Pv5YeoYXbg=;
+        b=dl/BKRckcq/FhwYWDCzsRpaP/EEdgEi7pADv/7IoidFSIq6t7l2UMr4konIb8JzdTw
+         bxnhbyBVZde7p5yyjtwzhW0wRTPVcLQLzMpRMx+XUgKZbs4iXCDyAySCYhOggoafFclj
+         ZbHKkYuaEkpC/e7V5ddjw02nRjX4XPtV+xl7LN8pjSYmKyZpUoEua1eR9oQfr3ZI+5bu
+         WJhwP6rYLcbM4avvZy3KWyEFNB3K2Aq+N19PosdzO2/GoHMydLojDXIdKuZQasyzBpUH
+         AScdd41BYLG0rhJllRT+vzwY6wMQqBYBZL3i4R/zLCkrp2vzlST5lCjiKSxFpgDtZpvF
+         NLpQ==
+X-Gm-Message-State: AGi0Pub8au4fvnhtsDbY6B+pxZG5dul+K9wknACsFovH0d+aoQWFdBms
+        NhezhLHpLAxD/q/XSN6hhoQPuZoOMBXmlKC0+siq
+X-Google-Smtp-Source: APiQypLZcMuPKXSfit9ap3cPX9eRKB2IBd4dtM9vDAwhgi7owSuk2LRVzH8wXHAOx7whZf/MFerUJnexwl7rqYopmRo=
+X-Received: by 2002:a05:6402:1b0b:: with SMTP id by11mr4817446edb.269.1587156269676;
+ Fri, 17 Apr 2020 13:44:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200417081157.606789-1-omosnace@redhat.com> <20200417081157.606789-3-omosnace@redhat.com>
-In-Reply-To: <20200417081157.606789-3-omosnace@redhat.com>
+References: <20200416171355.560244-1-omosnace@redhat.com>
+In-Reply-To: <20200416171355.560244-1-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 17 Apr 2020 16:09:00 -0400
-Message-ID: <CAHC9VhSdemWxLYPnpMZXb531GsxBNQQc_W774XwKjCu94rEWig@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] selinux: move context hashing under sidtab
+Date:   Fri, 17 Apr 2020 16:44:18 -0400
+Message-ID: <CAHC9VhRESpKxZ=9j1q7B347LrLMdD6aWycq7_NT36nSYtrEbLw@mail.gmail.com>
+Subject: Re: [PATCH v2] selinux: implement new format of filename transitions
 To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
-        Jeff Vander Stoep <jeffv@google.com>
+Cc:     selinux@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Apr 17, 2020 at 4:12 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Thu, Apr 16, 2020 at 1:14 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Now that context hash computation no longer depends on policydb, we can
-> simplify things by moving the context hashing completely under sidtab.
-> The hash is still cached in sidtab entries, but not for the in-flight
-> context structures.
+> Implement a new, more space-efficient way of storing filename
+> transitions in the binary policy. The internal structures have already
+> been converted to this new representation; this patch just implements
+> reading/writing an equivalent represntation from/to the binary policy.
+>
+> This new format reduces the size of Fedora policy from 7.6 MB to only
+> 3.3 MB (with policy optimization enabled in both cases). With the
+> unconfined module disabled, the size is reduced from 3.3 MB to 2.4 MB.
+>
+> The time to load policy into kernel is also shorter with the new format.
+> On Fedora Rawhide x86_64 it dropped from 157 ms to 106 ms; without the
+> unconfined module from 115 ms to 105 ms.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  security/selinux/ss/context.h  | 11 +------
->  security/selinux/ss/policydb.c |  2 --
->  security/selinux/ss/services.c | 59 +++++++++++++++-------------------
->  security/selinux/ss/sidtab.c   | 32 ++++++++++--------
->  security/selinux/ss/sidtab.h   |  1 +
->  5 files changed, 47 insertions(+), 58 deletions(-)
+>
+> Changes in v2:
+>  - rename the read/write helpers
+>  - move update of filename_trans_ttypes in filename_trans_read_helper()
+>    to later in the function
+>  - make filename_trans_read_helper() count filename_trans_count
+>    correctly
+>
+>  security/selinux/include/security.h |   3 +-
+>  security/selinux/ss/policydb.c      | 212 ++++++++++++++++++++++++----
+>  2 files changed, 189 insertions(+), 26 deletions(-)
 
 Merged into selinux/next, thanks.
 
