@@ -2,213 +2,105 @@ Return-Path: <SRS0=6dkg=6B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E58FCC2BB1D
-	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 20:50:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAD9CC2BB1D
+	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 21:47:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B8D46221E9
-	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 20:50:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 978BB20780
+	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 21:47:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L2uXwb7y"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="cEaiUcjs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726123AbgDQUuH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Apr 2020 16:50:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37928 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725915AbgDQUuG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Apr 2020 16:50:06 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70596C061A0C
-        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 13:50:05 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id i2so3473876ils.12
-        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 13:50:05 -0700 (PDT)
+        id S1728236AbgDQVrr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Apr 2020 17:47:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46806 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728160AbgDQVrq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Apr 2020 17:47:46 -0400
+Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2651C061A0C
+        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 14:47:45 -0700 (PDT)
+Received: by mail-pj1-x1043.google.com with SMTP id q16so2718552pje.1
+        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 14:47:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=D33Ywwx4zsVYQojB4N8AUsgLi5QOZg4T/WvD1fJ7FOw=;
-        b=L2uXwb7yPY+nikjNTYUmAGOixO/ABcctcxv28tgAnKZDgTpWT/yZK50EZVJaf1ENO8
-         VIJ0h9gi1SbS3QAhAkbRFley3zG6hWWdZZg57leDeseEoNe1xigP1wpmh7EEKR7Uuvyj
-         GTaLR4oxaaHdMwvAM8XP/kxxsKN6uD3p64nTzNovOyQbc/+NnpDWA0JFBV4TSlsw6YCT
-         31kfhI1gn+/Uw3SHlrTuuQ1UcVj6mwFTIF7Ft9ad7RLopKHvFRiPXiMVBO6ndRzJFkp6
-         tYK2gDCHEIlmhzkOWJ3Qzsb50AnjjBUvD7c0u/G+pdM9KZGQ7Z4FzL3tIbbXDSF3qKwe
-         lcIQ==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=DRt4C7/WIs1+VhAiCTH+4FeZZqGsnWCjU0PYJU0xZlU=;
+        b=cEaiUcjsEoEQezIOvvYbZLC7IzMZ4gCGuoytG0HB6Ad7rkrKRFadck9+rVYc0raIAU
+         rku10sD+Edqs2eBsi85GHr3/YpsIkEm+WalCUnwgSIBSCPOjj/Ux4I5JZ4hzGxBQUl1o
+         o3Cinv4mLP8PSEuvMNel/cqY3Bm0LAuN6KnT4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=D33Ywwx4zsVYQojB4N8AUsgLi5QOZg4T/WvD1fJ7FOw=;
-        b=YhCNytynISIR78ViDQ7LUybnP5Z/e7rQ15OP7Thm3QFtoBEQYvjg/DZjPyumDE5vhZ
-         OwwjOzwgoi1c5O6EvoyD0Z7TkhIM3arocM/XwHtomeR8Qg48wLT3VY/11/jvIc/8KTut
-         mykEDS28tl+KwC69TzhmxBHhrosdAbPH9PBqlzUI7vJquPvG9mpk1VgV02I2GtRhTNpN
-         3fG/9qWg9QAB0Hdyp4ZBpQAlhCBA022EHjTjaW4dr+gQQuP2/97zUik7xFrlDyk1bF2m
-         ymF7W/ttGiLIEBgH8554XvHsWSo1UoWWWZ4tAB6V+/oO6LDsg9CmvP+ci3UW5uaC5V9O
-         mItQ==
-X-Gm-Message-State: AGi0PuZtAvE4ci72TY29RuV3+Wk14HCIKaUcFanuKJVWpPrv4R9omb7f
-        ZJjZPHl8VUVvOtrMlK7ZhpWWqi8pgN8KDkYjQiY=
-X-Google-Smtp-Source: APiQypIH9GU4W2telQkBHwUf7tQpIxLaHpM7y0Ia79pZZziBIvk65jmF6aYyQwJIvZPurWmK/rY7omu5HtY9oLHvaz4=
-X-Received: by 2002:a92:c6c8:: with SMTP id v8mr4769422ilm.129.1587156604513;
- Fri, 17 Apr 2020 13:50:04 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=DRt4C7/WIs1+VhAiCTH+4FeZZqGsnWCjU0PYJU0xZlU=;
+        b=GVwl4BerLchja9A2SZT4ruQPJXzjGJO3204C+PQ0L54n56/7JhbcUgVh30+faoRut8
+         2dTg6xrPiWqcxIooG6ObyKohSnlGjcUixxD08vEpKQxH6ErPI9utPc1e8Wexl0hHHv1X
+         hrdIX0eRVyoNP7eyS6E0w5NcQ7exCUQFUL47LZ6aeunZhETUqj7WvvEgWnp61Zy069jv
+         CfJidWb7beLukuJPYNAq+RdHzZ3Unrtx+LBugd2JZDb8X57gvZxYYStIw11/DF0eplVy
+         XHeEnSQsqC3Aorr/sOhbE3ybZ+ulIfsetFD33Y3Ij/Mk0mxXXcTbJzV6hiuIvNXL16D/
+         Q72g==
+X-Gm-Message-State: AGi0PuZY11xxNAjjhQNI0AKkvB7M9oDxPd478gfKwrHLHa+gMvBGuJPO
+        Odc4IzslMr2C58n1V9uHFrI9/2qEDc8=
+X-Google-Smtp-Source: APiQypIloySeAL+eZWlJdo5HlPOyG9Fx62JVFixaP0TaW5Y0yMjZxzW0z2V12wH6lEDYBVQx38KvhA==
+X-Received: by 2002:a17:90a:bf86:: with SMTP id d6mr6447069pjs.180.1587160064669;
+        Fri, 17 Apr 2020 14:47:44 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id j16sm18029517pgi.40.2020.04.17.14.47.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Apr 2020 14:47:43 -0700 (PDT)
+Date:   Fri, 17 Apr 2020 14:47:42 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Subject: Re: [PATCH] selinux: free str on error in str_read()
+Message-ID: <202004171446.B5B5647ED9@keescook>
+References: <20200414142351.162526-1-omosnace@redhat.com>
+ <CAHC9VhRZgntyb4SneJDmpSSvfLYiox1Bz-SYMs6V9ncyCZPqSw@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200412081001.23246-1-nicolas.iooss@m4x.org> <CAFftDdpmF6H21DmDLaYwJW9QQx3hBq7i14SEsKeA=ktPE0brKA@mail.gmail.com>
- <CAJfZ7==YbLMj4mKtD9KRA5YE=ySBMKZ9V45OfD1Uod5rPhzhRw@mail.gmail.com> <476DC76E7D1DF2438D32BFADF679FC5649ECC02C@ORSMSX101.amr.corp.intel.com>
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5649ECC02C@ORSMSX101.amr.corp.intel.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 17 Apr 2020 15:49:53 -0500
-Message-ID: <CAFftDdqUOczNTKnQH2F3EvydYce+TwSQ+vCSF8mXfFkpi7FmjQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libselinux: add missing glue code to grab errno in
- Python bindings
-To:     "Roberts, William C" <william.c.roberts@intel.com>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhRZgntyb4SneJDmpSSvfLYiox1Bz-SYMs6V9ncyCZPqSw@mail.gmail.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
->
-> > -----Original Message-----
-> > From: selinux-owner@vger.kernel.org [mailto:selinux-owner@vger.kernel.org]
-> > On Behalf Of Nicolas Iooss
-> > Sent: Monday, April 13, 2020 11:15 AM
-> > To: William Roberts <bill.c.roberts@gmail.com>
-> > Cc: SElinux list <selinux@vger.kernel.org>
-> > Subject: Re: [PATCH 1/3] libselinux: add missing glue code to grab errno in Python
-> > bindings
+On Wed, Apr 15, 2020 at 06:04:53PM -0400, Paul Moore wrote:
+> On Tue, Apr 14, 2020 at 10:25 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > On Mon, Apr 13, 2020 at 4:18 PM William Roberts <bill.c.roberts@gmail.com>
-> > wrote:
-> > >
-> > > On Sun, Apr 12, 2020 at 3:12 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > > >
-> > > > The Python bindings for libselinux expose functions such as
-> > > > avc_has_perm(), get_ordered_context_list(), etc. When these
-> > > > functions encounter an error, they set errno accordingly and return
-> > > > a negative value. In order to get the value of errno from Python
-> > > > code, it needs to be "forwarded" in a way. This is achieved by glue
-> > > > code in selinuxswig_python_exception.i, which implement raising an
-> > > > OSError exception from the value of errno.
-> > > >
-> > > > selinuxswig_python_exception.i was only generating glue code from
-> > > > functions declared in selinux.h and not in other headers. Add other
-> > > > headers.
-> > > >
-> > > > selinuxswig_python_exception.i is generated by "bash exception.sh".
-> > > > Mark the fact that exception.sh is a Bash script by adding a
-> > > > shebang. This makes "shellcheck" not warn about the Bash array which
-> > > > is used to list header files.
-> > > >
-> > > > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> > > > ---
-> > > >  libselinux/src/exception.sh                   |  18 +-
-> > > >  libselinux/src/selinuxswig_python_exception.i | 396
-> > > > ++++++++++++++++++
-> > > >  2 files changed, 412 insertions(+), 2 deletions(-)
-> > > >
-> > > > diff --git a/libselinux/src/exception.sh
-> > > > b/libselinux/src/exception.sh index 33ceef804af5..644c7a05ec54
-> > > > 100755
-> > > > --- a/libselinux/src/exception.sh
-> > > > +++ b/libselinux/src/exception.sh
-> > > > @@ -1,3 +1,5 @@
-> > > > +#!/bin/bash
-> > > > +
-> > > >  function except() {
-> > > >  case $1 in
-> > > >      selinux_file_context_cmp) # ignore @@ -15,10 +17,22 @@ echo "
-> > > >  ;;
-> > > >  esac
-> > > >  }
-> > > > -if ! ${CC:-gcc} -x c -c -I../include -o temp.o - -aux-info temp.aux
-> > > > < ../include/selinux/selinux.h
-> > > > +
-> > > > +# Make sure that selinux.h is included first in order not to depend
-> > > > +on the order # in which "#include <selinux/selinux.h>" appears in other files.
-> > > > +FILE_LIST=(
-> > > > +    ../include/selinux/selinux.h
-> > > > +    ../include/selinux/avc.h
-> > > > +    ../include/selinux/context.h
-> > > > +    ../include/selinux/get_context_list.h
-> > > > +    ../include/selinux/get_default_type.h
-> > > > +    ../include/selinux/label.h
-> > > > +    ../include/selinux/restorecon.h
-> > > > +)
-> > > > +if ! cat "${FILE_LIST[@]}" | ${CC:-gcc} -x c -c -I../include -o
-> > > > +temp.o - -aux-info temp.aux
-> > > >  then
-> > > >      # clang does not support -aux-info so fall back to gcc
-> > > > -    gcc -x c -c -I../include -o temp.o - -aux-info temp.aux <
-> > ../include/selinux/selinux.h
-> > > > +    cat "${FILE_LIST[@]}" | gcc -x c -c -I../include -o temp.o -
-> > > > + -aux-info temp.aux
-> > > >  fi
-> > > >  for i in `awk '/<stdin>.*extern int/ { print $6 }' temp.aux`; do
-> > > > except $i ; done  rm -f -- temp.aux temp.o diff --git
-> > > > a/libselinux/src/selinuxswig_python_exception.i
-> > > > b/libselinux/src/selinuxswig_python_exception.i
-> > > > index cf6582595ee7..9f1f86a5564d 100644
-> > > > --- a/libselinux/src/selinuxswig_python_exception.i
-> > > > +++ b/libselinux/src/selinuxswig_python_exception.i
-> > > > @@ -952,3 +952,399 @@
-> > > >    }
-> > > >  }
-> > > >
-> > > > +
-> > > > +%exception avc_sid_to_context {
-> > > > +  $action
-> > > > +  if (result < 0) {
-> > > > +     PyErr_SetFromErrno(PyExc_OSError);
-> > > > +     SWIG_fail;
-> > > > +  }
-> > > > +}
-> > > > +
-> > > > +
-> > > > +%exception avc_sid_to_context_raw {
-> > > > +  $action
-> > > > +  if (result < 0) {
-> > > > +     PyErr_SetFromErrno(PyExc_OSError);
-> > > > +     SWIG_fail;
-> > > > +  }
-> > > > +}
-> > [...]
-> > >
-> > > A few comments:
-> > > - overall looks fine, builds and works as expected.
-> > > - Why the double newline space on the exception swig file? The other
-> > > .i files seem to do a single newline?
-> > >   is their something I am missing with syntax?
-> > > - I have the following whitespace warning:
-> > > Applying: libselinux: add missing glue code to grab errno in Python
-> > > bindings
-> > > .git/rebase-apply/patch:444: new blank line at EOF.
-> > > +
-> > > warning: 1 line adds whitespace errors.
+> > In [see "Fixes:"] I missed the fact that str_read() may give back an
+> > allocated pointer even if it returns an error, causing a potential
+> > memory leak in filename_trans_read_one(). Fix this by making the
+> > function free the allocated string whenever it returns a non-zero value,
+> > which also makes its behavior more obvious and prevents repeating the
+> > same mistake in the future.
 > >
-> > The last two points are due to the way the file is generated, by exception.sh:
-> >
-> > echo "
-> > %exception $1 {
-> >   \$action
-> >   if (result < 0) {
-> >      PyErr_SetFromErrno(PyExc_OSError);
-> >      SWIG_fail;
-> >   }
-> > }
-> > "
-> > ... this introduces blank lines both before and after each exception blocks. We
-> > could remove the one after the block by using }" in the shell script. I will submit a
-> > patch that does this once this patch is merged, as this makes the file cleaner.
->
-> WFM. Thanks for fixing this, I used the python bindings eons ago and remember
-> being frustrated I didn't get really good errors.
->
-> Acked-by: William Roberts <william.c.roberts@intel.com>
+> > Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+> > Addresses-Coverity-ID: 1461665 ("Resource leaks")
+> > Fixes: c3a276111ea2 ("selinux: optimize storage of filename transitions")
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  security/selinux/ss/policydb.c | 8 ++++----
+> >  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> I just merged this into selinux/stable-5.7 and assuming all goes well
+> in testing I'll send this up to Linus later this week.  Thanks Ondrej.
+> 
+> I also want to add my thanks to the "coverity bot", thanks Kees.  Are
+> you only running this only on Linus tree?  If it's open to other trees
+> it might be nice to get the selinux/next branch into the automated
+> testing.
 
-Merged:
-https://github.com/SELinuxProject/selinux/pull/221
+It's being run on linux-next. The free coverity scanner barely has the
+resources is keep up with one tree, so I just feed it -next. They were
+kind enough to let us upload daily now, so I've been trying to feed the
+emailed reports back. It's all just the tip of the iceberg, of course.
+
+-- 
+Kees Cook
