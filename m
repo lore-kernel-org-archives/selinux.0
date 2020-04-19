@@ -1,111 +1,92 @@
-Return-Path: <SRS0=6dkg=6B=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=G5zd=6D=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F2D9C2BB1D
-	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 22:23:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E8E6C38A30
+	for <selinux@archiver.kernel.org>; Sun, 19 Apr 2020 13:37:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC68A206D6
-	for <selinux@archiver.kernel.org>; Fri, 17 Apr 2020 22:23:58 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Q6AAicc/"
+	by mail.kernel.org (Postfix) with ESMTP id 57DBC21973
+	for <selinux@archiver.kernel.org>; Sun, 19 Apr 2020 13:37:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728820AbgDQWX6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Apr 2020 18:23:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52688 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728617AbgDQWX6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Apr 2020 18:23:58 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4CA0C061A0C
-        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 15:23:57 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id s9so2735708eju.1
-        for <selinux@vger.kernel.org>; Fri, 17 Apr 2020 15:23:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sLIkR7VtGIZqbhYahF1XxZ7gCbMECfcYmNC4KsFaZrk=;
-        b=Q6AAicc/3/RBTEq/NSG4N8WZVzfxpUIy7hroBQlyrgxzMYLm96UbHfBZC/zEfXPQZX
-         lGoLUck0AdPBn1S//tIOu9W4hbqOGakfmKPK9OI4jI/N4yC7axMaKCcn6HkpM3cevehR
-         11NfEKpRd/+z8sUhxjbXiCeK/CqEsgXIt9h37lDVriH3VDPoU9Xy6RP88RhVh/JXfJdM
-         w6iE/oQBIVGPxqVSz8//eeP3EqKFjVERvUeY08m269uVu1Qtbuzw4ZJHsSKHJgbuIZvU
-         ECnKR/j3jKFVkTNjLQv7+WBlwvbEDqnmImgVi+XqNR3MVWd/qA53MP3fMCtmd9XG+ABb
-         bA+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sLIkR7VtGIZqbhYahF1XxZ7gCbMECfcYmNC4KsFaZrk=;
-        b=eF1InlBh9uGwHnychmObcjfMPgvLLKVJlh+VgOtnzT0QuRO/TvfvT4WfkRLQm7PLoR
-         D+ULup1LfHPaubncb2htz+B6Pg1LeyqRWmsbmzszwcpLqu2irE4aqxlHdfTluRKsp8fj
-         LXSbVTdp7irFsPp3E5odhL3IrBTQ2cGeQ20y11qCCtGVvLesAEE6EfGPsxdZO3iywXMM
-         kyv4z5Bk4M2YEej26BF60CLyhRhh+r4tCH3CpUiFVv7dIPr57tSBP/oh6JCu9EC8p44n
-         5VpYKtCPskN9+BrungFC3fiTJXePIgecgTsj0NygWuj6CJXsGoyQ9IUfFyPcv+JYhzWm
-         DwlQ==
-X-Gm-Message-State: AGi0Pua+0piDYSCk91GahauCqTGEPbFyP4ebys7kyzZ3CxSxEn/gx3CF
-        zfE9kq18Og6WNQ5lqIUp4adykM3dO0xSGI5NaZ5a
-X-Google-Smtp-Source: APiQypJvBYbTUn+yN3qJNIRfWI+B/f+XGAKd5jTQInp7PTOLNtxaluCwPqIrUI79GAfMLJfWpGLXUs2z6dyC6P8u9Rw=
-X-Received: by 2002:a17:906:35d0:: with SMTP id p16mr5118443ejb.77.1587162236436;
- Fri, 17 Apr 2020 15:23:56 -0700 (PDT)
+        id S1726020AbgDSNhM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 19 Apr 2020 09:37:12 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:48857 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725910AbgDSNhL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 19 Apr 2020 09:37:11 -0400
+Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id A481C564AC0
+        for <selinux@vger.kernel.org>; Sun, 19 Apr 2020 15:37:07 +0200 (CEST)
+Received: by mail-oi1-f180.google.com with SMTP id t199so6448295oif.7
+        for <selinux@vger.kernel.org>; Sun, 19 Apr 2020 06:37:07 -0700 (PDT)
+X-Gm-Message-State: AGi0PuZVCqeVTMbl5Wfu8/Ai0X1e1Kwcy8rzVnzu1Vw/Cma3TPgL0B/H
+        rwxGfb5uMLYXZ84IaXtZhG08QvB/aaTXsvhe65E=
+X-Google-Smtp-Source: APiQypKITYFzopU8kWJUqxQpmF0rFk9AKUobfJoRA41x5HF475EtYdE/EJlVG84kgWdzWjQA4+iUlNYiqsI8Qasg26Y=
+X-Received: by 2002:a05:6808:3d5:: with SMTP id o21mr4026855oie.40.1587303426525;
+ Sun, 19 Apr 2020 06:37:06 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200414142351.162526-1-omosnace@redhat.com> <CAHC9VhRZgntyb4SneJDmpSSvfLYiox1Bz-SYMs6V9ncyCZPqSw@mail.gmail.com>
- <202004171446.B5B5647ED9@keescook>
-In-Reply-To: <202004171446.B5B5647ED9@keescook>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 17 Apr 2020 18:23:45 -0400
-Message-ID: <CAHC9VhRszsy2iHg4+y3Qx4JqKcZZTpCuds4TYwOsD8n7g0sLMw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: free str on error in str_read()
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+References: <CAFftDdpOQzZazxrEhZZR198GJBiuZOLBMkTnxN3_JnzyD01Kdg@mail.gmail.com>
+In-Reply-To: <CAFftDdpOQzZazxrEhZZR198GJBiuZOLBMkTnxN3_JnzyD01Kdg@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sun, 19 Apr 2020 15:36:55 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==7Q1ur3Jozo0XBovwh6XsM17pqb=CcGv4f6RLzHxbEmQ@mail.gmail.com>
+Message-ID: <CAJfZ7==7Q1ur3Jozo0XBovwh6XsM17pqb=CcGv4f6RLzHxbEmQ@mail.gmail.com>
+Subject: Re: Deprecated Annotations in libselinux
+To:     William Roberts <bill.c.roberts@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
+Cc:     Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Apr 19 15:37:08 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Apr 17, 2020 at 5:47 PM Kees Cook <keescook@chromium.org> wrote:
-> On Wed, Apr 15, 2020 at 06:04:53PM -0400, Paul Moore wrote:
-> > On Tue, Apr 14, 2020 at 10:25 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > >
-> > > In [see "Fixes:"] I missed the fact that str_read() may give back an
-> > > allocated pointer even if it returns an error, causing a potential
-> > > memory leak in filename_trans_read_one(). Fix this by making the
-> > > function free the allocated string whenever it returns a non-zero value,
-> > > which also makes its behavior more obvious and prevents repeating the
-> > > same mistake in the future.
-> > >
-> > > Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
-> > > Addresses-Coverity-ID: 1461665 ("Resource leaks")
-> > > Fixes: c3a276111ea2 ("selinux: optimize storage of filename transitions")
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > ---
-> > >  security/selinux/ss/policydb.c | 8 ++++----
-> > >  1 file changed, 4 insertions(+), 4 deletions(-)
-> >
-> > I just merged this into selinux/stable-5.7 and assuming all goes well
-> > in testing I'll send this up to Linus later this week.  Thanks Ondrej.
-> >
-> > I also want to add my thanks to the "coverity bot", thanks Kees.  Are
-> > you only running this only on Linus tree?  If it's open to other trees
-> > it might be nice to get the selinux/next branch into the automated
-> > testing.
+On Wed, Apr 15, 2020 at 11:10 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
 >
-> It's being run on linux-next. The free coverity scanner barely has the
-> resources is keep up with one tree, so I just feed it -next. They were
-> kind enough to let us upload daily now, so I've been trying to feed the
-> emailed reports back. It's all just the tip of the iceberg, of course.
+> So I am reviving the work to look at annotating deprecated functions.
+> I was wondering what folks are thinking around the utility program
+> matchpathcon, since that interface is deprecated, do we want to:
+>
+> 1. link that statically so we can use internal (non-deprecated) functions
+> 2. update it to use selabel_open and friends.
+> 3. Keep it but have it print out "deprecated" and return 1.
+> 4. Some mix of options 3 and 1
 
-Ah, okay, thanks.  I had wondered about doing regular coverity runs
-for the SELinux/audit kernel code but was scared off by the limits; it
-looks like that wasn't an unwarranted fear.
+Hello,
+I did not really follow closely why functions are getting deprecated.
+>From the patch series, it appears that matchpathcon_init() is being
+deprecated in favor of selabel_open(). That can make sense.
 
-Regardless, thanks for setting this up and running it on linux-next.
+>From a CLI perspective, the interface of selabel_lookup seems to be
+more complex to use that matchpathcon:
 
--- 
-paul moore
-www.paul-moore.com
+$ matchpathcon /etc/shadow
+/etc/shadow system_u:object_r:shadow_t
+$ selabel_lookup -b file -k /etc/shadow
+Default context: system_u:object_r:shadow_t
+
+Moreover, looking at selabel_lookup --help, it was not clear that the
+file for which I wanted the context needs to be given as a -k option,
+because the usage line states "[-f file]" (that means something else).
+This increases the difficulty of using selabel_lookup instead of
+matchpathcon. Therefore as a SELinux user, I would rather keep
+matchpathcon program. Would it be difficult to implement option 2
+"update matchpathcon to use selabel_open() and friends"?
+
+That being said, if another option is chosen, I will add "alias
+matchpathcon=selabel_lookup -b file -k" to my shell configuration and
+be good with it. This would work for me because I never used any
+option that matchpathcon provides.
+
+Anyway, thanks for working on this subject!
+Nicolas
+
