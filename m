@@ -2,102 +2,122 @@ Return-Path: <SRS0=faga=6E=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52C5FC54FCB
-	for <selinux@archiver.kernel.org>; Mon, 20 Apr 2020 15:46:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BDD2C3A5A0
+	for <selinux@archiver.kernel.org>; Mon, 20 Apr 2020 18:30:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 32A31206DD
-	for <selinux@archiver.kernel.org>; Mon, 20 Apr 2020 15:46:26 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CNLk87hW"
+	by mail.kernel.org (Postfix) with ESMTP id 18CE42071C
+	for <selinux@archiver.kernel.org>; Mon, 20 Apr 2020 18:30:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728779AbgDTPq0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Apr 2020 11:46:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33316 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729426AbgDTPqZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Apr 2020 11:46:25 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74A5EC061A0C
-        for <selinux@vger.kernel.org>; Mon, 20 Apr 2020 08:46:25 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id a7so21515pju.2
-        for <selinux@vger.kernel.org>; Mon, 20 Apr 2020 08:46:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=STKcgyAYLyPwimzGvxdtUzzEbb8zdagndp28hkuz3NM=;
-        b=CNLk87hWaP+5y2NXSYgGuu2EB8GvzL4yj56klO+DOsE28rYeaDwgJZ9Yv8f99Awy+Z
-         aWeUrRCVoUegLUnnU3xgNk3TPUYMDcJtlUVrX6sHTePw2DJ2sIIrAzYqkTBmCFi6JKlr
-         c2+7DIWkdwozck919K921BxUO48BWjkUZVeXIWXkqtPtjIDGMIaDQJSLIg45vo5Y/ZUW
-         N0f0PnMZPo57tp9IbJPePLIJET8FO88Kf94SMzDtJUSON24695tUEeRlkxAIFcdOQdvC
-         Qv7PsgXmIzb4YEFfpwYrVV7Z7Joq0I0CLzbNmU7CMKCdherzVSN5ydYibxI5CpAA10g5
-         7n8Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=STKcgyAYLyPwimzGvxdtUzzEbb8zdagndp28hkuz3NM=;
-        b=WrsVCnDu5Og+voQitc7gf8BGexez4cALS5v6sz4e/wPWfXsbH0KUiHvNOrKXiEjOis
-         dQMrBhFNNHHrPUXXZQdjaQrO2Ra8WT5dRXuz87QeMHIr/aB/F7SrQ9TLVq3HvjRUBPDI
-         DBFQcRoti+TROiu8Iqs37H1FDTTeAKWtW9Oy57uiehofOLeWxYt0Vej11T1yGJGJBa7R
-         lDk9CGHwUP8J9eZTLLT9/N1V6kv9QyacYBz0Ja7oER2nHAc3WbAnhxEt8AKakv0RyQfk
-         1ZXdPgTbul7ew2w9Suzfa1ZSz0L9ivsCW6bEtuxN+eg+Te2jOPwGidmkCvIYocRnxXuF
-         Q1JA==
-X-Gm-Message-State: AGi0PubXx2t2JwQj8QkyEHVH4TOVjpWWHmLykdnP/SVCVu8T2krfMdy7
-        zSRyU6VLU24CKg36d1CP4Kg=
-X-Google-Smtp-Source: APiQypL+Aw36wr9YuWYUMEWZzdLmlmCq1eW4aw6K5APekphN/vEDbzsIBN107TKEW8eRI8FUl+VnVA==
-X-Received: by 2002:a17:902:7c09:: with SMTP id x9mr8358964pll.54.1587397584970;
-        Mon, 20 Apr 2020 08:46:24 -0700 (PDT)
-Received: from localhost.localdomain ([192.55.55.43])
-        by smtp.gmail.com with ESMTPSA id i15sm1367507pfo.195.2020.04.20.08.46.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Apr 2020 08:46:24 -0700 (PDT)
-From:   bill.c.roberts@gmail.com
-X-Google-Original-From: william.c.roberts@intel.com
-To:     nicolas.iooss@m4x.org
-Cc:     bill.c.roberts@gmail.com, selinux@vger.kernel.org,
-        William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH v3 19/19] Makefile: swig build allow deprecated functions
-Date:   Mon, 20 Apr 2020 10:45:37 -0500
-Message-Id: <20200420154537.30879-20-william.c.roberts@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200420154537.30879-1-william.c.roberts@intel.com>
-References: <CAJfZ7==Ote6uQWMjDfNMA=qj79u2ByrnrH==++gDOhPeYD-W5g@mail.gmail.com>
- <20200420154537.30879-1-william.c.roberts@intel.com>
+        id S1727106AbgDTSa2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Apr 2020 14:30:28 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:47497 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725784AbgDTSa2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Apr 2020 14:30:28 -0400
+Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 6DD8E56492D
+        for <selinux@vger.kernel.org>; Mon, 20 Apr 2020 20:30:24 +0200 (CEST)
+Received: by mail-oo1-f48.google.com with SMTP id d21so2344116ook.10
+        for <selinux@vger.kernel.org>; Mon, 20 Apr 2020 11:30:24 -0700 (PDT)
+X-Gm-Message-State: AGi0PubNum99J7ULQmU13hRtlYUkM6iQW4t1KkLVT5GPdLjVQwcuStLC
+        WyyldfELBgdpquaKySOSNXzSVXC1Kg8rZDb2U90=
+X-Google-Smtp-Source: APiQypLIKZ7UYgeZnyJhoPZSin79AyGCUg8KMNmnULek6wtHdCjIb2ZhJTS9bo4TvInpM3Jq5WJIH8ervbkoYziLD9I=
+X-Received: by 2002:a4a:accf:: with SMTP id c15mr13613894oon.29.1587407423248;
+ Mon, 20 Apr 2020 11:30:23 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200419140055.86159-1-nicolas.iooss@m4x.org> <476DC76E7D1DF2438D32BFADF679FC5649ED3B7E@ORSMSX101.amr.corp.intel.com>
+In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5649ED3B7E@ORSMSX101.amr.corp.intel.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Mon, 20 Apr 2020 20:30:11 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==KyK=+AE8+tojCbZRo-UnB-QwEgL8tseLSfq73kL+mQg@mail.gmail.com>
+Message-ID: <CAJfZ7==KyK=+AE8+tojCbZRo-UnB-QwEgL8tseLSfq73kL+mQg@mail.gmail.com>
+Subject: Re: [PATCH 1/1] python/semanage: check rc after getting it
+To:     "Roberts, William C" <william.c.roberts@intel.com>
+Cc:     "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Mon Apr 20 20:30:24 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: William Roberts <william.c.roberts@intel.com>
+On Mon, Apr 20, 2020 at 4:29 PM Roberts, William C
+<william.c.roberts@intel.com> wrote:
+>
+> > -----Original Message-----
+> > From: selinux-owner@vger.kernel.org [mailto:selinux-owner@vger.kernel.org]
+> > On Behalf Of Nicolas Iooss
+> > Sent: Sunday, April 19, 2020 9:01 AM
+> > To: selinux@vger.kernel.org
+> > Subject: [PATCH 1/1] python/semanage: check rc after getting it
+> >
+> > This issue has been found using lgtm.com:
+> > https://lgtm.com/projects/g/SELinuxProject/selinux/snapshot/4946f674a6da9cc3
+> > 68cc826f963aedd39b6a94cf/files/python/semanage/seobject.py?sort=name&dir
+> > =ASC&mode=heatmap#x5c052fffe98aee02:1
+> >
+> > Fixes: 49706ad9f808 ("Revised Patch for local nodecon support in semanage (was:
+> > Adding local nodecon's through semanage)")
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> > ---
+> >  python/semanage/seobject.py | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> > index 0e9ce2900892..f2a139c970bd 100644
+> > --- a/python/semanage/seobject.py
+> > +++ b/python/semanage/seobject.py
+> > @@ -1895,10 +1895,10 @@ class nodeRecords(semanageRecords):
+> >          (rc, k) = semanage_node_key_create(self.sh, addr, mask, proto)
+> >          if rc < 0:
+> >              raise ValueError(_("Could not create key for %s") % addr)
+> > -        if rc < 0:
+> > -            raise ValueError(_("Could not check if addr %s is defined") % addr)
+> >
+> >          (rc, exists) = semanage_node_exists(self.sh, k)
+> > +        if rc < 0:
+> > +            raise ValueError(_("Could not check if addr %s is defined")
+> > + % addr)
+> >          if exists:
+> >              raise ValueError(_("Addr %s already defined") % addr)
+> >
+> > --
+> > 2.26.0
+>
+> Acked-by: William Roberts <william.c.roberts@intel.com>
+>
+> We should probably add the checker so it comments on the PRs. It would have caught it
+> Before it got in tree.
 
-The SWIG C build should allow deprecated functions and not warn on them
-because it is exposing the full interface including deprecated routines.
+In this case, the bug has been introduced in 2008 ;) Anyway, I have
+never configured lgtm.com to look on PRs, or contributed to a project
+that did this. For SELinux, I am wondering whether the hundreds of
+alerts currently reported in
+https://lgtm.com/projects/g/SELinuxProject/selinux/?mode=list could
+affect the usefulness of having it integrated to PRs.
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- libselinux/src/Makefile | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+> Completely unrelated, do you see these warnings?
+>
+> swigging selinuxswig_python.i to selinuxswig_python_wrap.c
+> swig -python -o selinuxswig_python_wrap.c selinuxswig_python.i
+> ../include/selinux/avc.h:414: Warning 302: Identifier 'avc_cache_stats' redefined (ignored),
+> ../include/selinux/avc.h:394: Warning 302: previous definition of 'avc_cache_stats'.
+> ../include/selinux/selinux.h:143: Warning 451: Setting a const char * variable may leak memory.
+> ../include/selinux/selinux.h:378: Warning 451: Setting a const char * variable may leak memory.
+>
+> I created a ticket, so I don't lose them:
+> https://github.com/SELinuxProject/selinux/issues/222
 
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 9992221f5fc5..73303c3666c9 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -105,7 +105,8 @@ FTS_LDLIBS ?=
- override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
- 
- SWIG_CFLAGS += -Wno-error -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter \
--		-Wno-shadow -Wno-uninitialized -Wno-missing-prototypes -Wno-missing-declarations
-+		-Wno-shadow -Wno-uninitialized -Wno-missing-prototypes -Wno-missing-declarations \
-+		-Wno-deprecated-declarations
- 
- RANLIB ?= ranlib
- 
--- 
-2.17.1
+Yes, and I see that an explanation has already been given in the GitHub issue.
+
+Cheers,
+Nicolas
 
