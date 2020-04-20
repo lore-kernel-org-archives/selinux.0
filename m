@@ -7,37 +7,37 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9732DC54FCB
-	for <selinux@archiver.kernel.org>; Mon, 20 Apr 2020 11:54:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4705AC3815B
+	for <selinux@archiver.kernel.org>; Mon, 20 Apr 2020 11:54:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 740DB218AC
-	for <selinux@archiver.kernel.org>; Mon, 20 Apr 2020 11:54:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2498020724
+	for <selinux@archiver.kernel.org>; Mon, 20 Apr 2020 11:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1587383670;
-	bh=PXwArPyrCB+9UYBajG3cuzXYyMjKBkArgtx7/t80yDQ=;
+	s=default; t=1587383676;
+	bh=y2LqQNgk7M38l+vhlpVjFxZa1rdjNePBdEMgUzSLdhY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:List-ID:From;
-	b=LEFUFYf4WCYLsQoOmpTi95VebkxgKjvQ1xTZ76wdT3fDJff9zxFsIGpkrN8GZC3nK
-	 U5OL/qG65FuOLgIVfJRLzk/kpQgFQU1jcCUxnZxxqOsDezmK+dFB7fOfRaqIhZ29bL
-	 vFijjoc2hDTYxZy0t0GrjJQ5gt3OxzdouCYp68L0=
+	b=loHsUF3T/bTJpHWxs4b0vtW9489zPQevyhenivo5VY5qKX+TQOcDbD274iRPP/Guo
+	 IRMaIx2snqh1HsfMjvvaz7l3ife/5fDX3ymaFezzFTvF+1wvf6u+1P/DJITU2pNBbq
+	 gEnDv2fJncZOKyzI+UNHS0rQVji+Z6eq9Lc9IfMI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726762AbgDTLy3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Apr 2020 07:54:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38178 "EHLO mail.kernel.org"
+        id S1726780AbgDTLyf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Apr 2020 07:54:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725886AbgDTLy3 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 20 Apr 2020 07:54:29 -0400
+        id S1725886AbgDTLye (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 20 Apr 2020 07:54:34 -0400
 Received: from quaco.ghostprotocols.net (unknown [179.97.37.151])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C666822242;
-        Mon, 20 Apr 2020 11:54:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91A9B22209;
+        Mon, 20 Apr 2020 11:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1587383668;
-        bh=PXwArPyrCB+9UYBajG3cuzXYyMjKBkArgtx7/t80yDQ=;
+        s=default; t=1587383673;
+        bh=y2LqQNgk7M38l+vhlpVjFxZa1rdjNePBdEMgUzSLdhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jY2+DKBnaUefdix+56HKfjrYAILqIoOTLoPXsBbJO0L5LInIgkVs0qCZ8Yg/fPUK6
-         2tHiRgmIfuIa7QGLClBjTGyAcjdggANZIOwqayLKQ6rqbpLiUXfkfQ3IMnDnMB6VXV
-         4rvqseNET+8Y/H4ZEnP/LkycQBSNV+sn3xrHLOaI=
+        b=KmY2u1K51EPLK1W4HkWcxiMu51TD9ZSXYb13zKWfCWjai70Q8Mt9Cvt770iInsbtQ
+         g8AVOWUObccLD/NwmWGV+gIdZkaAz7MecddQ4jlxq6zU+aw17sKhaDzzULzvSH/cZw
+         ZDamnr+dVgOJGTQJ2HEZWdyGij56MK6jUwv5mAeg=
 From:   Arnaldo Carvalho de Melo <acme@kernel.org>
 To:     Ingo Molnar <mingo@kernel.org>,
         Thomas Gleixner <tglx@linutronix.de>
@@ -46,7 +46,7 @@ Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
         linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
         Alexey Budankov <alexey.budankov@linux.intel.com>,
         James Morris <jamorris@linux.microsoft.com>,
-        Helge Deller <deller@gmx.de>,
+        Will Deacon <will@kernel.org>,
         Alexei Starovoitov <ast@kernel.org>,
         Andi Kleen <ak@linux.intel.com>,
         Igor Lubashev <ilubashe@akamai.com>,
@@ -58,9 +58,9 @@ Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
         intel-gfx@lists.freedesktop.org, linux-doc@vger.kernel.org,
         linux-man@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 12/60] parisc/perf: open access for CAP_PERFMON privileged process
-Date:   Mon, 20 Apr 2020 08:52:28 -0300
-Message-Id: <20200420115316.18781-13-acme@kernel.org>
+Subject: [PATCH 13/60] drivers/perf: Open access for CAP_PERFMON privileged process
+Date:   Mon, 20 Apr 2020 08:52:29 -0300
+Message-Id: <20200420115316.18781-14-acme@kernel.org>
 X-Mailer: git-send-email 2.21.1
 In-Reply-To: <20200420115316.18781-1-acme@kernel.org>
 References: <20200420115316.18781-1-acme@kernel.org>
@@ -91,7 +91,7 @@ secure monitoring is discouraged with respect to CAP_PERFMON capability.
 
 Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
 Reviewed-by: James Morris <jamorris@linux.microsoft.com>
-Acked-by: Helge Deller <deller@gmx.de>
+Acked-by: Will Deacon <will@kernel.org>
 Cc: Alexei Starovoitov <ast@kernel.org>
 Cc: Andi Kleen <ak@linux.intel.com>
 Cc: Igor Lubashev <ilubashe@akamai.com>
@@ -107,25 +107,34 @@ Cc: linux-doc@vger.kernel.org
 Cc: linux-man@vger.kernel.org
 Cc: linux-security-module@vger.kernel.org
 Cc: selinux@vger.kernel.org
-Link: http://lore.kernel.org/lkml/8cc98809-d35b-de0f-de02-4cf554f3cf62@linux.intel.com
+Link: http://lore.kernel.org/lkml/4ec1d6f7-548c-8d1c-f84a-cebeb9674e4e@linux.intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- arch/parisc/kernel/perf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/perf/arm_spe_pmu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/parisc/kernel/perf.c b/arch/parisc/kernel/perf.c
-index e1a8fee3ad49..d46b6709ec56 100644
---- a/arch/parisc/kernel/perf.c
-+++ b/arch/parisc/kernel/perf.c
-@@ -300,7 +300,7 @@ static ssize_t perf_write(struct file *file, const char __user *buf,
- 	else
- 		return -EFAULT;
+diff --git a/drivers/perf/arm_spe_pmu.c b/drivers/perf/arm_spe_pmu.c
+index b72c04852599..0e0961a2b405 100644
+--- a/drivers/perf/arm_spe_pmu.c
++++ b/drivers/perf/arm_spe_pmu.c
+@@ -274,7 +274,7 @@ static u64 arm_spe_event_to_pmscr(struct perf_event *event)
+ 	if (!attr->exclude_kernel)
+ 		reg |= BIT(SYS_PMSCR_EL1_E1SPE_SHIFT);
  
--	if (!capable(CAP_SYS_ADMIN))
-+	if (!perfmon_capable())
- 		return -EACCES;
+-	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && capable(CAP_SYS_ADMIN))
++	if (IS_ENABLED(CONFIG_PID_IN_CONTEXTIDR) && perfmon_capable())
+ 		reg |= BIT(SYS_PMSCR_EL1_CX_SHIFT);
  
- 	if (count != sizeof(uint32_t))
+ 	return reg;
+@@ -700,7 +700,7 @@ static int arm_spe_pmu_event_init(struct perf_event *event)
+ 		return -EOPNOTSUPP;
+ 
+ 	reg = arm_spe_event_to_pmscr(event);
+-	if (!capable(CAP_SYS_ADMIN) &&
++	if (!perfmon_capable() &&
+ 	    (reg & (BIT(SYS_PMSCR_EL1_PA_SHIFT) |
+ 		    BIT(SYS_PMSCR_EL1_CX_SHIFT) |
+ 		    BIT(SYS_PMSCR_EL1_PCT_SHIFT))))
 -- 
 2.21.1
 
