@@ -2,140 +2,190 @@ Return-Path: <SRS0=Xew/=6G=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B0C0C54FCB
-	for <selinux@archiver.kernel.org>; Wed, 22 Apr 2020 17:12:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6E9FC55185
+	for <selinux@archiver.kernel.org>; Wed, 22 Apr 2020 19:20:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 22ABE2082E
-	for <selinux@archiver.kernel.org>; Wed, 22 Apr 2020 17:12:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 882AA2098B
+	for <selinux@archiver.kernel.org>; Wed, 22 Apr 2020 19:20:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RaJerD9V"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="MssjbJEd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726618AbgDVRM4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 22 Apr 2020 13:12:56 -0400
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:39812
-        "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726154AbgDVRMz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 22 Apr 2020 13:12:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1587575574; bh=+KYwgqq/AmEfR52qW4/rvXPouS6eAxPS2KKqaT54mFU=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=RaJerD9V+3WaVEj5DW6is3CQxL3t5vLiaY1PokUhh6ntWe9FHyeog82h5VgGn+Lu/QeCc9yoSPEPZkMNSIO3Xh397GJeU3MFO8Cjs4YtrzF49bk70sYXhLH5v3lxk6fKKJKWxqGyvmOfSCQR1bd4JSJZMGisfImjpRhuh87eWsRKfucji5L8g4stG656VG5ByZFma/h8xrtlw3x8ncWGzOLYiZ01vXKkMxtGXGvB+yhAKDfSI7vv6420PEKmTchcyDfV0i9JLPFMQ7IqWAuQql5FALsd/daddsI9zKpkMD9DI/4JwLZhnE/5OCCkmTDx1lsY7CyIVS4wQ6Eo+wUoIQ==
-X-YMail-OSG: tEYDWw8VM1me8UGcuDB0ueuFndIiHF0J5tbhT7fzdEQKs758k7rfONd6qzR8vbA
- .0z_79vcLhPGw9W5VV5ab9l1kaBUqf4mmkrdT3DgBPbbOvVEbvS838Gd_b_fMmsqge6IFCT_vgaP
- 4nzHWzNhSlI5lP5Kg8foDqCSTBLakHSatTTXGv2sKh1SpxHuf5A7YHcxFW0J2fJcVF8plLmjvFL3
- Q2gWeGYYAdizQK_Ii2ucqa3bKIXOm4qqSeATOvo6tCp7Oj0tYbAscsm9JfmNeF3_J6vujd2MV9C.
- 3lLY0P6VPCfvxpp8viwyP4cU_g..ZyVXHhcKMP7MXSJO8hl6w9hcF2.CHMOWBXMIZklccAj1s5fE
- J.ALFGyVF43Frfp8_6WE1SossBoWDPHdNlZiNfr8XmfJCgs3_MtjyeArkhZ6lmR9ttCz4vI9Fqbu
- LVRAoPSFG48PMjjjoo_CvJ53iHEVhzpd9f9AkB.M.PsjBoUEvUoOYvwwxBnAj76lvcXlNr2nv_Ow
- FagbAC1g7wOpu8tDR_NKgw6J45TTcW49iSJQYvfYIJun68BlLT7C.BqmmDppXjBp4R4RinVxie9n
- B6anJkyoV_WkYMp_ywKV8teXQ0gWihkr6j8sG0OfUnC_.JR_bln2mdPGxi93kvudQuCbbyWWtk5h
- 1Chs7zMS.62JYkmAkq_6vTM7hilZtMbtg1w6rVJlhnLx.FB1hlWmNrLZFKiXfO8i6s4u5AXhDp35
- duYsjUK6EzQ8jE9.ilbfWfF1lLtmZUgSEK5EfQ78XBcipsho0Lj1nAAFGN9GTmZPFeC7m7EG4dLQ
- Xd1ZH_PWTAuu6DnpnzWeQJatd2RRzC0eIu7bR6bsFYeJcGqbSYrnlcu8CONnDOlETygor3ivdqzq
- .OzU7uLIvDWN9zrXm1lULqX1eAlx.hqhB6ek1a.JeKGHX1JZkgNxflM8mr6ejF3dlyYquPXcKIXZ
- tJLscNa0S1jsP_7zMFF7zstoODV0.sGh.OFq0sqbkrQS6miJgl2DZqT5AzgiZnAvQpOTjc7YsJFx
- wYdB.TmQ160L9BBTPFnIrppB.JvMWLn_DrG_1AKoG.aDaN8OteaW9FNHKeKE7BvxnTEzvrdPGxEk
- 47_shXz1FXyNhtNIUbK4Hr_PtWdlA7xkDBsWU7LVRFpbgIs.RzbPFv8ft63BY7bqUTmHajtZ8wZ9
- 07UQC_eq_tvyE7xqvukIqCQU3fUD50KxuAOf.IBQlKd0ulRyRp63Gi0MOuuoAFt7ZP9CV3jYAiqO
- gOvLfEaJPsAFrMRe2b_i.JG9T4JYvHuNa6YZZZ7U.l1nnq1S9ifVKDoi6GOref8gjn_Pml4OVMZC
- JAl8zsc46TPKxg1GybYWCBMIqImmVEbuKc67vxpYJf_JYUfaAx43pKvOVkNRdI4jC9ccRV6mzyfE
- L5ktjp4l9UtrNqcP9cNkdEscptOA9E.7oa_pC3BYQjPU-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Wed, 22 Apr 2020 17:12:54 +0000
-Received: by smtp419.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 7e7f1419592d6ebe33c3473a62489b2a;
-          Wed, 22 Apr 2020 17:12:48 +0000 (UTC)
-Subject: Re: [PATCH v5 0/3] SELinux support for anonymous inodes and UFFD
-To:     James Morris <jmorris@namei.org>,
-        Daniel Colascione <dancol@google.com>
-Cc:     Tim Murray <timmurray@google.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20200326200634.222009-1-dancol@google.com>
- <20200401213903.182112-1-dancol@google.com>
- <CAKOZueuu=bGt4O0xjiV=9_PC_8Ey8pa3NjtJ7+O-nHCcYbLnEg@mail.gmail.com>
- <alpine.LRH.2.21.2004230253530.12318@namei.org>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <6fcc0093-f154-493e-dc11-359b44ed57ce@schaufler-ca.com>
-Date:   Wed, 22 Apr 2020 10:12:47 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1726082AbgDVTUb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 Apr 2020 15:20:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34488 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725913AbgDVTUa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 22 Apr 2020 15:20:30 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F9EC03C1A9
+        for <selinux@vger.kernel.org>; Wed, 22 Apr 2020 12:20:30 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id pg17so2737779ejb.9
+        for <selinux@vger.kernel.org>; Wed, 22 Apr 2020 12:20:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=twK/pM53hWni1zkJhDuLdxMZbWVOtirSTf5uF8NF2g4=;
+        b=MssjbJEdWqbvQrjyN0E1xaB9FWQcK8k8mB10RDnOqeegIPNuXbwGW5eJc3Ia5iqydX
+         JqRGmbT89WnNysLZIq3jg2p1Xq/KH3ZXkliinoF3M5sdSZ46TVb+tdjLs9fXHzxeWmMj
+         /987jeIQ1ds9J+yAk3oqXKGDJME4SuL0Z+YYkreViSI+1ta5e1BcAHtAEhxLgjQeEwoS
+         Jsb6/g4/2+tJRiFv2OspI7KxAAIm2sRqMjVVhB/S4xAZuq1Ig/bF8f4/kVBDf9HK31r7
+         /3mKxoK4So6wExa33udhd+gYuHsdxazfq/QMOwlXGfmmR0Vyg7PFHHjQx3Inkl/HNmXq
+         WcOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=twK/pM53hWni1zkJhDuLdxMZbWVOtirSTf5uF8NF2g4=;
+        b=KWZlcDLYLnWp0tTV0dLxMqtBjLB4Z5DCuHitHAEwWp6e+xXL5/qRbpqx2DX3S6bbkw
+         vNj4/46zk/oZJ/7kxGcdMEMP58G3ft+g1Iz9thTZVCXhEOE6S9GAfqm9YIHLThod9FzG
+         mSAPBZR2tQildVjAZMQCedoJKtmFPSEn/LfmC3OomSj4g3WJeQnWsNRcwSbAI+Jw0RWX
+         6WtATcZeYijbLJ6kosyknkVONoibdfPBGyA5OXVwAoGc6nMXONXXD/pXgCJxjoM/vjw1
+         rTMkUpgdORzq7/RkoRJllK/jykXFatp5mpZZ/EnF4ofWcU1VkaP80xW7VRiENeYLmyyX
+         KDHQ==
+X-Gm-Message-State: AGi0PubMjRNGNSuL6+Zf1wb9LeYwROLuWmxm/LPNwz5NWkJW19KSdFb6
+        mDLd3Qc8bSIs39EDACo3XF/XmsjRGYKZ+EgxG+/bI0Q=
+X-Google-Smtp-Source: APiQypKiaQ6F00e9os/HeZtUEFH/74Jfz/UUWJcwNwyRBxA5YRaGphR2F7C3rJE5krTu2AhrdYiOdbQpbvwiwctcSVE=
+X-Received: by 2002:a17:906:f288:: with SMTP id gu8mr28196272ejb.281.1587583228532;
+ Wed, 22 Apr 2020 12:20:28 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <alpine.LRH.2.21.2004230253530.12318@namei.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.15739 hermes Apache-HttpAsyncClient/4.1.4 (Java/11.0.6)
+References: <CAHC9VhT95GJKNTMvTtmZL35UOoVwbGH-eDWZyELb5oZ5rQU+Tw@mail.gmail.com>
+ <2136640.1587472186@warthog.procyon.org.uk>
+In-Reply-To: <2136640.1587472186@warthog.procyon.org.uk>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Wed, 22 Apr 2020 15:20:17 -0400
+Message-ID: <CAHC9VhQnORRaRapbb1wrUsxweJCRJ+X+RdvKw8_U0pT0fuxZ6A@mail.gmail.com>
+Subject: Re: Problem with 9ba09998baa9 ("selinux: Implement the watch_key
+ security hook") in linux-next
+To:     David Howells <dhowells@redhat.com>
+Cc:     keyrings@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 4/22/2020 9:55 AM, James Morris wrote:
-> On Mon, 13 Apr 2020, Daniel Colascione wrote:
+On Tue, Apr 21, 2020 at 8:29 AM David Howells <dhowells@redhat.com> wrote:
+> Paul Moore <paul@paul-moore.com> wrote:
 >
->> On Wed, Apr 1, 2020 at 2:39 PM Daniel Colascione <dancol@google.com> wrote:
->>> Changes from the fourth version of the patch:
->>
->> Is there anything else that needs to be done before merging this patch series?
-> The vfs changes need review and signoff from the vfs folk, the SELinux 
-> changes by either Paul or Stephen, and we also need signoff on the LSM 
-> hooks from other major LSM authors (Casey and John, at a minimum).
+> > ... in particular it is the fifth argument to avc_has_perm(),
+> > "KEY_NEED_VIEW" which is a problem.  KEY_NEED_VIEW is not a SELinux
+> > permission and would likely result in odd behavior when passed to
+> > avc_has_perm().
+>
+> I think it works because KEY_NEED_VIEW happens to coincide with KEY__VIEW.  It
+> should just use KEY__VIEW instead.
 
-I haven't had the opportunity to test this relative to Smack.
-It's unclear whether the change would impact security modules that
-don't provide hooks for it. I will bump my priority on this, but it's
-still going to be a bit before I can get to it.
+Yes, it looks like it.  To be clear, it is dangerous to rely on
+permission values from outside SELinux aligning with SELinux
+permissions; changing the outside permission values w/o adjusting the
+SELinux hook code to do the necessary translation will result in some
+scary behavior (wrong permission checks).
 
+> > it probably makes the most sense to pull the permission mapping in
+> > selinux_key_permission() out into a separate function, e.g.
+> > key_perm_to_av(...)
+>
+> Agreed.  How about the attached patch?  I wonder if I should do bit-by-bit
+> translation rather than using a switch?  But then it's difficult to decide
+> what it means if someone passes in two KEY_NEED_* flags OR'd together - is it
+> either or both?
+
+Comments inline.
+
+> > and then use this newly created mapping function in [...]
+> > selinux_watch_key()
+>
+> No, I think I should just hard-code KEY__VIEW there.
+
+FWIW, my comment was based on a version of linux-next where you were
+making policycap based permission adjustments to KEY_VIEW and I
+thought you would want the same adjustments to be applied to both
+access control points.  That code appears to now be gone in
+linux-next.
+
+> ---
+> commit 70d1d82aa014ae4511976b4d80c17138006dddec
+> Author: David Howells <dhowells@redhat.com>
+> Date:   Tue Apr 21 13:15:16 2020 +0100
+>
+>     selinux: Fix use of KEY_NEED_* instead of KEY__* perms
+>
+>     selinux_key_getsecurity() is passing the KEY_NEED_* permissions to
+>     security_sid_to_context() instead of the KEY__* values.  It happens to work
+>     because the values are all coincident.
+>
+>     Fixes: d720024e94de ("[PATCH] selinux: add hooks for key subsystem")
+>     Reported-by: Paul Moore <paul@paul-moore.com>
+>     Signed-off-by: David Howells <dhowells@redhat.com>
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 0b4e32161b77..32f7fa538c5f 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6539,12 +6539,27 @@ static void selinux_key_free(struct key *k)
+>         kfree(ksec);
+>  }
+>
+> +static unsigned int selinux_keyperm_to_av(unsigned int need_perm)
+> +{
+> +       switch (need_perm) {
+> +       case KEY_NEED_VIEW:     return KEY__VIEW;
+> +       case KEY_NEED_READ:     return KEY__READ;
+> +       case KEY_NEED_WRITE:    return KEY__WRITE;
+> +       case KEY_NEED_SEARCH:   return KEY__SEARCH;
+> +       case KEY_NEED_LINK:     return KEY__LINK;
+> +       case KEY_NEED_SETATTR:  return KEY__SETATTR;
+> +       default:
+> +               return 0;
+> +       }
+
+Regarding your question of permission translation via switch-statement
+as opposed to bit-by-bit comparison, I think it depends on if multiple
+permissions are going to be required in a single call to the hook.
+The failure mode for the code above if multiple permissions are
+requested is not very good, it defaults to *no* permission which means
+that if someone requested KEY_NEED_SEARCH|KEY_NEED_VIEW (or some other
+combination) then the SELinux check would not check any permissions
+... that seems wrong to me.
+
+If we want to stick with a switch statement I think we should have it
+return -EPERM for the default case to protect against this.  We don't
+need the full 32-bits afforded us by the unsigned int.
+
+> +}
+> +
+>  static int selinux_key_permission(key_ref_t key_ref,
+>                                   const struct cred *cred,
+> -                                 unsigned perm)
+> +                                 unsigned need_perm)
+>  {
+>         struct key *key;
+>         struct key_security_struct *ksec;
+> +       unsigned int perm;
+>         u32 sid;
+>
+>         /* if no specific permissions are requested, we skip the
+> @@ -6553,6 +6568,7 @@ static int selinux_key_permission(key_ref_t key_ref,
+>         if (perm == 0)
+>                 return 0;
+>
+> +       perm = selinux_keyperm_to_av(need_perm);
+
+... and add a check for (perm < 0) as discussed above if we stick with
+the switch statement.
+
+>         sid = cred_sid(cred);
+>
+>         key = key_ref_to_ptr(key_ref);
+>
+
+-- 
+paul moore
+www.paul-moore.com
