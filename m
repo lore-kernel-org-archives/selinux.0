@@ -7,56 +7,55 @@ X-Spam-Status: No, score=-11.7 required=3.0
 	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FECAC5518C
-	for <selinux@archiver.kernel.org>; Wed, 22 Apr 2020 12:18:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44B7BC55189
+	for <selinux@archiver.kernel.org>; Wed, 22 Apr 2020 12:19:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3787422205
-	for <selinux@archiver.kernel.org>; Wed, 22 Apr 2020 12:18:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1CD672098B
+	for <selinux@archiver.kernel.org>; Wed, 22 Apr 2020 12:19:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729213AbgDVMSm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 22 Apr 2020 08:18:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53538 "EHLO
+        id S1728944AbgDVMSB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 Apr 2020 08:18:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729194AbgDVMS1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 22 Apr 2020 08:18:27 -0400
+        by vger.kernel.org with ESMTP id S1728904AbgDVMR7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 22 Apr 2020 08:17:59 -0400
 Received: from Galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BF5CC03C1A8;
-        Wed, 22 Apr 2020 05:18:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A110CC08E859;
+        Wed, 22 Apr 2020 05:17:57 -0700 (PDT)
 Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
         by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
         (Exim 4.80)
         (envelope-from <tip-bot2@linutronix.de>)
-        id 1jREK1-0008Bc-Ng; Wed, 22 Apr 2020 14:17:45 +0200
+        id 1jREJz-00080r-RQ; Wed, 22 Apr 2020 14:17:44 +0200
 Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id ECFC61C0822;
-        Wed, 22 Apr 2020 14:17:37 +0200 (CEST)
-Date:   Wed, 22 Apr 2020 12:17:37 -0000
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 8C7931C0483;
+        Wed, 22 Apr 2020 14:17:32 +0200 (CEST)
+Date:   Wed, 22 Apr 2020 12:17:32 -0000
 From:   "tip-bot2 for Alexey Budankov" <tip-bot2@linutronix.de>
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/core] capabilities: Introduce CAP_PERFMON to kernel and user space
+Subject: [tip: perf/core] doc/admin-guide: Update perf-security.rst with
+ CAP_PERFMON information
 Cc:     Alexey Budankov <alexey.budankov@linux.intel.com>,
-        James Morris <jamorris@linux.microsoft.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Song Liu <songliubraving@fb.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Alexei Starovoitov <ast@kernel.org>,
         Andi Kleen <ak@linux.intel.com>,
         Igor Lubashev <ilubashe@akamai.com>,
-        Jiri Olsa <jolsa@redhat.com>,
+        James Morris <jmorris@namei.org>, Jiri Olsa <jolsa@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Song Liu <songliubraving@fb.com>,
         Stephane Eranian <eranian@google.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         intel-gfx@lists.freedesktop.org, linux-doc@vger.kernel.org,
         linux-man@vger.kernel.org, linux-security-module@vger.kernel.org,
         selinux@vger.kernel.org, x86 <x86@kernel.org>,
         LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <5590d543-82c6-490a-6544-08e6a5517db0@linux.intel.com>
-References: <5590d543-82c6-490a-6544-08e6a5517db0@linux.intel.com>
+In-Reply-To: <17278551-9399-9ebe-d665-8827016a217d@linux.intel.com>
+References: <17278551-9399-9ebe-d665-8827016a217d@linux.intel.com>
 MIME-Version: 1.0
-Message-ID: <158755785749.28353.12235832076654598507.tip-bot2@tip-bot2>
+Message-ID: <158755785212.28353.4382128095557553371.tip-bot2@tip-bot2>
 X-Mailer: tip-git-log-daemon
 Robot-ID: <tip-bot2.linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
@@ -72,75 +71,64 @@ X-Mailing-List: selinux@vger.kernel.org
 
 The following commit has been merged into the perf/core branch of tip:
 
-Commit-ID:     980737282232b752bb14dab96d77665c15889c36
-Gitweb:        https://git.kernel.org/tip/980737282232b752bb14dab96d77665c15889c36
+Commit-ID:     902a8dcc5ba6c5dc3332e8806b01be2f0f7ef2e4
+Gitweb:        https://git.kernel.org/tip/902a8dcc5ba6c5dc3332e8806b01be2f0f7ef2e4
 Author:        Alexey Budankov <alexey.budankov@linux.intel.com>
-AuthorDate:    Thu, 02 Apr 2020 11:45:31 +03:00
+AuthorDate:    Thu, 02 Apr 2020 11:54:01 +03:00
 Committer:     Arnaldo Carvalho de Melo <acme@redhat.com>
-CommitterDate: Thu, 16 Apr 2020 12:19:06 -03:00
+CommitterDate: Thu, 16 Apr 2020 12:19:10 -03:00
 
-capabilities: Introduce CAP_PERFMON to kernel and user space
+doc/admin-guide: Update perf-security.rst with CAP_PERFMON information
 
-Introduce the CAP_PERFMON capability designed to secure system
-performance monitoring and observability operations so that CAP_PERFMON
-can assist CAP_SYS_ADMIN capability in its governing role for
-performance monitoring and observability subsystems.
+Update perf-security.rst documentation file with the information
+related to usage of CAP_PERFMON capability to secure performance
+monitoring and observability operations in system.
 
-CAP_PERFMON hardens system security and integrity during performance
-monitoring and observability operations by decreasing attack surface that
-is available to a CAP_SYS_ADMIN privileged process [2]. Providing the access
-to system performance monitoring and observability operations under CAP_PERFMON
-capability singly, without the rest of CAP_SYS_ADMIN credentials, excludes
-chances to misuse the credentials and makes the operation more secure.
+Committer notes:
 
-Thus, CAP_PERFMON implements the principle of least privilege for
-performance monitoring and observability operations (POSIX IEEE 1003.1e:
-2.2.2.39 principle of least privilege: A security design principle that
-  states that a process or program be granted only those privileges
-(e.g., capabilities) necessary to accomplish its legitimate function,
-and only for the time that such privileges are actually required)
+While testing 'perf top' under cap_perfmon I noticed that it needs
+some more capability and Alexey pointed out cap_ipc_lock, as needed by
+this kernel chunk:
 
-CAP_PERFMON meets the demand to secure system performance monitoring and
-observability operations for adoption in security sensitive, restricted,
-multiuser production environments (e.g. HPC clusters, cloud and virtual compute
-environments), where root or CAP_SYS_ADMIN credentials are not available to
-mass users of a system, and securely unblocks applicability and scalability
-of system performance monitoring and observability operations beyond root
-and CAP_SYS_ADMIN use cases.
+  kernel/events/core.c: 6101
+       if ((locked > lock_limit) && perf_is_paranoid() &&
+               !capable(CAP_IPC_LOCK)) {
+               ret = -EPERM;
+               goto unlock;
+       }
 
-CAP_PERFMON takes over CAP_SYS_ADMIN credentials related to system performance
-monitoring and observability operations and balances amount of CAP_SYS_ADMIN
-credentials following the recommendations in the capabilities man page [1]
-for CAP_SYS_ADMIN: "Note: this capability is overloaded; see Notes to kernel
-developers, below." For backward compatibility reasons access to system
-performance monitoring and observability subsystems of the kernel remains
-open for CAP_SYS_ADMIN privileged processes but CAP_SYS_ADMIN capability
-usage for secure system performance monitoring and observability operations
-is discouraged with respect to the designed CAP_PERFMON capability.
+So I added it to the documentation, and also mentioned that if the
+libcap version doesn't yet supports 'cap_perfmon', its numeric value can
+be used instead, i.e. if:
 
-Although the software running under CAP_PERFMON can not ensure avoidance
-of related hardware issues, the software can still mitigate these issues
-following the official hardware issues mitigation procedure [2]. The bugs
-in the software itself can be fixed following the standard kernel development
-process [3] to maintain and harden security of system performance monitoring
-and observability operations.
+	# setcap "cap_perfmon,cap_ipc_lock,cap_sys_ptrace,cap_syslog=ep" perf
 
-[1] http://man7.org/linux/man-pages/man7/capabilities.7.html
-[2] https://www.kernel.org/doc/html/latest/process/embargoed-hardware-issues.html
-[3] https://www.kernel.org/doc/html/latest/admin-guide/security-bugs.html
+Fails, try:
+
+	# setcap "38,cap_ipc_lock,cap_sys_ptrace,cap_syslog=ep" perf
+
+I also added a paragraph stating that using an unpatched libcap will
+fail the check for CAP_PERFMON, as it checks the cap number against a
+maximum to see if it is valid, which makes it use as the default the
+'cycles:u' event, even tho a cap_perfmon capable perf binary can get
+kernel samples, to workaround that just use, e.g.:
+
+  # perf top -e cycles
+  # perf record -e cycles
+
+And it will sample kernel and user modes.
 
 Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
-Acked-by: James Morris <jamorris@linux.microsoft.com>
-Acked-by: Serge E. Hallyn <serge@hallyn.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Alexei Starovoitov <ast@kernel.org>
 Cc: Andi Kleen <ak@linux.intel.com>
 Cc: Igor Lubashev <ilubashe@akamai.com>
+Cc: James Morris <jmorris@namei.org>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Serge Hallyn <serge@hallyn.com>
+Cc: Song Liu <songliubraving@fb.com>
 Cc: Stephane Eranian <eranian@google.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: intel-gfx@lists.freedesktop.org
@@ -148,62 +136,164 @@ Cc: linux-doc@vger.kernel.org
 Cc: linux-man@vger.kernel.org
 Cc: linux-security-module@vger.kernel.org
 Cc: selinux@vger.kernel.org
-Link: http://lore.kernel.org/lkml/5590d543-82c6-490a-6544-08e6a5517db0@linux.intel.com
+Link: http://lore.kernel.org/lkml/17278551-9399-9ebe-d665-8827016a217d@linux.intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 ---
- include/linux/capability.h          | 4 ++++
- include/uapi/linux/capability.h     | 8 +++++++-
- security/selinux/include/classmap.h | 4 ++--
- 3 files changed, 13 insertions(+), 3 deletions(-)
+ Documentation/admin-guide/perf-security.rst | 86 ++++++++++++++------
+ 1 file changed, 61 insertions(+), 25 deletions(-)
 
-diff --git a/include/linux/capability.h b/include/linux/capability.h
-index ecce0f4..027d7e4 100644
---- a/include/linux/capability.h
-+++ b/include/linux/capability.h
-@@ -251,6 +251,10 @@ extern bool privileged_wrt_inode_uidgid(struct user_namespace *ns, const struct 
- extern bool capable_wrt_inode_uidgid(const struct inode *inode, int cap);
- extern bool file_ns_capable(const struct file *file, struct user_namespace *ns, int cap);
- extern bool ptracer_capable(struct task_struct *tsk, struct user_namespace *ns);
-+static inline bool perfmon_capable(void)
-+{
-+	return capable(CAP_PERFMON) || capable(CAP_SYS_ADMIN);
-+}
+diff --git a/Documentation/admin-guide/perf-security.rst b/Documentation/admin-guide/perf-security.rst
+index 72effa7..1307b52 100644
+--- a/Documentation/admin-guide/perf-security.rst
++++ b/Documentation/admin-guide/perf-security.rst
+@@ -1,6 +1,6 @@
+ .. _perf_security:
  
- /* audit system wants to get cap info from files as well */
- extern int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data *cpu_caps);
-diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
-index 272dc69..e58c963 100644
---- a/include/uapi/linux/capability.h
-+++ b/include/uapi/linux/capability.h
-@@ -367,8 +367,14 @@ struct vfs_ns_cap_data {
+-Perf Events and tool security
++Perf events and tool security
+ =============================
  
- #define CAP_AUDIT_READ		37
+ Overview
+@@ -42,11 +42,11 @@ categories:
+ Data that belong to the fourth category can potentially contain
+ sensitive process data. If PMUs in some monitoring modes capture values
+ of execution context registers or data from process memory then access
+-to such monitoring capabilities requires to be ordered and secured
+-properly. So, perf_events/Perf performance monitoring is the subject for
+-security access control management [5]_ .
++to such monitoring modes requires to be ordered and secured properly.
++So, perf_events performance monitoring and observability operations are
++the subject for security access control management [5]_ .
  
-+/*
-+ * Allow system performance and observability privileged operations
-+ * using perf_events, i915_perf and other kernel subsystems
-+ */
+-perf_events/Perf access control
++perf_events access control
+ -------------------------------
+ 
+ To perform security checks, the Linux implementation splits processes
+@@ -66,11 +66,25 @@ into distinct units, known as capabilities [6]_ , which can be
+ independently enabled and disabled on per-thread basis for processes and
+ files of unprivileged users.
+ 
+-Unprivileged processes with enabled CAP_SYS_ADMIN capability are treated
++Unprivileged processes with enabled CAP_PERFMON capability are treated
+ as privileged processes with respect to perf_events performance
+-monitoring and bypass *scope* permissions checks in the kernel.
+-
+-Unprivileged processes using perf_events system call API is also subject
++monitoring and observability operations, thus, bypass *scope* permissions
++checks in the kernel. CAP_PERFMON implements the principle of least
++privilege [13]_ (POSIX 1003.1e: 2.2.2.39) for performance monitoring and
++observability operations in the kernel and provides a secure approach to
++perfomance monitoring and observability in the system.
 +
-+#define CAP_PERFMON		38
++For backward compatibility reasons the access to perf_events monitoring and
++observability operations is also open for CAP_SYS_ADMIN privileged
++processes but CAP_SYS_ADMIN usage for secure monitoring and observability
++use cases is discouraged with respect to the CAP_PERFMON capability.
++If system audit records [14]_ for a process using perf_events system call
++API contain denial records of acquiring both CAP_PERFMON and CAP_SYS_ADMIN
++capabilities then providing the process with CAP_PERFMON capability singly
++is recommended as the preferred secure approach to resolve double access
++denial logging related to usage of performance monitoring and observability.
++
++Unprivileged processes using perf_events system call are also subject
+ for PTRACE_MODE_READ_REALCREDS ptrace access mode check [7]_ , whose
+ outcome determines whether monitoring is permitted. So unprivileged
+ processes provided with CAP_SYS_PTRACE capability are effectively
+@@ -82,14 +96,14 @@ performance analysis of monitored processes or a system. For example,
+ CAP_SYSLOG capability permits reading kernel space memory addresses from
+ /proc/kallsyms file.
  
--#define CAP_LAST_CAP         CAP_AUDIT_READ
-+#define CAP_LAST_CAP         CAP_PERFMON
+-perf_events/Perf privileged users
++Privileged Perf users groups
+ ---------------------------------
  
- #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
+ Mechanisms of capabilities, privileged capability-dumb files [6]_ and
+-file system ACLs [10]_ can be used to create a dedicated group of
+-perf_events/Perf privileged users who are permitted to execute
+-performance monitoring without scope limits. The following steps can be
+-taken to create such a group of privileged Perf users.
++file system ACLs [10]_ can be used to create dedicated groups of
++privileged Perf users who are permitted to execute performance monitoring
++and observability without scope limits. The following steps can be
++taken to create such groups of privileged Perf users.
  
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index 986f3ac..d233ab3 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -27,9 +27,9 @@
- 	    "audit_control", "setfcap"
+ 1. Create perf_users group of privileged Perf users, assign perf_users
+    group to Perf tool executable and limit access to the executable for
+@@ -108,30 +122,51 @@ taken to create such a group of privileged Perf users.
+    -rwxr-x---  2 root perf_users  11M Oct 19 15:12 perf
  
- #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
--		"wake_alarm", "block_suspend", "audit_read"
-+		"wake_alarm", "block_suspend", "audit_read", "perfmon"
+ 2. Assign the required capabilities to the Perf tool executable file and
+-   enable members of perf_users group with performance monitoring
++   enable members of perf_users group with monitoring and observability
+    privileges [6]_ :
  
--#if CAP_LAST_CAP > CAP_AUDIT_READ
-+#if CAP_LAST_CAP > CAP_PERFMON
- #error New capability defined, please update COMMON_CAP2_PERMS.
- #endif
+ ::
  
+-   # setcap "cap_sys_admin,cap_sys_ptrace,cap_syslog=ep" perf
+-   # setcap -v "cap_sys_admin,cap_sys_ptrace,cap_syslog=ep" perf
++   # setcap "cap_perfmon,cap_sys_ptrace,cap_syslog=ep" perf
++   # setcap -v "cap_perfmon,cap_sys_ptrace,cap_syslog=ep" perf
+    perf: OK
+    # getcap perf
+-   perf = cap_sys_ptrace,cap_sys_admin,cap_syslog+ep
++   perf = cap_sys_ptrace,cap_syslog,cap_perfmon+ep
++
++If the libcap installed doesn't yet support "cap_perfmon", use "38" instead,
++i.e.:
++
++::
++
++   # setcap "38,cap_ipc_lock,cap_sys_ptrace,cap_syslog=ep" perf
++
++Note that you may need to have 'cap_ipc_lock' in the mix for tools such as
++'perf top', alternatively use 'perf top -m N', to reduce the memory that
++it uses for the perf ring buffer, see the memory allocation section below.
++
++Using a libcap without support for CAP_PERFMON will make cap_get_flag(caps, 38,
++CAP_EFFECTIVE, &val) fail, which will lead the default event to be 'cycles:u',
++so as a workaround explicitly ask for the 'cycles' event, i.e.:
++
++::
++
++  # perf top -e cycles
++
++To get kernel and user samples with a perf binary with just CAP_PERFMON.
+ 
+ As a result, members of perf_users group are capable of conducting
+-performance monitoring by using functionality of the configured Perf
+-tool executable that, when executes, passes perf_events subsystem scope
+-checks.
++performance monitoring and observability by using functionality of the
++configured Perf tool executable that, when executes, passes perf_events
++subsystem scope checks.
+ 
+ This specific access control management is only available to superuser
+ or root running processes with CAP_SETPCAP, CAP_SETFCAP [6]_
+ capabilities.
+ 
+-perf_events/Perf unprivileged users
++Unprivileged users
+ -----------------------------------
+ 
+-perf_events/Perf *scope* and *access* control for unprivileged processes
++perf_events *scope* and *access* control for unprivileged processes
+ is governed by perf_event_paranoid [2]_ setting:
+ 
+ -1:
+@@ -166,7 +201,7 @@ is governed by perf_event_paranoid [2]_ setting:
+      perf_event_mlock_kb locking limit is imposed but ignored for
+      unprivileged processes with CAP_IPC_LOCK capability.
+ 
+-perf_events/Perf resource control
++Resource control
+ ---------------------------------
+ 
+ Open file descriptors
+@@ -227,4 +262,5 @@ Bibliography
+ .. [10] `<http://man7.org/linux/man-pages/man5/acl.5.html>`_
+ .. [11] `<http://man7.org/linux/man-pages/man2/getrlimit.2.html>`_
+ .. [12] `<http://man7.org/linux/man-pages/man5/limits.conf.5.html>`_
+-
++.. [13] `<https://sites.google.com/site/fullycapable>`_
++.. [14] `<http://man7.org/linux/man-pages/man8/auditd.8.html>`_
