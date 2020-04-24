@@ -2,323 +2,99 @@ Return-Path: <SRS0=CFpO=6I=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.3 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13DC9C5518A
-	for <selinux@archiver.kernel.org>; Fri, 24 Apr 2020 06:52:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C8F6C2BA1A
+	for <selinux@archiver.kernel.org>; Fri, 24 Apr 2020 08:27:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E380F2168B
-	for <selinux@archiver.kernel.org>; Fri, 24 Apr 2020 06:52:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1E56120724
+	for <selinux@archiver.kernel.org>; Fri, 24 Apr 2020 08:27:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Llm0euZ0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726338AbgDXGwE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Apr 2020 02:52:04 -0400
-Received: from mga04.intel.com ([192.55.52.120]:45630 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726008AbgDXGwE (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 24 Apr 2020 02:52:04 -0400
-IronPort-SDR: gFjZVtNHM+s9m7K1G8eVxuvpUnbfUmRZMYPQLSfGvMMiL/XIfgqhDnxEkC5HJ2HBB1cAyiUOSy
- Oht+wn5lmvlg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2020 23:52:03 -0700
-IronPort-SDR: koFR2hY+VSgkxsHe6kZw+5Qf5wtlmCWfXf1jqpjU+8eHl1bqpRMlTT+8PLid2OhfLrjLZLLeCk
- JoUU1AvBHSwA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,310,1583222400"; 
-   d="scan'208";a="403205494"
-Received: from linux.intel.com ([10.54.29.200])
-  by orsmga004.jf.intel.com with ESMTP; 23 Apr 2020 23:52:02 -0700
-Received: from [10.249.228.69] (abudanko-mobl.ccr.corp.intel.com [10.249.228.69])
-        by linux.intel.com (Postfix) with ESMTP id 6BC855802C9;
-        Thu, 23 Apr 2020 23:51:59 -0700 (PDT)
-Subject: [PATCH v3 3/3] perf docs: introduce security.txt file to document
- related issues
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-To:     Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc:     Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>
-References: <d7cec72d-cc3c-381b-38cd-20e7242bfda8@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <66341a83-8f15-23c7-7ffa-88b55f24d585@linux.intel.com>
-Date:   Fri, 24 Apr 2020 09:51:58 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1726667AbgDXI1k (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Apr 2020 04:27:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42416 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726324AbgDXI1j (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Apr 2020 04:27:39 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E2B9C09B045
+        for <selinux@vger.kernel.org>; Fri, 24 Apr 2020 01:27:37 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id 20so9346705qkl.10
+        for <selinux@vger.kernel.org>; Fri, 24 Apr 2020 01:27:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=SsQ+D2rI1OnPTwHjFUheQipBCCDl58vu5wq2m4lDT2k=;
+        b=Llm0euZ0Odzy+9/UCDfssAY4EUmGFNo2iyGP7Tvhxb9yvATgfncYVYHLxXK8xV4z6f
+         IczPS0zgkcs67iw3o+ClCyLQg2z+r3gU9X+9V6pJEnkro+ITPaR6K6nqlAd09Iw3nRlY
+         THAVE5P4FFhrIyrXwW+NnlTxDMRnQSimXPkixlcIjnm9+PT81T7ACgqvoiIBwlhcYGYw
+         T0rQQ+obUaDaDb5WKS7ArKNVCUZiclWLuVElfmICvDdifJJ5MHiSCUNgKVCZgnYJ4Uug
+         DME7AKMsiKsCdV5mTqu4K6boiQHmFoGr+aOyteuRnSV0Cl43KNgIhGidzlywuPnP/ixY
+         kEIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=SsQ+D2rI1OnPTwHjFUheQipBCCDl58vu5wq2m4lDT2k=;
+        b=gPok9yU0O84aT5kEScLNMU1nry618PiPOFGOD582KcerWiiIHQiJWWSegKKws84F2t
+         jZ1OUjK2Yv7oYCrIy96lyFJGO2g3qyArwMPVBS5BFM3luqf3Mnv6U17a+nUcEg4xCmoL
+         +1IlD9jF3mlVi37st3hCB3bQ37XF6rqu5KVgskTcMQec7OpFyOBGnqmPhQG0qvF4//6Z
+         JhVZ6O/8UhE2RN1yPcHxf7rGBeqSjWgegN7c8VUkNTqRSAf6XWttSKV2hq8FwY3AvzfE
+         x3eigaJBauWaWqNelNwYdcWYVqN242iBt/4qJOpottoffwLU4pecr4Ev3rA81hIGbdz6
+         RV8w==
+X-Gm-Message-State: AGi0PuaNZGxqNGnfE2iIlHsfPjVYtP3BKYB1fakxWfhBCaDXpSghZJOx
+        8Hp2LiookD/f05UfXSrDRqDv0Oj45A2jRfE+ESqq6Q==
+X-Google-Smtp-Source: APiQypJYn4PIi9liTr/E5NwZJztu5rgiBU/MpVcLd2iyDNpYpEC7B7NprZz1yYl0wEXmVUEDLwL+wWuuOspoH4eQkEc=
+X-Received: by 2002:a05:620a:12b6:: with SMTP id x22mr1017966qki.8.1587716856576;
+ Fri, 24 Apr 2020 01:27:36 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <d7cec72d-cc3c-381b-38cd-20e7242bfda8@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+From:   Dmitry Vyukov <dvyukov@google.com>
+Date:   Fri, 24 Apr 2020 10:27:25 +0200
+Message-ID: <CACT4Y+YTi4JCFRqOB9rgA22S+6xxTo87X41hj6Tdfro8K3ef7g@mail.gmail.com>
+Subject: selinux_netlink_send changes program behavior
+To:     Paul Moore <paul@paul-moore.com>, stephen.smalley.work@gmail.com,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Hi SELinux maintainers,
 
-Publish instructions on how to apply LSM hooks for access control
-to perf_event_open() syscall on Fedora distro with Targeted SELinux
-policy and then manage access to the syscall.
+We've hit a case where a developer wasn't able to reproduce a kernel
+bug, it turned out to be a difference in behavior between SELinux and
+non-SELinux kernels.
+Condensed version: a program does sendmmsg on netlink socket with 2
+mmsghdr's, first is completely empty/zeros, second contains some
+actual payload. Without SELinux the first mmsghdr is treated as no-op
+and the kernel processes the second one (triggers bug). However the
+SELinux hook does:
 
-Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
----
- tools/perf/Documentation/security.txt | 237 ++++++++++++++++++++++++++
- 1 file changed, 237 insertions(+)
- create mode 100644 tools/perf/Documentation/security.txt
+static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+{
+    if (skb->len < NLMSG_HDRLEN) {
+        err = -EINVAL;
+        goto out;
+    }
 
-diff --git a/tools/perf/Documentation/security.txt b/tools/perf/Documentation/security.txt
-new file mode 100644
-index 000000000000..4fe3b8b1958f
---- /dev/null
-+++ b/tools/perf/Documentation/security.txt
-@@ -0,0 +1,237 @@
-+Overview
-+========
-+
-+For general security related questions of perf_event_open() syscall usage,
-+performance monitoring and observability operations by Perf see here:
-+https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
-+
-+Enabling LSM based mandatory access control (MAC) to perf_event_open() syscall
-+==============================================================================
-+
-+LSM hooks for mandatory access control for perf_event_open() syscall can be
-+used starting from Linux v5.3. Below are the steps to extend Fedora (v31) with
-+Targeted policy with perf_event_open() access control capabilities:
-+
-+1. Download selinux-policy SRPM package (e.g. selinux-policy-3.14.4-48.fc31.src.rpm on FC31)
-+   and install it so rpmbuild directory would exist in the current working directory:
-+
-+   # rpm -Uhv selinux-policy-3.14.4-48.fc31.src.rpm
-+
-+2. Get into rpmbuild/SPECS directory and unpack the source code:
-+
-+   # rpmbuild -bp selinux-policy.spec
-+
-+3. Place patch below at rpmbuild/BUILD/selinux-policy-b86eaaf4dbcf2d51dd4432df7185c0eaf3cbcc02
-+   directory and apply it:
-+
-+   # patch -p1 < selinux-policy-perf-events-perfmon.patch
-+   patching file policy/flask/access_vectors
-+   patching file policy/flask/security_classes
-+   # cat selinux-policy-perf-events-perfmon.patch
-+diff -Nura a/policy/flask/access_vectors b/policy/flask/access_vectors
-+--- a/policy/flask/access_vectors	2020-02-04 18:19:53.000000000 +0300
-++++ b/policy/flask/access_vectors	2020-02-28 23:37:25.000000000 +0300
-+@@ -174,6 +174,7 @@
-+ 	wake_alarm
-+ 	block_suspend
-+ 	audit_read
-++	perfmon
-+ }
-+ 
-+ #
-+@@ -1099,3 +1100,15 @@
-+ 
-+ class xdp_socket
-+ inherits socket
-++
-++class perf_event
-++{
-++	open
-++	cpu
-++	kernel
-++	tracepoint
-++	read
-++	write
-++}
-++
-++
-+diff -Nura a/policy/flask/security_classes b/policy/flask/security_classes
-+--- a/policy/flask/security_classes	2020-02-04 18:19:53.000000000 +0300
-++++ b/policy/flask/security_classes	2020-02-28 21:35:17.000000000 +0300
-+@@ -200,4 +200,6 @@
-+ 
-+ class xdp_socket
-+ 
-++class perf_event
-++
-+ # FLASK
-+
-+4. Get into rpmbuild/SPECS directory and build policy packages from patched sources:
-+
-+   # rpmbuild --noclean --noprep -ba selinux-policy.spec
-+
-+   so you have this:
-+
-+   # ls -alh rpmbuild/RPMS/noarch/
-+   total 33M
-+   drwxr-xr-x. 2 root root 4.0K Mar 20 12:16 .
-+   drwxr-xr-x. 3 root root 4.0K Mar 20 12:16 ..
-+   -rw-r--r--. 1 root root 112K Mar 20 12:16 selinux-policy-3.14.4-48.fc31.noarch.rpm
-+   -rw-r--r--. 1 root root 1.2M Mar 20 12:17 selinux-policy-devel-3.14.4-48.fc31.noarch.rpm
-+   -rw-r--r--. 1 root root 2.3M Mar 20 12:17 selinux-policy-doc-3.14.4-48.fc31.noarch.rpm
-+   -rw-r--r--. 1 root root  12M Mar 20 12:17 selinux-policy-minimum-3.14.4-48.fc31.noarch.rpm
-+   -rw-r--r--. 1 root root 4.5M Mar 20 12:16 selinux-policy-mls-3.14.4-48.fc31.noarch.rpm
-+   -rw-r--r--. 1 root root 111K Mar 20 12:16 selinux-policy-sandbox-3.14.4-48.fc31.noarch.rpm
-+   -rw-r--r--. 1 root root  14M Mar 20 12:17 selinux-policy-targeted-3.14.4-48.fc31.noarch.rpm
-+
-+5. Install SELinux packages from Fedora repo, if not already done so, and
-+   update with the patched rpms above:
-+
-+   # rpm -Uhv rpmbuild/RPMS/noarch/selinux-policy-*
-+
-+6. Enable SELinux Permissive mode for Targeted policy, if not already done so:
-+
-+   # cat /etc/selinux/config
-+
-+   # This file controls the state of SELinux on the system.
-+   # SELINUX= can take one of these three values:
-+   #     enforcing - SELinux security policy is enforced.
-+   #     permissive - SELinux prints warnings instead of enforcing.
-+   #     disabled - No SELinux policy is loaded.
-+   SELINUX=permissive
-+   # SELINUXTYPE= can take one of these three values:
-+   #     targeted - Targeted processes are protected,
-+   #     minimum - Modification of targeted policy. Only selected processes are protected.
-+   #     mls - Multi Level Security protection.
-+   SELINUXTYPE=targeted
-+
-+7. Enable filesystem SELinux labeling at the next reboot:
-+
-+   # touch /.autorelabel
-+
-+8. Reboot machine and it will label filesystems and load Targeted policy into the kernel;
-+
-+9. Login and check that dmesg output doesn't mention that perf_event class is unknown to SELinux subsystem;
-+
-+10. Check that SELinux is enabled and in Permissive mode
-+
-+    # getenforce
-+    Permissive
-+
-+11. Turn SELinux into Enforcing mode:
-+
-+    # setenforce 1
-+    # getenforce
-+    Enforcing
-+
-+Opening access to perf_event_open() syscall on Fedora with SELinux
-+==================================================================
-+
-+Access to performance monitoring and observability operations by Perf
-+can be limited for superuser or CAP_PERFMON or CAP_SYS_ADMIN privileged
-+processes. MAC policy settings (e.g. SELinux) can be loaded into the kernel
-+and prevent unauthorized access to perf_event_open() syscall. In such case
-+Perf tool provides a message similar to the one below:
-+
-+   # perf stat
-+   Error:
-+   Access to performance monitoring and observability operations is limited.
-+   Enforced MAC policy settings (SELinux) can limit access to performance
-+   monitoring and observability operations. Inspect system audit records for
-+   more perf_event access control information and adjusting the policy.
-+   Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
-+   access to performance monitoring and observability operations for users
-+   without CAP_PERFMON or CAP_SYS_ADMIN Linux capability.
-+   perf_event_paranoid setting is -1:
-+     -1: Allow use of (almost) all events by all users
-+         Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
-+   >= 0: Disallow raw and ftrace function tracepoint access
-+   >= 1: Disallow CPU event access
-+   >= 2: Disallow kernel profiling
-+   To make the adjusted perf_event_paranoid setting permanent preserve it
-+   in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)
-+
-+To make sure that access is limited by MAC policy settings inspect system
-+audit records using journalctl command or /var/log/audit/audit.log so the
-+output would contain AVC denied records related to perf_event:
-+
-+   # journalctl --reverse --no-pager | grep perf_event
-+
-+   python3[1318099]: SELinux is preventing perf from open access on the perf_event labeled unconfined_t.
-+                                         If you believe that perf should be allowed open access on perf_event labeled unconfined_t by default.
-+   setroubleshoot[1318099]: SELinux is preventing perf from open access on the perf_event labeled unconfined_t. For complete SELinux messages run: sealert -l 4595ce5b-e58f-462c-9d86-3bc2074935de
-+   audit[1318098]: AVC avc:  denied  { open } for  pid=1318098 comm="perf" scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=perf_event permissive=0
-+
-+In order to open access to perf_event_open() syscall MAC policy settings can
-+require to be extended. On SELinux system this can be done by loading a special
-+policy module extending base policy settings. Perf related policy module can
-+be generated using the system audit records about blocking perf_event access.
-+Run the command below to generate my-perf.te policy extension file with
-+perf_event related rules:
-+
-+   # ausearch -c 'perf' --raw | audit2allow -M my-perf && cat my-perf.te
-+
-+   module my-perf 1.0;
-+
-+   require {
-+        type unconfined_t;
-+        class perf_event { cpu kernel open read tracepoint write };
-+   }
-+
-+   #============= unconfined_t ==============
-+   allow unconfined_t self:perf_event { cpu kernel open read tracepoint write };
-+
-+Now compile, pack and load my-perf.pp extension module into the kernel:
-+
-+   # checkmodule -M -m -o my-perf.mod my-perf.te
-+   # semodule_package -o my-perf.pp -m my-perf.mod
-+   # semodule -X 300 -i my-perf.pp
-+
-+After all those taken steps above access to perf_event_open() syscall should
-+now be allowed by the policy settings. Check access running Perf like this:
-+
-+   # perf stat
-+   ^C
-+   Performance counter stats for 'system wide':
-+
-+         36,387.41 msec cpu-clock                 #    7.999 CPUs utilized
-+             2,629      context-switches          #    0.072 K/sec
-+                57      cpu-migrations            #    0.002 K/sec
-+                 1      page-faults               #    0.000 K/sec
-+       263,721,559      cycles                    #    0.007 GHz
-+       175,746,713      instructions              #    0.67  insn per cycle
-+        19,628,798      branches                  #    0.539 M/sec
-+         1,259,201      branch-misses             #    6.42% of all branches
-+
-+       4.549061439 seconds time elapsed
-+
-+The generated perf-event.pp related policy extension module can be removed
-+from the kernel using this command:
-+
-+   # semodule -X 300 -r my-perf
-+
-+Alternatively the module can be temporarily disabled and enabled back using
-+these two commands:
-+
-+   # semodule -d my-perf
-+   # semodule -e my-perf
-+
-+If something went wrong
-+=======================
-+
-+To turn SELinux into Permissive mode:
-+   # setenforce 0
-+
-+To fully disable SELinux during kernel boot [3] set kernel command line parameter selinux=0
-+
-+To remove SELinux labeling from local filesystems:
-+   # find / -mount -print0 | xargs -0 setfattr -h -x security.selinux
-+
-+To fully turn SELinux off a machine set SELINUX=disabled at /etc/selinux/config file and reboot;
-+
-+Links
-+=====
-+
-+[1] https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/31/Everything/SRPMS/Packages/s/selinux-policy-3.14.4-49.fc31.src.rpm
-+[2] https://docs.fedoraproject.org/en-US/Fedora/11/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Working_with_SELinux-Enabling_and_Disabling_SELinux.html
-+[3] https://danwalsh.livejournal.com/10972.html
--- 
-2.24.1
+and fails processing on the first empty mmsghdr (does not happen
+without SELinux).
 
+Is this difference in behavior intentional/acceptable/should be fixed?
 
+Thanks
+
+FTR, the C program is:
+https://gist.githubusercontent.com/dvyukov/dda1c547ca9121817159d29afa72aea2/raw/41b021d722947df4d8c48e2fc783591b44671ceb/gistfile1.txt
+kernel config:
+https://gist.githubusercontent.com/dvyukov/08bf2c2fd873a84a2c4c771740716183/raw/78fb3b1063b7ae37625468f32868869edbd1bd19/gistfile1.txt
+on upstream commit 50cc09c1 it triggers a KASAN bug without SELinux,
+but does not with SELinux.
