@@ -2,165 +2,156 @@ Return-Path: <SRS0=uu7d=6J=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0
-	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA3B4C55185
-	for <selinux@archiver.kernel.org>; Sat, 25 Apr 2020 06:52:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E0A5C55185
+	for <selinux@archiver.kernel.org>; Sat, 25 Apr 2020 11:42:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 88C0E20748
-	for <selinux@archiver.kernel.org>; Sat, 25 Apr 2020 06:52:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C536206EC
+	for <selinux@archiver.kernel.org>; Sat, 25 Apr 2020 11:42:33 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="rjR3ZDoE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726034AbgDYGwq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 25 Apr 2020 02:52:46 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:33894 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725837AbgDYGwp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 25 Apr 2020 02:52:45 -0400
-Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com [209.85.210.47])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 655895646B6
-        for <selinux@vger.kernel.org>; Sat, 25 Apr 2020 08:52:39 +0200 (CEST)
-Received: by mail-ot1-f47.google.com with SMTP id e26so16665229otr.2
-        for <selinux@vger.kernel.org>; Fri, 24 Apr 2020 23:52:39 -0700 (PDT)
-X-Gm-Message-State: AGi0Pub6nMyNkBa5tQlYr9ZWbtMajKH1h5Q4/W85yuJBx0SzJtWLmbtb
-        37NEbTaImEHgcAGFDkQ3UdTVkJDt7kZTpd3vlGQ=
-X-Google-Smtp-Source: APiQypKuJvBFPMN8ggdqfI0qyVsIiLYOG2PURR/KOkfqz6C0X0YG1lUaeHgteHrQzGhOY0JBGm9HBG18I0wFDjWpmxI=
-X-Received: by 2002:a05:6830:2421:: with SMTP id k1mr5026846ots.279.1587797558240;
- Fri, 24 Apr 2020 23:52:38 -0700 (PDT)
+        id S1726261AbgDYLmc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 25 Apr 2020 07:42:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43298 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726239AbgDYLmb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 25 Apr 2020 07:42:31 -0400
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677E2C09B04B
+        for <selinux@vger.kernel.org>; Sat, 25 Apr 2020 04:42:30 -0700 (PDT)
+Received: by mail-qt1-x842.google.com with SMTP id i68so10212527qtb.5
+        for <selinux@vger.kernel.org>; Sat, 25 Apr 2020 04:42:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:date:message-id:in-reply-to:references:user-agent
+         :subject:mime-version:content-transfer-encoding;
+        bh=hdIpK7ct63Z7jJE9Mjn72p6e0+1mT0sE49L6U7OVovk=;
+        b=rjR3ZDoEA1kMo0d7AI6FUigWYhXfwA/OOqMy5TRbBqa6IOibl6n2Ti+p4lW5q1ItqG
+         0k1YfDviLW8gxVE27X5Cha36KqTKPCDXK5YYpKiBp0sLWzjbn9Bu+3dVG9H+V36Lw61f
+         puwFoMVKKUv3pMvC01cxe3eYffVFqvcK8DmPvijZYSd2wefAkUC681LBzVE4POyvmFsF
+         IDJvZ3jpLY8zFLEY3qxysDBsfnx6qP1kWceF++4h/CpeztSKE7JP/TPemqDLX1j7V03s
+         MUK4FNSLinAHYN5d6LmzD6JDgTZcQCDcxpqL9sWvP68inaaZrGJ0/6eFoQR9p5xSi5P8
+         1aTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:date:message-id:in-reply-to
+         :references:user-agent:subject:mime-version
+         :content-transfer-encoding;
+        bh=hdIpK7ct63Z7jJE9Mjn72p6e0+1mT0sE49L6U7OVovk=;
+        b=rRPBbiF2JSN+X+EcWJSK4qradjqIAxq3ViQyR85LOnMrvfYlloxf2Beeooq/rBnDKA
+         bTTF4BQQvCvbwRk04uJRepIpQL0HYjXK/my0Pd3rCM/Rjg1mi375g5UwyOA8iPDOpJ8E
+         smAjCfeCB3fX4oWkzNNx0I8PBpYN4mJwWhLMVjbsgsuOgkUOPzRM5JIJ7SFFGl1g45QR
+         csIM3y3SSJuaFWeIAaw7dp4REnXX5/vYDFXabN6zcmKVx7Qg579/CmVVJKcLky9lYuGc
+         Yy0fQSYFGgNjaLVSd96VhI4TBD+MfE7dzFM8VFQFiHLP6dG8z6P/25nkjBvMjIQP2Cb5
+         eprg==
+X-Gm-Message-State: AGi0PuaxF/IE9uUzZ7WuncDpevq3MaoHeQQALd8Ec2aqDf0OC24LdSCj
+        TEyTjnWU6EoGSlOt5nS/ziYb
+X-Google-Smtp-Source: APiQypLVrBD4XSPStNPmAY5ImhaRZtIADJ00vA6YTflmpLtPbulGc66vuPVFk8OlyA5rqRB2Xyc2DQ==
+X-Received: by 2002:ac8:6753:: with SMTP id n19mr14205963qtp.353.1587814949479;
+        Sat, 25 Apr 2020 04:42:29 -0700 (PDT)
+Received: from [192.168.7.212] (pool-71-245-238-133.bstnma.fios.verizon.net. [71.245.238.133])
+        by smtp.gmail.com with ESMTPSA id g47sm6161863qte.54.2020.04.25.04.42.28
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Sat, 25 Apr 2020 04:42:28 -0700 (PDT)
+From:   Paul Moore <paul@paul-moore.com>
+To:     Dmitry Vyukov <dvyukov@google.com>,
+        David Miller <davem@davemloft.net>, <kuba@kernel.org>,
+        netdev <netdev@vger.kernel.org>
+CC:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, <selinux@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>
+Date:   Sat, 25 Apr 2020 07:42:26 -0400
+Message-ID: <171b1244748.27df.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+In-Reply-To: <CACT4Y+b8HiV6KFuAPysZD=5hmyO4QisgxCKi4DHU3CfMPSP=yg@mail.gmail.com>
+References: <CACT4Y+YTi4JCFRqOB9rgA22S+6xxTo87X41hj6Tdfro8K3ef7g@mail.gmail.com>
+ <CAHC9VhQs6eJpX4oMrhBiDap-HhEsBBgmYWEou=ZH60YiA__T7w@mail.gmail.com>
+ <CACT4Y+b8HiV6KFuAPysZD=5hmyO4QisgxCKi4DHU3CfMPSP=yg@mail.gmail.com>
+User-Agent: AquaMail/1.24.0-1572 (build: 102400003)
+Subject: Re: selinux_netlink_send changes program behavior
 MIME-Version: 1.0
-References: <20200424145941.242949-1-plautrba@redhat.com> <476DC76E7D1DF2438D32BFADF679FC5649ED77DF@ORSMSX101.amr.corp.intel.com>
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5649ED77DF@ORSMSX101.amr.corp.intel.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sat, 25 Apr 2020 08:52:27 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=mv_e7zo2T8MBOmODW8NHc48cr3GB1Jvi8=Gg-qm7QPTQ@mail.gmail.com>
-Message-ID: <CAJfZ7=mv_e7zo2T8MBOmODW8NHc48cr3GB1Jvi8=Gg-qm7QPTQ@mail.gmail.com>
-Subject: Re: [PATCH] python/semanage: Use ipaddress module instead of IPy
-To:     "Roberts, William C" <william.c.roberts@intel.com>,
-        Petr Lautrbach <plautrba@redhat.com>
-Cc:     "selinux@vger.kernel.org" <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat Apr 25 08:52:39 2020 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Apr 24, 2020 at 9:46 PM Roberts, William C
-<william.c.roberts@intel.com> wrote:
+On April 25, 2020 1:15:05 AM Dmitry Vyukov <dvyukov@google.com> wrote:
+
+> On Fri, Apr 24, 2020 at 11:51 PM Paul Moore <paul@paul-moore.com> wrote:
+>>
+>> On Fri, Apr 24, 2020 at 4:27 AM Dmitry Vyukov <dvyukov@google.com> wrote=
+:
+>>> Hi SELinux maintainers,
+>>>
+>>> We've hit a case where a developer wasn't able to reproduce a kernel
+>>> bug, it turned out to be a difference in behavior between SELinux and
+>>> non-SELinux kernels.
+>>> Condensed version: a program does sendmmsg on netlink socket with 2
+>>> mmsghdr's, first is completely empty/zeros, second contains some
+>>> actual payload. Without SELinux the first mmsghdr is treated as no-op
+>>> and the kernel processes the second one (triggers bug). However the
+>>> SELinux hook does:
+>>>
+>>> static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+>>> {
+>>> if (skb->len < NLMSG_HDRLEN) {
+>>>  err =3D -EINVAL;
+>>>  goto out;
+>>> }
+>>>
+>>> and fails processing on the first empty mmsghdr (does not happen
+>>> without SELinux).
+>>>
+>>> Is this difference in behavior intentional/acceptable/should be fixed?
+>>
+>> From a practical perspective, SELinux is always going to need to do a
+>> length check as it needs to peek into the netlink message header for
+>> the message type so it can map that to the associated SELinux
+>> permissions.  So in that sense, the behavior is intentional and
+>> desired; however from a bug-for-bug compatibility perspective ... not
+>> so much.
+>>
+>> Ultimately, my it's-Friday-and-it's-been-a-long-week-ending-in-a-long-da=
+y
+>> thought is that this was a buggy operation to begin with and the bug
+>> was just caught in different parts of the kernel, depending on how it
+>> was configured.  It may not be ideal, but I can think of worse things
+>> (and arguably SELinux is doing the Right Thing).
 >
-> > -----Original Message-----
-> > From: selinux-owner@vger.kernel.org [mailto:selinux-owner@vger.kernel.org]
-> > On Behalf Of Petr Lautrbach
-> > Sent: Friday, April 24, 2020 10:00 AM
-> > To: selinux@vger.kernel.org
-> > Cc: Petr Lautrbach <plautrba@redhat.com>
-> > Subject: [PATCH] python/semanage: Use ipaddress module instead of IPy
-> >
-> > ipaddress python module was added to standard library in Python 3.3 -
-> > https://docs.python.org/3/library/ipaddress.html
-> >
-> > seobject.py was the only consumer of IPy module so this dependency is not
-> > needed anymore.
-> >
-> > Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
-> > ---
-> >  python/semanage/seobject.py | 12 ++++++------
-> >  1 file changed, 6 insertions(+), 6 deletions(-)
-> >
-> > diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> > index f2a139c970bd..c89c67e491b6 100644
-> > --- a/python/semanage/seobject.py
-> > +++ b/python/semanage/seobject.py
-> > @@ -32,7 +32,7 @@ from semanage import *  PROGNAME = "policycoreutils"
-> >  import sepolicy
-> >  import setools
-> > -from IPy import IP
-> > +import ipaddress
-> >
-> >  try:
-> >      import gettext
-> > @@ -1860,13 +1860,13 @@ class nodeRecords(semanageRecords):
-> >
-> >          # verify valid combination
-> >          if len(mask) == 0 or mask[0] == "/":
-> > -            i = IP(addr + mask)
-> > -            newaddr = i.strNormal(0)
-> > -            newmask = str(i.netmask())
-> > -            if newmask == "0.0.0.0" and i.version() == 6:
-> > +            i = ipaddress.ip_network(addr + mask)
-> > +            newaddr = str(i.network_address)
-> > +            newmask = str(i.netmask)
-
-I was wondering whether there was a change of behavior with addresses
-that are not network masks, such as 10.0.0.1/24 (and why
-ipaddress.ip_network is used instead of ipaddress.ip_interface). But
-it seems that "semanage node" already only accepts valid network
-masks:
-
-Before:
-
-    >>> IP('10.0.0.1/24').netmask()
-    Traceback (most recent call last):
-     File "<stdin>", line 1, in <module>
-     File "/usr/lib/python3.8/site-packages/IPy.py", line 260, in __init__
-       raise ValueError("%s has invalid prefix length (%s)" %
-(repr(self), self._prefixlen))
-    ValueError: IP('10.0.0.1/24') has invalid prefix length (24)
-
-After:
-
-    >>> ipaddress.ip_network('10.0.0.1/24')
-    Traceback (most recent call last):
-     File "<stdin>", line 1, in <module>
-     File "/usr/lib/python3.8/ipaddress.py", line 74, in ip_network
-       return IPv4Network(address, strict)
-     File "/usr/lib/python3.8/ipaddress.py", line 1454, in __init__
-       raise ValueError('%s has host bits set' % self)
-    ValueError: 10.0.0.1/24 has host bits set
-
-So this change looks good to me :) Nevertheless the comment can be
-improved, from "# verify valid combination" to "verify that (addr,
-mask) is either a IP address (without a mask) or a valid network
-mask", for example.
-
-> > +            if newmask == "0.0.0.0" and i.version == 6:
-> >                  newmask = "::"
-
-What does this check do? It seems to be a workaround for some bug in
-IPy related to IPv6, where an IPv6 address could return a 0.0.0.0
-netmask. Does this bug also exist in ipaddress? If yes, it would be
-useful to add a comment to document how to reproduce this bug.
-
-> >
-> > -            protocol = "ipv%d" % i.version()
-> > +            protocol = "ipv%d" % i.version
-> >
-> >          try:
-> >              newprotocol = self.protocol.index(protocol)
-> > --
-> > 2.26.0
+> +netlink maintainers for intended semantics of empty netlink messages
 >
-> LGTM
-> <Reviewed-by: William.c.Roberts@intel.com>
+> If it's a bug, or intended behavior depends on the intended
+> behavior... which I assume is not documented anywhere officially.
+
+Your original email gave the impression that there was a big in the non-SEL=
+inux case; if that is not the case my response changes.
+
+> However, most of the netlink families use netlink_rcv_skb, which does:
 >
-> I can give it an acked by if you give me testing steps.
+> int netlink_rcv_skb(struct sk_buff *skb, int (*cb)(struct sk_buff *,
+>                           struct nlmsghdr *,
+>                           struct netlink_ext_ack *))
+> {
+>    ...
+>    while (skb->len >=3D nlmsg_total_size(0)) {
+>    ...
+>       skb_pull(skb, msglen);
+>    }
+>    return 0;
+> }
+>
+> 1. How intentional is this while loop logic vs sloppy error checking?
+> 2. netlink_rcv_skb seems to be able to handle 2+ messages in the same
+> skb, while selinux_netlink_send only checks the first one... so can I
+> skip SELinux checks by putting a malicious message after a permitted
+> one?..
 
-For testing such things, I usually use a Vagrant virtual machine: I
-have one to test Arch Linux packages
-(https://github.com/archlinuxhardened/selinux/tree/master/_vagrant),
-and I also contributed to a Debian VM to test refpolicy
-(https://github.com/SELinuxProject/refpolicy/blob/2b2b5bad06f0eb2f45217ae337542e5e15bacda8/Vagrantfile#L121).
-I usually patch the Arch Linux packages when testing small patches
-that can be applied on top of previous releases. When the previous
-release is quite old, I copy the whole project in the VM, run "make
-clean distclean && make DESTDIR=/tmp/dest install install-pywrap",
-relabel binaries in /tmp/dest and run them.
 
-Anyway, +1 for migrating to ipaddress :) Thanks!
-Nicolas
 
