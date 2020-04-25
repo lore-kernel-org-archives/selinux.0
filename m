@@ -1,99 +1,139 @@
-Return-Path: <SRS0=CFpO=6I=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=uu7d=6J=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D4ADC2BA1A
-	for <selinux@archiver.kernel.org>; Fri, 24 Apr 2020 23:43:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04615C55186
+	for <selinux@archiver.kernel.org>; Sat, 25 Apr 2020 05:17:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 02C0B221EC
-	for <selinux@archiver.kernel.org>; Fri, 24 Apr 2020 23:43:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DAF7620857
+	for <selinux@archiver.kernel.org>; Sat, 25 Apr 2020 05:17:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rg1rQNFD"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="rbhLhZvQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726061AbgDXXn2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Apr 2020 19:43:28 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:57018 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725946AbgDXXn2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Apr 2020 19:43:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1587771807;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=kn71fKQPXjFiFyBCKyTUfbDk234UOuOzANAj2lsywGw=;
-        b=Rg1rQNFDX9J5fbqpcrVGwxX6+L/nFvDofrSeNApV0wkS1xGD4MWu6RyQrzuEzmaRMf9PUc
-        v7KOPmi+hpka0lw439Vd/8TMq2T+c4nxNL26mVMnu5ATjpei4E4Po85MhkDVSYeadR40bu
-        lgGF9b5JF8NdD9g20pN5PwlM2e2glI0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-135-QGFYqvRHPGej_b3I7gIH4Q-1; Fri, 24 Apr 2020 19:43:25 -0400
-X-MC-Unique: QGFYqvRHPGej_b3I7gIH4Q-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 09572107ACCA;
-        Fri, 24 Apr 2020 23:43:24 +0000 (UTC)
-Received: from warthog.procyon.org.uk (ovpn-113-129.rdu2.redhat.com [10.10.113.129])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0C5A35D9CA;
-        Fri, 24 Apr 2020 23:43:22 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-From:   David Howells <dhowells@redhat.com>
-In-Reply-To: <CAHC9VhQnORRaRapbb1wrUsxweJCRJ+X+RdvKw8_U0pT0fuxZ6A@mail.gmail.com>
-References: <CAHC9VhQnORRaRapbb1wrUsxweJCRJ+X+RdvKw8_U0pT0fuxZ6A@mail.gmail.com> <CAHC9VhT95GJKNTMvTtmZL35UOoVwbGH-eDWZyELb5oZ5rQU+Tw@mail.gmail.com> <2136640.1587472186@warthog.procyon.org.uk>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     dhowells@redhat.com, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: Re: Problem with 9ba09998baa9 ("selinux: Implement the watch_key security hook") in linux-next
+        id S1726113AbgDYFPG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 25 Apr 2020 01:15:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39942 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726107AbgDYFPF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 25 Apr 2020 01:15:05 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9DEC09B04A
+        for <selinux@vger.kernel.org>; Fri, 24 Apr 2020 22:15:05 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id c63so12598860qke.2
+        for <selinux@vger.kernel.org>; Fri, 24 Apr 2020 22:15:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=H1SBatyiXpIiTu8qbFEdAJrtrObabCrqo/oadnwsGtc=;
+        b=rbhLhZvQDnG6p+e0PJwLpEu/dK/fw/igKekR9oZcCnflWf7m0TDjvkmh2zlY2Jv+5j
+         w17JME6X4TKTpcDvBRLmVs49deqkl3eJyKh1L7vRMmxnfdsOYENY7JF9Whdd3EV1sXlw
+         c6glcoi7MT1uFTPCvpl9PN9cZ4LDTrB4oVbz/1sOgiOUHLE8sWHINGMxicPcLr2uMAR6
+         O2Z2F96Hglf1mJT3R+FvM3jHj0K3wNzZ+0skd/nSM8FWXhmOAOPvELMGo1vMwGBlSbz+
+         4EDDdd0s96V29n+ylk1YxweDQAJG1IJaXvpTu+NWrxKzLbWNk3R9kdM3yD7wZ2xjOvNS
+         ASeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=H1SBatyiXpIiTu8qbFEdAJrtrObabCrqo/oadnwsGtc=;
+        b=EK1XMBRKLHXr3wSlyUzo112yTPkiOXNZgv0SpBRXblJ0qnFzNJ1az7Z8IYgi93PzBk
+         jG1DIKc41mOR6Lfj5EiYQ0q/IXDoTTB3ERklSfQ+qFl/ZvRLq+MH2v3pyRJfIjvaTq93
+         j23OO4RKMnIzmdOswUsPpMsUXczvB5cMDh08qP7wSSQPn/dBrpwPhWojLFvRoermoE8m
+         hiDyhyha0VwpV/SUgM1jEACL7VWX2UqMEXlIe3KHZrEUiIhd40f5kBQetBFwD4arzPdH
+         P3aAWw0H943h0gxOXFwW+gTFgI2iAu9aAG+0BZ5lMy/YpJLv8EVrn7X3U36mS7SYgGUw
+         ZYpw==
+X-Gm-Message-State: AGi0Pubh2N/oMela/XI1ZPX/xLXPYRf9KGn9PdNYb1W0SvMUlP4K0oT7
+        ov6wjU39P8GpFnEAN3VxM1kpbhPZHzEv6NEU/0T/vA==
+X-Google-Smtp-Source: APiQypKWjPa+EY2ioHZfTJG/+Df1shHqevoVywrRu+bXUnHcbJQlizj6CkbA7d5bq/V5+oeDZk48ITG0Le0/PUrjfNE=
+X-Received: by 2002:a05:620a:1362:: with SMTP id d2mr12003772qkl.256.1587791704265;
+ Fri, 24 Apr 2020 22:15:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <3834192.1587771802.1@warthog.procyon.org.uk>
-Date:   Sat, 25 Apr 2020 00:43:22 +0100
-Message-ID: <3834193.1587771802@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+References: <CACT4Y+YTi4JCFRqOB9rgA22S+6xxTo87X41hj6Tdfro8K3ef7g@mail.gmail.com>
+ <CAHC9VhQs6eJpX4oMrhBiDap-HhEsBBgmYWEou=ZH60YiA__T7w@mail.gmail.com>
+In-Reply-To: <CAHC9VhQs6eJpX4oMrhBiDap-HhEsBBgmYWEou=ZH60YiA__T7w@mail.gmail.com>
+From:   Dmitry Vyukov <dvyukov@google.com>
+Date:   Sat, 25 Apr 2020 07:14:52 +0200
+Message-ID: <CACT4Y+b8HiV6KFuAPysZD=5hmyO4QisgxCKi4DHU3CfMPSP=yg@mail.gmail.com>
+Subject: Re: selinux_netlink_send changes program behavior
+To:     Paul Moore <paul@paul-moore.com>,
+        David Miller <davem@davemloft.net>, kuba@kernel.org,
+        netdev <netdev@vger.kernel.org>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Paul Moore <paul@paul-moore.com> wrote:
-
-> > > and then use this newly created mapping function in [...]
-> > > selinux_watch_key()
+On Fri, Apr 24, 2020 at 11:51 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Fri, Apr 24, 2020 at 4:27 AM Dmitry Vyukov <dvyukov@google.com> wrote:
+> > Hi SELinux maintainers,
 > >
-> > No, I think I should just hard-code KEY__VIEW there.
-> 
-> FWIW, my comment was based on a version of linux-next where you were
-> making policycap based permission adjustments to KEY_VIEW and I
-> thought you would want the same adjustments to be applied to both
-> access control points.  That code appears to now be gone in
-> linux-next.
+> > We've hit a case where a developer wasn't able to reproduce a kernel
+> > bug, it turned out to be a difference in behavior between SELinux and
+> > non-SELinux kernels.
+> > Condensed version: a program does sendmmsg on netlink socket with 2
+> > mmsghdr's, first is completely empty/zeros, second contains some
+> > actual payload. Without SELinux the first mmsghdr is treated as no-op
+> > and the kernel processes the second one (triggers bug). However the
+> > SELinux hook does:
+> >
+> > static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+> > {
+> >     if (skb->len < NLMSG_HDRLEN) {
+> >         err = -EINVAL;
+> >         goto out;
+> >     }
+> >
+> > and fails processing on the first empty mmsghdr (does not happen
+> > without SELinux).
+> >
+> > Is this difference in behavior intentional/acceptable/should be fixed?
+>
+> From a practical perspective, SELinux is always going to need to do a
+> length check as it needs to peek into the netlink message header for
+> the message type so it can map that to the associated SELinux
+> permissions.  So in that sense, the behavior is intentional and
+> desired; however from a bug-for-bug compatibility perspective ... not
+> so much.
+>
+> Ultimately, my it's-Friday-and-it's-been-a-long-week-ending-in-a-long-day
+> thought is that this was a buggy operation to begin with and the bug
+> was just caught in different parts of the kernel, depending on how it
+> was configured.  It may not be ideal, but I can think of worse things
+> (and arguably SELinux is doing the Right Thing).
 
-I don't think I changed KEY_VIEW specifically; anyway, that code is on hold
-for the moment since it collides with this.
++netlink maintainers for intended semantics of empty netlink messages
 
-What I was wondering is if I should change KEY_NEED_xxx from a bitmask into an
-enum to remove the confusion about whether or not you're allowed to provide
-multiple 'needs' OR'd together.
+If it's a bug, or intended behavior depends on the intended
+behavior... which I assume is not documented anywhere officially.
+However, most of the netlink families use netlink_rcv_skb, which does:
 
-> > +       perm = selinux_keyperm_to_av(need_perm);
-> 
-> ... and add a check for (perm < 0) as discussed above if we stick with
-> the switch statement.
+int netlink_rcv_skb(struct sk_buff *skb, int (*cb)(struct sk_buff *,
+                           struct nlmsghdr *,
+                           struct netlink_ext_ack *))
+{
+    ...
+    while (skb->len >= nlmsg_total_size(0)) {
+    ...
+       skb_pull(skb, msglen);
+    }
+    return 0;
+}
 
-Actually, there was supposed to be a:
-
-	if (!perm)
-		return -EPERM;
-
-after that line.
-
-David
-
+1. How intentional is this while loop logic vs sloppy error checking?
+2. netlink_rcv_skb seems to be able to handle 2+ messages in the same
+skb, while selinux_netlink_send only checks the first one... so can I
+skip SELinux checks by putting a malicious message after a permitted
+one?..
