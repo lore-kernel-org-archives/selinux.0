@@ -2,133 +2,118 @@ Return-Path: <SRS0=JMXr=6K=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E51C1C54FCB
-	for <selinux@archiver.kernel.org>; Sun, 26 Apr 2020 13:34:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E10BFC55194
+	for <selinux@archiver.kernel.org>; Sun, 26 Apr 2020 15:21:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C8F8D2071C
-	for <selinux@archiver.kernel.org>; Sun, 26 Apr 2020 13:34:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C178B208FE
+	for <selinux@archiver.kernel.org>; Sun, 26 Apr 2020 15:21:52 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="W4Mp5Ktz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725974AbgDZNeO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 26 Apr 2020 09:34:14 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:57600 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725876AbgDZNeO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 26 Apr 2020 09:34:14 -0400
-Received: from mail-oo1-f47.google.com (mail-oo1-f47.google.com [209.85.161.47])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id D65F55649DE
-        for <selinux@vger.kernel.org>; Sun, 26 Apr 2020 15:34:10 +0200 (CEST)
-Received: by mail-oo1-f47.google.com with SMTP id r1so3240314oog.7
-        for <selinux@vger.kernel.org>; Sun, 26 Apr 2020 06:34:10 -0700 (PDT)
-X-Gm-Message-State: AGi0PuY9z3rLpeqwd9UNWhmzDCrxuC+l0r2N30wHIbFzBv6PDHvLkZFB
-        wQYEXvM0Zigu60+6KT1r8rYZzCRRje6+t1Ozt6w=
-X-Google-Smtp-Source: APiQypJukKziOcyIdIk8YcPsyhCm4VTW12fTSaV8RUtAy9OR5XTU2QcoMQPZaRIftp4ryHq6hrnN06DePwjQPtbDuPs=
-X-Received: by 2002:a4a:b38d:: with SMTP id p13mr15329927ooo.22.1587908049754;
- Sun, 26 Apr 2020 06:34:09 -0700 (PDT)
+        id S1726184AbgDZPVw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 26 Apr 2020 11:21:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44972 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725975AbgDZPVv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 26 Apr 2020 11:21:51 -0400
+Received: from mail-lf1-x141.google.com (mail-lf1-x141.google.com [IPv6:2a00:1450:4864:20::141])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750E8C061A0F
+        for <selinux@vger.kernel.org>; Sun, 26 Apr 2020 08:21:51 -0700 (PDT)
+Received: by mail-lf1-x141.google.com with SMTP id 198so11705566lfo.7
+        for <selinux@vger.kernel.org>; Sun, 26 Apr 2020 08:21:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=1mruaalEPNbI/3lwpJMa4ep0JUpuPUMS1NLlPzQIpjU=;
+        b=W4Mp5Ktz2NEudWXpRpanDNK7Ey50pV9KLxjwkkyBjAN9cfRLAwwOQd5mXJkub/QLAf
+         pwQ0IrQHIFNk+FeULumIfmTSLE64W2TLSOBTZpm9IdfHggbFGDlMGFxaVVqa5WS87F+m
+         DbVfEC+CVoKMJgR02wfyC/8ejKQWrEvEOwVEUpfmcCritCv+THpra24xHLHodSn0YxvC
+         43O0c5QdgXem2trvUCGmkBAKgywJnYXGZifXtGc0jyYITOJ6mPfE+2fiBXO1mr5k3ta5
+         ZFJ2BDkjFXZfIYX9n7C76KEcdctpPF1QylCB+2/sDZDFMKMR1+y1YhebnYMFSNyYSd7j
+         LJ+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=1mruaalEPNbI/3lwpJMa4ep0JUpuPUMS1NLlPzQIpjU=;
+        b=h4Q2UFzpn/0yk8S5SZj/4CXdnr8EvlGLbi+HZiCJzLt2598+95Zvfu5i6+h5YMkFP5
+         gdObptYlmW4cSVGhV3j2tS7H+0sdD4lZo8x4uKjdiZJ8ffvInf8xAg+5MlC39rRMMTAf
+         WeKoh2eCvboXrxAnL9o34HtAj6V4ZPBZlbKaXO7n89Z02qcHDh03Wd/KF6hzZntOf3nb
+         UfZCPWkhKSqL2P27AOM2KXa/6zfjDTRLyQagGkS5m+cyqVnnPL41NGJes4wEhdjZU/7+
+         P2bDojlHicNBLUowdNWGpqk9OcEbRZI+9H/lqCemjTTNp7PmU0jOtK3LH00dxDQboWGo
+         uMdQ==
+X-Gm-Message-State: AGi0PubGfaIZgb7r17hhSjF1kxrGxWaEGxOr5AM0HLw/foh6ksCCNrC+
+        9SOWrpMqjiWBLXLAy0uAya0qgDMVcJE=
+X-Google-Smtp-Source: APiQypIFsgiViXCSnp4k1hwPP3eAAYFrcpnEelVA5dn34tZKXagp94rqDg6nxoE3OpJCtg8ugOdmiw==
+X-Received: by 2002:a19:ca0e:: with SMTP id a14mr12796132lfg.105.1587914509539;
+        Sun, 26 Apr 2020 08:21:49 -0700 (PDT)
+Received: from [192.168.1.38] (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
+        by smtp.gmail.com with ESMTPSA id v3sm9165646lfo.62.2020.04.26.08.21.48
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 26 Apr 2020 08:21:48 -0700 (PDT)
+To:     selinux@vger.kernel.org
+From:   Topi Miettinen <toiwoton@gmail.com>
+Subject: [PATCH] setsebool: report errors from commit phase
+Message-ID: <5e3c6fbd-49be-8dcd-903e-b8d98939ae37@gmail.com>
+Date:   Sun, 26 Apr 2020 18:21:47 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <CAJfZ7==Ote6uQWMjDfNMA=qj79u2ByrnrH==++gDOhPeYD-W5g@mail.gmail.com>
- <20200420154537.30879-1-william.c.roberts@intel.com> <20200420154537.30879-14-william.c.roberts@intel.com>
-In-Reply-To: <20200420154537.30879-14-william.c.roberts@intel.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 26 Apr 2020 15:33:58 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nueDv_WihZu9oV9Qx+kq+cwK=ovD9jSm9rhMvDJS+01g@mail.gmail.com>
-Message-ID: <CAJfZ7=nueDv_WihZu9oV9Qx+kq+cwK=ovD9jSm9rhMvDJS+01g@mail.gmail.com>
-Subject: Re: [PATCH v3 13/19] avc: create internal avc_init interface
-To:     SElinux list <selinux@vger.kernel.org>,
-        William Roberts <bill.c.roberts@gmail.com>
-Cc:     William Roberts <william.c.roberts@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Apr 26 15:34:11 2020 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 20, 2020 at 5:46 PM <bill.c.roberts@gmail.com> wrote:
->
-> From: William Roberts <william.c.roberts@intel.com>
->
-> Now that avc_init is marked deprecated, create an avc_init2 interface
-> for internal users.
->
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> ---
->  libselinux/src/avc.c          | 11 ++++++++++-
->  libselinux/src/avc_internal.h |  5 +++++
->  2 files changed, 15 insertions(+), 1 deletion(-)
->
-> diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-> index ab10b0f9f1cb..505641406995 100644
-> --- a/libselinux/src/avc.c
-> +++ b/libselinux/src/avc.c
-> @@ -157,7 +157,7 @@ int avc_open(struct selinux_opt *opts, unsigned nopts)
->                         break;
->                 }
->
-> -       return avc_init("avc", NULL, NULL, NULL, NULL);
-> +       return avc_init2("avc", NULL, NULL, NULL, NULL);
->  }
->
->  int avc_init(const char *prefix,
-> @@ -165,6 +165,15 @@ int avc_init(const char *prefix,
->              const struct avc_log_callback *log_cb,
->              const struct avc_thread_callback *thread_cb,
->              const struct avc_lock_callback *lock_cb)
-> +{
-> +       return avc_init2(prefix, mem_cb, log_cb, thread_cb, lock_cb);
-> +}
-> +
-> +int avc_init2(const char *prefix,
-> +            const struct avc_memory_callback *mem_cb,
-> +            const struct avc_log_callback *log_cb,
-> +            const struct avc_thread_callback *thread_cb,
-> +            const struct avc_lock_callback *lock_cb)
->  {
->         struct avc_node *new;
->         int i, rc = 0;
-> diff --git a/libselinux/src/avc_internal.h b/libselinux/src/avc_internal.h
-> index 3f8a6bb1cf84..c8d26a8ae254 100644
-> --- a/libselinux/src/avc_internal.h
-> +++ b/libselinux/src/avc_internal.h
-> @@ -173,4 +173,9 @@ int avc_ss_set_auditdeny(security_id_t ssid, security_id_t tsid,
->  /* netlink kernel message code */
->  extern int avc_netlink_trouble ;
->
-> +extern int avc_init2(const char *msgprefix,
-> +                   const struct avc_memory_callback *mem_callbacks,
-> +                   const struct avc_log_callback *log_callbacks,
-> +                   const struct avc_thread_callback *thread_callbacks,
-> +                   const struct avc_lock_callback *lock_callbacks);
->  #endif                         /* _SELINUX_AVC_INTERNAL_H_ */
-> --
-> 2.17.1
+In case there are errors when committing changes to booleans, the
+errors may not be reported to user except by nonzero exit status. With
+"setsebool -V" it's possible to see errors from commit phase, but
+otherwise the unfixed command is silent:
 
-Hello,
-I do not see the point of having a new avc_init2() "internal
-interface". I get that avc_init() is deprecated, that avc_open()
-should be used, and that internally a new function (named avc_init2)
-is created to make the transition easier. But why is adding
-avc_init2() to avc_internal.h necessary? Which internal code is
-expected to use it?
-If none, I would prefer to make avc_init2() static (changing this
-patch to "static init avc_init2(const char*msgprefix,", with a
-declaration before avc_open() if you do not want to move the function
-in the file).
+  # setsebool -V -P secure_mode_insmod=off
+libsemanage.semanage_install_final_tmp: Could not copy 
+/var/lib/selinux/final/default/contexts/files/file_contexts to 
+/etc/selinux/default/contexts/files/file_contexts. (Read-only file system).
+libsemanage.semanage_install_final_tmp: Could not copy 
+/var/lib/selinux/final/default/contexts/files/file_contexts to 
+/etc/selinux/default/contexts/files/file_contexts. (Read-only file system).
 
-I have the same question for matchpathcon_fini2(), matchpathcon2(), etc.
+Fixed version alerts the user about problems even without -V:
+  # setsebool -P secure_mode_insmod=off
+Failed to commit changes to booleans: Read-only file system
 
-Moreover, I do not really like the "...2" naming (this is my own point
-of view and I won't block the patch because of it), because it seems
-to carry the meaning of "please now use this inferface", which is
-untrue. I suggest using avc_init_internal(),
-matchpathcon_fini_internal()... that do not carry such a meaning.
+Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+---
+  policycoreutils/setsebool/setsebool.c | 4 +++-
+  1 file changed, 3 insertions(+), 1 deletion(-)
 
-Thanks,
-Nicolas
+diff --git a/policycoreutils/setsebool/setsebool.c 
+b/policycoreutils/setsebool/setsebool.c
+index 9d8abfac..60da5df1 100644
+--- a/policycoreutils/setsebool/setsebool.c
++++ b/policycoreutils/setsebool/setsebool.c
+@@ -200,8 +200,10 @@ static int semanage_set_boolean_list(size_t boolcnt,
 
+         if (no_reload)
+                 semanage_set_reload(handle, 0);
+-       if (semanage_commit(handle) < 0)
++       if (semanage_commit(handle) < 0) {
++               fprintf(stderr, "Failed to commit changes to booleans: 
+%m\n");
+                 goto err;
++       }
+
+         semanage_disconnect(handle);
+         semanage_handle_destroy(handle);
+-- 
+2.26.2
