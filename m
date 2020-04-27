@@ -2,116 +2,139 @@ Return-Path: <SRS0=pnJ1=6L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B218C54FD0
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 15:35:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82C2DC54FCB
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 16:18:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7489F20656
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 15:35:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5DB252064A
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 16:18:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AvxiQhFl"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="RzNX4KUf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727010AbgD0PfR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 11:35:17 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:40710 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727006AbgD0PfQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 11:35:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588001715;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=h76vANqeUMrppq1MyM5+mG2iaU6uXMCAsMD+mc3myrQ=;
-        b=AvxiQhFlSIBfrElssRu0arvy+cM/cTh1fkc7jHQWguoup/HUTi1JAjUXgPcm3yvZFqg7CQ
-        hGHArl0jnGDbkKQoT+v4nrSjtyzU8nNNcIToA3bSQCAWWPEUA/QRkqLeJdb1khsd+cEEfq
-        Xh27Y1yizuouttmKy8F0o1TcG+bwvns=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-66-z2ShQf5BNJGkgV666zwB_Q-1; Mon, 27 Apr 2020 11:35:11 -0400
-X-MC-Unique: z2ShQf5BNJGkgV666zwB_Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5ABAB835B41
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 15:35:10 +0000 (UTC)
-Received: from workstation.redhat.com (unknown [10.40.193.249])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1EE8160635;
-        Mon, 27 Apr 2020 15:35:08 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH v2] python/semanage: Use ipaddress module instead of IPy
-Date:   Mon, 27 Apr 2020 17:34:39 +0200
-Message-Id: <20200427153438.17061-1-plautrba@redhat.com>
-In-Reply-To: <CAJfZ7=mv_e7zo2T8MBOmODW8NHc48cr3GB1Jvi8=Gg-qm7QPTQ@mail.gmail.com>
-References: <CAJfZ7=mv_e7zo2T8MBOmODW8NHc48cr3GB1Jvi8=Gg-qm7QPTQ@mail.gmail.com>
+        id S1728241AbgD0QSs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 12:18:48 -0400
+Received: from sonic301-38.consmr.mail.ne1.yahoo.com ([66.163.184.207]:37581
+        "EHLO sonic301-38.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727073AbgD0QSs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 12:18:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1588004327; bh=63tDCXQ4d3+61/OGW3S7mVOWRy3GargmMKYOqYpaPWo=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=RzNX4KUf6BZIfe4sMw7mm/PaJvF1QUtBAGzCUyDPL+YOD1oI0AZRsJ9RwuejZBtOeeZVRcBumKaACT6UU2L22udsX4DQIlZgED34UO5Fg3GBf9pWdKkFXvs3GkI2ncteaDnwADThOE5H7DpnAQu2uLsEcQEeoq9SFz/cqODerVqCsQ+nifoVY0aJ+NieBfc+P3quyr/JD5H7lPDDNHd+creOE6IUirTEGsrNrh6TGt5FYjMo+dn8BqHWCPPMRdq5Sy/BdFI0muiF6X2Q6yAYrtErUCWM2E05YUIA8gmvMMPZpykog2b1n1LhXeAFCpHJHryRXdTYamH/7RKh8FStvA==
+X-YMail-OSG: GZ1qFv8VM1lloMwOeiuwS_DLZMlZS596z_T5Ezam5JVYK16xQKQqGgbpCWLb2nw
+ dJEvdcljCn0NiQ6ginYhlcMXj5NvyGh1fiJBTE0_ILqLT5lkHR_lLmj9fs_T5xGazvv7dad.dBKH
+ 629bTpGIgztRfTBAONGXm9sWvrBH6IGWenZF4jT4hI9AwmBqZii70US34pgShjXO9fmAMkwh5qAX
+ kFbLNnLB_PywIzJygwsu2ts59DVgAU5BTxXdh4nS6B7nDOj84phyL3Jietqqe5SIyA_nd.PO8p42
+ sOfsmUZRg1c.kS4lqMXGGFId1g5t30fyhj816egHJn0NnYxQdHZ56PxwUrY50E16Cnel50aETquU
+ WF1KRaWFFmeU2gh5oIZzoV421i2bpe5DmLBG7ilCQyZCHn5Q3uoVPrAu1Us8.hRQZ6ZlNA2m7ai3
+ Bk6tPkCDzrSthL8iH9F8h.CKnYSMNgZrzJePQDKz5sv0nmVAEEHsYMqtsC7_CcLPBk4zcpeS1Wca
+ DplINAdBgrydIVgCuHT3uk0IN0ItvEthNy3mt83cPM2l6X6XhnYm.mrjIiykR5ZNqgFeoTAr0HC7
+ 3R_nve23tPOh7bLsISYqNxi1PyRrvSRDmbpebY9_oLgeLe235P_iBUCn.zmmxx8nJJTJAvJ_mYgN
+ q4pDzc3opQFpZmNWtYA1c3OFDbEB6qhCLzu4AyY6C2Kl.QOSkQatVdTwSn3LMOU6DbLzUIa_W.Ie
+ tzt2IOZIKFF.HdCz1efogWd9GQWJwfTeKs_IlMo5Bn0sxmATPTq.0zTMzWqvnn2cZnLX0fQi077k
+ TJbItAkMMuwDRUEOoegATu5cRz4m2c7WwKYVky10R6inprsdCzeLO4.rvp3B8HrrLR3QSc.c6n2j
+ gO.3wEwFNn.zLB1LNY1ocEd_XPO3DVvsX_0xsunAiLb8MMeDDfaeVfVK.MZmjKxr0KHRelOJId5e
+ OVfFn4yVt9EDY5H2.88VVkc8p2ial9NJv6VUPdAESIbuIdglKY91PZ4Da9kMlrXubptTPSbv7Qg1
+ OUe7aIWREJ4_F597pMzKGplgaXdgE91RfZ1Mm2m0QTgwfjNIG0KU2NPIIBAitrWHRqEdDudvIzDH
+ orNscbu.BIIJRLwn2c19VAp6VS7Nr9XUas4Hfe8ask8TZ3yFC05oVdSzmnVSd.sCFOIabuzqztjk
+ Wz00Xj377CdA6eyi2YWp3Mz1LEScGoR_O.enIIAyjCLQglN.iixKo.hN.TFrjlb9UyEOhLQBUiiE
+ BFQiZwg48QzGhEtvPwCiqqwZ6wCgaRz25LTyDHPJDJ0ktyMGXVbfUQr2LrpjPrOZL9t4tFL8DnZ2
+ YIIJUmHu.TWdXohpmQe6Pdlgxd9SSi0Nk4QkThj2aAQssPBnwiYvJ3SB._hPpGxCfqtj7Zv728EE
+ xzVPL01cyTSytuTx2zLMhhQ--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic301.consmr.mail.ne1.yahoo.com with HTTP; Mon, 27 Apr 2020 16:18:47 +0000
+Received: by smtp431.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 990e53893286a3d1e8f5702abe246841;
+          Mon, 27 Apr 2020 16:18:43 +0000 (UTC)
+Subject: Re: [PATCH v5 0/3] SELinux support for anonymous inodes and UFFD
+To:     Daniel Colascione <dancol@google.com>
+Cc:     James Morris <jmorris@namei.org>,
+        Tim Murray <timmurray@google.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Paul Moore <paul@paul-moore.com>,
+        Nick Kralevich <nnk@google.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        John Johansen <john.johansen@canonical.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20200326200634.222009-1-dancol@google.com>
+ <20200401213903.182112-1-dancol@google.com>
+ <CAKOZueuu=bGt4O0xjiV=9_PC_8Ey8pa3NjtJ7+O-nHCcYbLnEg@mail.gmail.com>
+ <alpine.LRH.2.21.2004230253530.12318@namei.org>
+ <6fcc0093-f154-493e-dc11-359b44ed57ce@schaufler-ca.com>
+ <3ffd699d-c2e7-2bc3-eecc-b28457929da9@schaufler-ca.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ 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
+ abzjfg==
+Message-ID: <8bef5acd-471e-0288-ad85-72601c3a2234@schaufler-ca.com>
+Date:   Mon, 27 Apr 2020 09:18:42 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <3ffd699d-c2e7-2bc3-eecc-b28457929da9@schaufler-ca.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.15756 hermes Apache-HttpAsyncClient/4.1.4 (Java/11.0.6)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-ipaddress python module was added to standard library in Python 3.3 -
-https://docs.python.org/3/library/ipaddress.html
+On 4/23/2020 3:24 PM, Casey Schaufler wrote:
+> On 4/22/2020 10:12 AM, Casey Schaufler wrote:
+>> On 4/22/2020 9:55 AM, James Morris wrote:
+>>> On Mon, 13 Apr 2020, Daniel Colascione wrote:
+>>>
+>>>> On Wed, Apr 1, 2020 at 2:39 PM Daniel Colascione <dancol@google.com> wrote:
+>>>>> Changes from the fourth version of the patch:
+>>>> Is there anything else that needs to be done before merging this patch series?
+> Do you have a test case that exercises this feature?
 
-seobject.py was the only consumer of IPy module so this dependency is not=
- needed
-anymore.
+I haven't heard anything back. What would cause this code to be executed?
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
-
-Based on Nicolas input:
-
-- improved the check comment
-- dropped the unnecessary check
-
- python/semanage/seobject.py | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
-
-diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-index f2a139c970bd..6e0b87f2fa3c 100644
---- a/python/semanage/seobject.py
-+++ b/python/semanage/seobject.py
-@@ -32,7 +32,7 @@ from semanage import *
- PROGNAME =3D "policycoreutils"
- import sepolicy
- import setools
--from IPy import IP
-+import ipaddress
-=20
- try:
-     import gettext
-@@ -1858,15 +1858,12 @@ class nodeRecords(semanageRecords):
-         if addr =3D=3D "":
-             raise ValueError(_("Node Address is required"))
-=20
--        # verify valid combination
-+        # verify that (addr, mask) is either a IP address (without a mas=
-k) or a valid network mask
-         if len(mask) =3D=3D 0 or mask[0] =3D=3D "/":
--            i =3D IP(addr + mask)
--            newaddr =3D i.strNormal(0)
--            newmask =3D str(i.netmask())
--            if newmask =3D=3D "0.0.0.0" and i.version() =3D=3D 6:
--                newmask =3D "::"
--
--            protocol =3D "ipv%d" % i.version()
-+            i =3D ipaddress.ip_network(addr + mask)
-+            newaddr =3D str(i.network_address)
-+            newmask =3D str(i.netmask)
-+            protocol =3D "ipv%d" % i.version
-=20
-         try:
-             newprotocol =3D self.protocol.index(protocol)
---=20
-2.26.2
 
