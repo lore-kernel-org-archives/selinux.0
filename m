@@ -8,63 +8,63 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6CA0C4CECC
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A78AC54EEB
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E63C2073C
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 59320206E2
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="reJkklE5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jeoBRwfJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726384AbgD0UXe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 16:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33644 "EHLO
+        id S1726775AbgD0UXh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 16:23:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726285AbgD0UXd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:23:33 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76491C0610D5
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:33 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id s10so7429360plr.1
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:33 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726501AbgD0UXg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:23:36 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEE12C0610D5
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:36 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id l20so1261081pgb.11
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=iWBKLr767QxmWMyFc4HKl4BlgOIXWmOpWn/1VxJuI+0=;
-        b=reJkklE57dgohwIFfVVjt3OlBIfUWZJ2y1G0HZV7gCcqSEc0Owt4EkUvpTwp93P3/I
-         0sfyxfadzrD1kRyqI3/+06TqMzaNeehMEhUAg4uGM5ZNDJ/tsDTqInrDDZJiFYa4+ceA
-         s/fB7Yjdmp9N9FYsn0J2vbar/UCUa0aWsKnhpDpegh5rXQx65skcl90yTgeLUoFUnzd0
-         KShEBjq9hEzXKikjy0K7mll7oDSr2Rh4tm7H7l/fB9rDvU1WCK0s33TNuaQ1PjYFN5gc
-         saB/6J7vT3Bm/UGfWhfcQeVR5qIYsAN1isfQ2mw6DgBjcQOfE1b7TgPRZrHwrOtYvW/x
-         494g==
+        bh=LiSqBGVfe5hAcik2WCFSuq49veVlaqUwalAvJGlQXvg=;
+        b=jeoBRwfJn7YyYeTMOA5SJ3Axt6rQnS+h3YUIK23QXz5A3zTDE1wRYi19Qhzn5wNld5
+         UKIyQxbojC+lxxlfXtrW277fMNcremNwWJ5g5wo82aPd7hBwHE8k6JBVjzlkjH7s3u9L
+         WgYYdy4PnlFzPAxtI5iJF0H4zbRW+gV6tJUoZTkUSDtWUeu7G+0AzMw9hSDRunLhlevi
+         CXvwHWBc/cA6vgYpyG20pw//Yqc2x7rDcVJ5p/qKPboN8ABdkBPiyKK4BD2VaKqyvcGm
+         8JjaH8bKzYbNy3mQzeaehQhpLXwQkKFX6SM3VhK5qsy5YQX/wO9pksf54ggu8pp+0Jwf
+         T8rA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=iWBKLr767QxmWMyFc4HKl4BlgOIXWmOpWn/1VxJuI+0=;
-        b=t3r+of1NTyOtO6jtvPcIBaiiwOwBYqUbdumSXxxk7H+PkmdZ9n6n4JxjqWp0SWTMNy
-         o3AVvf27sjWqFW6mfPbmhY22aRBScAbaCjk1juXyCjcAKBEBglT5AOWgigV6hwZLH7Vw
-         P9U+0nMK2HV5DkItw1PQLQKBzfuWgGuz3o1rkNxnsL/FZx2mqvRrv03C2txDdCvcxLIV
-         Fyj/ShKn0CusG6bpkQSUQ1kXCMmc5/BEvVOAR5LD6wk+MA9dcDGrt0Ev2+ZSHdG3jCnL
-         lFo+Bw818oQIR1KaqKV7kibtXDiQv18OML8ilH9u2QObxy0JFEwpM57fLW4PK9CvUfV1
-         gsnQ==
-X-Gm-Message-State: AGi0Pua/6/2+CeU8RdNCJWrWmkAwoOS/XHfo4P06+yjPszSzEQMB4hiN
-        7UwjjhnQxWBamoi38/4zEDk=
-X-Google-Smtp-Source: APiQypKy0joKhyZmKvTPPMKJLZ4gBQuIr0m1jG3w3YiFhM8FIFXcDcLIdGecVKBIaPvXCjhGhJv0dw==
-X-Received: by 2002:a17:902:9f8a:: with SMTP id g10mr2046476plq.233.1588019012972;
-        Mon, 27 Apr 2020 13:23:32 -0700 (PDT)
+        bh=LiSqBGVfe5hAcik2WCFSuq49veVlaqUwalAvJGlQXvg=;
+        b=R2GqIlAxUSA6D7NLK0NCfOl6y00LPj4qszobJMHMg2KmKjh9O9emVUSCplD++EVocI
+         KF4iss8X21oJxoqAr/LqgBuR2Uh5HCH6GhAu/CkW0r3glQz4tdW2b8Z1w8sBBKoPOxmH
+         2v+zZo1CbUCN2OX3Eswo6mPNmMTwck3os47b8qiUbdr2b2EJkg8ty4ZOO+nibQsu7OjK
+         odr55cIFAgoyesvuh/kXNnxIT1BRPEKBL05pSw/3PmzgGE3dXwKSYl/kP+xotdOjjfVE
+         X9iu4GaK6tHgVv36vIqNv0EIM0G4kpBZvQtVLqGAjGprCVs0P0VPjblzrLN3x9cUJXpg
+         IppQ==
+X-Gm-Message-State: AGi0PuZGYuhiHP46ngoxaaLgF4Sy4k5m+9Ikv5NbSQbEjh+Mg+zCUouJ
+        JTJFviqik2zOFCUhyyIyy6w=
+X-Google-Smtp-Source: APiQypJadLmeOOiXe9Pbkp+2SCVtRFpCyyfpjmDyVlTLj5DbfnqvLsxLK6pqTqXMtzdNWSVixgvMvw==
+X-Received: by 2002:a62:1d1:: with SMTP id 200mr27071354pfb.286.1588019015347;
+        Mon, 27 Apr 2020 13:23:35 -0700 (PDT)
 Received: from localhost.localdomain ([134.134.139.76])
-        by smtp.gmail.com with ESMTPSA id n30sm13329438pfq.88.2020.04.27.13.23.31
+        by smtp.gmail.com with ESMTPSA id n30sm13329438pfq.88.2020.04.27.13.23.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2020 13:23:32 -0700 (PDT)
+        Mon, 27 Apr 2020 13:23:34 -0700 (PDT)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     bill.c.roberts@gmail.com
 Cc:     plautrba@redhat.com, sds@tycho.nsa.gov, selinux@vger.kernel.org,
         William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH v4 07/18] sidput: annotate deprecated
-Date:   Mon, 27 Apr 2020 15:23:04 -0500
-Message-Id: <20200427202315.4943-8-william.c.roberts@intel.com>
+Subject: [PATCH v4 08/18] checkPasswdAccess: annotate deprecated
+Date:   Mon, 27 Apr 2020 15:23:05 -0500
+Message-Id: <20200427202315.4943-9-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200427202315.4943-1-william.c.roberts@intel.com>
 References: <20200225200219.6163-1-william.c.roberts@intel.com>
@@ -78,26 +78,26 @@ From: William Roberts <william.c.roberts@intel.com>
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/include/selinux/avc.h | 6 +++++-
+ libselinux/include/selinux/selinux.h | 6 +++++-
  1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/include/selinux/avc.h b/libselinux/include/selinux/avc.h
-index 0589935651b4..c732824129cb 100644
---- a/libselinux/include/selinux/avc.h
-+++ b/libselinux/include/selinux/avc.h
-@@ -80,7 +80,11 @@ __attribute__ ((deprecated))
-  * zero, the SID is invalid, and avc_context_to_sid() must
-  * be called to obtain a new SID for the security context.
-  */
--extern int sidput(security_id_t sid);
-+extern int sidput(security_id_t sid)
+diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
+index deaa3f172586..9dcb3220264a 100644
+--- a/libselinux/include/selinux/selinux.h
++++ b/libselinux/include/selinux/selinux.h
+@@ -619,7 +619,11 @@ extern int selinux_check_access(const char * scon, const char * tcon, const char
+ /* Check a permission in the passwd class.
+    Return 0 if granted or -1 otherwise. */
+ extern int selinux_check_passwd_access(access_vector_t requested);
+-extern int checkPasswdAccess(access_vector_t requested);
++extern int checkPasswdAccess(access_vector_t requested)
 +#ifdef __GNUC__
-+__attribute__ ((deprecated))
++   __attribute__ ((deprecated("Use selinux_check_access")))
 +#endif
 +;
  
- /**
-  * avc_get_initial_sid - get SID for an initial kernel security identifier
+ /* Check if the tty_context is defined as a securetty
+    Return 0 if secure, < 0 otherwise. */
 -- 
 2.17.1
 
