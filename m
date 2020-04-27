@@ -2,100 +2,156 @@ Return-Path: <SRS0=pnJ1=6L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5934C5519A
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 16:48:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B10C54FD0
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 17:02:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A41222080C
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 16:48:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4BF902076A
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 17:02:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qHJgEUdJ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NM9hysM1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726274AbgD0QsY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 12:48:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55984 "EHLO
+        id S1726204AbgD0RCr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 13:02:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726404AbgD0QsW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 12:48:22 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6655EC03C1A7;
-        Mon, 27 Apr 2020 09:48:21 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id z25so27289881otq.13;
-        Mon, 27 Apr 2020 09:48:21 -0700 (PDT)
+        with ESMTP id S1726177AbgD0RCr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 13:02:47 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76479C0610D5;
+        Mon, 27 Apr 2020 10:02:47 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id e26so27485774otr.2;
+        Mon, 27 Apr 2020 10:02:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=nAyf44/4YFerP6DJWfqRXTjmOvbL2XaDORjOFH9i/rI=;
-        b=qHJgEUdJIcVHT9XThDUGjp4X3Z1xHboytYlAyasNY5XMV9a3mT6fXN692D7wxqUNl9
-         cnpqXLhr4lk5FbifZ9/L95vsbCX/d8b9DZLaRZIQbXO0Oslt7oXt3u70DII/49zxOorW
-         Ub2kN/8xdeJpNK/4q4Hgtwj6QyMzE6fhi7nahBMD1zx42M75/oTciu5i5qmQMbe/lbsm
-         97bFAI09fZTLbzqBVayqRqMKdpcFXree90j7HM4vwiy8jPqsLcfSRGHJ9yxerQlC/8JL
-         I8pX64NTIDIvc9IP+azVyYP7jfs6aq9X8I5dbsJogb7yBaiwpoSi02cQdvzralDA1CBz
-         JQ8g==
+        bh=e0fXzGs4f9aNXR2W7dYy8FjIeSOd2Yya7hIgPIMI7uo=;
+        b=NM9hysM11sfD8vwzfLhQDaw6ABxBNUtSRTFSd+u8ApLK/WMu0pSH0bUkWARSu352a9
+         hC/Q1vtxChnjov2f0y9RLc+eTEJwxuqzqvaPaIsysHcynPvfzWb8llGsjPkxrftuJ5C0
+         /Fk6tZv6NZcjpDw6vXFuBbK4nqwal6FIewc8wq5bJBaLBA+KzQfw2+1yGn98IbZtsgsQ
+         GavfBx0HfaiRlZ6ONFL3zVxURIzCBOU2DOlFpJD4zhoR1SNDd9lOVcqpx4iH4gWQJQ1B
+         xnKq4vt9qRowy9TIm8Bb1hDvPUiF/1+RmJnYc3wSt1evSpH3EdKb0cgTaaATaHgWU6X1
+         9fTg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=nAyf44/4YFerP6DJWfqRXTjmOvbL2XaDORjOFH9i/rI=;
-        b=dTlklMWfmhc89aXDYGbBb1Ji6m9OUFRIwougu4VNwbCa9hfEFzi4L+CMDR55OIIVLA
-         SJBLKGwe8eawRJhvK66AkY8GgvEpaBBQihL7pP9diu2hIUAeKNPFnoLTwINHVs+mEeim
-         olr6eO4RgA34nlXXqPgaKqP1uDLYzR1fImimpaDPrTNiJ4xWuAd1gRoAn2p9k1rftaLB
-         ZGOXlt5EhTf6FGpT5NcIJiS182mj7NhoV8JIe67XzzLfzd9UqRGrpOyMxIDospnW1iNE
-         O6wFN8xZzOtZU+5vr5gJRxXKIKXfCV5/x0kwzJUGJ6Jos01/mYGMLg+Kd5HFw7JDTeq4
-         r5PQ==
-X-Gm-Message-State: AGi0PuYpTPcoKXqv82RWA8+AjPhuhjeYb0ARr/B9GcVzNU6m19ca3J5K
-        Zzq7LPF+dSH7LazG7McnN8Fpgh2dmOqQ/JTiSTk=
-X-Google-Smtp-Source: APiQypI6eE1PRMGPPRVRi0P78QJf4KmHjGzbOMv5jJZl19CHYq3n4JYMcF7smsbV/VRtNFlp/scmHNAe5K6QyjReMxo=
-X-Received: by 2002:aca:4e10:: with SMTP id c16mr16536872oib.140.1588006100850;
- Mon, 27 Apr 2020 09:48:20 -0700 (PDT)
+        bh=e0fXzGs4f9aNXR2W7dYy8FjIeSOd2Yya7hIgPIMI7uo=;
+        b=Dx/mD9k1wFUlXMQFrjDklwmUprXCgHfdIKNqvCe30oh+T12cuULDs9DXr1XdKxUPd+
+         ZDpqMC5I6us2sfeVOdb4tU/GotNQHRz2IZDofBDVEEMsJBU/3307yHZXQpfNJUzv2di1
+         rw8sSrCtWKLKW/Nmno3sITLuwgnXdSWqpLVSIcybq1KZE3l9zgBpoOKI6taXgByZoi9R
+         vI8SrxGxKGDLguKlFjy9whAEhrOS4G20oz+f2T0vormED6AYM3AoSu97yirNUwcJRi02
+         4U/w9GWrj9bZHmjo+LGA5ZK01maIZIXW4p4vZM4vBkdrpj40KT+FmafV9RFJ7a3zHo1u
+         Ptgg==
+X-Gm-Message-State: AGi0PuYLkCGXv7vIMk1Bxi39ogjt1Ip5V37WrHYXoCtXZ1EuRJCZtBr+
+        2eBkPSbSfkoNEvEznk3pfX6I6Ks9m/RGDuJ3l5FVSA==
+X-Google-Smtp-Source: APiQypJSbHuZa8OrNpi2BUViQsnNXwinUSaWwNO5FRMc538QyD2Szv7df3XSOyfoxsXZiuSgvFLQff12EW/s1KeKVFQ=
+X-Received: by 2002:aca:4c0b:: with SMTP id z11mr15987844oia.92.1588006966862;
+ Mon, 27 Apr 2020 10:02:46 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200326200634.222009-1-dancol@google.com> <20200401213903.182112-1-dancol@google.com>
- <CAKOZueuu=bGt4O0xjiV=9_PC_8Ey8pa3NjtJ7+O-nHCcYbLnEg@mail.gmail.com>
- <alpine.LRH.2.21.2004230253530.12318@namei.org> <6fcc0093-f154-493e-dc11-359b44ed57ce@schaufler-ca.com>
- <3ffd699d-c2e7-2bc3-eecc-b28457929da9@schaufler-ca.com> <8bef5acd-471e-0288-ad85-72601c3a2234@schaufler-ca.com>
-In-Reply-To: <8bef5acd-471e-0288-ad85-72601c3a2234@schaufler-ca.com>
+References: <CAHC9VhT95GJKNTMvTtmZL35UOoVwbGH-eDWZyELb5oZ5rQU+Tw@mail.gmail.com>
+ <2136640.1587472186@warthog.procyon.org.uk> <CAHC9VhQnORRaRapbb1wrUsxweJCRJ+X+RdvKw8_U0pT0fuxZ6A@mail.gmail.com>
+ <3834193.1587771802@warthog.procyon.org.uk> <CAHC9VhQbhG8-ZABtkZr1FXo9cuH4_nsbB=HP_fGvW+FNQ7iAXg@mail.gmail.com>
+ <355576.1587996734@warthog.procyon.org.uk>
+In-Reply-To: <355576.1587996734@warthog.procyon.org.uk>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 27 Apr 2020 12:48:09 -0400
-Message-ID: <CAEjxPJ66ZZKfAUPnUjQiraNJO0h=T3OTY2qTVPuXrWG9va1-2g@mail.gmail.com>
-Subject: Re: [PATCH v5 0/3] SELinux support for anonymous inodes and UFFD
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Daniel Colascione <dancol@google.com>,
-        James Morris <jmorris@namei.org>,
-        Tim Murray <timmurray@google.com>,
+Date:   Mon, 27 Apr 2020 13:02:35 -0400
+Message-ID: <CAEjxPJ4S0wpAtXoD1f-54qrriRC8y_hj9T5-vKOGDmf1XhOLrQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: Fix use of KEY_NEED_* instead of KEY__* perms
+To:     David Howells <dhowells@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>, keyrings@vger.kernel.org,
         SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        John Johansen <john.johansen@canonical.com>
+        LSM List <linux-security-module@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 12:19 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Mon, Apr 27, 2020 at 10:13 AM David Howells <dhowells@redhat.com> wrote:
 >
-> On 4/23/2020 3:24 PM, Casey Schaufler wrote:
-> > On 4/22/2020 10:12 AM, Casey Schaufler wrote:
-> >> On 4/22/2020 9:55 AM, James Morris wrote:
-> >>> On Mon, 13 Apr 2020, Daniel Colascione wrote:
-> >>>
-> >>>> On Wed, Apr 1, 2020 at 2:39 PM Daniel Colascione <dancol@google.com> wrote:
-> >>>>> Changes from the fourth version of the patch:
-> >>>> Is there anything else that needs to be done before merging this patch series?
-> > Do you have a test case that exercises this feature?
+> Paul Moore <paul@paul-moore.com> wrote:
 >
-> I haven't heard anything back. What would cause this code to be executed?
+> > Okay, can you send the next version of the patch to the SELinux list for
+> > review?
+>
+> Here you go.  Note that I did this a few days ago and I actually used EACCES
+> rather than EPERM.  Which one is one preferred for this?
+>
+> David
+> ---
+> selinux: Fix use of KEY_NEED_* instead of KEY__* perms
+>
+> selinux_key_getsecurity() is passing the KEY_NEED_* permissions to
+> security_sid_to_context() instead of the KEY__* values.  It happens to work
+> because the values are all coincident.
 
-See https://lore.kernel.org/selinux/513f6230-1fb3-dbb5-5f75-53cd02b91b28@tycho.nsa.gov/
-for example.
+Both function names in the above description are wrong.
+
+> Fixes: d720024e94de ("[PATCH] selinux: add hooks for key subsystem")
+> Reported-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: David Howells <dhowells@redhat.com>
+> ---
+>  security/selinux/hooks.c |   22 ++++++++++++++++++++--
+>  1 file changed, 20 insertions(+), 2 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 0b4e32161b77..6087955b49d8 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6539,20 +6539,38 @@ static void selinux_key_free(struct key *k)
+>         kfree(ksec);
+>  }
+>
+> +static unsigned int selinux_keyperm_to_av(unsigned int need_perm)
+> +{
+> +       switch (need_perm) {
+> +       case KEY_NEED_VIEW:     return KEY__VIEW;
+> +       case KEY_NEED_READ:     return KEY__READ;
+> +       case KEY_NEED_WRITE:    return KEY__WRITE;
+> +       case KEY_NEED_SEARCH:   return KEY__SEARCH;
+> +       case KEY_NEED_LINK:     return KEY__LINK;
+> +       case KEY_NEED_SETATTR:  return KEY__SETATTR;
+> +       default:
+
+Possibly WARN() or BUG() here?  Or BUILD_BUG_ON(KEY_NEED_ALL != 0x3f)
+to force an update here
+whenever a new key permission is defined?
+
+> +               return 0;
+> +       }
+> +}
+> +
+>  static int selinux_key_permission(key_ref_t key_ref,
+>                                   const struct cred *cred,
+> -                                 unsigned perm)
+> +                                 unsigned need_perm)
+>  {
+>         struct key *key;
+>         struct key_security_struct *ksec;
+> +       unsigned int perm;
+>         u32 sid;
+>
+>         /* if no specific permissions are requested, we skip the
+>            permission check. No serious, additional covert channels
+>            appear to be created. */
+> -       if (perm == 0)
+> +       if (need_perm == 0)
+>                 return 0;
+>
+> +       perm = selinux_keyperm_to_av(need_perm);
+> +       if (perm == 0)
+> +               return -EACCES;
+
+We should log or audit some kind of message here, whether via WARN(),
+audit_log(), or something, to avoid silent denials.
+
+>         sid = cred_sid(cred);
+>
+>         key = key_ref_to_ptr(key_ref);
+>
