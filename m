@@ -2,112 +2,118 @@ Return-Path: <SRS0=pnJ1=6L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF5C5C4CECC
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:31:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6397AC4CECD
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:40:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8EC8C206D4
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:31:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 468E32073C
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:40:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IPuO9qno"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="AXjg6YTm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726498AbgD0UbW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 16:31:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34874 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726205AbgD0UbV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:31:21 -0400
-Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9FEBC0610D5
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:31:21 -0700 (PDT)
-Received: by mail-io1-xd42.google.com with SMTP id u11so20477773iow.4
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:31:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=0DbLJhabyrmNl13QF0NgP9GjILi+nwo4Mf2ETi5V2xo=;
-        b=IPuO9qno5xvAWgP86Q/PBVHwmEF86+kyH/hWCQvygQXfg1jm6a3eicZMt7Bc+69slB
-         LqXjHrrVWTQPrg6qYBq7t55XROqGEebcPoOC9R5k0d+EIQRdC0DixHEYBX8cBNSjtydS
-         2yoFhDcJXHP1cVTdsQLKpoUyx7ui0N3vWIHb5HqCCkvRubRkwIJnqCNbKdJ4TS8x8wOi
-         eaTTVlQGGB0koCE1VGbFH0LpH3VMRkx+eKXfcIRICmfVtTraaG2EEIO3M7VlifSBhDn3
-         H/5grisxXS5eDpZJo1c6xrMcBaovzXcj+KXslW1sc6j2ZqAMizkBj6uWPopzYgScBb8Y
-         STkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=0DbLJhabyrmNl13QF0NgP9GjILi+nwo4Mf2ETi5V2xo=;
-        b=tqCaM4hvcGJ3/QhWJCSJ8vTmZeLqtQe10eiI7sjjw19Ofm+Bs00nQMBD0njUM7pqxw
-         uVy+thew7R66XdCx+ala1tclmBo+DnrqnQhPHUbce6QcZig7Q9vs6wlaJVPG7I4S0cXH
-         HaDtsrSO+9DdaPIYBzYyqm/2KnJOxQo9kNy8CaBeXeSQhr4rsif/6gh/bm71KzJXwz66
-         CulFUoibyz94OE4J2IB0FgzWbNAarnzU7JYmsqCs37IlQzsXPrzHGEvALkbtT3Ghk4Ls
-         5Q27e46LnBcIJF22Uv8fFg4G7iqqzsXdOQ+3TA2dJi4YzttwrpfauMcsdpIkGMKh0Lxd
-         acsA==
-X-Gm-Message-State: AGi0PuZ8rKTyJdo621zc3hoVgUt6SFPQwDrJu0gE2kX0LbXQDlNQ+3Jz
-        KkpXnIrfVL/XI/fVMmDZGOj48d44ZwTDfzh7PAg=
-X-Google-Smtp-Source: APiQypLmuBEVqruVAQo8CpEEuWNlRX/sBKH021OfeY2kZzeNpV7Kz8iQsDF1HCIoG+F5pR+aPtJW1zZO92frHc7D3GM=
-X-Received: by 2002:a6b:b258:: with SMTP id b85mr22592301iof.141.1588019480410;
- Mon, 27 Apr 2020 13:31:20 -0700 (PDT)
+        id S1726315AbgD0Ukq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 16:40:46 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:43862 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726205AbgD0Ukq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:40:46 -0400
+Received: from localhost.localdomain (c-73-172-233-15.hsd1.md.comcast.net [73.172.233.15])
+        by linux.microsoft.com (Postfix) with ESMTPSA id E32F820B4737;
+        Mon, 27 Apr 2020 13:40:45 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E32F820B4737
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1588020046;
+        bh=27VHzI2Hq65JTVFc/nPiFgJVJ9GP3hJURwzxyH2U6UE=;
+        h=To:Cc:From:Subject:Date:From;
+        b=AXjg6YTmUzWlsHLqOweBU2QlKaYmAb/X4ESaBpSTW7Egba0v5VPUU8fzBlwiNh2OT
+         oPSSkjtxsvLFPN4d3SXw3bHJngVNwCFIpe+849G+r0TWiIroo6WHclNzFmwCXYOXdU
+         NIPWm9ZoDfc3x+tPxkFine5Fx1lERD2JPBQNgiuQ=
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux list <selinux@vger.kernel.org>
+Cc:     james.morris@microsoft.com
+From:   Daniel Burgener <dburgener@linux.microsoft.com>
+Subject: Race condition during policy load in kernel
+Message-ID: <d3abd210-928e-374f-1e9b-fddfaa203c53@linux.microsoft.com>
+Date:   Mon, 27 Apr 2020 16:40:44 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-References: <20200420114650.19093-1-cgzones@googlemail.com>
- <CAJfZ7=ky1rwB3jDMEdXjqSL=Vctut_2Cc6gsj475Et_nLo7B4A@mail.gmail.com> <CAJ2a_Deu8VTHQCpc_k1Nn__Kh+oL2NV3CUp3-t4rd9CkeLr9Pw@mail.gmail.com>
-In-Reply-To: <CAJ2a_Deu8VTHQCpc_k1Nn__Kh+oL2NV3CUp3-t4rd9CkeLr9Pw@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Mon, 27 Apr 2020 15:31:09 -0500
-Message-ID: <CAFftDdpVfjkmpGtcU-3sF2nKsckdGEHaLFjD6TAAsZTp8nTmiQ@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: mark security_context_t typedef as deprecated
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 3:10 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Am So., 26. Apr. 2020 um 20:14 Uhr schrieb Nicolas Iooss
-> <nicolas.iooss@m4x.org>:
-> >
-> > On Mon, Apr 20, 2020 at 1:47 PM Christian G=C3=B6ttsche
-> > <cgzones@googlemail.com> wrote:
-> > >
-> > > Follow-up of: 9eb9c9327563014ad6a807814e7975424642d5b9 ("Get rid of s=
-ecurity_context_t and fix const declarations.")
-> > >
-> > > Use a wrapper macro, because swig does not accept typedef attributes.
-> > >
-> > > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> >
-> > Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> >
-> > If nobody raises an objection, I will merge the patch tomorrow.
->
-> Maybe this should be delayed after the deprecation patch series from
-> William Roberts to match the same style;
-> e.g. this patch uses a helper macro.
->
-> I'll prepare an updated patch.
+Hello all,
 
-I was just about to look at this and suggest the same thing. I didn't
-put a macro like this in selinux.h for the simple
-reason that I didn't want to make it something considered public API.
-I avoided if SWIG, since its really
-a gnuc extension that most compilers support, and its inline with the
-other extensions that get buy the
-SWIG build.
+We've noticed a few instances of strange failures in userspace object 
+managers happening immediately after a policy load, that we believe 
+we've traced to a race condition in the kernel, and wanted to get your 
+thoughts on our diagnosis and the appropriate fix before creating a 
+patch in case we've missed something.
 
-I would nack it for those two reasons.
+The issue is that userspace object managers rely on /sys/fs/selinux to 
+determine the mapping of object class and permission strings to numeric 
+identifiers, however immediately after a policy load, 
+/sys/fs/selinux/{booleans,class,policy_capabilities}, are deleted and 
+recreated.  This leaves a window where the object classes (etc) appear 
+to be not defined, even if they are defined in both the old and new 
+policies.
 
-I just sent V4 of the series, so hopefully that one sticks. If you
-wan't you can update the style now and resubmit. As we can merge
-it in parallel to my series (there is no hard dependency), so you
-don't have to wait for my series to land.
+We have observed this with both dbus and systemd userspace object 
+managers, and it can be reproduced straightforwardly by running the 
+following (borrowed from bug linked below):
+
+# (while true; do cat /sys/fs/selinux/class/service/index >/dev/null; 
+done) &
+# while true; do sudo load_policy; echo -n .; sleep 0.1;done
+
+Periodically, we will get "No such file or directory" messages printed 
+to stderr.  In the event of a userspace object manager using libselinux 
+to check a userspace permission, that will result in a USER_AVC message 
+indicating an unknown object class, and in the event that 
+--handle-unknown is set to "deny", it will deny the access.
+
+It seems to me as though some sort of locking should occur in the 
+selinuxfs to prevent access to the files being deleted and recreated 
+during the policy load, so that userspace programs relying on them (in 
+particular userspace object managers doing class lookups) get a 
+consistent view of the classes, perms, booleans and capabilities in the 
+loaded policy.
+
+This seems to be related to 
+https://github.com/SELinuxProject/selinux-kernel/issues/42 but I believe 
+it is a different case.  The deadlock in that bug seems to be related to 
+the underlying filesystem functions, specifically around directory 
+deletion while this is an issue the selinuxfs logic specifically. The 
+above linked issue appears to have been fixed in recent upstream 
+kernels, per the bug, but I have verified the issue I am discussing here 
+in 5.7.0 rc3.
+
+It seems to me as though from the perspective of userspace that all of 
+sel_make_policy_nodes (or at least all of each of its component 
+functions) should be atomic.  There was some discussion in a previous 
+thread 
+(https://lore.kernel.org/selinux/20181002155810.GP32577@ZenIV.linux.org.uk/) 
+around a significant refactor of policy loading in general.  It appears 
+as though the direct issue there of access during the deletion has been 
+resolved (commit d4f4de5e5ef8efde85febb6876cd3c8ab1631999), although the 
+complete suggested fix of refactoring policy_load into two parts has not 
+been done.  Would that refactor be the right approach to the problem I 
+am trying to solve?  Would a patch for adding locking around the 
+selinuxfs delete/recreate operation be considered? That wouldn't address 
+all the concerns, (namely the potential to access a view of the policy 
+that doesn't match the currently loaded policy and error recovery in the 
+case that sel_make_nodes fails), but would improve the reliability of 
+existing userspace object managers
+
+I'm happy to create and submit a patch, but I wanted to get the 
+communities thought on the problem and correct approach first.
+
+-Daniel
