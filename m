@@ -4,90 +4,136 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7920BC4CECD
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:09:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05112C4CECC
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A6ED206D9
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:09:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D787C206E2
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="QWTukSf/"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SXEyjlMu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726315AbgD0UJn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 16:09:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59654 "EHLO
+        id S1726737AbgD0UXV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 16:23:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726205AbgD0UJm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:09:42 -0400
-Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A121EC0610D5
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:09:42 -0700 (PDT)
-Received: by mail-ua1-x942.google.com with SMTP id 36so14811726uaf.9
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:09:42 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726552AbgD0UXV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:23:21 -0400
+Received: from mail-pj1-x1044.google.com (mail-pj1-x1044.google.com [IPv6:2607:f8b0:4864:20::1044])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B70BC0610D5
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:21 -0700 (PDT)
+Received: by mail-pj1-x1044.google.com with SMTP id ms17so123872pjb.0
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=1PozxmtFNC4HPpmNAZs/silepGarptlge/nYJ2VVOjc=;
-        b=QWTukSf/BTP17U6u8a7P9VUYNuB1q519BbVUe6FYGFGOcS/+Sxhrhaj/SEWLhHXRgh
-         NhdZKy5snqjR5uBmFe6OjKrQ2O0inHiSxs3CdIe7fCmTwwrOzg/MIYIk+Hcin3Ja31yx
-         DiOlKT4/LHv6g7f0cqwtNDlQ4dhx1jrUWVfNOydAAPMQcPP/ZT/BHyzN/9OByu1JC3Li
-         /J0jdUsl1VSipIJJ3tIeFDpei0EimXp5OWNOHU0w18tQzWnKtLZQPYEGaX1Utm4q7sOx
-         8pegWOBFknbJqMk+cvVLXK+07YZpv+ojLznNi1jFZnK+hdIIcKkaDdCLz33WVMEBheqE
-         gj7w==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=20Eft2J5g1M4fyOz/hMAlrEHH7eRF6IQsNl1eFYPhl0=;
+        b=SXEyjlMuP5hqv6EgcxJE0i8iv0M76VXL1AsYEE+JKKN4W9RIrY9iJGfylzutGkf7kb
+         TfBgb7xFflrK9SpHzgUR6HUv/44tQfk4kaRcMUtkhEvyuullOIZ+Z750CBvf19y0KDcA
+         ZXikf33EdjsMtzTgK/Umbt7NUc18VyN9SAGFl+ZRT76Ef6G60Ie3qXOTi53M6JDBBPSV
+         M61LdkuBsp6n/VHZlgfROZ9W/p+OR1GuwicwcoyznM8yPDKz8JtypjeNM5Re3dOBXeNN
+         Xl/kjvNBs6+RvqOJI2q9sQRoYJJdx8ejVEjEkyXrvblGviu4mvofGh6CvOUk4pVcihqV
+         NGxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=1PozxmtFNC4HPpmNAZs/silepGarptlge/nYJ2VVOjc=;
-        b=swOI1FW7CcQI4L/Q9x8y6Amlb27gqthrapxVufqKgHpzG+/ZXGz7sVejnUPrAwPTMV
-         pKsHYd/QwZ1UdpGvudTplIVn/gorTn/pJynm0s0M0qwjlQvNw2W3h8vwznpBSGL83LIN
-         zFT4zxcNesoXU2lBXUK0Bi1gw8dHQ1RB0zIoQrhtWKkXN8hLsqVda43RmHUw689e4mPu
-         p24Fw9D1etCuw2Ly9Eqw/dr7W3up6HRqvKT4m2jcbGVw005tG64A1Piywx9zBnnsOhcr
-         z1AxX7lHW/XB2EU19WUQjJ7eUI7JkIs6kAanXZ3yMNcg6k0GBSEul3ewb23A70pdQS5d
-         +zbg==
-X-Gm-Message-State: AGi0PuZLIVT88YHdJ6nToKgkmLUDZekUQrkUfA96AGImEhn0ml3LoBmF
-        v+r3rH6zy2KCIyGJhXthSt4Ig1Kh5GD3qj6Zxh4=
-X-Google-Smtp-Source: APiQypLc+Cz9duQ5BVKvZdukupIUkqE5dtZpvc1Qzp3nzUVX03QNIfSqR3PNIRdqqFAFufgZ1qeR2PnfM9x7/LiDD/o=
-X-Received: by 2002:a05:6102:a0c:: with SMTP id t12mr5263450vsa.144.1588018181884;
- Mon, 27 Apr 2020 13:09:41 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=20Eft2J5g1M4fyOz/hMAlrEHH7eRF6IQsNl1eFYPhl0=;
+        b=BAxWBd+UhmWvtpXxwrAEVXY725rHAnz/1CEL3gfEN5Oa6N9YR7uMtkrhjOnxejmZy3
+         EHl2VZnaJVh9Qa6O7ELLzO3Z5re+XG9P9iZb8tarEtcR30WEu4fny3X9GsrBmneX3Oci
+         IPcVpquzh2Xo62IKTNRBL49zzpbnlqevi6YEpDlY0P0MU7quFTsdKE+KlKfrCm46V9L2
+         7xQZdJB18zqSGk8Ct57UIohWGubmjivx7oZr0ilBjRUFzA/tzakS+G8+mhqmK1XCNwlr
+         4+4Tm2OXgxjHYQLjhPRKJqhr5qjqPpf97XT4uGlMbXFUmeG+8/fDH9TBrYBAEo6rcSJ7
+         /U/Q==
+X-Gm-Message-State: AGi0PuazA7tNdeOHcz356P84LnnVDyjGc4gsV+Tjnu6NhMYKOOmgQIAl
+        l2ediW51iKtMX4Xp/kwOFfZV+31uf2k=
+X-Google-Smtp-Source: APiQypK2h+/OVV6oibfWaOhgcI2gdtSw4VGakeZ6U7z188A3xAsy1Sm6KD6XdET7dYRJOxdP9/eefA==
+X-Received: by 2002:a17:902:32b:: with SMTP id 40mr8258652pld.73.1588019000707;
+        Mon, 27 Apr 2020 13:23:20 -0700 (PDT)
+Received: from localhost.localdomain ([134.134.139.76])
+        by smtp.gmail.com with ESMTPSA id n30sm13329438pfq.88.2020.04.27.13.23.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Apr 2020 13:23:20 -0700 (PDT)
+From:   bill.c.roberts@gmail.com
+X-Google-Original-From: william.c.roberts@intel.com
+To:     bill.c.roberts@gmail.com
+Cc:     plautrba@redhat.com, sds@tycho.nsa.gov, selinux@vger.kernel.org
+Subject: [v4] Annotate Deprecated Functions in libselinux
+Date:   Mon, 27 Apr 2020 15:22:57 -0500
+Message-Id: <20200427202315.4943-1-william.c.roberts@intel.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200225200219.6163-1-william.c.roberts@intel.com>
+References: <20200225200219.6163-1-william.c.roberts@intel.com>
 MIME-Version: 1.0
-References: <20200420114650.19093-1-cgzones@googlemail.com> <CAJfZ7=ky1rwB3jDMEdXjqSL=Vctut_2Cc6gsj475Et_nLo7B4A@mail.gmail.com>
-In-Reply-To: <CAJfZ7=ky1rwB3jDMEdXjqSL=Vctut_2Cc6gsj475Et_nLo7B4A@mail.gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Mon, 27 Apr 2020 22:09:30 +0200
-Message-ID: <CAJ2a_Deu8VTHQCpc_k1Nn__Kh+oL2NV3CUp3-t4rd9CkeLr9Pw@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: mark security_context_t typedef as deprecated
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Am So., 26. Apr. 2020 um 20:14 Uhr schrieb Nicolas Iooss
-<nicolas.iooss@m4x.org>:
->
-> On Mon, Apr 20, 2020 at 1:47 PM Christian G=C3=B6ttsche
-> <cgzones@googlemail.com> wrote:
-> >
-> > Follow-up of: 9eb9c9327563014ad6a807814e7975424642d5b9 ("Get rid of sec=
-urity_context_t and fix const declarations.")
-> >
-> > Use a wrapper macro, because swig does not accept typedef attributes.
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
->
-> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->
-> If nobody raises an objection, I will merge the patch tomorrow.
+V4:
+- Drop the internal header interfaces, they were unused and pointless.
 
-Maybe this should be delayed after the deprecation patch series from
-William Roberts to match the same style;
-e.g. this patch uses a helper macro.
+V3:
+- Made the deprecated annotation dependent on __GNUC__ like
+  the __format__(printf,...) specifiers. This will allow these
+  not be defined when swig is building, so this will fix the
+  swig syntax issues.
+- Swig's build flags include -Wno-deprecated-declarations becuase the
+  bindings need to pull the fill API out, even deprecated functions.
+- Rather than compile matchpathcon with static selinux, I just set its
+  compile flags to include -Wno-deprecated-declarations. Essentially
+  saying, yes use this old interface it's Ok in this instance.
 
-I'll prepare an updated patch.
+V2:
+- Simplified now that dso.h stuff has been removed.
+- selinux_check_passwd_access has been deprecated and now
+  both selinux_check_passwd_access and checkPasswdAccess
+  are recomending selinux_check_access.
+- matchpathcon is linked statically to get access to deprecated
+  routines and prints a deprecated warning to stderr.
+
+V1:
+I went through and annotated deprecated routines we have in
+libselinux that are mentioned to be deprecated either in code
+comments and/or manpages.
+
+External users, when compiling will see a warning similair to some
+sample output:
+
+a.c: In function ‘main’:
+a.c:18:2: warning: ‘foo’ is deprecated: foo bar msg [-Wdeprecated-declarations]
+  foo();
+  ^~~
+a.c:5:5: note: declared here
+ int foo(void) {
+      ^~~
+a.c:19:2: warning: ‘boo’ is deprecated [-Wdeprecated-declarations]
+  boo();
+  ^~~
+a.c:11:5: note: declared here
+ int boo(void) {
+
+[PATCH v4 01/18] security_load_booleans: update return comment
+[PATCH v4 02/18] security_load_booleans: annotate deprecated
+[PATCH v4 03/18] selinux_booleans_path: annotate deprecated
+[PATCH v4 04/18] selinux_users_path: annotate deprecated
+[PATCH v4 05/18] rpm_execcon: annotate deprecated
+[PATCH v4 06/18] sidget: annotate deprecated
+[PATCH v4 07/18] sidput: annotate deprecated
+[PATCH v4 08/18] checkPasswdAccess: annotate deprecated
+[PATCH v4 09/18] matchpathcon_init: annotate deprecated
+[PATCH v4 10/18] matchpathcon_fini: annotate deprecated
+[PATCH v4 11/18] matchpathcon: annotate deprecated
+[PATCH v4 12/18] avc_init: annotate deprecated
+[PATCH v4 13/18] avc: create internal avc_init interface
+[PATCH v4 14/18] matchpathcon: create internal matchpathcon_fini
+[PATCH v4 15/18] selinux_check_passwd_access: annotate deprecated
+[PATCH v4 16/18] matchpathcon: allow use of deprecated routines
+[PATCH v4 17/18] utils: matchpathcon add deprecated warning
+[PATCH v4 18/18] Makefile: swig build allow deprecated functions
+
