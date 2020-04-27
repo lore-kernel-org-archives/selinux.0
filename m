@@ -2,108 +2,92 @@ Return-Path: <SRS0=pnJ1=6L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 985DFC54EEB
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 19:41:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7920BC4CECD
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:09:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8028F205C9
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 19:41:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5A6ED206D9
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:09:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Awr/3rYc"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="QWTukSf/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726549AbgD0TlE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 15:41:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55162 "EHLO
+        id S1726315AbgD0UJn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 16:09:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725919AbgD0TlE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 15:41:04 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE79C0610D5;
-        Mon, 27 Apr 2020 12:41:03 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id c3so28359739otp.8;
-        Mon, 27 Apr 2020 12:41:03 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726205AbgD0UJm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:09:42 -0400
+Received: from mail-ua1-x942.google.com (mail-ua1-x942.google.com [IPv6:2607:f8b0:4864:20::942])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A121EC0610D5
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:09:42 -0700 (PDT)
+Received: by mail-ua1-x942.google.com with SMTP id 36so14811726uaf.9
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:09:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=googlemail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KJgjJqfYxYx1DamhB8SHVDVYVYMTaoNULn4soSfif8o=;
-        b=Awr/3rYcBw7IUNxOE2pHd9iUsxf+b+0F5oivdZ0gMq4uA1hkZgEw1VVHuOGZWBnp5Z
-         TIp3PNk6UW5NbnIkEyua/1uxF661Lz1zCOl9fCPsE3eF7ib9CcqRstWRMzX2YN0RApif
-         J7mPUujaPVFsvPRM81KcDC9mr8hcliXZUi+4Ba1c9w6Gcf4P569SoJofFY4DJ2b78UPs
-         djVyHuPPLi2KmetXOMEjR4ccGdlKV5P7Y/xwSjYA5ais585oWyKjE53PS0pf1SuiJsdC
-         J/1ZckW+XEo9p1xknc3mqgDPAeU1CrRqUmjkHFzbCfawVx3NTMkqZ72cJl2Gw189Ywum
-         2XYw==
+         :cc:content-transfer-encoding;
+        bh=1PozxmtFNC4HPpmNAZs/silepGarptlge/nYJ2VVOjc=;
+        b=QWTukSf/BTP17U6u8a7P9VUYNuB1q519BbVUe6FYGFGOcS/+Sxhrhaj/SEWLhHXRgh
+         NhdZKy5snqjR5uBmFe6OjKrQ2O0inHiSxs3CdIe7fCmTwwrOzg/MIYIk+Hcin3Ja31yx
+         DiOlKT4/LHv6g7f0cqwtNDlQ4dhx1jrUWVfNOydAAPMQcPP/ZT/BHyzN/9OByu1JC3Li
+         /J0jdUsl1VSipIJJ3tIeFDpei0EimXp5OWNOHU0w18tQzWnKtLZQPYEGaX1Utm4q7sOx
+         8pegWOBFknbJqMk+cvVLXK+07YZpv+ojLznNi1jFZnK+hdIIcKkaDdCLz33WVMEBheqE
+         gj7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=KJgjJqfYxYx1DamhB8SHVDVYVYMTaoNULn4soSfif8o=;
-        b=IrsKeFfhexGH9Ed/VZXB7fbFz1HwnAuCiaSbLXnYlzZXNGEgX2JI/XzJoJPDEl/K4z
-         hREdBFCyw5mKaUbvHFvLYbrTdisAfakT110O555rnf9UZsOzNnV7qGKHqDxU/BNT0pPX
-         tKqrCy4NXk5izIIuBaJcDtTDDz8R8YKYGXOWS26KicFdEZUFxAt/KChflE0PV9l67oqS
-         M5eKsJk/Qai3d/+2NNr2pa4wMRklK0JKrp30AjezMuD+NrXzjq1aONF3PFWdCY4tNpyS
-         c+9PY8n6sLTfnHzBjs2BHdvGlDgcmUiPBuUUoMk/XET+IwhSPimwDWdMCAILrF7KSXB/
-         XjgA==
-X-Gm-Message-State: AGi0PuZZNrjO+G+xK/OHDChNgC4Jx5sZWlhdXAmVnnf+phRnkrcGnVGo
-        q5fvr+Fq/Ud7bTSASeqEpXuZ0FBmQSCRYQOdrsE=
-X-Google-Smtp-Source: APiQypJ1FMuh3neyv5Ove0+Oveml6rJ7zmUzQYEa8VLdUSSnKo/+3+qY5TyFQK4Y9SO0B4S0U5QMWyP+fowj5p+NOTE=
-X-Received: by 2002:aca:5e0b:: with SMTP id s11mr213497oib.160.1588016463282;
- Mon, 27 Apr 2020 12:41:03 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=1PozxmtFNC4HPpmNAZs/silepGarptlge/nYJ2VVOjc=;
+        b=swOI1FW7CcQI4L/Q9x8y6Amlb27gqthrapxVufqKgHpzG+/ZXGz7sVejnUPrAwPTMV
+         pKsHYd/QwZ1UdpGvudTplIVn/gorTn/pJynm0s0M0qwjlQvNw2W3h8vwznpBSGL83LIN
+         zFT4zxcNesoXU2lBXUK0Bi1gw8dHQ1RB0zIoQrhtWKkXN8hLsqVda43RmHUw689e4mPu
+         p24Fw9D1etCuw2Ly9Eqw/dr7W3up6HRqvKT4m2jcbGVw005tG64A1Piywx9zBnnsOhcr
+         z1AxX7lHW/XB2EU19WUQjJ7eUI7JkIs6kAanXZ3yMNcg6k0GBSEul3ewb23A70pdQS5d
+         +zbg==
+X-Gm-Message-State: AGi0PuZLIVT88YHdJ6nToKgkmLUDZekUQrkUfA96AGImEhn0ml3LoBmF
+        v+r3rH6zy2KCIyGJhXthSt4Ig1Kh5GD3qj6Zxh4=
+X-Google-Smtp-Source: APiQypLc+Cz9duQ5BVKvZdukupIUkqE5dtZpvc1Qzp3nzUVX03QNIfSqR3PNIRdqqFAFufgZ1qeR2PnfM9x7/LiDD/o=
+X-Received: by 2002:a05:6102:a0c:: with SMTP id t12mr5263450vsa.144.1588018181884;
+ Mon, 27 Apr 2020 13:09:41 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200326200634.222009-1-dancol@google.com> <20200401213903.182112-1-dancol@google.com>
- <CAKOZueuu=bGt4O0xjiV=9_PC_8Ey8pa3NjtJ7+O-nHCcYbLnEg@mail.gmail.com>
- <alpine.LRH.2.21.2004230253530.12318@namei.org> <02468636-c981-2502-d4f4-58afbf8506b1@schaufler-ca.com>
-In-Reply-To: <02468636-c981-2502-d4f4-58afbf8506b1@schaufler-ca.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 27 Apr 2020 15:40:51 -0400
-Message-ID: <CAEjxPJ4WKu9L4Bey1YVo3-tb0Td7Lz5WYw=d1jJ-TN5j5QMcAg@mail.gmail.com>
-Subject: Re: [PATCH v5 0/3] SELinux support for anonymous inodes and UFFD
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     James Morris <jmorris@namei.org>,
-        Daniel Colascione <dancol@google.com>,
-        Tim Murray <timmurray@google.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        John Johansen <john.johansen@canonical.com>
+References: <20200420114650.19093-1-cgzones@googlemail.com> <CAJfZ7=ky1rwB3jDMEdXjqSL=Vctut_2Cc6gsj475Et_nLo7B4A@mail.gmail.com>
+In-Reply-To: <CAJfZ7=ky1rwB3jDMEdXjqSL=Vctut_2Cc6gsj475Et_nLo7B4A@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Mon, 27 Apr 2020 22:09:30 +0200
+Message-ID: <CAJ2a_Deu8VTHQCpc_k1Nn__Kh+oL2NV3CUp3-t4rd9CkeLr9Pw@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: mark security_context_t typedef as deprecated
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 1:17 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+Am So., 26. Apr. 2020 um 20:14 Uhr schrieb Nicolas Iooss
+<nicolas.iooss@m4x.org>:
 >
-> On 4/22/2020 9:55 AM, James Morris wrote:
-> > On Mon, 13 Apr 2020, Daniel Colascione wrote:
+> On Mon, Apr 20, 2020 at 1:47 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
 > >
-> >> On Wed, Apr 1, 2020 at 2:39 PM Daniel Colascione <dancol@google.com> wrote:
-> >>> Changes from the fourth version of the patch:
-> >>
-> >> Is there anything else that needs to be done before merging this patch series?
-> > The vfs changes need review and signoff from the vfs folk, the SELinux
-> > changes by either Paul or Stephen, and we also need signoff on the LSM
-> > hooks from other major LSM authors (Casey and John, at a minimum).
+> > Follow-up of: 9eb9c9327563014ad6a807814e7975424642d5b9 ("Get rid of sec=
+urity_context_t and fix const declarations.")
+> >
+> > Use a wrapper macro, because swig does not accept typedef attributes.
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 >
-> You can add my
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 >
->         Acked-by: Casey Schaufler <casey@schaufler-ca.com>
->
-> for this patchset.
+> If nobody raises an objection, I will merge the patch tomorrow.
 
-This version of the series addresses all of my comments, so you can add my
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Maybe this should be delayed after the deprecation patch series from
+William Roberts to match the same style;
+e.g. this patch uses a helper macro.
 
-I don't know though how to get a response from the vfs folks; the
-series has been posted repeatedly without any
-response by them.
+I'll prepare an updated patch.
