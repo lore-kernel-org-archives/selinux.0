@@ -8,63 +8,63 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 347E7C4CECC
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6BDAC54EEB
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A28D2073C
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C219206E2
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C1KH+JGf"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eZ/Ua8tM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726456AbgD0UX0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 16:23:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33618 "EHLO
+        id S1726744AbgD0UX2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 16:23:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726552AbgD0UX0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:23:26 -0400
+        by vger.kernel.org with ESMTP id S1726552AbgD0UX2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:23:28 -0400
 Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7658DC0610D5
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:26 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id 18so8320324pfv.8
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:26 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75E9C0610D5
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:27 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id 18so8320389pfv.8
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=5IskOwX5UcT748ON1fTtfkF0uP1N9WejQ0M281usXu4=;
-        b=C1KH+JGfQgrGJ47OkLLu/6wZgHHanIXhPGU1vvcEGo1clBgJ9a+dMRzYOqa43KZW6e
-         TcH0m+tyOt9GjZC/boMdPHvatrXYS6WvK8S0hd1B1Ze9Lwzb3kCgP3xv41PA1uuljIjN
-         FYvrbYSFn0f2VmfjO2ycRPoRcCvieiihkexUE57jnso38T8HARXqM6dlFtKrnu4dJfVG
-         fMs3p3zY1Rz1tbs3GH/6bpXbCwEafat88ewDI1fsnA/rWM9f8RRaN06UQ6+4qIZ0WMgY
-         JlCkFZgjDki7ecNTxiJJEb0FTDMRg4qR4yjkvIq2YkVBHAk9Emf9lNz5sWw1Vtg7+txK
-         XEUw==
+        bh=Hj+i+tMN050sCBe+IQticD3qraeN9Ogi50YT5Ooklvk=;
+        b=eZ/Ua8tM1cqommL7CE6RVu/5VNghlWDhJh49CJBi6kgu4TDvAIIMvcqP6dH2VSp3bn
+         /wIQ70tF3jqKmkTfLI/uuX+XOFonQKvWT919h8lMZMEa5cDi2xvhR9PPNNHrMmbAjKDj
+         8WOdCmvtgzqsI3OuoN09wfMwbEV2nD/04FZjVYhWx3PwcSQQ5p6v1tThVPNIOVNWsMaC
+         GuUqP6agI8cPHJadQEUL2hV7iskYyqV+y8zAz4BZOqLNK4+6vkltw59Cn4GEgferoMHB
+         g/ZGQn7BJqasgklgYBVocjt2WGsUFhVPNIIwdbHEPOxQ5lk+4TCaA+DcPUfenp6qTWwM
+         AZOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=5IskOwX5UcT748ON1fTtfkF0uP1N9WejQ0M281usXu4=;
-        b=FE/Hzesks2L4Nm2taXAjE7yR1Z/TRU1HihKJuKDZzX11yHzJodR3pckzWGEWmSGrgl
-         2QiNEzDLSQ5A8xSBQR8R98kYiImVnxLUhd2aAMAuIDB19pk6XLFeusKOLzzar64kCOgj
-         mMUHO58hPIxk//EUCSYgKwZa4941ZKi/PmBj7mzxw7bSOwo4tDdtkvu20meO/ehRRJpo
-         OonB18R4FsQEcNX+Emwzu7tPSRfvYOlVPMtN6s5evJnl7UAyjl1rE7y/P11k2ZDt9hY2
-         1spwExbWuk+eeYhUruP/XxBjOrqZqYE7p+wLJTQmjTnQJtTEws3DAhDL+1Hlyt3gt/8t
-         fq3g==
-X-Gm-Message-State: AGi0PuZzbFHBwfipjGGiR09NUPDLIg+/Z5I+X+iwaFXBtTOPaoIkzi/W
-        qssc/BKMLOnvZUlKhjHIPjE=
-X-Google-Smtp-Source: APiQypIByzUudcX68rAGDfoaEADFWqkufMlJwgf2NbH9CNcpzA1f82km4IBKleYPORMS++w70zlKLQ==
-X-Received: by 2002:a63:e60a:: with SMTP id g10mr8218394pgh.51.1588019005902;
-        Mon, 27 Apr 2020 13:23:25 -0700 (PDT)
+        bh=Hj+i+tMN050sCBe+IQticD3qraeN9Ogi50YT5Ooklvk=;
+        b=HXFaWuqp/lAR+4U+FAh5L05srOtDctn0Nn1aZ2FUbmyXHeWeWzPSXQuRNtw0/kedqR
+         XZXrQX+GvxPPqMs1d3GLBqlZKTWYCdFggcjAcOaR7SG9AcBLV5degiUDu/qEZBlnDoBv
+         48mzYp4ndIWv5swLiUKRGVCIIhrsWSUdf4RGt91YsTMTbV1HstHiGjNE4AJaL+CTGf1Y
+         TwrmjrxobBAKNCOrsoaEz2FrZiCfANNLEzv2iJWzmrl22KgYhALRndW6QrNMH86s+qFi
+         d0OQ2IAsqIWEGqFschrrteJZR/lP/+uPVDhFutXhoJoMMFcxmFmZxg3sdk5LyW3Sg5YF
+         qWvg==
+X-Gm-Message-State: AGi0PuZ01FH+bQcE6Aly2KMAiLRl9LKiyBS7AaLZLwX7scEeDKYwRQBU
+        QcqnNjKgTyxw17LEJKIIzxc=
+X-Google-Smtp-Source: APiQypI/8u1v+qs0TLRkPF8TjIYmRmgcVJ5Yt4sacJxyfyF3KNOYgg46IgANW0fQijTF83t+kn4q0A==
+X-Received: by 2002:a63:383:: with SMTP id 125mr24311655pgd.242.1588019007435;
+        Mon, 27 Apr 2020 13:23:27 -0700 (PDT)
 Received: from localhost.localdomain ([134.134.139.76])
-        by smtp.gmail.com with ESMTPSA id n30sm13329438pfq.88.2020.04.27.13.23.24
+        by smtp.gmail.com with ESMTPSA id n30sm13329438pfq.88.2020.04.27.13.23.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2020 13:23:25 -0700 (PDT)
+        Mon, 27 Apr 2020 13:23:27 -0700 (PDT)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     bill.c.roberts@gmail.com
 Cc:     plautrba@redhat.com, sds@tycho.nsa.gov, selinux@vger.kernel.org,
         William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH v4 03/18] selinux_booleans_path: annotate deprecated
-Date:   Mon, 27 Apr 2020 15:23:00 -0500
-Message-Id: <20200427202315.4943-4-william.c.roberts@intel.com>
+Subject: [PATCH v4 04/18] selinux_users_path: annotate deprecated
+Date:   Mon, 27 Apr 2020 15:23:01 -0500
+Message-Id: <20200427202315.4943-5-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200427202315.4943-1-william.c.roberts@intel.com>
 References: <20200225200219.6163-1-william.c.roberts@intel.com>
@@ -82,22 +82,22 @@ Signed-off-by: William Roberts <william.c.roberts@intel.com>
  1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/libselinux/include/selinux/selinux.h b/libselinux/include/selinux/selinux.h
-index ae70479511db..19b22c166651 100644
+index 19b22c166651..75f65e367bf4 100644
 --- a/libselinux/include/selinux/selinux.h
 +++ b/libselinux/include/selinux/selinux.h
-@@ -579,7 +579,11 @@ extern const char *selinux_contexts_path(void);
- extern const char *selinux_securetty_types_path(void);
- extern const char *selinux_booleans_subs_path(void);
- /* Deprecated as local policy booleans no longer supported. */
--extern const char *selinux_booleans_path(void);
-+extern const char *selinux_booleans_path(void)
+@@ -586,7 +586,11 @@ __attribute__ ((deprecated))
+ ;
+ extern const char *selinux_customizable_types_path(void);
+ /* Deprecated as policy ./users no longer supported. */
+-extern const char *selinux_users_path(void);
++extern const char *selinux_users_path(void)
 +#ifdef __GNUC__
 +__attribute__ ((deprecated))
 +#endif
 +;
- extern const char *selinux_customizable_types_path(void);
- /* Deprecated as policy ./users no longer supported. */
- extern const char *selinux_users_path(void);
+ extern const char *selinux_usersconf_path(void);
+ extern const char *selinux_translations_path(void);
+ extern const char *selinux_colors_path(void);
 -- 
 2.17.1
 
