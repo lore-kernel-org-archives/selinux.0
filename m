@@ -8,63 +8,63 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC8E9C4CECC
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D57EC54EEB
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5EED206E2
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 63F2B206E2
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 20:23:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fN/88/eV"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vbjvBGFk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726540AbgD0UXx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 16:23:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33712 "EHLO
+        id S1726364AbgD0UXy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 16:23:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726364AbgD0UXw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:23:52 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5296EC0610D5
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:52 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id r4so9191135pgg.4
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:52 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726743AbgD0UXy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 16:23:54 -0400
+Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB8F2C0610D5
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:53 -0700 (PDT)
+Received: by mail-pl1-x643.google.com with SMTP id k18so7414525pll.6
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 13:23:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=qo/M9ma8hAwhDuNMFiAuZ2jdy9oV5PDzurKa+6UdQu8=;
-        b=fN/88/eVLfNxt9P8Hpq2TmaqZWV96IZ9a8xriQR4qF7RyQFgZuNoEpyyuLIWRLqBp/
-         5uiMTjMwfsjr6xgGEpn93mOI1CWcEpZdpIsn2IOcMyaN4jUbxDu9KQTbp+7Ps2RYHuK5
-         uHzAHRVrWMvPzqZ72Z52EMAlLnpbarbS0aSqUItK3Lb2oXK3qlAsmGU+bNnFLp8rRK2z
-         FI4B58fAXnJoRfL654cA5WD7oHz6s/hQLUAVGf1HYDBJBQfX9ZSgOoYPU5CEhhdHTmJA
-         XTg/JA2s+5FBHizOHX6UG2fBeJhCTaUIv8HMzeLGH0aqj/v+N4QF7jkujJP8Ifjkp9K4
-         LopA==
+        bh=STKcgyAYLyPwimzGvxdtUzzEbb8zdagndp28hkuz3NM=;
+        b=vbjvBGFkzAfpbaZ8Rs2pOAPMZDe4p4XIrLJa1ecV7JKIgH8EEIT4DUg1qOYtLY/WuA
+         SLCHtmL/T2M1Ifir6UXymLIr98W7y4AEQP6dwBaryInbF1lRTH6GEgvswG2TVuR0Fxp9
+         8gXJ7mQEAIAmb1VwmD16tEHjQXr0Iy4tKKWOFRgSLXla4hDeODwwwG/2d7z70HmQWC2n
+         DsqnZH+o2tClI/AOBAQMNgzuYEa3nkCFy8Dk9ZjMpdnlnbSidqjU0LOpQlu3Z+5lnIxq
+         oKx+eaCB1yZxn15XagD2+xBGpEp3UJSQwXMDOSf53u2Cp17fR9UiegJAUPpRM+inBm1j
+         B9Dw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=qo/M9ma8hAwhDuNMFiAuZ2jdy9oV5PDzurKa+6UdQu8=;
-        b=Uuw94ZHX5MlmP2ioI/IctRObneee8MOSpaEmc/WYJrVDnJagIijNs2fPSAyJVH0j7o
-         TbD8Q2NgEoyvavpObpG22Iy2qf6Mio1in5L+CWksn3NNiwiJKcyK3nwdzbEPDZw91hLH
-         ZbcR2O7ywQxR9tO3QP/Md3/4lFhrhIQt93eLWZSv+M3Mn1NrV2dC/ToQxWz72d6sbT6N
-         3UaZ8QeDRNPDofQWQHlcft/hqH9Izy3617ipdcniAZZHpuHCX8iTN5CFz3cPNPcb6N5x
-         QHsSUQ06w0eVkUsoDWJZ8E3178x683DegflABStgCXh1zxOu5bfTSTYzX/oFzGBIQvKn
-         DV5g==
-X-Gm-Message-State: AGi0Puaxa6VBB6ESLEmOHENXZdxGgsToyVjo64YvH3JsXwec/akVB2P7
-        YI4v8hNOD0YNYMymB4UXwrQ=
-X-Google-Smtp-Source: APiQypKUepUI6LtlZuWNh+471rNXZ8BYm066Cg5endivb5o90ehljGYMDGuaFPG5fTfeGv09yUXN7w==
-X-Received: by 2002:a63:f50a:: with SMTP id w10mr23819002pgh.181.1588019031732;
-        Mon, 27 Apr 2020 13:23:51 -0700 (PDT)
+        bh=STKcgyAYLyPwimzGvxdtUzzEbb8zdagndp28hkuz3NM=;
+        b=nXBLcxevUZ9cOrb8knCoO/2J2oHGSx83EYa9hEfQfkihed+MUW4fvkJe4KKecJbhnO
+         h167PwoWkMELA1Q8+jLMHuYcYVy7MI8CIujnOlLDJq6lofQiIDOUIbZCmGSAuobMSY4H
+         552eIHiwRXJgedMN5Z0QXh6cPlYCSN4bkgTv7INTJcDuzQUeQvGfG7t6Efl1ty2LLViY
+         vRggcp/FAm7Znzb5v2YjOXRZkw56B2bcXKZ6NFBr7Xj0jjIKFZ4mIvC6PMAEjmZMp1yD
+         5UgMkmzkRXLFo8jGogyeMJa3GePX4hzTTfMSPt6zN11s5cj8cb+aSM3LPL7ZUTWatsT4
+         hnug==
+X-Gm-Message-State: AGi0PuaJ36bJ2UIUt2i9wDNGp8sMwNDINSkSy2cBNCSyCnD3G0jPbJYE
+        3TxfttvIEbmEuwpoaRing1g=
+X-Google-Smtp-Source: APiQypIsPnK6Ct9ozAGA4I4fXeA5gmire29Yf49N/XFyrhkd+XDi6WTgtW0oJbLO9SQqH8wBmf+Tbg==
+X-Received: by 2002:a17:90a:2943:: with SMTP id x3mr494969pjf.63.1588019033419;
+        Mon, 27 Apr 2020 13:23:53 -0700 (PDT)
 Received: from localhost.localdomain ([134.134.139.76])
-        by smtp.gmail.com with ESMTPSA id n30sm13329438pfq.88.2020.04.27.13.23.49
+        by smtp.gmail.com with ESMTPSA id n30sm13329438pfq.88.2020.04.27.13.23.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2020 13:23:51 -0700 (PDT)
+        Mon, 27 Apr 2020 13:23:53 -0700 (PDT)
 From:   bill.c.roberts@gmail.com
 X-Google-Original-From: william.c.roberts@intel.com
 To:     bill.c.roberts@gmail.com
 Cc:     plautrba@redhat.com, sds@tycho.nsa.gov, selinux@vger.kernel.org,
         William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH v4 17/18] utils: matchpathcon add deprecated warning
-Date:   Mon, 27 Apr 2020 15:23:14 -0500
-Message-Id: <20200427202315.4943-18-william.c.roberts@intel.com>
+Subject: [PATCH v4 18/18] Makefile: swig build allow deprecated functions
+Date:   Mon, 27 Apr 2020 15:23:15 -0500
+Message-Id: <20200427202315.4943-19-william.c.roberts@intel.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20200427202315.4943-1-william.c.roberts@intel.com>
 References: <20200225200219.6163-1-william.c.roberts@intel.com>
@@ -76,27 +76,27 @@ X-Mailing-List: selinux@vger.kernel.org
 
 From: William Roberts <william.c.roberts@intel.com>
 
-Add a deprecated warning to matchpathcon encouraging users to switch to
-selabel_lookup.
+The SWIG C build should allow deprecated functions and not warn on them
+because it is exposing the full interface including deprecated routines.
 
 Signed-off-by: William Roberts <william.c.roberts@intel.com>
 ---
- libselinux/utils/matchpathcon.c | 3 +++
- 1 file changed, 3 insertions(+)
+ libselinux/src/Makefile | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/libselinux/utils/matchpathcon.c b/libselinux/utils/matchpathcon.c
-index eb39a1881066..cc018d213f4c 100644
---- a/libselinux/utils/matchpathcon.c
-+++ b/libselinux/utils/matchpathcon.c
-@@ -73,6 +73,9 @@ int main(int argc, char **argv)
- 	int error = 0;
- 	int quiet = 0;
+diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+index 9992221f5fc5..73303c3666c9 100644
+--- a/libselinux/src/Makefile
++++ b/libselinux/src/Makefile
+@@ -105,7 +105,8 @@ FTS_LDLIBS ?=
+ override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
  
-+	fprintf(stderr,
-+		"Deprecated, use selabel_lookup\n");
-+
- 	if (argc < 2)
- 		usage(argv[0]);
+ SWIG_CFLAGS += -Wno-error -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter \
+-		-Wno-shadow -Wno-uninitialized -Wno-missing-prototypes -Wno-missing-declarations
++		-Wno-shadow -Wno-uninitialized -Wno-missing-prototypes -Wno-missing-declarations \
++		-Wno-deprecated-declarations
+ 
+ RANLIB ?= ranlib
  
 -- 
 2.17.1
