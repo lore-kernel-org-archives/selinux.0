@@ -2,141 +2,144 @@ Return-Path: <SRS0=pnJ1=6L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECF6FC54FCB
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 17:16:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 849E2C54FCB
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 17:23:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C4721206BF
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 17:16:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5C9D52087E
+	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 17:23:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="d3HTlCL/"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F+KbPA0F"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726399AbgD0RQC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 13:16:02 -0400
-Received: from sonic313-15.consmr.mail.ne1.yahoo.com ([66.163.185.38]:37224
-        "EHLO sonic313-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726343AbgD0RQB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 13:16:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1588007760; bh=DbsQgiQ7jFkqiGUOueNLUsQEY4h8CqVP+e1O0N4SXO8=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=d3HTlCL/kRxILbQ0xopaP54B3mA+pVbcioUIWEFQUGBq//PXt6iFkr3vCeQIyNZJrban/Yv26a0oePYHZ3bZN2g66uxJ0gzS5sOl4tMtcW6aUpXD/whkWkdAtneaIXIKxwSNSRqai91T3U3/CwsOLHVlYx8B25lL1V1IzD7Q2TCKTiSHEiFT58BLTTHkAZiftjU+86gMMeCxIsH+yQAlz+yemGDOmHQaVznw3jg6479c1NE39Nduo44rz0GYIbiAW2xTSo862/87ExOippgBSeB8WOdtYC3WePiNu3EI9l2HHx5sJEIbhqQWXofjWD2LngiFEMeC2SAAMd4ALn0WBw==
-X-YMail-OSG: QlXZjUcVM1mxlifsA2eR1Cshu2wWRzKsrEI4MVRowC_y5Q9McFsrKpp8njpWhe8
- 6CsMkfvhFGc2.wGjkTInHr4m6Kl86bber66byEgwvlsGLU5uGBZ1ygweDZvzuAQi9LkGqeQIiKZn
- bj5CfaoQO07FEJirlyq9kYe7MwtppKTlBFK7xsBMtHSV7yoCvPm.U9Xv5p1w.1f9yDbFS0VmCidS
- 0VN9QbPKqBaumj._VBglsOTzlTVn9015PxzI7FRbhA9Wa1_hbGncU7NE1vHozHEgqpPBWrKmO1D6
- ZW7aGnd8kK2mnGUa2kBpWpMRLDKkFtHsEaaVFQDA6eHNKIDHEj3u3rpSZR5dH8Sj372W74WAe_Ir
- zM3cp336htmRIjJ6WvkLzFbjK8AKcXEbbqAY2fJN0yAqYfeuopVjpXGeT9xRnUm4c2xf6T4JKTkO
- aHKx22M6aExPT2t3YU7xKCT9sE5vZoPaiokLeN.zt9KweU3pwQBQJGt8_VjhWMnLR3W62l.m.pi6
- l7xoQDAu0dm9g822RrM9yiaj3IJuRkE6YgMzXmhmrHeOzY43DNmN2ouNywpJvfEy2FbwPUUrhF3R
- gIfvonGvFroA_9J0p_BbwSEZtCo47bbyx9IrpDC3gmI5fFJZa42nNZOcdHvN61Ymun9swNAZHSDm
- jK987PwuFsSNWRUpwlFBMajEtfRNqpCkDswIqYhgBVI_EUIFlPz9C1DFork4_X3Al0SoY6sbLVq0
- BoPvhKHen41b4tiEgaY4TEk0W3Aa2xF_xqUYdD6CalpspWIt1g5wKzlTtCFJLtwNqRJoDZh_Na68
- 4wmmboMVoFi1u03ugCogqd0Lx9MXam7HLkBkq9VbKolUZ_dnhdydBaEGgOEQqFevzDI6cYj5MqY3
- 26N_upFxq5coJVbmsVd59fg79KMfCy8pQSnK6oV4eLba03cCvte4xnn4ehaU6I57sQjLHogsAp4f
- BFhIr6UmH6j_y5PFBFMSPaqH6VBt4VXT0Gfq4aoP3n1gmh22Uj2lPmI2Ge8AZ7ly.IZ_AWrUt2Tp
- hJnxW56ZA4UT09t_9w04KPXkmzS7sf8nOHoLZQGUQccLMZk.PdefimxE5Keeqf7KZ05gu5dKOKk_
- rYDvaLfLOIlWEfbC1oDQinu27TP9QOEE9OuElNz2qDIs8tsdM5uho.DMHyeY7n3yCozFm8vFQ8YW
- QNetMLpdhKAPh2eO6wfEJyvZIKP0k90nMqFe.M5mADp6tVYbyhm7A_IuXvGxDA9rqxPG6.l1tqDv
- yhctlPKbI8SiMEPBstKxHYMuC8QawTiCnxPiIaC9y4u4fLL23GqrzoTL0S0JqukDnFirOogMxFxZ
- N1j_iu8TS9HXVR92I8sjvBUaUotENCdXaHRFREMS1HxTDCGrGNMK3nFdzK.oCXHQNajM3hAFzNdP
- trK1ojFZN096UrdIlb00CQGXyN.3LjEyFezKz8likmRKV
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic313.consmr.mail.ne1.yahoo.com with HTTP; Mon, 27 Apr 2020 17:16:00 +0000
-Received: by smtp406.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 5c417b4721e3b6d7d6ee1e185595c6b4;
-          Mon, 27 Apr 2020 17:15:58 +0000 (UTC)
-Subject: Re: [PATCH v5 0/3] SELinux support for anonymous inodes and UFFD
-To:     James Morris <jmorris@namei.org>,
-        Daniel Colascione <dancol@google.com>
-Cc:     Tim Murray <timmurray@google.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Lokesh Gidra <lokeshgidra@google.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20200326200634.222009-1-dancol@google.com>
- <20200401213903.182112-1-dancol@google.com>
- <CAKOZueuu=bGt4O0xjiV=9_PC_8Ey8pa3NjtJ7+O-nHCcYbLnEg@mail.gmail.com>
- <alpine.LRH.2.21.2004230253530.12318@namei.org>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <02468636-c981-2502-d4f4-58afbf8506b1@schaufler-ca.com>
-Date:   Mon, 27 Apr 2020 10:15:57 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1726244AbgD0RW7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 13:22:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33226 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726228AbgD0RW7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 13:22:59 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97682C0610D5
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 10:22:59 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id g14so27506691otg.10
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 10:22:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=oRdVcqHrRQ9OyB4Ed9hhdgxm7YT9q+K1dLTbck9Q5ro=;
+        b=F+KbPA0Frdu/clWIBVF9kEBGROm9uyYDCcIupBY6ks9qOdus8becaEfmKnWrjRqzCK
+         aRAj5Z1WjP7hgY4cYefutfym+016ixsewZOkfmgISyxpYxLr/gVNMGBLfFF2iyCjTyee
+         h3NgSJSTEjcbGpkjX7tWR1tH9yF0EbrGSYEZUqKXS04kzmZH8hlkMYKMOEGbuQAd3TBR
+         kBYxJfBAFdvBWd5V3j+3PzYAo4cLekVdquGpMyg0SqagrsYz7Vtjdg4EU2UH5Y36dTPc
+         AAqa1ab4/fqD8S4/PzFhep155G0oiz94L2TozwAHE/3dOqvfj7UXK1Zkt7Emuizao/+Y
+         Fzfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=oRdVcqHrRQ9OyB4Ed9hhdgxm7YT9q+K1dLTbck9Q5ro=;
+        b=RxsFDE7kIrfUXRQDJdngsDTOL03DV8Evow3Ab5lT4EbHJ3wfVo+P+0vTd0V2QhoG6M
+         PKNL1WsLW+IntBv7RXs9fMYeWlvF8pPDUUCspbuVYGM3Rtd+eSby9M489AGy4NgOv2nP
+         3ZRKyyXfrgPwRF5kFACNCfNdamhHF4BR4S/l70oOnpePMlFfnphpMlNwK2Cv4oIQQN7H
+         Frm3xEIR0QCjTh7DrF8B26MdPFvjI4WnHLW26ARtNYroNrusmmDndiFstQHLyXxk+K15
+         7zBESDUSFRNZhmkFi08vR4obo0wNQCse7HKcAXkXBzd6ALr+tuBMPvWvykq5v5iVNri6
+         wQKg==
+X-Gm-Message-State: AGi0PubYq70baNW/8IwMDVbCkLHX+gXu7jpSMU3ldEU0tqIpRj89sMup
+        SWLHoAgQc85kSuk7LyjiaBOiUb8BCZQwI2zu3lp+Ww==
+X-Google-Smtp-Source: APiQypIeQhmoijw2Xlyx5e0O1ObDvOe6IxU2IB0i4QauCHT71dLYcXiYbAASJAdehjbG6ky0uNqoxMB2BcwPJpGjfas=
+X-Received: by 2002:a9d:2aa9:: with SMTP id e38mr5423137otb.162.1588008178813;
+ Mon, 27 Apr 2020 10:22:58 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <alpine.LRH.2.21.2004230253530.12318@namei.org>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.15756 hermes Apache-HttpAsyncClient/4.1.4 (Java/11.0.6)
+References: <f4e6ddb4-66ac-45d1-04a6-67bfd9fd225e@gmail.com>
+ <ypjla73zwlx4.fsf@defensec.nl> <33246601-c460-46c6-6a5a-fbcbd48d2858@gmail.com>
+ <CAB9W1A3d7OyJESduertxmr=p0sN5j5JD=q01x8i8Vi5yKhs5Pg@mail.gmail.com> <50b369ba-cb70-b085-7b12-9c91be6a4e17@gmail.com>
+In-Reply-To: <50b369ba-cb70-b085-7b12-9c91be6a4e17@gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 27 Apr 2020 13:22:47 -0400
+Message-ID: <CAEjxPJ7n7k83_r9iW2-w1t3ujxw9fMUZ7P33cDnpt=2yqV8xPw@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: mount selinuxfs nodev,noexec,nosuid
+To:     Topi Miettinen <toiwoton@gmail.com>
+Cc:     Stephen Smalley <stephen.smalley@gmail.com>,
+        Dominick Grift <dominick.grift@defensec.nl>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 4/22/2020 9:55 AM, James Morris wrote:
-> On Mon, 13 Apr 2020, Daniel Colascione wrote:
+On Mon, Mar 30, 2020 at 2:14 AM Topi Miettinen <toiwoton@gmail.com> wrote:
 >
->> On Wed, Apr 1, 2020 at 2:39 PM Daniel Colascione <dancol@google.com> wrote:
->>> Changes from the fourth version of the patch:
->>
->> Is there anything else that needs to be done before merging this patch series?
-> The vfs changes need review and signoff from the vfs folk, the SELinux 
-> changes by either Paul or Stephen, and we also need signoff on the LSM 
-> hooks from other major LSM authors (Casey and John, at a minimum).
+> On 29.3.2020 23.44, Stephen Smalley wrote:
+> > On Sun, Mar 29, 2020 at 7:30 AM Topi Miettinen <toiwoton@gmail.com> wrote:
+> >>
+> >> On 29.3.2020 12.27, Dominick Grift wrote:
+> >>> Topi Miettinen <toiwoton@gmail.com> writes:
+> >>>
+> >>>> Mount selinuxfs with mount flags nodev,noexec and nosuid. It's not
+> >>>> likely that this has any effect, but it's visually more pleasing.
+> >>>
+> >>> will nodev interfere with this?
+> >>>
+> >>>     File: /sys/fs/selinux/null
+> >>>     Size: 0               Blocks: 0          IO Block: 4096   character special file
+> >>> Device: 15h/21d Inode: 23          Links: 1     Device type: 1,3
+> >>> Access: (0666/crw-rw-rw-)  Uid: (    0/    root)   Gid: (    0/    root)
+> >>> Context: sys.id:sys.role:null.isid:s0
+> >>> Access: 2020-03-28 13:04:05.578999988 +0100
+> >>> Modify: 2020-03-28 13:04:05.578999988 +0100
+> >>> Change: 2020-03-28 13:04:05.578999988 +0100
+> >>>    Birth: -
+> >>>
+> >>> /sys/fs/selinux/null: character special (1/3)
+> >>
+> >> That device does not give me joy. Yes, the patch prevents it from being
+> >> used. But I didn't see any problems in the logs, even with something
+> >> else mounted over it (adding InaccessiblePaths=/sys/fs/selinux/null to
+> >> systemd unit files). The device file was added pretty early to Linux,
+> >> perhaps it was needed then, but not anymore?
+> >>
+> >> Judging from internet searches, maybe it's only used by Android. They
+> >> seem to use a forked version of libselinux anyway.
+> >
+> > /sys/fs/selinux/null is used by the kernel; SELinux closes any open
+> > file descriptors not authorized for the new process context upon a
+> > context-changing exec, and replaces them with a reference to
+> > /sys/fs/selinux/null.  This was introduced because /dev/null couldn't
+> > be guaranteed to exist or be available at all times. nodev likely has
+> > no effect on this usage because it is probably only checked when a
+> > userspace process tries to open it.
+>
+> Perhaps then the device should not be visible to user space at all, or
+> at least not usable (which is the effect of MS_NODEV)? The file
+> descriptor replacement thing seems to work also when /sys{,/fs/selinux}
+> is not mounted in the mount namespace of the process, at least I haven't
+> seen any problems.
+>
+> > That said, I don't really understand what you think you are gaining by
+> > adding these mount options to selinuxfs.  What threat are you
+> > mitigating?   It is a kernel pseudo filesystem that doesn't support
+> > dynamic file creation by userspace and whose contents are entirely
+> > determined by the kernel.
+>
+> I don't think there's any change to threat situation (a process which
+> shouldn't have access to /dev/null, gains access by using
+> /sys/fs/selinux/null? Not very credible) or even any other effect from
+> this change, but I don't like it when selinuxfs always shows up when I
+> grep for filesystems without nodev/noexec/nosuid. So the gain is visual.
+>
+> What's the purpose and gain of having the filesystem mounted with
+> dev,exec,suid, which for other filesystems than selinuxfs are the more
+> dangerous options?
 
-You can add my
-
-	Acked-by: Casey Schaufler <casey@schaufler-ca.com>
-
-for this patchset.
-
+I don't think we can switch to nodev since we have been exposing that
+null device node forever and
+we know of at least one user (Android).  Android started with a
+complete fork of libselinux but went
+back to following upstream, although they still retain their own
+custom additions.  So I think at most we
+could add noexec/nosuid here with no risk of userspace breakage.
