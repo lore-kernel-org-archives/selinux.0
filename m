@@ -2,126 +2,112 @@ Return-Path: <SRS0=yj3S=6M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE7B6C83008
-	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 12:54:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E54D6C83000
+	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 12:55:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A902F206D6
-	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 12:54:51 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BE804206D9
+	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 12:55:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H6iefjNO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="b5NeBYTH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726759AbgD1Myv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Apr 2020 08:54:51 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:49648 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726826AbgD1Myv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Apr 2020 08:54:51 -0400
+        id S1726836AbgD1MzX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Apr 2020 08:55:23 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:58110 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726620AbgD1MzX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 28 Apr 2020 08:55:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588078490;
+        s=mimecast20190719; t=1588078521;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Q/j1WNR+YBrs98DzytkVX7oMWOtSdD3iLwhSY7RR9Xc=;
-        b=H6iefjNOa/q/ImgVVTb8NnG01n4QWbFSiBhsRcI5b/RaG7oH86hGNdN2v1OqzOwu2NLKgP
-        LW1mmVgQ7QzMy5BZoXZXk4uAFbXNscDYrmyHiWf5G+4hr/SOuTnlCrs0Y8jkvnkjNwkqRW
-        HTQEqBozQWOoxq72gTNk39MH0UXMJYM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-473-f54CFXXxMBOApRvjB_eRig-1; Tue, 28 Apr 2020 08:54:48 -0400
-X-MC-Unique: f54CFXXxMBOApRvjB_eRig-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 09677800C78;
-        Tue, 28 Apr 2020 12:54:47 +0000 (UTC)
-Received: from warthog.procyon.org.uk (ovpn-113-129.rdu2.redhat.com [10.10.113.129])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A4AA019C4F;
-        Tue, 28 Apr 2020 12:54:45 +0000 (UTC)
-Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
-        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
-        Kingdom.
-        Registered in England and Wales under Company Registration No. 3798903
-From:   David Howells <dhowells@redhat.com>
-In-Reply-To: <CAHC9VhT95GJKNTMvTtmZL35UOoVwbGH-eDWZyELb5oZ5rQU+Tw@mail.gmail.com>
-References: <CAHC9VhT95GJKNTMvTtmZL35UOoVwbGH-eDWZyELb5oZ5rQU+Tw@mail.gmail.com>
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     dhowells@redhat.com, keyrings@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org
-Subject: [PATCH] selinux: Fix use of KEY_NEED_* instead of KEY__* perms [v2]
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Hhad6guXzZPz7zbBFdSUfK8IdNjrpDdD64VS2b2IFi0=;
+        b=b5NeBYTHqGeR8rus3eWNBufxg0uESgzfpHerJK6rc+QfDjYm2+orqRnk3l7bPRcx5J4WH1
+        s3RYJjLNHQCY1m5WZP42Hu0Y1t2SYuJtt1rXZysqincUe+AZloGRTZtb5lglF1vDNXc95I
+        wJbU7e3gY7PHcBcdCFmnFXcKmay8L+o=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-326-M0zKQlvcMh2WI-kjt1CzHw-1; Tue, 28 Apr 2020 08:55:20 -0400
+X-MC-Unique: M0zKQlvcMh2WI-kjt1CzHw-1
+Received: by mail-wr1-f70.google.com with SMTP id v9so12190651wrt.7
+        for <selinux@vger.kernel.org>; Tue, 28 Apr 2020 05:55:20 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Hhad6guXzZPz7zbBFdSUfK8IdNjrpDdD64VS2b2IFi0=;
+        b=kRKVatDBmEtXtlrSTEwc/eCPI0F/6rxEQneDK5knLsE5zwfR9Ve6t2e7qPr2KVK9Qx
+         0oG52giVPZNwz4RJV5OjI8lN3PPWw+10NJVEYZtOvgva24OnGoOW9zdBLcaRJlkk741I
+         Z052mZMOUCi1YXD3vqVdPHCw3siy3lka+Dioa25y8ae9GDBJ7hK/GZ/8cmFxKnxb60wN
+         bo7G8iGO3aOGPWRM5NgbdEEIc3L2tV9IusyOiy+n7fkFWXbyA94cpm51srN6Zq+mKrRT
+         QZnO2P+UYlsEGIbcWgaR9bWwrMZ4LCSiLrMay8Ru2HmEGND+XIpxe2K5x/FJ36lKCVdP
+         ZOpA==
+X-Gm-Message-State: AGi0PuYihe7PM7TBV47K3IPThqgPDDrZlFhy7pBkjqOJ2YiephEGe8mh
+        9MKdy+cFlV4afDGquLy+RRTMcWUqr3mc2aHzE7mbDt5M3/UdaKDSJxdPDNTWZFSfrB3zb7CbtKf
+        40GuVmQQsPCfM5ZNjJw==
+X-Received: by 2002:adf:dd8f:: with SMTP id x15mr35527398wrl.201.1588078518826;
+        Tue, 28 Apr 2020 05:55:18 -0700 (PDT)
+X-Google-Smtp-Source: APiQypJ2sz240/O/QODfSv+MegjaI1QUgGJk5UinvEcs24e3qwgPFGrGuOVHdbMIWl+Nd6ldH4Pvjw==
+X-Received: by 2002:adf:dd8f:: with SMTP id x15mr35527361wrl.201.1588078518540;
+        Tue, 28 Apr 2020 05:55:18 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
+        by smtp.gmail.com with ESMTPSA id y63sm3082438wmg.21.2020.04.28.05.55.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Apr 2020 05:55:17 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH 0/4] Inline some hashtab functions to improve performance
+Date:   Tue, 28 Apr 2020 14:55:10 +0200
+Message-Id: <20200428125514.2780171-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <924657.1588078484.1@warthog.procyon.org.uk>
-Date:   Tue, 28 Apr 2020 13:54:44 +0100
-Message-ID: <924658.1588078484@warthog.procyon.org.uk>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-selinux: Fix use of KEY_NEED_* instead of KEY__* perms
-    
-selinux_key_permission() is passing the KEY_NEED_* permissions to
-avc_has_perm() instead of the KEY__* values.  It happens to work because
-the values are all coincident.
+Right now, hashtab_search(), hashtab_insert(), and hashtab_map() are
+defined in hashtab.c and need to call functions indirectly. It turns
+out that defining (the relevent parts of) these functions inline in the
+header and passing the function pointers as arguments makes them
+significantly faster (at least in the hashtab_search() case).
 
-Fixes: d720024e94de ("[PATCH] selinux: add hooks for key subsystem")
-Reported-by: Paul Moore <paul@paul-moore.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
----
- security/selinux/hooks.c |   23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+The first two patches in the series are two small simplifications that
+are not directly related, but the rest won't apply without them. The
+third patch then converts the hashtab interface to prepare for the
+inlining and the last one finishes the job by just moving some of the
+function definitions to the header. These could be also just one patch,
+but are kept separate for easier review of changes in the functions
+being moved around.
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 0b4e32161b77..4b6624e5dab4 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -6539,20 +6539,39 @@ static void selinux_key_free(struct key *k)
- 	kfree(ksec);
- }
- 
-+static unsigned int selinux_keyperm_to_av(unsigned int need_perm)
-+{
-+	switch (need_perm) {
-+	case KEY_NEED_VIEW:	return KEY__VIEW;
-+	case KEY_NEED_READ:	return KEY__READ;
-+	case KEY_NEED_WRITE:	return KEY__WRITE;
-+	case KEY_NEED_SEARCH:	return KEY__SEARCH;
-+	case KEY_NEED_LINK:	return KEY__LINK;
-+	case KEY_NEED_SETATTR:	return KEY__SETATTR;
-+	default:
-+		WARN_ON(1);
-+		return 0;
-+	}
-+}
-+
- static int selinux_key_permission(key_ref_t key_ref,
- 				  const struct cred *cred,
--				  unsigned perm)
-+				  unsigned need_perm)
- {
- 	struct key *key;
- 	struct key_security_struct *ksec;
-+	unsigned int perm;
- 	u32 sid;
- 
- 	/* if no specific permissions are requested, we skip the
- 	   permission check. No serious, additional covert channels
- 	   appear to be created. */
--	if (perm == 0)
-+	if (need_perm == 0)
- 		return 0;
- 
-+	perm = selinux_keyperm_to_av(need_perm);
-+	if (perm == 0)
-+		return -EPERM;
- 	sid = cred_sid(cred);
- 
- 	key = key_ref_to_ptr(key_ref);
+For more details, please refer to the respective patch descriptions.
+
+Ondrej Mosnacek (4):
+  selinux: simplify range_write()
+  selinux: do not allocate hashtabs dynamically
+  selinux: prepare for inlining of hashtab functions
+  selinux: complete the inlining of hashtab functions
+
+ security/selinux/ss/conditional.c |   4 +-
+ security/selinux/ss/conditional.h |   2 +-
+ security/selinux/ss/hashtab.c     | 112 ++-------------
+ security/selinux/ss/hashtab.h     | 101 ++++++++++---
+ security/selinux/ss/mls.c         |  23 +--
+ security/selinux/ss/policydb.c    | 230 ++++++++++++++++--------------
+ security/selinux/ss/policydb.h    |  15 +-
+ security/selinux/ss/services.c    |  54 +++----
+ security/selinux/ss/symtab.c      |  25 +++-
+ security/selinux/ss/symtab.h      |   5 +-
+ 10 files changed, 294 insertions(+), 277 deletions(-)
+
+-- 
+2.25.4
 
