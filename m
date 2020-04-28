@@ -2,136 +2,112 @@ Return-Path: <SRS0=yj3S=6M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEB2FC83002
-	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 01:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74575C83004
+	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 07:27:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C4ABD206D6
-	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 01:54:11 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="mtPP7ztM"
+	by mail.kernel.org (Postfix) with ESMTP id 5AF4120661
+	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 07:27:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726263AbgD1ByL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 21:54:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726261AbgD1ByL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 21:54:11 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35ADC03C1A9
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 18:54:10 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id a2so15895746ejx.5
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 18:54:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=q5tYdGjSsZlu5Ne+dsC8P4f1ZDRmzcjVVvV9xH9KECg=;
-        b=mtPP7ztM8aHi21wYH8FHLeYnqI6H4zToRQjs46GgQDe0r3XY70D438jCjjf8kovPvE
-         d24Bd6f9zUDF6ucZTLQNM4FXghTJB85YvfXwleSdI9xBIrV9fyezSxqtgzw6IrSAg/6g
-         w/2xxHpV6y/40Kh3b2CwHgkWr7VxcJXKHlHyB51J2DWkK+MFlr9xkcFGlVKITCItQ75Y
-         x35BwPT/7jNT2fOJVjUN/9dRmSnFmAsoeNNxFxke7Xibs1WHyutb4WzQWRRU15jYCNk5
-         YgC/+Bl5PEUfskXms5dSe5gtVx14hIo5c5zZx8uH9gCtaCZ41i8b/iCMF7O8RINkF5if
-         Xo4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=q5tYdGjSsZlu5Ne+dsC8P4f1ZDRmzcjVVvV9xH9KECg=;
-        b=Txetj6xjb7qmuE78qM3F6old/0TEjN5qGZgjSTcwmbBaW4zA2cd2+W6FSbwdjUggOi
-         GhfSY9xlMrP9JO+O6H/y7PQAyxzGiSBAOIV7E3dgmZLz1/vQ8rTBxK/FOjkM4nIrfBYM
-         fvI5WVei1VX98NpsMW9T4EWUkAc50saw8WGkfj1yDjX3egUqVGGYwjYsXqZhBCmoTsJY
-         0SkmAJGIxs7WAYFjh02a+yvKQV2F0OJZvoL08Lgg1Ja5+wMkXTr88FQsfFbrqHIno0jW
-         B49neHFYSRW3VYVXnx17P/siexW7bclSx3eVRyqnbn2IvD1PDWytL0wUR3kkjMHtkBy0
-         Lo5A==
-X-Gm-Message-State: AGi0PuZqZiHs3HvKOXW86BXbmBHaZmfXrdBE++OePYSvMr5FnHHIbxjO
-        LiJAxzEo267POGI6EczJUsh7BNa+lkjjgwyfNAv4AFA=
-X-Google-Smtp-Source: APiQypKo+7RBQ8YXfiTLN9hjP7+5SV5BdEn0N9W2Mh9Ys+ZswbMHotR74NT4i1pnxP61KnKPrrcWQZJyUzimj1vKfuk=
-X-Received: by 2002:a17:906:f106:: with SMTP id gv6mr23076033ejb.271.1588038849206;
- Mon, 27 Apr 2020 18:54:09 -0700 (PDT)
+        id S1726487AbgD1H1m (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Apr 2020 03:27:42 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:43941 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726272AbgD1H1l (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 28 Apr 2020 03:27:41 -0400
+Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com [209.85.210.48])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 2ABFD5646F3
+        for <selinux@vger.kernel.org>; Tue, 28 Apr 2020 09:27:38 +0200 (CEST)
+Received: by mail-ot1-f48.google.com with SMTP id z17so31057702oto.4
+        for <selinux@vger.kernel.org>; Tue, 28 Apr 2020 00:27:38 -0700 (PDT)
+X-Gm-Message-State: AGi0PuZEgq13Ps6q9SZcPKuV+sa/HVLdLIq+VYWka+/tnYwoQ1YmD/Ws
+        gw4fRPQJHusaqOzvzatwPnYE5DqtVD4sm6UGuuE=
+X-Google-Smtp-Source: APiQypKsDCcEt5S3X8T+WDmLqikLBqGcoAOI3ivsGsVzn+0JNs2CEMYUu1BuKEx/nKpIdM4U+h80DMObFYxYqxnTg+o=
+X-Received: by 2002:a9d:bca:: with SMTP id 68mr20031661oth.96.1588058857141;
+ Tue, 28 Apr 2020 00:27:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <CACT4Y+YTi4JCFRqOB9rgA22S+6xxTo87X41hj6Tdfro8K3ef7g@mail.gmail.com>
- <CAHC9VhQs6eJpX4oMrhBiDap-HhEsBBgmYWEou=ZH60YiA__T7w@mail.gmail.com>
- <CACT4Y+b8HiV6KFuAPysZD=5hmyO4QisgxCKi4DHU3CfMPSP=yg@mail.gmail.com>
- <171b1244748.27df.85c95baa4474aabc7814e68940a78392@paul-moore.com> <CACT4Y+b43uGr-44TVT9eTu_Lh=8CkKXJdSxz6tB9+BjRe9WF1A@mail.gmail.com>
-In-Reply-To: <CACT4Y+b43uGr-44TVT9eTu_Lh=8CkKXJdSxz6tB9+BjRe9WF1A@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 27 Apr 2020 21:53:57 -0400
-Message-ID: <CAHC9VhR9CN5RzuUonhhFs+L07jt7DWJbDYicf6NEu0z05MpA4g@mail.gmail.com>
-Subject: Re: selinux_netlink_send changes program behavior
-To:     Dmitry Vyukov <dvyukov@google.com>
-Cc:     David Miller <davem@davemloft.net>, kuba@kernel.org,
-        netdev <netdev@vger.kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
-        LKML <linux-kernel@vger.kernel.org>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Willem de Bruijn <willemb@google.com>
+References: <5e3c6fbd-49be-8dcd-903e-b8d98939ae37@gmail.com> <CAJfZ7==V=nHEYiAtDiUc=k3t9F2tcYXdeDCj6dJ5Cvwqoi2ZUw@mail.gmail.com>
+In-Reply-To: <CAJfZ7==V=nHEYiAtDiUc=k3t9F2tcYXdeDCj6dJ5Cvwqoi2ZUw@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Tue, 28 Apr 2020 09:27:26 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=kNE=jeK-4L8ZmZ1gXLpRXMmQSo-iRK1vMFCantVFNxRg@mail.gmail.com>
+Message-ID: <CAJfZ7=kNE=jeK-4L8ZmZ1gXLpRXMmQSo-iRK1vMFCantVFNxRg@mail.gmail.com>
+Subject: Re: [PATCH] setsebool: report errors from commit phase
+To:     Topi Miettinen <toiwoton@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Apr 28 09:27:38 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Apr 25, 2020 at 8:01 AM Dmitry Vyukov <dvyukov@google.com> wrote:
-> On Sat, Apr 25, 2020 at 1:42 PM Paul Moore <paul@paul-moore.com> wrote:
-> > >> On Fri, Apr 24, 2020 at 4:27 AM Dmitry Vyukov <dvyukov@google.com> wrote:
-> > >>> Hi SELinux maintainers,
-> > >>>
-> > >>> We've hit a case where a developer wasn't able to reproduce a kernel
-> > >>> bug, it turned out to be a difference in behavior between SELinux and
-> > >>> non-SELinux kernels.
-> > >>> Condensed version: a program does sendmmsg on netlink socket with 2
-> > >>> mmsghdr's, first is completely empty/zeros, second contains some
-> > >>> actual payload. Without SELinux the first mmsghdr is treated as no-op
-> > >>> and the kernel processes the second one (triggers bug). However the
-> > >>> SELinux hook does:
-> > >>>
-> > >>> static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
-> > >>> {
-> > >>> if (skb->len < NLMSG_HDRLEN) {
-> > >>>  err = -EINVAL;
-> > >>>  goto out;
-> > >>> }
-> > >>>
-> > >>> and fails processing on the first empty mmsghdr (does not happen
-> > >>> without SELinux).
-> > >>>
-> > >>> Is this difference in behavior intentional/acceptable/should be fixed?
-> > >>
-> > >> From a practical perspective, SELinux is always going to need to do a
-> > >> length check as it needs to peek into the netlink message header for
-> > >> the message type so it can map that to the associated SELinux
-> > >> permissions.  So in that sense, the behavior is intentional and
-> > >> desired; however from a bug-for-bug compatibility perspective ... not
-> > >> so much.
-> > >>
-> > >> Ultimately, my it's-Friday-and-it's-been-a-long-week-ending-in-a-long-day
-> > >> thought is that this was a buggy operation to begin with and the bug
-> > >> was just caught in different parts of the kernel, depending on how it
-> > >> was configured.  It may not be ideal, but I can think of worse things
-> > >> (and arguably SELinux is doing the Right Thing).
-> > >
-> > > +netlink maintainers for intended semantics of empty netlink messages
-> > >
-> > > If it's a bug, or intended behavior depends on the intended
-> > > behavior... which I assume is not documented anywhere officially.
+On Sun, Apr 26, 2020 at 8:09 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Sun, Apr 26, 2020 at 5:21 PM Topi Miettinen <toiwoton@gmail.com> wrote:
 > >
-> > Your original email gave the impression that there was a big in the non-SELinux case; if that is not the case my response changes.
+> > In case there are errors when committing changes to booleans, the
+> > errors may not be reported to user except by nonzero exit status. With
+> > "setsebool -V" it's possible to see errors from commit phase, but
+> > otherwise the unfixed command is silent:
+> >
+> >   # setsebool -V -P secure_mode_insmod=off
+> > libsemanage.semanage_install_final_tmp: Could not copy
+> > /var/lib/selinux/final/default/contexts/files/file_contexts to
+> > /etc/selinux/default/contexts/files/file_contexts. (Read-only file system).
+> > libsemanage.semanage_install_final_tmp: Could not copy
+> > /var/lib/selinux/final/default/contexts/files/file_contexts to
+> > /etc/selinux/default/contexts/files/file_contexts. (Read-only file system).
+> >
+> > Fixed version alerts the user about problems even without -V:
+> >   # setsebool -P secure_mode_insmod=off
+> > Failed to commit changes to booleans: Read-only file system
+> >
+> > Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
 >
+> Looks good to me. The patch below has been mangled (tabs have been
+> replaced by spaces) but I took the patch from your Pull Request
+> (https://github.com/SELinuxProject/selinux/pull/227.patch) and it
+> applied cleanly.
 >
-> There is no bug... Well, there is a crash, but it is somewhere in the
-> routing subsystem and is caused by the contents of the second netlink
-> message. This is totally unrelated to this SELinux check and that
-> crash is totally reproducible with SELinux as well if we just don't
-> send the first empty message.
-> The crux is really a difference in behavior in SELinux and non-SELinux cases.
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
+> If nobody raises an objection, I will merge the patch tomorrow.
 
-We're taking a closer look from the SELinux side of things.
+Merged.
 
--- 
-paul moore
-www.paul-moore.com
+Thanks,
+Nicolas
+>
+> > ---
+> >   policycoreutils/setsebool/setsebool.c | 4 +++-
+> >   1 file changed, 3 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/policycoreutils/setsebool/setsebool.c
+> > b/policycoreutils/setsebool/setsebool.c
+> > index 9d8abfac..60da5df1 100644
+> > --- a/policycoreutils/setsebool/setsebool.c
+> > +++ b/policycoreutils/setsebool/setsebool.c
+> > @@ -200,8 +200,10 @@ static int semanage_set_boolean_list(size_t boolcnt,
+> >
+> >          if (no_reload)
+> >                  semanage_set_reload(handle, 0);
+> > -       if (semanage_commit(handle) < 0)
+> > +       if (semanage_commit(handle) < 0) {
+> > +               fprintf(stderr, "Failed to commit changes to booleans:
+> > %m\n");
+> >                  goto err;
+> > +       }
+> >
+> >          semanage_disconnect(handle);
+> >          semanage_handle_destroy(handle);
+> > --
+> > 2.26.2
+
