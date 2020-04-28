@@ -1,139 +1,136 @@
-Return-Path: <SRS0=pnJ1=6L=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=yj3S=6M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33643C81CFF
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 22:18:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEB2FC83002
+	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 01:54:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0DE042076A
-	for <selinux@archiver.kernel.org>; Mon, 27 Apr 2020 22:18:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C4ABD206D6
+	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 01:54:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="oo3D+/91"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="mtPP7ztM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726337AbgD0WSB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Apr 2020 18:18:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51516 "EHLO
+        id S1726263AbgD1ByL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Apr 2020 21:54:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726224AbgD0WSA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 18:18:00 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 571B2C03C1A7
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 15:17:59 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id q8so15567200eja.2
-        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 15:17:59 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726261AbgD1ByL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Apr 2020 21:54:11 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B35ADC03C1A9
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 18:54:10 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id a2so15895746ejx.5
+        for <selinux@vger.kernel.org>; Mon, 27 Apr 2020 18:54:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=UL/KOG9jWEcCXLI+hyOZaTUXJMue/WeQvcbigSn5Ae8=;
-        b=oo3D+/91hLZqWrB4onHqCW6rJJEyOlyHLO7bvwoLVFRudtP0fAigCrjLn7Z9f9n+nm
-         hEj3u9hPHsKPnEOAK5Tuw7pSoz/aW6wlUwqvWWuKQicUWWuwIcCJLqvP581ltLbjJwXq
-         OZCg+m65Ct4APQ+nG0JRjkiyAdNiBxEySxSDLi2sQBCxdRozmkvueShw0fcCe6b+l4on
-         ME874FzMO6JJiq/29jNwepCF8CUFQ/0oH++U2iexahGpYeFxeF5ESFrEC7zY1Y/k6FJS
-         35UXfU5LyfP/zCORQLzV1NRM36Verhzjd0JYwN0SKQ+mzdTKei/rMyoGin1IsrPTnGn5
-         VDlQ==
+        bh=q5tYdGjSsZlu5Ne+dsC8P4f1ZDRmzcjVVvV9xH9KECg=;
+        b=mtPP7ztM8aHi21wYH8FHLeYnqI6H4zToRQjs46GgQDe0r3XY70D438jCjjf8kovPvE
+         d24Bd6f9zUDF6ucZTLQNM4FXghTJB85YvfXwleSdI9xBIrV9fyezSxqtgzw6IrSAg/6g
+         w/2xxHpV6y/40Kh3b2CwHgkWr7VxcJXKHlHyB51J2DWkK+MFlr9xkcFGlVKITCItQ75Y
+         x35BwPT/7jNT2fOJVjUN/9dRmSnFmAsoeNNxFxke7Xibs1WHyutb4WzQWRRU15jYCNk5
+         YgC/+Bl5PEUfskXms5dSe5gtVx14hIo5c5zZx8uH9gCtaCZ41i8b/iCMF7O8RINkF5if
+         Xo4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=UL/KOG9jWEcCXLI+hyOZaTUXJMue/WeQvcbigSn5Ae8=;
-        b=HO5J+BHnsRRsiMqDWOTnxQ8h1vOwAiwPQQfXfrs+qBAFhJ+ZP12e5mXtklfqr2ApZ8
-         0EwfL2Itp/FQcW7HJcwGYHeotditVBnoDBOJV8UFfmxC2ODNzciYJ3hgiImpXw7H0ykm
-         wrCtFgl6priaJ5liEniAr6qLD0lZ4nNDJvA27DLqIuCGkFkiY101I0p/Cwh0BanRis8A
-         5tGn5MrRuRpr36P1zM4tm6y+yczD14Vz5kViwEJCynKASiM9eBOg6w3TpKWnm1LJ5N5u
-         bw0jxymqgNyaj3Rmsi9pSm10nk75Iglv5pN36qr/NGjGiC94r6yxe+ekmrNtEJIrku3t
-         G3OA==
-X-Gm-Message-State: AGi0Pubx1ThfRntxYhnfGKQ7QY4216UMc8nwq6Ui+/XIyv5sK1PIhRGv
-        iRhlh2IcFnwkvbbKO6MxTbXGGl0R137brqiKyziM
-X-Google-Smtp-Source: APiQypKcaWzr+dqSzZiHdrMq3hOsjQyRzRtPnEHn5+cEMPnQPkQJKf6XD2ptG29hXT9B03+/SChoZBwUAP+jLwKJmYI=
-X-Received: by 2002:a17:906:31da:: with SMTP id f26mr21210369ejf.308.1588025877826;
- Mon, 27 Apr 2020 15:17:57 -0700 (PDT)
+        bh=q5tYdGjSsZlu5Ne+dsC8P4f1ZDRmzcjVVvV9xH9KECg=;
+        b=Txetj6xjb7qmuE78qM3F6old/0TEjN5qGZgjSTcwmbBaW4zA2cd2+W6FSbwdjUggOi
+         GhfSY9xlMrP9JO+O6H/y7PQAyxzGiSBAOIV7E3dgmZLz1/vQ8rTBxK/FOjkM4nIrfBYM
+         fvI5WVei1VX98NpsMW9T4EWUkAc50saw8WGkfj1yDjX3egUqVGGYwjYsXqZhBCmoTsJY
+         0SkmAJGIxs7WAYFjh02a+yvKQV2F0OJZvoL08Lgg1Ja5+wMkXTr88FQsfFbrqHIno0jW
+         B49neHFYSRW3VYVXnx17P/siexW7bclSx3eVRyqnbn2IvD1PDWytL0wUR3kkjMHtkBy0
+         Lo5A==
+X-Gm-Message-State: AGi0PuZqZiHs3HvKOXW86BXbmBHaZmfXrdBE++OePYSvMr5FnHHIbxjO
+        LiJAxzEo267POGI6EczJUsh7BNa+lkjjgwyfNAv4AFA=
+X-Google-Smtp-Source: APiQypKo+7RBQ8YXfiTLN9hjP7+5SV5BdEn0N9W2Mh9Ys+ZswbMHotR74NT4i1pnxP61KnKPrrcWQZJyUzimj1vKfuk=
+X-Received: by 2002:a17:906:f106:: with SMTP id gv6mr23076033ejb.271.1588038849206;
+ Mon, 27 Apr 2020 18:54:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhT95GJKNTMvTtmZL35UOoVwbGH-eDWZyELb5oZ5rQU+Tw@mail.gmail.com>
- <2136640.1587472186@warthog.procyon.org.uk> <CAHC9VhQnORRaRapbb1wrUsxweJCRJ+X+RdvKw8_U0pT0fuxZ6A@mail.gmail.com>
- <3834193.1587771802@warthog.procyon.org.uk> <CAHC9VhQbhG8-ZABtkZr1FXo9cuH4_nsbB=HP_fGvW+FNQ7iAXg@mail.gmail.com>
- <355576.1587996734@warthog.procyon.org.uk> <CAEjxPJ4S0wpAtXoD1f-54qrriRC8y_hj9T5-vKOGDmf1XhOLrQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4S0wpAtXoD1f-54qrriRC8y_hj9T5-vKOGDmf1XhOLrQ@mail.gmail.com>
+References: <CACT4Y+YTi4JCFRqOB9rgA22S+6xxTo87X41hj6Tdfro8K3ef7g@mail.gmail.com>
+ <CAHC9VhQs6eJpX4oMrhBiDap-HhEsBBgmYWEou=ZH60YiA__T7w@mail.gmail.com>
+ <CACT4Y+b8HiV6KFuAPysZD=5hmyO4QisgxCKi4DHU3CfMPSP=yg@mail.gmail.com>
+ <171b1244748.27df.85c95baa4474aabc7814e68940a78392@paul-moore.com> <CACT4Y+b43uGr-44TVT9eTu_Lh=8CkKXJdSxz6tB9+BjRe9WF1A@mail.gmail.com>
+In-Reply-To: <CACT4Y+b43uGr-44TVT9eTu_Lh=8CkKXJdSxz6tB9+BjRe9WF1A@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 27 Apr 2020 18:17:46 -0400
-Message-ID: <CAHC9VhTSuWLheaQDXwEyELGXEJOAXoFr2--FYhiviQbDHQKhkw@mail.gmail.com>
-Subject: Re: [PATCH] selinux: Fix use of KEY_NEED_* instead of KEY__* perms
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     David Howells <dhowells@redhat.com>, keyrings@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>
+Date:   Mon, 27 Apr 2020 21:53:57 -0400
+Message-ID: <CAHC9VhR9CN5RzuUonhhFs+L07jt7DWJbDYicf6NEu0z05MpA4g@mail.gmail.com>
+Subject: Re: selinux_netlink_send changes program behavior
+To:     Dmitry Vyukov <dvyukov@google.com>
+Cc:     David Miller <davem@davemloft.net>, kuba@kernel.org,
+        netdev <netdev@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Willem de Bruijn <willemb@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Apr 27, 2020 at 1:02 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Mon, Apr 27, 2020 at 10:13 AM David Howells <dhowells@redhat.com> wrote:
-
-...
-
-> > diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-> > index 0b4e32161b77..6087955b49d8 100644
-> > --- a/security/selinux/hooks.c
-> > +++ b/security/selinux/hooks.c
-> > @@ -6539,20 +6539,38 @@ static void selinux_key_free(struct key *k)
-> >         kfree(ksec);
-> >  }
+On Sat, Apr 25, 2020 at 8:01 AM Dmitry Vyukov <dvyukov@google.com> wrote:
+> On Sat, Apr 25, 2020 at 1:42 PM Paul Moore <paul@paul-moore.com> wrote:
+> > >> On Fri, Apr 24, 2020 at 4:27 AM Dmitry Vyukov <dvyukov@google.com> wrote:
+> > >>> Hi SELinux maintainers,
+> > >>>
+> > >>> We've hit a case where a developer wasn't able to reproduce a kernel
+> > >>> bug, it turned out to be a difference in behavior between SELinux and
+> > >>> non-SELinux kernels.
+> > >>> Condensed version: a program does sendmmsg on netlink socket with 2
+> > >>> mmsghdr's, first is completely empty/zeros, second contains some
+> > >>> actual payload. Without SELinux the first mmsghdr is treated as no-op
+> > >>> and the kernel processes the second one (triggers bug). However the
+> > >>> SELinux hook does:
+> > >>>
+> > >>> static int selinux_netlink_send(struct sock *sk, struct sk_buff *skb)
+> > >>> {
+> > >>> if (skb->len < NLMSG_HDRLEN) {
+> > >>>  err = -EINVAL;
+> > >>>  goto out;
+> > >>> }
+> > >>>
+> > >>> and fails processing on the first empty mmsghdr (does not happen
+> > >>> without SELinux).
+> > >>>
+> > >>> Is this difference in behavior intentional/acceptable/should be fixed?
+> > >>
+> > >> From a practical perspective, SELinux is always going to need to do a
+> > >> length check as it needs to peek into the netlink message header for
+> > >> the message type so it can map that to the associated SELinux
+> > >> permissions.  So in that sense, the behavior is intentional and
+> > >> desired; however from a bug-for-bug compatibility perspective ... not
+> > >> so much.
+> > >>
+> > >> Ultimately, my it's-Friday-and-it's-been-a-long-week-ending-in-a-long-day
+> > >> thought is that this was a buggy operation to begin with and the bug
+> > >> was just caught in different parts of the kernel, depending on how it
+> > >> was configured.  It may not be ideal, but I can think of worse things
+> > >> (and arguably SELinux is doing the Right Thing).
+> > >
+> > > +netlink maintainers for intended semantics of empty netlink messages
+> > >
+> > > If it's a bug, or intended behavior depends on the intended
+> > > behavior... which I assume is not documented anywhere officially.
 > >
-> > +static unsigned int selinux_keyperm_to_av(unsigned int need_perm)
-> > +{
-> > +       switch (need_perm) {
-> > +       case KEY_NEED_VIEW:     return KEY__VIEW;
-> > +       case KEY_NEED_READ:     return KEY__READ;
-> > +       case KEY_NEED_WRITE:    return KEY__WRITE;
-> > +       case KEY_NEED_SEARCH:   return KEY__SEARCH;
-> > +       case KEY_NEED_LINK:     return KEY__LINK;
-> > +       case KEY_NEED_SETATTR:  return KEY__SETATTR;
-> > +       default:
+> > Your original email gave the impression that there was a big in the non-SELinux case; if that is not the case my response changes.
 >
-> Possibly WARN() or BUG() here?  Or BUILD_BUG_ON(KEY_NEED_ALL != 0x3f)
-> to force an update here
-> whenever a new key permission is defined?
-
-My vote is for a build time check via BUILD_BUG_ON() or similar
-mechanism.  It's worked really well in other places, I'm thinking
-specifically of the SELinux netlink mapping.
-
-> > +               return 0;
-> > +       }
-> > +}
-> > +
-> >  static int selinux_key_permission(key_ref_t key_ref,
-> >                                   const struct cred *cred,
-> > -                                 unsigned perm)
-> > +                                 unsigned need_perm)
-> >  {
-> >         struct key *key;
-> >         struct key_security_struct *ksec;
-> > +       unsigned int perm;
-> >         u32 sid;
-> >
-> >         /* if no specific permissions are requested, we skip the
-> >            permission check. No serious, additional covert channels
-> >            appear to be created. */
-> > -       if (perm == 0)
-> > +       if (need_perm == 0)
-> >                 return 0;
-> >
-> > +       perm = selinux_keyperm_to_av(need_perm);
-> > +       if (perm == 0)
-> > +               return -EACCES;
 >
-> We should log or audit some kind of message here, whether via WARN(),
-> audit_log(), or something, to avoid silent denials.
+> There is no bug... Well, there is a crash, but it is somewhere in the
+> routing subsystem and is caused by the contents of the second netlink
+> message. This is totally unrelated to this SELinux check and that
+> crash is totally reproducible with SELinux as well if we just don't
+> send the first empty message.
+> The crux is really a difference in behavior in SELinux and non-SELinux cases.
 
-Assuming we add a build time check (see above), I think a WARN here is okay.
+We're taking a closer look from the SELinux side of things.
 
 -- 
 paul moore
