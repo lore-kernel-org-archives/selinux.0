@@ -2,101 +2,126 @@ Return-Path: <SRS0=yj3S=6M=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 259F9C83000
-	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 11:12:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE7B6C83008
+	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 12:54:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 01A5A20661
-	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 11:12:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A902F206D6
+	for <selinux@archiver.kernel.org>; Tue, 28 Apr 2020 12:54:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uwoMFGbo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H6iefjNO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726458AbgD1LL7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Apr 2020 07:11:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59514 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726345AbgD1LL7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Apr 2020 07:11:59 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41D4C03C1A9
-        for <selinux@vger.kernel.org>; Tue, 28 Apr 2020 04:11:57 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id u6so20992378ljl.6
-        for <selinux@vger.kernel.org>; Tue, 28 Apr 2020 04:11:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iObojrAHFYfx3DtW84AN0udp89OUHftdvgK3DzfqjfY=;
-        b=uwoMFGboYjF89O9YJ9JD4ATEHUToqEyk023XOi+0ihTFOo0aKijKroxepvSt5eqa1H
-         MGIUwuJ3QPdlwJxcn0cn2TunruOcLkwqWfkx4FkzIXODhK+KHCPb31mzBDuXZTIrm0PX
-         WaVUMNNQBXMUOVG4R2wCq0gwQp7y1FOGkha5bz3DZ2Zio3rM6fHQtrJhX7AIQCj4MICO
-         YnbcDBAaGnTy6MnNNomhKoyB9sCXwnRcYyLeTLYgclwVE7eTO3jGqYnXVpVh/dHYsgWn
-         /Lac4WEzkGNn7pX1asaDszfXHCgd/vXJ5fz20Virjj8tuMiILBKdA1iLH7qaOuUFAEh9
-         5SAA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iObojrAHFYfx3DtW84AN0udp89OUHftdvgK3DzfqjfY=;
-        b=OJsbp3Wbbcxro66Wdaldp75lEv4nGlU12bKMkukkZIL8M1ZdDln5XM69tzkLIk/phv
-         9eGA3sUv7N0qgPUtqBvWxieWQQAE09ycyB4wMniR6IRqOEipIKnjbkooIlXgKB0VMwyD
-         V0YOh/TMitsemFhUNz0Cwz0iVFt6QVugso60uuTie/e9bYJen2FJ0EJv2bOih3+s0/Sc
-         52SMvr5wzuN6HM7Pn46Dn6kn/A3PRsEFNvLjjWmpv2Fo4Zl01hPcuTYbtNzxElFgbni9
-         4T3PGjbTCjtERGrMWWD1BM+q0vZhLPjg3+p7qMDHh39TNpL0zovYLeZPUXDcOVgbr5Ya
-         BP7w==
-X-Gm-Message-State: AGi0PuZiu0yaZEOTs9+JzwVij1OJ7ztcRA/Y1RaTvREubQ4XgrLrjRfz
-        BEUogMqUrW+o0WRFrSFXDyzV6y6Q
-X-Google-Smtp-Source: APiQypLdlDkvRy60V6N2DaPwobEavruhS5UVEkusV4nLlldwvZ+5DCXSlozFSXjp8UOVtixokopVXg==
-X-Received: by 2002:a2e:814e:: with SMTP id t14mr16984008ljg.204.1588072315956;
-        Tue, 28 Apr 2020 04:11:55 -0700 (PDT)
-Received: from localhost.localdomain (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
-        by smtp.gmail.com with ESMTPSA id g19sm1918141lfb.30.2020.04.28.04.11.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2020 04:11:55 -0700 (PDT)
-From:   Topi Miettinen <toiwoton@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH v2] libselinux: mount selinuxfs noexec and nosuid
-Date:   Tue, 28 Apr 2020 14:11:42 +0300
-Message-Id: <20200428111142.6072-1-toiwoton@gmail.com>
-X-Mailer: git-send-email 2.26.2
+        id S1726759AbgD1Myv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Apr 2020 08:54:51 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:49648 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726826AbgD1Myv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 28 Apr 2020 08:54:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588078490;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Q/j1WNR+YBrs98DzytkVX7oMWOtSdD3iLwhSY7RR9Xc=;
+        b=H6iefjNOa/q/ImgVVTb8NnG01n4QWbFSiBhsRcI5b/RaG7oH86hGNdN2v1OqzOwu2NLKgP
+        LW1mmVgQ7QzMy5BZoXZXk4uAFbXNscDYrmyHiWf5G+4hr/SOuTnlCrs0Y8jkvnkjNwkqRW
+        HTQEqBozQWOoxq72gTNk39MH0UXMJYM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-473-f54CFXXxMBOApRvjB_eRig-1; Tue, 28 Apr 2020 08:54:48 -0400
+X-MC-Unique: f54CFXXxMBOApRvjB_eRig-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 09677800C78;
+        Tue, 28 Apr 2020 12:54:47 +0000 (UTC)
+Received: from warthog.procyon.org.uk (ovpn-113-129.rdu2.redhat.com [10.10.113.129])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A4AA019C4F;
+        Tue, 28 Apr 2020 12:54:45 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <CAHC9VhT95GJKNTMvTtmZL35UOoVwbGH-eDWZyELb5oZ5rQU+Tw@mail.gmail.com>
+References: <CAHC9VhT95GJKNTMvTtmZL35UOoVwbGH-eDWZyELb5oZ5rQU+Tw@mail.gmail.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     dhowells@redhat.com, keyrings@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org
+Subject: [PATCH] selinux: Fix use of KEY_NEED_* instead of KEY__* perms [v2]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <924657.1588078484.1@warthog.procyon.org.uk>
+Date:   Tue, 28 Apr 2020 13:54:44 +0100
+Message-ID: <924658.1588078484@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Mount selinuxfs with mount flags noexec and nosuid. It's not likely
-that this has any effect, but it's visually more pleasing.
+selinux: Fix use of KEY_NEED_* instead of KEY__* perms
+    
+selinux_key_permission() is passing the KEY_NEED_* permissions to
+avc_has_perm() instead of the KEY__* values.  It happens to work because
+the values are all coincident.
 
-Option nodev can't be used because of /sys/fs/selinux/null device,
-which is used by Android.
-
-Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+Fixes: d720024e94de ("[PATCH] selinux: add hooks for key subsystem")
+Reported-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David Howells <dhowells@redhat.com>
 ---
- libselinux/src/load_policy.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/selinux/hooks.c |   23 +++++++++++++++++++++--
+ 1 file changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/libselinux/src/load_policy.c b/libselinux/src/load_policy.c
-index fa1a3bf1..2aea826f 100644
---- a/libselinux/src/load_policy.c
-+++ b/libselinux/src/load_policy.c
-@@ -279,7 +279,8 @@ int selinux_init_load_policy(int *enforce)
- 	const char *mntpoint = NULL;
- 	/* First make sure /sys is mounted */
- 	if (mount("sysfs", "/sys", "sysfs", 0, 0) == 0 || errno == EBUSY) {
--		if (mount(SELINUXFS, SELINUXMNT, SELINUXFS, 0, 0) == 0 || errno == EBUSY) {
-+		/* MS_NODEV can't be set because of /sys/fs/selinux/null device, used by Android */
-+		if (mount(SELINUXFS, SELINUXMNT, SELINUXFS, MS_NOEXEC | MS_NOSUID, 0) == 0 || errno == EBUSY) {
- 			mntpoint = SELINUXMNT;
- 		} else {
- 			/* check old mountpoint */
--- 
-2.26.2
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 0b4e32161b77..4b6624e5dab4 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -6539,20 +6539,39 @@ static void selinux_key_free(struct key *k)
+ 	kfree(ksec);
+ }
+ 
++static unsigned int selinux_keyperm_to_av(unsigned int need_perm)
++{
++	switch (need_perm) {
++	case KEY_NEED_VIEW:	return KEY__VIEW;
++	case KEY_NEED_READ:	return KEY__READ;
++	case KEY_NEED_WRITE:	return KEY__WRITE;
++	case KEY_NEED_SEARCH:	return KEY__SEARCH;
++	case KEY_NEED_LINK:	return KEY__LINK;
++	case KEY_NEED_SETATTR:	return KEY__SETATTR;
++	default:
++		WARN_ON(1);
++		return 0;
++	}
++}
++
+ static int selinux_key_permission(key_ref_t key_ref,
+ 				  const struct cred *cred,
+-				  unsigned perm)
++				  unsigned need_perm)
+ {
+ 	struct key *key;
+ 	struct key_security_struct *ksec;
++	unsigned int perm;
+ 	u32 sid;
+ 
+ 	/* if no specific permissions are requested, we skip the
+ 	   permission check. No serious, additional covert channels
+ 	   appear to be created. */
+-	if (perm == 0)
++	if (need_perm == 0)
+ 		return 0;
+ 
++	perm = selinux_keyperm_to_av(need_perm);
++	if (perm == 0)
++		return -EPERM;
+ 	sid = cred_sid(cred);
+ 
+ 	key = key_ref_to_ptr(key_ref);
 
