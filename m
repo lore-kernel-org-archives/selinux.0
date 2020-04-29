@@ -7,100 +7,124 @@ X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D1FCC83000
-	for <selinux@archiver.kernel.org>; Wed, 29 Apr 2020 16:47:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB634C83000
+	for <selinux@archiver.kernel.org>; Wed, 29 Apr 2020 17:02:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 292DB20B1F
-	for <selinux@archiver.kernel.org>; Wed, 29 Apr 2020 16:47:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B4EA420B1F
+	for <selinux@archiver.kernel.org>; Wed, 29 Apr 2020 17:02:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LR6eMVb9"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BK/QhIP5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726481AbgD2Qrf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Apr 2020 12:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54796 "EHLO
+        id S1726808AbgD2RCV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Apr 2020 13:02:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726456AbgD2Qrf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Apr 2020 12:47:35 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D932C03C1AE
-        for <selinux@vger.kernel.org>; Wed, 29 Apr 2020 09:47:34 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id 19so2381900oiy.8
-        for <selinux@vger.kernel.org>; Wed, 29 Apr 2020 09:47:34 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726456AbgD2RCU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Apr 2020 13:02:20 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E68C03C1AE;
+        Wed, 29 Apr 2020 10:02:20 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id g14so2301814otg.10;
+        Wed, 29 Apr 2020 10:02:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ggoFBkRn1Me/wWqoA42ygeTeyuGmCG11wCSynyWMims=;
-        b=LR6eMVb9em7rhC1wg50SbJRAkp9txmpkH7YA1AqpbL+VqFrgjZUCggw+cHE/KYt0xh
-         /Tc2VPKGpqWllpu/cb6IQKISuUCDSLQ1XA9AxLejwMxQMY1QM9pjPlNoAWf49XRqByrm
-         wKXZKYoHyMDPWvEFivx/VcGepvCQmdm7eYvp8BS/IYDkB+5HVfpF4ehHxWHmjGOdqvtn
-         uxXnBC/3tCZOtvWlgNyWLalD0ZyeZSZKCS762qLmEaieENn5AG55oKN1bq+TkT8n1aKO
-         RjBnWxSFTxiwBsL2kf/6jmdjgtaZ0d0KBAjTTsmf+qt+4mqeAxBipV5KwkO28Q3mApwP
-         LhHw==
+        bh=B985L7L6vo4SZsi3kVQu81cacr5257tGI7VdWzNQtbc=;
+        b=BK/QhIP5IW+bddXjrA1pREKlRUiMK9Wa2V3gAEYOxqPdactgZ62/420pj3wtm6eJ9C
+         HPR7JOusQPaUNxfJLn76e/Ez4DJlPvUL96k7/WY6gVuonnIGWjETrUj0454zoCzL1fN7
+         abqxu2Yc4vSx0bHI6Z/xT/1O1JmkgxrfkJDA24awcq1rNzegC4eF5okwaRi6KTNIV3i7
+         ocvUXxtnOm7HQSvRRk9zX0o1Exq1do2ynwyZfuts3czTqYt7LnPZ4X7Nz6O0658Dd/Mb
+         C5UEr1euzAXRhYIyHUtpUqMikhKiok+A5kBcQ6yiBANBIz0k0sGDoHwAW7Bo/L4Hv/9s
+         ws/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ggoFBkRn1Me/wWqoA42ygeTeyuGmCG11wCSynyWMims=;
-        b=ubDzsMjyxFvnVe6DeWlH8MGXNUmA/oeSfFZXEF/s2gbUJCAin7HBTTfzIrW5xFyHr8
-         gA41rv2d1ZSx6kgypK7Ytlrn0JvKs+pQz3eTa36pCKHuuS/eAj8G9VbueFeuf7ttwC+3
-         DBm0dZFpTmPdeCGjhcpbwg9PzRcHPYGfR9ZVbnW8BP2RVZiC407JtHjqMQFYFRTpM5c0
-         2a7+5W/3k3qdNGfxMDVIjoNf7l3wg3FkQbe4xEL5bDBc9V6AaOVIp6si0kOCozPVApsg
-         7FeojvOExqJ3kwJGVI/11c68TyRFuDb4BTLjqGDXJL8u/Z/gIl1Gcc7FDOueJOJwpxtG
-         6OVQ==
-X-Gm-Message-State: AGi0PuZcV82vT7uu8XlA4ssJPL6USYM+rsrqnedS0hChL1WGi97jDdTw
-        84/k6Q889scxspkOF1M/VXZZNSWAqLm05KAjSmZrCeedUN0=
-X-Google-Smtp-Source: APiQypLMyvHszZuQvQItmceCEct+GLwhLg2R/CORY+NPQVoFaFa8siScHiZzIz68y3eC2bq7XpDi29t1Riwrx8EyHCY=
-X-Received: by 2002:aca:4c0b:: with SMTP id z11mr2265454oia.92.1588178853637;
- Wed, 29 Apr 2020 09:47:33 -0700 (PDT)
+        bh=B985L7L6vo4SZsi3kVQu81cacr5257tGI7VdWzNQtbc=;
+        b=inkfy7OCPiaGIpc9R938d+upfNLf+w6wemAPzOxZ6kJgJgBHs2Rdl7wkQd0x/kdIzu
+         Dfi1thccd13q7rcx5K0KVIyuvmlYSHznKJhf3SW2zbY3iUNG923KwTVf/7rQ97bxTTkE
+         C/MccqmJ1hZVfdtUOEVoZQnOQrJ+0Nz8T3g3i95yxgGBSHFGfipV2Pyv0GXYpnsfkuc9
+         k0R45ZiV0WMMnFwSVnTVtBckNLwgqM94TWgbKyMpEB3yZ3Uv1anxv7gLvpqVAcEcNQDL
+         iBwKW8iILk3ENIR5tPHi7KQY4O642FjnvzZfztmLqkoLOq3uIMxEl5DBW3aBb5oTyw3i
+         EQtA==
+X-Gm-Message-State: AGi0PuYsHpktyjm+3Mia+NmSojV0bRCass/Bt7troYxAaOaugw3H6q99
+        0UfAA/AgtxIw3XIKbnuVKkwrLOLjwCxQHwreRGzWfSQGkHY=
+X-Google-Smtp-Source: APiQypJbvSlRX+/S2xFHVro3TSK+FAqAJJ9oku9MV9UO98xDHJFqypFdsLNNoZoZ/3TEZBNx8jYUQ6xYULRbhs1VLEc=
+X-Received: by 2002:a9d:2aa9:: with SMTP id e38mr13649191otb.162.1588179740168;
+ Wed, 29 Apr 2020 10:02:20 -0700 (PDT)
 MIME-Version: 1.0
-References: <53c7aec9-e132-315e-be42-d7bdc9060eed@gmail.com>
-In-Reply-To: <53c7aec9-e132-315e-be42-d7bdc9060eed@gmail.com>
+References: <20200326200634.222009-1-dancol@google.com> <20200401213903.182112-1-dancol@google.com>
+ <CAKOZueuu=bGt4O0xjiV=9_PC_8Ey8pa3NjtJ7+O-nHCcYbLnEg@mail.gmail.com>
+ <alpine.LRH.2.21.2004230253530.12318@namei.org> <6fcc0093-f154-493e-dc11-359b44ed57ce@schaufler-ca.com>
+ <3ffd699d-c2e7-2bc3-eecc-b28457929da9@schaufler-ca.com> <8bef5acd-471e-0288-ad85-72601c3a2234@schaufler-ca.com>
+ <CAEjxPJ66ZZKfAUPnUjQiraNJO0h=T3OTY2qTVPuXrWG9va1-2g@mail.gmail.com>
+In-Reply-To: <CAEjxPJ66ZZKfAUPnUjQiraNJO0h=T3OTY2qTVPuXrWG9va1-2g@mail.gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 29 Apr 2020 12:47:21 -0400
-Message-ID: <CAEjxPJ5ZSuxxbKfBKfgadEHk=R0APaYtGgstTMcPMU2fYaSk4w@mail.gmail.com>
-Subject: Re: Daemon cannot execute python
-To:     Ian Pilcher <arequipeno@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Wed, 29 Apr 2020 13:02:09 -0400
+Message-ID: <CAEjxPJ4iquFSBfEj+UEFLUFHPsezuQ-Bzv09n+WgOWk38Nyw3w@mail.gmail.com>
+Subject: Re: [PATCH v5 0/3] SELinux support for anonymous inodes and UFFD
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Daniel Colascione <dancol@google.com>,
+        James Morris <jmorris@namei.org>,
+        Tim Murray <timmurray@google.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>, kvm@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Paul Moore <paul@paul-moore.com>,
+        Nick Kralevich <nnk@google.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Lokesh Gidra <lokeshgidra@google.com>,
+        John Johansen <john.johansen@canonical.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Apr 29, 2020 at 12:01 PM Ian Pilcher <arequipeno@gmail.com> wrote:
+On Mon, Apr 27, 2020 at 12:48 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Over the years, I've written several Python-based daemons for my home
-> network.  I've also written SELinux policies for these daemons.
+> On Mon, Apr 27, 2020 at 12:19 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+> >
+> > On 4/23/2020 3:24 PM, Casey Schaufler wrote:
+> > > On 4/22/2020 10:12 AM, Casey Schaufler wrote:
+> > >> On 4/22/2020 9:55 AM, James Morris wrote:
+> > >>> On Mon, 13 Apr 2020, Daniel Colascione wrote:
+> > >>>
+> > >>>> On Wed, Apr 1, 2020 at 2:39 PM Daniel Colascione <dancol@google.com> wrote:
+> > >>>>> Changes from the fourth version of the patch:
+> > >>>> Is there anything else that needs to be done before merging this patch series?
+> > > Do you have a test case that exercises this feature?
+> >
+> > I haven't heard anything back. What would cause this code to be executed?
 >
-> After a recent CentOS 7 update, which includes
-> selinux-policy-targeted-3.13.1-266.el7.noarch, these daemons are failing
-> to start:
->
->    type=AVC msg=audit(1588171416.424:157): avc:  denied  { execute } for
->    pid=3359 comm="denatc" path="/usr/bin/python2.7" dev="dm-0"
->    ino=12679476 scontext=system_u:system_r:denatc_t:s0
->    tcontext=system_u:object_r:bin_t:s0 tclass=file permissive=0
->
-> For some reason, these policies worked in the past without including
-> specific permission to execute bin_t files (something that I'd prefer to
-> avoid, as it's awfully broad).
->
-> Does anyone have any idea what changed (i.e. why did this work before)?
->
-> Is there any way to make things work other than giving any Python-based
-> daemon permission to execute *any* bin_t file?
+> See https://lore.kernel.org/selinux/513f6230-1fb3-dbb5-5f75-53cd02b91b28@tycho.nsa.gov/
+> for example.
 
-Sounds similar to
-https://lore.kernel.org/selinux/23A084A9-66A1-4E02-A766-F9214E63A628@nall.com/,
-which may be due to a kernel change outside SELinux as per that thread.
+NB The example cited above needs to be tweaked for changes in the
+logic from the original RFC patch on which the example was
+based.  In particular, the userfaultfd CIL policy needs to be updated
+to define and use the new anon_inode class and to allow create
+permission as follows.
 
-It is logically correct since the new domain is executing from the interpreter.
-Note that it cannot execve() arbitrary bin_t files without
-execute_no_trans permission,
-although it can open/mmap PROT_EXEC them with execute permission.
-
-You can reduce the scope by defining and assigning a specific type to
-/usr/bin/python2.7
-but obviously that will have a rippling impact on the rest of the policy.
+$ cat userfaultfd.cil
+(class anon_inode ())
+(classcommon anon_inode file)
+(classorder (unordered anon_inode))
+(type uffd_t)
+; Label the UFFD with uffd_t; this can be specialized per domain
+(typetransition unconfined_t unconfined_t anon_inode "[userfaultfd]"   uffd_t)
+(allow unconfined_t uffd_t (anon_inode (create)))
+; Permit read() and ioctl() on the UFFD.
+; Comment out if you want to test read or basic ioctl enforcement.
+(allow unconfined_t uffd_t (anon_inode (read)))
+(allow unconfined_t uffd_t (anon_inode (ioctl)))
+; Uncomment one of the allowx lines below to test ioctl whitelisting.
+; Currently the 1st one is uncommented; comment that out if trying another.
+; None
+(allowx unconfined_t uffd_t (ioctl anon_inode ((0x00))))
+; UFFDIO_API
+;(allowx unconfined_t uffd_t (ioctl anon_inode ((0xaa3f))))
