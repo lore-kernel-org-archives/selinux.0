@@ -2,142 +2,92 @@ Return-Path: <SRS0=/pgn=6O=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4117C47247
-	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 15:27:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 771EAC47247
+	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 15:31:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7F52920731
-	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 15:27:27 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="URnuspk4"
+	by mail.kernel.org (Postfix) with ESMTP id 5D4552076D
+	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 15:31:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726798AbgD3P11 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Apr 2020 11:27:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41664 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726545AbgD3P10 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Apr 2020 11:27:26 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B90B7C035494
-        for <selinux@vger.kernel.org>; Thu, 30 Apr 2020 08:27:26 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id z17so5226626oto.4
-        for <selinux@vger.kernel.org>; Thu, 30 Apr 2020 08:27:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TctWxU8o/piwoCWtUDg18knvaFYdHGNk7PCJNC82YoM=;
-        b=URnuspk4NL70gjmuLLNqiWr3+P71mUS5lngHcG9bca/fJpCFfulAyiERDVLTbz+hAq
-         RjxouHvmS8WFpjfsK+ZBoKil6VbU+AlF+iECXOXeTRB7jiI+JpPsXzzCxlo8zrYdRimx
-         Wfn07s4pNJkq7pvCG1mRpon4Hg7hAkIyR0hH5SHG7WT0Mjrl/iqAdt1+AHQcS6LpRYC4
-         FLfbPDR0HZ+g20Z5RQxA+w8E6QdZv3GY+lQi7NLFmvC6rwIrS28moRkyo7dnuJsJq0/u
-         hlSVKBquNu10XFfYnwZNj86C+WXyACoKSvPtMcxhgYakiQ+EPtfepxCq1itJTeI1ys+Z
-         0ZCQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TctWxU8o/piwoCWtUDg18knvaFYdHGNk7PCJNC82YoM=;
-        b=k2hUhM9pZO1TCiIEMMVrx3s8FUKSafRoIpw20AP6ggSN2NkkkgsWcqdNjesgsNdhsh
-         sF45ZXomfB50f7N3RJaZIAWY3Jz8Jq5GoUHgZEGS3YYsneV/1OS1SkFiJWqrh35WONy3
-         g6Cu7QcRHmk2tMz2BdQBSORlRphLwHZKK+O/jz49HsNfySq6F7bzFBgiUZx1f1XEmVoC
-         +OXVkiPWLV2sz1wM5PrGmQww73bkIjIQb18ruGB3Z+H3Y+57BtyZOP3XIEaSsFKWuBaJ
-         XGpswrU6nFJfeUw9SmVOaDbO+gcgeejxWluheV+Hmv+y+YENdrWUqttPSDqGW0A8yjiR
-         1cOg==
-X-Gm-Message-State: AGi0Puap7HGSDD3M5pbu1cwyY3PIdKX3jSVJ3hwdVZPyiLDuJWZrY57S
-        BTh1s1E68dxqZz7pnfJA//EeN8Ov6NcsQUDatIE=
-X-Google-Smtp-Source: APiQypI4MZ0gRq2DGo7klJbgWX09WmMYog47dYmAon/Vd3BiOQknXwAnjXem6YFbw3PD1QA2ZrisS1tvWWH57Xspk0g=
-X-Received: by 2002:a05:6830:1c2b:: with SMTP id f11mr3146522ote.196.1588260446026;
- Thu, 30 Apr 2020 08:27:26 -0700 (PDT)
+        id S1727102AbgD3Pbh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Apr 2020 11:31:37 -0400
+Received: from mga04.intel.com ([192.55.52.120]:15431 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726468AbgD3Pbg (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 30 Apr 2020 11:31:36 -0400
+IronPort-SDR: bThQG0fU/4hAUb+erLYoPveP9eX9yKJIMISEOFdbWkhj4sroUx7kt3B8KyP2p1AHX0Jndw+qrW
+ oExi0Ordop7w==
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2020 08:31:36 -0700
+IronPort-SDR: lmuoaWp9Gyo7WLDuFSlqLrn8xBd2JWdWrn0KFKI0kWsrR1navOZttdzKC46eYHvVN8T9Mr6J4p
+ q9OhENQWUf1g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.73,336,1583222400"; 
+   d="scan'208";a="261817795"
+Received: from orsmsx104.amr.corp.intel.com ([10.22.225.131])
+  by orsmga006.jf.intel.com with ESMTP; 30 Apr 2020 08:31:35 -0700
+Received: from orsmsx122.amr.corp.intel.com (10.22.225.227) by
+ ORSMSX104.amr.corp.intel.com (10.22.225.131) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Thu, 30 Apr 2020 08:31:35 -0700
+Received: from orsmsx101.amr.corp.intel.com ([169.254.8.204]) by
+ ORSMSX122.amr.corp.intel.com ([169.254.11.34]) with mapi id 14.03.0439.000;
+ Thu, 30 Apr 2020 08:31:35 -0700
+From:   "Roberts, William C" <william.c.roberts@intel.com>
+To:     =?utf-8?B?Q2hyaXN0aWFuIEfDtnR0c2NoZQ==?= <cgzones@googlemail.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+Subject: RE: [PATCH v2] libselinux: mark security_context_t typedef as
+ deprecated
+Thread-Topic: [PATCH v2] libselinux: mark security_context_t typedef as
+ deprecated
+Thread-Index: AQHWHwCUS2T6nDItlEOtOVxdUdlq1qiRyj5A
+Date:   Thu, 30 Apr 2020 15:31:34 +0000
+Message-ID: <476DC76E7D1DF2438D32BFADF679FC5649ED8BA3@ORSMSX101.amr.corp.intel.com>
+References: <20200420114650.19093-1-cgzones@googlemail.com>
+ <20200430150318.6406-1-cgzones@googlemail.com>
+In-Reply-To: <20200430150318.6406-1-cgzones@googlemail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.0.600.7
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.138]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20200327152107.95915-1-omosnace@redhat.com> <daeae1d9-de29-aae0-6bde-3ad3427a5d42@tycho.nsa.gov>
- <7549b0e2-f845-1c3a-d9d5-314cb2b9225f@ieee.org> <CAP+JOzRqVNLY67_FdP6MyaKqr=L0phaLEhjb=T4mtb+Dwwhhrg@mail.gmail.com>
- <CAEjxPJ5f9Lj8ZizfSYk6MwRamYAj=qAUa_dkc3fdV-a2S0ugXw@mail.gmail.com>
- <121c1c0d-da7b-681a-ae6e-121228a046af@ieee.org> <CAFqZXNuYPWWwcMeerzH1ZNzJPifuiNEE5im1JNgzZQLTmx9pAw@mail.gmail.com>
- <b36f82d5-d502-edfe-cde5-eb1e4bf76641@ieee.org>
-In-Reply-To: <b36f82d5-d502-edfe-cde5-eb1e4bf76641@ieee.org>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Thu, 30 Apr 2020 11:27:14 -0400
-Message-ID: <CAP+JOzQD9RGspJYSUvWoP3ugXzw=7RDh814=imq8LCJDH3W69Q@mail.gmail.com>
-Subject: Re: [PATCH 0/2] userspace: Implement new format of filename trans rules
-To:     Chris PeBenito <pebenito@ieee.org>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 30, 2020 at 11:20 AM Chris PeBenito <pebenito@ieee.org> wrote:
->
-> On 4/30/20 10:34 AM, Ondrej Mosnacek wrote:
-> > On Thu, Apr 30, 2020 at 4:24 PM Chris PeBenito <pebenito@ieee.org> wrote:
-> >> On 4/30/20 9:22 AM, Stephen Smalley wrote:
-> >>> On Wed, Apr 29, 2020 at 3:01 PM James Carter <jwcart2@gmail.com> wrote:
-> >>>> I think the fact that the CIL, kernel to CIL, kernel to conf, and
-> >>>> module to CIL code is all in libsepol speaks to the fact of how
-> >>>> tightly integrated they are to the rest of libsepol. One argument that
-> >>>> could be made is that the policyrep stuff in setools really belongs in
-> >>>> libsepol.
-> >>>>
-> >>>> Thinking about how libsepol could be encapsulated leads me to a couple
-> >>>> of possibilities. One way would be functions that could return lists
-> >>>> of rules. The policy module code gives us avrule_t, role_trans_rule_t,
-> >>>> role_allow_t, filename_trans_rule_t, range_trans_rule_t, and others.
-> >>>> Those structures are probably unlikely to change and, at least in this
-> >>>> case, creating a function that walks the filename_trans hashtable and
-> >>>> returns a list of filename_trans_rule_t certainly seems like it
-> >>>> wouldn't be too hard. Another possible way to encapsulate would be
-> >>>> create a way to walk the various hashtables element by element (I
-> >>>> think hashtab_map() requires too much knowledge of the internal
-> >>>> structures), returning an opaque structure to track where you are in
-> >>>> the hashtable and functions that allow you to get each part of the
-> >>>> rule being stored. There are other ways that it could be done, but I
-> >>>> could rewrite kernel to and module to stuff with either of those. CIL
-> >>>> itself would require some functions to insert rules into the policydb
-> >>>> which probably wouldn't be too hard. None of this would be too hard,
-> >>>> but it would take some time. The real question is would it really be
-> >>>> valuable?
-> >>>
-> >>> I don't think we want to directly expose the existing data structures
-> >>> from include/sepol/policydb/*.h (or at least not without a careful
-> >>> audit) since those are often tightly coupled to policy compiler
-> >>> internals and/or the kernel or module policy formats. Creating an
-> >>> abstraction for each with a proper API in new definitions in
-> >>> include/sepol/*.h would be preferable albeit more work. There was a
-> >>> proposal a long time ago from the setools developers to create an
-> >>> iterator interface and accessor functions for each data type, see
-> >>> https://lore.kernel.org/selinux/200603212246.k2LMkRNq028071@gotham.columbia.tresys.com/.
-> >>
-> >> I agree.  The hardest thing with writing the policyrep in setools was stuff like
-> >> the value_to_datum indirections, type_attr_map, etc. and knowing when to use
-> >> value vs value-1.  An API that has a new set of structs would be ideal.
-> >>
-> >> Unfortunately, since setools policyrep is now written in Cython, we can't simply
-> >> move the code over to libsepol.  My guess is dispol has the most useful building
-> >> blocks for making a new API.
-> >
-> > Since you mention dispol... I also had the idea that setools could
-> > just use the existing public interface to convert the whole policydb
-> > to CIL and simply parse that as a string (this should be pretty
-> > straightforward even in pure Python). However, based on my experiments
-> > this would likely make setools a lot slower...
->
-> This is an interesting idea.  I'm not familiar with the CIL API; secilc.c looks
-> like it uses public API.  Can I use the existing CIL library functions to parse
-> it, or does the resultant db lack public accessor functions?
->
-
-The resultant db does, in fact, lack public assessor functions. They
-could be created, but since there is already a way to convert the
-cil_db to a policydb, the general solution would be to create the
-functions for the policydb.
-
-Jim
+PiAtLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPiBGcm9tOiBzZWxpbnV4LW93bmVyQHZnZXIu
+a2VybmVsLm9yZyBbbWFpbHRvOnNlbGludXgtb3duZXJAdmdlci5rZXJuZWwub3JnXQ0KPiBPbiBC
+ZWhhbGYgT2YgQ2hyaXN0aWFuIEfDtnR0c2NoZQ0KPiBTZW50OiBUaHVyc2RheSwgQXByaWwgMzAs
+IDIwMjAgMTA6MDMgQU0NCj4gVG86IHNlbGludXhAdmdlci5rZXJuZWwub3JnDQo+IFN1YmplY3Q6
+IFtQQVRDSCB2Ml0gbGlic2VsaW51eDogbWFyayBzZWN1cml0eV9jb250ZXh0X3QgdHlwZWRlZiBh
+cyBkZXByZWNhdGVkDQo+IA0KPiBGb2xsb3ctdXAgb2Y6IDllYjljOTMyNzU2MzAxNGFkNmE4MDc4
+MTRlNzk3NTQyNDY0MmQ1YjkgKCJHZXQgcmlkIG9mDQo+IHNlY3VyaXR5X2NvbnRleHRfdCBhbmQg
+Zml4IGNvbnN0IGRlY2xhcmF0aW9ucy4iKQ0KPiANCj4gU2lnbmVkLW9mZi1ieTogQ2hyaXN0aWFu
+IEfDtnR0c2NoZSA8Y2d6b25lc0Bnb29nbGVtYWlsLmNvbT4NCj4gLS0tDQo+IHYyOiB1c2UgdGhl
+IGNvbW1vbiBkZXByZWNhdGlvbiBzdHlsZQ0KPiANCj4gIGxpYnNlbGludXgvaW5jbHVkZS9zZWxp
+bnV4L3NlbGludXguaCB8IDYgKysrKystDQo+ICAxIGZpbGUgY2hhbmdlZCwgNSBpbnNlcnRpb25z
+KCspLCAxIGRlbGV0aW9uKC0pDQo+IA0KPiBkaWZmIC0tZ2l0IGEvbGlic2VsaW51eC9pbmNsdWRl
+L3NlbGludXgvc2VsaW51eC5oDQo+IGIvbGlic2VsaW51eC9pbmNsdWRlL3NlbGludXgvc2VsaW51
+eC5oDQo+IGluZGV4IGFhZjI4ZmZkLi5jMjI4MzRlNSAxMDA2NDQNCj4gLS0tIGEvbGlic2VsaW51
+eC9pbmNsdWRlL3NlbGludXgvc2VsaW51eC5oDQo+ICsrKyBiL2xpYnNlbGludXgvaW5jbHVkZS9z
+ZWxpbnV4L3NlbGludXguaA0KPiBAQCAtMTQsNyArMTQsMTEgQEAgZXh0ZXJuIGludCBpc19zZWxp
+bnV4X2VuYWJsZWQodm9pZCk7ICBleHRlcm4gaW50DQo+IGlzX3NlbGludXhfbWxzX2VuYWJsZWQo
+dm9pZCk7DQo+IA0KPiAgLyogTm8gbG9uZ2VyIHVzZWQ7IGhlcmUgZm9yIGNvbXBhdGliaWxpdHkg
+d2l0aCBsZWdhY3kgY2FsbGVycy4gKi8gLXR5cGVkZWYgY2hhcg0KPiAqc2VjdXJpdHlfY29udGV4
+dF90Ow0KPiArdHlwZWRlZiBjaGFyICpzZWN1cml0eV9jb250ZXh0X3QNCj4gKyNpZmRlZiBfX0dO
+VUNfXw0KPiArX19hdHRyaWJ1dGVfXyAoKGRlcHJlY2F0ZWQpKQ0KPiArI2VuZGlmDQo+ICs7DQo+
+IA0KPiAgLyogRnJlZSB0aGUgbWVtb3J5IGFsbG9jYXRlZCBmb3IgYSBjb250ZXh0IGJ5IGFueSBv
+ZiB0aGUgYmVsb3cgZ2V0KiBjYWxscy4gKi8NCj4gZXh0ZXJuIHZvaWQgZnJlZWNvbihjaGFyICog
+Y29uKTsNCj4gLS0NCj4gMi4yNi4yDQoNCkFja2VkLWJ5OiBXaWxsaWFtIFJvYmVydHMgPHdpbGxp
+YW0uYy5yb2JlcnRzQGludGVsLmNvbT4NCg==
