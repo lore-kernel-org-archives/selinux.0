@@ -2,86 +2,106 @@ Return-Path: <SRS0=/pgn=6O=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A9A5C4724C
-	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 21:25:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E834DC47247
+	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 23:43:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2B43B2166E
-	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 21:25:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="ya9KFbXE"
+	by mail.kernel.org (Postfix) with ESMTP id BA239206D9
+	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 23:43:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1588290214;
+	bh=tcVuwn/92vSjcQAzqrthgtCxQ2DLozN5xuLXK9tbIYU=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=FuQyJ7eLus4M0sdyWvYG9nIQzVixuJtPsssIQiwrsHGywUkvdlIuJz5WMRMy3Tl8m
+	 JgE7LvVy1Q2D6oFFn8rBUuvWCYVhQ2VjBRnAxq0FDwjLTQT/oEoBtfrv0BzD2KPylN
+	 f5furRrOSfWTq+CoyCim6oO83FYBjHQbMrQkrNrs=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726463AbgD3VZb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Apr 2020 17:25:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41778 "EHLO
+        id S1727808AbgD3Xnd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Apr 2020 19:43:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726447AbgD3VZb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Apr 2020 17:25:31 -0400
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C7CAC035494
-        for <selinux@vger.kernel.org>; Thu, 30 Apr 2020 14:25:31 -0700 (PDT)
-Received: by mail-ed1-x544.google.com with SMTP id l3so5732455edq.13
-        for <selinux@vger.kernel.org>; Thu, 30 Apr 2020 14:25:31 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726384AbgD3Xnc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Apr 2020 19:43:32 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BD86C08E859
+        for <selinux@vger.kernel.org>; Thu, 30 Apr 2020 16:43:32 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id u6so1199290ljl.6
+        for <selinux@vger.kernel.org>; Thu, 30 Apr 2020 16:43:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=ARrKkt2oOviflPL7roHyhtztZJejuJ2ZLjqFxYP4ERs=;
-        b=ya9KFbXEvO2OcXEJalofdrW01KyKpFlcfvWKGbANSWEHRLFke6DVVyG6XQUrK5XIIV
-         hwc03mTmkvbTgb4NUS3aVTS/ZU9PaWAfD9YKH/wEaA4tmWrWLSIY61YbuJ/flg0pd3+j
-         3mhpDiEN7gjH5Ndgf2mt9x2wWptrgn2EC5/yge9DY9pFP96lqR1r0RoWq9+LH0DcJ2QE
-         Z4SaSR4oe2xABm/wKiSiKFrnLYB0goaC+HiXL9P1iVPwakcn4KnSDpa2LfQd43vMhprM
-         vPFhBM86UvRjoNDQG3yIYgHNDO8xWovjIMnuGX3NRAtjno311moZdUS/vBGLZRW0L8S9
-         pftg==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=05oH2K+vg7L8+W/HnHl99DKxppRnrgZq0ok6k+htQb4=;
+        b=XzR5U2YYxGN3xRIy/aE1u4RGhXZsY5P7C3x/9LAExW27SSRvRKmF6+7yld5rqLUCv5
+         M+dioQa6yfzUT++eQic0svhLMLCzka1EJVAEfccNUEanl2fjcKkS8eyuWdKS+/VR23fR
+         Rs2nhDJNGyWO2uVcPFWhrX9jZNEPFduLjHMXU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=ARrKkt2oOviflPL7roHyhtztZJejuJ2ZLjqFxYP4ERs=;
-        b=italW7K3F/4Wjj1F3xYBZWXU6Z+1f3tKIPKK8HSrIZW0y29nCMEz9ZZjMNi3DXMNIG
-         W66jwDdNy+VHcS2+gG120uqe/xSxAIK7AUMmCaXkjIWjwClsnA42NIxvB4e5QhZ6LmZq
-         wm/wN+c/mahGMNMmOz67e00/tXQwAeAYQim02lspHc/m2SLYDSUWM2THYLixVTh6fjRK
-         ybRLB8zGBog7/kK+vXaA+gnJIrwVJf6mHTph8n42zfPIlCJFDJC9r4vz6Bn1dUuaIs0B
-         nlCBsBGqpQyXrz0gA5zPyTc6qBEqIPIbff1EP9nydvLXGveRut0+91Qp/I3Sax/vxYS+
-         59AA==
-X-Gm-Message-State: AGi0PuZbBnV95iBEGwepy4no1Zgm4Kqc5D1SxwTnVYUukL0Z3ODyUocU
-        A2GkVEA9xP6MkkIEnYg7T23/Pg1HO32x228Ywzv0Jn0=
-X-Google-Smtp-Source: APiQypLXTKb4KrdJ6CyHIHW3YZ8PPNOhewwCUMCiTzOcvrwtVSW1x1nM4rmZSWTW44etTYdWtKwnNQTkEMJHI4721k4=
-X-Received: by 2002:a05:6402:1215:: with SMTP id c21mr1002669edw.128.1588281929537;
- Thu, 30 Apr 2020 14:25:29 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=05oH2K+vg7L8+W/HnHl99DKxppRnrgZq0ok6k+htQb4=;
+        b=r8fqA1l1dF79UGpdK7895Z69C6W/sjQtYZdWVQKyijsonhRDCdXoTMGBLn7cn1U0UT
+         5omkjvhJXgTB3ffi00qb4oB5kz5gFfK5r4juHSrwdi87YBxpGdwutZ9t1c5wxM7+ODsk
+         6zGiJJub/SErcKdULi1bn16v+rpriUvWVy+FzEulXr5EtuS78Otn1PcoOSpYGNuST9eE
+         fT5XLjFKjCmJuf1Lhjf7Z17g+FNaPgbrAMZty3UByCVQmD1vnFIHFySN18IhEZ+UwBiJ
+         phErZVJcCZdGuGzwRPuiSsd7H9dFQECxscsOGg5+i8GcznXNyrXvxR+YB7cjHMAVrmY9
+         E8ng==
+X-Gm-Message-State: AGi0Puat4RJ+Xdm848BBaUv3nZn2gra95ntE+gRDAo3OG05z1TGZHKc6
+        LnPAapetdcJrNM5ky1OSMaw3mkh1ZwU=
+X-Google-Smtp-Source: APiQypJBWBjT4eMGBEKAb0yO8jYK/3IJl/0x3VeMKVMTcKUHQYRLDaBxtJD6XdN/dQVS8uzv/o9iaQ==
+X-Received: by 2002:a2e:b057:: with SMTP id d23mr803347ljl.157.1588290209728;
+        Thu, 30 Apr 2020 16:43:29 -0700 (PDT)
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com. [209.85.167.43])
+        by smtp.gmail.com with ESMTPSA id h15sm881980lfc.77.2020.04.30.16.43.28
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Apr 2020 16:43:28 -0700 (PDT)
+Received: by mail-lf1-f43.google.com with SMTP id t11so2714608lfe.4
+        for <selinux@vger.kernel.org>; Thu, 30 Apr 2020 16:43:28 -0700 (PDT)
+X-Received: by 2002:ac2:4da1:: with SMTP id h1mr692273lfe.152.1588290208226;
+ Thu, 30 Apr 2020 16:43:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <158827786575.204093.6741581954492272816.stgit@chester>
-In-Reply-To: <158827786575.204093.6741581954492272816.stgit@chester>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 30 Apr 2020 17:25:18 -0400
-Message-ID: <CAHC9VhSLLiPkbR7DgGR7uRdEPGOUk_nfyZejR0zy1i+PKiWDVQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: properly handle multiple messages in selinux_netlink_send()
-To:     selinux@vger.kernel.org
+References: <CAHC9VhTu3YWPmwtA7RERHDRhQt0wAkmN4GJCmaRY7KSFRwtACQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhTu3YWPmwtA7RERHDRhQt0wAkmN4GJCmaRY7KSFRwtACQ@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Thu, 30 Apr 2020 16:43:12 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whGjVLwTnYT8euAb_Lzqxd=-TFnJU-k2uu+Fn_hBfMc+w@mail.gmail.com>
+Message-ID: <CAHk-=whGjVLwTnYT8euAb_Lzqxd=-TFnJU-k2uu+Fn_hBfMc+w@mail.gmail.com>
+Subject: Re: [GIT PULL] SELinux fixes for v5.7 (#2)
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 30, 2020 at 4:17 PM Paul Moore <paul@paul-moore.com> wrote:
+On Thu, Apr 30, 2020 at 2:24 PM Paul Moore <paul@paul-moore.com> wrote:
 >
-> Fix the SELinux netlink_send hook to properly handle multiple netlink
-> messages in a single sk_buff; each message is parsed and subject to
-> SELinux access control.  Prior to this patch, SELinux only inspected
-> the first message in the sk_buff.
->
-> Cc: stable@vger.kernel.org
-> Reported-by: Dmitry Vyukov <dvyukov@google.com>
-> Reviewed-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> Signed-off-by: Paul Moore <paul@paul-moore.com>
-> ---
->  security/selinux/hooks.c |   70 ++++++++++++++++++++++++++++++----------------
->  1 file changed, 45 insertions(+), 25 deletions(-)
+> Two more SELinux patches to fix problems in the v5.7-rcX releases.
+> Wei Yongjun's patch fixes a return code in an error path, and my patch
+> fixes a problem where we were not correctly applying access controls
+> to all of the netlink messages in the netlink_send LSM hook.
 
-This has been merged into selinux/stable-5.7.
+Side note: could we plan on (not for 5.7, but future) moving the "for
+each message" part of that patch into the generic security layer (ie
+security_netlink_send()), so that if/when other security subsystems
+start doing that netlink thing, they won't have to duplicate that
+code?
 
--- 
-paul moore
-www.paul-moore.com
+Obviously the "for each message" thing should only be done if there is
+any security  hook at all..
+
+Right now selinux is the only one that does this, so there's no
+duplication of effort, but it seems a mistake to do this at the
+low-level security level.
+
+Or is there some fundamental reason why a security hook would want to
+look at a single skb rather than the individual messages?
+
+                Linus
