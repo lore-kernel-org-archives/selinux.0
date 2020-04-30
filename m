@@ -2,150 +2,201 @@ Return-Path: <SRS0=/pgn=6O=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE6C2C4724C
-	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 15:34:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF495C4724C
+	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 16:09:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC3D32076D
-	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 15:34:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CCC5220873
+	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 16:09:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BLU9Gas8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fEGhsDo0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727865AbgD3PeY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Apr 2020 11:34:24 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:49941 "EHLO
+        id S1726774AbgD3QJX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Apr 2020 12:09:23 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:52883 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726344AbgD3PeY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Apr 2020 11:34:24 -0400
+        by vger.kernel.org with ESMTP id S1726702AbgD3QJW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Apr 2020 12:09:22 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588260862;
+        s=mimecast20190719; t=1588262960;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=VcS56AQwZhyTwyX8D3CHc5mIkX0kLPpz7R1mIz1Ei/c=;
-        b=BLU9Gas8IEMoLJyS1F/59+oJr8mm9gReP19J87LV9WTBJGqnPljuXJ7ZT8hrzH7wRnKkqf
-        3oT1UTbKe36Gp7J5cxmhR9SdLX8kAqHxNOZRMlsDgVz4CHSl2X6AeuWxMmfJjN3kCKBZml
-        dgWdxuqE94QEDUkuEsMSOFpxNSBxVfI=
-Received: from mail-ot1-f71.google.com (mail-ot1-f71.google.com
- [209.85.210.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-357-hwjktKpuMBOyANysCd-VwA-1; Thu, 30 Apr 2020 11:34:18 -0400
-X-MC-Unique: hwjktKpuMBOyANysCd-VwA-1
-Received: by mail-ot1-f71.google.com with SMTP id 22so4281018otg.7
-        for <selinux@vger.kernel.org>; Thu, 30 Apr 2020 08:34:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VcS56AQwZhyTwyX8D3CHc5mIkX0kLPpz7R1mIz1Ei/c=;
-        b=kp+wFCl7zLGCZwGtGzzESDjlIxZi8WJ0SB6p95yr1j5aAk8RWuN7+zFJcWbZAIArmR
-         D0Fz3ARXq+okAIiYpWruFBY/BEYkxkrzm4n5L/Dk/tqzgCR2GoejDQ9E5xkF9FyBG+cB
-         Lm/fhHzdwcqTZs0iJyowFapu1DCovLim4m3cDHN/QCW+MOcA9vzINs7zhwYT3tkbxqKc
-         ezklZv9TKfkf5B9zng6/ytah8lOVcO+ODc9gVGxPrle9lC9U0mo10oMqe+/fV99v2JDQ
-         NSe2G/KGL1IxpGAfBXnrIezLCOq6hJ66RgHdighcJ2liRtCXczLKK5l2/kOdlFxagxFv
-         aqwg==
-X-Gm-Message-State: AGi0PuaSPErRGa91mPZu+C9zyjfyJ+bikKgOo12CaT5sfXC3bx/xszYE
-        4L/YqR+h0xkXaIuCiWk7pGplLwY36u8QKPV9HTqCbG5S0asX8N0plQI8NxiPcR1K74p3Hy+LGLm
-        rX9LE2j1zLzU+lgJuk79BMiyoEwc6OvkwtA==
-X-Received: by 2002:a9d:7d0e:: with SMTP id v14mr3100202otn.197.1588260858121;
-        Thu, 30 Apr 2020 08:34:18 -0700 (PDT)
-X-Google-Smtp-Source: APiQypLL2yY8ZcUys6bQQPOZ3IF5gx7gpLrQG2zNNp5teHJ7MAeNc1zt/ZCAXxIIrbHtT31TD7U6SMTwTr1CzKSYhho=
-X-Received: by 2002:a9d:7d0e:: with SMTP id v14mr3100182otn.197.1588260857776;
- Thu, 30 Apr 2020 08:34:17 -0700 (PDT)
+        bh=+jDlY5ioTK07Dz5vTEkzO3rFqawO5V9jdvI8EduBl04=;
+        b=fEGhsDo0bYWlBBn3PSkRhtNfLuf6btyCR6nsQP8E5VGcHrtz9f8dnpUtgXVibM8K8W/WD+
+        LFsPpV6sLEe4cz6iX4Xf4W1sM0R4J97GSylQouWR3NCqunEuQMKe4mM4rnNIOn1IKAjxgR
+        aERtViEsJwI7PDpcsamZBcZZYNr+Q28=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-270-A4CtiQDzN0OZ4R5ySB5jEA-1; Thu, 30 Apr 2020 12:09:16 -0400
+X-MC-Unique: A4CtiQDzN0OZ4R5ySB5jEA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 10BE4100D098;
+        Thu, 30 Apr 2020 16:09:14 +0000 (UTC)
+Received: from workstation (unknown [10.40.192.102])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8813110A48A0;
+        Thu, 30 Apr 2020 16:09:12 +0000 (UTC)
+Date:   Thu, 30 Apr 2020 18:09:09 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Topi Miettinen <toiwoton@gmail.com>
+Subject: Re: [PATCH] sepolicy: fix some typos and port definitions #230
+Message-ID: <20200430160909.GB139885@workstation>
+References: <20200429115321.21541-1-toiwoton@gmail.com>
 MIME-Version: 1.0
-References: <20200327152107.95915-1-omosnace@redhat.com> <daeae1d9-de29-aae0-6bde-3ad3427a5d42@tycho.nsa.gov>
- <7549b0e2-f845-1c3a-d9d5-314cb2b9225f@ieee.org> <CAP+JOzRqVNLY67_FdP6MyaKqr=L0phaLEhjb=T4mtb+Dwwhhrg@mail.gmail.com>
- <CAEjxPJ5f9Lj8ZizfSYk6MwRamYAj=qAUa_dkc3fdV-a2S0ugXw@mail.gmail.com>
- <121c1c0d-da7b-681a-ae6e-121228a046af@ieee.org> <CAFqZXNuYPWWwcMeerzH1ZNzJPifuiNEE5im1JNgzZQLTmx9pAw@mail.gmail.com>
- <b36f82d5-d502-edfe-cde5-eb1e4bf76641@ieee.org>
-In-Reply-To: <b36f82d5-d502-edfe-cde5-eb1e4bf76641@ieee.org>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 30 Apr 2020 17:34:05 +0200
-Message-ID: <CAFqZXNs778bhs91sFyNmXNctxzOvsYOcLNoBCXs3g4drf0U4mA@mail.gmail.com>
-Subject: Re: [PATCH 0/2] userspace: Implement new format of filename trans rules
-To:     Chris PeBenito <pebenito@ieee.org>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        James Carter <jwcart2@gmail.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200429115321.21541-1-toiwoton@gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="b5gNqxB1S1yM7hjW"
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Apr 30, 2020 at 5:20 PM Chris PeBenito <pebenito@ieee.org> wrote:
-> On 4/30/20 10:34 AM, Ondrej Mosnacek wrote:
-> > On Thu, Apr 30, 2020 at 4:24 PM Chris PeBenito <pebenito@ieee.org> wrote:
-> >> On 4/30/20 9:22 AM, Stephen Smalley wrote:
-> >>> On Wed, Apr 29, 2020 at 3:01 PM James Carter <jwcart2@gmail.com> wrote:
-> >>>> I think the fact that the CIL, kernel to CIL, kernel to conf, and
-> >>>> module to CIL code is all in libsepol speaks to the fact of how
-> >>>> tightly integrated they are to the rest of libsepol. One argument that
-> >>>> could be made is that the policyrep stuff in setools really belongs in
-> >>>> libsepol.
-> >>>>
-> >>>> Thinking about how libsepol could be encapsulated leads me to a couple
-> >>>> of possibilities. One way would be functions that could return lists
-> >>>> of rules. The policy module code gives us avrule_t, role_trans_rule_t,
-> >>>> role_allow_t, filename_trans_rule_t, range_trans_rule_t, and others.
-> >>>> Those structures are probably unlikely to change and, at least in this
-> >>>> case, creating a function that walks the filename_trans hashtable and
-> >>>> returns a list of filename_trans_rule_t certainly seems like it
-> >>>> wouldn't be too hard. Another possible way to encapsulate would be
-> >>>> create a way to walk the various hashtables element by element (I
-> >>>> think hashtab_map() requires too much knowledge of the internal
-> >>>> structures), returning an opaque structure to track where you are in
-> >>>> the hashtable and functions that allow you to get each part of the
-> >>>> rule being stored. There are other ways that it could be done, but I
-> >>>> could rewrite kernel to and module to stuff with either of those. CIL
-> >>>> itself would require some functions to insert rules into the policydb
-> >>>> which probably wouldn't be too hard. None of this would be too hard,
-> >>>> but it would take some time. The real question is would it really be
-> >>>> valuable?
-> >>>
-> >>> I don't think we want to directly expose the existing data structures
-> >>> from include/sepol/policydb/*.h (or at least not without a careful
-> >>> audit) since those are often tightly coupled to policy compiler
-> >>> internals and/or the kernel or module policy formats. Creating an
-> >>> abstraction for each with a proper API in new definitions in
-> >>> include/sepol/*.h would be preferable albeit more work. There was a
-> >>> proposal a long time ago from the setools developers to create an
-> >>> iterator interface and accessor functions for each data type, see
-> >>> https://lore.kernel.org/selinux/200603212246.k2LMkRNq028071@gotham.columbia.tresys.com/.
-> >>
-> >> I agree.  The hardest thing with writing the policyrep in setools was stuff like
-> >> the value_to_datum indirections, type_attr_map, etc. and knowing when to use
-> >> value vs value-1.  An API that has a new set of structs would be ideal.
-> >>
-> >> Unfortunately, since setools policyrep is now written in Cython, we can't simply
-> >> move the code over to libsepol.  My guess is dispol has the most useful building
-> >> blocks for making a new API.
-> >
-> > Since you mention dispol... I also had the idea that setools could
-> > just use the existing public interface to convert the whole policydb
-> > to CIL and simply parse that as a string (this should be pretty
-> > straightforward even in pure Python). However, based on my experiments
-> > this would likely make setools a lot slower...
->
-> This is an interesting idea.  I'm not familiar with the CIL API; secilc.c looks
-> like it uses public API.  Can I use the existing CIL library functions to parse
-> it, or does the resultant db lack public accessor functions?
+--b5gNqxB1S1yM7hjW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-What I had in mind was actually to just use
-sepol_kernel_policydb_to_cil() to dump the textual CIL into a
-temporary file (maybe using tmpfile(3)), and then parse the contents
-in Python. The CIL format is really easy to parse (especially in
-Python) so a lack of existing functions for that wouldn't be much of
-an issue. Yes, this would be a little dirty, but you'd avoid the
-trouble of maintaining a stable binary interface between libsepol and
-setools.
+On Wed, Apr 29, 2020 at 02:53:21PM +0300, Topi Miettinen wrote:
+> The range of unreserved ports starts from 1024 and ends to
+> 65535 (inclusive). (Secure) RPC ports can be between 512 and
+> 1023 (inclusive).
+>=20
+> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+> ---
+>  python/sepolicy/sepolicy/generate.py  | 4 ++--
+>  python/sepolicy/sepolicy/interface.py | 2 +-
+>  python/sepolicy/sepolicy/network.py   | 6 +++---
+>  3 files changed, 6 insertions(+), 6 deletions(-)
+>=20
+> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepol=
+icy/generate.py
+> index e8d07e7d..4e1ed4e9 100644
+> --- a/python/sepolicy/sepolicy/generate.py
+> +++ b/python/sepolicy/sepolicy/generate.py
+> @@ -340,7 +340,7 @@ class policy:
+>              (self.generate_root_user_types, self.generate_root_user_rule=
+s),
+>              (self.generate_new_types, self.generate_new_rules))
+>          if not re.match(r"^[a-zA-Z0-9-_]+$", name):
+> -            raise ValueError(_("Name must be alpha numeric with no space=
+s. Consider using option \"-n MODULENAME\""))
+> +            raise ValueError(_("Name must be alphanumeric with no spaces=
+. Consider using option \"-n MODULENAME\""))
+> =20
+>          if type =3D=3D CGI:
+>              self.name =3D "httpd_%s_script" % name
+> @@ -438,7 +438,7 @@ class policy:
+> =20
+>      def set_init_script(self, initscript):
+>          if self.type !=3D DAEMON:
+> -            raise ValueError(_("Only Daemon apps can use an init script.=
+."))
+> +            raise ValueError(_("Only Daemon apps can use an init script.=
+"))
+> =20
+>          self.initscript =3D initscript
+> =20
+> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepo=
+licy/interface.py
+> index 187419fa..7d4ebd7e 100644
+> --- a/python/sepolicy/sepolicy/interface.py
+> +++ b/python/sepolicy/sepolicy/interface.py
+> @@ -198,7 +198,7 @@ def get_xml_file(if_file):
+>      filename =3D os.path.basename(if_file).split(".")[0]
+>      rc, output =3D getstatusoutput("/usr/bin/python3 /usr/share/selinux/=
+devel/include/support/segenxml.py -w -m %s" % (basedir + filename))
+>      if rc !=3D 0:
+> -        sys.stderr.write("\n Could not proceed selected interface file.\=
+n")
+> +        sys.stderr.write("\n Could not process selected interface file.\=
+n")
+>          sys.stderr.write("\n%s" % output)
+>          sys.exit(1)
+>      else:
+> diff --git a/python/sepolicy/sepolicy/network.py b/python/sepolicy/sepoli=
+cy/network.py
+> index ff308fad..add837b6 100755
+> --- a/python/sepolicy/sepolicy/network.py
+> +++ b/python/sepolicy/sepolicy/network.py
+> @@ -49,15 +49,15 @@ def get_network_connect(src, protocol, perm, check_bo=
+ols=3DFalse):
+>                  if "port_t" in tlist:
+>                      continue
+>              if i =3D=3D "port_t":
+> -                d[(src, protocol, perm)].append((i, ["all ports with out=
+ defined types"]))
+> +                d[(src, protocol, perm)].append((i, ["all ports without =
+defined types"]))
+>              if i =3D=3D "port_type":
+>                  d[(src, protocol, perm)].append((i, ["all ports"]))
+>              elif i =3D=3D "unreserved_port_type":
+> -                d[(src, protocol, perm)].append((i, ["all ports > 1024"]=
+))
+> +                d[(src, protocol, perm)].append((i, ["all ports > 1023"]=
+))
 
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+I'd prefer to use "all ports >=3D 1024" as "1024" is used in the refpolicy =
+definition:
+
+policy/modules/kernel/corenetwork.te.m4:ifelse(eval(range_start($2) < 1024)=
+,1,`typeattribute $1 reserved_port_type;',`typeattribute $1 unreserved_port=
+_type;')
+
+>              elif i =3D=3D "reserved_port_type":
+>                  d[(src, protocol, perm)].append((i, ["all ports < 1024"]=
+))
+>              elif i =3D=3D "rpc_port_type":
+> -                d[(src, protocol, perm)].append((i, ["all ports > 500 an=
+d  < 1024"]))
+> +                d[(src, protocol, perm)].append((i, ["all ports > 511 an=
+d < 1024"]))
+
+"all ports >=3D 512 and < 1024"
+
+policy/modules/kernel/corenetwork.te.m4:ifelse(eval(range_start($3) >=3D 51=
+2 && range_start($3) < 1024),1,`typeattribute $1 rpc_port_type;
+
+
+>              else:
+>                  try:
+>                      d[(src, protocol, perm)].append((i, portrecs[(i, pro=
+tocol)]))
+> --=20
+> 2.26.2
+>=20
+
+
+
+--b5gNqxB1S1yM7hjW
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6q+B4ACgkQviIJHj72
+InWB5xAAgQJTPkKgAfgEbf9qvLIC412TXBgQEJL8IonY1VAG/EwQdP077Dz9TuOF
+Z1XtuLNld07gpwqeHef7Cfa4DlQn3NsqpgvF67tL9OFOtqgRX3ugDF2NL4XpM5/D
+SMkuL6cChVbPqLC64xlzeu2OsiAtzyNQmMm+gMQ7q35var1bE1gDdoesNoiXMuBN
+pn3zCi+2tdBEzTBtWn/iyAiHC3J0WO1czB3L7vnfhJkMbPuJ/vjkLm6Y58gBVLtU
+O1/JYSowDx3+OgwosDjXuUwgDFScTccwoXJYAg0CNoMBG42RhO9m4sRvUVffmC9f
+YhzsBYM52igMad6QXTXcOhiaQRk430W79MyBOowcDtig0mpIEPx9s6CxgLLePbmL
+xaNNgn0G6FUtGTFVDJwCIkvJJrHjNzA2p6MKY8qFVMYjk+a32xECTpIIxSitX57e
+LryjQJXpAvGvJGF6nUra7ccWQB8DrRB7lfSqLgS6+Zbszor8ZyEb+mpEKu7xKfZl
+8Hi9IbdHj0/keOpY2aPD4qYd12opQ07139HYJr3qdMKJvNmLU6YG/2IGfZ/9hLU/
+Omwv4c3DtHhvQ7owsFi4kJ7prhK2PYs2NkAxPuv8QgHTaLsT4QOr2ihmt/RzJb1i
+c/r0EPOoJobPGMGLUQ1jsv+7CExYOSqz4g4EmBJqMbYqbUn82CU=
+=DRTq
+-----END PGP SIGNATURE-----
+
+--b5gNqxB1S1yM7hjW--
 
