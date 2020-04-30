@@ -4,38 +4,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A255C83001
-	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 07:16:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D3CEC83001
+	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 07:16:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 60CA120784
-	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 07:16:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0241D20838
+	for <selinux@archiver.kernel.org>; Thu, 30 Apr 2020 07:16:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726476AbgD3HQE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Apr 2020 03:16:04 -0400
-Received: from mga11.intel.com ([192.55.52.93]:28453 "EHLO mga11.intel.com"
+        id S1726463AbgD3HQk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Apr 2020 03:16:40 -0400
+Received: from mga09.intel.com ([134.134.136.24]:42245 "EHLO mga09.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726420AbgD3HQE (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 30 Apr 2020 03:16:04 -0400
-IronPort-SDR: 9xMGMNaUYrczB0xGHi7ocA5dickWwud1WKeUCb9VS4+Yw7ag3Vk6n/RNXXGoWXeGffGzXf6Njk
- 32AQBHw9APtQ==
+        id S1726412AbgD3HQk (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 30 Apr 2020 03:16:40 -0400
+IronPort-SDR: g/j6h5NrqiF1yPgrixPDNaYkFIUq8SA3oBMeSPd72TQRj6yzTe7RUEJGcRH0iZ+u8FGShs06rs
+ yQS/4EJaRZKQ==
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2020 00:16:03 -0700
-IronPort-SDR: fUD0gyVvzpYJBfzFPfp1dgMiGx+PpiFKZUmUCEeVOlrroMQyYvNrWRkNwADKEXKq4R/Jo0uUsz
- wK5j7ZOygVAg==
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Apr 2020 00:16:39 -0700
+IronPort-SDR: qHHWkc+9M95y1R8WPEqSsCj6qDPnk5ksoDzUPUGQX2riAcgfQiA/gRtuM3rGPIDcRoR6i3iPdd
+ FiaaRu8QPCLA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.73,334,1583222400"; 
-   d="scan'208";a="405307891"
+   d="scan'208";a="368053163"
 Received: from linux.intel.com ([10.54.29.200])
-  by orsmga004.jf.intel.com with ESMTP; 30 Apr 2020 00:16:01 -0700
+  by fmsmga001.fm.intel.com with ESMTP; 30 Apr 2020 00:16:39 -0700
 Received: from [10.249.229.126] (abudanko-mobl.ccr.corp.intel.com [10.249.229.126])
-        by linux.intel.com (Postfix) with ESMTP id 526905805EB;
-        Thu, 30 Apr 2020 00:15:58 -0700 (PDT)
-Subject: [PATCH v3 2/3] perf tool: make Perf tool aware of SELinux access
- control
+        by linux.intel.com (Postfix) with ESMTP id 63AB4580646;
+        Thu, 30 Apr 2020 00:16:36 -0700 (PDT)
+Subject: [PATCH v3 3/3] perf docs: introduce security.txt file to document
+ related issues
 From:   Alexey Budankov <alexey.budankov@linux.intel.com>
 To:     Arnaldo Carvalho de Melo <acme@kernel.org>
 Cc:     Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
@@ -49,8 +50,8 @@ Cc:     Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
         <linux-security-module@vger.kernel.org>
 References: <0fffd9e2-1f22-a0c2-c2e3-cb7f4bb89d66@linux.intel.com>
 Organization: Intel Corp.
-Message-ID: <819338ce-d160-4a2f-f1aa-d756a2e7c6fc@linux.intel.com>
-Date:   Thu, 30 Apr 2020 10:15:57 +0300
+Message-ID: <290ded0a-c422-3749-5180-918fed1ee30f@linux.intel.com>
+Date:   Thu, 30 Apr 2020 10:16:34 +0300
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
@@ -64,98 +65,259 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 
-Implement selinux sysfs check to see the system is in enforcing
-mode and print warning message with pointer to check audit logs.
+Publish instructions on how to apply LSM hooks for access control
+to perf_event_open() syscall on Fedora distro with Targeted SELinux
+policy and then manage access to the syscall.
 
 Signed-off-by: Alexey Budankov <alexey.budankov@linux.intel.com>
 ---
- tools/perf/util/cloexec.c |  4 ++--
- tools/perf/util/evsel.c   | 39 ++++++++++++++++++++++++---------------
- 2 files changed, 26 insertions(+), 17 deletions(-)
+ tools/perf/Documentation/security.txt | 237 ++++++++++++++++++++++++++
+ 1 file changed, 237 insertions(+)
+ create mode 100644 tools/perf/Documentation/security.txt
 
-diff --git a/tools/perf/util/cloexec.c b/tools/perf/util/cloexec.c
-index a12872f2856a..9c8ec816261b 100644
---- a/tools/perf/util/cloexec.c
-+++ b/tools/perf/util/cloexec.c
-@@ -65,7 +65,7 @@ static int perf_flag_probe(void)
- 		return 1;
- 	}
- 
--	WARN_ONCE(err != EINVAL && err != EBUSY,
-+	WARN_ONCE(err != EINVAL && err != EBUSY && err != EACCES,
- 		  "perf_event_open(..., PERF_FLAG_FD_CLOEXEC) failed with unexpected error %d (%s)\n",
- 		  err, str_error_r(err, sbuf, sizeof(sbuf)));
- 
-@@ -83,7 +83,7 @@ static int perf_flag_probe(void)
- 	if (fd >= 0)
- 		close(fd);
- 
--	if (WARN_ONCE(fd < 0 && err != EBUSY,
-+	if (WARN_ONCE(fd < 0 && err != EBUSY && err != EACCES,
- 		      "perf_event_open(..., 0) failed unexpectedly with error %d (%s)\n",
- 		      err, str_error_r(err, sbuf, sizeof(sbuf))))
- 		return -1;
-diff --git a/tools/perf/util/evsel.c b/tools/perf/util/evsel.c
-index 9fa92649adb4..bf437c059c2b 100644
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -2514,32 +2514,41 @@ int perf_evsel__open_strerror(struct evsel *evsel, struct target *target,
- 			      int err, char *msg, size_t size)
- {
- 	char sbuf[STRERR_BUFSIZE];
--	int printed = 0;
-+	int printed = 0, enforced = 0;
- 
- 	switch (err) {
- 	case EPERM:
- 	case EACCES:
-+		printed += scnprintf(msg + printed, size - printed,
-+			"Access to performance monitoring and observability operations is limited.\n");
+diff --git a/tools/perf/Documentation/security.txt b/tools/perf/Documentation/security.txt
+new file mode 100644
+index 000000000000..4fe3b8b1958f
+--- /dev/null
++++ b/tools/perf/Documentation/security.txt
+@@ -0,0 +1,237 @@
++Overview
++========
 +
-+		if (!sysfs__read_int("fs/selinux/enforce", &enforced)) {
-+			if (enforced) {
-+				printed += scnprintf(msg + printed, size - printed,
-+					"Enforced MAC policy settings (SELinux) can limit access to performance\n"
-+					"monitoring and observability operations. Inspect system audit records for\n"
-+					"more perf_event access control information and adjusting the policy.\n");
-+			}
-+		}
++For general security related questions of perf_event_open() syscall usage,
++performance monitoring and observability operations by Perf see here:
++https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
 +
- 		if (err == EPERM)
--			printed = scnprintf(msg, size,
-+			printed += scnprintf(msg, size,
- 				"No permission to enable %s event.\n\n",
- 				perf_evsel__name(evsel));
- 
- 		return scnprintf(msg + printed, size - printed,
--		 "You may not have permission to collect %sstats.\n\n"
--		 "Consider tweaking /proc/sys/kernel/perf_event_paranoid,\n"
--		 "which controls use of the performance events system by\n"
--		 "unprivileged users (without CAP_PERFMON or CAP_SYS_ADMIN).\n\n"
--		 "The current value is %d:\n\n"
-+		 "Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open\n"
-+		 "access to performance monitoring and observability operations for users\n"
-+		 "without CAP_PERFMON or CAP_SYS_ADMIN Linux capability.\n"
-+		 "perf_event_paranoid setting is %d:\n"
- 		 "  -1: Allow use of (almost) all events by all users\n"
- 		 "      Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK\n"
--		 ">= 0: Disallow ftrace function tracepoint by users without CAP_PERFMON or CAP_SYS_ADMIN\n"
--		 "      Disallow raw tracepoint access by users without CAP_SYS_PERFMON or CAP_SYS_ADMIN\n"
--		 ">= 1: Disallow CPU event access by users without CAP_PERFMON or CAP_SYS_ADMIN\n"
--		 ">= 2: Disallow kernel profiling by users without CAP_PERFMON or CAP_SYS_ADMIN\n\n"
--		 "To make this setting permanent, edit /etc/sysctl.conf too, e.g.:\n\n"
--		 "	kernel.perf_event_paranoid = -1\n" ,
--				 target->system_wide ? "system-wide " : "",
--				 perf_event_paranoid());
-+		 ">= 0: Disallow raw and ftrace function tracepoint access\n"
-+		 ">= 1: Disallow CPU event access\n"
-+		 ">= 2: Disallow kernel profiling\n"
-+		 "To make the adjusted perf_event_paranoid setting permanent preserve it\n"
-+		 "in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)",
-+		 perf_event_paranoid());
- 	case ENOENT:
- 		return scnprintf(msg, size, "The %s event is not supported.",
- 				 perf_evsel__name(evsel));
++Enabling LSM based mandatory access control (MAC) to perf_event_open() syscall
++==============================================================================
++
++LSM hooks for mandatory access control for perf_event_open() syscall can be
++used starting from Linux v5.3. Below are the steps to extend Fedora (v31) with
++Targeted policy with perf_event_open() access control capabilities:
++
++1. Download selinux-policy SRPM package (e.g. selinux-policy-3.14.4-48.fc31.src.rpm on FC31)
++   and install it so rpmbuild directory would exist in the current working directory:
++
++   # rpm -Uhv selinux-policy-3.14.4-48.fc31.src.rpm
++
++2. Get into rpmbuild/SPECS directory and unpack the source code:
++
++   # rpmbuild -bp selinux-policy.spec
++
++3. Place patch below at rpmbuild/BUILD/selinux-policy-b86eaaf4dbcf2d51dd4432df7185c0eaf3cbcc02
++   directory and apply it:
++
++   # patch -p1 < selinux-policy-perf-events-perfmon.patch
++   patching file policy/flask/access_vectors
++   patching file policy/flask/security_classes
++   # cat selinux-policy-perf-events-perfmon.patch
++diff -Nura a/policy/flask/access_vectors b/policy/flask/access_vectors
++--- a/policy/flask/access_vectors	2020-02-04 18:19:53.000000000 +0300
+++++ b/policy/flask/access_vectors	2020-02-28 23:37:25.000000000 +0300
++@@ -174,6 +174,7 @@
++ 	wake_alarm
++ 	block_suspend
++ 	audit_read
+++	perfmon
++ }
++ 
++ #
++@@ -1099,3 +1100,15 @@
++ 
++ class xdp_socket
++ inherits socket
+++
+++class perf_event
+++{
+++	open
+++	cpu
+++	kernel
+++	tracepoint
+++	read
+++	write
+++}
+++
+++
++diff -Nura a/policy/flask/security_classes b/policy/flask/security_classes
++--- a/policy/flask/security_classes	2020-02-04 18:19:53.000000000 +0300
+++++ b/policy/flask/security_classes	2020-02-28 21:35:17.000000000 +0300
++@@ -200,4 +200,6 @@
++ 
++ class xdp_socket
++ 
+++class perf_event
+++
++ # FLASK
++
++4. Get into rpmbuild/SPECS directory and build policy packages from patched sources:
++
++   # rpmbuild --noclean --noprep -ba selinux-policy.spec
++
++   so you have this:
++
++   # ls -alh rpmbuild/RPMS/noarch/
++   total 33M
++   drwxr-xr-x. 2 root root 4.0K Mar 20 12:16 .
++   drwxr-xr-x. 3 root root 4.0K Mar 20 12:16 ..
++   -rw-r--r--. 1 root root 112K Mar 20 12:16 selinux-policy-3.14.4-48.fc31.noarch.rpm
++   -rw-r--r--. 1 root root 1.2M Mar 20 12:17 selinux-policy-devel-3.14.4-48.fc31.noarch.rpm
++   -rw-r--r--. 1 root root 2.3M Mar 20 12:17 selinux-policy-doc-3.14.4-48.fc31.noarch.rpm
++   -rw-r--r--. 1 root root  12M Mar 20 12:17 selinux-policy-minimum-3.14.4-48.fc31.noarch.rpm
++   -rw-r--r--. 1 root root 4.5M Mar 20 12:16 selinux-policy-mls-3.14.4-48.fc31.noarch.rpm
++   -rw-r--r--. 1 root root 111K Mar 20 12:16 selinux-policy-sandbox-3.14.4-48.fc31.noarch.rpm
++   -rw-r--r--. 1 root root  14M Mar 20 12:17 selinux-policy-targeted-3.14.4-48.fc31.noarch.rpm
++
++5. Install SELinux packages from Fedora repo, if not already done so, and
++   update with the patched rpms above:
++
++   # rpm -Uhv rpmbuild/RPMS/noarch/selinux-policy-*
++
++6. Enable SELinux Permissive mode for Targeted policy, if not already done so:
++
++   # cat /etc/selinux/config
++
++   # This file controls the state of SELinux on the system.
++   # SELINUX= can take one of these three values:
++   #     enforcing - SELinux security policy is enforced.
++   #     permissive - SELinux prints warnings instead of enforcing.
++   #     disabled - No SELinux policy is loaded.
++   SELINUX=permissive
++   # SELINUXTYPE= can take one of these three values:
++   #     targeted - Targeted processes are protected,
++   #     minimum - Modification of targeted policy. Only selected processes are protected.
++   #     mls - Multi Level Security protection.
++   SELINUXTYPE=targeted
++
++7. Enable filesystem SELinux labeling at the next reboot:
++
++   # touch /.autorelabel
++
++8. Reboot machine and it will label filesystems and load Targeted policy into the kernel;
++
++9. Login and check that dmesg output doesn't mention that perf_event class is unknown to SELinux subsystem;
++
++10. Check that SELinux is enabled and in Permissive mode
++
++    # getenforce
++    Permissive
++
++11. Turn SELinux into Enforcing mode:
++
++    # setenforce 1
++    # getenforce
++    Enforcing
++
++Opening access to perf_event_open() syscall on Fedora with SELinux
++==================================================================
++
++Access to performance monitoring and observability operations by Perf
++can be limited for superuser or CAP_PERFMON or CAP_SYS_ADMIN privileged
++processes. MAC policy settings (e.g. SELinux) can be loaded into the kernel
++and prevent unauthorized access to perf_event_open() syscall. In such case
++Perf tool provides a message similar to the one below:
++
++   # perf stat
++   Error:
++   Access to performance monitoring and observability operations is limited.
++   Enforced MAC policy settings (SELinux) can limit access to performance
++   monitoring and observability operations. Inspect system audit records for
++   more perf_event access control information and adjusting the policy.
++   Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
++   access to performance monitoring and observability operations for users
++   without CAP_PERFMON or CAP_SYS_ADMIN Linux capability.
++   perf_event_paranoid setting is -1:
++     -1: Allow use of (almost) all events by all users
++         Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
++   >= 0: Disallow raw and ftrace function tracepoint access
++   >= 1: Disallow CPU event access
++   >= 2: Disallow kernel profiling
++   To make the adjusted perf_event_paranoid setting permanent preserve it
++   in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)
++
++To make sure that access is limited by MAC policy settings inspect system
++audit records using journalctl command or /var/log/audit/audit.log so the
++output would contain AVC denied records related to perf_event:
++
++   # journalctl --reverse --no-pager | grep perf_event
++
++   python3[1318099]: SELinux is preventing perf from open access on the perf_event labeled unconfined_t.
++                                         If you believe that perf should be allowed open access on perf_event labeled unconfined_t by default.
++   setroubleshoot[1318099]: SELinux is preventing perf from open access on the perf_event labeled unconfined_t. For complete SELinux messages run: sealert -l 4595ce5b-e58f-462c-9d86-3bc2074935de
++   audit[1318098]: AVC avc:  denied  { open } for  pid=1318098 comm="perf" scontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tcontext=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 tclass=perf_event permissive=0
++
++In order to open access to perf_event_open() syscall MAC policy settings can
++require to be extended. On SELinux system this can be done by loading a special
++policy module extending base policy settings. Perf related policy module can
++be generated using the system audit records about blocking perf_event access.
++Run the command below to generate my-perf.te policy extension file with
++perf_event related rules:
++
++   # ausearch -c 'perf' --raw | audit2allow -M my-perf && cat my-perf.te
++
++   module my-perf 1.0;
++
++   require {
++        type unconfined_t;
++        class perf_event { cpu kernel open read tracepoint write };
++   }
++
++   #============= unconfined_t ==============
++   allow unconfined_t self:perf_event { cpu kernel open read tracepoint write };
++
++Now compile, pack and load my-perf.pp extension module into the kernel:
++
++   # checkmodule -M -m -o my-perf.mod my-perf.te
++   # semodule_package -o my-perf.pp -m my-perf.mod
++   # semodule -X 300 -i my-perf.pp
++
++After all those taken steps above access to perf_event_open() syscall should
++now be allowed by the policy settings. Check access running Perf like this:
++
++   # perf stat
++   ^C
++   Performance counter stats for 'system wide':
++
++         36,387.41 msec cpu-clock                 #    7.999 CPUs utilized
++             2,629      context-switches          #    0.072 K/sec
++                57      cpu-migrations            #    0.002 K/sec
++                 1      page-faults               #    0.000 K/sec
++       263,721,559      cycles                    #    0.007 GHz
++       175,746,713      instructions              #    0.67  insn per cycle
++        19,628,798      branches                  #    0.539 M/sec
++         1,259,201      branch-misses             #    6.42% of all branches
++
++       4.549061439 seconds time elapsed
++
++The generated perf-event.pp related policy extension module can be removed
++from the kernel using this command:
++
++   # semodule -X 300 -r my-perf
++
++Alternatively the module can be temporarily disabled and enabled back using
++these two commands:
++
++   # semodule -d my-perf
++   # semodule -e my-perf
++
++If something went wrong
++=======================
++
++To turn SELinux into Permissive mode:
++   # setenforce 0
++
++To fully disable SELinux during kernel boot [3] set kernel command line parameter selinux=0
++
++To remove SELinux labeling from local filesystems:
++   # find / -mount -print0 | xargs -0 setfattr -h -x security.selinux
++
++To fully turn SELinux off a machine set SELINUX=disabled at /etc/selinux/config file and reboot;
++
++Links
++=====
++
++[1] https://download-ib01.fedoraproject.org/pub/fedora/linux/updates/31/Everything/SRPMS/Packages/s/selinux-policy-3.14.4-49.fc31.src.rpm
++[2] https://docs.fedoraproject.org/en-US/Fedora/11/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Working_with_SELinux-Enabling_and_Disabling_SELinux.html
++[3] https://danwalsh.livejournal.com/10972.html
 -- 
 2.24.1
 
