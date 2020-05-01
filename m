@@ -6,85 +6,86 @@ X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F89EC35280
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 19:55:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8AF2C35280
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 20:20:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 546CE216FD
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 19:55:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 950382137B
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 20:20:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="MHcfvujW"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xHD80tDs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726672AbgEATzJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 May 2020 15:55:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54894 "EHLO
+        id S1726333AbgEAUUq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 May 2020 16:20:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726405AbgEATzJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 15:55:09 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CEB2C061A0E
-        for <selinux@vger.kernel.org>; Fri,  1 May 2020 12:55:08 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id f12so8074733edn.12
-        for <selinux@vger.kernel.org>; Fri, 01 May 2020 12:55:07 -0700 (PDT)
+        with ESMTP id S1726272AbgEAUUp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 16:20:45 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECF01C061A0C
+        for <selinux@vger.kernel.org>; Fri,  1 May 2020 13:20:43 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id l3so8122283edq.13
+        for <selinux@vger.kernel.org>; Fri, 01 May 2020 13:20:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Vd/NTDk45CB/fePqWXBGsmO9Bn5XFylQDEfLobAzR8U=;
-        b=MHcfvujWPP0pZkfx1BjaIjxDsUHYxnm+2SOsoecV2W9XTF4+TQsRhCgDL8Xvjw7VAb
-         YGdP/MC77O10pa91UP/c6c+vXCfKrKEDUM7tEdZwaDo9vzO4eoci+38a2QNrlfVPdU8m
-         HsXaLjqCybKIppphjzhNNX+GGzSoyiIRRyjxNe0wJUWFjfAX9IkB7VYk4so5WYJHK9V9
-         /PBgfuJTjexnGBUtx3HZ65s1EZHmxkqjtU3vNOw1lu8ahxSWmtWzz/qkogv2Y2yF6Z+I
-         pAL5RaVLk6onVVUL3s206o0hvTmhZ56elUbpvrSdkixW0+Mv0IrWp+Oc+WZ7+Jg0+smm
-         4L7A==
+        bh=j0OrSnJ5LqQVHAOIAlUBc6H9DOFJkFsF8DhxOn76V2E=;
+        b=xHD80tDsZ0WjCP4rWupgByojkk5qcuRZ9jEM0gMYC0ZRq7H6xH54o9GwgaIk3NdSwv
+         94jN+OSbFjqiE7y2cdtt3OFBKQ1wS7/9J+NKGaTJp+Td72u7/ezhAQn/TQDH2miGQAGW
+         /PlL79kcwLORKyfKoOMbbUCYgW3d+jQZhaoYO1lemiOXEKSezzkBMiZHd39/RVxW063b
+         Ux73z+Z28p2x2d1b5v9AvbVInG/oxNZ1gQ4dTjXV/Vt3Ib9FMWWs8uuXjgPnBDEG+NSc
+         nOb83BV0Nupr1J3xxvzJfM/ilp8ztN8Hnr6jHymJzvucT9iE+CXJja8xHC6PNEQq/+Rq
+         AKXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Vd/NTDk45CB/fePqWXBGsmO9Bn5XFylQDEfLobAzR8U=;
-        b=gYRYvCqjE2MgHvnv9dtuLHyjoWwqJrPC2a0aqIn4ngczXUIDscfS9druUAzLUsDcou
-         U50LE3gkglygdB79YP97TZIxAh/7xSlJsHXzqiuJA2e4HsYTcNdpQ/YGDX3xZt48lrx0
-         liXiM3KvqQuisXaDEV4FdDhXG2c4lJiGPmm6wzqfUyX6mqbGXECpzo9cOp4SFqbDyHzY
-         Jwv+W4vMR8qTzhBnrvjWVbR9Zb0Ovp6Rc5WrmfJE/Vu7ro5KF6gOGI97IaxfdFLV2kE7
-         dDZYw8IO7jkIXDvT1IrLBx/gLX/QLD9R44tuu/cjqOy/W4wYIARD9e/mYTuWFbbpcZDO
-         g4xA==
-X-Gm-Message-State: AGi0PubDrlk3kJsH9Q/ATCIUdcKuh4pneSljqRuSJo8iKgJQ5XwW4+cB
-        iXQePmpii0PTu8Am3jBwBbM08mCFHFSZQ1GJnA1M
-X-Google-Smtp-Source: APiQypLn7W1R7xYVvSzl2/q9NQc0qIuXpz2ML3a6e//ZLcQp29/ArK0d2NQHLCp0a0N5Q0Su7JIi5vTJXOpyJ9+yalw=
-X-Received: by 2002:aa7:cb0f:: with SMTP id s15mr4892967edt.164.1588362906610;
- Fri, 01 May 2020 12:55:06 -0700 (PDT)
+        bh=j0OrSnJ5LqQVHAOIAlUBc6H9DOFJkFsF8DhxOn76V2E=;
+        b=PLGAHJt1679ELCCztBfhAr4UOOH6vfph0KcRhkirs9ED4YxsSKtIgSqPwe/kL2WZBp
+         4+hw5BjwXwrifeYMwo56TZZfn7uYZPtSDrIQyxis2loUzHVCPfYe0601FyHZ6tN45esQ
+         XNXljywEFKHB9FRw2GpzaV6nOBWDcOZoIWD2+hC0aJlP1HdNPSXVWNThYmLcWlwANpap
+         IKZBjT3ZIucdT9KxPmLdeW4/Kv89CwN00pvys5sjr+YXWW/e4IFzk6vwmmLWwziSW5ND
+         9GUraW0xnXZULk8KRHHzZv+HCYzdqjtk5ORYWF6LCQ0eB6Ms3R7sIYwiFLT6GgNCnfq1
+         zCdA==
+X-Gm-Message-State: AGi0PuagArvPnNLg/5KGayiTGZAtV4+jUyBK4a72PTKAZ+SV2pxHrOsa
+        7+3qLF2ixNuJWF36Png+cq24/IPXzo+KgoFCNa5KhUk=
+X-Google-Smtp-Source: APiQypJqaPnB+cK7WABPZqpyJoAdfDvAzGFnnfCltCNczi6AoGVt/0Fe5D4jY1S0l2AIfNGm4rjdmkCKkf6x7xVbqeU=
+X-Received: by 2002:a05:6402:1b0b:: with SMTP id by11mr5013751edb.269.1588364442510;
+ Fri, 01 May 2020 13:20:42 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200501195111.3335258-1-omosnace@redhat.com>
-In-Reply-To: <20200501195111.3335258-1-omosnace@redhat.com>
+References: <20200428125514.2780171-1-omosnace@redhat.com> <20200428125514.2780171-3-omosnace@redhat.com>
+In-Reply-To: <20200428125514.2780171-3-omosnace@redhat.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 1 May 2020 15:54:55 -0400
-Message-ID: <CAHC9VhT7EDa_HJpeq476G=euHz3=p5b4u2KONeMEAMef=ASy8A@mail.gmail.com>
-Subject: Re: [PATCH] selinux: fix return value on error in policydb_read()
+Date:   Fri, 1 May 2020 16:20:31 -0400
+Message-ID: <CAHC9VhTr3cvYwJZyS_GPXW+8_VNoiO=qoJx2WBfpPq+MGsVunA@mail.gmail.com>
+Subject: Re: [PATCH 2/4] selinux: do not allocate hashtabs dynamically
 To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        kernel-janitors@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     selinux@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 1, 2020 at 3:51 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Tue, Apr 28, 2020 at 8:55 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> The value of rc is still zero from the last assignment when the error
-> path is taken. Fix it by setting it to -ENOMEM before the
-> hashtab_create() call.
+> It is simpler to allocate them statically in the corresponding
+> structure, avoiding unnecessary kmalloc() calls and pointer
+> dereferencing.
 >
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Fixes: e67b2ec9f617 ("selinux: store role transitions in a hash table")
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  security/selinux/ss/policydb.c | 1 +
->  1 file changed, 1 insertion(+)
-
-Here I was just about to reply to your other patches that patch 2/4
-looked fine to me but I was going to hold off on applying it until
-this patch came through :)
+>  security/selinux/ss/hashtab.c  |  51 ++++---------
+>  security/selinux/ss/hashtab.h  |  13 ++--
+>  security/selinux/ss/mls.c      |  14 ++--
+>  security/selinux/ss/policydb.c | 126 ++++++++++++++++-----------------
+>  security/selinux/ss/policydb.h |   6 +-
+>  security/selinux/ss/services.c |  44 ++++++------
+>  security/selinux/ss/symtab.c   |   5 +-
+>  security/selinux/ss/symtab.h   |   2 +-
+>  8 files changed, 116 insertions(+), 145 deletions(-)
 
 Merged into selinux/next, thanks.
 
