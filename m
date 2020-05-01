@@ -2,121 +2,120 @@ Return-Path: <SRS0=RO9B=6P=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 34F39C4724C
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 15:48:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92C2AC47253
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 16:17:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0F4B1216FD
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 15:48:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 723D124953
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 16:17:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tNYIoxD7"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="m5o6DjW2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729670AbgEAPs5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 May 2020 11:48:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
+        id S1729348AbgEAQRt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 May 2020 12:17:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729126AbgEAPs5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 11:48:57 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1187CC061A0C
-        for <selinux@vger.kernel.org>; Fri,  1 May 2020 08:48:57 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id r2so4809689ilo.6
-        for <selinux@vger.kernel.org>; Fri, 01 May 2020 08:48:57 -0700 (PDT)
+        with ESMTP id S1728993AbgEAQRs (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 12:17:48 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB081C061A0E
+        for <selinux@vger.kernel.org>; Fri,  1 May 2020 09:17:46 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id n4so7825417ejs.11
+        for <selinux@vger.kernel.org>; Fri, 01 May 2020 09:17:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=AuIO1vrRra0tinGjHyOWtikRHaQFRlZnYUn1iA2M4yU=;
-        b=tNYIoxD7hZ2n9aC4W6H90bA6if2SXC2rTZWhDfPmKRtZCKDsOA+1HEMuFrpiLkdfp+
-         H212oV/UEgJPlIWiW38X0NK3046wAjjUHEkY++5BRxQ4DDfdZe5xmBRvVvkdIRtdzZUw
-         DPh2u5lwV5NzTZ9GIBmkZ5CcoHSKnKpGZ8UUebJOp3AbRZusSI4ZxDmNa6zS9oaha8HV
-         oN2X9XvhNJrXfgr1cTK9jTLkho0vUMtb6SJrWDkwpSPlWtDQHutFHC+FFISzLJ1Gwjr8
-         Q7uQqNyKIzcMn1GrkWW0mvtEKiXyYi4Tb0dLsciePh69KsC/fFuqOMS1axRjuuzQ1K7N
-         UJQw==
+         :cc;
+        bh=23jPYeIHxkO0ujsGD7eYlRbwJShWG3r7UKIREhK5bgw=;
+        b=m5o6DjW23uDqvbH6ScTDm+6wn+eSq6aJHkCW7h0E7PQK2TC3+9C/vXX2qmTMXOjDJV
+         5m7dDloIaOCSsVWgmy7ijk65TLdTjrJ35UszXTvgQ+9FAhewqXUSAX95ukIByWJVG8Lc
+         aJ7FU+3rG+rlYO/LV/MbE4r+CuM0NZfQfnEoIVfNHKM5uWW6T0vZY8K1Xh0pMqnuCdoB
+         3NteUzx8k6UL8h+e6dKHslAXt3Zm5yYdLt8ZZFPmzTn15hRPVkNYH3tm/IV4ZnwkNiyz
+         FKeNDhmMd7lLEeaZhxMAmD4CqLTsnybNjFKZKZBtJF0qDkGghOeiehwGobytDRRCd4i7
+         HHjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=AuIO1vrRra0tinGjHyOWtikRHaQFRlZnYUn1iA2M4yU=;
-        b=kP5mz1opQfdyKP+HUHhRS+6T2Qugfv8VnA71f2d4Qtf8GHM9zLtgjWTo1LIeOQu/U6
-         +Qjxu00jEC5fjPRaZOqcYzXscd97kind0bPwRq3BgqyjTtU3VPmhcXewpGTJdnYcMcCT
-         v3wZjRsOxltAWF+LUrH84QpPxAevkzAvWDxAL5BI2AVweWGtEyiA/coyAJR5btFB5ARj
-         QAzhBHRC2i1a4IPWYbEWMRsYaVO1wZCKoRPQCLMLpU0n01qVQJKHzSuUd/pW46ONgCpF
-         sAKXIy17zC0IbNO6PnIBHPzs4//wc992eHo+cbA/egUUBmVSG8ll7T4liawSjUDmh37f
-         tTBw==
-X-Gm-Message-State: AGi0PuYbxeCuATEnEQS2D4lAvL3Qsftp3hKLachkUIGh3aUxc2zj3jTN
-        tVhE3cm9967DGIjqqVfpNwSRErbCjvkZhf5HCbk699/zM44=
-X-Google-Smtp-Source: APiQypJy8paj63U7qnEO9LEUci42vZrRPqHFxExYywY5ztMg+7w1K05kb6eikaoTX9wiTGQYIah3+dgXRttdLlv2ZKo=
-X-Received: by 2002:a92:c9c8:: with SMTP id k8mr4262110ilq.141.1588348135794;
- Fri, 01 May 2020 08:48:55 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=23jPYeIHxkO0ujsGD7eYlRbwJShWG3r7UKIREhK5bgw=;
+        b=oEP00oH2d0N/87XDZoMTL/hZOI/I1qfCBjTw3EXqdsaEH2gG/Z3daguwTcwbGwvODm
+         XMpmoLK9SbbOre+R7CATgVrThVYjZDzzAL6orJZSxeWZ6I4k61Gxye7+yW1VkBu36icm
+         fHt1cZT2r6YzG5MYfRl+73GS/1J6qiEsHKjwvw1maFrN1HqbbIv19JeVIUfsAv3qviBx
+         3MldES/uR8VlOKiIQR+He3kY6VR4wV21+abNEOFCkyuW19tklVnme2bJ1TFiW/ahxfQ8
+         nkKOGZbo9UGb4lbR9ncJDfad+aHAK94M+mYu+4dP5Tl2abN3yLaCRji3mioZXCO+4Tzw
+         fjWA==
+X-Gm-Message-State: AGi0PuZlvhzsNWMgkIJMkNXYsO+Qd8hzQveMnhI1/mdvFE82pOzKfYou
+        DALtOWZjs91TSlctqt309M75zM/DHDA7nloIaPofAU0=
+X-Google-Smtp-Source: APiQypIXB+av6flcFldEWw+bS/wH+cxQMW/luqrFwIHVh8pa/MRqCUmiUnrrXtxszp5IfdTN8uKbEAzFnfW/lbRVEho=
+X-Received: by 2002:a17:906:29c4:: with SMTP id y4mr3965185eje.95.1588349865367;
+ Fri, 01 May 2020 09:17:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200420114650.19093-1-cgzones@googlemail.com>
- <20200430150318.6406-1-cgzones@googlemail.com> <476DC76E7D1DF2438D32BFADF679FC5649ED8BA3@ORSMSX101.amr.corp.intel.com>
-In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5649ED8BA3@ORSMSX101.amr.corp.intel.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 1 May 2020 10:48:44 -0500
-Message-ID: <CAFftDdr-nL4ydpHQ=8jufrP4CXwCUMSvdkM54Y1v2Y9xMJwwgw@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: mark security_context_t typedef as deprecated
-To:     "Roberts, William C" <william.c.roberts@intel.com>
-Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
+References: <CAHC9VhTu3YWPmwtA7RERHDRhQt0wAkmN4GJCmaRY7KSFRwtACQ@mail.gmail.com>
+ <CAHk-=whGjVLwTnYT8euAb_Lzqxd=-TFnJU-k2uu+Fn_hBfMc+w@mail.gmail.com>
+In-Reply-To: <CAHk-=whGjVLwTnYT8euAb_Lzqxd=-TFnJU-k2uu+Fn_hBfMc+w@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 1 May 2020 12:17:33 -0400
+Message-ID: <CAHC9VhSBGaJc-dQZyyUECwrysoQ8a4w2ww4PgPyXVH5EEVOjCw@mail.gmail.com>
+Subject: Re: [GIT PULL] SELinux fixes for v5.7 (#2)
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     selinux@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-> > -----Original Message-----
-> > From: selinux-owner@vger.kernel.org [mailto:selinux-owner@vger.kernel.o=
-rg]
-> > On Behalf Of Christian G=C3=B6ttsche
-> > Sent: Thursday, April 30, 2020 10:03 AM
-> > To: selinux@vger.kernel.org
-> > Subject: [PATCH v2] libselinux: mark security_context_t typedef as depr=
-ecated
+On Thu, Apr 30, 2020 at 7:43 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+> On Thu, Apr 30, 2020 at 2:24 PM Paul Moore <paul@paul-moore.com> wrote:
 > >
-> > Follow-up of: 9eb9c9327563014ad6a807814e7975424642d5b9 ("Get rid of
-> > security_context_t and fix const declarations.")
-> >
-> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> > ---
-> > v2: use the common deprecation style
-> >
-> >  libselinux/include/selinux/selinux.h | 6 +++++-
-> >  1 file changed, 5 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/libselinux/include/selinux/selinux.h
-> > b/libselinux/include/selinux/selinux.h
-> > index aaf28ffd..c22834e5 100644
-> > --- a/libselinux/include/selinux/selinux.h
-> > +++ b/libselinux/include/selinux/selinux.h
-> > @@ -14,7 +14,11 @@ extern int is_selinux_enabled(void);  extern int
-> > is_selinux_mls_enabled(void);
-> >
-> >  /* No longer used; here for compatibility with legacy callers. */ -typ=
-edef char
-> > *security_context_t;
-> > +typedef char *security_context_t
-> > +#ifdef __GNUC__
-> > +__attribute__ ((deprecated))
-> > +#endif
-> > +;
-> >
-> >  /* Free the memory allocated for a context by any of the below get* ca=
-lls. */
-> > extern void freecon(char * con);
-> > --
-> > 2.26.2
+> > Two more SELinux patches to fix problems in the v5.7-rcX releases.
+> > Wei Yongjun's patch fixes a return code in an error path, and my patch
+> > fixes a problem where we were not correctly applying access controls
+> > to all of the netlink messages in the netlink_send LSM hook.
 >
-> Acked-by: William Roberts <william.c.roberts@intel.com>
+> Side note: could we plan on (not for 5.7, but future) moving the "for
+> each message" part of that patch into the generic security layer (ie
+> security_netlink_send()), so that if/when other security subsystems
+> start doing that netlink thing, they won't have to duplicate that
+> code?
+>
+> Obviously the "for each message" thing should only be done if there is
+> any security  hook at all..
+>
+> Right now selinux is the only one that does this, so there's no
+> duplication of effort, but it seems a mistake to do this at the
+> low-level security level.
+>
+> Or is there some fundamental reason why a security hook would want to
+> look at a single skb rather than the individual messages?
 
-Merged:
-https://github.com/SELinuxProject/selinux/pull/233
+Off the top of my head I can't think of why a LSM would want to look
+only at the skb instead of the individual netlink messages.  I suppose
+if that ever becomes an issue we could always pass the skb to the hook
+along with the nlmsghdr, and the LSM would just need to deal with
+being called multiple times for the same skb.  Another option might be
+to give the LSM the option of registering one of two hooks for the
+netlink_send hook; one type of hook would behave the same as the hook
+does now, the other type would be called once for each message in the
+skb.  Although this second option seems like a lot of extra complexity
+for a questionable advantage, especially since only SELinux is using
+the hook at the moment and we can easily change the hook without
+breaking things.
 
-Thanks
+It's also worth mentioning that we've always tried to keep the hook
+layer (the stuff in security/security.c) relatively thin, but that's a
+battle we've been slowly losing over time.  Moving the skb/nlmsghdr
+processing into security_netlink_send() seems reasonable given some of
+the other hooks.
+
+Regardless, I'll work on something for an upcoming merge window, stay tuned.
+
+-- 
+paul moore
+www.paul-moore.com
