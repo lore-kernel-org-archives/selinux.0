@@ -5,132 +5,109 @@ X-Spam-Level:
 X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DBE9C4724C
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 13:46:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EA7AC47253
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 13:58:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0AB5120757
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 13:46:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3BFFD2051A
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 13:58:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="a8ursz89"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZY2XxhmO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731304AbgEANqX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 May 2020 09:46:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53198 "EHLO
+        id S1729328AbgEAN60 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 May 2020 09:58:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1731007AbgEANqV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 09:46:21 -0400
-Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C18FC061A0C
-        for <selinux@vger.kernel.org>; Fri,  1 May 2020 06:46:21 -0700 (PDT)
-Received: by mail-wr1-x42d.google.com with SMTP id k1so11595425wrx.4
-        for <selinux@vger.kernel.org>; Fri, 01 May 2020 06:46:21 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1729985AbgEAN6Y (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 09:58:24 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40199C061A0C
+        for <selinux@vger.kernel.org>; Fri,  1 May 2020 06:58:24 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id i27so2593447ota.7
+        for <selinux@vger.kernel.org>; Fri, 01 May 2020 06:58:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=HfBsHhh1nhaffrop3uEhaXcY4NM+NeE+9v5GRNXXzJg=;
-        b=a8ursz891VglNre9L64iNznZOnEVOHU+KFzVAa37Kx7AqbYfUomm5fGVOrB75Hgbsm
-         BC6P0yvKEF05QnYaKXBglcjtwyEKyx9OXv/XZrEZqSTrHarBECOVkPLZ53ccSfQ9GU5h
-         a1T20ThhXOfJwi6YiuvVTvHJ9/Lvf+Jinlbd+7isrDMobReUTFHRM1F5AhTV8WC6zZv+
-         /CiP7MZLsgB7Ip+cBMG2hFdgO2fJqEkj+Xy/+5Z63Nker+e9F38BAuz5Cqju5R9btqz/
-         HA+hFYnLPlCun7O2hVqcnuCevKQ0IYlXs8Iy/0Nue0CRamnPVlfyz4dF+zD/VZKxC++G
-         QTKg==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=irCF2wSPCrUydU2nTQEmqkFnwVvD6A3WcUOuWXrT1Wg=;
+        b=ZY2XxhmOQN0up1ZwTtQmu041L7FeVwrqZKV9b5pYdcAj1IbFPNSn6lwPQILJDyTnbN
+         hBfyjqDwxpJiJAtr89QEUigw5p6GNSsxvjfG5DAtdcdHRN0iWLb744raRPsOWloD766z
+         IbDCP/f2K8pJFnnbhOXDFYc32laOdccQDTZIsmanlzCeExahaFFEWW2xn3aVYsdPjCAa
+         HqmX7dOGEj7YlOM5OS9HUa8CnDhWhxbmjQPgya03RCzUiuJroddr3ASNG1GVMzms01Eg
+         HH8w8pstkG8/ltKRpX5S/YGFOR6ycqhM7ZPwodC5zGSHWq2SN0eOrZ0mafOP2b50wySV
+         EC8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=HfBsHhh1nhaffrop3uEhaXcY4NM+NeE+9v5GRNXXzJg=;
-        b=CEWH3ovU/Pt0k9bbZzFwCHZxRfvcJsyVU7tR3Z13HlP4kpf3rpgbW5Jw1IjfgOPjKE
-         I1o0AaAHF1uYvmfVyEINYr4WLAU3vrKox9DNNvf06opq8JSUcbJdHRlpRX17lkeY/0bh
-         Dt/uHQa4F+tAXWIg9VDKi35jNpSQB2hZR9LjZikKbBJLErBlvpVy4eAGSEldzxw7MQ74
-         IMS2uKKyJ8PzCwnJWbJIR4YmuXKnIzFL88yEXU+I7RDRzua3B1rqsAHHMKGaJU71CNVf
-         p3MnLzGG9edC+IwnduodtLv7kq/qx3ZcU8o1rUlYz/f3vTkPT9b6zFNRB1cK5epl6S9L
-         JZag==
-X-Gm-Message-State: AGi0Pua8BDR5lEFBEjYRIrIGx8bu6OMJNPxYuApjxgC3lY2DMvdZRCce
-        o6eqqCFnQQhMiI7N4QcQoMmWVLQzG0k=
-X-Google-Smtp-Source: APiQypImp2OJhpYNHFqhZ3DduQBm+uU4yCqkfLbWyu5xMHh8asswcRcCwrNfSBgF7MCvdEn34rWOUw==
-X-Received: by 2002:adf:f684:: with SMTP id v4mr2848706wrp.218.1588340780001;
-        Fri, 01 May 2020 06:46:20 -0700 (PDT)
-Received: from debianHome.localdomain (x4d0a5ec7.dyn.telefonica.de. [77.10.94.199])
-        by smtp.gmail.com with ESMTPSA id m188sm3999411wme.47.2020.05.01.06.46.19
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 May 2020 06:46:19 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v2] tree-wide: introduce PYTON_SETUP_ARGS to customize setup.py calls on Debian
-Date:   Fri,  1 May 2020 15:46:04 +0200
-Message-Id: <20200501134604.20070-1-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200407114514.40253-1-cgzones@googlemail.com>
-References: <20200407114514.40253-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=irCF2wSPCrUydU2nTQEmqkFnwVvD6A3WcUOuWXrT1Wg=;
+        b=JAndXTjTrLvfbefVr9c/eKkdonnaGSJyfue3YDqTDQMcg35fa/wU2JmMRSYl7oRYtt
+         +7C75xDCe5Xo+xiSC00M3SzktGJTGdP51cGvI/oDES6Lv9r4aWzqw+U1QIQNbVo+9VLV
+         zTPrE2+Oz9tbEiYZp85ts4aFw53ZL1L0qvmZ41V/XLpiiLoXcTTkI8lVzXuY+3g+zYAR
+         n980xfRWxodIdbH0Er0tgtt819qBbX9K4bFhVbTC2gdiA35m+LSoxUjToEq14WVhxkyr
+         F3i1xxwM31KQeq2vTbOQnGjFW8DtuqMpdcq//26DV+B5gsFEvXfa/tchFO7gEZBNMglk
+         PCIA==
+X-Gm-Message-State: AGi0PuY6Oh9FVdT4TfDUZx39JTFcCyC2ZCaoAD2y/76L9dNMaoNJM9Vj
+        s8YclAAIGdVOrQY3w7FgUdo0BcDFPduAYzB6IMUHGO05
+X-Google-Smtp-Source: APiQypIM10Qf57uahQdGDsfiFDPR0sOq7A+dcrlnLr1RAKil8ZEtIjGNDufC3BqueY+GUPgKEqpY+/2pIBLx7GYw5q0=
+X-Received: by 2002:a9d:569:: with SMTP id 96mr3524683otw.59.1588341503657;
+ Fri, 01 May 2020 06:58:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200501092330.1129016-1-nicolas.iooss@m4x.org>
+In-Reply-To: <20200501092330.1129016-1-nicolas.iooss@m4x.org>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 1 May 2020 09:58:12 -0400
+Message-ID: <CAP+JOzS7cBr2ANcKoYa-x_C-LHMWoXB2oLbdtfAyYPr4vWT-Tg@mail.gmail.com>
+Subject: Re: [PATCH] libsepol/tests: drop ncurses dependency
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Debian the `distutils` module is patched, so `get_python_lib()` returns by default `/usr/lib/python3/dist-packages` (no minor version).
+On Fri, May 1, 2020 at 5:25 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> ncurses library is not used anywhere.
+>
+> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-But `setuptools` affecting setup.py is not patched to create the library directory at `/usr/lib/python3/dist-packages` by default, rather than a command line argument `--install-layout deb` is added.
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Add PYTON_SETUP_ARGS as argument to affected setup.py calls and add a note in the global ReadMe.
 
-See https://www.debian.org/doc/packaging-manuals/python-policy/packaging_tools.html section B.1.
-
-Fixes: https://github.com/SELinuxProject/selinux/issues/187
----
-v2:
-  Use env variable PYTON_SETUP_ARGS instead of internal detection logic
-
- README.md                | 2 ++
- libselinux/src/Makefile  | 2 +-
- python/sepolicy/Makefile | 2 +-
- 3 files changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/README.md b/README.md
-index 974280f9..3c97a5a3 100644
---- a/README.md
-+++ b/README.md
-@@ -18,6 +18,8 @@ To build and install everything under a private directory, run:
- 
-     make DESTDIR=~/obj install install-pywrap
- 
-+Note: On Debian `PYTON_SETUP_ARGS=--install-layout=deb` needs to be set in order to create the correct python directory structure.
-+
- To install as the default system libraries and binaries
- (overwriting any previously installed ones - dangerous!),
- on x86_64, run:
-diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
-index 73303c36..bccc852d 100644
---- a/libselinux/src/Makefile
-+++ b/libselinux/src/Makefile
-@@ -174,7 +174,7 @@ install: all
- 	ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
- 
- install-pywrap: pywrap
--	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)`
-+	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTON_SETUP_ARGS)
- 	install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init__.py
- 	ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT) $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
- 
-diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
-index 69f29fa9..4ad0d4dc 100644
---- a/python/sepolicy/Makefile
-+++ b/python/sepolicy/Makefile
-@@ -27,7 +27,7 @@ test:
- 	@$(PYTHON) test_sepolicy.py -v
- 
- install:
--	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)`
-+	$(PYTHON) setup.py install --prefix=$(PREFIX) `test -n "$(DESTDIR)" && echo --root $(DESTDIR)` $(PYTON_SETUP_ARGS)
- 	[ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
- 	install -m 755 sepolicy.py $(DESTDIR)$(BINDIR)/sepolicy
- 	(cd $(DESTDIR)$(BINDIR); ln -sf sepolicy sepolgen)
--- 
-2.26.2
-
+> ---
+>  .travis.yml             | 1 -
+>  libsepol/tests/Makefile | 2 +-
+>  2 files changed, 1 insertion(+), 2 deletions(-)
+>
+> diff --git a/.travis.yml b/.travis.yml
+> index 918958acfc80..4361d26cbb83 100644
+> --- a/.travis.yml
+> +++ b/.travis.yml
+> @@ -53,7 +53,6 @@ addons:
+>      - libcap-ng-dev # This package is not whitelisted for the container infrastructure (https://github.com/travis-ci/apt-package-whitelist/issues/1096)
+>      - libcunit1-dev
+>      - libdbus-glib-1-dev
+> -    - libncurses5-dev
+>      - libpcre3-dev
+>      - patch
+>      - python3-dev
+> diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
+> index e7e305e8150b..fc9bd1a303be 100644
+> --- a/libsepol/tests/Makefile
+> +++ b/libsepol/tests/Makefile
+> @@ -32,7 +32,7 @@ all: $(EXE) $(policies)
+>  policies: $(policies)
+>
+>  $(EXE): $(objs) $(parserobjs) $(LIBSEPOL)
+> -       $(CC) $(LDFLAGS) $(objs) $(parserobjs) -lcunit -lcurses $(LIBSEPOL) -o $@
+> +       $(CC) $(LDFLAGS) $(objs) $(parserobjs) -lcunit $(LIBSEPOL) -o $@
+>
+>  %.conf.std: $(m4support) %.conf
+>         $(M4) $(M4PARAMS) $^ > $@
+> --
+> 2.26.2
+>
