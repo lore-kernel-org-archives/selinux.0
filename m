@@ -5,109 +5,118 @@ X-Spam-Level:
 X-Spam-Status: No, score=-11.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EA7AC47253
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 13:58:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34F39C4724C
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 15:48:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3BFFD2051A
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 13:58:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0F4B1216FD
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 15:48:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZY2XxhmO"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tNYIoxD7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729328AbgEAN60 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 May 2020 09:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729985AbgEAN6Y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 09:58:24 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40199C061A0C
-        for <selinux@vger.kernel.org>; Fri,  1 May 2020 06:58:24 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id i27so2593447ota.7
-        for <selinux@vger.kernel.org>; Fri, 01 May 2020 06:58:24 -0700 (PDT)
+        id S1729670AbgEAPs5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 May 2020 11:48:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729126AbgEAPs5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 11:48:57 -0400
+Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1187CC061A0C
+        for <selinux@vger.kernel.org>; Fri,  1 May 2020 08:48:57 -0700 (PDT)
+Received: by mail-il1-x142.google.com with SMTP id r2so4809689ilo.6
+        for <selinux@vger.kernel.org>; Fri, 01 May 2020 08:48:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=irCF2wSPCrUydU2nTQEmqkFnwVvD6A3WcUOuWXrT1Wg=;
-        b=ZY2XxhmOQN0up1ZwTtQmu041L7FeVwrqZKV9b5pYdcAj1IbFPNSn6lwPQILJDyTnbN
-         hBfyjqDwxpJiJAtr89QEUigw5p6GNSsxvjfG5DAtdcdHRN0iWLb744raRPsOWloD766z
-         IbDCP/f2K8pJFnnbhOXDFYc32laOdccQDTZIsmanlzCeExahaFFEWW2xn3aVYsdPjCAa
-         HqmX7dOGEj7YlOM5OS9HUa8CnDhWhxbmjQPgya03RCzUiuJroddr3ASNG1GVMzms01Eg
-         HH8w8pstkG8/ltKRpX5S/YGFOR6ycqhM7ZPwodC5zGSHWq2SN0eOrZ0mafOP2b50wySV
-         EC8w==
+         :cc:content-transfer-encoding;
+        bh=AuIO1vrRra0tinGjHyOWtikRHaQFRlZnYUn1iA2M4yU=;
+        b=tNYIoxD7hZ2n9aC4W6H90bA6if2SXC2rTZWhDfPmKRtZCKDsOA+1HEMuFrpiLkdfp+
+         H212oV/UEgJPlIWiW38X0NK3046wAjjUHEkY++5BRxQ4DDfdZe5xmBRvVvkdIRtdzZUw
+         DPh2u5lwV5NzTZ9GIBmkZ5CcoHSKnKpGZ8UUebJOp3AbRZusSI4ZxDmNa6zS9oaha8HV
+         oN2X9XvhNJrXfgr1cTK9jTLkho0vUMtb6SJrWDkwpSPlWtDQHutFHC+FFISzLJ1Gwjr8
+         Q7uQqNyKIzcMn1GrkWW0mvtEKiXyYi4Tb0dLsciePh69KsC/fFuqOMS1axRjuuzQ1K7N
+         UJQw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=irCF2wSPCrUydU2nTQEmqkFnwVvD6A3WcUOuWXrT1Wg=;
-        b=JAndXTjTrLvfbefVr9c/eKkdonnaGSJyfue3YDqTDQMcg35fa/wU2JmMRSYl7oRYtt
-         +7C75xDCe5Xo+xiSC00M3SzktGJTGdP51cGvI/oDES6Lv9r4aWzqw+U1QIQNbVo+9VLV
-         zTPrE2+Oz9tbEiYZp85ts4aFw53ZL1L0qvmZ41V/XLpiiLoXcTTkI8lVzXuY+3g+zYAR
-         n980xfRWxodIdbH0Er0tgtt819qBbX9K4bFhVbTC2gdiA35m+LSoxUjToEq14WVhxkyr
-         F3i1xxwM31KQeq2vTbOQnGjFW8DtuqMpdcq//26DV+B5gsFEvXfa/tchFO7gEZBNMglk
-         PCIA==
-X-Gm-Message-State: AGi0PuY6Oh9FVdT4TfDUZx39JTFcCyC2ZCaoAD2y/76L9dNMaoNJM9Vj
-        s8YclAAIGdVOrQY3w7FgUdo0BcDFPduAYzB6IMUHGO05
-X-Google-Smtp-Source: APiQypIM10Qf57uahQdGDsfiFDPR0sOq7A+dcrlnLr1RAKil8ZEtIjGNDufC3BqueY+GUPgKEqpY+/2pIBLx7GYw5q0=
-X-Received: by 2002:a9d:569:: with SMTP id 96mr3524683otw.59.1588341503657;
- Fri, 01 May 2020 06:58:23 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=AuIO1vrRra0tinGjHyOWtikRHaQFRlZnYUn1iA2M4yU=;
+        b=kP5mz1opQfdyKP+HUHhRS+6T2Qugfv8VnA71f2d4Qtf8GHM9zLtgjWTo1LIeOQu/U6
+         +Qjxu00jEC5fjPRaZOqcYzXscd97kind0bPwRq3BgqyjTtU3VPmhcXewpGTJdnYcMcCT
+         v3wZjRsOxltAWF+LUrH84QpPxAevkzAvWDxAL5BI2AVweWGtEyiA/coyAJR5btFB5ARj
+         QAzhBHRC2i1a4IPWYbEWMRsYaVO1wZCKoRPQCLMLpU0n01qVQJKHzSuUd/pW46ONgCpF
+         sAKXIy17zC0IbNO6PnIBHPzs4//wc992eHo+cbA/egUUBmVSG8ll7T4liawSjUDmh37f
+         tTBw==
+X-Gm-Message-State: AGi0PuYbxeCuATEnEQS2D4lAvL3Qsftp3hKLachkUIGh3aUxc2zj3jTN
+        tVhE3cm9967DGIjqqVfpNwSRErbCjvkZhf5HCbk699/zM44=
+X-Google-Smtp-Source: APiQypJy8paj63U7qnEO9LEUci42vZrRPqHFxExYywY5ztMg+7w1K05kb6eikaoTX9wiTGQYIah3+dgXRttdLlv2ZKo=
+X-Received: by 2002:a92:c9c8:: with SMTP id k8mr4262110ilq.141.1588348135794;
+ Fri, 01 May 2020 08:48:55 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200501092330.1129016-1-nicolas.iooss@m4x.org>
-In-Reply-To: <20200501092330.1129016-1-nicolas.iooss@m4x.org>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 1 May 2020 09:58:12 -0400
-Message-ID: <CAP+JOzS7cBr2ANcKoYa-x_C-LHMWoXB2oLbdtfAyYPr4vWT-Tg@mail.gmail.com>
-Subject: Re: [PATCH] libsepol/tests: drop ncurses dependency
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200420114650.19093-1-cgzones@googlemail.com>
+ <20200430150318.6406-1-cgzones@googlemail.com> <476DC76E7D1DF2438D32BFADF679FC5649ED8BA3@ORSMSX101.amr.corp.intel.com>
+In-Reply-To: <476DC76E7D1DF2438D32BFADF679FC5649ED8BA3@ORSMSX101.amr.corp.intel.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Fri, 1 May 2020 10:48:44 -0500
+Message-ID: <CAFftDdr-nL4ydpHQ=8jufrP4CXwCUMSvdkM54Y1v2Y9xMJwwgw@mail.gmail.com>
+Subject: Re: [PATCH v2] libselinux: mark security_context_t typedef as deprecated
+To:     "Roberts, William C" <william.c.roberts@intel.com>
+Cc:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 1, 2020 at 5:25 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> > -----Original Message-----
+> > From: selinux-owner@vger.kernel.org [mailto:selinux-owner@vger.kernel.o=
+rg]
+> > On Behalf Of Christian G=C3=B6ttsche
+> > Sent: Thursday, April 30, 2020 10:03 AM
+> > To: selinux@vger.kernel.org
+> > Subject: [PATCH v2] libselinux: mark security_context_t typedef as depr=
+ecated
+> >
+> > Follow-up of: 9eb9c9327563014ad6a807814e7975424642d5b9 ("Get rid of
+> > security_context_t and fix const declarations.")
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> > ---
+> > v2: use the common deprecation style
+> >
+> >  libselinux/include/selinux/selinux.h | 6 +++++-
+> >  1 file changed, 5 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/libselinux/include/selinux/selinux.h
+> > b/libselinux/include/selinux/selinux.h
+> > index aaf28ffd..c22834e5 100644
+> > --- a/libselinux/include/selinux/selinux.h
+> > +++ b/libselinux/include/selinux/selinux.h
+> > @@ -14,7 +14,11 @@ extern int is_selinux_enabled(void);  extern int
+> > is_selinux_mls_enabled(void);
+> >
+> >  /* No longer used; here for compatibility with legacy callers. */ -typ=
+edef char
+> > *security_context_t;
+> > +typedef char *security_context_t
+> > +#ifdef __GNUC__
+> > +__attribute__ ((deprecated))
+> > +#endif
+> > +;
+> >
+> >  /* Free the memory allocated for a context by any of the below get* ca=
+lls. */
+> > extern void freecon(char * con);
+> > --
+> > 2.26.2
 >
-> ncurses library is not used anywhere.
->
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+> Acked-by: William Roberts <william.c.roberts@intel.com>
 
-Acked-by: James Carter <jwcart2@gmail.com>
+Merged:
+https://github.com/SELinuxProject/selinux/pull/233
 
-
-> ---
->  .travis.yml             | 1 -
->  libsepol/tests/Makefile | 2 +-
->  2 files changed, 1 insertion(+), 2 deletions(-)
->
-> diff --git a/.travis.yml b/.travis.yml
-> index 918958acfc80..4361d26cbb83 100644
-> --- a/.travis.yml
-> +++ b/.travis.yml
-> @@ -53,7 +53,6 @@ addons:
->      - libcap-ng-dev # This package is not whitelisted for the container infrastructure (https://github.com/travis-ci/apt-package-whitelist/issues/1096)
->      - libcunit1-dev
->      - libdbus-glib-1-dev
-> -    - libncurses5-dev
->      - libpcre3-dev
->      - patch
->      - python3-dev
-> diff --git a/libsepol/tests/Makefile b/libsepol/tests/Makefile
-> index e7e305e8150b..fc9bd1a303be 100644
-> --- a/libsepol/tests/Makefile
-> +++ b/libsepol/tests/Makefile
-> @@ -32,7 +32,7 @@ all: $(EXE) $(policies)
->  policies: $(policies)
->
->  $(EXE): $(objs) $(parserobjs) $(LIBSEPOL)
-> -       $(CC) $(LDFLAGS) $(objs) $(parserobjs) -lcunit -lcurses $(LIBSEPOL) -o $@
-> +       $(CC) $(LDFLAGS) $(objs) $(parserobjs) -lcunit $(LIBSEPOL) -o $@
->
->  %.conf.std: $(m4support) %.conf
->         $(M4) $(M4PARAMS) $^ > $@
-> --
-> 2.26.2
->
+Thanks
