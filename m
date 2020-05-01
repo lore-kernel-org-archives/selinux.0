@@ -2,197 +2,110 @@ Return-Path: <SRS0=RO9B=6P=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C046CC47254
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 07:37:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A634EC4724C
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 07:45:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8D7492071C
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 07:37:46 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YgINK+8v"
+	by mail.kernel.org (Postfix) with ESMTP id 8B498208C3
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 07:45:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728253AbgEAHhq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 May 2020 03:37:46 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:24944 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728212AbgEAHhp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 03:37:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588318663;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=yZ29X8UHX2vgdRRmyElZmigqHqwCpbBVhADEDp2k918=;
-        b=YgINK+8vhmI9u7HmfxTGCDuzep0gd3AOcl1JBASnhn5h9Jg/6meHheRUc3P8EjhylUzReD
-        Lp5HZkPMGDYByFMFg8KrV/cU4zXb6HZtGM24GOmikKXhk/sGFFSrsF/QFsOmuqFNV4vrA2
-        6upqGEfGRi7T6evbcwZ6FH9GjILB3Dc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-201-7qn2aR5jN_q5mOIYy-WB_A-1; Fri, 01 May 2020 03:37:39 -0400
-X-MC-Unique: 7qn2aR5jN_q5mOIYy-WB_A-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1728305AbgEAHpU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 May 2020 03:45:20 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:52954 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728253AbgEAHpU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 03:45:20 -0400
+Received: from mail-oo1-f52.google.com (mail-oo1-f52.google.com [209.85.161.52])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8F650800D24;
-        Fri,  1 May 2020 07:37:38 +0000 (UTC)
-Received: from workstation (unknown [10.40.192.102])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id B72C15D9CA;
-        Fri,  1 May 2020 07:37:37 +0000 (UTC)
-Date:   Fri, 1 May 2020 09:37:34 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Topi Miettinen <toiwoton@gmail.com>
-Subject: Re: [PATCH v2] sepolicy: fix some typos and port definitions
-Message-ID: <20200501073734.GA210172@workstation>
-References: <20200430183035.9976-1-toiwoton@gmail.com>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 1C4615613B9
+        for <selinux@vger.kernel.org>; Fri,  1 May 2020 09:45:16 +0200 (CEST)
+Received: by mail-oo1-f52.google.com with SMTP id t12so568875oot.2
+        for <selinux@vger.kernel.org>; Fri, 01 May 2020 00:45:16 -0700 (PDT)
+X-Gm-Message-State: AGi0PuZ5e1KHUOiCYPeBhXtqIdwcmAreA7HLdAHvO7gZH4VRnzSc2yis
+        AItR2VWg5tMSHzxxdj6MNpxa1FlyQxcx6TjChe4=
+X-Google-Smtp-Source: APiQypJLceG6P6Z5W6bFOjd+sSCivkM9DykUW8lX10sy6MrI0URR7Dw5ZxepwLMrEVCj1hVM7qilY4a/thYI/IPEKHk=
+X-Received: by 2002:a4a:accf:: with SMTP id c15mr2709802oon.29.1588319115004;
+ Fri, 01 May 2020 00:45:15 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200430183035.9976-1-toiwoton@gmail.com>
-Acked-by: Petr Lautrbach <plautrba@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
-Content-Disposition: inline
+References: <20200430110835.138643-1-plautrba@redhat.com> <20200430110835.138643-2-plautrba@redhat.com>
+In-Reply-To: <20200430110835.138643-2-plautrba@redhat.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Fri, 1 May 2020 09:45:03 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==TsNc0+0FSH4tdm5xGgMrkns2sQBcPhSs0hqtc2Pnatw@mail.gmail.com>
+Message-ID: <CAJfZ7==TsNc0+0FSH4tdm5xGgMrkns2sQBcPhSs0hqtc2Pnatw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] restorecond: Use pkg-config to get locations for
+ systemd units
+To:     Petr Lautrbach <plautrba@redhat.com>,
+        Laurent Bigonville <bigon@bigon.be>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri May  1 09:45:16 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---mYCpIKhGyMATD0i+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Apr 30, 2020 at 1:08 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
+> The user systemd service file could be installed in an other location than the
+> system ones. In debian for example, the system files are installed
+> /lib/systemd/system and the user ones in /usr/lib/systemd/user.
+>
+> Suggested-by: Laurent Bigonville <bigon@bigon.be>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
 
-On Thu, Apr 30, 2020 at 09:30:35PM +0300, Topi Miettinen wrote:
-> The range of unreserved ports starts from 1024 and ends to
-> 65535 (inclusive). (Secure) RPC ports can be between 512 and
-> 1023 (inclusive).
->=20
-> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+I confirm the pkg-config commands work on Arch Linux too. By the way,
+on Debian this patch makes building restorecond now require systemd to
+be installed (because /usr/share/pkgconfig/systemd.pc is provided by
+package "systemd"), but I guess this shouldn't be an issue.
 
-Acked-by: Petr Lautrbach <plautrba@redhat.com>
+For both patches:
 
-Thanks!
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-It there's no other comment I'll merge this and the other patch on Monday.
-
+You can merge them when you want, or I will do so on Monday.
+Thanks,
+Nicolas
 
 > ---
->  python/sepolicy/sepolicy/generate.py  | 4 ++--
->  python/sepolicy/sepolicy/interface.py | 2 +-
->  python/sepolicy/sepolicy/network.py   | 6 +++---
->  3 files changed, 6 insertions(+), 6 deletions(-)
->=20
-> diff --git a/python/sepolicy/sepolicy/generate.py b/python/sepolicy/sepol=
-icy/generate.py
-> index e8d07e7d..4e1ed4e9 100644
-> --- a/python/sepolicy/sepolicy/generate.py
-> +++ b/python/sepolicy/sepolicy/generate.py
-> @@ -340,7 +340,7 @@ class policy:
->              (self.generate_root_user_types, self.generate_root_user_rule=
-s),
->              (self.generate_new_types, self.generate_new_rules))
->          if not re.match(r"^[a-zA-Z0-9-_]+$", name):
-> -            raise ValueError(_("Name must be alpha numeric with no space=
-s. Consider using option \"-n MODULENAME\""))
-> +            raise ValueError(_("Name must be alphanumeric with no spaces=
-. Consider using option \"-n MODULENAME\""))
-> =20
->          if type =3D=3D CGI:
->              self.name =3D "httpd_%s_script" % name
-> @@ -438,7 +438,7 @@ class policy:
-> =20
->      def set_init_script(self, initscript):
->          if self.type !=3D DAEMON:
-> -            raise ValueError(_("Only Daemon apps can use an init script.=
-."))
-> +            raise ValueError(_("Only Daemon apps can use an init script.=
-"))
-> =20
->          self.initscript =3D initscript
-> =20
-> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepo=
-licy/interface.py
-> index 187419fa..7d4ebd7e 100644
-> --- a/python/sepolicy/sepolicy/interface.py
-> +++ b/python/sepolicy/sepolicy/interface.py
-> @@ -198,7 +198,7 @@ def get_xml_file(if_file):
->      filename =3D os.path.basename(if_file).split(".")[0]
->      rc, output =3D getstatusoutput("/usr/bin/python3 /usr/share/selinux/=
-devel/include/support/segenxml.py -w -m %s" % (basedir + filename))
->      if rc !=3D 0:
-> -        sys.stderr.write("\n Could not proceed selected interface file.\=
-n")
-> +        sys.stderr.write("\n Could not process selected interface file.\=
-n")
->          sys.stderr.write("\n%s" % output)
->          sys.exit(1)
->      else:
-> diff --git a/python/sepolicy/sepolicy/network.py b/python/sepolicy/sepoli=
-cy/network.py
-> index ff308fad..d26a7ce6 100755
-> --- a/python/sepolicy/sepolicy/network.py
-> +++ b/python/sepolicy/sepolicy/network.py
-> @@ -49,15 +49,15 @@ def get_network_connect(src, protocol, perm, check_bo=
-ols=3DFalse):
->                  if "port_t" in tlist:
->                      continue
->              if i =3D=3D "port_t":
-> -                d[(src, protocol, perm)].append((i, ["all ports with out=
- defined types"]))
-> +                d[(src, protocol, perm)].append((i, ["all ports without =
-defined types"]))
->              if i =3D=3D "port_type":
->                  d[(src, protocol, perm)].append((i, ["all ports"]))
->              elif i =3D=3D "unreserved_port_type":
-> -                d[(src, protocol, perm)].append((i, ["all ports > 1024"]=
-))
-> +                d[(src, protocol, perm)].append((i, ["all ports >=3D 102=
-4"]))
->              elif i =3D=3D "reserved_port_type":
->                  d[(src, protocol, perm)].append((i, ["all ports < 1024"]=
-))
->              elif i =3D=3D "rpc_port_type":
-> -                d[(src, protocol, perm)].append((i, ["all ports > 500 an=
-d  < 1024"]))
-> +                d[(src, protocol, perm)].append((i, ["all ports >=3D 512=
- and < 1024"]))
->              else:
->                  try:
->                      d[(src, protocol, perm)].append((i, portrecs[(i, pro=
-tocol)]))
-> --=20
+>  restorecond/Makefile | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+>
+> diff --git a/restorecond/Makefile b/restorecond/Makefile
+> index 4de9642b0f6a..8e9a5ef1cfa1 100644
+> --- a/restorecond/Makefile
+> +++ b/restorecond/Makefile
+> @@ -7,7 +7,8 @@ SBINDIR ?= $(PREFIX)/sbin
+>  MANDIR = $(PREFIX)/share/man
+>  AUTOSTARTDIR = /etc/xdg/autostart
+>  DBUSSERVICEDIR = $(PREFIX)/share/dbus-1/services
+> -SYSTEMDDIR ?= $(PREFIX)/lib/systemd
+> +SYSTEMDSYSTEMUNITDIR ?= $(shell $(PKG_CONFIG) --variable=systemdsystemunitdir systemd)
+> +SYSTEMDUSERUNITDIR ?= $(shell $(PKG_CONFIG) --variable=systemduserunitdir systemd)
+>
+>  autostart_DATA = sealertauto.desktop
+>  INITDIR ?= /etc/rc.d/init.d
+> @@ -48,10 +49,10 @@ install: all
+>         install -m 644 restorecond.desktop $(DESTDIR)$(AUTOSTARTDIR)/restorecond.desktop
+>         -mkdir -p $(DESTDIR)$(DBUSSERVICEDIR)
+>         install -m 644 org.selinux.Restorecond.service  $(DESTDIR)$(DBUSSERVICEDIR)/org.selinux.Restorecond.service
+> -       -mkdir -p $(DESTDIR)$(SYSTEMDDIR)/system
+> -       install -m 644 restorecond.service $(DESTDIR)$(SYSTEMDDIR)/system/
+> -       -mkdir -p $(DESTDIR)$(SYSTEMDDIR)/user
+> -       install -m 644 restorecond_user.service $(DESTDIR)$(SYSTEMDDIR)/user/
+> +       -mkdir -p $(DESTDIR)$(SYSTEMDSYSTEMUNITDIR)
+> +       install -m 644 restorecond.service $(DESTDIR)$(SYSTEMDSYSTEMUNITDIR)
+> +       -mkdir -p $(DESTDIR)$(SYSTEMDUSERUNITDIR)
+> +       install -m 644 restorecond_user.service $(DESTDIR)$(SYSTEMDUSERUNITDIR)
+>  relabel: install
+>         /sbin/restorecon $(DESTDIR)$(SBINDIR)/restorecond
+>
+> --
 > 2.26.2
->=20
-
---=20
-()  ascii ribbon campaign - against html e-mail=20
-/\  www.asciiribbon.org   - against proprietary attachments
-
---mYCpIKhGyMATD0i+
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6r0bgACgkQviIJHj72
-InUajA/+ODR5JAN6Jo5xXJqzyW5Gyp+VMgGtx7RaCR3lx11izgKEUrFi8jucFdXa
-10ewutHm0ckYp18KKXCOH7rnYK9OH30kUO5f952F4Wae7l/2yZszDkePDDgrQhL3
-tbmF5NgnOIC2samY6VLBUJGXhznPPRn5vwvTaWbdJWLOr/48oDXt5SV4dw/L1vGf
-ru7tSsnFiiCbeeljlhn6NyvBv8i0tLYxsV/IUIFPsTeL5+36VO3Pk9JyikuSHVNW
-/Rvmh3XM1tvLzwbIWzg8PKlAgC8v3dgQA1Dx2E/sSBivCcKmkRgQboYYah5H03au
-846kjFSO9Q/rs9ghPa0reP8XSRiTfIBSrcSRkmMGiN5wrbdZ6e6sKVShBZfWj6yG
-wiT5lk1jciotscz6DHV+XGdb3Ecg1VzUEx5nk2N75mSZwlOr/JkW6fxYb6mzjaB4
-/6myExX/MQ51g+e42GCsBCdRG5c8dcKw9ceRdrwNW3LQIMbSq/TAykNBivmuIcDP
-H1oeS6q41+y2q3z6ixTptGq7zABqB0Haztz3EtcLaX+KN4RM5Ti/8AyyZEiGfeym
-tYuqKVBSjwXA7A2/aUHz+rju81ajm2AvP81Tpjw4hMCP5F8Ig5seFOeRQPWrGiCT
-DFnm1xjJjcCLLpTjB7UIqvsVbxHXlXz5yciuy6FQUNmzU326VyE=
-=z11D
------END PGP SIGNATURE-----
-
---mYCpIKhGyMATD0i+--
+>
 
