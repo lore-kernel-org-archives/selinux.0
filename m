@@ -2,126 +2,89 @@ Return-Path: <SRS0=RO9B=6P=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47659C47257
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 18:32:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3ABDC47253
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 19:05:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1AE142192A
-	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 18:32:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B0BB72173E
+	for <selinux@archiver.kernel.org>; Fri,  1 May 2020 19:05:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kZXV9bIn"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="oq5HWHKt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730497AbgEASc5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 1 May 2020 14:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42090 "EHLO
+        id S1730122AbgEATFA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 1 May 2020 15:05:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1730217AbgEASc4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 14:32:56 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E5D8C061A0C;
-        Fri,  1 May 2020 11:32:56 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id i27so3253974ota.7;
-        Fri, 01 May 2020 11:32:56 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1729839AbgEATFA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 1 May 2020 15:05:00 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FEEC061A0C
+        for <selinux@vger.kernel.org>; Fri,  1 May 2020 12:04:59 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id w2so7987727edx.4
+        for <selinux@vger.kernel.org>; Fri, 01 May 2020 12:04:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=9Qmvh7uhlyOv4U/7qQXX/hfMofRU+8ICG2gVkpg7rmk=;
-        b=kZXV9bInoZgJZ6HcAzR1LvYHwm6qz4GdGcfC9CuZU8l1X90m8ZACPZyx9Egtr4dkCL
-         rrzq3uMlbI+GWeTbNNsgbHUdVKHuNVCAtQFBUzrJMoL5kbUlrTVwSwl8+sE5s8vguu0F
-         VigKCrXGIMYLKYFOWXqZ1VO6O//p8QyXKArUQ/n3dvBMyRekxE4W4BHw0AQ7WRQU6N1s
-         bKzqmWtc/ZzVXbQxnY6rkqbw1v/zNmPxhlFmLMYAqA4eNUqAQTFJ3zYpww+au0AVdMSb
-         cRivk+oC1QCzQ3ehMajKTypmSk6ULqUaOVAwQFgUfvTAIzCEIXBUCTdIuSHpK1zaLfu3
-         rkng==
+        bh=utiKFhMFXax2OSf9CMAz2YObyOkSwIwuAyj2ZKdulc4=;
+        b=oq5HWHKtpvZhq9Q4KlwOYZdn3kapwhhlYk3Z8d+VY1HjYiKGJfLvL4rMXUOmjCiOi2
+         rEzT3m6v7K/GH4BM0xHlQEJa0i/UzAZ9YJbTmvTgOWqKg+7MeF6PR4SXC7EOdV9Lq1zJ
+         48FYnYBrAjn+i2iMOJJihvDTfAFIXdX+joUTLsUYvgkpZhhH6m7Trb++ErRMxGAmt9tM
+         8ViPwEkD1aHDaR25v3rdHlxgiRINkjXYwztVpkicEyDKDMg78wSoAUY2AxqVJSgAdodt
+         vvqbk1sLQkTkDayB/suEffQjLEWfcA7vRQgpUo3uetmMHt4OpbgFXII6BcMCj5Y86mq7
+         aqng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=9Qmvh7uhlyOv4U/7qQXX/hfMofRU+8ICG2gVkpg7rmk=;
-        b=JaFIh3iG+7XxvPUBQu3tXJYZAs4rNgM50uxuqhGfQJkMcNXSRGzKhwSavfWpdFYElr
-         wCwHJ4/7I6+LAYhl7CmipexWvT2OlwOULE+vdEHXulROGcRHBfKoeecXfUM3t54QfVr3
-         A4eoirpi6sRjQREfznXlFTcVrnUAWelX3trA8lzs8brKjGwq+3lTE9SWNatO3QF0H2Tn
-         E6WqU4ELBVAqKfGvI1Lz3zE7ugYCRraeORYopRHbMMbxY+7pQRpS3Kclw5DvPtvd4hZM
-         OL0LHS3QsANVghm7paP9xf8a8C9sxL2ZRQ52/XNI6U7PE6whsnPJwFJ/vjGgYs8GqIgy
-         PTEg==
-X-Gm-Message-State: AGi0PubNPoo7d1kYIXLpW8bjnFVVPm6AunUdZkGOGB5kBOYF4RIgicU3
-        pFzaFCOXzoXaqdlQNnbMVcz6945GnHp8q8V/Tts=
-X-Google-Smtp-Source: APiQypJOFNfYRfkorFkvPPm6K3ku1eNh71oc68jWQ44FcH3mdHql3grbEMaEE5R0nAfi/q55r/8QvDIA3m4Z7j9NL1A=
-X-Received: by 2002:a9d:2aa9:: with SMTP id e38mr4743248otb.162.1588357975980;
- Fri, 01 May 2020 11:32:55 -0700 (PDT)
+        bh=utiKFhMFXax2OSf9CMAz2YObyOkSwIwuAyj2ZKdulc4=;
+        b=qvz0sGeNPh69A8dQZOfZ8un2/4W42z9hpw6HrW/sYusXuPHfZICqD0o+WUr4C1PnS9
+         G5koh+u60UWSl0JV6tV5t/IbpKHMMvOM2458IPmLf9cc5P7mTOwj2zMgRy5p4xLvVmFJ
+         Eda1x5OKQIlhRDxR9ax0XO7BsUr6UTc8Odp4Tdlhv0y7EyvKWbyVXgJDd76ySi+BQ+SN
+         OlbPWUntzRUsGQdeVk9AI8mUT/xU/6fNEWD+xY0M5Uci/EXPQPBeSnkEUBwTaha/0x1i
+         LJ7VN4kCCWxsd/gegzM7CWASOee/RyGMmegw2YZpIaKYf5gQu92GxEvwJ5P27t/080X/
+         0goA==
+X-Gm-Message-State: AGi0PuY0Lni6lY1kJpCVN+lyXBowZr8LsD6r2GDucC5rqAKkR6pLdaVQ
+        JtmIBwH82gFiBdCRpfgNEZ7CWWVUqQOaXyRHTYx+
+X-Google-Smtp-Source: APiQypISLqBVM6kAdnC7efBpEr9zhjdt95eJNwvxrlblEIgNTRzv6tN3iMIHWIcLkDLNQdSTsdwnZhFXbUB63kTupMk=
+X-Received: by 2002:aa7:cd59:: with SMTP id v25mr4497234edw.135.1588359898382;
+ Fri, 01 May 2020 12:04:58 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAJFHJroyC8SAFJZuQxcwHqph5EQRg=MqFdvfnwbK35Cv-A-neA@mail.gmail.com>
- <CAJfpegtWEMd_bCeULG13PACqPq5G5HbwKjMOnCoXyFQViXE0yQ@mail.gmail.com>
-In-Reply-To: <CAJfpegtWEMd_bCeULG13PACqPq5G5HbwKjMOnCoXyFQViXE0yQ@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 1 May 2020 14:32:43 -0400
-Message-ID: <CAEjxPJ56JXRr0MWxtekBhfNS7i8hFex2oiwqGYrh=m1cH9X4kg@mail.gmail.com>
-Subject: Re: fuse doesn't use security_inode_init_security?
-To:     Miklos Szeredi <miklos@szeredi.hu>
-Cc:     Chirantan Ekbote <chirantan@chromium.org>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        fuse-devel <fuse-devel@lists.sourceforge.net>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        LSM <linux-security-module@vger.kernel.org>,
-        virtio-fs-list <virtio-fs@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
+References: <20200429073053.83660-1-weiyongjun1@huawei.com>
+In-Reply-To: <20200429073053.83660-1-weiyongjun1@huawei.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 1 May 2020 15:04:47 -0400
+Message-ID: <CAHC9VhTEHJiRm-9zkic1mUyVJ6WNLL8AhzRsbq+bf7q2GDdCgA@mail.gmail.com>
+Subject: Re: [PATCH -next] selinux: fix error return code in policydb_read()
+To:     Wei Yongjun <weiyongjun1@huawei.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Jeff Vander Stoep <jeffv@google.com>,
+        selinux@vger.kernel.org, kernel-janitors@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 1, 2020 at 3:54 AM Miklos Szeredi <miklos@szeredi.hu> wrote:
+On Wed, Apr 29, 2020 at 3:29 AM Wei Yongjun <weiyongjun1@huawei.com> wrote:
 >
-> On Fri, May 1, 2020 at 8:55 AM Chirantan Ekbote <chirantan@chromium.org> wrote:
-> >
-> > Hello,
-> >
-> > I noticed that the fuse module doesn't currently call
-> > security_inode_init_security and I was wondering if there is a
-> > specific reason for that.  I found a patch from 2013[1] that would
-> > change fuse so that it would call that function but it doesn't appear
-> > that the patch was merged.
-> >
-> > For background: I currently have a virtio-fs server with a guest VM
-> > that wants to use selinux.  I was able to enable selinux support
-> > without much issue by adding
-> >
-> >     fs_use_xattr virtiofs u:object_r:labeledfs:s0;
-> >
-> > to the selinux policy in the guest.  This works for the most part
-> > except that `setfscreatecon` doesn't appear to work.  From what I can
-> > tell, this ends up writing to `/proc/[pid]/attr/fscreate` and the
-> > attributes actually get set via the `inode_init_security` lsm hook in
-> > selinux.  However, since fuse doesn't call
-> > `security_inode_init_security` the hook never runs so the
-> > file/directory doesn't have the right attributes.
-> >
-> > Is it safe to just call `security_inode_init_security` whenever fuse
-> > creates a new inode?  How does this affect non-virtiofs fuse servers?
+> Fix to return negative error code -ENOMEM from the kvcalloc() error
+> handling case instead of 0, as done elsewhere in this function.
 >
-> Not sure,  Adding more Cc's.
->
-> I know there's a deadlock scenario with getxattr called on root inode
-> before mount returns, which causes a deadlock unless mount is run in
-> the background.  Current libfuse doesn't handle this, but I think some
-> fuse fs work around this by not using libfuse, or at least have some
-> special setup code (glusterfs? ceph-fuse? not sure...).  I also don't
-> know whether the ->inode_init_security hook is related to this or not.
+> Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+> ---
+>  security/selinux/ss/policydb.c | 1 +
+>  1 file changed, 1 insertion(+)
 
-(cc selinux list)
+Regardless of the other error, this patch fixes a legitimate problem
+so I've merged it into selinux/next with the appropriate fixes tag.
+Thanks.
 
-security_inode_init_security() calls the initxattrs callback to
-actually set each xattr in the backing store (if any), so unless you
-have a way to pass that to the daemon along with the create request
-the attribute won't be persisted with the file.  Setting the xattrs is
-supposed to be atomic with the file creation, not a separate
-setxattr() operation after creating the file, similar to ACL
-inheritance on new files.
-
-Also possibly related
-https://lore.kernel.org/selinux/6df9b58c-fe9b-28f3-c151-f77aa6dd67e7@tycho.nsa.gov/.
+-- 
+paul moore
+www.paul-moore.com
