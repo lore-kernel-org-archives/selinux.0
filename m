@@ -2,158 +2,185 @@ Return-Path: <SRS0=mV6Z=6S=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA651C3A5A9
-	for <selinux@archiver.kernel.org>; Mon,  4 May 2020 12:32:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4E1BC3A5A9
+	for <selinux@archiver.kernel.org>; Mon,  4 May 2020 13:03:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A73FA20661
-	for <selinux@archiver.kernel.org>; Mon,  4 May 2020 12:32:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A04C52063A
+	for <selinux@archiver.kernel.org>; Mon,  4 May 2020 13:03:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bENxhzMs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZKSSHOwP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726796AbgEDMcF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 May 2020 08:32:05 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:28888 "EHLO
+        id S1726445AbgEDNDk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 May 2020 09:03:40 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:37114 "EHLO
         us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726712AbgEDMcF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 May 2020 08:32:05 -0400
+        by vger.kernel.org with ESMTP id S1726351AbgEDNDk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 May 2020 09:03:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588595523;
+        s=mimecast20190719; t=1588597418;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=8QFuori7USVR44t5+xheDZQcebvzmjX9MeKXpoaUUwI=;
-        b=bENxhzMsd8mBxqTflHyK10RVI54egKBSPgBOnU2Yk9IHMJ/UoDMnN8LXduWTvAGtUTSn9S
-        QPbPDsnBPZzwVpRVLmA4zZByV4oHocz7xZcHyIjYz+Dbd0DAYySl7tprMjZUKJKZ78jNSl
-        Sed1egvNdaOeGJ64T8rSQDVaWEFAzA0=
+        bh=gK64IIIRVJOK0NG7Z8YIhMo6d6iPO2Z6halgSQaSSoo=;
+        b=ZKSSHOwPf8Xt/URzLmt0V2vuin5K889hIp5q9DMO2HY1+qVoFpRUN/AVPNcDPXWz93m388
+        sK9Ahe0FDcbOq7gdmE0oh19TTsYaJNQ6JUL0H+aq733eUs1d6en7CZDvPPFYj6KqHxcIvj
+        OHxyouRkMASVtNIymmm3aL1I62iF3JE=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-432-J2PMWODWPnmSgbp9aMM6pg-1; Mon, 04 May 2020 08:31:59 -0400
-X-MC-Unique: J2PMWODWPnmSgbp9aMM6pg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+ us-mta-438-3wmpd8wIODyBoDL6wEyBSg-1; Mon, 04 May 2020 09:03:31 -0400
+X-MC-Unique: 3wmpd8wIODyBoDL6wEyBSg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BE978100CCC6;
-        Mon,  4 May 2020 12:31:58 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C0413107ACF5;
+        Mon,  4 May 2020 13:03:30 +0000 (UTC)
 Received: from workstation (unknown [10.40.195.183])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1718946;
-        Mon,  4 May 2020 12:31:56 +0000 (UTC)
-Date:   Mon, 4 May 2020 14:31:52 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 369286293D;
+        Mon,  4 May 2020 13:03:27 +0000 (UTC)
+Date:   Mon, 4 May 2020 15:03:23 +0200
 From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 2/2] scripts/env_use_destdir: propagate PREFIX, LIBDIR,
- BINDIR, etc.
-Message-ID: <20200504123152.GB251987@workstation>
-References: <20200501092929.1162708-1-nicolas.iooss@m4x.org>
- <20200501092929.1162708-2-nicolas.iooss@m4x.org>
+To:     Christian =?iso-8859-1?Q?G=F6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
+Subject: Re: [PATCH v2] tree-wide: introduce PYTON_SETUP_ARGS to customize
+ setup.py calls on Debian
+Message-ID: <20200504130323.GC251987@workstation>
+References: <20200407114514.40253-1-cgzones@googlemail.com>
+ <20200501134604.20070-1-cgzones@googlemail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200501092929.1162708-2-nicolas.iooss@m4x.org>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <20200501134604.20070-1-cgzones@googlemail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="dc+cDN39EJAMEtIO"
+        protocol="application/pgp-signature"; boundary="1ccMZA6j1vT5UqiK"
 Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---dc+cDN39EJAMEtIO
-Content-Type: text/plain; charset=us-ascii
+--1ccMZA6j1vT5UqiK
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 01, 2020 at 11:29:29AM +0200, Nicolas Iooss wrote:
-> On systems using non-default `PREFIX`, `LIBDIR`, `SHLIBDIR`, `BINDIR`
-> or `SBINDIR`, running
-> `DESTDIR=3D/path/to/destdir ./scripts/env_use_destdir make test`
-> does not perform the intended behavior, because the testing programs and
-> libraries are installed into locations that are not added to
-> `LD_LIBRARY_PATH` nor `PATH`.
->=20
-> More precisely, with `LIBDIR=3D/usr/lib64 SHLIBDIR=3D/lib64`, `env_use_de=
-stdir`
-> does not work. Fix this by adding the installation directories relative
-> to `DESTDIR` in `LD_LIBRARY_PATH` and `PATH`.
->=20
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+On Fri, May 01, 2020 at 03:46:04PM +0200, Christian G=F6ttsche wrote:
+> On Debian the `distutils` module is patched, so `get_python_lib()` return=
+s by default `/usr/lib/python3/dist-packages` (no minor version).
+>
 
-For both patches:
+Could you wrap the commit message to 75 chars per line, please?
 
-Acked-by: Petr Lautrbach <plautrba@redhat.com>
+> But `setuptools` affecting setup.py is not patched to create the library =
+directory at `/usr/lib/python3/dist-packages` by default, rather than a com=
+mand line argument `--install-layout deb` is added.
+>=20
+> Add PYTON_SETUP_ARGS as argument to affected setup.py calls and add a not=
+e in the global ReadMe.
+
+Fix the file name - ReadMe -> README.md
+
+>
+> See https://www.debian.org/doc/packaging-manuals/python-policy/packaging_=
+tools.html section B.1.
+>=20
+> Fixes: https://github.com/SELinuxProject/selinux/issues/187
+
+Please provide Signed-off-by:
+
+Also there's a conflicting patch which changes README.md as well -
+https://patchwork.kernel.org/patch/11522349/ which I'm going to merge. Coul=
+d you
+please rebase this patch based on changes from the mentioned patch?
+
+Other than the comments above, I like the patch. Thanks!
+
 
 > ---
->  scripts/env_use_destdir | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
+> v2:
+>   Use env variable PYTON_SETUP_ARGS instead of internal detection logic
 >=20
-> diff --git a/scripts/env_use_destdir b/scripts/env_use_destdir
-> index 491da58f9207..8274013e9cf0 100755
-> --- a/scripts/env_use_destdir
-> +++ b/scripts/env_use_destdir
-> @@ -22,7 +22,26 @@ if [ -z "${DESTDIR:-}" ] ; then
->  fi
+>  README.md                | 2 ++
+>  libselinux/src/Makefile  | 2 +-
+>  python/sepolicy/Makefile | 2 +-
+>  3 files changed, 4 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/README.md b/README.md
+> index 974280f9..3c97a5a3 100644
+> --- a/README.md
+> +++ b/README.md
+> @@ -18,6 +18,8 @@ To build and install everything under a private directo=
+ry, run:
 > =20
->  export LD_LIBRARY_PATH=3D"$DESTDIR/usr/lib:$DESTDIR/lib"
-> +if [ -n "${PREFIX:-}" ] ; then
-> +    LD_LIBRARY_PATH=3D"$DESTDIR$PREFIX/lib:$LD_LIBRARY_PATH"
-> +fi
-> +if [ -n "${LIBDIR:-}" ] ; then
-> +    LD_LIBRARY_PATH=3D"$DESTDIR$LIBDIR:$LD_LIBRARY_PATH"
-> +fi
-> +if [ -n "${SHLIBDIR:-}" ] ; then
-> +    LD_LIBRARY_PATH=3D"$DESTDIR$SHLIBDIR:$LD_LIBRARY_PATH"
-> +fi
+>      make DESTDIR=3D~/obj install install-pywrap
+> =20
+> +Note: On Debian `PYTON_SETUP_ARGS=3D--install-layout=3Ddeb` needs to be =
+set in order to create the correct python directory structure.
 > +
->  export PATH=3D"$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTDIR=
-/bin:$PATH"
-> +if [ -n "${PREFIX:-}" ] ; then
-> +    PATH=3D"$DESTDIR$PREFIX/sbin:$DESTDIR$PREFIX/bin:$LD_LIBRARY_PATH"
-> +fi
-> +if [ -n "${BINDIR:-}" ] ; then
-> +    PATH=3D"$DESTDIR$BINDIR:$PATH"
-> +fi
-> +if [ -n "${SBINDIR:-}" ] ; then
-> +    PATH=3D"$DESTDIR$SBINDIR:$PATH"
-> +fi
+>  To install as the default system libraries and binaries
+>  (overwriting any previously installed ones - dangerous!),
+>  on x86_64, run:
+> diff --git a/libselinux/src/Makefile b/libselinux/src/Makefile
+> index 73303c36..bccc852d 100644
+> --- a/libselinux/src/Makefile
+> +++ b/libselinux/src/Makefile
+> @@ -174,7 +174,7 @@ install: all
+>  =09ln -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/=
+$(TARGET)
 > =20
->  NEW_PYTHONPATH=3D"$DESTDIR$(${PYTHON:-python3} -c "from distutils.syscon=
-fig import *;print(get_python_lib(plat_specific=3D1, prefix=3D'/usr'))"):$D=
-ESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(get_=
-python_lib(prefix=3D'/usr'))")"
->  if [ -n "${PYTHONPATH:-}" ] ; then
+>  install-pywrap: pywrap
+> -=09$(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)"=
+ && echo --root $(DESTDIR)`
+> +=09$(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)"=
+ && echo --root $(DESTDIR)` $(PYTON_SETUP_ARGS)
+>  =09install -m 644 $(SWIGPYOUT) $(DESTDIR)$(PYTHONLIBDIR)/selinux/__init_=
+_.py
+>  =09ln -sf --relative $(DESTDIR)$(PYTHONLIBDIR)/selinux/_selinux$(PYCEXT)=
+ $(DESTDIR)$(PYTHONLIBDIR)/_selinux$(PYCEXT)
+> =20
+> diff --git a/python/sepolicy/Makefile b/python/sepolicy/Makefile
+> index 69f29fa9..4ad0d4dc 100644
+> --- a/python/sepolicy/Makefile
+> +++ b/python/sepolicy/Makefile
+> @@ -27,7 +27,7 @@ test:
+>  =09@$(PYTHON) test_sepolicy.py -v
+> =20
+>  install:
+> -=09$(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)"=
+ && echo --root $(DESTDIR)`
+> +=09$(PYTHON) setup.py install --prefix=3D$(PREFIX) `test -n "$(DESTDIR)"=
+ && echo --root $(DESTDIR)` $(PYTON_SETUP_ARGS)
+>  =09[ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
+>  =09install -m 755 sepolicy.py $(DESTDIR)$(BINDIR)/sepolicy
+>  =09(cd $(DESTDIR)$(BINDIR); ln -sf sepolicy sepolgen)
 > --=20
 > 2.26.2
 >=20
 
---=20
-()  ascii ribbon campaign - against html e-mail=20
-/\  www.asciiribbon.org   - against proprietary attachments
-
---dc+cDN39EJAMEtIO
+--1ccMZA6j1vT5UqiK
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6wCzIACgkQviIJHj72
-InVq/A/+K3p+0YnRnUhRLxkyxFeh3Qda8oRp9slvlaKVZHX5mNjeIOzAFfPCD/cU
-vI84vXIosii1wBy33QpRkzlbOd6fGa4EGCsNwC39idGZoRUQ/VlMz2t4IhHKHS+w
-EaStSObZQiciwTy1H359n1VuhrqvvtxHLzQhfbiU6mXgfxu6xPLlCAoo8v2SPhaL
-S85aVnue/6QIpMscplCAOnhD0XqMn5hYghs2c6pMhRPPVIiq/9yYtUc0CWuRMYd0
-gtRGqsIF6KtD9pa8cuN0LrkgumN1337WUdpIvqMfPcgiCHF7UKIY8zzG9JFhg/NU
-D8w0wB9jZJDrYflXw5Vc1YTb2raOGSJU/273DYZmbdgYS2kP1iBmQOYuWSpa/37q
-0r+5WkjUC8a68u/YhmCD02cnrzzmCsqFLK05DweSAToGoMntHsI2wW8jSgo5FxZ3
-pjbhkngI+nVJebd4zfeWyETf7celVQxb/EXRN1gkS2XwJXies74/72aS2OJUOckQ
-Dh0u0zvMZ+j1GypbzYAQfL5FQuFZqR8t5Kz//UAvG/N1Zbi0UKm8CdUQNs4Gl569
-hrzaKR17U9kyGqKnegG7S1DKdlShuonPMfXDDRmF3WclRAezScSIpBu1wtvgaj4C
-RZ5xuv+B82IsqwFV9EWmPoXsqXjAwBd7wUknu4ocWK8fBts2LpE=
-=B+UK
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6wEpYACgkQviIJHj72
+InXORw/9FuG5t6Y818U9sng/HMEBKOUh8JauPwIykst9i6xhMdq+NcQyRUcie75W
+pgdd1winP3L8xAKB5oizrD2bqSmlrYSWgjCkb5zyem0UhEnieDR8iiNjnkAgK5SR
+cyjIPQRmCcyIM6N0gUXJ7/CAYxT2+PY+fIcdPD/O7H8V4VRsftmFo8Cc4u7d7ALh
+IPFX2eNxOmulaAMNWOn/yLCiVenFwBa4XX3kVxk3GL9HY2Z0bayiAJcYrXcr8gE5
+XLLqU1f9q20onK6EIooTar+k3VyT7hSDN2W4jD7vY4FbkG7PqnF/zrIi2xtAk5QE
+Sf/rlFQGwjhWhutga+Mc4xAHdK5htiWX89TLMa0oPdFEmBmNwMj8Tc8WmywOEUWQ
+dDQnAvjUVRTkPiqnZP0zkG34NLoHD3oqn+K0+VE3fzbRi8l6+tapr6ZecauwZMoh
+mnKba0i3yhCiYPqyqEELce3hRjcD1baEqmn9BySrLQY5mS1TmDhUiB2vQcSTaJHj
+twbsZ84X5JiIehWg+gFjeGlBStwcp8aUnTtpuTTrgufbCg3TZkU0h8rew/mx3BG0
+hCTz/LRRDOcBcsu5jrB+p12XFdPV9DDTHDBuVQd+kUrozmR/wUONvIUk4U/TB6VA
+oaKiVAXHHDyOu5Exg5VHgut8QYGr5YsdL/3Dtag0aW6vQBL9RbQ=
+=ehkL
 -----END PGP SIGNATURE-----
 
---dc+cDN39EJAMEtIO--
+--1ccMZA6j1vT5UqiK--
 
