@@ -2,109 +2,119 @@ Return-Path: <SRS0=mV6Z=6S=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9302CC3A5A9
-	for <selinux@archiver.kernel.org>; Mon,  4 May 2020 11:08:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EFE9C3A5A9
+	for <selinux@archiver.kernel.org>; Mon,  4 May 2020 11:59:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 688F320658
-	for <selinux@archiver.kernel.org>; Mon,  4 May 2020 11:08:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3DA7C2073E
+	for <selinux@archiver.kernel.org>; Mon,  4 May 2020 11:59:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HRf37+N5"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JthYZ2pM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726797AbgEDLIs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 4 May 2020 07:08:48 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:36059 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726445AbgEDLIr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 4 May 2020 07:08:47 -0400
+        id S1728547AbgEDL7d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 4 May 2020 07:59:33 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:53505 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728029AbgEDL7d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 4 May 2020 07:59:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588590526;
+        s=mimecast20190719; t=1588593572;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0e0mhjY2AiN4VtQuL79mgKRKZoVpQzmbAIPvf96mYaY=;
-        b=HRf37+N5IQMAxv+PW8a6jeyt2bKcXdEEA9eGIrmtoIEvnU3PGVz7LpieBuQRTtf59ZsT9I
-        zdCiMAJUFJjZ7BDDUnMhcY8Zuv02DMu9YpjgUUDB2ZK+hzwzIu0JOvEvlDFY7p78b/+6J6
-        rKshufzcWK2mZjznDt5FB/lHIL1/vIE=
-Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
- [209.85.210.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-240-HYaGruARM_-HATxMXi1sdw-1; Mon, 04 May 2020 07:08:45 -0400
-X-MC-Unique: HYaGruARM_-HATxMXi1sdw-1
-Received: by mail-ot1-f69.google.com with SMTP id x3so4740093otp.10
-        for <selinux@vger.kernel.org>; Mon, 04 May 2020 04:08:45 -0700 (PDT)
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=J6p4Ww+xvVudISCyaWaHF6UQ99ZIoypbibTw1/O4b84=;
+        b=JthYZ2pM0LQOXyetKA/Ydo0e4DK5xZun21n9yIKv/XlfjR463zSNnUE7BviUUxsedoqoR4
+        ryt8PmgkJPhJW2ewUmKOcAwrRdLi97hhxSti2io6V4pyeRKUe7FAA7CFnRWbfgcaoTMVKJ
+        JDOQRknvnNa9fq0pFQrz9Hgd3Vjl2TU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-235-jIaXCQa1Pm2Mr4Ov38eggg-1; Mon, 04 May 2020 07:59:28 -0400
+X-MC-Unique: jIaXCQa1Pm2Mr4Ov38eggg-1
+Received: by mail-wr1-f71.google.com with SMTP id e5so10583277wrs.23
+        for <selinux@vger.kernel.org>; Mon, 04 May 2020 04:59:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0e0mhjY2AiN4VtQuL79mgKRKZoVpQzmbAIPvf96mYaY=;
-        b=RCqWHt0bqDJ3gtNlv4hFojRrA4qvLQGi5FdOTXco9HbZXWgP+AE/mPXuTV66FYSxeo
-         ZkZ2Rm/4pbvHbPnA6DM0mjJzdjP4Aw17dRKDQUFgVUATyaz0JEycUxO85Jz/V/RdJJwM
-         MXVIxl7uv+fSdTV2nWv7BiplmZc0mO+0RU4cFGFetieZRVteDiCFGUv0tcicTv7W/30U
-         iYlSivZ8tQvffl1eH1vXwlAcbmdlNYXUBm1eAj854cDADFvHarzm0ASVm9kJPR1O2hM/
-         osUNGfVZHvUdjgVk0nwXZSGqK4cdxsAjW9tSNdgbc982CbhGM8KN1oIXu8DavIH9dDVr
-         CIpg==
-X-Gm-Message-State: AGi0Pubh0kFbSvb5/b+OCpQqs+TUqbhhiVLl6TpxrLsLsBOhZntEsuKj
-        pOpnnImmP9gL7JcARXKiluMSah/gVb8hMDsPAF510/SWczoOGFB9os6OQ465UCAwsTrh+No7gF+
-        A/7yDN6O2gyYfj4OawYkfbpeyvvEykEKAQw==
-X-Received: by 2002:a05:6830:13d4:: with SMTP id e20mr13819309otq.66.1588590524300;
-        Mon, 04 May 2020 04:08:44 -0700 (PDT)
-X-Google-Smtp-Source: APiQypIz95eT6qvbNce4AuES3WtcQQa2guzQjrvvmAKF3dK04advbove0Kub354bXGPk0k6qTVrvM97+PHVGrvSF+9M=
-X-Received: by 2002:a05:6830:13d4:: with SMTP id e20mr13819295otq.66.1588590524065;
- Mon, 04 May 2020 04:08:44 -0700 (PDT)
-MIME-Version: 1.0
-References: <CAFqZXNs88P_VeYgO=9nOX1Z2vpPUVgHxTTqyk6Rj-peqhyN-bA@mail.gmail.com>
- <20200504103842.96472-1-rfilo@redhat.com>
-In-Reply-To: <20200504103842.96472-1-rfilo@redhat.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=J6p4Ww+xvVudISCyaWaHF6UQ99ZIoypbibTw1/O4b84=;
+        b=gHe9dgPTWpMrgevP1X23/S36/0GWqtGR7GFUraIv6RxTe7kmO57E7Iku80GjZQjj5g
+         AIZ7vcKyF7DZGHLJpDU13I3UkcfrqtLqF0l/Dv+cRlaXkkls1P+GV5nR/oeZU5/zlakX
+         NypF41hOlEdAUypR574ZnOJzeCzTUf+febl37dCjxMNdUv2cTaKHonnwyolqrwL3qIqA
+         SAX/NflP4tM9H552oz4hYaKQlbTOy/bobpJ0zMgaaeiybdqDuE1z5qwRhjQeImKshRFn
+         koVqW8r2X332WALnktgROCQ2++X8BW+U0A+k9D4Zi9CFjYEFcG5ue03bTEFopAIRrxqi
+         PQ3Q==
+X-Gm-Message-State: AGi0PuY9YC9WzTdxPj0cLCbtu6brrNve6rwEi80nOJAWDFOJISoM+PKH
+        lm+boWpQH1VeAdZD3VPPZtwgsYGtWRcB2yOgEGfVOot9WD/wMRDflV6ts8lZpow7CNzQZKppqFF
+        2K0IlkpRU6AY8Iw0l0Q==
+X-Received: by 2002:a05:600c:2046:: with SMTP id p6mr14267457wmg.177.1588593566582;
+        Mon, 04 May 2020 04:59:26 -0700 (PDT)
+X-Google-Smtp-Source: APiQypK2SN44I0KXADknW9mWuh8bkzomQe+lY6wG6/NteB5yiEglBvORNuHL03BSFxRpY7Ws5FG2aA==
+X-Received: by 2002:a05:600c:2046:: with SMTP id p6mr14267438wmg.177.1588593566364;
+        Mon, 04 May 2020 04:59:26 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
+        by smtp.gmail.com with ESMTPSA id y9sm12524724wmm.26.2020.05.04.04.59.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 May 2020 04:59:25 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 4 May 2020 13:08:33 +0200
-Message-ID: <CAFqZXNsMAwyzKehCN2oHe7jreUGZOAysvBWXa+yC81B3Q22xVw@mail.gmail.com>
-Subject: Re: [PATCH v3] libselinux: Add missing errno setup
-To:     Richard Filo <rfilo@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: [PATCH v2 0/3] Inline some hashtab functions to improve performance
+Date:   Mon,  4 May 2020 13:59:20 +0200
+Message-Id: <20200504115923.88828-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.25.4
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 4, 2020 at 12:39 PM Richard Filo <rfilo@redhat.com> wrote:
-> Errno is not set to ENOENT when lookup_all() doesn't find any match.
->
-> fixes: https://src.fedoraproject.org/tests/selinux/issue/51
->
-> Signed-off-by: Richard Filo <rfilo@redhat.com>
-> ---
->         -removed check: result != NULL
->
->  libselinux/src/label_file.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 300625c2..74d2027e 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -948,6 +948,8 @@ static const struct spec **lookup_all(struct selabel_handle *rec,
->                         goto finish;
->                 }
->         }
-> +       if (!result[0])
-> +               errno = ENOENT;
->
->  finish:
->         free(clean_key);
-> --
-> 2.25.2
+Right now, hashtab_search(), hashtab_insert(), and hashtab_map() are
+defined in hashtab.c and need to call functions indirectly by function
+pointers. It turns out that defining (the relevent parts of) these
+functions inline in the header and passing the function pointers as
+arguments makes them significantly faster (verified for hashtab_search()
+at least).
 
-Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+The first patch is a minor refactoring of symtab usage in preparation
+for the next patch. The second patch modifies the hashtab interface so
+that callbacks are always passed directly. The last patch finishes the
+job by moving some of the function definitions to the header.
 
-Thanks!
+The last two patches could be also just one patch, but are kept separate
+for easier review of changes in the functions that are being moved
+around.
+
+For more details, please refer to the respective patch descriptions.
+
+Changes in v2:
+ - drop already applied v1 patches 1 and 2
+ - reword patch descriptions to better explain what is going on and why
+ - split out some of the symtab changes into a separate patch
+ - tweak the signature and argument names of symtab_insert()
+
+Ondrej Mosnacek (3):
+  selinux: specialize symtab insert and search functions
+  selinux: prepare for inlining of hashtab functions
+  selinux: complete the inlining of hashtab functions
+
+ security/selinux/ss/conditional.c |   4 +-
+ security/selinux/ss/conditional.h |   2 +-
+ security/selinux/ss/hashtab.c     |  79 ++----------------
+ security/selinux/ss/hashtab.h     |  98 +++++++++++++++++++----
+ security/selinux/ss/mls.c         |  23 +++---
+ security/selinux/ss/policydb.c    | 128 +++++++++++++++++++-----------
+ security/selinux/ss/policydb.h    |   9 +++
+ security/selinux/ss/services.c    |  38 ++++-----
+ security/selinux/ss/symtab.c      |  21 ++++-
+ security/selinux/ss/symtab.h      |   3 +
+ 10 files changed, 232 insertions(+), 173 deletions(-)
 
 -- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+2.25.4
 
