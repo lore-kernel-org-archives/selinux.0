@@ -2,177 +2,169 @@ Return-Path: <SRS0=X6Oi=6T=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F904C47247
-	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 11:34:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EF81C47254
+	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 13:20:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 33922206D7
-	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 11:34:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 030D9206A5
+	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 13:20:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="atw6kE1+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ux1Dk3vT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728497AbgEELen (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 May 2020 07:34:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51792 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728233AbgEELen (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 May 2020 07:34:43 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBB65C061A0F
-        for <selinux@vger.kernel.org>; Tue,  5 May 2020 04:34:42 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id r7so1456417edo.11
-        for <selinux@vger.kernel.org>; Tue, 05 May 2020 04:34:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=tazNIJx3hgg3/k7MSkhCvxxTQxUDlmyO+2LQQ846deA=;
-        b=atw6kE1+PKYKgoCPZecvAzOVzt8hyV+ZTuodz0LiandlvtKYjls2Ga05NLT1pRBFT+
-         7nyNXANE86Qh8l103cdMI0k3YPFc0OOaDaaFT0xhYyESouyVMxInAxEV6zbXaUYTp6uE
-         +yJRgrXqQ1LTk62ssYTANZr4YI6l94iTKRUFWqyFc3DzbGXxlUpzSOWgmql1nX9eAqHf
-         x1rXzJQOSNwHeqDbOHf2RBKfWqU6/dX3UCwyzGIuM3wRtQKTTMT6SBOjPj7Z26AIflc9
-         nMvrL3l/8IECNyDHe2wdawfZIgt/ZjUVwciqznRWfOOPCQaA+mchzz2MSTrZV3vp/Npw
-         94WA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=tazNIJx3hgg3/k7MSkhCvxxTQxUDlmyO+2LQQ846deA=;
-        b=K2XQLZwkYQXCK5cCLnoYvstSTbgURv+zmFHbcC7U4P7da1W1w+jnVHe1jaaoyeHMZf
-         4iqHUIbjGkjbkctqojIeY5dD/8JJXfY5OcN2usRgy8YWqRGuvx0OFzIw1F141yeJr7l+
-         zNMxA00pf6QUrSGA02m7Peqg8jtHy8OL+P7mNWkGGKCyZ11BeNQi96ro0ip3A+KnAPRK
-         WC4fQuoSG9fUHJmuLtGauHT9JyoNvGnS3V2S7bty5KgWOeTX1epmKFYNw08fEjXHEmM5
-         kgdFSozwMy/jRqeyOi5KmUpGT47njJUjZp8r7qNKIlw4BgKF938UskbQihjfFlI8Y62J
-         mq/Q==
-X-Gm-Message-State: AGi0PuYauGtRVk/+YjMMgjz9tsbNjChAxvfISK+odLIRzxR7hADlc0oV
-        wuJgc/mv4lZucFS2Jj5/viRcsU4QKEFePgeAvbOo
-X-Google-Smtp-Source: APiQypL6/mlyUycz63HJ+HYyrpnkLHjyOdmnZ4TRLGMkoZAfP+nX7kW0xV1kUi4SFDMSvbvTunTVOhS+z9dx/lPEzmY=
-X-Received: by 2002:a05:6402:1adc:: with SMTP id ba28mr2174677edb.12.1588678481397;
- Tue, 05 May 2020 04:34:41 -0700 (PDT)
+        id S1729059AbgEENUV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 May 2020 09:20:21 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42488 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728972AbgEENUV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 May 2020 09:20:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588684819;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=JE1PwIQDW20sRdq/mc5xmjEhpwoX0J/NFnPzWkySiOU=;
+        b=Ux1Dk3vTyjf/novm+o2Mt+H/AjCMjoV8rbJYwMEaoGYPRlzShSoeRCECNNeyjeL83EjY6S
+        6ETLk/dLecfblFZTBJbzot2sokHYsXHf7LTV6Qi/totGxSzBTKvVRA3L+MUvKp23DQuxjX
+        QsJaDMrZqlpjnAzhiEPCY3Jn3bC19vM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-504-DwnBLsFCNGSyIaeHphL4sQ-1; Tue, 05 May 2020 09:20:05 -0400
+X-MC-Unique: DwnBLsFCNGSyIaeHphL4sQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BC4877BB1;
+        Tue,  5 May 2020 13:20:04 +0000 (UTC)
+Received: from workstation (unknown [10.40.195.26])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6DD256295D;
+        Tue,  5 May 2020 13:20:03 +0000 (UTC)
+Date:   Tue, 5 May 2020 15:19:59 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Subject: Re: [PATCH 2/2] scripts/env_use_destdir: propagate PREFIX, LIBDIR,
+ BINDIR, etc.
+Message-ID: <20200505131959.GC7308@workstation>
+References: <20200501092929.1162708-1-nicolas.iooss@m4x.org>
+ <20200501092929.1162708-2-nicolas.iooss@m4x.org>
+ <20200504123152.GB251987@workstation>
 MIME-Version: 1.0
-References: <20200504115923.88828-1-omosnace@redhat.com> <20200504115923.88828-3-omosnace@redhat.com>
-In-Reply-To: <20200504115923.88828-3-omosnace@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 5 May 2020 07:34:30 -0400
-Message-ID: <CAHC9VhTbTTT4otsEWRPrPewz2j5FEJHODr8N0efG+cX7vph0Hg@mail.gmail.com>
-Subject: Re: [PATCH v2 2/3] selinux: prepare for inlining of hashtab functions
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200504123152.GB251987@workstation>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="TYecfFk8j8mZq+dy"
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 4, 2020 at 7:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> Refactor searching and inserting into hashtabs to pave way for
-> converting hashtab_search() and hashtab_insert() to inline functions in
-> the next patch. This will avoid indirect calls and allow the compiler to
-> better optimize individual callers, leading to a drastic performance
-> improvement.
->
-> In order to avoid the indirect calls, the key hashing and comparison
-> callbacks need to be extracted from the hashtab struct and passed
-> directly to hashtab_search()/_insert() by the callers so that it is
-> always known which callbacks we want to call at compile time. Note that
-> the kernel's rhashtable library (<linux/rhashtable*.h>) also does the
-> same.
->
-> This of course makes the hashtab functions more easy to misuse by
-> passing a wrong calback set, but unfortunately there is no better way to
-> implement a hash table that is both generic and efficient in C. This
-> patch tries to somewhat mitigate this by only calling the hashtab
-> functions in the same file where the corresponding callbacks are
-> defined (wrapping them into more specialized functions as needed).
->
-> Note that this patch doesn't bring any benefit without also defining
-> hashtab_search() and -_insert() inline, which is done in a follow-up
-> patch to make it easier to review the hashtab.c changes here.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/ss/hashtab.c  | 44 ++++++++++----------
->  security/selinux/ss/hashtab.h  | 22 +++++-----
->  security/selinux/ss/mls.c      |  2 +-
->  security/selinux/ss/policydb.c | 76 ++++++++++++++++++++++++----------
->  security/selinux/ss/policydb.h |  9 ++++
->  security/selinux/ss/services.c |  4 +-
->  security/selinux/ss/symtab.c   | 16 ++++---
->  7 files changed, 110 insertions(+), 63 deletions(-)
+--TYecfFk8j8mZq+dy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-...
+On Mon, May 04, 2020 at 02:31:52PM +0200, Petr Lautrbach wrote:
+> On Fri, May 01, 2020 at 11:29:29AM +0200, Nicolas Iooss wrote:
+> > On systems using non-default `PREFIX`, `LIBDIR`, `SHLIBDIR`, `BINDIR`
+> > or `SBINDIR`, running
+> > `DESTDIR=3D/path/to/destdir ./scripts/env_use_destdir make test`
+> > does not perform the intended behavior, because the testing programs an=
+d
+> > libraries are installed into locations that are not added to
+> > `LD_LIBRARY_PATH` nor `PATH`.
+> >=20
+> > More precisely, with `LIBDIR=3D/usr/lib64 SHLIBDIR=3D/lib64`, `env_use_=
+destdir`
+> > does not work. Fix this by adding the installation directories relative
+> > to `DESTDIR` in `LD_LIBRARY_PATH` and `PATH`.
+> >=20
+> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>=20
+> For both patches:
+>=20
+> Acked-by: Petr Lautrbach <plautrba@redhat.com>
 
-> diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
-> index 31c11511fe10..4885234257d4 100644
-> --- a/security/selinux/ss/hashtab.h
-> +++ b/security/selinux/ss/hashtab.h
-> @@ -13,6 +13,12 @@
->
->  #define HASHTAB_MAX_NODES      0xffffffff
->
-> +struct hashtab_key_params {
-> +       u32 (*hash)(const void *key);   /* hash function */
-> +       int (*cmp)(const void *key1, const void *key2);
-> +                                       /* key comparison function */
-> +};
-> +
->  struct hashtab_node {
->         void *key;
->         void *datum;
-> @@ -23,10 +29,6 @@ struct hashtab {
->         struct hashtab_node **htable;   /* hash table */
->         u32 size;                       /* number of slots in hash table */
->         u32 nel;                        /* number of elements in hash table */
-> -       u32 (*hash_value)(struct hashtab *h, const void *key);
-> -                                       /* hash function */
-> -       int (*keycmp)(struct hashtab *h, const void *key1, const void *key2);
-> -                                       /* key comparison function */
->  };
+Both applied.
 
-I remain concerned that in the process of chasing performance this
-patchset makes the code worse and more fragile.
+> > ---
+> >  scripts/env_use_destdir | 19 +++++++++++++++++++
+> >  1 file changed, 19 insertions(+)
+> >=20
+> > diff --git a/scripts/env_use_destdir b/scripts/env_use_destdir
+> > index 491da58f9207..8274013e9cf0 100755
+> > --- a/scripts/env_use_destdir
+> > +++ b/scripts/env_use_destdir
+> > @@ -22,7 +22,26 @@ if [ -z "${DESTDIR:-}" ] ; then
+> >  fi
+> > =20
+> >  export LD_LIBRARY_PATH=3D"$DESTDIR/usr/lib:$DESTDIR/lib"
+> > +if [ -n "${PREFIX:-}" ] ; then
+> > +    LD_LIBRARY_PATH=3D"$DESTDIR$PREFIX/lib:$LD_LIBRARY_PATH"
+> > +fi
+> > +if [ -n "${LIBDIR:-}" ] ; then
+> > +    LD_LIBRARY_PATH=3D"$DESTDIR$LIBDIR:$LD_LIBRARY_PATH"
+> > +fi
+> > +if [ -n "${SHLIBDIR:-}" ] ; then
+> > +    LD_LIBRARY_PATH=3D"$DESTDIR$SHLIBDIR:$LD_LIBRARY_PATH"
+> > +fi
+> > +
+> >  export PATH=3D"$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTD=
+IR/bin:$PATH"
+> > +if [ -n "${PREFIX:-}" ] ; then
+> > +    PATH=3D"$DESTDIR$PREFIX/sbin:$DESTDIR$PREFIX/bin:$LD_LIBRARY_PATH"
+> > +fi
+> > +if [ -n "${BINDIR:-}" ] ; then
+> > +    PATH=3D"$DESTDIR$BINDIR:$PATH"
+> > +fi
+> > +if [ -n "${SBINDIR:-}" ] ; then
+> > +    PATH=3D"$DESTDIR$SBINDIR:$PATH"
+> > +fi
+> > =20
+> >  NEW_PYTHONPATH=3D"$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysc=
+onfig import *;print(get_python_lib(plat_specific=3D1, prefix=3D'/usr'))"):=
+$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(ge=
+t_python_lib(prefix=3D'/usr'))")"
+> >  if [ -n "${PYTHONPATH:-}" ] ; then
+> > --=20
+> > 2.26.2
+> >=20
+>=20
+> --=20
+> ()  ascii ribbon campaign - against html e-mail=20
+> /\  www.asciiribbon.org   - against proprietary attachments
 
-What if we took a slightly different approach such that instead of
-breaking apart hashtab_node we moved the variable portions (htable,
-size, nel) into a separate struct which we could reference in
-hashtab_node?  For example:
 
-  struct hashtab_var {
-    struct hashtab_node **htable;
-    u32 size;
-    u32 nel;
-  }
 
-  struct hashtab {
-    struct hashtab_var *table; // adds an extra ptr deref
-    u32 (*hash_value)(...);
-    int (*keycmp)(...);
-  }
+--=20
+()  ascii ribbon campaign - against html e-mail=20
+/\  www.asciiribbon.org   - against proprietary attachments
 
-I might be mistaken, but I believe this should still allow you to
-implement the inlining/pass-by-value tricks for search and insert
-while maintaining a binding between the hashtable data and
-hash/compare functions.  Yes?  Or does the entire struct need to be
-declared as a static const for the compiler optimizations to work?  It
-is not clear to me from the commit descriptions or comments in the
-code.
+--TYecfFk8j8mZq+dy
+Content-Type: application/pgp-signature; name="signature.asc"
 
-As far as testing is concerned, whenever possible it is better to show
-performance improvements in the context of some sort of user workload
-and not an artificial stress test or micro benchmark.  I understand
-that such focused tests can be attractive both in terms of their
-results and ease of use, but they can also be very misleading.
-Performance improvements for things like policy loads, kernel
-compiles, etc. are much more interesting to me than results from
-running something like stress-ng.
+-----BEGIN PGP SIGNATURE-----
 
--- 
-paul moore
-www.paul-moore.com
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6xZ/gACgkQviIJHj72
+InXq2g//VaBPRHMk2sJ3CTdtHwq/FqpXFprAhx17SkAEXHjwBGNAc4yMW4OrlCWA
+NPEV0d8gHztYCisDST7iy/AECr+w5v6jF87uuhn8rrBvK4r7e6/XYXsNn8HEV4wn
+6iJXS8kII54MxvKyvZZrg3ah4ES8mev3fiFEScMcfGNKSNUyK3Xm8Pn2KRp0XiZ+
+4gBUJAWgaeSR/nyl/BCAx6K7H06ypoVGUOBm9PYByvEBjiuY5tuYzL1BV2ph4iwX
+uqJX7oTH3RiDualPYvcGxCW3U3EoWcFvS5X/Se1deFy69tWOtsZ66jPuPZgKC/Gn
+/isYzzIvNqLR7xSCBP6CvbJlGPCwqHO0OzWf979PuV/xAsG+Vzh6DXhaVlZyFncP
+Tw6HCM9zo9BIWnpsxUXT8rWq4+ZxfQ+HxMjNjPPgNLXaMuFqT/Sy08De9sPNX6DT
+/YDWf9YU/TnrZXZjTNDAaiSnGqDwRkqszlv2kIhN2vilYbHG0bDZiyTHUbehz9nq
+sjgKS5LezvcRLBAeuX9tpdCfcQRNaXLy/4WWu/xUaIyDrqh5HnbM7CASh7+7YEOM
+5+GYvrZEfywvPaYDaXaGohfxMtG6gsw3z44HaQ1SjsAeBWcZNmLL36atDGJ7JUTO
+WMksL8HePTOiYit8+qfVThq/YlCbZobOVkJlbrjzZSK+o5H1O3M=
+=9e6S
+-----END PGP SIGNATURE-----
+
+--TYecfFk8j8mZq+dy--
+
