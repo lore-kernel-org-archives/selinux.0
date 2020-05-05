@@ -7,58 +7,58 @@ X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6827CC47247
-	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 14:21:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6CCEC47257
+	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 14:22:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3B00A215A4
-	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 14:21:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A6D96206FA
+	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 14:22:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="b1kRl2v4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fe9CTMKy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729584AbgEEOVv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 May 2020 10:21:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50108 "EHLO
+        id S1729543AbgEEOW1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 May 2020 10:22:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729449AbgEEOVu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 May 2020 10:21:50 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71669C061A0F
-        for <selinux@vger.kernel.org>; Tue,  5 May 2020 07:21:50 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id pg17so1798566ejb.9
-        for <selinux@vger.kernel.org>; Tue, 05 May 2020 07:21:50 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1729256AbgEEOW0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 5 May 2020 10:22:26 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 537A5C061A0F
+        for <selinux@vger.kernel.org>; Tue,  5 May 2020 07:22:26 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id s202so2095024oih.3
+        for <selinux@vger.kernel.org>; Tue, 05 May 2020 07:22:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=c4WZgvu6iqzjkKd4BlYTSZGC1oUtt37QQVzR82vLWP8=;
-        b=b1kRl2v4epTun1fbqxEwtfWnpeEwQcINeeUGDY50M2Ih/193TE9K0Hd+bo7HVVRIvp
-         ial5iom8/mZtj7W95sDx+7RDcbtDOf2YgsPddcyyB6/cFM4+1Hv29mtgmZayWnwsJybE
-         JRfsElbyF8n/QuC0Gc8q6E80lXD1ipVBcnDIXLGJvlu9dtebS+c8Opz7vB0rTnyez8V0
-         icXSbL2PL/ngMlfsVqWcMSFkeD5n34Ss39DlIcXmLrAKZ9snRACqENiNCDGmT9Vdv6jC
-         dnBf9vOZXLufsDw69UAl5TwxPPRlxn35pwgYZ7RFXGyTOTAg9N3KEf6gcEMr1e13kWft
-         mvRQ==
+        bh=/fQiafRnLRGwE4iV6/dJuGZf5xpweo7VHk1Q6aRK8Kg=;
+        b=fe9CTMKyqqZHaEJCUapdSROwdFcrGfbqC6ejCI0CNeJ0GEXf+NvHF0STjp4R8ETO9t
+         YH1UH/ln5AZMqqwvnMPq87QsEvZVfXHTFErkViFi5IxeC+d/5bx9QSWiTbm0DCcIX5JW
+         VtMBRuZRGYdOxIiN8AgbDr5ICy1E6KAfwE1HlNz1RyxJrps/9/nhIe5lMQMpNcYVSu3m
+         ORH6imgbQT9IWTATgv0iwHuFdBpeuNDXy2V5SAaNRY2jWiCX56hNlkDL8ulU1cHHPKZ5
+         uFR3PQOCusvQt8GPJb8+nEbd1kucIqToX64JUrxO0dk9wIkE8y5PPobH32o203A3gDWq
+         vLZQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=c4WZgvu6iqzjkKd4BlYTSZGC1oUtt37QQVzR82vLWP8=;
-        b=AaoBKcAvgDLUwgIbrsUrWLhKC2qk10G6NIX5EPnQq7pqUNteofLWCfEyV2OEGZJrFh
-         YY84MqOf0qqRB6MCA1KCsFckyC8rnfKX6qmAZNGgWwbW6XSDIGPddpztPsi1tbRWkvQk
-         hqiD/453I9CL5T1UfJxwRWScbYyCMflzwEfKetvzsQhO3Vc6u6L+E3cELjK9kWiLMR4u
-         0t8qAqMBB0ndD8H3abzqsCvwZKdzwh/YYDJUcLrre2wu1MHXK5SIUENL9EPqt20pMQoI
-         zgtLfAOzj2PlCOVVczN7JKmmjMtB8U9X74fS4tdgbHIvKSDKiPvFFlbqskUlxfp+VdUp
-         paaw==
-X-Gm-Message-State: AGi0PubvlI3BCVE2ry4+zupGmjIKnUcYLr5eW+mHakrgtK2Yv0Yr5WeH
-        jO7bbn7Lh2lerhuK7wEN32qjI8lggm0tNGrWzm8=
-X-Google-Smtp-Source: APiQypIJ1DjJtUb9ZkTHEcN9H/xx22cEUboH7x0kUCjP7u4JivgEfTna4yoKFfyomSxSRU7YZwrttg1/07yR3F7I4i0=
-X-Received: by 2002:a17:906:17c5:: with SMTP id u5mr2862676eje.275.1588688509055;
- Tue, 05 May 2020 07:21:49 -0700 (PDT)
+        bh=/fQiafRnLRGwE4iV6/dJuGZf5xpweo7VHk1Q6aRK8Kg=;
+        b=Wzp7KlY9NT0S77XwSX+h/ZLIcChlkHdHMvTsWgVtMJ2JMpQ+wQpY3G51YLsi6j0FPr
+         nSM4fgdxdnGv8JOghTogRajZb9fxfJZRDug8glpHg/4pE7yqNAGW5jqeO0DUnU365w50
+         Oe7VFtKMcceBynvwuEdvj9KRZsMxZ3Ub48x6kqNMVu0CANuRVXwrbuG6XDMfRN/pfYEX
+         AOnl2OV4a3eTizZIkScTbRWFlsX0AFBx5ZzgpuhrL5qa7qXwKA/65sy5btByq2hNNoG2
+         2ulu4IOVtRqJnZdpLCbdrwEmptPLrEzS4BoIohefA9J0nxg/x5yDmTqIdgXehBdv0GIE
+         MHKw==
+X-Gm-Message-State: AGi0PuZIIOAKIVhHzciiI7avvFSx4asJuKPlBny12z5alUHwZyba3VOV
+        S6qeYiggz3Cd8rSGFEHTV0mwS5xrsm//cgM2Wck=
+X-Google-Smtp-Source: APiQypIPM9zb8GyHziCVhNHvB7Ig4cYET89l5P9N6TILCObl8eNsVvBqe5q3PTv+vCbgkR/h/RRSNpq0u+jonUWjgGk=
+X-Received: by 2002:aca:4e10:: with SMTP id c16mr2603863oib.140.1588688545687;
+ Tue, 05 May 2020 07:22:25 -0700 (PDT)
 MIME-Version: 1.0
 References: <20200505135727.GD7308@workstation>
 In-Reply-To: <20200505135727.GD7308@workstation>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Tue, 5 May 2020 16:21:37 +0200
-Message-ID: <CAJ2a_DfH-faLvYsE2jabaSHFbTBNqDpU1Q5xre00OCS-3g7c0Q@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 5 May 2020 10:22:13 -0400
+Message-ID: <CAEjxPJ57OVu+VCN4VoSRC1Wbdtcyt3Z6Fq7qRuvdRb7xsGe14w@mail.gmail.com>
 Subject: Re: Intent to release 3.1-rc1
 To:     Petr Lautrbach <plautrba@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
@@ -68,31 +68,49 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Am Di., 5. Mai 2020 um 15:57 Uhr schrieb Petr Lautrbach <plautrba@redhat.com>:
+On Tue, May 5, 2020 at 10:00 AM Petr Lautrbach <plautrba@redhat.com> wrote:
 >
 > Hello,
 >
 > I'd like to release 3.1-rc1 until end of this week.
-
-sounds good
-
+>
+> Looking at https://patchwork.kernel.org/project/selinux/list/ I see:
+>
+> - 3 acked patches which are ready to be merged (and I'll merge
+> them tomorrow if there's no other comment):
+>
+> https://patchwork.kernel.org/patch/11525435/ libselinux: Add missing errno setup
+> https://patchwork.kernel.org/patch/11527311/ tree-wide: introduce PYTHON_SETUP_ARGS to customize setup.py calls on Debian
+> https://patchwork.kernel.org/patch/11527463/ Travis-CI: upgrade to Ubuntu 18.04 and latest releases of Python and Ruby
+>
+> - 1 patchset which should be postpone for the next release as it breaks setools
+> https://lore.kernel.org/selinux/20200502190828.3555858-1-omosnace@redhat.com/T/#t
+>
+> - 1 patch without response:
 > https://patchwork.kernel.org/patch/11392367/ libselinux/getconlist: add verbose switch to print more information
 
-This patch can be ignored.
+I had asked about the motivation for the patch and didn't see any
+reply.  I had also noted that we have several overlapping utilities
+there that ought to be coalesced or dropped.  Anyway absent some
+compelling motivation for this patch I don't think it warrants merging
+right now.
 
-Quoting Stephen Smalley:
-> More generally, the libselinux utils could stand an overhaul:
-> - a number of them are really just examples or tests of using the
-> libselinux APIs and not really suitable for end users in their current
-> form,
-> - some of them should be prefixed with some kind of namespacing (e.g.
-> se or selinux) to avoid potential conflicts,
-> - there is overlap among getdefaultcon, getconlist, and getseuser;
-> probably should be coalesced or some dropped
-
-Maybe we can discuss the libselinux utils in general during the next
-release cycle.
-
+>
+> - 1 RFC related to other kernel RFC
+> https://patchwork.kernel.org/patch/11436953/ [RFC] selinux: add unprivileged sandboxing capability
+> https://patchwork.kernel.org/patch/11436955/ [RFC] libsepol,secilc,policycoreutils: add unprivileged sandboxing capability
+>
+>
+> There are 2 opened github PRs without Signed-of: and matching patch on the
+> mailing list:
 > https://github.com/SELinuxProject/selinux/pull/174  Use quote include for files located in the local directory
+> https://github.com/SELinuxProject/selinux/pull/135  More robust ausearch time input
+>
+>
+> Have I missed something? Do you have any comments, objections to release?
 
-I think this pull request is obsolete now as the dso headers are gone.
+There was also this one that I deferred to the distro maintainers to decide on:
+https://patchwork.kernel.org/patch/11284945/
+
+Otherwise, looks good to me.  I agree that we don't want to include
+the setools-breaking change until after this release.
