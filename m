@@ -2,169 +2,126 @@ Return-Path: <SRS0=X6Oi=6T=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EF81C47254
-	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 13:20:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EFDBC47247
+	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 13:35:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 030D9206A5
-	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 13:20:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 624E2206A5
+	for <selinux@archiver.kernel.org>; Tue,  5 May 2020 13:35:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ux1Dk3vT"
+	dkim=pass (1024-bit key) header.d=concurrentrt.onmicrosoft.com header.i=@concurrentrt.onmicrosoft.com header.b="GwUk1+Te"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729059AbgEENUV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 5 May 2020 09:20:21 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42488 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728972AbgEENUV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 5 May 2020 09:20:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1588684819;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=JE1PwIQDW20sRdq/mc5xmjEhpwoX0J/NFnPzWkySiOU=;
-        b=Ux1Dk3vTyjf/novm+o2Mt+H/AjCMjoV8rbJYwMEaoGYPRlzShSoeRCECNNeyjeL83EjY6S
-        6ETLk/dLecfblFZTBJbzot2sokHYsXHf7LTV6Qi/totGxSzBTKvVRA3L+MUvKp23DQuxjX
-        QsJaDMrZqlpjnAzhiEPCY3Jn3bC19vM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-504-DwnBLsFCNGSyIaeHphL4sQ-1; Tue, 05 May 2020 09:20:05 -0400
-X-MC-Unique: DwnBLsFCNGSyIaeHphL4sQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BC4877BB1;
-        Tue,  5 May 2020 13:20:04 +0000 (UTC)
-Received: from workstation (unknown [10.40.195.26])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 6DD256295D;
-        Tue,  5 May 2020 13:20:03 +0000 (UTC)
-Date:   Tue, 5 May 2020 15:19:59 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Subject: Re: [PATCH 2/2] scripts/env_use_destdir: propagate PREFIX, LIBDIR,
- BINDIR, etc.
-Message-ID: <20200505131959.GC7308@workstation>
-References: <20200501092929.1162708-1-nicolas.iooss@m4x.org>
- <20200501092929.1162708-2-nicolas.iooss@m4x.org>
- <20200504123152.GB251987@workstation>
-MIME-Version: 1.0
-In-Reply-To: <20200504123152.GB251987@workstation>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="TYecfFk8j8mZq+dy"
+        id S1728993AbgEENfg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 5 May 2020 09:35:36 -0400
+Received: from mail-eopbgr680124.outbound.protection.outlook.com ([40.107.68.124]:41480
+        "EHLO NAM04-BN3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728898AbgEENff (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 5 May 2020 09:35:35 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=PoQ/Ef+buW0O4C5j+LnxS8tCSTCOJNRhqQ0s0wY8epT4vLxrEr7mxFMV5H4np+tC2K1MAxSc0OTotSDRyYEfz6cLeddpLT5STmzl+L6Fch+49e6sU/aswI5MxBHGLpftVnNvsWBX1m+jjIAe4iyTnkmvWuKer7YdATMuwvAay9aRtOt50XHBulTDPm8rMG/ZssDa/tPZvU+CwSzXcWuvU2uTgTOpU8U2GBSLjIUhRlW7OuSExPOLEBcLh6/R9RdEEnvhvH50YempwCvlWuZ9+VvM9LJ3MUuqkYloxL+LkJbHzsNAtH+wLWCnGSb8vPfGpalmIO36bLsPs/X0mJtaUQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tXCku9azyGuMf+f+86x8N1kkGdr+TxB+u04Nh/lYQTM=;
+ b=BaFSsB4UiqfgnuZV8b2CPVt9EXcoF37ZgkBRWuVX70OyERmd7xtb8ec05aAPcTiVqe/m5P6GsxD+pSabDL0BGflqKS0S044qz0tCdOI1O9q7h9PWwUbU6gpEW3m378toT46B3kO8EMeV9xjckGj/1zGlxeb1NyAj6EkpZLDXykw0ZASyLRYR/IfGbZzHRsNCXb8LcPq+FKaWcN84E2nlXTxZ3FxHCZrbojSzOz1reT13KVCFIk7al2ON1/DWHvuZBrkKA6VUBinxrkjuR0BPHoWdSN9/URtDrDQL4iqM5VmnlpBICeIO97bGkNOZaVHESxdMjwAkYLw2OQrTMX/BRQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=concurrent-rt.com; dmarc=pass action=none
+ header.from=concurrent-rt.com; dkim=pass header.d=concurrent-rt.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=concurrentrt.onmicrosoft.com; s=selector2-concurrentrt-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tXCku9azyGuMf+f+86x8N1kkGdr+TxB+u04Nh/lYQTM=;
+ b=GwUk1+TePOPMX7zksCe7HIlPQsoDiDDzpJfPJDX2L0KU4la89sGxezQExV6hg3bjX4RoDD0h1QxKR8aMjkQk45jxcGRRoCkkt/pBYdJ35z7BECYsRLEFV6NW7b3Iam6Q55h55oTqOPlwQIrzaQwwda40mNXrHZmxQ9GGJmrZa/s=
+Authentication-Results: paul-moore.com; dkim=none (message not signed)
+ header.d=none;paul-moore.com; dmarc=none action=none
+ header.from=concurrent-rt.com;
+Received: from MN2PR11MB3885.namprd11.prod.outlook.com (2603:10b6:208:151::27)
+ by MN2PR11MB4695.namprd11.prod.outlook.com (2603:10b6:208:260::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2979.27; Tue, 5 May
+ 2020 13:35:32 +0000
+Received: from MN2PR11MB3885.namprd11.prod.outlook.com
+ ([fe80::62:c976:4484:7958]) by MN2PR11MB3885.namprd11.prod.outlook.com
+ ([fe80::62:c976:4484:7958%6]) with mapi id 15.20.2958.030; Tue, 5 May 2020
+ 13:35:32 +0000
+Date:   Tue, 5 May 2020 09:35:29 -0400
+From:   Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, colin.king@canonical.com,
+        Eric Paris <eparis@parisplace.org>, gregkh@linuxfoundation.org,
+        jeffv@google.com, omosnace@redhat.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        tglx@linutronix.de
+Subject: Re: [PATCH 0/9] SELinux: Improve hash functions and sizing of hash
+ tables
+Message-ID: <20200505133527.GA4636@concurrent-rt.com>
+References: <20200408182416.30995-1-siarhei.liakh@concurrent-rt.com>
+ <CAHC9VhRJ=b-dTVwgTE1TKezqY8KWoGFoHSU1XdfMNjP6uoHQFg@mail.gmail.com>
+ <20200413204334.GA10584@concurrent-rt.com>
+ <CAHC9VhQuDW5FnGkjJnoNqSBPit2L27Cdda1_5ohDhyiWuDmWnQ@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+In-Reply-To: <CAHC9VhQuDW5FnGkjJnoNqSBPit2L27Cdda1_5ohDhyiWuDmWnQ@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-ClientProxiedBy: MN2PR02CA0018.namprd02.prod.outlook.com
+ (2603:10b6:208:fc::31) To MN2PR11MB3885.namprd11.prod.outlook.com
+ (2603:10b6:208:151::27)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from concurrent-rt.com (65.190.80.89) by MN2PR02CA0018.namprd02.prod.outlook.com (2603:10b6:208:fc::31) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2979.26 via Frontend Transport; Tue, 5 May 2020 13:35:31 +0000
+X-Originating-IP: [65.190.80.89]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: fb4c6262-c07e-4ed9-1156-08d7f0f92eed
+X-MS-TrafficTypeDiagnostic: MN2PR11MB4695:
+X-Microsoft-Antispam-PRVS: <MN2PR11MB46953E1F520FB454AFC6A5CFB1A70@MN2PR11MB4695.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-Forefront-PRVS: 0394259C80
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: j5JKUCsQWiU8ghGNdD0b7CxEMkmhxAJfv9vfDLBJjZD+6OR6iR0t9ZEH9e0g4KeGOXJaIDOLCZ6IvzsTUzWubBE/x1gXl+ZSet3wsfuoIsPYN0gRbDnMRaXOLcBplU+p7E2jtTrlOh6+uIFCTftTjUqNWv3Xk9OIalag6WKmia08DJuWLT/YdPG9jY4g3zAQFKMmwz1l/u9mX/iwPXmIFDsLcdj3dj+xuGCOJq1w4g2GERLJwKeuyf618NtlKAQp9Wur+iyX2Q9tGgakF3P22qeFBbzwuUDAPBTn+C2MedoUFPZjIMmU+fBGJvHajkMHq3I0iJa9R3cjtf4rEJ/BAVsqkNsCqjCDoWFeYOgm9kWzAC6Fy/xQG2+I+ynelHGK1RL8Ev7k8y/NkUgZaILdkOogIokv0QaChLdqS45a9MU1rPgG9UiqvwOmFResqO6tcxKiHb07MjZbjZeXZUf7se6Q8jE/ZJO4H0VUWhCdKY20MNFLBQ4NlkH+ht5MgPoZBFcd+KjYYnAWhIqKGIN2JlhUSyVpiAnrDSla5Wg5d9eyxV5Qs59Jhdx2Op8sc1bYZFvKDs3T79+1TGQyAxa/7j+JtEzMx1PnYsh9W2CM63k=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR11MB3885.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(39840400004)(376002)(136003)(346002)(396003)(366004)(33430700001)(1076003)(53546011)(54906003)(966005)(4326008)(956004)(2616005)(6916009)(86362001)(316002)(33440700001)(508600001)(52116002)(7696005)(2906002)(8936002)(5660300002)(4744005)(36756003)(66476007)(55016002)(66556008)(186003)(26005)(16526019)(66946007)(8676002)(44832011)(8886007)(33656002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: 9zQ67UZ59KhrZ91wMCpD82IOWciDDdKcYcSF4DtmooDT2AsnSNlc7MTHGCAiMWIMQ244EGFlVPB9HWn3j4taDirKOOuWE+2yQPsqajWj3rn+u93wD3mRFdPrDM97HEhcEiugG1+c88nJ3odLN44lNqDyRsSYNNJSOh94rEjvkJ5YQPsqpZcnPcjxHEIDk+SfCPLWewdGSjjGQx1GJxtF0vrdFnakm9LfJ1i9cl0uvHvi0tKbDkvX3uS+PS3SQtfMdA/2aZagoiNq0MlKGhH4aRXbs04SYi8Pr/3kZtmcqcc/VJYaFWsTTTA2YPwwduL/yrxW/6GFmjtI0FA6auFl6IDuSkkkpwaodLK0H2N+6vFnyvO1pM/qwOxShaN90vrwJrEVBe9GhuT6OATmPKMviFO+RCGVFv+EwKxOav12qyev7br7NqiA0hv2xJd5N7c3tRytfy6zozqZiUQh4P/CA3xmDcUo1gfl/6ChLoZGJQ10bhfkKxd3gQniP5BCPT6/pNePLTZLa6QMCkedbr2kmG8U+5KG3pqezCAHsyPuma/wTQH29x0dA3MohsCFJVduDn8xNZKh72J1V5Qcqqcsv/T5cpVNZHhRqD0yQXGiKmtMAkTKnWknee/9cZ0pytO0AMnqW2SLFyFXTk90ISIbVAWyyjE7KUjkmvyPKPBrgNaQQXDY3zeIEBBS24Fqqt2AMxtQwcv/lb11JeiFkikDglzUCD6z/98ATN6erUALa5YJm+Qp5DpW3RDi//KqFwuDjmTnfbgjpB1bI4YfybOW4cK88EE8yesRtNUaM9Caw5c=
+X-OriginatorOrg: concurrent-rt.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fb4c6262-c07e-4ed9-1156-08d7f0f92eed
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 May 2020 13:35:32.3884
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 38747689-e6b0-4933-86c0-1116ee3ef93e
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: nkjqNugeCvIS/Qcrbl1MwqAeUO6Tpz30EQVkOGXh8d9uNvj2oReTfB8xkyOMZqIq6mZEbJy+YdSm+zzHWFiXQ9bW76oCtqRyyvM/c2fVoPE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR11MB4695
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---TYecfFk8j8mZq+dy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The 04/14/2020 17:50, Paul Moore wrote:
+> On Mon, Apr 13, 2020 at 4:43 PM Siarhei Liakh
+> <siarhei.liakh@concurrent-rt.com> wrote:
+> > Looks like I sent you a snapshot with a couple of minor porting errors before I
+> > fixed them. You can still look at the patches since the errors do not change
+> > the logic, just hold off on compiling. Apologies for the mix-up, I'll send out
+> > another version soon.
+> 
+> ...
+> 
+> > I've got a Fedora 32 beta box installed, so I will get some benchmark numbers
+> > for Linus' tree with default F32 policies soon.
+> 
+> Okay, once you've got some updated numbers and a revised patchset we
+> can revisit this.
 
-On Mon, May 04, 2020 at 02:31:52PM +0200, Petr Lautrbach wrote:
-> On Fri, May 01, 2020 at 11:29:29AM +0200, Nicolas Iooss wrote:
-> > On systems using non-default `PREFIX`, `LIBDIR`, `SHLIBDIR`, `BINDIR`
-> > or `SBINDIR`, running
-> > `DESTDIR=3D/path/to/destdir ./scripts/env_use_destdir make test`
-> > does not perform the intended behavior, because the testing programs an=
-d
-> > libraries are installed into locations that are not added to
-> > `LD_LIBRARY_PATH` nor `PATH`.
-> >=20
-> > More precisely, with `LIBDIR=3D/usr/lib64 SHLIBDIR=3D/lib64`, `env_use_=
-destdir`
-> > does not work. Fix this by adding the installation directories relative
-> > to `DESTDIR` in `LD_LIBRARY_PATH` and `PATH`.
-> >=20
-> > Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
->=20
-> For both patches:
->=20
-> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+I've posted a revised patch set here:
+https://lore.kernel.org/selinux/20200429202941.18320-1-siarhei.liakh@concurrent-rt.com/
 
-Both applied.
+Please let me knwo what you think.
+Thank you!
 
-> > ---
-> >  scripts/env_use_destdir | 19 +++++++++++++++++++
-> >  1 file changed, 19 insertions(+)
-> >=20
-> > diff --git a/scripts/env_use_destdir b/scripts/env_use_destdir
-> > index 491da58f9207..8274013e9cf0 100755
-> > --- a/scripts/env_use_destdir
-> > +++ b/scripts/env_use_destdir
-> > @@ -22,7 +22,26 @@ if [ -z "${DESTDIR:-}" ] ; then
-> >  fi
-> > =20
-> >  export LD_LIBRARY_PATH=3D"$DESTDIR/usr/lib:$DESTDIR/lib"
-> > +if [ -n "${PREFIX:-}" ] ; then
-> > +    LD_LIBRARY_PATH=3D"$DESTDIR$PREFIX/lib:$LD_LIBRARY_PATH"
-> > +fi
-> > +if [ -n "${LIBDIR:-}" ] ; then
-> > +    LD_LIBRARY_PATH=3D"$DESTDIR$LIBDIR:$LD_LIBRARY_PATH"
-> > +fi
-> > +if [ -n "${SHLIBDIR:-}" ] ; then
-> > +    LD_LIBRARY_PATH=3D"$DESTDIR$SHLIBDIR:$LD_LIBRARY_PATH"
-> > +fi
-> > +
-> >  export PATH=3D"$DESTDIR/usr/sbin:$DESTDIR/usr/bin:$DESTDIR/sbin:$DESTD=
-IR/bin:$PATH"
-> > +if [ -n "${PREFIX:-}" ] ; then
-> > +    PATH=3D"$DESTDIR$PREFIX/sbin:$DESTDIR$PREFIX/bin:$LD_LIBRARY_PATH"
-> > +fi
-> > +if [ -n "${BINDIR:-}" ] ; then
-> > +    PATH=3D"$DESTDIR$BINDIR:$PATH"
-> > +fi
-> > +if [ -n "${SBINDIR:-}" ] ; then
-> > +    PATH=3D"$DESTDIR$SBINDIR:$PATH"
-> > +fi
-> > =20
-> >  NEW_PYTHONPATH=3D"$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysc=
-onfig import *;print(get_python_lib(plat_specific=3D1, prefix=3D'/usr'))"):=
-$DESTDIR$(${PYTHON:-python3} -c "from distutils.sysconfig import *;print(ge=
-t_python_lib(prefix=3D'/usr'))")"
-> >  if [ -n "${PYTHONPATH:-}" ] ; then
-> > --=20
-> > 2.26.2
-> >=20
->=20
-> --=20
-> ()  ascii ribbon campaign - against html e-mail=20
-> /\  www.asciiribbon.org   - against proprietary attachments
-
-
-
---=20
-()  ascii ribbon campaign - against html e-mail=20
-/\  www.asciiribbon.org   - against proprietary attachments
-
---TYecfFk8j8mZq+dy
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6xZ/gACgkQviIJHj72
-InXq2g//VaBPRHMk2sJ3CTdtHwq/FqpXFprAhx17SkAEXHjwBGNAc4yMW4OrlCWA
-NPEV0d8gHztYCisDST7iy/AECr+w5v6jF87uuhn8rrBvK4r7e6/XYXsNn8HEV4wn
-6iJXS8kII54MxvKyvZZrg3ah4ES8mev3fiFEScMcfGNKSNUyK3Xm8Pn2KRp0XiZ+
-4gBUJAWgaeSR/nyl/BCAx6K7H06ypoVGUOBm9PYByvEBjiuY5tuYzL1BV2ph4iwX
-uqJX7oTH3RiDualPYvcGxCW3U3EoWcFvS5X/Se1deFy69tWOtsZ66jPuPZgKC/Gn
-/isYzzIvNqLR7xSCBP6CvbJlGPCwqHO0OzWf979PuV/xAsG+Vzh6DXhaVlZyFncP
-Tw6HCM9zo9BIWnpsxUXT8rWq4+ZxfQ+HxMjNjPPgNLXaMuFqT/Sy08De9sPNX6DT
-/YDWf9YU/TnrZXZjTNDAaiSnGqDwRkqszlv2kIhN2vilYbHG0bDZiyTHUbehz9nq
-sjgKS5LezvcRLBAeuX9tpdCfcQRNaXLy/4WWu/xUaIyDrqh5HnbM7CASh7+7YEOM
-5+GYvrZEfywvPaYDaXaGohfxMtG6gsw3z44HaQ1SjsAeBWcZNmLL36atDGJ7JUTO
-WMksL8HePTOiYit8+qfVThq/YlCbZobOVkJlbrjzZSK+o5H1O3M=
-=9e6S
------END PGP SIGNATURE-----
-
---TYecfFk8j8mZq+dy--
-
+-- 
+Siarhei Liakh
+Concurrent Real-Time
