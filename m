@@ -2,644 +2,361 @@ Return-Path: <SRS0=wTGR=6U=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50C99C28CBC
-	for <selinux@archiver.kernel.org>; Wed,  6 May 2020 21:14:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B58FC28CBC
+	for <selinux@archiver.kernel.org>; Wed,  6 May 2020 21:42:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F8642075A
-	for <selinux@archiver.kernel.org>; Wed,  6 May 2020 21:14:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6A832070B
+	for <selinux@archiver.kernel.org>; Wed,  6 May 2020 21:42:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eiMPdaKr"
+	dkim=pass (1024-bit key) header.d=concurrentrt.onmicrosoft.com header.i=@concurrentrt.onmicrosoft.com header.b="iOWtEqZs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729262AbgEFVO4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 6 May 2020 17:14:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57246 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728821AbgEFVO4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 6 May 2020 17:14:56 -0400
-Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5699FC061A0F
-        for <selinux@vger.kernel.org>; Wed,  6 May 2020 14:14:56 -0700 (PDT)
-Received: by mail-qv1-xf44.google.com with SMTP id p13so1575078qvt.12
-        for <selinux@vger.kernel.org>; Wed, 06 May 2020 14:14:56 -0700 (PDT)
+        id S1729398AbgEFVmV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 6 May 2020 17:42:21 -0400
+Received: from mail-bn8nam12on2109.outbound.protection.outlook.com ([40.107.237.109]:64288
+        "EHLO NAM12-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729268AbgEFVmU (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 6 May 2020 17:42:20 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=GshN708dkgNpfUNmzGiZLZsM6WPoQgCrhc0/zwXa452bu1tUYohCXyBcMOmC54cr0zoV9+PSNeUHXVn80r9rgx+0n1IMngsonbPWtTWocLM2GerZ3ofDJyDlUOSCIYvTqfmfDf/JPyOQAAgT3des0IyDVFuJvb/+PEQlh+tpy26Bk7ELSbxmzuv1qvtKgtjfuUvGUcOtTlIpAWFhK79q3S8RibwA02XXZn0BOgew9ifZ4zIJdtyIXPm0dVdAQUNBp+tmvLxB1X/1gRQ1BEOuXg7pZZ97CHR0OSdhfe5Xb4+o32jNDv9ymC9CIhd9t4tyo+JYhKQOjsAQboqrfySULw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Zc9H4DRjeX8Qw79z8sazBQZ9N2iKnJ5bL7fab5rg+Bs=;
+ b=dzE8HlthRSQQnY2BGi8WRNAkTeSkGV/6hx9SU3WpcDeXs5om+e10gsNR7Ssko/r/stw0Xi1ex/ZW2vqwXld6LSA7O/z3l0Ujx467Lxaw3cMQ6gU/WcOZaTBRJ3gd3SXYFTRllGOklwURKPaVZwRoYtrucYHjX4a3qvAGHRI8qLjgdWoXwhloW22DUceE56ADC6sW2kBZXpcUCalg4BWNt+T+t+PRuPJrBqkna5nPEl5/qExwZec3qQ0xvKYHWP7SXn1vNcI0e4D+gyop7RPQVx4tPFRSC2TEAGt8jmdSwqxLa15V6Fo7SNrrn5C5fJsIl+1U2fjswLxB90IH7sL2qQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=concurrent-rt.com; dmarc=pass action=none
+ header.from=concurrent-rt.com; dkim=pass header.d=concurrent-rt.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=XUVTkfoqLQOmll2oB4Uf2cfTdm2pqkJFwIIhODzyTg0=;
-        b=eiMPdaKrOP6J0I39vA+nLm31StuHVbyhb2dz2AiObs0PSIJebXtH9Di4jUyeli5F8p
-         CYqIqCRMsAtayTYOuvxwF7aichXAPzfLZqTIWPF/rGmFFTTHe1WKk6VtYNMXJEMc5hwe
-         fSq+voYW/0ZG+jEL28MTl2F/jPFHo7JkFsCiqHYEQCCJcLJF2SBH5HYczsJukzppR5oh
-         1Q7KbZeLxG8UqsoWMK0byGvh5xWof8H6MXlLsVbmIErKtiW2TYN3ovasi3UEKTGqVjU4
-         o/+ARvMX1oOIIaJHJOVs6t4kAgRbvU766NlErxUZ92wj0mezFyiiWzHade9esEg6b82l
-         g7AA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=XUVTkfoqLQOmll2oB4Uf2cfTdm2pqkJFwIIhODzyTg0=;
-        b=qpJsDA7NQ+dcle4YPDvfNZ8izkaUqmw1rFhbPpu52+Yzi2XD94UEh0aAFCa2dJkMOh
-         vjEJxdkzryLpmWmsyI67GdNgQWFUpj1jHrQbTETb1S3ysi2mOCQPMsf/Y20FKjH8TFs+
-         MWiZLsHY6ZYUTsWtHnZA90EqD980hsxihb8Ljy1+SFcwMLi7Wl779giSOWS7A5DZnspR
-         MWw1MJuTsZPXk+3nV2vo1OkXoJkOngJQD3eE/iFFIQqUPx3e23DnjLGxhc85KI+Xv6L+
-         t0rBam2oi4r+Pu6dtSZiu7DmooxzGBxzBsOB/Pvt0NJN0JKANFPRN8SCYdcMOsFZJWYX
-         ZjNA==
-X-Gm-Message-State: AGi0PuZq9myI8/UVVEuOPZA4R2r0561LCGMJnsFWuRC1Q0pdOYtkw0zC
-        EziQ14JKQ369A36XhG8UIZ7v9aiO
-X-Google-Smtp-Source: APiQypLYk/va7Uc1IKbcDoE+zHlLPBJ3VRGtwt+i3P287jSo1e1basi1Pp+6jnKEZZ5PwYOMKQYfIg==
-X-Received: by 2002:a0c:f84b:: with SMTP id g11mr9520325qvo.155.1588799694772;
-        Wed, 06 May 2020 14:14:54 -0700 (PDT)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id e16sm2688751qtc.92.2020.05.06.14.14.53
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 May 2020 14:14:54 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     omosnace@redhat.com, paul@paul-moore.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2] selinux-testsuite: update to work on Debian
-Date:   Wed,  6 May 2020 17:14:35 -0400
-Message-Id: <20200506211435.30296-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.23.1
+ d=concurrentrt.onmicrosoft.com; s=selector2-concurrentrt-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Zc9H4DRjeX8Qw79z8sazBQZ9N2iKnJ5bL7fab5rg+Bs=;
+ b=iOWtEqZsnHCMaeqF/JRQ3UaXv8WkwtcnbRcUkMSw1NoI5eLXRgKh9IdKH+dN8f38iQvUew6FW8C9ucmy12c8Pz+hMvVrPV4nindyV9EgE2el3AJ60VayNgZlk4OzZLqOx3a/8P20/RTnstlruHzFJQJ9aeI+7FKOkW7kZhP4z/8=
+Authentication-Results: paul-moore.com; dkim=none (message not signed)
+ header.d=none;paul-moore.com; dmarc=none action=none
+ header.from=concurrent-rt.com;
+Received: from MN2PR11MB3885.namprd11.prod.outlook.com (2603:10b6:208:151::27)
+ by MN2PR11MB4678.namprd11.prod.outlook.com (2603:10b6:208:264::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2958.25; Wed, 6 May
+ 2020 21:42:16 +0000
+Received: from MN2PR11MB3885.namprd11.prod.outlook.com
+ ([fe80::62:c976:4484:7958]) by MN2PR11MB3885.namprd11.prod.outlook.com
+ ([fe80::62:c976:4484:7958%6]) with mapi id 15.20.2979.028; Wed, 6 May 2020
+ 21:42:16 +0000
+Date:   Wed, 6 May 2020 17:42:13 -0400
+From:   Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, colin.king@canonical.com,
+        Eric Paris <eparis@parisplace.org>, gregkh@linuxfoundation.org,
+        jeffv@google.com, omosnace@redhat.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        tglx@linutronix.de
+Subject: Re: [PATCH 2/2] SELinux: Introduce hash3() as alternative to
+ shift-xor
+Message-ID: <20200506214208.GA3947@concurrent-rt.com>
+References: <20200429202941.18320-1-siarhei.liakh@concurrent-rt.com>
+ <20200429202941.18320-3-siarhei.liakh@concurrent-rt.com>
+ <CAHC9VhRKpWzaPrF3SGwC1J_DGGuSE0Z0tiYrVV_Rdkam0JosGw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhRKpWzaPrF3SGwC1J_DGGuSE0Z0tiYrVV_Rdkam0JosGw@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-ClientProxiedBy: BN6PR11CA0040.namprd11.prod.outlook.com
+ (2603:10b6:404:4b::26) To MN2PR11MB3885.namprd11.prod.outlook.com
+ (2603:10b6:208:151::27)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from concurrent-rt.com (65.190.80.89) by BN6PR11CA0040.namprd11.prod.outlook.com (2603:10b6:404:4b::26) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.2979.28 via Frontend Transport; Wed, 6 May 2020 21:42:15 +0000
+X-Originating-IP: [65.190.80.89]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: cf1e1ecf-f1f5-4f7a-7dad-08d7f2065810
+X-MS-TrafficTypeDiagnostic: MN2PR11MB4678:
+X-Microsoft-Antispam-PRVS: <MN2PR11MB4678734476523F7FE740B30FB1A40@MN2PR11MB4678.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-Forefront-PRVS: 03950F25EC
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: SPjVsER5v1OrfIWywoIFaxYBD+ss4c42mf9XNGR2Zess+B/UuwNJXTL09ZN2lyt8Ao4HaL4vnFYCFkCnB/cpnLDMcS0vKSMLzHXsX7tAVzB3lc6zjc4AFRO6tNtmO2A4G4L74jnmJlcRcd9VmbFkl6hCeN5nsIkE2ZcCTajni0WNaUczFht971GM262Ayv9uuE0XrVh1bULJgv5N0UTcbgQDc7qSZg2LGPTEYOhCQY/cMIx20ZzNlZBb7KHMhDqMEohMPdyFpphnzRj56q4CzLd1LeZCJTzr/V+vg5uvfla3paCaHJRCCVJZzZCxzgCEUeWjmMEGKhYTZxrA2cNyUOMfefxRclveI3WtMUM4UHR3e1T+PxopZWK1tz5O8exS7GZPbLZ9M641hDGQoCtliLPlC5/au52u8o4KxzPTsMz+6sSnFNFWt0gmwkWjyclqZPVC0yJTuksLnffxqBTsBCtOyILD8NQQUM72di5B0on+VVPAhYRowL9geyHmfBiEPK3xxxj98Ka+PAvIajUsi5ca/xX4UJ1pEIaI5HNJMUHONHQFEspthRNf88hkt+JszXBsDoAIUTVPiI7MvLcqEiReaRxvMMBypUcCsBMdRTo=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR11MB3885.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(396003)(39840400004)(376002)(346002)(136003)(366004)(33430700001)(66556008)(66476007)(26005)(66946007)(6916009)(16526019)(186003)(30864003)(8886007)(8676002)(55016002)(2906002)(33656002)(8936002)(1076003)(54906003)(44832011)(86362001)(7696005)(33440700001)(956004)(53546011)(2616005)(316002)(36756003)(508600001)(4326008)(966005)(5660300002)(52116002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: TBoGos4abgkOpfoi9hpCb+k3b/zX7t9wvjLFaJV2mgIKt87zgTJAU8aWxi3XufWgOWvOQOd0Dr4QYtgLHe6lUwC6+FzYsS5ma3Ufy21IC0Xml701mh/5ideCMpaQyaNzdIzukYsVExK0jRIEmnf7KMBtFyUhfgAZXSPLrJMHJfq+HEbQkqzugOoObuyEVxTngNoagVUHoV6Lh5zccYznLGygK2ll+IgsYIsl1KbJvHsYphJdycRw5ChK5UsHJqwsk67L0XZk+r+GSKWSqJf3u4P4EHTnuJFVfRrUjNeBi0/y+fsXS+K7Z2CGKourb6j5ydd3g9lxuTT3WakpD2j7fh6lTSWnDb48/4P1klRCDz1bxPaiAtPIz1TsVoZ1FDKvO+uYiDLFlMP369jzla2QVUGcTBBFwWsWY2loG5oQKqc7TA10sPBOUPas/GxHDHoKoS14la3/vGCT3wgGRXbTozsyq9PX7cUm3YgwPfY03EKT710jM7xBbGHrrCZw3hXlFUvIknvtRGLEUQVs8PrCGU0Y1AZXc1U4s1P4j2UktcxHOY0T1w2u50bFokXFSl1BDe4QO8rvMu2wKXIihRJ8JMnzlKl4LxgtRlu6cKYuCwmZZmEhELKH4dER7o/8EP6ztVvqMQUFFmoxYsI1nPe4/UYLHBWN8L0EELxfDc+aJhzv1XFhjBFAyKgxV+00TlgMqPGcRg5DujgtkFKTTNpOSa1WBkNQl4k5p1PCIp1DfCXPps/yl99ckeoJ1uRyvc1ut+snH4+07iACzBWGbvuYmHY+63Iu9M1XmbcWBFtoCZc=
+X-OriginatorOrg: concurrent-rt.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cf1e1ecf-f1f5-4f7a-7dad-08d7f2065810
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 May 2020 21:42:16.1433
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 38747689-e6b0-4933-86c0-1116ee3ef93e
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: bfM0yBXBfdLpma6lkjLIUQd88f5pQwW0d1i7i1Gd9MLwKBaJXoNjd6OPpSsizWCnjDsz3ddtQniZTwltCzDNG2oJDc10KqN9mgQizJF/QTs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR11MB4678
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Update the testsuite policy and code so that it builds and
-runs on Debian unstable and stable successfully (if one has
-already enabled SELinux on Debian).  Provide the necessary
-dependencies and instructions in the README.
+The 05/05/2020 17:18, Paul Moore wrote:
+> On Wed, Apr 29, 2020 at 4:29 PM <siarhei.liakh@concurrent-rt.com> wrote:
+> > From: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+> >
+> > This change improves performance of hashing functions used in AVC and
+> > AVTab to hash 3x 32-bit values. As compared to original shift-xor function
+> > used in AVC, substantial improvement in quality of hashing is gained by:
+> > 1. replacing shifts with rolls, thus preserving all of the incoming
+> >    entropy
+> > 2. adjusting shift/roll constants to reduce overlap between the input
+> >    values
+> > 3. use of arithmetic addition instead of XOR, as a way to spread out
+> >    collisions
+> > 4. use of hash_32() to level out the distribution of hash output values
+> >    throughout the range
+> >
+> > Within the scope of particular application, these changes bring hash
+> > quality to that of much more complex MurmurHash3 (which is currently used
+> > in AVTab), while maintaining trivial simplicity of the original code.
+>
+> [ . . . ] 
+>
+> > /sys/fs/selinux/avc/hash_stats:
+> >             Old     New
+> > Samples:   100      100
+> > Entries:   504.43   503.67
+> > Buckets:   219.73   304.61
+> > 1st Qu.:     1.00     1.00
+> > Median :     1.39     1.00
+> > 3rd Qu.:     3.00     2.00
+> > Maximum:     9.32     5.37
+> >
+> > Next, performance of avc_lookup() is analyzed by timing it with ftrace on
+> > a system with same configuration as above:
+> >
+> > acv_lookup(), latency in us:
+> >             Old     New
+> >  Samples: 261534    244168
+> >  Min.   : 0.1320    0.1310
+> >  1st Qu.: 0.2410    0.2360
+> >  Median : 0.4220    0.4240
+> >  3rd Qu.: 0.5580    0.5600
+> >  Max.   : 9.9300    9.9890
+> >
+> > Considering small size of AVC in default configuration, the change does
+> > not show any latency improvements. In fact, median and 75th percentile
+> > timings appear to be in line with addition of extra 4 clock cycles for MUL
+> > (roughly 2ns on a 2.2Ghz CPU), or 0.47%. This appears to be a small price
+> > to pay for substantially better distribution of hash values, reducing a
+> > probability and/or severity of potential pathological behavior on some
+> > larger configurations.
+> >
+> > Note that absolute max latency is likely not indicative, as it is
+> > susceptible to one-off events such as interrupts, cache misses, etc.
+> 
+> Thanks for providing more performance information, this is helpful.
+> Right now as I look at the results, I'm trying to decide if I care at
+> all about the chain length information as ultimately the latency is
+> really what we care about, yes?
 
-The labeled networking tests rely on specific mlsconstrain
-statements that exist in Fedora policy but not in Debian so
-add them to the test policy as a CIL module; on Fedora this is
-redundant but harmless.  The SCTP tests also assumed that
-netlabel_peer_t was already marked mcs_constrained() in the
-base policy which doesn't appear to be true in Debian, so mark
-it so in the test policy.
+Correct, but there are different ways to look at it. One way is to only look
+at average / median we get right now in current default configuration. Another
+way is to think in terms of potential variability and possible pathological
+cases down the road which would be difficult to diagnose and/or fix for an
+end-user. In my mind, this is the same type of a decision as with choice of a
+default sort algorithm: quicksort is faster on average, however Linux Kernel
+relies on heap sort as it does not have a O(n^2) worst-case behavior (as
+explained in lib/sort.c). I understand that sort has a guaranteed
+bound on worst-case performance, while hash is probabalistic in nature and
+the worst-case scenario can still happen even with a good hash. However,
+hash3() does demonstrate a much better distribution as compared to the current
+hash function, thus reducing probability and/or severity of any potential
+pathological case. Think of this as proactive preventative maintenance, rather
+than a reactive bug fix.
 
-The filesystem tests assume the defaultrange rules in the Fedora
-policy for file MLS/MCS label inheritance, so add those rules as
-a CIL module to the test policy to get the expected results.
-Again, on Fedora this is a no-op.
+> I'm also trying to reconcile the
+> chain length information with the latency information; based on the
+> difference in chain lengths I would have expected more of a difference
+> in the latency numbers.  As you mention the latency numbers are
+> basically the same (give or take two clock cycles) between the two
+> hash implementations, assuming we exclude the worst case.  If we
+> include the worst case the old implementation is better, at least in
+> the data you've provided.
+> 
+> Is the added complexity of the hash3 implementation, as compared to
+> the current avc hash, stealing from the performance improvement
+> brought by the improved hash table utilization?  If true, I would
+> expect the penalty to be constant regardless of the chain length, but
+> it seems like the latency difference between old and new gets worse
+> (from a "new" perspective) as the chain length grows.  Can you explain
+> that?  Or are we simply playing in the noise of the measurement since
+> we are only talking about a clock cycle or two?
 
-Debian has no allow_domain_fd_use boolean so conditionalize the
-setting of it.  The real boolean name in policy in Fedora is
-domain_fd_use; allow_domain_fd_use was an old name that was being
-mapped by userspace.
+TL;DR:
+L1/L2/L3 cache latency is 4-6/14/50-70 cycles on Intel Skylake [1].
+So, I think it is just noise.
 
-corenet_tcp/udp_sendrecv_all_ports() is an obsolete interface
-that no longer exists in refpolicy.
+[1] https://software.intel.com/sites/default/files/managed/9e/bc/64-ia-32-architectures-optimization-manual.pdf
+Section 2.2.1.3, Table 2-6 on page 2-11.
 
-mmap_file_perms is an obsolete macro that is deprecated in refpolicy
-and removed in Debian policy; switch to mmap_exec_file_perms.
+Long version:
 
-Rather than forcing the process user identity to system_u in the
-filesystem tests (which broke in Debian due to not being authorized
-for unconfined_r), grant the test_filesystem_fscontext_t domain
-the ability to create objects in other user identities.  This is
-cleaner.
+I suspect that what we see is the result of whole ACV being able to fit within
+CPU cache without much cache line eviction in between the consecutive inserts/
+lookups, combined with really good branch predicion, speculation & etc.
 
-Switch the Infiniband test policy to use the appropriate policy
-interface if defined rather than hardcoding a reference to the
-type, neither of which exist in Debian policy.  Drop the dead
-hardcoded reference on bin_t since it is no longer used anywhere
-outside of an interface.
+Here is a fun experiment: I just tested a simple scan of a flat 512-element
+array of packed 64-bit values {a:24; b:24; c:16} and it comes up as roughly
+500 cycles (~127ns) per *full* scan on Intel Core i7-7820HK CPU @ 3.90GHz. That
+would translate to about 225ns on the 2.2Ghz system benchmarked above, which is
+just about what we get for 25th percentile lowest latency of hash table! Thus,
+a straight scan would be the best if abolute max latency of isolated 512-enry
+AVC is all we care about and cache pressure is not a factor. Sounds pretty
+crazy, right? 
 
-Convert the network test policies from using bind/connect_generic_port()
-to using bind/connect_all_unreserved_ports(), since the actual port
-being used falls in the unreserved port range and the _generic_port()
-interfaces do not allow access in Debian and likely refpolicy.
+However, such approach not only does not scale well, but also churns through
+up to 4KB (64 cache lines) of memory on each full pass. In contrast, a hash
+table with bucket depth of 5 would only issue 6 cache line fetches worst case.
+Thus, even if flat scan is *faster* in this particular configuration, it does
+not necessarily mean that it is *better* for system as a whole.
 
-Update the overlayfs policy to allow the test_overlay_mounter_t
-domain to read a shell-created temporary file that ends up being
-labeled user_tmp_t in Debian; this occurs during setup-overlayfs
-and otherwise breaks mounting.
+What we have is a confuence of the following factors:
+1. AVC is a central point of the SELinux which is used all the time by pretty
+much everything running on every core
+2. L3 shared mode hit is abouot 50% more expensive than a hit in a non-shared
+mode [2]
+3. Remote DRAM access is about 1.5x - 2x more expensive than local [2]
+4. Single-socket NUMA systems becoming ubiquitous (ex: AMD ZEN / EPYC)
 
-Replace the reference to unconfined_devpts_t which does not exist
-in Debian policy with the more general ptynode attribute.
+Just think about this: on a single-socket AMD EPYC system we can have at most
+of AVC memory access as either shared or remote. To me it only makes sense to
+reduce any unnecessary cache/DRAM references proactively, even if there is no
+obvious immediate payoff right this moment (given, of course, that it does not
+make things worse for a "regular" use case today).
 
-Debian does not allow unprivileged user namespace clones by default,
-so update the test to enable it when running the test to avoid requiring
-sys_admin permission to the capability class during the cap_userns tests.
+[2] https://software.intel.com/sites/products/collateral/hpc/vtune/performance_analysis_guide.pdf
+Table 2, page 22. (yes, this info is about 10 years old)
 
-Debian unstable is mounting devtmpfs as noexec which breaks
-testing of mmap/mprotect PROT_EXEC /dev/zero, so skip those tests
-if so mounted.
+> > AVTab:
+> [ . . . ]
+> > Old:
+> > rules:  81014 entries and 29600/32768 buckets used, longest chain length
+> > 11 non-zero Q1/Med/Q3 2/2/4 sum of chain length^2 290030
+> >
+> > New:
+> > rules:  81014 entries and 29645/32768 buckets used, longest chain length
+> > 11 non-zero Q1/Med/Q3 2/2/4 sum of chain length^2 288810
+> 
+> Oh, one nit against the first patch - you might as well use all
+> lower-case letters in the stats (e.g. "q1" not "Q1" and "med" instead
+> of "Med") to be consistent with the existing output.
 
-Fixes: https://github.com/SELinuxProject/selinux-testsuite/issues/73
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v2 improves the patch description and README.md and tries to provide
-greater compatibility with older systems. NB One must set SUPPORTS_CIL
-to n to disable loading the CIL modules; the alternative would be
-some kind of package version test but doing so in a distro-agnostic
-and backward-compatible manner looks painful.
+Will do.
+ 
+> > Performance, though, is a different matter: a clear savings of 8ns to
+> > 10ns (75th and 50th percentiles respectively) had been measured with
+> > ftrace for the most frequent AVTab lookup method:
+> >
+> > avtab_search_node(), latency in us:
+> >           Old       New
+> >  Samples: 5953243   5458099
+> >  Min.   : 0.136     0.129
+> >  1st Qu.: 0.199     0.189
+> >  Median : 0.219     0.209
+> >  3rd Qu.: 0.294     0.286
+> >  Max.   :10.000     9.990
+> >
+> > The results are not as clear for much less frequently (that is 1500x call
+> > frequency difference) used avtab_search(), though they appear to lean
+> > towards a positive side:
+> >
+> > avtab_search(), latency in us:
+> >             Old     New
+> >  Samples: 3863      3638
+> >  Min.   : 0.165     0.157
+> >  1st Qu.: 0.297     0.293
+> >  Median : 0.510     0.517
+> >  3rd Qu.: 0.803     0.774
+> >  Max.   : 9.343     7.701
+> 
+> So with the avtab we see similar chain length numbers between the two
+> hash implementations but we manage to save a couple of clock cycles
+> across the board from best to worst.  I'm guessing this is almost
+> surely due to the simpler hash3 implementation over the current avtab
+> implementation, yes?
 
- README.md                            | 66 +++++++++++++++++++++++++++-
- policy/Makefile                      | 13 +++++-
- policy/test_capable_net.te           |  2 -
- policy/test_execute_no_trans.te      |  3 +-
- policy/test_filesystem.te            |  1 +
- policy/test_global.te                |  1 +
- policy/test_ibendport.te             |  9 ++--
- policy/test_inet_socket.te           | 22 +++++-----
- policy/test_mlsconstrain.cil         |  2 +
- policy/test_overlay_defaultrange.cil |  7 +++
- policy/test_overlayfs.te             |  1 +
- policy/test_policy.if                |  4 +-
- policy/test_sctp.te                  |  1 +
- tests/cap_userns/test                |  8 ++++
- tests/filesystem/test                |  2 +-
- tests/fs_filesystem/test             |  2 +-
- tests/mmap/test                      | 49 ++++++++++++++-------
- 17 files changed, 149 insertions(+), 44 deletions(-)
- create mode 100644 policy/test_mlsconstrain.cil
- create mode 100644 policy/test_overlay_defaultrange.cil
+Yes. MurmurHash3() version translates into roughly 6x more instructions
+as compared to hash3(), so the fixed offset is really measurable. Note
+that Max for avtab_search_node() is pretty much the same in both cases,
+which falls in line with my earlier assertion that it is likely not
+indicative of real performance differences as it is a function of other
+more random and more expensive processes (such as interrupts, cache
+misses, and etc.).
 
-diff --git a/README.md b/README.md
-index b36494e..1f7e5d9 100644
---- a/README.md
-+++ b/README.md
-@@ -36,6 +36,8 @@ one primary security module may be active at a time.
+> 
+> (more comments inline)
+> 
+> [ . . . ]
+> > +/*
+> > + * hash3(): Mix and hash 3 x u32's with minimal overhead,
+> > + * truncate result to requested number of bits.
+> > + *
+> > + * This hash function produces very good results for inputs where most of
+> > + * input entropy is contained within the lower 11 bits of each of the words.
+> > + *
+> > + * For example, AVC hash table (in avc.c) is indexed by a 3-tuple (u32 ssid,
+> > + * u32 tsid, u16 tclass), where (on Fedora 32 Beta, as of March 2020) ssid and
+> > + * tsid appear to be sequential indexes between 0x0 and 0xA00, while tclass
+> > + * appears to be confined to the lower 8 bits, resulting in almost perfect
+> > + * packing of the indexes into a single 32-bit value.
+> > + *
+> > + * The function still produces reasonable hash values even when input value
+> > + * ranges span beyond 11 bits, as long as the placement of entropy within the
+> > + * input values is roughly the same for each of the componets (a, b, c), and
+> > + * the address space (a, b, c) is sparsely populated. Such behaviour is the
+> > + * result of two conscious choices: (1) use of rol32() to preserve all of the
+> > + * incoming entropy (as opposed to simple shifts which discard some input bits)
+> > + * and (2) use of arithmetic addition which carries over colliding bits (as
+> > + * opposed to binary XOR, which does not carry).
+> > + *
+> > + * The function will produce horrible collisions if input entropy is distrubuted
+> > + * within (a, b, c) such that it ends up within the same bit ranges after
+> > + * rotations, and the address space is densly populated. If that is the case,
+> > + * then two options are available:
+> > + * 1. Try switching around some of the inputs. EX: (a, b, c) => (b, c, a)
+> > + * 2. Use a real hash, such as jhash_3words() from linux/jhash.h
+> > + */
+> 
+> I'm not one to throw stones as my spelling is terrible, but I wouldn't
+> be doing my job if I didn't ask you to run spellcheck on the comment
+> above.
+
+Will do.
  
- ### Userland and Base Policy
- 
-+#### Fedora or RHEL
-+
- On a Fedora/RHEL based system the testsuite has the following userspace
- dependencies beyond a minimal install (other Linux distributions should have
- similar dependencies):
-@@ -77,8 +79,70 @@ following command:
- 		xfsprogs-devel \
- 		libuuid-devel
- 
-+#### Debian
-+
-+On Debian, you must first take steps to install and activate SELinux since
-+it is not enabled in the default install.  Make sure to backup your system
-+first if you care about any local data.
-+
-+	# apt-get install selinux-basics selinux-policy-default auditd
-+	# selinux-activate
-+	# reboot
-+
-+After activating, make sure that your login shell is running in the
-+correct context:
-+
-+	# id -Z
-+
-+If this shows something other than
-+"unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023", you will need
-+to first fix labeling or policy problems in your base system before
-+proceeding.  Make sure that your shell context is correct and you can
-+switch to enforcing mode without breaking your system before
-+proceeding.
-+
-+On Debian, you can install the userspace dependencies with the following
-+command:
-+
-+	# apt-get install perl \
-+		gcc \
-+		selinux-policy-dev \
-+		libselinux1-dev \
-+		net-tools \
-+		iptables \
-+		libsctp-dev \
-+		attr \
-+		libbpf-dev \
-+		libkeyutils-dev \
-+		linux-headers-$(uname -r) \
-+		quota \
-+		xfsprogs \
-+		xfslibs-dev \
-+		uuid-dev
-+
-+On Debian, you need to build and install netlabel_tools manually since
-+it is not yet packaged for Debian
-+(https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=959806):
-+
-+    # git clone https://github.com/netlabel/netlabel_tools
-+    # cd netlabel_tools
-+    # sudo apt-get install autotools-dev autoconf automake libtool pkg-config libnl-3-dev libnl-genl-3-dev
-+    # ./autogen.sh
-+    # ./configure --prefix=/usr
-+    # make
-+    # sudo make install
-+
-+Debian further requires reconfiguring the default /bin/sh to be bash
-+to support bashisms employed in the testsuite Makefiles and scripts:
-+
-+    # dpkg-reconfigure dash
-+
-+Select "No" when asked if you want to use dash as the default system shell.
-+
-+#### Other Distributions
-+
- The testsuite requires a pre-existing base policy configuration of SELinux,
--using either the old example policy or the reference policy as the baseline.
-+using the reference policy as the baseline.
- It also requires the core SELinux userland packages (`libsepol`, `checkpolicy`,
- `libselinux`, `policycoreutils`, and if using modular policy, `libsemanage`)
- to be installed.  The test scripts also rely upon the SELinux extensions being
-diff --git a/policy/Makefile b/policy/Makefile
-index dfe601b..7ee35d7 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -7,6 +7,7 @@ SELINUXFS ?= /sys/fs/selinux
- SEMODULE = $(SBINDIR)/semodule
- CHECKPOLICY = $(BINDIR)/checkpolicy
- CHECKMODULE = $(BINDIR)/checkmodule
-+SUPPORTS_CIL ?= y
- 
- DISTRO=$(shell ../tests/os_detect)
- 
-@@ -40,6 +41,10 @@ CIL_TARGETS = test_add_levels.cil test_glblub.cil
- endif
- endif # GLBLUB
- 
-+ifeq ($(SUPPORTS_CIL),y)
-+CIL_TARGETS += test_mlsconstrain.cil test_overlay_defaultrange.cil
-+endif
-+
- ifeq ($(shell [ $(POL_VERS) -ge 24 ] && echo true),true)
- TARGETS += test_bounds.te test_nnp_nosuid.te
- endif
-@@ -161,12 +166,16 @@ build: $(TARGETS)
- 
- load: expand_check all
- 	# General policy load
--	@-/usr/sbin/setsebool allow_domain_fd_use=0
-+	@if /usr/sbin/getsebool allow_domain_fd_use 2> /dev/null; then \
-+		/usr/sbin/setsebool allow_domain_fd_use=0; \
-+	fi
- 	$(SEMODULE) -i test_policy/test_policy.pp $(CIL_TARGETS)
- 
- unload:
- 	# General policy unload
--	@-/usr/sbin/setsebool allow_domain_fd_use=1
-+	@if /usr/sbin/getsebool allow_domain_fd_use 2> /dev/null; then \
-+		/usr/sbin/setsebool allow_domain_fd_use=1; \
-+	fi
- 	$(SEMODULE) -r test_policy $(subst .cil,,$(CIL_TARGETS))
- 
- clean:
-diff --git a/policy/test_capable_net.te b/policy/test_capable_net.te
-index 80559f6..2255a14 100644
---- a/policy/test_capable_net.te
-+++ b/policy/test_capable_net.te
-@@ -28,8 +28,6 @@ corenet_raw_sendrecv_generic_if(capabledomain)
- corenet_tcp_sendrecv_all_nodes(capabledomain)
- corenet_udp_sendrecv_all_nodes(capabledomain)
- corenet_raw_sendrecv_all_nodes(capabledomain)
--corenet_tcp_sendrecv_all_ports(capabledomain)
--corenet_udp_sendrecv_all_ports(capabledomain)
- corenet_all_recvfrom_unlabeled(test_ncap_t)
- corenet_all_recvfrom_unlabeled(test_resncap_t)
- corenet_tcp_bind_all_nodes(capabledomain)
-diff --git a/policy/test_execute_no_trans.te b/policy/test_execute_no_trans.te
-index 79ba868..2c0346a 100644
---- a/policy/test_execute_no_trans.te
-+++ b/policy/test_execute_no_trans.te
-@@ -24,4 +24,5 @@ userdom_sysadm_entry_spec_domtrans_to(test_execute_notrans_t)
- 
- #Allow test_execute_notrans permissions to the allowed type
- can_exec(test_execute_notrans_t,test_execute_notrans_allowed_t)
--allow test_execute_notrans_t test_execute_notrans_denied_t:file mmap_file_perms;
-+allow_map(test_execute_notrans_t, test_execute_notrans_denied_t, file)
-+allow test_execute_notrans_t test_execute_notrans_denied_t:file { getattr open read };
-diff --git a/policy/test_filesystem.te b/policy/test_filesystem.te
-index 7d73cbf..4e27134 100644
---- a/policy/test_filesystem.te
-+++ b/policy/test_filesystem.te
-@@ -350,6 +350,7 @@ allow test_filesystem_fscontext_t test_filesystem_filecon_t:file { getattr open
- allow test_filesystem_fscontext_t test_filesystem_fscontext_fs_t:dir { add_name search write };
- allow test_filesystem_fscontext_t test_filesystem_fscontext_fs_t:file { create getattr open relabelfrom write };
- allow test_filesystem_fscontext_t test_filesystem_fscontext_fs_t:filesystem { mount relabelto unmount };
-+domain_obj_id_change_exemption(test_filesystem_fscontext_t)
- fs_relabelfrom_all_fs(test_filesystem_fscontext_t)
- files_search_all(test_filesystem_fscontext_t)
- allow test_filesystem_filecon_t test_filesystem_fscontext_fs_t:filesystem { associate };
-diff --git a/policy/test_global.te b/policy/test_global.te
-index c9520ec..d19b4be 100644
---- a/policy/test_global.te
-+++ b/policy/test_global.te
-@@ -83,6 +83,7 @@ domain_use_interactive_fds(testdomain)
- seutil_read_config(testdomain)
- 
- # can getsecurity
-+selinux_getattr_fs(testdomain)
- selinux_validate_context(testdomain)
- selinux_compute_access_vector(testdomain)
- selinux_compute_create_context(testdomain)
-diff --git a/policy/test_ibendport.te b/policy/test_ibendport.te
-index 2a02c57..b909b4f 100644
---- a/policy/test_ibendport.te
-+++ b/policy/test_ibendport.te
-@@ -3,11 +3,6 @@
- # Policy for testing Infiniband Pkey access.
- #
- 
--gen_require(`
--	type bin_t;
--	type infiniband_mgmt_device_t;
--')
--
- attribute ibendportdomain;
- 
- # Domain for process.
-@@ -27,7 +22,9 @@ dev_rw_sysfs(test_ibendport_manage_subnet_t)
- 
- corecmd_bin_entry_type(test_ibendport_manage_subnet_t)
- 
--allow test_ibendport_manage_subnet_t infiniband_mgmt_device_t:chr_file { read write open ioctl};
-+ifdef(`dev_rw_infiniband_mgmt_dev', `
-+dev_rw_infiniband_mgmt_dev(test_ibendport_manage_subnet_t)
-+')
- 
- ifdef(`corenet_ib_access_unlabeled_pkeys',`
- corenet_ib_access_unlabeled_pkeys(test_ibendport_manage_subnet_t)
-diff --git a/policy/test_inet_socket.te b/policy/test_inet_socket.te
-index bf839df..0fff2da 100644
---- a/policy/test_inet_socket.te
-+++ b/policy/test_inet_socket.te
-@@ -26,8 +26,8 @@ typeattribute test_inet_server_t testdomain;
- typeattribute test_inet_server_t inetsocketdomain;
- allow test_inet_server_t self:tcp_socket create_stream_socket_perms;
- allow test_inet_server_t self:udp_socket create_socket_perms;
--corenet_tcp_bind_generic_port(test_inet_server_t)
--corenet_udp_bind_generic_port(test_inet_server_t)
-+corenet_tcp_bind_all_unreserved_ports(test_inet_server_t)
-+corenet_udp_bind_all_unreserved_ports(test_inet_server_t)
- corenet_tcp_bind_all_nodes(test_inet_server_t)
- corenet_udp_bind_all_nodes(test_inet_server_t)
- corenet_inout_generic_if(test_inet_server_t)
-@@ -54,7 +54,7 @@ typeattribute test_inet_client_t testdomain;
- typeattribute test_inet_client_t inetsocketdomain;
- allow test_inet_client_t self:tcp_socket create_stream_socket_perms;
- allow test_inet_client_t self:udp_socket create_socket_perms;
--corenet_tcp_connect_generic_port(test_inet_client_t)
-+corenet_tcp_connect_all_unreserved_ports(test_inet_client_t)
- corenet_inout_generic_if(test_inet_client_t)
- corenet_inout_generic_node(test_inet_client_t)
- 
-@@ -71,7 +71,7 @@ typeattribute test_inet_bad_client_t testdomain;
- typeattribute test_inet_bad_client_t inetsocketdomain;
- allow test_inet_bad_client_t self:tcp_socket create_stream_socket_perms;
- allow test_inet_bad_client_t self:udp_socket create_socket_perms;
--corenet_tcp_connect_generic_port(test_inet_bad_client_t)
-+corenet_tcp_connect_all_unreserved_ports(test_inet_bad_client_t)
- corenet_inout_generic_if(test_inet_bad_client_t)
- corenet_inout_generic_node(test_inet_bad_client_t)
- 
-@@ -87,8 +87,8 @@ typeattribute test_inet_bind_t testdomain;
- typeattribute test_inet_bind_t inetsocketdomain;
- allow test_inet_bind_t self:tcp_socket create_stream_socket_perms;
- allow test_inet_bind_t self:udp_socket create_socket_perms;
--corenet_tcp_bind_generic_port(test_inet_bind_t)
--corenet_udp_bind_generic_port(test_inet_bind_t)
-+corenet_tcp_bind_all_unreserved_ports(test_inet_bind_t)
-+corenet_udp_bind_all_unreserved_ports(test_inet_bind_t)
- corenet_tcp_bind_all_nodes(test_inet_bind_t)
- corenet_udp_bind_all_nodes(test_inet_bind_t)
- 
-@@ -111,8 +111,8 @@ typeattribute test_inet_no_node_bind_t testdomain;
- typeattribute test_inet_no_node_bind_t inetsocketdomain;
- allow test_inet_no_node_bind_t self:tcp_socket create_stream_socket_perms;
- allow test_inet_no_node_bind_t self:udp_socket create_socket_perms;
--corenet_tcp_bind_generic_port(test_inet_no_node_bind_t)
--corenet_udp_bind_generic_port(test_inet_no_node_bind_t)
-+corenet_tcp_bind_all_unreserved_ports(test_inet_no_node_bind_t)
-+corenet_udp_bind_all_unreserved_ports(test_inet_no_node_bind_t)
- 
- # Domain for a process allowed to connect(2).
- type test_inet_connect_t;
-@@ -122,8 +122,8 @@ typeattribute test_inet_connect_t testdomain;
- typeattribute test_inet_connect_t inetsocketdomain;
- allow test_inet_connect_t self:tcp_socket create_stream_socket_perms;
- allow test_inet_connect_t self:udp_socket create_socket_perms;
--corenet_tcp_connect_generic_port(test_inet_connect_t)
--corenet_tcp_bind_generic_port(test_inet_connect_t)
-+corenet_tcp_connect_all_unreserved_ports(test_inet_connect_t)
-+corenet_tcp_bind_all_unreserved_ports(test_inet_connect_t)
- corenet_tcp_bind_all_nodes(test_inet_connect_t)
- corenet_inout_generic_if(test_inet_connect_t)
- corenet_inout_generic_node(test_inet_connect_t)
-@@ -136,7 +136,7 @@ typeattribute test_inet_no_name_connect_t testdomain;
- typeattribute test_inet_no_name_connect_t inetsocketdomain;
- allow test_inet_no_name_connect_t self:tcp_socket create_stream_socket_perms;
- allow test_inet_no_name_connect_t self:udp_socket create_socket_perms;
--corenet_tcp_bind_generic_port(test_inet_no_name_connect_t)
-+corenet_tcp_bind_all_unreserved_ports(test_inet_no_name_connect_t)
- corenet_tcp_bind_all_nodes(test_inet_no_name_connect_t)
- corenet_inout_generic_if(test_inet_no_name_connect_t)
- corenet_inout_generic_node(test_inet_no_name_connect_t)
-diff --git a/policy/test_mlsconstrain.cil b/policy/test_mlsconstrain.cil
-new file mode 100644
-index 0000000..1412f91
---- /dev/null
-+++ b/policy/test_mlsconstrain.cil
-@@ -0,0 +1,2 @@
-+(mlsconstrain (peer (recv)) (or (dom l1 l2) (and (neq t1 mcs_constrained_type) (neq t2 mcs_constrained_type))))
-+(mlsconstrain (packet (recv)) (or (dom l1 l2) (and (neq t1 mcs_constrained_type) (neq t2 mcs_constrained_type))))
-diff --git a/policy/test_overlay_defaultrange.cil b/policy/test_overlay_defaultrange.cil
-new file mode 100644
-index 0000000..d1c18db
---- /dev/null
-+++ b/policy/test_overlay_defaultrange.cil
-@@ -0,0 +1,7 @@
-+(defaultrange file target low)
-+(defaultrange dir target low)
-+(defaultrange lnk_file target low)
-+(defaultrange chr_file target low)
-+(defaultrange blk_file target low)
-+(defaultrange sock_file target low)
-+(defaultrange fifo_file target low)
-diff --git a/policy/test_overlayfs.te b/policy/test_overlayfs.te
-index 6f1756e..b29621e 100644
---- a/policy/test_overlayfs.te
-+++ b/policy/test_overlayfs.te
-@@ -52,6 +52,7 @@ corecmd_exec_bin(test_overlay_mounter_t)
- 
- userdom_search_admin_dir(test_overlay_mounter_t)
- userdom_search_user_home_content(test_overlay_mounter_t)
-+userdom_read_user_tmp_files(test_overlay_mounter_t)
- 
- mount_exec(test_overlay_mounter_t)
- mount_rw_pid_files(test_overlay_mounter_t)
-diff --git a/policy/test_policy.if b/policy/test_policy.if
-index cefc8fb..f0400f5 100644
---- a/policy/test_policy.if
-+++ b/policy/test_policy.if
-@@ -29,7 +29,7 @@
- interface(`unconfined_runs_test',`
- 	gen_require(`
- 		type unconfined_t;
--               type unconfined_devpts_t;
-+               attribute ptynode;
- 		role unconfined_r;
- 	')
- 
-@@ -38,7 +38,7 @@ interface(`unconfined_runs_test',`
- 	role unconfined_r types $1;
-       # Report back from the test domain to the caller.
-       allow $1 unconfined_t:fd use;
--      allow $1 unconfined_devpts_t:chr_file { read write ioctl getattr };
-+      allow $1 ptynode:chr_file { read write ioctl getattr };
-       allow $1 unconfined_t:fifo_file { read write ioctl getattr };
-       allow $1 unconfined_t:process { sigchld };
- 
-diff --git a/policy/test_sctp.te b/policy/test_sctp.te
-index df8606e..3b16db1 100644
---- a/policy/test_sctp.te
-+++ b/policy/test_sctp.te
-@@ -25,6 +25,7 @@ allow nfsd_t netlabel_sctp_peer_t:peer recv;
- gen_require(`
- 	type netlabel_peer_t;
- ')
-+mcs_constrained(netlabel_peer_t)
- 
- #
- ############### Declare an attribute that will hold all peers ###############
-diff --git a/tests/cap_userns/test b/tests/cap_userns/test
-index 9eafba6..917da00 100755
---- a/tests/cap_userns/test
-+++ b/tests/cap_userns/test
-@@ -6,6 +6,10 @@ BEGIN {
-     $basedir = $0;
-     $basedir =~ s|(.*)/[^/]*|$1|;
- 
-+    if ( -e '/proc/sys/kernel/unprivileged_userns_clone' ) {
-+        system(
-+            "echo 1 > /proc/sys/kernel/unprivileged_userns_clone 2> /dev/null");
-+    }
-     if ( system("$basedir/userns_child_exec -t -U > /dev/null 2>&1") == 0 ) {
-         plan tests => 2;
-     }
-@@ -27,3 +31,7 @@ $result = system(
- "runcon -t test_no_cap_userns_t -- $basedir/userns_child_exec -p -m -U -M '0 0 1' -G '0 0 1' -- true 2>&1"
- );
- ok($result);
-+
-+if ( -e '/proc/sys/kernel/unprivileged_userns_clone' ) {
-+    system("echo 0 > /proc/sys/kernel/unprivileged_userns_clone 2> /dev/null");
-+}
-diff --git a/tests/filesystem/test b/tests/filesystem/test
-index 149cc29..7d4654d 100755
---- a/tests/filesystem/test
-+++ b/tests/filesystem/test
-@@ -1116,7 +1116,7 @@ if ( not $nfs_enabled ) {
-         #   system_u:object_r:test_filesystem_context_file_t:s0 from $test_opts
-         print "Creating test file $basedir/mntpoint/mp1/test_file\n";
-         $result = system(
--"runcon -u system_u -t test_filesystem_fscontext_t $basedir/create_file -f $basedir/mntpoint/mp1/test_file -e test_filesystem_context_file_t $v"
-+"runcon -t test_filesystem_fscontext_t $basedir/create_file -f $basedir/mntpoint/mp1/test_file -e test_filesystem_context_file_t $v"
-         );
-         ok( $result eq 0 );
- 
-diff --git a/tests/fs_filesystem/test b/tests/fs_filesystem/test
-index 5dcc89d..5dedf83 100755
---- a/tests/fs_filesystem/test
-+++ b/tests/fs_filesystem/test
-@@ -1145,7 +1145,7 @@ if ( not $nfs_enabled ) {
-         #   system_u:object_r:test_filesystem_context_file_t:s0 from $test_opts
-         print "Creating test file $basedir/mntpoint/mp1/test_file\n";
-         $result = system(
--"runcon -u system_u -t test_filesystem_fscontext_t $filesystem_dir/create_file -f $basedir/mntpoint/mp1/test_file -e test_filesystem_context_file_t $v"
-+"runcon -t test_filesystem_fscontext_t $filesystem_dir/create_file -f $basedir/mntpoint/mp1/test_file -e test_filesystem_context_file_t $v"
-         );
-         ok( $result eq 0 );
- 
-diff --git a/tests/mmap/test b/tests/mmap/test
-index fe6f184..850b24f 100755
---- a/tests/mmap/test
-+++ b/tests/mmap/test
-@@ -3,10 +3,11 @@
- use Test;
- 
- BEGIN {
--    $test_count         = 34;
--    $test_hugepages     = 0;
--    $test_exec_checking = 0;
--    $test_map_checking  = 0;
-+    $test_count            = 30;
-+    $test_hugepages        = 0;
-+    $test_exec_checking    = 0;
-+    $test_map_checking     = 0;
-+    $test_devzero_checking = 0;
- 
-     system("echo 1 > /proc/sys/vm/nr_hugepages 2> /dev/null");
-     if ( system("grep -q 1 /proc/sys/vm/nr_hugepages 2> /dev/null") == 0 ) {
-@@ -19,6 +20,13 @@ BEGIN {
-         $test_count += 4;
-     }
- 
-+    if (
-+        system("grep -q devtmpfs.*noexec /proc/self/mounts 2> /dev/null") != 0 )
-+    {
-+        $test_devzero_checking = 1;
-+        $test_count += 4;
-+    }
-+
-     if ( -e '/sys/fs/selinux/class/file/perms/map' ) {
-         $test_map_checking = 1;
-         $test_count += 1;
-@@ -62,13 +70,17 @@ ok( $result, 0 );
- $result = system "runcon -t test_no_execmem_t $basedir/mmap_anon_shared 2>&1";
- ok($result);
- 
--# Test success and failure for mmap /dev/zero.
--$result =
--  system "runcon -t test_mmap_dev_zero_t $basedir/mmap_file_shared /dev/zero";
--ok( $result, 0 );
--$result = system
--  "runcon -t test_no_mmap_dev_zero_t $basedir/mmap_file_shared /dev/zero 2>&1";
--ok($result);
-+if ($test_devzero_checking) {
-+
-+    # Test success and failure for mmap /dev/zero.
-+    $result =
-+      system
-+      "runcon -t test_mmap_dev_zero_t $basedir/mmap_file_shared /dev/zero";
-+    ok( $result, 0 );
-+    $result = system
-+"runcon -t test_no_mmap_dev_zero_t $basedir/mmap_file_shared /dev/zero 2>&1";
-+    ok($result);
-+}
- 
- # Test success and failure for mprotect w/ anonymous shared memory.
- # In old kernels, this triggers a tmpfs file execute check.
-@@ -80,13 +92,16 @@ $result = system
-   "runcon -t test_no_mprotect_anon_shared_t $basedir/mprotect_anon_shared 2>&1";
- ok($result);
- 
--# Test success and failure for mprotect /dev/zero.
--$result = system
--  "runcon -t test_mprotect_dev_zero_t $basedir/mprotect_file_shared /dev/zero";
--ok( $result, 0 );
--$result = system
-+if ($test_devzero_checking) {
-+
-+    # Test success and failure for mprotect /dev/zero.
-+    $result = system
-+"runcon -t test_mprotect_dev_zero_t $basedir/mprotect_file_shared /dev/zero";
-+    ok( $result, 0 );
-+    $result = system
- "runcon -t test_no_mprotect_dev_zero_t $basedir/mprotect_file_shared /dev/zero 2>&1";
--ok($result);
-+    ok($result);
-+}
- 
- # Test success and failure for execheap, independent of execmem.
- $result = system "runcon -t test_execheap_t $basedir/mprotect_heap";
+> > +static inline u32 hash3(u32 a, u32 b, u32 c, int bits)
+> > +{
+> > +       return hash_32(a + rol32(b, 11) + rol32(c, 22), bits);
+> > +}
+> > +
+> > +#endif /* #ifndef _SELINUX_HASH3_H */
+> 
+> ...
+> 
+> > diff --git a/security/selinux/ss/avtab.h b/security/selinux/ss/avtab.h
+> > index 5fdcb6696bcc..bf24d8094019 100644
+> > --- a/security/selinux/ss/avtab.h
+> > +++ b/security/selinux/ss/avtab.h
+> > @@ -85,6 +85,7 @@ struct avtab {
+> >         u32 nel;        /* number of elements */
+> >         u32 nslot;      /* number of hash slots */
+> >         u32 mask;       /* mask to compute hash func */
+> > +       u32 bits;       /* number of bits in mask */
+> >  };
+> 
+> We can get rid of the "mask" field, right?
+
+Yes, I think we can.
+
 -- 
-2.23.1
-
+Siarhei Liakh
+Concurrent Real-Time
