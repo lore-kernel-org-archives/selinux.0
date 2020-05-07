@@ -2,108 +2,137 @@ Return-Path: <SRS0=z4nS=6V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46080C38A24
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 12:38:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AC50C38A24
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 12:52:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C8B120663
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 12:38:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 139AA2063A
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 12:52:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aEQeTLMa"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C/V0A6l/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725923AbgEGMik (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 May 2020 08:38:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60100 "EHLO
+        id S1726074AbgEGMwM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 May 2020 08:52:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725857AbgEGMik (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 08:38:40 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8380EC05BD43
-        for <selinux@vger.kernel.org>; Thu,  7 May 2020 05:38:40 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id j4so4294951otr.11
-        for <selinux@vger.kernel.org>; Thu, 07 May 2020 05:38:40 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1725969AbgEGMwM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 08:52:12 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52BF0C05BD43
+        for <selinux@vger.kernel.org>; Thu,  7 May 2020 05:52:12 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id c124so4820424oib.13
+        for <selinux@vger.kernel.org>; Thu, 07 May 2020 05:52:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AHTPgqe64mTU9ole297qTC6janjlOqN8urRXNRQfkas=;
-        b=aEQeTLMaBCzGHI0gvsoLUEqDtcrLiwRDjONT7bRPc98PJAmFx4zwUYkxio3uFyCsyt
-         alMCsEeatuN0qvEtPZB3puO8Gzc7+sl7+sHF4GDSo0xaQfwbDD12rb9OquWUNgRN9Iv6
-         wW6yQiVCRFwaVH1VSBpE+odSp5yec06WJzAVcQvDVh06ROvFQ9JLwy/ckAdTaO52Osgv
-         wUiJFq5UMd176MkQUyurIQrzP1SfnVGWRB7QVFYE0fOY0nOImgWkRHQAHYIU8DkIQm4Y
-         cqJlacsg88t8nImVSMXN8iz/K7grXcoG+ySmhXgQqW3Z8d2Sk/vxZe8IVooq19dPupqf
-         IMow==
+         :cc:content-transfer-encoding;
+        bh=dFFHvv1x8H4C4Q5hE2BvdDCVhKNo/+zN3llE3zxTbHY=;
+        b=C/V0A6l/fVYCLg8txUu5vmfILqbkoigr3x58fTD/qX2n6pzdsS9AgUFWWtB1TFJSPM
+         bxZQ/58Sg9d+DR9pSUVan96UY79z3gXh6yO2Pz2VD3rIBVSDW2AUSM6dMKxj3Tz5xq0g
+         s6rd7eRDQ3cI9/E3LNF223nW3vI8m2jLPtxknls6HlpbPVcHTjymmaEXZMe+pA768BSJ
+         WU5wZVkvQw355UURnO12h66dNhMasrxy1cZ7km9JRrS4qYPTFgLnHyAXTbXxeetjr7WN
+         ttGHiacNe8O2diQiLL47mQcA8IB3H8BWjXn8UJ+l30ylpzUkNw61p3WDfCZI81HNUSoq
+         VmnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AHTPgqe64mTU9ole297qTC6janjlOqN8urRXNRQfkas=;
-        b=IRL2l6ALJoLUNXQ3mFNMH2vsSjrW7eB8B8fNLfGaVh2M39IOHRHApi+BT1jFEGVH6/
-         Vt3r8LmOVoiwgRAfM2s9NGNklRGymZ8qxlUXvIkLQihW0cJyV9+ZBHcTR1WZvVk3jU/6
-         ++KKXVFsB3NZ4FbKJKbRUCjZysowKdgIDol44M6ANfVBjSNzMVuCG3gJxsueoB1UGsMX
-         Ke+YhPvdJqaYHNhD3WwLm9CflOI7OB4j6YcfzUnEVrp8UeJz0AqcAdDxz2r0QxPthZhP
-         IF8u6TbTCN+eRCDcydWqR2OL6aSfZmOrYi6QZMR4AIuz2iC/qkjL7s83/E6MisFiZRdm
-         4QBw==
-X-Gm-Message-State: AGi0Puahv50nFSF1lRZ1LAsspIaWE99me3xestxnOG4D+YE0zRyYfQol
-        FjAsiz/+e6Xdi2+5VHCRIDC2HeJB/f5lQFYPZII=
-X-Google-Smtp-Source: APiQypLu0o4sESseMzJ3TZeQdmPkS5+4uzD9wbZBjMRapG0s50Yrb311bPEAR1TwMV/FKmNh0r9zTBQDOpvIbCU+MKA=
-X-Received: by 2002:a9d:2aa9:: with SMTP id e38mr10602699otb.162.1588855119892;
- Thu, 07 May 2020 05:38:39 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=dFFHvv1x8H4C4Q5hE2BvdDCVhKNo/+zN3llE3zxTbHY=;
+        b=W2Md0jZDbdKvzKqA/2lYoGOxt6YSJHLuGwGAiWM/VgBogjoDU3bVJuZvPmDMEqJQac
+         S+cNDhohUuBw6hBYWQ4NxM8gybVktDOEwdEsev1n0LZ5rDf8/Q5C1gamQfzYXzi8sLQU
+         XCkWhtKoq0EEm9kMFTcqgp25F+6nQ/Vi2YBgUDLp7uyuYsu/+C54IjDatai3CE7oP7b4
+         S4uHWRnODoJ/8iszduEm1+SJ4ONWuV4EryzPMxKCdM5jjyzUPrzthPZB8wOSF2SAKnAN
+         fSYCPbhpNBGdak6BfqWtC3BiadIJIc/k+So5OtRtyB5CLaO1rD5D2DivcQkLKIkPAaWu
+         WsbA==
+X-Gm-Message-State: AGi0PuYGPKYs6azYu0yfAQb4UffA5RvaxdfKAWFjcQCcAvCrkJj01hNU
+        zOO3ewCmMsUsth5FGUV+G/RjfaK7wguy8hiZ1Lk=
+X-Google-Smtp-Source: APiQypKCQPNvICd2/YblWRVT5OqeOh4VTq5ru9qyjELnqGLXO8+kVOjJ2w+XYaw0c61T7x/7zPl2/vDcoKUXXKU66ro=
+X-Received: by 2002:aca:4e10:: with SMTP id c16mr6419170oib.140.1588855931657;
+ Thu, 07 May 2020 05:52:11 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200506211435.30296-1-stephen.smalley.work@gmail.com> <CAFqZXNsDv3pmeW-5Knc1bpcN5U3yzFE61JKnNYRU+w2N0W+PzQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNsDv3pmeW-5Knc1bpcN5U3yzFE61JKnNYRU+w2N0W+PzQ@mail.gmail.com>
+References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
+ <CAFftDdrD-FJ8wBk=XOkvdnkvA5o10w5pJs31H9dEhtW1zU8EHA@mail.gmail.com>
+ <CAEjxPJ452zaoFwy++cKqh_Ap2rM1ezEZN83mBhN4ndHHaQ4q5Q@mail.gmail.com>
+ <3838641.zh4Wi6GlAV@liv> <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org>
+In-Reply-To: <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 7 May 2020 08:38:27 -0400
-Message-ID: <CAEjxPJ5wrAfWRBQfaHFCD7Y7UkqPwnpG914Q_S66dF7cDEMa4w@mail.gmail.com>
-Subject: Re: [PATCH v2] selinux-testsuite: update to work on Debian
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
+Date:   Thu, 7 May 2020 08:51:59 -0400
+Message-ID: <CAEjxPJ6Uo83L5C9UELy5w_V2wuptSHiHoMMLN4oh75x70-ZzAQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
+To:     Laurent Bigonville <bigon@debian.org>
+Cc:     Russell Coker <russell@coker.com.au>,
+        William Roberts <bill.c.roberts@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
         Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 7, 2020 at 4:26 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Thu, May 7, 2020 at 4:46 AM Laurent Bigonville <bigon@debian.org> wrote:
 >
-> On Wed, May 6, 2020 at 11:14 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> [...]
-> > ---
-> > v2 improves the patch description and README.md and tries to provide
-> > greater compatibility with older systems. NB One must set SUPPORTS_CIL
-> > to n to disable loading the CIL modules; the alternative would be
-> > some kind of package version test but doing so in a distro-agnostic
-> > and backward-compatible manner looks painful.
->
-> Thanks! As I said in another reply, I agree that CIL support detection
-> wouldn't be worth it here.
-
-I just remembered that we do have the os_detect and
-ifeq(x$(DISTRO),... support in the Makefiles,
-so I could set SUPPORTS_CIL automatically to n in the RHEL6 case that way.
-
-> > diff --git a/policy/test_execute_no_trans.te b/policy/test_execute_no_trans.te
-> > index 79ba868..2c0346a 100644
-> > --- a/policy/test_execute_no_trans.te
-> > +++ b/policy/test_execute_no_trans.te
-> > @@ -24,4 +24,5 @@ userdom_sysadm_entry_spec_domtrans_to(test_execute_notrans_t)
+> Le 6/05/20 =C3=A0 18:37, Russell Coker a =C3=A9crit :
+> > On Thursday, 7 May 2020 1:50:46 AM AEST Stephen Smalley wrote:
+> >> on that running instance, but not to specify custom kernel parameters
+> >> initially or to reboot the system before proceeding with further
+> >> commands (if anyone knows differently, speak up). We'd have to get to
+> >> the point where enabling SELinux in Debian is possible without
+> >> requiring a reboot at all.  And then we'd have to wait for that
+> >> support to find its way into one of the Ubuntu images supported by
+> >> travis-ci.  Might be easier to just get travis-ci to support Fedora or
+> >> CentOS images in the first place. Regardless, allowing the testsuite
+> >> to be run by users of other distributions is worthwhile IMHO.
+> > In the past there hasn't been much demand for a smoother installation p=
+rocess.
+> > If you are setting up a traditional Unix server system the Debian SE Li=
+nux
+> > installation thing doesn't make things much more difficult.  Past compl=
+aints
+> > about it have been more about an imagined difficulty of using SE Linux =
+and have
+> > ended when I showed and wrote about how to do it (one time I showed
+> > screenshots of the process in an LCA lightning talk and didn't have pro=
+blems
+> > with time).
 > >
-> >  #Allow test_execute_notrans permissions to the allowed type
-> >  can_exec(test_execute_notrans_t,test_execute_notrans_allowed_t)
-> > -allow test_execute_notrans_t test_execute_notrans_denied_t:file mmap_file_perms;
-> > +allow_map(test_execute_notrans_t, test_execute_notrans_denied_t, file)
-> > +allow test_execute_notrans_t test_execute_notrans_denied_t:file { getattr open read };
->
-> An alternative solution could be to use "mmap_file_perms" unless it is
-> not defined, in which case we can assume a non-legacy policy and use
-> the proper "mmap_exec_file_perms". But I'm fine with your approach as
-> well if you don't want to change it.
+> > I don't think that the people who maintain the Debian installation rela=
+ted
+> > packages would have a great objection to adding SE Linux features, alth=
+ough it
+> > might take a bit of time for it to migrate from Debian to Ubuntu.
+> >
+> > We can make this a priority.
+> >
+> If people are using preseed installations (kickstart equivalent), I
+> think that enabling SELinux in the installer shouldn't be too difficult
+> (installing the needed packages, modifying the files and relabeling with
+> fixfiles). It's obviously not user friendly, but the question is what's
+> the target here.
 
-This seems a little safer to me given the confusion about what
-mmap_exec_file_perms contains but either way.
+The visionary end state goal would be to allow one to specify some
+kind of option in a travis-ci configuration and get a SELinux-enabled
+image on which we could perform travis-ci validation of
+selinux-testsuite, selinux userspace, and maybe even the kernel.  I
+don't think that is possible in the near term though and will require
+changes to travis-ci itself.  At the moment our travis-ci validation
+of the testsuite and userspace is limited to building and in the
+latter case running some limited tests that do not depend on having
+SELinux on the host.
+
+The nearer term goal is to minimize obstacles to using SELinux in
+Debian, one of which is the need to install Debian and then install
+SELinux as a separate step (with two reboots along the way) rather
+than an installer option.  We can't use that approach in travis-ci
+AFAICT because we cannot reboot the instance and then proceed with
+testing.  If we can tell the installer to include the necessary grub
+and pam configurations up front and to label the filesystems during
+installation (which can happen even while SELinux is disabled in the
+kernel; only requires filesystem xattr support), then we can avoid the
+need for any extra reboots post install.
