@@ -2,153 +2,207 @@ Return-Path: <SRS0=z4nS=6V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C46FAC38A2A
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 08:43:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 53BF7C38A2A
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 09:20:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A209720659
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 08:43:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 280C02078C
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 09:20:14 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="avZeKDAI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725802AbgEGInt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 May 2020 04:43:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51484 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725948AbgEGIns (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 04:43:48 -0400
-X-Greylist: delayed 511 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 07 May 2020 01:43:48 PDT
-Received: from ithil.bigon.be (ithil.bigon.be [IPv6:2001:bc8:25f1:100::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BAB0C061A10
-        for <selinux@vger.kernel.org>; Thu,  7 May 2020 01:43:48 -0700 (PDT)
-Received: from localhost (localhost [IPv6:::1])
-        by ithil.bigon.be (Postfix) with ESMTP id CDCFA1FEDF;
-        Thu,  7 May 2020 10:35:14 +0200 (CEST)
-Received: from ithil.bigon.be ([IPv6:::1])
-        by localhost (ithil.bigon.be [IPv6:::1]) (amavisd-new, port 10026)
-        with ESMTP id I0yXM0mBVeoW; Thu,  7 May 2020 10:35:14 +0200 (CEST)
-Received: from [IPv6:2a02:a03f:65bc:5f00:f7be:6179:48b7:2349] (unknown [IPv6:2a02:a03f:65bc:5f00:f7be:6179:48b7:2349])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: bigon@bigon.be)
-        by ithil.bigon.be (Postfix) with ESMTPSA;
-        Thu,  7 May 2020 10:35:14 +0200 (CEST)
-Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
-To:     Russell Coker <russell@coker.com.au>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     William Roberts <bill.c.roberts@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
- <CAFftDdrD-FJ8wBk=XOkvdnkvA5o10w5pJs31H9dEhtW1zU8EHA@mail.gmail.com>
- <CAEjxPJ452zaoFwy++cKqh_Ap2rM1ezEZN83mBhN4ndHHaQ4q5Q@mail.gmail.com>
- <3838641.zh4Wi6GlAV@liv>
-From:   Laurent Bigonville <bigon@debian.org>
-Autocrypt: addr=bigon@debian.org; keydata=
- mQINBEt3P9IBEAC883icAuxmVt4deGPxDeiEV2cT4pw4uXibIeZ1XNSrwrWcAgsK/o61nZWT
- hxIpTFe2c3/B+ijBdEHXqV9lZMsIgiAyExfkwM4DCamEtXoC3Cec9BlGuIJ/Eti8bb/wsvOt
- SQiQC7X/j51ExB7ag+f/9LINLcNgn1PP4kqAAo+d1zgEXyQLJmqqxaYwuwyJausPUu3UuSUH
- k6Gujhs3eB5lf5SNPR347JGLyv/L03EbwBgUxte4w0IkXfxxFSj93aOv69+mJNmPUgjNDn+A
- oYTLT5ddsls4iNzwd4zdqDJtCrNnlG7xXf1mkB+v4j96n00JTMYX2v+vN1TK2kAzo1WnMhhc
- WZv6f50uskCcdqzuNkSzEHBPoVZRX6FPtSfqbBcqRvyYwNn6Dv8V+k0LWLr6SJukl96a/C7u
- ZLOnIzie+B3/Oj+YQKJf7TLUJUi0tt6Z/LFZ4Qrwu2vJwprlhyKCsos2+rPs7BQHzg/JEROj
- j3wXkkILZSuBB+bFIIKJljVwIYM4Feqk0WDhiYbazRY7MWro7ZY8Pp4STjLgaWvJwaUnCrhh
- T4taVNl7ZxnohbFZhxgtgoK7XHijWbGJnG9Mkg5T4AnI0bQTkZfFR9gReKl2RPHLooHHILBg
- anj16MvZdebRP7S7JeAy/tpBTJ6chSu6dTevk7jGnxVT51YHHwARAQABtCVMYXVyZW50IEJp
- Z29udmlsbGUgPGJpZ29uQGRlYmlhbi5vcmc+iQJUBBMBCAA+AhsDBQsJCAcDBRUKCQgLBRYC
- AwEAAh4BAheAFiEEfg7T0rNKA7FfnzEhx/f5Zg2CpoIFAl40LNcFCRw4BoUACgkQx/f5Zg2C
- poK/Ew/+JafweV7zVES4WqRKlhNp8rzEtGzZX1RL1fAEP8/SZFBUMvKgXjCvufdw3ODIdkOk
- +/PI/x3ikysYvnCxMHtsSqwT5nbKjPIDBxVFWtDJL0Jzl34XFgF7rrdIxKT7HCQqcyiUWVHA
- PxAFKVmDIf9j2FNC/dMjo4/5XGBHtIyfOC6HN1gwaxhyjFzREOnRIH6xsCd3yInpk0+MYOUz
- /abcpHIQlNfWi3ApqdTa86qEBMK5yuQfpFh9xdAqx1Nv1FlvM8Gfn4/8+o/z60eGJgY0jxHB
- eG4YHtbvtGje71mazLWhSCLN4LuSk8Ee2yoQM/VTPYQG9AmIn6UumvBecvNBbxB0SO+BkQ4D
- ++sBsn4Js6vacgk1DvSDWfTRIdKhfjbkRUe3ljFgav8iLQ/zLW+efQgv8sbR42UQ2e0p2y3M
- IODSThTUteN5j1gpTEw7HHxiLxKg4MlhUfYjhecK4MfbxWt7lt7AVenfldz1lp4o9Wc0WBes
- aRC2Nh5eQr5huOrpwysusOlQtwZVR6DXmXiknZb1xtRiKqjRnnLlxDtfQAyium5KSsvzo/At
- ZbKFUKixmqeFQ8Gd4jeF73R0Uu3nycE4nJD38AZLi5d8q5clXt+RylYJHh2X0eJyuTlTc9pE
- tg00ntB9jCDo1o1VUk9ReslfiokWqAAj5fH54QAAasC5AQ0ES3dALgEIAKlaXty71KRlZ6No
- UQd6GhmRM3jjLlxI4Kem0G04DTy2XiZSxY7uP8eapOCx5gCPqnU07uUrmWVwlKFvTlJbJxWU
- Mj96RUvMTikjAnlHkmDFToWttP1Re5XxUCYpcYK1/1IHLFFAip2vInl86zOsr4Gr/UkN282H
- oXQTHVL2+MY0i5kZAoRybxC8mX0S4aTzuRZSVb1ut/t4pqj1Zwk8/5xPYYITQEULM4ZqcHOL
- iQ5JcBM7jHUZQGgLT/2fLVmoUl/0lpt0kNcnLoXNn3KJQ14wu2p3AJV9eRV8vcEviHYaBx4A
- T5XULl15icDTlSKXQhX9A7zMmYiGBi4qNFPTwlcAEQEAAYkDWwQYAQgAJgIbAhYhBH4O09Kz
- SgOxX58xIcf3+WYNgqaCBQJeNC08BQkU7TqOASnAXSAEGQEIAAYFAkt3QC4ACgkQH8WJHrqw
- Q9XsBwf9HCBRg93F61pjS07ATWFUhgTr6GIldD2vZIQ3LYmiBOKJFa53MWgNudCrmDXZIaAX
- LYA2WvbpfX/OuCM2QfGr5vdY7uX7wbFi1Kf2fIN+pJC7YAQ+UsGsRG3hmqTbIx+ixGcho77S
- tfK2ewAlLP1J8wGMdP5bs8bSnldNloSh0DmO+mPU4HiOOrWTdK8tzYxUlMXCLdyBhAF8s5PW
- G62XLJ/+DVT9Nlu99VMppEAqZS7lVuvBVdbN76B+b0lS7pwb/jcPhfCLrhyUtuIuzSOUSOD3
- U2JK0Y6wF1TuBEfHZ/uXZ0mFNkJPmV5w7Gjf3YvVgBmj0UXbnS5neeIfv30t9QkQx/f5Zg2C
- poKSqA//c1HlIrKLbR3nbFVpf2mPL+FepqkZC0OBbXMWgsF8qAL7Dxa7a6wZnzNHAqBaT79c
- gdFOW3UXbKzP3K04m/yCrV5UKC2l4gR/CApv/jvQqph5ez2s/8JAOM1S7IXkUIFPyuWB+Izm
- 96SHpKGU3L7cA69KM7HqbdV2xBN6WSThL83Aao7Wu1rcadV/W8tdokxV9pdnVpP8QDBMYKdr
- vGX3Ujw+nN7+qQ2ZYG0eMeSN9+V6V+4CBKCHw38wh+RVX9QSix8bi9F56Oo2XMLEaQXHhb2e
- pabgyMNyWfLIC88x5a+cgZMPuP8gZb+JSRim6kxFWlh2Pp0W4rcIkdlo8yTrVUc3eKGXFiMQ
- N9uGQlBnR9w3nXGrgkHoIxRwAoCllDDY2cMGJ0l01GMmZBl3E+wr61COcfa9uG0IXfHmk/Nn
- 2uJKdF42EQSiBS5m3mfCCv7btyxzoKNYrHNYdnb4R9ClO3+/pSZUKUcvFA0PAUlxh/Z++oNg
- ++X41g6kyEyQvAQWcwS05eoMB3X4DWuAKmiYrMyMBKWJrQVupBpN0xfKJZlvAU6CydWptbve
- JQxKJg8W9QL1XAWlDU/aVzJRH/e3XBlK74yIBfzkbApdbksXObJeoaRtQsakL4R+7pdAzLyl
- Chyj2AzxdZYU2nYNdBq7KOyPA7bZa0f//R+3nsc43JS5AQ0ES3dAPQEIAMM1PD83UDjyw7/8
- myyYmki3IesmdZ0Ym8OHlSrlWqiVLf0Hxo11COMK0jAotflp8xi8JHl5SMSAQaV/AxwfMA+0
- ulmVcyiINoKb8KlLF6FROV/LFar0W/zh01vPV5wstGwqh2ZtePUPlkF7EhBTaW15XaWMJ3Lw
- ZZDROCHUtaNWaYrip1hj39I5QWWudM74IbSElibwf0ZlJbFZ8j9ImNQElUUzn5TvR3mt8qXC
- +24UBbWtVYUQdjnVexXw11QTkZpUswE/WC9J/8Xfks/DbKXI4PrIHLmob3MWildHcvV1JqnN
- j0RSV93q8uKwXmgGIpyc771XNFwlUGY1ntGnjU0AEQEAAYkCPAQYAQgAJgIbDBYhBH4O09Kz
- SgOxX58xIcf3+WYNgqaCBQJeNC1JBQkU7TqMAAoJEMf3+WYNgqaCizQP/1QEMLURSYP3r+DG
- I2uhQgu0bduHAT2LAEGqr6RO/UzWseBNQLd5REYcgMZIBE2shJ28+0QFAbHo2m/fIObF9qTH
- KWqYhG4UBzYQw5f32J7R11A08jytfmL1womAiwXPlY4WzPGvllA/ahkRqWVBHq8Twky1EPIP
- yT02NGsZqGYJEgLvtPoslCMK7vWrCV+M0eUAlFav/JhIW0JP1j4+cfb0FPccL4R0nvcygYWj
- NrbfQsF3NU95/nT8UbuXkK/8GQQqdJiYTXSZCskf1miz6xuQEqNS2nc3wdKrRXnXGPV644LN
- Rxhw0Tp//HXgOhY1f/Gk8A1oKyE7GNgMiOq8gNc52A+FS0nUFzuqg3uApyYPkN8E+TuHnnvj
- XdeUI9jRJ2ksEdSQvg9YhRvmnzZVu8WOlBxx4smceU9EutauSc7QOLrTkzpMmgYR8p66RjY+
- SnfyfhRG00GLR+60b7qbf51SQvSR4Kc/LUFH9CwiIOUNeBIyG0cCLvAoYmW5FyCDA4WIy4gb
- zKRcA6kz1T7y+noEHOTVQLv5l/Lva59IZNoW2mzE1Z6GlSP0OIPKlrWHYnAn6vvX/v6SNzwx
- Ooj6MSrnrWRajNI8T9o2e2JHwnksXPAvDJ/ceUOhTTsLFsmuoTikdblGJ0A60G+6ws04bD+9
- LFU6hIZ9xxNM3jr8h0Ql
-Message-ID: <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org>
-Date:   Thu, 7 May 2020 10:35:11 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1725893AbgEGJUN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 May 2020 05:20:13 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:43040 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725857AbgEGJUN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 05:20:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588843210;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=mWFtzsY7wOFxFtrOWbpfn76WolldT4STR5IqvxShk9Y=;
+        b=avZeKDAIQhHAJxYExYm1EvN0WlLWG14ZUXEYdkWAs/Q38jT2e+WJ1tDPlu6fNejCAb/HZH
+        h/AqAENnb6JEGnG/2Gugl2QTozRExQefdnDOFksVKhSAP1HLmbfMy7Kg7nVY1bTYWazRjA
+        K53uj7CT2vqmIzs+ec30SxWMjFU3AIE=
+Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
+ [209.85.161.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-294-qwq6GYemMPO3q2kqN2BqGA-1; Thu, 07 May 2020 05:20:09 -0400
+X-MC-Unique: qwq6GYemMPO3q2kqN2BqGA-1
+Received: by mail-oo1-f69.google.com with SMTP id t23so3197339oor.1
+        for <selinux@vger.kernel.org>; Thu, 07 May 2020 02:20:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mWFtzsY7wOFxFtrOWbpfn76WolldT4STR5IqvxShk9Y=;
+        b=QzGfe1U4Yn5/IYTowKO6RU2rAVPjRG/ENVOzF9nBEWhejVe0Fsl/is/0dPXTgqoD4n
+         Gea0pqGXjNaUwCLdp3CXqjYe2rU3SYLNKnr6KQC1FFplo8gvjQKYeK0LllmFNRdPf/wl
+         SKPawNBo0bphKgxOK+fhp14nAHSZ7vJa5h8cri1iJuQ1a987Y35+wRY1+F83Njwm7jEW
+         e/Hxd+AQy5ccAPV1RWqGhkn6pgbFGpXe/6ijUIag/sFgPqO7qshRdqvDCqf3Wv5myuKi
+         fzSg1GxZhQfKuO3HM3rrhyDJTk4qHzriFepWaK8BMnx1Qdedq6ZNwt2sUl3+SWsHFEOS
+         6QTw==
+X-Gm-Message-State: AGi0PuaGw+Zlq/4xZ6rdEcsFKoI6mFpVMhxWD2wx+Hqz+J3xPC5HrUc0
+        +SLihCKiQ8yvjF5jGl977m8/NN9r/pRuIJdr8zh9xhDace/yt+19vt5L3i5Lno3btiFdtJJykzZ
+        J/piW/B+kGjkc5y6d0Q98q6EvdpW46LYsNw==
+X-Received: by 2002:a4a:7011:: with SMTP id r17mr10725666ooc.17.1588843207435;
+        Thu, 07 May 2020 02:20:07 -0700 (PDT)
+X-Google-Smtp-Source: APiQypJ9p3d6g7PsNsvtbdZybTkSkdCFJl4JqLePCteMnIAAzMjlXGn8SmTE4aoGfiF8VtEtA7eSfJeAh6mlNFXLKw8=
+X-Received: by 2002:a4a:7011:: with SMTP id r17mr10725653ooc.17.1588843207088;
+ Thu, 07 May 2020 02:20:07 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <3838641.zh4Wi6GlAV@liv>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <20200504115923.88828-1-omosnace@redhat.com> <20200504115923.88828-3-omosnace@redhat.com>
+ <CAHC9VhTbTTT4otsEWRPrPewz2j5FEJHODr8N0efG+cX7vph0Hg@mail.gmail.com>
+In-Reply-To: <CAHC9VhTbTTT4otsEWRPrPewz2j5FEJHODr8N0efG+cX7vph0Hg@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 7 May 2020 11:19:56 +0200
+Message-ID: <CAFqZXNt2axWdwy9PP6tMzB4QwBH-7bCHKiXPGeVYPLLJx9b9rw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] selinux: prepare for inlining of hashtab functions
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Le 6/05/20 à 18:37, Russell Coker a écrit :
-> On Thursday, 7 May 2020 1:50:46 AM AEST Stephen Smalley wrote:
->> on that running instance, but not to specify custom kernel parameters
->> initially or to reboot the system before proceeding with further
->> commands (if anyone knows differently, speak up). We'd have to get to
->> the point where enabling SELinux in Debian is possible without
->> requiring a reboot at all.  And then we'd have to wait for that
->> support to find its way into one of the Ubuntu images supported by
->> travis-ci.  Might be easier to just get travis-ci to support Fedora or
->> CentOS images in the first place. Regardless, allowing the testsuite
->> to be run by users of other distributions is worthwhile IMHO.
-> In the past there hasn't been much demand for a smoother installation process.
-> If you are setting up a traditional Unix server system the Debian SE Linux
-> installation thing doesn't make things much more difficult.  Past complaints
-> about it have been more about an imagined difficulty of using SE Linux and have
-> ended when I showed and wrote about how to do it (one time I showed
-> screenshots of the process in an LCA lightning talk and didn't have problems
-> with time).
+On Tue, May 5, 2020 at 1:34 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Mon, May 4, 2020 at 7:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > Refactor searching and inserting into hashtabs to pave way for
+> > converting hashtab_search() and hashtab_insert() to inline functions in
+> > the next patch. This will avoid indirect calls and allow the compiler to
+> > better optimize individual callers, leading to a drastic performance
+> > improvement.
+> >
+> > In order to avoid the indirect calls, the key hashing and comparison
+> > callbacks need to be extracted from the hashtab struct and passed
+> > directly to hashtab_search()/_insert() by the callers so that it is
+> > always known which callbacks we want to call at compile time. Note that
+> > the kernel's rhashtable library (<linux/rhashtable*.h>) also does the
+> > same.
+> >
+> > This of course makes the hashtab functions more easy to misuse by
+> > passing a wrong calback set, but unfortunately there is no better way to
+> > implement a hash table that is both generic and efficient in C. This
+> > patch tries to somewhat mitigate this by only calling the hashtab
+> > functions in the same file where the corresponding callbacks are
+> > defined (wrapping them into more specialized functions as needed).
+> >
+> > Note that this patch doesn't bring any benefit without also defining
+> > hashtab_search() and -_insert() inline, which is done in a follow-up
+> > patch to make it easier to review the hashtab.c changes here.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
+> >  security/selinux/ss/hashtab.c  | 44 ++++++++++----------
+> >  security/selinux/ss/hashtab.h  | 22 +++++-----
+> >  security/selinux/ss/mls.c      |  2 +-
+> >  security/selinux/ss/policydb.c | 76 ++++++++++++++++++++++++----------
+> >  security/selinux/ss/policydb.h |  9 ++++
+> >  security/selinux/ss/services.c |  4 +-
+> >  security/selinux/ss/symtab.c   | 16 ++++---
+> >  7 files changed, 110 insertions(+), 63 deletions(-)
 >
-> I don't think that the people who maintain the Debian installation related
-> packages would have a great objection to adding SE Linux features, although it
-> might take a bit of time for it to migrate from Debian to Ubuntu.
+> ...
 >
-> We can make this a priority.
+> > diff --git a/security/selinux/ss/hashtab.h b/security/selinux/ss/hashtab.h
+> > index 31c11511fe10..4885234257d4 100644
+> > --- a/security/selinux/ss/hashtab.h
+> > +++ b/security/selinux/ss/hashtab.h
+> > @@ -13,6 +13,12 @@
+> >
+> >  #define HASHTAB_MAX_NODES      0xffffffff
+> >
+> > +struct hashtab_key_params {
+> > +       u32 (*hash)(const void *key);   /* hash function */
+> > +       int (*cmp)(const void *key1, const void *key2);
+> > +                                       /* key comparison function */
+> > +};
+> > +
+> >  struct hashtab_node {
+> >         void *key;
+> >         void *datum;
+> > @@ -23,10 +29,6 @@ struct hashtab {
+> >         struct hashtab_node **htable;   /* hash table */
+> >         u32 size;                       /* number of slots in hash table */
+> >         u32 nel;                        /* number of elements in hash table */
+> > -       u32 (*hash_value)(struct hashtab *h, const void *key);
+> > -                                       /* hash function */
+> > -       int (*keycmp)(struct hashtab *h, const void *key1, const void *key2);
+> > -                                       /* key comparison function */
+> >  };
 >
-If people are using preseed installations (kickstart equivalent), I 
-think that enabling SELinux in the installer shouldn't be too difficult 
-(installing the needed packages, modifying the files and relabeling with 
-fixfiles). It's obviously not user friendly, but the question is what's 
-the target here.
+> I remain concerned that in the process of chasing performance this
+> patchset makes the code worse and more fragile.
+>
+> What if we took a slightly different approach such that instead of
+> breaking apart hashtab_node we moved the variable portions (htable,
+> size, nel) into a separate struct which we could reference in
+> hashtab_node?  For example:
+>
+>   struct hashtab_var {
+>     struct hashtab_node **htable;
+>     u32 size;
+>     u32 nel;
+>   }
+>
+>   struct hashtab {
+>     struct hashtab_var *table; // adds an extra ptr deref
+>     u32 (*hash_value)(...);
+>     int (*keycmp)(...);
+>   }
+>
+> I might be mistaken, but I believe this should still allow you to
+> implement the inlining/pass-by-value tricks for search and insert
+> while maintaining a binding between the hashtable data and
+> hash/compare functions.  Yes?  Or does the entire struct need to be
+> declared as a static const for the compiler optimizations to work?  It
+> is not clear to me from the commit descriptions or comments in the
+> code.
+
+No, that wouldn't work. For example: when compiling a
+hashtab_search(&policydb->some_hashtab, ...) call (let's assume it's
+defined inline already) inside a function that takes policydb as an
+argument, the compiler has no way of knowing what functions you
+stashed into hash_value and keycmp in some different function, so it
+has to load the pointers from memory and call them. It needs to know
+what the functions are right there if it is to generate a direct
+constant-address call (or inline them). In C you simply can't
+associate functions (data) to types. In C++ this would be easily done
+with templates, but the kernel isn't written in C++, so you simply
+have to get (somewhat) dirty to get efficient code.
+
+How about if I moved all the 4 hashtab types into a common compilation
+unit (policydb_tables.[hc]?) and hid the unsafe generic hashtab
+building blocks inside the C file? The header would then only expose
+struct hashtab and provide specific functions for each type of
+hashtab. And each hashtab "subclass" could be a separate type (which
+would just wrap struct hashtab in another struct), which would be even
+more type safe than the current state. Let me try to put it into a
+patch, where it will be easier to see what I mean...
+
+>
+> As far as testing is concerned, whenever possible it is better to show
+> performance improvements in the context of some sort of user workload
+> and not an artificial stress test or micro benchmark.  I understand
+> that such focused tests can be attractive both in terms of their
+> results and ease of use, but they can also be very misleading.
+> Performance improvements for things like policy loads, kernel
+> compiles, etc. are much more interesting to me than results from
+> running something like stress-ng.
+
+OK, I'll try to make my case on some more realistic benchmark.
+
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
