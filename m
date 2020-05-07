@@ -2,195 +2,171 @@ Return-Path: <SRS0=z4nS=6V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6957CC38A24
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 07:07:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48E66C54E49
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 07:53:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 45CA3208CA
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 07:07:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 257372075E
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 07:53:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HuBe5N6X"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="VCVIOMQ+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725893AbgEGHHc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 May 2020 03:07:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36420 "EHLO
+        id S1725910AbgEGHx1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 May 2020 03:53:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725783AbgEGHHb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 03:07:31 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287B2C061A10;
-        Thu,  7 May 2020 00:07:31 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id p16so4425056edm.10;
-        Thu, 07 May 2020 00:07:31 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1725900AbgEGHx1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 03:53:27 -0400
+Received: from mail-yb1-xb44.google.com (mail-yb1-xb44.google.com [IPv6:2607:f8b0:4864:20::b44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0154FC0610D5
+        for <selinux@vger.kernel.org>; Thu,  7 May 2020 00:53:25 -0700 (PDT)
+Received: by mail-yb1-xb44.google.com with SMTP id d197so2452476ybh.6
+        for <selinux@vger.kernel.org>; Thu, 07 May 2020 00:53:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=chromium.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=RQbMvC1ag/SPzt3A0iv4z8R55U/VKwxU9VmHI0/FJRU=;
-        b=HuBe5N6XnGvBabUFlomvKFuULmswvV6IlY50t+tlQh3qqFeVo5mlJMIvc7M96A6QjC
-         j3LZOLKTSOkTavRzmk9QLDOed90qTi8J5m3bCK/GvzbOX5+fQnqzZ2lrFFlL9zSBb7bK
-         XAFcn2P2vqnrYdpevPVAct9mZB7yGVFNe7rfbteS1bSoApWNTeI58mDIb5AlotWlL2pa
-         f6sensKTOJeJLEEFoM777CUpUg8U1KZPaHrhXNqS+3kVcZqWfT9/i1vrGvq/wP09QPjM
-         JTwRcQ3BaHtmTWAgaJUkpGH6Yyk3vceaghoSvRuvmphb3vT0EJ+OnF4YC8Ni9cgd0/t6
-         EkYA==
+         :cc;
+        bh=jgTNxE5V/BIoY+I2iej30rSKy2BONiHOg6xHs9/0haE=;
+        b=VCVIOMQ+K00QYE9ISlJoTypjvzNFrWABj7QekDFf12RqWKRjdx7Kpz16H7FyREAFNC
+         WtxTlKuz1PgB8QOnv6dh+GARbk9hYdmybcuDpYgds7N1S4nwdjMiFtwQw4lGDeFKQuTr
+         R8Vj8AHdkJOsV8b3umhNzNYuiFP6vSD+y5KWc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=RQbMvC1ag/SPzt3A0iv4z8R55U/VKwxU9VmHI0/FJRU=;
-        b=JYeLO9dHPTzWxV9rikm52SnOuuYoqMEldFpJ+gg6ZLxz+tvlAvCX8NaMjwEmUo72Gx
-         n3IwQFLcYTinN5PyuM1JAmUapM2H9nAkEOZXQnomgHsgbjNhVAVk2PKOri57lwrpgqhI
-         fZQx3hE+0PY0t6DBO+vElxTFLQr3z8mg+j2hJnaNynMTKuSHNcW4Ck8QOsf3XJgJs6m7
-         G64im3xAYzUgEpS8ifFlAvT+9vUkr8Yfyde4u2Hv/XLh82U8vHHstEC7De2l4cz+FftN
-         UNtHZlyHr6QWOMBwM8LVUYFVjNMrZVDVOGmB04aBX1h9JHjCn7vuHWVf2ponHMcz9zCU
-         fZ3Q==
-X-Gm-Message-State: AGi0PuYpW/7u6VPnOyxQmZbuk5qXyzbdq+8jseb14Hp3LrbzKDBq2n07
-        XMmBWAjw18oPjF0INRW9VPqAlApOOHvd2zoOSRfgriNAQIlCRw==
-X-Google-Smtp-Source: APiQypL8AC7ZUZnP0qgOLELJh2mB0qf4DRtMwN4Iryo60fDs4rqEG8PDwXDJX033RYCz1rFZGBj6H05V6VK++Hv+CxM=
-X-Received: by 2002:aa7:c2d2:: with SMTP id m18mr10709938edp.142.1588835249498;
- Thu, 07 May 2020 00:07:29 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=jgTNxE5V/BIoY+I2iej30rSKy2BONiHOg6xHs9/0haE=;
+        b=RktR+FXVANTGkSjKx6BwQjwcIhMNa/Xp5B5MHYQi0MGUoDWF/KT2LnSgI4ljxbCyTT
+         ty0yo6kuBqL0rlWoo3Fp2G4Hv/PjsTDA9oRE8/lDyeuYXyI2AtVjTPXYOHsAMnJw7P1A
+         02TbKyIvXqiI8qFtm+fkhbFnZPcnNSYitN41VOYkHSXfuZtpD4F7DIUCMDjRhLzZOFVg
+         T1su+S77BgUZXDfGp105UKq8BkpjNzRnOElhLyD4qji3JgEuMXbIbtFznipkgz3xFYDX
+         MWAoJLdyPvcINAWPOpzzhH4lD9xNvnGzlC91utDLwdPtjt2fE3iC9YSwn4Fmcru7GLTA
+         W8qg==
+X-Gm-Message-State: AGi0PubfAx09sfZaIhCfzDr/10b3pom99YwABp5aOo4Y7Lqup0puISI3
+        EOI00WUnDnk9ht7V0Fd54LOU3j05b9wVOn27yMOakQ==
+X-Google-Smtp-Source: APiQypKzxvACMqP5AxY1MoY/SHW7V+qfJxu1YY5t126G9oMUC4ly5Vbyts90wjdKdQ+7rz3EWChXHiOQ9BIBo2yyB9I=
+X-Received: by 2002:a5b:383:: with SMTP id k3mr19517913ybp.51.1588838004820;
+ Thu, 07 May 2020 00:53:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <alpine.LRH.2.21.2002041054320.12768@namei.org> <CALrft9_tam87oevNC6LDG_bZoH+BgfrD4Or3yQudDoVqTqBdvg@mail.gmail.com>
-In-Reply-To: <CALrft9_tam87oevNC6LDG_bZoH+BgfrD4Or3yQudDoVqTqBdvg@mail.gmail.com>
-From:   Elena Reshetova <elena.reshetova@gmail.com>
-Date:   Thu, 7 May 2020 10:07:18 +0300
-Message-ID: <CALrft98SzLkw3M0shurUsNxsNSuSR3qN236rX4mEvC8GsrnnWQ@mail.gmail.com>
-Subject: [ANNOUNCE][CFP] Linux Security Summit Europe 2020
-To:     linux-security-module@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, lwn@lwn.net,
-        fedora-selinux-list@redhat.com, linux-crypto@vger.kernel.org,
-        kernel-hardening@lists.openwall.com,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        Audit-ML <linux-audit@redhat.com>, gentoo-hardened@gentoo.org,
-        keyrings@linux-nfs.org, tpmdd-devel@lists.sourceforge.net,
-        Linux Security Summit Program Committee 
-        <lss-pc@lists.linuxfoundation.org>
+References: <CAJFHJroyC8SAFJZuQxcwHqph5EQRg=MqFdvfnwbK35Cv-A-neA@mail.gmail.com>
+ <CAJfpegtWEMd_bCeULG13PACqPq5G5HbwKjMOnCoXyFQViXE0yQ@mail.gmail.com> <CAEjxPJ56JXRr0MWxtekBhfNS7i8hFex2oiwqGYrh=m1cH9X4kg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ56JXRr0MWxtekBhfNS7i8hFex2oiwqGYrh=m1cH9X4kg@mail.gmail.com>
+From:   Chirantan Ekbote <chirantan@chromium.org>
+Date:   Thu, 7 May 2020 16:53:13 +0900
+Message-ID: <CAJFHJrppbb1cUTq9w7G7E2RrV5CbYx54dAfk62tiZYCewcwXhg@mail.gmail.com>
+Subject: Re: fuse doesn't use security_inode_init_security?
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        fuse-devel <fuse-devel@lists.sourceforge.net>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        LSM <linux-security-module@vger.kernel.org>,
+        virtio-fs-list <virtio-fs@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D
-                   ANNOUNCEMENT AND CALL FOR PARTICIPATION
+On Sat, May 2, 2020 at 12:46 AM Vivek Goyal <vgoyal@redhat.com> wrote:
+>
+> I am wondering how would fuse initialize the security context of newly
+> created file. One way seems to be that it passes that information
+> as part of FUSE_CREATE/FUSE_MKNOD calls to server and server sets
+> its "fscreate" accordingly and then creates new file. This is similar
+> to virtiofsd changing its effective uid/gid to the fuse client so that
+> file is created with caller's uid/gid. Seems to be selinux context for
+> file creation probably should be handled similiarly.
+>
 
-                        LINUX SECURITY SUMMIT EUROPE 2020
+How would the fuse driver get the correct context without going
+through security_inode_init_security?
 
-                                     29-30 OCTOBER
-                                    DUBLIN, IRELAND
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D
+> Other method could be to first create new file and then new fuse
+> commands to do setxattrs. But that will be racy as file will have
+> some default label for sometime between creation and setxattr.
+>
+> Having said that, I have a question. How do you reconcile host selinux
+> policy and guest selinux labels. I am assuming host selinux policy
+> will have to know about guest labels so that it allows virtiofsd do
+> set those labels? Dan, you might have more thoughts on this.
+>
 
-DESCRIPTION
+My understanding is that we currently merge the guest and host
+policies so that all types in the guest are available on the host.
+The host itself uses selinux in permissive mode.  The top-level
+directory is also owned exclusively by the guest and host processes
+don't have access to it.
 
-Linux Security Summit Europe (LSS-EU) is a technical forum for
-collaboration between Linux developers, researchers, and end-users.  Its
-primary aim is to foster community efforts in analyzing and solving Linux
-security challenges.
 
- The program committee currently seeks proposals for:
+On Sat, May 2, 2020 at 3:32 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+>
+> (cc selinux list)
+>
+> security_inode_init_security() calls the initxattrs callback to
+> actually set each xattr in the backing store (if any), so unless you
+> have a way to pass that to the daemon along with the create request
+> the attribute won't be persisted with the file.  Setting the xattrs is
+> supposed to be atomic with the file creation, not a separate
+> setxattr() operation after creating the file, similar to ACL
+> inheritance on new files.
+>
 
-   * Refereed Presentations:
-     45 minutes in length.
+But it's not truly atomic, is it?  The underlying file system creates
+the inode and then the inode_init_security selinux hook actually sets
+the attributes.  What would happen if the computer lost power after
+the file system driver created the inode but before the selinux hook
+set the attributes?
 
-   * Panel Discussion Topics:
-     45 minutes in length.
+> Also possibly related
+> https://lore.kernel.org/selinux/6df9b58c-fe9b-28f3-c151-f77aa6dd67e7@tycho.nsa.gov/.
 
-   * Short Topics:
-     30 minutes in total, including at least 10 minutes discussion.
+Interesting.  Let me pull out the relevant bits and respond inline.
 
-   * Tutorials
-     90 minutes in length.
+> - deadlock during mount with userspace waiting for mount(2) to complete
+> and the kernel blocked on requesting the security.selinux xattr of the
+> root directory as part of superblock setup during mount
 
-Tutorial sessions should be focused on advanced Linux security defense
-topics within areas such as the kernel, compiler, and security-related
-libraries.  Priority will be given to tutorials created for this conference=
-,
-and those where the presenter a leading subject matter expert on the topic.
+I haven't personally run into this.  It Just Works, except for the
+fscreate issue.
 
-Topic areas include, but are not limited to:
+> - there was an attempt to introduce distinctions based on filesystem
+> "subtype" so that whitelisted fuse filesystems could have xattr support
+> enabled when it was known that their userspace would handle mount(2)
+> safely [3] but this was apparently always broken and later reverted [4].
 
-   * Kernel self-protection
-   * Access control
-   * Cryptography and key management
-   * Integrity policy and enforcement
-   * Hardware Security
-   * IoT and embedded security
-   * Virtualization and containers
-   * System-specific system hardening
-   * Case studies
-   * Security tools
-   * Security UX
-   * Emerging technologies, threats & techniques
+I think we kind of side-stepped this issue.  The fstype for virtiofs
+is "virtiofs" instead of something like "fuse.virtiofs" so there is no
+subtype handling required.
 
-  Proposals should be submitted via:
+> - there is the issue of trusting the fuse filesystem for its labeling
+> information and for domain/context transitions
 
-   https://events.linuxfoundation.org/linux-security-summit-europe/program/=
-cfp/
+This is definitely an issue for regular fuse file systems.  However,
+the virtiofs device has read/write access to all the VM's memory so
+there isn't much the VM can do if it doesn't trust the device.
 
-DATES
 
-  * CFP close:            July 31
-  * CFP notifications:    August 10
-  * Schedule announced:   September 1
-  * Event:                October 29-30
 
-COVID-19 SITUATION
+I guess what I'm trying to understand is: what are the issues with
+having the fuse driver call the inode_init_security hooks?  Even if
+it's not something that can be turned on by default in mainline, I'd
+like to evaluate whether we can turn it on locally in our restricted
+environment.
 
-Currently LSS-EU is planned as in-person event, however this would be
-re-evaluated closer to the event itself and if the situation in Europe does
-not permit such events, it would be switched to a virtual event, similarly
-as this year=E2=80=99s LSS-NA.
+One issue is the lack of atomicity guarantees.  This is likely a
+deal-breaker for general fuse usage.  However, I don't think it's an
+issue for our restricted use of virtiofs because the attributes will
+be set "atomically" from the guest userspace's perspective.  It won't
+be atomic on the host side, but host processes don't have access to
+those directories anyway.
 
-WHO SHOULD ATTEND
+Are there any other issues?
 
-We're seeking a diverse range of attendees and welcome participation by
-people involved in Linux security development, operations, and research.
-
-LSS-EU is a unique global event that provides the opportunity to present an=
-d
-discuss your work or research with key Linux security community members and
-maintainers.  It=E2=80=99s also useful for those who wish to keep up with t=
-he latest
-in Linux security development and to provide input to the development
-process.
-
-WEB SITE
-
-    https://events.linuxfoundation.org/linux-security-summit-europe/
-
-TWITTER
-
-  For event updates and announcements, follow:
-
-    https://twitter.com/LinuxSecSummit
-
-    #linuxsecuritysummit
-
-PROGRAM COMMITTEE
-
-  The program committee for LSS 2020 is:
-
-    * James Morris, Microsoft
-    * Serge Hallyn, Cisco
-    * Paul Moore, Cisco
-    * Stephen Smalley, NSA
-    * Elena Reshetova, Intel
-    * John Johansen, Canonical
-    * Kees Cook, Google
-    * Casey Schaufler, Intel
-    * Mimi Zohar, IBM
-    * David A. Wheeler, Institute for Defense Analyses
-
-  The program committee may be contacted as a group via email:
-    lss-pc () lists.linuxfoundation.org
+Thank you,
+Chirantan
