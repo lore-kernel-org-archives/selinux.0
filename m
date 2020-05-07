@@ -2,68 +2,70 @@ Return-Path: <SRS0=z4nS=6V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48E66C54E49
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 07:53:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 961EDC38A2A
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 08:25:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 257372075E
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 07:53:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70D6B2078C
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 08:25:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="VCVIOMQ+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CdSBbD7T"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725910AbgEGHx1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 May 2020 03:53:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43548 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725900AbgEGHx1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 03:53:27 -0400
-Received: from mail-yb1-xb44.google.com (mail-yb1-xb44.google.com [IPv6:2607:f8b0:4864:20::b44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0154FC0610D5
-        for <selinux@vger.kernel.org>; Thu,  7 May 2020 00:53:25 -0700 (PDT)
-Received: by mail-yb1-xb44.google.com with SMTP id d197so2452476ybh.6
-        for <selinux@vger.kernel.org>; Thu, 07 May 2020 00:53:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jgTNxE5V/BIoY+I2iej30rSKy2BONiHOg6xHs9/0haE=;
-        b=VCVIOMQ+K00QYE9ISlJoTypjvzNFrWABj7QekDFf12RqWKRjdx7Kpz16H7FyREAFNC
-         WtxTlKuz1PgB8QOnv6dh+GARbk9hYdmybcuDpYgds7N1S4nwdjMiFtwQw4lGDeFKQuTr
-         R8Vj8AHdkJOsV8b3umhNzNYuiFP6vSD+y5KWc=
+        id S1725819AbgEGIZP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 May 2020 04:25:15 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:52222 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725809AbgEGIZO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 04:25:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588839912;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=VT7VDOrI9l89DKGcgUTh1dfQxbIZunaGzw3RZkOfDDY=;
+        b=CdSBbD7Th3BiP0ELKJt80WxZVCNKJsk/UXNBEMTWC16qqC8xygmUIaNAesejn1VSM7kmI/
+        hGzL1q59X0yacxGYeB2LqX2O9X61sC92W78Dyqa1oanMCDJJWhpM9L1GOsu+piTp85yc0y
+        OBU0lRnmcdxwOW+N4zS1eIl+t0e3UKE=
+Received: from mail-ot1-f69.google.com (mail-ot1-f69.google.com
+ [209.85.210.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-173-L0Peu7aQM3i5PNVA6ZIdyw-1; Thu, 07 May 2020 04:25:11 -0400
+X-MC-Unique: L0Peu7aQM3i5PNVA6ZIdyw-1
+Received: by mail-ot1-f69.google.com with SMTP id e23so2871550otk.1
+        for <selinux@vger.kernel.org>; Thu, 07 May 2020 01:25:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=jgTNxE5V/BIoY+I2iej30rSKy2BONiHOg6xHs9/0haE=;
-        b=RktR+FXVANTGkSjKx6BwQjwcIhMNa/Xp5B5MHYQi0MGUoDWF/KT2LnSgI4ljxbCyTT
-         ty0yo6kuBqL0rlWoo3Fp2G4Hv/PjsTDA9oRE8/lDyeuYXyI2AtVjTPXYOHsAMnJw7P1A
-         02TbKyIvXqiI8qFtm+fkhbFnZPcnNSYitN41VOYkHSXfuZtpD4F7DIUCMDjRhLzZOFVg
-         T1su+S77BgUZXDfGp105UKq8BkpjNzRnOElhLyD4qji3JgEuMXbIbtFznipkgz3xFYDX
-         MWAoJLdyPvcINAWPOpzzhH4lD9xNvnGzlC91utDLwdPtjt2fE3iC9YSwn4Fmcru7GLTA
-         W8qg==
-X-Gm-Message-State: AGi0PubfAx09sfZaIhCfzDr/10b3pom99YwABp5aOo4Y7Lqup0puISI3
-        EOI00WUnDnk9ht7V0Fd54LOU3j05b9wVOn27yMOakQ==
-X-Google-Smtp-Source: APiQypKzxvACMqP5AxY1MoY/SHW7V+qfJxu1YY5t126G9oMUC4ly5Vbyts90wjdKdQ+7rz3EWChXHiOQ9BIBo2yyB9I=
-X-Received: by 2002:a5b:383:: with SMTP id k3mr19517913ybp.51.1588838004820;
- Thu, 07 May 2020 00:53:24 -0700 (PDT)
+        bh=VT7VDOrI9l89DKGcgUTh1dfQxbIZunaGzw3RZkOfDDY=;
+        b=DR9IJJXRbYnJWTfsRZvPTzRiaA4nyYHvCArJAbHZ6gKnpclkJF7qO5mRXQ2leiwkfJ
+         QMQf0jTqovjPJsmaGjb1jgDLs32ESNZ58Wt4qPJMjAf2L9OjCHcjGNrC4JsEUjKrBqqs
+         UGN251Gc9CLkSOUKXnf4lctyUvLGjUw4SrK88n0ot0yQgqiuQYzy0rR+n27RbrvbcC02
+         ao/wty/947qNtWch46yr3b3cvqCMWzmkCDEAnrrRn4eJjTDe+7QMQ3p/88DnZOdckT9F
+         RpzedsdjoEYmPHPgUWvnXtgsXCDKy85guiHMc/6yvZSop0TtV4UvgPYkzF+Ww+EqxIdG
+         90rw==
+X-Gm-Message-State: AGi0PuYWM2LitgGzgmcYK4KrsgyEF0UuntDl3MWrXZKmjlgq+ByVdI05
+        zfzrU9iLrmXfQMsuqEhYQpjPDtXWYcv12zS1OEW0q+42TZ8x8AKJwJW/N/mxuGwRYD3CYynWmO/
+        Zo+fFX/zZ7jb1/BNj4eMN/c0JioDayLiMPw==
+X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr10735856ooo.58.1588839910605;
+        Thu, 07 May 2020 01:25:10 -0700 (PDT)
+X-Google-Smtp-Source: APiQypIOGK6bDyUqXLXy2e69x8K1QLXplHHpbEh8+hzwPai+2LkTLuTV6NTte+5gYWasFRdTwSK5EUB5b8SPf/6YzUs=
+X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr10735839ooo.58.1588839910259;
+ Thu, 07 May 2020 01:25:10 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAJFHJroyC8SAFJZuQxcwHqph5EQRg=MqFdvfnwbK35Cv-A-neA@mail.gmail.com>
- <CAJfpegtWEMd_bCeULG13PACqPq5G5HbwKjMOnCoXyFQViXE0yQ@mail.gmail.com> <CAEjxPJ56JXRr0MWxtekBhfNS7i8hFex2oiwqGYrh=m1cH9X4kg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ56JXRr0MWxtekBhfNS7i8hFex2oiwqGYrh=m1cH9X4kg@mail.gmail.com>
-From:   Chirantan Ekbote <chirantan@chromium.org>
-Date:   Thu, 7 May 2020 16:53:13 +0900
-Message-ID: <CAJFHJrppbb1cUTq9w7G7E2RrV5CbYx54dAfk62tiZYCewcwXhg@mail.gmail.com>
-Subject: Re: fuse doesn't use security_inode_init_security?
+References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
+ <CAFqZXNt0+BstXTn2yTMHHf=n10SY74nSrj8cfELP26-mcmYkfQ@mail.gmail.com>
+ <CAEjxPJ5=6FhOukWThYeO+LrNTAfPSeCq-7Z27c+zhAdesPbDXg@mail.gmail.com> <CAEjxPJ7ZsE=ArK0HZiZMOZ0u_z-b8mdADpj+jWto7r+6+1Jozg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7ZsE=ArK0HZiZMOZ0u_z-b8mdADpj+jWto7r+6+1Jozg@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 7 May 2020 10:24:58 +0200
+Message-ID: <CAFqZXNtXPjoj_aLPBi8QY5rf9kw8gMj8ioHfhSeK7GwZ_1ERgw@mail.gmail.com>
+Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Miklos Szeredi <miklos@szeredi.hu>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        fuse-devel <fuse-devel@lists.sourceforge.net>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        LSM <linux-security-module@vger.kernel.org>,
-        virtio-fs-list <virtio-fs@redhat.com>,
+Cc:     Paul Moore <paul@paul-moore.com>,
         SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -71,102 +73,53 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, May 2, 2020 at 12:46 AM Vivek Goyal <vgoyal@redhat.com> wrote:
->
-> I am wondering how would fuse initialize the security context of newly
-> created file. One way seems to be that it passes that information
-> as part of FUSE_CREATE/FUSE_MKNOD calls to server and server sets
-> its "fscreate" accordingly and then creates new file. This is similar
-> to virtiofsd changing its effective uid/gid to the fuse client so that
-> file is created with caller's uid/gid. Seems to be selinux context for
-> file creation probably should be handled similiarly.
->
-
-How would the fuse driver get the correct context without going
-through security_inode_init_security?
-
-> Other method could be to first create new file and then new fuse
-> commands to do setxattrs. But that will be racy as file will have
-> some default label for sometime between creation and setxattr.
->
-> Having said that, I have a question. How do you reconcile host selinux
-> policy and guest selinux labels. I am assuming host selinux policy
-> will have to know about guest labels so that it allows virtiofsd do
-> set those labels? Dan, you might have more thoughts on this.
->
-
-My understanding is that we currently merge the guest and host
-policies so that all types in the guest are available on the host.
-The host itself uses selinux in permissive mode.  The top-level
-directory is also owned exclusively by the guest and host processes
-don't have access to it.
-
-
-On Sat, May 2, 2020 at 3:32 AM Stephen Smalley
+On Wed, May 6, 2020 at 10:27 PM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
+> On Wed, May 6, 2020 at 3:57 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Wed, May 6, 2020 at 3:37 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > >
+> > > On Wed, May 6, 2020 at 2:54 AM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > > diff --git a/policy/Makefile b/policy/Makefile
+> > > > index dfe601b..f86aac4 100644
+> > > > --- a/policy/Makefile
+> > > > +++ b/policy/Makefile
+> > > > @@ -40,6 +40,8 @@ CIL_TARGETS = test_add_levels.cil test_glblub.cil
+> > > >  endif
+> > > >  endif # GLBLUB
+> > > >
+> > > > +CIL_TARGETS += test_mlsconstrain.cil test_overlay_defaultrange.cil
+> > >
+> > > This causes a problem on RHEL-6, since it doesn't understand CIL
+> > > modules. We'll probably need to detect if semodule supports CIL before
+> > > trying to add the modules.
+> >
+> > I thought we had stopped worrying about RHEL compatibility in the
+> > upstream testsuite going forward and deferring all of those tweaks to
+> > downstream?  I'm not fundamentally opposed but that was the impression
+> > I had received earlier.  If we are still carrying RHEL support, then
+> > how old of RHEL do we still care about?  RHEL-6 is six months away
+> > from regular EOL?
+
+I'd still like to keep compatibility with at least RHEL-6+ (with older
+versions approaching EOL being less important than newer ones) at
+least where it can be achieved easily (without too intrusive changes).
+
 >
->
-> (cc selinux list)
->
-> security_inode_init_security() calls the initxattrs callback to
-> actually set each xattr in the backing store (if any), so unless you
-> have a way to pass that to the daemon along with the create request
-> the attribute won't be persisted with the file.  Setting the xattrs is
-> supposed to be atomic with the file creation, not a separate
-> setxattr() operation after creating the file, similar to ACL
-> inheritance on new files.
->
+> Also not sure what we would test here to determine whether CIL is supported.
+> It isn't directly linked to a particular kernel or module binary
+> policy version, and the version of libsepol that first introduced it
+> in RHEL-7 probably differs from upstream (assuming it was back-ported
+> there).
 
-But it's not truly atomic, is it?  The underlying file system creates
-the inode and then the inode_init_security selinux hook actually sets
-the attributes.  What would happen if the computer lost power after
-the file system driver created the inode but before the selinux hook
-set the attributes?
+Hm... yes, I sent the email late in the evening and hadn't given it
+proper thought. I agree this would be too much trouble for little
+gain.
 
-> Also possibly related
-> https://lore.kernel.org/selinux/6df9b58c-fe9b-28f3-c151-f77aa6dd67e7@tycho.nsa.gov/.
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
-Interesting.  Let me pull out the relevant bits and respond inline.
-
-> - deadlock during mount with userspace waiting for mount(2) to complete
-> and the kernel blocked on requesting the security.selinux xattr of the
-> root directory as part of superblock setup during mount
-
-I haven't personally run into this.  It Just Works, except for the
-fscreate issue.
-
-> - there was an attempt to introduce distinctions based on filesystem
-> "subtype" so that whitelisted fuse filesystems could have xattr support
-> enabled when it was known that their userspace would handle mount(2)
-> safely [3] but this was apparently always broken and later reverted [4].
-
-I think we kind of side-stepped this issue.  The fstype for virtiofs
-is "virtiofs" instead of something like "fuse.virtiofs" so there is no
-subtype handling required.
-
-> - there is the issue of trusting the fuse filesystem for its labeling
-> information and for domain/context transitions
-
-This is definitely an issue for regular fuse file systems.  However,
-the virtiofs device has read/write access to all the VM's memory so
-there isn't much the VM can do if it doesn't trust the device.
-
-
-
-I guess what I'm trying to understand is: what are the issues with
-having the fuse driver call the inode_init_security hooks?  Even if
-it's not something that can be turned on by default in mainline, I'd
-like to evaluate whether we can turn it on locally in our restricted
-environment.
-
-One issue is the lack of atomicity guarantees.  This is likely a
-deal-breaker for general fuse usage.  However, I don't think it's an
-issue for our restricted use of virtiofs because the attributes will
-be set "atomically" from the guest userspace's perspective.  It won't
-be atomic on the host side, but host processes don't have access to
-those directories anyway.
-
-Are there any other issues?
-
-Thank you,
-Chirantan
