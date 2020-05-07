@@ -2,146 +2,196 @@ Return-Path: <SRS0=z4nS=6V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33B2CC38A24
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 13:06:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55728C38A2A
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 13:13:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 027E4208D6
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 13:06:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 28A7420838
+	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 13:13:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CojCw9Fm"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c6FtQriH"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726007AbgEGNG4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 May 2020 09:06:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36292 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725939AbgEGNG4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 09:06:56 -0400
-Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67560C05BD43;
-        Thu,  7 May 2020 06:06:55 -0700 (PDT)
-Received: by mail-oi1-x242.google.com with SMTP id o24so5098637oic.0;
-        Thu, 07 May 2020 06:06:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JrKE0/k9TqvO63dFVD5bdAgHBAm+WjFMdax9qWxHqKs=;
-        b=CojCw9Fmh9zgr/0dIGJBy9xx9eWODCnoJMmbcD0f752ky4fgbcwRw7B9uOCFzQRteP
-         O2rqfKu0O73IQxAsBUNVFV+5qRjL6w/6Z4E8M+CWtfRdEF7SgdIqv4cWr9QErt9oJsy+
-         jvcNmhVrwy0jEDEA3z16tYXv1cKUu6B1tKL4lcF7T0uf19RthMQchvysM2Rzbg7XHXcV
-         2jm8Gvduu8R9jNUnn67MjsyYV+hbQ+JgW5mOitej7bNy4O84oi5OzqlpW06UvPp+9zVR
-         4aqsRg4qS05H8m0uUCO2eyQ4D/jDNHlDyZXtevyZcNDz1VIyS5MwcO9ADjmuvS064y2b
-         8+Ug==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JrKE0/k9TqvO63dFVD5bdAgHBAm+WjFMdax9qWxHqKs=;
-        b=HKSgkCe1nu19Tv87a4uhE8UkZPtgaFHWQ0CJMd4gz1FfKniNDJyNSoIg5VThkwwYoZ
-         5sdBAERJUm02Qubfg+25sFjXnPOXL0p5hJMv7UCCr3VAEhPo3FlgnMUMCdIulwxh6dDJ
-         riz35ZUwUYfirHLOQ926LVig7Xf8MNWjI9jmBLqiAXStUKocO+p/LuGVhqrzT9ubN7Sj
-         QKhyOGZKFW9yDiBB4a3RObqja2sGwOUrkY7eVzCQ6yEcYtW3t+opfi1D8Fx4U/vpJiJV
-         zkWGyHiVDmSUb8GLX/l0diZ1H98EzqHw5BsuFreyNxIlaix8L3nukRbULWf0sEEMF6gn
-         Carw==
-X-Gm-Message-State: AGi0Pub3aSIW7qAk6YqzycdE9ZEO/HUhdd2TaKh4ddEqzlLRVa1IOjCU
-        xEcwR2YGvjlQzePs8Wg1Zv92CgVZH4mmHGWla7c=
-X-Google-Smtp-Source: APiQypIk4Twgp18++aGpnhrRi6PUMUuxUCqdmRlUvlSXGSpcGj5jfGXT2YT7GXAqCLRLEIQmOdYavVVdR1znSrjovn8=
-X-Received: by 2002:aca:4c0b:: with SMTP id z11mr6337744oia.92.1588856814638;
- Thu, 07 May 2020 06:06:54 -0700 (PDT)
+        id S1725953AbgEGNNl (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 May 2020 09:13:41 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:45678 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725900AbgEGNNl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 09:13:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1588857219;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=n410Lon/gJPafNEN/PIXyL5EGXU6AJ/DbF7Z1mmqeyk=;
+        b=c6FtQriH7rk/TiaKsTb2sM0ruQbNwTwf4azfDVxSfsdxyshNW5v3GE2sROPRzaTknvQWqk
+        M4CGzCnw5+WVPvRW1SYTJWfjpoZDKcWeQ4PNtQGXmYcmrukc1ZuCrssWOe5COJEtZZdz9l
+        tSvi19ng3lXDfkBnJRSZds/ZmvfABS4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-182-AABsqYqjPD6hr5sZMuiarw-1; Thu, 07 May 2020 09:13:31 -0400
+X-MC-Unique: AABsqYqjPD6hr5sZMuiarw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DD3C6835B4F;
+        Thu,  7 May 2020 13:13:29 +0000 (UTC)
+Received: from workstation (unknown [10.40.194.11])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id B844434211;
+        Thu,  7 May 2020 13:13:26 +0000 (UTC)
+Date:   Thu, 7 May 2020 15:13:22 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     Laurent Bigonville <bigon@debian.org>,
+        Russell Coker <russell@coker.com.au>,
+        William Roberts <bill.c.roberts@gmail.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
+Message-ID: <20200507131322.GA69292@workstation>
+References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
+ <CAFftDdrD-FJ8wBk=XOkvdnkvA5o10w5pJs31H9dEhtW1zU8EHA@mail.gmail.com>
+ <CAEjxPJ452zaoFwy++cKqh_Ap2rM1ezEZN83mBhN4ndHHaQ4q5Q@mail.gmail.com>
+ <3838641.zh4Wi6GlAV@liv>
+ <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org>
+ <CAEjxPJ6Uo83L5C9UELy5w_V2wuptSHiHoMMLN4oh75x70-ZzAQ@mail.gmail.com>
 MIME-Version: 1.0
-References: <CAJFHJroyC8SAFJZuQxcwHqph5EQRg=MqFdvfnwbK35Cv-A-neA@mail.gmail.com>
- <CAJfpegtWEMd_bCeULG13PACqPq5G5HbwKjMOnCoXyFQViXE0yQ@mail.gmail.com>
- <CAEjxPJ56JXRr0MWxtekBhfNS7i8hFex2oiwqGYrh=m1cH9X4kg@mail.gmail.com> <CAJFHJrppbb1cUTq9w7G7E2RrV5CbYx54dAfk62tiZYCewcwXhg@mail.gmail.com>
-In-Reply-To: <CAJFHJrppbb1cUTq9w7G7E2RrV5CbYx54dAfk62tiZYCewcwXhg@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 7 May 2020 09:06:43 -0400
-Message-ID: <CAEjxPJ6LZowJJ1uQXa+NTSMA=y2AWatNKvtp3iDcH7kL4D-qcw@mail.gmail.com>
-Subject: Re: fuse doesn't use security_inode_init_security?
-To:     Chirantan Ekbote <chirantan@chromium.org>
-Cc:     Miklos Szeredi <miklos@szeredi.hu>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        fuse-devel <fuse-devel@lists.sourceforge.net>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        LSM <linux-security-module@vger.kernel.org>,
-        virtio-fs-list <virtio-fs@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAEjxPJ6Uo83L5C9UELy5w_V2wuptSHiHoMMLN4oh75x70-ZzAQ@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="3V7upXqbjpZ4EhLz"
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 7, 2020 at 3:53 AM Chirantan Ekbote <chirantan@chromium.org> wrote:
-> On Sat, May 2, 2020 at 3:32 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, May 07, 2020 at 08:51:59AM -0400, Stephen Smalley wrote:
+> On Thu, May 7, 2020 at 4:46 AM Laurent Bigonville <bigon@debian.org> wrot=
+e:
 > >
-> >
-> > (cc selinux list)
-> >
-> > security_inode_init_security() calls the initxattrs callback to
-> > actually set each xattr in the backing store (if any), so unless you
-> > have a way to pass that to the daemon along with the create request
-> > the attribute won't be persisted with the file.  Setting the xattrs is
-> > supposed to be atomic with the file creation, not a separate
-> > setxattr() operation after creating the file, similar to ACL
-> > inheritance on new files.
-> >
->
-> But it's not truly atomic, is it?  The underlying file system creates
-> the inode and then the inode_init_security selinux hook actually sets
-> the attributes.  What would happen if the computer lost power after
-> the file system driver created the inode but before the selinux hook
-> set the attributes?
+> > Le 6/05/20 =E0 18:37, Russell Coker a =E9crit :
+> > > On Thursday, 7 May 2020 1:50:46 AM AEST Stephen Smalley wrote:
+> > >> on that running instance, but not to specify custom kernel parameter=
+s
+> > >> initially or to reboot the system before proceeding with further
+> > >> commands (if anyone knows differently, speak up). We'd have to get t=
+o
+> > >> the point where enabling SELinux in Debian is possible without
+> > >> requiring a reboot at all.  And then we'd have to wait for that
+> > >> support to find its way into one of the Ubuntu images supported by
+> > >> travis-ci.  Might be easier to just get travis-ci to support Fedora =
+or
+> > >> CentOS images in the first place. Regardless, allowing the testsuite
+> > >> to be run by users of other distributions is worthwhile IMHO.
+> > > In the past there hasn't been much demand for a smoother installation=
+ process.
+> > > If you are setting up a traditional Unix server system the Debian SE =
+Linux
+> > > installation thing doesn't make things much more difficult.  Past com=
+plaints
+> > > about it have been more about an imagined difficulty of using SE Linu=
+x and have
+> > > ended when I showed and wrote about how to do it (one time I showed
+> > > screenshots of the process in an LCA lightning talk and didn't have p=
+roblems
+> > > with time).
+> > >
+> > > I don't think that the people who maintain the Debian installation re=
+lated
+> > > packages would have a great objection to adding SE Linux features, al=
+though it
+> > > might take a bit of time for it to migrate from Debian to Ubuntu.
+> > >
+> > > We can make this a priority.
+> > >
+> > If people are using preseed installations (kickstart equivalent), I
+> > think that enabling SELinux in the installer shouldn't be too difficult
+> > (installing the needed packages, modifying the files and relabeling wit=
+h
+> > fixfiles). It's obviously not user friendly, but the question is what's
+> > the target here.
+>=20
+> The visionary end state goal would be to allow one to specify some
+> kind of option in a travis-ci configuration and get a SELinux-enabled
+> image on which we could perform travis-ci validation of
+> selinux-testsuite, selinux userspace, and maybe even the kernel.  I
+> don't think that is possible in the near term though and will require
+> changes to travis-ci itself.  At the moment our travis-ci validation
+> of the testsuite and userspace is limited to building and in the
+> latter case running some limited tests that do not depend on having
+> SELinux on the host.
+>=20
+> The nearer term goal is to minimize obstacles to using SELinux in
+> Debian, one of which is the need to install Debian and then install
+> SELinux as a separate step (with two reboots along the way) rather
+> than an installer option.  We can't use that approach in travis-ci
+> AFAICT because we cannot reboot the instance and then proceed with
+> testing.  If we can tell the installer to include the necessary grub
+> and pam configurations up front and to label the filesystems during
+> installation (which can happen even while SELinux is disabled in the
+> kernel; only requires filesystem xattr support), then we can avoid the
+> need for any extra reboots post install.
+>=20
 
-IIUC, in the case of ext4 and xfs at least, the setting of the
-security.selinux xattr is performed in the same transaction as the
-file create, so a crash will either yield a file that has its xattr
-set or no file at all.  This is also true of POSIX ACLs.  Labeled NFS
-(NFSv4.2) likewise is supposed to send the MAC label with the file
-create request and either create it with that label or not create it
-at all.  Note that nfs however uses security_dentry_init_security() to
-get the MAC label since it doesn't yet have an inode and MAC labels
-are a first class abstraction in NFS not merely xattrs.
+I'm experimenting with using Fedora CI for this, see https://src.fedoraproj=
+ect.org/rpms/policycoreutils/pull-request/15
 
-> > - deadlock during mount with userspace waiting for mount(2) to complete
-> > and the kernel blocked on requesting the security.selinux xattr of the
-> > root directory as part of superblock setup during mount
->
-> I haven't personally run into this.  It Just Works, except for the
-> fscreate issue.
+It uses Fedora Rawhide images and runs
+https://src.fedoraproject.org/fork/plautrba/rpms/policycoreutils/blob/a9622=
+b610a0f7cfb968d4cb216c9c5c42e87b6dd/f/tests/upstream/runtest.sh
+script which is part of this PR
 
-Yes, this can be worked around in your fuse daemon if it supports
-handling getxattr during mount (e.g. multi-threaded, other threads can
-service the getxattr request while the mount(2) is still in progress).
-But not supported by stock fuse userspace IIUC.
 
-> I guess what I'm trying to understand is: what are the issues with
-> having the fuse driver call the inode_init_security hooks?  Even if
-> it's not something that can be turned on by default in mainline, I'd
-> like to evaluate whether we can turn it on locally in our restricted
-> environment.
->
-> One issue is the lack of atomicity guarantees.  This is likely a
-> deal-breaker for general fuse usage.  However, I don't think it's an
-> issue for our restricted use of virtiofs because the attributes will
-> be set "atomically" from the guest userspace's perspective.  It won't
-> be atomic on the host side, but host processes don't have access to
-> those directories anyway.
->
-> Are there any other issues?
+You can see a failure in Fedora CI:
+https://jenkins-continuous-infra.apps.ci.centos.org/blue/organizations/jenk=
+ins/fedora-rawhide-pr-pipeline/detail/fedora-rawhide-pr-pipeline/3441/pipel=
+ine/
+-> Artifacts -> package-tests/logs/FAIL-upstream.log -
+https://jenkins-continuous-infra.apps.ci.centos.org/job/fedora-rawhide-pr-p=
+ipeline/3441/artifact/package-tests/logs/FAIL-upstream.log
 
-I don't have a problem with fuse calling the hook (either
-security_inode_init_security or security_dentry_init_security).  It is
-just a question of what it will do with the result (i.e. what its
-initxattr callback will do for the former or what it will do with the
-returned label in the latter). Optimally it will take the label
-information and bundle it up along with the create request to the
-daemon, which can then handle it as a single transaction.  Failing
-that, it needs to support setting the label in some manner during file
-creation that at least provides atomicity with respect to the user of
-the filesystem (the guest in your case).
+So far there's only userspace build and tests but it can be used for
+selinux-testsuite and (Fedora) kernel.
+
+It has one downside, it can be triggered only by a pull request on https://=
+src.fedoraproject.org/rpms/policycoreutils
+
+Petr
+--=20
+()  ascii ribbon campaign - against html e-mail=20
+/\  www.asciiribbon.org   - against proprietary attachments
+
+--3V7upXqbjpZ4EhLz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl60CWwACgkQviIJHj72
+InVYMQ//UnSW/GG7xUG6/e+dz+tdvaqbtA4ZRb7Q2+P5O5x44IF2Jm44nehlHH+I
+3lULovPkcAbqfDARi8MB+2FQxEQ3WkBMUWXXcIm4TBAPGqeDn5q4PVAOGP3e1z4J
+QugdWz/Z3Cp6Dyb8W7veIeSu90KC9Oy0JOvMzTP1bF1Aa63a1EwfVG3CLkw+5iFd
+9nS5HYmY1nsDks2AEFBR9smQ50USX3u4+6sMQVIAv3b++eQYIuVQkSYI5HTZyehY
+O3x7U292AavB1UrfjiUcEnOOwQUb2aMyw4ETGyiunLf2DDKGvvA6gQHwPzhRT/MH
+TBcU7DBZFJmMG6LORr1bVTA6WmOZzzrbns2DYv+LBYt9Tw7y3NZh+nBM3h0hnZ/7
+f5OydVG+misYqUKtr8+0H2H5kS05Ue4mj7mO1i27cIoNwHX2gLIDfXE9xULMNGh7
+I+lYsMXyowv/tUbuMNtWG+7E8vO9Uw8LNJkaRwGWBdPzSZ5b4BX3sAE7Q/76TqMZ
+aIXca1kIwaTst8bLIU0sZyxuH70XgtNu8/taCKbtzdUae0i00gcHzws4D5ZU8cuV
+RFbRc9qcUg0Fdip+TA2lO/UmlfTTZ+/khdonlf5101itH2KoPt7lKARgp1wAnskk
+k1TdNgTZ736/PdQN+/N61Vs+robFTniw0VZ57tecBIqD+qrXi3g=
+=Rpa3
+-----END PGP SIGNATURE-----
+
+--3V7upXqbjpZ4EhLz--
+
