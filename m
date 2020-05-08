@@ -8,63 +8,63 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1FF0C54E4B
-	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 15:42:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AC18C38A2A
+	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 15:42:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D2A9024955
-	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 15:42:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3C4FA24955
+	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 15:42:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vEcSbDsu"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AKBLv7Bu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728102AbgEHPmW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 May 2020 11:42:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59340 "EHLO
+        id S1726636AbgEHPmZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 May 2020 11:42:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727950AbgEHPmU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 May 2020 11:42:20 -0400
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AF0BC061A0C
-        for <selinux@vger.kernel.org>; Fri,  8 May 2020 08:42:20 -0700 (PDT)
-Received: by mail-qk1-x742.google.com with SMTP id f83so1937521qke.13
-        for <selinux@vger.kernel.org>; Fri, 08 May 2020 08:42:20 -0700 (PDT)
+        with ESMTP id S1727945AbgEHPmY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 May 2020 11:42:24 -0400
+Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC79FC061A0C
+        for <selinux@vger.kernel.org>; Fri,  8 May 2020 08:42:24 -0700 (PDT)
+Received: by mail-qv1-xf44.google.com with SMTP id a15so639828qvt.9
+        for <selinux@vger.kernel.org>; Fri, 08 May 2020 08:42:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=wVuynlQlZbktWbEpwb1fylA6YGVqOTCn5M3Q/Mvg3IY=;
-        b=vEcSbDsu1qINO1QVArsMa7pLMtWQ7socp84ZDM5QE1teDZh6X7LOTkNyrMg50KBM0w
-         jVGChVEXcWgarZu6s+riw/3Hp2B14Prv1c6n7/yQ/Uuvaf3nVihE/izrtkHUu1MN4EFL
-         ed3plPv+Dyg4vnSzWohwkZiOKU0w60dNo+qBDLL9BLOx89SGouTvjvHr5fRFadTzfen0
-         0aWJjUVLf7ITd9tdsR+a2G8Rm2Q1i/xRbSN3yg7ILR6O5yC/cBloEd15vmBI24ZzCh+l
-         b4OzlR6ZyAgx8o8hmV1AN02Yb+IDywWDc1W10NdLVs1VKIXSFVH9YJdmlje0IdQCal/Y
-         704w==
+        bh=/dSFmslcQXOudC58cMAMKTWJ6vLqNrwbIYJVeNa97/U=;
+        b=AKBLv7BucSml8vS2Sb3/82zwEa+HL4VjDNnH9Uqx+A20xKuIZVn971r3VVajm5qSy1
+         JQz5kNAP7j/JgKqmH6M5Lw2PR65ZMVa4MZ+EwkItyg16nFGwj7GL0BPgyEz1014LFVx/
+         Z2AvRQ5W5qLWA+m9sEzLPS2OtUUOctdOBxF9tXDB5pGY7V/cUuRps8mTiv+k1wl8EW2a
+         yx3vxfGQNgUg7Rnkc+H5RKZMDgwjh7gFqMV8vdIC6z5jM80BlVFQbcm12xIT2FavebQJ
+         PYPEHTDgaF3d62hS1nJGIyBspREzu6S33qX0LoDPGOvSSJNYP6ufOt/26vUmWFbFtRPa
+         ErkA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=wVuynlQlZbktWbEpwb1fylA6YGVqOTCn5M3Q/Mvg3IY=;
-        b=CQmUx7syJ3fss9owHPgGH6GaoYgaALyK3/+BLnugHtcOc8gKtuCTTybT3dwsh+oxTl
-         1Jx/yk70j1dd8xELjZnf2pdBSMQEFhFM+MLryt8K8NsHvuBI9h4iJyc6x6QPjv02rxLy
-         MPiCVJ0xq3MIw5Bj9OoGuzyyhLJ+hIlbhlRT+QOFLSgVB+4FKafTcFCqhetHuJullqgr
-         WPcOoy/Z+HQYxed4SA1au9cJC8gosgXosV0X8pxBDQQFOj/V1yhEoLvJFhm+7LDiVfIz
-         So8D1Ajoan4tTC14gku8nL0yk6pv1bXLuH/MWrDuOsxcbaKxSudpGvzZTc1F73SgooJx
-         l0Jg==
-X-Gm-Message-State: AGi0PuYHgDVkQtvUldZbGE+uHG1Vsjym6Hl1Q3kerUyXLf4zj1MLoLXW
-        4hwFUgtpyO/4cD4XuabF6t6EXB2V
-X-Google-Smtp-Source: APiQypJhZ2aDZKkJWqLQoBS9b0O63JMlyhKDjdIhs4z2AlCGxanak79cQgB532JpZCkMYdMg6FTf9Q==
-X-Received: by 2002:a05:620a:1316:: with SMTP id o22mr3234881qkj.422.1588952539134;
-        Fri, 08 May 2020 08:42:19 -0700 (PDT)
+        bh=/dSFmslcQXOudC58cMAMKTWJ6vLqNrwbIYJVeNa97/U=;
+        b=obdKyI2B1QS6/H4Rq9t0AVdCAjxgL0ouxKxIC4TcN8XMUXnw630ABxKBdeF85iJsWF
+         oxK46l1slwinpTMBy5CmTd/UpmPSAIAkSNnrV9Fng7eOwfW4S3aMZjB31A00Jop1QUuC
+         V7RYVT/1fVc4TxYrgWHwje4SYyKF17k2Uf4JjxVHl2mVJ1Qb4f5C1tYWqsY86YwYIf81
+         K6LK3eMKRFM6nYF2XTBWFKIDAX51STnoeUbsnCfTUoJeDYdRCf0NQ8NN70yHQrK3RurL
+         YEZY3iYibawomJ3x2Dpnb1mw3JYsOwnTYgE9h/Y34NbuFDR3qtiQdgFLfxF+ufryEqs8
+         PiYg==
+X-Gm-Message-State: AGi0PuYBucEPS2abEKu8++4jmNbNCiL1HFp23TJSnCrxiG6INu7mrCfW
+        465smmLGmwWHCjDrybLa9arZ+t8o
+X-Google-Smtp-Source: APiQypKGLaxN4dNwqREsuByEc8NSZOyME0ZAhrRx5hxO6IfgodGTiHgPuJD6rxqWB9RVGGUs1MjoEg==
+X-Received: by 2002:a0c:b31b:: with SMTP id s27mr3489064qve.158.1588952543879;
+        Fri, 08 May 2020 08:42:23 -0700 (PDT)
 Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id g5sm309055qkl.114.2020.05.08.08.42.18
+        by smtp.gmail.com with ESMTPSA id g5sm309055qkl.114.2020.05.08.08.42.23
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 May 2020 08:42:18 -0700 (PDT)
+        Fri, 08 May 2020 08:42:23 -0700 (PDT)
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     omosnace@redhat.com, paul@paul-moore.com,
         Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 testsuite 02/15] test_execute_no_trans.te: stop using mmap_file_perms
-Date:   Fri,  8 May 2020 11:41:25 -0400
-Message-Id: <20200508154138.24217-3-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 testsuite 08/15] test_overlayfs.te: allow test_overlay_mounter_t to read user tmp files
+Date:   Fri,  8 May 2020 11:41:31 -0400
+Message-Id: <20200508154138.24217-9-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.23.1
 In-Reply-To: <20200508154138.24217-1-stephen.smalley.work@gmail.com>
 References: <20200508154138.24217-1-stephen.smalley.work@gmail.com>
@@ -75,29 +75,29 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-mmap_file_perms was deprecated in refpolicy in 2017 and is removed
-from Debian policy. mmap_exec_file_perms is recommended by refpolicy
-but RHEL-7 defined it differently (including execute_no_trans) so we
-cannot use it here unconditionally. Just open-code the necessary
-permissions and use the existing allow_map() macro defined by the
-testsuite to cover map permission if defined.
+During setup-overlay, a shell is run in test_overlay_mounter_t from
+a "here document" i.e. an inline input.  This creates a temporary file
+that is inherited by the shell and must be readable.  Allow it.
+This is apparently being allowed somehow in the base Fedora policy
+for all domains but not in Debian.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- policy/test_execute_no_trans.te | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ policy/test_overlayfs.te | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/policy/test_execute_no_trans.te b/policy/test_execute_no_trans.te
-index 79ba868..2c0346a 100644
---- a/policy/test_execute_no_trans.te
-+++ b/policy/test_execute_no_trans.te
-@@ -24,4 +24,5 @@ userdom_sysadm_entry_spec_domtrans_to(test_execute_notrans_t)
+diff --git a/policy/test_overlayfs.te b/policy/test_overlayfs.te
+index 6f1756e..b29621e 100644
+--- a/policy/test_overlayfs.te
++++ b/policy/test_overlayfs.te
+@@ -52,6 +52,7 @@ corecmd_exec_bin(test_overlay_mounter_t)
  
- #Allow test_execute_notrans permissions to the allowed type
- can_exec(test_execute_notrans_t,test_execute_notrans_allowed_t)
--allow test_execute_notrans_t test_execute_notrans_denied_t:file mmap_file_perms;
-+allow_map(test_execute_notrans_t, test_execute_notrans_denied_t, file)
-+allow test_execute_notrans_t test_execute_notrans_denied_t:file { getattr open read };
+ userdom_search_admin_dir(test_overlay_mounter_t)
+ userdom_search_user_home_content(test_overlay_mounter_t)
++userdom_read_user_tmp_files(test_overlay_mounter_t)
+ 
+ mount_exec(test_overlay_mounter_t)
+ mount_rw_pid_files(test_overlay_mounter_t)
 -- 
 2.23.1
 
