@@ -8,66 +8,64 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B2FCC54E8A
-	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 15:42:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D0D1C38A2A
+	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 19:37:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 187B421841
-	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 15:42:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 462AB2184D
+	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 19:37:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E7WLPng7"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kC/MftHm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727777AbgEHPmV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 May 2020 11:42:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59342 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727992AbgEHPmV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 8 May 2020 11:42:21 -0400
-Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2E83C05BD43
-        for <selinux@vger.kernel.org>; Fri,  8 May 2020 08:42:20 -0700 (PDT)
-Received: by mail-qk1-x743.google.com with SMTP id g185so1962853qke.7
-        for <selinux@vger.kernel.org>; Fri, 08 May 2020 08:42:20 -0700 (PDT)
+        id S1727100AbgEHTho (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 May 2020 15:37:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39728 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726767AbgEHThn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 8 May 2020 15:37:43 -0400
+Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ECC0C061A0C
+        for <selinux@vger.kernel.org>; Fri,  8 May 2020 12:37:43 -0700 (PDT)
+Received: by mail-qt1-x843.google.com with SMTP id o10so2363000qtr.6
+        for <selinux@vger.kernel.org>; Fri, 08 May 2020 12:37:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=kVo1mY/DMNLasz0Yg+FHeeNO9TG8+NKwfYFPYdCFNBI=;
-        b=E7WLPng7q0rd3nVybkj53qoi5NgFNYfWDcty5m371O5rAJT7ErUXIjrx5w/smAINjh
-         bp7dRzxIvNdr+mKkKFTzB2KqCe2en9HUTM6jxC2XBT2KSSMa7VWkj9UkJdFAKgKKjHf3
-         Mz/yXWUkhnkgjAUUyvW4oZ5+QjOXMKhZ/tbiXL7xH+TlSdj7QdrMsWZt149X/2Qx4j7K
-         4B1rPqGxemrw2XiTx5dad+dzU0SSqZbvqoJWR0j2BBK/4Tg7rxokyaw/CHdNswv+oQUP
-         OR/ZXnihk30PSfNlA4vKt9uaSk5/+gpYOLZEZF4dPJvlzrdO/lFKC2IBNtP1DvVmIg//
-         TI4g==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=gZiMyPY+6fJBElANaz5vO+mWQ0hLPw3IqEJDxgBykdI=;
+        b=kC/MftHmunTm5JQKpPDIoaHjcxzGQFRORbqksCtRQtazTSOVU7KDbtlgW768fZxLqf
+         VbxeYKAMu2JRl1b6Yb5HfPVRT78xkOk9qkBfP7VhPPBjEFiM8OYtX4+HFNLCAJHcsYyC
+         r5ANwACXjXt7kTkYCfgRSkF3cgpg7cx+AbUFUvSoA/TEt20aMxv3GP24MHz8qapKp5n4
+         b67bmJ4p9pVFTY/Ge8HWqaVJXo6Foq1+NeT7QkPbXiLsc6v93tNKZARmVPGynnCnja2Z
+         nwHOuEtUUcihDGq5+acOoNUH/i2InmqTI1z1Mq0P7Vx8mT6Ryb/Xm6WSbiGeEVEMy8uj
+         +6ag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=kVo1mY/DMNLasz0Yg+FHeeNO9TG8+NKwfYFPYdCFNBI=;
-        b=G+ZBAILqeoXWV+c2/QgxD1cvSds++IXTwgNCsdGbKI1j57tE4pPVv0vm4/9OAsMQTu
-         7CKlAV83gukVGoB/6HgOeUAYcY981oofMoNguZHNCbm9/Z2vR4+DGSJw75yvBt8p4hmi
-         n03vFt3eKMIcuu865NsGoHrk3zKIDYZ3AHagSWKq+pOCa4hjXnLMqVJJmbBH0fFeuZ3y
-         hOo7C5TwSOxE/8nSsbD+NdlS3wozwMmtZ2I3ol8X73q8QTe4pX76DkzCNQkKCNnx3V+p
-         m4TGJIZNG5bOdiCHhuOxhLn9CTKlGLjkolm7UWeLD5BJWyN1qLvIfyL/0fR2kmaz+47J
-         DO+Q==
-X-Gm-Message-State: AGi0Pua81d+npwoUIFr+uk53oh4upXUZ7InCys3UW+Are5yUQhYm+4hp
-        B8Dd0hKR0mdh8KghrAygXLFUauHB
-X-Google-Smtp-Source: APiQypISyVwF5FCDkqvu8JrA3rzFZTbEpzImOj24ZpXZWG6+4evH9J6RpJZ0s01dYK2yT6w0Guq/SA==
-X-Received: by 2002:a37:a7c8:: with SMTP id q191mr3354378qke.214.1588952539816;
-        Fri, 08 May 2020 08:42:19 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=gZiMyPY+6fJBElANaz5vO+mWQ0hLPw3IqEJDxgBykdI=;
+        b=JgciZ0q8KDGsJmIN9HmUaZ/vi8Nq7fzQV85MNnsmViIo5+m69CqeNAcPfSlJ6aD6fD
+         8VuMcGcazOCPR6uyzDx+7E0iGeN52cork+wVDgNDRJP+Q4KVmIU+Gz8vnjtp2R/UtZW8
+         gsS6bPNScYevhpYUPHaU32xnF1mfeDrix6ZWEaLv/peL6FUen1RIHP79W6YMfBW0GSc0
+         ec4WR9vovJdPrwo9ErAHW9HjnWZ3MYrXwz/+S6UZEplAmKK9/kiIWVrnC7BgbdMxntvO
+         GmuxtQQVlnXiScNgRCA/BA5BmHw79X1ImWr2yrIOuow9xow+/35fzuUNNzuarHfu3nqy
+         uPzg==
+X-Gm-Message-State: AGi0PuaODnZZXoockMZMNetPGrc4hRYWISmgi/dCsXG65ndNntsNS0HO
+        1GDfftkanHYv4EKzzmL3grZjdW6x
+X-Google-Smtp-Source: APiQypJhn6ZX7qdAUo3//NO7S69ssRVfRKRgTVU/21JfyUxYjtnUNqaH2KR0nf2b6z9BkwFVM/V9JQ==
+X-Received: by 2002:ac8:6f07:: with SMTP id g7mr4745143qtv.250.1588966662681;
+        Fri, 08 May 2020 12:37:42 -0700 (PDT)
 Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id g5sm309055qkl.114.2020.05.08.08.42.19
+        by smtp.gmail.com with ESMTPSA id b198sm1014106qkg.37.2020.05.08.12.37.41
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 May 2020 08:42:19 -0700 (PDT)
+        Fri, 08 May 2020 12:37:42 -0700 (PDT)
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     omosnace@redhat.com, paul@paul-moore.com,
         Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 testsuite 03/15] test_ibendport.te: use dev_rw_infiniband_mgmt_dev()
-Date:   Fri,  8 May 2020 11:41:26 -0400
-Message-Id: <20200508154138.24217-4-stephen.smalley.work@gmail.com>
+Subject: [PATCH testsuite] tests/filesystem: fix quotas_test
+Date:   Fri,  8 May 2020 15:37:21 -0400
+Message-Id: <20200508193721.29283-1-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.23.1
-In-Reply-To: <20200508154138.24217-1-stephen.smalley.work@gmail.com>
-References: <20200508154138.24217-1-stephen.smalley.work@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -75,44 +73,65 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Switch the Infiniband test policy to use the appropriate policy
-interface if defined rather than hardcoding a reference to the
-type, neither of which exist in Debian policy.  Drop the dead
-hardcoded reference on bin_t since it is no longer used anywhere
-outside of an interface.
+As per the man page, quotactl(2) expects to be passed a pointer to
+a 4-byte buffer for Q_GETFMT.  The kernel copies a single u32 value.
+On Ubuntu, this was detected as a stack smash when running the test.
+Fix the test program.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- policy/test_ibendport.te | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ tests/filesystem/quotas_test.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/policy/test_ibendport.te b/policy/test_ibendport.te
-index 2a02c57..b909b4f 100644
---- a/policy/test_ibendport.te
-+++ b/policy/test_ibendport.te
-@@ -3,11 +3,6 @@
- # Policy for testing Infiniband Pkey access.
- #
+diff --git a/tests/filesystem/quotas_test.c b/tests/filesystem/quotas_test.c
+index 8359811..1424362 100644
+--- a/tests/filesystem/quotas_test.c
++++ b/tests/filesystem/quotas_test.c
+@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
+ 	int opt, result, qcmd, save_err, test_id = geteuid();
+ 	char *context, *src = NULL, *tgt = NULL;
+ 	bool verbose = false;
+-	char fmt_buf[2];
++	unsigned int fmtval;
  
--gen_require(`
--	type bin_t;
--	type infiniband_mgmt_device_t;
--')
--
- attribute ibendportdomain;
+ 	while ((opt = getopt(argc, argv, "s:t:v")) != -1) {
+ 		switch (opt) {
+@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
+ 			printf("User Quota - ON\n");
  
- # Domain for process.
-@@ -27,7 +22,9 @@ dev_rw_sysfs(test_ibendport_manage_subnet_t)
+ 		qcmd = QCMD(Q_GETFMT, USRQUOTA);
+-		result = quotactl(qcmd, src, test_id, fmt_buf);
++		result = quotactl(qcmd, src, test_id, (caddr_t)&fmtval);
+ 		save_err = errno;
+ 		if (result < 0) {
+ 			fprintf(stderr, "quotactl(Q_GETFMT, USRQUOTA) Failed: %s\n",
+@@ -85,7 +85,7 @@ int main(int argc, char *argv[])
+ 			return save_err;
+ 		}
+ 		if (verbose)
+-			printf("User Format: 0x%x\n", fmt_buf[0]);
++			printf("User Format: 0x%x\n", fmtval);
  
- corecmd_bin_entry_type(test_ibendport_manage_subnet_t)
+ 		qcmd = QCMD(Q_QUOTAOFF, USRQUOTA);
+ 		result = quotactl(qcmd, src, QFMT_VFS_V0, tgt);
+@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
+ 			printf("Group Quota - ON\n");
  
--allow test_ibendport_manage_subnet_t infiniband_mgmt_device_t:chr_file { read write open ioctl};
-+ifdef(`dev_rw_infiniband_mgmt_dev', `
-+dev_rw_infiniband_mgmt_dev(test_ibendport_manage_subnet_t)
-+')
+ 		qcmd = QCMD(Q_GETFMT, GRPQUOTA);
+-		result = quotactl(qcmd, src, test_id, fmt_buf);
++		result = quotactl(qcmd, src, test_id, (caddr_t)&fmtval);
+ 		save_err = errno;
+ 		if (result < 0) {
+ 			fprintf(stderr, "quotactl(Q_GETFMT, GRPQUOTA) Failed: %s\n",
+@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
+ 			return save_err;
+ 		}
+ 		if (verbose)
+-			printf("Group Format: 0x%x\n", fmt_buf[0]);
++			printf("Group Format: 0x%x\n", fmtval);
  
- ifdef(`corenet_ib_access_unlabeled_pkeys',`
- corenet_ib_access_unlabeled_pkeys(test_ibendport_manage_subnet_t)
+ 		qcmd = QCMD(Q_QUOTAOFF, GRPQUOTA);
+ 		result = quotactl(qcmd, src, QFMT_VFS_V0, tgt);
 -- 
 2.23.1
 
