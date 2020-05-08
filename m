@@ -8,63 +8,63 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AC18C38A2A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE4F9C4724C
 	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 15:42:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C4FA24955
+	by mail.kernel.org (Postfix) with ESMTP id AFDC221974
 	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 15:42:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AKBLv7Bu"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SwxYu8Gg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726636AbgEHPmZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 8 May 2020 11:42:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59362 "EHLO
+        id S1727945AbgEHPm0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 8 May 2020 11:42:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727945AbgEHPmY (ORCPT
+        with ESMTP id S1728273AbgEHPmY (ORCPT
         <rfc822;selinux@vger.kernel.org>); Fri, 8 May 2020 11:42:24 -0400
-Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC79FC061A0C
-        for <selinux@vger.kernel.org>; Fri,  8 May 2020 08:42:24 -0700 (PDT)
-Received: by mail-qv1-xf44.google.com with SMTP id a15so639828qvt.9
-        for <selinux@vger.kernel.org>; Fri, 08 May 2020 08:42:24 -0700 (PDT)
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2D32C061A0C
+        for <selinux@vger.kernel.org>; Fri,  8 May 2020 08:42:23 -0700 (PDT)
+Received: by mail-qt1-x842.google.com with SMTP id g16so822315qtp.11
+        for <selinux@vger.kernel.org>; Fri, 08 May 2020 08:42:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=/dSFmslcQXOudC58cMAMKTWJ6vLqNrwbIYJVeNa97/U=;
-        b=AKBLv7BucSml8vS2Sb3/82zwEa+HL4VjDNnH9Uqx+A20xKuIZVn971r3VVajm5qSy1
-         JQz5kNAP7j/JgKqmH6M5Lw2PR65ZMVa4MZ+EwkItyg16nFGwj7GL0BPgyEz1014LFVx/
-         Z2AvRQ5W5qLWA+m9sEzLPS2OtUUOctdOBxF9tXDB5pGY7V/cUuRps8mTiv+k1wl8EW2a
-         yx3vxfGQNgUg7Rnkc+H5RKZMDgwjh7gFqMV8vdIC6z5jM80BlVFQbcm12xIT2FavebQJ
-         PYPEHTDgaF3d62hS1nJGIyBspREzu6S33qX0LoDPGOvSSJNYP6ufOt/26vUmWFbFtRPa
-         ErkA==
+        bh=dCQhPOYk0XIuwAlcRegLvjccFa+OyAaLY54ehgKIGUI=;
+        b=SwxYu8GgxS8wqG4H6dR9sD/XKuiGADdFv+HnQwTCBD9rNIuqF4rhvWkvntvS0xUH6C
+         I+89jsGY457G3NhAKsSOkAhnGnSOtNQD1l9siPFRQV0VJutmEMMWFEw7VOejdCPT1kXO
+         zUwv8lN2K7eCQ6tu6zrCq1bgWdH3IG33j22sBmRYqR+ACc6HGkzQ4jMzUIggSGcl/kzi
+         gAzYtzu49rJKMLOE0u3A+smbFZUQrIMHQIn9q0TcxH5XlhAf7p9aXGZyLBTGqOl/Ql+e
+         e0vYEfX9OWT73ZrrQOoWBCzpYM1OJuQKaeoBsa9+s4SvQJ/Z1afzSUiG2HLM9CTgxvjd
+         7IHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=/dSFmslcQXOudC58cMAMKTWJ6vLqNrwbIYJVeNa97/U=;
-        b=obdKyI2B1QS6/H4Rq9t0AVdCAjxgL0ouxKxIC4TcN8XMUXnw630ABxKBdeF85iJsWF
-         oxK46l1slwinpTMBy5CmTd/UpmPSAIAkSNnrV9Fng7eOwfW4S3aMZjB31A00Jop1QUuC
-         V7RYVT/1fVc4TxYrgWHwje4SYyKF17k2Uf4JjxVHl2mVJ1Qb4f5C1tYWqsY86YwYIf81
-         K6LK3eMKRFM6nYF2XTBWFKIDAX51STnoeUbsnCfTUoJeDYdRCf0NQ8NN70yHQrK3RurL
-         YEZY3iYibawomJ3x2Dpnb1mw3JYsOwnTYgE9h/Y34NbuFDR3qtiQdgFLfxF+ufryEqs8
-         PiYg==
-X-Gm-Message-State: AGi0PuYBucEPS2abEKu8++4jmNbNCiL1HFp23TJSnCrxiG6INu7mrCfW
-        465smmLGmwWHCjDrybLa9arZ+t8o
-X-Google-Smtp-Source: APiQypKGLaxN4dNwqREsuByEc8NSZOyME0ZAhrRx5hxO6IfgodGTiHgPuJD6rxqWB9RVGGUs1MjoEg==
-X-Received: by 2002:a0c:b31b:: with SMTP id s27mr3489064qve.158.1588952543879;
-        Fri, 08 May 2020 08:42:23 -0700 (PDT)
+        bh=dCQhPOYk0XIuwAlcRegLvjccFa+OyAaLY54ehgKIGUI=;
+        b=qH7TWRoxxohErwXzbR7Ux+Nx4WemZtQwfPXqZHbjVHgASR4JgcNG5jSzSYk8cYXENp
+         j6jtTzZYbhWAfsj0RGf8EHvfFVdl3iv8WjUfPMnFjQqH2GWwgRdJLUKeUlAMvk66hcPu
+         NnbyASdSAUaBO96PfZGfBtfUCHeGXk/KOjWqueF2mlRSHc7uTBNVjX6k2eVH6P9DSvZJ
+         wTy4OerV/ZLpeUYZL/kwXpKqYWV6l8riGJXXi5CCnRFv+wFrqGSH/j/Rf2+Wie+sdDhS
+         dVFzULHvJT3ObNpkANVwAlqCV8n/2KuZfC45AXgzIMb/8+51BuBKpU7sfhHQuMJSBqHp
+         8T6g==
+X-Gm-Message-State: AGi0Pub2Q2uHZYdC+fjQgSpP9Ur+sADk47ml4VXpzvgQZmjmZ4pub9/r
+        +CH52sqSOh8WelTgfRSAAPUQVcd6
+X-Google-Smtp-Source: APiQypL/KXCLjSUQOwxCOOwa9qxU8b/vC6N/rOR+6aCk1mcqXyDc/J0vOmv/PoBNR8Goi+0mpcfbiw==
+X-Received: by 2002:ac8:3f19:: with SMTP id c25mr3390206qtk.96.1588952542979;
+        Fri, 08 May 2020 08:42:22 -0700 (PDT)
 Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id g5sm309055qkl.114.2020.05.08.08.42.23
+        by smtp.gmail.com with ESMTPSA id g5sm309055qkl.114.2020.05.08.08.42.22
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 May 2020 08:42:23 -0700 (PDT)
+        Fri, 08 May 2020 08:42:22 -0700 (PDT)
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     omosnace@redhat.com, paul@paul-moore.com,
         Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v4 testsuite 08/15] test_overlayfs.te: allow test_overlay_mounter_t to read user tmp files
-Date:   Fri,  8 May 2020 11:41:31 -0400
-Message-Id: <20200508154138.24217-9-stephen.smalley.work@gmail.com>
+Subject: [PATCH v4 testsuite 07/15] test_policy.if: use ptynode instead of unconfined_devpts_t
+Date:   Fri,  8 May 2020 11:41:30 -0400
+Message-Id: <20200508154138.24217-8-stephen.smalley.work@gmail.com>
 X-Mailer: git-send-email 2.23.1
 In-Reply-To: <20200508154138.24217-1-stephen.smalley.work@gmail.com>
 References: <20200508154138.24217-1-stephen.smalley.work@gmail.com>
@@ -75,29 +75,38 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-During setup-overlay, a shell is run in test_overlay_mounter_t from
-a "here document" i.e. an inline input.  This creates a temporary file
-that is inherited by the shell and must be readable.  Allow it.
-This is apparently being allowed somehow in the base Fedora policy
-for all domains but not in Debian.
+refpolicy does not define an unconfined_devpts_t type instead
+assigning user_devpts_t to unconfined ptys. Switch to using ptynode
+in the test policy to provide compatibility across both refpolicy and
+Fedora.  ptynode is an attribute that includes all pty types.
 
 Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- policy/test_overlayfs.te | 1 +
- 1 file changed, 1 insertion(+)
+ policy/test_policy.if | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/policy/test_overlayfs.te b/policy/test_overlayfs.te
-index 6f1756e..b29621e 100644
---- a/policy/test_overlayfs.te
-+++ b/policy/test_overlayfs.te
-@@ -52,6 +52,7 @@ corecmd_exec_bin(test_overlay_mounter_t)
+diff --git a/policy/test_policy.if b/policy/test_policy.if
+index cefc8fb..f0400f5 100644
+--- a/policy/test_policy.if
++++ b/policy/test_policy.if
+@@ -29,7 +29,7 @@
+ interface(`unconfined_runs_test',`
+ 	gen_require(`
+ 		type unconfined_t;
+-               type unconfined_devpts_t;
++               attribute ptynode;
+ 		role unconfined_r;
+ 	')
  
- userdom_search_admin_dir(test_overlay_mounter_t)
- userdom_search_user_home_content(test_overlay_mounter_t)
-+userdom_read_user_tmp_files(test_overlay_mounter_t)
+@@ -38,7 +38,7 @@ interface(`unconfined_runs_test',`
+ 	role unconfined_r types $1;
+       # Report back from the test domain to the caller.
+       allow $1 unconfined_t:fd use;
+-      allow $1 unconfined_devpts_t:chr_file { read write ioctl getattr };
++      allow $1 ptynode:chr_file { read write ioctl getattr };
+       allow $1 unconfined_t:fifo_file { read write ioctl getattr };
+       allow $1 unconfined_t:process { sigchld };
  
- mount_exec(test_overlay_mounter_t)
- mount_rw_pid_files(test_overlay_mounter_t)
 -- 
 2.23.1
 
