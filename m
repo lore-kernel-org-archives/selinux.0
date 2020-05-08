@@ -1,433 +1,163 @@
-Return-Path: <SRS0=z4nS=6V=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=piI6=6W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CECAC38A2A
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 16:03:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EED8C35280
+	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 03:03:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3701D20659
-	for <selinux@archiver.kernel.org>; Thu,  7 May 2020 16:03:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D953F20663
+	for <selinux@archiver.kernel.org>; Fri,  8 May 2020 03:03:49 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="sJ1/baLC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726222AbgEGQDQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 7 May 2020 12:03:16 -0400
-Received: from namei.org ([65.99.196.166]:57536 "EHLO namei.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725969AbgEGQDP (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 7 May 2020 12:03:15 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id 047G2fNj024861;
-        Thu, 7 May 2020 16:02:41 GMT
-Date:   Fri, 8 May 2020 02:02:41 +1000 (AEST)
-From:   James Morris <jmorris@namei.org>
-To:     Daniel Colascione <dancol@google.com>,
-        Al Viro <viro@ftp.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>
-cc:     timmurray@google.com, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, Paul Moore <paul@paul-moore.com>,
-        nnk@google.com, Stephen Smalley <sds@tycho.nsa.gov>,
-        lokeshgidra@google.com
-Subject: Re: [PATCH v5 1/3] Add a new LSM-supporting anonymous inode
- interface
-In-Reply-To: <20200401213903.182112-2-dancol@google.com>
-Message-ID: <alpine.LRH.2.21.2005080201220.15191@namei.org>
-References: <20200326200634.222009-1-dancol@google.com> <20200401213903.182112-1-dancol@google.com> <20200401213903.182112-2-dancol@google.com>
-User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
+        id S1726641AbgEHDDt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 7 May 2020 23:03:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53860 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726612AbgEHDDt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 7 May 2020 23:03:49 -0400
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA33EC05BD43
+        for <selinux@vger.kernel.org>; Thu,  7 May 2020 20:03:48 -0700 (PDT)
+Received: by mail-ed1-x543.google.com with SMTP id s10so84150edy.9
+        for <selinux@vger.kernel.org>; Thu, 07 May 2020 20:03:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=0HYShdA8LbQLj/wgcuEW8uDJTTm+n4uFhsiNeP0USB8=;
+        b=sJ1/baLC1nrG1hk3S3g0nBo/If0/2Sg/1s6zq//H+Y4d3Swp78WXTDxaIIZJfFOUtz
+         OhY3U9ZL7LiG7+bUmgJr44ON+hV8nSkaMs/FRvsmX4HwSeJatrgWoBrtBv/DBtM4Ch1m
+         CUNIVlkNShz4MnTeE2NBnze5/yERLCxLMSYFErTsf793DWKp4iM7JfRsINWV1XuRvSK4
+         5y73vf5UwOFzppoODyClo/SnrJGiaEq4miUoq7KMnmGn9BZNCq7M0WYG5eCJ7ZhPoxD3
+         2x/5r2wfzbgRKcaKGf5g64qFSVauyUk28M47DqgT/jxSeY4ZS5idQJsE8NLLd0yRYuSk
+         Vlhw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=0HYShdA8LbQLj/wgcuEW8uDJTTm+n4uFhsiNeP0USB8=;
+        b=OGgzvotT3u8RpggOMwDPO/6kr1M4rxIE8Kf+0pCc47rBU+P+Zjh6nfMyijeQu5IK+O
+         g80Sl2w5Rvrh1HxDtV0FclYumACaoibPWjRtIig4nmgGxjzBsVWet9v0GsntY8+ZmqoN
+         grkMgbjMs0Qd04mSc+Eb8hSxW1uC+IndKbtuWE/LX9tbWQVEzIGMajmZQc99IMBGHKc5
+         BJVrucALTl9cPiEJms83YANpuIh6L2G9AFNWDKrTGY9iRpaC+pAgypF0zYpvutC/19rt
+         iFFthhLTl2xLs0v6A29fRKGkHrNCEUrOz3a3gYgU8NaKgDymOvMCGeywNGTCXZ8ctK6S
+         umDA==
+X-Gm-Message-State: AGi0Pubv2lRTPnxEKMx2/+uMz0mNBD0LCYSkwlkLgjG4xRwpwADPu9rW
+        iXQZnYTVdGloq9jjtLLLGk2WmwOv6/fqt8Nruhyg
+X-Google-Smtp-Source: APiQypKm+2sPqQylg/A1U8Fp9cSWHxP57HAb0NMk7m1VOI+X++zHqidv+nGpbkMnWqZzUNxtxcXLJJAkur/mXlOvdjw=
+X-Received: by 2002:aa7:cb0f:: with SMTP id s15mr408462edt.164.1588907026184;
+ Thu, 07 May 2020 20:03:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
+ <CAFftDdrD-FJ8wBk=XOkvdnkvA5o10w5pJs31H9dEhtW1zU8EHA@mail.gmail.com>
+ <CAEjxPJ452zaoFwy++cKqh_Ap2rM1ezEZN83mBhN4ndHHaQ4q5Q@mail.gmail.com>
+ <3838641.zh4Wi6GlAV@liv> <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org> <CAEjxPJ6Uo83L5C9UELy5w_V2wuptSHiHoMMLN4oh75x70-ZzAQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6Uo83L5C9UELy5w_V2wuptSHiHoMMLN4oh75x70-ZzAQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 7 May 2020 23:03:34 -0400
+Message-ID: <CAHC9VhSUHMrMjvG=wigsqVA-0MF0LSmCCC_zyoZYHC2wEnT06A@mail.gmail.com>
+Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Laurent Bigonville <bigon@debian.org>,
+        Russell Coker <russell@coker.com.au>,
+        William Roberts <bill.c.roberts@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 1 Apr 2020, Daniel Colascione wrote:
+On Thu, May 7, 2020 at 8:52 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Thu, May 7, 2020 at 4:46 AM Laurent Bigonville <bigon@debian.org> wrot=
+e:
+> >
+> > Le 6/05/20 =C3=A0 18:37, Russell Coker a =C3=A9crit :
+> > > On Thursday, 7 May 2020 1:50:46 AM AEST Stephen Smalley wrote:
+> > >> on that running instance, but not to specify custom kernel parameter=
+s
+> > >> initially or to reboot the system before proceeding with further
+> > >> commands (if anyone knows differently, speak up). We'd have to get t=
+o
+> > >> the point where enabling SELinux in Debian is possible without
+> > >> requiring a reboot at all.  And then we'd have to wait for that
+> > >> support to find its way into one of the Ubuntu images supported by
+> > >> travis-ci.  Might be easier to just get travis-ci to support Fedora =
+or
+> > >> CentOS images in the first place. Regardless, allowing the testsuite
+> > >> to be run by users of other distributions is worthwhile IMHO.
+> > > In the past there hasn't been much demand for a smoother installation=
+ process.
+> > > If you are setting up a traditional Unix server system the Debian SE =
+Linux
+> > > installation thing doesn't make things much more difficult.  Past com=
+plaints
+> > > about it have been more about an imagined difficulty of using SE Linu=
+x and have
+> > > ended when I showed and wrote about how to do it (one time I showed
+> > > screenshots of the process in an LCA lightning talk and didn't have p=
+roblems
+> > > with time).
+> > >
+> > > I don't think that the people who maintain the Debian installation re=
+lated
+> > > packages would have a great objection to adding SE Linux features, al=
+though it
+> > > might take a bit of time for it to migrate from Debian to Ubuntu.
+> > >
+> > > We can make this a priority.
+> > >
+> > If people are using preseed installations (kickstart equivalent), I
+> > think that enabling SELinux in the installer shouldn't be too difficult
+> > (installing the needed packages, modifying the files and relabeling wit=
+h
+> > fixfiles). It's obviously not user friendly, but the question is what's
+> > the target here.
+>
+> The visionary end state goal would be to allow one to specify some
+> kind of option in a travis-ci configuration and get a SELinux-enabled
+> image on which we could perform travis-ci validation of
+> selinux-testsuite, selinux userspace, and maybe even the kernel.  I
+> don't think that is possible in the near term though and will require
+> changes to travis-ci itself.  At the moment our travis-ci validation
+> of the testsuite and userspace is limited to building and in the
+> latter case running some limited tests that do not depend on having
+> SELinux on the host.
+>
+> The nearer term goal is to minimize obstacles to using SELinux in
+> Debian, one of which is the need to install Debian and then install
+> SELinux as a separate step (with two reboots along the way) rather
+> than an installer option.  We can't use that approach in travis-ci
+> AFAICT because we cannot reboot the instance and then proceed with
+> testing.  If we can tell the installer to include the necessary grub
+> and pam configurations up front and to label the filesystems during
+> installation (which can happen even while SELinux is disabled in the
+> kernel; only requires filesystem xattr support), then we can avoid the
+> need for any extra reboots post install.
 
-> This change adds two new functions, anon_inode_getfile_secure and
-> anon_inode_getfd_secure, that create anonymous-node files with
-> individual non-S_PRIVATE inodes to which security modules can apply
-> policy. Existing callers continue using the original singleton-inode
-> kind of anonymous-inode file. We can transition anonymous inode users
-> to the new kind of anonymous inode in individual patches for the sake
-> of bisection and review.
-> 
-> The new functions accept an optional context_inode parameter that
-> callers can use to provide additional contextual information to
-> security modules, e.g., indicating that one anonymous struct file is a
-> logical child of another, allowing a security model to propagate
-> security information from one to the other.
-> 
-> Signed-off-by: Daniel Colascione <dancol@google.com>
+For a long time now I've wanted to expand my selinux/next kernel
+testing to platforms beyond Fedora.  I believe that it not only helps
+catch problems before the kernel is released, but it also helps ensure
+that the underlying distro has all of the necessary pieces (userspace,
+policy, etc.) in place to support the latest and upcoming kernels.
 
-Al, Andrew, wondering if you could look at these anon inode changes 
-before we merge this?
+Unfortunately every time I've looked at the state of SELinux in Debian
+I've run out of time before I got it working well.  I'm not even going
+to get into the Debian package format :/
 
+I would be very happy to see some work go into lowering the bar on
+getting SELinux working on Debian.  My Debian experience is pretty
+limited, but you can sign me up as a very enthusiastic beta-tester,
+just point me at some docs and an ISO :)
 
-
-> ---
->  fs/anon_inodes.c            | 191 ++++++++++++++++++++++++++++--------
->  include/linux/anon_inodes.h |  13 +++
->  include/linux/lsm_hooks.h   |  11 +++
->  include/linux/security.h    |   3 +
->  security/security.c         |   9 ++
->  5 files changed, 186 insertions(+), 41 deletions(-)
-> 
-> diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-> index 89714308c25b..f87f221167cf 100644
-> --- a/fs/anon_inodes.c
-> +++ b/fs/anon_inodes.c
-> @@ -55,61 +55,108 @@ static struct file_system_type anon_inode_fs_type = {
->  	.kill_sb	= kill_anon_super,
->  };
->  
-> -/**
-> - * anon_inode_getfile - creates a new file instance by hooking it up to an
-> - *                      anonymous inode, and a dentry that describe the "class"
-> - *                      of the file
-> - *
-> - * @name:    [in]    name of the "class" of the new file
-> - * @fops:    [in]    file operations for the new file
-> - * @priv:    [in]    private data for the new file (will be file's private_data)
-> - * @flags:   [in]    flags
-> - *
-> - * Creates a new file by hooking it on a single inode. This is useful for files
-> - * that do not need to have a full-fledged inode in order to operate correctly.
-> - * All the files created with anon_inode_getfile() will share a single inode,
-> - * hence saving memory and avoiding code duplication for the file/inode/dentry
-> - * setup.  Returns the newly created file* or an error pointer.
-> - */
-> -struct file *anon_inode_getfile(const char *name,
-> -				const struct file_operations *fops,
-> -				void *priv, int flags)
-> +static struct inode *anon_inode_make_secure_inode(
-> +	const char *name,
-> +	const struct inode *context_inode)
-> +{
-> +	struct inode *inode;
-> +	const struct qstr qname = QSTR_INIT(name, strlen(name));
-> +	int error;
-> +
-> +	inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
-> +	if (IS_ERR(inode))
-> +		return inode;
-> +	inode->i_flags &= ~S_PRIVATE;
-> +	error =	security_inode_init_security_anon(
-> +		inode, &qname, context_inode);
-> +	if (error) {
-> +		iput(inode);
-> +		return ERR_PTR(error);
-> +	}
-> +	return inode;
-> +}
-> +
-> +struct file *_anon_inode_getfile(const char *name,
-> +				 const struct file_operations *fops,
-> +				 void *priv, int flags,
-> +				 const struct inode *context_inode,
-> +				 bool secure)
->  {
-> +	struct inode *inode;
->  	struct file *file;
->  
-> -	if (IS_ERR(anon_inode_inode))
-> -		return ERR_PTR(-ENODEV);
-> +	if (secure) {
-> +		inode =	anon_inode_make_secure_inode(
-> +			name, context_inode);
-> +		if (IS_ERR(inode))
-> +			return ERR_PTR(PTR_ERR(inode));
-> +	} else {
-> +		inode =	anon_inode_inode;
-> +		if (IS_ERR(inode))
-> +			return ERR_PTR(-ENODEV);
-> +		/*
-> +		 * We know the anon_inode inode count is always
-> +		 * greater than zero, so ihold() is safe.
-> +		 */
-> +		ihold(inode);
-> +	}
->  
-> -	if (fops->owner && !try_module_get(fops->owner))
-> -		return ERR_PTR(-ENOENT);
-> +	if (fops->owner && !try_module_get(fops->owner)) {
-> +		file = ERR_PTR(-ENOENT);
-> +		goto err;
-> +	}
->  
-> -	/*
-> -	 * We know the anon_inode inode count is always greater than zero,
-> -	 * so ihold() is safe.
-> -	 */
-> -	ihold(anon_inode_inode);
-> -	file = alloc_file_pseudo(anon_inode_inode, anon_inode_mnt, name,
-> +	file = alloc_file_pseudo(inode, anon_inode_mnt, name,
->  				 flags & (O_ACCMODE | O_NONBLOCK), fops);
->  	if (IS_ERR(file))
->  		goto err;
->  
-> -	file->f_mapping = anon_inode_inode->i_mapping;
-> +	file->f_mapping = inode->i_mapping;
->  
->  	file->private_data = priv;
->  
->  	return file;
->  
->  err:
-> -	iput(anon_inode_inode);
-> +	iput(inode);
->  	module_put(fops->owner);
->  	return file;
->  }
-> -EXPORT_SYMBOL_GPL(anon_inode_getfile);
->  
->  /**
-> - * anon_inode_getfd - creates a new file instance by hooking it up to an
-> - *                    anonymous inode, and a dentry that describe the "class"
-> - *                    of the file
-> + * anon_inode_getfile_secure - creates a new file instance by hooking
-> + *                             it up to a new anonymous inode and a
-> + *                             dentry that describe the "class" of the
-> + *                             file.  Make it possible to use security
-> + *                             modules to control access to the
-> + *                             new file.
-> + *
-> + * @name:    [in]    name of the "class" of the new file
-> + * @fops:    [in]    file operations for the new file
-> + * @priv:    [in]    private data for the new file (will be file's private_data)
-> + * @flags:   [in]    flags
-> + *
-> + * Creates a new file by hooking it on an unspecified inode. This is
-> + * useful for files that do not need to have a full-fledged filesystem
-> + * to operate correctly.  All the files created with
-> + * anon_inode_getfile_secure() will have distinct inodes, avoiding
-> + * code duplication for the file/inode/dentry setup.  Returns the
-> + * newly created file* or an error pointer.
-> + */
-> +struct file *anon_inode_getfile_secure(const char *name,
-> +				       const struct file_operations *fops,
-> +				       void *priv, int flags,
-> +				       const struct inode *context_inode)
-> +{
-> +	return _anon_inode_getfile(
-> +		name, fops, priv, flags, context_inode, true);
-> +}
-> +EXPORT_SYMBOL_GPL(anon_inode_getfile_secure);
-> +
-> +/**
-> + * anon_inode_getfile - creates a new file instance by hooking it up to an
-> + *                      anonymous inode, and a dentry that describe the "class"
-> + *                      of the file
->   *
->   * @name:    [in]    name of the "class" of the new file
->   * @fops:    [in]    file operations for the new file
-> @@ -118,12 +165,23 @@ EXPORT_SYMBOL_GPL(anon_inode_getfile);
->   *
->   * Creates a new file by hooking it on a single inode. This is useful for files
->   * that do not need to have a full-fledged inode in order to operate correctly.
-> - * All the files created with anon_inode_getfd() will share a single inode,
-> + * All the files created with anon_inode_getfile() will share a single inode,
->   * hence saving memory and avoiding code duplication for the file/inode/dentry
-> - * setup.  Returns new descriptor or an error code.
-> + * setup.  Returns the newly created file* or an error pointer.
->   */
-> -int anon_inode_getfd(const char *name, const struct file_operations *fops,
-> -		     void *priv, int flags)
-> +struct file *anon_inode_getfile(const char *name,
-> +				const struct file_operations *fops,
-> +				void *priv, int flags)
-> +{
-> +	return _anon_inode_getfile(name, fops, priv, flags, NULL, false);
-> +}
-> +EXPORT_SYMBOL_GPL(anon_inode_getfile);
-> +
-> +static int _anon_inode_getfd(const char *name,
-> +			     const struct file_operations *fops,
-> +			     void *priv, int flags,
-> +			     const struct inode *context_inode,
-> +			     bool secure)
->  {
->  	int error, fd;
->  	struct file *file;
-> @@ -133,7 +191,8 @@ int anon_inode_getfd(const char *name, const struct file_operations *fops,
->  		return error;
->  	fd = error;
->  
-> -	file = anon_inode_getfile(name, fops, priv, flags);
-> +	file = _anon_inode_getfile(name, fops, priv, flags, context_inode,
-> +				   secure);
->  	if (IS_ERR(file)) {
->  		error = PTR_ERR(file);
->  		goto err_put_unused_fd;
-> @@ -146,6 +205,57 @@ int anon_inode_getfd(const char *name, const struct file_operations *fops,
->  	put_unused_fd(fd);
->  	return error;
->  }
-> +
-> +/**
-> + * anon_inode_getfd_secure - creates a new file instance by hooking it
-> + *                           up to a new anonymous inode and a dentry
-> + *                           that describe the "class" of the file.
-> + *                           Make it possible to use security modules
-> + *                           to control access to the new file.
-> + *
-> + * @name:    [in]    name of the "class" of the new file
-> + * @fops:    [in]    file operations for the new file
-> + * @priv:    [in]    private data for the new file (will be file's private_data)
-> + * @flags:   [in]    flags
-> + *
-> + * Creates a new file by hooking it on an unspecified inode. This is
-> + * useful for files that do not need to have a full-fledged filesystem
-> + * to operate correctly.  All the files created with
-> + * anon_inode_getfile_secure() will have distinct inodes, avoiding
-> + * code duplication for the file/inode/dentry setup.  Returns a newly
-> + * created file descriptor or an error code.
-> + */
-> +int anon_inode_getfd_secure(const char *name, const struct file_operations *fops,
-> +			    void *priv, int flags,
-> +			    const struct inode *context_inode)
-> +{
-> +	return _anon_inode_getfd(name, fops, priv, flags,
-> +				 context_inode, true);
-> +}
-> +EXPORT_SYMBOL_GPL(anon_inode_getfd_secure);
-> +
-> +/**
-> + * anon_inode_getfd - creates a new file instance by hooking it up to
-> + *                    an anonymous inode and a dentry that describe
-> + *                    the "class" of the file
-> + *
-> + * @name:    [in]    name of the "class" of the new file
-> + * @fops:    [in]    file operations for the new file
-> + * @priv:    [in]    private data for the new file (will be file's private_data)
-> + * @flags:   [in]    flags
-> + *
-> + * Creates a new file by hooking it on a single inode. This is
-> + * useful for files that do not need to have a full-fledged inode in
-> + * order to operate correctly.  All the files created with
-> + * anon_inode_getfile() will use the same singleton inode, reducing
-> + * memory use and avoiding code duplication for the file/inode/dentry
-> + * setup.  Returns a newly created file descriptor or an error code.
-> + */
-> +int anon_inode_getfd(const char *name, const struct file_operations *fops,
-> +		     void *priv, int flags)
-> +{
-> +	return _anon_inode_getfd(name, fops, priv, flags, NULL, false);
-> +}
->  EXPORT_SYMBOL_GPL(anon_inode_getfd);
->  
->  static int __init anon_inode_init(void)
-> @@ -162,4 +272,3 @@ static int __init anon_inode_init(void)
->  }
->  
->  fs_initcall(anon_inode_init);
-> -
-> diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
-> index d0d7d96261ad..67bd85d92dca 100644
-> --- a/include/linux/anon_inodes.h
-> +++ b/include/linux/anon_inodes.h
-> @@ -10,12 +10,25 @@
->  #define _LINUX_ANON_INODES_H
->  
->  struct file_operations;
-> +struct inode;
-> +
-> +struct file *anon_inode_getfile_secure(const char *name,
-> +				       const struct file_operations *fops,
-> +				       void *priv, int flags,
-> +				       const struct inode *context_inode);
->  
->  struct file *anon_inode_getfile(const char *name,
->  				const struct file_operations *fops,
->  				void *priv, int flags);
-> +
-> +int anon_inode_getfd_secure(const char *name,
-> +			    const struct file_operations *fops,
-> +			    void *priv, int flags,
-> +			    const struct inode *context_inode);
-> +
->  int anon_inode_getfd(const char *name, const struct file_operations *fops,
->  		     void *priv, int flags);
->  
-> +
->  #endif /* _LINUX_ANON_INODES_H */
->  
-> diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
-> index 20d8cf194fb7..5434c1d285b2 100644
-> --- a/include/linux/lsm_hooks.h
-> +++ b/include/linux/lsm_hooks.h
-> @@ -215,6 +215,13 @@
->   *	Returns 0 if @name and @value have been successfully set,
->   *	-EOPNOTSUPP if no security attribute is needed, or
->   *	-ENOMEM on memory allocation failure.
-> + * @inode_init_security_anon:
-> + *      Set up a secure anonymous inode.
-> + *      @inode contains the inode structure
-> + *      @name name of the anonymous inode class
-> + *      @context_inode optional related inode
-> + *	Returns 0 on success. Returns -EPERM if	the security module denies
-> + *	the creation of this inode.
->   * @inode_create:
->   *	Check permission to create a regular file.
->   *	@dir contains inode structure of the parent of the new file.
-> @@ -1552,6 +1559,9 @@ union security_list_options {
->  					const struct qstr *qstr,
->  					const char **name, void **value,
->  					size_t *len);
-> +	int (*inode_init_security_anon)(struct inode *inode,
-> +					const struct qstr *name,
-> +					const struct inode *context_inode);
->  	int (*inode_create)(struct inode *dir, struct dentry *dentry,
->  				umode_t mode);
->  	int (*inode_link)(struct dentry *old_dentry, struct inode *dir,
-> @@ -1884,6 +1894,7 @@ struct security_hook_heads {
->  	struct hlist_head inode_alloc_security;
->  	struct hlist_head inode_free_security;
->  	struct hlist_head inode_init_security;
-> +	struct hlist_head inode_init_security_anon;
->  	struct hlist_head inode_create;
->  	struct hlist_head inode_link;
->  	struct hlist_head inode_unlink;
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 64b19f050343..2108c3ce0666 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -320,6 +320,9 @@ void security_inode_free(struct inode *inode);
->  int security_inode_init_security(struct inode *inode, struct inode *dir,
->  				 const struct qstr *qstr,
->  				 initxattrs initxattrs, void *fs_data);
-> +int security_inode_init_security_anon(struct inode *inode,
-> +				      const struct qstr *name,
-> +				      const struct inode *context_inode);
->  int security_old_inode_init_security(struct inode *inode, struct inode *dir,
->  				     const struct qstr *qstr, const char **name,
->  				     void **value, size_t *len);
-> diff --git a/security/security.c b/security/security.c
-> index 565bc9b67276..70bfebada024 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -1033,6 +1033,15 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
->  }
->  EXPORT_SYMBOL(security_inode_init_security);
->  
-> +int
-> +security_inode_init_security_anon(struct inode *inode,
-> +				  const struct qstr *name,
-> +				  const struct inode *context_inode)
-> +{
-> +	return call_int_hook(inode_init_security_anon, 0, inode, name,
-> +			     context_inode);
-> +}
-> +
->  int security_old_inode_init_security(struct inode *inode, struct inode *dir,
->  				     const struct qstr *qstr, const char **name,
->  				     void **value, size_t *len)
-> 
-
--- 
-James Morris
-<jmorris@namei.org>
-
+--=20
+paul moore
+www.paul-moore.com
