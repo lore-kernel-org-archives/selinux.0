@@ -2,143 +2,158 @@ Return-Path: <SRS0=Gc5K=6Z=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BFC7C47255
-	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 15:01:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B8AC47255
+	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 18:03:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 47AF4206F5
-	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 15:01:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 536D620720
+	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 18:03:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KlOFA20W"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r2zQsnuQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727019AbgEKPBi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 May 2020 11:01:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44520 "EHLO
+        id S1730760AbgEKSDP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 May 2020 14:03:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726438AbgEKPBh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 May 2020 11:01:37 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D16CC061A0C
-        for <selinux@vger.kernel.org>; Mon, 11 May 2020 08:01:37 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id z90so8133113qtd.10
-        for <selinux@vger.kernel.org>; Mon, 11 May 2020 08:01:37 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726891AbgEKSDO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 May 2020 14:03:14 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 897A6C061A0C
+        for <selinux@vger.kernel.org>; Mon, 11 May 2020 11:03:14 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id v17so347502ote.0
+        for <selinux@vger.kernel.org>; Mon, 11 May 2020 11:03:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=P0qcLYaitITjgbooGekfi5DbQhf81XSpW3k7wEtcCJw=;
-        b=KlOFA20WKfBVefDlsHajUsZ1Q2MygBlJ5v901kLNhDjqWPtmzl1XbqFV+rK6oBXHpr
-         Cz47LUJtDfzzAFMF5wSxk/qSW2nJFCYyA1jbZZ+5rDFeUkpTzA1vA0rMWBWwqXYl0e3w
-         NsvrMUwg3N3bSGC2vOLrjIne6hyGlSFwzBXpx/Tq4KPWZ2kCb254f3vMCfBYB1P9p+SM
-         B8HHbzbo7XwCB8vWqX1pqN0CbvEi3YQZ+FYPBAtfzE3ZX2fOcRYvZiE6coP9Lf4LANav
-         wa7YNja6gngibxUfCzI57WRKeJLQ6/A+XrJ7aA0Qct04i+vdKhqOU+M+LolziJ5XufLA
-         Fizg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rcDaOQytWJr2eNcsaKHFLs/QqO47Cquzh+pFyVHk26c=;
+        b=r2zQsnuQCtSz4Eqp/Th7QNe8zOu/A4Sep68Nahiht0po4HP3+/u1+/O7r6jCU4HiT6
+         VKcCJ49SN7gebOGtS8NS5o18R0kS+W2XnE3MF4QHPbrOIUMP9gN08CuSTx/8UFEsmzkX
+         63dpV+e84fBj3WiMdlVg1dS8s88jobD83RQXaFCw4CEQ3vO5oX490Lw+25MYVJidERLc
+         roO0kQUFaeneLmLfr6gcXjlOg1AtTTDCmIx/22YToSCUtdMoQBGhJAvH4v3OutjNNQbn
+         XsGzQiGAXrQnvAlAY+G234onse/zPiCak+yy9OR7vWuaKXAPo5xhfjgeK5pwIK2yb1fB
+         jX8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=P0qcLYaitITjgbooGekfi5DbQhf81XSpW3k7wEtcCJw=;
-        b=AvkFrUCb3utm+utNkWIuhrRW3gucexMmIdIQRMnDidC8e2nHGPOC5JbicjRo9gZJky
-         iPONGAhj2Iw7Ocy6E/ggh9dYx0AoY8JEuYQvLzs1UOqSIvLWPkzIarNt0QfhoUhBJhRX
-         DIjZMSECeLABFxL15uiCV0tD3OnNYrymXEfQikPeVApc24YvEYLRlAm/S7Ut2U4PtqNJ
-         Eiao0kpsXKVNnHC7qZBdCVeC4rLsg47kBXqxrt48xMc4LgLVyiezCDteicFHV+8KWUfp
-         w32N6+rL1wWuTvlfUFboyIrKCYAExWv/9zz/ziQ97OHK2POZAglstGO5hTSObp88KtNg
-         siug==
-X-Gm-Message-State: AGi0PubXl7zU4/O+VEaBFWBxCW+W0jCVpQoz/hq78a+IYlZnO1dxvCdv
-        uo0zy90dwZr2htpHUfEt3os2E08m
-X-Google-Smtp-Source: APiQypKwst8OoaBDnVGVjgPKcKjUVwuzVNBkOeQpuyRweusGB74Fm4Rx/pLaXBj0m5RzjBfqWoHVjQ==
-X-Received: by 2002:ac8:3713:: with SMTP id o19mr16163354qtb.371.1589209296174;
-        Mon, 11 May 2020 08:01:36 -0700 (PDT)
-Received: from a-gady2p56i3do.evoforge.org (ec2-52-70-167-183.compute-1.amazonaws.com. [52.70.167.183])
-        by smtp.gmail.com with ESMTPSA id i24sm3606283qtm.85.2020.05.11.08.01.35
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 11 May 2020 08:01:35 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     omosnace@redhat.com, paul@paul-moore.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH v2 testsuite] tests/filesystem: fix quotas_test
-Date:   Mon, 11 May 2020 11:01:18 -0400
-Message-Id: <20200511150118.838-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.23.3
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rcDaOQytWJr2eNcsaKHFLs/QqO47Cquzh+pFyVHk26c=;
+        b=uYQJrUa9buoJWNjCNM6jqh98W/wM0hNWi3hhaWv8vBDg8WKy4AMyNCZT9wZS0lQOMN
+         HzYUlFXBikcyWCyTSVy87QpC3dCreKTmcYKCtfaOW6DkssXIG6OvyAFfyYvrz7scyDmR
+         hivWhS0hbSMbHtVrrSx86vMLliAssppvlpgjZLlO+1nMNjhDJStgn3xPDKOWMDNS8uVq
+         OVZwgOGPwJCpoiSiwm+lNUadDdZl5O4iGFRPPcMCKHtuQbiGXnO0RRNSuXZivyP9qizD
+         tEShQZYFwrUUO7ndbNkBuGC8gQNmdWKCl2ReyaX7+p/3Wu5C61lQ6zZwe7lBVS41483V
+         MX2Q==
+X-Gm-Message-State: AGi0PubmIUgHvkZDL/cFr3CPJXrLEuFUeYemPOrNaNzmetdWDVmEgmDP
+        +j/HkclUcenALcx6w+wXpaw0f4BsS87KM7wh2wE=
+X-Google-Smtp-Source: APiQypL5pykrjFhA7K6zUEUdSPLkyWeanA9fu3qlEzGJMe4/5gaXHftRRxKHLBF7OLb4oTuTFUT1XP2qHXD3HWAYnYw=
+X-Received: by 2002:a9d:310:: with SMTP id 16mr226007otv.59.1589220193850;
+ Mon, 11 May 2020 11:03:13 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200305135337.113248-1-omosnace@redhat.com> <20200511122703.GA26404@workstation>
+ <CAP+JOzSep5+YSZm68ru2NOOoPUhazE3dy9x6t1AqUJxfgDNrJQ@mail.gmail.com>
+In-Reply-To: <CAP+JOzSep5+YSZm68ru2NOOoPUhazE3dy9x6t1AqUJxfgDNrJQ@mail.gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Mon, 11 May 2020 14:03:02 -0400
+Message-ID: <CAP+JOzTUiNhyPPVOm-cFqNzPUGmQKmGvR9n_yNbTatQ8tYnJng@mail.gmail.com>
+Subject: Re: [RFC PATCH v2] libsepol/cil: raise default attrs_expand_size to 2
+To:     Petr Lautrbach <plautrba@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-As per the man page, quotactl(2) expects to be passed a pointer to
-a 4-byte buffer for Q_GETFMT.  The kernel copies a single u32 value.
-On Ubuntu, this was detected as a stack smash when running the test.
-Fix the test program.
+On Mon, May 11, 2020 at 9:25 AM James Carter <jwcart2@gmail.com> wrote:
+>
+> On Mon, May 11, 2020 at 8:27 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> >
+> > On Thu, Mar 05, 2020 at 02:53:37PM +0100, Ondrej Mosnacek wrote:
+> > > The value attrs_expand_size == 1 removes all empty attributes, but it
+> > > also makes sense to expand all attributes that have only one type. This
+> > > removes some redundant rules (there is sometimes the same rule for the
+> > > type and the attribute) and reduces the number of attributes that the
+> > > kernel has to go through when looking up rules.
+> > >
+> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > ---
+> > >
+> > > v2: fix typos (Tne -> The; cointains -> contains)
+> > >
+> > >  libsepol/cil/src/cil.c | 3 ++-
+> > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+> > > index d222ad3a..c010ca2a 100644
+> > > --- a/libsepol/cil/src/cil.c
+> > > +++ b/libsepol/cil/src/cil.c
+> > > @@ -452,7 +452,8 @@ void cil_db_init(struct cil_db **db)
+> > >       (*db)->disable_dontaudit = CIL_FALSE;
+> > >       (*db)->disable_neverallow = CIL_FALSE;
+> > >       (*db)->attrs_expand_generated = CIL_FALSE;
+> > > -     (*db)->attrs_expand_size = 1;
+> > > +     /* 2 == remove attributes that contain none or just 1 type */
+> > > +     (*db)->attrs_expand_size = 2;
+> > >       (*db)->preserve_tunables = CIL_FALSE;
+> > >       (*db)->handle_unknown = -1;
+> > >       (*db)->mls = -1;
+> > > --
+> > > 2.24.1
+> > >
+> >
+> >
+> > This patch broke `semanage node -l` on Fedora [1]
+> >
+> > :: [ 21:25:25 ] :: [  BEGIN   ] :: Running 'make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 test'
+> > ...
+> > test_list (__main__.SemanageTests) ... Traceback (most recent call last):
+> >   File "/usr/sbin/semanage", line 967, in <module>
+> >     do_parser()
+> >   File "/usr/sbin/semanage", line 946, in do_parser
+> >     args.func(args)
+> >   File "/usr/sbin/semanage", line 649, in handleNode
+> >     OBJECT = object_dict['node'](args)
+> >   File "/usr/lib/python3.8/site-packages/seobject.py", line 1849, in __init__
+> >     self.valid_types = list(list(sepolicy.info(sepolicy.ATTRIBUTE, "node_type"))[0]["types"])
+> > IndexError: list index out of range
+> >
+> > While the `IndexError: list index out of range` error can be simply fixed, it
+> > uncovered the problem that semanage uses attibutes to list certain records -
+> > node_type, port_type, file_type, device_node, ... and these attributes can disappear when
+> > there's only 1 type assigned.
+> >
+> > I guess it should be reverted as there's no other way how to find out that a
+> > type node_t is node_type.
+> >
+> > [1] https://jenkins-continuous-infra.apps.ci.centos.org/job/fedora-rawhide-pr-pipeline/3462/artifact/package-tests/logs/FAIL-upstream-err.log
+> >
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v2 includes stdint.h and uses uint32_t for the fmtval variable.
+I see now.  python/semanage/seobject.py and
+python/semanage/semanage-bash-completion.sh both assume that node_type
+is always defined as an attribute in a policy. There seems to be quite
+a lot that is assumed about policy in the python directory.
 
- tests/filesystem/quotas_test.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+This is not a bug in CIL or libsepol. Ideally the tests should have
+their own policy and the python code should gracefully handle the
+situation when its assumptions are wrong. If we need to revert this
+patch in the short-term than I am ok with that.
 
-diff --git a/tests/filesystem/quotas_test.c b/tests/filesystem/quotas_test.c
-index 8359811..bca230d 100644
---- a/tests/filesystem/quotas_test.c
-+++ b/tests/filesystem/quotas_test.c
-@@ -1,3 +1,4 @@
-+#include <stdint.h>
- #include <stdio.h>
- #include <stdlib.h>
- #include <string.h>
-@@ -33,7 +34,7 @@ int main(int argc, char *argv[])
- 	int opt, result, qcmd, save_err, test_id = geteuid();
- 	char *context, *src = NULL, *tgt = NULL;
- 	bool verbose = false;
--	char fmt_buf[2];
-+	uint32_t fmtval;
- 
- 	while ((opt = getopt(argc, argv, "s:t:v")) != -1) {
- 		switch (opt) {
-@@ -77,7 +78,7 @@ int main(int argc, char *argv[])
- 			printf("User Quota - ON\n");
- 
- 		qcmd = QCMD(Q_GETFMT, USRQUOTA);
--		result = quotactl(qcmd, src, test_id, fmt_buf);
-+		result = quotactl(qcmd, src, test_id, (caddr_t)&fmtval);
- 		save_err = errno;
- 		if (result < 0) {
- 			fprintf(stderr, "quotactl(Q_GETFMT, USRQUOTA) Failed: %s\n",
-@@ -85,7 +86,7 @@ int main(int argc, char *argv[])
- 			return save_err;
- 		}
- 		if (verbose)
--			printf("User Format: 0x%x\n", fmt_buf[0]);
-+			printf("User Format: 0x%x\n", fmtval);
- 
- 		qcmd = QCMD(Q_QUOTAOFF, USRQUOTA);
- 		result = quotactl(qcmd, src, QFMT_VFS_V0, tgt);
-@@ -113,7 +114,7 @@ int main(int argc, char *argv[])
- 			printf("Group Quota - ON\n");
- 
- 		qcmd = QCMD(Q_GETFMT, GRPQUOTA);
--		result = quotactl(qcmd, src, test_id, fmt_buf);
-+		result = quotactl(qcmd, src, test_id, (caddr_t)&fmtval);
- 		save_err = errno;
- 		if (result < 0) {
- 			fprintf(stderr, "quotactl(Q_GETFMT, GRPQUOTA) Failed: %s\n",
-@@ -121,7 +122,7 @@ int main(int argc, char *argv[])
- 			return save_err;
- 		}
- 		if (verbose)
--			printf("Group Format: 0x%x\n", fmt_buf[0]);
-+			printf("Group Format: 0x%x\n", fmtval);
- 
- 		qcmd = QCMD(Q_QUOTAOFF, GRPQUOTA);
- 		result = quotactl(qcmd, src, QFMT_VFS_V0, tgt);
--- 
-2.23.3
+Jim
 
+> > Petr
+>
+> This suggests that there is a problem with how type attributes are
+> being expanded. This patch is just causing that problem to be exposed.
+> I'll have to investigate.
+>
+> Thanks for the report.
+>
+> Jim
