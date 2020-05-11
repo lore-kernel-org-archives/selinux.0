@@ -7,85 +7,144 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B9FBC54E8D
-	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 12:03:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43B97C47255
+	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 12:05:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F988206D5
-	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 12:03:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1FE75206F5
+	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 12:05:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xrh9ioOA"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NtyZWTYz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729857AbgEKMDo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 May 2020 08:03:44 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:34550 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729782AbgEKMDm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 May 2020 08:03:42 -0400
+        id S1729834AbgEKMFP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 May 2020 08:05:15 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:58886 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729832AbgEKMFP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 May 2020 08:05:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589198620;
+        s=mimecast20190719; t=1589198713;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=qlX+2yKfkAS1/QYW6KAlaROgMZdAUEwKGbcgun6ZPjg=;
-        b=Xrh9ioOAPcIEyZGuDImOFNeTr3aRdh7bkm1Ks75lDN7tnd1DL6oNtOJJbYt1hQ4Rgv57c9
-        H052/tD+N3ta3r1jOxUz5aIq7dJAgaGNq60tQB5+ClvBGbJGLFqZiQwcbZO9aKB8ajDZFF
-        rs/f48T6jS3oN+DCfUm8IPIMWL5oRJ0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-101-Kr7846pnNrywDbwnXa3VCw-1; Mon, 11 May 2020 08:03:38 -0400
-X-MC-Unique: Kr7846pnNrywDbwnXa3VCw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 434FFEC1A5
-        for <selinux@vger.kernel.org>; Mon, 11 May 2020 12:03:37 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.195.203])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7915D60BE2;
-        Mon, 11 May 2020 12:03:36 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] run-flake8: Filter out ./.git/ directory
-Date:   Mon, 11 May 2020 14:03:32 +0200
-Message-Id: <20200511120332.26029-1-plautrba@redhat.com>
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HyoK6AxOfd+dDdWtjT2QivfHjkQnEoKlHfTqDZt3lV0=;
+        b=NtyZWTYzXp7Z02AxUXcpy7dUn+MNnBGVr1DHasD0l70f8VC7bPYqHdomrww2p8+3AtScWg
+        hn+qG5H6CSKRlJFv30nTfmkDgjBs7L+Dkkj1EFNQMS1ssyywjzD0F2CmeAIT5jzfF9/EaB
+        senwQUz2BeN8IEOaOWwM/r/30+h42tE=
+Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
+ [209.85.161.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-17-1-tz1NykPO-ySTNI8ReDlg-1; Mon, 11 May 2020 08:05:12 -0400
+X-MC-Unique: 1-tz1NykPO-ySTNI8ReDlg-1
+Received: by mail-oo1-f72.google.com with SMTP id y1so740665oog.6
+        for <selinux@vger.kernel.org>; Mon, 11 May 2020 05:05:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=HyoK6AxOfd+dDdWtjT2QivfHjkQnEoKlHfTqDZt3lV0=;
+        b=MPzza2WkBOeahO46fSuTwTxtIPx8WmNqS4x3c62vYP/9WuGZaDti3zv/TtFZ1uq7oa
+         to4mDd6fisSMSdh7bSh+qVWIxKGW4XGzvk4Yr4clQChkNGsN3x9FGiKy7IXl6MVgEzVb
+         RRVCnA64wUK0PF3LtBWFbwUj8DjyrTzfdul9TyovfJyGFKgE48iCWHp4CgTtTliIfZix
+         fgsqpZwDhkXOQgqxr6wIUMcFu/JCHFbTeg3cugQv7Jp0HsAS4+yWK4QVWMZMelYetauz
+         iren5GeUGzzlQMvWBGvYoCeS/6apq3TcJWaVCI8Ft/vZiTw1qPIm2HSBDA76IsSqZ4zG
+         sFOw==
+X-Gm-Message-State: AGi0PubMbx2yZxLacq5Hq1j5k4cvanU2I1vG1tPk13mq8WiIWyn9LiX9
+        FRbNGrhJ5dIf7jYp0/0Bcry2iRMjhz8fm0N6/IXG60XCwXPVdSAboLqU1I7yiBEWN0W5t55XBdU
+        BP5/pzy0BvqwRzhnURvXtYTq31N8LTcu6gQ==
+X-Received: by 2002:aca:ed44:: with SMTP id l65mr19593922oih.127.1589198711127;
+        Mon, 11 May 2020 05:05:11 -0700 (PDT)
+X-Google-Smtp-Source: APiQypKMvmQmFI2TCuvS8qph/qzQouHemjP5qSOxxsEcH4JBNavnVvJxv76afy8DZM30qyN/uE8JEI3USw5WfDuJXSw=
+X-Received: by 2002:aca:ed44:: with SMTP id l65mr19593887oih.127.1589198710787;
+ Mon, 11 May 2020 05:05:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+References: <20200508193721.29283-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20200508193721.29283-1-stephen.smalley.work@gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 11 May 2020 14:04:59 +0200
+Message-ID: <CAFqZXNt+MWnELtqZh9V2ZbOv+1+wUZ4jdCikG3LnPVYiYeBVuQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/filesystem: fix quotas_test
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-When a branch has '.py' suffix git creates a file with the same suffix and this
-file is found by the `find . -name '*.py'` command. Such files from './git' need
-to be filtered out.
+On Fri, May 8, 2020 at 9:37 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> As per the man page, quotactl(2) expects to be passed a pointer to
+> a 4-byte buffer for Q_GETFMT.  The kernel copies a single u32 value.
+> On Ubuntu, this was detected as a stack smash when running the test.
+> Fix the test program.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+>  tests/filesystem/quotas_test.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+>
+> diff --git a/tests/filesystem/quotas_test.c b/tests/filesystem/quotas_test.c
+> index 8359811..1424362 100644
+> --- a/tests/filesystem/quotas_test.c
+> +++ b/tests/filesystem/quotas_test.c
+> @@ -33,7 +33,7 @@ int main(int argc, char *argv[])
+>         int opt, result, qcmd, save_err, test_id = geteuid();
+>         char *context, *src = NULL, *tgt = NULL;
+>         bool verbose = false;
+> -       char fmt_buf[2];
+> +       unsigned int fmtval;
 
-Fixes:
+I wish we could use something like uint32_t here to make the size
+explicit, but that's a C99 thing... OTOH the binder test code already
+happily uses C99 stuff, so I'm not sure how to best handle this...
+(Add -std=c99 to CFLAGS? Just use <stdint.h> and assume the compiler
+has it? Avoid using C99 library features?)
 
-    $ PATH="$VIRTUAL_ENV/bin:$PATH" ./scripts/run-flake8
-    Analyzing 189 Python scripts
-    ./.git/logs/refs/heads/semanage-test.py:1:42: E999 SyntaxError: invalid syntax
-    ./.git/refs/heads/semanage-test.py:1:4: E999 SyntaxError: invalid syntax
-    The command "PATH="$VIRTUAL_ENV/bin:$PATH" ./scripts/run-flake8" exited with 1.
+>
+>         while ((opt = getopt(argc, argv, "s:t:v")) != -1) {
+>                 switch (opt) {
+> @@ -77,7 +77,7 @@ int main(int argc, char *argv[])
+>                         printf("User Quota - ON\n");
+>
+>                 qcmd = QCMD(Q_GETFMT, USRQUOTA);
+> -               result = quotactl(qcmd, src, test_id, fmt_buf);
+> +               result = quotactl(qcmd, src, test_id, (caddr_t)&fmtval);
+>                 save_err = errno;
+>                 if (result < 0) {
+>                         fprintf(stderr, "quotactl(Q_GETFMT, USRQUOTA) Failed: %s\n",
+> @@ -85,7 +85,7 @@ int main(int argc, char *argv[])
+>                         return save_err;
+>                 }
+>                 if (verbose)
+> -                       printf("User Format: 0x%x\n", fmt_buf[0]);
+> +                       printf("User Format: 0x%x\n", fmtval);
+>
+>                 qcmd = QCMD(Q_QUOTAOFF, USRQUOTA);
+>                 result = quotactl(qcmd, src, QFMT_VFS_V0, tgt);
+> @@ -113,7 +113,7 @@ int main(int argc, char *argv[])
+>                         printf("Group Quota - ON\n");
+>
+>                 qcmd = QCMD(Q_GETFMT, GRPQUOTA);
+> -               result = quotactl(qcmd, src, test_id, fmt_buf);
+> +               result = quotactl(qcmd, src, test_id, (caddr_t)&fmtval);
+>                 save_err = errno;
+>                 if (result < 0) {
+>                         fprintf(stderr, "quotactl(Q_GETFMT, GRPQUOTA) Failed: %s\n",
+> @@ -121,7 +121,7 @@ int main(int argc, char *argv[])
+>                         return save_err;
+>                 }
+>                 if (verbose)
+> -                       printf("Group Format: 0x%x\n", fmt_buf[0]);
+> +                       printf("Group Format: 0x%x\n", fmtval);
+>
+>                 qcmd = QCMD(Q_QUOTAOFF, GRPQUOTA);
+>                 result = quotactl(qcmd, src, QFMT_VFS_V0, tgt);
+> --
+> 2.23.1
+>
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- scripts/run-flake8 | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/scripts/run-flake8 b/scripts/run-flake8
-index 24b1202fde99..67cccfe99e5f 100755
---- a/scripts/run-flake8
-+++ b/scripts/run-flake8
-@@ -7,7 +7,7 @@ if [ $# -eq 0 ] ; then
- 
-     # Run on both files ending with .py and Python files without extension
-     # shellcheck disable=SC2046
--    set -- $( (find . -name '*.py' ; grep --exclude-dir=.git -l -e '^#!\s*/usr/bin/python' -e '^#!/usr/bin/env python' -r .) | sort -u )
-+    set -- $( (find . -name '*.py' ; grep -l -e '^#!\s*/usr/bin/python' -e '^#!/usr/bin/env python' -r .) | grep -v '^\./\.git/' | sort -u )
-     echo "Analyzing $# Python scripts"
- fi
- 
--- 
-2.26.2
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
