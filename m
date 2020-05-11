@@ -2,161 +2,103 @@ Return-Path: <SRS0=Gc5K=6Z=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 359F5C47255
-	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 12:27:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A57CEC47255
+	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 12:49:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 10D0620801
-	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 12:27:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E85320722
+	for <selinux@archiver.kernel.org>; Mon, 11 May 2020 12:49:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dz4KwW4k"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mMG6bxIk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729642AbgEKM1O (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 11 May 2020 08:27:14 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:54939 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728084AbgEKM1O (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 11 May 2020 08:27:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589200032;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=IFwLGxcCqCG5Wa2wbv4Fmg/KgvFns76fkGn+JrDZuFU=;
-        b=dz4KwW4kGfGJgvJpeECdXmfoldBxBOyfrgKqv64BBWbk5uRBYErEP9VZro7B9HFS5vptxe
-        0uRRZZUK+UQ/YvUlMnoEFjEMsPiR4X2tdDLnZeswg/og+eqgHakEpv8K6cO0+tBOFIolzQ
-        peNnXCx10h+Q3xcHXAGHihtRBNXxmJg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-198-Yjai8aDxOv-_z7WkD1_wBQ-1; Mon, 11 May 2020 08:27:08 -0400
-X-MC-Unique: Yjai8aDxOv-_z7WkD1_wBQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1EF148005B7;
-        Mon, 11 May 2020 12:27:07 +0000 (UTC)
-Received: from workstation (unknown [10.40.195.203])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id E71141002394;
-        Mon, 11 May 2020 12:27:05 +0000 (UTC)
-Date:   Mon, 11 May 2020 14:27:03 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        James Carter <jwcart2@gmail.com>
-Subject: Re: [RFC PATCH v2] libsepol/cil: raise default attrs_expand_size to 2
-Message-ID: <20200511122703.GA26404@workstation>
-References: <20200305135337.113248-1-omosnace@redhat.com>
+        id S1726115AbgEKMt6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 11 May 2020 08:49:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726021AbgEKMt5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 11 May 2020 08:49:57 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B641EC061A0C
+        for <selinux@vger.kernel.org>; Mon, 11 May 2020 05:49:57 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id b18so14945740oic.6
+        for <selinux@vger.kernel.org>; Mon, 11 May 2020 05:49:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=mEH4xTTzx2jVLTnERJW5CWimRyRoR/LpPsbjHVxYLx8=;
+        b=mMG6bxIklb33w67un/M91qCNHOT4dGrTx6b43LGKEFNYgubgMOcV5FjHshL03rYqIG
+         PRfy87LnmjffQjOHKjmfEX6/bVpLzjycQsnlzEZdSqtFHw7l81vZfIBS34zKYwINMS9b
+         DD8+nYUrQ+rCNGbfhZjvSzNMTSeQHRnHh/Ct2NeZ0vzdWm+pRkX3yQX7o+iE9DTDAiJs
+         ETGIeg6CWk2qzvD5cVNXY00n3fqaG4MIhM3cxrNItvf58Zgkm/q5o+TQXoSna4cFcjsr
+         foixnQ6v6XAUixNJlWSyGdGS6l4QBZayZP5FgW9EcXpcyEXnBZja37oY8kFzCA45q0Q/
+         3QeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=mEH4xTTzx2jVLTnERJW5CWimRyRoR/LpPsbjHVxYLx8=;
+        b=GhhV91vLdk/R9VP/fcCJE70Pq1h32MTUcP2B20zlsWy3sbXU+nbpg+6Po7RCNwz6dh
+         y8co0sr/XbLJx0u0FKZCH1lCbgKWXw98KJgVOSVjiWenWayszvOg7inlwD2QWQwRRwR8
+         Ylq2wMtB0F64jlHBW2mgEGV2xLLTwldZoLteOSjWPuNYRidjYFO+1vNAiLXPUTimoarN
+         euZa1RN40ifN3lWfhUJvrVS2dwKH5245Vay2k32Ax22/bSfCYyhbB5FPeD6ZKBsKfSX8
+         dQq1vmMGL8Qcwxk71hCLRGUV+XTkISz0w4EpomnpXRm5DDeXCBOF0vjeZC7IlzLEh81n
+         4C1g==
+X-Gm-Message-State: AGi0PuZwbsG5QZ0ij/9No2Y2M0N1t6sVXFvDVpz8JSgUAqj2E7u32ZA5
+        VV7I0Ux+g2lULK5vbCN/4HhqxHmEwQqtC8nsZ5E=
+X-Google-Smtp-Source: APiQypKTGRZwBqIoiTZEwgclzvDcQ4OTHxY3XagiU9X8iO9bT7Qqw6pKKOF5MM2jwb4cmeeaJoBZQVef88/CvS0dSF8=
+X-Received: by 2002:aca:5e0b:: with SMTP id s11mr18513018oib.160.1589201396553;
+ Mon, 11 May 2020 05:49:56 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200305135337.113248-1-omosnace@redhat.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
-Content-Disposition: inline
+References: <20200508193721.29283-1-stephen.smalley.work@gmail.com> <CAFqZXNt+MWnELtqZh9V2ZbOv+1+wUZ4jdCikG3LnPVYiYeBVuQ@mail.gmail.com>
+In-Reply-To: <CAFqZXNt+MWnELtqZh9V2ZbOv+1+wUZ4jdCikG3LnPVYiYeBVuQ@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 11 May 2020 08:49:45 -0400
+Message-ID: <CAEjxPJ7mhs+gWEbQ2mdBMs56b_RykFEi7wrsLES902q1gv3=wQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite] tests/filesystem: fix quotas_test
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---tThc/1wpZn/ma/RB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, May 11, 2020 at 8:05 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Fri, May 8, 2020 at 9:37 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > As per the man page, quotactl(2) expects to be passed a pointer to
+> > a 4-byte buffer for Q_GETFMT.  The kernel copies a single u32 value.
+> > On Ubuntu, this was detected as a stack smash when running the test.
+> > Fix the test program.
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> >  tests/filesystem/quotas_test.c | 10 +++++-----
+> >  1 file changed, 5 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/tests/filesystem/quotas_test.c b/tests/filesystem/quotas_test.c
+> > index 8359811..1424362 100644
+> > --- a/tests/filesystem/quotas_test.c
+> > +++ b/tests/filesystem/quotas_test.c
+> > @@ -33,7 +33,7 @@ int main(int argc, char *argv[])
+> >         int opt, result, qcmd, save_err, test_id = geteuid();
+> >         char *context, *src = NULL, *tgt = NULL;
+> >         bool verbose = false;
+> > -       char fmt_buf[2];
+> > +       unsigned int fmtval;
+>
+> I wish we could use something like uint32_t here to make the size
+> explicit, but that's a C99 thing... OTOH the binder test code already
+> happily uses C99 stuff, so I'm not sure how to best handle this...
+> (Add -std=c99 to CFLAGS? Just use <stdint.h> and assume the compiler
+> has it? Avoid using C99 library features?)
 
-On Thu, Mar 05, 2020 at 02:53:37PM +0100, Ondrej Mosnacek wrote:
-> The value attrs_expand_size =3D=3D 1 removes all empty attributes, but it
-> also makes sense to expand all attributes that have only one type. This
-> removes some redundant rules (there is sometimes the same rule for the
-> type and the attribute) and reduces the number of attributes that the
-> kernel has to go through when looking up rules.
->=20
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->=20
-> v2: fix typos (Tne -> The; cointains -> contains)
->=20
->  libsepol/cil/src/cil.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->=20
-> diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
-> index d222ad3a..c010ca2a 100644
-> --- a/libsepol/cil/src/cil.c
-> +++ b/libsepol/cil/src/cil.c
-> @@ -452,7 +452,8 @@ void cil_db_init(struct cil_db **db)
->  =09(*db)->disable_dontaudit =3D CIL_FALSE;
->  =09(*db)->disable_neverallow =3D CIL_FALSE;
->  =09(*db)->attrs_expand_generated =3D CIL_FALSE;
-> -=09(*db)->attrs_expand_size =3D 1;
-> +=09/* 2 =3D=3D remove attributes that contain none or just 1 type */
-> +=09(*db)->attrs_expand_size =3D 2;
->  =09(*db)->preserve_tunables =3D CIL_FALSE;
->  =09(*db)->handle_unknown =3D -1;
->  =09(*db)->mls =3D -1;
-> --=20
-> 2.24.1
->=20
-
-
-This patch broke `semanage node -l` on Fedora [1]
-
-:: [ 21:25:25 ] :: [  BEGIN   ] :: Running 'make LIBDIR=3D/usr/lib64 SHLIBD=
-IR=3D/lib64 test'
-...
-test_list (__main__.SemanageTests) ... Traceback (most recent call last):
-  File "/usr/sbin/semanage", line 967, in <module>
-    do_parser()
-  File "/usr/sbin/semanage", line 946, in do_parser
-    args.func(args)
-  File "/usr/sbin/semanage", line 649, in handleNode
-    OBJECT =3D object_dict['node'](args)
-  File "/usr/lib/python3.8/site-packages/seobject.py", line 1849, in __init=
-__
-    self.valid_types =3D list(list(sepolicy.info(sepolicy.ATTRIBUTE, "node_=
-type"))[0]["types"])
-IndexError: list index out of range
-
-While the `IndexError: list index out of range` error can be simply fixed, =
-it
-uncovered the problem that semanage uses attibutes to list certain records =
--
-node_type, port_type, file_type, device_node, ... and these attributes can =
-disappear when
-there's only 1 type assigned.
-
-I guess it should be reverted as there's no other way how to find out that =
-a
-type node_t is node_type.
-
-[1] https://jenkins-continuous-infra.apps.ci.centos.org/job/fedora-rawhide-=
-pr-pipeline/3462/artifact/package-tests/logs/FAIL-upstream-err.log
-
-Petr
-
---tThc/1wpZn/ma/RB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl65RJAACgkQviIJHj72
-InVvEg/+OcYjAzs+S6Q64xtFwGCW0oUeEtpJJwuWSZV8qEtFkI4Q2VVZs8qmQptz
-xw6Zj7MJ1DSobMV1DN5HOfdN/Bo83GPLDAz2DNAYR3iQirEz2Yt7LQHXeorc5jpU
-9HCNwWBxObHg93uxolaEb7s/EU/7K2jOKQoK+l5pcSPy+5Eeo2BM2pj62BtfutY2
-rVvvFPMSZZqvpV0zCsuWfzEc+oTUwx8LkLtdMah4XeyflwosvVWKRN9opkhXTnOl
-U7A/MPr7juetoyE9Tcw3ac75+0sjdlf2ZIOuw/TIuJKWPyXYsXuerqw5PYxDydlC
-1L7UEgcjep0gwRSN3m7wfHYu0kfMnhdYZw0L4BcOuZ9xPXM0+xdFnvx2/fQ5Fc+r
-PL6i3C1AU6go3L00LlH/2nGOZdF+i3W9PhbpS0+ITMo883CveRiRK77nIkMDioek
-HWjvckXu0BJ5G9STMEsVxNKSA1CH2qRtFwWb1XtxGtmLeo0254n5ma0rZNJxpDpH
-Ffze+r6A1D6JlIizku4l6Oh0qCi2bKBiWanPFYQimtZkTlbuIqsIERh9JtDrONJt
-7vTX68C8KINcYNtGACGNwqbiU0sC1wP5MQI0eb6ZLsZk1/G8MZqafaqNsqjDSTMk
-3qhR1DeABR9KQ6Lf7n9MHvUihOB8uuaoJR2kYYClszRtyTGPHY4=
-=+OVM
------END PGP SIGNATURE-----
-
---tThc/1wpZn/ma/RB--
-
+I'll add stdint.h and use uint32_t.  We already use the fixed-size
+types in a couple other tests and in the userspace.
