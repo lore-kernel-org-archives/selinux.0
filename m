@@ -4,114 +4,210 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96A25C54E4A
-	for <selinux@archiver.kernel.org>; Tue, 12 May 2020 09:44:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25E70C54E8B
+	for <selinux@archiver.kernel.org>; Tue, 12 May 2020 11:20:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 745B1206A3
-	for <selinux@archiver.kernel.org>; Tue, 12 May 2020 09:44:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F25BA206DD
+	for <selinux@archiver.kernel.org>; Tue, 12 May 2020 11:20:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S54IxRX3"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hzt4QssG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726193AbgELJoK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 12 May 2020 05:44:10 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:23387 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726187AbgELJoJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 12 May 2020 05:44:09 -0400
+        id S1728371AbgELLUR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 12 May 2020 07:20:17 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:22130 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726891AbgELLUR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 12 May 2020 07:20:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589276648;
+        s=mimecast20190719; t=1589282415;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=43RYyvEBnzR4zbheWuBXAGclh+rnN6/5KFGgPecxNqc=;
-        b=S54IxRX3FKozbnvIi2PN+Sa+WxZaLhKWP0IiwrxailmbKlvOCc00XMjhgWAPyN2d6d/ENh
-        DU7PZsNVl12PvNa1CRROzIKKYWhmPKw9teJ6G1dR82sbiZE+MuLLmIHgEoZXiGCzShaNJP
-        L4PLu1NpPidXip+uFMDfqv6iwkgPGFY=
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
- [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-502-PhQd7iITMx22ThDOFSxllQ-1; Tue, 12 May 2020 05:44:03 -0400
-X-MC-Unique: PhQd7iITMx22ThDOFSxllQ-1
-Received: by mail-oi1-f200.google.com with SMTP id u64so13906942oie.22
-        for <selinux@vger.kernel.org>; Tue, 12 May 2020 02:44:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=43RYyvEBnzR4zbheWuBXAGclh+rnN6/5KFGgPecxNqc=;
-        b=NWluXPHlf5XFKEvB6MqCw8c2oZyQCjCrjvezC3hgH86Zc1M4uoDOsxjcwHfgSf5yZk
-         //pUfZ/3yBiQgItMbCSTo4r+DoejlIUGWFeJu3MCDud0hXBSdvqgDTh5NvYnQf6aERgu
-         CqmgcoMqMVprJD+I0sz5R2tP2hoBnSBVFf0xXe5PbCWqIgKPBr2v74a/qqrXCCD39y2u
-         IMFJNP3+JbkBX8TsAROgtsXnwm0/SjXStG4pY4mGqqndwHiDut67L9mYeLA+JCQW5Oxp
-         oCs1ocl0DBEuapnMLkVNC4dfC824gc3tGf4UMxFpg5mtKx/gNqsVTaFPmPU3qb466rNP
-         9K3w==
-X-Gm-Message-State: AGi0PubrxJcddl85JQLmi+X+NSke56WTlgeNxRqbR5UMgnFs2g8D7Zqt
-        p9LrCZnfpjNnhU976TdUScqcc8VT72oyWvcG5w0PzmgIxEtavVDvVfvKY3wYNELJnIQ7iDRvQUe
-        OOgui/U7Z292ycyfjQPjs8lwjdldyhkrZ8A==
-X-Received: by 2002:a05:6830:13d4:: with SMTP id e20mr16134284otq.66.1589276642360;
-        Tue, 12 May 2020 02:44:02 -0700 (PDT)
-X-Google-Smtp-Source: APiQypI6LMKTzp3Dr9DTNHVXSuad5UBhgt3uDriDp/pOpTOLrjcbZQT5QV2I0IB9Yqkm+tqHBG0HtFo3MMs0n6ZhzOc=
-X-Received: by 2002:a05:6830:13d4:: with SMTP id e20mr16134274otq.66.1589276642121;
- Tue, 12 May 2020 02:44:02 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200508154138.24217-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20200508154138.24217-1-stephen.smalley.work@gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 12 May 2020 11:43:51 +0200
-Message-ID: <CAFqZXNtA0PX9nKH0Growa9zwffyD6-yB0vJkbaHXTcp23p+ADw@mail.gmail.com>
-Subject: Re: [PATCH v4 testsuite 00/15] Update to work on Debian
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
+        bh=JLp+9Fl+7xb5nJUfSAHXmu7UjzpLJu1oHvAYvqJh0oQ=;
+        b=hzt4QssGbAsQF1q9ZnvddZnenWoTrnvd/IZnFUqz7mYmKfbSGeqhxZ/qXZbopIYazQ9Plx
+        V6du1xvOYiYdhk6ciJMLN5IoTmh3jwzwwt8SJzEk1HKGvE0ssB+UVGjejCPBIA1ANxsnQT
+        6Ldd/b5syIoDKDCinGf1gcMFr8Ca2l8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-405-36jYMYu_Muaa08yxxfL1OA-1; Tue, 12 May 2020 07:20:02 -0400
+X-MC-Unique: 36jYMYu_Muaa08yxxfL1OA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 01C6F475;
+        Tue, 12 May 2020 11:20:01 +0000 (UTC)
+Received: from workstation (unknown [10.40.192.119])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 22CF15D9E2;
+        Tue, 12 May 2020 11:19:58 +0000 (UTC)
+Date:   Tue, 12 May 2020 13:19:56 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Russell Coker <russell@coker.com.au>,
+        Laurent Bigonville <bigon@debian.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
         Paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
+Message-ID: <20200512111956.GA108209@workstation>
+References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
+ <3838641.zh4Wi6GlAV@liv>
+ <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org>
+ <1916523.qzzCliNl98@liv>
+ <CAEjxPJ7oXd5EM_hB1tdRKZKLKZoeOh_w8UYevivMC5d1D2G1+w@mail.gmail.com>
+ <CAFftDdpygOSWOGNQnbGzGOcKrtsd+3hHsfPY9chM5L90CZGHwg@mail.gmail.com>
+ <CAEjxPJ44XXQibMfT00xU0F2ySTR_1+QjPNU35R6zLqgyakQAQA@mail.gmail.com>
+ <CAFftDdp61vBDDwwsrDv2c1COc6TR4yD1JoPp9DwzQgqu2-CKqw@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CAFftDdp61vBDDwwsrDv2c1COc6TR4yD1JoPp9DwzQgqu2-CKqw@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="UugvWAfsgieZRqgk"
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 8, 2020 at 5:42 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> Update the selinux testsuite to work on Debian and provide
-> instructions for building and running it there.
->
-> v4 splits the patch into one patch per logical change, updates
-> some of the descriptions, drops an unnecessary constraint
-> (only appear to need the peer recv constraint from Fedora for
-> the current tests, not the packet/SECMARK constraint), cleans up
-> the Makefile, and updates the test for noexec dev to match
-> any "/dev .*noexec" instead of just devtmpfs since not everyone
-> uses devtmpfs.
->
-> Stephen Smalley (15):
->   test_capable_net.te: remove corenet_tcp/udp_sendrecv_all_ports()
->   test_execute_no_trans.te: stop using mmap_file_perms
->   test_ibendport.te: use dev_rw_infiniband_mgmt_dev()
->   test_global.te: allow test domains to statfs selinuxfs
->   test_inet_socket.te: switch from generic_port to
->     _all_unreserved_ports()
->   test_sctp.te: make netlabel_peer_t a MCS-constrained type
->   test_policy.if: use ptynode instead of unconfined_devpts_t
->   test_overlayfs.te: allow test_overlay_mounter_t to read user tmp files
->   policy: Add MCS constraint on peer recv
->   policy: Add defaultrange rules for overlay tests
->   test_filesystem.te,tests/{fs_}filesystem: do not force user identity
->     to system_u
->   policy/Makefile: conditionalize setting of allow_domain_fd_use
->   tests/cap_userns: set /proc/sys/kernel/unprivileged_userns_clone if
->     needed
->   tests/mmap: skip /dev/zero tests if /dev is noexec
->   README.md: Add instructions for Debian
+--UugvWAfsgieZRqgk
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-With the exception of 07/15, on which I had a small comment:
+On Thu, May 07, 2020 at 10:22:09AM -0500, William Roberts wrote:
+> >
+> > On Thu, May 7, 2020 at 11:02 AM William Roberts
+> > <bill.c.roberts@gmail.com> wrote:
+> > >
+> > > >
+> > > > On Thu, May 7, 2020 at 10:49 AM Russell Coker <russell@coker.com.au=
+> wrote:
+> > > > >
+> > > > > On Thursday, 7 May 2020 6:35:11 PM AEST Laurent Bigonville wrote:
+> > > > > > If people are using preseed installations (kickstart equivalent=
+), I
+> > > > > > think that enabling SELinux in the installer shouldn't be too d=
+ifficult
+> > > > > > (installing the needed packages, modifying the files and relabe=
+ling with
+> > > > > > fixfiles). It's obviously not user friendly, but the question i=
+s what's
+> > > > > > the target here.
+> > > > >
+> > > > > If we want to do that properly then I guess we want SE Linux enab=
+led in the
+> > > > > kernel that the installer uses and then have the policy installed=
+ early in the
+> > > > > installation so the files can have the correct labels from the st=
+art instead of
+> > > > > having a relabel process afterwards.
+> > > >
+> > > > That would be good but might be overreach for Debian since SELinux =
+is
+> > > > not the default there.  It isn't strictly necessary; ever since we
+> > > > went to using extended attributes for file labels, you can set them=
+ on
+> > > > a non-SELinux-enabled kernel, so the installer can always set them
+> > > > even if its kernel doesn't enable SELinux.  Optimally they would be
+> > > > set by the package manager based on file_contexts; that is what rpm
+> > > > does in Fedora/RHEL.  Or you can always run setfiles after package
+> > > > installation but before rebooting into the SELinux-enabled kernel.
+> > > > You don't need to defer labeling until you have SELinux enabled.
+> > >
+> > > On Thu, May 7, 2020 at 9:54 AM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > >
+> > > I found this:
+> > >   - https://man.sr.ht/builds.sr.ht/compatibility.md
+> > >
+> > > It seems to have Fedora-30,31 and rawhide.
+> > > It seems to be free as well (for now)
+> > > I would be a little leary using it, seems new, its only in alpha,
+> > > and looks like it could disappear at any moment.
+> > >
+> > > The travis ubuntu to fedora VM might be heavy, but it would at least =
+provide
+> > > us with something stable... for awhile or we look at getting some
+> > > better infrastructure support for running a CI job on.
+> >
+> > Fedora's own CI infrastructure seems like a better bet for the near
+> > term wrt testing on Fedora; Petr appears to be already exploring using
+> > it.
+>=20
+> I though the Fedora CI was limiting the amount of testing and
+> triggering tests, no?
+> Or is that why he is exploring it to see if we can get around them?
 
-Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+The main purpose of Fedora CI is to test Fedora packages either when they'r=
+e
+built or when there's a pull request in pagure frontend [1]. It's configure=
+d via
+tests/tests.yml [2] file.
 
-(No need to respin the whole series in case you are going to respin
-07. I can just splice it in before merging or apply on top.)
+In Fedora we use a set of integration tests originally used in Red Hat [3]
 
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+I've created "Run upstream tests on upstream sources" pull request [4] whic=
+h
+disables RH tests and add "upstream" test. This tests clones github reposit=
+ory,
+build and install sources and runs `make test` from subdirectories. It's ki=
+nd of
+hack but seems to work [5]. I'd like to enable also Red Hat based tests for=
+ this
+"upstream" test to get more and better results.
+
+AFAIK the amount of testing is limited only in sense that you can have one =
+run
+for one pull request at the time and in order to create a pull request you
+need to have a Fedora account, but you don't have to be a packager  -
+https://docs.fedoraproject.org/en-US/ci/pull-requests/#_you_are_not_a_packa=
+ger=20
+
+
+[1] https://src.fedoraproject.org/rpms
+[2] https://src.fedoraproject.org/rpms/policycoreutils/blob/master/f/tests/=
+tests.yml
+[3] https://src.fedoraproject.org/tests/selinux/tree/master
+[4] https://src.fedoraproject.org/rpms/policycoreutils/pull-request/15
+[5] https://jenkins-continuous-infra.apps.ci.centos.org/blue/organizations/=
+jenkins/fedora-rawhide-pr-pipeline/detail/fedora-rawhide-pr-pipeline/3462/a=
+rtifacts
+
+
+> > My goal here though is to improve the level of support outside of
+> > just Fedora and its derivatives.
+>=20
+> Definitely a plus.
+>=20
+
+--=20
+()  ascii ribbon campaign - against html e-mail=20
+/\  www.asciiribbon.org   - against proprietary attachments
+
+--UugvWAfsgieZRqgk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl66hlYACgkQviIJHj72
+InUHihAAkqRx8uNqfVaU47B47cTjpDeNJ3m/mYjQq4rB5hrTa7/Nm4xeBAQwTLZe
+SqH/9cawXkDAAL5fLzm0bFCaBRYwiED2Z6umi0YPFc9J34kgtejwtHbxB3QfX4Eu
+yhTXE4Jey1Ui3loblHuhi0bbuCkXAok3qQfpAMiEkiULmJoPvbiYWaReNW4crQCM
+JNmny8bcRWoMSyMO2YUbPttbTrQW8BmV7Zz79E1UfasSHbHyGaywf9NKx2WX6B9a
+EQ1QdqwoiWDpYbl0VX5dgw2tXWOXe9SLX3yHQeMx4+swLZi77hjOfdi6M1LR7ry8
+jDAFTAr4BYEzonilhAszH+vVDi6RiOrvftWAogNgTOFApS+DR58t+lovfsFKVIwc
+BNCyhvurXmoSNmBrYWg7Zn2vJ6TIyBbtbh/FftPauexAc9jPlT1879OrQi2sOSRT
+EFMFs0f/9yg/Md4AEDQ3xoRKxHNCsdTf4tTEsYJ7B4uXnDOYnksX0OKCQQj4UiFX
+nxEPvVRZNAYTP493VzLY8M1f4B0w5jHh/9Uaa1395jNZhFnnM1rpgxaNCyXIF1Bq
+2wlWTZIgmstwrsOVf4h+Js40z4lvby91Gl0yBxhetNdbRKVCUVEmWwaorC21oDFF
+bxxIHxcchTC1wSYsD3i5jciwRH5mypZ8mf/dZHWi3L9tZLjLPtg=
+=g0MB
+-----END PGP SIGNATURE-----
+
+--UugvWAfsgieZRqgk--
 
