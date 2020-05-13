@@ -2,176 +2,101 @@ Return-Path: <SRS0=fYOO=63=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E0BC433E0
-	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:44:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21F93C433E0
+	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:51:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 00189206A5
-	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:44:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C5CC205ED
+	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:51:59 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pmZamofL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729860AbgEMPo0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 May 2020 11:44:26 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:51988 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729483AbgEMPoZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 May 2020 11:44:25 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.90_1)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jYtYF-0002PP-RZ; Wed, 13 May 2020 09:44:07 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jYtYE-0000QY-AN; Wed, 13 May 2020 09:44:07 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Luis Chamberlain <mcgrof@kernel.org>
-Cc:     viro@zeniv.linux.org.uk, gregkh@linuxfoundation.org,
-        rafael@kernel.org, jeyu@kernel.org, jmorris@namei.org,
-        keescook@chromium.org, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        nayna@linux.ibm.com, zohar@linux.ibm.com,
-        scott.branden@broadcom.com, dan.carpenter@oracle.com,
-        skhan@linuxfoundation.org, geert@linux-m68k.org,
-        tglx@linutronix.de, bauerman@linux.ibm.com, dhowells@redhat.com,
-        linux-integrity@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        kexec@lists.infradead.org, linux-security-module@vger.kernel.org,
-        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20200513152108.25669-1-mcgrof@kernel.org>
-        <20200513152108.25669-3-mcgrof@kernel.org>
-Date:   Wed, 13 May 2020 10:40:31 -0500
-In-Reply-To: <20200513152108.25669-3-mcgrof@kernel.org> (Luis Chamberlain's
-        message of "Wed, 13 May 2020 15:21:07 +0000")
-Message-ID: <87k11fonbk.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S1729539AbgEMPv6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 May 2020 11:51:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49334 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729467AbgEMPv5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 13 May 2020 11:51:57 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A55B4C061A0C
+        for <selinux@vger.kernel.org>; Wed, 13 May 2020 08:51:57 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id o7so21851409oif.2
+        for <selinux@vger.kernel.org>; Wed, 13 May 2020 08:51:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uZyPY2igekukAoA+iue+qpT6H/0/w16pHFIgc3Py/ic=;
+        b=pmZamofLe3kyZkTmfhm3svbbZWaR+vm3KEhoDMNDOnrgz9ATFDy53EXsL50vd3IGbw
+         lcqqogFsV5L8SSddvy9u7M0TNsqHgeZd7XuEnp+r7WKVBqlY5NJ9Q+pA/guzACdi4KT3
+         A+GHYMogSDtSvhEejKqhFEXCd9xkw0AOMzfCzNBYW64vT63J2oJVRcrOy4EudmfMi2A2
+         HuQus3SiwtdaErYvVMdt+IgxdK30dIG5LIXUr5KOxkSFlPFGrq1Wki7KL0kXtLDawwBh
+         rm2XFAg6Wt5mJf/nk6t3odiuzK356gLs0maMR3LWmi4sbxY8fr01uMeVNEWsQjo9IRny
+         ttAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uZyPY2igekukAoA+iue+qpT6H/0/w16pHFIgc3Py/ic=;
+        b=iOptyiNg3sS+akMHSOrCXXmytHZ7g4tWI3Lr9LSA/YEEBhMYyKksde4iTocDUO9APr
+         jy39VgYjgbvX9WldvzV5EHAve1JQ9xm+lga9v8Omd6vbW/YEHCI/W9kuWQCURZ3w1CKm
+         OZ3V+lVODa2AlA974sr6+gqxNq6uzSSvQ8RKcLftuxlb6uwEIQ/6BvAs3wc23dwdashk
+         jgrnt+eHJfqp3+3aOqTSzaGn8dRul3AyS/FKYNmDRdlXGJ0D4LHePQsMkpjes5tx1byi
+         IAG6leEr4A/xe5YRNHhBoKebumLwVfAHt5V3lG6RfDGOBpt8Zr/AvnNDuxCbyNqG3Ftb
+         TTuQ==
+X-Gm-Message-State: AOAM532aGFSGgnY+U7pUaX+DAEswt9XSw9n1IPoW6nBM/5PmIVLayMl0
+        FJl4tJUk45+XtWjPRoSG4PSLyFk6wg+oCLY5XKo=
+X-Google-Smtp-Source: ABdhPJy6sb4DENNJBR8zXCxly6n2JcOC0/ReCuMf5f0OuJCBC+1kwKvUpoNVUVloU1D+wUTySqjJHtnf7SEPaTIc/CA=
+X-Received: by 2002:aca:210a:: with SMTP id 10mr2760327oiz.92.1589385117077;
+ Wed, 13 May 2020 08:51:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1jYtYE-0000QY-AN;;;mid=<87k11fonbk.fsf@x220.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX18UC1Rfu06BcwNif7UO1o/2p3AxKZc4ZvA=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-Subject: Re: [PATCH 2/3] security: add symbol namespace for reading file data
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
+ <CAFftDdrD-FJ8wBk=XOkvdnkvA5o10w5pJs31H9dEhtW1zU8EHA@mail.gmail.com>
+ <CAEjxPJ452zaoFwy++cKqh_Ap2rM1ezEZN83mBhN4ndHHaQ4q5Q@mail.gmail.com>
+ <3838641.zh4Wi6GlAV@liv> <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org>
+ <CAEjxPJ6Uo83L5C9UELy5w_V2wuptSHiHoMMLN4oh75x70-ZzAQ@mail.gmail.com> <CAHC9VhSUHMrMjvG=wigsqVA-0MF0LSmCCC_zyoZYHC2wEnT06A@mail.gmail.com>
+In-Reply-To: <CAHC9VhSUHMrMjvG=wigsqVA-0MF0LSmCCC_zyoZYHC2wEnT06A@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 13 May 2020 11:51:46 -0400
+Message-ID: <CAEjxPJ72G4bpd6uLy1UikPoU7+tS-Kh2cCO+R75ApoRNCt3_Wg@mail.gmail.com>
+Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Laurent Bigonville <bigon@debian.org>,
+        Russell Coker <russell@coker.com.au>,
+        William Roberts <bill.c.roberts@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Luis Chamberlain <mcgrof@kernel.org> writes:
-
-> Certain symbols are not meant to be used by everybody, the security
-> helpers for reading files directly is one such case. Use a symbol
-> namespace for them.
+On Thu, May 7, 2020 at 11:03 PM Paul Moore <paul@paul-moore.com> wrote:
+> For a long time now I've wanted to expand my selinux/next kernel
+> testing to platforms beyond Fedora.  I believe that it not only helps
+> catch problems before the kernel is released, but it also helps ensure
+> that the underlying distro has all of the necessary pieces (userspace,
+> policy, etc.) in place to support the latest and upcoming kernels.
 >
-> This will prevent abuse of use of these symbols in places they were
-> not inteded to be used, and provides an easy way to audit where these
-> types of operations happen as a whole.
-
-Why not just remove the ability for the firmware loader to be a module?
-
-Is there some important use case that requires the firmware loader
-to be a module?
-
-We already compile the code in by default.  So it is probably just
-easier to remove the modular support all together.  Which would allow
-the export of the security hooks to be removed as well.
-
-Eric
-
-
-> Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-> ---
->  drivers/base/firmware_loader/fallback.c | 1 +
->  fs/exec.c                               | 2 ++
->  kernel/kexec.c                          | 2 ++
->  kernel/module.c                         | 2 ++
->  security/security.c                     | 6 +++---
->  5 files changed, 10 insertions(+), 3 deletions(-)
+> Unfortunately every time I've looked at the state of SELinux in Debian
+> I've run out of time before I got it working well.  I'm not even going
+> to get into the Debian package format :/
 >
-> diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmware_loader/fallback.c
-> index d9ac7296205e..b088886dafda 100644
-> --- a/drivers/base/firmware_loader/fallback.c
-> +++ b/drivers/base/firmware_loader/fallback.c
-> @@ -19,6 +19,7 @@
->   */
->  
->  MODULE_IMPORT_NS(FIRMWARE_LOADER_PRIVATE);
-> +MODULE_IMPORT_NS(SECURITY_READ);
->  
->  extern struct firmware_fallback_config fw_fallback_config;
->  
-> diff --git a/fs/exec.c b/fs/exec.c
-> index 9791b9eef9ce..30bd800ab1d6 100644
-> --- a/fs/exec.c
-> +++ b/fs/exec.c
-> @@ -72,6 +72,8 @@
->  
->  #include <trace/events/sched.h>
->  
-> +MODULE_IMPORT_NS(SECURITY_READ);
-> +
->  int suid_dumpable = 0;
->  
->  static LIST_HEAD(formats);
-> diff --git a/kernel/kexec.c b/kernel/kexec.c
-> index f977786fe498..8d572b41a157 100644
-> --- a/kernel/kexec.c
-> +++ b/kernel/kexec.c
-> @@ -19,6 +19,8 @@
->  
->  #include "kexec_internal.h"
->  
-> +MODULE_IMPORT_NS(SECURITY_READ);
-> +
->  static int copy_user_segment_list(struct kimage *image,
->  				  unsigned long nr_segments,
->  				  struct kexec_segment __user *segments)
-> diff --git a/kernel/module.c b/kernel/module.c
-> index 80faaf2116dd..8973a463712e 100644
-> --- a/kernel/module.c
-> +++ b/kernel/module.c
-> @@ -59,6 +59,8 @@
->  #include <uapi/linux/module.h>
->  #include "module-internal.h"
->  
-> +MODULE_IMPORT_NS(SECURITY_READ);
-> +
->  #define CREATE_TRACE_POINTS
->  #include <trace/events/module.h>
->  
-> diff --git a/security/security.c b/security/security.c
-> index 8ae66e4c370f..bdbd1fc5105a 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -1654,7 +1654,7 @@ int security_kernel_read_file(struct file *file, enum kernel_read_file_id id)
->  		return ret;
->  	return ima_read_file(file, id);
->  }
-> -EXPORT_SYMBOL_GPL(security_kernel_read_file);
-> +EXPORT_SYMBOL_NS_GPL(security_kernel_read_file, SECURITY_READ);
->  
->  int security_kernel_post_read_file(struct file *file, char *buf, loff_t size,
->  				   enum kernel_read_file_id id)
-> @@ -1666,7 +1666,7 @@ int security_kernel_post_read_file(struct file *file, char *buf, loff_t size,
->  		return ret;
->  	return ima_post_read_file(file, buf, size, id);
->  }
-> -EXPORT_SYMBOL_GPL(security_kernel_post_read_file);
-> +EXPORT_SYMBOL_NS_GPL(security_kernel_post_read_file, SECURITY_READ);
->  
->  int security_kernel_load_data(enum kernel_load_data_id id)
->  {
-> @@ -1677,7 +1677,7 @@ int security_kernel_load_data(enum kernel_load_data_id id)
->  		return ret;
->  	return ima_load_data(id);
->  }
-> -EXPORT_SYMBOL_GPL(security_kernel_load_data);
-> +EXPORT_SYMBOL_NS_GPL(security_kernel_load_data, SECURITY_READ);
->  
->  int security_task_fix_setuid(struct cred *new, const struct cred *old,
->  			     int flags)
+> I would be very happy to see some work go into lowering the bar on
+> getting SELinux working on Debian.  My Debian experience is pretty
+> limited, but you can sign me up as a very enthusiastic beta-tester,
+> just point me at some docs and an ISO :)
+
+FWIW, with the just-merged series, if you follow the new instructions
+in the README.md for Debian, you should be able to successfully build
+and run the testsuite on Debian stable and unstable (also worked for
+me on Ubuntu 20.04 aside from needing to obtain libbpf from upstream
+since it isn't packaged for Ubuntu).  The default policy still has
+some issues (e.g. don't try to use GNOME in enforcing mode) but if you
+can login as an unconfined user and setenforce 1 via text console or
+ssh login, you should be able to run the testsuite.
