@@ -7,127 +7,151 @@ X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4779AC433DF
-	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:09:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02375C433DF
+	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:10:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4C64E205ED
-	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:09:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 01CE42054F
+	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:10:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gxvwdIX1"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QM8ej942"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388493AbgEMPJW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 May 2020 11:09:22 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:57204 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727778AbgEMPJW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 May 2020 11:09:22 -0400
+        id S2389080AbgEMPKN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 May 2020 11:10:13 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:44356 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729049AbgEMPKN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 13 May 2020 11:10:13 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589382560;
+        s=mimecast20190719; t=1589382611;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=7/9rXa+5vDJ6i5MfCPAM8D5Zx4bvE+fm6YYm9bpfuhQ=;
-        b=gxvwdIX1CUfwweCnggcsKKbJ8Wzak4lkAWlQT8eYihryvlHuAQtClt/XYhd4K5xyZOsOrm
-        dd2DHHz/x2SAvl4YpwQOMaKXyTdp+03e6j1n2nThjxlAFg2KrIbdZwWRxEaPLNVfJZWhFU
-        XoVEcBctVh3vXh/jgMiCMcLitQtVFvA=
+        bh=qXhZ3B2gRt6xkILDXZ1vlh450A3cDUR+ArWt9NcNX0s=;
+        b=QM8ej942LU3sDS30f5YMlC2hUQqmdSvFpoUsTwuDFpstha7ARekDLPtuktVDKeNF4iQApZ
+        DSP8/UYeasKPt7E/TNgQj3cyN2IaJUGJi4r6phk/g+iwB4DdXqz2o74XHIsrJ3r/VsOKi6
+        Z2cSzzoIDZ8jyLfALt/U6jbeIKTMAy0=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-231-UetfrELsP5uQ27XE4W-u2Q-1; Wed, 13 May 2020 11:09:15 -0400
-X-MC-Unique: UetfrELsP5uQ27XE4W-u2Q-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+ us-mta-507-6vZMM-7GP2yPpA2-_FGYLg-1; Wed, 13 May 2020 11:10:07 -0400
+X-MC-Unique: 6vZMM-7GP2yPpA2-_FGYLg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DB44B474;
-        Wed, 13 May 2020 15:09:14 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9F6E11030983
+        for <selinux@vger.kernel.org>; Wed, 13 May 2020 15:10:06 +0000 (UTC)
 Received: from workstation (unknown [10.40.192.247])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1108D60CD3;
-        Wed, 13 May 2020 15:09:13 +0000 (UTC)
-Date:   Wed, 13 May 2020 17:09:11 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 10B685C1BB
+        for <selinux@vger.kernel.org>; Wed, 13 May 2020 15:10:05 +0000 (UTC)
+Date:   Wed, 13 May 2020 17:10:03 +0200
 From:   Petr Lautrbach <plautrba@redhat.com>
 To:     selinux@vger.kernel.org
-Cc:     Dominick Grift <dac.override@gmail.com>
-Subject: Re: [PATCH v2] mcstrans: start early and stop late
-Message-ID: <20200513150911.GA184004@workstation>
-References: <20191211134423.2357254-1-dac.override@gmail.com>
+Subject: Re: [PATCH] semanage/test-semanage.py: Return non-zero value when
+ some of unittest tests fail
+Message-ID: <20200513151003.GA184087@workstation>
+References: <20200511112308.23523-1-plautrba@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20191211134423.2357254-1-dac.override@gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="ZPt4rx8FFjLCG7dd"
+        protocol="application/pgp-signature"; boundary="mYCpIKhGyMATD0i+"
 Content-Disposition: inline
+In-Reply-To: <20200511112308.23523-1-plautrba@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---ZPt4rx8FFjLCG7dd
+
+--mYCpIKhGyMATD0i+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 11, 2019 at 02:44:23PM +0100, Dominick Grift wrote:
-> It stopped too early, exposing a bug in sudo selinux_restore_tty():
+On Mon, May 11, 2020 at 01:23:08PM +0200, Petr Lautrbach wrote:
+> Previously python/semanage/test-semanage.py returned 0 even when there wa=
+s a
+> fail in some test and `make test` didn't indicate any problem.
 >=20
-> SELINUX_ERR op=3Dsetxattr invalid_context=3D"wheel.id:wheel.role:users.te=
-rminals.pty.pty_file:SystemLow"
-> avc:  denied  { mac_admin } for  pid=3D859 comm=3D"sudo" capability=3D33 =
-scontext=3Dwheel.id:wheel.role:sudo.wheel.subj:s0 tcontext=3Dwheel.id:wheel=
-.role:sudo.wheel.subj:s0 tclass=3Dcapability2 permissive=3D0
+> Fixes:
+>     $ make test
+>     ...
+>     Ran 10 tests in 110.854s
+>     FAILED (failures=3D4)
+>     $ echo $?
+>     0
 >=20
-> If we want to be able to reference human readable contexts in SELinuxCont=
-ext=3D and nspawn -Z and -L then we need mcstrans ASAP
->=20
-> v2: stop late, but do stop
-> Signed-off-by: Dominick Grift <dac.override@gmail.com>
-> Acked-by: Petr Lautrbach <plautrba@redhat.com>
+> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
-Applied, thanks!
+Applied.
 
 > ---
->  mcstrans/src/mcstrans.service | 3 +++
->  1 file changed, 3 insertions(+)
+>  python/semanage/test-semanage.py | 12 +++++++-----
+>  1 file changed, 7 insertions(+), 5 deletions(-)
 >=20
-> diff --git a/mcstrans/src/mcstrans.service b/mcstrans/src/mcstrans.servic=
-e
-> index 09529432..c13cd09a 100644
-> --- a/mcstrans/src/mcstrans.service
-> +++ b/mcstrans/src/mcstrans.service
-> @@ -2,6 +2,9 @@
->  Description=3DTranslates SELinux MCS/MLS labels to human readable form
->  Documentation=3Dman:mcstransd(8)
->  ConditionSecurity=3Dselinux
-> +DefaultDependencies=3Dno
-> +Before=3Dshutdown.target sysinit.target
-> +Conflicts=3Dshutdown.target
+> diff --git a/python/semanage/test-semanage.py b/python/semanage/test-sema=
+nage.py
+> index c8f6ec231fc2..d99e3fdaa211 100644
+> --- a/python/semanage/test-semanage.py
+> +++ b/python/semanage/test-semanage.py
+> @@ -233,7 +233,7 @@ def semanage_custom_suite(test_list):
 > =20
->  [Service]
->  ExecStart=3D/sbin/mcstransd -f
+> =20
+>  def semanage_run_test(suite):
+> -    unittest.TextTestRunner(verbosity=3D2).run(suite)
+> +    return unittest.TextTestRunner(verbosity=3D2).run(suite).wasSuccessf=
+ul()
+> =20
+> =20
+>  class CheckTest(argparse.Action):
+> @@ -255,9 +255,9 @@ def semanage_args(args):
+>          for i in semanage_test_list:
+>              print(i)
+>      if args.all:
+> -        semanage_run_test(semanage_suite())
+> +        return semanage_run_test(semanage_suite())
+>      if args.test:
+> -        semanage_run_test(semanage_custom_suite(args.test))
+> +        return semanage_run_test(semanage_custom_suite(args.test))
+> =20
+> =20
+>  def gen_semanage_test_args(parser):
+> @@ -281,8 +281,10 @@ if __name__ =3D=3D "__main__":
+>          gen_semanage_test_args(parser)
+>          try:
+>              args =3D parser.parse_args()
+> -            args.func(args)
+> -            sys.exit(0)
+> +            if args.func(args):
+> +                sys.exit(0)
+> +            else:
+> +                sys.exit(1)
+>          except ValueError as e:
+>              sys.stderr.write("%s: %s\n" % (e.__class__.__name__, str(e)))
+>              sys.exit(1)
 
 --=20
 ()  ascii ribbon campaign - against html e-mail=20
 /\  www.asciiribbon.org   - against proprietary attachments
 
---ZPt4rx8FFjLCG7dd
+--mYCpIKhGyMATD0i+
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl68DZEACgkQviIJHj72
-InWMiw//QrvGL6Ufj7IpcFPbBklOk2qELPOkLGyIYQZTn+CTQ5sMnOns0AQY8uG2
-c7bV85pJoE2cPECNuuz/YgqXQJnpxVWrFIWRTbs85D2b0V1/cFcAYMXV83oUxeni
-awKr+Ag6VTOuSfAECyV/awDAC+MdeFcZCIY5bCMOS7+xIuC2HnnrvdDWlLa6hZr2
-dOvYCls6LqV/tcLlr7z5HSnsdz/CGf+vYG1XFSzLH1aLSPXco/EGk8AQNcgSQpWI
-7RC9nls1aBImlDU4Pt0DOEid504SmikxwMgob3H8/FAL4RCzw4JMKIwsmtifacq9
-Y1r8tgcGKroNiEuslKq49l5AiYRYJM0xmYhiSGJPLMhtMdVuANFioQFGNjFnlBq3
-cmATEFl5TVzSYJCDIAy/zPNcCOfHdQJYoOgU4AeSnvt454yxwDvtkrNUppBjRhN9
-lEGDx7AqVIKFvzn1psFAaCAhzDmlj8Fr1wpX576Qzm3iNUuu4B3xVo8ab9+5wMQW
-VNixwH4RbMdt/eGqQCQjDpsKBFAptQYJBw8RBm0Hob0aPsijguDu3rJ7LCgYCnKG
-pAIZufHhazsK6FPBt8r0Z8I1/6XZRynrML3BXLb60Q9GY6RmtQ7ATY/Mtm0iBj0Y
-EkqA79D5Fsx8G/lTmAVEnKlY9IqtvVWZ79p3+eZhxxq+4LNpFM0=
-=AVqZ
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl68DcUACgkQviIJHj72
+InVIiQ//Uczu6schOdapEYc8D62aC2oRELNPKDA3H5bcwaEVWHXNZUJJZpU8NBm1
+FZrpbCVQPEuq5Kgd5s4QvgYiQIO7tdzyeljU+GaJajv7R40NcBWFPhOz72c5JyzT
+2jykj0x3F9m5ErRQgMpnbKIVA0wJGn/sEA5Q3/ydKJLujXY5aeKm0+PF9kqw0SrN
+rGTZB6TspsJN0tjyrFkds7nCMyK9Fit8Badg17lRUbx/QZnPac24SlDxekruRFYM
+xulDnBtZzYSFU+cq/PLgkcTYRMqSxHrCnTxvA63dLzA+EONpfyr1QSO5Uuurusa6
+jSN9OA4BurFlzpb+aF3UC9xfYInn2k66p1ed5ghxvmyLZoT72W26BQEQeIEh5vYA
+a9XAZG47QBqNqpV8elNhGey9o07xxU4aJnrXbLrzcEPym5dH8f8bvWh3BgI63Bgh
+ToZ5o/pzugyJ6+PjcWvubU/tbDC2/wwZGxmBHPu2SkY1YU4ya184t3kX8Mnig74e
+cIrsmi6NSNvO0dWIN7YTnABWsOz3VjtuP5HOB9Pj0Lmx+Nc8Od10gUoAtNxgDTsG
+uta9+LEjT3WiFygmpPmyfQR2Oo8o+DZwSJhsGD0CEKzLLZp99DRX7sdo/50QREt3
+p700+vVACubzZWhC30GAYTYFukc8xSty31Tc4y+mAYxSOC0JWI8=
+=csYw
 -----END PGP SIGNATURE-----
 
---ZPt4rx8FFjLCG7dd--
+--mYCpIKhGyMATD0i+--
 
