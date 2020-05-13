@@ -2,150 +2,115 @@ Return-Path: <SRS0=fYOO=63=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.3 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E12EC433E0
-	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:14:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09D1FC433E1
+	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:21:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 198DB205ED
-	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:14:12 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GOEAK+eO"
+	by mail.kernel.org (Postfix) with ESMTP id 22C9320671
+	for <selinux@archiver.kernel.org>; Wed, 13 May 2020 15:21:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1589383276;
+	bh=qm8/y6y+63tITpbO30DHvyvE0+SlDvX2OoosaE42pCY=;
+	h=From:To:Cc:Subject:Date:List-ID:From;
+	b=uJFCfeVcBYI4dRB5l2oRxC0T1zLWZOucBesjRGLM/Om7FzBf7O0QBTjsR3qMeclZ3
+	 3RWQIpNpMjGADbi11RlGGhL4WJ1GwRYMULwF0yP7QOBVI6NurtzEk0NtJEG4x/kKlK
+	 ICK657Y5Nd/VVWstYPMnFum55yueXwl5KkbW5aVQ=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729121AbgEMPOL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 13 May 2020 11:14:11 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:49133 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728692AbgEMPOL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 13 May 2020 11:14:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589382850;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=1/dD9xyZ3uS23BUxj2zJ154uvIyv2UpRh+wIbNHLHiU=;
-        b=GOEAK+eOiUV8Uq4uS2l0eCo06b5nEox8qbh1JjE90fk2b8Q+uKNgTCpFvEJBPdyadcxUlQ
-        FyZZFGof6iR4sp8WPlbDQJ7llwLtlMlaMYpUseX8Hel0bvvNqzS+lf9n27HP0VwpJ9Yfs5
-        HWsWPgsDTbEIqOdMYZFOdjP6JHQK05Q=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-124-IL07HdsvMuK3Xy8lNIsHwg-1; Wed, 13 May 2020 11:14:05 -0400
-X-MC-Unique: IL07HdsvMuK3Xy8lNIsHwg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E8EDA803CB8;
-        Wed, 13 May 2020 15:13:33 +0000 (UTC)
-Received: from workstation (unknown [10.40.192.247])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id BA81960F8D;
-        Wed, 13 May 2020 15:13:32 +0000 (UTC)
-Date:   Wed, 13 May 2020 17:13:30 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Nicolas Iooss <nicolas.iooss@m4x.org>,
-        William Roberts <william.c.roberts@intel.com>
-Subject: Re: [PATCH] python/sepolicy: silence new flake8 warnings
-Message-ID: <20200513151330.GA184355@workstation>
-References: <20200512192957.112866-1-nicolas.iooss@m4x.org>
+        id S2389173AbgEMPVP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 13 May 2020 11:21:15 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:34255 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729153AbgEMPVO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 13 May 2020 11:21:14 -0400
+Received: by mail-pf1-f193.google.com with SMTP id x15so7550192pfa.1;
+        Wed, 13 May 2020 08:21:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=vd8mN5eu82jR3IAsdSL8KCAElLuY0QvMKLQ4DV4/fDM=;
+        b=oa7V1C/MEjzWRxJ/2JF4W0oUPiHG2ulxUCEGfDQYTB1hP8DEeRYLYF/KEpNrYLNIEm
+         AlRDxsACr+ZrAm5kLxC1bFvATuECgIQYgtDVgHYhLLKOVwePgB2gGorgX3Z/UpFlEoA+
+         TeAKx/9YWYhHWAT43uoe4YbrzETSc+imU6UP3TP0d+wIsgP7X+uOJ9atY1zbrrZ7/Gni
+         GobE91AgpQg3AMpj40PqHrFnuzbEZ7ZiUGOeBT1cMfQVuDnrNA2HBfI4r7b+Vj0Q9BLH
+         oDVjMSrZpMMSb7yquwEqXaHtqqDEXxGlKiZo80R+9yduwacCOsosNxyR7L/Sm6I5p/zG
+         SM6A==
+X-Gm-Message-State: AOAM533rtKtwbp0am2isPGeZ2rPWoKzhuOa/k3jM6dAlkKXXbWJRkbfi
+        sQ0y6Ifqonu2xaFCdgqeOa0=
+X-Google-Smtp-Source: ABdhPJz8JCGMh8sRdwYyCHudRzQBKdwiDqQQhE20Xn802xN18geL+qldVFqyq1i08EE9ulujdjpfQg==
+X-Received: by 2002:a63:a01:: with SMTP id 1mr16798874pgk.428.1589383273914;
+        Wed, 13 May 2020 08:21:13 -0700 (PDT)
+Received: from 42.do-not-panic.com (42.do-not-panic.com. [157.230.128.187])
+        by smtp.gmail.com with ESMTPSA id a2sm45859pgh.57.2020.05.13.08.21.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 May 2020 08:21:12 -0700 (PDT)
+Received: by 42.do-not-panic.com (Postfix, from userid 1000)
+        id 3FC514063E; Wed, 13 May 2020 15:21:12 +0000 (UTC)
+From:   Luis Chamberlain <mcgrof@kernel.org>
+To:     viro@zeniv.linux.org.uk, gregkh@linuxfoundation.org,
+        rafael@kernel.org, ebiederm@xmission.com, jeyu@kernel.org,
+        jmorris@namei.org, keescook@chromium.org, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        nayna@linux.ibm.com, zohar@linux.ibm.com
+Cc:     scott.branden@broadcom.com, dan.carpenter@oracle.com,
+        skhan@linuxfoundation.org, geert@linux-m68k.org,
+        tglx@linutronix.de, bauerman@linux.ibm.com, dhowells@redhat.com,
+        linux-integrity@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        kexec@lists.infradead.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 0/3] fs: reduce export usage of kerne_read*() calls
+Date:   Wed, 13 May 2020 15:21:05 +0000
+Message-Id: <20200513152108.25669-1-mcgrof@kernel.org>
+X-Mailer: git-send-email 2.23.0.rc1
 MIME-Version: 1.0
-In-Reply-To: <20200512192957.112866-1-nicolas.iooss@m4x.org>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+While reviewing Scott Branden's submission of the new Broadcom VK driver
+driver upstream [0], part of which included 4 new pread varaints of the
+existing kernel_read*(), calls I grew shivers of the possibility of drivers
+using these exported symbols loosely. If we're going to grow these, it
+seems best to restrict the symbols to a namespace so drivers and
+subsystem maintainers don't use these carelessly.
 
-On Tue, May 12, 2020 at 09:29:57PM +0200, Nicolas Iooss wrote:
-> pyflakes 2.2.0 improved the way format strings are analyzed, which
-> triggers new warnings in flake8:
->=20
->     python/sepolicy/sepolicy/manpage.py:1046:23: F999 '...' % ... has
->     unused named argument(s): type
->=20
->     python/sepolicy/sepolicy/manpage.py:1225:23: F999 '...' % ... has
->     unused named argument(s): user
->=20
-> Remove the unused arguments in order to silence these warnings.
->=20
-> This fixes failures in Travis-CI such as
-> https://travis-ci.org/github/SELinuxProject/selinux/jobs/686230518#L5153
->=20
-> Signed-off-by: Nicolas Iooss <nicolas.iooss@m4x.org>
-> Acked-by: William Roberts <william.c.roberts@intel.com>
+This should also help with making it easier to audit future locations in
+the kernel such read calls happen by just looking at the imports of the
+namespace.
 
-Applied.
+This goes compile tested with allyesconfig and allmodconfig on x86_64.
+0-day should have a report on build status with other configs later of
+my branch [1].
 
+[0] https://lkml.kernel.org/r/20200508002739.19360-1-scott.branden@broadcom.com
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/mcgrof/linux-next.git/log/?h=20200513-kernel-read-sym
 
-> ---
->  python/sepolicy/sepolicy/manpage.py | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/python/sepolicy/sepolicy/manpage.py b/python/sepolicy/sepoli=
-cy/manpage.py
-> index 442608191cc8..3e8a3be907e3 100755
-> --- a/python/sepolicy/sepolicy/manpage.py
-> +++ b/python/sepolicy/sepolicy/manpage.py
-> @@ -1074,7 +1074,7 @@ If you wanted to change the default user mapping to=
- use the %(user)s_u user, you
-> =20
->  .B semanage login -m -s %(user)s_u __default__
-> =20
-> -""" % {'desc': self.desc, 'type': self.type, 'user': self.domainname, 'r=
-ange': self._get_users_range()})
-> +""" % {'desc': self.desc, 'user': self.domainname, 'range': self._get_us=
-ers_range()})
-> =20
->          if "login_userdomain" in self.attributes and "login_userdomain" =
-in self.all_attributes:
->              self.fd.write("""
-> @@ -1245,7 +1245,7 @@ Execute the following to see the types that the SEL=
-inux user %(type)s can execut
-> =20
->  .B $ sesearch -A -s %(type)s -c process -p transition
-> =20
-> -""" % {'user': self.domainname, 'type': self.type})
-> +""" % {'type': self.type})
-> =20
->      def _role_header(self):
->          self.fd.write('.TH  "%(user)s_selinux"  "8"  "%(user)s" "mgrepl@=
-redhat.com" "%(user)s SELinux Policy documentation"'
+Luis Chamberlain (3):
+  fs: unexport kernel_read_file()
+  security: add symbol namespace for reading file data
+  fs: move kernel_read*() calls to its own symbol namespace
 
---=20
-()  ascii ribbon campaign - against html e-mail=20
-/\  www.asciiribbon.org   - against proprietary attachments
+ drivers/base/firmware_loader/fallback.c | 1 +
+ drivers/base/firmware_loader/main.c     | 1 +
+ fs/exec.c                               | 9 +++++----
+ kernel/kexec.c                          | 2 ++
+ kernel/kexec_file.c                     | 2 ++
+ kernel/module.c                         | 3 +++
+ security/integrity/digsig.c             | 3 +++
+ security/integrity/ima/ima_fs.c         | 3 +++
+ security/integrity/ima/ima_main.c       | 2 ++
+ security/loadpin/loadpin.c              | 2 ++
+ security/security.c                     | 8 +++++---
+ security/selinux/hooks.c                | 2 ++
+ 12 files changed, 31 insertions(+), 7 deletions(-)
 
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl68DpMACgkQviIJHj72
-InUeFw//UlsOMcepwyH11nwjOlTc0MLM5ELX7Wpm5AtixPHzz/tCxKsPz9+l+/Ji
-6iJA7fuTCNKcI8XYiu/2qu+1JvhCA52qeIVM5PnMolHW13B8SX336asfro4gdJCF
-py8f7UN3SjyLq9NbPKDjKhSBKL1VcKApCajbGdKfHrMXxndglVrKi8UeJsWzqRBH
-qJtcdZMJOudWhCE8bb69wfCIFag7hoTClcJ8HirQHRYqeMmmIL7HeeX5xiKDWepZ
-fmh8wRto3gcKq0wNndQo9YJp2f1TUz88yyslU++1JKNLVbRkq4aiVuMLc19GnFIA
-OL0bDgv94ZJ8j5LU+fCzQx7KwymNhX8tJf7vPpdEA3mHkuTbjVi6W3C5ogqNsif3
-voKiCSiH7BjCJclGekMclqV1RI1ZOafrb9PYpvvsY4kEFj8f/wlZ0OCe9Gbp7vJU
-thKsQS4mYfxARvycBDmRg7hF2UQvLUdjez6brRm0pU2iuwZbUcuv+jA62HQ0rei4
-OlkISXEDhyT+HTv92n8jmqM7+2EOZ1+DV273bcxMLwS6fqg+gxrE60IAFHF28ICv
-kQskIABtscJg5iYkU3kP5XFhYB8ulco+pSSVr7sydIYeBZE+kj+jaA2DtyUy+AJe
-WnhBjYO9DufrZ5LShL3oRkWtoZIje35+kX8LMdEbOyo7XOsfnzA=
-=++lY
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--
+-- 
+2.26.2
 
