@@ -2,191 +2,265 @@ Return-Path: <SRS0=6moO=64=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A180C433E0
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 08:50:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40390C433DF
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 09:50:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1A071206B6
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 08:50:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0CCE520671
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 09:50:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VmEvQuI7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JxQ1oY/O"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725974AbgENIui (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 May 2020 04:50:38 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:54649 "EHLO
+        id S1725935AbgENJul (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 May 2020 05:50:41 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:44135 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725925AbgENIui (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 04:50:38 -0400
+        with ESMTP id S1725878AbgENJul (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 05:50:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589446236;
+        s=mimecast20190719; t=1589449838;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=E7t18TPsr0mP0nFuykwheN8038FeKc7oNaLxAsJ1EF0=;
-        b=VmEvQuI7M/N3YUrYB84ub7ip5R0bFWMqQmYh/Tcihaoyp3ldVtD2cUVydrIM0qeQQj9i7Y
-        OxJ3bnwwCQ2hmm0goUkeNx3yu8ZY7UGxKE/YzDEx+fkOuKveyuo0Fr9aGC9jKBx62vrWI8
-        17v/6OTESQc6irZpILD0+jAj9zzKDFo=
-Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
- [209.85.167.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-115-Hdko1OKEN6SfL_ptwtogog-1; Thu, 14 May 2020 04:50:34 -0400
-X-MC-Unique: Hdko1OKEN6SfL_ptwtogog-1
-Received: by mail-oi1-f198.google.com with SMTP id j19so4952610oie.18
-        for <selinux@vger.kernel.org>; Thu, 14 May 2020 01:50:34 -0700 (PDT)
+        bh=Bg9Qj0SP/bnO1YMjxeqCdDOoEq/m6f4/LZub8oP/K5g=;
+        b=JxQ1oY/Oq1qSkhLmkVvslh2PyplCEvKepxCW48DeIsVWNPqjmvOq+7W/RmZns4ezeWn84t
+        L/BR4u/hQcbL/EVi1gytFI511WirDIB6sBp0pumxQTfAro7uWI2P+jhf12HzdFfi8ABzdo
+        +mgOgrs4Rb13jDREEqPOnqp87UDSapQ=
+Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com
+ [209.85.210.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-198-WwHxzK66M_Sr8H8WyNCstQ-1; Thu, 14 May 2020 05:50:34 -0400
+X-MC-Unique: WwHxzK66M_Sr8H8WyNCstQ-1
+Received: by mail-ot1-f70.google.com with SMTP id v1so1052806ote.13
+        for <selinux@vger.kernel.org>; Thu, 14 May 2020 02:50:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=E7t18TPsr0mP0nFuykwheN8038FeKc7oNaLxAsJ1EF0=;
-        b=ZorXoLNtXEf/Gb6La1VhxF5wNvcFb9Sn3UWj+SI5Bkqy5YKbX0/CQ2+rAIrbWjLg1d
-         C2FG6YxYQrzsQ954FOUp0ziWWHKODtGg+ajvbjqoU0JC434cRLUQMH2kicpz+3lehFng
-         hAnyat3a7x8uzQHXtTKBlIDJwKFdt50DMjd8WDb15jhL5wSX6oXV4I43s4sS9BRuXU1/
-         yoTOiFc6G0x/vxc3Lv81llnRdqwljCv4aK61HtCw+Fqh827SU61DlZYQd7cDAmXiSsG8
-         Mds1wAqg6Y3of371OwZUKo4BKz0qlNR93cdoYA2qzLGmXCl+NjoMKVlvXTduZ9uB45YI
-         2ysw==
-X-Gm-Message-State: AOAM533vfPjA2fAjq/Mz5RLW+G32x3hD2amL3bAFt9dMnjvOU0LbeTPA
-        6kW12JqrssAISXGuQzdAzG9HjZ778Dqk+g30HFNxfv1TXJacAYJ67GwLzD1dYlDT3RYu1PTG8Xa
-        khCgXIZvodD7lBirsti5VVjgRmvcU2V0edQ==
-X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr2782382ooo.58.1589446233788;
-        Thu, 14 May 2020 01:50:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzPPKD+if/szTthCQf23/t9xcxRdHc9gMDbmlT4ypqpQ81Zj1Le1OEPiPpqc7y+NU9VEqXog5yYguA4/VokTLo=
-X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr2782371ooo.58.1589446233450;
- Thu, 14 May 2020 01:50:33 -0700 (PDT)
+        bh=Bg9Qj0SP/bnO1YMjxeqCdDOoEq/m6f4/LZub8oP/K5g=;
+        b=Uo+Sq23mxuzflUlmTKOBpFzUo5DzbFTaO/2rNXg7Ax5cK97sUjC7B07FfFFStVBfnV
+         rPRFvTkKjtdrZ5aOB3ovPi94bnKHdmZVtEnG09Ldj04YYTt5JqRBaec6OFb3tAQ/wmEK
+         +4VfNA4/98I53XUHEcvxjWaFu2IJ4+5DKkXMNqCWxAi2lvEGAk2C3FC/MRoVzRfFP6/n
+         /Q3wfMlGHvCMTNraxiAXlXu/NOFLJPnaYuHr/iMsAvdkn6e+XcrfACP/Icp8gyHPjDno
+         Jovp2/1+pzn3SjaqsSr8Q05fyIV9+JqdPb9BC+QcouUaHHWbli0qcg5qJga4wHwvfntL
+         cDmg==
+X-Gm-Message-State: AOAM532jhORn4fm1NhjVK1/oKG5MJpBs24/N1O4aJlu5l5WTIGPtegHj
+        Mqs/J1Eg1fzrmP41wSsPzllUBwbEQDbvJxQesloNuy12REyiA2S9e4Z/jHOzyl74DejHBvPC1Gq
+        cnCm6HMqzeciR+r4qCNbHyxz0jh19sUnGHw==
+X-Received: by 2002:a9d:65c8:: with SMTP id z8mr2890603oth.66.1589449833215;
+        Thu, 14 May 2020 02:50:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxtXR842Ilqcf7tVvcoGtiKEq8iT7K9//ugDgh37ZDfZzUZ4Qoei8TIMqew6bEZQiA9npFbjA7sEmp0uTN3SH8=
+X-Received: by 2002:a9d:65c8:: with SMTP id z8mr2890585oth.66.1589449832851;
+ Thu, 14 May 2020 02:50:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200417163804.307854-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20200417163804.307854-1-richard_c_haines@btinternet.com>
+References: <20200510132620.39873-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20200510132620.39873-1-richard_c_haines@btinternet.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 14 May 2020 10:50:22 +0200
-Message-ID: <CAFqZXNtrXaYR3tJ1awcu6_CAG=syA0GqcHg+UTCZQFpQv3hY-w@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux-testsuite: Add check for key changes on watch_queue
+Date:   Thu, 14 May 2020 11:50:21 +0200
+Message-ID: <CAFqZXNvZvXYZpJNLAK=iuW5+ouwjQWHWbh_Jy2_dqbHbBN8VCA@mail.gmail.com>
+Subject: Re: [PATCH] selinux-testsuite: Add nftables to inet_socket and sctp tests
 To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        David Howells <dhowells@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Apr 17, 2020 at 6:38 PM Richard Haines
+Hi,
+
+On Sun, May 10, 2020 at 3:26 PM Richard Haines
 <richard_c_haines@btinternet.com> wrote:
-> Kernel 5.7 introduced the watch_queue service that allows watching for
-> key changes. This requires key { view } permission, therefore check if
-> allowed or not.
->
-> Note that the keyctl_watch_key() function is not yet built into the
-> keyutils library, therefore a syscall() is used.
+> Support secmark tests that require nftables version 9.3 or greater and
+> kernel 4.20 or greater.
 >
 > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-
-OK, so I tried to build kernel RPMs(*) from the linux-next tree and
-try out this patch, but I ran into a few problems:
-1. <linux/watch_queue.h> includes <linux/fcntl.h>, which conflicts
-with glibc's <sys/fcntl.h>. This will maybe get fixed in glibc/kernel
-eventually, but I can't apply the patch as-is (maybe we can #define
-_LINUX_FCNTL_H before including <linux/watch_queue.h> as a temporary
-workaround?).
-2. Even when I got the test program to build, the test failed. I ran
-out of time to dig further, but it may be due to the issues I spotted
-later in the test policy (see below).
-
-(*) I wanted to try out the new Fedora's kernel build machinery, so I
-burnt too much time on this... but I now have a semi-automated way to
-build linux-next kernels as RPMs, which might come in handy in the
-future :)
-
 > ---
->  defconfig                 |   5 ++
->  policy/Makefile           |   2 +-
->  policy/test_watchkey.te   |  34 ++++++++++++
->  tests/Makefile            |   4 ++
->  tests/watchkey/.gitignore |   1 +
->  tests/watchkey/Makefile   |   7 +++
->  tests/watchkey/test       |  29 ++++++++++
->  tests/watchkey/watchkey.c | 113 ++++++++++++++++++++++++++++++++++++++
->  8 files changed, 194 insertions(+), 1 deletion(-)
->  create mode 100644 policy/test_watchkey.te
->  create mode 100644 tests/watchkey/.gitignore
->  create mode 100644 tests/watchkey/Makefile
->  create mode 100755 tests/watchkey/test
->  create mode 100644 tests/watchkey/watchkey.c
->
-> diff --git a/defconfig b/defconfig
-> index 0574f1d..9afbc2f 100644
-> --- a/defconfig
-> +++ b/defconfig
-> @@ -78,3 +78,8 @@ CONFIG_KEY_DH_OPERATIONS=y
->  # Test key management socket.
->  # This is not required for SELinux operation itself.
->  CONFIG_NET_KEY=m
-> +
-> +# watch_queue for key changes.
-> +# They are not required for SELinux operation itself.
-> +CONFIG_WATCH_QUEUE=y
-> +CONFIG_KEY_NOTIFICATIONS=y
-> diff --git a/policy/Makefile b/policy/Makefile
-> index 87b2856..b3f5e3d 100644
-> --- a/policy/Makefile
-> +++ b/policy/Makefile
-> @@ -86,7 +86,7 @@ TARGETS += test_bpf.te test_fdreceive_bpf.te test_binder_bpf.te
->  endif
->
->  ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && echo true),true)
-> -TARGETS += test_keys.te
-> +TARGETS += test_keys.te test_watchkey.te
->  endif
->
->  ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.spt && echo true),true)
-> diff --git a/policy/test_watchkey.te b/policy/test_watchkey.te
-> new file mode 100644
-> index 0000000..e1d4c78
-> --- /dev/null
-> +++ b/policy/test_watchkey.te
-> @@ -0,0 +1,34 @@
-> +#
-> +######### Check watch_queue for key changes policy module ##########
-> +#
-> +attribute watchkeydomain;
-> +
-> +################# Allow watch_queue key { view } ##########################
-> +type test_watchkey_t;
-> +domain_type(test_watchkey_t)
-> +unconfined_runs_test(test_watchkey_t)
-> +typeattribute test_watchkey_t testdomain;
-> +typeattribute test_watchkey_t keydomain;
+>  README.md                        |  4 +-
+>  tests/inet_socket/nftables-flush |  2 +
+>  tests/inet_socket/nftables-load  | 74 ++++++++++++++++++++++++++++++++
+>  tests/inet_socket/test           | 72 +++++++++++++++++++++++++++++++
+>  tests/sctp/nftables-flush        |  2 +
+>  tests/sctp/nftables-load         | 68 +++++++++++++++++++++++++++++
+>  tests/sctp/test                  | 74 ++++++++++++++++++++++++++++++++
+>  7 files changed, 295 insertions(+), 1 deletion(-)
+>  create mode 100644 tests/inet_socket/nftables-flush
+>  create mode 100644 tests/inet_socket/nftables-load
+>  create mode 100644 tests/sctp/nftables-flush
+>  create mode 100644 tests/sctp/nftables-load
 
-You declare attribute "watchkeydomain" above and later call some
-interfaces on it, but assign all the types to "keydomain". I assume
-you meant to assign them to "watchkeydomain"?
+Thanks, this seems to work fine on Fedora 32 and even on RHEL-8 (after
+adjusting the kernel version check). However, I have some style
+suggestions (see below).
 
-> +
-> +allow test_watchkey_t self:capability { ipc_lock };
-> +allow test_watchkey_t device_t:chr_file { ioctl open read write };
-> +allow test_watchkey_t self:key { view };
-> +allow_map(test_watchkey_t, device_t, chr_file)
-> +
-> +################# Deny watch_queue key { view } ##########################
-> +type test_watchkey_no_view_t;
-> +domain_type(test_watchkey_no_view_t)
-> +unconfined_runs_test(test_watchkey_no_view_t)
-> +typeattribute test_watchkey_no_view_t testdomain;
-> +typeattribute test_watchkey_no_view_t keydomain;
-> +
-> +allow test_watchkey_no_view_t self:capability { ipc_lock };
-> +allow test_watchkey_no_view_t device_t:chr_file { ioctl open read write };
-> +neverallow test_watchkey_no_view_t self:key { view };
-> +allow_map(test_watchkey_no_view_t, device_t, chr_file)
-> +
-> +#
-> +########### Allow these domains to be entered from sysadm domain ############
-> +#
-> +miscfiles_domain_entry_test_files(watchkeydomain)
-> +userdom_sysadm_entry_spec_domtrans_to(watchkeydomain)
+>
 [...]
+> diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+> index 47ce106..b551961 100755
+> --- a/tests/inet_socket/test
+> +++ b/tests/inet_socket/test
+[...]
+> @@ -406,6 +419,65 @@ server_end($pid);
+>  # Flush iptables configuration.
+>  system "/bin/sh $basedir/iptables-flush";
+>
+> +# Load nftables (IPv4 & IPv6) configuration.
+> +if ($test_nft) {
+> +    system "nft -f $basedir/nftables-load";
+> +
+> +    # Start the stream server.
+> +    $pid = server_start( "-t test_inet_server_t", "-n stream 65535" );
+> +
+> +    # Verify that authorized client can communicate with the server.
+> +    $result = system
+> +"runcon -t test_inet_client_t -- $basedir/client -e nopeer stream 127.0.0.1 65535";
+> +    ok( $result eq 0 );
+> +
+> +    # Verify that unauthorized client cannot communicate with the server.
+> +    $result = system
+> +"runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer stream 127.0.0.1 65535 2>&1";
+> +    ok( $result >> 8 eq 5 );
+> +
+> +    # Verify that authorized client can communicate with the server.
+> +    $result = system
+> +"runcon -t test_inet_client_t -- $basedir/client -e nopeer stream ::1 65535";
+> +    ok( $result eq 0 );
+> +
+> +    # Verify that unauthorized client cannot communicate with the server.
+> +    $result = system
+> +"runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer stream ::1 65535 2>&1";
+> +    ok( $result >> 8 eq 5 );
+> +
+> +    # Kill the server.
+> +    server_end($pid);
+> +
+> +    # Start the dgram server.
+> +    $pid = server_start( "-t test_inet_server_t", "-n dgram 65535" );
+> +
+> +    # Verify that authorized client can communicate with the server.
+> +    $result = system
+> +"runcon -t test_inet_client_t $basedir/client -e nopeer dgram 127.0.0.1 65535";
+> +    ok( $result eq 0 );
+> +
+> +    # Verify that unauthorized client cannot communicate with the server.
+> +    $result = system
+> +"runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer dgram 127.0.0.1 65535 2>&1";
+> +    ok( $result >> 8 eq 8 );
+> +
+> +    # Verify that authorized client can communicate with the server.
+> +    $result = system
+> +      "runcon -t test_inet_client_t $basedir/client -e nopeer dgram ::1 65535";
+> +    ok( $result eq 0 );
+> +
+> +    # Verify that unauthorized client cannot communicate with the server.
+> +    $result = system
+> +"runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer dgram ::1 65535 2>&1";
+> +    ok( $result >> 8 eq 8 );
+> +
+> +    # Kill the server.
+> +    server_end($pid);
+> +
+> +    system "nft -f $basedir/nftables-flush";
+> +}
+
+It seems that this block of tests is the same for both iptables and
+nftables... could you extract it into a single shared function? I
+think you were reluctant to do that because then you can't tell from
+the line number in the test output which test has failed (iptables or
+nftables), but I don't think it's worth the duplication here. AFAIK,
+in case 2+ "ok()" calls are done from the same line, the test failure
+report includes the number of the call that failed, so it should be
+pretty easy to tell which variant has failed. Anyway, I would expect
+that in 90% of cases either both calls pass or both fail.
+
+> +
+>  if ($test_calipso_stream) {
+>
+>      # Load NetLabel configuration for CALIPSO/IPv6 labeling over loopback.
+[...]
+> diff --git a/tests/sctp/test b/tests/sctp/test
+> index 6631da4..afd28a1 100755
+> --- a/tests/sctp/test
+> +++ b/tests/sctp/test
+[...]
+> @@ -809,4 +819,68 @@ server_end($pid);
+>
+>  system "/bin/sh $basedir/iptables-flush";
+>
+> +#
+> +##################### Test nftables configuration ############################
+> +#
+> +if ($test_nft) {
+> +    print "# Testing nftables (IPv4/IPv6).\n";
+> +    system "nft -f $basedir/nftables-load";
+> +
+> +    # Start the stream server.
+> +    $pid = server_start( "-t test_sctp_server_t",
+> +        "sctp_server", "$v -n stream 1035" );
+> +
+> + # Verify that authorized client can communicate with the server STREAM->STREAM.
+> +    $result = system
+> +"runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer stream 127.0.0.1 1035";
+> +    ok( $result eq 0 );
+> +
+> +# Verify that a client without peer { recv } permission cannot communicate with the server STREAM->STREAM.
+> +    $result = system
+> +"runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer stream 127.0.0.1 1035 2>&1";
+> +    ok( $result >> 8 eq 6 );
+> +
+> + # Verify that authorized client can communicate with the server STREAM->STREAM.
+> +    $result = system
+> +"runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer stream ::1 1035";
+> +    ok( $result eq 0 );
+> +
+> +# Verify that a client without peer { recv } permission cannot communicate with the server STREAM->STREAM.
+> +    $result = system
+> +"runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer stream ::1 1035 2>&1";
+> +    ok( $result >> 8 eq 6 );
+> +
+> +    # Kill the stream server.
+> +    server_end($pid);
+> +
+> +    # Start the seq server.
+> +    $pid =
+> +      server_start( "-t test_sctp_server_t", "sctp_server", "$v -n seq 1035" );
+> +
+> +    # Verify that authorized client can communicate with the server SEQ->SEQ.
+> +    $result = system
+> +"runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq 127.0.0.1 1035";
+> +    ok( $result eq 0 );
+> +
+> +# Verify that a client without peer { recv } permission cannot communicate with the server SEQ->SEQ.
+> +    $result = system
+> +"runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer seq 127.0.0.1 1035 2>&1";
+> +    ok( $result >> 8 eq 6 );
+> +
+> +    # Verify that authorized client can communicate with the server SEQ->SEQ.
+> +    $result = system
+> +"runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq ::1 1035";
+> +    ok( $result eq 0 );
+> +
+> +# Verify that a client without peer { recv } permission cannot communicate with the server SEQ->SEQ.
+> +    $result = system
+> +"runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer seq ::1 1035 2>&1";
+> +    ok( $result >> 8 eq 6 );
+> +
+> +    # Kill the seq server.
+> +    server_end($pid);
+
+Same comment as above.
+
+> +
+> +    system "nft -f $basedir/nftables-flush";
+> +}
+> +
+>  exit;
+> --
+> 2.25.3
+>
 
 -- 
 Ondrej Mosnacek <omosnace at redhat dot com>
