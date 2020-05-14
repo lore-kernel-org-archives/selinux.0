@@ -2,122 +2,191 @@ Return-Path: <SRS0=6moO=64=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE00CC433E0
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 08:19:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A180C433E0
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 08:50:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A7A712065D
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 08:19:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1A071206B6
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 08:50:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RQ0wS4go"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VmEvQuI7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725925AbgENITi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 May 2020 04:19:38 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:51629 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725886AbgENITi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 04:19:38 -0400
+        id S1725974AbgENIui (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 May 2020 04:50:38 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:54649 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725925AbgENIui (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 04:50:38 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589444376;
+        s=mimecast20190719; t=1589446236;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=pQVOaHFHiMXvheEObJYgGQunYZZXG2Tp6JH5AzK9zjs=;
-        b=RQ0wS4gobsBlaPv3VY0x+zwjXU3rpyCCSGtXvh2qaKsgpLLQWnjyrZ/5YmGmAMG1gxvWf2
-        kAknENofvlubRL6KxrHlWCP1XIbMcSCxuUuMTfmzfwFe7CSxLRO7loroqyw7FNr1jTjm0o
-        tVLrf+qcwhDibSKMRo7PjElqqbiH9Z0=
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com
- [209.85.161.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-365-Hd6AgojGP7O_Azde2D8EEg-1; Thu, 14 May 2020 04:19:31 -0400
-X-MC-Unique: Hd6AgojGP7O_Azde2D8EEg-1
-Received: by mail-oo1-f71.google.com with SMTP id e197so1255803oob.14
-        for <selinux@vger.kernel.org>; Thu, 14 May 2020 01:19:31 -0700 (PDT)
+        bh=E7t18TPsr0mP0nFuykwheN8038FeKc7oNaLxAsJ1EF0=;
+        b=VmEvQuI7M/N3YUrYB84ub7ip5R0bFWMqQmYh/Tcihaoyp3ldVtD2cUVydrIM0qeQQj9i7Y
+        OxJ3bnwwCQ2hmm0goUkeNx3yu8ZY7UGxKE/YzDEx+fkOuKveyuo0Fr9aGC9jKBx62vrWI8
+        17v/6OTESQc6irZpILD0+jAj9zzKDFo=
+Received: from mail-oi1-f198.google.com (mail-oi1-f198.google.com
+ [209.85.167.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-115-Hdko1OKEN6SfL_ptwtogog-1; Thu, 14 May 2020 04:50:34 -0400
+X-MC-Unique: Hdko1OKEN6SfL_ptwtogog-1
+Received: by mail-oi1-f198.google.com with SMTP id j19so4952610oie.18
+        for <selinux@vger.kernel.org>; Thu, 14 May 2020 01:50:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=pQVOaHFHiMXvheEObJYgGQunYZZXG2Tp6JH5AzK9zjs=;
-        b=q2Ef3F82ez44Ef7wETpbJyil1hl9b744IzZPq8xSCzJxZNZRejczkVbE+ld+q6LwEO
-         /K4IlMW8zs9RyTl3kn3AL0et5xtwsnJ+TSD1QbUwz9aFo/OTQDA5G0F6KtBDsoOUuB2k
-         FAccthhV2ozjLPtVKJID6sgiikHAKEEu7/H5GaQHIVZtB3hrjVszjai3m7TaSBW3yFLZ
-         GnAGEPfEf/u0JGKZOjBBTV7s+CshD8/MprUfvE0dl+4yovtnfHdvsoqGdBJPMja4iyIY
-         4ZxK+vPIMRhlOhPGYd+w6J5keGpM9sgDghymQ8wSYrJpQQ4ksLpeBKD3u9Z9QK/agFLs
-         d49Q==
-X-Gm-Message-State: AGi0Puavxjb/ee5Po7+/dOafn/+lbF7YR8EBNKP1vu3FLQMwDGSnpbPn
-        5aGP/VJPFRKVn0zDpXl1e4ZoazNEDskWLJRyDT4qO6ctzNZ3nIoyjnkakbaB9GskgfTC5OnfhAe
-        uosK9xIO3kKT6z/4Lo22ewXTXlkNa42S3OQ==
-X-Received: by 2002:aca:488c:: with SMTP id v134mr17626983oia.103.1589444370112;
-        Thu, 14 May 2020 01:19:30 -0700 (PDT)
-X-Google-Smtp-Source: APiQypJkdqv52RsruNR31botm+S60qvJ4CvYc/EOUATp5JR8jU84P4AlwSMuE+QPCFhXD7ZEJOhA1vF9Mm4LcCzDUUQ=
-X-Received: by 2002:aca:488c:: with SMTP id v134mr17626966oia.103.1589444369734;
- Thu, 14 May 2020 01:19:29 -0700 (PDT)
+        bh=E7t18TPsr0mP0nFuykwheN8038FeKc7oNaLxAsJ1EF0=;
+        b=ZorXoLNtXEf/Gb6La1VhxF5wNvcFb9Sn3UWj+SI5Bkqy5YKbX0/CQ2+rAIrbWjLg1d
+         C2FG6YxYQrzsQ954FOUp0ziWWHKODtGg+ajvbjqoU0JC434cRLUQMH2kicpz+3lehFng
+         hAnyat3a7x8uzQHXtTKBlIDJwKFdt50DMjd8WDb15jhL5wSX6oXV4I43s4sS9BRuXU1/
+         yoTOiFc6G0x/vxc3Lv81llnRdqwljCv4aK61HtCw+Fqh827SU61DlZYQd7cDAmXiSsG8
+         Mds1wAqg6Y3of371OwZUKo4BKz0qlNR93cdoYA2qzLGmXCl+NjoMKVlvXTduZ9uB45YI
+         2ysw==
+X-Gm-Message-State: AOAM533vfPjA2fAjq/Mz5RLW+G32x3hD2amL3bAFt9dMnjvOU0LbeTPA
+        6kW12JqrssAISXGuQzdAzG9HjZ778Dqk+g30HFNxfv1TXJacAYJ67GwLzD1dYlDT3RYu1PTG8Xa
+        khCgXIZvodD7lBirsti5VVjgRmvcU2V0edQ==
+X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr2782382ooo.58.1589446233788;
+        Thu, 14 May 2020 01:50:33 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzPPKD+if/szTthCQf23/t9xcxRdHc9gMDbmlT4ypqpQ81Zj1Le1OEPiPpqc7y+NU9VEqXog5yYguA4/VokTLo=
+X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr2782371ooo.58.1589446233450;
+ Thu, 14 May 2020 01:50:33 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200513211508.4477-1-stephen.smalley.work@gmail.com>
-In-Reply-To: <20200513211508.4477-1-stephen.smalley.work@gmail.com>
+References: <20200417163804.307854-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20200417163804.307854-1-richard_c_haines@btinternet.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 14 May 2020 10:19:18 +0200
-Message-ID: <CAFqZXNtNSH8_8ow-ZkAMK=UXvs_rCieUr3xgn6pqrpb-Xvnbtw@mail.gmail.com>
-Subject: Re: [PATCH] libsepol: drop broken warning on duplicate filename transitions
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Thu, 14 May 2020 10:50:22 +0200
+Message-ID: <CAFqZXNtrXaYR3tJ1awcu6_CAG=syA0GqcHg+UTCZQFpQv3hY-w@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux-testsuite: Add check for key changes on watch_queue
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        David Howells <dhowells@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 13, 2020 at 11:16 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> As per the issue below, libsepol segfaults on loading old kernel policies
-> that contain duplicate filename transition rules.  The segfault is due to
-> the fact that the val_to_name arrays have not yet been populated at this
-> point in the policydb_read() processing.  Since this warning apparently
-> never worked since it was first introduced, drop it and just silently
-> discard the duplicate like the kernel does.  I was not able to produce a
-> policy with such duplicates using the current policy toolchain, either
-> via CIL or via binary modules with manual semodule_link/expand.
+On Fri, Apr 17, 2020 at 6:38 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> Kernel 5.7 introduced the watch_queue service that allows watching for
+> key changes. This requires key { view } permission, therefore check if
+> allowed or not.
 >
-> Fixes: https://github.com/SELinuxProject/selinux/issues/239
-> Fixes: 8fdb2255215a1f14 ("libsepol,checkpolicy: convert rangetrans and filenametrans to hashtabs")
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Note that the keyctl_watch_key() function is not yet built into the
+> keyutils library, therefore a syscall() is used.
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+
+OK, so I tried to build kernel RPMs(*) from the linux-next tree and
+try out this patch, but I ran into a few problems:
+1. <linux/watch_queue.h> includes <linux/fcntl.h>, which conflicts
+with glibc's <sys/fcntl.h>. This will maybe get fixed in glibc/kernel
+eventually, but I can't apply the patch as-is (maybe we can #define
+_LINUX_FCNTL_H before including <linux/watch_queue.h> as a temporary
+workaround?).
+2. Even when I got the test program to build, the test failed. I ran
+out of time to dig further, but it may be due to the issues I spotted
+later in the test policy (see below).
+
+(*) I wanted to try out the new Fedora's kernel build machinery, so I
+burnt too much time on this... but I now have a semi-automated way to
+build linux-next kernels as RPMs, which might come in handy in the
+future :)
+
 > ---
->  libsepol/src/policydb.c | 9 +--------
->  1 file changed, 1 insertion(+), 8 deletions(-)
+>  defconfig                 |   5 ++
+>  policy/Makefile           |   2 +-
+>  policy/test_watchkey.te   |  34 ++++++++++++
+>  tests/Makefile            |   4 ++
+>  tests/watchkey/.gitignore |   1 +
+>  tests/watchkey/Makefile   |   7 +++
+>  tests/watchkey/test       |  29 ++++++++++
+>  tests/watchkey/watchkey.c | 113 ++++++++++++++++++++++++++++++++++++++
+>  8 files changed, 194 insertions(+), 1 deletion(-)
+>  create mode 100644 policy/test_watchkey.te
+>  create mode 100644 tests/watchkey/.gitignore
+>  create mode 100644 tests/watchkey/Makefile
+>  create mode 100755 tests/watchkey/test
+>  create mode 100644 tests/watchkey/watchkey.c
 >
-> diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
-> index 5b289a52..3992ea56 100644
-> --- a/libsepol/src/policydb.c
-> +++ b/libsepol/src/policydb.c
-> @@ -2655,15 +2655,8 @@ int filename_trans_read(policydb_t *p, struct policy_file *fp)
->                          * Some old policies were wrongly generated with
->                          * duplicate filename transition rules.  For backward
->                          * compatibility, do not reject such policies, just
-> -                        * issue a warning and ignore the duplicate.
-> +                        * ignore the duplicate.
->                          */
-> -                       WARN(fp->handle,
-> -                            "Duplicate name-based type_transition %s %s:%s \"%s\":  %s, ignoring",
-> -                            p->p_type_val_to_name[ft->stype - 1],
-> -                            p->p_type_val_to_name[ft->ttype - 1],
-> -                            p->p_class_val_to_name[ft->tclass - 1],
-> -                            ft->name,
-> -                            p->p_type_val_to_name[otype->otype - 1]);
-
-Not sure if it's the same situation, but should we also do something
-about a similar pattern in checkpolicy/policy_define.c?
-
-https://github.com/SELinuxProject/selinux/blob/63bf6afe5ed20e1d62f966de65882dc327fb2915/checkpolicy/policy_define.c#L3408
-
->                         free(ft);
->                         free(name);
->                         free(otype);
-> --
-> 2.23.3
+> diff --git a/defconfig b/defconfig
+> index 0574f1d..9afbc2f 100644
+> --- a/defconfig
+> +++ b/defconfig
+> @@ -78,3 +78,8 @@ CONFIG_KEY_DH_OPERATIONS=y
+>  # Test key management socket.
+>  # This is not required for SELinux operation itself.
+>  CONFIG_NET_KEY=m
+> +
+> +# watch_queue for key changes.
+> +# They are not required for SELinux operation itself.
+> +CONFIG_WATCH_QUEUE=y
+> +CONFIG_KEY_NOTIFICATIONS=y
+> diff --git a/policy/Makefile b/policy/Makefile
+> index 87b2856..b3f5e3d 100644
+> --- a/policy/Makefile
+> +++ b/policy/Makefile
+> @@ -86,7 +86,7 @@ TARGETS += test_bpf.te test_fdreceive_bpf.te test_binder_bpf.te
+>  endif
 >
+>  ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && echo true),true)
+> -TARGETS += test_keys.te
+> +TARGETS += test_keys.te test_watchkey.te
+>  endif
+>
+>  ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.spt && echo true),true)
+> diff --git a/policy/test_watchkey.te b/policy/test_watchkey.te
+> new file mode 100644
+> index 0000000..e1d4c78
+> --- /dev/null
+> +++ b/policy/test_watchkey.te
+> @@ -0,0 +1,34 @@
+> +#
+> +######### Check watch_queue for key changes policy module ##########
+> +#
+> +attribute watchkeydomain;
+> +
+> +################# Allow watch_queue key { view } ##########################
+> +type test_watchkey_t;
+> +domain_type(test_watchkey_t)
+> +unconfined_runs_test(test_watchkey_t)
+> +typeattribute test_watchkey_t testdomain;
+> +typeattribute test_watchkey_t keydomain;
+
+You declare attribute "watchkeydomain" above and later call some
+interfaces on it, but assign all the types to "keydomain". I assume
+you meant to assign them to "watchkeydomain"?
+
+> +
+> +allow test_watchkey_t self:capability { ipc_lock };
+> +allow test_watchkey_t device_t:chr_file { ioctl open read write };
+> +allow test_watchkey_t self:key { view };
+> +allow_map(test_watchkey_t, device_t, chr_file)
+> +
+> +################# Deny watch_queue key { view } ##########################
+> +type test_watchkey_no_view_t;
+> +domain_type(test_watchkey_no_view_t)
+> +unconfined_runs_test(test_watchkey_no_view_t)
+> +typeattribute test_watchkey_no_view_t testdomain;
+> +typeattribute test_watchkey_no_view_t keydomain;
+> +
+> +allow test_watchkey_no_view_t self:capability { ipc_lock };
+> +allow test_watchkey_no_view_t device_t:chr_file { ioctl open read write };
+> +neverallow test_watchkey_no_view_t self:key { view };
+> +allow_map(test_watchkey_no_view_t, device_t, chr_file)
+> +
+> +#
+> +########### Allow these domains to be entered from sysadm domain ############
+> +#
+> +miscfiles_domain_entry_test_files(watchkeydomain)
+> +userdom_sysadm_entry_spec_domtrans_to(watchkeydomain)
+[...]
 
 -- 
 Ondrej Mosnacek <omosnace at redhat dot com>
