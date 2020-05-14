@@ -2,156 +2,131 @@ Return-Path: <SRS0=6moO=64=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A380C433DF
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:20:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE6C8C433DF
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:21:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 706FD2065F
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:20:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C649820709
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:21:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="dnCrxGD4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G4fcseNd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728050AbgENWUn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 May 2020 18:20:43 -0400
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com ([66.163.184.153]:32927
-        "EHLO sonic309-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728332AbgENWUn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 18:20:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589494842; bh=6kCasyZbnBSM6aUi3LLV5uU6Mp5a0Stjc5rmUr3QGCU=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=dnCrxGD4yStJZSHbfWiIAK19JM3c4UPKIFac2VH4bCRE7oNJ2uSmnm6uUO5Yi/SLvyrcC2oehxZZ6/27c/gcEAAJXuwk3E15l6Qx/P0QS6UqQOygBI6FkrmHJPh5gUgWurS2b1bO/8x+8F1LEgh5m2ZxBJzo3Zhwkrl4fQVshD98DdAs0nTjymo5Yymhh0K1AnikOw14FnGSmnYlMSFAwYwaFD2nzF3z3xbdcLLs3RHCfr4rmRCdxYcmoA34NJRJoP5fQSq9zCBDL9oDqZZ5I7SCxA4BJA4heLGUnv0CBV8NwXqNrDX/Hj9e25RwKDuknYwXrU8v2HdkywFmeczmjw==
-X-YMail-OSG: aRJA2DoVM1mMt6nktE1RwQ4Qig3wsfitX0OjU4H41mHnTjTsl6rghQL8Q2vMRFq
- Y1ZQk.tLExl1LisnrhhKIfGfN0_r_2X3NmS2gE_yFVbNMJM806N2NpvvXQL7NuLPqQPE6EO6ScV6
- MffWWMG8GWHCw2m5vCG1qH.iDOoPQENlrKWr_CoUFEL8HbIsKzt1_f8E0uVW_UGYtuCZcFqj92mz
- 1of2RO6LxIjIFQwihFQ5GJpYmtHd0cR7Tu6K3sR5VPtFCfezKKJLSpVCyrXI1wDZnZMq._oOA5kB
- cMsFIqZotVJINtCQgmQsW64fmJ26TvCwlAHowBYODJyoa1z3gWPj2RMQ_NARNUbjW8WP_EbzTF.j
- J_QUOkWGxEFi6lFuchsxQaslEvb4J.D0dz4xXEV4ehxcXhU_6HwyB0G9bIJ90x8_WexsykVdeHhb
- pwiYWM71hc_PFt0zTaq6ipAh2OZD8F8GHPt9InP8eDmZB2pY5P82Q962rYSDM_NYscDl8DaJtyi9
- nW5IEhDb0kiIsN8lY64ZDEx5VFD_024yQV2UU4GWOfhDkHYYLn7WtEcD6VgmgVQ66vQjcYFZJEsa
- 8.9N5WR1sINcn_fYVn0XMcCHn4t7WnSKOQTn.m6O_inlA763mLIh0Vf_KOWFG1dr.9gFmB0_MLU2
- XWSKMZpRGv8Ew6TQtDmHiUGXZloL7KVLLsG6BN8a4SOYjBAK.AJSj8LRXfC9WmHglkAzFm5f4QVP
- XKf9Hucx0MLWv7zNT9K7PD4gUPOPENrxPvVxuDa65dYyYfKbnvvWuaU9ubYrKu7RdIL_0Xs9wXVD
- ImoqBUfYexIEW3U7hs5PPMv1fXvU51dwBxmsWn86H_DR9BK7I1n8uCKHUBaaGI17otGRbevmvOiI
- 1MbBJazRU3dIR2pHf.TlTa_YV4w4cuHlUq.LmwM6ehoLjfbLRVvSWvCgdJhwdRFTZoS14WAF8ONE
- qITFwf2gE_25G1.F8TCiK2FEtFxVMEwn0BDW0LCHkOywcnysE_gYA4Oq6WLewCfv1MBZN6KEC88f
- ylGiO1OhZU3EvKz7MRlYfz9jB3hWCTguy.EEJz.ynCzrW.K2rfIJBdb4pwqWxnK5sbuyByz34NnG
- g8MMJPw4aIFLmzBj8Tp6IVsEjW2otFeM1_7YwyVDNrzB24ujwuAZXeTDqRzYEyc.j4qRG0v4Exft
- .kLfmR952sBodv.DkNThhsS7CpafiHfWrGJLcR60w6EKPahgQWZc87vCONjcjMzfANrYo5NBUuQD
- 9ahfDZBBR.T9GUbqVogfWcARCdPgA5BTPg0r_3rgfU7AIF0jRU3N4aZaEs2JqXlCiMCEWuhc8Coe
- PSYwY1.vxyErh9gyAgI4OZ2lc1lyiGhU0weZyzXlrzbEGsMED6YIoxI3R97JNwX_8Sr1Im8RFCq6
- pp..f0CSsRvneOn8WaDDDYD_24EgmXGgcvOjdlh5WLXGq6bR7krEts1c-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Thu, 14 May 2020 22:20:42 +0000
-Received: by smtp421.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 0c511fbc001a3a5bf9289aff8b2acbb5;
-          Thu, 14 May 2020 22:20:38 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     casey@schaufler-ca.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov, linux-audit@redhat.com
-Subject: [PATCH v17 08/23] LSM: Use lsmblob in security_ipc_getsecid
-Date:   Thu, 14 May 2020 15:11:27 -0700
-Message-Id: <20200514221142.11857-9-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200514221142.11857-1-casey@schaufler-ca.com>
-References: <20200514221142.11857-1-casey@schaufler-ca.com>
+        id S1728431AbgENWVC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 May 2020 18:21:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52822 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728332AbgENWVC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 18:21:02 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03062C061A0C
+        for <selinux@vger.kernel.org>; Thu, 14 May 2020 15:21:02 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id x7so506888oic.3
+        for <selinux@vger.kernel.org>; Thu, 14 May 2020 15:21:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=oBLt1CDwc08oSTEKL6pcJtKte2BQocr48sj1280prB4=;
+        b=G4fcseNd+NekgfjVArmQqv62NYHl1OdW4gpT2pV5oA94XSGpnVWJVBjzsmO20/1Cm/
+         0u/y9O+AeBPOPykTZTRajDNGj5bfnhzMsAu0WXSmJfI9O3L4D+FXKCOh/Gvc62oweFVG
+         I2+NP0Hnv8pZveBbkst6vgu7Jd9Ih1scynPNzQ/9fENB4tYS/u1M9slpWcrFEHwRmLtO
+         H3XMaPHW4mQxy0AHyEkmqzhQpSwNs/gIPcOOiD8q59HpsWLHV7alrH57yZzOYkLYWWSk
+         WYORqyBeUWz+gu3GH4nrWZyz84de+EdLKIA4Xp2O4tak6jaDz+uN+4T9sOjr7TkAtEHr
+         mdaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=oBLt1CDwc08oSTEKL6pcJtKte2BQocr48sj1280prB4=;
+        b=RE/EPLmdpjxQKesvCLP2t4ju2RU+QsO9BBU/SRyNOxySdc9MjlXrMl3wPmVxjoxqep
+         oO/6bNDEwSSaL1QCnXLDLDH8sqN/MPQYjioJSvg9s5OPWWMyfEuA9cV5qNahs+KERgVw
+         7Y2VRUOJixlICpm6pvmTd02bNJBf6zaOrlj7CV6zmIJFAbbYzJ13kNpKhc5jwAOkONlY
+         klv9CwtHvgCrsa8Zui/6Kwan927EZRPUzvcf6WnE+ekuuohd9Ka9Bb7ZdXQDstTFvidJ
+         4q9TeJ4L5ORBfvv45cTJsOCiQ1DKv4S9cyfxRAR3u1mkWRFyboaIKVEzOPrZA1MfeASC
+         SGLA==
+X-Gm-Message-State: AOAM532D/4QFU8Pk2cyO5Kp/riRV8SGDQAr43HMUiWN/3C5j83LeGsUb
+        Ga0U2SYcNoF/Lff2QiLsBfAPOSoSM7M9KnBhBjs=
+X-Google-Smtp-Source: ABdhPJz/pDvWzg8BtdrPDjNnUG4QgrqQwUMiqcIDYgkTRDzi+HYH7QR3anDt3uMNJFX+sxCJl74SdjWO5gIhs+KqiKw=
+X-Received: by 2002:aca:210a:: with SMTP id 10mr96585oiz.92.1589494861241;
+ Thu, 14 May 2020 15:21:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <3581425.j52oWYpJar@liv> <20200407085922.GA438349@workstation>
+ <20200422065053.GA167999@workstation> <CAHC9VhQUmY=ue3zWdTnE1Ehi90Lj3077sLbu+jyaWoAVKuKyeQ@mail.gmail.com>
+ <CAFftDdo1hqbacU2TD6zQp_t_KJq-KS5pWBMr89c4HA3=aUdUbQ@mail.gmail.com>
+ <20200423150039.GC204116@workstation> <CAFftDdq_g_rUy=KFh_gOEXoVxkCgz9qWzR17d4Mt1qVChoVLjg@mail.gmail.com>
+In-Reply-To: <CAFftDdq_g_rUy=KFh_gOEXoVxkCgz9qWzR17d4Mt1qVChoVLjg@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 14 May 2020 18:20:50 -0400
+Message-ID: <CAEjxPJ5qm8P0jmRvQNavDsrWCDDf7yCeRQ1orp_S63u-2EfBoA@mail.gmail.com>
+Subject: Re: Fedora VM On Travis for Testing
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>,
+        Jason Zaman <jason@perfinion.com>,
+        Steve Lawrence <slawrence@tresys.com>,
+        Chris PeBenito <pebenito@ieee.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        James Carter <jwcart2@tycho.nsa.gov>,
+        Joshua Brindle <brindle@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Petr Lautrbach <plautrba@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-There may be more than one LSM that provides IPC data
-for auditing. Change security_ipc_getsecid() to fill in
-a lsmblob structure instead of the u32 secid. The
-audit data structure containing the secid will be updated
-later, so there is a bit of scaffolding here.
+On Thu, May 14, 2020 at 5:03 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+> I just wanted to lay out a demo of a Fedora 32 cloud VM image booting
+> on Travis with execution happening in the Fedora VM.
+> The Fedora VM contains the selinux source code for that particular
+> travis build, so it has the PR patches, etc.
+> The VM has networking.
+>
+> The build logs for the Travis run are here:
+>   - https://travis-ci.org/github/williamcroberts/selinux/builds/687185489
+>
+> Which comes from my git tree here:
+>   - https://github.com/williamcroberts/selinux/tree/kvm-fedora-testing
+>
+> Note that it's super messy, I need to go through and cleanup both the
+> patch and the git
+> history. I also should verify the downloaded image is signed for the VM.
+> Also note that I may rebase/squash my git branch at any time.
+>
+> Petr started a release document here:
+>   - https://github.com/bachradsusi/SELinuxProject-selinux/blob/RELEASE/RELEASE_PROCESS.md
+>
+> I'd like to gather feedback, and perhaps more comments on:
+> 1. Is this CI approach worth continuing?
+> 2. Comments on the CI scripts (I have no idea what I am doing, common issue)
+> 3. Comments, patches, suggestions on what tests to run in this CI environment.
+> 4. More information in in the RELEASE_PROCESS.md file. I made some
+> comments there
+>     as well on ideas.
+>
+> My goal here is that a release can occur if CI is passing without
+> worry, and that
+> we automate manual steps as much as possible. This way, if we get hit by a bus
+> releases can occur without much effort.
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: John Johansen <john.johansen@canonical.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
----
- include/linux/security.h |  7 ++++---
- kernel/auditsc.c         |  7 ++++++-
- security/security.c      | 12 +++++++++---
- 3 files changed, 19 insertions(+), 7 deletions(-)
-
-diff --git a/include/linux/security.h b/include/linux/security.h
-index 2ab69ebd2f72..c7e4ce8d209a 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -488,7 +488,7 @@ int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
- 			unsigned long arg4, unsigned long arg5);
- void security_task_to_inode(struct task_struct *p, struct inode *inode);
- int security_ipc_permission(struct kern_ipc_perm *ipcp, short flag);
--void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid);
-+void security_ipc_getsecid(struct kern_ipc_perm *ipcp, struct lsmblob *blob);
- int security_msg_msg_alloc(struct msg_msg *msg);
- void security_msg_msg_free(struct msg_msg *msg);
- int security_msg_queue_alloc(struct kern_ipc_perm *msq);
-@@ -1196,9 +1196,10 @@ static inline int security_ipc_permission(struct kern_ipc_perm *ipcp,
- 	return 0;
- }
- 
--static inline void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
-+static inline void security_ipc_getsecid(struct kern_ipc_perm *ipcp,
-+					 struct lsmblob *blob)
- {
--	*secid = 0;
-+	lsmblob_init(blob, 0);
- }
- 
- static inline int security_msg_msg_alloc(struct msg_msg *msg)
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 585a1b3afa51..6fb75f799c60 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -2296,11 +2296,16 @@ void __audit_mq_getsetattr(mqd_t mqdes, struct mq_attr *mqstat)
- void __audit_ipc_obj(struct kern_ipc_perm *ipcp)
- {
- 	struct audit_context *context = audit_context();
-+	struct lsmblob blob;
- 	context->ipc.uid = ipcp->uid;
- 	context->ipc.gid = ipcp->gid;
- 	context->ipc.mode = ipcp->mode;
- 	context->ipc.has_perm = 0;
--	security_ipc_getsecid(ipcp, &context->ipc.osid);
-+	security_ipc_getsecid(ipcp, &blob);
-+	/* context->ipc.osid will be changed to a lsmblob later in
-+	 * the patch series. This will allow auditing of all the object
-+	 * labels associated with the ipc object. */
-+	context->ipc.osid = lsmblob_value(&blob);
- 	context->type = AUDIT_IPC;
- }
- 
-diff --git a/security/security.c b/security/security.c
-index 9df05c1eb7bd..18370f3f824b 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1834,10 +1834,16 @@ int security_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
- 	return call_int_hook(ipc_permission, 0, ipcp, flag);
- }
- 
--void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
-+void security_ipc_getsecid(struct kern_ipc_perm *ipcp, struct lsmblob *blob)
- {
--	*secid = 0;
--	call_void_hook(ipc_getsecid, ipcp, secid);
-+	struct security_hook_list *hp;
-+
-+	lsmblob_init(blob, 0);
-+	hlist_for_each_entry(hp, &security_hook_heads.ipc_getsecid, list) {
-+		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
-+			continue;
-+		hp->hook.ipc_getsecid(ipcp, &blob->secid[hp->lsmid->slot]);
-+	}
- }
- 
- int security_msg_msg_alloc(struct msg_msg *msg)
--- 
-2.24.1
-
+I'm amazed travis-ci supports all of that (especially for free).
+Hopefully you aren't violating their terms of use.
+The biggest thing I'd add is to build and install the selinux
+userspace in place of the stock Fedora versions (sudo make
+LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap relabel) and
+then build and run the selinux-testsuite to exercise the SELinux
+userspace and kernel runtime functionality.  Other things to possibly
+add would be rebuilding upstream refpolicy (similar to its
+.travis.yml) with the latest userspace, rebuilding and running setools
+(but until we decouple it from libsepol internals this will
+periodically break).
