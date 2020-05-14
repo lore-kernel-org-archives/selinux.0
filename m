@@ -2,180 +2,203 @@ Return-Path: <SRS0=6moO=64=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89421C433DF
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:22:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36E7FC433DF
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:23:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6575220727
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:22:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0980220709
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:23:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="c7AUw5be"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DgkHrFXn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728469AbgENWWx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 May 2020 18:22:53 -0400
-Received: from sonic316-27.consmr.mail.ne1.yahoo.com ([66.163.187.153]:41404
-        "EHLO sonic316-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728468AbgENWWu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 18:22:50 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589494968; bh=00fD1grsIhFF5LtjD9egNqVHjvscUXK4If42VxnI6kA=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=c7AUw5beTKEd2JuBURf0PsrO1oS8fJku0o4RJOkHgwR7+nwpTyfPSChYJwS7+V7ib+oV0l6NYADgH35omMDRjV1cgEglWN0oT73uRD1hnORLMaMS/e5h4SLCwuwrYvfwHFbDKImmDt54ePHemZ5X+tFm8xzZ340lAH1mNy17uSFOyc3UUwmberrNErWOUSKM+KivIvyMJWXEPagjyoCCtms4FyIo/AlC5+5NbVWxT46S8KruEofZN5SMmf0uUAGonXg9tM8gqKMchX0DMk+XL7rkTNbGA/QVzsjMw6TQghZmKMMB3tfe/t5Og9baoG3X6FsETyCA6L74da6raR0ipg==
-X-YMail-OSG: sf2ys8oVM1mc1HDzilccL8MmySbLrH8dwVO.6WzKUgdZ_rWYY4CWH5tJ0d0ND1z
- ayZPDRpqtg3YxrqxYFHaT5P9Pft8Jv3dq9IFYBIri4K5zvSwizqQ5MQm8j2o8IhdpwTDkCOyqDAZ
- W5iPWUKvJQfwxfjU3.3nhnAuDIpDHGfXET.vVaGwAxB_afPHpVmmgGarVObBdkOFZ3_F6M7k2QFy
- AoH3RKNrHTQ3EmOzHpFcwRi2367CA3wobpJi7MU3BnVObuh9ZHVdyjVW_CJjhEvM7PIeaVVR3MRj
- wDqtkqgrun8yz1eHMkZtWF8MfDKfxQYpLNw.VxqsuUnVXrLMzVCQGs31Y_ON1.QpQ0imvECiKN8X
- Wv3gtlSQBaw6GEjCwYJ48Rg4AIEpPb2lphCo.Bft2njP0mDs9FlHDTST8KJUZuzK7p7be1uGSgkT
- oYoG2gMzIuxwCl9xu6rZBF_vau1BtZOCNko1eIlrpuIgmo.KRMeHrcpFRVyWoqN8.eHHHgCGleV7
- rZIurPtiE2579ThfCp0LvTkioGB9xf8LkL7LlVslzND4p38msdE.WCOK.6HKucn7Wh__mU0kTDjP
- 8HOP_gTVt5lMzSfWBmIvxALcgGUUSbv0kq8PllyumLDBjCgsFUVLZkQhgn_gzM_uqUNIzbgyZJZ7
- F1nw9HvAM7ck0I2UBGm26f7.DrWLiVs5yka90BzXGhbGz4TOeJxzejXnxjHVvQoXNLL.h9tdaXOC
- qiKuzXCaEFfJ3uFD5uFhATTjbWbIVgm3TN3.UGUN8HF2Q_RwFuCGXM6T71RjP8iojo1gv1SsKEW8
- v8ZitGInfVXy5Ot8Vii.zGxn4t8yovAunTkri_kr2q9ycRolQZuBa9mmwsRTwJ9N671C4LvFwXRJ
- BD3uX37RfpWGoTuYp2Ew4nAd.AYzurWpl4NoZfkwuxNFsIFnnJG.yAgNIPfpe5h5.5Lfj40rZBLG
- l1ZhTpUy8v3mRSPPF.XJKXDMBaFyCP1my4vGyLiUFOCpegYJhue6Mnvk.d8WwJJvfR.7xrNuo8FU
- XC2W7YNyz5RzBxJinHFkTQIXCgo_POVau74Kr9aJ6hekZsnL1LrrTmjEKDbA48U0RpBWs3Sjokkv
- 5mzjIRmPmnd2ZidIUCTONzQplqfwGfF9ExT1NHlzSuodr38lIMiAU_NJ1BdI.LhEw_MgMtMesPIu
- ZWgOvxKkj7fuIon44T.ZqUDIcr_Os0nS_8vtEQrCNEy7dpa06E2aVUQsvo4CuLiZVBSTfa8Oa4Rq
- WLZIXczP7F6Jya__4f4_mE6fLo3S0oomZC5l3ApSg5jembgE.JAoiT3EKiph3ll.3otKn9RzvdN_
- vSzuxq7QKfOKhzcRN11DDeeLBDUCkt999GysfZlLTcSMPpZpkH8X4RvnrIV4YJEVX6EXm4PLvCxr
- mMHlDruVw8cghQaxbDVkpH58P0hFRq_v2in6TZ5iJgiBc20C6dfLP5ExyDuSC.Q--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Thu, 14 May 2020 22:22:48 +0000
-Received: by smtp416.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID c7b3420ad493daad796606174d9ee147;
-          Thu, 14 May 2020 22:22:47 +0000 (UTC)
-From:   Casey Schaufler <casey@schaufler-ca.com>
-To:     casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     casey@schaufler-ca.com, keescook@chromium.org,
-        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
-        paul@paul-moore.com, sds@tycho.nsa.gov, linux-audit@redhat.com,
-        linux-integrity@vger.kernel.org
-Subject: [PATCH v17 10/23] LSM: Use lsmblob in security_inode_getsecid
-Date:   Thu, 14 May 2020 15:11:29 -0700
-Message-Id: <20200514221142.11857-11-casey@schaufler-ca.com>
-X-Mailer: git-send-email 2.24.1
-In-Reply-To: <20200514221142.11857-1-casey@schaufler-ca.com>
-References: <20200514221142.11857-1-casey@schaufler-ca.com>
+        id S1728409AbgENWXv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 May 2020 18:23:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53274 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728315AbgENWXv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 18:23:51 -0400
+Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220DFC061A0C
+        for <selinux@vger.kernel.org>; Thu, 14 May 2020 15:23:51 -0700 (PDT)
+Received: by mail-lj1-x243.google.com with SMTP id w10so130856ljo.0
+        for <selinux@vger.kernel.org>; Thu, 14 May 2020 15:23:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4OTrWu06yLV6v/GCnClVZzRudXZzMy6CUTDqOEvhNsg=;
+        b=DgkHrFXng33y2jMUlUfGu5pUCzJpe63+OLT12ImfUNSKR1rDWjG1I+6UGk7mT2rCVQ
+         l9otVjZCxblbSriXcAO+v+s3T7gQV5E8UVPzeV3W7K7B6lj5u9Gea20w8dBNDEwJ+ZoK
+         GHM1PykTNXcj++wB9OwdQjfdZUt7cjOfRNwCEt1Hm/Y7IPQUqtJ6JNMMEUIsYa6jlYP+
+         7b3EreryXf+JkfBeTSnt8m36pntokYg7mwy5mhOPeJ2V8OAqVf/DQHoMeBB/GRnz2tOg
+         9EZ6tWGh2koY58ctY0SwUFcsavEqqO7O81N6jqsBIeNHu+7fbvkItaHNwbTaRHLPUsl3
+         vbcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4OTrWu06yLV6v/GCnClVZzRudXZzMy6CUTDqOEvhNsg=;
+        b=I8YLjhnive+i4pW5OKNNulvhVst7zMdRCYTueQEZGJZ8mTOuVCsho4EhI7ZWsHD+gg
+         AXGJMgL16ipq1aeCD1mJbBaMIyRDELhM8N6JAXy7a02TSJG4Xv2O4zBk1tuZ5xxAvGD2
+         MMptY8Nna7RKNe7GwtV05cEVPkO+4mRgYIEs9cCxYmaOib0GOFftBkOAA5X3frV5at4H
+         rpR8EQB+Un2H+mg4/DVNfrQHuKQxA5JLRVGYf4xts/imNzH5ETvr3Xj5m8PTqdSSaJNr
+         9OAyqfeVinuOGUFnjQDTUfltnZ+FTdj+PIYj9sW3r5VCOJl+UFvbFEVBYVf+l8if1PaX
+         07mw==
+X-Gm-Message-State: AOAM532RQLTgHPluE4HENBtFd1HpBPsd/aXAtUI+ZKJXUV7TZ6GrCaQS
+        Nz67ZQvUgh9BpSPTzAqeVQVKFd34NmRrjFFKBB4=
+X-Google-Smtp-Source: ABdhPJwGJBx1Q9ISdMrJqGyZU89faEsXN1XO+1X6yXXlA9TuUCGnksoirgIf3M5sB9RJD4ao74gIKAoAwhDHWOibXG0=
+X-Received: by 2002:a2e:a58e:: with SMTP id m14mr259841ljp.95.1589495029419;
+ Thu, 14 May 2020 15:23:49 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <3581425.j52oWYpJar@liv> <20200407085922.GA438349@workstation>
+ <20200422065053.GA167999@workstation> <CAHC9VhQUmY=ue3zWdTnE1Ehi90Lj3077sLbu+jyaWoAVKuKyeQ@mail.gmail.com>
+ <CAFftDdo1hqbacU2TD6zQp_t_KJq-KS5pWBMr89c4HA3=aUdUbQ@mail.gmail.com>
+ <20200423150039.GC204116@workstation> <CAFftDdq_g_rUy=KFh_gOEXoVxkCgz9qWzR17d4Mt1qVChoVLjg@mail.gmail.com>
+ <CAJfZ7===ssyARiz=cG73hqRq_+d+tGuNKX9-nOU7VJVZGS=+zQ@mail.gmail.com>
+In-Reply-To: <CAJfZ7===ssyARiz=cG73hqRq_+d+tGuNKX9-nOU7VJVZGS=+zQ@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Thu, 14 May 2020 17:23:37 -0500
+Message-ID: <CAFftDdqhN8KNrNy69tK7LCgD-WewLN9pJjTt8-v4CiuMFonh0A@mail.gmail.com>
+Subject: Re: Fedora VM On Travis for Testing
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Jason Zaman <jason@perfinion.com>,
+        Steve Lawrence <slawrence@tresys.com>,
+        Chris PeBenito <pebenito@ieee.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        James Carter <jwcart2@tycho.nsa.gov>,
+        Joshua Brindle <brindle@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Petr Lautrbach <plautrba@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Change the security_inode_getsecid() interface to fill in a
-lsmblob structure instead of a u32 secid. This allows for its
-callers to gather data from all registered LSMs. Data is provided
-for IMA and audit.
+On Thu, May 14, 2020 at 5:03 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Thu, May 14, 2020 at 11:00 PM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+> >
+> > I just wanted to lay out a demo of a Fedora 32 cloud VM image booting
+> > on Travis with execution happening in the Fedora VM.
+> > The Fedora VM contains the selinux source code for that particular
+> > travis build, so it has the PR patches, etc.
+> > The VM has networking.
+> >
+> > The build logs for the Travis run are here:
+> >   - https://travis-ci.org/github/williamcroberts/selinux/builds/687185489
+> >
+> > Which comes from my git tree here:
+> >   - https://github.com/williamcroberts/selinux/tree/kvm-fedora-testing
+> >
+> > Note that it's super messy, I need to go through and cleanup both the
+> > patch and the git
+> > history. I also should verify the downloaded image is signed for the VM.
+> > Also note that I may rebase/squash my git branch at any time.
+> >
+> > Petr started a release document here:
+> >   - https://github.com/bachradsusi/SELinuxProject-selinux/blob/RELEASE/RELEASE_PROCESS.md
+> >
+> > I'd like to gather feedback, and perhaps more comments on:
+> > 1. Is this CI approach worth continuing?
+> > 2. Comments on the CI scripts (I have no idea what I am doing, common issue)
+> > 3. Comments, patches, suggestions on what tests to run in this CI environment.
+> > 4. More information in in the RELEASE_PROCESS.md file. I made some
+> > comments there
+> >     as well on ideas.
+> >
+> > My goal here is that a release can occur if CI is passing without
+> > worry, and that
+> > we automate manual steps as much as possible. This way, if we get hit by a bus
+> > releases can occur without much effort.
+>
+> Hi,
+> This sounds like a nice idea :) Also it appears it only takes 5
+> minutes to run the whole Travis CI job of setting the Fedora VM up and
+> booting it, which is more than acceptable in term of delays (and is
+> very quicker than building and testing the project itself). This could
 
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-cc: linux-integrity@vger.kernel.org
----
- include/linux/security.h            |  7 ++++---
- kernel/auditsc.c                    |  6 +++++-
- security/integrity/ima/ima_policy.c |  4 +---
- security/security.c                 | 11 +++++++++--
- 4 files changed, 19 insertions(+), 9 deletions(-)
+Yeah I was pretty happy with the timing it took to add this. But CI doesn't
+necessarily need to be fast. We run a huge test matrix, Travis only
+spins up a few at a time anyways.
 
-diff --git a/include/linux/security.h b/include/linux/security.h
-index abb88a7727c4..c46da9c03162 100644
---- a/include/linux/security.h
-+++ b/include/linux/security.h
-@@ -431,7 +431,7 @@ int security_inode_killpriv(struct dentry *dentry);
- int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc);
- int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
- int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
--void security_inode_getsecid(struct inode *inode, u32 *secid);
-+void security_inode_getsecid(struct inode *inode, struct lsmblob *blob);
- int security_inode_copy_up(struct dentry *src, struct cred **new);
- int security_inode_copy_up_xattr(const char *name);
- int security_kernfs_init_security(struct kernfs_node *kn_dir,
-@@ -946,9 +946,10 @@ static inline int security_inode_listsecurity(struct inode *inode, char *buffer,
- 	return 0;
- }
- 
--static inline void security_inode_getsecid(struct inode *inode, u32 *secid)
-+static inline void security_inode_getsecid(struct inode *inode,
-+					   struct lsmblob *blob)
- {
--	*secid = 0;
-+	lsmblob_init(blob, 0);
- }
- 
- static inline int security_inode_copy_up(struct dentry *src, struct cred **new)
-diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index f4c45ec8f59f..3201f0997a5d 100644
---- a/kernel/auditsc.c
-+++ b/kernel/auditsc.c
-@@ -1935,13 +1935,17 @@ static void audit_copy_inode(struct audit_names *name,
- 			     const struct dentry *dentry,
- 			     struct inode *inode, unsigned int flags)
- {
-+	struct lsmblob blob;
-+
- 	name->ino   = inode->i_ino;
- 	name->dev   = inode->i_sb->s_dev;
- 	name->mode  = inode->i_mode;
- 	name->uid   = inode->i_uid;
- 	name->gid   = inode->i_gid;
- 	name->rdev  = inode->i_rdev;
--	security_inode_getsecid(inode, &name->osid);
-+	security_inode_getsecid(inode, &blob);
-+	/* scaffolding until osid is updated */
-+	name->osid = blob.secid[0];
- 	if (flags & AUDIT_INODE_NOEVAL) {
- 		name->fcap_ver = -1;
- 		return;
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 2c1a92cc1bf8..2f084a388142 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -479,7 +479,6 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		return false;
- 	for (i = 0; i < MAX_LSM_RULES; i++) {
- 		int rc = 0;
--		u32 osid;
- 		struct lsmblob lsmdata;
- 
- 		if (!ima_lsm_isset(rule->lsm[i].rules)) {
-@@ -492,8 +491,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 		case LSM_OBJ_USER:
- 		case LSM_OBJ_ROLE:
- 		case LSM_OBJ_TYPE:
--			security_inode_getsecid(inode, &osid);
--			lsmblob_init(&lsmdata, osid);
-+			security_inode_getsecid(inode, &lsmdata);
- 			rc = security_filter_rule_match(&lsmdata,
- 							rule->lsm[i].type,
- 							Audit_equal,
-diff --git a/security/security.c b/security/security.c
-index 60b3d42b2e3b..1e8456a6fe3c 100644
---- a/security/security.c
-+++ b/security/security.c
-@@ -1437,9 +1437,16 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
- }
- EXPORT_SYMBOL(security_inode_listsecurity);
- 
--void security_inode_getsecid(struct inode *inode, u32 *secid)
-+void security_inode_getsecid(struct inode *inode, struct lsmblob *blob)
- {
--	call_void_hook(inode_getsecid, inode, secid);
-+	struct security_hook_list *hp;
-+
-+	lsmblob_init(blob, 0);
-+	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecid, list) {
-+		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
-+			continue;
-+		hp->hook.inode_getsecid(inode, &blob->secid[hp->lsmid->slot]);
-+	}
- }
- 
- int security_inode_copy_up(struct dentry *src, struct cred **new)
--- 
-2.24.1
+> allow to run more tests that require to be able to manage the SELinux
+> policy, automatically at every pull requests.
+>
+> By the way I wasn't expecting Travis-CI to easily allow nested
+> virtualization ("nested" because jobs are already run inside VMs,
+> IIRC). If it works, it is great!
 
+I was surprised too, I was expecting that to be disabled, when I cat
+cpuinfo, I was very happy.
+
+>
+> Some quick thoughts/suggestions/comments that I have in my head after
+> reading very quickly your changes:
+> - The networking setup of the VM seems to be more complex than needed
+> because you are relying on getting the IP address from DHCP. Would it
+> be possible to configure libvirt with port forwarding, so that "ssh -p
+> 2222 127.0.0.1" always work? (with raw QEMU, the command-line
+> parameters would be something like -net
+> nic,model=virtio,macaddr=52:54:00:12:34:56 -net
+> user,hostfwd=tcp:127.0.0.1:2222-:22)
+
+I would love something like that (no idea what I am doing),
+but it doesn't get rid of polling for network. We have to wait
+for the sshd to be ready.
+
+
+> - Usually the helper scripts are located in directory scripts/, which
+> make them more easily discovered by people reading the code (hidden
+> files and directories seems more appropriate to store the
+> configuration for different CI platforms that require them ; some
+> projects choose to hide everything that is not useful for the build
+> process but here it does seem to be so). Are there advantages of using
+> .ci/ directory?
+
+No benefit, just did something. They can live wherever....
+
+> - Moreover having a "fedora-test.run" (or "fedora-test.sh", I am more
+> used to .sh extension for shell scripts) enables to easily reproduce
+
+and be named whatever....
+
+> tests on a local development machine using "vagrant init
+> fedora/32-cloud-base && vagrant ssh" + "sudo
+> /vagrant/.../fedora-test.run". Such a command could be documented in
+> the header of the shell script.
+
+That sounds good, I like being able to do that. I have no idea what vagrant
+is. You could say im ignorant to vargrant!
+
+> - Right now, there are many things in .travis.yml. This file could be
+> split in shell script(s) if that reduces duplication.
+
+Yep I agree. Thats how I run all my other projects, I dislike large
+travis.yml files,
+but I don't want to take on that workload right now, ideally get this
+working and then port the other stuff.
+
+> - To verify the download of Fedora cloud image, instead of hard-coding
+> its SHA256 digest, you could download the checksum file which is
+> signed using GnuPG and check its signature, as described on
+> https://alt.fedoraproject.org/cloud/
+
+Yeah I saw that. Thats why I had that verify link in the TODO
+comment:
+https://alt.fedoraproject.org/en/verify.html
+
+>
+> Cheers,
+> Nicolas
+
+Thank you, appreciate your feedback
