@@ -2,149 +2,122 @@ Return-Path: <SRS0=6moO=64=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE88FC433E0
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:32:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 062F9C433E2
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:32:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9CAC42065F
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:32:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D63F82065F
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 22:32:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NcWPccne"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Mfe3z4m0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbgENWcI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 May 2020 18:32:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54562 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728627AbgENWcI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 18:32:08 -0400
-Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 736E8C061A0C
-        for <selinux@vger.kernel.org>; Thu, 14 May 2020 15:32:07 -0700 (PDT)
-Received: by mail-lj1-x244.google.com with SMTP id b6so139945ljj.1
-        for <selinux@vger.kernel.org>; Thu, 14 May 2020 15:32:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zQgal8ytnzXytGJuGIqKsS+BhXInFBcpb3bIGXvjaxs=;
-        b=NcWPccnenciDSM6X741CyBlTtzBL1BwrFzWvVi/Hg/jdHYK1g/BQpkiqBOn5KbL2wb
-         jR6TUU8fmehu1zEleojUmnOxK59xP0kaAXQ6w3qYvW3QsaJvdSruPqRDeTL0jTgLyays
-         A/cieaKyAOgUaajY2/xN7kRL+ZipwbE1iv3sjRyaiD5tvSBxpy1U8nTq5Ea2c/FCT16P
-         4tjiBMcTKYgCqODmRN5/5lPiDhmmf2ZouQeOjCCiaVuqlX/+LPOhFf+TA4L12uVjqZa8
-         YDSDHXwP499XjVayUfK91Zwox7xgvrjYfsqTTFq/xMUQnv/KXxFkOCcbTvijOIjkwSpV
-         RIfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zQgal8ytnzXytGJuGIqKsS+BhXInFBcpb3bIGXvjaxs=;
-        b=Mb8FpTtB1Ckc5/NI/8sHAalvq5aYCE14elfGfmnIMsZjnVVykaCxv2M0ZRj2GSjSpP
-         4XOljAbtWeDPONfEpclfcjvYEMtriPf7ImvIr2qqOMghC3xbciY/uFu321Ssl3L8KbcB
-         susb0KMUFCnaWOI4oZCtImi/aLmI0m0+jpp4TdC6jK/OjtLIJI2vdsZHrivWhPoBzCL1
-         9q246006tDb4QVUQXSsWWsbG1/QQxUk06oHFuWhQXKasoc6KE1RASgdB/RLLg7afgOAt
-         2rtm5pRp5SDopszuJteHS2ygcGZ/AISDzD0B7UmhDL8pIvNGUmABP7mACisBEAWhgHjc
-         d+zg==
-X-Gm-Message-State: AOAM531EjyPIfSjasuT/nW9rU6KjS025l9LNOT+x9M2oUCFQj10ojK7I
-        oIXEBgXefZLfum30LIQ0yNRoGSNSojd8dttQKus=
-X-Google-Smtp-Source: ABdhPJznpW2TdnPT7F0s1C72nlMbPZY50j43aZw92vChFLuR42kVFr6q9zlxGC9Cm6rL0KKAMFDRhM1qgj6d1mmK8Vc=
-X-Received: by 2002:a2e:a545:: with SMTP id e5mr260068ljn.271.1589495525795;
- Thu, 14 May 2020 15:32:05 -0700 (PDT)
+        id S1728525AbgENWcn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 May 2020 18:32:43 -0400
+Received: from sonic309-27.consmr.mail.ne1.yahoo.com ([66.163.184.153]:40663
+        "EHLO sonic309-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728662AbgENWcn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 18:32:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589495562; bh=CXLrghL2246zzEWsu94Kcqk12JO7Gj9mpePZWe08Rd4=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=Mfe3z4m0S5X90LWsM9JYvl4r1nieCtCpWxZET/SY1EQHKxlIRIawTYFE4ame5aWYPkDWYG+cZtb3koTjZUR2NcX63bFmgELiTHNPI+AWamnvxRIF0Ji5vYtAPs87SA19IJkRkrC77gYXtneuoQKNuBhpJe/MGUD8PUqkTffWZTX5kcDfwnKw58II4ZN+ujwtspaIMjKkW+5xbdTfCTATKAS4FRNVBX1b70InC24TYNPA49En9UcXLF61QhrOuetSKDm9vvVDSe/nwFByBBJepINsGL4mo3eWSur87GZL4/6xoZ4sLdHgbYYoIl9klyXSum6w3x0EF/lm+8eeZ87SDw==
+X-YMail-OSG: vVtq8UsVM1lUjzWLpFiIOeWUwK19WFeVgJ3rrIhIEElbqapw9nprRKVsfUc7g96
+ gKQ1zeX4fOZAXVRqJKkIyQH20jXIi4_f1y_hguiiTOKvJXFrG6ZrIdZbADa3_rGm.CLaDozW9e9W
+ _4pK6qCdAJUKLCegYpTNEyYDCAla_nbcCKZH.kyo1OhQwAUb9RTQR.zLMEcibXwcBBK7jfo8mF20
+ Q_M2PPmYa6huj8Y7Hk1E9ZitFpQNk59rf6pG7.eLIJYb05B7cxUP8VW58DHw5U0BOTOK9bUAVWaE
+ 1QcrVt5sk25JrPaDEjzqKGZ9uPinBRJXUMdrU9UWimKjg7zHebVlF5EBqJZvTTpPAYy7RMIMQ2K6
+ Lmqjayg5S5Mc7xVPFUoJaB2ZBl4mmtJFL5rvIyVf61ISirsYLCO.avTZQ0F48Zvp8keDvBJQ7Gs3
+ p2F4uoZGWkrkwAuc6MQIAlzLU.kibM7K1M71SxUrc0SB5BoZzNa3uvNaK7v6HeLflBDEQUwIXmuN
+ sZr3hIK595L4lKFZf6tfpS5jsVoAkbL3fszuLVX_qa18raRDVXV5Ef63eEGToA5XWQ41llupO6za
+ YSLKjhPcNzpEDXPlrziBJQvcIYyTTxWKHMW5AzbrSitBZzKFnz2s4xrMD64B.4xoyvZH0WoduMTf
+ lRUXt2iTiRby.BNKY.VwizBVMMdS07tICMgPAk562l0TE.8qUhJ0NVII3q3ycZTIBj6EASsr.pOW
+ UhVDDNdGvb_xI4yrfxqYnzS2T.y8MV5unp05a4dWP1d_QaW3zkuq8EeIRNbjMXMmTncxVINKJq5W
+ b3Zgv.fMwHu5Fy6iZWiAz11IcGSoRny41Pt07AWuXQubOwPRGmIIvfidn6btKf6bMrSRDmLBpcR1
+ ocmV0C77yzUZ7v_DWDh0qjQYseWy4eMEw6m5z0HHfih9.J3MUOP6A9tCvjEy1Y71Z_7YYXBM4jIf
+ AikrSUlq0j8I5xEwUmLQTPprORLN4PAMO9wu9S3M.ZQj52YdFQnbMQi8gbKwQsdywXi0WxbYggMp
+ kIRgMpvUhhPe.uz6KY66Uv_Dbfc13pjPfT.JqqDykBCvU5_ySJEcUOlhF3TPvV55NnhyZh1vOzQS
+ 7c3AIqp8YTeXSznGPWl5rzdv85.3kgVA69ffbCVeRJJsc9Zs3r2JI.LJICTcZZ3zCeL8uoAJVjMJ
+ KvdGtw_r6S1ZtELvJ91Zfhcjfi37ygKLWZJ4nUGn7pQr660HLwUmBo5bf3Z5ZmNXCDHQ61xBr3xV
+ mfFHNs9xNE1jBs.ppsGEEhUEzaYa6Nb2gJ1On2xgM66y2oFFn9AbsgkHIyJ9OHFtuwDa62Tbv9eN
+ pwV1ANvoJI566CpLBL9PbvOIRbmBFxM85hMx2dwBJ0FhJDDvf006cQ7HK0PaorAMgUbv.xUnHVQu
+ i8kP5BH17Wyg1ZoqusQDz8mvJ8b_ukcaCsdfmRnDlLhZ9tcNWIehgZij92C8-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Thu, 14 May 2020 22:32:42 +0000
+Received: by smtp405.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID a21fe4c302c24d17582575c2e3e82ae3;
+          Thu, 14 May 2020 22:32:36 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov, linux-audit@redhat.com
+Subject: [PATCH v17 19/23] LSM: Verify LSM display sanity in binder
+Date:   Thu, 14 May 2020 15:11:38 -0700
+Message-Id: <20200514221142.11857-20-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200514221142.11857-1-casey@schaufler-ca.com>
+References: <20200514221142.11857-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
-References: <3581425.j52oWYpJar@liv> <20200407085922.GA438349@workstation>
- <20200422065053.GA167999@workstation> <CAHC9VhQUmY=ue3zWdTnE1Ehi90Lj3077sLbu+jyaWoAVKuKyeQ@mail.gmail.com>
- <CAFftDdo1hqbacU2TD6zQp_t_KJq-KS5pWBMr89c4HA3=aUdUbQ@mail.gmail.com>
- <20200423150039.GC204116@workstation> <CAFftDdq_g_rUy=KFh_gOEXoVxkCgz9qWzR17d4Mt1qVChoVLjg@mail.gmail.com>
- <CAEjxPJ5qm8P0jmRvQNavDsrWCDDf7yCeRQ1orp_S63u-2EfBoA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5qm8P0jmRvQNavDsrWCDDf7yCeRQ1orp_S63u-2EfBoA@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 14 May 2020 17:31:54 -0500
-Message-ID: <CAFftDdopFfNynCNTnzo34XNVc=t49=82NOQP8OFq+fXLC9Ghtw@mail.gmail.com>
-Subject: Re: Fedora VM On Travis for Testing
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Nicolas Iooss <nicolas.iooss@m4x.org>,
-        Jason Zaman <jason@perfinion.com>,
-        Steve Lawrence <slawrence@tresys.com>,
-        Chris PeBenito <pebenito@ieee.org>,
-        Jeffrey Vander Stoep <jeffv@google.com>,
-        James Carter <jwcart2@tycho.nsa.gov>,
-        Joshua Brindle <brindle@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Petr Lautrbach <plautrba@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 14, 2020 at 5:21 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Thu, May 14, 2020 at 5:03 PM William Roberts
-> <bill.c.roberts@gmail.com> wrote:
-> >
-> > I just wanted to lay out a demo of a Fedora 32 cloud VM image booting
-> > on Travis with execution happening in the Fedora VM.
-> > The Fedora VM contains the selinux source code for that particular
-> > travis build, so it has the PR patches, etc.
-> > The VM has networking.
-> >
-> > The build logs for the Travis run are here:
-> >   - https://travis-ci.org/github/williamcroberts/selinux/builds/687185489
-> >
-> > Which comes from my git tree here:
-> >   - https://github.com/williamcroberts/selinux/tree/kvm-fedora-testing
-> >
-> > Note that it's super messy, I need to go through and cleanup both the
-> > patch and the git
-> > history. I also should verify the downloaded image is signed for the VM.
-> > Also note that I may rebase/squash my git branch at any time.
-> >
-> > Petr started a release document here:
-> >   - https://github.com/bachradsusi/SELinuxProject-selinux/blob/RELEASE/RELEASE_PROCESS.md
-> >
-> > I'd like to gather feedback, and perhaps more comments on:
-> > 1. Is this CI approach worth continuing?
-> > 2. Comments on the CI scripts (I have no idea what I am doing, common issue)
-> > 3. Comments, patches, suggestions on what tests to run in this CI environment.
-> > 4. More information in in the RELEASE_PROCESS.md file. I made some
-> > comments there
-> >     as well on ideas.
-> >
-> > My goal here is that a release can occur if CI is passing without
-> > worry, and that
-> > we automate manual steps as much as possible. This way, if we get hit by a bus
-> > releases can occur without much effort.
->
-> I'm amazed travis-ci supports all of that (especially for free).
-> Hopefully you aren't violating their terms of use.
+Verify that the tasks on the ends of a binder transaction
+use the same "display" security module. This prevents confusion
+of security "contexts".
 
-Not that I am aware of and I read their terms of use.
-https://docs.travis-ci.com/legal/terms-of-service/
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+---
+ security/security.c | 29 +++++++++++++++++++++++++++++
+ 1 file changed, 29 insertions(+)
 
-They don't seem to limit what you can do, it seems to be centered
-around availability, liability and support.
+diff --git a/security/security.c b/security/security.c
+index d082ef0673d0..677a9f409dc2 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -788,9 +788,38 @@ int security_binder_set_context_mgr(struct task_struct *mgr)
+ 	return call_int_hook(binder_set_context_mgr, 0, mgr);
+ }
+ 
++/**
++ * security_binder_transaction - Binder driver transaction check
++ * @from: source of the transaction
++ * @to: destination of the transaction
++ *
++ * Verify that the tasks have the same LSM "display", then
++ * call the security module hooks.
++ *
++ * Returns -EINVAL if the displays don't match, or the
++ * result of the security module checks.
++ */
+ int security_binder_transaction(struct task_struct *from,
+ 				struct task_struct *to)
+ {
++	int from_display = lsm_task_display(from);
++	int to_display = lsm_task_display(to);
++
++	/*
++	 * If the display is LSMBLOB_INVALID the first module that has
++	 * an entry is used. This will be in the 0 slot.
++	 *
++	 * This is currently only required if the server has requested
++	 * peer contexts, but it would be unwieldly to have too much of
++	 * the binder driver detail here.
++	 */
++	if (from_display == LSMBLOB_INVALID)
++		from_display = 0;
++	if (to_display == LSMBLOB_INVALID)
++		to_display = 0;
++	if (from_display != to_display)
++		return -EINVAL;
++
+ 	return call_int_hook(binder_transaction, 0, from, to);
+ }
+ 
+-- 
+2.24.1
 
-I stumbled into other projects on github that were running virsh commands
-
-> The biggest thing I'd add is to build and install the selinux
-> userspace in place of the stock Fedora versions (sudo make
-> LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap relabel) and
-> then build and run the selinux-testsuite to exercise the SELinux
-> userspace and kernel runtime functionality.  Other things to possibly
-
-Perfect, that's the info I was looking for.
-
-> add would be rebuilding upstream refpolicy (similar to its
-> .travis.yml) with the latest userspace, rebuilding and running setools
-> (but until we decouple it from libsepol internals this will
-> periodically break).
-
-If it breaks, it breaks, just means we need to merge something or actually
-fix it properly IIUC.
