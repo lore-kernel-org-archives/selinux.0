@@ -2,291 +2,218 @@ Return-Path: <SRS0=6moO=64=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0
+	tests=HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8640BC433E4
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 17:06:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B534AC433DF
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 18:45:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5A963206DC
-	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 17:06:39 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="DQcrFaKS"
+	by mail.kernel.org (Postfix) with ESMTP id 90A0120657
+	for <selinux@archiver.kernel.org>; Thu, 14 May 2020 18:44:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726046AbgENRGf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 14 May 2020 13:06:35 -0400
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com ([66.163.184.153]:40501
-        "EHLO sonic309-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726610AbgENRGe (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 13:06:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589475993; bh=ywS9qtv92ULtIUX+IJVNzAMPyJHQMKJsF/Xjtg52W9o=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=DQcrFaKSIhsb21kjfO3auFpJWAvJmspFHvcXa6G+6brIJs0NKyfRa6J1NXix+z7LnVxhIVyzAMe4my677gX68anBQffl5aVuaPJCNKnN/oICaPnr9mLKesZmfITxn7OZIT8pwI15ox/K0CmLAS3T4fWE3fg/N12SPBtE5KLVi8R2Hstmb/7HCLyspM3qU2mAinlwY6OYqfVs5ljlXkKV/dljutbEITxFZu3iKs9ERYon3Cg5by8HLhJi7VUVtgBcGERMl7+qnkKxMhEDQlQSPFheLa35UB3Mp8/4nprx1M1O0FI5U3jzyFVn8l9fmuVVEPpki51TTG6NVvJSNiUVHQ==
-X-YMail-OSG: EMvjKngVM1n5QKhJt54phHMWN.X6AEm2VYm8fOY3XFbOwZmO7BDs_p0LIMwkUKB
- d9HQA4pLMkH0AkzHpUn9FGM1z4qtnKnhUURaQ4unK3040foGl_VxNs6i.EUsudAWcgY0X1OAyeik
- SLiZaFhsVsbeX2ixhMa7rMNreBszGssn21PdGyjv4JmOhgkLDkiV0Le0jy.0YYgyrM8gITtluqic
- yiL19aFQ9UNL2T_vAbNo4knYtvGIEXtI9I4yyWXrLvEgOtMLU_mdk5OgvynuElAS8OPnGauUTUzm
- E6bKy.Gcy08SboifFGs6s4zA6DMNz_I9wuJX1K2W1NSkGI3GIepdGkk0AwhHsoclhssIb1RziOyp
- SGcJFG.IMiwV58f.WvgzHVFavd47xBf7PI07V5S.5d6M08d96d21o_cra8NLrpNiZI7u5wIc3rbF
- 30XdAhQ9.SM.XdhAQA7NlPnf4bqg4PLinEXcVW29N8KM1qOkhsFbMi.xtQyhW5Ou3Ba0du.QNGBf
- 0a4PRU41GKiE40EAYLYfPihS4AaEZ7NaOU_gEOlC3m_h3msjDKY0jphwdThFMU0.qPCZgsLswpPJ
- GCh3Yey8i6WQp3blE3eRuPnTR4ehUQxr8itjMPwessI0rRXv8_JAI.Mow2zNqTCUGTrChb73ycCj
- LLDdZyM1x0vkrKyLwVR6_jfCXR9s4pa9M6bbzLKkrZ7naYU4ABpWbNbahQnOX7LYMqRsGLvLWyW1
- g9fw1Br8X51iHOevAmKCmkRhmFy1qYtfc8CwBxNW_Uqu5Rs6ZlgzPO1cX_6668nEAQ7j3ahZpaZ4
- FzT.C7AU.GcHatEnP3VLxze5xfaEixMK_tzleASEJukEdL1QqpByFVEnqj5S7OjvO5rfhCU56jSI
- bg2HcTbf9Hf8NUyM827Vn8whgu5__6IO9QFX2nzrH0ozWHDcnxv_MOwyCLYu88tzWwyPgYEPZmZo
- 4iFwaPQjn2GL2YrYSLW.AbhkDCf4SD.2MZsjgjjGvIlrsn_ilJY_8NrO9m7bTfmrUc.3cIsJICbM
- hrwgtKY8KuX0Wd2bcAkGaRCZPWmx8N5_EP9HODzZ_UZ9HTqsszhSCnf0f5SiZKmJFL5umBxwZ5i5
- s4g3_pee7a2zJt6xt2Df0Mtd5JD8k6jIJ02T2qTJ6tvV8WbIdOZMxAtVnDYRCmKRslDstzoxNneh
- 3.p64Ihom2wvZ24lO11WcHsCm85QBGIXDF4q50qeKkxh3xK6bo7nvSv_DWKbRpfqkfTZjXHsnnUn
- _hFiJRt3JS.aM3JOBfRMVBN_f75oxuoBKAhuG.AO4OYHEa5i4H65v5k8R3aCMa4dK7KBjJXPefDZ
- f9JaWPJxci2s8iPIBn_VOv11rEHG6unyzaQMsxkS6q2RDU5CQA60I_LiF4fNVaNOQGNVP86QtCbb
- c9nVVOqoQYhwbFBcoq2BFtOpZy8E-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Thu, 14 May 2020 17:06:33 +0000
-Received: by smtp412.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID fc92533db0efb0f134e119ba56e9dc08;
-          Thu, 14 May 2020 17:06:29 +0000 (UTC)
-Subject: Re: [PATCH] keys: Move permissions checking decisions into the
- checking code
-To:     David Howells <dhowells@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Paul Moore <paul@paul-moore.com>, keyrings@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <CAEjxPJ4=ZN_jKP2nX5mrMA3OxC8XLsYEmCPCD-78H4XQw=_hCA@mail.gmail.com>
- <CAEjxPJ6pFdDfm55pv9bT3CV5DTFF9VqzRmG_Xi5bKNxPaGuOLg@mail.gmail.com>
- <158932282880.2885325.2688622278854566047.stgit@warthog.procyon.org.uk>
- <3999877.1589475539@warthog.procyon.org.uk>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <bf760071-0b34-41e7-1bc0-7c4d85d9bc8a@schaufler-ca.com>
-Date:   Thu, 14 May 2020 10:06:28 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726778AbgENSo7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 14 May 2020 14:44:59 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:44354 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726667AbgENSo6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 14 May 2020 14:44:58 -0400
+Received: from mail-oo1-f49.google.com (mail-oo1-f49.google.com [209.85.161.49])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 66D03566852
+        for <selinux@vger.kernel.org>; Thu, 14 May 2020 20:44:55 +0200 (CEST)
+Received: by mail-oo1-f49.google.com with SMTP id s139so948989oos.1
+        for <selinux@vger.kernel.org>; Thu, 14 May 2020 11:44:55 -0700 (PDT)
+X-Gm-Message-State: AOAM530PrvyesZChKB+4JOMej7oRW/EUVwhQ6Jx0WYapmZ9hisRGlu44
+        0RVA7cTZyWPS5oEW0Q1WSnJGFkNva8fekp+SvgA=
+X-Google-Smtp-Source: ABdhPJyJTJVk/p3XswExx9St0qopHUedGyHCtV5sMSn/CWX4cgtGpEfDBn1Suu4HpC0b8jAgyq3z49wfo7rsb1Ddjb0=
+X-Received: by 2002:a4a:ad0d:: with SMTP id r13mr4771319oon.22.1589481894046;
+ Thu, 14 May 2020 11:44:54 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <3999877.1589475539@warthog.procyon.org.uk>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.15941 hermes_yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.6)
+References: <5ebc4bc6.1c69fb81.a8850.464e@mx.google.com>
+In-Reply-To: <5ebc4bc6.1c69fb81.a8850.464e@mx.google.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Thu, 14 May 2020 20:44:42 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7==4oSmvECxX-Roarvc5w=EsAtF=M-yjGv2bQD9rN7GUeg@mail.gmail.com>
+Message-ID: <CAJfZ7==4oSmvECxX-Roarvc5w=EsAtF=M-yjGv2bQD9rN7GUeg@mail.gmail.com>
+Subject: Re: [PATCH v2] libsemanage: fsync final files before rename
+To:     Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Thu May 14 20:44:55 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/14/2020 9:58 AM, David Howells wrote:
-> How about this then?
+On Wed, May 13, 2020 at 9:34 PM Smalley <stephen.smalley.work@gmail.com> wrote:
 >
-> David
+> From: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> Prior to rename(2)'ing the final selinux policy files into place,
+> fsync(2) them to ensure the contents will be fully written prior to
+> rename.  While we are here, also fix checking of write(2) to detect
+> short writes and treat them as an error.  This code could be more
+> generally improved but keeping to the minimal changes required to fix
+> this bug.
+>
+> Fixes: https://github.com/SELinuxProject/selinux/issues/237
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 > ---
-> commit fa37b6c7e2f86d16ede1e0e3cb73857152d51825
-> Author: David Howells <dhowells@redhat.com>
-> Date:   Thu May 14 17:48:55 2020 +0100
+> v2 falls back to EIO if errno is not set by a short write, and
+> only fsync's the final selinux policy files being created in
+> /etc/selinux, avoiding the overhead of fsync on every file copied
+> under /var/lib/selinux.
 >
->     keys: Move permissions checking decisions into the checking code
->     
->     Overhaul the permissions checking, moving the decisions of which permits to
->     request for what operation and what overrides to allow into the permissions
->     checking functions in keyrings, SELinux and Smack.
->     
->     To this end, the KEY_NEED_* constants are turned into an enum and expanded
->     in number to cover operation types individually.
->     
->     Note that some more tweaking is probably needed to separate kernel uses,
->     e.g. AFS using rxrpc keys, from direct userspace users.
->     
->     Some overrides are available and this needs to be handled specially:
->     
->      (1) KEY_FLAG_KEEP in key->flags - The key may not be deleted and/or things
->          may not be removed from the keyring.
->     
->      (2) KEY_FLAG_ROOT_CAN_CLEAR in key->flags - The keyring can be cleared by
->          CAP_SYS_ADMIN.
->     
->      (3) KEY_FLAG_ROOT_CAN_INVAL in key->flags - The key can be invalidated by
->          CAP_SYS_ADMIN.
->     
->      (4) An appropriate auth token being set in cred->request_key_auth that
->          gives a process transient permission to view and instantiate a key.
->          This is used by the kernel to delegate instantiation to userspace.
->     
->     Note that this requires some tweaks to the testsuite as some of the error
->     codes change.
->     
->     Signed-off-by: David Howells <dhowells@redhat.com>
->     Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->     cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
->     cc: Paul Moore <paul@paul-moore.com>
->     cc: Stephen Smalley <stephen.smalley.work@gmail.com>
->     cc: Casey Schaufler <casey@schaufler-ca.com>
->     cc: keyrings@vger.kernel.org
->     cc: selinux@vger.kernel.org
+>  libsemanage/src/direct_api.c     | 10 +++++-----
+>  libsemanage/src/semanage_store.c | 20 +++++++++++++++-----
+>  libsemanage/src/semanage_store.h |  4 +++-
+>  3 files changed, 23 insertions(+), 11 deletions(-)
 >
-<snip> ...
-
-> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
-> index 8c61d175e195..ac9c93c48097 100644
-> --- a/security/smack/smack_lsm.c
-> +++ b/security/smack/smack_lsm.c
-> @@ -4230,13 +4230,15 @@ static void smack_key_free(struct key *key)
->   * smack_key_permission - Smack access on a key
->   * @key_ref: gets to the object
->   * @cred: the credentials to use
-> - * @perm: requested key permissions
-> + * @need_perm: requested key permission
->   *
->   * Return 0 if the task has read and write to the object,
->   * an error code otherwise
->   */
->  static int smack_key_permission(key_ref_t key_ref,
-> -				const struct cred *cred, unsigned perm)
-> +				const struct cred *cred,
-> +				enum key_need_perm need_perm,
-> +				unsigned int flags)
+> diff --git a/libsemanage/src/direct_api.c b/libsemanage/src/direct_api.c
+> index 1088a0ac..d2b91fb2 100644
+> --- a/libsemanage/src/direct_api.c
+> +++ b/libsemanage/src/direct_api.c
+> @@ -1188,7 +1188,7 @@ cleanup:
+>   * overwrite it. If source doesn't exist then return success.
+>   * Returns 0 on success, -1 on error. */
+>  static int copy_file_if_exists(const char *src, const char *dst, mode_t mode){
+> -       int rc = semanage_copy_file(src, dst, mode);
+> +       int rc = semanage_copy_file(src, dst, mode, false);
+>         return (rc < 0 && errno != ENOENT) ? rc : 0;
+>  }
+>
+> @@ -1488,7 +1488,7 @@ rebuild:
+>                         retval = semanage_copy_file(path,
+>                                                     semanage_path(SEMANAGE_TMP,
+>                                                                   SEMANAGE_STORE_SEUSERS),
+> -                                                   0);
+> +                                                   0, false);
+>                         if (retval < 0)
+>                                 goto cleanup;
+>                         pseusers->dtable->drop_cache(pseusers->dbase);
+> @@ -1506,7 +1506,7 @@ rebuild:
+>                         retval = semanage_copy_file(path,
+>                                                     semanage_path(SEMANAGE_TMP,
+>                                                                   SEMANAGE_USERS_EXTRA),
+> -                                                   0);
+> +                                                   0, false);
+>                         if (retval < 0)
+>                                 goto cleanup;
+>                         pusers_extra->dtable->drop_cache(pusers_extra->dbase);
+> @@ -1595,7 +1595,7 @@ rebuild:
+>
+>         retval = semanage_copy_file(semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_KERNEL),
+>                         semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_KERNEL),
+> -                       sh->conf->file_mode);
+> +                       sh->conf->file_mode, false);
+>         if (retval < 0) {
+>                 goto cleanup;
+>         }
+> @@ -1634,7 +1634,7 @@ rebuild:
+>                         retval = semanage_copy_file(
+>                                                 semanage_path(SEMANAGE_TMP, SEMANAGE_STORE_FC_HOMEDIRS),
+>                                                 semanage_final_path(SEMANAGE_FINAL_TMP, SEMANAGE_FC_HOMEDIRS),
+> -                                               sh->conf->file_mode);
+> +                                               sh->conf->file_mode, false);
+>                         if (retval < 0) {
+>                                 goto cleanup;
+>                         }
+> diff --git a/libsemanage/src/semanage_store.c b/libsemanage/src/semanage_store.c
+> index 859c0a22..cd5e46bb 100644
+> --- a/libsemanage/src/semanage_store.c
+> +++ b/libsemanage/src/semanage_store.c
+> @@ -707,7 +707,8 @@ static int semanage_filename_select(const struct dirent *d)
+>
+>  /* Copies a file from src to dst.  If dst already exists then
+>   * overwrite it.  Returns 0 on success, -1 on error. */
+> -int semanage_copy_file(const char *src, const char *dst, mode_t mode)
+> +int semanage_copy_file(const char *src, const char *dst, mode_t mode,
+> +               bool syncrequired)
 >  {
->  	struct key *keyp;
->  	struct smk_audit_info ad;
-> @@ -4244,12 +4246,6 @@ static int smack_key_permission(key_ref_t key_ref,
->  	int request = 0;
->  	int rc;
->  
-> -	/*
-> -	 * Validate requested permissions
-> -	 */
-> -	if (perm & ~KEY_NEED_ALL)
-> -		return -EINVAL;
-> -
->  	keyp = key_ref_to_ptr(key_ref);
->  	if (keyp == NULL)
->  		return -EINVAL;
-> @@ -4265,6 +4261,71 @@ static int smack_key_permission(key_ref_t key_ref,
->  	if (tkp == NULL)
->  		return -EACCES;
->  
-> +	/*
-> +	 * Validate requested permissions
-> +	 */
-> +	switch (need_perm) {
-> +	case KEY_NEED_ASSUME_AUTHORITY:
-> +		return 0;
-> +
-> +	case KEY_NEED_DESCRIBE:
-> +	case KEY_NEED_GET_SECURITY:
-> +		request |= MAY_READ;
-> +		auth_can_override = true;
-> +		break;
-> +
-> +	case KEY_NEED_CHOWN:
-> +	case KEY_NEED_INVALIDATE:
-> +	case KEY_NEED_JOIN:
-> +	case KEY_NEED_LINK:
-> +	case KEY_NEED_KEYRING_ADD:
-> +	case KEY_NEED_KEYRING_CLEAR:
-> +	case KEY_NEED_KEYRING_DELETE:
-> +	case KEY_NEED_REVOKE:
-> +	case KEY_NEED_SETPERM:
-> +	case KEY_NEED_SET_RESTRICTION:
-> +	case KEY_NEED_UPDATE:
-> +		request |= MAY_WRITE;
-> +		break;
-> +
-> +	case KEY_NEED_INSTANTIATE:
-> +		auth_can_override = true;
-> +		break;
-> +
-> +	case KEY_NEED_READ:
-> +	case KEY_NEED_SEARCH:
-> +	case KEY_NEED_USE:
-> +	case KEY_NEED_WATCH:
-> +		request |= MAY_READ;
-> +		break;
-> +
-> +	case KEY_NEED_SET_TIMEOUT:
-> +		request |= MAY_WRITE;
-> +		auth_can_override = true;
-> +		break;
-> +
-> +	case KEY_NEED_UNLINK:
-> +		return 0; /* Mustn't prevent this; KEY_FLAG_KEEP is already
-> +			   * dealt with. */
-> +
-> +	default:
-> +		WARN_ON(1);
-> +		return -EINVAL;
-> +	}
-> +
-> +	/* Just allow the operation if the process has an authorisation token.
-> +	 * The presence of the token means that the kernel delegated
-> +	 * instantiation of a key to the process - which is problematic if we
-> +	 * then say that the process isn't allowed to get the description of
-> +	 * the key or actually instantiate it.
-> +	 */
-> +	if (auth_can_override && cred->request_key_auth) {
-> +		struct request_key_auth *rka =
-> +			cred->request_key_auth->payload.data[0];
-> +		if (rka->target_key == key)
-> +			*_perm = 0;
-> +	}
-> +
->  	if (smack_privileged_cred(CAP_MAC_OVERRIDE, cred))
->  		return 0;
->  
-> @@ -4273,10 +4334,6 @@ static int smack_key_permission(key_ref_t key_ref,
->  	ad.a.u.key_struct.key = keyp->serial;
->  	ad.a.u.key_struct.key_desc = keyp->description;
->  #endif
-> -	if (perm & (KEY_NEED_READ | KEY_NEED_SEARCH | KEY_NEED_VIEW))
-> -		request |= MAY_READ;
-> -	if (perm & (KEY_NEED_WRITE | KEY_NEED_LINK | KEY_NEED_SETATTR))
-> -		request |= MAY_WRITE;
->  	rc = smk_access(tkp, keyp->security, request, &ad);
->  	rc = smk_bu_note("key access", tkp, keyp->security, request, rc);
->  	return rc;
+>         int in, out, retval = 0, amount_read, n, errsv = errno;
+>         char tmp[PATH_MAX];
+> @@ -735,8 +736,11 @@ int semanage_copy_file(const char *src, const char *dst, mode_t mode)
+>         }
+>         umask(mask);
+>         while (retval == 0 && (amount_read = read(in, buf, sizeof(buf))) > 0) {
+> -               if (write(out, buf, amount_read) < 0) {
+> -                       errsv = errno;
+> +               if (write(out, buf, amount_read) != amount_read) {
+> +                       if (errno)
+> +                               errsv = errno;
+> +                       else
+> +                               errsv = EIO;
+>                         retval = -1;
+>                 }
+>         }
+> @@ -745,6 +749,10 @@ int semanage_copy_file(const char *src, const char *dst, mode_t mode)
+>                 retval = -1;
+>         }
+>         close(in);
+> +       if (syncrequired && fsync(out) < 0) {
+> +               errsv = errno;
+> +               retval = -1;
+> +       }
 
-Better. Thank you.
+The patch looks good to me, even though I am wondering whether it
+makes sense to call fsync() if an error happens (by changing the
+condition to "if (!retval && syncrequired && fsync(out) < 0)").
+Anyway, this is a minor comment and I am fine with the other changes.
+
+Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+
+Thanks!
+Nicolas
+
+>         if (close(out) < 0) {
+>                 errsv = errno;
+>                 retval = -1;
+> @@ -811,7 +819,8 @@ static int semanage_copy_dir_flags(const char *src, const char *dst, int flag)
+>                         umask(mask);
+>                 } else if (S_ISREG(sb.st_mode) && flag == 1) {
+>                         mask = umask(0077);
+> -                       if (semanage_copy_file(path, path2, sb.st_mode) < 0) {
+> +                       if (semanage_copy_file(path, path2, sb.st_mode,
+> +                                               false) < 0) {
+>                                 umask(mask);
+>                                 goto cleanup;
+>                         }
+> @@ -1639,7 +1648,8 @@ static int semanage_install_final_tmp(semanage_handle_t * sh)
+>                         goto cleanup;
+>                 }
+>
+> -               ret = semanage_copy_file(src, dst, sh->conf->file_mode);
+> +               ret = semanage_copy_file(src, dst, sh->conf->file_mode,
+> +                                       true);
+>                 if (ret < 0) {
+>                         ERR(sh, "Could not copy %s to %s.", src, dst);
+>                         goto cleanup;
+> diff --git a/libsemanage/src/semanage_store.h b/libsemanage/src/semanage_store.h
+> index 34bf8523..b9ec5664 100644
+> --- a/libsemanage/src/semanage_store.h
+> +++ b/libsemanage/src/semanage_store.h
+> @@ -24,6 +24,7 @@
+>  #ifndef SEMANAGE_MODULE_STORE_H
+>  #define SEMANAGE_MODULE_STORE_H
+>
+> +#include <stdbool.h>
+>  #include <sys/time.h>
+>  #include <sepol/module.h>
+>  #include <sepol/cil/cil.h>
+> @@ -162,6 +163,7 @@ int semanage_nc_sort(semanage_handle_t * sh,
+>                      size_t buf_len,
+>                      char **sorted_buf, size_t * sorted_buf_len);
+>
+> -int semanage_copy_file(const char *src, const char *dst, mode_t mode);
+> +int semanage_copy_file(const char *src, const char *dst, mode_t mode,
+> +               bool syncrequired);
+>
+>  #endif
+> --
+> 2.23.3
+>
 
