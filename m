@@ -7,46 +7,48 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE17C433DF
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:10:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5B2BC433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:12:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BC643206D4
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:10:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AFA18206D4
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:12:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="qk6CZdjJ"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="Gw7nZBg0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726160AbgEONK0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 09:10:26 -0400
-Received: from mailomta10-re.btinternet.com ([213.120.69.103]:22595 "EHLO
-        re-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726140AbgEONK0 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:10:26 -0400
-Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
-          by re-prd-fep-048.btinternet.com with ESMTP
-          id <20200515131021.LHFG8887.re-prd-fep-048.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Fri, 15 May 2020 14:10:21 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1589548221; 
-        bh=5t1lftGqi39V1hfEhlebYdIi36WXfCPpDG5yKAqjy50=;
+        id S1726438AbgEONMh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 09:12:37 -0400
+Received: from mailomta20-re.btinternet.com ([213.120.69.113]:47344 "EHLO
+        re-prd-fep-042.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726298AbgEONMc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:12:32 -0400
+Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
+          by re-prd-fep-042.btinternet.com with ESMTP
+          id <20200515131228.QNKH4070.re-prd-fep-042.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Fri, 15 May 2020 14:12:28 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1589548348; 
+        bh=w1YyunV4D+tpvg1ZXCBnc9k5E3Mjw8lD12hfMRPUCsg=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=qk6CZdjJU8k+mjqSZBlVAy6kJwnailzEZWiqoz9E+tMXkf1J3ZGsW8qd9Fsn++lAbcz1PmbRRQpsMgdHjbsVJixS1jVCzhPjddSVXJr2CCiZJSj8+MB4C/8mBcykDVmlNRiuU2qV/8OCOZjWoLHnfeAQImWh6mLj3GfNt3dQwQ+fyI+M4fmhlFKonzMbgZSDfLprkdIWC/JLsxFF4CjY+AWlU2YPfShKzDpwUvOaPncs+IcwqJ9bihxZ04lCpHhRi+kUPXPG69zjdRVAeB0xb64KQ5oV3C5QwrxL5mjO4AM8H4xYvEiRzdKO1Hr6hWv4b7Mh8TD/bvwRLL+VjGCJuQ==
+        b=Gw7nZBg0lttXl7YmZe+eCmVWMlZilSMLLK7Bo0ZoUEgCiC8GrHC6YvZg3o7H1ii86TAu5Ck82NAWr+B/cAdoIs6LhUFkleXG6AetxR/DHTKEZkrxT7twDYT83QHTvHS3Xu32Li41qn9Wt8+gNJh1YaqoPLqF+sYSmVSw6qzyPJe/Di8Xsir0EMOLNSqKz2Pomb1NwZC6Z/pIlABbDVoeHUgD/kJTE4LLvydir2zk1tSMllGi/UOKuArhAyUeipd7SE6bfh/TC94xmBAR9k1oP5KUTUqv1gzOV5yAAVrDgMKE5MSu6HApPBbNo+5YutC7laPE7twJfBMdOHczMzMhbA==
 Authentication-Results: btinternet.com;
     auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
 X-Originating-IP: [86.190.32.24]
 X-OWM-Source-IP: 86.190.32.24 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduhedrleekgdehlecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepleetffegveevjeehvefhtefgueevudettedutdffvdejkeeiteegheevfeejtdefnecukfhppeekiedrudeltddrfedvrddvgeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirdduledtrdefvddrvdegpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduhedrleekgdeitdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepueeffeduffefteejveehtedvkeeuueevffdtgfekgfetgfekgeeiheevueehvdffnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirdduledtrdefvddrvdegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudeltddrfedvrddvgedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoeguhhhofigvlhhlshesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhi
+        tghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.190.32.24) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A195F10A2F40F; Fri, 15 May 2020 14:10:20 +0100
+Received: from localhost.localdomain (86.190.32.24) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5E3A181A10A246F5; Fri, 15 May 2020 14:12:28 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     omosnace@redhat.com, selinux@vger.kernel.org
-Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH V2] selinux-testsuite: Add nftables to inet_socket and sctp tests
-Date:   Fri, 15 May 2020 14:10:14 +0100
-Message-Id: <20200515131014.7852-1-richard_c_haines@btinternet.com>
+To:     omosnace@redhat.com
+Cc:     paul@paul-moore.com, dhowells@redhat.com, selinux@vger.kernel.org,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: [RFC PATCH V2] selinux-testsuite: Add check for key changes on watch_queue
+Date:   Fri, 15 May 2020 14:12:22 +0100
+Message-Id: <20200515131222.7969-1-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.25.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -55,502 +57,265 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Support secmark tests that require nftables version 9.3 or greater and
-kernel 4.20 or greater.
+Kernel 5.? introduced the watch_queue service that allows watching for
+key changes. This requires key { view } permission, therefore check if
+allowed or not.
+
+Note that the keyctl_watch_key() function is not yet built into the
+keyutils library, therefore a syscall() is used.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
-V2 Change:
-Use common tests for iptables/nftables
+Tested on kernel.org 'linux-next: next-20200514'
+V2 Changes:
+1) The watch_queue changed from using /dev/watch_queue to pipe2(2), therefore
+update watchkey.c
+2) Update policy to reflect the changes.
 
- README.md                        |   4 +-
- tests/inet_socket/nftables-flush |   2 +
- tests/inet_socket/nftables-load  |  74 +++++++++++++++++++++
- tests/inet_socket/test           | 108 ++++++++++++++++++++-----------
- tests/sctp/nftables-flush        |   2 +
- tests/sctp/nftables-load         |  68 +++++++++++++++++++
- tests/sctp/test                  |  96 +++++++++++++++++----------
- 7 files changed, 281 insertions(+), 73 deletions(-)
- create mode 100644 tests/inet_socket/nftables-flush
- create mode 100644 tests/inet_socket/nftables-load
- create mode 100644 tests/sctp/nftables-flush
- create mode 100644 tests/sctp/nftables-load
+ defconfig                 |  5 +++
+ policy/Makefile           |  2 +-
+ policy/test_watchkey.te   | 27 +++++++++++
+ tests/Makefile            |  4 ++
+ tests/watchkey/.gitignore |  1 +
+ tests/watchkey/Makefile   |  7 +++
+ tests/watchkey/test       | 29 ++++++++++++
+ tests/watchkey/watchkey.c | 94 +++++++++++++++++++++++++++++++++++++++
+ 8 files changed, 168 insertions(+), 1 deletion(-)
+ create mode 100644 policy/test_watchkey.te
+ create mode 100644 tests/watchkey/.gitignore
+ create mode 100644 tests/watchkey/Makefile
+ create mode 100755 tests/watchkey/test
+ create mode 100644 tests/watchkey/watchkey.c
 
-diff --git a/README.md b/README.md
-index 1f7e5d9..d65e9b8 100644
---- a/README.md
-+++ b/README.md
-@@ -57,6 +57,7 @@ similar dependencies):
- * keyutils-libs-devel _(tools used by the keys tests)_
- * kernel-devel _(used by the kernel module tests)_
- * quota, xfsprogs-devel and libuuid-devel _(used by the filesystem tests)_
-+* nftables _(used by inet_socket and sctp tests if ver >= 9.3 for secmark testing )_
+diff --git a/defconfig b/defconfig
+index 00bf9f3..68155dd 100644
+--- a/defconfig
++++ b/defconfig
+@@ -110,3 +110,8 @@ CONFIG_NFSD_V4_SECURITY_LABEL=y
+ CONFIG_XFS_FS=m
+ CONFIG_XFS_QUOTA=y
+ CONFIG_VFAT_FS=m
++
++# watch_queue for key changes.
++# They are not required for SELinux operation itself.
++CONFIG_WATCH_QUEUE=y
++CONFIG_KEY_NOTIFICATIONS=y
+diff --git a/policy/Makefile b/policy/Makefile
+index 386bbce..672733e 100644
+--- a/policy/Makefile
++++ b/policy/Makefile
+@@ -104,7 +104,7 @@ TARGETS += test_bpf.te test_fdreceive_bpf.te test_binder_bpf.te
+ endif
  
- On a modern Fedora system you can install these dependencies with the
- following command:
-@@ -77,7 +78,8 @@ following command:
- 		kernel-devel \
- 		quota \
- 		xfsprogs-devel \
--		libuuid-devel
-+		libuuid-devel \
-+		nftables
+ ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && echo true),true)
+-TARGETS += test_keys.te
++TARGETS += test_keys.te test_watchkey.te
+ endif
  
- #### Debian
- 
-diff --git a/tests/inet_socket/nftables-flush b/tests/inet_socket/nftables-flush
+ ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.spt && echo true),true)
+diff --git a/policy/test_watchkey.te b/policy/test_watchkey.te
 new file mode 100644
-index 0000000..7d62b8d
+index 0000000..00ade15
 --- /dev/null
-+++ b/tests/inet_socket/nftables-flush
-@@ -0,0 +1,2 @@
-+delete table ip security
-+delete table ip6 security
-diff --git a/tests/inet_socket/nftables-load b/tests/inet_socket/nftables-load
-new file mode 100644
-index 0000000..11ec382
---- /dev/null
-+++ b/tests/inet_socket/nftables-load
-@@ -0,0 +1,74 @@
-+# Based on NFT project example. Requires kernel >= 4.20 and nft >= 0.9.3
++++ b/policy/test_watchkey.te
+@@ -0,0 +1,27 @@
++#
++######### Check watch_queue for key changes policy module ##########
++#
++attribute watchkeydomain;
 +
-+add table ip security
-+add table ip6 security
++################# Allow watch_queue key { view } ##########################
++type test_watchkey_t;
++# Note: allow rules for pipe2(2) 'fifo_file { ioctl }' are set via domain_type()
++domain_type(test_watchkey_t)
++unconfined_runs_test(test_watchkey_t)
++typeattribute test_watchkey_t testdomain;
++typeattribute test_watchkey_t watchkeydomain;
 +
-+table ip security {
++allow test_watchkey_t self:key { view };
 +
-+	secmark inet_server {
-+		"system_u:object_r:test_server_packet_t:s0"
-+	}
++################# Deny watch_queue key { view } ##########################
++type test_watchkey_no_view_t;
++domain_type(test_watchkey_no_view_t)
++unconfined_runs_test(test_watchkey_no_view_t)
++typeattribute test_watchkey_no_view_t testdomain;
++typeattribute test_watchkey_no_view_t watchkeydomain;
 +
-+	map secmapping_in_out {
-+		type inet_service : secmark
-+		elements = { 65535 : "inet_server" }
-+	}
-+
-+	chain input {
-+		type filter hook input priority 0;
-+
-+		# label new incoming packets and add to connection
-+		ct state new meta secmark set tcp dport map @secmapping_in_out
-+		ct state new meta secmark set udp dport map @secmapping_in_out
-+		ct state new ct secmark set meta secmark
-+
-+		# set label for est/rel packets from connection
-+		ct state established,related meta secmark set ct secmark
-+	}
-+
-+	chain output {
-+		type filter hook output priority 0;
-+
-+		# label new outgoing packets and add to connection
-+		ct state new meta secmark set tcp dport map @secmapping_in_out
-+		# 'established' is used here so that the error return is the
-+		# same as the 'iptables-load' tests (no reply from server)
-+		ct state established meta secmark set udp dport map @secmapping_in_out
-+		ct state new ct secmark set meta secmark
-+
-+		# set label for est/rel packets from connection
-+		ct state established,related meta secmark set ct secmark
-+	}
-+}
-+
-+table ip6 security {
-+
-+	secmark inet_server {
-+		"system_u:object_r:test_server_packet_t:s0"
-+	}
-+
-+	map secmapping_in_out {
-+		type inet_service : secmark
-+		elements = { 65535 : "inet_server" }
-+	}
-+
-+	chain input {
-+		type filter hook input priority 0;
-+
-+		ct state new meta secmark set tcp dport map @secmapping_in_out
-+		ct state new meta secmark set udp dport map @secmapping_in_out
-+		ct state new ct secmark set meta secmark
-+
-+		ct state established,related meta secmark set ct secmark
-+	}
-+
-+	chain output {
-+		type filter hook output priority 0;
-+
-+		ct state new meta secmark set tcp dport map @secmapping_in_out
-+		ct state established meta secmark set udp dport map @secmapping_in_out
-+		ct state new ct secmark set meta secmark
-+
-+		ct state established,related meta secmark set ct secmark
-+	}
-+}
-diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-index 47ce106..ce9bd7f 100755
---- a/tests/inet_socket/test
-+++ b/tests/inet_socket/test
-@@ -27,6 +27,19 @@ BEGIN {
-         $test_calipso_stream = 1;
-     }
++#
++########### Allow these domains to be entered from sysadm domain ############
++#
++miscfiles_domain_entry_test_files(watchkeydomain)
++userdom_sysadm_entry_spec_domtrans_to(watchkeydomain)
+diff --git a/tests/Makefile b/tests/Makefile
+index 5b86a2b..bdbdf3e 100644
+--- a/tests/Makefile
++++ b/tests/Makefile
+@@ -119,6 +119,10 @@ SUBDIRS += fs_filesystem
+ endif
+ endif
  
-+    # Determine nftables version, must be >= 0.9.3 for secmark support
-+    # with kernel >= 4.20
-+    $test_nft = 0;
-+    $nft      = `nft -v`;
-+    $nft =~ s/\D//g;
-+    $kverminstream = "4.20";
++ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && test -e $(INCLUDEDIR)/linux/watch_queue.h && grep -qs KEYCTL_WATCH_KEY $(INCLUDEDIR)/linux/keyctl.h && echo true),true)
++SUBDIRS += watchkey
++endif
 +
-+    $rc = `$basedir/../kvercmp $kvercur $kverminstream`;
-+    if ( $nft gt "092" and $rc > 0 ) {
-+        $test_count += 8;
-+        $test_nft = 1;
+ ifeq ($(DISTRO),RHEL4)
+     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
+ endif
+diff --git a/tests/watchkey/.gitignore b/tests/watchkey/.gitignore
+new file mode 100644
+index 0000000..04db718
+--- /dev/null
++++ b/tests/watchkey/.gitignore
+@@ -0,0 +1 @@
++watchkey
+diff --git a/tests/watchkey/Makefile b/tests/watchkey/Makefile
+new file mode 100644
+index 0000000..c2796fb
+--- /dev/null
++++ b/tests/watchkey/Makefile
+@@ -0,0 +1,7 @@
++TARGETS = watchkey
++LDLIBS += -lselinux
++
++all: $(TARGETS)
++
++clean:
++	rm -f $(TARGETS)
+diff --git a/tests/watchkey/test b/tests/watchkey/test
+new file mode 100755
+index 0000000..f61ff78
+--- /dev/null
++++ b/tests/watchkey/test
+@@ -0,0 +1,29 @@
++#!/usr/bin/perl
++use Test::More;
++
++BEGIN {
++    $basedir = $0;
++    $basedir =~ s|(.*)/[^/]*|$1|;
++
++    # allow info to be shown during tests
++    $v = $ARGV[0];
++    if ($v) {
++        if ( $v ne "-v" ) {
++            plan skip_all => "Invalid option (use -v)";
++        }
++    }
++    else {
++        $v = " ";
 +    }
 +
-     plan tests => $test_count;
- }
- 
-@@ -348,63 +361,82 @@ if ($test_ipsec) {
-     system "/bin/sh $basedir/ipsec-flush";
- }
- 
--# Load iptables (IPv4 & IPv6) configuration.
--system "/bin/sh $basedir/iptables-load";
-+#
-+################## Test iptables/nftables configuration ######################
-+#
-+$test_msg = "Testing iptables (IPv4/IPv6).\n";
-+$cmd      = "/bin/sh";
-+$table    = "iptables";
-+$i        = 0;
-+$loop     = 1;
-+
-+if ($test_nft) {
-+    $loop = 2;
++    plan tests => 2;
 +}
- 
--# Start the stream server.
--$pid = server_start( "-t test_inet_server_t", "-n stream 65535" );
-+while ( $i < $loop ) {
-+    print "$test_msg";
-+    system "$cmd $basedir/$table-load";
- 
--# Verify that authorized client can communicate with the server.
--$result = system
-+    # Start the stream server.
-+    $pid = server_start( "-t test_inet_server_t", "-n stream 65535" );
 +
-+    # Verify that authorized client can communicate with the server.
-+    $result = system
- "runcon -t test_inet_client_t -- $basedir/client -e nopeer stream 127.0.0.1 65535";
--ok( $result eq 0 );
-+    ok( $result eq 0 );
- 
--# Verify that unauthorized client cannot communicate with the server.
--$result = system
-+    # Verify that unauthorized client cannot communicate with the server.
-+    $result = system
- "runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer stream 127.0.0.1 65535 2>&1";
--ok( $result >> 8 eq 5 );
-+    ok( $result >> 8 eq 5 );
- 
--# Verify that authorized client can communicate with the server.
--$result = system
--  "runcon -t test_inet_client_t -- $basedir/client -e nopeer stream ::1 65535";
--ok( $result eq 0 );
-+    # Verify that authorized client can communicate with the server.
-+    $result = system
-+"runcon -t test_inet_client_t -- $basedir/client -e nopeer stream ::1 65535";
-+    ok( $result eq 0 );
- 
--# Verify that unauthorized client cannot communicate with the server.
--$result = system
-+    # Verify that unauthorized client cannot communicate with the server.
-+    $result = system
- "runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer stream ::1 65535 2>&1";
--ok( $result >> 8 eq 5 );
-+    ok( $result >> 8 eq 5 );
- 
--# Kill the server.
--server_end($pid);
-+    # Kill the server.
-+    server_end($pid);
- 
--# Start the dgram server.
--$pid = server_start( "-t test_inet_server_t", "-n dgram 65535" );
-+    # Start the dgram server.
-+    $pid = server_start( "-t test_inet_server_t", "-n dgram 65535" );
- 
--# Verify that authorized client can communicate with the server.
--$result = system
-+    # Verify that authorized client can communicate with the server.
-+    $result = system
- "runcon -t test_inet_client_t $basedir/client -e nopeer dgram 127.0.0.1 65535";
--ok( $result eq 0 );
-+    ok( $result eq 0 );
- 
--# Verify that unauthorized client cannot communicate with the server.
--$result = system
-+    # Verify that unauthorized client cannot communicate with the server.
-+    $result = system
- "runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer dgram 127.0.0.1 65535 2>&1";
--ok( $result >> 8 eq 8 );
-+    ok( $result >> 8 eq 8 );
- 
--# Verify that authorized client can communicate with the server.
--$result = system
--  "runcon -t test_inet_client_t $basedir/client -e nopeer dgram ::1 65535";
--ok( $result eq 0 );
-+    # Verify that authorized client can communicate with the server.
-+    $result = system
-+      "runcon -t test_inet_client_t $basedir/client -e nopeer dgram ::1 65535";
-+    ok( $result eq 0 );
- 
--# Verify that unauthorized client cannot communicate with the server.
--$result = system
-+    # Verify that unauthorized client cannot communicate with the server.
-+    $result = system
- "runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer dgram ::1 65535 2>&1";
--ok( $result >> 8 eq 8 );
-+    ok( $result >> 8 eq 8 );
- 
--# Kill the server.
--server_end($pid);
-+    # Kill the server.
-+    server_end($pid);
- 
--# Flush iptables configuration.
--system "/bin/sh $basedir/iptables-flush";
-+    system "$cmd $basedir/$table-flush";
++$result = system "runcon -t test_watchkey_t $basedir/watchkey $v";
++ok( $result eq 0 );
 +
-+    $test_msg = "Testing nftables (IPv4/IPv6).\n";
-+    $cmd      = "nft -f";
-+    $table    = "nftables";
-+    $i++;
-+}
- 
- if ($test_calipso_stream) {
- 
-diff --git a/tests/sctp/nftables-flush b/tests/sctp/nftables-flush
++# Deny key { view } - EACCES
++$result = system "runcon -t test_watchkey_no_view_t $basedir/watchkey $v 2>&1";
++ok( $result >> 8 eq 13 );
++
++exit;
+diff --git a/tests/watchkey/watchkey.c b/tests/watchkey/watchkey.c
 new file mode 100644
-index 0000000..7d62b8d
+index 0000000..c7f3274
 --- /dev/null
-+++ b/tests/sctp/nftables-flush
-@@ -0,0 +1,2 @@
-+delete table ip security
-+delete table ip6 security
-diff --git a/tests/sctp/nftables-load b/tests/sctp/nftables-load
-new file mode 100644
-index 0000000..2cac3bb
---- /dev/null
-+++ b/tests/sctp/nftables-load
-@@ -0,0 +1,68 @@
-+# Based on NFT project example. Requires kernel >= 4.20 and nft >= 0.9.3
++++ b/tests/watchkey/watchkey.c
+@@ -0,0 +1,94 @@
++/* Based on kernel source samples/watch_queue/watch_test.c */
 +
-+add table ip security
-+add table ip6 security
++#ifndef _GNU_SOURCE
++#define _GNU_SOURCE
++#endif
++#include <stdbool.h>
++#include <stdarg.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <errno.h>
++#include <sys/ioctl.h>
++#include <linux/watch_queue.h>
++#include <linux/unistd.h>
++#include <linux/keyctl.h>
++#include <selinux/selinux.h>
 +
-+table ip security {
++#define BUF_SIZE 256
 +
-+	secmark sctp_server {
-+		"system_u:object_r:test_sctp_server_packet_t:s0"
-+	}
-+
-+	map secmapping_in_out {
-+		type inet_service : secmark
-+		elements = { 1035 : "sctp_server" }
-+	}
-+
-+	chain input {
-+		type filter hook input priority 0;
-+
-+		# label new incoming packets and add to connection
-+		ct state new meta secmark set sctp dport map @secmapping_in_out
-+		ct state new ct secmark set meta secmark
-+
-+		# set label for est/rel packets from connection
-+		ct state established,related meta secmark set ct secmark
-+	}
-+
-+	chain output {
-+		type filter hook output priority 0;
-+
-+		# label new outgoing packets and add to connection
-+		ct state new meta secmark set sctp dport map @secmapping_in_out
-+		ct state new ct secmark set meta secmark
-+
-+		# set label for est/rel packets from connection
-+		ct state established,related meta secmark set ct secmark
-+	}
++/* Require syscall() as function not yet in libkeyutils */
++static long keyctl_watch_key(int key, int watch_fd, int watch_id)
++{
++	return syscall(__NR_keyctl, KEYCTL_WATCH_KEY, key, watch_fd, watch_id);
 +}
 +
-+table ip6 security {
-+
-+	secmark sctp_server {
-+		"system_u:object_r:test_sctp_server_packet_t:s0"
-+	}
-+
-+	map secmapping_in_out {
-+		type inet_service : secmark
-+		elements = { 1035 : "sctp_server" }
-+	}
-+
-+	chain input {
-+		type filter hook input priority 0;
-+
-+		ct state new meta secmark set sctp dport map @secmapping_in_out
-+		ct state new ct secmark set meta secmark
-+
-+		ct state established,related meta secmark set ct secmark
-+	}
-+
-+	chain output {
-+		type filter hook output priority 0;
-+
-+		ct state new meta secmark set sctp dport map @secmapping_in_out
-+		ct state new ct secmark set meta secmark
-+
-+		ct state established,related meta secmark set ct secmark
-+	}
++static void print_usage(char *progname)
++{
++	fprintf(stderr,
++		"usage:  %s [-v]\n"
++		"Where:\n\t"
++		"-v  Print information.\n", progname);
++	exit(-1);
 +}
-diff --git a/tests/sctp/test b/tests/sctp/test
-index 6631da4..052d850 100755
---- a/tests/sctp/test
-+++ b/tests/sctp/test
-@@ -56,6 +56,16 @@ BEGIN {
-             $test_calipso = 1;
-         }
- 
-+        # Determine nftables version, must be >= 0.9.3 for secmark support.
-+        $test_nft = 0;
-+        $nft      = `nft -v`;
-+        $nft =~ s/\D//g;
 +
-+        if ( $nft gt "092" ) {
-+            $test_count += 8;
-+            $test_nft = 1;
-+        }
++int main(int argc, char **argv)
++{
++	int opt, fd, pipefd[2], result, save_errno;
++	char *context;
++	bool verbose = false;
 +
-         plan tests => $test_count;
-     }
- }
-@@ -749,64 +759,82 @@ if ($test_calipso) {
- }
- 
- #
--##################### Test iptables configuration ############################
-+################## Test iptables/nftables configuration ######################
- #
--print "# Testing iptables (IPv4/IPv6).\n";
--system "/bin/sh $basedir/iptables-load";
-+$test_msg = "# Testing iptables (IPv4/IPv6).\n";
-+$cmd      = "/bin/sh";
-+$table    = "iptables";
-+$i        = 0;
-+$loop     = 1;
++	while ((opt = getopt(argc, argv, "v")) != -1) {
++		switch (opt) {
++		case 'v':
++			verbose = true;
++			break;
++		default:
++			print_usage(argv[0]);
++		}
++	}
 +
-+if ($test_nft) {
-+    $loop = 2;
++	if (verbose) {
++		result = getcon(&context);
++		if (result < 0) {
++			fprintf(stderr, "Failed to obtain process context\n");
++			exit(-1);
++		}
++
++		printf("Process context:\n\t%s\n", context);
++		free(context);
++	}
++
++	result = pipe2(pipefd, O_NOTIFICATION_PIPE);
++	if (result < 0) {
++		fprintf(stderr, "Failed to create pipe2(2): %s\n",
++			strerror(errno));
++		exit(-1);
++	}
++	fd = pipefd[0];
++
++	result = ioctl(fd, IOC_WATCH_QUEUE_SET_SIZE, BUF_SIZE);
++	if (result < 0) {
++		fprintf(stderr, "Failed to set watch_queue size: %s\n",
++			strerror(errno));
++		exit(-1);
++	}
++
++	save_errno = 0;
++	/* Requires key { view } */
++	result = keyctl_watch_key(KEY_SPEC_PROCESS_KEYRING, fd,
++				  WATCH_TYPE_KEY_NOTIFY);
++	if (result < 0) {
++		save_errno = errno;
++		fprintf(stderr, "Failed keyctl_watch_key(): %s\n",
++			strerror(errno));
++		goto err;
++	}
++	if (verbose)
++		printf("keyctl_watch_key() successful\n");
++
++err:
++	close(fd);
++	return save_errno;
 +}
- 
--# Start the stream server.
--$pid =
--  server_start( "-t test_sctp_server_t", "sctp_server", "$v -n stream 1035" );
-+while ( $i < $loop ) {
-+    print "$test_msg";
-+    system "$cmd $basedir/$table-load";
- 
--# Verify that authorized client can communicate with the server STREAM->STREAM.
--$result = system
-+    # Start the stream server.
-+    $pid = server_start( "-t test_sctp_server_t",
-+        "sctp_server", "$v -n stream 1035" );
-+
-+ # Verify that authorized client can communicate with the server STREAM->STREAM.
-+    $result = system
- "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer stream 127.0.0.1 1035";
--ok( $result eq 0 );
-+    ok( $result eq 0 );
- 
- # Verify that a client without peer { recv } permission cannot communicate with the server STREAM->STREAM.
--$result = system
-+    $result = system
- "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer stream 127.0.0.1 1035 2>&1";
--ok( $result >> 8 eq 6 );
-+    ok( $result >> 8 eq 6 );
- 
--# Verify that authorized client can communicate with the server STREAM->STREAM.
--$result = system
-+ # Verify that authorized client can communicate with the server STREAM->STREAM.
-+    $result = system
- "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer stream ::1 1035";
--ok( $result eq 0 );
-+    ok( $result eq 0 );
- 
- # Verify that a client without peer { recv } permission cannot communicate with the server STREAM->STREAM.
--$result = system
-+    $result = system
- "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer stream ::1 1035 2>&1";
--ok( $result >> 8 eq 6 );
-+    ok( $result >> 8 eq 6 );
- 
--# Kill the stream server.
--server_end($pid);
-+    # Kill the stream server.
-+    server_end($pid);
- 
--# Start the seq server.
--$pid = server_start( "-t test_sctp_server_t", "sctp_server", "$v -n seq 1035" );
-+    # Start the seq server.
-+    $pid =
-+      server_start( "-t test_sctp_server_t", "sctp_server", "$v -n seq 1035" );
- 
--# Verify that authorized client can communicate with the server SEQ->SEQ.
--$result = system
-+    # Verify that authorized client can communicate with the server SEQ->SEQ.
-+    $result = system
- "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq 127.0.0.1 1035";
--ok( $result eq 0 );
-+    ok( $result eq 0 );
- 
- # Verify that a client without peer { recv } permission cannot communicate with the server SEQ->SEQ.
--$result = system
-+    $result = system
- "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer seq 127.0.0.1 1035 2>&1";
--ok( $result >> 8 eq 6 );
-+    ok( $result >> 8 eq 6 );
- 
--# Verify that authorized client can communicate with the server SEQ->SEQ.
--$result = system
--  "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq ::1 1035";
--ok( $result eq 0 );
-+    # Verify that authorized client can communicate with the server SEQ->SEQ.
-+    $result = system
-+"runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq ::1 1035";
-+    ok( $result eq 0 );
- 
- # Verify that a client without peer { recv } permission cannot communicate with the server SEQ->SEQ.
--$result = system
-+    $result = system
- "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer seq ::1 1035 2>&1";
--ok( $result >> 8 eq 6 );
-+    ok( $result >> 8 eq 6 );
- 
--# Kill the seq server.
--server_end($pid);
-+    # Kill the seq server.
-+    server_end($pid);
-+
-+    system "$cmd $basedir/$table-flush";
- 
--system "/bin/sh $basedir/iptables-flush";
-+    $test_msg = "# Testing nftables (IPv4/IPv6).\n";
-+    $cmd      = "nft -f";
-+    $table    = "nftables";
-+    $i++;
-+}
- 
- exit;
 -- 
 2.25.3
 
