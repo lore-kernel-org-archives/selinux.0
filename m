@@ -2,112 +2,113 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA37BC433DF
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 17:56:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EC87C433DF
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 17:59:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3D4520727
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 17:56:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EE6D720756
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 17:59:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QROuLZ/e"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gzvrxr/i"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726221AbgEOR4S (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 13:56:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39046 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726219AbgEOR4S (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 13:56:18 -0400
-Received: from mail-il1-x142.google.com (mail-il1-x142.google.com [IPv6:2607:f8b0:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95DAC061A0C
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 10:56:17 -0700 (PDT)
-Received: by mail-il1-x142.google.com with SMTP id 17so3442351ilj.3
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 10:56:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xOHnJGvgb0lrTGuH3voOnBtzcLmzZoikRHR5ATqskRo=;
-        b=QROuLZ/eccybc8I25UzTKTDhoImOMnqDp93rqGVNuouLL+1d2JaPGx2Dol0Tb6GEJ0
-         Nn8LyAK2C0Oe6p2gCjEZfZ3FTCs4t8lmwgtFKL36v8Ybd12wmV6+0ALz/EpjxBOXx8jY
-         CknNxS/wHKIlCcr5A9BQ9lbQBxlzALGeAPCTJhVSKbcPooEupnNG2q3kVNGKLDiDiH7W
-         8faAISA8tmgnas6QJDzgqUlJvBGLD+dIKwsLLz+IHBm1UMj8KlagudlDnOSzCiJQAhjk
-         yHPi63Q9Axp1841JnTJP1OSmKh5BEB/ggE8VY2fWgCCPM/VGqfTfVRSknb11Q86strbg
-         fkCQ==
+        id S1726204AbgEOR7H (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 13:59:07 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:59192 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726179AbgEOR7H (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 13:59:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589565546;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=nxLt+9grmlc88gtZHInGc0hS84thWyE5Z84EQ0QEqi8=;
+        b=Gzvrxr/iUuksHFZrlhedbuenWlPIXbCTDyP4wZKnDfPXMhF0NjEL1eKbXXK1/tMBuU57eI
+        MZ/p5G/+SLaG4Dk0EAOlnSS5n+4aZNsx90/lko2qxRGjH9xQBaFKeml/UBEPPIYV5EcMdC
+        XRgTma9D7/IBhL4cNr62uhxNAgaiyd0=
+Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
+ [209.85.161.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-63-Sk7cE955N6O2tzhyZnTP0A-1; Fri, 15 May 2020 13:59:00 -0400
+X-MC-Unique: Sk7cE955N6O2tzhyZnTP0A-1
+Received: by mail-oo1-f69.google.com with SMTP id h13so1769149oov.16
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 10:59:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=xOHnJGvgb0lrTGuH3voOnBtzcLmzZoikRHR5ATqskRo=;
-        b=uZhtwkUS6qYnhl6wXCq/TvfRISsbAiD+o7yEQHRa/hWoqx2E1UKzInTKNPsZBFxMbr
-         p5vVWb5K08OB+Wvxyez605OIadS4mSkENFsL7CLZNb87OrUi8JE5VTnby9SWcGrFU39C
-         7OYd/HFYi+12R1gMv43F75i3P7B4YjB4hn85sR9nteBVYbwIdjR5YV3Pf5HfUKWnp/BM
-         mPBzRCmcX8/nLdc54JaXxOk1phWvXD+jsBk7Aiu+0+A9YBg/83fahFvPeb5tL8R+JGDr
-         C0Cl9Dk+ZZbtfKCZVuacGNCbZw/0CAf8emS3hot+e7tCyNYFKuV0HxIYwJzQA46ZDr0V
-         L8dQ==
-X-Gm-Message-State: AOAM533KOnZz+B0skYFIHzZ2AXkUjcKzdqXjxXQVAnky8t/THKJ8z+Zf
-        55AgnBOZcxRGJA66Z0WJUZ8WD+5oAqDpChAbuCc=
-X-Google-Smtp-Source: ABdhPJzs5Trf//D7N8C262JZoyPL5QP8GJGM/i80SYtChum7tRJi5aQgFKWMW2OXrUyDko7HgIQs+7t4ozPtiEOYGNo=
-X-Received: by 2002:a92:c704:: with SMTP id a4mr3198796ilp.163.1589565377113;
- Fri, 15 May 2020 10:56:17 -0700 (PDT)
+        bh=nxLt+9grmlc88gtZHInGc0hS84thWyE5Z84EQ0QEqi8=;
+        b=DMGdwXFODjMBSAnKzsTZMbOjtQH1KMwE1BV6P8jmBl3GdZtXoVGP3q6Wv1rf5wtEZh
+         UdW+l5mGaRj69M3mlT85NUMa0cJqoCejnAad8dObX34DM+KbzZ8P+iukEUE8/AXVbpB+
+         Qc2nl6dDxD6CRuCShi3z8q+H2EG71TbF2i26RjAijE4+4KljM9g5aGP0xakK+POHjfeO
+         gfcigKIS/GkQnXr2qR71g3+mRYNO/XY35N4JGFC1WkelLipN0nLXkKhB3rSHQx9Yl5X6
+         Dl3AGmdOnHCt6e1BZ8FXkaWKcC2pu/FXaKtdrfwE2NcU0Q/4e/vQ4va+PBmfWdzhwQN+
+         daHg==
+X-Gm-Message-State: AOAM531pPhsS5U5QjePLFuFtYLW2yT/T9Kb6KdaWMLK6Ukj8eY35cvGc
+        YwVhIUPNabUjZBZxUpJkafSSn5NhOfvN7vBMYKhR5+O4RbTpQSlRpqHgGFg1hiI5+hagCRdWHgm
+        KdRInAFRx72/BE4EqnMkqOfh9RSVkH++sIg==
+X-Received: by 2002:a9d:7d0e:: with SMTP id v14mr3328476otn.197.1589565539777;
+        Fri, 15 May 2020 10:58:59 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzyjhh0+Ud9VU2hjKnKIK5h+uxEWOHJqefP8hNhRJUjuGZlcMcHfiQNrk7HL0xbIjAqjtB8qwYEDom7D+WNgAo=
+X-Received: by 2002:a9d:7d0e:: with SMTP id v14mr3328461otn.197.1589565539563;
+ Fri, 15 May 2020 10:58:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200515173042.12666-1-william.c.roberts@intel.com> <CAHC9VhQ-MHqzRtJvLfCY7_PLtLE3Tjq6+AmKAZDs7NOx4XWXPg@mail.gmail.com>
-In-Reply-To: <CAHC9VhQ-MHqzRtJvLfCY7_PLtLE3Tjq6+AmKAZDs7NOx4XWXPg@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 15 May 2020 12:56:06 -0500
-Message-ID: <CAFftDdr-sPKkSrhBC5b30t1HnAapwG9w5pW71cwk-iUrSw3xmA@mail.gmail.com>
+References: <20200515173042.12666-1-william.c.roberts@intel.com>
+In-Reply-To: <20200515173042.12666-1-william.c.roberts@intel.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 15 May 2020 19:58:48 +0200
+Message-ID: <CAFqZXNtaSV-FHYwZ41Sp8f9eOu=RU6hSR_1Gqxb9LocaQ7BnzA@mail.gmail.com>
 Subject: Re: [PATCH] README: add pkg kernel-devel to dnf command
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     William Roberts <william.c.roberts@intel.com>,
-        SElinux list <selinux@vger.kernel.org>
+To:     "Roberts, William C" <william.c.roberts@intel.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 15, 2020 at 12:51 PM Paul Moore <paul@paul-moore.com> wrote:
+On Fri, May 15, 2020 at 7:31 PM <william.c.roberts@intel.com> wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 >
-> On Fri, May 15, 2020 at 1:30 PM <william.c.roberts@intel.com> wrote:
-> >
-> > From: William Roberts <william.c.roberts@intel.com>
-> >
-> > The text above states that kernel-devel is needed, but it's missing from
-> > the dnf command.
-> >
-> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > ---
-> >  README.md | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> The text above states that kernel-devel is needed, but it's missing from
+> the dnf command.
 >
-> It's not clear from the subject, diffstat, or your comments, but I'm
-> assuming this is for selinux-testsuite, yes?
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  README.md | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/README.md b/README.md
+> index 1f7e5d92a100..a73e9cc0c06d 100644
+> --- a/README.md
+> +++ b/README.md
+> @@ -77,7 +77,8 @@ following command:
+>                 kernel-devel \
 
-Yes, that is correct.
+It's actually right there already ^^
+
+>                 quota \
+>                 xfsprogs-devel \
+> -               libuuid-devel
+> +               libuuid-devel \
+> +               kernel-devel-$(uname -r)
+
+I proposed adding the -$(uname -r) before, but there were some valid
+counterarguments. See the discussion here:
+https://lore.kernel.org/selinux/CAFqZXNs5jcOOnhzT8=DQgzaf9RtBZ1=oqTU83pjVLMqPb-rzHA@mail.gmail.com/
 
 >
-> > diff --git a/README.md b/README.md
-> > index 1f7e5d92a100..a73e9cc0c06d 100644
-> > --- a/README.md
-> > +++ b/README.md
-> > @@ -77,7 +77,8 @@ following command:
-> >                 kernel-devel \
-> >                 quota \
-> >                 xfsprogs-devel \
-> > -               libuuid-devel
-> > +               libuuid-devel \
-> > +               kernel-devel-$(uname -r)
-> >
-> >  #### Debian
-> >
-> > --
-> > 2.17.1
-> >
->
+>  #### Debian
 >
 > --
-> paul moore
-> www.paul-moore.com
+> 2.17.1
+>
+
+--
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
