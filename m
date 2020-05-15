@@ -2,140 +2,108 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4D9DC433DF
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 20:08:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D374DC433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 20:20:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ABD002070A
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 20:08:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9AF9E20709
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 20:20:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="b2LMh0Hp"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lqhUiIv8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726558AbgEOUII (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 16:08:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59686 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726290AbgEOUII (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 16:08:08 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1412C061A0C
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 13:08:07 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id f13so3967499qkh.2
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 13:08:07 -0700 (PDT)
+        id S1726179AbgEOUUb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 16:20:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33360 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726168AbgEOUUb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 16:20:31 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D847C061A0C
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 13:20:31 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id x21so2231415otp.13
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 13:20:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=JIdqeZKj7ghcAKNC/sIBwJ/PtX3t75osPSsD2grpYBk=;
-        b=b2LMh0Hp6RVE0U8fqWdtoiCEgct2gJWVUFTY5Hi1P1Pt88X6UsX6bC8NWQX3+MVoIS
-         P3pVRXyE8DaU3SjshoHqYp2X3kIeY0vdaXQTKYGwfoEYKYIxyscIpcrLA4+qHRlBCpcv
-         YJKozBaTzSEcCTIo4l2BDlEJhtZGyvWPSAel0+zr7XoNZJf9gmjlK3ADPxp9BKALWE6n
-         MUCoxOJyKQQd7kgMdQL3RkHTIMchx9qHzewInb8t4BGZ7aY02flxxrm9gyjnB4hI1QuM
-         BQ+R1KONLzCdB4mj2FH8U4LO0cdsfSViswmdIvHbOj706LVztvgbNH7hTeQmcicdKAIC
-         gcvg==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=pwrQPA2egR6mNtwuPN7rvAZumbPL2I4DdivudoCm280=;
+        b=lqhUiIv8OcplOqTcuJrEq2mmlQh7KnE/ArhtgM1NlczZbSt0zdFjmtc9dG2GEUMSq6
+         qkMdDKNvAcJ5AftDR1gYG/y37uBPkED1df0zEAXX8Yxkc93wqGqHFFhJmz+oBXydgK3v
+         uz0zoIiLqmDi2zOKLNuyLkH4vGT98zyiQUYCdLw2koEYwNvoggTRnZ9I41oIgwXi0i3G
+         27UDWxW509fdp0kGz50XL6YkoQ5vs8TSJ00mTEDzJ47TltOwwn00wyc8PG4iG8JWZB2R
+         xr7C5hOvt9n/RweDMwU3Hb2F24l/SL+Q2/LUIpRSi1E0b9u0siW2SnrLOhpnEDjV9oDM
+         T+WA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=JIdqeZKj7ghcAKNC/sIBwJ/PtX3t75osPSsD2grpYBk=;
-        b=ijsGUtFHZlUuG0DadBQv3q5anMwyo27VJUs7gtvnG9TWmdRcg2XefZPNd2QllrXbcG
-         fLnXrxHYaIRtFgo0ZNvUWkEJo7Xpq4fV0OnFX5oRPqjma5yCVAM9w489Iih3DHMApein
-         YdFtzl2SJDypf4r5LS8sVnzVaDQwpvL6Q2/hXIw993y44NG1YHALcBfJMvbl1x1RWLRs
-         FfpChdrDUaqmdJiCNVmo+10yiANqRC4uNOHZ0YT18a3zd6fjTidJqegdLgU873fQRKhQ
-         33BQOkrDWnhX8qWSTt9WbJo9sD0JwxU7vyL4RRFxXK9y1+ADcdfMYEP9YHIlD+W06MJH
-         4azQ==
-X-Gm-Message-State: AOAM530/ZfmSjiWE5k8Iq69pgyQOxYxum7eeEZi/DpftmtKaTel+4DWs
-        CjbPgYSu69GjN0uD+Ww/5BFrtPZmj4tUM9nFsQgEeCAqD/Y=
-X-Google-Smtp-Source: ABdhPJxFgbr9yPYAJsmUm8NL5HOG7F0K6Od0TRSE9AW8s6HDlnkd6iuYD3w6QBN/2vR6PqtcHHse1utpw0hkwciA1mA=
-X-Received: by 2002:a37:9e8a:: with SMTP id h132mr4992916qke.48.1589573287012;
- Fri, 15 May 2020 13:08:07 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=pwrQPA2egR6mNtwuPN7rvAZumbPL2I4DdivudoCm280=;
+        b=IwGxhlYpjj5REsk9qYkZRtaBn2SafsM68aWL69czVI4m1uU6nRHoIft2Z8bOZFEY1W
+         JzN2JX2skVQm5qL88FnDTqASm9+z3UOIXakadwwc2Wy/gadEVgxtr283+NQzkOfgvhqw
+         QtlXlThEXoIz5x7jJBMvGpJMKNrgJZnnYb7kceqiIIjYHie6W1tRqY+WBfgOO0kdpVni
+         OoVO04ZDHiiASFySUxr8tMfWv9qM9KBWXZ2Fbi/T/JnRuBBI2I3P2NXNVYHg6WFD2EgS
+         GDCQgR34h88wNoTe+8h73Uve+lUQH8gvIe98ujR34YAq2g1TeRgevg4P5646tLILhj4v
+         MpHg==
+X-Gm-Message-State: AOAM532mqXrhP/cJCEnrMaZ4Gm7RKfnnKNdEBq3ZnPvlS3ED5jV72Gkx
+        CaR5DGPRB2tkh21NLYaZUYdJ8RwTwWI3IHq1rRrJ6qFq
+X-Google-Smtp-Source: ABdhPJyY4fJIMcEgy+MSp4V3aVdja7fd6IZ2om77PCmgUnplyV2imAqcTlngCw4F9FF25Lj2LpQ/YY2AhTqX1nbzf0c=
+X-Received: by 2002:a05:6830:186:: with SMTP id q6mr3692810ota.162.1589574030252;
+ Fri, 15 May 2020 13:20:30 -0700 (PDT)
 MIME-Version: 1.0
-From:   Peter Whittaker <pww@edgekeep.com>
-Date:   Fri, 15 May 2020 16:09:14 -0400
-Message-ID: <CAGeouKHKm+Bzk6=gX_GEJc=faTB8tzwQ7txKVEhdbzK1sf-Z1A@mail.gmail.com>
-Subject: [PATCH] Add restorecon -x to not cross FS boundaries
-To:     selinux@vger.kernel.org
+References: <CAGeouKH0MWHVmo-dFxzn4LViwGNLUoYnYYm6HrKzL5XgfMhd4w@mail.gmail.com>
+In-Reply-To: <CAGeouKH0MWHVmo-dFxzn4LViwGNLUoYnYYm6HrKzL5XgfMhd4w@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 15 May 2020 16:20:19 -0400
+Message-ID: <CAEjxPJ7FQyme=udYKRJ9_gSmaF0Jz_4kk2SSo7S0HkMELg0D3g@mail.gmail.com>
+Subject: Re: Bad context in PostgreSQL page on SELinux Project wiki?
+To:     Peter Whittaker <pww@edgekeep.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Folks, the following patch adds a -x option to restorecon to prevent
-it from crossing filesystem boundaries, as requested in
-https://github.com/SELinuxProject/selinux/issues/208.
+On Fri, May 15, 2020 at 4:02 PM Peter Whittaker <pww@edgekeep.com> wrote:
+>
+> Folks, with whom I can verify whether there are errors on the SELinux
+> Project Wiki?
 
-As per Stephen Smalley's suggestion, this is accomplished using
-r_opts.xdev = SELINUX_RESTORECON_XDEV;
+As noted on the front page, selinuxproject.org isn't being updated and
+is just historical at this point.  Anything new should go into the
+GitHub SELinuxProject wiki(s) instead.
 
-Please do let me know if there are any errors in this, it's been over
-two decades since I've lurked in majordomo lists and about as long
-since I've contributed a patch via email. (In particular, I am having
-issues with sending plaintext, so spaces in the patch are munged; any
-pointers on correcting than in the gmail web client would be more than
-welcome.)
+> Details: It looks like MCS information is missing from a few security
+> contexts on https://selinuxproject.org/page/NB_SQL_9.3
 
-Thanks,
+I think that particular page was derived from the SELinux Notebook,
+which was written by Richard Haines.
+Not sure if he is still updating it but he frequents the list.
 
-P
+> The schema row has
+>
+>    security_label = 'unconfined_u:object_r:sepgsql_schema_t:s10'
+>
+> which should likely be
+>
+>    security_label = 'unconfined_u:object_r:sepgsql_schema_t:s0:c10'
 
-Peter Whittaker
-EdgeKeep Inc.
-www.edgekeep.com
-+1 613 864 5337
-+1 613 864 KEEP
+Those are two different contexts, both valid (if using MLS policy).
+Under MLS policy, there are multiple sensitivity levels (s0, s1, ...).
+The category set is optional and can be omitted if empty.
 
-From: Peter Whittaker <pww@edgekeep.com>
+> Likewise, the database row has
+>
+>     context = 'unconfined_u:object_r:postgresql_db_t:s0'
+>
+> but I'm unsure whether this should be as is or whether it should also
+> have MCS info.
 
-As per #208, add the option -x to prevent restorecon from cross file
-system boundaries, by setting SELINUX_RESTORECON_XDEV iff
-iamrestorecon. If setfiles, call usage().
+That's also a valid context.
 
-Signed-off-by: Peter Whittaker <pww@edgekeep.com>
-
-From 3a1c4a3e94f18bb240f663fb5fbcff77068e5c4a Mon Sep 17 00:00:00 2001
-From: Peter Whittaker <pww@EdgeKeep.com>
-Date: Fri, 15 May 2020 13:05:27 -0400
-Subject: [PATCH] Add restorecon -x to not cross FS boundaries
-
-As per #208, add the option -x to prevent restorecon from cross file
-system boundaries, by setting SELINUX_RESTORECON_XDEV iff
-iamrestorecon. If setfiles, call usage().
----
- policycoreutils/setfiles/setfiles.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/policycoreutils/setfiles/setfiles.c
-b/policycoreutils/setfiles/setfiles.c
-index 16bd592ca..2d0224bb6 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -43,8 +43,8 @@ static __attribute__((__noreturn__)) void
-usage(const char *const name)
- {
-  if (iamrestorecon) {
-  fprintf(stderr,
-- "usage:  %s [-iIDFmnprRv0] [-e excludedir] pathname...\n"
-- "usage:  %s [-iIDFmnprRv0] [-e excludedir] -f filename\n",
-+ "usage:  %s [-iIDFmnprRv0x] [-e excludedir] pathname...\n"
-+ "usage:  %s [-iIDFmnprRv0x] [-e excludedir] -f filename\n",
-  name, name);
-  } else {
-  fprintf(stderr,
-@@ -386,6 +386,13 @@ int main(int argc, char **argv)
-  case '0':
-  null_terminated = 1;
-  break;
-+ case 'x':
-+ if (iamrestorecon) {
-+ r_opts.xdev = SELINUX_RESTORECON_XDEV;
-+ } else {
-+ usage(argv[0]);
-+ }
-+ break;
-  case 'h':
-  case '?':
-  usage(argv[0]);
---
+> With whom can I verify this? (Not using PostgreSQL, just noticing
+> errors as I crawl through my hardcopy of the handbook.)
