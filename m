@@ -6,124 +6,223 @@ X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
 	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0105C433DF
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 16:41:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6FA5C433E1
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 16:45:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9A6DF206C0
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 16:41:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 993EA20829
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 16:45:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J6fmvmHx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D3sAptoO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726191AbgEOQlu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 12:41:50 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:48291 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726170AbgEOQlu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 12:41:50 -0400
+        id S1726170AbgEOQpd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 12:45:33 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:60979 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726023AbgEOQpd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 12:45:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589560908;
+        s=mimecast20190719; t=1589561131;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=WawKs79T6IP3o7E1qKxdI9lsUYC/UPUGwE8+4LXdP6g=;
-        b=J6fmvmHx40+U41ycABCvUoZCLVOIq5xo/2xyHOMcOR3iwCNMkXPPX0TUZIQMxFyVqgmbO2
-        v+YeuYzuAR/t0hvlEMr0HqD3lqQe9StB5rGWEtKOxNmDyd5KlG7Ubax/x1Q0npaHYCq07D
-        B4DYGWPoX6Q3s8ZbwyNjfFXAZy/2c8k=
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
- [209.85.161.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-48-KCb_ecFuOW6lm1g8ysBT8Q-1; Fri, 15 May 2020 12:41:46 -0400
-X-MC-Unique: KCb_ecFuOW6lm1g8ysBT8Q-1
-Received: by mail-oo1-f69.google.com with SMTP id t140so1640197oot.22
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 09:41:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WawKs79T6IP3o7E1qKxdI9lsUYC/UPUGwE8+4LXdP6g=;
-        b=BGtpFnd62UcGg82Ga5tbWHAhZWqMBHFJ9Cup6Qv1Pi6Bh0RvMrxK49PuEUdCtJCGbq
-         w4Wzv93AZlTvI1lfUs4h19T8hjNw+k651xd9MvgO/QBYsL+7wdqnckS3aDwJfd1RoDXM
-         8ywxDJ9/vLUSyPDW/xLNPKwnNbdwHrDELRDhn0Z2cKJG91UdbTglVuiYvFfZsA9JRNjR
-         xKaXz4yyafPvalsIJ3yRbkPDb6ymfHVKVjIMsYVk1FSZv8TZv2SoQm2JjbmZD4DNkrSi
-         bdaaO+4sh4RQ4kQHYtYc/PFkiVKvPPZW4KwuVKhz/n0kWNgzQHk5RQnN/p6Qy7QIWTqB
-         L5Cw==
-X-Gm-Message-State: AOAM530Etqj7uvXsEagMsCEPjWxsS2h2Spf47PKBhoA3QboL74K7q7Vy
-        rReN3dwnlPb5/xYdBmHSSYIoOxe5SNkjz21Wec6Pja634267H4rp5z26gh9HE9QvTp5aFYQnDNw
-        pyqFoO8XmCKLfu7pR+U0FAZoXUjlVwKUNkw==
-X-Received: by 2002:a9d:65c8:: with SMTP id z8mr2976018oth.66.1589560905574;
-        Fri, 15 May 2020 09:41:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzjCGboET+9SSATY01Z8NSInk2Z6WjXjJ5hKAb9GzFhFyhnpMfegHVnczAx2047dkWbut1PA33k1MEAwE6mP6o=
-X-Received: by 2002:a9d:65c8:: with SMTP id z8mr2976003oth.66.1589560905283;
- Fri, 15 May 2020 09:41:45 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
- <CAFftDdrD-FJ8wBk=XOkvdnkvA5o10w5pJs31H9dEhtW1zU8EHA@mail.gmail.com>
- <CAEjxPJ452zaoFwy++cKqh_Ap2rM1ezEZN83mBhN4ndHHaQ4q5Q@mail.gmail.com>
- <3838641.zh4Wi6GlAV@liv> <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org>
- <CAEjxPJ6Uo83L5C9UELy5w_V2wuptSHiHoMMLN4oh75x70-ZzAQ@mail.gmail.com>
- <CAHC9VhSUHMrMjvG=wigsqVA-0MF0LSmCCC_zyoZYHC2wEnT06A@mail.gmail.com>
- <CAEjxPJ72G4bpd6uLy1UikPoU7+tS-Kh2cCO+R75ApoRNCt3_Wg@mail.gmail.com> <CAFftDdoineg_FjyPnCtxEjiFtEQ3bZt-M_ePZtfAh-CUNSDwNg@mail.gmail.com>
-In-Reply-To: <CAFftDdoineg_FjyPnCtxEjiFtEQ3bZt-M_ePZtfAh-CUNSDwNg@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 15 May 2020 18:41:34 +0200
-Message-ID: <CAFqZXNtrqoRmMcnP9Pp1ddZrLH1QHmWrYx5BG-QCd62i6FxGNA@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
-To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        bh=+IBvKYnMRct6wIVYk1OHcT0bp5/WnDeiDsV8CVPaV/4=;
+        b=D3sAptoOvQpfkIARrvjwVxmdHn+JEgmYt70MeiuV02ffU083VJb5trz8l3RoW4uLRm4FEJ
+        tPdWq2UuXk22xF+Yp5Abgpntod1L6QxUpAUS7BnTSFM4InG7UMJYkuWffPLYgB9X8mTFE1
+        8C+Q9yIAvLdVOHvBk4dQRGJYlBV8Wso=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-311-00j2DJWnOzuUdvc1IhJFqw-1; Fri, 15 May 2020 12:45:29 -0400
+X-MC-Unique: 00j2DJWnOzuUdvc1IhJFqw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9AF0218B6450;
+        Fri, 15 May 2020 16:45:12 +0000 (UTC)
+Received: from warthog.procyon.org.uk (ovpn-112-95.rdu2.redhat.com [10.10.112.95])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 94C9C579A0;
+        Fri, 15 May 2020 16:45:10 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <CAEjxPJ5wW2qHYDsqKr5rjnRJ++4f2LXobCQkKZvWCSb_j0WN6w@mail.gmail.com>
+References: <CAEjxPJ5wW2qHYDsqKr5rjnRJ++4f2LXobCQkKZvWCSb_j0WN6w@mail.gmail.com> <CAEjxPJ6pFdDfm55pv9bT3CV5DTFF9VqzRmG_Xi5bKNxPaGuOLg@mail.gmail.com> <158932282880.2885325.2688622278854566047.stgit@warthog.procyon.org.uk> <CAEjxPJ4=ZN_jKP2nX5mrMA3OxC8XLsYEmCPCD-78H4XQw=_hCA@mail.gmail.com> <3999877.1589475539@warthog.procyon.org.uk>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     dhowells@redhat.com,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
         Paul Moore <paul@paul-moore.com>,
-        Laurent Bigonville <bigon@debian.org>,
-        Russell Coker <russell@coker.com.au>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Casey Schaufler <casey@schaufler-ca.com>,
+        keyrings@vger.kernel.org, SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] keys: Move permissions checking decisions into the checking code
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <196729.1589561109.1@warthog.procyon.org.uk>
+Content-Transfer-Encoding: quoted-printable
+Date:   Fri, 15 May 2020 17:45:09 +0100
+Message-ID: <196730.1589561109@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 15, 2020 at 6:27 PM William Roberts
-<bill.c.roberts@gmail.com> wrote:
-> I am having an issue with the test suite, perhaps the error would be obvious
-> to you or someone else
->
-> Error:
-> make[3]: Entering directory '/root/selinux-testsuite/tests/module_load'
-> make[3]: *** /lib/modules/5.6.6-300.fc32.x86_64/build: No such file or
-> directory.  Stop.
-> make[3]: Leaving directory '/root/selinux-testsuite/tests/module_load'
-> make[2]: *** [Makefile:8: all] Error 2
-> make[2]: Leaving directory '/root/selinux-testsuite/tests/module_load'
-> make[1]: *** [Makefile:141: all] Error 1
-> make[1]: Leaving directory '/root/selinux-testsuite/tests'
-> make: *** [Makefile:8: test] Error 2
->
-> The module_load path exists:
-> [root@demo tests]# ls /lib/modules/5.6.6-300.fc32.x86_64/
-> bls.conf    modules.builtin       modules.drm    source
-> build    modules.builtin.alias.bin  modules.modesetting  symvers.gz
-> config    modules.builtin.bin       modules.networking   System.map
-> kernel    modules.builtin.modinfo    modules.order    updates
-> modules.alias    modules.dep       modules.softdep    vdso
-> modules.alias.bin  modules.dep.bin       modules.symbols    vmlinuz
-> modules.block    modules.devname       modules.symbols.bin
->
-> And build exists, but it's a file, is that right?
-> [root@demo tests]# stat /lib/modules/5.6.6-300.fc32.x86_64/build
->   File: /lib/modules/5.6.6-300.fc32.x86_64/build ->
-> /usr/src/kernels/5.6.6-300.fc32.x86_64
->   Size: 38        Blocks: 0          IO Block: 4096   symbolic link
-> Device: 801h/2049d Inode: 154128      Links: 1
-> Access: (0777/lrwxrwxrwx)  Uid: (    0/    root)   Gid: (    0/    root)
-> Context: system_u:object_r:modules_object_t:s0
-> Access: 2020-05-15 16:23:03.854826122 +0000
-> Modify: 2020-04-21 14:01:58.000000000 +0000
-> Change: 2020-04-22 22:30:37.051096556 +0000
->  Birth: -
+Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
 
-It is a symlink, as evident from the stat output above, which is
-normal. You probably just don't have the matching kernel-devel package
-installed, so the target directory (/usr/src/...) doesn't exist.
+> >      (1) KEY_FLAG_KEEP in key->flags - The key may not be deleted and/=
+or things
+> >          may not be removed from the keyring.
+> =
 
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+> Why can't they be deleted / removed?  They can't ever be deleted or
+> removed or for some period of time?
+
+This is only settable internally to keep special keys, such as the blackli=
+st
+loaded from the EFI BIOS, from being removed.
+
+> >      (2) KEY_FLAG_ROOT_CAN_CLEAR in key->flags - The keyring can be cl=
+eared by
+> >          CAP_SYS_ADMIN.
+> =
+
+> Why do some keyrings get this flag and others do not?  Under what
+> conditions?  Why is CAP_SYS_ADMIN the right capability for this?
+> =
+
+> >      (3) KEY_FLAG_ROOT_CAN_INVAL in key->flags - The key can be invali=
+dated by
+> >          CAP_SYS_ADMIN.
+> =
+
+> Ditto.
+
+So that the sysadmin can clear, say, the NFS idmapper keyring or invalidat=
+e
+DNS lookup keys.
+
+> >      (4) An appropriate auth token being set in cred->request_key_auth=
+ that
+> >          gives a process transient permission to view and instantiate =
+a key.
+> >          This is used by the kernel to delegate instantiation to users=
+pace.
+> =
+
+> Is this ever allowed across different credentials?
+
+The kernel upcalls by spawning a daemon.  I want to change this as it's no=
+t
+compatible with containers since namespaces make this problematic.
+
+> When?
+
+The request_key() system call will do this.  The normal use case is someth=
+ing
+like the AFS filesystem asking for a key so that it can do an operation.  =
+The
+possibility exists for the kernel to upcall, say, to something that does a=
+klog
+on behalf of the user - but aklog in turn needs to get the TGT out of the
+keyrings.
+
+> Why?  Is there a check between the different credentials before the
+> auth token is created?
+
+No.  I don't even know what the target creds will necessarily be at this
+point.
+
+> >     Note that this requires some tweaks to the testsuite as some of th=
+e
+> >     error codes change.
+> =
+
+> Which testsuite?  keyring or selinux or both?
+
+The keyring testsuite.  No idea about the SELinux one.
+
+> What error codes change (from what to what)?  Does this constitute an AB=
+I
+> change?
+
+The following:
+
+ (1) Passing the wrong type of key to KEYCTL_DH_COMPUTE now gets you
+     EOPNOTSUPP rather than ENOKEY.  This is now as documented in the manu=
+al
+     page.
+
+ (2) Passing key ID 0 or an invalid negative key ID to KEYCTL_DH_COMPUTE n=
+ow
+     gets you EINVAL rather than ENOKEY.
+
+ (3) Passing key ID 0 or an invalid negative key ID to KEYCTL_READ now get=
+s
+     you EINVAL rather than ENOKEY.
+
+Technically, it consistutes an ABI change, I suppose, but I think it is
+probably sufficiently minor.
+
+Or maybe on (2) and (3) I should go the other way.  You get ENOKEY for inv=
+alid
+key IDs (such as 0 or unsupported negative ones) across all callers of
+lookup_user_key().  This would at least by consistent with the manual page=
+s.
+
+> I like moving more of the permission checking logic into the security
+> modules and giving them greater visibility and control.  That said, I
+> am somewhat concerned by the scale of this change, by the extent to
+> which you are exposing keyring internals inside the security modules,
+> and by the extent to which logic is getting duplicated in each
+> security module.
+
+It's what you asked for.
+
+Now, I don't know if the LSM needs to know that the main keyutils permissi=
+ons
+checker invoked an override.  At least one of the overrides will have gone
+through the LSM anyway when capable() was called.
+
+> I'd suggest a more incremental approach, e.g. start with just the enum
+> patch, then migrate the easy cases, then consider the more complicated
+> cases.  And possibly we need multiple different security hooks for the
+> keyring subsystem that are more specialized for the complicated cases.  =
+If
+> we authorize the delegation up front, we don't need to check it later.
+
+I'll consider it.  But I really need to get what I'm going to include in t=
+he
+middle of the notifications patchset sorted now - or risk the notification=
+s
+and fsinfo patchsets getting bumped again.
+
+Maybe what's needed is a pair of hooks whereby the call to capable() is
+replaced with LSM hook specifically to ask about the overrides:
+
+	security_key_use_sysadmin_override(key, cred);
+	security_key_use_construction_override(key, cred);
+
+And/or a hook to ask whether the process is allowed to do the request_key(=
+)
+call that they want:
+
+	security_request_key(struct key_type *type,
+			     const char *description,
+			     struct key_tag *domain_tag,
+			     const void *callout_info,
+			     size_t callout_len,
+			     void *aux);
+
+I don't really want to do a "can the kernel delegate to process X?" hook j=
+ust
+at the moment, since I want to change/extend that code and I don't want to
+commit to any particular security information being present yet.
+
+I can go back to the enum patch for the moment if you and Casey can put up
+with that for the moment?
+
+David
 
