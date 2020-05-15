@@ -7,58 +7,58 @@ X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 357C8C433E1
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 11:51:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8BEBC433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 12:13:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E96920759
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 11:51:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7BD8220657
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 12:13:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="dnSbuUaA"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ao1dDcDW"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726183AbgEOLvJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 07:51:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37874 "EHLO
+        id S1726122AbgEOMNj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 08:13:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726062AbgEOLvI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 07:51:08 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37214C061A0C
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 04:51:07 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id x1so1953643ejd.8
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 04:51:07 -0700 (PDT)
+        with ESMTP id S1726118AbgEOMNi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 08:13:38 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 586B5C061A0C
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 05:13:37 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id a68so1678272otb.10
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 05:13:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=u0VBE5Qv3/Y4+1C/31sut5Y6R+WytaEi7iuXaRAUnyE=;
-        b=dnSbuUaAmT/JITGyzwX3BbQJ5MEbWnxFGOrBzSHHsCYW1OOK40p2g61OZ6CVretMkI
-         Zu/w9tTwtALyR/gOfGHfrOm8VBkVVMPUVnCVZCNfwQzSK2jT3FN0DMu43J31vvkBpxbn
-         nPV0mOBum/R6IefWT7lCzJYgSGEOzhceLViUb8Mkos3IlS5Bb51N51EVW3DDgXtFJAus
-         lC7kXUJ15kC4huK3lCHAudqMraoesIOY3wIt/6DDmoI96nWj438qoc7ShyOTkhxzwGgX
-         Rk96EeEJls8KleklHYViOlooKEmqSV4P7SMU6mxcakbqUeJxzKfvsnMM7/eIKRd29T2R
-         0Zpg==
+        bh=dexAj21SquJsS11TInnflzyTvOYwS9wq6JNbFeN7sEU=;
+        b=ao1dDcDWwU5jsCeWsqRVfM4KRg88Z3g8yUrIL1A8KWPvp8ymnHLE4Ukvn4n9P5Dd/O
+         3cXgj4SUrzwf7KbLXSlkVJtaOl/T0nfQPFROkiTgbFLb3d3Y3/VN/SxJQzxLpGO+esoE
+         fCJEShg46ioF6p8H0O+61Vc5cx0iffE/rHTgSemYPUj5wiI6I6RsB9l2bTuO+rXvOZuH
+         AGMeb4f7Dh6lkdfFP1Q5bJEhmQNVZCPPLuIhRWp1nDTKpZTh3x/KFATJkXuOlOG+qoUA
+         NSWwq/Cm8ZlmC30ymokBDO9uSw8ggr2v6NdSzVrRQUbbaNlgwWOWsXg3/5no1t5iAXZ7
+         EArA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=u0VBE5Qv3/Y4+1C/31sut5Y6R+WytaEi7iuXaRAUnyE=;
-        b=U7GPxD6yrO04LGGZswrszSldwh7Wj8mdrx4uvFvOuTGwaAvAffc3a0+KE/j6c53cJW
-         s7Zcn/rvxzCn060ld7G1S/HkijAh++5vlm7vO/howJIZKAoQJuJdMsGDS3YCF3aBxsdb
-         oCuhjQpXO93Dz6poS1f7hXAtzkKhvTBHxYzP/Atnlar58QCKCe5ArC3iVXQMDnrzse/d
-         ipdr9xb83/NjRcDJnRgbz1U0JrT1SHl9/Z5oDgeunZRCgPrkBpX5iGVi4ZoJrfqefQ2F
-         74N5GC5vSlnLTL2Cr4nZawR57xTReM3Ly+UjsGKbXHKrJeOIg4CoiUkK87TYkWu0Cj1h
-         wJTQ==
-X-Gm-Message-State: AOAM531PZKxePhL4+DtFRterZs4OUKJ6U238Gtb8gDLCVE9VoUhb1Ft/
-        MdG8whNH4h/sk5fZA1kvw2YjOXwFAVqTo87SPdg=
-X-Google-Smtp-Source: ABdhPJyG/b/Q6BvFV9sXsZxw/e+hQXPY8J0YCdBrOtEbHIYUgRDVIaxDRDYPD9028IpCwUfg8HlG/CJsaTzQsE+p1lc=
-X-Received: by 2002:a17:906:3944:: with SMTP id g4mr2350557eje.55.1589543465845;
- Fri, 15 May 2020 04:51:05 -0700 (PDT)
+        bh=dexAj21SquJsS11TInnflzyTvOYwS9wq6JNbFeN7sEU=;
+        b=mr20h+MM/xLI/rSSJ1gJUWG1TBogkhO2rJX5ybEJhJhcY8r/vdd4/E2GeqhKtNhcS4
+         G6lO+RNeAr4A6Sltpmlx6ugnaDdYugSayjIxbmHStLhOplCx2lbbpEt3NGDb4dPryIMF
+         jjrF5OymMAD4qcwnJfRKqGHumxjXqo9CcfFUPSZzq3kG3wCpdqa4YoBuGs9vYKKE1FBS
+         63RgqUpcaN3SAosqG2B7lG6aw5S0gdSjF8qhp6t0bro6jwxScPz5tKglfBgHvRuxSkMG
+         LxkBIdVvH3og/1Z4QX+pUHJp1w9ZzXr5D8sg6fRal62/EqcqyPFBd1UWCOZqu3+s567U
+         824A==
+X-Gm-Message-State: AOAM533NRnM2cNVTra7qh/WirqpRIWeucKRCeF8oPJMoIdRnV5kryar4
+        X0WJnY2fHNaprrueGMzmm5GI/AZbrabxKfNCsfo=
+X-Google-Smtp-Source: ABdhPJwWvXph1+yQj6YUUNt80+k7FGk2ch2uKgHFALUtB4JMJ5QsPmoEy312tBLmAn9kRvz7jhla74jGLCHZX2O3y3s=
+X-Received: by 2002:a05:6830:186:: with SMTP id q6mr2075071ota.162.1589544816506;
+ Fri, 15 May 2020 05:13:36 -0700 (PDT)
 MIME-Version: 1.0
 References: <41f9bc7e-d48e-503c-e298-5aba4d7c8e32@gmail.com>
 In-Reply-To: <41f9bc7e-d48e-503c-e298-5aba4d7c8e32@gmail.com>
-From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Date:   Fri, 15 May 2020 13:50:54 +0200
-Message-ID: <CAJ2a_DfBE3Mwxg-GHa4OZf6aq6D0W-Q5QxnM88qa_ZCXUFXs0A@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 15 May 2020 08:13:25 -0400
+Message-ID: <CAEjxPJ7SfRcc-8D4m7yKwVmx0MY=6qd86LGcf3t-rQvrvqXJdg@mail.gmail.com>
 Subject: Re: Wrong processes in AVC denials
 To:     Topi Miettinen <toiwoton@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
@@ -69,26 +69,7 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
-
-for loopback labeling I use special rules, sot that the packet going
-into and coming out of the loopback device have different labels.
-
-iif lo meta secmark set tcp dport map @secmapping_in
-iif lo meta secmark set udp dport map @secmapping_in
-iif lo meta secmark set tcp sport map @secmapping_out
-iif lo meta secmark set udp sport map @secmapping_out
-
-oif lo meta secmark set tcp dport map @secmapping_out
-oif lo meta secmark set udp dport map @secmapping_out
-oif lo meta secmark set tcp sport map @secmapping_in
-oif lo meta secmark set udp sport map @secmapping_in
-
-The pid values in these audit messages are garbage values (and so the
-derived command).
-
-Am Fr., 15. Mai 2020 um 13:11 Uhr schrieb Topi Miettinen <toiwoton@gmail.co=
-m>:
+On Fri, May 15, 2020 at 7:14 AM Topi Miettinen <toiwoton@gmail.com> wrote:
 >
 > Hi,
 >
@@ -142,5 +123,9 @@ est=3D45482
 > Could it be a bug in kernel somewhere (AVC generated from wrong context)
 > or should this be expected? The version of kernel is 5.3.7 and Netfilter
 > NFT rules label all packets with SECMARK.
->
-> -Topi
+
+Certain permission checks (like network input processing) can occur
+outside of process context, e.g. softirq or hardirq,
+and therefore the pid/comm information can be seemingly random and
+unrelated to the security contexts.  The security contexts however are
+correct.
