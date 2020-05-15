@@ -2,154 +2,555 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAAC4C433E0
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 12:47:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE17C433DF
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:10:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B212920759
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 12:47:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BC643206D4
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:10:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DCYm8tnZ"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="qk6CZdjJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726141AbgEOMrL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 08:47:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46568 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726140AbgEOMrL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 08:47:11 -0400
-Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A14E9C061A0C
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 05:47:10 -0700 (PDT)
-Received: by mail-lj1-x242.google.com with SMTP id g1so2091982ljk.7
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 05:47:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=ocv90+jNXZFVllwLA6OeV9JESkdi3aIilc7iyT8YBis=;
-        b=DCYm8tnZMB+UxgjRT8nx71TQT3UQLEvCXASIwJ138hc/8TYh4bE9+2ICVVgFkPA1m4
-         XKRxZl8dmKF/t/PeYbsfoufom/sQyUglpYwBcLqWuEwFjrjxfWxrU5UfVPCKzkQSjG6w
-         0A4oxCHvi8TbeLtMsoWNqwIm7xH1LT3fQy1O+c/RK/pRl1RIz3xcGwy5zNoZFzOoABNh
-         //F59BxVtAAswzLKSof12Fat7fARn9M5iZ/CC+P+9AnjMwa+IZOKRozYuJw4w/5M+FC3
-         BpxSJ2osmRuLEJPxn0O0equ6c0e4OJEa2SRI8+/av2Si2eDEUx+rrjBq0VNyOxe7zRCC
-         xDkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=ocv90+jNXZFVllwLA6OeV9JESkdi3aIilc7iyT8YBis=;
-        b=pgBLbrrj1tZhSmEwQ6yEJSyE+WHWbPnN8IP4aacOCEpaIT5moUDBklRxUaA8FgVYGH
-         CBH+nZ4KwPO5T0oJvsn8qV65A07fnXcw+nEOhnEsvZRkxQ0mJjtyUT3NtR0+0Pb1bGC/
-         Du/KmsWP2S7Ucj3te0EKNiiMRTkt2Vv/9b/J5KjihCE0pTrZ335mT2EpAZoCqnq0ixug
-         FPo+rmwO7BRNDsrlY6d1pt9R++0O2D+l9FIPBgxreNCXqnmibpr/3JhoRjHPyh7cdcOu
-         Px+YvyT+Zf8DTdAhwTcbg/S7ErcJ2WhCyaGTKDWJsKONYxrlc7xgzparzBTbTdjuioX3
-         NrKw==
-X-Gm-Message-State: AOAM5313ayMQ1cevjUfeu197N/xDSJsmcvyBTcCFFDCFDMYbJTXoOuSG
-        mL7cLrYQanGkBIdrhJA0HKXdrFu0
-X-Google-Smtp-Source: ABdhPJyfQJRItcMGZ9PO8jAkqstQD37wmS5Dj1AGGNzkcDniLOMsHX9BRnAZPVjo5bkB/gxryrf3RQ==
-X-Received: by 2002:a2e:3204:: with SMTP id y4mr2319357ljy.85.1589546828673;
-        Fri, 15 May 2020 05:47:08 -0700 (PDT)
-Received: from [192.168.1.38] (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
-        by smtp.gmail.com with ESMTPSA id f4sm1130596ljm.11.2020.05.15.05.47.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 15 May 2020 05:47:08 -0700 (PDT)
-Subject: Re: Wrong processes in AVC denials
-To:     =?UTF-8?Q?Christian_G=c3=b6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-References: <41f9bc7e-d48e-503c-e298-5aba4d7c8e32@gmail.com>
- <CAJ2a_DfBE3Mwxg-GHa4OZf6aq6D0W-Q5QxnM88qa_ZCXUFXs0A@mail.gmail.com>
-From:   Topi Miettinen <toiwoton@gmail.com>
-Message-ID: <0611b014-a6ec-f151-1feb-e5c1f88a3a4d@gmail.com>
-Date:   Fri, 15 May 2020 15:47:06 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726160AbgEONK0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 09:10:26 -0400
+Received: from mailomta10-re.btinternet.com ([213.120.69.103]:22595 "EHLO
+        re-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726140AbgEONK0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:10:26 -0400
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-048.btinternet.com with ESMTP
+          id <20200515131021.LHFG8887.re-prd-fep-048.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Fri, 15 May 2020 14:10:21 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1589548221; 
+        bh=5t1lftGqi39V1hfEhlebYdIi36WXfCPpDG5yKAqjy50=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=qk6CZdjJU8k+mjqSZBlVAy6kJwnailzEZWiqoz9E+tMXkf1J3ZGsW8qd9Fsn++lAbcz1PmbRRQpsMgdHjbsVJixS1jVCzhPjddSVXJr2CCiZJSj8+MB4C/8mBcykDVmlNRiuU2qV/8OCOZjWoLHnfeAQImWh6mLj3GfNt3dQwQ+fyI+M4fmhlFKonzMbgZSDfLprkdIWC/JLsxFF4CjY+AWlU2YPfShKzDpwUvOaPncs+IcwqJ9bihxZ04lCpHhRi+kUPXPG69zjdRVAeB0xb64KQ5oV3C5QwrxL5mjO4AM8H4xYvEiRzdKO1Hr6hWv4b7Mh8TD/bvwRLL+VjGCJuQ==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.190.32.24]
+X-OWM-Source-IP: 86.190.32.24 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduhedrleekgdehlecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepleetffegveevjeehvefhtefgueevudettedutdffvdejkeeiteegheevfeejtdefnecukfhppeekiedrudeltddrfedvrddvgeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirdduledtrdefvddrvdegpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (86.190.32.24) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5E3A195F10A2F40F; Fri, 15 May 2020 14:10:20 +0100
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     omosnace@redhat.com, selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH V2] selinux-testsuite: Add nftables to inet_socket and sctp tests
+Date:   Fri, 15 May 2020 14:10:14 +0100
+Message-Id: <20200515131014.7852-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.25.3
 MIME-Version: 1.0
-In-Reply-To: <CAJ2a_DfBE3Mwxg-GHa4OZf6aq6D0W-Q5QxnM88qa_ZCXUFXs0A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 15.5.2020 14.50, Christian Göttsche wrote:
-> Hi,
-> 
-> for loopback labeling I use special rules, sot that the packet going
-> into and coming out of the loopback device have different labels.
+Support secmark tests that require nftables version 9.3 or greater and
+kernel 4.20 or greater.
 
-I'm relying on INPUT chain for labeling incoming packets and vice versa. 
-Doesn't that work for loopback?
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+V2 Change:
+Use common tests for iptables/nftables
 
-> 
-> iif lo meta secmark set tcp dport map @secmapping_in
+ README.md                        |   4 +-
+ tests/inet_socket/nftables-flush |   2 +
+ tests/inet_socket/nftables-load  |  74 +++++++++++++++++++++
+ tests/inet_socket/test           | 108 ++++++++++++++++++++-----------
+ tests/sctp/nftables-flush        |   2 +
+ tests/sctp/nftables-load         |  68 +++++++++++++++++++
+ tests/sctp/test                  |  96 +++++++++++++++++----------
+ 7 files changed, 281 insertions(+), 73 deletions(-)
+ create mode 100644 tests/inet_socket/nftables-flush
+ create mode 100644 tests/inet_socket/nftables-load
+ create mode 100644 tests/sctp/nftables-flush
+ create mode 100644 tests/sctp/nftables-load
 
-I think there's some limit for the size of NFT maps, so I was not able 
-to use them for labeling all packet types known by the policy.
-
--Topi
-
-> iif lo meta secmark set udp dport map @secmapping_in
-> iif lo meta secmark set tcp sport map @secmapping_out
-> iif lo meta secmark set udp sport map @secmapping_out
-> 
-> oif lo meta secmark set tcp dport map @secmapping_out
-> oif lo meta secmark set udp dport map @secmapping_out
-> oif lo meta secmark set tcp sport map @secmapping_in
-> oif lo meta secmark set udp sport map @secmapping_in
-> 
-> The pid values in these audit messages are garbage values (and so the
-> derived command).
-> 
-> Am Fr., 15. Mai 2020 um 13:11 Uhr schrieb Topi Miettinen <toiwoton@gmail.com>:
->>
->> Hi,
->>
->> After sending the previous message with 'git send-email', I noticed
->> strange AVC denials in the logs. The first entry is correct, but the
->> next have PID 0 and 16:
->>
->> time->Fri May 15 13:49:30 2020
->> type=PROCTITLE msg=audit(1589539770.992:1614):
->> proctitle=2F7573722F62696E2F7065726C002F7573722F6C69622F6769742D636F72652F6769742D73656E642D656D61696C002D2D736D74702D6465627567002D2D616E6E6F74617465002D2D746F0073656C696E757840766765722E6B65726E656C2E6F726700642F706F6C696379636F72657574696C732E6769742F303030312D73
->> type=SOCKADDR msg=audit(1589539770.992:1614):
->> saddr=020000197F0000010000000000000000
->> type=SYSCALL msg=audit(1589539770.992:1614): arch=c000003e syscall=42
->> success=no exit=-115 a0=7 a1=5a00209eba80 a2=10 a3=fffffffffffffa8b
->> items=0 ppid=10011 pid=10012 auid=1000 uid=1000 gid=1000 euid=1000
->> suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=pts0 ses=1
->> comm="git-send-email" exe="/usr/bin/perl" subj=user_u:user_r:user_t:s0
->> key=(null)
->> type=AVC msg=audit(1589539770.992:1614): avc:  denied  { recv } for
->> pid=10012 comm="git-send-email" saddr=127.0.0.1 src=25 daddr=127.0.0.1
->> dest=45482 netif=lo scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:object_r:smtp_server_packet_t:s0 tclass=packet
->> permissive=0
->> ----
->> time->Fri May 15 13:49:32 2020
->> type=AVC msg=audit(1589539772.016:1615): avc:  denied  { recv } for
->> pid=16 comm="ksoftirqd/1" saddr=127.0.0.1 src=25 daddr=127.0.0.1
->> dest=45482 netif=lo scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:object_r:smtp_server_packet_t:s0 tclass=packet
->> permissive=0
->> ----
->> time->Fri May 15 13:49:38 2020
->> type=AVC msg=audit(1589539778.096:1617): avc:  denied  { recv } for
->> pid=0 comm="swapper/1" saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=45482
->> netif=lo scontext=user_u:user_r:user_t:s0
->> tcontext=system_u:object_r:smtp_server_packet_t:s0 tclass=packet
->> permissive=0
->> ----
->>
->> Could it be a bug in kernel somewhere (AVC generated from wrong context)
->> or should this be expected? The version of kernel is 5.3.7 and Netfilter
->> NFT rules label all packets with SECMARK.
->>
->> -Topi
+diff --git a/README.md b/README.md
+index 1f7e5d9..d65e9b8 100644
+--- a/README.md
++++ b/README.md
+@@ -57,6 +57,7 @@ similar dependencies):
+ * keyutils-libs-devel _(tools used by the keys tests)_
+ * kernel-devel _(used by the kernel module tests)_
+ * quota, xfsprogs-devel and libuuid-devel _(used by the filesystem tests)_
++* nftables _(used by inet_socket and sctp tests if ver >= 9.3 for secmark testing )_
+ 
+ On a modern Fedora system you can install these dependencies with the
+ following command:
+@@ -77,7 +78,8 @@ following command:
+ 		kernel-devel \
+ 		quota \
+ 		xfsprogs-devel \
+-		libuuid-devel
++		libuuid-devel \
++		nftables
+ 
+ #### Debian
+ 
+diff --git a/tests/inet_socket/nftables-flush b/tests/inet_socket/nftables-flush
+new file mode 100644
+index 0000000..7d62b8d
+--- /dev/null
++++ b/tests/inet_socket/nftables-flush
+@@ -0,0 +1,2 @@
++delete table ip security
++delete table ip6 security
+diff --git a/tests/inet_socket/nftables-load b/tests/inet_socket/nftables-load
+new file mode 100644
+index 0000000..11ec382
+--- /dev/null
++++ b/tests/inet_socket/nftables-load
+@@ -0,0 +1,74 @@
++# Based on NFT project example. Requires kernel >= 4.20 and nft >= 0.9.3
++
++add table ip security
++add table ip6 security
++
++table ip security {
++
++	secmark inet_server {
++		"system_u:object_r:test_server_packet_t:s0"
++	}
++
++	map secmapping_in_out {
++		type inet_service : secmark
++		elements = { 65535 : "inet_server" }
++	}
++
++	chain input {
++		type filter hook input priority 0;
++
++		# label new incoming packets and add to connection
++		ct state new meta secmark set tcp dport map @secmapping_in_out
++		ct state new meta secmark set udp dport map @secmapping_in_out
++		ct state new ct secmark set meta secmark
++
++		# set label for est/rel packets from connection
++		ct state established,related meta secmark set ct secmark
++	}
++
++	chain output {
++		type filter hook output priority 0;
++
++		# label new outgoing packets and add to connection
++		ct state new meta secmark set tcp dport map @secmapping_in_out
++		# 'established' is used here so that the error return is the
++		# same as the 'iptables-load' tests (no reply from server)
++		ct state established meta secmark set udp dport map @secmapping_in_out
++		ct state new ct secmark set meta secmark
++
++		# set label for est/rel packets from connection
++		ct state established,related meta secmark set ct secmark
++	}
++}
++
++table ip6 security {
++
++	secmark inet_server {
++		"system_u:object_r:test_server_packet_t:s0"
++	}
++
++	map secmapping_in_out {
++		type inet_service : secmark
++		elements = { 65535 : "inet_server" }
++	}
++
++	chain input {
++		type filter hook input priority 0;
++
++		ct state new meta secmark set tcp dport map @secmapping_in_out
++		ct state new meta secmark set udp dport map @secmapping_in_out
++		ct state new ct secmark set meta secmark
++
++		ct state established,related meta secmark set ct secmark
++	}
++
++	chain output {
++		type filter hook output priority 0;
++
++		ct state new meta secmark set tcp dport map @secmapping_in_out
++		ct state established meta secmark set udp dport map @secmapping_in_out
++		ct state new ct secmark set meta secmark
++
++		ct state established,related meta secmark set ct secmark
++	}
++}
+diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+index 47ce106..ce9bd7f 100755
+--- a/tests/inet_socket/test
++++ b/tests/inet_socket/test
+@@ -27,6 +27,19 @@ BEGIN {
+         $test_calipso_stream = 1;
+     }
+ 
++    # Determine nftables version, must be >= 0.9.3 for secmark support
++    # with kernel >= 4.20
++    $test_nft = 0;
++    $nft      = `nft -v`;
++    $nft =~ s/\D//g;
++    $kverminstream = "4.20";
++
++    $rc = `$basedir/../kvercmp $kvercur $kverminstream`;
++    if ( $nft gt "092" and $rc > 0 ) {
++        $test_count += 8;
++        $test_nft = 1;
++    }
++
+     plan tests => $test_count;
+ }
+ 
+@@ -348,63 +361,82 @@ if ($test_ipsec) {
+     system "/bin/sh $basedir/ipsec-flush";
+ }
+ 
+-# Load iptables (IPv4 & IPv6) configuration.
+-system "/bin/sh $basedir/iptables-load";
++#
++################## Test iptables/nftables configuration ######################
++#
++$test_msg = "Testing iptables (IPv4/IPv6).\n";
++$cmd      = "/bin/sh";
++$table    = "iptables";
++$i        = 0;
++$loop     = 1;
++
++if ($test_nft) {
++    $loop = 2;
++}
+ 
+-# Start the stream server.
+-$pid = server_start( "-t test_inet_server_t", "-n stream 65535" );
++while ( $i < $loop ) {
++    print "$test_msg";
++    system "$cmd $basedir/$table-load";
+ 
+-# Verify that authorized client can communicate with the server.
+-$result = system
++    # Start the stream server.
++    $pid = server_start( "-t test_inet_server_t", "-n stream 65535" );
++
++    # Verify that authorized client can communicate with the server.
++    $result = system
+ "runcon -t test_inet_client_t -- $basedir/client -e nopeer stream 127.0.0.1 65535";
+-ok( $result eq 0 );
++    ok( $result eq 0 );
+ 
+-# Verify that unauthorized client cannot communicate with the server.
+-$result = system
++    # Verify that unauthorized client cannot communicate with the server.
++    $result = system
+ "runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer stream 127.0.0.1 65535 2>&1";
+-ok( $result >> 8 eq 5 );
++    ok( $result >> 8 eq 5 );
+ 
+-# Verify that authorized client can communicate with the server.
+-$result = system
+-  "runcon -t test_inet_client_t -- $basedir/client -e nopeer stream ::1 65535";
+-ok( $result eq 0 );
++    # Verify that authorized client can communicate with the server.
++    $result = system
++"runcon -t test_inet_client_t -- $basedir/client -e nopeer stream ::1 65535";
++    ok( $result eq 0 );
+ 
+-# Verify that unauthorized client cannot communicate with the server.
+-$result = system
++    # Verify that unauthorized client cannot communicate with the server.
++    $result = system
+ "runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer stream ::1 65535 2>&1";
+-ok( $result >> 8 eq 5 );
++    ok( $result >> 8 eq 5 );
+ 
+-# Kill the server.
+-server_end($pid);
++    # Kill the server.
++    server_end($pid);
+ 
+-# Start the dgram server.
+-$pid = server_start( "-t test_inet_server_t", "-n dgram 65535" );
++    # Start the dgram server.
++    $pid = server_start( "-t test_inet_server_t", "-n dgram 65535" );
+ 
+-# Verify that authorized client can communicate with the server.
+-$result = system
++    # Verify that authorized client can communicate with the server.
++    $result = system
+ "runcon -t test_inet_client_t $basedir/client -e nopeer dgram 127.0.0.1 65535";
+-ok( $result eq 0 );
++    ok( $result eq 0 );
+ 
+-# Verify that unauthorized client cannot communicate with the server.
+-$result = system
++    # Verify that unauthorized client cannot communicate with the server.
++    $result = system
+ "runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer dgram 127.0.0.1 65535 2>&1";
+-ok( $result >> 8 eq 8 );
++    ok( $result >> 8 eq 8 );
+ 
+-# Verify that authorized client can communicate with the server.
+-$result = system
+-  "runcon -t test_inet_client_t $basedir/client -e nopeer dgram ::1 65535";
+-ok( $result eq 0 );
++    # Verify that authorized client can communicate with the server.
++    $result = system
++      "runcon -t test_inet_client_t $basedir/client -e nopeer dgram ::1 65535";
++    ok( $result eq 0 );
+ 
+-# Verify that unauthorized client cannot communicate with the server.
+-$result = system
++    # Verify that unauthorized client cannot communicate with the server.
++    $result = system
+ "runcon -t test_inet_bad_client_t -- $basedir/client -e nopeer dgram ::1 65535 2>&1";
+-ok( $result >> 8 eq 8 );
++    ok( $result >> 8 eq 8 );
+ 
+-# Kill the server.
+-server_end($pid);
++    # Kill the server.
++    server_end($pid);
+ 
+-# Flush iptables configuration.
+-system "/bin/sh $basedir/iptables-flush";
++    system "$cmd $basedir/$table-flush";
++
++    $test_msg = "Testing nftables (IPv4/IPv6).\n";
++    $cmd      = "nft -f";
++    $table    = "nftables";
++    $i++;
++}
+ 
+ if ($test_calipso_stream) {
+ 
+diff --git a/tests/sctp/nftables-flush b/tests/sctp/nftables-flush
+new file mode 100644
+index 0000000..7d62b8d
+--- /dev/null
++++ b/tests/sctp/nftables-flush
+@@ -0,0 +1,2 @@
++delete table ip security
++delete table ip6 security
+diff --git a/tests/sctp/nftables-load b/tests/sctp/nftables-load
+new file mode 100644
+index 0000000..2cac3bb
+--- /dev/null
++++ b/tests/sctp/nftables-load
+@@ -0,0 +1,68 @@
++# Based on NFT project example. Requires kernel >= 4.20 and nft >= 0.9.3
++
++add table ip security
++add table ip6 security
++
++table ip security {
++
++	secmark sctp_server {
++		"system_u:object_r:test_sctp_server_packet_t:s0"
++	}
++
++	map secmapping_in_out {
++		type inet_service : secmark
++		elements = { 1035 : "sctp_server" }
++	}
++
++	chain input {
++		type filter hook input priority 0;
++
++		# label new incoming packets and add to connection
++		ct state new meta secmark set sctp dport map @secmapping_in_out
++		ct state new ct secmark set meta secmark
++
++		# set label for est/rel packets from connection
++		ct state established,related meta secmark set ct secmark
++	}
++
++	chain output {
++		type filter hook output priority 0;
++
++		# label new outgoing packets and add to connection
++		ct state new meta secmark set sctp dport map @secmapping_in_out
++		ct state new ct secmark set meta secmark
++
++		# set label for est/rel packets from connection
++		ct state established,related meta secmark set ct secmark
++	}
++}
++
++table ip6 security {
++
++	secmark sctp_server {
++		"system_u:object_r:test_sctp_server_packet_t:s0"
++	}
++
++	map secmapping_in_out {
++		type inet_service : secmark
++		elements = { 1035 : "sctp_server" }
++	}
++
++	chain input {
++		type filter hook input priority 0;
++
++		ct state new meta secmark set sctp dport map @secmapping_in_out
++		ct state new ct secmark set meta secmark
++
++		ct state established,related meta secmark set ct secmark
++	}
++
++	chain output {
++		type filter hook output priority 0;
++
++		ct state new meta secmark set sctp dport map @secmapping_in_out
++		ct state new ct secmark set meta secmark
++
++		ct state established,related meta secmark set ct secmark
++	}
++}
+diff --git a/tests/sctp/test b/tests/sctp/test
+index 6631da4..052d850 100755
+--- a/tests/sctp/test
++++ b/tests/sctp/test
+@@ -56,6 +56,16 @@ BEGIN {
+             $test_calipso = 1;
+         }
+ 
++        # Determine nftables version, must be >= 0.9.3 for secmark support.
++        $test_nft = 0;
++        $nft      = `nft -v`;
++        $nft =~ s/\D//g;
++
++        if ( $nft gt "092" ) {
++            $test_count += 8;
++            $test_nft = 1;
++        }
++
+         plan tests => $test_count;
+     }
+ }
+@@ -749,64 +759,82 @@ if ($test_calipso) {
+ }
+ 
+ #
+-##################### Test iptables configuration ############################
++################## Test iptables/nftables configuration ######################
+ #
+-print "# Testing iptables (IPv4/IPv6).\n";
+-system "/bin/sh $basedir/iptables-load";
++$test_msg = "# Testing iptables (IPv4/IPv6).\n";
++$cmd      = "/bin/sh";
++$table    = "iptables";
++$i        = 0;
++$loop     = 1;
++
++if ($test_nft) {
++    $loop = 2;
++}
+ 
+-# Start the stream server.
+-$pid =
+-  server_start( "-t test_sctp_server_t", "sctp_server", "$v -n stream 1035" );
++while ( $i < $loop ) {
++    print "$test_msg";
++    system "$cmd $basedir/$table-load";
+ 
+-# Verify that authorized client can communicate with the server STREAM->STREAM.
+-$result = system
++    # Start the stream server.
++    $pid = server_start( "-t test_sctp_server_t",
++        "sctp_server", "$v -n stream 1035" );
++
++ # Verify that authorized client can communicate with the server STREAM->STREAM.
++    $result = system
+ "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer stream 127.0.0.1 1035";
+-ok( $result eq 0 );
++    ok( $result eq 0 );
+ 
+ # Verify that a client without peer { recv } permission cannot communicate with the server STREAM->STREAM.
+-$result = system
++    $result = system
+ "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer stream 127.0.0.1 1035 2>&1";
+-ok( $result >> 8 eq 6 );
++    ok( $result >> 8 eq 6 );
+ 
+-# Verify that authorized client can communicate with the server STREAM->STREAM.
+-$result = system
++ # Verify that authorized client can communicate with the server STREAM->STREAM.
++    $result = system
+ "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer stream ::1 1035";
+-ok( $result eq 0 );
++    ok( $result eq 0 );
+ 
+ # Verify that a client without peer { recv } permission cannot communicate with the server STREAM->STREAM.
+-$result = system
++    $result = system
+ "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer stream ::1 1035 2>&1";
+-ok( $result >> 8 eq 6 );
++    ok( $result >> 8 eq 6 );
+ 
+-# Kill the stream server.
+-server_end($pid);
++    # Kill the stream server.
++    server_end($pid);
+ 
+-# Start the seq server.
+-$pid = server_start( "-t test_sctp_server_t", "sctp_server", "$v -n seq 1035" );
++    # Start the seq server.
++    $pid =
++      server_start( "-t test_sctp_server_t", "sctp_server", "$v -n seq 1035" );
+ 
+-# Verify that authorized client can communicate with the server SEQ->SEQ.
+-$result = system
++    # Verify that authorized client can communicate with the server SEQ->SEQ.
++    $result = system
+ "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq 127.0.0.1 1035";
+-ok( $result eq 0 );
++    ok( $result eq 0 );
+ 
+ # Verify that a client without peer { recv } permission cannot communicate with the server SEQ->SEQ.
+-$result = system
++    $result = system
+ "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer seq 127.0.0.1 1035 2>&1";
+-ok( $result >> 8 eq 6 );
++    ok( $result >> 8 eq 6 );
+ 
+-# Verify that authorized client can communicate with the server SEQ->SEQ.
+-$result = system
+-  "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq ::1 1035";
+-ok( $result eq 0 );
++    # Verify that authorized client can communicate with the server SEQ->SEQ.
++    $result = system
++"runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq ::1 1035";
++    ok( $result eq 0 );
+ 
+ # Verify that a client without peer { recv } permission cannot communicate with the server SEQ->SEQ.
+-$result = system
++    $result = system
+ "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer seq ::1 1035 2>&1";
+-ok( $result >> 8 eq 6 );
++    ok( $result >> 8 eq 6 );
+ 
+-# Kill the seq server.
+-server_end($pid);
++    # Kill the seq server.
++    server_end($pid);
++
++    system "$cmd $basedir/$table-flush";
+ 
+-system "/bin/sh $basedir/iptables-flush";
++    $test_msg = "# Testing nftables (IPv4/IPv6).\n";
++    $cmd      = "nft -f";
++    $table    = "nftables";
++    $i++;
++}
+ 
+ exit;
+-- 
+2.25.3
 
