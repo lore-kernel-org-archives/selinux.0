@@ -2,143 +2,172 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79696C433E0
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:35:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F5FEC433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:38:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D9B420657
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:35:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DE0C20657
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:38:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NzPl4AGx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RGyjh06x"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726160AbgEONft (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 09:35:49 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:57634 "EHLO
+        id S1726160AbgEONiJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 09:38:09 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:20012 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726141AbgEONft (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:35:49 -0400
+        with ESMTP id S1726141AbgEONiJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:38:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589549748;
+        s=mimecast20190719; t=1589549887;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=lWw8RwGv2A17eryTuzPC3CmBir9xZqDRIK3sLe11T3Q=;
-        b=NzPl4AGxztKNH5YlcXl97+wTvgpUokY/ZDi2zp4raGqho7SdY/hSuMZdW2hav7KvNH5bSs
-        F4R+GLNGfl+JWTRxy5onju4cEmqROGVG3YmHrrINEi4P1xWhreJnVpkZTbwdWRrUn5hMLq
-        kylh9OoggDNB1qN73qo/mcQ0GN9t8Pc=
+        bh=5SiKn4ZlKsyAK+LZLN2rX2WHsisiuZg4YmKGJOeaLvE=;
+        b=RGyjh06xlFUJ1jMvTosamdomi/sLE1jU0CbYJPXD+iBVT1lGTJtXxz51Ipp4ElH4IpjlkX
+        irtNURT34qqzp12IfCACpp527PF3gsateOQNpPRQsAekwThxM5zYRG56eESSoCiHEKOEi4
+        gIl/3PnLH2z0kE74Jxfzv0Pvbihif2g=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-212-6M4UZM5LMD-qxGyPlfHjGQ-1; Fri, 15 May 2020 09:35:44 -0400
-X-MC-Unique: 6M4UZM5LMD-qxGyPlfHjGQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ us-mta-3-Ye_Yj9RpNJKn33F3lsSyJA-1; Fri, 15 May 2020 09:38:04 -0400
+X-MC-Unique: Ye_Yj9RpNJKn33F3lsSyJA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C9180107ACF5;
-        Fri, 15 May 2020 13:35:43 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0CA21107ACCA;
+        Fri, 15 May 2020 13:38:03 +0000 (UTC)
 Received: from workstation (unknown [10.40.194.255])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id F0DFB1001B2C;
-        Fri, 15 May 2020 13:35:42 +0000 (UTC)
-Date:   Fri, 15 May 2020 15:35:40 +0200
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 00351614E7;
+        Fri, 15 May 2020 13:38:01 +0000 (UTC)
+Date:   Fri, 15 May 2020 15:37:59 +0200
 From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Topi Miettinen <toiwoton@gmail.com>
-Subject: Re: [PATCH v3] secilc/docs: fix use of TMPDIR
-Message-ID: <20200515133540.GD255621@workstation>
-References: <20200515114111.11428-1-toiwoton@gmail.com>
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Subject: Re: [PATCH] libsepol: drop broken warning on duplicate filename
+ transitions
+Message-ID: <20200515133759.GE255621@workstation>
+References: <20200513211508.4477-1-stephen.smalley.work@gmail.com>
+ <CAFqZXNtNSH8_8ow-ZkAMK=UXvs_rCieUr3xgn6pqrpb-Xvnbtw@mail.gmail.com>
+ <CAEjxPJ4g5+erpnA-ikj6RjZ0KL2v5jd6mENcX1Ahtk2-7=s0bw@mail.gmail.com>
+ <CAFqZXNuj__kQrnUBDgtjv=z2Bu-+WpuQPKkhnHi6zKYK-vFmXA@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200515114111.11428-1-toiwoton@gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+In-Reply-To: <CAFqZXNuj__kQrnUBDgtjv=z2Bu-+WpuQPKkhnHi6zKYK-vFmXA@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="vni90+aGYgRvsTuO"
+        protocol="application/pgp-signature"; boundary="ey/N+yb7u/X9mFhi"
 Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---vni90+aGYgRvsTuO
+--ey/N+yb7u/X9mFhi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 15, 2020 at 02:41:11PM +0300, Topi Miettinen wrote:
-> Environment variable TMPDIR may be already set for the user building
-> and this could be equal to $XDG_RUNTIME_DIR or /tmp which are existing
-> directories. Then when running 'make clean', there are unintended side
-> effects:
+On Thu, May 14, 2020 at 02:19:05PM +0200, Ondrej Mosnacek wrote:
+> On Thu, May 14, 2020 at 2:03 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Thu, May 14, 2020 at 4:19 AM Ondrej Mosnacek <omosnace@redhat.com> w=
+rote:
+> > >
+> > > On Wed, May 13, 2020 at 11:16 PM Stephen Smalley
+> > > <stephen.smalley.work@gmail.com> wrote:
+> > > > As per the issue below, libsepol segfaults on loading old kernel po=
+licies
+> > > > that contain duplicate filename transition rules.  The segfault is =
+due to
+> > > > the fact that the val_to_name arrays have not yet been populated at=
+ this
+> > > > point in the policydb_read() processing.  Since this warning appare=
+ntly
+> > > > never worked since it was first introduced, drop it and just silent=
+ly
+> > > > discard the duplicate like the kernel does.  I was not able to prod=
+uce a
+> > > > policy with such duplicates using the current policy toolchain, eit=
+her
+> > > > via CIL or via binary modules with manual semodule_link/expand.
+> > > >
+> > > > Fixes: https://github.com/SELinuxProject/selinux/issues/239
+> > > > Fixes: 8fdb2255215a1f14 ("libsepol,checkpolicy: convert rangetrans =
+and filenametrans to hashtabs")
+> > > > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > > > ---
+> > > >  libsepol/src/policydb.c | 9 +--------
+> > > >  1 file changed, 1 insertion(+), 8 deletions(-)
+> > > >
+> > > > diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+> > > > index 5b289a52..3992ea56 100644
+> > > > --- a/libsepol/src/policydb.c
+> > > > +++ b/libsepol/src/policydb.c
+> > > > @@ -2655,15 +2655,8 @@ int filename_trans_read(policydb_t *p, struc=
+t policy_file *fp)
+> > > >                          * Some old policies were wrongly generated=
+ with
+> > > >                          * duplicate filename transition rules.  Fo=
+r backward
+> > > >                          * compatibility, do not reject such polici=
+es, just
+> > > > -                        * issue a warning and ignore the duplicate=
+.
+> > > > +                        * ignore the duplicate.
+> > > >                          */
+> > > > -                       WARN(fp->handle,
+> > > > -                            "Duplicate name-based type_transition =
+%s %s:%s \"%s\":  %s, ignoring",
+> > > > -                            p->p_type_val_to_name[ft->stype - 1],
+> > > > -                            p->p_type_val_to_name[ft->ttype - 1],
+> > > > -                            p->p_class_val_to_name[ft->tclass - 1]=
+,
+> > > > -                            ft->name,
+> > > > -                            p->p_type_val_to_name[otype->otype - 1=
+]);
+> > >
+> > > Not sure if it's the same situation, but should we also do something
+> > > about a similar pattern in checkpolicy/policy_define.c?
+> > >
+> > > https://github.com/SELinuxProject/selinux/blob/63bf6afe5ed20e1d62f966=
+de65882dc327fb2915/checkpolicy/policy_define.c#L3408
+> >
+> > No, in that case we are compiling source policy and we want to warn on
+> > it to encourage removal of duplicates (and we have populated the
+> > val_to_name arrays there so the warning works).
 >=20
-> rm -rf /run/user/1000
-> rm: cannot remove '/run/user/1000/dconf/user': Permission denied
-> rm: cannot remove '/run/user/1000/systemd': Permission denied
-> rm: cannot remove '/run/user/1000/gnupg': Permission denied
-> rm: cannot remove '/run/user/1000/dbus-1': Is a directory
-> rm: cannot remove '/run/user/1000/inaccessible': Permission denied
-> make[1]: *** [Makefile:68: clean] Error 1
+> Ok, makes sense. In that case:
 >=20
-> Fix by always setting the variable.
->=20
-> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
-> Suggested-by: Petr Lautrbach <plautrba@redhat.com>
-
-Acked-by: Petr Lautrbach <plautrba@redhat.com>
-
-Thanks!
-
-> ---
->  secilc/docs/Makefile | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
->=20
-> diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
-> index 6b07ce7f..197ccef2 100644
-> --- a/secilc/docs/Makefile
-> +++ b/secilc/docs/Makefile
-> @@ -1,8 +1,8 @@
-> -CWD ?=3D $(shell pwd)
-> -HTMLDIR ?=3D $(CWD)/html
-> -PDFDIR ?=3D $(CWD)/pdf
-> -TMPDIR ?=3D $(CWD)/tmp
-> -TESTDIR ?=3D $(CWD)/../test
-> +CWD =3D $(shell pwd)
-> +HTMLDIR =3D $(CWD)/html
-> +PDFDIR =3D $(CWD)/pdf
-> +TMPDIR =3D $(CWD)/tmp
-> +TESTDIR =3D $(CWD)/../test
-> =20
->  # All the markdown files that make up the guide:
->  FILE_LIST ?=3D cil_introduction.md \
-> --=20
-> 2.26.2
+> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
 >=20
 
---=20
-()  ascii ribbon campaign - against html e-mail=20
-/\  www.asciiribbon.org   - against proprietary attachments
+Applied.
 
---vni90+aGYgRvsTuO
+
+--ey/N+yb7u/X9mFhi
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6+mqUACgkQviIJHj72
-InXJfBAAgsgoyvaQ1N3W++iWFqO8oD9zGjD/iL1al5r6aaWRXjzU3n8sWTklI0fN
-QXUY5RkRw0LykQc3EfZWLEmHwS+NJcxBRhaaSVrVbgRSB8Qul2omOvu4xnKTkXQv
-5VxpJwaFLJZcCtC1nndhYG422EkG5wNxvrk0tl1VuN9YYhE1bku+d/2wP9Mdmobb
-xRCv6U1JKO8TNBDcmblxvWzJOQTgI0huVqVCwY77WI7eEKl+owkR7quwzbzcnvVf
-1gU6mwwCG9ngMunU7yC3Y+LpZuh/PZsUkUK4Ud2S2GlcRB1WIaDI9B98mKKuyRHQ
-ZJDf6+0mNcn51fpnRINCrbxhZFNVaNQsjoH/nel2Ao8730au12F3u4DW8j0RtR4T
-G/frJuQTt/ynt+eTyS+4sPxCqfXtRNeMzr0I5B4Gp4c8lC3deJrwiLmY1GWNr5a+
-ohx28Q9BAMZ/StfBT40GNDBgGnxZexaQAATdNIqr17Bxe5GNlvYooPCq6JwABklo
-hUgXEeACmLCq7/Z2FOyeavIjx2FzcpnfzsP4L40jnqQr7paoW8ALSk6x92U6ZCim
-ZANnpv2Vl21OqaRmKXU6CZ+DnnZRGuNMuzHKwFSWQeKFvX7HMqKHy7rcJ3kiqWgA
-pUCy67A6Gr6R17Vv97v43km2mIfeR20Tew2qrJfZ8X9NAUZ1fgA=
-=0Aa6
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6+mzAACgkQviIJHj72
+InXFcRAAm1Tjyazs97WeCl8hsVzTKPgpuWWfUO4XkxqzJWrlNLfDAkYg7PvNp4J7
+D1FG0xKtHTqjSObUoRMmyCoisQmQ+g6asC5vM8X/0ssr5ewn5bw7tx8Ekshb0XW3
+4rB4T8pSFydHiYRXq+6yIcEE2haM9Q196bNUo4VHfbNlrkdlslUUu9u5Xdh+QUa+
+7APwwkKiVCi18wipXQEFCYY41Iu5Wh5cK5fv8uQpK6Z809LJC+bwXeaqYOidDWfc
+EOEMXNKhqDRnbFuK2cdzV6vn5c+pTJMv4Sc5PuTRyxOW5YMpBHfoLuRtWxJ6gfCC
+IE8oH+OFCAKg9X6uUwQOfgFAgU/TVrlX+9f/uCPazXX9el9gBIi6hIYMRp2flJXd
+qtizxJnzutO3H0JSdWbahvg9hXIJHhFoKAQwwLIgpYbLwc+NNFG1iYRDQa15lcwA
+us7NMvG0314ozjcVeh+n/BeFCCbr2Y3T4/AZDY33mEx6VQ2d83+xqobOfDaop+Hu
+LJewwHF0TLefRqBgNhPK18yRYN23ghgeJ056hDdgiKvBTf1tZboMfxDYZdhesxA0
+U2gwtcag4V+yE7mAqbcYypCIndukfUVW96bBJd4zKQ9YtlhwmXwdZKN+Q3B4/4Qm
+bw1Sj9A4zNkSknhBGsRLmgaHie0YnwfvAeyXtY2fzP8CDzw5ODk=
+=ixcg
 -----END PGP SIGNATURE-----
 
---vni90+aGYgRvsTuO--
+--ey/N+yb7u/X9mFhi--
 
