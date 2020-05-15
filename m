@@ -7,138 +7,140 @@ X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B599C433E1
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 15:06:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D252C433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 16:27:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E3B920787
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 15:06:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DC9FF206D8
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 16:27:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MPEJnav0"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X57b8bmw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726197AbgEOPGc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 11:06:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40262 "EHLO
+        id S1726179AbgEOQ1S (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 12:27:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726140AbgEOPGb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 11:06:31 -0400
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2698C061A0C;
-        Fri, 15 May 2020 08:06:30 -0700 (PDT)
-Received: by mail-ot1-x344.google.com with SMTP id 63so2125515oto.8;
-        Fri, 15 May 2020 08:06:30 -0700 (PDT)
+        by vger.kernel.org with ESMTP id S1726162AbgEOQ1S (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 12:27:18 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21DE6C061A0C
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 09:27:18 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id b15so3100388ilq.12
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 09:27:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=37rPaVirt9XFwClnSBrwkFy9t98lCKr8fqc0wxeBqbQ=;
-        b=MPEJnav0wmHisAiDR2w3zemBM3f2eft4Lu2hyl6UgNLm64xKttZ8VCns7GP4XN8R1b
-         Sp4HbB/z7Jdp9fA/566ZRfZ65n3RknpeHN36kWGOVh1Y5HQQsSpvqFD3gKIPv85z3rSb
-         t/Z8vAyqQxYTh71PTSjC2gLcNC9zxPuLMUzkOVFZY5sDoRcrnT8N8FDbAZ9OSbDtkndR
-         62xZLpAJTdQ/hMqlFxbAXf+Pw7n0PCp05eyxyeacagdMrfGM+izusdh9eGubyMwu9J0t
-         OURKLPntMmiVHAhsrBgJkD6enwkXRpFlKasScbF9TycKoDyL9oMXo+hzcpmBz+DhyR51
-         FTXA==
+        bh=RHXyksmREM4UL67tRE8/YC3y3s5O1mTtIrx1cxTnuFE=;
+        b=X57b8bmwe3NzWbm7V8GkE1CLoFPC5M4rInxLqrNQUJq4AzZHUnEuYjYWirE3Wjeds9
+         WMgUDkCkyzerUNoA+rEPVrdMCjRYTTdFyvZDmD659ok7gD0OPOy++DXuILvdgyxRk6RR
+         g4kq+Z/HYPrCQPDXpi7MQO1KytAMAMctyaSciy3M48JTaXWtAj11iPz3l2zPGAV8CUDP
+         m8O1Kn7pxNDcG18tBSA0jt36gh1cqXH0OWii1Kp1XN+6KoNtKyObEL4cu6DjcKqv/SYD
+         XdLHfc0M/icyzfWfcLsK09vwfnMXjCU1N/0NQSPof6n4o59w2azUpOxc0d6b5T6DPsYI
+         K2mw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=37rPaVirt9XFwClnSBrwkFy9t98lCKr8fqc0wxeBqbQ=;
-        b=uL4Q8Cn0nRbwxve4plikM/AFrqOlJuI4tjOQE+MMZq1ad6tZtcaloeBPSPTSLKzGCX
-         /DOO7Wk2U8sYr4KwVzzAU1lAts3UelTRRZNb6/cl1gKz7PpxBYfHZ0jNBVgUx+SgzQVP
-         PjiStxnC1bNpoD2DDBveZezw4HVq4rkQ6tWpr771HDFB1rGOaIt6kH1tx46FIOYIxhBf
-         FrpMML4jBOBWo0iENAa7Rn7Pt9seHySdTNJ+5Qc6uQc+l7iaFruH4EDNrfah34+Xs/Yc
-         OsyECatjFrqTLQLPcAvCzL791QTY/84tAz1NTpAhzaR0Ay90Ox4MEf3rewf6uKHEVQTW
-         j3wQ==
-X-Gm-Message-State: AOAM530OgGj+JsDcTAWFFgI0SWZinHB4e8cZhJVP2Ia0xlSxKDj+inUq
-        ZNxneaaszuQqxqI8vLlez3SdwfbF0oZXlKK+qIp8cv8V
-X-Google-Smtp-Source: ABdhPJzk/TdecIuYME/TbHJhuVxtzCM9/2TfvlIcp1YRHPbhNTokdedEGTsjL7EV3EvLZvWppABE9grOvae5hhi/HOg=
-X-Received: by 2002:a9d:398b:: with SMTP id y11mr1775480otb.135.1589555189997;
- Fri, 15 May 2020 08:06:29 -0700 (PDT)
+        bh=RHXyksmREM4UL67tRE8/YC3y3s5O1mTtIrx1cxTnuFE=;
+        b=c7EujyhEYelZNszT8ZdeL9CzHXYgtfFc44iM2Bc6S+aoi2HPWBlYeP1wZUbXQFZqNv
+         ERH7D52TNi29P7VcxGTVPVmhWRk8/Y1jD13TTzssmV0z+apPiXzQB+sdxqLzstF/5T+f
+         kY7GAfraxxv5OwdozxRDK/Ia3Ao6pPWxZaSOQtNGdnRGaxKIivc3jX8BtaJn4lsyfF9s
+         XVNlXLrSrbHu+NW4Py+OyULvKXyQoYqBU0fnf29K21BYtjX8EjJKjULZTxZf3cNkhXtU
+         7ldPqsnTRu8Y0/F6CiJ5wJwi6F9BKUBcG5hoGLcFnZ0jaEIFgHCScF7ZTdKZPdQ9Lsp3
+         5ypw==
+X-Gm-Message-State: AOAM531gmI78RqCGXEv3g2Tuy0ukBlIFon7zOUfraHLVsu5b92eqd4L6
+        MnG2xURvtdlf0ORmRMCphKSfA/HPSdu8CFpnKVE=
+X-Google-Smtp-Source: ABdhPJwUTlmeajwIsbZkpQJ5eWzOMJM300OShOGMHH4tG42Wci+aR01492v072T25ZzegT8gkrAx+qm4ffnaLd73k5c=
+X-Received: by 2002:a92:c906:: with SMTP id t6mr4287839ilp.22.1589560037064;
+ Fri, 15 May 2020 09:27:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAEjxPJ6pFdDfm55pv9bT3CV5DTFF9VqzRmG_Xi5bKNxPaGuOLg@mail.gmail.com>
- <158932282880.2885325.2688622278854566047.stgit@warthog.procyon.org.uk>
- <CAEjxPJ4=ZN_jKP2nX5mrMA3OxC8XLsYEmCPCD-78H4XQw=_hCA@mail.gmail.com> <3999877.1589475539@warthog.procyon.org.uk>
-In-Reply-To: <3999877.1589475539@warthog.procyon.org.uk>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 15 May 2020 11:06:19 -0400
-Message-ID: <CAEjxPJ5wW2qHYDsqKr5rjnRJ++4f2LXobCQkKZvWCSb_j0WN6w@mail.gmail.com>
-Subject: Re: [PATCH] keys: Move permissions checking decisions into the
- checking code
-To:     David Howells <dhowells@redhat.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        keyrings@vger.kernel.org, SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
+References: <20200506005339.13641-1-stephen.smalley.work@gmail.com>
+ <CAFftDdrD-FJ8wBk=XOkvdnkvA5o10w5pJs31H9dEhtW1zU8EHA@mail.gmail.com>
+ <CAEjxPJ452zaoFwy++cKqh_Ap2rM1ezEZN83mBhN4ndHHaQ4q5Q@mail.gmail.com>
+ <3838641.zh4Wi6GlAV@liv> <cf747e50-ca5b-429f-1af2-afaa16ee29be@debian.org>
+ <CAEjxPJ6Uo83L5C9UELy5w_V2wuptSHiHoMMLN4oh75x70-ZzAQ@mail.gmail.com>
+ <CAHC9VhSUHMrMjvG=wigsqVA-0MF0LSmCCC_zyoZYHC2wEnT06A@mail.gmail.com> <CAEjxPJ72G4bpd6uLy1UikPoU7+tS-Kh2cCO+R75ApoRNCt3_Wg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ72G4bpd6uLy1UikPoU7+tS-Kh2cCO+R75ApoRNCt3_Wg@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Fri, 15 May 2020 11:27:05 -0500
+Message-ID: <CAFftDdoineg_FjyPnCtxEjiFtEQ3bZt-M_ePZtfAh-CUNSDwNg@mail.gmail.com>
+Subject: Re: [PATCH] selinux-testsuite: update to work on Debian
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Laurent Bigonville <bigon@debian.org>,
+        Russell Coker <russell@coker.com.au>,
+        SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 14, 2020 at 12:59 PM David Howells <dhowells@redhat.com> wrote:
+On Wed, May 13, 2020 at 10:51 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> How about this then?
+> On Thu, May 7, 2020 at 11:03 PM Paul Moore <paul@paul-moore.com> wrote:
+> > For a long time now I've wanted to expand my selinux/next kernel
+> > testing to platforms beyond Fedora.  I believe that it not only helps
+> > catch problems before the kernel is released, but it also helps ensure
+> > that the underlying distro has all of the necessary pieces (userspace,
+> > policy, etc.) in place to support the latest and upcoming kernels.
+> >
+> > Unfortunately every time I've looked at the state of SELinux in Debian
+> > I've run out of time before I got it working well.  I'm not even going
+> > to get into the Debian package format :/
+> >
+> > I would be very happy to see some work go into lowering the bar on
+> > getting SELinux working on Debian.  My Debian experience is pretty
+> > limited, but you can sign me up as a very enthusiastic beta-tester,
+> > just point me at some docs and an ISO :)
 >
-> David
-> ---
-> commit fa37b6c7e2f86d16ede1e0e3cb73857152d51825
-> Author: David Howells <dhowells@redhat.com>
-> Date:   Thu May 14 17:48:55 2020 +0100
->
->     keys: Move permissions checking decisions into the checking code
->
->     Overhaul the permissions checking, moving the decisions of which permits to
->     request for what operation and what overrides to allow into the permissions
->     checking functions in keyrings, SELinux and Smack.
->
->     To this end, the KEY_NEED_* constants are turned into an enum and expanded
->     in number to cover operation types individually.
->
->     Note that some more tweaking is probably needed to separate kernel uses,
->     e.g. AFS using rxrpc keys, from direct userspace users.
->
->     Some overrides are available and this needs to be handled specially:
->
->      (1) KEY_FLAG_KEEP in key->flags - The key may not be deleted and/or things
->          may not be removed from the keyring.
+> FWIW, with the just-merged series, if you follow the new instructions
+> in the README.md for Debian, you should be able to successfully build
+> and run the testsuite on Debian stable and unstable (also worked for
+> me on Ubuntu 20.04 aside from needing to obtain libbpf from upstream
+> since it isn't packaged for Ubuntu).  The default policy still has
+> some issues (e.g. don't try to use GNOME in enforcing mode) but if you
+> can login as an unconfined user and setenforce 1 via text console or
+> ssh login, you should be able to run the testsuite.
 
-Why can't they be deleted / removed?  They can't ever be deleted or
-removed or for some period of time?
+I am having an issue with the test suite, perhaps the error would be obvious
+to you or someone else
 
->      (2) KEY_FLAG_ROOT_CAN_CLEAR in key->flags - The keyring can be cleared by
->          CAP_SYS_ADMIN.
+Error:
+make[3]: Entering directory '/root/selinux-testsuite/tests/module_load'
+make[3]: *** /lib/modules/5.6.6-300.fc32.x86_64/build: No such file or
+directory.  Stop.
+make[3]: Leaving directory '/root/selinux-testsuite/tests/module_load'
+make[2]: *** [Makefile:8: all] Error 2
+make[2]: Leaving directory '/root/selinux-testsuite/tests/module_load'
+make[1]: *** [Makefile:141: all] Error 1
+make[1]: Leaving directory '/root/selinux-testsuite/tests'
+make: *** [Makefile:8: test] Error 2
 
-Why do some keyrings get this flag and others do not?  Under what
-conditions?  Why is CAP_SYS_ADMIN the right capability for this?
+The module_load path exists:
+[root@demo tests]# ls /lib/modules/5.6.6-300.fc32.x86_64/
+bls.conf    modules.builtin       modules.drm    source
+build    modules.builtin.alias.bin  modules.modesetting  symvers.gz
+config    modules.builtin.bin       modules.networking   System.map
+kernel    modules.builtin.modinfo    modules.order    updates
+modules.alias    modules.dep       modules.softdep    vdso
+modules.alias.bin  modules.dep.bin       modules.symbols    vmlinuz
+modules.block    modules.devname       modules.symbols.bin
 
->      (3) KEY_FLAG_ROOT_CAN_INVAL in key->flags - The key can be invalidated by
->          CAP_SYS_ADMIN.
+And build exists, but it's a file, is that right?
+[root@demo tests]# stat /lib/modules/5.6.6-300.fc32.x86_64/build
+  File: /lib/modules/5.6.6-300.fc32.x86_64/build ->
+/usr/src/kernels/5.6.6-300.fc32.x86_64
+  Size: 38        Blocks: 0          IO Block: 4096   symbolic link
+Device: 801h/2049d Inode: 154128      Links: 1
+Access: (0777/lrwxrwxrwx)  Uid: (    0/    root)   Gid: (    0/    root)
+Context: system_u:object_r:modules_object_t:s0
+Access: 2020-05-15 16:23:03.854826122 +0000
+Modify: 2020-04-21 14:01:58.000000000 +0000
+Change: 2020-04-22 22:30:37.051096556 +0000
+ Birth: -
 
-Ditto.
-
->      (4) An appropriate auth token being set in cred->request_key_auth that
->          gives a process transient permission to view and instantiate a key.
->          This is used by the kernel to delegate instantiation to userspace.
-
-Is this ever allowed across different credentials?  When?  Why?  Is
-there a check between the different credentials before the auth token
-is created?
-
->     Note that this requires some tweaks to the testsuite as some of the error
->     codes change.
-
-Which testsuite?  keyring or selinux or both?  What error codes change
-(from what to what)?  Does this constitute an ABI change?
-
-I like moving more of the permission checking logic into the security
-modules and giving them greater visibility and control.  That said, I
-am somewhat concerned by the scale of this change, by the extent to
-which you are exposing keyring internals inside the security modules,
-and by the extent to which logic is getting duplicated in each
-security module.  I'd suggest a more incremental approach, e.g. start
-with just the enum patch, then migrate the easy cases, then consider
-the more complicated cases.  And possibly we need multiple different
-security hooks for the keyring subsystem that are more specialized for
-the complicated cases.  If we authorize the delegation up front, we
-don't need to check it later.
+Thanks,
+Bill
