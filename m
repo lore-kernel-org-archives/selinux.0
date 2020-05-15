@@ -2,190 +2,118 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F9FBC433DF
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 11:09:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 072ECC433DF
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 11:11:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6980B206B6
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 11:09:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CE95220758
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 11:11:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GoNf9G38"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h35ths/Y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726135AbgEOLJL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 07:09:11 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:37713 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725986AbgEOLJK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 07:09:10 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589540948;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=xCWQOkvYoEBApR3T3aDyLT2MoX4F3n81KXvIGmG48VM=;
-        b=GoNf9G38a31QCvdO9gp7TdZQmZITkfbCIQFIjFmyWMTv7kCPYHkST4SOjC/U4DpYuGnpvm
-        I+KY+j7IuUWweSkxasoDgeOg2kzIi/PS89MMkuBahsNkElXo3NaRde+8c69U5zW7RG8yRA
-        7k9yc8qccs6YLrzqfzM0lrn0pvNimxw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-463-ij5aCL_EPp-zBI_FYPmFmA-1; Fri, 15 May 2020 07:09:05 -0400
-X-MC-Unique: ij5aCL_EPp-zBI_FYPmFmA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 68C2F100CC85;
-        Fri, 15 May 2020 11:09:04 +0000 (UTC)
-Received: from workstation (unknown [10.40.194.255])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9A7B110016E8;
-        Fri, 15 May 2020 11:09:03 +0000 (UTC)
-Date:   Fri, 15 May 2020 13:09:00 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
+        id S1726064AbgEOLLP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 07:11:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59900 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726046AbgEOLLP (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 07:11:15 -0400
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94720C061A0C
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 04:11:14 -0700 (PDT)
+Received: by mail-lj1-x230.google.com with SMTP id j3so1783451ljg.8
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 04:11:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=lwpXRihyMhXM9skzEXARTeCiv3oQYEBf1ZwqeTyutHs=;
+        b=h35ths/YbQ6ymR54kXFPvw/lXwjbGtG8nlzbLM2sSbjaiV9Hq3GO1dyotqkhFcs2YV
+         O0clBNqHkC/bFN6El4JZynATH+8kAEN2UU3BI+fEaOThhzUv53axnFFx9FmEY0nd6bRp
+         wYY22oYoIUe5LrCBzyor+WHLxH+Ek05PmczpNPxGdXzinJxpDPAcZPNx5ZH+Y0+3hrJf
+         Siu8nNn/7AxXX7wHrRUEHZB4+HpSPXP9J5q7GJZ2ITuV3bi5W0woFGc5P6A9JoVb8MeW
+         K4nH760hQoVjCcrLxYyiAxqhXyntpZ3wC8s+LngUS2UhqYzFUCE2xfT5hXikeon97rEy
+         X6eQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=lwpXRihyMhXM9skzEXARTeCiv3oQYEBf1ZwqeTyutHs=;
+        b=kfr4n0V5Byun7NCO12ja6JrLT+jyB4yKa5CUnlCNvwXNq/grFVfFYATJuxsKjAuYK1
+         Y7/hHgxoUUfMMWrlSQsIn6BP2PY9zaLFLX8sPrW+mrFe0zT6auGabdkEvWimvKlbiPBD
+         ihBkHM94Zq+4esCbEQUHvUbYBTuosR0BFwWy1eM0kzND5PEx8VJtcgaMzqEx0NgwLlrd
+         Z8qupDH0nIoZRah4+3XLvqojkyloS0cNBKriQT44+hg5VrB4jcdGMj3AvTsW8vPPZtt3
+         im6FO1w6DgM/TVMC0H7G4g/Gz4VeL6NjXCWnF7iEkFQ5aS9AwWNEueIk1LypkJESUpXT
+         ekZA==
+X-Gm-Message-State: AOAM531yQfCYWHc6iyr5psr/FtPsVNVvPOQh/2d5fPG7fWkekOitA+Nh
+        I4cosqN/+6dAeI6Ild88ZS8eLX7C
+X-Google-Smtp-Source: ABdhPJyn2IQUyhbGr0PPkG9WK8/lL+nxec+daejw4idAW2kbe8EbiAee7If9pkMgpwWMieFYQCoQ2A==
+X-Received: by 2002:a05:651c:119a:: with SMTP id w26mr1967844ljo.53.1589541072000;
+        Fri, 15 May 2020 04:11:12 -0700 (PDT)
+Received: from [192.168.1.38] (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
+        by smtp.gmail.com with ESMTPSA id i124sm988808lji.95.2020.05.15.04.11.11
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 15 May 2020 04:11:11 -0700 (PDT)
 To:     selinux@vger.kernel.org
-Cc:     Topi Miettinen <toiwoton@gmail.com>
-Subject: Re: [PATCH] secilc/docs: fix use of TMPDIR #240
-Message-ID: <20200515110900.GA255621@workstation>
-References: <20200515105105.10075-1-toiwoton@gmail.com>
+From:   Topi Miettinen <toiwoton@gmail.com>
+Subject: Wrong processes in AVC denials
+Message-ID: <41f9bc7e-d48e-503c-e298-5aba4d7c8e32@gmail.com>
+Date:   Fri, 15 May 2020 14:11:09 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <20200515105105.10075-1-toiwoton@gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="CE+1k2dSO48ffgeK"
-Content-Disposition: inline
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---CE+1k2dSO48ffgeK
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-On Fri, May 15, 2020 at 01:51:05PM +0300, Topi Miettinen wrote:
-> Environment variable TMPDIR may be already set for the user building
-> and this could be equal to $XDG_RUNTIME_DIR or /tmp which are existing
-> directories. Then when running 'make clean', there are unintended side
-> effects:
->=20
-> rm -rf /run/user/1000
-> rm: cannot remove '/run/user/1000/dconf/user': Permission denied
-> rm: cannot remove '/run/user/1000/systemd': Permission denied
-> rm: cannot remove '/run/user/1000/gnupg': Permission denied
-> rm: cannot remove '/run/user/1000/dbus-1': Is a directory
-> rm: cannot remove '/run/user/1000/inaccessible': Permission denied
-> make[1]: *** [Makefile:68: clean] Error 1
->=20
-> Fix by using a different name.
->=20
-> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
-> ---
->  secilc/docs/Makefile | 20 ++++++++++----------
->  1 file changed, 10 insertions(+), 10 deletions(-)
->=20
-> diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
-> index 6b07ce7f..90214e0d 100644
-> --- a/secilc/docs/Makefile
-> +++ b/secilc/docs/Makefile
-> @@ -1,7 +1,7 @@
->  CWD ?=3D $(shell pwd)
->  HTMLDIR ?=3D $(CWD)/html
->  PDFDIR ?=3D $(CWD)/pdf
-> -TMPDIR ?=3D $(CWD)/tmp
-> +TMP_DIR ?=3D $(CWD)/tmp
->  TESTDIR ?=3D $(CWD)/../test
+After sending the previous message with 'git send-email', I noticed 
+strange AVC denials in the logs. The first entry is correct, but the 
+next have PID 0 and 16:
 
-Maybe it would be enough to drop `?=3D`:
+time->Fri May 15 13:49:30 2020
+type=PROCTITLE msg=audit(1589539770.992:1614): 
+proctitle=2F7573722F62696E2F7065726C002F7573722F6C69622F6769742D636F72652F6769742D73656E642D656D61696C002D2D736D74702D6465627567002D2D616E6E6F74617465002D2D746F0073656C696E757840766765722E6B65726E656C2E6F726700642F706F6C696379636F72657574696C732E6769742F303030312D73
+type=SOCKADDR msg=audit(1589539770.992:1614): 
+saddr=020000197F0000010000000000000000
+type=SYSCALL msg=audit(1589539770.992:1614): arch=c000003e syscall=42 
+success=no exit=-115 a0=7 a1=5a00209eba80 a2=10 a3=fffffffffffffa8b 
+items=0 ppid=10011 pid=10012 auid=1000 uid=1000 gid=1000 euid=1000 
+suid=1000 fsuid=1000 egid=1000 sgid=1000 fsgid=1000 tty=pts0 ses=1 
+comm="git-send-email" exe="/usr/bin/perl" subj=user_u:user_r:user_t:s0 
+key=(null)
+type=AVC msg=audit(1589539770.992:1614): avc:  denied  { recv } for 
+pid=10012 comm="git-send-email" saddr=127.0.0.1 src=25 daddr=127.0.0.1 
+dest=45482 netif=lo scontext=user_u:user_r:user_t:s0 
+tcontext=system_u:object_r:smtp_server_packet_t:s0 tclass=packet 
+permissive=0
+----
+time->Fri May 15 13:49:32 2020
+type=AVC msg=audit(1589539772.016:1615): avc:  denied  { recv } for 
+pid=16 comm="ksoftirqd/1" saddr=127.0.0.1 src=25 daddr=127.0.0.1 
+dest=45482 netif=lo scontext=user_u:user_r:user_t:s0 
+tcontext=system_u:object_r:smtp_server_packet_t:s0 tclass=packet 
+permissive=0
+----
+time->Fri May 15 13:49:38 2020
+type=AVC msg=audit(1589539778.096:1617): avc:  denied  { recv } for 
+pid=0 comm="swapper/1" saddr=127.0.0.1 src=25 daddr=127.0.0.1 dest=45482 
+netif=lo scontext=user_u:user_r:user_t:s0 
+tcontext=system_u:object_r:smtp_server_packet_t:s0 tclass=packet 
+permissive=0
+----
 
-CWD =3D $(shell pwd)
-HTMLDIR =3D $(CWD)/html
-PDFDIR =3D $(CWD)/pdf
-TMPDIR =3D $(CWD)/tmp
-TESTDIR =3D $(CWD)/../test
+Could it be a bug in kernel somewhere (AVC generated from wrong context) 
+or should this be expected? The version of kernel is 5.3.7 and Netfilter 
+NFT rules label all packets with SECMARK.
 
-
-
->  # All the markdown files that make up the guide:
-> @@ -26,7 +26,7 @@ FILE_LIST ?=3D cil_introduction.md \
->  =09cil_infiniband_statements.md \
->  =09cil_xen_statements.md
-> =20
-> -PANDOC_FILE_LIST =3D $(addprefix $(TMPDIR)/,$(FILE_LIST))
-> +PANDOC_FILE_LIST =3D $(addprefix $(TMP_DIR)/,$(FILE_LIST))
-> =20
->  PDF_OUT=3DCIL_Reference_Guide.pdf
->  HTML_OUT=3DCIL_Reference_Guide.html
-> @@ -40,29 +40,29 @@ endif
-> =20
->  all: html pdf
-> =20
-> -$(TMPDIR):
-> -=09mkdir -p $(TMPDIR)
-> +$(TMP_DIR):
-> +=09mkdir -p $(TMP_DIR)
-> =20
-> -$(TMPDIR)/%.md: %.md | $(TMPDIR)
-> -=09cp -f $< $(TMPDIR)/
-> +$(TMP_DIR)/%.md: %.md | $(TMP_DIR)
-> +=09cp -f $< $(TMP_DIR)/
->  =09@# Substitute markdown links for conversion into PDF links
->  =09$(SED) -i -re 's:(\[`[^`]*`\])\([^#]*([^\)]):\1\(\2:g' $@
-> =20
-> -$(TMPDIR)/policy.cil: $(TESTDIR)/policy.cil
-> +$(TMP_DIR)/policy.cil: $(TESTDIR)/policy.cil
->  =09cp -f $< $@
->  =09@# add a title for the TOC to policy.cil. This is needed to play nice=
-ly with the PDF conversion.
->  =09$(SED) -i '1i Example Policy\n=3D=3D=3D=3D=3D=3D=3D=3D=3D\n```' $@
->  =09echo '```' >> $@
-> =20
-> -html: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil
-> +html: $(PANDOC_FILE_LIST) $(TMP_DIR)/policy.cil
->  =09mkdir -p $(HTMLDIR)
->  =09$(PANDOC) -t html $^ -o $(HTMLDIR)/$(HTML_OUT)
-> =20
-> -pdf: $(PANDOC_FILE_LIST) $(TMPDIR)/policy.cil
-> +pdf: $(PANDOC_FILE_LIST) $(TMP_DIR)/policy.cil
->  =09mkdir -p $(PDFDIR)
->  =09$(PANDOC) --standalone --toc $^ -o $(PDFDIR)/$(PDF_OUT)
-> =20
->  clean:
->  =09rm -rf $(HTMLDIR)
->  =09rm -rf $(PDFDIR)
-> -=09rm -rf $(TMPDIR)
-> +=09rm -rf $(TMP_DIR)
-> --=20
-> 2.26.2
->=20
-
---=20
-()  ascii ribbon campaign - against html e-mail=20
-/\  www.asciiribbon.org   - against proprietary attachments
-
---CE+1k2dSO48ffgeK
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6+eEYACgkQviIJHj72
-InVnaQ//Q5C/y5b4TuNHr+i/ykxBABND1twIlTEhDdFdsFC1/76byv8XewaLelCd
-KZjrtdYB7GgqsGwcaoHqwALg/0GbX5NJIzT8/ucxNMO8UZCvEutm/Jja+e6JYJcK
-DLw0cwm7Pq3JMlNcutLXwVVySoobo/+pdxxripLp84rWE5mimoOMiD9Xg66yoyt1
-V2zzOYO8ZoBr5/x8i7cO49tvX2O19AxQp5nfAJcLsgoWA1yu16+aE8SMQA/Nz8i7
-qa6AW/sQ5SEJZO3jFQ+0Fmo+9+o2iWmDOCUp+wJpk7iJTgN7aqUn0+an1PoI7VQp
-3o3C5Pm7ZNgA9lNvttBhZ0ESQbERnfQzF1sne5iRw86YudqocsG0H4YdE0wA0gV4
-UPhM6jD35Yr90/o5ufZGZ3RmP4RaGl2H9Vhyxo8qNrH3Df0kywXiNK7kAj13FVwP
-C36HGhbDIFR098683LbUPcBentVQhtGIBxSEa25VgtjQKQfS62VxYeri6GaSTUDn
-+xROMIZ6wnGoNzUwtBviIeO0qQvIeyRlJCTQOoE3o/O3Zs9yvo2OJzwvdwrxqC18
-/tpRCwo0/3Qfr1NLJmbsZnMb8xFkmBd7MTjXKw6L0yc143tEqvSLQXUezDnwj74k
-hubAX9wK8fnKlOKVJqBdvt3eQNwzFkZukxx+YGTYvgwcxkrvIjA=
-=LCCn
------END PGP SIGNATURE-----
-
---CE+1k2dSO48ffgeK--
-
+-Topi
