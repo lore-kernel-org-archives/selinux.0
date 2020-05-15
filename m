@@ -2,320 +2,167 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5B2BC433E0
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:12:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0105C433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:25:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AFA18206D4
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:12:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C5B0920657
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:25:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="Gw7nZBg0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BqhJZ1KY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726438AbgEONMh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 09:12:37 -0400
-Received: from mailomta20-re.btinternet.com ([213.120.69.113]:47344 "EHLO
-        re-prd-fep-042.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726298AbgEONMc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:12:32 -0400
-Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
-          by re-prd-fep-042.btinternet.com with ESMTP
-          id <20200515131228.QNKH4070.re-prd-fep-042.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
-          Fri, 15 May 2020 14:12:28 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1589548348; 
-        bh=w1YyunV4D+tpvg1ZXCBnc9k5E3Mjw8lD12hfMRPUCsg=;
-        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
-        b=Gw7nZBg0lttXl7YmZe+eCmVWMlZilSMLLK7Bo0ZoUEgCiC8GrHC6YvZg3o7H1ii86TAu5Ck82NAWr+B/cAdoIs6LhUFkleXG6AetxR/DHTKEZkrxT7twDYT83QHTvHS3Xu32Li41qn9Wt8+gNJh1YaqoPLqF+sYSmVSw6qzyPJe/Di8Xsir0EMOLNSqKz2Pomb1NwZC6Z/pIlABbDVoeHUgD/kJTE4LLvydir2zk1tSMllGi/UOKuArhAyUeipd7SE6bfh/TC94xmBAR9k1oP5KUTUqv1gzOV5yAAVrDgMKE5MSu6HApPBbNo+5YutC7laPE7twJfBMdOHczMzMhbA==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [86.190.32.24]
-X-OWM-Source-IP: 86.190.32.24 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduhedrleekgdeitdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepueeffeduffefteejveehtedvkeeuueevffdtgfekgfetgfekgeeiheevueehvdffnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirdduledtrdefvddrvdegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpeekiedrudeltddrfedvrddvgedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoeguhhhofigvlhhlshesrhgvughhrghtrdgtohhmqedprhgtphhtthhopeeoohhmohhsnhgrtggvsehrvgguhhgrthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhi
-        tghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (86.190.32.24) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A181A10A246F5; Fri, 15 May 2020 14:12:28 +0100
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     omosnace@redhat.com
-Cc:     paul@paul-moore.com, dhowells@redhat.com, selinux@vger.kernel.org,
-        Richard Haines <richard_c_haines@btinternet.com>
-Subject: [RFC PATCH V2] selinux-testsuite: Add check for key changes on watch_queue
-Date:   Fri, 15 May 2020 14:12:22 +0100
-Message-Id: <20200515131222.7969-1-richard_c_haines@btinternet.com>
-X-Mailer: git-send-email 2.25.3
+        id S1726188AbgEONZk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 09:25:40 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:23586 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726141AbgEONZk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:25:40 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589549138;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=Gw1Ewsuvc2VoHUXAGEXM1Bw5DXr/lUfgSDQ0Zmu2EcA=;
+        b=BqhJZ1KY9y7rBBSfMnROG75BeNFKIdAMCVxwlXvg/C5Is4dtEgBUH2ATf9A9TwTEjbqkmw
+        NwBgbfDm1iNjTK/32dpqbxroJFAZHEZiOSFAvCssa7+/e4/GWefsN2VE4iIncizOuu+i2I
+        ZGciaeO/jQjLo8mfqObtb6atQJc5UrM=
+Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
+ [209.85.167.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-346-GrrdhtyvPbGl-I5IalglwA-1; Fri, 15 May 2020 09:25:34 -0400
+X-MC-Unique: GrrdhtyvPbGl-I5IalglwA-1
+Received: by mail-oi1-f199.google.com with SMTP id b1so1250943oib.1
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 06:25:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Gw1Ewsuvc2VoHUXAGEXM1Bw5DXr/lUfgSDQ0Zmu2EcA=;
+        b=IzlJSVl3FSxC7cNZ5asozwRBVsWATuBsbA1+yMkhQY1xp41bzckcjeIy/yu0tXiXmJ
+         g6xeT/hBSmv/h9SbbJEw2mnZQYxXj+2ql+EBoyb5haXbQl11wkbQr98g48R+vsATruAQ
+         rSYKavtSxXvH2gg338Kn8EndHeOK+1kmACUjYwqKiPUnKfMzOqYWgZJUeTZii/KdSITE
+         uwEpRTjPo+PdtVppSKsuw1KkO56wZIzwNP975bopgY7Nf4PH6iezombtx6GuFlX8GY0K
+         VLTEGh0o9ZDHfm1i18RTry4FkMi+rsG7yTOVsN1/e7R1Zq0ZYYRThXr11JNnrdoAzJSh
+         +VMw==
+X-Gm-Message-State: AOAM532oZ8qB17IQDZXAG8GgmSiQboniu2bpFOWK/ITepcWOpjzM3mTF
+        SivQV82WmMYBNU4MslEznbA/vbTx3NAR8lncEE6TYxjg/Ld94E7RhkUoE8LShFLeG33ZDDiCaDd
+        +pxFNO3zhdK9KwOTls8bwjw1/cZyFDr3xYg==
+X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr2513185ooo.58.1589549132708;
+        Fri, 15 May 2020 06:25:32 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwZK1wtq9kUwLFFnavcP9B10MxXuRXIqr3oxbiOUaZPjqWjpFCVxQ0d/Pt8Fms8zGGlB/ini1mRuXaZuV12fDU=
+X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr2513165ooo.58.1589549132372;
+ Fri, 15 May 2020 06:25:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200515131014.7852-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20200515131014.7852-1-richard_c_haines@btinternet.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 15 May 2020 15:25:21 +0200
+Message-ID: <CAFqZXNt12x0iNQGdzeZr-Hv1CT-tBq42xyv1rh3L=EqK9SbAcQ@mail.gmail.com>
+Subject: Re: [PATCH V2] selinux-testsuite: Add nftables to inet_socket and
+ sctp tests
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Kernel 5.? introduced the watch_queue service that allows watching for
-key changes. This requires key { view } permission, therefore check if
-allowed or not.
+On Fri, May 15, 2020 at 3:10 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> Support secmark tests that require nftables version 9.3 or greater and
+> kernel 4.20 or greater.
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+> V2 Change:
+> Use common tests for iptables/nftables
+>
+>  README.md                        |   4 +-
+>  tests/inet_socket/nftables-flush |   2 +
+>  tests/inet_socket/nftables-load  |  74 +++++++++++++++++++++
+>  tests/inet_socket/test           | 108 ++++++++++++++++++++-----------
+>  tests/sctp/nftables-flush        |   2 +
+>  tests/sctp/nftables-load         |  68 +++++++++++++++++++
+>  tests/sctp/test                  |  96 +++++++++++++++++----------
+>  7 files changed, 281 insertions(+), 73 deletions(-)
+>  create mode 100644 tests/inet_socket/nftables-flush
+>  create mode 100644 tests/inet_socket/nftables-load
+>  create mode 100644 tests/sctp/nftables-flush
+>  create mode 100644 tests/sctp/nftables-load
+>
+[...]
+> diff --git a/tests/inet_socket/test b/tests/inet_socket/test
+> index 47ce106..ce9bd7f 100755
+> --- a/tests/inet_socket/test
+> +++ b/tests/inet_socket/test
+> @@ -27,6 +27,19 @@ BEGIN {
+>          $test_calipso_stream = 1;
+>      }
+>
+> +    # Determine nftables version, must be >= 0.9.3 for secmark support
+> +    # with kernel >= 4.20
+> +    $test_nft = 0;
+> +    $nft      = `nft -v`;
+> +    $nft =~ s/\D//g;
+> +    $kverminstream = "4.20";
+> +
+> +    $rc = `$basedir/../kvercmp $kvercur $kverminstream`;
+> +    if ( $nft gt "092" and $rc > 0 ) {
+> +        $test_count += 8;
+> +        $test_nft = 1;
+> +    }
+> +
+>      plan tests => $test_count;
+>  }
+>
+> @@ -348,63 +361,82 @@ if ($test_ipsec) {
+>      system "/bin/sh $basedir/ipsec-flush";
+>  }
+>
+> -# Load iptables (IPv4 & IPv6) configuration.
+> -system "/bin/sh $basedir/iptables-load";
+> +#
+> +################## Test iptables/nftables configuration ######################
+> +#
+> +$test_msg = "Testing iptables (IPv4/IPv6).\n";
+> +$cmd      = "/bin/sh";
+> +$table    = "iptables";
+> +$i        = 0;
+> +$loop     = 1;
+> +
+> +if ($test_nft) {
+> +    $loop = 2;
+> +}
+>
+> -# Start the stream server.
+> -$pid = server_start( "-t test_inet_server_t", "-n stream 65535" );
+> +while ( $i < $loop ) {
+> +    print "$test_msg";
+> +    system "$cmd $basedir/$table-load";
 
-Note that the keyctl_watch_key() function is not yet built into the
-keyutils library, therefore a syscall() is used.
+Ugh, that is ugly... Why not just do something like:
 
-Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
----
-Tested on kernel.org 'linux-next: next-20200514'
-V2 Changes:
-1) The watch_queue changed from using /dev/watch_queue to pipe2(2), therefore
-update watchkey.c
-2) Update policy to reflect the changes.
+sub test_tables {
+    # run the tests...
+}
+[...]
+print "Testing iptables (IPv4/IPv6).\n";
+system "/bin/sh $basedir/iptables-load";
+test_tables();
+system "/bin/sh $basedir/iptables-flush";
 
- defconfig                 |  5 +++
- policy/Makefile           |  2 +-
- policy/test_watchkey.te   | 27 +++++++++++
- tests/Makefile            |  4 ++
- tests/watchkey/.gitignore |  1 +
- tests/watchkey/Makefile   |  7 +++
- tests/watchkey/test       | 29 ++++++++++++
- tests/watchkey/watchkey.c | 94 +++++++++++++++++++++++++++++++++++++++
- 8 files changed, 168 insertions(+), 1 deletion(-)
- create mode 100644 policy/test_watchkey.te
- create mode 100644 tests/watchkey/.gitignore
- create mode 100644 tests/watchkey/Makefile
- create mode 100755 tests/watchkey/test
- create mode 100644 tests/watchkey/watchkey.c
+print "Testing nftables (IPv4/IPv6).\n";
+system "nft -f $basedir/nftables-load";
+test_tables();
+system "nft -f $basedir/nftables-flush";
+[...]
 
-diff --git a/defconfig b/defconfig
-index 00bf9f3..68155dd 100644
---- a/defconfig
-+++ b/defconfig
-@@ -110,3 +110,8 @@ CONFIG_NFSD_V4_SECURITY_LABEL=y
- CONFIG_XFS_FS=m
- CONFIG_XFS_QUOTA=y
- CONFIG_VFAT_FS=m
-+
-+# watch_queue for key changes.
-+# They are not required for SELinux operation itself.
-+CONFIG_WATCH_QUEUE=y
-+CONFIG_KEY_NOTIFICATIONS=y
-diff --git a/policy/Makefile b/policy/Makefile
-index 386bbce..672733e 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -104,7 +104,7 @@ TARGETS += test_bpf.te test_fdreceive_bpf.te test_binder_bpf.te
- endif
- 
- ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && echo true),true)
--TARGETS += test_keys.te
-+TARGETS += test_keys.te test_watchkey.te
- endif
- 
- ifeq ($(shell grep -q all_file_perms.*watch $(POLDEV)/include/support/all_perms.spt && echo true),true)
-diff --git a/policy/test_watchkey.te b/policy/test_watchkey.te
-new file mode 100644
-index 0000000..00ade15
---- /dev/null
-+++ b/policy/test_watchkey.te
-@@ -0,0 +1,27 @@
-+#
-+######### Check watch_queue for key changes policy module ##########
-+#
-+attribute watchkeydomain;
-+
-+################# Allow watch_queue key { view } ##########################
-+type test_watchkey_t;
-+# Note: allow rules for pipe2(2) 'fifo_file { ioctl }' are set via domain_type()
-+domain_type(test_watchkey_t)
-+unconfined_runs_test(test_watchkey_t)
-+typeattribute test_watchkey_t testdomain;
-+typeattribute test_watchkey_t watchkeydomain;
-+
-+allow test_watchkey_t self:key { view };
-+
-+################# Deny watch_queue key { view } ##########################
-+type test_watchkey_no_view_t;
-+domain_type(test_watchkey_no_view_t)
-+unconfined_runs_test(test_watchkey_no_view_t)
-+typeattribute test_watchkey_no_view_t testdomain;
-+typeattribute test_watchkey_no_view_t watchkeydomain;
-+
-+#
-+########### Allow these domains to be entered from sysadm domain ############
-+#
-+miscfiles_domain_entry_test_files(watchkeydomain)
-+userdom_sysadm_entry_spec_domtrans_to(watchkeydomain)
-diff --git a/tests/Makefile b/tests/Makefile
-index 5b86a2b..bdbdf3e 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -119,6 +119,10 @@ SUBDIRS += fs_filesystem
- endif
- endif
- 
-+ifeq ($(shell grep -q all_key_perms $(POLDEV)/include/support/all_perms.spt && test -e $(INCLUDEDIR)/linux/watch_queue.h && grep -qs KEYCTL_WATCH_KEY $(INCLUDEDIR)/linux/keyctl.h && echo true),true)
-+SUBDIRS += watchkey
-+endif
-+
- ifeq ($(DISTRO),RHEL4)
-     SUBDIRS:=$(filter-out bounds dyntrace dyntrans inet_socket mmap nnp_nosuid overlay unix_socket, $(SUBDIRS))
- endif
-diff --git a/tests/watchkey/.gitignore b/tests/watchkey/.gitignore
-new file mode 100644
-index 0000000..04db718
---- /dev/null
-+++ b/tests/watchkey/.gitignore
-@@ -0,0 +1 @@
-+watchkey
-diff --git a/tests/watchkey/Makefile b/tests/watchkey/Makefile
-new file mode 100644
-index 0000000..c2796fb
---- /dev/null
-+++ b/tests/watchkey/Makefile
-@@ -0,0 +1,7 @@
-+TARGETS = watchkey
-+LDLIBS += -lselinux
-+
-+all: $(TARGETS)
-+
-+clean:
-+	rm -f $(TARGETS)
-diff --git a/tests/watchkey/test b/tests/watchkey/test
-new file mode 100755
-index 0000000..f61ff78
---- /dev/null
-+++ b/tests/watchkey/test
-@@ -0,0 +1,29 @@
-+#!/usr/bin/perl
-+use Test::More;
-+
-+BEGIN {
-+    $basedir = $0;
-+    $basedir =~ s|(.*)/[^/]*|$1|;
-+
-+    # allow info to be shown during tests
-+    $v = $ARGV[0];
-+    if ($v) {
-+        if ( $v ne "-v" ) {
-+            plan skip_all => "Invalid option (use -v)";
-+        }
-+    }
-+    else {
-+        $v = " ";
-+    }
-+
-+    plan tests => 2;
-+}
-+
-+$result = system "runcon -t test_watchkey_t $basedir/watchkey $v";
-+ok( $result eq 0 );
-+
-+# Deny key { view } - EACCES
-+$result = system "runcon -t test_watchkey_no_view_t $basedir/watchkey $v 2>&1";
-+ok( $result >> 8 eq 13 );
-+
-+exit;
-diff --git a/tests/watchkey/watchkey.c b/tests/watchkey/watchkey.c
-new file mode 100644
-index 0000000..c7f3274
---- /dev/null
-+++ b/tests/watchkey/watchkey.c
-@@ -0,0 +1,94 @@
-+/* Based on kernel source samples/watch_queue/watch_test.c */
-+
-+#ifndef _GNU_SOURCE
-+#define _GNU_SOURCE
-+#endif
-+#include <stdbool.h>
-+#include <stdarg.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <unistd.h>
-+#include <errno.h>
-+#include <sys/ioctl.h>
-+#include <linux/watch_queue.h>
-+#include <linux/unistd.h>
-+#include <linux/keyctl.h>
-+#include <selinux/selinux.h>
-+
-+#define BUF_SIZE 256
-+
-+/* Require syscall() as function not yet in libkeyutils */
-+static long keyctl_watch_key(int key, int watch_fd, int watch_id)
-+{
-+	return syscall(__NR_keyctl, KEYCTL_WATCH_KEY, key, watch_fd, watch_id);
-+}
-+
-+static void print_usage(char *progname)
-+{
-+	fprintf(stderr,
-+		"usage:  %s [-v]\n"
-+		"Where:\n\t"
-+		"-v  Print information.\n", progname);
-+	exit(-1);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	int opt, fd, pipefd[2], result, save_errno;
-+	char *context;
-+	bool verbose = false;
-+
-+	while ((opt = getopt(argc, argv, "v")) != -1) {
-+		switch (opt) {
-+		case 'v':
-+			verbose = true;
-+			break;
-+		default:
-+			print_usage(argv[0]);
-+		}
-+	}
-+
-+	if (verbose) {
-+		result = getcon(&context);
-+		if (result < 0) {
-+			fprintf(stderr, "Failed to obtain process context\n");
-+			exit(-1);
-+		}
-+
-+		printf("Process context:\n\t%s\n", context);
-+		free(context);
-+	}
-+
-+	result = pipe2(pipefd, O_NOTIFICATION_PIPE);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to create pipe2(2): %s\n",
-+			strerror(errno));
-+		exit(-1);
-+	}
-+	fd = pipefd[0];
-+
-+	result = ioctl(fd, IOC_WATCH_QUEUE_SET_SIZE, BUF_SIZE);
-+	if (result < 0) {
-+		fprintf(stderr, "Failed to set watch_queue size: %s\n",
-+			strerror(errno));
-+		exit(-1);
-+	}
-+
-+	save_errno = 0;
-+	/* Requires key { view } */
-+	result = keyctl_watch_key(KEY_SPEC_PROCESS_KEYRING, fd,
-+				  WATCH_TYPE_KEY_NOTIFY);
-+	if (result < 0) {
-+		save_errno = errno;
-+		fprintf(stderr, "Failed keyctl_watch_key(): %s\n",
-+			strerror(errno));
-+		goto err;
-+	}
-+	if (verbose)
-+		printf("keyctl_watch_key() successful\n");
-+
-+err:
-+	close(fd);
-+	return save_errno;
-+}
 -- 
-2.25.3
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
