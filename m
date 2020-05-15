@@ -2,164 +2,170 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-5.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70D04C433E0
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 20:46:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EF8CC433DF
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 20:51:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4114E20671
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 20:46:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 553D4205CB
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 20:51:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="u0GiuooR"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r9NSyfbF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726183AbgEOUqm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 16:46:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37428 "EHLO
+        id S1726188AbgEOUva (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 16:51:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726179AbgEOUql (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 16:46:41 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7523AC061A0C
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 13:46:41 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id y10so4206841iov.4
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 13:46:41 -0700 (PDT)
+        with ESMTP id S1726183AbgEOUv3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 16:51:29 -0400
+Received: from mail-il1-x133.google.com (mail-il1-x133.google.com [IPv6:2607:f8b0:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A56C061A0C
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 13:51:29 -0700 (PDT)
+Received: by mail-il1-x133.google.com with SMTP id e8so3915078ilm.7
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 13:51:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=BrpzdI3IfjIjEXPA9Q/VJarpuUe1X1yIAf/vVeZbvrE=;
-        b=u0GiuooRE4Vtd69gRPzQ7ifl3L21r08pmb6gXtXvygkgI26Z/+v9iaMdpXZ9SUkMiJ
-         k/l286y2APk7/PZnGCu6MwH8frD1o7ahwWyY0dKULyPVDRpEIUQTngjweski9+HJW2W6
-         e00RBEl4rotu5H2T/CgQq9QOwCPPytHKSf2qjQtDYYI+/keEcMFSO7O1ZD0Gnb/eYXC2
-         InSmnEqbwZVTdyVbmFvnYZRIqgnoGZ5Dbun39DZ3d0/kbGjyTTXuZtBAVsI8P4RWhzkC
-         eCnVykcyk8CTqa2LhFH6UdNbWOaecT9ePuMY9BdJuBQ97YAuEtXWqpwDqeVEq3aaIRlR
-         RUfQ==
+        bh=nn4eV8EHys7MortS9G7LljRGY0FALC+3vU3a78PKDJI=;
+        b=r9NSyfbFN0Pcso7MKARLUpPsNR5rZkgHTXjinoTA2HSrgBE5gySeVIQZCfCsMX0UXN
+         26MoJ7/j8JvXmJ19HY+6s+gL9qJIrG86lAao3BpatDi2ire780/o9ZkzePJDcqCq1dDF
+         DImtSJOgfAZpmNgGTMvrpHmw/2QrnsDgbX0uxfLim6bpUdAFWyHPItJPMpulntoOWlPo
+         MpRd2ZHSzK8oZGJpHXLL1206Cx7+m4scmVreVoATEzdrsX7/C6dT5UTHBG6lA+fT/wV7
+         ds/VfPei9aKXgCD7T1e2yb/D46C1iYsfPNiHBXGEwwW7VyvOKI/X+NR6kKbBnXni31u7
+         iEEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=BrpzdI3IfjIjEXPA9Q/VJarpuUe1X1yIAf/vVeZbvrE=;
-        b=L1b5gezvol22EthyA7x6GgEJ2TmCPfSa2q/GO2TntssZMPK9YhunM1mhuI8bCmrU9q
-         f6PMrTWAFjche5lOUXXlhLCu4nHoAmI7dIeYk61VBwKo8F5QRgQ8jCFKoDtUPUE5agdk
-         uZWjwwcKiid/ckthGoXwramOsUTqeUi/Qru9g5cEkGh1Lo7VVEWb3FRnvhCpXUU0HR0m
-         RbYfNWjC+jgi0/+XNl+jMvvor5sBLd0Rz3E0LiqvOCYds8hatCFB+QUMgmYbYQt8mw3g
-         jCtuLc6zk6m6F/m+ddzQ6PzBD0XkQ5GSfXseZ/rVS5hxHxh8dfqxrGVl0xPR9aaUlk2K
-         OA3w==
-X-Gm-Message-State: AOAM533SDkmX/fJq7UV8y0uK3hxh05FVR1SNkmg8/eJJ8/Y4D9n8T71l
-        I/JolZcJsrckwMGVbUUTZFSm6eQhVxUnOSRzjEEh/qKP
-X-Google-Smtp-Source: ABdhPJxmPwcOHeBhJg2MP6PMrJm7U27GvRHgT4qhKfyIeUh2tF5xiCwSpmKhiHsZKMugs82nyuxVy2eYELJ2p1sMK84=
-X-Received: by 2002:a6b:d10f:: with SMTP id l15mr4634203iob.143.1589575600709;
- Fri, 15 May 2020 13:46:40 -0700 (PDT)
+        bh=nn4eV8EHys7MortS9G7LljRGY0FALC+3vU3a78PKDJI=;
+        b=O1/c+8WxE/YziQUbHgjqx+3w9bNV63n5HkXfq6IuQiOsuTRGNOFQeZ/jLhp4PTakpS
+         MPjByhBznFAa10gm/6eF5ngRA84LD4VbwLJ6J4bx7g7MYucv6YW9fWF7YXZ2SWwGbMQ6
+         xUJrv6SPkcKqIyA4mRTPQb2g9cup2Y4oS0KCzOz/yc7znoxECFA6S7kyGCfpUA1VTS7D
+         r7Gev5pvADx4Nxv3BBJlm9r53jmngvVodsGobW9vTMk1ZTgPjLPyXjEVRv0CTvKBTdE3
+         zUNoKgznKXVDfCROSP4JusSwVrfI9Q+512qSK6SlteZsuKcreiKKFxDk4E+EBLWmCrBo
+         8COw==
+X-Gm-Message-State: AOAM533AcCGf1kLsriy0NQTWh4T/+MPmPZP7b8SgAh39oQr9DB24m9RC
+        rcxK2JUyxKWojkcFn4YhnxCOXZWMFzQlyRyGDQE=
+X-Google-Smtp-Source: ABdhPJwlVmTvmi5gW7eW5AZibPa751iQ8XRN0MTCsBJfkrHJS4s5kN+Ht/bfenlXHJfpNYeaTbRg4Tb1XUVzkkdfYO8=
+X-Received: by 2002:a92:d744:: with SMTP id e4mr5201210ilq.174.1589575888654;
+ Fri, 15 May 2020 13:51:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200515173042.12666-1-william.c.roberts@intel.com>
- <CAFqZXNtaSV-FHYwZ41Sp8f9eOu=RU6hSR_1Gqxb9LocaQ7BnzA@mail.gmail.com>
- <CAFftDdqabuGFeP3ugx+UDREZUnhkrjEoPMkuxaLC=H61_J+H+w@mail.gmail.com>
- <CAEjxPJ5tE2qmPYibzjGcp1pQDESXPG8-kHczDSyZBXen+t0+-A@mail.gmail.com>
- <CAFftDdopJ_y7YoNG5P00kMu9qx_5NAFpR8aOSJr4J0F=BeZ-Tg@mail.gmail.com> <CAFqZXNvSgE5Eb+89D_j9M1mQFAdgq1Q6PhJbUuzYPeunR4RtHw@mail.gmail.com>
-In-Reply-To: <CAFqZXNvSgE5Eb+89D_j9M1mQFAdgq1Q6PhJbUuzYPeunR4RtHw@mail.gmail.com>
+References: <3581425.j52oWYpJar@liv> <20200407085922.GA438349@workstation>
+ <20200422065053.GA167999@workstation> <CAHC9VhQUmY=ue3zWdTnE1Ehi90Lj3077sLbu+jyaWoAVKuKyeQ@mail.gmail.com>
+ <CAFftDdo1hqbacU2TD6zQp_t_KJq-KS5pWBMr89c4HA3=aUdUbQ@mail.gmail.com>
+ <20200423150039.GC204116@workstation> <CAFftDdq_g_rUy=KFh_gOEXoVxkCgz9qWzR17d4Mt1qVChoVLjg@mail.gmail.com>
+ <CAEjxPJ5qm8P0jmRvQNavDsrWCDDf7yCeRQ1orp_S63u-2EfBoA@mail.gmail.com> <CAFftDdopFfNynCNTnzo34XNVc=t49=82NOQP8OFq+fXLC9Ghtw@mail.gmail.com>
+In-Reply-To: <CAFftDdopFfNynCNTnzo34XNVc=t49=82NOQP8OFq+fXLC9Ghtw@mail.gmail.com>
 From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 15 May 2020 15:46:29 -0500
-Message-ID: <CAFftDdrN+f7D=OhdQbTLUvFZL8QDw_+eqN3scqBgxdWT2yB+=A@mail.gmail.com>
-Subject: Re: [PATCH] README: add pkg kernel-devel to dnf command
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        "Roberts, William C" <william.c.roberts@intel.com>,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Fri, 15 May 2020 15:51:17 -0500
+Message-ID: <CAFftDdqAZE-DW1uMbQcx3v0xrqR_qUaO70mida=7STQPTEYPCg@mail.gmail.com>
+Subject: Re: Fedora VM On Travis for Testing
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>,
+        Jason Zaman <jason@perfinion.com>,
+        Steve Lawrence <slawrence@tresys.com>,
+        Chris PeBenito <pebenito@ieee.org>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        James Carter <jwcart2@tycho.nsa.gov>,
+        Joshua Brindle <brindle@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Petr Lautrbach <plautrba@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 15, 2020 at 2:41 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Thu, May 14, 2020 at 5:31 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
 >
-> On Fri, May 15, 2020 at 9:27 PM William Roberts
-> <bill.c.roberts@gmail.com> wrote:
-> > On Fri, May 15, 2020 at 1:51 PM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
+> On Thu, May 14, 2020 at 5:21 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Thu, May 14, 2020 at 5:03 PM William Roberts
+> > <bill.c.roberts@gmail.com> wrote:
 > > >
-> > > On Fri, May 15, 2020 at 2:11 PM William Roberts
-> > > <bill.c.roberts@gmail.com> wrote:
-> > > >
-> > > > On Fri, May 15, 2020 at 12:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > > > >
-> > > > > On Fri, May 15, 2020 at 7:31 PM <william.c.roberts@intel.com> wrote:
-> > > > > > From: William Roberts <william.c.roberts@intel.com>
-> > > > > >
-> > > > > > The text above states that kernel-devel is needed, but it's missing from
-> > > > > > the dnf command.
-> > > > > >
-> > > > > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > > > > > ---
-> > > > > >  README.md | 3 ++-
-> > > > > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > > > >
-> > > > > > diff --git a/README.md b/README.md
-> > > > > > index 1f7e5d92a100..a73e9cc0c06d 100644
-> > > > > > --- a/README.md
-> > > > > > +++ b/README.md
-> > > > > > @@ -77,7 +77,8 @@ following command:
-> > > > > >                 kernel-devel \
-> > > > >
-> > > > > It's actually right there already ^^
-> > > >
-> > > > Yeah that's the foot cannon, I thought I was good, but you need the
-> > > > specific ones
-> > > > as Ondrej pointed out to me.
-> > > >
-> > > > >
-> > > > > >                 quota \
-> > > > > >                 xfsprogs-devel \
-> > > > > > -               libuuid-devel
-> > > > > > +               libuuid-devel \
-> > > > > > +               kernel-devel-$(uname -r)
-> > > > >
-> > > > > I proposed adding the -$(uname -r) before, but there were some valid
-> > > > > counterarguments. See the discussion here:
-> > > > > https://lore.kernel.org/selinux/CAFqZXNs5jcOOnhzT8=DQgzaf9RtBZ1=oqTU83pjVLMqPb-rzHA@mail.gmail.com/
-> > > > >
-> > > >
-> > > > Arguments for why the dnf command should have it with uname:
-> > > > 1. We tried to add it twice, it's bit people twice.
-> > > > 2. The README states "On a modern Fedora system you can install these
-> > > > dependencies with the following command:"
-> > > >     - which is wrong, you need the specific package
-> > > >     - If you're going to provide a "dnf install" or a apt-get install,
-> > > > it should just work
-> > > >     - the apt-get example has uname -r in it.
-> > > >     - so the precludes building your own kernel, if you do that as
-> > > > Paul stated, you're on your own. (lore comment)
+> > > I just wanted to lay out a demo of a Fedora 32 cloud VM image booting
+> > > on Travis with execution happening in the Fedora VM.
+> > > The Fedora VM contains the selinux source code for that particular
+> > > travis build, so it has the PR patches, etc.
+> > > The VM has networking.
 > > >
-> > > I'm ok with adding it.
+> > > The build logs for the Travis run are here:
+> > >   - https://travis-ci.org/github/williamcroberts/selinux/builds/687185489
+> > >
+> > > Which comes from my git tree here:
+> > >   - https://github.com/williamcroberts/selinux/tree/kvm-fedora-testing
+> > >
+> > > Note that it's super messy, I need to go through and cleanup both the
+> > > patch and the git
+> > > history. I also should verify the downloaded image is signed for the VM.
+> > > Also note that I may rebase/squash my git branch at any time.
+> > >
+> > > Petr started a release document here:
+> > >   - https://github.com/bachradsusi/SELinuxProject-selinux/blob/RELEASE/RELEASE_PROCESS.md
+> > >
+> > > I'd like to gather feedback, and perhaps more comments on:
+> > > 1. Is this CI approach worth continuing?
+> > > 2. Comments on the CI scripts (I have no idea what I am doing, common issue)
+> > > 3. Comments, patches, suggestions on what tests to run in this CI environment.
+> > > 4. More information in in the RELEASE_PROCESS.md file. I made some
+> > > comments there
+> > >     as well on ideas.
+> > >
+> > > My goal here is that a release can occur if CI is passing without
+> > > worry, and that
+> > > we automate manual steps as much as possible. This way, if we get hit by a bus
+> > > releases can occur without much effort.
 > >
-> > Does anyone want to ack this one?
+> > I'm amazed travis-ci supports all of that (especially for free).
+> > Hopefully you aren't violating their terms of use.
 >
-> As Stephen already said while I was writing this message, please just
-> update the existing kernel-devel line.
+> Not that I am aware of and I read their terms of use.
+> https://docs.travis-ci.com/legal/terms-of-service/
 >
-> >
-> > Ok I found another one, kernel-modules-extra is needed for the sctp module.
+> They don't seem to limit what you can do, it seems to be centered
+> around availability, liability and support.
 >
-> On Fedora it shouldn't be, only on RHEL/CentOS 8.
+> I stumbled into other projects on github that were running virsh commands
+>
+> > The biggest thing I'd add is to build and install the selinux
+> > userspace in place of the stock Fedora versions (sudo make
+> > LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap relabel) and
+> > then build and run the selinux-testsuite to exercise the SELinux
+> > userspace and kernel runtime functionality.  Other things to possibly
+>
+> Perfect, that's the info I was looking for.
+>
+> > add would be rebuilding upstream refpolicy (similar to its
+> > .travis.yml) with the latest userspace, rebuilding and running setools
+> > (but until we decouple it from libsepol internals this will
+> > periodically break).
+>
+> If it breaks, it breaks, just means we need to merge something or actually
+> fix it properly IIUC.
 
-Not on the cloud image, so I am assuming that desktop just has it already
-fulfilled.
+So I just wanted to share, that the test suite is running with a PASS on
+a travis CI instance with a nested KVM of Fedora32.
 
->
-> >
-> > The tests expect sctp support, should we conditionally skip these if
-> > sctp is not enabled?
-> > Whats the best way of checking for that proto if we want this? just an
-> > ls of /proc/sys/net:
-> > ls /proc/sys/net/
-> > bridge  core  ipv4  ipv6  netfilter  nf_conntrack_max  sctp  unix
-> >
->
-> --
-> Ondrej Mosnacek <omosnace at redhat dot com>
-> Software Engineer, Security Technologies
-> Red Hat, Inc.
->
+https://travis-ci.org/github/williamcroberts/selinux/builds/687592735
+
+Next week I'll clean this up and make sure that its working consistently.
+I've had 2 hangs when building the libselinux src, not sure why..
+I don't want a CI check that'd flaky, so I want to do some more testing.
+
+An example is on this build:
+https://travis-ci.org/github/williamcroberts/selinux/builds/687496735
+
+I'm gonna assume I need to allocate more memory and im gonna bump
+the vcpu count as well to match the host. As Travis gives us two cores.
+
+Bill
