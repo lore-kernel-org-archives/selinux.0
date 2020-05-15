@@ -7,162 +7,138 @@ X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0105C433E0
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:25:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79696C433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:35:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5B0920657
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:25:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4D9B420657
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 13:35:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BqhJZ1KY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NzPl4AGx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726188AbgEONZk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 09:25:40 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:23586 "EHLO
+        id S1726160AbgEONft (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 09:35:49 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:57634 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726141AbgEONZk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:25:40 -0400
+        with ESMTP id S1726141AbgEONft (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 09:35:49 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589549138;
+        s=mimecast20190719; t=1589549748;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=Gw1Ewsuvc2VoHUXAGEXM1Bw5DXr/lUfgSDQ0Zmu2EcA=;
-        b=BqhJZ1KY9y7rBBSfMnROG75BeNFKIdAMCVxwlXvg/C5Is4dtEgBUH2ATf9A9TwTEjbqkmw
-        NwBgbfDm1iNjTK/32dpqbxroJFAZHEZiOSFAvCssa7+/e4/GWefsN2VE4iIncizOuu+i2I
-        ZGciaeO/jQjLo8mfqObtb6atQJc5UrM=
-Received: from mail-oi1-f199.google.com (mail-oi1-f199.google.com
- [209.85.167.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-346-GrrdhtyvPbGl-I5IalglwA-1; Fri, 15 May 2020 09:25:34 -0400
-X-MC-Unique: GrrdhtyvPbGl-I5IalglwA-1
-Received: by mail-oi1-f199.google.com with SMTP id b1so1250943oib.1
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 06:25:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Gw1Ewsuvc2VoHUXAGEXM1Bw5DXr/lUfgSDQ0Zmu2EcA=;
-        b=IzlJSVl3FSxC7cNZ5asozwRBVsWATuBsbA1+yMkhQY1xp41bzckcjeIy/yu0tXiXmJ
-         g6xeT/hBSmv/h9SbbJEw2mnZQYxXj+2ql+EBoyb5haXbQl11wkbQr98g48R+vsATruAQ
-         rSYKavtSxXvH2gg338Kn8EndHeOK+1kmACUjYwqKiPUnKfMzOqYWgZJUeTZii/KdSITE
-         uwEpRTjPo+PdtVppSKsuw1KkO56wZIzwNP975bopgY7Nf4PH6iezombtx6GuFlX8GY0K
-         VLTEGh0o9ZDHfm1i18RTry4FkMi+rsG7yTOVsN1/e7R1Zq0ZYYRThXr11JNnrdoAzJSh
-         +VMw==
-X-Gm-Message-State: AOAM532oZ8qB17IQDZXAG8GgmSiQboniu2bpFOWK/ITepcWOpjzM3mTF
-        SivQV82WmMYBNU4MslEznbA/vbTx3NAR8lncEE6TYxjg/Ld94E7RhkUoE8LShFLeG33ZDDiCaDd
-        +pxFNO3zhdK9KwOTls8bwjw1/cZyFDr3xYg==
-X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr2513185ooo.58.1589549132708;
-        Fri, 15 May 2020 06:25:32 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwZK1wtq9kUwLFFnavcP9B10MxXuRXIqr3oxbiOUaZPjqWjpFCVxQ0d/Pt8Fms8zGGlB/ini1mRuXaZuV12fDU=
-X-Received: by 2002:a4a:b4c1:: with SMTP id g1mr2513165ooo.58.1589549132372;
- Fri, 15 May 2020 06:25:32 -0700 (PDT)
+        bh=lWw8RwGv2A17eryTuzPC3CmBir9xZqDRIK3sLe11T3Q=;
+        b=NzPl4AGxztKNH5YlcXl97+wTvgpUokY/ZDi2zp4raGqho7SdY/hSuMZdW2hav7KvNH5bSs
+        F4R+GLNGfl+JWTRxy5onju4cEmqROGVG3YmHrrINEi4P1xWhreJnVpkZTbwdWRrUn5hMLq
+        kylh9OoggDNB1qN73qo/mcQ0GN9t8Pc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-212-6M4UZM5LMD-qxGyPlfHjGQ-1; Fri, 15 May 2020 09:35:44 -0400
+X-MC-Unique: 6M4UZM5LMD-qxGyPlfHjGQ-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C9180107ACF5;
+        Fri, 15 May 2020 13:35:43 +0000 (UTC)
+Received: from workstation (unknown [10.40.194.255])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id F0DFB1001B2C;
+        Fri, 15 May 2020 13:35:42 +0000 (UTC)
+Date:   Fri, 15 May 2020 15:35:40 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Topi Miettinen <toiwoton@gmail.com>
+Subject: Re: [PATCH v3] secilc/docs: fix use of TMPDIR
+Message-ID: <20200515133540.GD255621@workstation>
+References: <20200515114111.11428-1-toiwoton@gmail.com>
 MIME-Version: 1.0
-References: <20200515131014.7852-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20200515131014.7852-1-richard_c_haines@btinternet.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 15 May 2020 15:25:21 +0200
-Message-ID: <CAFqZXNt12x0iNQGdzeZr-Hv1CT-tBq42xyv1rh3L=EqK9SbAcQ@mail.gmail.com>
-Subject: Re: [PATCH V2] selinux-testsuite: Add nftables to inet_socket and
- sctp tests
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200515114111.11428-1-toiwoton@gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="vni90+aGYgRvsTuO"
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 15, 2020 at 3:10 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> Support secmark tests that require nftables version 9.3 or greater and
-> kernel 4.20 or greater.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+--vni90+aGYgRvsTuO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, May 15, 2020 at 02:41:11PM +0300, Topi Miettinen wrote:
+> Environment variable TMPDIR may be already set for the user building
+> and this could be equal to $XDG_RUNTIME_DIR or /tmp which are existing
+> directories. Then when running 'make clean', there are unintended side
+> effects:
+>=20
+> rm -rf /run/user/1000
+> rm: cannot remove '/run/user/1000/dconf/user': Permission denied
+> rm: cannot remove '/run/user/1000/systemd': Permission denied
+> rm: cannot remove '/run/user/1000/gnupg': Permission denied
+> rm: cannot remove '/run/user/1000/dbus-1': Is a directory
+> rm: cannot remove '/run/user/1000/inaccessible': Permission denied
+> make[1]: *** [Makefile:68: clean] Error 1
+>=20
+> Fix by always setting the variable.
+>=20
+> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+> Suggested-by: Petr Lautrbach <plautrba@redhat.com>
+
+Acked-by: Petr Lautrbach <plautrba@redhat.com>
+
+Thanks!
+
 > ---
-> V2 Change:
-> Use common tests for iptables/nftables
->
->  README.md                        |   4 +-
->  tests/inet_socket/nftables-flush |   2 +
->  tests/inet_socket/nftables-load  |  74 +++++++++++++++++++++
->  tests/inet_socket/test           | 108 ++++++++++++++++++++-----------
->  tests/sctp/nftables-flush        |   2 +
->  tests/sctp/nftables-load         |  68 +++++++++++++++++++
->  tests/sctp/test                  |  96 +++++++++++++++++----------
->  7 files changed, 281 insertions(+), 73 deletions(-)
->  create mode 100644 tests/inet_socket/nftables-flush
->  create mode 100644 tests/inet_socket/nftables-load
->  create mode 100644 tests/sctp/nftables-flush
->  create mode 100644 tests/sctp/nftables-load
->
-[...]
-> diff --git a/tests/inet_socket/test b/tests/inet_socket/test
-> index 47ce106..ce9bd7f 100755
-> --- a/tests/inet_socket/test
-> +++ b/tests/inet_socket/test
-> @@ -27,6 +27,19 @@ BEGIN {
->          $test_calipso_stream = 1;
->      }
->
-> +    # Determine nftables version, must be >= 0.9.3 for secmark support
-> +    # with kernel >= 4.20
-> +    $test_nft = 0;
-> +    $nft      = `nft -v`;
-> +    $nft =~ s/\D//g;
-> +    $kverminstream = "4.20";
-> +
-> +    $rc = `$basedir/../kvercmp $kvercur $kverminstream`;
-> +    if ( $nft gt "092" and $rc > 0 ) {
-> +        $test_count += 8;
-> +        $test_nft = 1;
-> +    }
-> +
->      plan tests => $test_count;
->  }
->
-> @@ -348,63 +361,82 @@ if ($test_ipsec) {
->      system "/bin/sh $basedir/ipsec-flush";
->  }
->
-> -# Load iptables (IPv4 & IPv6) configuration.
-> -system "/bin/sh $basedir/iptables-load";
-> +#
-> +################## Test iptables/nftables configuration ######################
-> +#
-> +$test_msg = "Testing iptables (IPv4/IPv6).\n";
-> +$cmd      = "/bin/sh";
-> +$table    = "iptables";
-> +$i        = 0;
-> +$loop     = 1;
-> +
-> +if ($test_nft) {
-> +    $loop = 2;
-> +}
->
-> -# Start the stream server.
-> -$pid = server_start( "-t test_inet_server_t", "-n stream 65535" );
-> +while ( $i < $loop ) {
-> +    print "$test_msg";
-> +    system "$cmd $basedir/$table-load";
+>  secilc/docs/Makefile | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+>=20
+> diff --git a/secilc/docs/Makefile b/secilc/docs/Makefile
+> index 6b07ce7f..197ccef2 100644
+> --- a/secilc/docs/Makefile
+> +++ b/secilc/docs/Makefile
+> @@ -1,8 +1,8 @@
+> -CWD ?=3D $(shell pwd)
+> -HTMLDIR ?=3D $(CWD)/html
+> -PDFDIR ?=3D $(CWD)/pdf
+> -TMPDIR ?=3D $(CWD)/tmp
+> -TESTDIR ?=3D $(CWD)/../test
+> +CWD =3D $(shell pwd)
+> +HTMLDIR =3D $(CWD)/html
+> +PDFDIR =3D $(CWD)/pdf
+> +TMPDIR =3D $(CWD)/tmp
+> +TESTDIR =3D $(CWD)/../test
+> =20
+>  # All the markdown files that make up the guide:
+>  FILE_LIST ?=3D cil_introduction.md \
+> --=20
+> 2.26.2
+>=20
 
-Ugh, that is ugly... Why not just do something like:
+--=20
+()  ascii ribbon campaign - against html e-mail=20
+/\  www.asciiribbon.org   - against proprietary attachments
 
-sub test_tables {
-    # run the tests...
-}
-[...]
-print "Testing iptables (IPv4/IPv6).\n";
-system "/bin/sh $basedir/iptables-load";
-test_tables();
-system "/bin/sh $basedir/iptables-flush";
+--vni90+aGYgRvsTuO
+Content-Type: application/pgp-signature; name="signature.asc"
 
-print "Testing nftables (IPv4/IPv6).\n";
-system "nft -f $basedir/nftables-load";
-test_tables();
-system "nft -f $basedir/nftables-flush";
-[...]
+-----BEGIN PGP SIGNATURE-----
 
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl6+mqUACgkQviIJHj72
+InXJfBAAgsgoyvaQ1N3W++iWFqO8oD9zGjD/iL1al5r6aaWRXjzU3n8sWTklI0fN
+QXUY5RkRw0LykQc3EfZWLEmHwS+NJcxBRhaaSVrVbgRSB8Qul2omOvu4xnKTkXQv
+5VxpJwaFLJZcCtC1nndhYG422EkG5wNxvrk0tl1VuN9YYhE1bku+d/2wP9Mdmobb
+xRCv6U1JKO8TNBDcmblxvWzJOQTgI0huVqVCwY77WI7eEKl+owkR7quwzbzcnvVf
+1gU6mwwCG9ngMunU7yC3Y+LpZuh/PZsUkUK4Ud2S2GlcRB1WIaDI9B98mKKuyRHQ
+ZJDf6+0mNcn51fpnRINCrbxhZFNVaNQsjoH/nel2Ao8730au12F3u4DW8j0RtR4T
+G/frJuQTt/ynt+eTyS+4sPxCqfXtRNeMzr0I5B4Gp4c8lC3deJrwiLmY1GWNr5a+
+ohx28Q9BAMZ/StfBT40GNDBgGnxZexaQAATdNIqr17Bxe5GNlvYooPCq6JwABklo
+hUgXEeACmLCq7/Z2FOyeavIjx2FzcpnfzsP4L40jnqQr7paoW8ALSk6x92U6ZCim
+ZANnpv2Vl21OqaRmKXU6CZ+DnnZRGuNMuzHKwFSWQeKFvX7HMqKHy7rcJ3kiqWgA
+pUCy67A6Gr6R17Vv97v43km2mIfeR20Tew2qrJfZ8X9NAUZ1fgA=
+=0Aa6
+-----END PGP SIGNATURE-----
+
+--vni90+aGYgRvsTuO--
 
