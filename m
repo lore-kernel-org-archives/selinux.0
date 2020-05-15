@@ -2,113 +2,146 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09DB4C433E0
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 21:06:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8F55C433DF
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 21:13:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C5329206D4
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 21:06:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A06D6205CB
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 21:13:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="GQsi7+zf"
+	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="reZkweKy"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726407AbgEOVGx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 17:06:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40594 "EHLO
+        id S1726223AbgEOVNd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 17:13:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726247AbgEOVGx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 17:06:53 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB8D6C061A0C
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 14:06:51 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id o10so3365499ejn.10
-        for <selinux@vger.kernel.org>; Fri, 15 May 2020 14:06:51 -0700 (PDT)
+        with ESMTP id S1726183AbgEOVNd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 17:13:33 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6DBC061A0C
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 14:13:32 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id s1so4109951qkf.9
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 14:13:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=JGvb0I1puwTEwUCX3TvMQGY6YjH5EaGSdcdasSKXqn0=;
-        b=GQsi7+zff5rQ3iw5QyW/ZIVaxXX4EdZAv85rNaravKHJ8PP9GEKZwdJQI+YcZ2BCX/
-         iEWaL+wguCOoGe7wD50ljZfiBmDF5hZ5DwgAxq/TYeA0deG0OWI6AFncw2HEfV1muq2N
-         aSsSF2dJKQYMCLuMzNJ+mmm9C74EWk7irQyKEpUSFOl5RlWKg1VD72DnsxWvkiBkv+Uz
-         aXl9Ds7XljCfBRDHR35DIb2TzltBnGXMIG0ROkPcZQ7W2AnYEnNlk5lCQtAJZFDjlsQa
-         Nq6GTsnZjQsnx3+iDdVcRAAPcWCVnSvCi+a+PQcNgn2X/ScPUc/2GY8apVjDWUBuBBWS
-         ubyg==
+        bh=rlhtWXl7hMmfHckMkTV2E+hGLy2+qvZshwZFbm2Ekog=;
+        b=reZkweKynXk6zyL2DPJBvPhUulvzowWc9PVjc0UDLWkeQ+vWInkPl34hX0fK+hqYMC
+         Ke7A7ua8Flr0Yyv/ki8mEFxo6mzvu+Hgbg0EDUASIrz0lV2ibjvl6yK1qpnhsXGRpBpJ
+         uUbN2KpHTL3nDcnBUD5Qnq7PY71PlInS+d0FlVuGiO8FX9rYgJvKLXr5/MDB9Dj6OhjO
+         IeyTLqDPBYtw8YhVGdvxGePvMXr1E/VQ6kuDTAQcRMWvQJLzSl1L9aHFYwzbyN3IKbFX
+         esbf7YuUHJtuUGpilXByVWSXHpgY+NHuAcV6V8EX0qDTjVuSgqM7RAJ8WGD8ItkgZ1gl
+         1u6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=JGvb0I1puwTEwUCX3TvMQGY6YjH5EaGSdcdasSKXqn0=;
-        b=Bak6DgkM5tcDXmblWg7su0jJotKnx1NhTjo0wusKpC28/vQ4HS+uekIG0NGR9Jomyv
-         aBrNDy9quhCE5Di4bHsW3Ck5RpOH120jaryVipc7VF7T+GVIB1ZxT++z71hh4QuhguTf
-         mf9B4JkuZ5BiYddRRnjE8XENW/HNAwSkR7O8cLMV7ahfMeRlsEwzwneip6wLASutfJPp
-         Y7SpQEIhm9yMHdwAiau2T/+4JE3gp2qscEGVwxEj1es1kKkOhWXJT/gcxqxmCOAZv7OZ
-         13EiTgDL1iPLJuqLPhGxhTlCa2cCG+DUjU6RSrkc6MG9/nYPwGgLzyGQZaXo+UovIFRu
-         eprA==
-X-Gm-Message-State: AOAM533pUpwpxlmLhsBY2oWhmM12e++Mhg5+6iqpSfKzIG3KumaglsjE
-        wPQaySRFm/tUPGT6PyTSkKhoR28kaRc8NQHzth4Z
-X-Google-Smtp-Source: ABdhPJxRe0yw4ChIiMM6bAAZsAskA0JPaZaV5ewvqtIQGafDV8zei47GQ7iX+AcMRqXzwLPEb030wQ6SwXZTECso5HM=
-X-Received: by 2002:a17:906:31da:: with SMTP id f26mr4541753ejf.308.1589576810297;
- Fri, 15 May 2020 14:06:50 -0700 (PDT)
+        bh=rlhtWXl7hMmfHckMkTV2E+hGLy2+qvZshwZFbm2Ekog=;
+        b=QMabrqSXr9CAqwFk4YgK8C1PNTyDz7/qEi44/XgnXQgWYHKmrkYJQ0AeBbY9llnE4p
+         XSZM0xe1Yd9nJBEW1CcaAlTR+F+Tl5dmZhn329Qs/5NyKkZnYvKM+FJIxAeFgeTuY/Me
+         3GCN13sCIWD+d4vsnTbnjA/kpXTnb4W6u8JyD6NGNtv/lC440FsnLYoEFFZsqS7P4FTZ
+         nbsZn3KNGDK9wpH6Vqu32ivPxuIITZj6CE+PzRo5kcevuLSA9URkQ/j6LoRmS7HEZtRo
+         Xa0TuctOeHk5cdMhJU7OFvDLyh2lnIDdjYlKqaATocuPdaaGanV0P49YjnMvj74KoYWg
+         wuwg==
+X-Gm-Message-State: AOAM531g6kv+3AK65Xw4pjzLDJgjubQRJ3AhrsI99xWAEjSwZn4XtULT
+        +IMxobAztVnp7iFBVocnE3gtUuuq/4gy5QMiYX4REmU+
+X-Google-Smtp-Source: ABdhPJwr3tzK7zaKDiwIcrg+OI/6a1A+huZx+gesgBjSC1VASXeN0bqEoBh7YWr14iy15+2+V0+yF9H8cUc79nUXfYg=
+X-Received: by 2002:a05:620a:14a1:: with SMTP id x1mr5285365qkj.92.1589577211631;
+ Fri, 15 May 2020 14:13:31 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200515173042.12666-1-william.c.roberts@intel.com> <20200515210154.23408-1-william.c.roberts@intel.com>
-In-Reply-To: <20200515210154.23408-1-william.c.roberts@intel.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 15 May 2020 17:06:38 -0400
-Message-ID: <CAHC9VhSmRjeeujGCxscNuRg_805ObqAM26qyg6SAzNjUxLOxNw@mail.gmail.com>
-Subject: Re: [PATCH v2] README: update kernel-devel package in dnf command
-To:     william.c.roberts@intel.com
-Cc:     selinux@vger.kernel.org
+References: <CAGeouKH0MWHVmo-dFxzn4LViwGNLUoYnYYm6HrKzL5XgfMhd4w@mail.gmail.com>
+ <CAEjxPJ7FQyme=udYKRJ9_gSmaF0Jz_4kk2SSo7S0HkMELg0D3g@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7FQyme=udYKRJ9_gSmaF0Jz_4kk2SSo7S0HkMELg0D3g@mail.gmail.com>
+From:   Peter Whittaker <pww@edgekeep.com>
+Date:   Fri, 15 May 2020 17:13:05 -0400
+Message-ID: <CAGeouKHuAeNmU3FtD3XraZmtE9+JdSMBCa7sDmG6re65qYuFiw@mail.gmail.com>
+Subject: Re: Bad context in PostgreSQL page on SELinux Project wiki?
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 15, 2020 at 5:02 PM <william.c.roberts@intel.com> wrote:
->
-> From: William Roberts <william.c.roberts@intel.com>
->
-> The README.md file in the selinux-testsuite states that kernel-devel
-> package is needed. However, for everything to work you need the
-> kernel-devel package specific to your kernel version.
-> Update the dnf command to include uname -r, so that a copy + paste
-> of the dnf command, results in a system with dependencies filled
-> for recent Fedora distro's like Fedora 32.
->
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> ---
->  README.md | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/README.md b/README.md
-> index 1f7e5d92a100..4d5d6d22203a 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -74,7 +74,7 @@ following command:
->                 attr \
->                 libbpf-devel \
->                 keyutils-libs-devel \
-> -               kernel-devel \
-> +               kernel-devel-$(uname -r)
+Thanks, Stephen, if Richard haunts here, I'll let him comment. (Then I
+can send him my other errata! :->)
 
-I \
-think \
-you \
-forgot \
-the \
-trailing \
-slash \
+Just a couple of comments:
 
->                 quota \
->                 xfsprogs-devel \
->                 libuuid-devel
-> --
-> 2.17.1
+1. I know the contexts are valid, but they are inconsistent with other
+contexts on that page (especially s10), and with other, related pages
+applicable to different versions. Given their context, they seem out
+of place.
+2. There is a lot of historical and out of date SELinux information
+out there, I have no illusions about trying to correct it all, and I
+know this particular wiki isn't updated anymore, but it is there and
+present and if incorrect then misleading - that's why I reached out to
+the list - the information in github is organized quite differently
+and doesn't intersect completely with this particular wiki.
 
--- 
-paul moore
-www.paul-moore.com
+Thanks,
+
+P
+
+Peter Whittaker
+EdgeKeep Inc.
+www.edgekeep.com
++1 613 864 5337
++1 613 864 KEEP
+
+
+Peter Whittaker
+EdgeKeep Inc.
+www.edgekeep.com
++1 613 864 5337
++1 613 864 KEEP
+
+
+
+On Fri, May 15, 2020 at 4:20 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Fri, May 15, 2020 at 4:02 PM Peter Whittaker <pww@edgekeep.com> wrote:
+> >
+> > Folks, with whom I can verify whether there are errors on the SELinux
+> > Project Wiki?
+>
+> As noted on the front page, selinuxproject.org isn't being updated and
+> is just historical at this point.  Anything new should go into the
+> GitHub SELinuxProject wiki(s) instead.
+>
+> > Details: It looks like MCS information is missing from a few security
+> > contexts on https://selinuxproject.org/page/NB_SQL_9.3
+>
+> I think that particular page was derived from the SELinux Notebook,
+> which was written by Richard Haines.
+> Not sure if he is still updating it but he frequents the list.
+>
+> > The schema row has
+> >
+> >    security_label = 'unconfined_u:object_r:sepgsql_schema_t:s10'
+> >
+> > which should likely be
+> >
+> >    security_label = 'unconfined_u:object_r:sepgsql_schema_t:s0:c10'
+>
+> Those are two different contexts, both valid (if using MLS policy).
+> Under MLS policy, there are multiple sensitivity levels (s0, s1, ...).
+> The category set is optional and can be omitted if empty.
+>
+> > Likewise, the database row has
+> >
+> >     context = 'unconfined_u:object_r:postgresql_db_t:s0'
+> >
+> > but I'm unsure whether this should be as is or whether it should also
+> > have MCS info.
+>
+> That's also a valid context.
+>
+> > With whom can I verify this? (Not using PostgreSQL, just noticing
+> > errors as I crawl through my hardcopy of the handbook.)
