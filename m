@@ -2,130 +2,141 @@ Return-Path: <SRS0=yRyW=65=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2856DC433DF
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 19:10:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E392C433E0
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 19:27:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EC61F20727
-	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 19:10:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6DA3020728
+	for <selinux@archiver.kernel.org>; Fri, 15 May 2020 19:27:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="VqdlBCKX"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N9KyYhD6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726198AbgEOTKa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 15 May 2020 15:10:30 -0400
-Received: from sonic309-27.consmr.mail.ne1.yahoo.com ([66.163.184.153]:43887
-        "EHLO sonic309-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726206AbgEOTK3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 15:10:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589569828; bh=WPsHLe9g5yHs563Uuj+CpTBWcNmODYTyuyUfmE44vqo=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=VqdlBCKXlvcb6xUcWJSFqf3FFWpN4NUWuwnJl4pWDsaSAKlnMdpzPM+C/2DtZuqByMpjqBzkuUg1zwdaKmLffOiretaPppeB8lxsaCjY44tkIkDrmKLVbGzFLfZl8e+b3euLFz464L6jsiAN9fUhk/Vn/xOWE5GIyS9ppHnFIpjNnmIhXyEpUY3Yq4+8aiY2YqjyRX6LnWEZrjWIXvBm53kXyRfNSGfOiZj+WIL9mmw8wUTmSQe8fbuY7tAtZ8ZjVTe3WMG3Tc/BqqwSuOTjnYPAfAnEVsWnGt1B1G7bJWe/KMV0NsxIPcxHgB8TXyM2DVxGPbeUM0jSVKjz6NMjvw==
-X-YMail-OSG: Ywx85RgVM1lIzTeEuoPABPfKk3YhXfCGhBMkSBuN3H_t9anvp2uuaaDjMyJ2Vxn
- aYJSYaqOJyJv6j2icPGVcH8z.6.d6NhOztTFl4f5.2WSZgUufHXhlVDpyBRfr2hPFqLlpBNSgCaw
- ZJNARGa_jtcI3BGxI.nyPV5yMUuUFijwbh0RT_tDi7c4sQk3qAs4weSkNDCbNCcF9vemjHdm1i_g
- L68uKp1mzurjVw1jviH22m_JYgT0HHGQeV0dhRoT6EZMRvSErERGm.5XBMYylSUzBC1f_hPL7sOy
- 8MQVsdazxZkfiAYDk2ju7EPK2XMZ7N3NWUn0t4vLwdQ7V0r7pG8g.tzU6kwbfPKHLwULA2MH_5p9
- OAer8aC91HU5OSwCK1yZ0eoggu.fo6s6U9ZFjOjuTJEpIDztn..qjVFUVSG4J8hPtHU64L_0uS8m
- piQ0Ady6caKsDPZV2xgf64alIeUuBVV8cnUJXpeeZqXRlSJfzHlW.yGLKLbtrMRtGcqpBTlWOEqG
- 8eXM9dktUMWfJdhUHrBGIsJexukxiQT4NaK9XNVIPWTBs1jzQ0G2Ko2xGO.2inKwn6JR7L4ITaNy
- GN8R5yGinr339vwZwq2yJe6rTifm9sJqqa1VVIFauuBtSibq0a4.1j6dDS44Tr8LrDNWN2uJZltF
- SMQf7B7MLqPQDnxOt_4q9cZI8OJ1Mzxb7qM2XDHVy5v74kCE.qkE2rzYCFoQVCWGqlYESySeaxSq
- 15xHZpnd2VrwG88VwMclS5n7HWSW9IySrZJLr01zqbr1e2AXv9OLzIcHZtERsJIMs_ydISba.iMl
- MqVY.YN9_fcqSX5aJOTVuL3FKiol2wrMYdVYM6ogk_8DIFmZjw.X7Dc6t9nMAnO_y2AX0SBx1UKl
- .W6X23MSFhjPdJedmqU3NDWZotsV6GcepeCj10ZVhMx5yaekigv5Zwv4VMkQFooS5CEZdTjnlv6j
- dLpjBidhPSaHj8oT6ii8fKc_jFj0n2lx.yb0KqnXbsUWUb4njII8fb1eC1mlJpBv1ciTQgJDAvDR
- mncYuGaZqZQsfvvUt6ZghM.LU9KfTBhXPmg5VeHXELW44dwvJcMRg76IHtRWd3WTgrth1nWJJHxK
- ZdU8GWwUfSPuqnZTjfBtksnCWpeuMdyxHmloCPDGtTUKm9Y0fFJXgg.2dpQq4EEpCp_4Rs.252eB
- KusnFB0tqgFFjiXupmkaLPR0McDswWIK_6JG2MmZQ_Mm4yD0K3TSRh1cxKZLZCAWc4xFjorhuW6k
- EMHtZ7wNvYJ1LiHBo1VGWp.R1KEN0BZRhrCFdSIMZS.b9is3Bd52WMOHx2k54qf9P8P.QhmXcLGj
- hutvrNMsA9AEPrAQOuWAmk2MamZWCQPdSNPQ4HdiINQaQ80pBLYAOTkNzV7XVnoK0VwpuEciWHXy
- IBN3IZZT74vs6hFbkk3XMr_psxr2h
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Fri, 15 May 2020 19:10:28 +0000
-Received: by smtp421.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 066eda7e6dd4a51cab867d14eaeb9270;
-          Fri, 15 May 2020 19:10:24 +0000 (UTC)
-Subject: Re: [PATCH] keys: Move permissions checking decisions into the
- checking code
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        David Howells <dhowells@redhat.com>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Paul Moore <paul@paul-moore.com>, keyrings@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <CAEjxPJ6pFdDfm55pv9bT3CV5DTFF9VqzRmG_Xi5bKNxPaGuOLg@mail.gmail.com>
- <158932282880.2885325.2688622278854566047.stgit@warthog.procyon.org.uk>
- <CAEjxPJ4=ZN_jKP2nX5mrMA3OxC8XLsYEmCPCD-78H4XQw=_hCA@mail.gmail.com>
- <3999877.1589475539@warthog.procyon.org.uk>
- <CAEjxPJ5wW2qHYDsqKr5rjnRJ++4f2LXobCQkKZvWCSb_j0WN6w@mail.gmail.com>
- <196730.1589561109@warthog.procyon.org.uk>
- <CAEjxPJ6JGZxF_G63Y7M-CQpmt5Sqp2uFF4oEKS6NpNLZxXhXcA@mail.gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- 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
- abzjfg==
-Message-ID: <1ca402a1-5665-44b8-ef94-9473ebd6a32a@schaufler-ca.com>
-Date:   Fri, 15 May 2020 12:10:24 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726188AbgEOT1d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 15 May 2020 15:27:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53362 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-FAIL-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726144AbgEOT1c (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 15 May 2020 15:27:32 -0400
+Received: from mail-io1-xd42.google.com (mail-io1-xd42.google.com [IPv6:2607:f8b0:4864:20::d42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A63C1C061A0C
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 12:27:32 -0700 (PDT)
+Received: by mail-io1-xd42.google.com with SMTP id y10so3985341iov.4
+        for <selinux@vger.kernel.org>; Fri, 15 May 2020 12:27:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AWoxIZ7Pxk6vfw50Yi3jDfVjR9PgceS0aLVbSL/D4R0=;
+        b=N9KyYhD6dzmKOVHLdnx1Vhu+pFKCfYagQRfDwJ7wGLfmXaFOfzlR7FqvTMVWrmmKIw
+         hsjIm54yl6VNWsb3UDGQnxvetQ9DlSXmgFRHtjNBZ5iQnaoQWPEunc7jlpuo8uKdke4X
+         ufJS2FVNvejkdXSxJzngblt91XRYsYuaNva3cXDk9Jz0R+O+l9biui+wlGPJgrA+qPkE
+         z3A+NdOaqzeDSp9j3sRfkdhrU2D2ItOtkT2xH9oKPiysy43fHL1+G5ydpSz4+wMaxx+G
+         txwDZe40DkdlTwqM2paWcuSVEMTKVgLLi4qK0D9y61C2IEgS4T3OzlixzO4SdZ9eMjDX
+         0o+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AWoxIZ7Pxk6vfw50Yi3jDfVjR9PgceS0aLVbSL/D4R0=;
+        b=YYjsvRxBNckNADMHhxYDJPpIdf0zqI5qOyZFBqB8stVSQXeOmCgBVdklOWAm9tYrw8
+         PkuNKpjPiIPdutjrfP5ResDejtVH0qdyW8FkpuBbGbE592xF5Hb0uJn6UT0ynXpBZmwL
+         neOXIUB8Z6eVzZICrEF7PmyRd/R7aFX4wknd3r9X0XyTy9tYz9aA45w+J1DLMqYcs7lC
+         nWrcxeE6l/SfUcVR1kKrqbOqSfGA7sjTfjBi2IIcPxcN9QGcHlqO1+cbC5apbd/VMKJm
+         o3PCvOuwPe1WlzBrUzNhlHLdGZ91kOYhH6DufN1j1C5q0Jgdg7uuLzUIQ0uwSe5dmD+c
+         75rw==
+X-Gm-Message-State: AOAM532tr5iz3t0V6sS4Oo2TAhEf/xHXtEgDOOqk9+Q80NJi+TN275cr
+        OKpgsHLX8Xy4RgMdZpjxQ5UIrRGDqfjYGashe5k=
+X-Google-Smtp-Source: ABdhPJw9PJr+Oe7yhBz6WCIcra/HoXUuHeGdfGy+UThhfSz65oTc/jKCNzt38FDUDztL4/PoZnF47wQc1Mymb/OJ0lo=
+X-Received: by 2002:a6b:d10f:: with SMTP id l15mr4358296iob.143.1589570851890;
+ Fri, 15 May 2020 12:27:31 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAEjxPJ6JGZxF_G63Y7M-CQpmt5Sqp2uFF4oEKS6NpNLZxXhXcA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-Mailer: WebService/1.1.15941 hermes_yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.6)
+References: <20200515173042.12666-1-william.c.roberts@intel.com>
+ <CAFqZXNtaSV-FHYwZ41Sp8f9eOu=RU6hSR_1Gqxb9LocaQ7BnzA@mail.gmail.com>
+ <CAFftDdqabuGFeP3ugx+UDREZUnhkrjEoPMkuxaLC=H61_J+H+w@mail.gmail.com> <CAEjxPJ5tE2qmPYibzjGcp1pQDESXPG8-kHczDSyZBXen+t0+-A@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5tE2qmPYibzjGcp1pQDESXPG8-kHczDSyZBXen+t0+-A@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Fri, 15 May 2020 14:27:20 -0500
+Message-ID: <CAFftDdopJ_y7YoNG5P00kMu9qx_5NAFpR8aOSJr4J0F=BeZ-Tg@mail.gmail.com>
+Subject: Re: [PATCH] README: add pkg kernel-devel to dnf command
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        "Roberts, William C" <william.c.roberts@intel.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/15/2020 11:55 AM, Stephen Smalley wrote:
-> On Fri, May 15, 2020 at 12:45 PM David Howells <dhowells@redhat.com> wrote:
->> I can go back to the enum patch for the moment if you and Casey can put up
->> with that for the moment?
-> Yes, let's do that.
+On Fri, May 15, 2020 at 1:51 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Fri, May 15, 2020 at 2:11 PM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+> >
+> > On Fri, May 15, 2020 at 12:59 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > >
+> > > On Fri, May 15, 2020 at 7:31 PM <william.c.roberts@intel.com> wrote:
+> > > > From: William Roberts <william.c.roberts@intel.com>
+> > > >
+> > > > The text above states that kernel-devel is needed, but it's missing from
+> > > > the dnf command.
+> > > >
+> > > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> > > > ---
+> > > >  README.md | 3 ++-
+> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > > >
+> > > > diff --git a/README.md b/README.md
+> > > > index 1f7e5d92a100..a73e9cc0c06d 100644
+> > > > --- a/README.md
+> > > > +++ b/README.md
+> > > > @@ -77,7 +77,8 @@ following command:
+> > > >                 kernel-devel \
+> > >
+> > > It's actually right there already ^^
+> >
+> > Yeah that's the foot cannon, I thought I was good, but you need the
+> > specific ones
+> > as Ondrej pointed out to me.
+> >
+> > >
+> > > >                 quota \
+> > > >                 xfsprogs-devel \
+> > > > -               libuuid-devel
+> > > > +               libuuid-devel \
+> > > > +               kernel-devel-$(uname -r)
+> > >
+> > > I proposed adding the -$(uname -r) before, but there were some valid
+> > > counterarguments. See the discussion here:
+> > > https://lore.kernel.org/selinux/CAFqZXNs5jcOOnhzT8=DQgzaf9RtBZ1=oqTU83pjVLMqPb-rzHA@mail.gmail.com/
+> > >
+> >
+> > Arguments for why the dnf command should have it with uname:
+> > 1. We tried to add it twice, it's bit people twice.
+> > 2. The README states "On a modern Fedora system you can install these
+> > dependencies with the following command:"
+> >     - which is wrong, you need the specific package
+> >     - If you're going to provide a "dnf install" or a apt-get install,
+> > it should just work
+> >     - the apt-get example has uname -r in it.
+> >     - so the precludes building your own kernel, if you do that as
+> > Paul stated, you're on your own. (lore comment)
+>
+> I'm ok with adding it.
 
-OK by me.
+Does anyone want to ack this one?
 
+Ok I found another one, kernel-modules-extra is needed for the sctp module.
+
+The tests expect sctp support, should we conditionally skip these if
+sctp is not enabled?
+Whats the best way of checking for that proto if we want this? just an
+ls of /proc/sys/net:
+ls /proc/sys/net/
+bridge  core  ipv4  ipv6  netfilter  nf_conntrack_max  sctp  unix
