@@ -2,60 +2,71 @@ Return-Path: <SRS0=hs+S=7A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1438C433E0
-	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 08:08:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45D0EC433DF
+	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 09:41:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C2735207D4
-	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 08:08:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 209EF20709
+	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 09:41:07 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pX2KAiMp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727822AbgERIIB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 May 2020 04:08:01 -0400
-Received: from mga05.intel.com ([192.55.52.43]:39327 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726489AbgERIIB (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 18 May 2020 04:08:01 -0400
-IronPort-SDR: JCZMkKKJR4Kr23QXcpe8XWVa+tVi59ElZjkFlgzjldeqO2TzY19XQudIL718wDPxFMnJWVCMkT
- MdfhpHrh5dOg==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2020 01:08:00 -0700
-IronPort-SDR: Fxj0lLv4iFb/AfQRyiua2C4SMA0we5GzREgkDRBDWvaBVNhNCHRSeAwkOwGunlQqYRQXxLFkg+
- QPXD6wR9x7Kw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,406,1583222400"; 
-   d="scan'208";a="288485760"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga004.fm.intel.com with ESMTP; 18 May 2020 01:08:00 -0700
-Received: from [10.249.230.167] (abudanko-mobl.ccr.corp.intel.com [10.249.230.167])
-        by linux.intel.com (Postfix) with ESMTP id 638A85803C5;
-        Mon, 18 May 2020 01:07:56 -0700 (PDT)
-Subject: Re: [PATCH v3 0/3] perf: make Perf tool aware of SELinux access
- control
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-To:     Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc:     Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>
-References: <0fffd9e2-1f22-a0c2-c2e3-cb7f4bb89d66@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <a143e9e8-d800-1dc9-ee7b-7125596a1e7e@linux.intel.com>
-Date:   Mon, 18 May 2020 11:07:55 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+        id S1726292AbgERJlG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 May 2020 05:41:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40798 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727040AbgERJlD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 May 2020 05:41:03 -0400
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23733C061A0C
+        for <selinux@vger.kernel.org>; Mon, 18 May 2020 02:41:03 -0700 (PDT)
+Received: by mail-lf1-x130.google.com with SMTP id v5so7413784lfp.13
+        for <selinux@vger.kernel.org>; Mon, 18 May 2020 02:41:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=L9eR6/qNCZCieTXVlJdzSyL6lFbWxYZVkjwTeHZGqZ4=;
+        b=pX2KAiMpxhYbxxrnxWnMCkG0Iz8ruujGwjaUBpiGesXxo1/HcsAnL/Cm4jTAqq8rlz
+         rz/d2gc2zheMSj7/BrN1tJ2NhOWy+loeANNVL3uwfh8TfX6r4NoP8WV7edcsoWTpCidA
+         VD0jcbJ2nFIRNko3YOxwFPTxC5q+dmI5rS+H7Z/nwaj406g3v6YHWNyYp12rCasFtFLq
+         uzIk4WsgXf+lasPD+/mNlDZw14IQiKXeo4euWH2ivBROrw2vO7posyrQ8n2CbgE0qBEg
+         4/PiuXW5gd9F0fNbz1eLL+qrklGCOoH/IYgbmr3+DMp47nKGRqIyR9y+DKf0ZM4sElUf
+         rbuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-language:content-transfer-encoding;
+        bh=L9eR6/qNCZCieTXVlJdzSyL6lFbWxYZVkjwTeHZGqZ4=;
+        b=j28c1SCtxjcMVAUv3vxH39w1P42+jObLz+gz5wcT8hUShD703tcr5e8Uxvp4s3mR32
+         k47qTIWHwWqTqchNk/sAWIT/DkTzpMA1aZrg/LYM/ke9WjmZc8l5A9sGy5iy6cCudwmC
+         i6qG8dGV//a9jPhreWp4CaLIp7LpXTZIsru1uXmoA9QUjhGqDu9hEJVvXPrxOph38onN
+         PQfKyPU2pG2t+LCA2n4JYNY8ij34+4Yj1DoBtClKwXDHaXyXlSISwN/UADMgMf70Qx+f
+         imaYhshzb3cyXio6kpug6TbXtdpA1kBwcRIxdEbXvRr/LYMOwVFsSkMzSKyU5Ea51SjR
+         HqIg==
+X-Gm-Message-State: AOAM530hKX99e6zG3pDs3C5Kl2krSiD/ceLGyw3LfbhJzJyS76wr+FMc
+        CX9akaQBMEqDjE1hIDPPEiAtVr+v
+X-Google-Smtp-Source: ABdhPJy6tk/ew5CIJ47v+x0+c1yD506iCxQjjR9BlAGHDhF0YF/Mk6kP5iWuGAr8UkUV5W0T0V4Tvw==
+X-Received: by 2002:ac2:5685:: with SMTP id 5mr11029469lfr.5.1589794861266;
+        Mon, 18 May 2020 02:41:01 -0700 (PDT)
+Received: from [192.168.1.38] (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
+        by smtp.gmail.com with ESMTPSA id h26sm2196738lja.0.2020.05.18.02.40.59
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 May 2020 02:41:00 -0700 (PDT)
+To:     SElinux list <selinux@vger.kernel.org>
+From:   Topi Miettinen <toiwoton@gmail.com>
+Subject: Semodule accepts bad modules every other time
+Message-ID: <85b4f600-a7f0-f017-0f54-74fe7de73bcc@gmail.com>
+Date:   Mon, 18 May 2020 12:40:58 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <0fffd9e2-1f22-a0c2-c2e3-cb7f4bb89d66@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
@@ -65,50 +76,52 @@ X-Mailing-List: selinux@vger.kernel.org
 
 Hi,
 
-Is there anything else that could be done from my side to move this forward?
+I have a module, which can be compiled without problems but it can still 
+generate errors during load. However, every other time the load succeeds.
 
-Thanks,
-Alexey
+Here's the example:
+# cat foo.te
+module foo 1.0;
 
-On 30.04.2020 10:06, Alexey Budankov wrote:
-> 
-> Changes in v3:
-> - mention "CAP_PERFMON or CAP_SYS_ADMIN" instead of sole CAP_PERFMON or 
->   CAP_SYS_ADMIN capability in the docs and messages to support use case
->   of newer Perf tool on kernel w/o CAP_PERFMON
-> - reverted double new line in "No permission to enable %s event.\n\n"
-> - updated security.txt content with new messages wording
-> 
-> v2: https://lore.kernel.org/lkml/66f2975b-4a69-b428-7dc5-d9aa40b3c673@linux.intel.com/
-> 
-> Changes in v2:
-> - implemented minor doc and code changes to substitute CAP_SYS_ADMIN
->   with CAP_PERFMON capability;
-> - introduced Perf doc file with instructions on how to enable and use
->   perf_event LSM hooks for mandatory access control to perf_event_open()
->   syscall;
-> 
-> v1: https://lore.kernel.org/lkml/b8a0669e-36e4-a0e8-fd35-3dbd890d2170@linux.intel.com/
-> 
-> repo: git://git.kernel.org/pub/scm/linux/kernel/git/acme/linux.git perf/core
-> sha1: ee097e8ee56f8867cbbf45fe2a06f6b9e660c39c
-> 
-> 
-> Extend Perf tool with the check of /sys/fs/selinux/enforce value and notify 
-> in case access to perf_event_open() syscall is restricted by the enforced 
-> SELinux policy settings. See new added security.txt file for exact steps
-> how the changes look like and how to test the patch set.
-> 
-> ---
-> Alexey Budankov (3):
->   perf docs: extend CAP_SYS_ADMIN with CAP_PERFMON where needed
->   perf tool: make Perf tool aware of SELinux access control
->   perf docs: introduce security.txt file to document related issues
-> 
->  tools/perf/Documentation/perf-intel-pt.txt |   2 +-
->  tools/perf/Documentation/security.txt      | 237 +++++++++++++++++++++
->  tools/perf/util/cloexec.c                  |   4 +-
->  tools/perf/util/evsel.c                    |  39 ++--
->  4 files changed, 264 insertions(+), 18 deletions(-)
->  create mode 100644 tools/perf/Documentation/security.txt
-> 
+type file_type;
+
+require {
+         type user_t; # dummy require statement to keep checkmodule happy
+}
+# make
+Compiling default foo module
+Creating default foo.pp policy package
+rm tmp/foo.mod.fc tmp/foo.mod
+# make QUIET=n load
+Loading default modules: foo
+/usr/sbin/semodule -i foo.pp
+Re-declaration of type file_type
+Failed to create node
+Bad type declaration at /var/lib/selinux/default/tmp/modules/400/foo/cil:1
+/usr/sbin/semodule:  Failed!
+make: *** [/usr/share/selinux/devel/include/Makefile:148: tmp/loaded] 
+Error 1
+# make QUIET=n load
+Loading default modules: foo
+/usr/sbin/semodule -i foo.pp
+(no error)
+
+Running semodule directly:
+# semodule -i foo.pp
+Re-declaration of type file_type
+Failed to create node
+Bad type declaration at /var/lib/selinux/default/tmp/modules/400/foo/cil:1
+semodule:  Failed!
+# semodule -i foo.pp
+# semodule -i foo.pp
+Re-declaration of type file_type
+Failed to create node
+Bad type declaration at /var/lib/selinux/default/tmp/modules/400/foo/cil:1
+semodule:  Failed!
+# semodule -i foo.pp
+
+Maybe the failing transaction is not reverted properly and then the 
+failed module changes the system somehow? Some problem with detecting 
+redeclarations?
+
+-Topi
