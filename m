@@ -2,127 +2,326 @@ Return-Path: <SRS0=hs+S=7A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A273C433E1
-	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 12:38:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D59FC433DF
+	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 12:52:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 62F5220674
-	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 12:38:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2ED3A20787
+	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 12:52:53 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M4vA89BK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726855AbgERMix (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 May 2020 08:38:53 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:22500 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726739AbgERMiw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 May 2020 08:38:52 -0400
-Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 04ICX7lY088693;
-        Mon, 18 May 2020 08:37:52 -0400
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31292e4yye-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 May 2020 08:37:51 -0400
-Received: from m0098393.ppops.net (m0098393.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 04ICYhbj094964;
-        Mon, 18 May 2020 08:37:51 -0400
-Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com [149.81.74.107])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 31292e4yx8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 May 2020 08:37:50 -0400
-Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
-        by ppma03fra.de.ibm.com (8.16.0.27/8.16.0.27) with SMTP id 04ICa50C017752;
-        Mon, 18 May 2020 12:37:48 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma03fra.de.ibm.com with ESMTP id 3127t5hnhx-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 18 May 2020 12:37:48 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 04ICbjrD24838244
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 18 May 2020 12:37:45 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6BD284C059;
-        Mon, 18 May 2020 12:37:45 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9F7144C04E;
-        Mon, 18 May 2020 12:37:42 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.85.145.145])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 18 May 2020 12:37:42 +0000 (GMT)
-Message-ID: <1589805462.5111.107.camel@linux.ibm.com>
-Subject: Re: [PATCH 0/3] fs: reduce export usage of kerne_read*() calls
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Christoph Hellwig <hch@infradead.org>,
-        Luis Chamberlain <mcgrof@kernel.org>
-Cc:     viro@zeniv.linux.org.uk, gregkh@linuxfoundation.org,
-        rafael@kernel.org, ebiederm@xmission.com, jeyu@kernel.org,
-        jmorris@namei.org, keescook@chromium.org, paul@paul-moore.com,
-        stephen.smalley.work@gmail.com, eparis@parisplace.org,
-        nayna@linux.ibm.com, scott.branden@broadcom.com,
-        dan.carpenter@oracle.com, skhan@linuxfoundation.org,
-        geert@linux-m68k.org, tglx@linutronix.de, bauerman@linux.ibm.com,
-        dhowells@redhat.com, linux-integrity@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, kexec@lists.infradead.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Date:   Mon, 18 May 2020 08:37:42 -0400
-In-Reply-To: <20200518062255.GB15641@infradead.org>
-References: <20200513152108.25669-1-mcgrof@kernel.org>
-         <20200513181736.GA24342@infradead.org>
-         <20200515212933.GD11244@42.do-not-panic.com>
-         <20200518062255.GB15641@infradead.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.216,18.0.676
- definitions=2020-05-18_05:2020-05-15,2020-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 clxscore=1011
- lowpriorityscore=0 adultscore=0 impostorscore=0 bulkscore=0
- priorityscore=1501 mlxlogscore=999 mlxscore=0 suspectscore=0 spamscore=0
- malwarescore=0 cotscore=-2147483648 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2004280000 definitions=main-2005180114
+        id S1726726AbgERMww (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 May 2020 08:52:52 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:44460 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726709AbgERMww (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 May 2020 08:52:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589806369;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type;
+        bh=rDrmn5c6Nk6merfFZrNp7Uks0OVdcvOdjZd6qtDjed8=;
+        b=M4vA89BKXYgsQ0UiOr80GQNnYVj34GkzvXudM4VNWM3mBuWKghNHNYed6L053A0G76QCo2
+        6zIjvRpRtgxtQEy71matcTkkZIj/tHxUawxq8kNs3+iDaytZTos2datmaNkbHqlIR4K6Ru
+        MEK/Di2DInw/XR95wEpo8Rf+TAsuiSg=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-78-8rLBwNP_N7qn0D7cgBjidA-1; Mon, 18 May 2020 08:52:42 -0400
+X-MC-Unique: 8rLBwNP_N7qn0D7cgBjidA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C3C68107B7D1
+        for <selinux@vger.kernel.org>; Mon, 18 May 2020 12:52:41 +0000 (UTC)
+Received: from workstation (unknown [10.40.193.130])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 038A460C05
+        for <selinux@vger.kernel.org>; Mon, 18 May 2020 12:52:40 +0000 (UTC)
+Date:   Mon, 18 May 2020 14:52:37 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: ANN: SELinux userspace 3.1-rc1 release candidate
+Message-ID: <20200518125237.GD309708@workstation>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="wLAMOaPNJ0fu1fTG"
+Content-Disposition: inline
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Christoph,
 
-On Sun, 2020-05-17 at 23:22 -0700, Christoph Hellwig wrote:
-> On Fri, May 15, 2020 at 09:29:33PM +0000, Luis Chamberlain wrote:
-> > On Wed, May 13, 2020 at 11:17:36AM -0700, Christoph Hellwig wrote:
-> > > Can you also move kernel_read_* out of fs.h?  That header gets pulled
-> > > in just about everywhere and doesn't really need function not related
-> > > to the general fs interface.
-> > 
-> > Sure, where should I dump these?
-> 
-> Maybe a new linux/kernel_read_file.h?  Bonus points for a small top
-> of the file comment explaining the point of the interface, which I
-> still don't get :)
+--wLAMOaPNJ0fu1fTG
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Instead of rolling your own method of having the kernel read a file,
-which requires call specific security hooks, this interface provides a
-single generic set of pre and post security hooks.  The
-kernel_read_file_id enumeration permits the security hook to
-differentiate between callers.
+Hello,
 
-To comply with secure and trusted boot concepts, a file cannot be
-accessible to the caller until after it has been measured and/or the
-integrity (hash/signature) appraised.
+A 3.1-rc1 release candidate for the SELinux userspace is now=20
+available at:
 
-In some cases, the file was previously read twice, first to measure
-and/or appraise the file and then read again into a buffer for
-use.  This interface reads the file into a buffer once, calls the
-generic post security hook, before providing the buffer to the caller.
- (Note using firmware pre-allocated memory might be an issue.)
+https://github.com/SELinuxProject/selinux/wiki/Releases
 
-Partial reading firmware will result in needing to pre-read the entire
-file, most likely on the security pre hook.
+Please give it a test and let us know if there are any issues.
 
-Mimi
+If there are specific changes that you think should be called out=20
+in release notes for packagers and users in the final release
+announcement, let us know.=20
+
+Thanks to all the contributors to this release candidate!
+
+
+User-visible changes:
+
+* selinux/flask.h and selinux/av_permissions.h were removed
+
+  The flask.h and av_permissions.h header files were deprecated and
+  all selinux userspace references to them were removed in
+  commit 76913d8adb61b5 ("Deprecate use of flask.h and av_permissions.h.")
+  back in 2014 and included in the 20150202 / 2.4 release.
+  All userspace object managers should have been updated
+  to use the dynamic class/perm mapping support since that time.
+  Remove these headers finally to ensure that no users remain and
+  that no future uses are ever introduced.
+
+  Use string_to_security_class(3) and string_to_av_perm(3) to map the class=
+ and
+  permission names to their policy values, or selinux_set_mapping(3) to cre=
+ate a
+  mapping from class and permission index values used by the application to=
+ the
+  policy values.
+
+* Support for new polcap genfs_seclabel_symlinks
+
+* New `setfiles -E` option - treat conflicting specifications as errors, su=
+ch
+as where two hardlinks for the same inode have different contexts.
+
+* `restorecond_user.service` - new systemd user service which runs `restore=
+cond -u`
+
+* `setsebool -V` reports errors from commit phase
+
+* Improved man pages
+
+* `semanage` uses ipaddress Python module instead of IPy
+
+* matchpathcon related interfaces are deprecated
+
+* selinuxfs is mounted with noexec and nosuid
+
+* Improved README which was renamed to README.md and converted to markdown.
+
+* `setup.py` builds can be customized using PYTHON_SETUP_ARGS, e.g. to for
+  Debian Python layout use: `make PYTHON_SETUP_ARGS=3D--install-layout=3Dde=
+b ...`
+
+
+Issues fixed:
+
+* https://github.com/SELinuxProject/selinux/issues/239
+* https://github.com/SELinuxProject/selinux/issues/237
+* https://github.com/SELinuxProject/selinux/issues/225
+* https://github.com/SELinuxProject/selinux/issues/217
+* https://github.com/SELinuxProject/selinux/issues/204
+* https://github.com/SELinuxProject/selinux/issues/187
+* https://github.com/SELinuxProject/selinux/issues/179
+* https://github.com/SELinuxProject/selinux/issues/164
+* https://github.com/SELinuxProject/selinux/issues/70
+* https://github.com/SELinuxProject/selinux/issues/28
+
+A shortlog of changes since the 3.0 release:
+
+Adam Duskett (1):
+      Fix building against musl and uClibc libc libraries.
+
+Chris PeBenito (2):
+      libselinux: Add selinux_restorecon option to treat conflicting specif=
+ications as an error.
+      setfiles: Add -E option to treat conflicting specifications as errors.
+
+Christian G=F6ttsche (10):
+      libsepol: add support for new polcap genfs_seclabel_symlinks
+      libselinux: drop error return from is_selinux_enabled documentation
+      libsepol: set correct second argument of (t1 =3D=3D t2) constraint
+      checkpolicy: add missing forward declaration
+      tree-wide: replace last occurrences of security_context_t
+      tree-wide: use python module importlib instead of the deprecated imp
+      libsemanage: clarify handle-unknown configuration setting in man page
+      semodule: mention ignoredirs setting in genhomedircon man page
+      libselinux: mark security_context_t typedef as deprecated
+      tree-wide: introduce PYTHON_SETUP_ARGS to customize setup.py calls on=
+ Debian
+
+Daniel Burgener (2):
+      checkpolicy: Treat invalid characters as an error
+      checkpolicy: Add --werror flag to checkmodule and checkpolicy to trea=
+t warnings as errors.
+
+Dominick Grift (1):
+      mcstrans: start early and stop late
+
+James Carter (6):
+      libsepol/cil: Fix bug in cil_copy_avrule() in extended permission han=
+dling
+      libsepol/cil: Rewrite verification of map classes and classpermission=
+sets
+      libsepol: Create the macro ebitmap_is_empty() and use it where needed
+      libsepol/cil: Check if name is a macro parameter first
+      libsepol/cil: Do not check flavor when checking for duplicate paramet=
+ers
+      Revert "libsepol/cil: raise default attrs_expand_size to 2"
+
+Joshua Schmidlkofer (1):
+      python/semanage: check variable type of port before trying to split
+
+Mikhail Novosyolov (1):
+      libselinux: Fix Ru translation of failsafe context
+
+Nick Kralevich (1):
+      label_file.c: Fix MAC build
+
+Nicolas Iooss (16):
+      libsepol: make ebitmap_cardinality() of linear complexity
+      libselinux: add missing glue code to grab errno in Python bindings
+      libselinux: copy the reason why selinux_status_open() returns 1
+      libselinux: make context_*_set() return -1 when an error occurs
+      libselinux/utils: remove unneeded variable in Makefile
+      libselinux,libsemanage: remove double blank lines
+      python/semanage: check rc after getting it
+      restorecond: migrate to GDbus API provided by glib-gio
+      restorecond: add systemd user service
+      restorecond/user: handle SIGTERM properly
+      libsepol/tests: drop ncurses dependency
+      README: add much useful information
+      scripts/env_use_destdir: fix Fedora support
+      scripts/env_use_destdir: propagate PREFIX, LIBDIR, BINDIR, etc.
+      Travis-CI: upgrade to Ubuntu 18.04 and latest releases of Python and =
+Ruby
+      python/sepolicy: silence new flake8 warnings
+
+Ondrej Mosnacek (16):
+      libsepol: fix CIL_KEY_* build errors with -fno-common
+      libsepol: remove leftovers of cil_mem_error_handler
+      checkpolicy: remove unused te_assertions
+      Makefile: always build with -fno-common
+      libsemanage: preserve parent Makefile's flags in debug mode
+      Travis-CI: test that DEBUG build works
+      libsepol/cil: remove unnecessary hash tables
+      libsepol: cache ebitmap cardinality value
+      libsepol, newrole: remove unused hashtab functions
+      libsepol: grow hashtab dynamically
+      Revert "libsepol: cache ebitmap cardinality value"
+      libsepol/cil: raise default attrs_expand_size to 2
+      secilc: add basic test for policy optimization
+      libsepol: skip unnecessary check in build_type_map()
+      libsepol: optimize inner loop in build_type_map()
+      libsepol: speed up policy optimization
+
+Petr Lautrbach (9):
+      libselinux: Eliminate use of security_compute_user()
+      Convert README to README.md
+      python/semanage: Use ipaddress module instead of IPy
+      restorecond: Rename restorecond-user.service to restorecond_user.serv=
+ice
+      restorecond: Use pkg-config to get locations for systemd units
+      semanage/test-semanage.py: Return non-zero value when some of unittes=
+t tests fail
+      run-flake8: Filter out ./.git/ directory
+      secilc: Fix policy optimization test
+      Update VERSIONs to 3.1-rc1 for release.
+
+Richard Filo (1):
+      libselinux: Add missing errno setup
+
+Stephen Smalley (8):
+      libselinux: remove flask.h and av_permissions.h
+      libselinux: update man pages for userspace policy enforcers
+      libselinux: export flush_class_cache(), call it on policyload
+      libsepol,checkpolicy: support omitting unused initial sid contexts
+      libselinux: deprecate security_compute_user(), update man pages
+      libsepol,checkpolicy: remove use of hardcoded security class values
+      libsemanage: fsync final files before rename
+      libsepol: drop broken warning on duplicate filename transitions
+
+Topi Miettinen (4):
+      setsebool: report errors from commit phase
+      libselinux: mount selinuxfs noexec and nosuid
+      sepolicy-gui: fix columns in transitions view
+      sepolicy: fix some typos and port definitions
+
+William Roberts (34):
+      dso: drop hidden_proto and hidden_def
+      Makefile: add -fno-semantic-interposition
+      Makefile: add linker script to minimize exports
+      libselinux: drop symbols from map
+      libsepol/dso: drop hidden_proto and hidden_def
+      libsepol/Makefile: add -fno-semantic-interposition
+      libsepol: remove wild cards in mapfile
+      cil: drop remaining dso.h include
+      libsemanage: drop hidden
+      libsemanage/Makefile: add -fno-semantic-interposition
+      libsemanage: update linker script
+      libsemanage: cleanup linker map file
+      cil: rm dead dso.h file
+      cil: re-enable DISABLE_SYMVER define
+      libsemanage: fix linker script symbol versions
+      libsemanage: rm semanage_module_upgrade_info from map
+      security_load_booleans: update return comment
+      security_load_booleans: annotate deprecated
+      selinux_booleans_path: annotate deprecated
+      selinux_users_path: annotate deprecated
+      rpm_execcon: annotate deprecated
+      sidget: annotate deprecated
+      sidput: annotate deprecated
+      checkPasswdAccess: annotate deprecated
+      matchpathcon_init: annotate deprecated
+      matchpathcon_fini: annotate deprecated
+      matchpathcon: annotate deprecated
+      avc_init: annotate deprecated
+      avc: create internal avc_init interface
+      matchpathcon: create internal matchpathcon_fini interface
+      selinux_check_passwd_access: annotate deprecated
+      matchpathcon: allow use of deprecated routines
+      utils: matchpathcon add deprecated warning
+      Makefile: swig build allow deprecated functions
+
+bauen1 (1):
+      mcstransd: fix memory leak in new_context_str
+
+
+
+--=20
+()  ascii ribbon campaign - against html e-mail=20
+/\  www.asciiribbon.org   - against proprietary attachments
+
+--wLAMOaPNJ0fu1fTG
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl7ChQ4ACgkQviIJHj72
+InUWeg/+In3a85YMksBwMBGo5XOJVr+m5qIX8/79tb7GSJ2rxruuTF3Qt1B460Xy
+WSvDahAOjP1pwBMywTFdWUFTcrUIrj4DWD7ADT+84dj6z8PkwkqIgytVDm0/FQYJ
+MNGKLgHOL+djtgaRiOMmgIcUQGzhJlAH2QMVqEevjNwSE0+y666J2CsFwSmX0Etb
+eziFNzR+j44L8tEaUUHmsXbvNjm3fBaU2NlHKJq4uYhDFRWNt81TuaBCQsw2LZyV
+60oiBQSk+9AougwSOcT9uP8ZVukVHu0NfZf9gWD3nBuQnJB8E1NF5LuN8ZiH5v9p
+lJFhU0rAs13NGD71IhdpKlv/pMTPuFvFih06QG38WNBc0+UvWh2k08g2/WpZav7L
+izaxmq6oyNZ33UcLM+TSlKFhDKyiZEJLR2p7X3AG/Ws+xf2EdJroaqf4XYMLsGjO
+XZxEHc6VgZmrXkrPe5STyR4nKqR6dHnfw2Pj5rni3QffuYXCt9vSGeff3cRpzKjV
+VaSn01N/igRzENhEqIfGnzQ/0AsLh4Tzu5hXKGNLTKLf/Y6aU4242FF0TtY3Rk/X
+W9HdWrk/r3+ONf4o4lQ018n7E362J3mytNBh5M8ETMRfYAVJBOucR4hY6b+GwUpc
+xzzPqeAY0C5qpsxrKIkyLcQzgs/S1qQ4EvZxyKOkBVVD6jM+8YQ=
+=eJBi
+-----END PGP SIGNATURE-----
+
+--wLAMOaPNJ0fu1fTG--
+
