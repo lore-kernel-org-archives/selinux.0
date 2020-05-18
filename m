@@ -1,87 +1,78 @@
-Return-Path: <SRS0=Vz70=67=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=hs+S=7A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_INVALID,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E914C433E0
-	for <selinux@archiver.kernel.org>; Sun, 17 May 2020 21:59:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F261DC433E1
+	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 06:23:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 07AEB20735
-	for <selinux@archiver.kernel.org>; Sun, 17 May 2020 21:59:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C6C232070A
+	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 06:23:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="b9W1j74R"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="fYuqdYV2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726591AbgEQV7a (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 17 May 2020 17:59:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44792 "EHLO
+        id S1726395AbgERGX3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 May 2020 02:23:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726299AbgEQV7a (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 17 May 2020 17:59:30 -0400
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04CA8C061A0C
-        for <selinux@vger.kernel.org>; Sun, 17 May 2020 14:59:29 -0700 (PDT)
-Received: by mail-ed1-x531.google.com with SMTP id bs4so6836204edb.6
-        for <selinux@vger.kernel.org>; Sun, 17 May 2020 14:59:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ROlRoqEJS/m8nAAsZexBrkdo4BzRRx2EAs6qFgCMo+c=;
-        b=b9W1j74Rsdc6gmyBfvY9Lv4/KXqgkkhEwdf7NsL3ccSkCdVUhuo/wUN6hQ3WH5msc+
-         pyrYocZorNEmhf3+z0Cw5pzvARQnKqR8d9GPJTmFOgYccvrG9gMCkpoaZROlCTAbuT3x
-         P0sEzneeCjBFUScaYI6/Qpx4KR/O+izx2MkGI5byad7/CPiBRf2L6uMx3ZoiNw/l6c9e
-         lU13BA7ddXoewQstEm4ykPw8/n3fyZ3R3bIBBjPYY96lc6olgl1TUQNOYIPLOEuFJrM0
-         6uvwy+9YD6VC0AJTcpZbGpji3toE+hV1o6CLqMQ9iKjCwmdJIgC+uQK+rFPbpCV/FVlk
-         QTpw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ROlRoqEJS/m8nAAsZexBrkdo4BzRRx2EAs6qFgCMo+c=;
-        b=eF7T/fS1mr5JxMd1rFpz9x/sQk7FFKhVVdREz3tiY2/GDrx5FWGRaM8YMQ9fQ1S52V
-         cxayZDsOJ0lWHzWYR+oqp212Dv9/OMtB05ytqciTjo/8oYRRzXdMKsvfA/Qe1qE8RM4h
-         H5rvh7Q6k9lKFE3gXAvi18WxUbgCI4Jwgvl3YUuAHhMX0Djpa6e3ZnvRICFksw1PcpdZ
-         8ljK1BagdWhFd+D3OSvgFgyJ126GhFP8lsd36s8rXDO1J+1eVxEf8ih3Ri2cXtjd5h2i
-         EQElvnikheJCJIBsMZ4/tq4DMDhPXwZgqZE5MWzWHWGy4y9dIvyIKJ6RW3tPtxaBGDZ5
-         NSYQ==
-X-Gm-Message-State: AOAM531Qa8myA6uLdDY/kIogXspGzQugPLt1bClj4TPn/44BK/h2jXda
-        dFRZuxnHJXAdTSzM8hhGE97LWbhKZEN9YvrdpMNr7KQ=
-X-Google-Smtp-Source: ABdhPJzQRIdqjSJXqWnaU8cfNmfwUnDiu6cKBlnPDZeyT7uuP9rMjRuIlyQ0Qg7F6tCBs8QWf+gjDsm5JiNOfL2TyiA=
-X-Received: by 2002:a05:6402:14d3:: with SMTP id f19mr2467545edx.135.1589752767582;
- Sun, 17 May 2020 14:59:27 -0700 (PDT)
+        with ESMTP id S1726040AbgERGX3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 May 2020 02:23:29 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:e::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73642C061A0C;
+        Sun, 17 May 2020 23:23:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=zmDenp7FJVk0qEChp/8vOq7H+ikcbyONDjlE6Bfir70=; b=fYuqdYV2oiyyyrVbKTLbjx1UWv
+        6tceZf+hdlXvdYXsekdp03s0X2HYCv6BzfcWLaNBp9BvBCGT08fE7jAaEcfqQGqwcF7JHvrSDjYmi
+        CyWC7NJeVFWYHyjqhYMhpZwQJaivcFmmM4s246+D+E2m4CXL+uDaH9sFImidOsWY1N7/HcELSuRPF
+        zcVkz6Ny5AQibizOahgP9UEpvVJBXt3uP5WziTcrmnA5XAZCZmYSd3Ad6AqB30V9q3CKq2zX6odX9
+        vHJl44a74vCpHCmPJkp9zpCIXla7LRLd5vj1c8R00oWcllxcNzpke+V/N4oNOJmswnrh0w2sE0E3x
+        QJ4Cvsbw==;
+Received: from hch by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
+        id 1jaZAt-0007LB-Ns; Mon, 18 May 2020 06:22:55 +0000
+Date:   Sun, 17 May 2020 23:22:55 -0700
+From:   Christoph Hellwig <hch@infradead.org>
+To:     Luis Chamberlain <mcgrof@kernel.org>
+Cc:     Christoph Hellwig <hch@infradead.org>, viro@zeniv.linux.org.uk,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        ebiederm@xmission.com, jeyu@kernel.org, jmorris@namei.org,
+        keescook@chromium.org, paul@paul-moore.com,
+        stephen.smalley.work@gmail.com, eparis@parisplace.org,
+        nayna@linux.ibm.com, zohar@linux.ibm.com,
+        scott.branden@broadcom.com, dan.carpenter@oracle.com,
+        skhan@linuxfoundation.org, geert@linux-m68k.org,
+        tglx@linutronix.de, bauerman@linux.ibm.com, dhowells@redhat.com,
+        linux-integrity@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        kexec@lists.infradead.org, linux-security-module@vger.kernel.org,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] fs: reduce export usage of kerne_read*() calls
+Message-ID: <20200518062255.GB15641@infradead.org>
+References: <20200513152108.25669-1-mcgrof@kernel.org>
+ <20200513181736.GA24342@infradead.org>
+ <20200515212933.GD11244@42.do-not-panic.com>
 MIME-Version: 1.0
-References: <CAGeouKH0MWHVmo-dFxzn4LViwGNLUoYnYYm6HrKzL5XgfMhd4w@mail.gmail.com>
- <55ef0d617fa84d72f142ec0fa6492e5c5e1b1e2b.camel@btinternet.com>
-In-Reply-To: <55ef0d617fa84d72f142ec0fa6492e5c5e1b1e2b.camel@btinternet.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Sun, 17 May 2020 17:59:16 -0400
-Message-ID: <CAHC9VhQ5f_h_H=CyunX2tKbCgHP8o2Jp4dyMLzX0t9XkG8TPgQ@mail.gmail.com>
-Subject: Re: Bad context in PostgreSQL page on SELinux Project wiki?
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     Peter Whittaker <pww@edgekeep.com>, selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200515212933.GD11244@42.do-not-panic.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, May 17, 2020 at 7:17 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> I update the notebook occasionally to keep track of changes for my own
-> reference, but currently have no plans to publish a new one. If you do
-> have comments I'm happy to take them onboard, however no guarantees to
-> publish.
+On Fri, May 15, 2020 at 09:29:33PM +0000, Luis Chamberlain wrote:
+> On Wed, May 13, 2020 at 11:17:36AM -0700, Christoph Hellwig wrote:
+> > Can you also move kernel_read_* out of fs.h?  That header gets pulled
+> > in just about everywhere and doesn't really need function not related
+> > to the general fs interface.
+> 
+> Sure, where should I dump these?
 
-I just wanted to say thank you once again for all your work on the
-notebook, it's a great resource!
-
-I understand not wanting to go through the process of generating new
-editions of the notebook, but is the source material posted somewhere
-online so that people who wanted an updated copy could access it?
-
--- 
-paul moore
-www.paul-moore.com
+Maybe a new linux/kernel_read_file.h?  Bonus points for a small top
+of the file comment explaining the point of the interface, which I
+still don't get :)
