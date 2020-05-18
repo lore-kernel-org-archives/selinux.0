@@ -2,94 +2,156 @@ Return-Path: <SRS0=hs+S=7A=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6131C433DF
-	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 16:50:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6614DC433E2
+	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 17:02:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3F2D20758
-	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 16:50:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 45EBC20758
+	for <selinux@archiver.kernel.org>; Mon, 18 May 2020 17:02:37 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BSDO4CJw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728248AbgERQu0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 May 2020 12:50:26 -0400
-Received: from mga07.intel.com ([134.134.136.100]:60500 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727777AbgERQu0 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 18 May 2020 12:50:26 -0400
-IronPort-SDR: RZpLFjnY4CF4vMfRF6x7TFa7Q03Vg439eJhOAmWT03yDGZPXQ6MKN+0li1Jz3mQHGrQpW5Kj4d
- rIwfpMkMAaTQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2020 09:50:25 -0700
-IronPort-SDR: yDZWrORbas6Bbf4P2PnX4MI8kWYYm/LATS1XSpSx+GN75BymvQatXfWkkJ0b6XUvND943g8Zad
- odhH+TmIUu6w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,407,1583222400"; 
-   d="scan'208";a="253111534"
-Received: from linux.intel.com ([10.54.29.200])
-  by fmsmga007.fm.intel.com with ESMTP; 18 May 2020 09:50:24 -0700
-Received: from [10.249.230.167] (abudanko-mobl.ccr.corp.intel.com [10.249.230.167])
-        by linux.intel.com (Postfix) with ESMTP id 3F9BF580100;
-        Mon, 18 May 2020 09:50:22 -0700 (PDT)
-Subject: Re: [PATCH v3 3/3] perf docs: introduce security.txt file to document
- related issues
-To:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-Cc:     Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>
-References: <0fffd9e2-1f22-a0c2-c2e3-cb7f4bb89d66@linux.intel.com>
- <290ded0a-c422-3749-5180-918fed1ee30f@linux.intel.com>
- <20200518155936.GG24211@kernel.org>
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <1f6eb4c7-dec1-355c-024e-8405f4ef7f3e@linux.intel.com>
-Date:   Mon, 18 May 2020 19:50:21 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1727040AbgERRCf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 May 2020 13:02:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53660 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727020AbgERRCe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 May 2020 13:02:34 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE617C061A0C;
+        Mon, 18 May 2020 10:02:34 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id y85so4811198oie.11;
+        Mon, 18 May 2020 10:02:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=9exVgl+yKCZr1tkPCgpnPxs0p9K6C95pMaN9BrP8zH8=;
+        b=BSDO4CJwBIRAoYw0Kd+SjN6/cVpxRcv/XdaSSDOCZHBnxRBPQyXi2yaHVWwTtlD7ds
+         smhxpOG+e9WsPsg482J7fTQQN3BfG8IC748W+85mhSFMr+eX8u8/mm0iYczp9b8wmIXH
+         qQzrqXbS2OxudNtmGAIA6PrqrGGalecjvFJV2jNlRM9DNvWo64zL69O6lgIG4e8poJ5+
+         BpiVtXV8gM/NBx2h99cm6Jc020sLwVHap5Eg/IuHJ/I+WpzSzuvONP5ICVDcrKQ77nRV
+         ZACbI8LjrLOv4lMR1DOjUjqyZ2Gw5eKmbG+cSylrxuwytuHJH8n8vIGGZH+M2xhy0bRR
+         25aA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9exVgl+yKCZr1tkPCgpnPxs0p9K6C95pMaN9BrP8zH8=;
+        b=hnsJJ1f+1a/HWK+C76QzjE7/GZ3qcTn0S4HsSudCbSJ8CO80ph62qg+hf7ZVDv99Vw
+         yzhwiTqMZA7gfknjswLWmHtU/gjKR7dx2Nu7+tCbVZi4lRN5Lv55h8xKeUjZVT6BS/y6
+         Rqpb7RMWK4Wpw7CJaOPyOku7vLttnyTGAwk4JYYQrR5sE5HzcJu9rU32/8SvRhLVSvMr
+         KDcTgUUVHi3dduqBO9N9vLMwAv59ZlcThqiTMFRuUt78OU4+tetEOEpbP6+PVRqcO+pY
+         t2InDkyWbhq/ff6v1Wq7eA4e9bG3hwEPUVAi+D2dAaBHx4tRLQ55LgX5rPgiGMWc/T/g
+         MAqw==
+X-Gm-Message-State: AOAM5322eMqquCazagvQ9jKv2DfaEDa3YtJRN0zSC7aalxe58CLjjRDn
+        LnriwqUzNTYnE6ZhG6KIIls0WxNPkXVQezR+W8M=
+X-Google-Smtp-Source: ABdhPJwfjTtgqyziB52cLco6fOXcRdE8uujfq2i2bN5yyuccJjmBue8kz3CSue987iYNnfKfdoVQsTaIMPrkzfidln0=
+X-Received: by 2002:aca:a948:: with SMTP id s69mr256645oie.140.1589821354147;
+ Mon, 18 May 2020 10:02:34 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200518155936.GG24211@kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200514221142.11857-1-casey@schaufler-ca.com> <20200514221142.11857-6-casey@schaufler-ca.com>
+In-Reply-To: <20200514221142.11857-6-casey@schaufler-ca.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 18 May 2020 13:02:23 -0400
+Message-ID: <CAEjxPJ4TExFpm0KJSodLSEG0J+YNYBE4KdKyd=1g-Qs-qgPHpA@mail.gmail.com>
+Subject: Re: [PATCH v17 05/23] net: Prepare UDS for security module stacking
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        John Johansen <john.johansen@canonical.com>,
+        penguin-kernel@i-love.sakura.ne.jp,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, linux-audit@redhat.com,
+        netdev@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Thu, May 14, 2020 at 7:25 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+> Change the data used in UDS SO_PEERSEC processing from a
+> secid to a more general struct lsmblob. Update the
+> security_socket_getpeersec_dgram() interface to use the
+> lsmblob. There is a small amount of scaffolding code
+> that will come out when the security_secid_to_secctx()
+> code is brought in line with the lsmblob.
+>
+> The secid field of the unix_skb_parms structure has been
+> replaced with a pointer to an lsmblob structure, and the
+> lsmblob is allocated as needed. This is similar to how the
+> list of passed files is managed. While an lsmblob structure
+> will fit in the available space today, there is no guarantee
+> that the addition of other data to the unix_skb_parms or
+> support for additional security modules wouldn't exceed what
+> is available.
 
-On 18.05.2020 18:59, Arnaldo Carvalho de Melo wrote:
-> Em Thu, Apr 30, 2020 at 10:16:34AM +0300, Alexey Budankov escreveu:
->>
->> Publish instructions on how to apply LSM hooks for access control
->> to perf_event_open() syscall on Fedora distro with Targeted SELinux
->> policy and then manage access to the syscall.
-> 
-> I'm fixing these up:
-> 
-> [acme@five perf]$ am /wb/1.patch
-> Applying: perf docs: introduce security.txt file to document related issues
-> .git/rebase-apply/patch:46: space before tab in indent.
->  	wake_alarm
-> .git/rebase-apply/patch:47: space before tab in indent.
->  	block_suspend
-> .git/rebase-apply/patch:48: space before tab in indent.
->  	audit_read
-> .git/rebase-apply/patch:51: trailing whitespace.
-> 
-> .git/rebase-apply/patch:54: trailing whitespace.
+I preferred the previous approach (in v15 and earlier) but I see that
+this was suggested by Paul.  Lifecycle management of lsmdata seems
+rather tenuous. I guess the real question is what does netdev prefer.
+Regardless, you need to check for memory allocation failure below if
+this approach stands.
 
-This is output of diff utility.
-Hopefully it is still applicable after fixes.
-I will test this either jointly with the changes at 2/3.
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> cc: netdev@vger.kernel.org
+> ---
 
-Thanks,
-Alexey
+> diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+> index 3385a7a0b231..a5c1a029095d 100644
+> --- a/net/unix/af_unix.c
+> +++ b/net/unix/af_unix.c
+> @@ -138,17 +138,18 @@ static struct hlist_head *unix_sockets_unbound(void *addr)
+>  #ifdef CONFIG_SECURITY_NETWORK
+>  static void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -       UNIXCB(skb).secid = scm->secid;
+> +       UNIXCB(skb).lsmdata = kmemdup(&scm->lsmblob, sizeof(scm->lsmblob),
+> +                                     GFP_KERNEL);
+>  }
+
+Somewhere you need to check for and handle kmemdup() failure here.
+
+>
+>  static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -       scm->secid = UNIXCB(skb).secid;
+> +       scm->lsmblob = *(UNIXCB(skb).lsmdata);
+>  }
+
+Lest we have a bad day here.
+
+>
+>  static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -       return (scm->secid == UNIXCB(skb).secid);
+> +       return lsmblob_equal(&scm->lsmblob, UNIXCB(skb).lsmdata);
+>  }
+
+Or here.
+
+> diff --git a/net/unix/scm.c b/net/unix/scm.c
+> index 8c40f2b32392..3094323935a4 100644
+> --- a/net/unix/scm.c
+> +++ b/net/unix/scm.c
+> @@ -142,6 +142,12 @@ void unix_destruct_scm(struct sk_buff *skb)
+>         scm.pid  = UNIXCB(skb).pid;
+>         if (UNIXCB(skb).fp)
+>                 unix_detach_fds(&scm, skb);
+> +#ifdef CONFIG_SECURITY_NETWORK
+> +       if (UNIXCB(skb).lsmdata) {
+> +               kfree(UNIXCB(skb).lsmdata);
+> +               UNIXCB(skb).lsmdata = NULL;
+> +       }
+> +#endif
+
+Does this suffice to ensure that lsmdata is always freed?  Seems
+weakly connected to the allocation.
