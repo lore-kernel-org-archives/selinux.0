@@ -4,46 +4,47 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96402C433E0
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 00:16:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E54FC433DF
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 00:58:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6AEA020756
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 00:16:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 24CB52075F
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 00:58:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="eT0/88DB"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="q0PDc8b7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726442AbgESAQi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 18 May 2020 20:16:38 -0400
-Received: from sonic309-28.consmr.mail.ne1.yahoo.com ([66.163.184.154]:41828
-        "EHLO sonic309-28.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726284AbgESAQh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 18 May 2020 20:16:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589847396; bh=DlDwV3R9EV7zpitP70pUfPifYopakRHlIfL6UPmKrH0=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=eT0/88DBAZBMNfCxPgp7YrnpyM0PZX+S2CDSMSQMUFVdp94D4AO6AFCYlyh/EvBnMzG835QU1uC6lpuMgv47Iys1voHXTebzo+mtYYgarqQJoCqQGObmNx291RQaLXIPStIf4aZUFony5LQmvfVNo+wgjvf291GCXjFpf1xAoCJzpf/xfS1gZV4Ddb/dfwP1JPtKg9FxZtZRk1KW1QttY2ANI5qqX+QASGidEZUn5RgOVF6BsUy2Ro+KYaSIcb/3yHbiv8n4lBRiTwTBoP81l8IgPwQvOSdqnmvoQWSV8nf6VGvZRfc9IVzD2B1VC7bYhzSIZJAyGJkEjAoQW9iJ1w==
-X-YMail-OSG: 9A_lv8MVM1lsONPCRm45pW.7pJtSwwHnmkvGYM5kvgzs7Nu8k4mhAZ4wroi0dXo
- hC9239F8hD6qQhvTFrwRVrSbgQr4vFm5ncSS8T1cm4TDv7NzN.WZmkxzQFDTVl6Z45dVUOAmrtDm
- y1n11vm6J33EOUeQ2lkT6clPPZsTl3.r1qpidBpGH4hnRlDr9JkODk_goCZpXFPENh6UaeNlj.yo
- 5FZkkMER9k6QR60glaIFL.xE4ec_rsfUdpa94FSs6KoYkc2OUPWTtghA79ZhdtU10mZYw0FBYIQl
- 8vv6lVp_jLoKp0wK6gAVD7PedTvJ4C.s9y1V49WwKORNmMKjM3s6qjcFYU25HP8IJMvCCa._JubD
- 4CfYbjXe.znwqjXHx3mRklleubxETdXb3HYn2O8epHTGPY8NNhpbhfDHuH5yJcHgrGrPoeXO77C_
- 47ZIhsnXUFK9Y7Z8pYRMSfi8TOqX1DvVB78_7uHxzFalpq3.hd8RNCfkvupuEEzVOfou8fihbwiD
- WPNfCYbitblVWZcNuf3qG6bvRrXXpTGARRNYo6RDhw1ltc3iwmc4S5.sdOYVOgdTDc9UAKBH9IzW
- TQyW_.HcFP3upUfq_FcAhLgZRd.H9ynFZulZSXqLyoZ3j0_S1gTor_8BOuf3ZC40pVEjkwoRhv2E
- qsbH72KzbwE9qsMy6DWX5x1MtKDn3Y4sjIoW.rILJuiXdRO6W3BOxf92Fx.qryosJZ_4cmRdquGR
- cQyMuUOaDgvIsSHMvvJBv4zg8GUvXzGy.wvtgfJFVdTG_43t17Svw88X2Fu8rAxOqjeEj6RnGcFy
- G.UYrBpGtIVpOfzVJns9qxktHn_IYKwOVAff.k4Jdx0VvZNZw7enUPwlrIpST1AvMkWrG8.QV4X_
- jk5dnjcyNDq4fZWvqq41TGhkUj5RkMui06DpJdD5e472fDHcfMxHTuD5Ysg6hbcqUE2gV2MXIoTt
- 8M1lqrHsR.q8QYSf6BCkVCHJF9sXUampymclBK.KHc0RpuGu1KrmdUzW9vM.UVxYqXHuwVfmyfY.
- vKsKZUds2Nj3_K.ewtoPRzq8NcgInWhXVWqkkJK99S85_RX3BY5Znymu2eGQVOhL.MN2Qr4mx6Nh
- 5nvUXRMw9_K6Dccd3YtGWgcdq279dkFuV.v5uIwUsr9esG9QnmQ0Cs.dACMp.L6AslVz.QkR0whw
- iKzag_x6wDWPlQonsapO8mWitKQm4ip5lflRQyhMmJHiAIEmjiChsyP0Ko2vCS5hJGOxVSBsNNwn
- ViWaj07SYUqBzFLz7U5U75eWHGsq2T6LqPwzdpysqj3bQq1vZ2hjtpYJ0_xrqdbPaKLVaewfnfbw
- 0fGrXgN35xCHKOVNSyqkgRZsIttB8ot3yi5yW1mOByi7nm_yDWwbFu0ERggmssx4jhXuwSiPddYM
- wy0zmEhuQaLiMQQE-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic309.consmr.mail.ne1.yahoo.com with HTTP; Tue, 19 May 2020 00:16:36 +0000
-Received: by smtp414.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 641f2f288b5f82f12c5d2f54f5ca24f8;
-          Tue, 19 May 2020 00:16:35 +0000 (UTC)
+        id S1727063AbgESA6g (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 18 May 2020 20:58:36 -0400
+Received: from sonic316-27.consmr.mail.ne1.yahoo.com ([66.163.187.153]:35889
+        "EHLO sonic316-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726731AbgESA6g (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 18 May 2020 20:58:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1589849915; bh=PZjMw2Y1mtChCxFvajeaf7m64cnFdBrm9KTmRlJ7bbY=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=q0PDc8b7CwD0j9ee7gvYAF4sf6Ljx/slQHMMavXtCZswf45JBrH6mzas4R7b4LpyKfzUaO+DfrK19yKSGOWr9MlYIi0dsvLco3tMvXifXXZVBZg6Qa+a5JRL4utZdkGdJFUzmStYRFAoF3S2jqpJThSBJzDteDQR6XdlO+PLR3MvveHrH8WSEmTffnHOZwOOFfoPESCaH30Wxg1pWl0cDdQoH7BDJPwJWG67YR6Zj9xz8pVzWIlDhxIyKTGfRWXFKYMVmOJArbtQfViAue/ekhfok/97lGqlPKgXrn8mAWys7cTG4glcv/DN/jTMLXg6+1sWGPWzFagtLSSST2/3Gg==
+X-YMail-OSG: a5WQFrgVM1nWXC1ky12pKsKNeSRjWYuo_m4haCj9SbLzUW7DNmql1XMARo5JIAb
+ HTISG6Kz9jN3AiSo9tmMMO.7S0QvGO8aea7rIbQSPlTI.jqc0DXJ_ZzQi4haLKULuiLa8nejTdnn
+ 0aj2rEZdUPZjv8TFwXSxdtchg2D9yRA3N40nmgPoPbYZywvDCjSLx54C6GSSm5UYKr018Y2kuHdl
+ 0wuo5wSvVXjo0c4jNxDtYfBnUd2O7g3ENJXvlgsRkcWNpOpjVsTYLSVwaDhF.m5bzbifsUa91vXg
+ lGfcXTo5RatH2EhaLgvw43mkVQzWNDd2rpUvLvIT2G.sBQNx_AFuGV.7ll2qC_iByeIKnaGhKj7e
+ J8MJ7i3Lp9EYSC3Cz5JtcITX6vQa1UGPHuuEcP4OvMCS2451dTrYklEC1zFf1C9s63xaP2hM41q5
+ 8XsUTKKdpyPUDTRCX1qvaw9NL2V9f11kTj2qmc9ijbaP297UWRNErdpMSpZ5N5VmSTsuvlKRVMeo
+ YrQeXUir4Cdhy8AqtSlgi4DdNO1l70_JR9xv4WalFYK4FdIG6l8J6WNnkKaKdzYUd.RCs1oafJ4o
+ 9Oe8jGQ92_G2EgkViC2jRohowxRL9dlrggzFhuWAUtL2WjMRdnjilafen5lCUDQxymfm5bhdmbC_
+ WyPmr2PD4JVC0THci9.xrXGQQB4U.0KdL.TpjqBFce2W2NIjKL_M0P0ekfoEilz6d1N1KfervjBQ
+ 1nTIKnty.I6VzrYCabrqgTeWws8GuxBkv1.Dwj4fBvNnDoqPyJLBG4Ejx2RJhRU3VhzN175HYLcz
+ Q8PDFqr8qUruxUvMC0l7znLi3Jg0PGJXewyfJLAHufnWsd4lONC57H2RWhyB87GmryHFR64Oiu5k
+ onRR__R8WsIqzQ3s3nqwZicMoIovGMfll2QnuGGiePMFyaH6fSkE5tNK7RHJ9CLxzjoXeVMJ7YoD
+ Q03niQvdwy09PPN.y0skLQgs3EBjTZbn9Z2ZVLg0goZbmWK3MYvbmxhQWN.0f.Fo_xH9L7AzRvMW
+ r.6wML1iQ4g9.yxkSKZ11JBvAwPnWEsHkx4Ek6Muvk49OcN471IoI.CknQ1cW4htDl_BQj.SDoyf
+ mzsdGuGcnzI8vGd7cHm4WQPsKI2BuzrTgMtbrEiPHn4LIo6QX4J6zWIP9Ilt_LmSc2vgrKKtgB3T
+ YcF_lQHzBYXzFFxrkkYdkseFr8Q_EM0LSCyzJboHWRAT0nJWCooJwM5q3aIQHImHuWVf4M_uDfs0
+ WWF3XEn1_lVRjH36hXzyMKqyVSEWx.XTxi.nXIGwYkl.yegexc3fCiuemW_hCWqjj5iZR2IE.PTt
+ r.8p_RVVLGfYZw16vd6pTdutQz978J_aBlBDCm.rScjxkEsq0vMPYuyfFU1vFgUVeJMVB_sL9z5B
+ cQic3Q3fxIWVOPuMQPg--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.ne1.yahoo.com with HTTP; Tue, 19 May 2020 00:58:35 +0000
+Received: by smtp423.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 73cc20e9bae15c92f18d26478d4a31bb;
+          Tue, 19 May 2020 00:58:34 +0000 (UTC)
 Subject: Re: [PATCH v17 20/23] Audit: Add a new record for multiple subject
  LSM attributes
 To:     Paul Moore <paul@paul-moore.com>
@@ -63,6 +64,7 @@ References: <20200514221142.11857-1-casey@schaufler-ca.com>
  <CAEjxPJ67cA_A-Oh72EGgmCrP6k9x0PuaU2q7UL9eOc+J6Do0zQ@mail.gmail.com>
  <9cabbb54-69e6-91e6-88f8-e76d53da2a77@schaufler-ca.com>
  <CAHC9VhRGopG0=DbEZArz2X2yfEQ1pOqoSLRMn9ABe5JYZB2Y8Q@mail.gmail.com>
+ <774a37e3-3469-d606-a468-a57892b44645@schaufler-ca.com>
 From:   Casey Schaufler <casey@schaufler-ca.com>
 Autocrypt: addr=casey@schaufler-ca.com; keydata=
  mQINBFzV9HABEAC/mmv3jeJyF7lR7QhILYg1+PeBLIMZv7KCzBSc/4ZZipoWdmr77Lel/RxQ
@@ -108,12 +110,12 @@ Autocrypt: addr=casey@schaufler-ca.com; keydata=
  wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
  v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
  abzjfg==
-Message-ID: <774a37e3-3469-d606-a468-a57892b44645@schaufler-ca.com>
-Date:   Mon, 18 May 2020 17:16:34 -0700
+Message-ID: <5e69cf1d-5139-4f61-0c78-f2a1562b9f25@schaufler-ca.com>
+Date:   Mon, 18 May 2020 17:58:33 -0700
 User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
  Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhRGopG0=DbEZArz2X2yfEQ1pOqoSLRMn9ABe5JYZB2Y8Q@mail.gmail.com>
+In-Reply-To: <774a37e3-3469-d606-a468-a57892b44645@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 Content-Language: en-US
@@ -123,94 +125,98 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/18/2020 3:21 PM, Paul Moore wrote:
-> On Mon, May 18, 2020 at 4:43 PM Casey Schaufler <casey@schaufler-ca.com=
-> wrote:
->> On 5/18/2020 11:02 AM, Stephen Smalley wrote:
->>> On Thu, May 14, 2020 at 7:30 PM Casey Schaufler <casey@schaufler-ca.c=
-om> wrote:
->>>> Create a new audit record type to contain the subject information
->>>> when there are multiple security modules that require such data.
->>>> This record is emitted before the other records for the event, but
->>>> is linked with the same timestamp and serial number.
+On 5/18/2020 5:16 PM, Casey Schaufler wrote:
+> On 5/18/2020 3:21 PM, Paul Moore wrote:
+>> On Mon, May 18, 2020 at 4:43 PM Casey Schaufler <casey@schaufler-ca.co=
+m> wrote:
+>>> On 5/18/2020 11:02 AM, Stephen Smalley wrote:
+>>>> On Thu, May 14, 2020 at 7:30 PM Casey Schaufler <casey@schaufler-ca.=
+com> wrote:
+>>>>> Create a new audit record type to contain the subject information
+>>>>> when there are multiple security modules that require such data.
+>>>>> This record is emitted before the other records for the event, but
+>>>>> is linked with the same timestamp and serial number.
+>>>>>
+>>>>> Reviewed-by: Kees Cook <keescook@chromium.org>
+>>>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>>>>> Cc: linux-audit@redhat.com
+>>>>> ---
+>>>> With this patch, I see userspace audit records like this one:
 >>>>
->>>> Reviewed-by: Kees Cook <keescook@chromium.org>
->>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->>>> Cc: linux-audit@redhat.com
->>>> ---
->>> With this patch, I see userspace audit records like this one:
->>>
->>> type=3DSYSTEM_BOOT msg=3Daudit(1589816792.181:103): pid=3D789 uid=3D0=
+>>>> type=3DSYSTEM_BOOT msg=3Daudit(1589816792.181:103): pid=3D789 uid=3D=
+0
+>>>> auid=3D4294967295 ses=3D4294967295 subj=3D? subj=3Dsystem_u:system_r=
+:init_t:s0
+>>>> msg=3D' comm=3D"systemd-update-utmp"
+>>>> exe=3D"/usr/lib/systemd/systemd-update-utmp" hostname=3D? addr=3D?
+>>>> terminal=3D? res=3Dsuccess'
+>>>>
+>>>> I'm guessing that userspace is appending the second subj=3D field wh=
+en
+>>>> it sees subj=3D? or otherwise is missing subj=3D information?
+>>> I haven't looked at the userspace code, but I expect you're right.
+>>> It looks like there will need to be some change in the userspace
+>>> for the multiple LSM case. The "completion" shown here isn't correct,=
 
->>> auid=3D4294967295 ses=3D4294967295 subj=3D? subj=3Dsystem_u:system_r:=
-init_t:s0
->>> msg=3D' comm=3D"systemd-update-utmp"
->>> exe=3D"/usr/lib/systemd/systemd-update-utmp" hostname=3D? addr=3D?
->>> terminal=3D? res=3Dsuccess'
->>>
->>> I'm guessing that userspace is appending the second subj=3D field whe=
-n
->>> it sees subj=3D? or otherwise is missing subj=3D information?
->> I haven't looked at the userspace code, but I expect you're right.
->> It looks like there will need to be some change in the userspace
->> for the multiple LSM case. The "completion" shown here isn't correct,
->> because it only fills in one of the subject attributes, not both.
-> Wait, didn't we agree on a a "subj=3D? subj_selinux=3DXXX
-> subj_apparmor=3DYYY subj_smack=3DZZZ" format?  It looks like there are =
-two
-> 'subj' fields in the record above which is bad, don't do that please.
+>>> because it only fills in one of the subject attributes, not both.
+>> Wait, didn't we agree on a a "subj=3D? subj_selinux=3DXXX
+>> subj_apparmor=3DYYY subj_smack=3DZZZ" format?  It looks like there are=
+ two
+>> 'subj' fields in the record above which is bad, don't do that please.
+> That's not something that's coming from the kernel.
 
-That's not something that's coming from the kernel.
-I'll check again, but I think that everyplace in the kernel that
-produces a subj=3D has been trained to create a type=3D1420 record
-instead.
+OK, I see that I missed one in netlbl_audit_start_common(),
+although I don't think that's where this event came from.
 
+> I'll check again, but I think that everyplace in the kernel that
+> produces a subj=3D has been trained to create a type=3D1420 record
+> instead.
 >
->>> Then we have kernel audit records like this:
->>>
->>> type=3DPROCTITLE msg=3Daudit(1589816791.959:101): proctitle=3D2F73626=
-96E2F617564697463
->>> 746C002D52002F6574632F61756469742F61756469742E72756C6573
->>> type=3DSYSCALL msg=3Daudit(1589816791.959:101): arch=3Dc000003e sysca=
-ll=3D44
->>> success=3Dyes exit=3D1056 a0=3D3 a1=3D7fff9ccc98a0 a2=3D420 a3=3D0 it=
-ems=3D0
->>> ppid=3D773 pid=3D783 auid=3D4294967295 uid=3D0 gid=3D0 euid=3D0 suid=3D=
-0 fsuid=3D0
->>> egid=3D0 sgid=3D0 fsgid=3D0 tty=3D(none) ses=3D4294967295 comm=3D"aud=
-itctl"
->>> exe=3D"/usr/sbin/auditctl" subj=3D? key=3D(null)
->>> type=3DUNKNOWN[1420] msg=3Daudit(1589816791.959:101):
->>> subj_selinux=3Dsystem_u:system_r:unconfined_service_t:s0
->>> subj_apparmor=3D=3Dunconfined
->>> type=3DCONFIG_CHANGE msg=3Daudit(1589816791.959:101): auid=3D42949672=
-95
->>> ses=3D4294967295 subj=3D? op=3Dadd_rule key=3D(null) list=3D1 res=3D1=
+>>>> Then we have kernel audit records like this:
+>>>>
+>>>> type=3DPROCTITLE msg=3Daudit(1589816791.959:101): proctitle=3D2F7362=
+696E2F617564697463
+>>>> 746C002D52002F6574632F61756469742F61756469742E72756C6573
+>>>> type=3DSYSCALL msg=3Daudit(1589816791.959:101): arch=3Dc000003e sysc=
+all=3D44
+>>>> success=3Dyes exit=3D1056 a0=3D3 a1=3D7fff9ccc98a0 a2=3D420 a3=3D0 i=
+tems=3D0
+>>>> ppid=3D773 pid=3D783 auid=3D4294967295 uid=3D0 gid=3D0 euid=3D0 suid=
+=3D0 fsuid=3D0
+>>>> egid=3D0 sgid=3D0 fsgid=3D0 tty=3D(none) ses=3D4294967295 comm=3D"au=
+ditctl"
+>>>> exe=3D"/usr/sbin/auditctl" subj=3D? key=3D(null)
+>>>> type=3DUNKNOWN[1420] msg=3Daudit(1589816791.959:101):
+>>>> subj_selinux=3Dsystem_u:system_r:unconfined_service_t:s0
+>>>> subj_apparmor=3D=3Dunconfined
+>>>> type=3DCONFIG_CHANGE msg=3Daudit(1589816791.959:101): auid=3D4294967=
+295
+>>>> ses=3D4294967295 subj=3D? op=3Dadd_rule key=3D(null) list=3D1 res=3D=
+1
+>>>> type=3DUNKNOWN[1420] msg=3Daudit(1589816791.959:101):
+>>>> subj_selinux=3Dsystem_u:system_r:unconfined_service_t:s0
+>>>> subj_apparmor=3D=3Dunconfined
+>>>>
+>>>> where we are getting multiple copies of the new record type, one for=
 
->>> type=3DUNKNOWN[1420] msg=3Daudit(1589816791.959:101):
->>> subj_selinux=3Dsystem_u:system_r:unconfined_service_t:s0
->>> subj_apparmor=3D=3Dunconfined
->>>
->>> where we are getting multiple copies of the new record type, one for
->>> each record type that had subj=3D?.
->> While obviously wasteful, the type=3D1420 behavior is consistent with
->> the subj=3D? behavior, which is to duplicate the subj=3D value. I know=
+>>>> each record type that had subj=3D?.
+>>> While obviously wasteful, the type=3D1420 behavior is consistent with=
 
->> we've got enough hobgoblins in the audit system that we don't need
->> to add any more in the name of a foolish consistency.
-> You need to provide a bit more reason why we need byte-for-byte
-> duplicate records in a single event.  As it currently stands this
-> looks like something we definitely don't want.
-
-The CONFIG_CHANGE record already duplicates the subj=3D information
-in the SYSCALL record. I just maintained the duplication. You're
-right, it's silly to have two identical type=3D1420 records for the event=
-=2E
-I will have to come up with a mechanism to prevent the duplication.
-with luck, there's already a similar case for some other record.
-
+>>> the subj=3D? behavior, which is to duplicate the subj=3D value. I kno=
+w
+>>> we've got enough hobgoblins in the audit system that we don't need
+>>> to add any more in the name of a foolish consistency.
+>> You need to provide a bit more reason why we need byte-for-byte
+>> duplicate records in a single event.  As it currently stands this
+>> looks like something we definitely don't want.
+> The CONFIG_CHANGE record already duplicates the subj=3D information
+> in the SYSCALL record. I just maintained the duplication. You're
+> right, it's silly to have two identical type=3D1420 records for the eve=
+nt.
+> I will have to come up with a mechanism to prevent the duplication.
+> with luck, there's already a similar case for some other record.
 >
-> --
-> paul moore
-> www.paul-moore.com
+>> --
+>> paul moore
+>> www.paul-moore.com
 
