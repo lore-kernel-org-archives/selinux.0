@@ -2,121 +2,90 @@ Return-Path: <SRS0=GWJJ=7B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B6C4C433E0
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 21:41:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB410C433DF
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 21:42:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 299C7208FE
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 21:41:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6FA5E20C09
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 21:42:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="f0tShOvf"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="bLFESTeD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726651AbgESVlB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 May 2020 17:41:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39910 "EHLO
+        id S1726651AbgESVmG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 May 2020 17:42:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725885AbgESVlB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 17:41:01 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AAFC08C5C0
-        for <selinux@vger.kernel.org>; Tue, 19 May 2020 14:41:01 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id z5so773396ejb.3
-        for <selinux@vger.kernel.org>; Tue, 19 May 2020 14:41:01 -0700 (PDT)
+        with ESMTP id S1725885AbgESVmF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 17:42:05 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE11C08C5C0
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 14:42:05 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id z5so776213ejb.3
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 14:42:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=0lIiU6asn3acv1GpmbwGe/AHI5yhvXdxYG1yTmSRTzA=;
-        b=f0tShOvfUZ3+6CbbRSoUmDHAqEofpFF3X86buJnYmBoqFNBQajw2nMlu0hMjkAvdX/
-         BF0O44Jtzuqg4piCkLtpUrF0zPoGVo77qb/oUF1zvlsEKC0ZfKgxn6cKFKSYkD5O5bnO
-         snDTyzp31h9b8rXW1VKhUjl8daUyyInjYiLXZx03u53BAoJYo853x3y6MnoTYmZF1hCq
-         Xt75thKp+xXFoeg2sk4WNMdVLb8wFvp6zwcmBBomoHU9EGn4WOpMweC5vmuZGb3m7WBj
-         vbi0/TYAWLseon3Fm+fepdY7Y9t5dmqR3pHQ9Dmm+Lig9a31QaxbauOtoO68u4LixQbj
-         eWEQ==
+        bh=9qo/TpiIVszNDGy9XUg9NTQAST/L0Z/ciNjxMWC4L6s=;
+        b=bLFESTeDtfgXMsChDJLHZ7h2pR7OLKx3ZLFQpDiIViwBvexUmtLCDbOEwEUpaoFrjr
+         vVpP9azKJeWpQS79Zduc6rBmJDKxbK2pEKJNv2breWeh3tDL6IU7yRA461LgNsI/tjxE
+         +tHz1Jb306tytLJIEc4u4YcH1qce4jmwrS3f+L0KBXAMpvV8EpbQ9iiKjnA28Bl6jYO0
+         yfRZiXvDo4WoucGY3ImEexi3Hhi6+Y3kOTtvLXomAVDM0ph5qiY9sW6u3DWGU76eNAD2
+         sjycMUrJ43vnrDwSQdqDKnLAys5ensQ7LFq99mSVvbIIa6jX5ragCF/3qNXvKQgGpzvy
+         6CUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=0lIiU6asn3acv1GpmbwGe/AHI5yhvXdxYG1yTmSRTzA=;
-        b=Gu/16PDqyQJPbKlu46Zbg2pJqzzAdCkKD3tV5lrSQkS9Rit+m6g1j3/I8PhdjysNMx
-         BzFp/XsmgF6z73K+mRhikEMUha38ZpitgTqP0JcRnxcsRMPy8Z/j/JkaA6jCaeK8o82P
-         Ait6Y8NJLGJKj5X4Or3kZRlhP6sLS2PbD5Z5mYjELtTKSiLsPCwovCBidj0xm8OGxJCf
-         UMfv9xTewA8d8xXu/yl7xN98hqg+HaQA9uCVAOjcAH0It3jxFTgP+m63qqt5p94bQFqj
-         xMRuX5cWFMsTaCZitJGnnw4Yo9FBXaBD8s1flliUezv/vdkbxtjMP0N4+AJLT4KtWY+K
-         fWBw==
-X-Gm-Message-State: AOAM531FwjE5OG3mNYcLh10UyP9QdhIGyXk1/Gae50Frxf1WJF7DGxDb
-        UGDa4xd1iU+95FuwwchiEf0rnIV4EvRHGtr2RdN89irlaw==
-X-Google-Smtp-Source: ABdhPJyRj+1mtjqA7IOXprxA2h++tNeoKozWoIhSkx+NbOOYmqfGiFIx/Znz3qtfmJTQluzReWHToyepixv4ULxrrv8=
-X-Received: by 2002:a17:906:279a:: with SMTP id j26mr1090250ejc.398.1589924459505;
- Tue, 19 May 2020 14:40:59 -0700 (PDT)
+        bh=9qo/TpiIVszNDGy9XUg9NTQAST/L0Z/ciNjxMWC4L6s=;
+        b=P0fH0yEgrNoLHB4tTZ9QgQicv/UszEIugzsERRbrCTRUpI9k0Ql8SS01TZTpGBwNGz
+         QwSQ8xiGM7A7Omoju2cdSJLPDW5VtBI0ZO835Xt0PwGaAb38LrML4tXkws0KFKjpkL6I
+         RCenhWiu4A++Yamkk+SZPE2axOwYjoaLNaKHxYD/g8PeFc7IoR4Q8IR9o9GrA72eHhKJ
+         y6lSG8nQotRuM2FX03WdJVLJbDH8McBRU4J5MZ2cRDuGcKTdju+EzPXwUfnvOc1jJVOY
+         PRVkCzWJkL364oFCqaeI5Su7YgaHbPFffAU8wr+F/fs4pgwFHfQOht8XnjMdNQUVu+13
+         qAIw==
+X-Gm-Message-State: AOAM533XMzPPRcgKJ20YE4KMHtUVMV7n1qyapCZNgqQE5wGxzsXx5y2+
+        o32wyM5lXhjCltFQP/XPFvDXjd5lDfKnTFQMv+aXoEo=
+X-Google-Smtp-Source: ABdhPJwUgh3o7WATsOggBd2GXFco6a62VvumbzK/uIvPLRrF2Zv018iSHq1ydo0Pgu+P1LLLdtLw0WP1Sk/LhOL/YNA=
+X-Received: by 2002:a17:906:4e87:: with SMTP id v7mr1005245eju.431.1589924523930;
+ Tue, 19 May 2020 14:42:03 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAGeouKH0MWHVmo-dFxzn4LViwGNLUoYnYYm6HrKzL5XgfMhd4w@mail.gmail.com>
- <55ef0d617fa84d72f142ec0fa6492e5c5e1b1e2b.camel@btinternet.com>
- <CAHC9VhQ5f_h_H=CyunX2tKbCgHP8o2Jp4dyMLzX0t9XkG8TPgQ@mail.gmail.com> <60438e5b407320275932f60bc10936b75c9280aa.camel@btinternet.com>
-In-Reply-To: <60438e5b407320275932f60bc10936b75c9280aa.camel@btinternet.com>
+References: <20200519151457.31618-1-william.c.roberts@intel.com>
+In-Reply-To: <20200519151457.31618-1-william.c.roberts@intel.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 19 May 2020 17:40:48 -0400
-Message-ID: <CAHC9VhTgXU=yLncdXHrZkyo23OGc+aLDcNZinqkTLPLiq81Ycw@mail.gmail.com>
-Subject: Re: Bad context in PostgreSQL page on SELinux Project wiki?
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     Peter Whittaker <pww@edgekeep.com>, selinux@vger.kernel.org
+Date:   Tue, 19 May 2020 17:41:52 -0400
+Message-ID: <CAHC9VhTNZ=gcw5w3FFEs9KiuSrUBhbYLVc=sZq0N4ZEGCem1Zg@mail.gmail.com>
+Subject: Re: Travis CI: Run selinux-testsuite
+To:     bill.c.roberts@gmail.com
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, May 19, 2020 at 9:50 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> On Sun, 2020-05-17 at 17:59 -0400, Paul Moore wrote:
-> > On Sun, May 17, 2020 at 7:17 AM Richard Haines
-> > <richard_c_haines@btinternet.com> wrote:
-> > > I update the notebook occasionally to keep track of changes for my
-> > > own
-> > > reference, but currently have no plans to publish a new one. If you
-> > > do
-> > > have comments I'm happy to take them onboard, however no guarantees
-> > > to
-> > > publish.
-> >
-> > I just wanted to say thank you once again for all your work on the
-> > notebook, it's a great resource!
-> Glad it's useful
+On Tue, May 19, 2020 at 11:15 AM <bill.c.roberts@gmail.com> wrote:
 >
-> >
-> > I understand not wanting to go through the process of generating new
-> > editions of the notebook, but is the source material posted somewhere
-> > online so that people who wanted an updated copy could access it?
-> The source is not available anywhere that I know of (I did send it to a
-> few people who wanted to translate it but never heard from them again
-> !!!). I edit it with LibreOffice Writer as an odt document. It converts
-> to pdf okay, but epub looks real crap.
+> So I put together a patch that will let the selinux-testsuite run in a Fedora 32
+> KVM instance on Travis CI. The userspace selinux bits are rebuilt and installed
+> with the current pull-request patches on the CI build. This will help increase
+> automated test coverage for CI runs. This will help provide confidence that bugs
+> are not being introduced and that master is stable.
 >
-> I guess I could post it somewhere, would you like to host it on your
-> site ??.
+> For an example of the run see:
+>   - https://travis-ci.org/github/williamcroberts/selinux/builds/688853234
 >
-> It needs cleaning up as I've scribbled all over it so will take a few
-> weeks.
+> Their are some new scripts in the scripts folder. I made a subdir CI to indicate
+> that while you can run these locally, they are really meant for the CI environment.
+>
+> [PATCH] ci: run SE Linux kernel test suite
 
-While I'm happy to host it, I think it might be better if we hosted it
-in the community GitHub repo - what would you think about creating a
-new repo under https://github.com/SELinuxProject?  Perhaps
-https://github.com/SELinuxProject/notebook?  While it might seem a bit
-odd to host an ODT file in a git repo, it is a good way to keep track
-of historical changes and there are other tools such as the issue
-tracker and "release" hosting which might be helpful.
+s/SE Linux/SELinux/
 
-However, the last thing I would want to do is put a hurdle between you
-and the doc.
-
-Let me know what you think, I'm happy to create a new repo for you on
-the SELinuxProject GH org and set you up with the necessary
-permissions - assuming the others don't mind, and I can't imagine they
-would.
+ :-P
 
 -- 
 paul moore
