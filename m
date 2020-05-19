@@ -2,92 +2,101 @@ Return-Path: <SRS0=GWJJ=7B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 452A7C433E0
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 13:50:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B93DDC433E1
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 14:29:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EBFF0207FB
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 13:50:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8BC2F20709
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 14:29:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="QpZ4HmAN"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QYkgRAKp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728737AbgESNup (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 May 2020 09:50:45 -0400
-Received: from mailomta19-sa.btinternet.com ([213.120.69.25]:11215 "EHLO
-        sa-prd-fep-041.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727086AbgESNup (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 09:50:45 -0400
-Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-041.btinternet.com with ESMTP
-          id <20200519135040.PYMM4065.sa-prd-fep-041.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Tue, 19 May 2020 14:50:40 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1589896240; 
-        bh=EVLCjFvTVTfPAVGtdxfMMJ5BeK8DS1hnn8lhGz23YMQ=;
-        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
-        b=QpZ4HmANDoAsU3pRT9TmT1hBew1ap6wfeNlwEBAVsedrpX4IjRfjVKQkjxkoNy5o2BtcWZkJU/pk41kVmzxQoUKvUvlQhhtyRfXoUYfYLsjilAyUuuR+fBBlPr8LmzI2ZjL7HLJo0RTbWRMfRUM8HF+68vjhZ7CNigEgBQJEwyMAFVa7OMzqHtY3F/F7ckMCbs4WiVFpNLAVriZQDMglK6TmeICNhQfFWSegZwcV3whtyBCpk6c5sxkCuJ67E+xVGFArGrWxyJv9fmSt56F7c0+Ir01Hh2cl99XaQ76nq2rxcCvxEYI2Xo5peOlex3F0tcCk540iqF8udeweUQqeMA==
-Authentication-Results: btinternet.com;
-    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
-X-Originating-IP: [109.155.32.188]
-X-OWM-Source-IP: 109.155.32.188 (GB)
-X-OWM-Env-Sender: richard_c_haines@btinternet.com
-X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduhedruddtjedgieelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeekgeeftdffkeeikedugedvkeejheeiffevveelgedtleduteevudelffdugffgieenucfkphepuddtledrudehhedrfedvrddukeeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheehrdefvddrudekkedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeophiffiesvggughgvkhgvvghprdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssehhohhtmhgrihhlrdgtohhmqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdr
-        ohhrgheq
-X-RazorGate-Vade-Verdict: clean 0
-X-RazorGate-Vade-Classification: clean
-X-SNCR-hdrdom: btinternet.com
-Received: from localhost.localdomain (109.155.32.188) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5E3A290C118A7EC6; Tue, 19 May 2020 14:50:40 +0100
-Message-ID: <60438e5b407320275932f60bc10936b75c9280aa.camel@btinternet.com>
-Subject: Re: Bad context in PostgreSQL page on SELinux Project wiki?
-From:   Richard Haines <richard_c_haines@btinternet.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Peter Whittaker <pww@edgekeep.com>, selinux@vger.kernel.org
-Date:   Tue, 19 May 2020 14:50:40 +0100
-In-Reply-To: <CAHC9VhQ5f_h_H=CyunX2tKbCgHP8o2Jp4dyMLzX0t9XkG8TPgQ@mail.gmail.com>
-References: <CAGeouKH0MWHVmo-dFxzn4LViwGNLUoYnYYm6HrKzL5XgfMhd4w@mail.gmail.com>
-         <55ef0d617fa84d72f142ec0fa6492e5c5e1b1e2b.camel@btinternet.com>
-         <CAHC9VhQ5f_h_H=CyunX2tKbCgHP8o2Jp4dyMLzX0t9XkG8TPgQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.34.4 (3.34.4-1.fc31) 
+        id S1728971AbgESO37 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 May 2020 10:29:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56760 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728894AbgESO36 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 10:29:58 -0400
+Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B56C08C5C0
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 07:29:58 -0700 (PDT)
+Received: by mail-qt1-x841.google.com with SMTP id z18so11284571qto.2
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 07:29:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xL2TIrUlx0CC9V5bcMS/DwAx+VMbFu+oOlX7awkHC+o=;
+        b=QYkgRAKpv8ZgNLf7JtJBr79wzfInjgwvoANXGBPb6BqQTigJeRA7mJsKgE4fTgHDFC
+         r1naN4rbK/NNJINJP/SNjm6jR7bDlhXf8Zoe3Lz1YhwQ/zcTPvaS0+XQWCZotMCl1aZG
+         rAWH+j1m+dSgTXIKoXoiOxv3/FIk0m17iaJLM3mbAs92p0JsS9ew+oJnEya4JdtxZvbN
+         v/Fo3wMlfjkJ638mMy7rC06yFaaGMZ2ng1D/1rdMKeIAOJ13Gb9Df+vUMWSa1hVYfTLN
+         2/ruGpA34AfHZYgBsfJeS8HaGk+45FVWBC/huTgd/INrONRxv5PQvsM5Re/FcvzekmDR
+         6W9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xL2TIrUlx0CC9V5bcMS/DwAx+VMbFu+oOlX7awkHC+o=;
+        b=TlbJ7wkaF37j+6yn1lRbiuqiuR50iueECuVsHHN+wbFrF+dhKvUV6vZ1cPh4wgOYLI
+         CdWTotCwwKe9ZnheSftIcDXz54C4uKG5Z29GH0OnBqU/coTlwWuYfts91ZgO7U4tBcnl
+         s7SyUr6nOTAdY12vU9kJJEtyoKL4xsk1bi1vLCi73iEw3SX7LQG8Q+oeHuA2JFER4Q6C
+         mD8L+8DZyzyWlVsgI4MARSIU7zYib/3khuUkq3PJJ4iXCwhdk22IGS7FkZnVxFsHKzPi
+         kFXEpzsaJAmMWxEkOU8QGXBBjuIq1/+fT6xs4LWexeljYFpQCmg/DSHrHlTEWL2GIzTs
+         KD+w==
+X-Gm-Message-State: AOAM533BVmevYUxY7CHAlKFMzIPCKFgkDC7leaAjK79aQO0OPFV4Y+Cm
+        5lvYWBL27uX2wdxbqeIRKRJBDPdUId4=
+X-Google-Smtp-Source: ABdhPJzlbZbCSLR5PxKjWwmECylH2k5BoJQ6cbWhjUgF9Zy9Zdp2WyxhvbTVQsjbLyu5bQZLop3tDg==
+X-Received: by 2002:ac8:23d7:: with SMTP id r23mr22828670qtr.111.1589898596873;
+        Tue, 19 May 2020 07:29:56 -0700 (PDT)
+Received: from localhost.localdomain (pool-71-166-99-106.bltmmd.east.verizon.net. [71.166.99.106])
+        by smtp.gmail.com with ESMTPSA id i41sm12693724qte.15.2020.05.19.07.29.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2020 07:29:56 -0700 (PDT)
+From:   James Carter <jwcart2@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>
+Subject: [PATCH v2 1/2] libsepol/cil: Initialize the multiple_decls field of the cil db
+Date:   Tue, 19 May 2020 10:29:45 -0400
+Message-Id: <20200519142946.76861-1-jwcart2@gmail.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, 2020-05-17 at 17:59 -0400, Paul Moore wrote:
-> On Sun, May 17, 2020 at 7:17 AM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > I update the notebook occasionally to keep track of changes for my
-> > own
-> > reference, but currently have no plans to publish a new one. If you
-> > do
-> > have comments I'm happy to take them onboard, however no guarantees
-> > to
-> > publish.
-> 
-> I just wanted to say thank you once again for all your work on the
-> notebook, it's a great resource!
-Glad it's useful
+Initialize the multiple_decls field when intializing the structure
+cil_db.
 
-> 
-> I understand not wanting to go through the process of generating new
-> editions of the notebook, but is the source material posted somewhere
-> online so that people who wanted an updated copy could access it?
-The source is not available anywhere that I know of (I did send it to a
-few people who wanted to translate it but never heard from them again
-!!!). I edit it with LibreOffice Writer as an odt document. It converts
-to pdf okay, but epub looks real crap.
+Issue reported by: Topi Miettinen <toiwoton@gmail.com>
 
-I guess I could post it somewhere, would you like to host it on your
-site ??.
+Fixes: fafe4c212bf6c32c ("libsepol: cil: Add ability to redeclare
+       types[attributes]")
 
-It needs cleaning up as I've scribbled all over it so will take a few
-weeks.
-> 
+Signed-off-by: James Carter <jwcart2@gmail.com>
+---
+ libsepol/cil/src/cil.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/libsepol/cil/src/cil.c b/libsepol/cil/src/cil.c
+index 4a77aa9c..a3c6a293 100644
+--- a/libsepol/cil/src/cil.c
++++ b/libsepol/cil/src/cil.c
+@@ -459,6 +459,7 @@ void cil_db_init(struct cil_db **db)
+ 	(*db)->preserve_tunables = CIL_FALSE;
+ 	(*db)->handle_unknown = -1;
+ 	(*db)->mls = -1;
++	(*db)->multiple_decls = CIL_FALSE;
+ 	(*db)->target_platform = SEPOL_TARGET_SELINUX;
+ 	(*db)->policy_version = POLICYDB_VERSION_MAX;
+ }
+-- 
+2.25.4
 
