@@ -2,163 +2,174 @@ Return-Path: <SRS0=GWJJ=7B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EECC3C433DF
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 14:30:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40D9CC433DF
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 15:00:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CD46120709
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 14:30:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1EFF220825
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 15:00:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Iq+7vor9"
+	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="g34zwnet"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728837AbgESOaE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 May 2020 10:30:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56780 "EHLO
+        id S1729180AbgESPAW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 May 2020 11:00:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726203AbgESOaE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 10:30:04 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03BD3C08C5C0
-        for <selinux@vger.kernel.org>; Tue, 19 May 2020 07:30:04 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id c24so11258348qtw.7
-        for <selinux@vger.kernel.org>; Tue, 19 May 2020 07:30:03 -0700 (PDT)
+        with ESMTP id S1728775AbgESPAW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 11:00:22 -0400
+Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 251B1C08C5C0
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 08:00:22 -0700 (PDT)
+Received: by mail-qk1-x741.google.com with SMTP id f189so15460473qkd.5
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 08:00:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=4/jnLRDV7cIbH5p2/ejzWRBKLH1W6lQ70OInwAnaOsY=;
-        b=Iq+7vor9oKWCFbPRZDZlMe7kOL6ZRhZEzOVmdHaUXov+fjdDxBny6nWRS6tb9s6R/t
-         sKnwZrHo6FPqeYPcFYTjX71BMloID48Y3Pcx0l+f8/1zsPnz8sUYzTHOzM9EUplSEUU3
-         8Ds68YFDA5c05YZn+CvU3FeHieZ57V8iAL0kG7+LdZnaG8sn7EGEoslPE0DSxxXr0hEz
-         Kbk2UvzgA3v5a1mfkrNA60muQQFrWvRHc6dT94+FqihNpQMhHKnCpDrPrDGpYbvvsAAg
-         duOl20tJCgWVEiCAE4u0pfoacuflFHnQFLsHqpS3zYvCEyHgZ5MsmP5+gQOz3UemKhrO
-         XqPg==
+        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=AkQO/WtFoMjqwBdRRwYcbGgEEww5ZEB4//3USuMfv8U=;
+        b=g34zwnethZ2yq8nmIVCqGfzHHAG/3DqRlrOlgObY2lMk6zMbl/Beq/hDQ70iQHngK1
+         0QRm5DLKc/WdI4XcTYjjnn+47pZ4vopgtm75m4r8LPySMDYgDx8dXeC58SCkEg9GIirO
+         wX0rOLc7DG1gzR9Q/voZHqJBZCoCKg6FhQ736afOg2HY5yTuFrF087HxgkI7DsV0G0Sx
+         uJ0WkECcaIudV9SXGCZa+0FCSYbai+kQ7IMkHkMNyqVjAKrOD7svTq1Htq4FZXjKLv47
+         Wfr9gnHlAuYFf3U3xYfOqSSnfznu1y/YYCZZKfP+IC7R9D5vjspX5g0Xfsk5BdAz+P04
+         RNMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=4/jnLRDV7cIbH5p2/ejzWRBKLH1W6lQ70OInwAnaOsY=;
-        b=doiE0xT45/jjRdp7MM91nOcVM64SGOaIMfvWyW+dvbB9GlT/C9/vMIMnv9v4ICYmkN
-         Sa0lNKU3Ss2UsA2ozrRsogsb48goZFw9mglbWsCsAp5gF3HL8J0H2QRvFGhy79pID+WF
-         66daLVS8JUrcDu7j5PtnIT4y7JePLCWz2cczFQUVvkifh6rSSQOnMu7fbwwVC/y2tJSG
-         bluG3g83JOpJx8hSL3QSQn0hNf/iqcz0O0MU44Gh3wYK1I+UbXTiLwotiq0OBizCSSXc
-         SAsXNiz9opfWjMoGJ1dw4y4ZTnGGArYzuCBI3WkUFrGPUTDTnUgDR//WPlrNqpCoz6H+
-         t/tA==
-X-Gm-Message-State: AOAM530ss0xswexYNg3utSyg1TkkR+uwVT2AJ4WtJuh1Aa+wGdJ+sRe4
-        e1Uu40FxQwMP8oq7LN3ewM19GU5BdQ4=
-X-Google-Smtp-Source: ABdhPJy+hjwA6Qpp5o/Ionnhf6LwjxzeSrCQ7EsrSFsQTM96UGzB8vVmfur9lrSslIHYIpfPpRAHtg==
-X-Received: by 2002:ac8:c8b:: with SMTP id n11mr23147490qti.49.1589898602919;
-        Tue, 19 May 2020 07:30:02 -0700 (PDT)
-Received: from localhost.localdomain (pool-71-166-99-106.bltmmd.east.verizon.net. [71.166.99.106])
-        by smtp.gmail.com with ESMTPSA id i41sm12693724qte.15.2020.05.19.07.30.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2020 07:30:02 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH v2 2/2] libsepol/cil: Return error when identifier declared as both type and attribute
-Date:   Tue, 19 May 2020 10:29:46 -0400
-Message-Id: <20200519142946.76861-2-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.25.4
-In-Reply-To: <20200519142946.76861-1-jwcart2@gmail.com>
-References: <20200519142946.76861-1-jwcart2@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=AkQO/WtFoMjqwBdRRwYcbGgEEww5ZEB4//3USuMfv8U=;
+        b=mlmfCjB/tNfw0LR7W3Ktdhd759HZnMiC24ZPNd5j0L917Jo0NyosLyuj4dD+HEh3O1
+         iLf/4flGHlbWOsfe2h6C01uONpDIrMvxnEVZ/fHwCR8CZ2CvTaCuVwb6L/CW8x4zalX5
+         6J90e0eDNKp7LNenlP4uP56tGipUkY3rriCZCjKXyMIc6GlmHeFpKiht8u9CyPtl/pci
+         P1nSHU+DRIekkKMgRi3x8wLygJEgxe4KyrEyX7DaJg9JfVMjunJzTBrOLL4KFGOu/WJA
+         XQBWW0V53Dwy1je4rhQ43DzuPBuZR/6KGRODUhCkSeAdooV+nXJeoIm6JUCQnQv/LE3W
+         ofag==
+X-Gm-Message-State: AOAM533+0fTSYMBkn7TBN+MgiHfKLXNrRq4U6joJ5lySouXTGLL8el0n
+        yBOb4rrIj+6qVlSBOanZ9UnMZQkg9TkJc0eYcuX79Q==
+X-Google-Smtp-Source: ABdhPJyv4y8JWyBlJlamHT/LRCzafK2Y2nCTh3wxbwJrXvmMoMd4CEc52ZIvHWCUEmpxctN0l/YKmlm7eP/TAnZiLyg=
+X-Received: by 2002:a37:a886:: with SMTP id r128mr20481193qke.148.1589900421011;
+ Tue, 19 May 2020 08:00:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAGeouKHKm+Bzk6=gX_GEJc=faTB8tzwQ7txKVEhdbzK1sf-Z1A@mail.gmail.com>
+ <CAFqZXNv1WXGOUUjb=89G4sohvztNh_J6aRusLhM6uxEN8b-VXw@mail.gmail.com>
+In-Reply-To: <CAFqZXNv1WXGOUUjb=89G4sohvztNh_J6aRusLhM6uxEN8b-VXw@mail.gmail.com>
+From:   Peter Whittaker <pww@edgekeep.com>
+Date:   Tue, 19 May 2020 11:01:22 -0400
+Message-ID: <CAGeouKEn7+7GSnYZe=MAAFxj66LNNPJco_i+fL1-=Seh=5j1pw@mail.gmail.com>
+Subject: Re: [PATCH] Add restorecon -x to not cross FS boundaries
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-CIL allows a type to be redeclared when using the multiple declarations
-option ("-m" or "--muliple-decls"), but make it an error for an identifier
-to be declared as both a type and an attribute.
+I've got those changes standing by - I'll do a full clone, apply the
+changes I made online to my tree, and submit the pair using git
+send-mail. It'll be later this week, long weekend over, work getting
+in the way again....
 
-Change the error message so that it always gives the location and flavor
-of both declarations. The flavors will be the same in all other cases,
-but in this case they explain why there is an error even if multiple
-declartions are allowed.
+P
 
-Issue reported by: Topi Miettinen <toiwoton@gmail.com>
+Peter Whittaker
+EdgeKeep Inc.
+www.edgekeep.com
++1 613 864 5337
++1 613 864 KEEP
 
-Fixes: Commit fafe4c212bf6c32c ("libsepol: cil: Add ability to redeclare
-       types[attributes]")
-
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/cil/src/cil_build_ast.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
-
-diff --git a/libsepol/cil/src/cil_build_ast.c b/libsepol/cil/src/cil_build_ast.c
-index fcecdc4f..ce2499a1 100644
---- a/libsepol/cil/src/cil_build_ast.c
-+++ b/libsepol/cil/src/cil_build_ast.c
-@@ -87,7 +87,7 @@ exit:
-  * datum, given the new datum and the one already present in a given symtab.
-  */
- int cil_is_datum_multiple_decl(__attribute__((unused)) struct cil_symtab_datum *cur,
--                               __attribute__((unused)) struct cil_symtab_datum *old,
-+                               struct cil_symtab_datum *old,
-                                enum cil_flavor f)
- {
- 	int rc = CIL_FALSE;
-@@ -95,8 +95,12 @@ int cil_is_datum_multiple_decl(__attribute__((unused)) struct cil_symtab_datum *
- 	switch (f) {
- 	case CIL_TYPE:
- 	case CIL_TYPEATTRIBUTE:
--		/* type and typeattribute statements insert empty datums, ret true */
--		rc = CIL_TRUE;
-+		if (!old || f != FLAVOR(old)) {
-+			rc = CIL_FALSE;
-+		} else {
-+			/* type and typeattribute statements insert empty datums */
-+			rc = CIL_TRUE;
-+		}
- 		break;
- 	default:
- 		break;
-@@ -126,19 +130,20 @@ int cil_gen_node(struct cil_db *db, struct cil_tree_node *ast_node, struct cil_s
- 	if (symtab != NULL) {
- 		rc = cil_symtab_insert(symtab, (hashtab_key_t)key, datum, ast_node);
- 		if (rc == SEPOL_EEXIST) {
-+			rc = cil_symtab_get_datum(symtab, (hashtab_key_t)key, &prev);
-+			if (rc != SEPOL_OK) {
-+				cil_log(CIL_ERR, "Re-declaration of %s %s, but previous declaration could not be found\n",cil_node_to_string(ast_node), key);
-+				goto exit;
-+			}
- 			if (!db->multiple_decls ||
--			    cil_symtab_get_datum(symtab, (hashtab_key_t)key, &prev) != SEPOL_OK ||
- 			    !cil_is_datum_multiple_decl(datum, prev, nflavor)) {
--
- 				/* multiple_decls not ok, ret error */
-+				struct cil_tree_node *node = NODE(prev);
- 				cil_log(CIL_ERR, "Re-declaration of %s %s\n",
- 					cil_node_to_string(ast_node), key);
--				if (cil_symtab_get_datum(symtab, key, &datum) == SEPOL_OK) {
--					if (sflavor == CIL_SYM_BLOCKS) {
--						struct cil_tree_node *node = datum->nodes->head->data;
--						cil_tree_log(node, CIL_ERR, "Previous declaration");
--					}
--				}
-+				cil_tree_log(node, CIL_ERR, "Previous declaration of %s",
-+					cil_node_to_string(node));
-+				rc = SEPOL_ERR;
- 				goto exit;
- 			}
- 			/* multiple_decls is enabled and works for this datum type, add node */
-@@ -169,7 +174,7 @@ int cil_gen_node(struct cil_db *db, struct cil_tree_node *ast_node, struct cil_s
- 	return SEPOL_OK;
- 
- exit:
--	cil_log(CIL_ERR, "Failed to create node\n");
-+	cil_log(CIL_INFO, "Failed to create node\n");
- 	return rc;
- }
- 
--- 
-2.25.4
-
+On Tue, May 19, 2020 at 4:11 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Fri, May 15, 2020 at 10:08 PM Peter Whittaker <pww@edgekeep.com> wrote:
+> > Folks, the following patch adds a -x option to restorecon to prevent
+> > it from crossing filesystem boundaries, as requested in
+> > https://github.com/SELinuxProject/selinux/issues/208.
+> >
+> > As per Stephen Smalley's suggestion, this is accomplished using
+> > r_opts.xdev = SELINUX_RESTORECON_XDEV;
+> >
+> > Please do let me know if there are any errors in this, it's been over
+> > two decades since I've lurked in majordomo lists and about as long
+> > since I've contributed a patch via email. (In particular, I am having
+> > issues with sending plaintext, so spaces in the patch are munged; any
+> > pointers on correcting than in the gmail web client would be more than
+> > welcome.)
+> >
+> > Thanks,
+> >
+> > P
+> >
+> > Peter Whittaker
+> > EdgeKeep Inc.
+> > www.edgekeep.com
+> > +1 613 864 5337
+> > +1 613 864 KEEP
+> >
+> > From: Peter Whittaker <pww@edgekeep.com>
+> >
+> > As per #208, add the option -x to prevent restorecon from cross file
+> > system boundaries, by setting SELINUX_RESTORECON_XDEV iff
+> > iamrestorecon. If setfiles, call usage().
+> >
+> > Signed-off-by: Peter Whittaker <pww@edgekeep.com>
+> >
+> > From 3a1c4a3e94f18bb240f663fb5fbcff77068e5c4a Mon Sep 17 00:00:00 2001
+> > From: Peter Whittaker <pww@EdgeKeep.com>
+> > Date: Fri, 15 May 2020 13:05:27 -0400
+> > Subject: [PATCH] Add restorecon -x to not cross FS boundaries
+> >
+> > As per #208, add the option -x to prevent restorecon from cross file
+> > system boundaries, by setting SELINUX_RESTORECON_XDEV iff
+> > iamrestorecon. If setfiles, call usage().
+>
+> Since you are adding a new option, please also update the man page
+> (policycoreutils/setfiles/restorecon.8).
+>
+> > ---
+> >  policycoreutils/setfiles/setfiles.c | 11 +++++++++--
+> >  1 file changed, 9 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/policycoreutils/setfiles/setfiles.c
+> > b/policycoreutils/setfiles/setfiles.c
+> > index 16bd592ca..2d0224bb6 100644
+> > --- a/policycoreutils/setfiles/setfiles.c
+> > +++ b/policycoreutils/setfiles/setfiles.c
+> > @@ -43,8 +43,8 @@ static __attribute__((__noreturn__)) void
+> > usage(const char *const name)
+> >  {
+> >   if (iamrestorecon) {
+> >   fprintf(stderr,
+> > - "usage:  %s [-iIDFmnprRv0] [-e excludedir] pathname...\n"
+> > - "usage:  %s [-iIDFmnprRv0] [-e excludedir] -f filename\n",
+> > + "usage:  %s [-iIDFmnprRv0x] [-e excludedir] pathname...\n"
+> > + "usage:  %s [-iIDFmnprRv0x] [-e excludedir] -f filename\n",
+> >   name, name);
+> >   } else {
+> >   fprintf(stderr,
+> > @@ -386,6 +386,13 @@ int main(int argc, char **argv)
+> >   case '0':
+> >   null_terminated = 1;
+> >   break;
+> > + case 'x':
+> > + if (iamrestorecon) {
+> > + r_opts.xdev = SELINUX_RESTORECON_XDEV;
+> > + } else {
+> > + usage(argv[0]);
+> > + }
+> > + break;
+> >   case 'h':
+> >   case '?':
+> >   usage(argv[0]);
+> > --
+> >
+>
+>
+> --
+> Ondrej Mosnacek <omosnace at redhat dot com>
+> Software Engineer, Security Technologies
+> Red Hat, Inc.
+>
