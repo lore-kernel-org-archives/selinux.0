@@ -2,65 +2,67 @@ Return-Path: <SRS0=GWJJ=7B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB410C433DF
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 21:42:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7898DC433E1
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 22:00:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6FA5E20C09
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 21:42:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 52167205CB
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 22:00:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="bLFESTeD"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="RD7h8apC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726651AbgESVmG (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 May 2020 17:42:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40080 "EHLO
+        id S1727831AbgESWAb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 May 2020 18:00:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725885AbgESVmF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 17:42:05 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FE11C08C5C0
-        for <selinux@vger.kernel.org>; Tue, 19 May 2020 14:42:05 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id z5so776213ejb.3
-        for <selinux@vger.kernel.org>; Tue, 19 May 2020 14:42:05 -0700 (PDT)
+        with ESMTP id S1726862AbgESWA3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 18:00:29 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16B2BC08C5C0
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 15:00:29 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id a2so765888ejb.10
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 15:00:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=9qo/TpiIVszNDGy9XUg9NTQAST/L0Z/ciNjxMWC4L6s=;
-        b=bLFESTeDtfgXMsChDJLHZ7h2pR7OLKx3ZLFQpDiIViwBvexUmtLCDbOEwEUpaoFrjr
-         vVpP9azKJeWpQS79Zduc6rBmJDKxbK2pEKJNv2breWeh3tDL6IU7yRA461LgNsI/tjxE
-         +tHz1Jb306tytLJIEc4u4YcH1qce4jmwrS3f+L0KBXAMpvV8EpbQ9iiKjnA28Bl6jYO0
-         yfRZiXvDo4WoucGY3ImEexi3Hhi6+Y3kOTtvLXomAVDM0ph5qiY9sW6u3DWGU76eNAD2
-         sjycMUrJ43vnrDwSQdqDKnLAys5ensQ7LFq99mSVvbIIa6jX5ragCF/3qNXvKQgGpzvy
-         6CUw==
+        bh=PvF4yYzkXWd0MVV+Uc1So/tiNee1XsFnVCchjUnZd44=;
+        b=RD7h8apCIoXejTbZeYRGjsTruspfphJ7+If1uHtlDuuc9DXtJusnqAeYk+EY6BU1ta
+         QF0LOe4eNATBezKeB8e+sK6nydI/BYUxy4dDucw45qa91gsfOrgVEGnIEaJ+9EsZQQT7
+         qrka+oICI+JFO0yMoLPLx4L1ukJnjzVp5+SWY6aX5dnC8+GYOj1VgrKnU4Km7GxYqwca
+         sfx8u/eqb1pFdM8wrhLFE4o14lWNFv+eIl4U1B8+KGak7FyRYvDH8nPTBtm68fFcnf3b
+         qJ5SmDuWpux25oFd3cUgll2XVEo6LvZ7nHphplq/IkMwW7npEXh+jlLBzAnnzZqzDhoI
+         rMRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=9qo/TpiIVszNDGy9XUg9NTQAST/L0Z/ciNjxMWC4L6s=;
-        b=P0fH0yEgrNoLHB4tTZ9QgQicv/UszEIugzsERRbrCTRUpI9k0Ql8SS01TZTpGBwNGz
-         QwSQ8xiGM7A7Omoju2cdSJLPDW5VtBI0ZO835Xt0PwGaAb38LrML4tXkws0KFKjpkL6I
-         RCenhWiu4A++Yamkk+SZPE2axOwYjoaLNaKHxYD/g8PeFc7IoR4Q8IR9o9GrA72eHhKJ
-         y6lSG8nQotRuM2FX03WdJVLJbDH8McBRU4J5MZ2cRDuGcKTdju+EzPXwUfnvOc1jJVOY
-         PRVkCzWJkL364oFCqaeI5Su7YgaHbPFffAU8wr+F/fs4pgwFHfQOht8XnjMdNQUVu+13
-         qAIw==
-X-Gm-Message-State: AOAM533XMzPPRcgKJ20YE4KMHtUVMV7n1qyapCZNgqQE5wGxzsXx5y2+
-        o32wyM5lXhjCltFQP/XPFvDXjd5lDfKnTFQMv+aXoEo=
-X-Google-Smtp-Source: ABdhPJwUgh3o7WATsOggBd2GXFco6a62VvumbzK/uIvPLRrF2Zv018iSHq1ydo0Pgu+P1LLLdtLw0WP1Sk/LhOL/YNA=
-X-Received: by 2002:a17:906:4e87:: with SMTP id v7mr1005245eju.431.1589924523930;
- Tue, 19 May 2020 14:42:03 -0700 (PDT)
+        bh=PvF4yYzkXWd0MVV+Uc1So/tiNee1XsFnVCchjUnZd44=;
+        b=WIX2hw4FCYiFfxvhFmxA8WTiyk8tv+VEfDKW5ge3yVjVBvcnoH3HTMEwWyDtARWJtJ
+         QGjOKbu5vbV9ay2RZni76AxEVNKv0zkYB3JE2LavjCaYU8uGYdGGEzq/Zt0ay3mfOEN0
+         1qO7jce57M8IdGMuMboeepjk1wVzQ4qQXCiSSTDeOgQNKXi6a7p7tP+4IIna80f9oTtx
+         W4QuTI6nBCLsLNjpz4y9LQ1Fm7zMG/IF2NylFg7ZH3wbwBpWixNHu4lOULV9U8upBuIA
+         DA/LpavA06HcFcZPpq5icLrvIZHyL4xR+QMo4OCqhkH9jEJ1bY/qLb46rzHvpbl0c0Ls
+         wUFA==
+X-Gm-Message-State: AOAM532RKc/SWVDPn460ow5wBFX01NPEcOvk83D8dZEl1bGdSG9F5YM4
+        tdYLJ9UPrJFcSMTSbBrQkSq0sjGhRDuYUU4PdPtV
+X-Google-Smtp-Source: ABdhPJy4T9GRYhgrSCjkYiDuickfCFQyjzaPJk/DU3EdDnpkkzFDDYOYNjbfkO3NuMPq0G2wPHjJQGCITFWXGrQM/fo=
+X-Received: by 2002:a17:906:7e15:: with SMTP id e21mr1197098ejr.106.1589925627386;
+ Tue, 19 May 2020 15:00:27 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200519151457.31618-1-william.c.roberts@intel.com>
-In-Reply-To: <20200519151457.31618-1-william.c.roberts@intel.com>
+References: <20200519151457.31618-1-william.c.roberts@intel.com> <20200519151457.31618-2-william.c.roberts@intel.com>
+In-Reply-To: <20200519151457.31618-2-william.c.roberts@intel.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 19 May 2020 17:41:52 -0400
-Message-ID: <CAHC9VhTNZ=gcw5w3FFEs9KiuSrUBhbYLVc=sZq0N4ZEGCem1Zg@mail.gmail.com>
-Subject: Re: Travis CI: Run selinux-testsuite
+Date:   Tue, 19 May 2020 18:00:16 -0400
+Message-ID: <CAHC9VhRfWHPkz+rCSAa8kvwVu3dds9q47VfnBFSCJbV3GdMjwQ@mail.gmail.com>
+Subject: Re: [PATCH] ci: run SE Linux kernel test suite
 To:     bill.c.roberts@gmail.com
-Cc:     selinux@vger.kernel.org
+Cc:     selinux@vger.kernel.org,
+        William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -68,24 +70,155 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On Tue, May 19, 2020 at 11:15 AM <bill.c.roberts@gmail.com> wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 >
-> So I put together a patch that will let the selinux-testsuite run in a Fedora 32
-> KVM instance on Travis CI. The userspace selinux bits are rebuilt and installed
-> with the current pull-request patches on the CI build. This will help increase
-> automated test coverage for CI runs. This will help provide confidence that bugs
-> are not being introduced and that master is stable.
+> The current CI runs the userspace tooling and librariers against
+> policy files, but cannot test against an SE Linux enabled kernel. Thus,
+> some tests are not being done in the CI. Travis, unfortunately only
+> provides Ubuntu images, so in order to run against a modern distro with
+> SE Linux in enforcing mode, we need to launch a KVM with something like
+> Fedora.
 >
-> For an example of the run see:
->   - https://travis-ci.org/github/williamcroberts/selinux/builds/688853234
+> This patch enables this support by launching a Fedora32 Cloud Image with
+> the selinux userspace library passed on from the travis clone, it then
+> builds and replaces the current selinux bits on the Fedora image and
+> runs the SE Linux testsuite.
 >
-> Their are some new scripts in the scripts folder. I made a subdir CI to indicate
-> that while you can run these locally, they are really meant for the CI environment.
->
-> [PATCH] ci: run SE Linux kernel test suite
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  .travis.yml                      |   8 +++
+>  scripts/ci/README.md             |   8 +++
+>  scripts/ci/fedora-test-runner.sh |  79 +++++++++++++++++++++
+>  scripts/ci/travis-kvm-setup.sh   | 113 +++++++++++++++++++++++++++++++
+>  4 files changed, 208 insertions(+)
+>  create mode 100644 scripts/ci/README.md
+>  create mode 100755 scripts/ci/fedora-test-runner.sh
+>  create mode 100755 scripts/ci/travis-kvm-setup.sh
 
-s/SE Linux/SELinux/
+...
 
- :-P
+> diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-runner.sh
+> new file mode 100755
+> index 000000000000..8d4b1bf7b8f5
+> --- /dev/null
+> +++ b/scripts/ci/fedora-test-runner.sh
+> @@ -0,0 +1,79 @@
+> +#!/usr/bin/env bash
+> +
+> +set -ev
+> +
+> +# CI Debug output if things go squirrely.
+> +getenforce
+> +id -Z
+> +nproc
+> +pwd
+
+Granted my automated testing experience has been with Fedora Rawhide
+and not the stable Fedora releases, but there have been occasions
+where the system is broken in some way which prevents the necessary
+test setup.  My current approach is to put the system in permissive
+mode and leave it there until just before I run my tests.
+
+> +dnf install -y \
+
+Another speaking from experience comment: you probably want to add
+"--allowerasing" and "--skip-broken" to the dnf command line.  If you
+can cope with the extra overhead, I would even suggest a "dnf clean
+all -y" at the start.
+
+> +    git \
+> +    audit-libs-devel \
+> +    bison \
+> +    bzip2-devel \
+> +    CUnit-devel \
+> +    diffutils \
+> +    flex \
+> +    gcc \
+> +    gettext \
+> +    glib2-devel \
+> +    make \
+> +    libcap-devel \
+> +    libcap-ng-devel \
+> +    pam-devel \
+> +    pcre-devel \
+> +    xmlto \
+> +    python3-devel \
+> +    ruby-devel \
+> +    swig \
+> +    perl-Test \
+> +    perl-Test-Harness \
+> +    perl-Test-Simple \
+> +    selinux-policy-devel \
+> +    gcc \
+> +    libselinux-devel \
+> +    net-tools \
+> +    netlabel_tools \
+> +    iptables \
+> +    lksctp-tools-devel \
+> +    attr \
+> +    libbpf-devel \
+> +    keyutils-libs-devel \
+> +    kernel-devel \
+> +    quota \
+> +    xfsprogs-devel \
+> +    libuuid-devel \
+> +    kernel-devel-$(uname -r) \
+> +    kernel-modules-$(uname -r)
+> +
+> +#
+> +# Move to selinux code and build
+> +#
+> +cd ~/selinux
+> +
+> +# Show HEAD commit for sanity checking
+> +git log -1
+> +
+> +#
+> +# Build and replace userspace components
+> +#
+> +# Note: You can't use parallel builds here (make -jX), you'll end up
+> +# with race conditions that manifest like:
+> +# semanage_store.lo: file not recognized: file format not recognized
+> +#
+> +make LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install install-pywrap relabel
+> +
+> +#
+> +# Get the selinux testsuite, but don't clone it in ~/selinux, move to ~
+> +# first.
+> +#
+> +cd ~
+> +git clone --depth=1 https://github.com/SELinuxProject/selinux-testsuite.git
+> +cd selinux-testsuite
+> +
+> +#
+> +# Run the test suite
+> +#
+> +make test
+> diff --git a/scripts/ci/travis-kvm-setup.sh b/scripts/ci/travis-kvm-setup.sh
+> new file mode 100755
+> index 000000000000..19287fd21642
+> --- /dev/null
+> +++ b/scripts/ci/travis-kvm-setup.sh
+> @@ -0,0 +1,113 @@
+> +#!/usr/bin/env bash
+
+...
+
+> +#
+> +# Great we have a host running, ssh into it. We specify -o so
+> +# we don't get blocked on asking to add the servers key to
+> +# our known_hosts.
+> +#
+> +ssh -o StrictHostKeyChecking=no "root@$ipaddy" "/root/selinux/$TEST_RUNNER"
+
+Depending on the tests, you'll get better output in the logs if you
+add "-tt" to the SSH command line.  You may also want to add "-o
+LogLevel=QUIET" too.
+
+> +
+> +exit 0
+
+Did you want to return the return value from SSH/$TEST_RUNNER?
 
 -- 
 paul moore
