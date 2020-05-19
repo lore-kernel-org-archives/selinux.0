@@ -2,146 +2,160 @@ Return-Path: <SRS0=GWJJ=7B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C60DC433DF
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 07:34:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D6E2C433E0
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 08:11:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 035B520709
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 07:34:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 75F2820809
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 08:11:16 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QMVTkaYr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728303AbgESHeX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 May 2020 03:34:23 -0400
-Received: from mga06.intel.com ([134.134.136.31]:6668 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725996AbgESHeX (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 19 May 2020 03:34:23 -0400
-IronPort-SDR: BXL9YI/ypoiJbt+8oE0oFIUWFgjvCj/dRrO1qYOn4c/bTcYdSBpYDF5RsyoViPg2fbBf/9I3ef
- 4+SNzMrn629g==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2020 00:34:22 -0700
-IronPort-SDR: Blu/9zIQ7wFZBkWMbQjohPpeAbG6EwVuLapMalKVYr5osIL8cdT841osR8otHH1WiNs9LWOHFE
- WTb4NRLHDbmA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.73,409,1583222400"; 
-   d="scan'208";a="308331886"
-Received: from linux.intel.com ([10.54.29.200])
-  by FMSMGA003.fm.intel.com with ESMTP; 19 May 2020 00:34:21 -0700
-Received: from [10.249.225.158] (abudanko-mobl.ccr.corp.intel.com [10.249.225.158])
-        by linux.intel.com (Postfix) with ESMTP id 52D6C580613;
-        Tue, 19 May 2020 00:34:19 -0700 (PDT)
-Subject: Re: [PATCH v3 2/3] perf tool: make Perf tool aware of SELinux access
- control
-From:   Alexey Budankov <alexey.budankov@linux.intel.com>
-To:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-Cc:     Jiri Olsa <jolsa@redhat.com>, Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>
-References: <0fffd9e2-1f22-a0c2-c2e3-cb7f4bb89d66@linux.intel.com>
- <819338ce-d160-4a2f-f1aa-d756a2e7c6fc@linux.intel.com>
- <20200518155843.GF24211@kernel.org>
- <d10fd4b0-d516-cf16-4379-c5299d0c5cc3@linux.intel.com>
-Organization: Intel Corp.
-Message-ID: <74f8d079-39ef-756e-7e43-ba4c897fd441@linux.intel.com>
-Date:   Tue, 19 May 2020 10:34:18 +0300
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        id S1726388AbgESILQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 May 2020 04:11:16 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:39523 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726369AbgESILQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 04:11:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1589875874;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=2oFHbd+EjkpzshItBZ3jkMQ0SQPoozaeJK9kQNQTiRw=;
+        b=QMVTkaYremHmGDfcMJR+WBPPlCEHOPxUfoQIHpQ8RmDoGXR70q2dLiPjLgVCq/ja2Rz36D
+        HOpG34Ot4LhADs+DVv8kjKVEbXzbMaJgginQoYvkbRs/QN29PHlUD7+GAgD659vE9ADrsL
+        zjf/uqAz4svaRu99wvo/Q73+AAu9wL8=
+Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
+ [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-423-cKW2jl__Mb-Xbr5aUsUW5g-1; Tue, 19 May 2020 04:11:11 -0400
+X-MC-Unique: cKW2jl__Mb-Xbr5aUsUW5g-1
+Received: by mail-oi1-f200.google.com with SMTP id j130so7236849oih.0
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 01:11:11 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=2oFHbd+EjkpzshItBZ3jkMQ0SQPoozaeJK9kQNQTiRw=;
+        b=rO37iauvUEettyrpj4ytRwrILTFzWdNIH+4lYtAlrHTN2i+VFnfmVQOQu7TJt07bgg
+         eBh2GYfq1L12v2NF7fPy7Cp/Sg9c2sDI5cog3omZS0tzOMviIaEJsKXFiFTr4QqgtaS0
+         UuSJ2vJe3fAajfyEMygF4DHawlTm6rr5RR2+4OcKJd2Es069ykUBBcuuL63xl4bheoaa
+         iCwXaTKpTvNz0Pwu1mHP29h4JKNw3tf6Ld1km4MuJUN9E+IkXONPn/Jo9vH7GuRr12tj
+         ClWK51V3wiX3PGn6T0jZOvZRMnZ5HX7l6Mlq5i43pRIO2YbYUbXsWWNQtuFjgDP7uj+G
+         KImw==
+X-Gm-Message-State: AOAM533JRfVH2LqYPcGIddeqc/qxzUVRSJhxTGZogD8gZdJM/ahBPd4j
+        ep53W4NnXdehMspqA4ws9i8M68MJ9Mws3tQdesmWvX3iCdNftxYColatMR6SWXZAg30nr1JOsxq
+        Dc8QUcxHOPJACR4sCDG6nWP810iy56+Sthg==
+X-Received: by 2002:a9d:65c8:: with SMTP id z8mr15410568oth.66.1589875870417;
+        Tue, 19 May 2020 01:11:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwVzFyMTUc9nN+GhhUh/9Ff8//mJ1g4y1uLkjMAIhPzyYfiURC3vBSDgoXgndPZbeylGDuKGxIdMdlw5jHeGaM=
+X-Received: by 2002:a9d:65c8:: with SMTP id z8mr15410559oth.66.1589875870110;
+ Tue, 19 May 2020 01:11:10 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <d10fd4b0-d516-cf16-4379-c5299d0c5cc3@linux.intel.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <CAGeouKHKm+Bzk6=gX_GEJc=faTB8tzwQ7txKVEhdbzK1sf-Z1A@mail.gmail.com>
+In-Reply-To: <CAGeouKHKm+Bzk6=gX_GEJc=faTB8tzwQ7txKVEhdbzK1sf-Z1A@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 19 May 2020 10:10:58 +0200
+Message-ID: <CAFqZXNv1WXGOUUjb=89G4sohvztNh_J6aRusLhM6uxEN8b-VXw@mail.gmail.com>
+Subject: Re: [PATCH] Add restorecon -x to not cross FS boundaries
+To:     Peter Whittaker <pww@edgekeep.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Fri, May 15, 2020 at 10:08 PM Peter Whittaker <pww@edgekeep.com> wrote:
+> Folks, the following patch adds a -x option to restorecon to prevent
+> it from crossing filesystem boundaries, as requested in
+> https://github.com/SELinuxProject/selinux/issues/208.
+>
+> As per Stephen Smalley's suggestion, this is accomplished using
+> r_opts.xdev = SELINUX_RESTORECON_XDEV;
+>
+> Please do let me know if there are any errors in this, it's been over
+> two decades since I've lurked in majordomo lists and about as long
+> since I've contributed a patch via email. (In particular, I am having
+> issues with sending plaintext, so spaces in the patch are munged; any
+> pointers on correcting than in the gmail web client would be more than
+> welcome.)
+>
+> Thanks,
+>
+> P
+>
+> Peter Whittaker
+> EdgeKeep Inc.
+> www.edgekeep.com
+> +1 613 864 5337
+> +1 613 864 KEEP
+>
+> From: Peter Whittaker <pww@edgekeep.com>
+>
+> As per #208, add the option -x to prevent restorecon from cross file
+> system boundaries, by setting SELINUX_RESTORECON_XDEV iff
+> iamrestorecon. If setfiles, call usage().
+>
+> Signed-off-by: Peter Whittaker <pww@edgekeep.com>
+>
+> From 3a1c4a3e94f18bb240f663fb5fbcff77068e5c4a Mon Sep 17 00:00:00 2001
+> From: Peter Whittaker <pww@EdgeKeep.com>
+> Date: Fri, 15 May 2020 13:05:27 -0400
+> Subject: [PATCH] Add restorecon -x to not cross FS boundaries
+>
+> As per #208, add the option -x to prevent restorecon from cross file
+> system boundaries, by setting SELINUX_RESTORECON_XDEV iff
+> iamrestorecon. If setfiles, call usage().
 
-On 18.05.2020 19:43, Alexey Budankov wrote:
-> 
-> On 18.05.2020 18:58, Arnaldo Carvalho de Melo wrote:
->> Em Thu, Apr 30, 2020 at 10:15:57AM +0300, Alexey Budankov escreveu:
->>>
->>> Implement selinux sysfs check to see the system is in enforcing
->>> mode and print warning message with pointer to check audit logs.
->>
->> There were some changes in this area meanwhile, so I had to apply the
->> evsel.c by hand, when I push this please double check everything is ok,
-> 
-> Will do. I appreciate your integrating effort.
+Since you are adding a new option, please also update the man page
+(policycoreutils/setfiles/restorecon.8).
 
-Checked at tmp.perf/core branch. The message looks like this:
+> ---
+>  policycoreutils/setfiles/setfiles.c | 11 +++++++++--
+>  1 file changed, 9 insertions(+), 2 deletions(-)
+>
+> diff --git a/policycoreutils/setfiles/setfiles.c
+> b/policycoreutils/setfiles/setfiles.c
+> index 16bd592ca..2d0224bb6 100644
+> --- a/policycoreutils/setfiles/setfiles.c
+> +++ b/policycoreutils/setfiles/setfiles.c
+> @@ -43,8 +43,8 @@ static __attribute__((__noreturn__)) void
+> usage(const char *const name)
+>  {
+>   if (iamrestorecon) {
+>   fprintf(stderr,
+> - "usage:  %s [-iIDFmnprRv0] [-e excludedir] pathname...\n"
+> - "usage:  %s [-iIDFmnprRv0] [-e excludedir] -f filename\n",
+> + "usage:  %s [-iIDFmnprRv0x] [-e excludedir] pathname...\n"
+> + "usage:  %s [-iIDFmnprRv0x] [-e excludedir] -f filename\n",
+>   name, name);
+>   } else {
+>   fprintf(stderr,
+> @@ -386,6 +386,13 @@ int main(int argc, char **argv)
+>   case '0':
+>   null_terminated = 1;
+>   break;
+> + case 'x':
+> + if (iamrestorecon) {
+> + r_opts.xdev = SELINUX_RESTORECON_XDEV;
+> + } else {
+> + usage(argv[0]);
+> + }
+> + break;
+>   case 'h':
+>   case '?':
+>   usage(argv[0]);
+> --
+>
 
-[root@nntvtune39 acme.tmp]# tools/perf/perf stat
-Error:
-Access to performance monitoring and observability operations is limited.
-Enforced MAC policy settings (SELinux) can limit access to performance
-monitoring and observability operations. Inspect system audit records for
-more perf_event access control information and adjusting the policy.
-Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
-access to performance monitoring and observability operations for users
-without CAP_PERFMON or CAP_SYS_ADMIN Linux capability.
-perf_event_paranoid setting is 2:
-  -1: Allow use of (almost) all events by all users
-      Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
->= 0: Disallow raw and ftrace function tracepoint access
->= 1: Disallow CPU event access
->= 2: Disallow kernel profiling
-To make the adjusted perf_event_paranoid setting permanent preserve it
-in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)
 
-Edited patch at security.txt didn't apply cleanly. It requires white space
-prior tab in the first block for wake_alarm etc till perfmon:
+-- 
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
 
----8<---
-diff -Nura a/policy/flask/access_vectors b/policy/flask/access_vectors
---- a/policy/flask/access_vectors	2020-02-04 18:19:53.000000000 +0300
-+++ b/policy/flask/access_vectors	2020-02-28 23:37:25.000000000 +0300
-@@ -174,6 +174,7 @@
- 	wake_alarm
- 	block_suspend
- 	audit_read
-+	perfmon
- }
-
- #
-@@ -1099,3 +1100,15 @@
-
- class xdp_socket
- inherits socket
-+
-+class perf_event
-+{
-+	open
-+	cpu
-+	kernel
-+	tracepoint
-+	read
-+	write
-+}
-+
-+
-diff -Nura a/policy/flask/security_classes b/policy/flask/security_classes
---- a/policy/flask/security_classes	2020-02-04 18:19:53.000000000 +0300
-+++ b/policy/flask/security_classes	2020-02-28 21:35:17.000000000 +0300
-@@ -200,4 +200,6 @@
-
- class xdp_socket
-
-+class perf_event
-+
- # FLASK
-
----8<---
-
-~Alexey
