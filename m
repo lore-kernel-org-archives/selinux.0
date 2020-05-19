@@ -2,180 +2,122 @@ Return-Path: <SRS0=GWJJ=7B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5247DC433E1
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 18:10:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B6C4C433E0
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 21:41:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 306F6204EA
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 18:10:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 299C7208FE
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 21:41:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LE/0Ovwg"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="f0tShOvf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729164AbgESSKT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 May 2020 14:10:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34816 "EHLO
+        id S1726651AbgESVlB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 May 2020 17:41:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726059AbgESSKS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 14:10:18 -0400
-Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79EC2C08C5C0;
-        Tue, 19 May 2020 11:10:18 -0700 (PDT)
-Received: by mail-qk1-x742.google.com with SMTP id i14so446875qka.10;
-        Tue, 19 May 2020 11:10:18 -0700 (PDT)
+        with ESMTP id S1725885AbgESVlB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 17:41:01 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22AAFC08C5C0
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 14:41:01 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id z5so773396ejb.3
+        for <selinux@vger.kernel.org>; Tue, 19 May 2020 14:41:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:date:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=iwpPJt2yMen3dAchpxwcGWHXokS5E7NEgrzxrlcQf0A=;
-        b=LE/0OvwgoiDM/Oive5tQoDLGIRnxacncryO/pATHoLjnUjGAOqLPmP5OQOEY51kKs5
-         g7PsAYSt/56Q2G8d9dcbQeYHoVTJWmmir+c474IxG/dLY5wAMQ8qFu/sCHEt5+K+RFBm
-         bab8xFa8Wd014U843wb4QI9yqpbBgy63VuiVYuEDGC2obQ4FdQunK6cguzIh3LRwFsM/
-         penA6cEzIlo4TlH1J3E1JgR3vWLYeNGv6htysp4m4vBMWtvZXHd/07OIpzFm+4LQ90SV
-         tcK+ak6BjtFxezO2eh2Oa1I+ohBrbCZWsQKuHfcpHgriH1O0a6/RsCNhK3npaP6aF0pK
-         MmKw==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=0lIiU6asn3acv1GpmbwGe/AHI5yhvXdxYG1yTmSRTzA=;
+        b=f0tShOvfUZ3+6CbbRSoUmDHAqEofpFF3X86buJnYmBoqFNBQajw2nMlu0hMjkAvdX/
+         BF0O44Jtzuqg4piCkLtpUrF0zPoGVo77qb/oUF1zvlsEKC0ZfKgxn6cKFKSYkD5O5bnO
+         snDTyzp31h9b8rXW1VKhUjl8daUyyInjYiLXZx03u53BAoJYo853x3y6MnoTYmZF1hCq
+         Xt75thKp+xXFoeg2sk4WNMdVLb8wFvp6zwcmBBomoHU9EGn4WOpMweC5vmuZGb3m7WBj
+         vbi0/TYAWLseon3Fm+fepdY7Y9t5dmqR3pHQ9Dmm+Lig9a31QaxbauOtoO68u4LixQbj
+         eWEQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=iwpPJt2yMen3dAchpxwcGWHXokS5E7NEgrzxrlcQf0A=;
-        b=qvO4+Hb7V0++ZB3pFQ0D65A88A2QxapqctgOYipv39IeIjGshAlueGhog3Wus61jNC
-         zbxdvkUGODVsXCtkeY6NGbmyVZ6plD6B1evxJ8WLAG3A0Hcd+UJXdVCcEdvog1T3sNck
-         FW7KpQXeyxpPYUeU3Gqeb3GtNdxJbxoZ4f6wl1liuBVA13stJV70ZNyrfsX0r/9lbKS8
-         tEQGbFl7lh7M5zXt/sCQaFGcXvIkICcCLY5RIjZKfZT+zfvEjd7JfaxH8Ba2lZE0LW71
-         Unb18gQR5meCFWnnb66tMn3HvAFA6WHu5qLB0xxJCLuC/ojkNcvUC+jpHuCexI928mLZ
-         Iopg==
-X-Gm-Message-State: AOAM533MAl5xDUELOdjcyVb971duE2Cj88LV9lA0gEh/nUY4F0MjU7Tl
-        5Yp3KBlgyWYuU5kdRzjBkik=
-X-Google-Smtp-Source: ABdhPJzLYumTZTo5mjr9Ku5onVV55vuLLLIO03w35YZTTQjKxEO8buyxCwBzRdYjR+vORcMmnvSTcw==
-X-Received: by 2002:a05:620a:747:: with SMTP id i7mr712123qki.346.1589911817366;
-        Tue, 19 May 2020 11:10:17 -0700 (PDT)
-Received: from quaco.ghostprotocols.net ([179.97.37.151])
-        by smtp.gmail.com with ESMTPSA id y140sm207197qkb.127.2020.05.19.11.10.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2020 11:10:16 -0700 (PDT)
-From:   Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
-X-Google-Original-From: Arnaldo Carvalho de Melo <acme@kernel.org>
-Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id 01B2240AFD; Tue, 19 May 2020 15:10:13 -0300 (-03)
-Date:   Tue, 19 May 2020 15:10:13 -0300
-To:     Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH v3 2/3] perf tool: make Perf tool aware of SELinux access
- control
-Message-ID: <20200519181013.GA28228@kernel.org>
-References: <0fffd9e2-1f22-a0c2-c2e3-cb7f4bb89d66@linux.intel.com>
- <819338ce-d160-4a2f-f1aa-d756a2e7c6fc@linux.intel.com>
- <20200518155843.GF24211@kernel.org>
- <d10fd4b0-d516-cf16-4379-c5299d0c5cc3@linux.intel.com>
- <74f8d079-39ef-756e-7e43-ba4c897fd441@linux.intel.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=0lIiU6asn3acv1GpmbwGe/AHI5yhvXdxYG1yTmSRTzA=;
+        b=Gu/16PDqyQJPbKlu46Zbg2pJqzzAdCkKD3tV5lrSQkS9Rit+m6g1j3/I8PhdjysNMx
+         BzFp/XsmgF6z73K+mRhikEMUha38ZpitgTqP0JcRnxcsRMPy8Z/j/JkaA6jCaeK8o82P
+         Ait6Y8NJLGJKj5X4Or3kZRlhP6sLS2PbD5Z5mYjELtTKSiLsPCwovCBidj0xm8OGxJCf
+         UMfv9xTewA8d8xXu/yl7xN98hqg+HaQA9uCVAOjcAH0It3jxFTgP+m63qqt5p94bQFqj
+         xMRuX5cWFMsTaCZitJGnnw4Yo9FBXaBD8s1flliUezv/vdkbxtjMP0N4+AJLT4KtWY+K
+         fWBw==
+X-Gm-Message-State: AOAM531FwjE5OG3mNYcLh10UyP9QdhIGyXk1/Gae50Frxf1WJF7DGxDb
+        UGDa4xd1iU+95FuwwchiEf0rnIV4EvRHGtr2RdN89irlaw==
+X-Google-Smtp-Source: ABdhPJyRj+1mtjqA7IOXprxA2h++tNeoKozWoIhSkx+NbOOYmqfGiFIx/Znz3qtfmJTQluzReWHToyepixv4ULxrrv8=
+X-Received: by 2002:a17:906:279a:: with SMTP id j26mr1090250ejc.398.1589924459505;
+ Tue, 19 May 2020 14:40:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <74f8d079-39ef-756e-7e43-ba4c897fd441@linux.intel.com>
-X-Url:  http://acmel.wordpress.com
+References: <CAGeouKH0MWHVmo-dFxzn4LViwGNLUoYnYYm6HrKzL5XgfMhd4w@mail.gmail.com>
+ <55ef0d617fa84d72f142ec0fa6492e5c5e1b1e2b.camel@btinternet.com>
+ <CAHC9VhQ5f_h_H=CyunX2tKbCgHP8o2Jp4dyMLzX0t9XkG8TPgQ@mail.gmail.com> <60438e5b407320275932f60bc10936b75c9280aa.camel@btinternet.com>
+In-Reply-To: <60438e5b407320275932f60bc10936b75c9280aa.camel@btinternet.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 19 May 2020 17:40:48 -0400
+Message-ID: <CAHC9VhTgXU=yLncdXHrZkyo23OGc+aLDcNZinqkTLPLiq81Ycw@mail.gmail.com>
+Subject: Re: Bad context in PostgreSQL page on SELinux Project wiki?
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     Peter Whittaker <pww@edgekeep.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Em Tue, May 19, 2020 at 10:34:18AM +0300, Alexey Budankov escreveu:
-> 
-> On 18.05.2020 19:43, Alexey Budankov wrote:
-> > 
-> > On 18.05.2020 18:58, Arnaldo Carvalho de Melo wrote:
-> >> Em Thu, Apr 30, 2020 at 10:15:57AM +0300, Alexey Budankov escreveu:
-> >>>
-> >>> Implement selinux sysfs check to see the system is in enforcing
-> >>> mode and print warning message with pointer to check audit logs.
-> >>
-> >> There were some changes in this area meanwhile, so I had to apply the
-> >> evsel.c by hand, when I push this please double check everything is ok,
-> > 
-> > Will do. I appreciate your integrating effort.
-> 
-> Checked at tmp.perf/core branch. The message looks like this:
-> 
-> [root@nntvtune39 acme.tmp]# tools/perf/perf stat
-> Error:
-> Access to performance monitoring and observability operations is limited.
-> Enforced MAC policy settings (SELinux) can limit access to performance
-> monitoring and observability operations. Inspect system audit records for
-> more perf_event access control information and adjusting the policy.
-> Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
-> access to performance monitoring and observability operations for users
-> without CAP_PERFMON or CAP_SYS_ADMIN Linux capability.
-> perf_event_paranoid setting is 2:
->   -1: Allow use of (almost) all events by all users
->       Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
-> >= 0: Disallow raw and ftrace function tracepoint access
-> >= 1: Disallow CPU event access
-> >= 2: Disallow kernel profiling
-> To make the adjusted perf_event_paranoid setting permanent preserve it
-> in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)
-> 
-> Edited patch at security.txt didn't apply cleanly. It requires white space
-> prior tab in the first block for wake_alarm etc till perfmon:
+On Tue, May 19, 2020 at 9:50 AM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> On Sun, 2020-05-17 at 17:59 -0400, Paul Moore wrote:
+> > On Sun, May 17, 2020 at 7:17 AM Richard Haines
+> > <richard_c_haines@btinternet.com> wrote:
+> > > I update the notebook occasionally to keep track of changes for my
+> > > own
+> > > reference, but currently have no plans to publish a new one. If you
+> > > do
+> > > have comments I'm happy to take them onboard, however no guarantees
+> > > to
+> > > publish.
+> >
+> > I just wanted to say thank you once again for all your work on the
+> > notebook, it's a great resource!
+> Glad it's useful
+>
+> >
+> > I understand not wanting to go through the process of generating new
+> > editions of the notebook, but is the source material posted somewhere
+> > online so that people who wanted an updated copy could access it?
+> The source is not available anywhere that I know of (I did send it to a
+> few people who wanted to translate it but never heard from them again
+> !!!). I edit it with LibreOffice Writer as an odt document. It converts
+> to pdf okay, but epub looks real crap.
+>
+> I guess I could post it somewhere, would you like to host it on your
+> site ??.
+>
+> It needs cleaning up as I've scribbled all over it so will take a few
+> weeks.
 
-I see, I'll leave it there then so that it applies cleanly to those
-policy files.
- 
-> ---8<---
-> diff -Nura a/policy/flask/access_vectors b/policy/flask/access_vectors
-> --- a/policy/flask/access_vectors	2020-02-04 18:19:53.000000000 +0300
-> +++ b/policy/flask/access_vectors	2020-02-28 23:37:25.000000000 +0300
-> @@ -174,6 +174,7 @@
->  	wake_alarm
->  	block_suspend
->  	audit_read
-> +	perfmon
->  }
-> 
->  #
-> @@ -1099,3 +1100,15 @@
-> 
->  class xdp_socket
->  inherits socket
-> +
-> +class perf_event
-> +{
-> +	open
-> +	cpu
-> +	kernel
-> +	tracepoint
-> +	read
-> +	write
-> +}
-> +
-> +
-> diff -Nura a/policy/flask/security_classes b/policy/flask/security_classes
-> --- a/policy/flask/security_classes	2020-02-04 18:19:53.000000000 +0300
-> +++ b/policy/flask/security_classes	2020-02-28 21:35:17.000000000 +0300
-> @@ -200,4 +200,6 @@
-> 
->  class xdp_socket
-> 
-> +class perf_event
-> +
->  # FLASK
-> 
-> ---8<---
-> 
-> ~Alexey
+While I'm happy to host it, I think it might be better if we hosted it
+in the community GitHub repo - what would you think about creating a
+new repo under https://github.com/SELinuxProject?  Perhaps
+https://github.com/SELinuxProject/notebook?  While it might seem a bit
+odd to host an ODT file in a git repo, it is a good way to keep track
+of historical changes and there are other tools such as the issue
+tracker and "release" hosting which might be helpful.
+
+However, the last thing I would want to do is put a hurdle between you
+and the doc.
+
+Let me know what you think, I'm happy to create a new repo for you on
+the SELinuxProject GH org and set you up with the necessary
+permissions - assuming the others don't mind, and I can't imagine they
+would.
 
 -- 
-
-- Arnaldo
+paul moore
+www.paul-moore.com
