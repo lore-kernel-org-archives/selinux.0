@@ -2,210 +2,180 @@ Return-Path: <SRS0=GWJJ=7B=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24971C433E1
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 15:49:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5247DC433E1
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 18:10:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F19B7207C4
-	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 15:49:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 306F6204EA
+	for <selinux@archiver.kernel.org>; Tue, 19 May 2020 18:10:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="ZtRK/Swu"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LE/0Ovwg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729118AbgESPtC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 19 May 2020 11:49:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40876 "EHLO
+        id S1729164AbgESSKT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 19 May 2020 14:10:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728534AbgESPtC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 11:49:02 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0825CC08C5C0
-        for <selinux@vger.kernel.org>; Tue, 19 May 2020 08:49:01 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id h21so12365972ejq.5
-        for <selinux@vger.kernel.org>; Tue, 19 May 2020 08:49:00 -0700 (PDT)
+        with ESMTP id S1726059AbgESSKS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 19 May 2020 14:10:18 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79EC2C08C5C0;
+        Tue, 19 May 2020 11:10:18 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id i14so446875qka.10;
+        Tue, 19 May 2020 11:10:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kXqsFaZYUrWPd8g8P+NBtNmPnuSPuWvOF7lOsApZicc=;
-        b=ZtRK/SwuNl6/rR6kmVGmz5gmyiKW/e0rylOykpwOFS+EchcY5m7kiWjFgOV1b5zTnq
-         tcQeuGUFPO4gl7l6MuepBuflEzi/IWfkS/39lUqPzueqwEXOiWcKz/4i3dwxMuzVlNNJ
-         EjYRRRcvd0ac2Ha7tNdAk8c4Izx/gfIcbugf5IDisNb5SAvxwr5Yl2WB8Zpw2MzE50vJ
-         FDKBTKMc4HonHVf0IdW7b8bDpfnXipAjwtGrvziSkF8M3E4PyZWTxgM8msWSxLz9azU4
-         ZdpO/++jzm1REsiwZh/JSwdSG0k6yHDnzkjjc1uLFaaOL0RtsjLTJC+/nZZl44iAHobn
-         htYQ==
+        d=gmail.com; s=20161025;
+        h=from:date:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=iwpPJt2yMen3dAchpxwcGWHXokS5E7NEgrzxrlcQf0A=;
+        b=LE/0OvwgoiDM/Oive5tQoDLGIRnxacncryO/pATHoLjnUjGAOqLPmP5OQOEY51kKs5
+         g7PsAYSt/56Q2G8d9dcbQeYHoVTJWmmir+c474IxG/dLY5wAMQ8qFu/sCHEt5+K+RFBm
+         bab8xFa8Wd014U843wb4QI9yqpbBgy63VuiVYuEDGC2obQ4FdQunK6cguzIh3LRwFsM/
+         penA6cEzIlo4TlH1J3E1JgR3vWLYeNGv6htysp4m4vBMWtvZXHd/07OIpzFm+4LQ90SV
+         tcK+ak6BjtFxezO2eh2Oa1I+ohBrbCZWsQKuHfcpHgriH1O0a6/RsCNhK3npaP6aF0pK
+         MmKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kXqsFaZYUrWPd8g8P+NBtNmPnuSPuWvOF7lOsApZicc=;
-        b=UHmJH2yEEOJB+TbERTvR+RpDy4HBwlrwgCoeVHHspDCLbGsRy41lyDEEEeKVROwc01
-         IojWvqRAlC1nVL75fTK0/zyovxJS4qD0Z9iNnyw65PF6cgDVcSlexUP6zbV8AJmFwTi3
-         J9IOVW+eNr/MU0AOErry/BWY1t6wcYSQhKmX3u1iBSWiE8nynZQLHw4LvLt789akrsOV
-         7jAWsqgWxQ6L0lmNMJDn59GHy3CMpnhwtTMRSkQxoJEhoC8Rb3QCNCvG6sHNy9HfGobj
-         lS5kVGuy74iII9nVfZU7je5poREM3Anay27IFVxi/7uD39nPih57LxvSDD7U2kUhx7pV
-         BO9A==
-X-Gm-Message-State: AOAM531lapKGBDH+RCMrxhZaGdESN2jm+A0Tj/DrGgjT82UVSltH/4bL
-        Bxu6qSpIZG7hZFVjmJs+1xf63j8YnpL6rs5Nw9O/
-X-Google-Smtp-Source: ABdhPJwNdUnc0T4bpKK1FqwyPy1M/CPbyb/M8IJ2ellHqIqSh1o8ijGRW/1DbacfIW8CcfyCmJ66V3nNr01mTEEzS9s=
-X-Received: by 2002:a17:907:b13:: with SMTP id h19mr1164608ejl.488.1589903339426;
- Tue, 19 May 2020 08:48:59 -0700 (PDT)
+        h=x-gm-message-state:from:date:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=iwpPJt2yMen3dAchpxwcGWHXokS5E7NEgrzxrlcQf0A=;
+        b=qvO4+Hb7V0++ZB3pFQ0D65A88A2QxapqctgOYipv39IeIjGshAlueGhog3Wus61jNC
+         zbxdvkUGODVsXCtkeY6NGbmyVZ6plD6B1evxJ8WLAG3A0Hcd+UJXdVCcEdvog1T3sNck
+         FW7KpQXeyxpPYUeU3Gqeb3GtNdxJbxoZ4f6wl1liuBVA13stJV70ZNyrfsX0r/9lbKS8
+         tEQGbFl7lh7M5zXt/sCQaFGcXvIkICcCLY5RIjZKfZT+zfvEjd7JfaxH8Ba2lZE0LW71
+         Unb18gQR5meCFWnnb66tMn3HvAFA6WHu5qLB0xxJCLuC/ojkNcvUC+jpHuCexI928mLZ
+         Iopg==
+X-Gm-Message-State: AOAM533MAl5xDUELOdjcyVb971duE2Cj88LV9lA0gEh/nUY4F0MjU7Tl
+        5Yp3KBlgyWYuU5kdRzjBkik=
+X-Google-Smtp-Source: ABdhPJzLYumTZTo5mjr9Ku5onVV55vuLLLIO03w35YZTTQjKxEO8buyxCwBzRdYjR+vORcMmnvSTcw==
+X-Received: by 2002:a05:620a:747:: with SMTP id i7mr712123qki.346.1589911817366;
+        Tue, 19 May 2020 11:10:17 -0700 (PDT)
+Received: from quaco.ghostprotocols.net ([179.97.37.151])
+        by smtp.gmail.com with ESMTPSA id y140sm207197qkb.127.2020.05.19.11.10.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2020 11:10:16 -0700 (PDT)
+From:   Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>
+X-Google-Original-From: Arnaldo Carvalho de Melo <acme@kernel.org>
+Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
+        id 01B2240AFD; Tue, 19 May 2020 15:10:13 -0300 (-03)
+Date:   Tue, 19 May 2020 15:10:13 -0300
+To:     Alexey Budankov <alexey.budankov@linux.intel.com>
+Cc:     Arnaldo Carvalho de Melo <arnaldo.melo@gmail.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH v3 2/3] perf tool: make Perf tool aware of SELinux access
+ control
+Message-ID: <20200519181013.GA28228@kernel.org>
+References: <0fffd9e2-1f22-a0c2-c2e3-cb7f4bb89d66@linux.intel.com>
+ <819338ce-d160-4a2f-f1aa-d756a2e7c6fc@linux.intel.com>
+ <20200518155843.GF24211@kernel.org>
+ <d10fd4b0-d516-cf16-4379-c5299d0c5cc3@linux.intel.com>
+ <74f8d079-39ef-756e-7e43-ba4c897fd441@linux.intel.com>
 MIME-Version: 1.0
-References: <20200514221142.11857-1-casey@schaufler-ca.com>
- <20200514221142.11857-21-casey@schaufler-ca.com> <CAEjxPJ67cA_A-Oh72EGgmCrP6k9x0PuaU2q7UL9eOc+J6Do0zQ@mail.gmail.com>
- <9cabbb54-69e6-91e6-88f8-e76d53da2a77@schaufler-ca.com> <CAHC9VhRGopG0=DbEZArz2X2yfEQ1pOqoSLRMn9ABe5JYZB2Y8Q@mail.gmail.com>
- <774a37e3-3469-d606-a468-a57892b44645@schaufler-ca.com>
-In-Reply-To: <774a37e3-3469-d606-a468-a57892b44645@schaufler-ca.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 19 May 2020 11:48:47 -0400
-Message-ID: <CAHC9VhQOVRYTvjp4kmJx-rziSqeRb-=XSKYMBeN_o-ioJp7JNg@mail.gmail.com>
-Subject: Re: [PATCH v17 20/23] Audit: Add a new record for multiple subject
- LSM attributes
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        casey.schaufler@intel.com, James Morris <jmorris@namei.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        John Johansen <john.johansen@canonical.com>,
-        penguin-kernel@i-love.sakura.ne.jp,
-        Stephen Smalley <sds@tycho.nsa.gov>, linux-audit@redhat.com,
-        Steve Grubb <sgrubb@redhat.com>,
-        Richard Guy Briggs <rgb@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <74f8d079-39ef-756e-7e43-ba4c897fd441@linux.intel.com>
+X-Url:  http://acmel.wordpress.com
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 18, 2020 at 8:16 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> On 5/18/2020 3:21 PM, Paul Moore wrote:
-> > On Mon, May 18, 2020 at 4:43 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> On 5/18/2020 11:02 AM, Stephen Smalley wrote:
-> >>> On Thu, May 14, 2020 at 7:30 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >>>> Create a new audit record type to contain the subject information
-> >>>> when there are multiple security modules that require such data.
-> >>>> This record is emitted before the other records for the event, but
-> >>>> is linked with the same timestamp and serial number.
-> >>>>
-> >>>> Reviewed-by: Kees Cook <keescook@chromium.org>
-> >>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> >>>> Cc: linux-audit@redhat.com
-> >>>> ---
-> >>> With this patch, I see userspace audit records like this one:
+Em Tue, May 19, 2020 at 10:34:18AM +0300, Alexey Budankov escreveu:
+> 
+> On 18.05.2020 19:43, Alexey Budankov wrote:
+> > 
+> > On 18.05.2020 18:58, Arnaldo Carvalho de Melo wrote:
+> >> Em Thu, Apr 30, 2020 at 10:15:57AM +0300, Alexey Budankov escreveu:
 > >>>
-> >>> type=SYSTEM_BOOT msg=audit(1589816792.181:103): pid=789 uid=0
-> >>> auid=4294967295 ses=4294967295 subj=? subj=system_u:system_r:init_t:s0
-> >>> msg=' comm="systemd-update-utmp"
-> >>> exe="/usr/lib/systemd/systemd-update-utmp" hostname=? addr=?
-> >>> terminal=? res=success'
-> >>>
-> >>> I'm guessing that userspace is appending the second subj= field when
-> >>> it sees subj=? or otherwise is missing subj= information?
-> >> I haven't looked at the userspace code, but I expect you're right.
-> >> It looks like there will need to be some change in the userspace
-> >> for the multiple LSM case. The "completion" shown here isn't correct,
-> >> because it only fills in one of the subject attributes, not both.
-> > Wait, didn't we agree on a a "subj=? subj_selinux=XXX
-> > subj_apparmor=YYY subj_smack=ZZZ" format?  It looks like there are two
-> > 'subj' fields in the record above which is bad, don't do that please.
->
-> That's not something that's coming from the kernel.
+> >>> Implement selinux sysfs check to see the system is in enforcing
+> >>> mode and print warning message with pointer to check audit logs.
+> >>
+> >> There were some changes in this area meanwhile, so I had to apply the
+> >> evsel.c by hand, when I push this please double check everything is ok,
+> > 
+> > Will do. I appreciate your integrating effort.
+> 
+> Checked at tmp.perf/core branch. The message looks like this:
+> 
+> [root@nntvtune39 acme.tmp]# tools/perf/perf stat
+> Error:
+> Access to performance monitoring and observability operations is limited.
+> Enforced MAC policy settings (SELinux) can limit access to performance
+> monitoring and observability operations. Inspect system audit records for
+> more perf_event access control information and adjusting the policy.
+> Consider adjusting /proc/sys/kernel/perf_event_paranoid setting to open
+> access to performance monitoring and observability operations for users
+> without CAP_PERFMON or CAP_SYS_ADMIN Linux capability.
+> perf_event_paranoid setting is 2:
+>   -1: Allow use of (almost) all events by all users
+>       Ignore mlock limit after perf_event_mlock_kb without CAP_IPC_LOCK
+> >= 0: Disallow raw and ftrace function tracepoint access
+> >= 1: Disallow CPU event access
+> >= 2: Disallow kernel profiling
+> To make the adjusted perf_event_paranoid setting permanent preserve it
+> in /etc/sysctl.conf (e.g. kernel.perf_event_paranoid = <setting>)
+> 
+> Edited patch at security.txt didn't apply cleanly. It requires white space
+> prior tab in the first block for wake_alarm etc till perfmon:
 
-Yes it is.  Well, sorta.  With audit *everything* must come from the
-kernel in order to meet the security goals that audit tries to
-achieve.  I know you already know most of this, but I'm mentioning it
-for others who are following along.
-
-The record above is an audit user message which is a message that is
-generated in userspace by a trusted process and written to the kernel,
-the kernel then generates an audit record based on this message and
-inserts it into the audit stream.  The text string that originates
-from the userspace process is placed in the "msg" field; the
-UID/AUID/subj/etc. information is supplied by the kernel (we don't
-want to trust the process any more than absolutely necessary).
-
-On my system, running a random but fairly modern kernel (a 5.7.0-rc5
-variant) I see the following for the SYSTEM_BOOT record on my most
-recent boot:
-
-  type=SYSTEM_BOOT msg=audit(05/13/2020 14:19:23.983:89) : pid=633
-    uid=root auid=unset ses=unset subj=system_u:system_r:init_t:s0
-    msg=' comm=systemd-update-utmp
-      exe=/usr/lib/systemd/systemd-update-utmp hostname=? addr=?
-      terminal=? res=success'
-
-... pay special attention to the single "subj" field ;)
-
-> I'll check again, but I think that everyplace in the kernel that
-> produces a subj= has been trained to create a type=1420 record
-> instead.
->
-> >>> Then we have kernel audit records like this:
-> >>>
-> >>> type=PROCTITLE msg=audit(1589816791.959:101): proctitle=2F7362696E2F617564697463
-> >>> 746C002D52002F6574632F61756469742F61756469742E72756C6573
-> >>> type=SYSCALL msg=audit(1589816791.959:101): arch=c000003e syscall=44
-> >>> success=yes exit=1056 a0=3 a1=7fff9ccc98a0 a2=420 a3=0 items=0
-> >>> ppid=773 pid=783 auid=4294967295 uid=0 gid=0 euid=0 suid=0 fsuid=0
-> >>> egid=0 sgid=0 fsgid=0 tty=(none) ses=4294967295 comm="auditctl"
-> >>> exe="/usr/sbin/auditctl" subj=? key=(null)
-> >>> type=UNKNOWN[1420] msg=audit(1589816791.959:101):
-> >>> subj_selinux=system_u:system_r:unconfined_service_t:s0
-> >>> subj_apparmor==unconfined
-> >>> type=CONFIG_CHANGE msg=audit(1589816791.959:101): auid=4294967295
-> >>> ses=4294967295 subj=? op=add_rule key=(null) list=1 res=1
-> >>> type=UNKNOWN[1420] msg=audit(1589816791.959:101):
-> >>> subj_selinux=system_u:system_r:unconfined_service_t:s0
-> >>> subj_apparmor==unconfined
-> >>>
-> >>> where we are getting multiple copies of the new record type, one for
-> >>> each record type that had subj=?.
-> >> While obviously wasteful, the type=1420 behavior is consistent with
-> >> the subj=? behavior, which is to duplicate the subj= value. I know
-> >> we've got enough hobgoblins in the audit system that we don't need
-> >> to add any more in the name of a foolish consistency.
-> > You need to provide a bit more reason why we need byte-for-byte
-> > duplicate records in a single event.  As it currently stands this
-> > looks like something we definitely don't want.
->
-> The CONFIG_CHANGE record already duplicates the subj= information
-> in the SYSCALL record.
-
-Yeah, let's not get started on that discussion ;)  Thankfully that
-isn't what I was talking about in my earlier comment in this thread.
-
-In the audit event above we see a number of records all part of a
-single event (they all share the same timestamp:
-"audit(1589816791.959:101)"), and in this single event we see two
-identical records of type 1420 (the new record you are proposing).
-That is my concern, I would expect just a single type 1420 record to
-be added to this event.
-
-For those who may not be familiar with audit, this is what a typical
-audit event with a CONFIG_CHANGE record that adds an audit filter rule
-looks like with an unpatched kernel:
-
-  type=PROCTITLE msg=audit(05/13/2020 13:55:25.598:10349) :
-    proctitle=auditctl -a always,exit -F arch b64 -S bpf
-      -k testsuite-1589392525-yPWwmHYp
-  type=SYSCALL msg=audit(05/13/2020 13:55:25.598:10349) : arch=x86_64
-    syscall=send to success=yes exit=1088 a0=0x4 a1=0x7ffc93b8c910
-    a2=0x440 a3=0x0 items=0 ppid=2650 pid=2659 auid=root uid=root
-    gid=root euid=root suid=root fsuid=root egid=root sgid=root
-    fsgid=root tty=pts0 ses=1 comm=auditctl exe=/usr/sbin/auditctl
-    subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 key=(null)
-  type=CONFIG_CHANGE msg=audit(05/13/2020 13:55:25.598:10349) : auid=root
-    ses=1 subj=unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023
-    op=add_rule key=testsuite-1589392525-yPWwmHYp list=exit res=yes
-
-> I just maintained the duplication. You're
-> right, it's silly to have two identical type=1420 records for the event.
-> I will have to come up with a mechanism to prevent the duplication.
-> with luck, there's already a similar case for some other record.
+I see, I'll leave it there then so that it applies cleanly to those
+policy files.
+ 
+> ---8<---
+> diff -Nura a/policy/flask/access_vectors b/policy/flask/access_vectors
+> --- a/policy/flask/access_vectors	2020-02-04 18:19:53.000000000 +0300
+> +++ b/policy/flask/access_vectors	2020-02-28 23:37:25.000000000 +0300
+> @@ -174,6 +174,7 @@
+>  	wake_alarm
+>  	block_suspend
+>  	audit_read
+> +	perfmon
+>  }
+> 
+>  #
+> @@ -1099,3 +1100,15 @@
+> 
+>  class xdp_socket
+>  inherits socket
+> +
+> +class perf_event
+> +{
+> +	open
+> +	cpu
+> +	kernel
+> +	tracepoint
+> +	read
+> +	write
+> +}
+> +
+> +
+> diff -Nura a/policy/flask/security_classes b/policy/flask/security_classes
+> --- a/policy/flask/security_classes	2020-02-04 18:19:53.000000000 +0300
+> +++ b/policy/flask/security_classes	2020-02-28 21:35:17.000000000 +0300
+> @@ -200,4 +200,6 @@
+> 
+>  class xdp_socket
+> 
+> +class perf_event
+> +
+>  # FLASK
+> 
+> ---8<---
+> 
+> ~Alexey
 
 -- 
-paul moore
-www.paul-moore.com
+
+- Arnaldo
