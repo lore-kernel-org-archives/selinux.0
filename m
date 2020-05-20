@@ -8,63 +8,65 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68CFBC433E0
-	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 15:42:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCC98C433DF
+	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 15:42:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 38058206B6
-	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 15:42:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A787D206B6
+	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 15:42:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uEXZAjx+"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eiK1kvQ0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727040AbgETPm2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 May 2020 11:42:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39410 "EHLO
+        id S1727041AbgETPmf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 May 2020 11:42:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727039AbgETPm1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 May 2020 11:42:27 -0400
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82A8DC061A0E
-        for <selinux@vger.kernel.org>; Wed, 20 May 2020 08:42:27 -0700 (PDT)
-Received: by mail-qv1-xf42.google.com with SMTP id r3so1550796qve.1
-        for <selinux@vger.kernel.org>; Wed, 20 May 2020 08:42:27 -0700 (PDT)
+        with ESMTP id S1726510AbgETPmf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 May 2020 11:42:35 -0400
+Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14153C061A0E
+        for <selinux@vger.kernel.org>; Wed, 20 May 2020 08:42:35 -0700 (PDT)
+Received: by mail-qk1-x741.google.com with SMTP id n14so3970110qke.8
+        for <selinux@vger.kernel.org>; Wed, 20 May 2020 08:42:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qD2c8ZTUUcysl+0yM7G8WeUR/LiTblDLjpSaVs+SGFU=;
-        b=uEXZAjx+KYmtLJ7yl9kJUdHYb0DFgPCWSBpmGyp8II4RNU0LwosUhoobaRsh43yC40
-         x8BSsju83QBNJkQhSrBc7K92F4WKv/C/aVwUNf46jZb4+OareytQFP48DmQm+zpKVJBl
-         lKrpdo0XNFzD+M2v9synGrWDTpLvNBYa2tvY3G8+KF9lVVFnLoQjWZ8Qq1F69TRheVn4
-         vvn/E/ikbHO/WZr2KAWKIP233vd3xM8hmQPGNqu8n22C+Z0vUiu9dIotwId41b4t5V/h
-         vifrpugyuMDHrpuREAA+f0Cqy5H0oVOG5TtPwed8PMLegbK7On/UfzXhQ6POi1RKEAbs
-         8+eg==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=aAMzysKhLmPEhQYwqe5E6+gXwQ7G/bkDuUsOLPexA7M=;
+        b=eiK1kvQ0vk3lkkHDCL/DFyYW+GlWsQjCyOjisJBhaxxQAQIq7q/YVx81a8/CpPGoV+
+         oIdwBHpRnhfBUGi/aRxcrI0J9RiiP04pLMUozxtyO0/hS5pyHBa9sldF9EYPbJCOYKy4
+         MedlHn5rZFSMBE1vxrEZNsf1iHsXZAvR05Tdw3yo89tusyt/9o7Py+7U71p/6+YzaJF2
+         r2xJKWhONv9l3Iqg9SzbskjsS7E3vH0Qj150fs8sIFRAkwNXeiTtJEkFkIxhOLYvq4ck
+         oQs1eOgbvFcxAf2JfuqKe08Pl39trMMOfF4YdtASTaGfitJg/kpsuQ8YJAs3t8ki2jLi
+         nIzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=qD2c8ZTUUcysl+0yM7G8WeUR/LiTblDLjpSaVs+SGFU=;
-        b=IVeO2iq3YD3QzHUtnWUvWmCqjE6de3Gjh5Dpq7ccvi2I0xsKfs6TCrtgq4gLVQLqy1
-         VrnsV+zRQG5fo7bcRpcR7xMGSItbAd6PAoBpeA76PU2koOcmxuo/f7za7ckzH1UFXEFR
-         ombb14sqpIxkwHDZ0CHB1O0QMwm+zkCeGFZk/iKW23P1Ha+ywSP9qmzYVUTa5ymx0LvS
-         50OIVgIazPiv5LgWDo+xsOZ9F3B0bMSKZG6xHJh2ILYxIVb5WhoEyuETAUc8id7LxVAe
-         tNgFxNboGQQ+AHp5ZqnjAJiC20e6RguELBVVI6MCExEGqItyAnAzsRw7xAzOfGkiC46S
-         qF/Q==
-X-Gm-Message-State: AOAM530bgoo0SDvWK01wtoEFoyQCcp9RxcNfdGQM5fQ5yCFaXp8OCAhS
-        pTyPOZs5lOC/dELmxTt430skNtDRvm8=
-X-Google-Smtp-Source: ABdhPJyVyjVINXaGqCffiERbeVGzRXDaR39ryFG2S/b20qQGDsUopT3zF8hG3p1eV1Z+ySQBPPrDcQ==
-X-Received: by 2002:ad4:4b26:: with SMTP id s6mr5505544qvw.146.1589989346200;
-        Wed, 20 May 2020 08:42:26 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=aAMzysKhLmPEhQYwqe5E6+gXwQ7G/bkDuUsOLPexA7M=;
+        b=l1sMNDCvxE4iGbRXSk7WXPWW+MTxNJLDG1AKkzRUBKEQzgeJbsJTVQdd6Ckdtgpz0z
+         845PZ+tkSVrLBqpPOHcM74AxUFPjzavYWaKpkFIhU8oxeMYm+awjMEAT9fsjtynNCZMk
+         UgRo/bPuLsA03GmmKjs1JcAEzKwULmSFHwGyCnI5FDuxmijHYevjfZjtja9fhn1oUPbw
+         Fy1HxyLD2cjKvY5bP01YWGF7YcqhLyZ+Xsra5JSGhF72xFDnf4jO0fpVUmS0KO02npZL
+         L5/0F4wtIpiGrCdfwSZpjX0lw3cAFn5WidB0DKnH1K6QHa0385ua4iFkzwi+SXcP5il5
+         Zlpw==
+X-Gm-Message-State: AOAM530qe/WMr/yzJadHPhBFIHtwhJkWI4ydbJ7Qvq0I9oqYZhLH0Ita
+        FUymQt2aQtEu16R3f5DH3EGSn94b9ck=
+X-Google-Smtp-Source: ABdhPJxCzQaiHLXKRpMAv8efkeNmGHNqhwVxZxjcT+b41gq62rXDO7LQQ3Qu5kZHlL2ZuC4cO6KPCg==
+X-Received: by 2002:a37:9a48:: with SMTP id c69mr5234412qke.282.1589989354162;
+        Wed, 20 May 2020 08:42:34 -0700 (PDT)
 Received: from localhost.localdomain (pool-71-166-99-106.bltmmd.east.verizon.net. [71.166.99.106])
-        by smtp.gmail.com with ESMTPSA id 62sm2448813qkh.113.2020.05.20.08.42.23
+        by smtp.gmail.com with ESMTPSA id 62sm2448813qkh.113.2020.05.20.08.42.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 May 2020 08:42:24 -0700 (PDT)
+        Wed, 20 May 2020 08:42:33 -0700 (PDT)
 From:   James Carter <jwcart2@gmail.com>
 To:     selinux@vger.kernel.org
 Cc:     James Carter <jwcart2@gmail.com>
-Subject: [PATCH 1/2] libsepol: Fix type alias handling in kernel_to_cil
-Date:   Wed, 20 May 2020 11:42:12 -0400
-Message-Id: <20200520154213.117606-1-jwcart2@gmail.com>
+Subject: [PATCH 2/2] libsepol: Fix type alias handling in kernel_to_conf
+Date:   Wed, 20 May 2020 11:42:13 -0400
+Message-Id: <20200520154213.117606-2-jwcart2@gmail.com>
 X-Mailer: git-send-email 2.25.4
+In-Reply-To: <20200520154213.117606-1-jwcart2@gmail.com>
+References: <20200520154213.117606-1-jwcart2@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -73,26 +75,26 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 Type alias rules are not written out when converting a binary kernel
-policy to CIL. The problem is that type aliases are not in the
-type_val_to_struct array and that is what is being used to find the
-aliases.
+policy to a policy.conf. The problem is that type aliases are not in
+the type_val_to_struct array and that is what is being used to find
+the aliases.
 
 Since type aliases are only in the types hashtable, walk that to
 find the type aliases.
 
-Fixes: 70a480bfcd46214a ("libsepol: Add ability to convert binary
-       policy to CIL")
+Fixes: 0a08fd1e69797d6a ("libsepol: Add ability to convert binary
+       policy to policy.conf file")
 
 Signed-off-by: James Carter <jwcart2@gmail.com>
 ---
- libsepol/src/kernel_to_cil.c | 44 +++++++++++++++++++++++++++---------
- 1 file changed, 33 insertions(+), 11 deletions(-)
+ libsepol/src/kernel_to_conf.c | 45 +++++++++++++++++++++++++----------
+ 1 file changed, 33 insertions(+), 12 deletions(-)
 
-diff --git a/libsepol/src/kernel_to_cil.c b/libsepol/src/kernel_to_cil.c
-index ede78a20..bc5f9b52 100644
---- a/libsepol/src/kernel_to_cil.c
-+++ b/libsepol/src/kernel_to_cil.c
-@@ -1367,33 +1367,55 @@ exit:
+diff --git a/libsepol/src/kernel_to_conf.c b/libsepol/src/kernel_to_conf.c
+index 9de64832..78b7cc0b 100644
+--- a/libsepol/src/kernel_to_conf.c
++++ b/libsepol/src/kernel_to_conf.c
+@@ -1353,34 +1353,55 @@ exit:
  	return rc;
  }
  
@@ -119,7 +121,7 @@ index ede78a20..bc5f9b52 100644
 +	return rc;
 +}
 +
- static int write_type_alias_rules_to_cil(FILE *out, struct policydb *pdb)
+ static int write_type_alias_rules_to_conf(FILE *out, struct policydb *pdb)
  {
  	type_datum_t *alias;
  	struct strs *strs;
@@ -146,16 +148,17 @@ index ede78a20..bc5f9b52 100644
 +	rc = strs_init(&strs, num);
 +	if (rc != 0) {
 +		goto exit;
-+	}
-+
+ 	}
+ 
 +	rc = hashtab_map(pdb->p_types.table, map_type_aliases_to_strs, strs);
 +	if (rc != 0) {
 +		goto exit;
- 	}
- 
++	}
++	
  	strs_sort(strs);
  
 -	num = strs_num_items(strs);
+-
  	for (i=0; i<num; i++) {
  		name = strs_read_at_index(strs, i);
  		if (!name) {
