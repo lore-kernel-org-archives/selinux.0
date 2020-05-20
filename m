@@ -2,114 +2,116 @@ Return-Path: <SRS0=Lh2G=7C=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB702C433E0
-	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 15:18:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1CBFC433DF
+	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 15:20:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9E50820671
-	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 15:18:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6E09D20708
+	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 15:20:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g8TjvUb4"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c+je5cOM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726525AbgETPS2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 May 2020 11:18:28 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:38758 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726439AbgETPS2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 May 2020 11:18:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1589987906;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=c4ZBbdx93oYVQs2qLF1GdFUqjDP2EmG/cPCQwKxLwN0=;
-        b=g8TjvUb4zVUA1aD7CMzEE+mC5ptKy6cjpT/+Wxf9DglDCXX2c4YJ0uYekugL3mXiCEdwv3
-        dMSlUOxL1c47WXMBu4QBUEBQk0a98PzJNfP1gCoyDhDShPJH9ePK14CKW8TMFBqW7dLyK7
-        Z3vy0bHwXYTmssslv9uQcmTLcjM2DP8=
-Received: from mail-oo1-f70.google.com (mail-oo1-f70.google.com
- [209.85.161.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-464-nL0tNfihPSutnTwlK-WUcw-1; Wed, 20 May 2020 11:18:25 -0400
-X-MC-Unique: nL0tNfihPSutnTwlK-WUcw-1
-Received: by mail-oo1-f70.google.com with SMTP id 187so1865416oor.18
-        for <selinux@vger.kernel.org>; Wed, 20 May 2020 08:18:24 -0700 (PDT)
+        id S1726697AbgETPU3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 20 May 2020 11:20:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35968 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726436AbgETPU2 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 20 May 2020 11:20:28 -0400
+Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348BFC061A0E
+        for <selinux@vger.kernel.org>; Wed, 20 May 2020 08:20:28 -0700 (PDT)
+Received: by mail-il1-x143.google.com with SMTP id 17so3498143ilj.3
+        for <selinux@vger.kernel.org>; Wed, 20 May 2020 08:20:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=utZH8rXXT0w9ASGCYwa/zYq/JC2fhmaQxJQn44JLuF4=;
+        b=c+je5cOMf3X+Awv3Mk4hEXGB9jjFCri8oDHr21BkpPKrIdPrTjGgA83/VElamHdQfK
+         Lkl/ANf8BQcJii5ZVLLIu+bvS4XkQU7ptVWe3OufLN4ST61FTIONbnuziPAl3Tt1nxjC
+         TsL4guvtVyreHtDILVNgRFDfrfSl3jCArlNmNZT/EPtDypohY8t3SerGcJ6RwJXApye4
+         bhcF/J7cQoIZ80K/g+BH/FtpX4yqrGqY79CxLtbso/jYDPBQ4SdLWE8nkm8UN+aAMK45
+         rAsPAG7dk0BmO8dReSCHKRl80Uh/Pj2hezswQ1tdyA7tWlOaWuHwVnXNMkVeFQoeumHV
+         vIBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=c4ZBbdx93oYVQs2qLF1GdFUqjDP2EmG/cPCQwKxLwN0=;
-        b=sjy2c3F0uSaj4QespwKOH6s/UwMhQ4D5Aet1ik3r4QOBxLi+HTGgvImx1JQBj7h3sn
-         wMo5zVgQdE/KovUiUrko0vIwHcThTgbVhrHNWUi8K0UAionATXWrgf71cXZ6+82dtoxB
-         pPB5J0bq+Ugd/vTN2iXviIFXWN387PD4YK6r/rJ+Fm3j9Ltlico23V8gHTYFlCgPaHZn
-         indVJSjZJ8HVke3hM3gKcTivR6jzySGLL5vat98UyrBONI9pilNff1wpgwz4QMH73HhL
-         4WJKVUhHtqQNa2VhfkjCnb1GwIUNb7pF/2LzRzg99Bl34kpOI8T3u048Q2HwbmXGy448
-         JujQ==
-X-Gm-Message-State: AOAM533nt9Kz04L1z4yeyKs/r/M6ZRGySFmBVT+uNIAQuMp3cAdV91G7
-        e0A1SDfck+Z5inAoaXlL/moKbsKBxkj5EPWhqCq6er/tMgkfl7NLCHy1U5hD5r55NxqfKRh2MHM
-        zIjudz+yLf5/Q5LSQy29FMrzcTHpL/PysXg==
-X-Received: by 2002:a9d:3a7:: with SMTP id f36mr3700905otf.197.1589987902538;
-        Wed, 20 May 2020 08:18:22 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyMBiPQLouoQKEzVfhhjAapC4D9PnQNnkA6jvCRnXytuluOUIk2l+mFMmTcnTRsxZ1wfy4N3118Rm/swYKuqSE=
-X-Received: by 2002:a9d:3a7:: with SMTP id f36mr3700881otf.197.1589987902220;
- Wed, 20 May 2020 08:18:22 -0700 (PDT)
+        bh=utZH8rXXT0w9ASGCYwa/zYq/JC2fhmaQxJQn44JLuF4=;
+        b=LWnzKf2TLuwL0kOHsx/9yF64MTZpBTAK9Txfd28fNPuBFktpEhDRc/UTAKlaDobZy8
+         +f3qlVfEA2SXl7k3G4f7Y0KMal6EjaKqRd51d1KcklTtYsUmJj6bHXpnwtc725/zuM35
+         ryoFA/z0P9PONljLCtnoEDv4HQC83ful63OSotf/swisILnFbXsm2/VY01DZLcBi+0tZ
+         s9BI5qjxAPzjZSMhsyRBALi0MiJ9nw/pcjBtTUJEnXToVNS2YndCHrjUurBs5rbtBXBo
+         6q+GxKql1QowMCyEGi+2Tpu9i6fo3Bafbn3Grq68F4MujRtBy11UhaRdA1+TdZWVEyUC
+         RBKA==
+X-Gm-Message-State: AOAM5300fXvwHf3vtrWM5MyUJ5V+gmUNl9jDU/qI62tOeegzAFA8yumy
+        SMpx9wdsvEYGPHYl7qu5tpssbyHjTJjVFaGZFaA=
+X-Google-Smtp-Source: ABdhPJxgfqmnxVORwS3lmvCUJbtFk6XDLgmu9ujDZFdMT4Sc/9N2230qQ+B5eJTq4ZCB0DggI5zObG/65lbP7k+IvgY=
+X-Received: by 2002:a92:58d6:: with SMTP id z83mr4198039ilf.129.1589988027485;
+ Wed, 20 May 2020 08:20:27 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200515173042.12666-1-william.c.roberts@intel.com>
- <20200515212132.24204-1-william.c.roberts@intel.com> <CAFqZXNsWE6DDZ-jvzTTm-f+4YL5hMhqQBPktxS+UpZvs9OcCAQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNsWE6DDZ-jvzTTm-f+4YL5hMhqQBPktxS+UpZvs9OcCAQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 20 May 2020 17:18:10 +0200
-Message-ID: <CAFqZXNvoBM_hai=uLNLmWX+sm3CsSrvDExUm7V+Durjm1J7Pog@mail.gmail.com>
-Subject: Re: [PATCH v3] README: update kernel-devel package in dnf command
-To:     "Roberts, William C" <william.c.roberts@intel.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200519151457.31618-1-william.c.roberts@intel.com>
+ <20200519151457.31618-2-william.c.roberts@intel.com> <CAHC9VhRfWHPkz+rCSAa8kvwVu3dds9q47VfnBFSCJbV3GdMjwQ@mail.gmail.com>
+ <CAFftDdpPS0wt3VHiMS6sMKTqAgviNB-TBRT1YqbrzgJftPFj_w@mail.gmail.com>
+ <CAHC9VhS8rV_bF1j9Q7bT97916TKeEpNoCDTmjit9YAyMcJ+chQ@mail.gmail.com> <CAFftDdrWNZVvmvAfrLcO61GnTSOs0h5DvZsM7X1mcEP88HM-aA@mail.gmail.com>
+In-Reply-To: <CAFftDdrWNZVvmvAfrLcO61GnTSOs0h5DvZsM7X1mcEP88HM-aA@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Wed, 20 May 2020 10:20:15 -0500
+Message-ID: <CAFftDdo05a7xVhYH-ddQ22V4tH465SXAknRKCuntNmvVuP7ssQ@mail.gmail.com>
+Subject: Re: [PATCH] ci: run SE Linux kernel test suite
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 20, 2020 at 11:19 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Fri, May 15, 2020 at 11:22 PM <william.c.roberts@intel.com> wrote:
-> > From: William Roberts <william.c.roberts@intel.com>
+On Wed, May 20, 2020 at 10:13 AM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+> On Tue, May 19, 2020 at 5:23 PM Paul Moore <paul@paul-moore.com> wrote:
 > >
-> > The README.md file in the selinux-testsuite states that kernel-devel
-> > package is needed. However, for everything to work you need the
-> > kernel-devel package specific to your kernel version.
-> > Update the dnf command to include uname -r, so that a copy + paste
-> > of the dnf command, results in a system with dependencies filled
-> > for recent Fedora distro's like Fedora 32.
+> > On Tue, May 19, 2020 at 6:16 PM William Roberts
+> > <bill.c.roberts@gmail.com> wrote:
+> > > On Tue, May 19, 2020 at 5:00 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > On Tue, May 19, 2020 at 11:15 AM <bill.c.roberts@gmail.com> wrote:
 > >
-> > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > ---
-> >  README.md | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > ...
 > >
-> > diff --git a/README.md b/README.md
-> > index 1f7e5d92a100..1bec9fe85c91 100644
-> > --- a/README.md
-> > +++ b/README.md
-> > @@ -74,7 +74,7 @@ following command:
-> >                 attr \
-> >                 libbpf-devel \
-> >                 keyutils-libs-devel \
-> > -               kernel-devel \
-> > +               kernel-devel-$(uname -r) \
-> >                 quota \
-> >                 xfsprogs-devel \
-> >                 libuuid-devel
-> > --
-> > 2.17.1
+> > > > > +dnf install -y \
+> > > >
+> > > > Another speaking from experience comment: you probably want to add
+> > > > "--allowerasing" and "--skip-broken" to the dnf command line.  If you
+> > > > can cope with the extra overhead, I would even suggest a "dnf clean
+> > > > all -y" at the start.
+> > >
+> > > I don't see why we couldn't.
+> > >
+> > > Not really sure if it matters for those first two things, considering
+> > > that were starting
+> > > in the same state each time. Its not like we need to work on a system
+> > > that's already
+> > > been played with.
+> >
+> > FWIW, the VM I use for my automated kernel testing doesn't get played
+> > with (other than to fix dnf/Rawhide problems) and I can tell you from
+> > experience that Rawhide finds itself broken in new and exciting ways
+> > :)
+> >
+> > You are using a stable Fedora release so it probably won't be too bad,
+> > I'm just trying to share some of the lessons I've learned.
 > >
 >
-> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Sure, and I appreciate that. It actually doesn't add any time, to give
+> you an idea
+> the CI build time went from 14 to 11 mins. So that'll show you how much
+> jitter there is. Ill send a V2 all fixed up shortly
 
-Applied.
-
--- 
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
-
+Not true, I lied. I didn't have it back in enforcing mode so the test suite
+was skipped. I still don't see it adding much in the way of time.
