@@ -1,149 +1,122 @@
-Return-Path: <SRS0=Lh2G=7C=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=ZZHY=7D=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B75CFC433DF
-	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 18:40:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 146D0C433E0
+	for <selinux@archiver.kernel.org>; Thu, 21 May 2020 08:51:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 94A242072C
-	for <selinux@archiver.kernel.org>; Wed, 20 May 2020 18:40:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC88920738
+	for <selinux@archiver.kernel.org>; Thu, 21 May 2020 08:50:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="LaJSBN7g"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NeyuePHv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726566AbgETSkD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 20 May 2020 14:40:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726510AbgETSkC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 20 May 2020 14:40:02 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69BD6C061A0E
-        for <selinux@vger.kernel.org>; Wed, 20 May 2020 11:40:02 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id j21so5353634ejy.1
-        for <selinux@vger.kernel.org>; Wed, 20 May 2020 11:40:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dAK2B7NyCUGtoWTQIVUIAh012PEpr0kw6tOaYreqnH0=;
-        b=LaJSBN7gG4EewdAtxT/aVX5IbUvnR9oDKzIX6JK4WseGFQCtrecIqKV/TJ5kmyCxt8
-         zBwLIkK/nLcTc56XEOTx0kpVGkphqdacIDGP1t3PGXN08xUZQ8qP8iLjLkAdH9G1vWRB
-         lXoW88ynqQM6li0dXT+vIysKWbN5NGzsGAMqZN4m8pCETeKMu082mop8V8FghJ7n4sx2
-         FWDFzeXrK6RxpyJtWaXPHUyHVh5/AA3mQYh1FQSOKzMSEuY+0zX+YySbCgL4KCRtdwY7
-         7PJZVzjxl6DixY24JyyYx5ROMOM8OYjGO/LYvWWljLZSDywMbasfzLPPFOBBOJEq2rqr
-         LHqg==
+        id S1728389AbgEUIu7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 21 May 2020 04:50:59 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:31921 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728407AbgEUIu7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 21 May 2020 04:50:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590051055;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=BjB7AnQHw4NFRDvsov8Q9OXrWX9fQxfIqeAVoK4tn6o=;
+        b=NeyuePHvnZIor0/fPF8WxIhwF7dqPMl0pM3psBzQ59LfV47P/s+RCJwX/HNiTORCyeGECi
+        gOVwJlGkTmLuuefvCzaMUW5K9QB1RRjy3tM8IKZD8jR1MqzhR4siQGoE6FFfg8b8EmVK6L
+        omaVdAhwFeX5Bd9gS9uapTfK/KEcR/Q=
+Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com
+ [209.85.161.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-86-ZMIVP_XyOMiIfhFjG6nIHg-1; Thu, 21 May 2020 04:50:51 -0400
+X-MC-Unique: ZMIVP_XyOMiIfhFjG6nIHg-1
+Received: by mail-oo1-f72.google.com with SMTP id s23so3083488ook.7
+        for <selinux@vger.kernel.org>; Thu, 21 May 2020 01:50:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=dAK2B7NyCUGtoWTQIVUIAh012PEpr0kw6tOaYreqnH0=;
-        b=ZJ6vyDBiisWC7PBJXbXJMlMF+syggypQ+FV3qfNrGAlL1l36ZifnEGEqYRIT0FY0Y7
-         UtHLZFi1iM+37uxMQ4e/GaTkFIMzMkc2vKRQyqpKq0mSXfwqMUEmiZBB5ENISP3LSWgz
-         yHESCDthrVGwgFbn7cYMcdVkUPmSVZrh6v/eYhfpI2QH5vM6L7pqQ9gB1NsbQVz48TtH
-         RyMFEBdoy4hN3j4lJt7rmkVBUtdfvmZS9OuBQahy5HqKbbYycPbdSG2obBGppohwe/67
-         p9kojCL9jzWNzn+23lA+iDfO9Xv/kgFH99EljQUD795bQJKrYRXMZszYqHTpLkjtP7Bt
-         Qwhg==
-X-Gm-Message-State: AOAM531ImmTnXZTO2h3/h+IgRjKvp5msOAyBg6PkCqlktnskoNZ0XJ7Z
-        7Dt3IInFBQgCVNdByboMQEtAftlpz3wgGOPOw9//
-X-Google-Smtp-Source: ABdhPJyvAx9NsSjZ3WgdfwbBIL4V+WCsmOGvHuI5668cq4oG4eRjfnwnLWupRJFuwMI+yy2x1HfnJ5a5JDQ7jD44Rdo=
-X-Received: by 2002:a17:907:40f1:: with SMTP id no1mr410540ejb.178.1590000000759;
- Wed, 20 May 2020 11:40:00 -0700 (PDT)
+        bh=BjB7AnQHw4NFRDvsov8Q9OXrWX9fQxfIqeAVoK4tn6o=;
+        b=MU2AfYcxb1XRsCOBDuvrTtoZXX/FRk/kRflClRWIDw+2sTi3wMKYLAnQH27n0obGit
+         r0PxQ/elQ2499NxDfpR8JtFHixLznec0QGdFzXiwvhf4TLb89zVNij2QCQJ609wEfvzI
+         VfBPk8/85Ej3iHIbHM1fnfhCbpQOWtiHXIg5tOj3Tt8mgQeCZ786KSeuBmwbsOnAuCmH
+         LLHu6S77Xg/b9OYmVVBU96WJ8ozbV6+NjmWMk8RSDwoT9OEqyiQiWIpmvFKAwJ4Oatez
+         Xu/QL6IXydcjtVDil4/+yhUo89MOtQvvGraGr1BZlgx32MMmp0japP6PR0tANMy79jVC
+         +6hw==
+X-Gm-Message-State: AOAM53377YaRhDWg874DqWJiQD+g1t/pycYy5H8yWixsWhnA+V4izvJj
+        BYsuKIuJqgx1xt9xaRnxVP/nLgZYVG2CbYtXfICvMFR6DcyXiPyMUUi+dLA7lGrvEiCi5KaabGH
+        SVtSAH4+wgh6VEC/WjfldmQqJOTihu1XQ6Q==
+X-Received: by 2002:a9d:23f5:: with SMTP id t108mr6348864otb.66.1590051050162;
+        Thu, 21 May 2020 01:50:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyEV0OELCPGyxqkXpiTde6Wz52RJk188BrlubrYZ8m7ivG539iIHyAVtPwrYHg+qHCYx+9WzToB9tYM7ZJEfy0=
+X-Received: by 2002:a9d:23f5:: with SMTP id t108mr6348858otb.66.1590051049882;
+ Thu, 21 May 2020 01:50:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200520165322.GA225268@nyx>
-In-Reply-To: <20200520165322.GA225268@nyx>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 20 May 2020 14:39:49 -0400
-Message-ID: <CAHC9VhQUYVmsXgXUqi6CUa2Np68-PajDkzd7BsDGk7kxLz+Uiw@mail.gmail.com>
-Subject: Re: Documentation on Enabling NetLabel
-To:     Paul Tagliamonte <paultag@debian.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <CAHC9VhTNZ=gcw5w3FFEs9KiuSrUBhbYLVc=sZq0N4ZEGCem1Zg@mail.gmail.com>
+ <20200520163421.27965-1-william.c.roberts@intel.com> <20200520163421.27965-2-william.c.roberts@intel.com>
+In-Reply-To: <20200520163421.27965-2-william.c.roberts@intel.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 21 May 2020 10:50:38 +0200
+Message-ID: <CAFqZXNsV8fUeA-tT4kMtmaNaDK6_LkqvftY-SF7+RUrSBkWUvA@mail.gmail.com>
+Subject: Re: [PATCH v2] ci: run SELinux kernel test suite
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 20, 2020 at 12:53 PM Paul Tagliamonte <paultag@debian.org> wrote:
-> Hey SELinux folks,
+On Wed, May 20, 2020 at 6:34 PM <bill.c.roberts@gmail.com> wrote:
+> From: William Roberts <william.c.roberts@intel.com>
 >
-> Sorry for the second email in no time, but I'm a bit stuck and could use
-> some pointers to continue my quest to get NetLabel working on a Debian
-> VM, and send patches to make it easier for others in the future :)
+> The current Travis CI runs the userspace tooling and libraries against
+> policy files, but cannot test against an SELinux enabled kernel. Thus,
+> some tests are not being done in the CI. Travis, unfortunately only
+> provides Ubuntu images, so in order to run against a modern distro with
+> SELinux in enforcing mode, we need to launch a KVM with something like
+> Fedora.
 >
-> I have SELinux and MLS working (even to some degree whilst enforcing!)
-> in a VM, generally speaking. I can ssh in and do normal things. The
-> rules need a bit more love, but it's in a fine state that I'm happy
-> working from.
+> This patch enables this support by launching a Fedora32 Cloud Image with
+> the SELinux userspace library passed on from the Travis clone, it then
+> builds and replaces the current SELinux bits on the Fedora32 image and
+> runs the SELinux testsuite.
 >
-> I've been able to set up NetLabel to attach a security connect to
-> connections (nice!) that show up when querying the peer context, but switching
-> from permissive to `1` results in dropped traffic.
->
-> I'm sure this is likely the result of (correct!) filtering going on, and
-> because it's now gone from no context to a context, traffic is likely
-> getting filtered out. I don't see anything in audit2why in permissive
-> mode, but I also don't know if invalid network activity is logged.
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
 
-Presumably it works when you are in permissive mode but fails when you
-are in enforcing mode, or does it fail in permissive too?
+From the text above I infer that this patch is intended against the
+userspace repo, right?
 
-If it works in permissive mode but you aren't seeing any AVC failures,
-you may want to try removing the dontaudit rules from the policy.  You
-can do that via 'semodule -DB' (the semodule(8) manpage has some
-examples).
+If so, I don't quite see the usefulness of running the
+selinux-testsuite on every userspace change... It is mainly intended
+for testing the kernel and only a small part of its running time is
+spent on running (i.e. testing in a sense) the SELinux userspace
+programs. Not to mention that in your patch it runs with the userspace
+shipped in Fedora and not the version from the given commit...
 
-You may find that in the near term you need something like Fedora's
-unlabelednet policy module which blanket allows unlabeled network
-traffic to all the domains on the system.
+However, it could be very useful if this was added to the testsuite's
+CI instead so that it can verify that the testsuite patches don't
+break something. But note that you'd need to modify the script a bit
+to copy over the testsuite snapshot being tested to the VM and run
+that, instead of the current master.
 
-> I've tried tcpdump on the host, to no avail. I see packets going in, and
-> not much coming out. I've kept the kernel on the VM host on a version that
-> doesn't have NETLABEL enabled, in an effort to not have the host kernel get
-> in the way.
->
-> Specifically, I've tried:
->
-> ```
-> netlabelctl cipsov4 add local doi:2
-> netlabelctl unlbl accept on
->
-> netlabelctl map del default
-> netlabelctl map add default address:0.0.0.0/0 protocol:unlbl
-> netlabelctl map add default address:::/0 protocol:unlbl
-> netlabelctl map add default address:10.128.0.0/24 protocol:unlbl
-> netlabelctl map add default address:127.0.0.1 protocol:cipsov4,2
-> ```
+Anyway, thank you for working on this! I never realized that it could
+be so easy to run a Fedora VM from Travis. If I find some time maybe I
+can find some more ways to use this... For example we could run the
+Fedora/RHEL SELinux userspace tests from [1] after installing (not yet
+sure how) the userspace built from the currently tested userspace repo
+commit.
 
-It's not clear which interface you sniffed, was it the loopback
-interface?  That is the only interface which should be doing any
-explicit labeling; if you see CIPSO IP options on non-loopback
-interfaces something is wrong.  I would also expect you to see CIPSO
-options on the loopback traffic, do you?
-
-As an aside, Wireshark does know how to parse CIPSO options so you
-should be able to peek at them that way; although Wireshark does not
-know about the "local" tag type we use on loopback (... and it
-shouldn't, it's a horrible abuse of CIPSO, done intentionally <g>).
-
-> On localhost, I can't connect to any running daemons (such as SSH), and
-> I've specifically not added the NIC that is bridged to my LAN (in a maybe
-> misguided attempt to keep traffic from the LAN unmarked) to any netlabel
-> rules. I was also unable to connect to the OpenSSH server via the
-> network IP either.
-
-Try removing the dontaudit rules (above) and see if that helps with
-the AVCs.  Let us know what you find.
-
-> When enforcing without running the above netlabel commands, I can ssh into the
-> box successfully.
->
-> Thanks for any help anyone can provide, and thank you all very much for
-> being so helpful for my last question!
+[1] https://src.fedoraproject.org/tests/selinux/tree/master
 
 -- 
-paul moore
-www.paul-moore.com
+Ondrej Mosnacek <omosnace at redhat dot com>
+Software Engineer, Security Technologies
+Red Hat, Inc.
+
