@@ -2,128 +2,108 @@ Return-Path: <SRS0=crGG=7E=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D50DC433E0
-	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 07:40:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31AE5C433E0
+	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 07:46:55 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E3692207FB
-	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 07:40:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0D461207FB
+	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 07:46:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XdHi1BCK"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gDGr+Lhr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728189AbgEVHkr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 May 2020 03:40:47 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:60599 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727839AbgEVHkr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 May 2020 03:40:47 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590133245;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=6wgqtH/hpg0mXEQCg88KNo5SdWRZtiOXEMQ0f6I+JUs=;
-        b=XdHi1BCK5z2pxixQj5GwdgTqzhHkRa0tisxhO8eLfy69r4RFTxqYtIM6h4vkj62xRsKCXb
-        DHX4T+T2odHrcm4XKHpOLF58z1mCCHMvjvuDZSiXNTjfbtk5hUIYcIH9WwQfixF+P01sav
-        uZbDfAYDk6cttaQgYJb0dN5QatGEatc=
-Received: from mail-oi1-f200.google.com (mail-oi1-f200.google.com
- [209.85.167.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-202-5ec3OvpHMLy-McAWMA5FeA-1; Fri, 22 May 2020 03:40:42 -0400
-X-MC-Unique: 5ec3OvpHMLy-McAWMA5FeA-1
-Received: by mail-oi1-f200.google.com with SMTP id m13so4708472oic.2
-        for <selinux@vger.kernel.org>; Fri, 22 May 2020 00:40:41 -0700 (PDT)
+        id S1728225AbgEVHqy (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 May 2020 03:46:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47666 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728125AbgEVHqy (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 May 2020 03:46:54 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA2AC061A0E
+        for <selinux@vger.kernel.org>; Fri, 22 May 2020 00:46:54 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id n11so4625558pgl.9
+        for <selinux@vger.kernel.org>; Fri, 22 May 2020 00:46:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3dDAEoAaclXPmIvJlXvxWj/lYkiLNFwnPuWgoSMCEuI=;
+        b=gDGr+LhrOXCebEVrGKIKBUMKFmvHrTvjgJMVZ+3Mox3rw1nRtE5xQP+YZReS1bZjji
+         G3bNQqcdLBQKkLD8kYG6nwLc+lRxKWnEZLDYCWdMwQB4gBgOgUpJFVUWfw75IE/J0WRj
+         0P6e5dLAxZFBhShIa4v1XlXIXkJjGI4opfPvX6ffgP6pn1XHqjfBlZ9n1fKxhxX5E4yr
+         V+tkD0Bzk0S8/pHY8ZdvkTYFOsy+SbxYFh4uxTGsAic0sG8T8LDdWZjUc7Av+3D90eIr
+         z0Wp4XVnAwmOInxR7UQss69tBHTNFIYtksLr26H9s62VBzePuABax0A+WdlWkuOq4hxa
+         fVKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=6wgqtH/hpg0mXEQCg88KNo5SdWRZtiOXEMQ0f6I+JUs=;
-        b=pJHUj0cAQ7Wvd3PyVgGZ2wXQOCWuZuY7Qk0WAxOEX8Dis41K4c2I5aIDYYKCdmogax
-         fKSqD4RUj6VfedRrVd0u8Q/Q84UnVmAcVqVMXweCIiG1CHh2Vlt/gD98GK07dYc6fHCK
-         8KTyrKioHpzt4BWnw8DXwOrxjy/rnZTv8y9ukNonvOKt1pof6OKO3CBFzIwBBNT29uPp
-         QCcY61q8761jJmNQ/ndfZG7sRW7xKrFYErZBxWqbMVnWlyZsbatJP7h2l3uoJrUiL00h
-         561JE3cvDs12fCg3HwBGK4oJVeNUTnrnwbvHGUXE+trDAt80hqyjBrx+Uecnlmz4cl9Y
-         k+9g==
-X-Gm-Message-State: AOAM531rUNRwSPUu2lAMoOQ8OGYEjyPhKhqckf0W1gZEpWERp/xxR04m
-        X1LJ1/3FHAloyjxdhluuZnhvMBCK6KdfnSutlCxqI/r5Yx7QpOZNNuHrldeNQjOhduNYXyP0Ztm
-        y0umuloYR/Z3ieQEZ+M4rkMummT+RG2KotA==
-X-Received: by 2002:a4a:d043:: with SMTP id x3mr2014849oor.17.1590133241127;
-        Fri, 22 May 2020 00:40:41 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz4mlHdhjHTbpAawqg+Q6FeHqlAScxUMYZo2V0IAO+7SV6UECCw1eB5t8VB4dmi6BgJ6dyZmoBpy9i9huQyFJ0=
-X-Received: by 2002:a4a:d043:: with SMTP id x3mr2014836oor.17.1590133240801;
- Fri, 22 May 2020 00:40:40 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3dDAEoAaclXPmIvJlXvxWj/lYkiLNFwnPuWgoSMCEuI=;
+        b=euyxkIPlAzdKqyjxdeAzAEEhN96eBSPKEcgTwVlJgvjaI/brAIhbaKDjTBzffcQkbl
+         OLJPlVhi8GJ7d4Rky82furS7SJkTwUpIS4wuR0FxRijLnSYe0LML+HyCnyH1UYKRmHev
+         IAS8PlbF7N+RhtI95IrhZt7bYBsUzxY3kWVhH7i4/euyCLYdJPp8NqNb6zg3fAxrahvw
+         KYejBd8K48qqBrHSJvtHAXxRZzjr5fenU6+374pgPGDII2m4XMVS1XhyfJ5YrMbYorFw
+         L+pn6MCViMyUpTDo2wb0lqIABCt52B+xLUrY1oOFyiap4WziRNywCOZOvsLpmbBy/ypG
+         Y6nQ==
+X-Gm-Message-State: AOAM53094D6FdpFgCAGqUW7QgnCbvM4YyNmehQ6UKItRbVd5jrTQpfBn
+        n+bh3NwyW18Zt5f9AyoZJmZtaCe5
+X-Google-Smtp-Source: ABdhPJyiwPEv9J2/RqkVqJWt8Q67+mjuajfwf/UWh0rP3R9dOA61mTPrmjvLw+w4xmkN6HTCDo7k8A==
+X-Received: by 2002:a63:4f0e:: with SMTP id d14mr12521523pgb.445.1590133613586;
+        Fri, 22 May 2020 00:46:53 -0700 (PDT)
+Received: from localhost.localdomain ([2402:800:6374:cd6f:3908:64aa:a24d:1be1])
+        by smtp.gmail.com with ESMTPSA id q25sm6253822pfh.94.2020.05.22.00.46.52
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 22 May 2020 00:46:53 -0700 (PDT)
+From:   =?UTF-8?q?=C4=90o=C3=A0n=20Tr=E1=BA=A7n=20C=C3=B4ng=20Danh?= 
+        <congdanhqx@gmail.com>
+To:     selinux@vger.kernel.org
+Cc:     =?UTF-8?q?=C4=90o=C3=A0n=20Tr=E1=BA=A7n=20C=C3=B4ng=20Danh?= 
+        <congdanhqx@gmail.com>
+Subject: [PATCH] libselinux: utils: link with shared libfts
+Date:   Fri, 22 May 2020 14:46:48 +0700
+Message-Id: <20200522074648.24538-1-congdanhqx@gmail.com>
+X-Mailer: git-send-email 2.27.0.rc0.4.gf5e7b24084
 MIME-Version: 1.0
-References: <CAHC9VhTNZ=gcw5w3FFEs9KiuSrUBhbYLVc=sZq0N4ZEGCem1Zg@mail.gmail.com>
- <20200520163421.27965-1-william.c.roberts@intel.com> <20200520163421.27965-2-william.c.roberts@intel.com>
- <CAFqZXNsV8fUeA-tT4kMtmaNaDK6_LkqvftY-SF7+RUrSBkWUvA@mail.gmail.com>
- <CAEjxPJ7HwA_5E6vCrtRfKK=Lpppp-WEbBa_5cVJvzH7fLSGD_A@mail.gmail.com>
- <CAFqZXNuOTsPrE-0D7OD7jZ4ETWgwW4HCVywnooJs4Q4Qk3d5EQ@mail.gmail.com> <CAFftDdqnrPr32GW71aRgXu8akvMAu3FG5L7B2fp4GzBs0=_Z9g@mail.gmail.com>
-In-Reply-To: <CAFftDdqnrPr32GW71aRgXu8akvMAu3FG5L7B2fp4GzBs0=_Z9g@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 22 May 2020 09:40:29 +0200
-Message-ID: <CAFqZXNvc-J0=wpFnNzCxiq80e-hY=5Tubu84-KkPm5nAfgaYRQ@mail.gmail.com>
-Subject: Re: [PATCH v2] ci: run SELinux kernel test suite
-To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        William Roberts <william.c.roberts@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, May 21, 2020 at 4:12 PM William Roberts
-<bill.c.roberts@gmail.com> wrote:
-> On Thu, May 21, 2020 at 7:58 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > On Thu, May 21, 2020 at 2:52 PM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-[...]
-> > > Last I looked, his script builds and installs the userspace code on
-> > > top of the Fedora libraries and programs (make LIBDIR=... install...)
-> > > and then runs the testsuite.  That was my suggestion.
-> >
-> > Ah, yes, I can see that line now. Sorry, somehow I missed it before.
-> >
-> > > While it is the
-> > > kernel testsuite, it exercises a lot of SELinux userspace
-> > > functionality that isn't tested by the userspace tests.
-> >
-> > OK, I suppose it's better than nothing...
-> >
->
-> Stephen pointed out the additional ways userspace gets tested, and
-> perhaps my title and description
-> of the patch could be better. But the main point is to increase the
-> test coverage
-> and perform the testing steps we expect are done before a release in
-> the CI. We should have
-> the testing coverage and the confidence to release userspace from master at any
-> point. We also have forward facing proof that tests are being executed
-> and we can make sure
-> nothing regresses.
->
-> My ultimate goal here, is to help make sure that if Petr gets hit by a
-> bus, releases will
-> move forward without worry and without any change in quality among the various
-> maintainers.
->
-> Additionally, we pick up some cross project testing and can find other
-> surprises.
+On Linux with musl libc, libfts isn't shipped with libc.
+Hence, we link with $(FTS_LIBS) in src.
 
-Ah, so you want to move an integration test, which we would normally
-run only before release, down to per-commit testing, which is fine
-because it is quite fast... OK, it started to make sense to me now :)
+Some (most) musl-based distribution choose to ship libfts as
+a standalone shared object because their libfts is licensed under either
+very permissive license or that implementation of libfts requires
+attribution in every usage.
 
-If I find time I'll have a closer look at the scripts. I already see
-some tiny possible improvements...
+Always link with $(FTS_LIBS) in utils to prevent undefined reference
+problem on those platforms.
 
---
-Ondrej Mosnacek <omosnace at redhat dot com>
-Software Engineer, Security Technologies
-Red Hat, Inc.
+Signed-off-by: Đoàn Trần Công Danh <congdanhqx@gmail.com>
+---
+ libselinux/utils/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
+index aa2d3e1b..1a7da223 100644
+--- a/libselinux/utils/Makefile
++++ b/libselinux/utils/Makefile
+@@ -45,6 +45,8 @@ override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
+ override LDFLAGS += -L../src
+ override LDLIBS += -lselinux $(FTS_LDLIBS)
+ PCRE_LDLIBS ?= -lpcre
++FTS_LDLIBS ?=
++override LDLIBS += $(FTS_LDLIBS)
+ 
+ ifeq ($(ANDROID_HOST),y)
+ TARGETS=sefcontext_compile
+-- 
+2.26.2.672.g232c24e857
 
