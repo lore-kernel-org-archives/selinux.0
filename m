@@ -2,88 +2,79 @@ Return-Path: <SRS0=crGG=7E=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14335C433E0
-	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 19:00:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9503FC433E0
+	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 19:07:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E95D62070A
-	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 18:59:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 672E1206D5
+	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 19:07:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730854AbgEVS77 convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 May 2020 14:59:59 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:50248 "EHLO
+        id S1730894AbgEVTHq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 May 2020 15:07:46 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:57503 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730849AbgEVS77 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 May 2020 14:59:59 -0400
-Received: from mail-oi1-f169.google.com (mail-oi1-f169.google.com [209.85.167.169])
+        with ESMTP id S1730871AbgEVTHp (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 May 2020 15:07:45 -0400
+Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id CEBEB5612C1
-        for <selinux@vger.kernel.org>; Fri, 22 May 2020 20:59:55 +0200 (CEST)
-Received: by mail-oi1-f169.google.com with SMTP id r25so10198352oij.4
-        for <selinux@vger.kernel.org>; Fri, 22 May 2020 11:59:55 -0700 (PDT)
-X-Gm-Message-State: AOAM533h+fU7zbDa9NSXTRi6qqXZ5YtEyE878FqCcTLKBTd+cnQ8+c4U
-        EHGsaYPrRg3KvsiEnvS9fz5H0ZT8PPOZYDVyLhw=
-X-Google-Smtp-Source: ABdhPJxO4mDXpsraXbTfBTfYb8iWAwsQogwRPy7XKnNRezcHnlC78SJampogzksF6SFG7/Losij5zE31h74BMEW8C4U=
-X-Received: by 2002:aca:4852:: with SMTP id v79mr3462742oia.20.1590173994846;
- Fri, 22 May 2020 11:59:54 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id E1962564699
+        for <selinux@vger.kernel.org>; Fri, 22 May 2020 21:07:42 +0200 (CEST)
+Received: by mail-ot1-f41.google.com with SMTP id d7so9033772ote.6
+        for <selinux@vger.kernel.org>; Fri, 22 May 2020 12:07:42 -0700 (PDT)
+X-Gm-Message-State: AOAM530N1xu6lA07QTrVvi3SXbmf4tWKdxGllkU49Z6V1yQRxrK5nkeG
+        mU2y1JbbfSzRiqM/pj9pMuP2SL2jg0Ubi0aiaH8=
+X-Google-Smtp-Source: ABdhPJwBnUltckWKEdau5eW+cwV4ygIZaReBWnEsA9/Rw261uitEv+Ds3G+Trf++/sOBdnuvpHB7hKl9Wuda8VWVz6s=
+X-Received: by 2002:a9d:476:: with SMTP id 109mr11266234otc.96.1590174461703;
+ Fri, 22 May 2020 12:07:41 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200522074648.24538-1-congdanhqx@gmail.com>
-In-Reply-To: <20200522074648.24538-1-congdanhqx@gmail.com>
+References: <CAHC9VhTNZ=gcw5w3FFEs9KiuSrUBhbYLVc=sZq0N4ZEGCem1Zg@mail.gmail.com>
+ <20200520163421.27965-1-william.c.roberts@intel.com> <20200520163421.27965-2-william.c.roberts@intel.com>
+ <CAJfZ7==gpPvF5eKJLFK=ky=UEXtbnX-r6WyB1zh6NfvRFHEHtA@mail.gmail.com> <CAFftDdpDpAw6W0d6OaCcaWYSO6g_zguO-D8u+fLYAW45nyGukA@mail.gmail.com>
+In-Reply-To: <CAFftDdpDpAw6W0d6OaCcaWYSO6g_zguO-D8u+fLYAW45nyGukA@mail.gmail.com>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Fri, 22 May 2020 20:59:43 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7==OdP23Mh06V=qaktKas3wOkz12=ZELj5vOHsDN1t_5vw@mail.gmail.com>
-Message-ID: <CAJfZ7==OdP23Mh06V=qaktKas3wOkz12=ZELj5vOHsDN1t_5vw@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: utils: link with shared libfts
-To:     =?UTF-8?B?xJBvw6BuIFRy4bqnbiBDw7RuZyBEYW5o?= <congdanhqx@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Fri, 22 May 2020 21:07:30 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=mEC4hHT8AdPGhO7RoX+DUrO2y+7g_3OX-W2y09+uKKMA@mail.gmail.com>
+Message-ID: <CAJfZ7=mEC4hHT8AdPGhO7RoX+DUrO2y+7g_3OX-W2y09+uKKMA@mail.gmail.com>
+Subject: Re: [PATCH v2] ci: run SELinux kernel test suite
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>,
+        Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri May 22 20:59:56 2020 +0200 (CEST))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Fri May 22 21:07:43 2020 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 22, 2020 at 9:46 AM Đoàn Trần Công Danh
-<congdanhqx@gmail.com> wrote:
+On Fri, May 22, 2020 at 12:39 AM William Roberts
+<bill.c.roberts@gmail.com> wrote:
 >
-> On Linux with musl libc, libfts isn't shipped with libc.
-> Hence, we link with $(FTS_LIBS) in src.
+> <snip>
+> > * fedora-test-runner.sh uses ~, which is expanded to /root as it does
+> > not make sense to run this script as non-root user. In my humble
+> > opinion, using /root instead of ~ makes the script even easier to
+> > read.
 >
-> Some (most) musl-based distribution choose to ship libfts as
-> a standalone shared object because their libfts is licensed under either
-> very permissive license or that implementation of libfts requires
-> attribution in every usage.
+> I forgot to mention this in my previous email, this is the only thing
+> I really don't
+> want to change. You could, in theory, configure any user to run this.
 >
-> Always link with $(FTS_LIBS) in utils to prevent undefined reference
-> problem on those platforms.
->
-> Signed-off-by: Đoàn Trần Công Danh <congdanhqx@gmail.com>
-> ---
->  libselinux/utils/Makefile | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/libselinux/utils/Makefile b/libselinux/utils/Makefile
-> index aa2d3e1b..1a7da223 100644
-> --- a/libselinux/utils/Makefile
-> +++ b/libselinux/utils/Makefile
-> @@ -45,6 +45,8 @@ override CFLAGS += -I../include -D_GNU_SOURCE $(DISABLE_FLAGS) $(PCRE_CFLAGS)
->  override LDFLAGS += -L../src
->  override LDLIBS += -lselinux $(FTS_LDLIBS)
->  PCRE_LDLIBS ?= -lpcre
-> +FTS_LDLIBS ?=
-> +override LDLIBS += $(FTS_LDLIBS)
+> <snip>
 
-Hello,
-A few lines above there already is "override LDLIBS += -lselinux
-$(FTS_LDLIBS)". Why do you need to add $(FTS_LDLIBS) to LDLIBS again?
+The script executes "setenforce 0", runs dnf to install packages and
+overwrites binaries and libraries in system directories (/usr/bin,
+/usr/sbin, /usr/lib64, etc.). How do you allow any user to perform
+these actions, without being root?
 
-Thanks,
+Anyway, if you do not want to hardcode /root, to could use "$HOME"
+instead of ~. It makes things appear less magical, in my humble
+opinion.
+
 Nicolas
 
