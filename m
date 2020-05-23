@@ -1,183 +1,110 @@
-Return-Path: <SRS0=crGG=7E=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=mDct=7F=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78C89C433DF
-	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 23:25:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90C0BC433E0
+	for <selinux@archiver.kernel.org>; Sat, 23 May 2020 00:21:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C788206BE
-	for <selinux@archiver.kernel.org>; Fri, 22 May 2020 23:25:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2BF33206B6
+	for <selinux@archiver.kernel.org>; Sat, 23 May 2020 00:21:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="fTK4N1uv"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lHio+Inr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387452AbgEVXZR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 22 May 2020 19:25:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52436 "EHLO
+        id S1731182AbgEWAV5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 22 May 2020 20:21:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387438AbgEVXZR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 22 May 2020 19:25:17 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1AA6C061A0E
-        for <selinux@vger.kernel.org>; Fri, 22 May 2020 16:25:16 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id w20so689427pga.6
-        for <selinux@vger.kernel.org>; Fri, 22 May 2020 16:25:16 -0700 (PDT)
+        with ESMTP id S1731169AbgEWAV5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 22 May 2020 20:21:57 -0400
+Received: from mail-io1-xd44.google.com (mail-io1-xd44.google.com [IPv6:2607:f8b0:4864:20::d44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AB2CC061A0E
+        for <selinux@vger.kernel.org>; Fri, 22 May 2020 17:21:57 -0700 (PDT)
+Received: by mail-io1-xd44.google.com with SMTP id h10so13369386iob.10
+        for <selinux@vger.kernel.org>; Fri, 22 May 2020 17:21:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=xcdARewyTG4POyZ7ltQhfJJu9Qv+Bxm+E+lkKjlpIsE=;
-        b=fTK4N1uv4Kn/dR2zzPbD0jHTR52W93tW49eGy+Fa0Hl+4Be6712kZ/QI6oxwFpFI/a
-         ZHU1PWctlZrqE3qr5XCDpuTkl3C2l7HVsfv5S3tv6i6eNIa81bBVA7dSqbl/5Pq6FUZs
-         ABEWWzVogKKhogjSPk2sGmAiiVj+evSbq4uJE=
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=VCx0FfqetixWif5qk7qrFMHW45bSSNTvuLkoMOeZI5Q=;
+        b=lHio+InrOM2Ja1zkpAMKd/iWlepSCmQZNUtUFaQdyaGzqAHm7UfEnmvx3d5RhZuFAN
+         0L9p8Vln6l0+1PLzgo1bL9BGLWJMn/vq1FeIjpkNTrKyGDPvodLRUUgiZaZ+QjfFbK7a
+         s7iUnruQZxROpGq+GC6v1xTK7PsVsFIvje95MLEWuS4wPbYl5ame1A4/pXdq2VJmydY+
+         ZMv4a/3JKL3Q3mEXu061PE6vGCSNuvugH9GEThEjn+5cEL+A0CdahGqtamWW1B7YZd86
+         J8fSZ8ig2DbGcEChLPka4ii2fuUDej3n4sWGSh26fs4pb6zGUTMTFn36aOE0500rk9Ix
+         VpAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=xcdARewyTG4POyZ7ltQhfJJu9Qv+Bxm+E+lkKjlpIsE=;
-        b=BWAzhr3oFKHkMi3/AC2LuuzUbljRvpzdPgLeXWb65xspDozg5BDQdSfu9jGsqPh39G
-         XI2HwTjfBoHqHtWplmoHky488TBdJvHAmgAm3XQ2JE79gw3Zv3XYRR9dW8vSYy0o5684
-         2AmfLEuG7B67Tr5bHf2mNANZC0YMgY1B/R4AFf4j/bPQzaI91dBWVL04tb4ffb6bfEYV
-         FDuBw4mA2mXuyvv9GmRFeZnj9DvHlQanm1ob0oMeNlsplPXJLi+opB6rtN6h+/knD5qO
-         qNFknz1qQ6NUHb6Vdv89hSJTyIfr+daj+YvlMJfk3fYrnkMRPy8aYzuD3Y36uF6J37Zm
-         pbEg==
-X-Gm-Message-State: AOAM531fN9fuZ21WbeiMq8WLthYd51YH0ra6b+lopaFJinoHZxMRkIVM
-        BUp7cbfsR46s6pnBbOl39pMyjA==
-X-Google-Smtp-Source: ABdhPJxYA3M7TqBzRS04SzG465as6Jpo33/yu9zFOYOedvseWiYUZylkj5NdgSLEDNI/UVu5rIrHaw==
-X-Received: by 2002:a62:2f45:: with SMTP id v66mr6455014pfv.45.1590189916382;
-        Fri, 22 May 2020 16:25:16 -0700 (PDT)
-Received: from [10.136.13.65] ([192.19.228.250])
-        by smtp.gmail.com with ESMTPSA id m12sm7637602pjs.41.2020.05.22.16.25.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 May 2020 16:25:15 -0700 (PDT)
-Subject: Re: [PATCH 0/3] fs: reduce export usage of kerne_read*() calls
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Luis Chamberlain <mcgrof@kernel.org>, viro@zeniv.linux.org.uk,
-        gregkh@linuxfoundation.org, rafael@kernel.org,
-        ebiederm@xmission.com, jeyu@kernel.org, jmorris@namei.org,
-        paul@paul-moore.com, stephen.smalley.work@gmail.com,
-        eparis@parisplace.org, nayna@linux.ibm.com,
-        dan.carpenter@oracle.com, skhan@linuxfoundation.org,
-        geert@linux-m68k.org, tglx@linutronix.de, bauerman@linux.ibm.com,
-        dhowells@redhat.com, linux-integrity@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, kexec@lists.infradead.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20200513152108.25669-1-mcgrof@kernel.org>
- <20200513181736.GA24342@infradead.org>
- <20200515212933.GD11244@42.do-not-panic.com>
- <20200518062255.GB15641@infradead.org>
- <1589805462.5111.107.camel@linux.ibm.com>
- <7525ca03-def7-dfe2-80a9-25270cb0ae05@broadcom.com>
- <202005221551.5CA1372@keescook>
-From:   Scott Branden <scott.branden@broadcom.com>
-Message-ID: <c48a80f5-a09c-6747-3db8-be23a260a0cb@broadcom.com>
-Date:   Fri, 22 May 2020 16:25:03 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=VCx0FfqetixWif5qk7qrFMHW45bSSNTvuLkoMOeZI5Q=;
+        b=Z0Co+Q0uvwuq635PIaXbukDLSEwDbHy5TQqzLsEiSoktq40y7IdfarKn0/q4pVj0c5
+         sojs3sr6TbrmrXGKN7XLhNocBR/JdTIXN1iZiXfYSY5CrexZN+cB0GE3Iw1DXa3wz0PV
+         ZU2cKeA/WEh5RzHtaoHGoa0TMy/LINivg9OXWSZYeb/BN0lpMCeU2B0DQpSkFoztV1y8
+         VmMSQj81aiEuhokN+3m2flftcsKeq6O305t0vZmJNhmFAQffRfVTUA7cUyebPcFy4Yv+
+         tqBsZe6oJeecCJvfV2+/8UI7Upj32sWM00RlRaBB0GnLQvkje1qjgxgRJOJdXv9Vix78
+         d3aQ==
+X-Gm-Message-State: AOAM531bVsNO00hhdOxG7YoApng5H16zKJdwRf3hLnC4v2w1HN2nLTeI
+        G53aPeIS1rtCl9a5h1SgSCYP4mYpQFlUIaOC1u8lT77B
+X-Google-Smtp-Source: ABdhPJzFHw+eMqMifeCRropaAH3wkck35zhKRvcOjqg1adky0vd+PolRr5KYXzHg6ct6CEKpwIoqKJ0iWigtWO//DMg=
+X-Received: by 2002:a02:cce6:: with SMTP id l6mr10803920jaq.116.1590193316247;
+ Fri, 22 May 2020 17:21:56 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <202005221551.5CA1372@keescook>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <CAHC9VhTNZ=gcw5w3FFEs9KiuSrUBhbYLVc=sZq0N4ZEGCem1Zg@mail.gmail.com>
+ <20200520163421.27965-1-william.c.roberts@intel.com> <20200520163421.27965-2-william.c.roberts@intel.com>
+ <CAJfZ7==gpPvF5eKJLFK=ky=UEXtbnX-r6WyB1zh6NfvRFHEHtA@mail.gmail.com>
+ <CAFftDdpDpAw6W0d6OaCcaWYSO6g_zguO-D8u+fLYAW45nyGukA@mail.gmail.com> <CAJfZ7=mEC4hHT8AdPGhO7RoX+DUrO2y+7g_3OX-W2y09+uKKMA@mail.gmail.com>
+In-Reply-To: <CAJfZ7=mEC4hHT8AdPGhO7RoX+DUrO2y+7g_3OX-W2y09+uKKMA@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Fri, 22 May 2020 19:21:45 -0500
+Message-ID: <CAFftDdpT=G68hCAqmMLMufOGe_9oDJQmUPhoWXYoVzNqzMk3nw@mail.gmail.com>
+Subject: Re: [PATCH v2] ci: run SELinux kernel test suite
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Kees,
+On Fri, May 22, 2020 at 2:07 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Fri, May 22, 2020 at 12:39 AM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
+> >
+> > <snip>
+> > > * fedora-test-runner.sh uses ~, which is expanded to /root as it does
+> > > not make sense to run this script as non-root user. In my humble
+> > > opinion, using /root instead of ~ makes the script even easier to
+> > > read.
+> >
+> > I forgot to mention this in my previous email, this is the only thing
+> > I really don't
+> > want to change. You could, in theory, configure any user to run this.
+> >
+> > <snip>
+>
+> The script executes "setenforce 0", runs dnf to install packages and
+> overwrites binaries and libraries in system directories (/usr/bin,
+> /usr/sbin, /usr/lib64, etc.). How do you allow any user to perform
+> these actions, without being root?
 
-On 2020-05-22 4:04 p.m., Kees Cook wrote:
-> On Fri, May 22, 2020 at 03:24:32PM -0700, Scott Branden wrote:
->> On 2020-05-18 5:37 a.m., Mimi Zohar wrote:
->>> On Sun, 2020-05-17 at 23:22 -0700, Christoph Hellwig wrote:
->>>> On Fri, May 15, 2020 at 09:29:33PM +0000, Luis Chamberlain wrote:
->>>>> On Wed, May 13, 2020 at 11:17:36AM -0700, Christoph Hellwig wrote:
->>>>>> Can you also move kernel_read_* out of fs.h?  That header gets pulled
->>>>>> in just about everywhere and doesn't really need function not related
->>>>>> to the general fs interface.
->>>>> Sure, where should I dump these?
->>>> Maybe a new linux/kernel_read_file.h?  Bonus points for a small top
->>>> of the file comment explaining the point of the interface, which I
->>>> still don't get :)
->>> Instead of rolling your own method of having the kernel read a file,
->>> which requires call specific security hooks, this interface provides a
->>> single generic set of pre and post security hooks.  The
->>> kernel_read_file_id enumeration permits the security hook to
->>> differentiate between callers.
->>>
->>> To comply with secure and trusted boot concepts, a file cannot be
->>> accessible to the caller until after it has been measured and/or the
->>> integrity (hash/signature) appraised.
->>>
->>> In some cases, the file was previously read twice, first to measure
->>> and/or appraise the file and then read again into a buffer for
->>> use.  This interface reads the file into a buffer once, calls the
->>> generic post security hook, before providing the buffer to the caller.
->>>    (Note using firmware pre-allocated memory might be an issue.)
->>>
->>> Partial reading firmware will result in needing to pre-read the entire
->>> file, most likely on the security pre hook.
->> The entire file may be very large and not fit into a buffer.
->> Hence one of the reasons for a partial read of the file.
->> For security purposes, you need to change your code to limit the amount
->> of data it reads into a buffer at one time to not consume or run out of much
->> memory.
-> Hm? That's not how whole-file hashing works. :)
+Its called capabilities. I could build you a box where root is neutered and
+cannot do anything.
 
 >
-> These hooks need to finish their hashing and policy checking before they
-> can allow the rest of the code to move forward. (That's why it's a
-> security hook.) If kernel memory utilization is the primary concern,
-> then sure, things could be rearranged to do partial read and update the
-> hash incrementally, but the entire file still needs to be locked,
-> entirely hashed by hook, then read by the caller, then unlocked and
-> released.
->
-> So, if you want to have partial file reads work, you'll need to
-> rearchitect the way this works to avoid regressing the security coverage
-> of these operations.
-I am not familiar with how the security handling code works at all.
-Is the same security check run on files opened from user space?
-A file could be huge.
+> Anyway, if you do not want to hardcode /root, to could use "$HOME"
+> instead of ~. It makes things appear less magical, in my humble
+> opinion.
 
-If it assumes there is there is enough memory available to read the 
-entire file into kernel space
-then the improvement below can be left as a memory optimization to be 
-done in
-an independent (or future) patch series.
+Sure, it actually makes it consistent with the other script.
 
-> So, probably, the code will look something like:
 >
+> Nicolas
 >
-> file = kernel_open_file_for_reading(...)
-> 	file = open...
-> 	disallow_writes(file);
-> 	while (processed < size-of-file) {
-> 		buf = read(file, size...)
-> 		security_file_read_partial(buf)
-> 	}
-> 	ret = security_file_read_finished(file);
-> 	if (ret < 0) {
-> 		allow_writes(file);
-> 		return PTR_ERR(ret);
-> 	}
-> 	return file;
->
-> while (processed < size-of-file) {
-> 	buf = read(file, size...)
-> 	firmware_send_partial(buf);
-> }
->
-> kernel_close_file_for_reading(file)
-> 	allow_writes(file);
->
->
-
