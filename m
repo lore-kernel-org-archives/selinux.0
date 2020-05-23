@@ -2,120 +2,201 @@ Return-Path: <SRS0=mDct=7F=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F047C433DF
-	for <selinux@archiver.kernel.org>; Sat, 23 May 2020 15:59:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF00EC433E0
+	for <selinux@archiver.kernel.org>; Sat, 23 May 2020 19:56:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F82820759
-	for <selinux@archiver.kernel.org>; Sat, 23 May 2020 15:59:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 885092065C
+	for <selinux@archiver.kernel.org>; Sat, 23 May 2020 19:56:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="l/gFNyC0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Mu7ZyB3/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727123AbgEWP7b (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 23 May 2020 11:59:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36736 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726338AbgEWP7a (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 23 May 2020 11:59:30 -0400
-Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B81FC061A0E
-        for <selinux@vger.kernel.org>; Sat, 23 May 2020 08:59:30 -0700 (PDT)
-Received: by mail-il1-x131.google.com with SMTP id 17so13781642ilj.3
-        for <selinux@vger.kernel.org>; Sat, 23 May 2020 08:59:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=TFcDuq6L3u195E004iaNMYGGbmACZngvfW4LkOd1fsw=;
-        b=l/gFNyC0rivkqoNJfwI231johZ0Yj6bbUMBWF1BOAmdRUYS/zzIXIcFPTJj0xyM/MZ
-         8K/N1gl8u+8mXbyeecWFSXbWrs0ioaieXQ8W3eagW1WMKATv5Z9rpMYST23ZiAPQZmnj
-         2J8ejo7Hr+3vl1OcTg4Hz+4Qfq0ubB+BYySRpyYlkG/aJfGUdCkoy2XNpSRg28jzIJX7
-         jgWq5avp8t5n0fYw17uhuQdjhw92mm7LUhMOY3UMe6xfCW+FQRGUOZ7vQGgSp1PNdDfe
-         RFW8Wl+NGatD4gj4ySNiaVNTpOYRFqbzS8nWKy1fRkyEmtkqddWf28qXogQ5J490tOS1
-         mJAw==
+        id S1728319AbgEWT42 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 23 May 2020 15:56:28 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:32576 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727962AbgEWT41 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 23 May 2020 15:56:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590263785;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=eUGg17PomQKE6SAjoDWY/gpwTQIMlNPgliN0aL5y2Gk=;
+        b=Mu7ZyB3/HK5P5Ev4F8NGv3PncqcHMFdyyiub/MPwuEzB3/sJm570houM7zXjFxGsx4txNU
+        O5laf5jn8ORbEEAF59sl0JBhA8yNWdO+/AskYe065wgvv2DngwutMTI6wSW5JfxCSYjNLt
+        zBUK827reiv9wzW66OyHQyfIsY1+KC8=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-440-Q2YMfY42O9ukV-9lZJgTWw-1; Sat, 23 May 2020 15:56:21 -0400
+X-MC-Unique: Q2YMfY42O9ukV-9lZJgTWw-1
+Received: by mail-qt1-f198.google.com with SMTP id l11so15597158qti.19
+        for <selinux@vger.kernel.org>; Sat, 23 May 2020 12:56:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=TFcDuq6L3u195E004iaNMYGGbmACZngvfW4LkOd1fsw=;
-        b=jTFuFZaUPL61hTrpHad0cMrEcHyIrGpL8kijuqNe4Jp8us8y0xGT4LKomMDKIwT8hn
-         BhbHLxIdnhUneNo+yq6cNyXs2fXP1LLcGUF1ckL4m7tUVdIgGMukRzP0deBclbuRH3qY
-         UB8zY1mrOcZJiwlW2GZN/MntUNAq9Eti6Ak9Co8mPqLo+/eMILba40fjxkBUBRPcK5Qv
-         fw2HNCQjsZe5h1Q/miJf7OIUwLrkuu2ePjT2th+XeypL39tLRvAbGcnijD4Mk4jH7AeK
-         YtHZMjcD9TxNxHjETyu6iF2+sB0/DEV0EX0jMWZPUspMC0oISDKoyobMrCWV3/6OxwpH
-         O+oA==
-X-Gm-Message-State: AOAM533l4F9bReWKWp6FIFFlNOAczZ66WHYY1vrHy5/5E/uPUTysryZ4
-        nTkI8fY8R+62REsI61wLV4GWGx43lwQu1a3Sg+UHHMrtRso=
-X-Google-Smtp-Source: ABdhPJzR0zesJY6383Mth32Rhe88ulDa74Bt0dO5U/6EfS11rka3FVM+pnNXUEXll2koQ6pWWCBAiEU3SYCGxSsGpiQ=
-X-Received: by 2002:a92:984e:: with SMTP id l75mr18391785ili.22.1590249569533;
- Sat, 23 May 2020 08:59:29 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=eUGg17PomQKE6SAjoDWY/gpwTQIMlNPgliN0aL5y2Gk=;
+        b=QIBR8P/3/cc+PKaFLzkXrIS4MtN+W+eTAoex9FoE+rXvBPYcRaQ6DrMa+jHbZ2r0o5
+         2w13/MMCVdiSFIn4RX2qj1AZl8FtOyNvVkvwaXSf9pEXRPM/naAOGYyu79NtwSG3WyMW
+         s+pEwZbmkDfHRaZLwjhjTK/l2KsUm0C6C9QjTyuoCZU+WsjSQfrKL7bqGC+D0cffoakd
+         sruc/snfUxAKCCJqIyKHNX9VY0cLGmC4u+DKdx6aBDr62a26HcnMopHtmMErLciNSbUc
+         qbysFKaatfhd3HmJYpn6sFbKq+9lAtM6eOoRp7FVHKqSdVLuOeE7AiR0rHqJ/q4x+UTK
+         n8Wg==
+X-Gm-Message-State: AOAM533/9rbPuL+uPEoMFFWgiAlTJY/eKSF39wjU4klgnRcaf1USOp7f
+        3gaGFhtPIhOvbaWSe2QvmanT25Ttp4d1OeW9ulHmiJgFXqihq0fNkxncRhhChowytJcWR/64iMP
+        u3mairpbzsGdJWEtpxg==
+X-Received: by 2002:aed:221c:: with SMTP id n28mr21695182qtc.235.1590263780884;
+        Sat, 23 May 2020 12:56:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxqjNBynRSr+ofQ1Jx69HGYGFIPnrkkTjyVOFQwZZfq8oJ5MQw1XqwunBhVUvESh7tfYdUhNQ==
+X-Received: by 2002:aed:221c:: with SMTP id n28mr21695172qtc.235.1590263780563;
+        Sat, 23 May 2020 12:56:20 -0700 (PDT)
+Received: from localhost.localdomain (107-190-106-186.cpe.teksavvy.com. [107.190.106.186])
+        by smtp.gmail.com with ESMTPSA id b188sm802652qkc.30.2020.05.23.12.56.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 23 May 2020 12:56:19 -0700 (PDT)
+From:   Jonathan Lebon <jlebon@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Jonathan Lebon <jlebon@redhat.com>
+Subject: [PATCH] selinux: allow reading labels before policy is loaded
+Date:   Sat, 23 May 2020 15:51:31 -0400
+Message-Id: <20200523195130.409607-1-jlebon@redhat.com>
+X-Mailer: git-send-email 2.25.4
 MIME-Version: 1.0
-References: <d0fd6970-7aa6-c576-fb8a-1d1293416e97@debian.org>
-In-Reply-To: <d0fd6970-7aa6-c576-fb8a-1d1293416e97@debian.org>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Sat, 23 May 2020 10:59:18 -0500
-Message-ID: <CAFftDdobT3E1MvFptyAKLBJ73KyrMOSS3m8DCnPX9+QF-Rk24Q@mail.gmail.com>
-Subject: Re: CFLAGS overridden by distribution build system
-To:     Laurent Bigonville <bigon@debian.org>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, May 23, 2020 at 5:57 AM Laurent Bigonville <bigon@debian.org> wrote=
-:
->
-> Hello,
->
-> The current build system of the userspace is setting a lot of CFLAGS,
-> but most of these are overridden by the distributions when building.
->
-> Today I received a bug report[0] from Christian G=C3=B6ttsche asking me t=
-o
-> set -fno-semantic-interposition again in libsepol. I see also the same
-> flag and also a lot of others set in libselinux and libsemanage build
-> system.
+This patch does for `getxattr` what 3e3e24b4204 did for `setxattr`: it
+allows querying the current SELinux label on disk before the policy is
+loaded.
 
-Why would it be again? The old DSO design made that option impotent.
-Clang does it by default.
+One of the motivations described in that commit message also drives this
+patch: for Fedora CoreOS (and eventually RHEL CoreOS), we want to be
+able to move the root filesystem for example from xfs to ext4, on first
+boot, at initrd time.[1]
 
->
-> For what I understand some of these are just needed for code quality
-> (-W) and could be controlled by distributions but others might actually
-> need to be always set (-f?).
+Because such an operation works at the filesystem level, we need to be
+able to read the SELinux labels first from the original root, and apply
+them to the files of the new root. Commit 3e3e24b4204 enabled the second
+part of this process; this patch enables the first part.
 
-If you look at the Makefiles overall in all the projects, you'll see harden=
-ing
-flags, etc. Libsepol has a pretty minimal set compared to say libselinux, b=
-ut
-they all get overridden by build time CFLAGS if you want.
+[1] https://github.com/coreos/fedora-coreos-tracker/issues/94
 
->
-> Shouldn't the flags that always need to be set (which ones?) be moved to
-> a "override CFLAGS" directive to avoid these to be unset by distributions=
-?
+Signed-off-by: Jonathan Lebon <jlebon@redhat.com>
+---
+ security/selinux/hooks.c | 55 ++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 50 insertions(+), 5 deletions(-)
 
-If you we're cleaver with CFLAGS before, you could acually circumvent
-the buildtime
-DSO stuff. While i'm not opposed to adding it to immutable flag, if
-you're setting
-CFLAGS, you're on your own. At least with the current design.
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 0b4e32161b7..3bbb9966697 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -1317,8 +1317,11 @@ static int selinux_genfs_get_sid(struct dentry *dentry,
+ 	return rc;
+ }
+ 
+-static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
+-				  u32 def_sid, u32 *sid)
++/* Retrieves the raw context from the fs xattr. Returns 0 on success. */
++static int get_inode_raw_xattr_context(struct inode *inode,
++				       struct dentry *dentry,
++				       char **out_context,
++				       u32 *out_len)
+ {
+ #define INITCONTEXTLEN 255
+ 	char *context;
+@@ -1354,13 +1357,31 @@ static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
+ 		if (rc != -ENODATA) {
+ 			pr_warn("SELinux: %s:  getxattr returned %d for dev=%s ino=%ld\n",
+ 				__func__, -rc, inode->i_sb->s_id, inode->i_ino);
+-			return rc;
+ 		}
++		return rc;
++	}
++
++	*out_len = rc;
++	*out_context = context;
++	return 0;
++}
++
++static int inode_doinit_use_xattr(struct inode *inode, struct dentry *dentry,
++				  u32 def_sid, u32 *sid)
++{
++	char *context;
++	u32 size;
++	int rc;
++
++	rc = get_inode_raw_xattr_context(inode, dentry, &context, &size);
++	if (rc < 0) {
++		if (rc != -ENODATA)
++			return rc;
+ 		*sid = def_sid;
+ 		return 0;
+ 	}
+ 
+-	rc = security_context_to_sid_default(&selinux_state, context, rc, sid,
++	rc = security_context_to_sid_default(&selinux_state, context, size, sid,
+ 					     def_sid, GFP_NOFS);
+ 	if (rc) {
+ 		char *dev = inode->i_sb->s_id;
+@@ -3333,10 +3354,34 @@ static int selinux_inode_getsecurity(struct inode *inode, const char *name, void
+ 	int error;
+ 	char *context = NULL;
+ 	struct inode_security_struct *isec;
++	struct superblock_security_struct *sbsec;
+ 
+ 	if (strcmp(name, XATTR_SELINUX_SUFFIX))
+ 		return -EOPNOTSUPP;
+ 
++	isec = inode_security(inode);
++	sbsec = inode->i_sb->s_security;
++
++	/* Just return the raw context if the policy isn't even loaded since we
++	 * have no way to validate it anyway. This is symmetrical with allowing
++	 * setxattr without a policy. */
++	if (!selinux_state.initialized) {
++		/* See similar code in inode_doinit_with_dentry; for xattrs,
++		 * some filesystems really want a connected inode. If we don't
++		 * find one, just let fallback in case it corresponds to one of
++		 * the default sids. */
++		struct dentry *dentry = d_find_alias(inode);
++		if (!dentry)
++			dentry = d_find_any_alias(inode);
++
++		if (dentry) {
++			error = get_inode_raw_xattr_context(inode, dentry,
++							    &context, &size);
++			dput(dentry);
++			goto out;
++		}
++	}
++
+ 	/*
+ 	 * If the caller has CAP_MAC_ADMIN, then get the raw context
+ 	 * value even if it is not defined by current policy; otherwise,
+@@ -3346,7 +3391,6 @@ static int selinux_inode_getsecurity(struct inode *inode, const char *name, void
+ 	 * and lack of permission just means that we fall back to the
+ 	 * in-core context value, not a denial.
+ 	 */
+-	isec = inode_security(inode);
+ 	if (has_cap_mac_admin(false))
+ 		error = security_sid_to_context_force(&selinux_state,
+ 						      isec->sid, &context,
+@@ -3354,6 +3398,7 @@ static int selinux_inode_getsecurity(struct inode *inode, const char *name, void
+ 	else
+ 		error = security_sid_to_context(&selinux_state, isec->sid,
+ 						&context, &size);
++out:
+ 	if (error)
+ 		return error;
+ 	error = size;
+-- 
+2.25.4
 
-I have no issues with adding it to override, but we would have to
-overhaul a bunch
-of them and make them consistent.
-
->
-> Kind regards,
->
-> Laurent Bigonville
->
-> [0] https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=3D961329
->
