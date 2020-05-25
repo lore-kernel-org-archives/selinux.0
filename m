@@ -2,58 +2,57 @@ Return-Path: <SRS0=axcH=7H=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ED15C433E0
-	for <selinux@archiver.kernel.org>; Mon, 25 May 2020 02:02:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE29AC433E0
+	for <selinux@archiver.kernel.org>; Mon, 25 May 2020 08:06:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D7602073B
-	for <selinux@archiver.kernel.org>; Mon, 25 May 2020 02:02:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AD741206B6
+	for <selinux@archiver.kernel.org>; Mon, 25 May 2020 08:06:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="ElwM1OmY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bdhr2H6x"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388667AbgEYCCE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 24 May 2020 22:02:04 -0400
-Received: from sonic307-16.consmr.mail.ne1.yahoo.com ([66.163.190.39]:45304
-        "EHLO sonic307-16.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388647AbgEYCCE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 24 May 2020 22:02:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1590372122; bh=tYESN0eqAx8PHt4e/6wtNye6dToYMIDWe9kIG2IyPIw=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=ElwM1OmYfifcqP/OYp8yN9Xv6U3F/0vfWpYH58b7rNEKS2M+FsOCjkLs748pcpLd3cSK+hxoClHvGqCscYcB1t2CXe0g5c/o6sJQIp9NxRzBYC8/qtR2F54bwGBht3A2UimG+7SAsjeCiUPMFO6izHWqMrTcPk8vFOYe95AE+85vHs3QrZ84yo53VXUhRr5pe0ikFHJHgIGYVKqq31nLi1JF7EeVrlj6/eNf5E99SnwjwHkRWQatg3yFkNSIEzomcc9VrtqIPRU3VVYjl36tUSG9NPbI2IFm5WyliQkJNF3QGjWtzb79zXjxJLxMj/E/16EKv+uf5ew+NHr9ag9uFw==
-X-YMail-OSG: KV9IxboVM1n0WgLyPXf_e3aHyKzRqcSYvwZJGEzzS9JFxs0TC1PWTJm8LQPIiq8
- Fyf9Dg95NfyCGlPH.lxjbX.TJl2vIXUoak3B5ACibto9QaPmHdD5fhQu0t_h1uufwVSsAGsGxXN_
- gxZZ5TrtejmRL51BO4FmmKnIp3Tu.zL.HLq1a_CAeX3LvToMQC1SpdGLLziMJUKCl2XkeOIyUFmp
- O5Q.GQM2S7SihKGjbTbRv72pZmegKkCvqPfsUIC8_kkIf6_pKTdsnkKtZ8GAozHHO9WymioBObsS
- 44WUMN6vBSJZw9rODb3PjIgFV5mIJzs36n0AUvUyLSmDwM8S7wV14wAbVnV4ER.iAxvkywDjtcRU
- Q9NhAExe7vc7eilSb3I5u4ATpM9Las2Fdejg_HM3pOC4g_MxSl9FzYfxQmXvL9tahtuSJ.ik5lMW
- OD.lSnO69qxAqNyfT2P96wNXCTFr7edNA8HTew6zVMm_AmTOI.Z930xxqFPXYRbvrukVY06aLd90
- 88RD3DqVNMYcQyRilr88A4cR6YZUdSeBlRu4cnS83CtWha7t9dqtME3gFYu3yd.VsvatMPecmWDp
- jj6hK71x.xoGnsXqyMxoj4vghI2poaS3iPJVWTmWbIsaii..mD1u5kG7htT6btYExdMjHL9jkZhh
- bEP64HwAyW2DQaKo40Jt2IqKMGfG0ndAw1MYJPgUtwniNfin.5DLGjotVsW.wsTrHT50jQ7plOdP
- iobsVzseBeNpmVzWo_a_VH4nV0SrMf9HCsI9JiwUEuyhocctPcbc5X7xS7gKjbSeEpL.faw5zhuE
- LtT0xF6Ar.j7JQS07lX8lkN7.YEblCs4Z1QCFb90IEeOd7tWRXnJRM9_FW1oCmLWLekio3LVoBEf
- sZWQFORCD4.B3bvLVtyVoema6KVKMDzkrlPdUccIah4tqKNS9yYlML3Ngje_x_WgIvW99Vy8Qm.l
- nx5CGehjo9dnzJ6DdWshgjXpweTrKWCE0E5F5x12lO.dBL4QM0f9naXXQJ8dDO0OPVYiQ9PETIhc
- 66.rXepOC4fbMHdC8AKAZI02jGgFBG_gFLfaLL5Bbe8tZTKF0QzOzULmiWnOWIJsRegj7dR.mz6d
- XA2EwGP2daHt9mIadv_aoB560y3bj.BgtAFa1JDTBQJInbbgFjIlFfVK0RA45fX9D4RKoAaF0IMH
- s4D1oYStcoo4ED8WK46lsw0a0jsKBwKs27g5FxVzA1125Sf6lsBnYGie8mTed6rxMPHVZ1_Ym6qq
- xkXqsqkzjS0OcXbp8xgUaqnqzEn8vVtTqPSVpYwCu5IXJliu8H7lyISEvAYaSl9oKXE7GM.MnSxz
- j4un3AU4zXvKkypUEjzawziUZ2SZFxiJZZ3Cu7XSBt4W1tpHRNJihxG5TpGNaUVLFVNaXHWrZvU_
- kWB3wrc91GjP_jZHpdSMdsmc-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Mon, 25 May 2020 02:02:02 +0000
-Received: by smtp408.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID eb555deb44d72beca2d23355708db932;
-          Mon, 25 May 2020 02:01:57 +0000 (UTC)
-Subject: Re: [PATCH] capabilities: Introduce CAP_RESTORE
-To:     Andrei Vagin <avagin@gmail.com>
-Cc:     Adrian Reber <areber@redhat.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
+        id S2388326AbgEYIGH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 May 2020 04:06:07 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:60963 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388182AbgEYIGG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 May 2020 04:06:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590393961;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=z+opzIRNoYb9OnlfPQTVpRV9gxLXN2N/oIbR4/2XJL4=;
+        b=bdhr2H6xkKbXCUcUcr30wOKSSAlYDkfx+V4FkIBCCfFPs55rGDhrPoKEkdH7ZI+SMwpyu1
+        skSQgSVvTWmOrYduwuM9SSxoCE1YkcnXQsIVUF/9Mp3ra99nG4X0pWVdlIBsfxDu8WH4pp
+        zoIdZ2UMhfxsb7Wa2h9H9oV5OMMoFao=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-8-C6rZBi3eNGWN9IGUps9eaw-1; Mon, 25 May 2020 04:05:57 -0400
+X-MC-Unique: C6rZBi3eNGWN9IGUps9eaw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C0C901855A01;
+        Mon, 25 May 2020 08:05:54 +0000 (UTC)
+Received: from dcbz.redhat.com (ovpn-112-116.ams2.redhat.com [10.36.112.116])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id BBA726EDAF;
+        Mon, 25 May 2020 08:05:43 +0000 (UTC)
+Date:   Mon, 25 May 2020 10:05:41 +0200
+From:   Adrian Reber <areber@redhat.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
         Eric Biederman <ebiederm@xmission.com>,
         Pavel Emelyanov <ovzxemul@gmail.com>,
         Oleg Nesterov <oleg@redhat.com>,
         Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
         Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
-        =?UTF-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
         Kamil Yurtsever <kyurtsever@google.com>,
         Dirk Petersen <dipeit@gmail.com>,
         Christine Flood <chf@redhat.com>,
@@ -68,112 +67,367 @@ Cc:     Adrian Reber <areber@redhat.com>,
         linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
         Eric Paris <eparis@parisplace.org>,
-        Jann Horn <jannh@google.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
+        Jann Horn <jannh@google.com>
+Subject: Re: [PATCH] capabilities: Introduce CAP_RESTORE
+Message-ID: <20200525080541.GF104922@dcbz.redhat.com>
 References: <20200522055350.806609-1-areber@redhat.com>
  <dc86dffb-c7f8-15bb-db4e-be135da650cc@schaufler-ca.com>
- <20200523042749.GA19115@gmail.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Autocrypt: addr=casey@schaufler-ca.com; keydata=
- mQINBFzV9HABEAC/mmv3jeJyF7lR7QhILYg1+PeBLIMZv7KCzBSc/4ZZipoWdmr77Lel/RxQ
- 1PrNx0UaM5r6Hj9lJmJ9eg4s/TUBSP67mTx+tsZ1RhG78/WFf9aBe8MSXxY5cu7IUwo0J/CG
- vdSqACKyYPV5eoTJmnMxalu8/oVUHyPnKF3eMGgE0mKOFBUMsb2pLS/enE4QyxhcZ26jeeS6
- 3BaqDl1aTXGowM5BHyn7s9LEU38x/y2ffdqBjd3au2YOlvZ+XUkzoclSVfSR29bomZVVyhMB
- h1jTmX4Ac9QjpwsxihT8KNGvOM5CeCjQyWcW/g8LfWTzOVF9lzbx6IfEZDDoDem4+ZiPsAXC
- SWKBKil3npdbgb8MARPes2DpuhVm8yfkJEQQmuLYv8GPiJbwHQVLZGQAPBZSAc7IidD2zbf9
- XAw1/SJGe1poxOMfuSBsfKxv9ba2i8hUR+PH7gWwkMQaQ97B1yXYxVEkpG8Y4MfE5Vd3bjJU
- kvQ/tOBUCw5zwyIRC9+7zr1zYi/3hk+OG8OryZ5kpILBNCo+aePeAJ44znrySarUqS69tuXd
- a3lMPHUJJpUpIwSKQ5UuYYkWlWwENEWSefpakFAIwY4YIBkzoJ/t+XJHE1HTaJnRk6SWpeDf
- CreF3+LouP4njyeLEjVIMzaEpwROsw++BX5i5vTXJB+4UApTAQARAQABtChDYXNleSBTY2hh
- dWZsZXIgPGNhc2V5QHNjaGF1Zmxlci1jYS5jb20+iQJUBBMBCAA+FiEEC+9tH1YyUwIQzUIe
- OKUVfIxDyBEFAlzV9HACGwMFCRLMAwAFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQOKUV
- fIxDyBG6ag/6AiRl8yof47YOEVHlrmewbpnlBTaYNfJ5cZflNRKRX6t4bp1B2YV1whlDTpiL
- vNOwFkh+ZE0eI5M4x8Gw2Oiok+4Q5liA9PHTozQYF+Ia+qdL5EehfbLGoEBqklpGvG3h8JsO
- 7SvONJuFDgvab/U/UriDYycJwzwKZuhVtK9EMpnTtUDyP3DY+Q8h7MWsniNBLVXnh4yBIEJg
- SSgDn3COpZoFTPGKE+rIzioo/GJe8CTa2g+ZggJiY/myWTS3quG0FMvwvNYvZ4I2g6uxSl7n
- bZVqAZgqwoTAv1HSXIAn9muwZUJL03qo25PFi2gQmX15BgJKQcV5RL0GHFHRThDS3IyadOgK
- P2j78P8SddTN73EmsG5OoyzwZAxXfck9A512BfVESqapHurRu2qvMoUkQaW/2yCeRQwGTsFj
- /rr0lnOBkyC6wCmPSKXe3dT2mnD5KnCkjn7KxLqexKt4itGjJz4/ynD/qh+gL7IPbifrQtVH
- JI7cr0fI6Tl8V6efurk5RjtELsAlSR6fKV7hClfeDEgLpigHXGyVOsynXLr59uE+g/+InVic
- jKueTq7LzFd0BiduXGO5HbGyRKw4MG5DNQvC//85EWmFUnDlD3WHz7Hicg95D+2IjD2ZVXJy
- x3LTfKWdC8bU8am1fi+d6tVEFAe/KbUfe+stXkgmfB7pxqW5Ag0EXNX0cAEQAPIEYtPebJzT
- wHpKLu1/j4jQcke06Kmu5RNuj1pEje7kX5IKzQSs+CPH0NbSNGvrA4dNGcuDUTNHgb5Be9hF
- zVqRCEvF2j7BFbrGe9jqMBWHuWheQM8RRoa2UMwQ704mRvKr4sNPh01nKT52ASbWpBPYG3/t
- WbYaqfgtRmCxBnqdOx5mBJIBh9Q38i63DjQgdNcsTx2qS7HFuFyNef5LCf3jogcbmZGxG/b7
- yF4OwmGsVc8ufvlKo5A9Wm+tnRjLr/9Mn9vl5Xa/tQDoPxz26+aWz7j1in7UFzAarcvqzsdM
- Em6S7uT+qy5jcqyuipuenDKYF/yNOVSNnsiFyQTFqCPCpFihOnuaWqfmdeUOQHCSo8fD4aRF
- emsuxqcsq0Jp2ODq73DOTsdFxX2ESXYoFt3Oy7QmIxeEgiHBzdKU2bruIB5OVaZ4zWF+jusM
- Uh+jh+44w9DZkDNjxRAA5CxPlmBIn1OOYt1tsphrHg1cH1fDLK/pDjsJZkiH8EIjhckOtGSb
- aoUUMMJ85nVhN1EbU/A3DkWCVFEA//Vu1+BckbSbJKE7Hl6WdW19BXOZ7v3jo1q6lWwcFYth
- esJfk3ZPPJXuBokrFH8kqnEQ9W2QgrjDX3et2WwZFLOoOCItWxT0/1QO4ikcef/E7HXQf/ij
- Dxf9HG2o5hOlMIAkJq/uLNMvABEBAAGJAjwEGAEIACYWIQQL720fVjJTAhDNQh44pRV8jEPI
- EQUCXNX0cAIbDAUJEswDAAAKCRA4pRV8jEPIEWkzEACKFUnpp+wIVHpckMfBqN8BE5dUbWJc
- GyQ7wXWajLtlPdw1nNw0Wrv+ob2RCT7qQlUo6GRLcvj9Fn5tR4hBvR6D3m8aR0AGHbcC62cq
- I7LjaSDP5j/em4oVL2SMgNTrXgE2w33JMGjAx9oBzkxmKUqprhJomPwmfDHMJ0t7y39Da724
- oLPTkQDpJL1kuraM9TC5NyLe1+MyIxqM/8NujoJbWeQUgGjn9uxQAil7o/xSCjrWCP3kZDID
- vd5ZaHpdl8e1mTExQoKr4EWgaMjmD/a3hZ/j3KfTVNpM2cLfD/QwTMaC2fkK8ExMsz+rUl1H
- icmcmpptCwOSgwSpPY1Zfio6HvEJp7gmDwMgozMfwQuT9oxyFTxn1X3rn1IoYQF3P8gsziY5
- qtTxy2RrgqQFm/hr8gM78RhP54UPltIE96VywviFzDZehMvuwzW//fxysIoK97Y/KBZZOQs+
- /T+Bw80Pwk/dqQ8UmIt2ffHEgwCTbkSm711BejapWCfklxkMZDp16mkxSt2qZovboVjXnfuq
- wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
- v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
- abzjfg==
-Message-ID: <cc9e5272-795f-9275-ba93-90233bf1addd@schaufler-ca.com>
-Date:   Sun, 24 May 2020 19:01:54 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
 MIME-Version: 1.0
-In-Reply-To: <20200523042749.GA19115@gmail.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
-X-Mailer: WebService/1.1.15960 hermes_yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.6)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dc86dffb-c7f8-15bb-db4e-be135da650cc@schaufler-ca.com>
+X-Operating-System: Linux (5.6.11-300.fc32.x86_64)
+X-Load-Average: 0.84 0.48 0.30
+X-Unexpected: The Spanish Inquisition
+X-GnuPG-Key: gpg --recv-keys D3C4906A
+Organization: Red Hat
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 5/22/2020 9:27 PM, Andrei Vagin wrote:
-> On Fri, May 22, 2020 at 09:40:37AM -0700, Casey Schaufler wrote:
->> On 5/21/2020 10:53 PM, Adrian Reber wrote:
->>> There are probably a few more things guarded by CAP_SYS_ADMIN require=
-d
->>> to run checkpoint/restore as non-root,
->> If you need CAP_SYS_ADMIN anyway you're not gaining anything by
->> separating out CAP_RESTORE.
->>
->>>  but by applying this patch I can
->>> already checkpoint and restore processes as non-root. As there are
->>> already multiple workarounds I would prefer to do it correctly in the=
+On Fri, May 22, 2020 at 09:40:37AM -0700, Casey Schaufler wrote:
+> On 5/21/2020 10:53 PM, Adrian Reber wrote:
+> > This enables CRIU to checkpoint and restore a process as non-root.
+> 
+> I know it sounds pedantic, but could you spell out CRIU once?
+> While I know that everyone who cares either knows or can guess
+> what you're talking about, it may be a mystery to some of the
+> newer kernel developers.
 
->>> kernel to avoid that CRIU users are starting to invent more workaroun=
-ds.
->> You've presented a couple of really inappropriate implementations
->> that would qualify as workarounds. But the other two are completely
->> appropriate within the system security policy. They don't "get around"=
+Sure. CRIU - Checkpoint/Restore In Userspace.
 
->> the problem, they use existing mechanisms as they are intended.
->>
-> With CAP_CHECKPOINT_RESTORE, we will need to use the same mechanisms.
+> > Over the last years CRIU upstream has been asked a couple of time if it
+> > is possible to checkpoint and restore a process as non-root. The answer
+> > usually was: 'almost'.
+> >
+> > The main blocker to restore a process was that selecting the PID of the
+> > restored process, which is necessary for CRIU, is guarded by CAP_SYS_ADMIN.
+> 
+> What are the other blockers? Are you going to suggest additional new
+> capabilities to clear them?
 
-Then why call them out as objectionable "workarounds"?
+As mentioned somewhere else access to /proc/<pid>/map_files/ would be
+helpful. Right now I am testing with a JVM and it works without root
+just with the attached patch. Without access to /proc/<pid>/map_files/
+not everything CRIU can do will actually work, but we are a lot closer
+to what our users have been asking for.
 
-> The problem is that CAP_SYS_ADMIN is too wide.
+> > In the last two years the questions about checkpoint/restore as non-root
+> > have increased and especially in the last few months we have seen
+> > multiple people inventing workarounds.
+> 
+> Giving a process CAP_SYS_ADMIN is a non-root solution.
 
-This is well understood, and irrelevant.
+Yes, but like mentioned somewhere else not a solution that actually
+works, because CAP_SYS_ADMIN allows too much. Especially for the
+checkpoint/restore case, we really need one (setting the PID of a new
+process) and to make it complete a second (reading map_files).
 
-If we broke out CAP_SYS_ADMIN properly we'd have hundreds of
-capabilities, and no one would be able to manage the capability
-sets on anything. Just breaking out of CAP_SYS_ADMIN, especially
-if the process is going to need other capabilities anyway, gains
-you nothing.
+Reading the comments in include/uapi/linux/capability.h concerning
+CAP_SYS_ADMIN it allows the binary to do at least 35 things. The two
+(three) I mentioned above (ns_last_pid (clone3) map_files) are not
+mentioned in that list, so CAP_SYS_ADMIN allows probably much more.
 
->  If a process has
-> CAP_SYS_ADMIN, it can do a lot of things and  the operation of forking =
-a
-> process with a specified pid isn't the most dangerous one in this case.=
+To allow checkpoint/restore as non-root nobody will give CRIU
+CAP_SYS_ADMIN because it is too wide.
 
-> Offten security policies don't allow to grant CAP_SYS_ADMIN to any
-> third-party tools even in non-root user namespaces.
->
+> > The use-cases so far and their workarounds:
+> >
+> >  * Checkpoint/Restore in an HPC environment in combination with
+> >    a resource manager distributing jobs. Users are always running
+> >    as non root, but there was the desire to provide a way to
+> >    checkpoint and restore long running jobs.
+> >    Workaround: setuid wrapper to start CRIU as root as non-root
+> >    https://github.com/FredHutch/slurm-examples/blob/master/checkpointer/lib/checkpointer/checkpointer-suid.c
+> 
+> This is a classic and well understood mechanism for dealing with
+> this kind of situation. You could have checkpointer-filecap-sys_admin.c
+> instead, if you want to reduce use of the super-user.
+> 
+> > * Another use case to checkpoint/restore processes as non-root
+> >    uses as workaround a non privileged process which cycles through
+> >    PIDs by calling fork() as fast as possible with a rate of
+> >    100,000 pids/s instead of writing to ns_last_pid
+> >    https://github.com/twosigma/set_ns_last_pid
+> 
+> Oh dear.
+> 
+> >  * Fast Java startup using checkpoint/restore.
+> >    We have been in contact with JVM developers who are integrating
+> >    CRIU into a JVM to decrease the startup time.
+> >    Workaround so far: patch out CAP_SYS_ADMIN checks in the kernel
+> 
+> That's not a workaround, it's a policy violation.
+> Bad JVM! No biscuit!
+
+This was used as a proof of concept to see if we can checkpoint and
+restore a JVM without root. Only the ns_last_pid check was removed to
+see if it works and it does.
+
+> >  * Container migration as non root. There are people already
+> >    using CRIU to migrate containers as non-root. The solution
+> >    there is to run it in a user namespace. So if you are able
+> >    to carefully setup your environment with the namespaces
+> >    it is already possible to restore a container/process as non-root.
+> 
+> This is exactly the kind of situation that user namespaces are
+> supposed to address.
+> 
+> >    Unfortunately it is not always possible to setup an environment
+> >    in such a way and for easier access to non-root based container
+> >    migration this patch is also required.
+> 
+> If a user namespace solution is impossible or (more likely) too
+> expensive, there's always the checkpointer-filecap-sys_admin option.
+
+But then again we open up all of CAP_SYS_ADMIN, which is not necessary.
+
+> > There are probably a few more things guarded by CAP_SYS_ADMIN required
+> > to run checkpoint/restore as non-root,
+> 
+> If you need CAP_SYS_ADMIN anyway you're not gaining anything by
+> separating out CAP_RESTORE.
+
+No, as described we can checkpoint and restore a JVM with this patch and
+it also solves the problem the set_ns_last_pid fork() loop daemon tries
+to solve. It is not enough to support the full functionality of CRIU as
+map_files is also important, but we do not need CAP_SYS_ADMIN and
+CAP_RESTORE. Only CAP_RESTORE would be necessary.
+
+With a new capability users can enable checkpoint/restore as non-root
+without giving CRIU access to any of the other possibilities offered by
+CAP_SYS_ADMIN. Setting a PID and map_files have been introduced for CRIU
+and used to live behind CONFIG_CHECKPOINT_RESTORE. Having a capability
+for checkpoint/restore would make it easier for CRIU users to run it as
+non-root and make it very clear what is possible when giving CRIU the
+new capability. No other things would be allowed than necessary for
+checkpoint/restore. Setting a PID is most important for the restore part
+and reading map_files would be helpful during checkpoint. So it actually
+should be called CAP_CHECKPOINT_RESTORE as Christian mentioned in
+another email.
+
+> >  but by applying this patch I can
+> > already checkpoint and restore processes as non-root. As there are
+> > already multiple workarounds I would prefer to do it correctly in the
+> > kernel to avoid that CRIU users are starting to invent more workarounds.
+> 
+> You've presented a couple of really inappropriate implementations
+> that would qualify as workarounds. But the other two are completely
+> appropriate within the system security policy. They don't "get around"
+> the problem, they use existing mechanisms as they are intended.
+
+I agree with the user namespace approach to be appropriate, but not the
+CAP_SYS_ADMIN approach as CRIU only needs a tiny subset (2 things) of
+what CAP_SYS_ADMIN allows.
+
+> > I have used the following tests to verify that this change works as
+> > expected by setting the new capability CAP_RESTORE on the two resulting
+> > test binaries:
+> >
+> > $ cat ns_last_pid.c
+> >  // http://efiop-notes.blogspot.com/2014/06/how-to-set-pid-using-nslastpid.html
+> >  #include <stdio.h>
+> >  #include <stdlib.h>
+> >  #include <string.h>
+> >  #include <sys/file.h>
+> >  #include <sys/types.h>
+> >  #include <unistd.h>
+> >
+> > int main(int argc, char *argv[])
+> > {
+> > 	pid_t pid, new_pid;
+> > 	char buf[32];
+> > 	int fd;
+> >
+> > 	if (argc != 2)
+> > 		return 1;
+> >
+> > 	printf("Opening ns_last_pid...\n");
+> > 	fd = open("/proc/sys/kernel/ns_last_pid", O_RDWR | O_CREAT, 0644);
+> > 	if (fd < 0) {
+> > 		perror("Cannot open ns_last_pid");
+> > 		return 1;
+> > 	}
+> >
+> > 	printf("Locking ns_last_pid...\n");
+> > 	if (flock(fd, LOCK_EX)) {
+> > 		close(fd);
+> > 		printf("Cannot lock ns_last_pid\n");
+> > 		return 1;
+> > 	}
+> >
+> > 	pid = atoi(argv[1]);
+> > 	snprintf(buf, sizeof(buf), "%d", pid - 1);
+> > 	printf("Writing pid-1 to ns_last_pid...\n");
+> > 	if (write(fd, buf, strlen(buf)) != strlen(buf)) {
+> > 		printf("Cannot write to buf\n");
+> > 		return 1;
+> > 	}
+> >
+> > 	printf("Forking...\n");
+> > 	new_pid = fork();
+> > 	if (new_pid == 0) {
+> > 		printf("I am the child!\n");
+> > 		exit(0);
+> > 	} else if (new_pid == pid)
+> > 		printf("I am the parent. My child got the pid %d!\n", new_pid);
+> > 	else
+> > 		printf("pid (%d) does not match expected pid (%d)\n", new_pid, pid);
+> >
+> > 	printf("Cleaning up...\n");
+> > 	if (flock(fd, LOCK_UN))
+> > 		printf("Cannot unlock\n");
+> > 	close(fd);
+> > 	return 0;
+> > }
+> > $ id -u; /home/libcap/ns_last_pid 300000
+> > 1001
+> > Opening ns_last_pid...
+> > Locking ns_last_pid...
+> > Writing pid-1 to ns_last_pid...
+> > Forking...
+> > I am the parent. My child got the pid 300000!
+> > I am the child!
+> > Cleaning up...
+> >
+> > For the clone3() based approach:
+> > $ cat clone3_set_tid.c
+> >  #define _GNU_SOURCE
+> >  #include <linux/sched.h>
+> >  #include <stdint.h>
+> >  #include <stdio.h>
+> >  #include <stdlib.h>
+> >  #include <string.h>
+> >  #include <sys/types.h>
+> >  #include <sys/stat.h>
+> >  #include <sys/syscall.h>
+> >  #include <unistd.h>
+> >
+> >  #define ptr_to_u64(ptr) ((__u64)((uintptr_t)(ptr)))
+> >
+> > int main(int argc, char *argv[])
+> > {
+> > 	struct clone_args c_args = { };
+> > 	pid_t pid, new_pid;
+> >
+> > 	if (argc != 2)
+> > 		return 1;
+> >
+> > 	pid = atoi(argv[1]);
+> > 	c_args.set_tid = ptr_to_u64(&pid);
+> > 	c_args.set_tid_size = 1;
+> >
+> > 	printf("Forking...\n");
+> > 	new_pid = syscall(__NR_clone3, &c_args, sizeof(c_args));
+> > 	if (new_pid == 0) {
+> > 		printf("I am the child!\n");
+> > 		exit(0);
+> > 	} else if (new_pid == pid)
+> > 		printf("I am the parent. My child got the pid %d!\n", new_pid);
+> > 	else
+> > 		printf("pid (%d) does not match expected pid (%d)\n", new_pid, pid);
+> > 	printf("Done\n");
+> >
+> > 	return 0;
+> > }
+> > $ id -u; /home/libcap/clone3_set_tid 300000
+> > 1001
+> > Forking...
+> > I am the parent. My child got the pid 300000!
+> > Done
+> > I am the child!
+> >
+> > Signed-off-by: Adrian Reber <areber@redhat.com>
+> > ---
+> >  include/linux/capability.h          | 5 +++++
+> >  include/uapi/linux/capability.h     | 9 ++++++++-
+> >  kernel/pid.c                        | 2 +-
+> >  kernel/pid_namespace.c              | 2 +-
+> >  security/selinux/include/classmap.h | 5 +++--
+> >  5 files changed, 18 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/include/linux/capability.h b/include/linux/capability.h
+> > index b4345b38a6be..1278313cb2bc 100644
+> > --- a/include/linux/capability.h
+> > +++ b/include/linux/capability.h
+> > @@ -261,6 +261,11 @@ static inline bool bpf_capable(void)
+> >  	return capable(CAP_BPF) || capable(CAP_SYS_ADMIN);
+> >  }
+> >  
+> > +static inline bool restore_ns_capable(struct user_namespace *ns)
+> > +{
+> > +	return ns_capable(ns, CAP_RESTORE) || ns_capable(ns, CAP_SYS_ADMIN);
+> > +}
+> > +
+> >  /* audit system wants to get cap info from files as well */
+> >  extern int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data *cpu_caps);
+> >  
+> > diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
+> > index c7372180a0a9..4bcc4e3d41ff 100644
+> > --- a/include/uapi/linux/capability.h
+> > +++ b/include/uapi/linux/capability.h
+> > @@ -406,7 +406,14 @@ struct vfs_ns_cap_data {
+> >   */
+> >  #define CAP_BPF			39
+> >  
+> > -#define CAP_LAST_CAP         CAP_BPF
+> > +
+> > +/* Allow checkpoint/restore related operations */
+> > +/* Allow PID selection during clone3() */
+> > +/* Allow writing to ns_last_pid */
+> > +
+> > +#define CAP_RESTORE		40
+> > +
+> > +#define CAP_LAST_CAP         CAP_RESTORE
+> >  
+> >  #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
+> >  
+> > diff --git a/kernel/pid.c b/kernel/pid.c
+> > index 3122043fe364..bbc26f2bcff6 100644
+> > --- a/kernel/pid.c
+> > +++ b/kernel/pid.c
+> > @@ -198,7 +198,7 @@ struct pid *alloc_pid(struct pid_namespace *ns, pid_t *set_tid,
+> >  			if (tid != 1 && !tmp->child_reaper)
+> >  				goto out_free;
+> >  			retval = -EPERM;
+> > -			if (!ns_capable(tmp->user_ns, CAP_SYS_ADMIN))
+> > +			if (!restore_ns_capable(tmp->user_ns))
+> >  				goto out_free;
+> >  			set_tid_size--;
+> >  		}
+> > diff --git a/kernel/pid_namespace.c b/kernel/pid_namespace.c
+> > index 0e5ac162c3a8..f58186b31ce6 100644
+> > --- a/kernel/pid_namespace.c
+> > +++ b/kernel/pid_namespace.c
+> > @@ -269,7 +269,7 @@ static int pid_ns_ctl_handler(struct ctl_table *table, int write,
+> >  	struct ctl_table tmp = *table;
+> >  	int ret, next;
+> >  
+> > -	if (write && !ns_capable(pid_ns->user_ns, CAP_SYS_ADMIN))
+> > +	if (write && !restore_ns_capable(pid_ns->user_ns))
+> >  		return -EPERM;
+> >  
+> >  	/*
+> > diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> > index 98e1513b608a..f8b8f12a6ebd 100644
+> > --- a/security/selinux/include/classmap.h
+> > +++ b/security/selinux/include/classmap.h
+> > @@ -27,9 +27,10 @@
+> >  	    "audit_control", "setfcap"
+> >  
+> >  #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+> > -		"wake_alarm", "block_suspend", "audit_read", "perfmon", "bpf"
+> > +		"wake_alarm", "block_suspend", "audit_read", "perfmon", "bpf", \
+> > +		"restore"
+> >  
+> > -#if CAP_LAST_CAP > CAP_BPF
+> > +#if CAP_LAST_CAP > CAP_RESTORE
+> >  #error New capability defined, please update COMMON_CAP2_PERMS.
+> >  #endif
+> >  
+> >
+> > base-commit: e8f3274774b45b5f4e9e3d5cad7ff9f43ae3add5
+> 
 
