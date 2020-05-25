@@ -2,112 +2,109 @@ Return-Path: <SRS0=axcH=7H=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C175AC433E0
-	for <selinux@archiver.kernel.org>; Mon, 25 May 2020 19:47:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C41F7C433DF
+	for <selinux@archiver.kernel.org>; Mon, 25 May 2020 21:53:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 985D12068D
-	for <selinux@archiver.kernel.org>; Mon, 25 May 2020 19:47:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A4AD72071C
+	for <selinux@archiver.kernel.org>; Mon, 25 May 2020 21:53:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JAgAMrz9"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iY2tvaDk"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390217AbgEYTr7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 25 May 2020 15:47:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40190 "EHLO
+        id S2388994AbgEYVxj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 25 May 2020 17:53:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388757AbgEYTr6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 25 May 2020 15:47:58 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BF05C061A0E
-        for <selinux@vger.kernel.org>; Mon, 25 May 2020 12:47:58 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id h188so11060937lfd.7
-        for <selinux@vger.kernel.org>; Mon, 25 May 2020 12:47:58 -0700 (PDT)
+        with ESMTP id S2389092AbgEYVxi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 25 May 2020 17:53:38 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A12EC08C5C0
+        for <selinux@vger.kernel.org>; Mon, 25 May 2020 14:53:38 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id m18so22161160ljo.5
+        for <selinux@vger.kernel.org>; Mon, 25 May 2020 14:53:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iDsKJ4jCeiWp/uqSKP9MxxOVtKtsVGA9GhHXsZqa+38=;
-        b=JAgAMrz9zDqpXQEVv2G3CuKHu7+oPeqNsO4dkk2zmCWECtbuBO0d/9P6AZ14yM/XQ2
-         O43klZy4rQhEyBf1womxZPt1Kfv5+Qmg2JyrgwRU6Zk4pAmIxU+V5joKh8fEDdQImK/K
-         jMuJNbkYfaBdBVEgfUFr+UagYcfqFAYkoLiMs0pBRAjWerjzxo/Fyl94qTXHuCUfxte1
-         hexuFVNf3I2wgn8oOi2sfWIsSzx4Oe2gFCakJEeG/y1TzgY7dAtBwAog5XESMAobXN52
-         STJFwYBlT2Cc73XHmLeLiCvKP/KuBjGOys2+LMKxAGY5MbzB/AqG4HOnfem4QE9JWqny
-         EAAg==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3v101aASCPTejbg2jVfRLiyg4GeM0gg8VBZ5PDSH1ag=;
+        b=iY2tvaDk5p5YH0iGs/a+wJsGtGT8KQPYOcxHmPLgAU+qx+6O5I1SNr/jyAMm1ptXcs
+         xB2MhF2XN8ymMN9NU6RqOYL/nI4prBnS1vmF+82k4BLMwvUR52gZ+UZp7b0cY4BonHyO
+         gRuXV1eHfIMukPkHZeKrfWm6c9UlUSn/xs5bz5Bxb4RQ3HwEcPWS1oKeh0PVT0L7NFNT
+         +N+PVSjfZj+VOxFegAc8rIHKmBEdKt0LQVlwRP2nOjsyiiOCiV3fXky+4n8lQ6FCeMLv
+         qbkkqo1rA9z49AODENtIvaT2c6gHV7EXS0TVRHz5BbstuWtgWAPRxmMCBUow6rRHEK0q
+         B7UA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iDsKJ4jCeiWp/uqSKP9MxxOVtKtsVGA9GhHXsZqa+38=;
-        b=Ad96VNKpgdCh5fYJSqQcw1RjTs16FmwROVBsF/EC6vDSzkzSnBgjKQORArSubF+Ivw
-         V0NzAYy1/RdcifAZ8lG0gJP/qnOdAHNNfqdblncrFVKA578am+CuRS066qO4R4VE4nib
-         bZx64HTrwUHt7e92cI/axjbyPFHU8IiscqWeOgt85UrM/Oew836bKu2CtIrNuKhLBr0w
-         d6gacDLptroc7MxGqIRN/frV6o3yub1+wyW17/tjIEkQVZJ4RQk8b+Zmqh2X5AUGqoEI
-         ldK79+ULL020yBOOIMYKn1CQYwxNtZ2mAtryjnpj7wBj1k+wRRZsqW4FLsn9KdblnjEW
-         SuEQ==
-X-Gm-Message-State: AOAM533s22PKhj0hwWluyUOGSdj38lMjHAyDtgAWYIYIlpyQmlacSnq7
-        GC2j4fWkYdYV5kCYB+MOUKB9TrJs
-X-Google-Smtp-Source: ABdhPJwTlx00w6Vh/TObfGO6FreStg3bw71bjYNqXHkh8XKgG6BS+UXyeEYGHKAD/Wql3bBVHaBcsQ==
-X-Received: by 2002:a19:5d44:: with SMTP id p4mr14964983lfj.56.1590436076242;
-        Mon, 25 May 2020 12:47:56 -0700 (PDT)
-Received: from localhost.localdomain (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
-        by smtp.gmail.com with ESMTPSA id z2sm5937744lfg.45.2020.05.25.12.47.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2020 12:47:55 -0700 (PDT)
-From:   Topi Miettinen <toiwoton@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     Topi Miettinen <toiwoton@gmail.com>
-Subject: [PATCH] semanage bash completion: handle semanage module #246
-Date:   Mon, 25 May 2020 22:47:50 +0300
-Message-Id: <20200525194750.17309-1-toiwoton@gmail.com>
-X-Mailer: git-send-email 2.26.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3v101aASCPTejbg2jVfRLiyg4GeM0gg8VBZ5PDSH1ag=;
+        b=sarK54XBbYEOalfbJGTaQB2/10k9dgZqUw6lsTRfEuBAvLQFBsY3MLJHrZYudOBjDo
+         Gcz6XP7mXRzaHg8LyPI9uho71SIegPCjAPWL0EC1ZExWTr2/ZRh8ZjtB36xtQmE9JHpO
+         2adFFT0raWvDPhDW70NJX+YHyv9PhfZd1rOoKnxXSpbEFTnXDGOQiARECGDWuv49ykSM
+         as3x3v4EgdRUmyiKhhESSLKBzxvVEw2kC4ZF8iCAlM5aY1J3tRU3UCzNnmYmABRhM05V
+         LpLr/sppGH4oIJ4KnzgsZSI0Z2ACNrGyJ0OtU50dGU7Typku3bcVfqx2WUDFPg5hpLnp
+         2QUw==
+X-Gm-Message-State: AOAM533O67LG5LSs3DAD/kMKBCx/KqCxVO8/0zN1I+3iUUm+INvw3fQJ
+        4mGM+iJtfXSvuKL7+6tyx3mNOOvCEmRi8OI1RaLGVg==
+X-Google-Smtp-Source: ABdhPJyKnh55r9ZmX+xYxnzN5U0nGuxPhLb6UCsL+iO/1S19+yDruhYy4O1R6Zoj4FsxXdc6DmU+OY95cKBKyVGfyqM=
+X-Received: by 2002:a2e:9455:: with SMTP id o21mr2832190ljh.415.1590443616555;
+ Mon, 25 May 2020 14:53:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200522055350.806609-1-areber@redhat.com>
+In-Reply-To: <20200522055350.806609-1-areber@redhat.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Mon, 25 May 2020 23:53:10 +0200
+Message-ID: <CAG48ez3rh2a3PYRRkcu50LU9qPCaeOE8BJL=AmTwDD3qcA+xFA@mail.gmail.com>
+Subject: Re: [PATCH] capabilities: Introduce CAP_RESTORE
+To:     Adrian Reber <areber@redhat.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
+        =?UTF-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
+        Dirk Petersen <dipeit@gmail.com>,
+        Christine Flood <chf@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Eric Paris <eparis@parisplace.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-List modules for bash completion of `semanage module`.
+On Fri, May 22, 2020 at 7:55 AM Adrian Reber <areber@redhat.com> wrote:
+> This enables CRIU to checkpoint and restore a process as non-root.
+>
+> Over the last years CRIU upstream has been asked a couple of time if it
+> is possible to checkpoint and restore a process as non-root. The answer
+> usually was: 'almost'.
+>
+> The main blocker to restore a process was that selecting the PID of the
+> restored process, which is necessary for CRIU, is guarded by CAP_SYS_ADMIN.
 
-Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
----
- python/semanage/semanage-bash-completion.sh | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+And if you were restoring the process into your own PID namespace, so
+that you actually have a guarantee that this isn't going to blow up in
+your face because one of your PIDs is allocated for a different
+process, this part of the problem could be simplified.
 
-diff --git a/python/semanage/semanage-bash-completion.sh b/python/semanage/semanage-bash-completion.sh
-index 2d811c98..a3993c58 100644
---- a/python/semanage/semanage-bash-completion.sh
-+++ b/python/semanage/semanage-bash-completion.sh
-@@ -54,6 +54,9 @@ __get_all_roles () {
- __get_all_stores () {
-     dir -1 -F /etc/selinux/ | grep '/' | cut -d'/' -f 1
- }
-+__get_all_modules () {
-+    semodule -l
-+}
- __get_import_opts () { echo '$ALL_OPTS --f --input_file' ; }
- __get_export_opts () { echo '$ALL_OPTS --f --output_file' ; }
- __get_boolean_opts () { echo '$ALL_OPTS --on -off -1 -0' ; }
-@@ -88,6 +91,14 @@ _semanage () {
- 	if   [ "$prev" = "-a" -a "$command" = "permissive" ]; then
- 	        COMPREPLY=( $(compgen -W "$( __get_all_domains ) " -- "$cur") )
- 		return 0
-+	elif [ "$command" = "module" ]; then
-+		if [ "$prev" = "-a" ] || [ "$prev" = "--add" ] \
-+		    || [ "$prev" = "-d" ] || [ "$prev" = "--disable" ] \
-+		    || [ "$prev" = "-e" ] || [ "$prev" = "--enable" ] \
-+		    || [ "$prev" = "-r" ] || [ "$prev" = "--remove" ]; then
-+	            COMPREPLY=( $(compgen -W "$( __get_all_modules ) " -- "$cur") )
-+		    return 0
-+		fi
- 	fi
- 	if   [ "$verb" = "" -a "$prev" = "semanage" ]; then
-                 comps="${VERBS[*]}"
--- 
-2.26.2
-
+I don't get why your users are fine with a "oh it kinda works 99% of
+the time but sometimes it randomly doesn't and then you have to go
+reboot or whatever" model.
