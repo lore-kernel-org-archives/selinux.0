@@ -2,101 +2,114 @@ Return-Path: <SRS0=TGs9=7I=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.4 required=3.0 tests=DKIMWL_WL_MED,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 116C3C433E0
-	for <selinux@archiver.kernel.org>; Tue, 26 May 2020 19:20:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 253C4C433E0
+	for <selinux@archiver.kernel.org>; Tue, 26 May 2020 19:52:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C373B20776
-	for <selinux@archiver.kernel.org>; Tue, 26 May 2020 19:20:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 01E15207D8
+	for <selinux@archiver.kernel.org>; Tue, 26 May 2020 19:52:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DiPSMUYO"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="bnWhzRKV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391433AbgEZTUa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 26 May 2020 15:20:30 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:40758 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2392083AbgEZTM2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 26 May 2020 15:12:28 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1590520347;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=4az2Ns9+dWWRUrn/wGIJCYm9Z2ECLPwclq7eITKZ3y8=;
-        b=DiPSMUYO5FyFFEJIduiqRW/U4vLy7o2OVh/JNowTnR51BS1Xu8rg9WHmXgFUkqV+XbPNvd
-        bFL64eRzy+uiTANKdI1GEXK5fPsUUMq7qPAujHx8l+rxLBNpN5nuVqht+lN4vZCbj5t2rg
-        9SAmhH3lMVxjmyZlz+zeoFh20O/vuCE=
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
- [209.85.214.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-287-gRYx4SMlOnW67oaMtE-7pw-1; Tue, 26 May 2020 15:12:18 -0400
-X-MC-Unique: gRYx4SMlOnW67oaMtE-7pw-1
-Received: by mail-pl1-f198.google.com with SMTP id d9so16329478pll.12
-        for <selinux@vger.kernel.org>; Tue, 26 May 2020 12:12:18 -0700 (PDT)
+        id S2390432AbgEZTwD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 26 May 2020 15:52:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40604 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390409AbgEZTwC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 26 May 2020 15:52:02 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E40C03E96D
+        for <selinux@vger.kernel.org>; Tue, 26 May 2020 12:52:01 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id u16so11294252lfl.8
+        for <selinux@vger.kernel.org>; Tue, 26 May 2020 12:52:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=eBEPuPRe4Vv2CIYhMh2f1CuE2rLakV/r952j5euzgs8=;
+        b=bnWhzRKVsaWXVi38IqofrgRQO1+O7g9G0wdnz61VvLTxmGpf0Fg8OK7MAptjxxMn3T
+         kHaTgIILdbWOUvZ50Uyaodde5Gj5I8XzkPC6W7EQK+hxASYjt5Sh36CvVntc1Ox6e4AM
+         6rDBHoaKOeBgjFYeUVH8aJzZGm+JLhmsB+9sI8gsqKrdVDncLLtGJ98HUrkDNkVhKNmf
+         qwfCbSXVlKEzR3ziDVHFYZMhK/sFnYDl6XrECA+oMoNnDGkkgT7L0UZcyjdkgz3nnMMq
+         gKTv9rkTMxjDqh+JFrLhdYXj6IWJwGLH4WZExZxsbyKo6fpi38b+eoChPqqLK+RQf2k+
+         Bhiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4az2Ns9+dWWRUrn/wGIJCYm9Z2ECLPwclq7eITKZ3y8=;
-        b=d07r7mQ53ZRq3bSeL/JSvhA/Er5xnnvnSFve03UMOx91AgesCfQ+Ti36LD/WSRYsT2
-         dJCGLyxKBCbWjkoUsOy+e9p4JgJjJD6m2uG8hxP72CP2s1Kl0u2Q/FFAIFuo8btQ1BWP
-         7v/lRzZKAME1T9yT93dcwVlmkCr9sWFoZqKtVTD+05A3bJK+Ots6uU3J73tTtX94qA6P
-         zRM8FqpuNZTGo/d6SeTP0IYT4+Nq9Wn92rfsGAQNsYxTOoyfnR1+h2GsmNViNwgzszNb
-         +NOcb9El8iUagH7FBesEpmkNU9HFJd3GvpmUF6nESWhrs28eh5GPhy1X8RsC57Ai0DcM
-         XU2g==
-X-Gm-Message-State: AOAM530n/IkEXXFTN0Iwjb7MesRxOh2rkIfyBXlBPEoH2IF5o4bUmtMz
-        eYgWqBmMVCY5r0cERjVKXnqPWoIGTOM8newDNFLQWaqKPyX687K+5+xhd+vul24+MfM4NL9rEdq
-        FJWuM2e9P1VLCvPCwQgEmhv2SWOXnoEH40A==
-X-Received: by 2002:a62:b40b:: with SMTP id h11mr252195pfn.183.1590520337804;
-        Tue, 26 May 2020 12:12:17 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzSG4uZsjAL/YS/sT4m9ktkGpQPtbmwHJpi/MLlNPVS4Z/5csXAKlMlEeCmhhEdldfwb1kRTNMe9coVb2kh7V0=
-X-Received: by 2002:a62:b40b:: with SMTP id h11mr252183pfn.183.1590520337604;
- Tue, 26 May 2020 12:12:17 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=eBEPuPRe4Vv2CIYhMh2f1CuE2rLakV/r952j5euzgs8=;
+        b=LQgBmV5WqZvhzP52y8psXfdIM9sf8AkT5+QH3G8IpHV0kgKHPGd9E1PI30GJ4x8VJl
+         9UTfZs+bw5QWhgssDGRm+bop2yp8+87hg0pdiEQJfsrir2S8RjqWLNvIclNnerOjPOQL
+         jLSBnbIB8yjUfGTSKCv2uJRd3n4wM9TRnR84b+rMVAx/2xiMFSKatRmwMXXGT0tccPBc
+         Beld5ZMix2c9Bf5/KVQyEC17WGpEp20GbUyB2/vVg9YpFZZMF2Gy7NfzZMu6E6/rKAGs
+         F55p6tg4ByOmt/nIY46lpBfzsZ2DROzDGkSlrYyjMX2a1jpZGTxIprK9YcjhjQqROd5O
+         xTaQ==
+X-Gm-Message-State: AOAM531rTnnI6gIXHEiRR1JD9OjY8qT6+3PMWJx/qH/5N6SInWKGbhAS
+        i5PS5fgA9ryA9MyeT3KwJ0UQeB7zlJHU7wwtYPgR/Q==
+X-Google-Smtp-Source: ABdhPJzlR6LQriHCuEiGE/6Qirb1H9ZITawQCPoXz9As27TgLBKfSZTPQcDuOcWf7Fk6FiSnZhxZUdI8yRzAAC8OiFQ=
+X-Received: by 2002:a05:6512:6ca:: with SMTP id u10mr1293382lff.184.1590522719828;
+ Tue, 26 May 2020 12:51:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200523195130.409607-1-jlebon@redhat.com> <CAFqZXNsuJ7S9zFhHBJNJxUr4=_ZGmKdzTU29PrWRuziMfJJkGQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNsuJ7S9zFhHBJNJxUr4=_ZGmKdzTU29PrWRuziMfJJkGQ@mail.gmail.com>
-From:   Jonathan Lebon <jlebon@redhat.com>
-Date:   Tue, 26 May 2020 15:12:05 -0400
-Message-ID: <CACpbjYqBL3a6iVuN9NGzLLHdENC-EXNsNikJZsEhpvCkCGEM2A@mail.gmail.com>
-Subject: Re: [PATCH] selinux: allow reading labels before policy is loaded
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200522055350.806609-1-areber@redhat.com> <dc86dffb-c7f8-15bb-db4e-be135da650cc@schaufler-ca.com>
+ <20200525080541.GF104922@dcbz.redhat.com> <877dwybxvi.fsf@x220.int.ebiederm.org>
+ <CALKUemw0UZ67yaDwAomHh0n8QZfjd52QvgEXTJ4R3JSrQjZX9g@mail.gmail.com>
+In-Reply-To: <CALKUemw0UZ67yaDwAomHh0n8QZfjd52QvgEXTJ4R3JSrQjZX9g@mail.gmail.com>
+From:   Jann Horn <jannh@google.com>
+Date:   Tue, 26 May 2020 21:51:33 +0200
+Message-ID: <CAG48ez3PFoy11H11so-xXSJf4HM6Ndkufxk40sLj8JFvO6+BPQ@mail.gmail.com>
+Subject: Re: [PATCH] capabilities: Introduce CAP_RESTORE
+To:     Christine Flood <chf@redhat.com>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Adrian Reber <areber@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
+        =?UTF-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
+        Dirk Petersen <dipeit@gmail.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        linux-security-module <linux-security-module@vger.kernel.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Eric Paris <eparis@parisplace.org>,
+        "Haley, Andrew" <aph@redhat.com>,
+        "Bhole, Deepak" <dbhole@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, May 25, 2020 at 1:14 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> I might be missing something, but couldn't you achieve the same by
-> simply adding something like this in here:
->
-> if (!selinux_initialized(&selinux_state))
->         return -EOPNOTSUPP;
->
-> (Or by adding it to the condition above.)
->
-> Then you should hit this condition here and be all set:
-> https://elixir.bootlin.com/linux/v5.7-rc7/source/fs/xattr.c#L337
+On Tue, May 26, 2020 at 9:01 PM Christine Flood <chf@redhat.com> wrote:
+> Java applications suffer from slow startup times due to dynamic class loa=
+ding and warming up the Just In Time compilers.  Not all Java users have ro=
+ot access on their machines.  Enabling CRIU in user mode solves this proble=
+m for us.  We are about to release a user library that will allow check poi=
+nting Java from within Java.  Having to run this as root would severely lim=
+it its utility.
 
-Hi Ondrej,
+Have you looked into whether it would be practical to restore the
+saved process state with different PIDs, and then fix up all places
+that might have stored the old PIDs? As long as all threads are
+managed by the JVM, that might be doable, right?
 
-Yes, that looks promising. Two questions with that approach:
-
-1. Is there a concern here with transiently returning -EOPNOTSUPP even
-if the SELinux LSM does technically support the inode_getsecurity
-hook? I'm thinking of potential corner-cases down the road where
-somehow this knowledge is cached.
-
-2. The selinux_inode_getsecurity hook today does somewhat handle the
-uninitialized case. It ends up here:
-
-https://elixir.bootlin.com/linux/v5.7-rc7/source/security/selinux/ss/services.c#L1322.
-
-Specifically, it has support for initial SIDs. The patch I wrote
-purposely tries to allow falling back to that logic. Is there a
-concern with short-circuiting this logic even if the inode SID somehow
-isn't SECINITSID_UNLABELED?
-
+If you did that, you would also solve the problem of not being able to
+start two copies of the same image (because their PIDs would collide)
+or randomly not being able to start processes (because their PIDs
+collide with other existing things).
