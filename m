@@ -2,114 +2,143 @@ Return-Path: <SRS0=EYrt=7J=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD2D6C433DF
-	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 14:44:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 463BAC433DF
+	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 15:04:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B968620873
-	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 14:44:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2206820899
+	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 15:04:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VEXT/gvl"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZiJXm8ux"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388859AbgE0Oo4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 May 2020 10:44:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46882 "EHLO
+        id S2389536AbgE0PER (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 May 2020 11:04:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388356AbgE0Ooz (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 May 2020 10:44:55 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90BC3C05BD1E
-        for <selinux@vger.kernel.org>; Wed, 27 May 2020 07:44:55 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id l6so21907717oic.9
-        for <selinux@vger.kernel.org>; Wed, 27 May 2020 07:44:55 -0700 (PDT)
+        with ESMTP id S2388922AbgE0PEQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 May 2020 11:04:16 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B63C05BD1E
+        for <selinux@vger.kernel.org>; Wed, 27 May 2020 08:04:16 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id y85so21899017oie.11
+        for <selinux@vger.kernel.org>; Wed, 27 May 2020 08:04:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=s6j8W5yL67tA9OhQuTuFlPPXHMSnUbiYMy1tdvcYRB0=;
-        b=VEXT/gvlgCnQw6Y3WLthWSz/RhQSd2EIJVJx/+Z5wMfUpmV0tm2t3/yNfn9Kmc4gHc
-         QtDEDOQPq7pGxIven8GJhOBLOjYzpsyoYnAfZOUsRvU58JVjKDabE6xIX34WlG0y0yY8
-         fOWGaE/5eVOa1rg7/PA5QOGIuStF3mfjrOK/FR49jn7QModKPHQmAksS4ZbmwrOfSXfT
-         N2amYcFHydz9MZKfyrPK8epI/1ksRirlAV6m1fDFk9ly4w0FT1d6dgTt9ywP9gNxALk8
-         T0RXqZvRQ/45vLKN8aCT037yV+GRHeKT5r4+tX1nOVjmkljR4cuN/1ZDmVNq7tLKtWI2
-         96Ag==
+         :cc:content-transfer-encoding;
+        bh=SrbPa2EiaxewYnVB028yZhXQ2LqGI1lCiYG723SVmVs=;
+        b=ZiJXm8uxg/0J/2PfCQyvQffSj+hlKYEOeIYnBWF3wRjDCxRuMt40LAg+Ssv5vumlxn
+         DW+UjdsdZJ5dDxQTbhi21du8DQ2c3gGTFCNm2l7A70hoaFZbnlQhzMjoEOBEQqoxb5aY
+         FcDs9xBMnT5UIuC1+QoPUNbbUnPKccCm3SAeB3bI4zy808t6iw3oGMr/pofacQqyL6om
+         kMO3OXXlh/qPpAcUPQsMQXHATjUpDVMjSqbOjhjJPeTfkfAYyL7ao7uB+UAKaTXmUlHI
+         /D8W8RxAXxslRUiJ4N01xm7KCYI7RyOu/TGxPpGnQIhulE3xJRImF1sNf2IFMa/C1Y7k
+         Tnfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=s6j8W5yL67tA9OhQuTuFlPPXHMSnUbiYMy1tdvcYRB0=;
-        b=QXH2fto+mqQBf2SF8r8rriRBOr03SLD7FmI/a6YHSE7fS9up8c++Cs7gNLKvgMLZ5Z
-         C62CatUW9vyFu6jhXGqhNDSVD1P9+YHWaZ6KOiMDluyuKpekpQO5Oe7y70zTOUtF6iGE
-         yEpiOh52npMm2TuU3ylU6n8nx6Is5Z7ymf0YPjE3gMY68Q/2shIrgfD++oqIRY3ynTFN
-         TchZy5xI5OMlZ/D7/1y3nWfmGxW3oRuzALiDLEFZMS7HTsNejJpYvrjpxt6G4yFFed2S
-         nJaAP1cx0wpSmbKRLTDUy354c8KBR74jQzYmS90BuYAQZ9fj2/nbtG4ElTifbloAw4Kv
-         oB2w==
-X-Gm-Message-State: AOAM533xG6iraOc6J90L/akvpjvB10wgssTF1RiIuNcLZyeV6mplP6GQ
-        Qn/ecSKD3i20MA11umvgj0EBdjuJLhC+81rGAFA=
-X-Google-Smtp-Source: ABdhPJxWm5eM957qvPmwK29/Qy9BQi2o6tmoMuiaC+/MurzICcsPZ83PrGz2jOgn1PmSX/siC5zL1yY1pkrfbR+GSPs=
-X-Received: by 2002:aca:72d6:: with SMTP id p205mr2967873oic.128.1590590695020;
- Wed, 27 May 2020 07:44:55 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=SrbPa2EiaxewYnVB028yZhXQ2LqGI1lCiYG723SVmVs=;
+        b=WI/yFp0kzIUQMNoqFxWErpQU58XML6lbxU9WcG1Zt2tnOX/BLjxjUx6FvQhUjQubAe
+         KMrUq/f+t7uMuof5GJEMS0MLkvTtoRGm9eI1is6HNi6zrtp81InJWtFNHiboKdFrBTaT
+         zmox0LwfcuzhabWxw+FJfV1sdBv/KUXMpiuobLBgiX4JH9FulJGKDHEqro7If8vNx9ME
+         KJt2hnyYfe1a54juLssUtnd4nfYzY1EzA3+kGGo8GUiv6HkyZzyNUv8g/Q+IJ0vArERS
+         uByYrRfUpgh+0KHyB11XFEjVBxwEtPXWmXUQdneyaZ4EUXUWQwy/3eZzV3qlmfISdc4o
+         +1NA==
+X-Gm-Message-State: AOAM5311lDtXchH7ENBo1ORgeERBMOYPRZl8temdTV5Mx+4WSfVhSdU1
+        eRdWfxc7oPelrm/3CE2+A336o3Ab/sxiD7eRHUM=
+X-Google-Smtp-Source: ABdhPJzWLFPIODa5C+kIRICC8i65tJwYeUgI95v9VWWJ5IV9KMDFfGueJfUWdO7lThTYNtvMWVUD/KJqvZJpbBMomyk=
+X-Received: by 2002:aca:a948:: with SMTP id s69mr3023400oie.140.1590591856040;
+ Wed, 27 May 2020 08:04:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200522145038.194209-1-jwcart2@gmail.com> <20200522145038.194209-2-jwcart2@gmail.com>
- <CAEjxPJ6FBrGviZVjGQE=-wfVsetubcKfM-FTTqpAp9ZnCF_geA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6FBrGviZVjGQE=-wfVsetubcKfM-FTTqpAp9ZnCF_geA@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 27 May 2020 10:44:43 -0400
-Message-ID: <CAP+JOzT92X+D3i4nZDtK7XtPnQLM=_-Sy_6kG0mTTgydCU=XhQ@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] libsepol: Fix type alias handling in kernel_to_conf
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+References: <20200505190151.28871-1-cgzones@googlemail.com>
+In-Reply-To: <20200505190151.28871-1-cgzones@googlemail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 27 May 2020 11:04:04 -0400
+Message-ID: <CAEjxPJ4qJj4-of0F=TKZ1wb-s82_wbMCYLbFPuxJ57dqbNRjeQ@mail.gmail.com>
+Subject: Re: [PATCH] sepolgen: parse gen_tunable as bool
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, May 27, 2020 at 10:23 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Tue, May 5, 2020 at 3:03 PM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> On Fri, May 22, 2020 at 10:55 AM James Carter <jwcart2@gmail.com> wrote:
-> >
-> > Type alias rules are not written out when converting a binary kernel
-> > policy to a policy.conf. The problem is that type aliases are not in
-> > the type_val_to_struct array and that is what is being used to find
-> > the aliases.
-> >
-> > Since type aliases are only in the types hashtable, walk that to
-> > find the type aliases.
-> >
-> > Fixed the syntax of the typalias rule which requires "alias" to come
-> > between the type and the aliases (ex/ typealias TYPE alias ALIAS;).
-> >
-> > Fixes: 0a08fd1e69797d6a ("libsepol: Add ability to convert binary
-> >        policy to policy.conf file")
-> >
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> Currently sepolgen-ifgen parses a gen_tunable statement as interface
+> and reports:
 >
-> This fixes the missing alias problem, so:
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>     Missing interface definition for gen_tunable
 >
-> However, in testing these, I noticed that if I do the following:
-> checkpolicy -MF -o policy.conf -b /etc/selinux/targeted/policy/policy.32
-> checkpolicy -MC -o policy.cil -b /etc/selinux/targeted/policy/policy.32
-> checkpolicy -M -o policyfromconf policy.conf
-> secilc -o policyfromcil policy.cil
-> checkpolicy -M -o policyfromkernel -b /etc/selinux/targeted/policy.32
+> Add grammar for gen_tunable statements in the refparser
 >
-> then the three policyfrom* files differ in length and contents.
-> Decompiling them all via checkpolicy -MF (or -MC) and diff'ing those
-> (since sediff takes too long) appears to suggest differences from
-> attribute removal (odd since I thought you reverted that), redundant
-> rule removal (isn't that off by default too?), and portcon ordering
-> (by protocol).
-> Optimally we should able to regenerate the same kernel policy from all
-> three (although we might need to run the kernel policy through
-> checkpolicy to normalize ordering).
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-Interesting. I thought that we had mostly fixed the ordering issues. I
-will take a look at this.
-Jim
+This looks correct to me but I don't see that warning/error when
+running sepolgen-ifgen without this patch.
+Is this reproducible?
+
+> ---
+>  python/sepolgen/src/sepolgen/refparser.py | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+>
+> diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/=
+src/sepolgen/refparser.py
+> index 2e521a0f..be7e7890 100644
+> --- a/python/sepolgen/src/sepolgen/refparser.py
+> +++ b/python/sepolgen/src/sepolgen/refparser.py
+> @@ -126,6 +126,7 @@ tokens =3D (
+>      'GEN_REQ',
+>      'TEMPLATE',
+>      'GEN_CONTEXT',
+> +    'GEN_TUNABLE',
+>      #   m4
+>      'IFELSE',
+>      'IFDEF',
+> @@ -192,6 +193,7 @@ reserved =3D {
+>      'gen_require' : 'GEN_REQ',
+>      'template' : 'TEMPLATE',
+>      'gen_context' : 'GEN_CONTEXT',
+> +    'gen_tunable' : 'GEN_TUNABLE',
+>      # M4
+>      'ifelse' : 'IFELSE',
+>      'ifndef' : 'IFNDEF',
+> @@ -518,6 +520,7 @@ def p_policy_stmt(p):
+>                     | range_transition_def
+>                     | role_transition_def
+>                     | bool
+> +                   | gen_tunable
+>                     | define
+>                     | initial_sid
+>                     | genfscon
+> @@ -844,6 +847,17 @@ def p_bool(p):
+>          b.state =3D False
+>      p[0] =3D b
+>
+> +def p_gen_tunable(p):
+> +    '''gen_tunable : GEN_TUNABLE OPAREN IDENTIFIER COMMA TRUE CPAREN
+> +                   | GEN_TUNABLE OPAREN IDENTIFIER COMMA FALSE CPAREN'''
+> +    b =3D refpolicy.Bool()
+> +    b.name =3D p[3]
+> +    if p[5] =3D=3D "true":
+> +        b.state =3D True
+> +    else:
+> +        b.state =3D False
+> +    p[0] =3D b
+> +
+>  def p_conditional(p):
+>      ''' conditional : IF OPAREN cond_expr CPAREN OBRACE interface_stmts =
+CBRACE
+>                      | IF OPAREN cond_expr CPAREN OBRACE interface_stmts =
+CBRACE ELSE OBRACE interface_stmts CBRACE
+> --
+> 2.26.2
+>
