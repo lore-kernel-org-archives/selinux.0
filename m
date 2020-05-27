@@ -2,80 +2,103 @@ Return-Path: <SRS0=EYrt=7J=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E06B5C433DF
-	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 16:44:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC7E0C433DF
+	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 16:45:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B563120721
-	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 16:44:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NC5vUN/b"
+	by mail.kernel.org (Postfix) with ESMTP id CE05220721
+	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 16:45:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730435AbgE0Qoc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 May 2020 12:44:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37308 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730429AbgE0Qob (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 May 2020 12:44:31 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F22BC05BD1E
-        for <selinux@vger.kernel.org>; Wed, 27 May 2020 09:44:31 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id d26so57211otc.7
-        for <selinux@vger.kernel.org>; Wed, 27 May 2020 09:44:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=A9yb2MMMdF48g+cEn3LETSBOfmGZE5HfINHuFVArPqU=;
-        b=NC5vUN/bKikW1J2MwQwiJug8gaNaLaMzRhkO6hDaSu6ftgwVGY1amZoWw3jQojKXfD
-         w9ZdYAPH921HZ7gC0G96xfxFHfRmB9ZWe8HJzXnraI7IkuFac7necDTSkLCnFWi/gU7W
-         zK5XEvOmojZVtEDwWTC+Esr59DyvMurDnUVcAq0tPc01QWHv4uU3VkE5IxDZc/B+LiHc
-         vqHvu2LLWlRnfcOhPs+Fcoef4I/goSEa9CLj49RP8OlEHNwUZfmP6hRJwubqKGY05Oq/
-         8VVJyOZbVg9OOHDAXiOW3MtlesiLATYm548qaybt972RVM555TV3i+B+HCRYb3JaBlrs
-         QeDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=A9yb2MMMdF48g+cEn3LETSBOfmGZE5HfINHuFVArPqU=;
-        b=h3sIYq4ADC2CwFfU6rszBZz35Dhtoq7w5nzHxzDBI275c5lAyCvQo3Ae9xtCuisR/v
-         lLrgQzQVcYlKHC1vxTZG1BorRbKnp5dViI7hjLaHqDzwTlv5ru+pEcZsmXUHju5LUaRw
-         /UUCzT9ydA0MTlNEeBB0JJD8FZgEt7kyHnqYciwfx0076/DAgXZPihxMwU+WWjMVhuHH
-         oB76aCajpiKZGWvtmURsuQrvvu/eTloXFKDmL2bqkDNtYukLZDbNoFz04IUbrLqwaGzX
-         b4yU49RV31VmwnJtIZxEOgEx96ZUeSD8GsMaWesH8M89xK1m/OZzNFiwQ1oFtpaMeyEr
-         t5Ew==
-X-Gm-Message-State: AOAM5320Tl/CL4R8/kKVq0ifKpphuJkGXbfb+zobSeueC7yS8vib49dI
-        nQv5VOjdQi11/ceK/3xcR2AnXnFir2Orf6YUSoY=
-X-Google-Smtp-Source: ABdhPJwbBwu3iCF4pvWvidhM4B761ITY2gYgg63eUtrn61HhmVQYk2+4XLJGyeDsGKItD+ZP+p1hRkotzL/KPg2mB7o=
-X-Received: by 2002:a05:6830:1c3:: with SMTP id r3mr4949883ota.89.1590597870604;
- Wed, 27 May 2020 09:44:30 -0700 (PDT)
+        id S2391427AbgE0QpD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 May 2020 12:45:03 -0400
+Received: from mxo1.dft.dmz.twosigma.com ([208.77.212.183]:39683 "EHLO
+        mxo1.dft.dmz.twosigma.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387952AbgE0QpD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 May 2020 12:45:03 -0400
+X-Greylist: delayed 450 seconds by postgrey-1.27 at vger.kernel.org; Wed, 27 May 2020 12:45:02 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mxo1.dft.dmz.twosigma.com (Postfix) with ESMTP id 49XGhW4ZTxz7t8v;
+        Wed, 27 May 2020 16:37:31 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at twosigma.com
+Received: from mxo1.dft.dmz.twosigma.com ([127.0.0.1])
+        by localhost (mxo1.dft.dmz.twosigma.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id HfevtT7Awm11; Wed, 27 May 2020 16:37:31 +0000 (UTC)
+Received: from exmbdft5.ad.twosigma.com (exmbdft5.ad.twosigma.com [172.22.1.56])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mxo1.dft.dmz.twosigma.com (Postfix) with ESMTPS id 49XGhW3mXNz3wZB;
+        Wed, 27 May 2020 16:37:31 +0000 (UTC)
+Received: from EXMBDFT11.ad.twosigma.com (172.23.162.14) by
+ exmbdft5.ad.twosigma.com (172.22.1.56) with Microsoft SMTP Server (TLS) id
+ 15.0.1497.2; Wed, 27 May 2020 16:37:31 +0000
+Received: from EXMBDFT11.ad.twosigma.com ([fe80::8d66:2326:5416:86a9]) by
+ EXMBDFT11.ad.twosigma.com ([fe80::8d66:2326:5416:86a9%19]) with mapi id
+ 15.00.1497.000; Wed, 27 May 2020 16:37:31 +0000
+From:   Nicolas Viennot <Nicolas.Viennot@twosigma.com>
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        Adrian Reber <areber@redhat.com>
+CC:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
+        "Dirk Petersen" <dipeit@gmail.com>,
+        Christine Flood <chf@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        "Cyrill Gorcunov" <gorcunov@openvz.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        "Stephen Smalley" <stephen.smalley.work@gmail.com>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Eric Paris <eparis@parisplace.org>,
+        Jann Horn <jannh@google.com>
+Subject: RE: [PATCH] capabilities: Introduce CAP_RESTORE
+Thread-Topic: [PATCH] capabilities: Introduce CAP_RESTORE
+Thread-Index: AQHWL/2VaDM8D7CUOUK8NWcR6t6ZmKi0T3WAgAQnIICAALWDAIACzv0AgAAj3gCAAAp/wA==
+Date:   Wed, 27 May 2020 16:37:31 +0000
+Message-ID: <ac167440b8b64f02a034dd94687b8aee@EXMBDFT11.ad.twosigma.com>
+References: <20200522055350.806609-1-areber@redhat.com>
+ <dc86dffb-c7f8-15bb-db4e-be135da650cc@schaufler-ca.com>
+ <20200525080541.GF104922@dcbz.redhat.com>
+ <a75f3f71-66cf-e615-2cd5-86ac65a3bbdc@schaufler-ca.com>
+ <20200527134842.GA250149@dcbz.redhat.com>
+ <f43921ac-2e55-7d9d-406a-d0f4cfd8ff93@schaufler-ca.com>
+In-Reply-To: <f43921ac-2e55-7d9d-406a-d0f4cfd8ff93@schaufler-ca.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [192.168.118.183]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20200522145513.194440-1-jwcart2@gmail.com> <20200522145513.194440-3-jwcart2@gmail.com>
-In-Reply-To: <20200522145513.194440-3-jwcart2@gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 27 May 2020 12:44:19 -0400
-Message-ID: <CAEjxPJ6UxEaNkZt4sdCfeVd2amr1fxE97d4jWRD=nkDif=oz+w@mail.gmail.com>
-Subject: Re: [PATCH v2 3/3] libsepol: Improve writing CIL category rules
-To:     James Carter <jwcart2@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 22, 2020 at 10:58 AM James Carter <jwcart2@gmail.com> wrote:
->
-> Improves writing of CIL category rules when converting MLS kernel
-> policy to CIL. No changes to functionality, but eliminate useless
-> checks for category aliases when using the p_cat_val_to_name array,
-> find the actual number of aliases before allocating memory, and
-> skip the category alias rules if there are no aliases.
->
-> Signed-off-by: James Carter <jwcart2@gmail.com>
-
-This series looks fine to me but do you have a test case that exercises it?
+PiA+IElmIEkgdW5kZXJzdGFuZCBwYXJ0IG9mIENSSVUgY29ycmVjdGx5LCB0aGVuIHdlIG9ubHkg
+bmVlZCByZWFkLWFjY2VzcyANCj4gPiBmb3IgdGhlIGN1cnJlbnQgdXNlci4gSSBhbSBzdXJlIEFu
+ZHJlaSwgUGF2ZWwgb3IgQ3lyaWxsIHdpbGwgY29ycmVjdCANCj4gPiBtZSBpZiBJIGFtIHdyb25n
+IGNvbmNlcm5pbmcgbWFwX2ZpbGVzLg0KPiBJZiBJIGRvICJscyAtbCAvcHJvYy9zZWxmL21hcF9m
+aWxlcyIgSSBnZXQgdGhlIGxpbmsgbmFtZSBhbmQgbGluayBjb250ZW50Lg0KPiBXaGlsZSBJIGNh
+bid0IG9wZW4gL3Byb2Mvc2VsZi9tYXBfZmlsZXMvN2ZiZGUwYzMyMDAtN2ZiZGUwYzMzMDAgSSBj
+YW4gcmVhZCB0aGF0IGl0IHBvaW50cyB0byAvdXNyL2xpYjY0L2xkLTIuMzAuc28sIHdoaWNoIGlz
+IHNvbWV0aGluZyBJIGNhbiBvcGVuIGFuZCByZWFkLiBTdXJlLCBpdCdzIGFuIGV4dHJhIHN0ZXAs
+IGJ1dCBpdCdzIG5vIGJpZyBkZWFsLiBJdCBkb2VzIHJhaXNlIHRoZSBxdWVzdGlvbiBvZiB3aGF0
+IHZhbHVlIGNvbWVzIGZyb20gZGlzYWxsb3dpbmcgb3BlbiB2aWEgdGhlIHN5bWxpbmsuDQoNClJl
+YWRpbmcgdGhlIHN5bWxpbmsgZG9lc24ndCB3b3JrIGluIHR3byBjYXNlczoNCjEpIFRoZSBmaWxl
+IGhhcyBiZWVuIGRlbGV0ZWQNCjIpIFRoZSBmaWxlIGlzIGEgbWVtZmQgZmlsZQ0K
