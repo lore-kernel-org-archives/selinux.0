@@ -2,143 +2,186 @@ Return-Path: <SRS0=EYrt=7J=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 463BAC433DF
-	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 15:04:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 162BDC433DF
+	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 15:30:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2206820899
-	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 15:04:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZiJXm8ux"
+	by mail.kernel.org (Postfix) with ESMTP id EF43C20721
+	for <selinux@archiver.kernel.org>; Wed, 27 May 2020 15:30:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389536AbgE0PER (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 27 May 2020 11:04:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49908 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388922AbgE0PEQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 27 May 2020 11:04:16 -0400
-Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7B63C05BD1E
-        for <selinux@vger.kernel.org>; Wed, 27 May 2020 08:04:16 -0700 (PDT)
-Received: by mail-oi1-x242.google.com with SMTP id y85so21899017oie.11
-        for <selinux@vger.kernel.org>; Wed, 27 May 2020 08:04:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=SrbPa2EiaxewYnVB028yZhXQ2LqGI1lCiYG723SVmVs=;
-        b=ZiJXm8uxg/0J/2PfCQyvQffSj+hlKYEOeIYnBWF3wRjDCxRuMt40LAg+Ssv5vumlxn
-         DW+UjdsdZJ5dDxQTbhi21du8DQ2c3gGTFCNm2l7A70hoaFZbnlQhzMjoEOBEQqoxb5aY
-         FcDs9xBMnT5UIuC1+QoPUNbbUnPKccCm3SAeB3bI4zy808t6iw3oGMr/pofacQqyL6om
-         kMO3OXXlh/qPpAcUPQsMQXHATjUpDVMjSqbOjhjJPeTfkfAYyL7ao7uB+UAKaTXmUlHI
-         /D8W8RxAXxslRUiJ4N01xm7KCYI7RyOu/TGxPpGnQIhulE3xJRImF1sNf2IFMa/C1Y7k
-         Tnfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=SrbPa2EiaxewYnVB028yZhXQ2LqGI1lCiYG723SVmVs=;
-        b=WI/yFp0kzIUQMNoqFxWErpQU58XML6lbxU9WcG1Zt2tnOX/BLjxjUx6FvQhUjQubAe
-         KMrUq/f+t7uMuof5GJEMS0MLkvTtoRGm9eI1is6HNi6zrtp81InJWtFNHiboKdFrBTaT
-         zmox0LwfcuzhabWxw+FJfV1sdBv/KUXMpiuobLBgiX4JH9FulJGKDHEqro7If8vNx9ME
-         KJt2hnyYfe1a54juLssUtnd4nfYzY1EzA3+kGGo8GUiv6HkyZzyNUv8g/Q+IJ0vArERS
-         uByYrRfUpgh+0KHyB11XFEjVBxwEtPXWmXUQdneyaZ4EUXUWQwy/3eZzV3qlmfISdc4o
-         +1NA==
-X-Gm-Message-State: AOAM5311lDtXchH7ENBo1ORgeERBMOYPRZl8temdTV5Mx+4WSfVhSdU1
-        eRdWfxc7oPelrm/3CE2+A336o3Ab/sxiD7eRHUM=
-X-Google-Smtp-Source: ABdhPJzWLFPIODa5C+kIRICC8i65tJwYeUgI95v9VWWJ5IV9KMDFfGueJfUWdO7lThTYNtvMWVUD/KJqvZJpbBMomyk=
-X-Received: by 2002:aca:a948:: with SMTP id s69mr3023400oie.140.1590591856040;
- Wed, 27 May 2020 08:04:16 -0700 (PDT)
+        id S2388164AbgE0Pa0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 27 May 2020 11:30:26 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:39185 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388145AbgE0Pa0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 27 May 2020 11:30:26 -0400
+Received: from ip5f5af183.dynamic.kabel-deutschland.de ([95.90.241.131] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jdy0C-00055J-VY; Wed, 27 May 2020 15:29:57 +0000
+Date:   Wed, 27 May 2020 17:29:55 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Adrian Reber <areber@redhat.com>
+Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
+        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
+        Dirk Petersen <dipeit@gmail.com>,
+        Christine Flood <chf@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+        Eric Paris <eparis@parisplace.org>,
+        Jann Horn <jannh@google.com>
+Subject: Re: [PATCH] capabilities: Introduce CAP_RESTORE
+Message-ID: <20200527152955.jbbipgb6icb4nwgv@wittgenstein>
+References: <20200522055350.806609-1-areber@redhat.com>
+ <dc86dffb-c7f8-15bb-db4e-be135da650cc@schaufler-ca.com>
+ <20200525080541.GF104922@dcbz.redhat.com>
+ <877dwybxvi.fsf@x220.int.ebiederm.org>
+ <20200527141403.GC250149@dcbz.redhat.com>
 MIME-Version: 1.0
-References: <20200505190151.28871-1-cgzones@googlemail.com>
-In-Reply-To: <20200505190151.28871-1-cgzones@googlemail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 27 May 2020 11:04:04 -0400
-Message-ID: <CAEjxPJ4qJj4-of0F=TKZ1wb-s82_wbMCYLbFPuxJ57dqbNRjeQ@mail.gmail.com>
-Subject: Re: [PATCH] sepolgen: parse gen_tunable as bool
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200527141403.GC250149@dcbz.redhat.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, May 5, 2020 at 3:03 PM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
->
-> Currently sepolgen-ifgen parses a gen_tunable statement as interface
-> and reports:
->
->     Missing interface definition for gen_tunable
->
-> Add grammar for gen_tunable statements in the refparser
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+On Wed, May 27, 2020 at 04:14:03PM +0200, Adrian Reber wrote:
+> On Tue, May 26, 2020 at 08:59:29AM -0500, Eric W. Biederman wrote:
+> > Adrian Reber <areber@redhat.com> writes:
+> > 
+> > > On Fri, May 22, 2020 at 09:40:37AM -0700, Casey Schaufler wrote:
+> > 
+> > >> What are the other blockers? Are you going to suggest additional new
+> > >> capabilities to clear them?
+> > >
+> > > As mentioned somewhere else access to /proc/<pid>/map_files/ would be
+> > > helpful. Right now I am testing with a JVM and it works without root
+> > > just with the attached patch. Without access to /proc/<pid>/map_files/
+> > > not everything CRIU can do will actually work, but we are a lot closer
+> > > to what our users have been asking for.
+> > 
+> > The current permission checks on /proc/<pid>/map_files/ are simply
+> > someone being over-cautious.
+> > 
+> > Someone needs to think through the threat landscape and figure out what
+> > permission checks are actually needed.
+> > 
+> > Making the permission check ns_capable instead of capable is a
+> > no-brainer.  Figuring out which user_ns to test against might be a
+> > we bit harder.
+> > 
+> > We could probably even allow the owner of the process to open the files
+> > but that requires someone doing the work of thinking through how
+> > being able to opening files that you have mmaped might be a problem.
+> 
+> As mentioned in the other thread, CRIU can work with read access to
+> map_files.
+> 
+> > >> > There are probably a few more things guarded by CAP_SYS_ADMIN required
+> > >> > to run checkpoint/restore as non-root,
+> > >> 
+> > >> If you need CAP_SYS_ADMIN anyway you're not gaining anything by
+> > >> separating out CAP_RESTORE.
+> > >
+> > > No, as described we can checkpoint and restore a JVM with this patch and
+> > > it also solves the problem the set_ns_last_pid fork() loop daemon tries
+> > > to solve. It is not enough to support the full functionality of CRIU as
+> > > map_files is also important, but we do not need CAP_SYS_ADMIN and
+> > > CAP_RESTORE. Only CAP_RESTORE would be necessary.
+> > >
+> > > With a new capability users can enable checkpoint/restore as non-root
+> > > without giving CRIU access to any of the other possibilities offered by
+> > > CAP_SYS_ADMIN. Setting a PID and map_files have been introduced for CRIU
+> > > and used to live behind CONFIG_CHECKPOINT_RESTORE. Having a capability
+> > > for checkpoint/restore would make it easier for CRIU users to run it as
+> > > non-root and make it very clear what is possible when giving CRIU the
+> > > new capability. No other things would be allowed than necessary for
+> > > checkpoint/restore. Setting a PID is most important for the restore part
+> > > and reading map_files would be helpful during checkpoint. So it actually
+> > > should be called CAP_CHECKPOINT_RESTORE as Christian mentioned in
+> > > another email.
+> > 
+> > Please if one is for checkpoint and one is for restore asking for a pair
+> > of capabilities is probably more appropriate.
+> 
+> I will send out a v2 with a renamed capability soon and also include
+> map_files to be readable with that capability.
+> 
+> > >> >  but by applying this patch I can
+> > >> > already checkpoint and restore processes as non-root. As there are
+> > >> > already multiple workarounds I would prefer to do it correctly in the
+> > >> > kernel to avoid that CRIU users are starting to invent more workarounds.
+> > >> 
+> > >> You've presented a couple of really inappropriate implementations
+> > >> that would qualify as workarounds. But the other two are completely
+> > >> appropriate within the system security policy. They don't "get around"
+> > >> the problem, they use existing mechanisms as they are intended.
+> > >
+> > > I agree with the user namespace approach to be appropriate, but not the
+> > > CAP_SYS_ADMIN approach as CRIU only needs a tiny subset (2 things) of
+> > > what CAP_SYS_ADMIN allows.
+> > 
+> > 
+> > If we are only talking 2 things can you please include in your patchset
+> > a patch enabling those 2 things?
+> 
+> The two things are setting a PID via ns_last_pid/clone3() and reading
+> map_files.
+> 
+> > But even more than this we need a request that asks not for the least
+> > you can possibly ask for but asks for what you need to do a good job.
+> 
+> Also in this thread Kamil mentioned that they also need calling prctl
+> with PR_SET_MM during restore in their production setup.
 
-This looks correct to me but I don't see that warning/error when
-running sepolgen-ifgen without this patch.
-Is this reproducible?
+We're using that as well but it really feels like this:
 
-> ---
->  python/sepolgen/src/sepolgen/refparser.py | 14 ++++++++++++++
->  1 file changed, 14 insertions(+)
->
-> diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/=
-src/sepolgen/refparser.py
-> index 2e521a0f..be7e7890 100644
-> --- a/python/sepolgen/src/sepolgen/refparser.py
-> +++ b/python/sepolgen/src/sepolgen/refparser.py
-> @@ -126,6 +126,7 @@ tokens =3D (
->      'GEN_REQ',
->      'TEMPLATE',
->      'GEN_CONTEXT',
-> +    'GEN_TUNABLE',
->      #   m4
->      'IFELSE',
->      'IFDEF',
-> @@ -192,6 +193,7 @@ reserved =3D {
->      'gen_require' : 'GEN_REQ',
->      'template' : 'TEMPLATE',
->      'gen_context' : 'GEN_CONTEXT',
-> +    'gen_tunable' : 'GEN_TUNABLE',
->      # M4
->      'ifelse' : 'IFELSE',
->      'ifndef' : 'IFNDEF',
-> @@ -518,6 +520,7 @@ def p_policy_stmt(p):
->                     | range_transition_def
->                     | role_transition_def
->                     | bool
-> +                   | gen_tunable
->                     | define
->                     | initial_sid
->                     | genfscon
-> @@ -844,6 +847,17 @@ def p_bool(p):
->          b.state =3D False
->      p[0] =3D b
->
-> +def p_gen_tunable(p):
-> +    '''gen_tunable : GEN_TUNABLE OPAREN IDENTIFIER COMMA TRUE CPAREN
-> +                   | GEN_TUNABLE OPAREN IDENTIFIER COMMA FALSE CPAREN'''
-> +    b =3D refpolicy.Bool()
-> +    b.name =3D p[3]
-> +    if p[5] =3D=3D "true":
-> +        b.state =3D True
-> +    else:
-> +        b.state =3D False
-> +    p[0] =3D b
-> +
->  def p_conditional(p):
->      ''' conditional : IF OPAREN cond_expr CPAREN OBRACE interface_stmts =
-CBRACE
->                      | IF OPAREN cond_expr CPAREN OBRACE interface_stmts =
-CBRACE ELSE OBRACE interface_stmts CBRACE
-> --
-> 2.26.2
->
+	prctl_map = (struct prctl_mm_map){
+	    .start_code = start_code,
+	    .end_code = end_code,
+	    .start_stack = start_stack,
+	    .start_data = start_data,
+	    .end_data = end_data,
+	    .start_brk = start_brk,
+	    .brk = brk_val,
+	    .arg_start = arg_start,
+	    .arg_end = arg_end,
+	    .env_start = env_start,
+	    .env_end = env_end,
+	    .auxv = NULL,
+	    .auxv_size = 0,
+	    .exe_fd = -1,
+	};
+
+should belong under ns_capable(CAP_SYS_ADMIN). Why is that necessary to
+relax?
+
+> 
+> > I am having visions of a recurring discussion that says can we add one
+> > more permission check to CAP_RESTORE or CAP_CHECKPOINT when they are
+> > things we could know today.
+> 
+> I will prepare a new version of this patch using CAP_CHECKPOINT_RESTORE
+> for ns_last_pid/clone3(), map_files, and prctl with PR_SET_MM.
+> 
+> 		Adrian
+> 
