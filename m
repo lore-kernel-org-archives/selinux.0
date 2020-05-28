@@ -2,112 +2,111 @@ Return-Path: <SRS0=TvmB=7K=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D0D4C433E0
-	for <selinux@archiver.kernel.org>; Thu, 28 May 2020 18:41:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52969C433DF
+	for <selinux@archiver.kernel.org>; Thu, 28 May 2020 20:22:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1E2A32078C
-	for <selinux@archiver.kernel.org>; Thu, 28 May 2020 18:41:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 25CCC207BC
+	for <selinux@archiver.kernel.org>; Thu, 28 May 2020 20:22:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hdAp9hZT"
+	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="x+Grdw/6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405874AbgE1SlX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 May 2020 14:41:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53090 "EHLO
+        id S2406987AbgE1UWA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 May 2020 16:22:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405873AbgE1SlV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 May 2020 14:41:21 -0400
-Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F230CC08C5C6
-        for <selinux@vger.kernel.org>; Thu, 28 May 2020 11:41:20 -0700 (PDT)
-Received: by mail-qk1-x741.google.com with SMTP id b6so4062193qkh.11
-        for <selinux@vger.kernel.org>; Thu, 28 May 2020 11:41:20 -0700 (PDT)
+        with ESMTP id S2406966AbgE1UV7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 May 2020 16:21:59 -0400
+Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7026EC08C5C6
+        for <selinux@vger.kernel.org>; Thu, 28 May 2020 13:21:59 -0700 (PDT)
+Received: by mail-qt1-x82b.google.com with SMTP id x29so130380qtv.4
+        for <selinux@vger.kernel.org>; Thu, 28 May 2020 13:21:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=H/vg1Ka088Eej0L8T18EB9xo4usQTKbKCJ3uhx0/2js=;
-        b=hdAp9hZTObveAiRlqsVI3/ZwyzwhMm8AKm4+9TDV0vIEya2q1Hp/4UxPbxScX7xUQC
-         dh+0FdV6rpWWGOX03qd8qLuzh/DG0tXH9NpLXqgI3bd2hcMSwbi4w3IKY4JxIUgGy6Zz
-         wqymdyjegD6F6lFiko87107nPGu/QzUK6x6z0ufpsLjwGuQU3UOB2u0FVaZu3AyWRl5B
-         tSbCW6b0wy7R+FRn/LFY6mE6PxOQD7oK52/TEqz+wPufKt0ofE+h/fPqlrWBqgZkNr9F
-         46DAUitXAO+bJNpBq35NtObVeGt4pp83ORB9n0BwspyAaJvnhKvRJZFiPH5e5HfnvUKW
-         GEPQ==
+        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=GV+Qsg1Fyd6NyrOGxMNKBqTkS0T9D0Tnem2tebwVejc=;
+        b=x+Grdw/6vVe5dyb5rIirdT/ZcnVbazYu9CeyipSKcVkQOfVTVQ/E70pk9bdB4A7lpR
+         VMiGQIkbmoRotFvF5RTptQFWppI5atWwX0pIapV3Snt0KKRAeFAElVLMZ13PEPkNbtSW
+         +MY6MCvfyJ+mqSzS3ht4kmUjBq0ObfHNEaVo8TMdMr5atMgB54BJXAwDpNT/zlKoMzV4
+         XwDYoKSuuKJJZJBdGEO3AGVO9cqME3kPUL8NZnxnDZyKCFthxn+3jpu8/1QLXY8d6Gqc
+         cnQocI32nsqG7DpHJJywztzTxKbN1db/G/b2zR0zNxJa/cPQgCFImrZLJtCNHbh5Em56
+         kZjQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=H/vg1Ka088Eej0L8T18EB9xo4usQTKbKCJ3uhx0/2js=;
-        b=MO1Rm/0/dapOQJWU42EtII8urZ8a7SL7KiR7Mzd0THlJrcuRiJIq0kDaw2Ct2EcZj5
-         pQOGEc/S+kjLZKNdXy+8AI1tYrcZY5PEoReIFNBz2NiT36aREe777ZMqp+993i2/nXhQ
-         b0ktW4uFYSTIYq3pZSI0RPU9KgnLdgQM9aDlKrXm11S9VFBMw2dDh6psPN16nNFjsBsh
-         chKkw2HWMC5OHR+7/TCj71+LuwayLIgu+6T3ibTE66szT16evEuu0gtMgeCNxzKqGi8a
-         /8rq9DlJmewR1kmxOSE5PxpLp7B7rqSirnmPRb0ZygI2zdijAIn4GhNMEB4CMd7XDLgJ
-         J3hA==
-X-Gm-Message-State: AOAM530a2FftECKPFG4z95c2anZLs+5etOAmTnETOMB/Ii2dciMtsjQO
-        MzUMPJtNJAi2SSoC84F4Fh1U/y//
-X-Google-Smtp-Source: ABdhPJwzHQk2DJicA5/RBr4p9BO3gchC8Zzqk2/e8Gh+hfqm8RgDLqiFv2RWF0nOKhc8nc0kzEeH+w==
-X-Received: by 2002:ae9:edd8:: with SMTP id c207mr4260997qkg.347.1590691279937;
-        Thu, 28 May 2020 11:41:19 -0700 (PDT)
-Received: from localhost.localdomain (pool-71-166-97-86.bltmmd.east.verizon.net. [71.166.97.86])
-        by smtp.gmail.com with ESMTPSA id k43sm6601834qtk.67.2020.05.28.11.41.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 May 2020 11:41:19 -0700 (PDT)
-From:   James Carter <jwcart2@gmail.com>
-To:     selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH] libselpol: Sort portcon rules consistently
-Date:   Thu, 28 May 2020 14:40:56 -0400
-Message-Id: <20200528184056.105774-1-jwcart2@gmail.com>
-X-Mailer: git-send-email 2.25.4
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=GV+Qsg1Fyd6NyrOGxMNKBqTkS0T9D0Tnem2tebwVejc=;
+        b=ie5DDWpz7uo1fx55Tch9sNyuenPgmsZt9/6mhUwf24dBoU8/q1jydowWdpOADNfCrh
+         pzQy/w/5/8CKY3OyRaIzSUTiydB5zLjhpLt/h3IuUZvi6WkjCjbkBgPE8295z6AZR6eh
+         EEY4ACdR/OMY/XnDvtXStrKe8dNtgCGyrV+L7J1tPcQcDvPvBddm09d6CT541EROwY5g
+         10qMKe5O1RT18hrkHo7C/DffV+oMAWEhBnqFyrnSWGMIGb4V11Zq7VRnWXqX2TL5sLdq
+         m6cNPk63kkbRv8Xyr+ntxIIgItFcLOV+8npYGudIrXbSrcuzNS7xiLm7fesKQpNwDHpt
+         g04w==
+X-Gm-Message-State: AOAM531Gc0OOLNEvTDbOCaF64TNY+2+Kwnihbo4XU4nf35lFL630akZE
+        buRV+vnKqDa/uQziuYND+0ocL/woy7/l96OS/J3CtFhss8c=
+X-Google-Smtp-Source: ABdhPJzdkij5gzluO42c+ytdSkvqMLkIv4C3P8uzDQ70ftmbVy15KB8OA9DTVczfaVy4hwJ9KNyYiqc/5BgPBipZTrM=
+X-Received: by 2002:ac8:7ca:: with SMTP id m10mr2808781qth.86.1590697317686;
+ Thu, 28 May 2020 13:21:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+From:   Peter Whittaker <pww@edgekeep.com>
+Date:   Thu, 28 May 2020 16:22:43 -0400
+Message-ID: <CAGeouKFLVVb2JnxNrEaRKBUVhr9QwOu006awo5Zwqt2Lydpsng@mail.gmail.com>
+Subject: Interests in usability enhancements to .../scripts.py?
+To:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The comparison function, portcon_data_cmp(), only made use of the
-protocol to put tcp before udp, dccp, and sctp. Rules that have
-the same port range, but with different protocols would be considered
-equal unless one of the protocols was tcp. When generating a CIL or
-conf source policy from a binary or using the "-S" option in
-checkpolicy the non-tcp portcon rules with the same port range would
-not be consistently sorted.
+Folks, before generating and submitting a patch, I wanted to gauge
+interest in usability improvements to
 
-Changed portcon_data_cmp() to sort portcon rules like the CIL function
-cil_post_portcon_compare().
+    .../python/sepolicy/sepolicy/templates/script.py
 
-Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-Signed-off-by: James Carter <jwcart2@gmail.com>
----
- libsepol/src/kernel_to_common.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+I've added these changes to the "myPolicy.sh" generated for the policy
+I'm working on and have found them useful for knowing why things fail
+and stopping further processing when things fail. For example, the
+default template has the line
 
-diff --git a/libsepol/src/kernel_to_common.c b/libsepol/src/kernel_to_common.c
-index 7b53c92f..a7453d3c 100644
---- a/libsepol/src/kernel_to_common.c
-+++ b/libsepol/src/kernel_to_common.c
-@@ -470,11 +470,9 @@ static int portcon_data_cmp(const void *a, const void *b)
- 	rc = compare_ranges((*aa)->u.port.low_port, (*aa)->u.port.high_port,
- 			    (*bb)->u.port.low_port, (*bb)->u.port.high_port);
- 	if (rc == 0) {
--		if ((*aa)->u.port.protocol == (*bb)->u.port.protocol) {
--			rc = 0;
--		} else if ((*aa)->u.port.protocol == IPPROTO_TCP) {
-+		if ((*aa)->u.port.protocol < (*bb)->u.port.protocol) {
- 			rc = -1;
--		} else {
-+		} else if ((*aa)->u.port.protocol > (*bb)->u.port.protocol) {
- 			rc = 1;
- 		}
- 	}
--- 
-2.25.4
+    make -f /usr/share/selinux/devel/Makefile TEMPLATEFILE.pp || exit
 
+I've changed this to (line split in email for clarity)
+
+    make -f /usr/share/selinux/devel/Makefile TEMPLATEFILE.pp || \
+    { echo "Make failed, exiting."; exit 1; }
+
+and have added similar errors checks after other commands, e.g., after semodule:
+
+    /usr/sbin/semodule -i CDTml.pp || { echo "semodule failed,
+exiting."; exit 1; }
+
+and so on: I don't see any point in building the RPM, e.g., if
+creating the man pages fails, and the error messages give me a much
+clearer indication of what has gone wrong (less verbiage to wade
+through).
+
+I've also added command line options to specifically make the PP, RPM,
+manpages, etc., so that if I determine that the problem was something
+other than a policy error, I can skip directly to just building the
+next bits.
+
+One reason for not just generating and submitting a patch is that I
+will have to pull out other personal usability changes I've made that
+I do not believe will be of general interest, so rather than doing
+that work I wanted to gauge interest first.
+
+Thoughts?
+
+Thanks,
+
+P
+
+Peter Whittaker
+EdgeKeep Inc.
+www.edgekeep.com
++1 613 864 5337
++1 613 864 KEEP
