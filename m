@@ -2,132 +2,150 @@ Return-Path: <SRS0=TvmB=7K=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A832BC433DF
-	for <selinux@archiver.kernel.org>; Thu, 28 May 2020 12:51:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13615C433DF
+	for <selinux@archiver.kernel.org>; Thu, 28 May 2020 12:55:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 88A3F206F1
-	for <selinux@archiver.kernel.org>; Thu, 28 May 2020 12:51:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF4CC2075A
+	for <selinux@archiver.kernel.org>; Thu, 28 May 2020 12:55:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="XQ9yjlQY"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="s76cOdI2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389982AbgE1Mvi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 28 May 2020 08:51:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54992 "EHLO
+        id S2389899AbgE1MzC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 28 May 2020 08:55:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389873AbgE1Mvi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 28 May 2020 08:51:38 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D163AC05BD1E
-        for <selinux@vger.kernel.org>; Thu, 28 May 2020 05:51:36 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id a2so31896312ejb.10
-        for <selinux@vger.kernel.org>; Thu, 28 May 2020 05:51:36 -0700 (PDT)
+        with ESMTP id S2389884AbgE1MzA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 28 May 2020 08:55:00 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F281C05BD1E
+        for <selinux@vger.kernel.org>; Thu, 28 May 2020 05:55:00 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id mb16so1544995ejb.4
+        for <selinux@vger.kernel.org>; Thu, 28 May 2020 05:55:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=J78XCAOgkvD7tEFcNfkx/1vf0ojFsMHQHQDKQnJyJO4=;
-        b=XQ9yjlQYJK6FKLbOe9rwomBAdZpaI21tOrcUsZzOjyzkL+NNnjwRWteGwmAXZMjbn/
-         YW2lz2xAtb7rXL+QRKh7SxEUFWHMkKecq3o5QeWZp1widYmuJCvJhItj/6MTtsXpDAcd
-         13kXKN4bww2wvM9+kCN4YjKfVy0ZIa8tyxxUhx08PRLWdrECjMa43yz0Lr2ir6lG+3Tp
-         K0xpAaCg0nThbkwd3EKkc6ivEpLbCx5FzNWMMrUlX8SfHEm7kGPiVmGhKskvZ9IIm8El
-         C5osEPC24JbUmqgW8WngoD0Xf6jaTwhV+FMjkmKe8NoqZVTJ2XdfUsmic66b4Z3g/iAU
-         yDiw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=aFGoywfcepvenJAPEO5UPVyZDYJFHOOsk9rEbbj6RXg=;
+        b=s76cOdI2R+Js/LPVX13JOt4uMfKWFq/v9kdV0HIOVUrDRqG32uWztFGvTDYqiErFPD
+         2mRfBmkvYly4fqRyic2CiUpijxlCKnURmy42YxS45osQjCQoenvTAYnBd59C8fUfd+Vo
+         UwCmt98YJFucd4sSmFolAMRlJ0+4uLaoLA15PY64rtIsv7paNGK5eJ7Nxy35sLIq3O3h
+         qjBuYcUV+I5fJB242l10ttajd73zsuNt/+BDP/B9UpqQzIwopGHSoKlzBWVDWbeCAoEO
+         TYZQFslfYnZtt2gVX+mAFzOTDbsIlJYZzbz0STqX8vVQopHSOvmHxX18O6RcPjvryTA7
+         hViQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=J78XCAOgkvD7tEFcNfkx/1vf0ojFsMHQHQDKQnJyJO4=;
-        b=nNR7U0Xm05D16sSIV7Enip7jZxrmmiG3g3mObgeifK0TG9fXR4U2xGvh52KlA7jl7w
-         5DnII2tBEPioVDxc+Fizzb2ac++XBTxZpS/MjHJmERJOzSY/w/XSCxz9kU4Jns8c5dYX
-         CvKRr9Bv+PFJysWs0ZV8Wn+iH9HQ8Q2FJ3b8h/TPtkE0gfkP+KIhzDXvjpA7prt0L5hj
-         nAyWrLDjTLzQGbn0NaWC280MOHr712FoqdjPe6pgo3dK+EB8E3qr5R8650CBLddaoGBB
-         XLP5VOBs2faeztDw07LZYi3RN2C6I+q+EyBwVX7g+zfU7QHN8WgZJ5K9VYG8L5zY7Dr7
-         Sijw==
-X-Gm-Message-State: AOAM533Nu56r6P0fk5KCYUDHL6w3tLE4NeI53XT1vupQ5tOY+A6v4PuU
-        XrXFJr8c0c7V1VxOJCZHUx7JZnrI
-X-Google-Smtp-Source: ABdhPJwgVpsFt2E0BmoTUrLMRnDP23qgJl25g9zV9Jo3GvFIJpZeLm64orppHxmKyykDuXmB0B2mpw==
-X-Received: by 2002:a17:906:f0c6:: with SMTP id dk6mr2928338ejb.157.1590670295367;
-        Thu, 28 May 2020 05:51:35 -0700 (PDT)
-Received: from debianHome.localdomain (x4d03b0ba.dyn.telefonica.de. [77.3.176.186])
-        by smtp.gmail.com with ESMTPSA id o59sm4537203edb.51.2020.05.28.05.51.34
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 May 2020 05:51:35 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v2 3/3] sepolgen-ifgen: refactor default policy path retrieval
-Date:   Thu, 28 May 2020 14:51:28 +0200
-Message-Id: <20200528125128.26915-3-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.27.0.rc2
-In-Reply-To: <20200528125128.26915-1-cgzones@googlemail.com>
-References: <CAEjxPJ4qJj4-of0F=TKZ1wb-s82_wbMCYLbFPuxJ57dqbNRjeQ@mail.gmail.com>
- <20200528125128.26915-1-cgzones@googlemail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=aFGoywfcepvenJAPEO5UPVyZDYJFHOOsk9rEbbj6RXg=;
+        b=eZcZzUWADYRQv1eYOLjQrAK32Kv1JKL3mmTa+YY1GlA2Yoq+kxCRTwypSolAIPAnZo
+         3tvOXMlF8Pheq/6s6J6zSn3cd+Y2bZgUjXrGVdg7mw0jKh61sfmPLApWNLbEbYYrobWh
+         wKvKoLwytjrWGaKxZpKcitwE23cJZ4viEI7cwSE6SUuDbsoJNLtfcm8pOm/9foMLmxUm
+         Dl3pxN5wMnuRyhAMTSNhXitMOQmJKRHo9pn5p7Y9NX/JKzr7ZQiBExJooGZc3KL6r+1m
+         5/W9CYhCKRstKSSjMEUUNUOVap/p80lc0Mu2Ft8i+ajMGoAwygbDtiLaN+5S1M48s/wm
+         J8cQ==
+X-Gm-Message-State: AOAM532BDAJKh/KiAJ3UcE+5u4+tvvlNO2+fzSnONPMigfokwa/DUmsp
+        40/MV+2BG2/amq7cTRQx9ls2L/I5ab+9Mf6JouU=
+X-Google-Smtp-Source: ABdhPJzNfWa2iNHJPNcHqJ67zf9RrezFJ9KzJkDwPX/7QZ/mhyXmaoVDtzDOJ5pXYe9WR+MVRBq9zhdaXScOK7AACVg=
+X-Received: by 2002:a17:907:40c7:: with SMTP id nv7mr2786517ejb.16.1590670499198;
+ Thu, 28 May 2020 05:54:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20200505190151.28871-1-cgzones@googlemail.com> <CAEjxPJ4qJj4-of0F=TKZ1wb-s82_wbMCYLbFPuxJ57dqbNRjeQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4qJj4-of0F=TKZ1wb-s82_wbMCYLbFPuxJ57dqbNRjeQ@mail.gmail.com>
+From:   =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Thu, 28 May 2020 14:54:48 +0200
+Message-ID: <CAJ2a_Dcm30H+sOK0LKXV7Ypv7MBcqFgtS+iTh+No=R3kiQpnpA@mail.gmail.com>
+Subject: Re: [PATCH] sepolgen: parse gen_tunable as bool
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On a SELinux disabled system `selinux.security_policyvers()` will fail;
-do not bailout but use a fallback policy version to check if a binary
-policy file with that extension exists.
+Am Mi., 27. Mai 2020 um 17:04 Uhr schrieb Stephen Smalley
+<stephen.smalley.work@gmail.com>:
+>
+> On Tue, May 5, 2020 at 3:03 PM Christian G=C3=B6ttsche
+> <cgzones@googlemail.com> wrote:
+> >
+> > Currently sepolgen-ifgen parses a gen_tunable statement as interface
+> > and reports:
+> >
+> >     Missing interface definition for gen_tunable
+> >
+> > Add grammar for gen_tunable statements in the refparser
+> >
+> > Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+>
+> This looks correct to me but I don't see that warning/error when
+> running sepolgen-ifgen without this patch.
+> Is this reproducible?
+>
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
- python/audit2allow/sepolgen-ifgen | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+It should be when running in verbose mode. (running against Refpolicy)
 
-diff --git a/python/audit2allow/sepolgen-ifgen b/python/audit2allow/sepolgen-ifgen
-index 4a71cda4..48e60f1d 100644
---- a/python/audit2allow/sepolgen-ifgen
-+++ b/python/audit2allow/sepolgen-ifgen
-@@ -69,7 +69,11 @@ def get_policy():
-     p = selinux.selinux_current_policy_path()
-     if p and os.path.exists(p):
-         return p
--    i = selinux.security_policyvers()
-+    try:
-+        i = selinux.security_policyvers()
-+    except OSError:
-+        # SELinux Disabled Machine
-+        i = 50 # some high enough default value
-     p = selinux.selinux_binary_policy_path() + "." + str(i)
-     while i > 0 and not os.path.exists(p):
-         i = i - 1
-@@ -80,18 +84,16 @@ def get_policy():
- 
- 
- def get_attrs(policy_path, attr_helper):
-+    if not policy_path:
-+        policy_path = get_policy()
-+    if not policy_path:
-+        sys.stderr.write("No installed policy to check\n")
-+        return None
-+
-     try:
--        if not policy_path:
--            policy_path = get_policy()
--        if not policy_path:
--            sys.stderr.write("No installed policy to check\n")
--            return None
-         outfile = tempfile.NamedTemporaryFile()
-     except IOError as e:
--        sys.stderr.write("could not open attribute output file\n")
--        return None
--    except OSError:
--        # SELinux Disabled Machine
-+        sys.stderr.write("could not open attribute output file: %s\n" % e)
-         return None
- 
-     fd = open("/dev/null", "w")
--- 
-2.27.0.rc2
-
+> > ---
+> >  python/sepolgen/src/sepolgen/refparser.py | 14 ++++++++++++++
+> >  1 file changed, 14 insertions(+)
+> >
+> > diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolge=
+n/src/sepolgen/refparser.py
+> > index 2e521a0f..be7e7890 100644
+> > --- a/python/sepolgen/src/sepolgen/refparser.py
+> > +++ b/python/sepolgen/src/sepolgen/refparser.py
+> > @@ -126,6 +126,7 @@ tokens =3D (
+> >      'GEN_REQ',
+> >      'TEMPLATE',
+> >      'GEN_CONTEXT',
+> > +    'GEN_TUNABLE',
+> >      #   m4
+> >      'IFELSE',
+> >      'IFDEF',
+> > @@ -192,6 +193,7 @@ reserved =3D {
+> >      'gen_require' : 'GEN_REQ',
+> >      'template' : 'TEMPLATE',
+> >      'gen_context' : 'GEN_CONTEXT',
+> > +    'gen_tunable' : 'GEN_TUNABLE',
+> >      # M4
+> >      'ifelse' : 'IFELSE',
+> >      'ifndef' : 'IFNDEF',
+> > @@ -518,6 +520,7 @@ def p_policy_stmt(p):
+> >                     | range_transition_def
+> >                     | role_transition_def
+> >                     | bool
+> > +                   | gen_tunable
+> >                     | define
+> >                     | initial_sid
+> >                     | genfscon
+> > @@ -844,6 +847,17 @@ def p_bool(p):
+> >          b.state =3D False
+> >      p[0] =3D b
+> >
+> > +def p_gen_tunable(p):
+> > +    '''gen_tunable : GEN_TUNABLE OPAREN IDENTIFIER COMMA TRUE CPAREN
+> > +                   | GEN_TUNABLE OPAREN IDENTIFIER COMMA FALSE CPAREN'=
+''
+> > +    b =3D refpolicy.Bool()
+> > +    b.name =3D p[3]
+> > +    if p[5] =3D=3D "true":
+> > +        b.state =3D True
+> > +    else:
+> > +        b.state =3D False
+> > +    p[0] =3D b
+> > +
+> >  def p_conditional(p):
+> >      ''' conditional : IF OPAREN cond_expr CPAREN OBRACE interface_stmt=
+s CBRACE
+> >                      | IF OPAREN cond_expr CPAREN OBRACE interface_stmt=
+s CBRACE ELSE OBRACE interface_stmts CBRACE
+> > --
+> > 2.26.2
+> >
