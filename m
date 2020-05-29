@@ -2,177 +2,102 @@ Return-Path: <SRS0=wECs=7L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F6D9C433E0
-	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 14:32:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 875E8C433E0
+	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 14:35:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DE1942073B
-	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 14:32:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 60B242072D
+	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 14:35:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="SmsqRdLM"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CE+ypIjc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726898AbgE2Ocj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 May 2020 10:32:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40934 "EHLO
+        id S1726849AbgE2Of5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 May 2020 10:35:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726849AbgE2Ocj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 May 2020 10:32:39 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0964AC03E969
-        for <selinux@vger.kernel.org>; Fri, 29 May 2020 07:32:39 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id g28so1615406qkl.0
-        for <selinux@vger.kernel.org>; Fri, 29 May 2020 07:32:38 -0700 (PDT)
+        with ESMTP id S1726838AbgE2Of4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 May 2020 10:35:56 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16F49C03E969
+        for <selinux@vger.kernel.org>; Fri, 29 May 2020 07:35:56 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id v128so2724411oia.7
+        for <selinux@vger.kernel.org>; Fri, 29 May 2020 07:35:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=A2OOIIQscD/kD+b3RU51eaDEYkCMnqZrGXtrN7Xuuu4=;
-        b=SmsqRdLM3IrXtEUQGUkQJRS+HoH5/aoQqBBPHRnaC+YNKRxC8WQHUNwm7kYSByAACT
-         DNItn47aqz/hxvdgkHLocjjk9Nd/8+H/BXU+ylfGoZE93fBQgLmb4RDpOcavtajiXv8l
-         6Z5h0R1orD0Rq8I5mC4jDuLkTjHL2IhXoeqLi6Ek6SV2yvIrpztiARIrbFVV5pwSwXnf
-         IXRMfzWd/1Aj2aGV/jtuJReEUIlEz02fl1pD+0GCRIPNppRTey1wvKVSqElQ2R3EZ/sf
-         NP7Oo9hxuhctnf+Ed0sGbxyghIJINKBE9NABNWDngpodxZUQD4H5ZofXiF5Bz1RGIXZF
-         eX0g==
+         :cc:content-transfer-encoding;
+        bh=xuTNGHUQ/6QsEcAmZllCaN63VIu280G+LVTQvVvs8XA=;
+        b=CE+ypIjcRmnTes0Gh7Y4Pp/41VFC7R/cXIGXd4vkrrIcoUtjarh5BrGE/Ve1d/oyHa
+         efYLafs/w2zgPSHKoqyjW8JHLFz/3RXKmK0mnKKcrJsBsBzUGT4xbDZdz6NFLy5ckyCO
+         RK+5DPcxreFXKI7kszynRuPQJYX4dlJ5S/ZwyLTG0uJ3iEYX797+kAug7kdLZYVqpBTb
+         e6j9HuJ7IjAdzywfNEKzHIZovA50WtOLGjX+wu6Ihzo7cDSmCqUjT3UPcd3sTAY2yXP3
+         WsFe8khzQQDUaMMEWoJLP4bPtRTqZtKv/qM0Gx3PCqvfJtRnzrkB7u/3o52KeMKkJFHh
+         iFOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=A2OOIIQscD/kD+b3RU51eaDEYkCMnqZrGXtrN7Xuuu4=;
-        b=W+0vbY7YT73wsApOqtNgThqUa3PIC3A/Jh/g9nOFDJzRLozmeo01TOnMykTngYzGK3
-         VxaP9yS3YLx8+0BrH6WT+doJcvXcCcTDWHdXNhWTOzX2LEfvJQ6mr9UxCBio+W5r9fJg
-         9uIrWPEdJbUh/KYJVre1g6nJAlLJSe+U6ASmTV1tHU+9YXh8Ugg3EiOcvnI4qIOYDSD6
-         gwl4MiinGMvZdu7uOisFzPtejr0Je9wS4jl6tgKl90Mn8e0MO18LuRm/0rBU+7rJGHJF
-         y84mqEBv/zl0ExzPQuekvEUNy2MNGnAs6ONugdW8kCu9FOas5wzXh/9uil7QiLmTIKCt
-         Y/1w==
-X-Gm-Message-State: AOAM5316bpXViLl6KDL8oeOBPv59b8TolgNcL6cbgBmI6q9SIq1jKnUq
-        1YhO1KkxSy7MxNY327aoUtD2PREkiwfaYedkycexJhmr
-X-Google-Smtp-Source: ABdhPJxWdLebaVkt673uepQAvPHhUMJyQ7gJdWczIJAKANXeW8GJlGk0bQ9IoYzbnuRQfdKXI6xUNcZb3DrTuu7WetA=
-X-Received: by 2002:a37:8a42:: with SMTP id m63mr7886086qkd.230.1590762758138;
- Fri, 29 May 2020 07:32:38 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=xuTNGHUQ/6QsEcAmZllCaN63VIu280G+LVTQvVvs8XA=;
+        b=CcbcHw7CSQvTh9P3nBClkxbk9R5AeQcoIZ16aX87VH1ggW7jMjS7CPxS0gVDVMIlxi
+         EyA0BPS35rC9V0np50gfCZNwdUq2hyPo5xzNHOOPOgX+E0I3vHrhRL8BRWxmFWkISgAQ
+         +i0WXSvntb6XALvoN75BJZ8tWojCm+c0NsXbkmxlQDtQPehUCwkTUWgNE03fqL1zSuS6
+         4FZlMcUM0btGs3zOXfKWigpw6k8Rtri30Ct8VHmMjmDv7aPxUQ+L1xrqL4GORwuJXF3n
+         MmL5FUTnrfHd0xZvm/CbSe3zODoCvFl6lAictdyOpbmMKmD62AqI3KbNzdnuAbsbMXOx
+         e+Xw==
+X-Gm-Message-State: AOAM531BwDQMMCCDHsVRsOrrItmBDGwoHpgE6fNstveVloTYnlI4R93A
+        vYNIUeMvrmDgegvAUpJg6CSrO+N7ZSxP+Dg3sQEACzfk
+X-Google-Smtp-Source: ABdhPJwgLO7hizlp6s1fBbo5T71Hhk8okBPlA/WiffW7qXcuwWcG0OWlLBK4Bw2svyB/X5fwjYwB3hgU+amm7L7oJsM=
+X-Received: by 2002:aca:c704:: with SMTP id x4mr5766747oif.92.1590762955513;
+ Fri, 29 May 2020 07:35:55 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200526170217.32966-1-pww@edgekeep.com> <CAEjxPJ6F75V9=vCW6V9gnA7sc-7uPm_vU7h5ppSbqZVWqC=_ZA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6F75V9=vCW6V9gnA7sc-7uPm_vU7h5ppSbqZVWqC=_ZA@mail.gmail.com>
-From:   Peter Whittaker <pww@edgekeep.com>
-Date:   Fri, 29 May 2020 10:33:22 -0400
-Message-ID: <CAGeouKEoKANFUoEhoRCUNGbS+r-fGn2oEWuA3phdP1DGORqg+Q@mail.gmail.com>
-Subject: Re: [PATCH] Add restorecon -x opt to not cross FS boundaries (cf
- github #208)
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+References: <CAEjxPJ4qJj4-of0F=TKZ1wb-s82_wbMCYLbFPuxJ57dqbNRjeQ@mail.gmail.com>
+ <20200528125128.26915-1-cgzones@googlemail.com> <20200528125128.26915-2-cgzones@googlemail.com>
+In-Reply-To: <20200528125128.26915-2-cgzones@googlemail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 29 May 2020 10:35:44 -0400
+Message-ID: <CAEjxPJ6EenXgia8b8-c_NG6RX1rpKGJ1Or_y2Y=2GAU+cxSTkA@mail.gmail.com>
+Subject: Re: [PATCH v2 2/3] refparser: add missing newline after error message
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-My test infrastructure has been, uh, limited, so far (working with
-some, uh, restrictions). I'll take the time to build a complete test
-system, reapply, test, then resubmit. Thanks for the advice on
-including the URL, much cleaner.
-
-Thanks,
-
-P
-
-Peter Whittaker
-EdgeKeep Inc.
-www.edgekeep.com
-+1 613 864 5337
-+1 613 864 KEEP
-
-
-On Fri, May 29, 2020 at 10:22 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Thu, May 28, 2020 at 8:52 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> On Tue, May 26, 2020 at 1:04 PM Peter Whittaker <pww@edgekeep.com> wrote:
-> >
-> > Folks, this patch adds and documents a "-x" option for restorecon
-> > to prevent it from crossing file system boundaries, as requested
-> > in github issue #208.
-> >
-> > P
-> >
-> > Signed-off-by: Peter Whittaker <pww@edgekeep.com>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+
+This seems fine although I wonder if we should just do this inside of
+the o() definition and have it done for all callers.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+
+> ---
+>  python/sepolgen/src/sepolgen/refparser.py | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> You didn't update the actual ropts string so restorecon -x fails even
-> after this patch.
-> Did you test your change?
-> In your patch description, you can put the following line before your
-> Signed-off-by
-> and drop the separate references to github issue #208 in the subject
-> line and body:
-> Fixes: https://github.com/SELinuxProject/selinux/issues/208
+> diff --git a/python/sepolgen/src/sepolgen/refparser.py b/python/sepolgen/=
+src/sepolgen/refparser.py
+> index f3e0ae87..9f850990 100644
+> --- a/python/sepolgen/src/sepolgen/refparser.py
+> +++ b/python/sepolgen/src/sepolgen/refparser.py
+> @@ -1148,6 +1148,6 @@ def parse_headers(root, output=3DNone, expand=3DTru=
+e, debug=3DFalse):
+>              status.step()
 >
-> > ---
-> >  policycoreutils/setfiles/restorecon.8 |  7 +++++++
-> >  policycoreutils/setfiles/setfiles.c   | 11 +++++++++--
-> >  2 files changed, 16 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-> > index bbfc83fe..0d1930de 100644
-> > --- a/policycoreutils/setfiles/restorecon.8
-> > +++ b/policycoreutils/setfiles/restorecon.8
-> > @@ -13,6 +13,7 @@ restorecon \- restore file(s) default SELinux security contexts.
-> >  .RB [ \-F ]
-> >  .RB [ \-W ]
-> >  .RB [ \-I | \-D ]
-> > +.RB [ \-x ]
-> >  .RB [ \-e
-> >  .IR directory ]
-> >  .IR pathname \ ...
-> > @@ -31,6 +32,7 @@ restorecon \- restore file(s) default SELinux security contexts.
-> >  .RB [ \-F ]
-> >  .RB [ \-W ]
-> >  .RB [ \-I | \-D ]
-> > +.RB [ \-x ]
-> >
-> >  .SH "DESCRIPTION"
-> >  This manual page describes the
-> > @@ -153,6 +155,11 @@ option of GNU
-> >  .B find
-> >  produces input suitable for this mode.
-> >  .TP
-> > +.B \-x
-> > +prevent
-> > +.B restorecon
-> > +from crossing file system boundaries.
-> > +.TP
-> >  .SH "ARGUMENTS"
-> >  .IR pathname \ ...
-> >  The pathname for the file(s) to be relabeled.
-> > diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-> > index 16bd592c..afd579e3 100644
-> > --- a/policycoreutils/setfiles/setfiles.c
-> > +++ b/policycoreutils/setfiles/setfiles.c
-> > @@ -43,8 +43,8 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
-> >  {
-> >         if (iamrestorecon) {
-> >                 fprintf(stderr,
-> > -                       "usage:  %s [-iIDFmnprRv0] [-e excludedir] pathname...\n"
-> > -                       "usage:  %s [-iIDFmnprRv0] [-e excludedir] -f filename\n",
-> > +                       "usage:  %s [-iIDFmnprRv0x] [-e excludedir] pathname...\n"
-> > +                       "usage:  %s [-iIDFmnprRv0x] [-e excludedir] -f filename\n",
-> >                         name, name);
-> >         } else {
-> >                 fprintf(stderr,
-> > @@ -386,6 +386,13 @@ int main(int argc, char **argv)
-> >                 case '0':
-> >                         null_terminated = 1;
-> >                         break;
-> > +                case 'x':
-> > +                        if (iamrestorecon) {
-> > +                               r_opts.xdev = SELINUX_RESTORECON_XDEV;
-> > +                        } else {
-> > +                               usage(argv[0]);
-> > +                        }
-> > +                        break;
-> >                 case 'h':
-> >                 case '?':
-> >                         usage(argv[0]);
-> > --
-> > 2.20.1
-> >
+>      if len(failures):
+> -        o("failed to parse some headers: %s" % ", ".join(failures))
+> +        o("failed to parse some headers: %s\n" % ", ".join(failures))
+>
+>      return headers
+> --
+> 2.27.0.rc2
+>
