@@ -2,184 +2,278 @@ Return-Path: <SRS0=wECs=7L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 081A7C433E0
-	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 18:18:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C382C433DF
+	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 18:43:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D5AA62074D
-	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 18:18:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 751CD207BC
+	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 18:43:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dKVU/qo4"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SJu1WMIx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725865AbgE2SSx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 May 2020 14:18:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48150 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725839AbgE2SSw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 May 2020 14:18:52 -0400
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9690BC03E969
-        for <selinux@vger.kernel.org>; Fri, 29 May 2020 11:18:52 -0700 (PDT)
-Received: by mail-oi1-x233.google.com with SMTP id m67so3426847oif.4
-        for <selinux@vger.kernel.org>; Fri, 29 May 2020 11:18:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=NtytoMKrGjuZkNAiozNVwKSu45dkNFdNMYy7oBi1nAI=;
-        b=dKVU/qo4xTvW8zYRkMctZ35dzpq4pwOkvQNDOw/iIpOBaBzKvNlaiz2i8FqIyvW47e
-         jpPg1N89yKNmCTWkx75z8zbujUjpHzf9lZLqaGWthHalRxK42TzbiXeFYMTJwXVTfrq0
-         x/bF12Pl56Db2JCZGE4mjf6Qu7KlV/m3j2ubq8K+B8JWnWYukbf/vfTke9+CDSAd88B0
-         qwsZrmgQukKbbzHrS4ZpuRojhRZtQXs2+9UvGV8GJVEh4Bo+O/ul/s+vdBcz0viul5j4
-         QJrJdKBw+nJ3+vHF9aBY8CB/14xbePVu/8PJU9epN9cNmzzVWZok3iuGVdVNrSZFlEK5
-         e3HQ==
+        id S1726975AbgE2SnT (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 May 2020 14:43:19 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:33797 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725901AbgE2SnS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 May 2020 14:43:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1590777794;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=RxcMcq4p4ukXHXKEuaGoKRdTRWM3TO9lIYsuVA2beCI=;
+        b=SJu1WMIxBSf4tfwomEWM3Enq/VNCYNFp+zswUzLykHRvRcxmVB7qKdAI9dLHfS7E9kHPK1
+        yq0DWH9arupp4Ku9qpmATJPi9jRIR/KcR3tBMqMjieVsCg1JLZ4aK6ANFkkKocKk2dhG5I
+        9EhdGC8v3wImjccD5jpP2sZPAgbmqqM=
+Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
+ [209.85.161.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-348-joRy4OI0PmSLjyLI5SrxOA-1; Fri, 29 May 2020 14:42:51 -0400
+X-MC-Unique: joRy4OI0PmSLjyLI5SrxOA-1
+Received: by mail-oo1-f69.google.com with SMTP id y24so225366ool.14
+        for <selinux@vger.kernel.org>; Fri, 29 May 2020 11:42:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=NtytoMKrGjuZkNAiozNVwKSu45dkNFdNMYy7oBi1nAI=;
-        b=B3VJXuZyU2nrdCPzTGshg7VN/K01v0TqnzbK+m1nN1/JB1T9/XNfQSBX7mDObiymS+
-         qmnu6FfDollgoSc+PT3GoJ7I9QJOvzvi38OaZeBQxlEVda2yGk0vQ3FZVAtW0pkPttYn
-         0QJoTKtUFixcXBPpjN4CgOAjNCvbxC+rBzGEekDMOQw3X6V+rQX6eFh6m2YTAsIqHvFa
-         6IG8FdjMBUqg+AWim7p35B+YsDPOfIDf92CgSutmlpTeLt/ivxHzSbhFGphPR4hGijvI
-         ZtIR8nQom4zOR0BxmJrg7S+yKG0RQcCbbn/6KDtu7YynjnnFV2wGlCgbCy8mnF9RTHyQ
-         BuCA==
-X-Gm-Message-State: AOAM531o7hpFgKkgdGanzMeoGKelLbJOU1N0+D/bfWURIacMTk2KSs+w
-        0luqQRMof+Vl+iRbr+0aeagphKkQyKTBD3FMFco=
-X-Google-Smtp-Source: ABdhPJxRw+nDG/UiGNZm5PQ22H6O+/Wn7oRdTVk6SH4OmddPUuJNo/T/SJvjRywNGzGJiArX/vzAg1KqTWDsvOHECAM=
-X-Received: by 2002:aca:3d09:: with SMTP id k9mr6540950oia.160.1590776327125;
- Fri, 29 May 2020 11:18:47 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=RxcMcq4p4ukXHXKEuaGoKRdTRWM3TO9lIYsuVA2beCI=;
+        b=Q9mBM3FIKgTqclQio5jHc7Z9y9ZvuHTsFcsXqzJEoSZI20gUD295QsPKnrcU/ysjP8
+         Jro9qLD5T3CSrniSdzDYkWd72p9L2qkEmdv6F/r7DpDN3kPfBzA7tCMYLq6nR5qbs5IJ
+         GZtbbfGWS4jHMu2ElPFQ4fSn1M//MiQiaRfKNz0yKt0d17z48Dx0bbBe7VUtlwFFQs4Q
+         g8gIxIi2Lh633dnyBMDcNyrWC1ooMNe1EZQUQ1/yS/T+lYz+5/wp6CDiF2LvbyB0o+XF
+         O7MMfLoOrUw0R0Qsh4XaJ9nFsowsk+2c/u1Ew9t1rNcu+ZlIHGfbVoeTg3Tcm0A7zPaO
+         +8HA==
+X-Gm-Message-State: AOAM532ytH74QFjljxZ/jMdeiTKY0bv5j9jTIPdeZdehz6CleFKF32f8
+        JfmpmrMQ2lFzk4qhU2TzCcV1SRS0vOLL+cxnW4IcC/yPugSwrflkfxvzCCQ1tS/j3pjJkyTjqoJ
+        h/ESxEN/g2H73xHnngusX/zbsmd9/RzN9oQ==
+X-Received: by 2002:aca:488c:: with SMTP id v134mr7317114oia.103.1590777769930;
+        Fri, 29 May 2020 11:42:49 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzcxCHJODod2wks/bDlat93pVMYSeqlDgE3pz5sJ1elMFoHztYjpxOdxMv9xpIj5AG49Gw5Xprc/Bptjizi+lM=
+X-Received: by 2002:aca:488c:: with SMTP id v134mr7317095oia.103.1590777769580;
+ Fri, 29 May 2020 11:42:49 -0700 (PDT)
 MIME-Version: 1.0
-References: <d0fd6970-7aa6-c576-fb8a-1d1293416e97@debian.org>
- <CAFftDdobT3E1MvFptyAKLBJ73KyrMOSS3m8DCnPX9+QF-Rk24Q@mail.gmail.com>
- <CAEjxPJ6XwXLBKYFaNO-kZz-Vgvbb2B7VKqD3DKQFf_ebBuNiBg@mail.gmail.com>
- <CAFftDdovpeFWnmKGDnTOY4AmwzSW0sCZoRwePX-q=NW1HV2c8w@mail.gmail.com>
- <CAEjxPJ5weFXrFpyjWdW7D4tgOnK+jHMyD37Zb4JFEzDt1rQ8Dw@mail.gmail.com> <CAFftDdr3A=rKcbzWcMDmz-XrqBTGd7mNbLLxt2vzU71DsqZ_9w@mail.gmail.com>
-In-Reply-To: <CAFftDdr3A=rKcbzWcMDmz-XrqBTGd7mNbLLxt2vzU71DsqZ_9w@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 29 May 2020 14:18:35 -0400
-Message-ID: <CAEjxPJ5N8Htq0uEekR7M7mt17_h7rRSzHU=kRBU_F02JfxO4ew@mail.gmail.com>
-Subject: Re: CFLAGS overridden by distribution build system
+References: <CAHC9VhTNZ=gcw5w3FFEs9KiuSrUBhbYLVc=sZq0N4ZEGCem1Zg@mail.gmail.com>
+ <20200520163421.27965-1-william.c.roberts@intel.com> <20200520163421.27965-2-william.c.roberts@intel.com>
+In-Reply-To: <20200520163421.27965-2-william.c.roberts@intel.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Fri, 29 May 2020 20:42:37 +0200
+Message-ID: <CAFqZXNt_mQsbS_Yzd7AT0_XUDzGs_u6b6UTb3DPa8XzsbhqrfQ@mail.gmail.com>
+Subject: Re: [PATCH v2] ci: run SELinux kernel test suite
 To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     Laurent Bigonville <bigon@debian.org>,
-        SElinux list <selinux@vger.kernel.org>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 29, 2020 at 1:15 PM William Roberts
-<bill.c.roberts@gmail.com> wrote:
->
-> On Fri, May 29, 2020 at 11:40 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> >
-> > On Fri, May 29, 2020 at 12:05 PM William Roberts
-> > <bill.c.roberts@gmail.com> wrote:
-> > >
-> > > On Fri, May 29, 2020 at 8:31 AM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > >
-> > > > On Sat, May 23, 2020 at 11:59 AM William Roberts
-> > > > <bill.c.roberts@gmail.com> wrote:
-> > > > >
-> > > > > On Sat, May 23, 2020 at 5:57 AM Laurent Bigonville <bigon@debian.=
-org> wrote:
-> > > > > >
-> > > > > > Hello,
-> > > > > >
-> > > > > > The current build system of the userspace is setting a lot of C=
-FLAGS,
-> > > > > > but most of these are overridden by the distributions when buil=
-ding.
-> > > > > >
-> > > > > > Today I received a bug report[0] from Christian G=C3=B6ttsche a=
-sking me to
-> > > > > > set -fno-semantic-interposition again in libsepol. I see also t=
-he same
-> > > > > > flag and also a lot of others set in libselinux and libsemanage=
- build
-> > > > > > system.
-> > > > >
-> > > > > Why would it be again? The old DSO design made that option impote=
-nt.
-> > > > > Clang does it by default.
-> > > > >
-> > > > > >
-> > > > > > For what I understand some of these are just needed for code qu=
-ality
-> > > > > > (-W) and could be controlled by distributions but others might =
-actually
-> > > > > > need to be always set (-f?).
-> > > > >
-> > > > > If you look at the Makefiles overall in all the projects, you'll =
-see hardening
-> > > > > flags, etc. Libsepol has a pretty minimal set compared to say lib=
-selinux, but
-> > > > > they all get overridden by build time CFLAGS if you want.
-> > > > >
-> > > > > >
-> > > > > > Shouldn't the flags that always need to be set (which ones?) be=
- moved to
-> > > > > > a "override CFLAGS" directive to avoid these to be unset by dis=
-tributions?
-> > > > >
-> > > > > If you we're cleaver with CFLAGS before, you could acually circum=
-vent
-> > > > > the buildtime
-> > > > > DSO stuff. While i'm not opposed to adding it to immutable flag, =
-if
-> > > > > you're setting
-> > > > > CFLAGS, you're on your own. At least with the current design.
-> > > > >
-> > > > > I have no issues with adding it to override, but we would have to
-> > > > > overhaul a bunch
-> > > > > of them and make them consistent.
-> > > >
-> > > > I'm inclined to agree with Laurent here - we should always set this
-> > > > flag in order to preserve the same behavior prior to the patches th=
-at
-> > > > removed hidden_def/hidden_proto and switched to relying on this
-> > > > instead.
-> > >
-> > > Theirs a lot of features that rely on particular cflags, consider har=
-dening
-> > > options. A lot of the warnings/error stuff is not just a code hygiene=
-, but also
-> > > spotting potential issues that could arise as security issues. If one=
- starts
-> > > tinkering with cflags, you can really change the code quite a bit. Th=
-is is why
-> > > some places only approve sanctioned builds of crypto libraries.
-> >
-> > I think the difference here is that we made a change in the source
-> > code (hidden_def/hidden_proto removal) that requires use of
-> > -fno-semantic-interposition to preserve existing behavior.
-> >
-> > > But one of the things to consider is that for clang builds, clang
-> > > doesn't support
-> > > this option, so we would need to move the compiler checking code into=
- each
-> > > projects root makefile and ensure any consuming subordinate leafs add=
- a
-> > > default, or move it to the global makefile and make sure each leaf th=
-at needs it
-> > > has a default.
-> >
-> > I think clang does support it now? https://reviews.llvm.org/D72724
->
-> Yeah but that bug is all 2020 stuff. It is in the clang-10 release. I
-> verified that
-> with a local build from here:
->   - https://apt.llvm.org/
-> So anything sub clang-10 won't support it, do you want to tie us to that
-> new of a clang?
+Apologies for getting back to this so late... Just some small nitpicks.
 
-No, I guess not.  So I guess our options are to leave it alone and
-just make sure it is well documented or complicate the Makefiles.
+On Wed, May 20, 2020 at 6:34 PM <bill.c.roberts@gmail.com> wrote:
+> From: William Roberts <william.c.roberts@intel.com>
+>
+> The current Travis CI runs the userspace tooling and libraries against
+> policy files, but cannot test against an SELinux enabled kernel. Thus,
+> some tests are not being done in the CI. Travis, unfortunately only
+> provides Ubuntu images, so in order to run against a modern distro with
+> SELinux in enforcing mode, we need to launch a KVM with something like
+> Fedora.
+>
+> This patch enables this support by launching a Fedora32 Cloud Image with
+> the SELinux userspace library passed on from the Travis clone, it then
+> builds and replaces the current SELinux bits on the Fedora32 image and
+> runs the SELinux testsuite.
+>
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> ---
+>  .travis.yml                      |   8 +++
+>  scripts/ci/README.md             |   8 +++
+>  scripts/ci/fedora-test-runner.sh |  89 ++++++++++++++++++++++++
+>  scripts/ci/travis-kvm-setup.sh   | 113 +++++++++++++++++++++++++++++++
+>  4 files changed, 218 insertions(+)
+>  create mode 100644 scripts/ci/README.md
+>  create mode 100755 scripts/ci/fedora-test-runner.sh
+>  create mode 100755 scripts/ci/travis-kvm-setup.sh
+>
+[...]
+> diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-runner.sh
+> new file mode 100755
+> index 000000000000..14bcf5fc469d
+> --- /dev/null
+> +++ b/scripts/ci/fedora-test-runner.sh
+> @@ -0,0 +1,89 @@
+> +#!/usr/bin/env bash
+> +
+> +set -ev
+> +
+> +# CI Debug output if things go squirrely.
+> +getenforce
+> +id -Z
+> +nproc
+> +pwd
+
+I'd add also "uname -r" here to dump the running kernel version (will
+probably be also printed later somewhere, but better to have it also
+in one place with the other debug info).
+
+> +
+> +# Turn off enforcing for the setup to prevent any weirdness from breaking
+> +# the CI.
+> +setenforce 0
+> +
+> +dnf clean all -y
+> +dnf install -y \
+[...]
+> diff --git a/scripts/ci/travis-kvm-setup.sh b/scripts/ci/travis-kvm-setup.sh
+> new file mode 100755
+> index 000000000000..66606e9d4a5b
+> --- /dev/null
+> +++ b/scripts/ci/travis-kvm-setup.sh
+> @@ -0,0 +1,113 @@
+> +#!/usr/bin/env bash
+> +
+> +set -ev
+> +
+> +TEST_RUNNER="scripts/ci/fedora-test-runner.sh"
+> +
+> +#
+> +# Travis gives us 7.5GB of RAM and two cores:
+> +# https://docs.travis-ci.com/user/reference/overview/
+> +#
+> +MEMORY=4096
+> +VCPUS=2
+
+Why not "VCPUS=$(nproc)"?
+
+> +
+> +# Install these here so other builds don't have to wait on these deps to download and install
+> +sudo apt-get install qemu-kvm libvirt-bin virtinst bridge-utils cpu-checker libguestfs-tools
+> +
+> +sudo usermod -a -G kvm,libvirt,libvirt-qemu $USER
+> +
+> +# Verify that KVM is working, useful if Travis every changes anything.
+
+s/every/ever/
+
+> +kvm-ok
+> +
+> +sudo systemctl enable libvirtd
+> +sudo systemctl start libvirtd
+> +
+> +# Set up a key so we can ssh into the VM
+> +ssh-keygen -N "" -f "$HOME/.ssh/id_rsa"
+> +
+> +#
+> +# Get the Fedora Cloud Image, It is a base image that small and ready to go, extract it and modify it with virt-sysprep
+> +#  - https://alt.fedoraproject.org/en/verify.html
+> +cd $HOME
+> +wget https://download.fedoraproject.org/pub/fedora/linux/releases/32/Cloud/x86_64/images/Fedora-Cloud-Base-32-1.6.x86_64.raw.xz
+
+I'd suggest extracting the Fedora release version (32) + the image
+version (1.6) into variables, so they can be easily bumped later.
+
+> +
+> +# Verify the image
+> +curl https://getfedora.org/static/fedora.gpg | gpg --import
+> +wget https://getfedora.org/static/checksums/Fedora-Cloud-32-1.6-x86_64-CHECKSUM
+> +gpg --verify-files *-CHECKSUM
+> +sha256sum --ignore-missing -c *-CHECKSUM
+> +
+> +# Extract the image
+> +unxz -T0 Fedora-Cloud-Base-32-1.6.x86_64.raw.xz
+> +
+> +# Search is needed for $HOME so virt service can access the image file.
+> +chmod a+x $HOME
+> +
+> +#
+> +# Modify the virtual image to:
+> +#   - Enable a login, we just use root
+> +#   - Enable passwordless login
+> +#     - Force a relabel to fix labels on ssh keys
+> +#
+> +sudo virt-sysprep -a "$HOME/Fedora-Cloud-Base-32-1.6.x86_64.raw" \
+> +  --root-password password:123456 \
+
+Do you need to set the password when you use an SSH key to login?
+
+> +  --hostname fedoravm \
+> +  --append-line '/etc/ssh/sshd_config:PermitRootLogin yes' \
+> +  --append-line '/etc/ssh/sshd_config:PubkeyAuthentication yes' \
+> +  --mkdir /root/.ssh \
+> +  --upload "$HOME/.ssh/id_rsa.pub:/root/.ssh/authorized_keys" \
+> +  --chmod '0600:/root/.ssh/authorized_keys' \
+> +  --run-command 'chown root:root /root/.ssh/authorized_keys' \
+
+Could these be replaced with just "--ssh-inject root"?
+
+> +  --copy-in "$TRAVIS_BUILD_DIR:/root" \
+> +  --network \
+> +  --selinux-relabel
+> +
+> +#
+> +# Now we create a domain by using virt-install. This not only creates the domain, but runs the VM as well
+> +# It should be ready to go for ssh, once ssh starts.
+> +#
+> +sudo virt-install \
+> +  --name fedoravm \
+> +  --memory $MEMORY \
+> +  --vcpus $VCPUS \
+> +  --disk "$HOME/Fedora-Cloud-Base-32-1.6.x86_64.raw" \
+> +  --import --noautoconsole
+> +
+> +#
+> +# Here comes the tricky part, we have to figure out when the VM comes up AND we need the ip address for ssh. So we
+> +# can check the net-dhcp leases, for our host. We have to poll, and we will poll for up 3 minutes in 6 second
+> +# intervals, so 30 poll attempts (0-29 inclusive). I don't know of a better way to do this.
+> +#
+> +# We have a full reboot + relabel, so first sleep gets us close
+> +#
+> +sleep 30
+> +for i in $(seq 0 29); do
+> +    echo "loop $i"
+> +    sleep 6s
+> +    # Get the leases, but tee it so it's easier to debug
+> +    sudo virsh net-dhcp-leases default | tee dhcp-leases.txt
+> +
+> +    # get our ipaddress
+> +    ipaddy=$(grep fedoravm dhcp-leases.txt | awk {'print $5'} | cut -d'/' -f 1-1)
+
+Looks cleaner this way:
+[...] | awk '{ print $5 }' | cut -d / -f 1)
+
+> +    if [ -n "$ipaddy" ]; then
+> +        # found it, we're done looking, print it for debug logs
+> +        echo "ipaddy: $ipaddy"
+> +        break
+> +    fi
+> +    # it's empty/not found, loop back and try again.
+> +done
+> +
+> +# Did we find it? If not die.
+> +if [ -z "$ipaddy" ]; then
+> +    echo "ipaddy zero length, exiting with error 1"
+> +    exit 1
+> +fi
+> +
+> +#
+> +# Great we have a host running, ssh into it. We specify -o so
+> +# we don't get blocked on asking to add the servers key to
+> +# our known_hosts.
+> +#
+> +ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" "/root/selinux/$TEST_RUNNER"
+> +
+> +exit 0
+> --
+> 2.17.1
+
+-- 
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
