@@ -2,105 +2,145 @@ Return-Path: <SRS0=wECs=7L=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07B82C433E0
-	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 15:35:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8F78C433DF
+	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 16:05:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D80DA206E2
-	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 15:35:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 85473207F9
+	for <selinux@archiver.kernel.org>; Fri, 29 May 2020 16:05:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jx+Eyyyr"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WdP2UAh4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726887AbgE2PfD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 29 May 2020 11:35:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50792 "EHLO
+        id S1727004AbgE2QFB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 29 May 2020 12:05:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725901AbgE2PfD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 29 May 2020 11:35:03 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB05C03E969
-        for <selinux@vger.kernel.org>; Fri, 29 May 2020 08:35:03 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id d191so2881377oib.12
-        for <selinux@vger.kernel.org>; Fri, 29 May 2020 08:35:03 -0700 (PDT)
+        with ESMTP id S1726838AbgE2QFA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 29 May 2020 12:05:00 -0400
+Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2098C03E969
+        for <selinux@vger.kernel.org>; Fri, 29 May 2020 09:05:00 -0700 (PDT)
+Received: by mail-il1-x12f.google.com with SMTP id 17so3022380ilj.3
+        for <selinux@vger.kernel.org>; Fri, 29 May 2020 09:05:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=q9+sv2k5niwLk+4mz/OCdB3ZLNluHx/qvzRShe47uP8=;
-        b=Jx+EyyyrDX3Q/kEtN8/VRhoNcv9aqI+GzzvdK958Jef3iveFWJtm3U0JCvdMdl0dA+
-         4N2oDTU6sWfVh2K9vY81y/aX2on4Z3NIj+It1EsrI+3J5al96hKQPIltefxhXjrV85HT
-         C0FqxVLsCwh1Dc0gCl1VQrLTIDgVjeE6TuNjqpqbGTxMSGGflCYOj6PPWIim6fCZnSJC
-         AzzvNKIha9adtwjOGQUzgFkoCtqRnOF7i8BZQS0w9axiaMmPQ2Ofd3SQEolhyEM6XiC9
-         RG4jgzqzU8woW0uCw2nIE38r2a+5WSpSfbS9Q9x1Vo2Yd/2dxGleVhhrkF0o7vlKNoxD
-         hn2w==
+         :cc:content-transfer-encoding;
+        bh=mFyE5zbjm3TWSySXjXwb7hTQPGmVK9yNQ04QvdS4ZWU=;
+        b=WdP2UAh4k0A7XGsTcjYTMd2ASofPQ7SY5PAruFDgzZHxR+/WBK8X5wU+JeFSMlWjlC
+         yQmvtxYqe0cgQ+R/lsYwE3Z5lXpyD2UZ+XBuNcwDeKlDJ1FQcGv8HIObWt01tGhuYFhu
+         smig7MhZQo08weqoEEuklNWP8gB/nXOgM0dkGVDzwIwcDveN9EUMkSCv7slvxv17gMvd
+         2PPg3dQm/LJI0wUQUuPP1xLQ7dOe35coN4fOT65YWY7S2IIK+pYw1rn7WwTgcDMBFeYZ
+         Sc3532ZAs8KHTqyKJo2EhLE8hoE+hQE0PzIXmjN+9P85ZgYXDT8pfeYx64e9xkFkKQyJ
+         cw5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=q9+sv2k5niwLk+4mz/OCdB3ZLNluHx/qvzRShe47uP8=;
-        b=KVEAOWq29GeM9ttMn1y3adpOw0+rUzG1HeFjDvhLMIK5hBYgS2OTihps+X5O+0tsKx
-         RD8i4eGV76cXBzqTRe2I29mGfE/ksAKqayaWw4l3g74Yhb7rCq5TtxLA9LFCw6f/gH4u
-         JtinFYcfnWP9EAHAIqhlHQTgAyr05pvqW6Ea9RWQdQ6/aEc2hMDzmdXwvX+Nz7b5l4FQ
-         99F/mbkuL3tZVnaa3G4V476/jltf7n0SHwfx3RG5XYg1b2ECHmHwepDwjkXUY32JB792
-         Fmr+mIcz0FhFRZbAmwzpb/WaIHr+Ln9IKJxjCJLQDZHaoxiTQHtmfZooMJwaTDeIU8ej
-         I/ww==
-X-Gm-Message-State: AOAM532rWUksGthrGPAG/ADH8zGZvAamR5YSWDtm5ubRg9uzCoeX18i+
-        chGmu3kRbBykseoWy+wXLGkFqgbq3N5N5jp2qvQ=
-X-Google-Smtp-Source: ABdhPJwDd4vpBNfKdSUh97ykof3xcXdCGZXNjXpJGwzlSWfsCht8MQ7PwWO77hY5gd4+Msyd5nnnCm6Xbj3g0RVUuGs=
-X-Received: by 2002:aca:bcd4:: with SMTP id m203mr5922452oif.138.1590766502419;
- Fri, 29 May 2020 08:35:02 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mFyE5zbjm3TWSySXjXwb7hTQPGmVK9yNQ04QvdS4ZWU=;
+        b=D81VNFnhzbfuAw1W4wXioLeakbDayyx3/sBZcgDnXsDhHzZWjLqqIBbId6PjSKVPBQ
+         HTo0wNCtHPbuQmQhMYdKpBXRZTtrGjv22tCaP/u0qWyHbu+9T5OdDkdgj8eo9goy3LSQ
+         5U8XgSHFWoWyzW4gATUJ2zX3AHfG578pkJyuIMDwULSRT25ivHkCnazHmCaT/pdLsZyw
+         LHQRXsJYqQXGYyEuhcP79aBKk1JK63v43tKQSib8IMdGIEPKXjl0M+aS2sZfXYi/04yT
+         xHJvlsfLZHpC8/kG5E6AWTkkaPPH0ax/qgASznumsFAAqLFXW3mxuNNYDfV6P1R8/6KM
+         M5ug==
+X-Gm-Message-State: AOAM530ARIT5aCMzpgCaQS9QSCFsdSyAvF5Wox8tpT7Wp7/VQDIISeAa
+        G1Ktrw+AxeyuJ6dqmxFDTt1cgwyI3cQV3eSQxFubDX/Z
+X-Google-Smtp-Source: ABdhPJzg+wBXkm3JYviTZJj6pbOjqaNRd13vqbjndeCzgFR7tVEF556flpNpBpIS/669NegwD3D2oVZq3+ruD8xvmx0=
+X-Received: by 2002:a92:58d6:: with SMTP id z83mr7957799ilf.129.1590768299744;
+ Fri, 29 May 2020 09:04:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200528184056.105774-1-jwcart2@gmail.com> <CAEjxPJ5a3BDuN2VpyMt-TWMZvPVVx+JHym3EwnMdHC4xkEXTfQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5a3BDuN2VpyMt-TWMZvPVVx+JHym3EwnMdHC4xkEXTfQ@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 29 May 2020 11:34:50 -0400
-Message-ID: <CAP+JOzTGUJYQTSFBD2rO2_YcveKyv7RPV8gaz-2Haqke1unDoQ@mail.gmail.com>
-Subject: Re: [PATCH] libselpol: Sort portcon rules consistently
+References: <d0fd6970-7aa6-c576-fb8a-1d1293416e97@debian.org>
+ <CAFftDdobT3E1MvFptyAKLBJ73KyrMOSS3m8DCnPX9+QF-Rk24Q@mail.gmail.com> <CAEjxPJ6XwXLBKYFaNO-kZz-Vgvbb2B7VKqD3DKQFf_ebBuNiBg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6XwXLBKYFaNO-kZz-Vgvbb2B7VKqD3DKQFf_ebBuNiBg@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Fri, 29 May 2020 11:04:48 -0500
+Message-ID: <CAFftDdovpeFWnmKGDnTOY4AmwzSW0sCZoRwePX-q=NW1HV2c8w@mail.gmail.com>
+Subject: Re: CFLAGS overridden by distribution build system
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>, slawrence@tresys.com
+Cc:     Laurent Bigonville <bigon@debian.org>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 29, 2020 at 10:57 AM Stephen Smalley
+On Fri, May 29, 2020 at 8:31 AM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 >
-> On Thu, May 28, 2020 at 2:41 PM James Carter <jwcart2@gmail.com> wrote:
+> On Sat, May 23, 2020 at 11:59 AM William Roberts
+> <bill.c.roberts@gmail.com> wrote:
 > >
-> > The comparison function, portcon_data_cmp(), only made use of the
-> > protocol to put tcp before udp, dccp, and sctp. Rules that have
-> > the same port range, but with different protocols would be considered
-> > equal unless one of the protocols was tcp. When generating a CIL or
-> > conf source policy from a binary or using the "-S" option in
-> > checkpolicy the non-tcp portcon rules with the same port range would
-> > not be consistently sorted.
+> > On Sat, May 23, 2020 at 5:57 AM Laurent Bigonville <bigon@debian.org> w=
+rote:
+> > >
+> > > Hello,
+> > >
+> > > The current build system of the userspace is setting a lot of CFLAGS,
+> > > but most of these are overridden by the distributions when building.
+> > >
+> > > Today I received a bug report[0] from Christian G=C3=B6ttsche asking =
+me to
+> > > set -fno-semantic-interposition again in libsepol. I see also the sam=
+e
+> > > flag and also a lot of others set in libselinux and libsemanage build
+> > > system.
 > >
-> > Changed portcon_data_cmp() to sort portcon rules like the CIL function
-> > cil_post_portcon_compare().
+> > Why would it be again? The old DSO design made that option impotent.
+> > Clang does it by default.
 > >
-> > Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > Signed-off-by: James Carter <jwcart2@gmail.com>
+> > >
+> > > For what I understand some of these are just needed for code quality
+> > > (-W) and could be controlled by distributions but others might actual=
+ly
+> > > need to be always set (-f?).
+> >
+> > If you look at the Makefiles overall in all the projects, you'll see ha=
+rdening
+> > flags, etc. Libsepol has a pretty minimal set compared to say libselinu=
+x, but
+> > they all get overridden by build time CFLAGS if you want.
+> >
+> > >
+> > > Shouldn't the flags that always need to be set (which ones?) be moved=
+ to
+> > > a "override CFLAGS" directive to avoid these to be unset by distribut=
+ions?
+> >
+> > If you we're cleaver with CFLAGS before, you could acually circumvent
+> > the buildtime
+> > DSO stuff. While i'm not opposed to adding it to immutable flag, if
+> > you're setting
+> > CFLAGS, you're on your own. At least with the current design.
+> >
+> > I have no issues with adding it to override, but we would have to
+> > overhaul a bunch
+> > of them and make them consistent.
 >
-> Any idea why it used that logic previously?  And how does this compare
-> with sepol_port_compare/compare2() used by libsemanage?
+> I'm inclined to agree with Laurent here - we should always set this
+> flag in order to preserve the same behavior prior to the patches that
+> removed hidden_def/hidden_proto and switched to relying on this
+> instead.
 
-It originally followed the logic in CIL. I updated the CIL logic in
-2018 (see commit 4ba19b541 ("libsepol/cil: Improve processing of
-context rules"), but failed to update the logic in kernel_to_common.
+Theirs a lot of features that rely on particular cflags, consider hardening
+options. A lot of the warnings/error stuff is not just a code hygiene, but =
+also
+spotting potential issues that could arise as security issues. If one start=
+s
+tinkering with cflags, you can really change the code quite a bit. This is =
+why
+some places only approve sanctioned builds of crypto libraries.
 
-The logic is similar, but slightly different. The logic in CIL and in
-kernel_to_common puts smaller port ranges before larger ones, but
-sepol_port_compare/compare2() do not take into account the port range.
-Other than that they are the same (with this patch). I am not sure
-where the CIL ordering logic came from, Steve Lawrence might remember.
-
-Jim
-
-> Regardless,
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+But one of the things to consider is that for clang builds, clang
+doesn't support
+this option, so we would need to move the compiler checking code into each
+projects root makefile and ensure any consuming subordinate leafs add a
+default, or move it to the global makefile and make sure each leaf that nee=
+ds it
+has a default.
