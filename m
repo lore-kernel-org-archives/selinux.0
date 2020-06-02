@@ -2,364 +2,154 @@ Return-Path: <SRS0=4SPy=7P=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15F8DC433DF
-	for <selinux@archiver.kernel.org>; Tue,  2 Jun 2020 19:19:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0135C433DF
+	for <selinux@archiver.kernel.org>; Tue,  2 Jun 2020 20:42:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DDB6F20734
-	for <selinux@archiver.kernel.org>; Tue,  2 Jun 2020 19:19:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79C6A207D5
+	for <selinux@archiver.kernel.org>; Tue,  2 Jun 2020 20:42:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NesWZxnW"
+	dkim=pass (1024-bit key) header.d=concurrentrt.onmicrosoft.com header.i=@concurrentrt.onmicrosoft.com header.b="5+15cDH5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726223AbgFBTTK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Jun 2020 15:19:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47720 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726139AbgFBTTK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 2 Jun 2020 15:19:10 -0400
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00710C08C5C0
-        for <selinux@vger.kernel.org>; Tue,  2 Jun 2020 12:19:09 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id z64so5581489pfb.1
-        for <selinux@vger.kernel.org>; Tue, 02 Jun 2020 12:19:09 -0700 (PDT)
+        id S1728071AbgFBUmY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 2 Jun 2020 16:42:24 -0400
+Received: from mail-bn8nam11on2124.outbound.protection.outlook.com ([40.107.236.124]:60384
+        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727860AbgFBUmX (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 2 Jun 2020 16:42:23 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IrWRDhrDZkp0siepdcuUIsEOs4+OLfyoz1WbgQZifs0p6ZyCzl08RLpL5SfhbGJY+m3BfKmAyTAIKwCZKd+vXZ0iO3JuEOxgjaKiRY+iqWAN0Wxw6XasTph09ZS5BgxMZriJnhICbUaMSOo7HB+kKpg36nQSjq7FudFKatSIvrCKXzv6IBAcBiY+2ustWFNKFBIILzWkH+BBfLbUHKH83xbl4XM5q6+lTIyuOwUVoNkJIGXSmUBdN9x8jp+7IiGEIOX/fGaBEa//9Xk02mqVpn8LmVT0AqVtvmqm43iVMZEuqEjYssPddtqX7OrZnAwnsyq0vM397BKiE5OrusKheg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Dgtk2743la04k/nPjF88gltz8Qvjd6l1ZwbfzQsGX+g=;
+ b=X6yIdGsShOmEQg8YtVGeB3CLpMV8mJmfB+ceVrUyq2acfaXbJWruOY6WlZ0XBQS6Tt4vgLOwnFJmS3WKMhAbLIaiEuWDpoox4Ck446BmUMgIWuwxBO27MDXjzwNVnXgBPoUI9q+A+0KwkSo1zbWY1QSyqZg0E3Z0xgsKiVd3IUr8HHKWA7JIr/lfnmD13jQ2vZ5Rjmgqvhg42zPQ01acOXFqntDFCWhZfErf8esQrZ0CbQJZVuHSvSi+fM/EyXX3aN/bDnJ1WlI5sS0ZB43jfrd+Udxk43UB0jLudVdUJTSeDq+cgTv14G0l4bAvz0rPwf99TBN0Nku0w8r81xgiZg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=concurrent-rt.com; dmarc=pass action=none
+ header.from=concurrent-rt.com; dkim=pass header.d=concurrent-rt.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=z4UimuK/pyVvmTdmfBxa/jB/VI5Vw+e9g0T+UokGhv8=;
-        b=NesWZxnWIyfSm55xEWCDP2H8ei+tH3WmrH5nnP1OM5hMqGRTdOJFPAY1X6UleZyWSe
-         RSXSsu+bZC03nCl3YWxfIwllFQ4pkCTuYkhqRERgx7D45NhlKwxe0zgbaKKjWFhT2g5P
-         K7D/hhl6HLzqlccGr065YVpe/trkdSTkvZsDAYf7Z3J0qW908OX5o1Y6VWnH8zfdJK4x
-         aAmBowL8crnobUMU2ZNBTgHnE3A8E9zwxEggvCFTaKxkHWA5osF212uIsG00Dx7x8mZN
-         fBDKIs5cfE1bX5lXFvtwkbdrLYzblhzULi7o53z+E2UPjgDMOvMHuE0cxSJphdOq8QWX
-         92rw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=z4UimuK/pyVvmTdmfBxa/jB/VI5Vw+e9g0T+UokGhv8=;
-        b=EdL4vGbAsLliuEb4JiJiLoEVonCJWlTd59d56rS1wD85w90HFSDfAI63uOjC45Qlax
-         7KcM3GtiPHDdlBXDC89SUtYFsuHQshPu38UqqWgyuGSWSI1t83O9ycFW2hXTyXuZ8QHP
-         eIg/t97XQswepLXj9pbAWJm6cBR6Lz/7szz76m3nho8+PsqjKryp4noLGQUQg9LcZ2ja
-         oCMTg+JTuzpnaknon9ZnqC5nPMQ4Jpx0Z2p3ZS9EeObjFcsnKxSrJpbSn09RFVnavktK
-         XQVC7Uyt7V7ni/qTLvTThR9m0f9/V9dbG9WYvAFPtgYm3+AVvw7inxs1FvhpZ3/H9s2D
-         eYUA==
-X-Gm-Message-State: AOAM531L0hSNhRaPxqNGU6e6MP3AkspjqdIcbMITnZc4qaVkvf36iVyN
-        sdfEkKljOMXcfUH3ulHxb6w=
-X-Google-Smtp-Source: ABdhPJyQlSxg4FR3wKfCRsq/NM7quPAOJ3EePdConpTJUoOxbniabmUXGu3NKJm1Np5goTitQ9FLvg==
-X-Received: by 2002:a17:90a:aa88:: with SMTP id l8mr692911pjq.43.1591125549339;
-        Tue, 02 Jun 2020 12:19:09 -0700 (PDT)
-Received: from localhost.localdomain ([192.55.55.45])
-        by smtp.gmail.com with ESMTPSA id u14sm3239971pfk.211.2020.06.02.12.19.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2020 12:19:08 -0700 (PDT)
-From:   bill.c.roberts@gmail.com
-X-Google-Original-From: william.c.roberts@intel.com
-To:     bill.c.roberts@gmail.com
-Cc:     paul@paul-moore.com, selinux@vger.kernel.org,
-        William Roberts <william.c.roberts@intel.com>
-Subject: [PATCH v3] ci: run SELinux kernel test suite
-Date:   Tue,  2 Jun 2020 14:18:56 -0500
-Message-Id: <20200602191856.5040-2-william.c.roberts@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200602191856.5040-1-william.c.roberts@intel.com>
-References: <20200520163421.27965-1-william.c.roberts@intel.com>
- <20200602191856.5040-1-william.c.roberts@intel.com>
+ d=concurrentrt.onmicrosoft.com; s=selector2-concurrentrt-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Dgtk2743la04k/nPjF88gltz8Qvjd6l1ZwbfzQsGX+g=;
+ b=5+15cDH5bJ5Hm5dtg/r4ykFrTXSwG7r6J8ImhbV+GPk5kXHmgyi7q4a7n2oO6SwRnAHDnHixvNZWdp4rhiEbtk7D4E1U8o7qXCNoXXX79O7606sP2rPOl9KFDjYemVCN4Rsjuy9n2B4pgjelLiP6IOt++jbDLUGy69UBd4beqec=
+Authentication-Results: paul-moore.com; dkim=none (message not signed)
+ header.d=none;paul-moore.com; dmarc=none action=none
+ header.from=concurrent-rt.com;
+Received: from MN2PR11MB3885.namprd11.prod.outlook.com (2603:10b6:208:151::27)
+ by MN2PR11MB4272.namprd11.prod.outlook.com (2603:10b6:208:196::31) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.19; Tue, 2 Jun
+ 2020 20:42:18 +0000
+Received: from MN2PR11MB3885.namprd11.prod.outlook.com
+ ([fe80::62:c976:4484:7958]) by MN2PR11MB3885.namprd11.prod.outlook.com
+ ([fe80::62:c976:4484:7958%6]) with mapi id 15.20.3045.022; Tue, 2 Jun 2020
+ 20:42:18 +0000
+Date:   Tue, 2 Jun 2020 16:42:15 -0400
+From:   Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org, colin.king@canonical.com,
+        Eric Paris <eparis@parisplace.org>, gregkh@linuxfoundation.org,
+        jeffv@google.com, omosnace@redhat.com,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        tglx@linutronix.de
+Subject: Re: [PATCH 1/2] SELinux: Add median to debug output of hash table
+ stats
+Message-ID: <20200602204214.GA29793@concurrent-rt.com>
+References: <20200429202941.18320-1-siarhei.liakh@concurrent-rt.com>
+ <20200429202941.18320-2-siarhei.liakh@concurrent-rt.com>
+ <CAHC9VhRuYa2nA18tnQCwfAUW+whce1a84W802GKk135ztoN8Cw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAHC9VhRuYa2nA18tnQCwfAUW+whce1a84W802GKk135ztoN8Cw@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-ClientProxiedBy: BN8PR15CA0029.namprd15.prod.outlook.com
+ (2603:10b6:408:c0::42) To MN2PR11MB3885.namprd11.prod.outlook.com
+ (2603:10b6:208:151::27)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from concurrent-rt.com (65.190.80.89) by BN8PR15CA0029.namprd15.prod.outlook.com (2603:10b6:408:c0::42) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.19 via Frontend Transport; Tue, 2 Jun 2020 20:42:17 +0000
+X-Originating-IP: [65.190.80.89]
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: fed17b5e-b146-48ea-aec9-08d8073570a6
+X-MS-TrafficTypeDiagnostic: MN2PR11MB4272:
+X-Microsoft-Antispam-PRVS: <MN2PR11MB427270473E9F4D3EC63E43D9B18B0@MN2PR11MB4272.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
+X-Forefront-PRVS: 0422860ED4
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: yojFQgTXRrzy+e3XlmEa+UYhDw8p040kzVRhi7n3wOBbXzawXrZPL2yt5w/5CPZ+/IvoXWeeIA/7EkBwifapLv8Hvt3ZlW3N9NEjM9dWK1kmCwQnXLjlepCn4HhHhdgkfyZbDvaRY3nuq4CsHejlUgW5NDBYiMbH3nmJufVfM03gOlXWmlRpT7Ia2SemmpiLCHmM6SP1LnG/2SR9T6vGwoRfgiCo7zY2OHsHk1nRVQx7bC3INIAO+x5DPactLo4jatqYbWx+p7zzLbuXLdRjWbk4TFQ5zqGpLBq7cUduJk8aXnkOM3rubX0br18W9zEjq7R9fVthfV3Q8M8KXurHSA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR11MB3885.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(39840400004)(366004)(376002)(396003)(346002)(136003)(86362001)(2906002)(44832011)(36756003)(2616005)(83380400001)(5660300002)(956004)(8886007)(33656002)(8676002)(66476007)(53546011)(4326008)(54906003)(316002)(66946007)(66556008)(6916009)(7696005)(8936002)(55016002)(508600001)(186003)(52116002)(16526019)(1076003)(26005);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData: De0UKCELlrIWWLYuTMvxANFzqIToN0ib3tlZTHA/KGh9biQ2HfTQ/qXOgPrv7T8BY2w1TG+w/CDSMtBqUir9pw6OB+uGpidYdRVW3k0N0BzdlH6f5WRon6R3z3gvnPuMWU9HWBP9uWw/DtTglS+nUjwGTjmDfQ44asxT88jPK+aho7HwVd64HEYyv331UTeJoZQp1Bdc9A6WUxKbg124iSEJTshyZyZL6k+k2pN5Sk/X2psHzF6bYJLUUGZyKh4A8w6tsmFhCFYURv6/O29szjg+7io2V4w2FNjZyE+JwaCazN0VWdq1zL7jtDVyiflsIX2A+cvhiFG56zcQRSSNI+1Jwge0ChS+OBq8mySp6V8KDYx1Zuq5BH+agKcbbweFqJbpRxBw4ov0bn0nM43VpmLiI3OYakfx7DtcJDT0La0+4RDgMqUysR6ULHDGq17zR6KaTeD/5EFybNi6JItcdI8tb6u5QXGI7zvW0be5XSI=
+X-OriginatorOrg: concurrent-rt.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: fed17b5e-b146-48ea-aec9-08d8073570a6
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Jun 2020 20:42:17.9846
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 38747689-e6b0-4933-86c0-1116ee3ef93e
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: sJ6nZy8FJyo4ih/eYTPoN6zpVZq4T11qQGTBoMbX0S1vo+FWDVq5ZnPiib01oxGp2qGwBqSVeSkPVRVu+rg3oowQdbzx9zq+g+ztl28C4/8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR11MB4272
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: William Roberts <william.c.roberts@intel.com>
+The 05/13/2020 17:55, Paul Moore wrote:
+> On Wed, Apr 29, 2020 at 4:29 PM <siarhei.liakh@concurrent-rt.com> wrote:
+> >
+> > From: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+> >
+> > This change introduces a median() function which is then used to report
+> > 25th, 50th, and 75th percentile metrics within distributions of hash table
+> > bucket chain lengths. This allows to better assess and compare relative
+> > effectiveness of different hash functions. Specifically, it allows to
+> > ensure new functions not only reduce the maximum, but also improve (or, at
+> > least, have no negative impact) on the median.
+[ . . . ]
+> > diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+> > index 9e921fc72538..57c427e019c9 100644
+> > --- a/security/selinux/Kconfig
+> > +++ b/security/selinux/Kconfig
+> > @@ -115,3 +115,13 @@ config SECURITY_SELINUX_SID2STR_CACHE_SIZE
+> >           conversion.  Setting this option to 0 disables the cache completely.
+> >
+> >           If unsure, keep the default value.
+> > +
+> > +config SECURITY_SELINUX_DEBUG_HASHES
+> > +       bool "Print additional information about hash tables"
+> > +       depends on SECURITY_SELINUX
+> > +       default n
+> > +       help
+> > +         This option allows to gather and display additional information about
+> > +         some of the key hash tables within SELinux.
+> > +
+> > +         If unsure, keep the default value.
+> 
+> I forgot to mention this earlier, but I think this is another case
+> where we don't need to add another Kconfig option.
 
-The current Travis CI runs the userspace tooling and libraries against
-policy files, but cannot test against an SELinux enabled kernel. Thus,
-some tests are not being done in the CI. Travis, unfortunately only
-provides Ubuntu images, so in order to run against a modern distro with
-SELinux in enforcing mode, we need to launch a KVM with something like
-Fedora.
+Right. What is your preferred way to control conditional inclusion of
+code spread out across several files?
 
-This patch enables this support by launching a Fedora32 Cloud Image with
-the SELinux userspace library passed on from the Travis clone, it then
-builds and replaces the current SELinux bits on the Fedora32 image and
-runs the SELinux testsuite.
+My issue is that there already are two different symbols which require
+coordination to activate this functionality: DEBUG_HASHES defined and used
+locally within policydb.c and simple DEBUG which is needed for pr_debug()
+statements throughout the code.
 
-The cloud image run can be controlled with the TRAVIS env variable:
-TRAVIS_CLOUD_IMAGE_VERSION. That variable takes the major and minor
-version numbers in a colon delimited string, eg: "32:1.6".
+Personally, I prefer something global and controlled from a single well-known
+place, hence the Kconfig. However, I also see your point about reducing
+Kconfig... But if not Kconfig, then what? Should I just create an additional
+.h file with all SELinux-specific debug symbols and have it included
+everywhere in SELinux?
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- .travis.yml                      |   8 ++
- scripts/ci/README.md             |   8 ++
- scripts/ci/fedora-test-runner.sh |  87 +++++++++++++++++++++
- scripts/ci/travis-kvm-setup.sh   | 125 +++++++++++++++++++++++++++++++
- 4 files changed, 228 insertions(+)
- create mode 100644 scripts/ci/README.md
- create mode 100755 scripts/ci/fedora-test-runner.sh
- create mode 100755 scripts/ci/travis-kvm-setup.sh
+How would you approach this?
 
-diff --git a/.travis.yml b/.travis.yml
-index c36e721a5e1d..bd3c98420c24 100644
---- a/.travis.yml
-+++ b/.travis.yml
-@@ -34,6 +34,14 @@ matrix:
-       env: PYVER=python3.8 RUBYLIBVER=2.7 LINKER=gold
-     - compiler: clang
-       env: PYVER=python3.8 RUBYLIBVER=2.7 LINKER=bfd
-+  include:
-+    - compiler: gcc
-+      env: TRAVIS_RUN_KVM=true TRAVIS_CLOUD_IMAGE_VERSION="32:1.6"
-+      install:
-+        - skip
-+      before_script:
-+        - skip
-+      script: scripts/ci/travis-kvm-setup.sh
- 
- # Use Travis-CI Ubuntu 18.04 Bionic Beaver, "full image" variant
- sudo: required
-diff --git a/scripts/ci/README.md b/scripts/ci/README.md
-new file mode 100644
-index 000000000000..04a134a438c2
---- /dev/null
-+++ b/scripts/ci/README.md
-@@ -0,0 +1,8 @@
-+# Continuous Integration Scripts
-+
-+The scripts under `scripts/ci` are designed specifically
-+for the Travis CI system. While nothing prevents you
-+from mimicking that environment and using them locally,
-+they are not applicable for general consumption. Any
-+thing in this directory should never be considered as
-+a stable API.
-diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-runner.sh
-new file mode 100755
-index 000000000000..0927ed5dad8f
---- /dev/null
-+++ b/scripts/ci/fedora-test-runner.sh
-@@ -0,0 +1,87 @@
-+#!/usr/bin/env bash
-+
-+set -ev
-+
-+# CI Debug output if things go squirrely.
-+getenforce
-+id -Z
-+nproc
-+pwd
-+
-+# Turn off enforcing for the setup to prevent any weirdness from breaking
-+# the CI.
-+setenforce 0
-+
-+dnf clean all -y
-+dnf install -y \
-+    --allowerasing \
-+    --skip-broken \
-+    git \
-+    audit-libs-devel \
-+    bison \
-+    bzip2-devel \
-+    CUnit-devel \
-+    diffutils \
-+    flex \
-+    gcc \
-+    gettext \
-+    glib2-devel \
-+    make \
-+    libcap-devel \
-+    libcap-ng-devel \
-+    pam-devel \
-+    pcre-devel \
-+    xmlto \
-+    python3-devel \
-+    ruby-devel \
-+    swig \
-+    perl-Test \
-+    perl-Test-Harness \
-+    perl-Test-Simple \
-+    selinux-policy-devel \
-+    gcc \
-+    libselinux-devel \
-+    net-tools \
-+    netlabel_tools \
-+    iptables \
-+    lksctp-tools-devel \
-+    attr \
-+    libbpf-devel \
-+    keyutils-libs-devel \
-+    kernel-devel \
-+    quota \
-+    xfsprogs-devel \
-+    libuuid-devel \
-+    kernel-devel-"$(uname -r)" \
-+    kernel-modules-"$(uname -r)"
-+
-+#
-+# Move to selinux code and build
-+#
-+cd "$HOME/selinux"
-+
-+# Show HEAD commit for sanity checking
-+git log -1
-+
-+#
-+# Build and replace userspace components
-+#
-+make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install
-+make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64 install-pywrap
-+make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64 relabel
-+
-+#
-+# Get the selinux testsuite, but don't clone it in $HOME/selinux, move to $HOME
-+# first.
-+#
-+cd "$HOME"
-+git clone --depth=1 https://github.com/SELinuxProject/selinux-testsuite.git
-+cd selinux-testsuite
-+
-+# The testsuite must be run in enforcing mode
-+setenforce 1
-+
-+#
-+# Run the test suite
-+#
-+make test
-diff --git a/scripts/ci/travis-kvm-setup.sh b/scripts/ci/travis-kvm-setup.sh
-new file mode 100755
-index 000000000000..864dbac96a46
---- /dev/null
-+++ b/scripts/ci/travis-kvm-setup.sh
-@@ -0,0 +1,125 @@
-+#!/usr/bin/env bash
-+
-+set -ev
-+
-+TEST_RUNNER="scripts/ci/fedora-test-runner.sh"
-+
-+#
-+# Variables for controlling the Fedora Image version and download URLs.
-+#
-+MAJOR_VERSION="32"
-+MINOR_VERSION="1.6"
-+
-+BASE_URL="https://download.fedoraproject.org/pub/fedora/linux/releases"
-+IMAGE_BASE_NAME="Fedora-Cloud-Base-$MAJOR_VERSION-$MINOR_VERSION.x86_64"
-+IMAGE_URL="$BASE_URL/$MAJOR_VERSION/Cloud/x86_64/images/$IMAGE_BASE_NAME.raw.xz"
-+CHECK_URL="$BASE_URL/$MAJOR_VERSION/Cloud/x86_64/images/Fedora-Cloud-$MAJOR_VERSION-$MINOR_VERSION-x86_64-CHECKSUM"
-+GPG_URL="https://getfedora.org/static/fedora.gpg"
-+
-+#
-+# Travis gives us 7.5GB of RAM and two cores:
-+# https://docs.travis-ci.com/user/reference/overview/
-+#
-+MEMORY=4096
-+VCPUS="$(nproc)"
-+
-+# Install these here so other builds don't have to wait on these deps to download and install
-+sudo apt-get install qemu-kvm libvirt-bin virtinst bridge-utils cpu-checker libguestfs-tools
-+
-+sudo usermod -a -G kvm,libvirt,libvirt-qemu "$USER"
-+
-+# Verify that KVM is working, useful if Travis ever changes anything.
-+kvm-ok
-+
-+sudo systemctl enable libvirtd
-+sudo systemctl start libvirtd
-+
-+# Set up a key so we can ssh into the VM
-+ssh-keygen -N "" -f "$HOME/.ssh/id_rsa"
-+
-+#
-+# Get the Fedora Cloud Image, It is a base image that small and ready to go, extract it and modify it with virt-sysprep
-+#  - https://alt.fedoraproject.org/en/verify.html
-+cd "$HOME"
-+wget "$IMAGE_URL"
-+
-+# Verify the image
-+curl "$GPG_URL" | gpg --import
-+wget "$CHECK_URL"
-+gpg --verify-files ./*-CHECKSUM
-+sha256sum --ignore-missing -c ./*-CHECKSUM
-+
-+# Extract the image
-+unxz -T0 "$IMAGE_BASE_NAME.raw.xz"
-+
-+# Search is needed for $HOME so virt service can access the image file.
-+chmod a+x "$HOME"
-+
-+#
-+# Modify the virtual image to:
-+#   - Enable a login, we just use root
-+#   - Enable passwordless login
-+#     - Force a relabel to fix labels on ssh keys
-+#
-+sudo virt-sysprep -a "$IMAGE_BASE_NAME.raw" \
-+  --root-password password:123456 \
-+  --hostname fedoravm \
-+  --append-line '/etc/ssh/sshd_config:PermitRootLogin yes' \
-+  --append-line '/etc/ssh/sshd_config:PubkeyAuthentication yes' \
-+  --mkdir /root/.ssh \
-+  --upload "$HOME/.ssh/id_rsa.pub:/root/.ssh/authorized_keys" \
-+  --chmod '0600:/root/.ssh/authorized_keys' \
-+  --run-command 'chown root:root /root/.ssh/authorized_keys' \
-+  --copy-in "$TRAVIS_BUILD_DIR:/root" \
-+  --network \
-+  --selinux-relabel
-+
-+#
-+# Now we create a domain by using virt-install. This not only creates the domain, but runs the VM as well
-+# It should be ready to go for ssh, once ssh starts.
-+#
-+sudo virt-install \
-+  --name fedoravm \
-+  --memory $MEMORY \
-+  --vcpus $VCPUS \
-+  --disk "$IMAGE_BASE_NAME.raw" \
-+  --import --noautoconsole
-+
-+#
-+# Here comes the tricky part, we have to figure out when the VM comes up AND we need the ip address for ssh. So we
-+# can check the net-dhcp leases, for our host. We have to poll, and we will poll for up to 3 minutes in 6 second
-+# intervals, so 30 poll attempts (0-29 inclusive).
-+#
-+# We have a full reboot + relabel, so first sleep gets us close
-+#
-+sleep 30
-+for i in $(seq 0 29); do
-+    echo "loop $i"
-+    sleep 6s
-+    # Get the leases, but tee it so it's easier to debug
-+    sudo virsh net-dhcp-leases default | tee dhcp-leases.txt
-+
-+    # get our ipaddress
-+    ipaddy="$(grep fedoravm dhcp-leases.txt | awk '{print $5}' | cut -d'/' -f 1-1)"
-+    if [ -n "$ipaddy" ]; then
-+        # found it, we're done looking, print it for debug logs
-+        echo "ipaddy: $ipaddy"
-+        break
-+    fi
-+    # it's empty/not found, loop back and try again.
-+done
-+
-+# Did we find it? If not die.
-+if [ -z "$ipaddy" ]; then
-+    echo "ipaddy zero length, exiting with error 1"
-+    exit 1
-+fi
-+
-+#
-+# Great we have a host running, ssh into it. We specify -o so
-+# we don't get blocked on asking to add the servers key to
-+# our known_hosts.
-+#
-+ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" "/root/selinux/$TEST_RUNNER"
-+
-+exit 0
+Thank you.
 -- 
-2.17.1
-
+Siarhei Liakh
+Concurrent Real-Time
