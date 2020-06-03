@@ -1,155 +1,123 @@
-Return-Path: <SRS0=4SPy=7P=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=TAN+=7Q=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0135C433DF
-	for <selinux@archiver.kernel.org>; Tue,  2 Jun 2020 20:42:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E49DC433E1
+	for <selinux@archiver.kernel.org>; Wed,  3 Jun 2020 00:31:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 79C6A207D5
-	for <selinux@archiver.kernel.org>; Tue,  2 Jun 2020 20:42:24 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=concurrentrt.onmicrosoft.com header.i=@concurrentrt.onmicrosoft.com header.b="5+15cDH5"
+	by mail.kernel.org (Postfix) with ESMTP id 80DFE207D0
+	for <selinux@archiver.kernel.org>; Wed,  3 Jun 2020 00:31:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1591144313;
+	bh=ZFZ50+cfovPyZG+Z87lR5GTVuve0aKAAjV3/T3oj86k=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:List-ID:From;
+	b=LOWALHY0uuXGz/t7jwEFgxMfqh0CQyNFzH6tlz1TWmKC/PkIWVNaMBWmRgwlCVRkl
+	 6lpNH59FPTnNUod7CxFrLhwQuTL+kIxY2uqwcChOrbc/KojhtnROXPCzxP0K9Cr5xJ
+	 GPnEbqjsdWBaBkzh5r7q+wrKpvUprlW5b3W/TlQk=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728071AbgFBUmY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 2 Jun 2020 16:42:24 -0400
-Received: from mail-bn8nam11on2124.outbound.protection.outlook.com ([40.107.236.124]:60384
-        "EHLO NAM11-BN8-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727860AbgFBUmX (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 2 Jun 2020 16:42:23 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IrWRDhrDZkp0siepdcuUIsEOs4+OLfyoz1WbgQZifs0p6ZyCzl08RLpL5SfhbGJY+m3BfKmAyTAIKwCZKd+vXZ0iO3JuEOxgjaKiRY+iqWAN0Wxw6XasTph09ZS5BgxMZriJnhICbUaMSOo7HB+kKpg36nQSjq7FudFKatSIvrCKXzv6IBAcBiY+2ustWFNKFBIILzWkH+BBfLbUHKH83xbl4XM5q6+lTIyuOwUVoNkJIGXSmUBdN9x8jp+7IiGEIOX/fGaBEa//9Xk02mqVpn8LmVT0AqVtvmqm43iVMZEuqEjYssPddtqX7OrZnAwnsyq0vM397BKiE5OrusKheg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Dgtk2743la04k/nPjF88gltz8Qvjd6l1ZwbfzQsGX+g=;
- b=X6yIdGsShOmEQg8YtVGeB3CLpMV8mJmfB+ceVrUyq2acfaXbJWruOY6WlZ0XBQS6Tt4vgLOwnFJmS3WKMhAbLIaiEuWDpoox4Ck446BmUMgIWuwxBO27MDXjzwNVnXgBPoUI9q+A+0KwkSo1zbWY1QSyqZg0E3Z0xgsKiVd3IUr8HHKWA7JIr/lfnmD13jQ2vZ5Rjmgqvhg42zPQ01acOXFqntDFCWhZfErf8esQrZ0CbQJZVuHSvSi+fM/EyXX3aN/bDnJ1WlI5sS0ZB43jfrd+Udxk43UB0jLudVdUJTSeDq+cgTv14G0l4bAvz0rPwf99TBN0Nku0w8r81xgiZg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=concurrent-rt.com; dmarc=pass action=none
- header.from=concurrent-rt.com; dkim=pass header.d=concurrent-rt.com; arc=none
+        id S1726630AbgFCAbw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 2 Jun 2020 20:31:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39552 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726112AbgFCAbw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 2 Jun 2020 20:31:52 -0400
+Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45F61C08C5C2
+        for <selinux@vger.kernel.org>; Tue,  2 Jun 2020 17:31:52 -0700 (PDT)
+Received: by mail-lj1-x241.google.com with SMTP id b6so534211ljj.1
+        for <selinux@vger.kernel.org>; Tue, 02 Jun 2020 17:31:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=concurrentrt.onmicrosoft.com; s=selector2-concurrentrt-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Dgtk2743la04k/nPjF88gltz8Qvjd6l1ZwbfzQsGX+g=;
- b=5+15cDH5bJ5Hm5dtg/r4ykFrTXSwG7r6J8ImhbV+GPk5kXHmgyi7q4a7n2oO6SwRnAHDnHixvNZWdp4rhiEbtk7D4E1U8o7qXCNoXXX79O7606sP2rPOl9KFDjYemVCN4Rsjuy9n2B4pgjelLiP6IOt++jbDLUGy69UBd4beqec=
-Authentication-Results: paul-moore.com; dkim=none (message not signed)
- header.d=none;paul-moore.com; dmarc=none action=none
- header.from=concurrent-rt.com;
-Received: from MN2PR11MB3885.namprd11.prod.outlook.com (2603:10b6:208:151::27)
- by MN2PR11MB4272.namprd11.prod.outlook.com (2603:10b6:208:196::31) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.19; Tue, 2 Jun
- 2020 20:42:18 +0000
-Received: from MN2PR11MB3885.namprd11.prod.outlook.com
- ([fe80::62:c976:4484:7958]) by MN2PR11MB3885.namprd11.prod.outlook.com
- ([fe80::62:c976:4484:7958%6]) with mapi id 15.20.3045.022; Tue, 2 Jun 2020
- 20:42:18 +0000
-Date:   Tue, 2 Jun 2020 16:42:15 -0400
-From:   Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org, colin.king@canonical.com,
-        Eric Paris <eparis@parisplace.org>, gregkh@linuxfoundation.org,
-        jeffv@google.com, omosnace@redhat.com,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        tglx@linutronix.de
-Subject: Re: [PATCH 1/2] SELinux: Add median to debug output of hash table
- stats
-Message-ID: <20200602204214.GA29793@concurrent-rt.com>
-References: <20200429202941.18320-1-siarhei.liakh@concurrent-rt.com>
- <20200429202941.18320-2-siarhei.liakh@concurrent-rt.com>
- <CAHC9VhRuYa2nA18tnQCwfAUW+whce1a84W802GKk135ztoN8Cw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAHC9VhRuYa2nA18tnQCwfAUW+whce1a84W802GKk135ztoN8Cw@mail.gmail.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-ClientProxiedBy: BN8PR15CA0029.namprd15.prod.outlook.com
- (2603:10b6:408:c0::42) To MN2PR11MB3885.namprd11.prod.outlook.com
- (2603:10b6:208:151::27)
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Y05Eb9eafJ0NXvQYL09qhaAipJ12OeTgF1kVh6EgfnQ=;
+        b=BIdCjuRkcZ6AtUKiMEcL/bPMx/D1bItwVGJFF1ZfEiSaScUoFvZ1ZZsl3PQqkbQ7I+
+         1pgdNd5VxSPlPrPUxZOkdE8JL51bKGr0g+MkbxHFdq1zz9DHgwUHcu6VSzZYXPad+csj
+         3uML97UaIPUm1p1BiOICKjeYpqfWTK6nFQlZM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Y05Eb9eafJ0NXvQYL09qhaAipJ12OeTgF1kVh6EgfnQ=;
+        b=JB6jlI+f9dZwTAUIxQ1B+uQKpzM4+VYS64/RBJv40r5Idu+SUKcM4CI2hkrkOA9DyE
+         aM1yvzJNL6MoOMJlusIyFA7vlBNP3K78qEUggUL7wFZ+UhGUfe++16sr4qErkQbECSjN
+         wN0ABFy2v32yUbsSYqbmaz1+tVlbLyRMu3hETbC219R5HzKFsu8QG0BOs90NlqwGbVSU
+         m/EUf+VSxc4wcWL1CIS3l4MTczpu24PSF9WdILkvitpHFTVW3VylEFHOF1qfV6l4TTQt
+         itNq8odOqPm0OJ+MtYsN8FJ0k81psokUab68kS+AN5au+DvpgK0pD51KQPqxO1vnIAjx
+         fB3w==
+X-Gm-Message-State: AOAM533LIafkO81krXYeMUm8pXTAA12Cy7ptromxX6MfbBYffxMWtzjD
+        6TU1LufslP6I0yzzIcUnmQMMHKrrCg8=
+X-Google-Smtp-Source: ABdhPJyyl3PmIMfBAw0rLsXf08M66eNoqe8byDIKjRmd5SLvGOGHApyHFKYf3IO0IiLQ5cTDd6Dj5g==
+X-Received: by 2002:a05:651c:384:: with SMTP id e4mr741455ljp.410.1591144310080;
+        Tue, 02 Jun 2020 17:31:50 -0700 (PDT)
+Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com. [209.85.208.172])
+        by smtp.gmail.com with ESMTPSA id m13sm95863ljj.20.2020.06.02.17.31.48
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 02 Jun 2020 17:31:49 -0700 (PDT)
+Received: by mail-lj1-f172.google.com with SMTP id n24so477979lji.10
+        for <selinux@vger.kernel.org>; Tue, 02 Jun 2020 17:31:48 -0700 (PDT)
+X-Received: by 2002:a05:651c:2c6:: with SMTP id f6mr702860ljo.371.1591144308329;
+ Tue, 02 Jun 2020 17:31:48 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from concurrent-rt.com (65.190.80.89) by BN8PR15CA0029.namprd15.prod.outlook.com (2603:10b6:408:c0::42) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3045.19 via Frontend Transport; Tue, 2 Jun 2020 20:42:17 +0000
-X-Originating-IP: [65.190.80.89]
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: fed17b5e-b146-48ea-aec9-08d8073570a6
-X-MS-TrafficTypeDiagnostic: MN2PR11MB4272:
-X-Microsoft-Antispam-PRVS: <MN2PR11MB427270473E9F4D3EC63E43D9B18B0@MN2PR11MB4272.namprd11.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-Forefront-PRVS: 0422860ED4
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: yojFQgTXRrzy+e3XlmEa+UYhDw8p040kzVRhi7n3wOBbXzawXrZPL2yt5w/5CPZ+/IvoXWeeIA/7EkBwifapLv8Hvt3ZlW3N9NEjM9dWK1kmCwQnXLjlepCn4HhHhdgkfyZbDvaRY3nuq4CsHejlUgW5NDBYiMbH3nmJufVfM03gOlXWmlRpT7Ia2SemmpiLCHmM6SP1LnG/2SR9T6vGwoRfgiCo7zY2OHsHk1nRVQx7bC3INIAO+x5DPactLo4jatqYbWx+p7zzLbuXLdRjWbk4TFQ5zqGpLBq7cUduJk8aXnkOM3rubX0br18W9zEjq7R9fVthfV3Q8M8KXurHSA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR11MB3885.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFTY:;SFS:(39840400004)(366004)(376002)(396003)(346002)(136003)(86362001)(2906002)(44832011)(36756003)(2616005)(83380400001)(5660300002)(956004)(8886007)(33656002)(8676002)(66476007)(53546011)(4326008)(54906003)(316002)(66946007)(66556008)(6916009)(7696005)(8936002)(55016002)(508600001)(186003)(52116002)(16526019)(1076003)(26005);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData: De0UKCELlrIWWLYuTMvxANFzqIToN0ib3tlZTHA/KGh9biQ2HfTQ/qXOgPrv7T8BY2w1TG+w/CDSMtBqUir9pw6OB+uGpidYdRVW3k0N0BzdlH6f5WRon6R3z3gvnPuMWU9HWBP9uWw/DtTglS+nUjwGTjmDfQ44asxT88jPK+aho7HwVd64HEYyv331UTeJoZQp1Bdc9A6WUxKbg124iSEJTshyZyZL6k+k2pN5Sk/X2psHzF6bYJLUUGZyKh4A8w6tsmFhCFYURv6/O29szjg+7io2V4w2FNjZyE+JwaCazN0VWdq1zL7jtDVyiflsIX2A+cvhiFG56zcQRSSNI+1Jwge0ChS+OBq8mySp6V8KDYx1Zuq5BH+agKcbbweFqJbpRxBw4ov0bn0nM43VpmLiI3OYakfx7DtcJDT0La0+4RDgMqUysR6ULHDGq17zR6KaTeD/5EFybNi6JItcdI8tb6u5QXGI7zvW0be5XSI=
-X-OriginatorOrg: concurrent-rt.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: fed17b5e-b146-48ea-aec9-08d8073570a6
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Jun 2020 20:42:17.9846
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 38747689-e6b0-4933-86c0-1116ee3ef93e
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sJ6nZy8FJyo4ih/eYTPoN6zpVZq4T11qQGTBoMbX0S1vo+FWDVq5ZnPiib01oxGp2qGwBqSVeSkPVRVu+rg3oowQdbzx9zq+g+ztl28C4/8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR11MB4272
+References: <CAHC9VhTX8gkUui6AiTJMJgcohXa=TOqdO==rEDk=Mquz9sCNKA@mail.gmail.com>
+In-Reply-To: <CAHC9VhTX8gkUui6AiTJMJgcohXa=TOqdO==rEDk=Mquz9sCNKA@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 2 Jun 2020 17:31:32 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wiAVfqtJbZ=Ti1oxSvunUvsQ_CsOL5oFJL3mwhqKTeoNw@mail.gmail.com>
+Message-ID: <CAHk-=wiAVfqtJbZ=Ti1oxSvunUvsQ_CsOL5oFJL3mwhqKTeoNw@mail.gmail.com>
+Subject: Re: [GIT PULL] SELinux patches for v5.8
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The 05/13/2020 17:55, Paul Moore wrote:
-> On Wed, Apr 29, 2020 at 4:29 PM <siarhei.liakh@concurrent-rt.com> wrote:
-> >
-> > From: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
-> >
-> > This change introduces a median() function which is then used to report
-> > 25th, 50th, and 75th percentile metrics within distributions of hash table
-> > bucket chain lengths. This allows to better assess and compare relative
-> > effectiveness of different hash functions. Specifically, it allows to
-> > ensure new functions not only reduce the maximum, but also improve (or, at
-> > least, have no negative impact) on the median.
-[ . . . ]
-> > diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-> > index 9e921fc72538..57c427e019c9 100644
-> > --- a/security/selinux/Kconfig
-> > +++ b/security/selinux/Kconfig
-> > @@ -115,3 +115,13 @@ config SECURITY_SELINUX_SID2STR_CACHE_SIZE
-> >           conversion.  Setting this option to 0 disables the cache completely.
-> >
-> >           If unsure, keep the default value.
-> > +
-> > +config SECURITY_SELINUX_DEBUG_HASHES
-> > +       bool "Print additional information about hash tables"
-> > +       depends on SECURITY_SELINUX
-> > +       default n
-> > +       help
-> > +         This option allows to gather and display additional information about
-> > +         some of the key hash tables within SELinux.
-> > +
-> > +         If unsure, keep the default value.
-> 
-> I forgot to mention this earlier, but I think this is another case
-> where we don't need to add another Kconfig option.
+On Mon, Jun 1, 2020 at 6:07 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> - A number of improvements to various SELinux internal data structures
+> to help improve performance.  We move the role transitions into a hash
+> table.  In the content structure we shift from hashing the content
+> string (aka SELinux label) to the structure itself, when it is valid.
+> This last change not only offers a speedup, but it helps us simplify
+> the code some as well.
 
-Right. What is your preferred way to control conditional inclusion of
-code spread out across several files?
+Side note since you mention performance work: in the past when I've
+looked at SELinux performance (generally as part of pathname lookup
+etc VFS loads), the biggest cost by far was that all the SELinux data
+structures take a ton of cache misses.
 
-My issue is that there already are two different symbols which require
-coordination to activate this functionality: DEBUG_HASHES defined and used
-locally within policydb.c and simple DEBUG which is needed for pr_debug()
-statements throughout the code.
+Yes, some of the hashing shows up in the profiles, but _most_ of it
+was loading the data from inode->i_security etc.
 
-Personally, I prefer something global and controlled from a single well-known
-place, hence the Kconfig. However, I also see your point about reducing
-Kconfig... But if not Kconfig, then what? Should I just create an additional
-.h file with all SELinux-specific debug symbols and have it included
-everywhere in SELinux?
+And the reason seemed to be that every single inode ends up having a
+separately allocated "struct inode_security_struct" (aka "isec"). Even
+if the contents are often all exactly the same for a large set of
+inodes that thus _could_ conceptually share the data.
 
-How would you approach this?
+Now, it used to be - before being able to stack security layers -
+SElinux would control that pointer, and it could have done some kind
+of sharing scheme with copy-on-write behavior (the way we do 'struct
+cred' for processes), and it would have caused a much smaller cache
+footprint (and thus likely much fewer cache misses).
 
-Thank you.
--- 
-Siarhei Liakh
-Concurrent Real-Time
+These days, that sharing of the i_security pointer across different
+security layers makes that sound really really painful.
+
+But I do wonder if anybody in selinux land (or general security
+subsystem land) has been thinking of maybe at least having a "this
+inode has no special labeling" marker that could possibly avoid having
+all those extra allocations.
+
+Because it really does end up being visible in profiles how costly it
+is to look up any data behind inode->i_security.
+
+               Linus
