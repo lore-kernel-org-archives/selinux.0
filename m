@@ -2,100 +2,113 @@ Return-Path: <SRS0=LEY+=7R=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 203F4C433DF
-	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 12:45:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45B93C433E0
+	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 14:49:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 00BE3207D8
-	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 12:45:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F09E2072E
+	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 14:49:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aPUH5x7v"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cJMIT8g9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726441AbgFDMpr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Jun 2020 08:45:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37264 "EHLO
+        id S1729038AbgFDOtO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Jun 2020 10:49:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725926AbgFDMpr (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Jun 2020 08:45:47 -0400
-Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43946C08C5C0;
-        Thu,  4 Jun 2020 05:45:46 -0700 (PDT)
-Received: by mail-oi1-x242.google.com with SMTP id b8so4959298oic.1;
-        Thu, 04 Jun 2020 05:45:46 -0700 (PDT)
+        with ESMTP id S1729035AbgFDOtO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Jun 2020 10:49:14 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75A6DC08C5C0
+        for <selinux@vger.kernel.org>; Thu,  4 Jun 2020 07:49:14 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id j189so5277054oih.10
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2020 07:49:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=0FyB/2FD/Wz2mQVyCXr4z+abWPutppIDhAG7xkBlOto=;
-        b=aPUH5x7vYLnuwZPM+GLvDsTg0raj6TtTBQwqXmnV6iE2TVlqx0i7PfPuwCnwNbxgbE
-         p3N/ZYPseFZsnYRXSDb+s7RBbYobAZt/8TgjVzNkCIWpRa3rhOmJq0VVMW1zfNWy/HZF
-         Puk2Ded4vmnJrYNtUtk8eRuFw5hyxLzOEpCDhVcXAtNpRSyiyNgF7VjJMXTxxJGyFHgY
-         bmBmZRcmGs/pV1+7riS4hQ3a/gxwLnJksnB5HWRVesLWCEP/gIW/5qYhLIByFmMDFR8R
-         pm43x1jD/BxHoIBF7kaWVtwzutOWi7f8ZDghPBJWDqH3qu7/htVNBzsZyM0CCR45aK5u
-         k7jA==
+        bh=muW3u6ZOjA4URacvYBfYgNkzOuMSh2VVjUQrov2nADg=;
+        b=cJMIT8g9Q7JRhoFZ6Bxj6bOpmVuqcFvVMk6ivhPLFxKf8aAG+05suNS5IyJJJm/AVP
+         CsM52snOJi18GSngulk3ejleAVBMoWNKNMzobLQsMtQx5jxewbs+DtoxJW9rZyHI522W
+         UnHq7WbSNlla0FhdhAZeyHpLGhIDGYvHKvRhAnl3p/sA/J69167emJxoQB43Q1lvh0tx
+         bWhv6YN8b+4p3NqKZjSB+i+1ck9Er21rRqzK/ZTySNkW20NcUgK4UhFJbQjS9v0PCgvS
+         6Vp5No7W4c7X+yuOKH8D63uSKeVV+/BFxHnRLWzDAKVxqTalAO5WC21H9J6Cxxa5OjW8
+         HkmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=0FyB/2FD/Wz2mQVyCXr4z+abWPutppIDhAG7xkBlOto=;
-        b=FlF76FH7Gk8fezj5SgpszJNoY3TyL5Iy0pIIQOL/j4GEFhlKXZHXFlN1kAzgBIhD2I
-         d6oKaJ2/OfUiBsZfW7nRVOAHSmT6WtPjxvEnLEup6RBEdhDHz7z2Bclx4xgHXogTiOSW
-         narv3yyvV5EFdBea0uMn8Pyz+LnO8wikJVLgF9arEYOgRozDo1rmlqYOXUrTzJ6jJt2w
-         8ODidT+rdVFLsp4ReexAHFh6exNwoHwj+GN/Lybr7BjA61Fn0rNyRtFFqNbg2n25r/Yn
-         Frd4QOSfDTyUlwEzoJNRB4VvKiwbyO4lUFUGK5BzwGHqQ4ue9mq4cQxrwoLuXOTnGAky
-         MhkQ==
-X-Gm-Message-State: AOAM533g3IUQUKsP+Ko0jUcREEvd+TSDz2OA6VrpupOfBujY/eMbnPeO
-        XbV+fQwPeBJ8HX9vJFs9GIfNFAImM72czH6r3gVbbVOW
-X-Google-Smtp-Source: ABdhPJwfSS/2FE0F6fA/+WceOtzebYj4zrpQypLEK8cWqk6QR1F5yYab4Yu5K3BvyQiHWxguSs6LIUlLlrihhv3bPAE=
-X-Received: by 2002:aca:3d09:: with SMTP id k9mr2786702oia.160.1591274745732;
- Thu, 04 Jun 2020 05:45:45 -0700 (PDT)
+        bh=muW3u6ZOjA4URacvYBfYgNkzOuMSh2VVjUQrov2nADg=;
+        b=bBmZfFEPSMtaLQdNQXf4qzEfB2wWtw2WEaq1j5CiXmW8uUBOe6+R+mFQvTCDnYkEGz
+         ISYyuDc99KFPkhaFZ9mQ640oSCHVyflp7uEX9PZ3TagDKsmBl0X2kIrEVR2Rlfxic39e
+         oE7lC//AlUhQAZlLDJtZxfsR4M2Xy2Tq43K+Pat22lLe1XEmXe/Kq0VIsSSFCa6b2Xbn
+         dRrr3GQwbRrnVHszqb56VpqGyZOLWwn8cv6ocCVKsYEHGu1YFodRNbVmeVFwr7GRChEb
+         HrTwIj9MTtZp0QPKQpadWOraFr0k4JkZXVLjnvteLXrBLbWRWtR6yzVOBcCEqry4cRxj
+         EHfQ==
+X-Gm-Message-State: AOAM530c7QH20X3iaA1mrDCEccCiWMRt5MC2BWvkdhcDDFQrFV4owNQz
+        JOMvqUNVdQqPpPs0lpUhAtedVLqy/y5EUR+xExIaTYGd6VU=
+X-Google-Smtp-Source: ABdhPJzbhdp0YRy9hdmcl3UUV3YvZXDgKwjjk0B9f8C1hf2/lMcYuSSqktikyPHyrDSLTp2HQJvoKfpUIkTzjblEa4g=
+X-Received: by 2002:aca:a948:: with SMTP id s69mr3374791oie.140.1591282153845;
+ Thu, 04 Jun 2020 07:49:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAHC9VhTX8gkUui6AiTJMJgcohXa=TOqdO==rEDk=Mquz9sCNKA@mail.gmail.com>
- <CAHk-=wiAVfqtJbZ=Ti1oxSvunUvsQ_CsOL5oFJL3mwhqKTeoNw@mail.gmail.com>
- <290017a8-d943-570f-1f90-acecf1c075a1@schaufler-ca.com> <alpine.LRH.2.21.2006040809280.6050@namei.org>
- <761f5d15-3422-1834-7be5-8f3276d10172@schaufler-ca.com>
-In-Reply-To: <761f5d15-3422-1834-7be5-8f3276d10172@schaufler-ca.com>
+References: <159110207843.57260.5661475689740939480.stgit@chester> <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com>
+In-Reply-To: <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 4 Jun 2020 08:45:34 -0400
-Message-ID: <CAEjxPJ49ownvc=3OnvkaMD-oYm-aUta98kKs4LDTJTnm65RD=Q@mail.gmail.com>
-Subject: Re: [GIT PULL] SELinux patches for v5.8
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     James Morris <jmorris@namei.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date:   Thu, 4 Jun 2020 10:49:02 -0400
+Message-ID: <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
+ ssleep() discomfort
+To:     Paul Moore <paul@paul-moore.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 3, 2020 at 6:39 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+On Tue, Jun 2, 2020 at 8:52 AM Paul Moore <paul@paul-moore.com> wrote:
 >
-> On 6/3/2020 3:12 PM, James Morris wrote:
-> > On Wed, 3 Jun 2020, Casey Schaufler wrote:
+> On Tue, Jun 2, 2020 at 8:47 AM Paul Moore <paul@paul-moore.com> wrote:
 > >
-> >> The use of security modules was expected to be rare.
-> > This is not correct. Capabilities were ported to LSM and stacked from the
-> > beginning, and several major distros worked on LSM so they could ship
-> > their own security modules.
+> > We deprecated the SELinux runtime disable functionality in Linux
+> > v5.6, add a five second sleep to anyone using it to help draw their
+> > attention to the deprecation.
+> >
+> > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > ---
+> >  security/selinux/selinuxfs.c |    2 ++
+> >  1 file changed, 2 insertions(+)
 >
-> Capabilities has always been a special case.
-> Until Android adopted SELinux the actual use of LSMs was rare.
+> Warning: while trivial, I've done no testing beyond a quick compile
+> yet.  I'm posting this now to see what everyone thinks about starting
+> to make it a bit more painful to use the runtime disable
+> functionality.
 
-I don't think that is correct.  Fedora/RHEL were enabling SELinux by
-default since around 2004/2005 and for a while Fedora was tracking
-SELinux status as part of their "smolt" hardware profiling project and
-SELinux enablement was trending above 80% IIRC before they
-de-commissioned smolt. SuSE/SLES and Ubuntu were enabling AppArmor by
-default for quite some time too prior to SE Android.  It is certainly
-true that Android's adoption of SELinux massively increased the size
-of the SELinux install base (and was the first to make SELinux usage
-mandatory, not just default-enabled) but I don't think it is accurate
-to say that LSM usage was rare prior to that.
+I'm concerned about how users will experience and respond to this
+change (and Linus too).  Currently SELinux runtime disable is the
+method used by distro installers (at least Fedora/RHEL and
+derivatives) when SELinux-disabled is selected at install time and it
+is the approach documented in distro documentation for how to disable
+SELinux.  Hence, we'd be inflicting pain on the end users for what is
+essentially a distro choice.  I'm not sure those end users will even
+realize why they suddenly have a delay in their boot times since they
+may not think to look at the kernel boot logs or miss the message
+among the numerous messages logged already.  I guess the question is
+whether there is precedent for adding this kind of delay to call
+attention to a need for change by users; if there is, it would be good
+if we could cite that precedent in the commit message to help avoid
+later complaints.  It would also be good if we had a more thorough
+wiki page or something that documented for users how to fix the
+problem and referred users to that as part of the message (similar to
+./arch/x86/kernel/cpu/bugs.c: pr_info("Reading
+https://www.kernel.org/doc/html/latest/admin-guide/hw-vuln/l1tf.html
+might help you decide.\n");).  Just saying add selinux=0 in the
+message might not be sufficient since users may not know how to modify
+their kernel command line options, especially persistently.  Allegedly
+the difficulty in updating kernel boot parameters on some platforms
+was the original motivation for adding runtime disable instead of just
+using selinux=0.
