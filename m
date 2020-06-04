@@ -2,37 +2,39 @@ Return-Path: <SRS0=LEY+=7R=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBFE1C433DF
-	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 02:13:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 945BFC433E0
+	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 03:56:48 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B21352067B
-	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 02:13:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D0D120679
+	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 03:56:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726144AbgFDCNP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 3 Jun 2020 22:13:15 -0400
-Received: from namei.org ([65.99.196.166]:40866 "EHLO namei.org"
+        id S1726729AbgFDD4m (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 3 Jun 2020 23:56:42 -0400
+Received: from namei.org ([65.99.196.166]:40880 "EHLO namei.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725946AbgFDCNP (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Wed, 3 Jun 2020 22:13:15 -0400
+        id S1725936AbgFDD4m (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 3 Jun 2020 23:56:42 -0400
 Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id 0542D9ZU000367;
-        Thu, 4 Jun 2020 02:13:09 GMT
-Date:   Thu, 4 Jun 2020 12:13:09 +1000 (AEST)
+        by namei.org (8.14.4/8.14.4) with ESMTP id 0543uU8b003176;
+        Thu, 4 Jun 2020 03:56:30 GMT
+Date:   Thu, 4 Jun 2020 13:56:30 +1000 (AEST)
 From:   James Morris <jmorris@namei.org>
-To:     Casey Schaufler <casey@schaufler-ca.com>
-cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Paul Moore <paul@paul-moore.com>, selinux@vger.kernel.org,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PULL] SELinux patches for v5.8
-In-Reply-To: <761f5d15-3422-1834-7be5-8f3276d10172@schaufler-ca.com>
-Message-ID: <alpine.LRH.2.21.2006041212110.335@namei.org>
-References: <CAHC9VhTX8gkUui6AiTJMJgcohXa=TOqdO==rEDk=Mquz9sCNKA@mail.gmail.com> <CAHk-=wiAVfqtJbZ=Ti1oxSvunUvsQ_CsOL5oFJL3mwhqKTeoNw@mail.gmail.com> <290017a8-d943-570f-1f90-acecf1c075a1@schaufler-ca.com> <alpine.LRH.2.21.2006040809280.6050@namei.org>
- <761f5d15-3422-1834-7be5-8f3276d10172@schaufler-ca.com>
+To:     Daniel Colascione <dancol@google.com>
+cc:     timmurray@google.com, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, viro@zeniv.linux.org.uk,
+        Paul Moore <paul@paul-moore.com>, nnk@google.com,
+        Stephen Smalley <sds@tycho.nsa.gov>, lokeshgidra@google.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: Re: [PATCH v5 0/3] SELinux support for anonymous inodes and UFFD
+In-Reply-To: <20200401213903.182112-1-dancol@google.com>
+Message-ID: <alpine.LRH.2.21.2006041354381.1812@namei.org>
+References: <20200326200634.222009-1-dancol@google.com> <20200401213903.182112-1-dancol@google.com>
 User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -41,21 +43,32 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 3 Jun 2020, Casey Schaufler wrote:
+On Wed, 1 Apr 2020, Daniel Colascione wrote:
 
-> On 6/3/2020 3:12 PM, James Morris wrote:
-> > On Wed, 3 Jun 2020, Casey Schaufler wrote:
-> >
-> >> The use of security modules was expected to be rare.
-> > This is not correct. Capabilities were ported to LSM and stacked from the 
-> > beginning, and several major distros worked on LSM so they could ship 
-> > their own security modules.
+> Daniel Colascione (3):
+>   Add a new LSM-supporting anonymous inode interface
+>   Teach SELinux about anonymous inodes
+>   Wire UFFD up to SELinux
 > 
-> Capabilities has always been a special case.
-> Until Android adopted SELinux the actual use of LSMs was rare.
+>  fs/anon_inodes.c                    | 191 ++++++++++++++++++++++------
+>  fs/userfaultfd.c                    |  30 ++++-
+>  include/linux/anon_inodes.h         |  13 ++
+>  include/linux/lsm_hooks.h           |  11 ++
+>  include/linux/security.h            |   3 +
+>  security/security.c                 |   9 ++
+>  security/selinux/hooks.c            |  53 ++++++++
+>  security/selinux/include/classmap.h |   2 +
+>  8 files changed, 267 insertions(+), 45 deletions(-)
 
-Nope, it was enabled by default in several distros and very widely 
-deployed in the govt space (at least).
+Applied to
+git://git.kernel.org/pub/scm/linux/kernel/git/jmorris/linux-security.git secure_uffd_v5.9
+and next-testing.
+
+This will provide test coverage in linux-next, as we aim to get this 
+upstream for v5.9.
+
+I had to make some minor fixups, please review.
+
 
 -- 
 James Morris
