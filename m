@@ -2,110 +2,123 @@ Return-Path: <SRS0=LEY+=7R=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2188C433DF
-	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 19:03:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5401C433DF
+	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 19:14:07 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D4AF2077D
-	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 19:03:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9DB64206C3
+	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 19:14:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o5uoMFhR"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R5quO9gT"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729344AbgFDTD3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Jun 2020 15:03:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39412 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729284AbgFDTD2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Jun 2020 15:03:28 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5F58C08C5C0
-        for <selinux@vger.kernel.org>; Thu,  4 Jun 2020 12:03:28 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id e5so5610313ote.11
-        for <selinux@vger.kernel.org>; Thu, 04 Jun 2020 12:03:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jFZeEBAucH2GhgwDxSWMyh6WNVYdXi+eFYy5wM2lRmI=;
-        b=o5uoMFhRsofrKQdu2gIweE0VpgAdn+ttqfU+5/rY1Xyz9ax4e3xE8Nj2hk1ZbYxhmv
-         88VKwlM6d98C0L9mmxU/HPZ1wCDJmmt6/RQJovnJ+8cE97vrxR89Z76Kw53mkiRZum/M
-         yIDK8Xas9fwbXNixCGRn76MySfGGgBN2cgMvDO2F9ygyzoyaj0FSTllNXp06IS04Jkfc
-         Rz4TY9Tk0SbdzbiNHveClT2MfIY8Ox9+WbylHqY4JzBKBoF+5x7bMNj67/2BB/dV00VJ
-         phV7D5eUiI/czWznOWabln+uVZGblCbRj1VthEgJin3AYPj8rQzsw7jU20lxkD9qaxK9
-         EA+g==
+        id S1728116AbgFDTOH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Jun 2020 15:14:07 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:22983 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726480AbgFDTOH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Jun 2020 15:14:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591298045;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=92NcCPDcB6HtARPbOigwZa/Cx5kHW5gtlpfxwUv1kQ8=;
+        b=R5quO9gTx2Iz38clkBV3N5uV/CSZOpuz1toUhM5N4eje08gyqXMrM7+tv8U3minARyACCa
+        dgEu7zbC68MykQgt8qZfmD3wfohWoaHvoyNXXdaSkoXcfJzadWD5GRX+Awrypadzz/deg1
+        r7mysI3m3UxrrNjoYiTSldbUkNVzYv0=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-33-f8j-Qy86PAem6lMD8-J0fQ-1; Thu, 04 Jun 2020 15:14:02 -0400
+X-MC-Unique: f8j-Qy86PAem6lMD8-J0fQ-1
+Received: by mail-qv1-f71.google.com with SMTP id v1so5296721qvx.8
+        for <selinux@vger.kernel.org>; Thu, 04 Jun 2020 12:14:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=jFZeEBAucH2GhgwDxSWMyh6WNVYdXi+eFYy5wM2lRmI=;
-        b=YLRL9rL+sCbDjqFVFm2hsHAY6B8CfYPXHUKG+CVV5PgY720jhCDy0htMeOYXcwRAPJ
-         sSmujcLBp96H4tNpl2mne+cRG8JvBiOHvZimeJm2xZXipm84yzDcHSnN2NiggxBBZn3E
-         uynF5uN82cSQaOrOk2EIwnpbNg7juL+dPfeCYL0sLuUYruMSAXobyBgeZ77ek+vM5xCi
-         LnlQL93BNUHv6XtLITaPWDX3K0QH5WAFO+5lEOZ5/ST5bzB2EI7fEkDQk9TpdCsOZXC+
-         cc+iGit0KaZv5gGw+QcdwuJYJJ+9vnQwZ/AcQCO3bs03dyZrF2zMZXgLK0pqULjg1f2E
-         Dc5w==
-X-Gm-Message-State: AOAM5316+5XR7xxrMH7TeKU0fUiY1yCRBoF0sdI7v8nfB5zLBU9ADTUA
-        I6oEIHVN3HEFYiwZT6hMesI5cdmxX963Walihtc=
-X-Google-Smtp-Source: ABdhPJwPdMJRRkuH8R1XYQFzypy2CUHWReJQ6xrg1xcENGHCbV5R1Ds/fJ0GdTvqaeErnqEMBOO1w6qOSgrnRsZJ7vU=
-X-Received: by 2002:a05:6830:18da:: with SMTP id v26mr4960807ote.135.1591297407138;
- Thu, 04 Jun 2020 12:03:27 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=92NcCPDcB6HtARPbOigwZa/Cx5kHW5gtlpfxwUv1kQ8=;
+        b=TsYpMP4gOoNLBLoaZwS05ZLR6PgjEzhQoSAaWr/wuP1aG6VXW849uIPrSy8SsDnEMG
+         W+gCUXR6DME4HhAp+hYZq1Y6g4I174cCPryvOm3COrViFlMo4ioPZC6X4JfsSkgEpm2n
+         81N5hGXjZ8HV3rcwZqlM7mwRMwqfMmXHJv23CFR9CbICfcg+enz+JDDuqQjJFGo3D7aI
+         ArRpuuWpaxLhkbUvwdiQTfVCAOrM25er+uM+UejLkXffWIUGVZEFVFd61o7o37wCQPZ6
+         fSs9UCFEVy54OhWcSeRQoM0f3LDBZkbjAtHm3neYAHqCCxSLliOSP3HRNUfvJuYuPbe5
+         vOQg==
+X-Gm-Message-State: AOAM533fiPW38KZcQpYtkbEWEgVSGxqGCIsWVflmSpHmZm+vx4KJo32+
+        i17H6CzWsWb1YscxMnxugb+RhWPUtfetWrb3br0QR+noJ5bm0kJ37X6mvmrLBA49VtF2zTwxMO5
+        bFOxefOP4+PmmI1L4jw==
+X-Received: by 2002:a05:620a:22f3:: with SMTP id p19mr6263634qki.358.1591298041651;
+        Thu, 04 Jun 2020 12:14:01 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwN7HuPVuFNeJzTJK8UKtitPi6Xyi16WOaau0WGg9NkQAT2p46AW9F8IhykgvUclmdqLe00vQ==
+X-Received: by 2002:a05:620a:22f3:: with SMTP id p19mr6263614qki.358.1591298041436;
+        Thu, 04 Jun 2020 12:14:01 -0700 (PDT)
+Received: from pet.redhat.com (107-190-106-186.cpe.teksavvy.com. [107.190.106.186])
+        by smtp.gmail.com with ESMTPSA id v3sm5236530qkh.130.2020.06.04.12.14.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2020 12:14:00 -0700 (PDT)
+From:   Jonathan Lebon <jlebon@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Jonathan Lebon <jlebon@redhat.com>
+Subject: [PATCH] setfiles: clarify documented path resolution behaviour
+Date:   Thu,  4 Jun 2020 15:12:40 -0400
+Message-Id: <20200604191240.263819-1-jlebon@redhat.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <20200601093453.GB30453@workstation> <20200602185507.3784-1-william.c.roberts@intel.com>
-In-Reply-To: <20200602185507.3784-1-william.c.roberts@intel.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 4 Jun 2020 15:03:16 -0400
-Message-ID: <CAEjxPJ4NU0rd0ZgGuNXpWy37St==bfT8_XfR1Z1YQNwdLVR6tw@mail.gmail.com>
-Subject: Re: [PATCH] README: start a section for documenting CFLAGS
-To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>,
-        Laurent Bigonville <bigon@debian.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        William Roberts <william.c.roberts@intel.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 2, 2020 at 2:55 PM <bill.c.roberts@gmail.com> wrote:
->
-> From: William Roberts <william.c.roberts@intel.com>
->
-> Start a section in the README for documenting that custom CFLAGS yeilds
-> CUSTOM results and that your mileage may vary. The first CFLAG to
-> document that you likely want to include is -fsemantic-interposition.
+One thing that confused me when investigating
+https://github.com/SELinuxProject/selinux/issues/248 (i.e.
+https://github.com/coreos/fedora-coreos-tracker/issues/512) was that the
+manual page for `setfiles` seemed to imply that paths were fully
+resolved. This was consistent with the issues above where `setfiles` was
+failing because the target of the symbolic link didn't exist.
 
-Spelling error (yields), capitalization (CUSTOM), and it should be
--fno-semantic-interposition.
+But in fact, the wording around symbolic links in
+`setfiles`/`restorecon` refers actually to whether the parent
+directories are canonicalized via `realpath(3)` before labeling.
 
->
-> Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> ---
->  README.md | 11 +++++++++++
->  1 file changed, 11 insertions(+)
->
-> diff --git a/README.md b/README.md
-> index 9d64f0b5cf90..f37a9f91f51e 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -120,6 +120,17 @@ lacks library functions or other dependencies relied upon by your
->  distribution.  If it breaks, you get to keep both pieces.
->
->
-> +## Setting CFLAGS
-> +
-> +Setting CFLAGS during the make process will cause the omission of many default CFLAGS. While the project strives
-> +to provide a sane set of default CFLAGS, custom CFLAGS could break the build, or have other undesired changes
-> +on the build output. Thus, be very careful when setting CFLAGS. CFLAGS that we encourage to be set when
-> +overriding CFLAGS are:
-> +
-> +- -fsemantic-interposition for gcc or compilers that do not do this. clang does this by default. clang-10 and up
-> +   will support passing this flag, but ignore it. Previous clang versions fail.
-> +
-> +
+Clarify the man pages to explain this.
+---
+ policycoreutils/setfiles/restorecon.8 | 4 ++--
+ policycoreutils/setfiles/setfiles.8   | 3 ++-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
--fno-semantic-interposition.  Also overly repetitive use of CFLAGS above.
+diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+index bbfc83fe..06ec5a1d 100644
+--- a/policycoreutils/setfiles/restorecon.8
++++ b/policycoreutils/setfiles/restorecon.8
+@@ -159,8 +159,8 @@ The pathname for the file(s) to be relabeled.
+ .SH "NOTES"
+ .IP "1." 4
+ .B restorecon
+-does not follow symbolic links and by default it does not
+-operate recursively on directories.
++by default does not operate recursively on directories. Parent directories
++are fully resolved before labeling.
+ .IP "2." 4
+ If the
+ .I pathname
+diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+index 0188a75a..12f41967 100644
+--- a/policycoreutils/setfiles/setfiles.8
++++ b/policycoreutils/setfiles/setfiles.8
+@@ -214,7 +214,8 @@ option is used.
+ .SH "NOTES"
+ .IP "1." 4
+ .B setfiles
+-follows symbolic links and operates recursively on directories.
++operates recursively on directories. Parent directories are not fully
++resolved before labeling.
+ .IP "2." 4
+ If the
+ .I pathname
+-- 
+2.26.2
+
