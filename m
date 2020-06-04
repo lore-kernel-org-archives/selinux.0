@@ -2,123 +2,122 @@ Return-Path: <SRS0=LEY+=7R=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1A0BC433DF
-	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 15:33:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FB82C433E0
+	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 17:20:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C969D207DF
-	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 15:33:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7D1EA2100A
+	for <selinux@archiver.kernel.org>; Thu,  4 Jun 2020 17:20:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SdMDHXDU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KTxZ9urC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729144AbgFDPd3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 4 Jun 2020 11:33:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35176 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729035AbgFDPd3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 4 Jun 2020 11:33:29 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EADA9C08C5C0;
-        Thu,  4 Jun 2020 08:33:28 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id j189so5416401oih.10;
-        Thu, 04 Jun 2020 08:33:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AtgVM+6A77er24Q+A6g9v9mzs9lX03TOCiFz1KIlUSM=;
-        b=SdMDHXDU1rgTx+wjts5cAAVZzI8PH4x+evoQ+9wNhbQ4pAy6QDUIgVwnnxHp41EgDG
-         0yQHKyhqYJmyWolFnxaRv5tIkX5dQkUw7EFUpqbi+LbFLQWHuBYITsRBuRxcLFrlJ8UN
-         B5s9GdVoBin7ri8qbp0wPPFA2XvGksgADmlAtBP/RokTMKdpjdhBvDetQOjVr+5aG4JO
-         yTvLVGE/BFb6MCFCQmtJteGzfTZeSwTHd8p1SSzIy42satSw4L3LsqOK1L//iZ1H5IQu
-         iNdFRKGB+ls0tze4wmVWb9swU/RHoIYBa5j1qKMkUkIt/iVDMk+/8z611S0YiTBoDCrm
-         Rglw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AtgVM+6A77er24Q+A6g9v9mzs9lX03TOCiFz1KIlUSM=;
-        b=sGuMr8NeqlI/8ApG914kmSic3oAOr7b9m0JXQPVPho6Ti5XMSJdqvQsRClIkEtHZpu
-         qBNAC2oQHu7IbhJKifOWI8bJreFivJWZGdF6204J4aq2cIBLoUZrBmeh+UyhBWsH7AB1
-         4CmZZHszBhcm/aVKNCPadeipxF0BONla+uE102ktZ1TXKv7XerCO2W4F7hVz9Tx3xcf6
-         KeKfSCzxEyqGkCl6vdhslCwuHeoLQWNFOByFPrDczQeWUogpBPxYq3LriAkqlZU4CXnA
-         R3xdCxUWV7dch1rMen+tzazy81FdsCPaPKSLq2DwhtMOyx6HKoOmnDrdiWmcMihLJHF4
-         Lalw==
-X-Gm-Message-State: AOAM532o2QAE7sZGA8ByaZ+GUhPqzBLgi8qsCeGxlw2UaNhrVuoHt/aG
-        7tLNfIhfDT7K0qWRnhGSXrwOP56qMpP0xj8QBRQj6/+j
-X-Google-Smtp-Source: ABdhPJxKZVxO2GZgY9pBarFgPeriOj/aGCeUld1RpPNMX4yzJ610oxzVEzXFz4IMUgKf8RxXpijCTZ8hE0LQZALe2CI=
-X-Received: by 2002:aca:ec97:: with SMTP id k145mr3279320oih.92.1591284808395;
- Thu, 04 Jun 2020 08:33:28 -0700 (PDT)
+        id S1730053AbgFDRUW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 4 Jun 2020 13:20:22 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:26721 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1730068AbgFDRUV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 4 Jun 2020 13:20:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591291220;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type;
+        bh=QBOHRJ+4Lc/Ud9BvOHvoAa44TwYJiaTY50ZFRw5YC98=;
+        b=KTxZ9urCz3YrieK9/1HwOlSEuCULNjf9i7BKnvNaGnX0LKUxKfsSu/oClNK3nSYob0qyGk
+        689zNCXewdbp1JXLH3bbI1GetOEx8Q8W8zQQ2uSgUhEJ9TeXa2mr8QeokemZ2UCpnziJtM
+        Cc9KHu13xW6fkekPZHTDxgyAHVbWD/0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-124-MBWNCdcAO0OdTiF5oseO3g-1; Thu, 04 Jun 2020 13:20:10 -0400
+X-MC-Unique: MBWNCdcAO0OdTiF5oseO3g-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 76777800C78
+        for <selinux@vger.kernel.org>; Thu,  4 Jun 2020 17:20:09 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.192.191])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 73FE05D9CD
+        for <selinux@vger.kernel.org>; Thu,  4 Jun 2020 17:20:08 +0000 (UTC)
+Date:   Thu, 4 Jun 2020 19:20:05 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Subject: sepolicy test fails with Python-3.9
+Message-ID: <20200604172005.GA128963@localhost.localdomain>
 MIME-Version: 1.0
-References: <CAHC9VhTX8gkUui6AiTJMJgcohXa=TOqdO==rEDk=Mquz9sCNKA@mail.gmail.com>
- <CAHk-=wiAVfqtJbZ=Ti1oxSvunUvsQ_CsOL5oFJL3mwhqKTeoNw@mail.gmail.com>
- <290017a8-d943-570f-1f90-acecf1c075a1@schaufler-ca.com> <alpine.LRH.2.21.2006040809280.6050@namei.org>
- <761f5d15-3422-1834-7be5-8f3276d10172@schaufler-ca.com> <CAEjxPJ49ownvc=3OnvkaMD-oYm-aUta98kKs4LDTJTnm65RD=Q@mail.gmail.com>
- <86bd50bd-b5b2-e4a1-d62f-e5eaa0764585@schaufler-ca.com>
-In-Reply-To: <86bd50bd-b5b2-e4a1-d62f-e5eaa0764585@schaufler-ca.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 4 Jun 2020 11:33:17 -0400
-Message-ID: <CAEjxPJ7=yLKU7JrRdTAj1z=0rEMvLKbUqAL=-M=tgA38sjwdfw@mail.gmail.com>
-Subject: Re: [GIT PULL] SELinux patches for v5.8
-To:     Casey Schaufler <casey@schaufler-ca.com>
-Cc:     James Morris <jmorris@namei.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="82I3+IH0IqGh5yIs"
+Content-Disposition: inline
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 4, 2020 at 11:28 AM Casey Schaufler <casey@schaufler-ca.com> wrote:
->
-> On 6/4/2020 5:45 AM, Stephen Smalley wrote:
-> > On Wed, Jun 3, 2020 at 6:39 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
-> >> On 6/3/2020 3:12 PM, James Morris wrote:
-> >>> On Wed, 3 Jun 2020, Casey Schaufler wrote:
-> >>>
-> >>>> The use of security modules was expected to be rare.
-> >>> This is not correct. Capabilities were ported to LSM and stacked from the
-> >>> beginning, and several major distros worked on LSM so they could ship
-> >>> their own security modules.
-> >> Capabilities has always been a special case.
-> >> Until Android adopted SELinux the actual use of LSMs was rare.
-> > I don't think that is correct.  Fedora/RHEL were enabling SELinux by
-> > default since around 2004/2005 and for a while Fedora was tracking
-> > SELinux status as part of their "smolt" hardware profiling project and
-> > SELinux enablement was trending above 80% IIRC before they
-> > de-commissioned smolt. SuSE/SLES and Ubuntu were enabling AppArmor by
-> > default for quite some time too prior to SE Android.
->
-> POSIX ACLs have been enabled just as long. Their use is still
-> incredibly rare.
->
-> >   It is certainly
-> > true that Android's adoption of SELinux massively increased the size
-> > of the SELinux install base (and was the first to make SELinux usage
-> > mandatory, not just default-enabled) but I don't think it is accurate
-> > to say that LSM usage was rare prior to that.
->
-> That will depend on whether you consider presence to be usage.
-> That gets into the whole "transparent security" argument.
 
-The distros were shipping policies for their respective LSMs that
-confined some subset of the processes, and userspace was leveraging
-those LSMs (both to get/set labels and to get policy decisions for
-userspace enforcers) well before Android adopted SELinux.  I think
-that counts as usage.  If by usage you mean end users were writing
-their own policies, that certainly is a more specialized class of
-users but that's even less so in Android, where end users aren't
-allowed to modify the policy at all.
+--82I3+IH0IqGh5yIs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Sorry I brought this up. I don't mean to disrespect the achievement
-> of SELinux. My experience of the Orange Book and early Common
-> Criteria era, including the Unix to Linux transition, seems to
-> have differed somewhat from that others.
+https://jenkins-continuous-infra.apps.ci.centos.org/job/fedora-rawhide-pr-pipeline/3747/artifact/package-tests/logs/FAIL-upstream-err.log
+
+Verify sepolicy interface -c -i works ... Traceback (most recent call last):
+  File "/usr/bin/sepolicy", line 691, in <module>
+    args = parser.parse_args(args=parser_args)
+  File "/usr/lib64/python3.9/argparse.py", line 1819, in parse_args
+    args, argv = self.parse_known_args(args, namespace)
+  File "/usr/lib64/python3.9/argparse.py", line 1852, in parse_known_args
+    namespace, args = self._parse_known_args(args, namespace)
+  File "/usr/lib64/python3.9/argparse.py", line 2043, in _parse_known_args
+    positionals_end_index = consume_positionals(start_index)
+  File "/usr/lib64/python3.9/argparse.py", line 2020, in consume_positionals
+    take_action(action, args)
+  File "/usr/lib64/python3.9/argparse.py", line 1929, in take_action
+    action(self, namespace, argument_values, option_string)
+  File "/usr/lib64/python3.9/argparse.py", line 1208, in __call__
+    subnamespace, arg_strings = parser.parse_known_args(arg_strings, None)
+  File "/usr/lib64/python3.9/argparse.py", line 1852, in parse_known_args
+    namespace, args = self._parse_known_args(args, namespace)
+  File "/usr/lib64/python3.9/argparse.py", line 2061, in _parse_known_args
+    start_index = consume_optional(start_index)
+  File "/usr/lib64/python3.9/argparse.py", line 2001, in consume_optional
+    take_action(action, args, option_string)
+  File "/usr/lib64/python3.9/argparse.py", line 1929, in take_action
+    action(self, namespace, argument_values, option_string)
+  File "/usr/bin/sepolicy", line 216, in __call__
+    interface_dict = get_interface_dict()
+  File "/usr/lib/python3.9/site-packages/sepolicy/interface.py", line 149, in get_interface_dict
+    for i in m.getiterator('interface'):
+AttributeError: 'xml.etree.ElementTree.Element' object has no attribute 'getiterator'
+
+According to
+https://docs.python.org/3.8/library/xml.etree.elementtree.html#xml.etree.ElementTree.Element
+xml.etree.ElementTree.Element.getiterator is "deprecated since version 3.2, will
+be removed in version 3.9"
+
+I'll prepare a patch with fix.
+
+--82I3+IH0IqGh5yIs
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl7ZLSYACgkQviIJHj72
+InVsfg//YHgz3Fe2J9gP28z4+M7p+Se/V61wUZ30Ss/aA4qFl6Xd3XgAHpSS5vI3
+P4TIo2wdN7sujF5INwu2Etf1/nSOluQ/h/85E+l/ZxSqIMc2p/FrPiOTUjxrUq90
+MAkLRPKrrh7ma7R70JQERHLq2mMqyCjdqxddVgVBcZrH2Qpyyfgmwp++RJGBBCCJ
+Of1UcpKNq6M1T2mDV9FHBdztDzs43apdsUYmHwstAh6PXm6BrTrQBJgiuIc3pDv+
+hb9aBdIT5fdIL6M/pInHgthWICrMeLZJDQRoPjQWn6K4Aswr6gWXxVA79VfWddp7
+HQjbBopWKX3hTezz6RbwLpUVAl97bpxnDfXUsFZDU9A7lDh566bmFsbFJdzvRXRB
+7DJWz5Ieg85eh97q/tUktoidB5DWXD7e+v1lLIsZaja/2DTe8LG45pagkceFPS0x
+xClOELDXCnDm2m/ibh/US/MMGOV+LP6RgZyEs9gb6m5mgxEofmj+w5+Xs9BorExH
+HJnfduy8fw2mpPH+3/GNwSkzH9tPDRO6aO+9pRATPs3aB4tYLJcQSR44UWPjHPwt
+m6nYD7I3XeBw7F+P16d8oNyiWdVuqiYUHgrfYH03ArqJcS1FSEpj9UJFVl785iTm
+GBx/isHwYLZy4qbba+L47OFZaWKNev+p0VdLHL/2FML7HFsdXLM=
+=LbqA
+-----END PGP SIGNATURE-----
+
+--82I3+IH0IqGh5yIs--
+
