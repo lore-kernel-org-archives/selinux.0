@@ -2,201 +2,229 @@ Return-Path: <SRS0=iV3B=7S=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FD55C433E1
-	for <selinux@archiver.kernel.org>; Fri,  5 Jun 2020 14:49:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0E6AC433DF
+	for <selinux@archiver.kernel.org>; Fri,  5 Jun 2020 18:15:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 46907206F0
-	for <selinux@archiver.kernel.org>; Fri,  5 Jun 2020 14:49:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C536D207D3
+	for <selinux@archiver.kernel.org>; Fri,  5 Jun 2020 18:15:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="T1JRkw1c"
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="cOcYA+tC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728072AbgFEOtX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 5 Jun 2020 10:49:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53930 "EHLO
+        id S1726316AbgFESP2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 5 Jun 2020 14:15:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727839AbgFEOtW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 5 Jun 2020 10:49:22 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E3ABC08C5C3
-        for <selinux@vger.kernel.org>; Fri,  5 Jun 2020 07:49:22 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id q19so10407749eja.7
-        for <selinux@vger.kernel.org>; Fri, 05 Jun 2020 07:49:22 -0700 (PDT)
+        with ESMTP id S1726077AbgFESP1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 5 Jun 2020 14:15:27 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7957CC08C5C2
+        for <selinux@vger.kernel.org>; Fri,  5 Jun 2020 11:15:27 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id h185so5354508pfg.2
+        for <selinux@vger.kernel.org>; Fri, 05 Jun 2020 11:15:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
-         :content-transfer-encoding;
-        bh=eTjuuQiqvhQhhOMfjObuPenM0qBEpHYLeskr6IeBdDo=;
-        b=T1JRkw1camx48HoqnjT8sct/V1pF8zif15sxAERreh89RW3wgJ5mB5G8PCwnvzmnUb
-         UkCshy+PoW/iZLMURCUV6mr/LkhW9IkFNr9/eTLIwu7Hbr+CZDpOKwk95/cUd+ZqxAES
-         vX0Z+8Cvseb5YCjikqC8QgP2v3pMnZ7/WPNI0XqsM5BmSeTCKKvwsAmAGlry6Rf1on9j
-         d4cMXQsOrjgSzhUlYXuHoRroEL5bhybtw82cVQ3Dy2k5yvT+iYuvG+qQzyIGV3jB08CV
-         C3Ji+Z2iZUvEVD+0gFEGuN5IgqBpIZ2x6KEIAt0kD05jraVpNg32qS3fZuQA78RioZ7v
-         o9gw==
+        d=broadcom.com; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=esmpnZfFmK3cVOEF7B5Xrx0JRzL/dAN0UyhbSUY5XOU=;
+        b=cOcYA+tCbSiD62uF7VZPNASE+6dozCHWTwtyvAv86J4CHtUt/BKZxe9Hl8emWeJu32
+         NmToqo3tnfYNAFrtfZAe9DVKolOa1e6H2hwmafgv8/uG4iS4t+bJfKetLXM5cH7dUqwK
+         3Wi+k5Txc+6B/rmQRnq5aNqkpcI8toqLOgkyk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=eTjuuQiqvhQhhOMfjObuPenM0qBEpHYLeskr6IeBdDo=;
-        b=CDT3+6JGAeTxykZLcfnZqNKeUMtlZ41kXD+696r7UqTpKqtYJcNZwE28c8VLOhq1BU
-         C8ZZ/B42P6vaCtQ25c2yP6ie0ZVadkIg0oC8Z82hFEg6vWAXFsbp9alwR1nibOfDHnfP
-         ERnerjf3CFdITKSl3tmfO2Li/W+FyVV7hJJstcJy8mNPtPpSP0B9Ge7pw1l1bvsW3/0t
-         f00oE2pBr3YIENka3Lw8RTytMoFBt/KIlzyiKEMhYL8737kXL/f77Ow9SNtvshrGUjc1
-         q5BJskr0Dr60/8jvjw0vTjnHbxPjto7QU5Y0NOHrrkngb074OiQW9t80U1GZwYe4iioJ
-         7Shg==
-X-Gm-Message-State: AOAM533qRVBfcsFKVYNPEHfd+LKaN3++L3UAF9sBW1qdJ2kHv45WrXet
-        5g8jwjZkaKwPYkDxyMTVMmEMFp6l
-X-Google-Smtp-Source: ABdhPJxg/RbXyWb3+OFf85my0sLSHVt0qXYd447IXANCF32ofxfHVKJdE5dKXBTC+988toGktvvlgw==
-X-Received: by 2002:a17:906:2b8f:: with SMTP id m15mr9597602ejg.156.1591368560771;
-        Fri, 05 Jun 2020 07:49:20 -0700 (PDT)
-Received: from debianHome.localdomain (x5f70b03c.dyn.telefonica.de. [95.112.176.60])
-        by smtp.gmail.com with ESMTPSA id a9sm5060948edr.23.2020.06.05.07.49.20
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jun 2020 07:49:20 -0700 (PDT)
-From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
-To:     selinux@vger.kernel.org
-Subject: [PATCH v3 3/3] sepolgen-ifgen: refactor default policy path retrieval
-Date:   Fri,  5 Jun 2020 16:49:12 +0200
-Message-Id: <20200605144912.22522-3-cgzones@googlemail.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200605144912.22522-1-cgzones@googlemail.com>
-References: <20200528125128.26915-1-cgzones@googlemail.com>
- <20200605144912.22522-1-cgzones@googlemail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=esmpnZfFmK3cVOEF7B5Xrx0JRzL/dAN0UyhbSUY5XOU=;
+        b=BiOxQx45ont6Eq1/ssjB8HxqpyIaFq6xTSMPqtiimt98V52DM22gBE3DqnH6YajWsU
+         ZlUTNNS7KWX04poJAHdzZM0Bc7DstQuYidiZJfar6LZfHQdFRkHuzlrGuZBoyYQNVu4g
+         kGBKfSKWXrG/6j2ne/5YqBjQWt2hKsQzTxr5fqH6yg6GY+kYE1oVDhb1cKfXqXVMXYP7
+         aL5XDd+lxIIOo2S/VCitLzSBrvjtGU407pSQX9IQe1UrT8KtYbbjb/4RYTRZtiJlBtYz
+         2yaUYPQwmQKayiTM1rdJcCOa5gXN8AGP8Kyojm5PvSQKIfH0VHaH3ut5ajSrKucZy+Ez
+         tKnw==
+X-Gm-Message-State: AOAM5303WdIoBHAXB2ArsoQADk9KBUMLh24yKMR5Kr2GZx6LCokqKK0+
+        CbJ8vKDrbkQgd4XJzM5TfumHgey+yh7txRuQ
+X-Google-Smtp-Source: ABdhPJx44Y+GjhW2vgNui0lp10q3hv9zSss9PMmRFy4YprMV+idGKYTS6mCLEIhZlMSH2tpAFlibiw==
+X-Received: by 2002:a63:9d0a:: with SMTP id i10mr10476176pgd.209.1591380926608;
+        Fri, 05 Jun 2020 11:15:26 -0700 (PDT)
+Received: from [10.136.13.65] ([192.19.228.250])
+        by smtp.gmail.com with ESMTPSA id w24sm286555pfn.11.2020.06.05.11.15.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 Jun 2020 11:15:25 -0700 (PDT)
+Subject: Re: [PATCH 0/3] fs: reduce export usage of kerne_read*() calls
+To:     Mimi Zohar <zohar@linux.ibm.com>, Kees Cook <keescook@chromium.org>
+Cc:     Christoph Hellwig <hch@infradead.org>,
+        Luis Chamberlain <mcgrof@kernel.org>, viro@zeniv.linux.org.uk,
+        gregkh@linuxfoundation.org, rafael@kernel.org,
+        ebiederm@xmission.com, jeyu@kernel.org, jmorris@namei.org,
+        paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, nayna@linux.ibm.com,
+        dan.carpenter@oracle.com, skhan@linuxfoundation.org,
+        geert@linux-m68k.org, tglx@linutronix.de, bauerman@linux.ibm.com,
+        dhowells@redhat.com, linux-integrity@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, kexec@lists.infradead.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20200513152108.25669-1-mcgrof@kernel.org>
+ <20200513181736.GA24342@infradead.org>
+ <20200515212933.GD11244@42.do-not-panic.com>
+ <20200518062255.GB15641@infradead.org>
+ <1589805462.5111.107.camel@linux.ibm.com>
+ <7525ca03-def7-dfe2-80a9-25270cb0ae05@broadcom.com>
+ <202005221551.5CA1372@keescook>
+ <c48a80f5-a09c-6747-3db8-be23a260a0cb@broadcom.com>
+ <1590288736.5111.431.camel@linux.ibm.com>
+From:   Scott Branden <scott.branden@broadcom.com>
+Message-ID: <1c68c0c7-1b0a-dfec-0e50-1b65eedc3dc7@broadcom.com>
+Date:   Fri, 5 Jun 2020 11:15:21 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+In-Reply-To: <1590288736.5111.431.camel@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On a SELinux disabled system the python call
-`selinux.security_policyvers()` will fail.
+Hi Mimi,
 
-Move the logic to find a binary policy by iterating over appended
-version suffixes from the python script `sepolgen-ifgen` to the C
-helper `sepolgen-ifgen-attr-helper` to make use of the libsepol
-interface `sepol_policy_kern_vers_max()`.
+On 2020-05-23 7:52 p.m., Mimi Zohar wrote:
+> On Fri, 2020-05-22 at 16:25 -0700, Scott Branden wrote:
+>> Hi Kees,
+>>
+>> On 2020-05-22 4:04 p.m., Kees Cook wrote:
+>>> On Fri, May 22, 2020 at 03:24:32PM -0700, Scott Branden wrote:
+>>>> On 2020-05-18 5:37 a.m., Mimi Zohar wrote:
+>>>>> On Sun, 2020-05-17 at 23:22 -0700, Christoph Hellwig wrote:
+>>>>>> On Fri, May 15, 2020 at 09:29:33PM +0000, Luis Chamberlain wrote:
+>>>>>>> On Wed, May 13, 2020 at 11:17:36AM -0700, Christoph Hellwig wrote:
+>>>>>>>> Can you also move kernel_read_* out of fs.h?  That header gets pulled
+>>>>>>>> in just about everywhere and doesn't really need function not related
+>>>>>>>> to the general fs interface.
+>>>>>>> Sure, where should I dump these?
+>>>>>> Maybe a new linux/kernel_read_file.h?  Bonus points for a small top
+>>>>>> of the file comment explaining the point of the interface, which I
+>>>>>> still don't get :)
+>>>>> Instead of rolling your own method of having the kernel read a file,
+>>>>> which requires call specific security hooks, this interface provides a
+>>>>> single generic set of pre and post security hooks.  The
+>>>>> kernel_read_file_id enumeration permits the security hook to
+>>>>> differentiate between callers.
+>>>>>
+>>>>> To comply with secure and trusted boot concepts, a file cannot be
+>>>>> accessible to the caller until after it has been measured and/or the
+>>>>> integrity (hash/signature) appraised.
+>>>>>
+>>>>> In some cases, the file was previously read twice, first to measure
+>>>>> and/or appraise the file and then read again into a buffer for
+>>>>> use.  This interface reads the file into a buffer once, calls the
+>>>>> generic post security hook, before providing the buffer to the caller.
+>>>>>     (Note using firmware pre-allocated memory might be an issue.)
+>>>>>
+>>>>> Partial reading firmware will result in needing to pre-read the entire
+>>>>> file, most likely on the security pre hook.
+>>>> The entire file may be very large and not fit into a buffer.
+>>>> Hence one of the reasons for a partial read of the file.
+>>>> For security purposes, you need to change your code to limit the amount
+>>>> of data it reads into a buffer at one time to not consume or run out of much
+>>>> memory.
+>>> Hm? That's not how whole-file hashing works. :)
+>>> These hooks need to finish their hashing and policy checking before they
+>>> can allow the rest of the code to move forward. (That's why it's a
+>>> security hook.) If kernel memory utilization is the primary concern,
+>>> then sure, things could be rearranged to do partial read and update the
+>>> hash incrementally, but the entire file still needs to be locked,
+>>> entirely hashed by hook, then read by the caller, then unlocked and
+>>> released.
+> Exactly.
+>
+>>> So, if you want to have partial file reads work, you'll need to
+>>> rearchitect the way this works to avoid regressing the security coverage
+>>> of these operations.
+>> I am not familiar with how the security handling code works at all.
+>> Is the same security check run on files opened from user space?
+>> A file could be huge.
+>>
+>> If it assumes there is there is enough memory available to read the
+>> entire file into kernel space then the improvement below can be left as
+>> a memory optimization to be done in an independent (or future) patch series.
+> There are two security hooks - security_kernel_read_file(),
+> security_kernel_post_read_file - in kernel_read_file().  The first
+> hook is called before the file is read into a buffer, while the second
+> hook is called afterwards.
+>
+> For partial reads, measuring the firmware and verifying the firmware's
+> signature will need to be done on the security_kernel_read_file()
+> hook.
+>
+>>> So, probably, the code will look something like:
+>>>
+>>>
+>>> file = kernel_open_file_for_reading(...)
+>>> 	file = open...
+>>> 	disallow_writes(file);
+>>> 	while (processed < size-of-file) {
+>>> 		buf = read(file, size...)
+>>> 		security_file_read_partial(buf)
+>>> 	}
+>>> 	ret = security_file_read_finished(file);
+>>> 	if (ret < 0) {
+>>> 		allow_writes(file);
+>>> 		return PTR_ERR(ret);
+>>> 	}
+>>> 	return file;
+>>>
+>>> while (processed < size-of-file) {
+>>> 	buf = read(file, size...)
+>>> 	firmware_send_partial(buf);
+>>> }
+>>>
+>>> kernel_close_file_for_reading(file)
+>>> 	allow_writes(file);
+> Right, the ima_file_mmap(), ima_bprm_check(), and ima_file_check()
+> hooks call process_measurement() to do this.  ima_post_read_file()
+> passes a buffer to process_measurement() instead.
+>
+> Scott, the change should be straight forward.  The additional patch
+> needs to:
+> - define a new kernel_read_file_id enumeration, like
+> FIRMWARE_PARTIAL_READ.
+> - Currently ima_read_file() has a comment about pre-allocated firmware
+> buffers.  Update ima_read_file() to call process_measurement() for the
+> new enumeration FIRMWARE_PARTIAL_READ and update ima_post_read_file()
+> to return immediately.
+Should this be what is in ima_read_file?
+{
+     enum ima_hooks func;
+     u32 secid;
 
-Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
----
-v3: Move the iteration logic from sepolgen-ifgen to 
-    sepolgen-ifgen-attr-helper and use sepol_policy_kern_vers_max()
-    instead of selinux.security_policyvers(), to work on SELinux
-    disabled systems
+     if (read_id != READING_FIRMWARE_PARTIAL_READ)
+         return 0;
 
- python/audit2allow/sepolgen-ifgen             | 26 ++-----------
- .../audit2allow/sepolgen-ifgen-attr-helper.c  | 39 ++++++++++++++++---
- 2 files changed, 37 insertions(+), 28 deletions(-)
+     if (!file) { /* should never happen */
+         if (ima_appraise & IMA_APPRAISE_ENFORCE)
+             return -EACCES;
+         return 0;
+     }
 
-diff --git a/python/audit2allow/sepolgen-ifgen b/python/audit2allow/sepolgen-ifgen
-index 4a71cda4..19c3ee30 100644
---- a/python/audit2allow/sepolgen-ifgen
-+++ b/python/audit2allow/sepolgen-ifgen
-@@ -27,7 +27,6 @@
- 
- 
- import sys
--import os
- import tempfile
- import subprocess
- 
-@@ -65,34 +64,15 @@ def parse_options():
-     return options
- 
- 
--def get_policy():
--    p = selinux.selinux_current_policy_path()
--    if p and os.path.exists(p):
--        return p
--    i = selinux.security_policyvers()
--    p = selinux.selinux_binary_policy_path() + "." + str(i)
--    while i > 0 and not os.path.exists(p):
--        i = i - 1
--        p = selinux.selinux_binary_policy_path() + "." + str(i)
--    if i > 0:
--        return p
--    return None
--
--
- def get_attrs(policy_path, attr_helper):
-+    if not policy_path:
-+        policy_path = selinux.selinux_binary_policy_path()
-+
-     try:
--        if not policy_path:
--            policy_path = get_policy()
--        if not policy_path:
--            sys.stderr.write("No installed policy to check\n")
--            return None
-         outfile = tempfile.NamedTemporaryFile()
-     except IOError as e:
-         sys.stderr.write("could not open attribute output file\n")
-         return None
--    except OSError:
--        # SELinux Disabled Machine
--        return None
- 
-     fd = open("/dev/null", "w")
-     ret = subprocess.Popen([attr_helper, policy_path, outfile.name], stdout=fd).wait()
-diff --git a/python/audit2allow/sepolgen-ifgen-attr-helper.c b/python/audit2allow/sepolgen-ifgen-attr-helper.c
-index 1ce37b0d..dab6fb15 100644
---- a/python/audit2allow/sepolgen-ifgen-attr-helper.c
-+++ b/python/audit2allow/sepolgen-ifgen-attr-helper.c
-@@ -147,13 +147,42 @@ static policydb_t *load_policy(const char *filename)
- 	policydb_t *policydb;
- 	struct policy_file pf;
- 	FILE *fp;
-+	char pathname[PATH_MAX];
-+	int suffix_ver;
- 	int ret;
- 
--	fp = fopen(filename, "r");
--	if (fp == NULL) {
--		fprintf(stderr, "Can't open '%s':  %s\n",
--			filename, strerror(errno));
--		return NULL;
-+	/*
-+	 * First use the pure given path.
-+	 * If it does not exist use paths with version suffixes,
-+	 * starting from the maximum supported policy version.
-+	 */
-+	if (access(filename, F_OK) == 0) {
-+		fp = fopen(filename, "r");
-+		if (fp == NULL) {
-+			fprintf(stderr, "Can't open '%s':  %s\n",
-+				filename, strerror(errno));
-+			return NULL;
-+		}
-+	} else {
-+		for (suffix_ver = sepol_policy_kern_vers_max(); suffix_ver > 0; suffix_ver--) {
-+			snprintf(pathname, sizeof(pathname), "%s.%d", filename, suffix_ver);
-+
-+			if (access(pathname, F_OK) == 0)
-+				break;
-+		}
-+
-+		if (suffix_ver <= 0) {
-+			fprintf(stderr, "Can't find any policy at '%s'\n",
-+				filename);
-+			return NULL;
-+		}
-+
-+		fp = fopen(pathname, "r");
-+		if (fp == NULL) {
-+			fprintf(stderr, "Can't open '%s':  %s\n",
-+				pathname, strerror(errno));
-+			return NULL;
-+		}
- 	}
- 
- 	policy_file_init(&pf);
--- 
-2.27.0
+     security_task_getsecid(current, &secid);
+     return process_measurement(file, current_cred(), secid, NULL,
+                    0, MAY_READ, FILE_CHECK);
+}
+>
+> The built-in IMA measurement policy contains a rule to measure
+> firmware.  The policy can be specified on the boot command line by
+> specifying "ima_policy=tcb".  After reading the firmware, the firmware
+> measurement should be in <securityfs>/ima/ascii_runtime_measurements.
+>
+> thanks,
+>
+> Mimi
 
