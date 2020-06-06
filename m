@@ -2,121 +2,146 @@ Return-Path: <SRS0=nReO=7T=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57723C433DF
-	for <selinux@archiver.kernel.org>; Sat,  6 Jun 2020 12:27:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93E25C433E0
+	for <selinux@archiver.kernel.org>; Sat,  6 Jun 2020 13:06:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 32F1F206A2
-	for <selinux@archiver.kernel.org>; Sat,  6 Jun 2020 12:27:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5BF91206A2
+	for <selinux@archiver.kernel.org>; Sat,  6 Jun 2020 13:06:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mUrTAsZ1"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="EmGz88XY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726317AbgFFM1S (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 6 Jun 2020 08:27:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57912 "EHLO
+        id S1725886AbgFFNGM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 6 Jun 2020 09:06:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726269AbgFFM1R (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 6 Jun 2020 08:27:17 -0400
-Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D3CEC03E96A
-        for <selinux@vger.kernel.org>; Sat,  6 Jun 2020 05:27:17 -0700 (PDT)
-Received: by mail-lj1-x22c.google.com with SMTP id z9so14966463ljh.13
-        for <selinux@vger.kernel.org>; Sat, 06 Jun 2020 05:27:17 -0700 (PDT)
+        with ESMTP id S1725831AbgFFNGL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 6 Jun 2020 09:06:11 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A79A0C03E96A
+        for <selinux@vger.kernel.org>; Sat,  6 Jun 2020 06:06:11 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id m32so4457660ede.8
+        for <selinux@vger.kernel.org>; Sat, 06 Jun 2020 06:06:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=to:from:subject:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=3DMuy0B5ea+gtw0i3oqGcmO5UpSDFl7M05svc5HPspU=;
-        b=mUrTAsZ1jTJQu+IXabvAAgGkgtMCyCOY80enEgVbNCp1fBOp4m9cwtGnvp645+BYA3
-         0PcZhiuuThm8raHVoeQkW5ZdOJkX98V1Fj5T2IySVfNCsqsWsXgH45xGpwt8QQ+uGeiu
-         NkReiUwoHO+b2gkIYH/TC1n6/08DVhAVgEQJCHvL0zSDS/0y2wJbIPXLGAU0r8SoK2sR
-         /Z30AQYBSUZBHjVd43WJImPFrMjWtKu+XL+Eq0bdBRgUkwG/IswtGiuls3MFLHXriRCw
-         L/CqqYXOqYqBqvsQ7XW2koWTwRoL+ilfqSTai6kxGcrmkUkaKCmhocxuh4TWzWZP7Kxw
-         r27w==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ZmxHy3g1sKDhQdTIGLF4OTNR2PGp6JqdtkMSKx4sbCM=;
+        b=EmGz88XYlCbMHghJQMrUwBOWtmoEmkfGh50b/bJfrzcoUNWfpxMy0WzFdcceapd41+
+         4tYICTfTQJeQKdy1/QG+M4FSs2O4FNDz2DOEe4EhefU4PEMxZugfdIaM1Iu087Bqx7ku
+         v56BuS34+y01pjvLFRaglDm7o/AkOEnlvzynLElBqNo635X61fFgrUifW6elYCv97h9R
+         sBDc2OL5I+EO8tSfpaAs3mOJBbvuEv3kKJ/1GctiWku5bvWRfEpDYmR9JLtvMd/vjdHW
+         ANo5QtmANRzsF1bWVrTqCMrTRGm6LOtemtT9u/9c0+d4UXsuDRzxHS17tji8VgIWElMg
+         lG8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=3DMuy0B5ea+gtw0i3oqGcmO5UpSDFl7M05svc5HPspU=;
-        b=UrR16sYnM7lb+oNKP4DXTBSULpdNFzbxQNSF/njlxoiXfofagxNqrj7U8AaWiMB8Ps
-         q+koLGSb7AafYpOZ5oU/q6N1Yfy7aFgloikfQklt7eCZiXJzCWs0YCz8pftf/5M+racQ
-         4nlSUyoFcr/wf7z/CxuxPOa2cb4P/ZaBaspPdwaaw0Rfo+Gwarik/t6fV1D9uJ7ce39l
-         Zrn+tQW0zOBN4aMyp4LOe1VwiwPmE9lQzUb1q1zfnD1VdV3eq4lyO02mxNixBrkYkEJe
-         PEMP302iqWJ/lGlmK03i8kvpD4/2qyi5+klirvhVimdMiOcyDNwonrlGwg1Ycn02J8B+
-         jMww==
-X-Gm-Message-State: AOAM532Nz2wFAsk/UxsJv69shKPZrIQageKNrHXNp6sJSRzFnAGexn9m
-        orJ8EYw1wzC6Vo/pYYz6+2w9buhA
-X-Google-Smtp-Source: ABdhPJxttJ2n77Lvnl7jNbj2QSxEMULEe5d/qbKW25cTul4btcZzpgfdHNA48VDxDB9/8rGOgDPDQg==
-X-Received: by 2002:a05:651c:1199:: with SMTP id w25mr7293722ljo.301.1591446434121;
-        Sat, 06 Jun 2020 05:27:14 -0700 (PDT)
-Received: from [192.168.1.38] (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
-        by smtp.gmail.com with ESMTPSA id o23sm2490980lfg.0.2020.06.06.05.27.12
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 06 Jun 2020 05:27:13 -0700 (PDT)
-To:     SElinux list <selinux@vger.kernel.org>
-From:   Topi Miettinen <toiwoton@gmail.com>
-Subject: Better management of dynamic networks?
-Message-ID: <06f4b748-470d-8774-ffbb-5e342f6fcba8@gmail.com>
-Date:   Sat, 6 Jun 2020 15:27:12 +0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ZmxHy3g1sKDhQdTIGLF4OTNR2PGp6JqdtkMSKx4sbCM=;
+        b=iXRkOPdkjeiPESBd0nq48YsC1KEr5B/ar7CKUiAPzPCeo7qWuHksk3VP4TU4fFkuXx
+         SQRJn9kCvlAma9pDLqxogfWFIfwjDTYrrFVMeB3hNDG+WOymg1WWzEYjGrCXK6wOcvKm
+         +8sx37X9CFm8UyxLtJ5NNt+UtFHbXbaVlvZhcyj1yQuVtCg5Tv6dsMqyApEJbkF9d8hk
+         8kuHGMC9iyK2OBg4pURgR5bVjag3po65h/QAzn4glRpumt2JamIb9sx3XB3+in7y25f2
+         VEfPp6Jl5kkWZm2RtDxYhQ5VFaYSVzMg6LZyFEfMx+frwVkXzlsKx4X0plKHMptKm7Dh
+         Wvzw==
+X-Gm-Message-State: AOAM531UAnyEXH0//noWcMZTK0YFLgJdtrl+NK16TFnuuodDb2zzDUmc
+        xzZm/CZ8nDZTMepeukzUmtUu7MLA0LJufmYWw1Fl
+X-Google-Smtp-Source: ABdhPJxtPvw4JDVLW3VyOPeWnF6ZC0BOEZvzVFz2Dg0EBuDyUSZkLWA4EGIeLgHPKi+nrA2ODqn6l/5sQernvGOPFKI=
+X-Received: by 2002:aa7:da46:: with SMTP id w6mr13629751eds.31.1591448770155;
+ Sat, 06 Jun 2020 06:06:10 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200429202941.18320-1-siarhei.liakh@concurrent-rt.com>
+ <20200429202941.18320-2-siarhei.liakh@concurrent-rt.com> <CAHC9VhRuYa2nA18tnQCwfAUW+whce1a84W802GKk135ztoN8Cw@mail.gmail.com>
+ <20200602204214.GA29793@concurrent-rt.com>
+In-Reply-To: <20200602204214.GA29793@concurrent-rt.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Sat, 6 Jun 2020 09:05:59 -0400
+Message-ID: <CAHC9VhRYfvF_9H=67Hj06zu9hfYnM3SNZCGceFjXUEr3bt5o0Q@mail.gmail.com>
+Subject: Re: [PATCH 1/2] SELinux: Add median to debug output of hash table stats
+To:     Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+Cc:     selinux@vger.kernel.org, colin.king@canonical.com,
+        Eric Paris <eparis@parisplace.org>, gregkh@linuxfoundation.org,
+        jeffv@google.com, Ondrej Mosnacek <omosnace@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        tglx@linutronix.de
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi,
+On Tue, Jun 2, 2020 at 4:42 PM Siarhei Liakh
+<siarhei.liakh@concurrent-rt.com> wrote:
+> The 05/13/2020 17:55, Paul Moore wrote:
+> > On Wed, Apr 29, 2020 at 4:29 PM <siarhei.liakh@concurrent-rt.com> wrote:
+> > >
+> > > From: Siarhei Liakh <siarhei.liakh@concurrent-rt.com>
+> > >
+> > > This change introduces a median() function which is then used to report
+> > > 25th, 50th, and 75th percentile metrics within distributions of hash table
+> > > bucket chain lengths. This allows to better assess and compare relative
+> > > effectiveness of different hash functions. Specifically, it allows to
+> > > ensure new functions not only reduce the maximum, but also improve (or, at
+> > > least, have no negative impact) on the median.
+> [ . . . ]
+> > > diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
+> > > index 9e921fc72538..57c427e019c9 100644
+> > > --- a/security/selinux/Kconfig
+> > > +++ b/security/selinux/Kconfig
+> > > @@ -115,3 +115,13 @@ config SECURITY_SELINUX_SID2STR_CACHE_SIZE
+> > >           conversion.  Setting this option to 0 disables the cache completely.
+> > >
+> > >           If unsure, keep the default value.
+> > > +
+> > > +config SECURITY_SELINUX_DEBUG_HASHES
+> > > +       bool "Print additional information about hash tables"
+> > > +       depends on SECURITY_SELINUX
+> > > +       default n
+> > > +       help
+> > > +         This option allows to gather and display additional information about
+> > > +         some of the key hash tables within SELinux.
+> > > +
+> > > +         If unsure, keep the default value.
+> >
+> > I forgot to mention this earlier, but I think this is another case
+> > where we don't need to add another Kconfig option.
+>
+> Right. What is your preferred way to control conditional inclusion of
+> code spread out across several files?
 
-I have a SELinux setup for networks, where packets, nodes, interfaces 
-and peers are labeled and subject to TE rules. In general the system 
-works very well and I'm thankful to be able to control network access 
-for each individual application in great detail.
+Sorry for the delay.
 
-I'm still learning SELinux, so maybe I have missed something, but it 
-seems to me that these systems have been designed with rather static 
-network configuration in mind. For example, I have classified IPv4 and 
-most of IPv6 addresses to loopback, localnet (e.g. 10.0.0.0/8), 
-multicast and "internet" node types. This can be used with a fixed set 
-of TE rules. But when using a laptop, actually the rules for local 
-network should depend on whether I'm at home, at a friend's place or 
-some random public network and then there are VPNs.
+Instead of talking about the mechanics of how to make the code
+conditional, I would first like to have a discussion about if the code
+should even be conditional, and if it is unconditional, do we need it?
+ More on this below.
 
-The interfaces and peers are labeled with netlabelctl, but the 
-interfaces change when kernel modules are loaded and removed for 
-interfaces and it's also possible to plug in a USB network adapter any 
-time. With Netlabel it's possible to label peers without modifying the 
-policy (for example during boot), but `semanage node` and `semanage 
-interface` require writable policy. Netlabelctl can't label an interface 
-if the interface does not exist yet, but I've opened a PR for a possible 
-workaround.
+> My issue is that there already are two different symbols which require
+> coordination to activate this functionality: DEBUG_HASHES defined and used
+> locally within policydb.c and simple DEBUG which is needed for pr_debug()
+> statements throughout the code.
 
-The tools don't support for example pattern matching for interfaces. It 
-would be nice to assign SELinux labels based on various properties of 
-the interface and network, for example with udevd, systemd-networkd or 
-NetworkManager, without requiring policy rebuild.
+My general thinking is that if the information is useful to a user to
+manage and tune their system then we should include the code.  If the
+information is only useful to kernel developers to play with different
+designs or implementation then we can, and should, leave that code
+out.  Developers are likely going to need to add their own
+instrumentation anyway for testing, no sense in us cluttering up the
+kernel for something that may never be useful to anyone.
 
-A minor issue is that reference policy also has rules which allow 
-network access when using the default initial types (netif_t, node_t). 
-It could be preferrable that new network interfaces would not get labels 
-which allow access. In my case I've tried to make sure that the initial 
-types are never used. Perhaps the related rules could simply be made 
-optional.
+> Personally, I prefer something global and controlled from a single well-known
+> place, hence the Kconfig. However, I also see your point about reducing
+> Kconfig... But if not Kconfig, then what? Should I just create an additional
+> .h file with all SELinux-specific debug symbols and have it included
+> everywhere in SELinux?
+>
+> How would you approach this?
 
-I suppose using CIPSO/CALIPSO/Labeled IPsec can solve some of these 
-issues when you can positively identify the other parties in a network, 
-but they are not fit for general Internet access or when the network is 
-friendly but not under your control.
+I *think* the answers above should help, but if not let me know :)
 
-So, what could be done to lift these restrictions (if they really exist 
-and I haven't missed something obvious)?
-
--Topi
+--
+paul moore
+www.paul-moore.com
