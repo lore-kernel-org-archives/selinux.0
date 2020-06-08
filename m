@@ -2,117 +2,127 @@ Return-Path: <SRS0=NH41=7V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EFE3C433DF
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 12:18:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6B59C433E0
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 15:19:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 46AED206C3
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 12:18:36 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A243C206A4
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 15:19:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E0b5c4wO"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N+5UKncP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729644AbgFHMSg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Jun 2020 08:18:36 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:49478 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729310AbgFHMSf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 08:18:35 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591618714;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=hPecxYeYFwAmHQUMdwRBr+KDrfg7cGU76EWYcooZyik=;
-        b=E0b5c4wO+dziIEOE0T7NYAlj5AtCG8s1VCJjhnqMe75u3i25fZD2EY1uDqa6hk5wU+aWA3
-        ISYpZfqH98TRCwRq936PlCFS03TYZQksB8fCJYtPWJ7ISgH+DBGoKhnJdjLS5ZBPE0aqAp
-        OsTLoTx8FfWkVNwxOaXE2Nz+ZIFzJ9I=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-459-aEQ8lvihP4i8HGlNjLy1lw-1; Mon, 08 Jun 2020 08:18:32 -0400
-X-MC-Unique: aEQ8lvihP4i8HGlNjLy1lw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AEB5E83DC10
-        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 12:18:31 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.191])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 757F8500DE;
-        Mon,  8 Jun 2020 12:18:30 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     selinux@vger.kernel.org
-Cc:     Petr Lautrbach <plautrba@redhat.com>
-Subject: [PATCH] python/sepolicy: Use xml.etree.ElementTree.Element.iter()
-Date:   Mon,  8 Jun 2020 14:18:23 +0200
-Message-Id: <20200608121823.109113-1-plautrba@redhat.com>
+        id S1730205AbgFHPTD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Jun 2020 11:19:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49960 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729634AbgFHPTC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 11:19:02 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34184C08C5C2
+        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 08:19:02 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id 25so14694449oiy.13
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 08:19:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=JkWsJEdh/AOE/DIngN0RGGPpbLebEGFD5DHIL1RYIKU=;
+        b=N+5UKncPjxiPK/0Eu6roYnUd9o2eQ63OUn+K7cCwaEdkfMh3CLuzLjcMPnyzqbMRxq
+         qzhsDrhNF8umREuFhqusCjwHH4sff5Eox9jE8cunm7oQ88YdNmleDfVwyaeniKq2vrKn
+         JBn/3ZPoeOC+eHWhwGWdAqzZn3HuKNyjOI2zghDKsg3dL8ns6OyzSL6r9llawYHn59Tj
+         ctlmA9ToT060kLiBlIM7QaHaL4WPn4CMqpfVXziysc542nScg6UVFg+ieijPmenBr+39
+         bAzlCw8ZxLvA1UAu7UH7t+2o5VJcFhI42YBVch5QyLs4ioDIID7T0XeKKZ4G9mtrMMst
+         aQrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=JkWsJEdh/AOE/DIngN0RGGPpbLebEGFD5DHIL1RYIKU=;
+        b=cv7YBUId+qdCaYWc3yz+m7rfXOAAhzAE/F9NhVElhpZg6zejWb1MeMZT01plMmn4Z9
+         /kBlYm+A9u25fmsCLA/tLJu+Yt7Tl5vUGNGSGPnnQGnaxpFGChRbTvmSpFlyGqVHTTuc
+         9lljl5ntU/ovRcbp5O5vX/OztHFcp+VC3DAnhF+nyDjqbBjysxPYGOefiEG4D53MZaN3
+         SRnbUBBBJTWncQr8wA1LrIdOgox+pPz9SHVWS8+GMJdsR9DNkfg2L9vSCQmmR9WdXACF
+         Ma4Hx1ccC9PCxtB9JAVFtvqSzt0Qt95HakNnytd4ZXZcj82IQctiDEs9h+6NwvBXWC3g
+         Q8LQ==
+X-Gm-Message-State: AOAM531011wjqEPCEzzMWmhGVHpa2WdzSK1ckk3s0KSNmKkiRG7hwl7y
+        PVChc9pubXI95GQ90lYgxrBXqa2PN8UesOY06Ergx/hL
+X-Google-Smtp-Source: ABdhPJw1v0pJ2tcrX2Ln6MKai3LssAHqvQgOa0Zmw61rTS2Dr8gNkHhtDevfLDcvEPdNK/rN+hZSDLMyqvZABseHRi8=
+X-Received: by 2002:aca:3d09:: with SMTP id k9mr10390498oia.160.1591629541489;
+ Mon, 08 Jun 2020 08:19:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+References: <20200604191240.263819-1-jlebon@redhat.com>
+In-Reply-To: <20200604191240.263819-1-jlebon@redhat.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 8 Jun 2020 11:18:50 -0400
+Message-ID: <CAEjxPJ5ih8oJFxMe3K3GGyN0FO3VLnWNEv_YibSWX3a-eDbroA@mail.gmail.com>
+Subject: Re: [PATCH] setfiles: clarify documented path resolution behaviour
+To:     Jonathan Lebon <jlebon@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-xml.etree.ElementTree.Element.getiterator() was deprecated since Python 3.2 and
-dropped in Python 3.9
+On Thu, Jun 4, 2020 at 3:26 PM Jonathan Lebon <jlebon@redhat.com> wrote:
+>
+> One thing that confused me when investigating
+> https://github.com/SELinuxProject/selinux/issues/248 (i.e.
+> https://github.com/coreos/fedora-coreos-tracker/issues/512) was that the
+> manual page for `setfiles` seemed to imply that paths were fully
+> resolved. This was consistent with the issues above where `setfiles` was
+> failing because the target of the symbolic link didn't exist.
+>
+> But in fact, the wording around symbolic links in
+> `setfiles`/`restorecon` refers actually to whether the parent
+> directories are canonicalized via `realpath(3)` before labeling.
+>
+> Clarify the man pages to explain this.
 
-Fixes:
-Verify sepolicy interface -c -i works ... Traceback (most recent call last):
-  File "/usr/bin/sepolicy", line 691, in <module>
-    args = parser.parse_args(args=parser_args)
-  File "/usr/lib64/python3.9/argparse.py", line 1819, in parse_args
-    args, argv = self.parse_known_args(args, namespace)
-  File "/usr/lib64/python3.9/argparse.py", line 1852, in parse_known_args
-    namespace, args = self._parse_known_args(args, namespace)
-  File "/usr/lib64/python3.9/argparse.py", line 2043, in _parse_known_args
-    positionals_end_index = consume_positionals(start_index)
-  File "/usr/lib64/python3.9/argparse.py", line 2020, in consume_positionals
-    take_action(action, args)
-  File "/usr/lib64/python3.9/argparse.py", line 1929, in take_action
-    action(self, namespace, argument_values, option_string)
-  File "/usr/lib64/python3.9/argparse.py", line 1208, in __call__
-    subnamespace, arg_strings = parser.parse_known_args(arg_strings, None)
-  File "/usr/lib64/python3.9/argparse.py", line 1852, in parse_known_args
-    namespace, args = self._parse_known_args(args, namespace)
-  File "/usr/lib64/python3.9/argparse.py", line 2061, in _parse_known_args
-    start_index = consume_optional(start_index)
-  File "/usr/lib64/python3.9/argparse.py", line 2001, in consume_optional
-    take_action(action, args, option_string)
-  File "/usr/lib64/python3.9/argparse.py", line 1929, in take_action
-    action(self, namespace, argument_values, option_string)
-  File "/usr/bin/sepolicy", line 216, in __call__
-    interface_dict = get_interface_dict()
-  File "/usr/lib/python3.9/site-packages/sepolicy/interface.py", line 149, in get_interface_dict
-    for i in m.getiterator('interface'):
-AttributeError: 'xml.etree.ElementTree.Element' object has no attribute 'getiterator'
+Missing Signed-off-by line.  Otherwise I guess it is an improvement
+although I think it is still somewhat unclear.
+Maybe we should explicitly say that they are canonicalized via
+realpath(3) in the man page.
 
-Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
----
- python/sepolicy/sepolicy/interface.py | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
-index 7d4ebd7ecdba..bdffb770f364 100644
---- a/python/sepolicy/sepolicy/interface.py
-+++ b/python/sepolicy/sepolicy/interface.py
-@@ -146,12 +146,12 @@ def get_interface_dict(path="/usr/share/selinux/devel/policy.xml"):
-             tree = xml.etree.ElementTree.fromstring(xml_path)
-         for l in tree.findall("layer"):
-             for m in l.findall("module"):
--                for i in m.getiterator('interface'):
-+                for i in m.iter('interface'):
-                     for e in i.findall("param"):
-                         param_list.append(e.get('name'))
-                     interface_dict[(i.get("name"))] = [param_list, (i.find('summary').text), "interface"]
-                     param_list = []
--                for i in m.getiterator('template'):
-+                for i in m.iter('template'):
-                     for e in i.findall("param"):
-                         param_list.append(e.get('name'))
-                     interface_dict[(i.get("name"))] = [param_list, (i.find('summary').text), "template"]
--- 
-2.26.2
-
+> ---
+>  policycoreutils/setfiles/restorecon.8 | 4 ++--
+>  policycoreutils/setfiles/setfiles.8   | 3 ++-
+>  2 files changed, 4 insertions(+), 3 deletions(-)
+>
+> diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+> index bbfc83fe..06ec5a1d 100644
+> --- a/policycoreutils/setfiles/restorecon.8
+> +++ b/policycoreutils/setfiles/restorecon.8
+> @@ -159,8 +159,8 @@ The pathname for the file(s) to be relabeled.
+>  .SH "NOTES"
+>  .IP "1." 4
+>  .B restorecon
+> -does not follow symbolic links and by default it does not
+> -operate recursively on directories.
+> +by default does not operate recursively on directories. Parent directories
+> +are fully resolved before labeling.
+>  .IP "2." 4
+>  If the
+>  .I pathname
+> diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+> index 0188a75a..12f41967 100644
+> --- a/policycoreutils/setfiles/setfiles.8
+> +++ b/policycoreutils/setfiles/setfiles.8
+> @@ -214,7 +214,8 @@ option is used.
+>  .SH "NOTES"
+>  .IP "1." 4
+>  .B setfiles
+> -follows symbolic links and operates recursively on directories.
+> +operates recursively on directories. Parent directories are not fully
+> +resolved before labeling.
+>  .IP "2." 4
+>  If the
+>  .I pathname
+> --
+> 2.26.2
+>
