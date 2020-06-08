@@ -2,109 +2,117 @@ Return-Path: <SRS0=NH41=7V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8E62C433DF
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 21:17:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F865C433E0
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 21:35:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AE27A2074B
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 21:17:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 29EEB20760
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 21:35:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="d/NLD/36"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="AK0sRXsF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726606AbgFHVRK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Jun 2020 17:17:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48976 "EHLO
+        id S1726705AbgFHVfa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Jun 2020 17:35:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726566AbgFHVRJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 17:17:09 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64330C08C5C2
-        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 14:17:09 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id gl26so19958921ejb.11
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 14:17:09 -0700 (PDT)
+        with ESMTP id S1726612AbgFHVfa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 17:35:30 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBFF2C08C5C2
+        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 14:35:29 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id gl26so20005984ejb.11
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 14:35:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=h2/+edZUQhHg8Fj56JiClX6MIXc0Afdutzb+4JBzHBk=;
-        b=d/NLD/36SugS1SW9Jc7V33C4fPj+QUsgp/gP7Ej92sU4f1fvRDOFL5IYJnP7Cu59LD
-         p3k1rF/ytV/2UWpRpVmLDHIDnrFDSI9iDUIdkze4kRkVLBBXQkmzwTEa/2xvMpW7WEj3
-         kCdHyG4IA4OT9B8d58K9WGhHoVhbaqnNkh2mrLwQJ2gbPHjYa2Xv64lcRwTs3Wo0dnlC
-         +42TPRn1FNsWc1WIDecR7SE05hhKFKIdnnkGRcnWAKUYkqnljfrXCeg20fXaUgbYiXd6
-         XRRKcRo8fxXTluwOp9dV+R8oHH5vzj1EX8XT7fE+wCUwXsGZwBWz9egBM6V6TW6IaQd+
-         tQFw==
+        bh=UlisB7CXjLE8jXMZcZFa61raoNPeWoWN8Mog+3lbxlU=;
+        b=AK0sRXsFNj/rK7/Ta5FhgPCn1nUSTONrgzwvuFLBOJ1//TOmoWkeOp3W+TsBuvkitI
+         XOmfQst7wzEBUF8vGrY666nVnu0DzvRJNJ0BswOV+WwtUOAe/HXOhXzuxyVjTQL5VRur
+         irtY6rQeTo5PeMh1I27sEMAf0JU48PlBJ23XT92lIj4PiWXjbncnwBiGjfz3lc3fbnEL
+         SNeY5q3Uj9W/D4GczglixN/3gO9G+mryI1Y6ZvHaJ/DleRi35Efr6Cr1CLB91jlGHj9S
+         OOkW9sBKtHbmqDeaQP9gJNKfQmwdt4gMS5l6sPnfLf9Glf//ZT5ehjzt50Oo+cf9qzh7
+         YF/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=h2/+edZUQhHg8Fj56JiClX6MIXc0Afdutzb+4JBzHBk=;
-        b=HKasdbHk4vWCGPePMqhxM7YQoAJ2fO3+wVpdT7NhOU7mldXgur6IJcJ34agk6fXNoq
-         1EDN0QoPtiMNvO0c9T0YgfNo/j+xvNOEMjw/ygpPsNzqpczM8A05/yT6T8cDpqyAoSHX
-         QpIOc8rNBPDOGJIk5+inc9ZVsGjTKi8F7lBqtIZkNOMOBgBsHSEmnEY+6rD9CdhguTsv
-         FREKzJBccC8lU4bM8D5A0NRu5rBTh65/27PvHkutlpyZd51wpQ8Pnxw/DGEyA5D8HEql
-         O+zbkDkxIziw3X+rqtHiFM85QuHKhc+83VG+flfu/5XPsoFMIdXMnqHAyjYW0HR9It7E
-         XOGg==
-X-Gm-Message-State: AOAM531NFDjv9RLdzMIsPLq0jEJl/EqyWGC7Ztc1nWZgR/hYYikLYr+V
-        y+mdAtWaeGBSfi4iEtjkYrux285OKZEPGY4iNGIxidA=
-X-Google-Smtp-Source: ABdhPJxRPhcimTvpfzn2Ef9NTG99nExhTcMCJkgZKhwh9EC9cPkX1fazOoR8V875TzGMt1Skcm67S+2wAwJAAAZzyHo=
-X-Received: by 2002:a17:906:2b81:: with SMTP id m1mr21733798ejg.488.1591651027883;
- Mon, 08 Jun 2020 14:17:07 -0700 (PDT)
+        bh=UlisB7CXjLE8jXMZcZFa61raoNPeWoWN8Mog+3lbxlU=;
+        b=TJwDN7t5rHd6kQqStJK51CwKisJ88yJhnhR0JghXU9fi2WY5mUWJBTyhpmFmCEy3sV
+         v8qKZNVyYnmptOkt1s0MxaKeHEEE3bWTgoTrHQBVUxX4PtguVk2XTMg+bIJwZgc+17L0
+         Uou8tIwpUaO1l7eOGmj5G0Lme8p8HYh3sipD7/AjNzgFUdQnpKxIOm3BNbVydG4qLUOg
+         vDD3iH6IsrMRmrtdKAcuVXSF5IrJ8DfSDHovTLaE5p+luITAb3wMmtzP15VYcEbuPJf1
+         z5e/ecfFmCnYUlKD/h4lreMVpy9qHPi98DCcr01Fu1zsIWa4cMHsQtC3Qj8Rwzk1r1Ec
+         Oz4A==
+X-Gm-Message-State: AOAM530tf/kwMZ6fZu/osEO4fcSgjvXDmx6CAUS5BTKM2hQc76doTJD+
+        2lGudbw9ZE2lqnxx6oYpRP+++9u46r5HHV8Cg6gu
+X-Google-Smtp-Source: ABdhPJztdB/Vp8F3YJbGASGEqwLdEyrfZGnezLTULFKCgjJTyPlrqWl7NpKNBd4Q1He72v/PeYmpFKpF0gs2F6pDeDU=
+X-Received: by 2002:a17:906:e257:: with SMTP id gq23mr21446716ejb.398.1591652128363;
+ Mon, 08 Jun 2020 14:35:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <06f4b748-470d-8774-ffbb-5e342f6fcba8@gmail.com>
-In-Reply-To: <06f4b748-470d-8774-ffbb-5e342f6fcba8@gmail.com>
+References: <159110207843.57260.5661475689740939480.stgit@chester>
+ <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com> <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 8 Jun 2020 17:16:56 -0400
-Message-ID: <CAHC9VhSjPqsb9ZCWKchhN2ParSR6XH+57jzc7fQ0FjxK28tZOA@mail.gmail.com>
-Subject: Re: Better management of dynamic networks?
-To:     Topi Miettinen <toiwoton@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Mon, 8 Jun 2020 17:35:17 -0400
+Message-ID: <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
+ ssleep() discomfort
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Jun 6, 2020 at 8:27 AM Topi Miettinen <toiwoton@gmail.com> wrote:
-> Hi,
+On Thu, Jun 4, 2020 at 10:49 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Tue, Jun 2, 2020 at 8:52 AM Paul Moore <paul@paul-moore.com> wrote:
+> > On Tue, Jun 2, 2020 at 8:47 AM Paul Moore <paul@paul-moore.com> wrote:
+> > >
+> > > We deprecated the SELinux runtime disable functionality in Linux
+> > > v5.6, add a five second sleep to anyone using it to help draw their
+> > > attention to the deprecation.
+> > >
+> > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > > ---
+> > >  security/selinux/selinuxfs.c |    2 ++
+> > >  1 file changed, 2 insertions(+)
+> >
+> > Warning: while trivial, I've done no testing beyond a quick compile
+> > yet.  I'm posting this now to see what everyone thinks about starting
+> > to make it a bit more painful to use the runtime disable
+> > functionality.
 >
-> I have a SELinux setup for networks, where packets, nodes, interfaces
-> and peers are labeled and subject to TE rules. In general the system
-> works very well and I'm thankful to be able to control network access
-> for each individual application in great detail.
->
-> I'm still learning SELinux, so maybe I have missed something, but it
-> seems to me that these systems have been designed with rather static
-> network configuration in mind ...
+> I'm concerned about how users will experience and respond to this
+> change (and Linus too).  Currently SELinux runtime disable is the
+> method used by distro installers (at least Fedora/RHEL and
+> derivatives) when SELinux-disabled is selected at install time and it
+> is the approach documented in distro documentation for how to disable
+> SELinux.  Hence, we'd be inflicting pain on the end users for what is
+> essentially a distro choice.
 
-Yes, historically the SELinux users who cared about labeled networking
-have typically had a stable network configuration.  Or at the very
-least they haven't discussed problems with a dynamic network
-configuration.
+I delayed my response in hopes the Fedora folks would also comment,
+but I'm not seeing anything.
 
-> The interfaces and peers are labeled with netlabelctl, but the
-> interfaces change when kernel modules are loaded and removed for
-> interfaces and it's also possible to plug in a USB network adapter any
-> time. With Netlabel it's possible to label peers without modifying the
-> policy (for example during boot), but `semanage node` and `semanage
-> interface` require writable policy. Netlabelctl can't label an interface
-> if the interface does not exist yet, but I've opened a PR for a possible
-> workaround.
->
-> The tools don't support for example pattern matching for interfaces. It
-> would be nice to assign SELinux labels based on various properties of
-> the interface and network, for example with udevd, systemd-networkd or
-> NetworkManager, without requiring policy rebuild.
+All this patch does is start executing on the deprecation path we laid
+out when we marked the functionality as deprecated.  When we decided
+to do this we had buy-in from the Fedora folks (the only ones who
+still use this option);  if this is a problem for them then I would
+like to understand what changed, and why.  If it is a matter of this
+coming too quickly, that's okay, we can push this out another release
+or two.  We can even drop the sleep down to a second or two.  Both the
+timing of introducing the delay, and the length of the delay itself,
+aren't important to me; it's the fact that we are adding a delay and
+moving forward on the deprecation (just as we said we would).
 
-I can't say I'm an expert on all the various userspace device
-managers, network or otherwise, but so long as they can execute an
-arbitrary command then one should be able to use them to label the
-device when it is added to the system.  Although perhaps we could make
-this easier with docs and/or tools.
-
-I would be curious to hear what the SELinux userspace folks think about this.
+What were you envisioning when we marked this as deprecated Stephen?
+If not this, what were you thinking we would do?
 
 -- 
 paul moore
