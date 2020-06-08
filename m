@@ -2,153 +2,93 @@ Return-Path: <SRS0=NH41=7V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03268C433E0
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:19:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DE44C433E0
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:21:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D4174206C3
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:19:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D15F3206C3
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:21:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="UVbYb0jY"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KFx05Dwd"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730425AbgFHQT5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Jun 2020 12:19:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59402 "EHLO
+        id S1730383AbgFHQVc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Jun 2020 12:21:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730267AbgFHQT5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 12:19:57 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AFA5C08C5C2
-        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 09:19:56 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id l17so3986801qki.9
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 09:19:56 -0700 (PDT)
+        with ESMTP id S1730267AbgFHQVc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 12:21:32 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF2D9C08C5C2
+        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 09:21:31 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id a3so3851135oid.4
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 09:21:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=XviiyKoghIfjRHDOebEJqU3IIRsrTJ65GSomCMGccYk=;
-        b=UVbYb0jYCqgmzNLWN4gT35RscZ3Unr3/ItzJ1cbWj3gqJ9qesNqXPkNQLrLYuDxZXL
-         QnXzCZt+na72C2NJzV7xKkEQ4SgtYOddrZT2lnCS11Yj1exjS67SB2DRLTjBhHzyX5nI
-         Qan5fTZJYt2u7dGn6Wl5Bl49yRqN9jvQQFutfsdcpZ/fT4qiQLzfkxcUUts+yxtF33Pg
-         qEwuXRHryFsixQKIYciRVHB6HO45VZvo4xlu2VUVJaO2qfZg+yJzrYeC9JKp7rBSb84N
-         72uTL0I73YRdXTGvmCesbzyO3j0PjefUabPKSS72DyzBhnEX2WhlMm+3b7ODu5c6/G6O
-         sH9g==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Ur1x0nIQx0zI/j+gJYx1XzaICvgT5GPeMpKZnjuP9Yc=;
+        b=KFx05Dwd2mi/6h6okBHNEKk/f591Y2/rhWqmylQsJ921iookUymHjiSYQmOezGfdvv
+         0rlm4UrWcBd2p+oLk/n6V5xnqo93QGdzKKjx3nwTgmWT6nsLyQnr05WSkHR3ApfxqlQ1
+         XX8qZ/9p8a/RPeeLrXh4Iv20W42m13k9f4KxGkQNHmsO7joQh9MDBE0abNv6DZY/lX8I
+         xxxqCSUmHRU+X+zlgSaUjV37FNltYSWI5EG2sTYdVfNg3qGJeYNOG1wE0a/qKg75V3Gs
+         EGufiKZv5aMcIzne2BN4Rt89CjOwVkFjzO0ZdnruiOcQ7r3b72jPaNYc9RqLODYZleir
+         Uf5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=XviiyKoghIfjRHDOebEJqU3IIRsrTJ65GSomCMGccYk=;
-        b=TH71EKMO/LcX1mew22xwtjs/ex3mmA1Pbu32zWpt07FGAqqZKgrRyKRMuYZJIaSQI0
-         s+2i+jFa8DiiRjB1mFloYgfBiu94bfHSwCBh6kafukiPJG4bnrtNuZyzANcdXVrHRMMO
-         QY5oXZplhSdCy1A3Fp5ZG1+kidsTP12PhhwzoQm86As63vulDqp7DLkyNMJCQBQZSHZg
-         Zeb4MOTbxJ6nDtcPtWxw/INTwRWnL0/WRKtajDwPrpA3BmudI8Lgxfx2FME/qxhDIRKz
-         QHFilBQ+WKo7nx6TzfwcGvQTHQA7BYPF55pbRcsVpb2YVoP1YPVJrmbJOoOMjJeWv4k9
-         TgdA==
-X-Gm-Message-State: AOAM530b3HBcrK4DB/6OYz5GrFdhKwz9r4jpwZgODsT4aXB57Par3LNl
-        u2sq7keCGT4fve5GrShpQ+mRqA0ut8I=
-X-Google-Smtp-Source: ABdhPJw5wDZs4nUa24yH+nb6u3QaewBkqVs7xu9KhmAe7CtOy8sLXm1xNlI5/yqx5rLb9JFmIQ52uw==
-X-Received: by 2002:a05:620a:483:: with SMTP id 3mr22191088qkr.299.1591633195019;
-        Mon, 08 Jun 2020 09:19:55 -0700 (PDT)
-Received: from localhost.localdomain (arpron0203w-grc-05-142-113-221-96.dsl.bell.ca. [142.113.221.96])
-        by smtp.gmail.com with ESMTPSA id 207sm6770490qki.134.2020.06.08.09.19.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2020 09:19:54 -0700 (PDT)
-From:   Peter Whittaker <pww@edgekeep.com>
-To:     selinux@vger.kernel.org
-Cc:     Peter Whittaker <pww@edgekeep.com>
-Subject: [PATCH v2] Add restorecon -x option to not cross FS boundaries
-Date:   Mon,  8 Jun 2020 09:20:09 -0700
-Message-Id: <20200608162010.122077-1-pww@edgekeep.com>
-X-Mailer: git-send-email 2.26.2
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Ur1x0nIQx0zI/j+gJYx1XzaICvgT5GPeMpKZnjuP9Yc=;
+        b=HWFdJVLrJLpI0JkX+sbwJ2nf2ShLkMNk/jJUxDYZm6c/CY1BzHf29dRF2tORePPQ5U
+         IqsbBnyRhevyV0wd4Jna6jIfE+C/7RDjulJL4XWZ2kHLUavOLgvDqtMCK0J5c5P698Bi
+         IrMUheelmbJyZvi4CeX+lK1nmOiIYvNbECzApSY+PqsfWZKq0qBT1JM3xA7lecCinE85
+         GdcUqCyvJ9iQbEYoXrODlLAyzXzpDdnwIk6UpjFi4cAcwG6YYUWyZtJdKsiycod6QkUG
+         cgD7NBj7tAUXEv6DADw1X8iThFmrEfuE7cZbdQnn/Q/df3WK3IMUqlmwSyavvTYcGC+8
+         0G+w==
+X-Gm-Message-State: AOAM530/yZvWHiOzW+wkL+cAml0iiPgCP4I1dz7vluvUGQj30nyVyPZJ
+        OcvzxlXgStSo3Eb88GONy8Hh0PcYXAvXfQzVjJw=
+X-Google-Smtp-Source: ABdhPJx8e+hMuP9ojSaiju3YHGLS7jn0fAQdhYMC4o5lKo2tyalAz4eeJif3Uy2u9Yiv5MWmoLF0kG104inP22NgdSo=
+X-Received: by 2002:aca:3d09:: with SMTP id k9mr115062oia.160.1591633290394;
+ Mon, 08 Jun 2020 09:21:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <CAEjxPJ4NU0rd0ZgGuNXpWy37St==bfT8_XfR1Z1YQNwdLVR6tw@mail.gmail.com>
+ <20200608153722.18622-1-william.c.roberts@intel.com>
+In-Reply-To: <20200608153722.18622-1-william.c.roberts@intel.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 8 Jun 2020 12:21:19 -0400
+Message-ID: <CAEjxPJ7AtH67Gdoj6eHGJ22mXWYHWOqaRZP+Gi18aR5iJeJ5Cg@mail.gmail.com>
+Subject: Re: [PATCH v2] README: start a section for documenting CFLAGS
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     Laurent Bigonville <bigon@debian.org>,
+        Petr Lautrbach <plautrba@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Fixes: https://github.com/SELinuxProject/selinux/issues/208
+On Mon, Jun 8, 2020 at 11:37 AM <bill.c.roberts@gmail.com> wrote:
+>
+> From: William Roberts <william.c.roberts@intel.com>
+>
+> Start a section in the README for documenting that custom CFLAGS yields
+> CUSTOM results and that your mileage may vary. The first CFLAG to
+> document that you likely want to include is -fsemantic-interposition.
 
-Signed-off-by: Peter Whittaker <pww@edgekeep.com>
----
- policycoreutils/setfiles/restorecon.8 |  7 +++++++
- policycoreutils/setfiles/setfiles.c   | 13 ++++++++++---
- 2 files changed, 17 insertions(+), 3 deletions(-)
+CUSTOM is all-caps for some reason, and it should be
+-fno-semantic-interposition.
 
-diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
-index bbfc83fe..0d1930de 100644
---- a/policycoreutils/setfiles/restorecon.8
-+++ b/policycoreutils/setfiles/restorecon.8
-@@ -13,6 +13,7 @@ restorecon \- restore file(s) default SELinux security contexts.
- .RB [ \-F ]
- .RB [ \-W ]
- .RB [ \-I | \-D ]
-+.RB [ \-x ]
- .RB [ \-e
- .IR directory ]
- .IR pathname \ ...
-@@ -31,6 +32,7 @@ restorecon \- restore file(s) default SELinux security contexts.
- .RB [ \-F ]
- .RB [ \-W ]
- .RB [ \-I | \-D ]
-+.RB [ \-x ]
- 
- .SH "DESCRIPTION"
- This manual page describes the
-@@ -153,6 +155,11 @@ option of GNU
- .B find
- produces input suitable for this mode.
- .TP
-+.B \-x
-+prevent
-+.B restorecon
-+from crossing file system boundaries.
-+.TP
- .SH "ARGUMENTS"
- .IR pathname \ ...
- The pathname for the file(s) to be relabeled.
-diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
-index 16bd592c..ed67b5f1 100644
---- a/policycoreutils/setfiles/setfiles.c
-+++ b/policycoreutils/setfiles/setfiles.c
-@@ -43,8 +43,8 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
- {
- 	if (iamrestorecon) {
- 		fprintf(stderr,
--			"usage:  %s [-iIDFmnprRv0] [-e excludedir] pathname...\n"
--			"usage:  %s [-iIDFmnprRv0] [-e excludedir] -f filename\n",
-+			"usage:  %s [-iIDFmnprRv0x] [-e excludedir] pathname...\n"
-+			"usage:  %s [-iIDFmnprRv0x] [-e excludedir] -f filename\n",
- 			name, name);
- 	} else {
- 		fprintf(stderr,
-@@ -168,7 +168,7 @@ int main(int argc, char **argv)
- 	size_t buf_len;
- 	const char *base;
- 	int errors = 0;
--	const char *ropts = "e:f:hiIDlmno:pqrsvFRW0";
-+	const char *ropts = "e:f:hiIDlmno:pqrsvFRW0x";
- 	const char *sopts = "c:de:f:hiIDlmno:pqr:svEFR:W0";
- 	const char *opts;
- 	union selinux_callback cb;
-@@ -386,6 +386,13 @@ int main(int argc, char **argv)
- 		case '0':
- 			null_terminated = 1;
- 			break;
-+                case 'x':
-+                        if (iamrestorecon) {
-+				r_opts.xdev = SELINUX_RESTORECON_XDEV;
-+                        } else {
-+				usage(argv[0]);
-+                        }
-+                        break;
- 		case 'h':
- 		case '?':
- 			usage(argv[0]);
--- 
-2.26.2
+> diff --git a/README.md b/README.md
+> index 9d64f0b5cf90..eb8e170ea1f7 100644
+> --- a/README.md
+> +++ b/README.md
+> +
+> +- -fsemantic-interposition for gcc or compilers that do not do this. clang does this by default. clang-10 and up
+> +   will support passing this flag, but ignore it. Previous clang versions fail.
 
+-fno-semantic-interposition
