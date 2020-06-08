@@ -2,65 +2,64 @@ Return-Path: <SRS0=NH41=7V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 319F7C433DF
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:24:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8E62C433DF
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 21:17:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B3272078C
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:24:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AE27A2074B
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 21:17:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z22bRGFR"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="d/NLD/36"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730476AbgFHQYC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Jun 2020 12:24:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60042 "EHLO
+        id S1726606AbgFHVRK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Jun 2020 17:17:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730434AbgFHQYB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 12:24:01 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 655F6C08C5C2
-        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 09:24:00 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id n70so1660407ota.5
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 09:24:00 -0700 (PDT)
+        with ESMTP id S1726566AbgFHVRJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 17:17:09 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64330C08C5C2
+        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 14:17:09 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id gl26so19958921ejb.11
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 14:17:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ufZTOBhVdCN9ppc/A6Ye8aPXY3zKuXnjTwGgxX121Mo=;
-        b=Z22bRGFRCTDNUIzaNvZruWbHMZaT6kMxfgZpPkA3XpcoTVDScOpNDslDuY/vf9WfND
-         1sUhHgYBdjd5dTN+7xpb0OkUQogZV7otyuK75QOybUP7ihUji8vrsRqxeBHKQM7REe96
-         y6WceC8aLVV9LhrCTUpBa/3se2OAInwVxxXoaBOXnOMiAeokwYrVBrcBBEqkTfW0hWAg
-         A5B8DcVMvx7QJGuFBxXoxJuxxEarCK/dnKZOR+g+ZDyMqA/xpd3hp9aPmJbH/uZgyOT8
-         raQlrxoZw3YDfiLdxCUOzH9Y46hFLqQbGFTvbfL4l0HGIa/F5Th0FIRcaljlgNjHbQtf
-         q6Lg==
+        bh=h2/+edZUQhHg8Fj56JiClX6MIXc0Afdutzb+4JBzHBk=;
+        b=d/NLD/36SugS1SW9Jc7V33C4fPj+QUsgp/gP7Ej92sU4f1fvRDOFL5IYJnP7Cu59LD
+         p3k1rF/ytV/2UWpRpVmLDHIDnrFDSI9iDUIdkze4kRkVLBBXQkmzwTEa/2xvMpW7WEj3
+         kCdHyG4IA4OT9B8d58K9WGhHoVhbaqnNkh2mrLwQJ2gbPHjYa2Xv64lcRwTs3Wo0dnlC
+         +42TPRn1FNsWc1WIDecR7SE05hhKFKIdnnkGRcnWAKUYkqnljfrXCeg20fXaUgbYiXd6
+         XRRKcRo8fxXTluwOp9dV+R8oHH5vzj1EX8XT7fE+wCUwXsGZwBWz9egBM6V6TW6IaQd+
+         tQFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ufZTOBhVdCN9ppc/A6Ye8aPXY3zKuXnjTwGgxX121Mo=;
-        b=mT5UOBKKx5ad3HpWKsX7K970RdQRhgtNXT9gXherdKrwyU4b5nmAgJuDS3qRdofhKi
-         /XDbkzpc0DNV8pIIDfwNoZ6SvO6Vv5hXtqVuRww7fdxkuFVaDlWbvEsGEcdaJTcYDfuz
-         l+GWsra51/iLezxNzwCvjUEjgdIkALBMvhNNuHoZswPFlwQ6PhMEQfB19Biv+t4PWLxv
-         W5lWqaf/qB6drVgLEAGV5FrvE5fHeqT8Hp64ocnn/N3IBwnXVwqUTUzksqxNYhXTvKwX
-         k9mMlTb4SHajwD4uIqqmaeH4GtktIsHXhtQ4CMIKPKtcJUWEmr+AVlzxQF8xnfExwvHT
-         yVfQ==
-X-Gm-Message-State: AOAM532pe4+/MS7SK+0JqUFV2g0fdbTlyUrRVNA1TBMhXnyD/oYwolxU
-        L7wfzzV8w04njlbNTWmYcoIenXuss8xAM4Ke4zs=
-X-Google-Smtp-Source: ABdhPJxB6S5zMgcMUej/69NwtKC3tdI3/Na06LHfPGTIHxgGFzAbofOFIrHvvzOIOQ2qEjpzkea1510gFRWS0SykeXg=
-X-Received: by 2002:a05:6830:18da:: with SMTP id v26mr18745522ote.135.1591633439830;
- Mon, 08 Jun 2020 09:23:59 -0700 (PDT)
+        bh=h2/+edZUQhHg8Fj56JiClX6MIXc0Afdutzb+4JBzHBk=;
+        b=HKasdbHk4vWCGPePMqhxM7YQoAJ2fO3+wVpdT7NhOU7mldXgur6IJcJ34agk6fXNoq
+         1EDN0QoPtiMNvO0c9T0YgfNo/j+xvNOEMjw/ygpPsNzqpczM8A05/yT6T8cDpqyAoSHX
+         QpIOc8rNBPDOGJIk5+inc9ZVsGjTKi8F7lBqtIZkNOMOBgBsHSEmnEY+6rD9CdhguTsv
+         FREKzJBccC8lU4bM8D5A0NRu5rBTh65/27PvHkutlpyZd51wpQ8Pnxw/DGEyA5D8HEql
+         O+zbkDkxIziw3X+rqtHiFM85QuHKhc+83VG+flfu/5XPsoFMIdXMnqHAyjYW0HR9It7E
+         XOGg==
+X-Gm-Message-State: AOAM531NFDjv9RLdzMIsPLq0jEJl/EqyWGC7Ztc1nWZgR/hYYikLYr+V
+        y+mdAtWaeGBSfi4iEtjkYrux285OKZEPGY4iNGIxidA=
+X-Google-Smtp-Source: ABdhPJxRPhcimTvpfzn2Ef9NTG99nExhTcMCJkgZKhwh9EC9cPkX1fazOoR8V875TzGMt1Skcm67S+2wAwJAAAZzyHo=
+X-Received: by 2002:a17:906:2b81:: with SMTP id m1mr21733798ejg.488.1591651027883;
+ Mon, 08 Jun 2020 14:17:07 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200608121823.109113-1-plautrba@redhat.com>
-In-Reply-To: <20200608121823.109113-1-plautrba@redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 8 Jun 2020 12:23:49 -0400
-Message-ID: <CAEjxPJ7TVrfWbgaYY+Li+83dsoZ8Xd+umYp4OvkKCEdqpv_DPA@mail.gmail.com>
-Subject: Re: [PATCH] python/sepolicy: Use xml.etree.ElementTree.Element.iter()
-To:     Petr Lautrbach <plautrba@redhat.com>
+References: <06f4b748-470d-8774-ffbb-5e342f6fcba8@gmail.com>
+In-Reply-To: <06f4b748-470d-8774-ffbb-5e342f6fcba8@gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 8 Jun 2020 17:16:56 -0400
+Message-ID: <CAHC9VhSjPqsb9ZCWKchhN2ParSR6XH+57jzc7fQ0FjxK28tZOA@mail.gmail.com>
+Subject: Re: Better management of dynamic networks?
+To:     Topi Miettinen <toiwoton@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -68,68 +67,45 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 8, 2020 at 8:19 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+On Sat, Jun 6, 2020 at 8:27 AM Topi Miettinen <toiwoton@gmail.com> wrote:
+> Hi,
 >
-> xml.etree.ElementTree.Element.getiterator() was deprecated since Python 3.2 and
-> dropped in Python 3.9
+> I have a SELinux setup for networks, where packets, nodes, interfaces
+> and peers are labeled and subject to TE rules. In general the system
+> works very well and I'm thankful to be able to control network access
+> for each individual application in great detail.
 >
-> Fixes:
-> Verify sepolicy interface -c -i works ... Traceback (most recent call last):
->   File "/usr/bin/sepolicy", line 691, in <module>
->     args = parser.parse_args(args=parser_args)
->   File "/usr/lib64/python3.9/argparse.py", line 1819, in parse_args
->     args, argv = self.parse_known_args(args, namespace)
->   File "/usr/lib64/python3.9/argparse.py", line 1852, in parse_known_args
->     namespace, args = self._parse_known_args(args, namespace)
->   File "/usr/lib64/python3.9/argparse.py", line 2043, in _parse_known_args
->     positionals_end_index = consume_positionals(start_index)
->   File "/usr/lib64/python3.9/argparse.py", line 2020, in consume_positionals
->     take_action(action, args)
->   File "/usr/lib64/python3.9/argparse.py", line 1929, in take_action
->     action(self, namespace, argument_values, option_string)
->   File "/usr/lib64/python3.9/argparse.py", line 1208, in __call__
->     subnamespace, arg_strings = parser.parse_known_args(arg_strings, None)
->   File "/usr/lib64/python3.9/argparse.py", line 1852, in parse_known_args
->     namespace, args = self._parse_known_args(args, namespace)
->   File "/usr/lib64/python3.9/argparse.py", line 2061, in _parse_known_args
->     start_index = consume_optional(start_index)
->   File "/usr/lib64/python3.9/argparse.py", line 2001, in consume_optional
->     take_action(action, args, option_string)
->   File "/usr/lib64/python3.9/argparse.py", line 1929, in take_action
->     action(self, namespace, argument_values, option_string)
->   File "/usr/bin/sepolicy", line 216, in __call__
->     interface_dict = get_interface_dict()
->   File "/usr/lib/python3.9/site-packages/sepolicy/interface.py", line 149, in get_interface_dict
->     for i in m.getiterator('interface'):
-> AttributeError: 'xml.etree.ElementTree.Element' object has no attribute 'getiterator'
->
-> Signed-off-by: Petr Lautrbach <plautrba@redhat.com>
+> I'm still learning SELinux, so maybe I have missed something, but it
+> seems to me that these systems have been designed with rather static
+> network configuration in mind ...
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Yes, historically the SELinux users who cared about labeled networking
+have typically had a stable network configuration.  Or at the very
+least they haven't discussed problems with a dynamic network
+configuration.
 
-> ---
->  python/sepolicy/sepolicy/interface.py | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+> The interfaces and peers are labeled with netlabelctl, but the
+> interfaces change when kernel modules are loaded and removed for
+> interfaces and it's also possible to plug in a USB network adapter any
+> time. With Netlabel it's possible to label peers without modifying the
+> policy (for example during boot), but `semanage node` and `semanage
+> interface` require writable policy. Netlabelctl can't label an interface
+> if the interface does not exist yet, but I've opened a PR for a possible
+> workaround.
 >
-> diff --git a/python/sepolicy/sepolicy/interface.py b/python/sepolicy/sepolicy/interface.py
-> index 7d4ebd7ecdba..bdffb770f364 100644
-> --- a/python/sepolicy/sepolicy/interface.py
-> +++ b/python/sepolicy/sepolicy/interface.py
-> @@ -146,12 +146,12 @@ def get_interface_dict(path="/usr/share/selinux/devel/policy.xml"):
->              tree = xml.etree.ElementTree.fromstring(xml_path)
->          for l in tree.findall("layer"):
->              for m in l.findall("module"):
-> -                for i in m.getiterator('interface'):
-> +                for i in m.iter('interface'):
->                      for e in i.findall("param"):
->                          param_list.append(e.get('name'))
->                      interface_dict[(i.get("name"))] = [param_list, (i.find('summary').text), "interface"]
->                      param_list = []
-> -                for i in m.getiterator('template'):
-> +                for i in m.iter('template'):
->                      for e in i.findall("param"):
->                          param_list.append(e.get('name'))
->                      interface_dict[(i.get("name"))] = [param_list, (i.find('summary').text), "template"]
-> --
-> 2.26.2
->
+> The tools don't support for example pattern matching for interfaces. It
+> would be nice to assign SELinux labels based on various properties of
+> the interface and network, for example with udevd, systemd-networkd or
+> NetworkManager, without requiring policy rebuild.
+
+I can't say I'm an expert on all the various userspace device
+managers, network or otherwise, but so long as they can execute an
+arbitrary command then one should be able to use them to label the
+device when it is added to the system.  Although perhaps we could make
+this easier with docs and/or tools.
+
+I would be curious to hear what the SELinux userspace folks think about this.
+
+-- 
+paul moore
+www.paul-moore.com
