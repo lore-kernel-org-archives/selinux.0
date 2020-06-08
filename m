@@ -4,132 +4,101 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3AA2C433DF
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 22:13:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82D48C433DF
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 22:34:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 906012074B
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 22:13:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 618012068D
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 22:34:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SR4jZe1F"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lBpHIZC4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726730AbgFHWN6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Jun 2020 18:13:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57704 "EHLO
+        id S1726746AbgFHWed (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Jun 2020 18:34:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726598AbgFHWN5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 18:13:57 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA624C08C5C2
-        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 15:13:57 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id n70so2543553ota.5
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 15:13:57 -0700 (PDT)
+        with ESMTP id S1726734AbgFHWec (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 18:34:32 -0400
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E435C08C5C2
+        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 15:34:32 -0700 (PDT)
+Received: by mail-io1-xd43.google.com with SMTP id k8so8281127iol.13
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 15:34:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=rMLgxUh3M6WzSNknY36ioh6i8W7QyH6Qs5J8JBlFLlw=;
-        b=SR4jZe1F545nvgKwtKIL/UJZOQTMqQPhFKPGdL8GvsgmikOAbVW/4iCD758A7/LDxi
-         ZXhKA+i5ppStDAjJ9QPS+9vZ9QHMG9WFayRuSPw1g996RQ/X7YIzv4NMJp+LItOJWxtz
-         BrM85GbcA/8AVgrbI38kuruioBnvHxz0dH9xK6zxjMLuk5QUGpTzb4ascBLE+KUoi4or
-         hJ3dJa6Vg922gOdjReJhj4xn77v4c3YCVG/jRI6K+5nd4ablaz0NIiAANHT1lr+lVHVA
-         KS7T5coml1frcXU9ExRt6Yc3IOorhdBlVGwgxTHT+SHBlyjNu6ZivA0FurOONJbxxFG8
-         58tg==
+        bh=mdxSzyTEu9CSSWy5EmTjpfV+NcdjqV/plLQYptQec8Y=;
+        b=lBpHIZC4K1CpYWRPZo9Ph+HNIAYl7OcYBQz30xOJMPjqc5A4qmT7ATT9vjZeBjGcjr
+         Fp5sYDEtOaGtkm/7yuezQYO2Mp7OZlLV6PxYKSHSNiBQacW6/dYkFR5GXVhy70B71KLJ
+         c9YFrO/8jWbj1B9OeYtq3cQQJx8Jahu9xvuFvyqZCxx6DCGz7VCsO3Any75JAsLAlFI6
+         +pjyZkKYQM8sr588A2rm2uiOwUBKrhWD88CBfsDTzsiDbvYT6+wmugscazAC+nWSNobX
+         q2fGUwGRiGXlqwkLkUWlbxUs9PX3saA2T5FkWgEZtrOxPKGpdMiyYFq695JP+xp4ilVe
+         5p8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=rMLgxUh3M6WzSNknY36ioh6i8W7QyH6Qs5J8JBlFLlw=;
-        b=oHp9BSix/SGL6QnhshQ1FRpn+MvQzR5lHTsq8MMwfeSkeEPIvtXC6AgXFO1naZtuLo
-         DIxrWx8IPadhWPZqy49RfMs4ZzoCeFkD9iJsqIRjitsOsoeZdIPKBdSvFyQpKjBMHTkK
-         jlPB+ObHtcQASVPXfUp/OWL5VLWW6Zvt0H6KDZOAJZr6pT2tQ0CagPUi7g1zeiTuoH7F
-         QYKWTXmob6eQmV3gQO0GIcbrbCbWetFxz1ThpmRiZdduNMG2N3Du8AWOc2svSPB80Gpz
-         xLqgbXteNc0ErOekgJP8v0EN0nq644URCCJ1j9xhHrppodKj49pv88nJYTIyucixVzSv
-         0iXQ==
-X-Gm-Message-State: AOAM530VdQt3/oEkKXCgfxnNJ+0m1JzABcXIXtjXM6K8wvQLSmcmUBvT
-        dBJD4hKpEBYWHBRZzi9eQjni8dlgFCV89fTcJEc=
-X-Google-Smtp-Source: ABdhPJxhCGkGhF7/61d3/ZnCVX777si+r2zCb16iv7tV0kzKN4eXSCwWQwL1jqhBgCsUxH/QQXSJaVJlPMNgMh6WgeM=
-X-Received: by 2002:a05:6830:18da:: with SMTP id v26mr19848523ote.135.1591654437033;
- Mon, 08 Jun 2020 15:13:57 -0700 (PDT)
+        bh=mdxSzyTEu9CSSWy5EmTjpfV+NcdjqV/plLQYptQec8Y=;
+        b=lS76t5teTFkayqVdKLcOEvc6aWJYwSwONXFDJEJ0dY0NMUUx1zGVdHfgQiiIXxZcws
+         OC+apoHfFYvXFVqksg8OTooBqce7bkk2WwlSvwbIcnK+/V7W3aWDXv+rgDrAx+dTpjab
+         wsjbd9bqjvSHySKl/bHt4A0GT0E38glYzWpCBhyMWxweeoArtH0Nq8Gi6u3B7AAzFtC5
+         ojI0zbaLManE/pmHu585FfkSoF+zVu9JU4xoMMLFFNWgo3db66A0UzcyOMr6oDwVpOQZ
+         qUkmPr81Fn2gsEGWAHnRf8XwNjJbKvlevkUgnYmX8hLPaMYuZobPoLdArCm8Boy/1Iwi
+         3vOQ==
+X-Gm-Message-State: AOAM530YiLtD98iRLFMhGxL5oJ2aSw75dVqaf/Lj6EoN2Pf10J0KDDyR
+        XjVeroqp0TTl+GjYzlAdYccnR95xtZNfmBagCrY=
+X-Google-Smtp-Source: ABdhPJy2mVJbI+Mt0W4pnbzg5fG7c8sDM+Q2/a1o8WJYTiuApx850TYzT9z4Kq47hvZA+eisYCIVEECXRy1t5gWQDfY=
+X-Received: by 2002:a6b:e60e:: with SMTP id g14mr24060524ioh.141.1591655671818;
+ Mon, 08 Jun 2020 15:34:31 -0700 (PDT)
 MIME-Version: 1.0
-References: <159110207843.57260.5661475689740939480.stgit@chester>
- <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com>
- <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com> <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
-In-Reply-To: <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 8 Jun 2020 18:13:46 -0400
-Message-ID: <CAEjxPJ6nLAOjLvhswyLNCUO8bUuwm_h7emFp7dZXDzRjMuG2HA@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
- ssleep() discomfort
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
+References: <CAEjxPJ4NU0rd0ZgGuNXpWy37St==bfT8_XfR1Z1YQNwdLVR6tw@mail.gmail.com>
+ <20200608153722.18622-1-william.c.roberts@intel.com> <CAEjxPJ7AtH67Gdoj6eHGJ22mXWYHWOqaRZP+Gi18aR5iJeJ5Cg@mail.gmail.com>
+In-Reply-To: <CAEjxPJ7AtH67Gdoj6eHGJ22mXWYHWOqaRZP+Gi18aR5iJeJ5Cg@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Mon, 8 Jun 2020 17:34:20 -0500
+Message-ID: <CAFftDdpSDpCNNhgaCK63KUcuFys-qXzWVZCQcqnCBHEm1BHORA@mail.gmail.com>
+Subject: Re: [PATCH v2] README: start a section for documenting CFLAGS
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Laurent Bigonville <bigon@debian.org>,
+        Petr Lautrbach <plautrba@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 8, 2020 at 5:35 PM Paul Moore <paul@paul-moore.com> wrote:
+On Mon, Jun 8, 2020 at 11:21 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> On Thu, Jun 4, 2020 at 10:49 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Tue, Jun 2, 2020 at 8:52 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > On Tue, Jun 2, 2020 at 8:47 AM Paul Moore <paul@paul-moore.com> wrote:
-> > > >
-> > > > We deprecated the SELinux runtime disable functionality in Linux
-> > > > v5.6, add a five second sleep to anyone using it to help draw their
-> > > > attention to the deprecation.
-> > > >
-> > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
-> > > > ---
-> > > >  security/selinux/selinuxfs.c |    2 ++
-> > > >  1 file changed, 2 insertions(+)
-> > >
-> > > Warning: while trivial, I've done no testing beyond a quick compile
-> > > yet.  I'm posting this now to see what everyone thinks about starting
-> > > to make it a bit more painful to use the runtime disable
-> > > functionality.
+> On Mon, Jun 8, 2020 at 11:37 AM <bill.c.roberts@gmail.com> wrote:
 > >
-> > I'm concerned about how users will experience and respond to this
-> > change (and Linus too).  Currently SELinux runtime disable is the
-> > method used by distro installers (at least Fedora/RHEL and
-> > derivatives) when SELinux-disabled is selected at install time and it
-> > is the approach documented in distro documentation for how to disable
-> > SELinux.  Hence, we'd be inflicting pain on the end users for what is
-> > essentially a distro choice.
+> > From: William Roberts <william.c.roberts@intel.com>
+> >
+> > Start a section in the README for documenting that custom CFLAGS yields
+> > CUSTOM results and that your mileage may vary. The first CFLAG to
+> > document that you likely want to include is -fsemantic-interposition.
 >
-> I delayed my response in hopes the Fedora folks would also comment,
-> but I'm not seeing anything.
->
-> All this patch does is start executing on the deprecation path we laid
-> out when we marked the functionality as deprecated.  When we decided
-> to do this we had buy-in from the Fedora folks (the only ones who
-> still use this option);  if this is a problem for them then I would
-> like to understand what changed, and why.  If it is a matter of this
-> coming too quickly, that's okay, we can push this out another release
-> or two.  We can even drop the sleep down to a second or two.  Both the
-> timing of introducing the delay, and the length of the delay itself,
-> aren't important to me; it's the fact that we are adding a delay and
-> moving forward on the deprecation (just as we said we would).
->
-> What were you envisioning when we marked this as deprecated Stephen?
-> If not this, what were you thinking we would do?
+> CUSTOM is all-caps for some reason, and it should be
 
-I feel like we've already communicated the fact that it is being
-deprecated to those who need to know (Fedora maintainers), and we
-already have it displaying an error message for those who look at
-kernel logs.  So I was fine with just waiting some number of kernel
-release cycles (not sure what is typical for these kinds of things)
-and then just changing selinux_write_disable() to just return 0
-without doing anything and dropping the selinux_disable() code and the
-config option.  I think we'll want it to return 0 rather than an error
-so that systemd will still unmount selinuxfs and act as if SELinux has
-been disabled (which in turn will case everything else to act as if
-SELinux has been disabled).  The kernel will be in permissive mode
-with no policy loaded in that situation, so except for some corner
-cases everything should just work.  That seems the least disruptive
-path for end users.  Distro maintainers will hopefully get around to
-using selinux=0 instead but that may lag.
+Meant to emphasize CUSTOM RESULTS, but it only really emphasizes
+it correctly if RESULTS is also capitalized (which it wasn't).
+
+> -fno-semantic-interposition.
+
+Argh, I forgot to change that, sorry.
+
+>
+> > diff --git a/README.md b/README.md
+> > index 9d64f0b5cf90..eb8e170ea1f7 100644
+> > --- a/README.md
+> > +++ b/README.md
+> > +
+> > +- -fsemantic-interposition for gcc or compilers that do not do this. clang does this by default. clang-10 and up
+> > +   will support passing this flag, but ignore it. Previous clang versions fail.
+>
+> -fno-semantic-interposition
