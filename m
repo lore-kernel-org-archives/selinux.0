@@ -2,168 +2,153 @@ Return-Path: <SRS0=NH41=7V=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47588C433DF
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:18:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03268C433E0
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:19:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F78A20774
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:18:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D4174206C3
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:19:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Re5A2jlZ"
+	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="UVbYb0jY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730443AbgFHQSi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Jun 2020 12:18:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59202 "EHLO
+        id S1730425AbgFHQT5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Jun 2020 12:19:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730267AbgFHQSi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 12:18:38 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66313C08C5C2
-        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 09:18:38 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id d67so15821294oig.6
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 09:18:38 -0700 (PDT)
+        with ESMTP id S1730267AbgFHQT5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 12:19:57 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AFA5C08C5C2
+        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 09:19:56 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id l17so3986801qki.9
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 09:19:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=hxgX8XRTZ/HnkW28Jox/7DYc5hEQI3C4tGBMR0OOhRA=;
-        b=Re5A2jlZovoEN+Ylll7kgPwdCF81cneXLrrmjJFqAtDCEolVl5NU/OwU86FXZdJtgd
-         cxDlewN53oumqmZJR4Lyp2xqkezh/ZzWsdFC8FVvImLg4ruxqdn03shBYOai3zpMWFd6
-         Z7K935t8UwY97iftQ8fKuHMzMxdnXIiObUzScA8zqJI04Q0ryMZvFfFiWfkijfrX6O2q
-         ufJJqb950UaqvDe4WEvMC/8juIXTHKy6knxs6l7uw60yE6u1cP8JW7PDcR9WPTh+RMhf
-         IBHQ2SCA8XOwGpYuaFDBcuIvJtKfcPh/e/u0zh28vhKeWGGK7PiIM6qm5/2jiN6ipyaE
-         iuEw==
+        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=XviiyKoghIfjRHDOebEJqU3IIRsrTJ65GSomCMGccYk=;
+        b=UVbYb0jYCqgmzNLWN4gT35RscZ3Unr3/ItzJ1cbWj3gqJ9qesNqXPkNQLrLYuDxZXL
+         QnXzCZt+na72C2NJzV7xKkEQ4SgtYOddrZT2lnCS11Yj1exjS67SB2DRLTjBhHzyX5nI
+         Qan5fTZJYt2u7dGn6Wl5Bl49yRqN9jvQQFutfsdcpZ/fT4qiQLzfkxcUUts+yxtF33Pg
+         qEwuXRHryFsixQKIYciRVHB6HO45VZvo4xlu2VUVJaO2qfZg+yJzrYeC9JKp7rBSb84N
+         72uTL0I73YRdXTGvmCesbzyO3j0PjefUabPKSS72DyzBhnEX2WhlMm+3b7ODu5c6/G6O
+         sH9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=hxgX8XRTZ/HnkW28Jox/7DYc5hEQI3C4tGBMR0OOhRA=;
-        b=gmqKMebx0XX9dEsS5RPYoCzo/mJM8VOHUGbP7FBeCwUQ0J6B7Iw2ZL7kB/WmiknszU
-         q9m27y9LHTK87OzkgiLpAzW2CEhsy4f1w7EfBLcQAWmcbQsLdvwQ1HkDyngkWxDG7IAy
-         UylN5ByrcIQ9jE2F3xFBjDNrj3XdDyX0HWVBJJjQEoFMFNMOrQlVHYdR6pFZyJTrkfGs
-         JH5Y5UPXTVCCfNJW5RsuZY4lgXeq8FBzXpGUq+wkBT28Nrgj3f2pfRRapL8oRHbVpNZA
-         ijq2tmRNJPuGGrtwVCuCZtito2Uejvx7eTtwWJ2U9AeGmBdEj0YSuwhjv09EtFT6Rrqh
-         CEKA==
-X-Gm-Message-State: AOAM532rNNrYh5oFYLKqZIrHnBUOUBuanCFqsNC6lEb3kCTvuiZK0AWR
-        eTOY9Qk2ivBRLlV6s1rR1ih7T9vUoKD6zf+a2/g=
-X-Google-Smtp-Source: ABdhPJwi3GfjWvAJDETIoOvqTUhdh+D3Wy4eqgzWPyGixX9AnhTdi7QjiaEMHRys1SQ3tSNW1otAY0mRJB1Kryven7k=
-X-Received: by 2002:aca:ec97:: with SMTP id k145mr121248oih.92.1591633117782;
- Mon, 08 Jun 2020 09:18:37 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=XviiyKoghIfjRHDOebEJqU3IIRsrTJ65GSomCMGccYk=;
+        b=TH71EKMO/LcX1mew22xwtjs/ex3mmA1Pbu32zWpt07FGAqqZKgrRyKRMuYZJIaSQI0
+         s+2i+jFa8DiiRjB1mFloYgfBiu94bfHSwCBh6kafukiPJG4bnrtNuZyzANcdXVrHRMMO
+         QY5oXZplhSdCy1A3Fp5ZG1+kidsTP12PhhwzoQm86As63vulDqp7DLkyNMJCQBQZSHZg
+         Zeb4MOTbxJ6nDtcPtWxw/INTwRWnL0/WRKtajDwPrpA3BmudI8Lgxfx2FME/qxhDIRKz
+         QHFilBQ+WKo7nx6TzfwcGvQTHQA7BYPF55pbRcsVpb2YVoP1YPVJrmbJOoOMjJeWv4k9
+         TgdA==
+X-Gm-Message-State: AOAM530b3HBcrK4DB/6OYz5GrFdhKwz9r4jpwZgODsT4aXB57Par3LNl
+        u2sq7keCGT4fve5GrShpQ+mRqA0ut8I=
+X-Google-Smtp-Source: ABdhPJw5wDZs4nUa24yH+nb6u3QaewBkqVs7xu9KhmAe7CtOy8sLXm1xNlI5/yqx5rLb9JFmIQ52uw==
+X-Received: by 2002:a05:620a:483:: with SMTP id 3mr22191088qkr.299.1591633195019;
+        Mon, 08 Jun 2020 09:19:55 -0700 (PDT)
+Received: from localhost.localdomain (arpron0203w-grc-05-142-113-221-96.dsl.bell.ca. [142.113.221.96])
+        by smtp.gmail.com with ESMTPSA id 207sm6770490qki.134.2020.06.08.09.19.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 08 Jun 2020 09:19:54 -0700 (PDT)
+From:   Peter Whittaker <pww@edgekeep.com>
+To:     selinux@vger.kernel.org
+Cc:     Peter Whittaker <pww@edgekeep.com>
+Subject: [PATCH v2] Add restorecon -x option to not cross FS boundaries
+Date:   Mon,  8 Jun 2020 09:20:09 -0700
+Message-Id: <20200608162010.122077-1-pww@edgekeep.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <20200605081952.16278-1-toiwoton@gmail.com>
-In-Reply-To: <20200605081952.16278-1-toiwoton@gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 8 Jun 2020 12:18:26 -0400
-Message-ID: <CAEjxPJ50YNJViUUA=7jaLwzPDMJUE0xzegAes4YF=TwpAo88YQ@mail.gmail.com>
-Subject: Re: [PATCH v2] semanage: handle getprotobyname() failure case
-To:     Topi Miettinen <toiwoton@gmail.com>, linux-audit@redhat.com
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jun 5, 2020 at 4:24 AM Topi Miettinen <toiwoton@gmail.com> wrote:
->
-> At least on Debian, /etc/protocols, which is used by
-> socket.getprotobyname() to resolve protocols to names, does not
-> contain an entry for "ipv4". In that case, set the protocol number
-> used by audit logs for "ipv4" to a fixed value. To ensure audit log
-> compatibility, let's use the same numeric value as Fedora: 4, which is
-> actually understood by kernel as IP over IP.
->
-> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+Fixes: https://github.com/SELinuxProject/selinux/issues/208
 
-This looks fine to me but adding linux-audit mailing list to see if
-they have any concerns.  It appears to make no change to the audit
-messages on Fedora.
+Signed-off-by: Peter Whittaker <pww@edgekeep.com>
+---
+ policycoreutils/setfiles/restorecon.8 |  7 +++++++
+ policycoreutils/setfiles/setfiles.c   | 13 ++++++++++---
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
-> ---
-> v2: don't change audit log format
-> ---
->  python/semanage/seobject.py | 27 +++++++++++++++++++--------
->  1 file changed, 19 insertions(+), 8 deletions(-)
->
-> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
-> index 6e0b87f2..6a14f7b4 100644
-> --- a/python/semanage/seobject.py
-> +++ b/python/semanage/seobject.py
-> @@ -1870,10 +1870,22 @@ class nodeRecords(semanageRecords):
->          except:
->              raise ValueError(_("Unknown or missing protocol"))
->
-> -        return newaddr, newmask, newprotocol
-> +        try:
-> +            audit_protocol = socket.getprotobyname(protocol)
-> +        except:
-> +            # Entry for "ipv4" not found in /etc/protocols on (at
-> +            # least) Debian? To ensure audit log compatibility, let's
-> +            # use the same numeric value as Fedora: 4, which is
-> +            # actually understood by kernel as IP over IP.
-> +            if (protocol == "ipv4"):
-> +                audit_protocol = socket.IPPROTO_IPIP
-> +            else:
-> +                raise ValueError(_("Unknown or missing protocol"))
-> +
-> +        return newaddr, newmask, newprotocol, audit_protocol
->
->      def __add(self, addr, mask, proto, serange, ctype):
-> -        addr, mask, proto = self.validate(addr, mask, proto)
-> +        addr, mask, proto, audit_proto = self.validate(addr, mask, proto)
->
->          if is_mls_enabled == 1:
->              if serange == "":
-> @@ -1942,7 +1954,7 @@ class nodeRecords(semanageRecords):
->          semanage_node_key_free(k)
->          semanage_node_free(node)
->
-> -        self.mylog.log_change("resrc=node op=add laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, socket.getprotobyname(self.protocol[proto]), "system_u", "object_r", ctype, serange))
-> +        self.mylog.log_change("resrc=node op=add laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, audit_proto, "system_u", "object_r", ctype, serange))
->
->      def add(self, addr, mask, proto, serange, ctype):
->          self.begin()
-> @@ -1950,7 +1962,7 @@ class nodeRecords(semanageRecords):
->          self.commit()
->
->      def __modify(self, addr, mask, proto, serange, setype):
-> -        addr, mask, proto = self.validate(addr, mask, proto)
-> +        addr, mask, proto, audit_proto = self.validate(addr, mask, proto)
->
->          if serange == "" and setype == "":
->              raise ValueError(_("Requires setype or serange"))
-> @@ -1987,7 +1999,7 @@ class nodeRecords(semanageRecords):
->          semanage_node_key_free(k)
->          semanage_node_free(node)
->
-> -        self.mylog.log_change("resrc=node op=modify laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, socket.getprotobyname(self.protocol[proto]), "system_u", "object_r", setype, serange))
-> +        self.mylog.log_change("resrc=node op=modify laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, audit_proto, "system_u", "object_r", setype, serange))
->
->      def modify(self, addr, mask, proto, serange, setype):
->          self.begin()
-> @@ -1995,8 +2007,7 @@ class nodeRecords(semanageRecords):
->          self.commit()
->
->      def __delete(self, addr, mask, proto):
-> -
-> -        addr, mask, proto = self.validate(addr, mask, proto)
-> +        addr, mask, proto, audit_proto = self.validate(addr, mask, proto)
->
->          (rc, k) = semanage_node_key_create(self.sh, addr, mask, proto)
->          if rc < 0:
-> @@ -2020,7 +2031,7 @@ class nodeRecords(semanageRecords):
->
->          semanage_node_key_free(k)
->
-> -        self.mylog.log_change("resrc=node op=delete laddr=%s netmask=%s proto=%s" % (addr, mask, socket.getprotobyname(self.protocol[proto])))
-> +        self.mylog.log_change("resrc=node op=delete laddr=%s netmask=%s proto=%s" % (addr, mask, audit_proto))
->
->      def delete(self, addr, mask, proto):
->          self.begin()
-> --
-> 2.26.2
->
+diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+index bbfc83fe..0d1930de 100644
+--- a/policycoreutils/setfiles/restorecon.8
++++ b/policycoreutils/setfiles/restorecon.8
+@@ -13,6 +13,7 @@ restorecon \- restore file(s) default SELinux security contexts.
+ .RB [ \-F ]
+ .RB [ \-W ]
+ .RB [ \-I | \-D ]
++.RB [ \-x ]
+ .RB [ \-e
+ .IR directory ]
+ .IR pathname \ ...
+@@ -31,6 +32,7 @@ restorecon \- restore file(s) default SELinux security contexts.
+ .RB [ \-F ]
+ .RB [ \-W ]
+ .RB [ \-I | \-D ]
++.RB [ \-x ]
+ 
+ .SH "DESCRIPTION"
+ This manual page describes the
+@@ -153,6 +155,11 @@ option of GNU
+ .B find
+ produces input suitable for this mode.
+ .TP
++.B \-x
++prevent
++.B restorecon
++from crossing file system boundaries.
++.TP
+ .SH "ARGUMENTS"
+ .IR pathname \ ...
+ The pathname for the file(s) to be relabeled.
+diff --git a/policycoreutils/setfiles/setfiles.c b/policycoreutils/setfiles/setfiles.c
+index 16bd592c..ed67b5f1 100644
+--- a/policycoreutils/setfiles/setfiles.c
++++ b/policycoreutils/setfiles/setfiles.c
+@@ -43,8 +43,8 @@ static __attribute__((__noreturn__)) void usage(const char *const name)
+ {
+ 	if (iamrestorecon) {
+ 		fprintf(stderr,
+-			"usage:  %s [-iIDFmnprRv0] [-e excludedir] pathname...\n"
+-			"usage:  %s [-iIDFmnprRv0] [-e excludedir] -f filename\n",
++			"usage:  %s [-iIDFmnprRv0x] [-e excludedir] pathname...\n"
++			"usage:  %s [-iIDFmnprRv0x] [-e excludedir] -f filename\n",
+ 			name, name);
+ 	} else {
+ 		fprintf(stderr,
+@@ -168,7 +168,7 @@ int main(int argc, char **argv)
+ 	size_t buf_len;
+ 	const char *base;
+ 	int errors = 0;
+-	const char *ropts = "e:f:hiIDlmno:pqrsvFRW0";
++	const char *ropts = "e:f:hiIDlmno:pqrsvFRW0x";
+ 	const char *sopts = "c:de:f:hiIDlmno:pqr:svEFR:W0";
+ 	const char *opts;
+ 	union selinux_callback cb;
+@@ -386,6 +386,13 @@ int main(int argc, char **argv)
+ 		case '0':
+ 			null_terminated = 1;
+ 			break;
++                case 'x':
++                        if (iamrestorecon) {
++				r_opts.xdev = SELINUX_RESTORECON_XDEV;
++                        } else {
++				usage(argv[0]);
++                        }
++                        break;
+ 		case 'h':
+ 		case '?':
+ 			usage(argv[0]);
+-- 
+2.26.2
+
