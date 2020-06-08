@@ -7,219 +7,163 @@ X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5970C433E0
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 15:51:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47588C433DF
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:18:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AAA85206A4
-	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 15:51:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1F78A20774
+	for <selinux@archiver.kernel.org>; Mon,  8 Jun 2020 16:18:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A1voqlIK"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Re5A2jlZ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730357AbgFHPvn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 8 Jun 2020 11:51:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55030 "EHLO
+        id S1730443AbgFHQSi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 8 Jun 2020 12:18:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730326AbgFHPvm (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 11:51:42 -0400
-Received: from mail-oo1-xc43.google.com (mail-oo1-xc43.google.com [IPv6:2607:f8b0:4864:20::c43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A310BC08C5C2
-        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 08:51:41 -0700 (PDT)
-Received: by mail-oo1-xc43.google.com with SMTP id q188so3552074ooq.4
-        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 08:51:41 -0700 (PDT)
+        with ESMTP id S1730267AbgFHQSi (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 8 Jun 2020 12:18:38 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66313C08C5C2
+        for <selinux@vger.kernel.org>; Mon,  8 Jun 2020 09:18:38 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id d67so15821294oig.6
+        for <selinux@vger.kernel.org>; Mon, 08 Jun 2020 09:18:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=npR0W4z8SIrkM+X34koGpbw9r1nz+qk9vfZSzkBNpdc=;
-        b=A1voqlIKM32ow4AsTtuBep3e1WSzRHmBdWXltOoD9hTzLajTNsjwpLAHg4XApz9cWn
-         pZgN26PdGQEW6DAgNSdy+1WQXVyac+wqyH0sQqDwhhzRhV5pZyNJZ5hkAGckuCIbctEs
-         1vX2uHd6u5AH96v9LA+ul8s/rL3F+5BuSs+9Df8dESuISbgcV9Pf9Djkphi8xJmnnbwC
-         lFirQrRVlRoM6IGGfH6M8czVs/1GW/NbJ00weq/JSyX/OME+JmxVhPgayJCJVGTOVu63
-         DlK0GS78PmJB3VIDCzTKlzP4UV7T/3RGJxwuuzm82CDkytjN8M7SdYQJ6c1J692+reZ6
-         A9Yg==
+         :cc;
+        bh=hxgX8XRTZ/HnkW28Jox/7DYc5hEQI3C4tGBMR0OOhRA=;
+        b=Re5A2jlZovoEN+Ylll7kgPwdCF81cneXLrrmjJFqAtDCEolVl5NU/OwU86FXZdJtgd
+         cxDlewN53oumqmZJR4Lyp2xqkezh/ZzWsdFC8FVvImLg4ruxqdn03shBYOai3zpMWFd6
+         Z7K935t8UwY97iftQ8fKuHMzMxdnXIiObUzScA8zqJI04Q0ryMZvFfFiWfkijfrX6O2q
+         ufJJqb950UaqvDe4WEvMC/8juIXTHKy6knxs6l7uw60yE6u1cP8JW7PDcR9WPTh+RMhf
+         IBHQ2SCA8XOwGpYuaFDBcuIvJtKfcPh/e/u0zh28vhKeWGGK7PiIM6qm5/2jiN6ipyaE
+         iuEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=npR0W4z8SIrkM+X34koGpbw9r1nz+qk9vfZSzkBNpdc=;
-        b=iFz9QlAzz35FxKYle+V9pPn1MbxalPdYWi7jDkeugdLLw+koshv91OnQ4YnkYQvZPR
-         /PP3Rac/x68ZI4cjr7LjrcPK80UCKFKV9tA4Zn6W0rejfElHdvMN9djQjul5UCC/bPvs
-         9agGVuAAViHVur1/TkJjF2kfTQkkCbVhEwQyzKF59PuwQtqcOIa1WciW7dfYm7mowIuf
-         KUFJP9QqLnup//vOoX+B096IL+fD2d7cmBn1tIJZr5yoQnflzvUW1zy7qH8QNVg4OwPI
-         RB/u7MuqoFOQKnKJZ5BEpmEvJOUlODPG9MLepcEy7QEbiHJpkdf4qoGfHJjciKlN8iGS
-         bvFg==
-X-Gm-Message-State: AOAM531AXMD5u01b4mRxMnGlkrpJg2kaQmcd8kaqKeMx7FRiOa5xVeRQ
-        mprRdrPD3SG5SUxkk7AtlnkAz7uLSe/bLb5eFoQ=
-X-Google-Smtp-Source: ABdhPJzckQqowWoBjIHdGdp0TqOwHj6Ah505kA+bysD+2KDqik6vWNp32npdEln3cvPB3/Yq6SBG3vWPABaX3j0H4Js=
-X-Received: by 2002:a4a:e74a:: with SMTP id n10mr17581369oov.71.1591631500752;
- Mon, 08 Jun 2020 08:51:40 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=hxgX8XRTZ/HnkW28Jox/7DYc5hEQI3C4tGBMR0OOhRA=;
+        b=gmqKMebx0XX9dEsS5RPYoCzo/mJM8VOHUGbP7FBeCwUQ0J6B7Iw2ZL7kB/WmiknszU
+         q9m27y9LHTK87OzkgiLpAzW2CEhsy4f1w7EfBLcQAWmcbQsLdvwQ1HkDyngkWxDG7IAy
+         UylN5ByrcIQ9jE2F3xFBjDNrj3XdDyX0HWVBJJjQEoFMFNMOrQlVHYdR6pFZyJTrkfGs
+         JH5Y5UPXTVCCfNJW5RsuZY4lgXeq8FBzXpGUq+wkBT28Nrgj3f2pfRRapL8oRHbVpNZA
+         ijq2tmRNJPuGGrtwVCuCZtito2Uejvx7eTtwWJ2U9AeGmBdEj0YSuwhjv09EtFT6Rrqh
+         CEKA==
+X-Gm-Message-State: AOAM532rNNrYh5oFYLKqZIrHnBUOUBuanCFqsNC6lEb3kCTvuiZK0AWR
+        eTOY9Qk2ivBRLlV6s1rR1ih7T9vUoKD6zf+a2/g=
+X-Google-Smtp-Source: ABdhPJwi3GfjWvAJDETIoOvqTUhdh+D3Wy4eqgzWPyGixX9AnhTdi7QjiaEMHRys1SQ3tSNW1otAY0mRJB1Kryven7k=
+X-Received: by 2002:aca:ec97:: with SMTP id k145mr121248oih.92.1591633117782;
+ Mon, 08 Jun 2020 09:18:37 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200528125128.26915-1-cgzones@googlemail.com>
- <20200605144912.22522-1-cgzones@googlemail.com> <20200605144912.22522-3-cgzones@googlemail.com>
-In-Reply-To: <20200605144912.22522-3-cgzones@googlemail.com>
+References: <20200605081952.16278-1-toiwoton@gmail.com>
+In-Reply-To: <20200605081952.16278-1-toiwoton@gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 8 Jun 2020 11:51:30 -0400
-Message-ID: <CAEjxPJ7ijbkLTYBjOu=LgxixZ+U4Xr6iQtQf8BEtV853XNEhoA@mail.gmail.com>
-Subject: Re: [PATCH v3 3/3] sepolgen-ifgen: refactor default policy path retrieval
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Date:   Mon, 8 Jun 2020 12:18:26 -0400
+Message-ID: <CAEjxPJ50YNJViUUA=7jaLwzPDMJUE0xzegAes4YF=TwpAo88YQ@mail.gmail.com>
+Subject: Re: [PATCH v2] semanage: handle getprotobyname() failure case
+To:     Topi Miettinen <toiwoton@gmail.com>, linux-audit@redhat.com
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jun 5, 2020 at 10:49 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Fri, Jun 5, 2020 at 4:24 AM Topi Miettinen <toiwoton@gmail.com> wrote:
 >
-> On a SELinux disabled system the python call
-> `selinux.security_policyvers()` will fail.
+> At least on Debian, /etc/protocols, which is used by
+> socket.getprotobyname() to resolve protocols to names, does not
+> contain an entry for "ipv4". In that case, set the protocol number
+> used by audit logs for "ipv4" to a fixed value. To ensure audit log
+> compatibility, let's use the same numeric value as Fedora: 4, which is
+> actually understood by kernel as IP over IP.
 >
-> Move the logic to find a binary policy by iterating over appended
-> version suffixes from the python script `sepolgen-ifgen` to the C
-> helper `sepolgen-ifgen-attr-helper` to make use of the libsepol
-> interface `sepol_policy_kern_vers_max()`.
->
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
 
-I think there are two problems with this change:
-1) It drops the attempt to use /sys/fs/selinux/policy entirely, even
-if SELinux-enabled.
-2) It will incorrectly try to append version suffixes to a pathname
-specified via -p and open those files if the user made a mistake and
-specified a non-existent file rather than just reporting an error on
-the original user-supplied path.
-
-Instead, switch the helper to take a -p pathname optional argument
-with no required argument, and if no pathname was specified, then have
-the helper itself try selinux_current_policy_path() and then
-selinux_binary_policy_path() + version suffixes.  This will require
-linking the helper with libselinux but I don't see that as a problem
-since it was already a dependency for the python script.  We don't
-have to worry about the helper command line interface being stable
-IMHO since it is just an internal helper and not directly used by end
-users.
+This looks fine to me but adding linux-audit mailing list to see if
+they have any concerns.  It appears to make no change to the audit
+messages on Fedora.
 
 > ---
-> v3: Move the iteration logic from sepolgen-ifgen to
->     sepolgen-ifgen-attr-helper and use sepol_policy_kern_vers_max()
->     instead of selinux.security_policyvers(), to work on SELinux
->     disabled systems
+> v2: don't change audit log format
+> ---
+>  python/semanage/seobject.py | 27 +++++++++++++++++++--------
+>  1 file changed, 19 insertions(+), 8 deletions(-)
 >
->  python/audit2allow/sepolgen-ifgen             | 26 ++-----------
->  .../audit2allow/sepolgen-ifgen-attr-helper.c  | 39 ++++++++++++++++---
->  2 files changed, 37 insertions(+), 28 deletions(-)
+> diff --git a/python/semanage/seobject.py b/python/semanage/seobject.py
+> index 6e0b87f2..6a14f7b4 100644
+> --- a/python/semanage/seobject.py
+> +++ b/python/semanage/seobject.py
+> @@ -1870,10 +1870,22 @@ class nodeRecords(semanageRecords):
+>          except:
+>              raise ValueError(_("Unknown or missing protocol"))
 >
-> diff --git a/python/audit2allow/sepolgen-ifgen b/python/audit2allow/sepol=
-gen-ifgen
-> index 4a71cda4..19c3ee30 100644
-> --- a/python/audit2allow/sepolgen-ifgen
-> +++ b/python/audit2allow/sepolgen-ifgen
-> @@ -27,7 +27,6 @@
+> -        return newaddr, newmask, newprotocol
+> +        try:
+> +            audit_protocol = socket.getprotobyname(protocol)
+> +        except:
+> +            # Entry for "ipv4" not found in /etc/protocols on (at
+> +            # least) Debian? To ensure audit log compatibility, let's
+> +            # use the same numeric value as Fedora: 4, which is
+> +            # actually understood by kernel as IP over IP.
+> +            if (protocol == "ipv4"):
+> +                audit_protocol = socket.IPPROTO_IPIP
+> +            else:
+> +                raise ValueError(_("Unknown or missing protocol"))
+> +
+> +        return newaddr, newmask, newprotocol, audit_protocol
 >
+>      def __add(self, addr, mask, proto, serange, ctype):
+> -        addr, mask, proto = self.validate(addr, mask, proto)
+> +        addr, mask, proto, audit_proto = self.validate(addr, mask, proto)
 >
->  import sys
-> -import os
->  import tempfile
->  import subprocess
+>          if is_mls_enabled == 1:
+>              if serange == "":
+> @@ -1942,7 +1954,7 @@ class nodeRecords(semanageRecords):
+>          semanage_node_key_free(k)
+>          semanage_node_free(node)
 >
-> @@ -65,34 +64,15 @@ def parse_options():
->      return options
+> -        self.mylog.log_change("resrc=node op=add laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, socket.getprotobyname(self.protocol[proto]), "system_u", "object_r", ctype, serange))
+> +        self.mylog.log_change("resrc=node op=add laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, audit_proto, "system_u", "object_r", ctype, serange))
 >
+>      def add(self, addr, mask, proto, serange, ctype):
+>          self.begin()
+> @@ -1950,7 +1962,7 @@ class nodeRecords(semanageRecords):
+>          self.commit()
 >
-> -def get_policy():
-> -    p =3D selinux.selinux_current_policy_path()
-> -    if p and os.path.exists(p):
-> -        return p
-> -    i =3D selinux.security_policyvers()
-> -    p =3D selinux.selinux_binary_policy_path() + "." + str(i)
-> -    while i > 0 and not os.path.exists(p):
-> -        i =3D i - 1
-> -        p =3D selinux.selinux_binary_policy_path() + "." + str(i)
-> -    if i > 0:
-> -        return p
-> -    return None
+>      def __modify(self, addr, mask, proto, serange, setype):
+> -        addr, mask, proto = self.validate(addr, mask, proto)
+> +        addr, mask, proto, audit_proto = self.validate(addr, mask, proto)
+>
+>          if serange == "" and setype == "":
+>              raise ValueError(_("Requires setype or serange"))
+> @@ -1987,7 +1999,7 @@ class nodeRecords(semanageRecords):
+>          semanage_node_key_free(k)
+>          semanage_node_free(node)
+>
+> -        self.mylog.log_change("resrc=node op=modify laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, socket.getprotobyname(self.protocol[proto]), "system_u", "object_r", setype, serange))
+> +        self.mylog.log_change("resrc=node op=modify laddr=%s netmask=%s proto=%s tcontext=%s:%s:%s:%s" % (addr, mask, audit_proto, "system_u", "object_r", setype, serange))
+>
+>      def modify(self, addr, mask, proto, serange, setype):
+>          self.begin()
+> @@ -1995,8 +2007,7 @@ class nodeRecords(semanageRecords):
+>          self.commit()
+>
+>      def __delete(self, addr, mask, proto):
 > -
-> -
->  def get_attrs(policy_path, attr_helper):
-> +    if not policy_path:
-> +        policy_path =3D selinux.selinux_binary_policy_path()
-> +
->      try:
-> -        if not policy_path:
-> -            policy_path =3D get_policy()
-> -        if not policy_path:
-> -            sys.stderr.write("No installed policy to check\n")
-> -            return None
->          outfile =3D tempfile.NamedTemporaryFile()
->      except IOError as e:
->          sys.stderr.write("could not open attribute output file\n")
->          return None
-> -    except OSError:
-> -        # SELinux Disabled Machine
-> -        return None
+> -        addr, mask, proto = self.validate(addr, mask, proto)
+> +        addr, mask, proto, audit_proto = self.validate(addr, mask, proto)
 >
->      fd =3D open("/dev/null", "w")
->      ret =3D subprocess.Popen([attr_helper, policy_path, outfile.name], s=
-tdout=3Dfd).wait()
-> diff --git a/python/audit2allow/sepolgen-ifgen-attr-helper.c b/python/aud=
-it2allow/sepolgen-ifgen-attr-helper.c
-> index 1ce37b0d..dab6fb15 100644
-> --- a/python/audit2allow/sepolgen-ifgen-attr-helper.c
-> +++ b/python/audit2allow/sepolgen-ifgen-attr-helper.c
-> @@ -147,13 +147,42 @@ static policydb_t *load_policy(const char *filename=
-)
->         policydb_t *policydb;
->         struct policy_file pf;
->         FILE *fp;
-> +       char pathname[PATH_MAX];
-> +       int suffix_ver;
->         int ret;
+>          (rc, k) = semanage_node_key_create(self.sh, addr, mask, proto)
+>          if rc < 0:
+> @@ -2020,7 +2031,7 @@ class nodeRecords(semanageRecords):
 >
-> -       fp =3D fopen(filename, "r");
-> -       if (fp =3D=3D NULL) {
-> -               fprintf(stderr, "Can't open '%s':  %s\n",
-> -                       filename, strerror(errno));
-> -               return NULL;
-> +       /*
-> +        * First use the pure given path.
-> +        * If it does not exist use paths with version suffixes,
-> +        * starting from the maximum supported policy version.
-> +        */
-> +       if (access(filename, F_OK) =3D=3D 0) {
-> +               fp =3D fopen(filename, "r");
-> +               if (fp =3D=3D NULL) {
-> +                       fprintf(stderr, "Can't open '%s':  %s\n",
-> +                               filename, strerror(errno));
-> +                       return NULL;
-> +               }
-> +       } else {
-> +               for (suffix_ver =3D sepol_policy_kern_vers_max(); suffix_=
-ver > 0; suffix_ver--) {
-> +                       snprintf(pathname, sizeof(pathname), "%s.%d", fil=
-ename, suffix_ver);
-> +
-> +                       if (access(pathname, F_OK) =3D=3D 0)
-> +                               break;
-> +               }
-> +
-> +               if (suffix_ver <=3D 0) {
-> +                       fprintf(stderr, "Can't find any policy at '%s'\n"=
-,
-> +                               filename);
-> +                       return NULL;
-> +               }
-> +
-> +               fp =3D fopen(pathname, "r");
-> +               if (fp =3D=3D NULL) {
-> +                       fprintf(stderr, "Can't open '%s':  %s\n",
-> +                               pathname, strerror(errno));
-> +                       return NULL;
-> +               }
->         }
+>          semanage_node_key_free(k)
 >
->         policy_file_init(&pf);
+> -        self.mylog.log_change("resrc=node op=delete laddr=%s netmask=%s proto=%s" % (addr, mask, socket.getprotobyname(self.protocol[proto])))
+> +        self.mylog.log_change("resrc=node op=delete laddr=%s netmask=%s proto=%s" % (addr, mask, audit_proto))
+>
+>      def delete(self, addr, mask, proto):
+>          self.begin()
 > --
-> 2.27.0
+> 2.26.2
 >
