@@ -2,144 +2,85 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC29DC433E1
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 18:45:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD095C433DF
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 19:49:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A13EC2074B
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 18:45:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 896102072F
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 19:49:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ML6YQ4jJ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E/KQ/afh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729403AbgFISpY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 14:45:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
+        id S1731853AbgFITt0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 15:49:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728400AbgFISpX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 14:45:23 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD89C05BD1E;
-        Tue,  9 Jun 2020 11:45:22 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id h188so13111684lfd.7;
-        Tue, 09 Jun 2020 11:45:22 -0700 (PDT)
+        with ESMTP id S1730918AbgFITtZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 15:49:25 -0400
+Received: from mail-oo1-xc41.google.com (mail-oo1-xc41.google.com [IPv6:2607:f8b0:4864:20::c41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D548C05BD1E
+        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 12:49:25 -0700 (PDT)
+Received: by mail-oo1-xc41.google.com with SMTP id e8so4424119ooi.11
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2020 12:49:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=i3slKnz68qRTQYqlqu1994FSzIGGWBTVPZGv8yJs3pw=;
-        b=ML6YQ4jJb/QFpD8tlkzOor4THQ5URMHQc6txTTzmLBappVOFu3Fa+OdWQIb/8j24Rk
-         dI13GLibsKN+E0P0rVKG37ENqC7EFwukfVYOAkYobmZtX5BvEUvtigeaVCvGPWTPbylf
-         pmppShPfaWtATx966MBrtIwEvz31pPz1XcqRVmQ0QUhpu+o0ihS3hasQHBlh+uK/dAa9
-         8EQ7ofGTbOt4AsKvqPnTfRo/5Pu5c+3E81abKRJUYIUV3zdy1E5v7WJMU4P1UUwFxpIW
-         YbJcBB+Gr11tkLp9eBIlJU0C/q3SObxrTJHxh+hKT5zwa/svQNplBwfQSsAAewTxgWIZ
-         Ktvw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Bikc+X4UDLkfUNBTDfOGVrbGTiIxxavR1LeXBzJW3jw=;
+        b=E/KQ/afhEZGWTm266o8q8U6JaP1Mu5L+Oxn6xUm6r0B271pEDz2RN3xW6owCLwd+YE
+         k+BuEyizA2aEVXyqqohJQ8OpZTBEQfCI0cW2CJqprv3dA+7QN/GN8DWIFODSfBJ/PUqY
+         a6g6MgMX/l/hJvidjwiZIEjYYwLMn1emYtFovRpgN0RtAfafU6zpT+5U2Dkr6sOj8Tox
+         Z4qp8kNXR4XalJNj5egjBwgXp+liqHYRYryw9bcOLGGfgT2Ua+dW2EqO6oS50sgGEINr
+         5KkW4SEfrK6q9BbSLQ8+4nDxfqNHKTWbBDnFYgazj9XO9fjZmuMvtz4dnVrTbB0Eklkw
+         Lf+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=i3slKnz68qRTQYqlqu1994FSzIGGWBTVPZGv8yJs3pw=;
-        b=GYBQW5Sk1kGeIrIT/rbX1JtuTvDpHDas9qjhPxPO/B55QNBQ87t/EUM1mBCq1MHKP1
-         mlM9yU3kgGEs9CMxjnPDcITmapVQAsXj0UquLsSL9e0O2dgyXF/qZumX0xM6/GzICjiJ
-         0RQ1NkVAASw2JKA3wtY1ob4+iPr2FovPybHtOfC3893i+6+rokOtxl3MuqZLjRo56/n2
-         IrA47jpvHRt5u/HJlBSxpqfSgsb/3U5WKY5H7rfSLnPbQAPPJ1InTMooE3Y2uuCCBdVk
-         8KzFfvBiFtq3MVv89OHor3q0R/C4V6uE36WRZrsBB0434NXdCPClyPFeZc8cCroBPV3y
-         Fizg==
-X-Gm-Message-State: AOAM530s2ee1eQ3jcvOGH9w8PynctwKv2XSrOx+dkYoA6vk2HWVFGHrE
-        oALI725PW67YnL8bMDUARXA=
-X-Google-Smtp-Source: ABdhPJxwxkFABLiTt2KrTIcLwoOaAGbHv5L38QkoF51ACI0G15m/iNvaVa1oDM+8DJv+0XS/jcaWoQ==
-X-Received: by 2002:a19:6c4:: with SMTP id 187mr16117916lfg.1.1591728320923;
-        Tue, 09 Jun 2020 11:45:20 -0700 (PDT)
-Received: from grain.localdomain ([5.18.103.226])
-        by smtp.gmail.com with ESMTPSA id x23sm5189028lfe.32.2020.06.09.11.45.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2020 11:45:18 -0700 (PDT)
-Received: by grain.localdomain (Postfix, from userid 1000)
-        id 10BCB1A1EC1; Tue,  9 Jun 2020 21:45:17 +0300 (MSK)
-Date:   Tue, 9 Jun 2020 21:45:17 +0300
-From:   Cyrill Gorcunov <gorcunov@gmail.com>
-To:     Adrian Reber <areber@redhat.com>
-Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Pavel Emelyanov <ovzxemul@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
-        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
-        Kamil Yurtsever <kyurtsever@google.com>,
-        Dirk Petersen <dipeit@gmail.com>,
-        Christine Flood <chf@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Radostin Stoyanov <rstoyanov1@gmail.com>,
-        Serge Hallyn <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-        Eric Paris <eparis@parisplace.org>,
-        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] capabilities: Introduce CAP_CHECKPOINT_RESTORE
-Message-ID: <20200609184517.GL134822@grain>
-References: <20200603162328.854164-1-areber@redhat.com>
- <20200603162328.854164-2-areber@redhat.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Bikc+X4UDLkfUNBTDfOGVrbGTiIxxavR1LeXBzJW3jw=;
+        b=Bfjv56D1zrJuuFTZOUFp8Oh6943q4ZrYVjrweSw+JueAQf8iZ9KPilzfGS8ePLB1ud
+         i+LMX6c9sevGd3QER99yO0AM28JgyhxQc8ZqD0YQdBUd14WUGvzm8Vhy0aJLstx32aDY
+         VGFHApOOUsNJCUqcb6tgUp8LZ0CDbQHX0eilCZKSQugrItm4159R8qN3L5b7UXtoGhc5
+         3BNDchxXSbJR2Z6DBhTJRKXzoHztxu5HChIu7TeezWvrUJRSmkdWL4ue6umrtmmowK/P
+         rf0MOsLSz8VFY568rg5kBqktUwIXVc/9fLXic4ZXI2yzr1cjZIvCvwbUMaPUmh6+cini
+         eDIA==
+X-Gm-Message-State: AOAM533wmw+b8QyGY5woK4aia8e2K/IHScPt4QUXk5cMHmM0GonCgZJD
+        or/uAi9z1qlY2jSMRIFjBJdsvUo8LxXiN4L0EHI=
+X-Google-Smtp-Source: ABdhPJyqcFt/mmzGER5nONTB1/Jhzdf2Y9JGjEr7jXjJfs6IEU0FIE4mDvDxz+lChtlTDJCONRtWY+ShZhRceIWLS5c=
+X-Received: by 2002:a4a:e74a:: with SMTP id n10mr22380870oov.71.1591732164232;
+ Tue, 09 Jun 2020 12:49:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200603162328.854164-2-areber@redhat.com>
-User-Agent: Mutt/1.14.0 (2020-05-02)
+References: <20200531201834.4295-1-toiwoton@gmail.com> <CAEjxPJ4c5kgnvD-wNXiTGDr=EcZXJGqJKS2n89_ht9T=8oyB_g@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4c5kgnvD-wNXiTGDr=EcZXJGqJKS2n89_ht9T=8oyB_g@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 9 Jun 2020 15:49:13 -0400
+Message-ID: <CAEjxPJ5tZCUGXeTe6U2JujWdGc-PkjvP6FUDLgKyUdPJYkxDWQ@mail.gmail.com>
+Subject: Re: [PATCH v2] semanage bash completion: handle semanage module
+To:     Topi Miettinen <toiwoton@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 03, 2020 at 06:23:26PM +0200, Adrian Reber wrote:
-> This patch introduces CAP_CHECKPOINT_RESTORE, a new capability facilitating
-> checkpoint/restore for non-root users.
-> 
-> Over the last years, The CRIU (Checkpoint/Restore In Userspace) team has been
-> asked numerous times if it is possible to checkpoint/restore a process as
-> non-root. The answer usually was: 'almost'.
-> 
-> The main blocker to restore a process as non-root was to control the PID of the
-> restored process. This feature available via the clone3 system call, or via
-> /proc/sys/kernel/ns_last_pid is unfortunately guarded by CAP_SYS_ADMIN.
-...
-> 
-> diff --git a/fs/proc/base.c b/fs/proc/base.c
-> index d86c0afc8a85..ce02f3a4b2d7 100644
-> --- a/fs/proc/base.c
-> +++ b/fs/proc/base.c
-> @@ -2189,16 +2189,16 @@ struct map_files_info {
->  };
->  
->  /*
-> - * Only allow CAP_SYS_ADMIN to follow the links, due to concerns about how the
-> - * symlinks may be used to bypass permissions on ancestor directories in the
-> - * path to the file in question.
-> + * Only allow CAP_SYS_ADMIN and CAP_CHECKPOINT_RESTORE to follow the links, due
-> + * to concerns about how the symlinks may be used to bypass permissions on
-> + * ancestor directories in the path to the file in question.
->   */
->  static const char *
->  proc_map_files_get_link(struct dentry *dentry,
->  			struct inode *inode,
->  		        struct delayed_call *done)
->  {
-> -	if (!capable(CAP_SYS_ADMIN))
-> +	if (!(capable(CAP_SYS_ADMIN) || capable(CAP_CHECKPOINT_RESTORE)))
->  		return ERR_PTR(-EPERM);
+On Thu, Jun 4, 2020 at 3:00 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Sun, May 31, 2020 at 4:25 PM Topi Miettinen <toiwoton@gmail.com> wrote:
+> >
+> > List modules for bash completion of `semanage module`.
+> >
+> > Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> Only caveat is that this can only work if running as root, e.g. sudo
+> semanage module -d <TAB> will produce an error message from the shell
+> but I guess that is true in general.
 
-First of all -- sorry for late reply. You know, looking into this code more
-I think this CAP_SYS_ADMIN is simply wrong: for example I can't even fetch
-links for /proc/self/map_files. Still /proc/$pid/maps (which as well points
-to the files opened) test for ptrace-read permission. I think we need
-ptrace-may-attach test here instead of these capabilities (if I can attach
-to a process I can read any data needed, including the content of the
-mapped files, if only I'm not missing something obvious).
+Applied.
