@@ -2,175 +2,139 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.7 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8AA3C433E1
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 21:10:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5594C433DF
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 21:28:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 99296206C3
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 21:10:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9585E2072F
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 21:28:28 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ixMuTh3w"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726965AbgFIVJz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 17:09:55 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:43448 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725993AbgFIVJx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 17:09:53 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out03.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.90_1)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jilVC-00051G-GE; Tue, 09 Jun 2020 15:09:46 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=x220.xmission.com)
-        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1jilV9-0008Hl-NF; Tue, 09 Jun 2020 15:09:45 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
+        id S1727939AbgFIV2X (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 17:28:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46994 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727001AbgFIV2W (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 17:28:22 -0400
+Received: from mail-lj1-x244.google.com (mail-lj1-x244.google.com [IPv6:2a00:1450:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A15DC05BD1E;
+        Tue,  9 Jun 2020 14:28:22 -0700 (PDT)
+Received: by mail-lj1-x244.google.com with SMTP id 9so17298285ljv.5;
+        Tue, 09 Jun 2020 14:28:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=eMUIJCyAqiPErssvu2L4X70mhx2mJmk33ZrJaC7iHl8=;
+        b=ixMuTh3wC52nziHr1AA8Ptym0DwImvA5Gbg9FprvpGpk4XEsPdKEn81JQuZvBQTVV8
+         ZGhial+5eg61qPtzJ2RFiLA8GmjhTNPrp4oeS5qodA1ahgbIpYd1pApRC3PW/DEv+mUb
+         cE8rNh8EBFhv7mlfADNFyobWiuPmrNoxkT9md5V+sPQbxmu7LggVRWQ51GXukJ9CD7NK
+         O58a3IP4RLbmeqkpQ1esMmtTvtU0gaWb9ux8vNBpfTJaB81dNuRt24dLZKBLJaTgIfJY
+         KWAogPnxwJexTyN9V0PzOS+J52niSis2gm6UWfXAuQhYuZ8oFzqbryqfB0Zk1Pnnk5ZU
+         suCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=eMUIJCyAqiPErssvu2L4X70mhx2mJmk33ZrJaC7iHl8=;
+        b=h2rNrMq6ztkmzJh/ftZ33AkUMPtHneskEuZD7z43VQ6kZY2bbGN6V+yltp8X5v88E3
+         tgIYvS/m7W0RnBe4EovE3dVeMKq5t7MQzbfPVZooJ4ocrxlmxvOeBPKBy1y5PTWZglXQ
+         iedPspw+lhW8cP9KgAGeVYP9wzMmLIRt8MaJl1bXIRA8qOsPpllyaafOyPZqu33y77gr
+         sygRruruvUv2DBql4pJCySMPD4c1W/LTDB72i/eqmj+nYn3nkyVycH+Jwo9deVrIx1pf
+         NYY+N2JSj1KJhrS/vlPGOT+ihhzZ3AgftvaZ2FIj3NRmMkyWvNM5z6gRFqqjH0XQbSlC
+         H4Uw==
+X-Gm-Message-State: AOAM530jGHq8Ct7r+ViYiMBC8aNBedZteXcWlKFR5NVrY3WAUChA+wKX
+        aOhN9iAG68Au52uEwl3Ma8w=
+X-Google-Smtp-Source: ABdhPJyfm1gS5UDR0tbQFtaSDNPx+/jZhgqUkTjRW/RLxOx3piwWnfIEN4ld2nuiQDXw47IHZk86ig==
+X-Received: by 2002:a2e:8601:: with SMTP id a1mr104128lji.255.1591738100422;
+        Tue, 09 Jun 2020 14:28:20 -0700 (PDT)
+Received: from grain.localdomain ([5.18.103.226])
+        by smtp.gmail.com with ESMTPSA id q190sm4502784ljb.29.2020.06.09.14.28.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jun 2020 14:28:19 -0700 (PDT)
+Received: by grain.localdomain (Postfix, from userid 1000)
+        id A77441A1EC1; Wed, 10 Jun 2020 00:28:18 +0300 (MSK)
+Date:   Wed, 10 Jun 2020 00:28:18 +0300
+From:   Cyrill Gorcunov <gorcunov@gmail.com>
 To:     Nicolas Viennot <Nicolas.Viennot@twosigma.com>
-Cc:     Cyrill Gorcunov <gorcunov@gmail.com>,
-        Adrian Reber <areber@redhat.com>,
+Cc:     Adrian Reber <areber@redhat.com>,
         Andy Lutomirski <luto@kernel.org>,
         Christian Brauner <christian.brauner@ubuntu.com>,
+        Eric Biederman <ebiederm@xmission.com>,
         Pavel Emelyanov <ovzxemul@gmail.com>,
         Oleg Nesterov <oleg@redhat.com>,
         Dmitry Safonov <0x7f454c46@gmail.com>,
         Andrei Vagin <avagin@gmail.com>,
         =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
         Kamil Yurtsever <kyurtsever@google.com>,
-        "Dirk Petersen" <dipeit@gmail.com>,
+        Dirk Petersen <dipeit@gmail.com>,
         Christine Flood <chf@redhat.com>,
-        "Casey Schaufler" <casey@schaufler-ca.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
         Mike Rapoport <rppt@linux.ibm.com>,
         Radostin Stoyanov <rstoyanov1@gmail.com>,
         Serge Hallyn <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Sargun Dhillon <sargun@sargun.me>,
         Arnd Bergmann <arnd@arndb.de>,
-        "linux-security-module\@vger.kernel.org" 
+        "linux-security-module@vger.kernel.org" 
         <linux-security-module@vger.kernel.org>,
-        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "selinux\@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
         Eric Paris <eparis@parisplace.org>,
         Jann Horn <jannh@google.com>,
-        "linux-fsdevel\@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-References: <20200603162328.854164-1-areber@redhat.com>
-        <20200603162328.854164-2-areber@redhat.com>
-        <20200609184517.GL134822@grain>
-        <cda72e8402244a85862f95ea84ff9204@EXMBDFT11.ad.twosigma.com>
-Date:   Tue, 09 Jun 2020 16:05:35 -0500
-In-Reply-To: <cda72e8402244a85862f95ea84ff9204@EXMBDFT11.ad.twosigma.com>
-        (Nicolas Viennot's message of "Tue, 9 Jun 2020 20:09:49 +0000")
-Message-ID: <875zc00x28.fsf@x220.int.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1jilV9-0008Hl-NF;;;mid=<875zc00x28.fsf@x220.int.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX1+3zNtYhezsH7anMEiBSb9uRTosANJSnWY=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
 Subject: Re: [PATCH v2 1/3] capabilities: Introduce CAP_CHECKPOINT_RESTORE
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+Message-ID: <20200609212818.GM134822@grain>
+References: <20200603162328.854164-1-areber@redhat.com>
+ <20200603162328.854164-2-areber@redhat.com>
+ <20200609184517.GL134822@grain>
+ <cda72e8402244a85862f95ea84ff9204@EXMBDFT11.ad.twosigma.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cda72e8402244a85862f95ea84ff9204@EXMBDFT11.ad.twosigma.com>
+User-Agent: Mutt/1.14.0 (2020-05-02)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Nicolas Viennot <Nicolas.Viennot@twosigma.com> writes:
+On Tue, Jun 09, 2020 at 08:09:49PM +0000, Nicolas Viennot wrote:
+> >>  proc_map_files_get_link(struct dentry *dentry,
+> >>  			struct inode *inode,
+> >>  		        struct delayed_call *done)
+> >>  {
+> >> -	if (!capable(CAP_SYS_ADMIN))
+> >> +	if (!(capable(CAP_SYS_ADMIN) || capable(CAP_CHECKPOINT_RESTORE)))
+> >>  		return ERR_PTR(-EPERM);
+> 
+> > First of all -- sorry for late reply. You know, looking into this code more I think
+> this CAP_SYS_ADMIN is simply wrong: for example I can't even fetch links for /proc/self/map_files.
+> Still /proc/$pid/maps (which as well points to the files opened) test for ptrace-read permission.
+> I think we need ptrace-may-attach test here instead of these capabilities (if I can attach to
+> a process I can read any data needed, including the content of the mapped files, if only
+> I'm not missing something obvious).
+> 
 
->>>  proc_map_files_get_link(struct dentry *dentry,
->>>  			struct inode *inode,
->>>  		        struct delayed_call *done)
->>>  {
->>> -	if (!capable(CAP_SYS_ADMIN))
->>> +	if (!(capable(CAP_SYS_ADMIN) || capable(CAP_CHECKPOINT_RESTORE)))
->>>  		return ERR_PTR(-EPERM);
->
->> First of all -- sorry for late reply. You know, looking into this
->> code more I think this CAP_SYS_ADMIN is simply wrong: for example I
->> can't even fetch links for /proc/self/map_files. Still
->> /proc/$pid/maps (which as well points to the files opened) test for
->> ptrace-read permission. I think we need ptrace-may-attach test here
->> instead of these capabilities (if I can attach to a process I can
->> read any data needed, including the content of the mapped files, if
->> only I'm not missing something obvious).
->
-> Currently /proc/pid/map_files/* have exactly the same permission
-> checks as /proc/pid/fd/*, with the exception of the extra
-> CAP_SYS_ADMIN check. The check originated from the following
-> discussions where 3 security issues are discussed:
+Nikolas, could you please split the text lines next time, I've had to add newlines into reply manually :)
+
+> Currently /proc/pid/map_files/* have exactly the same permission checks as /proc/pid/fd/*, with the exception
+> of the extra CAP_SYS_ADMIN check. The check originated from the following discussions where 3 security issues are discussed:
 > http://lkml.iu.edu/hypermail/linux/kernel/1505.2/02524.html
 > http://lkml.iu.edu/hypermail/linux/kernel/1505.2/04030.html
->
-> From what I understand, the extra CAP_SYS_ADMIN comes from the
-> following issues:
+> 
+> From what I understand, the extra CAP_SYS_ADMIN comes from the following issues:
+> 1. Being able to open dma-buf / kdbus region (referred in the referenced email as problem #1).
+> I don't fully understand what the dangers are, but perhaps we could do CAP_SYS_ADMIN check
+> only for such dangerous files, as opposed to all files.
 
-> 1. Being able to open dma-buf / kdbus region (referred in the
-> referenced email as problem #1). I don't fully understand what the
-> dangers are, but perhaps we could do CAP_SYS_ADMIN check only for such
-> dangerous files, as opposed to all files.
-
-I don't know precisely the concern but my memory is that some drivers do
-interesting things when mmaped.  Possibly even to changing the vm_file.
-
-I think that is worth running to the ground and figuring out in the
-context of checkpoint/restart because the ordinary checkpoint/restart
-code won't be able deal with them either.
-
-So I vote for figuring that case out and dealing with it.
-
-
-> 2. /proc/pid/fd/* is already a security hole (Andy says "I hope to fix
-> that some day"). He essentially says that it's not because fds are
-> insecure that map_files should be too. He seems to claim that mapped
-> files that are then closed seems to be a bigger concern than other
-> opened files. However, in the present time (5 years after these email
-> conversations), the fd directory does not have the CAP_SYS_ADMIN check
-> which doesn't convinces me that the holes of /proc/pid/fd/* are such a
-> big of a deal. I'm not entirely sure what security issue Andy refers
-> to, but, I understand something along the lines of: Some process gets
-> an fd of a file read-only opened (via a unix socket for example, or
-> after a chroot), and gets to re-open the file in write access via
-> /proc/self/fd/N to do some damage.
-
-I would hope the other permission checks on such a file will prevent
-some of that nonsense.  But definitely worth taking a hard look at.
-
-> 3. Being able to ftruncate a file after a chroot+privilege drop. I may
-> be wrong, but if privileges were dropped, then there's no reason that
-> the then unprivileged user would have write access to the mmaped file
-> inode. Seems a false problem.
-
-Yes.
-
-> It turns out that some of these concerns have been addressed with the
-> introduction of memfd with seals, introduced around the same time
-> where the map_files discussions took place. These seals allow one to
-> share write access of an mmap region to an unsecure program, without
-> fearing of getting a SIGBUS because the unsecure program could call
-> ftruncate() on the fd. More on that at
-> https://lwn.net/Articles/593918/ . Also, that article says "There are
-> a number of fairly immediate use cases for the sealing functionality
-> in general. Graphics drivers could use it to safely receive buffers
-> from applications. The upcoming kdbus transport can benefit from
-> sealing.". This rings a bell with problem #1. Perhaps memfd is a
-> solution to Andy's concerns?
-
-> Overall, I think the CAP_SYS_ADMIN map_files/ extra check compared to
-> fd/ does not improve security in practice. Fds will be given to
-> insecure programs. Better security can be achieved with memfd seals,
-> and sane permissioning on files, regardless if they were once closed.
-
-I would love to see the work put in to safely relax the permission check
-from capable to ns_capable.  Which is just dealing with point 1.
-
-There might be some other assumptions that a process can't get at mmaped
-regions.
-
-Eric
-
-
-
+As far as I remember we only need to read the content of mmap'ed files and if I've ptrace-attach
+permission we aready can inject own code into a process and read anything we wish. That said we probably
+should fixup this interface like -- test for open mode and if it is read only then ptrace-attach
+should be enough, if it is write mode -- then we require being node's admin instead of just adding
+a new capability here. And thanks a huge for mail reference, I'll take a look once time permit.
