@@ -2,97 +2,93 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 58C5CC433E0
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:29:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B288C433E0
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 15:04:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1DABE20774
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:29:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3515920774
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 15:04:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="tHtlXsVb"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YOFv0ZgQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730004AbgFIO3G (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 10:29:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38536 "EHLO
+        id S1728304AbgFIPEi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 11:04:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728601AbgFIO3F (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 10:29:05 -0400
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27DF8C05BD1E
-        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 07:29:05 -0700 (PDT)
-Received: by mail-qt1-x844.google.com with SMTP id q14so17714706qtr.9
-        for <selinux@vger.kernel.org>; Tue, 09 Jun 2020 07:29:05 -0700 (PDT)
+        with ESMTP id S1726903AbgFIPEh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 11:04:37 -0400
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F155BC05BD1E
+        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 08:04:36 -0700 (PDT)
+Received: by mail-lj1-x22c.google.com with SMTP id i27so14539535ljb.12
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2020 08:04:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=0f5Fz+5BAgA2FEY4UOqDOxDSElR6Yfydhxcjf34Ovmg=;
-        b=tHtlXsVbtVrp4Qe4MyjUHju+6Dw7m3a5K9cw33+qFWT7sv6b4jNXEmHoywKA9NxB8+
-         owxlQcoy8Wx3f+u0YBCHYEc2Jtn0sV/JRS3wJ/E0XVEIS771CHXqnebBtQs3g0BQmFTo
-         vwt1Wcxuu/tPlF0Z6Fj+WiJD88QrfNFIJEoYwGlryMZUdKPF+mVqpJ5/ZpLb8fKNeebC
-         tWaXVD3DvqW4Gy+hROfw6VHNGietkCY0GGTJOKt9VbZ+3CnwtCuieTkFb9aoaAnXDQJp
-         u0QqpabWi37Bu2P4io1eSC7m1dlFi4/sZ/+skEjJyjX/r9lXw2DSUbMEQaDgBkQPmi0r
-         VeXQ==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=g6Yjuagb+1onoI2lCv0mePlYyI3vyBXJuUsSjLEvhk0=;
+        b=YOFv0ZgQG351GBIazquykdW/vgR+vc03YNVRyz7nuWCiavNygHT0Kw7C1C2hYAkgMg
+         9woynqPTFtdT/+BRowHCi453wwlljWVj+lPwy9saoD45yomdOjEESSQLFh1C4faj2MAt
+         9BSJtFmw/Yg9CAgsXI0/fBa3urvPjdDrufoSDpuY6FYz4zmhX/IcrXx3aP0tF2dXxns8
+         s1IhIZtbdRkzYw/Wx9iZne8FLBSfqRUC0IwEWrrdvAwQIjTU1yCHxyLk23b0CZe7Vpht
+         YNzIL+P3wA7/lgNnf9wNMlvnpI4M5pIsgUpxVm0Qnpyti+eYbB7lczjyEqUGSqV7ZW1G
+         b/bA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=0f5Fz+5BAgA2FEY4UOqDOxDSElR6Yfydhxcjf34Ovmg=;
-        b=FMf/idL8/ZpvyFnUU1dlLQWNrq4gRC8C8CwfpeecRSxR5DXk4r7I+oSCIZl2SrtvVA
-         I33/P203gpSaibtSlTeT1DbvmMUSTTMge7gUZneKSbG5Fzm/9i2Nj0yShuOx+vjEhMgV
-         /d4+4Vg63B+XDeaO/8+CEdwDA6dxZ92pGnnCS29QBE1moa6+sbDHa0m+NcFMlBaJhloM
-         VGK14/QxYQS0rqVH5LMpU4r+vA91f802DkW6GE7PAqSj6BWFu9qS92dRbp9M6TPsQ/tn
-         ZEYGcHTPxm+qhJQjQmBcAU+NdNSmvYagaSGEdM1aUqwqK3StYQ5iDJXW5xtZJJy4vBQG
-         M23Q==
-X-Gm-Message-State: AOAM531b8SRp64AWRjlmFFzIQmIjlAdexDU8tYckFvKUw0nuhizKp+yj
-        L80j5GaqaAkoX39vMG5R6cTHPXJNt+cIwcTo//dfHg==
-X-Google-Smtp-Source: ABdhPJwYNZL33usoTRUlK9oZb5S9zydNrvnhO86X7vtCIaQ4Z9CRECCsG26ydez8bayCL9AppLo8fYq1Hk1XPKZes3w=
-X-Received: by 2002:ac8:2201:: with SMTP id o1mr29044357qto.68.1591712944383;
- Tue, 09 Jun 2020 07:29:04 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200608162010.122077-1-pww@edgekeep.com> <CAEjxPJ4HAUZf4sSFxXv-Kkb2QQHp4DnoSdMo5MR632Z6Vo2z_g@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4HAUZf4sSFxXv-Kkb2QQHp4DnoSdMo5MR632Z6Vo2z_g@mail.gmail.com>
-From:   Peter Whittaker <pww@edgekeep.com>
-Date:   Tue, 9 Jun 2020 10:29:30 -0400
-Message-ID: <CAGeouKE+ZNbh3PJO8bNfvEf6qJtKvRsoy5K+BYgakuhUJ-JpDg@mail.gmail.com>
-Subject: Re: [PATCH v2] Add restorecon -x option to not cross FS boundaries
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=g6Yjuagb+1onoI2lCv0mePlYyI3vyBXJuUsSjLEvhk0=;
+        b=dnAz7T2pHdZLCvK12dNGTODdlJgw0+54cbPx56rtNmjlB/CJ1SC6dhPF7RHOAF8e+S
+         voVb9DZeWCi9RnKALSuPkrblNR/zOi7Ke0LcxopJj2YpceSgvpn05KXqlDNPMPXBBZJU
+         kmuTyFUNU0+2gKYqMEnzO4DqkqImvqY6nGtEfHziAXCRu9aQHlNqmWn8zz+ar70G+A01
+         jCPaF1OWaH19pr1vagk1sULqweKxAJaFUxYLfgzr0pyjcXuR9DwkFvMEfhSwX7xB3y3j
+         kOaAC6RGexB5uSgAdNhl7W7XBl5nf+bFeTotCXqFcOkAmoYozTJwUZqMG+64SLvEp/DM
+         sxmg==
+X-Gm-Message-State: AOAM532KlVAU+6bXqneq4EZewDfECf/XtG7y1I9T53XK+DSJPApJIma2
+        /X6SBUJcH/WY5nVOpngKtDUdJbJR
+X-Google-Smtp-Source: ABdhPJxlOFLi6lupEqj7OL0N7jK7nP94wTGTOWBAlo51KBnt9I8KwtLZKkgAaW8VqWxsYxTpdyxUlA==
+X-Received: by 2002:a2e:350a:: with SMTP id z10mr13632053ljz.104.1591715075020;
+        Tue, 09 Jun 2020 08:04:35 -0700 (PDT)
+Received: from [192.168.1.38] (88-114-211-119.elisa-laajakaista.fi. [88.114.211.119])
+        by smtp.gmail.com with ESMTPSA id b26sm5140321lfp.40.2020.06.09.08.04.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Jun 2020 08:04:34 -0700 (PDT)
+Subject: Re: No window opening when running sandbox -S
+To:     Cristian Ariza <cariza@collaborative.li>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Petr Lautrbach <plautrba@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+References: <7b738730-bbc3-eb04-b8b8-63706cebce24@collaborative.li>
+ <CAEjxPJ4Rw-B00FWjpTL3dWLwJ8daqy6NH_7su-EtAXYky8caQA@mail.gmail.com>
+ <e99ea6cf-8970-057a-4dad-1d9c5d973ba1@collaborative.li>
+From:   Topi Miettinen <toiwoton@gmail.com>
+Message-ID: <61832df5-4aba-dacd-644b-b8e8eead0fe9@gmail.com>
+Date:   Tue, 9 Jun 2020 18:04:32 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
+MIME-Version: 1.0
+In-Reply-To: <e99ea6cf-8970-057a-4dad-1d9c5d973ba1@collaborative.li>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Yeah, I wondered about that, couldn't see a reasonable pattern, and
-put it in where it seemed, uh, least awkward?
+On 9.6.2020 17.05, Cristian Ariza wrote:
+> I have been fiddling with a few alternatives for sandboxing apps but I 
+> haven't really found anything that comes close. Probably the best I've 
+> seen is firejail and its defaults are not too good (too permissive IMO). 
 
-Thanks for your patience on getting this built, it was an education!
+Please report Firejail issues on Github so they may get attention. 
+Current (unreleased) Firejail also supports SELinux labeling, so 
+existing SELinux rules apply even if the file system is heavily manipulated.
 
-P
-
-Peter Whittaker
-EdgeKeep Inc.
-www.edgekeep.com
-+1 613 864 5337
-+1 613 864 KEEP
-
-
-On Tue, Jun 9, 2020 at 7:56 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Mon, Jun 8, 2020 at 12:21 PM Peter Whittaker <pww@edgekeep.com> wrote:
-> >
-> > Fixes: https://github.com/SELinuxProject/selinux/issues/208
-> >
-> > Signed-off-by: Peter Whittaker <pww@edgekeep.com>
->
-> Only question I had is about the order of options in the usage and man
-> pages but that's a nit and doesn't seem
-> terribly consistent currently.
->
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+-Topi
