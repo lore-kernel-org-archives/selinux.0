@@ -2,116 +2,97 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29AF4C433DF
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:05:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58C5CC433E0
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:29:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAA0C204EA
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:05:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1DABE20774
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:29:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KM5/d/Ku"
+	dkim=pass (2048-bit key) header.d=edgekeep-com.20150623.gappssmtp.com header.i=@edgekeep-com.20150623.gappssmtp.com header.b="tHtlXsVb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730011AbgFIOFZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 10:05:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34848 "EHLO
+        id S1730004AbgFIO3G (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 10:29:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729153AbgFIOFY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 10:05:24 -0400
-Received: from mail-oo1-xc35.google.com (mail-oo1-xc35.google.com [IPv6:2607:f8b0:4864:20::c35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979CDC05BD1E
-        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 07:05:24 -0700 (PDT)
-Received: by mail-oo1-xc35.google.com with SMTP id v26so3165924oof.7
-        for <selinux@vger.kernel.org>; Tue, 09 Jun 2020 07:05:24 -0700 (PDT)
+        with ESMTP id S1728601AbgFIO3F (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 10:29:05 -0400
+Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27DF8C05BD1E
+        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 07:29:05 -0700 (PDT)
+Received: by mail-qt1-x844.google.com with SMTP id q14so17714706qtr.9
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2020 07:29:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=edgekeep-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=jNWgURyHHQ44Su0C5YNNlx441JGRbiHR2Mp+4oHuHYM=;
-        b=KM5/d/Kui8YA37cNoidoMLyWyBEOybQecS3jOrXbmHow77aMgn5ypeBaRR0Jp+3dst
-         /mOUSQnR6VjmCdEkD2Ln89IpQvCawTsavlHpIb14EzdPhsQPDfcNSdpPomzE+w1Y8fsB
-         HNzihXdHabhDQNpWzkdlpobOFRKxENTlgdU0KuU84GubU6GJlfpuWIUzDzGOJnnvTLf7
-         Ley4fPX3FExJ0aBxa6hs9AWyXDUV52tmsErVKunPC/Zmt1zAPA7t905ws4E81/GTm8zw
-         IgRawPoIIYQZ6Wpe3GNdB75OIRXhVMJBp6Z5c/Pnc9MvX/3GXtjdjzEOM9yka1wi9G0/
-         g2qg==
+        bh=0f5Fz+5BAgA2FEY4UOqDOxDSElR6Yfydhxcjf34Ovmg=;
+        b=tHtlXsVbtVrp4Qe4MyjUHju+6Dw7m3a5K9cw33+qFWT7sv6b4jNXEmHoywKA9NxB8+
+         owxlQcoy8Wx3f+u0YBCHYEc2Jtn0sV/JRS3wJ/E0XVEIS771CHXqnebBtQs3g0BQmFTo
+         vwt1Wcxuu/tPlF0Z6Fj+WiJD88QrfNFIJEoYwGlryMZUdKPF+mVqpJ5/ZpLb8fKNeebC
+         tWaXVD3DvqW4Gy+hROfw6VHNGietkCY0GGTJOKt9VbZ+3CnwtCuieTkFb9aoaAnXDQJp
+         u0QqpabWi37Bu2P4io1eSC7m1dlFi4/sZ/+skEjJyjX/r9lXw2DSUbMEQaDgBkQPmi0r
+         VeXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=jNWgURyHHQ44Su0C5YNNlx441JGRbiHR2Mp+4oHuHYM=;
-        b=uYSbgN4liUjr0vZnXuH5xyLrdXcHmYbXKETnbyK5yc+YH+aSrZfi4O6w8DqYsHpe6+
-         uSWrP4sscB1aErje1xzkj7CHkeIE7oYJSiLdDrU63FTwGrCco9/xLYpaKNi0AMz5Olsj
-         igfPVaG/qePdydQFCjFTCWU+JifPKZqmEMhPz9VYk4bYWgHt27xVTIEJGNq8Ac5D7wEM
-         rzQJI7ptg7v4wycuj20wJcU4ARtQFUOHdgse9eXRFqZvjc+NlIOc1QnvOjBmu+Y1mpdX
-         nxfKUHEgakePtUROqYraOn8Kcu3osvXeKPEy9l2mGKB8mwn1olPkAuXLaztgihd/PejG
-         fpyg==
-X-Gm-Message-State: AOAM530VBGSZUoSoyQAc1CqbT0N3Ref3DXvcagfnCG37NCAbc07f5qxs
-        GE8l4WPak5s44sR+iTEJi/MQIIP5YdvYFTIxC/Y=
-X-Google-Smtp-Source: ABdhPJwmao+NQy8VnuYNCHh042CsfWPzTRbJtOxoHjtOhJBp8Uz80W0D1RZtuhmR0kXQuO5ME9gKVdF+HCCLfddaruM=
-X-Received: by 2002:a4a:e74a:: with SMTP id n10mr21022583oov.71.1591711523691;
- Tue, 09 Jun 2020 07:05:23 -0700 (PDT)
+        bh=0f5Fz+5BAgA2FEY4UOqDOxDSElR6Yfydhxcjf34Ovmg=;
+        b=FMf/idL8/ZpvyFnUU1dlLQWNrq4gRC8C8CwfpeecRSxR5DXk4r7I+oSCIZl2SrtvVA
+         I33/P203gpSaibtSlTeT1DbvmMUSTTMge7gUZneKSbG5Fzm/9i2Nj0yShuOx+vjEhMgV
+         /d4+4Vg63B+XDeaO/8+CEdwDA6dxZ92pGnnCS29QBE1moa6+sbDHa0m+NcFMlBaJhloM
+         VGK14/QxYQS0rqVH5LMpU4r+vA91f802DkW6GE7PAqSj6BWFu9qS92dRbp9M6TPsQ/tn
+         ZEYGcHTPxm+qhJQjQmBcAU+NdNSmvYagaSGEdM1aUqwqK3StYQ5iDJXW5xtZJJy4vBQG
+         M23Q==
+X-Gm-Message-State: AOAM531b8SRp64AWRjlmFFzIQmIjlAdexDU8tYckFvKUw0nuhizKp+yj
+        L80j5GaqaAkoX39vMG5R6cTHPXJNt+cIwcTo//dfHg==
+X-Google-Smtp-Source: ABdhPJwYNZL33usoTRUlK9oZb5S9zydNrvnhO86X7vtCIaQ4Z9CRECCsG26ydez8bayCL9AppLo8fYq1Hk1XPKZes3w=
+X-Received: by 2002:ac8:2201:: with SMTP id o1mr29044357qto.68.1591712944383;
+ Tue, 09 Jun 2020 07:29:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <06f4b748-470d-8774-ffbb-5e342f6fcba8@gmail.com>
- <CAHC9VhSjPqsb9ZCWKchhN2ParSR6XH+57jzc7fQ0FjxK28tZOA@mail.gmail.com> <1741fd62-ec03-9d70-d2b6-e1416cf8ae05@gmail.com>
-In-Reply-To: <1741fd62-ec03-9d70-d2b6-e1416cf8ae05@gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 9 Jun 2020 10:05:11 -0400
-Message-ID: <CAEjxPJ72S4nXS=D_4O1WaaoSR7Dc08TRofWpi75cZU-NXtYv1A@mail.gmail.com>
-Subject: Re: Better management of dynamic networks?
-To:     Topi Miettinen <toiwoton@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>
+References: <20200608162010.122077-1-pww@edgekeep.com> <CAEjxPJ4HAUZf4sSFxXv-Kkb2QQHp4DnoSdMo5MR632Z6Vo2z_g@mail.gmail.com>
+In-Reply-To: <CAEjxPJ4HAUZf4sSFxXv-Kkb2QQHp4DnoSdMo5MR632Z6Vo2z_g@mail.gmail.com>
+From:   Peter Whittaker <pww@edgekeep.com>
+Date:   Tue, 9 Jun 2020 10:29:30 -0400
+Message-ID: <CAGeouKE+ZNbh3PJO8bNfvEf6qJtKvRsoy5K+BYgakuhUJ-JpDg@mail.gmail.com>
+Subject: Re: [PATCH v2] Add restorecon -x option to not cross FS boundaries
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 9, 2020 at 4:39 AM Topi Miettinen <toiwoton@gmail.com> wrote:
->
-> On 9.6.2020 0.16, Paul Moore wrote:
-> > I can't say I'm an expert on all the various userspace device
-> > managers, network or otherwise, but so long as they can execute an
-> > arbitrary command then one should be able to use them to label the
-> > device when it is added to the system.  Although perhaps we could make
-> > this easier with docs and/or tools.
->
-> Perhaps this could be solved at least partially by adding a layer of
-> indirection. So instead of directly assigning TE rules to interfaces,
-> nodes and peers, the rules could apply to type attributes (or something
-> else). Then the interfaces, nodes and peers would be tagged somehow with
-> suitable attributes. Preferably tagging should be a faster operation
-> than rebuilding the policy, but the operation should still be controlled
-> by policy.
->
-> So, instead of assigning for example localnet_node_t directly to subnets
-> (which may have different levels of trust depending on the location)
-> with commands (which rebuild the policy) like:
->
-> semanage node -a -t localnet_node_t -p ipv4 -M /8 10.0.0.0
->
-> there would be a static TE rule which states that networks with type
-> (attribute?) 'trusted_localnet' get the label localnet_node_t. Then
-> something else (what, how?) would assign the address ranges with the
-> attributes when the network configuration (like interface up/down
-> status, SSID, routing tables...) changes.
->
-> Likewise, instead of direct assignment like
-> semanage interface -a -t external_if_t -r s0 wlan0
->
-> there would be static TE rules which state that only interfaces with
-> type attributes 'company_approved_model', 'not_random_usb_device',
-> 'company_authenticated_vpn' can get the label external_if_t. Then when
-> new interfaces appear, something else (udevd? how?) would tag the
-> interfaces with the attributes.
->
-> Would this solve anything?
+Yeah, I wondered about that, couldn't see a reasonable pattern, and
+put it in where it seemed, uh, least awkward?
 
-The kernel doesn't label objects with attributes; it labels them with types.
-Attributes are only used within rules (and originally they didn't even
-exist in the kernel policy; they were entirely expanded by the policy
-compilation process, first as a preprocessor stage and later directly
-in checkpolicy/libsepol).
+Thanks for your patience on getting this built, it was an education!
+
+P
+
+Peter Whittaker
+EdgeKeep Inc.
+www.edgekeep.com
++1 613 864 5337
++1 613 864 KEEP
+
+
+On Tue, Jun 9, 2020 at 7:56 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> On Mon, Jun 8, 2020 at 12:21 PM Peter Whittaker <pww@edgekeep.com> wrote:
+> >
+> > Fixes: https://github.com/SELinuxProject/selinux/issues/208
+> >
+> > Signed-off-by: Peter Whittaker <pww@edgekeep.com>
+>
+> Only question I had is about the order of options in the usage and man
+> pages but that's a nit and doesn't seem
+> terribly consistent currently.
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
