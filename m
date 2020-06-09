@@ -2,91 +2,157 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87730C433DF
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 16:05:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4CC1C433E1
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 16:06:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1494820774
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 16:05:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 86CAF20760
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 16:06:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (4096-bit key) header.d=collaborative.li header.i=@collaborative.li header.b="K0bX578m"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KuEo119d"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730999AbgFIQFy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 12:05:54 -0400
-Received: from mx.kolabnow.com ([95.128.36.41]:65318 "EHLO mx.kolabnow.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728888AbgFIQFw (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 9 Jun 2020 12:05:52 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by ext-mx-out002.mykolab.com (Postfix) with ESMTP id 3BCE47D0;
-        Tue,  9 Jun 2020 18:05:50 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        collaborative.li; h=content-transfer-encoding:content-language
-        :content-type:content-type:in-reply-to:mime-version:date:date
-        :message-id:from:from:references:subject:subject:received
-        :received:received; s=dkim20160331; t=1591718749; x=1593533150;
-         bh=ESjIGnNZHqKPyOGmgC6B4sje9uR9aKGitb5hoOKtpqA=; b=K0bX578mq7fY
-        3ui7Z2rEJa5Lb/Ai9TW+a+Z8rcGZllThAGLy+xExavWrrUMqvfRTYSRpErj/fQGW
-        T4rkt1ge38T+Us8rD+cdnLQ0O0xRp7LAUzo/xoqY25HcZBHQt0WK7huFrgZXBKf1
-        2QBhZC8pp0luJ40Blzb8dvgRjOKRUzbWpVc4xVfyds5CURN0PqshEbCMK8blpP9e
-        WMIlxYm3cL0In8OU+n+TYYXQWLZW+epMhyDuVDWyMevZfZ8JX8v64tkBRuzQ9Cu7
-        cTYuetdcinSQ/lkuqUoBbj78JTLBK7DovOCYZi1qFC2J8j+kEIWo2B/+tyfWQ1eL
-        rE/+H8MX7D6dz9H/bq5S0Kd+wwO+dw3p/OIt22HM2awx7Gya2nFa+4RxrwWdYV+g
-        BudRTHZpNda+6JmGEFRVTKaHtN7nAv9XRrXWv+oDUq+igWptu1MhW4LxwUioGH+G
-        kvFy/XT6t0Fv5bk2Be9AmTWyb44rmqNA4Xe8wi40yJRfKfHD8fQKshHMOLLTmejL
-        icVf4nZxEL0qlLdeJRX0egA86esZPiRmgdMDJ363XYt0juH2tKOtcNkYqlkMgng0
-        P3b27tcQ2dQkxpt4eeHwoE+87RBZWdCYgbiX47pw9XgDPH+Yfe1ARbb6l28li6j7
-        fq4596PT7deZy78SguQM2IYHZ1psT1U=
-X-Virus-Scanned: amavisd-new at mykolab.com
-Received: from mx.kolabnow.com ([127.0.0.1])
-        by localhost (ext-mx-out002.mykolab.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id uKk2aCJLrNpL; Tue,  9 Jun 2020 18:05:49 +0200 (CEST)
-Received: from int-mx003.mykolab.com (unknown [10.9.13.3])
-        by ext-mx-out002.mykolab.com (Postfix) with ESMTPS id 79499358;
-        Tue,  9 Jun 2020 18:05:42 +0200 (CEST)
-Received: from ext-subm003.mykolab.com (unknown [10.9.6.3])
-        by int-mx003.mykolab.com (Postfix) with ESMTPS id 68B52AEF;
-        Tue,  9 Jun 2020 18:05:41 +0200 (CEST)
-Subject: Re: No window opening when running sandbox -S
-To:     Topi Miettinen <toiwoton@gmail.com>,
+        id S1731016AbgFIQGc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 12:06:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53624 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728888AbgFIQGb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 12:06:31 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C1E2C05BD1E;
+        Tue,  9 Jun 2020 09:06:31 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id q24so1610242pjd.1;
+        Tue, 09 Jun 2020 09:06:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=upznzRicK8bM+0r52vYWA7QwfS1xzU69CxHqlLRTRT8=;
+        b=KuEo119dEbSH3exz0jF0e8zqicmIaCh+YGX2E4EY+i1/6f/MjNk0NTfdXnmRdoB3fV
+         5rvusnAbcLW6fNepzSlZtL6hDgUjk7wts7aXKSE+jMl79phrlhlfaeHVld8hHQl9SDxg
+         ffmnvGdGFgVoyaTJW7LzcT5wq0UcIuw+h+5K5FVlVDuZzgIqpGPI3IgLImd2pnMi7Az8
+         WL/Pft2eN0DAgbl8nQLXxMYxFaUGmByGHOB3WNC313KOqrAbO1aHd8+nYlXjRejU73JX
+         MG5pzQadrtn9+SBYzQ+O9w+caRrnkct9jb/fFPvDTwQ53JPu/1RuGDbknFMrvt3kmGCe
+         io6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=upznzRicK8bM+0r52vYWA7QwfS1xzU69CxHqlLRTRT8=;
+        b=BCGSw0m6Hu0UVJbPLnFgVUKvT/xrLiMM+/jd9SHOGlyHCWMWMAFakdcAb8C93K7J70
+         RqtvvfvbHIBtLd7U7MhmXmeQDVWKT5Tsj+QRQ/JR3LFbEUblK7W/NXPKmsLq2Nt+mi3/
+         oViQsINvxuml5nH5YvI1cvRLuZR00mz/31MjgJhfyc9FFOPlUj5dILXaGRZpAriIHAoi
+         1KK0nubXHNCq26t9AKJZSLL6kqd1qZc3+hsvNmeC8xxt0a1zz+CN9K9tuh+pshHe4fWR
+         f7RDm9zOK2ZdAzO16ijfz1SVMuZHyaM8tjj89rbsz2Bb3on7IyCSmvrETYPwn+e9Jyjw
+         IHuQ==
+X-Gm-Message-State: AOAM532EWTXvFIAR/GyFYtQlV1NXfhILqXl2/KgwOr2uzrEC0BijcX3R
+        hO3NF29voiaxsjenv06SP6Q=
+X-Google-Smtp-Source: ABdhPJyGG/L+JbnZTjPqIo6VUQfhl2FG2eSEfmVoYEKAPqVGHsvE+qBcAJRzZy7GEB8sKMFZ1semqQ==
+X-Received: by 2002:a17:90a:e398:: with SMTP id b24mr5519607pjz.235.1591718790609;
+        Tue, 09 Jun 2020 09:06:30 -0700 (PDT)
+Received: from gmail.com ([2601:600:817f:a132:df3e:521d:99d5:710d])
+        by smtp.gmail.com with ESMTPSA id e26sm9221419pgl.27.2020.06.09.09.06.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jun 2020 09:06:29 -0700 (PDT)
+Date:   Tue, 9 Jun 2020 09:06:27 -0700
+From:   Andrei Vagin <avagin@gmail.com>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Adrian Reber <areber@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
+        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
+        Dirk Petersen <dipeit@gmail.com>,
+        Christine Flood <chf@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Serge Hallyn <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-References: <7b738730-bbc3-eb04-b8b8-63706cebce24@collaborative.li>
- <CAEjxPJ4Rw-B00FWjpTL3dWLwJ8daqy6NH_7su-EtAXYky8caQA@mail.gmail.com>
- <e99ea6cf-8970-057a-4dad-1d9c5d973ba1@collaborative.li>
- <61832df5-4aba-dacd-644b-b8e8eead0fe9@gmail.com>
-From:   Cristian Ariza <cariza@collaborative.li>
-Message-ID: <3e5daa46-b775-4cdf-05a6-3339852d62cc@collaborative.li>
-Date:   Tue, 9 Jun 2020 17:05:39 +0100
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+        Eric Paris <eparis@parisplace.org>,
+        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] capabilities: Introduce CAP_CHECKPOINT_RESTORE
+Message-ID: <20200609160627.GA163855@gmail.com>
+References: <20200603162328.854164-1-areber@redhat.com>
+ <20200603162328.854164-2-areber@redhat.com>
+ <20200609034221.GA150921@gmail.com>
+ <20200609074422.burwzfgwgqqysrzh@wittgenstein>
 MIME-Version: 1.0
-In-Reply-To: <61832df5-4aba-dacd-644b-b8e8eead0fe9@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20200609074422.burwzfgwgqqysrzh@wittgenstein>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 09/06/2020 16:04, Topi Miettinen wrote:
-> Please report Firejail issues on Github so they may get attention. 
-> Current (unreleased) Firejail also supports SELinux labeling, so 
-> existing SELinux rules apply even if the file system is heavily 
-> manipulated.
+On Tue, Jun 09, 2020 at 09:44:22AM +0200, Christian Brauner wrote:
+> On Mon, Jun 08, 2020 at 08:42:21PM -0700, Andrei Vagin wrote:
+> > On Wed, Jun 03, 2020 at 06:23:26PM +0200, Adrian Reber wrote:
+> > > This patch introduces CAP_CHECKPOINT_RESTORE, a new capability facilitating
+> > > checkpoint/restore for non-root users.
+> > > 
+> > > Over the last years, The CRIU (Checkpoint/Restore In Userspace) team has been
+> > > asked numerous times if it is possible to checkpoint/restore a process as
+> > > non-root. The answer usually was: 'almost'.
+> > > 
+> > > The main blocker to restore a process as non-root was to control the PID of the
+> > > restored process. This feature available via the clone3 system call, or via
+> > > /proc/sys/kernel/ns_last_pid is unfortunately guarded by CAP_SYS_ADMIN.
+> > > 
+> > > In the past two years, requests for non-root checkpoint/restore have increased
+> > > due to the following use cases:
+> > > * Checkpoint/Restore in an HPC environment in combination with a resource
+> > >   manager distributing jobs where users are always running as non-root.
+> > >   There is a desire to provide a way to checkpoint and restore long running
+> > >   jobs.
+> > > * Container migration as non-root
+> > > * We have been in contact with JVM developers who are integrating
+> > >   CRIU into a Java VM to decrease the startup time. These checkpoint/restore
+> > >   applications are not meant to be running with CAP_SYS_ADMIN.
+> > > 
+> > ...
+> > > 
+> > > The introduced capability allows to:
+> > > * Control PIDs when the current user is CAP_CHECKPOINT_RESTORE capable
+> > >   for the corresponding PID namespace via ns_last_pid/clone3.
+> > > * Open files in /proc/pid/map_files when the current user is
+> > >   CAP_CHECKPOINT_RESTORE capable in the root namespace, useful for recovering
+> > >   files that are unreachable via the file system such as deleted files, or memfd
+> > >   files.
+> > 
+> > PTRACE_O_SUSPEND_SECCOMP is needed for C/R and it is protected by
+> > CAP_SYS_ADMIN too.
+> 
+> This is currently capable(CAP_SYS_ADMIN) (init_ns capable) why is it
+> safe to allow unprivileged users to suspend security policies? That
+> sounds like a bad idea.
 
-Is the opinion around the SELinux community that Firejail is good enough 
-(in the field of single-command GUI isolation)? A bit hesitant about its 
-security because of [1]. I know there is a few alternatives [2][3][4] 
-but I don't think I have the knowledge to actually judge which one 
-provides better isolation.
+Why do you think so bad about me;). I don't suggest to remove or
+downgrade this capability check. The patch allows all c/r related
+operations if the current has CAP_CHECKPOINT_RESTORE.
 
-[1] https://www.whonix.org/wiki/Dev/Firejail#Security
-[1] https://github.com/google/nsjail
-[2] https://github.com/containers/bubblewrap
-[3] https://www.freedesktop.org/software/systemd/man/systemd-nspawn.html
+So in this case the check:
+     if (!capable(CAP_SYS_ADMIN))
+             return -EPERM;
+
+will be converted in:
+     if (!capable(CAP_SYS_ADMIN) && !capable(CAP_CHECKPOINT_RESTORE))
+             return -EPERM;
+
+If we want to think about how to convert this capable to ns_capable, we
+need to do this in a separate series. And the logic may be that a
+process is able to suspend only filters that have been added from the
+current user-namespace or its descendants. But we need to think about
+this more carefully, maybe there are more pitfalls.
