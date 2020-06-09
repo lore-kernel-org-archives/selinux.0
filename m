@@ -2,118 +2,76 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A7FDC433E0
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 07:44:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE022C433DF
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 08:02:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F1CD12074B
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 07:44:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F8AE207ED
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 08:02:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (4096-bit key) header.d=collaborative.li header.i=@collaborative.li header.b="0LtxRFpe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726980AbgFIHoy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 03:44:54 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:60738 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726404AbgFIHox (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 03:44:53 -0400
-Received: from ip5f5af183.dynamic.kabel-deutschland.de ([95.90.241.131] helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1jiYvo-0005vo-1f; Tue, 09 Jun 2020 07:44:24 +0000
-Date:   Tue, 9 Jun 2020 09:44:22 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Andrei Vagin <avagin@gmail.com>
-Cc:     Adrian Reber <areber@redhat.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Pavel Emelyanov <ovzxemul@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
-        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
-        Kamil Yurtsever <kyurtsever@google.com>,
-        Dirk Petersen <dipeit@gmail.com>,
-        Christine Flood <chf@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Radostin Stoyanov <rstoyanov1@gmail.com>,
-        Cyrill Gorcunov <gorcunov@openvz.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-        Eric Paris <eparis@parisplace.org>,
-        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] capabilities: Introduce CAP_CHECKPOINT_RESTORE
-Message-ID: <20200609074422.burwzfgwgqqysrzh@wittgenstein>
-References: <20200603162328.854164-1-areber@redhat.com>
- <20200603162328.854164-2-areber@redhat.com>
- <20200609034221.GA150921@gmail.com>
+        id S1727788AbgFIIC2 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 04:02:28 -0400
+Received: from mx.kolabnow.com ([95.128.36.40]:40490 "EHLO mx.kolabnow.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727124AbgFIIC1 (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 9 Jun 2020 04:02:27 -0400
+X-Greylist: delayed 552 seconds by postgrey-1.27 at vger.kernel.org; Tue, 09 Jun 2020 04:02:27 EDT
+Received: from localhost (unknown [127.0.0.1])
+        by ext-mx-out001.mykolab.com (Postfix) with ESMTP id 37688B12
+        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 09:53:13 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        collaborative.li; h=content-language:content-transfer-encoding
+        :content-type:content-type:mime-version:date:date:message-id
+        :subject:subject:from:from:received:received:received; s=
+        dkim20160331; t=1591689192; x=1593503593; bh=lWyCERFvduKjycUWxDT
+        TagSsp3zzcOwBmtWDkOxKPWY=; b=0LtxRFpez+KhVfnJwgvgauNDtqwj7LfL0tO
+        Q/eSF9rajonNTv8xG6ETfDdtWtIxdbE/NHKktFNhPKwwapkbIV6xfmwwhpxfH//l
+        o5HZZ109kVNGqHieGHsb5j/ejpvQG1vEjtfqXhmx/onb9P6gNl1EWmQVLUcvmKaz
+        DFlhWAcoJYylXCrBdWzcvHsAXr46Daj/sBXRxnDOfjuSMl0XxFvn/tWeMO60NO2C
+        +IB/jlfCIELRvxS2UCryks+vLG0SmMj7gGj69Q/ie7cTNozmMGvHgt1gB8P3lyiB
+        66RxdQr2d1DNIvoeRaubX2JwAXWhpxQCEGDqWN25fRyEMoCoKE4LTkBsinZ1SVWG
+        HoTH+KP1DoKcLb617lSUWsKh3vLbhSBrgvFNhyX8scA+ZwDcGEVRgBAICqOzLMcA
+        CDaY0gcyavwu5uqgJ2fwLDnJT1116JjwFGjl6Tzc629Se0MTs3P24EPS2X8dfT2H
+        zXnTFz42+Sclb0EKXGsG/StlZmKdZnFLM2c0dRET07pIA0H9konD1QXaOoAbJtDI
+        GwvnKbuhVj8jrPXEQQ3on8v6vYieUc3CCpw50KSsLIHPfOiz3PlqkSw2K/aI35o7
+        yERHPXdRBtl8F5+1nbF0MpVsojJsqzeH8ubfeCOhphOPzpJ4BDWHmp/N2aMlch0P
+        gkILgg6s=
+X-Virus-Scanned: amavisd-new at mykolab.com
+Received: from mx.kolabnow.com ([127.0.0.1])
+        by localhost (ext-mx-out001.mykolab.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id PeskUI6hYG4j for <selinux@vger.kernel.org>;
+        Tue,  9 Jun 2020 09:53:12 +0200 (CEST)
+Received: from int-mx002.mykolab.com (unknown [10.9.13.2])
+        by ext-mx-out001.mykolab.com (Postfix) with ESMTPS id 9E4EA627
+        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 09:53:12 +0200 (CEST)
+Received: from ext-subm001.mykolab.com (unknown [10.9.6.1])
+        by int-mx002.mykolab.com (Postfix) with ESMTPS id 59EE62379
+        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 09:53:12 +0200 (CEST)
+To:     selinux@vger.kernel.org
+From:   Cristian Ariza <cariza@collaborative.li>
+Subject: No window opening when running sandbox -S
+Message-ID: <7b738730-bbc3-eb04-b8b8-63706cebce24@collaborative.li>
+Date:   Tue, 9 Jun 2020 08:53:10 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20200609034221.GA150921@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jun 08, 2020 at 08:42:21PM -0700, Andrei Vagin wrote:
-> On Wed, Jun 03, 2020 at 06:23:26PM +0200, Adrian Reber wrote:
-> > This patch introduces CAP_CHECKPOINT_RESTORE, a new capability facilitating
-> > checkpoint/restore for non-root users.
-> > 
-> > Over the last years, The CRIU (Checkpoint/Restore In Userspace) team has been
-> > asked numerous times if it is possible to checkpoint/restore a process as
-> > non-root. The answer usually was: 'almost'.
-> > 
-> > The main blocker to restore a process as non-root was to control the PID of the
-> > restored process. This feature available via the clone3 system call, or via
-> > /proc/sys/kernel/ns_last_pid is unfortunately guarded by CAP_SYS_ADMIN.
-> > 
-> > In the past two years, requests for non-root checkpoint/restore have increased
-> > due to the following use cases:
-> > * Checkpoint/Restore in an HPC environment in combination with a resource
-> >   manager distributing jobs where users are always running as non-root.
-> >   There is a desire to provide a way to checkpoint and restore long running
-> >   jobs.
-> > * Container migration as non-root
-> > * We have been in contact with JVM developers who are integrating
-> >   CRIU into a Java VM to decrease the startup time. These checkpoint/restore
-> >   applications are not meant to be running with CAP_SYS_ADMIN.
-> > 
-> ...
-> > 
-> > The introduced capability allows to:
-> > * Control PIDs when the current user is CAP_CHECKPOINT_RESTORE capable
-> >   for the corresponding PID namespace via ns_last_pid/clone3.
-> > * Open files in /proc/pid/map_files when the current user is
-> >   CAP_CHECKPOINT_RESTORE capable in the root namespace, useful for recovering
-> >   files that are unreachable via the file system such as deleted files, or memfd
-> >   files.
-> 
-> PTRACE_O_SUSPEND_SECCOMP is needed for C/R and it is protected by
-> CAP_SYS_ADMIN too.
+$ sandbox -H sandbox/home -T sandbox/tmp -S
 
-This is currently capable(CAP_SYS_ADMIN) (init_ns capable) why is it
-safe to allow unprivileged users to suspend security policies? That
-sounds like a bad idea.
+shows a few Gtk warnings (which I am assuming means Gnome loaded 
+somewhere) but no window opens. In the man page I can't find much 
+information about how sandbox -S actually works so not sure if I am 
+missing something or it's just a bug.
 
-	if (unlikely(data & PTRACE_O_SUSPEND_SECCOMP)) {
-		if (!IS_ENABLED(CONFIG_CHECKPOINT_RESTORE) ||
-		    !IS_ENABLED(CONFIG_SECCOMP))
-			return -EINVAL;
+I am using Fedora 32 with Gnome.
 
-		if (!capable(CAP_SYS_ADMIN))
-			return -EPERM;
-
-		if (seccomp_mode(&current->seccomp) != SECCOMP_MODE_DISABLED ||
-		    current->ptrace & PT_SUSPEND_SECCOMP)
-			return -EPERM;
-	}
-
-Christian
