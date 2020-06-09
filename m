@@ -2,92 +2,95 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C839FC433DF
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 13:02:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E818C433E0
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:02:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9268D2067B
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 13:02:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D8D2120737
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:02:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SU85itTz"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lcl7bidz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727920AbgFINCZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 09:02:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53324 "EHLO
+        id S1726803AbgFIOCK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 10:02:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728052AbgFINCV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 09:02:21 -0400
-Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com [IPv6:2607:f8b0:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D25D8C05BD1E
-        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 06:02:19 -0700 (PDT)
-Received: by mail-ot1-x32a.google.com with SMTP id v13so16525457otp.4
-        for <selinux@vger.kernel.org>; Tue, 09 Jun 2020 06:02:19 -0700 (PDT)
+        with ESMTP id S1726967AbgFIOCI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 10:02:08 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E52C05BD1E
+        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 07:02:08 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id t6so7448856otk.9
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2020 07:02:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ZZUe2Ry3iHI0WxuUjcro2JDoHKiMoIAjdUzJhJ2lwxk=;
-        b=SU85itTzhAErEdz73hwMFivf/e96vuC9bDSNLaUc+Wxy6AyIGEeAIQnsvt0d8YfZ15
-         HkrKKFdl9mTrvBAdtQxiDHxSs0Ys5UVeyAv1trrgC3t7lutZBlGEaFodRfOtxKc59MNT
-         f5I/ABcO2demrKmpo+w2uLq9eYg0mv3R5lG+2FxUk3OG67UoDMG00SC+9XwmpjJG6FPv
-         TDfVPdhWl2bEfsMpkj2S05xeOAVDXn+5We7cySV/zYPd132zH2mC9x+YxJPLi38t3tZe
-         5NncfUsOwTwhd1fGzMNq0eJMgjXDYMoCN5XE1i9h2O7L7sn+TbmYsYgSeBGDHsDK1LP/
-         bt+A==
+        bh=xPW4/mOR5GNdiRTuHGwVVs6UIv3eL5mG0bBru0GXNbQ=;
+        b=lcl7bidzlkfFveSMKzeofiu4U0T4pk4FolpPLkKc6TyAjBm6xI+B6ghC0e7jMJDTef
+         F9AGxAj4Jshmug/+AsuJPTiZcONLO33eZ++O4DZ2m+9eQFyYH9O3aSrIHEV5DsLhyRry
+         If+9hurvCxJyqdimYGa3hdRFHaeu5XuKyJm8cXm7eSYzXYs8L2YfH+/KHTfwJXm4GEdm
+         yOfzoULncuMuakt6bMFXDcK9bpbQjQ46st+jSVOxu8IRMrAGSVKb5OPyP+Zqb2OZ31bd
+         JBjWMEXyUTR/9244O3FFFjFTTtbFGw2u1CSfWXWbJQ5jH5PvJJ1g3YJhA/e+5wMExtFP
+         99ZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ZZUe2Ry3iHI0WxuUjcro2JDoHKiMoIAjdUzJhJ2lwxk=;
-        b=g8QiD4E0xFzU9fU4bJCy7Rr1NuJCA4f50FdThNJLwRkkdX1KBwdqqewaP4FecNs6vX
-         8o5joqdyM5nd4eCqHOD2W95jXpW68AOSN0M6uP0BEJLO1NR4lw8CzCoLhNfNTRk6suBy
-         d4pHO1BMBdYsMKam1xbod3NuhsnEhsZsdJYv9Lx3Ca4bxU5k9aQVu1eZsmKqqJ1Bxz5T
-         QuKa9xXvJcqLOuDLjxjOtm8+Wp4NAE5da3eCtISX5ZhRFivk78/FketemN2osO2GI0qa
-         J6X8NT9hiFZnspeEW8XMblP+oB89ZQo7EyIFaHBTazZowQMs1ti5WghtgrvMctOe0R5j
-         UgXQ==
-X-Gm-Message-State: AOAM530op3YMdnyh2PMSb3shBZ5Epoox+vxnnTLWrBEo9JSjFdtM931k
-        kBux3PSKQYTaIMi8F/fAD2umUBCXmk4m1VfDl1A=
-X-Google-Smtp-Source: ABdhPJyLnDjFsRUdVpukTTXB3g1XXpZatfafuxSfL2esPZ2DbKXTWnHMvEjp4xGwXvOGXGYDdYqYvCbTLBuw4MiADAk=
-X-Received: by 2002:a05:6830:2003:: with SMTP id e3mr20291251otp.89.1591707739012;
- Tue, 09 Jun 2020 06:02:19 -0700 (PDT)
+        bh=xPW4/mOR5GNdiRTuHGwVVs6UIv3eL5mG0bBru0GXNbQ=;
+        b=SgxKmHFFg4+wFRNUuSNMAU5gQKYjhTlkXS2mqHy4AA08v6LXgay4qRie2e7cn4vxhF
+         WVXIokXX5EV2sb0LMWMhwf7wf4bVHTvMBZZyr7Jqxd8nui8m6dpmOxG4jO2AMN0kObmh
+         trSC7W+M9Aw+r55wVl4AWp/JMdDRTxfTxJkWqcU+knDea6q1MteZBimdcf2bViwSPDFn
+         8z7ukNh8L4Uvex33sncDnx28V4m0HqWUqyFAa93FES8OGnCGpJjnqCs7o3umrXFpqh5l
+         pZItJid1FmLOSDOlZxCmV6TWyxidr3Q/Bx8Y7ebIW4PoMYC8cECsFG9sLYClpVNH2+/a
+         UhBA==
+X-Gm-Message-State: AOAM531W8dI1fED4z5COtaMaERhZiDo8Nvf6VvOqqJwWgfDN/7L047pv
+        oU4eyj5oFejZKZiHkVsEFZ52/g2GALHxZDfX/f+IfQ==
+X-Google-Smtp-Source: ABdhPJxeqxPBvwOYkYpYKLwVAThyW/ZsmbU0+C6GfyDF7k0W8GnuRjuBxujqgGjuCjg7CGnNx1Ykz6AAYRbJQz6i5M8=
+X-Received: by 2002:a05:6830:2003:: with SMTP id e3mr20560370otp.89.1591711327395;
+ Tue, 09 Jun 2020 07:02:07 -0700 (PDT)
 MIME-Version: 1.0
-References: <7b738730-bbc3-eb04-b8b8-63706cebce24@collaborative.li>
-In-Reply-To: <7b738730-bbc3-eb04-b8b8-63706cebce24@collaborative.li>
+References: <20200520163421.27965-1-william.c.roberts@intel.com>
+ <20200602191856.5040-1-william.c.roberts@intel.com> <20200602191856.5040-2-william.c.roberts@intel.com>
+In-Reply-To: <20200602191856.5040-2-william.c.roberts@intel.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 9 Jun 2020 09:02:08 -0400
-Message-ID: <CAEjxPJ4Rw-B00FWjpTL3dWLwJ8daqy6NH_7su-EtAXYky8caQA@mail.gmail.com>
-Subject: Re: No window opening when running sandbox -S
-To:     Cristian Ariza <cariza@collaborative.li>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Tue, 9 Jun 2020 10:01:56 -0400
+Message-ID: <CAEjxPJ6E6G6WM0WkyRTEh5CiAyFgU3bU9kLRjXnxoWSgmqucGA@mail.gmail.com>
+Subject: Re: [PATCH v3] ci: run SELinux kernel test suite
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        William Roberts <william.c.roberts@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 9, 2020 at 4:05 AM Cristian Ariza <cariza@collaborative.li> wrote:
+On Tue, Jun 2, 2020 at 3:19 PM <bill.c.roberts@gmail.com> wrote:
 >
-> $ sandbox -H sandbox/home -T sandbox/tmp -S
+> From: William Roberts <william.c.roberts@intel.com>
 >
-> shows a few Gtk warnings (which I am assuming means Gnome loaded
-> somewhere) but no window opens. In the man page I can't find much
-> information about how sandbox -S actually works so not sure if I am
-> missing something or it's just a bug.
+> The current Travis CI runs the userspace tooling and libraries against
+> policy files, but cannot test against an SELinux enabled kernel. Thus,
+> some tests are not being done in the CI. Travis, unfortunately only
+> provides Ubuntu images, so in order to run against a modern distro with
+> SELinux in enforcing mode, we need to launch a KVM with something like
+> Fedora.
 >
-> I am using Fedora 32 with Gnome.
+> This patch enables this support by launching a Fedora32 Cloud Image with
+> the SELinux userspace library passed on from the Travis clone, it then
+> builds and replaces the current SELinux bits on the Fedora32 image and
+> runs the SELinux testsuite.
+>
+> The cloud image run can be controlled with the TRAVIS env variable:
+> TRAVIS_CLOUD_IMAGE_VERSION. That variable takes the major and minor
+> version numbers in a colon delimited string, eg: "32:1.6".
+>
+> Signed-off-by: William Roberts <william.c.roberts@intel.com>
 
-You are using sandbox as packaged by Fedora in
-policycoreutils-sandbox?  If so, please file a bug against their
-package.
-To be honest, I don't use sandbox myself and I am not sure it is being
-very well maintained these days.  It was originally created by Red
-Hat.
-It seems like it has been OBE by other efforts to sandbox apps on
-Linux e.g. flatpak or snaps although I don't know that any of those
-are leveraging SELinux.  I'd be tempted to remove it upstream unless
-it is getting proper care and feeding.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
