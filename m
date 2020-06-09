@@ -2,122 +2,144 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0B53C433DF
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 18:03:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC29DC433E1
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 18:45:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 938B120734
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 18:03:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A13EC2074B
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 18:45:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="He44Zpw2"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ML6YQ4jJ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387972AbgFISDx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 14:03:53 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:46378 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732532AbgFISDv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 14:03:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591725829;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=auOGa7BAxFhLWiIU2ihOLomRY2ps4ZVkjVG0QN7Avvw=;
-        b=He44Zpw2Qj9oN70IU3U949bekLKwwvhs0WXhh1iTOphlR/ITyRc5ilYXwJxryzGuHv4XAo
-        qLt4UhUMH7d4r4Pv6ESfsQq4vf8C+hIkmxal3uf6amUKnV1HqgUIg56FYcQZfu4Sagk5Ab
-        dHt4HvCiu11Vwiqy+0B3EWzE3YTxJZs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-20-DqM8BfNYPnmYBwUvQpaMXQ-1; Tue, 09 Jun 2020 14:03:42 -0400
-X-MC-Unique: DqM8BfNYPnmYBwUvQpaMXQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BE398835B40;
-        Tue,  9 Jun 2020 18:03:41 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.22])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8011E5C48E;
-        Tue,  9 Jun 2020 18:03:40 +0000 (UTC)
-Date:   Tue, 9 Jun 2020 20:03:37 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Cristian Ariza <cariza@collaborative.li>,
+        id S1729403AbgFISpY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 14:45:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728400AbgFISpX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 14:45:23 -0400
+Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FD89C05BD1E;
+        Tue,  9 Jun 2020 11:45:22 -0700 (PDT)
+Received: by mail-lf1-x142.google.com with SMTP id h188so13111684lfd.7;
+        Tue, 09 Jun 2020 11:45:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=i3slKnz68qRTQYqlqu1994FSzIGGWBTVPZGv8yJs3pw=;
+        b=ML6YQ4jJb/QFpD8tlkzOor4THQ5URMHQc6txTTzmLBappVOFu3Fa+OdWQIb/8j24Rk
+         dI13GLibsKN+E0P0rVKG37ENqC7EFwukfVYOAkYobmZtX5BvEUvtigeaVCvGPWTPbylf
+         pmppShPfaWtATx966MBrtIwEvz31pPz1XcqRVmQ0QUhpu+o0ihS3hasQHBlh+uK/dAa9
+         8EQ7ofGTbOt4AsKvqPnTfRo/5Pu5c+3E81abKRJUYIUV3zdy1E5v7WJMU4P1UUwFxpIW
+         YbJcBB+Gr11tkLp9eBIlJU0C/q3SObxrTJHxh+hKT5zwa/svQNplBwfQSsAAewTxgWIZ
+         Ktvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=i3slKnz68qRTQYqlqu1994FSzIGGWBTVPZGv8yJs3pw=;
+        b=GYBQW5Sk1kGeIrIT/rbX1JtuTvDpHDas9qjhPxPO/B55QNBQ87t/EUM1mBCq1MHKP1
+         mlM9yU3kgGEs9CMxjnPDcITmapVQAsXj0UquLsSL9e0O2dgyXF/qZumX0xM6/GzICjiJ
+         0RQ1NkVAASw2JKA3wtY1ob4+iPr2FovPybHtOfC3893i+6+rokOtxl3MuqZLjRo56/n2
+         IrA47jpvHRt5u/HJlBSxpqfSgsb/3U5WKY5H7rfSLnPbQAPPJ1InTMooE3Y2uuCCBdVk
+         8KzFfvBiFtq3MVv89OHor3q0R/C4V6uE36WRZrsBB0434NXdCPClyPFeZc8cCroBPV3y
+         Fizg==
+X-Gm-Message-State: AOAM530s2ee1eQ3jcvOGH9w8PynctwKv2XSrOx+dkYoA6vk2HWVFGHrE
+        oALI725PW67YnL8bMDUARXA=
+X-Google-Smtp-Source: ABdhPJxwxkFABLiTt2KrTIcLwoOaAGbHv5L38QkoF51ACI0G15m/iNvaVa1oDM+8DJv+0XS/jcaWoQ==
+X-Received: by 2002:a19:6c4:: with SMTP id 187mr16117916lfg.1.1591728320923;
+        Tue, 09 Jun 2020 11:45:20 -0700 (PDT)
+Received: from grain.localdomain ([5.18.103.226])
+        by smtp.gmail.com with ESMTPSA id x23sm5189028lfe.32.2020.06.09.11.45.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jun 2020 11:45:18 -0700 (PDT)
+Received: by grain.localdomain (Postfix, from userid 1000)
+        id 10BCB1A1EC1; Tue,  9 Jun 2020 21:45:17 +0300 (MSK)
+Date:   Tue, 9 Jun 2020 21:45:17 +0300
+From:   Cyrill Gorcunov <gorcunov@gmail.com>
+To:     Adrian Reber <areber@redhat.com>
+Cc:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
+        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
+        Dirk Petersen <dipeit@gmail.com>,
+        Christine Flood <chf@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        Serge Hallyn <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Subject: Re: No window opening when running sandbox -S
-Message-ID: <20200609180337.GB139421@localhost.localdomain>
-References: <20200609170747.GA139421@localhost.localdomain>
- <7dd7daa7-217a-fc99-f7d7-d1c629f7c592@collaborative.li>
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+        Eric Paris <eparis@parisplace.org>,
+        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] capabilities: Introduce CAP_CHECKPOINT_RESTORE
+Message-ID: <20200609184517.GL134822@grain>
+References: <20200603162328.854164-1-areber@redhat.com>
+ <20200603162328.854164-2-areber@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <7dd7daa7-217a-fc99-f7d7-d1c629f7c592@collaborative.li>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20200603162328.854164-2-areber@redhat.com>
+User-Agent: Mutt/1.14.0 (2020-05-02)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jun 03, 2020 at 06:23:26PM +0200, Adrian Reber wrote:
+> This patch introduces CAP_CHECKPOINT_RESTORE, a new capability facilitating
+> checkpoint/restore for non-root users.
+> 
+> Over the last years, The CRIU (Checkpoint/Restore In Userspace) team has been
+> asked numerous times if it is possible to checkpoint/restore a process as
+> non-root. The answer usually was: 'almost'.
+> 
+> The main blocker to restore a process as non-root was to control the PID of the
+> restored process. This feature available via the clone3 system call, or via
+> /proc/sys/kernel/ns_last_pid is unfortunately guarded by CAP_SYS_ADMIN.
+...
+> 
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index d86c0afc8a85..ce02f3a4b2d7 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -2189,16 +2189,16 @@ struct map_files_info {
+>  };
+>  
+>  /*
+> - * Only allow CAP_SYS_ADMIN to follow the links, due to concerns about how the
+> - * symlinks may be used to bypass permissions on ancestor directories in the
+> - * path to the file in question.
+> + * Only allow CAP_SYS_ADMIN and CAP_CHECKPOINT_RESTORE to follow the links, due
+> + * to concerns about how the symlinks may be used to bypass permissions on
+> + * ancestor directories in the path to the file in question.
+>   */
+>  static const char *
+>  proc_map_files_get_link(struct dentry *dentry,
+>  			struct inode *inode,
+>  		        struct delayed_call *done)
+>  {
+> -	if (!capable(CAP_SYS_ADMIN))
+> +	if (!(capable(CAP_SYS_ADMIN) || capable(CAP_CHECKPOINT_RESTORE)))
+>  		return ERR_PTR(-EPERM);
 
-On Tue, Jun 09, 2020 at 06:17:40PM +0100, Cristian Ariza wrote:
-> On 09/06/2020 18:07, Petr Lautrbach wrote:
-> > Do you use X session or Wayland?
->=20
-> I've been doing tests now on [Xorg + XFCE] and [Wayland + Gnome]. What I
-> could see is:
->=20
-> * Gnome: -S doesn't work, -X firefox seems fine
-> * XFCE: -S works perfectly, -X firefox doesn't always work and I haven't
-> really found what changes between when it works and when it doesn't.
->=20
->=20
-> > Btw few years ago I wrote support for bubblewrap in sandbox so it's use=
-s it
-> > instead of seunshare [1] but I haven't finished it and sent for review.
-> >=20
-> > https://github.com/bachradsusi/SELinuxProject-selinux/commit/5158ea1f55=
-2fc098647d4c503f646bdcb6d0737f
->=20
-> What benefits would bublewrap provide?
->=20
-
-I don't know. It should provide everything `sandbox` needs, and it's used i=
-n other projects while `seunshare` seems to be
-written just for `sandbox`.
-
-
-
-
---cvVnyQ+4j833TQvp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl7fzvIACgkQviIJHj72
-InWPEg/+IERZNqX0HzqKlmt8RSDpH82dN388NYFIThLt9aDoEm2DR3XrP45G3PJp
-Stc4WNs50+eSKFND5diRs58Ya7Q3dHG1uT4xy1+Ahm6SiY7O/kUznXdQAxKagf1c
-ZoXviWeSA9IuJ2y1C8AxC0xujPYZ6ozW8ON8OQGRqQIdXBX7oToinK03sygm2nYW
-p++J7qNODGeJJnMTjLGVoyGFS5rk8FpxLoeyRTvrqUGXkTdCa1Xi6RD7fSx7MG2Z
-zjnfQh51pEcdqcd/vFL9prIB2BauBI4IXFj6nH6gltpjZ5SmaXMp/09Vu0eoYtEs
-ertx4U32NAP8wqqji9f1FIdrBdI3D8WWcI4h4riKcVeOTzfMpSKzCQoHhTjAEXUH
-48FJa0iBn+NFmVEuaNxGmZTPQh/sX5w9dGIuXWO4AoaV+XG4vsOMvhE6P5GuV5Lb
-1DKSqfx5dikSLrulEF0VpMhHPF5oUUWcoc3YJnI1Tsy1E1GyXrERGHYke4E/EXku
-CXT4jXRPr8dmkg4BCLYljZmzsD8kf32mI8QnP+LINX8Dkw19bYIrcsuy1nfNObM2
-Ek/uv0c625N7yxgEUqcgiH0XOE8NX+hM93I1lAywN9Gy4R6I2jk5pqd3fseHUzQ/
-xCeDNGIvBivqCJ3mYBhLNnpU3ZKbIhrFtXb8d39ojnqaVdOYVGk=
-=tUix
------END PGP SIGNATURE-----
-
---cvVnyQ+4j833TQvp--
-
+First of all -- sorry for late reply. You know, looking into this code more
+I think this CAP_SYS_ADMIN is simply wrong: for example I can't even fetch
+links for /proc/self/map_files. Still /proc/$pid/maps (which as well points
+to the files opened) test for ptrace-read permission. I think we need
+ptrace-may-attach test here instead of these capabilities (if I can attach
+to a process I can read any data needed, including the content of the
+mapped files, if only I'm not missing something obvious).
