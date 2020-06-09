@@ -2,92 +2,116 @@ Return-Path: <SRS0=Yf2H=7W=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BFC2C433DF
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:05:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29AF4C433DF
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:05:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B2AB2074B
-	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:05:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EAA0C204EA
+	for <selinux@archiver.kernel.org>; Tue,  9 Jun 2020 14:05:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (4096-bit key) header.d=collaborative.li header.i=@collaborative.li header.b="nZXyc/VF"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KM5/d/Ku"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730010AbgFIOFO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 9 Jun 2020 10:05:14 -0400
-Received: from mx.kolabnow.com ([95.128.36.41]:61824 "EHLO mx.kolabnow.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729793AbgFIOFM (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Tue, 9 Jun 2020 10:05:12 -0400
-Received: from localhost (unknown [127.0.0.1])
-        by ext-mx-out002.mykolab.com (Postfix) with ESMTP id 708796F4;
-        Tue,  9 Jun 2020 16:05:09 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        collaborative.li; h=content-transfer-encoding:content-language
-        :content-type:content-type:in-reply-to:mime-version:date:date
-        :message-id:from:from:references:subject:subject:received
-        :received:received; s=dkim20160331; t=1591711509; x=1593525910;
-         bh=aMrWcOoj3tVO37LInRpf6nQJUicnTJaRAU64pSsW/JA=; b=nZXyc/VFia9U
-        X7vwe9HHn+Gn2xIlefHWrqe4PEbVOrZUp7t+cFHz0AJu5jQ8NUk72C6nm34EteIn
-        o0tNYZQyMIPukNgx0eNhNdJgsTxUeq2YamePjkUdpfgOmRHD7FFJIyinzFRL5Goo
-        4JeSEQQJrlzcwyECV78DYGXvwact86lq6QsR6C7+2YBAydaq/fLlbqY/RLcJ7esF
-        gLYevQGPeWoBVRM2SqQfvcuP+cI0DgmL3NxQfJqYuKpR04K3qk/PEoAVJr6MFtyh
-        WCnj4tB1kBeoYGoya2NgDJZ4Be27/4UV+noz0j7IxLO4s02aQp0iczwAlgBogpQK
-        eM3w3iqqZfFrC3auUs/rOefuFJ5g6xZyNXxAf3MAPB0SE4Y6PC7H9OdiXZ7pdbfE
-        hCIdEHxf5UBJXhAe4joL+V5FtnSyepCVJ092O8jofdjmGGFJZHnqKWxGdnMUpXTv
-        JxmLe6d/ZCU13TVQU8FPFVBz2/kYr8q5ev/o6d7bGnD/re32rxU1yGmuDGEWqWJV
-        2pW/I6/7nn8daxLmfgEOL7kO5lkY7VKSyRZfiPu7abL8UEG8T0wa4IwHdCeILwmb
-        PLJRgvLLbzFbkXKupUOCxXr9KHdLRSdmiOpz4/DcQKrP5c4++IyCiobOm49/XVUQ
-        H0gdGfgYoiG9CcH0w62XuFOkI1z017A=
-X-Virus-Scanned: amavisd-new at mykolab.com
-Received: from mx.kolabnow.com ([127.0.0.1])
-        by localhost (ext-mx-out002.mykolab.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id tyrZcGTH2SUK; Tue,  9 Jun 2020 16:05:09 +0200 (CEST)
-Received: from int-mx002.mykolab.com (unknown [10.9.13.2])
-        by ext-mx-out002.mykolab.com (Postfix) with ESMTPS id DB59245E;
-        Tue,  9 Jun 2020 16:05:08 +0200 (CEST)
-Received: from ext-subm002.mykolab.com (unknown [10.9.6.2])
-        by int-mx002.mykolab.com (Postfix) with ESMTPS id 8176D25BD;
-        Tue,  9 Jun 2020 16:05:08 +0200 (CEST)
-Subject: Re: No window opening when running sandbox -S
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Petr Lautrbach <plautrba@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-References: <7b738730-bbc3-eb04-b8b8-63706cebce24@collaborative.li>
- <CAEjxPJ4Rw-B00FWjpTL3dWLwJ8daqy6NH_7su-EtAXYky8caQA@mail.gmail.com>
-From:   Cristian Ariza <cariza@collaborative.li>
-Message-ID: <e99ea6cf-8970-057a-4dad-1d9c5d973ba1@collaborative.li>
-Date:   Tue, 9 Jun 2020 15:05:06 +0100
+        id S1730011AbgFIOFZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 9 Jun 2020 10:05:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34848 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729153AbgFIOFY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 9 Jun 2020 10:05:24 -0400
+Received: from mail-oo1-xc35.google.com (mail-oo1-xc35.google.com [IPv6:2607:f8b0:4864:20::c35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 979CDC05BD1E
+        for <selinux@vger.kernel.org>; Tue,  9 Jun 2020 07:05:24 -0700 (PDT)
+Received: by mail-oo1-xc35.google.com with SMTP id v26so3165924oof.7
+        for <selinux@vger.kernel.org>; Tue, 09 Jun 2020 07:05:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jNWgURyHHQ44Su0C5YNNlx441JGRbiHR2Mp+4oHuHYM=;
+        b=KM5/d/Kui8YA37cNoidoMLyWyBEOybQecS3jOrXbmHow77aMgn5ypeBaRR0Jp+3dst
+         /mOUSQnR6VjmCdEkD2Ln89IpQvCawTsavlHpIb14EzdPhsQPDfcNSdpPomzE+w1Y8fsB
+         HNzihXdHabhDQNpWzkdlpobOFRKxENTlgdU0KuU84GubU6GJlfpuWIUzDzGOJnnvTLf7
+         Ley4fPX3FExJ0aBxa6hs9AWyXDUV52tmsErVKunPC/Zmt1zAPA7t905ws4E81/GTm8zw
+         IgRawPoIIYQZ6Wpe3GNdB75OIRXhVMJBp6Z5c/Pnc9MvX/3GXtjdjzEOM9yka1wi9G0/
+         g2qg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jNWgURyHHQ44Su0C5YNNlx441JGRbiHR2Mp+4oHuHYM=;
+        b=uYSbgN4liUjr0vZnXuH5xyLrdXcHmYbXKETnbyK5yc+YH+aSrZfi4O6w8DqYsHpe6+
+         uSWrP4sscB1aErje1xzkj7CHkeIE7oYJSiLdDrU63FTwGrCco9/xLYpaKNi0AMz5Olsj
+         igfPVaG/qePdydQFCjFTCWU+JifPKZqmEMhPz9VYk4bYWgHt27xVTIEJGNq8Ac5D7wEM
+         rzQJI7ptg7v4wycuj20wJcU4ARtQFUOHdgse9eXRFqZvjc+NlIOc1QnvOjBmu+Y1mpdX
+         nxfKUHEgakePtUROqYraOn8Kcu3osvXeKPEy9l2mGKB8mwn1olPkAuXLaztgihd/PejG
+         fpyg==
+X-Gm-Message-State: AOAM530VBGSZUoSoyQAc1CqbT0N3Ref3DXvcagfnCG37NCAbc07f5qxs
+        GE8l4WPak5s44sR+iTEJi/MQIIP5YdvYFTIxC/Y=
+X-Google-Smtp-Source: ABdhPJwmao+NQy8VnuYNCHh042CsfWPzTRbJtOxoHjtOhJBp8Uz80W0D1RZtuhmR0kXQuO5ME9gKVdF+HCCLfddaruM=
+X-Received: by 2002:a4a:e74a:: with SMTP id n10mr21022583oov.71.1591711523691;
+ Tue, 09 Jun 2020 07:05:23 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAEjxPJ4Rw-B00FWjpTL3dWLwJ8daqy6NH_7su-EtAXYky8caQA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <06f4b748-470d-8774-ffbb-5e342f6fcba8@gmail.com>
+ <CAHC9VhSjPqsb9ZCWKchhN2ParSR6XH+57jzc7fQ0FjxK28tZOA@mail.gmail.com> <1741fd62-ec03-9d70-d2b6-e1416cf8ae05@gmail.com>
+In-Reply-To: <1741fd62-ec03-9d70-d2b6-e1416cf8ae05@gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 9 Jun 2020 10:05:11 -0400
+Message-ID: <CAEjxPJ72S4nXS=D_4O1WaaoSR7Dc08TRofWpi75cZU-NXtYv1A@mail.gmail.com>
+Subject: Re: Better management of dynamic networks?
+To:     Topi Miettinen <toiwoton@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 09/06/2020 14:02, Stephen Smalley wrote:
-> You are using sandbox as packaged by Fedora in
-> policycoreutils-sandbox?  If so, please file a bug against their
-> package.
+On Tue, Jun 9, 2020 at 4:39 AM Topi Miettinen <toiwoton@gmail.com> wrote:
+>
+> On 9.6.2020 0.16, Paul Moore wrote:
+> > I can't say I'm an expert on all the various userspace device
+> > managers, network or otherwise, but so long as they can execute an
+> > arbitrary command then one should be able to use them to label the
+> > device when it is added to the system.  Although perhaps we could make
+> > this easier with docs and/or tools.
+>
+> Perhaps this could be solved at least partially by adding a layer of
+> indirection. So instead of directly assigning TE rules to interfaces,
+> nodes and peers, the rules could apply to type attributes (or something
+> else). Then the interfaces, nodes and peers would be tagged somehow with
+> suitable attributes. Preferably tagging should be a faster operation
+> than rebuilding the policy, but the operation should still be controlled
+> by policy.
+>
+> So, instead of assigning for example localnet_node_t directly to subnets
+> (which may have different levels of trust depending on the location)
+> with commands (which rebuild the policy) like:
+>
+> semanage node -a -t localnet_node_t -p ipv4 -M /8 10.0.0.0
+>
+> there would be a static TE rule which states that networks with type
+> (attribute?) 'trusted_localnet' get the label localnet_node_t. Then
+> something else (what, how?) would assign the address ranges with the
+> attributes when the network configuration (like interface up/down
+> status, SSID, routing tables...) changes.
+>
+> Likewise, instead of direct assignment like
+> semanage interface -a -t external_if_t -r s0 wlan0
+>
+> there would be static TE rules which state that only interfaces with
+> type attributes 'company_approved_model', 'not_random_usb_device',
+> 'company_authenticated_vpn' can get the label external_if_t. Then when
+> new interfaces appear, something else (udevd? how?) would tag the
+> interfaces with the attributes.
+>
+> Would this solve anything?
 
-Just tested the version on the selinux repo and works. Will report to 
-Fedora. Thanks.
-
-> To be honest, I don't use sandbox myself and I am not sure it is being
-> very well maintained these days.  It was originally created by Red
-> Hat.
-> It seems like it has been OBE by other efforts to sandbox apps on
-> Linux e.g. flatpak or snaps although I don't know that any of those
-> are leveraging SELinux.  I'd be tempted to remove it upstream unless
-> it is getting proper care and feeding.
-
-I have been fiddling with a few alternatives for sandboxing apps but I 
-haven't really found anything that comes close. Probably the best I've 
-seen is firejail and its defaults are not too good (too permissive IMO). 
-It's a shame if it's not being maintained.
-
+The kernel doesn't label objects with attributes; it labels them with types.
+Attributes are only used within rules (and originally they didn't even
+exist in the kernel policy; they were entirely expanded by the policy
+compilation process, first as a preprocessor stage and later directly
+in checkpolicy/libsepol).
