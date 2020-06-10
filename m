@@ -7,148 +7,78 @@ X-Spam-Status: No, score=-0.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38F9DC433E1
-	for <selinux@archiver.kernel.org>; Wed, 10 Jun 2020 07:59:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 494F9C433DF
+	for <selinux@archiver.kernel.org>; Wed, 10 Jun 2020 13:40:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1599E206C3
-	for <selinux@archiver.kernel.org>; Wed, 10 Jun 2020 07:59:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17AC420760
+	for <selinux@archiver.kernel.org>; Wed, 10 Jun 2020 13:40:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M7NL44k/"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kbm9DdL0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726558AbgFJH7d (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 10 Jun 2020 03:59:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59638 "EHLO
+        id S1726258AbgFJNkc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Jun 2020 09:40:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726081AbgFJH7c (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 10 Jun 2020 03:59:32 -0400
-Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCD06C03E96B;
-        Wed, 10 Jun 2020 00:59:32 -0700 (PDT)
-Received: by mail-pg1-x544.google.com with SMTP id e18so630868pgn.7;
-        Wed, 10 Jun 2020 00:59:32 -0700 (PDT)
+        with ESMTP id S1726157AbgFJNkb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 10 Jun 2020 09:40:31 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82193C03E96B
+        for <selinux@vger.kernel.org>; Wed, 10 Jun 2020 06:40:30 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id u23so1693943otq.10
+        for <selinux@vger.kernel.org>; Wed, 10 Jun 2020 06:40:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=ML9kdv8KWfqd+/DjpnHagHD/lBBhwolauh+PduEJYKE=;
-        b=M7NL44k/SIQ/oZqs1+OEQEsGweIwDPcq4JJ2FJOqeXIWrSzyOk/dYcJqEmw1TuNDXV
-         yfz4kiFeHX5hs+8bJQNPj225LR3utD6BGJApBERwJxYcIJeGnqf68Duiik2+dvAdSHrh
-         r+8990E9lvwOJrDoW5XBMTY3xV0Q7rWDHbqjoRvl8Tz12OjBlw+sjxZmWog9GY+rv878
-         YPRa8n9F/U7CcQ6ngGJG5tQ0TWkwdk/xQfsoYQX+B8mhpS7mx+Sr3t+ED1O869xa1b38
-         7u7eVoGIg34pj499KV99uxxtPrv8XPLvGqhYfu3LfdGmFakhCaJ8BAKXW/RsNM+VX4IH
-         2yTQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8VRqXVpIhoDHWR0FPTfNpNNC7pCjSYya4qjzJAWWVs4=;
+        b=kbm9DdL0sfa3PsdbinEEykYO0kadYlkE6GM62uefi0WNl5edu8HCfcpUqPgntiss65
+         JO1COx1v+SmI/hfSwFqQeRq8pY+nMOe+prj5t3ecK9N989dqFWto3XbmmVl9nshc4dBv
+         +fKtEqoHFWtdgX6X7j7hxaGzxhyrxBsNqks9uM9/Q4i6+/pg6t/uZCrA2BTtS0oISFdh
+         L+QZBhY6dklPPdt8bhXj8W6U90QAQ0waIL0K45qmkSljnbYdW1JTMPS819jY3Xo8fvth
+         9qOLpFLxgIKSf9y2MD+Ahgl0PT5ROF+yn8/wTY+aUatvtB6Tu1rqW3fnsfb4V8jKyG1A
+         Fvlg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ML9kdv8KWfqd+/DjpnHagHD/lBBhwolauh+PduEJYKE=;
-        b=TNv+ksJuKPdmiNV4vtuHYpV1H7JcPXJSaMdgL5e56L8zKPl0ZeZDmhw72cFqcCLVeT
-         4KH9b0l6IPPlB2G5PI9HYOifzuLh1HrWtGLpxIhxUzepkHJ+iwF1YEF0rx9eC6VQFG57
-         jedCJFXDxcjDAecUAai6wJoe2+0J1hx93XH7K/9Kr45oESJ5hINQ66HhWw8wlmxA6Ox6
-         zCce/QfoAaDJSGVOhdwuaVRfvsLjFHSZLmj+Am6hanKpKUC2LUVYZVpJKCfcAQJdXOkf
-         K5l4yur6A3e1/Wqoi8V033kei4i9ky0jrjU7opxms3xHggwLwzzOvBLtwtXPCy4K9DfM
-         Qa8w==
-X-Gm-Message-State: AOAM530ncSUUHu9+lgj+ROBn49t6FUFU2ytB1Pg5MgpnAlscnFEjlgMr
-        uyR7WGHlu2BwG4WLowEJ/2U=
-X-Google-Smtp-Source: ABdhPJyC0mPKfbMVkEXw8hn57l4wa7CCnJylhtEQhbYA+gKaae0hYsYdBYscCSrzl9pclZeuQbkLmg==
-X-Received: by 2002:a65:66d5:: with SMTP id c21mr1579258pgw.155.1591775971718;
-        Wed, 10 Jun 2020 00:59:31 -0700 (PDT)
-Received: from gmail.com ([2601:600:817f:a132:df3e:521d:99d5:710d])
-        by smtp.gmail.com with ESMTPSA id w24sm11877692pfn.11.2020.06.10.00.59.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2020 00:59:30 -0700 (PDT)
-Date:   Wed, 10 Jun 2020 00:59:28 -0700
-From:   Andrei Vagin <avagin@gmail.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     Adrian Reber <areber@redhat.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Pavel Emelyanov <ovzxemul@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
-        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
-        Kamil Yurtsever <kyurtsever@google.com>,
-        Dirk Petersen <dipeit@gmail.com>,
-        Christine Flood <chf@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Radostin Stoyanov <rstoyanov1@gmail.com>,
-        Cyrill Gorcunov <gorcunov@openvz.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-        Eric Paris <eparis@parisplace.org>,
-        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] capabilities: Introduce CAP_CHECKPOINT_RESTORE
-Message-ID: <20200610075928.GA172301@gmail.com>
-References: <20200603162328.854164-1-areber@redhat.com>
- <20200603162328.854164-2-areber@redhat.com>
- <20200609034221.GA150921@gmail.com>
- <20200609074422.burwzfgwgqqysrzh@wittgenstein>
- <20200609160627.GA163855@gmail.com>
- <20200609161427.4eoozs3kkgablmaa@wittgenstein>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8VRqXVpIhoDHWR0FPTfNpNNC7pCjSYya4qjzJAWWVs4=;
+        b=LUIhyg+ZVobrkS+5Pq8gLug2CLFedw5wP0qy04MDtTvAWt0xICqz/ZEYiVActRAOqi
+         Mm8/l/mkOECxYhcy/SyJKgIoFjXrxxsQoyLzTYnmJX+FGHs6BCg1A+QzMJxJe39K2dJ9
+         gjT+PYJ6mXIfxrxVd5Rgb6lN57wPU+mTB7NhPbvevHMDjmOYTYgAFUwmBCZ2Mu4y8ZE9
+         MQeN+rlzXDNUX9zhKemyEMuEzUU92E14H5UbjyY/nLqTC81rooPtzLX/FL2wmkKPocJu
+         AHcCRDLygFP/mXch3mkdGx7OJrqsy2nx36UWTMohM9KuF/Ow6XS00sTzLpzOnppIXMyq
+         ZxQw==
+X-Gm-Message-State: AOAM530H5x2DMR43+5G6W4Fk1xrF6121Lbq0cBQ0Mwswj0lb6Jyors/D
+        mlhZedWrEfq7bMGJpySVg02AD/HIgAVB2uXBHlY8EWxK
+X-Google-Smtp-Source: ABdhPJwejOlGggBtYmJ9zv8y5Z8DaVbnNwREUKiBqqrJoUk8khxue0OMDHTs+r7wnTZwNVBQgoAZAGqjJXOWrWK0vuM=
+X-Received: by 2002:a05:6830:18da:: with SMTP id v26mr2738024ote.135.1591796429980;
+ Wed, 10 Jun 2020 06:40:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20200609161427.4eoozs3kkgablmaa@wittgenstein>
+References: <d3abd210-928e-374f-1e9b-fddfaa203c53@linux.microsoft.com>
+ <CAEjxPJ5Gx+g5U4-iXyMjyGxrvSsGa32jvpjY3_PYS_cbToQTKA@mail.gmail.com>
+ <CAFqZXNs=UKNaS=xAW-R1v7o9KKR61vRjmv+90V29cG-xzn-bFw@mail.gmail.com>
+ <fcb45f43-5814-8d7d-8f66-d770d092f826@linux.microsoft.com>
+ <CAEjxPJ61Bec8Hj8TzH-h_tvaWdGAHoR6ZMye2EazYQUViLfCwg@mail.gmail.com> <0947afa1-0fad-c713-074c-1a9a90dacb16@linux.microsoft.com>
+In-Reply-To: <0947afa1-0fad-c713-074c-1a9a90dacb16@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 10 Jun 2020 09:40:18 -0400
+Message-ID: <CAEjxPJ5hbi-ofMO8knNhwHZqE0M8bO0=5QirVpS4HppAqB0Vhw@mail.gmail.com>
+Subject: Re: Race condition during policy load in kernel
+To:     Daniel Burgener <dburgener@linux.microsoft.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        selinux list <selinux@vger.kernel.org>,
+        james.morris@microsoft.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 09, 2020 at 06:14:27PM +0200, Christian Brauner wrote:
-> On Tue, Jun 09, 2020 at 09:06:27AM -0700, Andrei Vagin wrote:
-> > On Tue, Jun 09, 2020 at 09:44:22AM +0200, Christian Brauner wrote:
-> > > On Mon, Jun 08, 2020 at 08:42:21PM -0700, Andrei Vagin wrote:
-...
-> > > > PTRACE_O_SUSPEND_SECCOMP is needed for C/R and it is protected by
-> > > > CAP_SYS_ADMIN too.
-> > > 
-> > > This is currently capable(CAP_SYS_ADMIN) (init_ns capable) why is it
-> > > safe to allow unprivileged users to suspend security policies? That
-> > > sounds like a bad idea.
-> > 
-...
-> > I don't suggest to remove or
-> > downgrade this capability check. The patch allows all c/r related
-> > operations if the current has CAP_CHECKPOINT_RESTORE.
-> > 
-> > So in this case the check:
-> >      if (!capable(CAP_SYS_ADMIN))
-> >              return -EPERM;
-> > 
-> > will be converted in:
-> >      if (!capable(CAP_SYS_ADMIN) && !capable(CAP_CHECKPOINT_RESTORE))
-> >              return -EPERM;
-> 
-> Yeah, I got that but what's the goal here? Isn't it that you want to
-> make it safe to install the criu binary with the CAP_CHECKPOINT_RESTORE
-> fscap set so that unprivileged users can restore their own processes
-> without creating a new user namespace or am I missing something? The
-> use-cases in the cover-letter make it sound like that's what this is
-> leading up to:
-> > > > > * Checkpoint/Restore in an HPC environment in combination with a resource
-> > > > >   manager distributing jobs where users are always running as non-root.
-> > > > >   There is a desire to provide a way to checkpoint and restore long running
-> > > > >   jobs.
-> > > > > * Container migration as non-root
-> > > > > * We have been in contact with JVM developers who are integrating
-> > > > >   CRIU into a Java VM to decrease the startup time. These checkpoint/restore
-> > > > >   applications are not meant to be running with CAP_SYS_ADMIN.
-> 
-> But maybe I'm just misunderstanding crucial bits (likely (TM)).
+On Wed, Apr 29, 2020 at 8:40 AM Daniel Burgener
+<dburgener@linux.microsoft.com> wrote:
+> I'll start looking into the atomic tree swapover first then.  If that
+> goes well, I'll look into moving on to the policy load refactor.
 
-I think you understand this right. The goal is to make it possible to
-use C/R functionality for unprivileged processes. And for me, here are
-two separate tasks. The first one is how to allow unprivileged users to
-use C/R from the root user namespace. This is what we discuss here.
-
-And another one is how to allow to use C/R functionality from a non-root
-user namespaces. The second task is about downgrading capable to
-ns_capable for map_files and PTRACE_O_SUSPEND_SECCOMP.
-
-Thanks,
-Andrei
+Wanted to check in and see whether you've been able to make any
+progress or need any help.
