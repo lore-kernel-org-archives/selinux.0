@@ -2,112 +2,96 @@ Return-Path: <SRS0=NQFP=7X=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.4 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44240C433DF
-	for <selinux@archiver.kernel.org>; Wed, 10 Jun 2020 20:00:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7C35C433E0
+	for <selinux@archiver.kernel.org>; Wed, 10 Jun 2020 21:57:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2485520656
-	for <selinux@archiver.kernel.org>; Wed, 10 Jun 2020 20:00:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A60CB2072E
+	for <selinux@archiver.kernel.org>; Wed, 10 Jun 2020 21:57:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QRBI8LWx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PDBaKRt8"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730430AbgFJUAp (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 10 Jun 2020 16:00:45 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:38880 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727038AbgFJUAo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 10 Jun 2020 16:00:44 -0400
+        id S1726374AbgFJV5Y (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 10 Jun 2020 17:57:24 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:22040 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726134AbgFJV5X (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 10 Jun 2020 17:57:23 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591819242;
+        s=mimecast20190719; t=1591826242;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=pRtsgZAxObyymDLOXZptKopgjPDlNKhyefsEXrzQ/I4=;
-        b=QRBI8LWxDLGVP7uq76Yb0tcz+YOn0nI1mk8e1F9H+IA7BCQgoBoWXeb5EldxhElegH91z8
-        JBDvYg3CnOcvD7R80usojB4A+p/rg8wJHf7sZdAUMV+94TPL0g7U8bNpcGQWJRTjIBXZ+e
-        KFtkYrktmdSgqzANccJRKCFfWGB3lL4=
-Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com
- [209.85.160.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-328-G6hmCHg9MKSD_YACjNS8mA-1; Wed, 10 Jun 2020 16:00:40 -0400
-X-MC-Unique: G6hmCHg9MKSD_YACjNS8mA-1
-Received: by mail-qt1-f200.google.com with SMTP id o11so2889295qtm.7
-        for <selinux@vger.kernel.org>; Wed, 10 Jun 2020 13:00:40 -0700 (PDT)
+         to:to:cc:cc; bh=VtM0DL68Z0YFosoxESBYhFToC2wio2RnB4Rs6A9Gq0Q=;
+        b=PDBaKRt8MdOMk4G8S+3Mi9CmMg7+oSIi122aKidYZ5bQTEUPHqbVhH3h7rQFv7N4rJd9cr
+        0kV4echZL8x7c/UPmcnoy0I5jf+0r9ku31vQa8PqCCDFBEQY1cxr4UC7KmYX0QaCrULTZZ
+        i8aT51EdnqPpSU2EDejjkYw0k+IXkq8=
+Received: from mail-qv1-f71.google.com (mail-qv1-f71.google.com
+ [209.85.219.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-17-2Te5aIlHNGOx0HbJqfsTSA-1; Wed, 10 Jun 2020 17:57:21 -0400
+X-MC-Unique: 2Te5aIlHNGOx0HbJqfsTSA-1
+Received: by mail-qv1-f71.google.com with SMTP id s15so2916662qvo.6
+        for <selinux@vger.kernel.org>; Wed, 10 Jun 2020 14:57:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=pRtsgZAxObyymDLOXZptKopgjPDlNKhyefsEXrzQ/I4=;
-        b=mGAb5I9G1MgoccgCBLeuEyN/1CYavZXHMETCBNUnVra7yhfKIMcFxCGupKpYzJQra0
-         MdyjpImqDdFhgd5Jy/Ph7jN2leEI1tKZ0HmC7ZHW57LDjt0QJOR6StkP45vYkaKRcAFZ
-         slXGaR+7BVGd7+5vBZG+RpshoYWIf8+iQMRnwUfhZnO6tkoV0QesYhzm/p1od1nfKdzk
-         tPWQz7NFpPJ2eCUrvoUutnIwqakYIggfhyPWB4bseIhhqO0CNJTmCqpRKNCqngSVo1MG
-         hVfHbrewbVRquF/uLf6BDDukEG22DJPFtMSSkqgrKLHFpZbQ9P3Oz4GUy6DYZnFj0unZ
-         T8lw==
-X-Gm-Message-State: AOAM531WgbPIvmsSU5clGDlREiePpvmxkNByW/UzaWQ/w5b/4QU6nukM
-        MJcC2o5MxdAXLz2tyh6riCF3F+Cq7elHLt+yqYVy6f86P0PzB4rCRlpaxVUbf0FAlQzR/uRTmsB
-        tl5YmaD0+1v1SEf2tBg==
-X-Received: by 2002:ac8:fb4:: with SMTP id b49mr5027935qtk.323.1591819238493;
-        Wed, 10 Jun 2020 13:00:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzufTo8WrDTDl54yKLdWR7pe5K6v+H16e02ot8Ki+DcVcjzlOGKWgW5I5q5hVKmeH300x1tig==
-X-Received: by 2002:ac8:fb4:: with SMTP id b49mr5027914qtk.323.1591819238304;
-        Wed, 10 Jun 2020 13:00:38 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=VtM0DL68Z0YFosoxESBYhFToC2wio2RnB4Rs6A9Gq0Q=;
+        b=M26K5apPYeQlr6RjUmTtJS3eMF4SreJSZFju4JLajhb+mAuGKGsAKNHuRKKwNB5cLu
+         XkTiDIn87hOne1HH0nXBG9lLz0juS1CCq74Nr5tKGBeNR6jVPC5V0nFVDHcWhl3bbkmF
+         rg9dhPKhz5TYlqHilQpgcKQNMAcEq2IB8joKxhak3VGWlG91jE9nocTL4zMoK7lpRbhU
+         pGnoF4XvZps11At1BDybwHdgi69eMfKIBV4QzxDRcPxymqZW3PPHKs7sx1sRZQ5EBPbF
+         iy6ipPoCUb3J7Dq+6LdJDQAlNESrCyQp4rmx3/RTNZssvYGAklfgYqTpgstitisA4Lj/
+         o4Kg==
+X-Gm-Message-State: AOAM531elrBWCk1x9WNRWoPOCkCeK2eRUDwNhvpyAQw5HsS0gIztzhx7
+        WrvNYIW80sljSukW51TbzZXiYzZhThO1LjrWqgttF5eXtR140+MTgnQx5zScHnf7yld5f6bvVAf
+        ztMnfjjcSJGlpt5ehag==
+X-Received: by 2002:ac8:724c:: with SMTP id l12mr5577987qtp.259.1591826240758;
+        Wed, 10 Jun 2020 14:57:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxUGaUnW2MRK/CuEdTtnHZ83OpYSRBECQomqVsEp7ut6CzN65E6n+gKJs8MBh4jIgj4Z8QUqw==
+X-Received: by 2002:ac8:724c:: with SMTP id l12mr5577972qtp.259.1591826240578;
+        Wed, 10 Jun 2020 14:57:20 -0700 (PDT)
 Received: from trix.remote.csb (075-142-250-213.res.spectrum.com. [75.142.250.213])
-        by smtp.gmail.com with ESMTPSA id x11sm693401qti.60.2020.06.10.13.00.36
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 10 Jun 2020 13:00:37 -0700 (PDT)
-Subject: Re: [PATCH 1/1] selinux: fix double free
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Jeffrey Vander Stoep <jeffv@google.com>, rgb@redhat.com,
-        SElinux list <selinux@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <20200610181021.19209-1-trix@redhat.com>
- <20200610181021.19209-2-trix@redhat.com>
- <CAEjxPJ4uRG4FiBbyUxQdsLWsz4torr+rst1VKN_Gdk5PqT6Kpw@mail.gmail.com>
-From:   Tom Rix <trix@redhat.com>
-Message-ID: <5bfa5213-7d1b-684a-9e21-488fcbf14b91@redhat.com>
-Date:   Wed, 10 Jun 2020 13:00:35 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.6.0
-MIME-Version: 1.0
-In-Reply-To: <CAEjxPJ4uRG4FiBbyUxQdsLWsz4torr+rst1VKN_Gdk5PqT6Kpw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+        by smtp.gmail.com with ESMTPSA id t13sm934883qtc.77.2020.06.10.14.57.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2020 14:57:19 -0700 (PDT)
+From:   trix@redhat.com
+To:     paul@paul-moore.com, stephen.smalley.work@gmail.com,
+        eparis@parisplace.org, omosnace@redhat.com, jeffv@google.com,
+        rgb@redhat.com
+Cc:     selinux@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Tom Rix <trix@redhat.com>
+Subject: [PATCH v2 0/1] selinux: fix double free
+Date:   Wed, 10 Jun 2020 14:57:12 -0700
+Message-Id: <20200610215713.5319-1-trix@redhat.com>
+X-Mailer: git-send-email 2.18.1
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+From: Tom Rix <trix@redhat.com>
+
+repo: linux-next
+tag: next-20200610
+
+Running clang scan-view over linux-next uncovers many problem only a
+few are memory related, this one looked like the most serious.
+
+Changes from v1
+
+Fix call to kfree
+-		kfree(names);
++		kfree(*names);
 
 
->> +++ b/security/selinux/ss/services.c
->> @@ -2888,8 +2888,12 @@ int security_get_bools(struct selinux_state *state,
->>         if (*names) {
->>                 for (i = 0; i < *len; i++)
->>                         kfree((*names)[i]);
->> +               kfree(names);
-> kfree(*names)?
+Tom Rix (1):
+  selinux: fix double free
 
-Yes.
+ security/selinux/ss/services.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> kfree(*values);
->> +       *len = 0;
->> +       *names = NULL;
->> +       *values = NULL;
->>         goto out;
->>  }
-> Wondering if the caller handling ought to be changed too even though
-> this should avoid the problem.
->
-The poisoning of the returns avoids this.
-
+-- 
+2.18.1
 
