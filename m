@@ -2,152 +2,201 @@ Return-Path: <SRS0=nmhN=7Y=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33FA4C433DF
-	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 12:23:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3AEFC433E0
+	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 13:29:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 06DEE2072F
-	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 12:23:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 948F2207ED
+	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 13:29:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qwlt14V7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Gh7apdvg"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726581AbgFKMXW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Jun 2020 08:23:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726708AbgFKMXW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Jun 2020 08:23:22 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46069C08C5C1
-        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 05:23:22 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id a13so5212664ilh.3
-        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 05:23:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=KGOXDIsfxqAkhYPk1kYUcRo9ymlzrseiOCOiq6aI1x4=;
-        b=qwlt14V7aPgiU+8f54HnLocEAXO11iHUsQv4R3QyHVognq9f32Q6NNbUzZqREB2f2g
-         u5oIxvOITZVfdwMyYQVH+Po2Sj/4HPXxbVGFLsx0ObU4FGiyf+yGFj8GGw2bYen3KE3l
-         DnX/FhYnnleklV7fMHqI6YxboGcvAxBHP5QU90IyLrEEwbPkg2isYsPQNf3rdQ0KwnGX
-         3q9eXiybkkrDksC07dIuF8p0FSU6SHPzOh/olGV+Tpozj2AcLUB9BlqT2AQrlf+PTr7F
-         14Aaf6I7x8OyMgHJwvLxo4AoBzz7yAe28MDjo47gnZ7iOQ5IiBb/0MtpzFAIbDFBOlzb
-         LEAg==
+        id S1728173AbgFKN3p (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Jun 2020 09:29:45 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:23461 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726249AbgFKN3o (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Jun 2020 09:29:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591882182;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=MXzJP+97iuWVSo3gUSmAQl1JcacTLpsKb5Qpq77SsEY=;
+        b=Gh7apdvgnhusAq/cG+IzZvcL1+tEv1QiI0JfxAhq1zPIHI6KwTwhPVUYNFc7w4aUzPCzWu
+        fS7nb53sMpoXN3k4/6n7TugVJp/aTTYcOPskTBfpVGEnh0FMZpXPjVv9G6BLAsmoOXnuPO
+        V/f2LOQERRpb6u/sSzr5ytDRF7KN9p8=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-298-NqUyoN3uOyS_8J-LRpdt2g-1; Thu, 11 Jun 2020 09:29:40 -0400
+X-MC-Unique: NqUyoN3uOyS_8J-LRpdt2g-1
+Received: by mail-lj1-f199.google.com with SMTP id g24so1002156ljn.19
+        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 06:29:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=KGOXDIsfxqAkhYPk1kYUcRo9ymlzrseiOCOiq6aI1x4=;
-        b=jkOaKbGd0hKk/TYBzkC/S48DifOYVpjuAMcAO7zsCt4yVQaswO+p+6v9XHGgA27Hon
-         kP3n7a4KfiRtY39sGLIlpQem3i2JlrhCpzWW0rzX73Km/uKa3JTw3ZO6zs1GjAnsiOlA
-         pps33r76HjQHlocQ1R2mbsbvRkPTKr6A/L6PY6oA9M4VC7V0ewPccr+F7tAMJPoM3mEL
-         RZZ/i3ky+xI8SsHdzYg3LdHhnA2KWWPY0GVFn1OtNbD883+zYCMQEiMwrQdGIIY3zKlh
-         /awNVqRwcTVp7oetE0hEr4AWvWcnt2JuJWjs/3iML73zbWN5utvzl1p3y/mhd+WuUL41
-         qW5Q==
-X-Gm-Message-State: AOAM530szD8ohmafo3lSlUd8VN0Ib3FrTKL7k9ZqY9AaH6la16Dtb8B0
-        E0THXaZNKLQ3DkxCeBq1QVg1N9ZTmXzMAWVmpFE=
-X-Google-Smtp-Source: ABdhPJyAD4A2hCNnN73Z6fp0QGiUz2Dp6srhakA+ZVMsR3BNV7TIaU0J1FF6pzdkdK2oD0rFn7ULNC4TvhiS5Ct2GZE=
-X-Received: by 2002:a92:b704:: with SMTP id k4mr7537730ili.129.1591878201385;
- Thu, 11 Jun 2020 05:23:21 -0700 (PDT)
+        bh=MXzJP+97iuWVSo3gUSmAQl1JcacTLpsKb5Qpq77SsEY=;
+        b=J6d4SUQdxTnc9CU908+HewZFfEUvX80s7Pf7j5caqjO6OtgASrK/AUN+fYX8vkI8tG
+         p229OubxS/uMyu3ZTpHGGpABqXXH1fVJV67/FGPaZ5mpwybm+EkN3qyjyyG/5u0hDRzG
+         m7l//8GjmYbFekSiuGCtSSa7HYcPX8yHdrwH2wHhgQoc6AWxnv51sa1HKKCHLQK2QCde
+         hxaImbakP8wRnOA4DdpXPsn7t9X281RaFVBLq+Dx5nyJM2seRjqk9Qxa6QcT4F98VqE2
+         9/O0h2QlyuWFwMQid7NdE8CT5tgUmVOxSN0G2VqXZZkhm+2XoWePl3BTWZ1jRu1wwZlX
+         wEnQ==
+X-Gm-Message-State: AOAM530MpKFr9LaAV0+HYq8aFQ6Y8taz1dK2gfT1veTd3us0N0zaWthv
+        Zrstnw8PURBPOAYecP/VKT3pOOzaBtW1QKkS9d62EozO7lb4W4ynj0VfYdSzBIYCQTyUCvofW/0
+        CVb6EWV5117x3pzCXseR+ZCQvY8UNZfs5cg==
+X-Received: by 2002:a2e:81c5:: with SMTP id s5mr4194358ljg.372.1591882178534;
+        Thu, 11 Jun 2020 06:29:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJysnLHaaYr0JChUUDcJA9gr489o9/tb4QEeZbcQ0ZfnXDmD+NJNO6RuQ+YEg2CWgol2ZhgkZolfxmm/BkpGrmw=
+X-Received: by 2002:a2e:81c5:: with SMTP id s5mr4194342ljg.372.1591882178176;
+ Thu, 11 Jun 2020 06:29:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200520163421.27965-1-william.c.roberts@intel.com>
- <20200602191856.5040-1-william.c.roberts@intel.com> <20200602191856.5040-2-william.c.roberts@intel.com>
- <20200611120145.GA453655@localhost.localdomain> <CAEjxPJ4+0ct9ZmTxgX9zjer7OGzYY_bWRNMEF0PDe9emVx8SXA@mail.gmail.com>
- <CAFftDdokne7s_RW_XrYX21bgB5Eni38Leg5kxq3evpyrQw_qdQ@mail.gmail.com>
-In-Reply-To: <CAFftDdokne7s_RW_XrYX21bgB5Eni38Leg5kxq3evpyrQw_qdQ@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 11 Jun 2020 07:23:10 -0500
-Message-ID: <CAFftDdqrAhkkeVpm9vExEL8ecnTEz5yeqVj27Zs7PC5_1NVxdg@mail.gmail.com>
-Subject: Re: [PATCH v3] ci: run SELinux kernel test suite
+References: <159110207843.57260.5661475689740939480.stgit@chester>
+ <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com>
+ <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com>
+ <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
+ <CAEjxPJ6nLAOjLvhswyLNCUO8bUuwm_h7emFp7dZXDzRjMuG2HA@mail.gmail.com>
+ <CAEjxPJ47H1_PQ1HnJhqV4yWz_u1vvWR=Q6T999Xm92z04OimqQ@mail.gmail.com> <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 11 Jun 2020 15:29:27 +0200
+Message-ID: <CAFqZXNuWNw+e23_Lz0WN-=HODHmbSAmMQcAX87tVRGp3ZSiccA@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
+ ssleep() discomfort
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Petr Lautrbach <plautrba@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        William Roberts <william.c.roberts@intel.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 7:15 AM William Roberts
-<bill.c.roberts@gmail.com> wrote:
->
-> On Thu, Jun 11, 2020 at 7:14 AM Stephen Smalley
+(Sorry for the late reply.)
+
+On Wed, Jun 10, 2020 at 4:11 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Wed, Jun 10, 2020 at 10:03 AM Stephen Smalley
 > <stephen.smalley.work@gmail.com> wrote:
 > >
-> > On Thu, Jun 11, 2020 at 8:03 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+> > On Mon, Jun 8, 2020 at 6:13 PM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
 > > >
-> > > On Tue, Jun 02, 2020 at 02:18:56PM -0500, bill.c.roberts@gmail.com wrote:
-> > > > From: William Roberts <william.c.roberts@intel.com>
+> > > On Mon, Jun 8, 2020 at 5:35 PM Paul Moore <paul@paul-moore.com> wrote:
 > > > >
-> > > > The current Travis CI runs the userspace tooling and libraries against
-> > > > policy files, but cannot test against an SELinux enabled kernel. Thus,
-> > > > some tests are not being done in the CI. Travis, unfortunately only
-> > > > provides Ubuntu images, so in order to run against a modern distro with
-> > > > SELinux in enforcing mode, we need to launch a KVM with something like
-> > > > Fedora.
+> > > > On Thu, Jun 4, 2020 at 10:49 AM Stephen Smalley
+> > > > <stephen.smalley.work@gmail.com> wrote:
+> > > > > On Tue, Jun 2, 2020 at 8:52 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > > On Tue, Jun 2, 2020 at 8:47 AM Paul Moore <paul@paul-moore.com> wrote:
+> > > > > > >
+> > > > > > > We deprecated the SELinux runtime disable functionality in Linux
+> > > > > > > v5.6, add a five second sleep to anyone using it to help draw their
+> > > > > > > attention to the deprecation.
+> > > > > > >
+> > > > > > > Signed-off-by: Paul Moore <paul@paul-moore.com>
+> > > > > > > ---
+> > > > > > >  security/selinux/selinuxfs.c |    2 ++
+> > > > > > >  1 file changed, 2 insertions(+)
+> > > > > >
+> > > > > > Warning: while trivial, I've done no testing beyond a quick compile
+> > > > > > yet.  I'm posting this now to see what everyone thinks about starting
+> > > > > > to make it a bit more painful to use the runtime disable
+> > > > > > functionality.
+> > > > >
+> > > > > I'm concerned about how users will experience and respond to this
+> > > > > change (and Linus too).  Currently SELinux runtime disable is the
+> > > > > method used by distro installers (at least Fedora/RHEL and
+> > > > > derivatives) when SELinux-disabled is selected at install time and it
+> > > > > is the approach documented in distro documentation for how to disable
+> > > > > SELinux.  Hence, we'd be inflicting pain on the end users for what is
+> > > > > essentially a distro choice.
+
+Good point about the installer. I have already started working on
+preparing Fedora for the runtime disable removal, but so far I'm only
+at the beginning. Updating anaconda to add selinux=0 to the kernel
+params instead of using /etc/selinux/config will be one of the main
+steps.
+
+> > > > I delayed my response in hopes the Fedora folks would also comment,
+> > > > but I'm not seeing anything.
 > > > >
-> > > > This patch enables this support by launching a Fedora32 Cloud Image with
-> > > > the SELinux userspace library passed on from the Travis clone, it then
-> > > > builds and replaces the current SELinux bits on the Fedora32 image and
-> > > > runs the SELinux testsuite.
+> > > > All this patch does is start executing on the deprecation path we laid
+> > > > out when we marked the functionality as deprecated.  When we decided
+> > > > to do this we had buy-in from the Fedora folks (the only ones who
+> > > > still use this option);  if this is a problem for them then I would
+> > > > like to understand what changed, and why.  If it is a matter of this
+> > > > coming too quickly, that's okay, we can push this out another release
+> > > > or two.  We can even drop the sleep down to a second or two.  Both the
+> > > > timing of introducing the delay, and the length of the delay itself,
+> > > > aren't important to me; it's the fact that we are adding a delay and
+> > > > moving forward on the deprecation (just as we said we would).
 > > > >
-> > > > The cloud image run can be controlled with the TRAVIS env variable:
-> > > > TRAVIS_CLOUD_IMAGE_VERSION. That variable takes the major and minor
-> > > > version numbers in a colon delimited string, eg: "32:1.6".
-> > > >
-> > > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> > > > What were you envisioning when we marked this as deprecated Stephen?
+> > > > If not this, what were you thinking we would do?
 > > >
-> > > I pushed all Acked bugs to my fork's branch 3.1-rc2 and the travis jobs failed:
-> > >
-> > > https://travis-ci.org/github/bachradsusi/SELinuxProject-selinux/jobs/697177370
-> > >
-> > > ~~~
-> > > #
-> > > # Great we have a host running, ssh into it. We specify -o so
-> > > # we don't get blocked on asking to add the servers key to
-> > > # our known_hosts.
-> > > #
-> > > ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" "/root/selinux/$TEST_RUNNER"
-> > > bash: /root/selinux/scripts/ci/fedora-test-runner.sh: No such file or directory
-> > > The command "scripts/ci/travis-kvm-setup.sh" exited with 127.
-> > >
-> > > Done. Your build exited with 1.
-> >
-> > Hmm..worked for me.  I looked at your travis log file and it showed
-> > the culprit: your repository is named SELinuxProject-selinux rather
-> > than selinux and the script assumes it is named selinux.  So the
-> > script just needs to be a little more general I guess.
->
-> You guys are way faster than me, i'm still on my first cup of coffee.
-> Let me send something that makes that a tad more general. Ill look
-> into the travis variables.
+> > > I feel like we've already communicated the fact that it is being
+> > > deprecated to those who need to know (Fedora maintainers), and we
+> > > already have it displaying an error message for those who look at
+> > > kernel logs.  So I was fine with just waiting some number of kernel
+> > > release cycles (not sure what is typical for these kinds of things)
+> > > and then just changing selinux_write_disable() to just return 0
+> > > without doing anything and dropping the selinux_disable() code and the
+> > > config option.  I think we'll want it to return 0 rather than an error
+> > > so that systemd will still unmount selinuxfs and act as if SELinux has
+> > > been disabled (which in turn will case everything else to act as if
+> > > SELinux has been disabled).  The kernel will be in permissive mode
+> > > with no policy loaded in that situation, so except for some corner
+> > > cases everything should just work.  That seems the least disruptive
+> > > path for end users.  Distro maintainers will hopefully get around to
+> > > using selinux=0 instead but that may lag.
 
-I didn't see anything that just provides the name of the project, but basename
-of $TRAVIS_BUILD_DIR i think will give us what we want, so I did:
+I also prefer to rather go somewhere in this direction rather than
+introducing the delay. I was kinda OK with the delay at first, but as
+Stephen points out, it would punish users rather than distros, even
+though users are (normally) not the ones that make a conscious
+decision to use the runtime disable.
 
-diff --git a/scripts/ci/travis-kvm-setup.sh b/scripts/ci/travis-kvm-setup.sh
-index 864dbac96a46..ceedaa6f4e27 100755
---- a/scripts/ci/travis-kvm-setup.sh
-+++ b/scripts/ci/travis-kvm-setup.sh
-@@ -120,6 +120,7 @@ fi
- # we don't get blocked on asking to add the servers key to
- # our known_hosts.
- #
--ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy"
-"/root/selinux/$TEST_RUNNER"
-+project_dir="$(basename "$TRAVIS_BUILD_DIR")"
-+ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy"
-"/root/$project_dir/$TEST_RUNNER"
+> > I just tested with building a kernel with
+> > CONFIG_SECURITY_SELINUX_DISABLE=n and setting SELINUX=disabled in
+> > /etc/selinux/config, and the system came up with selinuxfs unmounted,
+> > sestatus and friends think SELinux is disabled, but it is enabled just
+> > permissive with no policy.  I double checked the logic in systemd and
+> > libselinux (selinux_init_load_policy()) and it does handle an error
+> > return from writing to /sys/fs/selinux/disable gracefully.  So I guess
+> > we can have it return an error without breaking userspace.
 
- exit 0
+Yes, I was under the impression that some changes in libselinux are
+needed before this works transparently, but apparently it already does
+the right thing now. In that case I'd say that it may be better to
+skip adding sleeps etc. and just remove the feature at some point. But
+please let's wait with that for a while longer so we can prepare
+Fedora for it first. It's hard to tell at this point how long that
+will take, but it could be several months.
 
-----
+Then again, the sleep might be helpful to wake up potential non-Fedora
+users (if any) and in Fedora we can always apply a revert as a
+downstream patch until things are sorted. So if you guys really want
+it, I think we can deal with it.
 
-Im testing now.
+> Ondrej might want to check that it doesn't break RHEL either but I
+> wouldn't really expect this to get back-ported to RHEL anyway unless
+> they want the additional hardening gain from being able to make the
+> LSM hooks read-only after initialization.
+
+We definitely don't plan on backporting it to existing major RHEL
+releases. However, I'd like to prepare Fedora for a life without the
+runtime disable (and to disable the kernel config option as the final
+step) before the next major release is branched off of Fedora, so any
+future major releases will hopefully already ship with SELINUX_DISABLE
+turned off/removed.
+
+--
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
