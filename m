@@ -2,67 +2,65 @@ Return-Path: <SRS0=nmhN=7Y=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE5B0C433DF
-	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 12:13:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C285C433E0
+	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 12:14:24 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9357620760
-	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 12:13:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5596B20760
+	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 12:14:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SkRHInpJ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GlO/Efqx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727849AbgFKMNh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Jun 2020 08:13:37 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:22659 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727769AbgFKMNg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Jun 2020 08:13:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591877615;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=0hiLrEUjhDnfNPxbZlUvvYkYwePJEaiEMrr2RrPWnuQ=;
-        b=SkRHInpJ/o3J2FzfPZcDPGLREdT9KFPdttgxqcopZEiHyBEmQ/8HySTA2RuIbJDmrxNcfs
-        h0/4/dtHgNxCteuthJ8m8BzTFYPCJVTXJGz55aDHniqKw1N2QXE5vEKuaYaxLMUXsHCw0G
-        V7ZWKm6GDI/Vt9VA6mLATCBfaE5RqzI=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-161-A2znzicjOcuBiY6bg6_Ymg-1; Thu, 11 Jun 2020 08:13:33 -0400
-X-MC-Unique: A2znzicjOcuBiY6bg6_Ymg-1
-Received: by mail-lj1-f200.google.com with SMTP id g11so965783lja.15
-        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 05:13:33 -0700 (PDT)
+        id S1727872AbgFKMOY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Jun 2020 08:14:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39082 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727769AbgFKMOX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Jun 2020 08:14:23 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92918C08C5C1
+        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 05:14:23 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id b8so5221117oic.1
+        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 05:14:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8ywEG+Ag0qnpx7lv5Wpl5kNUSGur1nPOHWtuxkktv0c=;
+        b=GlO/Efqx/q0/1/Aq6E6t+URlAARctydT3MV8N2Wz+jU1BYdjX2YXGa+sIEi7s0beDy
+         qJnUBxgU9uVA/oMWR62qh/3YO/IOJ9+ua5AMvb4FTuOdwgUyS8ttaTUIJdq702Tr3uUw
+         /kUkqPhLPI90KcwJemPsDZhAEqwxDdQ/ESAUioS6w4XCfWXYq6lwatwiGqjHsNiv5uIY
+         OIKSvqCOLE1lad9zIYKsJibXTqeVe7iUaDrC0TCNxYgMi+YTm389quFDIGlyBWVJfNRU
+         fJrYhGczqlvBro2c/hIP/b0t42hqtsyxG8wnip4+QlOSlUtpVFUDGjxJkWF0Tv+DQbp/
+         xFXA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=0hiLrEUjhDnfNPxbZlUvvYkYwePJEaiEMrr2RrPWnuQ=;
-        b=qT8YBa9QtOgVC1kGiqnMFFHL5tn+75KYYFrZu3KO5HviyfilEt+Np1qmBL7nCpzayF
-         hyfwGEjvzKFedANvu/9M6kaxpGnniI/CKRtZs+j2jOYrb1AGIMzV7BxdrI0K3NwlfpeQ
-         zAFzQKssztaW8pRpaxkYvanS9Odul81xi+Q0EN2YqLOuAihphK16KUzG/0j/Io/MrvmC
-         zLd/cxbd0k2syOPTJNuNLPrPkNq+aUbQFYfBFU4CCeVbJpAyuY8CiaG518amjynwOoiN
-         wPBWevNrmXEcZrhW5g3Q/jBc9bX1NlvWl2KpJEMdnrdlb22zsaCliprffv4CBdffX2GN
-         GAxA==
-X-Gm-Message-State: AOAM532gy3hvww5CDMYfaeb93vW+ImwvJxixIAFLA/5fXYoNX0bgZcj3
-        d5Fm5QCMLib7M1A2plKiCJ+x/YRAx1NvcxD2DPPS7GyEP+ste9dnvyV5XEjgqLlDcx443Rd/xJI
-        icvLDVQWqV0zxW035SxYdUxMXQVeC6G03Vg==
-X-Received: by 2002:a05:651c:30e:: with SMTP id a14mr4416540ljp.311.1591877611636;
-        Thu, 11 Jun 2020 05:13:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzO9Ug2Lasf0eCm7Ip2Oabx5FlG/uKc9IOSbvt8Q3HtYJlDs6WF6l2haluNTSKnhY0joghLvpq7AwvYuxV7Edg=
-X-Received: by 2002:a05:651c:30e:: with SMTP id a14mr4416525ljp.311.1591877611379;
- Thu, 11 Jun 2020 05:13:31 -0700 (PDT)
+        bh=8ywEG+Ag0qnpx7lv5Wpl5kNUSGur1nPOHWtuxkktv0c=;
+        b=sdBrxOwpQ5GqBmRUWyOd9uTNr/A7X+AmFEeqWxty5t6D3f/UIcCcU8UryffRadfnOK
+         eeemVFZtH2E2DQKTdZTkb2CqFY3v1t9WB6Zk0F2In9t5vQifCq3cFEMVCbcgiBo6TcaQ
+         6gaVF+ha74K6qCQ5i//QPQFOTqGQ+v1TK7RI7XqtW90aB6DcqlqJKZNef9hyc7hCmdhu
+         IaemdDngA08dQJEzpw4M26HnYtPaXbeJ4neFamVi339MvOpLZRC92C0gDi9vYMO0qHTh
+         5mQY5aXkroU5qIp8XVvl6AZ6/9cAJoNjB1OZ4vKh/c3WTKtQNWDb4WVK5y4S8zKY9kjF
+         gngA==
+X-Gm-Message-State: AOAM5314jHvvQRYS/q1eV7fp8p/+FcCyuZP3+wOmEAF8qGDv3FWeUKjg
+        dwsTbLhTETb4pwMvPg8PkULDJDiIpiTir5+fSo4=
+X-Google-Smtp-Source: ABdhPJydNeuj0hWV1O9R0DcCiS0r8WKV9FvTXzhx47wLcdh4F3dG9tHsYtgQMK+OIXyhDpUQYoQ66EDpGnQTL6MStQE=
+X-Received: by 2002:aca:3283:: with SMTP id y125mr2236735oiy.140.1591877663049;
+ Thu, 11 Jun 2020 05:14:23 -0700 (PDT)
 MIME-Version: 1.0
 References: <20200520163421.27965-1-william.c.roberts@intel.com>
  <20200602191856.5040-1-william.c.roberts@intel.com> <20200602191856.5040-2-william.c.roberts@intel.com>
  <20200611120145.GA453655@localhost.localdomain>
 In-Reply-To: <20200611120145.GA453655@localhost.localdomain>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Thu, 11 Jun 2020 14:13:20 +0200
-Message-ID: <CAFqZXNvnkVkx68SdHa18x_eSpA1Kc6Dq4aiGCoMdFZz0Z=4Wsg@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 11 Jun 2020 08:14:11 -0400
+Message-ID: <CAEjxPJ4+0ct9ZmTxgX9zjer7OGzYY_bWRNMEF0PDe9emVx8SXA@mail.gmail.com>
 Subject: Re: [PATCH v3] ci: run SELinux kernel test suite
 To:     Petr Lautrbach <plautrba@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
@@ -75,7 +73,8 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 2:02 PM Petr Lautrbach <plautrba@redhat.com> wrote:
+On Thu, Jun 11, 2020 at 8:03 AM Petr Lautrbach <plautrba@redhat.com> wrote:
+>
 > On Tue, Jun 02, 2020 at 02:18:56PM -0500, bill.c.roberts@gmail.com wrote:
 > > From: William Roberts <william.c.roberts@intel.com>
 > >
@@ -112,14 +111,8 @@ On Thu, Jun 11, 2020 at 2:02 PM Petr Lautrbach <plautrba@redhat.com> wrote:
 > The command "scripts/ci/travis-kvm-setup.sh" exited with 127.
 >
 > Done. Your build exited with 1.
-> ~~~
 
-That'll be because your fork is named "SELinuxProject-selinux" instead
-of "selinux". Or rather because the CI script hardcodes the project
-name of "selinux".
-
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
-
+Hmm..worked for me.  I looked at your travis log file and it showed
+the culprit: your repository is named SELinuxProject-selinux rather
+than selinux and the script assumes it is named selinux.  So the
+script just needs to be a little more general I guess.
