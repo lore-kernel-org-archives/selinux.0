@@ -2,170 +2,127 @@ Return-Path: <SRS0=nmhN=7Y=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6AD4C433DF
-	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 16:44:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9375DC433E0
+	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 17:13:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AD019207ED
-	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 16:44:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 740FA20829
+	for <selinux@archiver.kernel.org>; Thu, 11 Jun 2020 17:13:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MA6q0BjT"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cAYIVxUc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726559AbgFKQok (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 11 Jun 2020 12:44:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52640 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725782AbgFKQok (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 11 Jun 2020 12:44:40 -0400
-Received: from mail-il1-x143.google.com (mail-il1-x143.google.com [IPv6:2607:f8b0:4864:20::143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8DA3C08C5C1
-        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 09:44:39 -0700 (PDT)
-Received: by mail-il1-x143.google.com with SMTP id p5so6072266ile.6
-        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 09:44:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=jjNzPU3uHutCI95NAdFNndsD6ShvMY3I8tK+xFieYAs=;
-        b=MA6q0BjTXFKiXetNmk65dIl+XST27kzmkYL0srab8GU2F8gdXz1PbyUXjEQ73+/c3s
-         pnLVjgpvbO5D5E0cLNiXbmcLDh0+xtOL635xCs9Ax9pF1CnrcuL7rOHnNYk4URfZsRp/
-         AU2CeJX9naNW9I7NiVRzGYvUD8K055vMdhhWSmk/yt3m2kxmgoY6jYO2hHCWXtEfyhwI
-         FTWGN5YvA6lcW8O2z35WGjP0GoSwk8PP9UDtO9iPIceWKZkEeRihYJgDS3562iUgTjpO
-         3kGN433RVq8cTb3G2IQrBUNoEAEjHUppgH5NY72NH/XwIl7DypB41D63bWm9B5sqsqro
-         /Pfw==
+        id S1726761AbgFKRNE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 11 Jun 2020 13:13:04 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:39902 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726379AbgFKRNE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 11 Jun 2020 13:13:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1591895582;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=2lc4GWkEgMW9G8vaWxd2JwQUtHL+Yw8/GWAwvra2v9I=;
+        b=cAYIVxUcG/UtDI/oR8PXHEINIm7+IClhjBsNX8baR/B/FgXY84JMuRNhbdJhZDFx2/B1yR
+        GWqyh10gSX/lPlNCE8MHtwN2/Wg0E5PrpHcH+Y54TRLKT+HDvcLIMPv11ZTRQo/fz2IYwt
+        25EEneWtJN/sqlCqXeQ2nHqnn96fJWo=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-252-20v1CErYN222Jss7I9jEVw-1; Thu, 11 Jun 2020 13:13:00 -0400
+X-MC-Unique: 20v1CErYN222Jss7I9jEVw-1
+Received: by mail-lf1-f71.google.com with SMTP id n17so1761491lfe.15
+        for <selinux@vger.kernel.org>; Thu, 11 Jun 2020 10:13:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=jjNzPU3uHutCI95NAdFNndsD6ShvMY3I8tK+xFieYAs=;
-        b=LSIZ0Y8livNS7JBZ2DaKK53wDCIlzti/X9ij3f1sw1lBvC7ZSjg4Vg/lsQw1WyBeTV
-         /BQgpK+B600+536N8FPLTvQT++pLL2tbIl079doavO0hylPdH9boN1mzlwyEzcKh/FPP
-         eyGU1EhIkmd+vVdKPjtG/ezcKBxETvit2NSW5jLshgxMGXp8Uavh9KbMmK80CJ78hwna
-         61um5Bm0zvYEcIWnxc8p4P3T9voshr8dRo6n3oAK0QOFJi/A7hjh5tuTyPhH6eFENN4d
-         VYyna43Zhf9569YlqBTu10VlkRy3xt2kDpvpd9FwyXBFNB6FM5HstpYCXucnFewAbzgX
-         O3YQ==
-X-Gm-Message-State: AOAM531PioTEFnPbQYDk338frsyiD8fEOEnFhtri4TaCnb0QfpU4x+gb
-        g0cLjoBVXzTJef3nsldVcTwTUvD4ACE3lA+YudjDpwdn
-X-Google-Smtp-Source: ABdhPJyN6MgFeBVwHl9/0s/TkJodIPMFcWZlJjmlG2M1QjUGYAVbypukVepMoEnsN3A6cqTMAGrHhG1YCjJyG6E9Q2o=
-X-Received: by 2002:a92:5b15:: with SMTP id p21mr8987670ilb.22.1591893878969;
- Thu, 11 Jun 2020 09:44:38 -0700 (PDT)
+        bh=2lc4GWkEgMW9G8vaWxd2JwQUtHL+Yw8/GWAwvra2v9I=;
+        b=d1AEbcaYYr9aloJVVGHCohP6CoA7lMUe1J45eP1Bysh1ghYmLPriY1QDV2AWL4KP0N
+         ViqQCCuY/YsjGtjdijdUPm3+RYM/g3rIZvls6TBv1S7UTOOy371fHTv/xCelhe3C2hId
+         XHRA/vapbqRbkUjppLvLKiVFUnNzLoppuRWsJBpMf7WyvZnl7pjcfwLsuM+QeANl8E9B
+         57Fj0By9dnaPItR7wXqV+EC0Js1Y7nj9u+pqFVrAcQRclDXyptHAzUNHsTiwM3Yt/yda
+         S3DeyyWU09ltK+I/gCrIsXVVRdF/8UQMlRI8K3X9wjYNJC9oE4/dka2WJzb8NY7u1Rkp
+         PnAw==
+X-Gm-Message-State: AOAM533HSrl6zwKe8Q+0uC57gTNGYq1zwkDRxvgeClP4FvGu4Ej1BMoB
+        k8GYB/rcBfd25dqgLM6CJkPN58XZBlrVs4pnypfey6GeBnZNZYIAfR7R5s9rPwOTT2k9US04YEU
+        OKtJFc/aLFtnPxrbekYBqGEGv9GdiL7Jtag==
+X-Received: by 2002:a2e:960b:: with SMTP id v11mr4937666ljh.77.1591895579138;
+        Thu, 11 Jun 2020 10:12:59 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJywE09hDV2mOUCgj2h/z3bNYfRdprO2vQxtXhOlYbylBXyf3+ZwcppUGRcbmVCXizn5mdZaOTYbSLou8xQgFrI=
+X-Received: by 2002:a2e:960b:: with SMTP id v11mr4937654ljh.77.1591895578882;
+ Thu, 11 Jun 2020 10:12:58 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAFftDdqrAhkkeVpm9vExEL8ecnTEz5yeqVj27Zs7PC5_1NVxdg@mail.gmail.com>
- <20200611140557.6359-1-william.c.roberts@intel.com> <20200611153434.GA468661@localhost.localdomain>
- <20200611155522.GB468661@localhost.localdomain> <CAFftDdocJcTrZh9WV8Jxu9CPPcjJDyFtnSHA8n8MyZtCQCJztg@mail.gmail.com>
-In-Reply-To: <CAFftDdocJcTrZh9WV8Jxu9CPPcjJDyFtnSHA8n8MyZtCQCJztg@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Thu, 11 Jun 2020 11:44:27 -0500
-Message-ID: <CAFftDdrszrtxO64GtiGKyszae-rNv9Kohzs-jwmxgtW3rfTnJw@mail.gmail.com>
-Subject: Re: [PATCH] ci: dont use hardcoded project name
-To:     Petr Lautrbach <plautrba@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+References: <20200611155830.8941-1-trix@redhat.com>
+In-Reply-To: <20200611155830.8941-1-trix@redhat.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 11 Jun 2020 19:12:47 +0200
+Message-ID: <CAFqZXNvHpWygX16EgFa5fc2oFkRfn-RaPpqbw-JvitpDNaAWUA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix another double free
+To:     Tom Rix <trix@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        William Roberts <william.c.roberts@intel.com>
+        Eric Paris <eparis@parisplace.org>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Linux kernel mailing list <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 11:19 AM William Roberts
-<bill.c.roberts@gmail.com> wrote:
->
-> On Thu, Jun 11, 2020 at 10:55 AM Petr Lautrbach <plautrba@redhat.com> wrote:
-> >
-> > On Thu, Jun 11, 2020 at 05:34:34PM +0200, Petr Lautrbach wrote:
-> > > On Thu, Jun 11, 2020 at 09:05:57AM -0500, bill.c.roberts@gmail.com wrote:
-> > > > From: William Roberts <william.c.roberts@intel.com>
-> > > >
-> > > > Not everyone's github project is "selinux" so use the projects
-> > > > name, as derived from TRAVIS_BUILD_DIR. TRAVIS_BUILD_DIR is
-> > > > the absolute path to the project checkout on disk, so the
-> > > > basename should be sufficient.
-> > > >
-> > > > Tested on Travis CI here:
-> > > >   - https://travis-ci.org/github/williamcroberts/selinux/jobs/697201376
-> > > >
-> > > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > > > ---
-> > > >  scripts/ci/travis-kvm-setup.sh | 3 ++-
-> > > >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/scripts/ci/travis-kvm-setup.sh b/scripts/ci/travis-kvm-setup.sh
-> > > > index 864dbac96a46..ceedaa6f4e27 100755
-> > > > --- a/scripts/ci/travis-kvm-setup.sh
-> > > > +++ b/scripts/ci/travis-kvm-setup.sh
-> > > > @@ -120,6 +120,7 @@ fi
-> > > >  # we don't get blocked on asking to add the servers key to
-> > > >  # our known_hosts.
-> > > >  #
-> > > > -ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" "/root/selinux/$TEST_RUNNER"
-> > > > +project_dir="$(basename "$TRAVIS_BUILD_DIR")"
-> > > > +ssh -tt -o StrictHostKeyChecking=no -o LogLevel=QUIET "root@$ipaddy" "/root/$project_dir/$TEST_RUNNER"
-> > > >
-> > > >  exit 0
-> > > > --
-> > > > 2.17.1
-> > > >
-> > >
-> > > Thanks!
-> > >
-> > > I'm running a new job again with this fix. But I guess you need to change
-> > > fedora-test-runner.sh as well. There's also hardcoded "selinux":
-> > >
-> > > ~~~
-> > > # Move to selinux code and build
-> > > #
-> > > cd "$HOME/selinux"
-> > > ~~~
-> > >
-> >
-> > https://travis-ci.org/github/bachradsusi/SELinuxProject-selinux/jobs/697271776
-> >
-> > ~~~
-> > # Move to selinux code and build
-> > #
-> > cd "$HOME/selinux"
-> > /root/SELinuxProject-selinux/scripts/ci/fedora-test-runner.sh: line 61: cd: /root/selinux: No such file or directory
-> > The command "scripts/ci/travis-kvm-setup.sh" exited with 1.
-> >
-> > Done. Your build exited with 1.
-> > ~~~
->
-> You can add this diff for now, ill post a v2 patch after I confirm
-> travis still runs.
->
-> diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-runner.sh
-> index 0927ed5dad8f..067d7bd65906 100755
-> --- a/scripts/ci/fedora-test-runner.sh
-> +++ b/scripts/ci/fedora-test-runner.sh
-> @@ -58,7 +58,8 @@ dnf install -y \
->  #
->  # Move to selinux code and build
->  #
-> -cd "$HOME/selinux"
-> +project_dir="$(basename "$TRAVIS_BUILD_DIR")"
-> +cd "$HOME/$project_dir"
->
->  # Show HEAD commit for sanity checking
->  git log -1
-> @@ -71,7 +72,7 @@ make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64
-> install-pywrap
->  make -j"$(nproc)" LIBDIR=/usr/lib64 SHLIBDIR=/lib64 relabel
->
->  #
-> -# Get the selinux testsuite, but don't clone it in $HOME/selinux, move to $HOME
-> +# Get the selinux testsuite, but don't clone it in
-> $HOME/$project_dir, move to $HOME
->  # first.
->  #
->  cd "$HOME"
+Hi Tom,
 
-Oh darn that won't work, as the travis env variables are not
-propagated into the environment... let me
-see if I can do that.
+On Thu, Jun 11, 2020 at 5:58 PM <trix@redhat.com> wrote:
+> From: Tom Rix <trix@redhat.com>
+>
+> Clang static analysis reports this double free error
+>
+> security/selinux/ss/conditional.c:139:2: warning: Attempt to free released memory [unix.Malloc]
+>         kfree(node->expr.nodes);
+>         ^~~~~~~~~~~~~~~~~~~~~~~
+>
+> When cond_read_node fails, it calls cond_node_destroy which frees the
+> node but does not poison the entry in the node list.  So when it
+> returns to its caller cond_read_list, cond_read_list deletes the
+> partial list.  The latest entry in the list will be deleted twice.
+>
+> So instead of freeing the node in cond_read_node, let list freeing in
+> code_read_list handle the freeing the problem node along with all of the the
+
+There is an extra "the" before "freeing".
+
+> earlier nodes.
+>
+> Signed-off-by: Tom Rix <trix@redhat.com>
+> ---
+>  security/selinux/ss/conditional.c | 1 -
+>  1 file changed, 1 deletion(-)
+>
+> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+> index da94a1b4bfda..ffb31af22f4f 100644
+> --- a/security/selinux/ss/conditional.c
+> +++ b/security/selinux/ss/conditional.c
+> @@ -411,7 +411,6 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
+>                 goto err;
+>         return 0;
+>  err:
+> -       cond_node_destroy(node);
+>         return rc;
+
+Since there is now just "return rc" in the error path, can you please
+replace all the gotos with plain return statements? And please also
+add a Fixes: tag pointing to the commit that introduced the bug (see
+Stephen's reply).
+
+Thanks,
+
+-- 
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
