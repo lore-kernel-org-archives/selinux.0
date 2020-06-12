@@ -6,67 +6,68 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F727C433E0
-	for <selinux@archiver.kernel.org>; Fri, 12 Jun 2020 19:00:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C7FC433DF
+	for <selinux@archiver.kernel.org>; Fri, 12 Jun 2020 19:28:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E430A207F7
-	for <selinux@archiver.kernel.org>; Fri, 12 Jun 2020 19:00:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CDB5C2063A
+	for <selinux@archiver.kernel.org>; Fri, 12 Jun 2020 19:28:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="arlH+lyM"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="G4RVPz7q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726372AbgFLTAr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 Jun 2020 15:00:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41354 "EHLO
+        id S1726304AbgFLT2p (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 Jun 2020 15:28:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726308AbgFLTAq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 12 Jun 2020 15:00:46 -0400
+        with ESMTP id S1726302AbgFLT2p (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 Jun 2020 15:28:45 -0400
 Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ADE1C03E96F
-        for <selinux@vger.kernel.org>; Fri, 12 Jun 2020 12:00:45 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id w7so7179000edt.1
-        for <selinux@vger.kernel.org>; Fri, 12 Jun 2020 12:00:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2FC0C03E96F
+        for <selinux@vger.kernel.org>; Fri, 12 Jun 2020 12:28:44 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id c35so7226660edf.5
+        for <selinux@vger.kernel.org>; Fri, 12 Jun 2020 12:28:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Z1eUDni4J8foMKPbnyvJWBLeCKJvOoSY3c/BShfKfxc=;
-        b=arlH+lyMjtxvC6iCN4FQWMIMonxOo0Xsn/3wjn7zFqXAcoQobVVT6dIe1mSQICMBIK
-         UlKYvdBKHqqIEzc3ajgRSQmjOeJGlXFHrioBsM7jd+NZ9cdUNsr7hP6gu0VhKl76/axR
-         cU6GpzCXS+Bz5MaeWsxZrqkhcb1AC4JqjQGo+9R/PRReo3U2SU7tcoV4rOzsU2mlyloR
-         ho4ZnOkUReDIEkQo4LzgPXqCLF1vh4vMPqyg/JG5HWFi7ECIJefV4qMg3fxQ1tpHm7mW
-         A17ncxO7iRrrggc0gkXhv1lvFUUCnLFo6t0gsrfOxiAd6q/79JcQ3OjnG3KoXAxvYB26
-         9P/w==
+        bh=TfSHu+2AwpTaHABFBzekfCatR3Mkl86+NAEoKQmw1sw=;
+        b=G4RVPz7qBuQTF+cL3+x+zNsZjbMKLld34plWhFtEgtTvAvH3S8qWH/If8pZoy+4wrU
+         O3KXb28D0OpE0wSZu4KIEj+hPCRD6iHTMv58tyqwAXrmfDwF9aiBY7Jwwq0tuSQCPVh/
+         XKeqTk6FKoC1Ecl8dAWcPAULljLgSH/RdKU9Q2OivKJee8HDmw4dfvqginNkslQMXXlY
+         TW4IngW1eZKU+G9CGQgRtB3KabQscHKr2CBrY42Z12+U4I/7eicUchb5NsFl+8fUx737
+         3IH526O9hZmT3B7siAP4qbt3mFJToZRc39taLD0bpMtU6z0m21qQkk02HCPVKCzAqpOb
+         kATA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Z1eUDni4J8foMKPbnyvJWBLeCKJvOoSY3c/BShfKfxc=;
-        b=ZPtj2FKmrxXi3TRBbMaq/JVKNaiaPuV5bhvPrxwk61EpTob4idX2kgbr3F9nP+7U6L
-         Imfr+ip4IBcTBbiemddUq62etif9uLqcUp2QZT0deTSjYTDPT3gUtuv4VR+auwX+xSJT
-         G1Xfgd9LjHoO1DnRNRaAs249pz4s1AXnec3LRXhqouZeWtSsaGCyqRA9oUJHGWeg1zzP
-         xlShoJvoSgtwAlj4K1f4mxlzKpzxtDb7Bbzh+exRVzKyFiyAzZT7/KuAxAK5TBkml5ST
-         Rxx1GkG8Na7+X2IHgXH2mu5wH+xfNjo+Mphg0IDjt0TR22Dk5mjCs9bMnOPvT82oaXaO
-         L4vA==
-X-Gm-Message-State: AOAM531dU+EcWIbeTUQwxupf7g0nZngQZZRNMi42egG8AKq5NMd+vMkB
-        tMUCQXXNb+/pmK4u21T94w4f3ORNi15xt92C0Oci
-X-Google-Smtp-Source: ABdhPJzNjUGKE6Tt16vB5CE/ZibBhd0PNStzSv7+2O4YwqB0Tcd6vFYNI9f2jnnwHMg1+pJSKQGpLMbn6ozIJKsZpQ0=
-X-Received: by 2002:aa7:de08:: with SMTP id h8mr12678180edv.164.1591988444536;
- Fri, 12 Jun 2020 12:00:44 -0700 (PDT)
+        bh=TfSHu+2AwpTaHABFBzekfCatR3Mkl86+NAEoKQmw1sw=;
+        b=d/GGe1HJwQstqxNwTZ2z8vVtB8XD7OPZ3pVT27BxSM38fUaKlvV72CzuTHU+gH2OLE
+         xW1bYjiszcqJwQmh5tJwNdahalt187mE658D9iAsfl1cB9CnthI0MbTryXzamJ+dyP/s
+         FueySv4ZISKtJixw0YHIrndhzoDfRzG/yuOSGqWMH7q9MvgJBQPifit4/BGZERZcdQVp
+         XUxFJI0SAeOHMHx7h34qunHyzDzxhLs2MWbuq/JaCESFVpUqV8uRDnfqSLSkbM50L8Yb
+         VnddLYeQ3L61YeiOmccRney3z/LMneBnwoLpozanNzBmcbJ5TELhd38kmvK8jLIVSFjH
+         z9ZA==
+X-Gm-Message-State: AOAM533Ewc4vvVG61ik/zhXvDxK3v/W0uENq851OuH5l11LPqeb1k5xU
+        EP0Clo+lDHYGRvTG4tgR8KBj6rF2/ZW75076pdoy
+X-Google-Smtp-Source: ABdhPJzWlykKSRqSwvvTk4sdeTZ0cE7rDPghq3kZb8v6ji+J9NEvqVKcLm8p87FA4v/fH1h1ueRI4z7RBf+5/lFSjCE=
+X-Received: by 2002:aa7:da46:: with SMTP id w6mr13036953eds.31.1591990118705;
+ Fri, 12 Jun 2020 12:28:38 -0700 (PDT)
 MIME-Version: 1.0
 References: <159110207843.57260.5661475689740939480.stgit@chester>
  <CAHC9VhQacYKE4sJRbqmpudXfMyzCT8VM0SFUCi=o-MNsn4c_MA@mail.gmail.com>
  <CAEjxPJ5oGWygz87dQw1HbP2wZovc+Q7ESKSF0zBMF_cSwxRdww@mail.gmail.com>
  <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
  <CAEjxPJ6nLAOjLvhswyLNCUO8bUuwm_h7emFp7dZXDzRjMuG2HA@mail.gmail.com>
- <CAEjxPJ47H1_PQ1HnJhqV4yWz_u1vvWR=Q6T999Xm92z04OimqQ@mail.gmail.com> <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com>
+ <CAEjxPJ47H1_PQ1HnJhqV4yWz_u1vvWR=Q6T999Xm92z04OimqQ@mail.gmail.com>
+ <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com> <CAFqZXNuWNw+e23_Lz0WN-=HODHmbSAmMQcAX87tVRGp3ZSiccA@mail.gmail.com>
+In-Reply-To: <CAFqZXNuWNw+e23_Lz0WN-=HODHmbSAmMQcAX87tVRGp3ZSiccA@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 12 Jun 2020 15:00:33 -0400
-Message-ID: <CAHC9VhRCcFn=b=g5AqZmWSgo+Vb2ehJJwcQCHsNYWaxa3RhT-g@mail.gmail.com>
+Date:   Fri, 12 Jun 2020 15:28:26 -0400
+Message-ID: <CAHC9VhQ25U5PLYMAA1onNssWrOMYrUXhfJ_SRpzM1qNXeavfuw@mail.gmail.com>
 Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
  ssleep() discomfort
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -74,19 +75,43 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jun 10, 2020 at 10:11 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> Ondrej might want to check that it doesn't break RHEL either but I
-> wouldn't really expect this to get back-ported to RHEL anyway unless
-> they want the additional hardening gain from being able to make the
-> LSM hooks read-only after initialization.
+On Thu, Jun 11, 2020 at 9:29 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> Good point about the installer. I have already started working on
+> preparing Fedora for the runtime disable removal, but so far I'm only
+> at the beginning. Updating anaconda to add selinux=0 to the kernel
+> params instead of using /etc/selinux/config will be one of the main
+> steps.
 
-FWIW, my opinion regarding pay-for-support distros is that while I
-would prefer not to break them, if the right thing for upstream and
-community distros is to do thing "X", we should do thing "X".
+...
 
-IBM/RH has a bunch of people who get paid to make sure RHEL keeps
-working, I trust they can manage RHEL just fine ;)
+> I also prefer to rather go somewhere in this direction rather than
+> introducing the delay. I was kinda OK with the delay at first, but as
+> Stephen points out, it would punish users rather than distros, even
+> though users are (normally) not the ones that make a conscious
+> decision to use the runtime disable.
+
+...
+
+> Yes, I was under the impression that some changes in libselinux are
+> needed before this works transparently, but apparently it already does
+> the right thing now. In that case I'd say that it may be better to
+> skip adding sleeps etc. and just remove the feature at some point. But
+> please let's wait with that for a while longer so we can prepare
+> Fedora for it first. It's hard to tell at this point how long that
+> will take, but it could be several months.
+>
+> Then again, the sleep might be helpful to wake up potential non-Fedora
+> users (if any) and in Fedora we can always apply a revert as a
+> downstream patch until things are sorted. So if you guys really want
+> it, I think we can deal with it.
+
+I'm glad to hear Fedora is making changes to move away from the
+runtime disable, please keep us updated about once a month so we know
+where things are at with Fedora.
+
+As I mentioned previously, I'm okay with postponing the delay so long
+as Fedora is making progress - and according to Ondrej they are - so
+I'm okay with holding off for now.
 
 -- 
 paul moore
