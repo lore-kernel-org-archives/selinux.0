@@ -3,67 +3,69 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9811C433DF
-	for <selinux@archiver.kernel.org>; Fri, 12 Jun 2020 07:51:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE3C0C433DF
+	for <selinux@archiver.kernel.org>; Fri, 12 Jun 2020 08:02:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 95CBB207D8
-	for <selinux@archiver.kernel.org>; Fri, 12 Jun 2020 07:51:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAF0D20578
+	for <selinux@archiver.kernel.org>; Fri, 12 Jun 2020 08:02:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Keld1SlH"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L1QP0cOD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726292AbgFLHvV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 12 Jun 2020 03:51:21 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:53716 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726491AbgFLHvU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 12 Jun 2020 03:51:20 -0400
+        id S1726378AbgFLICB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 12 Jun 2020 04:02:01 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:35443 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726262AbgFLICA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 12 Jun 2020 04:02:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1591948278;
+        s=mimecast20190719; t=1591948918;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=grI6nWGxdFYR+2gV7YLo+XnBrhioxqL+q5cJAP/VrB0=;
-        b=Keld1SlHK9ZYfbg6e1xwwbJHDwfnWMkQMSQsKRGigdoQfk+pFSkrh++URu9ydjLMO90WG9
-        t62IHOfrX511M4MrED4xHqCyCOlMKkvRUKP8yHhV20FuSwDHu3XFgPdnpVAe9u4zDgNO4z
-        eiv6GlO+h5bH8NWRDKCxF06FxfcKcG4=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-6-QPj-5i-WOdmwXyeA0fTYLA-1; Fri, 12 Jun 2020 03:51:12 -0400
-X-MC-Unique: QPj-5i-WOdmwXyeA0fTYLA-1
-Received: by mail-lf1-f71.google.com with SMTP id r143so2393716lff.13
-        for <selinux@vger.kernel.org>; Fri, 12 Jun 2020 00:51:11 -0700 (PDT)
+        bh=zFV5q/tNv+oXc5JuBy2ztRIX+iFtdAsbYIzI6VMlHtM=;
+        b=L1QP0cOD9ClXhqALrDnNl434CutvqEXv8n3PwhQNLQaqvfmcIHUOlyKoE/au9t37/PeqWO
+        SS7NNLn4NZJvuLDEN+8FNGueQk3A0YIqdUkBAOcsD9LmLMzdgbjoHv7QUp3oBvSOklwJzv
+        BFhB2o2hmmMHQyYptYnk31lSfsF0PCM=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-117-gF9jiy1KMemQaYxwXQDoYw-1; Fri, 12 Jun 2020 04:01:53 -0400
+X-MC-Unique: gF9jiy1KMemQaYxwXQDoYw-1
+Received: by mail-lf1-f70.google.com with SMTP id a17so2405619lfr.9
+        for <selinux@vger.kernel.org>; Fri, 12 Jun 2020 01:01:53 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=grI6nWGxdFYR+2gV7YLo+XnBrhioxqL+q5cJAP/VrB0=;
-        b=GdR4gaUIbNR6pzDEAb3MN+AiIPvdod3aOenQVnjJJx8PgIMbNH2bjvRk9rjPE7odW9
-         ejKPktpYOrh9ulNLH+Vf46/QjXc5KDZZ94VGw/i5LenxOgkPSnGSKnxSWS84Pitd2Cep
-         VzSvFc1uoAV2JuiEk4mg0uwhfVXn6XJ3YOFdqWqSipiGSSYO2uifLohC7CPU2COL3Esk
-         pmUUD8T6bwWHb2/CuMlKQeifcp3jObv7jAwzxSriGfpjtohm5rq3alkR2/Ug/EijaD3J
-         mxmOKtYzGIVTMmgub896KLLfontHvX8QPI3Hn+eRIn1yzseCzMpZT2gzmnmIM8ysQiZE
-         o9kA==
-X-Gm-Message-State: AOAM532A8G0oqrqqYbhbl7pDPSJSW5ziDnfORggK2trosIMbbt2btGa0
-        2rD4NjCEgNCyAKJ0UxnnKMexf+fykdPvRc9ECSgEnTwbM6eEoYYo5hJfXSzHeNP+kGXrLy0Ah8s
-        Aclsv0SKNdcxAG+IgX24c/oWbxvR8R4i96w==
-X-Received: by 2002:a2e:8043:: with SMTP id p3mr5738711ljg.217.1591948270567;
-        Fri, 12 Jun 2020 00:51:10 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx/JTMFBvXt7O/Z7+cVdAL/GN/g5rs1TwU0pWF+CTjhP0DJ/WkTYI5gqq+1wX2k1E3Ja6CWJfdhKIJ8JTvzSiA=
-X-Received: by 2002:a2e:8043:: with SMTP id p3mr5738696ljg.217.1591948270330;
- Fri, 12 Jun 2020 00:51:10 -0700 (PDT)
+        bh=zFV5q/tNv+oXc5JuBy2ztRIX+iFtdAsbYIzI6VMlHtM=;
+        b=CS0NJ2XRBwbFp8MDoarMURIjSDPRYf+u089GpGJE2U2s4+up5Tq92rthS0xNkgoY3v
+         oqqR/ROXl1Ii1NO8im1HIozFtn3BuGTDCjkoC55fV6Bv6aoVrY+98CP3qAirWQ9yWYpr
+         06mVv/ZBlnLe00Blmbzs65wX3dPOBqc5O+//hx6wo7OyLlX3f0ffjSsF3YW5A+lRm8z9
+         ictNW62txJr0RJBzeg/dnatLBdk6ro50td7gVlMygXfDadtY9Ei/Kbd3aibyFzNgTV25
+         Q5Z9IM+pVBxFGmaA+GyHJQpZ39thZLm0RQQtL0GEYCvS3hZmsWxjMwu4+pZJ1RA0D+6v
+         pLzA==
+X-Gm-Message-State: AOAM531yN+ldRXlMA6097dFixG8WvVVYM9fK/Pgcs+QXYd+hDjmMimOq
+        6LtHK7z5LASsFNX8B3d/6uz8SRAs9Gnemnp9iM2i2obBSDYbXd4wyg8o72pw/d+W7qwXsF1YvI+
+        vMcXdBaYBhYF8NtQNlrx1B5/35LE0XTXMPA==
+X-Received: by 2002:a05:651c:1126:: with SMTP id e6mr6205517ljo.123.1591948912217;
+        Fri, 12 Jun 2020 01:01:52 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwgPk3fFoP16ga9S+l/Fq6iJDO3J+vleOTImQgKQw9EjoBMbPNYFSQq3fvFAoYR9jqtbw6BD5CZoffhGjAp85c=
+X-Received: by 2002:a05:651c:1126:: with SMTP id e6mr6205500ljo.123.1591948911907;
+ Fri, 12 Jun 2020 01:01:51 -0700 (PDT)
 MIME-Version: 1.0
 References: <20200611204746.6370-1-trix@redhat.com> <20200611204746.6370-2-trix@redhat.com>
-In-Reply-To: <20200611204746.6370-2-trix@redhat.com>
+ <CAHC9VhSyo9GZKVZ04w3d3bLV9-_61W0KznATZPmqZBYXT2J=xw@mail.gmail.com>
+ <d8cee44a-316f-d1be-9893-428598ada2d8@redhat.com> <CAHC9VhSPygyQAiWuaAWViuraCP6A9KTqmQeEt2_Rxta_WFsu5Q@mail.gmail.com>
+In-Reply-To: <CAHC9VhSPygyQAiWuaAWViuraCP6A9KTqmQeEt2_Rxta_WFsu5Q@mail.gmail.com>
 From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Fri, 12 Jun 2020 09:51:00 +0200
-Message-ID: <CAFqZXNtPjzh2OPaLkMfV_b=-=uU7Z0887-sWUjSG2YJ8e1ucfg@mail.gmail.com>
+Date:   Fri, 12 Jun 2020 10:01:41 +0200
+Message-ID: <CAFqZXNuVevzXLhCBujJKTPL+HBhOxkUv6a-J1NGY9BzTJ7aWCA@mail.gmail.com>
 Subject: Re: [PATCH v2 1/1] selinux: fix another double free
-To:     Tom Rix <trix@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Tom Rix <trix@redhat.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
         Wei Yongjun <weiyongjun1@huawei.com>,
@@ -75,55 +77,69 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jun 11, 2020 at 10:48 PM <trix@redhat.com> wrote:
-[...]
-> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
-> index da94a1b4bfda..d0d6668709f0 100644
-> --- a/security/selinux/ss/conditional.c
-> +++ b/security/selinux/ss/conditional.c
-> @@ -392,26 +392,21 @@ static int cond_read_node(struct policydb *p, struct cond_node *node, void *fp)
+On Fri, Jun 12, 2020 at 1:27 AM Paul Moore <paul@paul-moore.com> wrote:
+> On Thu, Jun 11, 2020 at 6:41 PM Tom Rix <trix@redhat.com> wrote:
+> > On 6/11/20 3:30 PM, Paul Moore wrote:
+> > > On Thu, Jun 11, 2020 at 4:48 PM <trix@redhat.com> wrote:
+> > >> From: Tom Rix <trix@redhat.com>
+> > >>
+> > >> Clang static analysis reports this double free error
+> > >>
+> > >> security/selinux/ss/conditional.c:139:2: warning: Attempt to free released memory [unix.Malloc]
+> > >>         kfree(node->expr.nodes);
+> > >>         ^~~~~~~~~~~~~~~~~~~~~~~
+> > >>
+> > >> When cond_read_node fails, it calls cond_node_destroy which frees the
+> > >> node but does not poison the entry in the node list.  So when it
+> > >> returns to its caller cond_read_list, cond_read_list deletes the
+> > >> partial list.  The latest entry in the list will be deleted twice.
+> > >>
+> > >> So instead of freeing the node in cond_read_node, let list freeing in
+> > >> code_read_list handle the freeing the problem node along with all of the
+> > >> earlier nodes.
+> > >>
+> > >> Because cond_read_node no longer does any error handling, the goto's
+> > >> the error case are redundant.  Instead just return the error code.
+> > >>
+> > >> Fixes a problem was introduced by commit
+> > >>
+> > >>   selinux: convert cond_list to array
+> > >>
+> > >> Signed-off-by: Tom Rix <trix@redhat.com>
+> > >> ---
+> > >>  security/selinux/ss/conditional.c | 11 +++--------
+> > >>  1 file changed, 3 insertions(+), 8 deletions(-)
+> > > Hi Tom,
+> > >
+> > > Thanks for the patch!  A few more notes, in no particular order:
+> > >
+> > > * There is no need to send a cover letter for just a single patch.
+> > > Typically cover letters are reserved for large patchsets that require
+> > > some additional explanation and/or instructions beyond the individual
+> > > commit descriptions.
+> >
+> > I was doing this to carry the repo name and tag info.
+> >
+> > So how do folks know which repo and commit the change applies to ?
 >
->                 rc = next_entry(buf, fp, sizeof(u32) * 2);
->                 if (rc)
-> -                       goto err;
-> +                       return rc;
+> We read your mind ;)
 >
->                 expr->expr_type = le32_to_cpu(buf[0]);
->                 expr->bool = le32_to_cpu(buf[1]);
->
->                 if (!expr_node_isvalid(p, expr)) {
->                         rc = -EINVAL;
-> -                       goto err;
-> +                       return rc;
->                 }
+> Generally it's pretty obvious, and in the rare occasion when it isn't,
+> we ask.  Most of the time you can deduce the destination repo by the
+> files changed and the mailing lists on the To/CC line.  From there it
+> is then just a matter of -next vs -stable and that is something that
+> is usually sorted out based on the context of the patch, and if
+> needed, a discussion on-list.
 
-Sorry for more nitpicking... This can be further simplified to just
-"return -EINVAL;" and the braces can be removed.
+Yes, it is normally not necessary, but I wouldn't discourage people
+from providing the info if they want to / are used to do that. It can
+be really useful in some situations, especially in case of
+cross-subsystem changes that are sent to many mailing lists. But of
+course this information belongs either to the cover letter or in case
+of single patches to the "informational" section between "---" and
+"diff --git [...]".
 
->         }
->
->         rc = cond_read_av_list(p, fp, &node->true_list, NULL);
->         if (rc)
-> -               goto err;
-> +               return rc;
->         rc = cond_read_av_list(p, fp, &node->false_list, &node->true_list);
-> -       if (rc)
-> -               goto err;
-> -       return 0;
-> -err:
-> -       cond_node_destroy(node);
->         return rc;
-
-Also here you can skip the rc assignment:
-
-return cond_read_av_list(p, fp, &node->false_list, &node->true_list);
-
->  }
->
-> --
-> 2.18.1
-
---
+-- 
 Ondrej Mosnacek
 Software Engineer, Platform Security - SELinux kernel
 Red Hat, Inc.
