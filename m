@@ -8,62 +8,62 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED1A3C433DF
-	for <selinux@archiver.kernel.org>; Mon, 15 Jun 2020 14:20:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DD8BC433E0
+	for <selinux@archiver.kernel.org>; Mon, 15 Jun 2020 15:07:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C09A520644
-	for <selinux@archiver.kernel.org>; Mon, 15 Jun 2020 14:20:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3006F20739
+	for <selinux@archiver.kernel.org>; Mon, 15 Jun 2020 15:07:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="V4Mqz38K"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="K64x6mrn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730074AbgFOOUD (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Jun 2020 10:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36508 "EHLO
+        id S1730975AbgFOPHu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Jun 2020 11:07:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729733AbgFOOUC (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Jun 2020 10:20:02 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A3BAC061A0E
-        for <selinux@vger.kernel.org>; Mon, 15 Jun 2020 07:20:02 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id y6so6376987edi.3
-        for <selinux@vger.kernel.org>; Mon, 15 Jun 2020 07:20:02 -0700 (PDT)
+        with ESMTP id S1730829AbgFOPHu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Jun 2020 11:07:50 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94194C061A0E
+        for <selinux@vger.kernel.org>; Mon, 15 Jun 2020 08:07:49 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id t21so11762254edr.12
+        for <selinux@vger.kernel.org>; Mon, 15 Jun 2020 08:07:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=X4NZuj8l8MGRpEIYDryRdfaMRFb2s0Cf3n6HoCtgWBQ=;
-        b=V4Mqz38KDHGzeKcY6xvv7Yg5mx3Zrmm25+339E2fDB+LWZwuhL5rOM5Zx7byPXzmuc
-         jpgvG3T7THM7LmNxlr8UKyUOqThtNkcrtNsxaV7UVv9zD+CzJDb8hI7AOLjBxSJTjA7m
-         B3rSb4cbm0ReqVR+c57yGZ2Xvk73p8qp6nVLdDbNvS5dGPFZVrEwC2p1HOY1Y4jvAOMk
-         3xq9iP0ZWrF8qBUOIHyiraC7o6dna8JDZ/6/OL78DmzBH7vvYI6VD2hiQV2Zy3lDe0oM
-         jTEeR627/6nO5z8/5iWKZggHHHMJn2RmXfbWDVSUvKG33pJ7MYDPgdgrl9PvCuhphp7N
-         xNDg==
+        bh=gmw0Lo4oPqvfDE4AhTBxRM2egtHbgvJY6n1PBJCmLqM=;
+        b=K64x6mrnnfkztaUt0EvbFAajHa+pxYArLp90A7WxrIiz5ztS62OKt6hUb74NZfk0eh
+         aTRhuP5yXDHysEp6s8JJtwT/HdWd3MIApF6eNrclKUpHx82MgUHLXh/agC4YeSQgCHmy
+         YSOej9Gh2iFyhJLwolUjGEtRMnx2myzLRMUbpQ0K65Psu4+ToVhbHRMagB+cYpl81bgI
+         +4UFAQ2wMXfxEHP9a6455qGq59lvvSRPKP8CfMYVLxAYe/Aoa12eeCdVOzGROZnJbHcT
+         +X1JPJZB/0F2lsZ6tEdiu+7aULFTDaAZOiJeCNsIPgkFa13jUEXGY2EcM517Y321rFES
+         i67w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=X4NZuj8l8MGRpEIYDryRdfaMRFb2s0Cf3n6HoCtgWBQ=;
-        b=FBLvl5++hkMw6cAlBtIwY/qyrGnWR9ZngJ1SE1/9SbOoMPKn288MKYBdKHTl+z2+qu
-         cRXsQ0/26t6vV9yNzAH80wTfYxJTepDIJkUBBTtzfsfmr811O1+PFgwISRLBqg6m8Sf/
-         Gox3WBK8AeuXqvHrE+/lWzujI4CCurzsa/OX02wOcWtmAnzwl5HcDwkDVvPgVAryP8aM
-         NnvwMZEUQ8s3Hs2DeJrN0uzcD6hryRkDxUSbtNUQDPd7Wf3cBKcUKMzvHz6gm8/DMnui
-         Li7ylsOyiO229Sybge7EslUfqso0HTga1G7tT3S+9Fw+jTzJKN5VHojMuOdnyK5z+gIQ
-         5nkQ==
-X-Gm-Message-State: AOAM530VXy0IWVzH1hnUV+iefwhDEfv5sas1jFQlXcsYWqYuOYS5jyLb
-        xW1gB2rYrO5JUfyypVcSNzqY286c
-X-Google-Smtp-Source: ABdhPJz+3CnnvYL2GeE4q7o+e8/PC8FzzRLxQ41d28bB/0rBXGxEg5QvxYy/VuTQnr9XZlM+KgRrKA==
-X-Received: by 2002:a05:6402:1592:: with SMTP id c18mr25340179edv.40.1592230800951;
-        Mon, 15 Jun 2020 07:20:00 -0700 (PDT)
+        bh=gmw0Lo4oPqvfDE4AhTBxRM2egtHbgvJY6n1PBJCmLqM=;
+        b=L/2rKfBANVkVJ7aanX/3WtsvEv+TTesn4HppYa3UFs7Kyzc8rNi7unbNpL3g4P4BLu
+         54X5/u/D74dYrE9Pl1D+0TN6LC5T6u/qNBssXr5gMJOUW0ie8o1p/1qLQFj9MJ9ScQoN
+         SWyISoGHnox2F7u2XClKAzG5o61OEumc9MZAT/hJpHFiiJ3dAPVu3xN5mdyU4NQz4Fzg
+         5rNII8qrC41bY7DlosQENVM6zWLrusbsr6z4f8w7UwGH1rZnSjmzSlBzOQNKjNdmuQIB
+         KAgswhS1zTq55rPO6cbbopmjzZw+W3L2hN8QffWFyKHcNH05FxU9rJFzqdFObW+XJkFo
+         D90Q==
+X-Gm-Message-State: AOAM532O02phTKBbUMguSpNI1YBhf16Q8aM3BrdgpNoqz+ROJTgf27dk
+        GIXc51e4fgbgMGW8SWaDqlFQKMOz
+X-Google-Smtp-Source: ABdhPJzbXZighQ32DTaCImuXh97C2kwJ1QskQ6FwiTlJWtFbRrlh3had6FuB2JPKtFktpXTsY9HhAA==
+X-Received: by 2002:aa7:c752:: with SMTP id c18mr23642389eds.55.1592233667832;
+        Mon, 15 Jun 2020 08:07:47 -0700 (PDT)
 Received: from debianHome.localdomain (x4d0683cf.dyn.telefonica.de. [77.6.131.207])
-        by smtp.gmail.com with ESMTPSA id v2sm9203633eju.49.2020.06.15.07.20.00
+        by smtp.gmail.com with ESMTPSA id g20sm8990200ejk.16.2020.06.15.08.07.46
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jun 2020 07:20:00 -0700 (PDT)
+        Mon, 15 Jun 2020 08:07:47 -0700 (PDT)
 From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH v5 3/3] sepolgen-ifgen: refactor default policy path retrieval
-Date:   Mon, 15 Jun 2020 16:19:53 +0200
-Message-Id: <20200615141953.11119-1-cgzones@googlemail.com>
+Subject: [PATCH v6 3/3] sepolgen-ifgen: refactor default policy path retrieval
+Date:   Mon, 15 Jun 2020 17:07:41 +0200
+Message-Id: <20200615150741.18526-1-cgzones@googlemail.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200611135303.19538-3-cgzones@googlemail.com>
 References: <20200611135303.19538-3-cgzones@googlemail.com>
@@ -95,6 +95,7 @@ and adds a linkage to libselinux.
 
 Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
 ---
+v6: fix -lselinux usage
 v5: - Do not check bare selinux_binary_policy_path()
     - Link helper dynamically with libselinux
 v4: Improve the behavior on no explicit policy path given:
@@ -111,18 +112,18 @@ v3: Move the iteration logic from sepolgen-ifgen to
  3 files changed, 39 insertions(+), 29 deletions(-)
 
 diff --git a/python/audit2allow/Makefile b/python/audit2allow/Makefile
-index 15db5490..025c282a 100644
+index 15db5490..76bf4e37 100644
 --- a/python/audit2allow/Makefile
 +++ b/python/audit2allow/Makefile
-@@ -18,7 +18,7 @@ endif
- 
+@@ -19,7 +19,7 @@ endif
  all: audit2why sepolgen-ifgen-attr-helper
  
--sepolgen-ifgen-attr-helper: sepolgen-ifgen-attr-helper.o $(LIBSEPOLA)
-+sepolgen-ifgen-attr-helper: sepolgen-ifgen-attr-helper.o $(LIBSEPOLA) -lselinux
- 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
+ sepolgen-ifgen-attr-helper: sepolgen-ifgen-attr-helper.o $(LIBSEPOLA)
+-	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
++	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA) -lselinux
  
  audit2why:
+ 	ln -sf audit2allow audit2why
 diff --git a/python/audit2allow/sepolgen-ifgen b/python/audit2allow/sepolgen-ifgen
 index 4a71cda4..b7a04c71 100644
 --- a/python/audit2allow/sepolgen-ifgen
