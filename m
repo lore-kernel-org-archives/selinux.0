@@ -2,165 +2,262 @@ Return-Path: <SRS0=CKju=74=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6425BC433E0
-	for <selinux@archiver.kernel.org>; Mon, 15 Jun 2020 12:09:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED1A3C433DF
+	for <selinux@archiver.kernel.org>; Mon, 15 Jun 2020 14:20:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4080420679
-	for <selinux@archiver.kernel.org>; Mon, 15 Jun 2020 12:09:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C09A520644
+	for <selinux@archiver.kernel.org>; Mon, 15 Jun 2020 14:20:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PpFEbjbV"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="V4Mqz38K"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729675AbgFOMJI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 15 Jun 2020 08:09:08 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:54225 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728285AbgFOMJH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 15 Jun 2020 08:09:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592222944;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=z3C8DgK1H3aFbg2HcxL6K8eKwAZrwqKGRo2f/CZyHog=;
-        b=PpFEbjbVwGoj2Ygm6+98howiUKSJw5LwaArkMenyrzukPrXMB/Me4SA2QW4xWQKUEVbBpD
-        OU1Dt2wa6N/wCypjl5B25EnRnellD0W2+amOoYIj5jxs083dxlAQ5f+nuIq5x+Z0dYyi11
-        M3AOm4fuMAjO5C6ZsH7NQSa6jeIuzeM=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-295-f-6ONzJoP5OFPNSnCZ-JEQ-1; Mon, 15 Jun 2020 08:09:02 -0400
-X-MC-Unique: f-6ONzJoP5OFPNSnCZ-JEQ-1
-Received: by mail-lj1-f197.google.com with SMTP id d17so2492002ljo.6
-        for <selinux@vger.kernel.org>; Mon, 15 Jun 2020 05:09:01 -0700 (PDT)
+        id S1730074AbgFOOUD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 15 Jun 2020 10:20:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36508 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729733AbgFOOUC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 15 Jun 2020 10:20:02 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A3BAC061A0E
+        for <selinux@vger.kernel.org>; Mon, 15 Jun 2020 07:20:02 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id y6so6376987edi.3
+        for <selinux@vger.kernel.org>; Mon, 15 Jun 2020 07:20:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
+         :content-transfer-encoding;
+        bh=X4NZuj8l8MGRpEIYDryRdfaMRFb2s0Cf3n6HoCtgWBQ=;
+        b=V4Mqz38KDHGzeKcY6xvv7Yg5mx3Zrmm25+339E2fDB+LWZwuhL5rOM5Zx7byPXzmuc
+         jpgvG3T7THM7LmNxlr8UKyUOqThtNkcrtNsxaV7UVv9zD+CzJDb8hI7AOLjBxSJTjA7m
+         B3rSb4cbm0ReqVR+c57yGZ2Xvk73p8qp6nVLdDbNvS5dGPFZVrEwC2p1HOY1Y4jvAOMk
+         3xq9iP0ZWrF8qBUOIHyiraC7o6dna8JDZ/6/OL78DmzBH7vvYI6VD2hiQV2Zy3lDe0oM
+         jTEeR627/6nO5z8/5iWKZggHHHMJn2RmXfbWDVSUvKG33pJ7MYDPgdgrl9PvCuhphp7N
+         xNDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=z3C8DgK1H3aFbg2HcxL6K8eKwAZrwqKGRo2f/CZyHog=;
-        b=kK0JjjZ3wZqy3UT8DfwsqQC4o52QdW58x0x4Jhp/GOcBWMazYdkASsWoJrxEPPhpG8
-         n5o4t02hgi0HKF7p/RrlujrklAbHwITE9uwErhT+0dYO5/7WVQXzsEn1Dtv8cTqdPIaz
-         f5U1+xUMc130NnlzeQf22ovEUYYQeyWMyjCM+dpDaP85S2LqG/OFdpm8JqYURvRF9RHm
-         rZbf5dlTE69FNLSdVxrh1prrcsKjTiEqnZUpNIk5sonvIfDQabfKEYxP9p5aocWd7Q0f
-         wF9deaq55dZF6bZdHrgGEEX7gRKjR5Ry4DEdStqAoNJzzpSJlq8yeBYoEKlaZ7DcIJzb
-         sKVQ==
-X-Gm-Message-State: AOAM530W8VKgNUMTtF4ejf6R6tWlA6210xsLgCW9Xg3kFkPCbF1JoT5v
-        Ch60WWRBjnphDupz45m5QJoLjndC50EN/9O5I3qZaCbdUViMkoA1FfrsXdL0C7B4tnKa2DnK+GX
-        vM+yAdMZNWIgKe+LwgL6cDW0/esYuxUUUWA==
-X-Received: by 2002:a05:651c:30e:: with SMTP id a14mr13386289ljp.311.1592222940003;
-        Mon, 15 Jun 2020 05:09:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyNGYu24BbXT1Kj91jDeDvJeIW94A+kHQCmXnyHm9+YZSuxy7tMBYPhqOW5wlGWQfYGUdIf4TCLPk3qrQ78M50=
-X-Received: by 2002:a05:651c:30e:: with SMTP id a14mr13386281ljp.311.1592222939742;
- Mon, 15 Jun 2020 05:08:59 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=X4NZuj8l8MGRpEIYDryRdfaMRFb2s0Cf3n6HoCtgWBQ=;
+        b=FBLvl5++hkMw6cAlBtIwY/qyrGnWR9ZngJ1SE1/9SbOoMPKn288MKYBdKHTl+z2+qu
+         cRXsQ0/26t6vV9yNzAH80wTfYxJTepDIJkUBBTtzfsfmr811O1+PFgwISRLBqg6m8Sf/
+         Gox3WBK8AeuXqvHrE+/lWzujI4CCurzsa/OX02wOcWtmAnzwl5HcDwkDVvPgVAryP8aM
+         NnvwMZEUQ8s3Hs2DeJrN0uzcD6hryRkDxUSbtNUQDPd7Wf3cBKcUKMzvHz6gm8/DMnui
+         Li7ylsOyiO229Sybge7EslUfqso0HTga1G7tT3S+9Fw+jTzJKN5VHojMuOdnyK5z+gIQ
+         5nkQ==
+X-Gm-Message-State: AOAM530VXy0IWVzH1hnUV+iefwhDEfv5sas1jFQlXcsYWqYuOYS5jyLb
+        xW1gB2rYrO5JUfyypVcSNzqY286c
+X-Google-Smtp-Source: ABdhPJz+3CnnvYL2GeE4q7o+e8/PC8FzzRLxQ41d28bB/0rBXGxEg5QvxYy/VuTQnr9XZlM+KgRrKA==
+X-Received: by 2002:a05:6402:1592:: with SMTP id c18mr25340179edv.40.1592230800951;
+        Mon, 15 Jun 2020 07:20:00 -0700 (PDT)
+Received: from debianHome.localdomain (x4d0683cf.dyn.telefonica.de. [77.6.131.207])
+        by smtp.gmail.com with ESMTPSA id v2sm9203633eju.49.2020.06.15.07.20.00
+        for <selinux@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Jun 2020 07:20:00 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Subject: [PATCH v5 3/3] sepolgen-ifgen: refactor default policy path retrieval
+Date:   Mon, 15 Jun 2020 16:19:53 +0200
+Message-Id: <20200615141953.11119-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200611135303.19538-3-cgzones@googlemail.com>
+References: <20200611135303.19538-3-cgzones@googlemail.com>
 MIME-Version: 1.0
-References: <20200515131222.7969-1-richard_c_haines@btinternet.com>
-In-Reply-To: <20200515131222.7969-1-richard_c_haines@btinternet.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 15 Jun 2020 14:08:48 +0200
-Message-ID: <CAFqZXNuv=J6aO6P5M2TqYa7nXpd8GC1+=-Oqz=5khioo2S7uzA@mail.gmail.com>
-Subject: Re: [RFC PATCH V2] selinux-testsuite: Add check for key changes on watch_queue
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        David Howells <dhowells@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, May 15, 2020 at 3:12 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> Kernel 5.? introduced the watch_queue service that allows watching for
+On a SELinux disabled system the python call
+`selinux.security_policyvers()` will fail.
 
-(I will fix up 5.? to 5.8 when applying.)
+Move the logic to find a binary policy from the python script
+`sepolgen-ifgen` to the C-helper `sepolgen-ifgen-attr-helper`.
+Change the helper command line interface to accept an optional policy
+path as second argument.  If not given try the current loaded policy
+(`selinux_current_policy_path`) and if running on a SELinux disabled
+system iterate over the default store path appending policy versions
+starting at the maximum supported policy version
+(`sepol_policy_kern_vers_max`).
 
-> key changes. This requires key { view } permission, therefore check if
-> allowed or not.
->
-> Note that the keyctl_watch_key() function is not yet built into the
-> keyutils library, therefore a syscall() is used.
->
-> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> ---
-> Tested on kernel.org 'linux-next: next-20200514'
+This changes the helper command line interface from:
+    sepolgen-ifgen-attr-helper policy_file out_file
+to
+    sepolgen-ifgen-attr-helper out_file [policy_file]
+and adds a linkage to libselinux.
 
-I tested the patch on the latest Rawhide 5.8-rc1 kernel build and it
-seems to work fine.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+v5: - Do not check bare selinux_binary_policy_path()
+    - Link helper dynamically with libselinux
+v4: Improve the behavior on no explicit policy path given:
+    - Reorder helper's command line interface
+    - Use loaded policy on SELinux enabled systems
+v3: Move the iteration logic from sepolgen-ifgen to
+    sepolgen-ifgen-attr-helper and use sepol_policy_kern_vers_max()
+    instead of selinux.security_policyvers(), to work on SELinux
+    disabled systems
 
-Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+ python/audit2allow/Makefile                   |  2 +-
+ python/audit2allow/sepolgen-ifgen             | 28 ++------------
+ .../audit2allow/sepolgen-ifgen-attr-helper.c  | 38 +++++++++++++++++--
+ 3 files changed, 39 insertions(+), 29 deletions(-)
 
-> V2 Changes:
-> 1) The watch_queue changed from using /dev/watch_queue to pipe2(2), therefore
-> update watchkey.c
-> 2) Update policy to reflect the changes.
->
->  defconfig                 |  5 +++
->  policy/Makefile           |  2 +-
->  policy/test_watchkey.te   | 27 +++++++++++
->  tests/Makefile            |  4 ++
->  tests/watchkey/.gitignore |  1 +
->  tests/watchkey/Makefile   |  7 +++
->  tests/watchkey/test       | 29 ++++++++++++
->  tests/watchkey/watchkey.c | 94 +++++++++++++++++++++++++++++++++++++++
->  8 files changed, 168 insertions(+), 1 deletion(-)
->  create mode 100644 policy/test_watchkey.te
->  create mode 100644 tests/watchkey/.gitignore
->  create mode 100644 tests/watchkey/Makefile
->  create mode 100755 tests/watchkey/test
->  create mode 100644 tests/watchkey/watchkey.c
-[...]
-> diff --git a/tests/watchkey/watchkey.c b/tests/watchkey/watchkey.c
-> new file mode 100644
-> index 0000000..c7f3274
-> --- /dev/null
-> +++ b/tests/watchkey/watchkey.c
-[...]
-> +       fd = pipefd[0];
-> +
-> +       result = ioctl(fd, IOC_WATCH_QUEUE_SET_SIZE, BUF_SIZE);
-> +       if (result < 0) {
-> +               fprintf(stderr, "Failed to set watch_queue size: %s\n",
-> +                       strerror(errno));
-> +               exit(-1);
-> +       }
-> +
-> +       save_errno = 0;
-> +       /* Requires key { view } */
-> +       result = keyctl_watch_key(KEY_SPEC_PROCESS_KEYRING, fd,
-> +                                 WATCH_TYPE_KEY_NOTIFY);
-> +       if (result < 0) {
-> +               save_errno = errno;
-> +               fprintf(stderr, "Failed keyctl_watch_key(): %s\n",
-> +                       strerror(errno));
-> +               goto err;
-> +       }
-> +       if (verbose)
-> +               printf("keyctl_watch_key() successful\n");
-> +
-> +err:
-> +       close(fd);
-
-Minor nit: we should actually close both pipefds here (the write end
-(pipefd[1]) is unused, but according to strace, the kernel does return
-a valid fd there, too). Also, there is one error path that just calls
-exit(-1) instead of closing the descriptors. Anyway, since this is
-just a test program and the kernel closes the fds at exit anyway, I'm
-not going to hold up the patch because of it. Feel free to send a
-separate patch if you'd like to clean it up.
-
-> +       return save_errno;
-> +}
-> --
-> 2.25.3
->
-
-
---
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+diff --git a/python/audit2allow/Makefile b/python/audit2allow/Makefile
+index 15db5490..025c282a 100644
+--- a/python/audit2allow/Makefile
++++ b/python/audit2allow/Makefile
+@@ -18,7 +18,7 @@ endif
+ 
+ all: audit2why sepolgen-ifgen-attr-helper
+ 
+-sepolgen-ifgen-attr-helper: sepolgen-ifgen-attr-helper.o $(LIBSEPOLA)
++sepolgen-ifgen-attr-helper: sepolgen-ifgen-attr-helper.o $(LIBSEPOLA) -lselinux
+ 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS_LIBSEPOLA)
+ 
+ audit2why:
+diff --git a/python/audit2allow/sepolgen-ifgen b/python/audit2allow/sepolgen-ifgen
+index 4a71cda4..b7a04c71 100644
+--- a/python/audit2allow/sepolgen-ifgen
++++ b/python/audit2allow/sepolgen-ifgen
+@@ -27,7 +27,6 @@
+ 
+ 
+ import sys
+-import os
+ import tempfile
+ import subprocess
+ 
+@@ -65,37 +64,18 @@ def parse_options():
+     return options
+ 
+ 
+-def get_policy():
+-    p = selinux.selinux_current_policy_path()
+-    if p and os.path.exists(p):
+-        return p
+-    i = selinux.security_policyvers()
+-    p = selinux.selinux_binary_policy_path() + "." + str(i)
+-    while i > 0 and not os.path.exists(p):
+-        i = i - 1
+-        p = selinux.selinux_binary_policy_path() + "." + str(i)
+-    if i > 0:
+-        return p
+-    return None
+-
+-
+ def get_attrs(policy_path, attr_helper):
+     try:
+-        if not policy_path:
+-            policy_path = get_policy()
+-        if not policy_path:
+-            sys.stderr.write("No installed policy to check\n")
+-            return None
+         outfile = tempfile.NamedTemporaryFile()
+     except IOError as e:
+         sys.stderr.write("could not open attribute output file\n")
+         return None
+-    except OSError:
+-        # SELinux Disabled Machine
+-        return None
+ 
+     fd = open("/dev/null", "w")
+-    ret = subprocess.Popen([attr_helper, policy_path, outfile.name], stdout=fd).wait()
++    if policy_path:
++        ret = subprocess.Popen([attr_helper, outfile.name, policy_path], stdout=fd).wait()
++    else:
++        ret = subprocess.Popen([attr_helper, outfile.name], stdout=fd).wait()
+     fd.close()
+     if ret != 0:
+         sys.stderr.write("could not run attribute helper\n")
+diff --git a/python/audit2allow/sepolgen-ifgen-attr-helper.c b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+index 1ce37b0d..53f20818 100644
+--- a/python/audit2allow/sepolgen-ifgen-attr-helper.c
++++ b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+@@ -26,6 +26,8 @@
+ #include <sepol/policydb/avtab.h>
+ #include <sepol/policydb/util.h>
+ 
++#include <selinux/selinux.h>
++
+ #include <stdio.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
+@@ -147,8 +149,36 @@ static policydb_t *load_policy(const char *filename)
+ 	policydb_t *policydb;
+ 	struct policy_file pf;
+ 	FILE *fp;
++	char pathname[PATH_MAX];
++	int suffix_ver;
+ 	int ret;
+ 
++	/* no explicit policy name given, try loaded policy on a SELinux enabled system */
++	if (!filename) {
++		filename = selinux_current_policy_path();
++	}
++
++	/*
++	 * Fallback to default store paths with version suffixes,
++	 * starting from the maximum supported policy version.
++	 */
++	if (!filename) {
++		for (suffix_ver = sepol_policy_kern_vers_max(); suffix_ver > 0; suffix_ver--) {
++			snprintf(pathname, sizeof(pathname), "%s.%d", selinux_binary_policy_path(), suffix_ver);
++
++			if (access(pathname, F_OK) == 0) {
++				filename = pathname;
++				break;
++			}
++		}
++
++		if (!filename) {
++			fprintf(stderr, "Can't find any policy at '%s'\n",
++				selinux_binary_policy_path());
++			return NULL;
++		}
++	}
++
+ 	fp = fopen(filename, "r");
+ 	if (fp == NULL) {
+ 		fprintf(stderr, "Can't open '%s':  %s\n",
+@@ -188,7 +218,7 @@ static policydb_t *load_policy(const char *filename)
+ 
+ void usage(char *progname)
+ {
+-	printf("usage: %s policy_file out_file\n", progname);
++	printf("usage: %s out_file [policy_file]\n", progname);
+ }
+ 
+ int main(int argc, char **argv)
+@@ -197,18 +227,18 @@ int main(int argc, char **argv)
+ 	struct callback_data cb_data;
+ 	FILE *fp;
+ 
+-	if (argc != 3) {
++	if (argc != 2 && argc != 3) {
+ 		usage(argv[0]);
+ 		return -1;
+ 	}
+ 
+ 	/* Open the policy. */
+-	p = load_policy(argv[1]);
++	p = load_policy(argv[2]);
+ 	if (p == NULL)
+ 		return -1;
+ 
+ 	/* Open the output policy. */
+-	fp = fopen(argv[2], "w");
++	fp = fopen(argv[1], "w");
+ 	if (fp == NULL) {
+ 		fprintf(stderr, "error opening output file\n");
+ 		policydb_destroy(p);
+-- 
+2.27.0
 
