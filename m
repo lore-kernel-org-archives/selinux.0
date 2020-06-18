@@ -2,142 +2,99 @@ Return-Path: <SRS0=MecV=77=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9F4FC433E0
-	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 13:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54A7DC433DF
+	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 14:03:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B0BBF20888
-	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 13:50:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2CE032082F
+	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 14:03:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hz5Miv7g"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D9T10Deu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730540AbgFRNuK (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Jun 2020 09:50:10 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:59601 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730527AbgFRNuI (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Jun 2020 09:50:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592488207;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=oJm9QsQNjyNKb25LuVwhqvqveb7Phcc9WaN/omydpzc=;
-        b=hz5Miv7gt3emu50Du/+z7I87gCqRl8qE1J7Iw1kvp9JDTUMUkbFLN2qLfcWZo+JGmcXIqB
-        TO4ANT2+Z3vMabXk+/SW1NbhMcyoOrIU9R1NjRc6+WxZxahwnRSmLMDJY6MGklvK9+INDW
-        N1kYkhG7qx3CPc6cZplsBtYiO/stGpo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-354-MNpJvKkvPtyHa9-pfR19tg-1; Thu, 18 Jun 2020 09:50:00 -0400
-X-MC-Unique: MNpJvKkvPtyHa9-pfR19tg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7D864835B40;
-        Thu, 18 Jun 2020 13:49:57 +0000 (UTC)
-Received: from dcbz.redhat.com (ovpn-112-197.ams2.redhat.com [10.36.112.197])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 012841E2260;
-        Thu, 18 Jun 2020 13:49:45 +0000 (UTC)
-From:   Adrian Reber <areber@redhat.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Pavel Emelyanov <ovzxemul@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
-        =?UTF-8?q?Micha=C5=82=20C=C5=82api=C5=84ski?= 
-        <mclapinski@google.com>, Kamil Yurtsever <kyurtsever@google.com>,
-        Dirk Petersen <dipeit@gmail.com>,
-        Christine Flood <chf@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Mike Rapoport <rppt@linux.ibm.com>,
-        Radostin Stoyanov <rstoyanov1@gmail.com>,
-        Adrian Reber <areber@redhat.com>,
-        Cyrill Gorcunov <gorcunov@openvz.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-        Eric Paris <eparis@parisplace.org>,
-        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH v3 3/3] prctl: Allow ptrace capable processes to change exe_fd
-Date:   Thu, 18 Jun 2020 15:48:25 +0200
-Message-Id: <20200618134825.487467-4-areber@redhat.com>
-In-Reply-To: <20200618134825.487467-1-areber@redhat.com>
-References: <20200618134825.487467-1-areber@redhat.com>
+        id S1726008AbgFRODY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Jun 2020 10:03:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51078 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725987AbgFRODX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Jun 2020 10:03:23 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12D62C06174E
+        for <selinux@vger.kernel.org>; Thu, 18 Jun 2020 07:03:22 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id p70so5127935oic.12
+        for <selinux@vger.kernel.org>; Thu, 18 Jun 2020 07:03:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iVoP6uePzzmv5nXWOGFqWxQiZaEL81EC0qqnLxva5No=;
+        b=D9T10Deun3TKhlmlhtpArdCWuTU+ap6WRzTyp/hZhIZGxgMd++dCQbjuIcKmlLITuR
+         X3z/IrjeJvPRwpKvYgN50uVw/yNNOaN3jFw3jvB0Dil/pdctUAHDO+xp/TcdbN95okQY
+         n/4HNqaKugGmsfR1QQmg7GaeMJuqsp4eSZIU7GhAnwTdh5oQtrRzCMpzHu7cllRT0VY1
+         hoAyGlBQu6JNX8PTEmT3b40HbbL9nXyND5GVcNVdTj4Mqo7MD9+q222V2G2spBOX9cn8
+         RWllHFuG9FBn0u6hLTdJwjptwzU2RG9d9b1EkFN4goB9KjdikZzCNk17rvjlRB+m8Gvx
+         oiKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iVoP6uePzzmv5nXWOGFqWxQiZaEL81EC0qqnLxva5No=;
+        b=rtkxWJ0DSCPS6lJkO0IRJdAL8etTXdy55kgRRffHC1OqtWijwijoLDR3GPk0C+vw90
+         vmvMz1M7656WCeyiIzQDooyZ3e9H8oq9FPlY2q3teXcYV7RUcCQsmjRVPpiUU2qNDWOo
+         V7EJI8jzTYhl+RxZOY0FLH1GOsGoLckzL0Tv5rdjkbJ6KcoLd3ydvpt7b4afjP0muCTf
+         Rgi/qfDv4Msw4M+eS8S3/ULaME/LJuPjMbP0lRDZkpZl4quPDogqwJvmUuteGBsD+8uI
+         TArkRZO0jHINk9NOFXfy19K5y30VGLG3HBtEB7ZubajlK4/fRTuIH1BGfFipqZi8yMTZ
+         FSfg==
+X-Gm-Message-State: AOAM533bR/8GTSK+ioSoUkW8FgS113KnbNun9L/vVFGt/AbIa0/oz+c4
+        eYVIft07BDCFO/c/rMQUTpGZPs5FS6HptDEM/vN/AYnP
+X-Google-Smtp-Source: ABdhPJx2BQNXnJdWaUD+UXy0lODsH4c8nm+s+A2/gbXICvKnFJjQlkZ/VLL4EvMD5tV5ddzoQzGjPgFtqaOMS7HOWWc=
+X-Received: by 2002:aca:ec97:: with SMTP id k145mr2928286oih.92.1592489001270;
+ Thu, 18 Jun 2020 07:03:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+References: <20200617192309.69595-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20200617192309.69595-1-stephen.smalley.work@gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 18 Jun 2020 10:03:10 -0400
+Message-ID: <CAEjxPJ6EHbCh+S1D8dm61Mw7YkMDHELNHVwKEtinNciaoTzYoQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: log error messages on required process class / permissions
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        bauen1 <j2468h@googlemail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Nicolas Viennot <Nicolas.Viennot@twosigma.com>
+On Wed, Jun 17, 2020 at 3:23 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> In general SELinux no longer treats undefined object classes or permissions
+> in the policy as a fatal error, instead handling them in accordance with
+> handle_unknown. However, the process class and process transition and
+> dyntransition permissions are still required to be defined due to
+> dependencies on these definitions for default labeling behaviors,
+> role and range transitions in older policy versions that lack an explicit
+> class field, and role allow checking.  Log error messages in these cases
+> since otherwise the policy load will fail silently with no indication
+> to the user as to the underlying cause.  While here, fix the checking for
+> process transition / dyntransition so that omitting either permission is
+> handled as an error; both are needed in order to ensure that role allow
+> checking is consistently applied.
+>
+> Reported-by: bauen1 <j2468h@googlemail.com>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-The current process is authorized to change its /proc/self/exe link via
-two policies:
-1) The current user can do checkpoint/restore In other words is
-   CAP_SYS_ADMIN or CAP_CHECKPOINT_RESTORE capable.
-2) The current user can use ptrace.
-
-With access to ptrace facilities, a process can do the following: fork a
-child, execve() the target executable, and have the child use ptrace()
-to replace the memory content of the current process. This technique
-makes it possible to masquerade an arbitrary program as any executable,
-even setuid ones.
-
-This commit also changes the permission error code from -EINVAL to
--EPERM for consistency with the rest of the prctl() syscall when
-checking capabilities.
-
-Signed-off-by: Nicolas Viennot <Nicolas.Viennot@twosigma.com>
-Signed-off-by: Adrian Reber <areber@redhat.com>
----
- kernel/sys.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/sys.c b/kernel/sys.c
-index 00a96746e28a..ce77012a42d7 100644
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -2007,12 +2007,23 @@ static int prctl_set_mm_map(int opt, const void __user *addr, unsigned long data
- 
- 	if (prctl_map.exe_fd != (u32)-1) {
- 		/*
--		 * Make sure the caller has the rights to
--		 * change /proc/pid/exe link: only local sys admin should
--		 * be allowed to.
-+		 * The current process is authorized to change its
-+		 * /proc/self/exe link via two policies:
-+		 * 1) The current user can do checkpoint/restore
-+		 *    In other words is CAP_SYS_ADMIN or
-+		 *    CAP_CHECKPOINT_RESTORE capable.
-+		 * 2) The current user can use ptrace.
-+		 *
-+		 * With access to ptrace facilities, a process can do the
-+		 * following: fork a child, execve() the target executable,
-+		 * and have the child use ptrace() to replace the memory
-+		 * content of the current process. This technique makes it
-+		 * possible to masquerade an arbitrary program as the target
-+		 * executable, even if it is setuid.
- 		 */
--		if (!ns_capable(current_user_ns(), CAP_SYS_ADMIN))
--			return -EINVAL;
-+		if (!(checkpoint_restore_ns_capable(current_user_ns()) ||
-+		      security_ptrace_access_check(current, PTRACE_MODE_ATTACH_REALCREDS)))
-+			return -EPERM;
- 
- 		error = prctl_set_mm_exe_file(mm, prctl_map.exe_fd);
- 		if (error)
--- 
-2.26.2
-
+BTW I considered and even put together an initial patch to instead
+make the process class and transition permissions optional but thought
+it was unnecessary complexity for no real gain.  One would end up with
+a system where new processes would be treated like objects for
+labeling (e.g. object_r for the role, inherit type from related object
+in this case the executable file) and role allow rules would be
+unenforceable.  I suppose we could change the test of the process
+class to be based on the kernel value rather than the policy value,
+which would at least provide sane defaults for labeling.
