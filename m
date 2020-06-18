@@ -2,96 +2,132 @@ Return-Path: <SRS0=MecV=77=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-3.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50F75C433DF
-	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 14:13:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E52ECC433E6
+	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 15:53:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8034F20739
-	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 14:13:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C093720732
+	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 15:53:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="GTBUgEM4"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JsI9wQ95"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730338AbgFRONh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Jun 2020 10:13:37 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:33604 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbgFRONf (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 18 Jun 2020 10:13:35 -0400
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 8F0092A0FFA;
-        Thu, 18 Jun 2020 16:13:31 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 8F0092A0FFA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1592489612;
-        bh=AsrVuYvGEHIfEfOnYLLbBwP54KUaIVR8O4uJdIeC8Aw=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=GTBUgEM4HjoG2BYMLI7k5OkOGX6FhR8hYHSfgvmKNFms0AAJJARM6dncZnl1ePBtO
-         J3ao+b7DfPobN0bF9zNWHIegwsuXxxF8gcA2gPTP4Vua6a+IPeQtRWwfMFYwG4QSxB
-         7Ch/96h42g/G5T3GM0USarCDQVrNwqt8fr6rTLvQ=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
+        id S1731650AbgFRPxE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Jun 2020 11:53:04 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:33736 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731624AbgFRPxC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Jun 2020 11:53:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592495581;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=2kkYRqzTIeYHI9Op1N84j28lJhtw+ETduK11L29KnkQ=;
+        b=JsI9wQ95FgN8jWbb/GFJQ+I9UsQwyI2YDsbawQ+JINhuXgPyMvkRiXk1C27bEzVF0dhS/h
+        ciRroCIKQWDkK0UpXCgEyc7MFb2hqnqslnuWebaaIUmUgw9jUJDVPe/lkMQdKe3ieUYzkm
+        gwjUJQsrc7KTlUH4j3veLvNIsPOdgR0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-5-y3l6NpnXPAq1yFVxE2jUeA-1; Thu, 18 Jun 2020 11:52:54 -0400
+X-MC-Unique: y3l6NpnXPAq1yFVxE2jUeA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C5A6A107ACCA;
+        Thu, 18 Jun 2020 15:52:44 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.192.38])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5DE9A5BAC1;
+        Thu, 18 Jun 2020 15:52:43 +0000 (UTC)
+Date:   Thu, 18 Jun 2020 17:52:40 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     SElinux list <selinux@vger.kernel.org>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         Paul Moore <paul@paul-moore.com>,
-        bauen1 <j2468h@googlemail.com>
-Subject: Re: [PATCH] selinux: log error messages on required process class / permissions
-References: <20200617192309.69595-1-stephen.smalley.work@gmail.com>
-        <CAEjxPJ6EHbCh+S1D8dm61Mw7YkMDHELNHVwKEtinNciaoTzYoQ@mail.gmail.com>
-Date:   Thu, 18 Jun 2020 16:13:25 +0200
-In-Reply-To: <CAEjxPJ6EHbCh+S1D8dm61Mw7YkMDHELNHVwKEtinNciaoTzYoQ@mail.gmail.com>
-        (Stephen Smalley's message of "Thu, 18 Jun 2020 10:03:10 -0400")
-Message-ID: <ypjlo8pgo41m.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
+        William Roberts <bill.c.roberts@gmail.com>,
+        William Roberts <william.c.roberts@intel.com>
+Subject: Re: [PATCH v2] ci: dont use hardcoded project name
+Message-ID: <20200618155240.GA689512@localhost.localdomain>
+References: <CAFftDdrszrtxO64GtiGKyszae-rNv9Kohzs-jwmxgtW3rfTnJw@mail.gmail.com>
+ <20200611173039.21742-1-william.c.roberts@intel.com>
+ <20200612053940.GA540562@localhost.localdomain>
+ <CAEjxPJ7Zs_WY0F=O-gNVY_r8Bn1GcwxezZPXNuard3+9gmhq+w@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <CAEjxPJ7Zs_WY0F=O-gNVY_r8Bn1GcwxezZPXNuard3+9gmhq+w@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=plautrba@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Stephen Smalley <stephen.smalley.work@gmail.com> writes:
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> On Wed, Jun 17, 2020 at 3:23 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->>
->> In general SELinux no longer treats undefined object classes or permissions
->> in the policy as a fatal error, instead handling them in accordance with
->> handle_unknown. However, the process class and process transition and
->> dyntransition permissions are still required to be defined due to
->> dependencies on these definitions for default labeling behaviors,
->> role and range transitions in older policy versions that lack an explicit
->> class field, and role allow checking.  Log error messages in these cases
->> since otherwise the policy load will fail silently with no indication
->> to the user as to the underlying cause.  While here, fix the checking for
->> process transition / dyntransition so that omitting either permission is
->> handled as an error; both are needed in order to ensure that role allow
->> checking is consistently applied.
->>
->> Reported-by: bauen1 <j2468h@googlemail.com>
->> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->
-> BTW I considered and even put together an initial patch to instead
-> make the process class and transition permissions optional but thought
-> it was unnecessary complexity for no real gain.  One would end up with
-> a system where new processes would be treated like objects for
-> labeling (e.g. object_r for the role, inherit type from related object
-> in this case the executable file) and role allow rules would be
-> unenforceable.  I suppose we could change the test of the process
-> class to be based on the kernel value rather than the policy value,
-> which would at least provide sane defaults for labeling.
+On Wed, Jun 17, 2020 at 01:07:35PM -0400, Stephen Smalley wrote:
+> On Fri, Jun 12, 2020 at 1:39 AM Petr Lautrbach <plautrba@redhat.com> wrot=
+e:
+> >
+> > On Thu, Jun 11, 2020 at 12:30:39PM -0500, bill.c.roberts@gmail.com wrot=
+e:
+> > > From: William Roberts <william.c.roberts@intel.com>
+> > >
+> > > Not everyone's github project is "selinux" so use the projects
+> > > name, as derived from TRAVIS_BUILD_DIR. TRAVIS_BUILD_DIR is
+> > > the absolute path to the project checkout on disk, so the
+> > > basename should be sufficient. The script that runs in the KVM
+> > > environment also needs to be updated where it can find the
+> > > selinux project code, so we pass it in through an env variable
+> > > in the ssh command.
+> > >
+> > > Tested on Travis CI here:
+> > >   - https://travis-ci.org/github/williamcroberts/selinux/jobs/6973078=
+24
+> > >
+> > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
+> >
+> > Acked-by: Petr Lautrbach <plautrba@redhat.com>
+>=20
+> Since I saw that you have been creating and testing a 3.1-rc2 branch I
+> have held off on merging any further patches even ones that have been
+> acked; I'll wait until you finalize that with whatever set of patches
+> you have picked up.
+>=20
 
-Everything considering I think this is a good compromise (at least for
-now). secilc requires a class to compile so in practice your initial
-policy will have atleast one class, might as well be process.
+Thanks, I'll merge everything acked later today and create 3.1-rc2 tomorrow
+morning.
 
-Atleast this will give you enough information to get started.
+And I'm sorry for big delays on my side.
+--7JfCtLOvnd9MIVvH
+Content-Type: application/pgp-signature; name="signature.asc"
 
--- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl7rjb8ACgkQviIJHj72
+InUjDQ//Rf2kkN0vA+2Eg16UgTeU2abToyNgkiBJmZeLfO4uFRdwLfYpvjtabOxM
+CcpvJAH+w/IAXVt6WUW9hYzajSC7c3Mp1nbLyefsekDD/DRbALYDULgFZ7yKFgOC
+X4o+q/+kFZfclkRb5nbLRUtCO3ZroSjJaxG5kd/aKyMUwOs6JSN3PZbOKqQPhM1A
+ty8wKJiTvgbExemF2IBr+xe55ih1ScUNA80PjEVydHDxklnKAhVZgTePzWM8RuU4
+nbvADDvbpiqyio3hZwZznwxWRRhaoceYxNw5nPmFRMG1qAdSCKHRu5oRlA79jId3
+4oyIsIp8cLS8aaR4xjU8A1Ayes6AgDNS937u5bq5c74jE20XdmV7Zx5OUa32ev1B
+eenI/JZq3AeM0LXAUBHDAnKBrfojmjDRJ2W3VcbVfcFZVit31qNpzWv//wqpSjYU
+AzqxbFPXTzLijEnx6pnjhE1Easu2vGi82w17+GCK1L3/IFyIvB48i3k5fnH+vGuX
+YHTtPyYcW+P0Isc1N4W1SBXIuVI73VKOjQZD4M3a+bvDzPFcjM+mTVfe3gxkxQXH
+Ak0DBJiBAAe6KvwmLWdSqj4D68el4vaKUkDtg+rSRlvJoXiEmJKbJFgY/lNFy9us
+s45Oo16eN04J0RtQTEJsxXZDGtWO2FbA+wq0H2EZDDv7TAbkBrk=
+=PTtv
+-----END PGP SIGNATURE-----
+
+--7JfCtLOvnd9MIVvH--
+
