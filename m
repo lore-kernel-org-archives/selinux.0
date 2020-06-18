@@ -2,226 +2,127 @@ Return-Path: <SRS0=MecV=77=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90A89C433DF
-	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 16:16:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28702C433DF
+	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 18:25:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 64424207E8
-	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 16:16:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 03BD2207E8
+	for <selinux@archiver.kernel.org>; Thu, 18 Jun 2020 18:25:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="OUJwLQVD"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Wi6yadvv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728169AbgFRQQt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 18 Jun 2020 12:16:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43642 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727114AbgFRQQp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 18 Jun 2020 12:16:45 -0400
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D27C06174E
-        for <selinux@vger.kernel.org>; Thu, 18 Jun 2020 09:16:45 -0700 (PDT)
-Received: by mail-wr1-x432.google.com with SMTP id h5so6696519wrc.7
-        for <selinux@vger.kernel.org>; Thu, 18 Jun 2020 09:16:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=googlemail.com; s=20161025;
-        h=from:to:autocrypt:subject:message-id:date:user-agent:mime-version
-         :content-transfer-encoding:content-language;
-        bh=mBqNFlH+r2OnUGCRFU2If7OCT97YbsZldMhLiQZUVkU=;
-        b=OUJwLQVDvBULPVjbkA2FhBMqVsRlMHXmBlpuFoTUIB+aXAaZ/FTFO3qpgrmaTCgMxl
-         Ivm/J/MHsc8Re8kqSo5THmjGnq9JrFUBkrdYEYi92i9XCzjeHX2wnbOK30n1LEHESWO+
-         2V4enV6VgG+w9hu8dBh075tUrkZOSwBnbcjFv+Mzv5tSA2RiVNVHXnOa6s5ee0+HtL5C
-         zjKz4WJLQIYO6IlAkYbLi1C1BdfbxVeCaj3fz+S4cuVGnwBOnyuh6rb78y6tdb+PMFRs
-         4F3GJeggj8sZXCEtF+7MnfxvnGaDyxJXYVTh5Tqni5ipx9aLKHklM0zLMwrA+EooI7GT
-         05/A==
+        id S1727851AbgFRSZY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 18 Jun 2020 14:25:24 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:54285 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727060AbgFRSZW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 18 Jun 2020 14:25:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592504721;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=T0rslde0gY5v9xKrNRl1knvQyIkh3pN/KpMlNCXLMl8=;
+        b=Wi6yadvvnvg1yCZ01CusqvHCIa3BRyjO6Uh/Gc6udAsbVCFDr539Sb3XaD77bZIeN3PHPX
+        c5EbJOkZS+3tTtSDQuWCTjMnvEuE1MGxblSdvQDiCyR8n8VvlcvcbtMqzd+RV67D3MqL5r
+        qhOfHkxm8OvczdgQFv2JEjnwIXr0i1E=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-365-Oi8e4zLlPuKmJcwST6P8iA-1; Thu, 18 Jun 2020 14:25:14 -0400
+X-MC-Unique: Oi8e4zLlPuKmJcwST6P8iA-1
+Received: by mail-qt1-f198.google.com with SMTP id l26so5063485qtr.14
+        for <selinux@vger.kernel.org>; Thu, 18 Jun 2020 11:25:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:autocrypt:subject:message-id:date
-         :user-agent:mime-version:content-transfer-encoding:content-language;
-        bh=mBqNFlH+r2OnUGCRFU2If7OCT97YbsZldMhLiQZUVkU=;
-        b=Oikkxzh6o37440SQvVyPq/In1Hq3tX69tOd8oeLDJTBEGk0aCfYINlewUxYVKYg5o6
-         H6LtFJZ67dp9miLrez+9/O9vlNqOmlwexUcCvX8W8nqm4G8zJtdHcr3dlaGL4+HuNI15
-         zoZo39Rq+Huy5giVAvVE7Qvez5UmSCVqK8Ip6AUfSfqQdeTEjYltJtC40p4jchg3FSjn
-         UnR9RWq32UCKry/jggY0mb0i6xIlPs/JmWgM6CnlP+6DAR0zsafniUlL/RuhUqjtvmlw
-         AuETTZzz50962EiUgVc9JdZqwhmafgY+E+wP9oJRgJ6F7Q1QMMpbanyjQNq0imXSEemW
-         DKrQ==
-X-Gm-Message-State: AOAM533oejLeEtSzRII8XfF2j8SVsmvQb5zj6z08v2XsO5Lfw/tY6WIC
-        fm5PxTmv1yJotmXFNNDaQB7vaRft
-X-Google-Smtp-Source: ABdhPJzH0wlDQMtMQy4ZZmlneAnhmHe+cuI//91D5ZP5mgPB6AzrzZ4V4JUyeNWNopHZar54kfFWNQ==
-X-Received: by 2002:adf:ed05:: with SMTP id a5mr2324585wro.176.1592497003689;
-        Thu, 18 Jun 2020 09:16:43 -0700 (PDT)
-Received: from ?IPv6:2a02:810d:4bc0:8098:78d9:64c7:b7ab:1b3a? ([2a02:810d:4bc0:8098:78d9:64c7:b7ab:1b3a])
-        by smtp.gmail.com with ESMTPSA id h13sm205597wrp.77.2020.06.18.09.16.42
-        for <selinux@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 18 Jun 2020 09:16:43 -0700 (PDT)
-From:   bauen1 <j2468h@googlemail.com>
-X-Google-Original-From: bauen1 <j2468h@gmail.com>
-To:     selinux <selinux@vger.kernel.org>
-Autocrypt: addr=j2468h@gmail.com; keydata=
- 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
- MzTZEAm15uwFxq66
-Subject: CIL blockinherit and entering a macro namespace using in
-Message-ID: <002913f4-070d-4179-f4ee-029d5347f570@gmail.com>
-Date:   Thu, 18 Jun 2020 18:16:42 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=T0rslde0gY5v9xKrNRl1knvQyIkh3pN/KpMlNCXLMl8=;
+        b=nfmrgUF3rpJDdgC/cedDZIe9M42GVZJx9j/Lf7ieVQsDWxaj/JYzgqwM/aOX7mZDlN
+         7R86lpUVEG5tvxd1TRM8vBg2EngM89GSe8ZEfrHjk2R8vZ23gNsrRkSPZp6CEp57CHYp
+         P+1ma8IAiE7UDhFZ9qS4ekSPKJ6bQL3VosakI8KGiV/bO3xnrHIlgm4qbYdEQkwh1v9l
+         3ZoUFSmjyaRs2rNWKMhnHxQeTGNQU48Nl5gjFAdBhyuGEsug1J5HNAkcNz4g1GwSIv9w
+         GTImdea97qKX8EAfrY+31QdZ6RnSiITZ4FzOLWDuDjU3d6DGb4ZQTELgRZXvc1ECsSae
+         Xzwg==
+X-Gm-Message-State: AOAM533mWuIfet8TdN1NqlXh4J+xOmxjIkT7Z2vopPLtXpK+ITY9KrSq
+        lbFkUCIZYa0MHzXHg/6MZaTmdWeqoAAqD0je0SweB/87oYg1OJ8cZaPxRuyDK1ERy1nhW/GT8DR
+        on+hHph9aHT2DoEPEGw==
+X-Received: by 2002:a37:d04:: with SMTP id 4mr119790qkn.377.1592504713872;
+        Thu, 18 Jun 2020 11:25:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwtPQNPTLqwTtvXdFWiHTx8/sQpsV60fMH6mZsuRtI3pQIX37zwN5yoi712qmmDjutxF/NKlw==
+X-Received: by 2002:a37:d04:: with SMTP id 4mr119756qkn.377.1592504713481;
+        Thu, 18 Jun 2020 11:25:13 -0700 (PDT)
+Received: from pet.redhat.com (107-190-106-186.cpe.teksavvy.com. [107.190.106.186])
+        by smtp.gmail.com with ESMTPSA id l1sm879023qtk.18.2020.06.18.11.25.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Jun 2020 11:25:12 -0700 (PDT)
+From:   Jonathan Lebon <jlebon@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Jonathan Lebon <jlebon@redhat.com>
+Subject: [PATCH v2] setfiles: clarify documented path resolution behaviour
+Date:   Thu, 18 Jun 2020 14:22:07 -0400
+Message-Id: <20200618182205.378233-1-jlebon@redhat.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello,
+One thing that confused me when investigating
+https://github.com/SELinuxProject/selinux/issues/248 (i.e.
+https://github.com/coreos/fedora-coreos-tracker/issues/512) was that the
+manual page for `setfiles` seemed to imply that paths were fully
+resolved. This was consistent with the issues above where `setfiles` was
+failing because the target of the symbolic link didn't exist.
 
-After getting my CIL policy to work, I have discovered another problem.
+But in fact, the wording around symbolic links in
+`setfiles`/`restorecon` refers actually to whether the parent
+directories are canonicalized via `realpath(3)` before labeling.
 
-According to the manual
-https://github.com/SELinuxProject/selinux/blob/master/secilc/docs/cil_con=
-tainer_statements.md#in
-`in` can be used to enter a namespace, including macros.
-This works, except when using blockinherit and trying to enter a macro
-that was inherited.
+Clarify the man pages to explain this.
 
-My use case would be a base file template with a lot of macros, and
-using `in` to add more access to the macros where appropiate.
+Signed-off-by: Jonathan Lebon <jlebon@redhat.com>
+---
+ policycoreutils/setfiles/restorecon.8 | 6 ++++--
+ policycoreutils/setfiles/setfiles.8   | 3 ++-
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-See the test case below, bauen1
-
-
-(class process (transition))
-(class file (read))
-(classorder (unordered process file))
-
-(user kernel_u)
-(role kernel_r)
-(userrole kernel_u kernel_r)
-(type kernel_t)
-(roletype kernel_r kernel_t)
-
-(sid kernel)
-(sidorder (kernel))
-
-(sensitivity s0)
-(sensitivityorder (s0))
-(level low (s0))
-(level high (s0))
-(levelrange lowhigh (low high))
-(userlevel kernel_u low)
-(userrange kernel_u lowhigh)
-
-(context kernel_context (kernel_u kernel_r kernel_t lowhigh))
-(sidcontext kernel kernel_context)
-
-(macro test1
-=C2=A0=C2=A0=C2=A0 ((type domain))
-=C2=A0=C2=A0=C2=A0 (allow domain self (process (all)))
-)
-
-(in test1
-=C2=A0=C2=A0=C2=A0 (allow domain self (file (all)))
-)
-
-(block a
-=C2=A0=C2=A0=C2=A0 (macro test2
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ((type domain))
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (allow domain self (process (a=
-ll)))
-=C2=A0=C2=A0=C2=A0 )
-
-=C2=A0=C2=A0=C2=A0 (in test2
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (allow domain self (file (all)=
-))
-=C2=A0=C2=A0=C2=A0 )
-)
-
-(block b
-=C2=A0=C2=A0=C2=A0 (blockabstract b)
-=C2=A0=C2=A0=C2=A0 (macro test3
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ((type domain))
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (allow domain self (process (a=
-ll)))
-=C2=A0=C2=A0=C2=A0 )
-)
-
-(block c
-=C2=A0=C2=A0=C2=A0 (blockinherit b)
-
-=C2=A0=C2=A0=C2=A0 (in test3
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 (allow domain self (file (all)=
-))
-=C2=A0=C2=A0=C2=A0 )
-)
-
-; In Theory all macros: test1, a.test2, c.test3 should result in the
-same code
-
+diff --git a/policycoreutils/setfiles/restorecon.8 b/policycoreutils/setfiles/restorecon.8
+index bbfc83fe..1a785258 100644
+--- a/policycoreutils/setfiles/restorecon.8
++++ b/policycoreutils/setfiles/restorecon.8
+@@ -159,8 +159,10 @@ The pathname for the file(s) to be relabeled.
+ .SH "NOTES"
+ .IP "1." 4
+ .B restorecon
+-does not follow symbolic links and by default it does not
+-operate recursively on directories.
++by default does not operate recursively on directories. Paths leading up the
++final component of the file(s) are canonicalized using
++.BR realpath (3)
++before labeling.
+ .IP "2." 4
+ If the
+ .I pathname
+diff --git a/policycoreutils/setfiles/setfiles.8 b/policycoreutils/setfiles/setfiles.8
+index 0188a75a..e328a562 100644
+--- a/policycoreutils/setfiles/setfiles.8
++++ b/policycoreutils/setfiles/setfiles.8
+@@ -214,7 +214,8 @@ option is used.
+ .SH "NOTES"
+ .IP "1." 4
+ .B setfiles
+-follows symbolic links and operates recursively on directories.
++operates recursively on directories. Paths leading up the final
++component of the file(s) are not canonicalized before labeling.
+ .IP "2." 4
+ If the
+ .I pathname
+-- 
+2.26.2
 
