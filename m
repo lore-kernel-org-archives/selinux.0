@@ -2,98 +2,102 @@ Return-Path: <SRS0=kzV7=AE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97DB6C433DF
-	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:21:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F115C433E1
+	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:29:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 70703206A5
-	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:21:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0BD2220723
+	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:29:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="MBIk3qxi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IbsTEgS0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732623AbgFWNVb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Jun 2020 09:21:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44066 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbgFWNVa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Jun 2020 09:21:30 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E438C061573
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:21:30 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id n24so21628870ejd.0
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:21:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=M7zbl5j6sfcCLOp7PY1MHFLx7BdRWHFOZ+p5EXyN/MM=;
-        b=MBIk3qxirju0CqdTSWvDkRH9Zhd/W2G7TWKmqrHj8/fKip66ywjbDWRAE2ydTdxA5S
-         q/IHU8eV3ydQ44bXaoyNMgEAV9p7lAGxXBkDDJ/QN2S/hUwlUpDtyMbJQcD8eJEe/oqN
-         t39is3SvHotyew3eglBit9QSNRWNHtriR1w8SVKrJOYzyRGro1WjqbwPe6GpfOXuAFZD
-         c9JhONKvBCZDWe2D4dw1ttG7mBN7mw3R1JI8Baxv4lyQR3qSxiMNw/R+joBi4eyopA59
-         vDnrzczaMZFkONE8DuWxguIhdzzhQ1OXo8tIXrd8DKs8hy9ejzdcAU73kQmX8I4e4pfM
-         KPJA==
+        id S1732713AbgFWN3B (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Jun 2020 09:29:01 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:41247 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1732597AbgFWN3A (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Jun 2020 09:29:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1592918939;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=kQ0uQ5LktH5pw48R905A3s6eunXajyDsnvnNFSLzCM4=;
+        b=IbsTEgS0tjSEOlDgl0dQNWN4z4k5mGkjGvJn4ndk2QBy/xsCAoNpXW4/4pglznxVGLfTDX
+        51HlNrAKyz7zsUEHtwOpJ4ExJHsQuKJgnKtkFk3NBmkhQs5+CJd5LC72HzceeqfPsBpiaX
+        fXkXt4tPGj0y062Qh1Y0c2KCoQkEoAA=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-317--r9rGLWpMUGNA56XdLAvQA-1; Tue, 23 Jun 2020 09:28:57 -0400
+X-MC-Unique: -r9rGLWpMUGNA56XdLAvQA-1
+Received: by mail-lf1-f70.google.com with SMTP id z12so3809917lfe.11
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:28:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=M7zbl5j6sfcCLOp7PY1MHFLx7BdRWHFOZ+p5EXyN/MM=;
-        b=YuqPGWef87X8JuS/xdCy7mSpNNzM4Mja/hrwaLCmbwyH/mKiHJhTZrxGK26dhfpa9a
-         LJO02fkmPX4mPnF7Oia3MaCywMuHybSlZmSPXhqjU/AIMtI0eBolKn9MAGxuE8ZcW3p1
-         CpQTBGD8K8UxNMuW2A/CSIhaGDOahgV8tpGp820dmP1CfBCMlc0x+C2LJROSgwMwtPNl
-         8Ybpvt1Ta3ErKXRr9PAcpXfrgRL7/iVu+aPCDpvQ2tdMBDCgV+GqOl1hm6m8A517unHr
-         I7qr9ykn3Aj2WHPChsov6egxgR8SZIWoRin8l5FG3qbqRENyUyISG6gG2NOF+PebqMeB
-         PiLw==
-X-Gm-Message-State: AOAM533u8g5TVN32vr1rJZ7XBtAIvyNtb+UQl53/oS7npz3B4TVrRirv
-        Gz+NAxn7979o+PbFXPZ3GtYKLvJ57l7nYk5DGOdtE+8=
-X-Google-Smtp-Source: ABdhPJxVpUZLsCU+EOVxCpz8NBxPimrDArR/GXoKYaeRhqZfOD054SHt5cb5VbOqaA05JCrccrWBsWCRPsqWfAvjD5U=
-X-Received: by 2002:a17:906:ecef:: with SMTP id qt15mr19933543ejb.91.1592918488965;
- Tue, 23 Jun 2020 06:21:28 -0700 (PDT)
+        bh=kQ0uQ5LktH5pw48R905A3s6eunXajyDsnvnNFSLzCM4=;
+        b=J6M9Erd5espp8i83urfEJEFl6ngA5bqXQ7/dRVc7QlNtJJt050hZqbCy4CpCYrV1Jp
+         CIs7ihnEq8dcPnOFRaE6nDME8q0p1qrmkEesW4jgMbkl10Flqh0b3QWlCuTOKCr8yXD8
+         rRCgSp6bxzgoJNruPCdOke7c59FbgtRugxv+8pzaO60UOMajw5DDrumMHL2v2N/CKugn
+         lu6vvJwFgNFZYcoPl0s5NS8AfjQSalicTECNY2JnmyyaUSqwHsXs/4DUfkNO+xIPzLrD
+         nlC5p4mpW1yUKtvxuuI5TnUGPyc9efbLRC5QIZYTc0bM6k4zI9I405tqi+NMGPbCjatF
+         cuQQ==
+X-Gm-Message-State: AOAM532T49Ka+T5IWNL/P556dFQmDLjS+FbwaPenkK81uympIX3eyOOD
+        KSS1mGPuiUfftrWcdISUcB4VTeQg1nrPLEl9nfnkAE4hiYtk8YFvdCCcTrV3AdZyhkRClhAddjz
+        X88bSwvnum1MDI2LF/qLYNWQJmV3apjHKog==
+X-Received: by 2002:a2e:b4e6:: with SMTP id s6mr2677981ljm.372.1592918935574;
+        Tue, 23 Jun 2020 06:28:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxboZH2v3MLEQhxdu7IwhIxyfiU8sEilVbCEU8mJlkYkwAFEM8my69MgPe1DC72R4n6jpJwtegg91B9e41DS+Q=
+X-Received: by 2002:a2e:b4e6:: with SMTP id s6mr2677971ljm.372.1592918935387;
+ Tue, 23 Jun 2020 06:28:55 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200623123702.401338-1-omosnace@redhat.com> <20200623123702.401338-2-omosnace@redhat.com>
- <CAEjxPJ6tPfWrUOEGgkbOgeoxJL1Y0DJ2fKaWYbgu33STi+6ZAw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6tPfWrUOEGgkbOgeoxJL1Y0DJ2fKaWYbgu33STi+6ZAw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 23 Jun 2020 09:21:18 -0400
-Message-ID: <CAHC9VhTJdhFk6MH68V39L+LnBxHtB3vj=bNaXzFFq=17FHpFrw@mail.gmail.com>
-Subject: Re: [PATCH testsuite 1/4] Makefiles: remove bashisms
+References: <20200623123702.401338-1-omosnace@redhat.com> <20200623123702.401338-3-omosnace@redhat.com>
+ <CAEjxPJ6OPt0r2Dv2u2Skt=ojKTVpNMcvDFKkoyw50naHetLC7Q@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6OPt0r2Dv2u2Skt=ojKTVpNMcvDFKkoyw50naHetLC7Q@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 23 Jun 2020 15:28:44 +0200
+Message-ID: <CAFqZXNuajPrS0KSg=mcA=nRCACf6o_vscbY00pX=j9aYupVZOw@mail.gmail.com>
+Subject: Re: [PATCH testsuite 2/4] travis: add missing node to fake selinuxfs
 To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 23, 2020 at 9:10 AM Stephen Smalley
+On Tue, Jun 23, 2020 at 3:13 PM Stephen Smalley
 <stephen.smalley.work@gmail.com> wrote:
 > On Tue, Jun 23, 2020 at 8:37 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > In Travis CI (Ubuntu), the shell used by Make doesn't understand
-> > bashisms like [[ ... ]]. Replace them with plain [ ... ] and also break
-> > up the conditionals for better readabilty.
+> > Since commit e95fe9503816 ("Add tests for default_range glblub") we look
+> > at $(SELINUXFS)/initial_contexts/kernel to determine the type of the
+> > policy. However, this node is not provided by the fake selinuxfs created
+> > by our CI scripts, leading to non-fatal errors like this:
+> >
+> > [...]
+> > make[1]: Entering directory '/home/travis/build/WOnder93/selinux-testsuite/policy'
+> > cat: /tmp/fake-selinuxfs/initial_contexts/kernel: No such file or directory
+> > [...]
+> >
+> > Create that node and fill it with the ussual kernel context to silence
+> > the errors.
 > >
 > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 >
-> When I ran into these issues (along with some similar problems with
-> bashisms in some of the test scripts) in getting the testsuite to pass
-> on Debian and Ubuntu, I addressed it by running dkpg-reconfigure dash
-> and switching the default shell to bash (as noted in the README.md).
-> Not objecting to changing it but just noting that there are further
-> bashisms in the testsuite beyond the Makefiles.
+> Not objecting to fixing this but wondered if you had considered
+> extending the .travis.yml to actually run the testsuite in a
+> SELinux-enabled VM as per the selinux .travis.yml.
 
-Agreed.
-
-I don't think requiring bash is the same problem that it may have been
-~20 years ago; it would be even easier if Ubuntu hadn't decided to go
-with dash (/me shakes fist).  Regardless of this patch, I think it
-might be good to add a check to the test suite to warn (fail?) if the
-current shell is not bash.
+Maybe eventually, but for now I wanted to at least fix what we have now,
 
 -- 
-paul moore
-www.paul-moore.com
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
