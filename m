@@ -2,88 +2,98 @@ Return-Path: <SRS0=kzV7=AE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-4.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F17C433DF
-	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:16:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97DB6C433DF
+	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:21:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3798720723
-	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:16:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 70703206A5
+	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:21:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AkICLBB3"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="MBIk3qxi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732623AbgFWNQM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Jun 2020 09:16:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43242 "EHLO
+        id S1732623AbgFWNVb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Jun 2020 09:21:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732580AbgFWNQM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Jun 2020 09:16:12 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90022C061573
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:16:11 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id e5so16486456ote.11
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:16:11 -0700 (PDT)
+        with ESMTP id S1725955AbgFWNVa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Jun 2020 09:21:30 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E438C061573
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:21:30 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id n24so21628870ejd.0
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:21:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=i5Q5CnZ7xY38UIzJNFU5yGru0/GWm2EU2CNL4dY0Ogg=;
-        b=AkICLBB3apwoDYr/WA5tPRU6n2v2M3uz+eUIANqxUGUlxEuBH7Urfvn6j2c/NZxu+V
-         rkiM9BnGJWhySGaPdY30e/x3P0pQYdL0XUdQSZSBKjas50AwUkC5u3AvAqGBPOIAA3rK
-         B1xYgGOZ69keIpFBTsl+MUPwijaEVRxtdPkeUga4bZhUbncYu6G/Avva8Ac0k0lFecGw
-         6sP2PZ8UanCjHfkd2toKM8AXZQNVtri7AUMUcKt17k6l8ZUBwa4dp865p2P52pjOB1Uh
-         kZPnXSLiLvWY7sOk1e6HMoSsVQlNwvSPOWrmNi5acyf53KTSuKGwK7ZY6lA9dZovOXci
-         m4kQ==
+         :cc;
+        bh=M7zbl5j6sfcCLOp7PY1MHFLx7BdRWHFOZ+p5EXyN/MM=;
+        b=MBIk3qxirju0CqdTSWvDkRH9Zhd/W2G7TWKmqrHj8/fKip66ywjbDWRAE2ydTdxA5S
+         q/IHU8eV3ydQ44bXaoyNMgEAV9p7lAGxXBkDDJ/QN2S/hUwlUpDtyMbJQcD8eJEe/oqN
+         t39is3SvHotyew3eglBit9QSNRWNHtriR1w8SVKrJOYzyRGro1WjqbwPe6GpfOXuAFZD
+         c9JhONKvBCZDWe2D4dw1ttG7mBN7mw3R1JI8Baxv4lyQR3qSxiMNw/R+joBi4eyopA59
+         vDnrzczaMZFkONE8DuWxguIhdzzhQ1OXo8tIXrd8DKs8hy9ejzdcAU73kQmX8I4e4pfM
+         KPJA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=i5Q5CnZ7xY38UIzJNFU5yGru0/GWm2EU2CNL4dY0Ogg=;
-        b=SZM1PiZ7jJux7LEGVx0sEhNpieZ9eEbZxI8jN5fr1BWAOd+g/k6d4ZgYU2Vd/sTaXl
-         DEM4O3WSaacG5PLGw4YHozZ+bgHutQQxDtE5NoimNdsms8s6Bve6ew76HQu/4SmSllz/
-         +IjLvxvblAe9DBZskWAz99Ilg2Sw5Q9eYwBCD7wyNwfflOXYQRbQ9kdxqUW6bPe3TQXj
-         +l6m03bb/CYrhuG3d4FvpF5oL02/9OgnQR7z3Rt32NWWSJQTILEEMqta9T/VRCwOZjfx
-         CgV6ozRtATAc+0MFf2XvJhmZ9s0wgF8ROhe04S4BPUc+n9Q4xWRrPED3dcpRtY45QlHW
-         64Og==
-X-Gm-Message-State: AOAM530bXEjN72v5fSqeYgseKeW4VasBIJGDcPset7BiGSsRMamqOofk
-        nbhkRetBQfeekBQFGTc4dxcJmm4lnTL1iX4tMF+aDYOejm0=
-X-Google-Smtp-Source: ABdhPJxS82xtd83sM7I5GgzJA3Fkh1S937bsu2Oacvyztcw7/UXAvMhvpSPoJmTqVp1nfCfQ8AYLCV7MpcJHqFimshI=
-X-Received: by 2002:a4a:e74a:: with SMTP id n10mr18373443oov.71.1592918171049;
- Tue, 23 Jun 2020 06:16:11 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=M7zbl5j6sfcCLOp7PY1MHFLx7BdRWHFOZ+p5EXyN/MM=;
+        b=YuqPGWef87X8JuS/xdCy7mSpNNzM4Mja/hrwaLCmbwyH/mKiHJhTZrxGK26dhfpa9a
+         LJO02fkmPX4mPnF7Oia3MaCywMuHybSlZmSPXhqjU/AIMtI0eBolKn9MAGxuE8ZcW3p1
+         CpQTBGD8K8UxNMuW2A/CSIhaGDOahgV8tpGp820dmP1CfBCMlc0x+C2LJROSgwMwtPNl
+         8Ybpvt1Ta3ErKXRr9PAcpXfrgRL7/iVu+aPCDpvQ2tdMBDCgV+GqOl1hm6m8A517unHr
+         I7qr9ykn3Aj2WHPChsov6egxgR8SZIWoRin8l5FG3qbqRENyUyISG6gG2NOF+PebqMeB
+         PiLw==
+X-Gm-Message-State: AOAM533u8g5TVN32vr1rJZ7XBtAIvyNtb+UQl53/oS7npz3B4TVrRirv
+        Gz+NAxn7979o+PbFXPZ3GtYKLvJ57l7nYk5DGOdtE+8=
+X-Google-Smtp-Source: ABdhPJxVpUZLsCU+EOVxCpz8NBxPimrDArR/GXoKYaeRhqZfOD054SHt5cb5VbOqaA05JCrccrWBsWCRPsqWfAvjD5U=
+X-Received: by 2002:a17:906:ecef:: with SMTP id qt15mr19933543ejb.91.1592918488965;
+ Tue, 23 Jun 2020 06:21:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200623123702.401338-1-omosnace@redhat.com> <20200623123702.401338-5-omosnace@redhat.com>
-In-Reply-To: <20200623123702.401338-5-omosnace@redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 23 Jun 2020 09:16:00 -0400
-Message-ID: <CAEjxPJ534XTRnm0UbnC1wCeTK3n280dktH9DD0V2sDLY=6Lrwg@mail.gmail.com>
-Subject: Re: [PATCH testsuite 4/4] tests: stop using deprecated security_context_t
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200623123702.401338-1-omosnace@redhat.com> <20200623123702.401338-2-omosnace@redhat.com>
+ <CAEjxPJ6tPfWrUOEGgkbOgeoxJL1Y0DJ2fKaWYbgu33STi+6ZAw@mail.gmail.com>
+In-Reply-To: <CAEjxPJ6tPfWrUOEGgkbOgeoxJL1Y0DJ2fKaWYbgu33STi+6ZAw@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 23 Jun 2020 09:21:18 -0400
+Message-ID: <CAHC9VhTJdhFk6MH68V39L+LnBxHtB3vj=bNaXzFFq=17FHpFrw@mail.gmail.com>
+Subject: Re: [PATCH testsuite 1/4] Makefiles: remove bashisms
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 23, 2020 at 8:37 AM Ondrej Mosnacek <omosnace@redhat.com> wrote=
-:
+On Tue, Jun 23, 2020 at 9:10 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Tue, Jun 23, 2020 at 8:37 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > In Travis CI (Ubuntu), the shell used by Make doesn't understand
+> > bashisms like [[ ... ]]. Replace them with plain [ ... ] and also break
+> > up the conditionals for better readabilty.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 >
-> In Travis CI, GCC reports in several places:
->
-> gcc -g -O0 -Wall -D_GNU_SOURCE -DHAVE_BPF    parent.c  -lselinux -o paren=
-t
-> parent.c: In function =E2=80=98main=E2=80=99:
-> parent.c:25:2: warning: =E2=80=98security_context_t=E2=80=99 is deprecate=
-d [-Wdeprecated-declarations]
->   security_context_t context_s;
->   ^~~~~~~~~~~~~~~~~~
->
-> Fix this by using plain char * instead of security_context_t.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> When I ran into these issues (along with some similar problems with
+> bashisms in some of the test scripts) in getting the testsuite to pass
+> on Debian and Ubuntu, I addressed it by running dkpg-reconfigure dash
+> and switching the default shell to bash (as noted in the README.md).
+> Not objecting to changing it but just noting that there are further
+> bashisms in the testsuite beyond the Makefiles.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Agreed.
+
+I don't think requiring bash is the same problem that it may have been
+~20 years ago; it would be even easier if Ubuntu hadn't decided to go
+with dash (/me shakes fist).  Regardless of this patch, I think it
+might be good to add a check to the test suite to warn (fail?) if the
+current shell is not bash.
+
+-- 
+paul moore
+www.paul-moore.com
