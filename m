@@ -7,65 +7,65 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7B5DC433E0
-	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 12:37:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E147DC433E1
+	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 12:37:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 823D32072E
-	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 12:37:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C104B20738
+	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 12:37:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W2GqVzW0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d42aep4J"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732618AbgFWMhL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Jun 2020 08:37:11 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:57425 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729611AbgFWMhK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Jun 2020 08:37:10 -0400
+        id S1732619AbgFWMhM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Jun 2020 08:37:12 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:21528 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732597AbgFWMhM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Jun 2020 08:37:12 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1592915829;
+        s=mimecast20190719; t=1592915830;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=c5P+U8IcWcn+FoMRhSlbLGo4kHHroRUUqScou366eC4=;
-        b=W2GqVzW0Gz05pLXUs6Ewkrse/g/DwgPHqt/dpCR+sujPGzwzIso2H5c+2PhvPNLQdV35Nx
-        8Nzy/0+nHRF+aHcLXG3z4E0CYcyp22bcoq9pBa2v+P8CoHIananAYHpSyLkQQ7/FY5jEDD
-        gP8pP5ITfvRi7lF3Xw21d374CU3loBY=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-135-ef2WL2heMzqDvgzjod6C_g-1; Tue, 23 Jun 2020 08:37:07 -0400
-X-MC-Unique: ef2WL2heMzqDvgzjod6C_g-1
-Received: by mail-wr1-f69.google.com with SMTP id r5so15513201wrt.9
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 05:37:07 -0700 (PDT)
+        bh=Qp+2dD8mc/Q81/qimrHzD/csfblw2q5C6Rz/aFEaQ6M=;
+        b=d42aep4JRqRyqLv8T+Ww8LKNvjQAv7L0hlya7mJWAfKHYwEFjQYLD92Gho8EPH/rGtx3Gp
+        kZnD6JEghsyN9YZ3pShQalDyv4o6Lkb/IpthMEXnmmOy2rkIaOuscH2mnpdv1IXbInWHty
+        tKxISVTUAZ15F8qlvbAWZ/DIg/BauxI=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-401-cF_8C6_dM7qvUrWbC0W5Yw-1; Tue, 23 Jun 2020 08:37:08 -0400
+X-MC-Unique: cF_8C6_dM7qvUrWbC0W5Yw-1
+Received: by mail-wr1-f70.google.com with SMTP id p10so15508493wrn.19
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 05:37:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=c5P+U8IcWcn+FoMRhSlbLGo4kHHroRUUqScou366eC4=;
-        b=gxIIg0wkV5Nt3TMldYhSPumh8sxAsVbVTVa2PyXlGCBRngaAAQE2L7s7HRJ6Qt6Doj
-         bFxZ9f6cUC7bWauWEmm0hkX9IzrFfxtKNhmJxyFgKm2uopRn9aVteOIUffvm46zXJnhI
-         kWilFhEq31Rjx9VuN34nfO6Xel/1vDoHZlv3y3imx54FU8shuioV4GI0DYAXa2cCFt84
-         N5/SJ62JSgn2jzz1wTVHVlxhw1/1v6C2qqf5IsYfpmIl9W2JXHcK+/3Z7T4r60fEuR4L
-         G1pS8ulkp82PWjEZho+xI/xgj1lgqbNF1gw7M/n/mLqUEoWZms9B1sZMH2tBP29myoUW
-         +k2g==
-X-Gm-Message-State: AOAM533hliNduIof5XkMHJjLNSu5HoImCw6PTXQgEzbrOYykoITipl3F
-        vE5LK0L8jo6mDpl3wUiutm2x6exUcabVrqkX8r8v6E/euF/sgDCo/vgyOH3iXVhXCCk4Iui6CTN
-        jCC4xHQtgOYC2sq3MLA==
-X-Received: by 2002:adf:fa8b:: with SMTP id h11mr22972636wrr.391.1592915826277;
-        Tue, 23 Jun 2020 05:37:06 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwb0dHatkxbMbVS/yoyMp6nbAMKJhKngPuTcbSiHs92FLnQhmR1sEaKS4Jzjn6imMaXGj4V5Q==
-X-Received: by 2002:adf:fa8b:: with SMTP id h11mr22972619wrr.391.1592915826082;
-        Tue, 23 Jun 2020 05:37:06 -0700 (PDT)
+        bh=Qp+2dD8mc/Q81/qimrHzD/csfblw2q5C6Rz/aFEaQ6M=;
+        b=S908PUDyhq/d1N++kyhkMKc+VJVRwmeS54Ug3CbeWODseDf8nRLnK74AJ2mJsYoK9X
+         8F4i17y7TZ9aWXgxJGXV3S8uLfdXM5KMm4JNyZbm2y9o2ME3wQFf4WtEbUNoAnxdRP7L
+         eP1hNcAbpXFSzg5zRtQN0pc8BS++TanY/k2mOhGolY0wl623RLTNuI+ONnfjeclRoY6d
+         nOhU//OEze1xYWfL9q1pY2zz29u3sOcU8ecIC+5plszH8eCkj3ytbZxkqVyFSLof22zF
+         1qlkQTgeN6yRrHpNreyHbwVrK0ecLHuGhjhyNlxZZ+YfZ6jTfyiAKDiCDGPLptEAfU90
+         fTpA==
+X-Gm-Message-State: AOAM531/VQsUl+RT9C1ppcFgHv5YIJou9td/13itzGHLqlw+0KFzJZyW
+        shnTxLa6XVU85ylgR8VV1xD+XuOK1Gd/srTjC1EzLxFYL6wKsVZnH6lTVw5yA1ZSitiqJv9B/fJ
+        bKi66LGVBBOF2RwBpCQ==
+X-Received: by 2002:a7b:c5c1:: with SMTP id n1mr23285730wmk.21.1592915827484;
+        Tue, 23 Jun 2020 05:37:07 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJypN4XQEb+6n7NPWyARB3l5dYV8MQujGiPOopDaZgUz94YCV0iBlhUr+avkX8kF58r6OXzrsQ==
+X-Received: by 2002:a7b:c5c1:: with SMTP id n1mr23285711wmk.21.1592915827184;
+        Tue, 23 Jun 2020 05:37:07 -0700 (PDT)
 Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
-        by smtp.gmail.com with ESMTPSA id p9sm3449729wma.48.2020.06.23.05.37.04
+        by smtp.gmail.com with ESMTPSA id p9sm3449729wma.48.2020.06.23.05.37.06
         for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 Jun 2020 05:37:05 -0700 (PDT)
+        Tue, 23 Jun 2020 05:37:06 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org
-Subject: [PATCH testsuite 1/4] Makefiles: remove bashisms
-Date:   Tue, 23 Jun 2020 14:36:59 +0200
-Message-Id: <20200623123702.401338-2-omosnace@redhat.com>
+Subject: [PATCH testsuite 2/4] travis: add missing node to fake selinuxfs
+Date:   Tue, 23 Jun 2020 14:37:00 +0200
+Message-Id: <20200623123702.401338-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200623123702.401338-1-omosnace@redhat.com>
 References: <20200623123702.401338-1-omosnace@redhat.com>
@@ -76,57 +76,37 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In Travis CI (Ubuntu), the shell used by Make doesn't understand
-bashisms like [[ ... ]]. Replace them with plain [ ... ] and also break
-up the conditionals for better readabilty.
+Since commit e95fe9503816 ("Add tests for default_range glblub") we look
+at $(SELINUXFS)/initial_contexts/kernel to determine the type of the
+policy. However, this node is not provided by the fake selinuxfs created
+by our CI scripts, leading to non-fatal errors like this:
+
+[...]
+make[1]: Entering directory '/home/travis/build/WOnder93/selinux-testsuite/policy'
+cat: /tmp/fake-selinuxfs/initial_contexts/kernel: No such file or directory
+[...]
+
+Create that node and fill it with the ussual kernel context to silence
+the errors.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- policy/Makefile | 4 +++-
- tests/Makefile  | 8 ++++++--
- 2 files changed, 9 insertions(+), 3 deletions(-)
+ .travis.yml | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/policy/Makefile b/policy/Makefile
-index 672733e..6c49091 100644
---- a/policy/Makefile
-+++ b/policy/Makefile
-@@ -37,13 +37,15 @@ endif
+diff --git a/.travis.yml b/.travis.yml
+index 18ab6b9..ae08c66 100644
+--- a/.travis.yml
++++ b/.travis.yml
+@@ -55,6 +55,8 @@ before_install:
+   # establish a fake "selinuxfs" mount (policy/Makefile just greps for selinuxfs)
+   - mkdir -p /tmp/fake-selinuxfs/policy_capabilities
+   - echo 1 > /tmp/fake-selinuxfs/policy_capabilities/extended_socket_class
++  - mkdir -p /tmp/fake-selinuxfs/initial_contexts
++  - echo system_u:system_r:kernel_t:s0 > /tmp/fake-selinuxfs/initial_contexts/kernel
+   - echo 999 >/tmp/fake-selinuxfs/policyvers
  
- ifeq ($(SUPPORTS_CIL),y)
- CIL_TARGETS = test_mlsconstrain.cil test_overlay_defaultrange.cil
--ifeq ($(shell [[ $(MAX_KERNEL_POLICY) -ge 32 && $(POL_VERS) -ge 32 ]] && echo true),true)
-+ifeq ($(shell [ $(MAX_KERNEL_POLICY) -ge 32 ] && echo true),true)
-+ifeq ($(shell [ $(POL_VERS) -ge 32 ] && echo true),true)
- # If other MLS tests get written this can be moved outside of the glblub test
- ifeq ($(POL_TYPE), MLS)
- CIL_TARGETS += test_glblub.cil
- else ifeq ($(POL_TYPE), MCS)
- CIL_TARGETS += test_add_levels.cil test_glblub.cil
- endif # POL_TYPE
-+endif # POL_VERS
- endif # MAX_KERNEL_POLICY
- endif # SUPPORTS_CIL
- 
-diff --git a/tests/Makefile b/tests/Makefile
-index bdbdf3e..919335b 100644
---- a/tests/Makefile
-+++ b/tests/Makefile
-@@ -68,9 +68,13 @@ ifeq ($(shell grep -q key_socket $(POLDEV)/include/support/all_perms.spt && test
- SUBDIRS += key_socket
- endif
- 
--ifeq ($(shell [[ $(MAX_KERNEL_POLICY) -ge 32 && ( $(POL_TYPE) == 'MLS' || $(POL_TYPE) == 'MCS' ) && $(POL_VERS) -ge 32 ]]  && echo true),true)
-+ifeq ($(shell [ $(MAX_KERNEL_POLICY) -ge 32 ] && echo true),true)
-+ifeq ($(shell [ $(POL_TYPE) = 'MLS' ] || [ $(POL_TYPE) = 'MCS' ] && echo true),true)
-+ifeq ($(shell [ $(POL_VERS) -ge 32 ] && echo true),true)
- SUBDIRS += glblub
--endif
-+endif # POL_VERS
-+endif # POL_TYPE
-+endif # MAX_KERNEL_POLICY
- 
- ifeq ($(shell grep "^SELINUX_INFINIBAND_ENDPORT_TEST=" infiniband_endport/ibendport_test.conf | cut -d'=' -f 2),1)
- SUBDIRS += infiniband_endport
+ script:
 -- 
 2.26.2
 
