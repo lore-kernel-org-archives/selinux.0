@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95202C433E0
-	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:10:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47741C433E0
+	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:13:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 64DAA206FA
-	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:10:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C9C720723
+	for <selinux@archiver.kernel.org>; Tue, 23 Jun 2020 13:13:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vaUv53nJ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Py7lufHp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732580AbgFWNK3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 23 Jun 2020 09:10:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42316 "EHLO
+        id S1732627AbgFWNNt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 23 Jun 2020 09:13:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729504AbgFWNK2 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 23 Jun 2020 09:10:28 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1319C061573
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:10:28 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id a21so18757805oic.8
-        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:10:28 -0700 (PDT)
+        with ESMTP id S1732626AbgFWNNt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 23 Jun 2020 09:13:49 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57CF5C061573
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:13:48 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id p70so18723490oic.12
+        for <selinux@vger.kernel.org>; Tue, 23 Jun 2020 06:13:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=aHekLAMoHfA7mHpV2tgKPbM4fqkTPXHRHl7ytvnX5Cs=;
-        b=vaUv53nJCBa6fWoEu76rK6oftFatms9OsAeRz2CuqoqQjdlAsjWEVfVPrloDvmqRcY
-         iDzX6K0JVaYxQKYgAkT2kQC2PwYB2GwHdJAzeFidrGS1NPf64V71M7eLv/n9DsIPjJ6f
-         JX1j/RAqNlhGfGW91qCB/vI7HiLdJtDPdq9azgdoIRLymirnluvmJOxM4DlpLYZOP5md
-         kWu1rsuKlS/bv+Vxj+mZZQgfy5vLVIQOrCcUe7qXfqs29lNjn/RE+dnXAoROFySLUEeG
-         v0d8y9+sSkKIiq0zOSSLDRgaqZPwhWH5Xzc0AgU6YAsD2WuNBOoQdpr3D7/W5TFmGmW7
-         j/Nw==
+        bh=Zt04EgZdJjuPmIh3vn5fi+dkxDflt8CBp0huVSSUyCg=;
+        b=Py7lufHpZiLwhJWxAIkBTBPoSczVJrVRKILEsvKuG46Tm0XN74Q2L0JxRHwDA7uDRC
+         qyaEJlBV44mIfZ2Ru9vQiyc+BfNcWUtZIAL5/MneVK7Hh/iSsph/zUgimvFTb+VLRr4d
+         Ac8qhFoq1LXj9YvuiQBnefEYv1qMyXvoz+/nHsVRqSCv0HrqBiM1xEUz4V8E+nfjTCQK
+         aLUlQ3U6Y2HKrOr+LTG5zcVO3GBzz4Sbvvl4jOtVs3Efs98t4eq9nEZ3pyv3CifT7UhB
+         lLgSxaSdC7wx+jhnYsFO5iQ4YQOrJS293/TBrfa+aRSr6X9A2yuUAAaxxcouljSLJZnr
+         9PnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=aHekLAMoHfA7mHpV2tgKPbM4fqkTPXHRHl7ytvnX5Cs=;
-        b=mKkn/ECNAji3ZrjYqZgO6iHW4yNFEM+BqXBDRGlaYDjubfsJe9g47wTr03jQxv7XFT
-         fDHQ2n/XkjskHr4uIQyjBIkFdQuvxhyVLCGlIKkUwVKdqmHebLrbu4Ea4fSPL1ff+ihY
-         66yxTnH6lDnGC5xWv507x8upuEiOhkF6s/iqDHb2jO0Ih6CG1aWYOxmGLTBcKt7cDVsT
-         rR2/ei7LmL/8CKcnm/CE9ovx37Lf8wcHLa+Sy8mNAQNhEiXj3KGZTu4EiZr1T2K/xQ25
-         3Mna4i1asgVAft9XtLtxU/Sb7cap5+yVH2TzXXlvK5jgrSG/5FbFTIfG7F+62RKdW269
-         6Teg==
-X-Gm-Message-State: AOAM532kt1Nf0vQay9OK4Z3VCLBHMFXtBD7RafjUncOfXOAV0QIDBlPB
-        0AkPxas0o1OvjJ1h6sqfDQRtXHmxECGNDxcD4xoONKyE
-X-Google-Smtp-Source: ABdhPJxLRxSZFXmkO0eKJf2GWLC06AP5oEQHvcNBaHFvvU+fMDTgafbCFM+4xvr5B69r/5tzC6Hiqa+cMu02kAEpQ5E=
-X-Received: by 2002:aca:ec97:: with SMTP id k145mr15631765oih.92.1592917827825;
- Tue, 23 Jun 2020 06:10:27 -0700 (PDT)
+        bh=Zt04EgZdJjuPmIh3vn5fi+dkxDflt8CBp0huVSSUyCg=;
+        b=pFZccZ220UNryDwaSE4zrFNWl3fzw9/9BvIKpZ3DzmWW7oGuEkSc1Fag3J5G5tdAi8
+         rJt7iVrE2dCbGBFIi+FLGnxKW+jWuiU1iRhte1Uxf7V1NvruPXRUjuCLpvoX+tOxlqWh
+         RQhe0TiJqxjUn3DiKXn7gqUuIhEZhQ1gi5bEzqdRnAzzh9RLw294OIsvJcUhawzpZ+M8
+         iuoulAPLo17WdVZEwrW7gzKIBlsRn7dzsKmqn59Bc3mvSs+5BFxM8QUkcJCIBMdoVHpp
+         aF6+EOkr95jJ4CjYziv/NB9qMbUocdpA1J4mEjnBUUiI03PtF0sSUCDSMrdpsqJQOsSA
+         aWMg==
+X-Gm-Message-State: AOAM532W9BDmi88yFXyFxmMJwneRwxRWBhy4rELR1MitBKgicBefgqyy
+        95mi2SKa5lwTV6hoh1eWxwD6+uYy44zxij7tNQB4mFIkNGg=
+X-Google-Smtp-Source: ABdhPJzVoa+6eaEDiC49KnX+1GYhjdtfltmlLEqb1FwO6rzn3ggrObQt/3IzViO5T1gnve8P2fkSJmJZ35di2CrQJxk=
+X-Received: by 2002:aca:3283:: with SMTP id y125mr16316798oiy.140.1592918027805;
+ Tue, 23 Jun 2020 06:13:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200623123702.401338-1-omosnace@redhat.com> <20200623123702.401338-2-omosnace@redhat.com>
-In-Reply-To: <20200623123702.401338-2-omosnace@redhat.com>
+References: <20200623123702.401338-1-omosnace@redhat.com> <20200623123702.401338-3-omosnace@redhat.com>
+In-Reply-To: <20200623123702.401338-3-omosnace@redhat.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 23 Jun 2020 09:10:17 -0400
-Message-ID: <CAEjxPJ6tPfWrUOEGgkbOgeoxJL1Y0DJ2fKaWYbgu33STi+6ZAw@mail.gmail.com>
-Subject: Re: [PATCH testsuite 1/4] Makefiles: remove bashisms
+Date:   Tue, 23 Jun 2020 09:13:37 -0400
+Message-ID: <CAEjxPJ6OPt0r2Dv2u2Skt=ojKTVpNMcvDFKkoyw50naHetLC7Q@mail.gmail.com>
+Subject: Re: [PATCH testsuite 2/4] travis: add missing node to fake selinuxfs
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -70,18 +70,23 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Tue, Jun 23, 2020 at 8:37 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> In Travis CI (Ubuntu), the shell used by Make doesn't understand
-> bashisms like [[ ... ]]. Replace them with plain [ ... ] and also break
-> up the conditionals for better readabilty.
+> Since commit e95fe9503816 ("Add tests for default_range glblub") we look
+> at $(SELINUXFS)/initial_contexts/kernel to determine the type of the
+> policy. However, this node is not provided by the fake selinuxfs created
+> by our CI scripts, leading to non-fatal errors like this:
+>
+> [...]
+> make[1]: Entering directory '/home/travis/build/WOnder93/selinux-testsuite/policy'
+> cat: /tmp/fake-selinuxfs/initial_contexts/kernel: No such file or directory
+> [...]
+>
+> Create that node and fill it with the ussual kernel context to silence
+> the errors.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-When I ran into these issues (along with some similar problems with
-bashisms in some of the test scripts) in getting the testsuite to pass
-on Debian and Ubuntu, I addressed it by running dkpg-reconfigure dash
-and switching the default shell to bash (as noted in the README.md).
-Not objecting to changing it but just noting that there are further
-bashisms in the testsuite beyond the Makefiles.
+Not objecting to fixing this but wondered if you had considered
+extending the .travis.yml to actually run the testsuite in a
+SELinux-enabled VM as per the selinux .travis.yml.
 
-In any event,
 Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
