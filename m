@@ -1,86 +1,119 @@
-Return-Path: <SRS0=GDzX=AG=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=GP6F=AH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2976C433DF
-	for <selinux@archiver.kernel.org>; Thu, 25 Jun 2020 17:34:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FB35C433E0
+	for <selinux@archiver.kernel.org>; Fri, 26 Jun 2020 11:44:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BEFAA20789
-	for <selinux@archiver.kernel.org>; Thu, 25 Jun 2020 17:34:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E0E9A208B6
+	for <selinux@archiver.kernel.org>; Fri, 26 Jun 2020 11:44:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AQ9zRoTS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HS7d+zW7"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405100AbgFYReV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 25 Jun 2020 13:34:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47422 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404938AbgFYReV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 25 Jun 2020 13:34:21 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F130DC08C5C1
-        for <selinux@vger.kernel.org>; Thu, 25 Jun 2020 10:34:20 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id 18so6024380otv.6
-        for <selinux@vger.kernel.org>; Thu, 25 Jun 2020 10:34:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=2PYIrxKIr2k+1olx4ilCffUSrLcnm0Sa0ZplUrwLWn0=;
-        b=AQ9zRoTSDAY0B+sh37w57pq2E4s/5qM/W72CFyW0O7AdR/zHRCEeWKjlyq2dpk0uYS
-         ADEwmlTAnYxdJnuLeoBP3DVDolgV/GufNI+jPj9hDeY5EQjtaWzCSnyhFa/HqFThOLZl
-         WYmGjpXP52RhYWVhL8i27xOepC5OzSE7y2393u5OIcpQ1A/Z7w8fqeBQTyDUF+s1Now+
-         d6K2++wr7ym+TSXLdcWv7Rj8iGfxWKhE9T2IsPwU6497c3AOFSH5BaIzsCrc7AG4gzBT
-         rHeN/N/Uydsa1JtHZore1QUC25F6Z9A1Z7bAbFP8xZ3WY+SnS+GUkzn/saOc5afbgD42
-         HLNw==
+        id S1726165AbgFZLoH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 26 Jun 2020 07:44:07 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:49730 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725836AbgFZLoH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 26 Jun 2020 07:44:07 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1593171845;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=3fD/Y91afA1m39ftFUDHF4x4jf48XnEGH/EuiN36iOg=;
+        b=HS7d+zW7marhtyYrMxpDCXeWmp9CF5oKPtwZAV/h70K5stw+163s14cYCTLIUI1lqYvno+
+        uzDQCgEEfI806jOLsXq8Ed8VqjkntY+B29btsJfzBfO8xyq6xOPyFUGiMdPPYZ6u3/0yTp
+        J5EoJ+Ajtb4cLu0bvAlKHvqIiA6Z8oA=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-310-OFiuc_82MJKjwz7Z7PEZfA-1; Fri, 26 Jun 2020 07:44:04 -0400
+X-MC-Unique: OFiuc_82MJKjwz7Z7PEZfA-1
+Received: by mail-wr1-f70.google.com with SMTP id h28so10334994wrc.18
+        for <selinux@vger.kernel.org>; Fri, 26 Jun 2020 04:44:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2PYIrxKIr2k+1olx4ilCffUSrLcnm0Sa0ZplUrwLWn0=;
-        b=uUXX4J5gg901HysRXZDYDlum8NHqPVY+mWfeJq0MORxE+qvTSI8XChQvylg7OS0Tbj
-         dRRduTTgClkHE34LP+yTPr2iKj9pJUuQfFclsiflGoFXH3EF0nFBwbzuiQnmtF87/TYH
-         ZNQKfwOuaqJ+cwh41tK6PKfE+QHcyKUoYdWqwoCXqEGU8ie2uvuPoD/oGzCyxqY/eO0J
-         Po/KeRoVhpxl6kRJHHU+t3H/TKD6vL4DCjU69GtkNsjifR4nVcfCaHIOZKRPYDjPQsbk
-         XNG9SbhhOSRZkN4JS7NC6y5MaVGEISD6N6DcQ5xq/VViGPGHWmRwqPVxknpkHyjHDgM4
-         DzTA==
-X-Gm-Message-State: AOAM533uoqmwy//XlTPl1q8wZZmdgHOS7wI60uZC3YLgYwLikVXyCxcY
-        mmCbbWBAcrEp3A/r23r9f1ynxRFAADQuL5mKGr54RRC1
-X-Google-Smtp-Source: ABdhPJwCpzL3fLmSVyEI/THS5pR6eSEOYbBWmnmIIqHhOScNkkuAb3Er4GlGqRnrIbPF/NnFLMjsixeyU1rD946gCYI=
-X-Received: by 2002:a05:6830:2003:: with SMTP id e3mr26397311otp.89.1593106460350;
- Thu, 25 Jun 2020 10:34:20 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3fD/Y91afA1m39ftFUDHF4x4jf48XnEGH/EuiN36iOg=;
+        b=p2fJLUM10vgPGnW7abwo16MUnNsaSyST1jPBMj+JdLHSXGdz+vpmo48+xyfAfMr3l5
+         CgwbVd8Jez4JZNRHEy2C1kpbAmfSitqNiQQeBB6hpZJW8KKEswa9seWlbcDOjL+aHfhD
+         9xXkShwSNjuRyJ+pRDMV86OdgyFTrTNdQvHdHCPo6PkHssp3+2ifIZcLsFOTyG6kGrgh
+         jiHtShUt2RFj1ja2ivd+a8186Ec3DGMIuGB53SBAQuElefDKzC2VFtKe3PSM/MsUnrnG
+         /Bx178n0xaAz3t4uSFGX+xYoaZ94TLLPvJu88KityGWNbts9zN+/q5LUgp55whNyPirc
+         6rCg==
+X-Gm-Message-State: AOAM531DArj2VkY/k18x16ySRr08YSCuzOOIbQdOHEVGG1ZXcj2fD7BR
+        gBjQPpDDJFa2Bay7WhUt5VBb0NamexwBSvbOCVfvDNFP4essvVCIqWF+V6qg1PYBRD79VmTssXP
+        K+/aYHF28DjsbnlWOUQ==
+X-Received: by 2002:a7b:c38c:: with SMTP id s12mr3000049wmj.136.1593171842616;
+        Fri, 26 Jun 2020 04:44:02 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxs3yYNyyfM74KnU5apaJSWEWtuQ/b2vW+vH0YKz4j32FMIAcOl9rHLjj/QOEI6FsS45nuTVA==
+X-Received: by 2002:a7b:c38c:: with SMTP id s12mr3000030wmj.136.1593171842352;
+        Fri, 26 Jun 2020 04:44:02 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b13f:2100:f695:3ae5:c8bf:2f57])
+        by smtp.gmail.com with ESMTPSA id f12sm23626703wrw.53.2020.06.26.04.44.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Jun 2020 04:44:01 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH testsuite] travis: fix `make conf` invocation
+Date:   Fri, 26 Jun 2020 13:43:59 +0200
+Message-Id: <20200626114359.80134-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <20200623123702.401338-1-omosnace@redhat.com>
-In-Reply-To: <20200623123702.401338-1-omosnace@redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 25 Jun 2020 13:34:09 -0400
-Message-ID: <CAEjxPJ59sEELJGoS_GO9P+fAiWtp3QX_zrF9onbs8bZN78djcA@mail.gmail.com>
-Subject: Re: [PATCH testsuite 0/4] Various CI-related testsuite fixes
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jun 23, 2020 at 8:37 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> There are some warnings and non-fatal errors reported during CI runs.
-> Additionally, the CI gets stuck when there is a force-push on some
-> upstream repo that is cached. This series fixes these issues.
->
-> Testing Travis run:
-> https://travis-ci.org/github/WOnder93/selinux-testsuite/builds/698848141
->
-> Ondrej Mosnacek (4):
->   Makefiles: remove bashisms
->   travis: add missing node to fake selinuxfs
->   travis: fix git/cache handling
->   tests: stop using deprecated security_context_t
+In refpolicy when a module is added/removed, the policy build config
+may need to be rebuilt. Currently we run `make conf` just once and then
+reuse it via cache. Instead, we need to run it unconditionally, since
+the other targets won't trigger that implictly.
 
-Applied.
+In Fedora policy the default module config is included and maintained in
+git, so we don't need to (and must not) call make conf at all.
+
+Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ travis-ci/setup-policy-fedora.sh    | 2 --
+ travis-ci/setup-policy-refpolicy.sh | 2 +-
+ 2 files changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/travis-ci/setup-policy-fedora.sh b/travis-ci/setup-policy-fedora.sh
+index bce8698..a07c990 100644
+--- a/travis-ci/setup-policy-fedora.sh
++++ b/travis-ci/setup-policy-fedora.sh
+@@ -26,8 +26,6 @@ cd selinux-policy
+ 
+ grep -q refpolicy build.conf && sed -i 's/refpolicy/targeted/' build.conf
+ 
+-[ -f policy/modules.conf ] || make conf
+-
+ make -j`nproc --all` BINDIR=/usr/local/bin SBINDIR=/usr/local/sbin
+ sudo make install install-headers
+ 
+diff --git a/travis-ci/setup-policy-refpolicy.sh b/travis-ci/setup-policy-refpolicy.sh
+index 3010467..d63e7e4 100644
+--- a/travis-ci/setup-policy-refpolicy.sh
++++ b/travis-ci/setup-policy-refpolicy.sh
+@@ -12,7 +12,7 @@ cd refpolicy
+ 
+ git checkout origin/master
+ 
+-[ -f policy/modules.conf ] || make conf
++make conf
+ 
+ make -j`nproc --all` BINDIR=/usr/local/bin SBINDIR=/usr/local/sbin
+ sudo make install install-headers
+-- 
+2.26.2
+
