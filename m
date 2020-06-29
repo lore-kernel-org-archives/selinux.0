@@ -2,102 +2,101 @@ Return-Path: <SRS0=DMlc=AK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC8D8C433DF
-	for <selinux@archiver.kernel.org>; Mon, 29 Jun 2020 19:58:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6254C433E1
+	for <selinux@archiver.kernel.org>; Mon, 29 Jun 2020 20:53:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id AC216206F1
-	for <selinux@archiver.kernel.org>; Mon, 29 Jun 2020 19:58:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B80AD206F1
+	for <selinux@archiver.kernel.org>; Mon, 29 Jun 2020 20:53:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="mfJUsoSt"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A99fv9jz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729534AbgF2T6a (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 29 Jun 2020 15:58:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48066 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387608AbgF2TkS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jun 2020 15:40:18 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 064E2C03E979
-        for <selinux@vger.kernel.org>; Mon, 29 Jun 2020 12:40:18 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id t9so9844685lfl.5
-        for <selinux@vger.kernel.org>; Mon, 29 Jun 2020 12:40:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:from:date:message-id:subject:to;
-        bh=MuwMThP3LYgSxMy5Tmpm3cUdSUZ+lQU+u8G3J3Prf/4=;
-        b=mfJUsoStoTJES6jTVq/IIV8HNX5P6EqDZvAiRN2bSKn0iArLjpWYQHQSnqGJGBdVQZ
-         s0wP+IyMJFIRHT74IY9nsAb5bLohBAWK5KbixRfx7N0AkJzKIaNkwazG5uzzjGVGZYd8
-         OzNoGmJmf+N8QWYZb20Di9mbZIDAz2LjziQfwkRrcC9J6T6LYHvJIIVtNVOVhOgW3BZK
-         hP3l2FxSPhzowBlKX1HOPzfJX6AVCBtgmlXEWE8fuiejscXRhQNRNHFO9ZYWe/TFTXb/
-         RK/IaGTi/dUI9BYOJQpRbIUC27Fqo0QC3VoxD7LdQ5BNiPVTNFNd+AcTs4C7X/CDGcvN
-         nPWA==
+        id S2387613AbgF2Uxi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 29 Jun 2020 16:53:38 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:59277 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1731322AbgF2TNU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 29 Jun 2020 15:13:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1593457999;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=nPVl8nZtaDUuMbNPOf+J3CWyhdjTXYg/AvYdpgqyb84=;
+        b=A99fv9jzPDgp8hieMRzBLVlrMr7nUIcssckEkKoJQkLD8XS1yVr4Fd1lll4Qu74LdDfk7g
+        0XmNuod0tV4sHDrinaJ/VM/QeITz1A+ZpY0MMpWqiupo9StQ5vB0l1oVMhnm7lp0DVdlY8
+        ZvG+dY13k8Dgp5/Jj/2qILLVqCiS33A=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-33-AxQy0n37M0emFOZTRdcClg-1; Mon, 29 Jun 2020 15:13:15 -0400
+X-MC-Unique: AxQy0n37M0emFOZTRdcClg-1
+Received: by mail-lj1-f199.google.com with SMTP id f25so354836ljo.13
+        for <selinux@vger.kernel.org>; Mon, 29 Jun 2020 12:13:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
-        bh=MuwMThP3LYgSxMy5Tmpm3cUdSUZ+lQU+u8G3J3Prf/4=;
-        b=B00ayCYS41OM6C9z6f2S5pDMl65GFKft2IqcWvQFiC190QjuljkE+BidRsUaYb8T7R
-         eQSZM6vy3Vq7EZkfIBMlKtQn3ohbDEX+MhNye82XhUv5LVyhBKvW2lEHQKN3sEdgf52O
-         V0uFcn8DBdsNb2YDYwZkJmMr+F8hlDDOMqSqxOVZBa0e8ZdRP5C1IoD+4nvC09rd5iDD
-         B6ufRjkC4egAFs5H67sBQP45r5a0vp7VyidwTfS5gIjP4JM0kls0NtVQNexfOg4Oj5xd
-         CygMffnCKPfBwf98Qs0LLc2RLCtnPcC5pJuJC53a3Rb5IP2rJgjCSRvz7qy3p6gNOD9g
-         kWxA==
-X-Gm-Message-State: AOAM530avsbR+yOsmuU38JzfZaY7kGLRwlFNKF2aYLBED455ABnbbonC
-        bMyafTUf1AChNVh7e/jl4jv0yBmXUxltbPtHM/sY2NbP
-X-Google-Smtp-Source: ABdhPJyQkZfoxTRoh4co3hsFB3EMnC1cH4ynBecqHt/ecBbLIBWWoQZiGVh2JAk0fLfURSCgFn1xVDMm5+/FOw+sE0Q=
-X-Received: by 2002:a19:a417:: with SMTP id q23mr9669467lfc.181.1593459616153;
- Mon, 29 Jun 2020 12:40:16 -0700 (PDT)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=nPVl8nZtaDUuMbNPOf+J3CWyhdjTXYg/AvYdpgqyb84=;
+        b=YMqMVparpbWI7e/rXgd1piFLZOyHgxOyWC7xTfgnWi+R13+Dq0u07kDUSiYkaZOvJQ
+         Y9mOz8dYf89tOgxI1DcCzV7XnQs8eRA77iyRkZ+8GwJbX92YoIwgGWHYuFmMfsGXcRIS
+         hdUNktMlG587xkbYrnynfZPy4eniAdj4JoT2ZMvScOd/0trGVb47llEAFpiv68y9Lo1X
+         X29FJtQNvHsa7VIGFdTQJIp/XeMra3eWbjM1Hixna5vzx+NUX3IxlZa/ueNgvnC4AzVY
+         G3jkeN9R0MADagrT/vtBh8P1HvwypOV8ZSOV1D2YCw1hN6UhsME58NEFgCoKgAUpmjmk
+         GoHA==
+X-Gm-Message-State: AOAM533NV4Jon16/YQmWa2HT7Dw2wSZyJyedfesyahHVDo33X6cDb+kD
+        1f9FOXbOFUpntPbukHXuyvneV28RSTwRghURtuvAofWomXPPYdsV6XDXJMJ2w6E30TO+x8wzpM7
+        9sIz6KGT7QB90JVNdbqv/yos23ZASJTberQ==
+X-Received: by 2002:ac2:4557:: with SMTP id j23mr10341416lfm.124.1593457993172;
+        Mon, 29 Jun 2020 12:13:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyyJCWW161qqAeklK99YuGT3thQ2tuUvQV5PGscfKtCXY2Mh1hduDT4oPFcrPhb9IjnQ6Eol31RvNm/tHrXmPE=
+X-Received: by 2002:ac2:4557:: with SMTP id j23mr10341408lfm.124.1593457992955;
+ Mon, 29 Jun 2020 12:13:12 -0700 (PDT)
 MIME-Version: 1.0
-From:   Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Date:   Mon, 29 Jun 2020 15:40:05 -0400
-Message-ID: <CAMN686EVbRLAiti82aRqQUHLYERe7fSydgz1NVttZNHS74dkFQ@mail.gmail.com>
-Subject: [RFC] userspace: netlink/sestatus feature parity
-To:     selinux@vger.kernel.org
+References: <20200626114359.80134-1-omosnace@redhat.com> <CAEjxPJ5+FhHLp01JWaALV6TCwkFP4PO=Y9KrjhKJCS-potV1TQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5+FhHLp01JWaALV6TCwkFP4PO=Y9KrjhKJCS-potV1TQ@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Mon, 29 Jun 2020 21:13:01 +0200
+Message-ID: <CAFqZXNsipXMWAgYFxxe9sB5y+_yiJ6RbXUACmqCQUakits17Eg@mail.gmail.com>
+Subject: Re: [PATCH testsuite] travis: fix `make conf` invocation
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In looking at the userspace AVC netlink and sestatis code, I noticed
-there are a few discrepancies between the two mechanisms. Considering
-sestatus is intended (AFAICT) to be a swap-in replacement for netlink,
-I'd expect all of the same code paths to be covered. This doesn't seem
-to be the case.
+On Fri, Jun 26, 2020 at 2:49 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On Fri, Jun 26, 2020 at 7:44 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > In refpolicy when a module is added/removed, the policy build config
+> > may need to be rebuilt. Currently we run `make conf` just once and then
+> > reuse it via cache. Instead, we need to run it unconditionally, since
+> > the other targets won't trigger that implictly.
+> >
+> > In Fedora policy the default module config is included and maintained in
+> > git, so we don't need to (and must not) call make conf at all.
+> >
+> > Reported-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+> Feel free to apply whenever; I will not be around next week to do so.
 
-One such difference is the handling of `setenforce` events in
-`selinux_status_updated/setenforce()`. While netlink updates the
-internal `avc_enforcing` state, `selinux_status_updated/setenforce()`
-do not.
+(Third time's the charm, hopefully... vger.kernel.org seems to be
+working again.)
 
-Any userspace object manager wishing to use sestatus with the internal
-AVC is not guaranteed to have accurate state during calls to
-`avc_has_perm_noaudit`, unless they reach out to netlink. sestatus was
-initially implemented for use in sepgsql, which did not require use of
-`avc_has_perm_noaudit`.
+Thanks, it is applied now and the Travis build passed:
+https://travis-ci.org/github/SELinuxProject/selinux-testsuite/builds/703080617
 
-To more robustly support use of sestatus, I'm proposing that we
-improve upon the sestatus code by having it update/reset AVC internal
-state (avc_enforcing, for example) on status events.
-
-Would such a patch be of interest? Or would it be simpler to just
-update `avc_has_perm_noaudit` to query sestatus for enforcing, rather
-than refer to `avc_enforcing`?
-
-A few questions further questions in case this improvement is of interest:
-
-1) Should there be separate callbacks for netlink counterparts in
-sestatus, or is the existing infrastructure suitable for implementing
-handling of those events?
-
-2) With netlink we're guaranteed sequential processing of events. The
-same is not true for mmap()'ed status updates. Do we care about the
-order in which events are processed?
-
-Thanks in advance,
 -- 
-Mike Palmiotto
-https://crunchydata.com
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
+
