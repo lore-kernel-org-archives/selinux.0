@@ -1,105 +1,118 @@
-Return-Path: <SRS0=4re7=AL=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=TSKA=AM=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
+X-Spam-Status: No, score=-1.1 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2CACC433E2
-	for <selinux@archiver.kernel.org>; Tue, 30 Jun 2020 23:46:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26206C433DF
+	for <selinux@archiver.kernel.org>; Wed,  1 Jul 2020 06:49:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 880C120663
-	for <selinux@archiver.kernel.org>; Tue, 30 Jun 2020 23:46:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E9EEE2074D
+	for <selinux@archiver.kernel.org>; Wed,  1 Jul 2020 06:49:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="fldmVEKk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VEVIKlDx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727804AbgF3Xqk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 30 Jun 2020 19:46:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55116 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726855AbgF3Xqi (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 30 Jun 2020 19:46:38 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A27A9C03E97E
-        for <selinux@vger.kernel.org>; Tue, 30 Jun 2020 16:46:36 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id dg28so17924802edb.3
-        for <selinux@vger.kernel.org>; Tue, 30 Jun 2020 16:46:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=4ut4qu0PwkMI+FHizXNRSNmLt93UoCOy1a8veHSnROM=;
-        b=fldmVEKk98jg6orMokPCDgCcRmy6AUwAKBx1BAqCatpdq2mA9mjC5cyIEGtU/4jSMY
-         0PeK24RixNKNOlN/FjUCtpIN9z1JaFKOHaFAATvqwbOs5DDahEKImbeUoFohIrG34Jpo
-         Rw3FH/WnIfEv0QnAHoqz1dp9h5u1SNOi/fPfI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=4ut4qu0PwkMI+FHizXNRSNmLt93UoCOy1a8veHSnROM=;
-        b=WH/JWho4dEuzt0g9u3BIOk6Z3jXwQr5o2V4/Fcdf6Etj/dV9N9SX30hPwr4oJQ0FEd
-         vAWFiCKywnmxPeH2e7Bqcf6Yd+fHtSwxkfixOBXkrv0mX2w0n3wEh5UGrAUUGpecFINI
-         aTF8/QDZDMQTgFybuL1oT1Lz4MQ6E4ScA7uJVaQA6cyxU86ZqOaD9K8BUoqdrhPBPePV
-         TsI+ewVH0mJSmoL95/DNxBHU3DKB1g9oqojFtYOIjOPcpKrk7rCZP94GSmF7MBJXUg69
-         i3ANHqq99p5AykSoz/ToeuOsKG1vedInj1Q7Sa0eawFY7XxQ+SG5mhDDy75dobsJwDFn
-         RKXg==
-X-Gm-Message-State: AOAM530enuVJ+0eW2FLPrNcq1ccK3y7Rj8GBp6iopIn4EoyUIegF08MS
-        RdcQr8bepRCFqAO2ywp45tf9vKa5WTqRLar8mEg43faEgcgNvgy3xVBS2LL8r/YFDiqKO7i9jMR
-        mTqLraclBYw+ytYMaMPE+c1MBlYuXpKbjhvC6zBrNUN9T7FnwhtsVuF3kL3FjQlaVchnylNQjzT
-        5IwRqu
-X-Google-Smtp-Source: ABdhPJw7+YsKgwSqrDRw9IXTk7nrj5lLYNZo5jZ+h0dbyRH8xFwM0Yfm9rfF+bJpMYn9Ok+nLMLbKg==
-X-Received: by 2002:a50:e14e:: with SMTP id i14mr24736204edl.279.1593560795045;
-        Tue, 30 Jun 2020 16:46:35 -0700 (PDT)
-Received: from [10.136.13.65] ([192.19.228.250])
-        by smtp.gmail.com with ESMTPSA id lj18sm3159522ejb.43.2020.06.30.16.46.29
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 30 Jun 2020 16:46:34 -0700 (PDT)
-Subject: Re: [PATCH v3 1/1] fs: move kernel_read_file* to its own include file
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Luis Chamberlain <mcgrof@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
+        id S1727943AbgGAGtj (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 1 Jul 2020 02:49:39 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:39627 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726144AbgGAGtj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 1 Jul 2020 02:49:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1593586178;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=hToiU5LeJAAlC9l0X3eoMf5GmV669rRbGsOZZ5vcImA=;
+        b=VEVIKlDxys8SCCyFjan3k4mJ0EUszUZgFz4Y9BvQPOtQucULbyeG9gWUQVXxQ/1mvfHyqr
+        L/5FcHB1hemESjY7tY0fs3+w+ohRk+E851WBb3LW+DAHUsAS53ATOjIMFvKZH+ey0HYnGq
+        /frIo3z4RKZNlrHrbYREc5tjD4mdGrU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-67-E6P5FSFWO06ES6NUoi0Giw-1; Wed, 01 Jul 2020 02:49:34 -0400
+X-MC-Unique: E6P5FSFWO06ES6NUoi0Giw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4ADFD80183C;
+        Wed,  1 Jul 2020 06:49:31 +0000 (UTC)
+Received: from dcbz.redhat.com (ovpn-113-12.ams2.redhat.com [10.36.113.12])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1DB982B4AD;
+        Wed,  1 Jul 2020 06:49:20 +0000 (UTC)
+From:   Adrian Reber <areber@redhat.com>
+To:     Christian Brauner <christian.brauner@ubuntu.com>,
         Eric Biederman <ebiederm@xmission.com>,
-        Jessica Yu <jeyu@kernel.org>,
-        BCM Kernel Feedback <bcm-kernel-feedback-list@broadcom.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J . Wysocki" <rafael@kernel.org>,
-        James Morris <jmorris@namei.org>,
-        "Serge E . Hallyn" <serge@hallyn.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        Kees Cook <keescook@chromium.org>,
-        Paul Moore <paul@paul-moore.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
+        =?UTF-8?q?Micha=C5=82=20C=C5=82api=C5=84ski?= 
+        <mclapinski@google.com>, Kamil Yurtsever <kyurtsever@google.com>,
+        Dirk Petersen <dipeit@gmail.com>,
+        Christine Flood <chf@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        Adrian Reber <areber@redhat.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Serge Hallyn <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
         Eric Paris <eparis@parisplace.org>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        kexec@lists.infradead.org, linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org
-References: <20200617161218.18487-1-scott.branden@broadcom.com>
- <20200624075516.GA20553@lst.de>
-From:   Scott Branden <scott.branden@broadcom.com>
-Message-ID: <a1447797-c6b7-d04a-0661-897845942864@broadcom.com>
-Date:   Tue, 30 Jun 2020 16:46:27 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH v4 0/3] capabilities: Introduce CAP_CHECKPOINT_RESTORE
+Date:   Wed,  1 Jul 2020 08:49:03 +0200
+Message-Id: <20200701064906.323185-1-areber@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200624075516.GA20553@lst.de>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hi Al (Viro),
+This is v4 of the 'Introduce CAP_CHECKPOINT_RESTORE' patchset. There
+is only one change from v3 to address Jann's comment on patch 3/3
 
-Are you able to take this patch into your tree or does someone else?
+ (That is not necessarily true in the presence of LSMs like SELinux:
+ You'd have to be able to FILE__EXECUTE_NO_TRANS the target executable
+ according to the system's security policy.)
 
-On 2020-06-24 12:55 a.m., Christoph Hellwig wrote:
-> Looks good,
->
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
+Nicolas updated the last patch (3/3). The first two patches are
+unchanged from v3.
+
+Adrian Reber (2):
+  capabilities: Introduce CAP_CHECKPOINT_RESTORE
+  selftests: add clone3() CAP_CHECKPOINT_RESTORE test
+
+Nicolas Viennot (1):
+  prctl: Allow ptrace capable processes to change /proc/self/exe
+
+ fs/proc/base.c                                |   8 +-
+ include/linux/capability.h                    |   6 +
+ include/linux/lsm_hook_defs.h                 |   1 +
+ include/linux/security.h                      |   6 +
+ include/uapi/linux/capability.h               |   9 +-
+ kernel/pid.c                                  |   2 +-
+ kernel/pid_namespace.c                        |   2 +-
+ kernel/sys.c                                  |  12 +-
+ security/commoncap.c                          |  26 +++
+ security/security.c                           |   5 +
+ security/selinux/hooks.c                      |  14 ++
+ security/selinux/include/classmap.h           |   5 +-
+ tools/testing/selftests/clone3/Makefile       |   4 +-
+ .../clone3/clone3_cap_checkpoint_restore.c    | 203 ++++++++++++++++++
+ 14 files changed, 285 insertions(+), 18 deletions(-)
+ create mode 100644 tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c
+
+
+base-commit: f2b92b14533e646e434523abdbafddb727c23898
+-- 
+2.26.2
 
