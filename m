@@ -2,69 +2,69 @@ Return-Path: <SRS0=unIV=AO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-8.6 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F203C433E0
-	for <selinux@archiver.kernel.org>; Fri,  3 Jul 2020 13:49:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC567C433DF
+	for <selinux@archiver.kernel.org>; Fri,  3 Jul 2020 13:53:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4D1312084C
-	for <selinux@archiver.kernel.org>; Fri,  3 Jul 2020 13:49:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 95DFF20870
+	for <selinux@archiver.kernel.org>; Fri,  3 Jul 2020 13:53:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="vaQZth5k"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="RWIlxza4"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726063AbgGCNtm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 3 Jul 2020 09:49:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36944 "EHLO
+        id S1726427AbgGCNxA (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 3 Jul 2020 09:53:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726035AbgGCNtl (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 3 Jul 2020 09:49:41 -0400
-Received: from mail-wr1-x443.google.com (mail-wr1-x443.google.com [IPv6:2a00:1450:4864:20::443])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E142C08C5C1
-        for <selinux@vger.kernel.org>; Fri,  3 Jul 2020 06:49:41 -0700 (PDT)
-Received: by mail-wr1-x443.google.com with SMTP id k6so32775365wrn.3
-        for <selinux@vger.kernel.org>; Fri, 03 Jul 2020 06:49:41 -0700 (PDT)
+        with ESMTP id S1726039AbgGCNw7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 3 Jul 2020 09:52:59 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26463C08C5C1
+        for <selinux@vger.kernel.org>; Fri,  3 Jul 2020 06:52:59 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id w3so21716504wmi.4
+        for <selinux@vger.kernel.org>; Fri, 03 Jul 2020 06:52:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20161025;
-        h=from:subject:to:cc:references:autocrypt:message-id:date:user-agent
+        h=from:subject:to:references:autocrypt:message-id:date:user-agent
          :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=qzMyA5wvOYHlZQqlpxl0UYeI1QZXwEvAngPqpDeH9eQ=;
-        b=vaQZth5kpYCSgp7sDgRUKwQ5oDjSjAkA5QkTSS+zCrVBcxHfT6Czr8ATG2UWOgBoFN
-         3NWWOe07HfG9MezQb1fktC8ZGQLLB2NmTLkxeAMHt5r7LLM/4ZsvOE0yumagxoKromX7
-         wt9X9otkl0oKuD9YpwV3Chkjrtyur3ZK+xtd+1EJ2xSifdjoH8InFBs2V1MFvZn+EoAf
-         A+U8spjtpHZx1Grf5fHLiOBEbGadCppB+YXQ4soGtrm1mURiGPxgF/tMDtKLnNw9TsWi
-         c6DTth8kQOEdxq6UBMYtXNtZOXzgqpwoXvY7fJNJnxhwPGkdAwEju6sCJb4jXvaT9zP2
-         cIFQ==
+        bh=iyMReRL/Ap+X0TM0qGC+Vy/kyLZYp5HFVeLVTN2uv3E=;
+        b=RWIlxza4h7YpxrMBYi3nwi4FfBP8rbe0lyjGNq/CwDUb9x+05MeSwatrUCSqzuaG5v
+         ii1OCZ44HtLKt943JBrzQ8PhNEppcQUmNAAQTMxn5GtHDfhldGysLg1DFC5E+JTXapir
+         13Y3PxOB5qoSiHfRZLE6M9qgzSNSUO1KXhkgTB1QvhrzajB1MdeCHo173iXhHROwe1wG
+         WSkhMjkQVAKlQRVw9hulKdc0/rm5Nw7XFw/SXLSlfMNQSge7a+STtwx3fjI8OwLkY1J/
+         KG+M53w81EtQXBM7HNNOlaxRMgP09IM84SXlsvE2U4aDcl+yHe7LQeLBP29HLhUZvhKU
+         uVOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:cc:references:autocrypt
-         :message-id:date:user-agent:mime-version:in-reply-to
-         :content-language:content-transfer-encoding;
-        bh=qzMyA5wvOYHlZQqlpxl0UYeI1QZXwEvAngPqpDeH9eQ=;
-        b=lpt/Yzaq+zxaRhMRr0nwCjm4ZQLtZLKNbt+bcoyDobB+YZ5Ck7CpxoCsniv9yPR0ZF
-         RDVqDZeqt118cecMGntHDgWO8AFmy4nk1P3GDS5vQjR5nQSnZzLAUUMHVa/Ah43zgDY2
-         4yC0hESAa9oqtLPwpVMNQGL0vQN9/Le5hhZjymCpbBiaVc0uimTZl3PBunZMRJpU/OSo
-         RfeQDLl9EWx2Cj2HEj7VphYFTULcEc8Dh+yoZPG+tcdu7/At+LvTael+/A34pZP5JbWu
-         sxWBi1lIJXLKOFjeAqfga0BMvUkyPljzunVJRE/NRO1WrF1Nwdu1Rdid+i2Rp1s4VtnM
-         uPCw==
-X-Gm-Message-State: AOAM533+ke9TjvVfNCw2Brtq88P1j9K1rA6Q/RKEYwIiBxfPdYOKRRvA
-        pjkJaiiG3rFkTX5tLEYMmdNJjXhj
-X-Google-Smtp-Source: ABdhPJw8fzAUOdAWcig3wc5Sc5/T3R2YRXZtY4lgBP8iobAt3XtUnoBOtR2kXBr8VeEuCriLsal+og==
-X-Received: by 2002:a5d:4202:: with SMTP id n2mr35847410wrq.171.1593784179599;
-        Fri, 03 Jul 2020 06:49:39 -0700 (PDT)
+        h=x-gm-message-state:from:subject:to:references:autocrypt:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=iyMReRL/Ap+X0TM0qGC+Vy/kyLZYp5HFVeLVTN2uv3E=;
+        b=RpsXBASac0KKfZKdMsNy3yuiTikf7PJIVgo/hDLbpHr6Ed8ua920drbsnJSP0o1/di
+         X/yI+1KsqqKwaiu/FnlBiaC72jn0t6/O0j2S+6NB80FVgncjT2pcwEWKJRx66jI/nwGe
+         nN+I/NWYdHzRFTJr1tFvyuPD0Z4wfPneVfqSHNdM4uvYGY/TO83DC1zKeog0Wsooe5wp
+         C6OZsSDrI9nVr43AIZ4LXNyuqZlmkU/uXOx+64YxqGR07ensKnflBWC9rFpKU8iPBrPE
+         KkSB/9uYe3A/yWbr0y8jXukmq3TfvotIxLoi2jZMQ51R/Jx7jcvyaflnRQU1YDu2gQox
+         5yZA==
+X-Gm-Message-State: AOAM532FrYZG1/t4E/QvrQYssuMWPIsKrV8qtYLeLN8x0h3CZLmyvxaF
+        xaor5PPm/1RM8+6vIYID8CeTDxNX
+X-Google-Smtp-Source: ABdhPJzhqeWz/HULrLD7qQUsyRK1a0NOKK2mQu4aUgGxVNdOfMHy+9ifN03lSC9WkpQgRNe6AeXxKw==
+X-Received: by 2002:a7b:cc92:: with SMTP id p18mr38044356wma.4.1593784377302;
+        Fri, 03 Jul 2020 06:52:57 -0700 (PDT)
 Received: from ?IPv6:2a02:810d:4bc0:8098:78d9:64c7:b7ab:1b3a? ([2a02:810d:4bc0:8098:78d9:64c7:b7ab:1b3a])
-        by smtp.gmail.com with ESMTPSA id z25sm12963131wmk.28.2020.07.03.06.49.38
+        by smtp.gmail.com with ESMTPSA id n5sm13489978wmi.34.2020.07.03.06.52.56
+        for <selinux@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Jul 2020 06:49:38 -0700 (PDT)
+        Fri, 03 Jul 2020 06:52:56 -0700 (PDT)
 From:   bauen1 <j2468h@googlemail.com>
 X-Google-Original-From: bauen1 <j2468h@gmail.com>
-Subject: Re: [PATCH] Update the cil docs to match the current behaviour.
-To:     James Carter <jwcart2@gmail.com>, bauen1 <j2468h@googlemail.com>
-Cc:     selinux <selinux@vger.kernel.org>
-References: <5f705897-306e-385e-1c92-bd7b410028f3@gmail.com>
- <CAP+JOzTduRu0U7gdvCrxRqTW+VUWc_imaOc0ozXGYe_GpXM9Cw@mail.gmail.com>
+Subject: [PATCH] Update the cil docs to match the current behaviour.
+To:     selinux@vger.kernel.org
+References: <CAP+JOzTduRu0U7gdvCrxRqTW+VUWc_imaOc0ozXGYe_GpXM9Cw@mail.gmail.com>
 Autocrypt: addr=j2468h@gmail.com; keydata=
  mQINBFhYO0UBEADB9FOvBFPceReJkioc/Wpgb+4jquqgLaYFCq30wMRlbbxRE6W5piQdJBS9
  1nHgehc1wKlpoX34I0fDYKmzhxU/wn7kPQqyIJ/x4Xc0un8rgLr6AB9J45+xYDAjTEP6wfzA
@@ -129,8 +129,8 @@ Autocrypt: addr=j2468h@gmail.com; keydata=
  TSCqNe2HcEAG9PjTfCPwO3ZjvcfUlojWAk79xv0sewHoOSFtBBnkO2Kv4vq3kXLu7vjFvtcO
  7iBdMlwTfNFJklTL12mXFcsGPazxLy9Bq1Y4TtvNV9zmjVipMlxyEupFswOgpE9p/4YCaV2t
  MzTZEAm15uwFxq66
-Message-ID: <50107a07-0809-14c8-86f6-c2c77de52204@gmail.com>
-Date:   Fri, 3 Jul 2020 15:49:37 +0200
+Message-ID: <123bef30-698a-04c2-112a-3b9525cf4877@gmail.com>
+Date:   Fri, 3 Jul 2020 15:52:55 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.9.0
 MIME-Version: 1.0
@@ -143,19 +143,58 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Some features where dropped or change since the docs were last updated.
 
+Signed-off-by: bauen1 <j2468h@gmail.com>
+---
+ secilc/docs/cil_call_macro_statements.md | 6 ++++--
+ secilc/docs/cil_container_statements.md  | 2 +-
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
-On 7/2/20 8:43 PM, James Carter wrote:
-> This patch is malformed. It looks like leading spaces and blank lines
-> (at the very least) have been stripped.
-> Thanks,
-> Jim
-> 
-
-I'm sorry.
-I will resend the patch properly.
-bauen1
-
+diff --git a/secilc/docs/cil_call_macro_statements.md b/secilc/docs/cil_call_macro_statements.md
+index 17c46ed9..98b70368 100644
+--- a/secilc/docs/cil_call_macro_statements.md
++++ b/secilc/docs/cil_call_macro_statements.md
+@@ -44,7 +44,7 @@ macro
+ 
+ Declare a macro in the current namespace with its associated parameters. The macro identifier is used by the [`call`](cil_call_macro_statements.md#call) statement to instantiate the macro and resolve any parameters. The call statement may be within the body of a macro.
+ 
+-Note that when resolving macros the callers namespace is not checked, only the following places:
++When resolving macros the following places are checked in this order:
+ 
+ -   Items defined inside the macro
+ 
+@@ -52,6 +52,8 @@ Note that when resolving macros the callers namespace is not checked, only the f
+ 
+ -   Items defined in the same namespace of the macro
+ 
++-   Items defined in the callers namespace
++
+ -   Items defined in the global namespace
+ 
+ **Statement definition:**
+@@ -80,7 +82,7 @@ Note that when resolving macros the callers namespace is not checked, only the f
+ <tr class="odd">
+ <td align="left"><p><code>param_type</code></p></td>
+ <td align="left"><p>Zero or more parameters that are passed to the macro. The <code>param_type</code> is a keyword used to determine the declaration type (e.g. <code>type</code>, <code>class</code>, <code>categoryset</code>).</p>
+-<p>The list of valid <code>param_type</code> entries are: <code>type</code>, <code>typealias</code>, <code>role</code>, <code>user</code>, <code>sensitivity</code>, <code>sensitivityalias</code>, <code>category</code>, <code>categoryalias</code>, <code>categoryset</code> (named or anonymous), <code>level</code> (named or anonymous), <code>levelrange</code> (named or anonymous), <code>class</code>, <code>classpermission</code> (named or anonymous), <code>ipaddr</code> (named or anonymous), <code>block</code>, <code>name</code> (a string), <code>classmap</code></p></td>
++<p>The list of valid <code>param_type</code> entries are: <code>type</code>, <code>typealias</code>, <code>role</code>, <code>user</code>, <code>sensitivity</code>, <code>sensitivityalias</code>, <code>category</code>, <code>categoryalias</code>, <code>categoryset</code> (named or anonymous), <code>level</code> (named or anonymous), <code>levelrange</code> (named or anonymous), <code>class</code>, <code>classpermission</code> (named or anonymous), <code>ipaddr</code> (named or anonymous), <code>name</code> (a string), <code>classmap</code></p></td>
+ </tr>
+ <tr class="even">
+ <td align="left"><p><code>param_id</code></p></td>
+diff --git a/secilc/docs/cil_container_statements.md b/secilc/docs/cil_container_statements.md
+index a570cb23..58b3224d 100644
+--- a/secilc/docs/cil_container_statements.md
++++ b/secilc/docs/cil_container_statements.md
+@@ -254,7 +254,7 @@ This example will instantiate the optional block `ext_gateway.move_file` into po
+ in
+ --
+ 
+-Allows the insertion of CIL statements into a named container ([`block`](cil_container_statements.md#block), [`optional`](cil_container_statements.md#optional) or [`macro`](cil_call_macro_statements.md#macro)). This statement is not allowed in [`booleanif`](cil_conditional_statements.md#booleanif) or [`tunableif`](cil_conditional_statements.md#tunableif) statements.
++Allows the insertion of CIL statements into a named container ([`block`](cil_container_statements.md#block), [`optional`](cil_container_statements.md#optional) or [`macro`](cil_call_macro_statements.md#macro)). This statement is not allowed in [`booleanif`](cil_conditional_statements.md#booleanif) or [`tunableif`](cil_conditional_statements.md#tunableif) statements. This only works for containers that aren't inherited using [`blockinherit`](cil_conditional_statements.md#blockinherit).
+ 
+ **Statement definition:**
+ 
 -- 
-bauen1
-https://dn42.bauen1.xyz/
+2.27.0
+
