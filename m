@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F005C433E0
-	for <selinux@archiver.kernel.org>; Mon,  6 Jul 2020 13:03:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0A1BC433E0
+	for <selinux@archiver.kernel.org>; Mon,  6 Jul 2020 13:23:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ECC082070C
-	for <selinux@archiver.kernel.org>; Mon,  6 Jul 2020 13:03:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FC482070C
+	for <selinux@archiver.kernel.org>; Mon,  6 Jul 2020 13:23:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ObQqxNW6"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mldg+OLL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729137AbgGFND6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Jul 2020 09:03:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42486 "EHLO
+        id S1729107AbgGFNXc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Jul 2020 09:23:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728973AbgGFND6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jul 2020 09:03:58 -0400
-Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com [IPv6:2607:f8b0:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C658C061794
-        for <selinux@vger.kernel.org>; Mon,  6 Jul 2020 06:03:58 -0700 (PDT)
-Received: by mail-ot1-x336.google.com with SMTP id a21so8283460otq.8
-        for <selinux@vger.kernel.org>; Mon, 06 Jul 2020 06:03:58 -0700 (PDT)
+        with ESMTP id S1728961AbgGFNXc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jul 2020 09:23:32 -0400
+Received: from mail-ot1-x32f.google.com (mail-ot1-x32f.google.com [IPv6:2607:f8b0:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9AA7C061794
+        for <selinux@vger.kernel.org>; Mon,  6 Jul 2020 06:23:31 -0700 (PDT)
+Received: by mail-ot1-x32f.google.com with SMTP id 5so29602872oty.11
+        for <selinux@vger.kernel.org>; Mon, 06 Jul 2020 06:23:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=9M9UcSa8h82zhnFJXgYQSaP8AC5ibN7ePUhkRj/sWbs=;
-        b=ObQqxNW63RJrjTqq9eiOP/sFaIMGFf+WXccoFB7qQ+mHJvsN/3q9ZlX/xVSX9RxfQP
-         4Y40wWYAAPZ+1D5H82It6JzsQ0ZZMLmKOZRKhPMuCmah+BEGyjtbiYNfW6p3vvw8VbsT
-         9wTTcujkI+BRABxYlT/auOPjpys6wQj/3UpHmaFPLRYa8LSVJzaCOAgGDfQKLkeeB05Q
-         CUnXW4t3DXUyeq5fdWmEOwpwXzSXkArrbBFYyz8y5qU2GnK+z6O2rDoUIhJRyrmN6QhY
-         PJGgcvFYadB8ZzTTJ79ojzvrxbitqNiIbYBmCJB57IRc9JSBV8dhrsuQCzf+Rjd2GDrs
-         0byA==
+        bh=+ApxzAntqCay/34Qc37HPH61cvwfmXUOKwBc/BeLOZQ=;
+        b=Mldg+OLLT2PIqOMEfUxWreSuaAuvqr56LauSgAAtuOfwU2tI0AgGfXB1b2Bbmbk62M
+         N4Gp6kgTOcERi5hHPfAA87HWAziOI185La5SPyE6QW0vgSJSThEiYpn8DhAdWqsGeMBj
+         D3LO8zuG2vw684X1WVvXevJVoZPjIpdEQFJicwkUCe7RfKZwWfAXGaizaVyiax6bc7/j
+         sEfV5RPjdwkWv9UULiuJ0fCOh7lM0U4UaUuWIvXwCKHp3uXsT/+1zLLMPAitHFYMkw+u
+         QSbefuH1959WvpwCThwaxjmBrMtYJ0FbSPjUHlEBb+haT3IbFpvYK4kwuW7PQP0mw45Y
+         GKWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=9M9UcSa8h82zhnFJXgYQSaP8AC5ibN7ePUhkRj/sWbs=;
-        b=njZOxXJGFSoMkGmvOZicAzJdHkvokqKeJujlN8yXjvdoEDkXWIvYw79ifVwPCgkcW2
-         9CK/G0Qwf8NZ7/GpVQMKtPq9N+0d9f/xrtwOPIeTBHtsQjpyALDgLJ3O9AfZpXPxoCR0
-         yJQum3/z32vPwkLl+QI0CmHZBV7U03fNfamMbZOsIld8XQ5Xv/UdwtveIBsPxTODg0ry
-         pnNQ6jWtI3YSZZHfKsX8U9H53g1A30b6LjrAbPdX974fvuBO0PoYfyh/6C/SFgtoIvqa
-         KrQ2G2gKohl6Gxg0V2GUv5c58xKQxrQ/iJ/3Yfqy5eW1WlizmqhzhU1HT6etchPxe9VL
-         2mIw==
-X-Gm-Message-State: AOAM532o/1UcqcTnplomg4iVPDE/rw6uAymouwfzhs5MtzJuHV35CqiA
-        NfW8H7ZJohxATBhXbqB5PYzugJV19VlAgLbhWpN2YcLUcIg=
-X-Google-Smtp-Source: ABdhPJz1WvXjEDQaK5UTOY1u22hBBNObCLR+H8tOKThuSDJN968btM7VRZTZG6wbBCZrP9IalYRoyOjtqmjkFuMt51k=
-X-Received: by 2002:a05:6830:10ce:: with SMTP id z14mr33847255oto.135.1594040637662;
- Mon, 06 Jul 2020 06:03:57 -0700 (PDT)
+        bh=+ApxzAntqCay/34Qc37HPH61cvwfmXUOKwBc/BeLOZQ=;
+        b=gUVL0c4noLBElVt02vEjoHZLD8wUFzb1OZhdksHEa7lgL6R9hxPc+OIGLLp4A3Y8U6
+         fM1plz0BPSen7BS3BrD6ALt1c2iVmwHjiK/JOq3ku5KFDrR1U8/hNY+iFRfFWAkqMrvN
+         vhvf48mAKW3iGJMj9kI1EIGqPZoW2FTHjx4W+gjLG/Ga5Ghe+2Ucd8YT5C5aojAXUG7Q
+         y1Awlt4ucrFJtxbGYAjVZwjeoNLOCiAacyf/UOm9pEwjLbp8NGRPJdavPf8AsIwisD6C
+         nu46n+n4eIVbZMiDrAUDVWG+VLyshN5k4Zde5xR/0L4z5JR7JK1SDJdse0oe9nRoTHiK
+         0hig==
+X-Gm-Message-State: AOAM531LRDHS/j5b457165xvGazS3WDbDXfGY8rs1jhcGiPkk55nx3Qd
+        1moOLiGmTDsTZeBojFCJRdUB6W348bkZ220YSmWzlSDX
+X-Google-Smtp-Source: ABdhPJy3Ie/vjT83bY+N4kArDn6nYbHlMwE/VX8iFqA4HTtO8lOBBzLXgkBsImo8WjRTIi8Az4WnPabqj3x3i5+AhSw=
+X-Received: by 2002:a05:6830:1db5:: with SMTP id z21mr27108650oti.162.1594041811392;
+ Mon, 06 Jul 2020 06:23:31 -0700 (PDT)
 MIME-Version: 1.0
-References: <e6cec631-afb5-da5e-c12a-b8496cbeba3c@gmail.com>
-In-Reply-To: <e6cec631-afb5-da5e-c12a-b8496cbeba3c@gmail.com>
+References: <CAMN686EVbRLAiti82aRqQUHLYERe7fSydgz1NVttZNHS74dkFQ@mail.gmail.com>
+In-Reply-To: <CAMN686EVbRLAiti82aRqQUHLYERe7fSydgz1NVttZNHS74dkFQ@mail.gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 6 Jul 2020 09:03:46 -0400
-Message-ID: <CAEjxPJ60aq_rv98ZGchinKfYT_aQcp3unKO-pHQxp8fnmw4vBw@mail.gmail.com>
-Subject: Re: Daemon's child getting weird denial
-To:     Ian Pilcher <arequipeno@gmail.com>
+Date:   Mon, 6 Jul 2020 09:23:20 -0400
+Message-ID: <CAEjxPJ5L0U5AvV9kKbbTkjbZ2eRd6Mvbp86izeN4ydvV1YG8Aw@mail.gmail.com>
+Subject: Re: [RFC] userspace: netlink/sestatus feature parity
+To:     Mike Palmiotto <mike.palmiotto@crunchydata.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -68,39 +68,61 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Jun 28, 2020 at 10:20 PM Ian Pilcher <arequipeno@gmail.com> wrote:
+On Mon, Jun 29, 2020 at 3:59 PM Mike Palmiotto
+<mike.palmiotto@crunchydata.com> wrote:
 >
-> I'm in the (hopefully) final stages of creating the policy module for a
-> daemon that I've written to monitor my home NAS.
+> In looking at the userspace AVC netlink and sestatis code, I noticed
+> there are a few discrepancies between the two mechanisms. Considering
+> sestatus is intended (AFAICT) to be a swap-in replacement for netlink,
+> I'd expect all of the same code paths to be covered. This doesn't seem
+> to be the case.
 >
-> The daemon is started by systemd (init_t) and runs as its own type
-> (freecusd_t).  In order to read the SMART attributes of the NAS drives,
-> the daemon runs a helper application, which has its own type
-> (freecusd_smart_t).  So:
+> One such difference is the handling of `setenforce` events in
+> `selinux_status_updated/setenforce()`. While netlink updates the
+> internal `avc_enforcing` state, `selinux_status_updated/setenforce()`
+> do not.
 >
->    systemd (init_t) --> freecusd (freecusd_t)
->                             --> freecusd_smart_helper (freecusd_smart_t)
+> Any userspace object manager wishing to use sestatus with the internal
+> AVC is not guaranteed to have accurate state during calls to
+> `avc_has_perm_noaudit`, unless they reach out to netlink. sestatus was
+> initially implemented for use in sepgsql, which did not require use of
+> `avc_has_perm_noaudit`.
 >
-> This is all working (although I can't help but think that there's likely
-> a macro that I could have used to define the helper type that would have
-> made things a lot easier).  Every time that the daemon starts, however,
-> I'm getting this denial repeated 4 times:
+> To more robustly support use of sestatus, I'm proposing that we
+> improve upon the sestatus code by having it update/reset AVC internal
+> state (avc_enforcing, for example) on status events.
 >
-> type=AVC msg=audit(1593392372.230:9215): avc:  denied  { sigchld } for
-> pid=1 comm="systemd" scontext=system_u:system_r:freecusd_smart_t:s0
-> tcontext=system_u:system_r:init_t:s0 tclass=process permissive=0
->
-> (Note that the daemon spawns the helper repeatedly while it runs, but I
-> only ever see the denial 4 times when the daemon first starts.)
->
-> It appears that the helper process is trying to send SIGCHLD, which
-> doesn't seem right, as its parent is still running.  (I've already given
-> the helper permission to send SIGCHLD to its parent, freecusd_t.)
->
-> Has anyone ever seen this behavior or have any idea what could cause it?
+> Would such a patch be of interest?
 
-Prior to commit 3a2f5a59a695a73e0cde9a61e0feae5fa730e936, SELinux
-would check sigchld permission between each eligible target of a
-wait*(2) system call and the process that invoked wait*() to filter
-what processes could have their status checked. Hence, this is likely
-the case that systemd is calling wait*() on the process.
+Yes, this makes sense to me.
+
+> Or would it be simpler to just
+> update `avc_has_perm_noaudit` to query sestatus for enforcing, rather
+> than refer to `avc_enforcing`?
+
+The current AVC interface allows an object manager to explicitly set
+the enforcing mode and ignore the underlying system enforcing mode,
+such that one can have an object manager running permissive while the
+kernel and other userspace object managers running enforcing for
+development purposes.  So we'd still need to support that scenario I
+believe.  That said, providing an option to use sestatus instead of
+netlink and potentially making that the default going forward might be
+of interest as long as it doesn't break compatibility.  The sestatus
+code already falls back to netlink if the kernel doesn't support the
+status page.
+
+>
+> A few questions further questions in case this improvement is of interest:
+>
+> 1) Should there be separate callbacks for netlink counterparts in
+> sestatus, or is the existing infrastructure suitable for implementing
+> handling of those events?
+
+I haven't looked closely but would guess that we could use the same callbacks.
+
+> 2) With netlink we're guaranteed sequential processing of events. The
+> same is not true for mmap()'ed status updates. Do we care about the
+> order in which events are processed?
+
+As long as the final state is correct, I don't think so, but I'm not
+sure what scenario you are considering.
