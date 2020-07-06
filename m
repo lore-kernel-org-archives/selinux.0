@@ -3,51 +3,39 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D2D3C433DF
-	for <selinux@archiver.kernel.org>; Mon,  6 Jul 2020 17:13:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 163D1C433E0
+	for <selinux@archiver.kernel.org>; Mon,  6 Jul 2020 17:45:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 003EC206B6
-	for <selinux@archiver.kernel.org>; Mon,  6 Jul 2020 17:13:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 01F3A20656
+	for <selinux@archiver.kernel.org>; Mon,  6 Jul 2020 17:45:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729614AbgGFRNh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 6 Jul 2020 13:13:37 -0400
-Received: from mxo1.nje.dmz.twosigma.com ([208.77.214.160]:45967 "EHLO
-        mxo1.nje.dmz.twosigma.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729478AbgGFRNh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jul 2020 13:13:37 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mxo1.nje.dmz.twosigma.com (Postfix) with ESMTP id 4B0sbh0618z7t8v;
-        Mon,  6 Jul 2020 17:13:36 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at twosigma.com
-Received: from mxo1.nje.dmz.twosigma.com ([127.0.0.1])
-        by localhost (mxo1.nje.dmz.twosigma.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id qZ-uHme1hea8; Mon,  6 Jul 2020 17:13:35 +0000 (UTC)
-Received: from exmbdft8.ad.twosigma.com (exmbdft8.ad.twosigma.com [172.22.2.84])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mxo1.nje.dmz.twosigma.com (Postfix) with ESMTPS id 4B0sbg6bfhz3wZ6;
-        Mon,  6 Jul 2020 17:13:35 +0000 (UTC)
-Received: from EXMBDFT11.ad.twosigma.com (172.23.162.14) by
- exmbdft8.ad.twosigma.com (172.22.2.84) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Mon, 6 Jul 2020 17:13:35 +0000
-Received: from EXMBDFT11.ad.twosigma.com ([fe80::8d66:2326:5416:86a9]) by
- EXMBDFT11.ad.twosigma.com ([fe80::8d66:2326:5416:86a9%19]) with mapi id
- 15.00.1497.000; Mon, 6 Jul 2020 17:13:35 +0000
-From:   Nicolas Viennot <Nicolas.Viennot@twosigma.com>
-To:     Paul Moore <paul@paul-moore.com>,
+        id S1729731AbgGFRpJ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 6 Jul 2020 13:45:09 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:36578 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729550AbgGFRpI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 6 Jul 2020 13:45:08 -0400
+Received: from ip5f5af08c.dynamic.kabel-deutschland.de ([95.90.240.140] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jsVAU-0007so-Be; Mon, 06 Jul 2020 17:44:38 +0000
+Date:   Mon, 6 Jul 2020 19:44:37 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Nicolas Viennot <Nicolas.Viennot@twosigma.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
         "Serge E. Hallyn" <serge@hallyn.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>
-CC:     Adrian Reber <areber@redhat.com>,
+        Adrian Reber <areber@redhat.com>,
         Eric Biederman <ebiederm@xmission.com>,
         Pavel Emelyanov <ovzxemul@gmail.com>,
         Oleg Nesterov <oleg@redhat.com>,
-        "Dmitry Safonov" <0x7f454c46@gmail.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
         Andrei Vagin <avagin@gmail.com>,
         =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
-        "Kamil Yurtsever" <kyurtsever@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
         Dirk Petersen <dipeit@gmail.com>,
         Christine Flood <chf@redhat.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
@@ -56,7 +44,7 @@ CC:     Adrian Reber <areber@redhat.com>,
         Cyrill Gorcunov <gorcunov@openvz.org>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Sargun Dhillon <sargun@sargun.me>,
-        "Arnd Bergmann" <arnd@arndb.de>,
+        Arnd Bergmann <arnd@arndb.de>,
         "linux-security-module@vger.kernel.org" 
         <linux-security-module@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
@@ -64,50 +52,78 @@ CC:     Adrian Reber <areber@redhat.com>,
         Eric Paris <eparis@parisplace.org>,
         Jann Horn <jannh@google.com>,
         "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: RE: [PATCH v4 3/3] prctl: Allow ptrace capable processes to change
+Subject: Re: [PATCH v4 3/3] prctl: Allow ptrace capable processes to change
  /proc/self/exe
-Thread-Topic: [PATCH v4 3/3] prctl: Allow ptrace capable processes to change
- /proc/self/exe
-Thread-Index: AQHWT3Pec4M4ip1q2kWWALZu7qCiaaj0zUiAgAAMHwCABfYCYA==
-Date:   Mon, 6 Jul 2020 17:13:35 +0000
-Message-ID: <a2b4deacfc7541e3adea2f36a6f44262@EXMBDFT11.ad.twosigma.com>
+Message-ID: <20200706174437.zpshxlul7rl3vmmq@wittgenstein>
 References: <20200701064906.323185-1-areber@redhat.com>
  <20200701064906.323185-4-areber@redhat.com>
  <20200702211647.GB3283@mail.hallyn.com>
  <CAHC9VhQZ=cwiOay6OMMdM1UHm69wDaga9HBkyTbx8-1OU=aBvA@mail.gmail.com>
-In-Reply-To: <CAHC9VhQZ=cwiOay6OMMdM1UHm69wDaga9HBkyTbx8-1OU=aBvA@mail.gmail.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [172.20.189.128]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+ <a2b4deacfc7541e3adea2f36a6f44262@EXMBDFT11.ad.twosigma.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <a2b4deacfc7541e3adea2f36a6f44262@EXMBDFT11.ad.twosigma.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-PiA+IFRoaXMgaXMgc2NhcnkuICBCdXQgSSBiZWxpZXZlIGl0IGlzIHNhZmUuDQo+ID4NCj4gPiBS
-ZXZpZXdlZC1ieTogU2VyZ2UgSGFsbHluIDxzZXJnZUBoYWxseW4uY29tPg0KPiA+DQo+ID4gSSBh
-bSBhIGJpdCBjdXJpb3VzIGFib3V0IHRoZSBpbXBsaWNhdGlvbnMgb2YgdGhlIHNlbGludXggcGF0
-Y2guDQo+ID4gSUlVQyB5b3UgYXJlIHVzaW5nIHRoZSBwZXJtaXNzaW9uIG9mIHRoZSB0cmFjaW5n
-IHByb2Nlc3MgdG8gZXhlY3V0ZQ0KPiA+IHRoZSBmaWxlIHdpdGhvdXQgdHJhbnNpdGlvbiwgc28g
-dGhpcyBpcyBhIHdheSB0byB3b3JrIGFyb3VuZCB0aGUNCj4gPiBwb2xpY3kgd2hpY2ggbWlnaHQg
-cHJldmVudCB0aGUgdHJhY2VlIGZyb20gZG9pbmcgc28uDQo+ID4gR2l2ZW4gdGhhdCBTRUxpbnV4
-IHdhbnRzIHRvIGJlIE1BQywgSSdtIG5vdCAqcXVpdGUqIHN1cmUgdGhhdCdzDQo+ID4gY29uc2lk
-ZXJlZCBrb3NoZXIuICBZb3UgYWxzbyBhcmUgc2tpcHBpbmcgdGhlIFBST0NFU1NfX1BUUkFDRSB0
-bw0KPiA+IFNFQ0NMQVNTX1BST0NFU1MgY2hlY2sgd2hpY2ggc2VsaW51eF9icHJtX3NldF9jcmVk
-cyBkb2VzIGxhdGVyIG9uLg0KPiA+IEFnYWluIEknbSBqdXN0IG5vdCBxdWl0ZSBzdXJlIHdoYXQn
-cyBjb25zaWRlcmVkIG5vcm1hbCB0aGVyZSB0aGVzZQ0KPiA+IGRheXMuDQo+ID4NCj4gPiBQYXVs
-LCBkbyB5b3UgaGF2ZSBpbnB1dCB0aGVyZT8NCj4NCj4gSSBhZ3JlZSwgdGhlIFNFTGludXggaG9v
-ayBsb29rcyB3cm9uZy4gIEJ1aWxkaW5nIG9uIHdoYXQgQ2hyaXN0aWFuIHNhaWQsIHRoaXMgbG9v
-a3MgbW9yZSBsaWtlIGEgcHRyYWNlIG9wZXJhdGlvbiB0aGFuIGFuIGV4ZWMgb3BlcmF0aW9uLg0K
-DQpTZXJnZSwgUGF1bCwgQ2hyaXN0aWFuLA0KDQpJIG1hZGUgYSBQb0MgdG8gZGVtb25zdHJhdGUg
-dGhlIGNoYW5nZSBvZiAvcHJvYy9zZWxmL2V4ZSB3aXRob3V0IENBUF9TWVNfQURNSU4gdXNpbmcg
-b25seSBwdHJhY2UgYW5kIGV4ZWN2ZS4NCllvdSBtYXkgZmluZCBpdCBoZXJlOiBodHRwczovL2dp
-dGh1Yi5jb20vbnZpZW5ub3QvcnVuX2FzX2V4ZQ0KDQpXaGF0IGRvIHlvdSByZWNvbW1lbmQgdG8g
-cmVsYXggdGhlIHNlY3VyaXR5IGNoZWNrcyBpbiB0aGUga2VybmVsIHdoZW4gaXQgY29tZXMgdG8g
-Y2hhbmdpbmcgdGhlIGV4ZSBsaW5rPw0KDQogICAgTmljbw0K
+On Mon, Jul 06, 2020 at 05:13:35PM +0000, Nicolas Viennot wrote:
+> > > This is scary.  But I believe it is safe.
+> > >
+> > > Reviewed-by: Serge Hallyn <serge@hallyn.com>
+> > >
+> > > I am a bit curious about the implications of the selinux patch.
+> > > IIUC you are using the permission of the tracing process to execute
+> > > the file without transition, so this is a way to work around the
+> > > policy which might prevent the tracee from doing so.
+> > > Given that SELinux wants to be MAC, I'm not *quite* sure that's
+> > > considered kosher.  You also are skipping the PROCESS__PTRACE to
+> > > SECCLASS_PROCESS check which selinux_bprm_set_creds does later on.
+> > > Again I'm just not quite sure what's considered normal there these
+> > > days.
+> > >
+> > > Paul, do you have input there?
+> >
+> > I agree, the SELinux hook looks wrong.  Building on what Christian said, this looks more like a ptrace operation than an exec operation.
+> 
+> Serge, Paul, Christian,
+> 
+> I made a PoC to demonstrate the change of /proc/self/exe without CAP_SYS_ADMIN using only ptrace and execve.
+> You may find it here: https://github.com/nviennot/run_as_exe
+> 
+> What do you recommend to relax the security checks in the kernel when it comes to changing the exe link?
+
+Looks fun! Yeah, so that this is possible is known afaict. But you're
+not really circumventing the kernel check but are mucking with the EFL
+by changing the auxv, right?
+
+Originally, you needed to be userns root, i.e. only uid 0 could
+change the /proc/self/exe link (cf. [1]). This was changed to
+ns_capable(CAP_SYS_ADMIN) in [2].
+
+The original reasoning in [1] is interesting as it basically already
+points to your poc:
+
+"Still note that updating exe-file link now doesn't require sys-resource
+ capability anymore, after all there is no much profit in preventing
+ setup own file link (there are a number of ways to execute own code --
+ ptrace, ld-preload, so that the only reliable way to find which exactly
+ code is executed is to inspect running program memory).  Still we
+ require the caller to be at least user-namespace root user."
+
+There were arguments being made that /proc/<pid>/exe needs to be sm that
+userspace can have a decent amount of trust in but I believe that that's
+not a great argument.
+
+But let me dig a little into the original discussion and see what the
+thread-model was.
+At this point I'm starting to believe that it was people being cautios
+but better be sure.
+
+[1]: f606b77f1a9e ("prctl: PR_SET_MM -- introduce PR_SET_MM_MAP operation")
+[2]: 4d28df6152aa ("prctl: Allow local CAP_SYS_ADMIN changing exe_file")
+[3]: https://lore.kernel.org/patchwork/patch/697304/
+
+Christian
