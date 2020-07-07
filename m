@@ -2,99 +2,184 @@ Return-Path: <SRS0=l4yV=AS=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.8 required=3.0 tests=HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C676C433DF
-	for <selinux@archiver.kernel.org>; Tue,  7 Jul 2020 15:43:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB6A9C433DF
+	for <selinux@archiver.kernel.org>; Tue,  7 Jul 2020 15:45:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1BA3E2075B
-	for <selinux@archiver.kernel.org>; Tue,  7 Jul 2020 15:43:37 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cgOvu/zI"
+	by mail.kernel.org (Postfix) with ESMTP id 9D07E20578
+	for <selinux@archiver.kernel.org>; Tue,  7 Jul 2020 15:45:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727079AbgGGPng (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 7 Jul 2020 11:43:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35752 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728988AbgGGPng (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jul 2020 11:43:36 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB9E0C061755
-        for <selinux@vger.kernel.org>; Tue,  7 Jul 2020 08:43:35 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id 12so28723254oir.4
-        for <selinux@vger.kernel.org>; Tue, 07 Jul 2020 08:43:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=uIJ+7M88+k2tjH1icMdmzrjMV/R4sy64TsFtfMvefeA=;
-        b=cgOvu/zINUltItkW9i4ayHs8U/x21JfnvngY+F6leWHhTurlpaxGKSdA4UW+RRcexO
-         h2OLxEgJzSkJUeexa0lw0I6yXNx9L9sT0gv8CulJrBiLztA2qd+FYgI7xUcARqAXnuHW
-         wecNcaNUpfyuYjGHxnq3NqrrwuP8HcmR59w4NY7h4CEqdim7qhQrXXLBzF4nmptb1hW/
-         7k/vFrMwW2dEdExQaSe2b/GqeyJyfDKVvX8OREUkiVGJcMy8pYogcobfRcQJf93JnUpi
-         hQGZwLSA5V15dbLFlLy/M9NTDR6wyB/qS30lK0yLYuce3xCHTeBanWx2quxXa14ZMSXn
-         3gzw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=uIJ+7M88+k2tjH1icMdmzrjMV/R4sy64TsFtfMvefeA=;
-        b=uKuLy5vgucfYU/Oh8p2IFJbhm0ePSSeI7amg3ZLsC7vi60KCb6qmUX7qb5yOEbKtcO
-         xJXNA0DIoUmNMXpwL8jSiBcy79l0JKnohEbMPXAkbSANl7/Lq0Z26rPuuXrzfDgkCdx+
-         Bz70GI2IqoLlXcFsz9HqbqT3LyHoJZhuKiwixrSiHzvyEM84hNED7gkfkHdGga2pJj85
-         yCRCZTOKrxz3VHZCoA2EOEDB/c2Eh8Z2AUni+9yLMEpBpDePwhmp0/ByvNoyd6uJ4Tc/
-         XVnqjZt3pKiTwAbD9eKmiCTggyfMH50P5sF/c8J7YzDgIJUEFpIdyyrZq5Vufz6LgGjM
-         sANg==
-X-Gm-Message-State: AOAM531eH/NqbXh6cNtLOELYNiT/IZwt0VV+akMy85C8swv43ePDprDX
-        n28QluVmuxSqhliI4NpRwhJdDCdgCjhh0SzPY7I=
-X-Google-Smtp-Source: ABdhPJz55ZuuLF/E0ds5ChAQ/Sy7R0zXC1OlZ7ioVns7WJo9P8KAs8JFX3EFvWDIZheR1Zwk7qJZKOIOytbXN/gjt6A=
-X-Received: by 2002:aca:c4cc:: with SMTP id u195mr3548203oif.160.1594136615343;
- Tue, 07 Jul 2020 08:43:35 -0700 (PDT)
+        id S1728571AbgGGPpa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 7 Jul 2020 11:45:30 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:45991 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726911AbgGGPp3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 7 Jul 2020 11:45:29 -0400
+Received: from ip5f5af08c.dynamic.kabel-deutschland.de ([95.90.240.140] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jspmM-0001C3-Mv; Tue, 07 Jul 2020 15:45:06 +0000
+Date:   Tue, 7 Jul 2020 17:45:04 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
+        Jann Horn <jannh@google.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Adrian Reber <areber@redhat.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
+        Dirk Petersen <dipeit@gmail.com>,
+        Christine Flood <chf@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        Eric Paris <eparis@parisplace.org>,
+        Jann Horn <jannh@google.com>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
+Subject: Re: [PATCH v4 3/3] prctl: Allow ptrace capable processes to change
+ /proc/self/exe
+Message-ID: <20200707154504.aknxmw6qavpjkr24@wittgenstein>
+References: <20200701064906.323185-1-areber@redhat.com>
+ <20200701064906.323185-4-areber@redhat.com>
+ <20200702211647.GB3283@mail.hallyn.com>
+ <CAHC9VhQZ=cwiOay6OMMdM1UHm69wDaga9HBkyTbx8-1OU=aBvA@mail.gmail.com>
+ <a2b4deacfc7541e3adea2f36a6f44262@EXMBDFT11.ad.twosigma.com>
+ <20200706174437.zpshxlul7rl3vmmq@wittgenstein>
 MIME-Version: 1.0
-References: <20200707143501.670785-1-antoine.tenart@bootlin.com>
-In-Reply-To: <20200707143501.670785-1-antoine.tenart@bootlin.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 7 Jul 2020 11:43:24 -0400
-Message-ID: <CAEjxPJ6_447nPv__1cfcDzj9ybqbaPzTn1Pn3e-JKT0op5578w@mail.gmail.com>
-Subject: Re: [PATCH v2] policycoreutils: setfiles: do not restrict checks
- against a binary policy
-To:     Antoine Tenart <antoine.tenart@bootlin.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        matthew.weber@rockwellcollins.com, thomas.petazzoni@bootlin.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200706174437.zpshxlul7rl3vmmq@wittgenstein>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 7, 2020 at 10:35 AM Antoine Tenart
-<antoine.tenart@bootlin.com> wrote:
->
-> The -c option allows to check the validity of contexts against a
-> specified binary policy. Its use is restricted: no pathname can be used
-> when a binary policy is given to setfiles. It's not clear if this is
-> intentional as the built-in help and the man page are not stating the
-> same thing about this (the man page document -c as a normal option,
-> while the built-in help shows it is restricted).
->
-> When generating full system images later used with SELinux in enforcing
-> mode, the extended attributed of files have to be set by the build
-> machine. The issue is setfiles always checks the contexts against a
-> policy (ctx_validate = 1) and using an external binary policy is not
-> currently possible when using a pathname. This ends up in setfiles
-> failing early as the contexts of the target image are not always
-> compatible with the ones of the build machine.
->
-> This patch reworks a check on optind only made when -c is used, that
-> enforced the use of a single argument to allow 1+ arguments, allowing to
-> use setfiles with an external binary policy and pathnames. The following
-> command is then allowed, as already documented in the man page:
->
->   $ setfiles -m -r target/ -c policy.32 file_contexts target/
->
-> Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
+On Mon, Jul 06, 2020 at 07:44:38PM +0200, Christian Brauner wrote:
+> On Mon, Jul 06, 2020 at 05:13:35PM +0000, Nicolas Viennot wrote:
+> > > > This is scary.  But I believe it is safe.
+> > > >
+> > > > Reviewed-by: Serge Hallyn <serge@hallyn.com>
+> > > >
+> > > > I am a bit curious about the implications of the selinux patch.
+> > > > IIUC you are using the permission of the tracing process to execute
+> > > > the file without transition, so this is a way to work around the
+> > > > policy which might prevent the tracee from doing so.
+> > > > Given that SELinux wants to be MAC, I'm not *quite* sure that's
+> > > > considered kosher.  You also are skipping the PROCESS__PTRACE to
+> > > > SECCLASS_PROCESS check which selinux_bprm_set_creds does later on.
+> > > > Again I'm just not quite sure what's considered normal there these
+> > > > days.
+> > > >
+> > > > Paul, do you have input there?
+> > >
+> > > I agree, the SELinux hook looks wrong.  Building on what Christian said, this looks more like a ptrace operation than an exec operation.
+> > 
+> > Serge, Paul, Christian,
+> > 
+> > I made a PoC to demonstrate the change of /proc/self/exe without CAP_SYS_ADMIN using only ptrace and execve.
+> > You may find it here: https://github.com/nviennot/run_as_exe
+> > 
+> > What do you recommend to relax the security checks in the kernel when it comes to changing the exe link?
+> 
+> Looks fun! Yeah, so that this is possible is known afaict. But you're
+> not really circumventing the kernel check but are mucking with the EFL
+> by changing the auxv, right?
+> 
+> Originally, you needed to be userns root, i.e. only uid 0 could
+> change the /proc/self/exe link (cf. [1]). This was changed to
+> ns_capable(CAP_SYS_ADMIN) in [2].
+> 
+> The original reasoning in [1] is interesting as it basically already
+> points to your poc:
+> 
+> "Still note that updating exe-file link now doesn't require sys-resource
+>  capability anymore, after all there is no much profit in preventing
+>  setup own file link (there are a number of ways to execute own code --
+>  ptrace, ld-preload, so that the only reliable way to find which exactly
+>  code is executed is to inspect running program memory).  Still we
+>  require the caller to be at least user-namespace root user."
+> 
+> There were arguments being made that /proc/<pid>/exe needs to be sm that
+> userspace can have a decent amount of trust in but I believe that that's
+> not a great argument.
+> 
+> But let me dig a little into the original discussion and see what the
+> thread-model was.
+> At this point I'm starting to believe that it was people being cautios
+> but better be sure.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Ok, so the original patch proposal was presented in [4] in 2014. The
+final version of that patch added the PR_SET_MM_MAP we know today. The
+initial version presented in [4] did not require _any_ privilege.
+
+So the reasoning for only placing the /proc/<pid>/exe link under
+ns_capable(CAP_SYS_ADMIN) is very thin. to quote from [5]:
+
+"Controlling exe_fd without privileges may turn out to be dangerous. At
+ least things like tomoyo examine it for making policy decisions (see
+ tomoyo_manager())."
+
+So yes, tomoyo_get_exe() is what this was retained for apparently:
+
+const char *tomoyo_get_exe(void)
+{
+	struct file *exe_file;
+	const char *cp;
+	struct mm_struct *mm = current->mm;
+
+	if (!mm)
+		return NULL;
+	exe_file = get_mm_exe_file(mm);
+	if (!exe_file)
+		return NULL;
+
+	cp = tomoyo_realpath_from_path(&exe_file->f_path);
+	fput(exe_file);
+	return cp;
+}
+
+The exe path is literally used in tomoyo_manager() to verify that you
+are allowed to change policy. That seems like a bad idea to me but then
+again, I don't know enough about Tomoyo. In any case, I think that means
+we can't remove CAP_SYS_ADMIN because that would make things worse than
+they are right now for Tomoyo but I also don't see why placing this
+under ns_capable(CAP_SYS_ADMIN) || ns_capable(CAP_CHECKPOINT_RESTORE)
+would make this any worse.
+
+And Cyrill (and later in that thread Andrei) already mentioned it in [6]:
+"@exe_fd is just a hint and as I mentioned if we have ptrace/preload
+ rights there damn a lot of ways to inject own code into any program so
+ that a user won't even notice ;)"
+
+Another place where the exe file is relevant is for the coredump with
+the -E option. But it only uses the path when generating the coredump
+pattern and if that's a security issue than your poc shows that this can
+already be achieved today.
+
+Christian
+
+> 
+> [1]: f606b77f1a9e ("prctl: PR_SET_MM -- introduce PR_SET_MM_MAP operation")
+> [2]: 4d28df6152aa ("prctl: Allow local CAP_SYS_ADMIN changing exe_file")
+> [3]: https://lore.kernel.org/patchwork/patch/697304/
+
+[4]: https://lore.kernel.org/lkml/20140703151102.842945837@openvz.org/ 
+[5]: https://lore.kernel.org/lkml/CAGXu5jL3exT4j+8rjMv1O54uJWQ5UHL69Z-24b61rhXROqZamQ@mail.gmail.com/
+[6]: https://lore.kernel.org/lkml/20140722203614.GF838@moon/
