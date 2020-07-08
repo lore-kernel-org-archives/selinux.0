@@ -2,64 +2,64 @@ Return-Path: <SRS0=sWNN=AT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4111CC433E0
-	for <selinux@archiver.kernel.org>; Wed,  8 Jul 2020 13:25:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E0FBC433E0
+	for <selinux@archiver.kernel.org>; Wed,  8 Jul 2020 13:38:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 11DF920786
-	for <selinux@archiver.kernel.org>; Wed,  8 Jul 2020 13:25:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2668420786
+	for <selinux@archiver.kernel.org>; Wed,  8 Jul 2020 13:38:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qFa1NDiU"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XrzsWmfp"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729438AbgGHNZv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Jul 2020 09:25:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40370 "EHLO
+        id S1729642AbgGHNiK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Jul 2020 09:38:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728148AbgGHNZv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jul 2020 09:25:51 -0400
+        with ESMTP id S1729136AbgGHNiK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jul 2020 09:38:10 -0400
 Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 790D6C061A0B
-        for <selinux@vger.kernel.org>; Wed,  8 Jul 2020 06:25:51 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id e90so6366107ote.1
-        for <selinux@vger.kernel.org>; Wed, 08 Jul 2020 06:25:51 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEA51C061A0B
+        for <selinux@vger.kernel.org>; Wed,  8 Jul 2020 06:38:09 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id 18so36901198otv.6
+        for <selinux@vger.kernel.org>; Wed, 08 Jul 2020 06:38:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=MAjG52LoqLgSEs8RRx/MQptOOvcG8PJDfvUlsCKhJeE=;
-        b=qFa1NDiUOtb6Mwvu0FPkhF2/ZPWzStQVl3CS3Jgzmbs0ZecvWUJ9n0Guql1dIHkLOQ
-         yKfUGAd0a2yszUV/MhqBG2zvTbw3uRirVGFhRdMzpAYy1d6CD4IE9rtxfa5rDIYzbk7X
-         kupcoSvrx/0R4UUc1BseZPXysHS3Fh2N3jd86s8EGMhrdm1ZH9zIDbV3Cz+mrXpI0JHg
-         TCh0pF2YIlwavOwf3AvWHmE2sfA7x4lOHRABeHU4tO3Ae6zs8NtO4MSGnqjSFRd61UAQ
-         cGT5gf89Wur2i/bJahH5R8dG0YtEHweaclvSsJn0zrL+M8W+ev/+kg3MLM4KnGOqkUQn
-         5/Cw==
+        bh=In9HZ3QLspMAxmHMdYDhGse8qQZ8Heta1Fm1pyCLfwk=;
+        b=XrzsWmfpQ5TJtFVW+fLU67gGeVSkNWTcNiS/5v+d8GcBA9QpbJjAWD2VUJJ/hqHK0D
+         RI9RsgOO1h+w3p8ubnTzxVDAwq8BrLFxWrL0wdjHnyGma4X/BUCis3FK0nFbBANErunO
+         F84bSYDMRsePS78+YvAiGN8wGYn2AKngkom5EskVDUedc5W96/ijhN/ovhy8MSSB+N3p
+         Yoi9NFhTae3KvoWTATdBAVNZmknbKR274+GcYhv0dcok9Xj1yRGmZNyqK0RzUjTmHuvX
+         bxs5MHrmWO7eoTkPL2eGOtn3Jd53BpMZ4JQ0tnv8hRGZqivoa2ZutXUprhVqr73dknJ8
+         uq0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=MAjG52LoqLgSEs8RRx/MQptOOvcG8PJDfvUlsCKhJeE=;
-        b=ne8pAecD7OD7qSSmyUCnb7xsnI2/+JrfQfrov3DhWor2TPRNRi9rwrke/BXP2i5T2f
-         umWGq2KX/0WM272SgqGNx4sSOdFBfJAwVLrk0O4o0CZRKyFiWS6ATcVpOyi2P+XtMxev
-         0JnScNrXJKVOgkuWgKrcEOnpZF4NpPAECJcKTCl7WhVr8oE6xbhbLDbEP30rwoqazJzn
-         ukV32Gc8UtMqyJIwrylTOOftsIrwWPyajMoVcO34+knCmKOD1PCMdGQLhsr1qPw/14Kk
-         3h7c34NYiu1CPWTgOMKidSjmTfEFuYrc39yxaz+OJKfxyLooLE6amTXkBNUWRAeqeuly
-         7jYg==
-X-Gm-Message-State: AOAM532zWLOzuSYbCdk2dHfF3Mb4OUIOInH5iBYhDgMx0ATlYF3/m4YM
-        KolLU0EdGayxUayS6WMyX9nzt6ETR3Jgb+U0KAPyHEvy
-X-Google-Smtp-Source: ABdhPJza3X6PxemBCj1PKvaNHDQXivnKJjdvxuwwr1zVnpLDEzDBY0ptefNBqC6YxJBpNp5j6Q2KU66uvJyfZqc3OmU=
-X-Received: by 2002:a05:6830:10ce:: with SMTP id z14mr42594216oto.135.1594214750893;
- Wed, 08 Jul 2020 06:25:50 -0700 (PDT)
+        bh=In9HZ3QLspMAxmHMdYDhGse8qQZ8Heta1Fm1pyCLfwk=;
+        b=NIOQ4qwhmPSu4TDsbqOK3BkPB4DCuXX+ugTsFTJDX6bMTzGkuvlIHiPwzQr56h5h7X
+         WIo6BZ/xjWVv29Sa577BKMfyO0WKf56anYqOEugYThX+SvQua1Sq83Z0oO2e6VN59QyT
+         fciKwy8UC5Pn9D1Ebyr6hDn+UciMOCZlX8itAihjA5wsNDFoK880wWzr7c8YBUE5SPQw
+         u8GM2LdkHQgguyk96y7t9I6dfYXRg0y+iNy2GN1nQjZ7Ui7KvdL07DGAfJZN/dENzMGI
+         B0KfEthp6OLFBipJiaN6obmlNQN0bEXXg98osVHyhdM3SaXzGw28HF+ARNLnj/9IEfgk
+         31wA==
+X-Gm-Message-State: AOAM530rzW8VJLppTNQzfaPLyPZnVfx+OQua7nP16OEMPnACwTnEUscw
+        0x92LarcFwbXfpDSbeJXVFjXTJ9M1gVLLGKHKV0=
+X-Google-Smtp-Source: ABdhPJxZTQj1KV3A7k3Elz9+S5xbAcVzA9box7dhWQcD8qs4UP3jB6G0zgxpMtfJTu58ySSr0YzMgMy3BzvRkaLSd+s=
+X-Received: by 2002:a9d:6e14:: with SMTP id e20mr36893773otr.89.1594215489340;
+ Wed, 08 Jul 2020 06:38:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200708112447.292321-1-omosnace@redhat.com> <20200708112447.292321-2-omosnace@redhat.com>
-In-Reply-To: <20200708112447.292321-2-omosnace@redhat.com>
+References: <20200708112447.292321-1-omosnace@redhat.com> <20200708112447.292321-3-omosnace@redhat.com>
+In-Reply-To: <20200708112447.292321-3-omosnace@redhat.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 8 Jul 2020 09:25:40 -0400
-Message-ID: <CAEjxPJ4Fp_0m9w89suaVfiM_TH-vuVwcWFNAp5hw2ZTPuNDcTg@mail.gmail.com>
-Subject: Re: [PATCH v3 1/3] selinux: specialize symtab insert and search functions
+Date:   Wed, 8 Jul 2020 09:37:58 -0400
+Message-ID: <CAEjxPJ6HptedbTxrSKi3sYk+7PZ7-JHiNqa9eti86+BWm=Z6pg@mail.gmail.com>
+Subject: Re: [PATCH v3 2/3] selinux: prepare for inlining of hashtab functions
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>
@@ -71,9 +71,42 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Wed, Jul 8, 2020 at 7:24 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> This encapsulates symtab a little better and will help with further
-> refactoring later.
+> Refactor searching and inserting into hashtabs to pave the way for
+> converting hashtab_search() and hashtab_insert() to inline functions in
+> the next patch. This will avoid indirect calls and allow the compiler to
+> better optimize individual callers, leading to a significant performance
+> improvement.
+>
+> In order to avoid the indirect calls, the key hashing and comparison
+> callbacks need to be extracted from the hashtab struct and passed
+> directly to hashtab_search()/_insert() by the callers so that the
+> callback address is always known at compile time. The kernel's
+> rhashtable library (<linux/rhashtable*.h>) does the same thing.
+>
+> This of course makes the hashtab functions slightly easier to misuse by
+> passing a wrong callback set, but unfortunately there is no better way
+> to implement a hash table that is both generic and efficient in C. This
+> patch tries to somewhat mitigate this by only calling the hashtab
+> functions in the same file where the corresponding callbacks are
+> defined (wrapping them into more specialized functions as needed).
+>
+> Note that this patch doesn't bring any benefit without also moving the
+> definitions of hashtab_search() and -_insert() to the header file, which
+> is done in a follow-up patch for easier review of the hashtab.c changes
+> in this patch.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+> index 02b722c5c189d..ae78f66e85d29 100644
+> --- a/security/selinux/ss/policydb.c
+> +++ b/security/selinux/ss/policydb.c
+> @@ -1888,7 +1920,7 @@ static int filename_trans_read_helper_compat(struct policydb *p, void *fp)
+>         otype = le32_to_cpu(buf[3]);
+>
+>         last = NULL;
+> -       datum = hashtab_search(&p->filename_trans, &key);
+> +       datum = hashtab_search(&p->filename_trans, &key, filenametr_key_params);
+
+Why aren't you using the helper/wrapper function here?
