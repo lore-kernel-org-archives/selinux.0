@@ -2,125 +2,102 @@ Return-Path: <SRS0=sWNN=AT=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.9 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33FD1C433E0
-	for <selinux@archiver.kernel.org>; Wed,  8 Jul 2020 14:37:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9DBDC433E0
+	for <selinux@archiver.kernel.org>; Wed,  8 Jul 2020 15:10:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0E6F520786
-	for <selinux@archiver.kernel.org>; Wed,  8 Jul 2020 14:37:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7CFEA206DF
+	for <selinux@archiver.kernel.org>; Wed,  8 Jul 2020 15:10:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X250fcNG"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="YnW65uqV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729851AbgGHOhY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Jul 2020 10:37:24 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:35285 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729468AbgGHOhT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jul 2020 10:37:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594219037;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=2fiuW/fGt85PFp8F1Zmw9Ruq9Q0xwhVKNyMYiHcDaxo=;
-        b=X250fcNGMEORiO/saq3XbVBGiDo1Ne2ktXrBN0zarz/6ZSGeD8umuFRcVjzDL/6Wum7eVF
-        IzZ/KuuZKs7ArWsz9H9VU8fgq0NYUHjp37ub2Quc4hcgLeCZNKd7CHRrNLNUodEkfH9B32
-        z+Lgm+E4CoquPEVu+ZojIpktHToWwWs=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-187-L7bT7oq5PsGRsub2qHDBLw-1; Wed, 08 Jul 2020 10:37:16 -0400
-X-MC-Unique: L7bT7oq5PsGRsub2qHDBLw-1
-Received: by mail-lj1-f200.google.com with SMTP id w19so19252969ljm.16
-        for <selinux@vger.kernel.org>; Wed, 08 Jul 2020 07:37:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=2fiuW/fGt85PFp8F1Zmw9Ruq9Q0xwhVKNyMYiHcDaxo=;
-        b=LwYh/5QcZyC4dM+jJYkWRSAx+jyWBB9O0o4afX4sh0mDNVuw9bgF0XXa285Ufu1pgb
-         l4BJMSpPu+lWcEvNg4HrFXNvTczQ3NSSLnGcQ/tzG8AP+7KC0sTFvIGjhLVfRBZxrf0e
-         j7Vts9srfBB0ycGynSePPCwBfxY8IFBGGyXwIP6Jedhdqf5y0SWfcAG+eMs1OO62zg/d
-         ZF/EbTwH0mfEavF44AWtxm3vQRac2U9SFl4WnWxrz758QBj+qIcmh9wXDPcKh093QYyA
-         NUChNBGw7/m/Ys4BupFHipqNQIqbf2lUQZ4MdimphwnHAr3hrjqSVQXC/cxVwNwz6RHK
-         +YyA==
-X-Gm-Message-State: AOAM533f1VzmJW9SlaVLsm/bw8KAQQE72K7QiO992zT8CTm4Fk2K5R02
-        W91odBD+mdtEH7yeCEEMLSDiKyZh/F09ddYesIT0TQZcxj/A8NJFnK+5ZOIymRxJi+i6Aey/Jbk
-        jcpc1Huv9I0YfgLbkZni2E/+6YUpT7kvW9w==
-X-Received: by 2002:a2e:8798:: with SMTP id n24mr21270619lji.372.1594219034492;
-        Wed, 08 Jul 2020 07:37:14 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwQjgi1RAlFykQR7HvKioTXtNkwwoQxDwILn7lvbffKgnEIeffhN3xJPif/SvLqNLrUumUVUgzi9xBUGghC7uA=
-X-Received: by 2002:a2e:8798:: with SMTP id n24mr21270605lji.372.1594219034193;
- Wed, 08 Jul 2020 07:37:14 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200708112447.292321-1-omosnace@redhat.com> <20200708112447.292321-3-omosnace@redhat.com>
- <CAEjxPJ6HptedbTxrSKi3sYk+7PZ7-JHiNqa9eti86+BWm=Z6pg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6HptedbTxrSKi3sYk+7PZ7-JHiNqa9eti86+BWm=Z6pg@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Wed, 8 Jul 2020 16:37:03 +0200
-Message-ID: <CAFqZXNv9k76BP5Qb0WHsJwMipfkB_Ukc6YpDHV=PAu=jkROuqw@mail.gmail.com>
-Subject: Re: [PATCH v3 2/3] selinux: prepare for inlining of hashtab functions
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
+        id S1730031AbgGHPKB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Jul 2020 11:10:01 -0400
+Received: from mailomta22-re.btinternet.com ([213.120.69.115]:58624 "EHLO
+        re-prd-fep-042.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729022AbgGHPJ7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jul 2020 11:09:59 -0400
+Received: from re-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.54.8])
+          by re-prd-fep-042.btinternet.com with ESMTP
+          id <20200708150957.IQJM13627.re-prd-fep-042.btinternet.com@re-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Wed, 8 Jul 2020 16:09:57 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1594220997; 
+        bh=XPwoOMbcCB6+K2G/ZIpeSjLTDAb/uI69Iq90VvoM5BM=;
+        h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:MIME-Version;
+        b=YnW65uqVFCB/WKo2XeyAHoCsPVD4mDclKLGgcWcnT/82c8/e2oq/n3q8jdIlYbmi5R8DHhoFAXDuJCRhC5N5jZebNN0f/UOkZKRIq7tG+hmdvuvmhNQjWhYLVIyeOViiLLe+gniUKST00dToRMxbAVMtH5eaDqBGXp1fiInbMD+L4RSI5UzURvp275XeA5MyfI2IkHsdCM4spf4Xo/LMtNkRE7+RsXVgl2q33Vw6Dne2j1aw8FZZC1EjVnN9bFpsSgWd4rdu6JIAleTImE2+mrP0L1KeTb6HV5saWP8gO90d8T0SRi+WjizsHNDAx0zSffYz+Joi81UPegjQhDKqJg==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [109.148.83.76]
+X-OWM-Source-IP: 109.148.83.76 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudejgdekhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepteetveegheevieeifeekvdeiheejvedtieelfffffeevleeijeevvdejvdduudegnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucfkphepuddtledrudegkedrkeefrdejieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehnfhhsqdgtlhhivghnthdpihhnvghtpedutdelrddugeekrdekfedrjeeipdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from nfs-client (109.148.83.76) by re-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C74D05DA1BFB; Wed, 8 Jul 2020 16:09:57 +0100
+Message-ID: <84b9f79f814d4a482cf3309e50a1aaffad755be0.camel@btinternet.com>
+Subject: Re: ANN: The SELinux Notebook in markdown on GitHub
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     selinux@vger.kernel.org
+Date:   Wed, 08 Jul 2020 16:09:33 +0100
+In-Reply-To: <CAHC9VhTuDrgzeh9mXgkW98psssUCwy5i7_=Kx6hOyinfLjcd0w@mail.gmail.com>
+References: <CAHC9VhTuDrgzeh9mXgkW98psssUCwy5i7_=Kx6hOyinfLjcd0w@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.3 (3.36.3-1.fc32) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 8, 2020 at 3:38 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Wed, Jul 8, 2020 at 7:24 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > Refactor searching and inserting into hashtabs to pave the way for
-> > converting hashtab_search() and hashtab_insert() to inline functions in
-> > the next patch. This will avoid indirect calls and allow the compiler to
-> > better optimize individual callers, leading to a significant performance
-> > improvement.
-> >
-> > In order to avoid the indirect calls, the key hashing and comparison
-> > callbacks need to be extracted from the hashtab struct and passed
-> > directly to hashtab_search()/_insert() by the callers so that the
-> > callback address is always known at compile time. The kernel's
-> > rhashtable library (<linux/rhashtable*.h>) does the same thing.
-> >
-> > This of course makes the hashtab functions slightly easier to misuse by
-> > passing a wrong callback set, but unfortunately there is no better way
-> > to implement a hash table that is both generic and efficient in C. This
-> > patch tries to somewhat mitigate this by only calling the hashtab
-> > functions in the same file where the corresponding callbacks are
-> > defined (wrapping them into more specialized functions as needed).
-> >
-> > Note that this patch doesn't bring any benefit without also moving the
-> > definitions of hashtab_search() and -_insert() to the header file, which
-> > is done in a follow-up patch for easier review of the hashtab.c changes
-> > in this patch.
-> >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
->
-> > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> > index 02b722c5c189d..ae78f66e85d29 100644
-> > --- a/security/selinux/ss/policydb.c
-> > +++ b/security/selinux/ss/policydb.c
-> > @@ -1888,7 +1920,7 @@ static int filename_trans_read_helper_compat(struct policydb *p, void *fp)
-> >         otype = le32_to_cpu(buf[3]);
-> >
-> >         last = NULL;
-> > -       datum = hashtab_search(&p->filename_trans, &key);
-> > +       datum = hashtab_search(&p->filename_trans, &key, filenametr_key_params);
->
-> Why aren't you using the helper/wrapper function here?
+On Tue, 2020-07-07 at 16:55 -0400, Paul Moore wrote:
+> If you've followed the SELinux developers mailing list for a while,
+> you've surely heard of The SELinux Notebook.  For those of you that
+> haven't, The SELinux Notebook is an effort by Richard Haines to
+> document all the different aspects of SELinux from the kernel up
+> through policy.  It's an impressive piece of work, spanning ~345
+> pages
+> in the current edition.
+> 
+> Richard has always made The SELinux Notebook freely available, but
+> with the latest edition Richard has converted the entire document to
+> markdown and it is now available on GitHub at the link below:
+> 
+> * https://github.com/SELinuxProject/selinux-notebook
+> 
+> Richard has decided that he enjoys life enough without a GitHub
+> account, so I've posted it on his behalf and with his approval.
+> Needless to say, this is a significant gift to the SELinux community,
+> and we all own Richard our thanks.
+> 
+> I've made a few tweaks to the original import from Richard, but these
+> have mostly been limited to boilerplate, organization, and some
+> build/formatting fixes so that we could generate a reasonable PDF for
+> this initial "release".  The latest edition (release?) can be found
+> at
+> the link below:
 
-Oversight on my part, thanks for spotting it! I'll wait for Paul's
-feedback and send a fixed v4 if needed.
+Paul - Thanks for getting this into shape and adding to GitHub. The PDF
+now looks good
 
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+> 
+> * 
+> https://github.com/SELinuxProject/selinux-notebook/releases/tag/20200707
+> 
+> It is my hope that we can treat this as a living document, keeping it
+> current so that it stays relevant and useful.  Those who wish to help
+> and contribute to the effort can do so via patches to the SELinux
+> mailing list or via GitHub PRs.  The CONTRIBUTING.md file in the
+> repository has more information.
+> 
+> Thank you Richard!
+> 
 
