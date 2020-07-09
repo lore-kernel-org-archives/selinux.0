@@ -2,357 +2,147 @@ Return-Path: <SRS0=XbfQ=AU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40151C433E0
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 16:09:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97AE0C433DF
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 16:11:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1778720767
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 16:09:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6EA602078B
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 16:11:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YuN9Pfsm"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RoEAExbr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728054AbgGIQJh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jul 2020 12:09:37 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:27969 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726357AbgGIQJh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 12:09:37 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594310975;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=YGJrpPaNq9t/q8fmy5y8yMpfmDhY37xkwfBMvNZMT4s=;
-        b=YuN9PfsmSZoNMYjfYCiqNOEIHQlEtBN7qv7N5S5ipBfh6/xFuvYZ3vJlFzWXk2vE3DWKDk
-        /2TDKwxiW7mzpY1TgxoGpF7O2Y/Dexc+Vb9ni0HN+17PLtSvOVOyP18LZl4DwLTtjvkQet
-        Lrq1HG89lbSFy6QdYcFVbK3dFL+R1QY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-28-1XitDtUmMjihhkHQ_u639g-1; Thu, 09 Jul 2020 12:09:19 -0400
-X-MC-Unique: 1XitDtUmMjihhkHQ_u639g-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5749A1088;
-        Thu,  9 Jul 2020 16:09:18 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.211])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id EE7D87F8BE;
-        Thu,  9 Jul 2020 16:09:16 +0000 (UTC)
-Date:   Thu, 9 Jul 2020 18:09:13 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: 3.1 release notes draft
-Message-ID: <20200709160913.GB1641304@localhost.localdomain>
-References: <20200709094509.1620563-1-plautrba@redhat.com>
- <CAFqZXNs4UD-wb7fM3Vmh9DEhjQHhZnL+JGBomswuwyZQT=f-ug@mail.gmail.com>
+        id S1726872AbgGIQLm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jul 2020 12:11:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726357AbgGIQLl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 12:11:41 -0400
+Received: from mail-oo1-xc42.google.com (mail-oo1-xc42.google.com [IPv6:2607:f8b0:4864:20::c42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1EA4C08C5CE;
+        Thu,  9 Jul 2020 09:11:41 -0700 (PDT)
+Received: by mail-oo1-xc42.google.com with SMTP id t6so446532ooh.4;
+        Thu, 09 Jul 2020 09:11:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kZ7CRfTCDKAUDTKyzES9VQDLbhMjlfTZPr986Ha/X2I=;
+        b=RoEAExbrT6iBRND+sKPjht/k1/UiGKztrND1xlnbqqjqV7QbnPf/RIQrdFl5mwzzYc
+         yXsbBWQUZLAQXl4feucYvtUa6FL4k96qxAraZjOStVtikLNqCJSYrK1GL7W6JXUqLBFW
+         UTey8zcqwA7tpkU6eBlfpKCT96poF+FP6q2qW6d6lifpDAtsFv78WfqgLQE8NN6hX5pp
+         6DaH+rJJsGxl4slaOv0ogJyHzmxJdXBg2V6rFqo0KfR1U7YxOy3wvZdriXmXKgZI6z72
+         qP3mI1MOj71dEbC1QMzhpHmFh5PZfQLtJX6whF9YfbLiefSzoFPMA6UZ603GKzL7OFmX
+         +3ag==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kZ7CRfTCDKAUDTKyzES9VQDLbhMjlfTZPr986Ha/X2I=;
+        b=Tp1AR+OyuTOJ+4sXrsU26BuAJEAVADuCKf+o7i4dnu7n1wmobfm9wJ06HmdRbypugy
+         Tkw8SSLEolBcgTLQIqnMcEc7jtDIHn8JckhMXkJtc4qsYIPRGlALh1+HL/XQ0moEEhzk
+         YKjgk/Bpo8A1+Rkaew27drhWoBmB7ZM3GKZLboej1EhweUy3pXDCq00iGZIo9JoNIUlf
+         NNnVgc+sSDRmZxjwYQZaMnsNVrfjvGU9lEpzLTe5HKMiZ+6ydt5u/bsjkcZhVXmWZPr5
+         +nSHfhEIfNRv1HVfDNnOqzKyHzGct3oNOHfDJwpc0otdYO510dTYVuRfhrZzB8KF0aWf
+         1f9Q==
+X-Gm-Message-State: AOAM533JyQ74IsXz+LnnbbrPi1degpfJQsNLM4m+x4XRI+9Ki+HtpteM
+        3bh9MdLajMZOGDk/PjBvBeJNSzVke3cQ29PRtR4=
+X-Google-Smtp-Source: ABdhPJy+Zoasu05w+D5LFbyQ0ByfCcuVPzeQDYmp6vgRe6+B7FtMejGsPyU2dqoqTrgd6vhSbQmb+ek6EblQYMw0P6A=
+X-Received: by 2002:a4a:49cd:: with SMTP id z196mr54104165ooa.58.1594311101126;
+ Thu, 09 Jul 2020 09:11:41 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAFqZXNs4UD-wb7fM3Vmh9DEhjQHhZnL+JGBomswuwyZQT=f-ug@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=plautrba@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="mxv5cy4qt+RJ9ypb"
-Content-Disposition: inline
+References: <20200709001234.9719-1-casey@schaufler-ca.com> <20200709001234.9719-6-casey@schaufler-ca.com>
+In-Reply-To: <20200709001234.9719-6-casey@schaufler-ca.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 9 Jul 2020 12:11:30 -0400
+Message-ID: <CAEjxPJ4EefLKKvMo=8ZWeA4gVioH=WQ=52rnMuW5TnyExmJsRg@mail.gmail.com>
+Subject: Re: [PATCH v18 05/23] net: Prepare UDS for security module stacking
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Casey Schaufler <casey.schaufler@intel.com>,
+        James Morris <jmorris@namei.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---mxv5cy4qt+RJ9ypb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jul 8, 2020 at 8:23 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+> Change the data used in UDS SO_PEERSEC processing from a
+> secid to a more general struct lsmblob. Update the
+> security_socket_getpeersec_dgram() interface to use the
+> lsmblob. There is a small amount of scaffolding code
+> that will come out when the security_secid_to_secctx()
+> code is brought in line with the lsmblob.
+>
+> The secid field of the unix_skb_parms structure has been
+> replaced with a pointer to an lsmblob structure, and the
+> lsmblob is allocated as needed. This is similar to how the
+> list of passed files is managed. While an lsmblob structure
+> will fit in the available space today, there is no guarantee
+> that the addition of other data to the unix_skb_parms or
+> support for additional security modules wouldn't exceed what
+> is available.
+>
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+> Cc: netdev@vger.kernel.org
+> ---
 
-On Thu, Jul 09, 2020 at 09:32:37AM -0400, Stephen Smalley wrote:
-> On Thu, Jul 9, 2020 at 5:46 AM Petr Lautrbach <plautrba@redhat.com> wrote=
-:
-> >
-> >
-> > I'd like to release 3.1 today/tommorow to open the development of other
-> > performance related improvemenets which which postponed. This is releas=
-e notes
-> > draft which is based on RELEASE-20200518.txt and RELEASE-20200619.txt:
-> >
-> > RELEASE 202007XX (3.1)
-> >
-> > User-visible changes:
-> >
-> > * selinux/flask.h and selinux/av_permissions.h were removed
->=20
-> Also sepol/policydb/flask.h although hopefully there were no external
-> users of it.
+> diff --git a/net/unix/af_unix.c b/net/unix/af_unix.c
+> index 3385a7a0b231..d246aefcf4da 100644
+> --- a/net/unix/af_unix.c
+> +++ b/net/unix/af_unix.c
+> @@ -138,17 +138,23 @@ static struct hlist_head *unix_sockets_unbound(void *addr)
+>  #ifdef CONFIG_SECURITY_NETWORK
+>  static void unix_get_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -       UNIXCB(skb).secid = scm->secid;
+> +       UNIXCB(skb).lsmdata = kmemdup(&scm->lsmblob, sizeof(scm->lsmblob),
+> +                                     GFP_KERNEL);
+>  }
+>
+>  static inline void unix_set_secdata(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -       scm->secid = UNIXCB(skb).secid;
+> +       if (likely(UNIXCB(skb).lsmdata))
+> +               scm->lsmblob = *(UNIXCB(skb).lsmdata);
+> +       else
+> +               lsmblob_init(&scm->lsmblob, 0);
+>  }
+>
+>  static inline bool unix_secdata_eq(struct scm_cookie *scm, struct sk_buff *skb)
+>  {
+> -       return (scm->secid == UNIXCB(skb).secid);
+> +       if (likely(UNIXCB(skb).lsmdata))
+> +               return lsmblob_equal(&scm->lsmblob, UNIXCB(skb).lsmdata);
+> +       return false;
+>  }
 
-Added
-
-> > * `security_compute_user()` was deprecated - usage of /sys/fs/selinux/u=
-ser { security:compute_user } might be revisited
->=20
-> Not sure what the last part "might be revisited" means; we have
-> removed all uses of it internal to libselinux and deprecated the
-> interface, with the intent of someday dropping it altogether and
-> removing the kernel interface.
-
-I've dropped " - usage of ... " part completely to make it simple
-
-
-> One other user-visible change is commit
-> 8677ce5e8f592950ae6f14cea1b68a20ddc1ac25 ("libsepol,checkpolicy:
-> support omitting unused initial sid contexts") which allows policies
-> to start omitting unused initial SID contexts going forward, as per
-> its description and
-> https://github.com/SELinuxProject/selinux-kernel/issues/12.
->=20
-
-Added
-
-On Thu, Jul 09, 2020 at 05:23:13PM +0200, Ondrej Mosnacek wrote:
-> Hi,
->=20
-> a couple nits below...
->=20
-> On Thu, Jul 9, 2020 at 11:45 AM Petr Lautrbach <plautrba@redhat.com> wrot=
-e:
-> [...]
-> >
-> > * Support for new polcap genfs_seclabel_symlinks
->=20
-> s/polcap/policy capability/ ?
-
-Changed
-
-> >
-> > * New `setfiles -E` option - treat conflicting specifications as errors=
-, such
-> > as where two hardlinks for the same inode have different contexts.
-> >
-> > * `restorecond_user.service` - new systemd user service which runs `res=
-torecond -u`
-> >
-> > * `setsebool -V` reports errors from commit phase
-> >
-> > * Improved man pages
-> >
-> > * `semanage` uses ipaddress Python module instead of IPy
-> >
-> > * matchpathcon related interfaces are deprecated
-> >
-> > * selinuxfs is mounted with noexec and nosuid
-> >
-> > * Improved README which was renamed to README.md and converted to markd=
-own.
->=20
-> This is more of a developer/packager/builder visible change rather
-> than user visible IMHO. Maybe move it to a "Development-related
-> changes" section?
->=20
-> >
-> > * `setup.py` builds can be customized using PYTHON_SETUP_ARGS, e.g. to =
-for
-> >   Debian Python layout use: `make PYTHON_SETUP_ARGS=3D--install-layout=
-=3Ddeb ...`
->=20
-> Ditto. Maybe the "Packaging-relevant changes" would fit better for this o=
-ne?
->=20
-> >
-> > * the dso wrappers for internal calls were removed and it is now strong=
-ly recommended to CFLAGS with
-> >   `-fno-semantic-interposition`
-> >
-> > * `security_compute_user()` was deprecated - usage of /sys/fs/selinux/u=
-ser { security:compute_user } might be revisited
-> >
-> > * checkpolicy treats invalid characters as an error - it might break (b=
-ut intentional) rare use cases
->=20
-> I'd reword this to "might break rare use cases (intentionally)".
->=20
-> >
-> > * New `restorecon -x` option - prevent `restorecon` from crossing file =
-system
-> >   boundaries.
->=20
-> "New `restorecon -x` option, which prevents it from crossing file
-> system boundaries"?
->=20
-> >
-> > * Handle `semanage module` in semanage bash completion
-> >
-> > * Added section about CFLAGS to README.md, see Packaging-relevant chang=
-es
->=20
-> Also mainly devel/packager-related.
->=20
-> >
-> > * Improved man pages
->=20
-> This one is already listed further above .
->=20
-> >
-> > * Add Travis CI job to run SELinux kernel testsuite on latest Fedora cl=
-oud image
->=20
-> Another purely development-related change.
->=20
-> >
-> > * `sepolgen-ifgen` parses a gen_tunable statement as bool
-> >
-> > * `semanage` handles getprotobyname() failure case on Debian where /etc=
-/protocols does not contain an entry for "ipv4"
-> >
-> > Packaging-relevant changes:
-> [...]
->=20
-
-I've applied all your suggestions. The updated version is bellow.
-
-Thanks for the feedback!
-
-
-RELEASE 202007XX (3.1)
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
-User-visible changes
---------------------
-
-* selinux/flask.h, selinux/av_permissions.h and sepol/policydb/flask.h were=
- removed
-
-  The flask.h and av_permissions.h header files were deprecated and
-  all selinux userspace references to them were removed in
-  commit 76913d8adb61b5 ("Deprecate use of flask.h and av_permissions.h.")
-  back in 2014 and included in the 20150202 / 2.4 release.
-  All userspace object managers should have been updated
-  to use the dynamic class/perm mapping support since that time.
-  Remove these headers finally to ensure that no users remain and
-  that no future uses are ever introduced.
-
-  Use string_to_security_class(3) and string_to_av_perm(3) to map the class=
- and
-  permission names to their policy values, or selinux_set_mapping(3) to cre=
-ate a
-  mapping from class and permission index values used by the application to=
- the
-  policy values.
-
-* Removed restrictions in libsepol and checkpolicy that required all declar=
-ed
-  initial SIDs to be assigned a context.
-
-* Support for new policy capability genfs_seclabel_symlinks
-
-* New `setfiles -E` option - treat conflicting specifications as errors, su=
-ch
-as where two hardlinks for the same inode have different contexts.
-
-* `restorecond_user.service` - new systemd user service which runs `restore=
-cond -u`
-
-* `setsebool -V` reports errors from commit phase
-
-* Improved man pages
-
-* `semanage` uses ipaddress Python module instead of IPy
-
-* matchpathcon related interfaces are deprecated
-
-* selinuxfs is mounted with noexec and nosuid
-
-* the dso wrappers for internal calls were removed and it is now strongly r=
-ecommended to CFLAGS with
-  `-fno-semantic-interposition`
-
-* `security_compute_user()` was deprecated
-
-* checkpolicy treats invalid characters as an error - might break rare use =
-cases (intentionally)
-
-* New `restorecon -x` option which prevents it from crossing file system bo=
-undaries.
-
-* Handle `semanage module` in semanage bash completion
-
-* `sepolgen-ifgen` parses a gen_tunable statement as bool
-
-* `semanage` handles getprotobyname() failure case on Debian where /etc/pro=
-tocols does not contain an entry for "ipv4"
-
-
-Packaging-relevant changes
---------------------------
-
-* Setting CFLAGS during the make process will cause the omission of many de=
-faults. While the project strives
-  to provide a reasonable set of default flags, custom CFLAGS could break t=
-he build, or have other undesired
-  changes on the build output. Thus, be very careful when setting CFLAGS. C=
-FLAGS that are encouraged to be
-  set when overriding are:
-
-  - -fno-semantic-interposition for gcc or compilers that do not do this. c=
-lang does this by default. clang-10 and up
-    will support passing this flag, but ignore it. Previous clang versions =
-fail.
-
-* `setup.py` builds can be customized using PYTHON_SETUP_ARGS, e.g. to for
-  Debian Python layout use: `make PYTHON_SETUP_ARGS=3D--install-layout=3Dde=
-b ...`
-
-
-Development-relevant changes
-----------------------------
-
-* Improved README which was renamed to README.md and converted to markdown.
-
-* Added Travis CI job to run SELinux kernel testsuite on latest Fedora clou=
-d image
-
-
-Issues fixed
-------------
-
-* https://github.com/SELinuxProject/selinux/issues/248
-* https://github.com/SELinuxProject/selinux/issues/239
-* https://github.com/SELinuxProject/selinux/issues/237
-* https://github.com/SELinuxProject/selinux/issues/225
-* https://github.com/SELinuxProject/selinux/issues/217
-* https://github.com/SELinuxProject/selinux/issues/208
-* https://github.com/SELinuxProject/selinux/issues/204
-* https://github.com/SELinuxProject/selinux/issues/187
-* https://github.com/SELinuxProject/selinux/issues/179
-* https://github.com/SELinuxProject/selinux/issues/164
-* https://github.com/SELinuxProject/selinux/issues/70
-* https://github.com/SELinuxProject/selinux/issues/28
-
-
-
---mxv5cy4qt+RJ9ypb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl8HQSMACgkQviIJHj72
-InV8QBAAhh2ah7T0EFpkodfHuPQYa8RUWpvE/SC6S6P4Y+086ZlsAGiPnwFAFCIM
-C0ce/pfE5TFyzGpd7XXAkyPdksajqTZLpBgQsvKkNpfXzVANLVTg8y+SxBnxAS6N
-yIA7r6TpgphBEP6jw8ugLNqCaWSEZAGp4e82QklQjVeLG3/N0RsJ/WKj8OnRH/rS
-Iz/PFbsRPQRRmx+nOZ7arcBNS6GrklDLvP8v2ZSYBe7Wa0444yuiBgwoSUTFocR2
-tV8c1LYaiDrHgbc2PpLvjUMbsq3GBX76IjRSPN3viDXlcVjQzG4guqIWA5NoVNKi
-hBSWefLY/2AU3V+Li/KJ32wF4nyMOXdRqDh62oGGSIWIH98Cw0uJnl4IsXKR/r6e
-iacQTe7obiSto8NrESi+6hG0rE877vmAyZGA3VzNFvuYEyK1fWyIhkRmpGF6PWyN
-uSqaZLMMXkfUXTQ9Rgw0M+1qWuMZAUAFJ3l+y6X1qzdhR4rcAr/zyqtthI16vNLv
-oow0ND+eX+4w4cWf/o08zwQqBCGFmmrsz/buGBnUNjOXmnRksi1ozn9ma04YoZ+H
-ifMRTWzHuOaWwuVYoxtehLrjr0+kPrhGcgXigrJX5f/W1I5ipyhfxcVaruoHI7R4
-Zr1iQo/nCDU01rf7kPB5uNWukMIZ0P6e7/t/Ev3MCZu4LNU6O0E=
-=dnV8
------END PGP SIGNATURE-----
-
---mxv5cy4qt+RJ9ypb--
-
+I don't think that this provides sensible behavior to userspace.  On a
+transient memory allocation failure, instead of returning an error to
+the sender and letting them handle it, this will just proceed with
+sending the message without its associated security information, and
+potentially split messages on arbitrary boundaries because it cannot
+tell whether the sender had the same security information.  I think
+you instead need to change unix_get_secdata() to return an error on
+allocation failure and propagate that up to the sender.  Not a fan of
+this change in general both due to extra overhead on this code path
+and potential for breakage on allocation failures.  I know it was
+motivated by paul's observation that we won't be able to fit many more
+secids into the cb but not sure we have to go there prematurely,
+especially absent its usage by upstream AA (no unix_stream_connect
+hook implementation upstream).  Also not sure how the whole bpf local
+storage approach to supporting security modules (or at least bpf lsm)
+might reduce need for expanding these structures?
