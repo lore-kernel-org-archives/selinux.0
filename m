@@ -2,91 +2,108 @@ Return-Path: <SRS0=XbfQ=AU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6820DC433DF
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 18:10:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67324C433DF
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 18:21:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0AA6C207DA
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 18:10:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40F592078B
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 18:21:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="dnSEXycg"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="LqJfuXEb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726750AbgGISKc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jul 2020 14:10:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52730 "EHLO
+        id S1726289AbgGISV6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jul 2020 14:21:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726582AbgGISKc (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 14:10:32 -0400
-X-Greylist: delayed 37162 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 09 Jul 2020 11:10:32 PDT
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 441E3C08C5CE
-        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 11:10:32 -0700 (PDT)
-Received: from localhost.localdomain (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 6B32B2A0FFA;
-        Thu,  9 Jul 2020 20:10:30 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 6B32B2A0FFA
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1594318230;
-        bh=USpiocSfUrp6hUsdu3azDDqfCKIj+eYD6cWNe3ElSAE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dnSEXycghyrzrOgpEEl36uTdSPRQQP/L6p3JMwBQXKQ1QYC8kZ9y5VlmotT5XLQwJ
-         2V2rV8wYLHsoMnGW3UpkcPd3WwHwTREOzyy/tZU+UgZSVcJXrYVXxfzmMlEzhCEYFc
-         fK7qvtyBeXxy542dNAxF0lPfsSWHxyEcXgg5Z3xo=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     selinux@vger.kernel.org
-Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [PATCH] avc_rules.md: mention secilc with the neverallow statement
-Date:   Thu,  9 Jul 2020 20:10:15 +0200
-Message-Id: <20200709181015.3687-1-dominick.grift@defensec.nl>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <ecf085b6139f40fa9b8dfa3277f8c598d697387d.camel@btinternet.com>
-References: <ecf085b6139f40fa9b8dfa3277f8c598d697387d.camel@btinternet.com>
+        with ESMTP id S1726163AbgGISV5 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 14:21:57 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81A42C08C5CE
+        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 11:21:57 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id dg28so2595288edb.3
+        for <selinux@vger.kernel.org>; Thu, 09 Jul 2020 11:21:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+LX6FYQ8KvPT7Sv99otzCioTUqxDQNzCz28DkT+W5Eg=;
+        b=LqJfuXEbq2d+AbCpSDjod8KuqiJJzJLpl2AGMerdE8uejKuWFXVcHpPNX3+Bm0bXli
+         c/IwsbTnyvBT7+ZX/+Vv7nlOSeU4e/ay0u+Z3UoaQ++0eZfdWOqRYhfmbW1auYHM9Cmm
+         QE3D6n5yuHbKxuXFOZZIM5h4ahZf1rr62LPLUYptqysjjFHZpNQNogZwwzIRYmVqazSt
+         D3XeZI79ES/CkVfOjbfNxkWtFVhWdakaOWJ47R+fcN/IGNtuKuT6F5C3V3Pm5nnMou9N
+         CzpD7oHHsLlrrTOu/YA6WuHi1MhaiqDbml2PoiRwDjM0+hr+0tcgUvUpW6UECE+6d/Bb
+         6Tyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+LX6FYQ8KvPT7Sv99otzCioTUqxDQNzCz28DkT+W5Eg=;
+        b=Mxv/kvdTDp6sAweX1j2UUnKkDe1RQTpinfs3O8fkeJ8ZMNU2Jgk10y+RzBFybB3LMk
+         UCt9d3qkgMG1y7d3RioE5LLvUhsv6Yhup14iBdiJpTv2rKYGrlduMUz5vpim19yWk5uE
+         +/tvsh0qLe6cRDkjIOmHzOigd7EH76d0zOnmPVQHV46P7lnLfnWBLrT3uHXEkXN3hBF5
+         KQz3x+iNMSi85yZcvkR8DFnm88Jzrbwm7bw9vx7mJfGWk9GJsKxetlEhyATiTzpxTKin
+         Wj/DypxsSGytpfBMWGchBfpWML6RAYKIrpC2qr7LWMog6NVQoWcjsgVA2Op4eNdXrhNX
+         MNMA==
+X-Gm-Message-State: AOAM533aCiu3KfKNdhcQmGl+28Rjl9+m8K24tnJDD5gxOUMqHXWIlzpv
+        NSllztHeSeYHaFFqa/d8botIui/YVFan2U9lCiyx/aILTA==
+X-Google-Smtp-Source: ABdhPJxN2pld2Fd5sMpn9CN11z475uiLVs6Tso6ANcthJ4mNIfLmitAvypwxHSnGlVdjeh5aWV+RRZMStjVTnXlPh/k=
+X-Received: by 2002:a05:6402:742:: with SMTP id p2mr52784037edy.135.1594318916236;
+ Thu, 09 Jul 2020 11:21:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20200709075056.1670642-1-dominick.grift@defensec.nl> <47c6b95c59fd088bed61761c78e38bc04b9506d2.camel@btinternet.com>
+In-Reply-To: <47c6b95c59fd088bed61761c78e38bc04b9506d2.camel@btinternet.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 9 Jul 2020 14:21:45 -0400
+Message-ID: <CAHC9VhQvtuDb-u8RYx2JShPEd9i9_LGCbU81Q8tb03kSJ6N0MQ@mail.gmail.com>
+Subject: Re: [SELinux-notebook PATCH] auditing.md: describe avc record
+ permissive keyword
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     Dominick Grift <dominick.grift@defensec.nl>,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I was unable to determine whether checkpolicy can be told to disable
-neverallow checking.
+On Thu, Jul 9, 2020 at 10:14 AM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+>
+> On Thu, 2020-07-09 at 09:50 +0200, Dominick Grift wrote:
+> > This was added to Linux 4.17 via "selinux: Report permissive mode in
+> > avc: denied messages."
+> >
+> > Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+> > ---
+> >  src/auditing.md | 6 ++++++
+> >  1 file changed, 6 insertions(+)
+> >
+>
+> Acked-by: Richard Haines <richard_c_haines@btinternet.com>
 
-v2: As the footnote is HTML, to render the man page entry it needs to be:
-<em><strong>secilc</strong>(8)</em>
+Merged into the main branch, thanks Dominick!
 
-Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
----
- src/avc_rules.md | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+> > diff --git a/src/auditing.md b/src/auditing.md
+> > index 19f8be6..295373a 100644
+> > --- a/src/auditing.md
+> > +++ b/src/auditing.md
+> > @@ -161,6 +161,12 @@ section that follows.
+> >  <td>tclass</td>
+> >  <td>The object class of the target or object.</td>
+> >  </tr>
+> > +<tr>
+> > +<td>permissive</td>
+> > +<td>Keyword introduced in Linux 4.17 to indicate whether the event
+> > +was denied or granted due to global or per-domain permissive
+> > +mode.</td>
+> > +</tr>
+> >  </tbody>
+> >  </table>
 
-diff --git a/src/avc_rules.md b/src/avc_rules.md
-index a9dead5..5c2a491 100644
---- a/src/avc_rules.md
-+++ b/src/avc_rules.md
-@@ -182,8 +182,9 @@ auditallow ada_t self:process execstack;
- 
- This rule specifies that an `allow` rule must not be generated for the
- operation, even if it has been previously allowed. The `neverallow`
--statement is a compiler enforced action, where the ***checkpolicy**(8)* or
-+statement is a compiler enforced action, where the ***checkpolicy**(8)*,
- ***checkmodule**(8)* <a href="#fna1" class="footnote-ref" id="fnavc1"><sup>1</sup></a>
-+or ***secilc**(8)* <a href="#fna2" class="footnote-ref" id="fnavc2"><sup>2</sup></a>
- compiler checks if any allow rules have been generated in the policy source,
- if so it will issue a warning and stop.
- 
-@@ -211,6 +212,7 @@ neverallow { domain -mmap_low_domain_type } self:memprotect mmap_zero;
- <section class="footnotes">
- <ol>
- <li id="fna1"><p><code>neverallow</code> statements are allowed in modules, however to detect these the <em>semanage.conf</em> file must have the 'expand-check=1' entry present.<a href="#fnavc1" class="footnote-back">↩</a></p></li>
-+<li id="fna2"><p>The `--disable-neverallow` option can be used with <em></strong>secilc</strong>(8)</em> to disable <code>neverallow</code> rule checking.<a href="#fnavc2" class="footnote-back">↩</a></p></li>
- </ol>
- </section>
- 
 -- 
-2.27.0
-
+paul moore
+www.paul-moore.com
