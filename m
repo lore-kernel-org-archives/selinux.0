@@ -2,128 +2,171 @@ Return-Path: <SRS0=XbfQ=AU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+X-Spam-Status: No, score=-9.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 35A69C433DF
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 00:35:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55B63C433E2
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 00:36:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0EB5E206DF
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 00:35:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 32A05206DF
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 00:36:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="dUnlv7Co"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="m0TjbZCM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726122AbgGIAfy (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 8 Jul 2020 20:35:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59438 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726081AbgGIAfy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jul 2020 20:35:54 -0400
-Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30A7AC061A0B
-        for <selinux@vger.kernel.org>; Wed,  8 Jul 2020 17:35:54 -0700 (PDT)
-Received: by mail-ej1-x642.google.com with SMTP id w6so376146ejq.6
-        for <selinux@vger.kernel.org>; Wed, 08 Jul 2020 17:35:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=z5j7F5HBPalYnTbZ3R6FCR8nT5FQJTZinI3mHoYgl+Y=;
-        b=dUnlv7Co9d6+n6qcKnR/S4Pd99qTwxsIXn6MUCVw/jAeCkztoj/k11L3dLrvPMGpRK
-         ALdmlml9dDXddOL/ocAG+gYp55XTrhPY90Bwpfi+vwoFyh/3QgWDhq17PAeSrgFJlsbQ
-         W+mS6Pl53yfd8DC4tsQbONAz3W2cGCU3ZVTntZrhjV2eUgPC4zDGguwQQiAKHu+KHOST
-         fTMaucOxJkYmV1Yrva8WkFxfmNPQwayDtlJDv1dJbsNTYUEIreMGm9FdPyStaC0uclDw
-         caES66HkLveomTr9+XJe7Op01Q+fIA1tlLOT82+8ZirlZLbcjsm+P0RoKBlM2JaDvKbh
-         cHXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=z5j7F5HBPalYnTbZ3R6FCR8nT5FQJTZinI3mHoYgl+Y=;
-        b=oNhZldTpglSOaMt0K3vhp+lfpv9zN+CeGKl6MK674vmNv8scQr9TeWMRvvOmDlWI2j
-         2WkTIGuYeZ0Hweld3m0utIJy57DXED0cLM1rulOECf9zXRZ5guODGC/0dJYkHX+31jm5
-         aMRsUOUVTQ+Qk926tLCqx7o/O0s3qGpTZ7dAkj/AHhOtwRw9DEBndmmeQxHxlugafEgg
-         4zE85I5o+iF7eaJSurMlvLXKIXjmQ+WJzNyAVlTwuiU6UQ8wBGDzzT35DLolBbeq5A94
-         NjGf376mRTxZu6BY9K0V5FUu4wPlaC7udaD8KTa8NAr6UhIVWgIx/XRRTlU63BIVt5Vp
-         SItA==
-X-Gm-Message-State: AOAM533+VA860sOafsPKPGTMbC8K8WIZEXxjUZPR/gghwe6qxXboeCWX
-        iZoE9Tg49Gwhtl/0VtNGAhxM+vd9zZ5ZT6KXnGiA
-X-Google-Smtp-Source: ABdhPJwceHdKn0h1vxNKSqjqzy3/uvvkhYXNDiQhLcD+UrcybCZE6wDiL3ACpABps6zm524c4B3JxPXEvOJhYd4xSvc=
-X-Received: by 2002:a17:906:1a59:: with SMTP id j25mr51286545ejf.398.1594254952853;
- Wed, 08 Jul 2020 17:35:52 -0700 (PDT)
+        id S1726151AbgGIAgh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 8 Jul 2020 20:36:37 -0400
+Received: from sonic311-23.consmr.mail.bf2.yahoo.com ([74.6.131.197]:36738
+        "EHLO sonic311-23.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726121AbgGIAgh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 8 Jul 2020 20:36:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1594254995; bh=uWNP/f0MZF916y2Cwsdhr7gT91hrx+SqsNnUvBkdwps=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=m0TjbZCMxF+xa2y9qyvbM/Qt44HpdEm2bdvRx0UaE0f0QfG9Q8RYAhVC54Wc8KW1Lp2OVCXcGkw3G4AUokbMvpJLbKEzESCg6YWKnJm3Isl08OGKYvq12gPOkDfYiNkRuLn/7fM9YwCsr6loAoX/oR7zkaXshxTs5bYgFviVdKywfc00+3klDvWjszrTkClLfoxrAeYmyE8JyOeB5hGMhUp6jjXiL7lvc65gkWedZLK7gjDqEpbSVn55sWGdd+L17S9PFcTyNl9A2PY2wIPwr5xIYNODg7a61iypmJog8J+WK0eKfmGoZMFYBVOC7JlHfjg8uqFngvBvD+Tn5AfdsQ==
+X-YMail-OSG: ktX6py4VM1lYOoo3hZ9c_aitq_eiCAypo0GXii80Duf5mNTahMJa9O49VsMe3UL
+ f_OWsF_dliPo19SAqfoAP3E7GzTQOXpbLil9qVzgI4jhPqtRWwIp5PY9i_2gJ_iXzNxVOa4vZE1Y
+ GcCqQgqYYLVt57Oo4oW3ttxgNFPxhCKesUwF7qJk4HnhLWLr2nRkAoYUdHeAqy633bQjYb9LNWyN
+ Qjh9XDwflWrW.q7Se4v.NjLFbp8LXrfO5eWYe14PUq4GC8Z2Bpm8TZxa1H5j9HHtR6lMIZRxWE_0
+ h8TAY79JU41qP5dBLZ1ZVSvuvdPA0FY93aiHOrEZe2yhh8__6k8ZpfvktYJR7OGtuE90.jr.3Y05
+ tH_ltprXK2IvRY23Y1LkexnLQou_XDhlW.tOCQOpAGeFkh28abNmS.YdjJtpTcBXPb0RhJCekSLI
+ 5gQsLZKQHakG6JKaYiFSbrE6zXKgJM0nF8TYr50lWe7uuSXw94U6R0.tmOzcW9gM9zvHCvkGx7uX
+ tlP97vdo0N.1rf6sfyFo7qrh21SORIUCAP3efnZAtPqcWvzVeHIIojImZYJwT6GWLslbyXnPPLOw
+ ffq42YlHEHo2Gvc3IHAI0np3z3bVYaSodmtQfb2s..UoJuo9lfvyx5VTlj9zAqN_SwOAdpBfJkLX
+ 8uCD8Tq.xjpprsGSVsBSRL3_0UoD3Q.YpfQQl8JpWJs6dLpaegcQFBGcahiGKwJ1y59h5wXLrZmf
+ Z299rzB.dv8TBSkzHZJqwhzq80S.Jthy4PxGjTXhv3mgnZeJZqZYAxQtR6WDBmISI6Wi5_M39hw5
+ A.596w2LOBoN5Jkcr9Es8YA8IvroIzYGPvqopPh8avwCnivFMnNVLdXDx4uFeXpl_hLE636Eulll
+ fdMgt.eCdbV68YAbGuN4B3Ov5MoZC_4Hq2yVq4dF2jo61HidOH9Z.bmTwzIqo7Tgx_W9Kxsl.0fZ
+ l.6jHvq9iFDdN1FeHTOiaEYv_2OSlJbpOZExo0ZTMKxrYrbmbJTJX_CW7QEa_N68F8Kt4JQjD9N8
+ cfv9r39z49Wz8dZzleZFJBiRbPdTW468yTrIHyw8QLx8qGp6V5YkXl9J0dNKM8sKObXRMthIq6QK
+ cubNjMMarv1p6coYBIFKBT2ulHKt2FI49EMGadwf3S_aflVrq_J3WAXPcWhMZW5PshFR_VteDXQV
+ ouj4m_SQZ4Gwkqle4Nk1ieIVKsJkacFUE5_vtq40NrQ_xCiBigz2qgvoTfEGgDd3p0Mx.yXgctHS
+ 8qRuSdUZmjQZ6muA9xEae114_t9iqxLkYidc1IASpr5WeSRbd8DoS1V6CWtpHmmbnmxHgX7F3O20
+ ZoU2xDJD0qDnauQNEbky45zwsEPWnD0DJiitvBISgJ5WoA0k4et3gZN6GkGC_bpAnHvVzl44eoRj
+ xzDeyG7TLBgS8gl_6WOfHYoJYb38CxTgJUDkcWqoD
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic311.consmr.mail.bf2.yahoo.com with HTTP; Thu, 9 Jul 2020 00:36:35 +0000
+Received: by smtp409.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 55d9d25178ba3d8de0d336db3f66a37f;
+          Thu, 09 Jul 2020 00:36:31 +0000 (UTC)
+From:   Casey Schaufler <casey@schaufler-ca.com>
+To:     casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     casey@schaufler-ca.com, keescook@chromium.org,
+        john.johansen@canonical.com, penguin-kernel@i-love.sakura.ne.jp,
+        paul@paul-moore.com, sds@tycho.nsa.gov, netdev@vger.kernel.org
+Subject: [PATCH v18 17/23] LSM: security_secid_to_secctx in netlink netfilter
+Date:   Wed,  8 Jul 2020 17:12:28 -0700
+Message-Id: <20200709001234.9719-18-casey@schaufler-ca.com>
+X-Mailer: git-send-email 2.24.1
+In-Reply-To: <20200709001234.9719-1-casey@schaufler-ca.com>
+References: <20200709001234.9719-1-casey@schaufler-ca.com>
 MIME-Version: 1.0
-References: <20200708112447.292321-1-omosnace@redhat.com> <20200708112447.292321-3-omosnace@redhat.com>
- <CAEjxPJ6HptedbTxrSKi3sYk+7PZ7-JHiNqa9eti86+BWm=Z6pg@mail.gmail.com> <CAFqZXNv9k76BP5Qb0WHsJwMipfkB_Ukc6YpDHV=PAu=jkROuqw@mail.gmail.com>
-In-Reply-To: <CAFqZXNv9k76BP5Qb0WHsJwMipfkB_Ukc6YpDHV=PAu=jkROuqw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 8 Jul 2020 20:35:41 -0400
-Message-ID: <CAHC9VhQ+CTR=Vp_1SKJYeWzCEDHVCtwfdhrgePMxLjTLczRcXQ@mail.gmail.com>
-Subject: Re: [PATCH v3 2/3] selinux: prepare for inlining of hashtab functions
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 8, 2020 at 10:37 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Wed, Jul 8, 2020 at 3:38 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Wed, Jul 8, 2020 at 7:24 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > >
-> > > Refactor searching and inserting into hashtabs to pave the way for
-> > > converting hashtab_search() and hashtab_insert() to inline functions in
-> > > the next patch. This will avoid indirect calls and allow the compiler to
-> > > better optimize individual callers, leading to a significant performance
-> > > improvement.
-> > >
-> > > In order to avoid the indirect calls, the key hashing and comparison
-> > > callbacks need to be extracted from the hashtab struct and passed
-> > > directly to hashtab_search()/_insert() by the callers so that the
-> > > callback address is always known at compile time. The kernel's
-> > > rhashtable library (<linux/rhashtable*.h>) does the same thing.
-> > >
-> > > This of course makes the hashtab functions slightly easier to misuse by
-> > > passing a wrong callback set, but unfortunately there is no better way
-> > > to implement a hash table that is both generic and efficient in C. This
-> > > patch tries to somewhat mitigate this by only calling the hashtab
-> > > functions in the same file where the corresponding callbacks are
-> > > defined (wrapping them into more specialized functions as needed).
-> > >
-> > > Note that this patch doesn't bring any benefit without also moving the
-> > > definitions of hashtab_search() and -_insert() to the header file, which
-> > > is done in a follow-up patch for easier review of the hashtab.c changes
-> > > in this patch.
-> > >
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > ---
-> >
-> > > diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> > > index 02b722c5c189d..ae78f66e85d29 100644
-> > > --- a/security/selinux/ss/policydb.c
-> > > +++ b/security/selinux/ss/policydb.c
-> > > @@ -1888,7 +1920,7 @@ static int filename_trans_read_helper_compat(struct policydb *p, void *fp)
-> > >         otype = le32_to_cpu(buf[3]);
-> > >
-> > >         last = NULL;
-> > > -       datum = hashtab_search(&p->filename_trans, &key);
-> > > +       datum = hashtab_search(&p->filename_trans, &key, filenametr_key_params);
-> >
-> > Why aren't you using the helper/wrapper function here?
->
-> Oversight on my part, thanks for spotting it! I'll wait for Paul's
-> feedback and send a fixed v4 if needed.
+Change netlink netfilter interfaces to use lsmcontext
+pointers, and remove scaffolding.
 
-I remain not overly excited about these patches as I fear they make
-the code more prone to error, but they are in a reasonably important
-code path so I'll turn a deaf ear to my objections once you make the
-changes Stephen is requesting.
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: John Johansen <john.johansen@canonical.com>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+cc: netdev@vger.kernel.org
+---
+ net/netfilter/nfnetlink_queue.c | 31 ++++++++++++-------------------
+ 1 file changed, 12 insertions(+), 19 deletions(-)
 
+diff --git a/net/netfilter/nfnetlink_queue.c b/net/netfilter/nfnetlink_queue.c
+index fe19ae7216db..a4d4602ab9b7 100644
+--- a/net/netfilter/nfnetlink_queue.c
++++ b/net/netfilter/nfnetlink_queue.c
+@@ -301,12 +301,10 @@ static int nfqnl_put_sk_uidgid(struct sk_buff *skb, struct sock *sk)
+ 	return -1;
+ }
+ 
+-static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
++static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, struct lsmcontext *context)
+ {
+-	u32 seclen = 0;
+ #if IS_ENABLED(CONFIG_NETWORK_SECMARK)
+ 	struct lsmblob blob;
+-	struct lsmcontext context = { };
+ 
+ 	if (!skb || !sk_fullsock(skb->sk))
+ 		return 0;
+@@ -318,14 +316,14 @@ static u32 nfqnl_get_sk_secctx(struct sk_buff *skb, char **secdata)
+ 		 * blob. security_secid_to_secctx() will know which security
+ 		 * module to use to create the secctx.  */
+ 		lsmblob_init(&blob, skb->secmark);
+-		security_secid_to_secctx(&blob, &context);
+-		*secdata = context.context;
++		security_secid_to_secctx(&blob, context);
+ 	}
+ 
+ 	read_unlock_bh(&skb->sk->sk_callback_lock);
+-	seclen = context.len;
++	return context->len;
++#else
++	return 0;
+ #endif
+-	return seclen;
+ }
+ 
+ static u32 nfqnl_get_bridge_size(struct nf_queue_entry *entry)
+@@ -401,8 +399,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	enum ip_conntrack_info uninitialized_var(ctinfo);
+ 	struct nfnl_ct_hook *nfnl_ct;
+ 	bool csum_verify;
+-	struct lsmcontext scaff; /* scaffolding */
+-	char *secdata = NULL;
++	struct lsmcontext context = { };
+ 	u32 seclen = 0;
+ 
+ 	size = nlmsg_total_size(sizeof(struct nfgenmsg))
+@@ -469,7 +466,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	}
+ 
+ 	if ((queue->flags & NFQA_CFG_F_SECCTX) && entskb->sk) {
+-		seclen = nfqnl_get_sk_secctx(entskb, &secdata);
++		seclen = nfqnl_get_sk_secctx(entskb, &context);
+ 		if (seclen)
+ 			size += nla_total_size(seclen);
+ 	}
+@@ -604,7 +601,7 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	    nfqnl_put_sk_uidgid(skb, entskb->sk) < 0)
+ 		goto nla_put_failure;
+ 
+-	if (seclen && nla_put(skb, NFQA_SECCTX, seclen, secdata))
++	if (seclen && nla_put(skb, NFQA_SECCTX, context.len, context.context))
+ 		goto nla_put_failure;
+ 
+ 	if (ct && nfnl_ct->build(skb, ct, ctinfo, NFQA_CT, NFQA_CT_INFO) < 0)
+@@ -632,10 +629,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	}
+ 
+ 	nlh->nlmsg_len = skb->len;
+-	if (seclen) {
+-		lsmcontext_init(&scaff, secdata, seclen, 0);
+-		security_release_secctx(&scaff);
+-	}
++	if (seclen)
++		security_release_secctx(&context);
+ 	return skb;
+ 
+ nla_put_failure:
+@@ -643,10 +638,8 @@ nfqnl_build_packet_message(struct net *net, struct nfqnl_instance *queue,
+ 	kfree_skb(skb);
+ 	net_err_ratelimited("nf_queue: error creating packet message\n");
+ nlmsg_failure:
+-	if (seclen) {
+-		lsmcontext_init(&scaff, secdata, seclen, 0);
+-		security_release_secctx(&scaff);
+-	}
++	if (seclen)
++		security_release_secctx(&context);
+ 	return NULL;
+ }
+ 
 -- 
-paul moore
-www.paul-moore.com
+2.24.1
+
