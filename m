@@ -7,155 +7,105 @@ X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE1EFC433E0
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 14:14:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3704C433E0
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 14:16:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 88AA82073A
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 14:14:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7F1692074B
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 14:16:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="MajkvhxJ"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="CV6QBVBA"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726509AbgGIOO6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jul 2020 10:14:58 -0400
-Received: from mailomta20-re.btinternet.com ([213.120.69.113]:59218 "EHLO
-        re-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726371AbgGIOO6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 10:14:58 -0400
-Received: from re-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.54.6])
-          by re-prd-fep-048.btinternet.com with ESMTP
-          id <20200709141455.MKJW4701.re-prd-fep-048.btinternet.com@re-prd-rgout-003.btmx-prd.synchronoss.net>;
-          Thu, 9 Jul 2020 15:14:55 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1594304095; 
-        bh=Vfr90p/G8gRfC2jxM24U2QuAHCdmBF8s1ah1g6w89jU=;
+        id S1726722AbgGIOQX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jul 2020 10:16:23 -0400
+Received: from mailomta1-re.btinternet.com ([213.120.69.94]:52024 "EHLO
+        re-prd-fep-041.btinternet.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726371AbgGIOQX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 10:16:23 -0400
+Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
+          by re-prd-fep-041.btinternet.com with ESMTP
+          id <20200709141620.ITFB30588.re-prd-fep-041.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Thu, 9 Jul 2020 15:16:20 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1594304180; 
+        bh=exLK7xst1KmhH3wZM0eCBzNSHKWTYYMLAaHAArlSFAY=;
         h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
-        b=MajkvhxJZqv0dYOqrHPw84Mk1dUGp/bO5NctftafrF/gxOo00DvVPrbXY5LQPFqbLWA3AtSY1dFfI6NJbbs8Cu7z0LXTPQ598SuI1QFkCCDqjfOMJu9+djuEyO4e6zsX7BNEyQtTx/hdSvjefkzh9wkNjefxkOhYpiXhQn2nN4q2yjApYGer722Ohs0kVKRS0LV0NXj9YwTpQ++YoXUe4mbAY7DVY4ZH+MklBi8+yj2X8Wqg6IlQFpjBanaRiT2jUjvRCU23rJpQykVFgxHnt9CoRxupNIHOmIdRTlp7rvTdqst+XCKC4PkasZFTbxsGojEiC+xntgTWIpsIJ5g62A==
+        b=CV6QBVBAnnmsnDQu+rKjnd4+JrJ53M6Py9h9umv3gf5jQ/8S+YR0+ZIVC/uQQPDOLTsr7X1+WLwdGdM/y8Gwh6vurmyvDWUpnLwtSHYVAJh6HD8iM0Oe/7S0o9Kov/fSClVl/S9jIpyUvMxqInp5MGenOuFECH+RM+arvGmE1viToDmXMoEh7vOJNaH9pRv/EqqOL5SehbBipMjHz0fcvp8bzeM1wWilw8xungoGZ4/OkpEHY49ypKG1Le5c1h1RZaRLsZA2IbyGrifpz2t9UTSKFnviArBa3RHo39vRhbq2na1G4XqigbBwGFmZB3Vnv+ETRS1werZjBlQbjk+04g==
 Authentication-Results: btinternet.com;
     auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
 X-Originating-IP: [109.158.127.33]
 X-OWM-Source-IP: 109.158.127.33 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudelgdejhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthejredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepffdtjeevfffggfetvdffveeuteehgeeihfeiffdutdehjefhveetgfelhfetjeegnecuffhomhgrihhnpehrvgguhhgrthdrtghomhenucfkphepuddtledrudehkedruddvjedrfeefnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghlohepnhhfshdqtghlihgvnhhtpdhinhgvthepuddtledrudehkedruddvjedrfeefpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoughomhhinhhitghkrdhgrhhifhhtseguvghfvghnshgvtgdrnhhlqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrudelgdejiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepkffuhffvffgjfhgtfggggfesthekredttderjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhephfekgeehuddugefgffekheehteetgfejudeghffhveeuvdevudehtdeljeekudevnecukfhppedutdelrdduheekrdduvdejrdeffeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehnfhhsqdgtlhhivghnthdpihhnvghtpedutdelrdduheekrdduvdejrdeffedpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoeguohhmihhnihgtkhdrghhrihhfthesuggvfhgvnhhsvggtrdhnlheqpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
-Received: from nfs-client (109.158.127.33) by re-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9C2FD060194CF; Thu, 9 Jul 2020 15:14:55 +0100
-Message-ID: <4dda5d887f71fa8fa8aa55c458d85faa958eae98.camel@btinternet.com>
-Subject: Re: [SELinux-notebook PATCH] pam_login.md: pam_selinux_permit is
- known as pam_sepermit upstream
+Received: from nfs-client (109.158.127.33) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C50605FF7901; Thu, 9 Jul 2020 15:16:20 +0100
+Message-ID: <ecf085b6139f40fa9b8dfa3277f8c598d697387d.camel@btinternet.com>
+Subject: Re: [SELinux-notebook PATCH] avc_rules.md: mention secilc with the
+ neverallow statement
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     Dominick Grift <dominick.grift@defensec.nl>,
         selinux@vger.kernel.org
-Date:   Thu, 09 Jul 2020 15:14:54 +0100
-In-Reply-To: <20200709114149.1705657-1-dominick.grift@defensec.nl>
-References: <20200709114149.1705657-1-dominick.grift@defensec.nl>
+Date:   Thu, 09 Jul 2020 15:16:19 +0100
+In-Reply-To: <20200709090352.1681563-1-dominick.grift@defensec.nl>
+References: <20200709090352.1681563-1-dominick.grift@defensec.nl>
 Content-Type: text/plain; charset="UTF-8"
 User-Agent: Evolution 3.36.3 (3.36.3-1.fc32) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 2020-07-09 at 13:41 +0200, Dominick Grift wrote:
-> Change references to pam_selinux_permit to pam_sepermit
-> Replace gdm-password with sshd PAM configuration (from Fedora 33) as
-> pam_sepermit in the existing example might not always work correctly
-> when called from the auth section:
-> https://bugzilla.redhat.com/show_bug.cgi?id=1492313
-> Reference the pam_selinux(8) and pam_sepermit(8) manuals
+On Thu, 2020-07-09 at 11:03 +0200, Dominick Grift wrote:
+> I was unable to determine whether checkpolicy can be told to disable
+> neverallow checking.
 > 
 > Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
 > ---
->  src/pam_login.md | 50 ++++++++++++++++++++++----------------------
-> ----
->  1 file changed, 23 insertions(+), 27 deletions(-)
+>  src/avc_rules.md | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
 > 
+> diff --git a/src/avc_rules.md b/src/avc_rules.md
+> index a9dead5..7e62d04 100644
+> --- a/src/avc_rules.md
+> +++ b/src/avc_rules.md
+> @@ -182,8 +182,9 @@ auditallow ada_t self:process execstack;
+>  
+>  This rule specifies that an `allow` rule must not be generated for
+> the
+>  operation, even if it has been previously allowed. The `neverallow`
+> -statement is a compiler enforced action, where the
+> ***checkpolicy**(8)* or
+> +statement is a compiler enforced action, where the
+> ***checkpolicy**(8)*,
+>  ***checkmodule**(8)* <a href="#fna1" class="footnote-ref"
+> id="fnavc1"><sup>1</sup></a>
+> +or ***secilc**(8)* <a href="#fna2" class="footnote-ref"
+> id="fnavc2"><sup>2</sup></a>
+>  compiler checks if any allow rules have been generated in the policy
+> source,
+>  if so it will issue a warning and stop.
+>  
+> @@ -211,6 +212,7 @@ neverallow { domain -mmap_low_domain_type }
+> self:memprotect mmap_zero;
+>  <section class="footnotes">
+>  <ol>
+>  <li id="fna1"><p><code>neverallow</code> statements are allowed in
+> modules, however to detect these the <em>semanage.conf</em> file must
+> have the 'expand-check=1' entry present.<a href="#fnavc1"
+> class="footnote-back">↩</a></p></li>
+> +<li id="fna2"><p>The `--disable-neverallow` option can be used with
+> ***secilc**(8)* to disable <code>neverallow</code> rule checking.<a
+> href="#fnavc2" class="footnote-back">↩</a></p></li>
+>  </ol>
+>  </section>
 
-Acked-by: Richard Haines <richard_c_haines@btinternet.com>
+As the footnote is HTML, to render the man page entry it needs to be:
+<em><strong>secilc</strong>(8)</em>
 
-> diff --git a/src/pam_login.md b/src/pam_login.md
-> index 0c5a256..213a9f3 100644
-> --- a/src/pam_login.md
-> +++ b/src/pam_login.md
-> @@ -68,41 +68,37 @@ consist of multiple lines of information that are
-> formatted as follows:
->  </tbody>
->  </table>
+
 >  
-> -The */etc/pam.d/gdm-password* PAM configuration file for the Gnome
-> login
-> +The */etc/pam.d/sshd* PAM configuration file for the OpenSSH
->  service is as follows:
->  
->  ```
-> -auth     [success=done ignore=ignore default=bad]
-> pam_selinux_permit.so
-> -auth        substack      password-auth
-> -auth        optional      pam_gnome_keyring.so
-> -auth        include       postlogin
-> -
-> -account     required      pam_nologin.so
-> -account     include       password-auth
-> -
-> -password    substack       password-auth
-> --password   optional       pam_gnome_keyring.so use_authtok
-> -
-> -session     required      pam_selinux.so close
-> -session     required      pam_loginuid.so
-> -session     optional      pam_console.so
-> -session     required      pam_selinux.so open
-> -session     optional      pam_keyinit.so force revoke
-> -session     required      pam_namespace.so
-> -session     include       password-auth
-> -session     optional      pam_gnome_keyring.so auto_start
-> -session     include       postlogin
-> +#%PAM-1.0
-> +
-> +auth       substack     password-auth
-> +auth       include      postlogin
-> +account    required     pam_sepermit.so
-> +account    required     pam_nologin.so
-> +account    include      password-auth
-> +password   include      password-auth
-> +session    required     pam_selinux.so close
-> +session    required     pam_loginuid.so
-> +session    required     pam_selinux.so open
-> +session    required     pam_namespace.so
-> +session    optional     pam_keyinit.so force revoke
-> +session    optional     pam_motd.so
-> +session    include      password-auth
-> +session    include      postlogin
->  ```
->  
->  The core services are provided by PAM, however other library modules
-> can
->  be written to manage specific services such as support for SELinux.
-> The
-> -SELinux PAM modules use the *libselinux* API to obtain its
-> configuration
-> -information and the three SELinux PAM entries highlighted in the
-> above
-> -configuration file perform the following functions:
-> +***pam_sepermit**(8)* and ***pam_selinux**(8)* SELinux PAM modules
-> use
-> +the *libselinux* API to obtain its configuration information and the
-> +three SELinux PAM entries highlighted in the above configuration
-> file
-> +perform the following functions:
->  
-> --   ***pam_selinux_permit.so*** - Allows pre-defined users the
-> ability to
-> -    logon without a password provided that SELinux is in enforcing
-> mode (see
-> -    the
-> +-   ***pam_sepermit.so*** - Allows pre-defined users the ability to
-> +    logon provided that SELinux is in enforcing mode (see the
->      [*/etc/security/sepermit.conf*](global_config_files.md#etcsecuri
-> tysepermit.conf)
->      section).
->  -   ***pam_selinux.so open*** - Allows a security context to be set
-> up for
 
