@@ -7,72 +7,69 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81172C433E0
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 14:33:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43957C433E0
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 14:33:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 53803206C3
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 14:33:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12084206C3
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 14:33:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sZHBogpy"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hRAqhihO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726772AbgGIOdT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jul 2020 10:33:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47324 "EHLO
+        id S1726821AbgGIOdk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jul 2020 10:33:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726353AbgGIOdS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 10:33:18 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB877C08C5CE
-        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 07:33:18 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id 5so1809941oty.11
-        for <selinux@vger.kernel.org>; Thu, 09 Jul 2020 07:33:18 -0700 (PDT)
+        with ESMTP id S1726353AbgGIOdk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 10:33:40 -0400
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE64C08C5CE
+        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 07:33:40 -0700 (PDT)
+Received: by mail-il1-x136.google.com with SMTP id a6so2163251ilq.13
+        for <selinux@vger.kernel.org>; Thu, 09 Jul 2020 07:33:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=iEnLc2N93uUxTjYI0qzbJTP8CqCcVFnXdCj0036lb38=;
-        b=sZHBogpyGeV4xnsS2tu+Endm46Yw4++WplGg5lHt2ZCsjqygyR8E871CScGno0GLr9
-         PvS6LMGhAnkCxjS4RTQZN1zcZM97iCkuB6eH6KP3eWJRdac9gvWwyzqFh1nLcZZHboGD
-         gYrxoJJ7rmHMvzPry7rmGqSGlkHRixEdCH1LXFJxjqymC6YDdAuzm5jkvkdXmdt6XZ9R
-         GRjsuzDU4giJM3PTC9k7080xnb5LR5kihYZYNl5mNJhM7pcMw50n8qPR1T5hx6RxzveM
-         1RM5JMRdRqHu6ix7wubjJzhmklXeR9AVvx8wx5rJngEW0nbYDXN7l1JLifneCjonlVsE
-         KJyg==
+        h=mime-version:from:date:message-id:subject:to;
+        bh=TBO0rtVbxrVhTg8fRjBOqrHt0W80VfHhG2EIkJRoKoQ=;
+        b=hRAqhihONOOvLi4xEcGIJD2V5UhYNW90hS6wZAzTK6CirSgPGVAEl5KRLTIOcAOcqd
+         ieHDreETWa71bxiC0JHqc6bG4X3S/IvvMTbRB8riLxP6R3g8sO8GmmL4bL6XnYR+yOq8
+         tyGaae0tX/Qrr+fNE7xyy+vTmgjkvTVTSJo9Uqs+OPwHD1snaP6+iofbFAzuua0qmDA0
+         H+jqIcyxohudJOpThSusmOQNqRG7nGxx0mPmVwNt/rdfrql3qMTfgnhhBaexhdtdGAZX
+         01D/vGbTtiikRg+bJMpU0Nx/zTtXhZjjXOZ/FAUEK53jhqdq63ioe1SzlcSlf8y/zljJ
+         ofMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=iEnLc2N93uUxTjYI0qzbJTP8CqCcVFnXdCj0036lb38=;
-        b=neg5QTMQmfwhrYjxVJTSPlUIlM83BJnd35Z3+WmafuLIfv2n9nEZhL26p0SI6d3gYA
-         d1iTssS+LH2OUKGvBe0KS7FCzaSKkFcASOCWG7uH7RVWjPQZdoTAs+GPiwAGCG4r/REe
-         ePOWxuNTqqxnIdSiHOMqPe3L6Am2EWJ5r+vIhEudMteu8oYmXpvJSe4angQrZX48TlxD
-         G0KIwiMbldLdgiQ6E4dkitApEwwlFjZDms+PqIQF9a6Uovgpj8dRhlMpLz+8Q2ld8xIf
-         blGZuUMTUMGmrzBCHq2Wz/kDpUPX+K+IoZ7OUwZRSdVVT4xeGtSGMjJSs8r9g/7xJwNE
-         4Rgg==
-X-Gm-Message-State: AOAM533J5JSIytJCG5oB1NsJ04JrWQcxfcmkMoyhAVF98qY5n+iZhWc7
-        ugTKX3iUG/iRKYEtg1m9JwQchceBo9nDM3frfE7Hlw==
-X-Google-Smtp-Source: ABdhPJxszi/CoBuIl5vUf6NQF4CQe3B4bR7mT7FdXn61qSV9tTEV1VN+/+1x6aK1MsG/hx7f6flwR3nro0/zPQewrws=
-X-Received: by 2002:a05:6830:1db5:: with SMTP id z21mr40210008oti.162.1594305198118;
- Thu, 09 Jul 2020 07:33:18 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=TBO0rtVbxrVhTg8fRjBOqrHt0W80VfHhG2EIkJRoKoQ=;
+        b=n5y4CklJeJIRSDZFhVLfxMUAc/w4BWPca/G6+6ZZpcZ82pUGglhHv+Kg6PKoOYVAkZ
+         FNTp9iuWrstsstRBVLLrTSROScEXKFUuGCOsHzvKiLL5C9eHKRJvrOqTDxDaVRRJskFn
+         Gy4UtJWW8C5PnChM51twNqOmOGyTpS1sLDkSNxpef9SkhQNdMiXN3x2yZz8vwhE5G9Yr
+         +/SFoABX+VN0XVnVxUuk77WnT6Sf8FcXED21eAhGhlFGOahsSDHOdZcOiOWlcXv+1Bih
+         dAZmcxG0KXqzAZErueXJqs5h/4tgqGp8jVlTeNuQtD1Jf1RaJHu2lShCjWdKfU7sRiWi
+         amdQ==
+X-Gm-Message-State: AOAM532AwHGKOiw7wUiAeOIDzskzlGOh/I15aXZCYesNpp+lwo4/2RwW
+        QpzfdQ0KyugNIeEN5vPUynnTeWgo7AL4TV3q0x6TBv9fCsI=
+X-Google-Smtp-Source: ABdhPJxDFkhoSZObROPlLzNwWJ8g/8FB8pA/yuffxdOGolTKUteISZLu2kSFhCQcZtZBg1cG8VSUBUXpqp+uQuQAyi4=
+X-Received: by 2002:a92:840b:: with SMTP id l11mr42910581ild.129.1594305219614;
+ Thu, 09 Jul 2020 07:33:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200709090352.1681563-1-dominick.grift@defensec.nl>
-In-Reply-To: <20200709090352.1681563-1-dominick.grift@defensec.nl>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 9 Jul 2020 10:33:07 -0400
-Message-ID: <CAEjxPJ5zZVu_rR+YZntVuhUyLwHFWYekkWOH2UKVTKnhU_Nb+w@mail.gmail.com>
-Subject: Re: [SELinux-notebook PATCH] avc_rules.md: mention secilc with the
- neverallow statement
-To:     Dominick Grift <dominick.grift@defensec.nl>
-Cc:     SElinux list <selinux@vger.kernel.org>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Thu, 9 Jul 2020 09:33:28 -0500
+Message-ID: <CAFftDdpDN+8c2hQ+OoX8z+Fx3s-7-g2sn7ZV+Y=D=NZqqFwr6Q@mail.gmail.com>
+Subject: travis: any reason we have keep going on make commands
+To:     SElinux list <selinux@vger.kernel.org>,
+        Nicolas Iooss <nicolas.iooss@m4x.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 9, 2020 at 5:04 AM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
->
-> I was unable to determine whether checkpolicy can be told to disable
-> neverallow checking.
+So Nicolas initially created our travis script in commit c9adfe2d2653
+and has -k, or keep going, on the make commands. This causes make to
+plow ahead and bury the errors in the logs. Stephen noticed this the
+other day, and we have been chatting about it out of band and wanted
+to pull in the community.
 
-There is presently no way to disable neverallow checking for checkpolicy.
+Are their compelling reasons for keeping this behavior? I am also
+concerned that we could get false positives on travis success results.
