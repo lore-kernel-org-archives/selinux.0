@@ -2,151 +2,131 @@ Return-Path: <SRS0=XbfQ=AU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.8 required=3.0 tests=DKIMWL_WL_HIGH,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B16B9C433E0
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 09:45:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2A17C433E0
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 11:42:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E4C420708
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 09:45:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8B3C5206DF
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 11:42:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YXC2vpwG"
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="H9ENEmM0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726477AbgGIJpd (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jul 2020 05:45:33 -0400
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:20800 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726339AbgGIJpd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 05:45:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594287931;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=rNW46gvj45HeI14DOE5vuOy7mEvp/ARmC8VjZJ+haQo=;
-        b=YXC2vpwGbOfZ+FJ4UKDosW/CecOzdfCPJxh93wJshPZpBJAOIGR9PxUmJWYnY2G5CWRNw+
-        tXQxck6N9JoWn/6sN0NNWVBznIWN/HWAbKbqp4KREWbf3g/jU+nGZ72ny070bhXdy5sFSC
-        FVOm+ZbNxFuj2OEKMPgUFAtlarsDUN4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-226-rRkJotCgNta59KFjP6gs2w-1; Thu, 09 Jul 2020 05:45:26 -0400
-X-MC-Unique: rRkJotCgNta59KFjP6gs2w-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 671F8800401
-        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 09:45:25 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.194.10])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CDF1D2B6D9
-        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 09:45:24 +0000 (UTC)
-From:   Petr Lautrbach <plautrba@redhat.com>
+        id S1726387AbgGILmI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jul 2020 07:42:08 -0400
+Received: from agnus.defensec.nl ([80.100.19.56]:57558 "EHLO agnus.defensec.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726433AbgGILmI (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 9 Jul 2020 07:42:08 -0400
+Received: from localhost.localdomain (brutus [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 601462A0FFA;
+        Thu,  9 Jul 2020 13:42:05 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 601462A0FFA
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1594294925;
+        bh=zhU8mDuZwr94tBZjQ1k3s9fQsIqpwfb62seaBmKjJLI=;
+        h=From:To:Cc:Subject:Date:From;
+        b=H9ENEmM0gejoeFrkdLwr0Hd5fZoobyWsgBjdotH/N0s9saIrl1xAYUHGyMh7MUc7F
+         4xqBUKtvxcsFK7ebLMPOePvzBNOR4jUFMNZ1LAVF5Zq+ovsLYodM+4hztFMCud0ScR
+         yJCWIjzPybTp0/kiGWL0bQ3LO9VowaRPR4DqoYJk=
+From:   Dominick Grift <dominick.grift@defensec.nl>
 To:     selinux@vger.kernel.org
-Subject: 3.1 release notes draft
-Date:   Thu,  9 Jul 2020 11:45:08 +0200
-Message-Id: <20200709094509.1620563-1-plautrba@redhat.com>
+Cc:     Dominick Grift <dominick.grift@defensec.nl>
+Subject: [SELinux-notebook PATCH] pam_login.md: pam_selinux_permit is known as pam_sepermit upstream
+Date:   Thu,  9 Jul 2020 13:41:49 +0200
+Message-Id: <20200709114149.1705657-1-dominick.grift@defensec.nl>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Change references to pam_selinux_permit to pam_sepermit
+Replace gdm-password with sshd PAM configuration (from Fedora 33) as
+pam_sepermit in the existing example might not always work correctly
+when called from the auth section:
+https://bugzilla.redhat.com/show_bug.cgi?id=1492313
+Reference the pam_selinux(8) and pam_sepermit(8) manuals
 
-I'd like to release 3.1 today/tommorow to open the development of other
-performance related improvemenets which which postponed. This is release notes
-draft which is based on RELEASE-20200518.txt and RELEASE-20200619.txt:
+Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+---
+ src/pam_login.md | 50 ++++++++++++++++++++++--------------------------
+ 1 file changed, 23 insertions(+), 27 deletions(-)
 
-RELEASE 202007XX (3.1)
-
-User-visible changes:
-
-* selinux/flask.h and selinux/av_permissions.h were removed
-
-  The flask.h and av_permissions.h header files were deprecated and
-  all selinux userspace references to them were removed in
-  commit 76913d8adb61b5 ("Deprecate use of flask.h and av_permissions.h.")
-  back in 2014 and included in the 20150202 / 2.4 release.
-  All userspace object managers should have been updated
-  to use the dynamic class/perm mapping support since that time.
-  Remove these headers finally to ensure that no users remain and
-  that no future uses are ever introduced.
-
-  Use string_to_security_class(3) and string_to_av_perm(3) to map the class and
-  permission names to their policy values, or selinux_set_mapping(3) to create a
-  mapping from class and permission index values used by the application to the
-  policy values.
-
-* Support for new polcap genfs_seclabel_symlinks
-
-* New `setfiles -E` option - treat conflicting specifications as errors, such
-as where two hardlinks for the same inode have different contexts.
-
-* `restorecond_user.service` - new systemd user service which runs `restorecond -u`
-
-* `setsebool -V` reports errors from commit phase
-
-* Improved man pages
-
-* `semanage` uses ipaddress Python module instead of IPy
-
-* matchpathcon related interfaces are deprecated
-
-* selinuxfs is mounted with noexec and nosuid
-
-* Improved README which was renamed to README.md and converted to markdown.
-
-* `setup.py` builds can be customized using PYTHON_SETUP_ARGS, e.g. to for
-  Debian Python layout use: `make PYTHON_SETUP_ARGS=--install-layout=deb ...`
-
-* the dso wrappers for internal calls were removed and it is now strongly recommended to CFLAGS with
-  `-fno-semantic-interposition`
-
-* `security_compute_user()` was deprecated - usage of /sys/fs/selinux/user { security:compute_user } might be revisited
-
-* checkpolicy treats invalid characters as an error - it might break (but intentional) rare use cases
-
-* New `restorecon -x` option - prevent `restorecon` from crossing file system
-  boundaries.
-
-* Handle `semanage module` in semanage bash completion
-
-* Added section about CFLAGS to README.md, see Packaging-relevant changes
-
-* Improved man pages
-
-* Add Travis CI job to run SELinux kernel testsuite on latest Fedora cloud image
-
-* `sepolgen-ifgen` parses a gen_tunable statement as bool
-
-* `semanage` handles getprotobyname() failure case on Debian where /etc/protocols does not contain an entry for "ipv4"
-
-Packaging-relevant changes:
-
-* Setting CFLAGS during the make process will cause the omission of many defaults. While the project strives
-  to provide a reasonable set of default flags, custom CFLAGS could break the build, or have other undesired
-  changes on the build output. Thus, be very careful when setting CFLAGS. CFLAGS that are encouraged to be
-  set when overriding are:
-
-  - -fno-semantic-interposition for gcc or compilers that do not do this. clang does this by default. clang-10 and up
-    will support passing this flag, but ignore it. Previous clang versions fail.
-
-Issues fixed:
-
-* https://github.com/SELinuxProject/selinux/issues/248
-* https://github.com/SELinuxProject/selinux/issues/239
-* https://github.com/SELinuxProject/selinux/issues/237
-* https://github.com/SELinuxProject/selinux/issues/225
-* https://github.com/SELinuxProject/selinux/issues/217
-* https://github.com/SELinuxProject/selinux/issues/208
-* https://github.com/SELinuxProject/selinux/issues/204
-* https://github.com/SELinuxProject/selinux/issues/187
-* https://github.com/SELinuxProject/selinux/issues/179
-* https://github.com/SELinuxProject/selinux/issues/164
-* https://github.com/SELinuxProject/selinux/issues/70
-* https://github.com/SELinuxProject/selinux/issues/28
-
+diff --git a/src/pam_login.md b/src/pam_login.md
+index 0c5a256..213a9f3 100644
+--- a/src/pam_login.md
++++ b/src/pam_login.md
+@@ -68,41 +68,37 @@ consist of multiple lines of information that are formatted as follows:
+ </tbody>
+ </table>
+ 
+-The */etc/pam.d/gdm-password* PAM configuration file for the Gnome login
++The */etc/pam.d/sshd* PAM configuration file for the OpenSSH
+ service is as follows:
+ 
+ ```
+-auth     [success=done ignore=ignore default=bad] pam_selinux_permit.so
+-auth        substack      password-auth
+-auth        optional      pam_gnome_keyring.so
+-auth        include       postlogin
+-
+-account     required      pam_nologin.so
+-account     include       password-auth
+-
+-password    substack       password-auth
+--password   optional       pam_gnome_keyring.so use_authtok
+-
+-session     required      pam_selinux.so close
+-session     required      pam_loginuid.so
+-session     optional      pam_console.so
+-session     required      pam_selinux.so open
+-session     optional      pam_keyinit.so force revoke
+-session     required      pam_namespace.so
+-session     include       password-auth
+-session     optional      pam_gnome_keyring.so auto_start
+-session     include       postlogin
++#%PAM-1.0
++
++auth       substack     password-auth
++auth       include      postlogin
++account    required     pam_sepermit.so
++account    required     pam_nologin.so
++account    include      password-auth
++password   include      password-auth
++session    required     pam_selinux.so close
++session    required     pam_loginuid.so
++session    required     pam_selinux.so open
++session    required     pam_namespace.so
++session    optional     pam_keyinit.so force revoke
++session    optional     pam_motd.so
++session    include      password-auth
++session    include      postlogin
+ ```
+ 
+ The core services are provided by PAM, however other library modules can
+ be written to manage specific services such as support for SELinux. The
+-SELinux PAM modules use the *libselinux* API to obtain its configuration
+-information and the three SELinux PAM entries highlighted in the above
+-configuration file perform the following functions:
++***pam_sepermit**(8)* and ***pam_selinux**(8)* SELinux PAM modules use
++the *libselinux* API to obtain its configuration information and the
++three SELinux PAM entries highlighted in the above configuration file
++perform the following functions:
+ 
+--   ***pam_selinux_permit.so*** - Allows pre-defined users the ability to
+-    logon without a password provided that SELinux is in enforcing mode (see
+-    the
++-   ***pam_sepermit.so*** - Allows pre-defined users the ability to
++    logon provided that SELinux is in enforcing mode (see the
+     [*/etc/security/sepermit.conf*](global_config_files.md#etcsecuritysepermit.conf)
+     section).
+ -   ***pam_selinux.so open*** - Allows a security context to be set up for
+-- 
+2.27.0
 
