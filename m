@@ -2,89 +2,112 @@ Return-Path: <SRS0=XbfQ=AU=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A333C433E0
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 18:00:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94D86C433DF
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 18:10:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0D4F1206A1
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 18:00:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 740A72080D
+	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 18:10:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="qY34pHg2"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="V78WOIaM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728139AbgGISA1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jul 2020 14:00:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51168 "EHLO
+        id S1726786AbgGISKL (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jul 2020 14:10:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728022AbgGISA1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 14:00:27 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3898AC08C5CE
-        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 11:00:27 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id g20so2540783edm.4
-        for <selinux@vger.kernel.org>; Thu, 09 Jul 2020 11:00:27 -0700 (PDT)
+        with ESMTP id S1726752AbgGISKK (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 14:10:10 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D89DCC08C5DC
+        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 11:10:09 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id w6so3269293ejq.6
+        for <selinux@vger.kernel.org>; Thu, 09 Jul 2020 11:10:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=gvPmx5Iq59goBQm0o/Bm9SBqvWTKBiHjiFQUUpT1wYI=;
-        b=qY34pHg2H018jMNJc5U9c9fpBajC8yTeECvEwGLVpEeQ3IYbolmqVlzd5ILRGxMlX2
-         xwmHPL5pat1sqmK0vuzN87ZoSaReEcSVXLtJba/PyUbD0Wf58PvI/bjAc8Ilm51tZuP3
-         6Z0jKCxOEkhfk86eynw7YyVgO7cjkuBq3BoH41cQ4J8O29/VRrWGOAN1eJWYU5G2HfJK
-         P0FCCEMiYGDfuHv0K5wjswPJZixKcWcJYTBm3+s8qY5mk2YjGRJ/TJFPFalGm8yzZlpG
-         2sLi27klPITr6xVBCCZxEAKjQ3cBGqcU1Hd5s4FPIg6uczetxwql12ALZNjUlW+KGTS2
-         HmuA==
+        bh=0tpny+IfvksUcNBVh7AI/yK93gIOPfFjHFotjL50OR4=;
+        b=V78WOIaMdW2+HJXmaAk4+l1yyNYhuFDu7Klmt8XO8dTcnxzNsqC2HKNIwBXLTzrkMI
+         eOX6I8fz130icVJrTMuB4tV/V+GMkPPyflPOeNhTSTdoyAFOB0wo8em6imZsoRAvdzZ0
+         UwmNfjHPbiF4rrtMSxm0QAW1S7R/M2BRqnOPZMEo0ueTEC9Y6IhXC1I0RWyO+Q6qcTtU
+         yOQxC0HlVF3rNbd+UwHxJ+jGbWdwhw+ImFt7Q5XBp5UA6VfV1WrCp8uWo7I+G1SVqU0B
+         gE7XC5KF+hZSla1qgna2zWFsJPej+a5ylJKr9dHpKpq4bMlecSVMnd9UrX1+FIonrg4d
+         BMrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=gvPmx5Iq59goBQm0o/Bm9SBqvWTKBiHjiFQUUpT1wYI=;
-        b=Zlk7S6tz+FfrxDeUjMHnG2SmwtMdAaoPZp+/33vls4ScwNDIhbxQlIqpT2S0Bg+i9N
-         s7aaWPk+52+trPRYXw9xFmtzJlHJr9UK0t/5ERU8gSEogBfT/2p852JfwW3206/SilMN
-         NC/h94lQSbzZK3Q+vKobn6PTkNMyx0cscL016P9vHFHw+RVHo11UZy1cBWh2ofi5s6rF
-         1W8Pg+b7EmRJDsazLx/fAVYGJPXC4Bh4bUBcojrAUh69i8ggg/MdcXDZk4VBPEhDdzFJ
-         abQmIs5lEG/tn9Me3UmTA+7FKNVwu1ZSYMkf8bkT4Bo794L46eGA8Vg13HuHUBABfxpI
-         +hxg==
-X-Gm-Message-State: AOAM531U8U6H9J6Bwwe1rMKJEfRxPpt3xTHM1TZVUrMsVZ7j0eeVfYae
-        0c+9lHNBFFZ5tONqMKsd0CrP4MMkUM5s3TLTQXLRYBk=
-X-Google-Smtp-Source: ABdhPJz6LdLbBuyih2bqwwtdGmzdXWBnOr+NmrlqcmKDpbQLakuTuoTvLRwj7wx4wqJBm11jSMM9cus0AmSvjhUAk3M=
-X-Received: by 2002:a05:6402:1d89:: with SMTP id dk9mr61556992edb.31.1594317624694;
- Thu, 09 Jul 2020 11:00:24 -0700 (PDT)
+        bh=0tpny+IfvksUcNBVh7AI/yK93gIOPfFjHFotjL50OR4=;
+        b=rvxcOrzaZTK8MJRujwy0WGnsGvTsSl3eaPs/5nW03G6RUtqC57f7kV8QU8scfjRxFf
+         E42RTqNmLkIzgzUdzgNkQ2y71P32FOjs2P/BGUtHsSokUkTmwyatIgLGwO93k7PEFnl3
+         9dsE13KQuHCu41OzpbGmQYmBiZfxKG7961uWnc5BrAZ74TzR55775jHNHGpQLrUAoE0B
+         xbdCc+xkbuEU7ax3mmYEzX8kNab6T3Q3yj8Y2toNXMs6oBc7xekBz2PYQfMcqeZE6ih6
+         LhVcj/9BLVjR64IJx/lk+T/+YDhFR1rUx6r1qPWouz6SaYKiNoA9a9CrJ+HEUpNVqdqd
+         YV1g==
+X-Gm-Message-State: AOAM532bErGOguPBl65T0PRlIOyy90UPF+6NPQQP2X+JTzv6JhUKVdlP
+        sk1KhyH3Jz/p+JGEgR2d9joYShsb/iqW1KY6hskHzsgKvA==
+X-Google-Smtp-Source: ABdhPJyOf27f7rBkDHb/taO3jhGZp1ofl38ev63qsacDu5oyMNiV7flyGxc80dtDZgYb7m/loYb4o2qzRc4QPQV+BSM=
+X-Received: by 2002:a17:906:4757:: with SMTP id j23mr30313846ejs.431.1594318208476;
+ Thu, 09 Jul 2020 11:10:08 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAFftDdpDN+8c2hQ+OoX8z+Fx3s-7-g2sn7ZV+Y=D=NZqqFwr6Q@mail.gmail.com>
-In-Reply-To: <CAFftDdpDN+8c2hQ+OoX8z+Fx3s-7-g2sn7ZV+Y=D=NZqqFwr6Q@mail.gmail.com>
+References: <20200709131111.4mqrge6vjsbfs7ls@archlaptop.localdomain>
+In-Reply-To: <20200709131111.4mqrge6vjsbfs7ls@archlaptop.localdomain>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 9 Jul 2020 14:00:13 -0400
-Message-ID: <CAHC9VhQkTgYFQ5ncLDJpOcqynWam3QY7udLQoUYSb3HgkvdboQ@mail.gmail.com>
-Subject: Re: travis: any reason we have keep going on make commands
-To:     William Roberts <bill.c.roberts@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Nicolas Iooss <nicolas.iooss@m4x.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 9 Jul 2020 14:09:57 -0400
+Message-ID: <CAHC9VhSXfo6-S1awsPdj-Zm5Bj+Na1ZgDUi-2XqS7ASVP=+mKA@mail.gmail.com>
+Subject: Re: [PATCH] security: selinux: ss: conditional.c fixed a checkpatch warning
+To:     Ethan Edwards <ethancarteredwards@gmail.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 9, 2020 at 10:33 AM William Roberts
-<bill.c.roberts@gmail.com> wrote:
-> So Nicolas initially created our travis script in commit c9adfe2d2653
-> and has -k, or keep going, on the make commands. This causes make to
-> plow ahead and bury the errors in the logs. Stephen noticed this the
-> other day, and we have been chatting about it out of band and wanted
-> to pull in the community.
+On Thu, Jul 9, 2020 at 9:11 AM Ethan Edwards
+<ethancarteredwards@gmail.com> wrote:
 >
-> Are their compelling reasons for keeping this behavior? I am also
-> concerned that we could get false positives on travis success results.
+> `sizeof buf` changed to `sizeof(buf)`
+>
+> Signed-off-by: Ethan Edwards <ethancarteredwards@gmail.com>
+> ---
+>  security/selinux/ss/conditional.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-In my opinion the whole point of automated testing is to catch
-failures early and often.  For that reason I would want the test to
-fail and stop, both because I find it easier to identify the failure
-that way and also because I'm not sure I would trust much of the
-testing that occurred after an error condition.
+Why are you reposting this when I applied your original patch last week?
+
+https://lore.kernel.org/selinux/CAHC9VhSakA7V99+tkvLLZHohiupWmjSFxSZLWZT4-Gwr5Cc-XA@mail.gmail.com
+
+> diff --git a/security/selinux/ss/conditional.c b/security/selinux/ss/conditional.c
+> index 0cc7cdd58465..90a2f5927e55 100644
+> --- a/security/selinux/ss/conditional.c
+> +++ b/security/selinux/ss/conditional.c
+> @@ -215,7 +215,7 @@ int cond_read_bool(struct policydb *p, struct hashtab *h, void *fp)
+>         if (!booldatum)
+>                 return -ENOMEM;
+>
+> -       rc = next_entry(buf, fp, sizeof buf);
+> +       rc = next_entry(buf, fp, sizeof(buf));
+>         if (rc)
+>                 goto err;
+>
+> @@ -416,7 +416,7 @@ int cond_read_list(struct policydb *p, void *fp)
+>         u32 i, len;
+>         int rc;
+>
+> -       rc = next_entry(buf, fp, sizeof buf);
+> +       rc = next_entry(buf, fp, sizeof(buf));
+>         if (rc)
+>                 return rc;
+>
+> --
+> 2.27.0
+>
+
 
 -- 
 paul moore
