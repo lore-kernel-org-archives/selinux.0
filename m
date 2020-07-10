@@ -2,158 +2,224 @@ Return-Path: <SRS0=ib1x=AV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EA26C433E4
-	for <selinux@archiver.kernel.org>; Fri, 10 Jul 2020 15:23:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86FA7C433E3
+	for <selinux@archiver.kernel.org>; Fri, 10 Jul 2020 16:18:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2141F20767
-	for <selinux@archiver.kernel.org>; Fri, 10 Jul 2020 15:23:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 569EE207BB
+	for <selinux@archiver.kernel.org>; Fri, 10 Jul 2020 16:18:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gpV4PIb5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vL9X2OT1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728048AbgGJPXM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jul 2020 11:23:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52236 "EHLO
+        id S1727771AbgGJQSC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 10 Jul 2020 12:18:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728025AbgGJPXK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jul 2020 11:23:10 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CC46C08C5CE
-        for <selinux@vger.kernel.org>; Fri, 10 Jul 2020 08:23:10 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id o5so6374980iow.8
-        for <selinux@vger.kernel.org>; Fri, 10 Jul 2020 08:23:10 -0700 (PDT)
+        with ESMTP id S1727085AbgGJQSB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 10 Jul 2020 12:18:01 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EA23C08C5CE
+        for <selinux@vger.kernel.org>; Fri, 10 Jul 2020 09:18:01 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id t18so4577482otq.5
+        for <selinux@vger.kernel.org>; Fri, 10 Jul 2020 09:18:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=vZO7HcJcSdwZQRvbkPa0gICHsKqIyR/s00+M7JsZAs4=;
-        b=gpV4PIb5TWTkIoKQqvspDXvZzWPUKZklzrJ3Z9OZ6ngSFWbntMF1WxYcBolj4rled0
-         VLGRv1EOoC0l0iqbpJjWXYkjLXY4TcoFgvMba9jKTMmhT7BKKsUESc8C4A20nBFXQnNx
-         qWGdYJGw8IFaTxQpaHCGcWk3JQpfxI/sb7WLC3mWlVOVLUX7tJJIwuh0t5KJvblM66iL
-         yO5cnaLEosrJe6FRK9ZHwBDuFpmMWW+cOvMz4gMO7DPjFni9Xh/uU5+ULQio5pT3Uq8g
-         w249wiVlKNzl7Vmuvipltt8cTPTIhMkD1sJBIkflgOVyPRiOXvt4VJYBtnsvdMbv2izb
-         e4Xg==
+         :cc:content-transfer-encoding;
+        bh=u+PE1R0R7438FDIjJ6Zh+G1Lvc2cEJhmND8kZG47cw0=;
+        b=vL9X2OT1x4yITZs8cjF5DMZ2lh4cPejQWscvLISDB6Jic6amPLtjySBYsLL3TTGvjQ
+         HJldAQI7OK9FFadxBarNg+DGzLENs5w4RGgkXLs9wBwFEIiwPPaJk1bYkW6SVGa10ulr
+         emjYTBBrXuBt7WXS3zP7/EalO+/UyL0ay0RwfgAzC+50/BJMKl8mMGfcihDub28s+ZWb
+         YJHnhs5hfOLGzt9Gkrh7k58o80MIiGSAA30MVdfH2psdzSljlB1ZC6L2TZMv6Uqo7Nus
+         bl8W7f6AzljxtU5v6k812etmpRWAQLo9zSICBiQh0Nw7IaHwmVO6DCDYS6UwtrzuVz/7
+         4YYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vZO7HcJcSdwZQRvbkPa0gICHsKqIyR/s00+M7JsZAs4=;
-        b=Kc/xIs6RlLQQ7Hp73q1Ud6OxkczuwFGhYG9HZfcbI3wkWxmSN7HlMdlwRAMb4zOe5f
-         5thBTObkwmUxKXdl1JSxnNfL2fbP2L7Qm/iuZNPkNipXdXiFLp6ECcmYJZQhSJmNasCI
-         GP1VDfvDj3A/6PZlLiVOCwYnE/Hlmc+H19z177tyrjlp3KPV+rQ3+XtWG7JozNyQ1FMR
-         jBVr5S2qlPA7Qc+IrvSRtFr37WHAUKt6s4BIN4UZLP2/d6i8siUpCC6rgR2BMG6WCZbm
-         Oi/jyQ+t+fW4Blnidhmpalbm3NwUAkudch8FAiPqXQZq2/CTu828Mxp19BIXTffEsyv7
-         guAA==
-X-Gm-Message-State: AOAM533kTY2IZqMSbIrbvRCLEKa9p7ieE56etjo+hHxWPgrq2UbbdWjC
-        3vwKaYoR5hrp9Eqt24HYfCTrsceHS/mxCO3/1+bRH7UMfMA=
-X-Google-Smtp-Source: ABdhPJw2nYdu7Ezp6O9rHjvw+iBb0V/OhkA9x1yyJ2zA2azTBESpLYGGAM08HxMDldWJyy6+ctH0QBJn2bvBU63kZ+A=
-X-Received: by 2002:a5d:8f98:: with SMTP id l24mr47550383iol.141.1594394589233;
- Fri, 10 Jul 2020 08:23:09 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=u+PE1R0R7438FDIjJ6Zh+G1Lvc2cEJhmND8kZG47cw0=;
+        b=AWekxUv8qC2OxY5c4Lp7ZboewQZ5DmcFI+NMqXa1iKGLbIfWWgkQPgWhDRJFClrifW
+         Jx+nLwrbqA3iCOYdOMevjqIGPt0NIPIXIjObJFbrmEWm7XhKIhQiVLUo6FIPWxtgAiJv
+         IKI2eB2w5B2QSAz1perChYicbIT1H1QYPKv/2/nIaWpJhtQGQGhtb0CpaYsdCNOdWIci
+         p/q2GmzXHfOvqtZVoc8pw1rmurw7vcFdIz/GZc0XI74MleIE4f+PfIiGlt7d5WM8kHGR
+         Ce7l6JgIjo9t4ZiM4n5vCEouVhygxffPhq3MYlYoH0NbrBPpo+kY491f64Pf8hq5OYfR
+         MXog==
+X-Gm-Message-State: AOAM5316VF6Kt5r+Bzqcoj7v1AMXsNW2aHRrViIS7TKzrrhUKgex+uMS
+        mgfd1gANMXjDCUGTOrowJwD3y6lcDnhTQUppUnavWgDZ
+X-Google-Smtp-Source: ABdhPJy/VQIGpjVMQjTvur46LKqyKbMAjpZGiHN8voHKuOMn3yCGaFkOfug9gb9BGrTRdWD4IJwo+vnYYJPWCq72V1A=
+X-Received: by 2002:a9d:20c9:: with SMTP id x67mr47969336ota.295.1594397880247;
+ Fri, 10 Jul 2020 09:18:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAFftDdpDN+8c2hQ+OoX8z+Fx3s-7-g2sn7ZV+Y=D=NZqqFwr6Q@mail.gmail.com>
- <CAHC9VhQkTgYFQ5ncLDJpOcqynWam3QY7udLQoUYSb3HgkvdboQ@mail.gmail.com> <CAJfZ7=kyieBs6_NPE3k2tyNSydrwmVT7k3kcmd=0Xsi7JoD2Zg@mail.gmail.com>
-In-Reply-To: <CAJfZ7=kyieBs6_NPE3k2tyNSydrwmVT7k3kcmd=0Xsi7JoD2Zg@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Fri, 10 Jul 2020 10:22:58 -0500
-Message-ID: <CAFftDdp=4nB1CfmAQXBbN_BODHMaXaVbLGsh7+mHLt6GpTGMZg@mail.gmail.com>
-Subject: Re: travis: any reason we have keep going on make commands
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
+References: <CAP+JOzTduRu0U7gdvCrxRqTW+VUWc_imaOc0ozXGYe_GpXM9Cw@mail.gmail.com>
+ <2da3deec-0098-9847-7412-9d9654b6645f@gmail.com>
+In-Reply-To: <2da3deec-0098-9847-7412-9d9654b6645f@gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Fri, 10 Jul 2020 12:17:49 -0400
+Message-ID: <CAP+JOzTTmMrU3EPkbMnfYwbd5uRVMr+b2xo704teO_Fcm6sytA@mail.gmail.com>
+Subject: Re: [PATCH v2] Update the cil docs to match the current behaviour.
+To:     bauen1 <j2468h@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 10, 2020 at 4:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+On Thu, Jul 9, 2020 at 4:37 AM bauen1 <j2468h@googlemail.com> wrote:
 >
-> On Thu, Jul 9, 2020 at 8:00 PM Paul Moore <paul@paul-moore.com> wrote:
-> >
-> > On Thu, Jul 9, 2020 at 10:33 AM William Roberts
-> > <bill.c.roberts@gmail.com> wrote:
-> > > So Nicolas initially created our travis script in commit c9adfe2d2653
-> > > and has -k, or keep going, on the make commands. This causes make to
-> > > plow ahead and bury the errors in the logs. Stephen noticed this the
-> > > other day, and we have been chatting about it out of band and wanted
-> > > to pull in the community.
-> > >
-> > > Are their compelling reasons for keeping this behavior? I am also
-> > > concerned that we could get false positives on travis success results.
-> >
-> > In my opinion the whole point of automated testing is to catch
-> > failures early and often.  For that reason I would want the test to
-> > fail and stop, both because I find it easier to identify the failure
-> > that way and also because I'm not sure I would trust much of the
-> > testing that occurred after an error condition.
-> >
-> Hi,
-> There seems to be some confusion:
+> Some features where dropped or change since the docs were last updated.
 >
-> * "make -k" does not stop the "make" command at the first error and
-> allows seeing all the errors when there are several ones. In my humble
-> opinion, it makes sense when compiling ("make all") and not when
-> running tests ("make test"), and this is actually what is right now in
-> Travis-CI. "make -k" returns a failure exit code when an error
-> happens.
+> Signed-off-by: Jonathan Hettwer <j2468h@gmail.com>
 
-Ahh I thought it returned to 0. Not sure why I assumed that.
+Acked-by: James Carter <jwcart2@gmail.com>
 
+> ---
 >
-> * Travis-CI does not stop the job as soon as a sub-command fails. If I
-
-Depends on the stage:
-https://docs.travis-ci.com/user/job-lifecycle/
-If before_install, install or before_script returns a non-zero exit
-code, the build is errored and stops immediately.
-If script returns a non-zero exit code, the build is failed, but
-continues to run before being marked as failed.
-
-I put a false command in the script section and it kept plowing ahead
-as you foretold.
-
-> understand correctly, this is what really bothers William, and I agree
-> this is a behavior that can be improved. According to
-> https://github.com/travis-ci/travis-ci/issues/1066, a possible
-> solution could be to use "set -e", which could have unexpected
-> side-effects in launched commands. It is possible to "emulate set -e"
-> by adding exit statements, such as :
+> Notes:
+>     Updated to include additional fixes and a correct Signed-off-by line.
 >
->     - make install $EXPLICIT_MAKE_VARS -k || exit $?
->     - make install-pywrap $EXPLICIT_MAKE_VARS -k || exit $?
->     - make install-rubywrap $EXPLICIT_MAKE_VARS -k || exit $?
->     # ...
->     - make test $EXPLICIT_MAKE_VARS || exit $?
+>  secilc/docs/cil_call_macro_statements.md | 6 ++++--
+>  secilc/docs/cil_container_statements.md  | 2 +-
+>  secilc/docs/cil_reference_guide.md       | 2 +-
+>  secilc/docs/cil_user_statements.md       | 2 +-
+>  4 files changed, 7 insertions(+), 5 deletions(-)
 >
-> I have not tested whether this works on Travis-CI, but if it does, it
-> would be a nice improvement. I will take a look this week-end.
-
-I think the scripts are more maintainable outside of travis yaml files
-as separate build scripts,
-for two reasons:
-1.  One can just execute the script locally, you can't, AFAIK, do that
-with a travis yaml file.
-2.  The issue can be avoided as they afford more control. Some other
-projects I am a part of we only
-     use script and after_failure. The bash scripts are set -e. I also
-used this approach for the KVM
-     selinux test run.
-
-script:
-  - ./.ci/travis.run
-after_failure:
-  - cat build/test-suite.log
-
-We could adopt like what's above...
-
-
+> diff --git a/secilc/docs/cil_call_macro_statements.md b/secilc/docs/cil_c=
+all_macro_statements.md
+> index 17c46ed9..98b70368 100644
+> --- a/secilc/docs/cil_call_macro_statements.md
+> +++ b/secilc/docs/cil_call_macro_statements.md
+> @@ -44,7 +44,7 @@ macro
 >
-> Cheers,
-> Nicolas
+>  Declare a macro in the current namespace with its associated parameters.=
+ The macro identifier is used by the [`call`](cil_call_macro_statements.md#=
+call) statement to instantiate the macro and resolve any parameters. The ca=
+ll statement may be within the body of a macro.
+>
+> -Note that when resolving macros the callers namespace is not checked, on=
+ly the following places:
+> +When resolving macros the following places are checked in this order:
+>
+>  -   Items defined inside the macro
+>
+> @@ -52,6 +52,8 @@ Note that when resolving macros the callers namespace i=
+s not checked, only the f
+>
+>  -   Items defined in the same namespace of the macro
+>
+> +-   Items defined in the callers namespace
+> +
+>  -   Items defined in the global namespace
+>
+>  **Statement definition:**
+> @@ -80,7 +82,7 @@ Note that when resolving macros the callers namespace i=
+s not checked, only the f
+>  <tr class=3D"odd">
+>  <td align=3D"left"><p><code>param_type</code></p></td>
+>  <td align=3D"left"><p>Zero or more parameters that are passed to the mac=
+ro. The <code>param_type</code> is a keyword used to determine the declarat=
+ion type (e.g. <code>type</code>, <code>class</code>, <code>categoryset</co=
+de>).</p>
+> -<p>The list of valid <code>param_type</code> entries are: <code>type</co=
+de>, <code>typealias</code>, <code>role</code>, <code>user</code>, <code>se=
+nsitivity</code>, <code>sensitivityalias</code>, <code>category</code>, <co=
+de>categoryalias</code>, <code>categoryset</code> (named or anonymous), <co=
+de>level</code> (named or anonymous), <code>levelrange</code> (named or ano=
+nymous), <code>class</code>, <code>classpermission</code> (named or anonymo=
+us), <code>ipaddr</code> (named or anonymous), <code>block</code>, <code>na=
+me</code> (a string), <code>classmap</code></p></td>
+> +<p>The list of valid <code>param_type</code> entries are: <code>type</co=
+de>, <code>typealias</code>, <code>role</code>, <code>user</code>, <code>se=
+nsitivity</code>, <code>sensitivityalias</code>, <code>category</code>, <co=
+de>categoryalias</code>, <code>categoryset</code> (named or anonymous), <co=
+de>level</code> (named or anonymous), <code>levelrange</code> (named or ano=
+nymous), <code>class</code>, <code>classpermission</code> (named or anonymo=
+us), <code>ipaddr</code> (named or anonymous), <code>name</code> (a string)=
+, <code>classmap</code></p></td>
+>  </tr>
+>  <tr class=3D"even">
+>  <td align=3D"left"><p><code>param_id</code></p></td>
+> diff --git a/secilc/docs/cil_container_statements.md b/secilc/docs/cil_co=
+ntainer_statements.md
+> index a570cb23..58b3224d 100644
+> --- a/secilc/docs/cil_container_statements.md
+> +++ b/secilc/docs/cil_container_statements.md
+> @@ -254,7 +254,7 @@ This example will instantiate the optional block `ext=
+_gateway.move_file` into po
+>  in
+>  --
+>
+> -Allows the insertion of CIL statements into a named container ([`block`]=
+(cil_container_statements.md#block), [`optional`](cil_container_statements.=
+md#optional) or [`macro`](cil_call_macro_statements.md#macro)). This statem=
+ent is not allowed in [`booleanif`](cil_conditional_statements.md#booleanif=
+) or [`tunableif`](cil_conditional_statements.md#tunableif) statements.
+> +Allows the insertion of CIL statements into a named container ([`block`]=
+(cil_container_statements.md#block), [`optional`](cil_container_statements.=
+md#optional) or [`macro`](cil_call_macro_statements.md#macro)). This statem=
+ent is not allowed in [`booleanif`](cil_conditional_statements.md#booleanif=
+) or [`tunableif`](cil_conditional_statements.md#tunableif) statements. Thi=
+s only works for containers that aren't inherited using [`blockinherit`](ci=
+l_conditional_statements.md#blockinherit).
+>
+>  **Statement definition:**
+>
+> diff --git a/secilc/docs/cil_reference_guide.md b/secilc/docs/cil_referen=
+ce_guide.md
+> index 1b1fccca..3e33c5f7 100644
+> --- a/secilc/docs/cil_reference_guide.md
+> +++ b/secilc/docs/cil_reference_guide.md
+> @@ -176,7 +176,7 @@ Should the symbol not be prefixed with a dot, the cur=
+rent namespace would be sea
+>  Expressions
+>  -----------
+>
+> -Expressions may occur in the following CIL statements: [`booleanif`](cil=
+_conditional_statements.md#booleanif), [`tunableif`](cil_conditional_statem=
+ents.md#tunableif), [`classpermissionset`](cil_class_and_permission_stateme=
+nts.md#classpermissionset), [`typeattributeset`](cil_type_statements.md#typ=
+eattributeset), [`roleattributeset`](cil_role_statements.md#roleattributese=
+t), [`categoryset`](cil_mls_labeling_statements.md#categoryset), [`constrai=
+n`](cil_constraint_statements.md#constrain), [`mlsconstrain`](cil_constrain=
+t_statements.md#mlsconstrain), [`validatetrans`](cil_constraint_statements.=
+md#validatetrans), [`validatetrans`](cil_constraint_statements.md#validatet=
+rans)
+> +Expressions may occur in the following CIL statements: [`booleanif`](cil=
+_conditional_statements.md#booleanif), [`tunableif`](cil_conditional_statem=
+ents.md#tunableif), [`classpermissionset`](cil_class_and_permission_stateme=
+nts.md#classpermissionset), [`typeattributeset`](cil_type_statements.md#typ=
+eattributeset), [`roleattributeset`](cil_role_statements.md#roleattributese=
+t), [`categoryset`](cil_mls_labeling_statements.md#categoryset), [`constrai=
+n`](cil_constraint_statements.md#constrain), [`mlsconstrain`](cil_constrain=
+t_statements.md#mlsconstrain), [`validatetrans`](cil_constraint_statements.=
+md#validatetrans), [`mlsvalidatetrans`](cil_constraint_statements.md#mlsval=
+idatetrans)
+>
+>  CIL expressions use the [prefix](http://www.cs.man.ac.uk/~pjj/cs212/fix.=
+html) or Polish notation and may be nested (note that the kernel policy lan=
+guage uses postfix or reverse Polish notation). The syntax is as follows, w=
+here the parenthesis are part of the syntax:
+>
+> diff --git a/secilc/docs/cil_user_statements.md b/secilc/docs/cil_user_st=
+atements.md
+> index bbd76eff..26e45510 100644
+> --- a/secilc/docs/cil_user_statements.md
+> +++ b/secilc/docs/cil_user_statements.md
+> @@ -260,7 +260,7 @@ This example will associate `unconfined.user` with a =
+named [`levelrange`](cil_ml
+>      (categoryorder (c0 c1))
+>      (sensitivity s0)
+>      (sensitivity s1)
+> -    (dominance (s0 s1))
+> +    (sensitivityorder (s0 s1))
+>      (sensitivitycategory s0 (c0 c1))
+>      (level systemLow (s0))
+>      (level systemHigh (s0 (c0 c1)))
+> --
+> 2.27.0
 >
