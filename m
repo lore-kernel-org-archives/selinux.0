@@ -1,103 +1,122 @@
-Return-Path: <SRS0=XbfQ=AU=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=ib1x=AV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.3 required=3.0 tests=DKIM_SIGNED,DKIM_VALID,
+	DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D95AC433E0
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 23:11:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AA1BC433E0
+	for <selinux@archiver.kernel.org>; Fri, 10 Jul 2020 00:09:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1D45E2070E
-	for <selinux@archiver.kernel.org>; Thu,  9 Jul 2020 23:11:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DDAC82065F
+	for <selinux@archiver.kernel.org>; Fri, 10 Jul 2020 00:09:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xxaA6/r+"
+	dkim=pass (2048-bit key) header.d=rosalinux.ru header.i=@rosalinux.ru header.b="ZhdzcU06"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726789AbgGIXLF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 9 Jul 2020 19:11:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43642 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726222AbgGIXLF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 9 Jul 2020 19:11:05 -0400
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D759C08C5CE
-        for <selinux@vger.kernel.org>; Thu,  9 Jul 2020 16:11:05 -0700 (PDT)
-Received: by mail-ed1-x544.google.com with SMTP id d16so3107222edz.12
-        for <selinux@vger.kernel.org>; Thu, 09 Jul 2020 16:11:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=skDPU/CglHgbF8B87zwr+kins9zSl+lc3iCajobsfh4=;
-        b=xxaA6/r+0CIkKOO48WgpYELq7yfQEIzEh/UANE2MtODfBBm8+zzlMdr4RO9TqFywk8
-         wAfe1jtNCyIkZzgXaZJafbwGk9ZvQSuCovxJU3u+BRNHx+yHZVUu9+VLl5i5WewOL5Qf
-         4HHyH3MFxsJX7py5K3MMN3Ac37w7Ql9rlT6MwNkwymQaC5vhEB9Zqx0LOT61Spc1ETdb
-         RQa7PVL25tRheVpEgmgnqExyn54pRYJNg8yXqp3+FYuy+/9MDjK+4e3xOjqibxcQPw/N
-         nxJs4TOckv+bVCAEiCeBqZJyenT8pVIHJ8Q28xIgJ75/WF7fMZdZSSeD+Y+8tqtV79jj
-         K5jg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=skDPU/CglHgbF8B87zwr+kins9zSl+lc3iCajobsfh4=;
-        b=Qz7RFwVCA5j9sExU56vOsGsY9dwEKWZH8Ay86MR4JJhTMDZFzhLmAqFZPTfWqQchET
-         xfQ36wOCRL7Tu09XgQfmj9PtH2C1ijIVFgTP5YI5dSMMklwqHV7OHLAG/7USwqYV4mpY
-         PujCjFwlOMmMwhzglup5YZIvXtkEHyZsDdlVP8jnNG+HO9jetBoTf923upRVuBly5Ljf
-         PrrxolqfFhXFSTdtmi+7E+4W5oiK4bHBu9ygIYd9gNwMUoIDOu202uSZPYcV7vd1vORA
-         6Fh4lCgKW4XmfDez5pP9J0TzW7Rvu2NSxkgbSgAyuFYFxEifj2UBmi3TE/AC6oj9tIqI
-         CkDw==
-X-Gm-Message-State: AOAM530WbokrgWhbOK+oKFwRel1+pYbQbYhNkT9+luEM5xIj8fku/wT/
-        TATYmlkshhvDJvrb2wyxckbZUyj21+GnzEUg5QIS
-X-Google-Smtp-Source: ABdhPJxQfriPU+lnq+P0naYkBqT57Nt4ST3prdXDmzbUKrU+S131896+jA8myYT6IA2L9EyfWw36ZNsaIlmbXCnnIs0=
-X-Received: by 2002:aa7:c883:: with SMTP id p3mr76610437eds.128.1594336263858;
- Thu, 09 Jul 2020 16:11:03 -0700 (PDT)
+        id S1726581AbgGJAJm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 9 Jul 2020 20:09:42 -0400
+Received: from mail.rosalinux.ru ([195.19.76.54]:52014 "EHLO mail.rosalinux.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726272AbgGJAJm (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 9 Jul 2020 20:09:42 -0400
+Received: from localhost (localhost [127.0.0.1])
+        by mail.rosalinux.ru (Postfix) with ESMTP id E2DA1DB757E56;
+        Fri, 10 Jul 2020 03:09:38 +0300 (MSK)
+Received: from mail.rosalinux.ru ([127.0.0.1])
+        by localhost (mail.rosalinux.ru [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id LZKSA2N_waWx; Fri, 10 Jul 2020 03:09:23 +0300 (MSK)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.rosalinux.ru (Postfix) with ESMTP id 8300FDBB9C420;
+        Fri, 10 Jul 2020 03:09:23 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.rosalinux.ru 8300FDBB9C420
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rosalinux.ru;
+        s=A1AAD92A-9767-11E6-A27F-AC75C9F78EF4; t=1594339763;
+        bh=ffkikoxuTZNCaWLELHBK7IoJqgyERNTu/6sNv/uK+9w=;
+        h=To:From:Message-ID:Date:MIME-Version;
+        b=ZhdzcU06VtYuutCxsBUHde1Vkp6GnlT4h1tZC8wkWh4gqtHr7RjsHTO7qdCyiPa7D
+         8yw4pduveD5PuvQE3rxtm8TNDF6tpfbBstG581BNAbQfwyRvSsQ/h2sTCXV3/b0JQk
+         jVTt2K7BCGTfczPCvWq/JIMAWO9E00puzipjCPDhASJXrsLzsrYmTUq+9LHbz6f0cK
+         I1HILksDIsbtWR7AQLvGLkUe5voP/eLU7uc2TNdm3pqgAT1dH205ZMHyWeWq1Khj1R
+         lOoWjWblThrPBo6177GAy/GDJ5wYDs8zX0GElxzXF1JJbe0BRwRkl3l5QbEc5F2bmG
+         W3HFVsFiBhzWQ==
+X-Virus-Scanned: amavisd-new at rosalinux.ru
+Received: from mail.rosalinux.ru ([127.0.0.1])
+        by localhost (mail.rosalinux.ru [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id hNJuULFEHb9J; Fri, 10 Jul 2020 03:09:23 +0300 (MSK)
+Received: from [192.168.1.173] (broadband-90-154-71-5.ip.moscow.rt.ru [90.154.71.5])
+        by mail.rosalinux.ru (Postfix) with ESMTPSA id 45676DB757E56;
+        Fri, 10 Jul 2020 03:09:23 +0300 (MSK)
+Subject: Re: How to off RBAC in SELinux?
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+References: <237d104b-3cb4-8527-386a-dce96c85ecec@rosalinux.ru>
+ <CAEjxPJ7nwA2qFLYZN-X8V9Sqbdbcx-7e=R5j9y=khHTAsbe=yA@mail.gmail.com>
+ <7132c007-b6ce-60e2-b86a-491b43553a49@rosalinux.ru>
+ <CAEjxPJ7N16U3HS0GivOJcHPiqmkNL5wV0Nx8jpGbjBBRGeb94g@mail.gmail.com>
+From:   Mikhail Novosyolov <m.novosyolov@rosalinux.ru>
+Message-ID: <1874af19-79d8-ed6b-31fd-9a29bd39bc34@rosalinux.ru>
+Date:   Fri, 10 Jul 2020 03:09:22 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.8.0
 MIME-Version: 1.0
-References: <20200709191952.435970-1-omosnace@redhat.com> <20200709191952.435970-3-omosnace@redhat.com>
-In-Reply-To: <20200709191952.435970-3-omosnace@redhat.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 9 Jul 2020 19:10:53 -0400
-Message-ID: <CAHC9VhR7vpJ7Q0JB0=jGGxxiBOV9Dx8YGWHtSkdLhzAedxx_=Q@mail.gmail.com>
-Subject: Re: [PATCH v4 2/2] selinux: complete the inlining of hashtab functions
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAEjxPJ7N16U3HS0GivOJcHPiqmkNL5wV0Nx8jpGbjBBRGeb94g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: ru-RU
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 9, 2020 at 3:20 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> Move (most of) the definitions of hashtab_search() and hashtab_insert()
-> to the header file. In combination with the previous patch, this avoids
-> calling the callbacks indirectly by function pointers and allows for
-> better optimization, leading to a drastic performance improvement of
-> these operations.
->
-> With this patch, I measured a speed up in the following areas (measured
-> on x86_64 F32 VM with 4 CPUs):
->   1. Policy load (`load_policy`) - takes ~150 ms instead of ~230 ms.
->   2. `chcon -R unconfined_u:object_r:user_tmp_t:s0:c381,c519 /tmp/linux-src`
->      where /tmp/linux-src is an extracted linux-5.7 source tarball -
->      takes ~522 ms instead of ~576 ms. This is because of many
->      symtab_search() calls in string_to_context_struct() when there are
->      many categories specified in the context.
->   3. `stress-ng --msg 1 --msg-ops 10000000` - takes 12.41 s instead of
->      13.95 s (consumes 18.6 s of kernel CPU time instead of 21.6 s).
->      This is thanks to security_transition_sid() being ~43% faster after
->      this patch.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
->  security/selinux/ss/hashtab.c | 59 +++-----------------------------
->  security/selinux/ss/hashtab.h | 63 ++++++++++++++++++++++++++++++++---
->  2 files changed, 63 insertions(+), 59 deletions(-)
-
-Patches 1/2 and 2/2 merged into selinux/next.
-
--- 
-paul moore
-www.paul-moore.com
+13.06.2020 23:08, Stephen Smalley =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
+> On Sat, Jun 13, 2020 at 9:44 AM Mikhail Novosyolov
+> <m.novosyolov@rosalinux.ru> wrote:
+>> I am aware of this and that is why I want to keep existing types,
+>> domains and labels and not break those exceptions. What I want to
+>> change is make the kernel not dissallow access when RBAC/TE is violate=
+d,
+>> unless MLS rules are violated.
+>>
+>>> What you could do is to reduce
+>>> the policy to just the minimal set of domains and types needed to
+>>> support those distinctions and leave most things labeled with the sam=
+e
+>>> domain/type.
+>> It would require reworking the whole policy and rewriting MLS exceptio=
+ns...
+>> It is very near to writing a policy from scratch, I think.
+>>
+>> Patching the kernel to achieve this will be OK, but, after studying th=
+e code,
+>> it seems that the whole selinux was first designed to block access
+>> when RBAC/TE rules are violated, and then MLS was added there... So it=
+ is not
+>> obvious which part of the code would better be changed to achieve this=
+ aim,
+>> and how hard it will be to achieve it.
+> IMHO that's not a good plan.  Consider for example what happens if you
+> allow a domain to override MLS constraints (ala mlstrustedsubject) and
+> you don't enforce TE at all.  Then what prevents a untrusted process
+> running at the same level from ptrace'ing that trusted domain in order
+> to bypass MLS, or overwriting its exec type with arbitrary code, or
+> any number of other things that could be used to subvert it.  That
+> only works if you are willing to rely entirely on DAC separation for
+> that kind of protection.  That's more along the lines of Smack's
+> model.
+Thanks for explaining, now I have understood what you mean. Sounds reason=
+able.
+> From an implementation point of view, it would be easy enough to
+> modify context_struct_compute_av() to just initialize the allowed
+> access vector to all-ones instead of zero, drop the nested ebitmap
+> loop for computing over the TE rules, and then walk the constraints
+> (which include the MLS constraints as a subset) to remove any
+> permissions that violate the MLS restrictions.  Essentially
+> context_struct_compute_av() reduces to just the constraint logic in
+> your scenario and the rest of the function can go away.  But that
+> leaves you open to the problem noted above.  At that point you might
+> as well just use Smack if that does what you need.  But understand
+> then that you are relying on capabilities and DAC as external
+> dependencies, so correct configuration and use of those is crucial and
+> not something under Smack's control.
