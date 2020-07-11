@@ -1,260 +1,166 @@
-Return-Path: <SRS0=ib1x=AV=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Vtnu=AW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 758E2C433E3
-	for <selinux@archiver.kernel.org>; Fri, 10 Jul 2020 17:09:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EF8AC433E1
+	for <selinux@archiver.kernel.org>; Sat, 11 Jul 2020 17:05:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4F5A7207F9
-	for <selinux@archiver.kernel.org>; Fri, 10 Jul 2020 17:09:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1594400959;
-	bh=OpaE6wanvPY6oZYoZQ+5OUnMUqe0KlNUtH+bJtmG/Gc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=oLbcVcCyGZblcpxc+vCUuJbcVRts13EvtzZ4nccVc+VlCr4Z3cfCOkBNH9hnK0Smk
-	 Ix703pCUz5ChVrTvoup1lrHXn0VmSTowX8Msncep0S22RCJN9fNfkL8L8Y3duoI4cf
-	 Z1lOF8EOkKNJL/maWdiSW5oEWLC82yyNvVCP8fsY=
+	by mail.kernel.org (Postfix) with ESMTP id F3223207D4
+	for <selinux@archiver.kernel.org>; Sat, 11 Jul 2020 17:05:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728061AbgGJRJP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 10 Jul 2020 13:09:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42050 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726496AbgGJRJP (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Fri, 10 Jul 2020 13:09:15 -0400
-Received: from quaco.ghostprotocols.net (unknown [179.97.37.151])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1728555AbgGKRFd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 11 Jul 2020 13:05:33 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:53432 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728507AbgGKRFd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 11 Jul 2020 13:05:33 -0400
+X-Greylist: delayed 506 seconds by postgrey-1.27 at vger.kernel.org; Sat, 11 Jul 2020 13:05:32 EDT
+Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB51920657;
-        Fri, 10 Jul 2020 17:09:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594400954;
-        bh=OpaE6wanvPY6oZYoZQ+5OUnMUqe0KlNUtH+bJtmG/Gc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KCfbDr1TEthee8alZ4uKm4NLesJMTPj5oLRDmr/1v3LAWfZKzyv/u5BBEV22aVgAm
-         61lHNT9AC/KhBT2L1whQiaNkLtfJS50U/F0wGXlbwRrno8pcuenKgFluD9eoR2Wy2O
-         1BU0mv7DrerCe/r9aHYhBntMne3BKtz1SQEuQ4f4=
-Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id E0F00405FF; Fri, 10 Jul 2020 14:09:11 -0300 (-03)
-Date:   Fri, 10 Jul 2020 14:09:11 -0300
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc:     Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Serge Hallyn <serge@hallyn.com>, Jiri Olsa <jolsa@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        linux-man@vger.kernel.org
-Subject: Re: [PATCH v8 00/12] Introduce CAP_PERFMON to secure system
- performance monitoring and observability
-Message-ID: <20200710170911.GD7487@kernel.org>
-References: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
- <76718dc6-5483-5e2e-85b8-64e70306ee1f@linux.ibm.com>
- <7776fa40-6c65-2aa6-1322-eb3a01201000@linux.intel.com>
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 9C1DC564C19
+        for <selinux@vger.kernel.org>; Sat, 11 Jul 2020 18:57:03 +0200 (CEST)
+Received: by mail-oi1-f175.google.com with SMTP id y22so7489739oie.8
+        for <selinux@vger.kernel.org>; Sat, 11 Jul 2020 09:57:03 -0700 (PDT)
+X-Gm-Message-State: AOAM532fSGGfemcmyOQsZA2DrzsUr0Hmjc6KxM+qc5gk6TMlRgtTaOWN
+        +wwe72i1Tve8kGaYjmq26sCjabl0Ystup/pwuwI=
+X-Google-Smtp-Source: ABdhPJwoqMmL4b0y84NG3uHnnHRxgXSDX0r0h0PZ8qAp4JWJQZpENm7ZsiWVNekqBj4D/f+mr+I8XJkjEs3N35OjBG8=
+X-Received: by 2002:aca:ac10:: with SMTP id v16mr7963987oie.153.1594486622537;
+ Sat, 11 Jul 2020 09:57:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7776fa40-6c65-2aa6-1322-eb3a01201000@linux.intel.com>
-X-Url:  http://acmel.wordpress.com
+References: <CAFftDdpDN+8c2hQ+OoX8z+Fx3s-7-g2sn7ZV+Y=D=NZqqFwr6Q@mail.gmail.com>
+ <CAHC9VhQkTgYFQ5ncLDJpOcqynWam3QY7udLQoUYSb3HgkvdboQ@mail.gmail.com>
+ <CAJfZ7=kyieBs6_NPE3k2tyNSydrwmVT7k3kcmd=0Xsi7JoD2Zg@mail.gmail.com> <CAFftDdp=4nB1CfmAQXBbN_BODHMaXaVbLGsh7+mHLt6GpTGMZg@mail.gmail.com>
+In-Reply-To: <CAFftDdp=4nB1CfmAQXBbN_BODHMaXaVbLGsh7+mHLt6GpTGMZg@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Sat, 11 Jul 2020 18:56:51 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=mUXwwhFXAnztCp-dO=rLfqUZGH4omGKpnqZGnrCdEtRw@mail.gmail.com>
+Message-ID: <CAJfZ7=mUXwwhFXAnztCp-dO=rLfqUZGH4omGKpnqZGnrCdEtRw@mail.gmail.com>
+Subject: Re: travis: any reason we have keep going on make commands
+To:     William Roberts <bill.c.roberts@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sat Jul 11 18:57:04 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Em Fri, Jul 10, 2020 at 05:30:50PM +0300, Alexey Budankov escreveu:
-> On 10.07.2020 16:31, Ravi Bangoria wrote:
-> >> Currently access to perf_events, i915_perf and other performance
-> >> monitoring and observability subsystems of the kernel is open only for
-> >> a privileged process [1] with CAP_SYS_ADMIN capability enabled in the
-> >> process effective set [2].
+On Fri, Jul 10, 2020 at 5:23 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+> On Fri, Jul 10, 2020 at 4:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > On Thu, Jul 9, 2020 at 8:00 PM Paul Moore <paul@paul-moore.com> wrote:
+> > >
+> > > On Thu, Jul 9, 2020 at 10:33 AM William Roberts
+> > > <bill.c.roberts@gmail.com> wrote:
+> > > > So Nicolas initially created our travis script in commit c9adfe2d2653
+> > > > and has -k, or keep going, on the make commands. This causes make to
+> > > > plow ahead and bury the errors in the logs. Stephen noticed this the
+> > > > other day, and we have been chatting about it out of band and wanted
+> > > > to pull in the community.
+> > > >
+> > > > Are their compelling reasons for keeping this behavior? I am also
+> > > > concerned that we could get false positives on travis success results.
+> > >
+> > > In my opinion the whole point of automated testing is to catch
+> > > failures early and often.  For that reason I would want the test to
+> > > fail and stop, both because I find it easier to identify the failure
+> > > that way and also because I'm not sure I would trust much of the
+> > > testing that occurred after an error condition.
+> > >
+> > Hi,
+> > There seems to be some confusion:
+> >
+> > * "make -k" does not stop the "make" command at the first error and
+> > allows seeing all the errors when there are several ones. In my humble
+> > opinion, it makes sense when compiling ("make all") and not when
+> > running tests ("make test"), and this is actually what is right now in
+> > Travis-CI. "make -k" returns a failure exit code when an error
+> > happens.
+>
+> Ahh I thought it returned to 0. Not sure why I assumed that.
+>
+> >
+> > * Travis-CI does not stop the job as soon as a sub-command fails. If I
+>
+> Depends on the stage:
+> https://docs.travis-ci.com/user/job-lifecycle/
+> If before_install, install or before_script returns a non-zero exit
+> code, the build is errored and stops immediately.
+> If script returns a non-zero exit code, the build is failed, but
+> continues to run before being marked as failed.
+>
+> I put a false command in the script section and it kept plowing ahead
+> as you foretold.
+>
+> > understand correctly, this is what really bothers William, and I agree
+> > this is a behavior that can be improved. According to
+> > https://github.com/travis-ci/travis-ci/issues/1066, a possible
+> > solution could be to use "set -e", which could have unexpected
+> > side-effects in launched commands. It is possible to "emulate set -e"
+> > by adding exit statements, such as :
+> >
+> >     - make install $EXPLICIT_MAKE_VARS -k || exit $?
+> >     - make install-pywrap $EXPLICIT_MAKE_VARS -k || exit $?
+> >     - make install-rubywrap $EXPLICIT_MAKE_VARS -k || exit $?
+> >     # ...
+> >     - make test $EXPLICIT_MAKE_VARS || exit $?
+> >
+> > I have not tested whether this works on Travis-CI, but if it does, it
+> > would be a nice improvement. I will take a look this week-end.
+>
+> I think the scripts are more maintainable outside of travis yaml files
+> as separate build scripts,
+> for two reasons:
+> 1.  One can just execute the script locally, you can't, AFAIK, do that
+> with a travis yaml file.
+> 2.  The issue can be avoided as they afford more control. Some other
+> projects I am a part of we only
+>      use script and after_failure. The bash scripts are set -e. I also
+> used this approach for the KVM
+>      selinux test run.
+>
+> script:
+>   - ./.ci/travis.run
+> after_failure:
+>   - cat build/test-suite.log
+>
+> We could adopt like what's above...
 
-> >> This patch set introduces CAP_PERFMON capability designed to secure
-> >> system performance monitoring and observability operations so that
-> >> CAP_PERFMON would assist CAP_SYS_ADMIN capability in its governing role
-> >> for performance monitoring and observability subsystems of the kernel.
- 
-> > I'm seeing an issue with CAP_PERFMON when I try to record data for a
-> > specific target. I don't know whether this is sort of a regression or
-> > an expected behavior.
- 
-> Thanks for reporting and root causing this case. The behavior looks like
-> kind of expected since currently CAP_PERFMON takes over the related part
-> of CAP_SYS_ADMIN credentials only. Actually Perf security docs [1] say
-> that access control is also subject to CAP_SYS_PTRACE credentials.
+I did not understand the part about using "cat build/test-suite.log",
+but otherwise the idea of putting the commands into a dedicated script
+file sounds good, as this allows more flexibility. In order to know
+which command failed (and fail as soon as a command fails), I suggest
+using "set -e -x" in these scripts.
 
-I think that stating that in the error message would be helpful, after
-all, who reads docs? 8-)
+By the way, about the issue with "make", there is another thing from
+your initial message that I understood only after sending my first
+reply: a consequence of using "make -k" that can be considered
+undesirable is the fact that when an error happens, its message can be
+drowned among the flow of other messages. I disagree with removing
+"-k" because this would only show one error, instead of all the errors
+that occur during a build. Nevertheless it is possible to achieve the
+best of both alternatives by using constructions such as:
 
-I.e., this:
+if ! make install $EXPLICIT_MAKE_VARS -k ; then
+  echo >&2 "Error in make install $EXPLICIT_MAKE_VARS:"
+  make install $EXPLICIT_MAKE_VARS   # This command shows one error,
+at the end of the build logs.
+  exit 1
+fi
 
-$ ./perf stat ls
-  Error:
-  Access to performance monitoring and observability operations is limited.
-$
+Would such constructions be helpful?
 
-Could become:
+Cheers,
+Nicolas
 
-$ ./perf stat ls
-  Error:
-  Access to performance monitoring and observability operations is limited.
-  Right now only CAP_PERFMON is granted, you may need CAP_SYS_PTRACE.
-$
-
-- Arnaldo
- 
-> CAP_PERFMON could be used to extend and substitute ptrace_may_access()
-> check in perf_events subsystem to simplify user experience at least in
-> this specific case.
-> 
-> Alexei
-> 
-> [1] https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
-> 
-> > 
-> > Without setting CAP_PERFMON:
-> > 
-> >   $ getcap ./perf
-> >   $ ./perf stat -a ls
-> >     Error:
-> >     Access to performance monitoring and observability operations is limited.
-> >   $ ./perf stat ls
-> >     Performance counter stats for 'ls':
-> >                     2.06 msec task-clock:u              #    0.418 CPUs utilized
-> >                     0      context-switches:u        #    0.000 K/sec
-> >                     0      cpu-migrations:u          #    0.000 K/sec
-> > 
-> > With CAP_PERFMON:
-> > 
-> >   $ getcap ./perf
-> >     ./perf = cap_perfmon+ep
-> >   $ ./perf stat -a ls
-> >     Performance counter stats for 'system wide':
-> >                   142.42 msec cpu-clock                 #   25.062 CPUs utilized
-> >                   182      context-switches          #    0.001 M/sec
-> >                    48      cpu-migrations            #    0.337 K/sec
-> >   $ ./perf stat ls
-> >     Error:
-> >     Access to performance monitoring and observability operations is limited.
-> > 
-> > Am I missing something silly?
-> > 
-> > Analysis:
-> > ---------
-> > A bit more analysis lead me to below kernel code fs/exec.c:
-> > 
-> >   begin_new_exec()
-> >   {
-> >         ...
-> >         if (bprm->interp_flags & BINPRM_FLAGS_ENFORCE_NONDUMP ||
-> >             !(uid_eq(current_euid(), current_uid()) &&
-> >               gid_eq(current_egid(), current_gid())))
-> >                 set_dumpable(current->mm, suid_dumpable);
-> >         else
-> >                 set_dumpable(current->mm, SUID_DUMP_USER);
-> > 
-> >         ...
-> >         commit_creds(bprm->cred);
-> >   }
-> > 
-> > When I execute './perf stat ls', it's going into else condition and thus sets
-> > dumpable flag as SUID_DUMP_USER. Then in commit_creds():
-> > 
-> >   int commit_creds(struct cred *new)
-> >   {
-> >         ...
-> >         /* dumpability changes */
-> >         if (...
-> >             !cred_cap_issubset(old, new)) {
-> >                 if (task->mm)
-> >                         set_dumpable(task->mm, suid_dumpable);
-> >   }
-> > 
-> > !cred_cap_issubset(old, new) fails for perf without any capability and thus
-> > it doesn't execute set_dumpable(). Whereas that condition passes for perf
-> > with CAP_PERFMON and thus it overwrites old value (SUID_DUMP_USER) with
-> > suid_dumpable in mm_flags. On an Ubuntu, suid_dumpable default value is
-> > SUID_DUMP_ROOT. On Fedora, it's SUID_DUMP_DISABLE. (/proc/sys/fs/suid_dumpable).
-> > 
-> > Now while opening an event:
-> > 
-> >   perf_event_open()
-> >     ptrace_may_access()
-> >       __ptrace_may_access() {
-> >                 ...
-> >                 if (mm &&
-> >                     ((get_dumpable(mm) != SUID_DUMP_USER) &&
-> >                      !ptrace_has_cap(cred, mm->user_ns, mode)))
-> >                     return -EPERM;
-> >       }
-> > 
-> > This if condition passes for perf with CAP_PERFMON and thus it returns -EPERM.
-> > But it fails for perf without CAP_PERFMON and thus it goes ahead and returns
-> > success. So opening an event fails when perf has CAP_PREFMON and tries to open
-> > process specific event as normal user.
-> > 
-> > Workarounds:
-> > ------------
-> > Based on above analysis, I found couple of workarounds (examples are on
-> > Ubuntu 18.04.4 powerpc):
-> > 
-> > Workaround1:
-> > Setting SUID_DUMP_USER as default (in /proc/sys/fs/suid_dumpable) solves the
-> > issue.
-> > 
-> >   # echo 1 > /proc/sys/fs/suid_dumpable
-> >   $ getcap ./perf
-> >     ./perf = cap_perfmon+ep
-> >   $ ./perf stat ls
-> >     Performance counter stats for 'ls':
-> >                     1.47 msec task-clock                #    0.806 CPUs utilized
-> >                     0      context-switches          #    0.000 K/sec
-> >                     0      cpu-migrations            #    0.000 K/sec
-> > 
-> > Workaround2:
-> > Using CAP_SYS_PTRACE along with CAP_PERFMON solves the issue.
-> > 
-> >   $ cat /proc/sys/fs/suid_dumpable
-> >     2
-> >   # setcap "cap_perfmon,cap_sys_ptrace=ep" ./perf
-> >   $ ./perf stat ls
-> >     Performance counter stats for 'ls':
-> >                     1.41 msec task-clock                #    0.826 CPUs utilized
-> >                     0      context-switches          #    0.000 K/sec
-> >                     0      cpu-migrations            #    0.000 K/sec
-> > 
-> > Workaround3:
-> > Adding CAP_PERFMON to parent of perf (/bin/bash) also solves the issue.
-> > 
-> >   $ cat /proc/sys/fs/suid_dumpable
-> >     2
-> >   # setcap "cap_perfmon=ep" /bin/bash
-> >   # setcap "cap_perfmon=ep" ./perf
-> >   $ bash
-> >   $ ./perf stat ls
-> >     Performance counter stats for 'ls':
-> >                     1.47 msec task-clock                #    0.806 CPUs utilized
-> >                     0      context-switches          #    0.000 K/sec
-> >                     0      cpu-migrations            #    0.000 K/sec
-> > 
-> > - Ravi
-
--- 
-
-- Arnaldo
