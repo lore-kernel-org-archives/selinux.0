@@ -1,206 +1,481 @@
-Return-Path: <SRS0=Vtnu=AW=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=GtrK=AX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52E13C433DF
-	for <selinux@archiver.kernel.org>; Sat, 11 Jul 2020 19:28:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B6EAC433E1
+	for <selinux@archiver.kernel.org>; Sun, 12 Jul 2020 16:00:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2475220786
-	for <selinux@archiver.kernel.org>; Sat, 11 Jul 2020 19:28:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 396DE2065F
+	for <selinux@archiver.kernel.org>; Sun, 12 Jul 2020 16:00:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="moYtBJ+m"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="En11eU4Y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728727AbgGKT2T (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sat, 11 Jul 2020 15:28:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728701AbgGKT2T (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 11 Jul 2020 15:28:19 -0400
-Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA12C08C5DD
-        for <selinux@vger.kernel.org>; Sat, 11 Jul 2020 12:28:19 -0700 (PDT)
-Received: by mail-io1-xd41.google.com with SMTP id d18so9511012ion.0
-        for <selinux@vger.kernel.org>; Sat, 11 Jul 2020 12:28:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JCHii4vQI08kFzqH5FnRnjQdESUwkkUBKG0+T9ZUMpE=;
-        b=moYtBJ+mggGzG+0KEHmCaw26+nBVGHrM98FmRaejo4ONMk290UTTnPfkp8kZDnpOKJ
-         2sYhE2ZX3Dw1zHREdCwfiwkp8PrVaLXomID3smDReahwRLGokdpiZGuClf8AUUb+FMY7
-         6QQEmaIG9QNYwsl5NSyLhtVeBIiL/3ds5Io73xhTm/CNYON7Cir8fw/BrTADpF15DFq9
-         bCbHjtDO4Sf2NtnWY5zISLF2yJlNesAYSQ1I25gAvnYrJg/y1IPVDEmRF1iyo2Upa9gm
-         qhx1D8HOnQzbXwiKeoH26j8CO/aATcl+nqITUQbX7VfaNKsPjcfpyVghCnfkU7BJYlxH
-         bjlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JCHii4vQI08kFzqH5FnRnjQdESUwkkUBKG0+T9ZUMpE=;
-        b=dFwhVOYEQdGMXLLe6T4GEZLp4yQ9iUAG2JyuOpVYI94t9wYY+qAwfMMU/44xDMSlRm
-         v4S3XKgJm1ule5NaIlX4Lsp/k+rMATMkPTB9saXDBPpp5Lx6R213q03OK/O2o8qFcSKI
-         ZDtbS7SDG8/sn3aWXCkDyR/amGW6tRBLeFIhrz72oJ2OcnqSI9E4Ep6ZOrOPNtRmK4wU
-         r/HXMU+qmpBcJ3NWgayhDoT6iq7+fQlOMxtbCaeqzJJ1PCXTMgUiOqOvXbZeUDmveZzD
-         X+MPxsLwMvu5lcDAdHK1fue/J254OulTPY/Nu90WOUXWNnl1YJflrGDsuTkxU7Q11zHw
-         ORgA==
-X-Gm-Message-State: AOAM532BrkYb5r2jpKbpwutlABRbfTPX9Kg9sWdH3s2gVnfkB3AFrERp
-        qKtcAG+U1ZC/S33iI3q5dYsN4ayhXscsVmvCeI9MWA==
-X-Google-Smtp-Source: ABdhPJycyKWoLeBMxQlSqm7nS9/tHeXcpb9J4KGtWuf89hjk6xgWjnWi64/BAopNr1UPkChBTqaumFb0S+Uso643Mho=
-X-Received: by 2002:a5d:8f98:: with SMTP id l24mr52932700iol.141.1594495697739;
- Sat, 11 Jul 2020 12:28:17 -0700 (PDT)
+        id S1728862AbgGLQAd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 12 Jul 2020 12:00:33 -0400
+Received: from mailomta3-re.btinternet.com ([213.120.69.96]:32418 "EHLO
+        re-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728854AbgGLQAb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 12 Jul 2020 12:00:31 -0400
+Received: from re-prd-rgout-004.btmx-prd.synchronoss.net ([10.2.54.7])
+          by re-prd-fep-049.btinternet.com with ESMTP
+          id <20200712160026.FFNN4131.re-prd-fep-049.btinternet.com@re-prd-rgout-004.btmx-prd.synchronoss.net>;
+          Sun, 12 Jul 2020 17:00:26 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1594569626; 
+        bh=GOOwM2v3CSKPlDQn4T5LSwNYExkdESO+/c5a+9Sy07k=;
+        h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:MIME-Version;
+        b=En11eU4YBflchhxp5mzjAv9FSoW2VQteMYTr6LIF8wkFWtay17m1sxvulqTdn8TvE61XBxJw0xhK90kCKxUW7HI1i4C7K4613RNMm7n13DLHjmvk2xnM81fRKCtyP7lqev1u4x9M0lVWaXv0075/OPgF9X+lat2xoJChNUC3GrI180OlbyhCaVbY1L3LoIcuUQblawsWqrr3sQ8UV3TMZduAX3UA22rWb3g8pDz98fV4YsyuRZx3TO02NH/2odrEMLlcO0g8BG67qTcrQQh6TiI4R48cJtMbKVbZGdMZy2Ar7otVNB87TAZFlDQXJ8F+o1H3m5rWXiUcoqBpjHa+ug==
+Authentication-Results: btinternet.com;
+    auth=pass (PLAIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.177.31.109]
+X-OWM-Source-IP: 86.177.31.109 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrvdeigdellecutefuodetggdotefrodftvfcurfhrohhfihhlvgemuceutffkvffkuffjvffgnffgvefqofdpqfgfvfenuceurghilhhouhhtmecufedtudenucenucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepueeffeduffefteejveehtedvkeeuueevffdtgfekgfetgfekgeeiheevueehvdffnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeeirddujeejrdefuddruddtleenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirddujeejrdefuddruddtledpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (86.177.31.109) by re-prd-rgout-004.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9C50606731B8A; Sun, 12 Jul 2020 17:00:26 +0100
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     selinux@vger.kernel.org
+Cc:     Richard Haines <richard_c_haines@btinternet.com>
+Subject: [PATCH] selinux-testsuite: Review and update SCTP tests
+Date:   Sun, 12 Jul 2020 17:00:20 +0100
+Message-Id: <20200712160020.17385-1-richard_c_haines@btinternet.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-References: <CAFftDdpDN+8c2hQ+OoX8z+Fx3s-7-g2sn7ZV+Y=D=NZqqFwr6Q@mail.gmail.com>
- <CAHC9VhQkTgYFQ5ncLDJpOcqynWam3QY7udLQoUYSb3HgkvdboQ@mail.gmail.com>
- <CAJfZ7=kyieBs6_NPE3k2tyNSydrwmVT7k3kcmd=0Xsi7JoD2Zg@mail.gmail.com>
- <CAFftDdp=4nB1CfmAQXBbN_BODHMaXaVbLGsh7+mHLt6GpTGMZg@mail.gmail.com> <CAJfZ7=mUXwwhFXAnztCp-dO=rLfqUZGH4omGKpnqZGnrCdEtRw@mail.gmail.com>
-In-Reply-To: <CAJfZ7=mUXwwhFXAnztCp-dO=rLfqUZGH4omGKpnqZGnrCdEtRw@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Sat, 11 Jul 2020 14:28:06 -0500
-Message-ID: <CAFftDdqhO5_ZEGOAHGVZHdB9j4B86od12R1dicbTBmfwHEQS1Q@mail.gmail.com>
-Subject: Re: travis: any reason we have keep going on make commands
-To:     Nicolas Iooss <nicolas.iooss@m4x.org>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sat, Jul 11, 2020 at 11:57 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
->
-> On Fri, Jul 10, 2020 at 5:23 PM William Roberts
-> <bill.c.roberts@gmail.com> wrote:
-> >
-> > On Fri, Jul 10, 2020 at 4:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
-> > >
-> > > On Thu, Jul 9, 2020 at 8:00 PM Paul Moore <paul@paul-moore.com> wrote:
-> > > >
-> > > > On Thu, Jul 9, 2020 at 10:33 AM William Roberts
-> > > > <bill.c.roberts@gmail.com> wrote:
-> > > > > So Nicolas initially created our travis script in commit c9adfe2d2653
-> > > > > and has -k, or keep going, on the make commands. This causes make to
-> > > > > plow ahead and bury the errors in the logs. Stephen noticed this the
-> > > > > other day, and we have been chatting about it out of band and wanted
-> > > > > to pull in the community.
-> > > > >
-> > > > > Are their compelling reasons for keeping this behavior? I am also
-> > > > > concerned that we could get false positives on travis success results.
-> > > >
-> > > > In my opinion the whole point of automated testing is to catch
-> > > > failures early and often.  For that reason I would want the test to
-> > > > fail and stop, both because I find it easier to identify the failure
-> > > > that way and also because I'm not sure I would trust much of the
-> > > > testing that occurred after an error condition.
-> > > >
-> > > Hi,
-> > > There seems to be some confusion:
-> > >
-> > > * "make -k" does not stop the "make" command at the first error and
-> > > allows seeing all the errors when there are several ones. In my humble
-> > > opinion, it makes sense when compiling ("make all") and not when
-> > > running tests ("make test"), and this is actually what is right now in
-> > > Travis-CI. "make -k" returns a failure exit code when an error
-> > > happens.
-> >
-> > Ahh I thought it returned to 0. Not sure why I assumed that.
-> >
-> > >
-> > > * Travis-CI does not stop the job as soon as a sub-command fails. If I
-> >
-> > Depends on the stage:
-> > https://docs.travis-ci.com/user/job-lifecycle/
-> > If before_install, install or before_script returns a non-zero exit
-> > code, the build is errored and stops immediately.
-> > If script returns a non-zero exit code, the build is failed, but
-> > continues to run before being marked as failed.
-> >
-> > I put a false command in the script section and it kept plowing ahead
-> > as you foretold.
-> >
-> > > understand correctly, this is what really bothers William, and I agree
-> > > this is a behavior that can be improved. According to
-> > > https://github.com/travis-ci/travis-ci/issues/1066, a possible
-> > > solution could be to use "set -e", which could have unexpected
-> > > side-effects in launched commands. It is possible to "emulate set -e"
-> > > by adding exit statements, such as :
-> > >
-> > >     - make install $EXPLICIT_MAKE_VARS -k || exit $?
-> > >     - make install-pywrap $EXPLICIT_MAKE_VARS -k || exit $?
-> > >     - make install-rubywrap $EXPLICIT_MAKE_VARS -k || exit $?
-> > >     # ...
-> > >     - make test $EXPLICIT_MAKE_VARS || exit $?
-> > >
-> > > I have not tested whether this works on Travis-CI, but if it does, it
-> > > would be a nice improvement. I will take a look this week-end.
-> >
-> > I think the scripts are more maintainable outside of travis yaml files
-> > as separate build scripts,
-> > for two reasons:
-> > 1.  One can just execute the script locally, you can't, AFAIK, do that
-> > with a travis yaml file.
-> > 2.  The issue can be avoided as they afford more control. Some other
-> > projects I am a part of we only
-> >      use script and after_failure. The bash scripts are set -e. I also
-> > used this approach for the KVM
-> >      selinux test run.
-> >
-> > script:
-> >   - ./.ci/travis.run
-> > after_failure:
-> >   - cat build/test-suite.log
-> >
-> > We could adopt like what's above...
->
-> I did not understand the part about using "cat build/test-suite.log",
-> but otherwise the idea of putting the commands into a dedicated script
+Reviewed the tests using kernel tree: Documentation/security/SCTP.rst
 
-Oh ignore that, that's a particular artifact of using automake's test
-log compiler
-for my particular project. You won't see that in stdout so on failure to see
-the details of each test run I have to do that.
+Added tests and policy for connectx(3) handling deny and
+SCTP_SENDMSG_CONNECT
+Added test and policy for bindx(3) deny
+Clarified the server test for ports < 1024
+Added comments regarding kernel net/sctp code locations to relevant tests
+Corrected policy for test_sctp_deny_peer_client_t
+Corrected ip/nf tables comment to deny read packet { recv }
+Added MCS-constrained type as suggested in [1]
 
-> file sounds good, as this allows more flexibility. In order to know
-> which command failed (and fail as soon as a command fails), I suggest
-> using "set -e -x" in these scripts.
+[1] https://lore.kernel.org/selinux/20200508154138.24217-7-stephen.smalley.work@gmail.com/
 
-Yep, exactly.
+Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+---
+ policy/test_sctp.te        | 43 +++++++++++++++++++++-----
+ tests/sctp/sctp_bindx.c    |  8 ++---
+ tests/sctp/sctp_connectx.c | 47 +++++++++++++++++++++--------
+ tests/sctp/test            | 62 +++++++++++++++++++++++++++++++-------
+ 4 files changed, 126 insertions(+), 34 deletions(-)
 
->
-> By the way, about the issue with "make", there is another thing from
-> your initial message that I understood only after sending my first
-> reply: a consequence of using "make -k" that can be considered
-> undesirable is the fact that when an error happens, its message can be
-> drowned among the flow of other messages. I disagree with removing
-> "-k" because this would only show one error, instead of all the errors
-> that occur during a build. Nevertheless it is possible to achieve the
-> best of both alternatives by using constructions such as:
->
-> if ! make install $EXPLICIT_MAKE_VARS -k ; then
->   echo >&2 "Error in make install $EXPLICIT_MAKE_VARS:"
->   make install $EXPLICIT_MAKE_VARS   # This command shows one error,
-> at the end of the build logs.
->   exit 1
-> fi
->
-> Would such constructions be helpful?
+diff --git a/policy/test_sctp.te b/policy/test_sctp.te
+index 3b16db1..5f6553f 100644
+--- a/policy/test_sctp.te
++++ b/policy/test_sctp.te
+@@ -59,6 +59,13 @@ allow test_sctp_server_t netlabel_sctp_peer_t:peer { recv };
+ corenet_sctp_bind_all_nodes(test_sctp_server_t)
+ corenet_inout_generic_node(test_sctp_server_t)
+ corenet_inout_generic_if(test_sctp_server_t)
++mcs_constrained(test_sctp_server_t)
++
++#### Verify that the server cannot start when using port < 1024 ####
++# neverallow test_sctp_server_t reserved_port_t:sctp_socket { name_bind };
++# Stop clutter in audit log for this test:
++dontaudit test_sctp_server_t self:netlink_route_socket { create getattr bind };
++dontaudit test_sctp_server_t self:udp_socket { getattr connect };
+ 
+ #
+ ############################### Client #################################
+@@ -85,7 +92,11 @@ typeattribute test_sctp_deny_peer_client_t testdomain;
+ typeattribute test_sctp_deny_peer_client_t sctpsocketdomain;
+ allow test_sctp_deny_peer_client_t self:sctp_socket create_stream_socket_perms;
+ corenet_inout_generic_node(test_sctp_deny_peer_client_t)
+-corenet_inout_generic_if(deny_assoc_sctp_peer_t)
++corenet_inout_generic_if(test_sctp_deny_peer_client_t)
++
++allow test_sctp_deny_peer_client_t test_sctp_server_packet_t:packet { send };
++allow test_sctp_server_t test_sctp_deny_peer_client_t:peer { recv };
++allow test_sctp_client_t test_sctp_deny_peer_client_t:sctp_socket { association };
+ 
+ #
+ ####################### Deny association permission #########################
+@@ -117,11 +128,20 @@ unconfined_runs_test(test_sctp_connectx_t)
+ typeattribute test_sctp_connectx_t testdomain;
+ typeattribute test_sctp_connectx_t sctpsocketdomain;
+ allow test_sctp_connectx_t self:sctp_socket create_stream_socket_perms;
+-allow test_sctp_server_t test_sctp_connectx_t:peer { recv };
+-allow test_sctp_connectx_t test_sctp_server_t:peer { recv };
+ corenet_sctp_bind_all_nodes(test_sctp_connectx_t)
+ corenet_inout_generic_node(test_sctp_connectx_t)
+-corenet_inout_generic_if(test_sctp_connectx_t)
++
++#
++############################# Deny Connectx #################################
++#
++type test_sctp_deny_connectx_t;
++domain_type(test_sctp_deny_connectx_t)
++unconfined_runs_test(test_sctp_deny_connectx_t)
++typeattribute test_sctp_deny_connectx_t testdomain;
++typeattribute test_sctp_deny_connectx_t sctpsocketdomain;
++allow test_sctp_deny_connectx_t self:sctp_socket { create listen accept bind ioctl read getattr write getopt setopt };
++corenet_sctp_bind_all_nodes(test_sctp_deny_connectx_t)
++corenet_inout_generic_node(test_sctp_deny_connectx_t)
+ 
+ #
+ ############################## Bindx #####################################
+@@ -132,11 +152,20 @@ unconfined_runs_test(test_sctp_bindx_t)
+ typeattribute test_sctp_bindx_t testdomain;
+ typeattribute test_sctp_bindx_t sctpsocketdomain;
+ allow test_sctp_bindx_t self:sctp_socket create_stream_socket_perms;
+-allow test_sctp_server_t test_sctp_bindx_t:peer { recv };
+-allow test_sctp_bindx_t test_sctp_server_t:peer { recv };
+ corenet_sctp_bind_all_nodes(test_sctp_bindx_t)
+ corenet_inout_generic_node(test_sctp_bindx_t)
+-corenet_inout_generic_if(test_sctp_bindx_t)
++
++#
++############################## Deny Bindx ###################################
++#
++type test_sctp_deny_bindx_t;
++domain_type(test_sctp_deny_bindx_t)
++unconfined_runs_test(test_sctp_deny_bindx_t)
++typeattribute test_sctp_deny_bindx_t testdomain;
++typeattribute test_sctp_deny_bindx_t sctpsocketdomain;
++allow test_sctp_deny_bindx_t self:sctp_socket { create ioctl read getattr write getopt setopt };
++corenet_sctp_bind_all_nodes(test_sctp_deny_bindx_t)
++corenet_inout_generic_node(test_sctp_deny_bindx_t)
+ 
+ #
+ ########## SET_PRI_ADDR + SET_PEER ADDR for ASCONF process testing ##########
+diff --git a/tests/sctp/sctp_bindx.c b/tests/sctp/sctp_bindx.c
+index 7634bab..74bf985 100644
+--- a/tests/sctp/sctp_bindx.c
++++ b/tests/sctp/sctp_bindx.c
+@@ -11,7 +11,7 @@ static void usage(char *progname)
+ 		"stream  Use SCTP 1-to-1 style or:\n\t"
+ 		"seq     use SCTP 1-to-Many style.\n\t"
+ 		"port    port.\n", progname);
+-	exit(1);
++	exit(-1);
+ }
+ 
+ int main(int argc, char **argv)
+@@ -77,7 +77,7 @@ int main(int argc, char **argv)
+ 	if (result < 0) {
+ 		perror("sctp_bindx ADD - ipv4");
+ 		close(sock);
+-		exit(1);
++		exit(2);
+ 	}
+ 
+ 	if (verbose)
+@@ -93,7 +93,7 @@ int main(int argc, char **argv)
+ 	if (result < 0) {
+ 		perror("sctp_bindx ADD - ipv6");
+ 		close(sock);
+-		exit(1);
++		exit(3);
+ 	}
+ 
+ 	if (verbose)
+@@ -105,7 +105,7 @@ int main(int argc, char **argv)
+ 		if (result < 0) {
+ 			perror("sctp_bindx - REM");
+ 			close(sock);
+-			exit(1);
++			exit(4);
+ 		}
+ 		if (verbose)
+ 			printf("sctp_bindx REM - ipv6\n");
+diff --git a/tests/sctp/sctp_connectx.c b/tests/sctp/sctp_connectx.c
+index 18d133d..b2d8f82 100644
+--- a/tests/sctp/sctp_connectx.c
++++ b/tests/sctp/sctp_connectx.c
+@@ -3,25 +3,30 @@
+ static void usage(char *progname)
+ {
+ 	fprintf(stderr,
+-		"usage:  %s [-v] stream|seq addr port\n"
++		"usage:  %s [-n] [-v] stream|seq addr port\n"
+ 		"\nWhere:\n\t"
++		"-n      No connectx for SCTP_SENDMSG_CONNECT test with 'seq' only.\n\t"
+ 		"-v      Print context information.\n\t"
+ 		"stream  Use SCTP 1-to-1 style or:\n\t"
+ 		"seq     use SCTP 1-to-Many style.\n\t"
+ 		"addr    Servers IPv4 or IPv6 address.\n\t"
+ 		"port    port.\n", progname);
+-	exit(1);
++	exit(-1);
+ }
+ 
+ int main(int argc, char **argv)
+ {
+ 	int opt, type, srv_sock, client_sock, result, on = 1;
+ 	struct addrinfo srv_hints, client_hints, *srv_res, *client_res;
+-	bool verbose = false;
++	bool verbose = false, no_connx = false;
+ 	char *context;
++	char msg[] = "Hello";
+ 
+-	while ((opt = getopt(argc, argv, "v")) != -1) {
++	while ((opt = getopt(argc, argv, "nv")) != -1) {
+ 		switch (opt) {
++		case 'n':
++			no_connx = true;
++			break;
+ 		case 'v':
+ 			verbose = true;
+ 			break;
+@@ -40,6 +45,10 @@ int main(int argc, char **argv)
+ 	else
+ 		usage(argv[0]);
+ 
++	/* Testing SCTP_SENDMSG_CONNECT only valid on SEQ */
++	if (no_connx && type == SOCK_STREAM)
++		usage(argv[0]);
++
+ 	if (verbose) {
+ 		if (getcon(&context) < 0)
+ 			context = strdup("unavailable");
+@@ -65,7 +74,7 @@ int main(int argc, char **argv)
+ 			  srv_res->ai_protocol);
+ 	if (srv_sock < 0) {
+ 		perror("socket - server");
+-		exit(1);
++		exit(2);
+ 	}
+ 
+ 	if (verbose)
+@@ -76,14 +85,14 @@ int main(int argc, char **argv)
+ 	if (result < 0) {
+ 		perror("setsockopt: SO_REUSEADDR");
+ 		close(srv_sock);
+-		exit(1);
++		exit(3);
+ 	}
+ 
+ 	result = bind(srv_sock, srv_res->ai_addr, srv_res->ai_addrlen);
+ 	if (result < 0) {
+ 		perror("bind");
+ 		close(srv_sock);
+-		exit(1);
++		exit(4);
+ 	}
+ 
+ 	listen(srv_sock, 1);
+@@ -97,25 +106,39 @@ int main(int argc, char **argv)
+ 	if (result < 0) {
+ 		fprintf(stderr, "getaddrinfo - client: %s\n",
+ 			gai_strerror(result));
+-		exit(1);
++		exit(5);
+ 	}
+ 
+ 	client_sock = socket(client_res->ai_family, client_res->ai_socktype,
+ 			     client_res->ai_protocol);
+ 	if (client_sock < 0) {
+ 		perror("socket - client");
+-		exit(1);
++		exit(6);
+ 	}
+ 
+ 	if (verbose)
+ 		print_context(client_sock, "Client");
+ 
+-	result = sctp_connectx(client_sock, client_res->ai_addr, 1, NULL);
++	if (!no_connx) {
++		result = sctp_connectx(client_sock, client_res->ai_addr, 1, NULL);
++		if (result < 0) {
++			perror("connectx");
++			close(srv_sock);
++			close(client_sock);
++			exit(7);
++		}
++	}
++
++	/* Send msg to form an association with server */
++	result = sctp_sendmsg(client_sock, msg, sizeof(msg),
++			      client_res->ai_addr,
++			      client_res->ai_addrlen,
++			      0, 0, 0, 0, 0);
+ 	if (result < 0) {
+-		perror("connectx");
++		perror("sctp_sendmsg - SCTP_SENDMSG_CONNECT");
+ 		close(srv_sock);
+ 		close(client_sock);
+-		exit(1);
++		exit(8);
+ 	}
+ 
+ 	close(srv_sock);
+diff --git a/tests/sctp/test b/tests/sctp/test
+index c87ee14..b4462c9 100755
+--- a/tests/sctp/test
++++ b/tests/sctp/test
+@@ -1,6 +1,18 @@
+ #!/usr/bin/perl
+ use Test::More;
+ 
++#
++# These tests cover the net/sctp security hooks as discussed in kernel tree:
++#     Documentation/security/SCTP.rst
++# The only two places in SCTP code not tested as they need unusual sctp
++# packets to be sent are:
++#   net/sctp/sm_statefuns.c sctp_sf_do_unexpected_init - assoc_request
++#   net/sctp/sm_statefuns.c sctp_sf_do_5_2_4_dupcook - assoc_request
++#
++# Network traffic can be followed using tshark(1):
++#        tshark -O sctp,ipv6,ip,cipso,calipso -P -x -i any
++#
++
+ BEGIN {
+     $basedir = $0;
+     $basedir =~ s|(.*)/[^/]*|$1|;
+@@ -21,7 +33,7 @@ BEGIN {
+         plan skip_all => "SCTP not supported";
+     }
+     else {
+-        $test_count = 71;
++        $test_count = 75;
+ 
+         # asconf parameter tests require two local non-loopback addresses.
+         $ipaddress_list = `ip -o addr show up scope global`;
+@@ -125,9 +137,8 @@ $result = system
+   "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq ::1 1035";
+ ok( $result eq 0 );
+ 
+-######## This test requires setting a portcon statement in policy ###########
+-# Verify that the client cannot communicate with server when using port not allowed STREAM->STREAM.
+-# Note that the sctp_test policy only allows ports 1024-65535
++# Verify that the client cannot communicate with server when using port < 1024 STREAM->STREAM.
++# deny sctp_socket { name_connect }
+ $result = system
+ "runcon -t test_sctp_client_t -- $basedir/sctp_client $v -e nopeer stream ::1 1023 2>&1";
+ ok( $result >> 8 eq 8 );
+@@ -135,9 +146,8 @@ ok( $result >> 8 eq 8 );
+ # Kill the stream server.
+ server_end($pid);
+ 
+-######## This test requires setting a portcon statement in policy ###########
+-# Verify that the server cannot start when using port not allowed STREAM->STREAM.
+-# Note that the sctp_test policy only allows ports 1024-65535
++# Verify that the server cannot start when using port < 1024.
++# deny sctp_socket { name_bind }
+ $result =
+   system "runcon -t test_sctp_server_t -- $basedir/sctp_bind $v stream 80 2>&1";
+ ok($result);
+@@ -145,6 +155,7 @@ ok($result);
+ #
+ ############################### CONNECTX #####################################
+ #
++# net/sctp/socket.c sctp_setsockopt_connectx() SCTP_SOCKOPT_CONNECTX
+ print "# Testing connectx.\n";
+ 
+ $result = system
+@@ -156,9 +167,31 @@ $result =
+   "runcon -t test_sctp_connectx_t $basedir/sctp_connectx $v seq ::1 1035";
+ ok( $result eq 0 );
+ 
++$result =
++  system
++"runcon -t test_sctp_deny_connectx_t $basedir/sctp_connectx $v seq ::1 1035 2>&1";
++ok( $result >> 8 eq 7 );
++
++#
++########################### SCTP_SENDMSG_CONNECT #############################
++#
++# net/sctp/socket.c sctp_sendmsg_new_asoc() SCTP_SENDMSG_CONNECT
++print "# Testing SCTP_SENDMSG_CONNECT.\n";
++
++$result =
++  system
++"runcon -t test_sctp_connectx_t $basedir/sctp_connectx $v -n seq 127.0.0.1 1035";
++ok( $result eq 0 );
++
++$result =
++  system
++"runcon -t test_sctp_deny_connectx_t $basedir/sctp_connectx $v -n seq ::1 1035 2>&1";
++ok( $result >> 8 eq 8 );
++
+ #
+ ################################ BINDX #######################################
+ #
++# net/sctp/socket.c sctp_setsockopt_bindx() SCTP_SOCKOPT_BINDX_ADD
+ print "# Testing bindx.\n";
+ 
+ $result =
+@@ -169,6 +202,11 @@ $result =
+   system "runcon -t test_sctp_bindx_t $basedir/sctp_bindx $v -r seq 1035";
+ ok( $result eq 0 );
+ 
++$result =
++  system
++  "runcon -t test_sctp_deny_bindx_t $basedir/sctp_bindx $v -r seq 1035 2>&1";
++ok( $result >> 8 eq 2 );
++
+ #
+ ######################### SET_PRI_ADDR SET_PEER_ADDR ########################
+ #
+@@ -274,6 +312,7 @@ system "/bin/sh $basedir/fb-label-flush";
+ #
+ #################### Test deny association permission ########################
+ #
++# net/sctp/sm_statefuns.c sctp_sf_do_5_1B_init() assoc_request
+ print "# Testing deny association.\n";
+ system "/bin/sh $basedir/fb-deny-label-load";
+ 
+@@ -329,6 +368,7 @@ $result = system
+ ok( $result eq 0 );
+ 
+ # Verify that authorized client cannot communicate with the server using invalid level STREAM->STREAM.
++# Fails with mlsconstrain peer { recv }
+ $result = system
+ "runcon -t test_sctp_client_t -l s0:c182.c193 -- $basedir/sctp_client $v stream 127.0.0.1 1035 2>&1";
+ ok( $result >> 8 eq 6 );
+@@ -771,7 +811,7 @@ sub test_tables {
+ "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer stream 127.0.0.1 1035";
+     ok( $result eq 0 );
+ 
+-# Verify that a client without peer { recv } permission cannot communicate with the server STREAM->STREAM.
++# Verify that a client without packet { recv } permission cannot communicate with the server STREAM->STREAM.
+     $result = system
+ "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer stream 127.0.0.1 1035 2>&1";
+     ok( $result >> 8 eq 6 );
+@@ -781,7 +821,7 @@ sub test_tables {
+ "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer stream ::1 1035";
+     ok( $result eq 0 );
+ 
+-# Verify that a client without peer { recv } permission cannot communicate with the server STREAM->STREAM.
++# Verify that a client without packet { recv } permission cannot communicate with the server STREAM->STREAM.
+     $result = system
+ "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer stream ::1 1035 2>&1";
+     ok( $result >> 8 eq 6 );
+@@ -798,7 +838,7 @@ sub test_tables {
+ "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq 127.0.0.1 1035";
+     ok( $result eq 0 );
+ 
+-# Verify that a client without peer { recv } permission cannot communicate with the server SEQ->SEQ.
++# Verify that a client without packet { recv } permission cannot communicate with the server SEQ->SEQ.
+     $result = system
+ "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer seq 127.0.0.1 1035 2>&1";
+     ok( $result >> 8 eq 6 );
+@@ -808,7 +848,7 @@ sub test_tables {
+ "runcon -t test_sctp_client_t $basedir/sctp_client $v -e nopeer seq ::1 1035";
+     ok( $result eq 0 );
+ 
+-# Verify that a client without peer { recv } permission cannot communicate with the server SEQ->SEQ.
++# Verify that a client without packet { recv } permission cannot communicate with the server SEQ->SEQ.
+     $result = system
+ "runcon -t test_sctp_deny_peer_client_t -- $basedir/sctp_client $v -e nopeer seq ::1 1035 2>&1";
+     ok( $result >> 8 eq 6 );
+-- 
+2.26.2
 
-I was thinking initially that -k caused make to return 0 not 1, and
-that -k was the
-root cause. That's not the case as you pointed out, so I think we can
-ignore that
-part. I think N errors in a make build are fine, so long as the rest
-of it doesn't
-attempt to run.
-
->
-> Cheers,
-> Nicolas
->
