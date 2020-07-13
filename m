@@ -2,201 +2,209 @@ Return-Path: <SRS0=ArME=AY=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82ABBC433EA
-	for <selinux@archiver.kernel.org>; Mon, 13 Jul 2020 18:52:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09C24C433E2
+	for <selinux@archiver.kernel.org>; Mon, 13 Jul 2020 19:01:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C71D20758
-	for <selinux@archiver.kernel.org>; Mon, 13 Jul 2020 18:52:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1594666322;
-	bh=LJYNdMjGh9jhnhTSdjGmRfj4ZZPmYTCiDmXsEYK+rbA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=nwjSdY1eNuMFjKdtIXIJZc/0Dfyi1x9o8j1+Iwyq8mzxDPpN/bJS/cVswSN1K3q1g
-	 hoI4Emxnu7Rr6EUuG3WYHej8L/LrjkxUyap0dQlfLvhlyUXbfNBFqOsH0DREb7h5wS
-	 iP/0kiKGHIwgMZuqylsAfFJOWTl6qnTbbVCr5Yg8=
+	by mail.kernel.org (Postfix) with ESMTP id CCB222067D
+	for <selinux@archiver.kernel.org>; Mon, 13 Jul 2020 19:01:29 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LH/8OlZs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726949AbgGMSv6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 13 Jul 2020 14:51:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36242 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726934AbgGMSv4 (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 13 Jul 2020 14:51:56 -0400
-Received: from quaco.ghostprotocols.net (unknown [179.97.37.151])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A52E62067D;
-        Mon, 13 Jul 2020 18:51:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1594666315;
-        bh=LJYNdMjGh9jhnhTSdjGmRfj4ZZPmYTCiDmXsEYK+rbA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xcUtfiYB9gVw0idtGZ0ckHJ2AwARiBsz3B5pO/4Xsnz0RRlywvnR9X3VFXsqG5tBe
-         5BFF04XGFk0AfoP+GCDL7YcFUld9kJx5NTN7ySezxdO8tPJlxVaKmnlPfv01njAyWF
-         f3dcdWXOvMV/lHwrEnxNT6iK1jKKpuEn4rBQVCxk=
-Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
-        id 1C9B440094; Mon, 13 Jul 2020 15:51:52 -0300 (-03)
-Date:   Mon, 13 Jul 2020 15:51:52 -0300
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Alexey Budankov <alexey.budankov@linux.intel.com>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Serge Hallyn <serge@hallyn.com>, Jiri Olsa <jolsa@redhat.com>,
-        Song Liu <songliubraving@fb.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Stephane Eranian <eranian@google.com>,
-        Igor Lubashev <ilubashe@akamai.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-        linux-man@vger.kernel.org
-Subject: Re: [PATCH v8 00/12] Introduce CAP_PERFMON to secure system
- performance monitoring and observability
-Message-ID: <20200713185152.GA18094@kernel.org>
-References: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
- <76718dc6-5483-5e2e-85b8-64e70306ee1f@linux.ibm.com>
- <7776fa40-6c65-2aa6-1322-eb3a01201000@linux.intel.com>
- <20200710170911.GD7487@kernel.org>
- <0d2e2306-22b2-a730-dc3f-edb3538b6561@linux.intel.com>
- <20200713121746.GA7029@kernel.org>
- <0fadcf78-8b0e-ed03-a554-cc172b7d249c@linux.intel.com>
+        id S1726465AbgGMTB3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 13 Jul 2020 15:01:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43576 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726321AbgGMTB3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 13 Jul 2020 15:01:29 -0400
+Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BBBEC061755
+        for <selinux@vger.kernel.org>; Mon, 13 Jul 2020 12:01:29 -0700 (PDT)
+Received: by mail-io1-xd43.google.com with SMTP id e64so14659932iof.12
+        for <selinux@vger.kernel.org>; Mon, 13 Jul 2020 12:01:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=uYjzOy0qohLvsvQNlKQ9F0Tw5otJXR/YOjY9zdSrhdQ=;
+        b=LH/8OlZsWcnBpz0n7v6mBU/xWrPV3ybZkp1lOCcTFNc7spmY8F2bStZHeRpLp2VvkT
+         w244qu6K/pRApmX+Q052Z8wTPXwkKtwFwrGqjWj+eTyOcw1xBH4uoQeaOPxOyd5DepXR
+         Mk5LTTC63LyuxVUjZtKWNTEfG5aXtuObnR95Gjqo82P8uOg7hcJ9ECSK16JnWAUg3nCi
+         KasG8/qUEAgvCkVRoAbflXfh68qXB8PwcTxiS6yXb3iAxIkB6uOLT73BHMwhE5zPpEXl
+         chaAjDAJ8SZbG93VKY3WXJNMAYaMEQhdpA5PuBHg16mHNUIEcEgt67+IWghHHoekdZx+
+         aihA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=uYjzOy0qohLvsvQNlKQ9F0Tw5otJXR/YOjY9zdSrhdQ=;
+        b=MIKxOHF5sJO2z09qAql/YTI5JMt74duIslPVWHM596IX9vgxhVlraPC287C9o0VXsQ
+         XzDxdaeDsppkoLzOBXj2MzyVYYi2tHtxdBd7Xg+ZsTeYhQOMDqq+Y0OnpOCu0kMkdzxt
+         etWKTfMcy/ZWGDt2xLeYqJEytus7p2jk8GhAn43APzo1mcauoudH1t3+FT9XujTxvncB
+         1JgOJD9Pwgn1flCR/hpyaWUqNcw7gxZxP8C8HRC+gYwuvTipG64EtfmVCZaB6/D1+tNA
+         rr1JsYYK8CY1YHdj9MXE1zLaTYiDzCDoSdYDYlC9LcdT4DYmt5X0nn/6CFhbaCvyBUKB
+         QD3A==
+X-Gm-Message-State: AOAM532Z0z7yZjwejvEdUAoqQGNsMw+VF4M/26gI7L3wgZCw+cXCgzAT
+        xoQDtcTl+7Gd/NmWoQ5gIwHjSuNF7iQhm288q/A=
+X-Google-Smtp-Source: ABdhPJxhN1JVgSTdiPF6CePJSSlyMCnCKZLskcOvJ87Jl35SEky2KA2GKaHQGdjNGBoOTdqbBfKSwkz9mHmTvHN5VQs=
+X-Received: by 2002:a5d:8f98:: with SMTP id l24mr1181859iol.141.1594666888281;
+ Mon, 13 Jul 2020 12:01:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <0fadcf78-8b0e-ed03-a554-cc172b7d249c@linux.intel.com>
-X-Url:  http://acmel.wordpress.com
+References: <CAFftDdpDN+8c2hQ+OoX8z+Fx3s-7-g2sn7ZV+Y=D=NZqqFwr6Q@mail.gmail.com>
+ <CAHC9VhQkTgYFQ5ncLDJpOcqynWam3QY7udLQoUYSb3HgkvdboQ@mail.gmail.com>
+ <CAJfZ7=kyieBs6_NPE3k2tyNSydrwmVT7k3kcmd=0Xsi7JoD2Zg@mail.gmail.com>
+ <CAFftDdp=4nB1CfmAQXBbN_BODHMaXaVbLGsh7+mHLt6GpTGMZg@mail.gmail.com>
+ <CAJfZ7=mUXwwhFXAnztCp-dO=rLfqUZGH4omGKpnqZGnrCdEtRw@mail.gmail.com> <CAFftDdqhO5_ZEGOAHGVZHdB9j4B86od12R1dicbTBmfwHEQS1Q@mail.gmail.com>
+In-Reply-To: <CAFftDdqhO5_ZEGOAHGVZHdB9j4B86od12R1dicbTBmfwHEQS1Q@mail.gmail.com>
+From:   William Roberts <bill.c.roberts@gmail.com>
+Date:   Mon, 13 Jul 2020 14:01:16 -0500
+Message-ID: <CAFftDdpTDXY_2dzdiEtRJzeSx-PbzBzGVhrg3+XwatTTvDtkgg@mail.gmail.com>
+Subject: Re: travis: any reason we have keep going on make commands
+To:     Nicolas Iooss <nicolas.iooss@m4x.org>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Em Mon, Jul 13, 2020 at 03:37:51PM +0300, Alexey Budankov escreveu:
-> 
-> On 13.07.2020 15:17, Arnaldo Carvalho de Melo wrote:
-> > Em Mon, Jul 13, 2020 at 12:48:25PM +0300, Alexey Budankov escreveu:
-> >>
-> >> On 10.07.2020 20:09, Arnaldo Carvalho de Melo wrote:
-> >>> Em Fri, Jul 10, 2020 at 05:30:50PM +0300, Alexey Budankov escreveu:
-> >>>> On 10.07.2020 16:31, Ravi Bangoria wrote:
-> >>>>>> Currently access to perf_events, i915_perf and other performance
-> >>>>>> monitoring and observability subsystems of the kernel is open only for
-> >>>>>> a privileged process [1] with CAP_SYS_ADMIN capability enabled in the
-> >>>>>> process effective set [2].
-> > 
-> >>>>>> This patch set introduces CAP_PERFMON capability designed to secure
-> >>>>>> system performance monitoring and observability operations so that
-> >>>>>> CAP_PERFMON would assist CAP_SYS_ADMIN capability in its governing role
-> >>>>>> for performance monitoring and observability subsystems of the kernel.
-> > 
-> >>>>> I'm seeing an issue with CAP_PERFMON when I try to record data for a
-> >>>>> specific target. I don't know whether this is sort of a regression or
-> >>>>> an expected behavior.
-> > 
-> >>>> Thanks for reporting and root causing this case. The behavior looks like
-> >>>> kind of expected since currently CAP_PERFMON takes over the related part
-> >>>> of CAP_SYS_ADMIN credentials only. Actually Perf security docs [1] say
-> >>>> that access control is also subject to CAP_SYS_PTRACE credentials.
-> > 
-> >>> I think that stating that in the error message would be helpful, after
-> >>> all, who reads docs? 8-)
-> > 
-> >> At least those who write it :D ...
-> > 
-> > Everybody should read it, sure :-)
-> >  
-> >>> I.e., this:
-> >>>
-> >>> $ ./perf stat ls
-> >>>   Error:
-> >>>   Access to performance monitoring and observability operations is limited.
-> >>> $
-> >>>
-> >>> Could become:
-> >>>
-> >>> $ ./perf stat ls
-> >>>   Error:
-> >>>   Access to performance monitoring and observability operations is limited.
-> >>>   Right now only CAP_PERFMON is granted, you may need CAP_SYS_PTRACE.
-> >>> $
-> >>
-> >> It would better provide reference to perf security docs in the tool output.
-> > 
-> > So add a 3rd line:
-> > 
-> > $ ./perf stat ls
-> >   Error:
-> >   Access to performance monitoring and observability operations is limited.
-> >   Right now only CAP_PERFMON is granted, you may need CAP_SYS_PTRACE.
-> >   Please read the 'Perf events and tool security' document:
-> >   https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html
+On Sat, Jul 11, 2020 at 2:28 PM William Roberts
+<bill.c.roberts@gmail.com> wrote:
+>
+> On Sat, Jul 11, 2020 at 11:57 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> >
+> > On Fri, Jul 10, 2020 at 5:23 PM William Roberts
+> > <bill.c.roberts@gmail.com> wrote:
+> > >
+> > > On Fri, Jul 10, 2020 at 4:10 AM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+> > > >
+> > > > On Thu, Jul 9, 2020 at 8:00 PM Paul Moore <paul@paul-moore.com> wrote:
+> > > > >
+> > > > > On Thu, Jul 9, 2020 at 10:33 AM William Roberts
+> > > > > <bill.c.roberts@gmail.com> wrote:
+> > > > > > So Nicolas initially created our travis script in commit c9adfe2d2653
+> > > > > > and has -k, or keep going, on the make commands. This causes make to
+> > > > > > plow ahead and bury the errors in the logs. Stephen noticed this the
+> > > > > > other day, and we have been chatting about it out of band and wanted
+> > > > > > to pull in the community.
+> > > > > >
+> > > > > > Are their compelling reasons for keeping this behavior? I am also
+> > > > > > concerned that we could get false positives on travis success results.
+> > > > >
+> > > > > In my opinion the whole point of automated testing is to catch
+> > > > > failures early and often.  For that reason I would want the test to
+> > > > > fail and stop, both because I find it easier to identify the failure
+> > > > > that way and also because I'm not sure I would trust much of the
+> > > > > testing that occurred after an error condition.
+> > > > >
+> > > > Hi,
+> > > > There seems to be some confusion:
+> > > >
+> > > > * "make -k" does not stop the "make" command at the first error and
+> > > > allows seeing all the errors when there are several ones. In my humble
+> > > > opinion, it makes sense when compiling ("make all") and not when
+> > > > running tests ("make test"), and this is actually what is right now in
+> > > > Travis-CI. "make -k" returns a failure exit code when an error
+> > > > happens.
+> > >
+> > > Ahh I thought it returned to 0. Not sure why I assumed that.
+> > >
+> > > >
+> > > > * Travis-CI does not stop the job as soon as a sub-command fails. If I
+> > >
+> > > Depends on the stage:
+> > > https://docs.travis-ci.com/user/job-lifecycle/
+> > > If before_install, install or before_script returns a non-zero exit
+> > > code, the build is errored and stops immediately.
+> > > If script returns a non-zero exit code, the build is failed, but
+> > > continues to run before being marked as failed.
+> > >
+> > > I put a false command in the script section and it kept plowing ahead
+> > > as you foretold.
+> > >
+> > > > understand correctly, this is what really bothers William, and I agree
+> > > > this is a behavior that can be improved. According to
+> > > > https://github.com/travis-ci/travis-ci/issues/1066, a possible
+> > > > solution could be to use "set -e", which could have unexpected
+> > > > side-effects in launched commands. It is possible to "emulate set -e"
+> > > > by adding exit statements, such as :
+> > > >
+> > > >     - make install $EXPLICIT_MAKE_VARS -k || exit $?
+> > > >     - make install-pywrap $EXPLICIT_MAKE_VARS -k || exit $?
+> > > >     - make install-rubywrap $EXPLICIT_MAKE_VARS -k || exit $?
+> > > >     # ...
+> > > >     - make test $EXPLICIT_MAKE_VARS || exit $?
+> > > >
+> > > > I have not tested whether this works on Travis-CI, but if it does, it
+> > > > would be a nice improvement. I will take a look this week-end.
+> > >
+> > > I think the scripts are more maintainable outside of travis yaml files
+> > > as separate build scripts,
+> > > for two reasons:
+> > > 1.  One can just execute the script locally, you can't, AFAIK, do that
+> > > with a travis yaml file.
+> > > 2.  The issue can be avoided as they afford more control. Some other
+> > > projects I am a part of we only
+> > >      use script and after_failure. The bash scripts are set -e. I also
+> > > used this approach for the KVM
+> > >      selinux test run.
+> > >
+> > > script:
+> > >   - ./.ci/travis.run
+> > > after_failure:
+> > >   - cat build/test-suite.log
+> > >
+> > > We could adopt like what's above...
+> >
+> > I did not understand the part about using "cat build/test-suite.log",
+> > but otherwise the idea of putting the commands into a dedicated script
+>
+> Oh ignore that, that's a particular artifact of using automake's test
+> log compiler
+> for my particular project. You won't see that in stdout so on failure to see
+> the details of each test run I have to do that.
+>
+> > file sounds good, as this allows more flexibility. In order to know
+> > which command failed (and fail as soon as a command fails), I suggest
+> > using "set -e -x" in these scripts.
+>
+> Yep, exactly.
+>
+> >
+> > By the way, about the issue with "make", there is another thing from
+> > your initial message that I understood only after sending my first
+> > reply: a consequence of using "make -k" that can be considered
+> > undesirable is the fact that when an error happens, its message can be
+> > drowned among the flow of other messages. I disagree with removing
+> > "-k" because this would only show one error, instead of all the errors
+> > that occur during a build. Nevertheless it is possible to achieve the
+> > best of both alternatives by using constructions such as:
+> >
+> > if ! make install $EXPLICIT_MAKE_VARS -k ; then
+> >   echo >&2 "Error in make install $EXPLICIT_MAKE_VARS:"
+> >   make install $EXPLICIT_MAKE_VARS   # This command shows one error,
+> > at the end of the build logs.
+> >   exit 1
+> > fi
+> >
+> > Would such constructions be helpful?
+>
+> I was thinking initially that -k caused make to return 0 not 1, and
+> that -k was the
+> root cause. That's not the case as you pointed out, so I think we can
+> ignore that
+> part. I think N errors in a make build are fine, so long as the rest
+> of it doesn't
+> attempt to run.
 
-> If it had that patch below then message change would not be required.
+FYI I filed a bug on this:
+https://github.com/SELinuxProject/selinux/issues/256
 
-Sure, but the tool should continue to work and provide useful messages
-when running on kernels without that change. Pointing to the document is
-valid and should be done, that is an agreed point. But the tool can do
-some checks, narrow down the possible causes for the error message and
-provide something that in most cases will make the user make progress.
-
-> However this two sentences in the end of whole message would still add up:
-> "Please read the 'Perf events and tool security' document:
->  https://www.kernel.org/doc/html/latest/admin-guide/perf-security.html"
-
-We're in violent agreement here. :-)
- 
-> > 
-> >> Looks like extending ptrace_may_access() check for perf_events with CAP_PERFMON
-> > 
-> > You mean the following?
-> 
-> Exactly that.
-
-Sure, lets then wait for others to chime in and then you can go ahead
-and submit that patch.
-
-Peter?
-
-- Arnaldo
- 
-> > 
-> > diff --git a/kernel/events/core.c b/kernel/events/core.c
-> > index 856d98c36f56..a2397f724c10 100644
-> > --- a/kernel/events/core.c
-> > +++ b/kernel/events/core.c
-> > @@ -11595,7 +11595,7 @@ SYSCALL_DEFINE5(perf_event_open,
-> >  		 * perf_event_exit_task() that could imply).
-> >  		 */
-> >  		err = -EACCES;
-> > -		if (!ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
-> > +		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
-> >  			goto err_cred;
-> >  	}
-> > 
-> >> makes monitoring simpler and even more secure to use since Perf tool need
-> >> not to start/stop/single-step and read/write registers and memory and so on
-> >> like a debugger or strace-like tool. What do you think?
-> > 
-> > I tend to agree, Peter?
-> >  
-> >> Alexei
-> >>
-> >>>
-> >>> - Arnaldo
-> 
-> Alexei
-
--- 
-
-- Arnaldo
+So we don't lose this.
