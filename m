@@ -7,63 +7,65 @@ X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32D95C433E3
-	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 20:29:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B86CC433E4
+	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 20:29:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0079420657
-	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 20:29:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2151020657
+	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 20:29:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="RNwEhzeu"
+	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="x6GjLKPO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726851AbgGNU3s (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Jul 2020 16:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
+        id S1726907AbgGNU3t (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Jul 2020 16:29:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726694AbgGNU3s (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jul 2020 16:29:48 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8C06C061755
-        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 13:29:47 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id 6so13961749qtt.0
-        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 13:29:47 -0700 (PDT)
+        with ESMTP id S1726694AbgGNU3t (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jul 2020 16:29:49 -0400
+Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BEBCC061755
+        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 13:29:49 -0700 (PDT)
+Received: by mail-qt1-x843.google.com with SMTP id u12so13896130qth.12
+        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 13:29:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:subject:date:message-id:mime-version
+        h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
         bh=ly1gHLo5HvX5ph1X7e39iRbi0Z899otuMlWttGnBZ1g=;
-        b=RNwEhzeuthbYjenahcxQ61YhPZ781k941GVKunx2OCrKwiuG1Ih/x61ZvbkEuQTVwX
-         3kGOUy+xjcGduEjqCdWhMK0eymRzPhvxXx4cMrx1Fta9UqRuo8Fk6M6mptuU/a9Jdsa7
-         lrfMR0cCUO6vjySgTXlpUX6hzEbplFhKXGxk1Hyycabu2TMwMtRFOCwVBXFiBsmzWyTr
-         YmiAcbW4V4oiB4CtSFnAYN8wXbA/CElCPIKp6faMcBruRO8AN/VKV8C1Hy6B/XLYtKP1
-         bhpeiaTLvxKrV4mjhSTPxp5QGF4e3aKbbHef9jhgR9b5r4D5dG4bLW1n2qMPGjlzUJtl
-         9PCA==
+        b=x6GjLKPOyH1FdX1y1nMmkav4dweEVT6vJ68odUl7yeGivtgfUrDfrgtSzgPXh4jqq+
+         G0EihMtWOcDZtLUup8c+rn62PYxoDW0lUwUku5hwVhQYvjaQXuBg+Z5/uEAt+orx0kHh
+         EWSeNOZNmAYMJwxRKySi9sKmiARdIBJfE12unpP/lFFfBGU6HS1JCCFTX8spbZQfZuBx
+         Wajpy7weIE7R5kXw/bRHpkRBRtpbr4KvQ3CzKaYHhKZlR/t/C+Fd59I8s8fcX3HBJROs
+         AdEB3gmT+8lybFAJo7c+ukskjYV2WMzC8cmdG+CrbCUdxyBhopE5PGTEoEdQ4ZqY/6l5
+         Tyrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
-         :content-transfer-encoding;
+        h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
         bh=ly1gHLo5HvX5ph1X7e39iRbi0Z899otuMlWttGnBZ1g=;
-        b=hUQnNsOCjx6mgqzU3qfKOLIP43OIxU06DQifnrutd37/cqzsCfP9dQf05VAzwrrw07
-         1cqIa35751DvLLxBw9+2b5CbM7KQhuBA37YCkDG66qF3hVgNQ4GsE/ulL+legybjr3/u
-         7oMhgOaL34BD2MOv2XjOW8LEYWGngKOQfs5PMZKBa7uExyPDel+iE1UGHMVanlu+4Gve
-         bFpJeJsVYXM9gBty9XEbkEvczBLNKws/MnNkBQmupA/ZnxlaIfZaUzAfS1jyPTftDbPZ
-         o6wfs+jGTm+fe0t8oxvJX33wp85YFqHAdJtANW7n1wjFxubIKvot3YFKTh5g2ftkH+S1
-         608A==
-X-Gm-Message-State: AOAM530Z9mNA60kGw0j+rkVDORap3YowzC7zZu/2Ml7DETQ4XOCCUiXJ
-        cgjmABpn2TGSxu43DgvCSnEsHsjjJAZPWA==
-X-Google-Smtp-Source: ABdhPJx6l44JIzLA+H7zk7UAHJYTgvfU00vkFe0BfUee9TZyzH1FCVKBtVKVvalm6roOxcV5AF66Cg==
-X-Received: by 2002:ac8:46d6:: with SMTP id h22mr6616371qto.296.1594758586519;
-        Tue, 14 Jul 2020 13:29:46 -0700 (PDT)
+        b=juuTKo0J0kb0bjzVAuSe8E75j5i7uv2f22FUdf4iAzxmYo2zvPeytRf4YOcX/iAGBN
+         eE93zx7T+sappqQL2X+OS/faY8qdiZS5hrUDjm3jXJ2YCcwBQzGEgDQuUI7/BdkQaRFW
+         eXoROvTnSXDu8PY0UrfERTh1vXC8efiYIRQZZjnljcmpQRYS8dlXPz6JXqzltU0EVgW8
+         2TkDxTOkjxwzNoZxd2n8/K3r9I8Ys7TGG9azM/C9G9NtYoxSTUGnEctnE42jPxO6taN5
+         Q/4ZR5aD9cj57VGZAn5Jg2WZd2r80+iORTGIOfsUk1VTOSXWRb3ZvZmfMfVTXw07bPF5
+         GxeQ==
+X-Gm-Message-State: AOAM532QtrEH/k/ih/04JBgEEK57J1QJ3Rq47ngXselmXmzPAawfHuun
+        +hDKcoXp6KHS8XuPQ0df7oSJ0zGPflHdpA==
+X-Google-Smtp-Source: ABdhPJygJCaop6lUj7yX+gxTsorN7xJuohAsi2DRs6XS6gGbZX/eDjOeNhW0zL0TP5BFSr9zozKGwg==
+X-Received: by 2002:ac8:2f33:: with SMTP id j48mr6789604qta.157.1594758587985;
+        Tue, 14 Jul 2020 13:29:47 -0700 (PDT)
 Received: from localhost.localdomain (c-69-250-100-181.hsd1.md.comcast.net. [69.250.100.181])
-        by smtp.gmail.com with ESMTPSA id a25sm111009qtk.40.2020.07.14.13.29.45
+        by smtp.gmail.com with ESMTPSA id a25sm111009qtk.40.2020.07.14.13.29.46
         for <selinux@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 14 Jul 2020 13:29:45 -0700 (PDT)
+        Tue, 14 Jul 2020 13:29:47 -0700 (PDT)
 From:   Mike Palmiotto <mike.palmiotto@crunchydata.com>
 To:     selinux@vger.kernel.org
 Subject: [PATCH] libselinux: Use sestatus if open
-Date:   Tue, 14 Jul 2020 16:29:33 -0400
-Message-Id: <20200714202934.42424-1-mike.palmiotto@crunchydata.com>
+Date:   Tue, 14 Jul 2020 16:29:34 -0400
+Message-Id: <20200714202934.42424-2-mike.palmiotto@crunchydata.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200714202934.42424-1-mike.palmiotto@crunchydata.com>
+References: <20200714202934.42424-1-mike.palmiotto@crunchydata.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
