@@ -3,95 +3,138 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E919FC433F2
-	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 14:40:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C61C2C433E2
+	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 15:27:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3375208C3
-	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 14:40:57 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Mr7Rr8Qk"
+	by mail.kernel.org (Postfix) with ESMTP id A228C222B7
+	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 15:27:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1594740461;
+	bh=QoYjwUwCr8iv3vS0vUx9ZHDJWPjQ+QNqL1IS1uCDfws=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
+	b=pkwFxvIw/yDFKY1N97UmLLBJ2StALqEUqJO/lwsEmRONAQrmQQTWE00G7/M1Uxbjt
+	 DBt3/zDxujtjPkuarIRN1HIUI2ShM2TRY/+r4zAa8oGJP0kHrtKBc7URphOwT93W96
+	 UL7b6MrMmSA9fBcHT+7nj/JT365y8lYICffjXhwg=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726384AbgGNOkv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Jul 2020 10:40:51 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:42507 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729399AbgGNOke (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jul 2020 10:40:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594737633;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=DD6pS3c9+3TLnow5w+xUjQpFZeP3PmWH/8jTyt7Pkzk=;
-        b=Mr7Rr8QkToJK+tlHqX3h8MPtbBdrDSxshne3bfr0ops04BMz2tzjyHS7Lk0D6PIvo4KNYT
-        tMEIEOg++Dkp2EdaNw22YbJRvkZdHPzFeCLbMxvZkENae70smyE1LjQA/Qmxvz2QPE5onV
-        SOsHayCf4+h+9zzlqMrIpqbA+kL3HJc=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-238-u1V8H93QMdSs9AG01RVWPw-1; Tue, 14 Jul 2020 10:40:32 -0400
-X-MC-Unique: u1V8H93QMdSs9AG01RVWPw-1
-Received: by mail-lj1-f200.google.com with SMTP id h14so14426931ljk.7
-        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 07:40:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=DD6pS3c9+3TLnow5w+xUjQpFZeP3PmWH/8jTyt7Pkzk=;
-        b=fXgmad/F4Hwdj7gisDkx5EwgKv/nwgn37nWKjjO39OPNKYGeDs5MpJpHQzDQBLAyva
-         UG0XOv5qiDobqyP2+7XlYoocB4te+v/K0bOuSU2d4GlpsEk9//2yp2MqyY93JCHZmgHx
-         0bYVnxNY4FkAKyTlwNdgsHMvXN0FDHTbuewBYG+oll5cXhnOKoMElBf3qp2fFv+fWqxq
-         RCVfWIkxf55UC7r7nbo7KD71p5EheWtIzakG7HSWjaQbCuSxhN8WyedfuhQe6ob91l6H
-         Cs2DXkqyeqPvuwSIWc8uZ5IBa39z1M9X3/BhyDuFGp6agyIdbOMQAXP5TBuiUC1wdyI3
-         nkaA==
-X-Gm-Message-State: AOAM532La3seFuphXW0IHrvw6weqW2mkBRVuikAEjCQ29UdYLVxLdPM3
-        H6uNO9199WFQvGTZc19EPDJ1gxBsRT/tESc6o/jtliUALLnU42zSj9UhKNUS+qrRIOOU1WEzxVD
-        +Cbta0zQ30n7o4P4JJEUtoJvYUcJ9QToNtw==
-X-Received: by 2002:a2e:91da:: with SMTP id u26mr2574384ljg.311.1594737630420;
-        Tue, 14 Jul 2020 07:40:30 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyp/Q8z3C+XhGeAhpM5L9bizdmed6ELNj7l5bOOoN+60fZiBhxTklgJwY6Gns8TGbz2E3NJsNE7ERfvhLQrRUs=
-X-Received: by 2002:a2e:91da:: with SMTP id u26mr2574371ljg.311.1594737630237;
- Tue, 14 Jul 2020 07:40:30 -0700 (PDT)
+        id S1726777AbgGNP1l (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Jul 2020 11:27:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47622 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725884AbgGNP1k (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 14 Jul 2020 11:27:40 -0400
+Received: from quaco.ghostprotocols.net (unknown [179.97.37.151])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4F1F221EF;
+        Tue, 14 Jul 2020 15:27:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1594740460;
+        bh=QoYjwUwCr8iv3vS0vUx9ZHDJWPjQ+QNqL1IS1uCDfws=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IlF+/jEnPt4EseeRoIoPFjobQsVIxxHoMUxeaU6x4iPB5I+zcKXAo29Qsj3LrlSOt
+         F6aKwji3bHjIa+iFYvuEuppwWSC+Pr6wSidVxI+lDpf5/hUfxbTwvOv1iYZzWp3Zte
+         6KaHlCF6JXLRFZMGMOyPUXEr32zu95cx5ogg8TB4=
+Received: by quaco.ghostprotocols.net (Postfix, from userid 1000)
+        id 1478540094; Tue, 14 Jul 2020 12:27:38 -0300 (-03)
+Date:   Tue, 14 Jul 2020 12:27:38 -0300
+From:   Arnaldo Carvalho de Melo <acme@kernel.org>
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Serge Hallyn <serge@hallyn.com>, Jiri Olsa <jolsa@redhat.com>,
+        Song Liu <songliubraving@fb.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Stephane Eranian <eranian@google.com>,
+        Igor Lubashev <ilubashe@akamai.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+        linux-man@vger.kernel.org
+Subject: Re: [PATCH v8 00/12] Introduce CAP_PERFMON to secure system
+ performance monitoring and observability
+Message-ID: <20200714152738.GB43671@kernel.org>
+References: <f96f8f8a-e65c-3f36-dc85-fc3f5191e8c5@linux.intel.com>
+ <76718dc6-5483-5e2e-85b8-64e70306ee1f@linux.ibm.com>
+ <7776fa40-6c65-2aa6-1322-eb3a01201000@linux.intel.com>
+ <20200710170911.GD7487@kernel.org>
+ <0d2e2306-22b2-a730-dc3f-edb3538b6561@linux.intel.com>
+ <20200713121746.GA7029@kernel.org>
+ <0fadcf78-8b0e-ed03-a554-cc172b7d249c@linux.intel.com>
+ <20200713185152.GA18094@kernel.org>
+ <20200714105934.GU10769@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-References: <20200702143508.24143-1-richard_c_haines@btinternet.com> <CAFqZXNt9BHra05Xuj6U7uMe6Qyf-Et65qWMCOqLCBp4hiXAB=w@mail.gmail.com>
-In-Reply-To: <CAFqZXNt9BHra05Xuj6U7uMe6Qyf-Et65qWMCOqLCBp4hiXAB=w@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 14 Jul 2020 16:40:19 +0200
-Message-ID: <CAFqZXNuKHxsPO4+NZJNQ3R_EkgM3-a=Dp35-Zpy+_HT_Hv51pw@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: Remove unused sctp code
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200714105934.GU10769@hirez.programming.kicks-ass.net>
+X-Url:  http://acmel.wordpress.com
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 7, 2020 at 4:50 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Thu, Jul 2, 2020 at 4:35 PM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > Removed obsolete code that was used to test permissions that never made it
-> > to the final commit.
-> >
-> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
-> > ---
-> >  tests/sctp/.gitignore          |   2 -
-> >  tests/sctp/Makefile            |   2 +-
-> >  tests/sctp/sctp_set_params.c   | 205 ---------------------------------
-> >  tests/sctp/sctp_set_pri_addr.c | 135 ----------------------
-> >  4 files changed, 1 insertion(+), 343 deletions(-)
-> >  delete mode 100644 tests/sctp/sctp_set_params.c
-> >  delete mode 100644 tests/sctp/sctp_set_pri_addr.c
->
-> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+Em Tue, Jul 14, 2020 at 12:59:34PM +0200, Peter Zijlstra escreveu:
+> On Mon, Jul 13, 2020 at 03:51:52PM -0300, Arnaldo Carvalho de Melo wrote:
+> 
+> > > > diff --git a/kernel/events/core.c b/kernel/events/core.c
+> > > > index 856d98c36f56..a2397f724c10 100644
+> > > > --- a/kernel/events/core.c
+> > > > +++ b/kernel/events/core.c
+> > > > @@ -11595,7 +11595,7 @@ SYSCALL_DEFINE5(perf_event_open,
+> > > >  		 * perf_event_exit_task() that could imply).
+> > > >  		 */
+> > > >  		err = -EACCES;
+> > > > -		if (!ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
+> > > > +		if (!perfmon_capable() && !ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
+> > > >  			goto err_cred;
+> > > >  	}
 
-And now it's applied. (Sorry for the delay, got lost from my radar...)
+> > > >> makes monitoring simpler and even more secure to use since Perf tool need
+> > > >> not to start/stop/single-step and read/write registers and memory and so on
+> > > >> like a debugger or strace-like tool. What do you think?
 
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+> > > > I tend to agree, Peter?
 
+> So this basically says that if CAP_PERFMON, we don't care about the
+> ptrace() permissions? Just like how CAP_SYS_PTRACE would always allow
+> the ptrace checks?
+
+> I suppose that makes sense.
+
+Yeah, it in fact addresses the comment right above it:
+
+        if (task) {
+                err = mutex_lock_interruptible(&task->signal->exec_update_mutex);
+                if (err)
+                        goto err_task;
+
+                /*
+                 * Reuse ptrace permission checks for now.
+                 *
+                 * We must hold exec_update_mutex across this and any potential
+                 * perf_install_in_context() call for this new event to
+                 * serialize against exec() altering our credentials (and the
+                 * perf_event_exit_task() that could imply).
+                 */
+                err = -EACCES;
+                if (!ptrace_may_access(task, PTRACE_MODE_READ_REALCREDS))
+                        goto err_cred;
+        }
+
+
+that "for now" part :-)
+
+Idea is to not require CAP_PTRACE for that, i.e. the attack surface for the
+perf binary is reduced.
+
+- Arnaldo
