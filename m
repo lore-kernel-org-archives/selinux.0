@@ -2,63 +2,44 @@ Return-Path: <SRS0=JLv6=A2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+X-Spam-Status: No, score=-15.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B99CC433E7
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 14:53:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFB26C43458
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:07:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3B2B2206D5
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 14:53:20 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GcBmqaBe"
+	by mail.kernel.org (Postfix) with ESMTP id 9ABC62065D
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:07:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726971AbgGOOxQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 10:53:16 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:42542 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726852AbgGOOxP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 10:53:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594824793;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=d9gLBZH3xrp5bh9Hcfk99uaWsYU1ho/1zy2f3F6QJLA=;
-        b=GcBmqaBeGaE6Xh0fJyDB73bl8SUWYodxOY7pC8VhbuREBT+v3lxrF+AwOfBhEaB/WkMOTf
-        geJ+bGYn7p3aDpWphOffX6onYmB8410QFQ+06tmNvlT++WIgx5bkM2w9Y8NparXQ4WasBL
-        PIp497SJHe0r+NGBcwJ4QNkoDKPpddQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-331-vxqMJMi2PhGPvdwM3iMhzQ-1; Wed, 15 Jul 2020 10:52:03 -0400
-X-MC-Unique: vxqMJMi2PhGPvdwM3iMhzQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B5E7F800EB6;
-        Wed, 15 Jul 2020 14:52:00 +0000 (UTC)
-Received: from dcbz.redhat.com (ovpn-114-113.ams2.redhat.com [10.36.114.113])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7CDEC60BF1;
-        Wed, 15 Jul 2020 14:51:53 +0000 (UTC)
-From:   Adrian Reber <areber@redhat.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Eric Biederman <ebiederm@xmission.com>,
+        id S1728179AbgGOPHU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jul 2020 11:07:20 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:50263 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728146AbgGOPHT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 11:07:19 -0400
+Received: from ip5f5af08c.dynamic.kabel-deutschland.de ([95.90.240.140] helo=wittgenstein)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1jvizh-0003h4-21; Wed, 15 Jul 2020 15:06:49 +0000
+Date:   Wed, 15 Jul 2020 17:06:47 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Adrian Reber <areber@redhat.com>
+Cc:     Eric Biederman <ebiederm@xmission.com>,
         Pavel Emelyanov <ovzxemul@gmail.com>,
         Oleg Nesterov <oleg@redhat.com>,
         Dmitry Safonov <0x7f454c46@gmail.com>,
         Andrei Vagin <avagin@gmail.com>,
         Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
-        =?UTF-8?q?Micha=C5=82=20C=C5=82api=C5=84ski?= 
-        <mclapinski@google.com>, Kamil Yurtsever <kyurtsever@google.com>,
+        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
+        Kamil Yurtsever <kyurtsever@google.com>,
         Dirk Petersen <dipeit@gmail.com>,
         Christine Flood <chf@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Mike Rapoport <rppt@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
         Radostin Stoyanov <rstoyanov1@gmail.com>,
-        Adrian Reber <areber@redhat.com>,
         Cyrill Gorcunov <gorcunov@openvz.org>,
         Serge Hallyn <serge@hallyn.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
@@ -68,254 +49,138 @@ Cc:     Mike Rapoport <rppt@linux.ibm.com>,
         linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
         Eric Paris <eparis@parisplace.org>,
         Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH v5 6/6] selftests: add clone3() CAP_CHECKPOINT_RESTORE test
-Date:   Wed, 15 Jul 2020 16:49:54 +0200
-Message-Id: <20200715144954.1387760-7-areber@redhat.com>
-In-Reply-To: <20200715144954.1387760-1-areber@redhat.com>
+Subject: Re: [PATCH v5 1/6] capabilities: Introduce CAP_CHECKPOINT_RESTORE
+Message-ID: <20200715150647.a24nz2iqrel62sfg@wittgenstein>
 References: <20200715144954.1387760-1-areber@redhat.com>
+ <20200715144954.1387760-2-areber@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20200715144954.1387760-2-areber@redhat.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This adds a test that changes its UID, uses capabilities to
-get CAP_CHECKPOINT_RESTORE and uses clone3() with set_tid to
-create a process with a given PID as non-root.
+On Wed, Jul 15, 2020 at 04:49:49PM +0200, Adrian Reber wrote:
+> This patch introduces CAP_CHECKPOINT_RESTORE, a new capability facilitating
+> checkpoint/restore for non-root users.
+> 
+> Over the last years, The CRIU (Checkpoint/Restore In Userspace) team has been
+> asked numerous times if it is possible to checkpoint/restore a process as
+> non-root. The answer usually was: 'almost'.
+> 
+> The main blocker to restore a process as non-root was to control the PID of the
+> restored process. This feature available via the clone3 system call, or via
+> /proc/sys/kernel/ns_last_pid is unfortunately guarded by CAP_SYS_ADMIN.
+> 
+> In the past two years, requests for non-root checkpoint/restore have increased
+> due to the following use cases:
+> * Checkpoint/Restore in an HPC environment in combination with a resource
+>   manager distributing jobs where users are always running as non-root.
+>   There is a desire to provide a way to checkpoint and restore long running
+>   jobs.
+> * Container migration as non-root
+> * We have been in contact with JVM developers who are integrating
+>   CRIU into a Java VM to decrease the startup time. These checkpoint/restore
+>   applications are not meant to be running with CAP_SYS_ADMIN.
+> 
+> We have seen the following workarounds:
+> * Use a setuid wrapper around CRIU:
+>   See https://github.com/FredHutch/slurm-examples/blob/master/checkpointer/lib/checkpointer/checkpointer-suid.c
+> * Use a setuid helper that writes to ns_last_pid.
+>   Unfortunately, this helper delegation technique is impossible to use with
+>   clone3, and is thus prone to races.
+>   See https://github.com/twosigma/set_ns_last_pid
+> * Cycle through PIDs with fork() until the desired PID is reached:
+>   This has been demonstrated to work with cycling rates of 100,000 PIDs/s
+>   See https://github.com/twosigma/set_ns_last_pid
+> * Patch out the CAP_SYS_ADMIN check from the kernel
+> * Run the desired application in a new user and PID namespace to provide
+>   a local CAP_SYS_ADMIN for controlling PIDs. This technique has limited use in
+>   typical container environments (e.g., Kubernetes) as /proc is
+>   typically protected with read-only layers (e.g., /proc/sys) for hardening
+>   purposes. Read-only layers prevent additional /proc mounts (due to proc's
+>   SB_I_USERNS_VISIBLE property), making the use of new PID namespaces limited as
+>   certain applications need access to /proc matching their PID namespace.
+> 
+> The introduced capability allows to:
+> * Control PIDs when the current user is CAP_CHECKPOINT_RESTORE capable
+>   for the corresponding PID namespace via ns_last_pid/clone3.
+> * Open files in /proc/pid/map_files when the current user is
+>   CAP_CHECKPOINT_RESTORE capable in the root namespace, useful for recovering
+>   files that are unreachable via the file system such as deleted files, or memfd
+>   files.
+> 
+> See corresponding selftest for an example with clone3().
+> 
+> Signed-off-by: Adrian Reber <areber@redhat.com>
+> Signed-off-by: Nicolas Viennot <Nicolas.Viennot@twosigma.com>
+> ---
 
-Signed-off-by: Adrian Reber <areber@redhat.com>
-Acked-by: Serge Hallyn <serge@hallyn.com>
----
- tools/testing/selftests/clone3/Makefile       |   4 +-
- .../clone3/clone3_cap_checkpoint_restore.c    | 203 ++++++++++++++++++
- 2 files changed, 206 insertions(+), 1 deletion(-)
- create mode 100644 tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c
+Thanks!
+This looks good now.
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 
-diff --git a/tools/testing/selftests/clone3/Makefile b/tools/testing/selftests/clone3/Makefile
-index cf976c732906..ef7564cb7abe 100644
---- a/tools/testing/selftests/clone3/Makefile
-+++ b/tools/testing/selftests/clone3/Makefile
-@@ -1,6 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- CFLAGS += -g -I../../../../usr/include/
-+LDLIBS += -lcap
- 
--TEST_GEN_PROGS := clone3 clone3_clear_sighand clone3_set_tid
-+TEST_GEN_PROGS := clone3 clone3_clear_sighand clone3_set_tid \
-+	clone3_cap_checkpoint_restore
- 
- include ../lib.mk
-diff --git a/tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c b/tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c
-new file mode 100644
-index 000000000000..2cc3d57b91f2
---- /dev/null
-+++ b/tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c
-@@ -0,0 +1,203 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+/*
-+ * Based on Christian Brauner's clone3() example.
-+ * These tests are assuming to be running in the host's
-+ * PID namespace.
-+ */
-+
-+/* capabilities related code based on selftests/bpf/test_verifier.c */
-+
-+#define _GNU_SOURCE
-+#include <errno.h>
-+#include <linux/types.h>
-+#include <linux/sched.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <stdbool.h>
-+#include <sys/capability.h>
-+#include <sys/prctl.h>
-+#include <sys/syscall.h>
-+#include <sys/types.h>
-+#include <sys/un.h>
-+#include <sys/wait.h>
-+#include <unistd.h>
-+#include <sched.h>
-+
-+#include "../kselftest.h"
-+#include "clone3_selftests.h"
-+
-+#ifndef MAX_PID_NS_LEVEL
-+#define MAX_PID_NS_LEVEL 32
-+#endif
-+
-+static void child_exit(int ret)
-+{
-+	fflush(stdout);
-+	fflush(stderr);
-+	_exit(ret);
-+}
-+
-+static int call_clone3_set_tid(pid_t * set_tid, size_t set_tid_size)
-+{
-+	int status;
-+	pid_t pid = -1;
-+
-+	struct clone_args args = {
-+		.exit_signal = SIGCHLD,
-+		.set_tid = ptr_to_u64(set_tid),
-+		.set_tid_size = set_tid_size,
-+	};
-+
-+	pid = sys_clone3(&args, sizeof(struct clone_args));
-+	if (pid < 0) {
-+		ksft_print_msg("%s - Failed to create new process\n",
-+			       strerror(errno));
-+		return -errno;
-+	}
-+
-+	if (pid == 0) {
-+		int ret;
-+		char tmp = 0;
-+
-+		ksft_print_msg
-+		    ("I am the child, my PID is %d (expected %d)\n",
-+		     getpid(), set_tid[0]);
-+
-+		if (set_tid[0] != getpid())
-+			child_exit(EXIT_FAILURE);
-+		child_exit(EXIT_SUCCESS);
-+	}
-+
-+	ksft_print_msg("I am the parent (%d). My child's pid is %d\n",
-+		       getpid(), pid);
-+
-+	if (waitpid(pid, &status, 0) < 0) {
-+		ksft_print_msg("Child returned %s\n", strerror(errno));
-+		return -errno;
-+	}
-+
-+	if (!WIFEXITED(status))
-+		return -1;
-+
-+	return WEXITSTATUS(status);
-+}
-+
-+static int test_clone3_set_tid(pid_t * set_tid,
-+			       size_t set_tid_size, int expected)
-+{
-+	int ret;
-+
-+	ksft_print_msg("[%d] Trying clone3() with CLONE_SET_TID to %d\n",
-+		       getpid(), set_tid[0]);
-+	ret = call_clone3_set_tid(set_tid, set_tid_size);
-+
-+	ksft_print_msg
-+	    ("[%d] clone3() with CLONE_SET_TID %d says :%d - expected %d\n",
-+	     getpid(), set_tid[0], ret, expected);
-+	if (ret != expected) {
-+		ksft_test_result_fail
-+		    ("[%d] Result (%d) is different than expected (%d)\n",
-+		     getpid(), ret, expected);
-+		return -1;
-+	}
-+	ksft_test_result_pass
-+	    ("[%d] Result (%d) matches expectation (%d)\n", getpid(), ret,
-+	     expected);
-+
-+	return 0;
-+}
-+
-+struct libcap {
-+	struct __user_cap_header_struct hdr;
-+	struct __user_cap_data_struct data[2];
-+};
-+
-+static int set_capability()
-+{
-+	cap_value_t cap_values[] = { CAP_SETUID, CAP_SETGID };
-+	struct libcap *cap;
-+	int ret = -1;
-+	cap_t caps;
-+
-+	caps = cap_get_proc();
-+	if (!caps) {
-+		perror("cap_get_proc");
-+		return -1;
-+	}
-+
-+	/* Drop all capabilities */
-+	if (cap_clear(caps)) {
-+		perror("cap_clear");
-+		goto out;
-+	}
-+
-+	cap_set_flag(caps, CAP_EFFECTIVE, 2, cap_values, CAP_SET);
-+	cap_set_flag(caps, CAP_PERMITTED, 2, cap_values, CAP_SET);
-+
-+	cap = (struct libcap *) caps;
-+
-+	/* 40 -> CAP_CHECKPOINT_RESTORE */
-+	cap->data[1].effective |= 1 << (40 - 32);
-+	cap->data[1].permitted |= 1 << (40 - 32);
-+
-+	if (cap_set_proc(caps)) {
-+		perror("cap_set_proc");
-+		goto out;
-+	}
-+	ret = 0;
-+out:
-+	if (cap_free(caps))
-+		perror("cap_free");
-+	return ret;
-+}
-+
-+int main(int argc, char *argv[])
-+{
-+	pid_t pid;
-+	int status;
-+	int ret = 0;
-+	pid_t set_tid[1];
-+	uid_t uid = getuid();
-+
-+	ksft_print_header();
-+	test_clone3_supported();
-+	ksft_set_plan(2);
-+
-+	if (uid != 0) {
-+		ksft_cnt.ksft_xskip = ksft_plan;
-+		ksft_print_msg("Skipping all tests as non-root\n");
-+		return ksft_exit_pass();
-+	}
-+
-+	memset(&set_tid, 0, sizeof(set_tid));
-+
-+	/* Find the current active PID */
-+	pid = fork();
-+	if (pid == 0) {
-+		ksft_print_msg("Child has PID %d\n", getpid());
-+		child_exit(EXIT_SUCCESS);
-+	}
-+	if (waitpid(pid, &status, 0) < 0)
-+		ksft_exit_fail_msg("Waiting for child %d failed", pid);
-+
-+	/* After the child has finished, its PID should be free. */
-+	set_tid[0] = pid;
-+
-+	if (set_capability())
-+		ksft_test_result_fail
-+		    ("Could not set CAP_CHECKPOINT_RESTORE\n");
-+	prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
-+	/* This would fail without CAP_CHECKPOINT_RESTORE */
-+	setgid(1000);
-+	setuid(1000);
-+	set_tid[0] = pid;
-+	ret |= test_clone3_set_tid(set_tid, 1, -EPERM);
-+	if (set_capability())
-+		ksft_test_result_fail
-+		    ("Could not set CAP_CHECKPOINT_RESTORE\n");
-+	/* This should work as we have CAP_CHECKPOINT_RESTORE as non-root */
-+	ret |= test_clone3_set_tid(set_tid, 1, 0);
-+
-+	return !ret ? ksft_exit_pass() : ksft_exit_fail();
-+}
--- 
-2.26.2
-
+>  include/linux/capability.h          | 6 ++++++
+>  include/uapi/linux/capability.h     | 9 ++++++++-
+>  security/selinux/include/classmap.h | 5 +++--
+>  3 files changed, 17 insertions(+), 3 deletions(-)
+> 
+> diff --git a/include/linux/capability.h b/include/linux/capability.h
+> index b4345b38a6be..1e7fe311cabe 100644
+> --- a/include/linux/capability.h
+> +++ b/include/linux/capability.h
+> @@ -261,6 +261,12 @@ static inline bool bpf_capable(void)
+>  	return capable(CAP_BPF) || capable(CAP_SYS_ADMIN);
+>  }
+>  
+> +static inline bool checkpoint_restore_ns_capable(struct user_namespace *ns)
+> +{
+> +	return ns_capable(ns, CAP_CHECKPOINT_RESTORE) ||
+> +		ns_capable(ns, CAP_SYS_ADMIN);
+> +}
+> +
+>  /* audit system wants to get cap info from files as well */
+>  extern int get_vfs_caps_from_disk(const struct dentry *dentry, struct cpu_vfs_cap_data *cpu_caps);
+>  
+> diff --git a/include/uapi/linux/capability.h b/include/uapi/linux/capability.h
+> index 48ff0757ae5e..395dd0df8d08 100644
+> --- a/include/uapi/linux/capability.h
+> +++ b/include/uapi/linux/capability.h
+> @@ -408,7 +408,14 @@ struct vfs_ns_cap_data {
+>   */
+>  #define CAP_BPF			39
+>  
+> -#define CAP_LAST_CAP         CAP_BPF
+> +
+> +/* Allow checkpoint/restore related operations */
+> +/* Allow PID selection during clone3() */
+> +/* Allow writing to ns_last_pid */
+> +
+> +#define CAP_CHECKPOINT_RESTORE	40
+> +
+> +#define CAP_LAST_CAP         CAP_CHECKPOINT_RESTORE
+>  
+>  #define cap_valid(x) ((x) >= 0 && (x) <= CAP_LAST_CAP)
+>  
+> diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+> index e54d62d529f1..ba2e01a6955c 100644
+> --- a/security/selinux/include/classmap.h
+> +++ b/security/selinux/include/classmap.h
+> @@ -27,9 +27,10 @@
+>  	    "audit_control", "setfcap"
+>  
+>  #define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
+> -		"wake_alarm", "block_suspend", "audit_read", "perfmon", "bpf"
+> +		"wake_alarm", "block_suspend", "audit_read", "perfmon", "bpf", \
+> +		"checkpoint_restore"
+>  
+> -#if CAP_LAST_CAP > CAP_BPF
+> +#if CAP_LAST_CAP > CAP_CHECKPOINT_RESTORE
+>  #error New capability defined, please update COMMON_CAP2_PERMS.
+>  #endif
+>  
+> -- 
+> 2.26.2
+> 
