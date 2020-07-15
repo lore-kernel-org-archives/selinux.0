@@ -2,98 +2,348 @@ Return-Path: <SRS0=JLv6=A2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38E6CC433E0
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:30:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73D63C433F4
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:49:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 156232071B
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:30:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4FA0920663
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:49:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oD1Yssjx"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="qJBrixD5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725854AbgGOPak (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 11:30:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725770AbgGOPak (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 11:30:40 -0400
-Received: from mail-ua1-x944.google.com (mail-ua1-x944.google.com [IPv6:2607:f8b0:4864:20::944])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37D96C061755
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2020 08:30:40 -0700 (PDT)
-Received: by mail-ua1-x944.google.com with SMTP id h18so744862uao.6
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2020 08:30:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BdVwkAlUW1p7VhiCe+b3Ku1rafZbjRctj6QmLvuTaSs=;
-        b=oD1YssjxT0wSTzAz4U+bFbW6K0n+zHtujfs5dONcw5/kUNr9H/JKTyV83E6XttN1c7
-         uMMWGYn3Gb7hKcKNj5HGMRfcL7s+9loPkOMgLRsAFsUPppB2kD/xZIruTkShwbodqd+5
-         IGuBymLEXjlAnd4gHMZU4mHEhptEueUwZ6L4U45VBXifXJxVtBjGilMbVIsWIEhtkyfl
-         qSI82/ViVg6y5CMw9MDeUmtVX3injiPqVGqge5NdXA1RykHnOtjpGM4QoMgWWwndAbX0
-         0OgYvEFHsbaIIsevPONf6eBo0x2xpdTK7xvi75ipN2TBKm1Vz8itl7H5GT24H5Noy8F5
-         Fakg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BdVwkAlUW1p7VhiCe+b3Ku1rafZbjRctj6QmLvuTaSs=;
-        b=svZlfY1jPyDLdr4ji9iWuf/jKVjEclnUbEtNFo0Mq0ksCYzcrI9bgS3ZIkY0oyLZ/6
-         uikr8X1xodApChkyPFsFY3+bO+FoN0e7lbQap3unUzc0EQKofVwNZjIHARlFRIPxVl4N
-         aVjg83xSwDG+3i5emwQbB9XLSICEf/Eet3s2DK/2PIGR2faSk6szmUp83E16Xa2Hir66
-         R1ga5JBa9WzGJtanW9K+7V/PTDVnNyoVAnG8LUitg/xw6jfzBUugwwOy/GiYEGsylwxj
-         ocB1p9kiMvfcEOpzCe5mB5/bNZY1x/nyMkpNVC3Vv8tR8Y0wufFywm2+wVChZzlLVT1o
-         gXZw==
-X-Gm-Message-State: AOAM531j1eApAYVUN/bjtdS8WyTQ2IahxQtojJA9Qfq8mKncJaxWgwXU
-        eak2spTUwym7AD0H4C5QEf6K2H1mFh6KitcNMAVY
-X-Google-Smtp-Source: ABdhPJzx/uUStPvJzB/mAlIDLgCQX/I3Gnhd6zJfKW+PIdkfG5UxJpvIWx14bWhRm650rPI21pJejV6A7v1vFblskiA=
-X-Received: by 2002:ab0:45ea:: with SMTP id u97mr7723314uau.54.1594827039438;
- Wed, 15 Jul 2020 08:30:39 -0700 (PDT)
+        id S1727068AbgGOPtC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jul 2020 11:49:02 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:45932 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726929AbgGOPtB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 11:49:01 -0400
+Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 969D420B490D;
+        Wed, 15 Jul 2020 08:48:59 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 969D420B490D
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1594828139;
+        bh=hULiY/K/I3S3Y8jZ2YtZlqHB8cUZi9TTQWrFp45uKr4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=qJBrixD5syOmZHvtYaW/BmyKGbYEZA+b6Dx0eSCsrfwGAM9CsU/QgpZkxIvA+d4sn
+         SwSYOqfmizCOaVPSHeuUDGwLXDArqwOg26TrcoUX7SFgY2+N9NfxCiGvn/54Bs/qns
+         KTcbv9/eOajyXJ8OXVx0WCuEgU9k/+dQIpPvESWs=
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com
+Cc:     jmorris@namei.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v1 4/5] LSM: Define SELinux function to measure security state
+Date:   Wed, 15 Jul 2020 08:48:52 -0700
+Message-Id: <20200715154853.23374-5-nramas@linux.microsoft.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200715154853.23374-1-nramas@linux.microsoft.com>
+References: <20200715154853.23374-1-nramas@linux.microsoft.com>
 MIME-Version: 1.0
-References: <CAD_biAy5VRxJEqnTj8HkToQQb_9kVytRXeeCp2iR4hpnNUd71A@mail.gmail.com>
- <CAD_biAwttUbrVP=VyVKCAuUHsBn2ZyT8vB76OWfvhC9+tyQuWQ@mail.gmail.com> <CAHC9VhTwerXKHCpJ_qO_yJEhK-gP=2Nd3B+AW5RDS8u3yhCO-A@mail.gmail.com>
-In-Reply-To: <CAHC9VhTwerXKHCpJ_qO_yJEhK-gP=2Nd3B+AW5RDS8u3yhCO-A@mail.gmail.com>
-From:   Jason Strauss <jpstrauss1201@gmail.com>
-Date:   Wed, 15 Jul 2020 11:30:28 -0400
-Message-ID: <CAD_biAxmdvsHLaysByg4a9RnSanhXvqre_h0VOyR=d-Jv34bWQ@mail.gmail.com>
-Subject: Re: RedHat 8 Default Context mismatch
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Thanks, I will do that. I apologize for the mispost
+SELinux configuration and policy are some of the critical data for this
+security module that needs to be measured. To enable this measurement
+SELinux needs to implement the interface function, security_state(), that
+the LSM can call.
 
-On Wed, Jul 15, 2020 at 11:25 AM Paul Moore <paul@paul-moore.com> wrote:
->
-> On Wed, Jul 15, 2020 at 10:09 AM Jason Strauss <jpstrauss1201@gmail.com> wrote:
-> > I am starting this post to have any confusion I may have as to how a
-> > context is applied, cleared up. I am currently trying to work off of
-> > the RHEL 8 selinux source rpm to apply an MLS type policy. I have
-> > noticed that upon compiling and installing the rpm on a new system
-> > install there are files that do not get correct syntax. When I look at
-> > the file_contexts file the context is correctly listed for example
-> > /usr/bin/sudo, but never correctly applied during a touch
-> > /.autorelabel on first system boot. However if i do a restorecon -RF
-> > on /usr/bin/sudo it matches what is in the file_context folder but
-> > appears to break sudo stating it can't find file libsudo_util.so.0. I
-> > have noticed this happening with several other files during system
-> > installation and would like to understand why the system isn't
-> > properly labeled upon rpm installation and a relabel.
->
-> Just a reminder that this mailing list exists primarily for the
-> development and support of the upstream SELinux components.  While a
-> number of RH employees participate in discussions on this mailing
-> list, this is not a Red Hat or RHEL support forum.  I would encourage
-> you to contact your RH support contact for RHEL specific issues.
->
-> --
-> paul moore
-> www.paul-moore.com
+Define the security_state() function in SELinux to measure SELinux
+configuration and policy. Call this function to measure SELinux data
+when there is a change in the security module's state.
+
+Sample measurement of SELinux state and hash of the policy:
+
+10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state 656e61626c65643d313b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574706565723d313b6f70656e7065726d3d313b657874736f636b636c6173733d313b616c776179736e6574776f726b3d303b6367726f75707365636c6162656c3d313b6e6e706e6f737569647472616e736974696f6e3d313b67656e66737365636c6162656c73796d6c696e6b3d303b
+10 f4a7...9408 ima-buf sha256:4941...68fc selinux-policy-hash 8d1d...1834
+
+The data for selinux-state in the above measurement is:
+enabled=1;enforcing=0;checkreqprot=1;netpeer=1;openperm=1;extsockclass=1;alwaysnetwork=0;cgroupseclabel=1;nnpnosuidtransition=1;genfsseclabelsymlink=0;
+
+The data for selinux-policy-hash in the above measurement is
+the SHA256 hash of the SELinux policy.
+
+Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+---
+ security/selinux/Makefile           |   2 +
+ security/selinux/hooks.c            |   2 +
+ security/selinux/include/security.h |  19 +++++
+ security/selinux/measure.c          | 122 ++++++++++++++++++++++++++++
+ security/selinux/selinuxfs.c        |   1 +
+ security/selinux/ss/services.c      |  23 +++++-
+ 6 files changed, 165 insertions(+), 4 deletions(-)
+ create mode 100644 security/selinux/measure.c
+
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index 4d8e0e8adf0b..83d512116341 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -16,6 +16,8 @@ selinux-$(CONFIG_NETLABEL) += netlabel.o
+ 
+ selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
+ 
++selinux-$(CONFIG_IMA) += measure.o
++
+ ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
+ 
+ $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index efa6108b1ce9..1f270206f0ee 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7284,6 +7284,7 @@ DEFINE_LSM(selinux) = {
+ 	.enabled = &selinux_enabled_boot,
+ 	.blobs = &selinux_blob_sizes,
+ 	.init = selinux_init,
++	.security_state = selinux_security_state,
+ };
+ 
+ #if defined(CONFIG_NETFILTER)
+@@ -7394,6 +7395,7 @@ int selinux_disable(struct selinux_state *state)
+ 	}
+ 
+ 	selinux_mark_disabled(state);
++	selinux_security_state();
+ 
+ 	pr_info("SELinux:  Disabled at runtime.\n");
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index b0e02cfe3ce1..691c7e35f82a 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -222,16 +222,35 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
+ 	return state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS];
+ }
+ 
++static inline bool selinux_checkreqprot(void)
++{
++	struct selinux_state *state = &selinux_state;
++
++	return state->checkreqprot;
++}
++
+ int security_mls_enabled(struct selinux_state *state);
+ int security_load_policy(struct selinux_state *state,
+ 			 void *data, size_t len);
+ int security_read_policy(struct selinux_state *state,
+ 			 void **data, size_t *len);
++int security_read_selinux_policy(struct selinux_state *state,
++				 void **data, size_t *len,
++				 bool alloc_kernel_memory);
+ size_t security_policydb_len(struct selinux_state *state);
+ 
+ int security_policycap_supported(struct selinux_state *state,
+ 				 unsigned int req_cap);
+ 
++#ifdef CONFIG_IMA
++extern int selinux_security_state(void);
++#else
++static inline int selinux_security_state(void)
++{
++	return 0;
++}
++#endif
++
+ #define SEL_VEC_MAX 32
+ struct av_decision {
+ 	u32 allowed;
+diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+new file mode 100644
+index 000000000000..b909e8e61542
+--- /dev/null
++++ b/security/selinux/measure.c
+@@ -0,0 +1,122 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Measure SELinux state using IMA subsystem.
++ */
++#include <linux/ima.h>
++#include "security.h"
++
++static int selinux_hash_policy(const char *hash_alg_name,
++			       void *policy, size_t policy_len,
++			       void **policy_hash, int *policy_hash_len)
++{
++	struct crypto_shash *tfm;
++	struct shash_desc *desc = NULL;
++	void *digest = NULL;
++	int desc_size;
++	int digest_size;
++	int ret = 0;
++
++	tfm = crypto_alloc_shash(hash_alg_name, 0, 0);
++	if (IS_ERR(tfm))
++		return PTR_ERR(tfm);
++
++	desc_size = crypto_shash_descsize(tfm) + sizeof(*desc);
++	digest_size = crypto_shash_digestsize(tfm);
++
++	digest = kmalloc(digest_size, GFP_KERNEL);
++	if (!digest) {
++		ret = -ENOMEM;
++		goto error;
++	}
++
++	desc = kzalloc(desc_size, GFP_KERNEL);
++	if (!desc) {
++		ret = -ENOMEM;
++		goto error;
++	}
++
++	desc->tfm = tfm;
++
++	ret = crypto_shash_digest(desc, policy, policy_len, digest);
++	if (ret < 0)
++		goto error;
++
++	*policy_hash_len = digest_size;
++	*policy_hash = digest;
++	digest = NULL;
++
++error:
++	kfree(desc);
++	kfree(digest);
++
++	crypto_free_shash(tfm);
++
++	if (ret)
++		pr_err("%s: error %d\n", __func__, ret);
++
++	return ret;
++}
++
++int selinux_security_state(void)
++{
++	int rc = 0;
++	int count;
++	size_t buflen;
++	int policy_hash_len;
++	char *state = NULL;
++	void *policy = NULL;
++	void *policy_hash = NULL;
++	static char *security_state_string =
++			"enabled=%d;enforcing=%d;checkreqprot=%d;"        \
++			"netpeer=%d;openperm=%d;extsockclass=%d;"         \
++			"alwaysnetwork=%d;cgroupseclabel=%d;"             \
++			"nnpnosuidtransition=%d;genfsseclabelsymlink=%d;";
++
++	if (!selinux_initialized(&selinux_state))
++		return -EOPNOTSUPP;
++
++	buflen = strlen(security_state_string) + 1;
++	state = kzalloc(buflen, GFP_KERNEL);
++	if (!state) {
++		rc = -ENOMEM;
++		goto out;
++	}
++
++	count = snprintf(state, buflen, security_state_string,
++			 !selinux_disabled(&selinux_state),
++			 enforcing_enabled(&selinux_state),
++			 selinux_checkreqprot(),
++			 selinux_policycap_netpeer(),
++			 selinux_policycap_openperm(),
++			 selinux_policycap_extsockclass(),
++			 selinux_policycap_alwaysnetwork(),
++			 selinux_policycap_cgroupseclabel(),
++			 selinux_policycap_nnp_nosuid_transition(),
++			 selinux_policycap_genfs_seclabel_symlinks());
++	if (count >= 0 && count < buflen)
++		ima_lsm_state("selinux-state", state, count);
++	else {
++		pr_err("selinux state error: %d\n", count);
++		rc = -EINVAL;
++		goto out;
++	}
++
++	rc = security_read_selinux_policy(&selinux_state,
++					  &policy, &buflen, true);
++	if (!rc)
++		rc = selinux_hash_policy("sha256", policy, buflen,
++					 &policy_hash, &policy_hash_len);
++	if (!rc)
++		ima_lsm_state("selinux-policy-hash", policy_hash,
++			      policy_hash_len);
++
++out:
++	kfree(state);
++	kfree(policy);
++	kfree(policy_hash);
++
++	if (rc)
++		pr_err("%s: error %d\n", __func__, rc);
++
++	return rc;
++}
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 4781314c2510..8f68964e4ba8 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -173,6 +173,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 			from_kuid(&init_user_ns, audit_get_loginuid(current)),
+ 			audit_get_sessionid(current));
+ 		enforcing_set(state, new_value);
++		selinux_security_state();
+ 		if (new_value)
+ 			avc_ss_reset(state->avc, 0);
+ 		selnl_notify_setenforce(new_value);
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index ef0afd878bfc..0c289d13ef6a 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -3724,10 +3724,11 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
+  * security_read_policy - read the policy.
+  * @data: binary policy data
+  * @len: length of data in bytes
+- *
++ * @alloc_kernel_memory: flag to indicate memory allocation
+  */
+-int security_read_policy(struct selinux_state *state,
+-			 void **data, size_t *len)
++int security_read_selinux_policy(struct selinux_state *state,
++				 void **data, size_t *len,
++				 bool alloc_kernel_memory)
+ {
+ 	struct policydb *policydb = &state->ss->policydb;
+ 	int rc;
+@@ -3738,7 +3739,10 @@ int security_read_policy(struct selinux_state *state,
+ 
+ 	*len = security_policydb_len(state);
+ 
+-	*data = vmalloc_user(*len);
++	if (alloc_kernel_memory)
++		*data = kzalloc(*len, GFP_KERNEL);
++	else
++		*data = vmalloc_user(*len);
+ 	if (!*data)
+ 		return -ENOMEM;
+ 
+@@ -3754,5 +3758,16 @@ int security_read_policy(struct selinux_state *state,
+ 
+ 	*len = (unsigned long)fp.data - (unsigned long)*data;
+ 	return 0;
++}
+ 
++/**
++ * security_read_policy - read the policy.
++ * @data: binary policy data
++ * @len: length of data in bytes
++ *
++ */
++int security_read_policy(struct selinux_state *state,
++			 void **data, size_t *len)
++{
++	return security_read_selinux_policy(state, data, len, false);
+ }
+-- 
+2.27.0
+
