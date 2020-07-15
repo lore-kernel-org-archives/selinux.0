@@ -1,136 +1,123 @@
-Return-Path: <SRS0=WW+a=AZ=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=JLv6=A2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA6DC433E3
-	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 22:42:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 200CFC433E1
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 02:15:31 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 007C12065E
-	for <selinux@archiver.kernel.org>; Tue, 14 Jul 2020 22:42:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4D4A20663
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 02:15:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="02o38TeW"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="TEA2OYHo"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726599AbgGNWmg (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 14 Jul 2020 18:42:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46798 "EHLO
+        id S1726479AbgGOCPa (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 14 Jul 2020 22:15:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726546AbgGNWmg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jul 2020 18:42:36 -0400
-Received: from mail-lf1-x142.google.com (mail-lf1-x142.google.com [IPv6:2a00:1450:4864:20::142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE3A7C061755
-        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 15:42:35 -0700 (PDT)
-Received: by mail-lf1-x142.google.com with SMTP id t9so5231lfl.5
-        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 15:42:35 -0700 (PDT)
+        with ESMTP id S1726396AbgGOCPa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 14 Jul 2020 22:15:30 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9A6C061755
+        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 19:15:29 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id a8so453696edy.1
+        for <selinux@vger.kernel.org>; Tue, 14 Jul 2020 19:15:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=DjX8syOq9NNRSgFFsunWKHhLhML/0JiMtDG71D3L1K0=;
-        b=02o38TeWV9EUTq5knWY2SsXdqyc/D7sV1ELDCPSZEvbrBZHvufIQjA4Yq1VFldmsuK
-         YmuIDsQ7l6gQsn9z68zZC0sf2CvkNkfGuPUqmSIQg+tOuISbhsyTE1kTYM2gj4GPNOJn
-         7HQKdrBY5A1Th1ojK+NvThf4o8NX7EWzDy0UNOldZxCJ2Y4+qLfezrkimQvOVWlKq+sR
-         MIJCUT7mMUIJveEPQfKDzgrqJbjKM1EBcRYl9YpkrRUDPln5X7Y35yQjHIvTPWTexTwm
-         AlxkEfeC4Zznd5CviwD/z/Iu3v3GCO6NiyNHq3JjDl3Ykapr8wAkK719GOyEvzZ1IsbR
-         yYbQ==
+        bh=3DsEbxxygEeOQtVBt0sQvtxaWBN7+XAvhjVWy/UbvPc=;
+        b=TEA2OYHoFyxOsXwUR4ew1KhcVHGAUTdmHvicsetPpvOXIdMncjjrhI8Hhan/Ngrhxc
+         PhehTA+IPJ+HrW9q/oQ2T4+nTvjAtlV9QyhClBwGhtZKogmSCah7XNLigoKTWiWd/iCp
+         somGTEc3Kw97AFh1jXsdLjzNKeGFKtVhp3SrBDNHKrper5AeVNmdpK+LeNGG8K6mPWFH
+         3HHjl+Yw/dlIhCFq6870v5LgJ32n/lbP2AjCzbrVdk1V+1Io54MgnVTxsmlBa/z6zeXT
+         cLKGpM6xwbj6OSazELpvoDngHx/JNBLL/+TnksffV5botMpkbLF0+UYCKvRa/+VJQ2Ph
+         gITA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=DjX8syOq9NNRSgFFsunWKHhLhML/0JiMtDG71D3L1K0=;
-        b=uZHlvTgSmpLciIOihf4CX8RJ/2ctZxLS/ceNGsun0UyxKLxLr471CSCl/I3L0Er4S4
-         EJwM2cX5hJ6/rp7R2jFYgvfzgtzd8Oa7inq0b4z/AcnBEu9tV34IDN0SqYOjBRke67Ez
-         QrHCHBnSlffvac8RP66h1rYiZafNyH8+gVhg/h91G406XFfxBLw5RwghYsYPcRv4apdc
-         GUjZucBPE9w08wNdcRLGrzuaDh5SK1BiNRXItuNfhj7bBBkIfeLqpcb9DDwOHT4fqByf
-         m8cT36nddxBFj9Ur7aYvoNw7kINCwQuYrbZliSNdI86r4VGysmNaqFiVV3eBhcSMqfbs
-         qjPw==
-X-Gm-Message-State: AOAM530C7vvwpG9TNNpLluSyeeRx31WukxC/ohq97jE8uOrbCKZkjMzc
-        9+FLpPp+zKllLkBrqROwLydn7w92ZZ7/UuUf+dHMI9T4h4Y=
-X-Google-Smtp-Source: ABdhPJyhbJRE8FnsoFruFiWtt5TT0zqzclrThtmx84lgzyHRQKmGqHZfWXrRIpXTlz1KyC2wsvX/Xwo14wdyh7KgA1k=
-X-Received: by 2002:ac2:5443:: with SMTP id d3mr3159750lfn.121.1594766554368;
- Tue, 14 Jul 2020 15:42:34 -0700 (PDT)
+        bh=3DsEbxxygEeOQtVBt0sQvtxaWBN7+XAvhjVWy/UbvPc=;
+        b=Per/LD2jCCFK+nGSS0ztlGfumnR6+3MvmV9J+KLTSGFWnBQFye5dynANe4gAilQ64B
+         KyPPxmDxoKzD+8HwJt1/dmcAT9r7K5RJJW7T1Gw9gFrOps5cLjgfKW2IUAo7rxQ9T8Yq
+         CcU4ehEZFBsCuu8Igqck4rMRjLCtrNVY57PL1bt8wG+i4DGf/Z8X5Hjnq2dt+hJHrSaI
+         vIil0BR+rnjy2lFRbWyQWmXfvxhC5OQDAIFsnDUe8pWfkYtCD7Opw8dAf99rqv6ryyEB
+         JQfbMc1fS+Fxgs3JoFPPxC2NNfUW/DDR+nVhZkDpU6KaeJy2JYq8/UA8gQpmSYvOqmjK
+         RnjA==
+X-Gm-Message-State: AOAM530Xso1aVH978c4QPSoUAB7pAEiGOlJQPAzzZNCIQaDiIoI+sYLl
+        ElDUJwcuLOvR8x/hyLbD2Bo5SXig7zDhz5tQOHpmSRM=
+X-Google-Smtp-Source: ABdhPJz2GiKR0bdId1y7jtGkG0Ll8i8hdk3iRoHtUhyk3lvjRUTcTwRd8BDhBm+17qHpCvmohLMZSrQtP89q7Kw3M9A=
+X-Received: by 2002:a05:6402:742:: with SMTP id p2mr7109680edy.135.1594779328108;
+ Tue, 14 Jul 2020 19:15:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200714202934.42424-1-mike.palmiotto@crunchydata.com>
- <CAEjxPJ5m31kcXH66viy3R-ncbBJCET8Wm3+DjphDeZ0iV3giEA@mail.gmail.com>
- <CAMN686GqFW_40pcX=fkb8XUVFczg7+md8tqoS45C4VNcbcq-ww@mail.gmail.com> <CAEjxPJ5mb9iz8OnGUMS6i0i5sbmxf=Ff6h6ey95SgJzXjgyuDw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5mb9iz8OnGUMS6i0i5sbmxf=Ff6h6ey95SgJzXjgyuDw@mail.gmail.com>
-From:   Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Date:   Tue, 14 Jul 2020 18:42:22 -0400
-Message-ID: <CAMN686HGb5-TmKAa3h+eof6a451CMa7Qd9n5F9FX_ozw31BWAg@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Use sestatus if open
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200710070903.106482-1-dominick.grift@defensec.nl> <20200710071431.107444-1-dominick.grift@defensec.nl>
+In-Reply-To: <20200710071431.107444-1-dominick.grift@defensec.nl>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 14 Jul 2020 22:15:17 -0400
+Message-ID: <CAHC9VhRNWLQAVzOnei5Hne8k7nXQkoQkY7txBov_rNMhKHNCFw@mail.gmail.com>
+Subject: Re: [SELinux-notebook PATCH v2] objects.md: some clarifications
+To:     Dominick Grift <dominick.grift@defensec.nl>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 14, 2020 at 5:35 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Fri, Jul 10, 2020 at 3:14 AM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
 >
-> On Tue, Jul 14, 2020 at 5:20 PM Mike Palmiotto
-> <mike.palmiotto@crunchydata.com> wrote:
-> >
-> > On Tue, Jul 14, 2020 at 5:03 PM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > >
-<snip>
+> v2: fixes patch description
+> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+
+Thanks for the patch, but just like any other project, it would be
+nice to see a patch description here.  You can also move the changelog
+portion of the patch below a "--" delimiter so it doesn't get caught
+up in the main description (changelogs aren't quite as useful once the
+patch has been committed to the tree).
+
+> ---
+>  src/objects.md | 24 ++++++++++++++++++++++--
+>  1 file changed, 22 insertions(+), 2 deletions(-)
+
+...
+
+> @@ -269,6 +275,20 @@ and manage their transition:
 >
-> In its current form, your patch replaces one call in
-> avc_has_perm_noaudit() to avc_netlink_check_nb() with a call to
-> selinux_status_updated().  With that change alone, for existing
-> callers of avc_has_perm_noaudit() that do not themselves call
-> selinux_status_open(), selinux_status_updated() will find that the
-> status page is NULL and will return immediately with an error. It
-> won't fall back to probing the netlink socket.  So you either need to
-> test for an error return and fall back yourself to
-> avc_netlink_check_nb(), or change selinux_status_updated() to do that,
-> or replace the use of avc_netlink_open/loop/close in avc.c with
-> selinux_status_open/close.  Likewise for selinux_check_access().
-
-For some reason I completely glossed over the selinux_status == NULL
-case. I guess I didn't see errors when testing dbus because verbose
-logging wasn't turned on.
-
-I'll take a look at what it would take to move over sestatus entirely
-and if it's too tricky/error-prone, _I think_ it should be fine to
-move the selinux_status == NULL check down with the MAP_FAILED case so
-they both fall through to avc_netlink_check_nb().
-
+>  `type_transition`, `role_transition` and `range_transition`
 >
-> > Do you think we should go ahead and completely swap in sestatus? I was
-> > just worried about breaking userspace object managers that are
-> > currently using netlink threads by default, for instance
-> > systemd-dbusd.  I can spend some more time getting those to work with
-> > the status page if you think that's worthwhile.
+> +SELinux-aware applications can enforce a new label (with the policies
+
+As someone who is barely fluent in one language I hate to criticize
+others when they are writing in their non-native language, but I think
+this should be "policy's" not "policies".
+
+> +approval of course) using the **libselinux** API functions. The
+> +`process setexec`, `process setkeycreate` and `process setsockcreate`
+> +access vectors can be used to allow subjects to label processes,
+> +kernel keyrings, and sockets programmatically using the
+> +***setexec**(3)*, ***setkeycreatecon**(3)* and
+> +***setsockcreatecon**(3)* functions respectively, overriding
+> +transition statements.
+> +
+> +The `kernel` and `unlabeled` **initial security identifiers** are used
+> +to associate specified labels with subjects that were left unlabeled
+> +due to initialization or with subjects that had their label
+> +invalidated due to policy changes at runtime respectively.
+
+That looks like a good definition for "unlabeled", but it doesn't look
+like you've defined the "kernel" isid?
+
+>  ### Object Reuse
 >
-> I'd be interested in understanding the impact of such a change on
-> existing userspace object managers.  If we can switch the default
-> behavior for applications that are not explicitly using
-> avc_netlink_*() interfaces themselves (e.g. they are only using
-> selinux_check_access or avc_has_perm), then that would be beneficial
-> since I think it fully removes the need for a system call on the AVC
-> cache-hit code path.
-
-I'll have to do a bit of digging to see how this will affect dbus, et
-al. On first blush, it looks like they're just doing
-avc_netlink_check_nb() in their watch thread. Presumably other object
-managers are doing something similar so we would just need to make
-sure there is a netlink fd available.
-
->
-> > > Finally, I don't think you need to sanitize
-> > > the enforcing value from the kernel; it takes care of that itself
-> > > these days and no point in fixing it up for old kernels now.
-> >
-> > Very good to know, thanks! I'll update in the next version.
-
-
+>  As GNU / Linux runs it creates instances of objects and manages the
+> --
+> 2.27.0
 
 -- 
-Mike Palmiotto
-https://crunchydata.com
+paul moore
+www.paul-moore.com
