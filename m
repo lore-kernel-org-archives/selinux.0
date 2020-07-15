@@ -2,139 +2,203 @@ Return-Path: <SRS0=JLv6=A2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 598A8C433E2
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 17:10:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47A7DC433E1
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 17:44:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 239B02065E
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 17:10:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2DEA82065F
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 17:44:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="rrJiS0tP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A1R8OVVC"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725881AbgGORKs (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 13:10:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48260 "EHLO
+        id S1726057AbgGORo3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jul 2020 13:44:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725866AbgGORKs (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 13:10:48 -0400
-Received: from mail-lj1-x241.google.com (mail-lj1-x241.google.com [IPv6:2a00:1450:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4399C061755
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2020 10:10:45 -0700 (PDT)
-Received: by mail-lj1-x241.google.com with SMTP id s9so3392261ljm.11
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2020 10:10:45 -0700 (PDT)
+        with ESMTP id S1725900AbgGORo3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 13:44:29 -0400
+Received: from mail-oo1-xc44.google.com (mail-oo1-xc44.google.com [IPv6:2607:f8b0:4864:20::c44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1887DC061755;
+        Wed, 15 Jul 2020 10:44:29 -0700 (PDT)
+Received: by mail-oo1-xc44.google.com with SMTP id x2so632602oog.5;
+        Wed, 15 Jul 2020 10:44:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=BCSQ7RGQm/3ZIlRIJg+tpm5zgxFxA2ePOR+XjRj9POQ=;
-        b=rrJiS0tPx2F7YsVvCv+abRo+uzri+VAK2wAzpjk1Fw2ixgLDOvGkM+uCa3swsvZbKv
-         QhbUxLnz4wGg6JAq02/IQkgE/Q97ctq5kkbb7ci7K2naOINGF+pbCztRyvTA7guhr3tm
-         pMaV+8A2QGoj5kfFfbTDnZK799bleCrrEna3YwHHExjVh1P56vZTljxgwkTxm6shWhCJ
-         QRJ6yi4J/UgtsjFF0mscrp9DiLgB8zHll6+Eg/rxDDvD0RN+/fC2+uI00geU0KSAGiAo
-         3voY9TypfJCDpvd+irvVqXvLtn4uuS177o2t7iuaroQgSJ/CDlvknTTbAcyA9Qrkg9an
-         S++A==
+         :cc:content-transfer-encoding;
+        bh=GFlWCMXT1McclKUDiU9FJWNsfLXEuQwJM+Zc8tDAILE=;
+        b=A1R8OVVC9vVfiBTU8FBD4g/7FAbDqOTl5RcE40gueHg0iu1oi6Z+QI63vMrc60ccEg
+         g4fbcm9RdmVBHISRj5nrInNkpM0neIAUHOhCxUobMwfLt/WnJRzj1fZCx2heNrdLQdXf
+         lO3VJTS4O9MH5MRIKrlVs7XTGVHSOrdsiKl22C56iYC74V5wSb2fts2Y27u8p8awc9YH
+         eGGxWmBCh8aKNm8ND87Ix1zGKAjdr8wwhe9YeKPPF64GZS5aiFisu5XF8ik2zFTF6J4b
+         4KWSzGSToha8gQ9Hr3qzr8F1fZrTuXl4D3uvEromBp/ibpUrt5jSzfSuWoStb76eHmpe
+         Wc7A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=BCSQ7RGQm/3ZIlRIJg+tpm5zgxFxA2ePOR+XjRj9POQ=;
-        b=gowxC3OVSPc2zaprP3kA8H1zrm6hKqG0QQ4oGvLdOjKCGiFL3IJwkmbPXiztmGCgnJ
-         uWHBkP5kgmy1GC2dEuLuEl+ycZR4V4k39dujrUOfZayvj8C9H62W9+zUgIhbMRHIgu4t
-         1ztmbpZ8Mc+2uM8+eZSOTl9UuBRiOwy9bTMbZXSfkxvrdvYchNo60AHBZp1hAC4kvWwU
-         9h6EDUR8zz/Qa1jxgb4+feCR3WLiThRyheLYpeHvOekuUAkXoXh0mBjgtck49fKFAmWT
-         GYx5s6pDpInrRSVEzKr4aM3v67zSXIMvCIAz4L9Sp2hKclZOHWwpOWLtZwQ7nVOlunfe
-         6KQQ==
-X-Gm-Message-State: AOAM530zKdrsK1PXk7PxLuT68aSFgHWqZZwaMYdff28I4NRkeK/wip60
-        i6Cm7rC9YC1wDIjdHbYdIMBBmSiU3I3OEZg5ce8DZQ==
-X-Google-Smtp-Source: ABdhPJzW8EEvBSoqWY4aSPia5Y5oASuYYtoGaOYZQXzJCFhpynazrV+mjjBWcF3PfrZOJCn1u14lGbPWVtIxqoaOO7k=
-X-Received: by 2002:a05:651c:106e:: with SMTP id y14mr66878ljm.49.1594833043294;
- Wed, 15 Jul 2020 10:10:43 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=GFlWCMXT1McclKUDiU9FJWNsfLXEuQwJM+Zc8tDAILE=;
+        b=OxKMMe0DYgdqGYlcQ6soJ5pa+XHEfBL21gY7wUgr/BdG/w3N7PSpcvMCdy5Ty/YoHg
+         cwkq+2bUB3WQiPdp2n/MENWKkZsGpS9w2RcvQwdBE+4Sb+nA412+gaxUCA0OTtrnoKaD
+         aoAOI0lPNkM4PQZSMPHHrzkrjwc7xCC3OAwLbuWEuKtlMnLjCV9F61+2L4QdOSolK8Fq
+         /xiB2O1+lOGeeZYv1lLrhcL0rwbZkCLiFJDUy1/XpvCJIEiokploNF9ScYGUtutudXos
+         +f0U1orRJLBQJNzABHJNQ+JWKvKBDYF6lWZfWB9ngeARJljRxEQQmaZRbIJ+CRWF5m/y
+         k2gw==
+X-Gm-Message-State: AOAM532bGYmiyph+A82GYVa8flkbiQMkg3ypgYpawUimY+NeIrujE04W
+        vOPn2WH1YDJBuIJ2HPtoK/0sNm3eSb+ecTy3XnM=
+X-Google-Smtp-Source: ABdhPJwLe3zpc1iO8/plW7H06lE30/eXcr+XQ0aXN5z8ePAZR0S2zFdXre5n68MuXktaZx4+4nkPOXL84ctbz5uMfUY=
+X-Received: by 2002:a4a:b006:: with SMTP id f6mr304583oon.13.1594835068421;
+ Wed, 15 Jul 2020 10:44:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200714202934.42424-1-mike.palmiotto@crunchydata.com>
- <CAEjxPJ5m31kcXH66viy3R-ncbBJCET8Wm3+DjphDeZ0iV3giEA@mail.gmail.com>
- <CAMN686GqFW_40pcX=fkb8XUVFczg7+md8tqoS45C4VNcbcq-ww@mail.gmail.com>
- <CAEjxPJ5mb9iz8OnGUMS6i0i5sbmxf=Ff6h6ey95SgJzXjgyuDw@mail.gmail.com>
- <CAMN686HGb5-TmKAa3h+eof6a451CMa7Qd9n5F9FX_ozw31BWAg@mail.gmail.com>
- <CAMN686F4uT7__dvy22V_Y9_zqd6ckw=14gs6RcExuT-3ru6NtA@mail.gmail.com> <CAEjxPJ4B4sOjy_ZW+hCMjA7Uy6KGO5HT8tMdFp_obF_raXiqUw@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4B4sOjy_ZW+hCMjA7Uy6KGO5HT8tMdFp_obF_raXiqUw@mail.gmail.com>
-From:   Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Date:   Wed, 15 Jul 2020 13:10:31 -0400
-Message-ID: <CAMN686EudnKSaR89rKm8xOkYJVJA8-eXFc__1k4QMH9Vyp5b1w@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Use sestatus if open
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200715154853.23374-1-nramas@linux.microsoft.com> <20200715154853.23374-5-nramas@linux.microsoft.com>
+In-Reply-To: <20200715154853.23374-5-nramas@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 15 Jul 2020 14:04:52 -0400
+Message-ID: <CAEjxPJ6UsK9QqFTpMKjgSin2Q6D-5NCNDS0enuRNuixVP9H2wQ@mail.gmail.com>
+Subject: Re: [PATCH v1 4/5] LSM: Define SELinux function to measure security state
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 12:28 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Wed, Jul 15, 2020 at 11:48 AM Lakshmi Ramasubramanian
+<nramas@linux.microsoft.com> wrote:
 >
-> On Wed, Jul 15, 2020 at 12:04 PM Mike Palmiotto
-> <mike.palmiotto@crunchydata.com> wrote:
-> >
-> > On Tue, Jul 14, 2020 at 6:42 PM Mike Palmiotto
-> > <mike.palmiotto@crunchydata.com> wrote:
-> > >
-> > > On Tue, Jul 14, 2020 at 5:35 PM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > >
-> > > > On Tue, Jul 14, 2020 at 5:20 PM Mike Palmiotto
-> > > > <mike.palmiotto@crunchydata.com> wrote:
-> > <snip>
-> > > > > Do you think we should go ahead and completely swap in sestatus? I was
-> > > > > just worried about breaking userspace object managers that are
-> > > > > currently using netlink threads by default, for instance
-> > > > > systemd-dbusd.  I can spend some more time getting those to work with
-> > > > > the status page if you think that's worthwhile.
-> > > >
-> > > > I'd be interested in understanding the impact of such a change on
-> > > > existing userspace object managers.  If we can switch the default
-> > > > behavior for applications that are not explicitly using
-> > > > avc_netlink_*() interfaces themselves (e.g. they are only using
-> > > > selinux_check_access or avc_has_perm), then that would be beneficial
-> > > > since I think it fully removes the need for a system call on the AVC
-> > > > cache-hit code path.
-> > >
-> > > I'll have to do a bit of digging to see how this will affect dbus, et
-> > > al. On first blush, it looks like they're just doing
-> > > avc_netlink_check_nb() in their watch thread. Presumably other object
-> > > managers are doing something similar so we would just need to make
-> > > sure there is a netlink fd available.
-> >
-> > So it looks like dbus (at least) is directly checking for a netlink
-> > socket[1], so just doing away with the avc_netlink_open call wouldn't
-> > work out. My thinking is we have two options:
-> >
-> > 1) Add a new seopt to use sestatus and let userspace object managers opt-in
-> >
-> > 2) Call both selinux_status_open and avc_netlink_open in
-> > avc_init_internal. This would satisfy the hard requirement for a
-> > netlink socket. Then we can default to using sestatus in all of the
-> > netlink processing paths, as you suggested in your last reply. We
-> > could
-> >
-> > Option 2 seems better from the standpoint of using sestatus by
-> > default, but it looks like recvfrom will never be called and the
-> > messages will just sit in kernel memory.
-> >
-> > I'm inclined to go with option 1 at this point.
-> >
-> > [1] https://gitlab.freedesktop.org/dbus/dbus/-/blob/master/bus/selinux.c#L269
+> SELinux configuration and policy are some of the critical data for this
+> security module that needs to be measured. To enable this measurement
+> SELinux needs to implement the interface function, security_state(), that
+> the LSM can call.
 >
-> Couldn't we change avc_netlink_acquire_fd() to test whether fd hasn't
-> yet been set (i.e. == -1) and call avc_netlink_open() in that case?
-> Then dbus would still gets its netlink fd as expected but we wouldn't
-> need to open it inside of avc_init?
+> Define the security_state() function in SELinux to measure SELinux
+> configuration and policy. Call this function to measure SELinux data
+> when there is a change in the security module's state.
+>
+> Sample measurement of SELinux state and hash of the policy:
+>
+> 10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state 656e61626c65643d3=
+13b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574706565723d31=
+3b6f70656e7065726d3d313b657874736f636b636c6173733d313b616c776179736e6574776=
+f726b3d303b6367726f75707365636c6162656c3d313b6e6e706e6f737569647472616e7369=
+74696f6e3d313b67656e66737365636c6162656c73796d6c696e6b3d303b
+> 10 f4a7...9408 ima-buf sha256:4941...68fc selinux-policy-hash 8d1d...1834
+>
+> The data for selinux-state in the above measurement is:
+> enabled=3D1;enforcing=3D0;checkreqprot=3D1;netpeer=3D1;openperm=3D1;extso=
+ckclass=3D1;alwaysnetwork=3D0;cgroupseclabel=3D1;nnpnosuidtransition=3D1;ge=
+nfsseclabelsymlink=3D0;
+>
+> The data for selinux-policy-hash in the above measurement is
+> the SHA256 hash of the SELinux policy.
+>
+> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
 
-Much better. I'll send a new patch up shortly.
+> diff --git a/security/selinux/include/security.h b/security/selinux/inclu=
+de/security.h
+> index b0e02cfe3ce1..691c7e35f82a 100644
+> --- a/security/selinux/include/security.h
+> +++ b/security/selinux/include/security.h
+> @@ -222,16 +222,35 @@ static inline bool selinux_policycap_genfs_seclabel=
+_symlinks(void)
+>         return state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLIN=
+KS];
+>  }
+>
+> +static inline bool selinux_checkreqprot(void)
+> +{
+> +       struct selinux_state *state =3D &selinux_state;
+> +
+> +       return state->checkreqprot;
+> +}
 
+Probably should use READ_ONCE().
 
--- 
-Mike Palmiotto
-https://crunchydata.com
+> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+> new file mode 100644
+> index 000000000000..b909e8e61542
+> --- /dev/null
+> +++ b/security/selinux/measure.c
+> @@ -0,0 +1,122 @@
+> +int selinux_security_state(void)
+
+Let's call this selinux_measure_state() or similar.  Needs a verb. And
+pass it a struct selinux_state * pointer argument to be measured, even
+though initially it will always be passed &selinux_state.  The
+encapsulation of selinux state within selinux_state was to support
+multiple selinux namespaces in the future, each with their own state.
+
+> +{
+> +       int rc =3D 0;
+> +       int count;
+> +       size_t buflen;
+> +       int policy_hash_len;
+> +       char *state =3D NULL;
+> +       void *policy =3D NULL;
+> +       void *policy_hash =3D NULL;
+> +       static char *security_state_string =3D
+> +                       "enabled=3D%d;enforcing=3D%d;checkreqprot=3D%d;" =
+       \
+> +                       "netpeer=3D%d;openperm=3D%d;extsockclass=3D%d;"  =
+       \
+> +                       "alwaysnetwork=3D%d;cgroupseclabel=3D%d;"        =
+     \
+> +                       "nnpnosuidtransition=3D%d;genfsseclabelsymlink=3D=
+%d;";
+
+Rather than hardcoding policy capability names here, I would recommend
+using the selinux_policycap_names[] array for the names and the
+selinux_state.policycap[] array for the values.  Also recommend
+passing in a struct selinux_state * here to allow for future case
+where there are multiple selinux states, one per selinux namespace.
+
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/service=
+s.c
+> index ef0afd878bfc..0c289d13ef6a 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -3724,10 +3724,11 @@ int security_netlbl_sid_to_secattr(struct selinux=
+_state *state,
+>   * security_read_policy - read the policy.
+>   * @data: binary policy data
+>   * @len: length of data in bytes
+> - *
+> + * @alloc_kernel_memory: flag to indicate memory allocation
+>   */
+> -int security_read_policy(struct selinux_state *state,
+> -                        void **data, size_t *len)
+> +int security_read_selinux_policy(struct selinux_state *state,
+> +                                void **data, size_t *len,
+> +                                bool alloc_kernel_memory)
+
+Instead of passing in a boolean to control how the memory is
+allocated, split this into a helper function that takes an
+already-allocated buffer and two
+different front-end wrappers, one for kernel-internal use and one for
+userspace use.
+
+> @@ -3738,7 +3739,10 @@ int security_read_policy(struct selinux_state *sta=
+te,
+>
+>         *len =3D security_policydb_len(state);
+>
+> -       *data =3D vmalloc_user(*len);
+> +       if (alloc_kernel_memory)
+> +               *data =3D kzalloc(*len, GFP_KERNEL);
+
+You need vmalloc() since policy image size may exceed kmalloc max (or
+at least that used to be the case).
