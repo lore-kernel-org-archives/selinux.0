@@ -2,170 +2,123 @@ Return-Path: <SRS0=JLv6=A2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5B8FC43461
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:49:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8AB1C433E3
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 16:06:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B4D6A2065E
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:49:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FD4220672
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 16:06:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="V8Z90u3n"
+	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="lFBU7ZDr"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726962AbgGOPtm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 11:49:42 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:45900 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725832AbgGOPs7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 11:48:59 -0400
-Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id D03CB20B4909;
-        Wed, 15 Jul 2020 08:48:58 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D03CB20B4909
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1594828139;
-        bh=JPlRumbOfvyOco8L8nkT1d2Rp+0/lx8FfGi5jva830E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V8Z90u3n3Edtg4DNq9sdR21/qS4DM3+DhjPKfEzdx22E2qNsyPmUqqBOCk6pwmgVO
-         naeoyfb93tlv0K16kntLc5r2JWk1OAGmpzaiZXNA9QQBz8DpsFKGa1RyNWiLyPMn5u
-         76U29TvGvk09P3mvIUXPQjup/USv/mMc5QIMVYPY=
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com
-Cc:     jmorris@namei.org, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v1 1/5] IMA: Add LSM_STATE func to measure LSM data
-Date:   Wed, 15 Jul 2020 08:48:49 -0700
-Message-Id: <20200715154853.23374-2-nramas@linux.microsoft.com>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200715154853.23374-1-nramas@linux.microsoft.com>
-References: <20200715154853.23374-1-nramas@linux.microsoft.com>
+        id S1725835AbgGOQGV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jul 2020 12:06:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38010 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726634AbgGOQFT (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 12:05:19 -0400
+Received: from mail-lj1-x242.google.com (mail-lj1-x242.google.com [IPv6:2a00:1450:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C13CC061755
+        for <selinux@vger.kernel.org>; Wed, 15 Jul 2020 09:04:54 -0700 (PDT)
+Received: by mail-lj1-x242.google.com with SMTP id j11so3186279ljo.7
+        for <selinux@vger.kernel.org>; Wed, 15 Jul 2020 09:04:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Z6lE5f0+/rEY7wdBC8Q7Qj3lCzWdxiIC/n2zXInDzEU=;
+        b=lFBU7ZDrr8gw0F/OashSboYcXovomuNUPl7T/1kx4IsnKkdJ09vg2DXjHAeiHjrwTT
+         cCi3bVW9ype/DHUERCf2wlL/aDuTFS0HlRe/U/hiybXP+sW1tUZtWBtMnNRu15AHfLfw
+         l4EWOFd7a2/ANIH/bE1q6pePYk/PNwY5Uxabo1zH/XUV6iIQU8QJCLIy+WJKHXwBWvcC
+         ou+1j1os+xdVkidS6n4ppqf1MaVlfWWsoCCL7d2Xm7e8DzqpmGAcIFHaFJ8E59B2ksqi
+         l58JHL2oRWoge6toltaqUsnhUaSoOW0GzXhhV3YmUT5kg+rtmwXAyJ6/ZBIrZH+LYeJ3
+         wLfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Z6lE5f0+/rEY7wdBC8Q7Qj3lCzWdxiIC/n2zXInDzEU=;
+        b=gX8fI4umYIS6RKL8BPka2DaOeAFb4DorqxxirG8sI+c9boafPr4XebQWLwlTuv2j0h
+         Z/ZpOlz/ONDtqxIlZT1raIJkS0aahuG/8ah8C6V/iXSgnYBYdLAtYo+vWxso+b80Hegq
+         +H7KyG/dLgcfRL1yleBA/qmtm2sGitD1GX3HtvBoRRvXkXP/zStCMXerbaon44obvn1E
+         RDnywSC2BzTciP2TEoOMttMAZeZiO5/keK2FPD6yRM8AySQPt/d4QZhy1BOOVm6m0OZ0
+         DBNWIvopRnaKdKh3m8825glhbbMWe1ohW1kLXnsbNy+WlmEU6H8kL78cSvIXXCsglU3i
+         OTLA==
+X-Gm-Message-State: AOAM533jpL426CByR0YVIJh8KGeUFDORAlML1ybbSAnQgpQKBDXyInzJ
+        kezepVe/FPevmYvkg9jAO7dzGRtD1b68+UBluIhmNu6/Uoeb3w==
+X-Google-Smtp-Source: ABdhPJyDlF1/CgH7OQK8VSVAtI8xtOsae7PKfD9w/S3dSOuXYNnffJuQ0TNuGOIJj0hiFgXfWY2KALUd6SJFSBDqP+E=
+X-Received: by 2002:a2e:91da:: with SMTP id u26mr5344911ljg.311.1594829092617;
+ Wed, 15 Jul 2020 09:04:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200714202934.42424-1-mike.palmiotto@crunchydata.com>
+ <CAEjxPJ5m31kcXH66viy3R-ncbBJCET8Wm3+DjphDeZ0iV3giEA@mail.gmail.com>
+ <CAMN686GqFW_40pcX=fkb8XUVFczg7+md8tqoS45C4VNcbcq-ww@mail.gmail.com>
+ <CAEjxPJ5mb9iz8OnGUMS6i0i5sbmxf=Ff6h6ey95SgJzXjgyuDw@mail.gmail.com> <CAMN686HGb5-TmKAa3h+eof6a451CMa7Qd9n5F9FX_ozw31BWAg@mail.gmail.com>
+In-Reply-To: <CAMN686HGb5-TmKAa3h+eof6a451CMa7Qd9n5F9FX_ozw31BWAg@mail.gmail.com>
+From:   Mike Palmiotto <mike.palmiotto@crunchydata.com>
+Date:   Wed, 15 Jul 2020 12:04:41 -0400
+Message-ID: <CAMN686F4uT7__dvy22V_Y9_zqd6ckw=14gs6RcExuT-3ru6NtA@mail.gmail.com>
+Subject: Re: [PATCH] libselinux: Use sestatus if open
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Critical data structures of security modules need to be measured to
-enable an attestation service to verify if the policies and
-configuration have been setup correctly and that they haven't been
-tampered with at runtime. A new IMA policy is required for handling
-this measurement.
+On Tue, Jul 14, 2020 at 6:42 PM Mike Palmiotto
+<mike.palmiotto@crunchydata.com> wrote:
+>
+> On Tue, Jul 14, 2020 at 5:35 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > On Tue, Jul 14, 2020 at 5:20 PM Mike Palmiotto
+> > <mike.palmiotto@crunchydata.com> wrote:
+<snip>
+> > > Do you think we should go ahead and completely swap in sestatus? I was
+> > > just worried about breaking userspace object managers that are
+> > > currently using netlink threads by default, for instance
+> > > systemd-dbusd.  I can spend some more time getting those to work with
+> > > the status page if you think that's worthwhile.
+> >
+> > I'd be interested in understanding the impact of such a change on
+> > existing userspace object managers.  If we can switch the default
+> > behavior for applications that are not explicitly using
+> > avc_netlink_*() interfaces themselves (e.g. they are only using
+> > selinux_check_access or avc_has_perm), then that would be beneficial
+> > since I think it fully removes the need for a system call on the AVC
+> > cache-hit code path.
+>
+> I'll have to do a bit of digging to see how this will affect dbus, et
+> al. On first blush, it looks like they're just doing
+> avc_netlink_check_nb() in their watch thread. Presumably other object
+> managers are doing something similar so we would just need to make
+> sure there is a netlink fd available.
 
-Define a new IMA policy func namely LSM_STATE to measure data provided
-by security modules. Update ima_match_rules() to check for LSM_STATE
-and ima_parse_rule() to handle LSM_STATE.
+So it looks like dbus (at least) is directly checking for a netlink
+socket[1], so just doing away with the avc_netlink_open call wouldn't
+work out. My thinking is we have two options:
 
-Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
----
- Documentation/ABI/testing/ima_policy |  6 +++++-
- security/integrity/ima/ima.h         |  1 +
- security/integrity/ima/ima_api.c     |  2 +-
- security/integrity/ima/ima_policy.c  | 29 +++++++++++++++++++++++-----
- 4 files changed, 31 insertions(+), 7 deletions(-)
+1) Add a new seopt to use sestatus and let userspace object managers opt-in
 
-diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-index cd572912c593..355bc3eade33 100644
---- a/Documentation/ABI/testing/ima_policy
-+++ b/Documentation/ABI/testing/ima_policy
-@@ -29,7 +29,7 @@ Description:
- 		base: 	func:= [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
- 				[FIRMWARE_CHECK]
- 				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
--				[KEXEC_CMDLINE] [KEY_CHECK]
-+				[KEXEC_CMDLINE] [KEY_CHECK] [LSM_STATE]
- 			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
- 			       [[^]MAY_EXEC]
- 			fsmagic:= hex value
-@@ -125,3 +125,7 @@ Description:
- 		keys added to .builtin_trusted_keys or .ima keyring:
- 
- 			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
-+
-+		Example of measure rule using LSM_STATE to measure LSM data:
-+
-+			measure func=LSM_STATE
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index 4515975cc540..880fda11a61b 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -200,6 +200,7 @@ static inline unsigned int ima_hash_key(u8 *digest)
- 	hook(POLICY_CHECK, policy)			\
- 	hook(KEXEC_CMDLINE, kexec_cmdline)		\
- 	hook(KEY_CHECK, key)				\
-+	hook(LSM_STATE, lsm_state)			\
- 	hook(MAX_CHECK, none)
- 
- #define __ima_hook_enumify(ENUM, str)	ENUM,
-diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
-index bf22de8b7ce0..0cebd2404dcf 100644
---- a/security/integrity/ima/ima_api.c
-+++ b/security/integrity/ima/ima_api.c
-@@ -176,7 +176,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
-  *		subj=, obj=, type=, func=, mask=, fsmagic=
-  *	subj,obj, and type: are LSM specific.
-  *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK | MODULE_CHECK
-- *	| KEXEC_CMDLINE | KEY_CHECK
-+ *	| KEXEC_CMDLINE | KEY_CHECK | LSM_STATE
-  *	mask: contains the permission mask
-  *	fsmagic: hex value
-  *
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 66aa3e17a888..fc8457d9242b 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -417,15 +417,31 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- 			    const char *keyring)
- {
- 	int i;
-+	int funcmatch = 0;
- 
--	if ((func == KEXEC_CMDLINE) || (func == KEY_CHECK)) {
-+	switch (func) {
-+	case KEXEC_CMDLINE:
-+	case KEY_CHECK:
-+	case LSM_STATE:
- 		if ((rule->flags & IMA_FUNC) && (rule->func == func)) {
- 			if (func == KEY_CHECK)
--				return ima_match_keyring(rule, keyring, cred);
--			return true;
--		}
--		return false;
-+				funcmatch = ima_match_keyring(rule, keyring,
-+							      cred) ? 1 : -1;
-+			else
-+				funcmatch = 1;
-+		} else
-+			funcmatch = -1;
-+
-+		break;
-+
-+	default:
-+		funcmatch = 0;
-+		break;
- 	}
-+
-+	if (funcmatch)
-+		return (funcmatch == 1) ? true : false;
-+
- 	if ((rule->flags & IMA_FUNC) &&
- 	    (rule->func != func && func != POST_SETATTR))
- 		return false;
-@@ -1068,6 +1084,9 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
- 				entry->func = KEXEC_CMDLINE;
- 			else if (strcmp(args[0].from, "KEY_CHECK") == 0)
- 				entry->func = KEY_CHECK;
-+			else if (strcmp(args[0].from, "LSM_STATE") == 0)
-+				entry->func = LSM_STATE;
-+
- 			else
- 				result = -EINVAL;
- 			if (!result)
--- 
-2.27.0
+2) Call both selinux_status_open and avc_netlink_open in
+avc_init_internal. This would satisfy the hard requirement for a
+netlink socket. Then we can default to using sestatus in all of the
+netlink processing paths, as you suggested in your last reply. We
+could
 
+Option 2 seems better from the standpoint of using sestatus by
+default, but it looks like recvfrom will never be called and the
+messages will just sit in kernel memory.
+
+I'm inclined to go with option 1 at this point.
+
+[1] https://gitlab.freedesktop.org/dbus/dbus/-/blob/master/bus/selinux.c#L269
+
+--
+Mike Palmiotto
+https://crunchydata.com
