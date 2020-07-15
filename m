@@ -2,126 +2,170 @@ Return-Path: <SRS0=JLv6=A2=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13F77C433E7
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:50:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5B8FC43461
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:49:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EE6C92065E
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:50:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B4D6A2065E
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 15:49:49 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="V8Z90u3n"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725973AbgGOPuA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 11:50:00 -0400
-Received: from mxo1.nje.dmz.twosigma.com ([208.77.214.160]:33369 "EHLO
-        mxo1.nje.dmz.twosigma.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725835AbgGOPt7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 11:49:59 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mxo1.nje.dmz.twosigma.com (Postfix) with ESMTP id 4B6MK15sZ8z8snW;
-        Wed, 15 Jul 2020 15:49:57 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at twosigma.com
-Received: from mxo1.nje.dmz.twosigma.com ([127.0.0.1])
-        by localhost (mxo1.nje.dmz.twosigma.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id oLC619_nSHwc; Wed, 15 Jul 2020 15:49:57 +0000 (UTC)
-Received: from exmbdft6.ad.twosigma.com (exmbdft6.ad.twosigma.com [172.22.1.5])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mxo1.nje.dmz.twosigma.com (Postfix) with ESMTPS id 4B6MK15CHXz8snK;
-        Wed, 15 Jul 2020 15:49:57 +0000 (UTC)
-Received: from EXMBDFT10.ad.twosigma.com (172.23.127.159) by
- exmbdft6.ad.twosigma.com (172.22.1.5) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 15 Jul 2020 15:49:57 +0000
-Received: from EXMBDFT11.ad.twosigma.com (172.23.162.14) by
- EXMBDFT10.ad.twosigma.com (172.23.127.159) with Microsoft SMTP Server (TLS)
- id 15.0.1497.2; Wed, 15 Jul 2020 15:49:57 +0000
-Received: from EXMBDFT11.ad.twosigma.com ([fe80::8d66:2326:5416:86a9]) by
- EXMBDFT11.ad.twosigma.com ([fe80::8d66:2326:5416:86a9%19]) with mapi id
- 15.00.1497.000; Wed, 15 Jul 2020 15:49:57 +0000
-From:   Nicolas Viennot <Nicolas.Viennot@twosigma.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Adrian Reber <areber@redhat.com>
-CC:     Eric Biederman <ebiederm@xmission.com>,
-        Pavel Emelyanov <ovzxemul@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        =?utf-8?B?TWljaGHFgiBDxYJhcGnFhHNraQ==?= <mclapinski@google.com>,
-        "Kamil Yurtsever" <kyurtsever@google.com>,
-        Dirk Petersen <dipeit@gmail.com>,
-        Christine Flood <chf@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Radostin Stoyanov <rstoyanov1@gmail.com>,
-        Cyrill Gorcunov <gorcunov@openvz.org>,
-        Serge Hallyn <serge@hallyn.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "linux-security-module@vger.kernel.org" 
-        <linux-security-module@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
-        Eric Paris <eparis@parisplace.org>,
-        Jann Horn <jannh@google.com>,
-        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>
-Subject: RE: [PATCH v5 5/6] prctl: Allow checkpoint/restore capable processes
- to change exe link
-Thread-Topic: [PATCH v5 5/6] prctl: Allow checkpoint/restore capable processes
- to change exe link
-Thread-Index: AQHWWrd9MS4DKBjnuUS3UVyYGQIobKkIwW2AgAAGAfA=
-Date:   Wed, 15 Jul 2020 15:49:57 +0000
-Message-ID: <ba55d8b160e541429dc0c823d3240eb3@EXMBDFT11.ad.twosigma.com>
-References: <20200715144954.1387760-1-areber@redhat.com>
- <20200715144954.1387760-6-areber@redhat.com>
- <20200715152011.whdeysy3ztqrnocn@wittgenstein>
-In-Reply-To: <20200715152011.whdeysy3ztqrnocn@wittgenstein>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [192.168.118.104]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1726962AbgGOPtm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jul 2020 11:49:42 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:45900 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725832AbgGOPs7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 11:48:59 -0400
+Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id D03CB20B4909;
+        Wed, 15 Jul 2020 08:48:58 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D03CB20B4909
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1594828139;
+        bh=JPlRumbOfvyOco8L8nkT1d2Rp+0/lx8FfGi5jva830E=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=V8Z90u3n3Edtg4DNq9sdR21/qS4DM3+DhjPKfEzdx22E2qNsyPmUqqBOCk6pwmgVO
+         naeoyfb93tlv0K16kntLc5r2JWk1OAGmpzaiZXNA9QQBz8DpsFKGa1RyNWiLyPMn5u
+         76U29TvGvk09P3mvIUXPQjup/USv/mMc5QIMVYPY=
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com
+Cc:     jmorris@namei.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v1 1/5] IMA: Add LSM_STATE func to measure LSM data
+Date:   Wed, 15 Jul 2020 08:48:49 -0700
+Message-Id: <20200715154853.23374-2-nramas@linux.microsoft.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200715154853.23374-1-nramas@linux.microsoft.com>
+References: <20200715154853.23374-1-nramas@linux.microsoft.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-PiBPbiBXZWQsIEp1bCAxNSwgMjAyMCBhdCAwNDo0OTo1M1BNICswMjAwLCBBZHJpYW4gUmViZXIg
-d3JvdGU6DQo+ID4gRnJvbTogTmljb2xhcyBWaWVubm90IDxOaWNvbGFzLlZpZW5ub3RAdHdvc2ln
-bWEuY29tPg0KPiA+IA0KPiA+IEFsbG93IENBUF9DSEVDS1BPSU5UX1JFU1RPUkUgY2FwYWJsZSB1
-c2VycyB0byBjaGFuZ2UgL3Byb2Mvc2VsZi9leGUuDQo+ID4gDQo+ID4gVGhpcyBjb21taXQgYWxz
-byBjaGFuZ2VzIHRoZSBwZXJtaXNzaW9uIGVycm9yIGNvZGUgZnJvbSAtRUlOVkFMIHRvIA0KPiA+
-IC1FUEVSTSBmb3IgY29uc2lzdGVuY3kgd2l0aCB0aGUgcmVzdCBvZiB0aGUgcHJjdGwoKSBzeXNj
-YWxsIHdoZW4gDQo+ID4gY2hlY2tpbmcgY2FwYWJpbGl0aWVzLg0KPiBJIGFncmVlIHRoYXQgRUlO
-VkFMIHNlZW1zIHdlaXJkIGhlcmUgYnV0IHRoaXMgaXMgYSBwb3RlbnRpYWxseSB1c2VyIHZpc2li
-bGUgY2hhbmdlLiBNaWdodCBiZSBuaWNlIHRvIGhhdmUgdGhlIEVJTlZBTC0+RVBFUk0gY2hhbmdl
-IGJlIGFuIGFkZGl0aW9uYWwgcGF0Y2ggb24gdG9wIGFmdGVyIHRoaXMgb25lIHNvIHdlIGNhbiBy
-ZXZlcnQgaXQgaW4gY2FzZSBpdCBicmVha3Mgc29tZW9uZSAodW5saWtlbHkgdGhvdWdoKS4gSSBj
-YW4gc3BsaXQgdGhpcyBvdXQgbXlzZWxmIHRob3VnaCBzbyBubyBuZWVkIHRvIHJlc2VuZCBmb3Ig
-dGhhdCBhbG9uZS4NCj4gV2hhdCBJIHdvdWxkIGFsc28gcHJlZmVyIGlzIHRvIGhhdmUgc29tZSBo
-aXN0b3J5IGluIHRoZSBjb21taXQgbWVzc2FnZSB0YmguIFRoZSByZWFzb24gaXMgdGhhdCB3aGVu
-IHdlIHN0YXJ0ZWQgZGlzY3Vzc2luZyB0aGF0IHNwZWNpZmljIGNoYW5nZSBJIGhhZCB0byBodW50
-IGRvd24gdGhlIGhpc3Rvcnkgb2YgY2hhbmdpbmcgL3Byb2Mvc2VsZi9leGUgYW5kIGhhZCB0byBk
-aWcgdXAgYW5kIHJlYWQgdGhyb3VnaCBhbmNpZW50IHRocmVhZHMgb24gbG9yZSB0byBjb21lIHVw
-IHdpdGggdGhlIGV4cGxhbmF0aW9uIHdoeSB0aGlzIGlzIHBsYWNlZCB1bmRlciBhIGNhcGFiaWxp
-dHkuIFRoZSBjb21taXQgbWVzc2FnZSBzaG91bGQgdGhlbiBhbHNvIG1lbnRpb24gdGhhdCB0aGVy
-ZSBhcmUgb3RoZXIgd2F5cyB0byBjaGFuZ2UgdGhlIC9wcm9jL3NlbGYvZXhlIGxpbmsgdGhhdCBk
-b24ndCByZXF1aXJlIGNhcGFiaWxpdGllcyBhbmQgdGhhdCAvcHJvYy9zZWxmL2V4ZSBpdHNlbGYg
-aXMgbm90IHNvbWV0aGluZyB1c2Vyc3BhY2Ugc2hvdWxkIHJlbHkgb24gZm9yIHNlY3VyaXR5LiBN
-YWlubHkgc28gdGhhdCBpbiBhIGZldyBtb250aHMveWVhcnMgd2UgY2FuIHJlYWQgdGhyb3VnaCB0
-aGF0IGNvbW1pdCBtZXNzYWdlIGFuZCBnbyAiV2VpcmQsIGJ1dCBvay4iLiA6KQ0KPiBCdXQgbWF5
-YmUgSSBjYW4ganVzdCByZXdyaXRlIHRoaXMgbXlzZWxmIHNvIHlvdSBkb24ndCBoYXZlIHRvIGdv
-IHRocm91Z2ggdGhlIHRyb3VibGUuIFRoaXMgaXMgcmVhbGx5IG5vdCBwZWRhbnRyeSBpdCdzIGp1
-c3QgdGhhdCBpdCdzIGEgbG90IG9mIHdvcmsgZGlnZ2luZyB1cCB0aGUgcmVhc29ucyBmb3IgYSBw
-aWVjZSBvZiBjb2RlIGV4aXN0aW5nIHdoZW4gaXQncyByZWFsbHkgbm90IG9idmlvdXMuIDopDQoN
-CkhlbGxvIENocmlzdGlhbiwNCg0KSSBhZ3JlZS4NClRoYW5rIHlvdSBmb3Igc3VnZ2VzdGluZyBk
-b2luZyB0aGUgd29yaywgYnV0IHlvdSd2ZSBkb25lIHBsZW50eSBhbHJlYWR5LiBTbyB3ZSdsbCBj
-b21lIGJhY2sgdG8geW91IHdpdGg6DQoxKSBBIHNlcGFyYXRlIGNvbW1pdCBmb3IgRUlOVkFMLT5F
-UEVSTQ0KMikgQSBmdWxsIGhpc3Rvcnkgb2YgZGlzY3Vzc2lvbnMgaW4gdGhlIGNvbW1pdCBtZXNz
-YWdlIHJlbGF0ZWQgdG8gL3Byb2Mvc2VsZi9leGUgY2FwYWJpbGl0eSBjaGVjaw0KDQpUaGFua3Ms
-DQpOaWNvDQo=
+Critical data structures of security modules need to be measured to
+enable an attestation service to verify if the policies and
+configuration have been setup correctly and that they haven't been
+tampered with at runtime. A new IMA policy is required for handling
+this measurement.
+
+Define a new IMA policy func namely LSM_STATE to measure data provided
+by security modules. Update ima_match_rules() to check for LSM_STATE
+and ima_parse_rule() to handle LSM_STATE.
+
+Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+---
+ Documentation/ABI/testing/ima_policy |  6 +++++-
+ security/integrity/ima/ima.h         |  1 +
+ security/integrity/ima/ima_api.c     |  2 +-
+ security/integrity/ima/ima_policy.c  | 29 +++++++++++++++++++++++-----
+ 4 files changed, 31 insertions(+), 7 deletions(-)
+
+diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
+index cd572912c593..355bc3eade33 100644
+--- a/Documentation/ABI/testing/ima_policy
++++ b/Documentation/ABI/testing/ima_policy
+@@ -29,7 +29,7 @@ Description:
+ 		base: 	func:= [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
+ 				[FIRMWARE_CHECK]
+ 				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
+-				[KEXEC_CMDLINE] [KEY_CHECK]
++				[KEXEC_CMDLINE] [KEY_CHECK] [LSM_STATE]
+ 			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
+ 			       [[^]MAY_EXEC]
+ 			fsmagic:= hex value
+@@ -125,3 +125,7 @@ Description:
+ 		keys added to .builtin_trusted_keys or .ima keyring:
+ 
+ 			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
++
++		Example of measure rule using LSM_STATE to measure LSM data:
++
++			measure func=LSM_STATE
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 4515975cc540..880fda11a61b 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -200,6 +200,7 @@ static inline unsigned int ima_hash_key(u8 *digest)
+ 	hook(POLICY_CHECK, policy)			\
+ 	hook(KEXEC_CMDLINE, kexec_cmdline)		\
+ 	hook(KEY_CHECK, key)				\
++	hook(LSM_STATE, lsm_state)			\
+ 	hook(MAX_CHECK, none)
+ 
+ #define __ima_hook_enumify(ENUM, str)	ENUM,
+diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+index bf22de8b7ce0..0cebd2404dcf 100644
+--- a/security/integrity/ima/ima_api.c
++++ b/security/integrity/ima/ima_api.c
+@@ -176,7 +176,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
+  *		subj=, obj=, type=, func=, mask=, fsmagic=
+  *	subj,obj, and type: are LSM specific.
+  *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK | MODULE_CHECK
+- *	| KEXEC_CMDLINE | KEY_CHECK
++ *	| KEXEC_CMDLINE | KEY_CHECK | LSM_STATE
+  *	mask: contains the permission mask
+  *	fsmagic: hex value
+  *
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 66aa3e17a888..fc8457d9242b 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -417,15 +417,31 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+ 			    const char *keyring)
+ {
+ 	int i;
++	int funcmatch = 0;
+ 
+-	if ((func == KEXEC_CMDLINE) || (func == KEY_CHECK)) {
++	switch (func) {
++	case KEXEC_CMDLINE:
++	case KEY_CHECK:
++	case LSM_STATE:
+ 		if ((rule->flags & IMA_FUNC) && (rule->func == func)) {
+ 			if (func == KEY_CHECK)
+-				return ima_match_keyring(rule, keyring, cred);
+-			return true;
+-		}
+-		return false;
++				funcmatch = ima_match_keyring(rule, keyring,
++							      cred) ? 1 : -1;
++			else
++				funcmatch = 1;
++		} else
++			funcmatch = -1;
++
++		break;
++
++	default:
++		funcmatch = 0;
++		break;
+ 	}
++
++	if (funcmatch)
++		return (funcmatch == 1) ? true : false;
++
+ 	if ((rule->flags & IMA_FUNC) &&
+ 	    (rule->func != func && func != POST_SETATTR))
+ 		return false;
+@@ -1068,6 +1084,9 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
+ 				entry->func = KEXEC_CMDLINE;
+ 			else if (strcmp(args[0].from, "KEY_CHECK") == 0)
+ 				entry->func = KEY_CHECK;
++			else if (strcmp(args[0].from, "LSM_STATE") == 0)
++				entry->func = LSM_STATE;
++
+ 			else
+ 				result = -EINVAL;
+ 			if (!result)
+-- 
+2.27.0
+
