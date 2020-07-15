@@ -7,42 +7,42 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8FFEC433E1
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 14:51:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4510C433E1
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 14:52:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 86CDB206F5
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 14:51:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82B4F206E9
+	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 14:52:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YUEhM2Ed"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Wl+nLcwN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726769AbgGOOvc (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 10:51:32 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:35146 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726758AbgGOOvb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 10:51:31 -0400
+        id S1726843AbgGOOvk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 15 Jul 2020 10:51:40 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:24730 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726809AbgGOOvk (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 10:51:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1594824690;
+        s=mimecast20190719; t=1594824698;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=cFqxEO5GCd1e1dZ9OjJhtlzwIsLHCJufCpGCyw2ZCfQ=;
-        b=YUEhM2Ed+WCNg2/gpGqE/4HGmNv1rMNfh6157qn1WeJPApuz3FWKDbI8JRpRHF/iv7rmLc
-        Zng9mgHsfColh2SR/7kKDXr77yjKQrD3b7WmHBf4zjn1wjVLNjUBneRzl4ykfXilG/Sdbf
-        IMMP4KJ6SBaH761aK/cgQtdgJe/iW7g=
+        bh=e+GUMkIqOM1756261b5DcpT99uKH+47iX9jCYAeaOt4=;
+        b=Wl+nLcwN87Dv1+wlHdPwYRN68tHynhmQBAk1gZOLKowth2CIEzcy9yc0as8EMpH0vsW8Fv
+        TIrssDPdoCZ3ZjfmWtuWRb2DAVuOenCIyKXHtvlwlhstj6BB8aXakQHGRK428HVJjNA7bQ
+        z6OarKWlDj2sPOQER5Jwvr467PzlfgI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-202-TmwZIEFRPpGGho2HLUOd2Q-1; Wed, 15 Jul 2020 10:51:26 -0400
-X-MC-Unique: TmwZIEFRPpGGho2HLUOd2Q-1
+ us-mta-267-1qTtWfGdMCGV4yDZuWsOng-1; Wed, 15 Jul 2020 10:51:34 -0400
+X-MC-Unique: 1qTtWfGdMCGV4yDZuWsOng-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 81A891009616;
-        Wed, 15 Jul 2020 14:51:23 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C8B5E100AA23;
+        Wed, 15 Jul 2020 14:51:31 +0000 (UTC)
 Received: from dcbz.redhat.com (ovpn-114-113.ams2.redhat.com [10.36.114.113])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0C09A60BF1;
-        Wed, 15 Jul 2020 14:51:12 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E795660BF4;
+        Wed, 15 Jul 2020 14:51:24 +0000 (UTC)
 From:   Adrian Reber <areber@redhat.com>
 To:     Christian Brauner <christian.brauner@ubuntu.com>,
         Eric Biederman <ebiederm@xmission.com>,
@@ -68,9 +68,9 @@ Cc:     Mike Rapoport <rppt@linux.ibm.com>,
         linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
         Eric Paris <eparis@parisplace.org>,
         Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH v5 2/6] pid: use checkpoint_restore_ns_capable() for set_tid
-Date:   Wed, 15 Jul 2020 16:49:50 +0200
-Message-Id: <20200715144954.1387760-3-areber@redhat.com>
+Subject: [PATCH v5 3/6] pid_namespace: use checkpoint_restore_ns_capable() for ns_last_pid
+Date:   Wed, 15 Jul 2020 16:49:51 +0200
+Message-Id: <20200715144954.1387760-4-areber@redhat.com>
 In-Reply-To: <20200715144954.1387760-1-areber@redhat.com>
 References: <20200715144954.1387760-1-areber@redhat.com>
 MIME-Version: 1.0
@@ -82,27 +82,27 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 Use the newly introduced capability CAP_CHECKPOINT_RESTORE to allow
-using clone3() with set_tid set.
+writing to ns_last_pid.
 
 Signed-off-by: Adrian Reber <areber@redhat.com>
 Signed-off-by: Nicolas Viennot <Nicolas.Viennot@twosigma.com>
 ---
- kernel/pid.c | 2 +-
+ kernel/pid_namespace.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/pid.c b/kernel/pid.c
-index de9d29c41d77..a9cbab0194d9 100644
---- a/kernel/pid.c
-+++ b/kernel/pid.c
-@@ -199,7 +199,7 @@ struct pid *alloc_pid(struct pid_namespace *ns, pid_t *set_tid,
- 			if (tid != 1 && !tmp->child_reaper)
- 				goto out_free;
- 			retval = -EPERM;
--			if (!ns_capable(tmp->user_ns, CAP_SYS_ADMIN))
-+			if (!checkpoint_restore_ns_capable(tmp->user_ns))
- 				goto out_free;
- 			set_tid_size--;
- 		}
+diff --git a/kernel/pid_namespace.c b/kernel/pid_namespace.c
+index 0e5ac162c3a8..ac135bd600eb 100644
+--- a/kernel/pid_namespace.c
++++ b/kernel/pid_namespace.c
+@@ -269,7 +269,7 @@ static int pid_ns_ctl_handler(struct ctl_table *table, int write,
+ 	struct ctl_table tmp = *table;
+ 	int ret, next;
+ 
+-	if (write && !ns_capable(pid_ns->user_ns, CAP_SYS_ADMIN))
++	if (write && !checkpoint_restore_ns_capable(pid_ns->user_ns))
+ 		return -EPERM;
+ 
+ 	/*
 -- 
 2.26.2
 
