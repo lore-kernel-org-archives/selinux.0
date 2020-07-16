@@ -2,183 +2,887 @@ Return-Path: <SRS0=s7s9=A3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8139C433E3
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 18:54:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17FE7C433E0
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 19:06:06 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BD0F220739
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 18:54:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B57762076A
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 19:06:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bB0GqtkF"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="YZ3mY6mz"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728560AbgGPSyS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jul 2020 14:54:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60400 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726986AbgGPSyR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 14:54:17 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93AC8C061755;
-        Thu, 16 Jul 2020 11:54:17 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id 72so5056875otc.3;
-        Thu, 16 Jul 2020 11:54:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=hh1P2ej3PSRq1WOldPof/pYHoI8ZC8oiK5qvMk9TyR0=;
-        b=bB0GqtkF+m763mQ8H/zjdUE2tmoKXyBj5xknTJ2FjFNHnb9/9Idj5DCQUd2v4bl5lC
-         e2kgL7T8sqTuXor8tyPCn6TNokY/9aPFtNuk2lPm6w7VpwJsa8Yjmk60VE73+9rin7jU
-         POzPrc+m+Bv/pVWWrnKgXQQ7E+6KJ+6xhL453GVN4fiUl2ImlTtcJLG7XkcwZAJVe3mL
-         Gpo+TBbB3DT5XNsVytw94iXWQ2H2pRk+CbxNpWQqh02pxoZ3cbSyNP2z6v8aWezPnOoJ
-         VYViwIuNXNpzfnPOFyOhssvn/9urkUmCMMf/yBgnpeG918Y+JDevULC5dAL4kTrx3h6I
-         KGGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=hh1P2ej3PSRq1WOldPof/pYHoI8ZC8oiK5qvMk9TyR0=;
-        b=WMBW4F66SkOdz7OalaybCD59Zq+pAFUHfXkHIpvIvV1B+QTARR4Xb/LXSGbQCyQtJy
-         trJWJ9ccY3fAyJFeCF6gOMqEt1eUa9y3XZK+AthBvx16o66yb9njnWKU68Uk2MHvbGvP
-         BYgf+T4h2z7OTd+3WcRlHbNguk50rdThl9azZiKC/yAfRt42T6x6gFN/cli4/RcOBxBd
-         YvAqnwffDpqbsQsZ/Z8gP4Tx9/7v6QJw0F3d41z8Rb1IHjbcQYjQSwQzk2DZTfBc2sdg
-         gljzJAo5JrelganH9qrZS5Cn5T2inXAjg4aZ0J+amKBcK2AmV/omPbZRayaOXEt9NYOw
-         RexQ==
-X-Gm-Message-State: AOAM533FEBR0CWJgFDihIcVPSdY/XVkB1T47Fo0yfRNuo9dXOSoIcLTI
-        GwEWmLgUkzRn+66KJF7qt5bla8FPp5GzF6x3mhrgiWfk
-X-Google-Smtp-Source: ABdhPJz5CQk76FM+g6cXhnGWeCEydEOpfKBMJz3HmArpJ07d0bYKBDJdEk7sAkAQSMT2H2LdRmvDZteqI+fIukAa3hI=
-X-Received: by 2002:a9d:6e14:: with SMTP id e20mr5552606otr.89.1594925656968;
- Thu, 16 Jul 2020 11:54:16 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200716174351.20128-1-nramas@linux.microsoft.com> <20200716174351.20128-5-nramas@linux.microsoft.com>
-In-Reply-To: <20200716174351.20128-5-nramas@linux.microsoft.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 16 Jul 2020 14:54:06 -0400
-Message-ID: <CAEjxPJ43eXK0xgrE=gDxZVg2SDTz4bkd7N4otjk-cvxf3fKL-g@mail.gmail.com>
-Subject: Re: [PATCH v2 4/5] LSM: Define SELinux function to measure security state
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
+        id S1728257AbgGPTGF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jul 2020 15:06:05 -0400
+Received: from mailomta9-sa.btinternet.com ([213.120.69.15]:10044 "EHLO
+        sa-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729459AbgGPTGE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 15:06:04 -0400
+Received: from sa-prd-rgout-003.btmx-prd.synchronoss.net ([10.2.38.6])
+          by sa-prd-fep-048.btinternet.com with ESMTP
+          id <20200716190558.KWBR4139.sa-prd-fep-048.btinternet.com@sa-prd-rgout-003.btmx-prd.synchronoss.net>;
+          Thu, 16 Jul 2020 20:05:58 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1594926358; 
+        bh=rJu7xM/hzVqNibZb7y3ZsX4LqtuhBrM/ui/GTrziLZY=;
+        h=Message-ID:Subject:From:To:Date:In-Reply-To:References:MIME-Version;
+        b=YZ3mY6mzXTARDMulesXaTsbVw6mVyVicUKK+PoFpp3kn+6Cjllm33Ag4kBOD+CoeO+QsiAAMRS4AKF24I640cg4gNAujerLvZZJY9ydZ3iVzrW7kbZkJr0hMY3dBukUXnITb0+ubt16mPH7zxSQ9Z5HOmFAgq0fwkje87WCT5W4tJZuW9FEyqJ5Q+im81Nnywjav/+lyQtaj5B9ha687vC9wLa5CTraxFvDjna14RW49cJv0TyYYXKxVA4AE8uNdvgUU00KdFdI+XMPRpVyemoymBE2wVn8v+u7pTceH9SpihbNliFXiH03L0MW4Js2hkiHt5XHvFUB7UblC0EW3SQ==
+Authentication-Results: btinternet.com;
+    auth=pass (LOGIN) smtp.auth=richard_c_haines@btinternet.com
+X-Originating-IP: [86.190.32.13]
+X-OWM-Source-IP: 86.190.32.13 (GB)
+X-OWM-Env-Sender: richard_c_haines@btinternet.com
+X-VadeSecure-score: verdict=clean score=0/300, class=clean
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrfeeggddufeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkuffhvfffjghftggfggfgsehtjeertddtreejnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpefhgedtteeigfefgefgheelhefgkeehudegheduleffleelveehieeftefhjedtjeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghdpghhithhhuhgsrdgtohhmnecukfhppeekiedrudeltddrfedvrddufeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepkeeirdduledtrdefvddrudefpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuuefqffgjpeekuefkvffokffogfdprhgtphhtthhopeeoughomhhinhhitghkrdhgrhhifhhtseguvghfvghnshgvtgdrnhhlqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade-Verdict: clean 0
+X-RazorGate-Vade-Classification: clean
+X-SNCR-hdrdom: btinternet.com
+Received: from localhost.localdomain (86.190.32.13) by sa-prd-rgout-003.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
+        id 5ED9AFBE072B429B; Thu, 16 Jul 2020 20:05:58 +0100
+Message-ID: <5a3a55acd860e22cc6d00d6ad0404d79ad9e2eef.camel@btinternet.com>
+Subject: Re: [SELinux-notebook PATCH] adds CIL policy with makefile
+From:   Richard Haines <richard_c_haines@btinternet.com>
+To:     Dominick Grift <dominick.grift@defensec.nl>,
+        selinux@vger.kernel.org
+Date:   Thu, 16 Jul 2020 20:05:47 +0100
+In-Reply-To: <20200716100851.944055-1-dominick.grift@defensec.nl>
+References: <20200716100851.944055-1-dominick.grift@defensec.nl>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.36.3 (3.36.3-1.fc32) 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 16, 2020 at 1:44 PM Lakshmi Ramasubramanian
-<nramas@linux.microsoft.com> wrote:
->
-> SELinux configuration and policy are some of the critical data for this
-> security module that needs to be measured. To enable this measurement
-> SELinux needs to implement the interface function,
-> security_measure_data(), that the LSM can call.
->
-> Define the security_state() function in SELinux to measure SELinux
-> configuration and policy. Call this function to measure SELinux data
-> when there is a change in the security module's state.
->
-> Sample measurement of SELinux state and hash of the policy:
->
-> 10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state 656e61626c65643d3=
-13b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574706565723d31=
-3b6f70656e7065726d3d313b657874736f636b636c6173733d313b616c776179736e6574776=
-f726b3d303b6367726f75707365636c6162656c3d313b6e6e706e6f737569647472616e7369=
-74696f6e3d313b67656e66737365636c6162656c73796d6c696e6b3d303b
-> 10 f4a7...9408 ima-buf sha256:4941...68fc selinux-policy-hash 8d1d...1834
->
-> The data for selinux-state in the above measurement is:
-> enabled=3D1;enforcing=3D0;checkreqprot=3D1;network_peer_controls=3D1;open=
-_perms=3D1;extended_socket_class=3D1;always_check_network=3D0;cgroup_seclab=
-el=3D1;nnp_nosuid_transition=3D1;genfs_seclabel_symlinks=3D0;
->
-> The data for selinux-policy-hash in the above measurement is
-> the SHA256 hash of the SELinux policy.
+On Thu, 2020-07-16 at 12:08 +0200, Dominick Grift wrote:
+> This example CIL policy takes a different approach:
+> 
+> 1. Leverages CIL
+> 2. Installs using semodule to make it tunable at runtime (but you can
+> obviously also use secilc to build a monolithic version and deploy
+> that)
+> 3. Makes few assumptions about variables
+> 4. Leverages handleunknown allow and declares least required access
+> vectors so that you can pick and choose which access vectors you want
+> to use and ignore the remainder
+> 5. Leverages unlabeled and file ISID and makes no assumptions about
+> any volatile filesystems you may or may not use
+> 6. As small and simple as reasonably possible, heavily documented
+> 7. Modern, Requires SELinux 3.1
 
-Can you show an example of how to verify that the above measurement
-matches a given state and policy, e.g. the sha256sum commands and
-inputs to reproduce the same from an expected state and policy?
 
->
-> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+I've no idea what x-server you use, however I've now tested this policy
+on two Fedora 32 X-Windows types Xwayland and Xorg, these are the
+results:
+
+Xwayland now works as the boolean disables the x-server. As I don't
+think Xwayland was built with SELinux support, this is the only option.
+
+To configure Xorg I modified /etc/gdm/custom.conf as follows:
+
+[daemon]
+WaylandEnable=false
+DefaultSession=gnome-xorg.desktop
+
+Xorg with your current config hangs on boot when starting GDM with this
+in the log:
+
+gdm-x-session[990]: SELinux: a property label lookup failed!
+gdm-x-session[990]: Fatal server error:
+gdm-x-session[990]: (EE) SELinux: Failed to set label property on
+window!
+
+There are two possible fixes for this:
+
+1) If you want Xorg to run with SELinux enabled, the x_contexts file
+must contain the following:
+
+client * sys.id:sys.role:sys.isid
+property * sys.id:sys.role:sys.isid
+extension * sys.id:sys.role:sys.isid
+selection * sys.id:sys.role:sys.isid
+event * sys.id:sys.role:sys.isid
+
+2) If you want Xorg to run with SELinux disabled there must be either a
+file /etc/X11/xorg.conf.d/90-selinux.conf that contains:
+
+Section "Module"
+SubSection "extmod"
+Option "SELinux mode disabled"
+EndSubSection
+EndSection
+
+Or add the (boolean xserver_object_manager false) to policy.
+Note with these the x_contexts file contents are not relevant.
+
+You can then boot the system in enforcing mode using your policy with
+any of the above options.
+
+I've added two minor comments in the code below.
+
+
+> 
+> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
 > ---
-
-> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+>  src/cil_overview.md                           |  11 +
+>  src/notebook-examples/README.md               |   2 +
+>  src/notebook-examples/cil-policy/Makefile     |  36 ++
+>  src/notebook-examples/cil-policy/README.md    |  71 +++
+>  src/notebook-examples/cil-policy/XWAYLAND.md  |   7 +
+>  .../cil-policy/cil-policy.cil                 | 445
+> ++++++++++++++++++
+>  6 files changed, 572 insertions(+)
+>  create mode 100644 src/notebook-examples/cil-policy/Makefile
+>  create mode 100644 src/notebook-examples/cil-policy/README.md
+>  create mode 100644 src/notebook-examples/cil-policy/XWAYLAND.md
+>  create mode 100644 src/notebook-examples/cil-policy/cil-policy.cil
+> 
+> diff --git a/src/cil_overview.md b/src/cil_overview.md
+> index a05aad5..1403666 100644
+> --- a/src/cil_overview.md
+> +++ b/src/cil_overview.md
+> @@ -135,6 +135,17 @@ Usage: build-sepolicy [-k] [-M] [-c|-p|-s] -d
+> flask_directory -o output_file
+>  -d    Directory containing the initial_sids, security_classes and
+> access_vectors Flask files.
+>  -o    The output file that will contain the policy source or header
+> file.
+>  ```
+> +There is another CIL policy in the notebook examples called
+> +"cil-policy" that takes a slightly different approach where the goal
+> +is to keep the policy as simple as possible. It requires `semodule`,
+> +Linux 5.7, SELinux 3.1 and can be installed by executing
+> +`make install`. It leverages some modern SELinux features, most
+> +notably where the requirement for ordered security classes is
+> lifted.
+> +With this you are no longer expected to be aware of all the access
+> +vectors managed by Linux in order to align your security class
+> +declarations with the order in which they are declared in the
+> kernel.
+> +A module store is created by `semodule` to give easy access to the
+> +source and that allows for full control over the policy.
+>  
+>  <br>
+>  
+> diff --git a/src/notebook-examples/README.md b/src/notebook-
+> examples/README.md
+> index 488ec6e..1bb611b 100644
+> --- a/src/notebook-examples/README.md
+> +++ b/src/notebook-examples/README.md
+> @@ -2,6 +2,8 @@
+>  
+>  This area contains the following directories:
+>  
+> +***cil-policy*** - Contains info to build and install simple CIL
+> policy.
+> +
+>  ***network*** - Contains CIPSO, CALIPSO and IPSEC examples.
+>  
+>  ***selinux-policy*** - Contains info to build simple kernel and CIL
+> policy.
+> diff --git a/src/notebook-examples/cil-policy/Makefile
+> b/src/notebook-examples/cil-policy/Makefile
 > new file mode 100644
-> index 000000000000..27cbb309e926
+> index 0000000..7e6e7cb
 > --- /dev/null
-> +++ b/security/selinux/measure.c
-> @@ -0,0 +1,158 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * Measure SELinux state using IMA subsystem.
-> + */
-> +#include <linux/ima.h>
-> +#include "security.h"
+> +++ b/src/notebook-examples/cil-policy/Makefile
+> @@ -0,0 +1,36 @@
+> +# -*- Mode: makefile; indent-tabs-mode: t -*-
+> +# SPDX-License-Identifier: Unlicense
 > +
-> +/* Pre-allocated buffer used for measuring state */
-> +static char *selinux_state_string;
-> +static size_t selinux_state_string_len;
-> +static char *selinux_state_string_fmt =3D
-> +       "%s=3D%d;%s=3D%d;%s=3D%d;%s=3D%d;%s=3D%d;%s=3D%d;%s=3D%d;%s=3D%d;=
-%s=3D%d;%s=3D%d;";
+> +.PHONY: install
 > +
-> +void __init selinux_init_measurement(void)
-> +{
-> +       selinux_state_string_len =3D
-> +       snprintf(NULL, 0, selinux_state_string_fmt,
-> +       "enabled", 0,
-> +       "enforcing", 0,
-> +       "checkreqprot", 0,
-> +       selinux_policycap_names[POLICYDB_CAPABILITY_NETPEER], 0,
-> +       selinux_policycap_names[POLICYDB_CAPABILITY_OPENPERM], 0,
-> +       selinux_policycap_names[POLICYDB_CAPABILITY_EXTSOCKCLASS], 0,
-> +       selinux_policycap_names[POLICYDB_CAPABILITY_ALWAYSNETWORK], 0,
-> +       selinux_policycap_names[POLICYDB_CAPABILITY_CGROUPSECLABEL], 0,
-> +       selinux_policycap_names[POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION=
-], 0,
-> +       selinux_policycap_names[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLIN=
-KS],
-> +       0);
-
-I was thinking you'd dynamically construct the format string with a
-for loop from 0 to POLICYDB_CAPABILITY_MAX
-and likewise for the values so that we wouldn't have to patch this
-code every time we add a new one.
-
+> +all: install
 > +
-> +       if (selinux_state_string_len < 0)
-> +               return;
+> +install:
+> +	mkdir -p /etc/selinux/cil-
+> policy/{contexts,logins,policy,contexts/files,contexts/users}
+> +	touch /etc/selinux/cil-policy/contexts/customizable_types
+> +	touch /etc/selinux/cil-policy/contexts/file_contexts.subs_dist
+> +	echo -e """<!DOCTYPE busconfig PUBLIC \
+> +\"-//freedesktop//DTD D-BUS Bus Configuration 1.0//EN\" \
+> +\n\"http://www.freedesktop.org/standards/dbus/1.0/busconfig.dtd\"> \
+> +\n<busconfig> \
+> +\n<selinux> \
+> +\n</selinux> \
+> +\n</busconfig>""" > /etc/selinux/cil-policy/contexts/dbus_contexts
+> +	echo "sys.role:sys.isid sys.role:sys.isid" > /etc/selinux/cil-
+> policy/contexts/default_contexts
+> +	echo "sys.role:sys.isid" > /etc/selinux/cil-
+> policy/contexts/default_type
+> +	echo "sys.role:sys.isid" > /etc/selinux/cil-
+> policy/contexts/failsafe_context
+> +	echo -e """cdrom sys.id:sys.role:sys.isid \
+> +\nfloppy sys.id:sys.role:sys.isid \
+> +\ndisk sys.id:sys.role:sys.isid""" > /etc/selinux/cil-
+> policy/contexts/files/media
+> +	echo "privsep_preauth=sys.isid" > /etc/selinux/cil-
+> policy/contexts/openssh_contexts
+> +	echo "sys.id:sys.role:sys.isid" > /etc/selinux/cil-
+> policy/contexts/removable_context
+> +	echo "sys.isid" > /etc/selinux/cil-
+> policy/contexts/securetty_types
+> +	echo "sys.id:sys.role:sys.isid" > /etc/selinux/cil-
+> policy/contexts/virtual_domain_context
+> +	echo -e """sys.id:sys.role:sys.isid \
+> +\nsys.id:sys.role:sys.isid""" > /etc/selinux/cil-
+> policy/contexts/virtual_image_context
+> +	echo -e """Section \"Module\" \
+> +\nSubSection \"extmod\" \
+> +\nOption \"SELinux mode disabled\" \
+> +\nEndSubSection \
+> +\nEndSection""" > /etc/selinux/cil-policy/contexts/x_contexts
 
-How can this happen legitimately (i.e. as a result of something other
-than a kernel bug)?
+See above comments on the x_contexts file.
 
+> +	semodule --priority=100 -N -s cil-policy -i cil-policy.cil
+> diff --git a/src/notebook-examples/cil-policy/README.md
+> b/src/notebook-examples/cil-policy/README.md
+> new file mode 100644
+> index 0000000..a3c9b56
+> --- /dev/null
+> +++ b/src/notebook-examples/cil-policy/README.md
+> @@ -0,0 +1,71 @@
+> +# CIL policy from scratch that is mutable at runtime
 > +
-> +       ++selinux_state_string_len;
+> +This example demonstrates an alternative approach to implementing a
+> +first iteration of a CIL policy from scratch. The main idea is to
+> +create a policy that is as small as reasonably possible, and to
+> +install that by using `semodule`. This will provide you with bare
+> +miminums to get you started in enforcing mode.
 > +
-> +       selinux_state_string =3D kzalloc(selinux_state_string_len, GFP_KE=
-RNEL);
-> +       if (!selinux_state_string)
-> +               selinux_state_string_len =3D 0;
-> +}
+> +To achieve this there are two key features leveraged. The
+> +`handleunknown` statement, the `unlabeled` and `file` initial
+> +security identifiers. By allowing unknown access vectors by default
+> we
+> +can reduce the amount of classes and access vector permission
+> +declarations needed to get started. This was only recently made
+> +possible by lifting the requirement to order classes. Requiring
+> +classes to be ordered implies that the classes are declared, thus it
+> +requires that you know what classes are managed by Linux. Now we
+> only
+> +have to be aware of, and declare, a small number of classes and a
+> few
+> +permissions to get started. All the remaining unknown access vectors
+> +will be reported to us by SELinux via the kernel ring buffer, it is
+> +just a matter of looking at `dmesg` to see which access vectors are
+> +managed by Linux but are unknown to the policy, and then to address
+> +those in the policy as we go along. You can generally pick and
+> choose
+> +which access vectors you want to use to achieve your access control
+> +requirements and you can imply ignore any access vectors that you do
+> +not need.
+> +
+> +The `unlabeled` initial security identifier is used to associate a
+> +specified context with entities that have their existing context
+> +invalidated. The `file` initial security identifier is used to
+> +associate a context with objects that have no labels. This
+> +functionality can be taken advantage of to reduce the work needed to
+> +get a working first iteration of the policy that we can then build
+> +upon. Initial security identifier associated contexts are associated
+> +with entities in memory. This means that effectively we do not have
+> +to worry about persistent labels in our first iteration. We can
+> +address labeling requirements as a first next step to get going.
+> +
+> +By using `semodule` we create a module store that we can use to
+> +manage policy at runtime and all the source policy is
+> +readily accessible through the store. Some changes might require
+> +reboot in some scenarios. You can effectively switch to cil-policy
+> at
+> +runtime in enforcing mode if your system was already enforcing a
+> +policy before. Otherwise you might have to reboot to load initial
+> +policy.
+> +
+> +This repository comes with a heavily commented CIL module and a make
+> +file that addresses installation. The make file does make some
+> +assumptions that are relatively safe but if something breaks, you
+> get
+> +to keep the pieces. This example requires Linux 5.7 and SELinux 3.1
+> +because it omits initial sid context specifications for unused
+> +initial security identifiers.
+> +
+> +## Switching to cil-policy from a another policy
+> +
+> +1. make install
+> +2. sed -i 's/SELINUXTYPE=.*/SELINUXTYPE=cil-policy/'
+> /etc/selinux/config
+> +3. semodule -B
+> +
+> +Your first step to actually leverage cil-policy will likely be to
+> +enable labeling support for your non-volatile filesystems, and to
+> +apply labels according to the file context specifications defined in
+> +the policy.
+> +
+> +For example if you use `ext4` filesystems:
+> +
+> +1. echo '(fsuse xattr "ext4" (sys.id sys.role sys.isid ((s0)(s0))))'
+> > myfs.cil
+> +2. semodule -i myfs.cil
+> +3. fixfiles onboot && reboot
+> +
+> +Use your favorite text editor to write policy in [Common
+> Intermediate Language](
+> https://github.com/SELinuxProject/selinux/blob/master/secilc/docs/README.md
+> ),
+> +manage it with `semodule`, and analyze it with `setools`.
+> diff --git a/src/notebook-examples/cil-policy/XWAYLAND.md
+> b/src/notebook-examples/cil-policy/XWAYLAND.md
+> new file mode 100644
+> index 0000000..322576d
+> --- /dev/null
+> +++ b/src/notebook-examples/cil-policy/XWAYLAND.md
+> @@ -0,0 +1,7 @@
+> +# Xwayland considerations
+> +
+> +In the scenario where you are still using Xwayland there are some
+> +special considerations:
+> +
+> +1. cp /etc/selinux/cil-policy/contexts/x_contexts
+> /etc/X11/xorg.conf.d/90-selinux.conf
 
-Not sure about this error handling approach (silent, proceeding as if
-the length was zero and then later failing with ENOMEM on every
-attempt?). I'd be more inclined to panic/BUG here but I know Linus
-doesn't like that.
+The 90-selinux.conf file is not required for Xwayland as it never even
+tries to read it. It would be required for Xorg if you want to disable
+XSELinux (or use the boolean below).
 
-> +       if (ret)
-> +               pr_err("%s: error %d\n", __func__, ret);
+> +2. echo "(boolean xserver_object_manager false)" >
+> myxwaylandhack.cil && semodule -i myxwaylandhack.cil
+> diff --git a/src/notebook-examples/cil-policy/cil-policy.cil
+> b/src/notebook-examples/cil-policy/cil-policy.cil
+> new file mode 100644
+> index 0000000..c36eb4b
+> --- /dev/null
+> +++ b/src/notebook-examples/cil-policy/cil-policy.cil
+> @@ -0,0 +1,445 @@
+> +;; -*- mode: CIL; fill-column: 79; indent-tabs-mode: nil; -*-
+> +;; SPDX-License-Identifier: Unlicense
+> +
+> +;;
+> +;; Policy configuration:
+> +;;
+> +;; By allowing unknown access vectors we can start with a reduced
+> number
+> +;; of declared classes and access vectors. Use `dmesg | grep -i
+> selinux` to
+> +;; see which kernel classes and access vectors should be addressed
+> in the
+> +;; policy as you go along.
+> +;;
+> +
+> +(handleunknown allow)
+> +
+> +;;
+> +;; Policy configuration:
+> +;;
+> +;; We'll disable the MLS security model support for simplicity, but
+> CIL still
+> +;; requires us to write our policy with minimal MLS-awareness.
+> Remember, we can
+> +;; alway's add full or partial MLS support later. This is just to
+> get started.
+> +;;
+> +
+> +(mls false)
+> +
+> +;;
+> +;; Access vector declarations and (un)ordering:
+> +;;
+> +;; SELinux requires that the process security class, transition and
+> +;; dyntransition access vector permissions are declared. CIL
+> requires at least
+> +;; one declared access vector and avc rule as well so this is a good
+> starting
+> +;; point. All security classes can be "unordered" with Linux
+> 5.7/SELinux 3.1.
+> +;;
+> +
+> +(class process (dyntransition transition))
+> +(classorder (unordered process))
+> +
+> +;;
+> +;; Access vector declarations and (un)ordering:
+> +;;
+> +;; To be able to associate roles with files, we need defaultrole
+> rules that
+> +;; require file classes to be declared. For now we'll omit their
+> associated
+> +;; access vector permissions for simplicity (get them from `dmesg |
+> grep -i selinux`)
+> +;;
+> +
+> +(class blk_file ())
+> +(classorder (unordered blk_file))
+> +
+> +(class chr_file ())
+> +(classorder (unordered chr_file))
+> +
+> +(class dir ())
+> +(classorder (unordered dir))
+> +
+> +(class fifo_file ())
+> +(classorder (unordered fifo_file))
+> +
+> +(class file ())
+> +(classorder (unordered file))
+> +
+> +(class lnk_file ())
+> +(classorder (unordered lnk_file))
+> +
+> +(class sock_file ())
+> +(classorder (unordered sock_file))
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The kernel isid is used to associate a specified context with
+> processes
+> +;; that were initialized before SELinux was initialized (mainly
+> kernel threads).
+> +;;
+> +
+> +(sid kernel)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The security isid is used to associate a specified context with
+> "fixed"
+> +;; SELinux "objects" used to enforce access control on SELinux
+> operations
+> +;; (for example setenforce, setbool etc).
+> +;;
+> +
+> +(sid security)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The port isid is used to associate a specified context with
+> "fixed"
+> +;; network port "objects" used to enforce access control on network
+> +;; operations (for example name_connect, name_bind etc).
+> +;;
+> +
+> +(sid port)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The netif isid is used to associate a specified context with
+> "fixed"
+> +;; network interface "objects" used to enforce access control on
+> network
+> +;; operations (for example egress, ingress etc).
+> +;;
+> +
+> +(sid netif)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The netmsg isid is used to associate a specified context with
+> "fixed"
+> +;; network peer "objects" used to enforce access control on network
+> +;; operations (for example recv).
+> +;;
+> +
+> +(sid netmsg)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The node isid is used to associate a specified context with
+> "fixed"
+> +;; network node "objects" used to enforce access control on network
+> +;; operations (for example node_bind etc).
+> +;;
+> +
+> +(sid node)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The devnull isid is used to associate a specified context with
+> "fixed"
+> +;; null device "objects" used to enforce access control on file
+> +;; operations (for example read, write etc).
+> +;;
+> +
+> +(sid devnull)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The file isid is used to associate a specified context with
+> objects
+> +;; that have no label (for example formatted filesystems that are
+> not labeled).
+> +;;
+> +
+> +(sid file)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The unlabeled isid is used to associate a specified context with
+> entities
+> +;; that had their security context invalidated (mainly due to
+> modifications to
+> +;; policy at runtime).
+> +;;
+> +
+> +(sid unlabeled)
+> +
+> +;;
+> +;; Initial security identifier declarations:
+> +;;
+> +;; The following initial security identifiers are unused but are
+> required
+> +;; for "sid ordering"
+> +;;
+> +
+> +(sid any_socket)
+> +(sid file_labels)
+> +(sid fs)
+> +(sid icmp_socket)
+> +(sid igmp_packet)
+> +(sid init)
+> +(sid kmod)
+> +(sid policy)
+> +(sid scmp_packet)
+> +(sid sysctl)
+> +(sid sysctl_dev)
+> +(sid sysctl_fs)
+> +(sid sysctl_kernel)
+> +(sid sysctl_modprobe)
+> +(sid sysctl_net)
+> +(sid sysctl_net_unix)
+> +(sid sysctl_vm)
+> +(sid tcp_socket)
+> +
+> +;;
+> +;; Initial security identifier ordering:
+> +;;
+> +;; Even though most initial security identifiers we declared are no
+> longer in
+> +;; use, we still have to retain a very specific order to stay
+> compatible with
+> +;; the kernel. This is certainly one of those things that make
+> policy writing
+> +;; seem like some sort of black magic and hopefully some day we can
+> lift the
+> +;; requirement to order initial sids in a specific way.
+> +;;
+> +
+> +(sidorder
+> + (kernel security unlabeled fs file file_labels init any_socket port
+> +         netif netmsg node igmp_packet icmp_socket tcp_socket
+> sysctl_modprobe
+> +         sysctl sysctl_fs sysctl_kernel sysctl_net sysctl_net_unix
+> +         sysctl_vm sysctl_dev kmod policy scmp_packet devnull))
+> +
+> +;;
+> +;; Security identifier declarations
+> +;;
+> +;; Security contexts are identifiers that are combinations of
+> security
+> +;; attribute and security identifier key value pairs corresponding
+> to security
+> +;; models.
+> +;;
+> +;; The s0 security identifier is associated with sensitivity
+> attribute in a
+> +;; security context used to enforce confidentiality with the Multi
+> level
+> +;; security model. (we only declare one sensitivity for simplicity
+> and to
+> +;; satisfy CIL.
+> +;;
+> +
+> +(sensitivity s0)
+> +
+> +;;
+> +;; Security identifier declarations
+> +;;
+> +;; Security contexts are identifiers that are combinations of
+> security
+> +;; attribute and security identifier key value pairs corresponding
+> to security
+> +;; models.
+> +;;
+> +;; The c0 security identifier is associated with category attribute
+> in a
+> +;; security context used to enforce compartmentalization with the
+> Multi level
+> +;; security model. (we only declare one compartment for simplicity
+> and to
+> +;; satisfy CIL.
+> +;;
+> +
+> +(category c0)
+> +
+> +;;
+> +;; Security identifier declarations
+> +;;
+> +;; Security contexts are identifiers that are combinations of
+> security
+> +;; attribute and security identifier key value pairs corresponding
+> to security
+> +;; models.
+> +;;
+> +;; The sys.id security identifier is associated with user attribute
+> in a
+> +;; security context used to associate with Linux DAC and role and
+> level security
+> +;; identifiers with the Identity-based access control security
+> model.
+> +;;
+> +;; Note that we leverage a simple CIL "sys" "container" here
+> +;;
+> +
+> +(block sys (user id))
+> +
+> +;;
+> +;; Security identifier declarations
+> +;;
+> +;; Security contexts are identifiers that are combinations of
+> security
+> +;; attribute and security identifier key value pairs corresponding
+> to security
+> +;; models.
+> +;;
+> +;; The sys.role security identifier is associated with role
+> attribute in a
+> +;; security context used to associate with types with the Role-based
+> +;; access control security model.
+> +;;
+> +;; Note that we insert into the previously defined CIL "sys"
+> "container" here
+> +;;
+> +
+> +(in sys (role role))
+> +
+> +;;
+> +;; Security identifier declarations
+> +;;
+> +;; Security contexts are identifiers that are combinations of
+> security
+> +;; attribute and security identifier key value pairs corresponding
+> to security
+> +;; models.
+> +;;
+> +;; The sys.isid security identifier is associated with type
+> attribute in a
+> +;; security context used to enforce integrity with the Type-
+> enforcement
+> +;; security model.
+> +;;
+> +;; Note that we insert into the previously defined CIL "sys"
+> "container" here
+> +;;
+> +
+> +(in sys (type isid))
+> +
+> +;;
+> +;; Sensitivity ordering:
+> +;;
+> +;; Usually there are multiple sensitivities declared. Sensitivities
+> represent
+> +;; a hierarchy. Since we only have one sensitivity our sensitivity
+> order is
+> +;; simple.
+> +;;
+> +
+> +(sensitivityorder (s0))
+> +
+> +;;
+> +;; Category ordering:
+> +;;
+> +;; Usually there are multiple categories declared. Categories
+> represent
+> +;; a hierarchy. Since we only have one category our category order
+> is
+> +;; simple.
+> +;;
+> +
+> +(categoryorder (c0))
+> +
+> +;;
+> +;; Security identifier authorisations
+> +;;
+> +;; The individually declared security identifiers need to be
+> authorized to
+> +;; associate to be able to define valid security contexts.
+> +;;
+> +;; Authorize the s0 sensitivity with c0 category association
+> +;;
+> +
+> +(sensitivitycategory s0 (range c0 c0))
+> +
+> +;;
+> +;; Security identifier authorisations
+> +;;
+> +;; The individually declared security identifiers need to be
+> authorized to
+> +;; associate to be able to define valid security contexts.
+> +;;
+> +;; Authorize the sys.id user with sys.role role association
+> +;;
+> +
+> +(userrole sys.id sys.role)
+> +
+> +;;
+> +;; Security identifier authorisations
+> +;;
+> +;; The individually declared security identifiers need to be
+> authorized to
+> +;; associate to be able to define valid security contexts.
+> +;;
+> +;; Authorize the sys.role role with sys.isid type association
+> +;;
+> +
+> +(roletype sys.role sys.isid)
+> +
+> +;;
+> +;; Security identifier authorisations
+> +;;
+> +;; The individually declared security identifiers need to be
+> authorized to
+> +;; associate to be able to define valid security contexts.
+> +;;
+> +;; Authorize the sys.id user with s0 lavel association
+> +;;
+> +
+> +(userlevel sys.id (s0))
+> +
+> +;;
+> +;; Security identifier authorisations
+> +;;
+> +;; The individually declared security identifiers need to be
+> authorized to
+> +;; associate to be able to define valid security contexts.
+> +;;
+> +;; Authorize the sys.id user with s0-s0:c0.c0 range association
+> +;;
+> +
+> +(userrange sys.id ((s0)(s0 (range c0 c0))))
+> +
+> +;;
+> +;; Security context specifications:
+> +;;
+> +;; We will change the default role behavior to inherit the role from
+> the source
+> +;; instead of the target, as this allows us to leverage roles
+> associated with
+> +;; files.
+> +;;
+> +
+> +(defaultrole blk_file source)
+> +(defaultrole chr_file source)
+> +(defaultrole dir source)
+> +(defaultrole fifo_file source)
+> +(defaultrole file source)
+> +(defaultrole lnk_file source)
+> +(defaultrole sock_file source)
+> +
+> +;;
+> +;; Security context specifications
+> +;;
+> +;; Now that we have a valid security context:
+> sys.id:sys.role:sys.isid:s0-s0,
+> +;; associate it with the used initial sids.
+> +;;
+> +
+> +(sidcontext kernel (sys.id sys.role sys.isid ((s0)(s0))))
+> +(sidcontext security (sys.id sys.role sys.isid ((s0)(s0))))
+> +(sidcontext port (sys.id sys.role sys.isid ((s0)(s0))))
+> +(sidcontext netif (sys.id sys.role sys.isid ((s0)(s0))))
+> +(sidcontext netmsg (sys.id sys.role sys.isid ((s0)(s0))))
+> +(sidcontext node (sys.id sys.role sys.isid ((s0)(s0))))
+> +(sidcontext devnull (sys.id sys.role sys.isid ((s0)(s0))))
+> +(sidcontext file (sys.id sys.role sys.isid ((s0)(s0))))
+> +(sidcontext unlabeled (sys.id sys.role sys.isid ((s0)(s0))))
+> +
+> +;;
+> +;; Security context specifications
+> +;;
+> +;; Now that we have a valid security context:
+> sys.id:sys.role:sys.isid:s0-s0,
+> +;; associate it with locations on the filesystems so that they can
+> be
+> +;; associated with inodes on filesystems that support extended
+> security
+> +;; attributes.
+> +;;
+> +
+> +(filecon "/" dir (sys.id sys.role sys.isid ((s0)(s0))))
+> +(filecon "/.*" any (sys.id sys.role sys.isid ((s0)(s0))))
+> +
+> +;;
+> +;; AVC rule
+> +;;
+> +;; CIL requires us to specify at least one AVC rule Since we were
+> required
+> +;; to at least declare the process security class and its
+> dyntransition and
+> +;; transition access vector permissions. lets just add a AVC rule
+> allowing
+> +;; entities associated with our sys.isid type identifier access to
+> all process
+> +;; access vectors.
+> +;;
+> +
+> +(allow sys.isid self (process (all)))
+> +
+> +;;
+> +;; Tidy some loose ends
+> +;;
+> +;; Addressing a hard coded reference to a rpm_script_t type
+> identifier in RPM
+> +;; using typealiases to our sys.isid type so that RPM does not get
+> confused.
+> +
+> +(typealias rpm_script_t)
+> +(typealiasactual rpm_script_t sys.isid)
+> +
+> +(typealias dpkg_script_t)
+> +(typealiasactual dpkg_script_t sys.isid)
+> +
+> +;;
+> +;; Tidy some loose ends
+> +;;
+> +;; Generate a /etc/selinux/cil-policy/seusers file with a
+> __default__ fall back
+> +;; entry so that Linux users with be associated with the sys.id
+> SELinux
+> +;; identity and s0-s0 level.
+> +;;
+> +
+> +(selinuxuserdefault sys.id ((s0)(s0)))
+> +
+> +;;
+> +;; Tidy some loose ends
+> +;;
+> +;; We are associating valid roles with files. The userprefix
+> statement was
+> +;; recycled to allow us to tell genhomedircon what roles to
+> associate with
+> +;; SELinux identities associated with custmizable files (mainly
+> /home/user)
+> +;;
+> +
+> +(userprefix sys.id sys.role)
+> +
+> +;;
+> +;; Tidy some loose ends
+> +;;
+> +;; At the least /dev and /dev/pts need to be set up for labeling for
+> sudo
+> +;;
+> +
+> +(fsuse trans "devtmpfs" (sys.id sys.role sys.isid ((s0)(s0))))
+> +(fsuse trans "devpts" (sys.id sys.role sys.isid ((s0)(s0))))
 
-This doesn't seem terribly useful as an error message; I'd be inclined
-to drop it.
