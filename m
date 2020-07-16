@@ -2,48 +2,62 @@ Return-Path: <SRS0=s7s9=A3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFFFEC433DF
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 12:18:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 141D1C433E1
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 12:27:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A9B592074B
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 12:18:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 909742065F
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 12:27:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="TarANw6V"
+	dkim=pass (1024-bit key) header.d=bigon.be header.i=@bigon.be header.b="co0lpTRx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728094AbgGPMSN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jul 2020 08:18:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55510 "EHLO
+        id S1728422AbgGPM16 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jul 2020 08:27:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726515AbgGPMSM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 08:18:12 -0400
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B36E8C061755
-        for <selinux@vger.kernel.org>; Thu, 16 Jul 2020 05:18:12 -0700 (PDT)
-Received: from localhost.localdomain (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 4D8462A100B;
-        Thu, 16 Jul 2020 14:18:10 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 4D8462A100B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1594901891;
-        bh=7YZH4EwTKYzgIcEvsMgthJ+TwYuoKPRvble78+l/K98=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TarANw6VwdUBuO1B9XquFVQpbSE3QbKLR+sjBhSRi7BA2IpqaVjvkhLqrhy2uWY/6
-         u8kUujiazFazwapbyKCC+hAvecz2f+7Um+BrqwA5GWsYDIzGwS+a2Bdz6J0x2Q+C3u
-         3P9p9OrVoaeALHsgIYYiOjAaci9NRazJwclQ2yfk=
-From:   Dominick Grift <dominick.grift@defensec.nl>
+        with ESMTP id S1727081AbgGPM15 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 08:27:57 -0400
+X-Greylist: delayed 339 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 16 Jul 2020 05:27:57 PDT
+Received: from ithil.bigon.be (ithil.bigon.be [IPv6:2001:bc8:25f1:100::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9BDFC061755
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2020 05:27:57 -0700 (PDT)
+Received: from localhost (localhost [IPv6:::1])
+        by ithil.bigon.be (Postfix) with ESMTP id 70C8C1FDF2
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2020 14:22:14 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bigon.be; h=
+        content-transfer-encoding:mime-version:x-mailer:message-id:date
+        :date:subject:subject:from:from:received:received:received; s=
+        key1; t=1594902134; x=1596716535; bh=X5vGz4Z43aCB68NQuTJ25sI0f0c
+        s9wS1TkYMr7dku+g=; b=co0lpTRx+YJTNngUdRxrC4VCTGCBLzqHw+CAWdgMeRZ
+        wtA68QNwoGy1zSDLFDtS2XCd9LsCuzLY5/gJjrrKZN60NH8BxASwSE/NkNpJAl4q
+        cY1fYJdNiuGtUm1bJiul6poez8OZ65mPqzkjz8IbHOV22NSDpJdqQOCfkeJvBkk8
+        =
+Received: from ithil.bigon.be ([IPv6:::1])
+        by localhost (ithil.bigon.be [IPv6:::1]) (amavisd-new, port 10026)
+        with ESMTP id deS99sviHRiP for <selinux@vger.kernel.org>;
+        Thu, 16 Jul 2020 14:22:14 +0200 (CEST)
+Received: from edoras.bigon.be (unknown [IPv6:2a02:a03f:65b8:4300:746b:cff:67dc:4fbd])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: bigon@bigon.be)
+        by ithil.bigon.be (Postfix) with ESMTPSA
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2020 14:22:14 +0200 (CEST)
+Received: from bigon (uid 1000)
+        (envelope-from bigon@bigon.be)
+        id 20112
+        by edoras.bigon.be (DragonFly Mail Agent v0.12);
+        Thu, 16 Jul 2020 14:22:13 +0200
+From:   Laurent Bigonville <bigon@debian.org>
 To:     selinux@vger.kernel.org
-Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [SELinux-notebook PATCH v4] objects.md: some clarifications
-Date:   Thu, 16 Jul 2020 14:17:29 +0200
-Message-Id: <20200716121729.962241-1-dominick.grift@defensec.nl>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <20200716111825.953813-1-dominick.grift@defensec.nl>
-References: <20200716111825.953813-1-dominick.grift@defensec.nl>
+Subject: [PATCH] restorecond: Set X-GNOME-HiddenUnderSystemd=true in restorecond.desktop file
+Date:   Thu, 16 Jul 2020 14:22:13 +0200
+Message-Id: <20200716122213.454087-1-bigon@debian.org>
+X-Mailer: git-send-email 2.28.0.rc0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -51,69 +65,25 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Elaborate on labeling. Touch on the significance of the default statement, on various av permissions related to labeling using the libselinux API, and on how the kernel and unlabeled initial security identifiers are used to address labeling challenges in special cases such as initialization and failover respectively.
+From: Laurent Bigonville <bigon@bigon.be>
 
-Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+This completely inactivate the .desktop file incase the user session is
+managed by systemd as restorecond also provide a service file
+
+Signed-off-by: Laurent Bigonville <bigon@bigon.be>
 ---
-v2: fixes patch description
-v3: adding patch description, s/policies/policy's/, split unlabeled and kernel descriptions for clarity
-v4: fixes another typo in description and emphasize system initialization a bit
+ restorecond/restorecond.desktop | 1 +
+ 1 file changed, 1 insertion(+)
 
-src/objects.md | 29 ++++++++++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
-
-diff --git a/src/objects.md b/src/objects.md
-index 58664ef..c67787d 100644
---- a/src/objects.md
-+++ b/src/objects.md
-@@ -110,14 +110,20 @@ objects is managed by the system and generally unseen by the users
- (until labeling goes wrong !!). As processes and objects are created and
- destroyed, they either:
- 
--1.  Inherit their labels from the parent process or object.
-+1.  Inherit their labels from the parent process or object. The policy
-+    default type, role and range statements can be used to change the
-+    behavior as discussed in the [**Default Rules**](default_rules.md#default-object-rules)
-+    section.
- 2.  The policy type, role and range transition statements allow a
-     different label to be assigned as discussed in the
-     [**Domain and Object Transitions**](domain_object_transitions.md#domain-and-object-transitions)
-     section.
- 3.  SELinux-aware applications can enforce a new label (with the
--    policies approval of course) using the **libselinux** API
--    functions.
-+    policy's approval of course) using the **libselinux** API
-+    functions. The `process setfscreate` access vector can be used to
-+    allow subjects to create files with a new label programmatically
-+    using the ***setfscreatecon**(3)* function, overriding default
-+    rules and transition statements.
- 4.  An object manager (OM) can enforce a default label that can either
-     be built into the OM or obtained via a configuration file (such as
-     those used by
-@@ -269,6 +275,23 @@ and manage their transition:
- 
- `type_transition`, `role_transition` and `range_transition`
- 
-+SELinux-aware applications can enforce a new label (with the policy's
-+approval of course) using the **libselinux** API functions. The
-+`process setexec`, `process setkeycreate` and `process setsockcreate`
-+access vectors can be used to allow subjects to label processes,
-+kernel keyrings, and sockets programmatically using the
-+***setexec**(3)*, ***setkeycreatecon**(3)* and
-+***setsockcreatecon**(3)* functions respectively, overriding
-+transition statements.
-+
-+The `kernel` **initial security identifier** is used to associate
-+specified labels with subjects that were left unlabeled due to
-+system initialization.
-+
-+The `unlabeled` **initial security identifier** is used
-+to associate specified labels with subjects that had their label
-+invalidated due to policy changes at runtime.
-+
- ### Object Reuse
- 
- As GNU / Linux runs it creates instances of objects and manages the
+diff --git a/restorecond/restorecond.desktop b/restorecond/restorecond.desktop
+index af728680..7df85472 100644
+--- a/restorecond/restorecond.desktop
++++ b/restorecond/restorecond.desktop
+@@ -5,3 +5,4 @@ Comment=Fix file context in owned by the user
+ Type=Application
+ StartupNotify=false
+ X-GNOME-Autostart-enabled=false
++X-GNOME-HiddenUnderSystemd=true
 -- 
-2.27.0
+2.28.0.rc0
 
