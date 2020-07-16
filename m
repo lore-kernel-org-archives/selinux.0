@@ -7,43 +7,43 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B95FC433E5
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 11:18:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFFFEC433DF
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 12:18:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5EC4C2078C
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 11:18:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A9B592074B
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 12:18:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="WhyLoHtB"
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="TarANw6V"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728092AbgGPLSz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jul 2020 07:18:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46200 "EHLO
+        id S1728094AbgGPMSN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jul 2020 08:18:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726350AbgGPLSy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 07:18:54 -0400
+        with ESMTP id S1726515AbgGPMSM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 08:18:12 -0400
 Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AAE60C061755
-        for <selinux@vger.kernel.org>; Thu, 16 Jul 2020 04:18:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B36E8C061755
+        for <selinux@vger.kernel.org>; Thu, 16 Jul 2020 05:18:12 -0700 (PDT)
 Received: from localhost.localdomain (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 54DE42A1010;
-        Thu, 16 Jul 2020 13:18:53 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 54DE42A1010
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 4D8462A100B;
+        Thu, 16 Jul 2020 14:18:10 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 4D8462A100B
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1594898333;
-        bh=1YRt9E1IulxhEh/MJgL0++z37ITYwTtyXZPlrL4/gsU=;
+        s=default; t=1594901891;
+        bh=7YZH4EwTKYzgIcEvsMgthJ+TwYuoKPRvble78+l/K98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WhyLoHtB/njRrwu+d7J+QX2cMzIFeYFRLlTfTO1o3ZKY85dvpXv7IW52n9n9MSLrG
-         RRBkS3aM7hGpFZF64E+EAitkvwn36RmwfqzTC2XtErFDpp0KO5DTM6viVzUE7RpXPy
-         MO2PL1JydWAOcFd5IV+37LzfStn14FLk8UWHZ0Ps=
+        b=TarANw6VwdUBuO1B9XquFVQpbSE3QbKLR+sjBhSRi7BA2IpqaVjvkhLqrhy2uWY/6
+         u8kUujiazFazwapbyKCC+hAvecz2f+7Um+BrqwA5GWsYDIzGwS+a2Bdz6J0x2Q+C3u
+         3P9p9OrVoaeALHsgIYYiOjAaci9NRazJwclQ2yfk=
 From:   Dominick Grift <dominick.grift@defensec.nl>
 To:     selinux@vger.kernel.org
 Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [SELinux-notebook PATCH v3] objects.md: some clarifications
-Date:   Thu, 16 Jul 2020 13:18:25 +0200
-Message-Id: <20200716111825.953813-1-dominick.grift@defensec.nl>
+Subject: [SELinux-notebook PATCH v4] objects.md: some clarifications
+Date:   Thu, 16 Jul 2020 14:17:29 +0200
+Message-Id: <20200716121729.962241-1-dominick.grift@defensec.nl>
 X-Mailer: git-send-email 2.27.0
-In-Reply-To: <CAHC9VhRNWLQAVzOnei5Hne8k7nXQkoQkY7txBov_rNMhKHNCFw@mail.gmail.com>
-References: <CAHC9VhRNWLQAVzOnei5Hne8k7nXQkoQkY7txBov_rNMhKHNCFw@mail.gmail.com>
+In-Reply-To: <20200716111825.953813-1-dominick.grift@defensec.nl>
+References: <20200716111825.953813-1-dominick.grift@defensec.nl>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -51,19 +51,19 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Elaborate is bit on labeling. Touch on the significance of the default statement, on various av permissions related to labeling using the libselinux API, and on how the kernel and unlabeled initial security identifiers are used to address labeling challenges in special cases such as initialization and failover respectively.
+Elaborate on labeling. Touch on the significance of the default statement, on various av permissions related to labeling using the libselinux API, and on how the kernel and unlabeled initial security identifiers are used to address labeling challenges in special cases such as initialization and failover respectively.
 
 Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
 ---
-
 v2: fixes patch description
-v3: adding patch description, s/policies/policy's/, spit unlabeled and kernel descriptions to clarify
+v3: adding patch description, s/policies/policy's/, split unlabeled and kernel descriptions for clarity
+v4: fixes another typo in description and emphasize system initialization a bit
 
- src/objects.md | 29 ++++++++++++++++++++++++++---
+src/objects.md | 29 ++++++++++++++++++++++++++---
  1 file changed, 26 insertions(+), 3 deletions(-)
 
 diff --git a/src/objects.md b/src/objects.md
-index 58664ef..55c7ea1 100644
+index 58664ef..c67787d 100644
 --- a/src/objects.md
 +++ b/src/objects.md
 @@ -110,14 +110,20 @@ objects is managed by the system and generally unseen by the users
@@ -105,7 +105,7 @@ index 58664ef..55c7ea1 100644
 +
 +The `kernel` **initial security identifier** is used to associate
 +specified labels with subjects that were left unlabeled due to
-+initialization.
++system initialization.
 +
 +The `unlabeled` **initial security identifier** is used
 +to associate specified labels with subjects that had their label
