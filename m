@@ -1,207 +1,133 @@
-Return-Path: <SRS0=JLv6=A2=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=s7s9=A3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 204F3C433F1
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 22:45:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C592C433E0
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 08:01:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D68D320658
-	for <selinux@archiver.kernel.org>; Wed, 15 Jul 2020 22:45:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 260C52071B
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 08:01:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="xp09bQYw"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SauO77uE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727939AbgGOWpr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 15 Jul 2020 18:45:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43388 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727924AbgGOWpq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 15 Jul 2020 18:45:46 -0400
-Received: from mail-lj1-x243.google.com (mail-lj1-x243.google.com [IPv6:2a00:1450:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F205C08C5CE
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2020 15:45:45 -0700 (PDT)
-Received: by mail-lj1-x243.google.com with SMTP id h19so4584706ljg.13
-        for <selinux@vger.kernel.org>; Wed, 15 Jul 2020 15:45:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rPoIwS9/U2ZilxkSvSW+dNeuQDUBTa2rQNPOsJU/TOs=;
-        b=xp09bQYw/VL+bEXZGmY7eiw+mTLwb7yHydi4WxnJYASFIXssQrxyM0EMvkGBzRhzBH
-         bHSNJUNGwidR4Q0N02xyCfCu9q19qAHMHeHfKHyEW1EPhIHyaXjSSujs8wStoB4SIHxs
-         Mj3M1r4rCb3Imsqh1VeXnANAtRviQXvIHIhHKp0nVX6w9dU1xzKuVbFnNgm/HIAvcIKf
-         o6dAlZ5U0hU1mXxLJ95ob5UtX0IrnfIO4V7GzXs8Pgcm8eA061qhuQBccQJpkWEVDaYW
-         hHjFwllTAIg9Cv6ibaji2YjJW3rels2O9p49CeVNX9AQu12BdJQyRNusbLcqmHlN1DXi
-         wR0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rPoIwS9/U2ZilxkSvSW+dNeuQDUBTa2rQNPOsJU/TOs=;
-        b=T00HFS+9U338957SPvH5iLYVqxwarbov+hN/FTChozlmsc4CpWWTaV5XwWA3DUDM8B
-         ZwgCzcufBHvw++c8gyHNCHJ+qmai5bAL144GOx0G5aEGBKYV7CnwZ27F+q1a55FmLhu6
-         Ki/vt/ws7g3VOEXyuD5olcGpbcQVB4zN3EZdCovYx0QH4xTP5qqaNXbrMMlWVN3V/+Lx
-         f+0f8y859zTsvPeqF/ABhTKiRVG+640svbYQH3CbP2L3D8c8B53gTewNA2tivmxi2Xfr
-         Be2bZ9hcIMH7wqLRs7T5ZNb/yIy2+mxvxCaj0AIm3byI35yQZToYANmZTBonATwxoUIx
-         mP7A==
-X-Gm-Message-State: AOAM5322BY10m9vrxmKZ6quuu1a89uoe7OKwuxkkdKbn/GSkwJrew02G
-        wdcKJyhtGN9o1DKNx4AJ6uCK/QAxbx1XBvRgnzMAbZTpopXwlQ==
-X-Google-Smtp-Source: ABdhPJzrDN60ZPi4nRTFntrTAHAnbPOEPRtPQRlvzWC4No0e7R3nZfoy23Vo+0wPXPv6GFBjHett1Ti/O6x4br1kxos=
-X-Received: by 2002:a2e:91da:: with SMTP id u26mr613679ljg.311.1594853143985;
- Wed, 15 Jul 2020 15:45:43 -0700 (PDT)
+        id S1725934AbgGPIBu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jul 2020 04:01:50 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:22467 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725897AbgGPIBu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 04:01:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1594886509;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=0zf3NhJGBwJ8deFe+X620ROcAwpZLLJLXqXQrRm2ams=;
+        b=SauO77uEiBqCUyo1Z73ZMhGUg77oZiOoehIcZ62KYPAAe9u4WLpCAaf/NromkfSFMbj4sW
+        gyciVFpGyVuM3wN69OG6HvOn/Lq86tlFholP3G3aD2agn9lVbPW+DtOh4S48Tu/60/Qkd+
+        glJ92wzb5vcL9EHcKK5CEmaY7iiCtRs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-512-i1x7vZM-OA6W_9ayg1J8pg-1; Thu, 16 Jul 2020 04:01:39 -0400
+X-MC-Unique: i1x7vZM-OA6W_9ayg1J8pg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 077391080;
+        Thu, 16 Jul 2020 08:01:37 +0000 (UTC)
+Received: from localhost.localdomain (unknown [10.40.192.186])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id CC82F2B6CF;
+        Thu, 16 Jul 2020 08:01:35 +0000 (UTC)
+Date:   Thu, 16 Jul 2020 10:01:32 +0200
+From:   Petr Lautrbach <plautrba@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Richard Haines <richard_c_haines@btinternet.com>
+Subject: Re: ANN: The SELinux Notebook in markdown on GitHub
+Message-ID: <20200716080132.GA33036@localhost.localdomain>
+References: <CAHC9VhTuDrgzeh9mXgkW98psssUCwy5i7_=Kx6hOyinfLjcd0w@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200714202934.42424-1-mike.palmiotto@crunchydata.com>
- <CAEjxPJ5m31kcXH66viy3R-ncbBJCET8Wm3+DjphDeZ0iV3giEA@mail.gmail.com>
- <CAMN686GqFW_40pcX=fkb8XUVFczg7+md8tqoS45C4VNcbcq-ww@mail.gmail.com>
- <CAEjxPJ5mb9iz8OnGUMS6i0i5sbmxf=Ff6h6ey95SgJzXjgyuDw@mail.gmail.com>
- <CAMN686HGb5-TmKAa3h+eof6a451CMa7Qd9n5F9FX_ozw31BWAg@mail.gmail.com>
- <CAMN686F4uT7__dvy22V_Y9_zqd6ckw=14gs6RcExuT-3ru6NtA@mail.gmail.com>
- <CAEjxPJ4B4sOjy_ZW+hCMjA7Uy6KGO5HT8tMdFp_obF_raXiqUw@mail.gmail.com>
- <CAMN686EudnKSaR89rKm8xOkYJVJA8-eXFc__1k4QMH9Vyp5b1w@mail.gmail.com>
- <CAMN686F=msEb59N4pjroKFzZU4sH+81UzeyL91Hbvy3bddunqg@mail.gmail.com> <CAEjxPJ5RGYQi4A7nD8b=tKv2OdC7f8wfMiwprApOCNADEi-ahg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5RGYQi4A7nD8b=tKv2OdC7f8wfMiwprApOCNADEi-ahg@mail.gmail.com>
-From:   Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Date:   Wed, 15 Jul 2020 18:45:32 -0400
-Message-ID: <CAMN686H=3RY-E1a01fWPY9QqGpUABVxJmQGrx00c53JrMVswZA@mail.gmail.com>
-Subject: Re: [PATCH] libselinux: Use sestatus if open
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAHC9VhTuDrgzeh9mXgkW98psssUCwy5i7_=Kx6hOyinfLjcd0w@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="9amGYk9869ThD9tj"
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 15, 2020 at 3:46 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Wed, Jul 15, 2020 at 2:52 PM Mike Palmiotto
-> <mike.palmiotto@crunchydata.com> wrote:
-> >
-> > On Wed, Jul 15, 2020 at 1:10 PM Mike Palmiotto
-> > <mike.palmiotto@crunchydata.com> wrote:
-> > >
-> > > On Wed, Jul 15, 2020 at 12:28 PM Stephen Smalley
-> > > <stephen.smalley.work@gmail.com> wrote:
-> > > >
-> > > > On Wed, Jul 15, 2020 at 12:04 PM Mike Palmiotto
-> > > > <mike.palmiotto@crunchydata.com> wrote:
-> > > > >
-> > > > > On Tue, Jul 14, 2020 at 6:42 PM Mike Palmiotto
-> > > > > <mike.palmiotto@crunchydata.com> wrote:
-> > > > > >
-> > > > > > On Tue, Jul 14, 2020 at 5:35 PM Stephen Smalley
-> > > > > > <stephen.smalley.work@gmail.com> wrote:
-> > > > > > >
-> > > > > > > On Tue, Jul 14, 2020 at 5:20 PM Mike Palmiotto
-> > > > > > > <mike.palmiotto@crunchydata.com> wrote:
-> > > > > <snip>
-> > > > > > > > Do you think we should go ahead and completely swap in sestatus? I was
-> > > > > > > > just worried about breaking userspace object managers that are
-> > > > > > > > currently using netlink threads by default, for instance
-> > > > > > > > systemd-dbusd.  I can spend some more time getting those to work with
-> > > > > > > > the status page if you think that's worthwhile.
-> > > > > > >
-> > > > > > > I'd be interested in understanding the impact of such a change on
-> > > > > > > existing userspace object managers.  If we can switch the default
-> > > > > > > behavior for applications that are not explicitly using
-> > > > > > > avc_netlink_*() interfaces themselves (e.g. they are only using
-> > > > > > > selinux_check_access or avc_has_perm), then that would be beneficial
-> > > > > > > since I think it fully removes the need for a system call on the AVC
-> > > > > > > cache-hit code path.
-> > > > > >
-> > > > > > I'll have to do a bit of digging to see how this will affect dbus, et
-> > > > > > al. On first blush, it looks like they're just doing
-> > > > > > avc_netlink_check_nb() in their watch thread. Presumably other object
-> > > > > > managers are doing something similar so we would just need to make
-> > > > > > sure there is a netlink fd available.
-> > > > >
-> > > > > So it looks like dbus (at least) is directly checking for a netlink
-> > > > > socket[1], so just doing away with the avc_netlink_open call wouldn't
-> > > > > work out. My thinking is we have two options:
-> > > > >
-> > > > > 1) Add a new seopt to use sestatus and let userspace object managers opt-in
-> > > > >
-> > > > > 2) Call both selinux_status_open and avc_netlink_open in
-> > > > > avc_init_internal. This would satisfy the hard requirement for a
-> > > > > netlink socket. Then we can default to using sestatus in all of the
-> > > > > netlink processing paths, as you suggested in your last reply. We
-> > > > > could
-> > > > >
-> > > > > Option 2 seems better from the standpoint of using sestatus by
-> > > > > default, but it looks like recvfrom will never be called and the
-> > > > > messages will just sit in kernel memory.
-> > > > >
-> > > > > I'm inclined to go with option 1 at this point.
-> > > > >
-> > > > > [1] https://gitlab.freedesktop.org/dbus/dbus/-/blob/master/bus/selinux.c#L269
-> > > >
-> > > > Couldn't we change avc_netlink_acquire_fd() to test whether fd hasn't
-> > > > yet been set (i.e. == -1) and call avc_netlink_open() in that case?
-> > > > Then dbus would still gets its netlink fd as expected but we wouldn't
-> > > > need to open it inside of avc_init?
-> > >
-> > > Much better. I'll send a new patch up shortly.
-> >
-> > Okay, maybe not that shortly. I tried your suggestion and dbus doesn't
-> > appear to receive the netlink messages.
-> >
-> > Initially I figured it had something to do with
-> > avc_create_thread(avc_netlink_loop) call still being in
-> > avc_init_internal, so I exposed the thread pointer in avc_internal.h
-> > and moved the call into avc_netlink_open, which seemed more
-> > appropriate. Still no dice.
-> >
-> > I'm probably doing something wrong -- I'll figure it out, but it's
-> > going to take me longer than I thought to track this down.
->
-> Recommend writing a little test program to exercise it first without
-> bringing in all of the dbus baggage.  Don't think Fedora is even using
-> dbusd anymore, just dbus-broker.
-> If you get stuck, feel free to send your patch and I can take a look too.
+--9amGYk9869ThD9tj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Interestingly, the test program is working fine:
-https://github.com/mpalmi/selinux/tree/sestatus
-https://github.com/mpalmi/sestatus-test
+On Tue, Jul 07, 2020 at 04:55:20PM -0400, Paul Moore wrote:
+> If you've followed the SELinux developers mailing list for a while,
+> you've surely heard of The SELinux Notebook.  For those of you that
+> haven't, The SELinux Notebook is an effort by Richard Haines to
+> document all the different aspects of SELinux from the kernel up
+> through policy.  It's an impressive piece of work, spanning ~345 pages
+> in the current edition.
+>=20
+> Richard has always made The SELinux Notebook freely available, but
+> with the latest edition Richard has converted the entire document to
+> markdown and it is now available on GitHub at the link below:
+>=20
+> * https://github.com/SELinuxProject/selinux-notebook
+>=20
+> Richard has decided that he enjoys life enough without a GitHub
+> account, so I've posted it on his behalf and with his approval.
+> Needless to say, this is a significant gift to the SELinux community,
+> and we all own Richard our thanks.
+>=20
+> I've made a few tweaks to the original import from Richard, but these
+> have mostly been limited to boilerplate, organization, and some
+> build/formatting fixes so that we could generate a reasonable PDF for
+> this initial "release".  The latest edition (release?) can be found at
+> the link below:
+>=20
+> * https://github.com/SELinuxProject/selinux-notebook/releases/tag/2020070=
+7
+>=20
+> It is my hope that we can treat this as a living document, keeping it
+> current so that it stays relevant and useful.  Those who wish to help
+> and contribute to the effort can do so via patches to the SELinux
+> mailing list or via GitHub PRs.  The CONTRIBUTING.md file in the
+> repository has more information.
+>=20
+> Thank you Richard!
 
-On a test run, I'm seeing both the status page and netlink socket
-notifications for load_polcy (twice for each case):
 
-```
- ./test
-opened avc successfully
-got netlink socket: 4
+This is really great news. Thank you both for this.
 
-watching netlink socket for events
-avc:  received policyload notice (seqno=3)
-policy reload notice received
-avc:  received policyload notice (seqno=4)
-policy reload notice received
-^C
-watching sestatus page for events
-avc:  received policyload notice (seqno=5)
-policy reload notice received
-avc:  received policyload notice (seqno=6)
-policy reload notice received
-^Cclosing netlink socket: 4
-destroying avc
-goodbye
-```
+Petr
 
-Still seeing the MAC_POLICY_LOAD audit message, but none of the usual
-USER_AVC policyload notices.
+--9amGYk9869ThD9tj
+Content-Type: application/pgp-signature; name="signature.asc"
 
-I'm not certain if I've covered enough, but this is where things
-currently stand. I can submit another patch to the list if that's
-preferable. I just figured I'd keep the noise down as much as possible
-until we figure out what's going on with dbus.
+-----BEGIN PGP SIGNATURE-----
 
-Thanks for all the help
+iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl8QCVYACgkQviIJHj72
+InU6ShAAujgzmZnjePMuDIEZfkkai8TO3qBd8OEcnDnDilYh8lU50XWvmXsEvvrC
+BYkOIeGyB2yxoMWfofcf7GIcaQKE05lw+WGbLFcQRP3H1dKp/PhzME1dSrfAm1Ab
+1y84W1rVTswe9tn0S3ej0oJ6+U8FrEGjuregHHFg3+nf7en+5JN7wNdmur9jI7+V
+PllVk0sKQIHb62ieQBw4cXcIHnW5j3jxSImmju/O+TNILHdWCsoCi474asMqJMyc
+dFF51cY+hhZw+kEbMhX0T6szrCU8V9bOQQjIaI2W+28Vj6D1NhQD64yKCT4kmAww
+f3YX0wRofqt4Q94tlRWKEZAIcum4vuEbJDeJ2M8l+djlJD7TTN3nH8tPSW2ISrBj
+8crRGaKkOwSEyvJTKDKVSNzDm2XIQgcqgdfhc1f6AM5KHy//bdRRZz9u2aUSq9OR
+A/Ld0ODFuAuolar9kaUFfsqNKzLMCiIPvUDWZ6AbSzDP+zeLATmLg6uS3xKjBvrl
+Y53m1++xgzxVuRFDjwrqY6wk3Kim5BMRyQzSQC/v+rHQEEq5zhnx+mgtVYfD9kxd
+BwFm5WxDhOzwb8f4DcPljW5YNxrHzyQn6r/8Q9vjGem+z9VydubkmBnMpf7zqTL0
+jlEIkMTJyFZ/hFbWsuPmgiMEBOdkxHkqqagMpuYALeayoN+gDqs=
+=9l6l
+-----END PGP SIGNATURE-----
 
---
-Mike Palmiotto
-https://crunchydata.com
+--9amGYk9869ThD9tj--
+
