@@ -5,40 +5,39 @@ X-Spam-Level:
 X-Spam-Status: No, score=-18.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D769C433E0
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 20:02:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62A9FC433E0
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 20:11:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2060D207BC
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 20:02:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B07A206F4
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 20:11:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="rmSH4n8p"
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="XzGIZZJN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729100AbgGPUCn (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jul 2020 16:02:43 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:54630 "EHLO agnus.defensec.nl"
+        id S1729048AbgGPULp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jul 2020 16:11:45 -0400
+Received: from agnus.defensec.nl ([80.100.19.56]:54636 "EHLO agnus.defensec.nl"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728907AbgGPUCn (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 16 Jul 2020 16:02:43 -0400
+        id S1728907AbgGPULp (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 16 Jul 2020 16:11:45 -0400
 Received: from localhost.localdomain (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id D33E82A1010;
-        Thu, 16 Jul 2020 22:02:37 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl D33E82A1010
+        by agnus.defensec.nl (Postfix) with ESMTPSA id A3D032A1010;
+        Thu, 16 Jul 2020 22:11:41 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl A3D032A1010
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1594929758;
-        bh=um7HZWqeokKtR2GzlPmQGlI4Bd7gkwXNUgUMbgbCunA=;
+        s=default; t=1594930302;
+        bh=uz+H+crrurWEtmNgvNxXmUa5Lhwt8Ud9AVyFTno3lJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmSH4n8pGBdWQ60+ty11mtr8Qe71uOWcnJNFiO5Q1ikSP+YcREeQIuzZMk1/ypyJ6
-         Q3ckQW1jA7b3l4Q/UP0L9SfMsPwL57vitJkd9Jp8nAn11riDR/21j5vlkXuZEMNkKK
-         asKJVEcBBGlcwx12uZ/FhWNGXpqNCiLzYkHhV6Cs=
+        b=XzGIZZJNMkmCXmkkFSbzxfy5WKYn9P75um4/bGiEPqixiChwuYN0Romu72qpCoeGb
+         pTsgUWBWao5P5e/6geY23ZID7lkuCgGhQoezPFNiJotHXIq1hxPqTBNJbx8MnNT7En
+         DW8PDh7fUaArO+mwCvJtXfQy3FoHdVyW73uQaVJ4=
 From:   Dominick Grift <dominick.grift@defensec.nl>
 To:     selinux@vger.kernel.org
 Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [SELinux-notebook PATCH v2] adds CIL policy with makefile
-Date:   Thu, 16 Jul 2020 22:02:27 +0200
-Message-Id: <20200716200227.1027427-1-dominick.grift@defensec.nl>
+Subject: [SELinux-notebook PATCH v3] adds CIL policy with makefile
+Date:   Thu, 16 Jul 2020 22:11:32 +0200
+Message-Id: <20200716201132.1028969-1-dominick.grift@defensec.nl>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <5a3a55acd860e22cc6d00d6ad0404d79ad9e2eef.camel@btinternet.com>
 References: <5a3a55acd860e22cc6d00d6ad0404d79ad9e2eef.camel@btinternet.com>
@@ -62,14 +61,15 @@ This example CIL policy takes a different approach:
 Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
 ---
 v2: rename XWAYLAND.md to XSERVER_XWAYLAND.md and cover both Xserver as well as Xwayland
+V3: fix typo in XSERVER_XWAYLAND.md and exclude x_contexts altogether
 
  src/cil_overview.md                           |  11 +
  src/notebook-examples/README.md               |   2 +
- src/notebook-examples/cil-policy/Makefile     |  36 ++
+ src/notebook-examples/cil-policy/Makefile     |  31 ++
  src/notebook-examples/cil-policy/README.md    |  71 +++
  .../cil-policy/XSERVER_XWAYLAND.md            |   7 +
  .../cil-policy/cil-policy.cil                 | 445 ++++++++++++++++++
- 6 files changed, 572 insertions(+)
+ 6 files changed, 567 insertions(+)
  create mode 100644 src/notebook-examples/cil-policy/Makefile
  create mode 100644 src/notebook-examples/cil-policy/README.md
  create mode 100644 src/notebook-examples/cil-policy/XSERVER_XWAYLAND.md
@@ -112,10 +112,10 @@ index 488ec6e..1bb611b 100644
  ***selinux-policy*** - Contains info to build simple kernel and CIL policy.
 diff --git a/src/notebook-examples/cil-policy/Makefile b/src/notebook-examples/cil-policy/Makefile
 new file mode 100644
-index 0000000..7e6e7cb
+index 0000000..ec60834
 --- /dev/null
 +++ b/src/notebook-examples/cil-policy/Makefile
-@@ -0,0 +1,36 @@
+@@ -0,0 +1,31 @@
 +# -*- Mode: makefile; indent-tabs-mode: t -*-
 +# SPDX-License-Identifier: Unlicense
 +
@@ -146,11 +146,6 @@ index 0000000..7e6e7cb
 +	echo "sys.id:sys.role:sys.isid" > /etc/selinux/cil-policy/contexts/virtual_domain_context
 +	echo -e """sys.id:sys.role:sys.isid \
 +\nsys.id:sys.role:sys.isid""" > /etc/selinux/cil-policy/contexts/virtual_image_context
-+	echo -e """Section \"Module\" \
-+\nSubSection \"extmod\" \
-+\nOption \"SELinux mode disabled\" \
-+\nEndSubSection \
-+\nEndSection""" > /etc/selinux/cil-policy/contexts/x_contexts
 +	semodule --priority=100 -N -s cil-policy -i cil-policy.cil
 diff --git a/src/notebook-examples/cil-policy/README.md b/src/notebook-examples/cil-policy/README.md
 new file mode 100644
@@ -231,11 +226,11 @@ index 0000000..a3c9b56
 +manage it with `semodule`, and analyze it with `setools`.
 diff --git a/src/notebook-examples/cil-policy/XSERVER_XWAYLAND.md b/src/notebook-examples/cil-policy/XSERVER_XWAYLAND.md
 new file mode 100644
-index 0000000..2225496
+index 0000000..1399f1b
 --- /dev/null
 +++ b/src/notebook-examples/cil-policy/XSERVER_XWAYLAND.md
 @@ -0,0 +1,7 @@
-+# Xsserver and Xwayland considerations
++# Xserver and Xwayland considerations
 +
 +In the scenario where you are still using Xserver or Xwayland there
 +are some special considerations:
