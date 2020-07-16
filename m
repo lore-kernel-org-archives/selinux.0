@@ -2,46 +2,45 @@ Return-Path: <SRS0=s7s9=A3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24666C433F4
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 17:44:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EEB1C433E3
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 17:44:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F0F772076A
-	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 17:44:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E2A52076A
+	for <selinux@archiver.kernel.org>; Thu, 16 Jul 2020 17:44:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="CkdaOMyo"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="V2kfrWmU"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729471AbgGPRoH (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 16 Jul 2020 13:44:07 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:54502 "EHLO
+        id S1729508AbgGPRoQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 16 Jul 2020 13:44:16 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:54484 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729427AbgGPRoG (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 13:44:06 -0400
+        with ESMTP id S1729416AbgGPRoE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 16 Jul 2020 13:44:04 -0400
 Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id D786E20B490E;
+        by linux.microsoft.com (Postfix) with ESMTPSA id 8BA4920B490D;
         Thu, 16 Jul 2020 10:44:03 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D786E20B490E
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8BA4920B490D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1594921444;
-        bh=/fzFj/g8BpvBn9QTy27JmP5NXEAgLB6VRZyIXN1doC4=;
+        s=default; t=1594921443;
+        bh=RWokx6Gd27oCAJ3WfeSZo3rN7tWPRY28o2No3gTEX3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CkdaOMyooOGmsBVmT/Kczg1RSKLzNgxffuNSO+hLAPJcJmr9SePzFAEnDsPDZucxI
-         8fkR1MxujJlkjrT0HQe68R7fTQ5Znb04cRwmNQt//0ELofjAn3evTTZWO9Y6afIcDB
-         jYT6lJbzfzwjKS1oMBUJL3s1N12rL5ab5asddmuY=
+        b=V2kfrWmU7YIfIqlbgLC/mi8r0ZWO2GiMiSjgSWF43XfOjVpq2lG7EXeViNital8Ba
+         frJZ9rLF8E0IBRk9rJWbjQLzV5PIjL8EvwOYxywk2PiskVEa8NBn9UKmK+dGbdLmyn
+         Rauqdot2l24h+eHytODFuglMFpsm9DGTt1szL3Gc=
 From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
 To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
         casey@schaufler-ca.com
 Cc:     jmorris@namei.org, linux-integrity@vger.kernel.org,
         selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v2 4/5] LSM: Define SELinux function to measure security state
-Date:   Thu, 16 Jul 2020 10:43:50 -0700
-Message-Id: <20200716174351.20128-5-nramas@linux.microsoft.com>
+Subject: [PATCH v3 3/5] LSM: Add security_measure_data in lsm_info struct
+Date:   Thu, 16 Jul 2020 10:43:49 -0700
+Message-Id: <20200716174351.20128-4-nramas@linux.microsoft.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200716174351.20128-1-nramas@linux.microsoft.com>
 References: <20200716174351.20128-1-nramas@linux.microsoft.com>
@@ -52,397 +51,107 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-SELinux configuration and policy are some of the critical data for this
-security module that needs to be measured. To enable this measurement
-SELinux needs to implement the interface function,
-security_measure_data(), that the LSM can call.
+The security modules that require their data to be measured using
+the IMA subsystem need to define a function that the LSM can call
+to trigger the measurement.
 
-Define the security_state() function in SELinux to measure SELinux
-configuration and policy. Call this function to measure SELinux data
-when there is a change in the security module's state.
-
-Sample measurement of SELinux state and hash of the policy:
-
-10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state 656e61626c65643d313b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574706565723d313b6f70656e7065726d3d313b657874736f636b636c6173733d313b616c776179736e6574776f726b3d303b6367726f75707365636c6162656c3d313b6e6e706e6f737569647472616e736974696f6e3d313b67656e66737365636c6162656c73796d6c696e6b3d303b
-10 f4a7...9408 ima-buf sha256:4941...68fc selinux-policy-hash 8d1d...1834
-
-The data for selinux-state in the above measurement is:
-enabled=1;enforcing=0;checkreqprot=1;network_peer_controls=1;open_perms=1;extended_socket_class=1;always_check_network=0;cgroup_seclabel=1;nnp_nosuid_transition=1;genfs_seclabel_symlinks=0;
-
-The data for selinux-policy-hash in the above measurement is
-the SHA256 hash of the SELinux policy.
+Add a function pointer field namely security_measure_data in lsm_info
+structure. Update LSM to call this security module function, if defined,
+to measure the security module's data using the IMA subsystem.
 
 Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 ---
- security/selinux/Makefile           |   2 +
- security/selinux/hooks.c            |   4 +
- security/selinux/include/security.h |  26 +++++
- security/selinux/measure.c          | 158 ++++++++++++++++++++++++++++
- security/selinux/selinuxfs.c        |   1 +
- security/selinux/ss/services.c      |  66 ++++++++++--
- 6 files changed, 248 insertions(+), 9 deletions(-)
- create mode 100644 security/selinux/measure.c
+ include/linux/lsm_hooks.h |  3 +++
+ security/security.c       | 48 ++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 50 insertions(+), 1 deletion(-)
 
-diff --git a/security/selinux/Makefile b/security/selinux/Makefile
-index 4d8e0e8adf0b..83d512116341 100644
---- a/security/selinux/Makefile
-+++ b/security/selinux/Makefile
-@@ -16,6 +16,8 @@ selinux-$(CONFIG_NETLABEL) += netlabel.o
- 
- selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
- 
-+selinux-$(CONFIG_IMA) += measure.o
-+
- ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
- 
- $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index efa6108b1ce9..cda1d328339f 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -7259,6 +7259,8 @@ static __init int selinux_init(void)
- 
- 	fs_validate_description("selinux", selinux_fs_parameters);
- 
-+	selinux_init_measurement();
-+
- 	return 0;
- }
- 
-@@ -7284,6 +7286,7 @@ DEFINE_LSM(selinux) = {
- 	.enabled = &selinux_enabled_boot,
- 	.blobs = &selinux_blob_sizes,
- 	.init = selinux_init,
-+	.security_measure_data = selinux_measure_data,
+diff --git a/include/linux/lsm_hooks.h b/include/linux/lsm_hooks.h
+index 95b7c1d32062..56f0e524838c 100644
+--- a/include/linux/lsm_hooks.h
++++ b/include/linux/lsm_hooks.h
+@@ -1591,6 +1591,9 @@ struct lsm_info {
+ 	int *enabled;		/* Optional: controlled by CONFIG_LSM */
+ 	int (*init)(void);	/* Required. */
+ 	struct lsm_blob_sizes *blobs; /* Optional: for blob sharing. */
++	int (*security_measure_data)(void); /* Optional: for measuring
++					     * security module data.
++					     */
  };
  
- #if defined(CONFIG_NETFILTER)
-@@ -7394,6 +7397,7 @@ int selinux_disable(struct selinux_state *state)
+ extern struct lsm_info __start_lsm_info[], __end_lsm_info[];
+diff --git a/security/security.c b/security/security.c
+index 70a7ad357bc6..1afa2aebc3ac 100644
+--- a/security/security.c
++++ b/security/security.c
+@@ -86,6 +86,9 @@ static __initconst const char * const builtin_lsm_order = CONFIG_LSM;
+ static __initdata struct lsm_info **ordered_lsms;
+ static __initdata struct lsm_info *exclusive;
+ 
++static struct lsm_info *security_state_lsms;
++static int security_state_lsms_count;
++
+ static __initdata bool debug;
+ #define init_debug(...)						\
+ 	do {							\
+@@ -235,6 +238,45 @@ static void __init initialize_lsm(struct lsm_info *lsm)
  	}
- 
- 	selinux_mark_disabled(state);
-+	selinux_measure_state(state);
- 
- 	pr_info("SELinux:  Disabled at runtime.\n");
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index b0e02cfe3ce1..628062ff9bba 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -222,16 +222,42 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
- 	return state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS];
  }
  
-+static inline bool selinux_checkreqprot(const struct selinux_state *state)
++static int measure_security_state(struct lsm_info *lsm)
 +{
-+	return READ_ONCE(state->checkreqprot);
++	if (!lsm->security_measure_data)
++		return 0;
++
++	return lsm->security_measure_data();
 +}
 +
- int security_mls_enabled(struct selinux_state *state);
- int security_load_policy(struct selinux_state *state,
- 			 void *data, size_t len);
- int security_read_policy(struct selinux_state *state,
- 			 void **data, size_t *len);
-+int security_read_policy_kernel(struct selinux_state *state,
-+				void **data, size_t *len);
- size_t security_policydb_len(struct selinux_state *state);
- 
- int security_policycap_supported(struct selinux_state *state,
- 				 unsigned int req_cap);
- 
-+#ifdef CONFIG_IMA
-+extern void __init selinux_init_measurement(void);
-+extern int selinux_measure_data(void);
-+extern int selinux_measure_state(struct selinux_state *selinux_state);
-+#else
-+static inline void __init selinux_init_measurement(void) {}
-+
-+static inline int selinux_measure_data(void)
++static void __init initialize_security_state_lsms(void)
 +{
-+	return 0;
-+}
++	struct lsm_info **lsm;
++	int count = 0;
++	int inx;
 +
-+static inline int selinux_measure_state(
-+	struct selinux_state *selinux_state)
-+{
-+	return 0;
-+}
-+#endif
++	for (lsm = ordered_lsms; *lsm; lsm++) {
++		if ((*lsm)->security_measure_data)
++			count++;
++	}
 +
- #define SEL_VEC_MAX 32
- struct av_decision {
- 	u32 allowed;
-diff --git a/security/selinux/measure.c b/security/selinux/measure.c
-new file mode 100644
-index 000000000000..27cbb309e926
---- /dev/null
-+++ b/security/selinux/measure.c
-@@ -0,0 +1,158 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Measure SELinux state using IMA subsystem.
-+ */
-+#include <linux/ima.h>
-+#include "security.h"
-+
-+/* Pre-allocated buffer used for measuring state */
-+static char *selinux_state_string;
-+static size_t selinux_state_string_len;
-+static char *selinux_state_string_fmt =
-+	"%s=%d;%s=%d;%s=%d;%s=%d;%s=%d;%s=%d;%s=%d;%s=%d;%s=%d;%s=%d;";
-+
-+void __init selinux_init_measurement(void)
-+{
-+	selinux_state_string_len =
-+	snprintf(NULL, 0, selinux_state_string_fmt,
-+	"enabled", 0,
-+	"enforcing", 0,
-+	"checkreqprot", 0,
-+	selinux_policycap_names[POLICYDB_CAPABILITY_NETPEER], 0,
-+	selinux_policycap_names[POLICYDB_CAPABILITY_OPENPERM], 0,
-+	selinux_policycap_names[POLICYDB_CAPABILITY_EXTSOCKCLASS], 0,
-+	selinux_policycap_names[POLICYDB_CAPABILITY_ALWAYSNETWORK], 0,
-+	selinux_policycap_names[POLICYDB_CAPABILITY_CGROUPSECLABEL], 0,
-+	selinux_policycap_names[POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION], 0,
-+	selinux_policycap_names[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS],
-+	0);
-+
-+	if (selinux_state_string_len < 0)
++	if (count == 0)
 +		return;
 +
-+	++selinux_state_string_len;
++	security_state_lsms = kcalloc(count, sizeof(struct lsm_info),
++				      GFP_KERNEL);
++	if (!security_state_lsms)
++		return;
 +
-+	selinux_state_string = kzalloc(selinux_state_string_len, GFP_KERNEL);
-+	if (!selinux_state_string)
-+		selinux_state_string_len = 0;
-+}
-+
-+static int selinux_hash_policy(const char *hash_alg_name,
-+			       void *policy, size_t policy_len,
-+			       void **policy_hash, int *policy_hash_len)
-+{
-+	struct crypto_shash *tfm;
-+	struct shash_desc *desc = NULL;
-+	void *digest = NULL;
-+	int desc_size;
-+	int digest_size;
-+	int ret = 0;
-+
-+	tfm = crypto_alloc_shash(hash_alg_name, 0, 0);
-+	if (IS_ERR(tfm))
-+		return PTR_ERR(tfm);
-+
-+	desc_size = crypto_shash_descsize(tfm) + sizeof(*desc);
-+	digest_size = crypto_shash_digestsize(tfm);
-+
-+	digest = kmalloc(digest_size, GFP_KERNEL);
-+	if (!digest) {
-+		ret = -ENOMEM;
-+		goto error;
++	inx = 0;
++	for (lsm = ordered_lsms; *lsm; lsm++) {
++		if ((*lsm)->security_measure_data) {
++			security_state_lsms[inx].security_measure_data =
++				(*lsm)->security_measure_data;
++			inx++;
++		}
 +	}
 +
-+	desc = kzalloc(desc_size, GFP_KERNEL);
-+	if (!desc) {
-+		ret = -ENOMEM;
-+		goto error;
-+	}
-+
-+	desc->tfm = tfm;
-+
-+	ret = crypto_shash_digest(desc, policy, policy_len, digest);
-+	if (ret < 0)
-+		goto error;
-+
-+	*policy_hash_len = digest_size;
-+	*policy_hash = digest;
-+	digest = NULL;
-+
-+error:
-+	kfree(desc);
-+	kfree(digest);
-+
-+	crypto_free_shash(tfm);
-+
-+	if (ret)
-+		pr_err("%s: error %d\n", __func__, ret);
-+
-+	return ret;
++	security_state_lsms_count = count;
 +}
 +
-+int selinux_measure_state(struct selinux_state *selinux_state)
-+{
-+	void *policy = NULL;
-+	void *policy_hash = NULL;
-+	int count;
-+	size_t buflen;
-+	int policy_hash_len;
-+	int rc = 0;
-+
-+	if (!selinux_initialized(selinux_state))
-+		return -EOPNOTSUPP;
-+
-+	if (!selinux_state_string)
-+		return -ENOMEM;
-+
-+	count =
-+	snprintf(
-+	selinux_state_string, selinux_state_string_len,
-+	selinux_state_string_fmt,
-+	"enabled", !selinux_disabled(selinux_state),
-+	"enforcing", enforcing_enabled(selinux_state),
-+	"checkreqprot", selinux_checkreqprot(selinux_state),
-+	selinux_policycap_names[POLICYDB_CAPABILITY_NETPEER],
-+	selinux_state->policycap[POLICYDB_CAPABILITY_NETPEER],
-+	selinux_policycap_names[POLICYDB_CAPABILITY_OPENPERM],
-+	selinux_state->policycap[POLICYDB_CAPABILITY_OPENPERM],
-+	selinux_policycap_names[POLICYDB_CAPABILITY_EXTSOCKCLASS],
-+	selinux_state->policycap[POLICYDB_CAPABILITY_EXTSOCKCLASS],
-+	selinux_policycap_names[POLICYDB_CAPABILITY_ALWAYSNETWORK],
-+	selinux_state->policycap[POLICYDB_CAPABILITY_ALWAYSNETWORK],
-+	selinux_policycap_names[POLICYDB_CAPABILITY_CGROUPSECLABEL],
-+	selinux_state->policycap[POLICYDB_CAPABILITY_CGROUPSECLABEL],
-+	selinux_policycap_names[POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION],
-+	selinux_state->policycap[POLICYDB_CAPABILITY_NNP_NOSUID_TRANSITION],
-+	selinux_policycap_names[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS],
-+	selinux_state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS]);
-+
-+	if (count >= 0 && count < selinux_state_string_len)
-+		ima_lsm_state("selinux-state", selinux_state_string, count);
-+	else {
-+		pr_err("selinux state error: %d\n", count);
-+		rc = -EINVAL;
-+		goto out;
-+	}
-+
-+	rc = security_read_policy_kernel(selinux_state, &policy, &buflen);
-+	if (!rc)
-+		rc = selinux_hash_policy("sha256", policy, buflen,
-+					 &policy_hash, &policy_hash_len);
-+	if (!rc)
-+		ima_lsm_state("selinux-policy-hash", policy_hash,
-+			      policy_hash_len);
-+
-+out:
-+	vfree(policy);
-+	kfree(policy_hash);
-+
-+	if (rc)
-+		pr_err("%s: error %d\n", __func__, rc);
-+
-+	return rc;
-+}
-+
-+int selinux_measure_data(void)
-+{
-+	return selinux_measure_state(&selinux_state);
-+}
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 4781314c2510..b1f70739d709 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -173,6 +173,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
- 			from_kuid(&init_user_ns, audit_get_loginuid(current)),
- 			audit_get_sessionid(current));
- 		enforcing_set(state, new_value);
-+		selinux_measure_state(&selinux_state);
- 		if (new_value)
- 			avc_ss_reset(state->avc, 0);
- 		selnl_notify_setenforce(new_value);
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index ef0afd878bfc..79a6b462f1fe 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -3720,14 +3720,22 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
- }
- #endif /* CONFIG_NETLABEL */
- 
-+static int security_read_policy_len(struct selinux_state *state, size_t *len)
-+{
-+	if (!selinux_initialized(state))
-+		return -EINVAL;
-+
-+	*len = security_policydb_len(state);
-+	return 0;
-+}
-+
- /**
-  * security_read_policy - read the policy.
-  * @data: binary policy data
-  * @len: length of data in bytes
-- *
-  */
--int security_read_policy(struct selinux_state *state,
--			 void **data, size_t *len)
-+int security_read_selinux_policy(struct selinux_state *state,
-+				 void **data, size_t *len)
+ /* Populate ordered LSMs list from comma-separated LSM name list. */
+ static void __init ordered_lsm_parse(const char *order, const char *origin)
  {
- 	struct policydb *policydb = &state->ss->policydb;
- 	int rc;
-@@ -3736,12 +3744,6 @@ int security_read_policy(struct selinux_state *state,
- 	if (!selinux_initialized(state))
- 		return -EINVAL;
+@@ -352,8 +394,12 @@ static void __init ordered_lsm_init(void)
  
--	*len = security_policydb_len(state);
--
--	*data = vmalloc_user(*len);
--	if (!*data)
--		return -ENOMEM;
--
- 	fp.data = *data;
- 	fp.len = *len;
+ 	lsm_early_cred((struct cred *) current->cred);
+ 	lsm_early_task(current);
+-	for (lsm = ordered_lsms; *lsm; lsm++)
++	for (lsm = ordered_lsms; *lsm; lsm++) {
+ 		initialize_lsm(*lsm);
++		measure_security_state(*lsm);
++	}
++
++	initialize_security_state_lsms();
  
-@@ -3754,5 +3756,51 @@ int security_read_policy(struct selinux_state *state,
- 
- 	*len = (unsigned long)fp.data - (unsigned long)*data;
- 	return 0;
-+}
-+
-+/**
-+ * security_read_policy - read the policy.
-+ * @data: binary policy data
-+ * @len: length of data in bytes
-+ *
-+ */
-+int security_read_policy(struct selinux_state *state,
-+			 void **data, size_t *len)
-+{
-+	int rc;
-+
-+	rc = security_read_policy_len(state, len);
-+	if (rc)
-+		return rc;
-+
-+	*data = vmalloc_user(*len);
-+	if (!*data)
-+		return -ENOMEM;
-+
-+	return security_read_selinux_policy(state, data, len);
-+}
-+
-+/**
-+ * security_read_policy_kernel - read the policy.
-+ * @data: binary policy data
-+ * @len: length of data in bytes
-+ *
-+ * Allocates kernel memory for reading SELinux policy.
-+ * This function is for internal use only and should not
-+ * be used for returning data to user space
-+ */
-+int security_read_policy_kernel(struct selinux_state *state,
-+				void **data, size_t *len)
-+{
-+	int rc;
-+
-+	rc = security_read_policy_len(state, len);
-+	if (rc)
-+		return rc;
-+
-+	*data = vmalloc(*len);
-+	if (!*data)
-+		return -ENOMEM;
- 
-+	return security_read_selinux_policy(state, data, len);
+ 	kfree(ordered_lsms);
  }
 -- 
 2.27.0
