@@ -2,89 +2,105 @@ Return-Path: <SRS0=dl6L=A4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1152C433E1
-	for <selinux@archiver.kernel.org>; Fri, 17 Jul 2020 06:42:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5844C433E1
+	for <selinux@archiver.kernel.org>; Fri, 17 Jul 2020 11:45:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3BFDD20704
-	for <selinux@archiver.kernel.org>; Fri, 17 Jul 2020 06:42:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9C66A20684
+	for <selinux@archiver.kernel.org>; Fri, 17 Jul 2020 11:45:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="qaX95zg/"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="La4PoFUS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726665AbgGQGmA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Jul 2020 02:42:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56670 "EHLO
+        id S1726848AbgGQLpi (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Jul 2020 07:45:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726141AbgGQGmA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jul 2020 02:42:00 -0400
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 379E8C061755
-        for <selinux@vger.kernel.org>; Thu, 16 Jul 2020 23:42:00 -0700 (PDT)
-Received: from [IPv6:2001:985:d55d::438] (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 45C702A1278;
-        Fri, 17 Jul 2020 08:41:58 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 45C702A1278
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1594968119;
-        bh=TW8/ejeyIuDzkfR6F+0Zg84cR5zyceElErt1ku85OwE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=qaX95zg/qUtAHIw58LmfPx0/vKgwPdfI3HdNAbTLMzFswshv+NQjz/X2lRbsP7WO4
-         yEX9H09Uyb8A0YtJ0RzwKqyi6t4tc6okhFhehk3d0wKQLrTZ0wX39yBTBW/6yqipZk
-         xaeHrol4nA+VmVhVvU/ONKJgt8Hqoe+AFwGLyDpE=
-Subject: Re: [SELinux-notebook PATCH v4] objects.md: some clarifications
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     selinux@vger.kernel.org
-References: <20200716111825.953813-1-dominick.grift@defensec.nl>
- <20200716121729.962241-1-dominick.grift@defensec.nl>
- <CAHC9VhS1d_=gotE6eau2hmxM+OjujY=u8sMQE10gNKOJ1z87dQ@mail.gmail.com>
-From:   Dominick Grift <dominick.grift@defensec.nl>
-Message-ID: <86bb1ebd-8edc-7ab1-7315-ded3ba8eb1bd@defensec.nl>
-Date:   Fri, 17 Jul 2020 08:41:54 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        with ESMTP id S1726079AbgGQLph (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jul 2020 07:45:37 -0400
+Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44939C061755;
+        Fri, 17 Jul 2020 04:45:37 -0700 (PDT)
+Received: by mail-qv1-xf41.google.com with SMTP id ed14so4095569qvb.2;
+        Fri, 17 Jul 2020 04:45:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:reply-to:mime-version
+         :content-disposition;
+        bh=RGmCnCujTCPHPAqseUf5nHct0c3cR5+Pl0sn8j65GRA=;
+        b=La4PoFUSodowSJLHupAbyoCryYe4IscT0uVjcLdnBdcKu34q4TNYPqzS0Nr/jQc+EM
+         F2XyfYyxL8FQhKctiFagZGB9yxdA12JMq8JEvISZeKuMS1vZ5/Oau3CFZLgR8K43xiUU
+         E86yO3eN5U8q9hW+83UrqolEyLOq60sn5RWpuN0fRb6KFwI9m265IqtAwKVQfl4cygy3
+         0jKEYBIANHgXGZAdahfISR5yQA6FuB5q/EXPJLjCM6LtRPdNK0IPKb1/gbZHs22PgaEY
+         wX7lul5113brAi0ptNWB69Sc4TE4p22uWbGzG5GisCJcFbMfc7QZcO5iTG1ztdjRVt0Y
+         Uktg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
+         :mime-version:content-disposition;
+        bh=RGmCnCujTCPHPAqseUf5nHct0c3cR5+Pl0sn8j65GRA=;
+        b=qGMcyCf5HiazK1TIB0hEeejdA3gHvOawaLPnyms2I80MHbS8qx+o82rYiqdlXZqGh9
+         uQ5m45QAM8osavfd8fGRENDtx5tn/ZC+BQnWASw5CozGSRLCv3P1BKgxernNSPlQG9t9
+         yNmzTbUayGQqaOXmynwmmr5iiTyctbQMfboKgsKnnHRvV+lHE+s82oxgRpWQRVtzPLac
+         3HFO243rZmJKbIS/t+Xwtf4YQuHe4MvutB4I+Z51/IOetbxdqF2n8fs5zAzNBL7cKrf8
+         yOZ7ZRyScGsqvrb3/NPEtql26mXxDLaTdTfuF+3rHq1g5AJ/xFfK8dMVcQNiN6SA6235
+         QlEg==
+X-Gm-Message-State: AOAM531570kqhHP5igGwvvl+K2wnd1utHryrtT/hwfmxrojj0j/iwn7n
+        kCwVuEussoQoreJ4MQ/jPMSPFLuE0k3W
+X-Google-Smtp-Source: ABdhPJzKXuvJZlL9/a9hkaENPQ8WnD+XhRB2h7wtRwtCk65prLKd7UbjOiRuatykH0KlTfyqjIJ2+Q==
+X-Received: by 2002:a0c:a992:: with SMTP id a18mr8145355qvb.211.1594986336193;
+        Fri, 17 Jul 2020 04:45:36 -0700 (PDT)
+Received: from PWN (c-76-119-149-155.hsd1.ma.comcast.net. [76.119.149.155])
+        by smtp.gmail.com with ESMTPSA id s8sm10967968qtc.17.2020.07.17.04.45.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Jul 2020 04:45:35 -0700 (PDT)
+Date:   Fri, 17 Jul 2020 07:45:32 -0400
+From:   Peilin Ye <yepeilin.cs@gmail.com>
+To:     Daniel Colascione <dancol@google.com>
+Cc:     timmurray@google.com, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, viro@zeniv.linux.org.uk, paul@paul-moore.com,
+        nnk@google.com, sds@tycho.nsa.gov, lokeshgidra@google.com,
+        jmorris@namei.org
+Subject: Reporting a use-after-free read bug in userfaultfd_release()
+Message-ID: <20200717114532.GA688728@PWN>
+Reply-To: 20200401213903.182112-4-dancol@google.com
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhS1d_=gotE6eau2hmxM+OjujY=u8sMQE10gNKOJ1z87dQ@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+Hi all,
 
+Syzbot reported the following use-after-free bug in
+userfaultfd_release():
 
-On 7/17/20 3:36 AM, Paul Moore wrote:
-> On Thu, Jul 16, 2020 at 8:18 AM Dominick Grift
-> <dominick.grift@defensec.nl> wrote:
->>
->> Elaborate on labeling. Touch on the significance of the default statement, on various av permissions related to labeling using the libselinux API, and on how the kernel and unlabeled initial security identifiers are used to address labeling challenges in special cases such as initialization and failover respectively.
->>
+	https://syzkaller.appspot.com/bug?id=4b9e5aea757b678d9939c364e50212354a3480a6
 
-<snip>
+It seems to be caused by this patch. I took a look at the stack trace.
+In the patch:
 
-> The same holds true
-> for the "kernel" isid as a subject label, in cases where you see the
-> "kernel" isid as a subject, it is actually the kernel acting on
-> something.
-> 
+	fd = get_unused_fd_flags(O_RDONLY | O_CLOEXEC);
+	if (fd < 0) {
+		fput(file);
+		goto out;
+	}
 
-Thanks
+If get_unused_fd_flags() fails, `ctx` is freed. Later however, before
+returning back to userland, userfaultfd_release() is called and tries to
+use `ctx` again, causing a use-after-free bug.
 
-In my experience, processes other than kernel threads can end up
-associated with the kernel sid.
+The syzbot reproducer does a setrlimit() then a userfaultfd(). The
+former sets a hard limit on number of open files to zero, which causes
+get_unused_fd_flags() to fail.
 
-One notable example is plymouthd which is run from the initramfs and
-will still be there for a short while after systemd/init loads policy.
-But AFAIK any process that is started from the initramfs and that
-persists after policy is loaded essentially ends up with the kernel isid.
+Thank you,
 
-So even though practically it is generally the kernel threads that
-remain visibly associated with kernel sid to the naked eye, In actuality
-it in my experience boils down to "subjects that were left unlabeled due
-to system initialization", whether its the kernel or some long running
-process started before SELinux was initializaed.
+Peilin Ye
