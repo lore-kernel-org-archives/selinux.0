@@ -7,54 +7,55 @@ X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7AD9C433E0
-	for <selinux@archiver.kernel.org>; Fri, 17 Jul 2020 22:06:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28E44C433DF
+	for <selinux@archiver.kernel.org>; Fri, 17 Jul 2020 22:10:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A2E822070E
-	for <selinux@archiver.kernel.org>; Fri, 17 Jul 2020 22:06:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 07DF72074B
+	for <selinux@archiver.kernel.org>; Fri, 17 Jul 2020 22:10:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="EuxBM1YB"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="PpAc1HNY"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728024AbgGQWGR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 17 Jul 2020 18:06:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58286 "EHLO
+        id S1727105AbgGQWKb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 17 Jul 2020 18:10:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727906AbgGQWGP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jul 2020 18:06:15 -0400
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72485C0619D4
-        for <selinux@vger.kernel.org>; Fri, 17 Jul 2020 15:06:15 -0700 (PDT)
-Received: by mail-pj1-x1043.google.com with SMTP id t15so7002688pjq.5
-        for <selinux@vger.kernel.org>; Fri, 17 Jul 2020 15:06:15 -0700 (PDT)
+        with ESMTP id S1727847AbgGQWKb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 17 Jul 2020 18:10:31 -0400
+Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F422C0619D4
+        for <selinux@vger.kernel.org>; Fri, 17 Jul 2020 15:10:31 -0700 (PDT)
+Received: by mail-pl1-x642.google.com with SMTP id 72so6003334ple.0
+        for <selinux@vger.kernel.org>; Fri, 17 Jul 2020 15:10:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=q5TCCZgzdfgT0G/6PATrZpLazvHyt7WUQKrX1xrUKLk=;
-        b=EuxBM1YB0vCqSrSBab3wG4+3G4l3LZB0r/Sy24DYkcIknVoRK1vd5FybG7DBoZMGK3
-         /CTYNU5fQj7jzV2LhEHV/rMxebd8TPxLdS/JqIf4QW3G3zlJPlZkenuoPSr3MjLle+Qt
-         xVgyLZ3UJBffb9GcM/W4p9s1nh6pIolmqkWH8=
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=kXPLjDrHtFXbNmet3AnHCGh48BJAIHJk8m3fZv071oc=;
+        b=PpAc1HNYIT+QLMKhWHW1jl69NR1BoJnESjDZGrSJSD8rmjkUEt+Wtl439d/aUbqRFQ
+         FQi3HlJUBrRonE9RjdfjP+55VLF3PgOo7bjCzzwuvZNhV9QGuaV3KdgQexhmz0n06eze
+         dLlPv+vO46p4W2lZrmOGc+zuXZml1lcIQ8UeM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=q5TCCZgzdfgT0G/6PATrZpLazvHyt7WUQKrX1xrUKLk=;
-        b=M0r5W8jTYGylcGID2QVcxyY0O1rWrcb9gfXmUxRb4+4fDqfPTrHCUg89LTDevZdUmj
-         USQT6rFXGMPoxX/s/ZlsvZC0ronSJgBDVazrVFekWRGKEj2ZGp0Bxj9/BhA2Hp/bVlrQ
-         mv71OiwHTigr4WUAnwgUn6P7BDGdjU0rCT+8nwu4R+9zEvwqqNAmRDHquoXaHbhf7L39
-         h3XNFnbfvDKKucC2alQqBeK0HgDTbTyWpTUIkZYFFeWwrflLDE4iu4jyx6SFAraclkF2
-         63FGp+SMuw6eqaEiC3HwcVbqZ6zkMC67dhCw4bloylke1DEQjSxwQv0itsTSZKbgkuYH
-         yuYg==
-X-Gm-Message-State: AOAM531xq8cccw/ILu45qfvHU5rMt2icqgzMrVzfyd7MNSP9o392KeJY
-        z/sOf4HV/G8hY7P+n/sIciu6Gg==
-X-Google-Smtp-Source: ABdhPJy9/8XCi8iOFM3R8LvinzGsW1RKW4M4ZDH4GQ47QjK1iaaE3UlIgfUhMF6EPqI5aJJtdKAWBw==
-X-Received: by 2002:a17:90a:9381:: with SMTP id q1mr4017193pjo.38.1595023574832;
-        Fri, 17 Jul 2020 15:06:14 -0700 (PDT)
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=kXPLjDrHtFXbNmet3AnHCGh48BJAIHJk8m3fZv071oc=;
+        b=M1DTUbUz/giNmvuR9765Yd5EcEIVCghd2sceX+37OTHIzbCXTg6zvAYNBMoWLHYdNr
+         ZjevnJkQaQY4dlNu1TKru3FpvNnIKXfxncU6aIDIAZ9V69kssxTQreCK0I7OBWCACkuK
+         r5iD1d3ftglNjVC3xWnM7VRcn6gBAHUL6tGkMoYgcMg0m1mDr1bf0fV4FRN0ueUQjzv1
+         8V5aCKsTxeOb5FWu0epXUrtcpGXsDbY7+o030CpTcAx1W0MXDy3224MZDzj3mOZFSCTI
+         fhQ9kU65KbvvRIeQP4VvNPYf3EbagfTvmibpcwUIcs0vJYSs5/RYc8Z/ecuQZj+1MAbs
+         batg==
+X-Gm-Message-State: AOAM531VZgfQ3HqzgqxljgYUbcyee+jE7JRftWMC2MhzDiHk9PdOorVH
+        eVOI3y11J7Lx/89w0Fk7mpc4VQ==
+X-Google-Smtp-Source: ABdhPJxl+/7V6fVqG2R0M/UfwPRNbJnc/viXiuvUuaSeof1VNQLC0wgELrpHCv+61l/+32K9tfMnwA==
+X-Received: by 2002:a17:90a:17e4:: with SMTP id q91mr11673037pja.61.1595023830564;
+        Fri, 17 Jul 2020 15:10:30 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id n18sm8896320pfd.99.2020.07.17.15.06.13
+        by smtp.gmail.com with ESMTPSA id n11sm8353780pgm.1.2020.07.17.15.10.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2020 15:06:13 -0700 (PDT)
-Date:   Fri, 17 Jul 2020 15:06:12 -0700
+        Fri, 17 Jul 2020 15:10:29 -0700 (PDT)
+Date:   Fri, 17 Jul 2020 15:10:28 -0700
 From:   Kees Cook <keescook@chromium.org>
 To:     Scott Branden <scott.branden@broadcom.com>
 Cc:     Mimi Zohar <zohar@linux.ibm.com>,
@@ -86,46 +87,45 @@ Cc:     Mimi Zohar <zohar@linux.ibm.com>,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-fsdevel@vger.kernel.org, kexec@lists.infradead.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 06/13] fs/kernel_read_file: Remove redundant size argument
-Message-ID: <202007171502.22E12A4E9@keescook>
+Subject: Re: [PATCH 00/13] Introduce partial kernel_read_file() support
+Message-ID: <202007171506.CCE3902A9@keescook>
 References: <20200717174309.1164575-1-keescook@chromium.org>
- <20200717174309.1164575-7-keescook@chromium.org>
- <39b2d8af-812f-8c5e-3957-34543add0173@broadcom.com>
+ <8de85fc3-9f31-fc59-abc1-29f43fb90988@broadcom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <39b2d8af-812f-8c5e-3957-34543add0173@broadcom.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <8de85fc3-9f31-fc59-abc1-29f43fb90988@broadcom.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Jul 17, 2020 at 12:04:18PM -0700, Scott Branden wrote:
-> On 2020-07-17 10:43 a.m., Kees Cook wrote:
-> > In preparation for refactoring kernel_read_file*(), remove the redundant
-> > "size" argument which is not needed: it can be included in the return
->
-> I don't think the size argument is redundant though.
-> The existing kernel_read_file functions always read the whole file.
-> Now, what happens if the file is bigger than the buffer.
-> How does kernel_read_file know it read the whole file by looking at the
-> return value?
+On Fri, Jul 17, 2020 at 12:17:02PM -0700, Scott Branden wrote:
+> Thanks for sending out.  This looks different than your other patch series.
 
-Yes; an entirely reasonable concern. This is why I add the file_size
-output argument later in the series.
+Yes, it mutated in my head as I considered how all of this should hang
+together, which is why I wanted to get it sent before the weekend. I'm
+still trying to figure out why the fireware testsuite fails for me, etc.
 
-> > code, with callers adjusted. (VFS reads already cannot be larger than
-> > INT_MAX.)
-> > [...]
-> > -	if (i_size > SIZE_MAX || (max_size > 0 && i_size > max_size)) {
-> > +	if (i_size > INT_MAX || (max_size > 0 && i_size > max_size)) {
->
-> Should this be SSIZE_MAX?
+> We should get the first 5 patches accepted now though as they are
+> simple cleanups and fixes.  That will reduce the number of outstanding
+> patches in the series.
 
-No, for two reasons: then we need to change the return value and likely
-the callers need more careful checks, and more importantly, because the
-VFS already limits single read actions to INT_MAX, so limits above this
-make no sense. Win win! :)
+Agreed. I'd like to get some more eyes on it, but I can get it ready for
+-next.
+
+> At first glance the issue with the changes after that is the existing
+> API assumes it has read the whole file and failed if it did not.
+> Now, if the file is larger than the amount requested there is no indication?
+
+The intention is to have old API users unchanged and new users can use
+a pre-allocated buf (with buf_size) along with file_size to examine
+their partial read progress. If I broke the old API, that's a bug and I
+need to fix it, but that's why I wanted to start with the firmware test
+suite (basic things like module loading work fine after this series, but
+I wanted to really exercise the corners that the firmware suite pokes
+at).
 
 -- 
 Kees Cook
