@@ -2,120 +2,119 @@ Return-Path: <SRS0=eLZI=A6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F93BC433DF
-	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 09:44:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1180CC433E4
+	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 10:05:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8DEDF20734
-	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 09:44:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E62E120717
+	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 10:05:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="oZBQFZmk"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eE79a9D0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726021AbgGSJop (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 19 Jul 2020 05:44:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725988AbgGSJoo (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 19 Jul 2020 05:44:44 -0400
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 39197C0619D2
-        for <selinux@vger.kernel.org>; Sun, 19 Jul 2020 02:44:44 -0700 (PDT)
-Received: from localhost.localdomain (brutus [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 6D8F92A1010;
-        Sun, 19 Jul 2020 11:44:40 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 6D8F92A1010
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1595151880;
-        bh=WJ5lS06mgFYwXRkh1SSKgVZv9CdJy52isfzGdpcl6Wo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oZBQFZmksX+l/6uA2L9OeQwX9INdoHh3gAWu7WNdbvVUZu+tbRDYt5v04F/6qtmSh
-         SuTDkFDqpSEoyb1IPN7vqSFTfE1PL8k3rYW4vELydWOXWPwBUowotDQj4bKOuPUbGd
-         ylN3SlxvSu93KB4TJfs2RJiWCGmYz1B1y72XF5MM=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     selinux@vger.kernel.org
-Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [SELinux-notebook PATCH v6] objects.md: some clarifications
-Date:   Sun, 19 Jul 2020 11:44:20 +0200
-Message-Id: <20200719094420.1515976-1-dominick.grift@defensec.nl>
-X-Mailer: git-send-email 2.27.0
-In-Reply-To: <CAHC9VhS1d_=gotE6eau2hmxM+OjujY=u8sMQE10gNKOJ1z87dQ@mail.gmail.com>
-References: <CAHC9VhS1d_=gotE6eau2hmxM+OjujY=u8sMQE10gNKOJ1z87dQ@mail.gmail.com>
+        id S1726038AbgGSKFh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 19 Jul 2020 06:05:37 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:23520 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725988AbgGSKFh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 19 Jul 2020 06:05:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1595153135;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=BU4zHRLNeLmtJp1vQ0m3cQQlG87+5cFcTzYcoDBrgTc=;
+        b=eE79a9D0RZuPY8fB6GqGRJutIcvnAyHeSrbReoqeJMu3ClPQ5urZJ+Mp9xKlMbed+hB5ee
+        yI4yMvLEFA9YuqgZkhsN144f9o1zLABat87OkioIcclF1OBH/zvr+REWSMEmcmgUgvvoeY
+        VgQmJbskRYkZX9jojdBRNgdAtY+Glzw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-349-tTZzcga0No-9970HV4U0bA-1; Sun, 19 Jul 2020 06:05:31 -0400
+X-MC-Unique: tTZzcga0No-9970HV4U0bA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3053F107ACCA;
+        Sun, 19 Jul 2020 10:05:28 +0000 (UTC)
+Received: from dcbz.redhat.com (ovpn-112-10.ams2.redhat.com [10.36.112.10])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C36AC710A8;
+        Sun, 19 Jul 2020 10:05:16 +0000 (UTC)
+From:   Adrian Reber <areber@redhat.com>
+To:     Christian Brauner <christian.brauner@ubuntu.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Pavel Emelyanov <ovzxemul@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Andrei Vagin <avagin@gmail.com>,
+        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
+        =?UTF-8?q?Micha=C5=82=20C=C5=82api=C5=84ski?= 
+        <mclapinski@google.com>, Kamil Yurtsever <kyurtsever@google.com>,
+        Dirk Petersen <dipeit@gmail.com>,
+        Christine Flood <chf@redhat.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Mike Rapoport <rppt@linux.ibm.com>,
+        Radostin Stoyanov <rstoyanov1@gmail.com>,
+        Adrian Reber <areber@redhat.com>,
+        Cyrill Gorcunov <gorcunov@openvz.org>,
+        Serge Hallyn <serge@hallyn.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Sargun Dhillon <sargun@sargun.me>,
+        Arnd Bergmann <arnd@arndb.de>,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
+        Eric Paris <eparis@parisplace.org>,
+        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH v6 0/7] capabilities: Introduce CAP_CHECKPOINT_RESTORE
+Date:   Sun, 19 Jul 2020 12:04:10 +0200
+Message-Id: <20200719100418.2112740-1-areber@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Elaborate on labeling. Touch on the significance of the default statement, on various av permissions related to labeling using the libselinux API, and on how the kernel and unlabeled initial security identifiers are used to address labeling challenges in special cases such as initialization and failover respectively.
+This is v6 of the 'Introduce CAP_CHECKPOINT_RESTORE' patchset. The
+changes to v5 are:
 
-Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
----
-v2: fixes patch description
-v3: adding patch description, s/policies/policy's/, split unlabeled and kernel descriptions for clarity
-v4: fixes another typo in description and emphasize system initialization a bit
-v5: emphasize kernel threads with kernel isid description
-v6: forgot to mention defaultuser, can only associate one label with isids
+ * split patch dealing with /proc/self/exe into two patches:
+   * first patch to enable changing it with CAP_CHECKPOINT_RESTORE
+     and detailed history in the commit message
+   * second patch changes -EINVAL to -EPERM
+ * use kselftest_harness.h infrastructure for test
+ * replace if (!capable(CAP_SYS_ADMIN) || !capable(CAP_CHECKPOINT_RESTORE))
+   with if (!checkpoint_restore_ns_capable(&init_user_ns))
 
- src/objects.md | 29 ++++++++++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
+Adrian Reber (5):
+  capabilities: Introduce CAP_CHECKPOINT_RESTORE
+  pid: use checkpoint_restore_ns_capable() for set_tid
+  pid_namespace: use checkpoint_restore_ns_capable() for ns_last_pid
+  proc: allow access in init userns for map_files with
+    CAP_CHECKPOINT_RESTORE
+  selftests: add clone3() CAP_CHECKPOINT_RESTORE test
 
-diff --git a/src/objects.md b/src/objects.md
-index 58664ef..d27f881 100644
---- a/src/objects.md
-+++ b/src/objects.md
-@@ -110,14 +110,20 @@ objects is managed by the system and generally unseen by the users
- (until labeling goes wrong !!). As processes and objects are created and
- destroyed, they either:
- 
--1.  Inherit their labels from the parent process or object.
-+1.  Inherit their labels from the parent process or object. The policy
-+    default user, type, role and range statements can be used to
-+	change the behavior as discussed in the [**Default Rules**](default_rules.md#default-object-rules)
-+    section.
- 2.  The policy type, role and range transition statements allow a
-     different label to be assigned as discussed in the
-     [**Domain and Object Transitions**](domain_object_transitions.md#domain-and-object-transitions)
-     section.
- 3.  SELinux-aware applications can enforce a new label (with the
--    policies approval of course) using the **libselinux** API
--    functions.
-+    policy's approval of course) using the **libselinux** API
-+    functions. The `process setfscreate` access vector can be used to
-+    allow subjects to create files with a new label programmatically
-+    using the ***setfscreatecon**(3)* function, overriding default
-+    rules and transition statements.
- 4.  An object manager (OM) can enforce a default label that can either
-     be built into the OM or obtained via a configuration file (such as
-     those used by
-@@ -269,6 +275,23 @@ and manage their transition:
- 
- `type_transition`, `role_transition` and `range_transition`
- 
-+SELinux-aware applications can enforce a new label (with the policy's
-+approval of course) using the **libselinux** API functions. The
-+`process setexec`, `process setkeycreate` and `process setsockcreate`
-+access vectors can be used to allow subjects to label processes,
-+kernel keyrings, and sockets programmatically using the
-+***setexec**(3)*, ***setkeycreatecon**(3)* and
-+***setsockcreatecon**(3)* functions respectively, overriding
-+transition statements.
-+
-+The `kernel` **initial security identifier** is used to associate
-+specified a label with subjects that were left unlabeled due to
-+system initialization, for example kernel threads.
-+
-+The `unlabeled` **initial security identifier** is used
-+to associate a specified label with subjects that had their label
-+invalidated due to policy changes at runtime.
-+
- ### Object Reuse
- 
- As GNU / Linux runs it creates instances of objects and manages the
+Nicolas Viennot (2):
+  prctl: Allow local CAP_CHECKPOINT_RESTORE to change /proc/self/exe
+  prctl: exe link permission error changed from -EINVAL to -EPERM
+
+ fs/proc/base.c                                |   8 +-
+ include/linux/capability.h                    |   6 +
+ include/uapi/linux/capability.h               |   9 +-
+ kernel/pid.c                                  |   2 +-
+ kernel/pid_namespace.c                        |   2 +-
+ kernel/sys.c                                  |  13 +-
+ security/selinux/include/classmap.h           |   5 +-
+ tools/testing/selftests/clone3/.gitignore     |   1 +
+ tools/testing/selftests/clone3/Makefile       |   4 +-
+ .../clone3/clone3_cap_checkpoint_restore.c    | 177 ++++++++++++++++++
+ 10 files changed, 212 insertions(+), 15 deletions(-)
+ create mode 100644 tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c
+
+base-commit: d31958b30ea3b7b6e522d6bf449427748ad45822
 -- 
-2.27.0
+2.26.2
 
