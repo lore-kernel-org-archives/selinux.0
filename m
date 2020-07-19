@@ -2,303 +2,469 @@ Return-Path: <SRS0=eLZI=A6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33B45C433E2
-	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 10:06:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3C38C433E1
+	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 10:35:18 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0CA94207DF
-	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 10:06:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A96002064B
+	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 10:35:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TAp44dQh"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aenjuGms"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726838AbgGSKGh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 19 Jul 2020 06:06:37 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:40732 "EHLO
+        id S1726021AbgGSKfS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 19 Jul 2020 06:35:18 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:48180 "EHLO
         us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726837AbgGSKGh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 19 Jul 2020 06:06:37 -0400
+        with ESMTP id S1726012AbgGSKfR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 19 Jul 2020 06:35:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1595153195;
+        s=mimecast20190719; t=1595154915;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=WP9z4LnJcQJMjqspN5qTbKjXNGUOZkPcb7KePnNQ76I=;
-        b=TAp44dQhmlBIYQgOFKxWFW/3UXawEE57DS2eBsMwNqdRNOUi4mBpYzE5M+DDB7+Jlqn3ke
-        B3/kbqq0Q9Rs7jCXf0Bi0Oyu4hI8EbjSadrXXiI34FqK1Hjr7aIF8K3YcQC/VZKHodI8ly
-        jJEWx0epjaM+FVA8EmkKsA+GAfH0/C0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-511-AdEU5DDINk-Z234r_pLezQ-1; Sun, 19 Jul 2020 06:06:31 -0400
-X-MC-Unique: AdEU5DDINk-Z234r_pLezQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 58EED10059A4;
-        Sun, 19 Jul 2020 10:06:28 +0000 (UTC)
-Received: from dcbz.redhat.com (ovpn-112-10.ams2.redhat.com [10.36.112.10])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7281473044;
-        Sun, 19 Jul 2020 10:06:18 +0000 (UTC)
-From:   Adrian Reber <areber@redhat.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Pavel Emelyanov <ovzxemul@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Dmitry Safonov <0x7f454c46@gmail.com>,
-        Andrei Vagin <avagin@gmail.com>,
-        Nicolas Viennot <Nicolas.Viennot@twosigma.com>,
-        =?UTF-8?q?Micha=C5=82=20C=C5=82api=C5=84ski?= 
-        <mclapinski@google.com>, Kamil Yurtsever <kyurtsever@google.com>,
-        Dirk Petersen <dipeit@gmail.com>,
-        Christine Flood <chf@redhat.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     Mike Rapoport <rppt@linux.ibm.com>,
-        Radostin Stoyanov <rstoyanov1@gmail.com>,
-        Adrian Reber <areber@redhat.com>,
-        Cyrill Gorcunov <gorcunov@openvz.org>,
-        Serge Hallyn <serge@hallyn.com>,
+        bh=aVlc255ogPWVn+UBWMpkmJOJYu7QnH7Xpu6rbq44Qrw=;
+        b=aenjuGmsWUzrBO942PqUL7UzlW0cdEHBxi07pkAbgIBHMc1mgfYWeB1qIiSrHrn6dmyZfG
+        VU+G98FqDldifx9Mt1+lAu4ynavPnEqtBtpRc75Wv8Ef4ZssgfPMAXqYab1n/LUw6gKIq5
+        PnjzTFqZmYDm9lp5c8+4T38lG6bu+Fw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-233-NMi0uN_KNRiNvLd9_9jbTg-1; Sun, 19 Jul 2020 06:35:13 -0400
+X-MC-Unique: NMi0uN_KNRiNvLd9_9jbTg-1
+Received: by mail-wm1-f70.google.com with SMTP id v6so11861736wmg.1
+        for <selinux@vger.kernel.org>; Sun, 19 Jul 2020 03:35:13 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=aVlc255ogPWVn+UBWMpkmJOJYu7QnH7Xpu6rbq44Qrw=;
+        b=ai4vtGmgqF8Xr1Ip8Uj+Nsky0rR4c76HsXBjvGwobC7+MEaNjwyNovVvXOXKx/2s00
+         YX4E1FP9fekTaFtynpJA73oMti7EXEIotXcTBYADcQnFNQZYhwPPvzc32/stUoeTWmhm
+         yYuJ+tPjWadkMazslwCLtDlFO/s6TIIlEIhFs3+mMn55PW5RaDeEIWOvdrCIqj+CH5jX
+         PUP7VUUc1WnhNdEDsywKRZWGybmUG5FCbyhiRAOhr3K0Hgz7yxPoFuWpl6hER8+axwcJ
+         XS8M57adtyBWU/2WMzc/rcX27qy247yM3Tz9MnedTV16Gl235IyYwVq9NhrPeQVY9wuu
+         W15A==
+X-Gm-Message-State: AOAM530fRzHsbOBBJzbMo9ckchvRrjCwMBrGSTmpraVIzHBlGYwUQUwt
+        4Sekg0Ffd7hGlYIqo/lCWokH5XgpG7ALO2ryyze5/RIVOFtYJyxPprOYPbhge/1q02B9aYiFMjv
+        AK0D4Oyc9yfE77tAkmw==
+X-Received: by 2002:a1c:48d7:: with SMTP id v206mr16379350wma.145.1595154912047;
+        Sun, 19 Jul 2020 03:35:12 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwbXlgMIhTFqY5afm0fGAMAxO0bJkFeGQkqU1iGjOplFewk3cYWj+gs5U8F06BSFtheFOBLZA==
+X-Received: by 2002:a1c:48d7:: with SMTP id v206mr16379340wma.145.1595154911766;
+        Sun, 19 Jul 2020 03:35:11 -0700 (PDT)
+Received: from omos.redhat.com (adsl-dyn227.91-127-10.t-com.sk. [91.127.10.227])
+        by smtp.gmail.com with ESMTPSA id n16sm28468498wra.19.2020.07.19.03.35.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Jul 2020 03:35:11 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Sargun Dhillon <sargun@sargun.me>,
-        Arnd Bergmann <arnd@arndb.de>,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, selinux@vger.kernel.org,
-        Eric Paris <eparis@parisplace.org>,
-        Jann Horn <jannh@google.com>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH v6 7/7] selftests: add clone3() CAP_CHECKPOINT_RESTORE test
-Date:   Sun, 19 Jul 2020 12:04:17 +0200
-Message-Id: <20200719100418.2112740-8-areber@redhat.com>
-In-Reply-To: <20200719100418.2112740-1-areber@redhat.com>
-References: <20200719100418.2112740-1-areber@redhat.com>
+        Chris PeBenito <pebenito@ieee.org>,
+        Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH v5 2/2] libsepol: implement POLICYDB_VERSION_COMP_FTRANS
+Date:   Sun, 19 Jul 2020 12:35:06 +0200
+Message-Id: <20200719103506.865962-3-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200719103506.865962-1-omosnace@redhat.com>
+References: <20200719103506.865962-1-omosnace@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This adds a test that changes its UID, uses capabilities to
-get CAP_CHECKPOINT_RESTORE and uses clone3() with set_tid to
-create a process with a given PID as non-root.
+Implement a new, more space-efficient form of storing filename
+transitions in the binary policy. The internal structures have already
+been converted to this new representation; this patch just implements
+reading/writing an equivalent representation from/to the binary policy.
 
-Signed-off-by: Adrian Reber <areber@redhat.com>
+This new format reduces the size of Fedora policy from 7.6 MB to only
+3.3 MB (with policy optimization enabled in both cases). With the
+unconfined module disabled, the size is reduced from 3.3 MB to 2.4 MB.
+
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- tools/testing/selftests/clone3/.gitignore     |   1 +
- tools/testing/selftests/clone3/Makefile       |   4 +-
- .../clone3/clone3_cap_checkpoint_restore.c    | 177 ++++++++++++++++++
- 3 files changed, 181 insertions(+), 1 deletion(-)
- create mode 100644 tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c
+ libsepol/include/sepol/policydb/policydb.h |   3 +-
+ libsepol/src/policydb.c                    | 209 +++++++++++++++++----
+ libsepol/src/write.c                       |  73 ++++++-
+ 3 files changed, 242 insertions(+), 43 deletions(-)
 
-diff --git a/tools/testing/selftests/clone3/.gitignore b/tools/testing/selftests/clone3/.gitignore
-index a81085742d40..83c0f6246055 100644
---- a/tools/testing/selftests/clone3/.gitignore
-+++ b/tools/testing/selftests/clone3/.gitignore
-@@ -2,3 +2,4 @@
- clone3
- clone3_clear_sighand
- clone3_set_tid
-+clone3_cap_checkpoint_restore
-diff --git a/tools/testing/selftests/clone3/Makefile b/tools/testing/selftests/clone3/Makefile
-index cf976c732906..ef7564cb7abe 100644
---- a/tools/testing/selftests/clone3/Makefile
-+++ b/tools/testing/selftests/clone3/Makefile
-@@ -1,6 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- CFLAGS += -g -I../../../../usr/include/
-+LDLIBS += -lcap
+diff --git a/libsepol/include/sepol/policydb/policydb.h b/libsepol/include/sepol/policydb/policydb.h
+index c3180c61..9ef43abc 100644
+--- a/libsepol/include/sepol/policydb/policydb.h
++++ b/libsepol/include/sepol/policydb/policydb.h
+@@ -755,10 +755,11 @@ extern int policydb_set_target_platform(policydb_t *p, int platform);
+ #define POLICYDB_VERSION_XPERMS_IOCTL	30 /* Linux-specific */
+ #define POLICYDB_VERSION_INFINIBAND		31 /* Linux-specific */
+ #define POLICYDB_VERSION_GLBLUB		32
++#define POLICYDB_VERSION_COMP_FTRANS	33 /* compressed filename transitions */
  
--TEST_GEN_PROGS := clone3 clone3_clear_sighand clone3_set_tid
-+TEST_GEN_PROGS := clone3 clone3_clear_sighand clone3_set_tid \
-+	clone3_cap_checkpoint_restore
+ /* Range of policy versions we understand*/
+ #define POLICYDB_VERSION_MIN	POLICYDB_VERSION_BASE
+-#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_GLBLUB
++#define POLICYDB_VERSION_MAX	POLICYDB_VERSION_COMP_FTRANS
  
- include ../lib.mk
-diff --git a/tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c b/tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c
-new file mode 100644
-index 000000000000..c0d83511cd28
---- /dev/null
-+++ b/tools/testing/selftests/clone3/clone3_cap_checkpoint_restore.c
-@@ -0,0 +1,177 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+/*
-+ * Based on Christian Brauner's clone3() example.
-+ * These tests are assuming to be running in the host's
-+ * PID namespace.
-+ */
-+
-+/* capabilities related code based on selftests/bpf/test_verifier.c */
-+
-+#define _GNU_SOURCE
-+#include <errno.h>
-+#include <linux/types.h>
-+#include <linux/sched.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <stdbool.h>
-+#include <sys/capability.h>
-+#include <sys/prctl.h>
-+#include <sys/syscall.h>
-+#include <sys/types.h>
-+#include <sys/un.h>
-+#include <sys/wait.h>
-+#include <unistd.h>
-+#include <sched.h>
-+
-+#include "../kselftest_harness.h"
-+#include "clone3_selftests.h"
-+
-+#ifndef MAX_PID_NS_LEVEL
-+#define MAX_PID_NS_LEVEL 32
-+#endif
-+
-+static void child_exit(int ret)
-+{
-+	fflush(stdout);
-+	fflush(stderr);
-+	_exit(ret);
-+}
-+
-+static int call_clone3_set_tid(pid_t *set_tid, size_t set_tid_size)
-+{
-+	int status;
-+	pid_t pid = -1;
-+
-+	struct clone_args args = {
-+		.exit_signal = SIGCHLD,
-+		.set_tid = ptr_to_u64(set_tid),
-+		.set_tid_size = set_tid_size,
-+	};
-+
-+	pid = sys_clone3(&args, sizeof(struct clone_args));
-+	if (pid < 0) {
-+		ksft_print_msg("%s - Failed to create new process\n", strerror(errno));
-+		return -errno;
-+	}
-+
-+	if (pid == 0) {
-+		int ret;
-+		char tmp = 0;
-+
-+		ksft_print_msg
-+		    ("I am the child, my PID is %d (expected %d)\n", getpid(), set_tid[0]);
-+
-+		if (set_tid[0] != getpid())
-+			child_exit(EXIT_FAILURE);
-+		child_exit(EXIT_SUCCESS);
-+	}
-+
-+	ksft_print_msg("I am the parent (%d). My child's pid is %d\n", getpid(), pid);
-+
-+	if (waitpid(pid, &status, 0) < 0) {
-+		ksft_print_msg("Child returned %s\n", strerror(errno));
-+		return -errno;
-+	}
-+
-+	if (!WIFEXITED(status))
+ /* Module versions and specific changes*/
+ #define MOD_POLICYDB_VERSION_BASE		4
+diff --git a/libsepol/src/policydb.c b/libsepol/src/policydb.c
+index e9409a41..54a22b4d 100644
+--- a/libsepol/src/policydb.c
++++ b/libsepol/src/policydb.c
+@@ -200,6 +200,13 @@ static struct policydb_compat_info policydb_compat[] = {
+ 	 .ocon_num = OCON_IBENDPORT + 1,
+ 	 .target_platform = SEPOL_TARGET_SELINUX,
+ 	},
++	{
++	 .type = POLICY_KERN,
++	 .version = POLICYDB_VERSION_COMP_FTRANS,
++	 .sym_num = SYM_NUM,
++	 .ocon_num = OCON_IBENDPORT + 1,
++	 .target_platform = SEPOL_TARGET_SELINUX,
++	},
+ 	{
+ 	 .type = POLICY_BASE,
+ 	 .version = MOD_POLICYDB_VERSION_BASE,
+@@ -2661,65 +2668,201 @@ int policydb_filetrans_insert(policydb_t *p, uint32_t stype, uint32_t ttype,
+ 	return ebitmap_set_bit(&datum->stypes, stype - 1, 1);
+ }
+ 
+-int filename_trans_read(policydb_t *p, struct policy_file *fp)
++static int filename_trans_read_one_compat(policydb_t *p, struct policy_file *fp)
+ {
+-	unsigned int i;
+-	uint32_t buf[4], nel, len, stype, ttype, tclass, otype;
++	uint32_t buf[4], len, stype, ttype, tclass, otype;
++	char *name = NULL;
+ 	int rc;
+-	char *name;
+ 
+ 	rc = next_entry(buf, fp, sizeof(uint32_t));
+ 	if (rc < 0)
+ 		return -1;
+-	nel = le32_to_cpu(buf[0]);
++	len = le32_to_cpu(buf[0]);
++	if (zero_or_saturated(len))
 +		return -1;
-+
-+	return WEXITSTATUS(status);
-+}
-+
-+static int test_clone3_set_tid(pid_t *set_tid, size_t set_tid_size)
-+{
-+	int ret;
-+
-+	ksft_print_msg("[%d] Trying clone3() with CLONE_SET_TID to %d\n", getpid(), set_tid[0]);
-+	ret = call_clone3_set_tid(set_tid, set_tid_size);
-+	ksft_print_msg("[%d] clone3() with CLONE_SET_TID %d says:%d\n", getpid(), set_tid[0], ret);
-+	return ret;
-+}
-+
-+struct libcap {
-+	struct __user_cap_header_struct hdr;
-+	struct __user_cap_data_struct data[2];
-+};
-+
-+static int set_capability(void)
-+{
-+	cap_value_t cap_values[] = { CAP_SETUID, CAP_SETGID };
-+	struct libcap *cap;
-+	int ret = -1;
-+	cap_t caps;
-+
-+	caps = cap_get_proc();
-+	if (!caps) {
-+		perror("cap_get_proc");
+ 
+-	for (i = 0; i < nel; i++) {
+-		name = NULL;
++	name = calloc(len + 1, sizeof(*name));
++	if (!name)
 +		return -1;
+ 
+-		rc = next_entry(buf, fp, sizeof(uint32_t));
+-		if (rc < 0)
+-			goto err;
+-		len = le32_to_cpu(buf[0]);
+-		if (zero_or_saturated(len))
++	rc = next_entry(name, fp, len);
++	if (rc < 0)
++		goto err;
++
++	rc = next_entry(buf, fp, sizeof(uint32_t) * 4);
++	if (rc < 0)
++		goto err;
++
++	stype  = le32_to_cpu(buf[0]);
++	ttype  = le32_to_cpu(buf[1]);
++	tclass = le32_to_cpu(buf[2]);
++	otype  = le32_to_cpu(buf[3]);
++
++	rc = policydb_filetrans_insert(p, stype, ttype, tclass, name, &name,
++				       otype, NULL);
++	if (rc) {
++		if (rc != SEPOL_EEXIST)
+ 			goto err;
++		/*
++		 * Some old policies were wrongly generated with
++		 * duplicate filename transition rules.  For backward
++		 * compatibility, do not reject such policies, just
++		 * ignore the duplicate.
++		 */
 +	}
++	free(name);
++	return 0;
++err:
++	free(name);
++	return -1;
++}
 +
-+	/* Drop all capabilities */
-+	if (cap_clear(caps)) {
-+		perror("cap_clear");
-+		goto out;
++static int filename_trans_check_datum(filename_trans_datum_t *datum)
++{
++	ebitmap_t stypes, otypes;
++	int rc = -1;
++
++	ebitmap_init(&stypes);
++	ebitmap_init(&otypes);
++
++	while (datum) {
++		if (ebitmap_get_bit(&otypes, datum->otype))
++			goto out;
++
++		if (ebitmap_set_bit(&otypes, datum->otype, 1))
++			goto out;
++
++		if (ebitmap_match_any(&stypes, &datum->stypes))
++			goto out;
+ 
+-		name = calloc(len + 1, sizeof(*name));
+-		if (!name)
++		if (ebitmap_union(&stypes, &datum->stypes))
++			goto out;
++
++		datum = datum->next;
 +	}
-+
-+	cap_set_flag(caps, CAP_EFFECTIVE, 2, cap_values, CAP_SET);
-+	cap_set_flag(caps, CAP_PERMITTED, 2, cap_values, CAP_SET);
-+
-+	cap = (struct libcap *) caps;
-+
-+	/* 40 -> CAP_CHECKPOINT_RESTORE */
-+	cap->data[1].effective |= 1 << (40 - 32);
-+	cap->data[1].permitted |= 1 << (40 - 32);
-+
-+	if (cap_set_proc(caps)) {
-+		perror("cap_set_proc");
-+		goto out;
-+	}
-+	ret = 0;
++	rc = 0;
 +out:
-+	if (cap_free(caps))
-+		perror("cap_free");
-+	return ret;
++	ebitmap_destroy(&stypes);
++	ebitmap_destroy(&otypes);
++	return rc;
 +}
 +
-+TEST(clone3_cap_checkpoint_restore)
++static int filename_trans_read_one(policydb_t *p, struct policy_file *fp)
 +{
-+	pid_t pid;
-+	int status;
-+	int ret = 0;
-+	pid_t set_tid[1];
++	filename_trans_key_t *ft = NULL;
++	filename_trans_datum_t **dst, *datum, *first = NULL;
++	unsigned int i;
++	uint32_t buf[3], len, ttype, tclass, ndatum;
++	char *name = NULL;
++	int rc;
 +
-+	test_clone3_supported();
++	rc = next_entry(buf, fp, sizeof(uint32_t));
++	if (rc < 0)
++		return -1;
++	len = le32_to_cpu(buf[0]);
++	if (zero_or_saturated(len))
++		return -1;
 +
-+	EXPECT_EQ(getuid(), 0)
-+		SKIP(return, "Skipping all tests as non-root\n");
++	name = calloc(len + 1, sizeof(*name));
++	if (!name)
++		return -1;
 +
-+	memset(&set_tid, 0, sizeof(set_tid));
++	rc = next_entry(name, fp, len);
++	if (rc < 0)
++		goto err;
 +
-+	/* Find the current active PID */
-+	pid = fork();
-+	if (pid == 0) {
-+		TH_LOG("Child has PID %d", getpid());
-+		child_exit(EXIT_SUCCESS);
++	rc = next_entry(buf, fp, sizeof(uint32_t) * 3);
++	if (rc < 0)
++		goto err;
++
++	ttype = le32_to_cpu(buf[0]);
++	tclass = le32_to_cpu(buf[1]);
++	ndatum = le32_to_cpu(buf[2]);
++	if (ndatum == 0)
++		goto err;
++
++	dst = &first;
++	for (i = 0; i < ndatum; i++) {
++		datum = malloc(sizeof(*datum));
++		if (!datum)
+ 			goto err;
+ 
+-		rc = next_entry(name, fp, len);
++		*dst = datum;
++
++		/* ebitmap_read() will at least init the bitmap */
++		rc = ebitmap_read(&datum->stypes, fp);
+ 		if (rc < 0)
+ 			goto err;
+ 
+-		rc = next_entry(buf, fp, sizeof(uint32_t) * 4);
++		rc = next_entry(buf, fp, sizeof(uint32_t));
+ 		if (rc < 0)
+ 			goto err;
+ 
+-		stype  = le32_to_cpu(buf[0]);
+-		ttype  = le32_to_cpu(buf[1]);
+-		tclass = le32_to_cpu(buf[2]);
+-		otype  = le32_to_cpu(buf[3]);
++		datum->otype = le32_to_cpu(buf[0]);
+ 
+-		rc = policydb_filetrans_insert(p, stype, ttype, tclass, name,
+-					       &name, otype, NULL);
+-		if (rc) {
+-			if (rc != SEPOL_EEXIST)
+-				goto err;
+-			/*
+-			 * Some old policies were wrongly generated with
+-			 * duplicate filename transition rules.  For backward
+-			 * compatibility, do not reject such policies, just
+-			 * ignore the duplicate.
+-			 */
+-		}
+-		free(name);
++		p->filename_trans_count += ebitmap_cardinality(&datum->stypes);
++
++		dst = &datum->next;
+ 	}
++	*dst = NULL;
++
++	if (ndatum > 1 && filename_trans_check_datum(first))
++		goto err;
++
++	ft = malloc(sizeof(*ft));
++	if (!ft)
++		goto err;
++
++	ft->ttype = ttype;
++	ft->tclass = tclass;
++	ft->name = name;
++
++	rc = hashtab_insert(p->filename_trans, (hashtab_key_t)ft,
++			    (hashtab_datum_t)first);
++	if (rc)
++		goto err;
++
+ 	return 0;
+ err:
++	free(ft);
+ 	free(name);
++	while (first) {
++		datum = first;
++		first = first->next;
++
++		ebitmap_destroy(&datum->stypes);
++		free(datum);
 +	}
-+	ASSERT_GT(waitpid(pid, &status, 0), 0)
-+		TH_LOG("Waiting for child %d failed", pid);
+ 	return -1;
+ }
+ 
++int filename_trans_read(policydb_t *p, struct policy_file *fp)
++{
++	unsigned int i;
++	uint32_t buf[1], nel;
++	int rc;
 +
-+	/* After the child has finished, its PID should be free. */
-+	set_tid[0] = pid;
++	rc = next_entry(buf, fp, sizeof(uint32_t));
++	if (rc < 0)
++		return -1;
++	nel = le32_to_cpu(buf[0]);
 +
-+	ASSERT_EQ(set_capability(), 0)
-+		TH_LOG("Could not set CAP_CHECKPOINT_RESTORE");
-+	prctl(PR_SET_KEEPCAPS, 1, 0, 0, 0);
-+	setgid(1000);
-+	setuid(1000);
-+	set_tid[0] = pid;
-+	/* This would fail without CAP_CHECKPOINT_RESTORE */
-+	ASSERT_EQ(test_clone3_set_tid(set_tid, 1), -EPERM);
-+	ASSERT_EQ(set_capability(), 0)
-+		TH_LOG("Could not set CAP_CHECKPOINT_RESTORE");
-+	/* This should work as we have CAP_CHECKPOINT_RESTORE as non-root */
-+	ASSERT_EQ(test_clone3_set_tid(set_tid, 1), 0);
++	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
++		for (i = 0; i < nel; i++) {
++			rc = filename_trans_read_one_compat(p, fp);
++			if (rc < 0)
++				return -1;
++		}
++	} else {
++		for (i = 0; i < nel; i++) {
++			rc = filename_trans_read_one(p, fp);
++			if (rc < 0)
++				return -1;
++		}
++	}
++	return 0;
 +}
 +
-+TEST_HARNESS_MAIN
+ static int ocontext_read_xen(struct policydb_compat_info *info,
+ 	policydb_t *p, struct policy_file *fp)
+ {
+diff --git a/libsepol/src/write.c b/libsepol/src/write.c
+index d3aee8d5..84bcaf3f 100644
+--- a/libsepol/src/write.c
++++ b/libsepol/src/write.c
+@@ -569,7 +569,7 @@ static int role_allow_write(role_allow_t * r, struct policy_file *fp)
+ 	return POLICYDB_SUCCESS;
+ }
+ 
+-static int filename_write_helper(hashtab_key_t key, void *data, void *ptr)
++static int filename_write_one_compat(hashtab_key_t key, void *data, void *ptr)
+ {
+ 	uint32_t bit, buf[4];
+ 	size_t items, len;
+@@ -605,6 +605,54 @@ static int filename_write_helper(hashtab_key_t key, void *data, void *ptr)
+ 	return 0;
+ }
+ 
++static int filename_write_one(hashtab_key_t key, void *data, void *ptr)
++{
++	uint32_t buf[3];
++	size_t items, len, ndatum;
++	filename_trans_key_t *ft = (filename_trans_key_t *)key;
++	filename_trans_datum_t *datum;
++	void *fp = ptr;
++
++	len = strlen(ft->name);
++	buf[0] = cpu_to_le32(len);
++	items = put_entry(buf, sizeof(uint32_t), 1, fp);
++	if (items != 1)
++		return POLICYDB_ERROR;
++
++	items = put_entry(ft->name, sizeof(char), len, fp);
++	if (items != len)
++		return POLICYDB_ERROR;
++
++	ndatum = 0;
++	datum = data;
++	do {
++		ndatum++;
++		datum = datum->next;
++	} while (datum);
++
++	buf[0] = cpu_to_le32(ft->ttype);
++	buf[1] = cpu_to_le32(ft->tclass);
++	buf[2] = cpu_to_le32(ndatum);
++	items = put_entry(buf, sizeof(uint32_t), 3, fp);
++	if (items != 3)
++		return POLICYDB_ERROR;
++
++	datum = data;
++	do {
++		if (ebitmap_write(&datum->stypes, fp))
++			return POLICYDB_ERROR;
++
++		buf[0] = cpu_to_le32(datum->otype);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
++
++		datum = datum->next;
++	} while (datum);
++
++	return 0;
++}
++
+ static int filename_trans_write(struct policydb *p, void *fp)
+ {
+ 	size_t items;
+@@ -614,16 +662,23 @@ static int filename_trans_write(struct policydb *p, void *fp)
+ 	if (p->policyvers < POLICYDB_VERSION_FILENAME_TRANS)
+ 		return 0;
+ 
+-	buf[0] = cpu_to_le32(p->filename_trans_count);
+-	items = put_entry(buf, sizeof(uint32_t), 1, fp);
+-	if (items != 1)
+-		return POLICYDB_ERROR;
++	if (p->policyvers < POLICYDB_VERSION_COMP_FTRANS) {
++		buf[0] = cpu_to_le32(p->filename_trans_count);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
+ 
+-	rc = hashtab_map(p->filename_trans, filename_write_helper, fp);
+-	if (rc)
+-		return rc;
++		rc = hashtab_map(p->filename_trans, filename_write_one_compat,
++				 fp);
++	} else {
++		buf[0] = cpu_to_le32(p->filename_trans->nel);
++		items = put_entry(buf, sizeof(uint32_t), 1, fp);
++		if (items != 1)
++			return POLICYDB_ERROR;
+ 
+-	return 0;
++		rc = hashtab_map(p->filename_trans, filename_write_one, fp);
++	}
++	return rc;
+ }
+ 
+ static int role_set_write(role_set_t * x, struct policy_file *fp)
 -- 
 2.26.2
 
