@@ -4,80 +4,89 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7490AC433E0
-	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 16:46:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F966C433DF
+	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 16:51:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 556E7207EA
-	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 16:46:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 75E4820B1F
+	for <selinux@archiver.kernel.org>; Sun, 19 Jul 2020 16:51:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726009AbgGSQqo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 19 Jul 2020 12:46:44 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:59603 "EHLO
+        id S1726073AbgGSQvo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sun, 19 Jul 2020 12:51:44 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:47106 "EHLO
         mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725783AbgGSQqn (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 19 Jul 2020 12:46:43 -0400
-X-Greylist: delayed 342 seconds by postgrey-1.27 at vger.kernel.org; Sun, 19 Jul 2020 12:46:42 EDT
-Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
+        with ESMTP id S1725783AbgGSQvn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sun, 19 Jul 2020 12:51:43 -0400
+Received: from mail-ot1-f43.google.com (mail-ot1-f43.google.com [209.85.210.43])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 4D9CB5646A3
-        for <selinux@vger.kernel.org>; Sun, 19 Jul 2020 18:40:47 +0200 (CEST)
-Received: by mail-oo1-f48.google.com with SMTP id d125so2746429oob.0
-        for <selinux@vger.kernel.org>; Sun, 19 Jul 2020 09:40:47 -0700 (PDT)
-X-Gm-Message-State: AOAM532pAoHFE+RFa0YlvWsemZkACa2O/M+xQ40y0NJszX5nFVbige/s
-        EayqcPE3Bsb9v8C3AJ1WzwxLZBXFWlVDSDqiQm0=
-X-Google-Smtp-Source: ABdhPJzUwelN9idHDY2EB+GHffi76nv+CeF+uridqdThsfWWJjSXO0xbKUy2ILdVlIwYSkZHkS9yE0axFx2AfXAUfhY=
-X-Received: by 2002:a4a:c213:: with SMTP id z19mr16439928oop.46.1595176846290;
- Sun, 19 Jul 2020 09:40:46 -0700 (PDT)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id 99E825646A3
+        for <selinux@vger.kernel.org>; Sun, 19 Jul 2020 18:43:46 +0200 (CEST)
+Received: by mail-ot1-f43.google.com with SMTP id t18so10423226otq.5
+        for <selinux@vger.kernel.org>; Sun, 19 Jul 2020 09:43:46 -0700 (PDT)
+X-Gm-Message-State: AOAM530wmf0VWnfNJWLRcxkBz1QSGBDjmobZXa9hzUr0Xe941OPy3DG+
+        wT7DTkTnVfBpGVZN9hz4ZQIBeGbdl6m9gvUcuEI=
+X-Google-Smtp-Source: ABdhPJwzVE0GOt+0UkT0VVpr70QTGAqUF+SwmMm7rjlo488uICghTcfEZ4b6Vjy5i72msaLnBX4SYUY1advWKKFI06o=
+X-Received: by 2002:a9d:855:: with SMTP id 79mr16211081oty.361.1595177025559;
+ Sun, 19 Jul 2020 09:43:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200716122213.454087-1-bigon@debian.org>
-In-Reply-To: <20200716122213.454087-1-bigon@debian.org>
+References: <51d7bd5e067978ea5340ee408a7329e8b921b372.camel@flyn.org>
+In-Reply-To: <51d7bd5e067978ea5340ee408a7329e8b921b372.camel@flyn.org>
 From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 19 Jul 2020 18:40:35 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nZY+DFwVT9X7mJVTBG1=p3ZgR-aX4DNuK02qzVTT_g4Q@mail.gmail.com>
-Message-ID: <CAJfZ7=nZY+DFwVT9X7mJVTBG1=p3ZgR-aX4DNuK02qzVTT_g4Q@mail.gmail.com>
-Subject: Re: [PATCH] restorecond: Set X-GNOME-HiddenUnderSystemd=true in
- restorecond.desktop file
-To:     Laurent Bigonville <bigon@debian.org>
+Date:   Sun, 19 Jul 2020 18:43:34 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=kxW1zaROh_9rC8-CCafBciFXmFfKFh0B0fwwGYCTp6Lg@mail.gmail.com>
+Message-ID: <CAJfZ7=kxW1zaROh_9rC8-CCafBciFXmFfKFh0B0fwwGYCTp6Lg@mail.gmail.com>
+Subject: Re: [PATCH] python/audit2allow: add #include <limits.h> to sepolgen-ifgen-attr-helper.c
+To:     "W. Michael Petullo" <mike@flyn.org>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Jul 19 18:40:47 2020 +0200 (CEST))
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Jul 19 18:43:47 2020 +0200 (CEST))
 X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 16, 2020 at 2:28 PM Laurent Bigonville <bigon@debian.org> wrote:
+On Thu, Jul 16, 2020 at 10:39 PM W. Michael Petullo <mike@flyn.org> wrote:
 >
-> From: Laurent Bigonville <bigon@bigon.be>
+> I found that building on OpenWrt/musl failed with:
 >
-> This completely inactivate the .desktop file incase the user session is
-> managed by systemd as restorecond also provide a service file
+>   sepolgen-ifgen-attr-helper.c:152:16: error: 'PATH_MAX' undeclared ...
 >
-> Signed-off-by: Laurent Bigonville <bigon@bigon.be>
+> Musl is less "generous" than glibc in recursively including header
+> files, and I suspect this is the reason for this error. Explicitly
+> including limits.h fixes the problem.
+>
+> Signed-off-by: W. Michael Petullo <mike@flyn.org>
 > ---
->  restorecond/restorecond.desktop | 1 +
+>  python/audit2allow/sepolgen-ifgen-attr-helper.c | 1 +
 >  1 file changed, 1 insertion(+)
 >
-> diff --git a/restorecond/restorecond.desktop b/restorecond/restorecond.desktop
-> index af728680..7df85472 100644
-> --- a/restorecond/restorecond.desktop
-> +++ b/restorecond/restorecond.desktop
-> @@ -5,3 +5,4 @@ Comment=Fix file context in owned by the user
->  Type=Application
->  StartupNotify=false
->  X-GNOME-Autostart-enabled=false
-> +X-GNOME-HiddenUnderSystemd=true
+> diff --git a/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> index 53f20818..f010c958 100644
+> --- a/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> +++ b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> @@ -28,6 +28,7 @@
+>
+>  #include <selinux/selinux.h>
+>
+> +#include <limits.h>
+>  #include <stdio.h>
+>  #include <sys/types.h>
+>  #include <sys/stat.h>
 > --
-> 2.28.0.rc0
+> 2.26.2
 
-I was not aware of this option, but it makes sense. Thanks!
+Looks good to me. Nevertheless I had some trouble applying your patch
+using "git am" because your message contained
+"b/python/audit2allow/sepolgen-ifgen-attr-helper.c" on a new line. Did
+you use "git send-email" or something similar, to send your patch?
 
 Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
 
 If nobody complains, I will apply this patch tomorrow.
+Thanks,
 Nicolas
 
