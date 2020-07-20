@@ -5,211 +5,235 @@ X-Spam-Level:
 X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20A41C433E2
-	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 13:58:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44497C433E6
+	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 14:31:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E93002070A
-	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 13:58:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 156C122482
+	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 14:31:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WHopuJmF"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lT61+N1i"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726426AbgGTN6C (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jul 2020 09:58:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51452 "EHLO
+        id S1726771AbgGTObq (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Jul 2020 10:31:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726076AbgGTN6C (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jul 2020 09:58:02 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0892BC061794
-        for <selinux@vger.kernel.org>; Mon, 20 Jul 2020 06:58:02 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id w17so12241076otl.4
-        for <selinux@vger.kernel.org>; Mon, 20 Jul 2020 06:58:02 -0700 (PDT)
+        with ESMTP id S1725815AbgGTObq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jul 2020 10:31:46 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A8AC061794;
+        Mon, 20 Jul 2020 07:31:46 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id 5so12288378oty.11;
+        Mon, 20 Jul 2020 07:31:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kJNEMjEMLJ6wNIqnqJfCIFoBviZ+kQ+8DeMtZmT2VHo=;
-        b=WHopuJmFAY6B0obrBZ44jWDtV/952qnkC1hzkvcvjusMV5ccnlp8ITfXKJrRy+Iviz
-         6hCdqayEIa0Qi6XQQ5G4CK8/a4DgE/JOjQ9lx93o4VrPobSIM049iblr+I1PgRxhGmT7
-         b7SE2cqt7EcMyYKPSa8CadkX/4NId5X5ARG6jmjOb5HT2U1EbI0b4VZVHIMIwvU4NhrT
-         dlFb/1GDoKhYMMT6NsP2T8u+U8K2ZntGmjMjRi9Ava6pqrvSshpwLOgrvOB2V4Pu7RVP
-         RwUmUOY+fQnhOKOG3UmUp1Ym2oc8kHSql5XDqVZKWaUoogHzlmHULl3Y+oN8I3oDcONF
-         8yuQ==
+         :cc:content-transfer-encoding;
+        bh=Q3g5qbdmC19gV+NnXyKNCgQ/rTdz9C9y5peqjUosD9s=;
+        b=lT61+N1i6xbgCZrxUx/ahZydAhqURpCPx0Fyz8BDuoTYteem+4vYQJ6DI8J3UJkwiv
+         YntOzmEQicJdm8cXoqEshZGmwh/TG4+Tmm0FhQJ+RkpNZBjY+zpxqeMx2Q8epR2kPkvD
+         kZ697dtgohPa5PRrPc0kJCGpDoEQpDQC2CJKD4rz2lpdNpT404eJrdvtQ0vu1wMIXZxW
+         y6OZV5SJM6hgbQRzwJe8EFKNURGCEuIAO0IUKVk5Wwh++HDagpJSIJK4oWicBYzFd+fq
+         fCTF57QvxmZp1vasmMaXVc09PQbJ2W7KwEsSoGSvMpgmc2YC3YPsiYmjIinYqviy9stE
+         rNFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kJNEMjEMLJ6wNIqnqJfCIFoBviZ+kQ+8DeMtZmT2VHo=;
-        b=HEu81YGBGyNesMJc4G8cF/qrIiTaxejgd5nDnCXPI1mCN4HEji8s9l6GjgVLwUAdly
-         TqNp+sUX2e+ppdH5w/dZ/9jJrSDduvhHXvmxwJ8xuoR1gA/9EBqFKYbHFivChCAUT0gc
-         0tVYKVuEOPN6w3W+xBW6orpwinafc77ejs1NIexHcmqHiCvCmyOYtMy2BuxPYa6BDkCu
-         iR9Lz1ZHkcC6ffWSvuqfc4x0c3F5mhmckZ5nmZJ61J/ZFrzJJ3A2v+KDwv3G1TkJ+a0+
-         OHEBkNcJFkJ043cH8/zHrgwBqjBXdF7X8LxxXwIXFHzjke/NI9MR70GmODE9Cjjb7u7M
-         OP2Q==
-X-Gm-Message-State: AOAM533zCgfgkpbMPNHZdce+kf29OCJgnEIEZQS5/cAm6xEIu7eXZHMU
-        dkS56pgbG7XT81ZXK4spDG/dKMaLVAx6LX/ue5I=
-X-Google-Smtp-Source: ABdhPJxKSJ69qhT326JY6q5gcy+uAzvyQM4xsARaB74uuLYhcKY4+DXpslj6eeVsm4IZFYUiLpfY1j1wE3PQPWGQhcY=
-X-Received: by 2002:a05:6830:1db5:: with SMTP id z21mr20410138oti.162.1595253481391;
- Mon, 20 Jul 2020 06:58:01 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Q3g5qbdmC19gV+NnXyKNCgQ/rTdz9C9y5peqjUosD9s=;
+        b=p7WjOQ1G4YrLZNwMdqsyL0EYlMn75pwR7gLbeUJ1v6LbRLuJDZ4w6bZdKuAf6MIJAS
+         PPoJI6d32PZpGJhFD1zPBbDp1VaH+m2GHLsaDgvIjR4RpGmvwG+glDgVdRqnqWlVqFOi
+         Va90RXgDc4MTVfz2+8pZ93IvQIfu2RoRkiByHqwhU5cLN/q2nQDo+Cq26oFVtphe7x7u
+         /cT3dMeSQf3TKna0fH8Fp9w3NMfKRVuaV0IwlQw5N72M52LfpvKIXcgtB3wCd2KFpvVV
+         wWkjL9iImZH0INAl/yDSG5Ylw+uKmeuz3q32egZ2sfC915HAhuo1rezPjIxJ5sTPA8kr
+         EJuQ==
+X-Gm-Message-State: AOAM530EOpJLSublnUNLj6TOmDVUp3+n/hRXC6/jacVNxKt8WbqI9t97
+        ipxE2vfjA40iQy5EHbHFmi4WAwUdRw8i88DAXVBd/A==
+X-Google-Smtp-Source: ABdhPJzGd8HYBZ1g5Cuh4cWHg44hrn4tgLZQsYcHeteNz+04u3lDAyMzPQRrObfAyyJ3oc3PfxGOyaNlNfU6RmmZ6sM=
+X-Received: by 2002:a05:6830:10ce:: with SMTP id z14mr20798184oto.135.1595255505584;
+ Mon, 20 Jul 2020 07:31:45 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200716210315.19907-1-mike.palmiotto@crunchydata.com> <CAEjxPJ4L_aKDfzWsb-Ve1ah1SES02jBtuKAYMy8YFwadj6RRkQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ4L_aKDfzWsb-Ve1ah1SES02jBtuKAYMy8YFwadj6RRkQ@mail.gmail.com>
+References: <20200717222819.26198-1-nramas@linux.microsoft.com> <20200717222819.26198-5-nramas@linux.microsoft.com>
+In-Reply-To: <20200717222819.26198-5-nramas@linux.microsoft.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 20 Jul 2020 09:57:50 -0400
-Message-ID: <CAEjxPJ6y6+EfZ7=0ZKVf4+bjg2F93732CCdP0CSNZe3xJSeftA@mail.gmail.com>
-Subject: Re: [PATCH v2] libselinux: Use sestatus if open
-To:     Mike Palmiotto <mike.palmiotto@crunchydata.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Mon, 20 Jul 2020 10:31:34 -0400
+Message-ID: <CAEjxPJ7xQtZToF4d2w_o8SXFKG9kPZaWTWTFqyC-7GwBWnQa0A@mail.gmail.com>
+Subject: Re: [PATCH v3 4/5] LSM: Define SELinux function to measure security state
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 20, 2020 at 9:47 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On Fri, Jul 17, 2020 at 6:28 PM Lakshmi Ramasubramanian
+<nramas@linux.microsoft.com> wrote:
 >
-> On Thu, Jul 16, 2020 at 5:06 PM Mike Palmiotto
-> <mike.palmiotto@crunchydata.com> wrote:
-> >
-> > Commit bc2a8f418e3b ("libselinux: add selinux_status_* interfaces for
-> > /selinux/status") introduced the sestatus mechanism, which allows for
-> > mmap()'ing of the kernel status page as a replacement for avc_netlink.
-> >
-> > The mechanism was initially intended for use by userspace object
-> > managers which were calculating access decisions within their
-> > application and did not rely on the libselinux AVC implementation. In
-> > order to properly make use of sestatus within avc_has_perm(), the status
-> > mechanism needs to properly set avc internals during status events;
-> > else, avc_enforcing is never updated upon sestatus changes.
-> >
-> > This commit introduces a new selinux_status_loop() function, which
-> > replaces the default netlink-equivalent, avc_netlink_loop(). The
-> > function watches the kernel status page until an error occurs, at which
-> > point it will close the status page and exit the thread.In the event
-> > that the status page cannot be opened, the thread will continue to
-> > function as before by using a fallback netlink socket.
-> >
-> > This allows us to replace the call to avc_netlink_open() in
-> > avc_init_internal() with a call to selinux_status_open() and remove the
-> > avc_netlink_check_nb() call from the critical code path in
-> > avc_has_perm_noaudit(), as well as selinux_check_access().
-> >
-> > Userspace object managers wanting a netlink socket can call
-> > avc_netlink_acquire_fd() to open a netlink socket if there is not one
-> > open already.
-> >
-> > Update the manpage to reflect the new selinux_status_loop() and
-> > avc_netlink_acquire_fd() functionality.
-> >
-> > Signed-off-by: Mike Palmiotto <mike.palmiotto@crunchydata.com>
+> SELinux configuration and policy are some of the critical data for this
+> security module that needs to be measured. To enable this measurement
+> SELinux needs to implement the interface function,
+> security_measure_data(), that the LSM can call.
 >
-> A few minor comments.  First, the subject line should be changed to
-> reflect the fact that you are changing it to use the SELinux kernel
-> status page whenever it is available, not just if it is already open.
-> Second, I'm unclear on the need/benefit of exporting
-> selinux_status_loop() as a public API/ABI of libselinux.  The
-> difference from avc_netlink_loop() I think is that one requires access
-> to functions/state private to libselinux while the other only uses
-> other public APIs/ABIs.  Also selinux_status_loop() is a pretty
-> trivial function.  So unless there is a compelling reason to export
-> selinux_status_loop(), I wouldn't make it a public interface.  A
-> couple of comments on the code below.
+> Define the security_measure_data() function in SELinux to measure SELinux
+> configuration and policy. Call this function to measure SELinux data
+> when there is a change in the security module's state.
 >
-> > diff --git a/libselinux/src/avc.c b/libselinux/src/avc.c
-> > index b4648b2d..e36a9a53 100644
-> > --- a/libselinux/src/avc.c
-> > +++ b/libselinux/src/avc.c
-> > @@ -557,9 +557,10 @@ void avc_destroy(void)
-> >
-> >         avc_get_lock(avc_lock);
-> >
-> > +       selinux_status_close();
-> > +
-> >         if (avc_using_threads)
-> > -               avc_stop_thread(avc_netlink_thread);
-> > -       avc_netlink_close();
-> > +               avc_stop_thread(avc_status_thread);
+> Sample measurement of SELinux state and hash of the policy:
 >
-> Shouldn't we perform the selinux_status_close() after stopping the thread?
+> 10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state 656e61626c65643d3=
+13b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574706565723d31=
+3b6f70656e7065726d3d313b657874736f636b636c6173733d313b616c776179736e6574776=
+f726b3d303b6367726f75707365636c6162656c3d313b6e6e706e6f737569647472616e7369=
+74696f6e3d313b67656e66737365636c6162656c73796d6c696e6b3d303b
+> 10 f4a7...9408 ima-buf sha256:4941...68fc selinux-policy-hash 8d1d...1834
 >
-> > diff --git a/libselinux/src/libselinux.map b/libselinux/src/libselinux.map
-> > index 2a368e93..8d8d8fd2 100644
-> > --- a/libselinux/src/libselinux.map
-> > +++ b/libselinux/src/libselinux.map
-> > @@ -203,6 +203,7 @@ LIBSELINUX_1.0 {
-> >      selinux_status_close;
-> >      selinux_status_deny_unknown;
-> >      selinux_status_getenforce;
-> > +    selinux_status_loop;
-> >      selinux_status_open;
-> >      selinux_status_policyload;
-> >      selinux_status_updated;
+> To verify the measurement check the following:
 >
-> If we were going to add a new API/ABI, it would go in a new version
-> for the map, tagged with whatever version it would first appear in
-> e.g. LIBSELINUX_3.2.  But I don't think we need it exported at all.
+> Execute the following command to extract the measured data
+> from the IMA log for SELinux configuration (selinux-state).
 >
-> > diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
-> > index 86267ff8..6ecb6337 100644
-> > --- a/libselinux/src/sestatus.c
-> > +++ b/libselinux/src/sestatus.c
-> > @@ -131,7 +141,6 @@ int selinux_status_updated(void)
-> >  int selinux_status_getenforce(void)
-> >  {
-> >         uint32_t        seqno;
-> > -       uint32_t        enforcing;
-> >
-> >         if (selinux_status == NULL) {
-> >                 errno = EINVAL;
-> > @@ -149,11 +158,11 @@ int selinux_status_getenforce(void)
-> >         do {
-> >                 seqno = read_sequence(selinux_status);
-> >
-> > -               enforcing = selinux_status->enforcing;
-> > +               avc_enforcing = selinux_status->enforcing;
-> >
-> >         } while (seqno != read_sequence(selinux_status));
-> >
-> > -       return enforcing ? 1 : 0;
-> > +       return avc_enforcing;
-> >  }
+>   cat /sys/kernel/security/integrity/ima/ascii_runtime_measurements | gre=
+p -m 1 "selinux-state" | cut -d' ' -f 6 | xxd -r -p
 >
-> I'm not sure this should update avc_enforcing at all, but if it does,
-> it should only do so once (e.g. after the loop, not within it), only
-> if the value actually changed, and it should use
-> avc_process_setenforce() to do it so that it honors avc_setenforce,
-> resets the AVC, and calls any callbacks.  Otherwise that will never
-> happen if a selinux_status_getenforce() call occurs prior to
-> selinux_status_updated() after a setenforce operation.
+> The output should be the list of key-value pairs. For example,
+>  enabled=3D1;enforcing=3D0;checkreqprot=3D1;network_peer_controls=3D1;ope=
+n_perms=3D1;extended_socket_class=3D1;always_check_network=3D0;cgroup_secla=
+bel=3D1;nnp_nosuid_transition=3D1;genfs_seclabel_symlinks=3D0;
 >
-> > @@ -316,6 +325,23 @@ error:
-> >         return -1;
-> >  }
-> >
-> > +/*
-> > + * selinux_status_loop
-> > + *
-> > + * Run routine for checking kernel status page in a listening thread.
-> > + * Falls back on netlink socket in the event of failure to open status page.
-> > + */
-> > +void selinux_status_loop(void)
-> > +{
-> > +       /* Check kernel status page until error occurs */
-> > +       while(selinux_status_updated() >= 0);
-> > +
-> > +       avc_log(SELINUX_ERROR,
-> > +               "%s: status thread terminating due to error: %d (%s)\n",
-> > +               avc_prefix, errno, strerror(errno));
-> > +       selinux_status_close();
+> To verify the measured data with the current SELinux state:
 >
-> Should we really be closing it here or leaving that to the caller?  We
-> are closing it anyway in the destroy function.
+>  =3D> enabled should be set to 1 if /sys/fs/selinux folder exists,
+>     0 otherwise
+>
+> For other entries, compare the integer value in the files
+>  =3D> /sys/fs/selinux/enforce
+>  =3D> /sys/fs/selinux/checkreqprot
+> And, each of the policy capabilities files under
+>  =3D> /sys/fs/selinux/policy_capabilities
+>
+> The data for selinux-policy-hash is the SHA256 hash of SELinux policy.
+>
+> To verify the measured data with the current SELinux policy run
+> the following commands and verify the output hash values match.
+>
+>   sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
+>
+>   cat /sys/kernel/security/integrity/ima/ascii_runtime_measurements | gre=
+p -m 1 "selinux-policy-hash" | cut -d' ' -f 6
+>
+> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
 
-Also, please put a space between while and ( above and put the
-semicolon on a line by itself.
-I'd also prefer a space between the (void) typecast and various calls
-even though it wasn't that way in the existing code.
+> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+> new file mode 100644
+> index 000000000000..659011637ae7
+> --- /dev/null
+> +++ b/security/selinux/measure.c
+> @@ -0,0 +1,155 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * Measure SELinux state using IMA subsystem.
+> + */
+> +#include <linux/ima.h>
+> +#include "security.h"
+> +
+> +/* Pre-allocated buffer used for measuring state */
+> +static char *selinux_state_string;
+> +static size_t selinux_state_string_len;
+> +static char *str_format =3D "%s=3D%d;";
+> +static int selinux_state_count;
+> +
+> +void __init selinux_init_measurement(void)
+> +{
+> +       int i;
+> +
+> +       /*
+> +        * enabled
+> +        * enforcing
+> +        * checkreqport
+
+checkreqprot (spelling)
+
+What about initialized?  Or do you consider that to be implicitly
+true/1 else we wouldn't be taking a measurement?  Only caveat there is
+that it provides one more means of disabling measurements (at the same
+time as disabling enforcement) by setting it to false/0 via kernel
+write flaw.
+
+> +        * All policy capability flags
+> +        */
+> +       selinux_state_count =3D 3 + __POLICYDB_CAPABILITY_MAX;
+> +
+> +       selinux_state_string_len =3D snprintf(NULL, 0, str_format,
+> +                                           "enabled", 0);
+> +       selinux_state_string_len +=3D snprintf(NULL, 0, str_format,
+> +                                            "enforcing", 0);
+> +       selinux_state_string_len +=3D snprintf(NULL, 0, str_format,
+> +                                            "checkreqprot", 0);
+> +       for (i =3D 3; i < selinux_state_count; i++) {
+> +               selinux_state_string_len +=3D
+> +                       snprintf(NULL, 0, str_format,
+> +                                selinux_policycap_names[i-3], 0);
+> +       }
+
+What's the benefit of this pattern versus just making the loop go from
+0 to __POLICYDB_CAPABILITY_MAX and using selinux_policycap_names[i]?
+
+> +void selinux_measure_state(struct selinux_state *selinux_state)
+> +{
+> +       void *policy =3D NULL;
+> +       void *policy_hash =3D NULL;
+> +       size_t curr, buflen;
+> +       int i, policy_hash_len, rc =3D 0;
+> +
+> +       if (!selinux_initialized(selinux_state)) {
+> +               pr_warn("%s: SELinux not yet initialized.\n", __func__);
+> +               return;
+> +       }
+
+We could measure the global state variables before full SELinux
+initialization (i.e. policy load).
+Only the policy hash depends on having loaded the policy.
+
+> +
+> +       if (!selinux_state_string) {
+> +               pr_warn("%s: Buffer for state not allocated.\n", __func__=
+);
+> +               return;
+> +       }
+> +
+> +       curr =3D snprintf(selinux_state_string, selinux_state_string_len,
+> +                       str_format, "enabled",
+> +                       !selinux_disabled(selinux_state));
+> +       curr +=3D snprintf((selinux_state_string + curr),
+> +                        (selinux_state_string_len - curr),
+> +                        str_format, "enforcing",
+> +                        enforcing_enabled(selinux_state));
+> +       curr +=3D snprintf((selinux_state_string + curr),
+> +                        (selinux_state_string_len - curr),
+> +                        str_format, "checkreqprot",
+> +                        selinux_checkreqprot(selinux_state));
+> +
+> +       for (i =3D 3; i < selinux_state_count; i++) {
+> +               curr +=3D snprintf((selinux_state_string + curr),
+> +                                (selinux_state_string_len - curr),
+> +                                str_format,
+> +                                selinux_policycap_names[i - 3],
+> +                                selinux_state->policycap[i - 3]);
+> +       }
+
+Same question here as for the previous loop; seems cleaner to go from
+0 to __POLICYDB_CAPABILITY_MAX and use [i].
+
+What public git tree / branch would you recommend trying to use your
+patches against?  Didn't seem to apply to any of the obvious ones.
