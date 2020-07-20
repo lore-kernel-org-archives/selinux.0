@@ -2,144 +2,144 @@ Return-Path: <SRS0=pOJ2=A7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3782FC433DF
-	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 07:45:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 654F7C433E1
+	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 08:34:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D1ED1208E4
-	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 07:45:29 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="Nqse+4JB"
+	by mail.kernel.org (Postfix) with ESMTP id 4DB8022482
+	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 08:34:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726938AbgGTHp3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jul 2020 03:45:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726030AbgGTHp3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jul 2020 03:45:29 -0400
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EAE00C061794
-        for <selinux@vger.kernel.org>; Mon, 20 Jul 2020 00:45:28 -0700 (PDT)
-Received: from localhost.localdomain (brutus [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id DBE0B2A1007;
-        Mon, 20 Jul 2020 09:45:26 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl DBE0B2A1007
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1595231127;
-        bh=5f76SqoyomCc4SIsSq1BZLOvZugyopHLu64pnJsIggU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Nqse+4JBDvOZyDgjylv2B2c6YXO6z4upZ00p+ZmKiF/wbW5ikx0YXA+kWtK/UIC5d
-         6Oy+5rjn1dzDzhQKdjhMiB/zkgmSjh+nUaGca9xcJ+zOH7d8g/aE5ekOO7TQ/MFUGE
-         ED0kCBv7cWBkB15fTDL11hyNVdZNh3Rh3ufk3JUU=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     selinux@vger.kernel.org
-Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [SELinux-notebook PATCH] object_classes_permissions: describe bpf and perfmon capabilities
-Date:   Mon, 20 Jul 2020 09:45:15 +0200
-Message-Id: <20200720074515.1687720-1-dominick.grift@defensec.nl>
-X-Mailer: git-send-email 2.27.0
+        id S1728024AbgGTIeh convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Jul 2020 04:34:37 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:30813 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728064AbgGTIeh (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jul 2020 04:34:37 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-110-UvCh1H6SNg2kNCAjyiamHg-1; Mon, 20 Jul 2020 09:34:33 +0100
+X-MC-Unique: UvCh1H6SNg2kNCAjyiamHg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Mon, 20 Jul 2020 09:34:32 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Mon, 20 Jul 2020 09:34:32 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Kees Cook' <keescook@chromium.org>,
+        Scott Branden <scott.branden@broadcom.com>
+CC:     Mimi Zohar <zohar@linux.ibm.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        James Morris <jmorris@namei.org>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jessica Yu <jeyu@kernel.org>,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        KP Singh <kpsingh@google.com>, Dave Olsthoorn <dave@bewaar.me>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Peter Jones <pjones@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Stephen Boyd <stephen.boyd@linaro.org>,
+        Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        "linux-security-module@vger.kernel.org" 
+        <linux-security-module@vger.kernel.org>,
+        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
+        "selinux@vger.kernel.org" <selinux@vger.kernel.org>,
+        "linux-fsdevel@vger.kernel.org" <linux-fsdevel@vger.kernel.org>,
+        "kexec@lists.infradead.org" <kexec@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH 07/13] fs/kernel_read_file: Switch buffer size arg to
+ size_t
+Thread-Topic: [PATCH 07/13] fs/kernel_read_file: Switch buffer size arg to
+ size_t
+Thread-Index: AQHWXGHtmci88hmJCUOWA6z9jUdXWKkQJ6ZQ
+Date:   Mon, 20 Jul 2020 08:34:32 +0000
+Message-ID: <5db582d3ec08401eb4731ce3acd51561@AcuMS.aculab.com>
+References: <20200717174309.1164575-1-keescook@chromium.org>
+ <20200717174309.1164575-8-keescook@chromium.org>
+In-Reply-To: <20200717174309.1164575-8-keescook@chromium.org>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-These capabilities were introduced with Linux 5.8
-The ipc security class is deprecated (kind of at least)
-Fix a typo in net_broadcast
+From: Kees Cook
+> Sent: 17 July 2020 18:43
+> In preparation for further refactoring of kernel_read_file*(), rename
+> the "max_size" argument to the more accurate "buf_size", and correct
+> its type to size_t. Add kerndoc to explain the specifics of how the
+> arguments will be used. Note that with buf_size now size_t, it can no
+> longer be negative (and was never called with a negative value). Adjust
+> callers to use it as a "maximum size" when *buf is NULL.
+> 
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  fs/kernel_read_file.c            | 34 +++++++++++++++++++++++---------
+>  include/linux/kernel_read_file.h |  8 ++++----
+>  security/integrity/digsig.c      |  2 +-
+>  security/integrity/ima/ima_fs.c  |  2 +-
+>  4 files changed, 31 insertions(+), 15 deletions(-)
+> 
+> diff --git a/fs/kernel_read_file.c b/fs/kernel_read_file.c
+> index dc28a8def597..e21a76001fff 100644
+> --- a/fs/kernel_read_file.c
+> +++ b/fs/kernel_read_file.c
+> @@ -5,15 +5,31 @@
+>  #include <linux/security.h>
+>  #include <linux/vmalloc.h>
+> 
+> +/**
+> + * kernel_read_file() - read file contents into a kernel buffer
+> + *
+> + * @file	file to read from
+> + * @buf		pointer to a "void *" buffer for reading into (if
+> + *		*@buf is NULL, a buffer will be allocated, and
+> + *		@buf_size will be ignored)
+> + * @buf_size	size of buf, if already allocated. If @buf not
+> + *		allocated, this is the largest size to allocate.
+> + * @id		the kernel_read_file_id identifying the type of
+> + *		file contents being read (for LSMs to examine)
+> + *
+> + * Returns number of bytes read (no single read will be bigger
+> + * than INT_MAX), or negative on error.
+> + *
+> + */
 
-Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
----
- src/object_classes_permissions.md | 24 +++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+That seems to be self-inconsistent.
+If '*buf' is NULL is both says that buf_size is ignored and
+is treated as a limit.
+To make life easier, zero should probably be treated as no-limit.
 
-diff --git a/src/object_classes_permissions.md b/src/object_classes_permissions.md
-index 1b183bb..498d872 100644
---- a/src/object_classes_permissions.md
-+++ b/src/object_classes_permissions.md
-@@ -421,7 +421,7 @@ inherited by a number of object classes.
- <td>Allows opening of raw sockets and packet sockets.</td>
- </tr>
- <tr>
--<td>netbroadcast</td>
-+<td>net_broadcast</td>
- <td>Grant network broadcasting and listening to incoming multicasts.</td>
- </tr>
- <tr>
-@@ -496,13 +496,18 @@ inherited by a number of object classes.
- <tbody>
- <tr>
- <td style="background-color:#F2F2F2;"><strong>Permissions</strong></td>
--<td style="background-color:#F2F2F2;">Description (6 permissions)</td>
-+<td style="background-color:#F2F2F2;">Description (8 permissions)</td>
- </tr>
- <tr>
- <td>audit_read</td>
- <td>Allow reading audits logs.</td>
- </tr>
- <tr>
-+<td>bpf</td>
-+<td><p>Create maps, do other <em>sys_bpf()</em> commands and load 'SK_REUSEPORT' progs.</p>
-+<p>Note that loading tracing programs also requires 'CAP_PERFMON' and that loading networking programs also requires 'CAP_NET_ADMIN'.</p></td>
-+</tr>
-+<tr>
- <td>block_suspend</td>
- <td>Prevent system suspends (was <em>epollwakeup</em>)</td>
- </tr>
-@@ -516,6 +521,11 @@ inherited by a number of object classes.
- <td>Allow MAC policy to be overridden. (not used)</td>
- </tr>
- <tr>
-+<tr>
-+<td>perfmon</td>
-+<td>Allow system performance monitoring and observability operations.</td>
-+</tr>
-+<tr>
- <td>syslog</td>
- <td>Allow configuration of kernel <em>syslog</em> (<em>printk</em> behaviour).</td>
- </tr>
-@@ -2015,7 +2025,7 @@ implementation.
- 
- ## IPC Object Classes
- 
--### `ipc`
-+### `ipc` (Deprecated)
- 
- <table>
- <tbody>
-@@ -2600,11 +2610,11 @@ Note that while this is defined as a kernel object class, the userspace
- </tr>
- <tr>
- <td style="background-color:#F2F2F2;"><strong>Permissions</strong></td>
--<td style="background-color:#F2F2F2;"><strong>Description</strong> (Inherit 6 permissions)</td>
-+<td style="background-color:#F2F2F2;"><strong>Description</strong> (Inherit 8 permissions)</td>
- </tr>
- <tr>
- <td style="background-color:#F2F2F2;"><a href="#common-capability2-permissions"><strong>Common Capability2 Permissions<strong></td>
--<td style="background-color:#F2F2F2;">audit_read, block_suspend, mac_admin, mac_override, syslog, wake_alarm</td>
-+<td style="background-color:#F2F2F2;">audit_read, bpf, block_suspend, mac_admin, mac_override, perfmon, syslog, wake_alarm</td>
- </tr>
- </tbody>
- </table>
-@@ -2638,11 +2648,11 @@ Note that while this is defined as a kernel object class, the userspace
- </tr>
- <tr>
- <td style="background-color:#F2F2F2;"><strong>Permissions</strong></td>
--<td style="background-color:#F2F2F2;"><strong>Description</strong> (Inherit 6 permissions)</td>
-+<td style="background-color:#F2F2F2;"><strong>Description</strong> (Inherit 8 permissions)</td>
- </tr>
- <tr>
- <td style="background-color:#F2F2F2;"><a href="#common-capability2-permissions"><strong>Common Capability2 Permissions<strong></td>
--<td style="background-color:#F2F2F2;">audit_read, block_suspend, mac_admin, mac_override, syslog, wake_alarm</td>
-+<td style="background-color:#F2F2F2;">audit_read, bpf, block_suspend, mac_admin, mac_override, perfmon, syslog, wake_alarm</td>
- </tr>
- </tbody>
- </table>
--- 
-2.27.0
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
