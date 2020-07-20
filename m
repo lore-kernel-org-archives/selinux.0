@@ -2,39 +2,67 @@ Return-Path: <SRS0=pOJ2=A7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61BE3C433E0
-	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 15:17:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A579AC433E1
+	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 17:06:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3DFDE22B4D
-	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 15:17:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 81F85207DF
+	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 17:06:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="j+5Jpthn"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KG/VGjb0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726076AbgGTPRa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jul 2020 11:17:30 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:46812 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725815AbgGTPRa (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jul 2020 11:17:30 -0400
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 42B0D20B4909;
-        Mon, 20 Jul 2020 08:17:29 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 42B0D20B4909
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1595258249;
-        bh=oi0aM2Sv7g3ee0tu4NKpJk0WcdNS9Jhomo6QUfrwUC8=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=j+5Jpthn6qxHKgYEcVruDugKQStaAoSJQ26AuuLLqKa6XO9Itcusw5gWOhY1k1m/B
-         10oiCmTubARNogtNDf4kGp/S7B5rX5bYRPdpA69KRvybYl8UgL8WHPOaucUXXiYjtK
-         E0UESnxt/2jXo9GqTIaFCLnd59Vbq0+XQQHEpISo=
-Subject: Re: [PATCH v3 4/5] LSM: Define SELinux function to measure security
- state
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+        id S1729284AbgGTRGe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 20 Jul 2020 13:06:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728827AbgGTRGd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jul 2020 13:06:33 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 882AAC061794;
+        Mon, 20 Jul 2020 10:06:33 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id h13so12784196otr.0;
+        Mon, 20 Jul 2020 10:06:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ROcn/4oxIrk78fd7/QkF3w9hSG9pMZjyTBMvHwDSbjo=;
+        b=KG/VGjb0jwqjCy5BWXom+BzCKDylx31g2oc2zPL17A0I6EEhvCfdtX6wMuTfvrjbYk
+         UxISHlnAeUiXE1WIY286PhO+s0s8qm7TX0mwjEG7JPK4e7oL6hl0l/YfFIvTsL7pI5iy
+         g93oiqPEh02NSSiPN4NcbjGf/2dwAwOk2thBqzt44Og+0/iaHm58tlOG0pmnH+xbsZ/Q
+         1rQsdaxgpluAuCxq6hpOQJHC2mp9Qt7ymXaOUTN2guF41zbSZLJ0SRa8W6mtVMH6oN7m
+         siuTrI60Vq0b6wDM2HkrlcZwUMOr2Ps9bzs8Z/mYiANS+9oG0Oup20ax7jkBwuJuekhT
+         aCZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ROcn/4oxIrk78fd7/QkF3w9hSG9pMZjyTBMvHwDSbjo=;
+        b=YHsdgVZ6ETXz0x+kAoT9V3jRQUD+WSgMOHsDnKjh6gmVCrvHsqaWwTZUrCQVPjckIC
+         nFymNqPJLT8HPGxGnE5CUdk4zO23I6lXWeVVUkOIDPj6ftYKoi5J4fC7wA70O4HxOFkg
+         i3xRJpxwHj4zoieOeukmQVZR+5nDqGGbjbhgQ0ccvyDsrvkMcN+Gj5C2aQdz18hMtvLD
+         wcNG5wWJeXCDF/pIqo/+iKw/WAW8QsBLYKpWAIwDGDcxaTaqFqj9UmBIJjtH9sGHOPIH
+         YBgR1JrP9/BHiVUOH9czIKAix1Sj3ZzfAXHMFIpJ3Wjx4hDDaV8r4zHNMm+0tDzwZ4qA
+         q0nA==
+X-Gm-Message-State: AOAM530OspITy3WMhkM4q5YUAOqq2hckHVutv+XDia6EajlG/V0WwjkK
+        ImsCK8NDcVQsdxeX+RRpi+L8V9NYaKcEypBE50c=
+X-Google-Smtp-Source: ABdhPJwIO4T9YmBSwuhQPRydeECRZoEU1y8+Z0BHM67xgQtUU+iwA1lUMrRi0IgfGq+eD8drgLPJFHFqKbf4UGe2//o=
+X-Received: by 2002:a05:6830:1db5:: with SMTP id z21mr21189050oti.162.1595264792757;
+ Mon, 20 Jul 2020 10:06:32 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200717222819.26198-1-nramas@linux.microsoft.com>
+ <20200717222819.26198-5-nramas@linux.microsoft.com> <CAEjxPJ7xQtZToF4d2w_o8SXFKG9kPZaWTWTFqyC-7GwBWnQa0A@mail.gmail.com>
+ <c0fbfcf3-ec36-872a-c389-b3fea214848c@linux.microsoft.com>
+In-Reply-To: <c0fbfcf3-ec36-872a-c389-b3fea214848c@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 20 Jul 2020 13:06:21 -0400
+Message-ID: <CAEjxPJ7VH18bEo6+U1GWrx=tHVGr=6XtF5_ygcfQYgdtZ74J+g@mail.gmail.com>
+Subject: Re: [PATCH v3 4/5] LSM: Define SELinux function to measure security state
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
 Cc:     Mimi Zohar <zohar@linux.ibm.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
         James Morris <jmorris@namei.org>,
@@ -42,163 +70,65 @@ Cc:     Mimi Zohar <zohar@linux.ibm.com>,
         SElinux list <selinux@vger.kernel.org>,
         LSM List <linux-security-module@vger.kernel.org>,
         linux-kernel <linux-kernel@vger.kernel.org>
-References: <20200717222819.26198-1-nramas@linux.microsoft.com>
- <20200717222819.26198-5-nramas@linux.microsoft.com>
- <CAEjxPJ7xQtZToF4d2w_o8SXFKG9kPZaWTWTFqyC-7GwBWnQa0A@mail.gmail.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <c0fbfcf3-ec36-872a-c389-b3fea214848c@linux.microsoft.com>
-Date:   Mon, 20 Jul 2020 08:17:28 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <CAEjxPJ7xQtZToF4d2w_o8SXFKG9kPZaWTWTFqyC-7GwBWnQa0A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/20/20 7:31 AM, Stephen Smalley wrote:
+On Mon, Jul 20, 2020 at 11:17 AM Lakshmi Ramasubramanian
+<nramas@linux.microsoft.com> wrote:
+> Thanks for trying out the changes. Please let me know the defects you fin=
+d.
+>
+> Just to let you know - I am making the following change (will update in
+> the next patch):
+>
+>   =3D> Save the last policy hash and state string in selinux_state struct=
+.
+>   =3D> Measure policy and hash only if it has changed since the last
+> measurement.
+>   =3D> Also, suffix the IMA event name used with time stamp. For example,
+>
+> 10 e32e...5ac3 ima-buf sha256:86e8...4594
+> selinux-state-1595257807:874963248
+> 656e61626c65643d313b656e666f7263696e673d303b636865636b72657170726f743d313=
+b6e6574706565723d313b6f70656e7065726d3d313b657874736f636b636c6173733d313b61=
+6c776179736e6574776f726b3d303b6367726f75707365636c6162656c3d313b6e6e706e6f7=
+37569647472616e736974696f6e3d313b67656e66737365636c6162656c73796d6c696e6b3d=
+303b
+>
+> 10 f4a7...9408 ima-buf sha256:4941...68fc
+> selinux-policy-hash-1595257807:874963248
+> 8d1d...1834
+>
+> The above will ensure the following sequence will be measured:
+>   #1 State A - Measured
+>   #2 Change from State A to State B - Measured
+>   #3 Change from State B back to State A - Since the measured data is
+> same as in #1, the change will be measured only if the event name is
+> different between #1 and #3
 
->> +void __init selinux_init_measurement(void)
->> +{
->> +       int i;
->> +
->> +       /*
->> +        * enabled
->> +        * enforcing
->> +        * checkreqport
-> 
-> checkreqprot (spelling)
-:( - will fix that.
+Perhaps the timestamp / sequence number should be part of the hashed
+data instead of the event name?
+I can see the appraiser wanting to know two things:
+1) The current state of the system (e.g. is it enforcing, is the
+currently loaded policy the expected one?).
+2) Has the system ever been in an unexpected state (e.g. was it
+temporarily switched to permissive or had an unexpected policy
+loaded?)
 
-> 
-> What about initialized?  Or do you consider that to be implicitly
-> true/1 else we wouldn't be taking a measurement?  Only caveat there is
-> that it provides one more means of disabling measurements (at the same
-> time as disabling enforcement) by setting it to false/0 via kernel
-> write flaw.
-Yes - I was thinking measuring SELinux state would be meaningful only 
-when initialized is set to true/1.
+I applied the patch series on top of the next-integrity branch, added
+measure func=3DLSM_STATE to ima-policy, and booted that kernel.  I get
+the following entries in ascii_runtime_measurements, but seemingly
+missing the final field:
 
-I can include "initialized" as well in the measurement.
+10 8a09c48af4f8a817f59b495bd82971e096e2e367 ima-ng
+sha256:21c3d7b09b62b4d0b3ed15ba990f816b94808f90b76787bfae755c4b3a44cd24
+selinux-state
+10 e610908931d70990a2855ddb33c16af2d82ce56a ima-ng
+sha256:c8898652afd5527ef4eaf8d85f5fee1d91fcccee34bc97f6e55b96746bedb318
+selinux-policy-hash
 
-> 
->> +        * All policy capability flags
->> +        */
->> +       selinux_state_count = 3 + __POLICYDB_CAPABILITY_MAX;
->> +
->> +       selinux_state_string_len = snprintf(NULL, 0, str_format,
->> +                                           "enabled", 0);
->> +       selinux_state_string_len += snprintf(NULL, 0, str_format,
->> +                                            "enforcing", 0);
->> +       selinux_state_string_len += snprintf(NULL, 0, str_format,
->> +                                            "checkreqprot", 0);
->> +       for (i = 3; i < selinux_state_count; i++) {
->> +               selinux_state_string_len +=
->> +                       snprintf(NULL, 0, str_format,
->> +                                selinux_policycap_names[i-3], 0);
->> +       }
-> 
-> What's the benefit of this pattern versus just making the loop go from
-> 0 to __POLICYDB_CAPABILITY_MAX and using selinux_policycap_names[i]?
-
-No real benefit - I was just trying to use selinux_state_count.
-I'll change the loop to go from 0 to POLICY_CAP_MAX
-
-> 
->> +void selinux_measure_state(struct selinux_state *selinux_state)
->> +{
->> +       void *policy = NULL;
->> +       void *policy_hash = NULL;
->> +       size_t curr, buflen;
->> +       int i, policy_hash_len, rc = 0;
->> +
->> +       if (!selinux_initialized(selinux_state)) {
->> +               pr_warn("%s: SELinux not yet initialized.\n", __func__);
->> +               return;
->> +       }
-> 
-> We could measure the global state variables before full SELinux
-> initialization (i.e. policy load).
-> Only the policy hash depends on having loaded the policy.
-
-Thanks for the information. I'll measure the state variables always and 
-measure policy only if "initialized" is true/1.
-
-> 
->> +
->> +       if (!selinux_state_string) {
->> +               pr_warn("%s: Buffer for state not allocated.\n", __func__);
->> +               return;
->> +       }
->> +
->> +       curr = snprintf(selinux_state_string, selinux_state_string_len,
->> +                       str_format, "enabled",
->> +                       !selinux_disabled(selinux_state));
->> +       curr += snprintf((selinux_state_string + curr),
->> +                        (selinux_state_string_len - curr),
->> +                        str_format, "enforcing",
->> +                        enforcing_enabled(selinux_state));
->> +       curr += snprintf((selinux_state_string + curr),
->> +                        (selinux_state_string_len - curr),
->> +                        str_format, "checkreqprot",
->> +                        selinux_checkreqprot(selinux_state));
->> +
->> +       for (i = 3; i < selinux_state_count; i++) {
->> +               curr += snprintf((selinux_state_string + curr),
->> +                                (selinux_state_string_len - curr),
->> +                                str_format,
->> +                                selinux_policycap_names[i - 3],
->> +                                selinux_state->policycap[i - 3]);
->> +       }
-> 
-> Same question here as for the previous loop; seems cleaner to go from
-> 0 to __POLICYDB_CAPABILITY_MAX and use [i].
-Will change it.
-
-> 
-> What public git tree / branch would you recommend trying to use your
-> patches against?  Didn't seem to apply to any of the obvious ones.
-> 
-
-Please try it on Mimi's next-integrity branch
-
-https://git.kernel.org/pub/scm/linux/kernel/git/zohar/linux-integrity.git/log/?h=next-integrity
-
-You can try it on Linus's mainline as well if you apply the following 
-patch first (have mentioned that in the Cover letter as well)
-
-
-     https://patchwork.kernel.org/patch/11612989/
-
-Thanks for trying out the changes. Please let me know the defects you find.
-
-Just to let you know - I am making the following change (will update in 
-the next patch):
-
-  => Save the last policy hash and state string in selinux_state struct.
-  => Measure policy and hash only if it has changed since the last 
-measurement.
-  => Also, suffix the IMA event name used with time stamp. For example,
-
-10 e32e...5ac3 ima-buf sha256:86e8...4594
-selinux-state-1595257807:874963248 
-656e61626c65643d313b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574706565723d313b6f70656e7065726d3d313b657874736f636b636c6173733d313b616c776179736e6574776f726b3d303b6367726f75707365636c6162656c3d313b6e6e706e6f737569647472616e736974696f6e3d313b67656e66737365636c6162656c73796d6c696e6b3d303b
-
-10 f4a7...9408 ima-buf sha256:4941...68fc
-selinux-policy-hash-1595257807:874963248
-8d1d...1834
-
-The above will ensure the following sequence will be measured:
-  #1 State A - Measured
-  #2 Change from State A to State B - Measured
-  #3 Change from State B back to State A - Since the measured data is 
-same as in #1, the change will be measured only if the event name is 
-different between #1 and #3
-
-thanks,
-  -lakshmi
-
+Thus, I cannot verify. What am I missing?
