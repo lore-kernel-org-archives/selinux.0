@@ -1,110 +1,98 @@
-Return-Path: <SRS0=pOJ2=A7=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=VL4G=BA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAFFAC433DF
-	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 18:59:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38D65C433E1
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 06:41:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B32D722482
-	for <selinux@archiver.kernel.org>; Mon, 20 Jul 2020 18:59:53 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="CsOM1OTA"
+	by mail.kernel.org (Postfix) with ESMTP id 1BEE22080D
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 06:41:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729518AbgGTS7x (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 20 Jul 2020 14:59:53 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:48720 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728139AbgGTS7x (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 20 Jul 2020 14:59:53 -0400
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 3F13620B4909;
-        Mon, 20 Jul 2020 11:59:52 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3F13620B4909
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1595271592;
-        bh=TwTCyPsy3rMqXVnjk9ggTK+QxuipwRRnBBIqMLIAfHU=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=CsOM1OTASiRenjavduL6Z/OSbM8MSJRuka+oE3SfwFiUtblFWSKQjh5MKwzLlONqQ
-         L9RuvB8oP0n36cCAFMasvJSqJEWnB0peLm1olX3WYO0JyVLF/C+tGQC7wVF/rAxplY
-         +dcGkrf8Uf0UBYjE2diJjx3YEiuc6RRJ0IglDe3Q=
-Subject: Re: [PATCH v3 4/5] LSM: Define SELinux function to measure security
- state
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <20200717222819.26198-1-nramas@linux.microsoft.com>
- <20200717222819.26198-5-nramas@linux.microsoft.com>
- <CAEjxPJ7xQtZToF4d2w_o8SXFKG9kPZaWTWTFqyC-7GwBWnQa0A@mail.gmail.com>
- <c0fbfcf3-ec36-872a-c389-b3fea214848c@linux.microsoft.com>
- <CAEjxPJ7VH18bEo6+U1GWrx=tHVGr=6XtF5_ygcfQYgdtZ74J+g@mail.gmail.com>
- <bea0cb52-2e13-fb14-b66c-b57287c23c3f@linux.microsoft.com>
- <CAEjxPJ6Rt7u3shLbxoPRHgr-D=CD9d_eXRB07A9qN7RmJwZAwA@mail.gmail.com>
- <CAEjxPJ6-jHha+CeqSdQ2O0bpyQe_9buj2ENZz6FNj6S87XSSfg@mail.gmail.com>
- <dccfc56b-c3ab-327e-19b2-7a70d15afe5b@linux.microsoft.com>
- <CAEjxPJ6_pxEh6HG9F3r=4B5ZgEpNPkgLHHfJp6ze=F1wKt4wCw@mail.gmail.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <72af0630-dce0-12af-0977-b4e81c2f99ac@linux.microsoft.com>
-Date:   Mon, 20 Jul 2020 11:59:51 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726152AbgGUGln (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Jul 2020 02:41:43 -0400
+Received: from mx1.polytechnique.org ([129.104.30.34]:46352 "EHLO
+        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726053AbgGUGln (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 02:41:43 -0400
+X-Greylist: delayed 329 seconds by postgrey-1.27 at vger.kernel.org; Tue, 21 Jul 2020 02:41:42 EDT
+Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by ssl.polytechnique.org (Postfix) with ESMTPSA id C2BBD564DDC
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 08:36:11 +0200 (CEST)
+Received: by mail-oi1-f182.google.com with SMTP id r8so16360843oij.5
+        for <selinux@vger.kernel.org>; Mon, 20 Jul 2020 23:36:11 -0700 (PDT)
+X-Gm-Message-State: AOAM5325PKjw5TDCr5bbK4zWytuRgW8xKAG1BZs5CEIk/Fe0s2j9W8Gs
+        WgTdoAgQjn1sv8gdaWpAl0JantpHKwTmAzZPJp4=
+X-Google-Smtp-Source: ABdhPJy/2mjDzVlvfz0oTgMRGWJ3QTAIGjZ55u0Z7qKOllATToWobOdWtPVnJQ2mj6dE2FjS8hZDD+/sVUcHU7VeI7s=
+X-Received: by 2002:aca:72ca:: with SMTP id p193mr1925243oic.20.1595313370721;
+ Mon, 20 Jul 2020 23:36:10 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAEjxPJ6_pxEh6HG9F3r=4B5ZgEpNPkgLHHfJp6ze=F1wKt4wCw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <51d7bd5e067978ea5340ee408a7329e8b921b372.camel@flyn.org> <CAJfZ7=kxW1zaROh_9rC8-CCafBciFXmFfKFh0B0fwwGYCTp6Lg@mail.gmail.com>
+In-Reply-To: <CAJfZ7=kxW1zaROh_9rC8-CCafBciFXmFfKFh0B0fwwGYCTp6Lg@mail.gmail.com>
+From:   Nicolas Iooss <nicolas.iooss@m4x.org>
+Date:   Tue, 21 Jul 2020 08:35:59 +0200
+X-Gmail-Original-Message-ID: <CAJfZ7=mSsEfJgE0OY7ir2pF5zyyFuvWCB9KsDARxoFc++og_Zw@mail.gmail.com>
+Message-ID: <CAJfZ7=mSsEfJgE0OY7ir2pF5zyyFuvWCB9KsDARxoFc++og_Zw@mail.gmail.com>
+Subject: Re: [PATCH] python/audit2allow: add #include <limits.h> to sepolgen-ifgen-attr-helper.c
+To:     "W. Michael Petullo" <mike@flyn.org>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Tue Jul 21 08:36:12 2020 +0200 (CEST))
+X-Org-Mail: nicolas.iooss.2010@polytechnique.org
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/20/20 11:44 AM, Stephen Smalley wrote:
+On Sun, Jul 19, 2020 at 6:43 PM Nicolas Iooss <nicolas.iooss@m4x.org> wrote:
+>
+> On Thu, Jul 16, 2020 at 10:39 PM W. Michael Petullo <mike@flyn.org> wrote:
+> >
+> > I found that building on OpenWrt/musl failed with:
+> >
+> >   sepolgen-ifgen-attr-helper.c:152:16: error: 'PATH_MAX' undeclared ...
+> >
+> > Musl is less "generous" than glibc in recursively including header
+> > files, and I suspect this is the reason for this error. Explicitly
+> > including limits.h fixes the problem.
+> >
+> > Signed-off-by: W. Michael Petullo <mike@flyn.org>
+> > ---
+> >  python/audit2allow/sepolgen-ifgen-attr-helper.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> > b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> > index 53f20818..f010c958 100644
+> > --- a/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> > +++ b/python/audit2allow/sepolgen-ifgen-attr-helper.c
+> > @@ -28,6 +28,7 @@
+> >
+> >  #include <selinux/selinux.h>
+> >
+> > +#include <limits.h>
+> >  #include <stdio.h>
+> >  #include <sys/types.h>
+> >  #include <sys/stat.h>
+> > --
+> > 2.26.2
+>
+> Looks good to me. Nevertheless I had some trouble applying your patch
+> using "git am" because your message contained
+> "b/python/audit2allow/sepolgen-ifgen-attr-helper.c" on a new line. Did
+> you use "git send-email" or something similar, to send your patch?
+>
+> Acked-by: Nicolas Iooss <nicolas.iooss@m4x.org>
+>
+> If nobody complains, I will apply this patch tomorrow.
 
->>>
->>> Actually, if we used ima-ng template for selinux-policy-hash, then
->>> instead of needing to hash the policy
->>> first and passing the hash to IMA, we could just pass the policy as
->>> the buffer and IMA would take care of the hashing, right?
->>
->> That is correct.
->>
->> The IMA hook I've added to measure LSM structures is a generic one that
->> can be used by any security module (SM). I feel it would be better to
->> not have policy or state or any such SM specific logic in IMA, but leave
->> that to the individual SM to handle.
->>
->> What do you think?
-> 
-> It is correct to remain security module agnostic.  However, I think
-> you can remain LSM-neutral while still avoiding the double hashing of
-> the policy here.  Can't you just pass in the policy itself as the
-> buffer and let IMA hash it?
-
-Yes - that is an option. If I do that then, as you have stated below, 
-we'll need to two funcs -
-one that will only add the hash but not the entire data payload in the 
-IMA log (i.e., "ima-ng")
-and, the other that handles hashing and including date payload (i.e., 
-"ima-buf").
-
-   Then you can let the policy author decide
-> on the template to be used (ima-buf versus ima-ng).  If you want to
-> support the use of different templates for different "kinds" of LSM
-> state (e.g. state versus policy) you could either provide two funcs
-> (LSM_STATE, LSM_POLICY) or otherwise support selection based on some
-> other attribute.
-> 
-
-I can do the above.
-
-  -lakshmi
+Applied.
+Thanks,
+Nicolas
 
