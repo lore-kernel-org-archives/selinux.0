@@ -2,96 +2,135 @@ Return-Path: <SRS0=VL4G=BA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF6C7C433DF
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 19:38:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89479C433E1
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 19:52:10 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A0D0D20720
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 19:38:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3E4C72072E
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 19:52:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DPvhEyIQ"
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="Q/629TXS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730385AbgGUTi3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Jul 2020 15:38:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46162 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729928AbgGUTi3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 15:38:29 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9E7CC061794
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 12:38:28 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id y22so18223637oie.8
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 12:38:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xmu0YTXtyZeGfogzERYuuAEn3dvm43TDyG1wb4ZPHJU=;
-        b=DPvhEyIQYp/SRITawcWw3ZMCZIPO9fS3yIh2eHKI/bSdu+cllow/EIMEjm7Sw3wvGn
-         xitdx/ks2jHahEJe47PFhwurHiPfK1d96PKtv8JImUqnioVlwuWPGMfVaP0hbMVcrRkj
-         1kJQww2beoZzcf9K07vyfZF4pce5I6QaqO9pTG6225d1NG7asXvWcecXrW2bOeUM2sLj
-         R0+tpXm4aWH73kESk4ce8Yipi+HG0GyOWrfUerYfYHc4Dk4PKVLpzb8laFhH2fVh/vbx
-         ZXtDMYPg5u0sJWvjcvx/bvnM5dAiyZhS+iHN4rBKJXzRvxIGt9gDJpNw5oT5TtVMkLlt
-         mmWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xmu0YTXtyZeGfogzERYuuAEn3dvm43TDyG1wb4ZPHJU=;
-        b=Y4lTeObDnCkwy+hyypJLqZOPvrHluc3eYWLGQDED8114OAJv7BMrwCIdsTk3jBPcTp
-         w1GALG0JizJM8qAdRTEkSttbYJysgjoBS6UJPa69xbUg2Ov2vpgT1r6t6O/JYNanlMQu
-         TYvGFjs4jm67kISzAm8n2k4Kn5kcACjnc9bmIhNseGXw7LeT4cWloiTSJUQmLOxosG4s
-         XRYjBZocggBzBWKYDebom6YCYQaYJ0hBv0XAIQrp2L/V0+a4Dwj8tSwrFKriXAN/Qztc
-         W8XJG9kilbkqJtWlXNqbXvBrpVQIzKaivewHDcOSZVl+Fydvr4fSDZ+309JKmfDoO27t
-         Y18g==
-X-Gm-Message-State: AOAM532ioi5S+TbpdrRhYW5qBQZJy3WWlMNt20wlaa3A0wwriGemHM6Q
-        hDMn+RBEvJ/bsCnAKFKCJ3zqbiQq7gztGnwdc7OG7Q==
-X-Google-Smtp-Source: ABdhPJzHKBJwg8ZBMQicjfUmePTryZItjDGR+uGpneNmqIVWmFlgcbTTWDtCeichYL7rsEds6zdCJNyJnaJqOTHffeU=
-X-Received: by 2002:aca:ecd3:: with SMTP id k202mr2617753oih.92.1595360308330;
- Tue, 21 Jul 2020 12:38:28 -0700 (PDT)
+        id S1730959AbgGUTwK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Jul 2020 15:52:10 -0400
+Received: from agnus.defensec.nl ([80.100.19.56]:56048 "EHLO agnus.defensec.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728683AbgGUTwJ (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 21 Jul 2020 15:52:09 -0400
+Received: from localhost.localdomain (brutus [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 7081F2A1007;
+        Tue, 21 Jul 2020 21:52:06 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 7081F2A1007
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1595361127;
+        bh=8xJJ3BMDF4KLbRuru91MwjSXTPmPFOzWoHd3wwMbpBs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Q/629TXSBOZnZFkpSocOAgn+TrEA4hw0Uw4dQaooN12CLlbPaKSkKMgw9gx7Fs7oZ
+         pIyIxN8s10GBBK1xXJvJW0ugPbTJuj3IYaoqc17x2ANnAOEPRkTHEH3BIyvcTYeiwy
+         8a1YJ0zoHEpmxENXDxw0qOcRCEtWyIC5VSw8L8e0=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dominick.grift@defensec.nl>
+Subject: [SELinux-notebook PATCH v7] objects.md: some clarifications
+Date:   Tue, 21 Jul 2020 21:51:53 +0200
+Message-Id: <20200721195153.1974509-1-dominick.grift@defensec.nl>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <CAEjxPJ4azq2sfyXG4wq8OVbkqcFa3c_UW4HZC1D7TmNa7Eaf9w@mail.gmail.com>
+References: <CAEjxPJ4azq2sfyXG4wq8OVbkqcFa3c_UW4HZC1D7TmNa7Eaf9w@mail.gmail.com>
 MIME-Version: 1.0
-References: <20200720145030.1743325-1-dominick.grift@defensec.nl>
-In-Reply-To: <20200720145030.1743325-1-dominick.grift@defensec.nl>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 21 Jul 2020 15:38:17 -0400
-Message-ID: <CAEjxPJ49qjVJi1m-bJkaBg2ufx9xx5hPa_HupXbm-6eqXc_j5Q@mail.gmail.com>
-Subject: Re: [SELinux-notebook PATCH] lsm_selinux: document
- genfs_seclabel_symlinks policy capability
-To:     Dominick Grift <dominick.grift@defensec.nl>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 20, 2020 at 10:53 AM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
->
-> This was added with Linux 5.7 and SELinux 3.1
->
-> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
-> ---
->  src/lsm_selinux.md | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/src/lsm_selinux.md b/src/lsm_selinux.md
-> index a400c36..8e6f3ad 100644
-> --- a/src/lsm_selinux.md
-> +++ b/src/lsm_selinux.md
-> @@ -676,6 +676,11 @@ interface, it is not recommended - use the **libselinux** or **libsepol** librar
->  <td>Enables the use of separate socket security classes for all network address families rather than the generic socket class.</td>
->  </tr>
->  <tr>
-> +<td>genfs_seclabel_symlinks</td>
-> +<td>-r--r--r--</td>
-> +<td>Symlinks on kernel filesystems will receive contexts based on genfscon statements like directories and files.</td>
-> +</tr>
-> +<tr>
+Elaborate on labeling. Touch on the significance of the default statement, on various av permissions related to labeling using the libselinux API, and on how the kernel and unlabeled initial security identifiers are used to address labeling challenges in special cases such as initialization and failover respectively.
 
-Maybe "Enables fine-grained labeling of symlinks in pseudo filesystems
-based on genfscon rules."
+Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+---
+v2: fixes patch description
+v3: adding patch description, s/policies/policy's/, split unlabeled and kernel descriptions for clarity
+v4: fixes another typo in description and emphasize system initialization a bit
+v5: emphasize kernel threads with kernel isid description
+v6: forgot to mention defaultuser, can only associate one label with isids
+v7: copied and pasted feedback from Stephen Smalley
+
+ src/objects.md | 47 +++++++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 43 insertions(+), 4 deletions(-)
+
+diff --git a/src/objects.md b/src/objects.md
+index 58664ef..4f53446 100644
+--- a/src/objects.md
++++ b/src/objects.md
+@@ -110,14 +110,20 @@ objects is managed by the system and generally unseen by the users
+ (until labeling goes wrong !!). As processes and objects are created and
+ destroyed, they either:
+ 
+-1.  Inherit their labels from the parent process or object.
++1.  Inherit their labels from the parent process or object. The policy
++    default user, type, role and range statements can be used to
++	change the behavior as discussed in the [**Default Rules**](default_rules.md#default-object-rules)
++    section.
+ 2.  The policy type, role and range transition statements allow a
+     different label to be assigned as discussed in the
+     [**Domain and Object Transitions**](domain_object_transitions.md#domain-and-object-transitions)
+     section.
+-3.  SELinux-aware applications can enforce a new label (with the
+-    policies approval of course) using the **libselinux** API
+-    functions.
++3.  SELinux-aware applications can assign a new label (with the
++    policy's approval of course) using the **libselinux** API
++    functions. The `process setfscreate` permission can be used to
++    allow subjects to create files with a new label programmatically
++    using the ***setfscreatecon**(3)* function, overriding default
++    rules and transition statements.
+ 4.  An object manager (OM) can enforce a default label that can either
+     be built into the OM or obtained via a configuration file (such as
+     those used by
+@@ -269,6 +275,39 @@ and manage their transition:
+ 
+ `type_transition`, `role_transition` and `range_transition`
+ 
++SELinux-aware applications can assign a new label (with the policy's
++approval of course) using the **libselinux** API functions. The
++`process setexec`, `process setkeycreate` and `process setsockcreate`
++access vectors can be used to allow subjects to label processes,
++kernel keyrings, and sockets programmatically using the
++***setexec**(3)*, ***setkeycreatecon**(3)* and
++***setsockcreatecon**(3)* functions respectively, overriding
++transition statements.
++
++The `kernel` **initial security identifier** is used to associate
++a specified label with kernel objects, including kernel threads
++(both those that are created during initialization but also kernel
++threads created later), kernel-private sockets, synthetic objects
++representing kernel resources (e.g. the "system" class).
++
++It is true that processes created prior to initial policy load will
++also be in the kernel SID until/unless there is a policy loaded and
++either a policy-defined transition or an explicit setcon or
++setexeccon+execve, but that's just the typical default inheritance
++from creating task behavior for processes.
++
++The `unlabeled` **initial security identifier** is used
++to associate a specified label with subjects that had their label
++invalidated due to policy changes at runtime.
++
++It is also assigned as the initial state for various objects e.g.
++inodes, superblocks, etc until they reach a point where a more
++specific label can be determined e.g. from an xattr or from policy.
++The context associated with the unlabeled SID is used as the fallback
++context for both subjects and objects when their label is invalidated
++by a policy reload (their SID is unchanged but the SID is
++transparently remapped to the unlabeled context).
++
+ ### Object Reuse
+ 
+ As GNU / Linux runs it creates instances of objects and manages the
+-- 
+2.27.0
+
