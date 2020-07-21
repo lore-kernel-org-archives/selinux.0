@@ -5,176 +5,103 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57DA5C433DF
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:00:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FB07C433E0
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:23:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3028F20720
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:00:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E09AA206C1
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:23:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U2HeHQq9"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X9fQ7XeB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726505AbgGUSAL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Jul 2020 14:00:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59104 "EHLO
+        id S1726646AbgGUSXE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Jul 2020 14:23:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726763AbgGUSAL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 14:00:11 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34231C061794
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:00:11 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id k6so17957684oij.11
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:00:11 -0700 (PDT)
+        with ESMTP id S1726029AbgGUSXE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 14:23:04 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C783EC061794
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:23:03 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id h17so18075489oie.3
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:23:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=lijJuvZDDCv8lDvEq2sMyHcxcoMZGiPMrDef4a2CHGM=;
-        b=U2HeHQq9yFYTQw3zrB5meYVdMl34nEJQOOCrM2ZMn5DLOwhDcT29HxA5GOA89X9SmO
-         yrk4rhJu/vdPjdCi6LHdRRxEzRZDOzLXeqb+jqreEFdLGz54S+jd3692XpPv25AfFc3V
-         MHNop5xFSIPLPZlKcReC0BHHzzPe6ocsSPqze2ZVV6+DwQ6q1/oYvRnOz+KUjOff8YaS
-         CEvJ9kKyl0golN5Thux7SZrEnxG9uBJ3D+NmgjW3DatJH4ONqowwGxA40XyOMDjLrN5X
-         FXWCZ7YlRjw+ccZa0BaDA92Pp00/rOUtcs6LY1y3yVdSrcGpulLnkbj71T1RyCH3MBt9
-         YNTw==
+        bh=is8o45EC1QuSoC3CMi3HVfOFGfXAAEBbRhSTMEoysTg=;
+        b=X9fQ7XeBQ52O8Zne+NwX/YLtxm1NuJ1JGuhl6rb6LXClTV9cF7sfrV7/D/f0y/vZyF
+         seMttQpiEoVNUmr8nAOCa/FzXqjHOVXiA+4+QtkjCT1g7fo+rC211Sv6zLxHCYVwgwiX
+         SAYoRuzxn8SucVcMf6ytXwUxC5LMM/T0wkLB4wpsQWjFAJpZu7blpYOzSo7IeFRAQQVe
+         3J739LO0SuH9eM2avl141vvGWS9/yNsrGe+tko6xiSUqeeLdCNgjSfq9XH6NgEfoOEBv
+         Q5AxlE/rKjULrIBAyOANc3sKX4hc8re+BbsXM3EtlY85IPBR1ncLriAQz2bWWeHyqD/r
+         MY3w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=lijJuvZDDCv8lDvEq2sMyHcxcoMZGiPMrDef4a2CHGM=;
-        b=V7Mhez84KNMDxdQOGLjqfdfVLL6KPGIEVZUAEy4fECaaLUeD4Vz4hiZceouc7k42ok
-         zbCXGGiSTXmCDI1R0p/MXzKEeG+MMTrs82P9YtoLpUOjSAdsqM6kHaOpBb7Ylh5PwDug
-         fQkMd9eTMyPsYxZIlGmj1ompB+8s2Nx17mykG0rz5ah7kIp3mAdpO7FOlaqtE0rlkZ5E
-         GqLTS7dwXujPVg3+RMjYVnOAY/w3C7ilGEC3WqeFTJW38VSyEtvjirhzH0pE3lbwTSJr
-         4lWpIkfwixZlWsXVpp+r3YgFostqCO6vnjFaMeU+hHn9JJUGcWoUW8vOa53aanLY9oiN
-         NMHQ==
-X-Gm-Message-State: AOAM532hvn1b32K3UZDUsYJJSUeBCHXI5ZJxy+fnmPKJEbvXqkzB7PmR
-        5JB7R8HZtdbdBGA0C00eLHhiOFEJrXzuUzjFaBHCkgx2
-X-Google-Smtp-Source: ABdhPJxkP26q648Dix4H3d0tWGgaHAsWgROqeq920atO7TcuCTtRyHmAziEeKFWyoVTVD4v0oVLUoco+wpxJPP6RAnw=
-X-Received: by 2002:aca:ecd3:: with SMTP id k202mr2275257oih.92.1595354410474;
- Tue, 21 Jul 2020 11:00:10 -0700 (PDT)
+        bh=is8o45EC1QuSoC3CMi3HVfOFGfXAAEBbRhSTMEoysTg=;
+        b=WJpvpSalHrY2naPTM1pnjvIDy0mDcH5bQWxokBxZj1oVb0dkShTGYJ2X/yRgUkgE9r
+         ejluH8iuvl1l5ItPT4LD7s2Wazqf2k2jLpbzODw3mYAch4/uSn4R43GoQ2cDwKvwQR26
+         eJqAkghogdgKoBLcMYEqAipxrIvboB3XIuaHUWr1GFFcCST2z/Ny5pBexPU1hKjEyWaI
+         xa4b81Eu4oU0Lr5sPJMInqxH/cWPNK2cq+ZN1D8e245UU4kDcSydlAOjxBqtrTLtOcoF
+         djjwo7p/7umxTELwTGxZNqvPoVBex6/j8p5PqbL0DjSiXvswYav15JiFUoVngf7KWG94
+         HBMw==
+X-Gm-Message-State: AOAM5319f9MugbRNSDmV8BvFlVE7nn3VpJ4dmnIohRIgBpHyP0JXYF0q
+        sKgg20u3Roj6WSOIilKecRcofafIlqfjzVXmWBA=
+X-Google-Smtp-Source: ABdhPJzs4O0wWv8cxcjEB6ZKA2o5DyEZ8dqNOw45htP05KgB7qr1+oXfPSNT+GgzBjR8KjHZmvfMj95Kg2UoPXFguFs=
+X-Received: by 2002:aca:c4cc:: with SMTP id u195mr3916773oif.160.1595355783128;
+ Tue, 21 Jul 2020 11:23:03 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200720074515.1687720-1-dominick.grift@defensec.nl>
-In-Reply-To: <20200720074515.1687720-1-dominick.grift@defensec.nl>
+References: <20200719103506.865962-1-omosnace@redhat.com> <20200719103506.865962-2-omosnace@redhat.com>
+In-Reply-To: <20200719103506.865962-2-omosnace@redhat.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 21 Jul 2020 13:59:59 -0400
-Message-ID: <CAEjxPJ724s91rh1ji114npX3GZ7HH9jvipNUB46fQgp-XO+FqQ@mail.gmail.com>
-Subject: Re: [SELinux-notebook PATCH] object_classes_permissions: describe bpf
- and perfmon capabilities
-To:     Dominick Grift <dominick.grift@defensec.nl>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Date:   Tue, 21 Jul 2020 14:22:52 -0400
+Message-ID: <CAEjxPJ6jiWr5ZHWLqirAmu+9R=_qECyTrXPqtKSqwMeEdHZFQg@mail.gmail.com>
+Subject: Re: [PATCH v5 1/2] libsepol,checkpolicy: optimize storage of filename transitions
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        James Carter <jwcart2@gmail.com>,
+        Chris PeBenito <pebenito@ieee.org>,
+        Petr Lautrbach <plautrba@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 20, 2020 at 3:47 AM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
+On Sun, Jul 19, 2020 at 6:35 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> These capabilities were introduced with Linux 5.8
-> The ipc security class is deprecated (kind of at least)
-
-Trying to remember the final resolution on the ipc class.  I think I
-looked at it as part of
-https://github.com/SELinuxProject/selinux/issues/57 but couldn't
-cleanly remove it altogether.  We are no longer assigning SECCLASS_IPC
-to anything but we are using the IPC__UNIX_READ/WRITE permissions in
-selinux_ipc_permission().
-
-> Fix a typo in net_broadcast
+> In preparation to support a new policy format with a more optimal
+> representation of filename transition rules, this patch applies an
+> equivalent change from kernel commit c3a276111ea2 ("selinux: optimize
+> storage of filename transitions").
 >
-> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
-
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-
+> See the kernel commit's description [1] for the rationale behind this
+> representation. This change doesn't bring any measurable difference of
+> policy build performance (semodule -B) on Fedora.
+>
+> [1] https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?id=c3a276111ea2572399281988b3129683e2a6b60b
+>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
->  src/object_classes_permissions.md | 24 +++++++++++++++++-------
->  1 file changed, 17 insertions(+), 7 deletions(-)
->
-> diff --git a/src/object_classes_permissions.md b/src/object_classes_permissions.md
-> index 1b183bb..498d872 100644
-> --- a/src/object_classes_permissions.md
-> +++ b/src/object_classes_permissions.md
-> @@ -421,7 +421,7 @@ inherited by a number of object classes.
->  <td>Allows opening of raw sockets and packet sockets.</td>
->  </tr>
->  <tr>
-> -<td>netbroadcast</td>
-> +<td>net_broadcast</td>
->  <td>Grant network broadcasting and listening to incoming multicasts.</td>
->  </tr>
->  <tr>
-> @@ -496,13 +496,18 @@ inherited by a number of object classes.
->  <tbody>
->  <tr>
->  <td style="background-color:#F2F2F2;"><strong>Permissions</strong></td>
-> -<td style="background-color:#F2F2F2;">Description (6 permissions)</td>
-> +<td style="background-color:#F2F2F2;">Description (8 permissions)</td>
->  </tr>
->  <tr>
->  <td>audit_read</td>
->  <td>Allow reading audits logs.</td>
->  </tr>
->  <tr>
-> +<td>bpf</td>
-> +<td><p>Create maps, do other <em>sys_bpf()</em> commands and load 'SK_REUSEPORT' progs.</p>
-> +<p>Note that loading tracing programs also requires 'CAP_PERFMON' and that loading networking programs also requires 'CAP_NET_ADMIN'.</p></td>
-> +</tr>
-> +<tr>
->  <td>block_suspend</td>
->  <td>Prevent system suspends (was <em>epollwakeup</em>)</td>
->  </tr>
-> @@ -516,6 +521,11 @@ inherited by a number of object classes.
->  <td>Allow MAC policy to be overridden. (not used)</td>
->  </tr>
->  <tr>
-> +<tr>
-> +<td>perfmon</td>
-> +<td>Allow system performance monitoring and observability operations.</td>
-> +</tr>
-> +<tr>
->  <td>syslog</td>
->  <td>Allow configuration of kernel <em>syslog</em> (<em>printk</em> behaviour).</td>
->  </tr>
-> @@ -2015,7 +2025,7 @@ implementation.
->
->  ## IPC Object Classes
->
-> -### `ipc`
-> +### `ipc` (Deprecated)
->
->  <table>
->  <tbody>
-> @@ -2600,11 +2610,11 @@ Note that while this is defined as a kernel object class, the userspace
->  </tr>
->  <tr>
->  <td style="background-color:#F2F2F2;"><strong>Permissions</strong></td>
-> -<td style="background-color:#F2F2F2;"><strong>Description</strong> (Inherit 6 permissions)</td>
-> +<td style="background-color:#F2F2F2;"><strong>Description</strong> (Inherit 8 permissions)</td>
->  </tr>
->  <tr>
->  <td style="background-color:#F2F2F2;"><a href="#common-capability2-permissions"><strong>Common Capability2 Permissions<strong></td>
-> -<td style="background-color:#F2F2F2;">audit_read, block_suspend, mac_admin, mac_override, syslog, wake_alarm</td>
-> +<td style="background-color:#F2F2F2;">audit_read, bpf, block_suspend, mac_admin, mac_override, perfmon, syslog, wake_alarm</td>
->  </tr>
->  </tbody>
->  </table>
-> @@ -2638,11 +2648,11 @@ Note that while this is defined as a kernel object class, the userspace
->  </tr>
->  <tr>
->  <td style="background-color:#F2F2F2;"><strong>Permissions</strong></td>
-> -<td style="background-color:#F2F2F2;"><strong>Description</strong> (Inherit 6 permissions)</td>
-> +<td style="background-color:#F2F2F2;"><strong>Description</strong> (Inherit 8 permissions)</td>
->  </tr>
->  <tr>
->  <td style="background-color:#F2F2F2;"><a href="#common-capability2-permissions"><strong>Common Capability2 Permissions<strong></td>
-> -<td style="background-color:#F2F2F2;">audit_read, block_suspend, mac_admin, mac_override, syslog, wake_alarm</td>
-> +<td style="background-color:#F2F2F2;">audit_read, bpf, block_suspend, mac_admin, mac_override, perfmon, syslog, wake_alarm</td>
->  </tr>
->  </tbody>
->  </table>
-> --
-> 2.27.0
->
+
+> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
+> index c6733fa4..01a90438 100644
+> --- a/checkpolicy/policy_define.c
+> +++ b/checkpolicy/policy_define.c
+> @@ -3388,40 +3387,21 @@ int define_filename_trans(void)
+<snip>
+> +                               dup_name = NULL;
+> +                               rc = policydb_filetrans_insert(
+> +                                       policydbp, s+1, t+1, c+1, name,
+> +                                       &dup_name, otype, NULL
+> +                               );
+> +                               free(dup_name);
+
+The dup_name / name_alloc handling seems rather odd.  In every caller
+except one you follow the pattern above, where we set it to NULL, call
+policydb_filetrans_insert, and then free it immediately.  I'm not sure
+why you are doing it this way.
