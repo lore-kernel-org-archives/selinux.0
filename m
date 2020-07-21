@@ -2,135 +2,96 @@ Return-Path: <SRS0=VL4G=BA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC73DC433E0
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:35:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF6C7C433DF
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 19:38:29 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C3B3B20717
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:35:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0D0D20720
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 19:38:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uMpTDh2r"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DPvhEyIQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726892AbgGUSfN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Jul 2020 14:35:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36254 "EHLO
+        id S1730385AbgGUTi3 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Jul 2020 15:38:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726658AbgGUSfM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 14:35:12 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CE1C061794
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:35:11 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id 72so15821146otc.3
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:35:11 -0700 (PDT)
+        with ESMTP id S1729928AbgGUTi3 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 15:38:29 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9E7CC061794
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 12:38:28 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id y22so18223637oie.8
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 12:38:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=gd3DOKgahVLS69fdxARLm8m3EEwPFkvI9ND24m+OgDU=;
-        b=uMpTDh2rIKIFoqeNvA+lQRh5dlVNypQBWjFlHQclPY7ifesTjdEG9bAMK/DX35lwLh
-         dP2AT501sAjMlIV451W1QZ2u/4tR1f2ROCf9UETkScG0DEcyI8isAgWBVo2Mymr6ilgS
-         YyJlkW5uFajPgdTzrjjD6g9nv+pu5/3HEw0jGmzYofU2W/AOFwVXfCquJ8edejxM0yf8
-         2jDIz6lpJ/YnuRUPTRpM1jSdcxgb21VlGixLUYVV7nF0xQuggPj2aoQONx/2yYMdqz3S
-         qak7w7Z5w49VrmFJOYiqWyE6SSZotA3gjM23xGwnt5rXtAPI6vs6HpbGltkeZc/cqyRj
-         kfNg==
+        bh=xmu0YTXtyZeGfogzERYuuAEn3dvm43TDyG1wb4ZPHJU=;
+        b=DPvhEyIQYp/SRITawcWw3ZMCZIPO9fS3yIh2eHKI/bSdu+cllow/EIMEjm7Sw3wvGn
+         xitdx/ks2jHahEJe47PFhwurHiPfK1d96PKtv8JImUqnioVlwuWPGMfVaP0hbMVcrRkj
+         1kJQww2beoZzcf9K07vyfZF4pce5I6QaqO9pTG6225d1NG7asXvWcecXrW2bOeUM2sLj
+         R0+tpXm4aWH73kESk4ce8Yipi+HG0GyOWrfUerYfYHc4Dk4PKVLpzb8laFhH2fVh/vbx
+         ZXtDMYPg5u0sJWvjcvx/bvnM5dAiyZhS+iHN4rBKJXzRvxIGt9gDJpNw5oT5TtVMkLlt
+         mmWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=gd3DOKgahVLS69fdxARLm8m3EEwPFkvI9ND24m+OgDU=;
-        b=KUZyAwbcCcxGxEM3ZPilNpnggugtAKoqJoVza6ieFzDf2E6XMz8QpQ0VvIJT0Ifn4a
-         PSWIIv6IdZ7opYGEN5MgKO0vsqyy6iPs6OZ5vHu1PDkmZk2tqC2newZ2Z2MPDYUTthl2
-         qCVARuxF/wiF5thAGTJR3P03pJwwNgRByg9xJUlnXFWgKChtwjhSnSbC2loiNnK9Q1/n
-         3aIUzfLYynRVqVEPrRT7f7I8qNHYPv3xL5/PT0dmP4FRc+5IblKKb/KcvT2JILP3ddCV
-         1dEwmVbhRB0Qh8df+2wO7CVGu/KJyzLcyzZjadjLGwSVeiiub7BW6FJdKKn3+gkpRcsN
-         CPcw==
-X-Gm-Message-State: AOAM531D8eZwDtvdhjkZxJAXpbikZeY46ufdH2zhnnU1EZvL/81DMI6i
-        +IThSXCIlkczlxzHJ+3kl9+NRwMouyT0poKo45k=
-X-Google-Smtp-Source: ABdhPJwaRo0tD/sIh5CWpUvtaNP2j0QSybOP2kJDy2/0VUdGRsEIg9Og+PMDm/ck8JnAXOsZbUlb7cioyTvR+usOn5k=
-X-Received: by 2002:a9d:20c9:: with SMTP id x67mr26738947ota.295.1595356511377;
- Tue, 21 Jul 2020 11:35:11 -0700 (PDT)
+        bh=xmu0YTXtyZeGfogzERYuuAEn3dvm43TDyG1wb4ZPHJU=;
+        b=Y4lTeObDnCkwy+hyypJLqZOPvrHluc3eYWLGQDED8114OAJv7BMrwCIdsTk3jBPcTp
+         w1GALG0JizJM8qAdRTEkSttbYJysgjoBS6UJPa69xbUg2Ov2vpgT1r6t6O/JYNanlMQu
+         TYvGFjs4jm67kISzAm8n2k4Kn5kcACjnc9bmIhNseGXw7LeT4cWloiTSJUQmLOxosG4s
+         XRYjBZocggBzBWKYDebom6YCYQaYJ0hBv0XAIQrp2L/V0+a4Dwj8tSwrFKriXAN/Qztc
+         W8XJG9kilbkqJtWlXNqbXvBrpVQIzKaivewHDcOSZVl+Fydvr4fSDZ+309JKmfDoO27t
+         Y18g==
+X-Gm-Message-State: AOAM532ioi5S+TbpdrRhYW5qBQZJy3WWlMNt20wlaa3A0wwriGemHM6Q
+        hDMn+RBEvJ/bsCnAKFKCJ3zqbiQq7gztGnwdc7OG7Q==
+X-Google-Smtp-Source: ABdhPJzHKBJwg8ZBMQicjfUmePTryZItjDGR+uGpneNmqIVWmFlgcbTTWDtCeichYL7rsEds6zdCJNyJnaJqOTHffeU=
+X-Received: by 2002:aca:ecd3:: with SMTP id k202mr2617753oih.92.1595360308330;
+ Tue, 21 Jul 2020 12:38:28 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200718104842.1333101-1-dominick.grift@defensec.nl>
- <20200719181704.1583398-1-dominick.grift@defensec.nl> <CAHC9VhTS0hr+i3GvMJPhs3WQd48fOdz3xbZBUSJDJD=XAfNQvQ@mail.gmail.com>
- <d37dcc1e21d3292c4112810c7d398d5590e14d14.camel@btinternet.com>
-In-Reply-To: <d37dcc1e21d3292c4112810c7d398d5590e14d14.camel@btinternet.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Tue, 21 Jul 2020 14:37:53 -0400
-Message-ID: <CAP+JOzSrGLc3i=P-rPOnsLSLQnaZm+W7Xb4oNwjNDz4AquJpNA@mail.gmail.com>
-Subject: Re: [SELinux-notebook PATCH v5] adds CIL policy with makefile
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Dominick Grift <dominick.grift@defensec.nl>,
-        SElinux list <selinux@vger.kernel.org>
+References: <20200720145030.1743325-1-dominick.grift@defensec.nl>
+In-Reply-To: <20200720145030.1743325-1-dominick.grift@defensec.nl>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 21 Jul 2020 15:38:17 -0400
+Message-ID: <CAEjxPJ49qjVJi1m-bJkaBg2ufx9xx5hPa_HupXbm-6eqXc_j5Q@mail.gmail.com>
+Subject: Re: [SELinux-notebook PATCH] lsm_selinux: document
+ genfs_seclabel_symlinks policy capability
+To:     Dominick Grift <dominick.grift@defensec.nl>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 21, 2020 at 12:56 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
+On Mon, Jul 20, 2020 at 10:53 AM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
 >
-> On Tue, 2020-07-21 at 12:42 -0400, Paul Moore wrote:
-> > On Sun, Jul 19, 2020 at 2:17 PM Dominick Grift
-> > <dominick.grift@defensec.nl> wrote:
-> > > This example CIL policy takes a different approach:
-> > >
-> > > 1. Leverages CIL
-> > > 2. Installs using semodule to make it tunable at runtime (but you
-> > > can obviously also use secilc to build a monolithic version and
-> > > deploy that)
-> > > 3. Makes few assumptions about variables
-> > > 4. Leverages handleunknown allow and declares least required access
-> > > vectors so that you can pick and choose which access vectors you
-> > > want to use and ignore the remainder
-> > > 5. Leverages unlabeled and file ISID and makes no assumptions about
-> > > any volatile filesystems you may or may not use
-> > > 6. As small and simple as reasonably possible, heavily documented
-> > > 7. Modern, Requires SELinux 3.1
-> > >
-> > > Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
-> > > ---
-> > > v2: rename XWAYLAND.md to XSERVER_XWAYLAND.md and cover both
-> > > Xserver as well as Xwayland
-> > > V3: fix typo in XSERVER_XWAYLAND.md and exclude x_contexts
-> > > altogether
-> > > v4: remove XSERVER_XWAYLAND and add the note to README.md, redo
-> > > README.md and clean up cil-policy.cil
-> > > v5: add -F to fixfiles onboot (onboot should probably just imply
-> > > -F)
-> > >
-> > >  src/cil_overview.md                           |  11 +
-> > >  src/notebook-examples/README.md               |   2 +
-> > >  src/notebook-examples/cil-policy/Makefile     |  31 ++
-> > >  src/notebook-examples/cil-policy/README.md    |  90 ++++
-> > >  .../cil-policy/cil-policy.cil                 | 448
-> > > ++++++++++++++++++
-> > >  5 files changed, 582 insertions(+)
-> > >  create mode 100644 src/notebook-examples/cil-policy/Makefile
-> > >  create mode 100644 src/notebook-examples/cil-policy/README.md
-> > >  create mode 100644 src/notebook-examples/cil-policy/cil-policy.cil
-> >
-> > James, Richard, you both had comments on previous drafts, does v3
-> > look
-> > good to you guys?
+> This was added with Linux 5.7 and SELinux 3.1
 >
-> Yes I've tested this (v4 & V5) a few times and okay on Fedora 32 WS.
+> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+> ---
+>  src/lsm_selinux.md | 5 +++++
+>  1 file changed, 5 insertions(+)
 >
-> Acked-by: Richard Haines <richard_c_haines@btinternet.com>
+> diff --git a/src/lsm_selinux.md b/src/lsm_selinux.md
+> index a400c36..8e6f3ad 100644
+> --- a/src/lsm_selinux.md
+> +++ b/src/lsm_selinux.md
+> @@ -676,6 +676,11 @@ interface, it is not recommended - use the **libselinux** or **libsepol** librar
+>  <td>Enables the use of separate socket security classes for all network address families rather than the generic socket class.</td>
+>  </tr>
+>  <tr>
+> +<td>genfs_seclabel_symlinks</td>
+> +<td>-r--r--r--</td>
+> +<td>Symlinks on kernel filesystems will receive contexts based on genfscon statements like directories and files.</td>
+> +</tr>
+> +<tr>
 
-Looks good.
-
-Acked-by: James Carter <jwcart2@gmail.com>
-
->
->
-> >
-> > --
-> > paul moore
-> > www.paul-moore.com
->
+Maybe "Enables fine-grained labeling of symlinks in pseudo filesystems
+based on genfscon rules."
