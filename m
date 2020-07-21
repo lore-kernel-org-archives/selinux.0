@@ -2,106 +2,135 @@ Return-Path: <SRS0=VL4G=BA=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FB07C433E0
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:23:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC73DC433E0
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:35:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E09AA206C1
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:23:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C3B3B20717
+	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 18:35:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X9fQ7XeB"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="uMpTDh2r"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726646AbgGUSXE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Jul 2020 14:23:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34374 "EHLO
+        id S1726892AbgGUSfN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 21 Jul 2020 14:35:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726029AbgGUSXE (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 14:23:04 -0400
-Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C783EC061794
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:23:03 -0700 (PDT)
-Received: by mail-oi1-x241.google.com with SMTP id h17so18075489oie.3
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:23:03 -0700 (PDT)
+        with ESMTP id S1726658AbgGUSfM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 14:35:12 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8CE1C061794
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:35:11 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id 72so15821146otc.3
+        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 11:35:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=is8o45EC1QuSoC3CMi3HVfOFGfXAAEBbRhSTMEoysTg=;
-        b=X9fQ7XeBQ52O8Zne+NwX/YLtxm1NuJ1JGuhl6rb6LXClTV9cF7sfrV7/D/f0y/vZyF
-         seMttQpiEoVNUmr8nAOCa/FzXqjHOVXiA+4+QtkjCT1g7fo+rC211Sv6zLxHCYVwgwiX
-         SAYoRuzxn8SucVcMf6ytXwUxC5LMM/T0wkLB4wpsQWjFAJpZu7blpYOzSo7IeFRAQQVe
-         3J739LO0SuH9eM2avl141vvGWS9/yNsrGe+tko6xiSUqeeLdCNgjSfq9XH6NgEfoOEBv
-         Q5AxlE/rKjULrIBAyOANc3sKX4hc8re+BbsXM3EtlY85IPBR1ncLriAQz2bWWeHyqD/r
-         MY3w==
+        bh=gd3DOKgahVLS69fdxARLm8m3EEwPFkvI9ND24m+OgDU=;
+        b=uMpTDh2rIKIFoqeNvA+lQRh5dlVNypQBWjFlHQclPY7ifesTjdEG9bAMK/DX35lwLh
+         dP2AT501sAjMlIV451W1QZ2u/4tR1f2ROCf9UETkScG0DEcyI8isAgWBVo2Mymr6ilgS
+         YyJlkW5uFajPgdTzrjjD6g9nv+pu5/3HEw0jGmzYofU2W/AOFwVXfCquJ8edejxM0yf8
+         2jDIz6lpJ/YnuRUPTRpM1jSdcxgb21VlGixLUYVV7nF0xQuggPj2aoQONx/2yYMdqz3S
+         qak7w7Z5w49VrmFJOYiqWyE6SSZotA3gjM23xGwnt5rXtAPI6vs6HpbGltkeZc/cqyRj
+         kfNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=is8o45EC1QuSoC3CMi3HVfOFGfXAAEBbRhSTMEoysTg=;
-        b=WJpvpSalHrY2naPTM1pnjvIDy0mDcH5bQWxokBxZj1oVb0dkShTGYJ2X/yRgUkgE9r
-         ejluH8iuvl1l5ItPT4LD7s2Wazqf2k2jLpbzODw3mYAch4/uSn4R43GoQ2cDwKvwQR26
-         eJqAkghogdgKoBLcMYEqAipxrIvboB3XIuaHUWr1GFFcCST2z/Ny5pBexPU1hKjEyWaI
-         xa4b81Eu4oU0Lr5sPJMInqxH/cWPNK2cq+ZN1D8e245UU4kDcSydlAOjxBqtrTLtOcoF
-         djjwo7p/7umxTELwTGxZNqvPoVBex6/j8p5PqbL0DjSiXvswYav15JiFUoVngf7KWG94
-         HBMw==
-X-Gm-Message-State: AOAM5319f9MugbRNSDmV8BvFlVE7nn3VpJ4dmnIohRIgBpHyP0JXYF0q
-        sKgg20u3Roj6WSOIilKecRcofafIlqfjzVXmWBA=
-X-Google-Smtp-Source: ABdhPJzs4O0wWv8cxcjEB6ZKA2o5DyEZ8dqNOw45htP05KgB7qr1+oXfPSNT+GgzBjR8KjHZmvfMj95Kg2UoPXFguFs=
-X-Received: by 2002:aca:c4cc:: with SMTP id u195mr3916773oif.160.1595355783128;
- Tue, 21 Jul 2020 11:23:03 -0700 (PDT)
+        bh=gd3DOKgahVLS69fdxARLm8m3EEwPFkvI9ND24m+OgDU=;
+        b=KUZyAwbcCcxGxEM3ZPilNpnggugtAKoqJoVza6ieFzDf2E6XMz8QpQ0VvIJT0Ifn4a
+         PSWIIv6IdZ7opYGEN5MgKO0vsqyy6iPs6OZ5vHu1PDkmZk2tqC2newZ2Z2MPDYUTthl2
+         qCVARuxF/wiF5thAGTJR3P03pJwwNgRByg9xJUlnXFWgKChtwjhSnSbC2loiNnK9Q1/n
+         3aIUzfLYynRVqVEPrRT7f7I8qNHYPv3xL5/PT0dmP4FRc+5IblKKb/KcvT2JILP3ddCV
+         1dEwmVbhRB0Qh8df+2wO7CVGu/KJyzLcyzZjadjLGwSVeiiub7BW6FJdKKn3+gkpRcsN
+         CPcw==
+X-Gm-Message-State: AOAM531D8eZwDtvdhjkZxJAXpbikZeY46ufdH2zhnnU1EZvL/81DMI6i
+        +IThSXCIlkczlxzHJ+3kl9+NRwMouyT0poKo45k=
+X-Google-Smtp-Source: ABdhPJwaRo0tD/sIh5CWpUvtaNP2j0QSybOP2kJDy2/0VUdGRsEIg9Og+PMDm/ck8JnAXOsZbUlb7cioyTvR+usOn5k=
+X-Received: by 2002:a9d:20c9:: with SMTP id x67mr26738947ota.295.1595356511377;
+ Tue, 21 Jul 2020 11:35:11 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200719103506.865962-1-omosnace@redhat.com> <20200719103506.865962-2-omosnace@redhat.com>
-In-Reply-To: <20200719103506.865962-2-omosnace@redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 21 Jul 2020 14:22:52 -0400
-Message-ID: <CAEjxPJ6jiWr5ZHWLqirAmu+9R=_qECyTrXPqtKSqwMeEdHZFQg@mail.gmail.com>
-Subject: Re: [PATCH v5 1/2] libsepol,checkpolicy: optimize storage of filename transitions
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        James Carter <jwcart2@gmail.com>,
-        Chris PeBenito <pebenito@ieee.org>,
-        Petr Lautrbach <plautrba@redhat.com>
+References: <20200718104842.1333101-1-dominick.grift@defensec.nl>
+ <20200719181704.1583398-1-dominick.grift@defensec.nl> <CAHC9VhTS0hr+i3GvMJPhs3WQd48fOdz3xbZBUSJDJD=XAfNQvQ@mail.gmail.com>
+ <d37dcc1e21d3292c4112810c7d398d5590e14d14.camel@btinternet.com>
+In-Reply-To: <d37dcc1e21d3292c4112810c7d398d5590e14d14.camel@btinternet.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 21 Jul 2020 14:37:53 -0400
+Message-ID: <CAP+JOzSrGLc3i=P-rPOnsLSLQnaZm+W7Xb4oNwjNDz4AquJpNA@mail.gmail.com>
+Subject: Re: [SELinux-notebook PATCH v5] adds CIL policy with makefile
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Dominick Grift <dominick.grift@defensec.nl>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Jul 19, 2020 at 6:35 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Tue, Jul 21, 2020 at 12:56 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
 >
-> In preparation to support a new policy format with a more optimal
-> representation of filename transition rules, this patch applies an
-> equivalent change from kernel commit c3a276111ea2 ("selinux: optimize
-> storage of filename transitions").
+> On Tue, 2020-07-21 at 12:42 -0400, Paul Moore wrote:
+> > On Sun, Jul 19, 2020 at 2:17 PM Dominick Grift
+> > <dominick.grift@defensec.nl> wrote:
+> > > This example CIL policy takes a different approach:
+> > >
+> > > 1. Leverages CIL
+> > > 2. Installs using semodule to make it tunable at runtime (but you
+> > > can obviously also use secilc to build a monolithic version and
+> > > deploy that)
+> > > 3. Makes few assumptions about variables
+> > > 4. Leverages handleunknown allow and declares least required access
+> > > vectors so that you can pick and choose which access vectors you
+> > > want to use and ignore the remainder
+> > > 5. Leverages unlabeled and file ISID and makes no assumptions about
+> > > any volatile filesystems you may or may not use
+> > > 6. As small and simple as reasonably possible, heavily documented
+> > > 7. Modern, Requires SELinux 3.1
+> > >
+> > > Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+> > > ---
+> > > v2: rename XWAYLAND.md to XSERVER_XWAYLAND.md and cover both
+> > > Xserver as well as Xwayland
+> > > V3: fix typo in XSERVER_XWAYLAND.md and exclude x_contexts
+> > > altogether
+> > > v4: remove XSERVER_XWAYLAND and add the note to README.md, redo
+> > > README.md and clean up cil-policy.cil
+> > > v5: add -F to fixfiles onboot (onboot should probably just imply
+> > > -F)
+> > >
+> > >  src/cil_overview.md                           |  11 +
+> > >  src/notebook-examples/README.md               |   2 +
+> > >  src/notebook-examples/cil-policy/Makefile     |  31 ++
+> > >  src/notebook-examples/cil-policy/README.md    |  90 ++++
+> > >  .../cil-policy/cil-policy.cil                 | 448
+> > > ++++++++++++++++++
+> > >  5 files changed, 582 insertions(+)
+> > >  create mode 100644 src/notebook-examples/cil-policy/Makefile
+> > >  create mode 100644 src/notebook-examples/cil-policy/README.md
+> > >  create mode 100644 src/notebook-examples/cil-policy/cil-policy.cil
+> >
+> > James, Richard, you both had comments on previous drafts, does v3
+> > look
+> > good to you guys?
 >
-> See the kernel commit's description [1] for the rationale behind this
-> representation. This change doesn't bring any measurable difference of
-> policy build performance (semodule -B) on Fedora.
+> Yes I've tested this (v4 & V5) a few times and okay on Fedora 32 WS.
 >
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?id=c3a276111ea2572399281988b3129683e2a6b60b
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
+> Acked-by: Richard Haines <richard_c_haines@btinternet.com>
 
-> diff --git a/checkpolicy/policy_define.c b/checkpolicy/policy_define.c
-> index c6733fa4..01a90438 100644
-> --- a/checkpolicy/policy_define.c
-> +++ b/checkpolicy/policy_define.c
-> @@ -3388,40 +3387,21 @@ int define_filename_trans(void)
-<snip>
-> +                               dup_name = NULL;
-> +                               rc = policydb_filetrans_insert(
-> +                                       policydbp, s+1, t+1, c+1, name,
-> +                                       &dup_name, otype, NULL
-> +                               );
-> +                               free(dup_name);
+Looks good.
 
-The dup_name / name_alloc handling seems rather odd.  In every caller
-except one you follow the pattern above, where we set it to NULL, call
-policydb_filetrans_insert, and then free it immediately.  I'm not sure
-why you are doing it this way.
+Acked-by: James Carter <jwcart2@gmail.com>
+
+>
+>
+> >
+> > --
+> > paul moore
+> > www.paul-moore.com
+>
