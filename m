@@ -1,158 +1,139 @@
-Return-Path: <SRS0=VL4G=BA=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=bGuM=BB=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27AC3C433E6
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 21:50:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83048C433E0
+	for <selinux@archiver.kernel.org>; Wed, 22 Jul 2020 09:09:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 02A98206E3
-	for <selinux@archiver.kernel.org>; Tue, 21 Jul 2020 21:50:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5E6B72077D
+	for <selinux@archiver.kernel.org>; Wed, 22 Jul 2020 09:09:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="QxWmqUb4"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="ClKEYnsa"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728606AbgGUVuP (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 21 Jul 2020 17:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38684 "EHLO
+        id S1726153AbgGVJJI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 22 Jul 2020 05:09:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731280AbgGUVuO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 21 Jul 2020 17:50:14 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53752C0619DD
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 14:50:14 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id 72so10835897ple.0
-        for <selinux@vger.kernel.org>; Tue, 21 Jul 2020 14:50:14 -0700 (PDT)
+        with ESMTP id S1726892AbgGVJJI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 22 Jul 2020 05:09:08 -0400
+Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48B08C0619DE
+        for <selinux@vger.kernel.org>; Wed, 22 Jul 2020 02:09:08 -0700 (PDT)
+Received: by mail-pj1-x1042.google.com with SMTP id gc9so849610pjb.2
+        for <selinux@vger.kernel.org>; Wed, 22 Jul 2020 02:09:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=OtXnm3noZBXxKDQT2DLxkK+7Zl0OlFdckYgrPhu/bNI=;
-        b=QxWmqUb4mKG2PuotWYPk5fcI5SbheLjPXQNjK35Lvm1Rv0TkWL9JoKot+e9NVXKCjD
-         bF2yDtMqkz/MjgDZRxRrGXn8IHqBpE5MhsfMYdLw9ROIFyzGb5thGHNx2S2TsaxXTswb
-         JB/Ot61RL6lf9nWssczNzhB3lEhtblNukhlmw=
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1BVl/A4ZuZHtoqyknQZtUC9ho61FPvwu+Y4wN12Kj8U=;
+        b=ClKEYnsaIWUgi6JhhYXpeesKL7NuFLd7lF4tjKH/6IFzrlaH7vmxQV3pnB1SotX9I8
+         TKrMfUVFy8ezmQtDP/WwkzYqb2fHZhNkxK/14IZCG+gzoEqcbnR9lQoRgj0Eiy6+YQFy
+         JQn7azDjKxHaXaHm5UZvQ20xGJaMEwVpM7P+w=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=OtXnm3noZBXxKDQT2DLxkK+7Zl0OlFdckYgrPhu/bNI=;
-        b=kNrszXXnyC86m4Pr9/0tHwDmIR5nGliQkMOruVKbmufXTBEBJ8blek/5q4f7l0g79V
-         VQqflMa9G8x8QGm0flK67SyujBURTqsKhNjwl+u7pYVzAppmHh19kwgSwu+ENg5Gigc0
-         XLD2T97TD/KcZoK2n98kmnUo8u0nLQbxB7WU1rEax2hqqYsofoxQfkWOgD7UFNujvkIq
-         p/BLr3XFMFNwdS+NV6KP+InsXLe4fLoON1ZEMK8yUeb3jNTF2x3SLI1SIiljexcK9WbR
-         SyIZZH/v63er77cY94i5b8vNVSYNQTDeNJ+rewQyewkEQW/HzCGTx1X9Wjfu4hk1f7St
-         tlKg==
-X-Gm-Message-State: AOAM53042dIycEADKqPvV2YIM8UcsIiWZ6x1cXRbmdiTNKXGMpUpFJ/Z
-        Xlta2hfXoTMLx3sPX+019m0QUw==
-X-Google-Smtp-Source: ABdhPJwThYgowVNirnJUeV2auYuVRnMMUOdvkl7oi/bwggJZNAnaWjQtvFFq/bSqv6h8Tu8fyOWxUQ==
-X-Received: by 2002:a17:90a:2749:: with SMTP id o67mr6971010pje.183.1595368213884;
-        Tue, 21 Jul 2020 14:50:13 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id j5sm21062058pfa.5.2020.07.21.14.50.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jul 2020 14:50:13 -0700 (PDT)
-Date:   Tue, 21 Jul 2020 14:50:12 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Scott Branden <scott.branden@broadcom.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        James Morris <jmorris@namei.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Jessica Yu <jeyu@kernel.org>,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        KP Singh <kpsingh@google.com>, Dave Olsthoorn <dave@bewaar.me>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Peter Jones <pjones@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Boyd <stephen.boyd@linaro.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-fsdevel@vger.kernel.org, kexec@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 06/13] fs/kernel_read_file: Remove redundant size argument
-Message-ID: <202007211449.E211351@keescook>
-References: <20200717174309.1164575-1-keescook@chromium.org>
- <20200717174309.1164575-7-keescook@chromium.org>
- <ec326654-c43b-259c-409c-63929ad5b217@broadcom.com>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1BVl/A4ZuZHtoqyknQZtUC9ho61FPvwu+Y4wN12Kj8U=;
+        b=PCz40EzQxJcygzsLNBDutFNlvdsmdMRdhfKJXP0qMlw25iOFjcwoZqaTD+Vz6mBAjR
+         ICogYb2vloconxmM0INeZYy/ow1Aq5SHJj9iCLBNmgvBTYEAj745qjO3Q9QNGrgEf8Gp
+         TjgB/sHZM/Fn7gEZsMjz9yB9A080EC2mMwIWJfRXKYNrI0cg4Bq6nEMS1oBwY10PD8z8
+         W5B/8Iz6Iaa0sq5vmD42zxLbiRV/MvSKJtn5rHuTB0jOO+lKR9qyvAXeZhztA0rBiOlE
+         kOD7lFHvbxuv1HSzOjnezjM4Uma8Ky+6XjB23EFIeqXg+MgTdshNzRFNFK5wLWtzpt9k
+         ThUw==
+X-Gm-Message-State: AOAM531LnWNd0UCW0tTL6XOuLeoqSLnEH3pME8PCkH7YBDzZ7MBwvf4L
+        ECpo6sW0lvkI/m0CQJq2sXBm/A==
+X-Google-Smtp-Source: ABdhPJx7qixZ1eBmqd5wgwg9yWvmiNDnCRwRP1EI/HV8JvuXsGxQCeAKlNQsN64LXXXjJ3a/zLUswQ==
+X-Received: by 2002:a17:902:5996:: with SMTP id p22mr7426415pli.233.1595408947686;
+        Wed, 22 Jul 2020 02:09:07 -0700 (PDT)
+Received: from localhost ([2401:fa00:8f:2:f693:9fff:fef4:2537])
+        by smtp.gmail.com with ESMTPSA id v22sm22942653pfe.48.2020.07.22.02.09.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Jul 2020 02:09:06 -0700 (PDT)
+From:   Chirantan Ekbote <chirantan@chromium.org>
+To:     Miklos Szeredi <miklos@szeredi.hu>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Vivek Goyal <vgoyal@redhat.com>,
+        Stefan Hajnoczi <stefanha@redhat.com>,
+        linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
+        Dylan Reid <dgreid@chromium.org>,
+        Suleiman Souhlal <suleiman@chromium.org>,
+        fuse-devel@lists.sourceforge.net, selinux@vger.kernel.org,
+        Chirantan Ekbote <chirantan@chromium.org>
+Subject: [RESEND] [PATCHv4 1/2] uapi: fuse: Add FUSE_SECURITY_CTX
+Date:   Wed, 22 Jul 2020 18:07:57 +0900
+Message-Id: <20200722090758.3221812-1-chirantan@chromium.org>
+X-Mailer: git-send-email 2.28.0.rc0.105.gf9edc3c819-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <ec326654-c43b-259c-409c-63929ad5b217@broadcom.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 21, 2020 at 02:43:07PM -0700, Scott Branden wrote:
-> On 2020-07-17 10:43 a.m., Kees Cook wrote:
-> > In preparation for refactoring kernel_read_file*(), remove the redundant
-> > "size" argument which is not needed: it can be included in the return
-> > code, with callers adjusted. (VFS reads already cannot be larger than
-> > INT_MAX.)
-> > 
-> > Signed-off-by: Kees Cook <keescook@chromium.org>
-> > ---
-> >   drivers/base/firmware_loader/main.c |  8 ++++----
-> >   fs/kernel_read_file.c               | 20 +++++++++-----------
-> >   include/linux/kernel_read_file.h    |  8 ++++----
-> >   kernel/kexec_file.c                 | 13 ++++++-------
-> >   kernel/module.c                     |  7 +++----
-> >   security/integrity/digsig.c         |  5 +++--
-> >   security/integrity/ima/ima_fs.c     |  5 +++--
-> >   7 files changed, 32 insertions(+), 34 deletions(-)
-> > 
-> > diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
-> > index d4a413ea48ce..ea419c7d3d34 100644
-> > --- a/drivers/base/firmware_loader/main.c
-> > +++ b/drivers/base/firmware_loader/main.c
-> > @@ -462,7 +462,7 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
-> >   					     size_t in_size,
-> >   					     const void *in_buffer))
-> >   {
-> > -	loff_t size;
-> > +	size_t size;
-> >   	int i, len;
-> >   	int rc = -ENOENT;
-> >   	char *path;
-> > @@ -494,10 +494,9 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
-> >   		fw_priv->size = 0;
-> >   		/* load firmware files from the mount namespace of init */
-> > -		rc = kernel_read_file_from_path_initns(path, &buffer,
-> > -						       &size, msize,
-> > +		rc = kernel_read_file_from_path_initns(path, &buffer, msize,
-> >   						       READING_FIRMWARE);
-> > -		if (rc) {
-> > +		if (rc < 0) {
-> >   			if (rc != -ENOENT)
-> >   				dev_warn(device, "loading %s failed with error %d\n",
-> >   					 path, rc);
-> > @@ -506,6 +505,7 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
-> >   					 path);
-> >   			continue;
-> >   		}
-> > +		size = rc;
-> Change fails to return 0.  Need rc = 0; here.
+Add the FUSE_SECURITY_CTX flag for the `flags` field of the
+fuse_init_out struct.  When this flag is set the kernel will append the
+security context for a newly created inode to the request (create,
+mkdir, mknod, and symlink).  The server is responsible for ensuring that
+the inode appears atomically with the requested security context.
 
-Oh nice; good catch! I'll fix this.
+For example, if the server is backed by a "real" linux file system then
+it can write the security context value to
+/proc/thread-self/attr/fscreate before making the syscall to create the
+inode.
 
+Signed-off-by: Chirantan Ekbote <chirantan@chromium.org>
+---
+Changes in v4:
+  * Added signoff to commit message.
+
+ include/uapi/linux/fuse.h | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
+index 373cada898159..e2099b45fd44b 100644
+--- a/include/uapi/linux/fuse.h
++++ b/include/uapi/linux/fuse.h
+@@ -172,6 +172,10 @@
+  *  - add FUSE_WRITE_KILL_PRIV flag
+  *  - add FUSE_SETUPMAPPING and FUSE_REMOVEMAPPING
+  *  - add map_alignment to fuse_init_out, add FUSE_MAP_ALIGNMENT flag
++ *
++ *  7.32
++ *  - add FUSE_SECURITY_CTX flag for fuse_init_out
++ *  - add security context to create, mkdir, symlink, and mknod requests
+  */
+ 
+ #ifndef _LINUX_FUSE_H
+@@ -207,7 +211,7 @@
+ #define FUSE_KERNEL_VERSION 7
+ 
+ /** Minor version number of this interface */
+-#define FUSE_KERNEL_MINOR_VERSION 31
++#define FUSE_KERNEL_MINOR_VERSION 32
+ 
+ /** The node ID of the root inode */
+ #define FUSE_ROOT_ID 1
+@@ -314,6 +318,7 @@ struct fuse_file_lock {
+  * FUSE_NO_OPENDIR_SUPPORT: kernel supports zero-message opendir
+  * FUSE_EXPLICIT_INVAL_DATA: only invalidate cached pages on explicit request
+  * FUSE_MAP_ALIGNMENT: map_alignment field is valid
++ * FUSE_SECURITY_CTX: add security context to create, mkdir, symlink, and mknod
+  */
+ #define FUSE_ASYNC_READ		(1 << 0)
+ #define FUSE_POSIX_LOCKS	(1 << 1)
+@@ -342,6 +347,7 @@ struct fuse_file_lock {
+ #define FUSE_NO_OPENDIR_SUPPORT (1 << 24)
+ #define FUSE_EXPLICIT_INVAL_DATA (1 << 25)
+ #define FUSE_MAP_ALIGNMENT	(1 << 26)
++#define FUSE_SECURITY_CTX	(1 << 27)
+ 
+ /**
+  * CUSE INIT request/reply flags
 -- 
-Kees Cook
+2.27.0.383.g050319c2ae-goog
+
