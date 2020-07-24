@@ -7,54 +7,54 @@ X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A64FCC433E1
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 20:41:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63009C433E1
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 20:43:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 832122070B
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 20:41:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 343FB206F6
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 20:43:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="f8+lrxTW"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="LzWVcNAL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726503AbgGXUle (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 16:41:34 -0400
-Received: from sonic315-22.consmr.mail.bf2.yahoo.com ([74.6.134.196]:46122
-        "EHLO sonic315-22.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726411AbgGXUle (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 16:41:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1595623292; bh=vzP9SVfl+eOo9JpynABEKPSlrd4gSJq7mZo/Plj+bqw=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=f8+lrxTWXdxkjF6LDgxbwxeET6XmsXOkVRPNBceRJWM7nPE4Tukt1y0EoAw89bmH7tbpManTT8kxwNKlt654eKqNAKYYRSG56iRdZVeF8LiAlb3Ve2N+06CYPOokbZ8TUj4GEQmmCKzQMWMNe+CId+le7o7X7r1Ov23aDfI+fB5tl1n6m4J2s3zG1t3l+cYqGGnbLtfpEysIY7jigoZHb8QHosTtJYWkzqxuJv9gC7wlMNabAHBIvMLMYOfv6uHXtBHWGLlCcKrGM0C2Zs2FWNZicMPbRxLi8eb9VD+doD08CsvKwSrDjAJmcWvAKEVzMnIP0HnpRnXs6MqpF2+kQg==
-X-YMail-OSG: bjKgAnAVM1ms1_hyvCXWwZiFoHiWOlTs6Ms2kSS6C6OW_ClUjMXkjJCwwuLUIS_
- h5XnDhIfSQnbVbX1EiNCoF289tTOSS0LVez1UcmeSJzKlG7vWf2tQBFsbYbFtjIdo5HlleyacQjK
- _3l5qP0FB7R9WhCRpocKb.m8YBvPcGQMFwk5UWZhJjdjO2ar7WfhI4SKUsTXjTtw4aQQuxGONmHf
- v5q7fjbaGSjisTbFLsskbVib0qa3jhNvXqYJLKvRjsvC59SVO9GedR4hv08k8MKiqs9qRz6Cw2mR
- 6npoZmlBV3aEJtjqo.kWht18gkEyf.0sefr1Vz0nlptnOkLZNlgLi2g6meBG3QRPeszYlKB_7tEB
- M9KKaEfXfM5_mfvRU7wb21yIjXTzi2jyBX06LlvuTSAO6PeUxWnO2wthXeoRqeWEvQ1Ipfi16K9Z
- ZLrR1BonUtY.W.ndl4tEdVZ0LYZI.JHF_U1hhrUyThEo5jw6cveMKg4JYP.s23KkunIWOJTEEUo1
- EKv_PJySNWcxR0r5qjr0HOPqwbYPDMuKFNvQkCWX9gA8l6FIvCuIe04NXuXYP_dcMWXkbf6Iyeob
- Cu7Q6u6eg77c5jTzjGJRTNiQL6BQ7ZsRzP55RD430P8i5bkkCJG_qUz44aNctnwIHBxnkeNRq6dX
- hs1phar8P_Zi66S4Gp5noWDRXgkgxCLKh9aycp6sW4spIK6PRGT8MMRkhSLJ9UV9M5mpZov9SFBT
- qtBzWqEX8y_9Rvbt.fATKXBYqldU1eFRjD8LzgpZAIppLmtM44pqChjTkaBAAKkF8durvjeCdfs5
- YH_hLJy7bc4z4AjwCVuY.g7EL.kSagG10lQoXA1PBUCX9fVQkhqu3WS.oqG.ZJk6.i5lUqwB8Vci
- kbp3vvmzHSeOWhfI8Tp2NvMcfEaSE.3nryijpsjNnunUjGp_fcaHqEVZRxh9Eh21xlRNhGa.u1I8
- k6zx43PJG0Ar2nABAyLa9yed5W6H1s_ZuP0VtnFIRv3lPZgOwkBirfDDKnISvvnRtHGDFWya5q9y
- RIyAPdYAe2N51PoXexkxndg.hDqh71BjOhBwM7rMejrgjYF0IfKkVB9mztsagbp7YtSvCmJsd6Lq
- 2KvYDBGs.IqdoYFY3etvH6GYD._4T5YB1qz0zJ5SVVF0P6u2iW9MT4pQPKrJbupdbghTS60_bOG4
- vNq4zxlTR6cQ4b0RSVDNR8Ku4l1bkCWnqZQYm0w5jpHua8Q8TPPppFk_Q8qYSKZUxKsp1Qx84nRn
- orkB.dv5tF30oxKw5gGyHiQ35IExKRov07dGUUMx6rW5uTE59Lp6abUjQBNMEoQ3hdm608vYcxcd
- x.sVWz6qU9B6U8n5tYaGYiW3vz.eWSAb7Kd1x5HqTiSa6HsUiSRVnk8PzJlcLSX4rFHcFhGGtPBa
- OXoYkyB1CqPGho2wxy7z071HwhLFpENA-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.bf2.yahoo.com with HTTP; Fri, 24 Jul 2020 20:41:32 +0000
-Received: by smtp418.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 006a0575bffb1524bcd8a8c621c1f5ce;
-          Fri, 24 Jul 2020 20:41:28 +0000 (UTC)
+        id S1726666AbgGXUns (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 16:43:48 -0400
+Received: from sonic317-32.consmr.mail.bf2.yahoo.com ([74.6.129.87]:45916 "EHLO
+        sonic317-32.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726652AbgGXUns (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 16:43:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1595623427; bh=234xaKUPRrEJCTjuYBkCOO3TsjX0WFi6pBUT1DN6P6o=; h=From:To:Cc:Subject:Date:In-Reply-To:References:From:Subject; b=LzWVcNALyCHBAgo26GDk5cJKEtUORfX767BTumIZX9DnFUtFTbwwoYHgxfaPoc1kMnuA6859Vh0TQIOyzg9UpY66oCAdbh+baCfwXacHxqGB0lJJ4GK4s49Z0WtBoF8Pn2xdII6rBRgwAh3DNHRRyTTDhGnEBqYYh0M0/qfdEtILN86Iu3YXcwYjP0nPvHsJdiOPiI4l6EyRB0oXLQVa694XKvhRgk+b27W8t6EbMnGbTflDy42VqtCT6MeOHJ4XERB2MEwMLCuhiBDzQH7HQGNaPEjt8vU3Y9SjAXPrpwXCbWFwSKfrT5ODPhEfhNMADQ3jXJMhXaVUyIHQa4xDmA==
+X-YMail-OSG: W4rpcPgVM1kGbzBzkfqqG5AfvwocczHrL_p1ZRhxDKby60tmB8_g5jyv09Xn.D_
+ Cbw67jx32PcH3ooWn.sqI2oSXeAeA4TKpTV17pjfUiCTCpVcNbKBgX9Gc9t4B3mPAamG7XSgZQB4
+ 9qBn7oPUswCTgnQGPKuzcfHILkvt9guwUmSaDnj6fvwre4vzpog8sDfqsBi7fdqfudrOWE0U0tKk
+ fwQwk7UsU_BKU4X8Gmh38qINwSTpy4FKR6B6GQt10L3S3wOwX77P2y5lAhX1EChDOu3kD_DpdNPM
+ 32QIv13F7C0FiYymUv4g.DxdJKisT8ObCgguOtaqqdMhfdbb08U9ro1A_741ohg_GfBcpH9B1J83
+ Mb1echna_7e_y4tBriIrKH7PhiWjWsQttMKESZLjzMdeLxxnKQrOJDDtnqhM8ArNvCl5QxeR1heR
+ DY2m4Q4ohJ_jOFFxlrhHqXhvpPhw1q32IwGtn23bRTcYWIcvY_Q5p6IV4QwDxOhmDUXOKB3pcsnl
+ RMkwNn2aqLBMdWgrCQg6DtKSaw6H7xsZPHOlUm0L29w27AjNKMZfCsY5qyTb2DeWw0plSDZZ1Sem
+ dmQUoktOxdkISEU37is9pQOggTGQ37y5Y56rAcWQYfMwNzXLjW.QlrJt2yyJN8JrMVZj22wCyzYX
+ Br.KYewANRXRYNoU09ZwUtBGfXWARs8RQamTsrtdtLGOBdNKYcezR4MlAPl7sZ9TSW4kWSQBA_Ta
+ 7g9wA9tJ3O9M2jHdAVTKUKURD4hix.n.sF7PYKPYA_Ereh9NkKDdABVJeOcrIlhTEHiPj.INrMCF
+ NXXlOrfBmzWNKye5BUUPt0JDhtCwMYs1QDoVMPUVazipGnahxw3X4EqQKNzIdNeT_jfMTGbRv06.
+ K7oalhUFDGq8PKhgNOZWci_UUBRPpZD11Iju9vcoaEhsWu22G0ajEcPrsLv8tvCcRZ8GQ2EFZOh1
+ 6KqYiSORbQ6hl_olupcOHsMBJ8Fl8bpWCghGPWPrPAovZE4uIAc7vJbK0WAaSbuT6PGapXzcJ8mA
+ lb3ZlOF_taXpPh0L_ENrzKGJVVfpIz2Dw.w20WOhao.8Bqj8xBO8CaCBvNm3H1VDI47Nnn8rubTR
+ GoLNNywKeiI5mYD4KDJuEBwRo_xJLglZViyHsLGhHbPKR77h0NR1cSGsfIqAs9o784iekDHPlI1W
+ cMXxe.lk.ra40NYIT6u3mzovUJLkSvvDgeBFOZ7nQEEOhOE5SVgW4bPzv_R.usIZJREey1tOwN7i
+ 38ntgVV_F7CeiFyAkB39A8Lylt9h2yBPKSTpA7adl8BDK6egRMksgOGsiun.pYN0_4vFefXXnkmp
+ JC4Jy7IZIbLyLGwxMwM1QH73LJxY80T5S6o1WUGX7CSfx3Bp4gBRRunWn9TGEwB8a7_KTVZMZE0z
+ _F7ianSZ2L06wek.U07POhRC9yH3kXgmKkf5K
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.bf2.yahoo.com with HTTP; Fri, 24 Jul 2020 20:43:47 +0000
+Received: by smtp421.mail.bf1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 2a27315c8f93868f4c41ab74491b0352;
+          Fri, 24 Jul 2020 20:43:42 +0000 (UTC)
 From:   Casey Schaufler <casey@schaufler-ca.com>
 To:     casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
 Cc:     casey@schaufler-ca.com, linux-audit@redhat.com,
         keescook@chromium.org, john.johansen@canonical.com,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov
-Subject: [PATCH v19 08/23] LSM: Use lsmblob in security_ipc_getsecid
-Date:   Fri, 24 Jul 2020 13:32:11 -0700
-Message-Id: <20200724203226.16374-9-casey@schaufler-ca.com>
+        sds@tycho.nsa.gov, linux-integrity@vger.kernel.org
+Subject: [PATCH v19 10/23] LSM: Use lsmblob in security_inode_getsecid
+Date:   Fri, 24 Jul 2020 13:32:13 -0700
+Message-Id: <20200724203226.16374-11-casey@schaufler-ca.com>
 X-Mailer: git-send-email 2.24.1
 In-Reply-To: <20200724203226.16374-1-casey@schaufler-ca.com>
 References: <20200724203226.16374-1-casey@schaufler-ca.com>
@@ -65,94 +65,117 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-There may be more than one LSM that provides IPC data
-for auditing. Change security_ipc_getsecid() to fill in
-a lsmblob structure instead of the u32 secid. The
-audit data structure containing the secid will be updated
-later, so there is a bit of scaffolding here.
+Change the security_inode_getsecid() interface to fill in a
+lsmblob structure instead of a u32 secid. This allows for its
+callers to gather data from all registered LSMs. Data is provided
+for IMA and audit.
 
 Reviewed-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: John Johansen <john.johansen@canonical.com>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+cc: linux-integrity@vger.kernel.org
 ---
- include/linux/security.h |  7 ++++---
- kernel/auditsc.c         |  7 ++++++-
- security/security.c      | 12 +++++++++---
- 3 files changed, 19 insertions(+), 7 deletions(-)
+ include/linux/security.h            |  7 ++++---
+ kernel/auditsc.c                    |  6 +++++-
+ security/integrity/ima/ima_policy.c |  4 +---
+ security/security.c                 | 11 +++++++++--
+ 4 files changed, 19 insertions(+), 9 deletions(-)
 
 diff --git a/include/linux/security.h b/include/linux/security.h
-index df5e4e8d8e2c..7883975ea6b0 100644
+index 4037391a29b8..b804bf896552 100644
 --- a/include/linux/security.h
 +++ b/include/linux/security.h
-@@ -493,7 +493,7 @@ int security_task_prctl(int option, unsigned long arg2, unsigned long arg3,
- 			unsigned long arg4, unsigned long arg5);
- void security_task_to_inode(struct task_struct *p, struct inode *inode);
- int security_ipc_permission(struct kern_ipc_perm *ipcp, short flag);
--void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid);
-+void security_ipc_getsecid(struct kern_ipc_perm *ipcp, struct lsmblob *blob);
- int security_msg_msg_alloc(struct msg_msg *msg);
- void security_msg_msg_free(struct msg_msg *msg);
- int security_msg_queue_alloc(struct kern_ipc_perm *msq);
-@@ -1214,9 +1214,10 @@ static inline int security_ipc_permission(struct kern_ipc_perm *ipcp,
+@@ -434,7 +434,7 @@ int security_inode_killpriv(struct dentry *dentry);
+ int security_inode_getsecurity(struct inode *inode, const char *name, void **buffer, bool alloc);
+ int security_inode_setsecurity(struct inode *inode, const char *name, const void *value, size_t size, int flags);
+ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer_size);
+-void security_inode_getsecid(struct inode *inode, u32 *secid);
++void security_inode_getsecid(struct inode *inode, struct lsmblob *blob);
+ int security_inode_copy_up(struct dentry *src, struct cred **new);
+ int security_inode_copy_up_xattr(const char *name);
+ int security_kernfs_init_security(struct kernfs_node *kn_dir,
+@@ -957,9 +957,10 @@ static inline int security_inode_listsecurity(struct inode *inode, char *buffer,
  	return 0;
  }
  
--static inline void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
-+static inline void security_ipc_getsecid(struct kern_ipc_perm *ipcp,
-+					 struct lsmblob *blob)
+-static inline void security_inode_getsecid(struct inode *inode, u32 *secid)
++static inline void security_inode_getsecid(struct inode *inode,
++					   struct lsmblob *blob)
  {
 -	*secid = 0;
 +	lsmblob_init(blob, 0);
  }
  
- static inline int security_msg_msg_alloc(struct msg_msg *msg)
+ static inline int security_inode_copy_up(struct dentry *src, struct cred **new)
 diff --git a/kernel/auditsc.c b/kernel/auditsc.c
-index 3c9525c72c89..ff30714c89dc 100644
+index 4928159d1ce2..d3e1bea08da0 100644
 --- a/kernel/auditsc.c
 +++ b/kernel/auditsc.c
-@@ -2307,11 +2307,16 @@ void __audit_mq_getsetattr(mqd_t mqdes, struct mq_attr *mqstat)
- void __audit_ipc_obj(struct kern_ipc_perm *ipcp)
+@@ -1946,13 +1946,17 @@ static void audit_copy_inode(struct audit_names *name,
+ 			     const struct dentry *dentry,
+ 			     struct inode *inode, unsigned int flags)
  {
- 	struct audit_context *context = audit_context();
 +	struct lsmblob blob;
- 	context->ipc.uid = ipcp->uid;
- 	context->ipc.gid = ipcp->gid;
- 	context->ipc.mode = ipcp->mode;
- 	context->ipc.has_perm = 0;
--	security_ipc_getsecid(ipcp, &context->ipc.osid);
-+	security_ipc_getsecid(ipcp, &blob);
-+	/* context->ipc.osid will be changed to a lsmblob later in
-+	 * the patch series. This will allow auditing of all the object
-+	 * labels associated with the ipc object. */
-+	context->ipc.osid = lsmblob_value(&blob);
- 	context->type = AUDIT_IPC;
- }
++
+ 	name->ino   = inode->i_ino;
+ 	name->dev   = inode->i_sb->s_dev;
+ 	name->mode  = inode->i_mode;
+ 	name->uid   = inode->i_uid;
+ 	name->gid   = inode->i_gid;
+ 	name->rdev  = inode->i_rdev;
+-	security_inode_getsecid(inode, &name->osid);
++	security_inode_getsecid(inode, &blob);
++	/* scaffolding until osid is updated */
++	name->osid = blob.secid[0];
+ 	if (flags & AUDIT_INODE_NOEVAL) {
+ 		name->fcap_ver = -1;
+ 		return;
+diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+index 9a0f462e8891..8f9c66a0a612 100644
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -479,7 +479,6 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+ 		return false;
+ 	for (i = 0; i < MAX_LSM_RULES; i++) {
+ 		int rc = 0;
+-		u32 osid;
+ 		struct lsmblob lsmdata;
  
+ 		if (!ima_lsm_isset(rule->lsm[i].rules)) {
+@@ -492,8 +491,7 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+ 		case LSM_OBJ_USER:
+ 		case LSM_OBJ_ROLE:
+ 		case LSM_OBJ_TYPE:
+-			security_inode_getsecid(inode, &osid);
+-			lsmblob_init(&lsmdata, osid);
++			security_inode_getsecid(inode, &lsmdata);
+ 			rc = security_filter_rule_match(&lsmdata,
+ 							rule->lsm[i].type,
+ 							Audit_equal,
 diff --git a/security/security.c b/security/security.c
-index ce0934395c53..c74c7722e5f4 100644
+index 01c1561901fa..d641c6dc5933 100644
 --- a/security/security.c
 +++ b/security/security.c
-@@ -1866,10 +1866,16 @@ int security_ipc_permission(struct kern_ipc_perm *ipcp, short flag)
- 	return call_int_hook(ipc_permission, 0, ipcp, flag);
+@@ -1442,9 +1442,16 @@ int security_inode_listsecurity(struct inode *inode, char *buffer, size_t buffer
  }
+ EXPORT_SYMBOL(security_inode_listsecurity);
  
--void security_ipc_getsecid(struct kern_ipc_perm *ipcp, u32 *secid)
-+void security_ipc_getsecid(struct kern_ipc_perm *ipcp, struct lsmblob *blob)
+-void security_inode_getsecid(struct inode *inode, u32 *secid)
++void security_inode_getsecid(struct inode *inode, struct lsmblob *blob)
  {
--	*secid = 0;
--	call_void_hook(ipc_getsecid, ipcp, secid);
+-	call_void_hook(inode_getsecid, inode, secid);
 +	struct security_hook_list *hp;
 +
 +	lsmblob_init(blob, 0);
-+	hlist_for_each_entry(hp, &security_hook_heads.ipc_getsecid, list) {
++	hlist_for_each_entry(hp, &security_hook_heads.inode_getsecid, list) {
 +		if (WARN_ON(hp->lsmid->slot < 0 || hp->lsmid->slot >= lsm_slot))
 +			continue;
-+		hp->hook.ipc_getsecid(ipcp, &blob->secid[hp->lsmid->slot]);
++		hp->hook.inode_getsecid(inode, &blob->secid[hp->lsmid->slot]);
 +	}
  }
  
- int security_msg_msg_alloc(struct msg_msg *msg)
+ int security_inode_copy_up(struct dentry *src, struct cred **new)
 -- 
 2.24.1
 
