@@ -8,56 +8,56 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18000C43459
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:38:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C212FC43468
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:38:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DF349206EB
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:38:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9E7D3206EB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:38:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="nsD2qB+y"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Nc4diiOS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbgGXViE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 17:38:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57776 "EHLO
+        id S1727970AbgGXVic (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 17:38:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726977AbgGXVgu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 17:36:50 -0400
-Received: from mail-pl1-x643.google.com (mail-pl1-x643.google.com [IPv6:2607:f8b0:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B55A9C08C5DB
+        with ESMTP id S1726968AbgGXVgt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 17:36:49 -0400
+Received: from mail-pg1-x542.google.com (mail-pg1-x542.google.com [IPv6:2607:f8b0:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23F91C03CA40
         for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:36:49 -0700 (PDT)
-Received: by mail-pl1-x643.google.com with SMTP id k4so5289902pld.12
+Received: by mail-pg1-x542.google.com with SMTP id d4so6147626pgk.4
         for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:36:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Hjwp/nGyl1S0UwOjxsDkua/GU9eKfNmuj/NK0fmiegQ=;
-        b=nsD2qB+yhZ4FY8i46GadMZgrib/xFnsEu37PdNOloGYoyRGKtz4c3bV5F7gs/LoOvy
-         tVOQMbJ/917IuSrHXM2SOnymr8URoWUMprme+Fy1pXLQXsVaGgbRPfkm4GRt5sTgCX0B
-         rKosZfccsdeBUAv7t/yQ+D7feipxjxxSTKv10=
+        bh=vcN9YX8ekyRngE6bYuM+DpwcbgbhaICM+gIK3/spxEo=;
+        b=Nc4diiOSieMuCnwFnM1yLq67WkmNMLzX2630xjI5cNAoihRYSscqjCh5iq+xIqV8Rf
+         C/nzz1nmc+3U8+Im2MKoaswgBHNvpJxQ3RTT0CH0MqwRrrRlXHub57dfzOjxLRMe/pUb
+         BbFOK0m7fuKN+YQoWATIv6L6EH0a2FruUCsI0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Hjwp/nGyl1S0UwOjxsDkua/GU9eKfNmuj/NK0fmiegQ=;
-        b=aqfUOC7bnGWFbjQK6xRRDdidiUENfn8JLuHKFTzZzunNFPjfAYG3yDbDukJuK2Sx7t
-         H2Rbxww7f0OdsC91TSsT/x/5fzFBWhw5e4Ska4arqrpdHVQgyaHc0msoOt1reNg6Wjt8
-         JVVlItbfcWTMkBabT4s1J0XxAF2yXnp8zfZAI+Pz+u7IxGuGfJdfNvgwqO8afPEpsT76
-         e4fCBKZ+FxkShEtIWQ5rtPIi9LtIfP6XIoGSVwU+NTIONOYjKYejY0AUuagqOG9GvCGH
-         9tSiBTMcalfrhVefVU6D0g3I7GHTbt3XYDkaj4tU4BqaEv3R+c0RVI6a7x+HoDQP6vmx
-         VONg==
-X-Gm-Message-State: AOAM531CzffO8QToN9vbAK3cN2fxWgl+z5mpdqx0YEAoOuw3i/3y1aWC
-        4kyDi8WhHUD+/UNtNhIlQWjXAg==
-X-Google-Smtp-Source: ABdhPJz1wMUjUh+/fd7LCPIgQnW0eU4TW6QY+vYnYaYp817i4Mf88/7MOmhhWck7+HfH2I2JR77bEQ==
-X-Received: by 2002:a17:90a:3903:: with SMTP id y3mr774153pjb.112.1595626609269;
-        Fri, 24 Jul 2020 14:36:49 -0700 (PDT)
+        bh=vcN9YX8ekyRngE6bYuM+DpwcbgbhaICM+gIK3/spxEo=;
+        b=Xasw2iWSc6f4J/zzDvG8HrNECviFjpIpWyLGH/fOKZDcmanoufOxd9EEdPFPK2ff11
+         Ht2SafT/APuFAXbSf+XN8RO9LcnsZzvDzg07STXTWbZz0Lwoo5cxLSASt8B6RIiwS6Qv
+         1NVngcJIQ9X699YkjYdRZArr4K2P40ICJ4kHUfay4z/mt7dHdlGzhOwo6tVeZjJ5TnDY
+         I5CFgMKDXYB/5PqjVlJBDLoDWAVJDxmuqQ6paMvQt+FwLq2dMLSIB7z376cqBnA4tJoF
+         Ikui1AjWrM+veaK/G6GPHLtrd6J7jjjuPJIfmodNmoqYhwbHlznNkn1m+b+P8Qvqf65J
+         /1VQ==
+X-Gm-Message-State: AOAM531Jt3eyr9RhMFGfAOwB3rM4qNdCDPScsKubkE78fBiyf6glK6tm
+        NnEJjhOzAATPXf6F1C2wHMhJ9w==
+X-Google-Smtp-Source: ABdhPJyJrXi5k9Qloae7/gFl16disQrz+TOWjexj7lVgRQuvGP6252jBRHdY/u/NQrhbtwjiKq8yXA==
+X-Received: by 2002:a62:a217:: with SMTP id m23mr10629324pff.291.1595626608680;
+        Fri, 24 Jul 2020 14:36:48 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id x9sm8155711pfq.216.2020.07.24.14.36.46
+        by smtp.gmail.com with ESMTPSA id q24sm6722845pgg.3.2020.07.24.14.36.45
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 24 Jul 2020 14:36:47 -0700 (PDT)
 From:   Kees Cook <keescook@chromium.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Kees Cook <keescook@chromium.org>,
+Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
         Scott Branden <scott.branden@broadcom.com>,
         Mimi Zohar <zohar@linux.ibm.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
@@ -66,9 +66,9 @@ Cc:     Kees Cook <keescook@chromium.org>,
         linux-security-module@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 07/19] fs/kernel_read_file: Split into separate source file
-Date:   Fri, 24 Jul 2020 14:36:28 -0700
-Message-Id: <20200724213640.389191-8-keescook@chromium.org>
+Subject: [PATCH v3 05/19] fs/kernel_read_file: Remove FIRMWARE_EFI_EMBEDDED enum
+Date:   Fri, 24 Jul 2020 14:36:26 -0700
+Message-Id: <20200724213640.389191-6-keescook@chromium.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200724213640.389191-1-keescook@chromium.org>
 References: <20200724213640.389191-1-keescook@chromium.org>
@@ -79,320 +79,53 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-These routines are used in places outside of exec(2), so in preparation
-for refactoring them, move them into a separate source file,
-fs/kernel_read_file.c.
+The "FIRMWARE_EFI_EMBEDDED" enum is a "where", not a "what". It
+should not be distinguished separately from just "FIRMWARE", as this
+confuses the LSMs about what is being loaded. Additionally, there was
+no actual validation of the firmware contents happening.
 
+Fixes: e4c2c0ff00ec ("firmware: Add new platform fallback mechanism and firmware_request_platform()")
+Cc: stable@vger.kernel.org
 Acked-by: Scott Branden <scott.branden@broadcom.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- fs/Makefile           |   3 +-
- fs/exec.c             | 132 ----------------------------------------
- fs/kernel_read_file.c | 138 ++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 140 insertions(+), 133 deletions(-)
- create mode 100644 fs/kernel_read_file.c
+To aid in backporting, this change is made before moving
+kernel_read_file() to separate header/source files.
+---
+ drivers/base/firmware_loader/fallback_platform.c | 2 +-
+ include/linux/fs.h                               | 3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/fs/Makefile b/fs/Makefile
-index 2ce5112b02c8..a05fc247b2a7 100644
---- a/fs/Makefile
-+++ b/fs/Makefile
-@@ -13,7 +13,8 @@ obj-y :=	open.o read_write.o file_table.o super.o \
- 		seq_file.o xattr.o libfs.o fs-writeback.o \
- 		pnode.o splice.o sync.o utimes.o d_path.o \
- 		stack.o fs_struct.o statfs.o fs_pin.o nsfs.o \
--		fs_types.o fs_context.o fs_parser.o fsopen.o
-+		fs_types.o fs_context.o fs_parser.o fsopen.o \
-+		kernel_read_file.o
+diff --git a/drivers/base/firmware_loader/fallback_platform.c b/drivers/base/firmware_loader/fallback_platform.c
+index 685edb7dd05a..6958ab1a8059 100644
+--- a/drivers/base/firmware_loader/fallback_platform.c
++++ b/drivers/base/firmware_loader/fallback_platform.c
+@@ -17,7 +17,7 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
+ 	if (!(opt_flags & FW_OPT_FALLBACK_PLATFORM))
+ 		return -ENOENT;
  
- ifeq ($(CONFIG_BLOCK),y)
- obj-y +=	buffer.o block_dev.o direct-io.o mpage.o
-diff --git a/fs/exec.c b/fs/exec.c
-index 07a7fe9ac5be..d619b79aab30 100644
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -923,138 +923,6 @@ struct file *open_exec(const char *name)
- }
- EXPORT_SYMBOL(open_exec);
+-	rc = security_kernel_load_data(LOADING_FIRMWARE_EFI_EMBEDDED);
++	rc = security_kernel_load_data(LOADING_FIRMWARE);
+ 	if (rc)
+ 		return rc;
  
--int kernel_read_file(struct file *file, void **buf, loff_t *size,
--		     loff_t max_size, enum kernel_read_file_id id)
--{
--	loff_t i_size, pos;
--	ssize_t bytes = 0;
--	void *allocated = NULL;
--	int ret;
--
--	if (!S_ISREG(file_inode(file)->i_mode) || max_size < 0)
--		return -EINVAL;
--
--	ret = deny_write_access(file);
--	if (ret)
--		return ret;
--
--	ret = security_kernel_read_file(file, id);
--	if (ret)
--		goto out;
--
--	i_size = i_size_read(file_inode(file));
--	if (i_size <= 0) {
--		ret = -EINVAL;
--		goto out;
--	}
--	if (i_size > SIZE_MAX || (max_size > 0 && i_size > max_size)) {
--		ret = -EFBIG;
--		goto out;
--	}
--
--	if (!*buf)
--		*buf = allocated = vmalloc(i_size);
--	if (!*buf) {
--		ret = -ENOMEM;
--		goto out;
--	}
--
--	pos = 0;
--	while (pos < i_size) {
--		bytes = kernel_read(file, *buf + pos, i_size - pos, &pos);
--		if (bytes < 0) {
--			ret = bytes;
--			goto out_free;
--		}
--
--		if (bytes == 0)
--			break;
--	}
--
--	if (pos != i_size) {
--		ret = -EIO;
--		goto out_free;
--	}
--
--	ret = security_kernel_post_read_file(file, *buf, i_size, id);
--	if (!ret)
--		*size = pos;
--
--out_free:
--	if (ret < 0) {
--		if (allocated) {
--			vfree(*buf);
--			*buf = NULL;
--		}
--	}
--
--out:
--	allow_write_access(file);
--	return ret;
--}
--EXPORT_SYMBOL_GPL(kernel_read_file);
--
--int kernel_read_file_from_path(const char *path, void **buf, loff_t *size,
--			       loff_t max_size, enum kernel_read_file_id id)
--{
--	struct file *file;
--	int ret;
--
--	if (!path || !*path)
--		return -EINVAL;
--
--	file = filp_open(path, O_RDONLY, 0);
--	if (IS_ERR(file))
--		return PTR_ERR(file);
--
--	ret = kernel_read_file(file, buf, size, max_size, id);
--	fput(file);
--	return ret;
--}
--EXPORT_SYMBOL_GPL(kernel_read_file_from_path);
--
--int kernel_read_file_from_path_initns(const char *path, void **buf,
--				      loff_t *size, loff_t max_size,
--				      enum kernel_read_file_id id)
--{
--	struct file *file;
--	struct path root;
--	int ret;
--
--	if (!path || !*path)
--		return -EINVAL;
--
--	task_lock(&init_task);
--	get_fs_root(init_task.fs, &root);
--	task_unlock(&init_task);
--
--	file = file_open_root(root.dentry, root.mnt, path, O_RDONLY, 0);
--	path_put(&root);
--	if (IS_ERR(file))
--		return PTR_ERR(file);
--
--	ret = kernel_read_file(file, buf, size, max_size, id);
--	fput(file);
--	return ret;
--}
--EXPORT_SYMBOL_GPL(kernel_read_file_from_path_initns);
--
--int kernel_read_file_from_fd(int fd, void **buf, loff_t *size, loff_t max_size,
--			     enum kernel_read_file_id id)
--{
--	struct fd f = fdget(fd);
--	int ret = -EBADF;
--
--	if (!f.file)
--		goto out;
--
--	ret = kernel_read_file(f.file, buf, size, max_size, id);
--out:
--	fdput(f);
--	return ret;
--}
--EXPORT_SYMBOL_GPL(kernel_read_file_from_fd);
--
- #if defined(CONFIG_HAVE_AOUT) || defined(CONFIG_BINFMT_FLAT) || \
-     defined(CONFIG_BINFMT_ELF_FDPIC)
- ssize_t read_code(struct file *file, unsigned long addr, loff_t pos, size_t len)
-diff --git a/fs/kernel_read_file.c b/fs/kernel_read_file.c
-new file mode 100644
-index 000000000000..54d972d4befc
---- /dev/null
-+++ b/fs/kernel_read_file.c
-@@ -0,0 +1,138 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/fs.h>
-+#include <linux/fs_struct.h>
-+#include <linux/kernel_read_file.h>
-+#include <linux/security.h>
-+#include <linux/vmalloc.h>
-+
-+int kernel_read_file(struct file *file, void **buf, loff_t *size,
-+		     loff_t max_size, enum kernel_read_file_id id)
-+{
-+	loff_t i_size, pos;
-+	ssize_t bytes = 0;
-+	void *allocated = NULL;
-+	int ret;
-+
-+	if (!S_ISREG(file_inode(file)->i_mode) || max_size < 0)
-+		return -EINVAL;
-+
-+	ret = deny_write_access(file);
-+	if (ret)
-+		return ret;
-+
-+	ret = security_kernel_read_file(file, id);
-+	if (ret)
-+		goto out;
-+
-+	i_size = i_size_read(file_inode(file));
-+	if (i_size <= 0) {
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+	if (i_size > SIZE_MAX || (max_size > 0 && i_size > max_size)) {
-+		ret = -EFBIG;
-+		goto out;
-+	}
-+
-+	if (!*buf)
-+		*buf = allocated = vmalloc(i_size);
-+	if (!*buf) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
-+	pos = 0;
-+	while (pos < i_size) {
-+		bytes = kernel_read(file, *buf + pos, i_size - pos, &pos);
-+		if (bytes < 0) {
-+			ret = bytes;
-+			goto out_free;
-+		}
-+
-+		if (bytes == 0)
-+			break;
-+	}
-+
-+	if (pos != i_size) {
-+		ret = -EIO;
-+		goto out_free;
-+	}
-+
-+	ret = security_kernel_post_read_file(file, *buf, i_size, id);
-+	if (!ret)
-+		*size = pos;
-+
-+out_free:
-+	if (ret < 0) {
-+		if (allocated) {
-+			vfree(*buf);
-+			*buf = NULL;
-+		}
-+	}
-+
-+out:
-+	allow_write_access(file);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(kernel_read_file);
-+
-+int kernel_read_file_from_path(const char *path, void **buf, loff_t *size,
-+			       loff_t max_size, enum kernel_read_file_id id)
-+{
-+	struct file *file;
-+	int ret;
-+
-+	if (!path || !*path)
-+		return -EINVAL;
-+
-+	file = filp_open(path, O_RDONLY, 0);
-+	if (IS_ERR(file))
-+		return PTR_ERR(file);
-+
-+	ret = kernel_read_file(file, buf, size, max_size, id);
-+	fput(file);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(kernel_read_file_from_path);
-+
-+int kernel_read_file_from_path_initns(const char *path, void **buf,
-+				      loff_t *size, loff_t max_size,
-+				      enum kernel_read_file_id id)
-+{
-+	struct file *file;
-+	struct path root;
-+	int ret;
-+
-+	if (!path || !*path)
-+		return -EINVAL;
-+
-+	task_lock(&init_task);
-+	get_fs_root(init_task.fs, &root);
-+	task_unlock(&init_task);
-+
-+	file = file_open_root(root.dentry, root.mnt, path, O_RDONLY, 0);
-+	path_put(&root);
-+	if (IS_ERR(file))
-+		return PTR_ERR(file);
-+
-+	ret = kernel_read_file(file, buf, size, max_size, id);
-+	fput(file);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(kernel_read_file_from_path_initns);
-+
-+int kernel_read_file_from_fd(int fd, void **buf, loff_t *size, loff_t max_size,
-+			     enum kernel_read_file_id id)
-+{
-+	struct fd f = fdget(fd);
-+	int ret = -EBADF;
-+
-+	if (!f.file)
-+		goto out;
-+
-+	ret = kernel_read_file(f.file, buf, size, max_size, id);
-+out:
-+	fdput(f);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(kernel_read_file_from_fd);
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index 95fc775ed937..f50a35d54a61 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2993,11 +2993,10 @@ static inline void i_readcount_inc(struct inode *inode)
+ #endif
+ extern int do_pipe_flags(int *, int);
+ 
+-/* This is a list of *what* is being read, not *how*. */
++/* This is a list of *what* is being read, not *how* nor *where*. */
+ #define __kernel_read_file_id(id) \
+ 	id(UNKNOWN, unknown)		\
+ 	id(FIRMWARE, firmware)		\
+-	id(FIRMWARE_EFI_EMBEDDED, firmware)	\
+ 	id(MODULE, kernel-module)		\
+ 	id(KEXEC_IMAGE, kexec-image)		\
+ 	id(KEXEC_INITRAMFS, kexec-initramfs)	\
 -- 
 2.25.1
 
