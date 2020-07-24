@@ -8,53 +8,53 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7737C43478
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:37:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B4FDC433FC
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:37:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 861142070B
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:37:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F0B65206EB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:37:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="FFcXEfgk"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="PTlcaXvG"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727815AbgGXVhZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 17:37:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57800 "EHLO
+        id S1727029AbgGXVha (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 17:37:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727047AbgGXVgy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 17:36:54 -0400
-Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BEF4C03CA41
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:36:53 -0700 (PDT)
-Received: by mail-pl1-x644.google.com with SMTP id x8so5286011plm.10
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:36:53 -0700 (PDT)
+        with ESMTP id S1727021AbgGXVgx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 17:36:53 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1755C08C5F6
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:36:51 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id w2so6122076pgg.10
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:36:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=dge98+d3xjbY9IP5mQNDSECkvDjG9MOM+lU6BMHPuiA=;
-        b=FFcXEfgkttCC3Z2qxstW9bbEbVNRkqvC5nyxXTbrtOaDI3nApdbb7z5Z1OWo4iGk5C
-         0wH8y0AhWmaXOayH9I0h51mLqEJIgzvA8V93yh3E5v7ymRm6IDOUpvir21WV+XmzU+kP
-         /0qgTxOWjOg/z3BzISNJiAa57jPF4ewHH1l2c=
+        bh=85bNNdGOhW+Ma/bZfAvFnKS9zt0a/6SXyJ36wXOo14s=;
+        b=PTlcaXvGhGRizhHNFk0TaJKRG/RHUffNOK2e7kItuXBPH5qX8gvDz4DdekPnD7PpYt
+         fVRfC0aWAKTcNZHwEJw4MvwSvfYTSxShXLYzhwpSTeJ2MEREWvAeJ+dBKR+l47bkFwBn
+         OUbrIiYHcufGoxgWPpwOY//ftIvNlEHXSf5vE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=dge98+d3xjbY9IP5mQNDSECkvDjG9MOM+lU6BMHPuiA=;
-        b=RKCUN3rhJ3+V1F+ZpG//lbKFDunsLC5Fa3UCAATmJMxitzA0vwUpTck8p2sZL2VXl7
-         wfqsQPAL10adfZ8E3b27KgpaluvAg7Xiiy7huwHpKAdTTjpdSjbo/+pVSXgt1VnnDw22
-         QrAhIZlmudob7OIrpKrj4udqOHRn8VGlrOhBpT66BZqY5ncO+n/E5gIelGmRib0ZweMR
-         8Iejpm8NkfPEwZ7WtckTz00EDVzbbfsZPYgxLtnrrveLXn2CW3o4kxBjNUSciEnHR+Mp
-         jIq0Q0T3kHNXhnhy2J6IVvagmTV/NHNq3D+esdNGHF2PcNLERLG9J1sDROAsDyoodiBS
-         xB5w==
-X-Gm-Message-State: AOAM53350YUVKoTGJxchcQIPnu0RWBAGPKdZAxbIUtatLWoh82qUgX7u
-        DwOwQVPljaZxinpUuW3RxF50IQ==
-X-Google-Smtp-Source: ABdhPJwYfNLa7H5AgOl4oRt/Q37CZLpYlmZ1QEX47HNvfhcJJRZJHoYaPgjdKkZ0aWpdZl5JaDTkwQ==
-X-Received: by 2002:a17:90a:1089:: with SMTP id c9mr7347503pja.180.1595626612773;
-        Fri, 24 Jul 2020 14:36:52 -0700 (PDT)
+        bh=85bNNdGOhW+Ma/bZfAvFnKS9zt0a/6SXyJ36wXOo14s=;
+        b=ISFh59D3yKu+n3ometveoUHEAXW4VmXRE0hVsB+wI7jQBjr4UYlZm7jMDgscmvD/t3
+         DOXOYs4VXjzxgTgslWardBcainjbBu1bOAMdVFjzQgfSrifqHGhwByPsjw4CGT2/sToD
+         EYjy3pTDn74DzRgSfN1soekVQ2/xQxZ8xVOy7aFZM5BdI3Gi21VjMLgvcIbfGcEyu82O
+         M3k/UgvwNL3X+bn4SX8WakMloTPHE83U1qejk64m1qqU2TuYbdqhDx6YzxAWdsZ7YSAC
+         C2kqrSG9k1ab2g3sxS4AUjmDS+Wdb68VpU7CErZzLxEJ/XsEZmKhgnOBTTqth7JnlrzQ
+         A2FQ==
+X-Gm-Message-State: AOAM531FODg/etcK8cC1IhvV5HJOn2p77BrD6HdPI6BaopSz5XA4L44k
+        1BKJBkXgPBxlPCEo1WZXPFV5gw==
+X-Google-Smtp-Source: ABdhPJxJUqAc5FXnhiffj9qkjKqxmSmbFuOwEkujmuT7O4l3ErwBR9U1pC41jpeYuQVufXGz9NfSeA==
+X-Received: by 2002:a62:7a56:: with SMTP id v83mr10555845pfc.114.1595626611378;
+        Fri, 24 Jul 2020 14:36:51 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id a2sm7009778pgf.53.2020.07.24.14.36.47
+        by smtp.gmail.com with ESMTPSA id u16sm6975339pfn.52.2020.07.24.14.36.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2020 14:36:48 -0700 (PDT)
+        Fri, 24 Jul 2020 14:36:47 -0700 (PDT)
 From:   Kees Cook <keescook@chromium.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Kees Cook <keescook@chromium.org>,
@@ -66,9 +66,9 @@ Cc:     Kees Cook <keescook@chromium.org>,
         linux-security-module@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 12/19] firmware_loader: Use security_post_load_data()
-Date:   Fri, 24 Jul 2020 14:36:33 -0700
-Message-Id: <20200724213640.389191-13-keescook@chromium.org>
+Subject: [PATCH v3 10/19] fs/kernel_read_file: Add file_size output argument
+Date:   Fri, 24 Jul 2020 14:36:31 -0700
+Message-Id: <20200724213640.389191-11-keescook@chromium.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200724213640.389191-1-keescook@chromium.org>
 References: <20200724213640.389191-1-keescook@chromium.org>
@@ -79,122 +79,203 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Now that security_post_load_data() is wired up, use it instead
-of the NULL file argument style of security_post_read_file(),
-and update the security_kernel_load_data() call to indicate that a
-security_kernel_post_load_data() call is expected.
+In preparation for adding partial read support, add an optional output
+argument to kernel_read_file*() that reports the file size so callers
+can reason more easily about their reading progress.
 
-Wire up the IMA check to match earlier logic. Perhaps a generalized
-change to ima_post_load_data() might look something like this:
-
-    return process_buffer_measurement(buf, size,
-                                      kernel_load_data_id_str(load_id),
-                                      read_idmap[load_id] ?: FILE_CHECK,
-                                      0, NULL);
-
+Acked-by: Scott Branden <scott.branden@broadcom.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/base/firmware_loader/fallback.c       |  8 ++++----
- .../base/firmware_loader/fallback_platform.c  |  7 ++++++-
- security/integrity/ima/ima_main.c             | 20 +++++++++----------
- 3 files changed, 20 insertions(+), 15 deletions(-)
+ drivers/base/firmware_loader/main.c |  1 +
+ fs/kernel_read_file.c               | 19 +++++++++++++------
+ include/linux/kernel_read_file.h    |  4 ++++
+ kernel/kexec_file.c                 |  4 ++--
+ kernel/module.c                     |  2 +-
+ security/integrity/digsig.c         |  2 +-
+ security/integrity/ima/ima_fs.c     |  2 +-
+ 7 files changed, 23 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/base/firmware_loader/fallback.c b/drivers/base/firmware_loader/fallback.c
-index a196aacce22c..7cfdfdcb819c 100644
---- a/drivers/base/firmware_loader/fallback.c
-+++ b/drivers/base/firmware_loader/fallback.c
-@@ -272,9 +272,9 @@ static ssize_t firmware_loading_store(struct device *dev,
- 				dev_err(dev, "%s: map pages failed\n",
- 					__func__);
- 			else
--				rc = security_kernel_post_read_file(NULL,
--						fw_priv->data, fw_priv->size,
--						READING_FIRMWARE);
-+				rc = security_kernel_post_load_data(fw_priv->data,
-+						fw_priv->size,
-+						LOADING_FIRMWARE);
+diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
+index f80c0d102be8..bd199404935f 100644
+--- a/drivers/base/firmware_loader/main.c
++++ b/drivers/base/firmware_loader/main.c
+@@ -495,6 +495,7 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
  
- 			/*
- 			 * Same logic as fw_load_abort, only the DONE bit
-@@ -613,7 +613,7 @@ static bool fw_run_sysfs_fallback(u32 opt_flags)
- 		return false;
- 
- 	/* Also permit LSMs and IMA to fail firmware sysfs fallback */
--	ret = security_kernel_load_data(LOADING_FIRMWARE, false);
-+	ret = security_kernel_load_data(LOADING_FIRMWARE, true);
- 	if (ret < 0)
- 		return false;
- 
-diff --git a/drivers/base/firmware_loader/fallback_platform.c b/drivers/base/firmware_loader/fallback_platform.c
-index a12c79d47efc..4d1157af0e86 100644
---- a/drivers/base/firmware_loader/fallback_platform.c
-+++ b/drivers/base/firmware_loader/fallback_platform.c
-@@ -17,7 +17,7 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
- 	if (!(opt_flags & FW_OPT_FALLBACK_PLATFORM))
- 		return -ENOENT;
- 
--	rc = security_kernel_load_data(LOADING_FIRMWARE, false);
-+	rc = security_kernel_load_data(LOADING_FIRMWARE, true);
- 	if (rc)
- 		return rc;
- 
-@@ -27,6 +27,11 @@ int firmware_fallback_platform(struct fw_priv *fw_priv, u32 opt_flags)
- 
- 	if (fw_priv->data && size > fw_priv->allocated_size)
- 		return -ENOMEM;
-+
-+	rc = security_kernel_post_load_data((u8 *)data, size, LOADING_FIRMWARE);
-+	if (rc)
-+		return rc;
-+
- 	if (!fw_priv->data)
- 		fw_priv->data = vmalloc(size);
- 	if (!fw_priv->data)
-diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
-index 85000dc8595c..1a7bc4c7437d 100644
---- a/security/integrity/ima/ima_main.c
-+++ b/security/integrity/ima/ima_main.c
-@@ -648,15 +648,6 @@ int ima_post_read_file(struct file *file, void *buf, loff_t size,
- 	enum ima_hooks func;
- 	u32 secid;
- 
--	if (!file && read_id == READING_FIRMWARE) {
--		if ((ima_appraise & IMA_APPRAISE_FIRMWARE) &&
--		    (ima_appraise & IMA_APPRAISE_ENFORCE)) {
--			pr_err("Prevent firmware loading_store.\n");
--			return -EACCES;	/* INTEGRITY_UNKNOWN */
--		}
--		return 0;
--	}
--
- 	/* permit signed certs */
- 	if (!file && read_id == READING_X509_CERTIFICATE)
- 		return 0;
-@@ -706,7 +697,7 @@ int ima_load_data(enum kernel_load_data_id id, bool contents)
- 		}
- 		break;
- 	case LOADING_FIRMWARE:
--		if (ima_enforce && (ima_appraise & IMA_APPRAISE_FIRMWARE)) {
-+		if (ima_enforce && (ima_appraise & IMA_APPRAISE_FIRMWARE) && !contents) {
- 			pr_err("Prevent firmware sysfs fallback loading.\n");
- 			return -EACCES;	/* INTEGRITY_UNKNOWN */
- 		}
-@@ -739,6 +730,15 @@ int ima_load_data(enum kernel_load_data_id id, bool contents)
+ 		/* load firmware files from the mount namespace of init */
+ 		rc = kernel_read_file_from_path_initns(path, &buffer, msize,
++						       NULL,
+ 						       READING_FIRMWARE);
+ 		if (rc < 0) {
+ 			if (rc != -ENOENT)
+diff --git a/fs/kernel_read_file.c b/fs/kernel_read_file.c
+index e21a76001fff..2e29c38eb4df 100644
+--- a/fs/kernel_read_file.c
++++ b/fs/kernel_read_file.c
+@@ -14,6 +14,8 @@
+  *		@buf_size will be ignored)
+  * @buf_size	size of buf, if already allocated. If @buf not
+  *		allocated, this is the largest size to allocate.
++ * @file_size	if non-NULL, the full size of @file will be
++ *		written here.
+  * @id		the kernel_read_file_id identifying the type of
+  *		file contents being read (for LSMs to examine)
+  *
+@@ -22,7 +24,8 @@
+  *
   */
- int ima_post_load_data(char *buf, loff_t size, enum kernel_load_data_id load_id)
+ int kernel_read_file(struct file *file, void **buf,
+-		     size_t buf_size, enum kernel_read_file_id id)
++		     size_t buf_size, size_t *file_size,
++		     enum kernel_read_file_id id)
  {
-+	if (load_id == LOADING_FIRMWARE) {
-+		if ((ima_appraise & IMA_APPRAISE_FIRMWARE) &&
-+		    (ima_appraise & IMA_APPRAISE_ENFORCE)) {
-+			pr_err("Prevent firmware loading_store.\n");
-+			return -EACCES; /* INTEGRITY_UNKNOWN */
-+		}
-+		return 0;
-+	}
-+
- 	return 0;
- }
+ 	loff_t i_size, pos;
+ 	ssize_t bytes = 0;
+@@ -49,6 +52,8 @@ int kernel_read_file(struct file *file, void **buf,
+ 		ret = -EFBIG;
+ 		goto out;
+ 	}
++	if (file_size)
++		*file_size = i_size;
  
+ 	if (!*buf)
+ 		*buf = allocated = vmalloc(i_size);
+@@ -91,7 +96,8 @@ int kernel_read_file(struct file *file, void **buf,
+ EXPORT_SYMBOL_GPL(kernel_read_file);
+ 
+ int kernel_read_file_from_path(const char *path, void **buf,
+-			       size_t buf_size, enum kernel_read_file_id id)
++			       size_t buf_size, size_t *file_size,
++			       enum kernel_read_file_id id)
+ {
+ 	struct file *file;
+ 	int ret;
+@@ -103,14 +109,14 @@ int kernel_read_file_from_path(const char *path, void **buf,
+ 	if (IS_ERR(file))
+ 		return PTR_ERR(file);
+ 
+-	ret = kernel_read_file(file, buf, buf_size, id);
++	ret = kernel_read_file(file, buf, buf_size, file_size, id);
+ 	fput(file);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(kernel_read_file_from_path);
+ 
+ int kernel_read_file_from_path_initns(const char *path, void **buf,
+-				      size_t buf_size,
++				      size_t buf_size, size_t *file_size,
+ 				      enum kernel_read_file_id id)
+ {
+ 	struct file *file;
+@@ -129,13 +135,14 @@ int kernel_read_file_from_path_initns(const char *path, void **buf,
+ 	if (IS_ERR(file))
+ 		return PTR_ERR(file);
+ 
+-	ret = kernel_read_file(file, buf, buf_size, id);
++	ret = kernel_read_file(file, buf, buf_size, file_size, id);
+ 	fput(file);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(kernel_read_file_from_path_initns);
+ 
+ int kernel_read_file_from_fd(int fd, void **buf, size_t buf_size,
++			     size_t *file_size,
+ 			     enum kernel_read_file_id id)
+ {
+ 	struct fd f = fdget(fd);
+@@ -144,7 +151,7 @@ int kernel_read_file_from_fd(int fd, void **buf, size_t buf_size,
+ 	if (!f.file)
+ 		goto out;
+ 
+-	ret = kernel_read_file(f.file, buf, buf_size, id);
++	ret = kernel_read_file(f.file, buf, buf_size, file_size, id);
+ out:
+ 	fdput(f);
+ 	return ret;
+diff --git a/include/linux/kernel_read_file.h b/include/linux/kernel_read_file.h
+index 910039e7593e..023293eaf948 100644
+--- a/include/linux/kernel_read_file.h
++++ b/include/linux/kernel_read_file.h
+@@ -37,15 +37,19 @@ static inline const char *kernel_read_file_id_str(enum kernel_read_file_id id)
+ 
+ int kernel_read_file(struct file *file,
+ 		     void **buf, size_t buf_size,
++		     size_t *file_size,
+ 		     enum kernel_read_file_id id);
+ int kernel_read_file_from_path(const char *path,
+ 			       void **buf, size_t buf_size,
++			       size_t *file_size,
+ 			       enum kernel_read_file_id id);
+ int kernel_read_file_from_path_initns(const char *path,
+ 				      void **buf, size_t buf_size,
++				      size_t *file_size,
+ 				      enum kernel_read_file_id id);
+ int kernel_read_file_from_fd(int fd,
+ 			     void **buf, size_t buf_size,
++			     size_t *file_size,
+ 			     enum kernel_read_file_id id);
+ 
+ #endif /* _LINUX_KERNEL_READ_FILE_H */
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index eda19ca256a3..878ca684a3a1 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -222,7 +222,7 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
+ 	void *ldata;
+ 
+ 	ret = kernel_read_file_from_fd(kernel_fd, &image->kernel_buf,
+-				       INT_MAX, READING_KEXEC_IMAGE);
++				       INT_MAX, NULL, READING_KEXEC_IMAGE);
+ 	if (ret < 0)
+ 		return ret;
+ 	image->kernel_buf_len = ret;
+@@ -242,7 +242,7 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
+ 	/* It is possible that there no initramfs is being loaded */
+ 	if (!(flags & KEXEC_FILE_NO_INITRAMFS)) {
+ 		ret = kernel_read_file_from_fd(initrd_fd, &image->initrd_buf,
+-					       INT_MAX,
++					       INT_MAX, NULL,
+ 					       READING_KEXEC_INITRAMFS);
+ 		if (ret < 0)
+ 			goto out;
+diff --git a/kernel/module.c b/kernel/module.c
+index b6fd4f51cc30..860d713dd910 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -4001,7 +4001,7 @@ SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
+ 		      |MODULE_INIT_IGNORE_VERMAGIC))
+ 		return -EINVAL;
+ 
+-	err = kernel_read_file_from_fd(fd, &hdr, INT_MAX,
++	err = kernel_read_file_from_fd(fd, &hdr, INT_MAX, NULL,
+ 				       READING_MODULE);
+ 	if (err < 0)
+ 		return err;
+diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
+index 04f779c4f5ed..8a523dfd7fd7 100644
+--- a/security/integrity/digsig.c
++++ b/security/integrity/digsig.c
+@@ -175,7 +175,7 @@ int __init integrity_load_x509(const unsigned int id, const char *path)
+ 	int rc;
+ 	key_perm_t perm;
+ 
+-	rc = kernel_read_file_from_path(path, &data, INT_MAX,
++	rc = kernel_read_file_from_path(path, &data, INT_MAX, NULL,
+ 					READING_X509_CERTIFICATE);
+ 	if (rc < 0) {
+ 		pr_err("Unable to open file: %s (%d)", path, rc);
+diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
+index 692b83e82edf..5fc56ccb6678 100644
+--- a/security/integrity/ima/ima_fs.c
++++ b/security/integrity/ima/ima_fs.c
+@@ -284,7 +284,7 @@ static ssize_t ima_read_policy(char *path)
+ 	datap = path;
+ 	strsep(&datap, "\n");
+ 
+-	rc = kernel_read_file_from_path(path, &data, INT_MAX, READING_POLICY);
++	rc = kernel_read_file_from_path(path, &data, INT_MAX, NULL, READING_POLICY);
+ 	if (rc < 0) {
+ 		pr_err("Unable to open file: %s (%d)", path, rc);
+ 		return rc;
 -- 
 2.25.1
 
