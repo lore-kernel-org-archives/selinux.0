@@ -8,51 +8,51 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42B01C433DF
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:43:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F143FC433EB
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:43:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B4B7206EB
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:43:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CC323207DA
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:43:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="SRYVzYpX"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="L3qLAXZf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726870AbgGXVnV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 17:43:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58824 "EHLO
+        id S1726861AbgGXVnZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 17:43:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726696AbgGXVnT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 17:43:19 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D90FC0619E5
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:43:19 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id x9so5315806plr.2
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:43:19 -0700 (PDT)
+        with ESMTP id S1726862AbgGXVnV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 17:43:21 -0400
+Received: from mail-pg1-x544.google.com (mail-pg1-x544.google.com [IPv6:2607:f8b0:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10FB8C0619E5
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:43:21 -0700 (PDT)
+Received: by mail-pg1-x544.google.com with SMTP id d4so6157023pgk.4
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:43:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=g+eO8gyq78bTSKe9RJZArkUNSYlS+MJLU0Ecz64l8iE=;
-        b=SRYVzYpXB+6mxT4o2nHA6Mia/nRxpS6YJEmzM5+7eiFVTvfeI7nR3qRIaLDccIdBa5
-         kYgSVKiBiV200w6Ps1uQL4c5D04qUPx/cQ3agqD5Wd2mjP4yAuPagvfxQKY4wRclW9Iu
-         MDDFtogO8Tf9bVuXEfejl5IYg1Dxm/mBLfXpM=
+        bh=yHo9JWZzUyjBazerQ4BEANBUtQtdpP9atcQMB9aajac=;
+        b=L3qLAXZfiql/LLd4sTBaSnChEQBu1NdskGLv9hDbxJ0H39bBoqjpbqTGi87A6uEMsA
+         UK5/Vht5W2Wc07aKpmgqqILoug1DiLHlRDadTEgPqlMqHHh8GpgU+PprIBcm674QRJSX
+         f7Yp0QWEDGO3iDUr3YyK5mvs430WiM8+uG1SE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=g+eO8gyq78bTSKe9RJZArkUNSYlS+MJLU0Ecz64l8iE=;
-        b=kfyde5tYsgyMDNnocDwNA5zkXkcbxg8zwaix2jBFBBzwIA1IS6ZDG/XTpZNTEgQPVv
-         1s/dBMBYCwyDIpGSe/Cv0zhAz/6dgiYc6UKOKw6LX4KiWVJ+SLHLzXmMHyAEKRsByJ18
-         kedaCBEtsVzVWFKDaHGhhi2QKBlXpR+cGaHK5S8ISpA34PytSCaTAi9bK+Qs89AaLoMU
-         T+u9KYaJMNlIpevkMogaIkDBsL5d2Ev4EduW4y4QFSLefF8IKtg7ZTkct/LehYBmcXzv
-         kRo4VyeMHcQwkM16iaDQgoI87feOtpPjYc/uHypC5/5TX8ZD/MUMaPa3zq9AuYc1ZhNF
-         0Ozg==
-X-Gm-Message-State: AOAM531ofJlEVbU4VYGyrSv2s3aZM7GvRNLRjOOjJ/iAavcdysb8ojpb
-        Csxtxos00o6c/aYvWMBJc+4E5Q==
-X-Google-Smtp-Source: ABdhPJy3s7iqI2GmixgE5IMhaqSDJsSRXmMWdCQNDvTaNzGEWUO1y/NMlXRi64aK1B1SH8ucoHv1hA==
-X-Received: by 2002:a17:90b:1045:: with SMTP id gq5mr7371768pjb.30.1595626998936;
-        Fri, 24 Jul 2020 14:43:18 -0700 (PDT)
+        bh=yHo9JWZzUyjBazerQ4BEANBUtQtdpP9atcQMB9aajac=;
+        b=Bz93NOxtHjz3/5OnhmdgUuF7KXf6vlU1I5raZJ6kDvrf/ExvewyY5i7TamdPbHdYuO
+         CEF/1+MB5ORlb1p19p30b2/Gmbqw1RD9xQFEndw67P3za8kd9DgW2DniKwEqt7mzF7LA
+         pnbCKYg2VjtvPy1XrFOCoD3ZU5SNIFGGPBRjE1KrhWW/25Iwi7wwqxZ9iJExEXmqgQJw
+         nzXOU5HJ5pT28+wSjQ5bNXbKAahWyia6Yx5RScgf++l7lQudXCbnjHQ2aq5XW4aosGZR
+         QwU6aIZgMXXJkZkQYS6bq0TJVUK2IZbbXvJPtL7FyLw0eyxYm9jWG0cJCNsAsO7NABx8
+         ETVw==
+X-Gm-Message-State: AOAM531j3LxlxJoVOWtohd3Jth7KfMRG1aZFLAZGeyzQpV7X6Y5atmam
+        9V8MbfwWR5tpOvkTnYKK5GNvGQ==
+X-Google-Smtp-Source: ABdhPJxKQlLt6APhlyjS22UUX6K8i6MHYddUM5LrPCQGlclvXL1tRYdAol4xgUWONouWRGmix8Nqaw==
+X-Received: by 2002:aa7:92c7:: with SMTP id k7mr10892560pfa.101.1595627000515;
+        Fri, 24 Jul 2020 14:43:20 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id 17sm7488794pfv.16.2020.07.24.14.43.17
+        by smtp.gmail.com with ESMTPSA id 66sm7525755pfg.63.2020.07.24.14.43.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
         Fri, 24 Jul 2020 14:43:17 -0700 (PDT)
 From:   Kees Cook <keescook@chromium.org>
@@ -66,9 +66,9 @@ Cc:     Kees Cook <keescook@chromium.org>,
         linux-security-module@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 16/19] fs/kernel_file_read: Add "offset" arg for partial reads
-Date:   Fri, 24 Jul 2020 14:36:37 -0700
-Message-Id: <20200724213640.389191-17-keescook@chromium.org>
+Subject: [PATCH v3 19/19] test_firmware: Test partial read support
+Date:   Fri, 24 Jul 2020 14:36:40 -0700
+Message-Id: <20200724213640.389191-20-keescook@chromium.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200724213640.389191-1-keescook@chromium.org>
 References: <20200724213640.389191-1-keescook@chromium.org>
@@ -79,308 +79,391 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-To perform partial reads, callers of kernel_read_file*() must have a
-non-NULL file_size argument and a preallocated buffer. The new "offset"
-argument can then be used to seek to specific locations in the file to
-fill the buffer to, at most, "buf_size" per call.
+From: Scott Branden <scott.branden@broadcom.com>
 
-Where possible, the LSM hooks can report whether a full file has been
-read or not so that the contents can be reasoned about.
+Add additional hooks to test_firmware to pass in support
+for partial file read using request_firmware_into_buf():
 
+	buf_size: size of buffer to request firmware into
+	partial: indicates that a partial file request is being made
+	file_offset: to indicate offset into file to request
+
+Also update firmware selftests to use the new partial read test API.
+
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
+Co-developed-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/base/firmware_loader/main.c |  2 +-
- fs/kernel_read_file.c               | 78 ++++++++++++++++++++---------
- include/linux/kernel_read_file.h    |  8 +--
- kernel/kexec_file.c                 |  4 +-
- kernel/module.c                     |  2 +-
- security/integrity/digsig.c         |  2 +-
- security/integrity/ima/ima_fs.c     |  3 +-
- 7 files changed, 65 insertions(+), 34 deletions(-)
+ lib/test_firmware.c                           | 154 ++++++++++++++++--
+ .../selftests/firmware/fw_filesystem.sh       |  91 +++++++++++
+ 2 files changed, 233 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
-index bd199404935f..d95249b5284e 100644
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -494,7 +494,7 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
- 		fw_priv->size = 0;
+diff --git a/lib/test_firmware.c b/lib/test_firmware.c
+index 62af792e151c..387acb94eeea 100644
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -50,6 +50,9 @@ struct test_batched_req {
+  * @name: the name of the firmware file to look for
+  * @into_buf: when the into_buf is used if this is true
+  *	request_firmware_into_buf() will be used instead.
++ * @buf_size: size of buf to allocate when into_buf is true
++ * @file_offset: file offset to request when calling request_firmware_into_buf
++ * @partial: partial read opt when calling request_firmware_into_buf
+  * @sync_direct: when the sync trigger is used if this is true
+  *	request_firmware_direct() will be used instead.
+  * @send_uevent: whether or not to send a uevent for async requests
+@@ -89,6 +92,9 @@ struct test_batched_req {
+ struct test_config {
+ 	char *name;
+ 	bool into_buf;
++	size_t buf_size;
++	size_t file_offset;
++	bool partial;
+ 	bool sync_direct;
+ 	bool send_uevent;
+ 	u8 num_requests;
+@@ -183,6 +189,9 @@ static int __test_firmware_config_init(void)
+ 	test_fw_config->num_requests = TEST_FIRMWARE_NUM_REQS;
+ 	test_fw_config->send_uevent = true;
+ 	test_fw_config->into_buf = false;
++	test_fw_config->buf_size = TEST_FIRMWARE_BUF_SIZE;
++	test_fw_config->file_offset = 0;
++	test_fw_config->partial = false;
+ 	test_fw_config->sync_direct = false;
+ 	test_fw_config->req_firmware = request_firmware;
+ 	test_fw_config->test_result = 0;
+@@ -236,28 +245,35 @@ static ssize_t config_show(struct device *dev,
+ 			dev_name(dev));
  
- 		/* load firmware files from the mount namespace of init */
--		rc = kernel_read_file_from_path_initns(path, &buffer, msize,
-+		rc = kernel_read_file_from_path_initns(path, 0, &buffer, msize,
- 						       NULL,
- 						       READING_FIRMWARE);
- 		if (rc < 0) {
-diff --git a/fs/kernel_read_file.c b/fs/kernel_read_file.c
-index d73bc3fa710a..90d255fbdd9b 100644
---- a/fs/kernel_read_file.c
-+++ b/fs/kernel_read_file.c
-@@ -9,6 +9,7 @@
-  * kernel_read_file() - read file contents into a kernel buffer
-  *
-  * @file	file to read from
-+ * @offset	where to start reading from (see below).
-  * @buf		pointer to a "void *" buffer for reading into (if
-  *		*@buf is NULL, a buffer will be allocated, and
-  *		@buf_size will be ignored)
-@@ -19,19 +20,31 @@
-  * @id		the kernel_read_file_id identifying the type of
-  *		file contents being read (for LSMs to examine)
-  *
-+ * @offset must be 0 unless both @buf and @file_size are non-NULL
-+ * (i.e. the caller must be expecting to read partial file contents
-+ * via an already-allocated @buf, in at most @buf_size chunks, and
-+ * will be able to determine when the entire file was read by
-+ * checking @file_size). This isn't a recommended way to read a
-+ * file, though, since it is possible that the contents might
-+ * change between calls to kernel_read_file().
-+ *
-  * Returns number of bytes read (no single read will be bigger
-  * than INT_MAX), or negative on error.
-  *
-  */
--int kernel_read_file(struct file *file, void **buf,
-+int kernel_read_file(struct file *file, loff_t offset, void **buf,
- 		     size_t buf_size, size_t *file_size,
- 		     enum kernel_read_file_id id)
- {
- 	loff_t i_size, pos;
--	ssize_t bytes = 0;
-+	size_t copied;
- 	void *allocated = NULL;
-+	bool whole_file;
- 	int ret;
+ 	if (test_fw_config->name)
+-		len += scnprintf(buf+len, PAGE_SIZE - len,
++		len += scnprintf(buf + len, PAGE_SIZE - len,
+ 				"name:\t%s\n",
+ 				test_fw_config->name);
+ 	else
+-		len += scnprintf(buf+len, PAGE_SIZE - len,
++		len += scnprintf(buf + len, PAGE_SIZE - len,
+ 				"name:\tEMTPY\n");
  
-+	if (offset != 0 && (!*buf || !file_size))
-+		return -EINVAL;
+-	len += scnprintf(buf+len, PAGE_SIZE - len,
++	len += scnprintf(buf + len, PAGE_SIZE - len,
+ 			"num_requests:\t%u\n", test_fw_config->num_requests);
+ 
+-	len += scnprintf(buf+len, PAGE_SIZE - len,
++	len += scnprintf(buf + len, PAGE_SIZE - len,
+ 			"send_uevent:\t\t%s\n",
+ 			test_fw_config->send_uevent ?
+ 			"FW_ACTION_HOTPLUG" :
+ 			"FW_ACTION_NOHOTPLUG");
+-	len += scnprintf(buf+len, PAGE_SIZE - len,
++	len += scnprintf(buf + len, PAGE_SIZE - len,
+ 			"into_buf:\t\t%s\n",
+ 			test_fw_config->into_buf ? "true" : "false");
+-	len += scnprintf(buf+len, PAGE_SIZE - len,
++	len += scnprintf(buf + len, PAGE_SIZE - len,
++			"buf_size:\t%zu\n", test_fw_config->buf_size);
++	len += scnprintf(buf + len, PAGE_SIZE - len,
++			"file_offset:\t%zu\n", test_fw_config->file_offset);
++	len += scnprintf(buf + len, PAGE_SIZE - len,
++			"partial:\t\t%s\n",
++			test_fw_config->partial ? "true" : "false");
++	len += scnprintf(buf + len, PAGE_SIZE - len,
+ 			"sync_direct:\t\t%s\n",
+ 			test_fw_config->sync_direct ? "true" : "false");
+-	len += scnprintf(buf+len, PAGE_SIZE - len,
++	len += scnprintf(buf + len, PAGE_SIZE - len,
+ 			"read_fw_idx:\t%u\n", test_fw_config->read_fw_idx);
+ 
+ 	mutex_unlock(&test_fw_mutex);
+@@ -315,6 +331,30 @@ static ssize_t test_dev_config_show_bool(char *buf, bool val)
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
+ }
+ 
++static int test_dev_config_update_size_t(const char *buf,
++					 size_t size,
++					 size_t *cfg)
++{
++	int ret;
++	long new;
 +
- 	if (!S_ISREG(file_inode(file)->i_mode))
- 		return -EINVAL;
- 
-@@ -39,19 +52,27 @@ int kernel_read_file(struct file *file, void **buf,
- 	if (ret)
- 		return ret;
- 
--	ret = security_kernel_read_file(file, id, true);
--	if (ret)
--		goto out;
--
- 	i_size = i_size_read(file_inode(file));
- 	if (i_size <= 0) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	if (i_size > INT_MAX || i_size > buf_size) {
-+	/* The file is too big for sane activities. */
-+	if (i_size > INT_MAX) {
-+		ret = -EFBIG;
-+		goto out;
-+	}
-+	/* The entire file cannot be read in one buffer. */
-+	if (!file_size && offset == 0 && i_size > buf_size) {
- 		ret = -EFBIG;
- 		goto out;
- 	}
-+
-+	whole_file = (offset == 0 && i_size <= buf_size);
-+	ret = security_kernel_read_file(file, id, whole_file);
++	ret = kstrtol(buf, 10, &new);
 +	if (ret)
++		return ret;
++
++	mutex_lock(&test_fw_mutex);
++	*(size_t *)cfg = new;
++	mutex_unlock(&test_fw_mutex);
++
++	/* Always return full write size even if we didn't consume all */
++	return size;
++}
++
++static ssize_t test_dev_config_show_size_t(char *buf, size_t val)
++{
++	return snprintf(buf, PAGE_SIZE, "%zu\n", val);
++}
++
+ static ssize_t test_dev_config_show_int(char *buf, int val)
+ {
+ 	return snprintf(buf, PAGE_SIZE, "%d\n", val);
+@@ -400,6 +440,83 @@ static ssize_t config_into_buf_show(struct device *dev,
+ }
+ static DEVICE_ATTR_RW(config_into_buf);
+ 
++static ssize_t config_buf_size_store(struct device *dev,
++				     struct device_attribute *attr,
++				     const char *buf, size_t count)
++{
++	int rc;
++
++	mutex_lock(&test_fw_mutex);
++	if (test_fw_config->reqs) {
++		pr_err("Must call release_all_firmware prior to changing config\n");
++		rc = -EINVAL;
++		mutex_unlock(&test_fw_mutex);
 +		goto out;
-+
- 	if (file_size)
- 		*file_size = i_size;
- 
-@@ -62,9 +83,14 @@ int kernel_read_file(struct file *file, void **buf,
- 		goto out;
- 	}
- 
--	pos = 0;
--	while (pos < i_size) {
--		bytes = kernel_read(file, *buf + pos, i_size - pos, &pos);
-+	pos = offset;
-+	copied = 0;
-+	while (copied < buf_size) {
-+		ssize_t bytes;
-+		size_t wanted = min_t(size_t, buf_size - copied,
-+					      i_size - pos);
-+
-+		bytes = kernel_read(file, *buf + copied, wanted, &pos);
- 		if (bytes < 0) {
- 			ret = bytes;
- 			goto out_free;
-@@ -72,14 +98,17 @@ int kernel_read_file(struct file *file, void **buf,
- 
- 		if (bytes == 0)
- 			break;
-+		copied += bytes;
- 	}
- 
--	if (pos != i_size) {
--		ret = -EIO;
--		goto out_free;
--	}
-+	if (whole_file) {
-+		if (pos != i_size) {
-+			ret = -EIO;
-+			goto out_free;
-+		}
- 
--	ret = security_kernel_post_read_file(file, *buf, i_size, id);
-+		ret = security_kernel_post_read_file(file, *buf, i_size, id);
 +	}
++	mutex_unlock(&test_fw_mutex);
++
++	rc = test_dev_config_update_size_t(buf, count,
++					   &test_fw_config->buf_size);
++
++out:
++	return rc;
++}
++
++static ssize_t config_buf_size_show(struct device *dev,
++				    struct device_attribute *attr,
++				    char *buf)
++{
++	return test_dev_config_show_size_t(buf, test_fw_config->buf_size);
++}
++static DEVICE_ATTR_RW(config_buf_size);
++
++static ssize_t config_file_offset_store(struct device *dev,
++					struct device_attribute *attr,
++					const char *buf, size_t count)
++{
++	int rc;
++
++	mutex_lock(&test_fw_mutex);
++	if (test_fw_config->reqs) {
++		pr_err("Must call release_all_firmware prior to changing config\n");
++		rc = -EINVAL;
++		mutex_unlock(&test_fw_mutex);
++		goto out;
++	}
++	mutex_unlock(&test_fw_mutex);
++
++	rc = test_dev_config_update_size_t(buf, count,
++					   &test_fw_config->file_offset);
++
++out:
++	return rc;
++}
++
++static ssize_t config_file_offset_show(struct device *dev,
++				       struct device_attribute *attr,
++				       char *buf)
++{
++	return test_dev_config_show_size_t(buf, test_fw_config->file_offset);
++}
++static DEVICE_ATTR_RW(config_file_offset);
++
++static ssize_t config_partial_store(struct device *dev,
++				    struct device_attribute *attr,
++				    const char *buf, size_t count)
++{
++	return test_dev_config_update_bool(buf,
++					   count,
++					   &test_fw_config->partial);
++}
++
++static ssize_t config_partial_show(struct device *dev,
++				   struct device_attribute *attr,
++				   char *buf)
++{
++	return test_dev_config_show_bool(buf, test_fw_config->partial);
++}
++static DEVICE_ATTR_RW(config_partial);
++
+ static ssize_t config_sync_direct_store(struct device *dev,
+ 					struct device_attribute *attr,
+ 					const char *buf, size_t count)
+@@ -655,11 +772,21 @@ static int test_fw_run_batch_request(void *data)
+ 		if (!test_buf)
+ 			return -ENOSPC;
  
- out_free:
- 	if (ret < 0) {
-@@ -91,11 +120,11 @@ int kernel_read_file(struct file *file, void **buf,
- 
- out:
- 	allow_write_access(file);
--	return ret == 0 ? pos : ret;
-+	return ret == 0 ? copied : ret;
+-		req->rc = request_firmware_into_buf(&req->fw,
+-						    req->name,
+-						    req->dev,
+-						    test_buf,
+-						    TEST_FIRMWARE_BUF_SIZE);
++		if (test_fw_config->partial)
++			req->rc = request_partial_firmware_into_buf
++						(&req->fw,
++						 req->name,
++						 req->dev,
++						 test_buf,
++						 test_fw_config->buf_size,
++						 test_fw_config->file_offset);
++		else
++			req->rc = request_firmware_into_buf
++						(&req->fw,
++						 req->name,
++						 req->dev,
++						 test_buf,
++						 test_fw_config->buf_size);
+ 		if (!req->fw)
+ 			kfree(test_buf);
+ 	} else {
+@@ -932,6 +1059,9 @@ static struct attribute *test_dev_attrs[] = {
+ 	TEST_FW_DEV_ATTR(config_name),
+ 	TEST_FW_DEV_ATTR(config_num_requests),
+ 	TEST_FW_DEV_ATTR(config_into_buf),
++	TEST_FW_DEV_ATTR(config_buf_size),
++	TEST_FW_DEV_ATTR(config_file_offset),
++	TEST_FW_DEV_ATTR(config_partial),
+ 	TEST_FW_DEV_ATTR(config_sync_direct),
+ 	TEST_FW_DEV_ATTR(config_send_uevent),
+ 	TEST_FW_DEV_ATTR(config_read_fw_idx),
+diff --git a/tools/testing/selftests/firmware/fw_filesystem.sh b/tools/testing/selftests/firmware/fw_filesystem.sh
+index fcc281373b4d..c2a2a100114b 100755
+--- a/tools/testing/selftests/firmware/fw_filesystem.sh
++++ b/tools/testing/selftests/firmware/fw_filesystem.sh
+@@ -149,6 +149,26 @@ config_unset_into_buf()
+ 	echo 0 >  $DIR/config_into_buf
  }
- EXPORT_SYMBOL_GPL(kernel_read_file);
  
--int kernel_read_file_from_path(const char *path, void **buf,
-+int kernel_read_file_from_path(const char *path, loff_t offset, void **buf,
- 			       size_t buf_size, size_t *file_size,
- 			       enum kernel_read_file_id id)
++config_set_buf_size()
++{
++	echo $1 >  $DIR/config_buf_size
++}
++
++config_set_file_offset()
++{
++	echo $1 >  $DIR/config_file_offset
++}
++
++config_set_partial()
++{
++	echo 1 >  $DIR/config_partial
++}
++
++config_unset_partial()
++{
++	echo 0 >  $DIR/config_partial
++}
++
+ config_set_sync_direct()
  {
-@@ -109,14 +138,15 @@ int kernel_read_file_from_path(const char *path, void **buf,
- 	if (IS_ERR(file))
- 		return PTR_ERR(file);
- 
--	ret = kernel_read_file(file, buf, buf_size, file_size, id);
-+	ret = kernel_read_file(file, offset, buf, buf_size, file_size, id);
- 	fput(file);
- 	return ret;
+ 	echo 1 >  $DIR/config_sync_direct
+@@ -207,6 +227,35 @@ read_firmwares()
+ 	done
  }
- EXPORT_SYMBOL_GPL(kernel_read_file_from_path);
  
--int kernel_read_file_from_path_initns(const char *path, void **buf,
--				      size_t buf_size, size_t *file_size,
-+int kernel_read_file_from_path_initns(const char *path, loff_t offset,
-+				      void **buf, size_t buf_size,
-+				      size_t *file_size,
- 				      enum kernel_read_file_id id)
++read_partial_firmwares()
++{
++	if [ "$(cat $DIR/config_into_buf)" == "1" ]; then
++		fwfile="${FW_INTO_BUF}"
++	else
++		fwfile="${FW}"
++	fi
++
++	if [ "$1" = "xzonly" ]; then
++		fwfile="${fwfile}-orig"
++	fi
++
++	# Strip fwfile down to match partial offset and length
++	partial_data="$(cat $fwfile)"
++	partial_data="${partial_data:$2:$3}"
++
++	for i in $(seq 0 3); do
++		config_set_read_fw_idx $i
++
++		read_firmware="$(cat $DIR/read_firmware)"
++
++		# Verify the contents are what we expect.
++		if [ $read_firmware != $partial_data ]; then
++			echo "request #$i: partial firmware was not loaded" >&2
++			exit 1
++		fi
++	done
++}
++
+ read_firmwares_expect_nofile()
  {
- 	struct file *file;
-@@ -135,14 +165,14 @@ int kernel_read_file_from_path_initns(const char *path, void **buf,
- 	if (IS_ERR(file))
- 		return PTR_ERR(file);
- 
--	ret = kernel_read_file(file, buf, buf_size, file_size, id);
-+	ret = kernel_read_file(file, offset, buf, buf_size, file_size, id);
- 	fput(file);
- 	return ret;
+ 	for i in $(seq 0 3); do
+@@ -242,6 +291,21 @@ test_batched_request_firmware_into_buf_nofile()
+ 	echo "OK"
  }
- EXPORT_SYMBOL_GPL(kernel_read_file_from_path_initns);
  
--int kernel_read_file_from_fd(int fd, void **buf, size_t buf_size,
--			     size_t *file_size,
-+int kernel_read_file_from_fd(int fd, loff_t offset, void **buf,
-+			     size_t buf_size, size_t *file_size,
- 			     enum kernel_read_file_id id)
++test_request_partial_firmware_into_buf_nofile()
++{
++	echo -n "Test request_partial_firmware_into_buf() off=$1 size=$2 nofile: "
++	config_reset
++	config_set_name nope-test-firmware.bin
++	config_set_into_buf
++	config_set_partial
++	config_set_buf_size $2
++	config_set_file_offset $1
++	config_trigger_sync
++	read_firmwares_expect_nofile
++	release_all_firmware
++	echo "OK"
++}
++
+ test_batched_request_firmware_direct_nofile()
  {
- 	struct fd f = fdget(fd);
-@@ -151,7 +181,7 @@ int kernel_read_file_from_fd(int fd, void **buf, size_t buf_size,
- 	if (!f.file)
- 		goto out;
- 
--	ret = kernel_read_file(f.file, buf, buf_size, file_size, id);
-+	ret = kernel_read_file(f.file, offset, buf, buf_size, file_size, id);
- out:
- 	fdput(f);
- 	return ret;
-diff --git a/include/linux/kernel_read_file.h b/include/linux/kernel_read_file.h
-index 023293eaf948..575ffa1031d3 100644
---- a/include/linux/kernel_read_file.h
-+++ b/include/linux/kernel_read_file.h
-@@ -35,19 +35,19 @@ static inline const char *kernel_read_file_id_str(enum kernel_read_file_id id)
- 	return kernel_read_file_str[id];
+ 	echo -n "Batched request_firmware_direct() nofile try #$1: "
+@@ -356,6 +420,21 @@ test_request_firmware_nowait_custom()
+ 	echo "OK"
  }
  
--int kernel_read_file(struct file *file,
-+int kernel_read_file(struct file *file, loff_t offset,
- 		     void **buf, size_t buf_size,
- 		     size_t *file_size,
- 		     enum kernel_read_file_id id);
--int kernel_read_file_from_path(const char *path,
-+int kernel_read_file_from_path(const char *path, loff_t offset,
- 			       void **buf, size_t buf_size,
- 			       size_t *file_size,
- 			       enum kernel_read_file_id id);
--int kernel_read_file_from_path_initns(const char *path,
-+int kernel_read_file_from_path_initns(const char *path, loff_t offset,
- 				      void **buf, size_t buf_size,
- 				      size_t *file_size,
- 				      enum kernel_read_file_id id);
--int kernel_read_file_from_fd(int fd,
-+int kernel_read_file_from_fd(int fd, loff_t offset,
- 			     void **buf, size_t buf_size,
- 			     size_t *file_size,
- 			     enum kernel_read_file_id id);
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 878ca684a3a1..45726bc8f6ce 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -221,7 +221,7 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
- 	int ret;
- 	void *ldata;
++test_request_partial_firmware_into_buf()
++{
++	echo -n "Test request_partial_firmware_into_buf() off=$1 size=$2: "
++	config_reset
++	config_set_name $TEST_FIRMWARE_INTO_BUF_FILENAME
++	config_set_into_buf
++	config_set_partial
++	config_set_buf_size $2
++	config_set_file_offset $1
++	config_trigger_sync
++	read_partial_firmwares normal $1 $2
++	release_all_firmware
++	echo "OK"
++}
++
+ # Only continue if batched request triggers are present on the
+ # test-firmware driver
+ test_config_present
+@@ -383,6 +462,12 @@ for i in $(seq 1 5); do
+ 	test_request_firmware_nowait_custom $i normal
+ done
  
--	ret = kernel_read_file_from_fd(kernel_fd, &image->kernel_buf,
-+	ret = kernel_read_file_from_fd(kernel_fd, 0, &image->kernel_buf,
- 				       INT_MAX, NULL, READING_KEXEC_IMAGE);
- 	if (ret < 0)
- 		return ret;
-@@ -241,7 +241,7 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
- #endif
- 	/* It is possible that there no initramfs is being loaded */
- 	if (!(flags & KEXEC_FILE_NO_INITRAMFS)) {
--		ret = kernel_read_file_from_fd(initrd_fd, &image->initrd_buf,
-+		ret = kernel_read_file_from_fd(initrd_fd, 0, &image->initrd_buf,
- 					       INT_MAX, NULL,
- 					       READING_KEXEC_INITRAMFS);
- 		if (ret < 0)
-diff --git a/kernel/module.c b/kernel/module.c
-index 90a4788dff9d..d353d1f67681 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -4007,7 +4007,7 @@ SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
- 		      |MODULE_INIT_IGNORE_VERMAGIC))
- 		return -EINVAL;
++# Partial loads cannot use fallback, so do not repeat tests.
++test_request_partial_firmware_into_buf 0 10
++test_request_partial_firmware_into_buf 0 5
++test_request_partial_firmware_into_buf 1 6
++test_request_partial_firmware_into_buf 2 10
++
+ # Test for file not found, errors are expected, the failure would be
+ # a hung task, which would require a hard reset.
+ echo
+@@ -407,6 +492,12 @@ for i in $(seq 1 5); do
+ 	test_request_firmware_nowait_custom_nofile $i
+ done
  
--	err = kernel_read_file_from_fd(fd, &hdr, INT_MAX, NULL,
-+	err = kernel_read_file_from_fd(fd, 0, &hdr, INT_MAX, NULL,
- 				       READING_MODULE);
- 	if (err < 0)
- 		return err;
-diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
-index 8a523dfd7fd7..0f518dcfde05 100644
---- a/security/integrity/digsig.c
-+++ b/security/integrity/digsig.c
-@@ -175,7 +175,7 @@ int __init integrity_load_x509(const unsigned int id, const char *path)
- 	int rc;
- 	key_perm_t perm;
++# Partial loads cannot use fallback, so do not repeat tests.
++test_request_partial_firmware_into_buf_nofile 0 10
++test_request_partial_firmware_into_buf_nofile 0 5
++test_request_partial_firmware_into_buf_nofile 1 6
++test_request_partial_firmware_into_buf_nofile 2 10
++
+ test "$HAS_FW_LOADER_COMPRESS" != "yes" && exit 0
  
--	rc = kernel_read_file_from_path(path, &data, INT_MAX, NULL,
-+	rc = kernel_read_file_from_path(path, 0, &data, INT_MAX, NULL,
- 					READING_X509_CERTIFICATE);
- 	if (rc < 0) {
- 		pr_err("Unable to open file: %s (%d)", path, rc);
-diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
-index 5fc56ccb6678..ea8ff8a07b36 100644
---- a/security/integrity/ima/ima_fs.c
-+++ b/security/integrity/ima/ima_fs.c
-@@ -284,7 +284,8 @@ static ssize_t ima_read_policy(char *path)
- 	datap = path;
- 	strsep(&datap, "\n");
- 
--	rc = kernel_read_file_from_path(path, &data, INT_MAX, NULL, READING_POLICY);
-+	rc = kernel_read_file_from_path(path, 0, &data, INT_MAX, NULL,
-+					READING_POLICY);
- 	if (rc < 0) {
- 		pr_err("Unable to open file: %s (%d)", path, rc);
- 		return rc;
+ # test with both files present
 -- 
 2.25.1
 
