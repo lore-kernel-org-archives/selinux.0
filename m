@@ -2,98 +2,164 @@ Return-Path: <SRS0=Hma/=BD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-15.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7355AC433ED
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 13:30:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F96FC433E1
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 13:32:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5352320674
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 13:30:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7E9872074F
+	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 13:32:59 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="ImDRu+t3"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ttonpQaV"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726329AbgGXNaT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 09:30:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37710 "EHLO
+        id S1726636AbgGXNc7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 24 Jul 2020 09:32:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726326AbgGXNaS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 09:30:18 -0400
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 427D1C0619D3
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 06:30:18 -0700 (PDT)
-Received: from [IPv6:2001:985:d55d::438] (brutus [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 49F012A1007;
-        Fri, 24 Jul 2020 15:30:17 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 49F012A1007
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1595597417;
-        bh=1vXrM1Nt6aevoKmXeReZ+ibY+GBz5uQX/PV6tPVPLPQ=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=ImDRu+t3EBsP0148qBIJqpNRHGgd4zEDas9Px1dw/RPrgKA3E5u9OmrnCdoCLpKi2
-         yClfu4mnY7zfz875v50KRAVcuqAZgfiCgkTqtFejBCOdn/pHb6A2qBpq+go3EZBhBe
-         loXxmDPB3wlrseKj2Z4eFTaz0Wa+SvDsCkT0/tYI=
-Subject: Re: [SELinux-notebook PATCH v8] objects.md: some clarifications
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
-References: <20200721195153.1974509-1-dominick.grift@defensec.nl>
- <20200721200230.1976501-1-dominick.grift@defensec.nl>
- <ypjl365kzkvb.fsf@defensec.nl>
- <CAEjxPJ6kVLAd41X9s7216+Svdo7his_WcQW52R04CztDEYr7fg@mail.gmail.com>
- <39629738-f5db-e784-1f57-e6b8958b73ac@defensec.nl>
- <CAEjxPJ4x_JM0B01NoLHZexwA9DWerDPDxP0TJaJgGT=GSBBT7A@mail.gmail.com>
- <a87a0d28-aa9c-ea6a-9f63-fe2f01d56e23@defensec.nl>
- <CAEjxPJ7YfUkhej=aMObg7c42KgHpmX_qBdC+30BmuhJ9-LtBJg@mail.gmail.com>
- <cf636a16-5f4c-99e7-f2a9-0fede46b233f@defensec.nl>
- <CAEjxPJ6e=FSV6xiuZQW1m8yxEg-zQ-VMk=iQQYNF9JiQb3XJag@mail.gmail.com>
- <0c0245c2-ece3-f772-1595-d8433ec36386@defensec.nl>
- <CAEjxPJ7KuNR3T60-4XrsjAL-Po1a0MUuaBh_f_iTEuEVTFw+qw@mail.gmail.com>
- <ba69dd5b-8a01-5850-9375-2c99a92fe994@defensec.nl>
- <CAEjxPJ5P7qGybMfhXaEVoUWWiRubhT=1NCNL-oKaY9CXjjqodg@mail.gmail.com>
- <fde88aa9-1f4d-fb60-b27e-0da093753cdf@defensec.nl>
- <CAEjxPJ4TsTfNELBGguF7+1asKTnMdkSdNMu+R15PC=ixgeOX7Q@mail.gmail.com>
-From:   Dominick Grift <dominick.grift@defensec.nl>
-Autocrypt: addr=dominick.grift@defensec.nl; keydata=
- mDMEXpatqRYJKwYBBAHaRw8BAQdAJfdyO5XDdJ1R0DhG9EIDgaPAH3IcDxwCMAMX+BNXEi20
- K0RvbWluaWNrIEdyaWZ0IDxkb21pbmljay5ncmlmdEBkZWZlbnNlYy5ubD6IlgQTFggAPhYh
- BPFdMErUJbkJPwIOqdoAaTu+GpgJBQJelq2pAhsDBQkJZgGABQsJCAcCBhUKCQgLAgQWAgMB
- Ah4BAheAAAoJENoAaTu+GpgJN5cBAPpUgfvLek9pJ1o3zIxN0GBNs1OxIAqxeCvNxrdts3WN
- AP0T2QRpO9ti7JMWXkd3AXR7uCiYeU25PuepfRyjsUAYDLg4BF6WrakSCisGAQQBl1UBBQEB
- B0DRoS9PVlLY/xm36SxVLVbVLIKtdmTzM95muFiqEtI0LQMBCAeIfgQYFggAJhYhBPFdMErU
- JbkJPwIOqdoAaTu+GpgJBQJelq2pAhsMBQkJZgGAAAoJENoAaTu+GpgJhmYA/0NnwIlVEgyd
- 6NRnjqrpkSZTiGVGIItP3ukxXYQ424drAP9LVU1SyOTNIL+S6OYYEIMosEFDjffjz6jXmsv7
- WXFbDA==
-Message-ID: <59c019cb-37b1-1dd2-6761-f6648a7f993e@defensec.nl>
-Date:   Fri, 24 Jul 2020 15:30:12 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.8.0
+        with ESMTP id S1726424AbgGXNc6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 09:32:58 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C54C0619D3;
+        Fri, 24 Jul 2020 06:32:58 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id h13so7003933otr.0;
+        Fri, 24 Jul 2020 06:32:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Bww+MwS7WFdPyo5nQxQojl2bZYcgBq0GLMCk//cMKg0=;
+        b=ttonpQaVQ8wKenxkYFBNRTBKnc5v77ZAtJB7ssctMILDFY0HBxmhB5UASdnXIZY7MO
+         7Ewxtj0KFj5djUNty/mwa9SGLF+lU4N+mQnU35pBtqXM8E/RCFWTib5DFrHDrkPHbEQp
+         nOZNMXFl/XqSDAKV7yxbVz1FsTqClAsOi9A3c3iwX/RUi4rdRuUOCzs4L0qUZX+pcQk6
+         ecJSO6KIN5t/eSfUFNN5+cETbINsrGnlPEObKkkMhtDgI87Sz4ThjHOCwsyr3JKmkk2Q
+         wVRSbOzJWeKl3cpQpgjDCQ8Y+B/ilcGLQquSNVUOUaN1TewCly/rieLgpeUtA7QmYR3i
+         +/pQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Bww+MwS7WFdPyo5nQxQojl2bZYcgBq0GLMCk//cMKg0=;
+        b=avmE+2SavmmZCV6EgNjPPSD18Qa0aG0gPegoe+3qEvrQLCFczWMwr8J0QRyY/goYAX
+         W1D2c0T6vlKCam5tGfDXdJySxpfTlH0jFmz76j76v0ZqQS9A7k5G3Ln/dcZ0AmGJCY5R
+         nuDz/wi0qsJsIIPnY89NL8OmSw3k9fy8x3URV7mVwRx46rFH22A5XYcHGyw3NJ6vW8ST
+         AOJ1EuP3v9JUgZ781otSYrT3BDmB4xweJjvyCMJD812dnRde/lky5zUDqpgcF7NfP9WM
+         p4G5HsZRbS60g4YtibNMZ3/PSiBHGZvgjoHsVLIzYGUjhT7Qto62RXQN1gK0wUdHFNsq
+         oNLA==
+X-Gm-Message-State: AOAM532rwbWIsZWVIZ/pjPU6AzFt4fIeKYlgf0FyvcH1W3ubR3jBEumz
+        Dnmpru/eZJ1w/dVTNFBfmyjbO/Yl/zoZreK2x7bAwg==
+X-Google-Smtp-Source: ABdhPJzPu54cUA91+k3fvU77BW4juirj9eoyapZd89zI1PXw9ZOz21FKQWUPLR86MgCPCfmzyoxRD6bqcro0r2XBkbk=
+X-Received: by 2002:a9d:6e14:: with SMTP id e20mr8450619otr.89.1595597577624;
+ Fri, 24 Jul 2020 06:32:57 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAEjxPJ4TsTfNELBGguF7+1asKTnMdkSdNMu+R15PC=ixgeOX7Q@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200724091520.880211-1-tweek@google.com>
+In-Reply-To: <20200724091520.880211-1-tweek@google.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 24 Jul 2020 09:32:46 -0400
+Message-ID: <CAEjxPJ45ij3obT37ywn_edb9xb89z-SdwzejfN6+jrvAtghXfA@mail.gmail.com>
+Subject: Re: [PATCH] selinux: add tracepoint on denials
+To:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc:     Paul Moore <paul@paul-moore.com>, Nick Kralevich <nnk@google.com>,
+        Joel Fernandes <joelaf@google.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Fri, Jul 24, 2020 at 5:15 AM Thi=C3=A9baud Weksteen <tweek@google.com> w=
+rote:
+>
+> The audit data currently captures which process and which target
+> is responsible for a denial. There is no data on where exactly in the
+> process that call occurred. Debugging can be made easier by being able to
+> reconstruct the unified kernel and userland stack traces [1]. Add a
+> tracepoint on the SELinux denials which can then be used by userland
+> (i.e. perf).
+>
+> Although this patch could manually be added by each OS developer to
+> trouble shoot a denial, adding it to the kernel streamlines the
+> developers workflow.
+>
+> [1] https://source.android.com/devices/tech/debug/native_stack_dump
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> Signed-off-by: Joel Fernandes <joelaf@google.com>
+> ---
+>  MAINTAINERS                    |  1 +
+>  include/trace/events/selinux.h | 35 ++++++++++++++++++++++++++++++++++
+>  security/selinux/avc.c         |  6 ++++++
+>  3 files changed, 42 insertions(+)
+>  create mode 100644 include/trace/events/selinux.h
+>
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index e64cdde81851..6b6cd5e13537 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -15358,6 +15358,7 @@ T:      git git://git.kernel.org/pub/scm/linux/ke=
+rnel/git/pcmoore/selinux.git
+>  F:     Documentation/ABI/obsolete/sysfs-selinux-checkreqprot
+>  F:     Documentation/ABI/obsolete/sysfs-selinux-disable
+>  F:     Documentation/admin-guide/LSM/SELinux.rst
+> +F:     include/trace/events/selinux.h
+>  F:     include/uapi/linux/selinux_netlink.h
+>  F:     scripts/selinux/
+>  F:     security/selinux/
+> diff --git a/include/trace/events/selinux.h b/include/trace/events/selinu=
+x.h
+> new file mode 100644
+> index 000000000000..e247187a8135
+> --- /dev/null
+> +++ b/include/trace/events/selinux.h
+> @@ -0,0 +1,35 @@
+> +/* SPDX-License-Identifier: GPL-2.0 */
+> +#undef TRACE_SYSTEM
+> +#define TRACE_SYSTEM selinux
+> +
+> +#if !defined(_TRACE_SELINUX_H) || defined(TRACE_HEADER_MULTI_READ)
+> +#define _TRACE_SELINUX_H
+> +
+> +#include <linux/ktime.h>
+> +#include <linux/tracepoint.h>
+> +
+> +TRACE_EVENT(selinux_denied,
+> +
+> +       TP_PROTO(int cls, int av),
+> +
+> +       TP_ARGS(cls, av),
+> +
+> +       TP_STRUCT__entry(
+> +               __field(int, cls)
+> +               __field(int, av)
+> +       ),
+> +
+> +       TP_fast_assign(
+> +               __entry->cls =3D cls;
+> +               __entry->av =3D av;
+> +       ),
+> +
+> +       TP_printk("denied %d %d",
+> +               __entry->cls,
+> +               __entry->av)
+> +);
 
-
-On 7/24/20 3:26 PM, Stephen Smalley wrote:
-<snip>
-
-> 
-> Second, if your policy is changing these rules and the superblock has
-> already been initialized, then the only way to get your new rule
-> applied is if you can cause the old superblock to go away, e.g.
-> unmount.  And that won't work while it is in use.  So rebooting if
-> your only option if you cannot do that.  Rebooting with SELinux
-> disabled and then running setfiles will be the safest when performing
-> a complete policy changeover since you will then have no interference
-> by the old policy.
-> 
-
-Thanks, I think this is the answer I was looking for. It is not entirely
-elegant to say the least but I guess it will have to do.
+I would think you would want to log av as %x for easier interpretation
+especially when there are multiple permissions being checked at once
+(which can happen). Also both cls and av would properly be unsigned
+values.  Only other question I have is whether it would be beneficial
+to include other information here to help uniquely identify/correlate
+the denial with the avc: message and whether any decoding of the
+class, av, or other information could/should be done here versus in
+some userland helper.
