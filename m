@@ -1,421 +1,192 @@
-Return-Path: <SRS0=Hma/=BD=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=rnPm=BE=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-10.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 718A5C43445
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:43:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FE37C433E1
+	for <selinux@archiver.kernel.org>; Sat, 25 Jul 2020 05:14:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4740020759
-	for <selinux@archiver.kernel.org>; Fri, 24 Jul 2020 21:43:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3ABCB206F6
+	for <selinux@archiver.kernel.org>; Sat, 25 Jul 2020 05:14:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="WF07yjKX"
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Uz3IlXv+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726975AbgGXVnb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 24 Jul 2020 17:43:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58826 "EHLO
+        id S1725874AbgGYFOf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Sat, 25 Jul 2020 01:14:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726817AbgGXVnU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 24 Jul 2020 17:43:20 -0400
-Received: from mail-pf1-x441.google.com (mail-pf1-x441.google.com [IPv6:2607:f8b0:4864:20::441])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CBC7C0698C4
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:43:20 -0700 (PDT)
-Received: by mail-pf1-x441.google.com with SMTP id u5so5988017pfn.7
-        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 14:43:20 -0700 (PDT)
+        with ESMTP id S1725941AbgGYFOf (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 25 Jul 2020 01:14:35 -0400
+Received: from mail-pl1-x644.google.com (mail-pl1-x644.google.com [IPv6:2607:f8b0:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 230D3C0619E4
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 22:14:35 -0700 (PDT)
+Received: by mail-pl1-x644.google.com with SMTP id b9so5632559plx.6
+        for <selinux@vger.kernel.org>; Fri, 24 Jul 2020 22:14:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=xJo0nq/BwSGQyuu34Uu71pqCjmwIBDsltoAlvySz0DI=;
-        b=WF07yjKX5utbSDQ8syHyojARSjazCxSOao3aCWCeAHYHmbHDe0SdIUzBhZr/J7SaUL
-         FDdBvzEwSJ6Ht+m5+HgRYfKKX1Uah+k+8kCxuoZzCixukqCROuLhsEW4XwGQRD9E0z7f
-         pRwWnUP5zS1bogct7qR+dfGuTKkuBP94tqx5o=
+        d=broadcom.com; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=zgyWqznSRtZ8AuY3tULsDjN5RpahufiDT3f0fggLh5s=;
+        b=Uz3IlXv+sKUEtS5eC2DkIZtfS1Xha2bB4TKPa3hP+w1M1cIds1A7Bc9dmlvPRbvChZ
+         wRrWcllSzjbfwURKIlVM3R6geZktvtQVkAUVECySvW+9t8BX+7Y+Mwnbg2+kr26wyHyc
+         0WBa5P7q9VQ2U9GlcuKszMphubHxHCT/n6acs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=xJo0nq/BwSGQyuu34Uu71pqCjmwIBDsltoAlvySz0DI=;
-        b=sILTVts1itwCDWugZ8np5UQCSXmLbxei8NmnIF5QhfNJ/lZLSuKZqwRiEGsfT+v9DE
-         eCK/sk9XB76dJ0MghLqIZSxuOhNpBTs3a6tpA+qAHy4KuLyAdr1o/391GjM6QqZjBFvc
-         7setknIZv1FSBQz419m77G3wPdMmx9wliv8TficUd5D7G1Hjh3mzVldJZafh93exPxPG
-         lBNmlqpJrVlQiv7fPFIxsF6JloH29Nz84GMfxqcDqkL3Z9xWfiO1lpF5PAE1wRh/D+qR
-         lfCEoIsDp77bLMGDPANO3b0C8TySPZmOXJws+HqtKQGwtM+jgKgRc2+PEB8rTOYrPxQf
-         LICw==
-X-Gm-Message-State: AOAM531bYlIMEvRCNxR1F6N/5f+TLeuxcdBqZ9dKMxQK9IqlMuDdfxIQ
-        PHt0S8/yrvZ/1AMdSiFM16KLvA==
-X-Google-Smtp-Source: ABdhPJzTkTAjdLfYdBfGZbxKblfOfrNHl+LQkdB1MNQDqkCwaf17Zw+bn8RQ46naJoLAGnapVnhleA==
-X-Received: by 2002:a05:6a00:224c:: with SMTP id i12mr11032282pfu.18.1595626999914;
-        Fri, 24 Jul 2020 14:43:19 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id 17sm7488793pfv.16.2020.07.24.14.43.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Jul 2020 14:43:17 -0700 (PDT)
-From:   Kees Cook <keescook@chromium.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=zgyWqznSRtZ8AuY3tULsDjN5RpahufiDT3f0fggLh5s=;
+        b=Z11hcdFm0lur7eZhMpMzf8G5viiOzYpLnlnChCMjWXoU91Q+dhGT1HE1hc9nWtDyTn
+         M9HwwmVErgVD2VKwAXb+s7poO59RZuHswSfWvOB27w1K0QHf5eAeLbmBIZWFEZ5vNjAG
+         uM6CHap2XPdl1XySD9bWi6qY9KUqTLITYTpKQQskDHepqFqQAp7wdiGhyGmo0pYq7PvX
+         3o0OfLwNQwuXflfVblUip028MXQFfmEc4zz3uJNotwpf3ojtRd9fdF6hFCFqRE++M6vM
+         opaM8RLoiEVv/TSLTewVeP1DoIAwaESjzgq5fpHr5tivx5TQav7eq3iJqvLuxesgWkAH
+         44AA==
+X-Gm-Message-State: AOAM531PS3Xb4t5/4myfUkhl/U4lnDrg42+SPxLhrBXadgjU9RD+6C51
+        4uTW4SVi6VK718b/xELDz+SlBQ==
+X-Google-Smtp-Source: ABdhPJz6ILO9KJmQAo9dsBlTgCVjwv22IuoZPDOnnhlk6scO1A0oZWI5P9disMNuzZklnQGqIVBuug==
+X-Received: by 2002:a17:90a:fe08:: with SMTP id ck8mr8549438pjb.90.1595654074430;
+        Fri, 24 Jul 2020 22:14:34 -0700 (PDT)
+Received: from [10.136.13.65] ([192.19.228.250])
+        by smtp.gmail.com with ESMTPSA id 193sm7829508pfz.85.2020.07.24.22.14.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Jul 2020 22:14:33 -0700 (PDT)
+Subject: Re: [PATCH v3 00/19] Introduce partial kernel_read_file() support
+To:     Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
         Jessica Yu <jeyu@kernel.org>, SeongJae Park <sjpark@amazon.de>,
         KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
         linux-security-module@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 18/19] firmware: Add request_partial_firmware_into_buf()
-Date:   Fri, 24 Jul 2020 14:36:39 -0700
-Message-Id: <20200724213640.389191-19-keescook@chromium.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200724213640.389191-1-keescook@chromium.org>
 References: <20200724213640.389191-1-keescook@chromium.org>
+From:   Scott Branden <scott.branden@broadcom.com>
+Message-ID: <09bd8cc0-8073-c26a-fb7c-010a62f88c74@broadcom.com>
+Date:   Fri, 24 Jul 2020 22:14:23 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
+In-Reply-To: <20200724213640.389191-1-keescook@chromium.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: Scott Branden <scott.branden@broadcom.com>
+On 2020-07-24 2:36 p.m., Kees Cook wrote:
+> v3:
+> - add reviews/acks
+> - add "IMA: Add support for file reads without contents" patch
+> - trim CC list, in case that's why vger ignored v2
+> v2: [missing from lkml archives! (CC list too long?) repeating changes here]
+> - fix issues in firmware test suite
+> - add firmware partial read patches
+> - various bug fixes/cleanups
+> v1: https://lore.kernel.org/lkml/20200717174309.1164575-1-keescook@chromium.org/
+>
+> Hi,
+>
+> Here's my tree for adding partial read support in kernel_read_file(),
+> which fixes a number of issues along the way. It's got Scott's firmware
+> and IMA patches ported and everything tests cleanly for me (even with
+> CONFIG_IMA_APPRAISE=y).
+>
+> I think the intention is for this to go via Greg's tree since Scott's
+> driver code will depend on it?
+v3 of this patch series looks good and passes all of my tests.
+Remaining patches
+Acked-by: Scott Branden <scott.branden@broadcom.com>
 
-Add request_partial_firmware_into_buf() to allow for portions of a
-firmware file to be read into a buffer. This is needed when large firmware
-must be loaded in portions from a file on memory constrained systems.
+I have added latest bcm-vk driver code to Kees' patch series and added 
+it here:
+https://github.com/sbranden/linux/tree/kernel_read_file_for_kees_v3
 
-Signed-off-by: Scott Branden <scott.branden@broadcom.com>
-Co-developed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
----
- drivers/base/firmware_loader/firmware.h |   4 +
- drivers/base/firmware_loader/main.c     | 109 +++++++++++++++++++-----
- include/linux/firmware.h                |  12 +++
- 3 files changed, 105 insertions(+), 20 deletions(-)
+If everyone finds Kees' patch series acceptable then the 3 patches 
+adding the bcm-vk driver
+need to be added to the series.  I can send the 3 patches out separately 
+and then
+the two patch series can be combined in Greg or someone's tree if that 
+works?
+Or if an in-kernel user beyond kernel selftest is needed for 
+request_partial_firmware_into_buf
+in Kees' patch series then another PATCH v4 needs to be sent out 
+including the bcm-vk driver.
+>
+> Thanks,
+>
+> -Kees
+>
+>
+> Kees Cook (15):
 
-diff --git a/drivers/base/firmware_loader/firmware.h b/drivers/base/firmware_loader/firmware.h
-index 7ad5fe52bc72..3f6eda46b3a2 100644
---- a/drivers/base/firmware_loader/firmware.h
-+++ b/drivers/base/firmware_loader/firmware.h
-@@ -32,6 +32,8 @@
-  * @FW_OPT_FALLBACK_PLATFORM: Enable fallback to device fw copy embedded in
-  *	the platform's main firmware. If both this fallback and the sysfs
-  *      fallback are enabled, then this fallback will be tried first.
-+ * @FW_OPT_PARTIAL: Allow partial read of firmware instead of needing to read
-+ *	entire file.
-  */
- enum fw_opt {
- 	FW_OPT_UEVENT			= BIT(0),
-@@ -41,6 +43,7 @@ enum fw_opt {
- 	FW_OPT_NOCACHE			= BIT(4),
- 	FW_OPT_NOFALLBACK_SYSFS		= BIT(5),
- 	FW_OPT_FALLBACK_PLATFORM	= BIT(6),
-+	FW_OPT_PARTIAL			= BIT(7),
- };
- 
- enum fw_status {
-@@ -68,6 +71,7 @@ struct fw_priv {
- 	void *data;
- 	size_t size;
- 	size_t allocated_size;
-+	size_t offset;
- 	u32 opt_flags;
- #ifdef CONFIG_FW_LOADER_PAGED_BUF
- 	bool is_paged_buf;
-diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
-index 814a18cc51bd..7aa22bdc2f60 100644
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -170,10 +170,19 @@ static struct fw_priv *__allocate_fw_priv(const char *fw_name,
- 					  struct firmware_cache *fwc,
- 					  void *dbuf,
- 					  size_t size,
-+					  size_t offset,
- 					  u32 opt_flags)
- {
- 	struct fw_priv *fw_priv;
- 
-+	/* For a partial read, the buffer must be preallocated. */
-+	if ((opt_flags & FW_OPT_PARTIAL) && !dbuf)
-+		return NULL;
-+
-+	/* Only partial reads are allowed to use an offset. */
-+	if (offset != 0 && !(opt_flags & FW_OPT_PARTIAL))
-+		return NULL;
-+
- 	fw_priv = kzalloc(sizeof(*fw_priv), GFP_ATOMIC);
- 	if (!fw_priv)
- 		return NULL;
-@@ -188,6 +197,7 @@ static struct fw_priv *__allocate_fw_priv(const char *fw_name,
- 	fw_priv->fwc = fwc;
- 	fw_priv->data = dbuf;
- 	fw_priv->allocated_size = size;
-+	fw_priv->offset = offset;
- 	fw_priv->opt_flags = opt_flags;
- 	fw_state_init(fw_priv);
- #ifdef CONFIG_FW_LOADER_USER_HELPER
-@@ -216,12 +226,17 @@ static int alloc_lookup_fw_priv(const char *fw_name,
- 				struct fw_priv **fw_priv,
- 				void *dbuf,
- 				size_t size,
-+				size_t offset,
- 				u32 opt_flags)
- {
- 	struct fw_priv *tmp;
- 
- 	spin_lock(&fwc->lock);
--	if (!(opt_flags & FW_OPT_NOCACHE)) {
-+	/*
-+	 * Do not merge requests that are marked to be non-cached or
-+	 * are performing partial reads.
-+	 */
-+	if (!(opt_flags & (FW_OPT_NOCACHE | FW_OPT_PARTIAL))) {
- 		tmp = __lookup_fw_priv(fw_name);
- 		if (tmp) {
- 			kref_get(&tmp->ref);
-@@ -232,7 +247,7 @@ static int alloc_lookup_fw_priv(const char *fw_name,
- 		}
- 	}
- 
--	tmp = __allocate_fw_priv(fw_name, fwc, dbuf, size, opt_flags);
-+	tmp = __allocate_fw_priv(fw_name, fwc, dbuf, size, offset, opt_flags);
- 	if (tmp) {
- 		INIT_LIST_HEAD(&tmp->list);
- 		if (!(opt_flags & FW_OPT_NOCACHE))
-@@ -439,6 +454,12 @@ static int fw_decompress_xz(struct device *dev, struct fw_priv *fw_priv,
- 	else
- 		return fw_decompress_xz_pages(dev, fw_priv, in_size, in_buffer);
- }
-+#else
-+static inline int fw_decompress_xz(struct device *dev, struct fw_priv *fw_priv,
-+				   size_t in_size, const void *in_buffer)
-+{
-+	return -ENOENT;
-+}
- #endif /* CONFIG_FW_LOADER_COMPRESS */
- 
- /* direct firmware loading support */
-@@ -485,6 +506,9 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
- 		return -ENOMEM;
- 
- 	for (i = 0; i < ARRAY_SIZE(fw_path); i++) {
-+		size_t file_size = 0;
-+		size_t *file_size_ptr = NULL;
-+
- 		/* skip the unset customized path */
- 		if (!fw_path[i][0])
- 			continue;
-@@ -498,9 +522,18 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
- 
- 		fw_priv->size = 0;
- 
-+		/*
-+		 * The total file size is only examined when doing a partial
-+		 * read; the "full read" case needs to fail if the whole
-+		 * firmware was not completely loaded.
-+		 */
-+		if ((fw_priv->opt_flags & FW_OPT_PARTIAL) && buffer)
-+			file_size_ptr = &file_size;
-+
- 		/* load firmware files from the mount namespace of init */
--		rc = kernel_read_file_from_path_initns(path, 0, &buffer, msize,
--						       NULL,
-+		rc = kernel_read_file_from_path_initns(path, fw_priv->offset,
-+						       &buffer, msize,
-+						       file_size_ptr,
- 						       READING_FIRMWARE);
- 		if (rc < 0) {
- 			if (rc != -ENOENT)
-@@ -691,7 +724,7 @@ int assign_fw(struct firmware *fw, struct device *device)
- static int
- _request_firmware_prepare(struct firmware **firmware_p, const char *name,
- 			  struct device *device, void *dbuf, size_t size,
--			  u32 opt_flags)
-+			  size_t offset, u32 opt_flags)
- {
- 	struct firmware *firmware;
- 	struct fw_priv *fw_priv;
-@@ -710,7 +743,7 @@ _request_firmware_prepare(struct firmware **firmware_p, const char *name,
- 	}
- 
- 	ret = alloc_lookup_fw_priv(name, &fw_cache, &fw_priv, dbuf, size,
--				  opt_flags);
-+				   offset, opt_flags);
- 
- 	/*
- 	 * bind with 'priv' now to avoid warning in failure path
-@@ -757,9 +790,10 @@ static void fw_abort_batch_reqs(struct firmware *fw)
- static int
- _request_firmware(const struct firmware **firmware_p, const char *name,
- 		  struct device *device, void *buf, size_t size,
--		  u32 opt_flags)
-+		  size_t offset, u32 opt_flags)
- {
- 	struct firmware *fw = NULL;
-+	bool nondirect = false;
- 	int ret;
- 
- 	if (!firmware_p)
-@@ -771,18 +805,20 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
- 	}
- 
- 	ret = _request_firmware_prepare(&fw, name, device, buf, size,
--					opt_flags);
-+					offset, opt_flags);
- 	if (ret <= 0) /* error or already assigned */
- 		goto out;
- 
- 	ret = fw_get_filesystem_firmware(device, fw->priv, "", NULL);
--#ifdef CONFIG_FW_LOADER_COMPRESS
--	if (ret == -ENOENT)
-+
-+	/* Only full reads can support decompression, platform, and sysfs. */
-+	if (!(opt_flags & FW_OPT_PARTIAL))
-+		nondirect = true;
-+
-+	if (ret == -ENOENT && nondirect)
- 		ret = fw_get_filesystem_firmware(device, fw->priv, ".xz",
- 						 fw_decompress_xz);
--#endif
--
--	if (ret == -ENOENT)
-+	if (ret == -ENOENT && nondirect)
- 		ret = firmware_fallback_platform(fw->priv);
- 
- 	if (ret) {
-@@ -790,7 +826,9 @@ _request_firmware(const struct firmware **firmware_p, const char *name,
- 			dev_warn(device,
- 				 "Direct firmware load for %s failed with error %d\n",
- 				 name, ret);
--		ret = firmware_fallback_sysfs(fw, name, device, opt_flags, ret);
-+		if (nondirect)
-+			ret = firmware_fallback_sysfs(fw, name, device,
-+						      opt_flags, ret);
- 	} else
- 		ret = assign_fw(fw, device);
- 
-@@ -833,7 +871,7 @@ request_firmware(const struct firmware **firmware_p, const char *name,
- 
- 	/* Need to pin this module until return */
- 	__module_get(THIS_MODULE);
--	ret = _request_firmware(firmware_p, name, device, NULL, 0,
-+	ret = _request_firmware(firmware_p, name, device, NULL, 0, 0,
- 				FW_OPT_UEVENT);
- 	module_put(THIS_MODULE);
- 	return ret;
-@@ -860,7 +898,7 @@ int firmware_request_nowarn(const struct firmware **firmware, const char *name,
- 
- 	/* Need to pin this module until return */
- 	__module_get(THIS_MODULE);
--	ret = _request_firmware(firmware, name, device, NULL, 0,
-+	ret = _request_firmware(firmware, name, device, NULL, 0, 0,
- 				FW_OPT_UEVENT | FW_OPT_NO_WARN);
- 	module_put(THIS_MODULE);
- 	return ret;
-@@ -884,7 +922,7 @@ int request_firmware_direct(const struct firmware **firmware_p,
- 	int ret;
- 
- 	__module_get(THIS_MODULE);
--	ret = _request_firmware(firmware_p, name, device, NULL, 0,
-+	ret = _request_firmware(firmware_p, name, device, NULL, 0, 0,
- 				FW_OPT_UEVENT | FW_OPT_NO_WARN |
- 				FW_OPT_NOFALLBACK_SYSFS);
- 	module_put(THIS_MODULE);
-@@ -909,7 +947,7 @@ int firmware_request_platform(const struct firmware **firmware,
- 
- 	/* Need to pin this module until return */
- 	__module_get(THIS_MODULE);
--	ret = _request_firmware(firmware, name, device, NULL, 0,
-+	ret = _request_firmware(firmware, name, device, NULL, 0, 0,
- 				FW_OPT_UEVENT | FW_OPT_FALLBACK_PLATFORM);
- 	module_put(THIS_MODULE);
- 	return ret;
-@@ -965,13 +1003,44 @@ request_firmware_into_buf(const struct firmware **firmware_p, const char *name,
- 		return -EOPNOTSUPP;
- 
- 	__module_get(THIS_MODULE);
--	ret = _request_firmware(firmware_p, name, device, buf, size,
-+	ret = _request_firmware(firmware_p, name, device, buf, size, 0,
- 				FW_OPT_UEVENT | FW_OPT_NOCACHE);
- 	module_put(THIS_MODULE);
- 	return ret;
- }
- EXPORT_SYMBOL(request_firmware_into_buf);
- 
-+/**
-+ * request_partial_firmware_into_buf() - load partial firmware into a previously allocated buffer
-+ * @firmware_p: pointer to firmware image
-+ * @name: name of firmware file
-+ * @device: device for which firmware is being loaded and DMA region allocated
-+ * @buf: address of buffer to load firmware into
-+ * @size: size of buffer
-+ * @offset: offset into file to read
-+ *
-+ * This function works pretty much like request_firmware_into_buf except
-+ * it allows a partial read of the file.
-+ */
-+int
-+request_partial_firmware_into_buf(const struct firmware **firmware_p,
-+				  const char *name, struct device *device,
-+				  void *buf, size_t size, size_t offset)
-+{
-+	int ret;
-+
-+	if (fw_cache_is_setup(device, name))
-+		return -EOPNOTSUPP;
-+
-+	__module_get(THIS_MODULE);
-+	ret = _request_firmware(firmware_p, name, device, buf, size, offset,
-+				FW_OPT_UEVENT | FW_OPT_NOCACHE |
-+				FW_OPT_PARTIAL);
-+	module_put(THIS_MODULE);
-+	return ret;
-+}
-+EXPORT_SYMBOL(request_partial_firmware_into_buf);
-+
- /**
-  * release_firmware() - release the resource associated with a firmware image
-  * @fw: firmware resource to release
-@@ -1004,7 +1073,7 @@ static void request_firmware_work_func(struct work_struct *work)
- 
- 	fw_work = container_of(work, struct firmware_work, work);
- 
--	_request_firmware(&fw, fw_work->name, fw_work->device, NULL, 0,
-+	_request_firmware(&fw, fw_work->name, fw_work->device, NULL, 0, 0,
- 			  fw_work->opt_flags);
- 	fw_work->cont(fw, fw_work->context);
- 	put_device(fw_work->device); /* taken in request_firmware_nowait() */
-diff --git a/include/linux/firmware.h b/include/linux/firmware.h
-index cb3e2c06ed8a..c15acadc6cf4 100644
---- a/include/linux/firmware.h
-+++ b/include/linux/firmware.h
-@@ -53,6 +53,9 @@ int request_firmware_direct(const struct firmware **fw, const char *name,
- 			    struct device *device);
- int request_firmware_into_buf(const struct firmware **firmware_p,
- 	const char *name, struct device *device, void *buf, size_t size);
-+int request_partial_firmware_into_buf(const struct firmware **firmware_p,
-+				      const char *name, struct device *device,
-+				      void *buf, size_t size, size_t offset);
- 
- void release_firmware(const struct firmware *fw);
- #else
-@@ -102,6 +105,15 @@ static inline int request_firmware_into_buf(const struct firmware **firmware_p,
- 	return -EINVAL;
- }
- 
-+static inline int request_partial_firmware_into_buf
-+					(const struct firmware **firmware_p,
-+					 const char *name,
-+					 struct device *device,
-+					 void *buf, size_t size, size_t offset)
-+{
-+	return -EINVAL;
-+}
-+
- #endif
- 
- int firmware_request_cache(struct device *device, const char *name);
--- 
-2.25.1
+Thanks for help Kees, it's works now.
+>    test_firmware: Test platform fw loading on non-EFI systems
+>    selftest/firmware: Add selftest timeout in settings
+>    firmware_loader: EFI firmware loader must handle pre-allocated buffer
+>    fs/kernel_read_file: Remove FIRMWARE_PREALLOC_BUFFER enum
+>    fs/kernel_read_file: Remove FIRMWARE_EFI_EMBEDDED enum
+>    fs/kernel_read_file: Split into separate source file
+>    fs/kernel_read_file: Remove redundant size argument
+>    fs/kernel_read_file: Switch buffer size arg to size_t
+>    fs/kernel_read_file: Add file_size output argument
+>    LSM: Introduce kernel_post_load_data() hook
+>    firmware_loader: Use security_post_load_data()
+>    module: Call security_kernel_post_load_data()
+>    LSM: Add "contents" flag to kernel_read_file hook
+>    fs/kernel_file_read: Add "offset" arg for partial reads
+>    firmware: Store opt_flags in fw_priv
+>
+> Scott Branden (4):
+>    fs/kernel_read_file: Split into separate include file
+>    IMA: Add support for file reads without contents
+>    firmware: Add request_partial_firmware_into_buf()
+>    test_firmware: Test partial read support
+>
+>   drivers/base/firmware_loader/fallback.c       |  19 +-
+>   drivers/base/firmware_loader/fallback.h       |   5 +-
+>   .../base/firmware_loader/fallback_platform.c  |  16 +-
+>   drivers/base/firmware_loader/firmware.h       |   7 +-
+>   drivers/base/firmware_loader/main.c           | 143 ++++++++++---
+>   drivers/firmware/efi/embedded-firmware.c      |  21 +-
+>   drivers/firmware/efi/embedded-firmware.h      |  19 ++
+>   fs/Makefile                                   |   3 +-
+>   fs/exec.c                                     | 132 +-----------
+>   fs/kernel_read_file.c                         | 189 ++++++++++++++++++
+>   include/linux/efi_embedded_fw.h               |  13 --
+>   include/linux/firmware.h                      |  12 ++
+>   include/linux/fs.h                            |  39 ----
+>   include/linux/ima.h                           |  19 +-
+>   include/linux/kernel_read_file.h              |  55 +++++
+>   include/linux/lsm_hook_defs.h                 |   6 +-
+>   include/linux/lsm_hooks.h                     |  12 ++
+>   include/linux/security.h                      |  19 +-
+>   kernel/kexec.c                                |   2 +-
+>   kernel/kexec_file.c                           |  19 +-
+>   kernel/module.c                               |  24 ++-
+>   lib/test_firmware.c                           | 159 +++++++++++++--
+>   security/integrity/digsig.c                   |   8 +-
+>   security/integrity/ima/ima_fs.c               |  10 +-
+>   security/integrity/ima/ima_main.c             |  70 +++++--
+>   security/integrity/ima/ima_policy.c           |   1 +
+>   security/loadpin/loadpin.c                    |  17 +-
+>   security/security.c                           |  26 ++-
+>   security/selinux/hooks.c                      |   8 +-
+>   .../selftests/firmware/fw_filesystem.sh       |  91 +++++++++
+>   tools/testing/selftests/firmware/settings     |   8 +
+>   tools/testing/selftests/kselftest/runner.sh   |   6 +-
+>   32 files changed, 860 insertions(+), 318 deletions(-)
+>   create mode 100644 drivers/firmware/efi/embedded-firmware.h
+>   create mode 100644 fs/kernel_read_file.c
+>   create mode 100644 include/linux/kernel_read_file.h
+>   create mode 100644 tools/testing/selftests/firmware/settings
+>
 
