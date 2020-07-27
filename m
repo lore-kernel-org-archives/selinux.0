@@ -1,104 +1,111 @@
-Return-Path: <SRS0=OFWW=BF=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=Yzg2=BG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36EC1C433DF
-	for <selinux@archiver.kernel.org>; Sun, 26 Jul 2020 18:52:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B946C433E0
+	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 10:49:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 103AD206D7
-	for <selinux@archiver.kernel.org>; Sun, 26 Jul 2020 18:52:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 18EDB20719
+	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 10:49:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1595846955;
+	bh=zNfqzDInDnSp+fKCzpx3F6lQ3q4TBw0M7Av0QoXkGpo=;
+	h=Subject:From:To:Cc:Date:In-Reply-To:References:List-ID:From;
+	b=RXTE9NSnqb8wP9eZ8ctf/I2R6JeeJt9reyGQ6gwFqAwCkcNt22pgIJOWE6RGjmyJy
+	 sGfi5kCdVuWXxEfEx25HwZj39jZyQuAWr56smvauWj+M7/gSq9AZy9PbBpFZ4esxn0
+	 9ygntXXYZdc/FMGgC2NUQL7B0lkyYASxKIX7h6iI=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726072AbgGZSwU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Sun, 26 Jul 2020 14:52:20 -0400
-Received: from mx1.polytechnique.org ([129.104.30.34]:35182 "EHLO
-        mx1.polytechnique.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725972AbgGZSwU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sun, 26 Jul 2020 14:52:20 -0400
-Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S1728270AbgG0KtO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Jul 2020 06:49:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60368 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726298AbgG0KtO (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 27 Jul 2020 06:49:14 -0400
+Received: from localhost.localdomain (pool-96-246-152-186.nycmny.fios.verizon.net [96.246.152.186])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ssl.polytechnique.org (Postfix) with ESMTPSA id 202F3564C48
-        for <selinux@vger.kernel.org>; Sun, 26 Jul 2020 20:52:17 +0200 (CEST)
-Received: by mail-oi1-f181.google.com with SMTP id q4so806178oia.1
-        for <selinux@vger.kernel.org>; Sun, 26 Jul 2020 11:52:17 -0700 (PDT)
-X-Gm-Message-State: AOAM533nFzg+9fci4DQ+hPI7ieNqq1uwkqlcU/iQQpFwhDqB6yGQ7L/K
-        NgYNuvbXxs5jJaen9WIN8qdTvazJHXeNpgac91k=
-X-Google-Smtp-Source: ABdhPJw47fYFkE8ABvNd2HK2h3fxSSXQnyPn2WtWsOCsOaQ38Dn7NkZIpvsR5J0cQW6ePHXBGaOuBYNv6CHwBJ5/UGA=
-X-Received: by 2002:aca:c70f:: with SMTP id x15mr16299628oif.40.1595789536074;
- Sun, 26 Jul 2020 11:52:16 -0700 (PDT)
-MIME-Version: 1.0
-References: <31fac4d5-3c2e-75b5-5759-52322d8dd733@gmail.com>
- <CAJfZ7=m7udOgTOcoR3wEEtxnAoaLmBaHSeVzBYxsQhmzmw2qGQ@mail.gmail.com> <35b8c022-3c40-4005-b188-9f004556e927@gmail.com>
-In-Reply-To: <35b8c022-3c40-4005-b188-9f004556e927@gmail.com>
-From:   Nicolas Iooss <nicolas.iooss@m4x.org>
-Date:   Sun, 26 Jul 2020 20:52:05 +0200
-X-Gmail-Original-Message-ID: <CAJfZ7=nuMzgD1ceVnr_3D1VJ=awD6yx1FBdAezY26RK9iUqF9g@mail.gmail.com>
-Message-ID: <CAJfZ7=nuMzgD1ceVnr_3D1VJ=awD6yx1FBdAezY26RK9iUqF9g@mail.gmail.com>
-Subject: Re: File context rule not working
-To:     Ian Pilcher <arequipeno@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+        by mail.kernel.org (Postfix) with ESMTPSA id 7ED78206E7;
+        Mon, 27 Jul 2020 10:49:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1595846953;
+        bh=zNfqzDInDnSp+fKCzpx3F6lQ3q4TBw0M7Av0QoXkGpo=;
+        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
+        b=lhClkxotlesTUV1UDov1RrY64xr/ppyKNwCO0sGj548usN3ExBpqNf1v73lO6qY2x
+         gXrALj4a7FB2QB75LMyX17RGfKrjHGwIko0vBdXAOFq7H637gLacrQYgI1EPBcNl4F
+         WQ3zl8FW26O60MLGh4f1gZbN6TKyE1zhYxL/dUMo=
+Message-ID: <1595846951.4841.61.camel@kernel.org>
+Subject: Re: [PATCH v3 11/19] LSM: Introduce kernel_post_load_data() hook
+From:   Mimi Zohar <zohar@kernel.org>
+To:     Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Scott Branden <scott.branden@broadcom.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Jessica Yu <jeyu@kernel.org>, SeongJae Park <sjpark@amazon.de>,
+        KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Mon, 27 Jul 2020 06:49:11 -0400
+In-Reply-To: <20200724213640.389191-12-keescook@chromium.org>
+References: <20200724213640.389191-1-keescook@chromium.org>
+         <20200724213640.389191-12-keescook@chromium.org>
 Content-Type: text/plain; charset="UTF-8"
-X-AV-Checked: ClamAV using ClamSMTP at svoboda.polytechnique.org (Sun Jul 26 20:52:17 2020 +0200 (CEST))
-X-Org-Mail: nicolas.iooss.2010@polytechnique.org
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Jul 26, 2020 at 8:01 PM Ian Pilcher <arequipeno@gmail.com> wrote:
->
-> On 7/26/20 11:01 AM, Nicolas Iooss wrote:
-> > I guess this is due the rule 3 documented in
-> > https://manpages.debian.org/experimental/libselinux1-dev/selabel_lookup_best_match_raw.3.en.html
-> > (source https://github.com/SELinuxProject/selinux/blob/master/libselinux/man/man3/selabel_lookup_best_match.3):
-> >
-> >      The order of precedence for best match is:
-> >      1. An exact match for the real path (key) or
-> >      2. An exact match for any of the links (aliases), or
-> >      3. The longest fixed prefix match.
-> >
-> > I guess that in your policy, there is a rule that states that
-> > /usr/bin(/.*)? is labeled bin_t. As both /usr/bin(/.*)? and
-> > /usr(/local)?/bin/raidcheck match /usr/bin/raidcheck, the order of
-> > precedence is determined by the number of characters before the first
-> > special characters (that indidate a regular expression). As
-> > /usr/bin(/.*)? has a longer "fixed prefix", it is the one that
-> > matches.
->
-> I can't find a '/usr/bin(/.*)?' rule.  'semanage fcontext --list' should
-> show it, right?
->
-> [root@n5550 files]# semanage fcontext --list | egrep '/usr/bin\('
-> /usr/lib/debug/usr/bin(/.*)?                       regular file
-> system_u:object_r:bin_t:s0
+On Fri, 2020-07-24 at 14:36 -0700, Kees Cook wrote:
+> There are a few places in the kernel where LSMs would like to have
+> visibility into the contents of a kernel buffer that has been loaded or
+> read. While security_kernel_post_read_file() (which includes the
+> buffer) exists as a pairing for security_kernel_read_file(), no such
+> hook exists to pair with security_kernel_load_data().
+> 
+> Earlier proposals for just using security_kernel_post_read_file() with a
+> NULL file argument were rejected (i.e. "file" should always be valid for
+> the security_..._file hooks, but it appears at least one case was
+> left in the kernel during earlier refactoring. (This will be fixed in
+> a subsequent patch.)
+> 
+> Since not all cases of security_kernel_load_data() can have a single
+> contiguous buffer made available to the LSM hook (e.g. kexec image
+> segments are separately loaded), there needs to be a way for the LSM to
+> reason about its expectations of the hook coverage. In order to handle
+> this, add a "contents" argument to the "kernel_load_data" hook that
+> indicates if the newly added "kernel_post_load_data" hook will be called
+> with the full contents once loaded. That way, LSMs requiring full contents
+> can choose to unilaterally reject "kernel_load_data" with contents=false
+> (which is effectively the existing hook coverage), but when contents=true
+> they can allow it and later evaluate the "kernel_post_load_data" hook
+> once the buffer is loaded.
+> 
+> With this change, LSMs can gain coverage over non-file-backed data loads
+> (e.g. init_module(2) and firmware userspace helper), which will happen
+> in subsequent patches.
+> 
+> Additionally prepare IMA to start processing these cases.
+> 
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Yes, on my system (that uses refpolicy):
+At least from an IMA perspective, the original
+security_kernel_load_data() hook was defined in order to prevent
+certain syscalls - init_module, kexec_load - and loading firmware via
+sysfs.  The resulting error messages were generic.
+  
+Unlike security_kernel_load_data(), security_kernel_post_load_data()
+is meant to be used, but without a file desciptor specific
+information, like the filename associated with the buffer, is missing.
+ Having the filename isn't actually necessary for verifying the
+appended signature, but it is needed for auditing signature
+verification failures and including in the IMA measurement list.
 
-# semanage fcontext --list | egrep '/usr/bin\('
-/usr/bin(/.*)?                                     all files
-system_u:object_r:bin_t
-
-> But I suspect that your reasoning is still correct.  I wasn't aware of
-> the precedence rule.  The first "special character" does come pretty
-> early in my rule, so it's likely that something that's considered more
-> specific would match.
->
-> > Does using "/usr/bin/raidcheck
-> > system_u:object_r:raidcheck_exec_t:s0" fix your issue? If yes, you can
-> > either duplicate the line (by adding both /usr/bin/... and
-> > /usr/local/bin/...), or configure a substitution pattern such that
-> > /usr/local/bin... gets transformed into /usr/bin/... before searching
-> > for patterns.
->
-> '/usr/bin/raidcheck' and '/usr/local/bin/raidcheck' both work, so I'll
-> likely just go with that.
-
-Great! Glad I could help fix your issue.
-
-Cheers,
-Nicolas
-
+Mimi
