@@ -2,378 +2,123 @@ Return-Path: <SRS0=Yzg2=BG=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AE6EC433E1
-	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 15:39:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31CC7C433E4
+	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 16:12:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6AE652078A
-	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 15:39:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0C98720672
+	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 16:12:25 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R8WWPDDf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729509AbgG0PjU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Jul 2020 11:39:20 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:56442 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729049AbgG0PjT (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 27 Jul 2020 11:39:19 -0400
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 158302A127E;
-        Mon, 27 Jul 2020 17:39:16 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 158302A127E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1595864357;
-        bh=PTjxRI17NYEs992qEwgPfZBSLtD9CLcdJQEyAX6zqXQ=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=hqQjeWtE+mxHT079ORa27/G8I9Fq7W01WcmWoXaqTMM7OauOmmfjbWlLLT0xCfyTo
-         uCPUxIOwDDtjgjtFs1jGZNIXAYNhGytqpETkgevRw1jmrxBB7T06UAJSyBkJBTBLS7
-         AwYY80RNxMHg//S5I326KIjZeN3/aHToB7eCa0EA=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     Topi Miettinen <toiwoton@gmail.com>
-Cc:     selinux@vger.kernel.org
-Subject: Re: [PATCH v2] Improve network_support.md
-References: <20200727130428.8234-1-toiwoton@gmail.com>
-        <ypjlwo2pm56q.fsf@defensec.nl>
-        <100b1c8c-a756-c6e5-5514-a8a9dc6fc117@gmail.com>
-Date:   Mon, 27 Jul 2020 17:39:12 +0200
-In-Reply-To: <100b1c8c-a756-c6e5-5514-a8a9dc6fc117@gmail.com> (Topi
-        Miettinen's message of "Mon, 27 Jul 2020 18:21:39 +0300")
-Message-ID: <ypjlsgddm0gv.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
+        id S1728622AbgG0QMY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Jul 2020 12:12:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54532 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727975AbgG0QMY (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Jul 2020 12:12:24 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E5FC061794;
+        Mon, 27 Jul 2020 09:12:24 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id k22so14814143oib.0;
+        Mon, 27 Jul 2020 09:12:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=piFsRY7JOm24njFZpgZZGCe0rwON4Csurmi1k3Fom/s=;
+        b=R8WWPDDf5X7l/Ty4nDs3DP5h7tdNgpwJpBxPH1TKawwvOBua6NA4iyd9xCoCNAJCiJ
+         lVfc3AnvMvCZIZjRbY9QYrCLswa9WdJHK+gGBe6Gt18ocHZxw0/YjfUalbE4nO3irDU5
+         sBQMwx8gPM0qMSTLZDfz01zFshUSwT9/zbudDToQn3h99Jb4VlZiSCKf0BjgjL3OKlW0
+         TmJ0KkUKus3flMsf+CJJ3o8eUwqu9PpUgdZFD5yTriIW8t1sgqEHOfuoJmx10f/2mv+D
+         DadruT/8ILwj5ToSxVn7V8QHTwU3KbwIJaNF835hK6tFqqGJFJmi0+xvUev3xWfflgNN
+         j+wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=piFsRY7JOm24njFZpgZZGCe0rwON4Csurmi1k3Fom/s=;
+        b=rT3SEYkXcCtjlXKaiqpRx701nuEdelSzeBxPi+DCCyzcRK2dlcnrRz9SM/2TmYIcbB
+         DzE2HvcLnnBOriQsaVb/6xzgyOdxfJQg5dcQhzcB3q3HRj6ROlgsA1g/qBMEefWSSocI
+         ZAN345OGco3OQQ6DEy3+T7S/COepS76Lqe2tt4wVlmkHudqSAWuGuExcwtjZWN5yPlO+
+         pUgLWUIp8OTsGLJfe8Oc/iBirB82c60MbBHKuWjZyq7+2A1EtEaqIxAuSN0GQRoUm6Zr
+         UfMJjK0fwGj/etKanUCbCtak5C1lNoKPYvg6sKpu3m/F7NJEIWU1gXxVxZ5FC4nNBE+E
+         d+MQ==
+X-Gm-Message-State: AOAM531w/GiNYYIgMk2MEBGPtneNQIhFFS4Yd0c7Vwt9a9xXt9aspYR7
+        Pbdb9v70Kla78f9pbIA350x29vFFxV+hY4Gw9Vs=
+X-Google-Smtp-Source: ABdhPJxzbXrmkz19yELtpn/YxAJN5p300896o7TLZsr1hdQEGgmj6ERW5cTYe5V1vbtSJwkncp45dtNUGsy/Vz4qvyg=
+X-Received: by 2002:aca:c4cc:: with SMTP id u195mr56473oif.160.1595866343429;
+ Mon, 27 Jul 2020 09:12:23 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20200724203226.16374-1-casey@schaufler-ca.com> <20200724203226.16374-3-casey@schaufler-ca.com>
+In-Reply-To: <20200724203226.16374-3-casey@schaufler-ca.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 27 Jul 2020 12:12:12 -0400
+Message-ID: <CAEjxPJ453W-8PmB4WPq2vZHfvvG6yWFmoqnuHtHvz5Y5MYaj1g@mail.gmail.com>
+Subject: Re: [PATCH v19 02/23] LSM: Create and manage the lsmblob data structure.
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     Casey Schaufler <casey.schaufler@intel.com>,
+        James Morris <jmorris@namei.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        John Johansen <john.johansen@canonical.com>,
+        linux-audit@redhat.com, Stephen Smalley <sds@tycho.nsa.gov>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Topi Miettinen <toiwoton@gmail.com> writes:
+On Fri, Jul 24, 2020 at 4:35 PM Casey Schaufler <casey@schaufler-ca.com> wr=
+ote:
+>
+> When more than one security module is exporting data to
+> audit and networking sub-systems a single 32 bit integer
+> is no longer sufficient to represent the data. Add a
+> structure to be used instead.
+>
+> The lsmblob structure is currently an array of
+> u32 "secids". There is an entry for each of the
+> security modules built into the system that would
+> use secids if active. The system assigns the module
+> a "slot" when it registers hooks. If modules are
+> compiled in but not registered there will be unused
+> slots.
+>
+> A new lsm_id structure, which contains the name
+> of the LSM and its slot number, is created. There
+> is an instance for each LSM, which assigns the name
+> and passes it to the infrastructure to set the slot.
+>
+> The audit rules data is expanded to use an array of
+> security module data rather than a single instance.
+> Because IMA uses the audit rule functions it is
+> affected as well.
+>
+> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Acked-by: Paul Moore <paul@paul-moore.com>
+> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 
-> On 27.7.2020 16.57, Dominick Grift wrote:
->> Topi Miettinen <toiwoton@gmail.com> writes:
->>
->>> List all access control methods available for networking and provide
->>> examples for each.
->>>
->>> Signed-off-by: Topi Miettinen <toiwoton@gmail.com>
->>>
->>> ---
->>> v2: address comments from Richard Haines
->>> ---
->>>   src/network_statements.md |   2 +-
->>>   src/network_support.md    | 170 +++++++++++++++++++++++++++++++++-----
->>>   2 files changed, 150 insertions(+), 22 deletions(-)
->>>
->>> diff --git a/src/network_statements.md b/src/network_statements.md
->>> index ef1c873..357c3b1 100644
->>> --- a/src/network_statements.md
->>> +++ b/src/network_statements.md
->>> @@ -102,7 +102,7 @@ the interface to a security context.
->>>   <tr>
->>>   <td><code>packet_context</code></td>
->>>   <td><p>The security context allocated packets. Note that these are de=
-fined but unused.</p>
->>> -<p>The iptables(8)/nftables(8) <a href=3D"network_support.md#secmark">=
-SECMARK services</a> should be used to label packets.</p></td>
->>> +<p>The iptables(8)/nftables(8) <a
->>> href=3D"network_support.md#internal-labeling-secmark">SECMARK
->>> services</a> should be used to label packets.</p></td>
->>>   </tr>
->>>   </tbody>
->>>   </table>
->>> diff --git a/src/network_support.md b/src/network_support.md
->>> index 309e863..6f9896b 100644
->>> --- a/src/network_support.md
->>> +++ b/src/network_support.md
->>> @@ -1,20 +1,17 @@
->>>   # SELinux Networking Support
->>>   -SELinux supports the following types of network labeling:
->>> +SELinux supports several methods for access control of networks. These=
- are
->>>   -**Internal labeling** - This is where network objects are
->>> labeled and
->>> -managed internally within a single machine (i.e. their labels are not
->>> -transmitted as part of the session with remote systems). There are two
->>> -types supported: SECMARK and NetLabel. There was a service known as
->>> -'compat_net' controls, however that was removed in kernel 2.6.30.
->>> +* Packet labeling: class `packet`
->>> +* Peer labeling: class `peer`
->>> +* Interface control: class `netif`
->>> +* Network node control: class `node`
->>> +* TCP/UDP/SCTP/DCCP ports: class `port`
->>>   -**Labeled Networking** - This is where labels are passed to/from
->>> remote
->>> -systems where they can be interpreted and a MAC policy enforced on each
->>> -system. There are three types supported: Labeled IPSec, CIPSO
->>> -(Commercial IP Security Option) and CALIPSO (Common Architecture Label
->>> -IPv6 Security Option)
->>> +Networking support is not enabled by default. It can be enabled either
->>> +the policy capabilities or by loading SECMARK rules.
->>>   -There are two policy capability options that can be set within
->>> policy
->>> +There are three policy capability options that can be set within policy
->>>   using the `policycap` statement that affect networking configuration:
->>>     **`network_peer_controls`** - This is always enabled in the
->>> latest
->>> @@ -37,8 +34,22 @@ The policy capability settings are available in user=
-space via the
->>>   SELinux filesystem as shown in the
->>>   [**SELinux Filesystem**](lsm_selinux.md#selinux-filesystem) section.
->>>   -To support peer labeling, CIPSO and CALIPSO the NetLabel tools
->>> need to
->>> -be installed:
->>> +SELinux supports the following types of network labeling:
->>> +
->>> +**Internal labeling** - This is where network objects are labeled and
->>> +managed internally within a single machine (i.e. their labels are not
->>> +transmitted as part of the session with remote systems). There are two
->>> +types supported: SECMARK and NetLabel. There was a service known as
->>> +'compat_net' controls, however that was removed in kernel 2.6.30.
->>> +
->>> +**Labeled Networking** - This is where labels are passed to/from remote
->>> +systems where they can be interpreted and a MAC policy enforced on each
->>> +system. There are three types supported: Labeled IPSec, CIPSO
->>> +(Commercial IP Security Option) and CALIPSO (Common Architecture Label
->>> +IPv6 Security Option).
->>> +
->>> +To support peer labeling with CIPSO and CALIPSO or fallback labeling,
->>> +the NetLabel tools need to be installed:
->>>     `dnf install netlabel_tools`
->>>   @@ -52,8 +63,12 @@ OpenSwan but is now distributed as LibreSwan:
->>>   `dnf install libreswan`
->>>     It is important to note that the kernel must be configured to
->>> support
->>> -these services. The Fedora kernels are configured to handle all the ab=
-ove
->>> -services.
->>> +these services (`CONFIG_NETLABEL`, `CONFIG_NETWORK_SECMARK`,
->>> +`CONFIG_NF_CONNTRACK_SECMARK`,
->>> +`CONFIG_NETFILTER_XT_TARGET_CONNSECMARK`,
->>> +`CONFIG_NETFILTER_XT_TARGET_SECMARK`, `CONFIG_IP_NF_SECURITY`,
->>> +`CONFIG_IP6_NF_SECURITY`). At least Fedora and Debian kernels are
->>> +configured to handle all the above services.
->>>     The Linux networking package *iproute* has an SELinux aware
->>> socket
->>>   statistics command ***ss**(8)* that will show the SELinux context of
->>> @@ -65,7 +80,7 @@ to achieve this).
->>>     <br>
->>>   -## SECMARK
->>> +## Internal labeling: SECMARK
->>>     SECMARK makes use of the standard kernel NetFilter framework
->>> that
->>>   underpins the GNU / Linux IP networking sub-system. NetFilter services
->>> @@ -73,7 +88,7 @@ automatically inspects all incoming and outgoing pack=
-ets and can place
->>>   controls on interfaces, IP addresses (nodes) and ports with the added
->>>   advantage of connection tracking. The SECMARK security extensions all=
-ow
->>>   security contexts to be added to packets (SECMARK) or sessions
->>> -(CONNSECMARK).
->>> +(CONNSECMARK), belonging to object class of `packet`.
->>>     The NetFilter framework inspects and tag packets with labels as
->>> defined
->>>   within ***iptables**(8)* (also 'nftables' ***nft**(8)* from version 9=
-.3 with
->>> @@ -172,6 +187,16 @@ table ip6 security {
->>>   }
->>>   ```
->>>   +Before the SECMARK rules can be loaded, TE rules must be added
->>> to
->>> +define the types, and also allow domains to send and/or receive
->>> +objects of `packet` class:
->>> +
->>> +```
->>> +type test_server_packet_t, packet_type;
->>> +
->>> +allow my_server_t test_server_packet_t:packet { send recv };
->>> +```
->>> +
->>>   The following articles explain the SECMARK service:
->>>   -   [*Transitioning to Secmark*](http://paulmoore.livejournal.com/428=
-1.html)
->>>   -   [New secmark-based network controls for SELinux](http://james-mor=
-ris.livejournal.com/11010.html)
->>> @@ -179,7 +204,7 @@ The following articles explain the SECMARK service:
->>>     <br>
->>>   -## NetLabel - Fallback Peer Labeling
->>> +## Internal labeling: NetLabel - Fallback Peer Labeling
->>>     Fallback labeling can optionally be implemented on a system if
->>> the
->>>   Labeled IPSec or CIPSO/CALIPSO is not being used (hence 'fallback
->>> @@ -217,9 +242,20 @@ netlabelctl -p map list
->>>   Note that the security contexts must be valid in the policy otherwise=
- the
->>>   commands will fail.
->>>   +Before the NetLabel rules can be loaded, TE rules must be added
->>> to
->>> +define the types. Then the rules can allow domains to receive data
->>> +from objects of `peer` class:
->>> +
->>> +```
->>> +type netlabel_sctp_peer_t;
->>> +
->>> +allow my_server_t netlabel_sctp_peer_t:peer recv;
->>> +```
->>> +Note that sending can't be controlled with `peer` class.
->>> +
->>>   <br>
->>>   -## NetLabel =E2=80=93 CIPSO/CALIPSO
->>> +## Labeled Networking: NetLabel =E2=80=93 CIPSO/CALIPSO
->>>     To allow MLS [**security levels**](mls_mcs.md#security-levels)
->>> to be passed
->>>   over a network between MLS
->>> @@ -288,7 +324,7 @@ section, plus the standard Fedora 'targeted' policy=
- for the tests.
->>>     <br>
->>>   -## Labeled IPSec
->>> +## Labeled Networking: Labeled IPSec
->>>     Labeled IPSec has been built into the standard GNU / Linux
->>> IPSec
->>>   services as described in the
->>> @@ -451,6 +487,98 @@ The *selinux-testsuite tools/nfs.sh* tests labeled=
- NFS using various labels.
->>>     <br>
->>>   +## Access Control for Network Interfaces
->>> +
->>> +SELinux domains can be restricted to use only specific network
->>> +interfaces. TE rules must define the interface types and then allow a
->>> +domain to `egress` in class `netif` for the defined interface types:
->>> +
->>> +```
->>> +require {
->>> +        attribute netif_type;
->>> +}
->>> +
->>> +type external_if_t, netif_type;
->>> +type loopback_if_t, netif_type;
->>> +
->>> +allow my_server_t external_if_t:netif egress;
->>> +allow my_server_t loopback_if_t:netif egress;
->>> +```
->>> +
->>> +The interfaces must also be labeled with ***semanage**(8)* (or by
->>> +using `netifcon` statements in the policy):
->>> +```
->>> +semanage interface -a -t loopback_if_t -r s0 lo
->>> +semanage interface -a -t external_if_t -r s0 eth0
->>> +```
->>> +
->>> +Note that reception can't be controlled with `netif` class.
->>
->> Probably nothing but I did not understand this: Is reception not
->> controlled with the netif ingress permission?
->
-> I'm no expert, but the only netif ingress rules which I have are
-> rather generic:
->
-> allow internet_peer_t external_if_t:netif ingress;
-> allow link_local_peer_t external_if_t:netif ingress;
-> allow localnet_peer_t external_if_t:netif ingress;
-> allow multicast_peer_t external_if_t:netif ingress;
-> allow loopback_peer_t loopback_if_t:netif ingress;
->
-> `peer` types above have been added with NetLabel rules like:
->
-> netlabelctl unlbl add default address:2000::/3
-> label:system_u:object_r:internet_peer_t:s0
->
-> Perhaps this would be better:
->
-> Note that reception for application domains can't be controlled with
-> `netif` class.
->
+With CONFIG_BPF_LSM=3Dy:
 
-I look at it this way: peers *are* processes, You seem to
-essentually use peers as nodes above.
-
-It would become more clear if you would try this out with labeled ipsec.
-A peer, in my experience is kind of the same as an association in the
-labeled ipsec scenario (the classes actually overlap). That is also why
-you should probably disable the netlabel_peer_controls polcap if you use
-labeled ipsec.
-
->>
->>> +
->>> +<br>
->>> +
->>> +## Access Control for Network Nodes
->>> +
->>> +Domains can be restricted by SELinux to access and bind sockets to
->>> +only dedicated network nodes (in practice, IP addresses).
->>> +
->>> +The node types must be defined and then the node types can be used for
->>> +TE rules as target context. TE rules to allow a domain to `sendto` for
->>> +class `node` and to `node_bind` (for incoming connections) for class
->>> +`tcp_socket`:
->>> +
->>> +```
->>> +require {
->>> +        attribute node_type;
->>> +}
->>> +
->>> +type loopback_node_t, node_type;
->>> +type internet_node_t, node_type;
->>> +type link_local_node_t, node_type;
->>> +type multicast_node_t, node_type;
->>> +
->>> +allow my_server_t loopback_node_t:node sendto;
->>> +allow my_server_t loopback_node_t:tcp_socket node_bind;
->>> +allow my_server_t internet_node_t:node sendto;
->>> +```
->>> +
->>> +After the types have been defined, corresponding node rules can be
->>> +added with `semanage` (or `nodecon` statements):
->>> +```
->>> +semanage node -a -M /128 -p ipv6 -t loopback_node_t -r s0 ::1
->>> +semanage node -a -M /3 -p ipv6 -t internet_node_t -r s0 2000::
->>> +semanage node -a -M /8 -p ipv6 -t link_local_node_t -r s0 fe00::
->>> +semanage node -a -M /8 -p ipv6 -t multicast_node_t -r s0 ff00::
->>> +```
->>> +
->>> +<br>
->>> +
->>> +## Access Control for Network Ports
->>> +
->>> +SELinux policy can also control access to ports used by various
->>> +networking protocols such as TCP, UDP, SCTP and DCCP. TE rules must
->>> +define the port types and then allow a domain to `name_connect`
->>> +(outgoing) or `name_bind` (incoming) in class `tcp_socket` (or
->>> +`udp_socket` etc) for the defined port types:
->>> +
->>> +```
->>> +require {
->>> +        attribute port_type;
->>> +}
->>> +
->>> +type my_server_port_t, port_type;
->>> +
->>> +allow my_server_t my_server_port_t:tcp_socket name_connect;
->>> +allow my_server_t my_server_port_t:tcp_socket name_bind;
->>> +```
->>> +
->>> +The ports must also be labeled with `semanage` (or `portcon`
->>> +statements):
->>> +```
->>> +semanage port -a -t my_server_port_t -p tcp -r s0 12345
->>> +```
->>> +
->>> +<br>
->>> +
->>>   <section class=3D"footnotes">
->>>   <ol>
->>>   <li id=3D"fnn1"><p>For example, an ftp session where the server is
->>> listening on a specific port (the destination port) but the client
->>> will be assigned a random source port. The CONNSECMARK will ensure
->>> that all packets for the ftp session are marked with the same label.<a
->>> href=3D"#fnnet1" class=3D"footnote-back">=E2=86=A9</a></p></li>
->>
->
-
---=20
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint =3D FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=3Dget&search=3D0xDA7E521F10F64098
-Dominick Grift
+security/bpf/hooks.c: In function =E2=80=98bpf_lsm_init=E2=80=99:
+security/bpf/hooks.c:18:63: error: passing argument 3 of
+=E2=80=98security_add_hooks=E2=80=99 from incompatible pointer type
+[-Werror=3Dincompatible-pointer-types]
+   18 |  security_add_hooks(bpf_lsm_hooks, ARRAY_SIZE(bpf_lsm_hooks), "bpf"=
+);
+      |                                                               ^~~~~
+      |                                                               |
+      |                                                               char =
+*
+In file included from security/bpf/hooks.c:6:
+./include/linux/lsm_hooks.h:1592:26: note: expected =E2=80=98struct lsm_id =
+*=E2=80=99
+but argument is of type =E2=80=98char *=E2=80=99
+ 1592 |           struct lsm_id *lsmid);
+      |           ~~~~~~~~~~~~~~~^~~~~
