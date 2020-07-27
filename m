@@ -7,22 +7,22 @@ X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81A30C433E8
-	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 20:38:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50469C433E3
+	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 20:40:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 630032074F
-	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 20:38:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 309342074F
+	for <selinux@archiver.kernel.org>; Mon, 27 Jul 2020 20:40:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728982AbgG0UiE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Jul 2020 16:38:04 -0400
-Received: from namei.org ([65.99.196.166]:55724 "EHLO namei.org"
+        id S1726575AbgG0UkY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Jul 2020 16:40:24 -0400
+Received: from namei.org ([65.99.196.166]:55746 "EHLO namei.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbgG0UiE (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 27 Jul 2020 16:38:04 -0400
+        id S1726091AbgG0UkY (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Mon, 27 Jul 2020 16:40:24 -0400
 Received: from localhost (localhost [127.0.0.1])
-        by namei.org (8.14.4/8.14.4) with ESMTP id 06RKbiR2028215;
-        Mon, 27 Jul 2020 20:37:44 GMT
-Date:   Tue, 28 Jul 2020 06:37:44 +1000 (AEST)
+        by namei.org (8.14.4/8.14.4) with ESMTP id 06RKeAC6028381;
+        Mon, 27 Jul 2020 20:40:10 GMT
+Date:   Tue, 28 Jul 2020 06:40:10 +1000 (AEST)
 From:   James Morris <jmorris@namei.org>
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         Paul Moore <paul@paul-moore.com>
@@ -31,12 +31,12 @@ cc:     casey.schaufler@intel.com, linux-security-module@vger.kernel.org,
         Kees Cook <keescook@chromium.org>,
         John Johansen <john.johansen@canonical.com>,
         Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Stephen Smalley <sds@tycho.nsa.gov>, netdev@vger.kernel.org
-Subject: Re: [PATCH v19 17/23] LSM: security_secid_to_secctx in netlink
- netfilter
-In-Reply-To: <20200724203226.16374-18-casey@schaufler-ca.com>
-Message-ID: <alpine.LRH.2.21.2007280637160.18670@namei.org>
-References: <20200724203226.16374-1-casey@schaufler-ca.com> <20200724203226.16374-18-casey@schaufler-ca.com>
+        Stephen Smalley <sds@tycho.nsa.gov>
+Subject: Re: [PATCH v19 21/23] Audit: Add a new record for multiple object
+ LSM  attributes
+In-Reply-To: <20200724203226.16374-22-casey@schaufler-ca.com>
+Message-ID: <alpine.LRH.2.21.2007280639100.18670@namei.org>
+References: <20200724203226.16374-1-casey@schaufler-ca.com> <20200724203226.16374-22-casey@schaufler-ca.com>
 User-Agent: Alpine 2.21 (LRH 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -47,16 +47,15 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Fri, 24 Jul 2020, Casey Schaufler wrote:
 
-> Change netlink netfilter interfaces to use lsmcontext
-> pointers, and remove scaffolding.
+> Create a new audit record type to contain the object information
+> when there are multiple security modules that require such data.
+> This record is emitted before the other records for the event, but
+> is linked with the same timestamp and serial number.
 > 
-> Reviewed-by: Kees Cook <keescook@chromium.org>
-> Reviewed-by: John Johansen <john.johansen@canonical.com>
-> Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
-> cc: netdev@vger.kernel.org
+> Cc: linux-audit@redhat.com
 
-I'd like to see Paul's acks on any networking related changes.
+These audit patches will need ack/review from Paul.
 
 -- 
 James Morris
