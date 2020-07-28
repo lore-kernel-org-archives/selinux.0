@@ -2,76 +2,74 @@ Return-Path: <SRS0=YleE=BH=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA22DC433E4
-	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 15:12:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 772DEC433E3
+	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 15:23:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A996720663
-	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 15:12:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 57810206D8
+	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 15:23:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="05Buf8IO"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="k0OoYPGs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730640AbgG1PMv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Jul 2020 11:12:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42288 "EHLO
+        id S1730725AbgG1PXG (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Jul 2020 11:23:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730499AbgG1PMu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jul 2020 11:12:50 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77EEEC0619D2
-        for <selinux@vger.kernel.org>; Tue, 28 Jul 2020 08:12:49 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id o18so664984eds.10
-        for <selinux@vger.kernel.org>; Tue, 28 Jul 2020 08:12:49 -0700 (PDT)
+        with ESMTP id S1730637AbgG1PXF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jul 2020 11:23:05 -0400
+Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFB07C0619D2
+        for <selinux@vger.kernel.org>; Tue, 28 Jul 2020 08:23:05 -0700 (PDT)
+Received: by mail-qt1-x844.google.com with SMTP id d27so15092369qtg.4
+        for <selinux@vger.kernel.org>; Tue, 28 Jul 2020 08:23:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=google.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=WevGPH6UtqWhNNg9b/gYd5J+fviEwplRatGn7GXS2Ao=;
-        b=05Buf8IOEENymgSiftCsuiNHQXzMWnwa21muz5tgZaEZ/zq5qj7bFzGugFpwNHz7MK
-         mn29PhzDaYPuxb7lAHUbvpcXfqIaHb57w+2DXofA6T8A07tnWcGrHT+xOd34OT2fSeV3
-         Sb9jWs3ErtMD2Kj5OLHr9UApyWu/1jBoGpAV+ITUcDpBP2SBDn8l9CFrnuTPvPU0ZYig
-         84nZJI4emQpsYzgnkI9SOUZtxUfWxgzjtkyMt8jLz6UPAig4JcPqmrctBWQ13iHpaX6T
-         r9voSA0dASqvzFLwTPIlPeflBVGTeqahehqdxQRsJnzpYjuQ2E0DeHxHCKzaCWNpmr+0
-         Fc6Q==
+        bh=HmI/sv0QX+R/BppNr1xfIVqkHjAsa6rJb/xBjwtMkO4=;
+        b=k0OoYPGsrWcDnJDBrtDmMOXYH44154lhl2vIeXr8cWPeZzoXZLk2WW6vIXJ98+h3ym
+         YXk1rSXRDQZr/I7c6a/DHGfGSA1C5HSOhBi+daQvX2YeGhJMuGLvxBfWRHxacovePjDH
+         bbij7yp3WQjUUFmBRKVbsFJl3bFQYGA1D2QXaN9UN2hZJfEFZfXx763I+d/xikQ7Ginu
+         Ekev7ePE0gI3+wb3d1Su+VeLeYfQaWFdwfRpXfvfd00e0zwRFWSyVQLPI0fnggduiKKe
+         1z92CaOAS0bFKlnPfkg0pMqLlqjZM1bfhNRXZVhP2E2Jc8seQfTU3uwZiLFLn1ujvEAB
+         c9XA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=WevGPH6UtqWhNNg9b/gYd5J+fviEwplRatGn7GXS2Ao=;
-        b=GpNDO51Vj5D1Yw5qW62+49j8B9PtDA6wrOdaZZUwr9lqRFvO2qKfvpzZstriXebf9y
-         32ME6SO4atOX2Iwcet7kegciD71X7FOzmSUBZOTCcwxddJYSv1iAnzrODbDek3AjSh9x
-         MrOubYom5ITEyNQsPPZMH6a5TLYs+RJoxy49ixd5zfs8sWBJQIlqRyy4Qd6Zn86VdP84
-         2E1RywcPq6oUP9IVqtj0y98WIJD/SWbWInp7xVBeBTRWKpQVp5yZdev4e6VnwdbtqERW
-         ZXISVbhJSrTxLKLhLSVcdDC0wAs1OqoGKagegKOsZGgYJ+oRcncmRMmjPSuSBK2BgiZJ
-         4x4A==
-X-Gm-Message-State: AOAM533BLAKD9r6oINvZiJn4tObTjjhVvPKFRlAWx3xp5zEJDNgnokzX
-        I4aOreAkhg9AdqWN8FIT+Djb80ILOE37oMEzu391
-X-Google-Smtp-Source: ABdhPJw/CWI7u/RnyrDu3Gpfw38RpHSAZKduBDzPT9wyjkBRDsZ6AthExSyKe1EhjvNUUSN+M52Cec/x38XJ8iywCvA=
-X-Received: by 2002:aa7:d6c9:: with SMTP id x9mr1918759edr.135.1595949167829;
- Tue, 28 Jul 2020 08:12:47 -0700 (PDT)
+        bh=HmI/sv0QX+R/BppNr1xfIVqkHjAsa6rJb/xBjwtMkO4=;
+        b=JoxDV8amAwlW4ncuLNQWAJcPpr+aKfYsVkBv53nQZLSnaqiPIzXWGFW2iyxGzIz588
+         I/8NDtjg8/7tqHqTkfGUElRFTbptNL9f06r+C1qPsZDMOTsKbEPBD1OYgZnnMiqE7jrL
+         Q+z3CLMgUwtcsoO+Kk/9G8G8nveQQnBmrrALHDKY8v3eEvHMoSmWehY7d5InU4n780Oq
+         +NNwl1zyjewLoi5EegG2HLKPe77m9NZ6clxuo6eaQHO9FxTrW7+ykKIXiMUaKsNA0NZB
+         zWfnA1WpSXxQyDVpvtIdGJEN8nQ/2bP0i1xFi019ai84zUMykcI55YZgsN+u0q3ccfn3
+         bf9Q==
+X-Gm-Message-State: AOAM530VLD4jWAwtDlC2W3tsAR4Q4BKG6DWPSXgjQN+k1ArR4WFQqOSD
+        73KBBKKxyMNhuciChZEklehp9sX9T6jhBPWhhh/CDw==
+X-Google-Smtp-Source: ABdhPJyahQHLn2+4zTnx8Mcd9s+rEe2J50gkBT9tNcMY2WW5C7XyJ6/yCqwA5veYW5IgF6r8oKpot6NiZHQAYBqp5J8=
+X-Received: by 2002:ac8:660f:: with SMTP id c15mr10023288qtp.34.1595949784633;
+ Tue, 28 Jul 2020 08:23:04 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200724091520.880211-1-tweek@google.com> <CAEjxPJ45ij3obT37ywn_edb9xb89z-SdwzejfN6+jrvAtghXfA@mail.gmail.com>
- <CAHC9VhS4aXD8kcXnQ2MsYvjc--xXSUpsM1xtgq3X5DBT59ohhw@mail.gmail.com> <CA+zpnLfczC=9HQA8s1oBGKGQO+OkuydF85o89dhSxdOyKBHMgg@mail.gmail.com>
-In-Reply-To: <CA+zpnLfczC=9HQA8s1oBGKGQO+OkuydF85o89dhSxdOyKBHMgg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 28 Jul 2020 11:12:36 -0400
-Message-ID: <CAHC9VhT1sGSpfCKojbKR+O2Hf_h+wnKnBwwSo09CbFaCYLcOHA@mail.gmail.com>
+References: <20200724091520.880211-1-tweek@google.com>
+In-Reply-To: <20200724091520.880211-1-tweek@google.com>
+From:   Joel Fernandes <joelaf@google.com>
+Date:   Tue, 28 Jul 2020 11:22:52 -0400
+Message-ID: <CAJWu+orndyKTVTO-StUxnPsQ-TkbQHU5WxzOJ35EhckGfUzD1A@mail.gmail.com>
 Subject: Re: [PATCH] selinux: add tracepoint on denials
 To:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
+Cc:     Paul Moore <paul@paul-moore.com>, Nick Kralevich <nnk@google.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Nick Kralevich <nnk@google.com>,
-        Joel Fernandes <joelaf@google.com>,
         Eric Paris <eparis@parisplace.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Ingo Molnar <mingo@redhat.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Rob Herring <robh@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
+        LKML <linux-kernel@vger.kernel.org>, selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
@@ -79,36 +77,34 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 28, 2020 at 8:49 AM Thi=C3=A9baud Weksteen <tweek@google.com> w=
+On Fri, Jul 24, 2020 at 5:15 AM Thi=C3=A9baud Weksteen <tweek@google.com> w=
 rote:
 >
-> Thanks for the review! I'll send a new revision of the patch with the
-> %x formatter and using the TP_CONDITION macro.
+> The audit data currently captures which process and which target
+> is responsible for a denial. There is no data on where exactly in the
+> process that call occurred. Debugging can be made easier by being able to
+> reconstruct the unified kernel and userland stack traces [1]. Add a
+> tracepoint on the SELinux denials which can then be used by userland
+> (i.e. perf).
 >
-> On adding further information to the trace event, I would prefer
-> adding the strict minimum to be able to correlate the event with the
-> avc message. The reason is that tracevents have a fixed size (see
-> https://www.kernel.org/doc/Documentation/trace/events.txt). For
-> instance, we would need to decide on a maximum size for the string
-> representation of the list of permissions.
+> Although this patch could manually be added by each OS developer to
+> trouble shoot a denial, adding it to the kernel streamlines the
+> developers workflow.
+>
+> [1] https://source.android.com/devices/tech/debug/native_stack_dump
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> Signed-off-by: Joel Fernandes <joelaf@google.com>
 
-It sounds like this is no longer an issue, hopefully this changes your
-thinking as I'm not sure how usable it would be in practice for users
-not overly familiar with SELinux.
+While I am in support of the general idea, could you change my SOB to
+something like Inspired-by?
 
-Perhaps it would be helpful if you provided an example of how one
-would be expected to use this new tracepoint?  That would help put
-things in the proper perspective.
+This is really your patch, but I did demonstrate the idea in an
+article where the intention was to apply a patch out of tree to do
+stack dumps / tracing.  SOB on the other hand is supposed to track the
+flow of a patch (the people who the patch goes through) when it is
+sent upstream.
 
-> This would also duplicate
-> the reporting done in the avc audit event. I'll simply add the pid as
-> part of the printk, which should be sufficient for the correlation.
+Thanks,
 
-Well, to be honest, the very nature of this tracepoint is duplicating
-the AVC audit record with a focus on using perf to establish a full
-backtrace at the expense of reduced information.  At least that is how
-it appears to me.
-
---=20
-paul moore
-www.paul-moore.com
+ - Joel
