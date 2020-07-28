@@ -7,55 +7,55 @@ X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7B95C433E8
-	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 19:41:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0F25C433E5
+	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 19:44:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B7BC72075A
-	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 19:41:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C08D1207FC
+	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 19:44:02 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="k5XgwmE9"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="nCLucWk+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732921AbgG1Tlq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 28 Jul 2020 15:41:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55814 "EHLO
+        id S1730049AbgG1ToC (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 28 Jul 2020 15:44:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732916AbgG1Tlp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jul 2020 15:41:45 -0400
-Received: from mail-pj1-x1042.google.com (mail-pj1-x1042.google.com [IPv6:2607:f8b0:4864:20::1042])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C8D9C0619D2
-        for <selinux@vger.kernel.org>; Tue, 28 Jul 2020 12:41:45 -0700 (PDT)
-Received: by mail-pj1-x1042.google.com with SMTP id ha11so533633pjb.1
-        for <selinux@vger.kernel.org>; Tue, 28 Jul 2020 12:41:45 -0700 (PDT)
+        with ESMTP id S1730048AbgG1Tn6 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 28 Jul 2020 15:43:58 -0400
+Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3C23C0619D6
+        for <selinux@vger.kernel.org>; Tue, 28 Jul 2020 12:43:58 -0700 (PDT)
+Received: by mail-pf1-x442.google.com with SMTP id 74so3298045pfx.13
+        for <selinux@vger.kernel.org>; Tue, 28 Jul 2020 12:43:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=W/yJD4WINhIYjHDSpnZ6fTxiwzLWXNf1PH2+o88F2eI=;
-        b=k5XgwmE9tcOSmpNhY4WIUOwltfP1nOlJSUDS0n99vkcl8B8YnMUbPDxe7YGTs1mMQr
-         76iSMntY5i+fw5H/RDUwlQ0I8nd8NuTI/QS+tkBn1s8zi+fMQktc83D3xj8tuEDdbWc1
-         SPGIc7GDjQULMKCEbKzwKWRabOT0dDEOWSj6w=
+        bh=9heSWvK+yRSCWH0FUufTfQBWh+umkfCd2hlFkX04++k=;
+        b=nCLucWk+Dyfu97vMzTeRd0pPVzYtyDNd2u/hsiI1JS+JNzt9OPNMBUUcXoQPSNKzCE
+         sxgq9zXhcvrt/uWcVzsLxXuu99WkVd+E7Uz7NHGi5XPz9/SV0mWz+0D0XANYFXj7lKbh
+         hrtn+MCSjUVEebJjPSWPZJTk2J/1NZ5OuBXbI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:content-transfer-encoding
          :in-reply-to;
-        bh=W/yJD4WINhIYjHDSpnZ6fTxiwzLWXNf1PH2+o88F2eI=;
-        b=MrUs6Y/8Ajz2mBeJ04aqaOIRM3bpRqfRHaoU9Etj9ri9kqijv9Vk3aS0ohQ7COfYyH
-         eFlHQVS1TlyWCvFJpfdzmAmAj69dU/P+PCaHnDCjGgPGN8v8qtwtMueJLQbNh99YMjkf
-         wFXgpWlFZgyjFLn5sk4iR+0AVJ5f141p65aVHJLZKopGwbMK+8WD4Q/1BgTQJUX66SkV
-         OLKpAV+lnHRIzA1Jv7ClBMR9guwvvWa233QsZSYLAAs0VqPrCdZ4qII7cpGG0YEzyvXy
-         2Ix/Ur1apEqqRFrH39Z4//gzn7MgaIi+c6bz9APHy9cxFWz4H8GC1JL05wT1OrXombbq
-         qm5g==
-X-Gm-Message-State: AOAM531HH+PUWHV54TptXIv3R4W1uHmcW2FcmEk++kSfQW4qsWV9IT5N
-        zCvZUcfYBGCrc7HUEdAFjZ6dug==
-X-Google-Smtp-Source: ABdhPJwA0Ct0Nh8rwlpqpca69OHRybL5jNVCYyJwjUessWHEG/MKS2+KIDWm6SaEJTBcGdmRE084Kg==
-X-Received: by 2002:a17:902:7244:: with SMTP id c4mr2350434pll.277.1595965304901;
-        Tue, 28 Jul 2020 12:41:44 -0700 (PDT)
+        bh=9heSWvK+yRSCWH0FUufTfQBWh+umkfCd2hlFkX04++k=;
+        b=rtt/72uwcb+CosP1GuGdDlLpYsXl9Idkx4nNBNRyhOoHqBL09MZGSbK/Ypipjc/8Yg
+         eanuncrAc2CQT5qPns6U3h0V8gel+fzlDPJW+Zy1ogkisf756xI/RdQeAoIfz9GF5V9J
+         dcts2Vt30CkllVHiBgz0NfgpLQqQU72xkfp4FTfcDAy+7SyIueuaWeFbhuTW1vgFxeEc
+         Mw37dlLjl6g7TgqeDeLGf19/vhahOe5SaG1NY2fzeFr5i/3DfAa1uSmm/DvpDIsHsNCw
+         1cY2+lIz0sjsXnxivWTaHxpw6SwqrHybcy50izY7mQQe7tHal8eQmdIaqOK8ykSMjTW5
+         0YbA==
+X-Gm-Message-State: AOAM532MkJROVJmSQfnt0DqAAiDEorwL0D3a573/NQKZhfZP56bankM5
+        q9ShOXzvfqHAgKyDAIMcRAzEKw==
+X-Google-Smtp-Source: ABdhPJzcVT5J8m7X1MAMeqes9wtnmVepDmaePDEJZQmpUGLbzYqktl5qY3LrodPx5Xw/lg7qISDOhg==
+X-Received: by 2002:aa7:8801:: with SMTP id c1mr25615711pfo.105.1595965438290;
+        Tue, 28 Jul 2020 12:43:58 -0700 (PDT)
 Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id j36sm19509082pgj.39.2020.07.28.12.41.43
+        by smtp.gmail.com with ESMTPSA id m66sm10017751pfd.90.2020.07.28.12.43.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jul 2020 12:41:43 -0700 (PDT)
-Date:   Tue, 28 Jul 2020 12:41:42 -0700
+        Tue, 28 Jul 2020 12:43:57 -0700 (PDT)
+Date:   Tue, 28 Jul 2020 12:43:56 -0700
 From:   Kees Cook <keescook@chromium.org>
 To:     Mimi Zohar <zohar@kernel.org>
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -66,72 +66,69 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-security-module@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 11/19] LSM: Introduce kernel_post_load_data() hook
-Message-ID: <202007281240.4EDD6D2E7B@keescook>
+Subject: Re: [PATCH v3 12/19] firmware_loader: Use security_post_load_data()
+Message-ID: <202007281242.B6016AE4B@keescook>
 References: <20200724213640.389191-1-keescook@chromium.org>
- <20200724213640.389191-12-keescook@chromium.org>
- <1595846951.4841.61.camel@kernel.org>
+ <20200724213640.389191-13-keescook@chromium.org>
+ <1595847465.4841.63.camel@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <1595846951.4841.61.camel@kernel.org>
+In-Reply-To: <1595847465.4841.63.camel@kernel.org>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 27, 2020 at 06:49:11AM -0400, Mimi Zohar wrote:
+On Mon, Jul 27, 2020 at 06:57:45AM -0400, Mimi Zohar wrote:
 > On Fri, 2020-07-24 at 14:36 -0700, Kees Cook wrote:
-> > There are a few places in the kernel where LSMs would like to have
-> > visibility into the contents of a kernel buffer that has been loaded or
-> > read. While security_kernel_post_read_file() (which includes the
-> > buffer) exists as a pairing for security_kernel_read_file(), no such
-> > hook exists to pair with security_kernel_load_data().
+> > Now that security_post_load_data() is wired up, use it instead
+> > of the NULL file argument style of security_post_read_file(),
+> > and update the security_kernel_load_data() call to indicate that a
+> > security_kernel_post_load_data() call is expected.
 > > 
-> > Earlier proposals for just using security_kernel_post_read_file() with a
-> > NULL file argument were rejected (i.e. "file" should always be valid for
-> > the security_..._file hooks, but it appears at least one case was
-> > left in the kernel during earlier refactoring. (This will be fixed in
-> > a subsequent patch.)
+> > Wire up the IMA check to match earlier logic. Perhaps a generalized
+> > change to ima_post_load_data() might look something like this:
 > > 
-> > Since not all cases of security_kernel_load_data() can have a single
-> > contiguous buffer made available to the LSM hook (e.g. kexec image
-> > segments are separately loaded), there needs to be a way for the LSM to
-> > reason about its expectations of the hook coverage. In order to handle
-> > this, add a "contents" argument to the "kernel_load_data" hook that
-> > indicates if the newly added "kernel_post_load_data" hook will be called
-> > with the full contents once loaded. That way, LSMs requiring full contents
-> > can choose to unilaterally reject "kernel_load_data" with contents=false
-> > (which is effectively the existing hook coverage), but when contents=true
-> > they can allow it and later evaluate the "kernel_post_load_data" hook
-> > once the buffer is loaded.
-> > 
-> > With this change, LSMs can gain coverage over non-file-backed data loads
-> > (e.g. init_module(2) and firmware userspace helper), which will happen
-> > in subsequent patches.
-> > 
-> > Additionally prepare IMA to start processing these cases.
+> >     return process_buffer_measurement(buf, size,
+> >                                       kernel_load_data_id_str(load_id),
+> >                                       read_idmap[load_id] ?: FILE_CHECK,
+> >                                       0, NULL);
 > > 
 > > Signed-off-by: Kees Cook <keescook@chromium.org>
 > 
-> At least from an IMA perspective, the original
-> security_kernel_load_data() hook was defined in order to prevent
-> certain syscalls - init_module, kexec_load - and loading firmware via
-> sysfs.  The resulting error messages were generic.
->   
-> Unlike security_kernel_load_data(), security_kernel_post_load_data()
-> is meant to be used, but without a file desciptor specific
-> information, like the filename associated with the buffer, is missing.
->  Having the filename isn't actually necessary for verifying the
-> appended signature, but it is needed for auditing signature
-> verification failures and including in the IMA measurement list.
+> process_measurement() measures, verifies a file signature -  both
+> signatures stored as an xattr and as an appended buffer signature -
+> and augments audit records with the file hash. (Support for measuring,
+> augmenting audit records, and/or verifying fs-verity signatures has
+> yet to be added.)
+> 
+> As explained in my response to 11/19, the file descriptor provides the
+> file pathname associated with the buffer data.  In addition, IMA
+> policy rules may be defined in terms of other file descriptor info -
+> uid, euid, uuid, etc.
+> 
+> Recently support was added for measuring the kexec boot command line,
+> certificates being loaded onto a keyring, and blacklisted file hashes
+> (limited to appended signatures).  None of these buffers are signed.
+>  process_buffer_measurement() was added for this reason and as a
+> result is limited to just measuring the buffer data.
+> 
+> Whether process_measurement() or process_buffer_measurement() should
+> be modified, needs to be determined.  In either case to support the
+> init_module syscall, would at minimum require the associated file
+> pathname.
 
-Right -- I'm open to ideas on this, but as it stands, other LSMs (e.g.
-BPF LSM) can benefit from the security_kernel_post_load_data() to
-examine the contents, etc.
+Right -- I don't intend to make changes to the init_module() syscall
+since it's deprecated, so this hook is more of a "fuller LSM coverage
+for old syscalls" addition.
 
-Is there anything that needs to change in this patch?
+IMA can happily continue to ignore it, which is what I have here, but I
+thought I'd at least show what it *might* look like. Perhaps BPF LSM is
+a better example.
+
+Does anything need to change for this patch?
 
 -- 
 Kees Cook
