@@ -6,58 +6,59 @@ X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11313C433E1
-	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 02:49:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4B22C433E5
+	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 02:57:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DADE420775
-	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 02:49:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B24CF20825
+	for <selinux@archiver.kernel.org>; Tue, 28 Jul 2020 02:57:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="p/zZEbRy"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="YM9hSFT5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726620AbgG1Ctx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 27 Jul 2020 22:49:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40452 "EHLO
+        id S1726821AbgG1C5R (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 27 Jul 2020 22:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726443AbgG1Ctx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 27 Jul 2020 22:49:53 -0400
-Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD6C4C061794
-        for <selinux@vger.kernel.org>; Mon, 27 Jul 2020 19:49:52 -0700 (PDT)
-Received: by mail-ed1-x52a.google.com with SMTP id n2so13634152edr.5
-        for <selinux@vger.kernel.org>; Mon, 27 Jul 2020 19:49:52 -0700 (PDT)
+        with ESMTP id S1726410AbgG1C5P (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 27 Jul 2020 22:57:15 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7307FC061794
+        for <selinux@vger.kernel.org>; Mon, 27 Jul 2020 19:57:15 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id g7so10841050ejw.12
+        for <selinux@vger.kernel.org>; Mon, 27 Jul 2020 19:57:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=tEYtt5clN8w/iCk+1eugu5sEylcu4UNKf/F//oSiEEY=;
-        b=p/zZEbRyYm/bz55EO3KpkFqvzO4sLLx29iw8lHT7fW0Y/pPvuj549YSV43zpMtmwW8
-         eSDfib3QN38/XwzvZlu+XF50X8Xm/5ckLtNy1w0T3rCk+iWFkrVzAfoRgVWUg6jKj5wi
-         RvCMU70NNgQIQC/ZXYh3JuhxbEZuO66XJh8VuOf145rj4M45QsGMEJBVIeDgrNK5/9u8
-         /SDNlNGKVPSBTpxcagpbejsiqTXFBk00KXhHq2WbNyuA3yBSeB0W3YX9Mv7SZNLmttxS
-         Oq9LtnAifFgiZ9Sp+csGNwomk2OyVDnGrP3W2thXDyf1z5uWZLyb+E2iF2/VOaJDo6CY
-         ZSwA==
+        bh=I9qCj6R6wXWFc2o+n8IzoDIhgRelfe2s0JOjj3gICEc=;
+        b=YM9hSFT5rMXPOsFppHZW5QXOn9Mw6CCRqZkZl7eYVBNP7rvhsUbt6QWJvjXpyhPPTn
+         XaK24fAFRPvwQnQcUIMbUn8D6YxYnhppMZssuFOySe2VvGswnIrU8Isw97ZaSKmuVbUk
+         mFFf0wOCqdvikiJHVVTY7RwR6/nr7UCVoQOAsl2RZAUe2LK3T2tisiJvNgBMH8kD6c7S
+         m9gaA1q1KhG+kewdwYm57e4mqcNVF4FlPL6g2D/9ESRaX7Vord1RJOWcxiXsm3M5Lojw
+         EfTj9uSJazwI1rdMm4b22zU3ttUDMbdfesCkPoB0x5IkCzsJ4FTW3LZnPSwpzbYM1XIK
+         ZKaw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=tEYtt5clN8w/iCk+1eugu5sEylcu4UNKf/F//oSiEEY=;
-        b=PZGJufuUwjmZaiTRW0j5c8auYmE/wFhW2O3AoahhKsbhpjC2ZHV96maFvQAZMlkTTZ
-         hRoGb06cJberT1Rhu876q1LGPB0TcHlsanMVo9BhKbKeiyCiklj1K5UarPJMawtwOyx4
-         alyoqqwVB8K8fdVSgMWM43IK/konpznEWrPBVK1ctVhVChC7TizQIG/7152nqBrVrn2f
-         zXboWbAMdafqWWCh6Fczhtn9yC8VM8tg0mNLcbsmHZ4iWlcbfCs7C1j8Z3Bs0tF7OEUM
-         3UTLJvDl1FYqdi3uwf5EF3wyNAmTjk0eGBruuEXPmwqcgTSCCHW5FuTK6pGKMD13ifEp
-         sVmA==
-X-Gm-Message-State: AOAM5323foCEA/Ci5oq3Slfexj/Gj2dLKQ7FneXL/2JUVv9+9x8Cwb6J
-        IJDqOXzHaKS3xNGzRk25BA+24EBtDRogecG7ZKJ4SLaxPQ==
-X-Google-Smtp-Source: ABdhPJx9a02K99MkNx2b+8bkHvFPQMJj+tGBFh94XTj0sf14Q0cuolGNSlas4drMg//EZ6WRxxEPkB1kGDoLbKaVDdM=
-X-Received: by 2002:a05:6402:742:: with SMTP id p2mr23176957edy.135.1595904591178;
- Mon, 27 Jul 2020 19:49:51 -0700 (PDT)
+        bh=I9qCj6R6wXWFc2o+n8IzoDIhgRelfe2s0JOjj3gICEc=;
+        b=kNfPJ0WvB/OJubDFspSkGxaR6liLRWgccmJm6Xox9MqqDsm05s2MMqxvoP0tzkrzrU
+         7yXJVQGl++VqdQn9C+2IYEqjrS+AW+sa7vODOI12KqaxjEdyvPauTuCmoS19eT74YIBh
+         fcSzR/Qa8Q8PARlOMa3hppSOMCyte80EGhrqjQ8RGyyJ1H4bc8G/przwN1s0r8EibVT5
+         lLT6AoWZT/8nmZ7zSekrD6NcMCWTzd40KX/n7gOoZPst1BX+rFELI4cO3tL/tM7BhGrt
+         KhkTV93/eqw0ThbnjrQ6J0uuY20SJ9m/qFuqCvzg+6RBIPaozkvW2OPAU/9j22p09TJ1
+         4PIg==
+X-Gm-Message-State: AOAM5339lgVOvWGfnkAA6nxWq477ZdSqai2MlCpPrkSOdlp277xgljND
+        aORtxtG1CqBOpmSYGwJ+pW/ncWn74uo9q+PDG3QoJu0=
+X-Google-Smtp-Source: ABdhPJwmAdWL9tyVeUnroaI5d31G17HrYMncxYCr69xrodwFRl5keVMaEDIrIdE+DpqwFaiaAHaWFz73ft066WPHzAY=
+X-Received: by 2002:a17:906:1911:: with SMTP id a17mr14721841eje.431.1595905034052;
+ Mon, 27 Jul 2020 19:57:14 -0700 (PDT)
 MIME-Version: 1.0
 References: <20200727130428.8234-1-toiwoton@gmail.com> <ypjlwo2pm56q.fsf@defensec.nl>
-In-Reply-To: <ypjlwo2pm56q.fsf@defensec.nl>
+ <100b1c8c-a756-c6e5-5514-a8a9dc6fc117@gmail.com> <ypjlsgddm0gv.fsf@defensec.nl>
+In-Reply-To: <ypjlsgddm0gv.fsf@defensec.nl>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 27 Jul 2020 22:49:40 -0400
-Message-ID: <CAHC9VhR6iM0XGAGFSpnNh1ZQtkXf70zQT7Zpv1V8C_hMh9VhKA@mail.gmail.com>
+Date:   Mon, 27 Jul 2020 22:57:03 -0400
+Message-ID: <CAHC9VhQsDU2DZ5eew1eEo2Wt20D7BskD0p4ZyEs0hFYZAE8pXQ@mail.gmail.com>
 Subject: Re: [PATCH v2] Improve network_support.md
 To:     Dominick Grift <dominick.grift@defensec.nl>
 Cc:     Topi Miettinen <toiwoton@gmail.com>, selinux@vger.kernel.org
@@ -67,20 +68,50 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Jul 27, 2020 at 9:57 AM Dominick Grift
+On Mon, Jul 27, 2020 at 11:39 AM Dominick Grift
 <dominick.grift@defensec.nl> wrote:
+> Topi Miettinen <toiwoton@gmail.com> writes:
+> > I'm no expert, but the only netif ingress rules which I have are
+> > rather generic:
+> >
+> > allow internet_peer_t external_if_t:netif ingress;
+> > allow link_local_peer_t external_if_t:netif ingress;
+> > allow localnet_peer_t external_if_t:netif ingress;
+> > allow multicast_peer_t external_if_t:netif ingress;
+> > allow loopback_peer_t loopback_if_t:netif ingress;
+> >
+> > `peer` types above have been added with NetLabel rules like:
+> >
+> > netlabelctl unlbl add default address:2000::/3
+> > label:system_u:object_r:internet_peer_t:s0
+> >
+> > Perhaps this would be better:
+> >
+> > Note that reception for application domains can't be controlled with
+> > `netif` class.
+> >
 >
-> Probably nothing but I did not understand this: Is reception not
-> controlled with the netif ingress permission?
+> I look at it this way: peers *are* processes, You seem to
+> essentually use peers as nodes above.
 
-Yes, the netif/ingress and node/recvfrom permissions are checked when
-packets are received; in both cases the subject is the peer labels
-(think the security context of the remote network peer) and the
-objects are the network interface's label or network node's label,
-respectively.
+Peer labels are essentially process labels (that isn't 100% correct,
+but it is close enough for this particular discussion).
 
-This is pretty old, almost twelve years old, but it should still be accurate:
-* https://www.paul-moore.com/blog/d/2008/12/network_ingress_egress_controls.html
+In the netif/ingress access control, the subject is the peer label of
+the *remote* peer, not the receiving process on the local system.  If
+you were running a web server on your system under httpd_t and a
+remote node connected to your web server with firefox running under
+firefox_t, you would need the following netif/ingress rule:
+
+  allow firefox_t external_if_t:netif ingress;
+
+You will note that it is firefox_t and *not* httpd_t as the subject.
+
+> It would become more clear if you would try this out with labeled ipsec.
+> A peer, in my experience is kind of the same as an association in the
+> labeled ipsec scenario (the classes actually overlap). That is also why
+> you should probably disable the netlabel_peer_controls polcap if you use
+> labeled ipsec.
 
 -- 
 paul moore
