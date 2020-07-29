@@ -5,70 +5,70 @@ X-Spam-Level:
 X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C6B6C433E3
-	for <selinux@archiver.kernel.org>; Wed, 29 Jul 2020 17:59:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6256FC433EB
+	for <selinux@archiver.kernel.org>; Wed, 29 Jul 2020 17:59:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5CD1020809
-	for <selinux@archiver.kernel.org>; Wed, 29 Jul 2020 17:59:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 438412083B
+	for <selinux@archiver.kernel.org>; Wed, 29 Jul 2020 17:59:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="M7Mhxd0V"
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="PeYr3jVB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727965AbgG2R7X (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Jul 2020 13:59:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35674 "EHLO
+        id S1727939AbgG2R7d (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Jul 2020 13:59:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726560AbgG2R7J (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jul 2020 13:59:09 -0400
-Received: from mail-pl1-x642.google.com (mail-pl1-x642.google.com [IPv6:2607:f8b0:4864:20::642])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CDC5C08C5DE
-        for <selinux@vger.kernel.org>; Wed, 29 Jul 2020 10:59:08 -0700 (PDT)
-Received: by mail-pl1-x642.google.com with SMTP id p1so12153289pls.4
-        for <selinux@vger.kernel.org>; Wed, 29 Jul 2020 10:59:08 -0700 (PDT)
+        with ESMTP id S1727920AbgG2R7G (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jul 2020 13:59:06 -0400
+Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ED15C0619DE
+        for <selinux@vger.kernel.org>; Wed, 29 Jul 2020 10:59:05 -0700 (PDT)
+Received: by mail-pg1-x543.google.com with SMTP id d4so14677403pgk.4
+        for <selinux@vger.kernel.org>; Wed, 29 Jul 2020 10:59:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=O6dxMTnC8mm7wVLUL1y7lUu+yrbj06Q1SoL75qZmOEE=;
-        b=M7Mhxd0VHTaCjwpeLi8bb8xRTEAHLRq1LaJcOFS7AmQH3RfeiwHFguYalSwk9UPXaM
-         X4RpeIahd/8iTvKzIzAeBx58iaUbdKCRMrRhBy6MMLQKbK+ea2rWxsus3vf11lbiBFFc
-         g9WlKEhCezbVivOz/NVWRQm51DCrYN4cYBXYY=
+        bh=2dckHYDBSef92hBk0hdLw37DCCWMtjung/PzGLRIGlQ=;
+        b=PeYr3jVB7W6UcW212/oJZmLRi4czVPcQjfijK3aeH7rdxGYPMC62JtlyIoOxj7gwy5
+         c2dWpHJMjKgNg5+GOs7lE5ptFlJbitvkjzFCMkK2BuSsglPWQHHRYHbZXOmZVOOvVeL9
+         AXbaJuHNrbC7ktjkX3HyAY7OqVwqAjEvn/WKk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=O6dxMTnC8mm7wVLUL1y7lUu+yrbj06Q1SoL75qZmOEE=;
-        b=qI0cpbB0dqpRufkvRepTXpcZpYaL5PTiS5LCiwM1/XIpHeScYOiokg5S+EcvvKPYIJ
-         tAoIJSLrEyRw+uz4DF6s9bpsEr8bGePC+01z2m34/6AL3TkyqiIkSO5/v3Zmi3cvZhG1
-         myJwW50IzeH9il9y69Z/8HT7Z9gTigL5zTEUgwfMB8DZpaIn9CThGq6GJF4F3VkAtouf
-         JnJLw0/zWZH/N0ON0dl4E2F8kHM7f9AbPXsqAVjD+dbdSDws9/hgp3dfZVDhQYwrOVhF
-         12TAPU0kZ7pd/Su8EwT/M79QUBBfINiXuFykanfpq5Ae4NDMIAydOv3owfajzFeEf4QC
-         Zk9Q==
-X-Gm-Message-State: AOAM530aCtcQRguxLSCgP57VdZ6QQ9UrDlwSp3ZePYZtLCnBUhqZIjyV
-        8cXF/vwWgLWCrGDYYqni8kw8Kw==
-X-Google-Smtp-Source: ABdhPJzd+GNo2MQY1vzIWQ6bA0AmjVMNq/K11NFESpj+C1FM+CA/agEp1qz6/BytDXhQGCqkERCRrw==
-X-Received: by 2002:a17:90a:d081:: with SMTP id k1mr10817500pju.177.1596045547560;
-        Wed, 29 Jul 2020 10:59:07 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id g10sm3096851pfb.82.2020.07.29.10.58.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        bh=2dckHYDBSef92hBk0hdLw37DCCWMtjung/PzGLRIGlQ=;
+        b=ZrLXeKyQHuTBcoR2VvUqaaSbYX7hOoChldHHVaA5VrZ9QEa2UTpNe2m0MSNVz9hXYI
+         itSWIkd2bEygd3HWRa/5lxJy3rAIraDuk4wygkUoSJXUchklvoxIdjFKcA9Wee+Uqiws
+         Tg4u1pNnbqWpw8iMIq1JE6Hg9PE3hurD/IThvLzgHrTVS7w8b0RNr4vsrRI5w3BoIrbr
+         uX8Es9sopdlwv9yWRggyKh+rbc3m40oJzKdPcOStm55ibmXq2uaVdwBsto8ssN2+n8u4
+         PWachWCQn10xxGzifg61s+IE8wz6fcxQb/eHtIZz65Gk1zPpEtin7AwU0dZ7PFVbcD5Z
+         GuSA==
+X-Gm-Message-State: AOAM533FQOfgVW/LDgN1ezIczrFezo0NhpPYOP6kLlv2cxE7ypglQ60P
+        pvbfnML5SEsxZBnM4YVxrm71sQ==
+X-Google-Smtp-Source: ABdhPJx0d4Pms05JWWdUqTfjeGaSa2h+B6c1vOgjK6stye4AbmKSEHfAQSNgfmrRFdWMcscCi/9fDQ==
+X-Received: by 2002:a65:64c5:: with SMTP id t5mr30425186pgv.28.1596045544724;
         Wed, 29 Jul 2020 10:59:04 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id t73sm3172293pfc.78.2020.07.29.10.58.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2020 10:58:58 -0700 (PDT)
 From:   Kees Cook <keescook@chromium.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Kees Cook <keescook@chromium.org>,
+Cc:     Kees Cook <keescook@chromium.org>, Jessica Yu <jeyu@kernel.org>,
         Scott Branden <scott.branden@broadcom.com>,
         Mimi Zohar <zohar@linux.ibm.com>,
         Luis Chamberlain <mcgrof@kernel.org>,
-        Takashi Iwai <tiwai@suse.de>, Jessica Yu <jeyu@kernel.org>,
-        SeongJae Park <sjpark@amazon.de>,
+        Takashi Iwai <tiwai@suse.de>, SeongJae Park <sjpark@amazon.de>,
         KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
         linux-security-module@vger.kernel.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v4 14/17] fs/kernel_file_read: Add "offset" arg for partial reads
-Date:   Wed, 29 Jul 2020 10:58:42 -0700
-Message-Id: <20200729175845.1745471-15-keescook@chromium.org>
+Subject: [PATCH v4 11/17] module: Call security_kernel_post_load_data()
+Date:   Wed, 29 Jul 2020 10:58:39 -0700
+Message-Id: <20200729175845.1745471-12-keescook@chromium.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20200729175845.1745471-1-keescook@chromium.org>
 References: <20200729175845.1745471-1-keescook@chromium.org>
@@ -79,308 +79,49 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-To perform partial reads, callers of kernel_read_file*() must have a
-non-NULL file_size argument and a preallocated buffer. The new "offset"
-argument can then be used to seek to specific locations in the file to
-fill the buffer to, at most, "buf_size" per call.
+Now that there is an API for checking loaded contents for modules
+loaded without a file, call into the LSM hooks.
 
-Where possible, the LSM hooks can report whether a full file has been
-read or not so that the contents can be reasoned about.
-
+Cc: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/base/firmware_loader/main.c |  2 +-
- fs/kernel_read_file.c               | 78 ++++++++++++++++++++---------
- include/linux/kernel_read_file.h    |  8 +--
- kernel/kexec_file.c                 |  4 +-
- kernel/module.c                     |  2 +-
- security/integrity/digsig.c         |  2 +-
- security/integrity/ima/ima_fs.c     |  3 +-
- 7 files changed, 65 insertions(+), 34 deletions(-)
+ kernel/module.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/base/firmware_loader/main.c b/drivers/base/firmware_loader/main.c
-index 6a5d407279e3..ff1808ed7547 100644
---- a/drivers/base/firmware_loader/main.c
-+++ b/drivers/base/firmware_loader/main.c
-@@ -494,7 +494,7 @@ fw_get_filesystem_firmware(struct device *device, struct fw_priv *fw_priv,
- 		fw_priv->size = 0;
- 
- 		/* load firmware files from the mount namespace of init */
--		rc = kernel_read_file_from_path_initns(path, &buffer, msize,
-+		rc = kernel_read_file_from_path_initns(path, 0, &buffer, msize,
- 						       NULL,
- 						       READING_FIRMWARE);
- 		if (rc < 0) {
-diff --git a/fs/kernel_read_file.c b/fs/kernel_read_file.c
-index d73bc3fa710a..90d255fbdd9b 100644
---- a/fs/kernel_read_file.c
-+++ b/fs/kernel_read_file.c
-@@ -9,6 +9,7 @@
-  * kernel_read_file() - read file contents into a kernel buffer
-  *
-  * @file	file to read from
-+ * @offset	where to start reading from (see below).
-  * @buf		pointer to a "void *" buffer for reading into (if
-  *		*@buf is NULL, a buffer will be allocated, and
-  *		@buf_size will be ignored)
-@@ -19,19 +20,31 @@
-  * @id		the kernel_read_file_id identifying the type of
-  *		file contents being read (for LSMs to examine)
-  *
-+ * @offset must be 0 unless both @buf and @file_size are non-NULL
-+ * (i.e. the caller must be expecting to read partial file contents
-+ * via an already-allocated @buf, in at most @buf_size chunks, and
-+ * will be able to determine when the entire file was read by
-+ * checking @file_size). This isn't a recommended way to read a
-+ * file, though, since it is possible that the contents might
-+ * change between calls to kernel_read_file().
-+ *
-  * Returns number of bytes read (no single read will be bigger
-  * than INT_MAX), or negative on error.
-  *
-  */
--int kernel_read_file(struct file *file, void **buf,
-+int kernel_read_file(struct file *file, loff_t offset, void **buf,
- 		     size_t buf_size, size_t *file_size,
- 		     enum kernel_read_file_id id)
- {
- 	loff_t i_size, pos;
--	ssize_t bytes = 0;
-+	size_t copied;
- 	void *allocated = NULL;
-+	bool whole_file;
- 	int ret;
- 
-+	if (offset != 0 && (!*buf || !file_size))
-+		return -EINVAL;
-+
- 	if (!S_ISREG(file_inode(file)->i_mode))
- 		return -EINVAL;
- 
-@@ -39,19 +52,27 @@ int kernel_read_file(struct file *file, void **buf,
- 	if (ret)
- 		return ret;
- 
--	ret = security_kernel_read_file(file, id, true);
--	if (ret)
--		goto out;
--
- 	i_size = i_size_read(file_inode(file));
- 	if (i_size <= 0) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
--	if (i_size > INT_MAX || i_size > buf_size) {
-+	/* The file is too big for sane activities. */
-+	if (i_size > INT_MAX) {
-+		ret = -EFBIG;
-+		goto out;
-+	}
-+	/* The entire file cannot be read in one buffer. */
-+	if (!file_size && offset == 0 && i_size > buf_size) {
- 		ret = -EFBIG;
- 		goto out;
- 	}
-+
-+	whole_file = (offset == 0 && i_size <= buf_size);
-+	ret = security_kernel_read_file(file, id, whole_file);
-+	if (ret)
-+		goto out;
-+
- 	if (file_size)
- 		*file_size = i_size;
- 
-@@ -62,9 +83,14 @@ int kernel_read_file(struct file *file, void **buf,
- 		goto out;
- 	}
- 
--	pos = 0;
--	while (pos < i_size) {
--		bytes = kernel_read(file, *buf + pos, i_size - pos, &pos);
-+	pos = offset;
-+	copied = 0;
-+	while (copied < buf_size) {
-+		ssize_t bytes;
-+		size_t wanted = min_t(size_t, buf_size - copied,
-+					      i_size - pos);
-+
-+		bytes = kernel_read(file, *buf + copied, wanted, &pos);
- 		if (bytes < 0) {
- 			ret = bytes;
- 			goto out_free;
-@@ -72,14 +98,17 @@ int kernel_read_file(struct file *file, void **buf,
- 
- 		if (bytes == 0)
- 			break;
-+		copied += bytes;
- 	}
- 
--	if (pos != i_size) {
--		ret = -EIO;
--		goto out_free;
--	}
-+	if (whole_file) {
-+		if (pos != i_size) {
-+			ret = -EIO;
-+			goto out_free;
-+		}
- 
--	ret = security_kernel_post_read_file(file, *buf, i_size, id);
-+		ret = security_kernel_post_read_file(file, *buf, i_size, id);
-+	}
- 
- out_free:
- 	if (ret < 0) {
-@@ -91,11 +120,11 @@ int kernel_read_file(struct file *file, void **buf,
- 
- out:
- 	allow_write_access(file);
--	return ret == 0 ? pos : ret;
-+	return ret == 0 ? copied : ret;
- }
- EXPORT_SYMBOL_GPL(kernel_read_file);
- 
--int kernel_read_file_from_path(const char *path, void **buf,
-+int kernel_read_file_from_path(const char *path, loff_t offset, void **buf,
- 			       size_t buf_size, size_t *file_size,
- 			       enum kernel_read_file_id id)
- {
-@@ -109,14 +138,15 @@ int kernel_read_file_from_path(const char *path, void **buf,
- 	if (IS_ERR(file))
- 		return PTR_ERR(file);
- 
--	ret = kernel_read_file(file, buf, buf_size, file_size, id);
-+	ret = kernel_read_file(file, offset, buf, buf_size, file_size, id);
- 	fput(file);
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(kernel_read_file_from_path);
- 
--int kernel_read_file_from_path_initns(const char *path, void **buf,
--				      size_t buf_size, size_t *file_size,
-+int kernel_read_file_from_path_initns(const char *path, loff_t offset,
-+				      void **buf, size_t buf_size,
-+				      size_t *file_size,
- 				      enum kernel_read_file_id id)
- {
- 	struct file *file;
-@@ -135,14 +165,14 @@ int kernel_read_file_from_path_initns(const char *path, void **buf,
- 	if (IS_ERR(file))
- 		return PTR_ERR(file);
- 
--	ret = kernel_read_file(file, buf, buf_size, file_size, id);
-+	ret = kernel_read_file(file, offset, buf, buf_size, file_size, id);
- 	fput(file);
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(kernel_read_file_from_path_initns);
- 
--int kernel_read_file_from_fd(int fd, void **buf, size_t buf_size,
--			     size_t *file_size,
-+int kernel_read_file_from_fd(int fd, loff_t offset, void **buf,
-+			     size_t buf_size, size_t *file_size,
- 			     enum kernel_read_file_id id)
- {
- 	struct fd f = fdget(fd);
-@@ -151,7 +181,7 @@ int kernel_read_file_from_fd(int fd, void **buf, size_t buf_size,
- 	if (!f.file)
- 		goto out;
- 
--	ret = kernel_read_file(f.file, buf, buf_size, file_size, id);
-+	ret = kernel_read_file(f.file, offset, buf, buf_size, file_size, id);
- out:
- 	fdput(f);
- 	return ret;
-diff --git a/include/linux/kernel_read_file.h b/include/linux/kernel_read_file.h
-index 023293eaf948..575ffa1031d3 100644
---- a/include/linux/kernel_read_file.h
-+++ b/include/linux/kernel_read_file.h
-@@ -35,19 +35,19 @@ static inline const char *kernel_read_file_id_str(enum kernel_read_file_id id)
- 	return kernel_read_file_str[id];
- }
- 
--int kernel_read_file(struct file *file,
-+int kernel_read_file(struct file *file, loff_t offset,
- 		     void **buf, size_t buf_size,
- 		     size_t *file_size,
- 		     enum kernel_read_file_id id);
--int kernel_read_file_from_path(const char *path,
-+int kernel_read_file_from_path(const char *path, loff_t offset,
- 			       void **buf, size_t buf_size,
- 			       size_t *file_size,
- 			       enum kernel_read_file_id id);
--int kernel_read_file_from_path_initns(const char *path,
-+int kernel_read_file_from_path_initns(const char *path, loff_t offset,
- 				      void **buf, size_t buf_size,
- 				      size_t *file_size,
- 				      enum kernel_read_file_id id);
--int kernel_read_file_from_fd(int fd,
-+int kernel_read_file_from_fd(int fd, loff_t offset,
- 			     void **buf, size_t buf_size,
- 			     size_t *file_size,
- 			     enum kernel_read_file_id id);
-diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
-index 878ca684a3a1..45726bc8f6ce 100644
---- a/kernel/kexec_file.c
-+++ b/kernel/kexec_file.c
-@@ -221,7 +221,7 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
- 	int ret;
- 	void *ldata;
- 
--	ret = kernel_read_file_from_fd(kernel_fd, &image->kernel_buf,
-+	ret = kernel_read_file_from_fd(kernel_fd, 0, &image->kernel_buf,
- 				       INT_MAX, NULL, READING_KEXEC_IMAGE);
- 	if (ret < 0)
- 		return ret;
-@@ -241,7 +241,7 @@ kimage_file_prepare_segments(struct kimage *image, int kernel_fd, int initrd_fd,
- #endif
- 	/* It is possible that there no initramfs is being loaded */
- 	if (!(flags & KEXEC_FILE_NO_INITRAMFS)) {
--		ret = kernel_read_file_from_fd(initrd_fd, &image->initrd_buf,
-+		ret = kernel_read_file_from_fd(initrd_fd, 0, &image->initrd_buf,
- 					       INT_MAX, NULL,
- 					       READING_KEXEC_INITRAMFS);
- 		if (ret < 0)
 diff --git a/kernel/module.c b/kernel/module.c
-index 72e33e25d7b9..a89900adeb6c 100644
+index d773f32f8dfd..72e33e25d7b9 100644
 --- a/kernel/module.c
 +++ b/kernel/module.c
-@@ -4010,7 +4010,7 @@ SYSCALL_DEFINE3(finit_module, int, fd, const char __user *, uargs, int, flags)
- 		      |MODULE_INIT_IGNORE_VERMAGIC))
- 		return -EINVAL;
+@@ -2970,7 +2970,7 @@ static int copy_module_from_user(const void __user *umod, unsigned long len,
+ 	if (info->len < sizeof(*(info->hdr)))
+ 		return -ENOEXEC;
  
--	err = kernel_read_file_from_fd(fd, &hdr, INT_MAX, NULL,
-+	err = kernel_read_file_from_fd(fd, 0, &hdr, INT_MAX, NULL,
- 				       READING_MODULE);
- 	if (err < 0)
+-	err = security_kernel_load_data(LOADING_MODULE, false);
++	err = security_kernel_load_data(LOADING_MODULE, true);
+ 	if (err)
  		return err;
-diff --git a/security/integrity/digsig.c b/security/integrity/digsig.c
-index 8a523dfd7fd7..0f518dcfde05 100644
---- a/security/integrity/digsig.c
-+++ b/security/integrity/digsig.c
-@@ -175,7 +175,7 @@ int __init integrity_load_x509(const unsigned int id, const char *path)
- 	int rc;
- 	key_perm_t perm;
  
--	rc = kernel_read_file_from_path(path, &data, INT_MAX, NULL,
-+	rc = kernel_read_file_from_path(path, 0, &data, INT_MAX, NULL,
- 					READING_X509_CERTIFICATE);
- 	if (rc < 0) {
- 		pr_err("Unable to open file: %s (%d)", path, rc);
-diff --git a/security/integrity/ima/ima_fs.c b/security/integrity/ima/ima_fs.c
-index 5fc56ccb6678..ea8ff8a07b36 100644
---- a/security/integrity/ima/ima_fs.c
-+++ b/security/integrity/ima/ima_fs.c
-@@ -284,7 +284,8 @@ static ssize_t ima_read_policy(char *path)
- 	datap = path;
- 	strsep(&datap, "\n");
+@@ -2980,11 +2980,17 @@ static int copy_module_from_user(const void __user *umod, unsigned long len,
+ 		return -ENOMEM;
  
--	rc = kernel_read_file_from_path(path, &data, INT_MAX, NULL, READING_POLICY);
-+	rc = kernel_read_file_from_path(path, 0, &data, INT_MAX, NULL,
-+					READING_POLICY);
- 	if (rc < 0) {
- 		pr_err("Unable to open file: %s (%d)", path, rc);
- 		return rc;
+ 	if (copy_chunked_from_user(info->hdr, umod, info->len) != 0) {
+-		vfree(info->hdr);
+-		return -EFAULT;
++		err = -EFAULT;
++		goto out;
+ 	}
+ 
+-	return 0;
++	err = security_kernel_post_load_data((char *)info->hdr, info->len,
++					     LOADING_MODULE);
++out:
++	if (err)
++		vfree(info->hdr);
++
++	return err;
+ }
+ 
+ static void free_copy(struct load_info *info)
 -- 
 2.25.1
 
