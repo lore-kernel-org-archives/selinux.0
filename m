@@ -2,110 +2,118 @@ Return-Path: <SRS0=6Qkr=BI=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78E77C433E1
-	for <selinux@archiver.kernel.org>; Wed, 29 Jul 2020 19:13:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DB7EC433DF
+	for <selinux@archiver.kernel.org>; Wed, 29 Jul 2020 21:02:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5D9392075D
-	for <selinux@archiver.kernel.org>; Wed, 29 Jul 2020 19:13:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 265C9207F5
+	for <selinux@archiver.kernel.org>; Wed, 29 Jul 2020 21:02:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="LojD0Veh"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cCHzz3Pv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726772AbgG2TNQ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Jul 2020 15:13:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47228 "EHLO
+        id S1726496AbgG2VCo (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Jul 2020 17:02:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726365AbgG2TNP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jul 2020 15:13:15 -0400
-Received: from mail-pf1-x442.google.com (mail-pf1-x442.google.com [IPv6:2607:f8b0:4864:20::442])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51AA3C0619D2
-        for <selinux@vger.kernel.org>; Wed, 29 Jul 2020 12:13:15 -0700 (PDT)
-Received: by mail-pf1-x442.google.com with SMTP id r11so5562029pfl.11
-        for <selinux@vger.kernel.org>; Wed, 29 Jul 2020 12:13:15 -0700 (PDT)
+        with ESMTP id S1726476AbgG2VCo (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jul 2020 17:02:44 -0400
+Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com [IPv6:2607:f8b0:4864:20::c29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AAD5C061794
+        for <selinux@vger.kernel.org>; Wed, 29 Jul 2020 14:02:44 -0700 (PDT)
+Received: by mail-oo1-xc29.google.com with SMTP id a9so4804640oof.12
+        for <selinux@vger.kernel.org>; Wed, 29 Jul 2020 14:02:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=qGFRcRgcR931cJAUtagqOosR/FnU7E14dUW/H6LUoV0=;
-        b=LojD0VehSq43MKm3UY2ptAJKk1Fg+Dz890OJAqBxww80QsP0ZXG0+NsI3rnP3MRS80
-         gcs7DulgfW5Xl39kdQCI3ZvqNfNq/6oU5h1k4Pn4y8/j/4zZzrI0lVIUUJQG4UXyxn0t
-         gt1XYvCjNMWuFltFntSdXqB5KY+Pk8nOPPRdA=
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=w5xQaj9i2aqzPswEX3BzlbxBmJZ8BAd4DFPEQMLoxwY=;
+        b=cCHzz3Pvhf0p0Au9ute4SJey345VEvDN48tQbUvExhaGbHAMc+p2Wnxoe6OIOi9MCG
+         lx307Xw3qOLtZxwoqRyBI0I2SkEywiIvVTcChV8E3p0/riGEXFX12stpITGQFio2k8AE
+         1audMMbRPuZ6gQwRK4208eKgFJE0Ar+Cxhqb9Jw2iBSMDstGFfFU6ycacK4hl2QCEAYh
+         GfXkUWhdbdnRCiJQBd2LikCfVFeOee0VYl6E5ffe6ye1zRNnSpC/ZXOXtn22NaoSC1Dk
+         +/JznIQ4JMVZZvxwKmYDzX+hzQHIaZNehmKqseXDgxkBHEGnSiPoJ8xOPkI2soqKq97K
+         SZhg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=qGFRcRgcR931cJAUtagqOosR/FnU7E14dUW/H6LUoV0=;
-        b=gXdAJ24ySnenv+ZgOWQLlI5+TSeZbVWgeaDt3PowFXqBqqhK7/KGyax2jBk77xPiSW
-         wJgnX9q578wWKamgH91GJSuJUILBihlMZzaPKbVRqH4xPML/gAmyhdfot6Jxh9TSYTvA
-         RePCW/5dMhcKw5ANaT2ku7/xNWzqYWfefWaqwePwXeepGY3dWcmc5DzSijDnv6qHQc4u
-         HRmVv6qtt9Pzr/6ozOpEZ/9X4X8Q9POmU7Z8MMAM8KLXloWeuxM6YwzmyVtN2ewoq5tD
-         wlnRNr8avD8jDiNypef4QdVVAQEOnDD3tqUVKTzekpBKni69S4/nxHBOv/aG80FoecxA
-         KCOQ==
-X-Gm-Message-State: AOAM531sMk1VJOnCyIRRBSTFgdLx1yLxj7AjN6mhdtNI/gxT6y2KDaMf
-        fWxAHRZyE7cpqyiJHf+GdpyYLw==
-X-Google-Smtp-Source: ABdhPJwm3az6fUsmpW7/xrdfcyj4XHND2YQG4viZO33agdGtUSFkCSCWvvsJEvQgoeB/2eV7qKkUlA==
-X-Received: by 2002:a63:4450:: with SMTP id t16mr7500213pgk.3.1596049994849;
-        Wed, 29 Jul 2020 12:13:14 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id 4sm3113116pgk.68.2020.07.29.12.13.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 29 Jul 2020 12:13:13 -0700 (PDT)
-Date:   Wed, 29 Jul 2020 12:13:12 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Mimi Zohar <zohar@linux.ibm.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Jessica Yu <jeyu@kernel.org>, SeongJae Park <sjpark@amazon.de>,
-        KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 12/19] firmware_loader: Use security_post_load_data()
-Message-ID: <202007291205.CA09294424@keescook>
-References: <20200724213640.389191-1-keescook@chromium.org>
- <20200724213640.389191-13-keescook@chromium.org>
- <1595847465.4841.63.camel@kernel.org>
- <202007281242.B6016AE4B@keescook>
- <e5ed8876b9907315c2a906ab248639ea8c6d2cd5.camel@linux.ibm.com>
- <e6f7ce4aa506ff016dde9a75c607849587c1ca2c.camel@linux.ibm.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=w5xQaj9i2aqzPswEX3BzlbxBmJZ8BAd4DFPEQMLoxwY=;
+        b=TTiVyJu19sJ3wsRyQZ8DUC3ly/w7YohW4lwsD1lnKvDKctRokB0TL2MFsnnYa9SXaL
+         q1M1HfQE4Z/lXiImbhi+1+eV9YyOVMBQCBVh25gEUxVCTATWIgb4GGVn3XM/cg/ywWJG
+         8GF5HMpfPFJbWFhi9oJWhtZk75BsurmqUQMYpJi6OFxVVnJQUelxHckKKvYJ6QqP85Ja
+         Jp4VxIY1R1SfzmupHkEifxSx87IkjoW6n+M6Ky3n8ueZQ+0MAI50VH01ZTP7H+G1Jsfv
+         aKHX1SKOTe/O+j/GadH6sBmKRtzHSPXvXlXSyZULixdGezSrDi8j2Isg98bSmg2DKCai
+         A7Nw==
+X-Gm-Message-State: AOAM533wK54vYMIV1nGIhmMX1D09c3r8zi/c05UNynR8PIEtiEU777no
+        eXcmNyLjYDeDCjxXK+o2TNqOL6fBNwSV+7TZdUiQzg==
+X-Google-Smtp-Source: ABdhPJxINT8ZkHta1gf7hwmRnI2Yg12/xWuLy2pgOw9wkBayuGi3ooa+yAWfFsWUqrbAMV3R+7TlxmauW9WsAzMBQm4=
+X-Received: by 2002:a4a:675a:: with SMTP id j26mr68621oof.1.1596056562365;
+ Wed, 29 Jul 2020 14:02:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e6f7ce4aa506ff016dde9a75c607849587c1ca2c.camel@linux.ibm.com>
+References: <12fc8da1-4fbd-59f7-08e7-0af9daff118c@gmail.com>
+In-Reply-To: <12fc8da1-4fbd-59f7-08e7-0af9daff118c@gmail.com>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 29 Jul 2020 17:02:31 -0400
+Message-ID: <CAP+JOzSHRcBQp_3ntqiKiG_fjx0fab6zGCC8F6j50zkB8ac-Bw@mail.gmail.com>
+Subject: Re: Invalid output by secilc with constraints containing 4 nested OR
+ and a single AND
+To:     bauen1 <j2468h@googlemail.com>
+Cc:     selinux <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Jul 29, 2020 at 02:10:18PM -0400, Mimi Zohar wrote:
-> Actually, the partial firmware read should be calling
-> security_kernel_read_file().
+On Wed, Jul 29, 2020 at 3:06 PM bauen1 <j2468h@googlemail.com> wrote:
+>
+> Hello,
+> I've discovered that a constraint like
+>
+> (constrain (file (open))
+>   (or
+>     (eq t1 exec_t) ; probably doesn't matter
+>     (or
+>       (eq t1 exec_t) ; probably doesn't matter
+>       (or
+>         (eq t1 exec_t) ; probably doesn't matter
+>         (or
+>           ; Making and the first argument to or will produce a valid policy
+>           (eq t1 exec_t)
+>           (and
+>             ; content probably doesn't matter
+>             (eq t1 exec_t)
+>             (eq t1 exec_t)
+>           )
+>         )
+>       )
+>     )
+>   )
+> )
+>
+> allows secilc to finish compilation but generates a policy that is "invalid", file identifies it as an SELinux Binary Policy but seinfo and similiar tools refuse to operate on it.
+>
 
-Yup, it does[1], and when "whole_file" is true, it will call
-security_kernel_post_read_file() with the buffer contents at the end.
+I can confirm that this does cause secilc to create an invalid policy binary.
 
-> The sysfs firmware fallback is calling security_kernel_load_data().
+I will have to investigate.
+Thanks,
+Jim
 
-Correct[2]; it has no file associated with it (same as the EFI platform
-source).
-
-> Which firmware is calling security_kernel_post_load_data()?
-
-sysfs and platform both call it[2], matched with their
-security_kernel_load_data() calls.
-
--Kees
-
-
-[1] v4 patch 14: "fs/kernel_file_read: Add "offset" arg for partial reads"
-    https://lore.kernel.org/lkml/20200729175845.1745471-1-keescook@chromium.org/T/#iZ2e.:..:20200729175845.1745471-15-keescook::40chromium.org:0fs:kernel_read_file.c
-[2] v4 patch 10: "firmware_loader: Use security_post_load_data()"
-    https://lore.kernel.org/lkml/20200729175845.1745471-1-keescook@chromium.org/T/#iZ2e.:..:20200729175845.1745471-11-keescook::40chromium.org:0drivers:base:firmware_loader:fallback.c
-
--- 
-Kees Cook
+> For example (using secilc/test/policy.cil):
+> $ file policy.32
+> policy.32: SE Linux policy v32 8 symbols 9 ocons
+> $ seinfo policy.32 -x --constrain
+> Invalid policy: policy.32. A binary policy must be specified. (use e.g. policy.32 or sepolicy) Source policies are not supported.
+>
+> I've tested this with secilc 3.1-1 (debian) and from the current git master (9e2b8c61bfd275d0f007a736721c557755edf4a0)
+>
+> I hope that this is enough information to reproduce the issue.
+>
+> --
+> bauen1
+> https://dn42.bauen1.xyz/
