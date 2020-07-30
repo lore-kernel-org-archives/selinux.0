@@ -5,26 +5,26 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 528E3C433DF
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 10:06:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B143C433DF
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 10:06:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3503C20809
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 10:06:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40E2B2082E
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 10:06:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726819AbgG3KGw (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 06:06:52 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:45044 "EHLO
+        id S1726814AbgG3KG5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 06:06:57 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:45052 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726273AbgG3KGw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 06:06:52 -0400
+        with ESMTP id S1726799AbgG3KG4 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 06:06:56 -0400
 Received: from static-50-53-58-29.bvtn.or.frontiernet.net ([50.53.58.29] helo=[192.168.192.153])
         by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
         (Exim 4.86_2)
         (envelope-from <john.johansen@canonical.com>)
-        id 1k15ST-0002uU-Oz; Thu, 30 Jul 2020 10:06:41 +0000
-Subject: Re: [PATCH v19 19/23] LSM: Verify LSM display sanity in binder
+        id 1k15SZ-0002w1-0g; Thu, 30 Jul 2020 10:06:49 +0000
+Subject: Re: [PATCH v19 23/23] AppArmor: Remove the exclusive flag
 To:     Casey Schaufler <casey@schaufler-ca.com>,
         casey.schaufler@intel.com, jmorris@namei.org,
         linux-security-module@vger.kernel.org, selinux@vger.kernel.org
@@ -32,7 +32,7 @@ Cc:     linux-audit@redhat.com, keescook@chromium.org,
         penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
         sds@tycho.nsa.gov
 References: <20200724203226.16374-1-casey@schaufler-ca.com>
- <20200724203226.16374-20-casey@schaufler-ca.com>
+ <20200724203226.16374-24-casey@schaufler-ca.com>
 From:   John Johansen <john.johansen@canonical.com>
 Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
  LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tCgptUUlOQkU1bXJQb0JFQURB
@@ -109,12 +109,12 @@ Autocrypt: addr=john.johansen@canonical.com; prefer-encrypt=mutual; keydata=
  MDNwYVBDakpoN1hxOXZBenlkTjVVL1VBPT0KPTZQL2IKLS0tLS1FTkQgUEdQIFBVQkxJQyBL
  RVkgQkxPQ0stLS0tLQo=
 Organization: Canonical
-Message-ID: <8489396e-01a9-6fce-2afa-8a26fd3e3a3a@canonical.com>
-Date:   Thu, 30 Jul 2020 01:40:52 -0700
+Message-ID: <625f777b-a5cd-4564-b68d-5536cce4e739@canonical.com>
+Date:   Thu, 30 Jul 2020 02:23:37 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200724203226.16374-20-casey@schaufler-ca.com>
+In-Reply-To: <20200724203226.16374-24-casey@schaufler-ca.com>
 Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
@@ -124,62 +124,69 @@ List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
 On 7/24/20 1:32 PM, Casey Schaufler wrote:
-> Verify that the tasks on the ends of a binder transaction
-> use the same "display" security module. This prevents confusion
-> of security "contexts".
+> With the inclusion of the "display" process attribute
+> mechanism AppArmor no longer needs to be treated as an
+> "exclusive" security module. Remove the flag that indicates
+> it is exclusive. Remove the stub getpeersec_dgram AppArmor
+> hook as it has no effect in the single LSM case and
+> interferes in the multiple LSM case.
 > 
+probably should change this to
 
-Reviewed-by: John Johansen <john.johansen@canonical.com>
+Acked-by: John Johansen <john.johansen@canonical.com>
 
-> Reviewed-by: Kees Cook <keescook@chromium.org>
 > Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+> Reviewed-by: Kees Cook <keescook@chromium.org>
+> Reviewed-by: John Johansen <john.johansen@canonical.com>
 > Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
 > ---
->  security/security.c | 29 +++++++++++++++++++++++++++++
->  1 file changed, 29 insertions(+)
+>  security/apparmor/lsm.c | 20 +-------------------
+>  1 file changed, 1 insertion(+), 19 deletions(-)
 > 
-> diff --git a/security/security.c b/security/security.c
-> index ddbaf2073b02..95b48721fb17 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -788,9 +788,38 @@ int security_binder_set_context_mgr(struct task_struct *mgr)
->  	return call_int_hook(binder_set_context_mgr, 0, mgr);
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index 7ce570b0f491..4b7cbe9bb1be 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -1129,22 +1129,6 @@ static int apparmor_socket_getpeersec_stream(struct socket *sock,
+>  	return error;
 >  }
 >  
-> +/**
-> + * security_binder_transaction - Binder driver transaction check
-> + * @from: source of the transaction
-> + * @to: destination of the transaction
-> + *
-> + * Verify that the tasks have the same LSM "display", then
-> + * call the security module hooks.
-> + *
-> + * Returns -EINVAL if the displays don't match, or the
-> + * result of the security module checks.
-> + */
->  int security_binder_transaction(struct task_struct *from,
->  				struct task_struct *to)
->  {
-> +	int from_display = lsm_task_display(from);
-> +	int to_display = lsm_task_display(to);
-> +
-> +	/*
-> +	 * If the display is LSMBLOB_INVALID the first module that has
-> +	 * an entry is used. This will be in the 0 slot.
-> +	 *
-> +	 * This is currently only required if the server has requested
-> +	 * peer contexts, but it would be unwieldly to have too much of
-> +	 * the binder driver detail here.
-> +	 */
-> +	if (from_display == LSMBLOB_INVALID)
-> +		from_display = 0;
-> +	if (to_display == LSMBLOB_INVALID)
-> +		to_display = 0;
-> +	if (from_display != to_display)
-> +		return -EINVAL;
-> +
->  	return call_int_hook(binder_transaction, 0, from, to);
->  }
+> -/**
+> - * apparmor_socket_getpeersec_dgram - get security label of packet
+> - * @sock: the peer socket
+> - * @skb: packet data
+> - * @secid: pointer to where to put the secid of the packet
+> - *
+> - * Sets the netlabel socket state on sk from parent
+> - */
+> -static int apparmor_socket_getpeersec_dgram(struct socket *sock,
+> -					    struct sk_buff *skb, u32 *secid)
+> -
+> -{
+> -	/* TODO: requires secid support */
+> -	return -ENOPROTOOPT;
+> -}
+> -
+>  /**
+>   * apparmor_sock_graft - Initialize newly created socket
+>   * @sk: child sock
+> @@ -1248,8 +1232,6 @@ static struct security_hook_list apparmor_hooks[] __lsm_ro_after_init = {
+>  #endif
+>  	LSM_HOOK_INIT(socket_getpeersec_stream,
+>  		      apparmor_socket_getpeersec_stream),
+> -	LSM_HOOK_INIT(socket_getpeersec_dgram,
+> -		      apparmor_socket_getpeersec_dgram),
+>  	LSM_HOOK_INIT(sock_graft, apparmor_sock_graft),
+>  #ifdef CONFIG_NETWORK_SECMARK
+>  	LSM_HOOK_INIT(inet_conn_request, apparmor_inet_conn_request),
+> @@ -1918,7 +1900,7 @@ static int __init apparmor_init(void)
 >  
+>  DEFINE_LSM(apparmor) = {
+>  	.name = "apparmor",
+> -	.flags = LSM_FLAG_LEGACY_MAJOR | LSM_FLAG_EXCLUSIVE,
+> +	.flags = LSM_FLAG_LEGACY_MAJOR,
+>  	.enabled = &apparmor_enabled,
+>  	.blobs = &apparmor_blob_sizes,
+>  	.init = apparmor_init,
 > 
 
