@@ -2,82 +2,88 @@ Return-Path: <SRS0=qcS5=BJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15021C433E0
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 17:17:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1BE7C433E1
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 18:02:53 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E73C3208A9
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 17:17:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id B5A4F20809
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 18:02:53 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ZjcMZbIw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728527AbgG3RRC convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 13:17:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36414 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728492AbgG3RRC (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 30 Jul 2020 13:17:02 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EFC7B2082E;
-        Thu, 30 Jul 2020 17:17:00 +0000 (UTC)
-Date:   Thu, 30 Jul 2020 13:16:59 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     peter enderborg <peter.enderborg@sony.com>
-Cc:     =?UTF-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <selinux@vger.kernel.org>
-Subject: Re: [PATCH] RFC: selinux avc trace
-Message-ID: <20200730131659.7f1d21e8@oasis.local.home>
-In-Reply-To: <15fcdc87-5e9b-8144-5a6b-34594d1e52ef@sony.com>
-References: <20200724091520.880211-1-tweek@google.com>
-        <20200724095232.5f9d3f17@oasis.local.home>
-        <80a23580-5067-93b0-53fa-3bd53253c056@sony.com>
-        <20200730110459.5bf0b0df@oasis.local.home>
-        <6f1262fc-21ad-f872-5460-e78d4685c9c4@sony.com>
-        <20200730120200.1367e1cd@oasis.local.home>
-        <15fcdc87-5e9b-8144-5a6b-34594d1e52ef@sony.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1730382AbgG3SCx (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 14:02:53 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:35040 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730363AbgG3SCw (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 14:02:52 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 508FA20B4908;
+        Thu, 30 Jul 2020 11:02:51 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 508FA20B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1596132171;
+        bh=Lq00ap7Yu8hoUdPCLVlYdZakWLvY3wTeBBusKqVGKL4=;
+        h=Subject:From:To:Cc:References:Date:In-Reply-To:From;
+        b=ZjcMZbIwR/fP3byLrxge5Ao5e6GNyOxy0eX1JNinRJb1DKlygk8vEypRNhuOT3BA8
+         QBSKgVbqSbcijtYHbivDb7NzWH29EtNUIPqz4nmIPjJgvbngaWRjLUKQCQD6CokjSB
+         FA2pANqUEaaDk+qglmoS3yYd6EEKu0thLoDca/n8=
+Subject: Re: [PATCH v5 4/4] IMA: Handle early boot data measurement
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200730034724.3298-1-nramas@linux.microsoft.com>
+ <20200730034724.3298-5-nramas@linux.microsoft.com>
+Message-ID: <ea3bba66-9b21-b842-990b-2bf1e4ac2179@linux.microsoft.com>
+Date:   Thu, 30 Jul 2020 11:02:50 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200730034724.3298-5-nramas@linux.microsoft.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 30 Jul 2020 19:05:49 +0200
-peter enderborg <peter.enderborg@sony.com> wrote:
+On 7/29/20 8:47 PM, Lakshmi Ramasubramanian wrote:
 
-> >> It should be a full structure with a lot of sub strings.  But that make is even more relevant.  
-> > So one event instance can have a list of strings recorded?  
-> 
-> Yes, it is a list very similar to a normal trace. But it is more generic.
-> 
-> For example ino= is for filesystems that have inode, but for a
-> violation that send a signal that make no sense at all.  Network
-> addresses is in many cases not applicable. laddr= is only exist for
-> for IP.
-> 
-> So if you just print them it will look like:
-> 
-> avc:  denied  { find } for interface=vendor.qti.hardware.perf::IPerf sid=u:r:permissioncontroller_app:s0:c230,c256,c512,c768 pid=9164 scontext=u:r:permissioncontroller_app:s0:c230,c256,c512,c768 tcontext=u:object_r:vendor_hal_perf_hwservice:s0 tclass=hwservice_manager permissive=0
->  avc:  denied  { execute } for  pid=13914 comm="ScionFrontendAp" path="/data/user_de/0/com.google.android.gms/app_chimera/m/00000002/oat/arm64/DynamiteLoader.odex" dev="sda77" ino=204967 scontext=u:r:platform_app:s0:c512,c768 tcontext=u:object_r:privapp_data_file:s0:c512,c768 tclass=file permissive=0 ppid=788 pcomm="main" pgid=13914 pgcomm="on.updatecenter"
-> 
-> It omit the fields that are not used. Some parts are common some are not. So a correct format specification for trace will be problematic if there is no "optional" field indicator.
+Hi Tyler,
 
-That's all quite noisy. What is the object of these changes? What
-exactly are you trying to trace and why?
+> diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
+> index 080c53545ff0..86cba844f73c 100644
+> --- a/security/integrity/ima/Kconfig
+> +++ b/security/integrity/ima/Kconfig
+> @@ -322,10 +322,9 @@ config IMA_MEASURE_ASYMMETRIC_KEYS
+>   	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE=y
+>   	default y
+>   
+> -config IMA_QUEUE_EARLY_BOOT_KEYS
+> +config IMA_QUEUE_EARLY_BOOT_DATA
+>   	bool
+> -	depends on IMA_MEASURE_ASYMMETRIC_KEYS
+> -	depends on SYSTEM_TRUSTED_KEYRING
+> +	depends on SECURITY || (IMA_MEASURE_ASYMMETRIC_KEYS && SYSTEM_TRUSTED_KEYRING)
+>   	default y
+>   
+Similar to the change you'd suggested for validating LSM_STATE and 
+LSM_POLICY func, I think IMA_QUEUE_EARLY_BOOT_DATA config should be 
+enabled for SECURITY_SELINUX.
 
--- Steve
+depends on SECURITY_SELINUX ||
+            (IMA_MEASURE_ASYMMETRIC_KEYS && SYSTEM_TRUSTED_KEYRING)
+
+And, when more security modules are added update this CONFIG as appropriate.
+
+Does that sound okay?
+
+  -lakshmi
