@@ -2,94 +2,143 @@ Return-Path: <SRS0=qcS5=BJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ED26C433DF
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 08:23:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95725C433DF
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 08:56:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 375CB2075F
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 08:23:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 134112075F
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 08:56:16 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="j+Yk/lia"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729009AbgG3IXw convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 04:23:52 -0400
-Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:18121 "EHLO
-        SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728883AbgG3IXw (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 04:23:52 -0400
-X-Greylist: delayed 1206 seconds by postgrey-1.27 at vger.kernel.org; Thu, 30 Jul 2020 04:23:51 EDT
-Subject: Re: [PATCH] selinux: add tracepoint on denials
-To:     =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>
-CC:     Steven Rostedt <rostedt@goodmis.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Nick Kralevich <nnk@google.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-References: <20200724091520.880211-1-tweek@google.com>
- <CAEjxPJ45ij3obT37ywn_edb9xb89z-SdwzejfN6+jrvAtghXfA@mail.gmail.com>
- <CAHC9VhS4aXD8kcXnQ2MsYvjc--xXSUpsM1xtgq3X5DBT59ohhw@mail.gmail.com>
- <CA+zpnLfczC=9HQA8s1oBGKGQO+OkuydF85o89dhSxdOyKBHMgg@mail.gmail.com>
- <CAHC9VhT1sGSpfCKojbKR+O2Hf_h+wnKnBwwSo09CbFaCYLcOHA@mail.gmail.com>
- <CA+zpnLecz_gvXYnrwNGW8SLaJsu==M_n9MuJgjqX9nPJtuTZBg@mail.gmail.com>
-From:   peter enderborg <peter.enderborg@sony.com>
-Message-ID: <def030b4-91c3-4aa1-e8ad-e3797688d18d@sony.com>
-Date:   Thu, 30 Jul 2020 10:03:41 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726819AbgG3I4P (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 04:56:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60266 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726287AbgG3I4P (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 04:56:15 -0400
+Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6A8AAC061794
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 01:56:14 -0700 (PDT)
+Received: from localhost.localdomain (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id A28D62A0FFC;
+        Thu, 30 Jul 2020 10:56:09 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl A28D62A0FFC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1596099369;
+        bh=JlTF8t7ETMrSvBFaGt4wPASJh15rnO6RH0QTCeHGwcQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=j+Yk/liaLRhfgjHmRSS3ouYr5JHRX1HyxERvWvGFhV01yTQ8SM3nd+z+HeKp9pUaW
+         NULFybAi/du7b6jYst4iIZapCqm75yLe7hfg0MSu8efD9FFqeX9/SB3b9MP3YwrEXG
+         2Majxmcz5fNvTOSCYwqZQ1jQcT8k8A1jkrLMbYnc=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     selinux@vger.kernel.org
+Cc:     Dominick Grift <dominick.grift@defensec.nl>
+Subject: [SELinux-notebook PATCH] type_statements: document expandattribute
+Date:   Thu, 30 Jul 2020 10:55:42 +0200
+Message-Id: <20200730085542.895297-1-dominick.grift@defensec.nl>
+X-Mailer: git-send-email 2.28.0.rc1
 MIME-Version: 1.0
-In-Reply-To: <CA+zpnLecz_gvXYnrwNGW8SLaJsu==M_n9MuJgjqX9nPJtuTZBg@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Language: en-GB
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=DrAoB13+ c=1 sm=1 tr=0 a=kIrCkORFHx6JeP9rmF/Kww==:117 a=IkcTkHD0fZMA:10 a=_RQrkK6FrEwA:10 a=xVhDTqbCAAAA:8 a=kSkFpLqy8y9c_-cfnwsA:9 a=QEXdDO2ut3YA:10 a=GrmWmAYt4dzCMttCBZOh:22
-X-SEG-SpamProfiler-Score: 0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/28/20 6:02 PM, Thiébaud Weksteen wrote:
-> On Tue, Jul 28, 2020 at 5:12 PM Paul Moore <paul@paul-moore.com> wrote:
->> Perhaps it would be helpful if you provided an example of how one
->> would be expected to use this new tracepoint?  That would help put
->> things in the proper perspective.
-> The best example is the one I provided in the commit message, that is
-> using perf (or a perf equivalent), to hook onto that tracepoint.
->
->> Well, to be honest, the very nature of this tracepoint is duplicating
->> the AVC audit record with a focus on using perf to establish a full
->> backtrace at the expense of reduced information.  At least that is how
->> it appears to me.
-> I see both methods as complementary. By default, the kernel itself can
-> do some reporting (i.e avc message) on which process triggered the
-> denial, what was the context, etc. This is useful even in production
-> and doesn't require any extra tooling.
-> The case for adding this tracepoint can be seen as advanced debugging.
-> That is, once an avc denial has been confirmed, a developer can use
-> this tracepoint to surface the userland stacktrace. It requires more
-> userland tools and symbols on the userland binaries.
+This functionality was added for Androids Treble in 2017.
 
-I think from development view you would like to have a better
-way to trap this events in userspace. One idea that I have is
-is to have more outcomes from a rule. We have today allow,
-dontaudit, auditallow i think it would be good to have signal sent too.
-"signal-xxx-allow" for some set of signals. SIGBUS, SIGSEGV, SIGABRT maybe.
+I was not sure whether this belong here or in conditional_statements.md
 
-That will be a good way to pickup the problem with a debugger or generate a
-a core file.
+Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+---
+ src/type_statements.md | 70 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 70 insertions(+)
 
-I have also done some selinux trace functions. I think they collide with this set,
-but I think I can rebase them upon yours and see if they give some more functionality.
-
-I see this functionality very much needed in some form.
-
+diff --git a/src/type_statements.md b/src/type_statements.md
+index 61c7191..8bea485 100644
+--- a/src/type_statements.md
++++ b/src/type_statements.md
+@@ -201,6 +201,76 @@ attribute non_security_file_type;
+ 
+ <br>
+ 
++## `expandattribute`
++
++The `expandattribute` statement allows type attribute expansion
++compiler defaults to be overriden.
++
++**The statement definition is:**
++
++`expandattribute attribute_id default_value;`
++
++**Where:**
++
++<table>
++<tbody>
++<tr>
++<td><code>expandattribute</code></td>
++<td>The <code>expandattribute</code> keyword.</td>
++</tr>
++<tr>
++<td><code>attribute_id</code></td>
++<td>One or more previously declared <code>attribute</code>. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
++</tr>
++<tr>
++<td><code>default_value</code></td>
++<td>Either true or false</td>
++</tr>
++</tbody>
++</table>
++
++**The statement is valid in:**
++
++<table style="text-align:center">
++<tbody>
++<tr style="background-color:#D3D3D3;">
++<td><strong>Monolithic Policy</strong></td>
++<td><strong>Base Policy</strong></td>
++<td><strong>Module Policy</strong></td>
++</tr>
++<tr>
++<td>Yes</td>
++<td>Yes</td>
++<td>Yes</td>
++</tr>
++<tr style="background-color:#D3D3D3;">
++<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
++<td><strong><code>optional</code> Statement</strong></td>
++<td><strong><code>require</code> Statement</strong></td>
++</tr>
++<tr>
++<td>No</td>
++<td>Yes</td>
++<td>No</td>
++</tr>
++</tbody>
++</table>
++
++**Example:**
++
++```
++# Using the expandtypeattribute statement to forcibly expand a
++# previously declared domain attribute.
++
++# The previously declared attribute:
++attribute domain;
++
++# The attribute stripping using the expandtypeattribute statement:
++expandattribute domain true;
++```
++
++<br>
++
+ ## `typeattribute`
+ 
+ The `typeattribute` statement allows the association of previously
+-- 
+2.28.0.rc1
 
