@@ -2,126 +2,85 @@ Return-Path: <SRS0=qcS5=BJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ABD8C433E0
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 13:12:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36BBAC433DF
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 13:39:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 351B72074B
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 13:12:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0888A20829
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 13:39:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="gfVjOV/+"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="buI4Vj+W"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728373AbgG3NMM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 09:12:12 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:43768 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726535AbgG3NMM (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 30 Jul 2020 09:12:12 -0400
-Received: from localhost.localdomain (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id 92FF82A0CF5;
-        Thu, 30 Jul 2020 15:12:10 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 92FF82A0CF5
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1596114730;
-        bh=v901ClHy5vxp+U0KVqXTUcUIZDu3YQZOxE+wdgEo4ww=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfVjOV/+J3NPrYJ8fcwIA6oMQ9MOiyJSz9/8VcscjrsogDWX18f/sRrtN8iSaLZDZ
-         UcrReXuiOY7AtaxLZ8WD5KGLQ36pXz3r38IZsRmkhFGDm/JT5dMyuscAsF7uKuewR7
-         LL6N9MyyuV63ZlEdStmgTflHCuROXj8f6wG4hMpU=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     selinux@vger.kernel.org
-Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [PATCH v3] secilc/docs: document expandtypeattribute
-Date:   Thu, 30 Jul 2020 15:11:49 +0200
-Message-Id: <20200730131149.928220-1-dominick.grift@defensec.nl>
-X-Mailer: git-send-email 2.28.0.rc1
-In-Reply-To: <20200730114555.915996-1-dominick.grift@defensec.nl>
-References: <20200730114555.915996-1-dominick.grift@defensec.nl>
+        id S1727769AbgG3Njm (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 09:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47556 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726353AbgG3Njm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 09:39:42 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E352C0617B1
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 06:39:41 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id 93so9909463otx.2
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 06:39:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=BklLXkWJneqmzaWh65wpdp1aVnL1vn7jDSG1roQWD3A=;
+        b=buI4Vj+WJaqGV+tv3MBiIL1wsDkmiQndD9phb6kCO6ZACY8p/Q+kK65TfPUz/OwrQj
+         N38lUTLWDaLbY1mYyq4xmc9cggWvGRniILIeCUePyfE/SNPvA8nGc5EqafbRlJOwfTGG
+         Z1vrcKsX9mF4lKhV6syXndT6I9xieAhIOVXYE98DBzGBIehetpKv3sDvgZD2RbDLDUAk
+         kXZ6oOIPAKSq904gvz65SmCSmlEFyykkrJwntc1t86jQx/rm56cD4b7iU70I+nCtNVDv
+         uh9CvYEjs5h3y4MQQ8QCzdCjLi0oVoEZeznpuQm7kZiC/7LGq8eezEx+NerLTfH0YUz4
+         T4VA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=BklLXkWJneqmzaWh65wpdp1aVnL1vn7jDSG1roQWD3A=;
+        b=l2cq0CUdPTpDGnqI7aiBWotx/XHdy1kV3/EEmhYAZNg369Ld0geoQAOMXpcm7D2lnS
+         Bq0MH952x3TP5AUlvX2Dok00TyNdkPp6aTedwK7szP1wca5uN+1X46uxtLXiwIdUAhef
+         NzHXB9fARqGMX+2iYrzMYI5PTEYYzc5aR25EF2LNLZordmou6iQTptV2QLMeO72fTaO3
+         +TpyanWKUkeQeztFjE1wHRzU/3Et89f4fTE+Fnx5drEiqUJmH/RiMIv+iqdLA0pRtXsQ
+         jucJ/SkXJg2Fc+12enHcJolMnSXmtaUFQsYFbL+YEuGQVKKo1DqVIGqHPLyRsAArPLpL
+         8+YA==
+X-Gm-Message-State: AOAM5339lmuCA8sc+qpOD8Ji/+n0WVa22lneYkZyv6QeFAtR0wv/mW/o
+        XhHQGTfDm+dytZjEPgMYWtDPtTHh2C2tg2HqCweBxrAh
+X-Google-Smtp-Source: ABdhPJxnp0EKc3AWpdGOuxOMTmQXwGO+fhXmHH7m/njSkqMkhqPObcb2ZWiMvkKzEoLLSiicile/vXyRrLOFGtOVQ00=
+X-Received: by 2002:a9d:3b61:: with SMTP id z88mr2439381otb.135.1596116380941;
+ Thu, 30 Jul 2020 06:39:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200728171929.50152-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20200728171929.50152-1-stephen.smalley.work@gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Thu, 30 Jul 2020 09:39:30 -0400
+Message-ID: <CAEjxPJ4=1NUR6XywkpQ4OzQV76BK3QOdHNFv-4eVjKTgAMmrOQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux: encapsulate policy-dependent state
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This was added for Androids Treble in 2017.
+On Tue, Jul 28, 2020 at 1:19 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+>
+> Encapsulate the policy-dependent state in its own structure
+> (struct selinux_policy) embedded within the selinux_ss structure.
+> The policy-dependent state includes the SID table (particularly
+> the context structures), the policy database, and the mapping
+> between the kernel classes/permissions and the policy values.
+> No change in functionality or interfaces.  This change is
+> preparatory to splitting the policy load logic into multiple
+> stages to enable making the entire policy reload atomic.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
-I was unsure whether this belongs in type_statements or in conditional_statements.
-
-Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
----
-v2: overriden is overridden
-v3: add link to README.md
-
- secilc/docs/README.md              |  1 +
- secilc/docs/cil_type_statements.md | 38 ++++++++++++++++++++++++++++++
- 2 files changed, 39 insertions(+)
-
-diff --git a/secilc/docs/README.md b/secilc/docs/README.md
-index 3f1838e6..efab2a71 100644
---- a/secilc/docs/README.md
-+++ b/secilc/docs/README.md
-@@ -126,6 +126,7 @@ CIL (Common Intermediate Language)
-   * [typealiasactual](cil_type_statements.md#typealiasactual)
-   * [typeattribute](cil_type_statements.md#typeattribute)
-   * [typeattributeset](cil_type_statements.md#typeattributeset)
-+  * [expandtypeattribute](cil_type_statements.md#expandtypeattribute)
-   * [typebounds](cil_type_statements.md#typebounds)
-   * [typechange](cil_type_statements.md#typechange)
-   * [typemember](cil_type_statements.md#typemember)
-diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_statements.md
-index f9dd3a76..f819b3c6 100644
---- a/secilc/docs/cil_type_statements.md
-+++ b/secilc/docs/cil_type_statements.md
-@@ -213,6 +213,44 @@ This example is equivalent to `{ domain -kernel.process -ueventd.process -init.p
-         )
-     )
- 
-+expandtypeattribute
-+-------------------
-+
-+Allows expansion compiler defaults for one or more previously declared [`typeattribute`](cil_type_statements.md#typeattribute) identifiers to be overridden.
-+
-+**Statement definition:**
-+
-+    (expandtypeattribute typeattribute_id true|false)
-+
-+**Where:**
-+
-+<table>
-+<colgroup>
-+<col width="25%" />
-+<col width="75%" />
-+</colgroup>
-+<tbody>
-+<tr class="odd">
-+<td align="left"><p><code>expandtypeattribute</code></p></td>
-+<td align="left"><p>The <code>expandtypeattribute</code> keyword.</p></td>
-+</tr>
-+<tr class="even">
-+<td align="left"><p><code>typeattribute_id</code></p></td>
-+<td align="left"><p>One or more previously declared <code>typeattribute</code> identifiers.</p></td>
-+</tr>
-+<tr class="odd">
-+<td align="left"><p><code>true | false</code></p></td>
-+<td align="left"><p>Either true or false.</p></td>
-+</tr>
-+</tbody>
-+</table>
-+
-+**Example:**
-+
-+This example will use the expandtypeattribute statement to forcibly expand a previously declared `domain` type attribute.
-+
-+    (expandtypeattribute domain true)
-+
- typebounds
- ----------
- 
--- 
-2.28.0.rc1
-
+I have a v2 of this patch in progress so feel free to ignore this one.
