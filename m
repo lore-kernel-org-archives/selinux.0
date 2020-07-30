@@ -2,169 +2,157 @@ Return-Path: <SRS0=qcS5=BJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44DB2C433DF
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 22:22:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21229C433DF
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 22:33:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1FB0720829
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 22:22:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E581D20809
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 22:33:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="Sk9IBEgb"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g6ARQB8a"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730367AbgG3WWv (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 18:22:51 -0400
-Received: from sonic314-27.consmr.mail.ne1.yahoo.com ([66.163.189.153]:44550
-        "EHLO sonic314-27.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730355AbgG3WWv (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 18:22:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1596147770; bh=XsxifkEC4lyiw/WAfGDN9038dNzvIQV9yNWoDJKrNls=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=Sk9IBEgbKiV4S7dBdkHy/XR4YGPklmG4mw+2yNdUNKGkVD7RAFX40cLDJKbVe+RxtmtRnRGaoe51B54ToD+U1WW4wXlefMbyYXmjT3ll6g2Gcz/BRqs3hpbnUGDFjNzkAFc2g2IjUdzjdKJwjM678PUnzqUITbWWPpvC3Zy/DSvIYiTNAjdQ5a59my7NCIZ7FmUa414RiO6fgOzJ0TahzjSgbd2JPn/TzZCZg8kram8diRjJeR5/Wysz6uM2l8eDP5QkP02Dw9mZ8lzqDOnJbQt1JKIXkFpB5n9nFGcnWvLfn5fxY0UEvOnpdSZNhMrxH4+Pr+Baffg/hTGBoOWaSA==
-X-YMail-OSG: 4plBhRQVM1lbyp3LLNF6A3_ESt0vectOzYucNmDPZebaUAzBMvhNSv7_IW1WB6C
- G5dmlbtwbt9Fh_J5boBwqfoaWEJJB2GHTzLbqPhjdAGrGdowczc7Ux5LBZy7XT6OOm62IuDkjqAH
- BNtXrR6HvN0ma0YomuABmuT7NfsV3nCN5WyGk44kuLxug_0SjdUAMkaqome.NsiWQrxAEcA4R.9q
- Zz2H4b1vTYuDvF_fpfTySEH7P6wViCSy8val1fLIemlQd7hhX9kkgFzUR84zPMNR.fvH1njz_iqJ
- Ms.Dn6UHh6Fx5vFPZ7rqcVUMOzvi.cj7ylDfGcTqez12WtAH5PSrSISjbRp8PJzy_XSIjlr86V0R
- ns.NwWuz3ptoCg49EQI5t2u1EfQ7eZNfVbltVrv.Rl11aDbr.9_r8QS_zkAQAhBtPvlCgrNCklWz
- MKGQTgUOYxts2B1fqYFKosTYxoj0OGGgw0c7.IUSNhrF7vTQrDknnHY.biv0chZd0rDP6Oql9s0i
- TVGI_DOnlyG3XYTLAjF7Dc1JBdpZ3FIEDlunT0usJOswMINn.UETxWq3_M3rn3r2mvyWUjZSMUU4
- 2vouECHut0v7u5YXus_1R3CNgH3fWhasVDsDwIxCsrka33_z3HLL4GPOAcq.DwKrYgszlawYceql
- VIxAMYfROc9XpFyzXL9Le_M_gRXJE9GLGP08aSPrQEroFvTfhFFaBNbaeKBxAkaKTRErRKw3rvGs
- zjp_ShNHt20IgXDv5umyaoUSlbJeXEogMl4Et1aZ5wbz3pMHgcGy6rPCewfDlfY6oPtgGsuctrnd
- JxERN6KBoNI8ft9CxWLRwc8oVHycrOummrgWpx2iq.e2Vswkf8Kq1MKCADp6w.0qygQnOqVBdlr1
- Ym9t.4klJJg5NzfrWO4Wj8b05LM3A46DF6K5aF7MX05EIdDWaAyQSMXXk.qWZpllHyPULQRwh68e
- VZtLya368Ew9rQh34ZhP8QPMAk4sP75UkpflNir1CqQ_2GYCKeFvChqgVTxLDCEzOifirVQrH3GT
- dIuySrrwPJYcA1WZvyyxdQrh2cXaPy84g9K0NYUBbflW6_7I2JeT3bDf3N_AL2mocReX6prBPks.
- MJlf91FsxTbnhKH_4.lsPUIop00X8hwhF1dEKu8Xiax6DfAt.VGfEwoY9krIIVG4vioKCeETTzRu
- N9KFgTB3x1yzJNDVUndGcIoGayi6P3fpG4bzbVcausiWjIltyaKwcpDkpm0srYO2PQvRqi9ZLefE
- AxZHDWVuB_zRC.5o_RqoT2DH0MSLCPxY54N5yY5QwZ.8PZKWJkCHe6xIGO4Dub3_yQ9sAsSyxFc3
- 9ONS3yrl2lJQPkGNaA6.j7uLLqOg.W.Sqr6serqLtDgOKzlnZnkwLK3wsycjOAQ--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Thu, 30 Jul 2020 22:22:50 +0000
-Received: by smtp410.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 4ac6482c02314194467082833f946851;
-          Thu, 30 Jul 2020 22:22:48 +0000 (UTC)
-Subject: Re: [PATCH v19 22/23] LSM: Add /proc attr entry for full LSM context
-To:     John Johansen <john.johansen@canonical.com>,
-        casey.schaufler@intel.com, jmorris@namei.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
-Cc:     linux-audit@redhat.com, keescook@chromium.org,
-        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
-        sds@tycho.nsa.gov, linux-api@vger.kernel.org,
-        Casey Schaufler <casey@schaufler-ca.com>
-References: <20200724203226.16374-1-casey@schaufler-ca.com>
- <20200724203226.16374-23-casey@schaufler-ca.com>
- <e885d90d-c873-5ab4-235d-6171f49f4ee4@canonical.com>
- <705fb82d-ad7a-2874-59ed-ba6bc7ae3722@schaufler-ca.com>
- <97330b2d-5447-cfef-b6d0-444249e671b7@canonical.com>
-From:   Casey Schaufler <casey@schaufler-ca.com>
-Message-ID: <18fcf6b1-3ef6-bb8b-d2b2-e0fd45bdb68c@schaufler-ca.com>
-Date:   Thu, 30 Jul 2020 15:22:47 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+        id S1728785AbgG3WdZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 18:33:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45222 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728607AbgG3WdZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 18:33:25 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2F2C061574
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 15:33:24 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id x69so27223201qkb.1
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 15:33:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=bJz2ehHOkBi4BvEV2dM1dUQXVOfMFmdz1qYBJfx+GDc=;
+        b=g6ARQB8a06QUxX4vvnH8ZbWP9ZyKyBHFbw+PvRD7NZ6GopuUQOet9IsmeCvsJzUyhp
+         MSwSlDl++kzx+SGo9YhHAwZWlWqGUXk+0XfncyqAZ0ewsMQDrzcul/R2tBZDK3dx+TjP
+         zFigO+ajhW7viZ4qXA7EFB54s+jbPgTO7OlAK2PqtTjmxF9eM2n2vyNDPZiouUW6bQQn
+         PzRBYc+CduhA33QljqD7vlOTVz2VE0VuggeFy/Zm3IxeFniQhnbMKjYn82tnf6Gn5HAd
+         u7+bY3W7EL1aIMCQPuvuBB/Ot6mYcd3rpVr3YoB0/DPh8FME2JGLLlB4M3uKTN0Y22ID
+         9uzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=bJz2ehHOkBi4BvEV2dM1dUQXVOfMFmdz1qYBJfx+GDc=;
+        b=lOyyn1vPAZwgJflR6qcbyEvqsd/NwknpTPlxRgWZLwhgXDse9OtK/eJMt8JJoC3zgl
+         wZt5a8AA8D9auk0RdWKdBP4S5PwOcTGJAB4irI/oF/HzHCSCZGQwzTdlDM0nX+Yv5GUg
+         NVoUkolyicvBzNllMBFHPcO2ih1iCe2JlXeCu3Y8mkJolqXEVLj6g+LjoHvJrr7LZS/v
+         aD3SdqASa13lAqeCbYL4Unri/Mq637LKeDzdplgK+SWQ4vzJ1mrNgXfc2DWlEHXDlwCK
+         Ss40xXaiXBJEC4wcj3+AuGyKnx+xsXf/o3SI5jLz9RhkR/09SRfnu8rp630vNfHUQJqr
+         ZerQ==
+X-Gm-Message-State: AOAM530GAuk4+1uRryPPMISragjDY0iku6I0wx+DfHJ6KDjE+CNdRHhy
+        /0cPSKw4OywrsIoWRjmRR+0h37XJ+LU=
+X-Google-Smtp-Source: ABdhPJx0UhOx7Fi5QsPRNcxkwtGxVfwyX5WrajtO9F1amMaaI/41dxWvm7yGHXQAb4z5UjIcuhPbEw==
+X-Received: by 2002:a37:a906:: with SMTP id s6mr1397765qke.320.1596148403558;
+        Thu, 30 Jul 2020 15:33:23 -0700 (PDT)
+Received: from [192.168.1.190] (pool-96-244-118-111.bltmmd.fios.verizon.net. [96.244.118.111])
+        by smtp.gmail.com with ESMTPSA id b2sm5715023qto.82.2020.07.30.15.33.22
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Jul 2020 15:33:23 -0700 (PDT)
+Subject: Re: [RFC PATCH] selinux: encapsulate policy state, refactor policy
+ load
+To:     paul@paul-moore.com
+Cc:     omosnace@redhat.com, selinux@vger.kernel.org
+References: <20200730220905.60088-1-stephen.smalley.work@gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Message-ID: <208642b5-b046-a26f-09d1-9e05377cefe7@gmail.com>
+Date:   Thu, 30 Jul 2020 18:33:22 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <97330b2d-5447-cfef-b6d0-444249e671b7@canonical.com>
-Content-Type: text/plain; charset=utf-8
+In-Reply-To: <20200730220905.60088-1-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-X-Mailer: WebService/1.1.16271 hermes_yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/30/2020 1:57 PM, John Johansen wrote:
-> On 7/30/20 1:44 PM, Casey Schaufler wrote:
->> On 7/30/2020 3:03 AM, John Johansen wrote:
->>> On 7/24/20 1:32 PM, Casey Schaufler wrote:
->>>> Add an entry /proc/.../attr/context which displays the full
->>>> process security "context" in compound format:
->>>>         lsm1\0value\0lsm2\0value\0...
->>>> This entry is not writable.
->>>>
->>>> A security module may decide that its policy does not allow
->>>> this information to be displayed. In this case none of the
->>>> information will be displayed.
->>>>
->>>> Reviewed-by: Kees Cook <keescook@chromium.org>
->>>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
->>>> Cc: linux-api@vger.kernel.org
->>>> ---
->>>>  Documentation/security/lsm.rst       | 28 +++++++++++
->>>>  fs/proc/base.c                       |  1 +
->>>>  include/linux/lsm_hooks.h            |  6 +++
->>>>  security/apparmor/include/procattr.h |  2 +-
->>>>  security/apparmor/lsm.c              |  8 +++-
->>>>  security/apparmor/procattr.c         | 22 +++++----
->>>>  security/security.c                  | 70 ++++++++++++++++++++++++++++
->>>>  security/selinux/hooks.c             |  2 +-
->>>>  security/smack/smack_lsm.c           |  2 +-
->>>>  9 files changed, 126 insertions(+), 15 deletions(-)
->> <snip>
->>
->>>>  
->>>>  /**
->>>> diff --git a/security/security.c b/security/security.c
->>>> index d35e578fa45b..bce6be720401 100644
->>>> --- a/security/security.c
->>>> +++ b/security/security.c
->>>> @@ -754,6 +754,48 @@ static void __init lsm_early_task(struct task_struct *task)
->>>>  		panic("%s: Early task alloc failed.\n", __func__);
->>>>  }
->>>>  
->>>> +/**
->>>> + * append_ctx - append a lsm/context pair to a compound context
->>>> + * @ctx: the existing compound context
->>>> + * @ctxlen: size of the old context, including terminating nul byte
->>>> + * @lsm: new lsm name, nul terminated
->>>> + * @new: new context, possibly nul terminated
->>>> + * @newlen: maximum size of @new
->>>> + *
->>>> + * replace @ctx with a new compound context, appending @newlsm and @new
->>>> + * to @ctx. On exit the new data replaces the old, which is freed.
->>>> + * @ctxlen is set to the new size, which includes a trailing nul byte.
->>>> + *
->>>> + * Returns 0 on success, -ENOMEM if no memory is available.
->>>> + */
->>>> +static int append_ctx(char **ctx, int *ctxlen, const char *lsm, char *new,
->>>> +		      int newlen)
->>>> +{
->>>> +	char *final;
->>>> +	size_t llen;
->>>> +
->>>> +	llen = strlen(lsm) + 1;
->>>> +	/*
->>>> +	 * A security module may or may not provide a trailing nul on
->>>> +	 * when returning a security context. There is no definition
->>>> +	 * of which it should be, and there are modules that do it
->>>> +	 * each way.
->>>> +	 */
->>>> +	newlen = strnlen(new, newlen) + 1;
->>>> +
->>>> +	final = kzalloc(*ctxlen + llen + newlen, GFP_KERNEL);
->>>> +	if (final == NULL)
->>>> +		return -ENOMEM;
->>>> +	if (*ctxlen)
->>>> +		memcpy(final, *ctx, *ctxlen);
->>>> +	memcpy(final + *ctxlen, lsm, llen);
->>>> +	memcpy(final + *ctxlen + llen, new, newlen);
->>> if @new doesn't have a newline appended at its end this will read 1 byte
->>> passed the end of the @new buffer. Nor will the result have a trailing
->>> \0 as expected unless we get lucky.
->> @new will never have a newline at the end. The trailing nul comes
->> from the allocation being done with kzalloc(). This function has to
->> be considered in the context of its caller.
->>
-> ugh, sorry not trailing newline, I meant trailing \0. The problem isn't
-> the kzalloc, the target has the space. It is the source @new. It is
-> dangerous to assume that the @new buffer has a null byte after its
-> declared length. Which is potentially what we are doing if @new
-> doesn't have an embedded null byte. In that case strlen(new, newlen)
-> will then return newlen and we add 1 to it.
->
-> which means in the memcpy we are copying an extra byte beyond what
-> was declared to exist in @new.
+On 7/30/20 6:09 PM, Stephen Smalley wrote:
 
-You're right. Good point. Fix coming.
-??
+> Encapsulate the policy state in its own structure (struct
+> selinux_policy) that is separately allocated but referenced from the
+> selinux_ss structure.  The policy state includes the SID table
+> (particularly the context structures), the policy database, and the
+> mapping between the kernel classes/permissions and the policy values.
+> Refactor the security server portion of the policy load logic to
+> cleanly separate loading of the new structures from committing the new
+> policy.  Unify the initial policy load and reload code paths as much
+> as possible, avoiding duplicated code.  Make sure we are taking the
+> policy read-lock prior to any dereferencing of the policy.  Move the
+> copying of the policy capability booleans into the state structure
+> outside of the policy write-lock because they are separate from the
+> policy and are read outside of any policy lock; possibly they should
+> be using at least READ_ONCE/WRITE_ONCE or smp_load_acquire/store_release.
+>
+> These changes simplify the policy loading logic, reduce the size of
+> the critical section while holding the policy write-lock, and should
+> facilitate future changes to e.g. refactor the entire policy reload
+> logic including the selinuxfs code to make the updating of the policy
+> and the selinuxfs directory tree atomic and/or to convert the policy
+> read-write lock to RCU.
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+
+> @@ -2098,10 +2104,12 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
+>   
+>   static void security_load_policycaps(struct selinux_state *state)
+>   {
+> -	struct policydb *p = &state->ss->policydb;
+> +	struct policydb *p = &state->ss->policy->policydb;
+>   	unsigned int i;
+>   	struct ebitmap_node *node;
+>   
+> +	read_lock(&state->ss->policy_rwlock);
+> +
+
+Oops, should have moved the dereferencing of policy after taking the 
+read-lock here; fixed it everywhere else I think but missed this one.  
+Will fix in the next version but will wait for other comments on this 
+version.
+
+> @@ -2132,112 +2200,58 @@ static int security_preserve_bools(struct selinux_state *state,
+>    */
+>   int security_load_policy(struct selinux_state *state, void *data, size_t len)
+>   {
+<snip>
+>   	/*
+>   	 * Convert the internal representations of contexts
+>   	 * in the new SID table.
+>   	 */
+>   	args.state = state;
+> -	args.oldp = policydb;
+> -	args.newp = newpolicydb;
+> +	args.oldp = &state->ss->policy->policydb;
+> +	args.newp = &newpolicy->policydb;
+>   
+>   	convert_params.func = convert_context;
+>   	convert_params.args = &args;
+> -	convert_params.target = newsidtab;
+> +	convert_params.target = &newpolicy->sidtab;
+>   
+> -	rc = sidtab_convert(oldsidtab, &convert_params);
+> +	rc = sidtab_convert(&state->ss->policy->sidtab, &convert_params);
+
+Should sidtab_convert() be called while holding policy read-lock since 
+we are passing state->ss->policy->policydb via the args field of 
+convert_params and using it within the callback?  I think it happens to 
+be safe currently by virtue of the fact that nothing else can write to 
+it since selinuxfs is holding its semaphore during the entire policy 
+reload but it seems inconsistent. However, if we do take policy 
+read-lock across the call, then sidtab_convert() needs to use GFP_ATOMIC 
+allocations instead of GFP_KERNEL.
+
 
