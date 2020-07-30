@@ -7,43 +7,40 @@ X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 127B5C433E1
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 11:46:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ABD8C433E0
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 13:12:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DCC8D2082E
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 11:46:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 351B72074B
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 13:12:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="KtapVaQI"
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="gfVjOV/+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726774AbgG3LqS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 07:46:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58266 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726267AbgG3LqS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 07:46:18 -0400
-Received: from agnus.defensec.nl (agnus.defensec.nl [IPv6:2001:985:d55d::711])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 046E4C061794
-        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 04:46:17 -0700 (PDT)
+        id S1728373AbgG3NMM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 09:12:12 -0400
+Received: from agnus.defensec.nl ([80.100.19.56]:43768 "EHLO agnus.defensec.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726535AbgG3NMM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Thu, 30 Jul 2020 09:12:12 -0400
 Received: from localhost.localdomain (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id ED0272A0FFC;
-        Thu, 30 Jul 2020 13:46:16 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl ED0272A0FFC
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 92FF82A0CF5;
+        Thu, 30 Jul 2020 15:12:10 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 92FF82A0CF5
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1596109577;
-        bh=ceRltBgymPTnHve9JyeKwl0aGxcq/xhgL6UzgN9nllI=;
+        s=default; t=1596114730;
+        bh=v901ClHy5vxp+U0KVqXTUcUIZDu3YQZOxE+wdgEo4ww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KtapVaQIAhbhuDCxBzV0yWWlLEp50nZuGNv9ML7WGMq3Q/L3HmU28u2PWZ8vFqtuQ
-         vzU+LoBG8ozZfwPcGXwMv0wIQTDSNUv2dZ5NfcvhwvPW1nTuG4rxu5HdcOiSG0zxO/
-         NLGZEv5azR2TGOaHUiBrLfVNq3FHsOTR8bBHDspQ=
+        b=gfVjOV/+J3NPrYJ8fcwIA6oMQ9MOiyJSz9/8VcscjrsogDWX18f/sRrtN8iSaLZDZ
+         UcrReXuiOY7AtaxLZ8WD5KGLQ36pXz3r38IZsRmkhFGDm/JT5dMyuscAsF7uKuewR7
+         LL6N9MyyuV63ZlEdStmgTflHCuROXj8f6wG4hMpU=
 From:   Dominick Grift <dominick.grift@defensec.nl>
 To:     selinux@vger.kernel.org
 Cc:     Dominick Grift <dominick.grift@defensec.nl>
-Subject: [PATCH v2] secilc/docs: document expandtypeattribute
-Date:   Thu, 30 Jul 2020 13:45:55 +0200
-Message-Id: <20200730114555.915996-1-dominick.grift@defensec.nl>
+Subject: [PATCH v3] secilc/docs: document expandtypeattribute
+Date:   Thu, 30 Jul 2020 15:11:49 +0200
+Message-Id: <20200730131149.928220-1-dominick.grift@defensec.nl>
 X-Mailer: git-send-email 2.28.0.rc1
-In-Reply-To: <20200730092305.896408-1-dominick.grift@defensec.nl>
-References: <20200730092305.896408-1-dominick.grift@defensec.nl>
+In-Reply-To: <20200730114555.915996-1-dominick.grift@defensec.nl>
+References: <20200730114555.915996-1-dominick.grift@defensec.nl>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -58,12 +55,26 @@ I was unsure whether this belongs in type_statements or in conditional_statement
 Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
 ---
 v2: overriden is overridden
+v3: add link to README.md
 
+ secilc/docs/README.md              |  1 +
  secilc/docs/cil_type_statements.md | 38 ++++++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+ 2 files changed, 39 insertions(+)
 
+diff --git a/secilc/docs/README.md b/secilc/docs/README.md
+index 3f1838e6..efab2a71 100644
+--- a/secilc/docs/README.md
++++ b/secilc/docs/README.md
+@@ -126,6 +126,7 @@ CIL (Common Intermediate Language)
+   * [typealiasactual](cil_type_statements.md#typealiasactual)
+   * [typeattribute](cil_type_statements.md#typeattribute)
+   * [typeattributeset](cil_type_statements.md#typeattributeset)
++  * [expandtypeattribute](cil_type_statements.md#expandtypeattribute)
+   * [typebounds](cil_type_statements.md#typebounds)
+   * [typechange](cil_type_statements.md#typechange)
+   * [typemember](cil_type_statements.md#typemember)
 diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_statements.md
-index f9dd3a76..24498755 100644
+index f9dd3a76..f819b3c6 100644
 --- a/secilc/docs/cil_type_statements.md
 +++ b/secilc/docs/cil_type_statements.md
 @@ -213,6 +213,44 @@ This example is equivalent to `{ domain -kernel.process -ueventd.process -init.p
@@ -71,7 +82,7 @@ index f9dd3a76..24498755 100644
      )
  
 +expandtypeattribute
-+----------------
++-------------------
 +
 +Allows expansion compiler defaults for one or more previously declared [`typeattribute`](cil_type_statements.md#typeattribute) identifiers to be overridden.
 +
