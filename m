@@ -2,90 +2,241 @@ Return-Path: <SRS0=qcS5=BJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09174C433E4
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 20:04:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6A61C433DF
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 20:44:35 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CE56F20829
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 20:04:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BB0B32083E
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 20:44:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Q48T1W+x"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="PbKVhgFQ"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbgG3UEk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 16:04:40 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:50738 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726939AbgG3UEk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 16:04:40 -0400
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id BA74720B4908;
-        Thu, 30 Jul 2020 13:04:38 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com BA74720B4908
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1596139479;
-        bh=YPE+I9ZEJip/DLdFnXo/Xe1crHLzi3V6ybUliBj4JTs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Q48T1W+x1nOBEj0hcOWhn4lqsNeYMH9Myb4bAIILzU8uH1cVuuCYmw5pM7NGiUQtX
-         gYeTWUbYNAbItOcYK8W6eaVT+yajSSHjU5egR40XUoxV2mb0LgSuRcoDrd0jBlmnpR
-         x1rnxdYAClfs/1zgh0MM7ZY61sMnY7o3mZupn4Fs=
-Date:   Thu, 30 Jul 2020 15:04:36 -0500
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 4/4] IMA: Handle early boot data measurement
-Message-ID: <20200730200436.GY4181@sequoia>
-References: <20200730034724.3298-1-nramas@linux.microsoft.com>
- <20200730034724.3298-5-nramas@linux.microsoft.com>
- <ea3bba66-9b21-b842-990b-2bf1e4ac2179@linux.microsoft.com>
+        id S1728778AbgG3Uof (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 16:44:35 -0400
+Received: from sonic307-15.consmr.mail.ne1.yahoo.com ([66.163.190.38]:42144
+        "EHLO sonic307-15.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728586AbgG3Uoe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 16:44:34 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1596141873; bh=NUwyH+1DGSLAHICDNKDIjA8VVnQnNL5u4r/9SE+k0L4=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=PbKVhgFQFMzlGBpUsPGRUGm7wIOByDB982Srg5JsaSTb7O9ghoy8f2+2RS50Yus4Gq25OKyHMqRM3ZL3sYKlRZgmbJ7mvD/lHPWlJb/p/iylVcRoGu74bCX8+t0I8ctyhWEXSWn6kxe72nHyXHuD+z4y4xLny02FZC8Diw+Beui66zwXsn06O+P7NPkxsSH++WgDsI227TD2jV3I9I5uNt81gmj6Fr86U4teeXJ3fmzTVKoQdbPEBYvYNo0VhPsyyyBqy6cFZppELilUj9f4MBNeq1nE8R6XYzPj3/UiukwH63Tiaj99PM5K/bqUUYRMEG6mopVvzLsWmdnhmisZ/g==
+X-YMail-OSG: .wJXldUVM1lMEVnK45JcmYI1jSAvOuYVJK9Hqj_MKISP5IuCGtLZt6B145hDjra
+ PSJraOmCdbrRUdqdehnrwiU9tAiAwGCpLbelx.WGQQA95AKjgygni3RXT9QPK4Vg10r3bzJBbnsY
+ pjYUk3puh1ExH1pLXwGpeI386NuIShYvxbQRRkDzwIqOxxpaKp09N0vhhazMfrbUZIE9mnTYZGce
+ dhMi1a4Tune9chxeXWZUsf3Cd8ywEEYcI2FvubXelTAGgdmwfrAdbOKIsrR8YjKVHW8j.o9W0Drx
+ z_Ddc4xTq3pwPvW_SWVIn3w9sumw95IwunQCrCAA129vD1xcaE1hdhI6ysSjGgk71KF0x25nfAie
+ NWMqzWJSHdSUtoRwXoROHACnjn_f0Dn6pVJWEZYWJNV2USCPvHtIXRMMOUv8kKaJ8IXAbUovzvf_
+ .jd5vY6PvPvCas4zA7cJrJnChmqREcyWaEIhm6NTMnzuTnWdpxjhjaSCPFVxW75UnK5B9PMreMNa
+ 3JoqZ1iEHqnyUEGqgQtPVKgZJ66G.0y9e0133kAzwkqrlDUOTRuoW2XsxVYmHyiGBFgbs8SU.jyt
+ M6_kdHZTDMSsNAOK62q_JvcOEPj0AqWxOMhpvCuWWbYXOw2F2K3egn5dPLXdohR06tAo42mCWdLU
+ npLaaxyknWlEPnU8oyl66tkqp7khFXzwCNiTgyjCnyZ7AXumQMGlIDqZyxUmBhKIRvCmX0rG25DS
+ FwQzWxG1QLr6pjOB4th6CUlDiVBrvVVwK2ypqdJSfcel3lpgGOQowGukLgp3eWGvbHbtljkU4uA4
+ NxsoRrfPBibtrU74GJXonl.93uZbFycYnSw1gFd8ruevsQ_fbCSdY7kVQrlGE3XYc_x8BpFi2AFJ
+ gdssMhgukFBIfw059.eHhcc_juB.UgTcF0KqGRtvZZb_vPtT4oFktGDhUwelIRVchWLARkjw.QD5
+ LQXpH2GlRCL6MdLGESRMHClKgMKAGZ57W8LRXcADxKu1mKx0ncNyeweKM6hjJLi7yENpvEVtAs3M
+ GOyTzs6ZrI.5CwgZLFKOxj.3yXyNam8Zo6CxDQnZoLyqqWwEwbCcgA_zTxHT6bdOhJ8wh4jbxVLh
+ T2M3FQ3vUT6.j2lTvoQnez6LPX4E0R2vXIsHvMJuI_JNL_dAl.Qpv1w9.HZ0zzFQNXoTWrVZRHoX
+ geWvztiWR1XaLpdSKNE_RdZtzDmijp1eXbet00mifGKI6sZH80BxTToZ2gXTTQjTxNVGlyfuf51p
+ jd87efKbwm5rQMKMnnaKb_Ovi83KQWNs8U2uUA3.2ZZv6VY.N7T1vYwy5dvlegnPcp.FnKcnoMf.
+ YSzudSRiLHA1gMLu3b24FTlGkLI2hmnTTFN4XQF081E4qHeyWfEvx6wyzI8pyjsJlhMaG
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic307.consmr.mail.ne1.yahoo.com with HTTP; Thu, 30 Jul 2020 20:44:33 +0000
+Received: by smtp422.mail.ne1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID cfb25a5d97d1fc14526d3edb7919157d;
+          Thu, 30 Jul 2020 20:44:31 +0000 (UTC)
+Subject: Re: [PATCH v19 22/23] LSM: Add /proc attr entry for full LSM context
+To:     John Johansen <john.johansen@canonical.com>,
+        casey.schaufler@intel.com, jmorris@namei.org,
+        linux-security-module@vger.kernel.org, selinux@vger.kernel.org
+Cc:     linux-audit@redhat.com, keescook@chromium.org,
+        penguin-kernel@i-love.sakura.ne.jp, paul@paul-moore.com,
+        sds@tycho.nsa.gov, linux-api@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20200724203226.16374-1-casey@schaufler-ca.com>
+ <20200724203226.16374-23-casey@schaufler-ca.com>
+ <e885d90d-c873-5ab4-235d-6171f49f4ee4@canonical.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <705fb82d-ad7a-2874-59ed-ba6bc7ae3722@schaufler-ca.com>
+Date:   Thu, 30 Jul 2020 13:44:29 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ea3bba66-9b21-b842-990b-2bf1e4ac2179@linux.microsoft.com>
+In-Reply-To: <e885d90d-c873-5ab4-235d-6171f49f4ee4@canonical.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.16271 hermes_yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2020-07-30 11:02:50, Lakshmi Ramasubramanian wrote:
-> On 7/29/20 8:47 PM, Lakshmi Ramasubramanian wrote:
-> 
-> Hi Tyler,
-> 
-> > diff --git a/security/integrity/ima/Kconfig b/security/integrity/ima/Kconfig
-> > index 080c53545ff0..86cba844f73c 100644
-> > --- a/security/integrity/ima/Kconfig
-> > +++ b/security/integrity/ima/Kconfig
-> > @@ -322,10 +322,9 @@ config IMA_MEASURE_ASYMMETRIC_KEYS
-> >   	depends on ASYMMETRIC_PUBLIC_KEY_SUBTYPE=y
-> >   	default y
-> > -config IMA_QUEUE_EARLY_BOOT_KEYS
-> > +config IMA_QUEUE_EARLY_BOOT_DATA
-> >   	bool
-> > -	depends on IMA_MEASURE_ASYMMETRIC_KEYS
-> > -	depends on SYSTEM_TRUSTED_KEYRING
-> > +	depends on SECURITY || (IMA_MEASURE_ASYMMETRIC_KEYS && SYSTEM_TRUSTED_KEYRING)
-> >   	default y
-> Similar to the change you'd suggested for validating LSM_STATE and
-> LSM_POLICY func, I think IMA_QUEUE_EARLY_BOOT_DATA config should be enabled
-> for SECURITY_SELINUX.
-> 
-> depends on SECURITY_SELINUX ||
->            (IMA_MEASURE_ASYMMETRIC_KEYS && SYSTEM_TRUSTED_KEYRING)
-> 
-> And, when more security modules are added update this CONFIG as appropriate.
-> 
-> Does that sound okay?
+On 7/30/2020 3:03 AM, John Johansen wrote:
+> On 7/24/20 1:32 PM, Casey Schaufler wrote:
+>> Add an entry /proc/.../attr/context which displays the full
+>> process security "context" in compound format:
+>>         lsm1\0value\0lsm2\0value\0...
+>> This entry is not writable.
+>>
+>> A security module may decide that its policy does not allow
+>> this information to be displayed. In this case none of the
+>> information will be displayed.
+>>
+>> Reviewed-by: Kees Cook <keescook@chromium.org>
+>> Signed-off-by: Casey Schaufler <casey@schaufler-ca.com>
+>> Cc: linux-api@vger.kernel.org
+>> ---
+>>  Documentation/security/lsm.rst       | 28 +++++++++++
+>>  fs/proc/base.c                       |  1 +
+>>  include/linux/lsm_hooks.h            |  6 +++
+>>  security/apparmor/include/procattr.h |  2 +-
+>>  security/apparmor/lsm.c              |  8 +++-
+>>  security/apparmor/procattr.c         | 22 +++++----
+>>  security/security.c                  | 70 ++++++++++++++++++++++++++++
+>>  security/selinux/hooks.c             |  2 +-
+>>  security/smack/smack_lsm.c           |  2 +-
+>>  9 files changed, 126 insertions(+), 15 deletions(-)
 
-Yes, I think so.
+<snip>
 
-Tyler
+>>  
+>>  /**
+>> diff --git a/security/security.c b/security/security.c
+>> index d35e578fa45b..bce6be720401 100644
+>> --- a/security/security.c
+>> +++ b/security/security.c
+>> @@ -754,6 +754,48 @@ static void __init lsm_early_task(struct task_struct *task)
+>>  		panic("%s: Early task alloc failed.\n", __func__);
+>>  }
+>>  
+>> +/**
+>> + * append_ctx - append a lsm/context pair to a compound context
+>> + * @ctx: the existing compound context
+>> + * @ctxlen: size of the old context, including terminating nul byte
+>> + * @lsm: new lsm name, nul terminated
+>> + * @new: new context, possibly nul terminated
+>> + * @newlen: maximum size of @new
+>> + *
+>> + * replace @ctx with a new compound context, appending @newlsm and @new
+>> + * to @ctx. On exit the new data replaces the old, which is freed.
+>> + * @ctxlen is set to the new size, which includes a trailing nul byte.
+>> + *
+>> + * Returns 0 on success, -ENOMEM if no memory is available.
+>> + */
+>> +static int append_ctx(char **ctx, int *ctxlen, const char *lsm, char *new,
+>> +		      int newlen)
+>> +{
+>> +	char *final;
+>> +	size_t llen;
+>> +
+>> +	llen = strlen(lsm) + 1;
+>> +	/*
+>> +	 * A security module may or may not provide a trailing nul on
+>> +	 * when returning a security context. There is no definition
+>> +	 * of which it should be, and there are modules that do it
+>> +	 * each way.
+>> +	 */
+>> +	newlen = strnlen(new, newlen) + 1;
+>> +
+>> +	final = kzalloc(*ctxlen + llen + newlen, GFP_KERNEL);
+>> +	if (final == NULL)
+>> +		return -ENOMEM;
+>> +	if (*ctxlen)
+>> +		memcpy(final, *ctx, *ctxlen);
+>> +	memcpy(final + *ctxlen, lsm, llen);
+>> +	memcpy(final + *ctxlen + llen, new, newlen);
+> if @new doesn't have a newline appended at its end this will read 1 byte
+> passed the end of the @new buffer. Nor will the result have a trailing
+> \0 as expected unless we get lucky.
 
-> 
->  -lakshmi
+@new will never have a newline at the end. The trailing nul comes
+from the allocation being done with kzalloc(). This function has to
+be considered in the context of its caller.
+
+>
+>
+>> +	kfree(*ctx);
+>> +	*ctx = final;
+>> +	*ctxlen = *ctxlen + llen + newlen;
+>> +	return 0;
+>> +}
+>> +
+>>  /*
+>>   * The default value of the LSM hook is defined in linux/lsm_hook_defs.h and
+>>   * can be accessed with:
+>> @@ -2124,6 +2166,10 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+>>  				char **value)
+>>  {
+>>  	struct security_hook_list *hp;
+>> +	char *final = NULL;
+>> +	char *cp;
+>> +	int rc = 0;
+>> +	int finallen = 0;
+> these are only used by context so they could be moved under its if, this
+> is really just a style comment and I'll leave it up to you
+
+Old coding habits die hard. Unless there's value to gain, I'll leave it
+as is.
+
+>
+>>  	int display = lsm_task_display(current);
+>>  	int slot = 0;
+>>  
+>> @@ -2151,6 +2197,30 @@ int security_getprocattr(struct task_struct *p, const char *lsm, char *name,
+>>  		return -ENOMEM;
+>>  	}
+>>  
+>> +	if (!strcmp(name, "context")) {
+>> +		hlist_for_each_entry(hp, &security_hook_heads.getprocattr,
+>> +				     list) {
+>> +			rc = hp->hook.getprocattr(p, "context", &cp);
+>> +			if (rc == -EINVAL)
+>> +				continue;
+>> +			if (rc < 0) {
+>> +				kfree(final);
+>> +				return rc;
+>> +			}
+>> +			rc = append_ctx(&final, &finallen, hp->lsmid->lsm,
+>> +					cp, rc);
+>> +			kfree(cp);
+>> +			if (rc < 0) {
+>> +				kfree(final);
+>> +				return rc;
+>> +			}
+>> +		}
+>> +		if (final == NULL)
+>> +			return -EINVAL;
+>> +		*value = final;
+>> +		return finallen;
+>> +	}
+>> +
+>>  	hlist_for_each_entry(hp, &security_hook_heads.getprocattr, list) {
+>>  		if (lsm != NULL && strcmp(lsm, hp->lsmid->lsm))
+>>  			continue;
+>> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+>> index c13c207c5da1..43d5c09b9a9e 100644
+>> --- a/security/selinux/hooks.c
+>> +++ b/security/selinux/hooks.c
+>> @@ -6288,7 +6288,7 @@ static int selinux_getprocattr(struct task_struct *p,
+>>  			goto bad;
+>>  	}
+>>  
+>> -	if (!strcmp(name, "current"))
+>> +	if (!strcmp(name, "current") || !strcmp(name, "context"))
+>>  		sid = __tsec->sid;
+>>  	else if (!strcmp(name, "prev"))
+>>  		sid = __tsec->osid;
+>> diff --git a/security/smack/smack_lsm.c b/security/smack/smack_lsm.c
+>> index 6f0cdb40addc..d7bb6442f192 100644
+>> --- a/security/smack/smack_lsm.c
+>> +++ b/security/smack/smack_lsm.c
+>> @@ -3463,7 +3463,7 @@ static int smack_getprocattr(struct task_struct *p, char *name, char **value)
+>>  	char *cp;
+>>  	int slen;
+>>  
+>> -	if (strcmp(name, "current") != 0)
+>> +	if (strcmp(name, "current") != 0 && strcmp(name, "context") != 0)
+>>  		return -EINVAL;
+>>  
+>>  	cp = kstrdup(skp->smk_known, GFP_KERNEL);
+>>
