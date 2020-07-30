@@ -2,115 +2,148 @@ Return-Path: <SRS0=qcS5=BJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3932C433E0
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 15:05:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA682C433DF
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 15:15:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9B45620663
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 15:05:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BAEDD20656
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 15:15:40 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="pXg55YPI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726353AbgG3PFD convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 11:05:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53430 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729092AbgG3PFD (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 30 Jul 2020 11:05:03 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F5FE2070B;
-        Thu, 30 Jul 2020 15:05:01 +0000 (UTC)
-Date:   Thu, 30 Jul 2020 11:04:59 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     peter enderborg <peter.enderborg@sony.com>
-Cc:     =?UTF-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>, <linux-kernel@vger.kernel.org>,
-        <selinux@vger.kernel.org>
-Subject: Re: [PATCH] RFC: selinux avc trace
-Message-ID: <20200730110459.5bf0b0df@oasis.local.home>
-In-Reply-To: <80a23580-5067-93b0-53fa-3bd53253c056@sony.com>
-References: <20200724091520.880211-1-tweek@google.com>
-        <20200724095232.5f9d3f17@oasis.local.home>
-        <80a23580-5067-93b0-53fa-3bd53253c056@sony.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1727966AbgG3PPg (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 11:15:36 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:56968 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727072AbgG3PPg (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 11:15:36 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 75E8C20B4908;
+        Thu, 30 Jul 2020 08:15:35 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 75E8C20B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1596122135;
+        bh=DMI1+Fep3jCjujpTgudtLHugxZgOA+dDJ2AJnUQVMV0=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=pXg55YPIfIUPaIdvFJsoMWQabr5OOGJqa5Ga+U1CdhMcRkGY0xJYXxXfG0x1qx/59
+         wzaMYextleS0tyTv9Ozkp53bAz11oV8bJIBXXokGA/TZrkPHnS0i8HiENEGnNK3VPa
+         2c6gpt79Sv50mMQUTEmRIYvfPIaSvT/F45bJZG8w=
+Subject: Re: [PATCH v5 1/4] IMA: Add func to measure LSM state and policy
+To:     Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200730034724.3298-1-nramas@linux.microsoft.com>
+ <20200730034724.3298-2-nramas@linux.microsoft.com>
+ <20200730150228.GV4181@sequoia>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <c2f0c4cc-67a9-d467-1b2c-7edaea47c9d6@linux.microsoft.com>
+Date:   Thu, 30 Jul 2020 08:15:34 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200730150228.GV4181@sequoia>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 30 Jul 2020 16:29:12 +0200
-peter enderborg <peter.enderborg@sony.com> wrote:
+On 7/30/20 8:02 AM, Tyler Hicks wrote:
 
-> +#undef TRACE_SYSTEM
-> +#define TRACE_SYSTEM avc
-> +
-> +#if !defined(_TRACE_AVC_H) || defined(TRACE_HEADER_MULTI_READ)
-> +#define _TRACE_AVC_H
-> +
-> +#include <linux/tracepoint.h>
-> +TRACE_EVENT(avc_data,
-> +        TP_PROTO(u32 requested,
-> +             u32 denied,
-> +             u32 audited,
-> +             int result,
-> +             const char *msg
-> +             ),
-> +
-> +        TP_ARGS(requested, denied, audited, result,msg),
-> +
-> +        TP_STRUCT__entry(
-> +             __field(u32, requested)
-> +             __field(u32, denied)
-> +             __field(u32, audited)
-> +             __field(int, result)
-> +             __array(char, msg, 255)
+>> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+>> index 07f033634b27..a0f5c39d9084 100644
+>> --- a/security/integrity/ima/ima_policy.c
+>> +++ b/security/integrity/ima/ima_policy.c
+>> @@ -442,13 +442,20 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>>   {
+>>   	int i;
+>>   
+>> -	if (func == KEY_CHECK) {
+>> -		return (rule->flags & IMA_FUNC) && (rule->func == func) &&
+>> -		       ima_match_keyring(rule, keyring, cred);
+>> -	}
+>>   	if ((rule->flags & IMA_FUNC) &&
+>>   	    (rule->func != func && func != POST_SETATTR))
+>>   		return false;
+>> +
+>> +	switch (func) {
+>> +	case KEY_CHECK:
+>> +		return ima_match_keyring(rule, keyring, cred);
+>> +	case LSM_STATE:
+>> +	case LSM_POLICY:
+>> +		return true;
+>> +	default:
+>> +		break;
+>> +	}
+>> +
+>>   	if ((rule->flags & IMA_MASK) &&
+>>   	    (rule->mask != mask && func != POST_SETATTR))
+>>   		return false;
+>> @@ -1044,6 +1051,18 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
+>>   		if (ima_rule_contains_lsm_cond(entry))
+>>   			return false;
+>>   
+>> +		break;
+>> +	case LSM_STATE:
+>> +	case LSM_POLICY:
+>> +		if (entry->action & ~(MEASURE | DONT_MEASURE))
+>> +			return false;
+>> +
+>> +		if (entry->flags & ~(IMA_FUNC | IMA_PCR))
+>> +			return false;
+>> +
+>> +		if (ima_rule_contains_lsm_cond(entry))
+>> +			return false;
+>> +
+>>   		break;
+>>   	default:
+>>   		return false;
+>> @@ -1176,6 +1195,10 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
+>>   				entry->func = KEXEC_CMDLINE;
+>>   			else if (strcmp(args[0].from, "KEY_CHECK") == 0)
+>>   				entry->func = KEY_CHECK;
+>> +			else if (strcmp(args[0].from, "LSM_STATE") == 0)
+>> +				entry->func = LSM_STATE;
+>> +			else if (strcmp(args[0].from, "LSM_POLICY") == 0)
+>> +				entry->func = LSM_POLICY;
+> 
+> This patch generally looks really good to me with the exception of one
+> thing...
+> 
+> We should only accept rules with these specified hook functions when an
+> LSM that has measurement support is enabled. This messes up the ordering
+> of your patch series but it could be as simple as doing this:
+> 
+> 			else if (IS_ENABLED(CONFIG_SECURITY_SELINUX) &&
+> 				 strcmp(args[0].from, "LSM_STATE") == 0)
+> 				 entry->func = LSM_STATE;
+> 
+> Or you could do something a little more complex, like what's done with
+> CONFIG_IMA_LSM_RULES. You could create a CONFIG_IMA_MEASURE_LSM option
+> that's default enabled but depends on CONFIG_SECURITY_SELINUX and then
+> check for IS_ENABLED(CONFIG_IMA_MEASURE_LSM) in ima_parse_rule().
+> 
+> I'd personally opt for just placing the
+> IS_ENABLED(CONFIG_SECURITY_SELINUX) check directly into
+> ima_parse_rule().
+> 
 
-You want to use __string() here, otherwise you are wasting a lot of
-buffer space.
+The LSM hook can be used by any security module (not just SELinux) to 
+measure their data.
 
-		__string( msg, msg)
+I have implemented measurement in SELinux to illustrate the usage. 
+Maybe, I can add the check you have suggested for now and when more 
+security modules start using this IMA policy additional checks can be 
+added as appropriate.
 
-> +                 ),
-> +
-> +        TP_fast_assign(
-> +               __entry->requested    = requested;
-> +               __entry->denied    = denied;
-> +               __entry->audited    = audited;
-> +               __entry->result    = result;
-> +               memcpy(__entry->msg, msg, 255);
+thanks,
+  -lakshmi
 
-Not to mention, the above is a bug. As the msg being passed in, is
-highly unlikely to be 255 bytes. You just leaked all that memory after
-the sting to user space.
-
-Where you want here:
-
-		__assign_str( msg, msg );
-
-
--- Steve
-
-
-
-> +    ),
-> +
-> +        TP_printk("requested=0x%x denied=%d audited=%d result=%d
-> msg=%s",
-> +              __entry->requested, __entry->denied, __entry->audited,
-> __entry->result, __entry->msg
-> +              )
