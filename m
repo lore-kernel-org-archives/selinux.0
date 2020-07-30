@@ -4,43 +4,44 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8E95C433DF
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 03:47:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77406C433E4
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 03:47:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 87A6B206E6
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 03:47:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 564E0206E6
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 03:47:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="UddGv7r1"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="gY6gnOoM"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728529AbgG3Dra (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 29 Jul 2020 23:47:30 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:53424 "EHLO
+        id S1728544AbgG3Drb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 29 Jul 2020 23:47:31 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:53442 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726367AbgG3Dra (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jul 2020 23:47:30 -0400
+        with ESMTP id S1728343AbgG3Drb (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 29 Jul 2020 23:47:31 -0400
 Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 3A98B20B4909;
+        by linux.microsoft.com (Postfix) with ESMTPSA id C8B4D20B490C;
         Wed, 29 Jul 2020 20:47:29 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3A98B20B4909
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com C8B4D20B490C
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1596080849;
-        bh=bnCJNIffRaHoaPWEQ+GjqV+xeyWH/2VCjVyTy/wMHF4=;
+        s=default; t=1596080850;
+        bh=CfiFqfbw/Bv6iAx0xQEtB6LbwfXGxWUXCDGWnsMT+jk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UddGv7r1+BFcVFylUrqoXQYXfE/fUO/ZfqRo/pqswuOHAmj/WL8Lf2BfFG6I/itIL
-         Rdg7ujAQKc110nWItCWWHmBxW+tSOrFgozgSND9q60CHZyGQV6Ja8yoQa0uiUBoK06
-         3d2kzTtYo31M6g4+TRU8qw6jXnqh+ReHLCfJwZXw=
+        b=gY6gnOoMQdTIP85f4Ssu5eyst+5peloqd6claEa04nIKlKYu+ZKzuAiRUyGUO4N//
+         ixfvEglS0c/LsDsGCYVLm/MKT5V9MX6hsdTIECb2Dz/DnFplbzfsUz4/6FySkUbgKX
+         vBi0MZocBJ20CaPha//stPQ3JtOh2teORTxIDutQ=
 From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
 To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
         casey@schaufler-ca.com
 Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v5 1/4] IMA: Add func to measure LSM state and policy
-Date:   Wed, 29 Jul 2020 20:47:21 -0700
-Message-Id: <20200730034724.3298-2-nramas@linux.microsoft.com>
+Subject: [PATCH v5 3/4] LSM: Define SELinux function to measure state and policy
+Date:   Wed, 29 Jul 2020 20:47:23 -0700
+Message-Id: <20200730034724.3298-4-nramas@linux.microsoft.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20200730034724.3298-1-nramas@linux.microsoft.com>
 References: <20200730034724.3298-1-nramas@linux.microsoft.com>
@@ -51,134 +52,426 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Critical data structures of security modules need to be measured to
-enable an attestation service to verify if the configuration and
-policies for the security modules have been setup correctly and
-that they haven't been tampered with at runtime. A new IMA policy is
-required for handling this measurement.
+SELinux configuration and policy are some of the critical data for this
+security module that needs to be measured. This measurement can be used
+by an attestation service, for instance, to verify if the configuration
+and policies have been setup correctly and that they haven't been tampered
+with at runtime.
 
-Define two new IMA policy func namely LSM_STATE and LSM_POLICY to
-measure the state and the policy provided by the security modules.
-Update ima_match_rules() and ima_validate_rule() to check for
-the new func and ima_parse_rule() to handle the new func.
+Measure SELinux configuration, policy capabilities settings, and the
+loaded policy by calling the IMA hooks ima_measure_lsm_state() and
+ima_measure_lsm_policy() respectively.
+
+Sample measurement of SELinux state and hash of the policy:
+
+10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state-1595389364:287899386 696e697469616c697a65643d313b656e61626c65643d313b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574776f726b5f706565725f636f6e74726f6c733d313b6f70656e5f7065726d733d313b657874656e6465645f736f636b65745f636c6173733d313b616c776179735f636865636b5f6e6574776f726b3d303b6367726f75705f7365636c6162656c3d313b6e6e705f6e6f737569645f7472616e736974696f6e3d313b67656e66735f7365636c6162656c5f73796d6c696e6b733d303
+10 f4a7...9408 ima-ng sha256:8d1d...1834 selinux-policy-hash-1595389353:863934271
+
+To verify the measurement check the following:
+
+Execute the following command to extract the measured data
+from the IMA log for SELinux configuration (selinux-state).
+
+  grep -m 1 "selinux-state" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | cut -d' ' -f 6 | xxd -r -p
+
+The output should be the list of key-value pairs. For example,
+ initialized=1;enabled=1;enforcing=0;checkreqprot=1;network_peer_controls=1;open_perms=1;extended_socket_class=1;always_check_network=0;cgroup_seclabel=1;nnp_nosuid_transition=1;genfs_seclabel_symlinks=0;
+
+To verify the measured data with the current SELinux state:
+
+ => enabled should be set to 1 if /sys/fs/selinux folder exists,
+    0 otherwise
+
+For other entries, compare the integer value in the files
+ => /sys/fs/selinux/enforce
+ => /sys/fs/selinux/checkreqprot
+And, each of the policy capabilities files under
+ => /sys/fs/selinux/policy_capabilities
+
+For selinux-policy-hash, the hash of SELinux policy is included
+in the IMA log entry.
+
+To verify the measured data with the current SELinux policy run
+the following commands and verify the output hash values match.
+
+  sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
+
+  grep -m 1 "selinux-policy-hash" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | cut -d' ' -f 4
 
 Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com> # error: implicit declaration of function 'vfree'
+Reported-by: kernel test robot <lkp@intel.com> # error: implicit declaration of function 'crypto_alloc_shash'
+Reported-by: kernel test robot <lkp@intel.com> # sparse: symbol 'security_read_selinux_policy' was not declared. Should it be static?
 ---
- Documentation/ABI/testing/ima_policy |  9 ++++++++
- security/integrity/ima/ima.h         |  2 ++
- security/integrity/ima/ima_api.c     |  2 +-
- security/integrity/ima/ima_policy.c  | 31 ++++++++++++++++++++++++----
- 4 files changed, 39 insertions(+), 5 deletions(-)
+ security/selinux/Makefile           |   2 +
+ security/selinux/hooks.c            |   1 +
+ security/selinux/include/security.h |  15 +++
+ security/selinux/measure.c          | 150 ++++++++++++++++++++++++++++
+ security/selinux/selinuxfs.c        |   3 +
+ security/selinux/ss/services.c      |  71 +++++++++++--
+ 6 files changed, 233 insertions(+), 9 deletions(-)
+ create mode 100644 security/selinux/measure.c
 
-diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-index cd572912c593..b7c7fb548c0c 100644
---- a/Documentation/ABI/testing/ima_policy
-+++ b/Documentation/ABI/testing/ima_policy
-@@ -30,6 +30,7 @@ Description:
- 				[FIRMWARE_CHECK]
- 				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
- 				[KEXEC_CMDLINE] [KEY_CHECK]
-+				[LSM_STATE] [LSM_POLICY]
- 			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
- 			       [[^]MAY_EXEC]
- 			fsmagic:= hex value
-@@ -125,3 +126,11 @@ Description:
- 		keys added to .builtin_trusted_keys or .ima keyring:
+diff --git a/security/selinux/Makefile b/security/selinux/Makefile
+index 4d8e0e8adf0b..83d512116341 100644
+--- a/security/selinux/Makefile
++++ b/security/selinux/Makefile
+@@ -16,6 +16,8 @@ selinux-$(CONFIG_NETLABEL) += netlabel.o
  
- 			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
-+
-+		Example of measure rule using LSM_STATE to measure LSM state:
-+
-+			measure func=LSM_STATE template=ima-buf
-+
-+		Example of measure rule using LSM_POLICY to measure LSM policy:
-+
-+			measure func=LSM_POLICY template=ima-ng
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index 38043074ce5e..1b5f4b2f17d0 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -200,6 +200,8 @@ static inline unsigned int ima_hash_key(u8 *digest)
- 	hook(POLICY_CHECK, policy)			\
- 	hook(KEXEC_CMDLINE, kexec_cmdline)		\
- 	hook(KEY_CHECK, key)				\
-+	hook(LSM_STATE, lsm_state)			\
-+	hook(LSM_POLICY, lsm_policy)			\
- 	hook(MAX_CHECK, none)
+ selinux-$(CONFIG_SECURITY_INFINIBAND) += ibpkey.o
  
- #define __ima_hook_enumify(ENUM, str)	ENUM,
-diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
-index 4f39fb93f278..8c8b4e4a6493 100644
---- a/security/integrity/ima/ima_api.c
-+++ b/security/integrity/ima/ima_api.c
-@@ -176,7 +176,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
-  *		subj=, obj=, type=, func=, mask=, fsmagic=
-  *	subj,obj, and type: are LSM specific.
-  *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK | MODULE_CHECK
-- *	| KEXEC_CMDLINE | KEY_CHECK
-+ *	| KEXEC_CMDLINE | KEY_CHECK | LSM_STATE | LSM_POLICY
-  *	mask: contains the permission mask
-  *	fsmagic: hex value
-  *
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 07f033634b27..a0f5c39d9084 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -442,13 +442,20 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- {
- 	int i;
- 
--	if (func == KEY_CHECK) {
--		return (rule->flags & IMA_FUNC) && (rule->func == func) &&
--		       ima_match_keyring(rule, keyring, cred);
--	}
- 	if ((rule->flags & IMA_FUNC) &&
- 	    (rule->func != func && func != POST_SETATTR))
- 		return false;
++selinux-$(CONFIG_IMA) += measure.o
 +
-+	switch (func) {
-+	case KEY_CHECK:
-+		return ima_match_keyring(rule, keyring, cred);
-+	case LSM_STATE:
-+	case LSM_POLICY:
-+		return true;
-+	default:
-+		break;
+ ccflags-y := -I$(srctree)/security/selinux -I$(srctree)/security/selinux/include
+ 
+ $(addprefix $(obj)/,$(selinux-y)): $(obj)/flask.h
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index efa6108b1ce9..5521dfc1900b 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -7394,6 +7394,7 @@ int selinux_disable(struct selinux_state *state)
+ 	}
+ 
+ 	selinux_mark_disabled(state);
++	selinux_measure_state(state);
+ 
+ 	pr_info("SELinux:  Disabled at runtime.\n");
+ 
+diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
+index b0e02cfe3ce1..77f42d9b544b 100644
+--- a/security/selinux/include/security.h
++++ b/security/selinux/include/security.h
+@@ -222,16 +222,31 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
+ 	return state->policycap[POLICYDB_CAPABILITY_GENFS_SECLABEL_SYMLINKS];
+ }
+ 
++static inline bool selinux_checkreqprot(const struct selinux_state *state)
++{
++	return READ_ONCE(state->checkreqprot);
++}
++
+ int security_mls_enabled(struct selinux_state *state);
+ int security_load_policy(struct selinux_state *state,
+ 			 void *data, size_t len);
+ int security_read_policy(struct selinux_state *state,
+ 			 void **data, size_t *len);
++int security_read_policy_kernel(struct selinux_state *state,
++				void **data, size_t *len);
+ size_t security_policydb_len(struct selinux_state *state);
+ 
+ int security_policycap_supported(struct selinux_state *state,
+ 				 unsigned int req_cap);
+ 
++#ifdef CONFIG_IMA
++extern void selinux_measure_state(struct selinux_state *selinux_state);
++#else
++static inline void selinux_measure_state(struct selinux_state *selinux_state)
++{
++}
++#endif
++
+ #define SEL_VEC_MAX 32
+ struct av_decision {
+ 	u32 allowed;
+diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+new file mode 100644
+index 000000000000..1583628d09d1
+--- /dev/null
++++ b/security/selinux/measure.c
+@@ -0,0 +1,150 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Measure SELinux state using IMA subsystem.
++ */
++#include <linux/vmalloc.h>
++#include <linux/ktime.h>
++#include <linux/ima.h>
++#include "security.h"
++
++/*
++ * This function creates an unique name by appending the timestamp to
++ * the given string. This string is passed as "event name" to the IMA
++ * hook to measure the given SELinux data.
++ *
++ * The data provided by SELinux to the IMA subsystem for measuring may have
++ * already been measured (for instance the same state existed earlier).
++ * But for SELinux the current data represents a state change and hence
++ * needs to be measured again. To enable this, pass an unique "Event Name"
++ * to the IMA hook so that IMA subsystem will always measure the given data.
++ *
++ * For example,
++ * At time T0 SELinux data to be measured is "foo". IMA measures it.
++ * At time T1 the data is changed to "bar". IMA measures it.
++ * At time T2 the data is changed to "foo" again. IMA will not measure it
++ * (since it was already measured) unless the event name, for instance,
++ * is different in this call.
++ */
++static char *selinux_event_name(const char *name_prefix)
++{
++	char *event_name = NULL;
++	struct timespec64 curr_time;
++	int count;
++
++	ktime_get_real_ts64(&curr_time);
++	count = snprintf(NULL, 0, "%s-%lld:%09ld", name_prefix,
++			 curr_time.tv_sec, curr_time.tv_nsec);
++	count++;
++	event_name = kzalloc(count, GFP_KERNEL);
++	if (!event_name) {
++		pr_warn("%s: event name not allocated.\n", __func__);
++		return NULL;
 +	}
 +
- 	if ((rule->flags & IMA_MASK) &&
- 	    (rule->mask != mask && func != POST_SETATTR))
- 		return false;
-@@ -1044,6 +1051,18 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
- 		if (ima_rule_contains_lsm_cond(entry))
- 			return false;
++	snprintf(event_name, count, "%s-%lld:%09ld", name_prefix,
++		 curr_time.tv_sec, curr_time.tv_nsec);
++
++	return event_name;
++}
++
++static int read_selinux_state(char **state_str, int *state_str_len,
++			      struct selinux_state *state)
++{
++	char *buf, *str_fmt = "%s=%d;";
++	int i, buf_len, curr;
++
++	buf_len = snprintf(NULL, 0, str_fmt, "initialized", 0);
++	buf_len += snprintf(NULL, 0, str_fmt, "enabled", 0);
++	buf_len += snprintf(NULL, 0, str_fmt, "enforcing", 0);
++	buf_len += snprintf(NULL, 0, str_fmt, "checkreqprot", 0);
++
++	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
++		buf_len += snprintf(NULL, 0, str_fmt,
++				    selinux_policycap_names[i], 0);
++	}
++	++buf_len;
++
++	buf = kzalloc(buf_len, GFP_KERNEL);
++	if (!buf)
++		return -ENOMEM;
++
++	curr = snprintf(buf, buf_len, str_fmt,
++			"initialized", selinux_initialized(state));
++	curr += snprintf((buf + curr), (buf_len - curr), str_fmt,
++			 "enabled", !selinux_disabled(state));
++	curr += snprintf((buf + curr), (buf_len - curr), str_fmt,
++			 "enforcing", enforcing_enabled(state));
++	curr += snprintf((buf + curr), (buf_len - curr), str_fmt,
++			 "checkreqprot", selinux_checkreqprot(state));
++
++	for (i = 0; i < __POLICYDB_CAPABILITY_MAX; i++) {
++		curr += snprintf((buf + curr), (buf_len - curr), str_fmt,
++				 selinux_policycap_names[i],
++				 state->policycap[i]);
++	}
++
++	*state_str = buf;
++	*state_str_len = curr;
++
++	return 0;
++}
++
++void selinux_measure_state(struct selinux_state *state)
++{
++	void *policy = NULL;
++	char *event_name = NULL;
++	char *state_str = NULL;
++	size_t policy_len;
++	int state_str_len, rc = 0;
++	bool initialized = selinux_initialized(state);
++
++	rc = read_selinux_state(&state_str, &state_str_len, state);
++	if (rc) {
++		pr_warn("%s: Failed to read selinux state.\n", __func__);
++		return;
++	}
++
++	/*
++	 * Get an unique string for measuring the current SELinux state.
++	 */
++	event_name = selinux_event_name("selinux-state");
++	if (!event_name) {
++		pr_warn("%s: Event name for state not allocated.\n",
++			__func__);
++		rc = -ENOMEM;
++		goto out;
++	}
++
++	rc = ima_measure_lsm_state(event_name, state_str, state_str_len);
++
++	kfree(event_name);
++	event_name = NULL;
++
++	if (rc)
++		goto out;
++
++	/*
++	 * Measure SELinux policy only after initialization is completed.
++	 */
++	if (!initialized)
++		goto out;
++
++	rc = security_read_policy_kernel(state, &policy, &policy_len);
++	if (rc)
++		goto out;
++
++	event_name = selinux_event_name("selinux-policy-hash");
++	if (!event_name) {
++		pr_warn("%s: Event name for policy not allocated.\n",
++			__func__);
++		rc = -ENOMEM;
++		goto out;
++	}
++
++	rc = ima_measure_lsm_policy(event_name, policy, policy_len);
++
++out:
++	kfree(event_name);
++	kfree(state_str);
++	vfree(policy);
++}
+diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+index 4781314c2510..6d46eaef5c92 100644
+--- a/security/selinux/selinuxfs.c
++++ b/security/selinux/selinuxfs.c
+@@ -173,6 +173,7 @@ static ssize_t sel_write_enforce(struct file *file, const char __user *buf,
+ 			from_kuid(&init_user_ns, audit_get_loginuid(current)),
+ 			audit_get_sessionid(current));
+ 		enforcing_set(state, new_value);
++		selinux_measure_state(state);
+ 		if (new_value)
+ 			avc_ss_reset(state->avc, 0);
+ 		selnl_notify_setenforce(new_value);
+@@ -678,6 +679,8 @@ static ssize_t sel_write_checkreqprot(struct file *file, const char __user *buf,
  
-+		break;
-+	case LSM_STATE:
-+	case LSM_POLICY:
-+		if (entry->action & ~(MEASURE | DONT_MEASURE))
-+			return false;
+ 	fsi->state->checkreqprot = new_value ? 1 : 0;
+ 	length = count;
 +
-+		if (entry->flags & ~(IMA_FUNC | IMA_PCR))
-+			return false;
++	selinux_measure_state(fsi->state);
+ out:
+ 	kfree(page);
+ 	return length;
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index ef0afd878bfc..3978c804c361 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2182,6 +2182,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+ 		selinux_status_update_policyload(state, seqno);
+ 		selinux_netlbl_cache_invalidate();
+ 		selinux_xfrm_notify_policyload();
++		selinux_measure_state(state);
+ 		return 0;
+ 	}
+ 
+@@ -2270,6 +2271,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
+ 	selinux_status_update_policyload(state, seqno);
+ 	selinux_netlbl_cache_invalidate();
+ 	selinux_xfrm_notify_policyload();
++	selinux_measure_state(state);
+ 
+ 	rc = 0;
+ 	goto out;
+@@ -2941,6 +2943,7 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
+ 		selnl_notify_policyload(seqno);
+ 		selinux_status_update_policyload(state, seqno);
+ 		selinux_xfrm_notify_policyload();
++		selinux_measure_state(state);
+ 	}
+ 	return rc;
+ }
+@@ -3720,14 +3723,23 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
+ }
+ #endif /* CONFIG_NETLABEL */
+ 
++static int security_read_policy_len(struct selinux_state *state, size_t *len)
++{
++	if (!selinux_initialized(state))
++		return -EINVAL;
 +
-+		if (ima_rule_contains_lsm_cond(entry))
-+			return false;
++	*len = security_policydb_len(state);
++	return 0;
++}
 +
- 		break;
- 	default:
- 		return false;
-@@ -1176,6 +1195,10 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
- 				entry->func = KEXEC_CMDLINE;
- 			else if (strcmp(args[0].from, "KEY_CHECK") == 0)
- 				entry->func = KEY_CHECK;
-+			else if (strcmp(args[0].from, "LSM_STATE") == 0)
-+				entry->func = LSM_STATE;
-+			else if (strcmp(args[0].from, "LSM_POLICY") == 0)
-+				entry->func = LSM_POLICY;
- 			else
- 				result = -EINVAL;
- 			if (!result)
+ /**
+- * security_read_policy - read the policy.
++ * security_read_selinux_policy - read the policy.
+  * @data: binary policy data
+  * @len: length of data in bytes
+  *
+  */
+-int security_read_policy(struct selinux_state *state,
+-			 void **data, size_t *len)
++static int security_read_selinux_policy(struct selinux_state *state,
++					void **data, size_t *len)
+ {
+ 	struct policydb *policydb = &state->ss->policydb;
+ 	int rc;
+@@ -3736,12 +3748,6 @@ int security_read_policy(struct selinux_state *state,
+ 	if (!selinux_initialized(state))
+ 		return -EINVAL;
+ 
+-	*len = security_policydb_len(state);
+-
+-	*data = vmalloc_user(*len);
+-	if (!*data)
+-		return -ENOMEM;
+-
+ 	fp.data = *data;
+ 	fp.len = *len;
+ 
+@@ -3754,5 +3760,52 @@ int security_read_policy(struct selinux_state *state,
+ 
+ 	*len = (unsigned long)fp.data - (unsigned long)*data;
+ 	return 0;
++}
++
++/**
++ * security_read_policy - read the policy.
++ * @data: binary policy data
++ * @len: length of data in bytes
++ *
++ */
++int security_read_policy(struct selinux_state *state,
++			 void **data, size_t *len)
++{
++	int rc;
++
++	rc = security_read_policy_len(state, len);
++	if (rc)
++		return rc;
++
++	*data = vmalloc_user(*len);
++	if (!*data)
++		return -ENOMEM;
++
++	return security_read_selinux_policy(state, data, len);
++}
++
++/**
++ * security_read_policy_kernel - read the policy.
++ * @data: binary policy data
++ * @len: length of data in bytes
++ *
++ * Allocates kernel memory for reading SELinux policy.
++ * This function is for internal use only and should not
++ * be used for returning data to user space
++ *
++ */
++int security_read_policy_kernel(struct selinux_state *state,
++				void **data, size_t *len)
++{
++	int rc;
++
++	rc = security_read_policy_len(state, len);
++	if (rc)
++		return rc;
++
++	*data = vmalloc(*len);
++	if (!*data)
++		return -ENOMEM;
+ 
++	return security_read_selinux_policy(state, data, len);
+ }
 -- 
 2.27.0
 
