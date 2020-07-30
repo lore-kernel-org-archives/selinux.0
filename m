@@ -2,115 +2,207 @@ Return-Path: <SRS0=qcS5=BJ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1B45C433DF
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 14:50:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C981AC433E0
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 15:02:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 99F142070B
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 14:50:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5BDF2070B
+	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 15:02:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KjUF00W2"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="gIE2Bh+h"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726581AbgG3Ous (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 10:50:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726275AbgG3Our (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 10:50:47 -0400
-Received: from mail-oo1-xc41.google.com (mail-oo1-xc41.google.com [IPv6:2607:f8b0:4864:20::c41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98B99C061574;
-        Thu, 30 Jul 2020 07:50:47 -0700 (PDT)
-Received: by mail-oo1-xc41.google.com with SMTP id w1so5274300ooj.2;
-        Thu, 30 Jul 2020 07:50:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=n8J2m5u07Q5LrlrNsTTftXBpKUr3fzjgIgd7DPs1RVg=;
-        b=KjUF00W2Azha/60W2r09lRyLbwMfgG9BaNz1SjLC9bKLxWwsz4WKr0t+eF7Zkmkxnp
-         5mBoZMKc9CrOv1+5f7PvzDr5xyrZT2HaAqa6O2NDgIaM+acUVtqk96lLGxV/to4GeC+W
-         XFjnKIwF5+jWylUhMr9ZiujAjjgzd1ZZxC7etVYI3i8NpBJlqWplgSRaL8cMHiBUHljg
-         ghWfjY+/DmOGpG9nEIYCGtpuuuRop3dZa1Hlci9WXCHEVuBcmgULZhernwq9uj08aukZ
-         5hWcQtwyumbMJQiKPdrFdQguZLgtpjiqDTChD/X20/G6mmq+QbuhJhuRkUsTckB2WZj8
-         HI5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=n8J2m5u07Q5LrlrNsTTftXBpKUr3fzjgIgd7DPs1RVg=;
-        b=Q3LiriRLpBwxWvk8FT0DNi2OMmvfzfTI0ZEDQR5H8L5OTaJzrOlFUlXw/PsmcIhAZ2
-         pOvMbc85w494MqHwjGq8Wfhm3IjZ2J5LPZrNytz7VmCVrFjlfD/EmA7h2SgF8vdfhiaJ
-         j/4vKcLHUALm7Exm/v0dPJvXkgJyhimHZB1aNy3m6LcgyHoe2MdU0lleGMcM56oYpPTE
-         m1+MWyKEIrdKwoklHCbPLDtXbl9Owh53WvhbE87alTth0ZiubDoXYdrgwmF3Nr5soMpG
-         YOykJacxjGjKM7xykrs0yExHsx1zw7jQhUaetD4LOZNeOKoFPhyzJpJQU+al5gfUucYK
-         UT7w==
-X-Gm-Message-State: AOAM5335GPMh8dc14mF7/cQCBXyl0/7fUTyuXgQ0CvSMfe8XquVhRUpU
-        gGP9KLh1R/HZWeQCBDCuZckNCUmlo6HF9UA0Fgs=
-X-Google-Smtp-Source: ABdhPJyrG7DpH7VL/mYWZxhvX1/djwJUpW/IGkzfK0asWtDmdE5ONEj9ZS+ZSGgK6005ABF/9NUY76s0IaJsOU2/2R0=
-X-Received: by 2002:a4a:3b0f:: with SMTP id s15mr2647317oos.71.1596120647022;
- Thu, 30 Jul 2020 07:50:47 -0700 (PDT)
+        id S1729484AbgG3PCd (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 11:02:33 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:55250 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726275AbgG3PCc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 11:02:32 -0400
+Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 610CF20B4908;
+        Thu, 30 Jul 2020 08:02:30 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 610CF20B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1596121351;
+        bh=vKzSD0CcVGwc1leJ+1uee8TOPGRgvmYvqxvarqXtglA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gIE2Bh+h354aB27e8tSl3CCtSBrFMWO03GkwNede75VLrbyfSU1mD4qGsi9yrMJKN
+         h6tarjd4QEKaGhkjmBDFum+uyczMgX6OdnxBeSuNnoCMtW9N4iD6KWk8FoBzWxlVoJ
+         RpUPYUiY5a9CJPB7iEHxRdLIcX84FN2XbO06EkTU=
+Date:   Thu, 30 Jul 2020 10:02:28 -0500
+From:   Tyler Hicks <tyhicks@linux.microsoft.com>
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5 1/4] IMA: Add func to measure LSM state and policy
+Message-ID: <20200730150228.GV4181@sequoia>
+References: <20200730034724.3298-1-nramas@linux.microsoft.com>
+ <20200730034724.3298-2-nramas@linux.microsoft.com>
 MIME-Version: 1.0
-References: <20200724091520.880211-1-tweek@google.com> <20200724095232.5f9d3f17@oasis.local.home>
- <80a23580-5067-93b0-53fa-3bd53253c056@sony.com>
-In-Reply-To: <80a23580-5067-93b0-53fa-3bd53253c056@sony.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 30 Jul 2020 10:50:36 -0400
-Message-ID: <CAEjxPJ5tu=R20snbetzv+CCZMd-yD+obbkbf6MYVqQx3oZLkqA@mail.gmail.com>
-Subject: Re: [PATCH] RFC: selinux avc trace
-To:     peter enderborg <peter.enderborg@sony.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20200730034724.3298-2-nramas@linux.microsoft.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Jul 30, 2020 at 10:29 AM peter enderborg
-<peter.enderborg@sony.com> wrote:
->
-> I did manage to rebase it but this is about my approach.
->
-> Compared to Thi=C3=A9baud Weksteen patch this adds:
->
-> 1 Filtering. Types goes to trace so we can put up a filter for contexts o=
-r type etc.
->
-> 2 It tries also to cover non denies.  And upon that you should be able to=
- do coverage tools.
-> I think many systems have a lot more rules that what is needed, but there=
- is good way
-> to find out what.  A other way us to make a stat page for the rules, but =
-this way connect to
-> userspace and can be used for test cases.
->
-> This code need a lot more work, but it shows how the filter should work (=
-extra info is not right)
-> and there are  memory leaks, extra debug info and nonsense variable etc.
+On 2020-07-29 20:47:21, Lakshmi Ramasubramanian wrote:
+> Critical data structures of security modules need to be measured to
+> enable an attestation service to verify if the configuration and
+> policies for the security modules have been setup correctly and
+> that they haven't been tampered with at runtime. A new IMA policy is
+> required for handling this measurement.
+> 
+> Define two new IMA policy func namely LSM_STATE and LSM_POLICY to
+> measure the state and the policy provided by the security modules.
+> Update ima_match_rules() and ima_validate_rule() to check for
+> the new func and ima_parse_rule() to handle the new func.
+> 
+> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+> ---
+>  Documentation/ABI/testing/ima_policy |  9 ++++++++
+>  security/integrity/ima/ima.h         |  2 ++
+>  security/integrity/ima/ima_api.c     |  2 +-
+>  security/integrity/ima/ima_policy.c  | 31 ++++++++++++++++++++++++----
+>  4 files changed, 39 insertions(+), 5 deletions(-)
+> 
+> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
+> index cd572912c593..b7c7fb548c0c 100644
+> --- a/Documentation/ABI/testing/ima_policy
+> +++ b/Documentation/ABI/testing/ima_policy
+> @@ -30,6 +30,7 @@ Description:
+>  				[FIRMWARE_CHECK]
+>  				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
+>  				[KEXEC_CMDLINE] [KEY_CHECK]
+> +				[LSM_STATE] [LSM_POLICY]
+>  			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
+>  			       [[^]MAY_EXEC]
+>  			fsmagic:= hex value
+> @@ -125,3 +126,11 @@ Description:
+>  		keys added to .builtin_trusted_keys or .ima keyring:
+>  
+>  			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
+> +
+> +		Example of measure rule using LSM_STATE to measure LSM state:
+> +
+> +			measure func=LSM_STATE template=ima-buf
+> +
+> +		Example of measure rule using LSM_POLICY to measure LSM policy:
+> +
+> +			measure func=LSM_POLICY template=ima-ng
+> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+> index 38043074ce5e..1b5f4b2f17d0 100644
+> --- a/security/integrity/ima/ima.h
+> +++ b/security/integrity/ima/ima.h
+> @@ -200,6 +200,8 @@ static inline unsigned int ima_hash_key(u8 *digest)
+>  	hook(POLICY_CHECK, policy)			\
+>  	hook(KEXEC_CMDLINE, kexec_cmdline)		\
+>  	hook(KEY_CHECK, key)				\
+> +	hook(LSM_STATE, lsm_state)			\
+> +	hook(LSM_POLICY, lsm_policy)			\
+>  	hook(MAX_CHECK, none)
+>  
+>  #define __ima_hook_enumify(ENUM, str)	ENUM,
+> diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+> index 4f39fb93f278..8c8b4e4a6493 100644
+> --- a/security/integrity/ima/ima_api.c
+> +++ b/security/integrity/ima/ima_api.c
+> @@ -176,7 +176,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
+>   *		subj=, obj=, type=, func=, mask=, fsmagic=
+>   *	subj,obj, and type: are LSM specific.
+>   *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK | MODULE_CHECK
+> - *	| KEXEC_CMDLINE | KEY_CHECK
+> + *	| KEXEC_CMDLINE | KEY_CHECK | LSM_STATE | LSM_POLICY
+>   *	mask: contains the permission mask
+>   *	fsmagic: hex value
+>   *
+> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+> index 07f033634b27..a0f5c39d9084 100644
+> --- a/security/integrity/ima/ima_policy.c
+> +++ b/security/integrity/ima/ima_policy.c
+> @@ -442,13 +442,20 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>  {
+>  	int i;
+>  
+> -	if (func == KEY_CHECK) {
+> -		return (rule->flags & IMA_FUNC) && (rule->func == func) &&
+> -		       ima_match_keyring(rule, keyring, cred);
+> -	}
+>  	if ((rule->flags & IMA_FUNC) &&
+>  	    (rule->func != func && func != POST_SETATTR))
+>  		return false;
+> +
+> +	switch (func) {
+> +	case KEY_CHECK:
+> +		return ima_match_keyring(rule, keyring, cred);
+> +	case LSM_STATE:
+> +	case LSM_POLICY:
+> +		return true;
+> +	default:
+> +		break;
+> +	}
+> +
+>  	if ((rule->flags & IMA_MASK) &&
+>  	    (rule->mask != mask && func != POST_SETATTR))
+>  		return false;
+> @@ -1044,6 +1051,18 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
+>  		if (ima_rule_contains_lsm_cond(entry))
+>  			return false;
+>  
+> +		break;
+> +	case LSM_STATE:
+> +	case LSM_POLICY:
+> +		if (entry->action & ~(MEASURE | DONT_MEASURE))
+> +			return false;
+> +
+> +		if (entry->flags & ~(IMA_FUNC | IMA_PCR))
+> +			return false;
+> +
+> +		if (ima_rule_contains_lsm_cond(entry))
+> +			return false;
+> +
+>  		break;
+>  	default:
+>  		return false;
+> @@ -1176,6 +1195,10 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
+>  				entry->func = KEXEC_CMDLINE;
+>  			else if (strcmp(args[0].from, "KEY_CHECK") == 0)
+>  				entry->func = KEY_CHECK;
+> +			else if (strcmp(args[0].from, "LSM_STATE") == 0)
+> +				entry->func = LSM_STATE;
+> +			else if (strcmp(args[0].from, "LSM_POLICY") == 0)
+> +				entry->func = LSM_POLICY;
 
-Perhaps the two of you could work together to come up with a common
-tracepoint that addresses both needs.
-On the one hand, we don't need/want to duplicate the avc message
-itself; we just need enough to be able to correlate them.
-With respect to non-denials, SELinux auditallow statements can be used
-to generate avc: granted messages that can be used to support coverage
-tools although you can easily flood the logs that way.  One other
-limitation of the other patch is that it doesn't support generating
-trace information for denials silenced by dontaudit rules, which might
-be challenging to debug especially on Android where you can't just run
-semodule -DB to strip all dontaudits.
+This patch generally looks really good to me with the exception of one
+thing...
+
+We should only accept rules with these specified hook functions when an
+LSM that has measurement support is enabled. This messes up the ordering
+of your patch series but it could be as simple as doing this:
+
+			else if (IS_ENABLED(CONFIG_SECURITY_SELINUX) &&
+				 strcmp(args[0].from, "LSM_STATE") == 0)
+				 entry->func = LSM_STATE;
+
+Or you could do something a little more complex, like what's done with
+CONFIG_IMA_LSM_RULES. You could create a CONFIG_IMA_MEASURE_LSM option
+that's default enabled but depends on CONFIG_SECURITY_SELINUX and then
+check for IS_ENABLED(CONFIG_IMA_MEASURE_LSM) in ima_parse_rule().
+
+I'd personally opt for just placing the
+IS_ENABLED(CONFIG_SECURITY_SELINUX) check directly into
+ima_parse_rule().
+
+Tyler
+
+>  			else
+>  				result = -EINVAL;
+>  			if (!result)
+> -- 
+> 2.27.0
