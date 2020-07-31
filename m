@@ -6,75 +6,63 @@ X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62932C433E0
-	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 16:56:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FFD0C433E0
+	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 17:00:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 485DD2072A
-	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 16:56:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E4BE42072A
+	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 17:00:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729944AbgGaQ4O (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 Jul 2020 12:56:14 -0400
-Received: from mr014msb.fastweb.it ([85.18.95.103]:59436 "EHLO
-        mr014msb.fastweb.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729902AbgGaQ4N (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 31 Jul 2020 12:56:13 -0400
-Received-SPF: pass (mr014msb.fastweb.it: domain assyoma.it designates
+        id S1728958AbgGaRAO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 Jul 2020 13:00:14 -0400
+Received: from mr013msb.fastweb.it ([85.18.95.104]:47958 "EHLO
+        mr013msb.fastweb.it" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728898AbgGaRAO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 Jul 2020 13:00:14 -0400
+Received-SPF: pass (mr013msb.fastweb.it: domain assyoma.it designates
  93.63.55.57 as permitted sender) identity=mailfrom;
- receiver=mr014msb.fastweb.it; client-ip=93.63.55.57;
+ receiver=mr013msb.fastweb.it; client-ip=93.63.55.57;
  envelope-from=g.danti@assyoma.it; helo=plutone.assyoma.it;
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrieekgddutdekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuhfetuffvhgfguedpucfqfgfvnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeggfffhvffujghffgfkgigtgfesthejjhdttdervdenucfhrhhomhepifhiohhnrghtrghnucffrghnthhiuceoghdruggrnhhtihesrghsshihohhmrgdrihhtqeenucggtffrrghtthgvrhhnpedvffevtdeuveelhedukeffieeluefhvddtiefgueekgfdvvdfhleehgfekfffgtdenucffohhmrghinheprghsshihohhmrgdrihhtnecukfhppeelfedrieefrdehhedrheejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghlohepphhluhhtohhnvgdrrghsshihohhmrgdrihhtpdhinhgvthepleefrdeifedrheehrdehjedpmhgrihhlfhhrohhmpeeoghdruggrnhhtihesrghsshihohhmrgdrihhtqedprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghequcfqtfevrffvpehrfhgtkedvvdenshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopeeoshhtvghphhgvnhdrshhmrghllhgvhidrfihorhhksehgmhgrihhlrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehsthgvphhhvghnrdhsmhgrlhhlvgihrdifohhrkhesghhmrghilhdrtghomh
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedrieekgddutdekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuhfetuffvhgfguedpucfqfgfvnecuuegrihhlohhuthemuceftddtnecunecujfgurhepggffhffvufgjfhgfkfigtgfgsehtkehjtddtreejnecuhfhrohhmpefiihhonhgrthgrnhcuffgrnhhtihcuoehgrdgurghnthhisegrshhshihomhgrrdhitheqnecuggftrfgrthhtvghrnhepudefffevfffffeetieeglefgkeejfeejkeejveeuleetffffhefgleefvdeijedvnecuffhomhgrihhnpegrshhshihomhgrrdhithenucfkphepleefrdeifedrheehrdehjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehplhhuthhonhgvrdgrshhshihomhgrrdhithdpihhnvghtpeelfedrieefrdehhedrheejpdhmrghilhhfrhhomhepoehgrdgurghnthhisegrshhshihomhgrrdhithequceuqfffjgepkeeukffvoffkoffgpdhrtghpthhtohepoegtghiiohhnvghssehgohhoghhlvghmrghilhdrtghomhequcfqtfevrffvpehrfhgtkedvvdentghgiihonhgvshesghhoohhglhgvmhgrihhlrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqecuqfftvefrvfeprhhftgekvddvnehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhg
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
-Received: from plutone.assyoma.it (93.63.55.57) by mr014msb.fastweb.it (5.8.208)
-        id 5F04F054022325F9; Fri, 31 Jul 2020 18:56:10 +0200
+Received: from plutone.assyoma.it (93.63.55.57) by mr013msb.fastweb.it (5.8.208)
+        id 5F04EFC902223467; Fri, 31 Jul 2020 19:00:10 +0200
 Received: from webmail.assyoma.it (localhost [IPv6:::1])
-        by plutone.assyoma.it (Postfix) with ESMTPA id DED78DE85F7B;
-        Fri, 31 Jul 2020 18:56:09 +0200 (CEST)
+        by plutone.assyoma.it (Postfix) with ESMTPA id 92E9FC0CB4C4;
+        Fri, 31 Jul 2020 19:00:10 +0200 (CEST)
 MIME-Version: 1.0
-Date:   Fri, 31 Jul 2020 18:56:09 +0200
+Date:   Fri, 31 Jul 2020 19:00:10 +0200
 From:   Gionatan Danti <g.danti@assyoma.it>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     selinux@vger.kernel.org
 Subject: Re: lnk_file read permission
-In-Reply-To: <CAEjxPJ5XGhaZmAvC=-2A=KaCKmqZEp4r6z7fOoDP0+GpJDOZog@mail.gmail.com>
+In-Reply-To: <CAJ2a_Dcev_o+NyuwUqh2ANseRniZRMQJ4dhDtrF1BtCmFSLgpg@mail.gmail.com>
 References: <9c20af23bf7b70d6e01ca6772cc31f88@assyoma.it>
- <CAEjxPJ5XGhaZmAvC=-2A=KaCKmqZEp4r6z7fOoDP0+GpJDOZog@mail.gmail.com>
+ <CAJ2a_Dcev_o+NyuwUqh2ANseRniZRMQJ4dhDtrF1BtCmFSLgpg@mail.gmail.com>
 User-Agent: Roundcube Webmail/1.4.7
-Message-ID: <e0c9fd0926d97314b4abec38ab0fe8ca@assyoma.it>
+Message-ID: <b697596bcda20251d9d0a0f675b53747@assyoma.it>
 X-Sender: g.danti@assyoma.it
-Content-Type: text/plain; charset=US-ASCII;
+Content-Type: text/plain; charset=UTF-8;
  format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Il 2020-07-31 15:12 Stephen Smalley ha scritto:
-> The lnk_file read permission check can be used to protect processes
-> from following/reading untrusted symlinks, often used in malicious
-> symlink attacks.
-> The more broadly you allow it, the more potential for the process to
-> be misdirected to an unexpected file in order to overwrite some file
-> or leak its contents.
+Il 2020-07-31 18:25 Christian Göttsche ha scritto:
+> An alternative would be, since these symlinks are trusted and
+> permanent, to label them as their parent directory (e.g. var_lib_t
+> (use the '-l' file type specifier)) and allow the applications to read
+> these lnk types.
+> This also prevents e.g. mysqld_t to alter the symlink /var/lib/mysqld
+> (since it probably has write permission to mysql_db_t:lnk_file but not
+> var_lib_t:lnk_file).
 
-Hi Stephen,
-I generally know the catchs with symlinks, but I fail to understand how 
-this can be a problem for selinux: after all, the real/target file must 
-be labeled with the correct type, otherwise the service binary (running 
-in its confined domain) will not be able to open it. In other words, it 
-is my understanding that selinux not only matches the symlink, but the 
-target file also. So it should not be possible to fool it by chaning the 
-symlink target on the fly. Am I missing something?
+Yeah, in some cases I uses the approach above as it seems that many 
+domain have lnk_file read permission to var_lib_t. I wonder if a more 
+generic solution exists.
 
-> That said, I think the policy macros/interfaces could allow it more
-> widely than is currently done without too much risk. That's more of a
-> question for selinux-refpolicy for upstream policy and/or the Fedora
-> selinux list for their fork of it. The alternative approach for
-> relocating directories is to use bind mounts.
-
-Well, I'm coming from the fedora selinux mailing list ;)
-But if you think I should write to selinux-refpolicy, I will do that.
 Thanks.
 
 -- 
