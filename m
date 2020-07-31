@@ -1,158 +1,159 @@
-Return-Path: <SRS0=qcS5=BJ=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=0Nxr=BK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21229C433DF
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 22:33:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1C5AC433E1
+	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 00:10:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E581D20809
-	for <selinux@archiver.kernel.org>; Thu, 30 Jul 2020 22:33:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 71ACA207F5
+	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 00:10:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g6ARQB8a"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="hQjpoWbK"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728785AbgG3WdZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 30 Jul 2020 18:33:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45222 "EHLO
+        id S1730920AbgGaAK5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 30 Jul 2020 20:10:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60134 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728607AbgG3WdZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 18:33:25 -0400
-Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE2F2C061574
-        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 15:33:24 -0700 (PDT)
-Received: by mail-qk1-x744.google.com with SMTP id x69so27223201qkb.1
-        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 15:33:24 -0700 (PDT)
+        with ESMTP id S1730878AbgGaAKz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 30 Jul 2020 20:10:55 -0400
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B504CC061574
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 17:10:54 -0700 (PDT)
+Received: by mail-ed1-x541.google.com with SMTP id c15so11544116edj.3
+        for <selinux@vger.kernel.org>; Thu, 30 Jul 2020 17:10:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=bJz2ehHOkBi4BvEV2dM1dUQXVOfMFmdz1qYBJfx+GDc=;
-        b=g6ARQB8a06QUxX4vvnH8ZbWP9ZyKyBHFbw+PvRD7NZ6GopuUQOet9IsmeCvsJzUyhp
-         MSwSlDl++kzx+SGo9YhHAwZWlWqGUXk+0XfncyqAZ0ewsMQDrzcul/R2tBZDK3dx+TjP
-         zFigO+ajhW7viZ4qXA7EFB54s+jbPgTO7OlAK2PqtTjmxF9eM2n2vyNDPZiouUW6bQQn
-         PzRBYc+CduhA33QljqD7vlOTVz2VE0VuggeFy/Zm3IxeFniQhnbMKjYn82tnf6Gn5HAd
-         u7+bY3W7EL1aIMCQPuvuBB/Ot6mYcd3rpVr3YoB0/DPh8FME2JGLLlB4M3uKTN0Y22ID
-         9uzg==
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=8/c3Gqo/VuJH9Te0wfR5KkQ1b5tqi4LaEcIsr2+aGts=;
+        b=hQjpoWbKwSo962FBXzbf+uLdnaYYgz1qvwyi3z5gClS4E7Hix1ZIjw5dgXFgB+UUtc
+         17ydKnguUlQT4R/LS1zo87E3kYuexH0qJK4hcNgMcqJCYUE/rb/Z+Cqsg26dNJDE7wAj
+         GR+ijAxI1YBW4gMD2Vn6sNKd0ODKz9T+7jjU5sfNgxDDDD7i39khYM2g+20PKdxrgM3w
+         5TH7PPr1KhUxOQUKZDUt/VC5iWIP2MKNB2hRBIRvimwHFCi6sYHPbWXkN9upRfRTK+74
+         yxlEongyoivcPjpM1YWDjkLV4xj+RBWyYmc0zIr99J/jj1u/jl6zAMGtR1cH1PHs021L
+         5kyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=bJz2ehHOkBi4BvEV2dM1dUQXVOfMFmdz1qYBJfx+GDc=;
-        b=lOyyn1vPAZwgJflR6qcbyEvqsd/NwknpTPlxRgWZLwhgXDse9OtK/eJMt8JJoC3zgl
-         wZt5a8AA8D9auk0RdWKdBP4S5PwOcTGJAB4irI/oF/HzHCSCZGQwzTdlDM0nX+Yv5GUg
-         NVoUkolyicvBzNllMBFHPcO2ih1iCe2JlXeCu3Y8mkJolqXEVLj6g+LjoHvJrr7LZS/v
-         aD3SdqASa13lAqeCbYL4Unri/Mq637LKeDzdplgK+SWQ4vzJ1mrNgXfc2DWlEHXDlwCK
-         Ss40xXaiXBJEC4wcj3+AuGyKnx+xsXf/o3SI5jLz9RhkR/09SRfnu8rp630vNfHUQJqr
-         ZerQ==
-X-Gm-Message-State: AOAM530GAuk4+1uRryPPMISragjDY0iku6I0wx+DfHJ6KDjE+CNdRHhy
-        /0cPSKw4OywrsIoWRjmRR+0h37XJ+LU=
-X-Google-Smtp-Source: ABdhPJx0UhOx7Fi5QsPRNcxkwtGxVfwyX5WrajtO9F1amMaaI/41dxWvm7yGHXQAb4z5UjIcuhPbEw==
-X-Received: by 2002:a37:a906:: with SMTP id s6mr1397765qke.320.1596148403558;
-        Thu, 30 Jul 2020 15:33:23 -0700 (PDT)
-Received: from [192.168.1.190] (pool-96-244-118-111.bltmmd.fios.verizon.net. [96.244.118.111])
-        by smtp.gmail.com with ESMTPSA id b2sm5715023qto.82.2020.07.30.15.33.22
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 30 Jul 2020 15:33:23 -0700 (PDT)
-Subject: Re: [RFC PATCH] selinux: encapsulate policy state, refactor policy
- load
-To:     paul@paul-moore.com
-Cc:     omosnace@redhat.com, selinux@vger.kernel.org
-References: <20200730220905.60088-1-stephen.smalley.work@gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Message-ID: <208642b5-b046-a26f-09d1-9e05377cefe7@gmail.com>
-Date:   Thu, 30 Jul 2020 18:33:22 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=8/c3Gqo/VuJH9Te0wfR5KkQ1b5tqi4LaEcIsr2+aGts=;
+        b=MJRM12HSvpHRsKY31sDnpVyD/f4Y1st6smt6VMNfFaCpkcZqpmLRDwyP3HUL/Wcb1m
+         DmQypSvdK4WSDNTudHDcGyS1iwV2y0iVUBnj2Hk1Iyb9bMnF4L5j3LitzhPsy9Yt61Nr
+         gW6rQB1JJR0zPypKS2jXGvgJiXhzCvptLNLQmQdp+4wx2EYDjhJywcBfuBVue52EI2z7
+         BPzcyOvMc1FFbXVmmoONc/NiHIwkIFZvf91dPOeuJqCXgVqVBEwtnyTLOYnf9I8GgleC
+         NH+B9XPJgLasJgOWZmGz0d9SPWZH34keZ4xw7wJnXz3IFF+hLMRNEhBw5FhivnELooLP
+         FM8A==
+X-Gm-Message-State: AOAM532HNcGEWfNkrw/0fkg+n5AK9RtvMI3RrbJpUARgzlnglfN/Ihuw
+        DMgFCUBji3xklZC+GCrNdy2AqdNK11FuClZdKe+W
+X-Google-Smtp-Source: ABdhPJxYlzswlbkTtbLywWhycYMa8wEO2lmR94+HhAXQarqDQyRUmGuTFgj1dwwvBunVNDl2dJRiEHm8JV/TMU6PN2A=
+X-Received: by 2002:aa7:db10:: with SMTP id t16mr1435586eds.196.1596154252877;
+ Thu, 30 Jul 2020 17:10:52 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20200730220905.60088-1-stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <20200730220905.60088-1-stephen.smalley.work@gmail.com> <208642b5-b046-a26f-09d1-9e05377cefe7@gmail.com>
+In-Reply-To: <208642b5-b046-a26f-09d1-9e05377cefe7@gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 30 Jul 2020 20:10:41 -0400
+Message-ID: <CAHC9VhTZxW8EnZ+tUQyDWkcJjcKjtCD07aUWZ8qZ71rX1K71jA@mail.gmail.com>
+Subject: Re: [RFC PATCH] selinux: encapsulate policy state, refactor policy load
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 7/30/20 6:09 PM, Stephen Smalley wrote:
-
-> Encapsulate the policy state in its own structure (struct
-> selinux_policy) that is separately allocated but referenced from the
-> selinux_ss structure.  The policy state includes the SID table
-> (particularly the context structures), the policy database, and the
-> mapping between the kernel classes/permissions and the policy values.
-> Refactor the security server portion of the policy load logic to
-> cleanly separate loading of the new structures from committing the new
-> policy.  Unify the initial policy load and reload code paths as much
-> as possible, avoiding duplicated code.  Make sure we are taking the
-> policy read-lock prior to any dereferencing of the policy.  Move the
-> copying of the policy capability booleans into the state structure
-> outside of the policy write-lock because they are separate from the
-> policy and are read outside of any policy lock; possibly they should
-> be using at least READ_ONCE/WRITE_ONCE or smp_load_acquire/store_release.
+On Thu, Jul 30, 2020 at 6:33 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> On 7/30/20 6:09 PM, Stephen Smalley wrote:
 >
-> These changes simplify the policy loading logic, reduce the size of
-> the critical section while holding the policy write-lock, and should
-> facilitate future changes to e.g. refactor the entire policy reload
-> logic including the selinuxfs code to make the updating of the policy
-> and the selinuxfs directory tree atomic and/or to convert the policy
-> read-write lock to RCU.
+> > Encapsulate the policy state in its own structure (struct
+> > selinux_policy) that is separately allocated but referenced from the
+> > selinux_ss structure.  The policy state includes the SID table
+> > (particularly the context structures), the policy database, and the
+> > mapping between the kernel classes/permissions and the policy values.
+> > Refactor the security server portion of the policy load logic to
+> > cleanly separate loading of the new structures from committing the new
+> > policy.  Unify the initial policy load and reload code paths as much
+> > as possible, avoiding duplicated code.  Make sure we are taking the
+> > policy read-lock prior to any dereferencing of the policy.  Move the
+> > copying of the policy capability booleans into the state structure
+> > outside of the policy write-lock because they are separate from the
+> > policy and are read outside of any policy lock; possibly they should
+> > be using at least READ_ONCE/WRITE_ONCE or smp_load_acquire/store_release.
+> >
+> > These changes simplify the policy loading logic, reduce the size of
+> > the critical section while holding the policy write-lock, and should
+> > facilitate future changes to e.g. refactor the entire policy reload
+> > logic including the selinuxfs code to make the updating of the policy
+> > and the selinuxfs directory tree atomic and/or to convert the policy
+> > read-write lock to RCU.
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
 >
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
+> > @@ -2098,10 +2104,12 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
+> >
+> >   static void security_load_policycaps(struct selinux_state *state)
+> >   {
+> > -     struct policydb *p = &state->ss->policydb;
+> > +     struct policydb *p = &state->ss->policy->policydb;
+> >       unsigned int i;
+> >       struct ebitmap_node *node;
+> >
+> > +     read_lock(&state->ss->policy_rwlock);
+> > +
+>
+> Oops, should have moved the dereferencing of policy after taking the
+> read-lock here; fixed it everywhere else I think but missed this one.
+> Will fix in the next version but will wait for other comments on this
+> version.
 
-> @@ -2098,10 +2104,12 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
->   
->   static void security_load_policycaps(struct selinux_state *state)
->   {
-> -	struct policydb *p = &state->ss->policydb;
-> +	struct policydb *p = &state->ss->policy->policydb;
->   	unsigned int i;
->   	struct ebitmap_node *node;
->   
-> +	read_lock(&state->ss->policy_rwlock);
-> +
+While I haven't looked at this patch in detail, I'm generally in favor
+of cleanups and the encapsulation work has generally been a good thing
+in my opinion.  It also should go without saying that fixing, or
+improving, the atomic load issue would be a very good thing.
 
-Oops, should have moved the dereferencing of policy after taking the 
-read-lock here; fixed it everywhere else I think but missed this one.  
-Will fix in the next version but will wait for other comments on this 
-version.
+> > @@ -2132,112 +2200,58 @@ static int security_preserve_bools(struct selinux_state *state,
+> >    */
+> >   int security_load_policy(struct selinux_state *state, void *data, size_t len)
+> >   {
+> <snip>
+> >       /*
+> >        * Convert the internal representations of contexts
+> >        * in the new SID table.
+> >        */
+> >       args.state = state;
+> > -     args.oldp = policydb;
+> > -     args.newp = newpolicydb;
+> > +     args.oldp = &state->ss->policy->policydb;
+> > +     args.newp = &newpolicy->policydb;
+> >
+> >       convert_params.func = convert_context;
+> >       convert_params.args = &args;
+> > -     convert_params.target = newsidtab;
+> > +     convert_params.target = &newpolicy->sidtab;
+> >
+> > -     rc = sidtab_convert(oldsidtab, &convert_params);
+> > +     rc = sidtab_convert(&state->ss->policy->sidtab, &convert_params);
+>
+> Should sidtab_convert() be called while holding policy read-lock since
+> we are passing state->ss->policy->policydb via the args field of
+> convert_params and using it within the callback?  I think it happens to
+> be safe currently by virtue of the fact that nothing else can write to
+> it since selinuxfs is holding its semaphore during the entire policy
+> reload but it seems inconsistent. However, if we do take policy
+> read-lock across the call, then sidtab_convert() needs to use GFP_ATOMIC
+> allocations instead of GFP_KERNEL.
 
-> @@ -2132,112 +2200,58 @@ static int security_preserve_bools(struct selinux_state *state,
->    */
->   int security_load_policy(struct selinux_state *state, void *data, size_t len)
->   {
-<snip>
->   	/*
->   	 * Convert the internal representations of contexts
->   	 * in the new SID table.
->   	 */
->   	args.state = state;
-> -	args.oldp = policydb;
-> -	args.newp = newpolicydb;
-> +	args.oldp = &state->ss->policy->policydb;
-> +	args.newp = &newpolicy->policydb;
->   
->   	convert_params.func = convert_context;
->   	convert_params.args = &args;
-> -	convert_params.target = newsidtab;
-> +	convert_params.target = &newpolicy->sidtab;
->   
-> -	rc = sidtab_convert(oldsidtab, &convert_params);
-> +	rc = sidtab_convert(&state->ss->policy->sidtab, &convert_params);
+Without looking too closely at the call chains, or the allocation
+sizes, I would vote for taking the lock in the name of consistency.
 
-Should sidtab_convert() be called while holding policy read-lock since 
-we are passing state->ss->policy->policydb via the args field of 
-convert_params and using it within the callback?  I think it happens to 
-be safe currently by virtue of the fact that nothing else can write to 
-it since selinuxfs is holding its semaphore during the entire policy 
-reload but it seems inconsistent. However, if we do take policy 
-read-lock across the call, then sidtab_convert() needs to use GFP_ATOMIC 
-allocations instead of GFP_KERNEL.
-
-
+-- 
+paul moore
+www.paul-moore.com
