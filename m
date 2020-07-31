@@ -2,178 +2,143 @@ Return-Path: <SRS0=0Nxr=BK=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+X-Spam-Status: No, score=-12.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30C71C433E1
-	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 11:08:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62B23C433DF
+	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 11:10:51 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B46C2245C
-	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 11:08:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3DD9F22B40
+	for <selinux@archiver.kernel.org>; Fri, 31 Jul 2020 11:10:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="p4vRZh00"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XxwOKj/q"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732606AbgGaLIL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 31 Jul 2020 07:08:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732104AbgGaLIJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 31 Jul 2020 07:08:09 -0400
-Received: from mail-vk1-xa41.google.com (mail-vk1-xa41.google.com [IPv6:2607:f8b0:4864:20::a41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F92BC061574
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2020 04:08:08 -0700 (PDT)
-Received: by mail-vk1-xa41.google.com with SMTP id r197so2337483vkf.13
-        for <selinux@vger.kernel.org>; Fri, 31 Jul 2020 04:08:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4RtuJYuOeZ9aZxW7KJ9m2nVUm4WzUl8yyClqrsCRb5w=;
-        b=p4vRZh00sf8zba/lrM/YmR3JmpmBBlB39gKQECas6LCuOiZJb/tlXwrpS9TB6as9cZ
-         dAWaUg0BX3uq2NGxG3eX0sTRYo/004YRFDSCm7ZwNgkzyrIRXIEt0IxfmlxfTWE6sRAz
-         FIdkGiwe5PNnxossM18nzlc7h/1bjc6t6/O0pewcF35Z1q9AhhRFGG8S4LSJ8DbYpA+W
-         kWXsRFoYRS1jY6wri/TGLrdk7kZw0X1PM2SMOP8IyLx/63RklVMN0cGcG7PpMVwxkYp5
-         x1bM+2Py+79Vb6dnQhvpKIXSSO6n+Td1LSE7Ai2mhRGvja60PjK8NP9f17aLd0NqpGt0
-         ZV+Q==
+        id S1732104AbgGaLKu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 31 Jul 2020 07:10:50 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:50863 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1732257AbgGaLKu (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 31 Jul 2020 07:10:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1596193849;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=w/7qyBPzP+cop/coSvjIi7GLTjFHE1KM7nl9jtrLJAc=;
+        b=XxwOKj/qJ8XEtIECVyJPOUygZP6FvBh3mD6gVfKaMcrskEmymwY8gw9KQ9ZTkWJIQUxIvm
+        z24i5oCAPGiLBs4H/6R3lFHktKNMRLalx1VDOsmePLBp1PDrg/AB0fuPNannLv3B0UV0Sn
+        1MtgJcL/zGONj8MiyqmBFxOorH2UErI=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-104-ewXYRxeuNiC0-ZIhNQDhVQ-1; Fri, 31 Jul 2020 07:10:45 -0400
+X-MC-Unique: ewXYRxeuNiC0-ZIhNQDhVQ-1
+Received: by mail-ed1-f71.google.com with SMTP id dd25so5830566edb.6
+        for <selinux@vger.kernel.org>; Fri, 31 Jul 2020 04:10:45 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4RtuJYuOeZ9aZxW7KJ9m2nVUm4WzUl8yyClqrsCRb5w=;
-        b=ExndZnbPy6wcH3Vq8ZllKhC6QuA8mlazzcact5Pp34gWs//7Y7g4/OsWd1O6Oi4wOA
-         fcZjsk23KIskHbXFoJRTMQGu42o6RKDmiIbxQHyGNygJuTS6ogRZbwsnH3icaHxUrFTZ
-         gs1/kWumwWQLamyKJ43dqNfkiix+BYmERx0UWcjDMPOefLN3iqA9sVvvqbOvQWfrtBkh
-         OY7Ek8Cj+71SF75bpTol9kyawabbe817OtBS7TCkXMXMilICLx/ykjmFvjmH5R6nnAl6
-         aP8XqVagztbvmxfgF93+0TlKFjUW6EIPAzSVx3IjNsscmshwYr3FahVFm+HZyS1eDw+5
-         rYRg==
-X-Gm-Message-State: AOAM530PvrCv32LCzdxvlGc6pANF8QLbE7lz7Wgici2Gnp1UuDz0h58X
-        J/wwIx4FqJ8H7fJS47g/XEO6srGHW3kU7DcCRjYIPw==
-X-Google-Smtp-Source: ABdhPJzQyptXAlQYJLkRPSg4Su00OAWYAwwnoqrl5meRHgp+FUZVASGE8GpdpE2TWoG+mVS2cMQT/lqxDPIpYdBMSCY=
-X-Received: by 2002:ac5:cce9:: with SMTP id k9mr2180291vkn.17.1596193687096;
- Fri, 31 Jul 2020 04:08:07 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200724091520.880211-1-tweek@google.com> <20200724095232.5f9d3f17@oasis.local.home>
- <80a23580-5067-93b0-53fa-3bd53253c056@sony.com>
-In-Reply-To: <80a23580-5067-93b0-53fa-3bd53253c056@sony.com>
-From:   =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
-Date:   Fri, 31 Jul 2020 13:07:50 +0200
-Message-ID: <CA+zpnLd+bTbhiVutj=DpfTHkJFsXqodu+PekqTPDcBB+UKsoaw@mail.gmail.com>
-Subject: Re: [PATCH] RFC: selinux avc trace
-To:     peter enderborg <peter.enderborg@sony.com>
-Cc:     Steven Rostedt <rostedt@goodmis.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Joel Fernandes <joelaf@google.com>,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=w/7qyBPzP+cop/coSvjIi7GLTjFHE1KM7nl9jtrLJAc=;
+        b=AdW0aYGZsoXmSRyRB8RJ6Rpfq9vpmijW0xwdo2uuNCIKmotuZzZSV+pZTHNIKr5DBv
+         xlqwv4lt3eZrN8VYPio99u9ED2u7QLlx896WCqxE6ni7yDHwBV04S2WcHS9R2hUkrwz9
+         VrzGvd8abBXBBReD15vXB4ZqHibZ7aoRLpZw8U2AeZtsEl0sVaaoF0kQAdCnYa3HQl8m
+         A2WoLQQImWb3Klic6rzIPJh8ik6RDFHIlR6J7GvqjIFzpIM8AGckJwmSGczhdSzrxjBc
+         5MYK5rrUi3mZ8ESYJnimYmHQ/Ul3sVIt/+r/oZyxPLTwNCAnW5qekBHy82kL3ygWrHN4
+         AFMA==
+X-Gm-Message-State: AOAM532APOQmeeSXAjTrZe4CqklvXQCTrsGyobPsnpyu7U7okimn6qns
+        M9z42sT14HXaJpxgSrXV0j4P1bclFBKB+D//VZdqch5NQhiDI7WC6ZPc21TdKUYFJ/UmrSNkDnb
+        U8OptJhlq1kQtAXxq7A==
+X-Received: by 2002:a17:906:aed0:: with SMTP id me16mr3455488ejb.288.1596193843764;
+        Fri, 31 Jul 2020 04:10:43 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxlQ1DKKZyLaEguNREtXgrOvHdpmRshS4Ri9XopU3Vyq9i0HN5q46bB+xtm5uoXFzFRFnyFoQ==
+X-Received: by 2002:a17:906:aed0:: with SMTP id me16mr3455467ejb.288.1596193843562;
+        Fri, 31 Jul 2020 04:10:43 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b13f:2100:8a6a:ec88:3ed7:44b3])
+        by smtp.gmail.com with ESMTPSA id bq8sm8935971ejb.103.2020.07.31.04.10.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 31 Jul 2020 04:10:42 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        Chris PeBenito <pebenito@ieee.org>,
+        Petr Lautrbach <plautrba@redhat.com>
+Subject: [PATCH v6 0/2] userspace: Implement new format of filename trans rules
+Date:   Fri, 31 Jul 2020 13:10:33 +0200
+Message-Id: <20200731111035.498656-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Thanks Peter, this looks like a great start.
+These patches are the userspace side of the following kernel commits:
+c3a276111ea2 ("selinux: optimize storage of filename transitions") [1]
+430059024389 ("selinux: implement new format of filename transitions") [2].
 
-> Perhaps the two of you could work together to come up with a common
-tracepoint that addresses both needs.
+The first patch changes libsepol's internal representation of filename
+transition rules in a way similar to the kernel commit.
 
-Agreed.
+The second patch then builds upon that and implements reading and
+writing of the new binary policy format that uses this representation
+also in the data layout.
 
-> 1 Filtering. Types goes to trace so we can put up a filter for contexts or type etc.
+See individual patches for more details.
 
-That's right. I think this is the main reason why we would need
-further attributes in the trace event.
+NOTE: This series unfortunately breaks the build of setools. Moreover,
+when an existing build of setools dynamically links against the new
+libsepol, it segfaults. Sadly, there doesn't seem to be a nice way of
+handling this, since setools relies on non-public libsepol policydb
+API/ABI. There is a draft PR that adapts setools to these changes here:
+https://github.com/SELinuxProject/setools/pull/50
 
-> 2 It tries also to cover non denies.  And upon that you should be able to do coverage tools.
-> I think many systems have a lot more rules that what is needed, but there is good way
-> to find out what.  A other way us to make a stat page for the rules, but this way connect to
-> userspace and can be used for test cases.
+See also this discussion about the setools impact:
+https://lore.kernel.org/selinux/daeae1d9-de29-aae0-6bde-3ad3427a5d42@tycho.nsa.gov/
 
-This is a great idea too.
+Changes in v6:
+ - simplify the interface of policydb_filetrans_insert()
+   - i.e. make it possible to pass NULL to name_alloc to simplify most
+     callers
 
->> On the one hand, we don't need/want to duplicate the avc message
->> itself; we just need enough to be able to correlate them.
->> With respect to non-denials, SELinux auditallow statements can be used
->> to generate avc: granted messages that can be used to support coverage
->> tools although you can easily flood the logs that way.  One other
-> That is one reason to use trace.
+Changes in v5:
+ - fix comment in filename_trans_read() to not change when being moved
+ - fix filename_trans_check_datum()
+   - destroy temporary ebitmaps at return
+   - actually iterate through datums
 
-Yes, that's right. I don't have any concern about the flooding here.
-As Peter mentioned, trace is specially designed for this purpose.
+Changes in v4:
+ - rebased on top of latest master branch
 
-On the patch, few things to note:
+Changes in v3:
+ - fixed the change in dispol.c to match the rest of the code
+ - renamed the helper functions to use the "_compat" suffix rather than
+   "_old" and "_new"
 
-> ---
-> +#include <linux/tracepoint.h>
-> +TRACE_EVENT(avc_data,
-> +        TP_PROTO(u32 requested,
-> +             u32 denied,
-> +             u32 audited,
-> +             int result,
-> +             const char *msg
-> +             ),
+Changes in v2:
+ - fixed counting rules when reading the new policy format
 
-I would not store the raw msg from avc. As we discussed, it is useful
-to be able to match against the values we are seeing in the avc denial
-message but these attributes should be simple (as opposed to
-composite) so the filtering can easily be setup (see section 5.1 in
-https://www.kernel.org/doc/Documentation/trace/events.txt). It makes
-more sense extracting scontext and tcontext (for instance) which
-allows for a precise filtering setup.
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/selinux.git/commit/?id=c3a276111ea2572399281988b3129683e2a6b60b
+[2] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=4300590243895ac39e8c97a2f5acd004dad8a42f
 
-Here, I would also pass down the "struct selinux_audit_data" to avoid
-a large list of arguments.
+Ondrej Mosnacek (2):
+  libsepol,checkpolicy: optimize storage of filename transitions
+  libsepol: implement POLICYDB_VERSION_COMP_FTRANS
 
-> +TRACE_EVENT(avc_req,
-> +        TP_PROTO(u32 requested,
-> +             u32 denied,
-> +             u32 audited,
-> +             int result,
-> +             const char *msg,
-> +             u32 ssid,
-> +             struct selinux_state *state
-> +             ),
+ checkpolicy/policy_define.c                |  49 +---
+ checkpolicy/test/dispol.c                  |  20 +-
+ libsepol/cil/src/cil_binary.c              |  26 +-
+ libsepol/include/sepol/policydb/policydb.h |  18 +-
+ libsepol/src/expand.c                      |  56 +---
+ libsepol/src/kernel_to_cil.c               |  24 +-
+ libsepol/src/kernel_to_conf.c              |  24 +-
+ libsepol/src/policydb.c                    | 314 +++++++++++++++++----
+ libsepol/src/write.c                       | 101 +++++--
+ 9 files changed, 433 insertions(+), 199 deletions(-)
 
-I don't see that event being used later on. What was the intention here?
+-- 
+2.26.2
 
-> +static int avc_dump_querys(struct selinux_state *state, char *ab, u32 ssid, u32 tsid, u16 tclass)
-> +{
-> +    int rc;
-> +    char *scontext;
-> +    u32 scontext_len;
-> +    int rp;
-> +
-> +    rc = security_sid_to_context(state,ssid, &scontext, &scontext_len);
-> +    if (rc)
-> +        rp = sprintf(ab, "ssid=%d", ssid);
-> +    else {
-> +        rp = sprintf(ab, "scontext=%s", scontext);
-> +        kfree(scontext);
-> +    }
-> +
-> +    rc = security_sid_to_context(state, tsid, &scontext, &scontext_len);
-> +    if (rc)
-> +        rp +=sprintf(ab+rp, " tsid=%d", tsid);
-> +    else {
-> +        rp +=sprintf(ab+rp, " tcontext=%s", scontext);
-> +        kfree(scontext);
-> +    }
-> +
-> +    BUG_ON(!tclass || tclass >= ARRAY_SIZE(secclass_map));
-> +    rp += sprintf(ab+rp, " tclass=%s", secclass_map[tclass-1].name);
-> +    return rp;
-> +}
-
-As I mentioned before, this is literally repeating the avc audit
-message. We are better off storing the exact fields we are interested
-in, so that the filtering is precise.
-
-Thanks
