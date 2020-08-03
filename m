@@ -2,1021 +2,200 @@ Return-Path: <SRS0=5Yje=BN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E055C433E0
-	for <selinux@archiver.kernel.org>; Mon,  3 Aug 2020 17:39:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5A07C433DF
+	for <selinux@archiver.kernel.org>; Mon,  3 Aug 2020 20:01:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 605A422BEF
-	for <selinux@archiver.kernel.org>; Mon,  3 Aug 2020 17:39:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5303B22CA1
+	for <selinux@archiver.kernel.org>; Mon,  3 Aug 2020 20:01:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="vQQoF6MR"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bLoL9bof"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726643AbgHCRkA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Aug 2020 13:40:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34316 "EHLO
+        id S1728741AbgHCUBH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Aug 2020 16:01:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726536AbgHCRj7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Aug 2020 13:39:59 -0400
-Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9202FC06174A
-        for <selinux@vger.kernel.org>; Mon,  3 Aug 2020 10:39:59 -0700 (PDT)
-Received: by mail-qt1-x843.google.com with SMTP id h21so22450765qtp.11
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2020 10:39:59 -0700 (PDT)
+        with ESMTP id S1727091AbgHCUBG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Aug 2020 16:01:06 -0400
+Received: from mail-oi1-x241.google.com (mail-oi1-x241.google.com [IPv6:2607:f8b0:4864:20::241])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B3BC06174A;
+        Mon,  3 Aug 2020 13:01:06 -0700 (PDT)
+Received: by mail-oi1-x241.google.com with SMTP id j7so17957449oij.9;
+        Mon, 03 Aug 2020 13:01:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=X2HRVoi7tTCWPPIOgDAEYK+g/nAzyiqh+MqJarew4aU=;
-        b=vQQoF6MRLRZy3ZzLucIaPQf5bVS4mkVxQRHK8LhOpaTDzXGyNc4BJbGwfbRSTJfxEU
-         Nxq6cS8sul7GW0WAcKg34ULMTiotM+xizmV9ye2xnH7twE+rQ/jy2HqHblASUiwtA6Si
-         wW8OD5MpaoC24hF3y/mN/3mZZHe9LOycBRJREFaQ0d3BvLgEbiDZBPJcotQaCCr5Uoq0
-         U5CsjzcwOLSx/z/J6dtPalVUr+RLAk4HZxT1seEr1ISMaYo9P1XMrvKIWZuYIDyMhaCl
-         YDYRMFQZZltV15gDCIAnuLBpoTJZzaIgTjgJdfC5J9It+C+StoH8ZmddbEjtXtC7AL9Z
-         4qQw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zP4ncp9vj7JnY4khsRNCiCdbBc6bjRvSCdpaq4/BvzQ=;
+        b=bLoL9bofRI+5WFj9dqLlDqaT7eDcOjGFY5D7e5CSZGKXpALwOyiUuDg0I0lbaxuZgM
+         uHypdAhVhllZ6Avll+IiJa1MhHJ+GwwYphwqajC36MlBo0a/HI253MD5Osa8FblqOpuN
+         oqzRRUBiJJ7xu8exJKnl6tTzCBeUrOBtof1UvPPpt/ZthEANNhiqCUKhfpigWB4XJYF6
+         GDyBuPtZ2re4oUBBdusmmnckLg3SvAt6A+nRHETwFTMP+hZegJuwLA+ZgeoeL7t5Sajz
+         2LFxKNHrGq3AWA+qbU1gBMaGtiOCvPIEVP3CN0TOpQAEKQYtDDflBSW60+3mTCCD+csd
+         IWNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=X2HRVoi7tTCWPPIOgDAEYK+g/nAzyiqh+MqJarew4aU=;
-        b=MJm7mMQHpoBPQpLPoADFDOw+Owd3I/L6iRFVnYaY2p5P3TUehFLuqSRePVhRPulIfF
-         Et3GMFHAn+HDj6hQ8Rl+0WSjy8omWYL6lR9YhD6GFcegNlracEPRRlRP062mSsCFwtZE
-         fiIC7ODlCXqRv9ayED79DsQbLCJ+k4t82LrMV+62G8Zqq6YudAopmDYRExZixUY/57HV
-         iZPnaDwLXL0J9jlBqA2MTOiIBjMpRkU5SK4yRYRx2eEBfWH889TazTzJY4Xzix44UZ80
-         JBN9ugAE0oeuPjJhFFk2KDbTf47YG4T58onK6bKIs33G65v9i3xr0QXKIZVFaOmGiuAN
-         Rcmw==
-X-Gm-Message-State: AOAM530XlBzu9l8FHwpHZjl+qrbKVN0jJce5wrQokcpuNKOppBzNFcBc
-        rLaJPk+Ch35AkG+pBVOnGARl1M8oAs0=
-X-Google-Smtp-Source: ABdhPJxZVhOswWcLGlBr69Jh65sI2G6Uxn5uZfsq/Cmrk9dXIEsWYL70B0fQThdHJM+u6l4UZBZW2w==
-X-Received: by 2002:ac8:6052:: with SMTP id k18mr17383644qtm.60.1596476398278;
-        Mon, 03 Aug 2020 10:39:58 -0700 (PDT)
-Received: from puritycontrol.fios-router.home (pool-96-244-118-111.bltmmd.fios.verizon.net. [96.244.118.111])
-        by smtp.gmail.com with ESMTPSA id v28sm7722187qtk.28.2020.08.03.10.39.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2020 10:39:57 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     paul@paul-moore.com
-Cc:     omosnace@redhat.com, selinux@vger.kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH v3] selinux: encapsulate policy state, refactor policy load
-Date:   Mon,  3 Aug 2020 13:39:48 -0400
-Message-Id: <20200803173948.17118-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zP4ncp9vj7JnY4khsRNCiCdbBc6bjRvSCdpaq4/BvzQ=;
+        b=lZBIggT0Itt+MfKTrqkv3sK9BPed6bCmflaaRGWLTSzi8VnmUm9TAVSw1UC7bCDnXI
+         5OUWCnQ/VfsVz8+rgCFJO4HN3ZHAMAlNe0myHXJbxykGEcqo3jWy8+Zn5DnfRfFUc6Xz
+         MRbEhuZKtwAlpX+QCcqW8jwxUrm/yhZu6hGHZPC2HasqLFRFu0cHUWLh9S2jcerXQAAT
+         SPXwtSOWTL0yOY3kOBct7iLmkRLJv/BkfPdDz6R9eVbUjMqCI9TDndpVhdGVmeIG1Aar
+         qCQY0RpkKDcG8rBaEcETjGXugVvtqmm+XXTJoVHbtM/azChlKY8c3AgqCfQ3OXSS6Ll/
+         kY1A==
+X-Gm-Message-State: AOAM533j3JCuPVDg+4zxcQxXFMBHvLHW6rqa5JwO9o/RQ+gyvxiIxCMX
+        nC9Lj/o1Z9YsTgsDnxI75lYQDKBawmLuf+efKHI=
+X-Google-Smtp-Source: ABdhPJz013rtE9N9hgX1DuHV1VPgJpyezytKEBb4MeeWb9GWT1rgdugaLTmP/96tLKReIozlrOS9nF/pFY13IxLHFXo=
+X-Received: by 2002:a05:6808:1d9:: with SMTP id x25mr815802oic.92.1596484866057;
+ Mon, 03 Aug 2020 13:01:06 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200730034724.3298-1-nramas@linux.microsoft.com>
+ <20200730034724.3298-4-nramas@linux.microsoft.com> <dfd6f9c8-d62a-d278-9b0e-6b1f5ad03d3e@gmail.com>
+ <6371efa9-5ae6-05ac-c357-3fbe1a5a93d5@linux.microsoft.com>
+In-Reply-To: <6371efa9-5ae6-05ac-c357-3fbe1a5a93d5@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 3 Aug 2020 16:00:55 -0400
+Message-ID: <CAEjxPJ789kmdDwy-6RaL7HuMFxKpQ9Hwxj9J-_-f62XDCNJUiA@mail.gmail.com>
+Subject: Re: [PATCH v5 3/4] LSM: Define SELinux function to measure state and policy
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>, sashal@kernel.org,
+        James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Encapsulate the policy state in its own structure (struct
-selinux_policy) that is separately allocated but referenced from the
-selinux_ss structure.  The policy state includes the SID table
-(particularly the context structures), the policy database, and the
-mapping between the kernel classes/permissions and the policy values.
-Refactor the security server portion of the policy load logic to
-cleanly separate loading of the new structures from committing the new
-policy.  Unify the initial policy load and reload code paths as much
-as possible, avoiding duplicated code.  Make sure we are taking the
-policy read-lock prior to any dereferencing of the policy.  Move the
-copying of the policy capability booleans into the state structure
-outside of the policy write-lock because they are separate from the
-policy and are read outside of any policy lock; possibly they should
-be using at least READ_ONCE/WRITE_ONCE or smp_load_acquire/store_release.
+On Mon, Aug 3, 2020 at 12:14 PM Lakshmi Ramasubramanian
+<nramas@linux.microsoft.com> wrote:
+>
+> On 8/3/20 8:11 AM, Stephen Smalley wrote:
+> >
+> > Possibly I'm missing something but with these patches applied on top of
+> > next-integrity, and the following lines added to /etc/ima/ima-policy:
+> >
+> > measure func=LSM_STATE template=ima-buf
+> > measure func=LSM_POLICY
+> >
+> > I still don't get the selinux-state or selinux-policy-hash entries in
+> > the ascii_runtime_measurements file.  No errors during loading of the
+> > ima policy as far as I can see.
+> >
+>
+> Could you please check if the following config is set?
+> CONFIG_IMA_QUEUE_EARLY_BOOT_DATA=y
 
-These changes simplify the policy loading logic, reduce the size of
-the critical section while holding the policy write-lock, and should
-facilitate future changes to e.g. refactor the entire policy reload
-logic including the selinuxfs code to make the updating of the policy
-and the selinuxfs directory tree atomic and/or to convert the policy
-read-write lock to RCU.
+Yes, I have that set.
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-v3 fixes a couple of instances where we should take the read-lock for
-consistency prior to dereferencing state->ss->policy, and updates
-sidtab_convert() and its helpers/callbacks to use GFP_ATOMIC
-allocations instead of GFP_KERNEL and to remove a call to
-cond_resched() since it is now called with the read-lock held and
-therefore cannot call sleeping functions.  Technically we know that
-state->ss->policy cannot be modified since selinuxfs is taking
-fsi->mutex for all policy-modifying operations (both
-security_load_policy and security_set_bools) but this provides
-consistency in the handling of the policy rwlock.  The next logical
-step after this patch is to change security_load_policy() to return
-the newpolicy to the caller instead of calling selinux_policy_commit()
-directly, exporting selinux_policy_commit() for use by selinuxfs, and
-changing selinuxfs to call selinux_policy_commit() after updating its
-directory tree.  This will also require altering the interfaces for
-security_get_bools() and security_get_classes() to take and act
-on newpolicy rather than the current state/policy so that selinuxfs can
-obtain information needed to populate the new directories.  A variant
-of security_genfs_sid() will also be needed that takes and acts on
-newpolicy rather than the current state/policy for the same reason,
-while leaving the existing interface for use by other callers.
+> Try changing /sys/fs/selinux/checkreqprot and check
+> ascii_runtime_measurements file again?
 
- security/selinux/ss/services.c | 398 +++++++++++++++++----------------
- security/selinux/ss/services.h |  10 +-
- security/selinux/ss/sidtab.c   |   5 +-
- 3 files changed, 217 insertions(+), 196 deletions(-)
+No change.  Likewise for changing enforce or running load_policy again.
 
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 9e76a80db6e1..adc11d97b3ae 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -248,9 +248,15 @@ static void map_decision(struct selinux_map *map,
- 
- int security_mls_enabled(struct selinux_state *state)
- {
--	struct policydb *p = &state->ss->policydb;
-+	int mls_enabled;
- 
--	return p->mls_enabled;
-+	if (!selinux_initialized(state))
-+		return 0;
-+
-+	read_lock(&state->ss->policy_rwlock);
-+	mls_enabled = state->ss->policy->policydb.mls_enabled;
-+	read_unlock(&state->ss->policy_rwlock);
-+	return mls_enabled;
- }
- 
- /*
-@@ -726,8 +732,8 @@ static int security_validtrans_handle_fail(struct selinux_state *state,
- 					   struct sidtab_entry *tentry,
- 					   u16 tclass)
- {
--	struct policydb *p = &state->ss->policydb;
--	struct sidtab *sidtab = state->ss->sidtab;
-+	struct policydb *p = &state->ss->policy->policydb;
-+	struct sidtab *sidtab = &state->ss->policy->sidtab;
- 	char *o = NULL, *n = NULL, *t = NULL;
- 	u32 olen, nlen, tlen;
- 
-@@ -771,11 +777,11 @@ static int security_compute_validatetrans(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	if (!user)
--		tclass = unmap_class(&state->ss->map, orig_tclass);
-+		tclass = unmap_class(&state->ss->policy->map, orig_tclass);
- 	else
- 		tclass = orig_tclass;
- 
-@@ -872,8 +878,8 @@ int security_bounded_transition(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	rc = -EINVAL;
- 	old_entry = sidtab_search_entry(sidtab, old_sid);
-@@ -1029,8 +1035,8 @@ void security_compute_xperms_decision(struct selinux_state *state,
- 	if (!selinux_initialized(state))
- 		goto allow;
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	scontext = sidtab_search(sidtab, ssid);
- 	if (!scontext) {
-@@ -1046,7 +1052,7 @@ void security_compute_xperms_decision(struct selinux_state *state,
- 		goto out;
- 	}
- 
--	tclass = unmap_class(&state->ss->map, orig_tclass);
-+	tclass = unmap_class(&state->ss->policy->map, orig_tclass);
- 	if (unlikely(orig_tclass && !tclass)) {
- 		if (policydb->allow_unknown)
- 			goto allow;
-@@ -1114,8 +1120,8 @@ void security_compute_av(struct selinux_state *state,
- 	if (!selinux_initialized(state))
- 		goto allow;
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	scontext = sidtab_search(sidtab, ssid);
- 	if (!scontext) {
-@@ -1135,7 +1141,7 @@ void security_compute_av(struct selinux_state *state,
- 		goto out;
- 	}
- 
--	tclass = unmap_class(&state->ss->map, orig_tclass);
-+	tclass = unmap_class(&state->ss->policy->map, orig_tclass);
- 	if (unlikely(orig_tclass && !tclass)) {
- 		if (policydb->allow_unknown)
- 			goto allow;
-@@ -1143,7 +1149,7 @@ void security_compute_av(struct selinux_state *state,
- 	}
- 	context_struct_compute_av(policydb, scontext, tcontext, tclass, avd,
- 				  xperms);
--	map_decision(&state->ss->map, orig_tclass, avd,
-+	map_decision(&state->ss->policy->map, orig_tclass, avd,
- 		     policydb->allow_unknown);
- out:
- 	read_unlock(&state->ss->policy_rwlock);
-@@ -1168,8 +1174,8 @@ void security_compute_av_user(struct selinux_state *state,
- 	if (!selinux_initialized(state))
- 		goto allow;
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	scontext = sidtab_search(sidtab, ssid);
- 	if (!scontext) {
-@@ -1292,7 +1298,7 @@ int security_sidtab_hash_stats(struct selinux_state *state, char *page)
- 	}
- 
- 	read_lock(&state->ss->policy_rwlock);
--	rc = sidtab_hash_stats(state->ss->sidtab, page);
-+	rc = sidtab_hash_stats(&state->ss->policy->sidtab, page);
- 	read_unlock(&state->ss->policy_rwlock);
- 
- 	return rc;
-@@ -1340,8 +1346,8 @@ static int security_sid_to_context_core(struct selinux_state *state,
- 		return -EINVAL;
- 	}
- 	read_lock(&state->ss->policy_rwlock);
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	if (force)
- 		entry = sidtab_search_entry_force(sidtab, sid);
-@@ -1534,8 +1540,8 @@ static int security_context_to_sid_core(struct selinux_state *state,
- 			goto out;
- 	}
- 	read_lock(&state->ss->policy_rwlock);
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 	rc = string_to_context_struct(policydb, sidtab, scontext2,
- 				      &context, def_sid);
- 	if (rc == -EINVAL && force) {
-@@ -1622,8 +1628,8 @@ static int compute_sid_handle_invalid_context(
- 	u16 tclass,
- 	struct context *newcontext)
- {
--	struct policydb *policydb = &state->ss->policydb;
--	struct sidtab *sidtab = state->ss->sidtab;
-+	struct policydb *policydb = &state->ss->policy->policydb;
-+	struct sidtab *sidtab = &state->ss->policy->sidtab;
- 	char *s = NULL, *t = NULL, *n = NULL;
- 	u32 slen, tlen, nlen;
- 	struct audit_buffer *ab;
-@@ -1719,16 +1725,16 @@ static int security_compute_sid(struct selinux_state *state,
- 	read_lock(&state->ss->policy_rwlock);
- 
- 	if (kern) {
--		tclass = unmap_class(&state->ss->map, orig_tclass);
-+		tclass = unmap_class(&state->ss->policy->map, orig_tclass);
- 		sock = security_is_socket_class(orig_tclass);
- 	} else {
- 		tclass = orig_tclass;
--		sock = security_is_socket_class(map_class(&state->ss->map,
-+		sock = security_is_socket_class(map_class(&state->ss->policy->map,
- 							  tclass));
- 	}
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	sentry = sidtab_search_entry(sidtab, ssid);
- 	if (!sentry) {
-@@ -1945,7 +1951,7 @@ static inline int convert_context_handle_invalid_context(
- 	struct selinux_state *state,
- 	struct context *context)
- {
--	struct policydb *policydb = &state->ss->policydb;
-+	struct policydb *policydb = &state->ss->policy->policydb;
- 	char *s;
- 	u32 len;
- 
-@@ -1988,7 +1994,7 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
- 	args = p;
- 
- 	if (oldc->str) {
--		s = kstrdup(oldc->str, GFP_KERNEL);
-+		s = kstrdup(oldc->str, GFP_ATOMIC);
- 		if (!s)
- 			return -ENOMEM;
- 
-@@ -2098,10 +2104,14 @@ static int convert_context(struct context *oldc, struct context *newc, void *p)
- 
- static void security_load_policycaps(struct selinux_state *state)
- {
--	struct policydb *p = &state->ss->policydb;
-+	struct policydb *p;
- 	unsigned int i;
- 	struct ebitmap_node *node;
- 
-+	read_lock(&state->ss->policy_rwlock);
-+
-+	p = &state->ss->policy->policydb;
-+
- 	for (i = 0; i < ARRAY_SIZE(state->policycap); i++)
- 		state->policycap[i] = ebitmap_get_bit(&p->policycaps, i);
- 
-@@ -2115,11 +2125,71 @@ static void security_load_policycaps(struct selinux_state *state)
- 			pr_info("SELinux:  unknown policy capability %u\n",
- 				i);
- 	}
-+
-+	read_unlock(&state->ss->policy_rwlock);
- }
- 
- static int security_preserve_bools(struct selinux_state *state,
- 				   struct policydb *newpolicydb);
- 
-+static void selinux_policy_free(struct selinux_policy *policy)
-+{
-+	if (!policy)
-+		return;
-+
-+	policydb_destroy(&policy->policydb);
-+	sidtab_destroy(&policy->sidtab);
-+	kfree(policy->map.mapping);
-+	kfree(policy);
-+}
-+
-+static void selinux_policy_commit(struct selinux_state *state,
-+				struct selinux_policy *newpolicy)
-+{
-+	struct selinux_policy *oldpolicy;
-+	u32 seqno;
-+
-+	/* If switching between different policy types, log MLS status */
-+	read_lock(&state->ss->policy_rwlock);
-+	oldpolicy = state->ss->policy;
-+	if (oldpolicy) {
-+		if (oldpolicy->policydb.mls_enabled && !newpolicy->policydb.mls_enabled)
-+			pr_info("SELinux: Disabling MLS support...\n");
-+		else if (!oldpolicy->policydb.mls_enabled && newpolicy->policydb.mls_enabled)
-+			pr_info("SELinux: Enabling MLS support...\n");
-+	}
-+	read_unlock(&state->ss->policy_rwlock);
-+
-+	/* Install the new policy. */
-+	write_lock_irq(&state->ss->policy_rwlock);
-+	state->ss->policy = newpolicy;
-+	seqno = ++state->ss->latest_granting;
-+	write_unlock_irq(&state->ss->policy_rwlock);
-+
-+	/* Free the old policy */
-+	selinux_policy_free(oldpolicy);
-+
-+	/* Load the policycaps from the new policy */
-+	security_load_policycaps(state);
-+
-+	if (!selinux_initialized(state)) {
-+		/*
-+		 * After first policy load, the security server is
-+		 * marked as initialized and ready to handle requests and
-+		 * any objects created prior to policy load are then labeled.
-+		 */
-+		selinux_mark_initialized(state);
-+		selinux_complete_init();
-+	}
-+
-+	/* Flush external caches and notify userspace of policy load */
-+	avc_ss_reset(state->avc, seqno);
-+	selnl_notify_policyload(seqno);
-+	selinux_status_update_policyload(state, seqno);
-+	selinux_netlbl_cache_invalidate();
-+	selinux_xfrm_notify_policyload();
-+}
-+
- /**
-  * security_load_policy - Load a security policy configuration.
-  * @data: binary policy data
-@@ -2132,112 +2202,61 @@ static int security_preserve_bools(struct selinux_state *state,
-  */
- int security_load_policy(struct selinux_state *state, void *data, size_t len)
- {
--	struct policydb *policydb;
--	struct sidtab *oldsidtab, *newsidtab;
--	struct policydb *oldpolicydb, *newpolicydb;
--	struct selinux_mapping *oldmapping;
--	struct selinux_map newmap;
-+	struct selinux_policy *newpolicy;
- 	struct sidtab_convert_params convert_params;
- 	struct convert_context_args args;
--	u32 seqno;
- 	int rc = 0;
- 	struct policy_file file = { data, len }, *fp = &file;
- 
--	policydb = &state->ss->policydb;
--
--	newsidtab = kmalloc(sizeof(*newsidtab), GFP_KERNEL);
--	if (!newsidtab)
--		return -ENOMEM;
--
--	if (!selinux_initialized(state)) {
--		rc = policydb_read(policydb, fp);
--		if (rc) {
--			kfree(newsidtab);
--			return rc;
--		}
--
--		policydb->len = len;
--		rc = selinux_set_mapping(policydb, secclass_map,
--					 &state->ss->map);
--		if (rc) {
--			kfree(newsidtab);
--			policydb_destroy(policydb);
--			return rc;
--		}
--
--		rc = policydb_load_isids(policydb, newsidtab);
--		if (rc) {
--			kfree(newsidtab);
--			policydb_destroy(policydb);
--			return rc;
--		}
--
--		state->ss->sidtab = newsidtab;
--		security_load_policycaps(state);
--		selinux_mark_initialized(state);
--		seqno = ++state->ss->latest_granting;
--		selinux_complete_init();
--		avc_ss_reset(state->avc, seqno);
--		selnl_notify_policyload(seqno);
--		selinux_status_update_policyload(state, seqno);
--		selinux_netlbl_cache_invalidate();
--		selinux_xfrm_notify_policyload();
--		return 0;
--	}
--
--	oldpolicydb = kcalloc(2, sizeof(*oldpolicydb), GFP_KERNEL);
--	if (!oldpolicydb) {
--		kfree(newsidtab);
-+	newpolicy = kzalloc(sizeof(*newpolicy), GFP_KERNEL);
-+	if (!newpolicy)
- 		return -ENOMEM;
--	}
--	newpolicydb = oldpolicydb + 1;
- 
--	rc = policydb_read(newpolicydb, fp);
--	if (rc) {
--		kfree(newsidtab);
--		goto out;
--	}
-+	rc = policydb_read(&newpolicy->policydb, fp);
-+	if (rc)
-+		goto err;
- 
--	newpolicydb->len = len;
--	/* If switching between different policy types, log MLS status */
--	if (policydb->mls_enabled && !newpolicydb->mls_enabled)
--		pr_info("SELinux: Disabling MLS support...\n");
--	else if (!policydb->mls_enabled && newpolicydb->mls_enabled)
--		pr_info("SELinux: Enabling MLS support...\n");
-+	newpolicy->policydb.len = len;
-+	rc = selinux_set_mapping(&newpolicy->policydb, secclass_map,
-+				&newpolicy->map);
-+	if (rc)
-+		goto err;
- 
--	rc = policydb_load_isids(newpolicydb, newsidtab);
-+	rc = policydb_load_isids(&newpolicy->policydb, &newpolicy->sidtab);
- 	if (rc) {
- 		pr_err("SELinux:  unable to load the initial SIDs\n");
--		policydb_destroy(newpolicydb);
--		kfree(newsidtab);
--		goto out;
-+		goto err;
- 	}
- 
--	rc = selinux_set_mapping(newpolicydb, secclass_map, &newmap);
--	if (rc)
--		goto err;
-+	if (!selinux_initialized(state)) {
-+		/* First policy load, so no need to preserve state from old policy */
-+		selinux_policy_commit(state, newpolicy);
-+		return 0;
-+	}
- 
--	rc = security_preserve_bools(state, newpolicydb);
-+	/* Preserve active boolean values from the old policy */
-+	rc = security_preserve_bools(state, &newpolicy->policydb);
- 	if (rc) {
- 		pr_err("SELinux:  unable to preserve booleans\n");
- 		goto err;
- 	}
- 
--	oldsidtab = state->ss->sidtab;
--
- 	/*
- 	 * Convert the internal representations of contexts
- 	 * in the new SID table.
- 	 */
-+	read_lock(&state->ss->policy_rwlock);
-+
- 	args.state = state;
--	args.oldp = policydb;
--	args.newp = newpolicydb;
-+	args.oldp = &state->ss->policy->policydb;
-+	args.newp = &newpolicy->policydb;
- 
- 	convert_params.func = convert_context;
- 	convert_params.args = &args;
--	convert_params.target = newsidtab;
-+	convert_params.target = &newpolicy->sidtab;
- 
--	rc = sidtab_convert(oldsidtab, &convert_params);
-+	rc = sidtab_convert(&state->ss->policy->sidtab, &convert_params);
-+	read_unlock(&state->ss->policy_rwlock);
- 	if (rc) {
- 		pr_err("SELinux:  unable to convert the internal"
- 			" representation of contexts in the new SID"
-@@ -2245,53 +2264,20 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
- 		goto err;
- 	}
- 
--	/* Save the old policydb and SID table to free later. */
--	memcpy(oldpolicydb, policydb, sizeof(*policydb));
--
--	/* Install the new policydb and SID table. */
--	write_lock_irq(&state->ss->policy_rwlock);
--	memcpy(policydb, newpolicydb, sizeof(*policydb));
--	state->ss->sidtab = newsidtab;
--	security_load_policycaps(state);
--	oldmapping = state->ss->map.mapping;
--	state->ss->map.mapping = newmap.mapping;
--	state->ss->map.size = newmap.size;
--	seqno = ++state->ss->latest_granting;
--	write_unlock_irq(&state->ss->policy_rwlock);
--
--	/* Free the old policydb and SID table. */
--	policydb_destroy(oldpolicydb);
--	sidtab_destroy(oldsidtab);
--	kfree(oldsidtab);
--	kfree(oldmapping);
--
--	avc_ss_reset(state->avc, seqno);
--	selnl_notify_policyload(seqno);
--	selinux_status_update_policyload(state, seqno);
--	selinux_netlbl_cache_invalidate();
--	selinux_xfrm_notify_policyload();
--
--	rc = 0;
--	goto out;
-+	selinux_policy_commit(state, newpolicy);
-+	return 0;
- 
- err:
--	kfree(newmap.mapping);
--	sidtab_destroy(newsidtab);
--	kfree(newsidtab);
--	policydb_destroy(newpolicydb);
--
--out:
--	kfree(oldpolicydb);
-+	selinux_policy_free(newpolicy);
- 	return rc;
- }
- 
- size_t security_policydb_len(struct selinux_state *state)
- {
--	struct policydb *p = &state->ss->policydb;
- 	size_t len;
- 
- 	read_lock(&state->ss->policy_rwlock);
--	len = p->len;
-+	len = state->ss->policy->policydb.len;
- 	read_unlock(&state->ss->policy_rwlock);
- 
- 	return len;
-@@ -2313,8 +2299,8 @@ int security_port_sid(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	c = policydb->ocontexts[OCON_PORT];
- 	while (c) {
-@@ -2358,8 +2344,8 @@ int security_ib_pkey_sid(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	c = policydb->ocontexts[OCON_IBPKEY];
- 	while (c) {
-@@ -2404,8 +2390,8 @@ int security_ib_endport_sid(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	c = policydb->ocontexts[OCON_IBENDPORT];
- 	while (c) {
-@@ -2449,8 +2435,8 @@ int security_netif_sid(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	c = policydb->ocontexts[OCON_NETIF];
- 	while (c) {
-@@ -2512,8 +2498,8 @@ int security_node_sid(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	switch (domain) {
- 	case AF_INET: {
-@@ -2612,8 +2598,8 @@ int security_get_user_sids(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	context_init(&usercon);
- 
-@@ -2714,8 +2700,8 @@ static inline int __security_genfs_sid(struct selinux_state *state,
- 				       u16 orig_sclass,
- 				       u32 *sid)
- {
--	struct policydb *policydb = &state->ss->policydb;
--	struct sidtab *sidtab = state->ss->sidtab;
-+	struct policydb *policydb = &state->ss->policy->policydb;
-+	struct sidtab *sidtab = &state->ss->policy->sidtab;
- 	int len;
- 	u16 sclass;
- 	struct genfs *genfs;
-@@ -2725,7 +2711,7 @@ static inline int __security_genfs_sid(struct selinux_state *state,
- 	while (path[0] == '/' && path[1] == '/')
- 		path++;
- 
--	sclass = unmap_class(&state->ss->map, orig_sclass);
-+	sclass = unmap_class(&state->ss->policy->map, orig_sclass);
- 	*sid = SECINITSID_UNLABELED;
- 
- 	for (genfs = policydb->genfs; genfs; genfs = genfs->next) {
-@@ -2800,8 +2786,8 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
--	sidtab = state->ss->sidtab;
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
- 
- 	c = policydb->ocontexts[OCON_FSUSE];
- 	while (c) {
-@@ -2851,7 +2837,7 @@ int security_get_bools(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
-+	policydb = &state->ss->policy->policydb;
- 
- 	*names = NULL;
- 	*values = NULL;
-@@ -2902,7 +2888,7 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
- 
- 	write_lock_irq(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
-+	policydb = &state->ss->policy->policydb;
- 
- 	rc = -EFAULT;
- 	lenp = policydb->p_bools.nprim;
-@@ -2950,7 +2936,7 @@ int security_get_bool_value(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
--	policydb = &state->ss->policydb;
-+	policydb = &state->ss->policy->policydb;
- 
- 	rc = -EFAULT;
- 	len = policydb->p_bools.nprim;
-@@ -2998,8 +2984,8 @@ static int security_preserve_bools(struct selinux_state *state,
- int security_sid_mls_copy(struct selinux_state *state,
- 			  u32 sid, u32 mls_sid, u32 *new_sid)
- {
--	struct policydb *policydb = &state->ss->policydb;
--	struct sidtab *sidtab = state->ss->sidtab;
-+	struct policydb *policydb;
-+	struct sidtab *sidtab;
- 	struct context *context1;
- 	struct context *context2;
- 	struct context newcon;
-@@ -3008,7 +2994,7 @@ int security_sid_mls_copy(struct selinux_state *state,
- 	int rc;
- 
- 	rc = 0;
--	if (!selinux_initialized(state) || !policydb->mls_enabled) {
-+	if (!selinux_initialized(state)) {
- 		*new_sid = sid;
- 		goto out;
- 	}
-@@ -3017,6 +3003,14 @@ int security_sid_mls_copy(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
-+
-+	if (!policydb->mls_enabled) {
-+		*new_sid = sid;
-+		goto out_unlock;
-+	}
-+
- 	rc = -EINVAL;
- 	context1 = sidtab_search(sidtab, sid);
- 	if (!context1) {
-@@ -3094,8 +3088,8 @@ int security_net_peersid_resolve(struct selinux_state *state,
- 				 u32 xfrm_sid,
- 				 u32 *peer_sid)
- {
--	struct policydb *policydb = &state->ss->policydb;
--	struct sidtab *sidtab = state->ss->sidtab;
-+	struct policydb *policydb;
-+	struct sidtab *sidtab;
- 	int rc;
- 	struct context *nlbl_ctx;
- 	struct context *xfrm_ctx;
-@@ -3117,15 +3111,20 @@ int security_net_peersid_resolve(struct selinux_state *state,
- 		return 0;
- 	}
- 
-+	read_lock(&state->ss->policy_rwlock);
-+
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
-+
- 	/*
- 	 * We don't need to check initialized here since the only way both
- 	 * nlbl_sid and xfrm_sid are not equal to SECSID_NULL would be if the
- 	 * security server was initialized and state->initialized was true.
- 	 */
--	if (!policydb->mls_enabled)
--		return 0;
--
--	read_lock(&state->ss->policy_rwlock);
-+	if (!policydb->mls_enabled) {
-+		rc = 0;
-+		goto out;
-+	}
- 
- 	rc = -EINVAL;
- 	nlbl_ctx = sidtab_search(sidtab, nlbl_sid);
-@@ -3172,7 +3171,7 @@ static int get_classes_callback(void *k, void *d, void *args)
- int security_get_classes(struct selinux_state *state,
- 			 char ***classes, int *nclasses)
- {
--	struct policydb *policydb = &state->ss->policydb;
-+	struct policydb *policydb;
- 	int rc;
- 
- 	if (!selinux_initialized(state)) {
-@@ -3183,6 +3182,8 @@ int security_get_classes(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+	policydb = &state->ss->policy->policydb;
-+
- 	rc = -ENOMEM;
- 	*nclasses = policydb->p_classes.nprim;
- 	*classes = kcalloc(*nclasses, sizeof(**classes), GFP_ATOMIC);
-@@ -3219,12 +3220,14 @@ static int get_permissions_callback(void *k, void *d, void *args)
- int security_get_permissions(struct selinux_state *state,
- 			     char *class, char ***perms, int *nperms)
- {
--	struct policydb *policydb = &state->ss->policydb;
-+	struct policydb *policydb;
- 	int rc, i;
- 	struct class_datum *match;
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+	policydb = &state->ss->policy->policydb;
-+
- 	rc = -EINVAL;
- 	match = symtab_search(&policydb->p_classes, class);
- 	if (!match) {
-@@ -3265,12 +3268,22 @@ int security_get_permissions(struct selinux_state *state,
- 
- int security_get_reject_unknown(struct selinux_state *state)
- {
--	return state->ss->policydb.reject_unknown;
-+	int value;
-+
-+	read_lock(&state->ss->policy_rwlock);
-+	value = state->ss->policy->policydb.reject_unknown;
-+	read_unlock(&state->ss->policy_rwlock);
-+	return value;
- }
- 
- int security_get_allow_unknown(struct selinux_state *state)
- {
--	return state->ss->policydb.allow_unknown;
-+	int value;
-+
-+	read_lock(&state->ss->policy_rwlock);
-+	value = state->ss->policy->policydb.allow_unknown;
-+	read_unlock(&state->ss->policy_rwlock);
-+	return value;
- }
- 
- /**
-@@ -3286,11 +3299,10 @@ int security_get_allow_unknown(struct selinux_state *state)
- int security_policycap_supported(struct selinux_state *state,
- 				 unsigned int req_cap)
- {
--	struct policydb *policydb = &state->ss->policydb;
- 	int rc;
- 
- 	read_lock(&state->ss->policy_rwlock);
--	rc = ebitmap_get_bit(&policydb->policycaps, req_cap);
-+	rc = ebitmap_get_bit(&state->ss->policy->policydb.policycaps, req_cap);
- 	read_unlock(&state->ss->policy_rwlock);
- 
- 	return rc;
-@@ -3314,7 +3326,7 @@ void selinux_audit_rule_free(void *vrule)
- int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
- {
- 	struct selinux_state *state = &selinux_state;
--	struct policydb *policydb = &state->ss->policydb;
-+	struct policydb *policydb;
- 	struct selinux_audit_rule *tmprule;
- 	struct role_datum *roledatum;
- 	struct type_datum *typedatum;
-@@ -3359,6 +3371,8 @@ int selinux_audit_rule_init(u32 field, u32 op, char *rulestr, void **vrule)
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+	policydb = &state->ss->policy->policydb;
-+
- 	tmprule->au_seqno = state->ss->latest_granting;
- 
- 	switch (field) {
-@@ -3455,7 +3469,7 @@ int selinux_audit_rule_match(u32 sid, u32 field, u32 op, void *vrule)
- 		goto out;
- 	}
- 
--	ctxt = sidtab_search(state->ss->sidtab, sid);
-+	ctxt = sidtab_search(&state->ss->policy->sidtab, sid);
- 	if (unlikely(!ctxt)) {
- 		WARN_ONCE(1, "selinux_audit_rule_match: unrecognized SID %d\n",
- 			  sid);
-@@ -3617,8 +3631,8 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
- 				   struct netlbl_lsm_secattr *secattr,
- 				   u32 *sid)
- {
--	struct policydb *policydb = &state->ss->policydb;
--	struct sidtab *sidtab = state->ss->sidtab;
-+	struct policydb *policydb;
-+	struct sidtab *sidtab;
- 	int rc;
- 	struct context *ctx;
- 	struct context ctx_new;
-@@ -3630,6 +3644,9 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+	policydb = &state->ss->policy->policydb;
-+	sidtab = &state->ss->policy->sidtab;
-+
- 	if (secattr->flags & NETLBL_SECATTR_CACHE)
- 		*sid = *(u32 *)secattr->cache->data;
- 	else if (secattr->flags & NETLBL_SECATTR_SECID)
-@@ -3686,7 +3703,7 @@ int security_netlbl_secattr_to_sid(struct selinux_state *state,
- int security_netlbl_sid_to_secattr(struct selinux_state *state,
- 				   u32 sid, struct netlbl_lsm_secattr *secattr)
- {
--	struct policydb *policydb = &state->ss->policydb;
-+	struct policydb *policydb;
- 	int rc;
- 	struct context *ctx;
- 
-@@ -3695,8 +3712,10 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
- 
- 	read_lock(&state->ss->policy_rwlock);
- 
-+	policydb = &state->ss->policy->policydb;
-+
- 	rc = -ENOENT;
--	ctx = sidtab_search(state->ss->sidtab, sid);
-+	ctx = sidtab_search(&state->ss->policy->sidtab, sid);
- 	if (ctx == NULL)
- 		goto out;
- 
-@@ -3725,7 +3744,6 @@ int security_netlbl_sid_to_secattr(struct selinux_state *state,
- int security_read_policy(struct selinux_state *state,
- 			 void **data, size_t *len)
- {
--	struct policydb *policydb = &state->ss->policydb;
- 	int rc;
- 	struct policy_file fp;
- 
-@@ -3742,7 +3760,7 @@ int security_read_policy(struct selinux_state *state,
- 	fp.len = *len;
- 
- 	read_lock(&state->ss->policy_rwlock);
--	rc = policydb_write(policydb, &fp);
-+	rc = policydb_write(&state->ss->policy->policydb, &fp);
- 	read_unlock(&state->ss->policy_rwlock);
- 
- 	if (rc)
-diff --git a/security/selinux/ss/services.h b/security/selinux/ss/services.h
-index a06f3d835216..c36933c1c363 100644
---- a/security/selinux/ss/services.h
-+++ b/security/selinux/ss/services.h
-@@ -22,12 +22,16 @@ struct selinux_map {
- 	u16 size; /* array size of mapping */
- };
- 
--struct selinux_ss {
--	struct sidtab *sidtab;
-+struct selinux_policy {
-+	struct sidtab sidtab;
- 	struct policydb policydb;
-+	struct selinux_map map;
-+};
-+
-+struct selinux_ss {
- 	rwlock_t policy_rwlock;
- 	u32 latest_granting;
--	struct selinux_map map;
-+	struct selinux_policy *policy;
- } __randomize_layout;
- 
- void services_compute_xperms_drivers(struct extended_perms *xperms,
-diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-index eb6d27b5aeb4..47be8bcf6bed 100644
---- a/security/selinux/ss/sidtab.c
-+++ b/security/selinux/ss/sidtab.c
-@@ -369,7 +369,7 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
- 	if (level != 0) {
- 		if (!edst->ptr_inner) {
- 			edst->ptr_inner = kzalloc(SIDTAB_NODE_ALLOC_SIZE,
--						  GFP_KERNEL);
-+						  GFP_ATOMIC);
- 			if (!edst->ptr_inner)
- 				return -ENOMEM;
- 		}
-@@ -386,7 +386,7 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
- 	} else {
- 		if (!edst->ptr_leaf) {
- 			edst->ptr_leaf = kzalloc(SIDTAB_NODE_ALLOC_SIZE,
--						 GFP_KERNEL);
-+						 GFP_ATOMIC);
- 			if (!edst->ptr_leaf)
- 				return -ENOMEM;
- 		}
-@@ -400,7 +400,6 @@ static int sidtab_convert_tree(union sidtab_entry_inner *edst,
- 			(*pos)++;
- 			i++;
- 		}
--		cond_resched();
- 	}
- 	return 0;
- }
--- 
-2.25.1
+> Also, could you please check if
+> /sys/kernel/security/integrity/ima/policy contains LSM_STATE and
+> LSM_POLICY entries?
 
+Yes, it does.  However, I noticed that if I reduce the policy to only
+contain those entries and no others and reboot, then I get
+measurements.  Whereas if I append them to an existing policy like the
+one below, they seem to be ignored:
+dont_measure fsmagic=0x9fa0
+dont_measure fsmagic=0x62656572
+dont_measure fsmagic=0x64626720
+dont_measure fsmagic=0x1021994
+dont_measure fsmagic=0x858458f6
+dont_measure fsmagic=0x73636673
+measure func=BPRM_CHECK
+measure func=MMAP_CHECK mask=MAY_EXEC
+measure func=MODULE_CHECK uid=0
+measure func=LSM_STATE template=ima-buf
+measure func=LSM_POLICY
+
+Also, I noticed the following in my dmesg output:
+[   68.870715] ------------[ cut here ]------------
+[   68.870715] WARNING: CPU: 2 PID: 1 at mm/page_alloc.c:4826
+__alloc_pages_nodemask+0x627/0x700
+[   68.870715] Modules linked in: 8139too crct10dif_pclmul
+crc32_pclmul crc32c_intel ghash_clmulni_intel qxl serio_raw
+drm_ttm_helper ttm drm_kms_helper virtio_console cec drm 8139cp
+ata_generic mii pata_acpi floppy qemu_fw_cfg fuse
+[   68.870715] CPU: 2 PID: 1 Comm: systemd Not tainted 5.8.0-rc2+ #44
+[   68.870715] RIP: 0010:__alloc_pages_nodemask+0x627/0x700
+[   68.870715] Code: ff ff 75 6c 48 8b 85 48 ff ff ff 4c 89 c2 44 89
+e6 44 89 ff 41 c6 45 d0 00 49 89 45 b8 e8 41 e2 ff ff 49 89 c6 e9 9d
+fc ff ff <0f> 0b e9 d4 fd ff ff 0f 0b e9 bc fc ff ff 0f 0b e9 f9 fd ff
+ff e8
+[   68.870715] RSP: 0000:ffff8881e82a7a18 EFLAGS: 00010246
+[   68.870715] RAX: ffffed103d054f48 RBX: 1ffff1103d054f48 RCX: 0000000000000000
+[   68.870715] RDX: 0000000000000000 RSI: 000000000000000b RDI: 0000000000000000
+[   68.870715] RBP: ffff8881e82a7ae8 R08: ffffffffaa3fe2d5 R09: 0000000000000001
+[   68.870715] R10: fffffbfff5a88f0f R11: 0000000000000001 R12: 00000000007eef6a
+[   68.870715] R13: 0000000000040cc0 R14: 000000000000000b R15: ffffffffadde766b
+[   68.870715] FS:  00007fdeb168c600(0000) GS:ffff8881e9800000(0000)
+knlGS:0000000000000000
+[   68.870715] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   68.870715] CR2: 00007fdeb17dd1d6 CR3: 00000001cc2d2002 CR4: 00000000003606e0
+[   68.870715] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[   68.870715] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[   68.870715] Call Trace:
+[   68.870715]  ? sched_clock_cpu+0xf5/0x110
+[   68.870715]  ? __alloc_pages_slowpath.constprop.0+0x17a0/0x17a0
+[   68.870715]  ? match_held_lock+0x2e/0x240
+[   68.870715]  ? policy_nodemask+0x1a/0xa0
+[   68.870715]  ? policy_node+0x56/0x60
+[   68.870715]  kmalloc_order+0x25/0xc0
+[   68.870715]  kmalloc_order_trace+0x1d/0x140
+[   68.870715]  kmemdup+0x1a/0x40
+[   68.870715]  ima_queue_data+0x61/0x370
+[   68.870715]  ima_measure_lsm_data+0x32/0x60
+[   68.870715]  selinux_measure_state+0x2b8/0x2bd
+[   68.870715]  ? selinux_event_name+0xe0/0xe0
+[   68.870715]  ? rcu_is_watching+0x39/0x50
+[   68.870715]  security_load_policy+0x44c/0x8e0
+[   68.870715]  ? mark_lock+0xa6/0xbd0
+[   68.870715]  ? security_change_sid+0x90/0x90
+[   68.870715]  ? mark_held_locks+0x3e/0xa0
+[   68.870715]  ? lockdep_hardirqs_on_prepare+0x100/0x260
+[   68.870715]  ? asm_exc_page_fault+0x1e/0x30
+[   68.870715]  ? lockdep_hardirqs_on+0xc5/0x1b0
+[   68.870715]  ? asm_exc_page_fault+0x1e/0x30
+[   68.870715]  ? copy_user_enhanced_fast_string+0xe/0x30
+[   68.870715]  sel_write_load+0x157/0x260
+[   68.870715]  vfs_write+0x135/0x290
+[   68.870715]  ksys_write+0xb1/0x140
+[   68.870715]  ? __ia32_sys_read+0x50/0x50
+[   68.870715]  ? lockdep_hardirqs_on_prepare+0x100/0x260
+[   68.870715]  ? do_syscall_64+0x12/0xb0
+[   68.870715]  do_syscall_64+0x52/0xb0
+[   68.870715]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[   68.870715] RIP: 0033:0x7fdeb2539497
+[   68.870715] Code: Bad RIP value.
+[   68.870715] RSP: 002b:00007fff6352b308 EFLAGS: 00000246 ORIG_RAX:
+0000000000000001
+[   68.870715] RAX: ffffffffffffffda RBX: 0000000000000020 RCX: 00007fdeb2539497
+[   68.870715] RDX: 00000000007eef6a RSI: 00007fdeb0de1000 RDI: 0000000000000004
+[   68.870715] RBP: 0000000000000004 R08: 00007fdeb25d0040 R09: 00007fff6352b1a0
+[   68.870715] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fdeb0de1000
+[   68.870715] R13: 00000000007eef6a R14: 000000000000000f R15: 0000000000000003
+[   68.870715] irq event stamp: 23486085
+[   68.870715] hardirqs last  enabled at (23486085):
+[<ffffffffaa419406>] _raw_spin_unlock_irqrestore+0x46/0x60
+[   68.870715] hardirqs last disabled at (23486084):
+[<ffffffffaa419443>] _raw_spin_lock_irqsave+0x23/0x90
+[   68.870715] softirqs last  enabled at (23486074):
+[<ffffffffaa8004f3>] __do_softirq+0x4f3/0x662
+[   68.870715] softirqs last disabled at (23486067):
+[<ffffffffaa601072>] asm_call_on_stack+0x12/0x20
+[   68.870715] ---[ end trace fb02740ff6f4d0cd ]---
