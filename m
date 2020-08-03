@@ -2,128 +2,84 @@ Return-Path: <SRS0=5Yje=BN=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 159F3C433DF
-	for <selinux@archiver.kernel.org>; Mon,  3 Aug 2020 15:14:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03ABDC433DF
+	for <selinux@archiver.kernel.org>; Mon,  3 Aug 2020 16:14:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EAE3C20825
-	for <selinux@archiver.kernel.org>; Mon,  3 Aug 2020 15:14:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D658820738
+	for <selinux@archiver.kernel.org>; Mon,  3 Aug 2020 16:14:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ShuFO0z8"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Wi4GLNyx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727064AbgHCPOf (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Aug 2020 11:14:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39956 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbgHCPOf (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Aug 2020 11:14:35 -0400
-Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E704C06174A
-        for <selinux@vger.kernel.org>; Mon,  3 Aug 2020 08:14:35 -0700 (PDT)
-Received: by mail-pl1-x641.google.com with SMTP id p1so20814550pls.4
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2020 08:14:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=Y9E7Q+5hEiDCcwHm8jAEGUJw3qsMXHmd9kIT7B0NL1s=;
-        b=ShuFO0z8dDlnJ6vRWgwN69Wwz/4zifQyQIHNg3fS8EE4mFfr8jccIWNDWIGDH1P9NG
-         7Kt/be8+4a/Olgg7xGUgWlfKn0C8kjZY5ZobbImLF28eXxXKMBLqdbtdU74ktZX/+E7Y
-         Q+aJFxBzRbvW9uDN3BcBLOPYhMsDvd+26MB8SRtghcvMxflpX/XCoAEQE8OOUTLCnsxj
-         eYTQcZ87iyn0kn2DchlZrWc2n+4GbiSRTMla/cvIMaw7A2EFr53UEFPSpI1b0Zf+tuCi
-         fNdp4WinzGB3M+krf5gOg8CAlkUMK9RFhDT65GKwFu1L4k8/NE9Sfwu2dygDlfSFa/Mz
-         ncvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=Y9E7Q+5hEiDCcwHm8jAEGUJw3qsMXHmd9kIT7B0NL1s=;
-        b=E5KYSw/BOU7100qhGmt5fmk3OtAncIAvZQQ4ppoYIGj82GYDwWBsbeW8KYL4W1WzLd
-         NkRyzfmUWlGKqwR8F+mkg+Q0z/XzgMWwQbNTPA/TnXKGvAUdU86A6dyCICJG50POXoPf
-         /7Y1TePCa0LR6qRIExG0D0TfEv7KYHmb/MV829HywPuVaQKrDVPwoNNO0Npn/GD7vkwv
-         oNVReT5QtaUo+3fRnqBZaH64lSQPyc0f0qIC4I+RYiC7bqlIn5WNkh2OBH1z8aLooqtW
-         WYQ/0yc8Dz/KAa24mDtrMuU1XVmVx30Fdf0OL4oYXQUbKkKx7XZmkz12lQrkCfW+AAc/
-         soVw==
-X-Gm-Message-State: AOAM5307twcu4DiCIwFbYGKpKhCvcQ0XGt5HYjY5mki5z8CWH/mt6TTC
-        v3KqznlQe5zyHpPiDRj1FsEwaiFzZP0=
-X-Google-Smtp-Source: ABdhPJyW6MNTSh2NFdoXn/9KiTYuddUm/C6/bo3FQ9xZ++XDVbfCIrLs8WrwjZg8KDoAA1ohJa5ZKg==
-X-Received: by 2002:a17:902:bd48:: with SMTP id b8mr15474412plx.121.1596467674468;
-        Mon, 03 Aug 2020 08:14:34 -0700 (PDT)
-Received: from wcrobert-MOBL1.netgear.com (fmdmzpr03-ext.fm.intel.com. [192.55.54.38])
-        by smtp.gmail.com with ESMTPSA id i12sm3642579pgj.23.2020.08.03.08.14.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2020 08:14:33 -0700 (PDT)
-From:   bill.c.roberts@gmail.com
-X-Google-Original-From: william.c.roberts@intel.com
-To:     omosnace@redhat.com
-Cc:     bill.c.roberts@gmail.com, selinux@vger.kernel.org,
-        william.c.roberts@intel.com
-Subject: [PATCH v2] scripts/ci: license as MIT
-Date:   Mon,  3 Aug 2020 10:14:28 -0500
-Message-Id: <20200803151428.15166-1-william.c.roberts@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <CAFqZXNvh9q4qTSN-Fj108JrO8DAfMiDkOzTDHs6n3Pxg+DOtXg@mail.gmail.com>
-References: <CAFqZXNvh9q4qTSN-Fj108JrO8DAfMiDkOzTDHs6n3Pxg+DOtXg@mail.gmail.com>
+        id S1728097AbgHCQOR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Aug 2020 12:14:17 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:45100 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726489AbgHCQOR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Aug 2020 12:14:17 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id A5D5E20B4908;
+        Mon,  3 Aug 2020 09:14:16 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com A5D5E20B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1596471256;
+        bh=nQqAWtDafDKA8mvQC2Nbk6iiZBioPMz9F6PAHCzIvMA=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Wi4GLNyxXNsjpUC7/KNgmutcSEFnt523xFyHy3Nx9pWgcgVbSWqWxnnWeQdUUW7gw
+         tJbP19VcLTOAsLnJ1XaSY9ZcdcgkJ+7Fo5JzItBTYEBAapr06o8wz5Vng0Bs1TcIFF
+         C5gp0mKqNHpLGeEia2tBJXdezdoJvQK/c98DannM=
+Subject: Re: [PATCH v5 3/4] LSM: Define SELinux function to measure state and
+ policy
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        zohar@linux.ibm.com, casey@schaufler-ca.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200730034724.3298-1-nramas@linux.microsoft.com>
+ <20200730034724.3298-4-nramas@linux.microsoft.com>
+ <dfd6f9c8-d62a-d278-9b0e-6b1f5ad03d3e@gmail.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <6371efa9-5ae6-05ac-c357-3fbe1a5a93d5@linux.microsoft.com>
+Date:   Mon, 3 Aug 2020 09:14:16 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <dfd6f9c8-d62a-d278-9b0e-6b1f5ad03d3e@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-From: William Roberts <william.c.roberts@intel.com>
+On 8/3/20 8:11 AM, Stephen Smalley wrote:
+> 
+> Possibly I'm missing something but with these patches applied on top of 
+> next-integrity, and the following lines added to /etc/ima/ima-policy:
+> 
+> measure func=LSM_STATE template=ima-buf
+> measure func=LSM_POLICY
+> 
+> I still don't get the selinux-state or selinux-policy-hash entries in 
+> the ascii_runtime_measurements file.  No errors during loading of the 
+> ima policy as far as I can see.
+> 
 
-License the ci scripts with a permissive, OSI approved license, such as
-MIT.
+Could you please check if the following config is set?
+CONFIG_IMA_QUEUE_EARLY_BOOT_DATA=y
 
-Signed-off-by: William Roberts <william.c.roberts@intel.com>
----
- v1: Apache 2.0
- v2: MIT
- 
- scripts/ci/LICENSE               | 7 +++++++
- scripts/ci/fedora-test-runner.sh | 2 +-
- scripts/ci/travis-kvm-setup.sh   | 2 +-
- 3 files changed, 9 insertions(+), 2 deletions(-)
- create mode 100644 scripts/ci/LICENSE
+Try changing /sys/fs/selinux/checkreqprot and check 
+ascii_runtime_measurements file again?
 
-diff --git a/scripts/ci/LICENSE b/scripts/ci/LICENSE
-new file mode 100644
-index 000000000000..6cd7b7924ef9
---- /dev/null
-+++ b/scripts/ci/LICENSE
-@@ -0,0 +1,7 @@
-+Copyright <YEAR> <COPYRIGHT HOLDER>
-+
-+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-+
-+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-+
-+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-test-runner.sh
-index 569723387f6b..0aaba87c421b 100755
---- a/scripts/ci/fedora-test-runner.sh
-+++ b/scripts/ci/fedora-test-runner.sh
-@@ -1,5 +1,5 @@
- #!/usr/bin/env bash
--
-+# SPDX-License-Identifier: MIT
- set -ev
- 
- #
-diff --git a/scripts/ci/travis-kvm-setup.sh b/scripts/ci/travis-kvm-setup.sh
-index 8d4cfb79f7d7..2b5734178096 100755
---- a/scripts/ci/travis-kvm-setup.sh
-+++ b/scripts/ci/travis-kvm-setup.sh
-@@ -1,5 +1,5 @@
- #!/usr/bin/env bash
--
-+# SPDX-License-Identifier: MIT
- set -ev
- 
- TEST_RUNNER="scripts/ci/fedora-test-runner.sh"
--- 
-2.17.1
+Also, could you please check if
+/sys/kernel/security/integrity/ima/policy contains LSM_STATE and 
+LSM_POLICY entries?
+
+  -lakshmi
+
 
