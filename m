@@ -8,169 +8,192 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAFF5C433DF
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 14:37:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA4C5C433E0
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 14:45:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CBC542065C
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 14:37:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8F4FE206DA
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 14:45:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZpOta0OR"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="faGo8kzj"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729125AbgHDOhB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Aug 2020 10:37:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58492 "EHLO
+        id S1729279AbgHDOpb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Aug 2020 10:45:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727016AbgHDOgu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Aug 2020 10:36:50 -0400
-Received: from mail-il1-x144.google.com (mail-il1-x144.google.com [IPv6:2607:f8b0:4864:20::144])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40BF2C06174A
-        for <selinux@vger.kernel.org>; Tue,  4 Aug 2020 07:36:50 -0700 (PDT)
-Received: by mail-il1-x144.google.com with SMTP id y18so25931925ilp.10
-        for <selinux@vger.kernel.org>; Tue, 04 Aug 2020 07:36:50 -0700 (PDT)
+        with ESMTP id S1729255AbgHDOpS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Aug 2020 10:45:18 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAACC06174A
+        for <selinux@vger.kernel.org>; Tue,  4 Aug 2020 07:45:17 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id q9so15083514oth.5
+        for <selinux@vger.kernel.org>; Tue, 04 Aug 2020 07:45:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=3kb4xC5dQIZYE3/a8KKbjB+g0yzajCOqNT3jTdxe8Ic=;
-        b=ZpOta0OR+G14EO15E4KeHxKR1CyeDmtgnDOnnBb2QOZkQPV/ze5RuGE/Sd4MbFGCdv
-         ekVVcM35Y9ZWNtok8fC7AOa+FsGtYwmyDNUzOKRhcDeS5YQ5ukHlzfuY7Wh8hnoZOOzO
-         SFs8dJkx7IN7dlYAsEItWUzXrnibYk+WjietucKaQ0LvQRG2IsHsO3XWq8ZBGJGAf9A0
-         fXFgKVvq+gAbUzenaM5e81oqgpB/ziSrgaYIzmJWJhSOR0UaCvJDwc0uIr/DPUErI6K3
-         92OOr8MfvnZ4uXc8zDnn5caNISjIYQIVZgKqhPwrOjRBvtpHLBmEPmBrMQieYw8HcjEe
-         Xc0Q==
+         :cc;
+        bh=ec+XWOJhBRLLw0C/hyTyOsZxelgJJktTL0zEZrLmhxE=;
+        b=faGo8kzj/aeYkOXuJShw1GL0Alh5i/g8kb3JE2Xaoitpaf/dyqt90AC18bmGik7pej
+         yFppp9ohyB2w9u02s4K2CY6dhLXTTcidr9+AwVsPEoIZ+7sdfTdqJ858FHucTMcg+ksS
+         kzyYiZiS7BBUvTD2lqhWYZP2Hf8MAdNvN3YCWxz1NFncsgkXOe+Yhi++LA3ng/T+GrxT
+         RTZzU5nqt8xYkuBs7cxLSTYjKxPVTYOGtWmo6ORXDWPxrW1wQ89ftVEBo5utHfEmUBcw
+         cPKB3YGXUT7y7x5VSVKgF9uWUJPOQeW8vlxYzIAoe4e3IbYyTH2/eXiBcuFlsC8wiYwF
+         0Sfg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=3kb4xC5dQIZYE3/a8KKbjB+g0yzajCOqNT3jTdxe8Ic=;
-        b=X0TEyJjtRS4qMRp5q0Ncj1Ni5jRDIaAUs4i3VrLdj17vgmJ/S4T1dZiW0HCQok0vVw
-         g+sdQUfCyNKA6Xi7ZyGz+eiDsCk2wKWGRz9x+GiszNEsJYNTW7N1GPKe1JHdKSIyhhGW
-         wlV/k1Z5XPsafY9F1p3nc/jBRnngWTtSiF3nmlLX/0DSTIMaJ/Y/XzCupbffl11W3cas
-         VL8IcuAo2fGwZ54ogTsVDXNGkOXAbi/0S/iL/WFu79z4BG16Pz2NidGPww8nss939MOi
-         v3sZSsBTp50JIObwIF7KNkmi7ry/xE9KPhDwet+iQ72PNH3J8ojyPaNn0InO4em/0EjW
-         IGAw==
-X-Gm-Message-State: AOAM533zvsHnwOU+T8PtsciG/v//+KjHTCXKM657t/tD4CQaaTFtJEWU
-        gl3iRxJluG34opondGH2vzMlxgMcNrr0SNbiR70=
-X-Google-Smtp-Source: ABdhPJzduKLyL5o8OibILBxQOcCimhwIOXhFv8Ni01Bges9MdxHFL/BAe/JfXfKoWIMDti8ntP3FGtpTbbI2mBonJQA=
-X-Received: by 2002:a05:6e02:1213:: with SMTP id a19mr5026482ilq.129.1596551809429;
- Tue, 04 Aug 2020 07:36:49 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=ec+XWOJhBRLLw0C/hyTyOsZxelgJJktTL0zEZrLmhxE=;
+        b=sl0L5lISLB20Uq6hZsFgI75lX5LAJRMSCyjFteJK30mwtlMbSKPZ4sRWoYd7x9+iYW
+         HbZKsMoTR+5qglAX98eohMf5SLIkDysvAuWh1FStgk0eM7wDS6r8x1ElBRq9BQ773vgf
+         JlSS2Fjm197ToVKxLZju3mGUKLoLdhBEgRqHapO4w5ATQlChKb0f9L8AAJPoEw268eNp
+         MbvjLMtKfq9ZqcAdHvW9ilXXh/+egk6eZ5j7X+ZO/I8y+FpQtDELFM8aL8Md7Ag3bigw
+         oZhSoiW5KalxVAkYa8R02EBHkW9w6KnShqlWxNFC4hv4dLjHng2qrHCOSTQl7a9PgCEm
+         AoBw==
+X-Gm-Message-State: AOAM5317PnA+vqqD+aS78K/nTBeUgMZKrngyEuu0GDEKAkJejDFyt3is
+        /0p18ngDGs5ZHwKCkM8Z2ktA77qLFSbFv7UzedGlkQ==
+X-Google-Smtp-Source: ABdhPJzwmbkVW0sYsNhMfTrXxnkB11KYeG0Alq0Lb48RaNp6P0Tax0Cs7kdpNKPeAiYS6yqEHGC5qQdVHcoRBki2R6o=
+X-Received: by 2002:a05:6830:209a:: with SMTP id y26mr2626020otq.59.1596552317336;
+ Tue, 04 Aug 2020 07:45:17 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAFqZXNvh9q4qTSN-Fj108JrO8DAfMiDkOzTDHs6n3Pxg+DOtXg@mail.gmail.com>
- <20200803151428.15166-1-william.c.roberts@intel.com> <CAFqZXNtTZio0-9_T9yheg0JmUP-TDa2OsUkgvHrNphGCrjhMVg@mail.gmail.com>
- <CAFftDdpwud0FtuaoUE1ABgYtMwr3+kcF-hww88+eDHdz5oGLSw@mail.gmail.com> <CAFqZXNtVeUZWt99_SY+AYYLgTKqAw0rfs8TY5oN-fpKv8f1vqA@mail.gmail.com>
-In-Reply-To: <CAFqZXNtVeUZWt99_SY+AYYLgTKqAw0rfs8TY5oN-fpKv8f1vqA@mail.gmail.com>
-From:   William Roberts <bill.c.roberts@gmail.com>
-Date:   Tue, 4 Aug 2020 09:36:37 -0500
-Message-ID: <CAFftDdoye_BgA24w8R67x4NWTATovT5-4zdx-k3QR=J1gEypbQ@mail.gmail.com>
-Subject: Re: [PATCH v2] scripts/ci: license as MIT
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        "Roberts, William C" <william.c.roberts@intel.com>
+References: <CAP+JOzQMM5YpemgPXzAZew+oHiV6fgPuuY5WFSyQb2cEkFLwRA@mail.gmail.com>
+ <20200802123421.222597-1-dominick.grift@defensec.nl> <CAP+JOzQ=wnAWHp7i6OVjpV58QxdFPT63ON7HOLuVHjoL8O2Oqg@mail.gmail.com>
+ <ypjlft9298vi.fsf@defensec.nl>
+In-Reply-To: <ypjlft9298vi.fsf@defensec.nl>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Tue, 4 Aug 2020 10:45:06 -0400
+Message-ID: <CAP+JOzRgJmD8NE-_nY118G_h7B70Y70=jT1n8TimcMGPjDYFxw@mail.gmail.com>
+Subject: Re: [PATCH v4] secilc/docs: document expandtypeattribute
+To:     Dominick Grift <dominick.grift@defensec.nl>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Sounds good.
+On Tue, Aug 4, 2020 at 3:18 AM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
+>
+> James Carter <jwcart2@gmail.com> writes:
+>
+> > On Sun, Aug 2, 2020 at 8:39 AM Dominick Grift
+> > <dominick.grift@defensec.nl> wrote:
+> >>
+> >> This was added for Androids Treble in 2017.
+> >>
+> >> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+> >> ---
+> >> v2: overriden is overridden
+> >> v3: add link to README.md
+> >> v4: rephrase and add another example
+> >>
+> >>  secilc/docs/README.md              |  1 +
+> >>  secilc/docs/cil_type_statements.md | 44 ++++++++++++++++++++++++++++++
+> >>  2 files changed, 45 insertions(+)
+> >>
+> >> diff --git a/secilc/docs/README.md b/secilc/docs/README.md
+> >> index 3f1838e6..efab2a71 100644
+> >> --- a/secilc/docs/README.md
+> >> +++ b/secilc/docs/README.md
+> >> @@ -126,6 +126,7 @@ CIL (Common Intermediate Language)
+> >>    * [typealiasactual](cil_type_statements.md#typealiasactual)
+> >>    * [typeattribute](cil_type_statements.md#typeattribute)
+> >>    * [typeattributeset](cil_type_statements.md#typeattributeset)
+> >> +  * [expandtypeattribute](cil_type_statements.md#expandtypeattribute)
+> >>    * [typebounds](cil_type_statements.md#typebounds)
+> >>    * [typechange](cil_type_statements.md#typechange)
+> >>    * [typemember](cil_type_statements.md#typemember)
+> >> diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_statements.md
+> >> index f9dd3a76..41f0f01a 100644
+> >> --- a/secilc/docs/cil_type_statements.md
+> >> +++ b/secilc/docs/cil_type_statements.md
+> >> @@ -213,6 +213,50 @@ This example is equivalent to `{ domain -kernel.process -ueventd.process -init.p
+> >>          )
+> >>      )
+> >>
+> >> +expandtypeattribute
+> >> +-------------------
+> >> +
+> >> +Overrides the compiler defaults for the expansion of one or more previously declared [`typeattribute`](cil_type_statements.md#typeattribute) identifiers.
+> >> +
+> >> +Note that this statement can be overridden at compile-time with `secilc -X SIZE` and that this functionality is not intended to override `secilc -X SIZE` for individual type attributes!
+> >> +
+>
+> <snip>
+> > When the value
+> > is false, the type attribute will not be removed from the policy, even
+> > if the default expand rules or "-X" option cause the rules involving
+> > the type attribute to be expanded.
+>
+> Yes but I cannot produce that. In my earlier test the type attribute
+> was expanded regardless of the -X option.
+>
+> In my test I instructed secilc to expand all attributes with more than 3
+> members (-X 4), then I added a expandtypeattribute statement telling
+> secilc to not expand pets and colors.
+>
+> The result was that it expanded pets and colors anyway.
+>
 
-On Tue, Aug 4, 2020 at 9:35 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Mon, Aug 3, 2020 at 6:44 PM William Roberts <bill.c.roberts@gmail.com>=
- wrote:
-> > On Mon, Aug 3, 2020 at 11:31 AM Ondrej Mosnacek <omosnace@redhat.com> w=
-rote:
-> > >
-> > > On Mon, Aug 3, 2020 at 5:14 PM <bill.c.roberts@gmail.com> wrote:
-> > > > From: William Roberts <william.c.roberts@intel.com>
-> > > >
-> > > > License the ci scripts with a permissive, OSI approved license, suc=
-h as
-> > > > MIT.
-> > > >
-> > > > Signed-off-by: William Roberts <william.c.roberts@intel.com>
-> > > > ---
-> > > >  v1: Apache 2.0
-> > > >  v2: MIT
-> > > >
-> > > >  scripts/ci/LICENSE               | 7 +++++++
-> > > >  scripts/ci/fedora-test-runner.sh | 2 +-
-> > > >  scripts/ci/travis-kvm-setup.sh   | 2 +-
-> > > >  3 files changed, 9 insertions(+), 2 deletions(-)
-> > > >  create mode 100644 scripts/ci/LICENSE
-> > > >
-> > > > diff --git a/scripts/ci/LICENSE b/scripts/ci/LICENSE
-> > > > new file mode 100644
-> > > > index 000000000000..6cd7b7924ef9
-> > > > --- /dev/null
-> > > > +++ b/scripts/ci/LICENSE
-> > > > @@ -0,0 +1,7 @@
-> > > > +Copyright <YEAR> <COPYRIGHT HOLDER>
+I see the source of your confusion now. "-X 4" means that all
+attributes with LESS than 4 types associated with it will be expanded.
+
+Jim
+
 > >
-> > You don't actually need them. They are often never updated anyways
-> > after the initial. I can just drop that line, wget + git add.
+> > Thanks,
+> > Jim
 > >
-> > >
-> > > You should probably put an actual year/name here?
-> > >
-> > > > +
-> > > > +Permission is hereby granted, free of charge, to any person obtain=
-ing a copy of this software and associated documentation files (the "Softwa=
-re"), to deal in the Software without restriction, including without limita=
-tion the rights to use, copy, modify, merge, publish, distribute, sublicens=
-e, and/or sell copies of the Software, and to permit persons to whom the So=
-ftware is furnished to do so, subject to the following conditions:
-> > > > +
-> > > > +The above copyright notice and this permission notice shall be inc=
-luded in all copies or substantial portions of the Software.
-> > > > +
-> > > > +THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EX=
-PRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTAB=
-ILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SH=
-ALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OT=
-HER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING=
- FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALIN=
-GS IN THE SOFTWARE.
-> > > > diff --git a/scripts/ci/fedora-test-runner.sh b/scripts/ci/fedora-t=
-est-runner.sh
-> > > > index 569723387f6b..0aaba87c421b 100755
-> > > > --- a/scripts/ci/fedora-test-runner.sh
-> > > > +++ b/scripts/ci/fedora-test-runner.sh
-> > > > @@ -1,5 +1,5 @@
-> > > >  #!/usr/bin/env bash
-> > > > -
-> > > > +# SPDX-License-Identifier: MIT
-> > >
-> > > As I said in the v1 thread, also the individual files should contain =
-a
-> > > copyright line in addition to the SPDX line. See:
-> > > https://matija.suklje.name/how-and-why-to-properly-write-copyright-st=
-atements-in-your-code#why-have-the-copyright-statement
-> >
-> > You don't actually need them and they just clutter the code and as a
-> > policy, I don't participate in adding to the problem of these big
-> > blocks
-> > of copyright statements that need to be maintained and grow per
-> > contributor. I can just drop the SPDX identifiers, as the LICENSE file
-> > applies to everything.
-> >
-> > With version control, the issues as described by that author are less
-> > of a problem. We can easily
-> > trace from whom, by how and when code was modified for any legal
-> > issues if they were to arise.
-> >
-> > We can just keep the LICENSE file, drop the SPDX identifiers and I
-> > would be 100% in-line with that libselinux is currently doing.
->
-> I tend to disagree, but I can live with it if you want to leave it
-> out. So let me ACK this patch and I'll just remove the template
-> "Copyright" line from the LICENSE file when applying.
->
-> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+> >> +**Statement definition:**
+> >> +
+> >> +    (expandtypeattribute typeattribute_id true|false)
+> >> +
+> >> +**Where:**
+> >> +
+> >> +<table>
+> >> +<colgroup>
+> >> +<col width="25%" />
+> >> +<col width="75%" />
+> >> +</colgroup>
+> >> +<tbody>
+> >> +<tr class="odd">
+> >> +<td align="left"><p><code>expandtypeattribute</code></p></td>
+> >> +<td align="left"><p>The <code>expandtypeattribute</code> keyword.</p></td>
+> >> +</tr>
+> >> +<tr class="even">
+> >> +<td align="left"><p><code>typeattribute_id</code></p></td>
+> >> +<td align="left"><p>One or more previously declared
+> >> <code>typeattribute</code> identifiers. Multiple entries consist of
+> >> a space separated list enclosed in parentheses '()'.</p></td>
+> >> +</tr>
+> >> +<tr class="odd">
+> >> +<td align="left"><p><code>true | false</code></p></td>
+> >> +<td align="left"><p>Either true or false.</p></td>
+> >> +</tr>
+> >> +</tbody>
+> >> +</table>
+> >> +
+> >> +**Examples:**
+> >> +
+> >> +This example uses the expandtypeattribute statement to forcibly expand a previously declared `domain` type attribute.
+> >> +
+> >> +    (expandtypeattribute domain true)
+> >> +
+> >> +This example uses the expandtypeattribute statement to not expand
+> >> previously declared `file_type` and `port_type` type attributes
+> >> regardless of compiler defaults.
+> >> +
+> >> +    (expandtypeattribute (file_type port_type) false)
+> >> +
+> >>  typebounds
+> >>  ----------
+> >>
+> >> --
+> >> 2.28.0
+> >>
 >
 > --
-> Ondrej Mosnacek
-> Software Engineer, Platform Security - SELinux kernel
-> Red Hat, Inc.
->
+> gpg --locate-keys dominick.grift@defensec.nl
+> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+> Dominick Grift
