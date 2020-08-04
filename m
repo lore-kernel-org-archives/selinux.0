@@ -2,135 +2,136 @@ Return-Path: <SRS0=dV66=BO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6043C433E0
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 16:57:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A061C433DF
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 20:19:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8EE91207FC
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 16:57:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7CBB5207FC
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 20:19:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=crunchydata-com.20150623.gappssmtp.com header.i=@crunchydata-com.20150623.gappssmtp.com header.b="btBJkeO5"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lL6hDFg6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729716AbgHDQ5a (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Aug 2020 12:57:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51932 "EHLO
+        id S1727064AbgHDUTr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Aug 2020 16:19:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728244AbgHDQ5W (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Aug 2020 12:57:22 -0400
-Received: from mail-il1-x141.google.com (mail-il1-x141.google.com [IPv6:2607:f8b0:4864:20::141])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E68ADC06174A
-        for <selinux@vger.kernel.org>; Tue,  4 Aug 2020 09:57:21 -0700 (PDT)
-Received: by mail-il1-x141.google.com with SMTP id z17so19712864ill.6
-        for <selinux@vger.kernel.org>; Tue, 04 Aug 2020 09:57:21 -0700 (PDT)
+        with ESMTP id S1727063AbgHDUTq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Aug 2020 16:19:46 -0400
+Received: from mail-qv1-xf43.google.com (mail-qv1-xf43.google.com [IPv6:2607:f8b0:4864:20::f43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F791C06174A
+        for <selinux@vger.kernel.org>; Tue,  4 Aug 2020 13:19:46 -0700 (PDT)
+Received: by mail-qv1-xf43.google.com with SMTP id a19so13698487qvy.3
+        for <selinux@vger.kernel.org>; Tue, 04 Aug 2020 13:19:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=crunchydata-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=w5V81FPLgZ6GiFNtE9DoqR50sEsJyRCd4U04QoAl7qo=;
-        b=btBJkeO5Iu7Udjq6xYeA38lWPp6CZMdVaHNyHV4BLLqqvPvBuOko3Mt49gpXJZ9YUv
-         tP2dKuks1iVHNIBGcoc6FB8onGokOxnlV5pv+la3vonD22mkZe3OZyK5lFA3WevrYqHD
-         lA41vYNIzxAzons5jk0HP3D/mND+PM4o1TzhH6aMU53H4JsJO/O3ZtT8lJPaCQP8UK9D
-         1seoCi05CWDT6OQAAUUXpvYYpneJeY1kBlNHqhU1Lz4zbnfsKCGvM7+2hdy1a2bZiSGw
-         GevXoPdTCw5QXuNz54Gm44nhrOv4CWq84hwoINJzcUxrVvdcmwqwbTvt2AoByqaCy0Tz
-         V8Rw==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=65gFqFF/0EoaykjwaYQMhyD3hfLMImpEWdJz3wVW5zM=;
+        b=lL6hDFg6hWUvj5R+5uhEEpJ3Bz0zUmZK0Tr4oujgPQdzWtuGqUHD70UIuJEFmdPeh2
+         7gj6yy9X6feTosgJTCAOhmK8UH1U8lJRTSAi2gkDyHcPygsjudPUWUGzLgiJb25oDZ4D
+         xm4is4k1vQ70ZnY1tY3R0oc31e85tGfkgd4F7RiRkM/pwmutLOgHW+bk5Pc2R+rHgzDs
+         jfx8e7LCRJ8o7piJMbZJkvazjw1UYWHwvGVtenomQs70cIbvjoRXb08sRdk5WAnj4O6O
+         W+QBklg8vP7RxN8DBQWFdKb8sPOnv6/cdgSKU18bViEIjdFlEsrE1iCmnt6tIUNEcBvV
+         i8BA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=w5V81FPLgZ6GiFNtE9DoqR50sEsJyRCd4U04QoAl7qo=;
-        b=kf5Bac7hdUTo3++dAzxIH2nGjsVhn6Hv6gjMBL36M5DHEUYlfjsZU0laHrZTsYH06R
-         JwxI4na316ZYxSqDYRVdGV5giD+dwp8bpjIrCzkc1+6BrJxelONHSbVvHlHguKJm4CDm
-         f3rADlFrOqluQCb0jZEVMqfZpDprs7g8DoCbag1Fz+0wcZl1UszrAZGxw0xvJ8zvrCj8
-         yt94MuIkKoYtAQPz+fjdAi+F5BmvpolIdiB4abRROjiRNk2hIMrJQuA7bxELtwfzceLi
-         KFW+0dREfi/zhoXv3Ur86CstiVh6aJlFx3bVSLZpuRNH+tPociRzK6Vqf11612665DcN
-         hiiQ==
-X-Gm-Message-State: AOAM532LOszoBRtyM/i5I3Fpw4jrRS/HypYvqUI9GpjiNV72OPJ3KuZJ
-        kbmwB+nS02ATPr4f267ZX0/ai2ruQDkFkYCp8wNSDg==
-X-Google-Smtp-Source: ABdhPJyggTGB8/aGjgnAJADJhLVexBTQESfHkhTYf5iqC/2VfXQk8EdCD0nqI3tnLv95Ln9qMosRZBEkh6Gfet70LSs=
-X-Received: by 2002:a92:4a0d:: with SMTP id m13mr5754118ilf.276.1596560241252;
- Tue, 04 Aug 2020 09:57:21 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=65gFqFF/0EoaykjwaYQMhyD3hfLMImpEWdJz3wVW5zM=;
+        b=lJUsMMMJJBepAQ/XTpMZXo6Dv/wHRBq8i4ZJyWoqh780SnPFhE7v5yu2P8w8SncL8r
+         X8rAzMVFEhsbdzBwHBJKKooiNLipjOb1Wrh5d4tonEgW5xUkNc30kW6YBngmXskI7ZN5
+         VHGkJlxs1glwQfR/99QqgWUj2IiDZbzaIVLxZNhYRGuq3OaVZd+uZVLgt917TWl+vrzr
+         AnfcvepyXJb7vALiQsxxGNL/yTQYzGrgtkX0KpuiiqFtur9Ug848JIkxo5ZIEklChxeJ
+         EJf1fHKDMq0lppJnbGEnSJlZ8rRpTafvRzwDIpg0y73jfef8VbxKF7HANQCnlmRU64bq
+         weCg==
+X-Gm-Message-State: AOAM532/1fHL5gO+AgMyIguZNhCa2e3QeEKW2zAhSMGCthMoP8iXgPeF
+        yb5WUeFeOf1bxpiA21leplg=
+X-Google-Smtp-Source: ABdhPJygJ622+XAQNMTPwIcLlpqylwaDGy2T0Tb6739ty+cZxAYIveeFwVMJEUD+aj9i/wEBEZULqg==
+X-Received: by 2002:ad4:4302:: with SMTP id c2mr107020qvs.246.1596572385822;
+        Tue, 04 Aug 2020 13:19:45 -0700 (PDT)
+Received: from [192.168.1.190] (pool-96-244-118-111.bltmmd.fios.verizon.net. [96.244.118.111])
+        by smtp.gmail.com with ESMTPSA id d16sm22552334qkk.106.2020.08.04.13.19.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Aug 2020 13:19:44 -0700 (PDT)
+Subject: Re: [RFC PATCH] selinux: move policy commit after updating selinuxfs
+To:     paul@paul-moore.com
+Cc:     omosnace@redhat.com, selinux@vger.kernel.org,
+        dburgener@linux.microsoft.com
+References: <20200804135352.5650-1-stephen.smalley.work@gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Message-ID: <a1111b69-23a4-e885-e3a3-aea2613a82d2@gmail.com>
+Date:   Tue, 4 Aug 2020 16:19:44 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <309a97d9-194b-a449-337c-bcbade76317d@gmail.com>
-In-Reply-To: <309a97d9-194b-a449-337c-bcbade76317d@gmail.com>
-From:   Joshua Brindle <joshua.brindle@crunchydata.com>
-Date:   Tue, 4 Aug 2020 12:56:53 -0400
-Message-ID: <CAGB+Vh4ezWPAU1PY1jMuMxU34kVqhphgUNfN+Yn7sn3XEhTAug@mail.gmail.com>
-Subject: Re: Label files under HOME_DIR with a range by default
-To:     bauen1 <j2468h@googlemail.com>
-Cc:     selinux <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20200804135352.5650-1-stephen.smalley.work@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Sun, Aug 2, 2020 at 5:20 AM bauen1 <j2468h@googlemail.com> wrote:
+On 8/4/20 9:53 AM, Stephen Smalley wrote:
+
+> With the refactoring of the policy load logic in the security
+> server from the previous change, it is now possible to split out
+> the committing of the new policy from security_load_policy() and
+> perform it only after successful updating of selinuxfs.  Change
+> security_load_policy() to return the newly populated policy
+> data structures to the caller, export selinux_policy_commit()
+> for external callers, and introduce selinux_policy_cancel() to
+> provide a way to cancel the policy load in the event of an error
+> during updating of the selinuxfs directory tree.  Further, rework
+> the interfaces used by selinuxfs to get information from the policy
+> when creating the new directory tree to take and act upon the
+> new policy data structure rather than the current/active policy.
+> Update selinuxfs to use these updated and new interfaces.  While
+> we are here, stop re-creating the policy_capabilities directory
+> on each policy load since it does not depend on the policy, and
+> stop trying to create the booleans and classes directories during
+> the initial creation of selinuxfs since no information is available
+> until first policy load.
 >
-> Hello,
+> After this change, a failure while updating the booleans and class
+> directories will cause the entire policy load to be canceled, leaving
+> the original policy intact, and policy load notifications to userspace
+> will only happen after a successful completion of updating those
+> directories.  This does not (yet) provide full atomicity with respect
+> to the updating of the directory trees themselves.
 >
-> The user level is currently used as the range for files under HOME_DIR.
-> It appears that the Bell-LaPadula model makes the assumption that all objects are single leveled, this assumption is also made in libsepol. (I haven't really found a good source for this assumption)
->
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
+> This patch is relative to my previous one,
+> https://patchwork.kernel.org/patch/11698505/. Although this does
+> not ensure atomicity when updating the selinuxfs directoty tree,
+> I suspect it will solve Daniel's original bug because systemd/dbusd
+> won't get the policy load notifications until the kernel is done
+> updating selinuxfs and therefore won't try to re-read selinuxfs
+> in the middle of it (because libselinux caches the class/perm
+> mappings and only flushes on a reload).
 
-libsepol does not make any assumptions about policy. Everything is
-defined in the policy mls or mcs files in terms of constraints.
+Recognizing that re-basing the selinux namespace patches on top of these 
+two patches might be painful, I went ahead and did so; the result can be 
+found here:
 
-> But in my own (MCS) policy objects are not single leveled.
+https://github.com/stephensmalley/selinux-kernel/tree/working-selinuxns-rebase
 
-Files are, by definition, single level objects because they cannot be
-decomposed. A file with U - TS data in it is a TS file.
+The two patches that required manual fix-ups were the first one 
+("selinux: rename selinux state to ns (namespace)") and the third one 
+("selinux: dynamically allocate selinux namespace"). The rest re-based 
+without conflicts.  The resulting tree built, booted, passed the 
+selinux-testsuite, and I could successfully follow the instructions to 
+create a new namespace and load a policy into it. As before, the child 
+namespace won't be usable if you switch it to enforcing mode since we 
+haven't yet revived the per-namespace support for inode and superblock 
+security blobs and it is still very unsafe to use in its current form.
 
-The policy (not libsepol) handles enforcing single-level objects, for
-example in refpolicy:
 
-# make sure these file classes are "single level"
-mlsconstrain { file lnk_file fifo_file } { create relabelto }
-        ( l2 eq h2 );
-
-You cannot create or relabel a file with anything other than low = high.
-
-Directories can be ranged, if they contain files of multiple levels,
-again, from refpolicy:
-# Directory "write" ops
-mlsconstrain dir { add_name remove_name reparent rmdir }
-        (( l1 eq l2 ) or
-         (( t1 == mlsfilewriteinrange ) and ( l1 dom l2 ) and ( l1
-domby h2 )) or
-         (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
-         ( t1 == mlsfilewrite ) or
-         ( t2 == mlstrustedobject ));
-
-So the source low must equal the directory low or one of the mls
-exception attributes controls fine grained usage.
-
-> Read (and process communication) operations are allowed if a processes high level dominates an objects low level.
-> Write operations are allowed if a processes high level dominates an objects high level.
->
-> Later I've found that someone else had also come up with this idea independently, see https://lore.kernel.org/selinux/20091103114530.GH1672@myhost.felk.cvut.cz/ and https://lore.kernel.org/selinux/20091125202727.GD1649@myhost.felk.cvut.cz/ .
->
-> For this I want to label files under HOME_DIR with the range user_lowest-user_highest.
-> Ignoring process communication this would prevent a login with less than maximum clearance from escalating by writing to e.g. ~/.bashrc .
->
-> For example a user with the range s0-s0:c0.c3 would have his home files labeled as s0-s0:c0.c3.
-> A local tty login with the maximum clearance s0-s0:c0.c3 would be able to edit ~/.bashrc .
-> But an ssh login from e.g. an insecure network with only the range s0-s0:c1 would be able to read but not write important files such as ~/.bashrc .
->
-> Using user_highest-user_highest as user level would force the user to correct the context of potentially a lot of files required by whatever is run with less than user_highest high, so I want to avoid this.
->
-> Would it make sense to change libsepol to accept a range as user level (and perhaps changing the name) ?
-
-libsepol isn't really doing anything here. You can use semanage to set
-a file context, something like:
-
-# semanage fcontext -r s0-s0:c0.c3 /home/username
-# restorecon -R /home/username
-
-But you do need to be careful of escalation as you've noted, you may
-need a number of these to set specific files to the user high level
-
-> --
-> bauen1
-> https://dn42.bauen1.xyz/
