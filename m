@@ -7,516 +7,291 @@ X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C081EC433DF
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 01:33:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 525C8C433DF
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 01:34:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C14D320781
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 01:33:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 511002086A
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 01:34:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="WkIeTdup"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="PhY32fey"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729093AbgHDBd6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Aug 2020 21:33:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51006 "EHLO
+        id S1729246AbgHDBeE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Aug 2020 21:34:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726276AbgHDBd6 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Aug 2020 21:33:58 -0400
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F396BC06174A
-        for <selinux@vger.kernel.org>; Mon,  3 Aug 2020 18:33:57 -0700 (PDT)
-Received: by mail-qt1-x844.google.com with SMTP id w9so29781507qts.6
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2020 18:33:57 -0700 (PDT)
+        with ESMTP id S1726276AbgHDBeE (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Aug 2020 21:34:04 -0400
+Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74C0FC06174A
+        for <selinux@vger.kernel.org>; Mon,  3 Aug 2020 18:34:04 -0700 (PDT)
+Received: by mail-qv1-xf44.google.com with SMTP id b2so7742837qvp.9
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2020 18:34:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=subject:from:to:date:message-id:in-reply-to:references:user-agent
          :mime-version:content-transfer-encoding;
-        bh=v9ZvmYBz7eaoO+uUvfFP1o/P6cXhuawctpQc4C+Sm9g=;
-        b=WkIeTdupPriUDlNc1ey0pk5AR1cZFpauX2+/O+IrENzNWFrM0eyKSUzYzVMKY/EcOv
-         uUv8st9CnZpqFeJvR1LSVmbseC0mULpodHahNlSaaWqOUN0Z+pgbtsGPpNJksPoXffXO
-         3t8nd8QCPsphbuRbf0Cm9WoMUqm4fkmPSnage/SLlDMoyOmGh5aLUCRGIWm4/eijIt9w
-         Po8m0ZZOukAwCitgmGa572gxumf/X70DBQG2dOXXC73Yyisw2WybPTuZgXHY33zON11h
-         HvPe4tfpnR+PoHoP0QAP2Tujy3jESIFM9Mp96OuIv17EaXHngIwGA2U+7wdLiNhR4QfY
-         xYDQ==
+        bh=5XGXgUwHt2jixVb6VUVl2u66EYLnPPiFpBq/Tv4sfkM=;
+        b=PhY32feyoNJ2PjZSQqaAYd7Cb2DoiaautVrm31j7TEoeVmseXm0zysVRe4fTXQTB5N
+         mHRWFFOeLCn3qSrQB31zuTzwRFPSXUT7GWlLHelyQSZDlOIvHGJhCwIhbYtyl2sXzais
+         uoYTMKR41O9kWgF3CAdvOS4U7AhiXTwlIOYC6ASkE9Q8vACULp+N8MhsIvBRWiFazwUg
+         IRT9IDTCsjFSITYPP+7CuRTLu5tn7Fyu/8395/t/byFFcpoQF+KOA28MEIKSlaj+v3Bg
+         uzX3V111AywTvp7JgQhPPBD4TTckM46YuZvEpZmBevzz0VI3PjjOjzgjt4KOjBavs57o
+         jSKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:from:to:date:message-id:in-reply-to
          :references:user-agent:mime-version:content-transfer-encoding;
-        bh=v9ZvmYBz7eaoO+uUvfFP1o/P6cXhuawctpQc4C+Sm9g=;
-        b=WzlOE1YbCwwRmBceAWOPiljqQrq5MTysbSWn10c+TkhwTltt4PBsVoqY5C6xoJP2Pi
-         RmLRpsYhY7l9wf3t7urTB+FQ7goF1NeOftRL8/GgJ5Oa/1VoFGtkpWpSB8IJk/jPas1w
-         rxVMW++mMqCmhxcIuai5WfvRvyUUvp8KF+2ZxKFDI0B28KYl3qQBphyFyi5sYk1Pw24W
-         BFY0Frw53QG1J4YV0tdMIWZPhCKWHEwHYQmh4pMDjHVxqFgKOuATeIQ0YC3afyO3QXgB
-         IT3GNJ/XTNaQmynlENUewj/NoQ/+uCxIbQHbuGwEOm0fBR771YftmjCGJPRn3p+B/WiE
-         bPvA==
-X-Gm-Message-State: AOAM5320hJA+IKNvinEITqXtLv0JiBadsXZglfkYNA0X8vWa0Q+slMo9
-        wo24oGNJ9+yijAERjmDRUntZ3LGmF9V2
-X-Google-Smtp-Source: ABdhPJzHRNZd5EhZSnbcQtXKR/APGGTIuoWFxvAnS4JS26qf1ecJcj/ivbvmXQwQhBUKnAOrRikqSg==
-X-Received: by 2002:ac8:729a:: with SMTP id v26mr19712883qto.362.1596504836522;
-        Mon, 03 Aug 2020 18:33:56 -0700 (PDT)
+        bh=5XGXgUwHt2jixVb6VUVl2u66EYLnPPiFpBq/Tv4sfkM=;
+        b=qZPAJFY8dRx/GG+GlMCbVpnxQxWLBMF/z1MPSKYbtvfDWoo6zDSdz8rHNPk/IiXXRw
+         ye2U3Dz3VaCFKcQHBfMZAy26RJi/9vgBPWbbmlEPt8yEjHB5zvuPuJPQPUuF6Dp4P8D1
+         5NSL7cv9d+r7O2SwwOJ6K+vkCYdklzapDLSbiHH7l70bVMMJml1V4VjxN3ge/6VMqSN3
+         3DdyNnu0ccpmjL3zZpqlPGwpfkqVrjuC30n9zBB1fcVXQ7LTkUMXCzC24UrMVEidMblA
+         qCF9eYBDvrUFbihcq6PurjC1+qMx2zEahMVm4oETUseRRVBtP2O7xVTakG5R2xlYnRoJ
+         m8Jg==
+X-Gm-Message-State: AOAM532lIq/hRraNbXK001cjtbq6se6Kdsu5ztIRMynAedzaK+nuOOhT
+        6UyOhNIJ4rbaO39hJZgvq3oxywB1vmwo
+X-Google-Smtp-Source: ABdhPJyqxXuwvAISqyirUZLF+JWmJFJNVEh9yAmLVxxF8NHWNAJzXETwznaZ7qkr3qcPqGteG1o7LQ==
+X-Received: by 2002:a0c:ea8e:: with SMTP id d14mr19488576qvp.37.1596504843018;
+        Mon, 03 Aug 2020 18:34:03 -0700 (PDT)
 Received: from localhost (pool-96-230-24-152.bstnma.fios.verizon.net. [96.230.24.152])
-        by smtp.gmail.com with ESMTPSA id y7sm24381975qta.36.2020.08.03.18.33.55
+        by smtp.gmail.com with ESMTPSA id f189sm19642200qke.15.2020.08.03.18.34.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2020 18:33:55 -0700 (PDT)
-Subject: [RFC,selinux-notebook PATCH 06/18] xen_statements: fully convert to
+        Mon, 03 Aug 2020 18:34:02 -0700 (PDT)
+Subject: [RFC,selinux-notebook PATCH 07/18] vm_support: fully convert to
  markdown
 From:   Paul Moore <paul@paul-moore.com>
 To:     selinux@vger.kernel.org
-Date:   Mon, 03 Aug 2020 21:33:55 -0400
-Message-ID: <159650483517.8961.12011786927723219806.stgit@sifl>
+Date:   Mon, 03 Aug 2020 21:34:01 -0400
+Message-ID: <159650484173.8961.4886081033953945601.stgit@sifl>
 In-Reply-To: <159650470076.8961.12721446818345626943.stgit@sifl>
 References: <159650470076.8961.12721446818345626943.stgit@sifl>
 User-Agent: StGit/0.23
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+As a warning, the footnotes may not render correctly until all footnotes in
+the document have been converted.
+
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- src/xen_statements.md |  340 +++++++++++++++++--------------------------------
- 1 file changed, 119 insertions(+), 221 deletions(-)
+ src/vm_support.md |  135 +++++++++++------------------------------------------
+ 1 file changed, 27 insertions(+), 108 deletions(-)
 
-diff --git a/src/xen_statements.md b/src/xen_statements.md
-index ce968de..5688893 100644
---- a/src/xen_statements.md
-+++ b/src/xen_statements.md
-@@ -1,12 +1,12 @@
- # Xen Statements
+diff --git a/src/vm_support.md b/src/vm_support.md
+index f072fe3..09321ed 100644
+--- a/src/vm_support.md
++++ b/src/vm_support.md
+@@ -1,10 +1,9 @@
+ # SELinux Virtual Machine Support
  
--Xen policy supports additional policy language statements: `iomemcon`,
--`ioportcon`, `pcidevicecon`, `pirqcon` and `devicetreecon` that are
-+Xen policy supports additional policy language statements: *iomemcon*,
-+*ioportcon*, *pcidevicecon*, *pirqcon* and *devicetreecon* that are
- discussed in the sections that follow, also the
- [**XSM/FLASK Configuration**](http://xenbits.xen.org/docs/4.2-testing/misc/xsm-flask.txt)
- document contains further information.
+-SELinux support is available in the KVM/QEMU and Xen virtual machine
+-(VM) technologies<a href="#fnv1" class="footnote-ref" id="fnvms1"><strong><sup>1</sup></strong></a>
+-(that are discussed in the sections that follow, however the package
+-documentation should be read for how these products actually work and how they
+-are configured.
++SELinux support is available in the KVM/QEMU and Xen virtual machine (VM)
++technologies[^fn_vms_1] that are discussed in the sections that follow, however
++the package documentation should be read for how these products actually work
++and how they are configured.
  
--Policy version 30 introduced the `devicetreecon` statement and also
-+Policy version 30 introduced the *devicetreecon* statement and also
- expanded the existing I/O memory range to 64 bits in order to support
- hardware with more than 44 bits of physical address space (32-bit count
- of 4K pages).
-@@ -14,9 +14,7 @@ of 4K pages).
- To compile these additional statements using ***semodule**(8)*, ensure
- that the ***semanage.conf**(5)* file has the *policy-target=xen* entry.
+ Currently the main SELinux support for virtualisation is via *libvirt*
+ that is an open-source virtualisation API used to dynamically load guest
+@@ -23,8 +22,6 @@ To ensure all dependencies are installed run:
+ 
+ `dnf install libvirt qemu virt-manager`
  
 -<br>
 -
--## `iomemcon`
-+## *iomemcon*
+ ## KVM / QEMU Support
  
- Label i/o memory. This may be a single memory location or a range.
+ KVM is a kernel loadable module that uses the Linux kernel as a
+@@ -51,7 +48,6 @@ configure these and their VM image files.
+ QEMU provides the hardware emulation services for the guest
+ operating systems. Note that KVM requires CPU virtualisation support.*
  
-@@ -26,50 +24,32 @@ Label i/o memory. This may be a single memory location or a range.
+-
+ ## *libvirt* Support
  
- **Where:**
+ The Svirt project added security hooks into the *libvirt* library that
+@@ -65,14 +61,12 @@ that will load and manage the images. The SELinux implementation
+ supports four methods of labeling VM images, processes and their
+ resources with support from the Reference Policy *modules/services/virt*
+ loadable module. To support this labeling, *libvirt* requires an MCS or MLS
+-enabled policy as the [**`level`**](security_context.md#security-context)
++enabled policy as the [***level***](security_context.md#security-context)
+ entry of the security context is used (*user:role:type:level*).
+ 
+ The link <http://libvirt.org/drvqemu.html#securityselinux> has details
+ regarding the QEMU driver and the SELinux confinement modes it supports.
+ 
+-<br>
+-
+ ## VM Image Labeling
+ 
+ This sections assumes VM images have been generated using the simple
+@@ -109,33 +103,12 @@ implemented as follows:
+     The following example shows two running VM sessions each having
+     different labels:
  
 -<table>
 -<tbody>
--<tr>
--<td><code>iomemcon</code></td>
--<td>The <code>iomemcon</code> keyword.</td>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>VM Image Name<strong></td>
+-<td><strong>Object<strong></td>
+-<td><strong>Dynamically assigned security context<strong></td>
 -</tr>
 -<tr>
--<td><code>addr</code></td>
--<td>The memory address to apply the context. This may also be a range that consists of a start and end address separated by a hypen '-'.</td>
+-<td rowspan="2"><strong>Dynamic_VM1</strong></td>
+-<td><code>process</code></td>
+-<td><code>system_u:system_r:svirt_tcg_t:s0:c585,c813</code></td>
 -</tr>
 -<tr>
--<td><code>context</code></td>
--<td>The security context to be applied.</td>
+-<td><code>file</code></td>
+-<td><code>system_u:system_r:svirt_image_t:s0:c585,c813</code></td>
+-</tr>
+-<tr>
+-<td rowspan="2"><strong>Dynamic_VM2</strong></td>
+-<td><code>process</code></td>
+-<td>s<code>ystem_u:system_r:svirt_tcg_t:s0:c535,c601<code></td>
+-</tr>
+-<tr>
+-<td><code>file</code></td>
+-<td><code>system_u:system_r:svirt_image_t:s0:c535,c601</code></td>
 -</tr>
 -</tbody>
 -</table>
-+*iomemcon*
-+
-+The *iomemcon* keyword.
-+
-+*addr*
++| VM Image    | Object    | Dynamically assigned security context             |
++| ------------| --------- | ------------------------------------------------- |
++| Dynamic_VM1 | *process* | *system_u:system_r:svirt_tcg_t:s0:c585,c813*      |
++|             | *file*    | *system_u:system_r:svirt_image_t:s0:c585,c813*    |
++| Dynamic_VM2 | *process* | *system_u:system_r:svirt_tcg_t:s0:c535,c601*      |
++|             | *file*    | *system_u:system_r:svirt_image_t:s0:c535,c601*    |
  
-+The memory address to apply the context. This may also be a range that consists
-+of a start and end address separated by a hypen \'-\'.
-+
-+*context*
-+
-+The security context to be applied.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Examples:**
- 
-@@ -78,9 +58,7 @@ iomemcon 0xfebd9 system_u:object_r:nicP_t
- iomemcon 0xfebe0-0xfebff system_u:object_r:nicP_t
+ The running image *ls -Z* and *ps -eZ* are as follows, and for
+ completeness an *ls -Z* is shown when both VMs have been stopped:
+@@ -163,8 +136,6 @@ system_u:object_r:virt_image_t:s0 Dynamic_VM1.img
+ system_u:object_r:virt_image_t:s0 Dynamic_VM2.img
  ```
  
 -<br>
 -
--## `ioportcon`
-+## *ioportcon*
+ ### Shared Image
  
- Label i/o ports. This may be a single port or a range.
- 
-@@ -90,49 +68,32 @@ Label i/o ports. This may be a single port or a range.
- 
- **Where:**
+ If the disk image has been set to shared, then a dynamically allocated
+@@ -253,30 +224,12 @@ initialisation process will take place:
+     The following example shows each VM having the same file label but
+     different process labels:
  
 -<table>
 -<tbody>
--<tr>
--<td><code>ioportcon</code></td>
--<td>The <code>ioportcon</code> keyword.</td>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>VM Image Name</strong></td>
+-<td><strong>Object</strong></td>
+-<td><strong>Security context</strong></td>
 -</tr>
 -<tr>
--<td><code>port</code></td>
--<td>The <code>port</code> to apply the context. This may also be a range that consists of a start and end port number separated by a hypen '-'.</td>
+-<td><strong>Shareable_VM</strong></td>
+-<td><code>process</code></td>
+-<td><code>system_u:system_r:svirt_tcg_t:s0:c231,c245</code></td>
 -</tr>
 -<tr>
--<td><code>context</code></td>
--<td>The security context to be applied.</td>
+-<td><strong>Shareable_VM-clone</strong></td>
+-<td><code>process</code></td>
+-<td><code>system_u:system_r:svirt_tcg_t:s0:c695,c894</code></td>
+-</tr>
+-<tr>
+-<td></td>
+-<td><code>file</code></td>
+-<td><code>system_u:system_r:svirt_image_t:s0</code></td>
 -</tr>
 -</tbody>
 -</table>
-+*ioportcon*
 +
-+The *ioportcon* keyword.
-+
-+*port*
-+
-+The *port* to apply the context. This may also be a range that consists of a
-+start and end port number separated by a hypen \'-\'.
-+
-+*context*
-+
-+The security context to be applied.
++| VM Image           | Object    | Security context                             |
++| -------------------| ----------| -------------------------------------------- |
++| Shareable_VM       | *process* | *system_u:system_r:svirt_tcg_t:s0:c231,c245* |
++| Shareable_VM-clone | *process* | *system_u:system_r:svirt_tcg_t:s0:c695,c894* |
++|                    | *file*    | *system_u:system_r:svirt_image_t:s0*         |
  
- **The statement is valid in:**
+ The running image *ls -Z* and *ps -eZ* are as follows and for
+ completeness an *ls -Z* is shown when both VMs have been stopped:
+@@ -391,35 +344,12 @@ was possible because the 's*etsebool -P virt_transition_userdomain
+ on*'* *boolean was set that allows *virtd_t* domain to transition to a
+ user domain (e.g. *unconfined_t*).
  
--<table style="text-align:center">
+-
+-
+-<table>
 -<tbody>
 -<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
+-<td><strong>VM Image Name<strong></td>
+-<td><strong>Object<strong></td>
+-<td><strong>Static security context<strong></td>
 -</tr>
 -<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
+-<td rowspan="2"><strong>Static_VM1</strong></td>
+-<td><code>process</code></td>
+-<td><code>system_u:system_r:svirt_t:s0:c1022,c1023</code></td>
 -</tr>
 -<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
+-<td><code>file</code></td>
+-<td><code>system_u:system_r:svirt_image_t:s0:c1022,c1023</code></td>
+-</tr>
+-<tr>
+-<td rowspan="2"><strong>Static_VM2</strong></td>
+-<td><code>process</code></td>
+-<td><code>system_u:system_r:unconfined_t:s0:c11,c22</code></td>
+-</tr>
+-<tr>
+-<td><code>file</code></td>
+-<td><code>system_u:system_r:virt_image_t:s0</code></td>
 -</tr>
 -</tbody>
 -</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
++| VM Image   | Object    | Static security context                            |
++| -----------| --------- | -------------------------------------------------- |
++| Static_VM1 | *process* | *system_u:system_r:svirt_t:s0:c1022,c1023*         |
++|            | *file*    | *system_u:system_r:svirt_image_t:s0:c1022,c1023*   |
++| Static_VM2 | *process* | *system_u:system_r:unconfined_t:s0:c11,c22*        |
++|            | *file*    | *system_u:system_r:virt_image_t:s0*                |
  
- **Examples:**
- 
-@@ -141,9 +102,7 @@ ioportcon 0xeac0 system_u:object_r:nicP_t
- ioportcon 0xecc0-0xecdf system_u:object_r:nicP_t
+ The running image *ls -Z* and *ps -eZ* are as follows, and for
+ completeness an *ls -Z* is shown when both VMs have been stopped:
+@@ -446,8 +376,6 @@ system_u:object_r:svirt_image_t:s0:c1022,c1023 Static_VM1.img
+ system_u:object_r:virt_image_t:s0 Static_VM2.img
  ```
  
 -<br>
 -
--## `pcidevicecon`
-+## *pcidevicecon*
+ ## Xen Support
  
- Label a PCI device.
- 
-@@ -153,57 +112,37 @@ Label a PCI device.
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>pcidevicecon</code></td>
--<td>The <code>pcidevicecon</code> keyword.</td>
--</tr>
--<tr>
--<td><code>pci_id</code></td>
--<td>The PCI indentifer.</td>
--</tr>
--<tr>
--<td><code>context</code></td>
--<td>The security context to be applied.</td>
--</tr>
--</tbody>
--</table>
-+*pcidevicecon*
-+
-+The *pcidevicecon* keyword.
-+
-+*pci_id*
-+
-+The PCI indentifer.
-+
-+*context*
-+
-+The security context to be applied.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Example:**
- 
- `pcidevicecon 0xc800 system_u:object_r:nicP_t`
+ This is not supported by SELinux in the usual way as it is built into
+@@ -479,19 +407,10 @@ For reference, the Xen policy supports additional policy language
+ statements that defined in the
+ [**Xen Statements**](xen_statements.md#xen-statements) section.
  
 -<br>
 -
--## `pirqcon`
-+## *pirqcon*
- 
- Label an interrupt level.
- 
-@@ -213,57 +152,37 @@ Label an interrupt level.
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>pirqcon</code></td>
--<td>The <code>pirqcon</code> keyword.</td>
--</tr>
--<tr>
--<td><code>irq</code></td>
--<td>The interrupt request number.</td>
--</tr>
--<tr>
--<td><code>context</code></td>
--<td>The security context to be applied.</td>
--</tr>
--</tbody>
--</table>
-+*pirqcon*
-+
-+The *pirqcon* keyword.
-+
-+*irq*
-+
-+The interrupt request number.
-+
-+*context*
-+
-+The security context to be applied.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Example:**
- 
- `pirqcon 33 system_u:object_r:nicP_t`
- 
--<br>
+-<section class="footnotes">
+-<ol>
+-<li id="fnv1"><p>KVM (Kernel-based Virtual Machine) and Xen are classed as 'bare metal' hypervisors and they
+-rely on other services to manage the overall VM environment. QEMU (Quick Emulator) is an
+-emulator that emulates the BIOS and I/O device functionality and can be used standalone or with
+-KVM and Xen.<a href="#fnvms1" class="footnote-back">↩</a></p></li>
+-</ol>
+-</section>
 -
--## `devicetreecon`
-+## *devicetreecon*
- 
- Label device tree nodes.
- 
-@@ -273,57 +192,36 @@ Label device tree nodes.
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>devicetreecon</code></td>
--<td>The <code>devicetreecon</code> keyword.</td>
--</tr>
--<tr>
--<td><code>path</code></td>
--<td>The device tree path. If this contains spaces enclose within <em>""</em> as shown in the example.</td>
--</tr>
--<tr>
--<td><code>context</code></td>
--<td>The security context to be applied.</td>
--</tr>
--</tbody>
--</table>
-+*devicetreecon*
-+
-+The *devicetreecon* keyword.
-+
-+*path*
-+
-+The device tree path. If this contains spaces enclose within *""* as shown in
-+the example.
-+
-+*context*
-+
-+The security context to be applied.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
- 
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
- 
--**Example:**
-+Conditional Policy Statements
- 
--`devicetreecon "/this is/a/path" system_u:object_r:arm_path`
-+| *if* statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
-+**Example:**
- 
+-
 -<br>
-+`devicetreecon "/this is/a/path" system_u:object_r:arm_path`
++[^fn_vms_1]: KVM (Kernel-based Virtual Machine) and Xen are classed as 'bare
++metal' hypervisors and they rely on other services to manage the overall VM
++environment. QEMU (Quick Emulator) is an emulator that emulates the BIOS and
++I/O device functionality and can be used standalone or with KVM and Xen.
  
  <!-- %CUTHERE% -->
  
