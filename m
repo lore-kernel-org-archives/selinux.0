@@ -2,149 +2,197 @@ Return-Path: <SRS0=dV66=BO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 998D7C433E0
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 15:29:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D97FDC433DF
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 15:48:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D68D21744
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 15:29:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6CB142177B
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 15:48:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jZ2Jas15"
+	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="CVBYiEIi"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729628AbgHDP3o (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Aug 2020 11:29:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38426 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729526AbgHDP3l (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Aug 2020 11:29:41 -0400
-Received: from mail-qt1-x843.google.com (mail-qt1-x843.google.com [IPv6:2607:f8b0:4864:20::843])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A383C06174A;
-        Tue,  4 Aug 2020 08:29:41 -0700 (PDT)
-Received: by mail-qt1-x843.google.com with SMTP id b25so31200713qto.2;
-        Tue, 04 Aug 2020 08:29:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=A3dFPndoyZvaWEl6YVaSywxK6lVziWTAEQzlumQD6Fs=;
-        b=jZ2Jas15OLgmyhb72/ztVsVnNfEV5LeMoUoRQzqhZg2uMUEZuzDlWCZvZ9o/Z6c4Ga
-         ZN08Z/F0NNr6/0b35XQHiji2W1nAdzt/d9R44eIknuUgLEyE6hIxSWYAPPLUe0lywx66
-         nDp06wt43XmZ/CFOGnj4mDCHMvl9l8xo4y7rUQzWXKeZi+B9hBpxv5my4khl24R+Rk2j
-         4ZlBvJc+igtHi8Pj8upBiENNO5Ev3loMwmgo8OsneFP0Vgp1m1zOSnLQoN3Gd4JyN6Kq
-         jEje80e5k8uSgMvEPl4hpjbMlMIWhSufxgqKBThDb7xRsqZh3Ze+jgParxQqDB/Eu7Ok
-         GoQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=A3dFPndoyZvaWEl6YVaSywxK6lVziWTAEQzlumQD6Fs=;
-        b=Y/uosQC0XCIujQeVG8WXu3eajODjiL7IqbmGgYzkM8eMxGii4bbLe4W24wjYoQek6g
-         8tcsgxSE3/zmNtlJxxKH8ygd4ZSBU1LJiq6I5d/nZopiCKwwvD9qSVhzQ3R5n+QJqOcL
-         FB8EqRm6Ydojau3d+yuH9HwvpuE2BtV9qdC+WdrZ7kKVhN0kJkxi7Ms+90o8FWNqEIOl
-         LtLcGZLtk+Ph9Q+JOd9kSgcaMzIxx2HTCzESnHevuvQJ1R59bVUDavBqnqpdvyJqd0Ov
-         6ZueRJv1eLO2WKUiGe8gobIuFOC918npztge/5Bs0jIUbz+aojsVKAyNn/bARRkbs9wk
-         P+zg==
-X-Gm-Message-State: AOAM532E54lByEQifpSOsd7ZX7MtKsO9MIQT0zfVv+pPz2ZgRHJbH1Ax
-        IEvfjYaznFT42854DU6tyX0GeI0bHjc=
-X-Google-Smtp-Source: ABdhPJwQAAeoyAn31/xwdwHap5tFvMTs6BZKat8bFoDFP6/onB9Itr1XbdKiZVYUWS9WJMpJ5W8E6g==
-X-Received: by 2002:ac8:4b4d:: with SMTP id e13mr21821962qts.256.1596554980407;
-        Tue, 04 Aug 2020 08:29:40 -0700 (PDT)
-Received: from [192.168.1.190] (pool-96-244-118-111.bltmmd.fios.verizon.net. [96.244.118.111])
-        by smtp.gmail.com with ESMTPSA id d26sm17370443qtc.51.2020.08.04.08.29.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Aug 2020 08:29:39 -0700 (PDT)
-Subject: Re: [PATCH v5 3/4] LSM: Define SELinux function to measure state and
- policy
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>, sashal@kernel.org,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <20200730034724.3298-1-nramas@linux.microsoft.com>
- <20200730034724.3298-4-nramas@linux.microsoft.com>
- <dfd6f9c8-d62a-d278-9b0e-6b1f5ad03d3e@gmail.com>
- <6371efa9-5ae6-05ac-c357-3fbe1a5a93d5@linux.microsoft.com>
- <CAEjxPJ789kmdDwy-6RaL7HuMFxKpQ9Hwxj9J-_-f62XDCNJUiA@mail.gmail.com>
- <f992901f-6dca-7d31-3426-5a74d36c2c8c@gmail.com>
- <d988a6d0-04e0-62f0-2705-4352b268ca55@linux.microsoft.com>
- <5c843a3d-713c-e71f-8d4f-c6e5f51422f1@gmail.com>
- <3e766eed-7a0b-afca-6139-ac43dea053d7@linux.microsoft.com>
- <0fa0b1f3-6226-c307-0f11-8b3a881a070e@gmail.com>
-Message-ID: <32da0a4a-252a-67d8-5dc8-173959f6ddb4@gmail.com>
-Date:   Tue, 4 Aug 2020 11:29:38 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728409AbgHDPsz (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Aug 2020 11:48:55 -0400
+Received: from agnus.defensec.nl ([80.100.19.56]:52230 "EHLO agnus.defensec.nl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725864AbgHDPsx (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 4 Aug 2020 11:48:53 -0400
+Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
+        by agnus.defensec.nl (Postfix) with ESMTPSA id 6A5F82A100B;
+        Tue,  4 Aug 2020 17:48:49 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl 6A5F82A100B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
+        s=default; t=1596556129;
+        bh=DD0J8KEw7KV23wQriOYvIuGPCCcQxsg8MLHghNydYGk=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=CVBYiEIiNSKjp+L3YlYNLkE5oedgjOUm3aI5K9/gov6vTDG2Z8cjEvUoJ7OUyx3vt
+         thxsZAGUEnxmWXJniTn7a7SFCv+ZQFwWDAdwSCaDYeyNF5k1zYfxomTIw5mZsopASO
+         TRizs2tV9sOg0EX12d+oDJlr+tzD06UBjv0ZIThs=
+From:   Dominick Grift <dominick.grift@defensec.nl>
+To:     James Carter <jwcart2@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Subject: Re: [PATCH v4] secilc/docs: document expandtypeattribute
+References: <CAP+JOzQMM5YpemgPXzAZew+oHiV6fgPuuY5WFSyQb2cEkFLwRA@mail.gmail.com>
+        <20200802123421.222597-1-dominick.grift@defensec.nl>
+        <CAP+JOzQ=wnAWHp7i6OVjpV58QxdFPT63ON7HOLuVHjoL8O2Oqg@mail.gmail.com>
+        <ypjlft9298vi.fsf@defensec.nl>
+        <CAP+JOzRgJmD8NE-_nY118G_h7B70Y70=jT1n8TimcMGPjDYFxw@mail.gmail.com>
+Date:   Tue, 04 Aug 2020 17:48:46 +0200
+In-Reply-To: <CAP+JOzRgJmD8NE-_nY118G_h7B70Y70=jT1n8TimcMGPjDYFxw@mail.gmail.com>
+        (James Carter's message of "Tue, 4 Aug 2020 10:45:06 -0400")
+Message-ID: <ypjlbljq8l9d.fsf@defensec.nl>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <0fa0b1f3-6226-c307-0f11-8b3a881a070e@gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+Content-Type: text/plain
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/4/20 11:20 AM, Stephen Smalley wrote:
+James Carter <jwcart2@gmail.com> writes:
 
-> On 8/3/20 6:08 PM, Lakshmi Ramasubramanian wrote:
+> On Tue, Aug 4, 2020 at 3:18 AM Dominick Grift
+> <dominick.grift@defensec.nl> wrote:
+>>
+>> James Carter <jwcart2@gmail.com> writes:
+>>
+>> > On Sun, Aug 2, 2020 at 8:39 AM Dominick Grift
+>> > <dominick.grift@defensec.nl> wrote:
+>> >>
+>> >> This was added for Androids Treble in 2017.
+>> >>
+>> >> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+>> >> ---
+>> >> v2: overriden is overridden
+>> >> v3: add link to README.md
+>> >> v4: rephrase and add another example
+>> >>
+>> >>  secilc/docs/README.md              |  1 +
+>> >>  secilc/docs/cil_type_statements.md | 44 ++++++++++++++++++++++++++++++
+>> >>  2 files changed, 45 insertions(+)
+>> >>
+>> >> diff --git a/secilc/docs/README.md b/secilc/docs/README.md
+>> >> index 3f1838e6..efab2a71 100644
+>> >> --- a/secilc/docs/README.md
+>> >> +++ b/secilc/docs/README.md
+>> >> @@ -126,6 +126,7 @@ CIL (Common Intermediate Language)
+>> >>    * [typealiasactual](cil_type_statements.md#typealiasactual)
+>> >>    * [typeattribute](cil_type_statements.md#typeattribute)
+>> >>    * [typeattributeset](cil_type_statements.md#typeattributeset)
+>> >> +  * [expandtypeattribute](cil_type_statements.md#expandtypeattribute)
+>> >>    * [typebounds](cil_type_statements.md#typebounds)
+>> >>    * [typechange](cil_type_statements.md#typechange)
+>> >>    * [typemember](cil_type_statements.md#typemember)
+>> >> diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_statements.md
+>> >> index f9dd3a76..41f0f01a 100644
+>> >> --- a/secilc/docs/cil_type_statements.md
+>> >> +++ b/secilc/docs/cil_type_statements.md
+>> >> @@ -213,6 +213,50 @@ This example is equivalent to `{ domain -kernel.process -ueventd.process -init.p
+>> >>          )
+>> >>      )
+>> >>
+>> >> +expandtypeattribute
+>> >> +-------------------
+>> >> +
+>> >> +Overrides the compiler defaults for the expansion of one or more previously declared [`typeattribute`](cil_type_statements.md#typeattribute) identifiers.
+>> >> +
+>> >> +Note that this statement can be overridden at compile-time with `secilc -X SIZE` and that this functionality is not intended to override `secilc -X SIZE` for individual type attributes!
+>> >> +
+>>
+>> <snip>
+>> > When the value
+>> > is false, the type attribute will not be removed from the policy, even
+>> > if the default expand rules or "-X" option cause the rules involving
+>> > the type attribute to be expanded.
+>>
+>> Yes but I cannot produce that. In my earlier test the type attribute
+>> was expanded regardless of the -X option.
+>>
+>> In my test I instructed secilc to expand all attributes with more than 3
+>> members (-X 4), then I added a expandtypeattribute statement telling
+>> secilc to not expand pets and colors.
+>>
+>> The result was that it expanded pets and colors anyway.
+>>
 >
->> On 8/3/20 2:07 PM, Stephen Smalley wrote:
->>
->>>>>> [   68.870715] irq event stamp: 23486085
->>>>>> [   68.870715] hardirqs last  enabled at (23486085):
->>>>>> [<ffffffffaa419406>] _raw_spin_unlock_irqrestore+0x46/0x60
->>>>>> [   68.870715] hardirqs last disabled at (23486084):
->>>>>> [<ffffffffaa419443>] _raw_spin_lock_irqsave+0x23/0x90
->>>>>> [   68.870715] softirqs last  enabled at (23486074):
->>>>>> [<ffffffffaa8004f3>] __do_softirq+0x4f3/0x662
->>>>>> [   68.870715] softirqs last disabled at (23486067):
->>>>>> [<ffffffffaa601072>] asm_call_on_stack+0x12/0x20
->>>>>> [   68.870715] ---[ end trace fb02740ff6f4d0cd ]---
->>>>>
->>>>> I think one issue here is that systemd loads SELinux policy first, 
->>>>> then IMA policy, so it doesn't know whether it needs to measure 
->>>>> SELinux policy on first policy load, and another issue is that the 
->>>>> policy is too large to just queue the policy data itself this way 
->>>>> (or you need to use an allocator that can handle larger sizes).
->>>>>
->>>>
->>>> The problem seems to be that a lock is held when the IMA hook to 
->>>> measure the LSM state is called. So memory allocation is not 
->>>> allowed, but the hook is doing an allocation. I'll address this - 
->>>> thanks for catching it.
->>>>
->>>> I have the following CONFIGs enabled, but I still don't see the 
->>>> above issue on my machine.
->>>>
->>> The warning has to do with the memory allocation order being above 
->>> the max order supported for kmalloc.  I think the problem is that 
->>> ima_alloc_data_entry() is using kmemdup() to duplicate a payload of 
->>> arbitrary size.  Policies on e.g. Fedora can be quite large, so you 
->>> can't assume they can be allocated with kmalloc and friends.
->>>
->>
->> Thanks for clarifying. Yes ima_alloc_entry() does use kmemdup to save 
->> the given buffer (to be measured) until IMA loads custom policy.
->>
->> On my machine the SELinux policy size is about 2MB.
->>
->> Perhaps vmalloc would be better than using kmalloc? If there are 
->> better options for such large buffer allocation, please let me know.
+> I see the source of your confusion now. "-X 4" means that all
+> attributes with LESS than 4 types associated with it will be expanded.
+
+I think its important to clarify this in the documentation. ie:
+expandattribute false will not work if you use -X (-X will override the
+false statement)
+
+I think that is unintuitive, I would actually want to be able to for
+example expand all attributes with less then 4 members except a few
+specific ones.
+
 >
-> kvmalloc() can be used to select whichever one is most appropriate.
+> Jim
+>
+>> >
+>> > Thanks,
+>> > Jim
+>> >
+>> >> +**Statement definition:**
+>> >> +
+>> >> +    (expandtypeattribute typeattribute_id true|false)
+>> >> +
+>> >> +**Where:**
+>> >> +
+>> >> +<table>
+>> >> +<colgroup>
+>> >> +<col width="25%" />
+>> >> +<col width="75%" />
+>> >> +</colgroup>
+>> >> +<tbody>
+>> >> +<tr class="odd">
+>> >> +<td align="left"><p><code>expandtypeattribute</code></p></td>
+>> >> +<td align="left"><p>The <code>expandtypeattribute</code> keyword.</p></td>
+>> >> +</tr>
+>> >> +<tr class="even">
+>> >> +<td align="left"><p><code>typeattribute_id</code></p></td>
+>> >> +<td align="left"><p>One or more previously declared
+>> >> <code>typeattribute</code> identifiers. Multiple entries consist of
+>> >> a space separated list enclosed in parentheses '()'.</p></td>
+>> >> +</tr>
+>> >> +<tr class="odd">
+>> >> +<td align="left"><p><code>true | false</code></p></td>
+>> >> +<td align="left"><p>Either true or false.</p></td>
+>> >> +</tr>
+>> >> +</tbody>
+>> >> +</table>
+>> >> +
+>> >> +**Examples:**
+>> >> +
+>> >> +This example uses the expandtypeattribute statement to forcibly expand a previously declared `domain` type attribute.
+>> >> +
+>> >> +    (expandtypeattribute domain true)
+>> >> +
+>> >> +This example uses the expandtypeattribute statement to not expand
+>> >> previously declared `file_type` and `port_type` type attributes
+>> >> regardless of compiler defaults.
+>> >> +
+>> >> +    (expandtypeattribute (file_type port_type) false)
+>> >> +
+>> >>  typebounds
+>> >>  ----------
+>> >>
+>> >> --
+>> >> 2.28.0
+>> >>
+>>
+>> --
+>> gpg --locate-keys dominick.grift@defensec.nl
+>> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+>> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+>> Dominick Grift
 
-Other option would be for ima to compute and save the hash(es) of the 
-payload and not the payload itself for later use.  I guess you won't 
-know at that point which hash algorithm is desired?
-
-
+-- 
+gpg --locate-keys dominick.grift@defensec.nl
+Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
+https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
+Dominick Grift
