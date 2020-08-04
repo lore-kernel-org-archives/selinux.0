@@ -2,647 +2,234 @@ Return-Path: <SRS0=dV66=BO=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69FADC433E0
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 20:51:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91607C433E0
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 21:05:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3F04A2086A
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 20:51:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6348322B42
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 21:05:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="k9BO0O2C"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="UAR6LGd2"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727976AbgHDUvY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Aug 2020 16:51:24 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:35262 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727124AbgHDUvY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 4 Aug 2020 16:51:24 -0400
-Received: from localhost.localdomain (c-73-172-233-15.hsd1.md.comcast.net [73.172.233.15])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 4221420B4908;
-        Tue,  4 Aug 2020 13:51:22 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4221420B4908
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1596574282;
-        bh=zdPyB5qxmxfR+e2Zx3hMJq0/lyeQO1ZfXJf0pEVQtJw=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=k9BO0O2CoVw5cORhvVgXiYAQWHIMHArvpP/hKlI6i+E3qJTHyOVrXKVnl9o6EAXsd
-         jzzO7oSwsc0feyo9YAYF9v48ngtWS9YmHey+NYipS9lxOBLI4MI39tK4JChgUpE55K
-         CR3TE65ymh4CWXGd+EmQ3+TRorNx/7o86n5/Z650=
-Subject: Re: [RFC PATCH] selinux: move policy commit after updating selinuxfs
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        paul@paul-moore.com
-Cc:     omosnace@redhat.com, selinux@vger.kernel.org
-References: <20200804135352.5650-1-stephen.smalley.work@gmail.com>
-From:   Daniel Burgener <dburgener@linux.microsoft.com>
-Message-ID: <88c312b3-0abd-96ed-35c3-a80ab57a9fe3@linux.microsoft.com>
-Date:   Tue, 4 Aug 2020 16:51:21 -0400
+        id S1725863AbgHDVFr (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Aug 2020 17:05:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33752 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726250AbgHDVFq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 4 Aug 2020 17:05:46 -0400
+Received: from mail-wm1-x341.google.com (mail-wm1-x341.google.com [IPv6:2a00:1450:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A76DDC06174A
+        for <selinux@vger.kernel.org>; Tue,  4 Aug 2020 14:05:45 -0700 (PDT)
+Received: by mail-wm1-x341.google.com with SMTP id f18so2986733wmc.0
+        for <selinux@vger.kernel.org>; Tue, 04 Aug 2020 14:05:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:references:autocrypt:subject:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=NGX4boI8Alzr2RE9m1T9HFIPfFP2ix045kKZ5ULasmw=;
+        b=UAR6LGd2ra9JDOzoMn1rbxl170n7KYKaBTCZp9wihC5Y6VC136TouaRkYa5ncT9Eq2
+         CcmWIcK4MsjZcsPcb2ZZqHoPV0UM8en0JqgcQ/VP+rdEIROX2DBxR0xBztMxFv5T+6Bn
+         qu+qpN66V4iQ8Etaj4rNueZzZy4Omz9g//cYxQ6Ynp24ANcMB7k0GjnIhzxBdyyDxWlP
+         Sn85yelg1j+07xBXZPTuILn4IouPPCsizmASRrbUnPgKcKw3Fq6AWgrfN1ikPbt9QdNK
+         ikgF8Np1WW3v7dKW08SMVmkNvijqIGkAReaZWIrkXdJpcPD0A4U87TAl2lqfjqDCSaQf
+         CLXw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:references:autocrypt:subject
+         :message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=NGX4boI8Alzr2RE9m1T9HFIPfFP2ix045kKZ5ULasmw=;
+        b=D7df9K4zqF6ecibuo5iKo+iPm3nqxzzEkI+JZet6TyNEnUjJ03VQaOM92fZ04ie16G
+         nTOUp1r9XHt/W5eNkkCDAa8INaqBPjjZnhknlUwpQVD7fqMW9+KtQI+bgAUEsS1gpk7s
+         JVugcqSB7TKfaK6xwnfij26dUoDabR6JL7atJf0yRriXzeEV5c0o2TexvbWn4cP5sisp
+         wFmc197SFXYZEowM35R86yKhPFtUbnEJOuV/eozWaEbVdMxQdaZvMLpgIhmhogrV8hTj
+         yUhZcJuVGJ8UbBOJWVSXSrqpJQf/raEd0ZtIZjVJC2yh5dKQz+NkH3Y20lxU9bSp0BGz
+         lhJA==
+X-Gm-Message-State: AOAM532ZotwY9HU95OJ6iYWv2zrTiuckdEb8mjdjq+cinxH1kNmobF37
+        IYRfeyv+lEdoWLSrV049qWFHI7wQ
+X-Google-Smtp-Source: ABdhPJwheLeRsTf2cHSYj06NV1rhtQmRTqe1LwRJpRFd1o7qr048mw7IVLEp98G1AKBANo8Kup6DXA==
+X-Received: by 2002:a05:600c:514:: with SMTP id i20mr290324wmc.102.1596575143872;
+        Tue, 04 Aug 2020 14:05:43 -0700 (PDT)
+Received: from ?IPv6:2a02:810d:4bc0:8098:8252:51b6:80cd:c2fd? ([2a02:810d:4bc0:8098:8252:51b6:80cd:c2fd])
+        by smtp.gmail.com with ESMTPSA id g188sm79148wma.5.2020.08.04.14.05.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 04 Aug 2020 14:05:42 -0700 (PDT)
+From:   bauen1 <j2468h@googlemail.com>
+X-Google-Original-From: bauen1 <j2468h@gmail.com>
+To:     Joshua Brindle <joshua.brindle@crunchydata.com>,
+        bauen1 <j2468h@googlemail.com>
+Cc:     selinux <selinux@vger.kernel.org>
+References: <309a97d9-194b-a449-337c-bcbade76317d@gmail.com>
+ <CAGB+Vh4ezWPAU1PY1jMuMxU34kVqhphgUNfN+Yn7sn3XEhTAug@mail.gmail.com>
+Autocrypt: addr=j2468h@gmail.com; keydata=
+ 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
+ MzTZEAm15uwFxq66
+Subject: Re: Label files under HOME_DIR with a range by default
+Message-ID: <58076b92-5912-ea2f-f7c7-32717da324cc@gmail.com>
+Date:   Tue, 4 Aug 2020 23:05:41 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.9.0
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200804135352.5650-1-stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAGB+Vh4ezWPAU1PY1jMuMxU34kVqhphgUNfN+Yn7sn3XEhTAug@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/4/20 9:53 AM, Stephen Smalley wrote:
-> With the refactoring of the policy load logic in the security
-> server from the previous change, it is now possible to split out
-> the committing of the new policy from security_load_policy() and
-> perform it only after successful updating of selinuxfs.  Change
-> security_load_policy() to return the newly populated policy
-> data structures to the caller, export selinux_policy_commit()
-> for external callers, and introduce selinux_policy_cancel() to
-> provide a way to cancel the policy load in the event of an error
-> during updating of the selinuxfs directory tree.  Further, rework
-> the interfaces used by selinuxfs to get information from the policy
-> when creating the new directory tree to take and act upon the
-> new policy data structure rather than the current/active policy.
-> Update selinuxfs to use these updated and new interfaces.  While
-> we are here, stop re-creating the policy_capabilities directory
-> on each policy load since it does not depend on the policy, and
-> stop trying to create the booleans and classes directories during
-> the initial creation of selinuxfs since no information is available
-> until first policy load.
->
-> After this change, a failure while updating the booleans and class
-> directories will cause the entire policy load to be canceled, leaving
-> the original policy intact, and policy load notifications to userspace
-> will only happen after a successful completion of updating those
-> directories.  This does not (yet) provide full atomicity with respect
-> to the updating of the directory trees themselves.
+Thank you for your input,
 
-I have a patch series to perform the atomic updates very close to done, 
-using vfs_rename with RENAME_EXCHANGE to update the directories out of 
-tree and then swap them in as discussed earlier.  I've just been doing 
-some final style cleanup before sending to the list.  I'll need to 
-rebase on top of these changes of course.  I didn't touch any of the 
-error recovery portions, so I hope my series will complement this patch 
-nicely.
+In my original email I wanted to explain my model a bit more but ultimately did not, since it would distract from the issue.
 
->
-> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> ---
-> This patch is relative to my previous one,
-> https://patchwork.kernel.org/patch/11698505/. Although this does
-> not ensure atomicity when updating the selinuxfs directoty tree,
-> I suspect it will solve Daniel's original bug because systemd/dbusd
-> won't get the policy load notifications until the kernel is done
-> updating selinuxfs and therefore won't try to re-read selinuxfs
-> in the middle of it (because libselinux caches the class/perm
-> mappings and only flushes on a reload).
-I agree with your suspicion that this will resolve the bug we've been 
-seeing (although only as a result of changing the timing, as you point 
-out).  Thanks for your work on this!
->
->   security/selinux/include/conditional.h |  2 +-
->   security/selinux/include/security.h    | 16 ++++-
->   security/selinux/selinuxfs.c           | 69 ++++++++++----------
->   security/selinux/ss/services.c         | 87 +++++++++++++-------------
->   security/selinux/ss/sidtab.c           | 10 +++
->   security/selinux/ss/sidtab.h           |  2 +
->   6 files changed, 106 insertions(+), 80 deletions(-)
->
-> diff --git a/security/selinux/include/conditional.h b/security/selinux/include/conditional.h
-> index 539ab357707d..b09343346e3f 100644
-> --- a/security/selinux/include/conditional.h
-> +++ b/security/selinux/include/conditional.h
-> @@ -13,7 +13,7 @@
->   
->   #include "security.h"
->   
-> -int security_get_bools(struct selinux_state *state,
-> +int security_get_bools(struct selinux_policy *policy,
->   		       u32 *len, char ***names, int **values);
->   
->   int security_set_bools(struct selinux_state *state, u32 len, int *values);
-> diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-> index b0e02cfe3ce1..7fa67bfb2f9f 100644
-> --- a/security/selinux/include/security.h
-> +++ b/security/selinux/include/security.h
-> @@ -99,6 +99,7 @@ extern const char *selinux_policycap_names[__POLICYDB_CAPABILITY_MAX];
->   
->   struct selinux_avc;
->   struct selinux_ss;
-> +struct selinux_policy;
->   
->   struct selinux_state {
->   #ifdef CONFIG_SECURITY_SELINUX_DISABLE
-> @@ -224,7 +225,12 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
->   
->   int security_mls_enabled(struct selinux_state *state);
->   int security_load_policy(struct selinux_state *state,
-> -			 void *data, size_t len);
-> +			void *data, size_t len,
-> +			struct selinux_policy **newpolicyp);
-> +void selinux_policy_commit(struct selinux_state *state,
-> +			struct selinux_policy *newpolicy);
-> +void selinux_policy_cancel(struct selinux_state *state,
-> +			struct selinux_policy *policy);
->   int security_read_policy(struct selinux_state *state,
->   			 void **data, size_t *len);
->   size_t security_policydb_len(struct selinux_state *state);
-> @@ -358,9 +364,9 @@ int security_net_peersid_resolve(struct selinux_state *state,
->   				 u32 xfrm_sid,
->   				 u32 *peer_sid);
->   
-> -int security_get_classes(struct selinux_state *state,
-> +int security_get_classes(struct selinux_policy *policy,
->   			 char ***classes, int *nclasses);
-> -int security_get_permissions(struct selinux_state *state,
-> +int security_get_permissions(struct selinux_policy *policy,
->   			     char *class, char ***perms, int *nperms);
->   int security_get_reject_unknown(struct selinux_state *state);
->   int security_get_allow_unknown(struct selinux_state *state);
-> @@ -380,6 +386,10 @@ int security_genfs_sid(struct selinux_state *state,
->   		       const char *fstype, char *name, u16 sclass,
->   		       u32 *sid);
->   
-> +int selinux_policy_genfs_sid(struct selinux_policy *policy,
-> +		       const char *fstype, char *name, u16 sclass,
-> +		       u32 *sid);
-> +
->   #ifdef CONFIG_NETLABEL
->   int security_netlbl_secattr_to_sid(struct selinux_state *state,
->   				   struct netlbl_lsm_secattr *secattr,
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 4781314c2510..131816878e50 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -346,9 +346,10 @@ static const struct file_operations sel_policyvers_ops = {
->   };
->   
->   /* declaration for sel_write_load */
-> -static int sel_make_bools(struct selinux_fs_info *fsi);
-> -static int sel_make_classes(struct selinux_fs_info *fsi);
-> -static int sel_make_policycap(struct selinux_fs_info *fsi);
-> +static int sel_make_bools(struct selinux_fs_info *fsi,
-> +			struct selinux_policy *newpolicy);
-> +static int sel_make_classes(struct selinux_fs_info *fsi,
-> +			struct selinux_policy *newpolicy);
->   
->   /* declaration for sel_make_class_dirs */
->   static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
-> @@ -508,28 +509,23 @@ static const struct file_operations sel_policy_ops = {
->   	.llseek		= generic_file_llseek,
->   };
->   
-> -static int sel_make_policy_nodes(struct selinux_fs_info *fsi)
-> +static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
-> +				struct selinux_policy *newpolicy)
->   {
->   	int ret;
->   
-> -	ret = sel_make_bools(fsi);
-> +	ret = sel_make_bools(fsi, newpolicy);
->   	if (ret) {
->   		pr_err("SELinux: failed to load policy booleans\n");
->   		return ret;
->   	}
->   
-> -	ret = sel_make_classes(fsi);
-> +	ret = sel_make_classes(fsi, newpolicy);
->   	if (ret) {
->   		pr_err("SELinux: failed to load policy classes\n");
->   		return ret;
->   	}
->   
-> -	ret = sel_make_policycap(fsi);
-> -	if (ret) {
-> -		pr_err("SELinux: failed to load policy capabilities\n");
-> -		return ret;
-> -	}
-> -
->   	return 0;
->   }
->   
-> @@ -538,6 +534,7 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
->   
->   {
->   	struct selinux_fs_info *fsi = file_inode(file)->i_sb->s_fs_info;
-> +	struct selinux_policy *newpolicy;
->   	ssize_t length;
->   	void *data = NULL;
->   
-> @@ -563,15 +560,19 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
->   	if (copy_from_user(data, buf, count) != 0)
->   		goto out;
->   
-> -	length = security_load_policy(fsi->state, data, count);
-> +	length = security_load_policy(fsi->state, data, count, &newpolicy);
->   	if (length) {
->   		pr_warn_ratelimited("SELinux: failed to load policy\n");
->   		goto out;
->   	}
->   
-> -	length = sel_make_policy_nodes(fsi);
-> -	if (length)
-> +	length = sel_make_policy_nodes(fsi, newpolicy);
-> +	if (length) {
-> +		selinux_policy_cancel(fsi->state, newpolicy);
->   		goto out1;
-As things stand as of this patch, I think that this means that in the 
-event of a failure in recreating the directories, that directory will be 
-left unpopulated or partially populated.  We could even get in a state 
-where the booleans directory has already been updated to the new policy 
-and the class directory has not.  The full solution is of course atomic 
-swapover, which as I mentioned above I hope to submit a series for soon, 
-but I wonder if recreating the directories on the old policy would be a 
-better interim state?  That probably depends on what sorts of errors are 
-possible.  If we've failed because of something about the new policy, 
-recreating the old directories should get us back to a good state.  If 
-we can't create new directories at all for whatever reason, trying to 
-recreate might leave us worse off than before we started.
-> +	}
-> +
-> +	selinux_policy_commit(fsi->state, newpolicy);
->   
->   	length = count;
->   
-> @@ -1333,7 +1334,8 @@ static void sel_remove_entries(struct dentry *de)
->   
->   #define BOOL_DIR_NAME "booleans"
->   
-> -static int sel_make_bools(struct selinux_fs_info *fsi)
-> +static int sel_make_bools(struct selinux_fs_info *fsi,
-> +			struct selinux_policy *newpolicy)
->   {
->   	int ret;
->   	ssize_t len;
-> @@ -1362,7 +1364,7 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
->   	if (!page)
->   		goto out;
->   
-> -	ret = security_get_bools(fsi->state, &num, &names, &values);
-> +	ret = security_get_bools(newpolicy, &num, &names, &values);
->   	if (ret)
->   		goto out;
->   
-> @@ -1388,7 +1390,7 @@ static int sel_make_bools(struct selinux_fs_info *fsi)
->   		}
->   
->   		isec = selinux_inode(inode);
-> -		ret = security_genfs_sid(fsi->state, "selinuxfs", page,
-> +		ret = selinux_policy_genfs_sid(newpolicy, "selinuxfs", page,
->   					 SECCLASS_FILE, &sid);
->   		if (ret) {
->   			pr_warn_ratelimited("SELinux: no sid found, defaulting to security isid for %s\n",
-> @@ -1791,14 +1793,14 @@ static const struct file_operations sel_policycap_ops = {
->   	.llseek		= generic_file_llseek,
->   };
->   
-> -static int sel_make_perm_files(char *objclass, int classvalue,
-> -				struct dentry *dir)
-> +static int sel_make_perm_files(struct selinux_policy *newpolicy,
-> +			char *objclass, int classvalue,
-> +			struct dentry *dir)
->   {
-> -	struct selinux_fs_info *fsi = dir->d_sb->s_fs_info;
->   	int i, rc, nperms;
->   	char **perms;
->   
-> -	rc = security_get_permissions(fsi->state, objclass, &perms, &nperms);
-> +	rc = security_get_permissions(newpolicy, objclass, &perms, &nperms);
->   	if (rc)
->   		return rc;
->   
-> @@ -1831,8 +1833,9 @@ static int sel_make_perm_files(char *objclass, int classvalue,
->   	return rc;
->   }
->   
-> -static int sel_make_class_dir_entries(char *classname, int index,
-> -					struct dentry *dir)
-> +static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
-> +				char *classname, int index,
-> +				struct dentry *dir)
->   {
->   	struct super_block *sb = dir->d_sb;
->   	struct selinux_fs_info *fsi = sb->s_fs_info;
-> @@ -1858,12 +1861,13 @@ static int sel_make_class_dir_entries(char *classname, int index,
->   	if (IS_ERR(dentry))
->   		return PTR_ERR(dentry);
->   
-> -	rc = sel_make_perm_files(classname, index, dentry);
-> +	rc = sel_make_perm_files(newpolicy, classname, index, dentry);
->   
->   	return rc;
->   }
->   
-> -static int sel_make_classes(struct selinux_fs_info *fsi)
-> +static int sel_make_classes(struct selinux_fs_info *fsi,
-> +			struct selinux_policy *newpolicy)
->   {
->   
->   	int rc, nclasses, i;
-> @@ -1872,7 +1876,7 @@ static int sel_make_classes(struct selinux_fs_info *fsi)
->   	/* delete any existing entries */
->   	sel_remove_entries(fsi->class_dir);
->   
-> -	rc = security_get_classes(fsi->state, &classes, &nclasses);
-> +	rc = security_get_classes(newpolicy, &classes, &nclasses);
->   	if (rc)
->   		return rc;
->   
-> @@ -1890,7 +1894,7 @@ static int sel_make_classes(struct selinux_fs_info *fsi)
->   		}
->   
->   		/* i+1 since class values are 1-indexed */
-> -		rc = sel_make_class_dir_entries(classes[i], i + 1,
-> +		rc = sel_make_class_dir_entries(newpolicy, classes[i], i + 1,
->   				class_name_dir);
->   		if (rc)
->   			goto out;
-> @@ -1909,8 +1913,6 @@ static int sel_make_policycap(struct selinux_fs_info *fsi)
->   	struct dentry *dentry = NULL;
->   	struct inode *inode = NULL;
->   
-> -	sel_remove_entries(fsi->policycap_dir);
-> -
->   	for (iter = 0; iter <= POLICYDB_CAPABILITY_MAX; iter++) {
->   		if (iter < ARRAY_SIZE(selinux_policycap_names))
->   			dentry = d_alloc_name(fsi->policycap_dir,
-> @@ -2075,9 +2077,12 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
->   		goto err;
->   	}
->   
-> -	ret = sel_make_policy_nodes(fsi);
-> -	if (ret)
-> +	ret = sel_make_policycap(fsi);
-> +	if (ret) {
-> +		pr_err("SELinux: failed to load policy capabilities\n");
->   		goto err;
-> +	}
-> +
->   	return 0;
->   err:
->   	pr_err("SELinux: %s:  failed while creating inodes\n",
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index adc11d97b3ae..07a41e8db2d3 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -2143,8 +2143,18 @@ static void selinux_policy_free(struct selinux_policy *policy)
->   	kfree(policy);
->   }
->   
-> -static void selinux_policy_commit(struct selinux_state *state,
-> -				struct selinux_policy *newpolicy)
-> +void selinux_policy_cancel(struct selinux_state *state,
-> +			struct selinux_policy *policy)
-> +{
-> +
-> +	read_lock(&state->ss->policy_rwlock);
-> +	sidtab_cancel_convert(&state->ss->policy->sidtab);
-> +	read_unlock(&state->ss->policy_rwlock);
-> +	selinux_policy_free(policy);
-> +}
-> +
-> +void selinux_policy_commit(struct selinux_state *state,
-> +			struct selinux_policy *newpolicy)
->   {
->   	struct selinux_policy *oldpolicy;
->   	u32 seqno;
-> @@ -2200,7 +2210,8 @@ static void selinux_policy_commit(struct selinux_state *state,
->    * This function will flush the access vector cache after
->    * loading the new policy.
->    */
-> -int security_load_policy(struct selinux_state *state, void *data, size_t len)
-> +int security_load_policy(struct selinux_state *state, void *data, size_t len,
-> +			struct selinux_policy **newpolicyp)
->   {
->   	struct selinux_policy *newpolicy;
->   	struct sidtab_convert_params convert_params;
-> @@ -2230,7 +2241,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
->   
->   	if (!selinux_initialized(state)) {
->   		/* First policy load, so no need to preserve state from old policy */
-> -		selinux_policy_commit(state, newpolicy);
-> +		*newpolicyp = newpolicy;
->   		return 0;
->   	}
->   
-> @@ -2264,7 +2275,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len)
->   		goto err;
->   	}
->   
-> -	selinux_policy_commit(state, newpolicy);
-> +	*newpolicyp = newpolicy;
->   	return 0;
->   
->   err:
-> @@ -2691,17 +2702,15 @@ int security_get_user_sids(struct selinux_state *state,
->    * Obtain a SID to use for a file in a filesystem that
->    * cannot support xattr or use a fixed labeling behavior like
->    * transition SIDs or task SIDs.
-> - *
-> - * The caller must acquire the policy_rwlock before calling this function.
->    */
-> -static inline int __security_genfs_sid(struct selinux_state *state,
-> +static inline int __security_genfs_sid(struct selinux_policy *policy,
->   				       const char *fstype,
->   				       char *path,
->   				       u16 orig_sclass,
->   				       u32 *sid)
->   {
-> -	struct policydb *policydb = &state->ss->policy->policydb;
-> -	struct sidtab *sidtab = &state->ss->policy->sidtab;
-> +	struct policydb *policydb = &policy->policydb;
-> +	struct sidtab *sidtab = &policy->sidtab;
->   	int len;
->   	u16 sclass;
->   	struct genfs *genfs;
-> @@ -2711,7 +2720,7 @@ static inline int __security_genfs_sid(struct selinux_state *state,
->   	while (path[0] == '/' && path[1] == '/')
->   		path++;
->   
-> -	sclass = unmap_class(&state->ss->policy->map, orig_sclass);
-> +	sclass = unmap_class(&policy->map, orig_sclass);
->   	*sid = SECINITSID_UNLABELED;
->   
->   	for (genfs = policydb->genfs; genfs; genfs = genfs->next) {
-> @@ -2766,11 +2775,22 @@ int security_genfs_sid(struct selinux_state *state,
->   	int retval;
->   
->   	read_lock(&state->ss->policy_rwlock);
-> -	retval = __security_genfs_sid(state, fstype, path, orig_sclass, sid);
-> +	retval = __security_genfs_sid(state->ss->policy,
-> +				fstype, path, orig_sclass, sid);
->   	read_unlock(&state->ss->policy_rwlock);
->   	return retval;
->   }
->   
-> +int selinux_policy_genfs_sid(struct selinux_policy *policy,
-> +			const char *fstype,
-> +			char *path,
-> +			u16 orig_sclass,
-> +			u32 *sid)
-> +{
-> +	/* no lock required, policy is not yet accessible by other threads */
-> +	return __security_genfs_sid(policy, fstype, path, orig_sclass, sid);
-> +}
-> +
->   /**
->    * security_fs_use - Determine how to handle labeling for a filesystem.
->    * @sb: superblock in question
-> @@ -2806,8 +2826,8 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
->   		}
->   		sbsec->sid = c->sid[0];
->   	} else {
-> -		rc = __security_genfs_sid(state, fstype, "/", SECCLASS_DIR,
-> -					  &sbsec->sid);
-> +		rc = __security_genfs_sid(state->ss->policy, fstype, "/",
-> +					SECCLASS_DIR, &sbsec->sid);
->   		if (rc) {
->   			sbsec->behavior = SECURITY_FS_USE_NONE;
->   			rc = 0;
-> @@ -2821,23 +2841,14 @@ int security_fs_use(struct selinux_state *state, struct super_block *sb)
->   	return rc;
->   }
->   
-> -int security_get_bools(struct selinux_state *state,
-> +int security_get_bools(struct selinux_policy *policy,
->   		       u32 *len, char ***names, int **values)
->   {
->   	struct policydb *policydb;
->   	u32 i;
->   	int rc;
->   
-> -	if (!selinux_initialized(state)) {
-> -		*len = 0;
-> -		*names = NULL;
-> -		*values = NULL;
-> -		return 0;
-> -	}
-> -
-> -	read_lock(&state->ss->policy_rwlock);
-> -
-> -	policydb = &state->ss->policy->policydb;
-> +	policydb = &policy->policydb;
->   
->   	*names = NULL;
->   	*values = NULL;
-> @@ -2868,7 +2879,6 @@ int security_get_bools(struct selinux_state *state,
->   	}
->   	rc = 0;
->   out:
-> -	read_unlock(&state->ss->policy_rwlock);
->   	return rc;
->   err:
->   	if (*names) {
-> @@ -2957,7 +2967,9 @@ static int security_preserve_bools(struct selinux_state *state,
->   	struct cond_bool_datum *booldatum;
->   	u32 i, nbools = 0;
->   
-> -	rc = security_get_bools(state, &nbools, &bnames, &bvalues);
-> +	read_lock(&state->ss->policy_rwlock);
-> +	rc = security_get_bools(state->ss->policy, &nbools, &bnames, &bvalues);
-> +	read_unlock(&state->ss->policy_rwlock);
->   	if (rc)
->   		goto out;
->   	for (i = 0; i < nbools; i++) {
-> @@ -3168,21 +3180,13 @@ static int get_classes_callback(void *k, void *d, void *args)
->   	return 0;
->   }
->   
-> -int security_get_classes(struct selinux_state *state,
-> +int security_get_classes(struct selinux_policy *policy,
->   			 char ***classes, int *nclasses)
->   {
->   	struct policydb *policydb;
->   	int rc;
->   
-> -	if (!selinux_initialized(state)) {
-> -		*nclasses = 0;
-> -		*classes = NULL;
-> -		return 0;
-> -	}
-> -
-> -	read_lock(&state->ss->policy_rwlock);
-> -
-> -	policydb = &state->ss->policy->policydb;
-> +	policydb = &policy->policydb;
->   
->   	rc = -ENOMEM;
->   	*nclasses = policydb->p_classes.nprim;
-> @@ -3200,7 +3204,6 @@ int security_get_classes(struct selinux_state *state,
->   	}
->   
->   out:
-> -	read_unlock(&state->ss->policy_rwlock);
->   	return rc;
->   }
->   
-> @@ -3217,16 +3220,14 @@ static int get_permissions_callback(void *k, void *d, void *args)
->   	return 0;
->   }
->   
-> -int security_get_permissions(struct selinux_state *state,
-> +int security_get_permissions(struct selinux_policy *policy,
->   			     char *class, char ***perms, int *nperms)
->   {
->   	struct policydb *policydb;
->   	int rc, i;
->   	struct class_datum *match;
->   
-> -	read_lock(&state->ss->policy_rwlock);
-> -
-> -	policydb = &state->ss->policy->policydb;
-> +	policydb = &policy->policydb;
->   
->   	rc = -EINVAL;
->   	match = symtab_search(&policydb->p_classes, class);
-> @@ -3255,11 +3256,9 @@ int security_get_permissions(struct selinux_state *state,
->   		goto err;
->   
->   out:
-> -	read_unlock(&state->ss->policy_rwlock);
->   	return rc;
->   
->   err:
-> -	read_unlock(&state->ss->policy_rwlock);
->   	for (i = 0; i < *nperms; i++)
->   		kfree((*perms)[i]);
->   	kfree(*perms);
-> diff --git a/security/selinux/ss/sidtab.c b/security/selinux/ss/sidtab.c
-> index 47be8bcf6bed..4a24ded670af 100644
-> --- a/security/selinux/ss/sidtab.c
-> +++ b/security/selinux/ss/sidtab.c
-> @@ -463,6 +463,16 @@ int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params)
->   	return 0;
->   }
->   
-> +void sidtab_cancel_convert(struct sidtab *s)
-> +{
-> +	unsigned long flags;
-> +
-> +	/* cancelling policy load - disable live convert of sidtab */
-> +	spin_lock_irqsave(&s->lock, flags);
-> +	s->convert = NULL;
-> +	spin_unlock_irqrestore(&s->lock, flags);
-> +}
-> +
->   static void sidtab_destroy_entry(struct sidtab_entry *entry)
->   {
->   	context_destroy(&entry->context);
-> diff --git a/security/selinux/ss/sidtab.h b/security/selinux/ss/sidtab.h
-> index f2a84560b8b3..80c744d07ad6 100644
-> --- a/security/selinux/ss/sidtab.h
-> +++ b/security/selinux/ss/sidtab.h
-> @@ -123,6 +123,8 @@ static inline struct context *sidtab_search_force(struct sidtab *s, u32 sid)
->   
->   int sidtab_convert(struct sidtab *s, struct sidtab_convert_params *params);
->   
-> +void sidtab_cancel_convert(struct sidtab *s);
-> +
->   int sidtab_context_to_sid(struct sidtab *s, struct context *context, u32 *sid);
->   
->   void sidtab_destroy(struct sidtab *s);
+On 8/4/20 6:56 PM, Joshua Brindle wrote:
+> On Sun, Aug 2, 2020 at 5:20 AM bauen1 <j2468h@googlemail.com> wrote:
+>>
+>> Hello,
+>>
+>> The user level is currently used as the range for files under HOME_DIR.
+>> It appears that the Bell-LaPadula model makes the assumption that all objects are single leveled, this assumption is also made in libsepol. (I haven't really found a good source for this assumption)
+>>
+> 
+> libsepol does not make any assumptions about policy. Everything is
+> defined in the policy mls or mcs files in terms of constraints.
 
+In my opinion libsepol should not make any assumptions about the policy, and usually it doesn't.
+However currently the "user level" is used as the range component for file labels containing HOME_DIR (and similiar).
+libsepol and the binary policy limits the "user level" to a level instead of a range, this makes it very hard to use ranges for home files by default.
+I would like to change this, but I'm not really sure how backwards compatibility should be handled and if there would be a better term for "user level" that doesn't contain "level".
 
+>> But in my own (MCS) policy objects are not single leveled.
+> 
+> Files are, by definition, single level objects because they cannot be
+> decomposed. A file with U - TS data in it is a TS file.
+
+My policy doesn't really follow the standard MLS / MCS model.
+So far I have found using "confidentiality" for the low and "integrity" for the high level to be the most fitting.
+For example a semi-secret file (low = s0:c1) was created by a subject with more access (high = s0:c1,c2).
+The integrity level of a file can then be used to check if the subject that created it stands to gain something.
+E.g. an admin with access to just category 1 edits a file that is read (and executed) by a daemon with access to category 1-3.
+
+> The policy (not libsepol) handles enforcing single-level objects, for
+> example in refpolicy:
+> 
+> # make sure these file classes are "single level"
+> mlsconstrain { file lnk_file fifo_file } { create relabelto }
+>         ( l2 eq h2 );
+> 
+> You cannot create or relabel a file with anything other than low = high.
+> 
+> Directories can be ranged, if they contain files of multiple levels,
+> again, from refpolicy:
+> # Directory "write" ops
+> mlsconstrain dir { add_name remove_name reparent rmdir }
+>         (( l1 eq l2 ) or
+>          (( t1 == mlsfilewriteinrange ) and ( l1 dom l2 ) and ( l1
+> domby h2 )) or
+>          (( t1 == mlsfilewritetoclr ) and ( h1 dom l2 ) and ( l1 domby l2 )) or
+>          ( t1 == mlsfilewrite ) or
+>          ( t2 == mlstrustedobject ));
+> 
+> So the source low must equal the directory low or one of the mls
+> exception attributes controls fine grained usage.
+
+Thanks for pointing this out, I will need to look into this a bit more.
+
+>> Read (and process communication) operations are allowed if a processes high level dominates an objects low level.
+>> Write operations are allowed if a processes high level dominates an objects high level.
+>>
+>> Later I've found that someone else had also come up with this idea independently, see https://lore.kernel.org/selinux/20091103114530.GH1672@myhost.felk.cvut.cz/ and https://lore.kernel.org/selinux/20091125202727.GD1649@myhost.felk.cvut.cz/ .
+>>
+>> For this I want to label files under HOME_DIR with the range user_lowest-user_highest.
+>> Ignoring process communication this would prevent a login with less than maximum clearance from escalating by writing to e.g. ~/.bashrc .
+>>
+>> For example a user with the range s0-s0:c0.c3 would have his home files labeled as s0-s0:c0.c3.
+>> A local tty login with the maximum clearance s0-s0:c0.c3 would be able to edit ~/.bashrc .
+>> But an ssh login from e.g. an insecure network with only the range s0-s0:c1 would be able to read but not write important files such as ~/.bashrc .
+>>
+>> Using user_highest-user_highest as user level would force the user to correct the context of potentially a lot of files required by whatever is run with less than user_highest high, so I want to avoid this.
+>>
+>> Would it make sense to change libsepol to accept a range as user level (and perhaps changing the name) ?
+> 
+> libsepol isn't really doing anything here. You can use semanage to set
+> a file context, something like:
+
+See above, libsepol is responsible for the limitation of the user level to a level, everything else doesn't have this limitation.
+
+> # semanage fcontext -r s0-s0:c0.c3 /home/username
+> # restorecon -R /home/username
+
+Yes, but this doesn't really scale too well.
+
+> But you do need to be careful of escalation as you've noted, you may
+> need a number of these to set specific files to the user high level
+-- 
+bauen1
+https://dn42.bauen1.xyz/
