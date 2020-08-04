@@ -4,65 +4,64 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6709CC433DF
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 01:33:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCDC2C433E0
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 01:33:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 60F9120781
-	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 01:33:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BFD7120781
+	for <selinux@archiver.kernel.org>; Tue,  4 Aug 2020 01:33:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="KelovBdm"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="w2Y8a/1h"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729149AbgHDBd0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 3 Aug 2020 21:33:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50916 "EHLO
+        id S1729154AbgHDBdc (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 3 Aug 2020 21:33:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726276AbgHDBdZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 3 Aug 2020 21:33:25 -0400
-Received: from mail-qt1-x841.google.com (mail-qt1-x841.google.com [IPv6:2607:f8b0:4864:20::841])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88834C06174A
-        for <selinux@vger.kernel.org>; Mon,  3 Aug 2020 18:33:25 -0700 (PDT)
-Received: by mail-qt1-x841.google.com with SMTP id b25so29805281qto.2
-        for <selinux@vger.kernel.org>; Mon, 03 Aug 2020 18:33:25 -0700 (PDT)
+        with ESMTP id S1726276AbgHDBdc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 3 Aug 2020 21:33:32 -0400
+Received: from mail-qt1-x82f.google.com (mail-qt1-x82f.google.com [IPv6:2607:f8b0:4864:20::82f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F049FC06174A
+        for <selinux@vger.kernel.org>; Mon,  3 Aug 2020 18:33:31 -0700 (PDT)
+Received: by mail-qt1-x82f.google.com with SMTP id c12so20779512qtn.9
+        for <selinux@vger.kernel.org>; Mon, 03 Aug 2020 18:33:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=subject:from:to:date:message-id:in-reply-to:references:user-agent
          :mime-version:content-transfer-encoding;
-        bh=G6d9CvhAN3e9a1NKxuyg1jZcMbvmsJ/QYg4zQTz7tcQ=;
-        b=KelovBdm3Yc90lMETVBgNCSirD8FlOYTThhRUVz2k5HTLoKAqcekfrzKQqnoqnifqA
-         QINFHEexVDIdBJXSYiWOGcMGLMRrE+aFSuS+xO92/CJ8SlZBW4R3Hoa5MWTPdtc0bJMM
-         6seJ443VgOwU4kTIwehMGnS1tNplD+Wm4aTkpy4r0Ocal04WyLpnLFKasB2o1p2l+o7C
-         UBqC3kwDrAglFoBGKT5BOXv7xKmvh6pfMbv7Yda6L35oBMRhvLejD04VkWnVBxOSXHRC
-         NL8WAN1uJ0JuehrCwH2dBRjr0RDrWAlY1ROJ+wRbkAUQe3g5ASZyzHqphDEGYSdiG750
-         nHYQ==
+        bh=RT32yweqTmfDSy4bYjN1WNQdcpdshYzkUvt1F6G2i20=;
+        b=w2Y8a/1hllZL5UeWfLscDDgBqrWRu7h7HRrVlcIXpDkkhtJvY9iKIbWU9StL4H6nxw
+         4tUjPw/7/JLRRXk3n0lT9LyVG3q9RG6I/9lKg36IzrRJ2Ecr4Sg/AjpiiRvCky5aunPF
+         rFSZuuF20qGx0TmO2WLBy88uMmdavZUHt++cvunofG2TNqXxgDfbCLvIPd/c9Wi8DYEZ
+         NsOx4sIc7LbQyQT4/xMVNvJpVQvA9mlwDxqLuX++FgoAntTINDxc02VKmL1u8UiM+puL
+         0iHe3L98t1sac2Um6vg25c6/5yX+KUHnSRFYyPTsRH4xTzQJ2SkvRwAxNwnsiQfkmo3y
+         qPHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:from:to:date:message-id:in-reply-to
          :references:user-agent:mime-version:content-transfer-encoding;
-        bh=G6d9CvhAN3e9a1NKxuyg1jZcMbvmsJ/QYg4zQTz7tcQ=;
-        b=iQR77h2uR01UJ6QT7MbCE/P2eZ4Y96Cqozh4ZH9pdnOTqrQ7m4wRpWHLHxb94XFH2s
-         FJvcsK5HuvtKTLKFLA+sx2bHNPiP0LQELtKXkWMBAkTO49hhjmPhMPiT/tixk14GM95Q
-         EGtWTbX9NLzmTSCXKUm/XzXlJpwTQqVlRiWOFeH9eu0AJ7j4S79qkW1oR2vyJE4MX8rY
-         TBstasXBbRcds830B1rLkVx/lF/XhiQaVexyHMX6N2gl2tu5GYEichjvBPROm2sFf6OG
-         xf5pYcassrG33NDI8UsO49klM36U1M8IOxefHk3+xorlNqbCVTza0aC2gPv0ykraq6V7
-         aUhg==
-X-Gm-Message-State: AOAM5312zA/Coxal4bXEWtOPRQ6YiYNqFQsoqrqwLi3pA/H7sj5bECht
-        j8wBS8FFPNzTOwWOATizDnEMsHYdV0m5
-X-Google-Smtp-Source: ABdhPJx8CooGiFpY52t16MRzEIf6aMvI1i9IvYt7rDnG6dd9txTuYF3bZqLBFaZEuMjIv49tzrN5PQ==
-X-Received: by 2002:aed:37a6:: with SMTP id j35mr19259324qtb.322.1596504804308;
-        Mon, 03 Aug 2020 18:33:24 -0700 (PDT)
+        bh=RT32yweqTmfDSy4bYjN1WNQdcpdshYzkUvt1F6G2i20=;
+        b=FyzAWK92/qMibRLsv3wm2EGA5/MGsSB6LEn5XzQw949eg+rHGZswHYmr5MTkvZmD9E
+         mDrjTRX7MpxbX6cop6CmmJOfL4TeuicTcmzIr+2TTZTQbE62JmYgC8ksX8KfJptuSSBL
+         SjrGKwPMLpnF46jCmki+dHtktwvSeIlcYEshkF+rYOd8Vo4S+UVguulpN3XaHw7IEiGZ
+         xcTG8PaWd3hyWP1/IkaBFDeOo7KI9zr6Z1R12vMdnJR0ajI7EqX6Yd+v0hYAKmcaFpl9
+         fl1WhFCsxfnW90iwyXu5jdKsDueWdgv2TwFf5+1s4iQ+WXQD2gqV7AkJkwiWzTwlg5JU
+         9BlQ==
+X-Gm-Message-State: AOAM530YQX3WYAls28KiNXEirIGXNsb9psY08ewdqSBJO3+66X33Wz5c
+        ZOlhYKoa9SzwEFNwG20VEHp3Ao+Eaydb
+X-Google-Smtp-Source: ABdhPJwkZ1FTtaBmnFjaonbcmcIG6blyM+VAWRpPEE8tk2CW6VrCXcXpDY5kPD0pUIpmQ1Oikt9ywQ==
+X-Received: by 2002:ac8:1e95:: with SMTP id c21mr19617087qtm.306.1596504810693;
+        Mon, 03 Aug 2020 18:33:30 -0700 (PDT)
 Received: from localhost (pool-96-230-24-152.bstnma.fios.verizon.net. [96.230.24.152])
-        by smtp.gmail.com with ESMTPSA id z68sm21562766qke.113.2020.08.03.18.33.23
+        by smtp.gmail.com with ESMTPSA id c9sm20524691qkm.44.2020.08.03.18.33.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2020 18:33:23 -0700 (PDT)
-Subject: [RFC,selinux-notebook PATCH 01/18] build: explicitly enable pandoc
- pipe_tables
+        Mon, 03 Aug 2020 18:33:30 -0700 (PDT)
+Subject: [RFC,selinux-notebook PATCH 02/18] css: identify table layout hacks
 From:   Paul Moore <paul@paul-moore.com>
 To:     selinux@vger.kernel.org
-Date:   Mon, 03 Aug 2020 21:33:23 -0400
-Message-ID: <159650480312.8961.3858639968171830656.stgit@sifl>
+Date:   Mon, 03 Aug 2020 21:33:29 -0400
+Message-ID: <159650480947.8961.9574180519610718746.stgit@sifl>
 In-Reply-To: <159650470076.8961.12721446818345626943.stgit@sifl>
 References: <159650470076.8961.12721446818345626943.stgit@sifl>
 User-Agent: StGit/0.23
@@ -74,25 +73,48 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-As of July 2020 GitHub Markdown supports pipe tables.
+Better identify, and tweak, some of the table layout hacks so that
+we know to revisit them later once we have fully converted to
+markdown.
 
 Signed-off-by: Paul Moore <paul@paul-moore.com>
 ---
- Makefile |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ src/styles_html.css |    1 -
+ src/styles_pdf.css  |    6 +++++-
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 9bd0ffa..f41bb16 100644
---- a/Makefile
-+++ b/Makefile
-@@ -16,7 +16,8 @@ PDF_OUT = SELinux_Notebook.pdf
+diff --git a/src/styles_html.css b/src/styles_html.css
+index ea3f7ee..887051c 100644
+--- a/src/styles_html.css
++++ b/src/styles_html.css
+@@ -21,7 +21,6 @@ table {
+ }
+ table tr, th, td {
+ 	border: 1px solid black;
+-	word-wrap: break-word;
+ }
  
- SED = sed
- PANDOC = pandoc
--PANDOC_OPTS=-V mainfont='DejaVu Serif' -V monofont='DejaVu Sans Mono'
-+PANDOC_OPTS  = --from markdown+pipe_tables
-+PANDOC_OPTS += -V mainfont='DejaVu Serif' -V monofont='DejaVu Sans Mono'
+ img {
+diff --git a/src/styles_pdf.css b/src/styles_pdf.css
+index 48da310..5fa9d02 100644
+--- a/src/styles_pdf.css
++++ b/src/styles_pdf.css
+@@ -62,12 +62,16 @@ table {
+ 	margin-left: auto;
+ 	margin-right: auto;
+ 	width: 95%;
+-	table-layout: fixed;
+ 	/* combine table borders when they are adjacent */
+ 	border-collapse: collapse;
++	/* TODO: once we finish the HTML->Markdown conversion we should
++	 *       revaluate the 'table-layout: fixed' hack below */
++	table-layout: fixed;
+ }
+ table tr, th, td {
+ 	border: 1px solid black;
++	/* TODO: once we finish the HTML->Markdown conversion we should
++	 *       revaluate the 'word-wrap: break-word' hack below */
+ 	word-wrap: break-word;
+ }
  
- # the individual section files, in order
- FILE_LIST = $(shell cat src/section_list.txt)
 
