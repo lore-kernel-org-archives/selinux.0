@@ -2,159 +2,139 @@ Return-Path: <SRS0=Kca8=BP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3A41C433E3
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 19:59:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F15CAC433E0
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 20:02:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B1B752076E
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 19:59:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CD4362076E
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 20:02:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="j0Uxi7FL"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ElW1kVDb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726396AbgHET76 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Aug 2020 15:59:58 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:46054 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727900AbgHEQlb (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 12:41:31 -0400
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 075F820B490A;
-        Wed,  5 Aug 2020 08:07:44 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 075F820B490A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1596640065;
-        bh=4htCjq+HrG+6KX6M1fUa9DbFBYUOf9aj/qs9e1AjTKM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j0Uxi7FLcZAMLbHkrUUJLqtPs/+J67eH9olMkJ8yRQ+mKoiOQem85K1ROoq0JqfZ+
-         PbNfl9Y25Kc6toJCSLhPXlRiHyPxYgM7G8aOC0yPMMlY1MtJD3Z8znaXMyBCIlaCC3
-         rJroDqCLmL9kOfqQIOKBfIBB4/fE45Cfkifgc+C8=
-Date:   Wed, 5 Aug 2020 10:07:32 -0500
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        Casey Schaufler <casey@schaufler-ca.com>, sashal@kernel.org,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        John Johansen <john.johansen@canonical.com>
-Subject: Re: [PATCH v6 1/4] IMA: Add func to measure LSM state and policy
-Message-ID: <20200805150732.GA4365@sequoia>
-References: <20200805004331.20652-1-nramas@linux.microsoft.com>
- <20200805004331.20652-2-nramas@linux.microsoft.com>
- <4b9d2715d3ef3c8f915ef03867cfb1a39c0abc54.camel@linux.ibm.com>
- <f88bf25e-37ef-7f00-6162-215838961bb0@gmail.com>
- <31d00876438d2652890ab8bf6ba2e80f554ca7a4.camel@linux.ibm.com>
- <CAEjxPJ6X+Cqd5QtZBmNm2cujwbg-STfRF7_8i=Ny8yuc6z9BwQ@mail.gmail.com>
- <b7df114e8e0d276e66575b6970a1e459d1dd4196.camel@linux.ibm.com>
- <CAEjxPJ7d1yg659OCU6diXXGqegc_jSzO4ZPhkRqQtJnRn-kC0g@mail.gmail.com>
+        id S1727990AbgHEUB4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Aug 2020 16:01:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45404 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726958AbgHEQkG (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 12:40:06 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8674C034610
+        for <selinux@vger.kernel.org>; Wed,  5 Aug 2020 05:19:20 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id h7so41364992qkk.7
+        for <selinux@vger.kernel.org>; Wed, 05 Aug 2020 05:19:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=ZO7+nyp4YY7ibrCK0MQdSOA+W/eh67jKd5ubJU4pRCg=;
+        b=ElW1kVDbQhSPKk2tNR6TCSu34NU5jIAv9RaztXUayFttHPCE+tBCMZK1YFpQrwfztf
+         7azfTEy7Wn26YwpwgCziVAk7pjUHKO6J/pNQpjndk0KO9Kth+PWUXt/Z4lGkqIQje/86
+         UCApd3kR94jVZM81GtCK1NM/jxAV0X+UjjxfrIuq/VtbEtMx8yLqMV+uRAtgDacIyZym
+         zGhLi6MIwJ/1/QZIrfXDaHBJxb7MO4G4r4c80uQ3KIOlpz5ivDWKXtNTm43qD1rKnMoJ
+         fhRu3Mx08RlvVGpWmXJgcfa1lNpZ819ILe04XLEoWRQMJ2qouNVHZH74LzH/s3XXzZyU
+         kcyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=ZO7+nyp4YY7ibrCK0MQdSOA+W/eh67jKd5ubJU4pRCg=;
+        b=qZAM7qcx1rFbdIpcho5TZxssxNo+Zz2EWKUuWlvbejNR1xc5Zm11UXVaVPK5JpXQfD
+         luJiHVy5/E1RroUoiyfM+oicARH3UjnC/IZMqog8N4YkRwAcY7lEoqDuZTrnwRabeGeL
+         iiOenjYawLIYpZ70XJNEwDSvXapVZDnoTgnD0smEPfDGdLKQrfl3KLECjfur1iuVAcc4
+         PzWlIYAd2NGNL5v+HJneq3h8EmE4+cakARDVePkOD9d2aTHX7ficmEm1s+g6AzS3PIQh
+         q7uQl5IPl3BTuW4ETaf7PSVCrWvhA9cMUDwmNpR6/fJDkdXyJjKcmrBFy8ku8jJFN2BJ
+         skxw==
+X-Gm-Message-State: AOAM53212/KIFl3dYtLQvpZWkNH0xO2gIQAE+CVfwvr10OkxxiNoxCI9
+        +a3lYiOcAAFACo7iyFWiHVIfoAxlj7g=
+X-Google-Smtp-Source: ABdhPJy9ZK70IaeCITbKOBHgSDsLzmOOkqFF90VCajO1SvqN91byIk9VhGMp4AKcuuz8ptuCQFcOiA==
+X-Received: by 2002:a37:ad04:: with SMTP id f4mr2856314qkm.302.1596629951491;
+        Wed, 05 Aug 2020 05:19:11 -0700 (PDT)
+Received: from [192.168.1.190] (pool-96-244-118-111.bltmmd.fios.verizon.net. [96.244.118.111])
+        by smtp.gmail.com with ESMTPSA id r188sm1419879qkb.122.2020.08.05.05.19.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 05 Aug 2020 05:19:11 -0700 (PDT)
+Subject: Re: [RFC PATCH v3] selinux: encapsulate policy state, refactor policy
+ load
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>
+References: <20200803173948.17118-1-stephen.smalley.work@gmail.com>
+ <CAFqZXNs5RjGkifBBVZm8zONx5fube4NZe6xFVAtZpuJjEePw+g@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Message-ID: <b4333d41-de9e-96a7-7ef8-39e14513c370@gmail.com>
+Date:   Wed, 5 Aug 2020 08:19:10 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAEjxPJ7d1yg659OCU6diXXGqegc_jSzO4ZPhkRqQtJnRn-kC0g@mail.gmail.com>
+In-Reply-To: <CAFqZXNs5RjGkifBBVZm8zONx5fube4NZe6xFVAtZpuJjEePw+g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2020-08-05 10:27:43, Stephen Smalley wrote:
-> On Wed, Aug 5, 2020 at 9:20 AM Mimi Zohar <zohar@linux.ibm.com> wrote:
-> >
-> > On Wed, 2020-08-05 at 09:03 -0400, Stephen Smalley wrote:
-> > > On Wed, Aug 5, 2020 at 8:57 AM Mimi Zohar <zohar@linux.ibm.com> wrote:
-> > > > On Wed, 2020-08-05 at 08:46 -0400, Stephen Smalley wrote:
-> > > > > On 8/4/20 11:25 PM, Mimi Zohar wrote:
-> > > > >
-> > > > > > Hi Lakshmi,
-> > > > > >
-> > > > > > There's still  a number of other patch sets needing to be reviewed
-> > > > > > before my getting to this one.  The comment below is from a high level.
-> > > > > >
-> > > > > > On Tue, 2020-08-04 at 17:43 -0700, Lakshmi Ramasubramanian wrote:
-> > > > > > > Critical data structures of security modules need to be measured to
-> > > > > > > enable an attestation service to verify if the configuration and
-> > > > > > > policies for the security modules have been setup correctly and
-> > > > > > > that they haven't been tampered with at runtime. A new IMA policy is
-> > > > > > > required for handling this measurement.
-> > > > > > >
-> > > > > > > Define two new IMA policy func namely LSM_STATE and LSM_POLICY to
-> > > > > > > measure the state and the policy provided by the security modules.
-> > > > > > > Update ima_match_rules() and ima_validate_rule() to check for
-> > > > > > > the new func and ima_parse_rule() to handle the new func.
-> > > > > > I can understand wanting to measure the in kernel LSM memory state to
-> > > > > > make sure it hasn't changed, but policies are stored as files.  Buffer
-> > > > > > measurements should be limited  to those things that are not files.
-> > > > > >
-> > > > > > Changing how data is passed to the kernel has been happening for a
-> > > > > > while.  For example, instead of passing the kernel module or kernel
-> > > > > > image in a buffer, the new syscalls - finit_module, kexec_file_load -
-> > > > > > pass an open file descriptor.  Similarly, instead of loading the IMA
-> > > > > > policy data, a pathname may be provided.
-> > > > > >
-> > > > > > Pre and post security hooks already exist for reading files.   Instead
-> > > > > > of adding IMA support for measuring the policy file data, update the
-> > > > > > mechanism for loading the LSM policy.  Then not only will you be able
-> > > > > > to measure the policy, you'll also be able to require the policy be
-> > > > > > signed.
-> > > > >
-> > > > > To clarify, the policy being measured by this patch series is a
-> > > > > serialized representation of the in-memory policy data structures being
-> > > > > enforced by SELinux.  Not the file that was loaded.  Hence, this
-> > > > > measurement would detect tampering with the in-memory policy data
-> > > > > structures after the policy has been loaded.  In the case of SELinux,
-> > > > > one can read this serialized representation via /sys/fs/selinux/policy.
-> > > > > The result is not byte-for-byte identical to the policy file that was
-> > > > > loaded but can be semantically compared via sediff and other tools to
-> > > > > determine whether it is equivalent.
-> > > >
-> > > > Thank you for the clarification.   Could the policy hash be included
-> > > > with the other critical data?  Does it really need to be measured
-> > > > independently?
-> > >
-> > > They were split into two separate functions because we wanted to be
-> > > able to support using different templates for them (ima-buf for the
-> > > state variables so that the measurement includes the original buffer,
-> > > which is small and relatively fixed-size, and ima-ng for the policy
-> > > because it is large and we just want to capture the hash for later
-> > > comparison against known-good).  Also, the state variables are
-> > > available for measurement always from early initialization, whereas
-> > > the policy is only available for measurement once we have loaded an
-> > > initial policy.
-> >
-> > Ok, measuring the policy separately from other critical data makes
-> > sense.  Instead of measuring the policy, which is large, measure the
-> > policy hash.
-> 
-> I think that was the original approach.  However, I had concerns with
-> adding code to SELinux to compute a hash over the policy versus
-> leaving that to IMA's existing policy and mechanism.  If that's
-> preferred I guess we can do it that way but seems less flexible and
-> duplicative.
+On 8/5/20 4:29 AM, Ondrej Mosnacek wrote:
 
-In AppArmor, we store the sha1 of the raw policy as the policy is
-loaded. The hash is exposed to userspace in apparmorfs. See commit
-5ac8c355ae00 ("apparmor: allow introspecting the loaded policy pre
-internal transform").
-
-It has proved useful as a mechanism for debugging as sometimes the
-on-disk policy doesn't match the loaded policy and this can be a good
-way to check that while providing support to users. John also mentions
-checkpoint/restore in the commit message and I could certainly see how
-the policy hashes would be useful in that scenario.
-
-When thinking through how Lakshmi's series could be extended for
-AppArmor support, I was thinking that the AppArmor policy measurement
-would be a measurement of these hashes that we already have in place.
-
-Perhaps there's some general usefulness in storing/exposing an SELinux
-policy hash rather than only seeing it as duplicative property required
-this measurement series?
-
-Tyler
-
+> On Mon, Aug 3, 2020 at 7:40 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>> Encapsulate the policy state in its own structure (struct
+>> selinux_policy) that is separately allocated but referenced from the
+>> selinux_ss structure.  The policy state includes the SID table
+>> (particularly the context structures), the policy database, and the
+>> mapping between the kernel classes/permissions and the policy values.
+>> Refactor the security server portion of the policy load logic to
+>> cleanly separate loading of the new structures from committing the new
+>> policy.  Unify the initial policy load and reload code paths as much
+>> as possible, avoiding duplicated code.  Make sure we are taking the
+>> policy read-lock prior to any dereferencing of the policy.  Move the
+>> copying of the policy capability booleans into the state structure
+>> outside of the policy write-lock because they are separate from the
+>> policy and are read outside of any policy lock; possibly they should
+>> be using at least READ_ONCE/WRITE_ONCE or smp_load_acquire/store_release.
+>>
+>> These changes simplify the policy loading logic, reduce the size of
+>> the critical section while holding the policy write-lock, and should
+>> facilitate future changes to e.g. refactor the entire policy reload
+>> logic including the selinuxfs code to make the updating of the policy
+>> and the selinuxfs directory tree atomic and/or to convert the policy
+>> read-write lock to RCU.
+>>
+>> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>> ---
+>> v3 fixes a couple of instances where we should take the read-lock for
+>> consistency prior to dereferencing state->ss->policy, and updates
+>> sidtab_convert() and its helpers/callbacks to use GFP_ATOMIC
+>> allocations instead of GFP_KERNEL and to remove a call to
+>> cond_resched() since it is now called with the read-lock held and
+>> therefore cannot call sleeping functions.  Technically we know that
+>> state->ss->policy cannot be modified since selinuxfs is taking
+>> fsi->mutex for all policy-modifying operations (both
+>> security_load_policy and security_set_bools) but this provides
+>> consistency in the handling of the policy rwlock.
+> I must say I'm a little concerned about switching to GFP_ATOMIC here.
+> The sidtab table can become quite large on long-running systems (since
+> it's grow-only currently) and in such case the kernel could have a
+> hard time allocating everything atomically. Maybe we could instead
+> pass the fsi->mutex's lockdep_map to security_load_policy() and call
+> lockdep_is_held() inside as a sanity check? This would document that
+> the function is expected to be called in mutual exclusion and also
+> detect at runtime if someone accidentally moves the call outside of
+> the mutex's critical section. It's not perfect, since a careless
+> programmer can still abuse it, but at least the lockdep_map argument
+> would warn anyone calling that function (or reviewing a related patch)
+> that there is some locking constraint that needs to be respected.
+Is that done anywhere else in the kernel currently?  If so, then I have 
+no problem with doing so. Otherwise, I'd rather just drop the 
+read_lock() here and add a comment explaining why it is currently safe 
+without it.
+>
+> Otherwise the patch looks good to me after a brief look.
+>
