@@ -2,46 +2,48 @@ Return-Path: <SRS0=Kca8=BP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C290C433E4
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 00:43:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B74AFC433DF
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 00:43:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C2AA2073E
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 00:43:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9B7D32073E
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 00:43:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="mbl18OTN"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="gkoWPIfv"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726634AbgHEAnh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 4 Aug 2020 20:43:37 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:38356 "EHLO
+        id S1726862AbgHEAnt (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 4 Aug 2020 20:43:49 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:38378 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726166AbgHEAnh (ORCPT
+        with ESMTP id S1726210AbgHEAnh (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 4 Aug 2020 20:43:37 -0400
 Received: from localhost.localdomain (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id A3C9E20B4908;
-        Tue,  4 Aug 2020 17:43:35 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com A3C9E20B4908
+        by linux.microsoft.com (Postfix) with ESMTPSA id 3F4BF20B490D;
+        Tue,  4 Aug 2020 17:43:36 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3F4BF20B490D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1596588215;
-        bh=witi/8JgEwCGp4a82OugmSroOHn6fU6ZrDmuPHmc6HA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=mbl18OTNOVFV4KGyTveIpOvWT76NAPgnoQTp+HNsvL+V1Wh93+uDm/iPpGQQx4MOP
-         mvnPqk3lk3OLjyRIS86q00dUrKxDoFOJeS4pkvu5Ai18R5SgpHZCWwhZbg9hotxR2x
-         raeuw5fP19jFqOUzgBbpWlpWXXCY0ibLeoVokZ5w=
+        s=default; t=1596588216;
+        bh=rlps7OqHhVGVD16ISs6BovnL28JviBxRVRibNHIIlhY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gkoWPIfviFKFKawhpIfi3Z0VTFwBIeRTLMjgHwOPbQOk9cGhVQbZVV50rddIvqkTF
+         uPPMe/vuKYHv63XDDif27JgryMYYxrW/z1rPqbO3E8Ma4kCh50wTKXYPtfRv0nIlUu
+         ZCJwQiGJN8qTBRIBKXUYX2zROhTAUpMPEnXuzEys=
 From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
 To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
         casey@schaufler-ca.com
 Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
         linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
         linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v6 0/4] LSM: Measure security module data
-Date:   Tue,  4 Aug 2020 17:43:27 -0700
-Message-Id: <20200805004331.20652-1-nramas@linux.microsoft.com>
+Subject: [PATCH v6 2/4] IMA: Define IMA hooks to measure LSM state and policy
+Date:   Tue,  4 Aug 2020 17:43:29 -0700
+Message-Id: <20200805004331.20652-3-nramas@linux.microsoft.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20200805004331.20652-1-nramas@linux.microsoft.com>
+References: <20200805004331.20652-1-nramas@linux.microsoft.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
@@ -49,102 +51,167 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Critical data structures of security modules are currently not measured.
-Therefore an attestation service, for instance, would not be able to
-attest whether the security modules are always operating with the policies
-and configuration that the system administrator had setup. The policies
-and configuration for the security modules could be tampered with by
-malware by exploiting kernel vulnerabilities or modified through some
-inadvertent actions on the system. Measuring such critical data would
-enable an attestation service to better assess the state of the system.
+IMA subsystem needs to define IMA hooks that the security modules can
+call to measure state and policy data.
 
-IMA subsystem measures system files, command line arguments passed to
-kexec, boot aggregate, keys, etc. It can be used to measure critical
-data structures of security modules as well.
+Define two new IMA hooks, namely ima_lsm_state() and ima_lsm_policy(),
+that the security modules can call to measure LSM state and LSM policy
+respectively. Return the status of the measurement operation from these
+two IMA hooks.
 
-This change aims to address measuring critical data structures
-of security modules when they are initialized and when they are
-updated at runtime.
+Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Reviewed-by: Tyler Hicks <tyhicks@linux.microsoft.com>
+---
+ include/linux/ima.h               | 14 +++++++++
+ security/integrity/ima/ima.h      |  6 ++--
+ security/integrity/ima/ima_main.c | 50 ++++++++++++++++++++++++++-----
+ 3 files changed, 60 insertions(+), 10 deletions(-)
 
-This series is based on commit 3db0d0c276a7 ("integrity: remove
-redundant initialization of variable ret") in next-integrity
-
-Change log:
-
-  v6:
-      => Use kvmalloc for payload data for early boot data measurement
-         since payload size may exceed the limit supported by kmalloc.
-      => Fixed IMA policy rule match error when checking for IMA hook
-         func LSM_STATE and LSM_POLICY.
-      => Enable early boot data measurement and IMA hook func
-         LSM_STATE and LSM_POLICY when SELinux is enabled.
-
-  v5:
-      => Append timestamp to "event name" string in the call to
-         the IMA hooks so that LSM data is always measured by IMA.
-      => Removed workqueue patch that was handling periodic checking
-         of the LSM data. This change will be introduced as a separate
-         patch set while keeping this patch set focussed on measuring
-         the LSM data on initialization and on updates at runtime.
-      => Handle early boot measurement of LSM data.
-
-  v4:
-      => Added LSM_POLICY func and IMA hook to measure LSM policy.
-      => Pass SELinux policy data, instead of the hash of the policy,
-         to the IMA hook to measure.
-      => Include "initialized" flag in SELinux measurement.
-         Also, measure SELinux state even when initialization is not yet
-         completed. But measure SELinux policy only after initialization.
-
-  v3:
-      => Loop through policy_capabilities to build the state data
-         to measure instead of hardcoding to current set of
-         policy capabilities.
-      => Added error log messages for failure conditions.
-
-  v2:
-      => Pass selinux_state struct as parameter to the function
-         that measures SELinux data.
-      => Use strings from selinux_policycap_names array for SELinux
-         state measurement.
-      => Refactored security_read_policy() to alloc kernel or user
-         virtual memory and then read the SELinux policy.
-
-  v1:
-      => Per Stephen Smalley's suggestion added selinux_state booleans
-         and hash of SELinux policy in the measured data for SELinux.
-      => Call IMA hook from the security module directly instead of
-         redirecting through the LSM.
-
-Lakshmi Ramasubramanian (4):
-  IMA: Add func to measure LSM state and policy
-  IMA: Define IMA hooks to measure LSM state and policy
-  LSM: Define SELinux function to measure state and policy
-  IMA: Handle early boot data measurement
-
- Documentation/ABI/testing/ima_policy         |   9 +
- include/linux/ima.h                          |  14 ++
- security/integrity/ima/Kconfig               |   5 +-
- security/integrity/ima/Makefile              |   2 +-
- security/integrity/ima/ima.h                 |  45 +++--
- security/integrity/ima/ima_api.c             |   2 +-
- security/integrity/ima/ima_asymmetric_keys.c |   6 +-
- security/integrity/ima/ima_init.c            |   2 +-
- security/integrity/ima/ima_main.c            |  64 ++++++-
- security/integrity/ima/ima_policy.c          |  36 +++-
- security/integrity/ima/ima_queue_data.c      | 190 +++++++++++++++++++
- security/integrity/ima/ima_queue_keys.c      | 174 -----------------
- security/selinux/Makefile                    |   2 +
- security/selinux/hooks.c                     |   1 +
- security/selinux/include/security.h          |  15 ++
- security/selinux/measure.c                   | 150 +++++++++++++++
- security/selinux/selinuxfs.c                 |   3 +
- security/selinux/ss/services.c               |  71 ++++++-
- 18 files changed, 569 insertions(+), 222 deletions(-)
- create mode 100644 security/integrity/ima/ima_queue_data.c
- delete mode 100644 security/integrity/ima/ima_queue_keys.c
- create mode 100644 security/selinux/measure.c
-
+diff --git a/include/linux/ima.h b/include/linux/ima.h
+index d15100de6cdd..442ca0dce3c8 100644
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -26,6 +26,10 @@ extern int ima_post_read_file(struct file *file, void *buf, loff_t size,
+ extern void ima_post_path_mknod(struct dentry *dentry);
+ extern int ima_file_hash(struct file *file, char *buf, size_t buf_size);
+ extern void ima_kexec_cmdline(int kernel_fd, const void *buf, int size);
++extern int ima_measure_lsm_state(const char *lsm_event_name, const void *buf,
++				 int size);
++extern int ima_measure_lsm_policy(const char *lsm_event_name, const void *buf,
++				  int size);
+ 
+ #ifdef CONFIG_IMA_KEXEC
+ extern void ima_add_kexec_buffer(struct kimage *image);
+@@ -104,6 +108,16 @@ static inline int ima_file_hash(struct file *file, char *buf, size_t buf_size)
+ }
+ 
+ static inline void ima_kexec_cmdline(int kernel_fd, const void *buf, int size) {}
++static inline int ima_measure_lsm_state(const char *lsm_event_name,
++					const void *buf, int size)
++{
++	return -EOPNOTSUPP;
++}
++static inline int ima_measure_lsm_policy(const char *lsm_event_name,
++					 const void *buf, int size)
++{
++	return -EOPNOTSUPP;
++}
+ #endif /* CONFIG_IMA */
+ 
+ #ifndef CONFIG_IMA_KEXEC
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 1b5f4b2f17d0..8ed9f5e1dd40 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -267,9 +267,9 @@ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
+ 			   struct evm_ima_xattr_data *xattr_value,
+ 			   int xattr_len, const struct modsig *modsig, int pcr,
+ 			   struct ima_template_desc *template_desc);
+-void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+-				const char *eventname, enum ima_hooks func,
+-				int pcr, const char *keyring);
++int process_buffer_measurement(struct inode *inode, const void *buf, int size,
++			       const char *eventname, enum ima_hooks func,
++			       int pcr, const char *keyring);
+ void ima_audit_measurement(struct integrity_iint_cache *iint,
+ 			   const unsigned char *filename);
+ int ima_alloc_init_template(struct ima_event_data *event_data,
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index 8a91711ca79b..74d421e40c8f 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -736,9 +736,9 @@ int ima_load_data(enum kernel_load_data_id id)
+  *
+  * Based on policy, the buffer is measured into the ima log.
+  */
+-void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+-				const char *eventname, enum ima_hooks func,
+-				int pcr, const char *keyring)
++int process_buffer_measurement(struct inode *inode, const void *buf, int size,
++			       const char *eventname, enum ima_hooks func,
++			       int pcr, const char *keyring)
+ {
+ 	int ret = 0;
+ 	const char *audit_cause = "ENOMEM";
+@@ -758,7 +758,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 	u32 secid;
+ 
+ 	if (!ima_policy_flag)
+-		return;
++		return 0;
+ 
+ 	/*
+ 	 * Both LSM hooks and auxilary based buffer measurements are
+@@ -772,7 +772,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 		action = ima_get_action(inode, current_cred(), secid, 0, func,
+ 					&pcr, &template, keyring);
+ 		if (!(action & IMA_MEASURE))
+-			return;
++			return 0;
+ 	}
+ 
+ 	if (!pcr)
+@@ -787,7 +787,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 			pr_err("template %s init failed, result: %d\n",
+ 			       (strlen(template->name) ?
+ 				template->name : template->fmt), ret);
+-			return;
++			return ret;
+ 		}
+ 	}
+ 
+@@ -819,7 +819,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf, int size,
+ 					func_measure_str(func),
+ 					audit_cause, ret, 0, ret);
+ 
+-	return;
++	return ret;
+ }
+ 
+ /**
+@@ -846,6 +846,42 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+ 	fdput(f);
+ }
+ 
++/**
++ * ima_measure_lsm_state - measure LSM specific state
++ * @lsm_event_name: LSM event
++ * @buf: pointer to buffer containing LSM specific state
++ * @size: Number of bytes in buf
++ *
++ * Buffers can only be measured, not appraised.
++ */
++int ima_measure_lsm_state(const char *lsm_event_name, const void *buf,
++			  int size)
++{
++	if (!lsm_event_name || !buf || !size)
++		return -EINVAL;
++
++	return process_buffer_measurement(NULL, buf, size, lsm_event_name,
++					  LSM_STATE, 0, NULL);
++}
++
++/**
++ * ima_measure_lsm_policy - measure LSM specific policy
++ * @lsm_event_name: LSM event
++ * @buf: pointer to buffer containing LSM specific policy
++ * @size: Number of bytes in buf
++ *
++ * Buffers can only be measured, not appraised.
++ */
++int ima_measure_lsm_policy(const char *lsm_event_name, const void *buf,
++			   int size)
++{
++	if (!lsm_event_name || !buf || !size)
++		return -EINVAL;
++
++	return process_buffer_measurement(NULL, buf, size, lsm_event_name,
++					  LSM_POLICY, 0, NULL);
++}
++
+ static int __init init_ima(void)
+ {
+ 	int error;
 -- 
 2.27.0
 
