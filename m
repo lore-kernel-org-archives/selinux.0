@@ -2,211 +2,167 @@ Return-Path: <SRS0=Kca8=BP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DE36C433DF
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 20:16:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC566C433E0
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 20:19:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C31122CA1
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 20:16:44 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A317022CB3
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 20:19:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Y5nQ3MyE"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b4E+dUYD"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726087AbgHEUQm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Aug 2020 16:16:42 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:42692 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725830AbgHEQS4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 12:18:56 -0400
-Received: from sequoia (162-237-133-238.lightspeed.rcsntx.sbcglobal.net [162.237.133.238])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 7D4B620B4913;
-        Wed,  5 Aug 2020 09:14:51 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7D4B620B4913
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1596644092;
-        bh=ibr863Q1D2n0VDtx2GGoUC50igD6fYAc5tUGJtyPIYY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Y5nQ3MyEhfx1WFBBzQq6lN5jvrtzeK9gAPkiDtOKOuDmvdZqG4wnQGZYpsHVy75Ik
-         Tm9a+ohvkP3kf1xbFtTN9+jRc0eoYQwjuFN8avpzi9yi7I10krk0vrWJT2kKiOXgKZ
-         2DlkijBG1M+Z9ydMBVfhPJsRuq7R5zw5YKDirkx4=
-Date:   Wed, 5 Aug 2020 11:14:49 -0500
-From:   Tyler Hicks <tyhicks@linux.microsoft.com>
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     Casey Schaufler <casey@schaufler-ca.com>, zohar@linux.ibm.com,
-        stephen.smalley.work@gmail.com, sashal@kernel.org,
-        jmorris@namei.org, linux-integrity@vger.kernel.org,
-        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6 0/4] LSM: Measure security module data
-Message-ID: <20200805161449.GC4365@sequoia>
-References: <20200805004331.20652-1-nramas@linux.microsoft.com>
- <f3971f35-309d-c3e5-9126-69add7ad4c11@schaufler-ca.com>
- <50587a3e-bcb5-c68e-c16c-41baf68b4d4a@linux.microsoft.com>
- <c7c168f2-e30b-d2c5-abcb-1b6919197474@schaufler-ca.com>
- <20200805154504.GB4365@sequoia>
- <7c7a076b-6ba7-2e8d-409a-b3b4e4738c41@linux.microsoft.com>
+        id S1726346AbgHEUTR (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Aug 2020 16:19:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51788 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726149AbgHEUTQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 16:19:16 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96272C061575
+        for <selinux@vger.kernel.org>; Wed,  5 Aug 2020 13:19:16 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id v6so23604843ota.13
+        for <selinux@vger.kernel.org>; Wed, 05 Aug 2020 13:19:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=cLfyOBdQfppqne6x5pwJSiZXNSZ7O17M4M6XYOSTx4U=;
+        b=b4E+dUYD9Eq81XqUvuznCkeANVKAZ+1o7g3BsfxhSej89UU88Im2Okg4317X1+eHiH
+         ghMBYXgrWZkfGolWD2pamHRDabzuRv3KECTp5AtITLLysV76bEvMeTaei1p3FuPZ3L3K
+         1XJrNOhvlB0aPjevuU5PtuAo+wuwdZYv1wdg099UizRpyIC5rkOTPqkEqFGDXgdMLyJR
+         rZWPPkhtM0J/TNWG7t1ykiysLIaKhD0u9OIyEMNqaNG0mTjNhBm8QjqZ2o1STtberLRv
+         ULq2+gAL82R5LNW0XnEF7MqujmdfEaiBgeuogmcPeudBclZczk05TVyKTmLSP2YgULFb
+         /xtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=cLfyOBdQfppqne6x5pwJSiZXNSZ7O17M4M6XYOSTx4U=;
+        b=f6/ojKSS9HY820Cd78pfozxM/BlOP9V1HaBwg0nTy71LOLEZTUqNK+xuH8i2wKsdBG
+         hnkhL3jhAoKCfGOzA/d997lQ6yLe+7eszStV3BayXqj5O7h+vjsiT7N3bl4ldU0xjsFt
+         Kb7rRVBP2FeT3YF3FE668qAW0sAIgTfZ2i7iJYHB10faQjar2jQ8d/R1UnyjHBHNp/Xl
+         NqsYK8G0PawWUrdQcdCLo82l02uzaZrW1H1OBGpzH8ifZgS6FVqcKHxdaW85IEhHH9EG
+         IUSSgB8Gb0qM6Zoi7E1R6FdXPEOUa0zUbZK+rM6iohWZqfRqYWni2Y8qJMRMRkmsvzOa
+         LH4w==
+X-Gm-Message-State: AOAM5301FDDXS4dXlVkL67I8nvUmvjDU1OztRrL1z4gYJU2lu+81ZDQ/
+        tl1e4pXmz+Qm8DF/TIK55sMBFhOtQNSdEfvXnywLkolAOow=
+X-Google-Smtp-Source: ABdhPJyeVVY1lKsSlrVq1aDB+gu2FKWSMxuvAu/GkVtFozgtJy247fPXBxuj+VdwX3jEcHDhg5ENCPQ0B3WKzaPpcBI=
+X-Received: by 2002:a9d:65ca:: with SMTP id z10mr4409490oth.295.1596658755975;
+ Wed, 05 Aug 2020 13:19:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7c7a076b-6ba7-2e8d-409a-b3b4e4738c41@linux.microsoft.com>
+References: <CAP+JOzQe8Q0GKtm9aavEQTzFWCT8sUi8shjw=TmgJYm5XkaN_w@mail.gmail.com>
+ <20200805194823.492092-1-dominick.grift@defensec.nl>
+In-Reply-To: <20200805194823.492092-1-dominick.grift@defensec.nl>
+From:   James Carter <jwcart2@gmail.com>
+Date:   Wed, 5 Aug 2020 16:22:30 -0400
+Message-ID: <CAP+JOzRy+UxEAjJjuKy3NkDq-1S6tSvjEYAF+TpEcyHpUPPnTw@mail.gmail.com>
+Subject: Re: [PATCH v5] secilc/docs: document expandtypeattribute
+To:     Dominick Grift <dominick.grift@defensec.nl>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 2020-08-05 09:07:48, Lakshmi Ramasubramanian wrote:
-> On 8/5/20 8:45 AM, Tyler Hicks wrote:
-> > On 2020-08-05 08:36:40, Casey Schaufler wrote:
-> > > On 8/4/2020 6:14 PM, Lakshmi Ramasubramanian wrote:
-> > > > On 8/4/20 6:04 PM, Casey Schaufler wrote:
-> > > > > On 8/4/2020 5:43 PM, Lakshmi Ramasubramanian wrote:
-> > > > > > Critical data structures of security modules are currently not measured.
-> > > > > > Therefore an attestation service, for instance, would not be able to
-> > > > > > attest whether the security modules are always operating with the policies
-> > > > > > and configuration that the system administrator had setup. The policies
-> > > > > > and configuration for the security modules could be tampered with by
-> > > > > > malware by exploiting kernel vulnerabilities or modified through some
-> > > > > > inadvertent actions on the system. Measuring such critical data would
-> > > > > > enable an attestation service to better assess the state of the system.
-> > > > > 
-> > > > > I still wonder why you're calling this an LSM change/feature when
-> > > > > all the change is in IMA and SELinux. You're not putting anything
-> > > > > into the LSM infrastructure, not are you using the LSM infrastructure
-> > > > > to achieve your ends. Sure, you *could* support other security modules
-> > > > > using this scheme, but you have a configuration dependency on
-> > > > > SELinux, so that's at best going to be messy. If you want this to
-> > > > > be an LSM "feature" you need to use the LSM hooking mechanism.
-> > > > 
-> > > > > 
-> > > > > I'm not objecting to the feature. It adds value. But as you've
-> > > > > implemented it it is either an IMA extension to SELinux, or an
-> > > > > SELiux extension to IMA. Could AppArmor add hooks for this without
-> > > > > changing the IMA code? It doesn't look like it to me.
-> > > > 
-> > > > The check in IMA to allow the new IMA hook func LSM_STATE and LSM_POLICY when SELinux is enabled is just because SELinux is the only security module using these hooks now.
-> > > > 
-> > > > To enable AppArmor, for instance, to use the new IMA hooks to measure state and policy would just require adding the check for CONFIG_SECURITY_APPARMOR. Other than that, there are no IMA changes needed to support AppArmor or other such security modules.
-> > > 
-> > > This is exactly what I'm objecting to. What if a system has both SELinux
-> > > and AppArmor compiled in? What if it has both enabled?
-> > 
-> > The SELinux state and policy would be measured but the AppArmor
-> > state/policy would be silently ignored. This isn't ideal as the IMA
-> > policy author would need to read the kernel code to figure out which
-> > LSMs are going to be measured.
-> 
-> Tyler - I am not sure why AppArmor state\policy would be ignored when both
-> SELinux and AppArmor are enabled. Could you please clarify?
+On Wed, Aug 5, 2020 at 3:50 PM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
+>
+> This was added for Androids Treble in 2017.
+>
+> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
 
-I think Casey is talking about now (when AppArmor is not supported by
-this feature) and you're talking about the future (when AppArmor may be
-supported by this feature).
+Acked-by: James Carter <jwcart2@gmail.com>
 
-Now, a "measure func=LSM_STATE" rule would be accepted by the IMA policy
-parser but do nothing for the AppArmor LSM. The rule may do something in
-the future but there's no difference in feedback to the IMA policy
-author between now and the future.
-
-Tyler
-
-> 
-> When both the security modules are enabled, IMA policy validator would look
-> like below:
-> 
-> if (IS_ENABLED(CONFIG_SECURITY_SELINUX) ||
->     IS_ENABLED(CONFIG_SECURITY_APPARMOR)) &&
->     strcmp(args[0].from, "LSM_STATE") == 0)
->                 entry->func = LSM_STATE;
-> 
-> Similar one for LSM_POLICY validation.
-> 
-> Both SELinux and AppArmor can call ima_measure_lsm_state() and
-> ima_measure_lsm_policy() to measure state and policy respectively.
-> 
-> I don't think we should go the route of defining IMA hooks per security
-> module (i.e., SELINUX_STATE, APPARMOR_STATE, SELINUX_POLICY, etc.) Instead
-> keep the hook generic that any SM could use - which is what I have tried to
-> address in this patch series.
-> 
-> > > 
-> > > > 
-> > > > Please see Patch 1/4
-> > > > 
-> > > > +            else if (IS_ENABLED(CONFIG_SECURITY_SELINUX) &&
-> > > > +                 strcmp(args[0].from, "LSM_STATE") == 0)
-> > > > +                entry->func = LSM_STATE;
-> > > > +            else if (IS_ENABLED(CONFIG_SECURITY_SELINUX) &&
-> > > > +                 strcmp(args[0].from, "LSM_POLICY") == 0)
-> > > > +                entry->func = LSM_POLICY;
-> > > > 
-> > > > And, if early boot measurement is needed for AppArmor the following change in IMA's Kconfig
-> > > > 
-> > > > Patch 4/4
-> > > > 
-> > > > +config IMA_QUEUE_EARLY_BOOT_DATA
-> > > >       bool
-> > > > +    depends on SECURITY_SELINUX || (IMA_MEASURE_ASYMMETRIC_KEYS && SYSTEM_TRUSTED_KEYRING)
-> > > >       default y
-> > > > 
-> > > > If you think calling this an "LSM feature" is not appropriate, please suggest a better phrase.
-> > > 
-> > > In the code above you are under CONFIG_SECURITY_SELINUX.
-> > > I would suggest that it's an SELinux feature, so you should
-> > > be using SELINUX_STATE and SELINUX_POLICY, as I suggested
-> > > before. Just because SELinux has state and policy to measure
-> > > doesn't mean that a different module might not have other data,
-> > > such as history, that should be covered as well.
-> 
-> Good point - if other SMs have data besides state and policy, we can define
-> IMA hooks to measure that as well.
-> 
-> But I still think it is not the right approach to call this SELINUX_STATE
-> and SELINUX_POLICY - it will lead to unnecessary code duplication in IMA as
-> more SMs are onboarded, in my opinion. Correct me if I am wrong.
-> 
->  -lakshmi
-> 
-> > 
-> > In addition to SELINUX_STATE and SELINUX_POLICY, we should also consider
-> > the proposed LSM_STATE and LSM_POLICY func values but require an "lsm"
-> > rule conditional.
-> > 
-> > So the current proposed rules:
-> > 
-> >   measure func=LSM_STATE
-> >   measure func=LSM_POLICY
-> > 
-> > Would become:
-> > 
-> >   measure func=LSM_STATE lsm=selinux
-> >   measure func=LSM_POLICY lsm=selinux
-> > 
-> > The following rules would be rejected:
-> > 
-> >   measure func=LSM_STATE
-> >   measure func=LSM_POLICY
-> >   measure func=LSM_STATE lsm=apparmor
-> >   measure func=LSM_POLICY lsm=smack
-> > 
-> > Of course, the apparmor and smack rules could/would be allowed when
-> > proper support is in place.
-> > 
-> 
-> > 
-> > > 
-> > > I realize that IMA already has compile time dependencies to
-> > > determine which xattrs to measure. There's no reason that
-> > > the xattr list couldn't be determined at boot time, with
-> > > each security module providing the XATTR_NAME values it
-> > > uses.
-> > > 
-> > > > 
-> > > > But like I said above, with minimal change in IMA other security modules can be supported to measure STATE and POLICY data.
-> > > > 
-> > > >   -lakshmi
-> > > > 
-> > > > 
+> ---
+> v2: overriden is overridden
+> v3: add link to README.md
+> v4: rephrase and add another example
+> v5: use description from James Carter
+>
+>  secilc/docs/README.md              |  1 +
+>  secilc/docs/cil_type_statements.md | 51 ++++++++++++++++++++++++++++++
+>  2 files changed, 52 insertions(+)
+>
+> diff --git a/secilc/docs/README.md b/secilc/docs/README.md
+> index 3f1838e6..efab2a71 100644
+> --- a/secilc/docs/README.md
+> +++ b/secilc/docs/README.md
+> @@ -126,6 +126,7 @@ CIL (Common Intermediate Language)
+>    * [typealiasactual](cil_type_statements.md#typealiasactual)
+>    * [typeattribute](cil_type_statements.md#typeattribute)
+>    * [typeattributeset](cil_type_statements.md#typeattributeset)
+> +  * [expandtypeattribute](cil_type_statements.md#expandtypeattribute)
+>    * [typebounds](cil_type_statements.md#typebounds)
+>    * [typechange](cil_type_statements.md#typechange)
+>    * [typemember](cil_type_statements.md#typemember)
+> diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_statements.md
+> index f9dd3a76..432cede5 100644
+> --- a/secilc/docs/cil_type_statements.md
+> +++ b/secilc/docs/cil_type_statements.md
+> @@ -213,6 +213,57 @@ This example is equivalent to `{ domain -kernel.process -ueventd.process -init.p
+>          )
+>      )
+>
+> +expandtypeattribute
+> +-------------------
+> +
+> +Overrides the compiler defaults for the expansion of one or more
+> +previously declared [`typeattribute`](cil_type_statements.md#typeattribute)
+> +identifiers.
+> +
+> +This rule gives more control over type attribute expansion and
+> +removal. When the value is true, all rules involving the type
+> +attribute will be expanded and the type attribute will be removed from
+> +the policy. When the value is false, the type attribute will not be
+> +removed from the policy, even if the default expand rules or "-X"
+> +option cause the rules involving the type attribute to be expanded.
+> +
+> +**Statement definition:**
+> +
+> +    (expandtypeattribute typeattribute_id expand_value)
+> +
+> +**Where:**
+> +
+> +<table>
+> +<colgroup>
+> +<col width="25%" />
+> +<col width="75%" />
+> +</colgroup>
+> +<tbody>
+> +<tr class="odd">
+> +<td align="left"><p><code>expandtypeattribute</code></p></td>
+> +<td align="left"><p>The <code>expandtypeattribute</code> keyword.</p></td>
+> +</tr>
+> +<tr class="even">
+> +<td align="left"><p><code>typeattribute_id</code></p></td>
+> +<td align="left"><p>One or more previously declared <code>typeattribute</code> identifiers. Multiple entries consist of a space separated list enclosed in parentheses '()'.</p></td>
+> +</tr>
+> +<tr class="odd">
+> +<td align="left"><p><code>expand_value</code></p></td>
+> +<td align="left"><p>Either true or false.</p></td>
+> +</tr>
+> +</tbody>
+> +</table>
+> +
+> +**Examples:**
+> +
+> +This example uses the expandtypeattribute statement to forcibly expand a previously declared `domain` type attribute.
+> +
+> +    (expandtypeattribute domain true)
+> +
+> +This example uses the expandtypeattribute statement to not expand previously declared `file_type` and `port_type` type attributes regardless of compiler defaults.
+> +
+> +    (expandtypeattribute (file_type port_type) false)
+> +
+>  typebounds
+>  ----------
+>
+> --
+> 2.28.0
+>
