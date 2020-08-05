@@ -2,201 +2,105 @@ Return-Path: <SRS0=Kca8=BP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A191C433E0
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 16:25:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B18C6C433E3
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 16:27:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 438172067C
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 16:25:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8FC6C206A2
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 16:27:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="e+cpFn2d"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Og9W77/b"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726986AbgHEQZS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Aug 2020 12:25:18 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:43520 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726634AbgHEQX1 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 12:23:27 -0400
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id E630020B490F;
-        Wed,  5 Aug 2020 09:07:48 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E630020B490F
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1596643669;
-        bh=vaUisLR9Kht4UfqcTKrNtIIIJRf+vX4y2SvJm7PWt8g=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=e+cpFn2dGtKBp/rCWfhHorxZGUmJI/qQGPmC9dLzn2UmWv75lQty7oqUrkOksSCRg
-         bD2QBPct/k8XzlPK7V5YX+8evojo/kYJH1V/CqXWCDArYOXpBvjRfOTNSvksYoAof7
-         3bGs66iTeYBgVYd2p69HCLGt0vDPQ66SqH7sdOOw=
-Subject: Re: [PATCH v6 0/4] LSM: Measure security module data
-To:     Tyler Hicks <tyhicks@linux.microsoft.com>,
-        Casey Schaufler <casey@schaufler-ca.com>
-Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
-        sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20200805004331.20652-1-nramas@linux.microsoft.com>
- <f3971f35-309d-c3e5-9126-69add7ad4c11@schaufler-ca.com>
- <50587a3e-bcb5-c68e-c16c-41baf68b4d4a@linux.microsoft.com>
- <c7c168f2-e30b-d2c5-abcb-1b6919197474@schaufler-ca.com>
- <20200805154504.GB4365@sequoia>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <7c7a076b-6ba7-2e8d-409a-b3b4e4738c41@linux.microsoft.com>
-Date:   Wed, 5 Aug 2020 09:07:48 -0700
+        id S1727026AbgHEQ1k (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Aug 2020 12:27:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42966 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726958AbgHEQZe (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 12:25:34 -0400
+Received: from mail-qk1-x742.google.com (mail-qk1-x742.google.com [IPv6:2607:f8b0:4864:20::742])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5395C001FE2
+        for <selinux@vger.kernel.org>; Wed,  5 Aug 2020 09:16:50 -0700 (PDT)
+Received: by mail-qk1-x742.google.com with SMTP id h7so42156441qkk.7
+        for <selinux@vger.kernel.org>; Wed, 05 Aug 2020 09:16:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=hZMxhqCxm6wTSvpY3IiZ8g67cZvuZBYIdmVenp5gjhY=;
+        b=Og9W77/btJd1RzlHBhleJmMgoHGixetABgJWKi6NmRObhCff1WqV6JZTTJmjsEwXyf
+         0a+w1c6F+6rot2Y8JdoExhhVXxWd8Uv2WpPtymravNNhOrt1XCELa3BeCtpQMUTLLRlA
+         7s8XlYuSzi5Y6z412z1LvJKs7rUOQ7To8Wot6Bd1mf6/Gsog8SdTKa3P2cr+fW+J3RlJ
+         nvUKy0+FzmuP0E0g7bJqxLBbRNswc5XgxibRpxUtBg3bdxSwr09dD4T7vU1/jKvuErX9
+         yGn4R/XfALuCtoKrLDD8Osqu6thl5+DXi8BfL5Dh0RUm+qR/xRcYatwStkcMXN2o0CsG
+         ahCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=hZMxhqCxm6wTSvpY3IiZ8g67cZvuZBYIdmVenp5gjhY=;
+        b=aNDT5asGCX1GRTID61Uw6y+L2eFHzbe6agsjB5QNnLv4BGzGHqKqzfl92ih6/e4Mfc
+         XEKOwRId7rOOFzU9g05Nzd5jaep1Uy08PW1jySg9LQ3SwjMzT8I1j4XKl59hEn69K3TU
+         UuuvqaaH7yiP8ljYHgvkROARaTu2LpMXBPJNiRiPW9uvMj+ICGOfYSnCBFm7L/Gw8XdC
+         Uw3q9hoDzIM4L7AUsy6KsqOrc7scBkBzxAGZaRSQJYxVTlwstnsfTVJ07ivEdLzJjk/q
+         AliDlSjvowIrsIigTdGpfVfaa1+i8IxciL4w6SxD1zCkTp46bdZw9hXb4OP8Xc6Sw8gw
+         FyQQ==
+X-Gm-Message-State: AOAM533CPxDULeW51cE4nWPn+y6cjw3Ud1iefruMnxxQdRZnJ2ggCEnp
+        djvBrTt5VUmz1dY+JJUiTMQ=
+X-Google-Smtp-Source: ABdhPJwNd+T+sbRTUvQRObmOVHDkNS4qtgYUp107Y/xyBw0uy6AIXErkcs+wfiTgzayTn+lJDm2L6w==
+X-Received: by 2002:a37:a454:: with SMTP id n81mr4223581qke.11.1596644210134;
+        Wed, 05 Aug 2020 09:16:50 -0700 (PDT)
+Received: from [192.168.1.190] (pool-71-244-252-199.bltmmd.fios.verizon.net. [71.244.252.199])
+        by smtp.gmail.com with ESMTPSA id i18sm2317210qtv.39.2020.08.05.09.16.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 05 Aug 2020 09:16:49 -0700 (PDT)
+Subject: Re: [RFC PATCH] selinux: move policy commit after updating selinuxfs
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+To:     paul@paul-moore.com
+Cc:     omosnace@redhat.com, selinux@vger.kernel.org,
+        dburgener@linux.microsoft.com
+References: <20200804135352.5650-1-stephen.smalley.work@gmail.com>
+ <a1111b69-23a4-e885-e3a3-aea2613a82d2@gmail.com>
+Message-ID: <35ddc017-cac8-3e20-82ee-eb22492452c5@gmail.com>
+Date:   Wed, 5 Aug 2020 12:16:47 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200805154504.GB4365@sequoia>
+In-Reply-To: <a1111b69-23a4-e885-e3a3-aea2613a82d2@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/5/20 8:45 AM, Tyler Hicks wrote:
-> On 2020-08-05 08:36:40, Casey Schaufler wrote:
->> On 8/4/2020 6:14 PM, Lakshmi Ramasubramanian wrote:
->>> On 8/4/20 6:04 PM, Casey Schaufler wrote:
->>>> On 8/4/2020 5:43 PM, Lakshmi Ramasubramanian wrote:
->>>>> Critical data structures of security modules are currently not measured.
->>>>> Therefore an attestation service, for instance, would not be able to
->>>>> attest whether the security modules are always operating with the policies
->>>>> and configuration that the system administrator had setup. The policies
->>>>> and configuration for the security modules could be tampered with by
->>>>> malware by exploiting kernel vulnerabilities or modified through some
->>>>> inadvertent actions on the system. Measuring such critical data would
->>>>> enable an attestation service to better assess the state of the system.
->>>>
->>>> I still wonder why you're calling this an LSM change/feature when
->>>> all the change is in IMA and SELinux. You're not putting anything
->>>> into the LSM infrastructure, not are you using the LSM infrastructure
->>>> to achieve your ends. Sure, you *could* support other security modules
->>>> using this scheme, but you have a configuration dependency on
->>>> SELinux, so that's at best going to be messy. If you want this to
->>>> be an LSM "feature" you need to use the LSM hooking mechanism.
->>>
->>>>
->>>> I'm not objecting to the feature. It adds value. But as you've
->>>> implemented it it is either an IMA extension to SELinux, or an
->>>> SELiux extension to IMA. Could AppArmor add hooks for this without
->>>> changing the IMA code? It doesn't look like it to me.
->>>
->>> The check in IMA to allow the new IMA hook func LSM_STATE and LSM_POLICY when SELinux is enabled is just because SELinux is the only security module using these hooks now.
->>>
->>> To enable AppArmor, for instance, to use the new IMA hooks to measure state and policy would just require adding the check for CONFIG_SECURITY_APPARMOR. Other than that, there are no IMA changes needed to support AppArmor or other such security modules.
->>
->> This is exactly what I'm objecting to. What if a system has both SELinux
->> and AppArmor compiled in? What if it has both enabled?
-> 
-> The SELinux state and policy would be measured but the AppArmor
-> state/policy would be silently ignored. This isn't ideal as the IMA
-> policy author would need to read the kernel code to figure out which
-> LSMs are going to be measured.
+On 8/4/20 4:19 PM, Stephen Smalley wrote:
 
-Tyler - I am not sure why AppArmor state\policy would be ignored when 
-both SELinux and AppArmor are enabled. Could you please clarify?
+> Recognizing that re-basing the selinux namespace patches on top of 
+> these two patches might be painful, I went ahead and did so; the 
+> result can be found here:
+>
+> https://github.com/stephensmalley/selinux-kernel/tree/working-selinuxns-rebase 
+>
+>
+> The two patches that required manual fix-ups were the first one 
+> ("selinux: rename selinux state to ns (namespace)") and the third one 
+> ("selinux: dynamically allocate selinux namespace"). The rest re-based 
+> without conflicts.  The resulting tree built, booted, passed the 
+> selinux-testsuite, and I could successfully follow the instructions to 
+> create a new namespace and load a policy into it. As before, the child 
+> namespace won't be usable if you switch it to enforcing mode since we 
+> haven't yet revived the per-namespace support for inode and superblock 
+> security blobs and it is still very unsafe to use in its current form.
 
-When both the security modules are enabled, IMA policy validator would 
-look like below:
+Re-based again with the revised version of both patches.  This required 
+one additional manual fix-up for "selinux: annotate lockdep for services 
+locks" due to conflicting with the restored load_mutex.
 
-if (IS_ENABLED(CONFIG_SECURITY_SELINUX) ||
-     IS_ENABLED(CONFIG_SECURITY_APPARMOR)) &&
-     strcmp(args[0].from, "LSM_STATE") == 0)
-                 entry->func = LSM_STATE;
-
-Similar one for LSM_POLICY validation.
-
-Both SELinux and AppArmor can call ima_measure_lsm_state() and 
-ima_measure_lsm_policy() to measure state and policy respectively.
-
-I don't think we should go the route of defining IMA hooks per security 
-module (i.e., SELINUX_STATE, APPARMOR_STATE, SELINUX_POLICY, etc.) 
-Instead keep the hook generic that any SM could use - which is what I 
-have tried to address in this patch series.
-
->>
->>>
->>> Please see Patch 1/4
->>>
->>> +            else if (IS_ENABLED(CONFIG_SECURITY_SELINUX) &&
->>> +                 strcmp(args[0].from, "LSM_STATE") == 0)
->>> +                entry->func = LSM_STATE;
->>> +            else if (IS_ENABLED(CONFIG_SECURITY_SELINUX) &&
->>> +                 strcmp(args[0].from, "LSM_POLICY") == 0)
->>> +                entry->func = LSM_POLICY;
->>>
->>> And, if early boot measurement is needed for AppArmor the following change in IMA's Kconfig
->>>
->>> Patch 4/4
->>>
->>> +config IMA_QUEUE_EARLY_BOOT_DATA
->>>       bool
->>> +    depends on SECURITY_SELINUX || (IMA_MEASURE_ASYMMETRIC_KEYS && SYSTEM_TRUSTED_KEYRING)
->>>       default y
->>>
->>> If you think calling this an "LSM feature" is not appropriate, please suggest a better phrase.
->>
->> In the code above you are under CONFIG_SECURITY_SELINUX.
->> I would suggest that it's an SELinux feature, so you should
->> be using SELINUX_STATE and SELINUX_POLICY, as I suggested
->> before. Just because SELinux has state and policy to measure
->> doesn't mean that a different module might not have other data,
->> such as history, that should be covered as well.
-
-Good point - if other SMs have data besides state and policy, we can 
-define IMA hooks to measure that as well.
-
-But I still think it is not the right approach to call this 
-SELINUX_STATE and SELINUX_POLICY - it will lead to unnecessary code 
-duplication in IMA as more SMs are onboarded, in my opinion. Correct me 
-if I am wrong.
-
-  -lakshmi
-
-> 
-> In addition to SELINUX_STATE and SELINUX_POLICY, we should also consider
-> the proposed LSM_STATE and LSM_POLICY func values but require an "lsm"
-> rule conditional.
-> 
-> So the current proposed rules:
-> 
->   measure func=LSM_STATE
->   measure func=LSM_POLICY
-> 
-> Would become:
-> 
->   measure func=LSM_STATE lsm=selinux
->   measure func=LSM_POLICY lsm=selinux
-> 
-> The following rules would be rejected:
-> 
->   measure func=LSM_STATE
->   measure func=LSM_POLICY
->   measure func=LSM_STATE lsm=apparmor
->   measure func=LSM_POLICY lsm=smack
-> 
-> Of course, the apparmor and smack rules could/would be allowed when
-> proper support is in place.
-> 
-
-> 
->>
->> I realize that IMA already has compile time dependencies to
->> determine which xattrs to measure. There's no reason that
->> the xattr list couldn't be determined at boot time, with
->> each security module providing the XATTR_NAME values it
->> uses.
->>
->>>
->>> But like I said above, with minimal change in IMA other security modules can be supported to measure STATE and POLICY data.
->>>
->>>   -lakshmi
->>>
->>>
 
