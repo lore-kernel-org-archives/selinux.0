@@ -2,280 +2,142 @@ Return-Path: <SRS0=Kca8=BP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A94FAC433DF
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 19:19:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03E07C433E1
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 19:19:56 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 84F2F206B6
+	by mail.kernel.org (Postfix) with ESMTP id DA454206B6
 	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 19:19:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fo8StR3F"
+	dkim=pass (2048-bit key) header.d=yahoo.com header.i=@yahoo.com header.b="WnD7xdKb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728124AbgHETTz (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Aug 2020 15:19:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728623AbgHETTt (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 15:19:49 -0400
-Received: from mail-oo1-xc42.google.com (mail-oo1-xc42.google.com [IPv6:2607:f8b0:4864:20::c42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469ECC061575
-        for <selinux@vger.kernel.org>; Wed,  5 Aug 2020 12:19:49 -0700 (PDT)
-Received: by mail-oo1-xc42.google.com with SMTP id s190so9016303ooa.13
-        for <selinux@vger.kernel.org>; Wed, 05 Aug 2020 12:19:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=WURAb002xgJ9SGVgQHbr2oWKUuaEX6lb7zXsW0gP1V4=;
-        b=fo8StR3FPpban78Y514jEaOrq5kFc+8VvAh2flxeMzj+c6ehFa/qpE9LX97lE1TNa2
-         wFSobnTzJQWqc6HeJQPH1pVoltIUuZBThqj1rU8b8o3g6miMFEAOETQ76U5uK36ipOYB
-         L2cw+4OYopV62xnh6diaUJTIwdKLvuyoFb5ACNrCqVv0HSES7jYQ6qRMbeEre6nO8kQm
-         jSixHsXUqOcs8hZZ/NY6wYTvQuNhIO1kS5qLSFKZjKOiYcvhYoBG9ddkbNTTBBziq+bu
-         ZeOGtio9XrXucouoZ08OCe0qzm7NX6NFTE7TgBM8rTBwXbzjUSCu3H7ZWzopmOruPGgI
-         tpmQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WURAb002xgJ9SGVgQHbr2oWKUuaEX6lb7zXsW0gP1V4=;
-        b=WUguwpmHxXIStlnjfZBQvL/PPLIiVR2nBKzHzJLHYbSJt6YZK/Wq9BKzyqbjGmV+bb
-         qVgNQorcjVvMlZVUawI+0MPiETc6ORu3U0Kw/HvUviGUAkoE3U1uU3PP+FS/39joKE/V
-         Fm/r4jHqJGf2bkvL88K02W6hD/6oXOfbKAbrK/J61a1apg+5sjzt/tB1kCQPyjdBWcgD
-         20bIxDcmw101FN1yu8PW3CKoXENBEPTCiU+O+QS+A8R0SNFkG+Dm91yKk5D6L/U4FzWf
-         yBkGU55TcclfIz4MXqZoQbaVUmTys0f7A1eSEC5S6nhSl3oU50eMqIO4R/RgrTTx0U6V
-         ww1A==
-X-Gm-Message-State: AOAM5329udCXpAYse5vcTutmngdycKcEAbAbzdUCaD0ZAON9CAbHudgq
-        EhOjOTkZKSNRsiP+A/Jrc4bceylCgsUSobPZbJBDFUVZAz8=
-X-Google-Smtp-Source: ABdhPJxeELrriCMzYtBFlpATVfDveGFfFJyFesd2Wlt93jywpYsadMrPfDuWGGAOKbYMva9/8tpEWTcWambFHlnCj3w=
-X-Received: by 2002:a4a:4201:: with SMTP id h1mr4315641ooj.1.1596655188414;
- Wed, 05 Aug 2020 12:19:48 -0700 (PDT)
+        id S1728485AbgHETTe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Aug 2020 15:19:34 -0400
+Received: from sonic314-26.consmr.mail.ne1.yahoo.com ([66.163.189.152]:36171
+        "EHLO sonic314-26.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729064AbgHER5v (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 13:57:51 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1596650251; bh=XgCG8lcnjxIeORNmuwc0TYv7CRCaev7O3WlPBRfqpr0=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=WnD7xdKb4N2f5LuWbzmSMX1np7tmR9/d6cH08D39mWyn2seWWdzLcNNfNdrjTcApHP+kNA9XldW9GeU/Kj/UzWPU8MZ5/Z2Ry0+28lBY1kWmJby9QWq+EV8z0eCeJC5aJzTmL6KNctba3e+IFrfgQNsc71AP2JKX/gVKmfZoxI5sLQ56gwSmR9tLXhMvs/GBoglMHoWUWjecgljhx1zXhGDMHzyt0VNXFC7mYqy9VT8CqF7XFcb/ru/PgaMkQHbBfOkBW3b64h+LDnRCdlUMdhnj5QmoZwsPrVS7QdTj9CGoiqgPk/dOJgts4mRO1B5ewH+nrD6PFWyXBZMSzWfH+w==
+X-YMail-OSG: EcG99zoVM1l1r3Qoo_WGiePhQymKAFr8EMIUs.I4BAUfEQngK_EOiRChwqsdXOA
+ QrqFyH9yoITKqXafD_kI.5oH8hvz1MEJ.0jykx3RLzlmKDwmgd8HmmB6Vn9PWWmzkve6yl6Gr.1r
+ MgcgK9tLWJSEWB4Qw5v867YyN_NDCAtnw8qdp1PDosvbCsu283G6GmGz8Y3TeRils9VfsCAa8W3a
+ P63REHjlUMn9dN46zE6MMUno4h8KM.O7iF4ovjYUlfaiMwvBH3Q3NT56PTDhPsdIbwGGD6JlDJoU
+ RsfEvQLLXdOYnOpUaxn235XBciPVCkHDLBSUHxOvHJnr9OxhU9IY_XbjOsFGhrWoJ5OMD6yIHV.O
+ ORuVO.1ysn4F3pb3I9iVSciSkFdKbca8wvL6im_cA8KbWnq4R0oKK7GOdu0XexhKrrBRF7qFcNQv
+ QRLMaPmBlvG9o53ta5jcR15g_W0X4jjYBdbuQO3ybuaYLLeR26LW2sC.xcuec6IV93u2fOOwZ0Bl
+ dCX5ZpiiDGaYpeX04xEhcmP0cC77Hbh6GU.D7FuOOAmPUTnXOPEBLTysd54Mo0VZLDwmz57h2qu5
+ iwojtdI.O9d7dO6xQ2FYHGlXagQmrDbaKaKVWfnixfPeHDb8.wSmfWpzwJLK8s9GATiuEw7tDHOi
+ m5xDZSSk5xWTS2vjzYra0Mdm2uQG6KKrH0D_rUlz5T2UCgBX8hIjn2WznDiZt0wEk9GiCNtOr8QM
+ ivK6oTEnri7xTw1GFodpXyvf.wGvA5kYgKZ0WCT7QtYZSU04gZCmCwDCEg4FUDgwGmhq4BtyshLt
+ IqAPChrMF5s2yn7C43Y0vMcjagFLN7bHP7cGm6LkemYmuSC56DgG5gFaOcy2JWdGMGCumVtKcPXd
+ kB3NKxkrr3S71tnACRqiHxYmHejg1SYF0Vd0TSfljmJXd9aGPTx28T7Faix134NpyyB5qjecDxZu
+ dChhNcW6VODl.bRRKQh_M4x45gaEmCy5bCj6NE6wcAFn6XjtbYeEcQoE3TpOUzhoFEiVg3FxUmmf
+ 6LNl9rWGb.Ox_1AIrLs2rmZ6BNNDjPKI7jEQGAo3XqR1QQN355976YvwoJ.VEl9oKzblFxE27szh
+ BlFNnvccB8oSNuY8nHeBFtO1C2QNU2MdtsrCgzVK9F9lY8aXbSx7bGp_9yxG8U9rpXxXkRHt1vvz
+ fhsF8QD9zSWVc1_3mytV1kNTO4uAO4dqueKq7m5OrTrwylBfXSncJQdTLJml1UDd2nxWNjcuecc5
+ A3XmpwkEnsy4aToKbQOia11QaQUnG2ZbEVfqzXGhy80NzXHnqUzn.pcvaITpdhoRaaQrQoF6s.qI
+ XaTAP_qsLC3m70HKWjNNuSH2asF6aDuQT8KMEXhXXJ.Crqtf0iQx7SO4D64WDgUP246nXhh0-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.ne1.yahoo.com with HTTP; Wed, 5 Aug 2020 17:57:31 +0000
+Received: by smtp405.mail.gq1.yahoo.com (VZM Hermes SMTP Server) with ESMTPA ID 434318a9e6d32e1fab30c48ef80acc72;
+          Wed, 05 Aug 2020 17:57:26 +0000 (UTC)
+Subject: Re: [PATCH v6 0/4] LSM: Measure security module data
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc:     stephen.smalley.work@gmail.com, sashal@kernel.org,
+        jmorris@namei.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Casey Schaufler <casey@schaufler-ca.com>
+References: <20200805004331.20652-1-nramas@linux.microsoft.com>
+ <f3971f35-309d-c3e5-9126-69add7ad4c11@schaufler-ca.com>
+ <50587a3e-bcb5-c68e-c16c-41baf68b4d4a@linux.microsoft.com>
+ <c7c168f2-e30b-d2c5-abcb-1b6919197474@schaufler-ca.com>
+ <20200805154504.GB4365@sequoia>
+ <69810007161e689ac817099fb1c6df21962963e4.camel@linux.ibm.com>
+ <9ad079ff-1bd4-1302-e6fb-25a7396ef12f@linux.microsoft.com>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Message-ID: <ecc97f59-c2cc-0b23-6199-925ba0d6358b@schaufler-ca.com>
+Date:   Wed, 5 Aug 2020 10:57:25 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-References: <CAP+JOzQMM5YpemgPXzAZew+oHiV6fgPuuY5WFSyQb2cEkFLwRA@mail.gmail.com>
- <20200802123421.222597-1-dominick.grift@defensec.nl> <CAP+JOzQ=wnAWHp7i6OVjpV58QxdFPT63ON7HOLuVHjoL8O2Oqg@mail.gmail.com>
- <ypjlft9298vi.fsf@defensec.nl> <CAP+JOzRgJmD8NE-_nY118G_h7B70Y70=jT1n8TimcMGPjDYFxw@mail.gmail.com>
- <ypjlbljq8l9d.fsf@defensec.nl> <CAP+JOzRUPpWXXmmuX5zdS1qCCbhpAXm8uO9JXvy+pYeBOoGbnA@mail.gmail.com>
- <ypjl7due88a1.fsf@defensec.nl>
-In-Reply-To: <ypjl7due88a1.fsf@defensec.nl>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Wed, 5 Aug 2020 15:23:02 -0400
-Message-ID: <CAP+JOzQe8Q0GKtm9aavEQTzFWCT8sUi8shjw=TmgJYm5XkaN_w@mail.gmail.com>
-Subject: Re: [PATCH v4] secilc/docs: document expandtypeattribute
-To:     Dominick Grift <dominick.grift@defensec.nl>
-Cc:     SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <9ad079ff-1bd4-1302-e6fb-25a7396ef12f@linux.microsoft.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-Mailer: WebService/1.1.16436 mail.backend.jedi.jws.acl:role.jedi.acl.token.atz.jws.hermes.yahoo Apache-HttpAsyncClient/4.1.4 (Java/11.0.7)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 4, 2020 at 4:29 PM Dominick Grift
-<dominick.grift@defensec.nl> wrote:
+On 8/5/2020 10:25 AM, Lakshmi Ramasubramanian wrote:
+> On 8/5/20 10:03 AM, Mimi Zohar wrote:
+>> On Wed, 2020-08-05 at 10:45 -0500, Tyler Hicks wrote:
+>>
+>>> In addition to SELINUX_STATE and SELINUX_POLICY, we should also consider
+>>> the proposed LSM_STATE and LSM_POLICY func values but require an "lsm"
+>>> rule conditional.
+>>>
+>>> So the current proposed rules:
+>>>
+>>> ? measure func=LSM_STATE
+>>> ? measure func=LSM_POLICY
+>>>
+>>> Would become:
+>>>
+>>> ? measure func=LSM_STATE lsm=selinux
+>>> ? measure func=LSM_POLICY lsm=selinux
+>>>
+>>> The following rules would be rejected:
+>>>
+>>> ? measure func=LSM_STATE
+>>> ? measure func=LSM_POLICY
+>>> ? measure func=LSM_STATE lsm=apparmor
+>>> ? measure func=LSM_POLICY lsm=smack
+>>
+>> Kees is cleaning up the firmware code which differentiated between how
+>> firmware was loaded.?? There will be a single firmware enumeration.
+>>
+>> Similarly, the new IMA hook to measure critical state may be placed in
+>> multiple places.? Is there really a need from a policy perspective for
+>> differentiating the source of the critical state being measurind??? The
+>> data being measured should include some identifying information.
 >
-> James Carter <jwcart2@gmail.com> writes:
+> Yes Mimi - SELinux is including the identifying information in the "event name" field. Please see a sample measurement of STATE and POLICY for SELinux below:
 >
-> > On Tue, Aug 4, 2020 at 11:48 AM Dominick Grift
-> > <dominick.grift@defensec.nl> wrote:
-> >>
-> >> James Carter <jwcart2@gmail.com> writes:
-> >>
-> >> > On Tue, Aug 4, 2020 at 3:18 AM Dominick Grift
-> >> > <dominick.grift@defensec.nl> wrote:
-> >> >>
-> >> >> James Carter <jwcart2@gmail.com> writes:
-> >> >>
-> >> >> > On Sun, Aug 2, 2020 at 8:39 AM Dominick Grift
-> >> >> > <dominick.grift@defensec.nl> wrote:
-> >> >> >>
-> >> >> >> This was added for Androids Treble in 2017.
-> >> >> >>
-> >> >> >> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
-> >> >> >> ---
-> >> >> >> v2: overriden is overridden
-> >> >> >> v3: add link to README.md
-> >> >> >> v4: rephrase and add another example
-> >> >> >>
-> >> >> >>  secilc/docs/README.md              |  1 +
-> >> >> >>  secilc/docs/cil_type_statements.md | 44 ++++++++++++++++++++++++++++++
-> >> >> >>  2 files changed, 45 insertions(+)
-> >> >> >>
-> >> >> >> diff --git a/secilc/docs/README.md b/secilc/docs/README.md
-> >> >> >> index 3f1838e6..efab2a71 100644
-> >> >> >> --- a/secilc/docs/README.md
-> >> >> >> +++ b/secilc/docs/README.md
-> >> >> >> @@ -126,6 +126,7 @@ CIL (Common Intermediate Language)
-> >> >> >>    * [typealiasactual](cil_type_statements.md#typealiasactual)
-> >> >> >>    * [typeattribute](cil_type_statements.md#typeattribute)
-> >> >> >>    * [typeattributeset](cil_type_statements.md#typeattributeset)
-> >> >> >> +  * [expandtypeattribute](cil_type_statements.md#expandtypeattribute)
-> >> >> >>    * [typebounds](cil_type_statements.md#typebounds)
-> >> >> >>    * [typechange](cil_type_statements.md#typechange)
-> >> >> >>    * [typemember](cil_type_statements.md#typemember)
-> >> >> >> diff --git a/secilc/docs/cil_type_statements.md b/secilc/docs/cil_type_statements.md
-> >> >> >> index f9dd3a76..41f0f01a 100644
-> >> >> >> --- a/secilc/docs/cil_type_statements.md
-> >> >> >> +++ b/secilc/docs/cil_type_statements.md
-> >> >> >> @@ -213,6 +213,50 @@ This example is equivalent to `{ domain -kernel.process -ueventd.process -init.p
-> >> >> >>          )
-> >> >> >>      )
-> >> >> >>
-> >> >> >> +expandtypeattribute
-> >> >> >> +-------------------
-> >> >> >> +
-> >> >> >> +Overrides the compiler defaults for the expansion of one or more previously declared [`typeattribute`](cil_type_statements.md#typeattribute) identifiers.
-> >> >> >> +
-> >> >> >> +Note that this statement can be overridden at compile-time with `secilc -X SIZE` and that this functionality is not intended to override `secilc -X SIZE` for individual type attributes!
-> >> >> >> +
-> >> >>
-> >> >> <snip>
-> >> >> > When the value
-> >> >> > is false, the type attribute will not be removed from the policy, even
-> >> >> > if the default expand rules or "-X" option cause the rules involving
-> >> >> > the type attribute to be expanded.
-> >> >>
-> >> >> Yes but I cannot produce that. In my earlier test the type attribute
-> >> >> was expanded regardless of the -X option.
-> >> >>
-> >> >> In my test I instructed secilc to expand all attributes with more than 3
-> >> >> members (-X 4), then I added a expandtypeattribute statement telling
-> >> >> secilc to not expand pets and colors.
-> >> >>
-> >> >> The result was that it expanded pets and colors anyway.
-> >> >>
-> >> >
-> >> > I see the source of your confusion now. "-X 4" means that all
-> >> > attributes with LESS than 4 types associated with it will be expanded.
-> >>
-> >> I think its important to clarify this in the documentation. ie:
-> >> expandattribute false will not work if you use -X (-X will override the
-> >> false statement)
-> >>
-> >> I think that is unintuitive, I would actually want to be able to for
-> >> example expand all attributes with less then 4 members except a few
-> >> specific ones.
-> >>
-> >
-> > It is poorly named at this point. I think it was a victim of multiple
-> > changes over time. A better name now would be removeattribute. That
-> > would be more accurate, because what is really being controlled is
-> > whether the attribute is kept as defined in the policy or not.
-> >
-> > I am not sure what advantage there would be to expanding and removing
-> > all except a few selected attributes with less than 4 members, except
-> > for the case when you needed those selected attributes to remain
-> > defined in the policy.  Not much space is going to be saved by not
-> > expanding them. Ok, I guess the advantage would be that the name of
-> > the rule would make more sense. I will grant that.
-> >
-> > At any rate, the name stinks, but the functionality is exactly what is
-> > needed. I can trade a large policy for quicker access checks by using
-> > the "-X SIZE" option and I can retain the definitions of the
-> > attributes that need to be defined using expandattribute false.
-> >
-> > This whole discussion is why keeping the selinux-notebook in sync with
-> > language changes will be very valuable practice.
+> 10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state-1595389364:287899386 696e697469616c697a65643d313b656e61626c65643d313b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574776f726b5f706565725f636f6e74726f6c733d313b6f70656e5f7065726d733d313b657874656e6465645f736f636b65745f636c6173733d313b616c776179735f636865636b5f6e6574776f726b3d303b6367726f75705f7365636c6162656c3d313b6e6e705f6e6f737569645f7472616e736974696f6e3d313b67656e66735f7365636c6162656c5f73796d6c696e6b733d303
 >
-> I agree and that is why I added the "Note", so that readers have some
-> reference when they figure out that they cannot override -X for
-> specified attributes.
+> 10 f4a7...9408 ima-ng sha256:8d1d...1834 selinux-policy-hash-1595389353:863934271
 >
-> If you still do not like this v4 patch then tell me (again) what you
-> want in there and I will put it in there without argueing so that we can
-> wrap this up.
+>>
+>> I think moving away from the idea that measuring "critical" data should
+>> be limited to LSMs, will clarify this.
+>>
 >
-I would like this:
+> Are you suggesting that instead of calling the hooks LSM_STATE and LSM_POLICY, we should keep it more generic so that it can be utilized by any subsystem to measure their "critical data"?
 
-Overrides the compiler defaults for the expansion of one or more
-previously declared
-[`typeattribute`](cil_type_statements.md#typeattribute) identifiers.
+Policy, state, history or whim, it should be up to the security module
+to determine what data it cares about, and how it should be measured.
+Smack does not keep its policy in a single blob of data, it uses lists
+which can be modified at will. Your definition of the behavior for
+LSM_POLICY wouldn't work for Smack. That doesn't mean that there isn't
+a viable way to measure the Smack policy, it just means that IMA isn't
+the place for it. If SELinux wants its data measured, SELinux should be
+providing the mechanism to do it.
 
-This rule gives more control over type attribute expansion and
-removal. When the value is true, all rules involving the type
-attribute will be expanded and the type attribute will be removed from
-the policy. When the value is false, the type attribute will not be
-removed from the policy, even if the default expand rules or "-X"
-option cause the rules involving the type attribute to be expanded.
+I guess that I'm agreeing with you in part. If you want a generic measurement
+of "critical data", you don't need to assign a type to it, you have the
+caller (a security module, a device driver or whatever) identify itself and
+how it is going to deal with the data. That's very different from what you've
+done to date.
 
-Thanks again,
-Jim
-
-> >
-> > Thanks,
-> > Jim
-> >
-> >> >
-> >> > Jim
-> >> >
-> >> >> >
-> >> >> > Thanks,
-> >> >> > Jim
-> >> >> >
-> >> >> >> +**Statement definition:**
-> >> >> >> +
-> >> >> >> +    (expandtypeattribute typeattribute_id true|false)
-> >> >> >> +
-> >> >> >> +**Where:**
-> >> >> >> +
-> >> >> >> +<table>
-> >> >> >> +<colgroup>
-> >> >> >> +<col width="25%" />
-> >> >> >> +<col width="75%" />
-> >> >> >> +</colgroup>
-> >> >> >> +<tbody>
-> >> >> >> +<tr class="odd">
-> >> >> >> +<td align="left"><p><code>expandtypeattribute</code></p></td>
-> >> >> >> +<td align="left"><p>The <code>expandtypeattribute</code> keyword.</p></td>
-> >> >> >> +</tr>
-> >> >> >> +<tr class="even">
-> >> >> >> +<td align="left"><p><code>typeattribute_id</code></p></td>
-> >> >> >> +<td align="left"><p>One or more previously declared
-> >> >> >> <code>typeattribute</code> identifiers. Multiple entries consist of
-> >> >> >> a space separated list enclosed in parentheses '()'.</p></td>
-> >> >> >> +</tr>
-> >> >> >> +<tr class="odd">
-> >> >> >> +<td align="left"><p><code>true | false</code></p></td>
-> >> >> >> +<td align="left"><p>Either true or false.</p></td>
-> >> >> >> +</tr>
-> >> >> >> +</tbody>
-> >> >> >> +</table>
-> >> >> >> +
-> >> >> >> +**Examples:**
-> >> >> >> +
-> >> >> >> +This example uses the expandtypeattribute statement to forcibly expand a previously declared `domain` type attribute.
-> >> >> >> +
-> >> >> >> +    (expandtypeattribute domain true)
-> >> >> >> +
-> >> >> >> +This example uses the expandtypeattribute statement to not expand
-> >> >> >> previously declared `file_type` and `port_type` type attributes
-> >> >> >> regardless of compiler defaults.
-> >> >> >> +
-> >> >> >> +    (expandtypeattribute (file_type port_type) false)
-> >> >> >> +
-> >> >> >>  typebounds
-> >> >> >>  ----------
-> >> >> >>
-> >> >> >> --
-> >> >> >> 2.28.0
-> >> >> >>
-> >> >>
-> >> >> --
-> >> >> gpg --locate-keys dominick.grift@defensec.nl
-> >> >> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-> >> >> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-> >> >> Dominick Grift
-> >>
-> >> --
-> >> gpg --locate-keys dominick.grift@defensec.nl
-> >> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-> >> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-> >> Dominick Grift
 >
-> --
-> gpg --locate-keys dominick.grift@defensec.nl
-> Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-> https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-> Dominick Grift
+> I think that is a good idea.
+>
+> ?-lakshmi
