@@ -2,188 +2,201 @@ Return-Path: <SRS0=Kca8=BP=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D3ABC433E0
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 12:41:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A191C433E0
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 16:25:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 08CE8206D7
-	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 12:41:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 438172067C
+	for <selinux@archiver.kernel.org>; Wed,  5 Aug 2020 16:25:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZQz4D+WN"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="e+cpFn2d"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728463AbgHEMlN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Aug 2020 08:41:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35710 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728355AbgHEMgj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 08:36:39 -0400
-Received: from mail-qv1-xf42.google.com (mail-qv1-xf42.google.com [IPv6:2607:f8b0:4864:20::f42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF433C034617
-        for <selinux@vger.kernel.org>; Wed,  5 Aug 2020 05:35:28 -0700 (PDT)
-Received: by mail-qv1-xf42.google.com with SMTP id a19so14622348qvy.3
-        for <selinux@vger.kernel.org>; Wed, 05 Aug 2020 05:35:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=m2d+C57lAiG6bL8T9Mp4uI3V1kykEd/A23ppTi7YgsA=;
-        b=ZQz4D+WNjmsLLzlFBM7QzLg1l7n3fyPWY2Lc9sjf0oWkIgaRSkips2fXYD2KpsURa6
-         38ILvMptlfDEBpQBfqTiNhgIIcGwyn5Xzd+nvfaOwiY/Caim3bBFLBo9INYw+pFnHwQP
-         bPc1EZ6T02iR2/CDcmSMwt5qT5bNVSrqC3XFmfnI0ltgNL1paMQ1ClJPbraLD2FjxTUm
-         9E+p7IvMJ6d4C6vsI4MZrzD48JybZyx+WapbANMwVVHyZVwAm137JZ03/pkRdonW7Vba
-         Z8u6h69NLOQAU5KCuBonyZGFK0E6l5IBeNFYjLbaB1lrQHvEWTp3zbVwIcztHfXSvJIX
-         CQBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=m2d+C57lAiG6bL8T9Mp4uI3V1kykEd/A23ppTi7YgsA=;
-        b=RVuRD2G974ako2azkD5oWjYRDr5cmOSS/ufu/XTaxBEpO4oUnA6o3FKxQYSqnQ+P7a
-         AQ/7pJJ4qE/hvfBsj503uO+1YizJgvRvJavM6Kj7YdRc1772X67QZ4dyRHDUcSMPOwCw
-         onFlg1lhF2czkPETdJl3p1Jl39ydSxzZitofm3H8SIkZy8b0SHqMG6+50h2VWNuXoEc4
-         sfaksYkk2moPnw5GETr14PWWFAnPN9m4YkRwz5Avt8nyMskNZjs5XuwSx8H0LuGyZwAl
-         4GqbwXTkrfBPJFhutv/2dRc0L7e7Msv5+niuGwKwoEg/cjdiNGigfR/9WB+JWi1+2BEE
-         gbfg==
-X-Gm-Message-State: AOAM532b0DHFLifc2h/6VFXbnJF4BYbFhnjGolFsLIigFiWzj4+J2rQR
-        fAseQnhwYNS24W0HSVlpPIkUVM72uhA=
-X-Google-Smtp-Source: ABdhPJwBUlw9UtsAVoaegaHFmZ420mdLHesXFnVk++hX5Ix3i4Ybn0EIPnLdK9rP8FT91x1fo7D0mQ==
-X-Received: by 2002:ad4:470f:: with SMTP id k15mr3356723qvz.216.1596630927549;
-        Wed, 05 Aug 2020 05:35:27 -0700 (PDT)
-Received: from [192.168.1.190] (pool-96-244-118-111.bltmmd.fios.verizon.net. [96.244.118.111])
-        by smtp.gmail.com with ESMTPSA id g136sm1520539qke.82.2020.08.05.05.35.26
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 05 Aug 2020 05:35:27 -0700 (PDT)
-Subject: Re: [RFC PATCH] selinux: move policy commit after updating selinuxfs
-To:     Daniel Burgener <dburgener@linux.microsoft.com>,
-        paul@paul-moore.com
-Cc:     omosnace@redhat.com, selinux@vger.kernel.org
-References: <20200804135352.5650-1-stephen.smalley.work@gmail.com>
- <88c312b3-0abd-96ed-35c3-a80ab57a9fe3@linux.microsoft.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Message-ID: <685a0fd4-d5a2-0cc8-4b9d-ad39cf916b16@gmail.com>
-Date:   Wed, 5 Aug 2020 08:35:26 -0400
+        id S1726986AbgHEQZS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Aug 2020 12:25:18 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:43520 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726634AbgHEQX1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 12:23:27 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id E630020B490F;
+        Wed,  5 Aug 2020 09:07:48 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com E630020B490F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1596643669;
+        bh=vaUisLR9Kht4UfqcTKrNtIIIJRf+vX4y2SvJm7PWt8g=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=e+cpFn2dGtKBp/rCWfhHorxZGUmJI/qQGPmC9dLzn2UmWv75lQty7oqUrkOksSCRg
+         bD2QBPct/k8XzlPK7V5YX+8evojo/kYJH1V/CqXWCDArYOXpBvjRfOTNSvksYoAof7
+         3bGs66iTeYBgVYd2p69HCLGt0vDPQ66SqH7sdOOw=
+Subject: Re: [PATCH v6 0/4] LSM: Measure security module data
+To:     Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Casey Schaufler <casey@schaufler-ca.com>
+Cc:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200805004331.20652-1-nramas@linux.microsoft.com>
+ <f3971f35-309d-c3e5-9126-69add7ad4c11@schaufler-ca.com>
+ <50587a3e-bcb5-c68e-c16c-41baf68b4d4a@linux.microsoft.com>
+ <c7c168f2-e30b-d2c5-abcb-1b6919197474@schaufler-ca.com>
+ <20200805154504.GB4365@sequoia>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <7c7a076b-6ba7-2e8d-409a-b3b4e4738c41@linux.microsoft.com>
+Date:   Wed, 5 Aug 2020 09:07:48 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <88c312b3-0abd-96ed-35c3-a80ab57a9fe3@linux.microsoft.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20200805154504.GB4365@sequoia>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/4/20 4:51 PM, Daniel Burgener wrote:
-
-> On 8/4/20 9:53 AM, Stephen Smalley wrote:
->> With the refactoring of the policy load logic in the security
->> server from the previous change, it is now possible to split out
->> the committing of the new policy from security_load_policy() and
->> perform it only after successful updating of selinuxfs.  Change
->> security_load_policy() to return the newly populated policy
->> data structures to the caller, export selinux_policy_commit()
->> for external callers, and introduce selinux_policy_cancel() to
->> provide a way to cancel the policy load in the event of an error
->> during updating of the selinuxfs directory tree.  Further, rework
->> the interfaces used by selinuxfs to get information from the policy
->> when creating the new directory tree to take and act upon the
->> new policy data structure rather than the current/active policy.
->> Update selinuxfs to use these updated and new interfaces.  While
->> we are here, stop re-creating the policy_capabilities directory
->> on each policy load since it does not depend on the policy, and
->> stop trying to create the booleans and classes directories during
->> the initial creation of selinuxfs since no information is available
->> until first policy load.
+On 8/5/20 8:45 AM, Tyler Hicks wrote:
+> On 2020-08-05 08:36:40, Casey Schaufler wrote:
+>> On 8/4/2020 6:14 PM, Lakshmi Ramasubramanian wrote:
+>>> On 8/4/20 6:04 PM, Casey Schaufler wrote:
+>>>> On 8/4/2020 5:43 PM, Lakshmi Ramasubramanian wrote:
+>>>>> Critical data structures of security modules are currently not measured.
+>>>>> Therefore an attestation service, for instance, would not be able to
+>>>>> attest whether the security modules are always operating with the policies
+>>>>> and configuration that the system administrator had setup. The policies
+>>>>> and configuration for the security modules could be tampered with by
+>>>>> malware by exploiting kernel vulnerabilities or modified through some
+>>>>> inadvertent actions on the system. Measuring such critical data would
+>>>>> enable an attestation service to better assess the state of the system.
+>>>>
+>>>> I still wonder why you're calling this an LSM change/feature when
+>>>> all the change is in IMA and SELinux. You're not putting anything
+>>>> into the LSM infrastructure, not are you using the LSM infrastructure
+>>>> to achieve your ends. Sure, you *could* support other security modules
+>>>> using this scheme, but you have a configuration dependency on
+>>>> SELinux, so that's at best going to be messy. If you want this to
+>>>> be an LSM "feature" you need to use the LSM hooking mechanism.
+>>>
+>>>>
+>>>> I'm not objecting to the feature. It adds value. But as you've
+>>>> implemented it it is either an IMA extension to SELinux, or an
+>>>> SELiux extension to IMA. Could AppArmor add hooks for this without
+>>>> changing the IMA code? It doesn't look like it to me.
+>>>
+>>> The check in IMA to allow the new IMA hook func LSM_STATE and LSM_POLICY when SELinux is enabled is just because SELinux is the only security module using these hooks now.
+>>>
+>>> To enable AppArmor, for instance, to use the new IMA hooks to measure state and policy would just require adding the check for CONFIG_SECURITY_APPARMOR. Other than that, there are no IMA changes needed to support AppArmor or other such security modules.
 >>
->> After this change, a failure while updating the booleans and class
->> directories will cause the entire policy load to be canceled, leaving
->> the original policy intact, and policy load notifications to userspace
->> will only happen after a successful completion of updating those
->> directories.  This does not (yet) provide full atomicity with respect
->> to the updating of the directory trees themselves.
->
-> I have a patch series to perform the atomic updates very close to 
-> done, using vfs_rename with RENAME_EXCHANGE to update the directories 
-> out of tree and then swap them in as discussed earlier.  I've just 
-> been doing some final style cleanup before sending to the list.  I'll 
-> need to rebase on top of these changes of course.  I didn't touch any 
-> of the error recovery portions, so I hope my series will complement 
-> this patch nicely.
+>> This is exactly what I'm objecting to. What if a system has both SELinux
+>> and AppArmor compiled in? What if it has both enabled?
+> 
+> The SELinux state and policy would be measured but the AppArmor
+> state/policy would be silently ignored. This isn't ideal as the IMA
+> policy author would need to read the kernel code to figure out which
+> LSMs are going to be measured.
 
-Great, I was trying to ensure that we wouldn't conflict/overlap 
-significantly.
+Tyler - I am not sure why AppArmor state\policy would be ignored when 
+both SELinux and AppArmor are enabled. Could you please clarify?
 
->> This patch is relative to my previous one,
->> https://patchwork.kernel.org/patch/11698505/. Although this does
->> not ensure atomicity when updating the selinuxfs directoty tree,
->> I suspect it will solve Daniel's original bug because systemd/dbusd
->> won't get the policy load notifications until the kernel is done
->> updating selinuxfs and therefore won't try to re-read selinuxfs
->> in the middle of it (because libselinux caches the class/perm
->> mappings and only flushes on a reload).
-> I agree with your suspicion that this will resolve the bug we've been 
-> seeing (although only as a result of changing the timing, as you point 
-> out).  Thanks for your work on this!
+When both the security modules are enabled, IMA policy validator would 
+look like below:
 
-If you can easily test that my patches resolve that bug for you, you 
-could add a Tested-by tag.  One caveat is that it sounds like I'll be 
-making one more change to the previous patch per Ondrej's request to 
-avoid taking the read lock around sidtab_convert().
+if (IS_ENABLED(CONFIG_SECURITY_SELINUX) ||
+     IS_ENABLED(CONFIG_SECURITY_APPARMOR)) &&
+     strcmp(args[0].from, "LSM_STATE") == 0)
+                 entry->func = LSM_STATE;
 
->>   @@ -563,15 +560,19 @@ static ssize_t sel_write_load(struct file 
->> *file, const char __user *buf,
->>       if (copy_from_user(data, buf, count) != 0)
->>           goto out;
->>   -    length = security_load_policy(fsi->state, data, count);
->> +    length = security_load_policy(fsi->state, data, count, &newpolicy);
->>       if (length) {
->>           pr_warn_ratelimited("SELinux: failed to load policy\n");
->>           goto out;
->>       }
->>   -    length = sel_make_policy_nodes(fsi);
->> -    if (length)
->> +    length = sel_make_policy_nodes(fsi, newpolicy);
->> +    if (length) {
->> +        selinux_policy_cancel(fsi->state, newpolicy);
->>           goto out1;
-> As things stand as of this patch, I think that this means that in the 
-> event of a failure in recreating the directories, that directory will 
-> be left unpopulated or partially populated.  We could even get in a 
-> state where the booleans directory has already been updated to the new 
-> policy and the class directory has not. The full solution is of course 
-> atomic swapover, which as I mentioned above I hope to submit a series 
-> for soon, but I wonder if recreating the directories on the old policy 
-> would be a better interim state?  That probably depends on what sorts 
-> of errors are possible.  If we've failed because of something about 
-> the new policy, recreating the old directories should get us back to a 
-> good state.  If we can't create new directories at all for whatever 
-> reason, trying to recreate might leave us worse off than before we 
-> started.
+Similar one for LSM_POLICY validation.
 
-I deliberately avoided any changes to the error handling during 
-re-creation of the booleans and class directories because I viewed that 
-as logically separate from my change and likely to conflict with your 
-changes.  So I expect to revisit that issue after both my patches and 
-yours land. I think the only scenario where sel_make_bools/classes() can 
-fail is an out-of-memory condition and if we are out of memory then we 
-are unlikely to be able to re-create the old directories/files again.  
-Hence, I don't think there is anything useful we can do without the 
-atomic swapover. At most, we can delete everything under booleans and 
-class on any failure while re-creating so that we aren't left with the 
-partial set of booleans/classes.
+Both SELinux and AppArmor can call ima_measure_lsm_state() and 
+ima_measure_lsm_policy() to measure state and policy respectively.
 
-The other possibility I considered is explicitly checking whether there 
-are any changes to booleans or classes between the old and new policies 
-and if not, skipping that part of the selinuxfs update.  That however 
-would require a new security server function to iterate over all of the 
-booleans and classes in two selinux_policy structures and compare them 
-for equality.  Didn't seem worth it if the atomic swapover support was 
-coming anyway.
+I don't think we should go the route of defining IMA hooks per security 
+module (i.e., SELINUX_STATE, APPARMOR_STATE, SELINUX_POLICY, etc.) 
+Instead keep the hook generic that any SM could use - which is what I 
+have tried to address in this patch series.
 
+>>
+>>>
+>>> Please see Patch 1/4
+>>>
+>>> +Â Â Â Â Â Â Â Â Â Â Â  else if (IS_ENABLED(CONFIG_SECURITY_SELINUX) &&
+>>> +Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  strcmp(args[0].from, "LSM_STATE") == 0)
+>>> +Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  entry->func = LSM_STATE;
+>>> +Â Â Â Â Â Â Â Â Â Â Â  else if (IS_ENABLED(CONFIG_SECURITY_SELINUX) &&
+>>> +Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  strcmp(args[0].from, "LSM_POLICY") == 0)
+>>> +Â Â Â Â Â Â Â Â Â Â Â Â Â Â Â  entry->func = LSM_POLICY;
+>>>
+>>> And, if early boot measurement is needed for AppArmor the following change in IMA's Kconfig
+>>>
+>>> Patch 4/4
+>>>
+>>> +config IMA_QUEUE_EARLY_BOOT_DATA
+>>>  Â Â Â Â  bool
+>>> +Â Â Â  depends on SECURITY_SELINUX || (IMA_MEASURE_ASYMMETRIC_KEYS && SYSTEM_TRUSTED_KEYRING)
+>>>  Â Â Â Â  default y
+>>>
+>>> If you think calling this an "LSM feature" is not appropriate, please suggest a better phrase.
+>>
+>> In the code above you are under CONFIG_SECURITY_SELINUX.
+>> I would suggest that it's an SELinux feature, so you should
+>> be using SELINUX_STATE and SELINUX_POLICY, as I suggested
+>> before. Just because SELinux has state and policy to measure
+>> doesn't mean that a different module might not have other data,
+>> such as history, that should be covered as well.
+
+Good point - if other SMs have data besides state and policy, we can 
+define IMA hooks to measure that as well.
+
+But I still think it is not the right approach to call this 
+SELINUX_STATE and SELINUX_POLICY - it will lead to unnecessary code 
+duplication in IMA as more SMs are onboarded, in my opinion. Correct me 
+if I am wrong.
+
+  -lakshmi
+
+> 
+> In addition to SELINUX_STATE and SELINUX_POLICY, we should also consider
+> the proposed LSM_STATE and LSM_POLICY func values but require an "lsm"
+> rule conditional.
+> 
+> So the current proposed rules:
+> 
+>   measure func=LSM_STATE
+>   measure func=LSM_POLICY
+> 
+> Would become:
+> 
+>   measure func=LSM_STATE lsm=selinux
+>   measure func=LSM_POLICY lsm=selinux
+> 
+> The following rules would be rejected:
+> 
+>   measure func=LSM_STATE
+>   measure func=LSM_POLICY
+>   measure func=LSM_STATE lsm=apparmor
+>   measure func=LSM_POLICY lsm=smack
+> 
+> Of course, the apparmor and smack rules could/would be allowed when
+> proper support is in place.
+> 
+
+> 
+>>
+>> I realize that IMA already has compile time dependencies to
+>> determine which xattrs to measure. There's no reason that
+>> the xattr list couldn't be determined at boot time, with
+>> each security module providing the XATTR_NAME values it
+>> uses.
+>>
+>>>
+>>> But like I said above, with minimal change in IMA other security modules can be supported to measure STATE and POLICY data.
+>>>
+>>>  Â -lakshmi
+>>>
+>>>
 
