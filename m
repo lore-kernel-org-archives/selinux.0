@@ -2,149 +2,103 @@ Return-Path: <SRS0=AdpT=BQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EC1BC433E0
-	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 17:24:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40213C433E0
+	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 17:27:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6B8132311A
-	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 17:24:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 99901221E3
+	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 17:27:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MYFtD1vg"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EyGyK8E+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729490AbgHFRYE (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Aug 2020 13:24:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45080 "EHLO
+        id S1727771AbgHFR1I (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Aug 2020 13:27:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728798AbgHFREp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Aug 2020 13:04:45 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 694B5C0619CF;
-        Thu,  6 Aug 2020 06:50:04 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id e11so11993641otk.4;
-        Thu, 06 Aug 2020 06:50:03 -0700 (PDT)
+        with ESMTP id S1729449AbgHFRBx (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Aug 2020 13:01:53 -0400
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0272AC061A14
+        for <selinux@vger.kernel.org>; Thu,  6 Aug 2020 05:03:21 -0700 (PDT)
+Received: by mail-qt1-x842.google.com with SMTP id v22so30168041qtq.8
+        for <selinux@vger.kernel.org>; Thu, 06 Aug 2020 05:03:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=SEjQBZlrTFsQloK4tn/llXwept9F2hPUgYtTajnb1LA=;
-        b=MYFtD1vgNVKOxnDpEWoSNTcqVqARbDQ4iS+ttYasNnJ2A1Rymefw8vFcH2aHdZ4fye
-         GG0GarjIsVRgTSxlorHMu76c0fQH4leeKMyq3Qp+mtVhv05KN0PVzAs/syXyvgvtjpA2
-         SXQQJ2fdCSlmi/tWZxKRI1zoZLoa63MUWdHV+S0E1cu9rouZrjPORjmndPu05a/1Kz/+
-         dy/CwGAqKZ1WG5gYYfgl86uxvWAORJ5Mx+oxIfngtOVXyH+qzhpRzl5BIW4h+NvzFPCU
-         8+xW+Q5DoC8gRPMtzE4pPnwpiMY21vrjrVOuKS/p0YXelP9PTFMnP3Coh3qv116+54n3
-         0dgQ==
+        h=subject:from:to:cc:references:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=fV/eUaQHUhK0tmiW9lBWh+ohT6CBRHN8ubKtW51keyw=;
+        b=EyGyK8E+6qmZ4AfKsFQOBqmtXo2fJ05/eySRotOuPO360zitXVAp8Giv+4iz95RFH9
+         f9l2S7/oMKYd2VY9H8FncND4/oqU8vaPS6ABalCoCeFK/ylfe6TSuipo02wsDhY3HfDA
+         NyIEsdzu/LKJ/ik9UkneV/1EGI1J3bSu1kEZ27Xf2406xgJM/4wzntX3jepm1dxnnTbM
+         I43N3a9wRQiEpNQ/bvbhSpiC/JcsfgBMh8ju9+kIysVFWfYvWA2R3eRusuE3gVTDE2K6
+         oweslefCf1RMFpaQxw1MyAds55U6iyj1MPKyOTN8roR0sXorHGWB6e4Bqvtpvo1zyZ85
+         h8vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=SEjQBZlrTFsQloK4tn/llXwept9F2hPUgYtTajnb1LA=;
-        b=Jvqp5xtZLZpZd5N2KzIr4AM0wCrC09IChuLOj06IEvZ00M1Elwc7ds0uN5KlTKZkxt
-         Nodv+r8o4vGuHJV2p82xSDySrFUWTL3pPuhT90kkbCfUqn3/kLdd7SgFeKqMGy2NHkZo
-         7rPclGILKIBJuXCLliJq8V0E1UTSpXbE4Y+pVfm7ORpKJ8xqkdw+giw0/5LG8nXFJbgy
-         ptnfL4MimUnq5SscIgu6huXxi3kp+lCDRWbj19Z1qcbL0ECtSsr8epd+LjU4e6ClBnwb
-         GznBWw3H6TZRLL0V6F02hpQpeHVI4M71jUZmnNl7Za38HR3h7hjZ6rgWpdkYxeTLwQhM
-         LnFQ==
-X-Gm-Message-State: AOAM533JpofGkhaIuR0UjfUTNL6e5pZ1T1iEfBnOrAZAHsxnmNqyUDyB
-        ToHyO7jb3qfm3IB6l12whRhvCsT1V2VVdIbaQLU=
-X-Google-Smtp-Source: ABdhPJw4ecP6H//vDHHZvBTuxT/QGbR+ZI3XNBXLHzPCazzTrLsqEggBwLft6DcjEwmJkWIfi5p6NHkE5D1PCLV+MYw=
-X-Received: by 2002:a9d:67d3:: with SMTP id c19mr7420766otn.162.1596721798604;
- Thu, 06 Aug 2020 06:49:58 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200806080358.3124505-1-tweek@google.com> <20200806080358.3124505-2-tweek@google.com>
- <89d23362-39b9-79e5-84f1-d7b89204ef38@gmail.com> <8627d780-0e19-6755-0de5-c686deb0f5de@sony.com>
- <971592b6-5d5f-05d8-d243-b521fe65577d@gmail.com> <07e2c48d-3918-6ceb-a6b2-4e2f18f9ea01@gmail.com>
-In-Reply-To: <07e2c48d-3918-6ceb-a6b2-4e2f18f9ea01@gmail.com>
+        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=fV/eUaQHUhK0tmiW9lBWh+ohT6CBRHN8ubKtW51keyw=;
+        b=udfWQ5Ixk3irM+KmcGqO0sGZsLQMNUhHNkuXTEkOPv4ipMBJxgSAmTRjI7INllAyO1
+         ccIQQj6kUu3SOd2xzvzU+ljr+5FYJ00YjB1eTj233mIsUSeO7cf6fcWUR58A1K1pH1Xy
+         hxLMwz6kQxFEh1mn2TbdPR6zVhN3782bn7rIrO0lBay3cExUw3pH0Vt9fbVm3XQAciYn
+         LZSU2G2F3dwFEGpj5UoZzlSjLHpW0Db20pYav0yNnLKLWwEMmgSluVs2U62A9zuQWkwb
+         5gtu1bcysjMFylCHqI0270mlT5bdAxyrUP7b1SMQyJfxTDqER4drZICf3v+QyfxgPbct
+         Q6Kg==
+X-Gm-Message-State: AOAM5312K2wX6BbDXRim0wS4U2lGCWGEIAPu9S0TtFLWm5e2GVZRxEak
+        7nFDe1EuVXMGvDn6oCBfknc=
+X-Google-Smtp-Source: ABdhPJxiyCn+P+4mnXZU3QKVeWRXhKx2fcsR3stLHrklvJVHKSqNzgbg4Fvb7UGw6TlEPrrA4QDZHg==
+X-Received: by 2002:ac8:4095:: with SMTP id p21mr8544529qtl.166.1596715397902;
+        Thu, 06 Aug 2020 05:03:17 -0700 (PDT)
+Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
+        by smtp.gmail.com with ESMTPSA id w27sm4487949qtv.68.2020.08.06.05.03.16
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 06 Aug 2020 05:03:17 -0700 (PDT)
+Subject: Re: [PATCH v6 2/2] libsepol: implement POLICYDB_VERSION_COMP_FTRANS
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 6 Aug 2020 09:49:47 -0400
-Message-ID: <CAEjxPJ4no_GqMp8aw43zpwmwq42Wi_1dvP+ZBs1a-mnReDt5Og@mail.gmail.com>
-Subject: Re: [PATCH 2/2] selinux: add attributes to avc tracepoint
-To:     peter enderborg <peter.enderborg@sony.com>,
-        =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     Nick Kralevich <nnk@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Cc:     James Carter <jwcart2@gmail.com>,
+        Chris PeBenito <pebenito@ieee.org>,
+        Petr Lautrbach <plautrba@redhat.com>
+References: <20200731111035.498656-1-omosnace@redhat.com>
+ <20200731111035.498656-3-omosnace@redhat.com>
+ <5ad008a6-8a98-346b-98a9-77971684c2b6@gmail.com>
+Message-ID: <2c0fb524-f82f-a08b-740e-8617b78b2a27@gmail.com>
+Date:   Thu, 6 Aug 2020 08:03:16 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <5ad008a6-8a98-346b-98a9-77971684c2b6@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 6, 2020 at 9:45 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On 8/6/20 8:32 AM, Stephen Smalley wrote:
->
-> > On 8/6/20 8:24 AM, peter enderborg wrote:
-> >
-> >> On 8/6/20 2:11 PM, Stephen Smalley wrote:
-> >>> On 8/6/20 4:03 AM, Thi=C3=A9baud Weksteen wrote:
-> >>>
-> >>>> From: Peter Enderborg <peter.enderborg@sony.com>
-> >>>>
-> >>>> Add further attributes to filter the trace events from AVC.
-> >>> Please include sample usage and output in the description.
-> >>>
-> >>>
-> >> Im not sure where you want it to be.
-> >>
-> >> In the commit message or in a Documentation/trace/events-avc.rst ?
-> >
-> > I was just asking for it in the commit message / patch description.  I
-> > don't know what is typical for Documentation/trace.
->
-> For example, I just took the patches for a spin, running the
-> selinux-testsuite under perf like so:
->
-> sudo perf record -e avc:selinux_audited -g make test
->
-> and then ran:
->
-> sudo perf report -g
->
-> and a snippet of sample output included:
->
->       6.40%     6.40%  requested=3D0x800000 denied=3D0x800000
-> audited=3D0x800000 result=3D-13 ssid=3D922 tsid=3D922
-> scontext=3Dunconfined_u:unconfined_r:test_binder_mgr_t:s0-s0:c0.c1023
-> tcontext=3Dunconfined_u:unconfined_r:test_binder_mgr_t:s0-s0:c0.c1023
-> tclass=3Dcapability
+On 8/3/20 9:57 AM, Stephen Smalley wrote:
 
-So then the question becomes how do you use the above information,
-e.g. is that sufficient to correlate it to an actual avc: denied
-message, how do you decode the requested/denied/audited fields (or
-should the code do that for you and just report the string name(s) of
-the permission(s), do you need all three of those fields separately,
-is it useful to log the ssid/tsid at all given that you have the
-contexts and sids are dynamically assigned, etc.
+> On 7/31/20 7:10 AM, Ondrej Mosnacek wrote:
+>
+>> Implement a new, more space-efficient form of storing filename
+>> transitions in the binary policy. The internal structures have already
+>> been converted to this new representation; this patch just implements
+>> reading/writing an equivalent representation from/to the binary policy.
+>>
+>> This new format reduces the size of Fedora policy from 7.6 MB to only
+>> 3.3 MB (with policy optimization enabled in both cases). With the
+>> unconfined module disabled, the size is reduced from 3.3 MB to 2.4 MB.
+>>
+>> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+>
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>
+Thanks, applied.
 
->              |
->              ---0x495641000028933d
->                 __libc_start_main
->                 |
->                 |--4.60%--__GI___ioctl
->                 |          entry_SYSCALL_64
->                 |          do_syscall_64
->                 |          __x64_sys_ioctl
->                 |          ksys_ioctl
->                 |          binder_ioctl
->                 |          binder_set_nice
->                 |          can_nice
->                 |          capable
->                 |          security_capable
->                 |          cred_has_capability.isra.0
->                 |          slow_avc_audit
->                 |          common_lsm_audit
->                 |          avc_audit_post_callback
->                 |          avc_audit_post_callback
+
