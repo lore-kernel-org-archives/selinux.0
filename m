@@ -8,72 +8,68 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40213C433E0
-	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 17:27:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC825C433E0
+	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 17:28:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 99901221E3
-	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 17:27:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 54DA422DCC
+	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 17:28:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EyGyK8E+"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RzRKuiIB"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727771AbgHFR1I (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Aug 2020 13:27:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44904 "EHLO
+        id S1729800AbgHFR2H (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Aug 2020 13:28:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729449AbgHFRBx (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Aug 2020 13:01:53 -0400
-Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0272AC061A14
-        for <selinux@vger.kernel.org>; Thu,  6 Aug 2020 05:03:21 -0700 (PDT)
-Received: by mail-qt1-x842.google.com with SMTP id v22so30168041qtq.8
-        for <selinux@vger.kernel.org>; Thu, 06 Aug 2020 05:03:20 -0700 (PDT)
+        with ESMTP id S1729668AbgHFRBZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Aug 2020 13:01:25 -0400
+Received: from mail-qk1-x741.google.com (mail-qk1-x741.google.com [IPv6:2607:f8b0:4864:20::741])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24075C061A16
+        for <selinux@vger.kernel.org>; Thu,  6 Aug 2020 05:05:55 -0700 (PDT)
+Received: by mail-qk1-x741.google.com with SMTP id x69so44680412qkb.1
+        for <selinux@vger.kernel.org>; Thu, 06 Aug 2020 05:05:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=fV/eUaQHUhK0tmiW9lBWh+ohT6CBRHN8ubKtW51keyw=;
-        b=EyGyK8E+6qmZ4AfKsFQOBqmtXo2fJ05/eySRotOuPO360zitXVAp8Giv+4iz95RFH9
-         f9l2S7/oMKYd2VY9H8FncND4/oqU8vaPS6ABalCoCeFK/ylfe6TSuipo02wsDhY3HfDA
-         NyIEsdzu/LKJ/ik9UkneV/1EGI1J3bSu1kEZ27Xf2406xgJM/4wzntX3jepm1dxnnTbM
-         I43N3a9wRQiEpNQ/bvbhSpiC/JcsfgBMh8ju9+kIysVFWfYvWA2R3eRusuE3gVTDE2K6
-         oweslefCf1RMFpaQxw1MyAds55U6iyj1MPKyOTN8roR0sXorHGWB6e4Bqvtpvo1zyZ85
-         h8vQ==
+        h=subject:to:references:from:message-id:date:user-agent:mime-version
+         :in-reply-to:content-transfer-encoding:content-language;
+        bh=6e9MrL4aFkRge5/wiT6mJZvLnSt18s02jYLE7vZYEac=;
+        b=RzRKuiIBTuVRqKPwlNt0d8GEwciWzJ5fAZKPWfeNrkRS6Ne1zcmslhaXicey60L4kn
+         WzoqHYHdESQvBEzg4RUSgLtw9fJw1WeIIZ164oTUgucBtxG7axvJc+9mSPY8r3Iglf3a
+         f21rU55Wv8In2BM9dgvQ3eG0BBozdS+gw7H13xqxj9UFo+At2jrQlCHL1zCYa9LikFez
+         jTNuDyMv58qWcwLIwv9M2NqM0h6wSwj9HqEPIu/gBgjkT8HoPX9l2B3voMwGxZrsqj8I
+         EVpz5UUw3E//WFXLV+QCWADU+d0csdXvkoz4T7/v8oOK6FfNopwDpwUTbqtvA0c5AnS/
+         9M1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
+        h=x-gm-message-state:subject:to:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-transfer-encoding
          :content-language;
-        bh=fV/eUaQHUhK0tmiW9lBWh+ohT6CBRHN8ubKtW51keyw=;
-        b=udfWQ5Ixk3irM+KmcGqO0sGZsLQMNUhHNkuXTEkOPv4ipMBJxgSAmTRjI7INllAyO1
-         ccIQQj6kUu3SOd2xzvzU+ljr+5FYJ00YjB1eTj233mIsUSeO7cf6fcWUR58A1K1pH1Xy
-         hxLMwz6kQxFEh1mn2TbdPR6zVhN3782bn7rIrO0lBay3cExUw3pH0Vt9fbVm3XQAciYn
-         LZSU2G2F3dwFEGpj5UoZzlSjLHpW0Db20pYav0yNnLKLWwEMmgSluVs2U62A9zuQWkwb
-         5gtu1bcysjMFylCHqI0270mlT5bdAxyrUP7b1SMQyJfxTDqER4drZICf3v+QyfxgPbct
-         Q6Kg==
-X-Gm-Message-State: AOAM5312K2wX6BbDXRim0wS4U2lGCWGEIAPu9S0TtFLWm5e2GVZRxEak
-        7nFDe1EuVXMGvDn6oCBfknc=
-X-Google-Smtp-Source: ABdhPJxiyCn+P+4mnXZU3QKVeWRXhKx2fcsR3stLHrklvJVHKSqNzgbg4Fvb7UGw6TlEPrrA4QDZHg==
-X-Received: by 2002:ac8:4095:: with SMTP id p21mr8544529qtl.166.1596715397902;
-        Thu, 06 Aug 2020 05:03:17 -0700 (PDT)
+        bh=6e9MrL4aFkRge5/wiT6mJZvLnSt18s02jYLE7vZYEac=;
+        b=skFICpji1jLwmmD1cIGoEc4EUL8gcM6qW+xS2tnJpPV6Wx5TRE2247X42jHNXwVo1C
+         3sUj2LlLWR1dX2YkRjHVhycqFpGs4s53uxkvYK/rSTBfwqqOTGYIvKVwjpz8zZbFqMCN
+         ioObL5+aIf2DhpQ1EnRJ9mBDpCvZhUoWkJJxXqydKBVDtth7AjVf9is6K1C2kAIHLLsO
+         /vwJ8oJw1EOlAPQ9o3gD1cezW3OwxeCYSSXToPfoRqB7BdiP1FBpMYWo/fhPuaSRCPSo
+         6KyUniPID+alW0xb+XyVj6A05JdbAK7d1+Xqf5WcJw81udBOvPpeJc9A89CCrMq+Q/5H
+         K4Iw==
+X-Gm-Message-State: AOAM533FXm5rTyyBn5PtUaROlK+OyTwi3I/xmzYvl7ocs/qEg25sX9mw
+        yc5j66RVVhKz/6nQuC7p4Ia2ByT9
+X-Google-Smtp-Source: ABdhPJyI3yBw7WJ0uD0EpQ4K1f+n4UNbpUtHzwQyhC+CufizmgASDKzML9IliMvyYhwd2lcg2QRGFg==
+X-Received: by 2002:a37:a2c2:: with SMTP id l185mr7856425qke.417.1596715553768;
+        Thu, 06 Aug 2020 05:05:53 -0700 (PDT)
 Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
-        by smtp.gmail.com with ESMTPSA id w27sm4487949qtv.68.2020.08.06.05.03.16
+        by smtp.gmail.com with ESMTPSA id o17sm4578608qtr.13.2020.08.06.05.05.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 06 Aug 2020 05:03:17 -0700 (PDT)
-Subject: Re: [PATCH v6 2/2] libsepol: implement POLICYDB_VERSION_COMP_FTRANS
+        Thu, 06 Aug 2020 05:05:52 -0700 (PDT)
+Subject: Re: [PATCH v6] libselinux: use kernel status page by default
+To:     Mike Palmiotto <mike.palmiotto@crunchydata.com>,
+        selinux@vger.kernel.org
+References: <20200805194312.7188-1-mike.palmiotto@crunchydata.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
-Cc:     James Carter <jwcart2@gmail.com>,
-        Chris PeBenito <pebenito@ieee.org>,
-        Petr Lautrbach <plautrba@redhat.com>
-References: <20200731111035.498656-1-omosnace@redhat.com>
- <20200731111035.498656-3-omosnace@redhat.com>
- <5ad008a6-8a98-346b-98a9-77971684c2b6@gmail.com>
-Message-ID: <2c0fb524-f82f-a08b-740e-8617b78b2a27@gmail.com>
-Date:   Thu, 6 Aug 2020 08:03:16 -0400
+Message-ID: <56f3aed8-03e3-f847-967c-e9c8630f692b@gmail.com>
+Date:   Thu, 6 Aug 2020 08:05:52 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <5ad008a6-8a98-346b-98a9-77971684c2b6@gmail.com>
+In-Reply-To: <20200805194312.7188-1-mike.palmiotto@crunchydata.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Language: en-US
@@ -82,23 +78,40 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/3/20 9:57 AM, Stephen Smalley wrote:
+On 8/5/20 3:43 PM, Mike Palmiotto wrote:
 
-> On 7/31/20 7:10 AM, Ondrej Mosnacek wrote:
+> Commit bc2a8f418e3b ("libselinux: add selinux_status_* interfaces for
+> /selinux/status") introduced the sestatus mechanism, which allows for
+> mmap()'ing of the kernel status page as a replacement for avc_netlink.
 >
->> Implement a new, more space-efficient form of storing filename
->> transitions in the binary policy. The internal structures have already
->> been converted to this new representation; this patch just implements
->> reading/writing an equivalent representation from/to the binary policy.
->>
->> This new format reduces the size of Fedora policy from 7.6 MB to only
->> 3.3 MB (with policy optimization enabled in both cases). With the
->> unconfined module disabled, the size is reduced from 3.3 MB to 2.4 MB.
->>
->> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> The mechanism was initially intended for userspace object managers that
+> were calculating access decisions within their application and did not
+> rely on the libselinux AVC implementation. In order to properly make use
+> of sestatus within avc_has_perm(), the status mechanism needs to
+> properly set avc internals during status events; else, avc_enforcing is
+> never updated upon sestatus changes.
 >
-> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> This commit gets rid of the default avc_netlink_open() in
+> avc_init_internal(), replacing it with selinux_status_open(). In the
+> event that the kernel status page cannot be mapped, the netlink fallback
+> will be used. By default, avc_has_perm_noaudit() and
+> selinux_check_access() will now attempt to read the kernel status page,
+> which removes a system call from two critical code paths.
 >
-Thanks, applied.
+> Since the AVC thread create/stop callbacks were intended to avoid a
+> system call in the critical code path, they no longer need to be created
+> by default. In the event that the kernel status page is successfully
+> mapped, threads will not be created. Threads will still be
+> created/stopped for the sestatus fallback codepaths.
+>
+> Userspace object managers that still need a netlink socket can call
+> avc_netlink_acquire_fd() to open and/or obtain one.
+>
+> Update the manpage to reflect the new avc_netlink_acquire_fd()
+> functionality.
+>
+> Signed-off-by: Mike Palmiotto <mike.palmiotto@crunchydata.com>
+
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
 
