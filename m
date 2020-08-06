@@ -2,65 +2,65 @@ Return-Path: <SRS0=AdpT=BQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E429C433E0
-	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 02:35:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6104AC433DF
+	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 02:37:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1CA372245C
-	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 02:35:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 29B8420823
+	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 02:37:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="f7nsHNxF"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Wxf82dhO"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726013AbgHFCfI (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 5 Aug 2020 22:35:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53094 "EHLO
+        id S1726013AbgHFChs (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 5 Aug 2020 22:37:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725999AbgHFCfH (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 22:35:07 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD200C061574
-        for <selinux@vger.kernel.org>; Wed,  5 Aug 2020 19:35:06 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id jp10so22039796ejb.0
-        for <selinux@vger.kernel.org>; Wed, 05 Aug 2020 19:35:06 -0700 (PDT)
+        with ESMTP id S1726005AbgHFChr (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 5 Aug 2020 22:37:47 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39B6FC061574
+        for <selinux@vger.kernel.org>; Wed,  5 Aug 2020 19:37:46 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id g19so34790549ejc.9
+        for <selinux@vger.kernel.org>; Wed, 05 Aug 2020 19:37:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=ZgnTEaZbUhvpthkh33rsC6biGkpHN5BZh6g7PrkCiQQ=;
-        b=f7nsHNxFSwQWud7Hl6knlRW+5FH7OQiAdseWrDY97kT8ETKW4gvDJ9bBIw8JJoMtkb
-         No+qIZROJTvec9gSxyh/e5rnQpmwlq0PvKyggE1o2qY5+HhFw/mxXxAAHprnMeWgeJSO
-         muUx8N22SKRbER/9XzYA6+7ZqxLcW6p+Y0nbUTzDYeIMvrA1nl4dnYCJ031CUXc/UbIm
-         0R7lIEqM3fcxe4T5ALfmhmsW0f+fQJ3M8t0raBZ7Nax8UkDNNqma0pri9TnoiDISinOB
-         mG+6WigN5s/nG4gtKVF8FTNXUe+iCEfdLw28VshdyMZDrOhDkvK9z0K2b/haiv2KMJ6p
-         l7ww==
+        bh=zJiyOatu2BrhSaaNI3CEOgqyKkXrPoiolBEFQyTeOqc=;
+        b=Wxf82dhOxY0sN6GhRRXjQlAPQX6xTnqydghQKLHDdhKQTuT7pgrhD/70lji4Mq7UNH
+         u82EQ9yHGo0stC7Wi3XU30vrHPOTUwSURD5mJbvpQEo6FIzICYW3eF657qTaaDI0UeLF
+         Mr0uFhp8I8O2QBfaR56M4NQ4w5/DK+LH1/FubbPuPuSTqEDmWZ7s0m09Jz1xY99mfTvI
+         l7i70MwbogkR4iGUBYAGcNj4MZPGC4e7cs7+Uj5LrT/6sq22n7ewLoruE6naYz0P7FCC
+         OKw4HRzgWH/JOtGgPXHVPi2OBhdjGlNkhyXevuOAS0kNWaFufnz+WAAMFoiLDNVdiYfe
+         A8Qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=ZgnTEaZbUhvpthkh33rsC6biGkpHN5BZh6g7PrkCiQQ=;
-        b=nYggmcg5zQhBJItB4CU5uLh4S6hTf0oYLknx49nkEjWVBo+XNJiara+cK0LSSutljL
-         B+yXH+1mlL+HOWbwKtEY6juO0fADcTNlwGes73oQDcmDqFd0vr32XEpMg2EdXfIMeN0W
-         Wn1ad1a5L1o0NXzrcBR5lt3sgItx+NmLDIYy2+APKje/ZHJGVdVg3r1KfM6m8eb4qulN
-         ieHeC5+VliPexWEodY2pOvSAJqJ1QEbHvkcfD9+HgeUPmkRvTvDyNHTFYCm4s3iLZ+nw
-         atTEcU311CcjJgG4NNExX86F92UISvtXulOGjlVUV+Emjj1wu7BiYb42PG1QAsCjCHxq
-         jyMA==
-X-Gm-Message-State: AOAM530QaJO7F8TV3j8SOt5Xy5N32zqpebnOW0RNdsAkez77zw+NCg9N
-        eFLKc1Y/F4NJXDJERKW73+fSWxpMRQQ1/HT6CBnZmL15TA==
-X-Google-Smtp-Source: ABdhPJzepm4wD8u0v38wHSmCHZD5EjP+c3PMbBazs3klUL8v7lf8g5/42JMD4p1/y/ZQjeEHASM3hl069wc1NbrrzHo=
-X-Received: by 2002:a17:906:e0e:: with SMTP id l14mr2097899eji.398.1596681303312;
- Wed, 05 Aug 2020 19:35:03 -0700 (PDT)
+        bh=zJiyOatu2BrhSaaNI3CEOgqyKkXrPoiolBEFQyTeOqc=;
+        b=c3jiLkDwEwg6JswctikZPyyk8VYgLYQPWVw16wz6r04FoqVCNzszB3JfeXPMEZW2tT
+         bfmVmuBco1it6tLkvqlY4a2YcOWVQDEO1ZUXqrfiI0kYQlhqaz964yPMRkD0u8FQFst5
+         7nZrtOcrngA1QpsB+f6uv7np8rlCSa0Sobemqn9sAeVdTePorognJNtC4TomZKttkpT7
+         8wN4qD/3dwLpLjOYTwNYk9yPm/wQUPUm3Ac+b4ptFppLczAICN1/Ejhsf7y9QptM07EJ
+         x+NNw8dnfwpVV4M54TkI+omeMb/8WuIqyr/uwLKGEQrnDp89/3VwlnJiBuEYCKc+3wTK
+         7DQg==
+X-Gm-Message-State: AOAM531zdEvnKSlMWgk3eRhYqhO2pb9x2bfOnTKibLHOvVgtYFyunvsC
+        m8xpUnhBAOfZG5RZy5TaqlUZoY0DO2zK6hJ2eH6hO8tzxQ==
+X-Google-Smtp-Source: ABdhPJxxStaJxz94y+/UB8Z7yXR+RrN9aooVs1vvyzmRzOqt4BuUJBr36PNNtK+g/UDDK9qkivZhF5K2NJ9VozzsBJc=
+X-Received: by 2002:a17:906:1911:: with SMTP id a17mr2058628eje.431.1596681464787;
+ Wed, 05 Aug 2020 19:37:44 -0700 (PDT)
 MIME-Version: 1.0
-References: <159650470076.8961.12721446818345626943.stgit@sifl>
- <159650482872.8961.7516871249534865160.stgit@sifl> <837e782ff80f69e8e4d44bc49ff2ced54b0aef2c.camel@btinternet.com>
-In-Reply-To: <837e782ff80f69e8e4d44bc49ff2ced54b0aef2c.camel@btinternet.com>
+References: <20200804073310.195204-1-dominick.grift@defensec.nl> <20200805194048.490708-1-dominick.grift@defensec.nl>
+In-Reply-To: <20200805194048.490708-1-dominick.grift@defensec.nl>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 5 Aug 2020 22:34:52 -0400
-Message-ID: <CAHC9VhR5ik=yk5Oo=n_B3JhKyJuBVaSa5rUNsPdHMtH78b83mw@mail.gmail.com>
-Subject: Re: [RFC,selinux-notebook PATCH 05/18] xperm_rules: fully convert to markdown
-To:     Richard Haines <richard_c_haines@btinternet.com>
+Date:   Wed, 5 Aug 2020 22:37:33 -0400
+Message-ID: <CAHC9VhTKrhidm5+m17Pa20=YC=3un6sdBVQUgqDCVmpWMomYTQ@mail.gmail.com>
+Subject: Re: [SELinux-notebook PATCH v6] type_statements: document expandattribute
+To:     Dominick Grift <dominick.grift@defensec.nl>
 Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
@@ -68,54 +68,25 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 4, 2020 at 12:14 PM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> On Mon, 2020-08-03 at 21:33 -0400, Paul Moore wrote:
-
-...
-
-> > +*rule_name*
-> > +
-> > +The applicable *allowxperm*, *dontauditxperm*, *auditallowxperm*
-> > +or *neverallowxperm* rule keyword.
-> > +
-> > +*source_type*
-> > +
-> > +One or more source / target *type*, *typealias* or *attribute*
-> > identifiers.
-> > +Multiple entries consist of a space separated list enclosed in
-> > braces \'{}\'.
-> > +Entries can be excluded from the list by using the negative operator
-> > \'-\'.
-> > +
-> > +*target_type*
-> > +
-> > +The target_type can have the *self* keyword instead of *type*,
-> > *typealias* or
-> > +*attribute* identifiers. This means that the *target_type* is the
-> > same as the
-> > +*source_type*.
-> > +
-> > +*class*
-> > +
-> > +One or more object classes. Multiple entries consist of a space
-> > separated list
-> > +enclosed in braces \'{}\'.
+On Wed, Aug 5, 2020 at 3:50 PM Dominick Grift
+<dominick.grift@defensec.nl> wrote:
 >
-> I've had a rethink on this and wonder if it would be clearer if the
-> descriptions were a bullet list:
+> This functionality was added for Androids Treble in 2017.
 >
-> *class*
+> Signed-off-by: Dominick Grift <dominick.grift@defensec.nl>
+> ---
+> v2: change expandtypeattribute to expandattribute
+> v3: overriden is overridden
+> v4: convert to markdown
+> v5: copied and pasted description from James Carter and changed default_value to expand_value
+> v6: can be used in if conditionals and update description from James Carter
 >
-> - One or more object classes. Multiple ...
+>  src/type_statements.md | 693 ++++++++++++++++++-----------------------
+>  1 file changed, 302 insertions(+), 391 deletions(-)
 
-Ooops.  I forgot about this comment in my inbox when I merged the
-patchset; although I guess even if we go with the bulleted list having
-the table in markdown first should make this easier.
-
-I guess we could give it a try and see how it looks?  My only concern
-is that sometimes a list with only one item can look a bit "off".  Or
-an I misunderstanding what you are proposing?
+Merged into the main branch, thank you!  A word of caution, I did have
+to merge this by hand so I may have made a mistake; please take a look
+at what is in the repo and let me know if anything looks wrong.
 
 -- 
 paul moore
