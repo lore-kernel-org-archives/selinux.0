@@ -2,144 +2,133 @@ Return-Path: <SRS0=AdpT=BQ=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04546C433DF
-	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 21:49:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BAAF6C433E0
+	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 22:00:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DB98B2173E
-	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 21:49:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AC73422CB3
+	for <selinux@archiver.kernel.org>; Thu,  6 Aug 2020 22:00:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="RzqQz2QB"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o/dd2D3f"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726249AbgHFVtX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Aug 2020 17:49:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33156 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726131AbgHFVtW (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Aug 2020 17:49:22 -0400
-Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 765F7C061574
-        for <selinux@vger.kernel.org>; Thu,  6 Aug 2020 14:49:22 -0700 (PDT)
-Received: by mail-ed1-x544.google.com with SMTP id c10so6523831edk.6
-        for <selinux@vger.kernel.org>; Thu, 06 Aug 2020 14:49:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=1vPvgWO3vXIKi57S/5+HEq8i3xT4+7dX9gSk3O8UTRc=;
-        b=RzqQz2QBZFKXg9lgN6MBwm+9PxUGZ01Vb1pvVLVO4/q7Uie4yxGCGPHhFgcMQQ2+UX
-         Z2GU9trrE9spL1gzk4FM23QNZdds+UK2ijtMXOgGyBBpdEoC4wLUauEf6BKXJLRJ2xfT
-         sXY+XukZsc1aeoOr1T+D/wfa/OpnMcA07L+shCIMj6XCF0SjrtU6NlJ5N+d00mAEkais
-         2x5NjOMfbQyuzxvGBCYPpasjQHSfIOW1FMjMBFGX1GR8j+z7c89HXFVcS15L+Flef9UV
-         r/N9tr0hx01lUAj50jzEqeuOc/3Qb5LHemh6fMQkEsg2Twml1F4kWjPpnnxhHtVk9Ofr
-         MQKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=1vPvgWO3vXIKi57S/5+HEq8i3xT4+7dX9gSk3O8UTRc=;
-        b=YQwoJAwBtSPxpHc9bTxea26oPKAcRhqClhAWNhrr8pO5zkEvxMrKFz9nommyaMizus
-         GPWhoIPvx8nkpHYu8O0Awi11fE54h9AAbOufzIoStEJLCsw7mpGqR3107qxUzOAT6KSi
-         PPxDFFIb17/FNCUG5W7KlH8TZIs9eAHti1Ha0wCI7vbHIiOkIJ6wFdKeLlhxjMQf7jpi
-         Xoza+Iasj80cJY3HPvluXA8v+loAh6A3TNd4t91mRGI3dlWb/pR4bBHDiDiE9F1zm0sm
-         CwKFdPCoOt50f67OEw7KjlzD7uh5K4zJlxaECH515hbUv4EbSklGZqqoFte0zPFhG05D
-         6e7w==
-X-Gm-Message-State: AOAM533QkauqqFKB8gWLPavflcvJcHCYA+fdVQzUXoaL2FvcfTEP4Tur
-        Cl8gM8xvT+Ett1hJcNWuY18mNcY0DVbmg/L1e+aWgiqBGw==
-X-Google-Smtp-Source: ABdhPJxUyU6sC+h0LAETrNH+jNtY+YRCxPkRx3bOYt3Yzc+WCQU9bIqUq+rDVETFkgiyvL+1qgng1T9IvFt7Xd6PK1E=
-X-Received: by 2002:aa7:c353:: with SMTP id j19mr6140495edr.128.1596750561128;
- Thu, 06 Aug 2020 14:49:21 -0700 (PDT)
-MIME-Version: 1.0
-References: <159650470076.8961.12721446818345626943.stgit@sifl>
- <159650482872.8961.7516871249534865160.stgit@sifl> <837e782ff80f69e8e4d44bc49ff2ced54b0aef2c.camel@btinternet.com>
- <CAHC9VhR5ik=yk5Oo=n_B3JhKyJuBVaSa5rUNsPdHMtH78b83mw@mail.gmail.com> <14cc38f023a913d7be8d452c63e6bb3ee8916422.camel@btinternet.com>
-In-Reply-To: <14cc38f023a913d7be8d452c63e6bb3ee8916422.camel@btinternet.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Thu, 6 Aug 2020 17:49:09 -0400
-Message-ID: <CAHC9VhTOLXEO61C9_O5YbNVSfp75h7ROiYd=FwF6pxWuib8vvg@mail.gmail.com>
-Subject: Re: [RFC,selinux-notebook PATCH 05/18] xperm_rules: fully convert to markdown
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     selinux@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        id S1726013AbgHFWAI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Aug 2020 18:00:08 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:4596 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725817AbgHFWAI (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Aug 2020 18:00:08 -0400
+Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 076LqDi5131695;
+        Thu, 6 Aug 2020 17:59:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=cxTZzcb4aMf7WDm8Yvfasmnlo1/3FhGlzPTgL7YlmKQ=;
+ b=o/dd2D3fn8snErUYFYK/U7j4E1/t8rQMpVd3xFKd6KrsGskjDKFdUD3LkHN53ADD+VnD
+ dZu3aybdwPpgmRihyYL+6ywq0JpVZCZZMEYSxTgz4hk1vGhBt95YDoH+FqKLkMkwn8tm
+ MhFVscsjgcMtSYBJj2ArF0dPEmV0rCVGbI/LkG7q8j2EBNlnx2gDL9DinKDBw/76sFFV
+ P2NiFNTGuPxhehPsFXTP6alURkslAn9gMLbGz1VKWKMaZj8Y5nFXfRzbaZ1CIf9t0NJO
+ js95XVm08yi1BvS/gpuuvavquEclE3ylnXuoN7tmx+lxtDOJ2J24zpPqeyvcmqDDvWep Lg== 
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 32rntyeq7e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Aug 2020 17:59:59 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 076LjouV026006;
+        Thu, 6 Aug 2020 21:59:56 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 32n018bkby-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 06 Aug 2020 21:59:56 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 076LxrEC29295026
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 6 Aug 2020 21:59:53 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id A80035204E;
+        Thu,  6 Aug 2020 21:59:53 +0000 (GMT)
+Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.117.136])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id 8B43552051;
+        Thu,  6 Aug 2020 21:59:50 +0000 (GMT)
+Message-ID: <cd7e4fdabf563792d31bbcb8f6df6483570e7221.camel@linux.ibm.com>
+Subject: Re: [PATCH v4 09/17] LSM: Introduce kernel_post_load_data() hook
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Kees Cook <keescook@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Scott Branden <scott.branden@broadcom.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Takashi Iwai <tiwai@suse.de>, Jessica Yu <jeyu@kernel.org>,
+        SeongJae Park <sjpark@amazon.de>,
+        KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
+Date:   Thu, 06 Aug 2020 17:59:46 -0400
+In-Reply-To: <20200729175845.1745471-10-keescook@chromium.org>
+References: <20200729175845.1745471-1-keescook@chromium.org>
+         <20200729175845.1745471-10-keescook@chromium.org>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
+ definitions=2020-08-06_17:2020-08-06,2020-08-06 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
+ priorityscore=1501 spamscore=0 mlxlogscore=999 malwarescore=0
+ suspectscore=0 bulkscore=0 lowpriorityscore=0 phishscore=0 impostorscore=0
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2006250000 definitions=main-2008060141
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 6, 2020 at 6:07 AM Richard Haines
-<richard_c_haines@btinternet.com> wrote:
-> On Wed, 2020-08-05 at 22:34 -0400, Paul Moore wrote:
-> > On Tue, Aug 4, 2020 at 12:14 PM Richard Haines
-> > <richard_c_haines@btinternet.com> wrote:
-> > > On Mon, 2020-08-03 at 21:33 -0400, Paul Moore wrote:
-> >
-> > ...
-> >
-> > > > +*rule_name*
-> > > > +
-> > > > +The applicable *allowxperm*, *dontauditxperm*, *auditallowxperm*
-> > > > +or *neverallowxperm* rule keyword.
-> > > > +
-> > > > +*source_type*
-> > > > +
-> > > > +One or more source / target *type*, *typealias* or *attribute*
-> > > > identifiers.
-> > > > +Multiple entries consist of a space separated list enclosed in
-> > > > braces \'{}\'.
-> > > > +Entries can be excluded from the list by using the negative
-> > > > operator
-> > > > \'-\'.
-> > > > +
-> > > > +*target_type*
-> > > > +
-> > > > +The target_type can have the *self* keyword instead of *type*,
-> > > > *typealias* or
-> > > > +*attribute* identifiers. This means that the *target_type* is
-> > > > the
-> > > > same as the
-> > > > +*source_type*.
-> > > > +
-> > > > +*class*
-> > > > +
-> > > > +One or more object classes. Multiple entries consist of a space
-> > > > separated list
-> > > > +enclosed in braces \'{}\'.
-> > >
-> > > I've had a rethink on this and wonder if it would be clearer if the
-> > > descriptions were a bullet list:
-> > >
-> > > *class*
-> > >
-> > > - One or more object classes. Multiple ...
-> >
-> > Ooops.  I forgot about this comment in my inbox when I merged the
-> > patchset; although I guess even if we go with the bulleted list
-> > having
-> > the table in markdown first should make this easier.
-> >
-> > I guess we could give it a try and see how it looks?  My only concern
-> > is that sometimes a list with only one item can look a bit "off".  Or
-> > an I misunderstanding what you are proposing?
->
-> I've posted the SE Android section as an RFC patch that converts HTML
-> tables to lists. See what you think.
+On Wed, 2020-07-29 at 10:58 -0700, Kees Cook wrote:
+> There are a few places in the kernel where LSMs would like to have
+> visibility into the contents of a kernel buffer that has been loaded or
+> read. While security_kernel_post_read_file() (which includes the
+> buffer) exists as a pairing for security_kernel_read_file(), no such
+> hook exists to pair with security_kernel_load_data().
+> 
+> Earlier proposals for just using security_kernel_post_read_file() with a
+> NULL file argument were rejected (i.e. "file" should always be valid for
+> the security_..._file hooks, but it appears at least one case was
+> left in the kernel during earlier refactoring. (This will be fixed in
+> a subsequent patch.)
+> 
+> Since not all cases of security_kernel_load_data() can have a single
+> contiguous buffer made available to the LSM hook (e.g. kexec image
+> segments are separately loaded), there needs to be a way for the LSM to
+> reason about its expectations of the hook coverage. In order to handle
+> this, add a "contents" argument to the "kernel_load_data" hook that
+> indicates if the newly added "kernel_post_load_data" hook will be called
+> with the full contents once loaded. That way, LSMs requiring full contents
+> can choose to unilaterally reject "kernel_load_data" with contents=false
+> (which is effectively the existing hook coverage), but when contents=true
+> they can allow it and later evaluate the "kernel_post_load_data" hook
+> once the buffer is loaded.
+> 
+> With this change, LSMs can gain coverage over non-file-backed data loads
+> (e.g. init_module(2) and firmware userspace helper), which will happen
+> in subsequent patches.
+> 
+> Additionally prepare IMA to start processing these cases.
+> 
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Okay, I'll take a look.  I'm inclined to merge it regardless just
-because it does the HTML->MD conversion.  Once we get it fully into
-markdown, especially the tables, it should be easier to edit for
-consistency, style, etc.
+Thanks, Kees.   Other than a missing "name" field, it looks good.
 
-> I sent the Reference Policy updates yesterday but it never made it to
-> the list as I didn't realise it was over 100K, still I guess you had
-> your copy.
+The security_kernel_post_load_data hook may be used to verify appended
+signatures and to measure the buffer data.  Passing the kernel module
+(load_info.name) and firmware (fw_name) names is critical at least for
+IMA-measurement.
 
-Yes, I just ran out of energy last night when I was working my way
-through the other patches.  Hopefully I'll get through the rest
-today/tomorrow.
+thanks,
 
--- 
-paul moore
-www.paul-moore.com
+Mimi
+
