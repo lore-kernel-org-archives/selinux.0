@@ -2,110 +2,106 @@ Return-Path: <SRS0=J0Ra=BR=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8CC8C433DF
-	for <selinux@archiver.kernel.org>; Fri,  7 Aug 2020 00:24:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2A40C433E0
+	for <selinux@archiver.kernel.org>; Fri,  7 Aug 2020 02:23:12 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id DDC5220855
-	for <selinux@archiver.kernel.org>; Fri,  7 Aug 2020 00:24:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A5C7622CF7
+	for <selinux@archiver.kernel.org>; Fri,  7 Aug 2020 02:23:12 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="osQlR8ck"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="xkKdSxZ/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726388AbgHGAYN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 6 Aug 2020 20:24:13 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:10680 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725998AbgHGAYJ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 6 Aug 2020 20:24:09 -0400
-Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 077038jc175593;
-        Thu, 6 Aug 2020 20:24:00 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=VsXvvS8VKmxXDht3q36Bubq+Zar3OcXZnhZAUZMQcnY=;
- b=osQlR8ck1rT5G162TuDnpSNrxODRJG3dxpkrNZqQCF2Cdp6JuubIveeoPTy+njFJIIe2
- D3MnSivYKh0I7ddKP5/HThN1K6l1LBTV37g0Nd9xv34NNSj2oHOPAnv4k2FSMck0UGG7
- Ro+ZwjFZYrRiTK0BDmljRTm1B3xzO00Ceu0PoXfamHku+958QyF+MTyLzsWUgvdJk7t3
- FmajTb+ccilDljclikn5Bm8ybta2w/Zx7xXKYHR2bswT72i1k9FkUGXsFQolYrk2gAEW
- ltYbBrvJSVQ0yEO8zoDDiYosFvmdbWSzy+F6beREbwYkci4JLqcbiz4vwt1OkMUT+Xm+ UQ== 
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 32rgnfn7rt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 06 Aug 2020 20:24:00 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
-        by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 0770Jqde005199;
-        Fri, 7 Aug 2020 00:23:58 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
-        by ppma04ams.nl.ibm.com with ESMTP id 32n0185yyw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 07 Aug 2020 00:23:58 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 0770NuNi28246380
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 7 Aug 2020 00:23:56 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id F04DB4C04E;
-        Fri,  7 Aug 2020 00:23:55 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1B2EB4C046;
-        Fri,  7 Aug 2020 00:23:53 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.117.136])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Fri,  7 Aug 2020 00:23:52 +0000 (GMT)
-Message-ID: <1cdddf80e0b1ea46346edf8a1c0dc81aea095f15.camel@linux.ibm.com>
-Subject: Re: [PATCH v4 12/17] LSM: Add "contents" flag to kernel_read_file
- hook
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Kees Cook <keescook@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Scott Branden <scott.branden@broadcom.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Takashi Iwai <tiwai@suse.de>, Jessica Yu <jeyu@kernel.org>,
-        SeongJae Park <sjpark@amazon.de>,
-        KP Singh <kpsingh@chromium.org>, linux-efi@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Thu, 06 Aug 2020 20:23:51 -0400
-In-Reply-To: <20200729175845.1745471-13-keescook@chromium.org>
-References: <20200729175845.1745471-1-keescook@chromium.org>
-         <20200729175845.1745471-13-keescook@chromium.org>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-06_17:2020-08-06,2020-08-06 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
- priorityscore=1501 mlxlogscore=999 malwarescore=0 adultscore=0 mlxscore=0
- phishscore=0 suspectscore=0 clxscore=1015 impostorscore=0 bulkscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008060156
+        id S1726446AbgHGCXM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 6 Aug 2020 22:23:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46888 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726207AbgHGCXL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 6 Aug 2020 22:23:11 -0400
+Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AC89C061575
+        for <selinux@vger.kernel.org>; Thu,  6 Aug 2020 19:23:09 -0700 (PDT)
+Received: by mail-ej1-x643.google.com with SMTP id bo3so427602ejb.11
+        for <selinux@vger.kernel.org>; Thu, 06 Aug 2020 19:23:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=jgzNrADqzmOr0n80iYHzzjjMlgmpS1/Gs1L13/e0S0M=;
+        b=xkKdSxZ/YeWppyWC41wNCev1Hlc6V2GbZYCKi04KJcQA2xlABK3jHBb55CII9kdLkB
+         lwF1l3xjePmejor8JDViPAKMSYmfJMazdFURokNdeblwnOFelt6FAryAvZJTOK7Q2Q+i
+         ikXRvpcROlw8/3BPTvfNY5bxBxFFKitUKLwSaO/T+JWGgWRMPTDdN05VVUKwWwNAs2yt
+         1Ai2iIjmlYVGcqW+qIQJmPNFXQCdUkkkg9yLsCXbpu5pmTHrpT9tK7B6Yx/ePXOKdzr2
+         9w9o0QIyPj/0KBojAGRrVEdVdSeDo5sJRbJlQg8JOiZUUeOQJTK0TDXDx+S4PSbT3tpS
+         sYVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=jgzNrADqzmOr0n80iYHzzjjMlgmpS1/Gs1L13/e0S0M=;
+        b=jbPXzQjbl2DiqQA4STQNq5nTsz4QTgqBqEeqHvPLEWMQblUpbNZ3ip8drnwouGI2KD
+         fzD7WKtC8DhPXNQ+7wzlVGRnuBtwv/C7i3Acbm6F6S/Vprutw2UJHwxYxzoPKJV3qL1Z
+         TNvTHG1qyfmLjxUcnIlIUCBGXViO6mNM7Vm0W85AtSq3EBQfICCiBpW3Mf9n/AOKdptB
+         jymRQsjthBXdkHgZim5/RQ+QmG/6KqpNWDk6y/ZD4eU+2Go2qGnBcjs6fc+BOqtIWMPg
+         CfhXmt9Pgme7JmmZwBvdyzBI7dOQ+7DzqFz+WOzsPhlAtKcjHFXP0QrcZcEvdAUN6o7N
+         s/Vw==
+X-Gm-Message-State: AOAM530Z0y5dR8MEXijmnVbrDpB4nvF3Doy59xPTQVdfQqZYg2Gjr8DF
+        0Rp2m43jvt/7b3sIUb9IyfSgguzwzIB/njpLflbG
+X-Google-Smtp-Source: ABdhPJxYMiDo8RtvN3CXEECww50UvDjUBbfOPaqI3Inev+STXp5CcSBgW3wJZjTdxBDyskuyHGC2ibHVKOcefgjLOOI=
+X-Received: by 2002:a17:906:7c86:: with SMTP id w6mr7106172ejo.178.1596766988566;
+ Thu, 06 Aug 2020 19:23:08 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200806080358.3124505-1-tweek@google.com> <20200806080358.3124505-2-tweek@google.com>
+ <89d23362-39b9-79e5-84f1-d7b89204ef38@gmail.com> <8627d780-0e19-6755-0de5-c686deb0f5de@sony.com>
+ <971592b6-5d5f-05d8-d243-b521fe65577d@gmail.com> <20200806123748.2285944b@oasis.local.home>
+In-Reply-To: <20200806123748.2285944b@oasis.local.home>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 6 Aug 2020 22:22:57 -0400
+Message-ID: <CAHC9VhQ5AK_16EeCLqDJO3iCscMMKWYqVZbbj-MtpXfqoEpc5A@mail.gmail.com>
+Subject: Re: [PATCH 2/2] selinux: add attributes to avc tracepoint
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        peter enderborg <peter.enderborg@sony.com>,
+        =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
+        Nick Kralevich <nnk@google.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        linux-kernel@vger.kernel.org, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 2020-07-29 at 10:58 -0700, Kees Cook wrote:
-> As with the kernel_load_data LSM hook, add a "contents" flag to the
-> kernel_read_file LSM hook that indicates whether the LSM can expect
-> a matching call to the kernel_post_read_file LSM hook with the full
-> contents of the file. With the coming addition of partial file read
-> support for kernel_read_file*() API, the LSM will no longer be able
-> to always see the entire contents of a file during the read calls.
-> 
-> For cases where the LSM must read examine the complete file contents,
-> it will need to do so on its own every time the kernel_read_file
-> hook is called with contents=false (or reject such cases). Adjust all
-> existing LSMs to retain existing behavior.
-> 
-> Signed-off-by: Kees Cook <keescook@chromium.org>
+On Thu, Aug 6, 2020 at 12:37 PM Steven Rostedt <rostedt@goodmis.org> wrote:
+> On Thu, 6 Aug 2020 08:32:38 -0400
+> Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
+> > >
+> > > In the commit message or in a Documentation/trace/events-avc.rst ?
+> >
+> > I was just asking for it in the commit message / patch description.  I
+> > don't know what is typical for Documentation/trace.
+>
+> No, the Documentation/trace is for generic tracing documentation. Not
+> for individual events.
 
-Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
+As I've said many times in the past, I've never rejected a patch
+because the patch description was too verbose, but I have rejected
+patches where the description hasn't provided enough useful
+information.
 
+I would really like to see the commit description show an example
+where you setup/load/etc. the event into the kernel, trigger and
+capture the event information, and then show how the event output can
+be parsed/processed into something meaningful by a user.  I'm
+essentially looking for a "hello world" version of the SELinux
+tracepoint, does that make sense?
+
+-- 
+paul moore
+www.paul-moore.com
