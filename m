@@ -7,64 +7,64 @@ X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31E67C433E0
-	for <selinux@archiver.kernel.org>; Fri,  7 Aug 2020 16:43:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FBC2C433DF
+	for <selinux@archiver.kernel.org>; Fri,  7 Aug 2020 16:43:15 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0BDCA22CA1
-	for <selinux@archiver.kernel.org>; Fri,  7 Aug 2020 16:43:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6CBC220748
+	for <selinux@archiver.kernel.org>; Fri,  7 Aug 2020 16:43:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HgQSi98j"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lXNPN7eF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726030AbgHGQnB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 7 Aug 2020 12:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37746 "EHLO
+        id S1726038AbgHGQnO (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 7 Aug 2020 12:43:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726015AbgHGQnB (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 7 Aug 2020 12:43:01 -0400
+        with ESMTP id S1726015AbgHGQnO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 7 Aug 2020 12:43:14 -0400
 Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D1B7C061756
-        for <selinux@vger.kernel.org>; Fri,  7 Aug 2020 09:43:01 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id u24so2452888oiv.7
-        for <selinux@vger.kernel.org>; Fri, 07 Aug 2020 09:43:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7887C061756
+        for <selinux@vger.kernel.org>; Fri,  7 Aug 2020 09:43:13 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id v13so2425893oiv.13
+        for <selinux@vger.kernel.org>; Fri, 07 Aug 2020 09:43:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Cmg4wl4/usU4jbnVNhIeTUafGKZkRLXEZk0K1yTCcjY=;
-        b=HgQSi98jzqYjA+5jMWfD4yBU9PlyF2nXD55MUx8T6s2QrSK2kmNM+cSBoCr6DIhFCS
-         SCxpFYneUxzmmP5zIwR3yXfbOlCvKlxoBOSSlxW54fDFbZ/Aq7+Gu9h6yTzvrswLJCQf
-         1TsBhIHfEQNpC1euYmfe6cVrUKPmpqnQZilvTxlSY2HFNvhjyGMGnsYY+6XNOKuLAZVb
-         FboB71aTnLQUqxx8P2o3wFulKyqHmrXAWdX0zqCoE4E4xZF6LQqYD5m5IYZxTLqV4JeN
-         9OPNNe0goE0NMsTsUXrkEidLEF1RILsyFgTeTK1p03ushzzVXa/CILWfz1lmYSYELxsi
-         vQZA==
+        bh=/xsKu1tlzkOfkI9dwP/8fiqkCcGKK8sD3mzqMA1V84k=;
+        b=lXNPN7eF66p1u+hzxwMcKTpCIVebV+wIpSZK8VMDdsYFl0o3ob8e90AFD30cVM3rmT
+         4GVVPBGrJWOtfZoKXiuMkXfkhPvjXTTzRufDAn0qPYpVhim9ECutMH9OZoLheVGiDY9s
+         GnaEDvnyFKo0noBBorThO6wA6R9wNUrPOAwPKqI9fkeA0A7llBCDOb9Iqh3PQwkvmqE9
+         HMNJXnuZIqAocJMEjWN0MfJDOybmtzgm1hyt5CXho5izJ/1Gbsy9fjJd22Xi91FZ+Aj5
+         WvzwVinlLmcvmwqgf/t+/a9Bq6KJ+2TuTJIeWDL/TLmFNoHO3JBBPDePxFA5uUoda7lo
+         Kg0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Cmg4wl4/usU4jbnVNhIeTUafGKZkRLXEZk0K1yTCcjY=;
-        b=VKHTbAdjK5+ewT86ms8NmMKWgpy5vB3MaKBAdg0OsJPjhEqku1XOjGvyRPkHcAcMj2
-         raM3M7k/O136M4GcMy61h35+I191aWlVRlrhrNFY13/DJhbbZDvlUeonATenJFT31GML
-         ETzK0QsHhYJePj1umfEmJw+m+eFPxZG06fxmbb0NKQQcJ5VUkvK8+3/q+jN50JZDitqG
-         LQXtBSdp+mgiY2DQD3sKdrrJ8OMgfy/3suyoo+PntSTUgIZmkso6MnE1RflCgMLI5aoJ
-         15yT5TsgGSEKMp1BQ/g7Cn5TIOI3rv8cA/Z84h1WW1GKDNMVFyxvbTZjdmlaG60Nu9pl
-         559g==
-X-Gm-Message-State: AOAM532sbh+kgT40xPmMRoE2nNPlKRX+JEyMKs2ml9g65eeQnwWWkCy9
-        YHUGd8FThNqdtFpUbwbiBlcmKXxvpT7tolOjScl5dA==
-X-Google-Smtp-Source: ABdhPJylXms3+wD2BGQq4vJL8C9pS80hmrKI3DQz3geCXRkcmjK5UHMC9qPAJ/Ep+948JSMMaSvMGf6rmOIIxcr3tU8=
-X-Received: by 2002:aca:cd05:: with SMTP id d5mr11423128oig.138.1596818580395;
- Fri, 07 Aug 2020 09:43:00 -0700 (PDT)
+        bh=/xsKu1tlzkOfkI9dwP/8fiqkCcGKK8sD3mzqMA1V84k=;
+        b=X1ICvb/N3w4WwYFM3KeS0HxwS2O9tklTPO5cc7nN/VFiUJNMAj1NNIJGksschmxqV6
+         5gKXH6Dg2AGSZKizXJVPdmEeL3UKWf1YYK8/TWiN7wpafaI+6mNSucGLk9CinNRuWcVW
+         s5Al4ASt0X8A/DYy0InbTKRqmfcrjgZblV6pdFgkxkt8rmt1TEczOiUz4wnXuMErCiao
+         fjJmms7AF+ddQRLn/wufMfVhPIQZR/Nh1mw8KrOL8DcpitnUr2ypTiQTksbaCfglsNX1
+         SK02N59D3M+O6A6q3IXAaHfR18Oq3Ous8iiMhOTGePT0L4vgAF+pWeWe675G2Cx6qdO3
+         /TIg==
+X-Gm-Message-State: AOAM5330r+fWZaOFcFSBYCYXf3XuXJQUpTVRyGJT1NBn9NTSjI0zOUWk
+        kXugGz4mE1y6mEuBKzdnggYyYV6hlvwti6FcMkc=
+X-Google-Smtp-Source: ABdhPJz7R1j7K23YHsp02XyQcYOGX+LUXjmZ01W26987mvmGtpooRqhRCdAJ4QUNoHBFdN4KSPi+cDfY2wQ8+jMq/28=
+X-Received: by 2002:a05:6808:1d9:: with SMTP id x25mr11649772oic.92.1596818593308;
+ Fri, 07 Aug 2020 09:43:13 -0700 (PDT)
 MIME-Version: 1.0
 References: <20200807144025.11668-1-richard_c_haines@btinternet.com>
  <80e38828-1473-5bc5-1b23-067cd242125a@gmail.com> <ypjl364y8msx.fsf@defensec.nl>
  <CAEjxPJ6kkZ2uHeO=6ozisBdcYoK_bzTP2-zRFFug8Sq+r+5Ypw@mail.gmail.com>
 In-Reply-To: <CAEjxPJ6kkZ2uHeO=6ozisBdcYoK_bzTP2-zRFFug8Sq+r+5Ypw@mail.gmail.com>
-From:   James Carter <jwcart2@gmail.com>
-Date:   Fri, 7 Aug 2020 12:42:49 -0400
-Message-ID: <CAP+JOzRqGqu+a6Ja03PK4ZvcgiMYS2Tc66ud=Kt-jP=vWKJ4SQ@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Fri, 7 Aug 2020 12:43:02 -0400
+Message-ID: <CAEjxPJ58VAODF5MHNREBVSMFrOWJ61-HAE0apo4OrBw_Ve1uwQ@mail.gmail.com>
 Subject: Re: [RFC PATCH] selinux-notebook: mls_mcs.md convert and update text
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Dominick Grift <dominick.grift@defensec.nl>,
-        Richard Haines <richard_c_haines@btinternet.com>,
+To:     Dominick Grift <dominick.grift@defensec.nl>,
+        James Carter <jwcart2@gmail.com>
+Cc:     Richard Haines <richard_c_haines@btinternet.com>,
         Paul Moore <paul@paul-moore.com>,
         SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -140,7 +140,5 @@ On Fri, Aug 7, 2020 at 12:39 PM Stephen Smalley
 > comparisons between two category sets.  So there is no hierarchy.  If
 > CIL defines a categoryorder, then that's unnecessary.
 
-CIL has a category order statement only so that it can handle category
-ranges. It is not a hierarchy.
-
-Jim
+Oh, I see; it is to allow validation of e.g. cN.cM notation.
+So that's a comparison within a context, not between two different contexts.
