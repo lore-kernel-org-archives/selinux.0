@@ -2,112 +2,125 @@ Return-Path: <SRS0=GpsN=BV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-12.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06CE7C433E0
-	for <selinux@archiver.kernel.org>; Tue, 11 Aug 2020 15:11:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3433EC433DF
+	for <selinux@archiver.kernel.org>; Tue, 11 Aug 2020 15:18:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D281020782
-	for <selinux@archiver.kernel.org>; Tue, 11 Aug 2020 15:11:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12E46206C3
+	for <selinux@archiver.kernel.org>; Tue, 11 Aug 2020 15:18:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="UiIA1LTW"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="EkMFv/Sf"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728800AbgHKPLB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Aug 2020 11:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57234 "EHLO
+        id S1728851AbgHKPSS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Aug 2020 11:18:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728721AbgHKPLA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Aug 2020 11:11:00 -0400
-Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68E7AC06174A
-        for <selinux@vger.kernel.org>; Tue, 11 Aug 2020 08:11:00 -0700 (PDT)
-Received: by mail-ed1-x542.google.com with SMTP id i26so9352240edv.4
-        for <selinux@vger.kernel.org>; Tue, 11 Aug 2020 08:11:00 -0700 (PDT)
+        with ESMTP id S1728833AbgHKPSR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Aug 2020 11:18:17 -0400
+Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72C5EC06174A
+        for <selinux@vger.kernel.org>; Tue, 11 Aug 2020 08:18:17 -0700 (PDT)
+Received: by mail-ed1-x543.google.com with SMTP id cq28so9189676edb.10
+        for <selinux@vger.kernel.org>; Tue, 11 Aug 2020 08:18:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=hfNA9mqRQlBdBk2TrEoX0EK6Rg6pvmbnftsvcBqKZwc=;
-        b=UiIA1LTWBrAtLx5t9OZgP70FhaeU886O0ziaTOQyZ/xS8yc/989icHhwspxrIWQ2Ee
-         a/Tz22JcxrsKOrKB6e81oo9I8wxQrJtxzje/jNaOo6TaKnv5fNxyu5b0EtZQ/SvxlBS+
-         tJardncKDXCe4a2mpNtQfy9Z+/hP1nGPOoR0AJoOjs4YoF4hiFl9H3oIOGOdpOj+DFLR
-         uRTwiZcMruz0ta0BNnC3unwMHTLgpHdZSbm3plcRa8gAoRl3IDTC0gcrA//20wScWr19
-         kFA/V8z4RNBpUDt3rNHD1yjq+J/shqOyQlDzLpYgxQUzVAvS22WhMSvzF8MmS440HiAV
-         1nhQ==
+        bh=6FV1NDsedqzs6/2H9GHq4LXSxZuufoe4Jy+m4Q3l1nI=;
+        b=EkMFv/Sf0JqKcirGXqYVrknDurTlsgBIwLmuQg8fqvjQBxN9CVj0+npDX7qUgVYiGG
+         06vHHvk2jVzlfbE1vaFYhz4ug1HFWixPFFkkdPgsdxVlcMj67nS+Qt1ft69kOCLjLibH
+         1phRFBssNAPJSEtx7bJcomEPRtOOKA2ZOQ9d6WwOJKd0ndcQRMOoHsCxQGiMJph+ZIm2
+         2fR8L9+G/AOy1Oata69jYD5llKcKhbSakF7o6gb2zPMK4uq8DCUaEaJBWxmXMM1V6Mz/
+         qaegrmBtgGp0z12h+UtVQb4tT3BPA22SIq8PaEbil/0yp+gfqC2zUfgVySq0mRjkUAaz
+         MvwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=hfNA9mqRQlBdBk2TrEoX0EK6Rg6pvmbnftsvcBqKZwc=;
-        b=LJ8+0+k2RPbi4M2i9/+xottGAS3l48gCnCZPpTRKWSfc2qinn6C/D18n5ajSqsqmvd
-         6UawetKpF57Tca1DXdE/EE+d4BgGsEIRBu2/O33J2Tgcrj6Tn9BwEXxqhKCORs4aPLrl
-         fF5xTi1GcBBWrbzlgIqvKyXUMn4ZPnNqeoIhTbT38EGFd6EqS9zb9bz9kdnUoK8f9/nS
-         AqbojjZQNyLcCIvbIEIvztQ9DudqDE0bT92tmvqYZuVYwdL4vVA18PZfVqQbirrM0SdU
-         xtr86Pm2IgSG6UA+ZejAVH6f5+BxztvPDZ3qakacFmrEVCi7JNZwOGfCSBCS1hGwD1Nt
-         g4Zw==
-X-Gm-Message-State: AOAM533zur6STxo6WsysWhsEmxpcpExVzTC0oOmPEWyLSSRdvAwP8MPb
-        4xGUdh7uhMM//ra3/oEqN/ZEBfm3gvCLdrYeOjZL
-X-Google-Smtp-Source: ABdhPJxgFHdCTvMu25T8nEOM7TdQSDuibeEnpaK/F5/f27i17Cjik7k18AdlbaM/75pNDWtlDIBfXJEyv2JmGk1hICQ=
-X-Received: by 2002:a05:6402:403:: with SMTP id q3mr25549944edv.12.1597158658893;
- Tue, 11 Aug 2020 08:10:58 -0700 (PDT)
+        bh=6FV1NDsedqzs6/2H9GHq4LXSxZuufoe4Jy+m4Q3l1nI=;
+        b=YnYWz7oSBBCgz7IedmL86TFaRf7pcPVR7z+8oQ37C8zxs0UKp9VY4U/Gry9w/xGyZe
+         ho7VLYyepVcBFh08HWsUJImHb1nSu2INO3tr1pGscXN75w+Kv8Rv8S+xgBCNHAacYOHk
+         7hCZFpo2ehoj1+JInyY8nP0rgtMR3mawRVyyCt5CJZBg2O4peIvHB7auwRa+cAKYZtVJ
+         fOcsZ/buWigHeVOw/Me4a1LmeDRFX2+6e0KEwkxjW+GjEXZtmPP4ItG+s+0tED+RGLsP
+         s+oZZMsv1Dw7pvBzhgcCUhc58Wwr67Tyhyx4yUTm5t5CE3jVnFEbQCfuyvskgskvUq/p
+         +8BA==
+X-Gm-Message-State: AOAM531wEml6T72Hpm9ISUnxlELogRsyF0gkjcOoriWGMnvwlsG0PX1p
+        4VHcHXiN/YCMobBb+TNN2QA5JSS/pEuJ6qQF1DNJ
+X-Google-Smtp-Source: ABdhPJyz/ydk1N5h/pW7iE1pa8tQZikMUQlrjxtEf6IvBEDjzkZsWOTLcfV1XHxeZEROfPOXfnvtX22Gz4ZuvJOidSw=
+X-Received: by 2002:a50:93c5:: with SMTP id o63mr26175207eda.31.1597159096019;
+ Tue, 11 Aug 2020 08:18:16 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200811084555.105374-1-omosnace@redhat.com> <20200811084555.105374-2-omosnace@redhat.com>
- <CAFqZXNsZU+uwnF2zu+cQSV5jzvDsx_u_FFcWWOx6YW0we583MA@mail.gmail.com>
-In-Reply-To: <CAFqZXNsZU+uwnF2zu+cQSV5jzvDsx_u_FFcWWOx6YW0we583MA@mail.gmail.com>
+References: <20200807132640.1787455-1-omosnace@redhat.com> <CAEjxPJ6ZOLTG91DzMCw3iat=p=Y0K0So7Yg7zeUnYdivuDAk=Q@mail.gmail.com>
+ <CAFqZXNtogqZXMEcLqA=ci7oiVSYvp0QNvq40zmBJ39B7XpgVHA@mail.gmail.com>
+In-Reply-To: <CAFqZXNtogqZXMEcLqA=ci7oiVSYvp0QNvq40zmBJ39B7XpgVHA@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 11 Aug 2020 11:10:47 -0400
-Message-ID: <CAHC9VhTGHgZu4pcAVVOUGX4yegyD8uNg85UrjG8Jtzc4=AsDVQ@mail.gmail.com>
-Subject: Re: [PATCH testsuite v2 1/2] README: add perl-lib as a dependency
+Date:   Tue, 11 Aug 2020 11:18:04 -0400
+Message-ID: <CAHC9VhRs5adeioQuacWkkPZyWh=k2NgUpLWyGhGWoq8+3k6ySw@mail.gmail.com>
+Subject: Re: [PATCH testsuite] travis: run the full testsuite on a Fedora VM
 To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 11, 2020 at 5:05 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Tue, Aug 11, 2020 at 10:45 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > The `lib` perl module has been split out of the `perl-interpreter`
-> > package in Fedora 33 into `perl-lib`. It is needed for the filesystem
-> > tests. Add it to the dependencies.
+On Tue, Aug 11, 2020 at 4:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Fri, Aug 7, 2020 at 3:42 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Fri, Aug 7, 2020 at 9:27 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > >
+> > > This patch removes the old hackery to test-build the testsuite and
+> > > replaces it with scripts that run the full testsuite on a Fedora VM. The
+> > > scripts are based on William Roberts' work on SELinux userspace CI [1],
+> > > which does a similar thing.
+> > >
+> > > The CI currently uses a F32 VM image which comes with a 5.6.6 kernel.
+> > > Eventually we might want to run on a more recent kernel/userspace, but
+> > > even this is already a big improvement over the old CI approach.
+> > >
+> > > One downside is that with this patch we lose the test build against
+> > > refpolicy, but it shouldn't be too hard to add testing on a Debian VM
+> > > with refpolicy later on.
+> > >
+> > > [1] https://github.com/SELinuxProject/selinux/commit/562d6d15272420542bf65da328bc5300219fce76
+> > >
+> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > >
-> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > ---
-> >  README.md | 2 ++
-> >  1 file changed, 2 insertions(+)
-> >
-> > diff --git a/README.md b/README.md
-> > index ff0a0dc..bfd5b17 100644
-> > --- a/README.md
-> > +++ b/README.md
-> > @@ -45,6 +45,7 @@ similar dependencies):
-> >  * perl-Test  _(test harness used by the testsuite)_
-> >  * perl-Test-Harness _(test harness used by the testsuite)_
-> >  * perl-Test-Simple _(for `Test::More`)_
-> > +* perl-lib _(for `lib`; split out from `perl-interpreter` since Fedora 33)_
-> >  * selinux-policy-devel _(to build the test policy)_
-> >  * gcc _(to build the test programs)_
-> >  * libselinux-devel _(to build some of the test programs)_
-> > @@ -65,6 +66,7 @@ following command:
-> >         # dnf install perl-Test \
-> >                 perl-Test-Harness \
-> >                 perl-Test-Simple \
-> > +               perl-lib \
+> > Sounds good to me.  Only question I have is whether it would be
+> > possible to use a Fedora rawhide VM instead of a fixed version like
+> > 32?
+> > I understand that may have some stability issues but it would get us
+> > more recent kernel, userspace, and policy for testing.
 >
-> Note that this package doesn't exist on the earlier versions, so the
-> command will now work verbatim only on F33+... I'm not sure if we want
-> to add --skip-broken (might silently skip necessary packages in case
-> of dependency problems in the repos) or just leave it be.
+> I just posted a v2, which runs the testsuite on both:
+> https://lore.kernel.org/selinux/20200811084555.105374-1-omosnace@redhat.com/T/
 
-I agree that '--skip-broken' is probably not the best choice for the
-reasons you already mentioned.  I might suggest that if the package is
-not present in all of the supported versions of Fedora we should add a
-note to the README.md explaining that.  Once the older versions become
-unsupported the note can be removed.
+Thank you.  While Fedora, and RH, likely care most about the latest
+stable Fedora release, the Rawhide results are the most interesting
+from an upstream perspective.
+
+> > On the Debian side, I'd recommend Debian unstable which despite the
+> > name is more stable I think than rawhide and is what I've used for
+> > getting the testsuite up and running on Debian.  That exercises more
+> > of the tests than even Fedora rawhide does currently due to defining
+> > more classes/permissions.
+>
+> Yes, it would definitely improve coverage, but I'd rather pass that
+> baton to someone else at this point.
+
+I've mentioned this before and I feel like this is a good time to
+stress this point again - I think it is very important to work on
+becoming less Fedora/RH centric.  I recognize that this might be a bit
+of a learning curve for most of us as we try to get up to speed with
+different distros and packaging formats (the latter is a pain point
+I'm currently working through with Debian's dpkg), but I think this is
+an important part of helping to increase SELinux adoption.
 
 -- 
 paul moore
