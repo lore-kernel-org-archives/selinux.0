@@ -2,115 +2,108 @@ Return-Path: <SRS0=GpsN=BV=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EB2BC433DF
-	for <selinux@archiver.kernel.org>; Tue, 11 Aug 2020 09:05:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76F19C433E0
+	for <selinux@archiver.kernel.org>; Tue, 11 Aug 2020 12:14:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5C84E207DA
-	for <selinux@archiver.kernel.org>; Tue, 11 Aug 2020 09:05:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4C83D20756
+	for <selinux@archiver.kernel.org>; Tue, 11 Aug 2020 12:14:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CJgWT+aI"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ttMmwalL"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728358AbgHKJFa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 11 Aug 2020 05:05:30 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:22285 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728224AbgHKJF3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 11 Aug 2020 05:05:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597136727;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=E5eyLlH0SUgW3vGlfGBpsjZNRzVqbafQDRWUP8nf64c=;
-        b=CJgWT+aIvUgjsRGTnPZZUE4lL6neM+qtFRx8mDlOxF4ueMH8KJiMvGZwaL1ziJRiGwQGsq
-        EV5NXXwoaTnbLVK+gyL+VbT+6p1ECjTf8N5ja+y4EnxMpVPmL7osL8sIQxbS8BFpdFxKNW
-        905hS3QAGCFVBfNkboMI1rz5f6cLi3A=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-489-9PCMQqOBPsKRagrPZuoIFg-1; Tue, 11 Aug 2020 05:05:26 -0400
-X-MC-Unique: 9PCMQqOBPsKRagrPZuoIFg-1
-Received: by mail-lf1-f69.google.com with SMTP id w21so3904130lfk.1
-        for <selinux@vger.kernel.org>; Tue, 11 Aug 2020 02:05:25 -0700 (PDT)
+        id S1728423AbgHKMO0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 11 Aug 2020 08:14:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58156 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728638AbgHKMOF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 11 Aug 2020 08:14:05 -0400
+Received: from mail-oi1-x242.google.com (mail-oi1-x242.google.com [IPv6:2607:f8b0:4864:20::242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0C80C06174A
+        for <selinux@vger.kernel.org>; Tue, 11 Aug 2020 05:14:00 -0700 (PDT)
+Received: by mail-oi1-x242.google.com with SMTP id v13so11948046oiv.13
+        for <selinux@vger.kernel.org>; Tue, 11 Aug 2020 05:14:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
+        bh=sWx0NnJQKzWhF9k3rgLmpcvmNto/qq2ZDDcYSHYuaoQ=;
+        b=ttMmwalLquQLLVHtaxYZ7W9L11hep0I48ciRpUla7s9iPXbkcdVAk2W8iQHm7o3GeE
+         kHi5CagVCIF30vdixylNu5+0ris4wiMfjibksT/BMxquScQBhzNthLWpCxJcNvLe7Ssb
+         sglfay0Kbw5hJUsgOc0aZY9BBl+xhIiYuCiGYx4fCARedlBheCmIxC/rVS7ReWio35yr
+         8/pxxLrz039V2xYesXlQDHDx/ZdW6E5gM8885sbY+QEMYVzdOStU0TwFM4G88ih3Q38w
+         Nao+hmtdDLknTTVjAG4rrFvRIYD/322GkS9t+c4cwlxRBvu64eskFG8wLkLV5ngMSzDh
+         cNYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to;
-        bh=E5eyLlH0SUgW3vGlfGBpsjZNRzVqbafQDRWUP8nf64c=;
-        b=tLOXNNP9N02u15+2JF0Xj04gw3Hepn3aCNq15QuRWxL1Hxr3y9k0IhGM9i9qsXUemM
-         qvee+w1Qd9FoVputc3KvUbQyFpH8skg+yNRSlx8pPPmIocgs//J2V4hDD+TsbCo7NA4F
-         3dIeWgj7ud8yTakC9HogYtwmjLdaFd0TqxsOGmkWu35YAK+lIDhEikFqT43W2sve5Zg8
-         llFpDRmP7iwtAt50iUWD2vmmSLdugdWwRPguy4Ytns7S9yK88suS52nqs4L4/Tg07AyH
-         eFMNMh/ckwgiG1Y0Y77hV2fasA/RfdDZOPn4HZpjIU6T65T25YM3b76o5i9zOL5+zbHV
-         auuw==
-X-Gm-Message-State: AOAM532eyJt6GoZrk1yHTRpEr9KI9erm9Ee4gG1s5h3SbEytbt50vWqg
-        i87fJvOO48mTxYALBMAg2WgajAJeMCgB/WIFLe0kV3pJ5/VJuPrHgZUEdRBJO6BZduNaU+g437L
-        ilHb3pM+Z+c7gcWAYUZB4tm0xcRfUUY3+7w==
-X-Received: by 2002:a2e:86da:: with SMTP id n26mr2694222ljj.311.1597136724523;
-        Tue, 11 Aug 2020 02:05:24 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzPwLBIoGduzddOucFde4yP3SoO5Gb27ZU6UH3fMAbIspXKBOvcFZO7GePNfULiL6ieXwhu9z8L+FVDMjUfuFI=
-X-Received: by 2002:a2e:86da:: with SMTP id n26mr2694212ljj.311.1597136724272;
- Tue, 11 Aug 2020 02:05:24 -0700 (PDT)
+        bh=sWx0NnJQKzWhF9k3rgLmpcvmNto/qq2ZDDcYSHYuaoQ=;
+        b=LVHSpFZqKWx1pb9ScQVyNj9iBV6TMJ5METf6MZiXgao+L8JSce7upu5Y4as7jn2liE
+         46HHK6dHYZGKcdftCqTKzZE32MphzMeovjglTbaIYQ9k8kdazj5yuGeUrFIVuR48SoKN
+         oJmzibqXPSEv0ri0KKWNnAspeawawXjJ8+BcMf/LyqR/hv5AqCkbFofeUfcoTQCJVmqu
+         fgL0PbM22lxUL9stl92oo+4P/0ndWJcau27tNVsa3vgLv6IcMaWDtECe+ab5Bx1NNkb5
+         odslRbfcG2L5bEwGkfD3cSw2BFJhVSgO/OihrWhyLdmAN3pL5nneL2J+UqVGhxA/V9C2
+         ctZw==
+X-Gm-Message-State: AOAM532Vv71zUjapUrm3EG/w1u2HjGbRlAcZQWKkHnFZVId4UHqv+oWj
+        MyNsGX6Z9xROB+b+KVhoRPVPAT6fVexW2dA/mMH5lpAV
+X-Google-Smtp-Source: ABdhPJzlhGAgPUXp1ABPE3l6bNOuEB4HwZn+ngHnKNGMqMJN0Hcrdiv7UdVcybvdPofBF+jyWRmLkvzCZrib8Nr2krw=
+X-Received: by 2002:aca:fd44:: with SMTP id b65mr2955074oii.160.1597148038418;
+ Tue, 11 Aug 2020 05:13:58 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200811084555.105374-1-omosnace@redhat.com> <20200811084555.105374-2-omosnace@redhat.com>
-In-Reply-To: <20200811084555.105374-2-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 11 Aug 2020 11:05:10 +0200
-Message-ID: <CAFqZXNsZU+uwnF2zu+cQSV5jzvDsx_u_FFcWWOx6YW0we583MA@mail.gmail.com>
-Subject: Re: [PATCH testsuite v2 1/2] README: add perl-lib as a dependency
-To:     SElinux list <selinux@vger.kernel.org>
+References: <20200805194312.7188-1-mike.palmiotto@crunchydata.com> <56f3aed8-03e3-f847-967c-e9c8630f692b@gmail.com>
+In-Reply-To: <56f3aed8-03e3-f847-967c-e9c8630f692b@gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 11 Aug 2020 08:13:47 -0400
+Message-ID: <CAEjxPJ4F70OTPLi_u0Dz8LO7qs_1WuoaK9EqP4awVf92MViOtA@mail.gmail.com>
+Subject: Re: [PATCH v6] libselinux: use kernel status page by default
+To:     Mike Palmiotto <mike.palmiotto@crunchydata.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 11, 2020 at 10:45 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> The `lib` perl module has been split out of the `perl-interpreter`
-> package in Fedora 33 into `perl-lib`. It is needed for the filesystem
-> tests. Add it to the dependencies.
+On Thu, Aug 6, 2020 at 8:05 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  README.md | 2 ++
->  1 file changed, 2 insertions(+)
+> On 8/5/20 3:43 PM, Mike Palmiotto wrote:
 >
-> diff --git a/README.md b/README.md
-> index ff0a0dc..bfd5b17 100644
-> --- a/README.md
-> +++ b/README.md
-> @@ -45,6 +45,7 @@ similar dependencies):
->  * perl-Test  _(test harness used by the testsuite)_
->  * perl-Test-Harness _(test harness used by the testsuite)_
->  * perl-Test-Simple _(for `Test::More`)_
-> +* perl-lib _(for `lib`; split out from `perl-interpreter` since Fedora 33)_
->  * selinux-policy-devel _(to build the test policy)_
->  * gcc _(to build the test programs)_
->  * libselinux-devel _(to build some of the test programs)_
-> @@ -65,6 +66,7 @@ following command:
->         # dnf install perl-Test \
->                 perl-Test-Harness \
->                 perl-Test-Simple \
-> +               perl-lib \
-
-Note that this package doesn't exist on the earlier versions, so the
-command will now work verbatim only on F33+... I'm not sure if we want
-to add --skip-broken (might silently skip necessary packages in case
-of dependency problems in the repos) or just leave it be.
-
->                 selinux-policy-devel \
->                 gcc \
->                 libselinux-devel \
-> --
-> 2.26.2
+> > Commit bc2a8f418e3b ("libselinux: add selinux_status_* interfaces for
+> > /selinux/status") introduced the sestatus mechanism, which allows for
+> > mmap()'ing of the kernel status page as a replacement for avc_netlink.
+> >
+> > The mechanism was initially intended for userspace object managers that
+> > were calculating access decisions within their application and did not
+> > rely on the libselinux AVC implementation. In order to properly make use
+> > of sestatus within avc_has_perm(), the status mechanism needs to
+> > properly set avc internals during status events; else, avc_enforcing is
+> > never updated upon sestatus changes.
+> >
+> > This commit gets rid of the default avc_netlink_open() in
+> > avc_init_internal(), replacing it with selinux_status_open(). In the
+> > event that the kernel status page cannot be mapped, the netlink fallback
+> > will be used. By default, avc_has_perm_noaudit() and
+> > selinux_check_access() will now attempt to read the kernel status page,
+> > which removes a system call from two critical code paths.
+> >
+> > Since the AVC thread create/stop callbacks were intended to avoid a
+> > system call in the critical code path, they no longer need to be created
+> > by default. In the event that the kernel status page is successfully
+> > mapped, threads will not be created. Threads will still be
+> > created/stopped for the sestatus fallback codepaths.
+> >
+> > Userspace object managers that still need a netlink socket can call
+> > avc_netlink_acquire_fd() to open and/or obtain one.
+> >
+> > Update the manpage to reflect the new avc_netlink_acquire_fd()
+> > functionality.
+> >
+> > Signed-off-by: Mike Palmiotto <mike.palmiotto@crunchydata.com>
 >
+> Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
 
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
-
+Applied.
