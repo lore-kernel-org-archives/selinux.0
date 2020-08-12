@@ -2,290 +2,128 @@ Return-Path: <SRS0=FvZo=BW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E1D8C433EC
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:15:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A66C0C433E0
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:23:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1EFDD2087C
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:15:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 816A620838
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:23:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="SDI5GfNo"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IJJWjqCh"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726678AbgHLTPi (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Aug 2020 15:15:38 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:49332 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726627AbgHLTPg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 15:15:36 -0400
-Received: from localhost.localdomain (c-73-172-233-15.hsd1.md.comcast.net [73.172.233.15])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 3242020B4913;
-        Wed, 12 Aug 2020 12:15:35 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3242020B4913
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1597259735;
-        bh=Tenvf2ZFeve+L6GrtHxaPF1KS+dvmSgforU0bSg6Yik=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDI5GfNoehUYwtHxuHbI88RgD9f5EAMnNqT5JfFkzYkVmVF5qiTdfTYjsszAQSu12
-         rfd/gvzAVn9DEVZvVxX8EPClcKeFznO5qHbIOwgdpU3ZtDjlkzWh1xFNddABKGHIE6
-         KLLVBtFR1Afegiow+H3kVMHV8vnykwiPt5tmwQM8=
-From:   Daniel Burgener <dburgener@linux.microsoft.com>
-To:     selinux@vger.kernel.org
-Cc:     stephen.smalley.work@gmail.com, omosnace@redhat.com,
-        paul@paul-moore.com, linux-fsdevel@vger.kernel.org,
-        viro@zeniv.linux.org.uk
-Subject: [PATCH v2 4/4] selinux: Create new booleans and class dirs out of tree
-Date:   Wed, 12 Aug 2020 15:15:25 -0400
-Message-Id: <20200812191525.1120850-5-dburgener@linux.microsoft.com>
-X-Mailer: git-send-email 2.25.4
-In-Reply-To: <20200812191525.1120850-1-dburgener@linux.microsoft.com>
-References: <20200812191525.1120850-1-dburgener@linux.microsoft.com>
+        id S1726547AbgHLTXe (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Aug 2020 15:23:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726512AbgHLTXd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 15:23:33 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEEDFC061383;
+        Wed, 12 Aug 2020 12:23:33 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id k12so2904933otr.1;
+        Wed, 12 Aug 2020 12:23:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=P3Cr4pfPW/YIMfrMO6Kop+sRalHz9diw410o8LHQ/e4=;
+        b=IJJWjqChkDN7AxslJValrnXD0Nk6xe9QloctxKFdCrofiMt2mIufNNb/1MGHukP5eh
+         fC9RA8ZfP1m6vDPBsR40Z7rozTQcN2nC8dh/Xu7C8PEKOaKPXw+w6PErZPBGJ7eb0Olt
+         0D1VJFkiVcpAt+trbAx3RRm2pHS+qVI7e7LZ8VJSNut9qQgMq87KMAWkCF5FbFaaH9Xz
+         0j/hS9NfpgbW9uX12feHv1PSpgaGQGJKNzxn8kdqYHd4VC1/XPl/KpBeztLdAvKEam4K
+         +TiAkPKlEt9fcQaqqHuDSWx+UnrUUwwGrgsnReFWO3XS62M01QyL1oBFSrtoVZAVAhht
+         zstw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=P3Cr4pfPW/YIMfrMO6Kop+sRalHz9diw410o8LHQ/e4=;
+        b=QGrSI8vhPLvfNKxQElL0SkN5Z6M3BHlrZCiCBBd+EThFvBqaBsZKfJDb+2dQ5bDg1s
+         GsIr+DfCI2ZZ97JSPAJmZwhyHMrl9xZ/EB2+q1T1EvJrVdztsbisnNqvT0rK5xWKs50w
+         w3JnzYXrzXTbZJwpV2nXdg8R+iopErM929ycVeE5q2i6brs3SBfwUJSY/V5Dz+VcuDlH
+         Uib9LyUSt8W3F1eCkpCxi+dSDbxzwRGCJ8LTMgisTQFRZcc3nbZRprybd8Vv89ydg9rC
+         CEiz4Lk7VZ/luxUtA0Cn1w6bTlVyMYx3FF/cNs9o1S4mTxwg+ijPztqxxe5nonONhiH4
+         2rpw==
+X-Gm-Message-State: AOAM531q2oaDdJBsTUvdsR15rg2TS+8Dbq8ifGHsZFRfeolsrv6QFtZT
+        ZARZy1VzJuv072W3MibcUS+1iMRL64Ra6PF9bxs=
+X-Google-Smtp-Source: ABdhPJwj7n8XKdePeQxHzI7WTX70roxjqjWF2x4UouMgk2LTW19UlThhC6SmyW2s2o29f7MbMfFsg/haBYQCPy+b+Rg=
+X-Received: by 2002:a9d:67d3:: with SMTP id c19mr1166532otn.162.1597260212865;
+ Wed, 12 Aug 2020 12:23:32 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200812191525.1120850-1-dburgener@linux.microsoft.com> <20200812191525.1120850-2-dburgener@linux.microsoft.com>
+In-Reply-To: <20200812191525.1120850-2-dburgener@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 12 Aug 2020 15:21:58 -0400
+Message-ID: <CAEjxPJ61+Dusa-i_uggdGDQ-3iGb7+JDJkbsC48DpKpx_gEJSA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/4] selinux: Create function for selinuxfs directory cleanup
+To:     Daniel Burgener <dburgener@linux.microsoft.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In order to avoid concurrency issues around selinuxfs resource availability
-during policy load, we first create new directories out of tree for
-reloaded resources, then swap them in, and finally delete the old versions.
+On Wed, Aug 12, 2020 at 3:15 PM Daniel Burgener
+<dburgener@linux.microsoft.com> wrote:
+>
+> Separating the cleanup from the creation will simplify two things in
+> future patches in this series.  First, the creation can be made generic,
+> to create directories not tied to the selinux_fs_info structure.  Second,
+> we will ultimately want to reorder creation and deletion so that the
+> deletions aren't performed until the new directory structures have already
+> been moved into place.
+>
+> Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+> ---
+>  security/selinux/selinuxfs.c | 41 ++++++++++++++++++++++++------------
+>  1 file changed, 27 insertions(+), 14 deletions(-)
+>
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index 131816878e50..fc914facb48f 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> @@ -355,6 +355,9 @@ static int sel_make_classes(struct selinux_fs_info *fsi,
+>  static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
+>                         unsigned long *ino);
+>
+> +/* declaration for sel_remove_old_policy_nodes */
+> +static void sel_remove_entries(struct dentry *de);
+> +
+>  static ssize_t sel_read_mls(struct file *filp, char __user *buf,
+>                                 size_t count, loff_t *ppos)
+>  {
+> @@ -509,11 +512,35 @@ static const struct file_operations sel_policy_ops = {
+>         .llseek         = generic_file_llseek,
+>  };
+>
+> +static void sel_remove_old_policy_nodes(struct selinux_fs_info *fsi)
+> +{
+> +       u32 i;
+> +
+> +       /* bool_dir cleanup */
+> +       for (i = 0; i < fsi->bool_num; i++)
+> +               kfree(fsi->bool_pending_names[i]);
+> +       kfree(fsi->bool_pending_names);
+> +       kfree(fsi->bool_pending_values);
+> +       fsi->bool_num = 0;
+> +       fsi->bool_pending_names = NULL;
+> +       fsi->bool_pending_values = NULL;
+> +
+> +       sel_remove_entries(fsi->bool_dir);
+> +
+> +       /* class_dir cleanup */
+> +       sel_remove_entries(fsi->class_dir);
+> +
+> +       /* policycap_dir cleanup */
+> +       sel_remove_entries(fsi->policycap_dir);
 
-This fix focuses on concurrency in each of the three subtrees swapped, and
-not concurrency across the three trees.  This means that it is still possible
-that subsequent reads to eg the booleans directory and the class directory
-during a policy load could see the old state for one and the new for the other.
-The problem of ensuring that policy loads are fully atomic from the perspective
-of userspace is larger than what is dealt with here.  This commit focuses on
-ensuring that the directories contents always match either the new or the old
-policy state from the perspective of userspace.
-
-In the previous implementation, on policy load /sys/fs/selinux is updated
-by deleting the previous contents of
-/sys/fs/selinux/{class,booleans} and then recreating them.  This means
-that there is a period of time when the contents of these directories do not
-exist which can cause race conditions as userspace relies on them for
-information about the policy.  In addition, it means that error recovery in
-the event of failure is challenging.
-
-In order to demonstrate the race condition that this series fixes, you
-can use the following commands:
-
-while true; do cat /sys/fs/selinux/class/service/perms/status
->/dev/null; done &
-while true; do load_policy; done;
-
-In the existing code, this will display errors fairly often as the class
-lookup fails.  (In normal operation from systemd, this would result in a
-permission check which would be allowed or denied based on policy settings
-around unknown object classes.) After applying this patch series you
-should expect to no longer see such error messages.
-
-Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
----
- security/selinux/selinuxfs.c | 145 +++++++++++++++++++++++++++++------
- 1 file changed, 120 insertions(+), 25 deletions(-)
-
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index f09afdb90ddd..d3a19170210a 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -20,6 +20,7 @@
- #include <linux/fs_context.h>
- #include <linux/mount.h>
- #include <linux/mutex.h>
-+#include <linux/namei.h>
- #include <linux/init.h>
- #include <linux/string.h>
- #include <linux/security.h>
-@@ -361,7 +362,11 @@ static int sel_make_classes(struct selinux_policy *newpolicy,
- static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
- 			unsigned long *ino);
- 
--/* declaration for sel_remove_old_policy_nodes */
-+/* declaration for sel_make_policy_nodes */
-+static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
-+						unsigned long *ino);
-+
-+/* declaration for sel_make_policy_nodes */
- static void sel_remove_entries(struct dentry *de);
- 
- static ssize_t sel_read_mls(struct file *filp, char __user *buf,
-@@ -518,50 +523,108 @@ static const struct file_operations sel_policy_ops = {
- 	.llseek		= generic_file_llseek,
- };
- 
--static void sel_remove_old_policy_nodes(struct selinux_fs_info *fsi)
-+static void sel_remove_old_bool_data(unsigned int bool_num, char **bool_names,
-+				unsigned int *bool_values)
- {
- 	u32 i;
- 
- 	/* bool_dir cleanup */
--	for (i = 0; i < fsi->bool_num; i++)
--		kfree(fsi->bool_pending_names[i]);
--	kfree(fsi->bool_pending_names);
--	kfree(fsi->bool_pending_values);
--	fsi->bool_num = 0;
--	fsi->bool_pending_names = NULL;
--	fsi->bool_pending_values = NULL;
--
--	sel_remove_entries(fsi->bool_dir);
--
--	/* class_dir cleanup */
--	sel_remove_entries(fsi->class_dir);
--
--	/* policycap_dir cleanup */
--	sel_remove_entries(fsi->policycap_dir);
-+	for (i = 0; i < bool_num; i++)
-+		kfree(bool_names[i]);
-+	kfree(bool_names);
-+	kfree(bool_values);
- }
- 
- static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
- 				struct selinux_policy *newpolicy)
- {
--	int ret;
-+	int ret = 0;
-+	struct dentry *tmp_parent, *tmp_bool_dir, *tmp_class_dir, *tmp_policycap_dir, *old_dentry;
-+	unsigned int tmp_bool_num, old_bool_num;
-+	char **tmp_bool_names, **old_bool_names;
-+	unsigned int *tmp_bool_values, *old_bool_values;
-+
-+	tmp_parent = sel_make_disconnected_dir(fsi->sb, &fsi->last_ino);
-+	if (IS_ERR(tmp_parent))
-+		return PTR_ERR(tmp_parent);
- 
--	sel_remove_old_policy_nodes(fsi);
-+	tmp_bool_dir = sel_make_dir(tmp_parent, BOOL_DIR_NAME, &fsi->last_ino);
-+	if (IS_ERR(tmp_bool_dir)) {
-+		ret = PTR_ERR(tmp_bool_dir);
-+		goto out;
-+	}
-+
-+	tmp_class_dir = sel_make_dir(tmp_parent, CLASS_DIR_NAME, &fsi->last_ino);
-+	if (IS_ERR(tmp_class_dir)) {
-+		ret = PTR_ERR(tmp_class_dir);
-+		goto out;
-+	}
-+
-+	tmp_policycap_dir = sel_make_dir(tmp_parent, POLICYCAP_DIR_NAME, &fsi->last_ino);
-+	if (IS_ERR(tmp_policycap_dir)) {
-+		ret = PTR_ERR(tmp_policycap_dir);
-+		goto out;
-+	}
- 
--	ret = sel_make_bools(newpolicy, fsi->bool_dir, &fsi->bool_num,
--			     &fsi->bool_pending_names, &fsi->bool_pending_values);
-+	ret = sel_make_bools(newpolicy, tmp_bool_dir, &tmp_bool_num,
-+			     &tmp_bool_names, &tmp_bool_values);
- 	if (ret) {
- 		pr_err("SELinux: failed to load policy booleans\n");
--		return ret;
-+		goto out;
- 	}
- 
--	ret = sel_make_classes(newpolicy, fsi->class_dir,
-+	ret = sel_make_classes(newpolicy, tmp_class_dir,
- 			       &fsi->last_class_ino);
- 	if (ret) {
- 		pr_err("SELinux: failed to load policy classes\n");
--		return ret;
-+		goto out;
- 	}
- 
--	return 0;
-+	// booleans
-+	old_dentry = fsi->bool_dir;
-+	lock_rename(tmp_bool_dir, old_dentry);
-+	ret = vfs_rename(tmp_parent->d_inode, tmp_bool_dir, fsi->sb->s_root->d_inode,
-+			 fsi->bool_dir, NULL, RENAME_EXCHANGE);
-+	if (ret) {
-+		pr_err("Failed to update boolean directory\n");
-+		unlock_rename(tmp_bool_dir, old_dentry);
-+		goto out;
-+	}
-+
-+	old_bool_num = fsi->bool_num;
-+	old_bool_names = fsi->bool_pending_names;
-+	old_bool_values = fsi->bool_pending_values;
-+
-+	fsi->bool_num = tmp_bool_num;
-+	fsi->bool_pending_names = tmp_bool_names;
-+	fsi->bool_pending_values = tmp_bool_values;
-+
-+	sel_remove_old_bool_data(old_bool_num, old_bool_names, old_bool_values);
-+
-+	fsi->bool_dir = tmp_bool_dir;
-+	unlock_rename(tmp_bool_dir, old_dentry);
-+
-+	// classes
-+	old_dentry = fsi->class_dir;
-+	lock_rename(tmp_class_dir, old_dentry);
-+	ret = vfs_rename(tmp_parent->d_inode, tmp_class_dir, fsi->sb->s_root->d_inode,
-+			 fsi->class_dir, NULL, RENAME_EXCHANGE);
-+	if (ret) {
-+		pr_err("Failed to update class directory\n");
-+		unlock_rename(tmp_class_dir, old_dentry);
-+		goto out;
-+	}
-+	fsi->class_dir = tmp_class_dir;
-+	unlock_rename(tmp_class_dir, old_dentry);
-+
-+out:
-+	// Since the other temporary dirs are children of tmp_parent
-+	// this will handle all the cleanup in the case of a failure before
-+	// the swapover
-+	sel_remove_entries(tmp_parent);
-+	dput(tmp_parent); // d_genocide() only handles the children
-+
-+	return ret;
- }
- 
- static ssize_t sel_write_load(struct file *file, const char __user *buf,
-@@ -1984,6 +2047,38 @@ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
- 	return dentry;
- }
- 
-+// vfs_rename() requires a rename operation to be defined.
-+int sel_rename(struct inode *old_dir, struct dentry *old_dentry,
-+		  struct inode *new_dir, struct dentry *new_dentry,
-+		  unsigned int flags)
-+{
-+	if (!(flags & RENAME_EXCHANGE))
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+const struct inode_operations sel_dir_inode_operations = {
-+	.lookup		= simple_lookup,
-+	.rename		= sel_rename,
-+};
-+
-+static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
-+						unsigned long *ino)
-+{
-+	struct inode *inode = sel_make_inode(sb, S_IFDIR | S_IRUGO | S_IXUGO);
-+
-+	if (!inode)
-+		return ERR_PTR(-ENOMEM);
-+
-+	inode->i_op = &sel_dir_inode_operations;
-+	inode->i_fop = &simple_dir_operations;
-+	inode->i_ino = ++(*ino);
-+	/* directory inodes start off with i_nlink == 2 (for "." entry) */
-+	inc_nlink(inode);
-+	return d_obtain_alias(inode);
-+}
-+
- #define NULL_FILE_NAME "null"
- 
- static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
--- 
-2.25.4
-
+This one shouldn't have its entries removed anymore.
