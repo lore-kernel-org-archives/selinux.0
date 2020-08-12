@@ -2,142 +2,92 @@ Return-Path: <SRS0=FvZo=BW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC623C433E0
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 16:21:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 732BEC433E0
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 18:53:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9798420829
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 16:21:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5380920838
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 18:53:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="jv22c9Vb"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ELaXpUI+"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726459AbgHLQVq (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Aug 2020 12:21:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35600 "EHLO
+        id S1726635AbgHLSxW (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Aug 2020 14:53:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725872AbgHLQVp (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 12:21:45 -0400
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8047FC061383
-        for <selinux@vger.kernel.org>; Wed, 12 Aug 2020 09:21:45 -0700 (PDT)
-Received: by mail-qt1-x844.google.com with SMTP id s16so1896961qtn.7
-        for <selinux@vger.kernel.org>; Wed, 12 Aug 2020 09:21:45 -0700 (PDT)
+        with ESMTP id S1726447AbgHLSxW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 14:53:22 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E745C061383
+        for <selinux@vger.kernel.org>; Wed, 12 Aug 2020 11:53:22 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id q9so2807246oth.5
+        for <selinux@vger.kernel.org>; Wed, 12 Aug 2020 11:53:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:date:message-id:in-reply-to:references:user-agent
-         :subject:mime-version:content-transfer-encoding;
-        bh=j/SJ1QNF721OCJDQxwhmGTboz8gjASekmj3CeXptboA=;
-        b=jv22c9Vbu3d5In9U3Mzu3B7e9sC6hfhrPe91XZ6rIfPrPf/fu/m3oMhbzCFu8b6KFd
-         FhKYKrt1Tu7GZEC6W6/pPZBImTKjp7J6J6ouTohZ62DVCmA8tOq9jMmjnHCUfGIN2s2k
-         YAFSkBtVL+42Wuh/h6h4zUNGtRDg23xd2rFrACH2hNj8Hs7UGm5Y6GI+Wp8P5WxJomOP
-         JFQp4JScxNaCmv8EM7EyvQg4aNc9DPVrgf9pIRfDv/Mmqjp4EzJAQVSRcdsoGNhZIamW
-         oAeCstdVS3O2TKMQW+QjHKzEk8iuNLHFxJ4LVi17fArAyF1qAc23n/70GWgqeThYS+fu
-         CfQg==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=IonvAhj00W/OZYFCkJPEmzRzw1AT3aMN7JDqpfe1ywg=;
+        b=ELaXpUI+pwuRj7ZUIBWauXPRBPip6eC+lmI8mbI523GQYtCjpIjsgmpPeSUD/4LzTS
+         siaeAAMQNE/yZrJkY6cqXzldofK3wpuwQBXGNMe+otscPykXE7UraPM6I/6ScNdS8tCn
+         SMQTSVWQCjKZEDibdu9q+QCUlzoFVN3wIefTt2SkBQEu5Q5Rim0GYrKfjz9cSxcuz9MD
+         m+VAKWYqTBys5cm64sO6Xv4xxuWudjV2VJD87kxN8lNtl/OyD6FbycRvZfyBar3oTsED
+         2mtI68InTLACXEPig1Yzwj3JRbh/hA6KN0hbxJLQcy4oBfVJDTxALcamIh8FvtPbshXG
+         kXPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:date:message-id:in-reply-to
-         :references:user-agent:subject:mime-version
-         :content-transfer-encoding;
-        bh=j/SJ1QNF721OCJDQxwhmGTboz8gjASekmj3CeXptboA=;
-        b=rethpr7d8tYOT7rYEsBTVCNOSxV6sbO+ik1o+xzw1OnlR95qIvQKbAbeUiR7yBL8vo
-         ukxuvcy4IyM65HC76CiyV1l514d0jHjdssOW7UlnVyGMPJ7oBrkRh1iltBEAjcJqDjSo
-         8/s1MM7KrhXfeQe08TiKjEb5DNdNbU23GTgFALNvzWW2AVPgExwU6ugP24QuotDBHctI
-         qhKcOABiyG/nc4M+gKl4lQmtQjtikPnR25fO/vfjOWE+RuaODxc02xmAheLgMkw8Oxlo
-         VkVC7NrkH57XVd5PRRag7bIcpjfMU9O2vcCOICe6kd0QFZg7SNqlOaCMierq5TID9KkJ
-         EQbw==
-X-Gm-Message-State: AOAM530O2knHqxy0Wh5bYOMaohugiQOtKxKz3gHePGilLIGHi44Qu3+P
-        MEX5iQBkULO0d9Fon+4gDVHgkTw/sSLF
-X-Google-Smtp-Source: ABdhPJywgdIyX5+r2zEetcPaK7n4gQrHKHUdT0qXeCqAUiQSRRuVIu/493n84kKS7ZTIsRJBrtlucQ==
-X-Received: by 2002:aed:3387:: with SMTP id v7mr400660qtd.318.1597249304568;
-        Wed, 12 Aug 2020 09:21:44 -0700 (PDT)
-Received: from [10.0.0.46] (c-24-91-201-67.hsd1.ma.comcast.net. [24.91.201.67])
-        by smtp.gmail.com with ESMTPSA id k31sm2870834qtd.60.2020.08.12.09.21.42
-        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 12 Aug 2020 09:21:43 -0700 (PDT)
-From:   Paul Moore <paul@paul-moore.com>
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-CC:     SElinux list <selinux@vger.kernel.org>
-Date:   Wed, 12 Aug 2020 12:21:40 -0400
-Message-ID: <173e37a2620.27df.85c95baa4474aabc7814e68940a78392@paul-moore.com>
-In-Reply-To: <CAFqZXNs=Q0+ikxAxnDqj8KeVygiswW0878wg51Q=2T7_v-jq0w@mail.gmail.com>
-References: <20200811084555.105374-1-omosnace@redhat.com>
- <20200811084555.105374-2-omosnace@redhat.com>
- <CAFqZXNsZU+uwnF2zu+cQSV5jzvDsx_u_FFcWWOx6YW0we583MA@mail.gmail.com>
- <CAHC9VhTGHgZu4pcAVVOUGX4yegyD8uNg85UrjG8Jtzc4=AsDVQ@mail.gmail.com>
- <CAFqZXNs=Q0+ikxAxnDqj8KeVygiswW0878wg51Q=2T7_v-jq0w@mail.gmail.com>
-User-Agent: AquaMail/1.25.2-1672 (build: 102500008)
-Subject: Re: [PATCH testsuite v2 1/2] README: add perl-lib as a dependency
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=IonvAhj00W/OZYFCkJPEmzRzw1AT3aMN7JDqpfe1ywg=;
+        b=kSJudBwkuJZw/4CT076WkbLSUFuhENK34oIwcZ3lABg3zSc1cN0RthSLz8Df/HJFol
+         Frm7xe9gJNgZeFK591YpMKA/6+6Bc2u5W10huYh4EfLLJ6Ra+H2c4Og6KjwszsvW0EYb
+         vq0uYF2wJrU6zjmKK1huPkua1DW+wfbbadenKIMYJUDRhp+ylMY/sc+fV6kxQ2CFfn/1
+         gWUHwS5uvi+Qh/Z8cqvHK90IBJB1sKdM7mMCDZZEwwX0W2j0HZIISg0qtP8U15NdhMNF
+         Sxld36cF27/N0yLPX9tHGo7CaUyJszMiZFPg4Ya8sSb4UBEDZNjSqw+O3TnhGHLX6cXa
+         NQEA==
+X-Gm-Message-State: AOAM533zgBH07nebmYBihLvg9BfZ/54kfzCsrgjsTW4o+qGm6IswcemF
+        aWnWl6ujbelRY20EImfE19Z0kSUqYf3Kyjof22ooA2wz
+X-Google-Smtp-Source: ABdhPJyLRzhs+fXyJ4/xK4xMQElRtuF3UFhpwgB+6Qdk19G2nknQe8KCjK2K9EV0nzFFZ5hj5uAx4UPnUsIQjbifsX0=
+X-Received: by 2002:a05:6830:1305:: with SMTP id p5mr1016431otq.135.1597258401984;
+ Wed, 12 Aug 2020 11:53:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+References: <20200812140907.1102299-1-dburgener@linux.microsoft.com>
+In-Reply-To: <20200812140907.1102299-1-dburgener@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Wed, 12 Aug 2020 14:51:48 -0400
+Message-ID: <CAEjxPJ7aQLCAxdQHhWiUF6jUT4Fawm8utETAJSCzuY1k7VwK0g@mail.gmail.com>
+Subject: Re: [PATCH 0/4] Update SELinuxfs out of tree and then swapover
+To:     Daniel Burgener <dburgener@linux.microsoft.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-I was thinking of something that stood out more, I worry the simple note in=
- the package list won't be noticed or read.
-
---
-paul moore
-www.paul-moore.com
-On August 12, 2020 10:27:49 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-
-> On Tue, Aug 11, 2020 at 5:11 PM Paul Moore <paul@paul-moore.com> wrote:
->> On Tue, Aug 11, 2020 at 5:05 AM Ondrej Mosnacek <omosnace@redhat.com> wr=
-ote:
->>> On Tue, Aug 11, 2020 at 10:45 AM Ondrej Mosnacek <omosnace@redhat.com> =
-wrote:
->>>> The `lib` perl module has been split out of the `perl-interpreter`
->>>> package in Fedora 33 into `perl-lib`. It is needed for the filesystem
->>>> tests. Add it to the dependencies.
->>>>
->>>> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->>>> ---
->>>> README.md | 2 ++
->>>> 1 file changed, 2 insertions(+)
->>>>
->>>> diff --git a/README.md b/README.md
->>>> index ff0a0dc..bfd5b17 100644
->>>> --- a/README.md
->>>> +++ b/README.md
->>>> @@ -45,6 +45,7 @@ similar dependencies):
->>>> * perl-Test  _(test harness used by the testsuite)_
->>>> * perl-Test-Harness _(test harness used by the testsuite)_
->>>> * perl-Test-Simple _(for `Test::More`)_
->>>> +* perl-lib _(for `lib`; split out from `perl-interpreter` since Fedor=
-a 33)_
->>>> * selinux-policy-devel _(to build the test policy)_
->>>> * gcc _(to build the test programs)_
->>>> * libselinux-devel _(to build some of the test programs)_
->>>> @@ -65,6 +66,7 @@ following command:
->>>>    # dnf install perl-Test \
->>>>            perl-Test-Harness \
->>>>            perl-Test-Simple \
->>>> +               perl-lib \
->>>
->>> Note that this package doesn't exist on the earlier versions, so the
->>> command will now work verbatim only on F33+... I'm not sure if we want
->>> to add --skip-broken (might silently skip necessary packages in case
->>> of dependency problems in the repos) or just leave it be.
->>
->> I agree that '--skip-broken' is probably not the best choice for the
->> reasons you already mentioned.  I might suggest that if the package is
->> not present in all of the supported versions of Fedora we should add a
->> note to the README.md explaining that.  Once the older versions become
->> unsupported the note can be removed.
+On Wed, Aug 12, 2020 at 10:09 AM Daniel Burgener
+<dburgener@linux.microsoft.com> wrote:
 >
-> There is already a note in the other line added. Or did you have
-> something different in mind?
->
-> --
-> Ondrej Mosnacek
-> Software Engineer, Platform Security - SELinux kernel
-> Red Hat, Inc.
+> In the current implementation, on policy load /sys/fs/selinux is updated
+> by deleting the previous contents of
+> /sys/fs/selinux/{class,booleans,policy_capabilities} and then recreating
+> them.  This means that there is a period of time when the contents of
+> these directories do not exist which can cause race conditions as
+> userspace relies on them for information about the policy.  In addition,
+> it means that error recovery in the event of failure is challenging.
 
-
-
+I haven't looked closely yet, but note that my patches stopped
+removing the policy_capabilities directory entries altogether and only
+create them during initialization of the mount, because the set of
+directory entries is not policy-dependent (only the values read from
+them are policy-dependent, not the names themselves).  It was a
+mistake to ever re-create those entries in the first place.  So you
+only need to deal with the class and booleans directories in your
+patches.  Also, I would recommend cc'ing viro and linux-fsdevel on
+your patch set in addition to selinux so that they can look at it from
+a vfs point of view.
