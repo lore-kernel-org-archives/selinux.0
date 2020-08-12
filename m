@@ -2,44 +2,43 @@ Return-Path: <SRS0=FvZo=BW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 828D7C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4EA1C433DF
 	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 14:09:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 54AEA20838
+	by mail.kernel.org (Postfix) with ESMTP id B499C20838
 	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 14:09:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="W55IbATh"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="L1970Acx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbgHLOJU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1726468AbgHLOJU (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Wed, 12 Aug 2020 10:09:20 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:40640 "EHLO
+Received: from linux.microsoft.com ([13.77.154.182]:40626 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726468AbgHLOJS (ORCPT
+        with ESMTP id S1726505AbgHLOJS (ORCPT
         <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 10:09:18 -0400
 Received: from localhost.localdomain (c-73-172-233-15.hsd1.md.comcast.net [73.172.233.15])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 17BA620B490F;
-        Wed, 12 Aug 2020 07:09:18 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 17BA620B490F
+        by linux.microsoft.com (Postfix) with ESMTPSA id 4609920B490D;
+        Wed, 12 Aug 2020 07:09:17 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 4609920B490D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1597241358;
-        bh=TWaa5J7FL27uITC423BFjVEEdl8/5m1i6QAGc4Mk748=;
+        s=default; t=1597241357;
+        bh=h0J5zXRS82FdnJWHfZ2GyfbHIqLimH6f5CETRRANugM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W55IbAThdG+xFOiMjtUl3qwZAOzw6oS2KDlxDutC9KcnehwUSTsrbpUJFK/9yPtpr
-         J2kPuu1d3UTRgIxgNrv8zw2uiUKbUCh/+iz2xiB/ObbxQdt9+WrajRRXsJEtqQDE2d
-         2bhT9KVNVaec+fYg6Nqd1YyYxFMpSw8+Vv7fCCSs=
+        b=L1970AcxSai8k/HidDNRrTM66zqo3SAG9mYfwFYnKkhVb0jyy6msOSfYeJ/7cUHWv
+         uTVJBdCg9A/yRLqaetOcqqRsIB0idwbO0Ar/RNn+ek/xasH4D65s/Qj1Um12tF/4U3
+         uRFstlTN9K4qy6C7Fwbf7F+ELMXWzeZh5mfjjyPI=
 From:   Daniel Burgener <dburgener@linux.microsoft.com>
 To:     selinux@vger.kernel.org
 Cc:     stephen.smalley.work@gmail.com, omosnace@redhat.com,
         paul@paul-moore.com
-Subject: [PATCH 3/4] selinux: Standardize string literal usage for selinuxfs directory names
-Date:   Wed, 12 Aug 2020 10:09:06 -0400
-Message-Id: <20200812140907.1102299-4-dburgener@linux.microsoft.com>
+Subject: [PATCH 2/4] selinux: Refactor selinuxfs directory populating functions
+Date:   Wed, 12 Aug 2020 10:09:05 -0400
+Message-Id: <20200812140907.1102299-3-dburgener@linux.microsoft.com>
 X-Mailer: git-send-email 2.25.4
 In-Reply-To: <20200812140907.1102299-1-dburgener@linux.microsoft.com>
 References: <20200812140907.1102299-1-dburgener@linux.microsoft.com>
@@ -50,56 +49,140 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Switch class and policy_capabilities directory names to be referred to with
-global constants, consistent with booleans directory name.  This will allow
-for easy consistency of naming in future development.
+Make sel_make_bools and sel_make_classes take the specific elements of
+selinux_fs_info that they need rather than the entire struct.
+
+This will allow a future patch to pass temporary elements that are not in
+the selinux_fs_info struct to these functions so that the original elements
+can be preserved until we are ready to perform the switch over.
 
 Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
 ---
- security/selinux/selinuxfs.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ security/selinux/selinuxfs.c | 45 ++++++++++++++++++++----------------
+ 1 file changed, 25 insertions(+), 20 deletions(-)
 
 diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 9657c3acfc8f..f09afdb90ddd 100644
+index fc914facb48f..9657c3acfc8f 100644
 --- a/security/selinux/selinuxfs.c
 +++ b/security/selinux/selinuxfs.c
-@@ -117,6 +117,10 @@ static void selinux_fs_info_free(struct super_block *sb)
- #define SEL_POLICYCAP_INO_OFFSET	0x08000000
- #define SEL_INO_MASK			0x00ffffff
+@@ -346,10 +346,12 @@ static const struct file_operations sel_policyvers_ops = {
+ };
  
-+#define BOOL_DIR_NAME "booleans"
-+#define CLASS_DIR_NAME "class"
-+#define POLICYCAP_DIR_NAME "policy_capabilities"
-+
- #define TMPBUFLEN	12
- static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
- 				size_t count, loff_t *ppos)
-@@ -1363,8 +1367,6 @@ static void sel_remove_entries(struct dentry *de)
- 	shrink_dcache_parent(de);
- }
+ /* declaration for sel_write_load */
+-static int sel_make_bools(struct selinux_fs_info *fsi,
+-			struct selinux_policy *newpolicy);
+-static int sel_make_classes(struct selinux_fs_info *fsi,
+-			struct selinux_policy *newpolicy);
++static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
++			  unsigned int *bool_num, char ***bool_pending_names,
++			  unsigned int **bool_pending_values);
++static int sel_make_classes(struct selinux_policy *newpolicy,
++			    struct dentry *class_dir,
++			    unsigned long *last_class_ino);
  
--#define BOOL_DIR_NAME "booleans"
--
- static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
- 			  unsigned int *bool_num, char ***bool_pending_names,
- 			  unsigned int **bool_pending_values)
-@@ -2080,14 +2082,14 @@ static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
- 	if (ret)
- 		goto err;
+ /* declaration for sel_make_class_dirs */
+ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
+@@ -541,13 +543,15 @@ static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
  
--	fsi->class_dir = sel_make_dir(sb->s_root, "class", &fsi->last_ino);
-+	fsi->class_dir = sel_make_dir(sb->s_root, CLASS_DIR_NAME, &fsi->last_ino);
- 	if (IS_ERR(fsi->class_dir)) {
- 		ret = PTR_ERR(fsi->class_dir);
- 		fsi->class_dir = NULL;
- 		goto err;
+ 	sel_remove_old_policy_nodes(fsi);
+ 
+-	ret = sel_make_bools(fsi, newpolicy);
++	ret = sel_make_bools(newpolicy, fsi->bool_dir, &fsi->bool_num,
++			     &fsi->bool_pending_names, &fsi->bool_pending_values);
+ 	if (ret) {
+ 		pr_err("SELinux: failed to load policy booleans\n");
+ 		return ret;
  	}
  
--	fsi->policycap_dir = sel_make_dir(sb->s_root, "policy_capabilities",
-+	fsi->policycap_dir = sel_make_dir(sb->s_root, POLICYCAP_DIR_NAME,
- 					  &fsi->last_ino);
- 	if (IS_ERR(fsi->policycap_dir)) {
- 		ret = PTR_ERR(fsi->policycap_dir);
+-	ret = sel_make_classes(fsi, newpolicy);
++	ret = sel_make_classes(newpolicy, fsi->class_dir,
++			       &fsi->last_class_ino);
+ 	if (ret) {
+ 		pr_err("SELinux: failed to load policy classes\n");
+ 		return ret;
+@@ -1361,13 +1365,13 @@ static void sel_remove_entries(struct dentry *de)
+ 
+ #define BOOL_DIR_NAME "booleans"
+ 
+-static int sel_make_bools(struct selinux_fs_info *fsi,
+-			struct selinux_policy *newpolicy)
++static int sel_make_bools(struct selinux_policy *newpolicy, struct dentry *bool_dir,
++			  unsigned int *bool_num, char ***bool_pending_names,
++			  unsigned int **bool_pending_values)
+ {
+ 	int ret;
+ 	ssize_t len;
+ 	struct dentry *dentry = NULL;
+-	struct dentry *dir = fsi->bool_dir;
+ 	struct inode *inode = NULL;
+ 	struct inode_security_struct *isec;
+ 	char **names = NULL, *page;
+@@ -1386,12 +1390,12 @@ static int sel_make_bools(struct selinux_fs_info *fsi,
+ 
+ 	for (i = 0; i < num; i++) {
+ 		ret = -ENOMEM;
+-		dentry = d_alloc_name(dir, names[i]);
++		dentry = d_alloc_name(bool_dir, names[i]);
+ 		if (!dentry)
+ 			goto out;
+ 
+ 		ret = -ENOMEM;
+-		inode = sel_make_inode(dir->d_sb, S_IFREG | S_IRUGO | S_IWUSR);
++		inode = sel_make_inode(bool_dir->d_sb, S_IFREG | S_IRUGO | S_IWUSR);
+ 		if (!inode) {
+ 			dput(dentry);
+ 			goto out;
+@@ -1420,9 +1424,9 @@ static int sel_make_bools(struct selinux_fs_info *fsi,
+ 		inode->i_ino = i|SEL_BOOL_INO_OFFSET;
+ 		d_add(dentry, inode);
+ 	}
+-	fsi->bool_num = num;
+-	fsi->bool_pending_names = names;
+-	fsi->bool_pending_values = values;
++	*bool_num = num;
++	*bool_pending_names = names;
++	*bool_pending_values = values;
+ 
+ 	free_page((unsigned long)page);
+ 	return 0;
+@@ -1435,7 +1439,7 @@ static int sel_make_bools(struct selinux_fs_info *fsi,
+ 		kfree(names);
+ 	}
+ 	kfree(values);
+-	sel_remove_entries(dir);
++	sel_remove_entries(bool_dir);
+ 
+ 	return ret;
+ }
+@@ -1882,8 +1886,9 @@ static int sel_make_class_dir_entries(struct selinux_policy *newpolicy,
+ 	return rc;
+ }
+ 
+-static int sel_make_classes(struct selinux_fs_info *fsi,
+-			struct selinux_policy *newpolicy)
++static int sel_make_classes(struct selinux_policy *newpolicy,
++			    struct dentry *class_dir,
++			    unsigned long *last_class_ino)
+ {
+ 
+ 	int rc, nclasses, i;
+@@ -1894,13 +1899,13 @@ static int sel_make_classes(struct selinux_fs_info *fsi,
+ 		return rc;
+ 
+ 	/* +2 since classes are 1-indexed */
+-	fsi->last_class_ino = sel_class_to_ino(nclasses + 2);
++	*last_class_ino = sel_class_to_ino(nclasses + 2);
+ 
+ 	for (i = 0; i < nclasses; i++) {
+ 		struct dentry *class_name_dir;
+ 
+-		class_name_dir = sel_make_dir(fsi->class_dir, classes[i],
+-					      &fsi->last_class_ino);
++		class_name_dir = sel_make_dir(class_dir, classes[i],
++					      last_class_ino);
+ 		if (IS_ERR(class_name_dir)) {
+ 			rc = PTR_ERR(class_name_dir);
+ 			goto out;
 -- 
 2.25.4
 
