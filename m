@@ -2,275 +2,115 @@ Return-Path: <SRS0=FvZo=BW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55357C433E0
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:31:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF8B1C433DF
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 20:37:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2EDE520774
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:31:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A85CB2078B
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 20:37:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="MIxMEJeI"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ImHXDqrP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726641AbgHLTb1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Aug 2020 15:31:27 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:51170 "EHLO
+        id S1726547AbgHLUho (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Aug 2020 16:37:44 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:59092 "EHLO
         linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726681AbgHLTbO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 15:31:14 -0400
-Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 3C4B120B490D;
-        Wed, 12 Aug 2020 12:31:12 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 3C4B120B490D
+        with ESMTP id S1726030AbgHLUhn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 16:37:43 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 7D4AC20B4908;
+        Wed, 12 Aug 2020 13:37:42 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7D4AC20B4908
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1597260672;
-        bh=1JH4jChNS0fa5DFFMyXyCP3gvcSLfR3XN5s6YUWp8Eg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIxMEJeISvTQ7NN5IisP4jWYFX4zFj3WHpvnd+9p1LDZgpMXGC+bckHZqRClUr+Nc
-         PkHUFZMNpr92w7Aw0Xl258nJ9C9Be+thQmt+eyIUo9K5LrICU+WDKg59D7I6nKZvdI
-         vY8c9rsHafodvjTnRv3J4EINhRMUu2+9wRaRHmpY=
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
-To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-        nramas@linux.microsoft.com
-Subject: [PATCH 2/3] IMA: add policy to support measuring critical data from kernel components
-Date:   Wed, 12 Aug 2020 12:31:01 -0700
-Message-Id: <20200812193102.18636-3-tusharsu@linux.microsoft.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200812193102.18636-1-tusharsu@linux.microsoft.com>
-References: <20200812193102.18636-1-tusharsu@linux.microsoft.com>
+        s=default; t=1597264662;
+        bh=Tny2pnFNQ9hZUYldUbLplhq2a8CRyeGK5gKXS0FC5Ls=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ImHXDqrPSRfYm7TycdwQ548TDuo5B86Aq8OlGHQ3N/VC9Ho7HqPd7t13a1cLWE38E
+         OdEkCIsFTO8kLm89D3GyAJLW6DWoGdkV6hodM4mAD0jsM9Kf/1tX8eidQ2JaxG4Uu/
+         CUidwV9uPzhWVvDTMi8pcRT1E0LNPevuwxD1AdcY=
+Subject: Re: [PATCH v6 0/4] LSM: Measure security module data
+To:     Casey Schaufler <casey@schaufler-ca.com>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc:     stephen.smalley.work@gmail.com, sashal@kernel.org,
+        jmorris@namei.org, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20200805004331.20652-1-nramas@linux.microsoft.com>
+ <f3971f35-309d-c3e5-9126-69add7ad4c11@schaufler-ca.com>
+ <50587a3e-bcb5-c68e-c16c-41baf68b4d4a@linux.microsoft.com>
+ <c7c168f2-e30b-d2c5-abcb-1b6919197474@schaufler-ca.com>
+ <20200805154504.GB4365@sequoia>
+ <69810007161e689ac817099fb1c6df21962963e4.camel@linux.ibm.com>
+ <9ad079ff-1bd4-1302-e6fb-25a7396ef12f@linux.microsoft.com>
+ <ecc97f59-c2cc-0b23-6199-925ba0d6358b@schaufler-ca.com>
+ <50f00ace-8d46-01c2-bf0f-d5484aafd95c@linux.microsoft.com>
+ <5570a4d8-8779-6efe-b208-f7efa8ba9488@schaufler-ca.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <42c35947-9a81-e343-b111-5d4d90095888@linux.microsoft.com>
+Date:   Wed, 12 Aug 2020 13:37:38 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <5570a4d8-8779-6efe-b208-f7efa8ba9488@schaufler-ca.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-There would be several candidate kernel components suitable for IMA
-measurement. Not all of them would be enlightened for IMA measurement.
-Also, system administrators may not want to measure data for all of
-them, even when they are enlightened for IMA measurements. An IMA policy
-specific to various kernel components is needed to measure their
-respective critical data.
+On 8/5/20 11:25 AM, Casey Schaufler wrote:
 
-Add a new IMA policy CRITICAL_DATA+data_sources to support measuring
-various critical kernel components. This policy would enable the
-system administrators to limit the measurement to the components,
-if the components are enlightened for IMA measurement.
+>>>>>
+>>>>> I think moving away from the idea that measuring "critical" data should
+>>>>> be limited to LSMs, will clarify this.
+>>>>>
+>>>>
+>>>> Are you suggesting that instead of calling the hooks LSM_STATE and LSM_POLICY, we should keep it more generic so that it can be utilized by any subsystem to measure their "critical data"?
+>>>
+>>> Policy, state, history or whim, it should be up to the security module
+>>> to determine what data it cares about, and how it should be measured.
+>>> Smack does not keep its policy in a single blob of data, it uses lists
+>>> which can be modified at will. Your definition of the behavior for
+>>> LSM_POLICY wouldn't work for Smack. That doesn't mean that there isn't
+>>> a viable way to measure the Smack policy, it just means that IMA isn't
+>>> the place for it. If SELinux wants its data measured, SELinux should be
+>>> providing the mechanism to do it.
+>>>
+>>> I guess that I'm agreeing with you in part. If you want a generic measurement
+>>> of "critical data", you don't need to assign a type to it, you have the
+>>> caller (a security module, a device driver or whatever) identify itself and
+>>> how it is going to deal with the data. That's very different from what you've
+>>> done to date.
+>>
+>> Agree.
+>>
+>> Like Stephen had stated earlier, the reason we kept separate hooks (STATE and POLICY) is because the data for state is usually small and therefore we measure the entire data. Whereas, policy data is usually quite large (a few MB) and hence we measure a hash of the policy.
+> 
+> SELinux should determine how it wants its data measured.
+> SELinux, not IMA, should determine if some "critical data"
+> be measured in total, by its hash or as a count of policy
+> rules. It would be handy for IMA to supply functions to do
+> data blobs and hashes, but it should be up to the caller to
+> decide if they meet their needs.
+> 
 
-Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
----
- Documentation/ABI/testing/ima_policy |  6 +-
- security/integrity/ima/ima.h         |  1 +
- security/integrity/ima/ima_api.c     |  2 +-
- security/integrity/ima/ima_policy.c  | 84 ++++++++++++++++++++++------
- 4 files changed, 74 insertions(+), 19 deletions(-)
+Per feedback from you all, my colleague Tushar has posted a patch series 
+that defines a generic IMA hook to measure critical data from other 
+subsystems (such as SELinux, AppArmor, Device-Mapper targets, etc.)
 
-diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
-index cd572912c593..a0dd0f108555 100644
---- a/Documentation/ABI/testing/ima_policy
-+++ b/Documentation/ABI/testing/ima_policy
-@@ -29,7 +29,7 @@ Description:
- 		base: 	func:= [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
- 				[FIRMWARE_CHECK]
- 				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
--				[KEXEC_CMDLINE] [KEY_CHECK]
-+				[KEXEC_CMDLINE] [KEY_CHECK] [CRITICAL_DATA]
- 			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
- 			       [[^]MAY_EXEC]
- 			fsmagic:= hex value
-@@ -125,3 +125,7 @@ Description:
- 		keys added to .builtin_trusted_keys or .ima keyring:
- 
- 			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
-+
-+		Example of measure rule using CRITICAL_DATA to measure critical data
-+
-+			measure func=CRITICAL_DATA data_sources=selinux|apparmor|dm-crypt
-diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
-index e2a151d6653d..99773dfa2541 100644
---- a/security/integrity/ima/ima.h
-+++ b/security/integrity/ima/ima.h
-@@ -200,6 +200,7 @@ static inline unsigned int ima_hash_key(u8 *digest)
- 	hook(POLICY_CHECK, policy)			\
- 	hook(KEXEC_CMDLINE, kexec_cmdline)		\
- 	hook(KEY_CHECK, key)				\
-+	hook(CRITICAL_DATA, critical_data)		\
- 	hook(MAX_CHECK, none)
- 
- #define __ima_hook_enumify(ENUM, str)	ENUM,
-diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
-index af218babd198..9917e1730cb6 100644
---- a/security/integrity/ima/ima_api.c
-+++ b/security/integrity/ima/ima_api.c
-@@ -176,7 +176,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
-  *		subj=, obj=, type=, func=, mask=, fsmagic=
-  *	subj,obj, and type: are LSM specific.
-  *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK | MODULE_CHECK
-- *	| KEXEC_CMDLINE | KEY_CHECK
-+ *	| KEXEC_CMDLINE | KEY_CHECK | CRITICAL_DATA
-  *	mask: contains the permission mask
-  *	fsmagic: hex value
-  *
-diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
-index 4efaf8956eb8..8451ccb2a775 100644
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -22,17 +22,18 @@
- #include "ima.h"
- 
- /* flags definitions */
--#define IMA_FUNC	0x0001
--#define IMA_MASK	0x0002
--#define IMA_FSMAGIC	0x0004
--#define IMA_UID		0x0008
--#define IMA_FOWNER	0x0010
--#define IMA_FSUUID	0x0020
--#define IMA_INMASK	0x0040
--#define IMA_EUID	0x0080
--#define IMA_PCR		0x0100
--#define IMA_FSNAME	0x0200
--#define IMA_KEYRINGS	0x0400
-+#define IMA_FUNC		0x0001
-+#define IMA_MASK		0x0002
-+#define IMA_FSMAGIC		0x0004
-+#define IMA_UID			0x0008
-+#define IMA_FOWNER		0x0010
-+#define IMA_FSUUID		0x0020
-+#define IMA_INMASK		0x0040
-+#define IMA_EUID		0x0080
-+#define IMA_PCR			0x0100
-+#define IMA_FSNAME		0x0200
-+#define IMA_KEYRINGS		0x0400
-+#define IMA_DATA_SOURCES	0x0800
- 
- #define UNKNOWN		0
- #define MEASURE		0x0001	/* same as IMA_MEASURE */
-@@ -84,6 +85,7 @@ struct ima_rule_entry {
- 	} lsm[MAX_LSM_RULES];
- 	char *fsname;
- 	struct ima_rule_opt_list *keyrings; /* Measure keys added to these keyrings */
-+	struct ima_rule_opt_list *data_sources; /* Measure data from these sources */
- 	struct ima_template_desc *template;
- };
- 
-@@ -508,14 +510,23 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
- {
- 	int i;
- 
--	if (func == KEY_CHECK) {
--		return (rule->flags & IMA_FUNC) && (rule->func == func) &&
--		       ima_match_rule_data(rule, rule->keyrings, func_data,
--					   true, cred);
--	}
- 	if ((rule->flags & IMA_FUNC) &&
- 	    (rule->func != func && func != POST_SETATTR))
- 		return false;
-+
-+	switch (func) {
-+	case KEY_CHECK:
-+		return ((rule->func == func) &&
-+			ima_match_rule_data(rule, rule->keyrings,
-+					    func_data, true, cred));
-+	case CRITICAL_DATA:
-+		return ((rule->func == func) &&
-+			ima_match_rule_data(rule, rule->data_sources,
-+					    func_data, false, cred));
-+	default:
-+		break;
-+	}
-+
- 	if ((rule->flags & IMA_MASK) &&
- 	    (rule->mask != mask && func != POST_SETATTR))
- 		return false;
-@@ -911,7 +922,7 @@ enum {
- 	Opt_uid_lt, Opt_euid_lt, Opt_fowner_lt,
- 	Opt_appraise_type, Opt_appraise_flag,
- 	Opt_permit_directio, Opt_pcr, Opt_template, Opt_keyrings,
--	Opt_err
-+	Opt_data_sources, Opt_err
- };
- 
- static const match_table_t policy_tokens = {
-@@ -948,6 +959,7 @@ static const match_table_t policy_tokens = {
- 	{Opt_pcr, "pcr=%s"},
- 	{Opt_template, "template=%s"},
- 	{Opt_keyrings, "keyrings=%s"},
-+	{Opt_data_sources, "data_sources=%s"},
- 	{Opt_err, NULL}
- };
- 
-@@ -1110,6 +1122,19 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
- 		if (ima_rule_contains_lsm_cond(entry))
- 			return false;
- 
-+		break;
-+	case CRITICAL_DATA:
-+		if (entry->action & ~(MEASURE | DONT_MEASURE))
-+			return false;
-+
-+		if (!(entry->flags & IMA_DATA_SOURCES) ||
-+		    (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
-+		    IMA_DATA_SOURCES)))
-+			return false;
-+
-+		if (ima_rule_contains_lsm_cond(entry))
-+			return false;
-+
- 		break;
- 	default:
- 		return false;
-@@ -1242,6 +1267,8 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
- 			else if (IS_ENABLED(CONFIG_IMA_MEASURE_ASYMMETRIC_KEYS) &&
- 				 strcmp(args[0].from, "KEY_CHECK") == 0)
- 				entry->func = KEY_CHECK;
-+			else if (strcmp(args[0].from, "CRITICAL_DATA") == 0)
-+				entry->func = CRITICAL_DATA;
- 			else
- 				result = -EINVAL;
- 			if (!result)
-@@ -1312,6 +1339,23 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
- 
- 			entry->flags |= IMA_KEYRINGS;
- 			break;
-+		case Opt_data_sources:
-+			ima_log_string(ab, "data_sources", args[0].from);
-+
-+			if (entry->data_sources) {
-+				result = -EINVAL;
-+				break;
-+			}
-+
-+			entry->data_sources = ima_alloc_rule_opt_list(args);
-+			if (IS_ERR(entry->data_sources)) {
-+				result = PTR_ERR(entry->data_sources);
-+				entry->data_sources = NULL;
-+				break;
-+			}
-+
-+			entry->flags |= IMA_DATA_SOURCES;
-+			break;
- 		case Opt_fsuuid:
- 			ima_log_string(ab, "fsuuid", args[0].from);
- 
-@@ -1692,6 +1736,12 @@ int ima_policy_show(struct seq_file *m, void *v)
- 		seq_puts(m, " ");
- 	}
- 
-+	if (entry->flags & IMA_DATA_SOURCES) {
-+		seq_puts(m, "data_sources=");
-+		ima_show_rule_opt_list(m, entry->data_sources);
-+		seq_puts(m, " ");
-+	}
-+
- 	if (entry->flags & IMA_PCR) {
- 		snprintf(tbuf, sizeof(tbuf), "%d", entry->pcr);
- 		seq_printf(m, pt(Opt_pcr), tbuf);
--- 
-2.17.1
+Link to the patch series is given below:
 
+	https://patchwork.kernel.org/patch/11711249/
+
+Shortly I will re-post the SELinux state and hash of policy measurement 
+patch that will be based on the above patch series.
+
+thanks,
+  -lakshmi
