@@ -2,128 +2,204 @@ Return-Path: <SRS0=FvZo=BW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-20.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A66C0C433E0
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:23:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52DEAC433E4
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:31:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 816A620838
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:23:34 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2D65120658
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 19:31:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IJJWjqCh"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="DrpNiLGu"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726547AbgHLTXe (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Aug 2020 15:23:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35252 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726512AbgHLTXd (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 15:23:33 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEEDFC061383;
-        Wed, 12 Aug 2020 12:23:33 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id k12so2904933otr.1;
-        Wed, 12 Aug 2020 12:23:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=P3Cr4pfPW/YIMfrMO6Kop+sRalHz9diw410o8LHQ/e4=;
-        b=IJJWjqChkDN7AxslJValrnXD0Nk6xe9QloctxKFdCrofiMt2mIufNNb/1MGHukP5eh
-         fC9RA8ZfP1m6vDPBsR40Z7rozTQcN2nC8dh/Xu7C8PEKOaKPXw+w6PErZPBGJ7eb0Olt
-         0D1VJFkiVcpAt+trbAx3RRm2pHS+qVI7e7LZ8VJSNut9qQgMq87KMAWkCF5FbFaaH9Xz
-         0j/hS9NfpgbW9uX12feHv1PSpgaGQGJKNzxn8kdqYHd4VC1/XPl/KpBeztLdAvKEam4K
-         +TiAkPKlEt9fcQaqqHuDSWx+UnrUUwwGrgsnReFWO3XS62M01QyL1oBFSrtoVZAVAhht
-         zstw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=P3Cr4pfPW/YIMfrMO6Kop+sRalHz9diw410o8LHQ/e4=;
-        b=QGrSI8vhPLvfNKxQElL0SkN5Z6M3BHlrZCiCBBd+EThFvBqaBsZKfJDb+2dQ5bDg1s
-         GsIr+DfCI2ZZ97JSPAJmZwhyHMrl9xZ/EB2+q1T1EvJrVdztsbisnNqvT0rK5xWKs50w
-         w3JnzYXrzXTbZJwpV2nXdg8R+iopErM929ycVeE5q2i6brs3SBfwUJSY/V5Dz+VcuDlH
-         Uib9LyUSt8W3F1eCkpCxi+dSDbxzwRGCJ8LTMgisTQFRZcc3nbZRprybd8Vv89ydg9rC
-         CEiz4Lk7VZ/luxUtA0Cn1w6bTlVyMYx3FF/cNs9o1S4mTxwg+ijPztqxxe5nonONhiH4
-         2rpw==
-X-Gm-Message-State: AOAM531q2oaDdJBsTUvdsR15rg2TS+8Dbq8ifGHsZFRfeolsrv6QFtZT
-        ZARZy1VzJuv072W3MibcUS+1iMRL64Ra6PF9bxs=
-X-Google-Smtp-Source: ABdhPJwj7n8XKdePeQxHzI7WTX70roxjqjWF2x4UouMgk2LTW19UlThhC6SmyW2s2o29f7MbMfFsg/haBYQCPy+b+Rg=
-X-Received: by 2002:a9d:67d3:: with SMTP id c19mr1166532otn.162.1597260212865;
- Wed, 12 Aug 2020 12:23:32 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200812191525.1120850-1-dburgener@linux.microsoft.com> <20200812191525.1120850-2-dburgener@linux.microsoft.com>
-In-Reply-To: <20200812191525.1120850-2-dburgener@linux.microsoft.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Wed, 12 Aug 2020 15:21:58 -0400
-Message-ID: <CAEjxPJ61+Dusa-i_uggdGDQ-3iGb7+JDJkbsC48DpKpx_gEJSA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/4] selinux: Create function for selinuxfs directory cleanup
-To:     Daniel Burgener <dburgener@linux.microsoft.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726784AbgHLTbP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Aug 2020 15:31:15 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:51194 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726685AbgHLTbN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 15:31:13 -0400
+Received: from tusharsu-Ubuntu.lan (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id AFB8F20B490F;
+        Wed, 12 Aug 2020 12:31:12 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com AFB8F20B490F
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1597260673;
+        bh=dl4AP1i8JV+YnqMmI4cnuYcfwZNhDk56gzoeOIvJWD4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DrpNiLGuE7CfnVRD0Etx2OffpwQ6uf7ETRYGWnRz9wmyl+EKPrMpQvdpJPz3+5xvk
+         cdiuFpj/5KprQQGoCD0uWHKDlYBGFtjLuM5wN//i07/Lkxz7EndIorYaveZ3tuAV5X
+         sZsaQHtFC62E+fQyxHj6/jUG0bEOIID/5sSFCC9Q=
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+To:     zohar@linux.ibm.com, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, gmazyland@gmail.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com,
+        nramas@linux.microsoft.com
+Subject: [PATCH 3/3] IMA: define IMA hook to measure critical data from kernel components
+Date:   Wed, 12 Aug 2020 12:31:02 -0700
+Message-Id: <20200812193102.18636-4-tusharsu@linux.microsoft.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20200812193102.18636-1-tusharsu@linux.microsoft.com>
+References: <20200812193102.18636-1-tusharsu@linux.microsoft.com>
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, Aug 12, 2020 at 3:15 PM Daniel Burgener
-<dburgener@linux.microsoft.com> wrote:
->
-> Separating the cleanup from the creation will simplify two things in
-> future patches in this series.  First, the creation can be made generic,
-> to create directories not tied to the selinux_fs_info structure.  Second,
-> we will ultimately want to reorder creation and deletion so that the
-> deletions aren't performed until the new directory structures have already
-> been moved into place.
->
-> Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
-> ---
->  security/selinux/selinuxfs.c | 41 ++++++++++++++++++++++++------------
->  1 file changed, 27 insertions(+), 14 deletions(-)
->
-> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-> index 131816878e50..fc914facb48f 100644
-> --- a/security/selinux/selinuxfs.c
-> +++ b/security/selinux/selinuxfs.c
-> @@ -355,6 +355,9 @@ static int sel_make_classes(struct selinux_fs_info *fsi,
->  static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
->                         unsigned long *ino);
->
-> +/* declaration for sel_remove_old_policy_nodes */
-> +static void sel_remove_entries(struct dentry *de);
-> +
->  static ssize_t sel_read_mls(struct file *filp, char __user *buf,
->                                 size_t count, loff_t *ppos)
->  {
-> @@ -509,11 +512,35 @@ static const struct file_operations sel_policy_ops = {
->         .llseek         = generic_file_llseek,
->  };
->
-> +static void sel_remove_old_policy_nodes(struct selinux_fs_info *fsi)
-> +{
-> +       u32 i;
-> +
-> +       /* bool_dir cleanup */
-> +       for (i = 0; i < fsi->bool_num; i++)
-> +               kfree(fsi->bool_pending_names[i]);
-> +       kfree(fsi->bool_pending_names);
-> +       kfree(fsi->bool_pending_values);
-> +       fsi->bool_num = 0;
-> +       fsi->bool_pending_names = NULL;
-> +       fsi->bool_pending_values = NULL;
-> +
-> +       sel_remove_entries(fsi->bool_dir);
-> +
-> +       /* class_dir cleanup */
-> +       sel_remove_entries(fsi->class_dir);
-> +
-> +       /* policycap_dir cleanup */
-> +       sel_remove_entries(fsi->policycap_dir);
+Currently, IMA does not provide a generic function to kernel components
+to measure their data. A generic function provided by IMA would
+enable various parts of the kernel with easier and faster on-boarding to
+use IMA infrastructure, would avoid code duplication, and consistent
+usage of IMA policy CRITICAL_DATA+data_sources across the kernel.
 
-This one shouldn't have its entries removed anymore.
+Define a generic IMA function ima_measure_critical_data() to measure
+data from various kernel components. Limit the measurement to the
+components that are specified in the IMA policy - 
+CRITICAL_DATA+data_sources.
+Update process_buffer_measurement() to return the status code of the
+operation.
+
+Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+---
+ include/linux/ima.h               |  9 ++++++++
+ security/integrity/ima/ima.h      |  8 +++----
+ security/integrity/ima/ima_main.c | 37 ++++++++++++++++++++++++-------
+ 3 files changed, 42 insertions(+), 12 deletions(-)
+
+diff --git a/include/linux/ima.h b/include/linux/ima.h
+index d15100de6cdd..865332ecedcb 100644
+--- a/include/linux/ima.h
++++ b/include/linux/ima.h
+@@ -26,6 +26,9 @@ extern int ima_post_read_file(struct file *file, void *buf, loff_t size,
+ extern void ima_post_path_mknod(struct dentry *dentry);
+ extern int ima_file_hash(struct file *file, char *buf, size_t buf_size);
+ extern void ima_kexec_cmdline(int kernel_fd, const void *buf, int size);
++extern int ima_measure_critical_data(const char *event_name,
++				     const char *event_data_source,
++				     const void *buf, int buf_len);
+ 
+ #ifdef CONFIG_IMA_KEXEC
+ extern void ima_add_kexec_buffer(struct kimage *image);
+@@ -104,6 +107,12 @@ static inline int ima_file_hash(struct file *file, char *buf, size_t buf_size)
+ }
+ 
+ static inline void ima_kexec_cmdline(int kernel_fd, const void *buf, int size) {}
++static inline int ima_measure_critical_data(const char *event_name,
++					    const char *event_data_source,
++					    const void *buf, int buf_len)
++{
++	return -EOPNOTSUPP;
++}
+ #endif /* CONFIG_IMA */
+ 
+ #ifndef CONFIG_IMA_KEXEC
+diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+index 99773dfa2541..e65ab067e700 100644
+--- a/security/integrity/ima/ima.h
++++ b/security/integrity/ima/ima.h
+@@ -266,10 +266,10 @@ void ima_store_measurement(struct integrity_iint_cache *iint, struct file *file,
+ 			   struct evm_ima_xattr_data *xattr_value,
+ 			   int xattr_len, const struct modsig *modsig, int pcr,
+ 			   struct ima_template_desc *template_desc);
+-void process_buffer_measurement(struct inode *inode, const void *buf,
+-				int buf_len, const char *eventname,
+-				enum ima_hooks func, int pcr,
+-				const char *func_data);
++int process_buffer_measurement(struct inode *inode, const void *buf,
++			       int buf_len, const char *eventname,
++			       enum ima_hooks func, int pcr,
++			       const char *func_data);
+ void ima_audit_measurement(struct integrity_iint_cache *iint,
+ 			   const unsigned char *filename);
+ int ima_alloc_init_template(struct ima_event_data *event_data,
+diff --git a/security/integrity/ima/ima_main.c b/security/integrity/ima/ima_main.c
+index a8740b7ea417..129bcaaf13e2 100644
+--- a/security/integrity/ima/ima_main.c
++++ b/security/integrity/ima/ima_main.c
+@@ -736,10 +736,11 @@ int ima_load_data(enum kernel_load_data_id id)
+  *
+  * Based on policy, the buffer is measured into the ima log.
+  */
+-void process_buffer_measurement(struct inode *inode, const void *buf,
+-				int buf_len, const char *eventname,
+-				enum ima_hooks func, int pcr,
+-				const char *func_data)
++
++int process_buffer_measurement(struct inode *inode, const void *buf,
++			       int buf_len, const char *eventname,
++			       enum ima_hooks func, int pcr,
++			       const char *func_data)
+ {
+ 	int ret = 0;
+ 	const char *audit_cause = "ENOMEM";
+@@ -759,7 +760,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf,
+ 	u32 secid;
+ 
+ 	if (!ima_policy_flag)
+-		return;
++		return 0;
+ 
+ 	/*
+ 	 * Both LSM hooks and auxilary based buffer measurements are
+@@ -773,7 +774,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf,
+ 		action = ima_get_action(inode, current_cred(), secid, 0, func,
+ 					&pcr, &template, func_data);
+ 		if (!(action & IMA_MEASURE))
+-			return;
++			return 0;
+ 	}
+ 
+ 	if (!pcr)
+@@ -788,7 +789,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf,
+ 			pr_err("template %s init failed, result: %d\n",
+ 			       (strlen(template->name) ?
+ 				template->name : template->fmt), ret);
+-			return;
++			return ret;
+ 		}
+ 	}
+ 
+@@ -820,7 +821,7 @@ void process_buffer_measurement(struct inode *inode, const void *buf,
+ 					func_measure_str(func),
+ 					audit_cause, ret, 0, ret);
+ 
+-	return;
++	return ret;
+ }
+ 
+ /**
+@@ -847,6 +848,26 @@ void ima_kexec_cmdline(int kernel_fd, const void *buf, int size)
+ 	fdput(f);
+ }
+ 
++/**
++ * ima_measure_critical_data - measure critical data
++ * @event_name: name for the given data
++ * @event_data_source: name of the event data source
++ * @buf: pointer to buffer containing data to measure
++ * @size: Number of bytes in buf
++ *
++ * Buffers can only be measured, not appraised.
++ */
++int ima_measure_critical_data(const char *event_name,
++			      const char *event_data_source,
++			      const void *buf, int buf_len)
++{
++	if (!event_name || !event_data_source || !buf || !buf_len)
++		return -EINVAL;
++
++	return process_buffer_measurement(NULL, buf, buf_len, event_name,
++					  CRITICAL_DATA, 0, event_data_source);
++}
++
+ static int __init init_ima(void)
+ {
+ 	int error;
+-- 
+2.17.1
+
