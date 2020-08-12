@@ -2,186 +2,116 @@ Return-Path: <SRS0=FvZo=BW=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F3C1C433E1
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 07:15:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B009C433E0
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 08:59:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 760DB20768
-	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 07:15:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EECB32076B
+	for <selinux@archiver.kernel.org>; Wed, 12 Aug 2020 08:59:00 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HHDCraed"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726673AbgHLHPW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 12 Aug 2020 03:15:22 -0400
-Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:16741 "EHLO
-        SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726255AbgHLHPV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 03:15:21 -0400
-Subject: Re: [RFC PATCH v4 1/2] selinux: encapsulate policy state, refactor
- policy load
-To:     Paul Moore <paul@paul-moore.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-CC:     Ondrej Mosnacek <omosnace@redhat.com>, <selinux@vger.kernel.org>,
-        <dburgener@linux.microsoft.com>
-References: <20200805155240.26473-1-stephen.smalley.work@gmail.com>
- <CAHC9VhTmXnHMGd8sD7343ANYkZD3RR_Tz=D2a2V8H9coOpvDNg@mail.gmail.com>
-From:   peter enderborg <peter.enderborg@sony.com>
-Message-ID: <df752d3b-f538-965e-0bf2-b036bd4a7393@sony.com>
-Date:   Wed, 12 Aug 2020 09:15:17 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726618AbgHLI7A (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 12 Aug 2020 04:59:00 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:20243 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726572AbgHLI7A (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 12 Aug 2020 04:59:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597222738;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=eB2hRS7AFMQ0Zo8vTlEhrjo6hCR6JepCpg1tCuW6LbI=;
+        b=HHDCraedoJTog6TSX/ISZ+cac4gmYQUPB55rSOTV7DMz5bRdwL0WPRBORqzMi/8qV0ojJ9
+        6yjoL//k+wC4OL6Bc2nyZQWPMwm5iGjWP7mAE4FjbgyXz/tLxOUjTSk+ULJomlORS2NKjy
+        InMj6e84SuuWk2LrOAI0miOXic7eIp0=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-495-uSUTeaBMNP2CJ6LbZgJsJA-1; Wed, 12 Aug 2020 04:58:54 -0400
+X-MC-Unique: uSUTeaBMNP2CJ6LbZgJsJA-1
+Received: by mail-lf1-f71.google.com with SMTP id 136so437322lfa.19
+        for <selinux@vger.kernel.org>; Wed, 12 Aug 2020 01:58:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=eB2hRS7AFMQ0Zo8vTlEhrjo6hCR6JepCpg1tCuW6LbI=;
+        b=iewFHkPxIPYWdDb5prRYlFe1xlAUzGrR8eggj329+89Xwck5eYan7HCt9iVfTJMf8Q
+         ZGP5THy3n6ddbcgT3/l6C1Z6Rr73UPtBm6up11D+hk1+HGqzJyYsXV8innE5d6K/gJfa
+         82Ho3lPnX9vKROxFtC6SUmEu683JMZ0m4DnXFu+CDO2d7+x/orAtsz9tvcHj5ZVpcZXc
+         4uPG3urgt0/2F5zpaJBs6qg0Sc2fpQCmL9QnhGN8Ktpl+5Law8p5enrcmBmEH/UTK6MJ
+         X7Vwo98KvVEETHAFwpiX+x0WM692HgliVbBOoAXex9Q+HPVVe1msOoSXM/GyJGSmoTs7
+         4QjQ==
+X-Gm-Message-State: AOAM530FgDE2w5NOSC6eu3yjJ0Tv/I4d3QcbqjRYpu6sdeRKnxdZWVdg
+        7uSzCna2VsEv042H/6wV3I0583XMUNkqQGVC0xm6aoIP+j7PNcPNPWuhaQr4+/DOAMdEXrO30jL
+        y+vV28GG4o3pOmKxVYsvEHkJxWwJZllVUaw==
+X-Received: by 2002:a05:6512:5c7:: with SMTP id o7mr5362283lfo.124.1597222733458;
+        Wed, 12 Aug 2020 01:58:53 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzY3++1IZjwFf9LSr+DdwVwBG1EdZMbShOTWOI1gQh5c0a6BO/CTl6/ZNXItKAyiO5HK8LAc9e1YGBYdqn+EgI=
+X-Received: by 2002:a05:6512:5c7:: with SMTP id o7mr5362261lfo.124.1597222733172;
+ Wed, 12 Aug 2020 01:58:53 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAHC9VhTmXnHMGd8sD7343ANYkZD3RR_Tz=D2a2V8H9coOpvDNg@mail.gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Language: en-GB
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=frmim2wf c=1 sm=1 tr=0 a=kIrCkORFHx6JeP9rmF/Kww==:117 a=IkcTkHD0fZMA:10 a=y4yBn9ojGxQA:10 a=pGLkceISAAAA:8 a=tineZ3jrEsuOGFh_hIAA:9 a=rhBUSfRS5AhQlVL0:21 a=InZRV-5gbhoBjiud:21 a=QEXdDO2ut3YA:10
-X-SEG-SpamProfiler-Score: 0
+References: <20200807132640.1787455-1-omosnace@redhat.com> <CAEjxPJ6ZOLTG91DzMCw3iat=p=Y0K0So7Yg7zeUnYdivuDAk=Q@mail.gmail.com>
+ <CAFqZXNtogqZXMEcLqA=ci7oiVSYvp0QNvq40zmBJ39B7XpgVHA@mail.gmail.com> <CAHC9VhRs5adeioQuacWkkPZyWh=k2NgUpLWyGhGWoq8+3k6ySw@mail.gmail.com>
+In-Reply-To: <CAHC9VhRs5adeioQuacWkkPZyWh=k2NgUpLWyGhGWoq8+3k6ySw@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Wed, 12 Aug 2020 10:58:42 +0200
+Message-ID: <CAFqZXNtKMwMneGEdVd+cZGTxK8Uu02JHkGGyNDTdzPFkCHTsXQ@mail.gmail.com>
+Subject: Re: [PATCH testsuite] travis: run the full testsuite on a Fedora VM
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/7/20 5:41 AM, Paul Moore wrote:
-> On Wed, Aug 5, 2020 at 11:52 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
->> Encapsulate the policy state in its own structure (struct
->> selinux_policy) that is separately allocated but referenced from the
->> selinux_ss structure.  The policy state includes the SID table
->> (particularly the context structures), the policy database, and the
->> mapping between the kernel classes/permissions and the policy values.
->> Refactor the security server portion of the policy load logic to
->> cleanly separate loading of the new structures from committing the new
->> policy.  Unify the initial policy load and reload code paths as much
->> as possible, avoiding duplicated code.  Make sure we are taking the
->> policy read-lock prior to any dereferencing of the policy.  Move the
->> copying of the policy capability booleans into the state structure
->> outside of the policy write-lock because they are separate from the
->> policy and are read outside of any policy lock; possibly they should
->> be using at least READ_ONCE/WRITE_ONCE or smp_load_acquire/store_release.
->> Restore the load mutex that was previously removed by
->> commit 89abd0acf033 ("SELinux: drop load_mutex in security_load_policy")
->> to make explicit the exclusion even though it is currently redundant
->> with the fsi->mutex held by selinuxfs; this makes clear that we do
->> not need to take the policy read-lock across sidtab_convert() and will
->> be useful in the future for lockdep checking.
->>
->> These changes simplify the policy loading logic, reduce the size of
->> the critical section while holding the policy write-lock, and should
->> facilitate future changes to e.g. refactor the entire policy reload
->> logic including the selinuxfs code to make the updating of the policy
->> and the selinuxfs directory tree atomic and/or to convert the policy
->> read-write lock to RCU.
->>
->> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
->> ---
->> v4 does not take the policy read-lock across sidtab_convert() and
->> therefore does not require changing allocations by it to be atomic
->> or dropping the cond_resched() call.  To make obvious that taking
->> the policy read-lock is not necessary in security_load_policy(), restore
->> the load mutex to security_load_policy() that was removed back in
->> commit 89abd0acf033 ("SELinux: drop load_mutex in security_load_policy").
->> However, since we have refactored security_load_policy() in this change
->> to split out selinux_policy_commit(), we need to take the mutex in
->> security_load_policy() and release it in selinux_policy_commit().
-> I'm not in love with the idea of splitting the lock/unlock across
-> different functions, more below in the relevant code section.
+On Tue, Aug 11, 2020 at 5:18 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Tue, Aug 11, 2020 at 4:59 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > On Fri, Aug 7, 2020 at 3:42 PM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > On the Debian side, I'd recommend Debian unstable which despite the
+> > > name is more stable I think than rawhide and is what I've used for
+> > > getting the testsuite up and running on Debian.  That exercises more
+> > > of the tests than even Fedora rawhide does currently due to defining
+> > > more classes/permissions.
+> >
+> > Yes, it would definitely improve coverage, but I'd rather pass that
+> > baton to someone else at this point.
 >
->>  security/selinux/ss/services.c | 403 +++++++++++++++++----------------
->>  security/selinux/ss/services.h |  11 +-
->>  2 files changed, 220 insertions(+), 194 deletions(-)
-> ...
->
->
->> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
->> index 9e76a80db6e1..6dea93fac9e2 100644
->> --- a/security/selinux/ss/services.c
->> +++ b/security/selinux/ss/services.c
->> @@ -2115,11 +2126,73 @@ static void security_load_policycaps(struct selinux_state *state)
->>                         pr_info("SELinux:  unknown policy capability %u\n",
->>                                 i);
->>         }
->> +
->> +       read_unlock(&state->ss->policy_rwlock);
->>  }
->>
->>  static int security_preserve_bools(struct selinux_state *state,
->>                                    struct policydb *newpolicydb);
->>
->> +static void selinux_policy_free(struct selinux_policy *policy)
->> +{
->> +       if (!policy)
->> +               return;
->> +
->> +       policydb_destroy(&policy->policydb);
->> +       sidtab_destroy(&policy->sidtab);
->> +       kfree(policy->map.mapping);
->> +       kfree(policy);
->> +}
->> +
->> +static void selinux_policy_commit(struct selinux_state *state,
->> +                               struct selinux_policy *newpolicy)
->> +{
->> +       struct selinux_policy *oldpolicy;
->> +       u32 seqno;
->> +
->> +       lockdep_assert_held(&state->ss->load_mutex);
->> +
->> +       /* If switching between different policy types, log MLS status */
->> +       oldpolicy = state->ss->policy;
->> +       if (oldpolicy) {
->> +               if (oldpolicy->policydb.mls_enabled && !newpolicy->policydb.mls_enabled)
->> +                       pr_info("SELinux: Disabling MLS support...\n");
->> +               else if (!oldpolicy->policydb.mls_enabled && newpolicy->policydb.mls_enabled)
->> +                       pr_info("SELinux: Enabling MLS support...\n");
->> +       }
->> +
->> +       /* Install the new policy. */
->> +       write_lock_irq(&state->ss->policy_rwlock);
->> +       state->ss->policy = newpolicy;
->> +       seqno = ++state->ss->latest_granting;
->> +       write_unlock_irq(&state->ss->policy_rwlock);
->> +
->> +       /* Load the policycaps from the new policy */
->> +       security_load_policycaps(state);
->> +
->> +       if (!selinux_initialized(state)) {
->> +               /*
->> +                * After first policy load, the security server is
->> +                * marked as initialized and ready to handle requests and
->> +                * any objects created prior to policy load are then labeled.
->> +                */
->> +               selinux_mark_initialized(state);
->> +               mutex_unlock(&state->ss->load_mutex);
->> +               selinux_complete_init();
->> +       } else
->> +               mutex_unlock(&state->ss->load_mutex);
->> +
->> +       /* Free the old policy */
->> +       selinux_policy_free(oldpolicy);
->> +
->> +       /* Flush external caches and notify userspace of policy load */
->> +       avc_ss_reset(state->avc, seqno);
->> +       selnl_notify_policyload(seqno);
->> +       selinux_status_update_policyload(state, seqno);
->> +       selinux_netlbl_cache_invalidate();
->> +       selinux_xfrm_notify_policyload();
->> +}
-> I can somewhat understand if you don't want to have all the old policy
-> cleanup, reset, and notify code in security_load_policy(), but I
-> really dislike that the mutex lock/unlock is split across the two
-> functions.
->
-> What if selinux_policy_commit() returned oldpolicy on success and we
-> created a new function, selinux_policy_retire() (name?), that would be
-> called from security_load_policy and could handle the cleanup, reset,
-> and notify code.  The mutex unlock could happen between the calls to
-> selinux_policy_commit() and selinux_policy_retire()?
->
-> I'm open to other ideas as well.
->
-Something similar to that will most likely be needed for a move to rcu lock anyway.
+> I've mentioned this before and I feel like this is a good time to
+> stress this point again - I think it is very important to work on
+> becoming less Fedora/RH centric.  I recognize that this might be a bit
+> of a learning curve for most of us as we try to get up to speed with
+> different distros and packaging formats (the latter is a pain point
+> I'm currently working through with Debian's dpkg), but I think this is
+> an important part of helping to increase SELinux adoption.
 
+It's not really about Fedora vs. Debian - it's just that Fedora
+recently became a low-hanging fruit thanks to Bill's userspace scripts
+and the existing testsuite CI got broken recently by Travis/GCE kernel
+upgrade and instead of throwing more kludges on it I wanted to go one
+step further and switch it over to the KVM approach. My plan was to
+just get something working quickly so I don't need to hold off on
+merging patches nor tolerate broken CI. I assure you, if Bill did the
+userspace scripts for Debian, I would just copy that and put Fedora on
+the backlog ;)
+
+Anyway, if no one picks this up, I most likely eventually will. I just
+wanted to make it clear that this is not on my immediate TODO list and
+in case someone would like to pick it up, they are encouraged to do so
+and won't conflict with my attempts. I'd like to see it happen as much
+as you do, but right now I need to catch up with other work so this
+will have to wait a bit.
+
+--
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
