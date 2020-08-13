@@ -2,146 +2,87 @@ Return-Path: <SRS0=nsQl=BX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22DF7C433E1
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 17:47:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E913C433DF
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 17:52:09 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EA6EB20781
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 17:47:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EC39820829
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 17:52:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HLoETjPl"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="pIAPcaPF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726174AbgHMRri (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Aug 2020 13:47:38 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:54636 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726167AbgHMRri (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 13:47:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597340856;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=F7OrG8fIBoasRzik8uq03ERuPVyExEtzaWgMm27w7Tg=;
-        b=HLoETjPlUAQ0QqL8gakc2rYRePauqKJQr/5XuBZygNPUUyQVZQ+rrd4xkXc4gIftXUmsCl
-        0iVZ1RxVc47sbTlVk/tKvmpm0mSa7jc45N8ieF1NkHmIoK+/1/oMl2DOaRH/jIb5lAZNRR
-        CazUoiF/HccPVQnMEWHRswLKi3c+idA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-221-afBXrU9wOreu74XhMkQQAQ-1; Thu, 13 Aug 2020 13:47:27 -0400
-X-MC-Unique: afBXrU9wOreu74XhMkQQAQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E690C1854FC2;
-        Thu, 13 Aug 2020 17:47:26 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.192.69])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id D136C19D6C;
-        Thu, 13 Aug 2020 17:47:25 +0000 (UTC)
-Date:   Thu, 13 Aug 2020 19:47:22 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: Re: drop symbol versioning from libsepol and libsemanage?
-Message-ID: <20200813174722.GA14310@localhost.localdomain>
-References: <CAEjxPJ7khd7dprzEKgc5zeyaHWWRQ7P8pOg09LtiBVaOi6jYTg@mail.gmail.com>
+        id S1726334AbgHMRwI (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Aug 2020 13:52:08 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:40304 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726305AbgHMRwH (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 13:52:07 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id B632020B4908;
+        Thu, 13 Aug 2020 10:52:06 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com B632020B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1597341126;
+        bh=2l0TPnqy1h2HCab1hhpmyU5YtlYb9cGjfZQQg0KSl4Q=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=pIAPcaPFnv4LhZSR1nIW72voJt0jEhEzRHZgsbR+Tak92I7wv9VOPRaDmS9CsvT+0
+         Hmf1h1SPZw/jqg3/VCMImCZdhomgI+8keC/GHl3FBZ1kPVZdCnoLThpOlLLThAxDEY
+         Ei5+QWbzrlts0fZ4xO8qoetbVnMUmi0rFTTsoMLQ=
+Subject: Re: [PATCH 2/2] SELinux: Measure state and hash of policy using IMA
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        zohar@linux.ibm.com, casey@schaufler-ca.com
+Cc:     tyhicks@linux.microsoft.com, tusharsu@linux.microsoft.com,
+        sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, paul Moore <paul@paul-moore.com>
+References: <20200813170707.2659-1-nramas@linux.microsoft.com>
+ <20200813170707.2659-3-nramas@linux.microsoft.com>
+ <5f738fd8-fe28-5358-b3d8-b671b45caa7f@gmail.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <7315b7e8-2c53-2555-bc2e-aae42e16aaa2@linux.microsoft.com>
+Date:   Thu, 13 Aug 2020 10:52:02 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <CAEjxPJ7khd7dprzEKgc5zeyaHWWRQ7P8pOg09LtiBVaOi6jYTg@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=plautrba@redhat.com
-X-Mimecast-Spam-Score: 0.002
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="4Ckj6UjgE2iN1+kY"
-Content-Disposition: inline
+In-Reply-To: <5f738fd8-fe28-5358-b3d8-b671b45caa7f@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 8/13/20 10:42 AM, Stephen Smalley wrote:
 
-On Fri, Aug 07, 2020 at 02:54:18PM -0400, Stephen Smalley wrote:
-> As noted in https://github.com/SELinuxProject/selinux/issues/245,
-> symbol versioning in libsepol causes problems for LTO.  libsepol and
-> libsemanage have a handful of versioned symbols due to incompatible
-> ABI changes made early in the CIL integration.  However, as far as I
-> can tell, these symbols were only used by other components of the
-> selinux userspace, not externally.  Should we stop supporting the old
-> versions going forward and simplify the maps? If so, does this truly
-> require bumping the .so version or can we omit that since there are no
-> external users?  Thoughts?
->=20
+>> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+>> new file mode 100644
+>> index 000000000000..f21b7de4e2ae
+>> --- /dev/null
+>> +++ b/security/selinux/measure.c
+>> @@ -0,0 +1,204 @@
+>> +static int selinux_hash_buffer(void *buf, size_t buf_len,
+>> +                   void **buf_hash, int *buf_hash_len)
+>> +{
+>> +    struct crypto_shash *tfm;
+>> +    struct shash_desc *desc = NULL;
+>> +    void *digest = NULL;
+>> +    int desc_size;
+>> +    int digest_size;
+>> +    int ret = 0;
+>> +
+>> +    tfm = crypto_alloc_shash("sha256", 0, 0);
+>> +    if (IS_ERR(tfm))
+>> +        return PTR_ERR(tfm);
+> Can we make the algorithm selectable via kernel parameter and/or writing 
+> to a new selinuxfs node?
 
-AFAIK libsemanage is used by some 3rd parties. We've had requests to ship
-libsemanage-devel in RHEL-8 repositories in order customers build their
-applications.
+I can add a kernel parameter to select this hash algorithm.
 
-
-From my packager POV I like symbol versioning - it helps to prevent some
-dependency issues in development branches, e.g. when libsemanage is built w=
-ith
-new libsepol symbol but the new package doesn't require newer libsepol. rpm=
- is
-able to solve that:
-
-$ rpm -q --requires libsemanage =20
-...
-libselinux(x86-64) >=3D 3.1-2
-libselinux.so.1()(64bit)
-libselinux.so.1(LIBSELINUX_1.0)(64bit)
-libsepol.so.1()(64bit)
-libsepol.so.1(LIBSEPOL_1.0)(64bit)
-libsepol.so.1(LIBSEPOL_1.1)(64bit)
-libsepol.so.1(LIBSEPOL_3.0)(64bit)
-...
-
-$ rpm -q --provides libsemanage
-config(libsemanage) =3D 3.1-2.fc33
-libsemanage =3D 3.1-2.fc33
-libsemanage(x86-64) =3D 3.1-2.fc33
-libsemanage.so.1()(64bit)
-libsemanage.so.1(LIBSEMANAGE_1.0)(64bit)
-libsemanage.so.1(LIBSEMANAGE_1.1)(64bit)
-
-
-LTO seems to cause problems to other projects as well
-https://lists.fedoraproject.org/archives/list/devel@lists.fedoraproject.org=
-/message/XMIQMN5KNAZUPX6O3LN6JJGTCZTP4B7J/
-
-So I'd prefer if we try to do and use symbol versioning correctly, but it's=
- not
-hard requirement from my side.
-
-Petr
-
---4Ckj6UjgE2iN1+kY
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl81fKMACgkQviIJHj72
-InXing//ZAK7BQJp5k/chk8uIgNkS6AuVWvGWzd0CPM7Y/LBrOYJoytH2DEmAi69
-VdcNZ1EEeyzJzdt7Vi6WFcPmmofLcRj+62E+DZaMJ1a73ItUJjxtX+6XGSUNSNV0
-QPko9yoUqTSuiSyjoHQdncXBSRZE/Wtj9/p76CFVZVrFc3K8hPdd7jOjn7XDVZjq
-CnDMBTwcyGVL2qg70YZ1q+Z2rd7ZW2T3+magPpItQe6ggsfAwdVWWEnBTCkJY0N+
-Vn5jhbtrPL9OppOZnCdrvBlOjm4bN8oI9v0I0r7GQ0OBQZ2jr76syibOKGui20OT
-9imUvjhbeqlWos9uJl4yWUV4Tcnj3bISZz1PinrLILq+gZpauNCTjpm9lSo5MwFN
-ISkZ/dwWASFQkk0oJ8lbXWDDb3M8ZeNJinYgZTsEv8Q0kV5WLVfOXkDEZmzBxO4n
-o9+22JcsEwhyJWrEfcWAmAFLPEawDdE4vqP1MPr8FKCokvQKEld0k6rpOWYcBMWE
-zeTB7NIXrYMkaHmHUgQYGjq7Fwt5XLu6DbJwSTvhI/ly+MN47xmmd1emM6aX3hK6
-eB85zAIWGhNyiJjqu0gyqQ1CH/5gzsP0PNrR9m3ha2q0jqm/QpDH+zIgRhfX2BR/
-7F7r64nhFlfFQEPHyuJdkXTwX8b0GVvXwhmwUPNq3EjDZuwu528=
-=moib
------END PGP SIGNATURE-----
-
---4Ckj6UjgE2iN1+kY--
+  -lakshmi
 
