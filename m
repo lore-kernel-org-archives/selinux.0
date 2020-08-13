@@ -2,132 +2,96 @@ Return-Path: <SRS0=nsQl=BX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CFEDEC433DF
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 18:13:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD026C433DF
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 18:18:59 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 958B82078B
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 18:13:57 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O70/K86V"
+	by mail.kernel.org (Postfix) with ESMTP id C230C20829
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 18:18:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726244AbgHMSN4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Aug 2020 14:13:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48824 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726167AbgHMSN4 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 14:13:56 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A336C061757;
-        Thu, 13 Aug 2020 11:13:56 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id v6so5515320ota.13;
-        Thu, 13 Aug 2020 11:13:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dhX3aJX3q4KBRZHuwYhUlB8a3PTx5z3GZT2mRKIefQc=;
-        b=O70/K86V7BRLmfBGJE0TH9C17/lVqUl4Lgy4S0kS11tInrJK2MOBahhZD2luu4L8QQ
-         +mFX9nukGFqBDAURjkNYl9uME9J8fpbZ0loY5lzHCGEiu29BMFoeGSoYuDPxjQBFmsTv
-         TraI5M07RpmktvbsMNmwNKLaXXs1ir5UoqkrQZIjR/DeBEfvPqV19C1r3/oSU0SmNTkM
-         3z8gWjAlkB76ZE0s69wJUEZNwLCPb9rhlJfeywQ/wKQlyZip1VjzrhM8DHSp6d5mAUE2
-         XJwMJx0dkfmqgLk6Rd+sl4QPO/hPHSfXENlg9CM7nFxXgUxI96OjqBdbLI/IjjJcH3eQ
-         ut7A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dhX3aJX3q4KBRZHuwYhUlB8a3PTx5z3GZT2mRKIefQc=;
-        b=HCoLhQS/WJCOiitamNUFnfGZt15r7ZSGP60kn8Z3xzDKjZDkH3IFBPl8sG37GNr/Ub
-         /4DwCMym1LZCqaeS+Y0pX0vgXww0l26Iuk/aFStj9pYkNxET2bekxLsWtLAaX4ELn7lt
-         EVtLRlyc/x+VN0QaIoILHJmatISVBw0laDrKqabDYl9ieNQZH0RGom+KozAqG3HSPxhM
-         9tjH6BAMYOZUsijG4UKtCl2e3OQanA/mWosoPVmP0/WcYWXcXMrDKRHFStwGbev1H8ro
-         ofKZ+K9WZKczddx0SaNMt8cgYwib8ISs2ZgROQ3O8gF2ZL2IC4Y6kzzqo3ljEf8zrVOv
-         mfLA==
-X-Gm-Message-State: AOAM532bwXiiH7S9cOzbzQ45BHfgRv7QD/MxrpiRTuxPTt5LaHxgJpQ+
-        ZsyItQoRptFrDSRY+BpZeof2X1jZ01T8aCp/WIQ=
-X-Google-Smtp-Source: ABdhPJx2bvI3Rcu75oszf3a1VUhxpWcU0mTJSg09XxObt4VR5yVboneZks0z+JwshzLZrQqB8p8Tq/1r4jOxjCUOnY0=
-X-Received: by 2002:a05:6830:16d8:: with SMTP id l24mr5198130otr.89.1597342435667;
- Thu, 13 Aug 2020 11:13:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200813170707.2659-1-nramas@linux.microsoft.com>
- <20200813170707.2659-3-nramas@linux.microsoft.com> <5f738fd8-fe28-5358-b3d8-b671b45caa7f@gmail.com>
- <7315b7e8-2c53-2555-bc2e-aae42e16aaa2@linux.microsoft.com>
- <CAEjxPJ6sZdm2w=bbkL0uJyEkHw0gCT_y812WQBZPtLCJzO6r3A@mail.gmail.com> <e935c06f-09e2-a2f7-f97f-768bc017f477@linux.microsoft.com>
-In-Reply-To: <e935c06f-09e2-a2f7-f97f-768bc017f477@linux.microsoft.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 13 Aug 2020 14:13:44 -0400
-Message-ID: <CAEjxPJ7uWee5jjALtQ3azMvKRMk8pxFiYByWmYVhjgJiMNZ8ww@mail.gmail.com>
-Subject: Re: [PATCH 2/2] SELinux: Measure state and hash of policy using IMA
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        id S1726244AbgHMSS7 convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Aug 2020 14:18:59 -0400
+Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:17520 "EHLO
+        SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726167AbgHMSS7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 14:18:59 -0400
+Subject: Re: [PATCH v2 2/2] selinux: add basic filtering for audit trace
+ events
+To:     Steven Rostedt <rostedt@goodmis.org>
+CC:     Stephen Smalley <stephen.smalley.work@gmail.com>,
         Casey Schaufler <casey@schaufler-ca.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        tusharsu@linux.microsoft.com, sashal@kernel.org,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        paul Moore <paul@paul-moore.com>
-Content-Type: text/plain; charset="UTF-8"
+        =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Nick Kralevich <nnk@google.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
+References: <20200813144914.737306-1-tweek@google.com>
+ <20200813144914.737306-2-tweek@google.com>
+ <02c193e4-008a-5c3d-75e8-9be7bbcb941c@schaufler-ca.com>
+ <a82d50bd-a0ec-bd06-7a3a-c2696398c4c3@sony.com>
+ <c4424850-645f-5788-fb35-922c81eace6b@gmail.com>
+ <1b40226f-d182-7ba7-a6f6-15520c3e3516@sony.com>
+ <20200813133842.655aff65@oasis.local.home>
+From:   peter enderborg <peter.enderborg@sony.com>
+Message-ID: <c1f8c9a9-d123-df96-4918-890355db0301@sony.com>
+Date:   Thu, 13 Aug 2020 20:18:55 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20200813133842.655aff65@oasis.local.home>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-GB
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=frmim2wf c=1 sm=1 tr=0 a=Jtaq2Av1iV2Yg7i8w6AGMw==:117 a=IkcTkHD0fZMA:10 a=y4yBn9ojGxQA:10 a=z6gsHLkEAAAA:8 a=2Xgm7kxpWWB7vV7sCCAA:9 a=jdrQNCl8WPiarg2q:21 a=WUXUPrc1PcCH_Irx:21 a=QEXdDO2ut3YA:10 a=d-OLMTCWyvARjPbQ-enb:22
+X-SEG-SpamProfiler-Score: 0
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 13, 2020 at 2:03 PM Lakshmi Ramasubramanian
-<nramas@linux.microsoft.com> wrote:
+On 8/13/20 7:38 PM, Steven Rostedt wrote:
+> On Thu, 13 Aug 2020 19:14:10 +0200
+> peter enderborg <peter.enderborg@sony.com> wrote:
 >
-> On 8/13/20 10:58 AM, Stephen Smalley wrote:
-> > On Thu, Aug 13, 2020 at 1:52 PM Lakshmi Ramasubramanian
-> > <nramas@linux.microsoft.com> wrote:
-> >>
-> >> On 8/13/20 10:42 AM, Stephen Smalley wrote:
-> >>
-> >>>> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
-> >>>> new file mode 100644
-> >>>> index 000000000000..f21b7de4e2ae
-> >>>> --- /dev/null
-> >>>> +++ b/security/selinux/measure.c
-> >>>> @@ -0,0 +1,204 @@
-> >>>> +static int selinux_hash_buffer(void *buf, size_t buf_len,
-> >>>> +                   void **buf_hash, int *buf_hash_len)
-> >>>> +{
-> >>>> +    struct crypto_shash *tfm;
-> >>>> +    struct shash_desc *desc = NULL;
-> >>>> +    void *digest = NULL;
-> >>>> +    int desc_size;
-> >>>> +    int digest_size;
-> >>>> +    int ret = 0;
-> >>>> +
-> >>>> +    tfm = crypto_alloc_shash("sha256", 0, 0);
-> >>>> +    if (IS_ERR(tfm))
-> >>>> +        return PTR_ERR(tfm);
-> >>> Can we make the algorithm selectable via kernel parameter and/or writing
-> >>> to a new selinuxfs node?
-> >>
-> >> I can add a kernel parameter to select this hash algorithm.
-> >
-> > Also can we provide a Kconfig option for the default value like IMA does?
-> >
+>>> To be clear, userspace tools can't use fixed secid values because
+>>> secids are dynamically assigned by SELinux and thus secid 42 need
+>>> not correspond to the same security context across different boots
+>>> even with the same kernel and policy.  I wouldn't include them in
+>>> the event unless it is common practice to include fields that can
+>>> only be interpreted if you can debug the running kernel.  It would
+>>> be akin to including kernel pointers in the event (albeit without
+>>> the KASLR ramifications).
+>>>
+>>>  
+>> Just as a reference on my fedora system; out of 1808 events 244 as a
+>> pointer print. I don't see that there is any obfuscating aka "%pK" as
+>> there is for logs.
+> Which is a reason why tracefs is root only.
 >
-> Would we need both - Kconfig and kernel param?
+> The "%p" gets obfuscated when printed from the trace file by default
+> now. But they are consistent (where the same pointer shows up as the
+> same hash).
 >
-> The other option is to provide an IMA function to return the current
-> hash algorithm used for measurement. That way a consistent hash
-> algorithm can be employed by both IMA and the callers. Would that be better?
+> It's used mainly to map together events. For example, if you print the
+> address of a skb in the networking events, it's good to know what
+> events reference the same skb, and the pointer is used for that.
 
-This is why I preferred just passing the serialized policy buffer to
-IMA and letting it handle the hashing.  But apparently that approach
-wouldn't fly.  IMA appears to support both a Kconfig option for
-selecting a default algorithm and a kernel parameter for overriding
-it.  I assume the idea is that the distros can pick a reasonable
-default and then the end users can override that if they have specific
-requirements.  I'd want the same for SELinux.  If IMA is willing to
-export its hash algorithm to external components, then I'm willing to
-reuse that but not sure if that's a layering violation.
+So what is your opinion on ssid? I dont mind removing them
+now since people dont like it and the strong use-case is not
+strong (yet). Is there any problem to put getting them back
+later if useful? And then before the strings so the evaluation
+of filter first come on number before stings Or is there already
+some mechanism that optimize for that?
+
+
+> -- Steve
+
+
