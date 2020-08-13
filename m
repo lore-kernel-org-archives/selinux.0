@@ -2,86 +2,160 @@ Return-Path: <SRS0=nsQl=BX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C164C433DF
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 17:38:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18DCCC433E1
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 17:42:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7FD3820791
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 17:38:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EB51F20838
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 17:42:43 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OkEW6+U1"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726334AbgHMRir convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Aug 2020 13:38:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50866 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726192AbgHMRiq (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 13 Aug 2020 13:38:46 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B172320791;
-        Thu, 13 Aug 2020 17:38:44 +0000 (UTC)
-Date:   Thu, 13 Aug 2020 13:38:42 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     peter enderborg <peter.enderborg@sony.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        =?UTF-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
-Subject: Re: [PATCH v2 2/2] selinux: add basic filtering for audit trace
- events
-Message-ID: <20200813133842.655aff65@oasis.local.home>
-In-Reply-To: <1b40226f-d182-7ba7-a6f6-15520c3e3516@sony.com>
-References: <20200813144914.737306-1-tweek@google.com>
-        <20200813144914.737306-2-tweek@google.com>
-        <02c193e4-008a-5c3d-75e8-9be7bbcb941c@schaufler-ca.com>
-        <a82d50bd-a0ec-bd06-7a3a-c2696398c4c3@sony.com>
-        <c4424850-645f-5788-fb35-922c81eace6b@gmail.com>
-        <1b40226f-d182-7ba7-a6f6-15520c3e3516@sony.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726244AbgHMRmn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Aug 2020 13:42:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44020 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726167AbgHMRmm (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 13:42:42 -0400
+Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62B29C061757;
+        Thu, 13 Aug 2020 10:42:42 -0700 (PDT)
+Received: by mail-qv1-xf41.google.com with SMTP id v1so1162702qvn.3;
+        Thu, 13 Aug 2020 10:42:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=edsea6bQ5zXUVSUZDs0jIcxJxKWes/2OHbEIYo9gFg8=;
+        b=OkEW6+U1d8ittfMnhMm6LTbWK/TofKCfZN5THOAR/5ixg+VXIOPannmlJ9xy+++WSs
+         doRVENdXxfobbA/C2ltOo7+wyGM4lshkQUy9ltdHiXPLWeP5QyfIKqE34xyCE5yDBGcc
+         J8Wo+mNo8fBy2y3DLIhEWoxU6E1qjDYvKhepxW8eeJio/QU5sMxmzu70wDC+G5X0eZ7f
+         UQ5f78YSu/w38/Om46mL0EhgnFKK6XrEc6r7D4XTh1xU6bXetGqn2H92P5v3+ttu7Ghn
+         TjPmG6WTcd0EoIFjc7w7wI7OoQsZ7eeUn75KBzBqoCjjt9/DOpONqsnMnS0NjOKYSZbt
+         dNgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=edsea6bQ5zXUVSUZDs0jIcxJxKWes/2OHbEIYo9gFg8=;
+        b=IwYSNigyJYLIhk2cEADDcnsLT+pql9RVbDHJawHv7e1Ch9re17YrGNMf8Uywuj0d0n
+         JehlcV64zUDZlDKsH+w7F8IUp0dG8/eFRXzNan9vBs36DrmYrEMyY8dDnVe646Ac1AKd
+         /O/PHSv6gKDW6BDdnyBnQqzSZ4SCqJu9hP+8pO/Cw1plKRASwE5Yv7EWEUeEMDt9wKmU
+         Vhb7npFcy10DxlxPN51rhhqS4PVoasfIW3EHoj1xo2YHsgAG5yJWnS4W4LxaCLKYzuF5
+         n4iem1ucg9uHW3K7AJsJpRfxeDjBxwMhMUFn4WfhCAnoREpwF32kK0I9aiMWVzGytFCV
+         P7xQ==
+X-Gm-Message-State: AOAM530UwZNLvGffFLKat+VicpKIREJzPUFbU8jC1yTUzbP0OVgHvjtP
+        Gw3ytix46KbyY6d/PqLmFZ0=
+X-Google-Smtp-Source: ABdhPJwJZHKhXz3ZAdrQAHXpJueeSr6wdckjie6kcf0SLr5f+NxuJacbfNMjuDfNMP1bU8t7zd8U7A==
+X-Received: by 2002:ad4:470f:: with SMTP id k15mr5738488qvz.216.1597340561433;
+        Thu, 13 Aug 2020 10:42:41 -0700 (PDT)
+Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
+        by smtp.gmail.com with ESMTPSA id h20sm5956400qkk.79.2020.08.13.10.42.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 Aug 2020 10:42:41 -0700 (PDT)
+Subject: Re: [PATCH 2/2] SELinux: Measure state and hash of policy using IMA
+To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
+        zohar@linux.ibm.com, casey@schaufler-ca.com
+Cc:     tyhicks@linux.microsoft.com, tusharsu@linux.microsoft.com,
+        sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, paul Moore <paul@paul-moore.com>
+References: <20200813170707.2659-1-nramas@linux.microsoft.com>
+ <20200813170707.2659-3-nramas@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Message-ID: <5f738fd8-fe28-5358-b3d8-b671b45caa7f@gmail.com>
+Date:   Thu, 13 Aug 2020 13:42:40 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20200813170707.2659-3-nramas@linux.microsoft.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 13 Aug 2020 19:14:10 +0200
-peter enderborg <peter.enderborg@sony.com> wrote:
+On 8/13/20 1:07 PM, Lakshmi Ramasubramanian wrote:
 
-> > To be clear, userspace tools can't use fixed secid values because
-> > secids are dynamically assigned by SELinux and thus secid 42 need
-> > not correspond to the same security context across different boots
-> > even with the same kernel and policy.  I wouldn't include them in
-> > the event unless it is common practice to include fields that can
-> > only be interpreted if you can debug the running kernel.  It would
-> > be akin to including kernel pointers in the event (albeit without
-> > the KASLR ramifications).
-> >
-> >  
-> Just as a reference on my fedora system; out of 1808 events 244 as a
-> pointer print. I don't see that there is any obfuscating aka "%pK" as
-> there is for logs.
-
-Which is a reason why tracefs is root only.
-
-The "%p" gets obfuscated when printed from the trace file by default
-now. But they are consistent (where the same pointer shows up as the
-same hash).
-
-It's used mainly to map together events. For example, if you print the
-address of a skb in the networking events, it's good to know what
-events reference the same skb, and the pointer is used for that.
-
--- Steve
+> SELinux configuration and policy are some of the critical data for this
+> security module that needs to be measured. This measurement can be used
+> by an attestation service, for instance, to verify if the configuration
+> and policies have been setup correctly and that they haven't been tampered
+> with at runtime.
+>
+> Measure SELinux configuration, policy capabilities settings, and the hash
+> of the loaded policy by calling the IMA hook ima_measure_critical_data().
+>
+> Sample measurement of SELinux state and hash of the policy:
+>
+> 10 e32e...5ac3 ima-buf sha256:86e8...4594 selinux-state-1595389364:287899386 696e697469616c697a65643d313b656e61626c65643d313b656e666f7263696e673d303b636865636b72657170726f743d313b6e6574776f726b5f706565725f636f6e74726f6c733d313b6f70656e5f7065726d733d313b657874656e6465645f736f636b65745f636c6173733d313b616c776179735f636865636b5f6e6574776f726b3d303b6367726f75705f7365636c6162656c3d313b6e6e705f6e6f737569645f7472616e736974696f6e3d313b67656e66735f7365636c6162656c5f73796d6c696e6b733d303
+> 10 9e81...0857 ima-buf sha256:4941...68fc selinux-policy-hash-1597335667:462051628 8d1d...1834
+>
+> To verify the measurement check the following:
+>
+> Execute the following command to extract the measured data
+> from the IMA log for SELinux configuration (selinux-state).
+>
+>    grep -m 1 "selinux-state" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | cut -d' ' -f 6 | xxd -r -p
+>
+> The output should be the list of key-value pairs. For example,
+>   initialized=1;enabled=1;enforcing=0;checkreqprot=1;network_peer_controls=1;open_perms=1;extended_socket_class=1;always_check_network=0;cgroup_seclabel=1;nnp_nosuid_transition=1;genfs_seclabel_symlinks=0;
+>
+> To verify the measured data with the current SELinux state:
+>
+>   => enabled should be set to 1 if /sys/fs/selinux folder exists,
+>      0 otherwise
+>
+> For other entries, compare the integer value in the files
+>   => /sys/fs/selinux/enforce
+>   => /sys/fs/selinux/checkreqprot
+> And, each of the policy capabilities files under
+>   => /sys/fs/selinux/policy_capabilities
+>
+> For selinux-policy-hash, the hash of SELinux policy is included
+> in the IMA log entry.
+>
+> To verify the measured data with the current SELinux policy run
+> the following commands and verify the output hash values match.
+>
+>    sha256sum /sys/fs/selinux/policy | cut -d' ' -f 1
+>
+>    grep -m 1 "selinux-policy-hash" /sys/kernel/security/integrity/ima/ascii_runtime_measurements | cut -d' ' -f 6
+>
+> Signed-off-by: Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Reported-by: kernel test robot <lkp@intel.com> # error: implicit declaration of function 'vfree'
+> Reported-by: kernel test robot <lkp@intel.com> # error: implicit declaration of function 'crypto_alloc_shash'
+> Reported-by: kernel test robot <lkp@intel.com> # sparse: symbol 'security_read_selinux_policy' was not declared. Should it be static?
+> ---
+>   
+> diff --git a/security/selinux/measure.c b/security/selinux/measure.c
+> new file mode 100644
+> index 000000000000..f21b7de4e2ae
+> --- /dev/null
+> +++ b/security/selinux/measure.c
+> @@ -0,0 +1,204 @@
+> +static int selinux_hash_buffer(void *buf, size_t buf_len,
+> +			       void **buf_hash, int *buf_hash_len)
+> +{
+> +	struct crypto_shash *tfm;
+> +	struct shash_desc *desc = NULL;
+> +	void *digest = NULL;
+> +	int desc_size;
+> +	int digest_size;
+> +	int ret = 0;
+> +
+> +	tfm = crypto_alloc_shash("sha256", 0, 0);
+> +	if (IS_ERR(tfm))
+> +		return PTR_ERR(tfm);
+Can we make the algorithm selectable via kernel parameter and/or writing 
+to a new selinuxfs node?
