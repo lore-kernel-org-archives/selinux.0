@@ -2,92 +2,189 @@ Return-Path: <SRS0=nsQl=BX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E2CEC433DF
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 16:10:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BF5CC433E1
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 16:26:00 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4815520716
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 16:10:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 046C320658
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 16:26:00 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lMzKV2+6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726305AbgHMQK3 convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Aug 2020 12:10:29 -0400
-Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:15302 "EHLO
-        SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726252AbgHMQK3 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 12:10:29 -0400
-Subject: Re: [PATCH v2 2/2] selinux: add basic filtering for audit trace
- events
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>
-CC:     Nick Kralevich <nnk@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
-References: <20200813144914.737306-1-tweek@google.com>
- <20200813144914.737306-2-tweek@google.com>
- <02c193e4-008a-5c3d-75e8-9be7bbcb941c@schaufler-ca.com>
- <a82d50bd-a0ec-bd06-7a3a-c2696398c4c3@sony.com>
- <c4424850-645f-5788-fb35-922c81eace6b@gmail.com>
-From:   peter enderborg <peter.enderborg@sony.com>
-Message-ID: <8386aa4a-0687-769b-235d-9e8bf34ecf90@sony.com>
-Date:   Thu, 13 Aug 2020 18:10:25 +0200
+        id S1726631AbgHMQZ7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Aug 2020 12:25:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60424 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726627AbgHMQZ7 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 12:25:59 -0400
+Received: from mail-qk1-x743.google.com (mail-qk1-x743.google.com [IPv6:2607:f8b0:4864:20::743])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E61CC061757;
+        Thu, 13 Aug 2020 09:25:59 -0700 (PDT)
+Received: by mail-qk1-x743.google.com with SMTP id g26so5709858qka.3;
+        Thu, 13 Aug 2020 09:25:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=MowTd3fsw3oazxlDPxjuTvtQgpHnYsiLm67c7t1uMu4=;
+        b=lMzKV2+6SLZsfczlHACdvtAjRypFyTbivwvbglrFIhpv0v4R52VGs1dhSOGH3AI4fG
+         9rewbvFk31UUfusXGm+vHe/chH7G/AGGp0zDu55kyZpoZ0AGttjkN5x3SRydNo7AdopN
+         4atvqzECauZvT/pUCB18iVQYe6xQ3ExVRTMbCuX1MXJ/N1+9ZYjmHkl4zrYOObI6rLi4
+         j4B1dEv+JKOuio70NJDPF37KpXlAElKaQ0ShoxbjFUa1upcJGGdSIMQUfEiWEV6nsA45
+         4dNfe2MJ/raZggw7ovMO6d/rp5IT1tCv8EfUfRn4paU9a5NLsdN/Gm1vJOjVCeAOW98d
+         Frzg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=MowTd3fsw3oazxlDPxjuTvtQgpHnYsiLm67c7t1uMu4=;
+        b=S9+EIjcafougyo+AvYLd5XadWrpYdP91Fv1M5S+BVxlYdlqYGR0+t2u3kooNxdmEqH
+         AVwLLaWAZCK6mpxOKxtmls16XZBNUpMIVjovVhOiqRrE+y3Q7RzASIPL/d29nsUxUNRr
+         iWjC+ccJUyv4FE2Q3H2oItGAglCxtAh4w2N3pBcKjQsTz/BCAkMVKqzR7iVtksH30ADw
+         iEr6/obu0xJuhV5+bMHYe6FXH0opmDYQp25oY28RFu+lJcMlxPo5cVyIPZOnejg0L5xL
+         ZuVvf9NA1OQEvAXjNAOynSpUaBn2nh1F++yMXkN3GRV23JfkGmqE8hprVUkA5NrdY1Bk
+         70sQ==
+X-Gm-Message-State: AOAM5320oX+zKIkWND6C0sH0kbZ/E0+yzfzlpObav4jQB2gg7095LYP5
+        CvKahuZ86lzCneAPvWOitb8=
+X-Google-Smtp-Source: ABdhPJyRs07qIHgN2eVDBdyM9K3v8au2o1CX7eH3HCQS7cFm9obu67iV+hMQD01HGDWl3aTS2yHdjg==
+X-Received: by 2002:a37:b787:: with SMTP id h129mr5168271qkf.402.1597335958375;
+        Thu, 13 Aug 2020 09:25:58 -0700 (PDT)
+Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
+        by smtp.gmail.com with ESMTPSA id w12sm5564438qkj.116.2020.08.13.09.25.57
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 13 Aug 2020 09:25:57 -0700 (PDT)
+Subject: Re: [PATCH v2 4/4] selinux: Create new booleans and class dirs out of
+ tree
+To:     Daniel Burgener <dburgener@linux.microsoft.com>,
+        selinux@vger.kernel.org
+Cc:     omosnace@redhat.com, paul@paul-moore.com,
+        linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk
+References: <20200812191525.1120850-1-dburgener@linux.microsoft.com>
+ <20200812191525.1120850-5-dburgener@linux.microsoft.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Message-ID: <8540e665-1722-35f9-ec39-f4038e1f90ca@gmail.com>
+Date:   Thu, 13 Aug 2020 12:25:56 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <c4424850-645f-5788-fb35-922c81eace6b@gmail.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Language: en-GB
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=frmim2wf c=1 sm=1 tr=0 a=kIrCkORFHx6JeP9rmF/Kww==:117 a=IkcTkHD0fZMA:10 a=y4yBn9ojGxQA:10 a=z6gsHLkEAAAA:8 a=-He6eWZHxituxyHJLsQA:9 a=QEXdDO2ut3YA:10 a=d-OLMTCWyvARjPbQ-enb:22
-X-SEG-SpamProfiler-Score: 0
+In-Reply-To: <20200812191525.1120850-5-dburgener@linux.microsoft.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/13/20 5:49 PM, Stephen Smalley wrote:
-> On 8/13/20 11:35 AM, peter enderborg wrote:
+On 8/12/20 3:15 PM, Daniel Burgener wrote:
+
+> In order to avoid concurrency issues around selinuxfs resource availability
+> during policy load, we first create new directories out of tree for
+> reloaded resources, then swap them in, and finally delete the old versions.
 >
->> On 8/13/20 5:05 PM, Casey Schaufler wrote:
->>> On 8/13/2020 7:48 AM, Thiébaud Weksteen wrote:
->>>> From: Peter Enderborg <peter.enderborg@sony.com>
->>>>
->>>> This patch adds further attributes to the event. These attributes are
->>>> helpful to understand the context of the message and can be used
->>>> to filter the events.
->>>>
->>>> There are three common items. Source context, target context and tclass.
->>>> There are also items from the outcome of operation performed.
->>>>
->>>> An event is similar to:
->>>>             <...>-1309  [002] ....  6346.691689: selinux_audited:
->>>>         requested=0x4000000 denied=0x4000000 audited=0x4000000
->>>>         result=-13 ssid=315 tsid=61
->>> It may not be my place to ask, but *please please please* don't
->>> externalize secids. I understand that it's easier to type "42"
->>> than "system_r:cupsd_t:s0-s0:c0.c1023", and that it's easier for
->>> your tools to parse and store the number. Once you start training
->>> people that system_r:cupsd_t:s0-s0:c0.c1023 is secid 42 you'll
->>> never be able to change it. The secid will start showing up in
->>> scripts. Bad  Things  Will  Happen.
->> Ok, it seems to mostly against having this performance options.
->> Yes, it is a kernel internal data. So is most of the kernel tracing.
->> I see it is a primary tool for kernel debugging but than can also be
->> used for user-space debugging tools.  Hiding data for debuggers
->> does not make any sense too me.
+> This fix focuses on concurrency in each of the three subtrees swapped, and
+> not concurrency across the three trees.  This means that it is still possible
+> that subsequent reads to eg the booleans directory and the class directory
+> during a policy load could see the old state for one and the new for the other.
+> The problem of ensuring that policy loads are fully atomic from the perspective
+> of userspace is larger than what is dealt with here.  This commit focuses on
+> ensuring that the directories contents always match either the new or the old
+> policy state from the perspective of userspace.
 >
-> To be clear, userspace tools can't use fixed secid values because secids are dynamically assigned by SELinux and thus secid 42 need not correspond to the same security context across different boots even with the same kernel and policy.  I wouldn't include them in the event unless it is common practice to include fields that can only be interpreted if you can debug the running kernel.  It would be akin to including kernel pointers in the event (albeit without the KASLR ramifications).
+> In the previous implementation, on policy load /sys/fs/selinux is updated
+> by deleting the previous contents of
+> /sys/fs/selinux/{class,booleans} and then recreating them.  This means
+> that there is a period of time when the contents of these directories do not
+> exist which can cause race conditions as userspace relies on them for
+> information about the policy.  In addition, it means that error recovery in
+> the event of failure is challenging.
 >
-Yes of course. Trace debugging is about running kernel. Would i make more sense if the was a debugfs entry with the sid's? This filter are a reminisce  of the same filter used not only to catch denials. Doing a string compare
-for all syscalls keep the cpu busy.  I will do an update without it.
+> In order to demonstrate the race condition that this series fixes, you
+> can use the following commands:
+>
+> while true; do cat /sys/fs/selinux/class/service/perms/status
+>> /dev/null; done &
+> while true; do load_policy; done;
+>
+> In the existing code, this will display errors fairly often as the class
+> lookup fails.  (In normal operation from systemd, this would result in a
+> permission check which would be allowed or denied based on policy settings
+> around unknown object classes.) After applying this patch series you
+> should expect to no longer see such error messages.
+>
+> Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+> ---
+>   security/selinux/selinuxfs.c | 145 +++++++++++++++++++++++++++++------
+>   1 file changed, 120 insertions(+), 25 deletions(-)
+>
+> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+> index f09afdb90ddd..d3a19170210a 100644
+> --- a/security/selinux/selinuxfs.c
+> +++ b/security/selinux/selinuxfs.c
+> +	tmp_policycap_dir = sel_make_dir(tmp_parent, POLICYCAP_DIR_NAME, &fsi->last_ino);
+> +	if (IS_ERR(tmp_policycap_dir)) {
+> +		ret = PTR_ERR(tmp_policycap_dir);
+> +		goto out;
+> +	}
+
+No need to re-create this one.
+
+> -	return 0;
+> +	// booleans
+> +	old_dentry = fsi->bool_dir;
+> +	lock_rename(tmp_bool_dir, old_dentry);
+> +	ret = vfs_rename(tmp_parent->d_inode, tmp_bool_dir, fsi->sb->s_root->d_inode,
+> +			 fsi->bool_dir, NULL, RENAME_EXCHANGE);
+
+One issue with using vfs_rename() is that it will trigger all of the 
+permission checks associated with renaming, and previously this was 
+never required for selinuxfs and therefore might not be allowed in some 
+policies even to a process allowed to reload policy.  So if you need to 
+do this, you may want to override creds around this call to use the init 
+cred (which will still require allowing it to the kernel domain but not 
+necessarily to the process that is performing the policy load).  The 
+other issue is that you then have to implement a rename inode operation 
+and thus technically it is possible for userspace to also attempt 
+renames on selinuxfs to the extent allowed by policy.  I see that 
+debugfs has a debugfs_rename() that internally uses simple_rename() but 
+I guess that doesn't cover the RENAME_EXCHANGE case.
+
+> +	// Since the other temporary dirs are children of tmp_parent
+> +	// this will handle all the cleanup in the case of a failure before
+> +	// the swapover
+
+Don't use // style comments please, especially not for multi-line 
+comments.  I think they are only used in selinux for the 
+script-generated license lines.
+
+> +static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
+> +						unsigned long *ino)
+> +{
+> +	struct inode *inode = sel_make_inode(sb, S_IFDIR | S_IRUGO | S_IXUGO);
+> +
+> +	if (!inode)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	inode->i_op = &sel_dir_inode_operations;
+> +	inode->i_fop = &simple_dir_operations;
+> +	inode->i_ino = ++(*ino);
+> +	/* directory inodes start off with i_nlink == 2 (for "." entry) */
+> +	inc_nlink(inode);
+> +	return d_obtain_alias(inode);
+> +}
+> +
+
+Since you are always incrementing the last_ino counter and never reusing 
+the ones for the removed inodes, you could technically eventually end up 
+with one of these directories have the same inode number as one of the 
+inodes whose inode numbers are generated in specific ranges (i.e. for 
+initial_contexts, booleans, classes, and policy capabilities). Optimally 
+we'd just reuse the inode number for the inode we are replacing?
+
 
