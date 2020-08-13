@@ -2,92 +2,109 @@ Return-Path: <SRS0=nsQl=BX=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E02F6C433E1
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 19:16:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11A37C433E1
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 20:02:14 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CC5752087C
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 19:16:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DCD5120774
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 20:02:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="v+Ik206z"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726533AbgHMTQu (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Aug 2020 15:16:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56676 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726167AbgHMTQt (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Thu, 13 Aug 2020 15:16:49 -0400
-Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D03C20774;
-        Thu, 13 Aug 2020 19:16:48 +0000 (UTC)
-Date:   Thu, 13 Aug 2020 15:16:46 -0400
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     peter enderborg <peter.enderborg@sony.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        =?UTF-8?B?VGhpw6liYXVk?= Weksteen <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        <linux-kernel@vger.kernel.org>, <selinux@vger.kernel.org>
-Subject: Re: [PATCH v2 2/2] selinux: add basic filtering for audit trace
- events
-Message-ID: <20200813151646.513423a3@oasis.local.home>
-In-Reply-To: <c1f8c9a9-d123-df96-4918-890355db0301@sony.com>
-References: <20200813144914.737306-1-tweek@google.com>
-        <20200813144914.737306-2-tweek@google.com>
-        <02c193e4-008a-5c3d-75e8-9be7bbcb941c@schaufler-ca.com>
-        <a82d50bd-a0ec-bd06-7a3a-c2696398c4c3@sony.com>
-        <c4424850-645f-5788-fb35-922c81eace6b@gmail.com>
-        <1b40226f-d182-7ba7-a6f6-15520c3e3516@sony.com>
-        <20200813133842.655aff65@oasis.local.home>
-        <c1f8c9a9-d123-df96-4918-890355db0301@sony.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726570AbgHMUCN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Aug 2020 16:02:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726384AbgHMUCN (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 16:02:13 -0400
+Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 358BAC061757
+        for <selinux@vger.kernel.org>; Thu, 13 Aug 2020 13:02:13 -0700 (PDT)
+Received: by mail-qv1-xf34.google.com with SMTP id x7so3232624qvi.5
+        for <selinux@vger.kernel.org>; Thu, 13 Aug 2020 13:02:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:date:message-id:in-reply-to:references:user-agent:subject
+         :mime-version:content-transfer-encoding;
+        bh=QIoPJZdR5+4QaH+f20EpkMcURmfhum0M8LtTVL2hMm4=;
+        b=v+Ik206z03dIxpQnhrq5XIBEolCGQ9ittilFceWzW2GGkqHbssECHFlPqs1ngdpJmr
+         GD7wDMo2Jqsv0sM3R52kQPi0XkGAbrUoXJPDsM+pDWifNkLMICcEq9bxIsvb65Zlux1m
+         f/P8OKEou4f5NneWOZauqNU1eNj5W0+SFavcewSTafdj2f7VGTNaZtwdIhd6nOkQ9ozI
+         Bv8djOvF1tFi/m2RLYRWlUctkGgnbROnTpq3okkrAHj+tgTjnHLKPgto0F+y83YOowHx
+         j/cTld3pneoE2g68EnQ/jnE1uXSy88ttuHYPQLdnzaKoGxSvAyVaWpkPH0xBODvLxHag
+         sejA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:date:message-id:in-reply-to:references
+         :user-agent:subject:mime-version:content-transfer-encoding;
+        bh=QIoPJZdR5+4QaH+f20EpkMcURmfhum0M8LtTVL2hMm4=;
+        b=b+yJPJDw+dxmn4DUkUHNYde8MTe/mglacKu+QEAuRwWaLTdFkP8IZ8hX/w9/ld+uP1
+         RYgR+SbsL0tXLVz4jNJfZW83SHfdVgOta0yyXSZE1f2MV3xjGXgCxM1djqglASDpvBa0
+         IEX6cBvHRDBsl3aHRcSWsbsqHuYrG9Ze7mwEQq9XIjst1abgFdKG9sdDHo8tnzoIi/vl
+         P185Z9yX5p1bQG9kKfpwIpV56wuFgw773kY8ACZC6IJIVjzITzny+vjtol8x/pcxCuyX
+         tKhB0fxRcPTSjfud984w7wY/mHAY3byUPx6fJmQggViKNh57qL5IVY39+zvrVqtHIEJe
+         BBiw==
+X-Gm-Message-State: AOAM533rg37GAI2dE2qBEnptE89r5FLMErJoFMOpVgRMkeZ6tEaQRICO
+        Oea1ERpMQ+KUBuSx86YeElQI
+X-Google-Smtp-Source: ABdhPJzJ2nBlU0jjgDjLt/hxoU2BHl7mT/2chbnddvQ4Gp2UqA2Rz265ArygvXAcpf3at0JlZYQ5cw==
+X-Received: by 2002:a05:6214:10e8:: with SMTP id q8mr6014245qvt.59.1597348931145;
+        Thu, 13 Aug 2020 13:02:11 -0700 (PDT)
+Received: from [10.0.0.46] (c-24-91-201-67.hsd1.ma.comcast.net. [24.91.201.67])
+        by smtp.gmail.com with ESMTPSA id o2sm6352363qkh.102.2020.08.13.13.02.10
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 13 Aug 2020 13:02:10 -0700 (PDT)
+From:   Paul Moore <paul@paul-moore.com>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
+Date:   Thu, 13 Aug 2020 16:02:09 -0400
+Message-ID: <173e96a5de8.27df.85c95baa4474aabc7814e68940a78392@paul-moore.com>
+In-Reply-To: <CAEjxPJ6b0MM-04XwcE58N-BiOBBi2g-1AZovoBmPGgcfU_wZiQ@mail.gmail.com>
+References: <CAEjxPJ6b0MM-04XwcE58N-BiOBBi2g-1AZovoBmPGgcfU_wZiQ@mail.gmail.com>
+User-Agent: AquaMail/1.25.2-1672 (build: 102500008)
+Subject: Re: potential memory leak in netlbl_mgmt_add_common
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, 13 Aug 2020 20:18:55 +0200
-peter enderborg <peter.enderborg@sony.com> wrote:
+I have limited network access at the moment, if no one looks into it this w=
+eek I'll take a look next week.
 
-> > The "%p" gets obfuscated when printed from the trace file by default
-> > now. But they are consistent (where the same pointer shows up as the
-> > same hash).
-> >
-> > It's used mainly to map together events. For example, if you print the
-> > address of a skb in the networking events, it's good to know what
-> > events reference the same skb, and the pointer is used for that.  
-> 
-> So what is your opinion on ssid? I dont mind removing them
-> now since people dont like it and the strong use-case is not
-> strong (yet). Is there any problem to put getting them back
-> later if useful? And then before the strings so the evaluation
-> of filter first come on number before stings Or is there already
-> some mechanism that optimize for that?
+--
+paul moore
+www.paul-moore.com
+On August 13, 2020 12:32:00 PM Stephen Smalley <stephen.smalley.work@gmail.=
+com> wrote:
 
-It's up to the owner of the trace event. I only replied to why pointers
-in general are useful, but they are mostly just "ids" to map to other
-trace events.
+> I noticed this in /sys/kernel/debug/kmemleak while testing other
+> patches.  This is on 5.8.0-rc1 but may be older.
+>
+> unreferenced object 0xffff888158b40380 (size 32):
+>  comm "netlabelctl", pid 2982, jiffies 4295212079 (age 3234.561s)
+>  hex dump (first 32 bytes):
+>    80 03 b4 58 81 88 ff ff 80 03 b4 58 81 88 ff ff  ...X.......X....
+>    90 03 b4 58 81 88 ff ff 90 03 b4 58 81 88 ff ff  ...X.......X....
+>  backtrace:
+>    [<000000009fe161a4>] netlbl_mgmt_add_common+0x2df/0x9b0
+>    [<00000000816cc1d9>] netlbl_mgmt_adddef+0x133/0x190
+>    [<00000000f060e456>] genl_rcv_msg+0x2dd/0x490
+>    [<000000001c733400>] netlink_rcv_skb+0xd0/0x200
+>    [<00000000c42f6f58>] genl_rcv+0x24/0x40
+>    [<000000005421c040>] netlink_unicast+0x2b4/0x3e0
+>    [<00000000ab107bba>] netlink_sendmsg+0x3a6/0x660
+>    [<00000000643024bd>] sock_sendmsg+0x96/0xa0
+>    [<00000000ba78e5a6>] ____sys_sendmsg+0x404/0x440
+>    [<000000006f3de0f5>] ___sys_sendmsg+0xd8/0x140
+>    [<000000009b8c70ea>] __sys_sendmsg+0xa3/0x110
+>    [<00000000e65194c3>] do_syscall_64+0x52/0xb0
+>    [<00000000367aebc6>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-We have the libtraceevent that should be used for parsing raw trace
-events in binary form. The library (which currently lives in the
-kernel's tools/lib/traceeevnt directory) I'm trying to get to have its
-own home that distros can package. It should never be an issue adding
-another field to an event, as the library gives the tools the ability
-to find a field of an event regardless of where it is positioned, and
-also let the tools know if the field exists or not.
 
-If that's what you are asking.
 
--- Steve
