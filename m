@@ -7,63 +7,64 @@ X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B423C433E1
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 15:41:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BAEDC433E1
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 15:49:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CA46F20829
-	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 15:41:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E584B20781
+	for <selinux@archiver.kernel.org>; Thu, 13 Aug 2020 15:49:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FoiCx99n"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U6sWqj/i"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726691AbgHMPlx (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 13 Aug 2020 11:41:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53588 "EHLO
+        id S1726167AbgHMPtv (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 13 Aug 2020 11:49:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726522AbgHMPlu (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 11:41:50 -0400
-Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE2DC061757;
-        Thu, 13 Aug 2020 08:41:50 -0700 (PDT)
-Received: by mail-qt1-x842.google.com with SMTP id 6so4707693qtt.0;
-        Thu, 13 Aug 2020 08:41:50 -0700 (PDT)
+        with ESMTP id S1726131AbgHMPtv (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 13 Aug 2020 11:49:51 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 298F0C061757;
+        Thu, 13 Aug 2020 08:49:51 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id b14so5588539qkn.4;
+        Thu, 13 Aug 2020 08:49:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=T7OhuuwqfjmZPOHt/vuVyRTlO6DVRYXp/MrPZLRwoQM=;
-        b=FoiCx99n9BHbB2/qprMvfuSCLcC6D1MR3TRY/6MiZ6/+q90nfkSd+OUiL2MrxQemZP
-         8dJmX7M2iAZWx0p6pxz2uoz/DTEQAp+KS4XB1p5jnlc1bB0UyOPRVnHvzRGOjsEh2h/q
-         am2l8mkSlXCYHjcHMY5gjMb08urEtd21VDfl/AuAW0tkAiIkvhpltH7xH5UGvKiBHs7F
-         9xhNHs537P5PPkA4w7c0CaGqcUQ8MKtPI0v6ZzaLUh4ZWAFuJL/7hRIbTGWx817aHpkI
-         4M/5Kr/jb7yiTrH5c0ZkwH+eYlDkqlmAGOtLSPk5rXbrj9WCctY872Zcvi8LY+gK/KHY
-         Ghug==
+        bh=IjouL40zx/qLWNtDPPiiySnfcdkb5vHL1eOLgjTXpyM=;
+        b=U6sWqj/i6i22WPrrm7NEadqRmm9hYSvkQwCq2mjwIs1i7KcZmVhWRUZueN6t2WNBbn
+         dCaYpjGArxUTEz65s7dgdSehLQTdQ7eh1PO0tVvffCeUNFls3ps2R5e0a+IAFl2YgGsO
+         /4aVZY8vmYktgPlhsgrg2uCrbgiPdpgglR4XBLObw3DnwiilD2z/grQRM/LRNu069J7V
+         01j5d6jYWWgcBpAi5lWmBYArYQuaqBGYw2x+AVofnlYHuVjcx/i5j+T4W0XmU9zvPaBH
+         AQ33ORKHDRteF/nctfVlUWE/3T+yfqWYZEbEz0NlVip13Oa8sparzJx7GpejSCzw8ilA
+         103g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-transfer-encoding
          :content-language;
-        bh=T7OhuuwqfjmZPOHt/vuVyRTlO6DVRYXp/MrPZLRwoQM=;
-        b=ljwEjNS6POil/BM/EFPI/PxEc0291x4s2MZnbMFGwsWvTS5O/0bkEyiGLzKKwHK1s3
-         Av0vBeMfzsa6y1kNRQp7Ablom+pQn/x7PIGu4QvCaKr5Mq2f0uUlhBNnKzftJnYwBo7B
-         T1jkIGe2ufG+RvG9REA1TxdxNmRMVTptov95luewd22DTQ/1YFpfRVoX/vE3c5oXcIq0
-         88cCqY6asdjW90C9Rta/qfPxkBQp6rGs4QKpzwdzmrQHKXTNwjW38rHn0/cBMHO/42dM
-         SoulWJcRSbF6puV9Jr6vuooIJjaYnIddbFOWmez/qTyIKb/+LjJLwzcMM4nWlAf3mFaN
-         +q6w==
-X-Gm-Message-State: AOAM532OBphy1YK1rwpk529Al874+QLpxMH//Rntlm9CfeMbaDIFzTir
-        5OZqbI0Op1r1xh7/2HnliPF/emmr
-X-Google-Smtp-Source: ABdhPJzYHX15HPUyZI5txPARd3YTKU5RZQ4ENnbLf6Ya5SQ1H4KTuwzGIkbbN6P/Prxpt3diXLbLnQ==
-X-Received: by 2002:aed:2825:: with SMTP id r34mr5518049qtd.321.1597333309560;
-        Thu, 13 Aug 2020 08:41:49 -0700 (PDT)
+        bh=IjouL40zx/qLWNtDPPiiySnfcdkb5vHL1eOLgjTXpyM=;
+        b=g5cebO87h/Q18nb+ZXzyrij9Y8/Lp4WT9Yzhxc5tSq2tiZ47dXZNP+ORPJlufQReAi
+         qqarA0kL4H54cmxrE8XtaZHmyhUPqp7aTBJjE4l1RV6ZQrDVIYW+a9nBp1nZ1pJOJjaS
+         GFJhCUAxO8QM1mrkgzL0LOcpc59kbGIXotxAhnQS/lK4vZFyPW9FtYeMjw0LvuGP6UMz
+         dIabRcYX+n0lEdmG5dm5ZxM5fUR/L4MIK70jE33YOKkVfvcC2PwvD/C5n00Xjfcb94Qp
+         KJn7TBoZvwMK5aO0ZsjpY1zsyDrQs0MD4PLPEPmby8LcedVygc5SeT5TsCqdpfcchiTA
+         0vVQ==
+X-Gm-Message-State: AOAM533yZsMgkrJpdUMyzGC0ycRgrXdspuxKbiS8GVcqO59IzzHOsxXP
+        7eospklVIfwgG2l40o8qU2JXtk8j
+X-Google-Smtp-Source: ABdhPJxLpPrwbBa1O/z54hHFSzdBBDsQqaenpO052OYr4U6cg/S8t4viqIQoACpb6X4J6+U/9CLNLg==
+X-Received: by 2002:a05:620a:98a:: with SMTP id x10mr5084190qkx.375.1597333790199;
+        Thu, 13 Aug 2020 08:49:50 -0700 (PDT)
 Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
-        by smtp.gmail.com with ESMTPSA id y3sm7176981qtj.55.2020.08.13.08.41.48
+        by smtp.gmail.com with ESMTPSA id q7sm5805663qkf.35.2020.08.13.08.49.49
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 13 Aug 2020 08:41:49 -0700 (PDT)
-Subject: Re: [PATCH v2 1/2] selinux: add tracepoint on denials
-To:     =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
+        Thu, 13 Aug 2020 08:49:49 -0700 (PDT)
+Subject: Re: [PATCH v2 2/2] selinux: add basic filtering for audit trace
+ events
+To:     peter enderborg <peter.enderborg@sony.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
         Paul Moore <paul@paul-moore.com>
 Cc:     Nick Kralevich <nnk@google.com>,
-        Joel Fernandes <joelaf@google.com>,
-        Peter Enderborg <peter.enderborg@sony.com>,
         Eric Paris <eparis@parisplace.org>,
         Steven Rostedt <rostedt@goodmis.org>,
         Ingo Molnar <mingo@redhat.com>,
@@ -72,13 +73,16 @@ Cc:     Nick Kralevich <nnk@google.com>,
         Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
         linux-kernel@vger.kernel.org, selinux@vger.kernel.org
 References: <20200813144914.737306-1-tweek@google.com>
+ <20200813144914.737306-2-tweek@google.com>
+ <02c193e4-008a-5c3d-75e8-9be7bbcb941c@schaufler-ca.com>
+ <a82d50bd-a0ec-bd06-7a3a-c2696398c4c3@sony.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Message-ID: <15e2e26d-fe4b-679c-b5c0-c96d56e09853@gmail.com>
-Date:   Thu, 13 Aug 2020 11:41:48 -0400
+Message-ID: <c4424850-645f-5788-fb35-922c81eace6b@gmail.com>
+Date:   Thu, 13 Aug 2020 11:49:48 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200813144914.737306-1-tweek@google.com>
+In-Reply-To: <a82d50bd-a0ec-bd06-7a3a-c2696398c4c3@sony.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
@@ -87,56 +91,41 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/13/20 10:48 AM, Thiébaud Weksteen wrote:
+On 8/13/20 11:35 AM, peter enderborg wrote:
 
-> The audit data currently captures which process and which target
-> is responsible for a denial. There is no data on where exactly in the
-> process that call occurred. Debugging can be made easier by being able to
-> reconstruct the unified kernel and userland stack traces [1]. Add a
-> tracepoint on the SELinux denials which can then be used by userland
-> (i.e. perf).
->
-> Although this patch could manually be added by each OS developer to
-> trouble shoot a denial, adding it to the kernel streamlines the
-> developers workflow.
->
-> It is possible to use perf for monitoring the event:
->    # perf record -e avc:selinux_audited -g -a
->    ^C
->    # perf report -g
->    [...]
->        6.40%     6.40%  audited=800000 tclass=4
->                 |
->                    __libc_start_main
->                    |
->                    |--4.60%--__GI___ioctl
->                    |          entry_SYSCALL_64
->                    |          do_syscall_64
->                    |          __x64_sys_ioctl
->                    |          ksys_ioctl
->                    |          binder_ioctl
->                    |          binder_set_nice
->                    |          can_nice
->                    |          capable
->                    |          security_capable
->                    |          cred_has_capability.isra.0
->                    |          slow_avc_audit
->                    |          common_lsm_audit
->                    |          avc_audit_post_callback
->                    |          avc_audit_post_callback
->                    |
->
-> It is also possible to use the ftrace interface:
->    # echo 1 > /sys/kernel/debug/tracing/events/avc/selinux_audited/enable
->    # cat /sys/kernel/debug/tracing/trace
->    tracer: nop
->    entries-in-buffer/entries-written: 1/1   #P:8
->    [...]
->    dmesg-3624  [001] 13072.325358: selinux_denied: audited=800000 tclass=4
+> On 8/13/20 5:05 PM, Casey Schaufler wrote:
+>> On 8/13/2020 7:48 AM, Thiébaud Weksteen wrote:
+>>> From: Peter Enderborg <peter.enderborg@sony.com>
+>>>
+>>> This patch adds further attributes to the event. These attributes are
+>>> helpful to understand the context of the message and can be used
+>>> to filter the events.
+>>>
+>>> There are three common items. Source context, target context and tclass.
+>>> There are also items from the outcome of operation performed.
+>>>
+>>> An event is similar to:
+>>>             <...>-1309  [002] ....  6346.691689: selinux_audited:
+>>>         requested=0x4000000 denied=0x4000000 audited=0x4000000
+>>>         result=-13 ssid=315 tsid=61
+>> It may not be my place to ask, but *please please please* don't
+>> externalize secids. I understand that it's easier to type "42"
+>> than "system_r:cupsd_t:s0-s0:c0.c1023", and that it's easier for
+>> your tools to parse and store the number. Once you start training
+>> people that system_r:cupsd_t:s0-s0:c0.c1023 is secid 42 you'll
+>> never be able to change it. The secid will start showing up in
+>> scripts. Bad  Things  Will  Happen.
+> Ok, it seems to mostly against having this performance options.
+> Yes, it is a kernel internal data. So is most of the kernel tracing.
+> I see it is a primary tool for kernel debugging but than can also be
+> used for user-space debugging tools.  Hiding data for debuggers
+> does not make any sense too me.
 
-An explanation here of how one might go about decoding audited and 
-tclass would be helpful to users (even better would be a script to do it 
-for them).  Again, I know how to do that but not everyone using 
-perf/ftrace will.
-
+To be clear, userspace tools can't use fixed secid values because secids 
+are dynamically assigned by SELinux and thus secid 42 need not 
+correspond to the same security context across different boots even with 
+the same kernel and policy.  I wouldn't include them in the event unless 
+it is common practice to include fields that can only be interpreted if 
+you can debug the running kernel.  It would be akin to including kernel 
+pointers in the event (albeit without the KASLR ramifications).
 
