@@ -6,23 +6,23 @@ X-Spam-Status: No, score=-4.5 required=3.0 tests=BAYES_00,DATE_IN_PAST_12_24,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
 	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBE2FC433E1
-	for <selinux@archiver.kernel.org>; Sat, 15 Aug 2020 21:36:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E0E7C433E1
+	for <selinux@archiver.kernel.org>; Sat, 15 Aug 2020 21:36:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D108023B24
-	for <selinux@archiver.kernel.org>; Sat, 15 Aug 2020 21:36:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 770C923B45
+	for <selinux@archiver.kernel.org>; Sat, 15 Aug 2020 21:36:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726004AbgHOVgZ convert rfc822-to-8bit (ORCPT
+        id S1726407AbgHOVg0 convert rfc822-to-8bit (ORCPT
         <rfc822;selinux@archiver.kernel.org>);
-        Sat, 15 Aug 2020 17:36:25 -0400
-Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:11565 "EHLO
+        Sat, 15 Aug 2020 17:36:26 -0400
+Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:11564 "EHLO
         SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726407AbgHOVgZ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Sat, 15 Aug 2020 17:36:25 -0400
+        by vger.kernel.org with ESMTP id S1726251AbgHOVg0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Sat, 15 Aug 2020 17:36:26 -0400
 Subject: Re: [PATCH v2 1/2] selinux: add tracepoint on denials
-To:     Steven Rostedt <rostedt@goodmis.org>,
-        =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
 CC:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
         Paul Moore <paul@paul-moore.com>,
         Nick Kralevich <nnk@google.com>,
         Joel Fernandes <joelaf@google.com>,
@@ -42,8 +42,8 @@ References: <20200813144914.737306-1-tweek@google.com>
  <3518887d-9083-2836-a8db-c7c27a70c990@sony.com>
  <20200814134653.0ba7f64e@oasis.local.home>
 From:   peter enderborg <peter.enderborg@sony.com>
-Message-ID: <4427545e-d4ea-b64e-91d9-3ccd2a483df1@sony.com>
-Date:   Sat, 15 Aug 2020 09:17:07 +0200
+Message-ID: <0d283b71-df19-d82b-318d-04e5816db517@sony.com>
+Date:   Sat, 15 Aug 2020 10:45:22 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
@@ -131,10 +131,17 @@ On 8/14/20 7:46 PM, Steven Rostedt wrote:
 >
 > -- Steve
 
-That works fine. I will do this as third patch in our patch-set.  But I think we also should export the permission-map
-somewhere. I don’t think there is any good place for it in tracefs. So selinuxfs or debugfs might do? And I think it is
-more useful to print what is denied than what is audited but that does not match the trace event name.
+Something like:
 
+    while (i < (sizeof(av) * 8)) {
+        if ((perm & av)  && perms[i]) {
+            if (!(perm & avdenied))
+                trace_seq_printf(p, " %s", perms[i]);
+            else
+                trace_seq_printf(p, " !%s", perms[i]);
+            av &= ~perm;
+
+And you get information about denied too.
 
 
 
