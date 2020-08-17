@@ -2,124 +2,130 @@ Return-Path: <SRS0=6AtE=B3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.4 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3815AC433DF
-	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 20:43:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62EA4C433E1
+	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 21:10:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id F3CA52072D
-	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 20:43:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3F3732072E
+	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 21:10:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="I5IdPebn"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="nmmwQZfs"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726825AbgHQUnX (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Aug 2020 16:43:23 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:14178 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726366AbgHQUnT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Aug 2020 16:43:19 -0400
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07HKgUIo185682;
-        Mon, 17 Aug 2020 16:43:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=1nLf40E4gF14fzxXPCJyZRGuu2Yhxjx3oE/IMN7M+Jk=;
- b=I5IdPebnuROuVDDlclUkS/gOWnaqYalo1V/s2XYoktARCNQLYrOIcoftcIfxAJ9Iz3NI
- mrCxgDKBayG2b7T3u7B7Oym9pQLHag+Ef0Giarh/cCHhj4VB56VnYuL1P2v/PfUXmrnq
- j7vbklk9j1AJUhQEJCaFwBaIERqDdG8jNW2mbxqDGKrJtQ9J0FTPr+BwdKWQ/pKoIipD
- bBNTH9MFh40l7dFGFhlRt8Wl223diSEy+IYQKUXIceaINAWilYSmxId16AEZqFgEN9Z1
- gnG9El5a+J30vqxqrj0imy5KZPI9GDKcmBWrxPDFQg2aF7KZh8pk3q9nOAwp8pIk0A29 7Q== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 32y4f4aj5j-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Aug 2020 16:43:12 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07HKh8sc189640;
-        Mon, 17 Aug 2020 16:43:12 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0b-001b2d01.pphosted.com with ESMTP id 32y4f4aj4w-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Aug 2020 16:43:11 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07HKfCro008572;
-        Mon, 17 Aug 2020 20:43:09 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
-        by ppma03ams.nl.ibm.com with ESMTP id 32x7b82mt5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Aug 2020 20:43:09 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07HKfceR62390554
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 17 Aug 2020 20:41:38 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 09143A4059;
-        Mon, 17 Aug 2020 20:43:07 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 87B87A4040;
-        Mon, 17 Aug 2020 20:43:03 +0000 (GMT)
-Received: from sig-9-65-192-88.ibm.com (unknown [9.65.192.88])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon, 17 Aug 2020 20:43:03 +0000 (GMT)
-Message-ID: <591b5f09c7df8ef0378866eaf3afde7a7cb4e82f.camel@linux.ibm.com>
-Subject: Re: [PATCH 2/3] IMA: add policy to support measuring critical data
- from kernel components
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Tushar Sugandhi <tusharsu@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com,
-        gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-        nramas@linux.microsoft.com
-Date:   Mon, 17 Aug 2020 16:43:02 -0400
-In-Reply-To: <20200812193102.18636-3-tusharsu@linux.microsoft.com>
-References: <20200812193102.18636-1-tusharsu@linux.microsoft.com>
-         <20200812193102.18636-3-tusharsu@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-17_14:2020-08-17,2020-08-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=3
- clxscore=1011 priorityscore=1501 phishscore=0 adultscore=0 mlxscore=0
- mlxlogscore=999 bulkscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2008170136
+        id S1727805AbgHQVKh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Aug 2020 17:10:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58892 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727772AbgHQVKd (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Aug 2020 17:10:33 -0400
+Received: from mail-io1-xd41.google.com (mail-io1-xd41.google.com [IPv6:2607:f8b0:4864:20::d41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83D1EC061342
+        for <selinux@vger.kernel.org>; Mon, 17 Aug 2020 14:10:33 -0700 (PDT)
+Received: by mail-io1-xd41.google.com with SMTP id b16so19114018ioj.4
+        for <selinux@vger.kernel.org>; Mon, 17 Aug 2020 14:10:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=9EHgQ35aySRkSWoSC1c8YoXvxP+pSzRq6wKj/4IiByU=;
+        b=nmmwQZfsGfkcsu0U0Ge/azJVsybIs0DClANORjcuXseaUqE7xU+GmjDUWh/r3evgV0
+         iCf4N4rUJ/lHnNv1sezXrO6BPt99zGhlgtbI0H11Du2J8TpbpWF15LXlQHfv0wVdyput
+         lK+CBcoR8bkNtpNTY9p58zgpDkX4+O1osLkhB8U+7ipxNJuv95p1V6OODqVobJ4ex1Cw
+         RS4dyyB0lbeb/bFYHWzhPaSPZ8CMOdoZz+osDuSeK7iBn3eFo0CWcKuIdexNMPX6rtZq
+         DTQlaCU0W3DBG9cAz4hoMbKSurjuASDfWtAHe8HK1afMuQ1n2GoqFAB/exU2/c5Bzt9C
+         uq9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=9EHgQ35aySRkSWoSC1c8YoXvxP+pSzRq6wKj/4IiByU=;
+        b=eYCPJVYFycjRYfnoYSZzpFHgJslX+/wxCBvLP+plFGM5WqB72qF7wfJXIhzC+wIsER
+         1NtHzJugEFHZLUCq10nHHYjCq5LmaTZO3GxBZsYl8qGF9TnkNdCJSTm3zy9UpfM/43sQ
+         UzW/ul4q+2dU4IveBqM+DIGmdrusx7Voap1iOIaL91gp3QpojTxCsLd+BR2ydiBJzkXz
+         6WDmu0Gn0OQYi63K4rVecbnv3Tkby8TGnE27H6BvwaklrW4kja7sWs/5SXHTOfC7SxAF
+         Yb62jtFPRV6tmDOfTyk4S2zElRGRFV2eKwqm9MNzC9DGO7aZ2yDoIXAQe75KUjPM8Ixz
+         KeQQ==
+X-Gm-Message-State: AOAM530yixukX3p7svdRGudMei+fvz1NJrOD+OHVl4NcAfoReZQmtY9v
+        qFlFa2Iag4HL/M7SMgDbzd0BqYbNg4ckyIc3hHZSrg==
+X-Google-Smtp-Source: ABdhPJxiFq3B8jlTT9x7nauQdsmNfihA1P3qjy444B4xcH0rdSqORKjG5/PBTkWaTxe+K+cHUMN2/QSg9zhjmrkuP9c=
+X-Received: by 2002:a02:c84b:: with SMTP id r11mr16265122jao.66.1597698631501;
+ Mon, 17 Aug 2020 14:10:31 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200807224941.3440722-1-lokeshgidra@google.com>
+ <20200807224941.3440722-2-lokeshgidra@google.com> <20200807230225.GW1236603@ZenIV.linux.org.uk>
+In-Reply-To: <20200807230225.GW1236603@ZenIV.linux.org.uk>
+From:   Lokesh Gidra <lokeshgidra@google.com>
+Date:   Mon, 17 Aug 2020 14:10:20 -0700
+Message-ID: <CA+EESO5kDbSCcpzxij6M0aWXqKDyFds+azksQFrXES6ACzTFtA@mail.gmail.com>
+Subject: Re: [PATCH v6 1/3] Add a new LSM-supporting anonymous inode interface
+To:     Al Viro <viro@zeniv.linux.org.uk>
+Cc:     James Morris <jmorris@namei.org>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Daniel Colascione <dancol@dancol.org>,
+        Kees Cook <keescook@chromium.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        KP Singh <kpsingh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Thomas Cedeno <thomascedeno@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Sami Tolvanen <samitolvanen@google.com>,
+        Matthew Garrett <matthewgarrett@google.com>,
+        Aaron Goidel <acgoide@tycho.nsa.gov>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Alexey Budankov <alexey.budankov@linux.intel.com>,
+        Adrian Reber <areber@redhat.com>,
+        Aleksa Sarai <cyphar@cyphar.com>,
+        Linux FS Devel <linux-fsdevel@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>,
+        Kalesh Singh <kaleshsingh@google.com>,
+        Calin Juravle <calin@google.com>,
+        Suren Baghdasaryan <surenb@google.com>,
+        Nick Kralevich <nnk@google.com>,
+        Jeffrey Vander Stoep <jeffv@google.com>,
+        kernel-team@android.com, Daniel Colascione <dancol@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Wed, 2020-08-12 at 12:31 -0700, Tushar Sugandhi wrote:
-> There would be several candidate kernel components suitable for IMA
-> measurement. Not all of them would be enlightened for IMA measurement.
-> Also, system administrators may not want to measure data for all of
-> them, even when they are enlightened for IMA measurements. An IMA policy
-> specific to various kernel components is needed to measure their
-> respective critical data.
-> 
-> Add a new IMA policy CRITICAL_DATA+data_sources to support measuring
-> various critical kernel components. This policy would enable the
-> system administrators to limit the measurement to the components,
-> if the components are enlightened for IMA measurement.
+On Fri, Aug 7, 2020 at 4:02 PM Al Viro <viro@zeniv.linux.org.uk> wrote:
+>
+> On Fri, Aug 07, 2020 at 03:49:39PM -0700, Lokesh Gidra wrote:
+>
+> > The new functions accept an optional context_inode parameter that
+> > callers can use to provide additional contextual information to
+> > security modules, e.g., indicating that one anonymous struct file is a
+> > logical child of another, allowing a security model to propagate
+> > security information from one to the other.
+>
+> What the hell is "logical child" and what are the lifetime rules implied
+> by that relationship?
 
-"enlightened", really?  Please find a different term, maybe something
-like "supported".
+context_inode provides the security context required by the security
+modules for granting/denying permission to create an anon inode of the
+same type.
 
-Before posting a patch set, please look at the patches line by line,
-like anyone reviewing the code needs to do.  Please minimize code
-change.   Unnecessary formatting changes are unacceptible.   For
-example, like the "#define", below, or in 3/3 the
-"process_buffer_measurement()" change from void to int.
-
-scripts/Lindent isn't as prevalent as it used to be, but it's still
-included in Documentation/process/coding-style.rst.  Use it as a guide.
-
-Mimi
-
+In case of userfaultfd, the relationship between the context_inode and
+the created inode is described as that of =E2=80=98logical child=E2=80=99 b=
+ecause the
+context_inode (userfaultfd inode of the parent process) provides the
+security context required for creation of child process=E2=80=99 userfaultf=
+d
+inode. But there is no relationship beyond this point. Therefore, no
+reference to context_inode is held anywhere.
