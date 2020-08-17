@@ -2,149 +2,120 @@ Return-Path: <SRS0=6AtE=B3=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A2A7C433E1
-	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 18:52:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FF2DC433DF
+	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 20:13:36 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E0C0720578
-	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 18:52:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EE7D02072D
+	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 20:13:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=defensec.nl header.i=@defensec.nl header.b="j9Zn24Yl"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ESZ2E0xm"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387993AbgHQSwA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Aug 2020 14:52:00 -0400
-Received: from agnus.defensec.nl ([80.100.19.56]:51172 "EHLO agnus.defensec.nl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391764AbgHQSvx (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 17 Aug 2020 14:51:53 -0400
-Received: from brutus (brutus.lan [IPv6:2001:985:d55d::438])
-        by agnus.defensec.nl (Postfix) with ESMTPSA id E323A2A1283;
-        Mon, 17 Aug 2020 20:51:50 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 agnus.defensec.nl E323A2A1283
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=defensec.nl;
-        s=default; t=1597690312;
-        bh=3PTMboeRWyJCcCCAyRgo/G8tfWxA+M3FIMtHf1/BJGw=;
-        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
-        b=j9Zn24YlgW00FA/nDE1RUCmqVNH66+ETndTanPHiXywXmsNaLZoN+bNYXoV487ToF
-         ZYAXI5j9JYIfmrD03csiaPCqdamaTjI9V3nlf5mAHcvxhtKvBp7egq/h/Ijf/jkCaz
-         Pj802TLT5AhJwaZq3drAZlPYgtUFylaXeeTjL25I=
-From:   Dominick Grift <dominick.grift@defensec.nl>
-To:     James Carter <jwcart2@gmail.com>
-Cc:     bauen1 <j2468h@googlemail.com>, selinux <selinux@vger.kernel.org>
-Subject: Re: Resource usage of CIL compared to HLL
-References: <2ce8defb-523c-01c0-560c-7881d0a99416@gmail.com>
-        <CAP+JOzStOhn92uN_04R8JbVy1_5noQUVfoG-O6+2WnsKG8tcdw@mail.gmail.com>
-        <ypjlo8n9p2lk.fsf@defensec.nl>
-Date:   Mon, 17 Aug 2020 20:51:46 +0200
-In-Reply-To: <ypjlo8n9p2lk.fsf@defensec.nl> (Dominick Grift's message of "Mon,
-        17 Aug 2020 20:08:23 +0200")
-Message-ID: <ypjlk0xxp0l9.fsf@defensec.nl>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.3 (gnu/linux)
+        id S1726336AbgHQUNf (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Aug 2020 16:13:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50050 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726133AbgHQUNc (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Aug 2020 16:13:32 -0400
+Received: from mail-qt1-x842.google.com (mail-qt1-x842.google.com [IPv6:2607:f8b0:4864:20::842])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35D21C061389;
+        Mon, 17 Aug 2020 13:13:32 -0700 (PDT)
+Received: by mail-qt1-x842.google.com with SMTP id s16so13436843qtn.7;
+        Mon, 17 Aug 2020 13:13:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=zt/7bcE3rheAEIDkdYnD+DA7k8FVJTMGh0E4kEj1Ywo=;
+        b=ESZ2E0xmMQv1mWWmfIDLDh8ElbMLOrMjACpT1NtfcDZAkPcK1cx7Tqq5wJCtNEoGkv
+         sNw5WzTK45vDd7RivwzHNzmA+PcKiL/XxM9Ood/DKjXdOeiydUXFP/EEfZeqmRP4bw8Z
+         +io4TpeIColjCVGs36mDk0I6bxguWRgcFAL3veyxZTAvhvNBDMSmG8R8h2Kt/8bndqtQ
+         jQ0MZZFuMLhLKGH0ysqarbbMykNQs6XMViTx/MXWvSd6io25Qj/YSKqPwbQh0bjRTaUF
+         ZsgdSXj/DbEAmcXu8+jNw9Mig59+a3k37b+Fy3vvGyZcKxqxNeP7dIRR3NMpTm1jtFcB
+         ljKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=zt/7bcE3rheAEIDkdYnD+DA7k8FVJTMGh0E4kEj1Ywo=;
+        b=FXY5ligulFCgMjVmI5NSv7VXHK1fLdcnAuFFvLejxLhph7Jp7U4jEcoywk6QHNs3OH
+         u7w5Wg2SeuLtLyaSPWNfqXmrv59COhq7gduPYpyCOK4zJMQpOJPaPUlllK5VXVgIL2n0
+         vRx1CA9WLkGKo/VhR6fNwueOBKe4skuSWeEFTcJka0SaOSZgaSZyX1ztjEYgQYmoonUW
+         Wj+9FolUDjELZcT5ATXpImEJ3cn6TeU4SV9hnYm84EC0NyKegEjVdc3j63neHf/KDOR1
+         W+fPunQ/oO2go3B4IqLcHn3rgEmfzCy9Lj/me2zP9UMppc8Igz1JUBVBGDxHe4M8Ye78
+         ehHw==
+X-Gm-Message-State: AOAM531yeubrws6Nbf1d7YIeCcO6j9s2DvmCxWKEEJYymwOkLJnP5XNw
+        zN9R2tCFVedMLfbHo/GKu7uBfjKNihU=
+X-Google-Smtp-Source: ABdhPJx9e+AdRduaomcbQkwct21cWv/QPycXamX0237ajy9InAmdTZJ1sTza9+t49kGyOuGVwikz1w==
+X-Received: by 2002:ac8:2ab9:: with SMTP id b54mr14845227qta.323.1597695211196;
+        Mon, 17 Aug 2020 13:13:31 -0700 (PDT)
+Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
+        by smtp.gmail.com with ESMTPSA id 95sm19509597qtc.29.2020.08.17.13.13.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 Aug 2020 13:13:30 -0700 (PDT)
+Subject: Re: [PATCH v3 3/3] selinux: add permission names to trace event
+To:     =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
+        Paul Moore <paul@paul-moore.com>
+Cc:     Nick Kralevich <nnk@google.com>,
+        Peter Enderborg <peter.enderborg@sony.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Eric Paris <eparis@parisplace.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
+        selinux@vger.kernel.org
+References: <20200817170729.2605279-1-tweek@google.com>
+ <20200817170729.2605279-4-tweek@google.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Message-ID: <0bb62de9-1020-a7c4-3a7f-48ae2f78e3b7@gmail.com>
+Date:   Mon, 17 Aug 2020 16:13:29 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Type: text/plain
+In-Reply-To: <20200817170729.2605279-4-tweek@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Dominick Grift <dominick.grift@defensec.nl> writes:
+On 8/17/20 1:07 PM, Thiébaud Weksteen wrote:
 
-> James Carter <jwcart2@gmail.com> writes:
+> From: Peter Enderborg <peter.enderborg@sony.com>
 >
->> On Mon, Aug 17, 2020 at 9:48 AM bauen1 <j2468h@googlemail.com> wrote:
->>>
->>> Hi,
->>>
->>> I usually test all my patches against refpolicy and my own cil
->>> policy (https://gitlab.com/bauen1/bauen1-policy/) on small VMs in
->>> the range of 1 vcpu, 512mb memory and a few gb of disk space
->>> (Comparable to the cheapest VPS plan you can get and still run
->>> reasonable stuff on).
->>> Recently I've started hitting the memory limit while building my cil policy using semodule / secilc.
->>>
->>> I've found that secilc can easily hit ~400mb memory usage while building dssp3 or ~260mb while building my policy.
->>> semodule invokes the same functions as secilc to build the policy
->>> but requires somewhere between 100mb - 200mb for whatever it is
->>> doing.
->>> Running semodule against a normal refpolicy installation only requires ~160mb memory total.
->>> This means that installing refpolicy on my VMs is not an issue, but
->>> even my CIL policy that is far from complete will easily OOM the
->>> machine.
->>> While adding additional memory isn't really an issue, I'm a bit
->>> annoyed that building an incomplete CIL policy requires ~2.8 times
->>> the memory that a complete refpolicy requires.
->>>
->>> After a bit of testing using valgrind, I believe this is mostly due
->>> to the way CIL handles blockinherit by duplicating the entire AST of
->>> the original block into the target.
->>> This works very well and is very simple, but also doesn't scale very well.
->>> For example my policy has a few "base templates",
->>> e.g. `file.template` that contain a lot of general use macros,
->>> e.g. `relabel_files`, `manage_blk_files`. A similar approach is
->>> taken by grift in dssp3.
->>> All of these macros (~130) are copied to every block containing a file type (only ~470) resulting in a lot of duplicate memory.
->>>
->>> Is it even possible to change libsepol, e.g. to use a COW for
->>> copy_ast_tree (and similiar) or is this behavior required e.g. for
->>> `in` or would a change not be worth it due to additional complexity
->>> ?
->>>
->>
->> Long before we developed CIL I had experimented with parsing Refpolicy
->> with a lua program that I created. I was really worried about memory
->> usage when developing that, so I did not copy anything. When it was
->> proposed to copy the AST for CIL I was sceptical and reworked my lua
->> program to see what the impact would be. It turned out to be easier to
->> do, faster, and did not require any more memory. The memory lost due
->> to copying the AST was made up by not having as many symbol tables.
->>
->> If a lot of the macros that are being inherited are not used, then it
->> might be worthwhile to add a step to remove unused macros. Of course,
->> to really save the memory usage only the macros that are going to be
->> used should be copied, but I don't think that would be easy to do.
->>
->> I will admit that I am not a big user of inheritance. What is gained
->> from inheriting all of the macros like that?
+> In the print out add permissions, it will look like:
+>      <...>-1042  [007] ....   201.965142: selinux_audited:
+>      requested=0x4000000 denied=0x4000000 audited=0x4000000
+>      result=-13
+>      scontext=system_u:system_r:cupsd_t:s0-s0:c0.c1023
+>      tcontext=system_u:object_r:bin_t:s0
+>      tclass=file permissions={ !entrypoint }
 >
-> consistency and comprehensiveness.
+> This patch is adding the "permissions={ !entrypoint }".
+> The permissions preceded by "!" have been denied and the permissions
+> without have been accepted.
 >
-> In reffpolicy based policy its tempting to quickly copy and paste macros
-> when you need them, leading to all kinds of inconsistencies ranging from
-> descriptions that are wrong because one forgot to edit it after a copy
-> paste to inconsistent macro names because it can be hard to be
-> consistent with naming. Consistency is very important as there is almost
-> nothing as annoying as guessing an interface/macro name wrong time after
-> time because of an inconsistency.
+> Note that permission filtering is done on the audited, denied or
+> requested attributes.
 >
-> Having a comphrensive collection of inherited macros means that most of
-> the time you dont have to deal with/worry about creating macros. It might also come
-> in handy later if at some point an CIL-aware audit2allow -R type
-> functionality arrives.
->
-> That at one point was a pain point with refpolicy I believe were
-> audit2allow -R wouldnt suggest an interface to use because the interface did not
-> exist. By predefining all macros you ensure that audit2allow -R finds
-> something.
+> Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> Reviewed-by: Thiébaud Weksteen <tweek@google.com>
+> Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
+> ---
 
-Or it returned a interface that was broader than needed because a more
-fitting interface did not exist. Thereby needlessly opening up the
-policy.
+Does this require a corresponding patch to userspace?  Otherwise, I get 
+the following:
 
-By templating and using the templates you ensure that the macros are
-there and that they are what you expect they are
+libtraceevent: No such file or directory
+   [avc:selinux_audited] function avc_trace_perm_to_name not defined
 
->
->>
->> Thanks for the report. I will take a look to see if there might be a
->> fairly easy way to improve the situation.
->> Jim
-
--- 
-gpg --locate-keys dominick.grift@defensec.nl
-Key fingerprint = FCD2 3660 5D6B 9D27 7FC6  E0FF DA7E 521F 10F6 4098
-https://sks-keyservers.net/pks/lookup?op=get&search=0xDA7E521F10F64098
-Dominick Grift
