@@ -2,101 +2,190 @@ Return-Path: <SRS0=if39=B4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.4 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-21.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5EBEC433E1
-	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 13:47:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B446C433DF
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 13:49:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7BBD9206DA
-	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 13:47:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 19003207D3
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 13:49:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=ieee.org header.i=@ieee.org header.b="P6DNSIVE"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="LndWXVZI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726802AbgHRNrr (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Aug 2020 09:47:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45096 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726480AbgHRNro (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Aug 2020 09:47:44 -0400
-Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57E99C061389
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 06:47:43 -0700 (PDT)
-Received: by mail-qt1-x832.google.com with SMTP id d27so15106089qtg.4
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 06:47:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ieee.org; s=google;
-        h=from:subject:to:message-id:date:user-agent:mime-version
-         :content-language:content-transfer-encoding;
-        bh=r3w2nb052zooTcuhG2HcvvuPfq7r8+zlETVVIthf9gE=;
-        b=P6DNSIVEUF1aZhNvwbeg5esyL0wFtG9O+6Iy+owothePE/ESY4SOmSLm+UuVvUpikf
-         TPqnMPsSauNh2KKZ1xyU2excUWiiH+9s6QdYsqrtQb68qQBxkQkxhZzB0mfJbW67aV0v
-         rjMmcP5mQqPuDMvRi+Lwkl+kOR4rFKD1XljQw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:subject:to:message-id:date:user-agent
-         :mime-version:content-language:content-transfer-encoding;
-        bh=r3w2nb052zooTcuhG2HcvvuPfq7r8+zlETVVIthf9gE=;
-        b=Oy89vhltuxmq018D8cxtBxxOPA4O7Pn8Fg5CTo5dqY7h3lxpt6EvqZWPvYRx+qNRqs
-         MCBBh1SDXu9aHIW+ECxYstEz58RwP0FpkDr2gwykeeV/bHJGTMTcd+ZVrk7jblnZvE8a
-         r17UDLo26CSVu/w/ZICkU7gxnqRifoii+Gabua6aRDjRhBEklaMANRbyrEV4AlF7Zfy5
-         EOwvHI8JzrT+gAm+ufQTlLU+FFYHi7ZmiqUIWFJdEkRKzwxl9CUNnOe8v6SHMUYOUJJS
-         K2AcZmeyAZTcU9hqe22zumq3WF8SAvjd/mjUwqSwTvEYKJ13bBHEGxrKpB6Kqq2xHWWb
-         JbBg==
-X-Gm-Message-State: AOAM5320hx4eGNg6oJ3+vGylii8+lICBj5BckJZbWDaaaV7+H6yd8ESJ
-        QNdkeng/FQe3bt5JdbWyophmMU/KpkBKcQ==
-X-Google-Smtp-Source: ABdhPJyHHprQBLty081Y4ED2Nw0jPT0LIITihpLG6VyCDgoUDcrYQIFocbGxkOkRCizqBpdpKVhwzw==
-X-Received: by 2002:ac8:568a:: with SMTP id h10mr18175086qta.239.1597758461381;
-        Tue, 18 Aug 2020 06:47:41 -0700 (PDT)
-Received: from fedora.pebenito.net (pool-108-15-23-247.bltmmd.fios.verizon.net. [108.15.23.247])
-        by smtp.gmail.com with ESMTPSA id h24sm20632767qkk.72.2020.08.18.06.47.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Aug 2020 06:47:40 -0700 (PDT)
-From:   Chris PeBenito <pebenito@ieee.org>
-Subject: ANN: Reference Policy 2.20200818
-To:     SElinux list <selinux@vger.kernel.org>,
-        refpolicy <selinux-refpolicy@vger.kernel.org>
-Message-ID: <a22aa5ab-8f26-dfd5-5834-44d0393b9708@ieee.org>
-Date:   Tue, 18 Aug 2020 09:47:39 -0400
+        id S1726598AbgHRNtH (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Aug 2020 09:49:07 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:45002 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726482AbgHRNtF (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Aug 2020 09:49:05 -0400
+Received: from localhost.localdomain (c-73-172-233-15.hsd1.md.comcast.net [73.172.233.15])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 6490A20B4908;
+        Tue, 18 Aug 2020 06:49:04 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 6490A20B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1597758544;
+        bh=T2yh8CragD5gAZKWGzebieZXoBoIin/2BZRLU0ijlIo=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=LndWXVZIYo5XrYYjcrule3QfyoWXcUitgMffPd72YDLVS++P1KZSoLC3qOTEg78v0
+         x+JFY2DflE1w8R1uEaxRh2glMOmClPVmv5J787yQuCf2Deek0pJnNpcFbipSeI1Fto
+         6Ql2Oiv0rE+5PXDTEaBtkP1shPJfbEk80+gJfrP4=
+Subject: Re: [PATCH v2 4/4] selinux: Create new booleans and class dirs out of
+ tree
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org
+Cc:     omosnace@redhat.com, paul@paul-moore.com,
+        linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk
+References: <20200812191525.1120850-1-dburgener@linux.microsoft.com>
+ <20200812191525.1120850-5-dburgener@linux.microsoft.com>
+ <8540e665-1722-35f9-ec39-f4038e1f90ca@gmail.com>
+From:   Daniel Burgener <dburgener@linux.microsoft.com>
+Message-ID: <bd7031f8-e4c5-a013-3a00-c89d603be152@linux.microsoft.com>
+Date:   Tue, 18 Aug 2020 09:49:03 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Thunderbird/68.9.0
 MIME-Version: 1.0
+In-Reply-To: <8540e665-1722-35f9-ec39-f4038e1f90ca@gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-New modules:
-  - usbguard
-  - aptcacher
+On 8/13/20 12:25 PM, Stephen Smalley wrote:
+> On 8/12/20 3:15 PM, Daniel Burgener wrote:
+>
+>> In order to avoid concurrency issues around selinuxfs resource 
+>> availability
+>> during policy load, we first create new directories out of tree for
+>> reloaded resources, then swap them in, and finally delete the old 
+>> versions.
+>>
+>> This fix focuses on concurrency in each of the three subtrees 
+>> swapped, and
+>> not concurrency across the three trees.  This means that it is still 
+>> possible
+>> that subsequent reads to eg the booleans directory and the class 
+>> directory
+>> during a policy load could see the old state for one and the new for 
+>> the other.
+>> The problem of ensuring that policy loads are fully atomic from the 
+>> perspective
+>> of userspace is larger than what is dealt with here.  This commit 
+>> focuses on
+>> ensuring that the directories contents always match either the new or 
+>> the old
+>> policy state from the perspective of userspace.
+>>
+>> In the previous implementation, on policy load /sys/fs/selinux is 
+>> updated
+>> by deleting the previous contents of
+>> /sys/fs/selinux/{class,booleans} and then recreating them.  This means
+>> that there is a period of time when the contents of these directories 
+>> do not
+>> exist which can cause race conditions as userspace relies on them for
+>> information about the policy.  In addition, it means that error 
+>> recovery in
+>> the event of failure is challenging.
+>>
+>> In order to demonstrate the race condition that this series fixes, you
+>> can use the following commands:
+>>
+>> while true; do cat /sys/fs/selinux/class/service/perms/status
+>>> /dev/null; done &
+>> while true; do load_policy; done;
+>>
+>> In the existing code, this will display errors fairly often as the class
+>> lookup fails.  (In normal operation from systemd, this would result in a
+>> permission check which would be allowed or denied based on policy 
+>> settings
+>> around unknown object classes.) After applying this patch series you
+>> should expect to no longer see such error messages.
+>>
+>> Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+>> ---
+>>   security/selinux/selinuxfs.c | 145 +++++++++++++++++++++++++++++------
+>>   1 file changed, 120 insertions(+), 25 deletions(-)
+>>
+>> diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
+>> index f09afdb90ddd..d3a19170210a 100644
+>> --- a/security/selinux/selinuxfs.c
+>> +++ b/security/selinux/selinuxfs.c
+>> +    tmp_policycap_dir = sel_make_dir(tmp_parent, POLICYCAP_DIR_NAME, 
+>> &fsi->last_ino);
+>> +    if (IS_ERR(tmp_policycap_dir)) {
+>> +        ret = PTR_ERR(tmp_policycap_dir);
+>> +        goto out;
+>> +    }
+>
+> No need to re-create this one.
+>
+>> -    return 0;
+>> +    // booleans
+>> +    old_dentry = fsi->bool_dir;
+>> +    lock_rename(tmp_bool_dir, old_dentry);
+>> +    ret = vfs_rename(tmp_parent->d_inode, tmp_bool_dir, 
+>> fsi->sb->s_root->d_inode,
+>> +             fsi->bool_dir, NULL, RENAME_EXCHANGE);
+>
+> One issue with using vfs_rename() is that it will trigger all of the 
+> permission checks associated with renaming, and previously this was 
+> never required for selinuxfs and therefore might not be allowed in 
+> some policies even to a process allowed to reload policy.  So if you 
+> need to do this, you may want to override creds around this call to 
+> use the init cred (which will still require allowing it to the kernel 
+> domain but not necessarily to the process that is performing the 
+> policy load).  The other issue is that you then have to implement a 
+> rename inode operation and thus technically it is possible for 
+> userspace to also attempt renames on selinuxfs to the extent allowed 
+> by policy.  I see that debugfs has a debugfs_rename() that internally 
+> uses simple_rename() but I guess that doesn't cover the 
+> RENAME_EXCHANGE case.
 
-Changes:
-  - Renamed "pid" interfaces to "runtime" interfaces to match the *_var_run_t to
-    *_runtime_t rename
-  - Merge systemd generator domains
-  - Several systemd updates
-  - Set value of build options to "true" so m4 ifelse can be used
-  - Revise relabeling access to prevent relabeling to unlabeled_t
-  - Makefile, Vagrant, and m4 improvements
-  - First pass of cleanups from SELint
-  - Clean up domains that had user tty or pty access but could be used from
-    either
-  - Add various inotify watch permissions
-  - Add rules for apt-catcher-ng and acngtool
-  - Add support for generating nft tables to gennetfilter
-  - Many more minor fixes across the policy
+Those are good points.  Do you see any problems with just calling 
+d_exchange() directly?  It seems to work fine in very limited initial 
+testing on my end. That should hopefully address all the problems you 
+mentioned here.
 
-Removals:
-  - Drop Python 2 compatibility code from genhomedircon.py
-  - Remove unlabeled packet access
-  - Remove ada module
+-Daniel
 
-https://github.com/SELinuxProject/refpolicy/releases/tag/RELEASE_2_20200818
-
--- 
-Chris PeBenito
+>
+>> +    // Since the other temporary dirs are children of tmp_parent
+>> +    // this will handle all the cleanup in the case of a failure before
+>> +    // the swapover
+>
+> Don't use // style comments please, especially not for multi-line 
+> comments.  I think they are only used in selinux for the 
+> script-generated license lines.
+>
+>> +static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
+>> +                        unsigned long *ino)
+>> +{
+>> +    struct inode *inode = sel_make_inode(sb, S_IFDIR | S_IRUGO | 
+>> S_IXUGO);
+>> +
+>> +    if (!inode)
+>> +        return ERR_PTR(-ENOMEM);
+>> +
+>> +    inode->i_op = &sel_dir_inode_operations;
+>> +    inode->i_fop = &simple_dir_operations;
+>> +    inode->i_ino = ++(*ino);
+>> +    /* directory inodes start off with i_nlink == 2 (for "." entry) */
+>> +    inc_nlink(inode);
+>> +    return d_obtain_alias(inode);
+>> +}
+>> +
+>
+> Since you are always incrementing the last_ino counter and never 
+> reusing the ones for the removed inodes, you could technically 
+> eventually end up with one of these directories have the same inode 
+> number as one of the inodes whose inode numbers are generated in 
+> specific ranges (i.e. for initial_contexts, booleans, classes, and 
+> policy capabilities). Optimally we'd just reuse the inode number for 
+> the inode we are replacing?
+>
