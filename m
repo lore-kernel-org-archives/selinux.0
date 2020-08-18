@@ -2,65 +2,66 @@ Return-Path: <SRS0=if39=B4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94BDAC433E3
-	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 12:51:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2491DC433E1
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 12:53:02 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 68C2920738
-	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 12:51:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id E9D4F20706
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 12:53:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Zq9s81ZC"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VVrLlT1e"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726784AbgHRMvC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Aug 2020 08:51:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36342 "EHLO
+        id S1726645AbgHRMxB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Aug 2020 08:53:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726688AbgHRMux (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Aug 2020 08:50:53 -0400
-Received: from mail-ed1-x543.google.com (mail-ed1-x543.google.com [IPv6:2a00:1450:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B70C061389
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 05:50:53 -0700 (PDT)
-Received: by mail-ed1-x543.google.com with SMTP id m20so15149812eds.2
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 05:50:52 -0700 (PDT)
+        with ESMTP id S1726935AbgHRMwq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Aug 2020 08:52:46 -0400
+Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24ECEC061389
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 05:52:46 -0700 (PDT)
+Received: by mail-ot1-x343.google.com with SMTP id v6so16108658ota.13
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 05:52:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=/ejFMs1ymx6wprUI+r6xLITbuYkgKsiTBbmg42Z9Nv8=;
-        b=Zq9s81ZCdbzr6BKs/O18fQaH9XMa4d0NFuykC8s/x+stvstHC0g52RsYpzFFf/TGhz
-         NyNYlU/ARKRetgzTl2CqGjmIJx97y3eHjejFrafmJb1CJ64jmf97mtzvhQN34H0SOnZR
-         kVNZn8Fy6xEvxbvOLkma2S++qtAqgfapv+pl70mtkv+8PxYmmZlKixctFZRCd/pTjgtJ
-         lSBKALyZlvgnf0vjY58VBQu0IBirqbqfVcW7WXBhcWY2pMGkALpddljX4yYYp04Kqigp
-         L6sD8hyNzAK1n4JHvgv795u8ZoXgNrDHNHVMCP8420A0aUMNoMK10JCZQi1o/vlGepkY
-         FKZw==
+        bh=YcM/dw7JFtBR8KsFAywnpLu87Se5kgPH9nPxzN3HRo0=;
+        b=VVrLlT1eLgTo4yb96c3Jg2wH+cjeq0ypwbW67wobKvkoF1Pe4IRSbkzW35NezeZXdG
+         AlcDy9+sVoEYQG7ix1r2oEbhq1JkaubPhCOGWd46TVSQibADfe/4Qg/G857QQjvIhhF7
+         0YXRXRMzU72P1uf8q1NgeYhzHj0a5zRf4UQo0OwmDlPj+GGqq7H3vOsRk7YvILvJs0VY
+         6VBEruO00R2ciJeyPYBjlmY0mX5qQz+SzdyddSqJe1R2q4LXWpmeVrt9oPhS0mBD1GwU
+         MEerJGb5JFxWhHK4F/Iiw8+BK9pYjDkvokbjLAyTzdsMa5hGyjMHsdGTq4IgLvy1gezE
+         gocg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=/ejFMs1ymx6wprUI+r6xLITbuYkgKsiTBbmg42Z9Nv8=;
-        b=L5UqcRJwa2MpSyobAspWPLCEKSWqORrTbxUecsInozfP49bUhd0+IqaZr9ZOyLbt/x
-         Tgt8e7jHBnXzzexqanrusdfg8bvUD/MyXb7FXohujd8k6LcO+HjlJQjPwQ0XPJBJm0Rs
-         BL0daFJYeBvtu1RA9vrwI22bDE3AsaIzr4DoeiSXUBR5277JuyzRdgleyaBeH5yxNUdb
-         4xWvKktjm1/yf1X+wi0ThmDH1lBOpJBMj4as+gh9XpPkjPpvdbr3ftpj/iL69nhcoGI6
-         9oHC4/kI7MXzCS8ET2PSfVJH1fzUJTZ6VyHPNArsh/P69d28Cr5C6yDpSEPVhuMG5oTi
-         NZCA==
-X-Gm-Message-State: AOAM530cbZZitKAXynvWMpB3kfuTwz1Nfa3Tn2c3Gm0PTrN1hZgANQKX
-        mHqT4eQcQCLeqshfYNOotR60km5ByiOnHcF51VlWGnoYJKp4
-X-Google-Smtp-Source: ABdhPJzuO7kdqgsDVzIPTUevDkXGWaTRDXynnsfCg/jLjSmc6WcZRIMnb3Ap8xDAelqyhO3S7SrTGTRnh4HDwaXUX0M=
-X-Received: by 2002:aa7:c383:: with SMTP id k3mr19175058edq.164.1597755051538;
- Tue, 18 Aug 2020 05:50:51 -0700 (PDT)
+        bh=YcM/dw7JFtBR8KsFAywnpLu87Se5kgPH9nPxzN3HRo0=;
+        b=N0Suxm1/c6GSXDNK6uni9qRa5jdLOuHAwuQRZlPSSwmSt79abjeSPTVi7aZtle/kf+
+         2u1dDYFlKClkPu9GpQW10q8/1kMqIP6rWszRHh1ooUeuxNEr8xYXnjTPDBXcg0efooH8
+         uRuZGOUsYhSjJeLxTsqHhyMkQyxE7g/9dq41S+74NlwPL3HBNOULgEecLwNJbNp2Z1Zg
+         6S/5JCRdtx0gvi+HML5r6t9xtM+UOTbVtvHiBY5cK4skx6Gaqg5O1GPB6L6joazCc08+
+         FkKX7WiVIC2B7L0mz+07XycgN+RnHCPVI+W4QVQ4PyCY+NbLlQS3fjTpMnUG6XKtYkCY
+         X0Kg==
+X-Gm-Message-State: AOAM5309P5UPzV8/6/+z6AGlW0ZLVIWAqSWK5gUXkeZaJj19zjbBef9J
+        pmEKz0SD/n6H65pQ9GVdLj+NaGeIngwd9iGPTqA=
+X-Google-Smtp-Source: ABdhPJxDMiOif3m1F1KZJnFsTWA1qRCVhckEvzIY4Jxxmzl3F9LDutzVQdRxdetDyJjDpY15a2sOx9odaPgOYgTYH7M=
+X-Received: by 2002:a05:6830:16d8:: with SMTP id l24mr14128365otr.89.1597755165488;
+ Tue, 18 Aug 2020 05:52:45 -0700 (PDT)
 MIME-Version: 1.0
 References: <CAEjxPJ6b0MM-04XwcE58N-BiOBBi2g-1AZovoBmPGgcfU_wZiQ@mail.gmail.com>
  <CAHC9VhQurFFNfjx22RxKp-QG_GJ6VDZy3yEOWwWY++wfn+2C9Q@mail.gmail.com> <CAEjxPJ693_3xX=VJTkQejfSatox9YxER9L0y=0H781noSGA-Hw@mail.gmail.com>
 In-Reply-To: <CAEjxPJ693_3xX=VJTkQejfSatox9YxER9L0y=0H781noSGA-Hw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 18 Aug 2020 08:50:40 -0400
-Message-ID: <CAHC9VhTBFj2eVaCk8W61dDj57A0kHPR43VqxSoJHE_6KZQmmfA@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 18 Aug 2020 08:52:34 -0400
+Message-ID: <CAEjxPJ6TEk=iXHkB0=6EytMeJo1R+ZSgS8O0-32NPHpR43PhsQ@mail.gmail.com>
 Subject: Re: potential memory leak in netlbl_mgmt_add_common
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+To:     Paul Moore <paul@paul-moore.com>
 Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
         SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
@@ -106,13 +107,7 @@ On Tue, Aug 18, 2020 at 8:28 AM Stephen Smalley
 > > to have line numbers for the backtrace above would you?  Anything
 > > special you did to reproduce this?
 >
-> I don't still have that kernel so I'll need to reproduce it again.
-
-No problem.  If you remember to do it next time you've got a test
-going, it would be nice to have the confirmation, but I started
-building a kernel this morning (forgot to start it last night).
-
-> It
+> I don't still have that kernel so I'll need to reproduce it again.  It
 > was reproducible however just by running the selinux-testsuite and
 > then echo scan > /sys/kernel/debug/kmemleak and then cat
 > /sys/kernel/debug/kmemleak.  kmemleak-related config was:
@@ -123,9 +118,15 @@ building a kernel this morning (forgot to start it last night).
 > # CONFIG_DEBUG_KMEMLEAK_DEFAULT_OFF is not set
 > CONFIG_DEBUG_KMEMLEAK_AUTO_SCAN=y
 
-Okay, good.  I was worried the reproducer might be tricky, but that's
-easy enough.
-
--- 
-paul moore
-www.paul-moore.com
+If I am decoding this correctly, it looks like the leaking allocation
+is at net/netlabel/netlabel_mgmt.c:152:
+   147         if (info->attrs[NLBL_MGMT_A_IPV4ADDR]) {
+    148                 struct in_addr *addr;
+    149                 struct in_addr *mask;
+    150                 struct netlbl_domaddr4_map *map;
+    151
+    152                 addrmap = kzalloc(sizeof(*addrmap), GFP_KERNEL);
+    153                 if (addrmap == NULL) {
+    154                         ret_val = -ENOMEM;
+    155                         goto add_doi_put_def;
+    156                 }
