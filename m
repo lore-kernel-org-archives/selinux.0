@@ -2,104 +2,100 @@ Return-Path: <SRS0=if39=B4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.1 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AABCC433DF
-	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 02:25:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C18CC433DF
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 08:11:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 62491206DA
-	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 02:25:05 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="HZ938OYx"
+	by mail.kernel.org (Postfix) with ESMTP id 731272075E
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 08:11:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726420AbgHRCZF (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Aug 2020 22:25:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726303AbgHRCZD (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Aug 2020 22:25:03 -0400
-Received: from mail-ej1-x643.google.com (mail-ej1-x643.google.com [IPv6:2a00:1450:4864:20::643])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A3B3C061389
-        for <selinux@vger.kernel.org>; Mon, 17 Aug 2020 19:25:03 -0700 (PDT)
-Received: by mail-ej1-x643.google.com with SMTP id f24so20214011ejx.6
-        for <selinux@vger.kernel.org>; Mon, 17 Aug 2020 19:25:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=vEg6bv0hzxDsUrgH/YFAkVPv2q0Fp7vfZjUHlbjrj+s=;
-        b=HZ938OYxokf+xacGkHNx6b0uIdz3hx0PHoBNKDyFnVAgxvJTzFKlK3/ebSv9UhXD0R
-         bUxyfccSfqYjE3WivVubl1NYZgYcLos7nJS4zey4wRv9D1jLaSxJ+Z99rM+tspEQS7yj
-         r2q6aFSETwFvlPETzxccVa2Zon/mT10XavHkLEZI6ng6VLn8z8XW1h0vkDScAzjIQBsi
-         TeunZH6ecX2BYNNAvbR4Sr8cy5iq5yPPctCyQF14cx0uFkl4gmAWcettwbdiEMwL1O2K
-         VDynzqQ4Z+W4BPU7F3OMMyc1OULZL2yZn9Y+23cuIEIREz/mU8eaWrO8uvRQaftT2lJ8
-         0I+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=vEg6bv0hzxDsUrgH/YFAkVPv2q0Fp7vfZjUHlbjrj+s=;
-        b=X4I/M3tf9QVZu/4Jwtvfzu5Vjo/cxmvbS1bLgniYEAsdGNxK0TiEnQFhuHC5FtBP6h
-         YtvoWzjeggpYGiYAhSshMLsjEwHC/LGVZsicqCBVFkSqG6mU64fUQth1X7V4nVDJi9wL
-         Zb4PO3aXqW+yrNWCZbKBMUK9+lfxLDsxM04hX5bKQMXvXS9H8v0WHQ57U0YGGIchkstA
-         FnvJn+ovpsMaTCRIyMdvLt8ienf5z4ZfkKmSBvWB+L1K3MqYZwfYvjX1JXNww4xzC/hy
-         Xc1UdqaK25+5Tyq3t9gmToQYcpCAIV+PYmuLztj8nJIiK6nCnFv2K+V13MlY/+Bkr+so
-         3H2w==
-X-Gm-Message-State: AOAM532htR9ALg1qycITiMg05POfYtBLGTBjYMDI9Nt5IyBNVjbtANNU
-        95WEmZ6Sbw6nkGG5IRxjupFohQGClz9tYZI7s152
-X-Google-Smtp-Source: ABdhPJwOV+IHE2Gk8U2m54uBgA5/548J6SaCUpxDBGPd5dyoWC4GJREk7cSMFSuVVAhlX6S5GOvikVjbnuTcA4o8oj4=
-X-Received: by 2002:a17:906:c1d8:: with SMTP id bw24mr17742055ejb.91.1597717501759;
- Mon, 17 Aug 2020 19:25:01 -0700 (PDT)
+        id S1726228AbgHRIL2 convert rfc822-to-8bit (ORCPT
+        <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Aug 2020 04:11:28 -0400
+Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:18255 "EHLO
+        SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726203AbgHRIL1 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Aug 2020 04:11:27 -0400
+Subject: Re: [PATCH v3 3/3] selinux: add permission names to trace event
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
+        Paul Moore <paul@paul-moore.com>
+CC:     Nick Kralevich <nnk@google.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Eric Paris <eparis@parisplace.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh@kernel.org>, <linux-kernel@vger.kernel.org>,
+        <selinux@vger.kernel.org>
+References: <20200817170729.2605279-1-tweek@google.com>
+ <20200817170729.2605279-4-tweek@google.com>
+ <d8b1d7a2-2b8e-c714-77b6-d4e7f3fedf08@gmail.com>
+From:   peter enderborg <peter.enderborg@sony.com>
+Message-ID: <6730ec4a-d11b-5c05-b64f-380104a86dab@sony.com>
+Date:   Tue, 18 Aug 2020 10:11:21 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <CAEjxPJ6b0MM-04XwcE58N-BiOBBi2g-1AZovoBmPGgcfU_wZiQ@mail.gmail.com>
-In-Reply-To: <CAEjxPJ6b0MM-04XwcE58N-BiOBBi2g-1AZovoBmPGgcfU_wZiQ@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Mon, 17 Aug 2020 22:24:50 -0400
-Message-ID: <CAHC9VhQurFFNfjx22RxKp-QG_GJ6VDZy3yEOWwWY++wfn+2C9Q@mail.gmail.com>
-Subject: Re: potential memory leak in netlbl_mgmt_add_common
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <d8b1d7a2-2b8e-c714-77b6-d4e7f3fedf08@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Language: en-GB
+X-SEG-SpamProfiler-Analysis: v=2.3 cv=frmim2wf c=1 sm=1 tr=0 a=Jtaq2Av1iV2Yg7i8w6AGMw==:117 a=IkcTkHD0fZMA:10 a=y4yBn9ojGxQA:10 a=z6gsHLkEAAAA:8 a=meVymXHHAAAA:8 a=pGLkceISAAAA:8 a=1XWaLZrsAAAA:8 a=G-ZDcuA8YNwbPKHdF2YA:9 a=QEXdDO2ut3YA:10 a=d-OLMTCWyvARjPbQ-enb:22 a=2JgSa4NbpEOStq-L5dxp:22
+X-SEG-SpamProfiler-Score: 0
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 13, 2020 at 12:32 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
+On 8/17/20 10:16 PM, Stephen Smalley wrote:
+> On 8/17/20 1:07 PM, Thiébaud Weksteen wrote:
 >
-> I noticed this in /sys/kernel/debug/kmemleak while testing other
-> patches.  This is on 5.8.0-rc1 but may be older.
+>> From: Peter Enderborg <peter.enderborg@sony.com>
+>>
+>> In the print out add permissions, it will look like:
+>>      <...>-1042  [007] ....   201.965142: selinux_audited:
+>>      requested=0x4000000 denied=0x4000000 audited=0x4000000
+>>      result=-13
+>>      scontext=system_u:system_r:cupsd_t:s0-s0:c0.c1023
+>>      tcontext=system_u:object_r:bin_t:s0
+>>      tclass=file permissions={ !entrypoint }
+>>
+>> This patch is adding the "permissions={ !entrypoint }".
+>> The permissions preceded by "!" have been denied and the permissions
+>> without have been accepted.
+>>
+>> Note that permission filtering is done on the audited, denied or
+>> requested attributes.
+>>
+>> Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+>> Suggested-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+>> Reviewed-by: Thiébaud Weksteen <tweek@google.com>
+>> Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
+>> ---
+>>   include/trace/events/avc.h | 11 +++++++++--
+>>   security/selinux/avc.c     | 36 ++++++++++++++++++++++++++++++++++++
+>>   2 files changed, 45 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+>> index 7de5cc5169af..d585b68c2a50 100644
+>> --- a/security/selinux/avc.c
+>> +++ b/security/selinux/avc.c
+>> @@ -695,6 +695,7 @@ static void avc_audit_pre_callback(struct audit_buffer *ab, void *a)
+>>       audit_log_format(ab, " } for ");
+>>   }
+>>   +
+>>   /**
+>>    * avc_audit_post_callback - SELinux specific information
+>>    * will be called by generic audit code
 >
-> unreferenced object 0xffff888158b40380 (size 32):
->   comm "netlabelctl", pid 2982, jiffies 4295212079 (age 3234.561s)
->   hex dump (first 32 bytes):
->     80 03 b4 58 81 88 ff ff 80 03 b4 58 81 88 ff ff  ...X.......X....
->     90 03 b4 58 81 88 ff ff 90 03 b4 58 81 88 ff ff  ...X.......X....
->   backtrace:
->     [<000000009fe161a4>] netlbl_mgmt_add_common+0x2df/0x9b0
->     [<00000000816cc1d9>] netlbl_mgmt_adddef+0x133/0x190
->     [<00000000f060e456>] genl_rcv_msg+0x2dd/0x490
->     [<000000001c733400>] netlink_rcv_skb+0xd0/0x200
->     [<00000000c42f6f58>] genl_rcv+0x24/0x40
->     [<000000005421c040>] netlink_unicast+0x2b4/0x3e0
->     [<00000000ab107bba>] netlink_sendmsg+0x3a6/0x660
->     [<00000000643024bd>] sock_sendmsg+0x96/0xa0
->     [<00000000ba78e5a6>] ____sys_sendmsg+0x404/0x440
->     [<000000006f3de0f5>] ___sys_sendmsg+0xd8/0x140
->     [<000000009b8c70ea>] __sys_sendmsg+0xa3/0x110
->     [<00000000e65194c3>] do_syscall_64+0x52/0xb0
->     [<00000000367aebc6>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> Also, drop the spurious whitespace change above.
+>
+>
+Is there any other things we need to fix? A part 1&2 now OK?
 
-Hmmm, that's interesting, a quick look at the code doesn't reveal
-anything obvious and it looks like I don't currently have kmemleak
-enabled in my kernel so I'll need to rebuild ... you wouldn't happen
-to have line numbers for the backtrace above would you?  Anything
-special you did to reproduce this?
 
--- 
-paul moore
-www.paul-moore.com
