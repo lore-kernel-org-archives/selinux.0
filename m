@@ -2,129 +2,88 @@ Return-Path: <SRS0=if39=B4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AC46C433DF
-	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 13:06:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8464C433DF
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 13:38:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 37F2120825
-	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 13:06:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB4C320738
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 13:38:41 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="m6vLbNsU"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T0yYBQmN"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726473AbgHRNGN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 18 Aug 2020 09:06:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38698 "EHLO
+        id S1726513AbgHRNig (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 18 Aug 2020 09:38:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726569AbgHRNGF (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 18 Aug 2020 09:06:05 -0400
-Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB72C061389
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 06:06:04 -0700 (PDT)
-Received: by mail-oi1-x243.google.com with SMTP id n128so13990118oif.0
-        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 06:06:04 -0700 (PDT)
+        with ESMTP id S1726899AbgHRNhn (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 18 Aug 2020 09:37:43 -0400
+Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A885C061389
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 06:37:38 -0700 (PDT)
+Received: by mail-ot1-x332.google.com with SMTP id h22so16243335otq.11
+        for <selinux@vger.kernel.org>; Tue, 18 Aug 2020 06:37:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ESzY/xhWatbmW6dbu979w1RKTpwBdWWvMpcpjn8mg/c=;
-        b=m6vLbNsUJkuaSmruymxC4RbGguzlHvqBffdbkeMFXKwU/IJ3mawzNIpXJIARwvxoat
-         Y5HgKsAr4Rszm5h/y7Uju6hkiVMmW17TVBExvzUkMifi3cq4N0Lux8cMK0+xp3UxN4rS
-         pZPyNfvox1U9eAjLkw/YQSHPlU1DtM1WnBXmSzjxUQuOa9rc1K9k8HZDVRdD+mH+pF9l
-         9fV2dGB3YGN5IlGNmUzyoy8Uz8bj74oV2f9dE3stoLXXEfChb13LgCozAEe3L5zX8qMt
-         cac87iHqTrspfVtvwfkz3Z9QglP+xhEaa6OWqDfFa0nCjoXwFgZyl3SS/+SblPo4tAAM
-         0sUg==
+        h=mime-version:from:date:message-id:subject:to;
+        bh=oMN+xcvzY9S7CY3Zvfg7QjRFo77/0r/rqy5TvfyRhCM=;
+        b=T0yYBQmNbGiifnCr1/suR3l0+iN398Mz2u6ovjPmx55g9aDwcx1R0s1CMOAJBqdrzN
+         QiobgB+b9e+42e/3uoRp5oT3qvb9P9oIuKmdz4z6KRovb4F5KivX8smDAgvxgy1RDiuU
+         6pNtAqIp0tjimOvaPZAEcOziIeff47atFIDjGB398gKa7qbKsWmY++O0MKg5c8UFBlbY
+         GLltADGShkMHI8BY3gFchyr6/2N+Y2sp6UgvhKDtIBb+UiNR9Bu+HnrkafZMEaUBQLVS
+         NjHv1NtIBB6tvEnhzKaCTlorRE1uE4MUoArtIyhVFmyGEaSsO9x8RJfor52eAbfXCDDg
+         nsTw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ESzY/xhWatbmW6dbu979w1RKTpwBdWWvMpcpjn8mg/c=;
-        b=tqlfLjfLDzCNoIcxkuIDmZLaDex3ztPwju/+bHmRFj+valJnAEoVfRjGdZHisIQui3
-         V/NMoB425CGSGWOhY3J1yd0jq1aw6/XJ5Fp89Ft7EvV70rWQG6N9Ov0pbhdof3Jx2jNQ
-         RH8dkvWV76iS8sQXAGlP+AN4MuK8flGFuf40UYjdpD2oQAhya3F9ALxrC/OmchQmLpjI
-         /jCrqJ6DbtFQRpEeCGfRv8sAjBs+VXgU0xesvAacI4Fz11oBK8+DZ6m6Wc4GR7FVAGqt
-         tiMZTR5+/9lT+vK4I7VbLmUVTu9s+WY6Gzr/V84d2JMC2xhlEBlF2/4VTwLeEIaad99R
-         5gxA==
-X-Gm-Message-State: AOAM532Mznmnd5v6TQ/syTyj60Szd2wNCmlu/pm8R2zUjW+ILVnP6oHa
-        PAHoXUoT/kkFv3bKYe5FfdSPS+dOW6HAQ7qMMIA=
-X-Google-Smtp-Source: ABdhPJxE1xAcOMtG+Lav/O9tsCmIiHco3QOQQ0G4SjteTgwkDrEueVoSq7Td71igHK0VFsmzt02kCKVvls+Hllsa8JY=
-X-Received: by 2002:a05:6808:1d9:: with SMTP id x25mr12301823oic.92.1597755964246;
- Tue, 18 Aug 2020 06:06:04 -0700 (PDT)
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=oMN+xcvzY9S7CY3Zvfg7QjRFo77/0r/rqy5TvfyRhCM=;
+        b=dDacKYA3BZNgqJdca2VHAz/0FFngM9rz6wosyEmA00Fw2nvIuffme0bDQx8McWZpif
+         Ay3buPyUa6rVJdD3e0RPSs5Flvjf+XnUCt80qDMBXdYxITM3T5Gi+uJ+JXNkHTMpCKOk
+         oJz/JNVs3Zpm5TuJwlKLjVV8/lJJf0uHHAjOTo3+2tZvjLFJXKUGaArhPWaYIkCxZald
+         cWPu3Iwn1jbpsNJ46fYYzexkgajQWAFcl7JPY0RTI9WP9/mKusPdRbnbfPjZBuOioMJT
+         Az2QNtWy/nVJorjhEYBze/i3seTgvY8Mh9hbF/IoEPmw9Ck6gns0F10qHvzjQzFy/tqg
+         +seQ==
+X-Gm-Message-State: AOAM532AEWxGlt+GWuCrNSsGrWWq5Zpmik7CPEScQcRbgvBHJRQAdwhN
+        shO5ca8KvMfbSNqiwioP0+YGitxbN8e/z06gp0pjh2w/93fvZw==
+X-Google-Smtp-Source: ABdhPJyaqaGOmaavTb+R6gncthJjW5aTtEFRy7MBALUSFUJcPwbBUjotgIpkZXSqXx1u19e/idmazsiUyu8heDoSyww=
+X-Received: by 2002:a05:6830:1305:: with SMTP id p5mr15470593otq.135.1597757855636;
+ Tue, 18 Aug 2020 06:37:35 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAEjxPJ6b0MM-04XwcE58N-BiOBBi2g-1AZovoBmPGgcfU_wZiQ@mail.gmail.com>
- <CAHC9VhQurFFNfjx22RxKp-QG_GJ6VDZy3yEOWwWY++wfn+2C9Q@mail.gmail.com>
- <CAEjxPJ693_3xX=VJTkQejfSatox9YxER9L0y=0H781noSGA-Hw@mail.gmail.com>
- <CAEjxPJ6TEk=iXHkB0=6EytMeJo1R+ZSgS8O0-32NPHpR43PhsQ@mail.gmail.com> <CAEjxPJ5T5Dht0G1XZYVKgL5Zz1gTqcDVzJZaStHnyHQmOy_PbA@mail.gmail.com>
-In-Reply-To: <CAEjxPJ5T5Dht0G1XZYVKgL5Zz1gTqcDVzJZaStHnyHQmOy_PbA@mail.gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 18 Aug 2020 09:05:53 -0400
-Message-ID: <CAEjxPJ7d1Si+FcsanaKUvENCrMnHPQOohOdKF6A7VFaigw8bFg@mail.gmail.com>
-Subject: Re: potential memory leak in netlbl_mgmt_add_common
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
+Date:   Tue, 18 Aug 2020 09:37:24 -0400
+Message-ID: <CAEjxPJ6s0AgwoMqP=YCweRGpkC5wsvtusmNO235_S=97NmvSeA@mail.gmail.com>
+Subject: working-selinuxns rebase
+To:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 18, 2020 at 8:59 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
->
-> On Tue, Aug 18, 2020 at 8:52 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > If I am decoding this correctly, it looks like the leaking allocation
-> > is at net/netlabel/netlabel_mgmt.c:152:
-> >    147         if (info->attrs[NLBL_MGMT_A_IPV4ADDR]) {
-> >     148                 struct in_addr *addr;
-> >     149                 struct in_addr *mask;
-> >     150                 struct netlbl_domaddr4_map *map;
-> >     151
-> >     152                 addrmap = kzalloc(sizeof(*addrmap), GFP_KERNEL);
-> >     153                 if (addrmap == NULL) {
-> >     154                         ret_val = -ENOMEM;
-> >     155                         goto add_doi_put_def;
-> >     156                 }
->
-> And the full stacktrace fed through decode_stacktrace.sh (which I
-> didn't realize existed until just now, was doing it by hand) is:
-> netlbl_mgmt_add_common (net/netlabel/netlabel_mgmt.c:153)
-> netlbl_mgmt_adddef (net/netlabel/netlabel_mgmt.c:546)
-> genl_rcv_msg (net/netlink/genetlink.c:693 net/netlink/genetlink.c:736
-> net/netlink/genetlink.c:753)
-> netlink_rcv_skb (net/netlink/af_netlink.c:2470)
-> genl_rcv (net/netlink/genetlink.c:765)
-> netlink_unicast (net/netlink/af_netlink.c:1304 net/netlink/af_netlink.c:1329)
-> netlink_sendmsg (net/netlink/af_netlink.c:1918)
-> sock_sendmsg (net/socket.c:652 net/socket.c:672)
-> ____sys_sendmsg (net/socket.c:2352)
-> ___sys_sendmsg (net/socket.c:2408)
-> __sys_sendmsg (./include/linux/file.h:31 net/socket.c:2441)
-> do_syscall_64 (arch/x86/entry/common.c:359)
-> entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:124)
+I did a re-base of the working-selinuxns branch on top of latest next;
+this required manual conflict fixes due to the encapsulation of the
+policy state and refactoring of policy reload.  The rebase can be
+found at:
+https://github.com/stephensmalley/selinux-kernel/tree/working-selinuxns-rebase
 
-Also, there appear to be other leaks of memory allocated near
-net/netlabel/netlabel_mgmt.c:88
-net/netlabel/netlabel_mgmt.c:201:
-     86         struct netlbl_dom_map *entry = kzalloc(sizeof(*entry),
-GFP_KERNEL);
-     87
-     88         if (!entry)
-     89                 return -ENOMEM;
-...
-    195         } else if (info->attrs[NLBL_MGMT_A_IPV6ADDR]) {
-    196                 struct in6_addr *addr;
-    197                 struct in6_addr *mask;
-    198                 struct netlbl_domaddr6_map *map;
-    199
-    200                 addrmap = kzalloc(sizeof(*addrmap), GFP_KERNEL);
-    201                 if (addrmap == NULL) {
-    202                         ret_val = -ENOMEM;
-    203                         goto add_doi_put_def;
-    204                 }
+It boots, passes the selinux-testsuite, and passes the following
+trivial exercising of the unshare mechanism:
+$ sudo bash
+# echo 1 > /sys/fs/selinux/unshare
+# unshare -m -n
+# umount /sys/fs/selinux
+# mount -t selinuxfs none /sys/fs/selinux
+# id
+uid=0(root) gid=0(root) groups=0(root) context=kernel
+# getenforce
+Permissive
+# load_policy
+# id
+uid=0(root) gid=0(root) groups=0(root) context=system_u:system_r:kernel_t:s0
 
-Probably the same cause for all of them.
+All the same caveats apply - this is still not safe to use and has
+many unresolved issues as noted in the patch descriptions.
