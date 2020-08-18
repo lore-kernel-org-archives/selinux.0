@@ -1,80 +1,103 @@
-Return-Path: <SRS0=6AtE=B3=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=if39=B4=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9722FC433E3
-	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 23:45:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B221AC433DF
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 00:47:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 758E22065C
-	for <selinux@archiver.kernel.org>; Mon, 17 Aug 2020 23:45:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8DD6420789
+	for <selinux@archiver.kernel.org>; Tue, 18 Aug 2020 00:47:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="e0vOwyRU"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Mnpy/k74"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726576AbgHQXph (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 17 Aug 2020 19:45:37 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:35252 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726328AbgHQXph (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 17 Aug 2020 19:45:37 -0400
-Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
-        by linux.microsoft.com (Postfix) with ESMTPSA id 34CB320B4908;
-        Mon, 17 Aug 2020 16:45:36 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 34CB320B4908
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1597707936;
-        bh=ODLtHxuph/xu3RT5nAzZUsfuC4XcphwPvbtr8zOIZzg=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=e0vOwyRUKbxX3Qa2qnnDFomljqdWRcOMXJPHRiWMnZTHllxiWh7XdZHsR51MPESsz
-         8HUgrN9PAhKC8Yj5RJtVtgv7vnWHio9/5Ue4vDH5+fbyQVHwIwmf8p+ehE7g0DYOXT
-         R4YjmXC7WNa68PrUnwHBKoiWNHEZBHEiDOdB6Bj8=
-Subject: Re: [PATCH 2/3] IMA: add policy to support measuring critical data
- from kernel components
-To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
-        casey@schaufler-ca.com, gmazyland@gmail.com
-Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-        nramas@linux.microsoft.com
-References: <20200812193102.18636-1-tusharsu@linux.microsoft.com>
- <20200812193102.18636-3-tusharsu@linux.microsoft.com>
- <591b5f09c7df8ef0378866eaf3afde7a7cb4e82f.camel@linux.ibm.com>
- <5275268e-2ce8-0129-b11d-8419ac384262@linux.microsoft.com>
- <97d25609b6a87f104cc88a2ff8ae52d3f2e4e387.camel@linux.ibm.com>
-From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
-Message-ID: <0d3a1cbc-9c11-37f3-6316-01f5b43909c1@linux.microsoft.com>
-Date:   Mon, 17 Aug 2020 16:45:35 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1726705AbgHRArF (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 17 Aug 2020 20:47:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35970 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726539AbgHRArD (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 17 Aug 2020 20:47:03 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E00C061389
+        for <selinux@vger.kernel.org>; Mon, 17 Aug 2020 17:47:03 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id cq28so13875761edb.10
+        for <selinux@vger.kernel.org>; Mon, 17 Aug 2020 17:47:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=tKXVzagpTSzr/+kMog+4S90lFYs3KmZKSvHQ0ANuY30=;
+        b=Mnpy/k743ZSY+FZOi35YzmZphNANsjkynEVdMlYn9gYAR3pO5UpwMYfMT8E1GDz9Su
+         zPWh6cmhxvZBnyd7/qBi5qURGsgHq2UrA29O6OLr3DphTP2pJtMNQDN3+/KpVvPUZ0GE
+         4L7nCll85qC93H7+nPB4fgRxEHEqIDvtHSyLu9MZfzE/0vdbh+VI64uR+9AIwiNqLAG6
+         5XBbUH4Z9+WNFn3xVcC+a948oQgdK+7NK+44nc0g3hapIfYAoDDEVEVx2V6nhlcdqlNT
+         1TO6iAno2DcL45vZVrd+r3xeJqbqF1K0rltD2Dmfh72FsCJ/FRBeXkS4qoohb9flCJSm
+         Yfgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=tKXVzagpTSzr/+kMog+4S90lFYs3KmZKSvHQ0ANuY30=;
+        b=tHl8ZoX0S2O6G7NJIISfISZUwsf3zApuMM1q8ZFdvgnGPACLVElwJBYFrknh7Vvbb4
+         w4BlwmRrfPC4g+Ci23/WyhHVA6n72Iy2oeY1et40/05IEqtDbMBxhWPkP5yaV3W9AjYU
+         iRke6oNOLHXw1lhXBlhZH+O1w7k0DuIo6jnLBrgt9EC7IHhDTbrvghNk3hFib1zxgDEA
+         cJgssmirU38+PlwgztD/xlUdrjc6Ybkq3YJRgNHoFkUWK18/dEYoBWG81m+h+hHFD5Vi
+         T0bjHbRaeHRxMlYtxKtCu8rkexcbEDChN7Id6q+qCilHgl/l6wpUqPyth4TKBHUv+lhY
+         jwnw==
+X-Gm-Message-State: AOAM5327fbg0NwO/syUSYqfLMSs1JHCI1jxImBIGzVFomqxoVBnNCtcB
+        g0iYwjm+zTQocHY0GgsXGxnDd879/eY4574tDzKV
+X-Google-Smtp-Source: ABdhPJwlRCtlWn4Z3DlCFlBqWFS+TnZOh9HxjJ+/+PkW3w/GJSuaKFzOcddN0Mh6eIM7fZvbNznqQ3PhcNKSvB+ZBTs=
+X-Received: by 2002:a05:6402:3070:: with SMTP id bs16mr17221237edb.269.1597711621941;
+ Mon, 17 Aug 2020 17:47:01 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <97d25609b6a87f104cc88a2ff8ae52d3f2e4e387.camel@linux.ibm.com>
-Content-Type: text/plain; charset=iso-8859-15; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200806183418.50128-1-stephen.smalley.work@gmail.com> <CAHC9VhS3Kp0c+gJrrg_U5dTKmx7XJoVsWOgY+J5p97UzepgC2g@mail.gmail.com>
+In-Reply-To: <CAHC9VhS3Kp0c+gJrrg_U5dTKmx7XJoVsWOgY+J5p97UzepgC2g@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 17 Aug 2020 20:46:51 -0400
+Message-ID: <CAHC9VhQoqv=N0S1fYGJEO50RTY3YrcZ++eRWym-t9enK_jfj7A@mail.gmail.com>
+Subject: Re: [PATCH] scripts/selinux,selinux: update mdp to enable policy capabilities
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
+On Thu, Aug 6, 2020 at 11:46 PM Paul Moore <paul@paul-moore.com> wrote:
+>
+> On Thu, Aug 6, 2020 at 2:34 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> >
+> > Presently mdp does not enable any SELinux policy capabilities
+> > in the dummy policy it generates. Thus, policies derived from
+> > it will by default lack various features commonly used in modern
+> > policies such as open permission, extended socket classes, network
+> > peer controls, etc.  Split the policy capability definitions out into
+> > their own headers so that we can include them into mdp without pulling in
+> > other kernel headers and extend mdp generate policycap statements for the
+> > policy capabilities known to the kernel.  Policy authors may wish to
+> > selectively remove some of these from the generated policy.
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+> >  scripts/selinux/mdp/mdp.c                  |  7 +++++++
+> >  security/selinux/include/policycap.h       | 20 ++++++++++++++++++++
+> >  security/selinux/include/policycap_names.h | 18 ++++++++++++++++++
+> >  security/selinux/include/security.h        | 16 +---------------
+> >  security/selinux/ss/services.c             | 12 +-----------
+> >  5 files changed, 47 insertions(+), 26 deletions(-)
+> >  create mode 100644 security/selinux/include/policycap.h
+> >  create mode 100644 security/selinux/include/policycap_names.h
+>
+> Seems reasonable to me, but obviously needs to wait until the merge
+> window closes.
 
+I just merged this into selinux/next, thanks Stephen.
 
-On 2020-08-17 4:43 p.m., Mimi Zohar wrote:
-> On Mon, 2020-08-17 at 15:27 -0700, Tushar Sugandhi wrote:
-> 
->>> scripts/Lindent isn't as prevalent as it used to be, but it's still
->>> included in Documentation/process/coding-style.rst.  Use it as a guide.
->> Thanks for the pointer. We'll use scripts/Lindent going forward
-> 
-> Please don't change existing code to conform to it.  Use it as a
-> guide/suggestion for new code.
-> 
-> Mimi
-> 
-> 
-Will do.
-Again, appreciate your feedback.
+-- 
+paul moore
+www.paul-moore.com
