@@ -2,172 +2,71 @@ Return-Path: <SRS0=v2nJ=B5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7E1FC433DF
-	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 10:11:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE533C433DF
+	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 10:43:01 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9225B206B5
-	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 10:11:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="SjDpvwZq"
+	by mail.kernel.org (Postfix) with ESMTP id CFEF6207BB
+	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 10:43:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727776AbgHSKLR (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Aug 2020 06:11:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38452 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726919AbgHSKLQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Aug 2020 06:11:16 -0400
-Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2927DC061757
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2020 03:11:16 -0700 (PDT)
-Received: by mail-vs1-xe2f.google.com with SMTP id b26so11628112vsa.13
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2020 03:11:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=y4FO5cAqB3SZpz4VRvo1nhldKsrJkQ6TRgib+7pzYvg=;
-        b=SjDpvwZqYxtOHCObUcm6slt6EBaXA5zpNsiIiroDWpj+Lju9UtnzT63d64RkVT8pgK
-         gefRLLDD0vykjfj6v4j2Wdhb54O5x7AMMzZhJxdBP1LHNetsDfHbxq5n9YwS49CPtadB
-         P8OLaamoDfeUlLF/MQL1970astHhK2wZFhH5wGNhOiAlaB2ru2EqAiwoPGUQL7fRycPQ
-         NYzl9aWkxz+53yPJwRs0+4MF2VXT6RhAwDyPD3obyiaWKOMhSud6CEFm4HuZgFD/M1sz
-         K5UlEzhsWpRlzB3ZxuODAzT2cMN+uX4XO2Vml+PnoBQEFnLhNlOTHI30I0DVgBdUJ7g4
-         6FWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=y4FO5cAqB3SZpz4VRvo1nhldKsrJkQ6TRgib+7pzYvg=;
-        b=Kr5A5v8TV3Eo80n05dYJeb44T7l3jkYoEsf4njGrBoOWI5KqJb9HxQdahO/azekvxn
-         NPeD6En+HL0+FFiGp0gTMntObkDr6GlWe+Bd48aVGzDKb8Pk4xFFh1Bl/rIBCIOHbmb0
-         FIsnVIE0Zi+a3yfO8FJKa5Kz9iOgzj2nJZ3C8Jr1V0ymUiruPqMPfATRfIiJEUfA/flj
-         wQYXlOvm5g7jtXoKPJoXI1vtEU1XcAuBl1hoNqO0Dxk2ojZQR/NDYnwtpcXBhxhx+jbB
-         wrDec1kDTP2rGaOA5x2fl2V1XV9R+UJFi9SvpDVOdodyPJ+KC7kv/DyQR45RoLN5puCA
-         htxA==
-X-Gm-Message-State: AOAM530bnJSdOhcorZSKdu/tfzwyeq002rbkFY+9aEdQHgVfp8UXTTcK
-        soflWc/KKkk1ftAF8IY8g4yuvF5QOi+LqNN3ZlFX9uYGYqoh7in5
-X-Google-Smtp-Source: ABdhPJxnoh7GyzgNwwBUXp6W3Slciha75RjgY4ldLN9aYhy/JUdOYNX+ljur0eYUKc3hod8uyWT2M945JOBAC1Ox9Q8=
-X-Received: by 2002:a67:e45:: with SMTP id 66mr13894325vso.191.1597831871908;
- Wed, 19 Aug 2020 03:11:11 -0700 (PDT)
+        id S1727910AbgHSKnB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Aug 2020 06:43:01 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:53838 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727828AbgHSKnA (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Aug 2020 06:43:00 -0400
+Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <colin.king@canonical.com>)
+        id 1k8LYX-0005jD-3p; Wed, 19 Aug 2020 10:42:57 +0000
+From:   Colin King <colin.king@canonical.com>
+To:     Paul Moore <paul@paul-moore.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>, selinux@vger.kernel.org
+Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH][next] selinux: fix allocation failure check on newpolicy->sidtab
+Date:   Wed, 19 Aug 2020 11:42:56 +0100
+Message-Id: <20200819104256.51499-1-colin.king@canonical.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 19 Aug 2020 15:41:00 +0530
-Message-ID: <CA+G9fYvdAUWHw7SUF6Da1bgDJ2Q=59nJLovrxz8Ke74DSFnG1g@mail.gmail.com>
-Subject: Linux-next: Kernel panic - not syncing: Fatal exception in interrupt
- - RIP: 0010:security_port_sid
-To:     Linux-Next Mailing List <linux-next@vger.kernel.org>,
-        X86 ML <x86@kernel.org>, selinux@vger.kernel.org,
-        open list <linux-kernel@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
-        omosnace@redhat.com, rgb@redhat.com,
-        Kees Cook <keescook@chromium.org>, casey@schaufler-ca.com,
-        yuehaibing@huawei.com, jeffv@google.com, kent.overstreet@gmail.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Kernel panic noticed on linux next 20200819 tag on x86_64 and i386.
+From: Colin Ian King <colin.king@canonical.com>
 
- Kernel panic - not syncing: Fatal exception in interrupt
+The allocation check of newpolicy->sidtab is null checking if
+newpolicy is null and not newpolicy->sidtab. Fix this.
 
-metadata:
-  git branch: master
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
-  git commit: 8eb858df0a5f6bcd371b5d5637255c987278b8c9
-  git describe: next-20200819
-  make_kernelversion: 5.9.0-rc1
-  kernel-config:
-https://builds.tuxbuild.com/izEMrcIH10iI6m0FU7O0LA/kernel.config
+Addresses-Coverity: ("Logically dead code")
+Fixes: c7c556f1e81b ("selinux: refactor changing booleans")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ security/selinux/ss/services.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-crash log:
-[    3.704578] BUG: kernel NULL pointer dereference, address: 00000000000001c8
-[    3.704865] #PF: supervisor read access in kernel mode
-[    3.704865] #PF: error_code(0x0000) - not-present page
-[    3.704865] PGD 0 P4D 0
-[    3.704865] Oops: 0000 [#1] SMP NOPTI
-[    3.704865] CPU: 0 PID: 1 Comm: systemd Not tainted
-5.9.0-rc1-next-20200819 #1
-[    3.704865] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS 1.12.0-1 04/01/2014
-[    3.704865] RIP: 0010:security_port_sid+0x2f/0xb0
-[    3.704865] Code: 55 48 89 e5 41 57 49 89 ff 41 56 49 89 ce 41 55
-41 89 d5 41 54 41 89 f4 53 48 8b 7f 40 e8 c9 ca 94 00 49 8b 47 40 48
-8b 40 10 <48> 8b 98 c8 01 00 00 48 85 db 75 0e eb 65 48 8b 9b c0 00 00
-00 48
-[    3.704865] RSP: 0018:ffffb607c0013d00 EFLAGS: 00010246
-[    3.704865] RAX: 0000000000000000 RBX: ffffffffaef076f8 RCX: ffffb607c0013d9c
-[    3.704865] RDX: 0000000000000016 RSI: 0000000000000006 RDI: ffffffffaef08d10
-[    3.704865] RBP: ffffb607c0013d28 R08: 0000000000000218 R09: 0000000000000016
-[    3.704865] R10: ffffb607c0013d9c R11: ffff988ff9665260 R12: 0000000000000006
-[    3.704865] R13: 0000000000000016 R14: ffffb607c0013d9c R15: ffffffffaef05820
-[    3.721157] FS:  00007f5ef4fec840(0000) GS:ffff988ffbc00000(0000)
-knlGS:0000000000000000
-[    3.721157] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    3.721157] CR2: 00000000000001c8 CR3: 000000013b04c000 CR4: 00000000003506f0
-[    3.721157] Call Trace:
-[    3.721157]  sel_netport_sid+0x120/0x1e0
-[    3.721157]  selinux_socket_bind+0x15a/0x250
-[    3.721157]  ? _raw_spin_trylock_bh+0x42/0x50
-[    3.721157]  ? __local_bh_enable_ip+0x46/0x70
-[    3.721157]  ? _raw_spin_unlock_bh+0x1a/0x20
-[    3.721157]  security_socket_bind+0x35/0x50
-[    3.721157]  __sys_bind+0xcf/0x110
-[    3.721157]  ? syscall_enter_from_user_mode+0x1f/0x1f0
-[    3.730888]  ? do_syscall_64+0x14/0x50
-[    3.730888]  ? trace_hardirqs_on+0x38/0xf0
-[    3.732120]  __x64_sys_bind+0x1a/0x20
-[    3.732120]  do_syscall_64+0x38/0x50
-[    3.732120]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-[    3.732120] RIP: 0033:0x7f5ef37f3057
-[    3.732120] Code: ff ff ff ff c3 48 8b 15 3f 9e 2b 00 f7 d8 64 89
-02 b8 ff ff ff ff eb ba 66 2e 0f 1f 84 00 00 00 00 00 90 b8 31 00 00
-00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 11 9e 2b 00 f7 d8 64 89
-01 48
-[    3.738888] RSP: 002b:00007ffe638fbbb8 EFLAGS: 00000246 ORIG_RAX:
-0000000000000031
-[    3.738888] RAX: ffffffffffffffda RBX: 000055833cf9ef80 RCX: 00007f5ef37f3057
-[    3.738888] RDX: 000000000000001c RSI: 000055833cf9ef80 RDI: 000000000000002b
-[    3.743930] virtio_net virtio0 enp0s3: renamed from eth0
-[    3.738888] RBP: 000000000000002b R08: 0000000000000004 R09: 0000000000000000
-[    3.738888] R10: 00007ffe638fbbe4 R11: 0000000000000246 R12: 0000000000000000
-[    3.744849] R13: 00007ffe638fbbe4 R14: 0000000000000000 R15:
-000000RIP: 0010:security_port_sid0000000000
-[    3.744849] Modules linked in:
-[    3.744849] CR2: 00000000000001c8
-[    3.744849] ---[ end trace 485eaaecdce54971 ]---
-[    3.744849] RIP: 0010:security_port_sid+0x2f/0xb0
-[    3.744849] Code: 55 48 89 e5 41 57 49 89 ff 41 56 49 89 ce 41 55
-41 89 d5 41 54 41 89 f4 53 48 8b 7f 40 e8 c9 ca 94 00 49 8b 47 40 48
-8b 40 10 <48> 8b 98 c8 01 00 00 48 85 db 75 0e eb 65 48 8b 9b c0 00 00
-00 48
-[    3.744849] RSP: 0018:ffffb607c0013d00 EFLAGS: 00010246
-[    3.744849] RAX: 0000000000000000 RBX: ffffffffaef076f8 RCX: ffffb607c0013d9c
-[    3.744849] RDX: 0000000000000016 RSI: 0000000000000006 RDI: ffffffffaef08d10
-[    3.744849] RBP: ffffb607c0013d28 R08: 0000000000000218 R09: 0000000000000016
-[    3.744849] R10: ffffb607c0013d9c R11: ffff988ff9665260 R12: 0000000000000006
-[    3.744849] R13: 0000000000000016 R14: ffffb607c0013d9c R15: ffffffffaef05820
-[    3.744849] FS:  00007f5ef4fec840(0000) GS:ffff988ffbc00000(0000)
-knlGS:0000000000000000
-[    3.744849] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[    3.744849] CR2: 00000000000001c8 CR3: 000000013b04c000 CR4: 00000000003506f0
-[    3.7RIP: 0010:security_port_sid44849] Kernel panic - not syncing:
-Fatal exception in interrupt
-[    3.744849] Kernel Offset: 0x2c000000 from 0xffffffff81000000
-(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-[    3.744849] ---[ end Kernel panic - not syncing: Fatal exception in
-interrupt ]---
-
-full test log link,
-https://qa-reports.linaro.org/lkft/linux-next-oe/build/next-20200819/testrun/3084905/suite/linux-log-parser/test/check-kernel-panic-1682816/log
-
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index f6f78c65f53f..d310910fb639 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -2224,7 +2224,7 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len,
+ 		return -ENOMEM;
+ 
+ 	newpolicy->sidtab = kzalloc(sizeof(*newpolicy->sidtab), GFP_KERNEL);
+-	if (!newpolicy)
++	if (!newpolicy->sidtab)
+ 		goto err;
+ 
+ 	rc = policydb_read(&newpolicy->policydb, fp);
 -- 
-Linaro LKFT
-https://lkft.linaro.org
+2.27.0
+
