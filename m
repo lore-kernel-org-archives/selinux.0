@@ -2,77 +2,83 @@ Return-Path: <SRS0=v2nJ=B5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9E44C433E1
-	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 12:24:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AA1EC433E1
+	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 12:28:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7FEBA2075E
-	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 12:24:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1BED12054F
+	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 12:28:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PFaHU2Hx"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VtmCoCPS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727896AbgHSMYW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Aug 2020 08:24:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58934 "EHLO
+        id S1727120AbgHSM2V (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Aug 2020 08:28:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726710AbgHSMYV (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Aug 2020 08:24:21 -0400
-Received: from mail-qv1-xf43.google.com (mail-qv1-xf43.google.com [IPv6:2607:f8b0:4864:20::f43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86263C061757
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2020 05:24:20 -0700 (PDT)
-Received: by mail-qv1-xf43.google.com with SMTP id x7so11114107qvi.5
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2020 05:24:20 -0700 (PDT)
+        with ESMTP id S1727019AbgHSM2U (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Aug 2020 08:28:20 -0400
+Received: from mail-qk1-x744.google.com (mail-qk1-x744.google.com [IPv6:2607:f8b0:4864:20::744])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 220A2C061757;
+        Wed, 19 Aug 2020 05:28:19 -0700 (PDT)
+Received: by mail-qk1-x744.google.com with SMTP id i20so7135039qkk.8;
+        Wed, 19 Aug 2020 05:28:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=subject:to:cc:references:from:message-id:date:user-agent
          :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=3UR0z9eOxNgL8UxQtsxkNqhJeMqu7+6eq9/BNN59u44=;
-        b=PFaHU2Hxe7hLXIrPAYvosJTsQo39Qg4kH1nAL1jMBBg3KSHPpxfXK0LNvrtoLveiRn
-         cU/A+LTfvVFMBgZFXIwZrmQXrN8E2vWQ+LhuJc3y3L+vjWozMltafAO26H5xRhu0SN7+
-         WSZ30DVn9I9LPBFNGEGgb4TaLbjeiAKUvrGMTytGGmbzz3PxlZiiRz8zRxps2dfRSIzR
-         AMEnHu+Rh9QESsRYGt2+FhMMhdwrOHFthD/FUVhPqUtEGzcB8BbIflsfiI+iv7gOnD2k
-         eyqmqrcH8vb+H7PqthLQgOJAaIB6EnJ6TMjWrpb5KRaT0McFG99nGJ5RRvjnt6tPN6f+
-         oYDw==
+        bh=bP5xi8Eyu06shJm7D+XKCuDr6t2dxYENa5X4x48K6+M=;
+        b=VtmCoCPSfEoUvi2ETrGecrLdn5JM7BqYZPpwycbK44Hlnt4ajM9zOAr8VOVRrEQxpQ
+         b/8F97Gw1HEywIIFknH1QmjyGDw4JGq/LmZ683egMRA80yWlNwNFSO5Mj4ItJ23QVNQm
+         NWwr3GzY5R9uTw3kbPg97B6PJBRYLtmKXLRU8rY8Ukx9mHczVZ6nWULLKKIbT+BXCkc7
+         SAuZOsmqkUtuENCMW+9V45e3cl+PbRU038QC2iHoQTfWm4jaLzfUDfF5GuRct1DGBkLT
+         ovw9UMQKo4bSn1lA4P4EgRhc4nMeWqzwI000K7LpjXvqBx45rxn6SpFhRBhDwvZ/aTeK
+         H67g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:subject:to:cc:references:from:message-id:date
          :user-agent:mime-version:in-reply-to:content-transfer-encoding
          :content-language;
-        bh=3UR0z9eOxNgL8UxQtsxkNqhJeMqu7+6eq9/BNN59u44=;
-        b=gJS19rlJ6o5WvvaK4VRI4+JQmOTSNpRJ/8oh8MHT99JZEeEbGNvo/8PF53pJs5JaFL
-         Smtg+isAwjSAUV0y8OIFcsG1nT/oHS+m8z8fp2ytVyLFoLlcvtObtBoDrNVBETPTws/q
-         OiRsCpqRX6CmUBbx4FOJFokw/rTSpCv+JcHzKHXeg679fKdnkyUWPxDMY7DaDVrF6ef4
-         Yxqp7Kbc98sRgH3SZ5UnrDEQpnbv+M7chnquonSmhoVqW/fUiduSrQrHy5Lty58kaau7
-         xTMJykA3YpewP3gABBm7yPIi4umeizlq8yHNZJtIy67F8Cq/+w4Y6mjT6YsVoGWQEchU
-         41KA==
-X-Gm-Message-State: AOAM533fGbMB2JRaP4g4kGcVtHNVWRgDvb4p3CuX3DLQA0rQSZZh/tlO
-        eTfZUF9HqpwQdFwUG++CsFzA4qCDSiU=
-X-Google-Smtp-Source: ABdhPJxjmHr7A6CHNhRAoKm2HWITASUX7tISpA3xLLcuKuOZutibhtt8lwB2SzGhY+7r3VKk0o5o4w==
-X-Received: by 2002:a05:6214:1503:: with SMTP id e3mr24044097qvy.104.1597839859538;
-        Wed, 19 Aug 2020 05:24:19 -0700 (PDT)
+        bh=bP5xi8Eyu06shJm7D+XKCuDr6t2dxYENa5X4x48K6+M=;
+        b=N81+tkXmlilx4njKwldXlLQBE6KO2GzCQsmjdCwmuxx2XXkeAK8toSPpvOtTwsyEck
+         CUKYuWS11aRTIQS0IwTyuOUOCRkwArvbAr+s+o/I+FxGj+SVOErYYpEMwiZ/uI1cNxe8
+         QG4KpMghknekovcEskTg/Ao9qBArFyZvmCB9+GBTp6I0H5XZxomy2WLsVqJZ/QRV36Tr
+         3Dpxq1uTbtoPG+Y16EimA2d+H5aUGsOt7azRTvfICHoaS9qoeM0oNw1mvZUSam/n2Xmv
+         7kyqwhmqEDI96FMzh4UMxBaDgMI7R75ZpHN4swHq7YWwZ5l2EVHmbV5FSomepb3sC5/v
+         zqhw==
+X-Gm-Message-State: AOAM5308tOeRodQizUBRi4zVNu/gxV/7KYCNZmPp6WsraeXLcZwkVVvO
+        NLGxapcQU+avuKomSB9iSZo=
+X-Google-Smtp-Source: ABdhPJxkbb9Jc3+1IWhiR7hJr3pAu14DVd3N/p31lXC9uCPu1Wf8tzxmlTv8aiMD5bmgPAAsfIsq0Q==
+X-Received: by 2002:a37:9ccf:: with SMTP id f198mr21751045qke.168.1597840098729;
+        Wed, 19 Aug 2020 05:28:18 -0700 (PDT)
 Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
-        by smtp.gmail.com with ESMTPSA id x24sm28063009qtj.8.2020.08.19.05.24.18
+        by smtp.gmail.com with ESMTPSA id h23sm23371889qkl.38.2020.08.19.05.28.17
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Aug 2020 05:24:19 -0700 (PDT)
-Subject: Re: [RFC PATCH] selinux: Use call_rcu for policydb and booleans
-To:     peter enderborg <peter.enderborg@sony.com>, paul@paul-moore.com,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Cc:     omosnace@redhat.com, selinux@vger.kernel.org
-References: <20200818221718.35655-1-stephen.smalley.work@gmail.com>
- <e9c1967d-170f-86f0-2762-7ca36ea08e40@sony.com>
- <fd75f375-3824-890d-5a32-5c67c397c427@sony.com>
+        Wed, 19 Aug 2020 05:28:18 -0700 (PDT)
+Subject: Re: Linux-next: Kernel panic - not syncing: Fatal exception in
+ interrupt - RIP: 0010:security_port_sid
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Linux-Next Mailing List <linux-next@vger.kernel.org>,
+        X86 ML <x86@kernel.org>, selinux@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>,
+        lkft-triage@lists.linaro.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        paul@paul-moore.com, sds@tycho.nsa.gov, eparis@parisplace.org,
+        omosnace@redhat.com, rgb@redhat.com,
+        Kees Cook <keescook@chromium.org>, casey@schaufler-ca.com,
+        yuehaibing@huawei.com, jeffv@google.com, kent.overstreet@gmail.com
+References: <CA+G9fYvdAUWHw7SUF6Da1bgDJ2Q=59nJLovrxz8Ke74DSFnG1g@mail.gmail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Message-ID: <0eca193c-1006-911c-6777-d261056835a9@gmail.com>
-Date:   Wed, 19 Aug 2020 08:24:18 -0400
+Message-ID: <543834b1-9e7e-187d-4f98-e8484362105b@gmail.com>
+Date:   Wed, 19 Aug 2020 08:28:17 -0400
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <fd75f375-3824-890d-5a32-5c67c397c427@sony.com>
+In-Reply-To: <CA+G9fYvdAUWHw7SUF6Da1bgDJ2Q=59nJLovrxz8Ke74DSFnG1g@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Content-Language: en-US
@@ -81,161 +87,106 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/19/20 8:06 AM, peter enderborg wrote:
+On 8/19/20 6:11 AM, Naresh Kamboju wrote:
 
-> This will might even compile! :-)
+> Kernel panic noticed on linux next 20200819 tag on x86_64 and i386.
 >
->  From f2d5b2a33c97fef896758becfe62e79aed96352d Mon Sep 17 00:00:00 2001
-> From: Peter Enderborg <peter.enderborg@sony.com>
-> Date: Wed, 19 Aug 2020 10:20:28 +0200
-> Subject: [PATCH] selinux: Use call_rcu for policydb and booleans
+>   Kernel panic - not syncing: Fatal exception in interrupt
 >
-> This patch adds call_rcu that moves sycronize out
+> metadata:
+>    git branch: master
+>    git repo: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
+>    git commit: 8eb858df0a5f6bcd371b5d5637255c987278b8c9
+>    git describe: next-20200819
+>    make_kernelversion: 5.9.0-rc1
+>    kernel-config:
+> https://builds.tuxbuild.com/izEMrcIH10iI6m0FU7O0LA/kernel.config
 >
-> out call path. In the callback we can no call
-> cond_resched so they have to be remvoed.
-I don't see why this is necessary.  My v1 patch used call_rcu() without 
-needing these changes, but I didn't think using call_rcu() was justified 
-and switched to synchronize_rcu().  What is lacking in my v2 patch that 
-you are trying to fix?  If it is a performance concern around calling 
-synchronize_rcu() during security_load_policy() and security_set_bool(), 
-I don't think that is significant - those are infrequent operations.
+> crash log:
+> [    3.704578] BUG: kernel NULL pointer dereference, address: 00000000000001c8
+> [    3.704865] #PF: supervisor read access in kernel mode
+> [    3.704865] #PF: error_code(0x0000) - not-present page
+> [    3.704865] PGD 0 P4D 0
+> [    3.704865] Oops: 0000 [#1] SMP NOPTI
+> [    3.704865] CPU: 0 PID: 1 Comm: systemd Not tainted
+> 5.9.0-rc1-next-20200819 #1
+> [    3.704865] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+> BIOS 1.12.0-1 04/01/2014
+> [    3.704865] RIP: 0010:security_port_sid+0x2f/0xb0
+> [    3.704865] Code: 55 48 89 e5 41 57 49 89 ff 41 56 49 89 ce 41 55
+> 41 89 d5 41 54 41 89 f4 53 48 8b 7f 40 e8 c9 ca 94 00 49 8b 47 40 48
+> 8b 40 10 <48> 8b 98 c8 01 00 00 48 85 db 75 0e eb 65 48 8b 9b c0 00 00
+> 00 48
+> [    3.704865] RSP: 0018:ffffb607c0013d00 EFLAGS: 00010246
+> [    3.704865] RAX: 0000000000000000 RBX: ffffffffaef076f8 RCX: ffffb607c0013d9c
+> [    3.704865] RDX: 0000000000000016 RSI: 0000000000000006 RDI: ffffffffaef08d10
+> [    3.704865] RBP: ffffb607c0013d28 R08: 0000000000000218 R09: 0000000000000016
+> [    3.704865] R10: ffffb607c0013d9c R11: ffff988ff9665260 R12: 0000000000000006
+> [    3.704865] R13: 0000000000000016 R14: ffffb607c0013d9c R15: ffffffffaef05820
+> [    3.721157] FS:  00007f5ef4fec840(0000) GS:ffff988ffbc00000(0000)
+> knlGS:0000000000000000
+> [    3.721157] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    3.721157] CR2: 00000000000001c8 CR3: 000000013b04c000 CR4: 00000000003506f0
+> [    3.721157] Call Trace:
+> [    3.721157]  sel_netport_sid+0x120/0x1e0
+> [    3.721157]  selinux_socket_bind+0x15a/0x250
+> [    3.721157]  ? _raw_spin_trylock_bh+0x42/0x50
+> [    3.721157]  ? __local_bh_enable_ip+0x46/0x70
+> [    3.721157]  ? _raw_spin_unlock_bh+0x1a/0x20
+> [    3.721157]  security_socket_bind+0x35/0x50
+> [    3.721157]  __sys_bind+0xcf/0x110
+> [    3.721157]  ? syscall_enter_from_user_mode+0x1f/0x1f0
+> [    3.730888]  ? do_syscall_64+0x14/0x50
+> [    3.730888]  ? trace_hardirqs_on+0x38/0xf0
+> [    3.732120]  __x64_sys_bind+0x1a/0x20
+> [    3.732120]  do_syscall_64+0x38/0x50
+> [    3.732120]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> [    3.732120] RIP: 0033:0x7f5ef37f3057
+> [    3.732120] Code: ff ff ff ff c3 48 8b 15 3f 9e 2b 00 f7 d8 64 89
+> 02 b8 ff ff ff ff eb ba 66 2e 0f 1f 84 00 00 00 00 00 90 b8 31 00 00
+> 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 11 9e 2b 00 f7 d8 64 89
+> 01 48
+> [    3.738888] RSP: 002b:00007ffe638fbbb8 EFLAGS: 00000246 ORIG_RAX:
+> 0000000000000031
+> [    3.738888] RAX: ffffffffffffffda RBX: 000055833cf9ef80 RCX: 00007f5ef37f3057
+> [    3.738888] RDX: 000000000000001c RSI: 000055833cf9ef80 RDI: 000000000000002b
+> [    3.743930] virtio_net virtio0 enp0s3: renamed from eth0
+> [    3.738888] RBP: 000000000000002b R08: 0000000000000004 R09: 0000000000000000
+> [    3.738888] R10: 00007ffe638fbbe4 R11: 0000000000000246 R12: 0000000000000000
+> [    3.744849] R13: 00007ffe638fbbe4 R14: 0000000000000000 R15:
+> 000000RIP: 0010:security_port_sid0000000000
+> [    3.744849] Modules linked in:
+> [    3.744849] CR2: 00000000000001c8
+> [    3.744849] ---[ end trace 485eaaecdce54971 ]---
+> [    3.744849] RIP: 0010:security_port_sid+0x2f/0xb0
+> [    3.744849] Code: 55 48 89 e5 41 57 49 89 ff 41 56 49 89 ce 41 55
+> 41 89 d5 41 54 41 89 f4 53 48 8b 7f 40 e8 c9 ca 94 00 49 8b 47 40 48
+> 8b 40 10 <48> 8b 98 c8 01 00 00 48 85 db 75 0e eb 65 48 8b 9b c0 00 00
+> 00 48
+> [    3.744849] RSP: 0018:ffffb607c0013d00 EFLAGS: 00010246
+> [    3.744849] RAX: 0000000000000000 RBX: ffffffffaef076f8 RCX: ffffb607c0013d9c
+> [    3.744849] RDX: 0000000000000016 RSI: 0000000000000006 RDI: ffffffffaef08d10
+> [    3.744849] RBP: ffffb607c0013d28 R08: 0000000000000218 R09: 0000000000000016
+> [    3.744849] R10: ffffb607c0013d9c R11: ffff988ff9665260 R12: 0000000000000006
+> [    3.744849] R13: 0000000000000016 R14: ffffb607c0013d9c R15: ffffffffaef05820
+> [    3.744849] FS:  00007f5ef4fec840(0000) GS:ffff988ffbc00000(0000)
+> knlGS:0000000000000000
+> [    3.744849] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [    3.744849] CR2: 00000000000001c8 CR3: 000000013b04c000 CR4: 00000000003506f0
+> [    3.7RIP: 0010:security_port_sid44849] Kernel panic - not syncing:
+> Fatal exception in interrupt
+> [    3.744849] Kernel Offset: 0x2c000000 from 0xffffffff81000000
+> (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> [    3.744849] ---[ end Kernel panic - not syncing: Fatal exception in
+> interrupt ]---
 >
-> Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
-> ---
->   security/selinux/ss/policydb.c |  6 -----
->   security/selinux/ss/services.c | 43 ++++++++++++++++++++++++++++++----
->   2 files changed, 39 insertions(+), 10 deletions(-)
+> full test log link,
+> https://qa-reports.linaro.org/lkft/linux-next-oe/build/next-20200819/testrun/3084905/suite/linux-log-parser/test/check-kernel-panic-1682816/log
 >
-> diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-> index 9fccf417006b..bcf49da4d7b2 100644
-> --- a/security/selinux/ss/policydb.c
-> +++ b/security/selinux/ss/policydb.c
-> @@ -341,7 +341,6 @@ static int filenametr_destroy(void *key, void *datum, void *p)
->                  kfree(d);
->                  d = next;
->          } while (unlikely(d));
-> -       cond_resched();
->          return 0;
->   }
->   
-> @@ -353,7 +352,6 @@ static int range_tr_destroy(void *key, void *datum, void *p)
->          ebitmap_destroy(&rt->level[0].cat);
->          ebitmap_destroy(&rt->level[1].cat);
->          kfree(datum);
-> -       cond_resched();
->          return 0;
->   }
->   
-> @@ -791,7 +789,6 @@ void policydb_destroy(struct policydb *p)
->          struct role_allow *ra, *lra = NULL;
->   
->          for (i = 0; i < SYM_NUM; i++) {
-> -               cond_resched();
->                  hashtab_map(&p->symtab[i].table, destroy_f[i], NULL);
->                  hashtab_destroy(&p->symtab[i].table);
->          }
-> @@ -807,7 +804,6 @@ void policydb_destroy(struct policydb *p)
->          avtab_destroy(&p->te_avtab);
->   
->          for (i = 0; i < OCON_NUM; i++) {
-> -               cond_resched();
->                  c = p->ocontexts[i];
->                  while (c) {
->                          ctmp = c;
-> @@ -819,7 +815,6 @@ void policydb_destroy(struct policydb *p)
->   
->          g = p->genfs;
->          while (g) {
-> -               cond_resched();
->                  kfree(g->fstype);
->                  c = g->head;
->                  while (c) {
-> @@ -839,7 +834,6 @@ void policydb_destroy(struct policydb *p)
->          hashtab_destroy(&p->role_tr);
->   
->          for (ra = p->role_allow; ra; ra = ra->next) {
-> -               cond_resched();
->                  kfree(lra);
->                  lra = ra;
->          }
-> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index ba9347517e5b..61e8296908df 100644
-> --- a/security/selinux/ss/services.c
-> +++ b/security/selinux/ss/services.c
-> @@ -2184,11 +2184,29 @@ static void selinux_notify_policy_change(struct selinux_state *state,
->          selinux_xfrm_notify_policyload();
->   }
->   
-> +struct deprecated_policy {
-> +       struct selinux_policy *policy;
-> +       int partial;
-> +       struct rcu_head rcu;
-> +};
-> +
-> +void policy_reclaim(struct rcu_head *rp)
-> +{
-> +       struct deprecated_policy *dep = container_of(rp, struct deprecated_policy, rcu);
-> +
-> +       if (dep->partial)
-> +               selinux_policy_cond_free(dep->policy);
-> +       else
-> +               selinux_policy_free(dep->policy);
-> +       kfree(dep);
-> +}
-> +
->   void selinux_policy_commit(struct selinux_state *state,
->                          struct selinux_policy *newpolicy)
->   {
->          struct selinux_policy *oldpolicy;
->          u32 seqno;
-> +       struct deprecated_policy *dep;
->   
->          /*
->           * NOTE: We do not need to take the rcu read lock
-> @@ -2231,8 +2249,16 @@ void selinux_policy_commit(struct selinux_state *state,
->          }
->   
->          /* Free the old policy */
-> -       synchronize_rcu();
-> -       selinux_policy_free(oldpolicy);
-> +       /* if cant alloc we need to it the slow way */
-> +       dep  = kzalloc(sizeof(struct deprecated_policy), GFP_KERNEL);
-> +       if (dep) {
-> +               dep->policy = oldpolicy;
-> +               dep->partial = 0;
-> +               call_rcu(&dep->rcu, policy_reclaim);
-> +       } else {
-> +               synchronize_rcu();
-> +               selinux_policy_free(oldpolicy);
-> +       }
->   
->          /* Notify others of the policy change */
->          selinux_notify_policy_change(state, seqno);
-> @@ -2956,6 +2982,7 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
->          struct selinux_policy *newpolicy, *oldpolicy;
->          int rc;
->          u32 i, seqno = 0;
-> +       struct deprecated_policy *dep;
->   
->          if (!selinux_initialized(state))
->                  return -EINVAL;
-> @@ -3020,8 +3047,16 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
->           * that were copied for the new policy, and the oldpolicy
->           * structure itself but not what it references.
->           */
-> -       synchronize_rcu();
-> -       selinux_policy_cond_free(oldpolicy);
-> +       /* if we can not alloc do it the slow way */
-> +       dep  = kzalloc(sizeof(struct deprecated_policy), GFP_KERNEL);
-> +       if (dep) {
-> +               dep->policy = oldpolicy;
-> +               dep->partial = 1;
-> +               call_rcu(&dep->rcu, policy_reclaim);
-> +       } else {
-> +               synchronize_rcu();
-> +               selinux_policy_cond_free(oldpolicy);
-> +       }
->   
->          /* Notify others of the policy change */
->          selinux_notify_policy_change(state, seqno);
+> Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+
+Thank you for the report.  It appears from the log that you are enabling 
+SELinux but not loading any policy?  If that is correct, then I believe 
+I know the underlying cause and can create a patch.
+
+
