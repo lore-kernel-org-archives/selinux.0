@@ -2,258 +2,110 @@ Return-Path: <SRS0=v2nJ=B5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT,
-	USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A508EC433DF
-	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 19:59:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4CC4C433DF
+	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 22:31:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6D131207DA
-	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 19:59:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E801208DB
+	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 22:31:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="TbWtaEzY"
+	dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b="a6jgQbps"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726920AbgHST7s (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Aug 2020 15:59:48 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:39376 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726896AbgHST7r (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Aug 2020 15:59:47 -0400
-Received: from localhost.localdomain (c-73-172-233-15.hsd1.md.comcast.net [73.172.233.15])
-        by linux.microsoft.com (Postfix) with ESMTPSA id CAB9320B4916;
-        Wed, 19 Aug 2020 12:59:44 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com CAB9320B4916
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1597867185;
-        bh=bhtC4hraLLqdJvCVeKNMgBWQSmvZ3EnyjyD8Sd7gMjQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TbWtaEzYorqxgwuhmVpLEXLn7V50+EzIhzGJz/wEd7QdkdBph/ObElNUilw/1mffB
-         yewaPjjpDwfro3D/fWcw2xyEONww47UaqwAKhPaLqQbjFGRZTbSu8oXCuImQoSyzdv
-         HUMytyIG0EPjmKmLPjJAayKfjJ2uSk56kPQG00jc=
-From:   Daniel Burgener <dburgener@linux.microsoft.com>
-To:     selinux@vger.kernel.org
-Cc:     stephen.smalley.work@gmail.com, omosnace@redhat.com,
-        paul@paul-moore.com, linux-fsdevel@vger.kernel.org,
-        viro@zeniv.linux.org.uk
-Subject: [PATCH v3 4/4] selinux: Create new booleans and class dirs out of tree
-Date:   Wed, 19 Aug 2020 15:59:35 -0400
-Message-Id: <20200819195935.1720168-5-dburgener@linux.microsoft.com>
-X-Mailer: git-send-email 2.25.4
-In-Reply-To: <20200819195935.1720168-1-dburgener@linux.microsoft.com>
-References: <20200819195935.1720168-1-dburgener@linux.microsoft.com>
+        id S1726461AbgHSWbS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Aug 2020 18:31:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40432 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726342AbgHSWbS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Wed, 19 Aug 2020 18:31:18 -0400
+Received: from ozlabs.org (bilbo.ozlabs.org [IPv6:2401:3900:2:1::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323F7C061757;
+        Wed, 19 Aug 2020 15:31:18 -0700 (PDT)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4BX2Yq62c3z9sRK;
+        Thu, 20 Aug 2020 08:31:11 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=canb.auug.org.au;
+        s=201702; t=1597876276;
+        bh=e1BaWobOG9FFy0YvLbBCR/TOCh+GM9IhmHC6JY0ZZpw=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=a6jgQbps4JbjB8nQ07bCO3tJJQh7vajvN5rsqaRXj2idfEDYojZfx834oMezdUhBG
+         j8R1NH/Kg/Jrj1JnbPADcoi4s+xX6x4PJmm/Erst5v7WXx+3dQCA+ABMIaLBqgy9Hp
+         us3Bx4TpUAHFBwz4Cqm5Sdq8cy1qo3vPSfKDRVt1T1OjqnkcAN6tsQYKr05PhMT3VO
+         XWMRTcOi1yiyMnJOhuThstHyA37n9Um57oP1E4RlawR8AhB9Anew94Wtl5dLtGhGEL
+         pX08S3Tpwaw/Phh3nJL0RYjRvXMbgkXLPk2XNj7pSegLu7vpwMBVChON1N6wHjIdSU
+         e/TXAWceJB03g==
+Date:   Thu, 20 Aug 2020 08:31:11 +1000
+From:   Stephen Rothwell <sfr@canb.auug.org.au>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Linux-Next Mailing List <linux-next@vger.kernel.org>,
+        X86 ML <x86@kernel.org>, selinux@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        paul@paul-moore.com, Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>, omosnace@redhat.com,
+        rgb@redhat.com, Kees Cook <keescook@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        YueHaibing <yuehaibing@huawei.com>, jeffv@google.com,
+        Kent Overstreet <kent.overstreet@gmail.com>
+Subject: Re: Linux-next: Kernel panic - not syncing: Fatal exception in
+ interrupt - RIP: 0010:security_port_sid
+Message-ID: <20200820083111.46e81b4c@canb.auug.org.au>
+In-Reply-To: <fdffd8f2-ea67-4bfd-f75b-9ffd56dfbbde@gmail.com>
+References: <CA+G9fYvdAUWHw7SUF6Da1bgDJ2Q=59nJLovrxz8Ke74DSFnG1g@mail.gmail.com>
+        <543834b1-9e7e-187d-4f98-e8484362105b@gmail.com>
+        <CAHp75Vf_3cb51UPXqiPspo4pa5AhU7xTvwAk6Z2+FtzNfmogDA@mail.gmail.com>
+        <fdffd8f2-ea67-4bfd-f75b-9ffd56dfbbde@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="Sig_/f0p.4TsNKii6.9fLa1W2MTL";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In order to avoid concurrency issues around selinuxfs resource availability
-during policy load, we first create new directories out of tree for
-reloaded resources, then swap them in, and finally delete the old versions.
+--Sig_/f0p.4TsNKii6.9fLa1W2MTL
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-This fix focuses on concurrency in each of the two subtrees swapped, and
-not concurrency between the trees.  This means that it is still possible
-that subsequent reads to eg the booleans directory and the class directory
-during a policy load could see the old state for one and the new for the other.
-The problem of ensuring that policy loads are fully atomic from the perspective
-of userspace is larger than what is dealt with here.  This commit focuses on
-ensuring that the directories contents always match either the new or the old
-policy state from the perspective of userspace.
+Hi all,
 
-In the previous implementation, on policy load /sys/fs/selinux is updated
-by deleting the previous contents of
-/sys/fs/selinux/{class,booleans} and then recreating them.  This means
-that there is a period of time when the contents of these directories do not
-exist which can cause race conditions as userspace relies on them for
-information about the policy.  In addition, it means that error recovery in
-the event of failure is challenging.
+On Wed, 19 Aug 2020 11:12:44 -0400 Stephen Smalley <stephen.smalley.work@gm=
+ail.com> wrote:
+>
+> Fix can be found at:https://patchwork.kernel.org/patch/11724203/=20
+> <https://patchwork.kernel.org/patch/11724203/>
 
-In order to demonstrate the race condition that this series fixes, you
-can use the following commands:
+Thanks.
 
-while true; do cat /sys/fs/selinux/class/service/perms/status
->/dev/null; done &
-while true; do load_policy; done;
+I will add that to the selinux tree merge in linux-next until it turns
+up in the tree.
 
-In the existing code, this will display errors fairly often as the class
-lookup fails.  (In normal operation from systemd, this would result in a
-permission check which would be allowed or denied based on policy settings
-around unknown object classes.) After applying this patch series you
-should expect to no longer see such error messages.
+--=20
+Cheers,
+Stephen Rothwell
 
-Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
----
- security/selinux/selinuxfs.c | 113 ++++++++++++++++++++++++++++-------
- 1 file changed, 90 insertions(+), 23 deletions(-)
+--Sig_/f0p.4TsNKii6.9fLa1W2MTL
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 2a0e8b5f19d5..d1872adf0c47 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -20,6 +20,7 @@
- #include <linux/fs_context.h>
- #include <linux/mount.h>
- #include <linux/mutex.h>
-+#include <linux/namei.h>
- #include <linux/init.h>
- #include <linux/string.h>
- #include <linux/security.h>
-@@ -361,7 +362,11 @@ static int sel_make_classes(struct selinux_policy *newpolicy,
- static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
- 			unsigned long *ino);
- 
--/* declaration for sel_remove_old_policy_nodes */
-+/* declaration for sel_make_policy_nodes */
-+static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
-+						unsigned long *ino);
-+
-+/* declaration for sel_make_policy_nodes */
- static void sel_remove_entries(struct dentry *de);
- 
- static ssize_t sel_read_mls(struct file *filp, char __user *buf,
-@@ -518,48 +523,94 @@ static const struct file_operations sel_policy_ops = {
- 	.llseek		= generic_file_llseek,
- };
- 
--static void sel_remove_old_policy_nodes(struct selinux_fs_info *fsi)
-+static void sel_remove_old_bool_data(unsigned int bool_num, char **bool_names,
-+				unsigned int *bool_values)
- {
- 	u32 i;
- 
- 	/* bool_dir cleanup */
--	for (i = 0; i < fsi->bool_num; i++)
--		kfree(fsi->bool_pending_names[i]);
--	kfree(fsi->bool_pending_names);
--	kfree(fsi->bool_pending_values);
--	fsi->bool_num = 0;
--	fsi->bool_pending_names = NULL;
--	fsi->bool_pending_values = NULL;
--
--	sel_remove_entries(fsi->bool_dir);
--
--	/* class_dir cleanup */
--	sel_remove_entries(fsi->class_dir);
--
-+	for (i = 0; i < bool_num; i++)
-+		kfree(bool_names[i]);
-+	kfree(bool_names);
-+	kfree(bool_values);
- }
- 
- static int sel_make_policy_nodes(struct selinux_fs_info *fsi,
- 				struct selinux_policy *newpolicy)
- {
--	int ret;
-+	int ret = 0;
-+	struct dentry *tmp_parent, *tmp_bool_dir, *tmp_class_dir, *old_dentry;
-+	unsigned int tmp_bool_num, old_bool_num;
-+	char **tmp_bool_names, **old_bool_names;
-+	unsigned int *tmp_bool_values, *old_bool_values;
-+	unsigned long tmp_ino = fsi->last_ino; /* Don't increment last_ino in this function */
- 
--	sel_remove_old_policy_nodes(fsi);
-+	tmp_parent = sel_make_disconnected_dir(fsi->sb, &tmp_ino);
-+	if (IS_ERR(tmp_parent))
-+		return PTR_ERR(tmp_parent);
- 
--	ret = sel_make_bools(newpolicy, fsi->bool_dir, &fsi->bool_num,
--			     &fsi->bool_pending_names, &fsi->bool_pending_values);
-+	tmp_ino = fsi->bool_dir->d_inode->i_ino - 1; /* sel_make_dir will increment and set */
-+	tmp_bool_dir = sel_make_dir(tmp_parent, BOOL_DIR_NAME, &tmp_ino);
-+	if (IS_ERR(tmp_bool_dir)) {
-+		ret = PTR_ERR(tmp_bool_dir);
-+		goto out;
-+	}
-+
-+	tmp_ino = fsi->class_dir->d_inode->i_ino - 1; /* sel_make_dir will increment and set */
-+	tmp_class_dir = sel_make_dir(tmp_parent, CLASS_DIR_NAME, &tmp_ino);
-+	if (IS_ERR(tmp_class_dir)) {
-+		ret = PTR_ERR(tmp_class_dir);
-+		goto out;
-+	}
-+
-+	ret = sel_make_bools(newpolicy, tmp_bool_dir, &tmp_bool_num,
-+			     &tmp_bool_names, &tmp_bool_values);
- 	if (ret) {
- 		pr_err("SELinux: failed to load policy booleans\n");
--		return ret;
-+		goto out;
- 	}
- 
--	ret = sel_make_classes(newpolicy, fsi->class_dir,
-+	ret = sel_make_classes(newpolicy, tmp_class_dir,
- 			       &fsi->last_class_ino);
- 	if (ret) {
- 		pr_err("SELinux: failed to load policy classes\n");
--		return ret;
-+		goto out;
- 	}
- 
--	return 0;
-+	/* booleans */
-+	old_dentry = fsi->bool_dir;
-+	lock_rename(tmp_bool_dir, old_dentry);
-+	d_exchange(tmp_bool_dir, fsi->bool_dir);
-+
-+	old_bool_num = fsi->bool_num;
-+	old_bool_names = fsi->bool_pending_names;
-+	old_bool_values = fsi->bool_pending_values;
-+
-+	fsi->bool_num = tmp_bool_num;
-+	fsi->bool_pending_names = tmp_bool_names;
-+	fsi->bool_pending_values = tmp_bool_values;
-+
-+	sel_remove_old_bool_data(old_bool_num, old_bool_names, old_bool_values);
-+
-+	fsi->bool_dir = tmp_bool_dir;
-+	unlock_rename(tmp_bool_dir, old_dentry);
-+
-+	/* classes */
-+	old_dentry = fsi->class_dir;
-+	lock_rename(tmp_class_dir, old_dentry);
-+	d_exchange(tmp_class_dir, fsi->class_dir);
-+	fsi->class_dir = tmp_class_dir;
-+	unlock_rename(tmp_class_dir, old_dentry);
-+
-+out:
-+	/* Since the other temporary dirs are children of tmp_parent
-+	 * this will handle all the cleanup in the case of a failure before
-+	 * the swapover
-+	 */
-+	sel_remove_entries(tmp_parent);
-+	dput(tmp_parent); /* d_genocide() only handles the children */
-+
-+	return ret;
- }
- 
- static ssize_t sel_write_load(struct file *file, const char __user *buf,
-@@ -1982,6 +2033,22 @@ static struct dentry *sel_make_dir(struct dentry *dir, const char *name,
- 	return dentry;
- }
- 
-+static struct dentry *sel_make_disconnected_dir(struct super_block *sb,
-+						unsigned long *ino)
-+{
-+	struct inode *inode = sel_make_inode(sb, S_IFDIR | S_IRUGO | S_IXUGO);
-+
-+	if (!inode)
-+		return ERR_PTR(-ENOMEM);
-+
-+	inode->i_op = &simple_dir_inode_operations;
-+	inode->i_fop = &simple_dir_operations;
-+	inode->i_ino = ++(*ino);
-+	/* directory inodes start off with i_nlink == 2 (for "." entry) */
-+	inc_nlink(inode);
-+	return d_obtain_alias(inode);
-+}
-+
- #define NULL_FILE_NAME "null"
- 
- static int sel_fill_super(struct super_block *sb, struct fs_context *fc)
--- 
-2.25.4
+-----BEGIN PGP SIGNATURE-----
 
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl89qC8ACgkQAVBC80lX
+0Gy6VAgAjdE0ErSHLB+UXfirQt0T/YP/oftROZXZxsKCsVjh1Z9xozJ05/s7j+bG
+b5RjoVr0vtLav/p/zmx4cSXoc9xx0z/7mNhcLrwfQ8CnyQhEvPY5mBwnyvPkqVZj
+stt+mlKmwRL+zQKxxnJuQ8hRlOPWY49a0w4rNFx+1XsL4UvESSKJYMicd6tGVZMN
+/Z0CTS8BtiM7PkKnwQh2UtGuT/JSlSl4nGkYbQUyLoJf7u65U8FR7YJNgkvAvEG2
+VZJzC4oG3BhJBlSlKJ2FXX2um1cFmfnlukJrBECdZohk7Xo6exRVvatCE0cHDUDw
+JQdIsqn2BQv76CQ+Z4n/iby/6dlejA==
+=BgvK
+-----END PGP SIGNATURE-----
+
+--Sig_/f0p.4TsNKii6.9fLa1W2MTL--
