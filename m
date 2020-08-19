@@ -2,201 +2,97 @@ Return-Path: <SRS0=v2nJ=B5=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EA68C433DF
-	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 13:11:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C362C433E3
+	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 13:23:22 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 43C43206FA
-	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 13:11:31 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WgDCuZlC"
+	by mail.kernel.org (Postfix) with ESMTP id 0D127205CB
+	for <selinux@archiver.kernel.org>; Wed, 19 Aug 2020 13:23:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1597843402;
+	bh=OyU7eJgsS77zNP2nwHJcGz2WpEY1AAWA8T7LnFgtDp0=;
+	h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:List-ID:
+	 From;
+	b=WT2rOrk+soK6IU0sBrlJxQ0tTQflfvE4rNng8GDc2MxXfGs9yDOfVdiXu42mFcgrK
+	 lxMbkO+CeUxCZBjt33nC5Pry+0nP9f6ekbWZ+ej99e6EZ5lkBpQAgjXka3tYljDVhY
+	 r61taljPf6gj2Ka6zD2M0RhGIIKZFn0lmV5FXeHc=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728001AbgHSNL0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Aug 2020 09:11:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38126 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727018AbgHSNLL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Aug 2020 09:11:11 -0400
-Received: from mail-qv1-xf44.google.com (mail-qv1-xf44.google.com [IPv6:2607:f8b0:4864:20::f44])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 415C3C061757;
-        Wed, 19 Aug 2020 06:11:11 -0700 (PDT)
-Received: by mail-qv1-xf44.google.com with SMTP id x7so11185055qvi.5;
-        Wed, 19 Aug 2020 06:11:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=Ow6DP5YKlPSxiKQIWxdVWz4BWaoxYYX3NXc+pEt29YU=;
-        b=WgDCuZlCTSPVJ14+4FatM1GCxs88zL1Yu57fUA6ZqwJCE8sLovZJbRQPM4lv9/N9/Z
-         gt7XVMN5qnTx866zfU87H4N1hH/EtVObggArQcXU1e+mmV/Nf6TsyAIDhQ8P/dA8qXKE
-         R1Gtl4h1qXWTVya6GZJogtRIoaZOQje+6n5w0WmbiGZchfNAWU9+fiYiFPuZtVyMtMaw
-         LGCthWdyZqO/Wydc2ySXeL6Zh5Ul8sHzGw5exllc07uqNUTW6jWzLsEMR0g/UPf8UEIW
-         7DH/M0UH2NZ89Sm9g2Tf2gBoZ5osSN7snVv/imvFvy7FaunMmdV+XPbAfh7K9Wd8YIKl
-         rJEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=Ow6DP5YKlPSxiKQIWxdVWz4BWaoxYYX3NXc+pEt29YU=;
-        b=uTpaSsHVq7E2H4RKY5T8BiyIQ44mAaUB3RBL8Iyb4ABktbGQaPhBXydQ+hfaENIUi/
-         Pz6w8w1Z/JmmjkKDYJ8Ozy/kEhR3huKiGnhzqSHEQACYRLTKlbWkUaVN1AxFaKJ3vQct
-         bSnMd+/oEo3UzsnCcW2g93WZnKQSQWUlS9625/IO6KSm9I2NTMKcRcgh6plbOfGLu7kv
-         tIWKSf5XPQYFsoAwNN1SqsF1VNEPnBbTenFGUk1FovMjyuFqchMssdORUSIiZ4Cl6G/E
-         +WYAHY8/mBuKBmlyOZYRc3E7hGAj/36QclC3cxP88CRu49VwG/hux8lc7Ogg3d27AmBr
-         RGoQ==
-X-Gm-Message-State: AOAM53146YPf8MeCX01CSyTiRd3kA4VUusB0I1upR9VeXlWXhkj7hDuN
-        14O21gmwIRCYtUrNRrz+P8Q194ubOPE=
-X-Google-Smtp-Source: ABdhPJwmI9U05SvdaDv/+Pgnw3CoOXb1l9WFX1XxnkobI9capGvu35l0s/rnagZ3Y4nDn6zHHqtVHw==
-X-Received: by 2002:a0c:bd0c:: with SMTP id m12mr23968451qvg.49.1597842669970;
-        Wed, 19 Aug 2020 06:11:09 -0700 (PDT)
-Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
-        by smtp.gmail.com with ESMTPSA id x50sm28963887qtb.10.2020.08.19.06.11.08
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 19 Aug 2020 06:11:09 -0700 (PDT)
-Subject: Re: [PATCH v3 3/3] selinux: add permission names to trace event
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     =?UTF-8?Q?Thi=c3=a9baud_Weksteen?= <tweek@google.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Nick Kralevich <nnk@google.com>,
-        Peter Enderborg <peter.enderborg@sony.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
-        selinux@vger.kernel.org
-References: <20200817170729.2605279-1-tweek@google.com>
- <20200817170729.2605279-4-tweek@google.com>
- <0bb62de9-1020-a7c4-3a7f-48ae2f78e3b7@gmail.com>
- <20200817162933.79f69c66@oasis.local.home>
- <20200818120948.1a428da9@oasis.local.home>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Message-ID: <66e6d84e-20b5-1bd3-e107-322f42ce35d3@gmail.com>
-Date:   Wed, 19 Aug 2020 09:11:08 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1728452AbgHSNXV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Aug 2020 09:23:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60004 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728124AbgHSNRZ (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 19 Aug 2020 09:17:25 -0400
+Received: from paulmck-ThinkPad-P72.home (unknown [50.45.173.55])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A424E20866;
+        Wed, 19 Aug 2020 13:15:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1597842911;
+        bh=OyU7eJgsS77zNP2nwHJcGz2WpEY1AAWA8T7LnFgtDp0=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=vZu6QruHCWq7Pr9bVCOC5fdFE28ZhpWCYIRgwIo11w5qMvEK7SaIxJXu4ASXV8Izt
+         z3JwUqJIvQ/ihkmFqczfzVjdmKmm4vL9Tly6g0vhB77oFphYVkv1bixctVTSjLzcTP
+         UR39EXbZmwIw4/KO3+75uQi6wXDrz6X38zOYBhUY=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id 815593522728; Wed, 19 Aug 2020 06:15:11 -0700 (PDT)
+Date:   Wed, 19 Aug 2020 06:15:11 -0700
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     peter enderborg <peter.enderborg@sony.com>, paul@paul-moore.com,
+        omosnace@redhat.com, selinux@vger.kernel.org
+Subject: Re: [RFC PATCH] selinux: Use call_rcu for policydb and booleans
+Message-ID: <20200819131511.GS27891@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20200818221718.35655-1-stephen.smalley.work@gmail.com>
+ <e9c1967d-170f-86f0-2762-7ca36ea08e40@sony.com>
+ <7fe5f8e9-1fd9-2a65-4117-5b0d35c3973e@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200818120948.1a428da9@oasis.local.home>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+In-Reply-To: <7fe5f8e9-1fd9-2a65-4117-5b0d35c3973e@gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/18/20 12:09 PM, Steven Rostedt wrote:
+On Wed, Aug 19, 2020 at 08:06:25AM -0400, Stephen Smalley wrote:
+> On 8/19/20 4:32 AM, peter enderborg wrote:
+> 
+> >  From 8184ea3648b18718fdb460a30dfc7f848b7bc6a2 Mon Sep 17 00:00:00 2001
+> > From: Peter Enderborg <peter.enderborg@sony.com>
+> > Date: Wed, 19 Aug 2020 10:20:28 +0200
+> > Subject: [RFC PATCH] selinux: Use call_rcu for policydb and booleans
+> > 
+> > This patch adds call_rcu that moves sycronize out
+> > out call path. In the callback we can no call
+> > cond_resched so they have to be remvoed.
+> 
+> If you look at the first version of my patch, I used call_rcu() but in a
+> manner that avoided the need to remove cond_resched() or kvfree() calls from
+> the freeing code by having the rcu callback just schedule_work() to free it
+> later.  That follows the pattern used for freeing user namespaces, for
+> example.  However, in re-reading the RCU documentation, my understanding is
+> that one should use synchronize_rcu() followed by direct freeing whenever
+> possible and this is possible from both the policy load and setting
+> booleans.  Neither of them are very frequent operations nor so
+> performance-critical that the cost of synchronize_rcu() would be considered
+> unacceptable IMHO.  Thus, I don't believe we need to do this.
 
-> On Mon, 17 Aug 2020 16:29:33 -0400
-> Steven Rostedt <rostedt@goodmis.org> wrote:
->
->> On Mon, 17 Aug 2020 16:13:29 -0400
->> Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
->>
->>> Does this require a corresponding patch to userspace?Â  Otherwise, I get
->>> the following:
->>>
->>> libtraceevent: No such file or directory
->>>   Â  [avc:selinux_audited] function avc_trace_perm_to_name not defined
->> Yes, we need to add a plugin to libtraceevent that will add that
->> function.
->>
->> I could possibly write one up real quick.
-> Something like this (this is patched on top of trace-cmd, but will work
-> for tools/lib/traceevent too).
->
-> With CONFIG_TRACE_EVENT_INJECT enabled (to test events), I did the following:
->
->   # echo 'utclass=1 audited=1 denied=0' > /sys/kernel/tracing/events/avc/selinux_audited/inject
->   # trace-cmd extract
->   # trace-cmd report
-> cpus=8
->             <...>-1685  [005]  1607.612032: selinux_audited:      requested=0x0 denied=0x0 audited=0x1 result=0 scontext= tcontext= tclass= permissions={ compute_av }
->
-> Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
->
-> ---
-> diff --git a/lib/traceevent/plugins/Makefile b/lib/traceevent/plugins/Makefile
-> index 21e933af..13cbcb92 100644
-> --- a/lib/traceevent/plugins/Makefile
-> +++ b/lib/traceevent/plugins/Makefile
-> @@ -16,6 +16,7 @@ PLUGIN_OBJS += plugin_scsi.o
->   PLUGIN_OBJS += plugin_cfg80211.o
->   PLUGIN_OBJS += plugin_blk.o
->   PLUGIN_OBJS += plugin_tlb.o
-> +PLUGIN_OBJS += plugin_avc.o
->   
->   PLUGIN_OBJS := $(PLUGIN_OBJS:%.o=$(bdir)/%.o)
->   PLUGIN_BUILD := $(PLUGIN_OBJS:$(bdir)/%.o=$(bdir)/%.so)
-> diff --git a/lib/traceevent/plugins/plugin_avc.c b/lib/traceevent/plugins/plugin_avc.c
-> new file mode 100644
-> index 00000000..76af23b9
-> --- /dev/null
-> +++ b/lib/traceevent/plugins/plugin_avc.c
-> @@ -0,0 +1,312 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +#include <stdio.h>
-> +#include <string.h>
-> +#include "event-parse.h"
-> +
-> +#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-> +
-> +typedef unsigned short u16;
-> +
-> +/* Class/perm mapping support */
-> +struct security_class_mapping {
-> +	const char *name;
-> +	const char *perms[sizeof(unsigned) * 8 + 1];
-> +};
-> +
-> +#define COMMON_FILE_SOCK_PERMS "ioctl", "read", "write", "create", \
-> +    "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append", "map"
-> +
-> +#define COMMON_FILE_PERMS COMMON_FILE_SOCK_PERMS, "unlink", "link", \
-> +    "rename", "execute", "quotaon", "mounton", "audit_access", \
-> +	"open", "execmod", "watch", "watch_mount", "watch_sb", \
-> +	"watch_with_perm", "watch_reads"
-> +
-> +#define COMMON_SOCK_PERMS COMMON_FILE_SOCK_PERMS, "bind", "connect", \
-> +    "listen", "accept", "getopt", "setopt", "shutdown", "recvfrom",  \
-> +    "sendto", "name_bind"
-> +
-> +#define COMMON_IPC_PERMS "create", "destroy", "getattr", "setattr", "read", \
-> +	    "write", "associate", "unix_read", "unix_write"
-> +
-> +#define COMMON_CAP_PERMS  "chown", "dac_override", "dac_read_search", \
-> +	    "fowner", "fsetid", "kill", "setgid", "setuid", "setpcap", \
-> +	    "linux_immutable", "net_bind_service", "net_broadcast", \
-> +	    "net_admin", "net_raw", "ipc_lock", "ipc_owner", "sys_module", \
-> +	    "sys_rawio", "sys_chroot", "sys_ptrace", "sys_pacct", "sys_admin", \
-> +	    "sys_boot", "sys_nice", "sys_resource", "sys_time", \
-> +	    "sys_tty_config", "mknod", "lease", "audit_write", \
-> +	    "audit_control", "setfcap"
-> +
-> +#define COMMON_CAP2_PERMS  "mac_override", "mac_admin", "syslog", \
-> +		"wake_alarm", "block_suspend", "audit_read", "perfmon", "bpf"
-> +
-> +/*
-> + * Note: The name for any socket class should be suffixed by "socket",
-> + *	 and doesn't contain more than one substr of "socket".
-> + */
-> +struct security_class_mapping secclass_map[] = {
-> +	{ "security",
-> +	  { "compute_av", "compute_create", "compute_member",
-> +	    "check_context", "load_policy", "compute_relabel",
-> +	    "compute_user", "setenforce", "setbool", "setsecparam",
-> +	    "setcheckreqprot", "read_policy", "validate_trans", NULL } },
->
-So we'll need to update this plugin whenever we modify 
-security/selinux/include/classmap.h to keep them in sync.Â  Is that a 
-concern?Â  I don't suppose the plugin could directly include classmap.h?Â  
-I guess we'd have to export it as a public header. It isn't considered 
-to be part of the kernel API/ABI and can change anytime (but in practice 
-changes are not that frequent, and usually just additive in nature).
+Indeed, synchronize_rcu() avoids things like callback flooding.
+There are nevertheless cases where synchronize_rcu() can be a problem,
+for example due to its relatively long latency (milliseconds at best).
+But if this is an infrequent operation, that should not be an issue.
 
+If there nevertheless is a reason to avoid synchronize_rcu(), then
+queue_rcu_work() gets you directly to a sleepable workqueue context
+where cond_resched() can be used.
+
+							Thnax, Paul
