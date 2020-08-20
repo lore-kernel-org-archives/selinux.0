@@ -2,107 +2,109 @@ Return-Path: <SRS0=r9sn=B6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79010C433DF
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 02:08:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 449BFC433DF
+	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 02:36:20 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C40B20825
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 02:08:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 264CA207BB
+	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 02:36:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="dwe0g2p7"
+	dkim=pass (2048-bit key) header.d=canb.auug.org.au header.i=@canb.auug.org.au header.b="q9GkWeLn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726617AbgHTCH7 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Wed, 19 Aug 2020 22:07:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726362AbgHTCH7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Wed, 19 Aug 2020 22:07:59 -0400
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBBEC061757
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2020 19:07:58 -0700 (PDT)
-Received: by mail-ej1-x630.google.com with SMTP id c16so724310ejx.12
-        for <selinux@vger.kernel.org>; Wed, 19 Aug 2020 19:07:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TH0o2ACywhoyWqluc5W7F52s8JPrIvFPdSzJu5VYIfo=;
-        b=dwe0g2p7BZV3KNo9W7azZkenebJliT8ybnWQxv3sdO+4LPEAwjk1AMMGTbnIjZBdep
-         MN/VVaCY9ESTIZXE3MhAtrfnBfqtXE6DOxR9x7gqmN7xc1VvU7Ocr15j0AliiMwqmlYC
-         bOFXMBaQBNnouxxUyTVaKMRnW+wdTicnKBb+l9ijIOiwT+XfTNL768Pwe6KuIaqxygPp
-         H3DB8YHLDZotpoipcdDhg4LCQo094qW+bvGNSbS5vaACyY588Obiwm4C9OkT5sSla9nK
-         noM7Fm7ytNh6tZicKRNAwD62010SLMqfJzP5frjza30pj2kZVW6zJN9YAgEf7Sd1CG7Y
-         nVMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TH0o2ACywhoyWqluc5W7F52s8JPrIvFPdSzJu5VYIfo=;
-        b=Zv2feA3EieeHYTj1tG/siWFC8xzD1S552EZf9UNSbcvwuiZhbbhOm32MvQuB3yJvAo
-         qT6rMKDKwSgSxcKDTAkl00XBCfFmg9DQwjcXMtjSybMo9fbUyUQR/fGSQ4+wXH/ZDHAO
-         xAnbO6kCMyiqjNomGAUOo2S8iTn4SvGQxcgSbq6Q3YHzj8UZpe8v8obvpSgcXy5bDkQk
-         14YZp1u4f0EqSVD8nTaSlLTo+Sh7AteluJJgDQUPRRYCj4ONGW19mnvBrHDtvaSM1SsO
-         Tejl37TPXd8+fw69gG/DAPvpCIid5/hFc7XzXFcz58uwj55PMprliZlMVKUGKYoJnCQu
-         O9Fw==
-X-Gm-Message-State: AOAM530XzuIYXQSiG7OZzOI4fiAQxzofQ8srFh71UTWvnGVt+hFwzdeq
-        QPRO5mzoqbHPfeIgEp5JJAjhqtzYdFXKZPiuiPLuh1bvs4s2lCk=
-X-Google-Smtp-Source: ABdhPJzWkvgK23mauCUjhUy8jiyFyIkcQIoiVoEw1kHIXeb/GMbOrM778MmktA2ClEWIwrYUjX/oqfPOP4SeieWdT2g=
-X-Received: by 2002:a17:906:1911:: with SMTP id a17mr1063762eje.431.1597889277141;
- Wed, 19 Aug 2020 19:07:57 -0700 (PDT)
+        id S1726646AbgHTCgP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Wed, 19 Aug 2020 22:36:15 -0400
+Received: from bilbo.ozlabs.org ([203.11.71.1]:36327 "EHLO ozlabs.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726362AbgHTCgN (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Wed, 19 Aug 2020 22:36:13 -0400
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.ozlabs.org (Postfix) with ESMTPSA id 4BX80R5lnrz9sRN;
+        Thu, 20 Aug 2020 12:36:07 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=canb.auug.org.au;
+        s=201702; t=1597890971;
+        bh=vULF1V6e0f1yAmziZlk663aZWqAbdESm0QzRgsSJSXg=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=q9GkWeLnxRMya8G/Fbwsb/rU3kXcaVyIudfMZ/PFBaH5yRw/Mg1mQMb3XfPlkRK3x
+         VvLmQ+0DYOAFyoGgN7H6qMBumPcO2J7ZjonRaq3FuGs/B6G7rVMCQOn0/a6M9cFKL+
+         1qtjLnXKLu7XOx1pHG5+Y/tUXvYpaTiHILM5Fa5wFVCbKKbYFgl2Wtd3Fcoac+OPe0
+         wy0m/sOHRKlQd5eLgequXO5ndbzg9562Svw8wqqWFKL+3JdVj3Fd7JroqRSNnUMuT2
+         U1m+g67y1b3y9C3g3fKjZt4nS/LdsiXf2PoGPM8Sb0JZ5iS1DrjPiwILLU18kmRffg
+         VqWDLhKtz8j8Q==
+Date:   Thu, 20 Aug 2020 12:36:06 +1000
+From:   Stephen Rothwell <sfr@canb.auug.org.au>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Linux-Next Mailing List <linux-next@vger.kernel.org>,
+        X86 ML <x86@kernel.org>, selinux@vger.kernel.org,
+        open list <linux-kernel@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Eric Paris <eparis@parisplace.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>, rgb@redhat.com,
+        Kees Cook <keescook@chromium.org>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        YueHaibing <yuehaibing@huawei.com>, jeffv@google.com,
+        Kent Overstreet <kent.overstreet@gmail.com>
+Subject: Re: Linux-next: Kernel panic - not syncing: Fatal exception in
+ interrupt - RIP: 0010:security_port_sid
+Message-ID: <20200820123606.772691e0@canb.auug.org.au>
+In-Reply-To: <CAHC9VhTR7b_p3rdiQ8q07OMoY3fXgU4kH=bH5URVgVS6kH5r5g@mail.gmail.com>
+References: <CA+G9fYvdAUWHw7SUF6Da1bgDJ2Q=59nJLovrxz8Ke74DSFnG1g@mail.gmail.com>
+        <543834b1-9e7e-187d-4f98-e8484362105b@gmail.com>
+        <CAHp75Vf_3cb51UPXqiPspo4pa5AhU7xTvwAk6Z2+FtzNfmogDA@mail.gmail.com>
+        <fdffd8f2-ea67-4bfd-f75b-9ffd56dfbbde@gmail.com>
+        <20200820083111.46e81b4c@canb.auug.org.au>
+        <CAHC9VhTR7b_p3rdiQ8q07OMoY3fXgU4kH=bH5URVgVS6kH5r5g@mail.gmail.com>
 MIME-Version: 1.0
-References: <CAEjxPJ6b0MM-04XwcE58N-BiOBBi2g-1AZovoBmPGgcfU_wZiQ@mail.gmail.com>
- <CAHC9VhQurFFNfjx22RxKp-QG_GJ6VDZy3yEOWwWY++wfn+2C9Q@mail.gmail.com>
- <CAEjxPJ693_3xX=VJTkQejfSatox9YxER9L0y=0H781noSGA-Hw@mail.gmail.com>
- <CAEjxPJ6TEk=iXHkB0=6EytMeJo1R+ZSgS8O0-32NPHpR43PhsQ@mail.gmail.com>
- <CAEjxPJ5T5Dht0G1XZYVKgL5Zz1gTqcDVzJZaStHnyHQmOy_PbA@mail.gmail.com> <CAEjxPJ7d1Si+FcsanaKUvENCrMnHPQOohOdKF6A7VFaigw8bFg@mail.gmail.com>
-In-Reply-To: <CAEjxPJ7d1Si+FcsanaKUvENCrMnHPQOohOdKF6A7VFaigw8bFg@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 19 Aug 2020 22:07:45 -0400
-Message-ID: <CAHC9VhS1HrDaBF2R8quwCN_sfELoBOxn7t4Gxc=rCqJVudBOVw@mail.gmail.com>
-Subject: Re: potential memory leak in netlbl_mgmt_add_common
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
-        SElinux list <selinux@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; boundary="Sig_/hvV3_WwiiS1IDDfSXsR+NWi";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 18, 2020 at 9:06 AM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> Also, there appear to be other leaks of memory allocated near
-> net/netlabel/netlabel_mgmt.c:88
-> net/netlabel/netlabel_mgmt.c:201:
->      86         struct netlbl_dom_map *entry = kzalloc(sizeof(*entry),
-> GFP_KERNEL);
->      87
->      88         if (!entry)
->      89                 return -ENOMEM;
-> ...
->     195         } else if (info->attrs[NLBL_MGMT_A_IPV6ADDR]) {
->     196                 struct in6_addr *addr;
->     197                 struct in6_addr *mask;
->     198                 struct netlbl_domaddr6_map *map;
->     199
->     200                 addrmap = kzalloc(sizeof(*addrmap), GFP_KERNEL);
->     201                 if (addrmap == NULL) {
->     202                         ret_val = -ENOMEM;
->     203                         goto add_doi_put_def;
->     204                 }
+--Sig_/hvV3_WwiiS1IDDfSXsR+NWi
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
+
+Hi Paul,
+
+On Wed, 19 Aug 2020 21:21:29 -0400 Paul Moore <paul@paul-moore.com> wrote:
 >
-> Probably the same cause for all of them.
+> On Wed, Aug 19, 2020 at 6:31 PM Stephen Rothwell <sfr@canb.auug.org.au> w=
+rote:
+> FYI, I just merged that patch into the selinux/next tree.
 
-I've had a number of interruptions this week on a variety of fronts so
-I've been late in looking in on this further, but at the very least it
-looks like netlbl_domhsh_free_entry() needs to free
-netlbl_dom_map->netlbl_dommap_def->addrsel in the
-NETLBL_NLTYPE_ADDRSELECT case.  I'll plug this hole and check the
-rest.
+Thanks, I will drop my copy from my tree tomorrow.
 
--- 
-paul moore
-www.paul-moore.com
+--=20
+Cheers,
+Stephen Rothwell
+
+--Sig_/hvV3_WwiiS1IDDfSXsR+NWi
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAl894ZYACgkQAVBC80lX
+0Gz5GAf8DJ3zLB6L2nDSdO6q6Dthrh1QZ3leXhW3V6v5RczxX/z/1zakE14IfcfK
+U7vftIP+pQ/CNhnuMzeiWvVWI5flz6ZoZyr1cq+5qfqJ/8LaYXPqLIYUNjqpzn/y
+lSdBgJxlnfqk91HRB1fnRY7/7CaOMH6UZB409OsFte03QAqBGjOnsvgDObtCCbz9
+9+HWRiJjXGbzi+d/76CUUyzQdWI0V85dLbyuNZwqMg3rHR0eWmuj/ndBv0+Yk3XV
+wsjp9NkjqULzaCdtK/PJpnLWzNsO0TXin28W3M2y31XMa+MrWgkjY5HwemmiDtaJ
+5DRF7usTn/0O1ZYJKj1ZM8f1sGeT/w==
+=frR/
+-----END PGP SIGNATURE-----
+
+--Sig_/hvV3_WwiiS1IDDfSXsR+NWi--
