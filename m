@@ -2,73 +2,73 @@ Return-Path: <SRS0=r9sn=B6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79846C433DF
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 12:12:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 095D9C433E1
+	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 13:28:49 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4B524207BB
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 12:12:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C8C6220658
+	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 13:28:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KJKGi42v"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="VmD28wkx"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728895AbgHTMMk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Aug 2020 08:12:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53946 "EHLO
+        id S1728639AbgHTN2p (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Aug 2020 09:28:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729578AbgHTMML (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Aug 2020 08:12:11 -0400
-Received: from mail-oo1-xc42.google.com (mail-oo1-xc42.google.com [IPv6:2607:f8b0:4864:20::c42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6274C061386;
-        Thu, 20 Aug 2020 05:12:10 -0700 (PDT)
-Received: by mail-oo1-xc42.google.com with SMTP id a6so350243oog.9;
-        Thu, 20 Aug 2020 05:12:10 -0700 (PDT)
+        with ESMTP id S1728425AbgHTN2i (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Aug 2020 09:28:38 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3D0C061386
+        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 06:28:38 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id w17so1597544edt.8
+        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 06:28:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=gbP+k8yzt95moh/W3Im46GthGKIE9e5gU8Im8acLrow=;
-        b=KJKGi42vgdM3b210Sn18zvdOyNhPTNRlyjUocs2LC5JOUzHLJz37oW3tyQYNwd93fa
-         L+NgfBm+y6BnqKhTGHn5eKH6O6/dO6y/W5PKeHNqiaqhj3gCBP3rMyfVyvPEHn3xt+nw
-         o7I92ZyTuSR+uJdmv9+cHla0ryyUqcoJF4w7FQELXK2sCoaVQMQNxIL3x7akCpc6tebG
-         cpoZdH9P6d1Tc2i4MJ+e8qgVSd9k3dFL04dCjYWSTUtH09sAyZnpX35xBMmkxWOX94WN
-         /GM5oUbIIYq0x/X+1b/d1AWT/lCA8GNFASGbcLSv02uI36fIPUfk0lbRyuEuBTeL4vuG
-         eVpg==
+        bh=ZODn1jt1970mGvr5GEh4sQD7IJ3k+7keNckpIk/8sqg=;
+        b=VmD28wkxeL/mh5qEeFgQyTUMfQlClarclSFuVsi13Av2ziWfY4IMgRC6FGsZBJWTPW
+         1rSJOq/XC8/v9YEd26xxkNKWlfRtXX2XoJ2EBi5bO/vmb36chULSxUmfQFBU06YQxqer
+         AecRmITso0SD+wBOWNxJ+svZhFc5YYHitbMyB5kwjK/NfvI7MlUS1WLcZDX1W7Ya6lqL
+         J/4tdW4pwP8IE0xdoFapEXITFgxuxbuAiqDOfUtOPBJyPbXoeR9QkA2+tXNBANtGHZtZ
+         D/VBzyPW1X85tJsv3sggZ/QJCxp/zbLH6yW5II9PfBF6DRokZVSYZjlEqP8aqbOpurwX
+         cnaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=gbP+k8yzt95moh/W3Im46GthGKIE9e5gU8Im8acLrow=;
-        b=fKLkWecV8mHEguewFHX5+0HaRls4FMOl16UG61tJ0sIp7jCQZfVtSPOQXmtSo4+wF9
-         h4AL64RjgIPLtwchte+RuyEf0fJ1XuoNCxuujetQ3F8+SlSckk4LjDuQVujEXQpKRsHT
-         GEwyKo5S2uxmlilda+NfZav4piBZa39wRH3sac+VZZ0AUAZ6YaUgNNDy5DLcQNJ5itEX
-         cqk2vzBntdsWDWKkphnI8RXqtjTHgLq8zjbFmDRFYWO82DjHOsYC7n9Bm7ixMPmE5pRs
-         yW8V5ezO/7389FmA6MsYaLyj+e2YssqwPGkW/wEtgwWVKGbOoNLzZKAk6mBDed7zLpSe
-         hBGQ==
-X-Gm-Message-State: AOAM533KC+l4ajcFBg2qg9wGAzO87AOTbSqu3n4Ozkim5aeNr9v3GT0Y
-        iboTR2I0WWQ7PitK85QtB4a9rgy8I+COKGfbbV4=
-X-Google-Smtp-Source: ABdhPJzni8QcgXOYaJXwlkZc4heHC9kh1Ef4NcJSjgk/vzlEFtaUrPKtBoXK8MiyXtufelLu71nAc1VZD5YbT6WUJAc=
-X-Received: by 2002:a4a:3b0f:: with SMTP id s15mr2120684oos.71.1597925530244;
- Thu, 20 Aug 2020 05:12:10 -0700 (PDT)
+        bh=ZODn1jt1970mGvr5GEh4sQD7IJ3k+7keNckpIk/8sqg=;
+        b=ZGHhhbl9T1211xORamah9V82Vj8tz5v5D84s7cO8MHZnndSOJUwATucHYCFwLO5c+H
+         VjtxJn8mDDAKplE1il3c1WO+UySGRK5rVxdS+is4r2+rX/pDMAMnjb48fUmp2yxAOKIP
+         BRrAl+zWvznitPJEv7O7z21v2daSaEjO+7gYCHzWUAmRbxtPvuEWeMiFOpO023LlH3X4
+         xj3qyvSYQ1cCwXf7u7pwt16UHFPxeikE92O0DZ5gMt8vnFfzgh5tVazTS+M8LLCAu2KK
+         obNZTvGY4wL28n4DjhCmF8Wb2PEAJVCtvsKZHk7XUXV6lkFWfah3PENemzdBKznR2iuk
+         yfRA==
+X-Gm-Message-State: AOAM531hZLJVx6hEM+nh0pO+Aqxc6jbO8fwxOXV6oLssMv4JONBAUFKE
+        4uekqzCyf0qyWUDxpr1zyq+iN6phfcfcFrOESswe
+X-Google-Smtp-Source: ABdhPJwlHMJddusXXnIwAHaVZlzOyIKl2c/krfHw1m9+5Tsz8rZpcpExiUwUW7zf0IHK0+QUsvWwYFBX6/JROrFRzYk=
+X-Received: by 2002:aa7:c383:: with SMTP id k3mr2795671edq.164.1597930115893;
+ Thu, 20 Aug 2020 06:28:35 -0700 (PDT)
 MIME-Version: 1.0
 References: <alpine.DEB.2.22.394.2008201218350.2524@hadrien>
 In-Reply-To: <alpine.DEB.2.22.394.2008201218350.2524@hadrien>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Thu, 20 Aug 2020 08:11:59 -0400
-Message-ID: <CAEjxPJ6a6Jn5WE73wY+wswDZ3O8y-LDoQgC9FEnwfNjeMM5tEQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 20 Aug 2020 09:28:24 -0400
+Message-ID: <CAHC9VhSX83awKZPO7KZdguTOrpcXokmidqNGDLQWjXgiiuQ5fQ@mail.gmail.com>
 Subject: Re: [PATCH] selinux: fix memdup.cocci warnings
 To:     Julia Lawall <julia.lawall@inria.fr>
-Cc:     kbuild-all@lists.01.org, SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        kbuild-all@lists.01.org, selinux@vger.kernel.org,
         Eric Paris <eparis@parisplace.org>,
         Ondrej Mosnacek <omosnace@redhat.com>,
         Tom Rix <trix@redhat.com>,
         Ethan Edwards <ethancarteredwards@gmail.com>,
         Wei Yongjun <weiyongjun1@huawei.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -88,4 +88,4 @@ On Thu, Aug 20, 2020 at 6:20 AM Julia Lawall <julia.lawall@inria.fr> wrote:
 > Signed-off-by: kernel test robot <lkp@intel.com>
 > Signed-off-by: Julia Lawall <julia.lawall@inria.fr>
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Merged into selinux/next, thanks!
