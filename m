@@ -2,96 +2,102 @@ Return-Path: <SRS0=r9sn=B6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5971FC433DF
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 14:56:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1978C433DF
+	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 15:16:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 369C12078B
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 14:56:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 79B3C206DA
+	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 15:16:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UN8AN+jX"
+	dkim=pass (2048-bit key) header.d=googlemail.com header.i=@googlemail.com header.b="qixFvoo5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726968AbgHTO46 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Aug 2020 10:56:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51154 "EHLO
+        id S1726950AbgHTPQn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Aug 2020 11:16:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726810AbgHTO4y (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Aug 2020 10:56:54 -0400
-Received: from mail-qt1-x844.google.com (mail-qt1-x844.google.com [IPv6:2607:f8b0:4864:20::844])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DAB6C061385;
-        Thu, 20 Aug 2020 07:56:54 -0700 (PDT)
-Received: by mail-qt1-x844.google.com with SMTP id 6so1397849qtt.0;
-        Thu, 20 Aug 2020 07:56:54 -0700 (PDT)
+        with ESMTP id S1727839AbgHTPQj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Aug 2020 11:16:39 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15E55C061385
+        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 08:16:39 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id a26so2983494ejc.2
+        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 08:16:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=Aj8swNHTLXjkG9bLY7spgFYe1odfR1bjDLgI0T/CK9Y=;
-        b=UN8AN+jXwuZMLc2Z5c9JWEuF1Jl8bWTuU6bK9RswOM9EYD143bNKT21EmJn1zMFsGz
-         f14kqlJct0Onwr6knV0jwgrcNer/X0pwrUHRRDf/nDbTNo8Goexa0tskUx4tADq0+JOk
-         dmdiP76O63oBvJWyvepXuSDCSyTb0jRlRTbF/Wir1L6AjtmKH/6Fbp9vUCi2++pm5iBO
-         0ABxi6kuAoU6zP/ca0y9d0US6OuYqQ7DG1ZWxiONTb2JIVY+MUTcq9CuNiipuUYXWmYi
-         Ic1B1VCoy0v/Rxk05SkryuT74UxSUDZiJ6IIDej20fzd4rYBF4ippHsYkhpRixLcKuOI
-         Capw==
+        d=googlemail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9Jj4OewNc8SUNJrPdf1DKOyzfNDUns5TZTwi5DAqpwc=;
+        b=qixFvoo5hyw4Vyuf2ltlwb2jglEtJyyJXEV2XCkMP5S8y+3Kr6IZk1kBA51L7C/pa7
+         7dZy2guMZCHrreDj9O2Zu4dF+T2M1XwavocP033fzonExq+i/4+gVyxSCbc5EB/53YT6
+         y3c+AhAMhZX0Uu0vz7vOClgXt8YVLeuhSEQo40RXKPTlVOQ27pLr1Fh5pxkQz1PqUMZq
+         0Id6WEFreSv5ELMOghVpBNw7H1/lttDU/PmXFa683Oszr711fQx4iJnr3dQPkH9O6npL
+         GJgJ+gcRnbxyjRaYnA/nnkHMA5tn++nv+9PE0uFHMSs4mgsK6Llw8gD6WiFz/DvbqRgx
+         aIZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=Aj8swNHTLXjkG9bLY7spgFYe1odfR1bjDLgI0T/CK9Y=;
-        b=bgrptNkt9557Pp8+92Q4ar9NkTDqPFCRkwGYsAQ3zDmq0lw179yRnJgD3G81LNh0aH
-         2cJn7Owx5SNWlW6oH4SeXoODy0bQLNIYSas6S63kN/Yst1PwjT7BjDIUzWjfIf77ALvI
-         jPl+VTNty/jfWOuT/pr7UMaf3KAnIOWbwHwAJ2aQI+5tIydgIIx5ZumFDY4ywC90k6oe
-         NksR666xEhjlFciXCQAAi9HOo22sovgKjqdOkqMis6i1uocmlFR3iZGPPcNeMDytLeqQ
-         oeJ1T2+olPikDnM2Epthb5F8CaTYDKAojZYUm/RYhKl4VaXtdopueITBFjrEnckuDiy3
-         SLBw==
-X-Gm-Message-State: AOAM532eX3SuMqyqj+6Bu9DQz5++E0zOvGRBZ2ofUD1IuoX9RZDHzzi+
-        KasNkvCmWalAL9QpqUf3V4k=
-X-Google-Smtp-Source: ABdhPJy2lqyJmwieoQRg5REi3uNH+34q1jf0hjirpAmmbqXJqmELkLTIVCZomL0v0wh1p/JnQ50weQ==
-X-Received: by 2002:aed:3b57:: with SMTP id q23mr3112581qte.150.1597935413736;
-        Thu, 20 Aug 2020 07:56:53 -0700 (PDT)
-Received: from [192.168.1.190] (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
-        by smtp.gmail.com with ESMTPSA id q7sm2574085qkf.35.2020.08.20.07.56.52
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Aug 2020 07:56:53 -0700 (PDT)
-Subject: Re: [PATCH v3 3/4] selinux: Standardize string literal usage for
- selinuxfs directory names
-To:     Daniel Burgener <dburgener@linux.microsoft.com>,
-        selinux@vger.kernel.org
-Cc:     omosnace@redhat.com, paul@paul-moore.com,
-        linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk
-References: <20200819195935.1720168-1-dburgener@linux.microsoft.com>
- <20200819195935.1720168-4-dburgener@linux.microsoft.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Message-ID: <e0ebc015-cf52-d233-4967-3f5de4a3ebc9@gmail.com>
-Date:   Thu, 20 Aug 2020 10:56:52 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9Jj4OewNc8SUNJrPdf1DKOyzfNDUns5TZTwi5DAqpwc=;
+        b=jTAA2IxrO7cBYb5yHlFrKbMgfbDS9sW563MUFAuK+D+NhV9s3VNkDLHYY7Pw0zah64
+         AsaKn7PQYq7ifLGu5/YfO/rWdK3YPaSjze+wLCxMgADivT0Minducix3DQfarVT7n0gl
+         DLW/CdliZtx1V6F8Q/9srCO4zZUS1ZijtfUz+OWtErs3KTquRTr3B38piXbIuoHcji/x
+         PKMUVXfYXgAJROIoYcLyIf+XeyT4eOnOrHBVRbBMcQQ33v+lC+ZNJFgtRW+LTNGcGS6u
+         5gQDg7tlKmX74DJuFDUq49nEJ41fRb3/zClNSqaFg5z/8JERpHH+1cq5VtsvuSQ/PfBU
+         w4GQ==
+X-Gm-Message-State: AOAM532ws/3cdTLo4lk8hSwikB/yEQMPZhd0Z9M219oi1WoxnoJPoFfk
+        ufaV+QOHsghCliwY0TfRM72N6qKHNxo=
+X-Google-Smtp-Source: ABdhPJxTmlfQm3S8EDhNhuIOZ0e5REaKQOINYYzsBMhbKUb3HOfukKjm+/ZgW/KpO261VYnr3Uq+Rw==
+X-Received: by 2002:a17:906:9382:: with SMTP id l2mr3628333ejx.513.1597936597630;
+        Thu, 20 Aug 2020 08:16:37 -0700 (PDT)
+Received: from dlaptop.localdomain (x5f708693.dyn.telefonica.de. [95.112.134.147])
+        by smtp.gmail.com with ESMTPSA id d7sm1599797ejk.99.2020.08.20.08.16.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Aug 2020 08:16:37 -0700 (PDT)
+From:   =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+To:     selinux@vger.kernel.org
+Cc:     =?UTF-8?q?Christian=20G=C3=B6ttsche?= <cgzones@googlemail.com>
+Subject: [PATCH] libselinux: use full argument specifiers for security_check_context in man page
+Date:   Thu, 20 Aug 2020 17:15:51 +0200
+Message-Id: <20200820151551.18235-1-cgzones@googlemail.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-In-Reply-To: <20200819195935.1720168-4-dburgener@linux.microsoft.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/19/20 3:59 PM, Daniel Burgener wrote:
+The argument for security_check_context(_raw) is defined as `const char *`.
 
-> Switch class and policy_capabilities directory names to be referred to with
-> global constants, consistent with booleans directory name.  This will allow
-> for easy consistency of naming in future development.
->
-> Signed-off-by: Daniel Burgener <dburgener@linux.microsoft.com>
+Say so in the man page.
 
-Not strictly needed for policy_capabilities since it isn't being removed 
-anymore but no harm.
+Signed-off-by: Christian Göttsche <cgzones@googlemail.com>
+---
+ libselinux/man/man3/security_check_context.3 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+diff --git a/libselinux/man/man3/security_check_context.3 b/libselinux/man/man3/security_check_context.3
+index 2b9a2d4c..213ac282 100644
+--- a/libselinux/man/man3/security_check_context.3
++++ b/libselinux/man/man3/security_check_context.3
+@@ -5,9 +5,9 @@ security_check_context \- check the validity of a SELinux context
+ .SH "SYNOPSIS"
+ .B #include <selinux/selinux.h>
+ .sp
+-.BI "int security_check_context(char *" con );
++.BI "int security_check_context(const char *" con );
+ .sp
+-.BI "int security_check_context_raw(char *" con );
++.BI "int security_check_context_raw(const char *" con );
+ .
+ .SH "DESCRIPTION"
+ .BR security_check_context ()
+-- 
+2.28.0
 
