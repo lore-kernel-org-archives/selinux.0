@@ -2,273 +2,200 @@ Return-Path: <SRS0=r9sn=B6=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33341C433DF
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 14:19:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 853BAC433E1
+	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 14:27:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0B2F920674
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 14:19:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 5AD7920738
+	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 14:27:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JgQdOqQs"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gbnY3zh9"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726431AbgHTOTB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Aug 2020 10:19:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45296 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725852AbgHTOS7 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Aug 2020 10:18:59 -0400
-Received: from mail-qv1-xf41.google.com (mail-qv1-xf41.google.com [IPv6:2607:f8b0:4864:20::f41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB5AAC061385
-        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 07:18:59 -0700 (PDT)
-Received: by mail-qv1-xf41.google.com with SMTP id o2so959085qvk.6
-        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 07:18:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Tsv3JsMdMVwTmAYENVa0Vwaj4+Ag/ng6r2TXbvfybuA=;
-        b=JgQdOqQslG91BJK1Grc7xwEmMRWSmAGamznXa8U/w4vPSL2cOGU8V0cwCBGSx22f+E
-         uyWjEXTGSEPaXKou2LDIDsAsn4p/RtbdkNguvBmIVxc2mFlf5oXpDXue/auwdc5WI2WH
-         TFeiDjWFN1HSA5GIRJ/+ckGW8l6ZyoMUs0svvy0dACosEO4TRO3Bk8/zJ4mRiUGGq8R/
-         mL6fyZzVRqgYI5Df8/Vv2zmqFCO3qmLh7SkdsEgRRTSEIkmXD3n0xjSEjs2vSZUlwHWZ
-         B15LqWeuwkfS9HhQp7gWr+yMIxkcBsRyZTrS+LJ4a60AUebpVdYgdoMU7LFgZZDfyxdj
-         ce7g==
+        id S1727949AbgHTO1p (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Aug 2020 10:27:45 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:60981 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728146AbgHTO1l (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Aug 2020 10:27:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1597933659;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=bN0gIaNi3+HwB/3FFrhvqONscGbrWTXNALBK/nUecb0=;
+        b=gbnY3zh9YxRxJNS3TJU89K4TY4uJimc1qukiWNu+AVDY0Kah9MHZCup2sZ4gDSRMe4vVWD
+        uX8QuR+AvL4xr74fwHNx4fCFOsOpE27puvbNnvpxSGNDQ3uDuqVMyI2uljRWKsULbi1m9R
+        DTT3NTY2a3qNMARdfYDZGfKypufnFaY=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-197-u32Bdr2EMEOIDGxNcgbKeQ-1; Thu, 20 Aug 2020 10:27:38 -0400
+X-MC-Unique: u32Bdr2EMEOIDGxNcgbKeQ-1
+Received: by mail-lj1-f197.google.com with SMTP id g5so408453ljn.8
+        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 07:27:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Tsv3JsMdMVwTmAYENVa0Vwaj4+Ag/ng6r2TXbvfybuA=;
-        b=WvAyvgSGrucQXXdceaSo8sRBqJNLN2rFTJNUZe2lUNfJOmvkNU2GELf0U+/ZfO0yPw
-         EtDnM/kd6GaLq33mwefZwemqyMjsdA19FLUlarPLTbN+yZvBtDIH1nyu43MAvz1AppPW
-         9Gd6MuQMx7imDYIC/lxiBcisK/JyrGeFksJAR8tDMDTEGNB0KQwSowYhMjS5MpXWCphz
-         Zar7gGXYyNcxclPdHtIQiWXz/aD6QU1qGoPrtewxdmD9kdmw8ZWycxF7Zl/bapsWKIPY
-         oDcWVQcr1SJoNmqmUgipKqJCL42Gs/b0Y0kRHxvrcNf3WLikTpzREc1X7WRUyenu/0V7
-         fMxw==
-X-Gm-Message-State: AOAM532PeI/MgJnqq5laiDMfU400i7yJQ0YOMz8jEFSkiIHuTwuz7HgB
-        KQk8U4rxEPefnvsfGPoZQ6A=
-X-Google-Smtp-Source: ABdhPJzxc4Rc2CJkUuZYs02UM3oh59bd3GvlWqu9D7cmg/Ors5iFIviXN0fRzmcaV2s9Q8X2j8Jkkw==
-X-Received: by 2002:a0c:8b51:: with SMTP id d17mr3173504qvc.107.1597933138821;
-        Thu, 20 Aug 2020 07:18:58 -0700 (PDT)
-Received: from puritycontrol.fios-router.home (pool-68-134-6-11.bltmmd.fios.verizon.net. [68.134.6.11])
-        by smtp.gmail.com with ESMTPSA id a6sm2487863qka.5.2020.08.20.07.18.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Aug 2020 07:18:58 -0700 (PDT)
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-To:     paul@paul-moore.com
-Cc:     omosnace@redhat.com, selinux@vger.kernel.org,
-        peter.enderborg@sony.com, paulmck@kernel.org,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [RFC PATCH] selinux: enable proper lockdep checking for policy rcu access
-Date:   Thu, 20 Aug 2020 10:18:50 -0400
-Message-Id: <20200820141850.60244-1-stephen.smalley.work@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bN0gIaNi3+HwB/3FFrhvqONscGbrWTXNALBK/nUecb0=;
+        b=ejvbMlg/wK7eSRAseO0fqx1BSSsrL7DxpPWisIDOAggPj9u7nQECxn02HDwI1Y4Oxn
+         yeY/LoweJC9LMfKrVQLJ2ZF0QV4Q/oLGQ8SLEVUC0faMprba/gIklf4AjbJivUc/nMyT
+         q34knI0OPreT4Vvjdsp8oQP9jbw+SKADNz53XOsUEu8KdCv+I/rXguKkLOwQwdG5s9wW
+         oMqmgVmOicvzBmmI+U/IGL82qIRuNRIChs8+lO+VdKIz0hYxOagwYr4YqYdSqQG4fZad
+         XVpAGVcY04puKxnJBtcXqn20E10qGlmEk67WAWNwt3/Y4Lc1F2qSOQ+mRuCyx+ib+Rmb
+         Nbhw==
+X-Gm-Message-State: AOAM531/6L344DdRYpF+KX0zDLf0hTFG6H/t5B7jjDnP1tCxY1rlEkcm
+        nPRgBd+oJObJn+b25zxxW2HsaKPPlhHmR0OyABG4CA/F8IBCWiwpENqNS4zDj4ETf9fd/z+J5lG
+        +a6ru8Gn/b1HD/h407UISasQb/bIbmmAN6g==
+X-Received: by 2002:a05:651c:217:: with SMTP id y23mr1684995ljn.123.1597933656320;
+        Thu, 20 Aug 2020 07:27:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyWy+532KHbrEIpPhzv3b43FzWfhwiG1qELtCnyi+qvdPtN6Kx7Dh1kqjwLAmRxkoedKjIrOtKlxBgwn5EPFhI=
+X-Received: by 2002:a05:651c:217:: with SMTP id y23mr1684988ljn.123.1597933656021;
+ Thu, 20 Aug 2020 07:27:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200819194516.50746-1-stephen.smalley.work@gmail.com>
+In-Reply-To: <20200819194516.50746-1-stephen.smalley.work@gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Thu, 20 Aug 2020 16:27:25 +0200
+Message-ID: <CAFqZXNs0xG+FgGW3DamHWw+smzHpz_9g86VvhTwa9rM5W=C49w@mail.gmail.com>
+Subject: Re: [RFC PATCH v4] selinux: convert policy read-write lock to RCU
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        SElinux list <selinux@vger.kernel.org>,
+        peter enderborg <peter.enderborg@sony.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-In the previous change to convert the policy rwlock to RCU,
-the update code was using rcu_dereference_check(..., 1) with
-a comment to explain why it was safe without taking rcu_read_lock()
-since the mutex used to provide exclusion was taken at a higher
-level in selinuxfs.  This change passes the mutex down to the
-necessary functions and replaces rcu_dereference_check(..., 1)
-with rcu_dereference_protected(..., lockdep_is_held(mutex)) so
-that lockdep checking is correctly applied and the dependency
-is made explicit in the code rather than relying on comments.
+On Wed, Aug 19, 2020 at 9:45 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> Convert the policy read-write lock to RCU.  This is significantly
+> simplified by the earlier work to encapsulate the policy data
+> structures and refactor the policy load and boolean setting logic.
+> Move the latest_granting sequence number into the selinux_policy
+> structure so that it can be updated atomically with the policy.
+> Since removing the policy rwlock and moving latest_granting reduces
+> the selinux_ss structure to nothing more than a wrapper around the
+> selinux_policy pointer, get rid of the extra layer of indirection.
+>
+> At present this change merely passes a hardcoded 1 to
+> rcu_dereference_check() in the cases where we know we do not need to
+> take rcu_read_lock(), with the preceding comment explaining why.
+> Alternatively we could pass fsi->mutex down from selinuxfs and
+> apply a lockdep check on it instead.
+>
+> Based in part on earlier attempts to convert the policy rwlock
+> to RCU by Kaigai Kohei [1] and by Peter Enderborg [2].
+>
+> [1] https://lore.kernel.org/selinux/6e2f9128-e191-ebb3-0e87-74bfccb0767f@tycho.nsa.gov/
+> [2] https://lore.kernel.org/selinux/20180530141104.28569-1-peter.enderborg@sony.com/
+>
+> Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> ---
 
-Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
----
-This is relative to the convert policy read-write lock to RCU patch,
-https://patchwork.kernel.org/patch/11724997/.
+(from v3 comment section:)
+> Remaining open questions include whether I should change selinuxfs
+> to pass down fsi->mutex so that we can use it in a lockdep check
+> for rcu_dereference_check() and whether the sidtab live convert is
+> safe after this change.
 
- security/selinux/include/conditional.h |  3 +-
- security/selinux/include/security.h    |  6 ++--
- security/selinux/selinuxfs.c           | 12 ++++---
- security/selinux/ss/services.c         | 45 ++++++++------------------
- 4 files changed, 26 insertions(+), 40 deletions(-)
+FTR, I spent some time pondering on whether there is any bad
+interaction with the sidtab live convert and I couldn't find anything.
+The tricky part was splitting the policy load into load/commit/cancel
+and that seems to have been done correctly.
 
-diff --git a/security/selinux/include/conditional.h b/security/selinux/include/conditional.h
-index b09343346e3f..4659193dc49d 100644
---- a/security/selinux/include/conditional.h
-+++ b/security/selinux/include/conditional.h
-@@ -16,7 +16,8 @@
- int security_get_bools(struct selinux_policy *policy,
- 		       u32 *len, char ***names, int **values);
- 
--int security_set_bools(struct selinux_state *state, u32 len, int *values);
-+int security_set_bools(struct selinux_state *state, struct mutex *mutex,
-+		u32 len, int *values);
- 
- int security_get_bool_value(struct selinux_state *state, u32 index);
- 
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index 505e51264d51..87eac1f2e6ed 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -209,12 +209,12 @@ static inline bool selinux_policycap_genfs_seclabel_symlinks(void)
- }
- 
- int security_mls_enabled(struct selinux_state *state);
--int security_load_policy(struct selinux_state *state,
-+int security_load_policy(struct selinux_state *state, struct mutex *mutex,
- 			void *data, size_t len,
- 			struct selinux_policy **newpolicyp);
--void selinux_policy_commit(struct selinux_state *state,
-+void selinux_policy_commit(struct selinux_state *state, struct mutex *mutex,
- 			struct selinux_policy *newpolicy);
--void selinux_policy_cancel(struct selinux_state *state,
-+void selinux_policy_cancel(struct selinux_state *state, struct mutex *mutex,
- 			struct selinux_policy *policy);
- int security_read_policy(struct selinux_state *state,
- 			 void **data, size_t *len);
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 131816878e50..a054683359dd 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -560,7 +560,8 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 	if (copy_from_user(data, buf, count) != 0)
- 		goto out;
- 
--	length = security_load_policy(fsi->state, data, count, &newpolicy);
-+	length = security_load_policy(fsi->state, &fsi->mutex, data, count,
-+				&newpolicy);
- 	if (length) {
- 		pr_warn_ratelimited("SELinux: failed to load policy\n");
- 		goto out;
-@@ -568,11 +569,11 @@ static ssize_t sel_write_load(struct file *file, const char __user *buf,
- 
- 	length = sel_make_policy_nodes(fsi, newpolicy);
- 	if (length) {
--		selinux_policy_cancel(fsi->state, newpolicy);
-+		selinux_policy_cancel(fsi->state, &fsi->mutex, newpolicy);
- 		goto out1;
- 	}
- 
--	selinux_policy_commit(fsi->state, newpolicy);
-+	selinux_policy_commit(fsi->state, &fsi->mutex, newpolicy);
- 
- 	length = count;
- 
-@@ -1309,8 +1310,9 @@ static ssize_t sel_commit_bools_write(struct file *filep,
- 
- 	length = 0;
- 	if (new_value && fsi->bool_pending_values)
--		length = security_set_bools(fsi->state, fsi->bool_num,
--					    fsi->bool_pending_values);
-+		length = security_set_bools(fsi->state, &fsi->mutex,
-+					fsi->bool_num,
-+					fsi->bool_pending_values);
- 
- 	if (!length)
- 		length = count;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 838161462756..a9fff3592768 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2159,17 +2159,13 @@ static void selinux_policy_cond_free(struct selinux_policy *policy)
- }
- 
- void selinux_policy_cancel(struct selinux_state *state,
-+			struct mutex *mutex,
- 			struct selinux_policy *policy)
- {
- 	struct selinux_policy *oldpolicy;
- 
--	/*
--	 * NOTE: We do not need to take the rcu read lock
--	 * around the code below because other policy-modifying
--	 * operations are already excluded by selinuxfs via
--	 * fsi->mutex.
--	 */
--	oldpolicy = rcu_dereference_check(state->policy, 1);
-+	oldpolicy = rcu_dereference_protected(state->policy,
-+					lockdep_is_held(mutex));
- 
- 	sidtab_cancel_convert(oldpolicy->sidtab);
- 	selinux_policy_free(policy);
-@@ -2187,18 +2183,14 @@ static void selinux_notify_policy_change(struct selinux_state *state,
- }
- 
- void selinux_policy_commit(struct selinux_state *state,
-+			struct mutex *mutex,
- 			struct selinux_policy *newpolicy)
- {
- 	struct selinux_policy *oldpolicy;
- 	u32 seqno;
- 
--	/*
--	 * NOTE: We do not need to take the rcu read lock
--	 * around the code below because other policy-modifying
--	 * operations are already excluded by selinuxfs via
--	 * fsi->mutex.
--	 */
--	oldpolicy = rcu_dereference_check(state->policy, 1);
-+	oldpolicy = rcu_dereference_protected(state->policy,
-+					lockdep_is_held(mutex));
- 
- 	/* If switching between different policy types, log MLS status */
- 	if (oldpolicy) {
-@@ -2249,7 +2241,8 @@ void selinux_policy_commit(struct selinux_state *state,
-  * This function will flush the access vector cache after
-  * loading the new policy.
-  */
--int security_load_policy(struct selinux_state *state, void *data, size_t len,
-+int security_load_policy(struct selinux_state *state, struct mutex *mutex,
-+			void *data, size_t len,
- 			struct selinux_policy **newpolicyp)
- {
- 	struct selinux_policy *newpolicy, *oldpolicy;
-@@ -2289,13 +2282,8 @@ int security_load_policy(struct selinux_state *state, void *data, size_t len,
- 		return 0;
- 	}
- 
--	/*
--	 * NOTE: We do not need to take the rcu read lock
--	 * around the code below because other policy-modifying
--	 * operations are already excluded by selinuxfs via
--	 * fsi->mutex.
--	 */
--	oldpolicy = rcu_dereference_check(state->policy, 1);
-+	oldpolicy = rcu_dereference_protected(state->policy,
-+					lockdep_is_held(mutex));
- 
- 	/* Preserve active boolean values from the old policy */
- 	rc = security_preserve_bools(oldpolicy, newpolicy);
-@@ -2992,7 +2980,8 @@ int security_get_bools(struct selinux_policy *policy,
- }
- 
- 
--int security_set_bools(struct selinux_state *state, u32 len, int *values)
-+int security_set_bools(struct selinux_state *state, struct mutex *mutex,
-+		u32 len, int *values)
- {
- 	struct selinux_policy *newpolicy, *oldpolicy;
- 	int rc;
-@@ -3001,14 +2990,8 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
- 	if (!selinux_initialized(state))
- 		return -EINVAL;
- 
--	/*
--	 * NOTE: We do not need to take the rcu read lock
--	 * around the code below because other policy-modifying
--	 * operations are already excluded by selinuxfs via
--	 * fsi->mutex.
--	 */
--
--	oldpolicy = rcu_dereference_check(state->policy, 1);
-+	oldpolicy = rcu_dereference_protected(state->policy,
-+					lockdep_is_held(mutex));
- 
- 	/* Consistency check on number of booleans, should never fail */
- 	if (WARN_ON(len != oldpolicy->policydb.p_bools.nprim))
--- 
-2.25.1
+As for rcu_dereference_check(), I'd prefer to pass the fsi->mutex in
+there for better clarity. For example, if someone were to call one of
+the functions containing it, they may not realize that some mutual
+exclusion is expected around them. If the functions take the mutex as
+an argument, they at least have to stop and think what to pass in,
+which should eventually lead them down the right path.
+
+> v4 fixes the __rcu annotation so that sparse doesn't complain about
+> services.c and removes a few extraneous empty lines.
+>
+>  security/selinux/hooks.c            |   1 -
+>  security/selinux/include/security.h |   5 +-
+>  security/selinux/ss/services.c      | 487 ++++++++++++++++------------
+>  security/selinux/ss/services.h      |   5 -
+>  4 files changed, 280 insertions(+), 218 deletions(-)
+>
+[...]
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index a48fc1b337ba..838161462756 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+[...]
+> @@ -2174,14 +2208,18 @@ void selinux_policy_commit(struct selinux_state *state,
+>                         pr_info("SELinux: Enabling MLS support...\n");
+>         }
+>
+> +       /* Set latest granting seqno for new policy. */
+> +       if (oldpolicy)
+> +               newpolicy->latest_granting = oldpolicy->latest_granting + 1;
+> +       else
+> +               newpolicy->latest_granting = 1;
+> +       seqno = newpolicy->latest_granting;
+
+This could be written as:
+
+    seqno = newpolicy->latest_granting = oldpolicy ?
+oldpolicy->latest_granting + 1 : 1;
+
+...which is a bit easier to read to me, but others may differ.
+
+> +
+>         /* Install the new policy. */
+> -       write_lock_irq(&state->ss->policy_rwlock);
+> -       state->ss->policy = newpolicy;
+> -       seqno = ++state->ss->latest_granting;
+> -       write_unlock_irq(&state->ss->policy_rwlock);
+> +       rcu_assign_pointer(state->policy, newpolicy);
+>
+>         /* Load the policycaps from the new policy */
+> -       security_load_policycaps(state);
+> +       security_load_policycaps(state, newpolicy);
+>
+>         if (!selinux_initialized(state)) {
+>                 /*
+[...]
+> @@ -2997,20 +3049,20 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
+>         /* Re-evaluate the conditional rules in the copy */
+>         evaluate_cond_nodes(&newpolicy->policydb);
+>
+> +       /* Set latest granting seqno for new policy */
+> +       newpolicy->latest_granting = oldpolicy->latest_granting + 1;
+> +       seqno = newpolicy->latest_granting;
+
+These could also be merged into one line.
+
+> +
+>         /* Install the new policy */
+> -       write_lock_irq(&state->ss->policy_rwlock);
+> -       state->ss->policy = newpolicy;
+> -       seqno = ++state->ss->latest_granting;
+> -       write_unlock_irq(&state->ss->policy_rwlock);
+> +       rcu_assign_pointer(state->policy, newpolicy);
+>
+[...]
+
+Other than the minor things above, I didn't find any logical issue in
+this patch.
+
+Since the mutex passing is going to be discussed in a separate patch
+and the only other comments I had are minor nits (and which may not
+align with your and/or Paul's preference), here you go:
+
+Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
+
+--
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
