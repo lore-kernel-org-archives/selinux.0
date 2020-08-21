@@ -1,140 +1,96 @@
-Return-Path: <SRS0=r9sn=B6=vger.kernel.org=selinux-owner@kernel.org>
+Return-Path: <SRS0=RDES=B7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.9 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FC61C433E1
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 20:31:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E59FC433DF
+	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 01:17:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 29D992076E
-	for <selinux@archiver.kernel.org>; Thu, 20 Aug 2020 20:31:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3FDEE20738
+	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 01:17:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NXXqxult"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Hy3OsB9U"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728386AbgHTUbU (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Thu, 20 Aug 2020 16:31:20 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:47554 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728200AbgHTUbU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Thu, 20 Aug 2020 16:31:20 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1597955478;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=cORLOutO/poQwG9IxztMMVSO/T4jcpKhvFitueH9jIY=;
-        b=NXXqxultSHtJIFL4F4XTO2GQ7I6o8qjO6PWKik5zOVGAJqD9b0oJmV11cqnlHPwqHpoJZw
-        SfFt3DgIDNDVfZQGt4AHo7sc8ohFZ70z7gpMu+qvXR0xbjje4GPdssO2VoIp/k0Qw/9aAq
-        uwWm3qpoquJcQtLgMbmK3u7vfF+wtCE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-163-BedT42lfOyuE5HqYXQ2v1g-1; Thu, 20 Aug 2020 16:31:16 -0400
-X-MC-Unique: BedT42lfOyuE5HqYXQ2v1g-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 097D08030A4;
-        Thu, 20 Aug 2020 20:31:15 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.40.194.36])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9E6645DA79;
-        Thu, 20 Aug 2020 20:31:13 +0000 (UTC)
-Date:   Thu, 20 Aug 2020 22:31:10 +0200
-From:   Petr Lautrbach <plautrba@redhat.com>
-To:     SElinux list <selinux@vger.kernel.org>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Paul Moore <paul@paul-moore.com>
-Subject: Re: [RFC PATCH] selinux: runtime disable is deprecated, add some
- ssleep() discomfort
-Message-ID: <20200820203110.GB57975@localhost.localdomain>
-References: <CAHC9VhSsY+MtSrj17g+p3FMeaKQ-Mjjy=iXS+1TbhCKGAn_yxA@mail.gmail.com>
- <CAEjxPJ6nLAOjLvhswyLNCUO8bUuwm_h7emFp7dZXDzRjMuG2HA@mail.gmail.com>
- <CAEjxPJ47H1_PQ1HnJhqV4yWz_u1vvWR=Q6T999Xm92z04OimqQ@mail.gmail.com>
- <CAEjxPJ6KQAc5YmrZNHU=Wr9xZ5+v6o3BYiV4+1NRzpfMhw7BJA@mail.gmail.com>
- <CAFqZXNuWNw+e23_Lz0WN-=HODHmbSAmMQcAX87tVRGp3ZSiccA@mail.gmail.com>
- <CAHC9VhQ25U5PLYMAA1onNssWrOMYrUXhfJ_SRpzM1qNXeavfuw@mail.gmail.com>
- <20200819171459.GA57975@localhost.localdomain>
- <CAEjxPJ54j6PD6oBMWj7wOVskJuUY=BLpMCkdmmqwrP1DGJ0VqA@mail.gmail.com>
- <CAEjxPJ6Kw8i_z_i2Y0A3HcK23DMoazWUZxMtNa7ErQv_bjm=QQ@mail.gmail.com>
- <33cb7940-ebd2-1ded-4f19-9c75013a8204@gmail.com>
+        id S1726701AbgHUBRK (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Thu, 20 Aug 2020 21:17:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34250 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726309AbgHUBRJ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Thu, 20 Aug 2020 21:17:09 -0400
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A647AC061385
+        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 18:17:08 -0700 (PDT)
+Received: by mail-ed1-x52e.google.com with SMTP id ba10so151433edb.3
+        for <selinux@vger.kernel.org>; Thu, 20 Aug 2020 18:17:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=U/06ynpDFd53F+NAHE9QxHy+bt24uVI5H5sHT11qi2I=;
+        b=Hy3OsB9UZgN6SqDiBi1brmQLaWDSxugk0gDQYqndYIioPuAY432r5IdooJHRM8cVXD
+         BiZvIVR7fcYD7Fr3F4Y9z2bf4msYJHLLIWtkK5RFxEEsxK4v4Uo984mwnxZOjT4In0gl
+         aqQxaptbh7z0rgjCfCn2Lt+0CTmsee7PXjnYgBI24JHoJPSRZkH4csrM+hNvr8BOyRt3
+         oTSDcW/7LwzGA6rnl0H1XjdVXHRkollczSnWZHJCSmTsVq7RztQxRtMF8eWi90lV/zeT
+         8lzoRCaj/hSPReo1Dzdjy71+ac4zPdp5rQeusLshDjavrShf3OiZGUnrKBRewS8UA3cU
+         lahA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=U/06ynpDFd53F+NAHE9QxHy+bt24uVI5H5sHT11qi2I=;
+        b=oZQiPsqURL01J+RbeVH8cS/LVWNhWrg8xowydDM2wjGo/yKFchR36BVAdxJFXwYdP3
+         vqboIq6BNVvGZ5BDrKmzTqUFbFhR1ej+HKCXqyVpPyOM5+Tj/FyR3DmntYrx6IgC+cA8
+         oHyZecMo8Gq0SfpYUrdqwwF959jHSEL0U21hZBHPfErw0JejH2xEO5D7p1UzlxX3lrx6
+         7ZO/op20c1LRwusAA/DY7WlxVmvr4swJlx3vXSNIvCpuzqLADnbMMQeheVl605F62O3/
+         0pbe1rmvAixyEkCjoGL/4tWDLaRiXemcbAg3yedb+Y38dDkfww5np4FovgWFUfR9rRKY
+         yUTw==
+X-Gm-Message-State: AOAM5314+Tvw2paWcqPfdePDxpvbQJZOxeYolJPuxnvY/YehuAawhklt
+        KHcQHo6ItWnSQkqF6gBCP8pPq4YslLWXqvMv0cjh
+X-Google-Smtp-Source: ABdhPJzoRS/6UJiT2RFcu82snuRhWUle4ukoyvnTmj9DrlDx19Zw6oHCEcII7UihdO7y253VY8zLUKnq+FBgwKUrCHA=
+X-Received: by 2002:a05:6402:3070:: with SMTP id bs16mr452804edb.269.1597972627047;
+ Thu, 20 Aug 2020 18:17:07 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <33cb7940-ebd2-1ded-4f19-9c75013a8204@gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=plautrba@redhat.com
-X-Mimecast-Spam-Score: 0.001
-X-Mimecast-Originator: redhat.com
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
-Content-Disposition: inline
+References: <CAEjxPJ6s0AgwoMqP=YCweRGpkC5wsvtusmNO235_S=97NmvSeA@mail.gmail.com>
+ <CAHC9VhTbOfFxtjWYytX4qC9hqeNuUV5dnfcES2qUtYzpuUnBuA@mail.gmail.com> <CAEjxPJ5cRbCogQ17aakpnMp_0nwDHbMQTqC69SXBA3JcmP1nuQ@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5cRbCogQ17aakpnMp_0nwDHbMQTqC69SXBA3JcmP1nuQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Thu, 20 Aug 2020 21:16:55 -0400
+Message-ID: <CAHC9VhSm2qKkhUK7dnn6_aPPY4LsVqeQwD2Xf6k7EvV9xJg_sQ@mail.gmail.com>
+Subject: Re: working-selinuxns rebase
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Aug 20, 2020 at 8:10 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
+> Unfortunately I need to re-base it again and manually fix conflicts
+> with my patch to avoid deferencing the policy prior to initialization.
+> And I'll need to do it again when/if the patch to convert the policy
+> rwlock to rcu lands.  So you might want to wait. I'm starting to
+> wonder if the first patch in the series to rename selinux_state/state
+> to selinux_ns/ns throughout is a mistake because it produces a lot of
+> unnecessary conflicts.  Originally I did it because that was the
+> original naming since the encapsulation started to support namespacing
+> and then I did a mass rename to selinux_state/state for upstreaming
+> since I wasn't yet upstreaming the actual namespace support. Renaming
+> it back again reduces conflicts in the later patches but makes the
+> first one a pain.  But if I just do a mass rename on all the later
+> patches then I can drop the first one and avoid these unnecessary
+> conflicts.  Thoughts?
 
-On Thu, Aug 20, 2020 at 12:58:31PM -0400, Stephen Smalley wrote:
-> On 8/19/20 3:16 PM, Stephen Smalley wrote:
->=20
-> > On Wed, Aug 19, 2020 at 3:07 PM Stephen Smalley
-> > <stephen.smalley.work@gmail.com> wrote:
-> > > On Wed, Aug 19, 2020 at 1:15 PM Petr Lautrbach <plautrba@redhat.com> =
-wrote:
-> > > There are some corner cases currently, e.g. you can't remove the
-> > > security.selinux xattr if SELinux is enabled currently, and there are
-> > > various hardcoded error cases in the SELinux hook functions that coul=
-d
-> > > potentially occur.  Beyond that there is the memory and runtime
-> > > overhead.  Getting people to start using selinux=3D0 if they want to
-> > > disable SELinux is definitely preferable.
-> > We could try to eliminate those error cases by checking early for
-> > selinux_initialized(state) in more of the hooks and bailing
-> > immediately with success in that case, but we'd have to go through and
-> > identify where we need that.
->=20
-> I did a quick look through error cases in the hook functions and it appea=
-red
-> that the only case where we would return an error that isn't already
-> protected by a selinux_initialized() test or a test of enforcing mode is =
-the
-> removexattr() check.=A0 So I just posted a patch to lift that restriction=
- if
-> policy hasn't been loaded. Hopefully there aren't any other user-visible
-> differences.
->=20
+I agree, the first patch is the one that always causes me the most
+pain; considering the work-in-progress state of the patches I think it
+would make the most sense to drop that initial cosmetic patch for now
+and we can always reinstate it at the end when this work finally
+lands.
 
-Thank you.
-
-I'll be next 3 days offline but I'll document it and test it on Monday.
-
-
---cvVnyQ+4j833TQvp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE1qW2HJpVNBaCkttnviIJHj72InUFAl8+3YcACgkQviIJHj72
-InVz3hAAoGvo39pS5CCp6B8euOCUQm7jc1VNdMSN7F54xsBDDeCsSnvpfmj0k1VL
-gpmU3FG4WG91EVaMYR7AeQ3bwfXAJV3IRAOBSXI2Tt5KdBjtVwWKj75QX1ou9D+r
-MhOEnE99s8kQHoeP2t+8bOc1BrvbRFUptTMqLvwzd9NzDcCj8jzZTsmFjH4SQieX
-r6AkQaSNExu/zgJtR7RFlWCuZVGP35m40/wpP1HA+D5xk48yyh0nK84OTRKyVP0B
-k1HQK8uywTbHVTQ6egp+EN9MGqNXFQztkCq74VpaI5XM5IaKJVW1/oRmHXB32ldN
-rMdUkfHjyUnXd1pdCPR5U/t+ELFcKpnouV39vAEt+4fE/gEmJT4GEayS1VbBRvVz
-xZyx4p1ZPRMyUa5kUnOdfrFO69Aear2HyVBSNv5f5uvmi1CzYmrAp7jWqqjyWD7s
-oHm5Kn7MDsk1Q+DExp36EGL+JpmNNXz24x7HLidvdydPSQ1cu81OMH5jslAmx/Zr
-gcx6Ptw7hXHWzby8POdtpRlMK5bpB40r33YezfaHALYYSYLeG6RVAMIrcXdlCBmf
-Ctrf2lRk3sClXp/LSE+FISCyAZXmpHpP49mLzAz4iMVtNo2X2K8CkJkzkIwhkkYu
-Js2Xbiu8uwqyBoh7PSgMcLynz7AFFPcbULfXzwknCjpnnL2iGG8=
-=lMc5
------END PGP SIGNATURE-----
-
---cvVnyQ+4j833TQvp--
-
+-- 
+paul moore
+www.paul-moore.com
