@@ -2,127 +2,107 @@ Return-Path: <SRS0=RDES=B7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87E9CC433E3
-	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 12:22:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62418C433E1
+	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 12:29:38 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 67789207DA
-	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 12:22:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 370D620724
+	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 12:29:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aO9JcizH"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BbDNvTes"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728671AbgHUMWW (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 Aug 2020 08:22:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52672 "EHLO
+        id S1728190AbgHUM3g (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 Aug 2020 08:29:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728600AbgHUMWO (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 Aug 2020 08:22:14 -0400
-Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0504C061385
-        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 05:22:13 -0700 (PDT)
-Received: by mail-ot1-x342.google.com with SMTP id v6so1377416ota.13
-        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 05:22:13 -0700 (PDT)
+        with ESMTP id S1727104AbgHUM3d (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 Aug 2020 08:29:33 -0400
+Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3306C061385;
+        Fri, 21 Aug 2020 05:29:32 -0700 (PDT)
+Received: by mail-ot1-x341.google.com with SMTP id h22so1397230otq.11;
+        Fri, 21 Aug 2020 05:29:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=feCg6eesOCLfL9hzAdr4FD6W9c2IUMKaE2okGgGzLQk=;
-        b=aO9JcizHJf6iUW1Yf67ymFO5g1E7D0aytS8OAcY1fk0dWMENCQ9uDDuYoUtZr6VDZz
-         bdnyTzp1F5mp67M9O7kwEMQyHzuEenOOk3iDblKMuK0VqsfxTP8D5aee/Vb7BvTONp0+
-         yNCzcQdwM/oi5KFJEI55pxXQpcMELLGCUzfqFvJjN2R0NDlxilj+oFY46SjayWdZIfVn
-         q3Ca3ho0JAU85YISyfDOI8ObyKVKKLBPRogkvsnZ6u+O03o/SpuHbbt76I0qbhSaZHJ0
-         oZg8YnyAZGxl2UIyw01TkEO/xARG9UUWfop/R9cQF/eYVPw3g5ZZGVNm/n3PvzVRs2tt
-         bjsA==
+        bh=DyfadVWLMqawJRTIbPVn1xuWVw5c4WH7SQfS+lYvwdM=;
+        b=BbDNvTesofn8kb5rMLokT9pvAZZXAgWUM1MHYxRmsPcqjXYpgLIf039WcB6UFAofOr
+         CBCk0jf+xUOSP0TOjzqfMqi0Zo3gFgkJILaFwb7maHuUuigsvt7p4FSJUUxQ6PJ6RkAW
+         QJUkXudVAUI6gnFu19PH+o77TdBIyxtkzmmMyhFkIxt4HayX78B0GPKmnUuBPiZS90dx
+         P8455Hmh5kvv9c8t1GbClSJY4DW0LhYxNKxI8aCSXJGs4vpK+k/cqbpaWEmdO/tUGEaY
+         z66UKPKQ4nA3zRfy9vtanh4M/vhu/dkN4iKsOjQdnP5XFDlvbVDjDRK14s2OzH3I1tWf
+         zAww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=feCg6eesOCLfL9hzAdr4FD6W9c2IUMKaE2okGgGzLQk=;
-        b=RxG+PuVXXBLPToq1utz2B5tQl7AoLSyktXGKHK/67ZzuqK6EYTOMRJw2RNt0nvtDJ9
-         qlYmFVSjd3dSJTXw7/hmSlMTpRjwDnfrww+5jF2vNRgUfsU167w0Fypk5V1+oEUgjC4/
-         BmGXC3dAMi/LU6YlhXA0m/NzhS3jGyPl3wbNAFJvWjWWKrIftyesp44J8SrJqcQrLaGI
-         qxPoWhfrSgFFOCv5airG4/Z16Cc858d8UQ448Cxb5KJcJ3N3W1Vfb8bhsRBaDXpHoJik
-         UQCaF5Ll423DwOOkwF19GXz7OA/C97/bQefc0k3Z9uix/jwoTKuDgLSeAgn/xx/5GXNA
-         C3WA==
-X-Gm-Message-State: AOAM53010yPQk6wTuB/7VNHeRqJsEXVAUg4k0mYD45sLOuPYCOeYkja5
-        jGYN70BN/Zaz/ULbzvQGiEoC0QjwALMCDrn0J4wy7OxZAUg=
-X-Google-Smtp-Source: ABdhPJxLLkEdbkOmbNb0R/l2FxFxDchbJtf4W7QOSd9gAidRrXNioPkSLu64nuI2woSogDOk4Y77x84kIqWGXhiqCAs=
-X-Received: by 2002:a05:6830:16d8:: with SMTP id l24mr1636329otr.89.1598012533177;
- Fri, 21 Aug 2020 05:22:13 -0700 (PDT)
+        bh=DyfadVWLMqawJRTIbPVn1xuWVw5c4WH7SQfS+lYvwdM=;
+        b=Zz9IhIFve1DRwq2jfHilY6ZVeIXQGKN6X3TEou+aK4GpGevIa0zveJqKN+3jKxU3Tx
+         DeM4aPfHkyha2wSb6xJ0/id0HqanjoW9Z16+ONk2qq6vycZoBvPvl2c4wph/q7ruZyqT
+         sT0jKAxWyd0Zy8+OAfvKELpYWcLlmAG5aBeGFIGJEYfdMpbI91zOUUGCDn+ldr1f7fpb
+         O5iXCIxJwVt8aTDNzL63NIw4E/Lh0m00CNvKJWM8ggzcDxuuxLBfVWWKUb1Ut6yhV1ta
+         Jj1SHaWEX7y3dYNcQW77JxZBqwAATtVAIFn+ezWg5Pl5gsiSjF+Z6v7t4vYvIkzurEJ5
+         7iJA==
+X-Gm-Message-State: AOAM533yvwcZhskMGaBdwGjVP5f45DmWBcmXGY3UoI3iZ/XZcrO1hojT
+        Je4HLFOsk1t8fD4mNVJtyya2fQUVmto4QfoAvdw=
+X-Google-Smtp-Source: ABdhPJxkT6uZ6pZSHaAmRPYE3ll8NIpCM/ZIYNd7D9MLFX6AMFJcb498bM0+FWc7H5BOrreJ6+RZZE3RDodlCuhSn5U=
+X-Received: by 2002:a9d:67d3:: with SMTP id c19mr1770333otn.162.1598012972298;
+ Fri, 21 Aug 2020 05:29:32 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200820141850.60244-1-stephen.smalley.work@gmail.com> <CAFqZXNupb9Pk636Q=DB7zmRykdetWA0Ng7rh8KNS4f8QUpSLqg@mail.gmail.com>
-In-Reply-To: <CAFqZXNupb9Pk636Q=DB7zmRykdetWA0Ng7rh8KNS4f8QUpSLqg@mail.gmail.com>
+References: <20200817170729.2605279-1-tweek@google.com> <20200817170729.2605279-4-tweek@google.com>
+ <0bb62de9-1020-a7c4-3a7f-48ae2f78e3b7@gmail.com> <20200817162933.79f69c66@oasis.local.home>
+ <20200818120948.1a428da9@oasis.local.home> <66e6d84e-20b5-1bd3-e107-322f42ce35d3@gmail.com>
+ <20200820223136.162850ce@oasis.local.home>
+In-Reply-To: <20200820223136.162850ce@oasis.local.home>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 21 Aug 2020 08:22:02 -0400
-Message-ID: <CAEjxPJ5NhStOyzA9ea4HoGDAj1Y93T=f5iqdpbB8K_-kh3Ck+w@mail.gmail.com>
-Subject: Re: [RFC PATCH] selinux: enable proper lockdep checking for policy
- rcu access
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     Paul Moore <paul@paul-moore.com>,
-        SElinux list <selinux@vger.kernel.org>,
-        peter enderborg <peter.enderborg@sony.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>
+Date:   Fri, 21 Aug 2020 08:29:21 -0400
+Message-ID: <CAEjxPJ7-6PaHjPzB7vN=nh+VMNV-T2bnKM-YrXdQwOzNtG+9zg@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] selinux: add permission names to trace event
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Nick Kralevich <nnk@google.com>,
+        Peter Enderborg <peter.enderborg@sony.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 21, 2020 at 4:36 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Thu, Aug 20, 2020 at 10:31 PM Steven Rostedt <rostedt@goodmis.org> wrote:
 >
-> On Thu, Aug 20, 2020 at 4:19 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > In the previous change to convert the policy rwlock to RCU,
-> > the update code was using rcu_dereference_check(..., 1) with
-> > a comment to explain why it was safe without taking rcu_read_lock()
-> > since the mutex used to provide exclusion was taken at a higher
-> > level in selinuxfs.  This change passes the mutex down to the
-> > necessary functions and replaces rcu_dereference_check(..., 1)
-> > with rcu_dereference_protected(..., lockdep_is_held(mutex)) so
-> > that lockdep checking is correctly applied and the dependency
-> > is made explicit in the code rather than relying on comments.
-> >
-> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
-> > ---
-> > This is relative to the convert policy read-write lock to RCU patch,
-> > https://patchwork.kernel.org/patch/11724997/.
-> >
-> >  security/selinux/include/conditional.h |  3 +-
-> >  security/selinux/include/security.h    |  6 ++--
-> >  security/selinux/selinuxfs.c           | 12 ++++---
-> >  security/selinux/ss/services.c         | 45 ++++++++------------------
-> >  4 files changed, 26 insertions(+), 40 deletions(-)
+> On Wed, 19 Aug 2020 09:11:08 -0400
+> Stephen Smalley <stephen.smalley.work@gmail.com> wrote:
 >
-> Thanks for trying this out! I indeed like it more this way. The only
-> thing I'd suggest is to perhaps name the mutex argument a little more
-> descriptively, e.g. "check_mutex" or "rcu_mutex". I understand it'll
-> make it harder to wrap some of the long lines, but I tend to think
-> it's worth it in this case.
+> > So we'll need to update this plugin whenever we modify
+> > security/selinux/include/classmap.h to keep them in sync.  Is that a
+> > concern?  I don't suppose the plugin could directly include classmap.h?
+> > I guess we'd have to export it as a public header. It isn't considered
+> > to be part of the kernel API/ABI and can change anytime (but in practice
+> > changes are not that frequent, and usually just additive in nature).
+>
+> Yes, it would require some stability between userspace and the plugin.
+> If the value indexes don't change then that would work fine. If you add
+> new ones, that too should be OK, just have a way to state "unknown" in
+> the plugin.
 
-I considered calling it policy_mutex but wasn't sure it was
-necessary/worthwhile and also thought it might be confusing (obvious
-question becomes why isn't that mutex part of struct selinux_policy,
-but that's a layering thing).  I'll wait to see what name Paul prefers
-before spinning another patch.
-
-> Speaking about wrapping lines... I noticed only now that in this and
-> earlier patches you align wrapped argument lists only by tabs (without
-> extra spaces to align to the first argument). I'm not sure what is the
-> preferred kernel style in this case, but I personally find the finely
-> aligned argument lists much nicer to read (and I have always been
-> aligning them like this in my patches). Obviously, I can't enforce my
-> preferred style here, but I thought I'd raise this, since I had the
-> impression we were trying to follow this style previously for new code
-> (could be just confirmation bias on my part, though) and it might not
-> have been your intention to change it (changed editor/settings?).
-
-I'm using the emacs mode settings from
-Documentation/process/codingstyle.rst.  I don't see anything in the
-coding style document to suggest use of extra spaces for aligned
-argument lists; if anything use of spaces rather than tabs for
-indentation seems discouraged.  I don't really care either way but
-would like editor settings to ensure consistency.
+Since we introduced the dynamic class/perm mapping support, it has
+been possible for the values of existing classes/permissions to
+change, and that has happened at time, e.g. when we added watch
+permissions to the common file perms, that shifted the values of the
+class file perms like entrypoint, when we added the process2 class
+right after the process class, it shifted the values of all the
+subsequent classes in the classmap.h.  So you can't rely on those
+values remaining stable across kernel versions.
