@@ -2,111 +2,151 @@ Return-Path: <SRS0=RDES=B7=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F43BC433DF
-	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 21:00:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5C6EC433E1
+	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 21:09:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7742120735
-	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 21:00:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9EFF320791
+	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 21:09:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kz1pKXts"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="jQ8xvgEn"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726495AbgHUVAt (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 Aug 2020 17:00:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48674 "EHLO
+        id S1726639AbgHUVJM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 Aug 2020 17:09:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726243AbgHUVAq (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 Aug 2020 17:00:46 -0400
-Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E55C061573
-        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 14:00:45 -0700 (PDT)
-Received: by mail-ot1-x32e.google.com with SMTP id k12so2663502otr.1
-        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 14:00:45 -0700 (PDT)
+        with ESMTP id S1726364AbgHUVJL (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 Aug 2020 17:09:11 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C01D4C061573
+        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 14:09:10 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id si26so4006841ejb.12
+        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 14:09:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=gKnwbxCvi23Nc3hLW3+oHiSgfGrHkV/sa+O0aG1uzGY=;
-        b=kz1pKXts/2tzvYX2HJogJ0y+jN1xTFYmjtyrH2sPA5hT+Fv1l3nNWEeHV8K38ZFe5I
-         JhdnWFg7AutflKc3+na5GcGZ/XMzXdXeCbM0aVPUgGGdaqtLZxs+A7bc8lUQPjJl0maM
-         ZfZfpS1Zi8EmE12B/YqHaR2oWGSxGZNl7WeS4rwssSNYfquOOPS25rJQa8IXznC9nYY3
-         SZh6TSLj0HalxibhQFKfuQCt8HTU+HOnQMyjfAnWpdgtSf0hBYidjoOrlRJHz608QZmY
-         ywGlUOEAqzak/ch3n/bynDG36mBnlyFBBCxzzwlLOH5LExQicWBwo7IwMgwC7CmSY9GX
-         AGqQ==
+         :cc:content-transfer-encoding;
+        bh=mScZuT333eFPJltqlW+xpkpAoyeB+4wo8236mWISgBI=;
+        b=jQ8xvgEnc5aL2xYjcB4OF8wR+AxKYEy2Fva6FQTl37Wz1JvALyaaVQ0U6GSpKGD1oW
+         ojrd6isMvbBQY1yC/d593Fp1O6k3zdEgWS/dZHMS1ZMlnLQXEFBSzUfr37APeD0WwmRZ
+         jU6bYdRAlKc0xGYw7dvgtO7aKYTw5LnAp1u3vY8lB/Qqi4YUdQecU9zHLFnGk711XGU1
+         ijPaebpYJhd+PAz7E4kee5aaqP/mXytSloLwCT/1Dv3D7+6a9HZ81Nj0T1j/Aq1AJXey
+         L+J5Rq27psI4+tYTUd9sRZScikl3x4tgw6T7cHUVSb9pAQiozwh3jR5PYK3fx+rphcL3
+         JobQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gKnwbxCvi23Nc3hLW3+oHiSgfGrHkV/sa+O0aG1uzGY=;
-        b=oqyw1HXMFj583QB0G9ZGlmaQl23HJc+gEMdkUiaObPn2PMPPQ87DusSX7r42eosapB
-         mO7HhPKMoFb1ZnYa91wMuYY1uJlz4JNgyutsOyPGqfo3TF0eIG4pGEJQrOIoYLlvIbO9
-         8IlmnpoRMCiPUiNl/6byMWrPL2QS9PZ+cPY3VBCKke8tusklXjpcHUs0v14c7F2Mv8n6
-         ue8TjsI7NF1z0uEFi10PhVeQovA8CRuZSq1EnoTzu5SWLUpQKy+OyPQ4j8cADkmMI/b/
-         TeU07MbB/FuKJZvCAEHJqMVMnYLn5hTeL95k4w9tFujjf6N91EGct0WEeEdJZa/KCvgb
-         mV9Q==
-X-Gm-Message-State: AOAM530GnOluaIOcp2B67zzucj9rYPL/HQn+AlBPQjM5q/WA5UFvjzvk
-        4TeJlIYeVyansrgVq+NJLU0wFvc5CqfMaaXDHI2Q3OgmxDs=
-X-Google-Smtp-Source: ABdhPJwtwzkOqV9CBCvNczIB7gSBRO2zFVOdi1N0If5lPzel7mVqH1+9omu8hi/lsFwXye1V2+bZZLCmlNen3hTJYpI=
-X-Received: by 2002:a05:6830:1305:: with SMTP id p5mr3371224otq.135.1598043642635;
- Fri, 21 Aug 2020 14:00:42 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mScZuT333eFPJltqlW+xpkpAoyeB+4wo8236mWISgBI=;
+        b=SAT8NIShqDM2tEisEOrJ45dKQ4JM57KkicWpByxCEE0ivoykQDSQ7LdCaD/IRAhxkJ
+         QLbSfLqozbtdiiFFqXgZo1AYh4SGajyszSGVUbFC+jWmYHFwiCxlsrsofn4Wi+Xpkygg
+         QMSmxD0KFhVvu6vrIrxxFYBPegREU1gv3ohbNMLv+mVjiKMWjXs9dy4Y8Re3QhEHE0Q/
+         1hKiR5mKuSPmG787r+9ABMRwWWCb1fkiDg4ErAie6Y95GAbHP1cQqFlnJTec/E2kAe85
+         SZghJx+b4hT6Y69QlHfVDy9XnSulbjOmXsB5+fhQOb6D5MGKr6t6TXTR7Jikrbqj+U+G
+         8UrA==
+X-Gm-Message-State: AOAM533Sn4HE1SfndVvLywlEcNg4Ce6UGYfFxSMB0aviaIdgD0mH+brp
+        MoiYsnTOzu5biwVoXvqTttmjg+GrbsmbxFH/BPsw
+X-Google-Smtp-Source: ABdhPJygRg+bnaEbvHnqo1liwnz2gy8moHpQyJhGF/zi1X9+91VIvTX/4Fbl5/X8Nhf1/CQErKG1h0boaVnw4nLyJGM=
+X-Received: by 2002:a17:906:43c9:: with SMTP id j9mr4713021ejn.542.1598044149342;
+ Fri, 21 Aug 2020 14:09:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAEjxPJ6s0AgwoMqP=YCweRGpkC5wsvtusmNO235_S=97NmvSeA@mail.gmail.com>
- <CAHC9VhTbOfFxtjWYytX4qC9hqeNuUV5dnfcES2qUtYzpuUnBuA@mail.gmail.com>
- <CAEjxPJ5cRbCogQ17aakpnMp_0nwDHbMQTqC69SXBA3JcmP1nuQ@mail.gmail.com> <CAHC9VhSm2qKkhUK7dnn6_aPPY4LsVqeQwD2Xf6k7EvV9xJg_sQ@mail.gmail.com>
-In-Reply-To: <CAHC9VhSm2qKkhUK7dnn6_aPPY4LsVqeQwD2Xf6k7EvV9xJg_sQ@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Fri, 21 Aug 2020 17:00:31 -0400
-Message-ID: <CAEjxPJ6KD4FfhWMYqBu7tupNAWEQqbWbA2o4YgsTQ1sPQTUNzA@mail.gmail.com>
-Subject: Re: working-selinuxns rebase
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200821140836.3707282-1-tweek@google.com> <20200821140836.3707282-2-tweek@google.com>
+In-Reply-To: <20200821140836.3707282-2-tweek@google.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Fri, 21 Aug 2020 17:08:58 -0400
+Message-ID: <CAHC9VhRiz1ezDj6J5Yuv17EU8nnrOBKfHScB-njVUKptSoxowg@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] selinux: add tracepoint on audited events
+To:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
+Cc:     Nick Kralevich <nnk@google.com>,
+        Joel Fernandes <joelaf@google.com>,
+        Peter Enderborg <peter.enderborg@sony.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
+        selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 20, 2020 at 9:17 PM Paul Moore <paul@paul-moore.com> wrote:
+On Fri, Aug 21, 2020 at 10:09 AM Thi=C3=A9baud Weksteen <tweek@google.com> =
+wrote:
 >
-> On Thu, Aug 20, 2020 at 8:10 AM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > Unfortunately I need to re-base it again and manually fix conflicts
-> > with my patch to avoid deferencing the policy prior to initialization.
-> > And I'll need to do it again when/if the patch to convert the policy
-> > rwlock to rcu lands.  So you might want to wait. I'm starting to
-> > wonder if the first patch in the series to rename selinux_state/state
-> > to selinux_ns/ns throughout is a mistake because it produces a lot of
-> > unnecessary conflicts.  Originally I did it because that was the
-> > original naming since the encapsulation started to support namespacing
-> > and then I did a mass rename to selinux_state/state for upstreaming
-> > since I wasn't yet upstreaming the actual namespace support. Renaming
-> > it back again reduces conflicts in the later patches but makes the
-> > first one a pain.  But if I just do a mass rename on all the later
-> > patches then I can drop the first one and avoid these unnecessary
-> > conflicts.  Thoughts?
+> The audit data currently captures which process and which target
+> is responsible for a denial. There is no data on where exactly in the
+> process that call occurred. Debugging can be made easier by being able to
+> reconstruct the unified kernel and userland stack traces [1]. Add a
+> tracepoint on the SELinux denials which can then be used by userland
+> (i.e. perf).
 >
-> I agree, the first patch is the one that always causes me the most
-> pain; considering the work-in-progress state of the patches I think it
-> would make the most sense to drop that initial cosmetic patch for now
-> and we can always reinstate it at the end when this work finally
-> lands.
+> Although this patch could manually be added by each OS developer to
+> trouble shoot a denial, adding it to the kernel streamlines the
+> developers workflow.
+>
+> It is possible to use perf for monitoring the event:
+>   # perf record -e avc:selinux_audited -g -a
+>   ^C
+>   # perf report -g
+>   [...]
+>       6.40%     6.40%  audited=3D800000 tclass=3D4
+>                |
+>                   __libc_start_main
+>                   |
+>                   |--4.60%--__GI___ioctl
+>                   |          entry_SYSCALL_64
+>                   |          do_syscall_64
+>                   |          __x64_sys_ioctl
+>                   |          ksys_ioctl
+>                   |          binder_ioctl
+>                   |          binder_set_nice
+>                   |          can_nice
+>                   |          capable
+>                   |          security_capable
+>                   |          cred_has_capability.isra.0
+>                   |          slow_avc_audit
+>                   |          common_lsm_audit
+>                   |          avc_audit_post_callback
+>                   |          avc_audit_post_callback
+>                   |
+>
+> It is also possible to use the ftrace interface:
+>   # echo 1 > /sys/kernel/debug/tracing/events/avc/selinux_audited/enable
+>   # cat /sys/kernel/debug/tracing/trace
+>   tracer: nop
+>   entries-in-buffer/entries-written: 1/1   #P:8
+>   [...]
+>   dmesg-3624  [001] 13072.325358: selinux_denied: audited=3D800000 tclass=
+=3D4
+>
+> The tclass value can be mapped to a class by searching
+> security/selinux/flask.h. The audited value is a bit field of the
+> permissions described in security/selinux/av_permissions.h for the
+> corresponding class.
+>
+> [1] https://source.android.com/devices/tech/debug/native_stack_dump
+>
+> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
+> Suggested-by: Joel Fernandes <joelaf@google.com>
+> Reviewed-by: Peter Enderborg <peter.enderborg@sony.com>
+> ---
+>  MAINTAINERS                |  1 +
+>  include/trace/events/avc.h | 37 +++++++++++++++++++++++++++++++++++++
+>  security/selinux/avc.c     |  5 +++++
+>  3 files changed, 43 insertions(+)
+>  create mode 100644 include/trace/events/avc.h
 
-I've made a pass at this and force-pushed it to my
-working-selinuxns-rebase branch.
-It turned out that the first patch did two things: it renamed state to
-ns and it changed all direct references to &selinux_state to use a new
-current_selinux_state pointer to a static init_selinux_state variable
-(in preparation for multiple states/namespaces).  I had to retain the
-latter so I just dropped the renaming part of it, rewrote the
-description, and did a mass rename in all the subsequent patches back
-to state. So the first patch may still produce some conflicts but
-there should be fewer of them.  This is relative to your current next
-branch but it will need to be manually re-based again when/if the
-policy rcu patches land, so feel free to wait if you want.  Since
-every patch required modification and many of them required manual
-fixups, I dropped all of your Signed-off-by lines and rewrote all of
-mine with my current preferred email address.
+Merged into selinux/next, thanks!
+
+--=20
+paul moore
+www.paul-moore.com
