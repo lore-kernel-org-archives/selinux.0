@@ -7,62 +7,61 @@ X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5C6EC433E1
-	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 21:09:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 25EDBC433DF
+	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 21:10:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9EFF320791
-	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 21:09:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F2468207CD
+	for <selinux@archiver.kernel.org>; Fri, 21 Aug 2020 21:10:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="jQ8xvgEn"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="ULomP/h5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726639AbgHUVJM (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Fri, 21 Aug 2020 17:09:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50008 "EHLO
+        id S1726570AbgHUVKE (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Fri, 21 Aug 2020 17:10:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726364AbgHUVJL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Fri, 21 Aug 2020 17:09:11 -0400
-Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C01D4C061573
-        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 14:09:10 -0700 (PDT)
-Received: by mail-ej1-x644.google.com with SMTP id si26so4006841ejb.12
-        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 14:09:10 -0700 (PDT)
+        with ESMTP id S1725948AbgHUVKB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Fri, 21 Aug 2020 17:10:01 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D66F8C061573
+        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 14:10:00 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id kq25so4057767ejb.3
+        for <selinux@vger.kernel.org>; Fri, 21 Aug 2020 14:10:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=mScZuT333eFPJltqlW+xpkpAoyeB+4wo8236mWISgBI=;
-        b=jQ8xvgEnc5aL2xYjcB4OF8wR+AxKYEy2Fva6FQTl37Wz1JvALyaaVQ0U6GSpKGD1oW
-         ojrd6isMvbBQY1yC/d593Fp1O6k3zdEgWS/dZHMS1ZMlnLQXEFBSzUfr37APeD0WwmRZ
-         jU6bYdRAlKc0xGYw7dvgtO7aKYTw5LnAp1u3vY8lB/Qqi4YUdQecU9zHLFnGk711XGU1
-         ijPaebpYJhd+PAz7E4kee5aaqP/mXytSloLwCT/1Dv3D7+6a9HZ81Nj0T1j/Aq1AJXey
-         L+J5Rq27psI4+tYTUd9sRZScikl3x4tgw6T7cHUVSb9pAQiozwh3jR5PYK3fx+rphcL3
-         JobQ==
+        bh=1GxeclShnz9s6YooeI4FTefDOr5GR0mdhr3H0v41iq8=;
+        b=ULomP/h5zFTlK6svQoBHF/IY5NXh3ZFjFpYZi4r/DmgHSy9n0NMnL40xhDiTVrBqCA
+         qWq+MSCwrWNKuOjgEsiabvf3Gkq5kKn/GU9zOfjHzFhZRu7wcZJr3CbM7mf1CYr9PWtI
+         Hxybv7hJSJA7mQjOs6K3g0XUi4tYBRPGRhB2BHqpM3IE9Pa2qvTqstR8uBgqbWWhe6HP
+         ZbHTHYsvq81ikZ1MGtAcM1fJqcNGeX8z+oxNg5xrrOkXFatp9LK6qEV8ObrLMZiKGmFQ
+         4viLkDIN5bTT7Urlk7RA8BbHEH2aAOVvSt8ECoaghv+LdOF8rM2Sb2MwctjeQHrJUCTv
+         3WhA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=mScZuT333eFPJltqlW+xpkpAoyeB+4wo8236mWISgBI=;
-        b=SAT8NIShqDM2tEisEOrJ45dKQ4JM57KkicWpByxCEE0ivoykQDSQ7LdCaD/IRAhxkJ
-         QLbSfLqozbtdiiFFqXgZo1AYh4SGajyszSGVUbFC+jWmYHFwiCxlsrsofn4Wi+Xpkygg
-         QMSmxD0KFhVvu6vrIrxxFYBPegREU1gv3ohbNMLv+mVjiKMWjXs9dy4Y8Re3QhEHE0Q/
-         1hKiR5mKuSPmG787r+9ABMRwWWCb1fkiDg4ErAie6Y95GAbHP1cQqFlnJTec/E2kAe85
-         SZghJx+b4hT6Y69QlHfVDy9XnSulbjOmXsB5+fhQOb6D5MGKr6t6TXTR7Jikrbqj+U+G
-         8UrA==
-X-Gm-Message-State: AOAM533Sn4HE1SfndVvLywlEcNg4Ce6UGYfFxSMB0aviaIdgD0mH+brp
-        MoiYsnTOzu5biwVoXvqTttmjg+GrbsmbxFH/BPsw
-X-Google-Smtp-Source: ABdhPJygRg+bnaEbvHnqo1liwnz2gy8moHpQyJhGF/zi1X9+91VIvTX/4Fbl5/X8Nhf1/CQErKG1h0boaVnw4nLyJGM=
-X-Received: by 2002:a17:906:43c9:: with SMTP id j9mr4713021ejn.542.1598044149342;
- Fri, 21 Aug 2020 14:09:09 -0700 (PDT)
+        bh=1GxeclShnz9s6YooeI4FTefDOr5GR0mdhr3H0v41iq8=;
+        b=DhSOhhVoxnN07CMCnRXPJRah7VuNd+jVHL1YKoBafuvR/Fqcg+voMUJPPPwOzsHEEA
+         kUkcMACdirgPAKhAulIG3dsO0yHhrwfb27DpatSzDj7BsuRdNFFvnpLZqhTReQJMNjlR
+         bn0eE/HvYgtsTk7HmUsryjNl/2Ghz1BwCQkjJZd3Rng5IBW55V8Z+K005KNfioJn6+4O
+         UQYSSti4ssj0rZsQZZstke//K/wRkqy1lArV5f2XbU8Fa0S5qBKQW4IZrXgwdgKQrcYq
+         i2C7CNXoKklt/kf3IlGgjCeEZ4VYZPJDZu9GdR31XLdBFl+wi2Jn9wiy/YEfaOz3QHEY
+         zGtA==
+X-Gm-Message-State: AOAM533mEp/2QUcBVGA7A1tXhl+bRreb9Q3P6aV7O43bF+N8un0bcV6N
+        QYWsrTwE6a1f3wtM+ni/Kaqnf954611J86ct/HpR
+X-Google-Smtp-Source: ABdhPJyC10RptEQ9k5GLxJNC51Nlx7LkzAE/O9eV6nL87g4t/8Ya7DkqIpxF9e6v59lZiaYO0q6j+CRyXfS7fsR6qzg=
+X-Received: by 2002:a17:906:5205:: with SMTP id g5mr727520ejm.488.1598044199461;
+ Fri, 21 Aug 2020 14:09:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200821140836.3707282-1-tweek@google.com> <20200821140836.3707282-2-tweek@google.com>
-In-Reply-To: <20200821140836.3707282-2-tweek@google.com>
+References: <20200821140836.3707282-1-tweek@google.com> <20200821140836.3707282-3-tweek@google.com>
+In-Reply-To: <20200821140836.3707282-3-tweek@google.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 21 Aug 2020 17:08:58 -0400
-Message-ID: <CAHC9VhRiz1ezDj6J5Yuv17EU8nnrOBKfHScB-njVUKptSoxowg@mail.gmail.com>
-Subject: Re: [PATCH v4 1/2] selinux: add tracepoint on audited events
+Date:   Fri, 21 Aug 2020 17:09:48 -0400
+Message-ID: <CAHC9VhQz+iAvsRoq-Y8Up9W6tUSfnxNva06iK9pFC7wWCTfpUg@mail.gmail.com>
+Subject: Re: [PATCH v4 2/2] selinux: add basic filtering for audit trace events
 To:     =?UTF-8?Q?Thi=C3=A9baud_Weksteen?= <tweek@google.com>
 Cc:     Nick Kralevich <nnk@google.com>,
-        Joel Fernandes <joelaf@google.com>,
         Peter Enderborg <peter.enderborg@sony.com>,
         Stephen Smalley <stephen.smalley.work@gmail.com>,
         Eric Paris <eparis@parisplace.org>,
@@ -82,70 +81,51 @@ X-Mailing-List: selinux@vger.kernel.org
 On Fri, Aug 21, 2020 at 10:09 AM Thi=C3=A9baud Weksteen <tweek@google.com> =
 wrote:
 >
-> The audit data currently captures which process and which target
-> is responsible for a denial. There is no data on where exactly in the
-> process that call occurred. Debugging can be made easier by being able to
-> reconstruct the unified kernel and userland stack traces [1]. Add a
-> tracepoint on the SELinux denials which can then be used by userland
-> (i.e. perf).
+> From: Peter Enderborg <peter.enderborg@sony.com>
 >
-> Although this patch could manually be added by each OS developer to
-> trouble shoot a denial, adding it to the kernel streamlines the
-> developers workflow.
+> This patch adds further attributes to the event. These attributes are
+> helpful to understand the context of the message and can be used
+> to filter the events.
 >
-> It is possible to use perf for monitoring the event:
->   # perf record -e avc:selinux_audited -g -a
->   ^C
->   # perf report -g
->   [...]
->       6.40%     6.40%  audited=3D800000 tclass=3D4
->                |
->                   __libc_start_main
->                   |
->                   |--4.60%--__GI___ioctl
->                   |          entry_SYSCALL_64
->                   |          do_syscall_64
->                   |          __x64_sys_ioctl
->                   |          ksys_ioctl
->                   |          binder_ioctl
->                   |          binder_set_nice
->                   |          can_nice
->                   |          capable
->                   |          security_capable
->                   |          cred_has_capability.isra.0
->                   |          slow_avc_audit
->                   |          common_lsm_audit
->                   |          avc_audit_post_callback
->                   |          avc_audit_post_callback
->                   |
+> There are three common items. Source context, target context and tclass.
+> There are also items from the outcome of operation performed.
 >
-> It is also possible to use the ftrace interface:
->   # echo 1 > /sys/kernel/debug/tracing/events/avc/selinux_audited/enable
->   # cat /sys/kernel/debug/tracing/trace
->   tracer: nop
->   entries-in-buffer/entries-written: 1/1   #P:8
->   [...]
->   dmesg-3624  [001] 13072.325358: selinux_denied: audited=3D800000 tclass=
-=3D4
+> An event is similar to:
+>            <...>-1309  [002] ....  6346.691689: selinux_audited:
+>        requested=3D0x4000000 denied=3D0x4000000 audited=3D0x4000000
+>        result=3D-13
+>        scontext=3Dsystem_u:system_r:cupsd_t:s0-s0:c0.c1023
+>        tcontext=3Dsystem_u:object_r:bin_t:s0 tclass=3Dfile
 >
-> The tclass value can be mapped to a class by searching
-> security/selinux/flask.h. The audited value is a bit field of the
-> permissions described in security/selinux/av_permissions.h for the
-> corresponding class.
+> With systems where many denials are occurring, it is useful to apply a
+> filter. The filtering is a set of logic that is inserted with
+> the filter file. Example:
+>  echo "tclass=3D=3D\"file\" " > events/avc/selinux_audited/filter
 >
-> [1] https://source.android.com/devices/tech/debug/native_stack_dump
+> This adds that we only get tclass=3Dfile.
 >
-> Signed-off-by: Thi=C3=A9baud Weksteen <tweek@google.com>
-> Suggested-by: Joel Fernandes <joelaf@google.com>
-> Reviewed-by: Peter Enderborg <peter.enderborg@sony.com>
+> The trace can also have extra properties. Adding the user stack
+> can be done with
+>    echo 1 > options/userstacktrace
+>
+> Now the output will be
+>          runcon-1365  [003] ....  6960.955530: selinux_audited:
+>      requested=3D0x4000000 denied=3D0x4000000 audited=3D0x4000000
+>      result=3D-13
+>      scontext=3Dsystem_u:system_r:cupsd_t:s0-s0:c0.c1023
+>      tcontext=3Dsystem_u:object_r:bin_t:s0 tclass=3Dfile
+>           runcon-1365  [003] ....  6960.955560: <user stack trace>
+>  =3D>  <00007f325b4ce45b>
+>  =3D>  <00005607093efa57>
+>
+> Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
+> Reviewed-by: Thi=C3=A9baud Weksteen <tweek@google.com>
 > ---
->  MAINTAINERS                |  1 +
->  include/trace/events/avc.h | 37 +++++++++++++++++++++++++++++++++++++
->  security/selinux/avc.c     |  5 +++++
->  3 files changed, 43 insertions(+)
->  create mode 100644 include/trace/events/avc.h
+>  include/trace/events/avc.h | 36 ++++++++++++++++++++++++++----------
+>  security/selinux/avc.c     | 28 +++++++++++++++-------------
+>  2 files changed, 41 insertions(+), 23 deletions(-)
 
-Merged into selinux/next, thanks!
+... also merged into selinux/next, thanks everyone!
 
 --=20
 paul moore
