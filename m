@@ -2,71 +2,70 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
 	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6267EC433DF
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:52:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C812C433E1
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:52:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3C1BC2071E
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:52:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 41B442071E
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:52:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bJrTQUPH"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MaO1XoAS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727901AbgHXPwV (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 11:52:21 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:42467 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726631AbgHXPwS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 11:52:18 -0400
+        id S1728004AbgHXPwX (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 11:52:23 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:55111 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726999AbgHXPwV (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 11:52:21 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1598284337;
+        s=mimecast20190719; t=1598284339;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=whqo+s0PpYj6VGwaYxQ+CFJW6HvZcuDlPKqXnIk8v2w=;
-        b=bJrTQUPH8idp+57a9eQWAhUO6jCfZPtIEmmX8OEgLOuIwK/lc33uCcId/y/qqO0fNpiZ40
-        tST4k1eQbtUDTvRXlyiYFzsUQNNNiIGbuXVDYoEZHSLWICddxnM2sUKGnIIQs+fCMejoTK
-        zzzjbv0NCFZHrfkQIF4ghiSHG9nmVgs=
+        bh=zjYfETYgavsV8Y7+RSnL/aX7yPOhdabiGgvItnkFZqw=;
+        b=MaO1XoAStAunLrTKGrh9AaMa1KHTcxjElGqE5URs6MEktblOZgiySQX9WXkkSwobxcH/7d
+        XVrSH6zwUJzxp/GTG/NZfncTzTHEQQiW5RPBZkkkvoXGIy9DjTw0TRPiz6x6ww7DnVBMNe
+        nThiLoxvIWvld/89azQMv4JQ2lVi9QM=
 Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
  [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-374-PJMMCgAEMBmKogSDtbVeMQ-1; Mon, 24 Aug 2020 11:52:15 -0400
-X-MC-Unique: PJMMCgAEMBmKogSDtbVeMQ-1
-Received: by mail-wm1-f72.google.com with SMTP id z25so812500wmk.4
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 08:52:15 -0700 (PDT)
+ us-mta-72-HpgFCuMAMxKraRdiwgHKRw-1; Mon, 24 Aug 2020 11:52:16 -0400
+X-MC-Unique: HpgFCuMAMxKraRdiwgHKRw-1
+Received: by mail-wm1-f72.google.com with SMTP id p23so3756096wmc.2
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 08:52:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=whqo+s0PpYj6VGwaYxQ+CFJW6HvZcuDlPKqXnIk8v2w=;
-        b=Bq0EXmtGqQHF36slEO97+XicOT2E+wNv3xky1j1/ZiRUlhMLl4AA/+Fcr0Hb5cQzNe
-         0kdnd+RKAxjulwVsLlWGJRoEGnis1cA4N3ok+zRp521ixHsticUMnaJQq8ksxLmP9u7O
-         RiwU+uXozNosi90iagph8rELQTOqTYfbcNazLxgr3rJ8XymrkoHT8MS3f9+qFkP1t8UE
-         BXX6+ewKyzr5lGx/7WLlvPYxV7EMmcIOdEPMdl/vYbJr8OOpSl7XM1hklPY1gC4fSxLP
-         d4u6Yd4ixLCIaw/RF6qe1fU7YiIEXUXVXIOn2lIappwMg5FlmunIcVy39buWRTuS3Bql
-         bXIw==
-X-Gm-Message-State: AOAM531KeO9Mq8OwI1rp+sglRBMdCxuekUCIL3ogFXruDkFzEyhDbsx5
-        Npbk8QlvL11KwplobRsG7WheUqg4dzzJetGy0EFIzufeMFkm7/zivEX9JeDEWWQRCdL4gMa1Dv1
-        DYN5m5PcnqgKfUBgnyA==
-X-Received: by 2002:a5d:5151:: with SMTP id u17mr6518687wrt.154.1598284333986;
-        Mon, 24 Aug 2020 08:52:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxET3wyDwX+hEKfaY6JolTHURUAjey00zicF2izXypfInmg/GbEAJ5ZIvq3fbFlSQUXDxrSDw==
-X-Received: by 2002:a5d:5151:: with SMTP id u17mr6518670wrt.154.1598284333753;
-        Mon, 24 Aug 2020 08:52:13 -0700 (PDT)
+        bh=zjYfETYgavsV8Y7+RSnL/aX7yPOhdabiGgvItnkFZqw=;
+        b=K8j3+9b6463TBx33IikuDL4OQsy8a1qVwIepFG5XGRzInoe+LnB3OGNU8nszE4FjRI
+         CRFq08gR89P14yjcSLiL7MsRXn0KQXM3w3uBSpVNGLy/6gMmzI5zTizN2b2wLuN1n9jT
+         HWR4H8L+9now+6qnI+ya86ZiTPtjfu6aG7SHrwjx8zVMgMKzdo3oH4eKNfo7wqADMDMk
+         jA62gl1VrWJnt3XDcfSrgnYj78i12Bfdc+fjCbxR+ySiRyZrzrgiLIUoxkhxg48ioPQ3
+         gX1YG0uW9y7oPbq4w8Wo2HvIN2AYmi6lBz02dDwGq5+oXktip6BfsHiUWYXOzRnocNME
+         ZyQQ==
+X-Gm-Message-State: AOAM531TMSaLftaseDTxRsaqOR3FZAmynP1+54gQBpU3cckMZR7RUrqN
+        NhXg81DXvZCGv/ZKuVeYVb3G90WutbferweWPLguyVVxmQnOCXGuvhiXgDrYec4BKoiBqpWWJxx
+        aEZ2fO2Ttv2ooTNZ86A==
+X-Received: by 2002:a5d:4a8a:: with SMTP id o10mr6061797wrq.327.1598284335179;
+        Mon, 24 Aug 2020 08:52:15 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyq6PjSNdasZHM1Zz3kuLg4xHQnQu6H63XS6NnZaxKWvMkQNqsNTuyYKrARcq4Xd26KnN3sBA==
+X-Received: by 2002:a5d:4a8a:: with SMTP id o10mr6061780wrq.327.1598284334956;
+        Mon, 24 Aug 2020 08:52:14 -0700 (PDT)
 Received: from omos.redhat.com ([2a02:8308:b103:4000:e83d:a4fb:e589:6902])
-        by smtp.gmail.com with ESMTPSA id x133sm25684215wmg.39.2020.08.24.08.52.12
+        by smtp.gmail.com with ESMTPSA id x133sm25684215wmg.39.2020.08.24.08.52.13
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Aug 2020 08:52:13 -0700 (PDT)
+        Mon, 24 Aug 2020 08:52:14 -0700 (PDT)
 From:   Ondrej Mosnacek <omosnace@redhat.com>
 To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
 Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 1/2] selinux: switch unnecessary GFP_ATOMIC allocs to GFP_KERNEL
-Date:   Mon, 24 Aug 2020 17:52:09 +0200
-Message-Id: <20200824155210.1481720-2-omosnace@redhat.com>
+Subject: [PATCH 2/2] selinux: drop the gfp_t argument from str_read()
+Date:   Mon, 24 Aug 2020 17:52:10 +0200
+Message-Id: <20200824155210.1481720-3-omosnace@redhat.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200824155210.1481720-1-omosnace@redhat.com>
 References: <20200824155210.1481720-1-omosnace@redhat.com>
@@ -77,90 +76,176 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-There seems to be no reason to use GFP_ATOMIC in these cases.
+Now that all callers specify GFP_KERNEL here, the argument is no longer
+necessary and the function can just use GFP_KERNEL directly.
 
 Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 ---
- security/selinux/hooks.c       |  6 +++---
- security/selinux/ss/policydb.c | 10 +++++-----
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ security/selinux/ss/policydb.c | 36 +++++++++++++++++-----------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
-index 89d3753b7bd5d..4de962daffbde 100644
---- a/security/selinux/hooks.c
-+++ b/security/selinux/hooks.c
-@@ -3171,7 +3171,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
- 				audit_size = 0;
- 			}
- 			ab = audit_log_start(audit_context(),
--					     GFP_ATOMIC, AUDIT_SELINUX_ERR);
-+					     GFP_KERNEL, AUDIT_SELINUX_ERR);
- 			audit_log_format(ab, "op=setxattr invalid_context=");
- 			audit_log_n_untrustedstring(ab, value, audit_size);
- 			audit_log_end(ab);
-@@ -6388,7 +6388,7 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
- 				else
- 					audit_size = size;
- 				ab = audit_log_start(audit_context(),
--						     GFP_ATOMIC,
-+						     GFP_KERNEL,
- 						     AUDIT_SELINUX_ERR);
- 				audit_log_format(ab, "op=fscreate invalid_context=");
- 				audit_log_n_untrustedstring(ab, value, audit_size);
-@@ -6854,7 +6854,7 @@ static int selinux_lockdown(enum lockdown_reason what)
- 
- 	if (WARN(invalid_reason, "Invalid lockdown reason")) {
- 		audit_log(audit_context(),
--			  GFP_ATOMIC, AUDIT_SELINUX_ERR,
-+			  GFP_KERNEL, AUDIT_SELINUX_ERR,
- 			  "lockdown_reason=invalid");
- 		return -EINVAL;
- 	}
 diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
-index 9fccf417006b0..c1437de04e1d9 100644
+index c1437de04e1d9..a7b6b2f5d71d9 100644
 --- a/security/selinux/ss/policydb.c
 +++ b/security/selinux/ss/policydb.c
-@@ -1577,7 +1577,7 @@ static int sens_read(struct policydb *p, struct symtab *s, void *fp)
- 	__le32 buf[2];
- 	u32 len;
+@@ -1074,7 +1074,7 @@ out:
+  * binary representation file.
+  */
  
--	levdatum = kzalloc(sizeof(*levdatum), GFP_ATOMIC);
-+	levdatum = kzalloc(sizeof(*levdatum), GFP_KERNEL);
- 	if (!levdatum)
+-static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
++static int str_read(char **strp, void *fp, u32 len)
+ {
+ 	int rc;
+ 	char *str;
+@@ -1082,7 +1082,7 @@ static int str_read(char **strp, gfp_t flags, void *fp, u32 len)
+ 	if ((len == 0) || (len == (u32)-1))
+ 		return -EINVAL;
+ 
+-	str = kmalloc(len + 1, flags | __GFP_NOWARN);
++	str = kmalloc(len + 1, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!str)
  		return -ENOMEM;
  
-@@ -1588,12 +1588,12 @@ static int sens_read(struct policydb *p, struct symtab *s, void *fp)
+@@ -1116,7 +1116,7 @@ static int perm_read(struct policydb *p, struct symtab *s, void *fp)
  	len = le32_to_cpu(buf[0]);
- 	levdatum->isalias = le32_to_cpu(buf[1]);
+ 	perdatum->value = le32_to_cpu(buf[1]);
  
--	rc = str_read(&key, GFP_ATOMIC, fp, len);
-+	rc = str_read(&key, GFP_KERNEL, fp, len);
+-	rc = str_read(&key, GFP_KERNEL, fp, len);
++	rc = str_read(&key, fp, len);
  	if (rc)
  		goto bad;
  
- 	rc = -ENOMEM;
--	levdatum->level = kmalloc(sizeof(*levdatum->level), GFP_ATOMIC);
-+	levdatum->level = kmalloc(sizeof(*levdatum->level), GFP_KERNEL);
- 	if (!levdatum->level)
+@@ -1155,7 +1155,7 @@ static int common_read(struct policydb *p, struct symtab *s, void *fp)
+ 		goto bad;
+ 	comdatum->permissions.nprim = le32_to_cpu(buf[2]);
+ 
+-	rc = str_read(&key, GFP_KERNEL, fp, len);
++	rc = str_read(&key, fp, len);
+ 	if (rc)
  		goto bad;
  
-@@ -1618,7 +1618,7 @@ static int cat_read(struct policydb *p, struct symtab *s, void *fp)
- 	__le32 buf[3];
- 	u32 len;
+@@ -1322,12 +1322,12 @@ static int class_read(struct policydb *p, struct symtab *s, void *fp)
  
--	catdatum = kzalloc(sizeof(*catdatum), GFP_ATOMIC);
-+	catdatum = kzalloc(sizeof(*catdatum), GFP_KERNEL);
- 	if (!catdatum)
- 		return -ENOMEM;
+ 	ncons = le32_to_cpu(buf[5]);
+ 
+-	rc = str_read(&key, GFP_KERNEL, fp, len);
++	rc = str_read(&key, fp, len);
+ 	if (rc)
+ 		goto bad;
+ 
+ 	if (len2) {
+-		rc = str_read(&cladatum->comkey, GFP_KERNEL, fp, len2);
++		rc = str_read(&cladatum->comkey, fp, len2);
+ 		if (rc)
+ 			goto bad;
+ 
+@@ -1413,7 +1413,7 @@ static int role_read(struct policydb *p, struct symtab *s, void *fp)
+ 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+ 		role->bounds = le32_to_cpu(buf[2]);
+ 
+-	rc = str_read(&key, GFP_KERNEL, fp, len);
++	rc = str_read(&key, fp, len);
+ 	if (rc)
+ 		goto bad;
+ 
+@@ -1479,7 +1479,7 @@ static int type_read(struct policydb *p, struct symtab *s, void *fp)
+ 		typdatum->primary = le32_to_cpu(buf[2]);
+ 	}
+ 
+-	rc = str_read(&key, GFP_KERNEL, fp, len);
++	rc = str_read(&key, fp, len);
+ 	if (rc)
+ 		goto bad;
+ 
+@@ -1543,7 +1543,7 @@ static int user_read(struct policydb *p, struct symtab *s, void *fp)
+ 	if (p->policyvers >= POLICYDB_VERSION_BOUNDARY)
+ 		usrdatum->bounds = le32_to_cpu(buf[2]);
+ 
+-	rc = str_read(&key, GFP_KERNEL, fp, len);
++	rc = str_read(&key, fp, len);
+ 	if (rc)
+ 		goto bad;
+ 
+@@ -1588,7 +1588,7 @@ static int sens_read(struct policydb *p, struct symtab *s, void *fp)
+ 	len = le32_to_cpu(buf[0]);
+ 	levdatum->isalias = le32_to_cpu(buf[1]);
+ 
+-	rc = str_read(&key, GFP_KERNEL, fp, len);
++	rc = str_read(&key, fp, len);
+ 	if (rc)
+ 		goto bad;
  
 @@ -1630,7 +1630,7 @@ static int cat_read(struct policydb *p, struct symtab *s, void *fp)
  	catdatum->value = le32_to_cpu(buf[1]);
  	catdatum->isalias = le32_to_cpu(buf[2]);
  
--	rc = str_read(&key, GFP_ATOMIC, fp, len);
-+	rc = str_read(&key, GFP_KERNEL, fp, len);
+-	rc = str_read(&key, GFP_KERNEL, fp, len);
++	rc = str_read(&key, fp, len);
  	if (rc)
  		goto bad;
+ 
+@@ -1904,7 +1904,7 @@ static int filename_trans_read_helper_compat(struct policydb *p, void *fp)
+ 	len = le32_to_cpu(buf[0]);
+ 
+ 	/* path component string */
+-	rc = str_read(&name, GFP_KERNEL, fp, len);
++	rc = str_read(&name, fp, len);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -1988,7 +1988,7 @@ static int filename_trans_read_helper(struct policydb *p, void *fp)
+ 	len = le32_to_cpu(buf[0]);
+ 
+ 	/* path component string */
+-	rc = str_read(&name, GFP_KERNEL, fp, len);
++	rc = str_read(&name, fp, len);
+ 	if (rc)
+ 		return rc;
+ 
+@@ -2128,7 +2128,7 @@ static int genfs_read(struct policydb *p, void *fp)
+ 		if (!newgenfs)
+ 			goto out;
+ 
+-		rc = str_read(&newgenfs->fstype, GFP_KERNEL, fp, len);
++		rc = str_read(&newgenfs->fstype, fp, len);
+ 		if (rc)
+ 			goto out;
+ 
+@@ -2167,7 +2167,7 @@ static int genfs_read(struct policydb *p, void *fp)
+ 			if (!newc)
+ 				goto out;
+ 
+-			rc = str_read(&newc->u.name, GFP_KERNEL, fp, len);
++			rc = str_read(&newc->u.name, fp, len);
+ 			if (rc)
+ 				goto out;
+ 
+@@ -2261,7 +2261,7 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
+ 					goto out;
+ 				len = le32_to_cpu(buf[0]);
+ 
+-				rc = str_read(&c->u.name, GFP_KERNEL, fp, len);
++				rc = str_read(&c->u.name, fp, len);
+ 				if (rc)
+ 					goto out;
+ 
+@@ -2307,7 +2307,7 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
+ 					goto out;
+ 
+ 				len = le32_to_cpu(buf[1]);
+-				rc = str_read(&c->u.name, GFP_KERNEL, fp, len);
++				rc = str_read(&c->u.name, fp, len);
+ 				if (rc)
+ 					goto out;
+ 
+@@ -2370,7 +2370,7 @@ static int ocontext_read(struct policydb *p, struct policydb_compat_info *info,
+ 					goto out;
+ 				len = le32_to_cpu(buf[0]);
+ 
+-				rc = str_read(&c->u.ibendport.dev_name, GFP_KERNEL, fp, len);
++				rc = str_read(&c->u.ibendport.dev_name, fp, len);
+ 				if (rc)
+ 					goto out;
  
 -- 
 2.26.2
