@@ -2,128 +2,85 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1523C433DF
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 14:50:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7591CC433E1
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:07:08 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id BB58F20738
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 14:50:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3AEC4206F0
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:07:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hsDfT4vP"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eU3X16Uw"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725973AbgHXOuk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 10:50:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
+        id S1726950AbgHXPHB (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 11:07:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725780AbgHXOuj (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 10:50:39 -0400
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0089C061573
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 07:50:39 -0700 (PDT)
-Received: by mail-ot1-x344.google.com with SMTP id x24so7508647otp.3
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 07:50:39 -0700 (PDT)
+        with ESMTP id S1726884AbgHXPGX (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 11:06:23 -0400
+Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6F85C06179F
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 07:55:56 -0700 (PDT)
+Received: by mail-oi1-x244.google.com with SMTP id h3so8486018oie.11
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 07:55:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=NWgYlMcyzTfzPYhcrOALlS1ts4UnyS9Ej4Gmp9TO3wQ=;
-        b=hsDfT4vPUj0Lmz40URWSoS8m0GyU7I+VUNABr1U90c2BHTFCtjYRF+a9UtWpVQn7bc
-         hIUVv+JSL4SWqLuAJdmbVGCOiv7VnhbVAvIxGksxMWhgPtNP4Cq7X8+dXs9husoQqbxn
-         WJkC62fzmeVB9eGBwdWoDBCnXEvgRYwb56FcDvm3ujG2dkKGvxRQpXOPqXpw2+cM1lkQ
-         UI7T9zA694DAraAKwIC2mHQ/Dbl6uAxgUDeI1HdLphTNjR+0fruxF1FBPA4b2+WVMgEL
-         9nszNFlkOOWWTxmWvNfl76Y7RHtywpvZ9RnpgC0Uhfab8S7G6s3ffCQTGUsr5cKR/koN
-         DovA==
+         :cc;
+        bh=2aqlVIBpdqJP6xDuhks8MMrSbd1w4Vz9bPxJLtEnD60=;
+        b=eU3X16UwG31mwaDv7GE8rXGESvsR3n4DG67ivoovxxe/FyNtOhTxN9+oo0PKnz4QU9
+         DNPujLX1s6Ytu+GCElxP9ZsNOl4TE3McxRc1b7kb3Ra7hxqAm/HtmJJT4rM3uIoEpsEx
+         UyKz0rMotki0x3M9H9EUhV/lK1r8alDjppMttFZZi7JIKD2bf8jUw/EXqD144sr85rDO
+         hnfdeuYotBeCSGjB/+nxcnN6oyaTkOUu5zAkdREHwBwUsnXpy+ZHIxIoD2ZXnTj3wlI6
+         gll+ig7mumifPQHUjejsCCIk3LtJKG/p1Si4dxEAtBq1pFB4tYoIsS2IOVkFQ03PZblT
+         d7Bw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=NWgYlMcyzTfzPYhcrOALlS1ts4UnyS9Ej4Gmp9TO3wQ=;
-        b=V4nDsjquhR1KCaOVkNv5Hcz0pX7ImD46+mapAFkj5KOuPuMsbytt5vAevr+wat0BC6
-         sEkjDvkh1DlmJHeYA5DVQ5dK4ezNkHGf+5MeJ9Mx4/R30alGiEO0zK49iDub6UFQofSV
-         Ae9cOfDwXkPhfaoe5GqUnmi183wqZQ1WXrzB/2M2ePRNboeCl9y69za4R4kDtQVCiWQx
-         0UBohKqj2z6EmgRChHUfqtFgJcXVkW4aLFxZ20vms9HolTLXWEVZ9s0HngjoIQJ3W9nX
-         TJbaKuhGWxwr/nhC/4vAwWWs6FHqMVwsFHBOrjL2yyrdtZ3QkJZpu2oeNvZtoO5XAWLn
-         qJxg==
-X-Gm-Message-State: AOAM53375dT1jzIDlRyJwW1EechIeaxa9ZHN/VO6uQ3bWr5ht6NGGdCX
-        bHSGcLoDk7FVswL3OHWtd26vnAmymObpqsogMTM=
-X-Google-Smtp-Source: ABdhPJza8Uv5SqjqUFgFnvvcCxk8AZqC+KxgRWNukSBEZqpkrEnqtNXh87MAGLf2c+Gb6QDU0LeA0S64Kvmx5pePBDA=
-X-Received: by 2002:a9d:25:: with SMTP id 34mr1553008ota.135.1598280639006;
- Mon, 24 Aug 2020 07:50:39 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=2aqlVIBpdqJP6xDuhks8MMrSbd1w4Vz9bPxJLtEnD60=;
+        b=NQqVYDwkYCEuPiH5SrYtOp2edDTsRC9HA0/yeOf7izZoouZK4j/cIsJR1yFvXXpupp
+         A1b1stMNFVI1nmQFv+4lKl2ipF7e9vCaCH7a8A74NSQCs3+3zK0jAcCap9hjIkUSErKG
+         Ep8t4o/P49xq1nVjpUMkRmxZ0KZQi7CVSma7q7g7OzpTe8k6PxpHdRK7XgGoj9yTZWLc
+         G+N+eiMXiclTRmtzAqUuvTxfY1ZC43Xh8r6MJNeVw+I5eH4xkR0xE/1YUZbS+ZpZ/OPI
+         bHJmhZXuU+LE0KPXg9Dg2+KvMZrArU/AQ9r16yjbcMYNj7/BuZrGeNz2/UnP6b+vWTBa
+         uylA==
+X-Gm-Message-State: AOAM532Z0SCilf1UFZlxde5gqtov/wEXgQduzqSiKSznMtsdKwZMpgGu
+        ReImXKJbLV+T9BfLQVt6H7Esz3fHCCJSbphwqeh/GeEdZFk=
+X-Google-Smtp-Source: ABdhPJyYeGLLaezDqLDRaXfnL3wfo4ZBvXK7bPaWSvC6WjpnPF+htTHfruhnT7tJ0rCdrfoyKjQwdp2ZMgs5dwAoC20=
+X-Received: by 2002:a05:6808:1d9:: with SMTP id x25mr3151499oic.92.1598280956269;
+ Mon, 24 Aug 2020 07:55:56 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200824131841.55687-1-cgzones@googlemail.com>
-In-Reply-To: <20200824131841.55687-1-cgzones@googlemail.com>
+References: <20200824134416.331220-1-chpebeni@linux.microsoft.com>
+In-Reply-To: <20200824134416.331220-1-chpebeni@linux.microsoft.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 24 Aug 2020 10:50:28 -0400
-Message-ID: <CAEjxPJ6BMLeieB6cFcLm0r1TSbp9Dbu214jyCHsnGfiJuTiNyg@mail.gmail.com>
-Subject: Re: [PATCH 1/3] libselinux: refactor wrapper in sestatus.c for safe
- shared memory access
-To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Mike Palmiotto <mike.palmiotto@crunchydata.com>
+Date:   Mon, 24 Aug 2020 10:55:45 -0400
+Message-ID: <CAEjxPJ5V+zX8cbZoM6o2w_Ae0p-md9CJje3rOEfcrE7Qw57GQA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] libselinux: Remove trailing slash on selabel_file lookups.
+To:     Chris PeBenito <chpebeni@linux.microsoft.com>
+Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 24, 2020 at 9:19 AM Christian G=C3=B6ttsche
-<cgzones@googlemail.com> wrote:
+On Mon, Aug 24, 2020 at 9:45 AM Chris PeBenito
+<chpebeni@linux.microsoft.com> wrote:
 >
-> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
-> ---
->  libselinux/src/sestatus.c | 35 +++++++++++------------------------
->  1 file changed, 11 insertions(+), 24 deletions(-)
+> Having a trailing slash on a file lookup, e.g. "/some/path/", can
+> cause a different result, for example,  when file contexts are written to have
+> the directory have a different label than the contents.  This is inconsistent
+> with normal Linux behaviors where trailing slashes are ignored.
 >
-> diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
-> index 814e86ee..925e6079 100644
-> --- a/libselinux/src/sestatus.c
-> +++ b/libselinux/src/sestatus.c
-> @@ -80,6 +80,14 @@ static inline uint32_t read_sequence(struct selinux_st=
-atus_t *status)
->         return seqno;
->  }
+> Many callers already strip the trailing slash before the lookup or users
+> revise the file contexts to work around this.  This fixes it comprehensively.
 >
-> +/* sequence must not be changed during references */
-> +#define sestatus_save_access(name, result)                          \
-> +       uint32_t _seqno;                                            \
-> +       do {                                                        \
-> +               _seqno =3D read_sequence(selinux_status);             \
-> +               (result) =3D selinux_status->name;                    \
-> +       } while (_seqno !=3D read_sequence(selinux_status))           \
+> v2: fix length issues
+>
+> Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
 
-I'm not sure how much we gain from this macro versus losing in
-readability of the calling code.
-It should be clear at the call site that we are setting result to the
-value of selinux_status->name, either by
-having the macro "return" the value to the caller or passing the
-address of result.
-If we are going to use a macro with a local variable declaration, then
-it needs to be wrapped with do { ... } while (0)
-to ensure that the variable has its own scope/block.
-I'm also not clear on the naming - why "save_access" - is that
-supposed to be "safe_access"?
-It would be nice if the trailing backslashes were aligned.
-To be clear, this code is not currently thread-safe; the "safety" has
-to do with getting a consistent view of the SELinux kernel status
-page.
-
-> @@ -157,13 +164,7 @@ int selinux_status_getenforce(void)
->                 return fallback_enforcing;
->         }
->
-> -       /* sequence must not be changed during references */
-> -       do {
-> -               seqno =3D read_sequence(selinux_status);
-> -
-> -               enforcing =3D selinux_status->enforcing;
-> -
-> -       } while (seqno !=3D read_sequence(selinux_status));
-> +       sestatus_save_access(enforcing, enforcing);
-
-Someone reading the above code snippet has no idea that we just set
-enforcing to selinux_status->enforcing.
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
