@@ -2,91 +2,126 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C72E0C433E1
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 20:13:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50C92C433E1
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 21:29:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 961EB2074D
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 20:13:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 3018820706
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 21:29:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hdx3bl5z"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="tML63gh5"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725946AbgHXUNO (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 16:13:14 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:44477 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1725904AbgHXUNL (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 16:13:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1598299989;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=085e+q9kmvLUY77X5jS0gpxi/0kahwKf8wLEQa7ugZg=;
-        b=Hdx3bl5zcft1wSgP4oXApdWoSf9YBD+mzQKaFfSZlrhlNT9+Uz0hb6/oNXlt0MxnCNpIG1
-        RGRck+ob9Ml0e3cqaDnQXNptD2dVvGbBW2afK3tVgvHNQGh2O+Xc709SMA/Rb8zd95yZsu
-        Qllv45rHo3a+KVmOvnMJGB4UGH2QNLI=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-395-lfws2cGcP22UHQw_MwryUw-1; Mon, 24 Aug 2020 16:13:08 -0400
-X-MC-Unique: lfws2cGcP22UHQw_MwryUw-1
-Received: by mail-lj1-f200.google.com with SMTP id t9so3142451ljt.13
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 13:13:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=085e+q9kmvLUY77X5jS0gpxi/0kahwKf8wLEQa7ugZg=;
-        b=tUbSdm2HpmWw/4PiKnjZfvZqu0NIjw/GFQSTWpzp/S4yUK333uw9s+TYEbOgvFN09H
-         Q61sLXVO0mFj/qNX3wabHWnBeNE4FYSzsB7xdCyKtGe4ZDdS0u4lKykTmBAovAjCegf9
-         OjsCP6mEln1Ucj/ljDKTH0y6asQSR7VuL19FgDZibJFTEoiFWE5siaY5WE/bHg3q+Pez
-         y+iRhS5zx875XZtABprThqynRY9HOXx1BifC7cb+J3qtLjAfJswBU38JdGWvTC1wwf8T
-         nXZPU9gyULrB4IIY0iJG85Nqp/sKWaJqEyMq5897oMOTyEbwQdFH9pdHAWxtQ2VIsEjT
-         wOHw==
-X-Gm-Message-State: AOAM5334f/qaRLzO+w/qmrUcyQ9Aw7mGSYxEwYS14M+G4NnV5owzusoY
-        MXdO87QtycfuMHNtC2IkuuhbQqKzR+x6k7sHcKGyR2h6W+I5uNlhQZcU5vvavo4oMorWz1gftWy
-        wZIQ3Y08J5fbTNWUWOLoH/KsU5CasprVshw==
-X-Received: by 2002:a2e:9550:: with SMTP id t16mr3079927ljh.372.1598299986332;
-        Mon, 24 Aug 2020 13:13:06 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwA/5i55m66OPge2HUbmLe1lpb6eQ7fE0mAhYpq/DlFFIPTFydnmVaoDSJmazxYa0kvprriIU+7IY2BJRW7PJ8=
-X-Received: by 2002:a2e:9550:: with SMTP id t16mr3079916ljh.372.1598299986135;
- Mon, 24 Aug 2020 13:13:06 -0700 (PDT)
+        id S1726737AbgHXV3P (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 17:29:15 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:38174 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726189AbgHXV3P (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 17:29:15 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 0E9BE20B4908;
+        Mon, 24 Aug 2020 14:29:14 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 0E9BE20B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1598304554;
+        bh=ip2NfJop1Mn4C2YXcC4jWvJF3zXEyShjXfQMZzz1iVg=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=tML63gh5vIHnEShue4Gs5/MFXFSbnNSfC0Xg3Rz86qEQjJCkZx1OZ2bBrGon+vqIx
+         H9xTuCTTInq88f5FoCa+yhFtEr7FoHyiZvpo8Tvko6HInpTGRwnUza+RObtZRLSMp8
+         D6BEQBhQ11OIbCxNAXvLWcv85l6kBhrSLIQmJ/zc=
+Subject: Re: [PATCH] SELinux: Measure state and hash of policy using IMA
+To:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        tusharsu@linux.microsoft.com, Sasha Levin <sashal@kernel.org>,
+        James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+References: <20200822010018.19453-1-nramas@linux.microsoft.com>
+ <CAEjxPJ5Kok-TBfS=XQ+NUC5tuaZRkyLBOawG4UDky51_bsMnGw@mail.gmail.com>
+ <418618c4-a0c6-6b28-6718-2726a29b83c5@linux.microsoft.com>
+ <CAEjxPJ6-8WnZRJnADsn=RVakzJiESjEjK-f8nSkscpT7dnricQ@mail.gmail.com>
+ <CAFqZXNvVQ5U6Ea3gT32Z0hfWbu7GPR-mTF2z6-JZZJT57Heuuw@mail.gmail.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <f041e8ee-3955-9551-b72d-d4d7fa6e636d@linux.microsoft.com>
+Date:   Mon, 24 Aug 2020 14:29:13 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20200824155210.1481720-1-omosnace@redhat.com> <20200824155210.1481720-2-omosnace@redhat.com>
-In-Reply-To: <20200824155210.1481720-2-omosnace@redhat.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 24 Aug 2020 22:12:55 +0200
-Message-ID: <CAFqZXNvvSAvr_8yHxEdG1s+3JVA=UQgSxSHS4Foagx2bj3qc5g@mail.gmail.com>
-Subject: Re: [PATCH 1/2] selinux: switch unnecessary GFP_ATOMIC allocs to GFP_KERNEL
-To:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CAFqZXNvVQ5U6Ea3gT32Z0hfWbu7GPR-mTF2z6-JZZJT57Heuuw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 24, 2020 at 5:52 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> There seems to be no reason to use GFP_ATOMIC in these cases.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> ---
->  security/selinux/hooks.c       |  6 +++---
->  security/selinux/ss/policydb.c | 10 +++++-----
->  2 files changed, 8 insertions(+), 8 deletions(-)
+On 8/24/20 1:01 PM, Ondrej Mosnacek wrote:
+> On Mon, Aug 24, 2020 at 9:30 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+>> On Mon, Aug 24, 2020 at 2:13 PM Lakshmi Ramasubramanian
+>> <nramas@linux.microsoft.com> wrote:
+>>>
+>>> On 8/24/20 7:00 AM, Stephen Smalley wrote:
+>>>
+>>>>> +int security_read_policy_kernel(struct selinux_state *state,
+>>>>> +                               void **data, size_t *len)
+>>>>> +{
+>>>>> +       int rc;
+>>>>> +
+>>>>> +       rc = security_read_policy_len(state, len);
+>>>>> +       if (rc)
+>>>>> +               return rc;
+>>>>> +
+>>>>> +       *data = vmalloc(*len);
+>>>>> +       if (!*data)
+>>>>> +               return -ENOMEM;
+>>>>>
+>>>>> +       return security_read_selinux_policy(state, data, len);
+>>>>>    }
+>>>>
+>>>> See the discussion here:
+>>>> https://lore.kernel.org/selinux/20200824113015.1375857-1-omosnace@redhat.com/T/#t
+>>>>
+>>>> In order for this to be safe, you need to ensure that all callers of
+>>>> security_read_policy_kernel() have taken fsi->mutex in selinuxfs and
+>>>> any use of security_read_policy_len() occurs while holding the mutex.
+>>>> Otherwise, the length can change between security_read_policy_len()
+>>>> and security_read_selinux_policy() if policy is reloaded.
+>>>>
+>>>
+>>> "struct selinux_fs_info" is available when calling
+>>> security_read_policy_kernel() - currently in measure.c.
+>>> Only "struct selinux_state" is.
+>>>
+>>> Is Ondrej's re-try approach I need to use to workaround policy reload issue?
+>>
+>> No, I think perhaps we should move the mutex to selinux_state instead
+>> of selinux_fs_info.  selinux_fs_info has a pointer to selinux_state so
+>> it can then use it indirectly.  Note that your patches are going to
+>> conflict with other ongoing work in the selinux next branch that is
+>> refactoring policy load and converting the policy rwlock to RCU.
+> 
+> Yeah, and I'm experimenting with a patch on top of Stephen's RCU work
+> that would allow you to do this in a straightforward way without even
+> messing with the fsi->mutex. My patch may or may not be eventually
+> committed, but either way I'd recommend holding off on this for a
+> while until the dust settles around the RCU conversion.
+> 
 
-I found at least one more unjustified GFP_ATOMIC in services.c, so
-I'll probably respin this patch so it is all in one commit. I didn't
-bother looking at services.c at first, since most of the allocations
-there are bound to GFP_ATOMIC due to the policy read lock being held.
+I can make the SELinux\IMA changes in "selinux next branch" taking 
+dependencies on Stephen's patches + relevant IMA patches.
 
--- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+Could you please let me know the URL to the "selinux next branch"?
+
+thanks,
+  -lakshmi
 
