@@ -2,160 +2,84 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AEBC4C433DF
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:23:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28B02C433DF
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:25:41 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9194D2078D
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:23:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 032E0206B5
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:25:41 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="XjS9K968"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725921AbgHXNX6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 09:23:58 -0400
-Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:14657 "EHLO
-        SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726187AbgHXNX5 (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 09:23:57 -0400
-From:   Peter Enderborg <peter.enderborg@sony.com>
-To:     <linux-kernel@vger.kernel.org>,
-        SElinux list <selinux@vger.kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Paul Moore <paul@paul-moore.com>
-CC:     Peter Enderborg <peter.enderborg@sony.com>
-Subject: [RFC PATCH] selinux: Add denied trace with permssion filter
-Date:   Mon, 24 Aug 2020 15:22:52 +0200
-Message-ID: <20200824132252.31261-2-peter.enderborg@sony.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20200824132252.31261-1-peter.enderborg@sony.com>
-References: <CAHC9VhRuvK55JVyHOxckThbRQ7sCwkeZsudwCaBo2f5G4g11VA@mail.gmail.com>
- <20200824132252.31261-1-peter.enderborg@sony.com>
+        id S1726041AbgHXNZk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 09:25:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51936 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726024AbgHXNZj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 09:25:39 -0400
+Received: from mail-ed1-x544.google.com (mail-ed1-x544.google.com [IPv6:2a00:1450:4864:20::544])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E845C061573
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:25:39 -0700 (PDT)
+Received: by mail-ed1-x544.google.com with SMTP id ba10so8025976edb.3
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:25:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sTOWW6JncnibctwT53dKRLwS/NS8ZdF84sFxZqhk1R4=;
+        b=XjS9K9686C8JrRj6HZFAkLZmggHinPNe9Lk5juw8Fiidal8RMlhanxpM1H3TchGLaa
+         oIEbmpjID67OjS5NbBl7cl3jYVR94OofPvq3UbMP0RgYwYzeYDlrr2KOi7uj+RhdEUqH
+         l//xlmEgVnrkNTT5Y1tGVylkL0wEFtLafbB2NtJF/y5vgmbRgx2NSQDxja1RQe0P1HyR
+         vtKY+gJfQIdziLjafRl+6eSbnLwemgslr0Y149Hj1oZe+l4vlykuHIN7KgaYCuOfuK6b
+         NNESOMk3tnSTuRxDaUCe7WC4fnSoYWrv8op1A/dnoeXa1EGghwy4cA6geBKShuTU4//o
+         nFbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sTOWW6JncnibctwT53dKRLwS/NS8ZdF84sFxZqhk1R4=;
+        b=PP5skuWAicOWQV+xbUzem5ZwdNtvV36EOekHinKgHlL6a4sE/rhjeqy1uz4PIRb3Ag
+         dxEBZgcdWqNjriltNSTF/fyTl1yZkOU3sGXdlqXfhHmJJu5jV/8GaPJ5lJGfjO/4uMTX
+         ym0S7WS8FIW9zVYEgrjZ60hDa9iCGwPp1t+/6/Ggh2LNTsbTYGs85AncKVHOFR/For6R
+         XQY5iHx4Y6hfoqjuBAg2eUnKZow/xs37iMl2XwF8AKFWLof3SY0emeF3HOUPy/bQ5/io
+         +2nR3IdqmqWjRga32ktJOqccBMahGXlUUp857TaB0aerO12L4uDNu0ykFa3DitW8UrO7
+         iXHQ==
+X-Gm-Message-State: AOAM5309/8knS7Z0Rg0Onn0ZXZ9Smgbfa3TTz0rX09sORqThbZjXHDVZ
+        0L6ze1Lay+3nvsDEods9mDKdIdJjF/iKH7gg0e/l
+X-Google-Smtp-Source: ABdhPJzh9hm6tBdDRner1srvF9xZaPeA9gBXSm9ZinWX/7U7gycvxVWH+aB4gzhWkyHqITTVHARjWzkYdQAqdATJXns=
+X-Received: by 2002:a05:6402:3070:: with SMTP id bs16mr5260792edb.269.1598275538093;
+ Mon, 24 Aug 2020 06:25:38 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=dtal9Go4 c=1 sm=1 tr=0 a=kIrCkORFHx6JeP9rmF/Kww==:117 a=y4yBn9ojGxQA:10 a=z6gsHLkEAAAA:8 a=9Lnft3qYOPM9H8Q3WhUA:9 a=d-OLMTCWyvARjPbQ-enb:22
-X-SEG-SpamProfiler-Score: 0
+References: <20200809162108.193636-1-richard_c_haines@btinternet.com>
+In-Reply-To: <20200809162108.193636-1-richard_c_haines@btinternet.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 24 Aug 2020 09:25:27 -0400
+Message-ID: <CAHC9VhQntv93nnDD17u2oQ2CRd9MEhR3LVDOnv5DzYShS=VJSQ@mail.gmail.com>
+Subject: Re: [PATCH] selinux-notebook: policy_config_files.md convert to markdown
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This adds tracing of all denies. They are grouped with trace_seq for
-each audit.
+On Sun, Aug 9, 2020 at 12:21 PM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+>
+> Add a TOC to aid navigation and convert HTML tables to markdown
+> unordered lists.
+>
+> Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> ---
+>  src/policy_config_files.md | 477 ++++++++++++++++++-------------------
+>  1 file changed, 233 insertions(+), 244 deletions(-)
 
-A filter can be inserted with a write to it's filter section.
+Also merged, thanks Richard.
 
-echo "permission==\"entrypoint\"" > events/avc/selinux_denied/filter
-
-A output will be like:
-          runcon-1046  [002] .N..   156.351738: selinux_denied:
-	  trace_seq=2 result=-13
-	  scontext=system_u:system_r:cupsd_t:s0-s0:c0.
-	  c1023 tcontext=system_u:object_r:bin_t:s0
-	  tclass=file permission=entrypoint
-
-Signed-off-by: Peter Enderborg <peter.enderborg@sony.com>
----
- include/trace/events/avc.h | 37 +++++++++++++++++++++++++++++++++++++
- security/selinux/avc.c     | 27 +++++++++++++++++++++++++--
- 2 files changed, 62 insertions(+), 2 deletions(-)
-
-diff --git a/include/trace/events/avc.h b/include/trace/events/avc.h
-index 94bca8bef8d2..9a28559956de 100644
---- a/include/trace/events/avc.h
-+++ b/include/trace/events/avc.h
-@@ -54,6 +54,43 @@ TRACE_EVENT(selinux_audited,
- 	)
- );
- 
-+TRACE_EVENT(selinux_denied,
-+
-+	TP_PROTO(struct selinux_audit_data *sad,
-+		char *scontext,
-+		char *tcontext,
-+		const char *tclass,
-+		const char *permission,
-+		int64_t seq
-+	),
-+
-+	TP_ARGS(sad, scontext, tcontext, tclass, permission, seq),
-+
-+	TP_STRUCT__entry(
-+		__field(int, result)
-+		__string(scontext, scontext)
-+		__string(tcontext, tcontext)
-+		__string(permission, permission)
-+		__string(tclass, tclass)
-+		__field(u64, seq)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->result	= sad->result;
-+		__entry->seq	= seq;
-+		__assign_str(tcontext, tcontext);
-+		__assign_str(scontext, scontext);
-+		__assign_str(permission, permission);
-+		__assign_str(tclass, tclass);
-+	),
-+
-+	TP_printk("trace_seq=%lld result=%d scontext=%s tcontext=%s tclass=%s permission=%s",
-+		 __entry->seq, __entry->result, __get_str(scontext), __get_str(tcontext),
-+		 __get_str(tclass), __get_str(permission)
-+
-+	)
-+);
-+
- #endif
- 
- /* This part must be outside protection */
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 1debddfb5af9..ca53baca15e1 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -92,6 +92,7 @@ struct selinux_avc {
- };
- 
- static struct selinux_avc selinux_avc;
-+static atomic64_t trace_seqno;
- 
- void selinux_avc_init(struct selinux_avc **avc)
- {
-@@ -731,9 +732,31 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
- 	tclass = secclass_map[sad->tclass-1].name;
- 	audit_log_format(ab, " tclass=%s", tclass);
- 
--	if (sad->denied)
-+	if (sad->denied) {
- 		audit_log_format(ab, " permissive=%u", sad->result ? 0 : 1);
--
-+		if (trace_selinux_denied_enabled()) {
-+			int i, perm;
-+			const char **perms;
-+			u32 denied = sad->denied;
-+			int64_t seq;
-+
-+			seq = atomic_long_inc_return(&trace_seqno);
-+			perms = secclass_map[sad->tclass-1].perms;
-+			i = 0;
-+			perm = 1;
-+			while (i < (sizeof(denied) * 8)) {
-+				if ((perm & denied & sad->requested) && perms[i]) {
-+					trace_selinux_denied(sad, scontext, tcontext,
-+							     tclass, perms[i], seq);
-+					denied &= ~perm;
-+					if (!denied)
-+						break;
-+				}
-+				i++;
-+				perm <<= 1;
-+			}
-+		}
-+	}
- 	trace_selinux_audited(sad, scontext, tcontext, tclass);
- 	kfree(tcontext);
- 	kfree(scontext);
 -- 
-2.17.1
-
+paul moore
+www.paul-moore.com
