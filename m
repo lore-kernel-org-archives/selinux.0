@@ -2,85 +2,96 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7591CC433E1
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:07:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5315BC433DF
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:23:03 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3AEC4206F0
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:07:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2B6B92074D
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:23:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eU3X16Uw"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="daYf3/dP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726950AbgHXPHB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 11:07:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39616 "EHLO
+        id S1726631AbgHXPWw (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 11:22:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726884AbgHXPGX (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 11:06:23 -0400
-Received: from mail-oi1-x244.google.com (mail-oi1-x244.google.com [IPv6:2607:f8b0:4864:20::244])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6F85C06179F
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 07:55:56 -0700 (PDT)
-Received: by mail-oi1-x244.google.com with SMTP id h3so8486018oie.11
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 07:55:56 -0700 (PDT)
+        with ESMTP id S1727878AbgHXPSq (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 11:18:46 -0400
+Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0804CC061573
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 08:18:45 -0700 (PDT)
+Received: by mail-ej1-x641.google.com with SMTP id m22so12384397eje.10
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 08:18:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=2aqlVIBpdqJP6xDuhks8MMrSbd1w4Vz9bPxJLtEnD60=;
-        b=eU3X16UwG31mwaDv7GE8rXGESvsR3n4DG67ivoovxxe/FyNtOhTxN9+oo0PKnz4QU9
-         DNPujLX1s6Ytu+GCElxP9ZsNOl4TE3McxRc1b7kb3Ra7hxqAm/HtmJJT4rM3uIoEpsEx
-         UyKz0rMotki0x3M9H9EUhV/lK1r8alDjppMttFZZi7JIKD2bf8jUw/EXqD144sr85rDO
-         hnfdeuYotBeCSGjB/+nxcnN6oyaTkOUu5zAkdREHwBwUsnXpy+ZHIxIoD2ZXnTj3wlI6
-         gll+ig7mumifPQHUjejsCCIk3LtJKG/p1Si4dxEAtBq1pFB4tYoIsS2IOVkFQ03PZblT
-         d7Bw==
+        bh=hRgxx3tSppOhQm2AF9dKudiK1eoIPsBzHjrzxWNccQc=;
+        b=daYf3/dPe/PnYYkrooX/rVmS45t4DA1QFjn9WvpYZOaB8t57g+JFujh8yuBib99jR4
+         vIzEO8EqlnsRyjNE722w2uOeme8bRViAs//bphEqVnkGvOB+DgBmQyrQI1/9+x879wL4
+         bADN+z6UF5CuSKuZR8GVYupOcvSR6uTSfO12ISaYS5IkOdjgE+v2sNl3rmK2F/9tP613
+         iDdTyq2Dc+evvSRTGjW1qNGLY4NdTOhfH8g8HLKrlktkavSzDuxdAIAj4stgjSYFBjKA
+         t/pX/pU6F98XXnweKZqDNkuQFqq00RPBPdzjxeUAY1nYrefcfHVv7Hv7wk7ooijsVycC
+         v8Fg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=2aqlVIBpdqJP6xDuhks8MMrSbd1w4Vz9bPxJLtEnD60=;
-        b=NQqVYDwkYCEuPiH5SrYtOp2edDTsRC9HA0/yeOf7izZoouZK4j/cIsJR1yFvXXpupp
-         A1b1stMNFVI1nmQFv+4lKl2ipF7e9vCaCH7a8A74NSQCs3+3zK0jAcCap9hjIkUSErKG
-         Ep8t4o/P49xq1nVjpUMkRmxZ0KZQi7CVSma7q7g7OzpTe8k6PxpHdRK7XgGoj9yTZWLc
-         G+N+eiMXiclTRmtzAqUuvTxfY1ZC43Xh8r6MJNeVw+I5eH4xkR0xE/1YUZbS+ZpZ/OPI
-         bHJmhZXuU+LE0KPXg9Dg2+KvMZrArU/AQ9r16yjbcMYNj7/BuZrGeNz2/UnP6b+vWTBa
-         uylA==
-X-Gm-Message-State: AOAM532Z0SCilf1UFZlxde5gqtov/wEXgQduzqSiKSznMtsdKwZMpgGu
-        ReImXKJbLV+T9BfLQVt6H7Esz3fHCCJSbphwqeh/GeEdZFk=
-X-Google-Smtp-Source: ABdhPJyYeGLLaezDqLDRaXfnL3wfo4ZBvXK7bPaWSvC6WjpnPF+htTHfruhnT7tJ0rCdrfoyKjQwdp2ZMgs5dwAoC20=
-X-Received: by 2002:a05:6808:1d9:: with SMTP id x25mr3151499oic.92.1598280956269;
- Mon, 24 Aug 2020 07:55:56 -0700 (PDT)
+        bh=hRgxx3tSppOhQm2AF9dKudiK1eoIPsBzHjrzxWNccQc=;
+        b=dVoOPZIlC+/oaP0+9dnp+4oLZzshZYVEvXfk5ELmqiQYpY0i2D1vNvwONCfgUkx1eP
+         zXYsO8tbd2VW10L/CwanfCaiU/+nhtWzbfY3k5MzDt68L4W2c3PDRSPfbf2K/qNGP2fg
+         sc5cfW4aWxyaRAGlHRauwsXO0D7M1mY4D6YKeCgUakXt89e0VJG7jr1cMhCig5pISAh4
+         7AKpfihxgnKt8ln1NbpIokMJlAytHE6eiP7ohZw8m7kK4cd8VcjJSXf+hYtlfRpAOiGV
+         wf0yeCh3AMl3evS/H8o3nvu93NrSo7sKpkkbqYkyZ6bQN2n7sc7hki1LsBY5vHnY+GQp
+         GUVA==
+X-Gm-Message-State: AOAM532Wetk/zR8YQQZzjEcOMx7bal0yNGVAe7s1HQEqh6WXeNOJVBbY
+        0Qc1SA8dkNT2mHFd23/ndmEJODV6+wO2cEzlyGP5
+X-Google-Smtp-Source: ABdhPJzEcj2wnnrEKoEv1PPbTejxVV5BfnUX9z1HWRRCCDAss73M+rPmLz2mKoZoQ9jbxRk7R0BEPxTD5pf7AG6nhCs=
+X-Received: by 2002:a17:906:5205:: with SMTP id g5mr5890079ejm.488.1598282323578;
+ Mon, 24 Aug 2020 08:18:43 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200824134416.331220-1-chpebeni@linux.microsoft.com>
-In-Reply-To: <20200824134416.331220-1-chpebeni@linux.microsoft.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 24 Aug 2020 10:55:45 -0400
-Message-ID: <CAEjxPJ5V+zX8cbZoM6o2w_Ae0p-md9CJje3rOEfcrE7Qw57GQA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] libselinux: Remove trailing slash on selabel_file lookups.
-To:     Chris PeBenito <chpebeni@linux.microsoft.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200809162212.193739-1-richard_c_haines@btinternet.com>
+ <CAHC9VhTP+A3mGO_1nVz4Q-WtEBNubAGO_gysR7L-_OOqFRazZw@mail.gmail.com> <4588336e487610f41187718629369aeadbd651d3.camel@btinternet.com>
+In-Reply-To: <4588336e487610f41187718629369aeadbd651d3.camel@btinternet.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 24 Aug 2020 11:18:32 -0400
+Message-ID: <CAHC9VhStYMc0KMo9hQat8GF64ToK+j7=5603gd=T62oXTd9Brg@mail.gmail.com>
+Subject: Re: [PATCH] selinux-notebook: Convert terminology.md to markdown
+To:     Richard Haines <richard_c_haines@btinternet.com>
+Cc:     selinux@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Mon, Aug 24, 2020 at 9:45 AM Chris PeBenito
-<chpebeni@linux.microsoft.com> wrote:
+On Mon, Aug 24, 2020 at 11:17 AM Richard Haines
+<richard_c_haines@btinternet.com> wrote:
+> On Mon, 2020-08-24 at 09:40 -0400, Paul Moore wrote:
+> > On Sun, Aug 9, 2020 at 12:22 PM Richard Haines
+> > <richard_c_haines@btinternet.com> wrote:
+> > > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > > ---
+> > >  src/terminology.md | 349 +++++++++++++++++++++++++++++++--------
+> > > ------
+> > >  1 file changed, 243 insertions(+), 106 deletions(-)
+> >
+> > Merged.
+> >
+> > I wasn't sure how I was going to like the changes to the
+> > abbreviations
+> > table, but I think it still looks okay and it's more consistent with
+> > the rest of the doc.  Thanks Richard.
 >
-> Having a trailing slash on a file lookup, e.g. "/some/path/", can
-> cause a different result, for example,  when file contexts are written to have
-> the directory have a different label than the contents.  This is inconsistent
-> with normal Linux behaviors where trailing slashes are ignored.
->
-> Many callers already strip the trailing slash before the lookup or users
-> revise the file contexts to work around this.  This fixes it comprehensively.
->
-> v2: fix length issues
->
-> Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
+> Just to let you all know that I've converted the remaining sections to
+> markdown. I'll send the updates in small batches (A-Z) over the next
+> week or so.
 
-Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+Thanks!
+
+-- 
+paul moore
+www.paul-moore.com
