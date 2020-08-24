@@ -2,89 +2,97 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31B87C433E1
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:52:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76B4FC433DF
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 18:13:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 0C6402071E
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 15:52:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4F92920702
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 18:13:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QBT3QkzS"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="nkEbESeI"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727924AbgHXPwa (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 11:52:30 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:26925 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728057AbgHXPwY (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 11:52:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1598284343;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=nY4WAncEcTrbMZSUyLSIZD/YApYuNoFcgRDNbZMUPkc=;
-        b=QBT3QkzSu8uOg4qqDAqsqQxYPG7MB6IByFzwrs0Z/UlZxBcM6ktALKth1ScuEjM6kMs6pz
-        t0wmy1cGYQ1h6jTqO4KKODm9NE9ZjaySqNhWs9mg2HFxcl+yXli0Z94an+wiq/tB0ZX4xJ
-        4HTPTksRH44jypjZkOc4Ui8Cvkdp3kE=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-430-FM3ZGAnOMAeyHcC0bwnJkA-1; Mon, 24 Aug 2020 11:52:14 -0400
-X-MC-Unique: FM3ZGAnOMAeyHcC0bwnJkA-1
-Received: by mail-wr1-f70.google.com with SMTP id m7so4098055wrb.20
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 08:52:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nY4WAncEcTrbMZSUyLSIZD/YApYuNoFcgRDNbZMUPkc=;
-        b=DHEO42Ez4WXqt9ZrRennjCzrpIaqRjTqU1hCbZzQ76Jnthy0noROi8uRfyujMv4O5A
-         U6GB0mO/SYUDZuQjR7CZWnujN7/a9wCo25mTimld1x30HhUbsoBwJ0okPdgF32LJXbs/
-         Bh2FRCxbYLS0u3sjGoMR+ee+Kj6zSDW3ugeiWg8Pgn9HCFQfPT0wXFdANZL9LPIcy2n0
-         AsN8wks0vgBrB1ykkyIGQ46KlmymtKfaO8UIBqfiIRZRo83P5B4efS4+0I1HAPca1I9r
-         +Q/7Xky3gV78PKHzm/vbvTR6rhKPZvnZhjfIcNSC9oju30y0Q1sorRZH50lpsFcV+ZFA
-         eVLA==
-X-Gm-Message-State: AOAM533ohHJXy4qpp0k0Z0/Pqbwka2Hc5zQbWCVPfgnPRaZEj1/olnX6
-        KPc4NZFc0xhMu3t+avcU7DitxZzfo+JzHPFeioJOPEx9aTxz33vEvgbFSF9SR8zPUFFRWemZk/R
-        uCS6b6/TM8C/7vnidZA==
-X-Received: by 2002:a5d:4145:: with SMTP id c5mr6592719wrq.18.1598284333168;
-        Mon, 24 Aug 2020 08:52:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy33SxKimsrBovM00jN1j0dAs0aC6PiPWoQcHv92DXJvKNBYRSupXKty2rUyUzK4XJtD3yTjA==
-X-Received: by 2002:a5d:4145:: with SMTP id c5mr6592691wrq.18.1598284332849;
-        Mon, 24 Aug 2020 08:52:12 -0700 (PDT)
-Received: from omos.redhat.com ([2a02:8308:b103:4000:e83d:a4fb:e589:6902])
-        by smtp.gmail.com with ESMTPSA id x133sm25684215wmg.39.2020.08.24.08.52.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Aug 2020 08:52:12 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 0/2] selinux: Clean up GFP flag usage
-Date:   Mon, 24 Aug 2020 17:52:08 +0200
-Message-Id: <20200824155210.1481720-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.26.2
+        id S1726502AbgHXSN4 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 14:13:56 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:35444 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725890AbgHXSNz (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 14:13:55 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id 9A34520B4908;
+        Mon, 24 Aug 2020 11:13:54 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 9A34520B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1598292834;
+        bh=I33zGzGKrY5OD+f93g2K2Tof22XbwMMm4oJvhkCRjyQ=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=nkEbESeIREk6peaARbVfOFLHskhh+FVeAgvpLv49vmfLWN8dF5+vMlZrPt3vBqnrS
+         jDK32p1NdgaRUBU5GkDKFUhWfoYYqlIYDTsvI7Etl3dx623IDvcpcw2udkvJAy8B+S
+         JKO3wTUBhq66QhbGuui2GKpS9B5E0Yu7/oC7XdXA=
+Subject: Re: [PATCH] SELinux: Measure state and hash of policy using IMA
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        tusharsu@linux.microsoft.com, sashal@kernel.org,
+        James Morris <jmorris@namei.org>,
+        linux-integrity@vger.kernel.org,
+        SElinux list <selinux@vger.kernel.org>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+References: <20200822010018.19453-1-nramas@linux.microsoft.com>
+ <CAEjxPJ5Kok-TBfS=XQ+NUC5tuaZRkyLBOawG4UDky51_bsMnGw@mail.gmail.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <418618c4-a0c6-6b28-6718-2726a29b83c5@linux.microsoft.com>
+Date:   Mon, 24 Aug 2020 11:13:54 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEjxPJ5Kok-TBfS=XQ+NUC5tuaZRkyLBOawG4UDky51_bsMnGw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-This series corrects a few places where GFP_ATOMIC was used instead of
-GFP_KERNEL for no reason and removes the no longer needed GFP flag
-argument from str_read().
+On 8/24/20 7:00 AM, Stephen Smalley wrote:
 
-Ondrej Mosnacek (2):
-  selinux: switch unnecessary GFP_ATOMIC allocs to GFP_KERNEL
-  selinux: drop the gfp_t argument from str_read()
+>> +int security_read_policy_kernel(struct selinux_state *state,
+>> +                               void **data, size_t *len)
+>> +{
+>> +       int rc;
+>> +
+>> +       rc = security_read_policy_len(state, len);
+>> +       if (rc)
+>> +               return rc;
+>> +
+>> +       *data = vmalloc(*len);
+>> +       if (!*data)
+>> +               return -ENOMEM;
+>>
+>> +       return security_read_selinux_policy(state, data, len);
+>>   }
+> 
+> See the discussion here:
+> https://lore.kernel.org/selinux/20200824113015.1375857-1-omosnace@redhat.com/T/#t
+> 
+> In order for this to be safe, you need to ensure that all callers of
+> security_read_policy_kernel() have taken fsi->mutex in selinuxfs and
+> any use of security_read_policy_len() occurs while holding the mutex.
+> Otherwise, the length can change between security_read_policy_len()
+> and security_read_selinux_policy() if policy is reloaded.
+> 
 
- security/selinux/hooks.c       |  6 ++---
- security/selinux/ss/policydb.c | 42 +++++++++++++++++-----------------
- 2 files changed, 24 insertions(+), 24 deletions(-)
+"struct selinux_fs_info" is available when calling 
+security_read_policy_kernel() - currently in measure.c.
+Only "struct selinux_state" is.
 
--- 
-2.26.2
+Is Ondrej's re-try approach I need to use to workaround policy reload issue?
 
+thanks,
+  -lakshmi
