@@ -2,136 +2,83 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40007C433DF
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:42:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16B49C433DF
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:45:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1B117204FD
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:42:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id D8226204FD
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:45:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="siubR0wZ"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hGHvg+Xc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728002AbgHXNl6 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 09:41:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53576 "EHLO
+        id S1726024AbgHXNpD (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 09:45:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726952AbgHXNfh (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 09:35:37 -0400
-Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3437C061573
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:35:36 -0700 (PDT)
-Received: by mail-ot1-x344.google.com with SMTP id a65so7267778otc.8
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:35:36 -0700 (PDT)
+        with ESMTP id S1725921AbgHXNpC (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 09:45:02 -0400
+Received: from mail-oi1-x243.google.com (mail-oi1-x243.google.com [IPv6:2607:f8b0:4864:20::243])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 007A4C061573
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:45:01 -0700 (PDT)
+Received: by mail-oi1-x243.google.com with SMTP id j7so8245582oij.9
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:45:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zsR8ckw/1Lev5akkYdrEFihyxUfRCIruPyhqU7rQ/xs=;
-        b=siubR0wZ6epUzxPa/S5lS+lnj7d7CdkJNuioNdIt4EEmtrE9dOjxIbZrY8+4NRxln3
-         YwEedviLEqJajayc1HfPtX55TD4+3S0fi+6C5zn5wKInSkaw+bsZJEeyYlUuuupbhzyz
-         yc2rz9QKbmOnq2vIWnZ5VP3UTOIF/+L/2pLbpUkwVrwwJS5XALyy2W28qEFaRaSKwnPU
-         szdxp7I9cdWhrhDvOKaR7RgxTGQxFMapETsPt2SRG9OFZfauIcgN8hKRyFTAj6gJX2Ol
-         N7IXqn2hHeaxAQJQPhwpTmRdIYK9V6pbZrG16JQW+D1Y9GNlFFXVzxcc8x3VpqlcHzWm
-         KFgw==
+         :cc:content-transfer-encoding;
+        bh=D2ydMSIOrGYi6x/2LSw1PpmLVdMdv71BZXsQMiuVC2Q=;
+        b=hGHvg+Xcv6Q6lZ51QE3SN54icZeAiOCneRdJBU8bLJqbMwznYlHJbPNgnmRnej38ww
+         DjHqkowESVOCpj5NuGUoc//Qf8qh3nQj3BhU6v49iN5ItFnhdtX8RyHTguepc4npnbiA
+         qU/CIVjH+5BgIlBn02EzPyC+1HIUHBTixNjwqPmvLmd6YS0/QXbYW4vhyctaTvTFiLdZ
+         LFHOwpEXH+RXQcBEj+W8Y0Ua5bbqeIIjM1nAm0K2DU4mu2icdDmA6NGlYaiOQsfharq+
+         UDAvvQUSw0XNE97rRVpYEq1oAYoAwqKRT6kQnt1dflp3R3DVUePjSlvnO5Dinb7fWm9I
+         ZsFw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zsR8ckw/1Lev5akkYdrEFihyxUfRCIruPyhqU7rQ/xs=;
-        b=VxgeVa7YhWO3IySBZndQL9dq6p8Zx/Q8ygnYBGgtu1U+rm+mY1NIl/RIJx1oREh7ca
-         eNad2F/lBQJfwcgv/qKTSGO1NjjHhSdlfwjeCTQuO0iMsacBa1A3haGgkpebSFpZx3W5
-         /GOEMY5h4y+UnANf7u+6AR8pw14ZHMhzljpmPWom4NEHCjcEoqYTrnTrSxjUj6TKzSaE
-         Wm4rTNAer/HpoL9OuTaYwOmQkL8iT7byPKPUxu/dFI6C0kdrMFN8QaUEzx3+V/Eb62sY
-         FpXFCjEVpbekbtOuQntfCcZZeAtWG6LFK9M/pzwmMtoI7BOggYVe6Ilike/xlMxsCV9A
-         2pOg==
-X-Gm-Message-State: AOAM531gPdPyXjVAxetLMxeCPfnH7m0Dpq3H9v5f3cGqvx9oNNSAUpyU
-        FMlvDbsnyprO83Q82bme1UcekSUhclC35Cfm3v05DKfuqWY=
-X-Google-Smtp-Source: ABdhPJwLVlJPoD7XdlBB5U/F4DsdppqmjskCZdaA83tF7a5fJCYEVyR1etzjqCCwtQeuaMtKYEVAOLnMMIi2/sJE7/U=
-X-Received: by 2002:a9d:67d3:: with SMTP id c19mr3583699otn.162.1598276136150;
- Mon, 24 Aug 2020 06:35:36 -0700 (PDT)
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=D2ydMSIOrGYi6x/2LSw1PpmLVdMdv71BZXsQMiuVC2Q=;
+        b=YMGGBEh/YP5RSK/WoL0+0HPd4oWGzaRwT6XwbctV3Fk4DlvhDY/PFNZCqIJjwF9PaY
+         p2EIr6nZo5WUJyoKs98uoJr9/rOwqRz8ex5DpyrAVrMhmVtiBhqrg+nQU2ftqHekMAdy
+         pEXIB1mB/5i80nL47yyh0H6mC9bbLB/dzEtyndtKp53bpNpbmJFuD5m3IDdeBew2FTe2
+         PjPbx79XA5FZGF14zAmLguPpjxsnfYiGRnscIDfI6nJbI4Szv2710FJTw9ShL7qDE1Fu
+         dIspFbZh122mwlp6xFgp+BaS1tB4MIWlt/MdG4H1MlpIwMjGaq/gugvfHeXuoPLNVahG
+         naYg==
+X-Gm-Message-State: AOAM531efcwmKplEbu8vX3jw7Hr9B9siLIIpEG8YKaCuYZxEF3hOthyL
+        QU51VAJAVUapZodcBSt/7TvqHPSRoErtAEtPWXI=
+X-Google-Smtp-Source: ABdhPJyQKc4YMq+j5Ct25hYtxAUfVsRs2NjauMr263Ezij6qjr098sixf4aaR2VEYjk2cwKooaKLh20o5/OJQIE/mrk=
+X-Received: by 2002:aca:fd44:: with SMTP id b65mr2926697oii.160.1598276700772;
+ Mon, 24 Aug 2020 06:45:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200820154726.210419-1-chpebeni@linux.microsoft.com>
-In-Reply-To: <20200820154726.210419-1-chpebeni@linux.microsoft.com>
+References: <20200819150534.18026-1-cgzones@googlemail.com>
+In-Reply-To: <20200819150534.18026-1-cgzones@googlemail.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Mon, 24 Aug 2020 09:35:25 -0400
-Message-ID: <CAEjxPJ63ZLZUY-Qqk=Shf+uojEO9WVANQ0-hhTduKC+PoNX4FQ@mail.gmail.com>
-Subject: Re: [PATCH 1/1] libselinux: Remove trailing slash on selabel_file lookups.
-To:     Chris PeBenito <chpebeni@linux.microsoft.com>
+Date:   Mon, 24 Aug 2020 09:44:50 -0400
+Message-ID: <CAEjxPJ4mOzWbj6ynsis-fvo4uigAPDw2WOcZ0vnyp+gPzB78mw@mail.gmail.com>
+Subject: Re: [PATCH 1/2] sepolgen: print extended permissions in hexadecimal
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Thu, Aug 20, 2020 at 11:51 AM Chris PeBenito
-<chpebeni@linux.microsoft.com> wrote:
+On Wed, Aug 19, 2020 at 11:06 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
 >
-> Having a trailing slash on an selabel file lookup can yield a different
-> result.
+> All tools like ausearch(8) or sesearch(1) and online documentation[1]
+> use hexadecimal values for extended permissions.
+> Hence use them, e.g. for audit2allow output, as well.
 >
-> For example:
-> /path/foo(/.*)?   user:role:type1
-> /path/foo/bar  -d user:role:type2
+> [1]: https://github.com/strace/strace/blob/master/linux/64/ioctls_inc.h
 >
-> A lookup of "/path/foo/bar/" would yield user:role:type1 instead of
-> user:role:type2, which is unlike typical Linux behaviors where trailing
-> slashes are ignored.
->
-> Many callers already strip the trailing slash before the lookup or users
-> revise the file contexts to work around this.  Fix it comprehensively.
->
-> Signed-off-by: Chris PeBenito <chpebeni@linux.microsoft.com>
-> ---
->  libselinux/src/label_file.c | 18 +++++++++++++++++-
->  1 file changed, 17 insertions(+), 1 deletion(-)
->
-> diff --git a/libselinux/src/label_file.c b/libselinux/src/label_file.c
-> index 412904d1..42d9d485 100644
-> --- a/libselinux/src/label_file.c
-> +++ b/libselinux/src/label_file.c
-> @@ -853,7 +853,7 @@ static const struct spec **lookup_all(struct selabel_handle *rec,
->  {
->         struct saved_data *data = (struct saved_data *)rec->data;
->         struct spec *spec_arr = data->spec_arr;
-> -       int i, rc, file_stem;
-> +       int i, rc, file_stem, len;
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
 
-size_t len?
-
->         mode_t mode = (mode_t)type;
->         char *clean_key = NULL;
->         const char *prev_slash, *next_slash;
-> @@ -894,6 +894,22 @@ static const struct spec **lookup_all(struct selabel_handle *rec,
->                 key = clean_key;
->         }
->
-> +       /* remove trailing slash */
-> +       len = strlen(key);
-> +       if (key[len - 1] == '/') {
-
-What if len == 0?
-
-> +               /* reuse clean_key from above if available */
-> +               if (!clean_key) {
-> +                       clean_key = (char *) malloc(len);
-> +                       if (!clean_key)
-> +                               goto finish;
-> +
-> +                       strncpy(clean_key, key, len - 1);
-> +               }
-> +
-> +               clean_key[len - 1] = '\0';
-> +               key = clean_key;
-> +       }
-> +
->         sub = selabel_sub_key(data, key);
->         if (sub)
->                 key = sub;
-> --
-> 2.26.2
->
+Acked-by: Stephen Smalley <stephen.smalley.work@gmail.com>
