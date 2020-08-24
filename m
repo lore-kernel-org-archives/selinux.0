@@ -2,94 +2,128 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 008A7C433DF
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 14:36:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1523C433DF
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 14:50:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CB7A72071E
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 14:36:07 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BB58F20738
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 14:50:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="UGjSnPsY"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hsDfT4vP"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726670AbgHXOgC (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 10:36:02 -0400
-Received: from linux.microsoft.com ([13.77.154.182]:50890 "EHLO
-        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725968AbgHXOgA (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 10:36:00 -0400
-Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
-        by linux.microsoft.com (Postfix) with ESMTPSA id D2DDB20B4908;
-        Mon, 24 Aug 2020 07:35:59 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D2DDB20B4908
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-        s=default; t=1598279760;
-        bh=f2HxVa6n2reQW84zOhm8zec3Ry0ai0OWbaiF8IC5tb4=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=UGjSnPsYB1Y242uKVWWJ8KFGrfyDE6bedytPq8IseIJX45Alkj7H0JB4JSrI1y/EY
-         +wB270AESurzpju7ISCUH8K8y1e2Pu7gACR7mYmOIDs72bL5WDcheD5lrou5oGUO50
-         tLjWRTnOcagdWUADhaTwqqEMh/95XTk6Cd01ES1Y=
-Subject: Re: [PATCH] SELinux: Measure state and hash of policy using IMA
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Tyler Hicks <tyhicks@linux.microsoft.com>,
-        tusharsu@linux.microsoft.com, sashal@kernel.org,
-        James Morris <jmorris@namei.org>,
-        linux-integrity@vger.kernel.org,
-        SElinux list <selinux@vger.kernel.org>,
-        LSM List <linux-security-module@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-References: <20200822010018.19453-1-nramas@linux.microsoft.com>
- <CAEjxPJ5Kok-TBfS=XQ+NUC5tuaZRkyLBOawG4UDky51_bsMnGw@mail.gmail.com>
-From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
-Message-ID: <4eec93aa-2c32-8422-f62b-b101a0d0028a@linux.microsoft.com>
-Date:   Mon, 24 Aug 2020 07:35:55 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+        id S1725973AbgHXOuk (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 10:50:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37088 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725780AbgHXOuj (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 10:50:39 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0089C061573
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 07:50:39 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id x24so7508647otp.3
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 07:50:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=NWgYlMcyzTfzPYhcrOALlS1ts4UnyS9Ej4Gmp9TO3wQ=;
+        b=hsDfT4vPUj0Lmz40URWSoS8m0GyU7I+VUNABr1U90c2BHTFCtjYRF+a9UtWpVQn7bc
+         hIUVv+JSL4SWqLuAJdmbVGCOiv7VnhbVAvIxGksxMWhgPtNP4Cq7X8+dXs9husoQqbxn
+         WJkC62fzmeVB9eGBwdWoDBCnXEvgRYwb56FcDvm3ujG2dkKGvxRQpXOPqXpw2+cM1lkQ
+         UI7T9zA694DAraAKwIC2mHQ/Dbl6uAxgUDeI1HdLphTNjR+0fruxF1FBPA4b2+WVMgEL
+         9nszNFlkOOWWTxmWvNfl76Y7RHtywpvZ9RnpgC0Uhfab8S7G6s3ffCQTGUsr5cKR/koN
+         DovA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=NWgYlMcyzTfzPYhcrOALlS1ts4UnyS9Ej4Gmp9TO3wQ=;
+        b=V4nDsjquhR1KCaOVkNv5Hcz0pX7ImD46+mapAFkj5KOuPuMsbytt5vAevr+wat0BC6
+         sEkjDvkh1DlmJHeYA5DVQ5dK4ezNkHGf+5MeJ9Mx4/R30alGiEO0zK49iDub6UFQofSV
+         Ae9cOfDwXkPhfaoe5GqUnmi183wqZQ1WXrzB/2M2ePRNboeCl9y69za4R4kDtQVCiWQx
+         0UBohKqj2z6EmgRChHUfqtFgJcXVkW4aLFxZ20vms9HolTLXWEVZ9s0HngjoIQJ3W9nX
+         TJbaKuhGWxwr/nhC/4vAwWWs6FHqMVwsFHBOrjL2yyrdtZ3QkJZpu2oeNvZtoO5XAWLn
+         qJxg==
+X-Gm-Message-State: AOAM53375dT1jzIDlRyJwW1EechIeaxa9ZHN/VO6uQ3bWr5ht6NGGdCX
+        bHSGcLoDk7FVswL3OHWtd26vnAmymObpqsogMTM=
+X-Google-Smtp-Source: ABdhPJza8Uv5SqjqUFgFnvvcCxk8AZqC+KxgRWNukSBEZqpkrEnqtNXh87MAGLf2c+Gb6QDU0LeA0S64Kvmx5pePBDA=
+X-Received: by 2002:a9d:25:: with SMTP id 34mr1553008ota.135.1598280639006;
+ Mon, 24 Aug 2020 07:50:39 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CAEjxPJ5Kok-TBfS=XQ+NUC5tuaZRkyLBOawG4UDky51_bsMnGw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20200824131841.55687-1-cgzones@googlemail.com>
+In-Reply-To: <20200824131841.55687-1-cgzones@googlemail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 24 Aug 2020 10:50:28 -0400
+Message-ID: <CAEjxPJ6BMLeieB6cFcLm0r1TSbp9Dbu214jyCHsnGfiJuTiNyg@mail.gmail.com>
+Subject: Re: [PATCH 1/3] libselinux: refactor wrapper in sestatus.c for safe
+ shared memory access
+To:     =?UTF-8?Q?Christian_G=C3=B6ttsche?= <cgzones@googlemail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Mike Palmiotto <mike.palmiotto@crunchydata.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/24/20 7:00 AM, Stephen Smalley wrote:
-> On Fri, Aug 21, 2020 at 9:00 PM Lakshmi Ramasubramanian
+On Mon, Aug 24, 2020 at 9:19 AM Christian G=C3=B6ttsche
+<cgzones@googlemail.com> wrote:
+>
+> Signed-off-by: Christian G=C3=B6ttsche <cgzones@googlemail.com>
+> ---
+>  libselinux/src/sestatus.c | 35 +++++++++++------------------------
+>  1 file changed, 11 insertions(+), 24 deletions(-)
+>
+> diff --git a/libselinux/src/sestatus.c b/libselinux/src/sestatus.c
+> index 814e86ee..925e6079 100644
+> --- a/libselinux/src/sestatus.c
+> +++ b/libselinux/src/sestatus.c
+> @@ -80,6 +80,14 @@ static inline uint32_t read_sequence(struct selinux_st=
+atus_t *status)
+>         return seqno;
+>  }
+>
+> +/* sequence must not be changed during references */
+> +#define sestatus_save_access(name, result)                          \
+> +       uint32_t _seqno;                                            \
+> +       do {                                                        \
+> +               _seqno =3D read_sequence(selinux_status);             \
+> +               (result) =3D selinux_status->name;                    \
+> +       } while (_seqno !=3D read_sequence(selinux_status))           \
 
-> 
->> +int security_read_policy_kernel(struct selinux_state *state,
->> +                               void **data, size_t *len)
->> +{
->> +       int rc;
->> +
->> +       rc = security_read_policy_len(state, len);
->> +       if (rc)
->> +               return rc;
->> +
->> +       *data = vmalloc(*len);
->> +       if (!*data)
->> +               return -ENOMEM;
->>
->> +       return security_read_selinux_policy(state, data, len);
->>   }
-> 
-> See the discussion here:
-> https://lore.kernel.org/selinux/20200824113015.1375857-1-omosnace@redhat.com/T/#t
-> 
-> In order for this to be safe, you need to ensure that all callers of
-> security_read_policy_kernel() have taken fsi->mutex in selinuxfs and
-> any use of security_read_policy_len() occurs while holding the mutex.
-> Otherwise, the length can change between security_read_policy_len()
-> and security_read_selinux_policy() if policy is reloaded.
-> 
+I'm not sure how much we gain from this macro versus losing in
+readability of the calling code.
+It should be clear at the call site that we are setting result to the
+value of selinux_status->name, either by
+having the macro "return" the value to the caller or passing the
+address of result.
+If we are going to use a macro with a local variable declaration, then
+it needs to be wrapped with do { ... } while (0)
+to ensure that the variable has its own scope/block.
+I'm also not clear on the naming - why "save_access" - is that
+supposed to be "safe_access"?
+It would be nice if the trailing backslashes were aligned.
+To be clear, this code is not currently thread-safe; the "safety" has
+to do with getting a consistent view of the SELinux kernel status
+page.
 
-Thanks. I'll make this change.
+> @@ -157,13 +164,7 @@ int selinux_status_getenforce(void)
+>                 return fallback_enforcing;
+>         }
+>
+> -       /* sequence must not be changed during references */
+> -       do {
+> -               seqno =3D read_sequence(selinux_status);
+> -
+> -               enforcing =3D selinux_status->enforcing;
+> -
+> -       } while (seqno !=3D read_sequence(selinux_status));
+> +       sestatus_save_access(enforcing, enforcing);
 
-  -lakshmi
+Someone reading the above code snippet has no idea that we just set
+enforcing to selinux_status->enforcing.
