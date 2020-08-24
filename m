@@ -2,170 +2,139 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D3F6C433DF
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 11:35:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11E6DC433DF
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 12:40:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5685D2224D
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 11:35:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id DF5AB207D3
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 12:40:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LRsJPlra"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k2Y2+B7y"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726624AbgHXLaj (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 07:30:39 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:51905 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726889AbgHXLae (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 07:30:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1598268622;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YE/jK4eKX/v8UKDjgiKwa3k55ce8EcYH7DtpXZaxArA=;
-        b=LRsJPlraSZuZGxRe87QOPCCktZoRJMRF3OMJ8/49x0pD/FuBg4YC9tsL0FdLyVmia27bNS
-        V/+gpyWRaJSTr1ogpl0/0iyFJSoBJUJnORYUukrco3FKJQYrIgVi+rJb7Mu8pk5h2UsGD0
-        mfytJ+ANkrjsAeENi4KMvrxqLwR3O9k=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-255-GwF-bCrbNh-7NV0-Btcjuw-1; Mon, 24 Aug 2020 07:30:21 -0400
-X-MC-Unique: GwF-bCrbNh-7NV0-Btcjuw-1
-Received: by mail-wr1-f72.google.com with SMTP id b8so3873470wrr.2
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 04:30:20 -0700 (PDT)
+        id S1725962AbgHXMk1 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 08:40:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44908 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725904AbgHXMk0 (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 08:40:26 -0400
+Received: from mail-ot1-x342.google.com (mail-ot1-x342.google.com [IPv6:2607:f8b0:4864:20::342])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE1DEC061573
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 05:40:25 -0700 (PDT)
+Received: by mail-ot1-x342.google.com with SMTP id z18so7125709otk.6
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 05:40:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=+Fw466gh/Xf5p8bFSerpyRUqFKQgYuQRzGeVb1YqGSc=;
+        b=k2Y2+B7yN6JFT6IATjqo+plzXSxdv+RqhOLZ5+BzzkNQRJKW1Ghsy1h9f1nNuSdcCX
+         A9BUe3+TIT7s2FAHN/ccYVvuoK/QcE+WMoN8ytVluclDQrGYQZMJFqQfRk4W1pGM5MkS
+         g7BJdMpMMLmtDfJ1xF+7eb3ODOPxKASnAp3WpW6NsDi+1JbV1ifk5LhzKVSq7OtrsSaE
+         smJ4o4ulf7O3Y8/ohvYgAr8JAMN4C4bc/2/FHI1YYMz3/N1XDtEC6KWh88uCToWGFoyb
+         UvmL7mYcI9ocyeIE/lcwXdCWl/xLBR0kcrDaA+X6NLsxhNtUYuQEFSs/X9wmgzeIO46Q
+         eXBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=YE/jK4eKX/v8UKDjgiKwa3k55ce8EcYH7DtpXZaxArA=;
-        b=LH9+3x6CpUbJmSPxN6laenKq04eq4wFFxgX247O2DRm/3oMJYRhXsBBRl2i3IjIpZR
-         98x8GviE9bxhGRWZSP7P1GSZ+k0wCOLRq9E44nj8xfsODl6A4RvfdBsxhj2WVLeP21eb
-         /0ciyBRmM9dDpS+XHLxJlbkzzztYjZSNuz8mVOf7G3SQd5SnsX287wj1GTscGdw6oJp1
-         vm3NW5y6BLJthlVwhS9FGEgGO/MIm0iADicq0NLWORVxzsMIG7Tj4Xfd1wUelkWwxX0v
-         lds2BoVqhq2Mx3b0U4An5qtYCHXn2TMxK/GI1zeisJOmio4XXNuIfW9tYI+Ciy1kcL98
-         Lq1g==
-X-Gm-Message-State: AOAM5316gvChwrmewFs1tBKX2VAV51Bdx52qi2lNpYYVTMzN/Aio00qn
-        pLu3uv8f7HdtK374EfvsoL2bPwSSTcVTMSJKtOWPzVs7p6wUQr5BUDAFN3514oA3I1H1r43GobH
-        feqUOO8UQjFX6R0rFOw==
-X-Received: by 2002:a7b:cb19:: with SMTP id u25mr5005349wmj.113.1598268619659;
-        Mon, 24 Aug 2020 04:30:19 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy/Nu8mrM9RbArzyDbTY6Musx3YwYplNfadPgaAy2aJOgH/Nhc23+ISg9RRdPLGzsZS9ItQTA==
-X-Received: by 2002:a7b:cb19:: with SMTP id u25mr5005325wmj.113.1598268619453;
-        Mon, 24 Aug 2020 04:30:19 -0700 (PDT)
-Received: from omos.redhat.com ([2a02:8308:b103:4000:e83d:a4fb:e589:6902])
-        by smtp.gmail.com with ESMTPSA id l1sm25092434wrb.12.2020.08.24.04.30.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Aug 2020 04:30:18 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Subject: [PATCH 2/2] selinux: fix a race condition in sel_open_policy()
-Date:   Mon, 24 Aug 2020 13:30:15 +0200
-Message-Id: <20200824113015.1375857-3-omosnace@redhat.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20200824113015.1375857-1-omosnace@redhat.com>
-References: <20200824113015.1375857-1-omosnace@redhat.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=+Fw466gh/Xf5p8bFSerpyRUqFKQgYuQRzGeVb1YqGSc=;
+        b=YNJUvqy7tL4PeXZX2GdIVv8ZHuolrknuxpg6ffb7udcXEAxs2nDcB9m36XqIJsliQ+
+         ZParoFlwViMcEzfDemAG9ZVhieNtqE2fllYLdTL9Px6uDnqtiy2AyjBQ2wo/QHDuvxoR
+         /FtpPwj04H8z4yPZyPE1rAvI0aoYXXcqi0F1SGWz/f+58LU8kpMMzQqCPw59Ae3Y5swn
+         w0FEOOJFhg98y/xR+lx+jp495LIrnTJkDVlXCGK85SEHgqgA3d2lRaMLSgLH+EnJ5Egl
+         8GTzJWjXkhPFdXpDkuaY4gZI437yW+KQrYj88S1nXRsPaR4Jh0qdxNf8/wYvjgvbk4h1
+         laGw==
+X-Gm-Message-State: AOAM533ArpfQEa/aDWHhXiZwJzTNMe/JBhmVkEvYsmyjFZdbLElOXfLW
+        J4Yqdg1IDzPnkFnWpqopooI68PEfgNQjOiqoa+s=
+X-Google-Smtp-Source: ABdhPJwXS6i7RPNxUa0ckuuwY0jG8ju1A/k5jOaZgqzLaK4DVS9wr/38IWNqcc6+GZSCKgRFD7E01iT0+6X3RvrOMVI=
+X-Received: by 2002:a9d:67d3:: with SMTP id c19mr3431645otn.162.1598272825233;
+ Mon, 24 Aug 2020 05:40:25 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20200821154704.1214330-1-omosnace@redhat.com> <CAEjxPJ5gZhE2RB7A4LQyBOi5FQF5PLw_vs6gHeiwsiB1-j6Rog@mail.gmail.com>
+ <CAFqZXNvdtpxveqesYMz3ZxoWGd_vi5euqy6c9gzhmdkKgbU-Fg@mail.gmail.com>
+In-Reply-To: <CAFqZXNvdtpxveqesYMz3ZxoWGd_vi5euqy6c9gzhmdkKgbU-Fg@mail.gmail.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Mon, 24 Aug 2020 08:40:14 -0400
+Message-ID: <CAEjxPJ5zFv7wDccDP2+0Z=B9-03g03H3wgy5pgu-DHjE3CGU5Q@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix a race condition in security_read_policy()
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-The code to update the policy inode size is racy and inefficient. Move
-it below the security_read_policy() call where we already know the
-length of the policy we are returning.
+On Mon, Aug 24, 2020 at 4:33 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+>
+> On Fri, Aug 21, 2020 at 7:39 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > On Fri, Aug 21, 2020 at 11:47 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > >
+> > > In security_read_policy(), the policy length is computed using
+> > > security_policydb_len(), which does a separate transaction, and then
+> > > another transaction is done to write the policydb into a buffer of this
+> > > length.
+> > >
+> > > The bug is that the policy might be re-loaded in between the two
+> > > transactions and so the length can be wrong. In case the new length is
+> > > lower than the old length, the length is corrected at the end of the
+> > > function. In case the new length is higher than the old one, an error is
+> > > returned.
+> > >
+> > > Fix it by doing everything in a single transaction and getting the
+> > > length directly from policydb instead of calling
+> > > security_policydb_len().
+> > >
+> > > Fixes: cee74f47a6ba ("SELinux: allow userspace to read policy back out of the kernel")
+> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > ---
+> > >  security/selinux/ss/services.c | 19 +++++++++++--------
+> > >  1 file changed, 11 insertions(+), 8 deletions(-)
+> > >
+> > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > > index a48fc1b337ba9..ab4de2a01634a 100644
+> > > --- a/security/selinux/ss/services.c
+> > > +++ b/security/selinux/ss/services.c
+> > > @@ -3842,22 +3842,25 @@ int security_read_policy(struct selinux_state *state,
+> > >                          void **data, size_t *len)
+> > >  {
+> > >         int rc;
+> > > +       struct policydb *policydb;
+> > >         struct policy_file fp;
+> > >
+> > >         if (!selinux_initialized(state))
+> > >                 return -EINVAL;
+> > >
+> > > -       *len = security_policydb_len(state);
+> > > +       read_lock(&state->ss->policy_rwlock);
+> > > +       policydb = &state->ss->policy->policydb;
+> > >
+> > > +       *len = policydb->len;
+> > >         *data = vmalloc_user(*len);
+> >
+> > I don't believe you can hold a read_lock() across a vmalloc.  That's
+> > why this is done the way it is now.
+>
+> Fair point. Then I guess the only option is to keep retrying the
+> allocation until the allocated size is >= the size we are about to
+> write. I'll send a revised patch soon.
 
-Since after this, security_policydb_len() is only called from
-security_load_policy(), remove it and just open-code it there.
-
-Fixes: cee74f47a6ba ("SELinux: allow userspace to read policy back out of the kernel")
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/include/security.h |  1 -
- security/selinux/selinuxfs.c        | 12 ++++++------
- security/selinux/ss/services.c      | 18 +++---------------
- 3 files changed, 9 insertions(+), 22 deletions(-)
-
-diff --git a/security/selinux/include/security.h b/security/selinux/include/security.h
-index c68ed2beadff4..2c14d4165d688 100644
---- a/security/selinux/include/security.h
-+++ b/security/selinux/include/security.h
-@@ -219,7 +219,6 @@ void selinux_policy_cancel(struct selinux_state *state,
- 			struct selinux_policy *policy);
- int security_read_policy(struct selinux_state *state,
- 			 void **data, size_t *len);
--size_t security_policydb_len(struct selinux_state *state);
- 
- int security_policycap_supported(struct selinux_state *state,
- 				 unsigned int req_cap);
-diff --git a/security/selinux/selinuxfs.c b/security/selinux/selinuxfs.c
-index 131816878e503..098d012cf40d8 100644
---- a/security/selinux/selinuxfs.c
-+++ b/security/selinux/selinuxfs.c
-@@ -403,16 +403,16 @@ static int sel_open_policy(struct inode *inode, struct file *filp)
- 	if (!plm)
- 		goto err;
- 
--	if (i_size_read(inode) != security_policydb_len(state)) {
--		inode_lock(inode);
--		i_size_write(inode, security_policydb_len(state));
--		inode_unlock(inode);
--	}
--
- 	rc = security_read_policy(state, &plm->data, &plm->len);
- 	if (rc)
- 		goto err;
- 
-+	if ((size_t)i_size_read(inode) != plm->len) {
-+		inode_lock(inode);
-+		i_size_write(inode, plm->len);
-+		inode_unlock(inode);
-+	}
-+
- 	fsi->policy_opened = 1;
- 
- 	filp->private_data = plm;
-diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-index 2c9072f095985..0745d4f3a5765 100644
---- a/security/selinux/ss/services.c
-+++ b/security/selinux/ss/services.c
-@@ -2289,20 +2289,6 @@ err:
- 	return rc;
- }
- 
--size_t security_policydb_len(struct selinux_state *state)
--{
--	size_t len;
--
--	if (!selinux_initialized(state))
--		return 0;
--
--	read_lock(&state->ss->policy_rwlock);
--	len = state->ss->policy->policydb.len;
--	read_unlock(&state->ss->policy_rwlock);
--
--	return len;
--}
--
- /**
-  * security_port_sid - Obtain the SID for a port.
-  * @protocol: protocol number
-@@ -3847,7 +3833,9 @@ int security_read_policy(struct selinux_state *state,
- 	if (!selinux_initialized(state))
- 		return -EINVAL;
- 
--	*len = security_policydb_len(state);
-+	read_lock(&state->ss->policy_rwlock);
-+	*len = state->ss->policy->policydb.len;
-+	read_unlock(&state->ss->policy_rwlock);
- 
- again:
- 	*data = vmalloc_user(*len);
--- 
-2.26.2
-
+Wondering if this is worthwhile/necessary versus just having userspace
+retry if needed. Reading /sys/fs/selinux/policy is not a common or
+frequent operation.  By the way, if you have CONFIG_DEBUG_ATOMIC_SLEEP
+enabled, it should catch things like this for you.  I have
+CONFIG_LOCK_DEBUGGING_SUPPORT=y
+CONFIG_DEBUG_RT_MUTEXES=y
+CONFIG_DEBUG_SPINLOCK=y
+CONFIG_DEBUG_MUTEXES=y
+CONFIG_DEBUG_WW_MUTEX_SLOWPATH=y
+CONFIG_DEBUG_RWSEMS=y
+CONFIG_DEBUG_LOCK_ALLOC=y
+# CONFIG_DEBUG_LOCKDEP is not set
+CONFIG_DEBUG_ATOMIC_SLEEP=y
