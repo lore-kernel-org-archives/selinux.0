@@ -2,104 +2,100 @@ Return-Path: <SRS0=rjXy=CC=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41175C433DF
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F5F8C433E1
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:07:52 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1AEB92074D
-	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:07:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0419D2074D
+	for <selinux@archiver.kernel.org>; Mon, 24 Aug 2020 13:07:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YA/Cu20B"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="PuPOlDaS"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726187AbgHXNHh (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 09:07:37 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:52277 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725926AbgHXNHg (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 09:07:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1598274455;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=IYHAWpAE33Ovh93/43nuPNxKDGKH+ndcE3g3roGExYg=;
-        b=YA/Cu20BO7jNNjmwPeXN8BrUMBI+dP80QRM7QkBrAgZ7golj4kRSSmd9R/5QpE1gcRaVTV
-        19SkeHhdrcQh6J8PD0hbISFFyI3T/96pbSs+pCEVCy0Kiab6oX1CWIWV8Tr3+h7WzXZJOw
-        13DW6N0lBXTGuYb8Axx3wD+J+R7ZTKs=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-33-Qnd1X3RfOMyi0MRPZSibUA-1; Mon, 24 Aug 2020 09:07:33 -0400
-X-MC-Unique: Qnd1X3RfOMyi0MRPZSibUA-1
-Received: by mail-lj1-f200.google.com with SMTP id t9so2766177ljt.13
-        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:07:33 -0700 (PDT)
+        id S1725926AbgHXNHu (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Mon, 24 Aug 2020 09:07:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49134 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726578AbgHXNHt (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Mon, 24 Aug 2020 09:07:49 -0400
+Received: from mail-ed1-x542.google.com (mail-ed1-x542.google.com [IPv6:2a00:1450:4864:20::542])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5266C061575
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:07:48 -0700 (PDT)
+Received: by mail-ed1-x542.google.com with SMTP id b2so7975457edw.5
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 06:07:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=++wVUAAL3FCIdU3Q7RBNPjfei0JC7QKDqs3d4gqLkD8=;
+        b=PuPOlDaS3kto3atocjIDkePSCIXXIRpoKpPyuqY5As+lkPNxkYEIQAP9a/Nn2cf/ec
+         zaFf5NNaSgVhzUZzGa4jT0EjXhrn3xTBWwhYneS2DFlEwstp+iof/WuOGObTgk2w8lW+
+         cljb0Y9Qi3MmisyXxw2zwe8hcu0J00jevDGQsZ5Vec6b3SmGNOhiu0mujwKUpkoDGR87
+         Sl5LHDc7XtsFWO/JUWqiA0gGgJ3A7tljnA1y0ltBpKiAg22PHAD56l8cejbAXvw9RAOK
+         dwRkIuhsCAcYD0Rjth+QWS9fNGlDwFJlPb3RtgULuRw46wLEZ5oJELovinbtoaNvIcT4
+         xZ7g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=IYHAWpAE33Ovh93/43nuPNxKDGKH+ndcE3g3roGExYg=;
-        b=L6LydA/38VfVmqAtf+JmTz1rWoZWFJMB+BuztD21bsyeVh0hoiF0Heh3irvHKN+pSO
-         sHsBfqkEbVOB4AM8eGRbViwPqhK9TzyyZHUJnfEQGYiJwUrHKV5d0B9inzq5BX1UHyRH
-         hfIuRMDT/zIU7og4Io0vAr++08UBglzmoanIgaIi62vo9CHHEesgf8NKsB3OIplAGr9X
-         xBk8Os9p0N7AA25k5Uv+PE2OumdXd2SsijHvz3V5VTnJowOHU0zxHKHccWS6SWceJ1Kg
-         jX7Vtk7UoY8drElfWqB4Hy5PgomYKC31iNIkVorUIP5AGjQXAXqsdihkN/aQNm4YWilT
-         mD3g==
-X-Gm-Message-State: AOAM531qxHG50yqJfp4La6A/TmnfdY63sIgUBptBDzUFzZoIXX+ttdEY
-        3Xx/noJkgfBplMUam0THxC5kejh6qlwdXc6H2KOuUU3SoWpfz95m4xwzukMhb0eX+xwmLepRfkR
-        c9NuYgNNVaqcfmOpONwfwzNl8l2jhftogTg==
-X-Received: by 2002:a05:651c:217:: with SMTP id y23mr2491796ljn.123.1598274451862;
-        Mon, 24 Aug 2020 06:07:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx9TZNTEANQ3MZMvznG9Hti7sELZJu1AjtLVy6guLtl8l4kMUuBdeBJroUL4gdyDrpkQ9ARebAbnUkE6AfgwIg=
-X-Received: by 2002:a05:651c:217:: with SMTP id y23mr2491790ljn.123.1598274451668;
- Mon, 24 Aug 2020 06:07:31 -0700 (PDT)
+        bh=++wVUAAL3FCIdU3Q7RBNPjfei0JC7QKDqs3d4gqLkD8=;
+        b=taaW+jlUeWVsHCcYQ7jLWjOtkCNj4mmVvFDcu3SPXsZEoPTvEg+Ge9RfFECxiMmINL
+         3aCQeJJwK+e5Yg6E/dnkhKZrgLKr/TRDKNmz/IZy0aE54usEYkLpK4B4raOniAnm96Ti
+         Pb/adOzGilnbTspl5WtkZ/Iv8gP4TJs1e4PyI9pgXLws4J/fvO7EjUQ7rmpn71wH7U2w
+         WrENmNCarZQm1xLgMpe5jRnTYj3OUOlbcx6c4a9XTt+UrJirENyA9fqgHwHOUbltjLiL
+         dcmzCO7/Vq2Cq1UqCX8e8SUAuquHrhG2vnXMsufWqDuf4RtL43w2NnVKgGHyYC1kLsDI
+         o9Fg==
+X-Gm-Message-State: AOAM533K5UPpewAv79pqb/4+VodXFUDdMIvrv5JNe/Z/jn0iqiSk0hme
+        bf1TbeK7krYd9YmQE56z/vKc6IKGOSswsd/33wHH
+X-Google-Smtp-Source: ABdhPJwvkn1F/xNYp0KGduUPe7dAvQCo8OrTtHv27xZTH9XHSiNh4240+VtyTkIu/D5pi9/aoxporbUNR2gCrGL2wZ4=
+X-Received: by 2002:aa7:ca46:: with SMTP id j6mr2684340edt.128.1598274467311;
+ Mon, 24 Aug 2020 06:07:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200712160020.17385-1-richard_c_haines@btinternet.com> <CAFqZXNuDF=NYjoc_KF39C9nyR27y=nj1BhCyz1oWJ_BmrFu1ZQ@mail.gmail.com>
-In-Reply-To: <CAFqZXNuDF=NYjoc_KF39C9nyR27y=nj1BhCyz1oWJ_BmrFu1ZQ@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Mon, 24 Aug 2020 15:07:20 +0200
-Message-ID: <CAFqZXNsU_dM43Enh27MmC5MO8vfZhnAn7OhHc7nwDVwC5STNFw@mail.gmail.com>
-Subject: Re: [PATCH] selinux-testsuite: Review and update SCTP tests
-To:     Richard Haines <richard_c_haines@btinternet.com>
-Cc:     SElinux list <selinux@vger.kernel.org>
+References: <20200807165134.3913-1-rdunlap@infradead.org> <CAHC9VhQW-8pem59QHQctx9UNhMNLEAjNwDiOU1ODz9wX5B_tdQ@mail.gmail.com>
+In-Reply-To: <CAHC9VhQW-8pem59QHQctx9UNhMNLEAjNwDiOU1ODz9wX5B_tdQ@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Mon, 24 Aug 2020 09:07:36 -0400
+Message-ID: <CAHC9VhT4EG3qs76=nfQ7sLW9t9V-jXymmczV9Ygq+9T+Qz4Pfg@mail.gmail.com>
+Subject: Re: [PATCH] security: selinux: delete repeated words in comments
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Stephen Smalley <stephen.smalley.work@gmail.com>,
+        Eric Paris <eparis@parisplace.org>, selinux@vger.kernel.org,
+        James Morris <jmorris@namei.org>,
+        "Serge E. Hallyn" <serge@hallyn.com>,
+        linux-security-module@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Jul 28, 2020 at 10:02 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> On Sun, Jul 12, 2020 at 6:00 PM Richard Haines
-> <richard_c_haines@btinternet.com> wrote:
-> > Reviewed the tests using kernel tree: Documentation/security/SCTP.rst
+On Fri, Aug 7, 2020 at 2:09 PM Paul Moore <paul@paul-moore.com> wrote:
+> On Fri, Aug 7, 2020 at 12:51 PM Randy Dunlap <rdunlap@infradead.org> wrote:
 > >
-> > Added tests and policy for connectx(3) handling deny and
-> > SCTP_SENDMSG_CONNECT
-> > Added test and policy for bindx(3) deny
-> > Clarified the server test for ports < 1024
-> > Added comments regarding kernel net/sctp code locations to relevant tests
-> > Corrected policy for test_sctp_deny_peer_client_t
-> > Corrected ip/nf tables comment to deny read packet { recv }
-> > Added MCS-constrained type as suggested in [1]
+> > Drop a repeated word in comments.
+> > {open, is, then}
 > >
-> > [1] https://lore.kernel.org/selinux/20200508154138.24217-7-stephen.smalley.work@gmail.com/
-> >
-> > Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
+> > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> > Cc: Paul Moore <paul@paul-moore.com>
+> > Cc: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > Cc: Eric Paris <eparis@parisplace.org>
+> > Cc: selinux@vger.kernel.org
+> > Cc: James Morris <jmorris@namei.org>
+> > Cc: "Serge E. Hallyn" <serge@hallyn.com>
+> > Cc: linux-security-module@vger.kernel.org
 > > ---
-> >  policy/test_sctp.te        | 43 +++++++++++++++++++++-----
-> >  tests/sctp/sctp_bindx.c    |  8 ++---
-> >  tests/sctp/sctp_connectx.c | 47 +++++++++++++++++++++--------
-> >  tests/sctp/test            | 62 +++++++++++++++++++++++++++++++-------
-> >  4 files changed, 126 insertions(+), 34 deletions(-)
+> >  security/selinux/hooks.c |    6 +++---
+> >  1 file changed, 3 insertions(+), 3 deletions(-)
 >
-> Acked-by: Ondrej Mosnacek <omosnace@redhat.com>
+> This obviously looks fine, but it will need to wait until after the
+> merge window closes.  I'll send another reply once it is merged.
 
-Now applied, thanks!
+Hi Randy, this got buried a bit due to vacations and other patches but
+I just merged it into selinux/next.  Thanks for your patience.
 
 -- 
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
-
+paul moore
+www.paul-moore.com
