@@ -2,139 +2,117 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3505C433DF
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 14:16:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABAF1C433E1
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 15:01:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C96A320665
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 14:16:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 82CEB2075F
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 15:01:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="NDQAD1ZM"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gqNVhc0k"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726466AbgHYOQo (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 10:16:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59810 "EHLO
+        id S1726351AbgHYPBZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 11:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725893AbgHYOQk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 10:16:40 -0400
-Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF961C061574
-        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 07:16:39 -0700 (PDT)
-Received: by mail-ed1-x541.google.com with SMTP id di22so11374169edb.12
-        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 07:16:39 -0700 (PDT)
+        with ESMTP id S1726230AbgHYPBZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 11:01:25 -0400
+Received: from mail-ot1-x344.google.com (mail-ot1-x344.google.com [IPv6:2607:f8b0:4864:20::344])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2550EC061574
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 08:01:25 -0700 (PDT)
+Received: by mail-ot1-x344.google.com with SMTP id 5so7780554otp.12
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 08:01:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=GBLXPZJS9r4wN315LT6tbrZxrohzyF/RndBKG2eFpxU=;
-        b=NDQAD1ZMmo79WEoydtHhQtL6B+kcgPmM7dD/wH7WjSjtweLqTMgOBc/NCkWloWC+Kj
-         rtHCSAHC4r+DJ6D+tEhJPMB3TY+M6/n9iSJWx7j9cCNLUdK57rnUTuzh3yMDCi2fae7x
-         v9w/Z8hVjrZhxpXEvkSnSu7IWgWE7BIjAwOSldQDTFzCgRpCQKWUnylUrhiSnvIEkg6W
-         glQBEnIVB2KTnu3ViTGWiGXHqscNPnNldnCNQXQsEmRIr4bMYMTurc5ZXrnpAewRisWw
-         GPIrZxEm3xwtFVfUUwCZ0uKRCK4NAL9u1dvGpQKniVmLvjYaJDaqNU66RRP7xxSc2ehm
-         pIBw==
+        bh=Snxb+UgligIpU8k+EZ2wf7YV8lj+aJ7y1Oq+0nTSd24=;
+        b=gqNVhc0kkK7iAKTbsccy0lCSdPo4Mt3HTLyjxTnwTIfJYvhirdcha9fxzWzrXeDRV1
+         oyrvbB1mI4VY2YYcIPCZAfdsixXq0uX3JGuaNRZF9uZXXE/rKlBe7an3bbawGBbO/YoW
+         XXlpm01h6Q01mF/5b+ZhoCdEFslLd6lgqMEyW6/MEVWpQK8nJDOGURZ5ugJLF4xkro2T
+         f+c2Vi/C4aKbJbaHH9YIMLM4zLMabaftXcTR/3qOoY8Wz1Fo07eBhdVm8UTgR3ghcMTd
+         fKwWJM8j6Z5YUqvoNxfwJGrydHg9uPIJ42ONDOjW/HkA++sCo0gFYd23ytgG1COqUqaV
+         Xz2g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=GBLXPZJS9r4wN315LT6tbrZxrohzyF/RndBKG2eFpxU=;
-        b=TQ2pTonv7VcDqGkhZEW2WxyHHLS+kHwn2LXNxW9abRFdihH3CUGMgRzFjVsShrGg09
-         ZYDz8k88KO7hAr8uCeNn3GFOrCW5a82ANSxvI5IxviD12Ftqk7yKG8qIgEk3HnmWE1eO
-         Q2sESUSc1kswpUIwtWE4bRHhx2DTReneleC3Us0yRa5HinKiQ+upcMuv7173Jodl8bxe
-         V30qXFY9kcsOLXnslcIuexZZEn2zgRF9ZK1EAW9/fu9UCNUZTXC5fccOrpAexYYgj+8E
-         57Ph7q2NziY2ceL3tUg2FXDEgw6rQnTaii/y8VkNPKIwdHz/zEe2oBHnNhaDWcMt8huR
-         3u7Q==
-X-Gm-Message-State: AOAM531CvUOQSe2Qwehq+5oSjb2mdXW4ehIZTNOCGxIKgRGxW4WAoA5B
-        CGdBYv+SP531UhlBG9lF6eb5QDxUjZ7CsqyVMhkxPoPh1gOx
-X-Google-Smtp-Source: ABdhPJx6zsReXPtiXQ6LYEx3a/sA9AqJCUs6bhgCjldHPAa9oG1ZtHUNpfhqxfDMlhxUT1rNzxFq2Z/HuJ69DxpFxRI=
-X-Received: by 2002:aa7:c383:: with SMTP id k3mr10125828edq.164.1598364998449;
- Tue, 25 Aug 2020 07:16:38 -0700 (PDT)
+        bh=Snxb+UgligIpU8k+EZ2wf7YV8lj+aJ7y1Oq+0nTSd24=;
+        b=gOA55L0PDbsotW6TYAgHrbEi4SU16j2Y5F+yPTI4zERr6h3lqbAxQz9sEfq6fV8St0
+         Cp1aoU0uJ2bH03Ktleb6zQII/KgKlsilGuhdkawrdBbzMB607EE8xDcKuRG069k5N0JB
+         nPMuaywpLEveHySXRYYmgGhCvBmnqYx5fmvX/4kHOCIY0xNbjiliNpHPJetAd2+bN3+l
+         kzqbCj/Ykf6KK7Xlm0DgzfmjayFV+Ivoht6zG7RlmXehLogkC+XKhcseylowr+U3SX8W
+         bBSQdWC7e+/DGvjyaylbCSj2i1JxATb4890+fNQc86f/R1G5rvm1KMSGUa+s8gS2/Grh
+         WV7g==
+X-Gm-Message-State: AOAM531sf5aPqSTztgNWDb6ON0gqvtglc3J6/7TEycraE0s12du9jaJj
+        0rTi79LWu8lxIfmb2urmq9vjzRfSmecYFvJEqwc=
+X-Google-Smtp-Source: ABdhPJwQsqeQbRPjE7UppM5s9OFMYnP97/rs9AZ2FQwmBzaM6sRGJIR6odpk5VU9MGKFeKFrJB9HUBOifM+O9AyqnF8=
+X-Received: by 2002:a05:6830:16d8:: with SMTP id l24mr6721215otr.89.1598367684494;
+ Tue, 25 Aug 2020 08:01:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200825125130.GA304650@mwanda> <CAHC9VhS5pAr8g9C18cniKDrh3NRgg1z8e3qYs14P1iBpioOS7w@mail.gmail.com>
- <20200825141242.GT5493@kadam>
-In-Reply-To: <20200825141242.GT5493@kadam>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 25 Aug 2020 10:16:27 -0400
-Message-ID: <CAHC9VhRn17jYSWo2oUobn=7uHv7G=HD0QRJZZgQhR10UGBU7=Q@mail.gmail.com>
-Subject: Re: [bug report] selinux: encapsulate policy state, refactor policy load
-To:     Dan Carpenter <dan.carpenter@oracle.com>
-Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        selinux@vger.kernel.org
+References: <20200825065953.1566718-1-omosnace@redhat.com> <20200825065953.1566718-2-omosnace@redhat.com>
+In-Reply-To: <20200825065953.1566718-2-omosnace@redhat.com>
+From:   Stephen Smalley <stephen.smalley.work@gmail.com>
+Date:   Tue, 25 Aug 2020 10:59:57 -0400
+Message-ID: <CAEjxPJ4JKHKFgF9VobJTrMBDhaqC0EKorC=qfm=t77Krd-Npsw@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] selinux: switch unnecessary GFP_ATOMIC allocs to GFP_KERNEL
+To:     Ondrej Mosnacek <omosnace@redhat.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        Paul Moore <paul@paul-moore.com>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 25, 2020 at 10:12 AM Dan Carpenter <dan.carpenter@oracle.com> wrote:
-> On Tue, Aug 25, 2020 at 09:38:22AM -0400, Paul Moore wrote:
-> > On Tue, Aug 25, 2020 at 8:51 AM Dan Carpenter <dan.carpenter@oracle.com> wrote:
-> > >
-> > > Hello Stephen Smalley,
-> > >
-> > > The patch 461698026ffa: "selinux: encapsulate policy state, refactor
-> > > policy load" from Aug 7, 2020, leads to the following static checker
-> > > warning:
-> > >
-> > >         security/selinux/ss/services.c:2288 security_load_policy()
-> > >         error: we previously assumed 'newpolicy->sidtab' could be null (see line 2227)
-> > >
-> > > security/selinux/ss/services.c
-> > >   2221
-> > >   2222          newpolicy = kzalloc(sizeof(*newpolicy), GFP_KERNEL);
-> > >   2223          if (!newpolicy)
-> > >   2224                  return -ENOMEM;
-> > >   2225
-> > >   2226          newpolicy->sidtab = kzalloc(sizeof(*newpolicy->sidtab), GFP_KERNEL);
-> > >   2227          if (!newpolicy->sidtab)
-> > >   2228                  goto err;
-> >
-> > ...
-> >
-> > >   2287  err:
-> > >   2288          selinux_policy_free(newpolicy);
-> > >
-> > > This style of "one function frees everything" error handling is the
-> > > most bug prone style of error handling ...
-> >
-> > In this particular case I think the use of selinux_poicy_free() is
-> > okay, we should just make selinux_policy_free() a bit more robust,
-> > e.g. checking that ->sidtab is non-NULL before calling
-> > sidtab_destroy().  While we are at it, it probably wouldn't hurt to
-> > also check ->policydb.
+On Tue, Aug 25, 2020 at 3:00 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> There are other bugs on this path as well.  For example in context_cpy():
+> There seems to be no reason to use GFP_ATOMIC in these cases.
 >
->    150  static inline int context_cpy(struct context *dst, struct context *src)
->    151  {
->    152          int rc;
->    153
->    154          dst->user = src->user;
->    155          dst->role = src->role;
->    156          dst->type = src->type;
->    157          if (src->str) {
->    158                  dst->str = kstrdup(src->str, GFP_ATOMIC);
->    159                  if (!dst->str)
->    160                          return -ENOMEM;
->    161                  dst->len = src->len;
->    162          } else {
->    163                  dst->str = NULL;
->    164                  dst->len = 0;
->    165          }
->    166          rc = mls_context_cpy(dst, src);
->    167          if (rc) {
->    168                  kfree(dst->str);
->                               ^^^^^^^^
-> This is the right place to free it.  That's what other coders generally
-> expect and what static analysis tools expect.  Otherwise it's not clear
-> if it's the caller which should free it or the caller's caller.  In this
-> code we free it in all three places.
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> ---
+>  security/selinux/hooks.c       |  6 +++---
+>  security/selinux/ss/policydb.c | 10 +++++-----
+>  security/selinux/ss/services.c |  4 ++--
+>  3 files changed, 10 insertions(+), 10 deletions(-)
+>
+> diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+> index 89d3753b7bd5d..4de962daffbde 100644
+> --- a/security/selinux/hooks.c
+> +++ b/security/selinux/hooks.c
+> @@ -6854,7 +6854,7 @@ static int selinux_lockdown(enum lockdown_reason what)
+>
+>         if (WARN(invalid_reason, "Invalid lockdown reason")) {
+>                 audit_log(audit_context(),
+> -                         GFP_ATOMIC, AUDIT_SELINUX_ERR,
+> +                         GFP_KERNEL, AUDIT_SELINUX_ERR,
+>                           "lockdown_reason=invalid");
+>                 return -EINVAL;
+>         }
 
-Patches are welcome :)
+Have you audited all callers of security_locked_down() to ensure that
+they are never holding any locks around the call?  That's the only one
+I saw that might be a problem now or in the future.
 
--- 
-paul moore
-www.paul-moore.com
+> diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> index a48fc1b337ba9..fa61a54bc1440 100644
+> --- a/security/selinux/ss/services.c
+> +++ b/security/selinux/ss/services.c
+> @@ -109,7 +109,7 @@ static int selinux_set_mapping(struct policydb *pol,
+> @@ -2982,7 +2982,7 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
+>                 int old_state = newpolicy->policydb.bool_val_to_struct[i]->state;
+>
+>                 if (new_state != old_state) {
+> -                       audit_log(audit_context(), GFP_ATOMIC,
+> +                       audit_log(audit_context(), GFP_KERNEL,
+>                                 AUDIT_MAC_CONFIG_CHANGE,
+>                                 "bool=%s val=%d old_val=%d auid=%u ses=%u",
+>                                 sym_name(&newpolicy->policydb, SYM_BOOLS, i),
+
+Note that this one shouldn't be back-ported prior to my refactoring
+patches because previously this was called while holding the policy
+rwlock.
