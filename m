@@ -7,45 +7,45 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE018C433EA
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B53BCC433E5
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B875A2071E
+	by mail.kernel.org (Postfix) with ESMTP id 8B8C920706
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="TL/N9Eik"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="hKqVTSmb"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728951AbgHYIiZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1728109AbgHYIiZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 25 Aug 2020 04:38:25 -0400
-Received: from mailomta9-sa.btinternet.com ([213.120.69.15]:35166 "EHLO
-        sa-prd-fep-046.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1729003AbgHYIiS (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:18 -0400
+Received: from mailomta31-sa.btinternet.com ([213.120.69.37]:46271 "EHLO
+        sa-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728975AbgHYIiR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:17 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-046.btinternet.com with ESMTP
-          id <20200825083814.RNYH4114.sa-prd-fep-046.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Tue, 25 Aug 2020 09:38:14 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344694; 
-        bh=Q88WSTdQzGbFHlFMHrp2oR2+T9Wza1NWJzWqze3a3Bg=;
+          by sa-prd-fep-044.btinternet.com with ESMTP
+          id <20200825083813.GKOM3440.sa-prd-fep-044.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Tue, 25 Aug 2020 09:38:13 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344693; 
+        bh=6O1rdI9AbGRZpTFs7nv0iB+4xDi2UYizI4rae+4FTZk=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=TL/N9EikDQCHhnmr65fVSD8hXLazN1GGIW4RCRD5qxEJza9t8ua3z+B2NW1sriVQ7W1bgQGk8SQHD3yNzNBrBoKxTADAtLRpZF7AMOTWgObiLOwM8slpOEVzSRPkV9RfJoibLNPxKlnG7zy+vq8LDeLUrtm5Lg4k0SJsdfRsH07qxMbIGym9OYdDwPYAf+eDpCsbSxhGe+Jr9c9hAvEMI/CGQNRnEWgEbbKOYJXLLuqwlkTIW/B/z0XevVcLDScVNm8i4k7MSTT+9RSAx9KNt+5Y/dXuuvlSPRjO8GspVvcImkssZxYjfyXOf+k1ZQryZHdoDoD9bnV0q2+et04EvQ==
+        b=hKqVTSmbvH5zVhRagIENPlGK/c6WjMXa0iCVsCrKlNqtjqE062hg3RT3hTTgyB8sh7p+ccadxf/l1a7JWyI+SUY2Wzc5t7G2SDvwvUZbKO73i68DpNFr5RGcgeXO3nCYjcyDfqaCMFyXdZxPNsLm0cD4DmvK6YDw9DBfUA9244aeSrnHQI+Hs4TZRrQZggmTd7d647OvXLCruNnlR5/UEMCjRAP4WjGfd42dHtlsA224KBzyP19vhkddMB2pPPQnv31NF+PyVbX93CJwK7H+dKrZkhidfS5uKtSVhe5DPyQmnixMsvscjDzDxEnBf5ggN15O0Ixw43eJDnH/n7khBQ==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpeduudenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheehrddufedtrdduiedtpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599E8B; Tue, 25 Aug 2020 09:38:14 +0100
+        id 5ED9B8A70D599E5F; Tue, 25 Aug 2020 09:38:12 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 18/18] infiniband_statements: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:43 +0100
-Message-Id: <20200825083743.6508-19-richard_c_haines@btinternet.com>
+Subject: [PATCH 15/18] file_labeling_statements: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:40 +0100
+Message-Id: <20200825083743.6508-16-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
@@ -60,70 +60,57 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/infiniband_statements.md | 155 ++++++++++++++---------------------
- 1 file changed, 61 insertions(+), 94 deletions(-)
+ src/file_labeling_statements.md | 260 ++++++++++++--------------------
+ 1 file changed, 96 insertions(+), 164 deletions(-)
 
-diff --git a/src/infiniband_statements.md b/src/infiniband_statements.md
-index 492bdb6..943cee6 100644
---- a/src/infiniband_statements.md
-+++ b/src/infiniband_statements.md
-@@ -1,5 +1,8 @@
- # InfiniBand Labeling Statements
+diff --git a/src/file_labeling_statements.md b/src/file_labeling_statements.md
+index 34c2ca8..47d0309 100644
+--- a/src/file_labeling_statements.md
++++ b/src/file_labeling_statements.md
+@@ -1,5 +1,10 @@
+ # File System Labeling Statements
  
-+- [*ibpkeycon*](#ibpkeycon)
-+- [*ibendportcon*](#ibendportcon)
++- [*fs_use_xattr*](#fs_use_xattr)
++- [*fs_use_task*](#fs_use_task)
++- [*fs_use_trans*](#fs_use_trans)
++- [*genfscon*](#genfscon)
 +
- To support access control for InfiniBand (IB) partitions and subnet
- management, security contexts are provided for: Partition Keys (Pkey)
- that are 16 bit numbers assigned to subnets and their IB end ports. An
-@@ -13,7 +16,7 @@ Note that there are no terminating semi-colons ';' on these statements.
- The *ibpkeycon* statement is used to label IB partition keys.
+ There are four types of file labeling statements: *fs_use_xattr*,
+ *fs_use_task*, *fs_use_trans* and *genfscon* that are explained below.
  
- It is also possible to add a security context to partition keys outside
--the policy using the ***semanage ibpkey*** command that will associate the
-+the policy using the *semanage ibpkey* command that will associate the
- *pkey* (or range of pkeys) to a security context.
- 
- **The statement definition is:**
-@@ -24,53 +27,35 @@ ibpkeycon subnet pkey pkey_context
+@@ -30,49 +35,33 @@ fs_use_xattr fs_name fs_context;
  
  **Where:**
  
 -<table>
 -<tbody>
 -<tr>
--<td><code>ibpkeycon</code></td>
--<td>The <code>ibpkeycon</code> keyword.</td>
+-<td><code>fs_use_xattr</code></td>
+-<td>The <code>fs_use_xattr</code> keyword.</td>
 -</tr>
 -<tr>
--<td><code>subnet</code></td>
--<td>IP address in IPv6 format.</td>
+-<td><code>fs_name</code></td>
+-<td>The filesystem name that supports extended attributes. Example names are: encfs, ext2, ext3, ext4, ext4dev, gfs, gfs2, jffs2, jfs, lustre and xfs.</td>
 -</tr>
 -<tr>
--<td><code>pkey</code></td>
--<td>Partition key number or range. The range is separated by a hyphen '-'.</td>
--</tr>
--<tr>
--<td><code>pkey_context</code></td>
--<td>The security context for the pkey(s).</td>
+-<td><code>fs_context</code></td>
+-<td>The security context allocated to the filesystem.</td>
 -</tr>
 -</tbody>
 -</table>
-+*ibpkeycon*
++*fs_use_xattr*
 +
-+The *ibpkeycon* keyword.
++The *fs_use_xattr* keyword.
 +
-+*subnet*
++*fs_name*
 +
-+IP address in IPv6 format.
++The filesystem name that supports extended attributes. Example names are:
++*encfs*, *ext2*, *ext3*, *ext4*, *ext4dev*, *gfs*, *gfs2*, *jffs2*, *jfs*,
++*lustre* and *xfs*.
 +
-+*pkey*
++*fs_context*
 +
-+Partition key number or range. The range is separated by a hyphen \'\-\'.
-+
-+*pkey_context*
-+
-+The security context for the pkey(s).
++The security context allocated to the filesystem.
  
  **The statement is valid in:**
  
@@ -137,7 +124,7 @@ index 492bdb6..943cee6 100644
 -<tr>
 -<td>Yes</td>
 -<td>Yes</td>
--<td>Yes</td>
+-<td>No</td>
 -</tr>
 -<tr style="background-color:#D3D3D3;">
 -<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
@@ -155,7 +142,7 @@ index 492bdb6..943cee6 100644
 +
 +| Monolithic Policy       | Base Policy             | Module Policy           |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | Yes                     |
++| Yes                     | Yes                     | No                      |
 +
 +Conditional Policy Statements
 +
@@ -163,67 +150,40 @@ index 492bdb6..943cee6 100644
 +| ----------------------- | ----------------------- | ----------------------- |
 +| No                      | No                      | No                      |
  
- **Examples:**
+ **Example:**
  
-@@ -86,8 +71,8 @@ semanage ibpkey -a -t default_ibpkey_t -x fe80:: 0xFFFF
- ```
- 
- The above command will produce the following file:
--*/var/lib/selinux/&lt;SELINUXTYPE&gt;/active/ibpkeys.local*
--in the default *<SELINUXTYPE>* policy store and then activate the policy:
-+*/var/lib/selinux/\<SELINUXTYPE\>/active/ibpkeys.local*
-+in the default *\<SELINUXTYPE\>* policy store and then activate the policy:
- 
- ```
- # This file is auto-generated by libsemanage
-@@ -101,7 +86,7 @@ ibpkeycon fe80:: 0xFFFF system_u:object_r:default_ibpkey_t:s0
- The *ibendportcon* statement is used to label IB end ports.
- 
- It is also possible to add a security context to ports outside the
--policy using the 'semanage ibendport' command that will associate the
-+policy using the *semanage ibendport* command that will associate the
- end port to a security context.
- 
- **The statement definition is:**
-@@ -112,53 +97,35 @@ ibendportcon device_id port_number port_context
+@@ -99,49 +88,30 @@ fs_use_task fs_name fs_context;
  
  **Where:**
  
 -<table>
 -<tbody>
 -<tr>
--<td><code>ibendportcon</code></td>
--<td>The <code>ibendportcon</code> keyword.</td>
+-<td><code>fs_use_task</code></td>
+-<td>The <code>fs_use_task</code> keyword.</td>
 -</tr>
 -<tr>
--<td><code>device_id</code></td>
--<td>Device name</td>
+-<td><code>fs_name</code></td>
+-<td>Filesystem name that supports task related services. Example valid names are: eventpollfs, pipefs and sockfs.</td>
 -</tr>
 -<tr>
--<td><code>port_number</code></td>
--<td>Single port number.</td>
--</tr>
--<tr>
--<td><code>port_context</code></td>
--<td>The security context for the port.</td>
+-<td><code>fs_context</code></td>
+-<td>The security context allocated to the task based filesystem.</td>
 -</tr>
 -</tbody>
 -</table>
-+*ibendportcon*
++*fs_use_task*
 +
-+The *ibendportcon* keyword.
++The *fs_use_task* keyword.
 +
-+*device_id*
++*fs_name*
 +
-+Device name
++Filesystem name that supports task related services. Example valid names are:
++*eventpollfs*, *pipefs* and *sockfs*.
 +
-+*port_number*
++*fs_context*
 +
-+Single port number.
-+
-+*port_context*
-+
-+The security context for the port.
++The security context allocated to the task based filesystem.
  
  **The statement is valid in:**
  
@@ -237,7 +197,7 @@ index 492bdb6..943cee6 100644
 -<tr>
 -<td>Yes</td>
 -<td>Yes</td>
--<td>Yes</td>
+-<td>No</td>
 -</tr>
 -<tr style="background-color:#D3D3D3;">
 -<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
@@ -251,11 +211,9 @@ index 492bdb6..943cee6 100644
 -</tr>
 -</tbody>
 -</table>
-+Policy Type
-+
 +| Monolithic Policy       | Base Policy             | Module Policy           |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | Yes                     |
++| Yes                     | Yes                     | No                      |
 +
 +Conditional Policy Statements
 +
@@ -263,19 +221,158 @@ index 492bdb6..943cee6 100644
 +| ----------------------- | ----------------------- | ----------------------- |
 +| No                      | No                      | No                      |
  
- **Examples:**
+ **Example:**
  
-@@ -174,8 +141,8 @@ semanage ibendport -a -t opensm_ibendport_t -z mlx4_0 2
- ```
+@@ -171,49 +141,30 @@ fs_use_trans fs_name fs_context;
  
- This command will produce the following file
--*/var/lib/selinux/&lt;SELINUXTYPE&gt;/active/ibendports.local* in the default
--*<SELINUXTYPE>* policy store and then activate the policy:
-+*/var/lib/selinux/\<SELINUXTYPE\>/active/ibendports.local* in the default
-+*\<SELINUXTYPE\>* policy store and then activate the policy:
+ **Where:**
  
- ```
- # This file is auto-generated by libsemanage
+-<table>
+-<tbody>
+-<tr>
+-<td><code>fs_use_trans</code></td>
+-<td>The <code>fs_use_trans</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>fs_name</code></td>
+-<td>Filesystem name that supports transition rules. Example names are: mqueue, shm, tmpfs and devpts.</td>
+-</tr>
+-<tr>
+-<td><code>fs_context</code></td>
+-<td>The security context allocated to the transition based on that of the filesystem.</td>
+-</tr>
+-</tbody>
+-</table>
++*fs_use_trans*
++
++The *fs_use_trans* keyword.
++
++*fs_name*
++
++Filesystem name that supports transition rules. Example names are:
++*mqueue*, *shm*, *tmpfs* and *devpts*.
++
++*fs_context*
++
++The security context allocated to the transition based on that of the filesystem.
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Example:**
+ 
+@@ -247,53 +198,34 @@ genfscon fs_name partial_path fs_context
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>genfscon</code></td>
+-<td>The <code>genfscon</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>fs_name</code></td>
+-<td>The filesystem name.</td>
+-</tr>
+-<tr>
+-<td><code>partial_path</code></td>
+-<td>If <code>fs_name</code> is <code>proc</code>, then the partial path (see the examples). For all other types, this must be <code>/</code>.</td>
+-</tr>
+-<tr>
+-<td><code>fs_context</code></td>
+-<td>The security context allocated to the filesystem</td>
+-</tr>
+-</tbody>
+-</table>
++*genfscon*
++
++The *genfscon* keyword.
++
++*fs_name*
++
++The filesystem name.
++
++*partial_path*
++
++If *fs_name* is *proc*, then the partial path (see the examples). For all other
++types, this must be */*.
++
++*fs_context*
++
++The security context allocated to the filesystem
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **MLS Examples:**
+ 
 -- 
 2.26.2
 
