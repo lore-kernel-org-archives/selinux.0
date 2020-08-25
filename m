@@ -7,28 +7,28 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38AC4C433E3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 596AAC433E8
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 17D312071E
+	by mail.kernel.org (Postfix) with ESMTP id 3518520706
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="L9oh5Ir0"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="U/LoWXsF"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728504AbgHYIiY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1728115AbgHYIiY (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 25 Aug 2020 04:38:24 -0400
-Received: from mailomta5-sa.btinternet.com ([213.120.69.11]:37035 "EHLO
-        sa-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728115AbgHYIiQ (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:16 -0400
+Received: from mailomta10-sa.btinternet.com ([213.120.69.16]:21504 "EHLO
+        sa-prd-fep-041.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728109AbgHYIiR (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:17 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-044.btinternet.com with ESMTP
-          id <20200825083809.GKOE3440.sa-prd-fep-044.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          by sa-prd-fep-041.btinternet.com with ESMTP
+          id <20200825083809.MJXX19995.sa-prd-fep-041.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
           Tue, 25 Aug 2020 09:38:09 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344689; 
-        bh=dr9T7/JLpH7J3P0mRfUWnisH5zS+69UMofuRGXGw9aA=;
+        bh=WAke2q5HIFSVAmCRcXhPKk31kmXXju7pzkqUUlE2JGw=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=L9oh5Ir0o9yGq8Ls3opfLi2beIYOlH503B+ByYrEKK/+PnFENm/AShj6Mjzt9sUBUFBEk2n9kYGeX8hasSbVlGDU95Gf+cUIix9Ryk65tkvETpWMJBfFdFc8sBwwTN7Wag4Lwd7hrx+1IsilpJxlK4E2yVH8o2yfTc4AmZahzfQSdf8Xo+1toMHVqq7rqucoVvdOjaXpo43abH+nR3A74yVbPBWTu4lOPgiA93eoSKVu5vrErAeOEeXMM686vx/SI/sYXF4Q+JyuyI0P3l1daMW9gQ0+qX0G1IhG+8SaaUA6eVI4rCT3glkFMTjfsSuVW5zCRlUjOylU6gUxvgmrfA==
+        b=U/LoWXsFkAFsBX2DDgsbbJnimt0AHQRdboMQcs+9smjOIyn12n/e/Cv5hDfrhfmhxu5DdjK8bCIrqZ5Uq3OZNyjejHBj8Ja7Zq6o8Kd5D/nXbaAlfQQeDna7LIgCF0hL+MntAPiCfWU9P5hu/jwZx88fAAXcI0KFBloYfT48DOHSziWkmFa33vhMF9CMZspWd2E2227OyLaFygZFomlyd+5FFJ9XRRI5LwuSNBn2T+ztQUD5sNQvtrAhjHHvsHEHsWe7GFbeeLh0cqIesrUtgqVHFnzBI92OdEPB8CfqoANHExOgouaI+VPqL25eqXoB2p4mgLs5p+6g4UmpTGzOlw==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
@@ -39,13 +39,13 @@ X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599DB6; Tue, 25 Aug 2020 09:38:09 +0100
+        id 5ED9B8A70D599DAC; Tue, 25 Aug 2020 09:38:09 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 07/18] computing_access_decisions: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:32 +0100
-Message-Id: <20200825083743.6508-8-richard_c_haines@btinternet.com>
+Subject: [PATCH 06/18] class_permission_statements: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:31 +0100
+Message-Id: <20200825083743.6508-7-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
@@ -56,106 +56,310 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Convert to markdown
+Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/computing_access_decisions.md | 82 ++++++++++++++-----------------
- 1 file changed, 38 insertions(+), 44 deletions(-)
+ src/class_permission_statements.md | 231 ++++++++++++-----------------
+ 1 file changed, 93 insertions(+), 138 deletions(-)
 
-diff --git a/src/computing_access_decisions.md b/src/computing_access_decisions.md
-index 5ab9430..0ab1092 100644
---- a/src/computing_access_decisions.md
-+++ b/src/computing_access_decisions.md
-@@ -3,50 +3,44 @@
- There are a number of ways to compute access decisions within userspace
- SELinux-aware applications or object managers:
+diff --git a/src/class_permission_statements.md b/src/class_permission_statements.md
+index 4090fa0..b1ef36a 100644
+--- a/src/class_permission_statements.md
++++ b/src/class_permission_statements.md
+@@ -1,5 +1,10 @@
+ # Object Class and Permission Statements
  
--1.  Use of the ***selinux_check_access**(3)* function is the
--    recommended option. This utilises the AVC services discussed in
--    bullet 3 in a single call that:
--
---   Dynamically resolves class and permissions strings to their
--    class/permission values using ***string_to_security_class**(3)*
--    and ***string_to_av_perm**(3)* with
--    ***security_deny_unknown**(3)* to handle unknown
--    classes/permissions.
---   Uses ***avc_has_perm**(3)* to check whether the decision is cached
--    before calling ***security_compute_av_flags**(3)* (and caching
--    the result), checks enforcing mode (both global and per-domain
--    (permissive)), and logs any denials (there is also an option to add
--    supplemental auditing information that is handled as described in
--    ***avc_audit**(3)*.
--
--2.  Use functions that do not cache access decisions (i.e. they do not
--    use the *libselinux* AVC services). These require a call to the
--    kernel for every decision using ***security_compute_av**(3)* or
--    ***security_compute_av_flags**(3)*. The ***avc_netlink_\***(3)*
--    functions can be used to detect policy change events. Auditing would
--    need to be implemented if required.
--
--3.  Use functions that utilise the *libselinux* userspace AVC services
--    that are initialised with ***avc_open**(3)*. These can be built in
--    various configurations such as:
--
---   Using the default single threaded mode where ***avc_has_perm**(3)*
--    will automatically cache entries, audit the decision and manage
--    the handling of policy change events.
--
---   Implementing threads or a similar service that will handle policy
--    change events and auditing in real time with
--    ***avc_has_perm**(3)* or ***avc_has_perm_noaudit**(3)*
--    handling decisions and caching. This has the advantage of better
--    performance, which can be further increased by caching the entry
--    reference.
--
--4.  Implement custom caching services with
--    ***security_compute_av**(3)* or
--    ***security_compute_av_flags**(3)* for computing access
--    decisions. The ***avc_netlink_\***(3)* functions can then be used to
--    detect policy change events. Auditing would need to be implemented
--    if required.
-+1. Use of the ***selinux_check_access**(3)* function is the
-+   recommended option. This utilises the AVC services discussed in
-+   bullet 3 in a single call that:
-+   - Dynamically resolves class and permissions strings to their
-+     class/permission values using ***string_to_security_class**(3)*
-+     and ***string_to_av_perm**(3)* with
-+     ***security_deny_unknown**(3)* to handle unknown
-+     classes/permissions.
-+   - Uses ***avc_has_perm**(3)* to check whether the decision is cached
-+     before calling ***security_compute_av_flags**(3)* (and caching
-+     the result), checks enforcing mode (both global and per-domain
-+     (permissive)), and logs any denials (there is also an option to add
-+     supplemental auditing information that is handled as described in
-+     ***avc_audit**(3)*.
-+2. Use functions that do not cache access decisions (i.e. they do not
-+   use the *libselinux* AVC services). These require a call to the
-+   kernel for every decision using ***security_compute_av**(3)* or
-+   ***security_compute_av_flags**(3)*. The ***avc_netlink_\***(3)*
-+   functions can be used to detect policy change events. Auditing would
-+   need to be implemented if required.
-+3. Use functions that utilise the *libselinux* userspace AVC services
-+   that are initialised with ***avc_open**(3)*. These can be built in
-+   various configurations such as:
-+   - Using the default single threaded mode where ***avc_has_perm**(3)*
-+     will automatically cache entries, audit the decision and manage
-+     the handling of policy change events.
-+   - Implementing threads or a similar service that will handle policy
-+     change events and auditing in real time with
-+     ***avc_has_perm**(3)* or ***avc_has_perm_noaudit**(3)*
-+     handling decisions and caching. This has the advantage of better
-+     performance, which can be further increased by caching the entry
-+     reference.
-+4. Implement custom caching services with
-+   ***security_compute_av**(3)* or
-+   ***security_compute_av_flags**(3)* for computing access
-+   decisions. The ***avc_netlink_\***(3)* functions can then be used to
-+   detect policy change events. Auditing would need to be implemented
-+   if required.
++- [*class* (1)](#class-1)
++  - [Associating Permissions to a Class](#associating-permissions-to-a-class)
++- [*common*](#common)
++- [*class* (2)](#class-2)
++
+ For those who write or manager SELinux policy, there is no need to
+ define new objects and their associated permissions as these would be
+ done by those who actually design and/or write object managers.
+@@ -9,14 +14,14 @@ in the *./policy/flask/security\_classes* file.
  
- Where performance is important when making policy decisions, then the
- ***selinux_status_open**(3)*, ***selinux_status_updated**(3)*,
+ There are two variants of the *class* statement for writing policy:
+ 
+-1.  There is the *class* statement that declares the actual class
+-    identifier or name.
+-2.  There is a further refinement of the *class* statement that
+-    associates permissions to the class as discussed in the
+-    [**Associating Permissions to a Class**](#associating-permissions-to-a-class)
+-    section.
++1. There is the *class* statement that declares the actual class
++   identifier or name.
++2. There is a further refinement of the *class* statement that
++   associates permissions to the class as discussed in the
++   [**Associating Permissions to a Class**](#associating-permissions-to-a-class)
++   section.
+ 
+-## *class*
++## *class* (1)
+ 
+ Object classes are declared within a policy with the following statement
+ definition:
+@@ -27,45 +32,27 @@ class class_id
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>class</code></td>
+-<td>The <code>class</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>class_id</code></td>
+-<td>The <code>class</code> identifier. </td>
+-</tr>
+-</tbody>
+-</table>
++*class*
++
++The *class* keyword.
++
++*class_id*
++
++The *class* identifier.
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>Yes</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | Yes                     |
+ 
+ **Example:**
+ 
+@@ -79,11 +66,11 @@ class db_tuple
+ 
+ Permissions can be defined within policy in two ways:
+ 
+-1.  Define a set of common permissions that can then be inherited by one
+-    or more object classes using further *class* statements.
+-2.  Define *class* specific permissions. This is where permissions are
+-    declared for a specific object class only (i.e. the permission is
+-    not inherited by any other object class).
++1. Define a set of common permissions that can then be inherited by one
++   or more object classes using further *class* statements.
++2. Define *class* specific permissions. This is where permissions are
++   declared for a specific object class only (i.e. the permission is
++   not inherited by any other object class).
+ 
+ A list of classes and their permissions used by the **Reference Policy**
+ can be found in the *./policy/flask/access_vectors* file.
+@@ -100,49 +87,32 @@ common common_id { perm_set }
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>common</code></td>
+-<td>The <code>common</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>common_id</code></td>
+-<td>The <code>common</code> identifier. </td>
+-</tr>
+-<tr>
+-<td><code>perm_set</code></td>
+-<td>One or more permission identifiers in a space separated list enclosed within braces '{}'.</td>
+-</tr>
+-</tbody>
+-</table>
++*common*
++
++The *common* keyword.
++
++*common_id*
++
++The *common* identifier.
++
++*perm_set*
++
++One or more permission identifiers in a space separated list enclosed within
++braces \'\{\}\'.
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Example:**
+ 
+@@ -152,9 +122,10 @@ common common_id { perm_set }
+ common database { create drop getattr setattr relabelfrom relabelto }
+ ```
+ 
+-## *class*
++## *class* (2)
+ 
+-Inherit and / or associate permissions to a perviously declared *class* identifier.
++Inherit and / or associate permissions to a perviously declared *class*
++identifier.
+ 
+ **The statement definition is:**
+ 
+@@ -164,60 +135,44 @@ class class_id [ inherits common_set ] [ { perm_set } ]
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>class</code></td>
+-<td>The <code>class</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>class_id</code></td>
+-<td>The previously declared <code>class</code> identifier. </td>
+-</tr>
+-<tr>
+-<td><code>inherits</code></td>
+-<td>The optional <code>inherits</code> keyword that allows a set of common permissions to be inherited.</td>
+-</tr>
+-<tr>
+-<td><code>common_set</code></td>
+-<td>A previously declared <code>common</code> identifier.</td>
+-</tr>
+-<tr>
+-<td><code>perm_set</code></td>
+-<td>One or more optional permission identifiers in a space separated list enclosed within braces '{}'.</td>
+-</tr>
+-</tbody>
+-</table>
++*class*
++
++The *class* keyword.
++
++*class_id*
++
++The previously declared *class* identifier.
++
++*inherits*
++
++The optional *inherits* keyword that allows a set of common permissions to be
++inherited.
++
++*common_set*
++
++A previously declared *common* identifier.
++
++*perm_set*
++
++One or more optional permission identifiers in a space separated list enclosed
++within braces \'\{\}\'.</td>
+ 
+ Note: There must be at least one *common_set* or one *perm_set* defined within
+ the statement.
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>Yes</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | Yes                     |
+ 
+ **Examples:**
+ 
 -- 
 2.26.2
 
