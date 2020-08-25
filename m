@@ -7,49 +7,51 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47AA5C433EC
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 898C8C433E1
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1F2962071E
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4520C2071E
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="jXukjAO1"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="IFphhl//"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728975AbgHYIiZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:25 -0400
-Received: from mailomta10-sa.btinternet.com ([213.120.69.16]:21299 "EHLO
-        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728986AbgHYIiT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:19 -0400
+        id S1728145AbgHYIi0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:26 -0400
+Received: from mailomta17-sa.btinternet.com ([213.120.69.23]:51193 "EHLO
+        sa-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726365AbgHYIiU (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:20 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-043.btinternet.com with ESMTP
-          id <20200825083813.MPLC26847.sa-prd-fep-043.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          by sa-prd-fep-048.btinternet.com with ESMTP
+          id <20200825083813.LXZL4139.sa-prd-fep-048.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
           Tue, 25 Aug 2020 09:38:13 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344693; 
-        bh=JvwxzYr/Vo0koxLkoamrclXNqzAbBWzj4pO8Jtdp/0o=;
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344694; 
+        bh=1f6uZZsp9WA0ydx+zF6ICacFeydHydUeq270gc+y1Tw=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=jXukjAO10bNBjUHLU5uJ0WEUi/FOGg6xOMrDLjASpt4ZhU1qmWFtRZlhen8SM1gwlcNqnuuWJijA7R5H4U6QhBpSGlfpeBK82Ams5+hlxdy2q0yREZ0cHzdGQubU+XtgdrmoP6XHPJRcGYSZ8Rjz4YpGUgO7gMEHRgcdHOPhxFPdHCF48KYzcae3bM0VcxxOyrWprVmLrsZdgTonCL9pl3Np17xfXucRfq5b1srXxNWL7iBbUW/TkVk82GnpH/h1VD20VNXQToa1/fVGA1I6n0GVaMDWFdPwyKp97lOZRRpMdRAk47IV+zCpAUJTX7ovpIM6cNkQJ9f2oX2wEfgyyQ==
+        b=IFphhl//TTLf9qGrKP7dUCyhg5IQ4qi5KnswmJspR7F2rNP6CzbX3evs8sDzVT/OIKTFoZjEATrzVF5q0/aFH8NWUEq4D6+akzSrh2cqzp40CzKeEFk/ZYpdrJ/6sek6lZykNPZ7fkm09hwzIEqUczmMoogUNbH5Fh15Av1oU+5arzv0+lXFATHHZYL46etsWu/n+alQdO7RxjVNlHgrrw9OJJhKUBmm22+NPRf/ZJ36KRleyPpdwQboJ6bJpV1l4na2cdmTn5fBvo9Uzd9AGqu/dOpBNNUA41jq9UL4MBL670sugDiba9RhySD7cYSfHxsuAsipsmt6cCQM3XQXFA==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepledtffekgfevgeffkeehhedvleeljeejgffhvdeigfffgfefleevveetteduvddunecuffhomhgrihhnpeigrdhorhhgpdhsvghlihhnuhigphhrohhjvggtthdrohhrghenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphht
+        thhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599E70; Tue, 25 Aug 2020 09:38:13 +0100
+        id 5ED9B8A70D599E7D; Tue, 25 Aug 2020 09:38:13 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 16/18] global_config_files: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:41 +0100
-Message-Id: <20200825083743.6508-17-richard_c_haines@btinternet.com>
+Subject: [PATCH 17/18] implementing_seaware_apps: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:42 +0100
+Message-Id: <20200825083743.6508-18-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -60,436 +62,305 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/global_config_files.md | 389 +++++++++++++++++++++----------------
- 1 file changed, 220 insertions(+), 169 deletions(-)
+ src/implementing_seaware_apps.md | 218 +++++++++++++++----------------
+ 1 file changed, 109 insertions(+), 109 deletions(-)
 
-diff --git a/src/global_config_files.md b/src/global_config_files.md
-index 80e557b..7c8132d 100644
---- a/src/global_config_files.md
-+++ b/src/global_config_files.md
-@@ -1,13 +1,21 @@
- # Global Configuration Files
+diff --git a/src/implementing_seaware_apps.md b/src/implementing_seaware_apps.md
+index 13020c9..ee38258 100644
+--- a/src/implementing_seaware_apps.md
++++ b/src/implementing_seaware_apps.md
+@@ -1,5 +1,10 @@
+ # Implementing SELinux-aware Applications
  
-+- [*/etc/selinux/config*](#etcselinuxconfig)
-+- [*/etc/selinux/semanage.conf*](#etcselinuxsemanage.conf)
-+- [*/etc/selinux/restorecond.conf*](#etcselinuxrestorecond.conf)
-+- [*restorecond-user.conf*](#restorecond-user.conf)
-+- [*/etc/selinux/newrole_pam.conf*](#etcselinuxnewrole_pam.conf)
-+- [*/etc/sestatus.conf*](#etcsestatus.conf)
-+- [*/etc/security/sepermit.conf*](#etcsecuritysepermit.conf)
++- [Implementing SELinux-aware Applications](#implementing-selinux-aware-applications)
++- [Implementing Object Managers](#implementing-object-managers)
++- [Reference Policy Changes](#reference-policy-changes)
++- [Adding New Object Classes and Permissions](#adding-new-object-classes-and-permissions)
 +
- Listed in the sections that follow are the common configuration files
- used by SELinux and are therefore not policy specific. The two most
- important files are:
+ The following definitions attempt to explain the difference between the
+ two types of userspace SELinux application (however the distinction can
+ get 'blurred'):
+@@ -13,22 +18,21 @@ object manager as an SELinux-aware application.
  
---   */etc/selinux/config* - This defines the policy to be activated and
--    its enforcing mode.
---   */etc/selinux/semanage.conf* - This is used by the SELinux policy
--    configuration subsystem for modular or CIL policies.
-+- */etc/selinux/config* - This defines the policy to be activated and
-+  its enforcing mode.
-+- */etc/selinux/semanage.conf* - This is used by the SELinux policy
-+  configuration subsystem for modular or CIL policies.
+ **Object Manager** - Object Managers are a specialised form of
+ SELinux-aware application that are responsible for the labeling,
+-management and enforcement<a href="#fni1" class="footnote-ref" id="fnisa1"><sup>1</sup></a>
+-of the objects under their control.
++management and enforcement[^fn_isa_1] of the objects under their control.
  
- ## */etc/selinux/config*
+ Generally the userspace Object Manager forms part of an application that
+ can be configured out should the base Linux OS not support SELinux.
  
-@@ -26,44 +34,59 @@ AUTORELABEL=0|1
+ Example userspace Object Managers are:
  
- **Where:**
+--   X-SELinux is an optional X-Windows extension responsible for
+-    labeling and enforcement of X-Windows objects.
+--   Dbus has an optional Object Manager built if SELinux is defined in
+-    the Linux build. This is responsible for the labeling and
+-    enforcement of Dbus objects.
+--   SE-PostgreSQL is an optional extension for PostgreSQL that is
+-    responsible for the labeling and enforcement of PostgreSQL database
+-    and supporting objects.
++- X-SELinux is an optional X-Windows extension responsible for
++  labeling and enforcement of X-Windows objects.
++- Dbus has an optional Object Manager built if SELinux is defined in
++  the Linux build. This is responsible for the labeling and
++  enforcement of Dbus objects.
++- SE-PostgreSQL is an optional extension for PostgreSQL that is
++  responsible for the labeling and enforcement of PostgreSQL database
++  and supporting objects.
  
--<table>
--<tbody>
--<tr>
--<td>SELINUX</td>
--<td><p>This entry can contain one of three values:</p>
--<p><strong>enforcing</strong> - SELinux security policy is enforced.</p>
--<p><strong>permissive</strong> - SELinux logs warnings (see the <a href="auditing.md#auditing-selinux-events"><em><em>Auditing SELinux Events</em></em></a> section) instead of enforcing the policy (i.e. the action is allowed to proceed).</p>
--<p><strong>disabled</strong> - No SELinux policy is loaded.</p>
--<p>Note that this configures the global SELinux enforcement mode. It is still possible to have domains running in permissive mode and/or object managers running as disabled, permissive or enforcing, when the global mode is enforcing or permissive.</p></td>
--</tr>
--<tr>
--<td>SELINUXTYPE</td>
--<td><p>The <strong>policy_name</strong> is used as the directory name where the active policy and its configuration files will be located. The system will then use this information to locate and load the policy contained within this directory structure. </p>
--<p>The policy directory must be located at: </p>
--<p>/etc/selinux</p></td>
--</tr>
--<tr>
--<td>SETLOCALDEFS</td>
--<td><p><strong>Deprecated</strong> This optional field should be set to 0 (or the entry removed) as the policy store management infrastructure (<strong>semanage</strong>(8) / <strong>semodule</strong>(8)) is now used.</p>
--<p>If set to 1, then <strong>init</strong>(8) and <strong>load_policy</strong>(8) will read the local customisation for booleans and users.</p></td>
--</tr>
--<tr>
--<td>REQUIRESEUSERS</td>
--<td><p><strong>Deprecated</strong> This optional field can be used to fail a login if there is no matching or default entry in the <em><em><strong>seusers</strong></em></em> file or if the file is missing.</p>
--<p>It is checked by the <em>libselinux</em> function <strong>getseuserbyname</strong>(3) that is used by SELinux-aware login applications such as <em><strong>PAM</strong>(8)</em>.</p>
--<p>If it is set to 0 or the entry missing:</p>
--<p><strong>getseuserbyname</strong>(3) will return the GNU / Linux user name as the SELinux user. </p>
--<p>If it is set to 1:</p>
--<p><strong>getseuserbyname</strong>(3) will fail.</p></td>
--</tr>
--<tr>
--<td>AUTORELABEL</td>
--<td><p>This is an optional field. If set to '<em>0</em>' and there is a file called <em>.autorelabel</em> in the root directory, then on a reboot, the loader will drop to a shell where a root logon is required. An administrator can then manually relabel the file system.</p>
--<p>If set to '1' or the parameter name is not used (the default) there is no login for manual relabeling, however should the <em>/.autorelabel</em> file exist, then the file system will be automatically relabeled using <em>fixfiles -F restore</em>. </p>
--<p>In both cases the <em>/.autorelabe</em>l file will be removed so relabeling is not done again.</p></td>
--</tr>
--</tbody>
--</table>
-+*SELINUX*
-+
-+This entry can contain one of three values:
-+
-+- *enforcing* - SELinux security policy is enforced.
-+- *permissive* - SELinux logs warnings (see the
-+  [**Auditing SELinux Events**](auditing.md#auditing-selinux-events) section)
-+  instead of enforcing the policy (i.e. the action is allowed to proceed).
-+- *disabled* - No SELinux policy is loaded. Note that this configures
-+  the global SELinux enforcement mode. It is still possible to have domains
-+  running in permissive mode and/or object managers running as disabled,
-+  permissive or enforcing, when the global mode is enforcing or permissive.
-+
-+*SELINUXTYPE*
-+
-+The *policy_name* is used as the directory name where the active policy
-+and its configuration files will be located. The system will then use this
-+information to locate and load the policy contained within this directory
-+structure. The policy directory must be located at: */etc/selinux*
-+
-+*SETLOCALDEFS*
-+
-+**Deprecated** - This optional field should be set to 0 (or the entry removed)
-+as the policy store management infrastructure (***semanage**(8)* /
-+***semodule**(8)*) is now used. If set to 1, then ***init**(8)* and
-+***load_policy**(8)* will read the local customisation for booleans and users.
-+
-+*REQUIRESEUSERS*
-+
-+**Deprecated** - This optional field can be used to fail a login if there is
-+no matching or default entry in the *seusers* file or if the file is missing.
-+It is checked by the *libselinux* function ***getseuserbyname**(3)* that is
-+used by SELinux-aware login applications such as ***PAM**(8)*.
-+If it is set to 0 or the entry missing:
-+
-+- ***getseuserbyname**(3)* will return the GNU / Linux user name as the
-+  SELinux user.
-+
-+If it is set to 1:
-+
-+- ***getseuserbyname**(3)* will fail.
-+
-+*AUTORELABEL*
-+
-+This is an optional field. If set to \'*0*\' and there is a file called
-+*.autorelabel* in the root directory, then on a reboot, the loader will drop
-+to a shell where a root logon is required. An administrator can then manually
-+relabel the file system.
-+If set to '1' or the parameter name is not used (the default) there is no
-+login for manual relabeling, however should the */.autorelabel* file exist,
-+then the file system will be automatically relabeled using *fixfiles -F restore*.
-+In both cases the */.autorelabe*l file will be removed so relabeling is not
-+done again.
+ Therefore the basic distinction is that Object Managers manage their
+ defined objects on behalf of an application, whereas general
+@@ -45,7 +49,7 @@ developing SELinux-aware applications and object managers using
+ 1.  Determine the security objectives and requirements.
+ 2.  Because these applications manage labeling and access control, they
+     need to be trusted.
+-3.  Where possible use the libselinux *\*_raw* functions as they avoid
++3.  Where possible use the libselinux *\*\_raw* functions as they avoid
+     the overhead of translating the context to/from the readable format
+     (unless of course there is a requirement for a readable context -
+     see ***mcstransd**(8)*).
+@@ -65,7 +69,7 @@ developing SELinux-aware applications and object managers using
+ 8.  Do not use class IDs directly, use
+     ***string_to_security_class**(3)* that will take the class string
+     defined in the policy and return the class ID/value. Always check
+-    the value is &gt; 0. If *0*, then signifies that the class is
++    the value is \> 0. If *0*, then signifies that the class is
+     unknown and the **deny_unknown** flag setting in the policy will
+     determine the outcome of any decision - see
+     ***security_deny_unknown**(3)*.
+@@ -99,59 +103,60 @@ developing SELinux-aware applications and object managers using
+ To implement object managers for applications, an understanding of the
+ application is essential, because as a minimum:
  
- **Example */etc/selinux/config* file contents are:**
+--   What object types and their permissions are required.
+--   Where in the code object instances are created.
+--   Where access controls need to be applied.
++- What object types and their permissions are required.
++- Where in the code object instances are created.
++- Where access controls need to be applied.
  
-@@ -139,124 +162,152 @@ args = <arguments>
+ While this section cannot help with those points, here are some notes to
+ help during the design phase:
  
- **Where:**
+-1.  Determine what objects are required and the access controls
+-    (permissions) that need to be applied.
+-2.  Does SELinux already have some of these object classes and
+-    permissions defined. For standard Linux OS objects such as files,
+-    then these would be available. If so, the object manager should
+-    remap them with ***selinux_set_mapping**(3)* so only those
+-    required are available.
++1. Determine what objects are required and the access controls
++   (permissions) that need to be applied.
++2. Does SELinux already have some of these object classes and
++   permissions defined. For standard Linux OS objects such as files,
++   then these would be available. If so, the object manager should
++   remap them with ***selinux_set_mapping**(3)* so only those
++   required are available.
  
--<table>
--<tbody>
--<tr>
--<td>module-store</td>
--<td><p>The method can be one of four options:</p>
--<p>directlibsemanage will write directly to a module store. This is the default value.</p>
--<p>sourcelibsemanage manipulates a source SELinux policy.</p>
--<p>/foo/bar Write via a policy management server, whose named socket is at /foo/bar. The path must begin with a '/'.</p>
--<p>foo.com:4242 Establish a TCP connection to a remote policy management server at foo.com. If there is a colon then the remainder is interpreted as a port number; otherwise default to port 4242.</p></td>
--</tr>
--<tr>
--<td>policy-version</td>
--<td>This optional entry can contain a policy version number, however it is normally commented out as it then defaults to that supported by the system. </td>
--</tr>
--<tr>
--<td>expand-check</td>
--<td><p>This optional entry controls whether hierarchy checking on module expansion is enabled (1) or disabled (0). The default is 0.</p>
--<p>It is also required to detect the presence of policy rules that are to be excluded with <em>neverallow</em> rules.</p></td>
--</tr>
--<tr>
--<td>file-mode</td>
--<td>This optional entry allows the file permissions to be set on runtime policy files. The format is the same as the mode parameter of the chmod command and defaults to 0644 if not present.</td>
--</tr>
--<tr>
--<td>save-previous</td>
--<td>This optional entry controls whether the previous module directory is saved (TRUE) after a successful commit to the policy store. The default is to delete the previous version (FALSE).</td>
--</tr>
--<tr>
--<td>save-linked</td>
--<td><p>This optional entry controls whether the previously linked module is saved (TRUE) after a successful commit to the policy store. Note that this option will create a <em>base.linked</em> file in the module policy store.</p>
--<p>The default is to delete the previous module (FALSE). </p></td>
--</tr>
--<tr>
--<td>disable-genhomedircon</td>
--<td>This optional entry controls whether the embedded genhomedircon function is run when using the <strong>semanage</strong>(8) command. The default is FALSE.</td>
--</tr>
--<tr>
--<td>handle-unknown</td>
--<td><p>This optional entry controls the kernel behaviour for handling permissions defined in the kernel but missing from the policy. </p>
--<p>The options are: allow the permission, reject by not loading the policy or deny the permission. The default is deny.</p>
--<p>Note: to activate any change, the base policy needs to be rebuilt with the <code>semodule -B</code> command.</p></td>
--</tr>
--<tr>
--<td>bzip-blocksize</td>
--<td>This optional entry determines whether the modules are compressed or not with bzip. If the entry is <em>0</em>, then no compression will be used (this is required with tools such as <em>sechecker</em> and <em>apol</em>). This can also be set to a value between <em>1</em> and <em>9</em> that will set the block size used for compression (<em>bzip</em> will multiply this by 100,000, so '<em>9</em>' is faster but uses more memory).</td>
--</tr>
--<tr>
--<td>bzip-small</td>
--<td>When this optional entry is set to <em>TRUE</em> the memory usage is reduced for compression and decompression (the <em>bzip</em> <em>-s</em> or <em>--small</em> option). If <em>FALSE</em> or no entry present, then does not try to reduce memory requirements.</td>
--</tr>
--<tr>
--<td>usepasswd</td>
--<td><p>When this optional entry is set to <em>TRUE</em> <em>semanage</em> will scan all password records for home directories and set up their labels correctly.</p>
--<p>If set to <em>FALSE</em> (the default if no entry present), then only the <em>/home</em> directory will be automatically re-labeled. </p></td>
--</tr>
--<tr>
--<td>ignoredirs</td>
--<td>With a list of directories to ignore (separated by '<em>;</em>') when setting up users home directories. This is used by some distributions to stop labeling <em>/root</em> as a home directory.</td>
--</tr>
--<tr>
--<td>store-root</td>
--<td>Specify an alternative policy store path . The default is "<em>/var/lib/selinux</em>".</td>
--</tr>
--<tr>
--<td>compiler-directory</td>
--<td>Specify an alternate directory that will hold the High Level Language (HLL) to CIL compilers. The default is "<em>/usr/libexec/selinux/hll</em>".</td>
--</tr>
--<tr>
--<td>remove-hll</td>
--<td>When set <em>TRUE</em>, HLL files will be removed after compilation into CIL (Read <em><strong>semanage.conf</strong>(5)</em> for the consequences of removing these files). Default is <em>FALSE</em>. </td>
--</tr>
--<tr>
--<td>ignore-module-cache</td>
--<td>Whether or not to ignore the cache of CIL modules compiled from HLL. The default is <em>false</em>.</td>
--</tr>
--<tr>
--<td>target-platform</td>
--<td>Target platform for generated policy. Default is "<em>selinux</em>", the alternate is "<em>xen</em>".</td>
--</tr>
--<tr>
--<td><p>[verify kernel]</p>
--<p>..</p>
--<p>[end]</p></td>
--<td><p>Start an additional set of entries that can be used to validate the kernel policy with an external application during the build process. There may be multiple <em>[verify kernel]</em> entries.</p>
--<p>The validation process takes place before the policy is allowed to be inserted into the store with a worked example shown in <a href="policy_validation_example.md#appendix-e---policy-validation-example">Policy Validation Example</a></p></td>
--</tr>
--<tr>
--<td><p>[verify module]</p>
--<p>..</p>
--<p>[end]</p></td>
--<td>Start an additional set of entries that can be used to validate each module by an external application during the build process. There may be multiple <em>[verify module]</em> entries.</td>
--</tr>
--<tr>
--<td><p>[verify linked]</p>
--<p>..</p>
--<p>[end]</p></td>
--<td>Start an additional set of entries that can be used to validate module linking by an external application during the build process. There may be multiple <em>[verify linked]</em> entries.</td>
--</tr>
--<tr>
--<td><p>[load_policy]</p>
--<p>..</p>
--<p>[end]</p></td>
--<td>Replace the default load policy application with this new policy loader. Defaults are either: <em>/sbin/load_policy</em> or <em>/usr/sbin/load_policy</em>.</td>
--</tr>
--<tr>
--<td><p>[setfiles]</p>
--<p>..</p>
--<p>[end]</p></td>
--<td>Replace the default <em><strong>setfiles</strong>(8)</em> application with this new <em>setfiles</em>. Defaults are either: <em>/sbin/setfiles</em> or <em>/usr/sbin/setfiles</em>.</td>
--</tr>
--<tr>
--<td><p>[sefcontexts_compile]</p>
--<p>..</p>
--<p>[end]</p></td>
--<td>Replace the default file context build application with this new builder. Defaults are either: <em>/sbin/</em>sefcontexts_compile or <em>/usr/sbin/</em>sefcontexts_compile.</td>
--</tr>
--</tbody>
--</table>
-+*module-store*
-+
-+The method can be one of four options:
-+
-+1. *directlibsemanage* will write directly to a module store.
-+   This is the default value.
-+2. *sourcelibsemanage* manipulates a source SELinux policy.
-+3. */foo/bar* - Write via a policy management server, whose named socket is
-+   at /foo/bar. The path must begin with a '/'.
-+4. *foo.com:4242* -  Establish a TCP connection to a remote policy management
-+   server at *foo.com*. If there is a colon then the remainder is interpreted
-+   as a port number; otherwise default to port 4242.
-+
-+*policy-version*
-+
-+This optional entry can contain a policy version number, however it is normally
-+commented out as it then defaults to that supported by the system.
-+
-+*expand-check*
-+
-+This optional entry controls whether hierarchy checking on module expansion
-+is enabled (1) or disabled (0). The default is 0. It is also required to detect
-+the presence of policy rules that are to be excluded with *neverallow* rules.
-+
-+*file-mode*
-+
-+This optional entry allows the file permissions to be set on runtime policy
-+files. The format is the same as the mode parameter of the ***chmod**(1)*
-+command and defaults to 0644 if not present.
-+
-+*save-previous*
-+
-+This optional entry controls whether the previous module directory is saved
-+(TRUE) after a successful commit to the policy store. The default is to delete
-+the previous version (FALSE).
-+
-+*save-linked*
-+
-+This optional entry controls whether the previously linked module is saved
-+(TRUE) after a successful commit to the policy store. Note that this option
-+will create a *base.linked* file in the module policy store.
-+The default is to delete the previous module (FALSE).
-+
-+*disable-genhomedircon*
-+
-+This optional entry controls whether the embedded *genhomedircon* function is
-+run when using the ***semanage**(8)* command. The default is FALSE.
-+
-+*handle-unknown*
-+
-+This optional entry controls the kernel behaviour for handling permissions
-+defined in the kernel but missing from the policy.
-+The options are: *allow* the permission, *reject* by not loading the policy
-+or *deny* the permission. The default is *deny*.
-+Note: to activate any change, the base policy needs to be rebuilt with the
-+*semodule -B* command.
-+
-+*bzip-blocksize*
-+
-+This optional entry determines whether the modules are compressed or not
-+with *bzip*. If the entry is *0*, then no compression will be used (this is
-+required with tools such as ***apol**(1)*. This can also be set to a value
-+between *1* and *9* that will set the block size used for compression
-+(*bzip* will multiply this by 100,000, so '*9*' is faster but uses more memory).
-+
-+*bzip-small*
-+
-+When this optional entry is set to *TRUE* the memory usage is reduced for
-+compression and decompression (the *bzip* *-s* or *\-\-small* option). If *FALSE*
-+or no entry present, then does not try to reduce memory requirements.
-+
-+*usepasswd*
-+
-+When this optional entry is set to *TRUE* *semanage* will scan all password
-+records for home directories and set up their labels correctly.
-+If set to *FALSE* (the default if no entry present), then only the
-+*/home* directory will be automatically re-labeled.
-+
-+*ignoredirs*
-+
-+With a list of directories to ignore (separated by '*;*') when setting up users
-+home directories. This is used by some distributions to stop labeling */root*
-+as a home directory.
-+
-+*store-root*
-+
-+Specify an alternative policy store path. The default is */var/lib/selinux*.
-+
-+*compiler-directory*
-+
-+Specify an alternate directory that will hold the High Level Language (HLL)
-+to CIL compilers. The default is */usr/libexec/selinux/hll*.
-+
-+*remove-hll*
-+
-+When set *TRUE*, HLL files will be removed after compilation into CIL
-+(Read ***semanage.conf**(5)* for the consequences of removing these files).
-+Default is *FALSE*.
-+
-+*ignore-module-cache*
-+
-+Whether or not to ignore the cache of CIL modules compiled from HLL.
-+The default is *false*.
-+
-+*target-platform*
-+
-+Target platform for generated policy. Default is *selinux*, the alternate
-+is *xen*.
-+
-+*\[verify kernel\] .. \[end\]*
-+
-+Start an additional set of entries that can be used to validate the kernel
-+policy with an external application during the build process. There may be
-+multiple *\[verify kernel\]* entries.
-+The validation process takes place before the policy is allowed to be inserted
-+into the store with a worked example shown in
-+[**Policy Validation Example**](policy_validation_example.md#appendix-e---policy-validation-example)
-+
-+
-+*\[verify module\] .. \[end\]*
-+
-+Start an additional set of entries that can be used to validate each module
-+by an external application during the build process. There may be multiple
-+*\[verify module\]* entries.
-+
-+*\[verify linked\] .. \[end\]*
-+
-+Start an additional set of entries that can be used to validate module linking
-+by an external application during the build process. There may be multiple
-+*\[verify linked\]* entries.
-+
-+*\[load_policy\] .. \[end\]*
-+
-+Replace the default load policy application with this new policy loader.
-+Defaults are either: */sbin/load_policy* or */usr/sbin/load_policy*.
-+
-+*\[setfiles\] .. \[end\]*
-+
-+Replace the default ***setfiles**(8)* application with this new *setfiles*.
-+Defaults are either: */sbin/setfiles* or */usr/sbin/setfiles*.
-+
-+*\[sefcontexts_compile\] .. \[end\]*
-+
-+Replace the default file context build application with this new builder.
-+Defaults are either: */sbin/sefcontexts_compile* or
-+*/usr/sbin/sefcontexts_compile*
+ However, do not try to reuse a current object that may be similar to the
+ requirements, it will cause confusion at some stage. Always generate new
+ classes/permissions.
  
- **Example *semanage.config* file contents are:**
+-1.  If the application has APIs or functions that integrate with other
+-    applications or scripts, then as part of the object manager
+-    implementation these may need to support the use of security
+-    contexts (examples are X-Windows and SE-PostgreSQL that provide
+-    functions for other applications to use). Therefore if required,
+-    provide common functions that can be used to label the objects.
+-2.  Determine how the initial objects will be labeled. For example will
+-    a configuration file be required for default labels, if so how will
+-    this be introduced into the SELinux userspace build. Examples of
+-    these are the X-Windows (***selabel_x**(5)*), SE-PostgreSQL
+-    (***selabel_db**(3)*), and file context series of files
+-    (***selabel_file**(5)*).
+-3.  Will the labeling need to be persistent across policy and system
+-    reloads or not. X-Windows is an example of a non-persistent, and
+-    SE-PostgreSQL is an example of a persistent object manager.
+-4.  Will support for the standard audit log or its own be required (the
+-    *libselinux* functions default to *stderr*). Use
+-    ***selinux_set_callback**(3)* to manage logging services.
+-5.  Decide whether an AVC cache is required or not. If the object
+-    manager handles high volumes of requests then an AVC will be
+-    required.
+-6.  Will the object manager need to do additional processing when policy
+-    or enforcement changes are detected. This could be clearing any
+-    caches or resetting variables etc.. If so, then
+-    ***selinux_set_callback**(3)* will be used to set up these
+-    functions. These events are detected via the ***netlink**(7)*
+-    services, see ***avc_open**(3)* and ***avc_netlink_open**(3)* for
+-    the various options available.
+-7.  If possible implement a service like XACE for the application, and
+-    use it to interface with the applications SELinux object manager.
+-    The XACE interface acts like the LSM which supports SELinux as well
+-    as other providers such as SMACK. The XACE interface is defined in
+-    the [**X Access Control Extension Specification**](http://www.x.org/releases/X11R7.5/doc/security/XACE-Spec.pdf), and for reference, the SE-PostgreSQL service also implements a similar
+-    interface.
++1. If the application has APIs or functions that integrate with other
++   applications or scripts, then as part of the object manager
++   implementation these may need to support the use of security
++   contexts (examples are X-Windows and SE-PostgreSQL that provide
++   functions for other applications to use). Therefore if required,
++   provide common functions that can be used to label the objects.
++2. Determine how the initial objects will be labeled. For example will
++   a configuration file be required for default labels, if so how will
++   this be introduced into the SELinux userspace build. Examples of
++   these are the X-Windows (***selabel_x**(5)*), SE-PostgreSQL
++   (***selabel_db**(3)*), and file context series of files
++   (***selabel_file**(5)*).
++3. Will the labeling need to be persistent across policy and system
++   reloads or not. X-Windows is an example of a non-persistent, and
++   SE-PostgreSQL is an example of a persistent object manager.
++4. Will support for the standard audit log or its own be required (the
++   *libselinux* functions default to *stderr*). Use
++   ***selinux_set_callback**(3)* to manage logging services.
++5. Decide whether an AVC cache is required or not. If the object
++   manager handles high volumes of requests then an AVC will be
++   required.
++6. Will the object manager need to do additional processing when policy
++   or enforcement changes are detected. This could be clearing any
++   caches or resetting variables etc.. If so, then
++   ***selinux_set_callback**(3)* will be used to set up these
++   functions. These events are detected via the ***netlink**(7)*
++   services, see ***avc_open**(3)* and ***avc_netlink_open**(3)* for
++   the various options available.
++7. If possible implement a service like XACE for the application, and
++   use it to interface with the applications SELinux object manager.
++   The XACE interface acts like the LSM which supports SELinux as well
++   as other providers such as SMACK. The XACE interface is defined in the
++   [**X Access Control Extension Specification**](http://www.x.org/releases/X11R7.5/doc/security/XACE-Spec.pdf),
++   and for reference, the SE-PostgreSQL service also implements a similar
++   interface.
  
-@@ -279,19 +330,19 @@ by applications with an incorrect security context. The
- ***restorecond**(8)* daemon will then watch for their creation and
- automatically correct their security context to that specified by the
- active policy file context configuration files (located in the
--*/etc/selinux/&lt;SELINUXTYPE&gt;/contexts/files* directory).
-+*/etc/selinux/\<SELINUXTYPE\>/contexts/files* directory).
+ ## Reference Policy Changes
  
- Each line of the file contains the full path of a file or directory.
--Entries that start with a tilde (~) will be expanded to watch for files
--in users home directories (e.g. *~/public\_html* would cause the daemon to
--listen for changes to *public\_html* in all logged on users home
-+Entries that start with a tilde \'\~\' will be expanded to watch for files
-+in users home directories (e.g. *\~/public_html* would cause the daemon to
-+listen for changes to *public_html* in all logged on users home
- directories).
+@@ -163,37 +168,36 @@ Policy source can be obtained from:
  
--1.  It is possible to run *restorecond* in a user session using
--    the *-u* option (see ***restorecond**(8)*). This requires a
--    *restorecond-user.conf* file to be installed as shown in the examples below.
--2.  The files names and location can be changed if *restorecond* is run
--    with the *-f* option.
-+1. It is possible to run *restorecond* in a user session using
-+   the *-u* option (see ***restorecond**(8)*). This requires a
-+   *restorecond-user.conf* file to be installed as shown in the examples below.
-+2. The files names and location can be changed if *restorecond* is run
-+   with the *-f* option.
+ The main points to note when adding to the Reference Policy are:
  
- **Example *restorecond.conf* file contents are:**
+-1.  Create sample Reference Policy policy modules (*\*.te*, *\*.if* and
+-    *\*.fc* module files) that provide rules for managing the new objects as
+-    described in the [**The Reference Policy**](reference_policy.md#the-reference-policy) section.
+--   The SE-PostgreSQL modules provide an example, see the
+-    *./refpolicy/policy/modules/services/postgresql.* files in the
+-    Reference Policy source.
+-
+-2.  Create any new policy classes and permissions for the Reference
+-    Policy, these will need to be built into the base module as
+-    described in the
+-    [Adding New Object Classes and Permissions](#adding-new-object-classes-and-permissions)
+-    section.
++1. Create sample Reference Policy policy modules (*\*.te*, *\*.if* and
++   *\*.fc* module files) that provide rules for managing the new objects as
++   described in the [**The Reference Policy**](reference_policy.md#the-reference-policy) section.
++   - The SE-PostgreSQL modules provide an example, see the
++     *./refpolicy/policy/modules/services/postgresql.* files in the
++     Reference Policy source.
++2. Create any new policy classes and permissions for the Reference
++   Policy, these will need to be built into the base module as
++   described in the
++   [Adding New Object Classes and Permissions](#adding-new-object-classes-and-permissions)
++   section.
+ 
+ Note, that if no new object classes, permissions or constraints are
+ being added to the policy, then the Reference Policy source code does
+ not require modification, and supplying the module files (*\*.te*,
+ *\*.if* and *\*.fc*) should suffice.
+ 
+-1.  Create any constraints required as these need to be built into the
+-    base module of the Reference Policy. They are added to the
+-    *./refpolicy/policy/constraints*, *mcs* and *mls* files. Again the
+-    SE-PostgreSQL entries in these files give examples (find the
+-    *db_\** class entries).
+-2.  Create any SELinux configuration files (context, user etc.) that
+-    need to be added to the policy at build time.
+-3.  Either produce an updated Reference Policy source or module patch,
+-    depending on whether new classes/constraints have been added. Note
+-    that by default a new module will be generated as a 'module', if it
+-    is required that the module is in the base (unusual), then add an
+-    entry ***&lt;required val="true"&gt;*** to the start of the
+-    interface file as shown below:
++1. Create any constraints required as these need to be built into the
++   base module of the Reference Policy. They are added to the
++   *./refpolicy/policy/constraints*, *mcs* and *mls* files. Again the
++   SE-PostgreSQL entries in these files give examples (find the
++   *db_\** class entries).
++2. Create any SELinux configuration files (context, user etc.) that
++   need to be added to the policy at build time.
++3. Either produce an updated Reference Policy source or module patch,
++   depending on whether new classes/constraints have been added. Note
++   that by default a new module will be generated as a 'module', if it
++   is required that the module is in the base (unusual), then add an
++   entry ***\<required val="true"\>*** to the start of the
++   interface file as shown below:
+ 
+ ```
+ # <summary>
+@@ -258,40 +262,36 @@ be declared using the *class*, *classpermission*, and *classorder* statements.
+ 
+ For reference, <http://selinuxproject.org/page/Adding_New_Permissions>
+ describes how new kernel object classes and permissions are added to the
+-system and is summarised as follows for kernels &gt;= 2.6.33 that use
++system and is summarised as follows for kernels \>= 2.6.33 that use
+ dynamic class/perm discovery:
+ 
+-1.  Edit *security/selinux/include/classmap.h* in the kernel tree and
+-    add the required definition. This will define the class and/or
+-    permission for use in the kernel; the corresponding symbol
+-    definitions will be automatically generated during the kernel build.
+-    If not defined in the policy, then the class and/or permission will
+-    be handled in accordance with the policy's *handle_unknown*
+-    definition, which can be reject (refuse to load the policy), deny
+-    (deny the undefined class/permission), or allow (allow the undefined
+-    class/permission). *handle_unknown* is set to allow in Fedora
+-    policies.
+-2.  Edit *refpolicy/policy/flask/security_classes* and/or
+-    *access_vectors* in the refpolicy tree and add your definition.
+-    This will define the class and permission for use in the policy.
+-    These are generally added to the class and/or permission at the end
+-    of the existing list of classes or permissions for that class for
+-    backward compatibility with older kernels. The class and/or
+-    permission definition in policy need not line up with the definition
+-    in the kernel's classmap, as the values will be dynamically mapped
+-    by the kernel. Then add allow rules as appropriate to the policy for
+-    the new permissions.
+-
+-<section class="footnotes">
+-<ol>
+-<li id="fni1"><p>The SELinux security server does not enforce a decision, it merely
++1. Edit *security/selinux/include/classmap.h* in the kernel tree and
++   add the required definition. This will define the class and/or
++   permission for use in the kernel; the corresponding symbol
++   definitions will be automatically generated during the kernel build.
++   If not defined in the policy, then the class and/or permission will
++   be handled in accordance with the policy's *handle_unknown*
++   definition, which can be reject (refuse to load the policy), deny
++   (deny the undefined class/permission), or allow (allow the undefined
++   class/permission). *handle_unknown* is set to allow in Fedora
++   policies.
++2. Edit *refpolicy/policy/flask/security_classes* and/or
++   *access_vectors* in the refpolicy tree and add your definition.
++   This will define the class and permission for use in the policy.
++   These are generally added to the class and/or permission at the end
++   of the existing list of classes or permissions for that class for
++   backward compatibility with older kernels. The class and/or
++   permission definition in policy need not line up with the definition
++   in the kernel's classmap, as the values will be dynamically mapped
++   by the kernel. Then add allow rules as appropriate to the policy for
++   the new permissions.
++
++[^fn_isa_1]: The SELinux security server does not enforce a decision, it merely
+ states whether the operation is allowed or not according to the policy.
+ It is the object manager that enforces the decision of the policy /
+ security server, therefore an object manager must be trusted. This is
+ also true of labeling, the object manager ensures that labels are
+-applied to their objects as defined by policy.<a href="#fnisa1" class="footnote-back">↩</a></p></li>
+-</ol>
+-</section>
++applied to their objects as defined by policy.
+ 
+ <!-- %CUTHERE% -->
  
 -- 
 2.26.2
