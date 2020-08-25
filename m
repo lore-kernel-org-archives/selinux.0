@@ -2,65 +2,68 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C91BC433E3
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 16:47:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BAD4C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 16:48:46 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7D2FC207F7
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 16:47:12 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 27A16207F7
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 16:48:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DbZ/bgUd"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YSWZjf71"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726356AbgHYQrL (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 12:47:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54986 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725805AbgHYQrK (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 12:47:10 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16F2AC061574;
-        Tue, 25 Aug 2020 09:47:10 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id f42so5824784otf.13;
-        Tue, 25 Aug 2020 09:47:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sdpM88ZBe1eamSpmEuD+p0dBuOgUUwlS0HGwX/1cLuU=;
-        b=DbZ/bgUd0LNqxa6SHNAp9vhfMapWEVb254+1FqeLQdq7Em+KP6Q1kepjCzUcu75GzU
-         DIJ8nuS/CRSboThl6sVhmozLQng65IwWa7oaM6Yq3GqBcJ/SoZJVcl7Dq9Nv5nvgpMf2
-         BNAuQp3C5yMPjA8nivDSn9wXUaML3qScfuZts/k0KydAQJS3N3tGvCJO93lnszzU6s0e
-         vZd0013JiVLayg8Z4mewUzHHL2DgUsPEcAmAbXreU3yEDyZl6Escm139sMwv73b9/jgv
-         3G9UEV1PTNRI1OfwatGfMZK2W8MlZOFRSVLAt68BRJotB5oKEOa8qdYvRn2XGj/+8azC
-         nB0A==
+        id S1726391AbgHYQsp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 12:48:45 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:48523 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726090AbgHYQso (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 12:48:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1598374123;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=dSmmLdkc7RSVC8EfmtZm/2Ty1INyRIvxtQ55lfyUZGw=;
+        b=YSWZjf71FCSg19fajUwzjWnhh8Z9lNvhb8OK7yQ/3ZYCjYUSJUr9NB4SLvk84mFSgpY2W4
+        0y/TpIPfQqq+Mv0XaWZM8cgaE67f2p9Oj1ify9+INliA85BJOFF8pv14wWDVGdafdrG8Wb
+        +y1/KgBSr0evJAc4SkvIjEIbZ6CJVoI=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-318-5EAJakPPNci0P1lEuzigBQ-1; Tue, 25 Aug 2020 12:48:41 -0400
+X-MC-Unique: 5EAJakPPNci0P1lEuzigBQ-1
+Received: by mail-lj1-f197.google.com with SMTP id n11so230933ljc.16
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 09:48:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=sdpM88ZBe1eamSpmEuD+p0dBuOgUUwlS0HGwX/1cLuU=;
-        b=QPZPCrVOnbKPZNYBGl+fD6oe8vrGrRjpZsJLhMFWmT4ISTSIvdlVGEuuHINGaKbMl4
-         JQj8LPrRnAz4L7rFaqeDVA3Q5wQT5S8ynXhZKkLEq69ZZsLInNy5GBVIZQEVSJc6lwLP
-         k5I71V4V+TWMILsNP1pyqiRqwvforTr3Sk2HwEjpwdETOApffBYAlB0uyHY0qi3AVzvU
-         CJc4A28lyoFoC7mKtc30cAtl+GLmboF4axSb1eBQB97V2iiuZmlQyJI+O4gepDnF/2gn
-         Caf4WjPJ3pASf1zmL0/7dytAL1O8Oz/FKVDnfvshZUv1bCC5K+MZRgOisdKNsUVBvp/9
-         EkIA==
-X-Gm-Message-State: AOAM533cWltdyrLiKNW0T8qio+rHPZDw5KePhQnY8g2S+uBPpKHDSHYn
-        D75v791KFa0TWCIXiuTcJX20TCkUtWmMHklfIBAaHxjlDJE=
-X-Google-Smtp-Source: ABdhPJwVOgpJQjUDINlc0ARiD1G0Z5B/HzFSVlm4XW9PYlV8EciumI1oJIQIybZ1aFMVSuW5ALfMjKMtK7XfLh2vr38=
-X-Received: by 2002:a9d:25:: with SMTP id 34mr5265062ota.135.1598374029471;
- Tue, 25 Aug 2020 09:47:09 -0700 (PDT)
+        bh=dSmmLdkc7RSVC8EfmtZm/2Ty1INyRIvxtQ55lfyUZGw=;
+        b=UMGij1GhE7AZFx1rvHRph2qvT64aCMekVLUVi9xevdZO+jG7Z5TvTHGP83cK0gw1EM
+         DyoPRBMVV9Y2m8C9GWfMCzONHB4WWJ0jFM39B6Ho/XWoIPFumwSl4iWe4x+Sbt4WWPkH
+         a2MeKLTup4HQdy08xbbFL2EWcEDMBXi8E6wgDe5YL4u0gxz232qfZkt//GcLsdZ3og2V
+         KSN296MtUkoB7Ikf5yjl1b6e0l7PNmCmWvfShBjnWbPTzSw/lEDe1DI32v7U2WQlBhYq
+         3wCg1UZSBxZOMGFQe2kQJitxJ+guVW2v7Iw0c+5MeCp0m+nGNrcRpiax1BDuTqa9Hn1v
+         uqnQ==
+X-Gm-Message-State: AOAM530wPUz+wJKcKPmAwAbX6hMoKhj1LOonpN/sJtYgvh38txddbgep
+        mZYf6icgCh6EnjX9PAS9xwBMNJu3XKaXNd7lIQJF4fH6ZRsO2xju2zF/wthKSWZnmkNhp+PMkhp
+        ZRcdiNPoWvmA1IfIqguK9fnueoEvU15IDBA==
+X-Received: by 2002:a2e:8798:: with SMTP id n24mr4759267lji.217.1598374119641;
+        Tue, 25 Aug 2020 09:48:39 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyMsrVlgwrlencGw12QSrptvlcPe/P14ZKF5kt9y0nhGDvkfTqXv7bs70IR+paKpdK/SGRrAV22j+fEJU6X5AE=
+X-Received: by 2002:a2e:8798:: with SMTP id n24mr4759256lji.217.1598374119424;
+ Tue, 25 Aug 2020 09:48:39 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200825152045.1719298-1-omosnace@redhat.com> <20200825152045.1719298-4-omosnace@redhat.com>
-In-Reply-To: <20200825152045.1719298-4-omosnace@redhat.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 25 Aug 2020 12:45:43 -0400
-Message-ID: <CAEjxPJ54cS+HOPxb839UWu3UiCbv=eMRAfyRHbCy_5bAxU0a6A@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/3] selinux: track policy lifetime with refcount
-To:     Ondrej Mosnacek <omosnace@redhat.com>
+References: <20200825152045.1719298-1-omosnace@redhat.com> <20200825152045.1719298-2-omosnace@redhat.com>
+ <CAEjxPJ5vPX1bp6kq_H4pU1bg2=NERt1_irdzMpdJ7R_Jfb3Q4g@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5vPX1bp6kq_H4pU1bg2=NERt1_irdzMpdJ7R_Jfb3Q4g@mail.gmail.com>
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+Date:   Tue, 25 Aug 2020 18:48:28 +0200
+Message-ID: <CAFqZXNvfpT6th=0bgCvhFFaxX-ss3=A1gPPjaBzXeYHs=ahdLg@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/3] selinux: simplify away security_policydb_len()
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
         Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
@@ -71,32 +74,50 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 25, 2020 at 11:20 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+On Tue, Aug 25, 2020 at 6:03 PM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Instead of holding the RCU read lock the whole time while accessing the
-> policy, add a simple refcount mechanism to track its lifetime. After
-> this, the RCU read lock is held only for a brief time when fetching the
-> policy pointer and incrementing the refcount. The policy struct is then
-> guaranteed to stay alive until the refcount is decremented.
+> On Tue, Aug 25, 2020 at 11:20 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > Remove the security_policydb_len() calls from sel_open_policy() and
+> > instead update the inode size from the size returned from
+> > security_read_policy().
+> >
+> > Since after this change security_policydb_len() is only called from
+> > security_load_policy(), remove it entirely and just open-code it there.
+> >
+> > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > ---
 >
-> Freeing of the policy remains the responsibility of the task that does
-> the policy reload. In case the refcount drops to zero in a different
-> task, the policy load task is notified via a completion.
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index 8381614627569..ec4570d6c38f7 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> > @@ -3915,7 +3899,10 @@ int security_read_policy(struct selinux_state *state,
+> >         if (!selinux_initialized(state))
+> >                 return -EINVAL;
+> >
+> > -       *len = security_policydb_len(state);
+> > +       rcu_read_lock();
+> > +       policy = rcu_dereference(state->policy);
+> > +       *len = policy->policydb.len;
+> > +       rcu_read_unlock();
+> >
+> >         *data = vmalloc_user(*len);
+> >         if (!*data)
+>
+> We don't actually need to take rcu_read_lock() here at all, and can
+> use rcu_dereference_check(..., 1) or rcu_deference_protected() because
+> the fsi->mutex is held.  We should also fix the code immediately below
+> this diff context to not double dereference the policy pointer and
+> just reuse the already dereferenced pointer (also not requiring
+> rcu_read_lock).
 
-That's an interesting pattern.  Is this approach used anywhere else in
-the kernel?  I didn't see any examples of it in the RCU documentation.
+OK, I'll fix this up to just fetch the pointer as you suggest (and
+adapt the corresponding hunks in the other patches).
 
-> The advantage of this change is that the operations that access the
-> policy can now do sleeping allocations, since they don't need to hold
-> the RCU read lock anymore. This patch so far only leverages this in
-> security_read_policy() for the vmalloc_user() allocation (although this
-> function is always called under fsi->mutex and could just access the
-> policy pointer directly). The conversion of affected GFP_ATOMIC
-> allocations to GFP_KERNEL is left for a later patch, since auditing
-> which code paths may still need GFP_ATOMIC is not very easy.
+-- 
+Ondrej Mosnacek
+Software Engineer, Platform Security - SELinux kernel
+Red Hat, Inc.
 
-Technically we don't need this patch for that purpose because
-rcu_read_lock() isn't actually needed at all in
-security_read_policy(), so I think we're better off just getting rid
-of it there and letting it use rcu_dereference_check(..., 1) or
-rcu_dereference_protected() instead.
