@@ -2,74 +2,150 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.9 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-18.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1,
+	USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2C74C433DF
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 18:51:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69480C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 19:35:30 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8CB0920738
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 18:51:20 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 51CA0207DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 19:35:30 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ZDyXrwy3"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726090AbgHYSvT convert rfc822-to-8bit (ORCPT
-        <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 14:51:19 -0400
-Received: from seldsegrel01.sonyericsson.com ([37.139.156.29]:14056 "EHLO
-        SELDSEGREL01.sonyericsson.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726066AbgHYSvT (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 14:51:19 -0400
-Subject: Re: [RFC PATCH 3/3] selinux: track policy lifetime with refcount
-To:     Ondrej Mosnacek <omosnace@redhat.com>, <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>
-CC:     Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        <rcu@vger.kernel.org>, "Paul E . McKenney" <paulmck@kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-References: <20200825152045.1719298-1-omosnace@redhat.com>
- <20200825152045.1719298-4-omosnace@redhat.com>
-From:   peter enderborg <peter.enderborg@sony.com>
-Message-ID: <748e4541-7608-ae51-bdd1-1356deedb105@sony.com>
-Date:   Tue, 25 Aug 2020 20:51:14 +0200
+        id S1726541AbgHYTfZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 15:35:25 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:55714 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726090AbgHYTfZ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 15:35:25 -0400
+Received: from [192.168.0.104] (c-73-42-176-67.hsd1.wa.comcast.net [73.42.176.67])
+        by linux.microsoft.com (Postfix) with ESMTPSA id D0AF520B4908;
+        Tue, 25 Aug 2020 12:35:23 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D0AF520B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1598384124;
+        bh=Fw5PHt/J5OR4kflOPB4F5zZgn2LUaRRDHppz3JIp4NI=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ZDyXrwy3YN/YeW8PWs7m5W4puC1eAAXy+vwudsE6S2eIXh+TqCTS7KKQz0YoM23ZJ
+         JEaghXk+Cud0NSADOA/C4fbFfieGQaYdhesKFMuFk9fGwnO2B6aHMupx6r9xyUf0Ge
+         BQXmszEqRkhNhzqQH41ReyNkKLLjHLgnjyFI4jX4=
+Subject: Re: [PATCH] IMA: Handle early boot data measurement
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com
+Cc:     tyhicks@linux.microsoft.com, tusharsu@linux.microsoft.com,
+        sashal@kernel.org, jmorris@namei.org,
+        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20200821231230.20212-1-nramas@linux.microsoft.com>
+ <a7ea2da1f895ee3db4697c00804160acb6db656e.camel@linux.ibm.com>
+ <307617de-b42d-ac52-6e9e-9e0d16bbc20e@linux.microsoft.com>
+ <49f8a616d80344c539b512f8b83590ea281ee54d.camel@linux.ibm.com>
+ <52d2204b-5b6e-e13f-d0dd-192a776812bc@linux.microsoft.com>
+ <805e35d6835df219b5836e8159742bed086e0554.camel@linux.ibm.com>
+From:   Lakshmi Ramasubramanian <nramas@linux.microsoft.com>
+Message-ID: <958853ec-5354-fbcb-3fa0-2002954c3e40@linux.microsoft.com>
+Date:   Tue, 25 Aug 2020 12:35:19 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200825152045.1719298-4-omosnace@redhat.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Language: en-GB
-X-SEG-SpamProfiler-Analysis: v=2.3 cv=dtal9Go4 c=1 sm=1 tr=0 a=kIrCkORFHx6JeP9rmF/Kww==:117 a=IkcTkHD0fZMA:10 a=y4yBn9ojGxQA:10 a=20KFwNOVAAAA:8 a=L_wMz1sGHkmsje8T-zAA:9 a=QEXdDO2ut3YA:10
-X-SEG-SpamProfiler-Score: 0
+In-Reply-To: <805e35d6835df219b5836e8159742bed086e0554.camel@linux.ibm.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On 8/25/20 5:20 PM, Ondrej Mosnacek wrote:
-> Instead of holding the RCU read lock the whole time while accessing the
-> policy, add a simple refcount mechanism to track its lifetime. After
-> this, the RCU read lock is held only for a brief time when fetching the
-> policy pointer and incrementing the refcount. The policy struct is then
-> guaranteed to stay alive until the refcount is decremented.
->
-> Freeing of the policy remains the responsibility of the task that does
-> the policy reload. In case the refcount drops to zero in a different
-> task, the policy load task is notified via a completion.
->
-> The advantage of this change is that the operations that access the
-> policy can now do sleeping allocations, since they don't need to hold
-> the RCU read lock anymore. This patch so far only leverages this in
-> security_read_policy() for the vmalloc_user() allocation (although this
-> function is always called under fsi->mutex and could just access the
-> policy pointer directly). The conversion of affected GFP_ATOMIC
-> allocations to GFP_KERNEL is left for a later patch, since auditing
-> which code paths may still need GFP_ATOMIC is not very easy.
->
-> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
->
-Very clever. But is it the right prioritization? We get a lot more
-cpu synchronization need with two RCU in-out and refcounts inc/dec
-instead of only one RCU in-out.  What is the problem with the atomic
-allocations? And this if for each syscall, all caches are on the inside?
+On 8/25/20 11:03 AM, Mimi Zohar wrote:
+> On Tue, 2020-08-25 at 10:55 -0700, Lakshmi Ramasubramanian wrote:
+>> On 8/25/20 10:42 AM, Mimi Zohar wrote:
+>>
+>>>>> Please limit the changes in this patch to renaming the functions and/or
+>>>>> files.  For example, adding "measure_payload_hash" should be a separate
+>>>>> patch, not hidden here.
+>>>>>
+>>>>
+>>>> Thanks for the feedback Mimi.
+>>>>
+>>>> I'll split this into 2 patches:
+>>>>
+>>>> PATCH 1: Rename files + rename CONFIG
+>>>> PATCH 2: Update IMA hook to utilize early boot data measurement.
+>>>
+>>> I'm referring to introducing the "measure_payload_hash" flag.  I assume
+>>> this is to indicate whether the buffer should be hashed or not.
+>>>
+>>> Example 1: ima_alloc_key_entry() and ima_alloc_data_entry(0 comparison
+>>>> -static struct ima_key_entry *ima_alloc_key_entry(struct key *keyring,
+>>>> -                                                const void *payload,
+>>>> -                                                size_t payload_len)
+>>>> -{
+>>>> +static struct ima_data_entry *ima_alloc_data_entry(const char *event_name,
+>>>> +                                                  const void *payload,
+>>>> +                                                  size_t payload_len,
+>>>> +                                                  const char *event_data,
+>>>> +                                                  enum ima_hooks func,
+>>>> +                                                  bool measure_payload_hash)  <====
+>>>> +{
+>>>
+>>> Example 2:
+>>> diff --git a/security/integrity/ima/ima_asymmetric_keys.c b/security/integrity/ima/ima_asymmetric_keys.c
+>>> index a74095793936..65423754765f 100644
+>>> --- a/security/integrity/ima/ima_asymmetric_keys.c
+>>> +++ b/security/integrity/ima/ima_asymmetric_keys.c
+>>> @@ -37,9 +37,10 @@ void ima_post_key_create_or_update(struct key *keyring, struct key *key,
+>>>           if (!payload || (payload_len == 0))
+>>>                   return;
+>>>    
+>>> -       if (ima_should_queue_key())
+>>> -               queued = ima_queue_key(keyring, payload, payload_len);
+>>> -
+>>> +       if (ima_should_queue_data())
+>>> +               queued = ima_queue_data(keyring->description, payload,
+>>> +                                       payload_len, keyring->description,
+>>> +                                       KEY_CHECK, false);   <===
+>>>           if (queued)
+>>>                   return;
+>>>
+>>> But in general, as much as possible function and file name changes
+>>> should be done independently of other changes.
+>>>
+>>> thanks,
+>>
+>> I agree - but in this case, Tushar's patch series on adding support for
+>> "Critical Data" measurement has already introduced
+>> "measure_payload_hash" flag. His patch updates
+>> "process_buffer_measurement()" to take this new flag and measure hash of
+>> the given data.
+>>
+>> My patches extend that to queuing the early boot requests and processing
+>> them after a custom IMA policy is loaded.
+>>
+>> If you still think "measure_payload_hash" flag should be introduced in
+>> the queuing change as a separate patch I'll split the patches further.
+>> Please let me know.
+> 
+> There's a major problem if his changes add new function arguments
+> without modifying all the callers of the function.  I assume the kernel
+> would fail to compile properly.
+
+Tushar's patch series does update all the existing callers of 
+process_buffer_measurement() to handle the new arguments. His patch 
+series is self contained, and builds and works fine.
+
+> 
+> Changing the function parameters to include "measure_payload_hash"
+> needs to be a separate patch, whether it is part of his patch set or
+> yours.
+> 
+
+ok - I'll split the queuing patch to include "measure_payload_hash" in a 
+separate patch.
+
+thanks,
+  -lakshmi
 
