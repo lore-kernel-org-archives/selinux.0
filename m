@@ -7,49 +7,50 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55C90C433DF
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0077AC433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2F7CE20706
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C52452071E
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="S4oxa02S"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="Gx8qqybc"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725936AbgHYIiS (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:18 -0400
-Received: from mailomta10-sa.btinternet.com ([213.120.69.16]:46270 "EHLO
-        sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728890AbgHYIiQ (ORCPT
+        id S1728543AbgHYIiV (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:21 -0400
+Received: from mailomta27-sa.btinternet.com ([213.120.69.33]:53158 "EHLO
+        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728504AbgHYIiQ (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:16 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-047.btinternet.com with ESMTP
-          id <20200825083812.VUFU4609.sa-prd-fep-047.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Tue, 25 Aug 2020 09:38:12 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344692; 
-        bh=sxT9hoY/sJl5Qz9DRDnuzmbh1B6Uo+Wz1qgs0NSCirM=;
+          by sa-prd-fep-043.btinternet.com with ESMTP
+          id <20200825083810.MPKQ26847.sa-prd-fep-043.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Tue, 25 Aug 2020 09:38:10 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344690; 
+        bh=rwUXWQzCJW6urkEMzOx9OdmAEPAgf2t+Upku6IVW1q8=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=S4oxa02Smhi8r+/k5KCjY5nlW50sVCTtwVN2ZviIOy6lLtu19G+bK3db550Bk8lPxghjPQWN0EQxp7kQLPCRLl3FK+L1eNdLHf3Q7AYrtvBgdPa2aQWI17ZrB//2VZ78B10wR3UXczklLhWbMOdR7mrWJ60WLgSaWiBEgOz0T7hrF1217FObYPlZKVoAn33W6P2hL6iakdctEDO3IT4TEpDUaVMmmf4L2fex2/3y1EJA7Mug8aMzZ7+E30BhhqUjCao6VGDTz3uQgwIogXwrE3LH+TBnAzaAN4inWXWT4SDHoT07IOgMtIET1alCknSBznfzYl80hyYKMwgeApVcaw==
+        b=Gx8qqybcJWmRI6KC2GoDhzyKx/k/HmnrUDvab/6JWvaJOgswdmSBT/hxHvSoKXkQP4XYEql0L8Fz6g0oNklbSAHTHQecuhlSdRS9nozZk6yy+mzv6f6Q0uSj+JH/kpQv/Y71HJ/tIe4amaA+mlrTq2bROAiuuabk3R0BQ1WYgniY689TEGHdB4zPvpuxQ+LjcqQTJRz6skkGeLQnhQg2C4DJ31z8Fr+GDxyJoVjmQGBsdEu54JVzwes2kWJlAQD8W/6Mq0obOIHIOmU2dNgcRhb2xhEW/flGAKsYudwMLucoY/7w46vfj+og66AOuakbxenxrTA2xj7tVNyp2eVLSQ==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepgfekgffghffgleekgfellefftedvhfejveehhfekkefgvdehueetgfffffelkedtnecukfhppedutdelrdduheehrddufedtrdduiedtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheehrddufedtrdduiedtpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599E4D; Tue, 25 Aug 2020 09:38:12 +0100
+        id 5ED9B8A70D599DE1; Tue, 25 Aug 2020 09:38:10 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 13/18] default_rules: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:38 +0100
-Message-Id: <20200825083743.6508-14-richard_c_haines@btinternet.com>
+Subject: [PATCH 09/18] conditional_statements: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:34 +0100
+Message-Id: <20200825083743.6508-10-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -60,64 +61,62 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/default_rules.md | 293 ++++++++++++++++++-------------------------
- 1 file changed, 119 insertions(+), 174 deletions(-)
+ src/conditional_statements.md | 159 ++++++++++++++--------------------
+ 1 file changed, 66 insertions(+), 93 deletions(-)
 
-diff --git a/src/default_rules.md b/src/default_rules.md
-index 92ba272..e0d11e8 100644
---- a/src/default_rules.md
-+++ b/src/default_rules.md
-@@ -1,8 +1,14 @@
- # Default Object Rules
+diff --git a/src/conditional_statements.md b/src/conditional_statements.md
+index 3cf07df..4eeeec3 100644
+--- a/src/conditional_statements.md
++++ b/src/conditional_statements.md
+@@ -1,5 +1,8 @@
+ # Conditional Policy Statements
  
-+- [*default_user*](#default_user)
-+- [*default_role*](#default_role)
-+- [*default_type*](#default_type)
-+- [*default_range*](#default_range)
++- [*if*](#if)
++- [*bool*](#bool)
 +
- These rules allow a default user, role, type and/or range to be used
- when computing a context for a new object. These require policy version
--27 or 28 with kernels 3.5 or greater.
-+27 or 28 with kernels 3.5 or greater, for *glblub* support version 32 with
-+kernel 5.5 is required.
+ Conditional policies consist of a bool statement that defines a
+ condition as *true* or *false*, with a supporting *if* / *else* construct that
+ specifies what rules are valid under the condition as shown in the
+@@ -56,7 +59,7 @@ getsebool -a
+ getsebool allow_daemons_use_tty
+ ```
  
- ## *default_user*
+-## bool
++## *bool*
  
-@@ -18,50 +24,34 @@ default_user class default;
+ The *bool* statement is used to specify a boolean identifier and its
+ initial state (*true* or *false*) that can then be used with the
+@@ -71,49 +74,31 @@ bool bool_id default_value;
  
  **Where:**
  
 -<table>
 -<tbody>
 -<tr>
--<td><code>default_user</code></td>
--<td>The <code>default_user</code> rule keyword.</td>
+-<td><code>bool</code></td>
+-<td>The <code>bool</code> keyword.</td>
 -</tr>
 -<tr>
--<td><p><code>class</code></p></td>
--<td><p>One or more <code>class</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
--<p>Entries can be excluded from the list by using the negative operator '-'.</p></td>
+-<td><code>bool_id</code></td>
+-<td>The boolean identifier.</td>
 -</tr>
 -<tr>
--<td><code>default</code></td>
--<td>A single keyword consisting of either <code>source</code> or <code>target</code> that will state whether the default user should be obtained from the source or target context.</td>
+-<td><code>default_value</code></td>
+-<td>Either true or false.</td>
 -</tr>
 -</tbody>
 -</table>
-+*default_user*
++*bool*
 +
-+The *default_user* rule keyword.
++The *bool* keyword.
 +
-+*class*
++*bool_id*
 +
-+One or more *class* identifiers. Multiple entries consist of a space separated
-+list enclosed in braces \'\{\}\'. Entries can be excluded from the list by using
-+the negative operator \'\-\'.
++The boolean identifier.
 +
-+*default*
++*default_value*
 +
-+A single keyword consisting of either *source* or *target* that will state
-+whether the default user should be obtained from the source or target context.
++Either true or false.
  
  **The statement is valid in:**
  
@@ -131,7 +130,7 @@ index 92ba272..e0d11e8 100644
 -<tr>
 -<td>Yes</td>
 -<td>Yes</td>
--<td>No</td>
+-<td>Yes</td>
 -</tr>
 -<tr style="background-color:#D3D3D3;">
 -<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
@@ -140,8 +139,8 @@ index 92ba272..e0d11e8 100644
 -</tr>
 -<tr>
 -<td>No</td>
--<td>No</td>
--<td>No</td>
+-<td>Yes</td>
+-<td>Yes</td>
 -</tr>
 -</tbody>
 -</table>
@@ -149,52 +148,84 @@ index 92ba272..e0d11e8 100644
 +
 +| Monolithic Policy       | Base Policy             | Module Policy           |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
++| Yes                     | Yes                     | Yes                     |
 +
 +Conditional Policy Statements
 +
 +| *if* Statement          | *optional* Statement    | *require* Statement     |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
++| No                      | Yes                     | Yes                     |
  
  **Examples:**
  
-@@ -93,50 +83,35 @@ default_role class default;
+@@ -133,7 +118,7 @@ bool allow_execheap false;
+ bool allow_execstack true;
+ ```
+ 
+-### if
++## *if*
+ 
+ The if statement is used to form a 'conditional block' of statements and
+ rules that are enforced depending on whether one or more boolean
+@@ -154,60 +139,48 @@ if (conditional_expression) { true_list } [ else { false_list } ]
  
  **Where:**
  
 -<table>
 -<tbody>
 -<tr>
--<td><code>default_role</code></td>
--<td>The <code>default_role</code> rule keyword.</td>
+-<td><code>if</code></td>
+-<td>The <code>if</code> keyword.</td>
 -</tr>
 -<tr>
--<td><p><code>class</code></p></td>
--<td><p>One or more <code>class</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
--<p>Entries can be excluded from the list by using the negative operator '-'.</p></td>
+-<td>conditional_expression</td>
+-<td><p>One or more <code>bool_name<code> identifiers that have been previously defined by the <code>bool</code> Statement. Multiple identifiers must be separated by the following logical operators: &amp;&amp;, ¦¦, ^, !, ==, !=. </p>
+-<p>The conditional_expression is enclosed in brackets ().</p></td>
 -</tr>
 -<tr>
--<td><code>default</code></td>
--<td>A single keyword consisting of either <code>source</code> or <code>target</code> that will state whether the default role should be obtained from the source or target context.</td>
+-<td><code>true_list</code></td>
+-<td><p>A list of rules enclosed within braces '{}' that will be executed when the <code>conditional_expression</code> is 'true'.</p>
+-<p>Valid statements and rules are highlighted within each language definition statement.</p></td>
+-</tr>
+-<tr>
+-<td><code>else</code></td>
+-<td>Optional <code>else</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>false_list</code></td>
+-<td><p>A list of rules enclosed within braces '{}' that will be executed when the optional <code>else</code> keyword is present and the conditional_expression is <code>false</code>.</p>
+-<p>Valid statements and rules are highlighted within each language definition statement.</p></td>
 -</tr>
 -</tbody>
 -</table>
-+*default_role*
++*if*
 +
-+The *default_role* rule keyword.
++The *if* keyword.
 +
-+*class*
++*conditional_expression*
 +
-+One or more *class* identifiers. Multiple entries consist of a space
-+separated list enclosed in braces \'\{\}\'.
-+Entries can be excluded from the list by using the negative operator \'\-\'.
++One or more *bool_name* identifiers that have been previously defined by the
++*bool* Statement. Multiple identifiers must be separated by the following
++logical operators: &&, ¦¦, ^, !, ==, !=.
++The *conditional_expression* is enclosed in brackets \'\(\)\'.
 +
-+*default*
++*true_list*
 +
-+A single keyword consisting of either *source* or *target* that will state
-+whether the default role should be obtained from the source or target context.
++A list of rules enclosed within braces \'\{\}\' that will be executed when the
++*conditional_expression* is 'true'.
++Valid statements and rules are highlighted within each language definition
++statement.
 +
++*else*
++
++Optional *else* keyword.
++
++*false_list*
++
++A list of rules enclosed within braces \'\{\}\' that will be executed when the
++optional *else* keyword is present and the *conditional_expression* is *false*.
++Valid statements and rules are highlighted within each language definition
++statement.
  
  **The statement is valid in:**
  
@@ -208,7 +239,7 @@ index 92ba272..e0d11e8 100644
 -<tr>
 -<td>Yes</td>
 -<td>Yes</td>
--<td>No</td>
+-<td>Yes</td>
 -</tr>
 -<tr style="background-color:#D3D3D3;">
 -<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
@@ -217,7 +248,7 @@ index 92ba272..e0d11e8 100644
 -</tr>
 -<tr>
 -<td>No</td>
--<td>No</td>
+-<td>Yes</td>
 -<td>No</td>
 -</tr>
 -</tbody>
@@ -226,192 +257,13 @@ index 92ba272..e0d11e8 100644
 +
 +| Monolithic Policy       | Base Policy             | Module Policy           |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
++| Yes                     | Yes                     | Yes                     |
 +
 +Conditional Policy Statements
 +
 +| *if* Statement          | *optional* Statement    | *require* Statement     |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Examples:**
- 
-@@ -168,50 +143,34 @@ default_type class default;
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>default_type</code></td>
--<td>The <code>default_type</code> rule keyword.</td>
--</tr>
--<tr>
--<td><p><code>class</code></p></td>
--<td><p>One or more <code>class</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
--<p>Entries can be excluded from the list by using the negative operator '-'.</p></td>
--</tr>
--<tr>
--<td><code>default</code></td>
--<td>A single keyword consisting of either <code>source</code> or <code>target</code> that will state whether the default type should be obtained from the source or target context.</td>
--</tr>
--</tbody>
--</table>
-+*default_type*
-+
-+The *default_type* rule keyword.
-+
-+*class*
-+
-+One or more *class* identifiers. Multiple entries consist of a space
-+separated list enclosed in braces \'\{\}\'. Entries can be excluded from the
-+list by using the negative operator \'\-\'.
-+
-+*default*
-+
-+A single keyword consisting of either *source* or *target* that will state
-+whether the default type should be obtained from the source or target context.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
- 
- **Examples:**
- 
-@@ -235,7 +194,7 @@ Allows the default range or level to be taken from the source or target
- context when computing a new context for an object of the defined class.
- Requires policy version 27.
- 
--Policy verion 32 with kernel 5.5 allows the use of *glblub* as a
-+Policy version 32 with kernel 5.5 allows the use of *glblub* as a
- *default_range* default and the computed transition will be the
- intersection of the MLS range of the two contexts. The *glb* (greatest
- lower bound) *lub* (lowest upper bound) of a range is calculated as the
-@@ -249,58 +208,44 @@ default_range class [default range] | [glblub];
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>default_range</code></td>
--<td>The <code>default_range</code> rule keyword.</td>
--</tr>
--<tr>
--<td><p><code>class</code></p></td>
--<td><p>One or more <code>class</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
--<p>Entries can be excluded from the list by using the negative operator '-'.</p></td>
--</tr>
--<tr>
--<td><code>default</code></td>
--<td>A single keyword consisting of either <code>source</code> or <code>target</code> that will state whether the default level or range should be obtained from the source or target context.</td>
--</tr>
--<tr>
--<td><code>range</code></td>
--<td>A single keyword consisting of either: <code>low</code>, <code>high</code> or <code>low_high</code> that will state what part of the range should be used.</td>
--</tr>
--<tr>
--<td><code>glblub</code></td>
--<td>The <code>glblub</code> keyword used instead of <code>[default range]</code>.</td>
--</tr>
--</tbody>
--</table>
-+*default_range*
-+
-+The *default_range* rule keyword.
-+
-+*class*
-+
-+One or more *class* identifiers. Multiple entries consist of a space
-+separated list enclosed in braces \'\{\}\'. Entries can be excluded from the
-+list by using the negative operator \'\-\'.
-+
-+*default*
-+
-+A single keyword consisting of either *source* or *target* that will state
-+whether the default level or range should be obtained from the source
-+or target context.
-+
-+*range*
-+
-+A single keyword consisting of either: *low*, *high* or *low_high* that will
-+state what part of the range should be used.
-+
-+*glblub*
-+
-+The *glblub* keyword used instead of *[default range]*.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
--<td>No</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | No                      |
++| No                      | Yes                     | No                      |
  
  **Examples:**
  
