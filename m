@@ -2,176 +2,87 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_2 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBA16C433E4
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 18:03:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6018C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 18:13:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A9D6D20715
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 18:03:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9BE80207DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 18:13:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="cozskm40"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="sTsz8jAl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726709AbgHYSDm (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 14:03:42 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:55292 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726104AbgHYSDk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 14:03:40 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id 07PI3Pjf103829;
-        Tue, 25 Aug 2020 14:03:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- mime-version : content-transfer-encoding; s=pp1;
- bh=Hs076pX2aK6wzze+PIeuf0RDs5T+N0cQZA1ds0Itdhg=;
- b=cozskm404t3Tsbtq5wokadL5/wRj/uyoAEOIt4qpCW9Hthj5F0fD9bQ8aAZtfKWr9tWi
- 1+ocQ1UuCFzbj6GGf/l9azqq778U5IFY6M2cMLY3DhMSaTDjLO82CH+sNRtswPitDoc7
- ez4FOzPOjF3NXV9j/RHJmTyWiw0Tx0bGB3Y3RM8jZw/BSs8yEyFNyECIpH24hZGbKzRN
- t3lReeNb1nAw4Yz9EHYMeG57oDndZYwWs0b7VP7yadPGq6El6z8bdiGKuARPPTPJh+vc
- CG3t33hBa2AxW58FyfLM/13HTyhT2155TvaHCejTkGY6L3DqqoJF9w0yGH+u/3ux2ISY /A== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3356kmsw36-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Aug 2020 14:03:34 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 07PI3Xp4104556;
-        Tue, 25 Aug 2020 14:03:33 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com [159.122.73.71])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3356kmsw24-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Aug 2020 14:03:33 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
-        by ppma02fra.de.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 07PI2lXw023213;
-        Tue, 25 Aug 2020 18:03:31 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma02fra.de.ibm.com with ESMTP id 332ujrt8sq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 Aug 2020 18:03:31 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com [9.149.105.59])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 07PI3Tbn29360414
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 Aug 2020 18:03:29 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 1D206A404D;
-        Tue, 25 Aug 2020 18:03:29 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 84319A4040;
-        Tue, 25 Aug 2020 18:03:27 +0000 (GMT)
-Received: from li-f45666cc-3089-11b2-a85c-c57d1a57929f.ibm.com (unknown [9.160.103.4])
-        by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 25 Aug 2020 18:03:27 +0000 (GMT)
-Message-ID: <805e35d6835df219b5836e8159742bed086e0554.camel@linux.ibm.com>
-Subject: Re: [PATCH] IMA: Handle early boot data measurement
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        stephen.smalley.work@gmail.com, casey@schaufler-ca.com
-Cc:     tyhicks@linux.microsoft.com, tusharsu@linux.microsoft.com,
-        sashal@kernel.org, jmorris@namei.org,
-        linux-integrity@vger.kernel.org, selinux@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Tue, 25 Aug 2020 14:03:26 -0400
-In-Reply-To: <52d2204b-5b6e-e13f-d0dd-192a776812bc@linux.microsoft.com>
-References: <20200821231230.20212-1-nramas@linux.microsoft.com>
-         <a7ea2da1f895ee3db4697c00804160acb6db656e.camel@linux.ibm.com>
-         <307617de-b42d-ac52-6e9e-9e0d16bbc20e@linux.microsoft.com>
-         <49f8a616d80344c539b512f8b83590ea281ee54d.camel@linux.ibm.com>
-         <52d2204b-5b6e-e13f-d0dd-192a776812bc@linux.microsoft.com>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-12.el8) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235,18.0.687
- definitions=2020-08-25_08:2020-08-25,2020-08-25 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
- mlxscore=0 bulkscore=0 suspectscore=0 lowpriorityscore=0 malwarescore=0
- mlxlogscore=999 clxscore=1015 spamscore=0 priorityscore=1501 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2008250136
+        id S1726119AbgHYSNN (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 14:13:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40156 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726104AbgHYSNM (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 14:13:12 -0400
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31C80C061574
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 11:13:12 -0700 (PDT)
+Received: by mail-ej1-x635.google.com with SMTP id l2so11763078eji.3
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 11:13:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LRAghVbAjHWqxC9aopTjVyH6vkz03jnDAQP6On6JAoc=;
+        b=sTsz8jAl7gfoRPvkhgTXj4JXIjeTL61a1JvtzFCSN+OpbyGt85hNIEsPiQBmYJPrwv
+         c3K4IPiodzPuguskFbhAJ/P5dancnoaLWDXjbHxlYtkIAP4Z0Nvdrj0dvmyPjyudkLjH
+         uhta+M1L+wi/xsaAfjiW2Dtm1T93I9Fcp7EfbX+Fya/PLoaBZsThCQ4SNFzepgFystBy
+         Js7PApE0a7dLhmuFi7jpsgYu72j64M8iHmk90dSIAOsqP2slhDZdEZpr7Zb2VI2ux8Rg
+         05txi/lgDVXAKNSFVuMe7zNOvoyJ+TM+t6fyKARHc26uNZ662IMEbFAnfgG013N+PYjy
+         33Tw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LRAghVbAjHWqxC9aopTjVyH6vkz03jnDAQP6On6JAoc=;
+        b=TvkPI786UjQbl0r81jjug/ltstU5TnjpUgETExP1AX3rh+HOjqkx8IsUvSepZPViyI
+         inmGIAQ14yAf74S5s8LwkVeJgPMbL02lIw+ZmOUiefVNBY83SL0d+7ZvzTp6cXNf+nsd
+         JaD9AJwmysTesf5rl9XYks5PPt+PsTasBdHSWH/MPovPZHhatrerZ1VyI/Am7vCmuPgU
+         E6HE9ZxulSwy3//PPDXqK87zBhykVznTraaK9Z04AeAsb5N+v3wxBjQa/DwJcBlLyHPY
+         qtZSSxxGhLNwibLHM932LrQXCmzsfoARdTYaSGw5VkWxu6kJsP7Wo6AkpkUYGFOQJv2u
+         BU/A==
+X-Gm-Message-State: AOAM531Dqr+PaV7hPlo/zQmB+vlZCP6zwjD/PVcZuHNJLZcEjuQwBZei
+        qE8GYlRjxiHK8j7yzSplOqP4N4ntEzTo/9YpmhX7
+X-Google-Smtp-Source: ABdhPJwQF0TQl5C3HtTT3U37dSL3Qm43Tk8qPijzUjescrG/tOv3c3A9mwKmKhcRJqPGzOl+fWXPKl2TXxd5MUcAR94=
+X-Received: by 2002:a17:906:7c46:: with SMTP id g6mr11576837ejp.178.1598379188395;
+ Tue, 25 Aug 2020 11:13:08 -0700 (PDT)
+MIME-Version: 1.0
+References: <20200825125130.GA304650@mwanda> <CAHC9VhS5pAr8g9C18cniKDrh3NRgg1z8e3qYs14P1iBpioOS7w@mail.gmail.com>
+ <20200825141242.GT5493@kadam> <CAHC9VhRn17jYSWo2oUobn=7uHv7G=HD0QRJZZgQhR10UGBU7=Q@mail.gmail.com>
+ <20200825150252.GU5493@kadam>
+In-Reply-To: <20200825150252.GU5493@kadam>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 25 Aug 2020 14:12:57 -0400
+Message-ID: <CAHC9VhQ6LL9T8MJEQgsr1Ye5zG9shADP1Eso+XaFwd6Ff51L2w@mail.gmail.com>
+Subject: Re: [bug report] selinux: encapsulate policy state, refactor policy load
+To:     Dan Carpenter <dan.carpenter@oracle.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>,
+        selinux@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, 2020-08-25 at 10:55 -0700, Lakshmi Ramasubramanian wrote:
-> On 8/25/20 10:42 AM, Mimi Zohar wrote:
-> 
-> > > > Please limit the changes in this patch to renaming the functions and/or
-> > > > files.  For example, adding "measure_payload_hash" should be a separate
-> > > > patch, not hidden here.
-> > > > 
-> > > 
-> > > Thanks for the feedback Mimi.
-> > > 
-> > > I'll split this into 2 patches:
-> > > 
-> > > PATCH 1: Rename files + rename CONFIG
-> > > PATCH 2: Update IMA hook to utilize early boot data measurement.
-> > 
-> > I'm referring to introducing the "measure_payload_hash" flag.  I assume
-> > this is to indicate whether the buffer should be hashed or not.
-> > 
-> > Example 1: ima_alloc_key_entry() and ima_alloc_data_entry(0 comparison
-> > > -static struct ima_key_entry *ima_alloc_key_entry(struct key *keyring,
-> > > -                                                const void *payload,
-> > > -                                                size_t payload_len)
-> > > -{
-> > > +static struct ima_data_entry *ima_alloc_data_entry(const char *event_name,
-> > > +                                                  const void *payload,
-> > > +                                                  size_t payload_len,
-> > > +                                                  const char *event_data,
-> > > +                                                  enum ima_hooks func,
-> > > +                                                  bool measure_payload_hash)  <====
-> > > +{
-> > 
-> > Example 2:
-> > diff --git a/security/integrity/ima/ima_asymmetric_keys.c b/security/integrity/ima/ima_asymmetric_keys.c
-> > index a74095793936..65423754765f 100644
-> > --- a/security/integrity/ima/ima_asymmetric_keys.c
-> > +++ b/security/integrity/ima/ima_asymmetric_keys.c
-> > @@ -37,9 +37,10 @@ void ima_post_key_create_or_update(struct key *keyring, struct key *key,
-> >          if (!payload || (payload_len == 0))
-> >                  return;
-> >   
-> > -       if (ima_should_queue_key())
-> > -               queued = ima_queue_key(keyring, payload, payload_len);
-> > -
-> > +       if (ima_should_queue_data())
-> > +               queued = ima_queue_data(keyring->description, payload,
-> > +                                       payload_len, keyring->description,
-> > +                                       KEY_CHECK, false);   <===
-> >          if (queued)
-> >                  return;
-> > 
-> > But in general, as much as possible function and file name changes
-> > should be done independently of other changes.
-> > 
-> > thanks,
-> 
-> I agree - but in this case, Tushar's patch series on adding support for 
-> "Critical Data" measurement has already introduced 
-> "measure_payload_hash" flag. His patch updates 
-> "process_buffer_measurement()" to take this new flag and measure hash of 
-> the given data.
-> 
-> My patches extend that to queuing the early boot requests and processing 
-> them after a custom IMA policy is loaded.
-> 
-> If you still think "measure_payload_hash" flag should be introduced in 
-> the queuing change as a separate patch I'll split the patches further. 
-> Please let me know.
+On Tue, Aug 25, 2020 at 11:05 AM Dan Carpenter <dan.carpenter@oracle.com> wrote:
+> On Tue, Aug 25, 2020 at 10:16:27AM -0400, Paul Moore wrote:
+> >
+> > Patches are welcome :)
+> >
+>
+> Good.  Patches coming up tomorrow.  :)
 
-There's a major problem if his changes add new function arguments
-without modifying all the callers of the function.  I assume the kernel
-would fail to compile properly.
+Just in case there was ever any doubt, bug reports are good, patches
+are almost always better :)  Don't ever be afraid to send us patches,
+even if it isn't the "right" fix, having a patch to serve as a
+starting point can be a great help.
 
-Changing the function parameters to include "measure_payload_hash"
-needs to be a separate patch, whether it is part of his patch set or
-yours.
-
-Mimi
-
+-- 
+paul moore
+www.paul-moore.com
