@@ -7,49 +7,50 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA775C433E3
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0DC1C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:17 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 7AD1C2074D
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A0E2A20706
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="Lsf9W3ya"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="Ic23xeMl"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728955AbgHYIiN (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:13 -0400
-Received: from mailomta7-sa.btinternet.com ([213.120.69.13]:34784 "EHLO
-        sa-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726365AbgHYIiM (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:12 -0400
+        id S1729165AbgHYIiP (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:15 -0400
+Received: from mailomta22-sa.btinternet.com ([213.120.69.28]:12727 "EHLO
+        sa-prd-fep-043.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726905AbgHYIiO (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:14 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-049.btinternet.com with ESMTP
-          id <20200825083808.JHDG4195.sa-prd-fep-049.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          by sa-prd-fep-043.btinternet.com with ESMTP
+          id <20200825083808.MPKL26847.sa-prd-fep-043.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
           Tue, 25 Aug 2020 09:38:08 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344688; 
-        bh=iNMO/xxmNkqwN2Gxa1/mYOprgi+wK92MvaSCyczuomg=;
+        bh=/LagwUNmVydS69xhHfqyQiV7nB4ff26cXv4LpsqTBLk=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=Lsf9W3yat5sBVKpFhPQLYIta12pgiSuLW35ZvgtnHPfaWvcw/kZtinCMCDD7W6iY2Xexj+5lzb5Ij3WDRXGfaMWDaNb4/53R8yEUwFtT0mqxqhbGsBQz/UfBQcZbB+VEZ3gI0oAZmCE+7EibCX8BP9s8wIeAwVUbRBJSSWccbJcjFcBM2jPA4H0wg27cG5CnF1qQJ/9jTrR2zI1Zfdi5nFt8HjQ7Fjmu8fEGZ5kXWnmu/CzGmX4aKamBcC6aQujLXGVy3B2YuNxP2zVUqjxqFr8jPA0VMkgery+2EF6ZXTVA2I2Xvs6k2FgpyNJQFbDZrDHbvHOK36Q1sVxVRpoQ0Q==
+        b=Ic23xeMlPeTFrluruvHqIAfLHURo5dUS391yK+8IceWekUYWdOvphjq6MGLqsSG8xjxrz64MS/H74eChKp6zmsUisXgjlrSanvddBuo2CA632T31SdJxJcskiNt1Wg9q0XY+9xH4VMtAbA4SIN9PaOmjJ3DxqIEMtoX1Bwp2uSf6VPugVWbyXm5fzMpsOVyQWh11cUR1rLSvxSfP6MtmyJqwWkWeJfAmr4qPg3/em3BnymLKaN8A3QLUwEEriubxcDe49DJe4igKugRlnN7KcUoUvlRiXpzEzFd5BlPkSNO7gTcxIaxM5LTvNEj6E1c48Y2zi+XGjm/4j4eCILnPUg==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepgfekgffghffgleekgfellefftedvhfejveehhfekkefgvdehueetgfffffelkedtnecukfhppedutdelrdduheehrddufedtrdduiedtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheehrddufedtrdduiedtpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599D7B; Tue, 25 Aug 2020 09:38:08 +0100
+        id 5ED9B8A70D599D8D; Tue, 25 Aug 2020 09:38:08 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 02/18] auditing: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:27 +0100
-Message-Id: <20200825083743.6508-3-richard_c_haines@btinternet.com>
+Subject: [PATCH 03/18] avc_rules: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:28 +0100
+Message-Id: <20200825083743.6508-4-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -60,352 +61,161 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/auditing.md | 300 ++++++++++++++++++++++--------------------------
- 1 file changed, 135 insertions(+), 165 deletions(-)
+ src/avc_rules.md | 115 +++++++++++++++++++++++------------------------
+ 1 file changed, 56 insertions(+), 59 deletions(-)
 
-diff --git a/src/auditing.md b/src/auditing.md
-index 8272e02..8812db6 100644
---- a/src/auditing.md
-+++ b/src/auditing.md
-@@ -1,179 +1,149 @@
- # Auditing SELinux Events
+diff --git a/src/avc_rules.md b/src/avc_rules.md
+index 7572302..b1535d3 100644
+--- a/src/avc_rules.md
++++ b/src/avc_rules.md
+@@ -1,5 +1,11 @@
+ # Access Vector Rules
  
-+- [AVC Audit Events](#avc-audit-events)
-+  - [Example Audit Events](#example-audit-events)
-+- [General SELinux Audit Events](#general-selinux-audit-events)
++- [Access Vector Rules](#access-vector-rules)
++  - [*allow*](#allow)
++  - [*dontaudit*](#dontaudit)
++  - [*auditallow*](#auditallow)
++  - [*neverallow*](#neverallow)
 +
- For SELinux there are two main types of audit event:
+ The AV rules define what access control privileges are allowed for
+ processes and objects. There are four types of AV rule: *allow*,
+ *dontaudit*, *auditallow*, and *neverallow* as explained in the sections that
+@@ -26,63 +32,56 @@ rule_name source_type target_type : class perm_set;
  
--1.  **AVC Audit Events** - These are generated by the AVC subsystem as a
--    result of access denials, or where specific events have requested an
--    audit message (i.e. where an *auditallow* rule has been used in
--    the policy).
--2.  **SELinux-aware Application Events** - These are generated by the
--    SELinux kernel services and SELinux-aware applications for events
--    such as system errors, initialisation, policy load, changing boolean
--    states, setting of enforcing / permissive mode, relabeling etc.
-+1. **AVC Audit Events** - These are generated by the AVC subsystem as a
-+   result of access denials, or where specific events have requested an
-+   audit message (i.e. where an *auditallow* rule has been used in
-+   the policy).
-+2. **SELinux-aware Application Events** - These are generated by the
-+   SELinux kernel services and SELinux-aware applications for events
-+   such as system errors, initialisation, policy load, changing boolean
-+   states, setting of enforcing / permissive mode, relabeling etc.
+ **Where:**
  
- The audit and event messages are generally stored in one of the
- following logs (in F-27 anyway):
- 
--1.  The SELinux kernel boot events are logged in the */var/log/dmesg* log.
--2.  The system log */var/log/messages* contains messages generated by
--    SELinux before the audit daemon has been loaded.
--3.  The audit log */var/log/audit/audit.log* contains events that take
--    place after the audit daemon has been loaded. The AVC audit messages
--    of interest are described in the [AVC Audit Events](#avc-audit-events)
--    section with others described in the
--    [General SELinux Audit Events](#general-selinux-audit-events)
--    section. Fedora uses the audit framework **auditd**(8) as standard.
-+1. The SELinux kernel boot events are logged in the */var/log/dmesg* log.
-+2. The system log */var/log/messages* contains messages generated by
-+   SELinux before the audit daemon has been loaded.
-+3. The audit log */var/log/audit/audit.log* contains events that take
-+   place after the audit daemon has been loaded. The AVC audit messages
-+   of interest are described in the [AVC Audit Events](#avc-audit-events)
-+   section with others described in the
-+   [General SELinux Audit Events](#general-selinux-audit-events)
-+   section. Fedora uses the audit framework ***auditd**(8)* as standard.
- 
- Notes:
- 
--1.  It is not mandatory for SELinux-aware applications to audit events
--    or even log them in the audit log. The decision is made by the
--    application designer.
--2.  The format of audit messages do not need to conform to any format,
--    however where possible applications should use the
--    ***audit_log_user_avc_message**(3)* function with a suitably
--    formatted message if using ***auditd**(8)*. The type of audit events
--    possible are defined in the *include/libaudit.h* and
--    *include/linux/audit.h* files.
--3.  Those libselinux library functions that output messages do so to
--    *stderr* by default, however this can be changed by calling
--    ***selinux_set_callback**(3)* and specifying an alternative log
--    handler.
-+1. It is not mandatory for SELinux-aware applications to audit events
-+   or even log them in the audit log. The decision is made by the
-+   application designer.
-+2. The format of audit messages do not need to conform to any format,
-+   however where possible applications should use the
-+   ***audit_log_user_avc_message**(3)* function with a suitably
-+   formatted message if using ***auditd**(8)*. The type of audit events
-+   possible are defined in the *include/libaudit.h* and
-+   *include/linux/audit.h* files.
-+3. Those libselinux library functions that output messages do so to
-+   *stderr* by default, however this can be changed by calling
-+   ***selinux_set_callback**(3)* and specifying an alternative log handler.
- 
- ## AVC Audit Events
- 
--**Table 1** describes the general format of AVC audit
--messages in the audit.log when access has been denied or an audit event
--has been specifically requested. Other types of events are shown in the
--section that follows.
--
 -<table>
 -<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Keyword<strong></td>
--<td><strong>Description<strong></td>
+-<tr>
+-<td><code>rule_name</code></td>
+-<td>The applicable <code>allow</code>, <code>dontaudit</code>, <code>auditallow</code>, and <code>neverallow</code> rule keyword.</td>
 -</tr>
 -<tr>
--<td>type</td>
--<td><p>For SELinux AVC events this can be:</p>
--<p>type=AVC - for kernel events</p>
--<p>type=USER_AVC - for user-space object manager events</p>
--<p>Note that once the AVC event has been logged, another event with type=SYSCALL may follow that contains further information regarding the event. </p>
--<p>The AVC event can always be tied to the relevant SYSCALL event as they have the same serial_number in the msg=audit(time:serial_number) field as shown in the following example:</p>
--<p><strong>type=AVC</strong> msg=audit(1243332701.744<strong>:101</strong>): avc: denied { getattr } for pid=2714 comm="ls" path="/usr/lib/locale/locale-archive" dev=dm-0 ino=353593 scontext=system_u:object_r:unlabeled_t:s0 tcontext=system_u:object_r:locale_t:s0 tclass=file</p>
--<p><strong>type=SYSCALL</strong> msg=audit(1243332701.744<strong>:101</strong>): arch=40000003 syscall=197 success=yes exit=0 a0=3 a1=553ac0 a2=552ff4 a3=bfc5eab0 items=0 ppid=2671 pid=2714 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0 egid=0 sgid=0 fsgid=0 tty=pts1 ses=1 comm="ls" <em>exe="/bin/ls</em>" subj=system_u:object_r:unlabeled_t:s0 key=(null)</p></td>
+-<td><p><code>source_type</code></p>
+-<p><code>target_type</code></p></td>
+-<td><p>One or more source / target <code>type</code>, <code>typealias</code> or <code>attribute</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. Entries can be excluded from the list by using the negative operator '-'.</p>
+-<p>The *target_type* can have the self keyword instead of <code>type</code>, <code>typealias</code> or <code>attribute</code> identifiers. This means that the *target_type* is the same as the *source_type*.</p>
+-<p>The <code>neverallow</code> rule also supports the wildcard operator '*' to specify that all types are to be included and the complement operator '~' to specify all types are to be included except those explicitly listed.</p></td>
 -</tr>
 -<tr>
--<td>msg</td>
--<td>This will contain the audit keyword with a reference number (e.g. msg=audit(1243332701.744:101))</td>
+-<td><code>class</code></td>
+-<td>One or more object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
 -</tr>
 -<tr>
--<td>avc</td>
--<td><p>This will be either denied when access has been denied or granted when an <em><em>auditallow</em><em> rule</em></em> has been defined by the policy.</p>
--<p>The entries that follow the *avc=* field depend on what type of event is being audited. Those shown below are generated by the kernel AVC audit function, however the user space AVC audit function will return fields relevant to the application being managed by their Object Manager.</p></td>
--</tr>
--<tr>
--<td>pid</td>
--<td rowspan="2">If a task, then log the process id (pid) and the name of the executable file (comm).</td>
--</tr>
--<tr>
--<td>comm</td>
--</tr>
--<tr>
--<td>capability</td>
--<td>If a capability event then log the identifier.</td>
--</tr>
--<tr>
--<td>path</td>
--<td rowspan="4">If a File System event then log the relevant information. Note that the name field may not always be present.</td>
--</tr>
--<tr>
--<td>name</td>
--</tr>
--<tr>
--<td>dev</td>
--</tr>
--<tr>
--<td>ino</td>
--</tr>
--<tr>
--<td>laddr</td>
--<td rowspan="4">If a Socket event then log the Source / Destination addresses and ports for IP4 or IP6 sockets (AF_INET).</td>
--</tr>
--<tr>
--<td>lport</td>
--</tr>
--<tr>
--<td>faddr</td>
--</tr>
--<tr>
--<td>fport</td>
--</tr>
--<tr>
--<td>path</td>
--<td>If a File Socket event then log the path (AF_UNIX).</td>
--</tr>
--<tr>
--<td>saddr</td>
--<td rowspan="5"><p>If a Network event then log the Source / Destination addresses and ports with the network interface for IP4 or IP6 networks (AF_INET).</p></td>
--</tr>
--<tr>
--<td>src</td>
--</tr>
--<tr>
--<td>daddr</td>
--</tr>
--<tr>
--<td>dest</td>
--</tr>
--<tr>
--<td>netif</td>
--</tr>
--<tr>
--<td>sauid</td>
--<td rowspan="3">IPSec security association identifiers</td>
--</tr>
--<tr>
--<td>hostname</td>
--</tr>
--<tr>
--<td>addr</td>
--</tr>
--<tr>
--<td>resid</td>
--<td rowspan="2">X-Windows resource ID and type.</td>
--</tr>
--<tr>
--<td>restype</td>
--</tr>
--<tr>
--<td>scontext</td>
--<td>The security context of the source or subject.</td>
--</tr>
--<tr>
--<td>tcontext</td>
--<td>The security context of the target or object.</td>
--</tr>
--<tr>
--<td>tclass</td>
--<td>The object class of the target or object.</td>
--</tr>
--<tr>
--<td>permissive</td>
--<td>Keyword introduced in Linux 4.17 to indicate whether the event
--was denied or granted due to global or per-domain permissive
--mode.</td>
+-<td>perm_set</td>
+-<td><p>The access permissions the source is allowed to access for the target object (also known as the Access Vector). Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
+-<p>The optional wildcard operator '*' specifies that all permissions for the object <code>class</code> can be used. </p>
+-<p>The complement operator '~' is used to specify all permissions except those explicitly listed (although the compiler issues a warning if the <code>dontaudit</code> rule has '~'.</p></td>
 -</tr>
 -</tbody>
 -</table>
--
--**Table 1: AVC Audit Message Description**
--
--Example *audit.log* denied and granted events are shown in the following
--examples:
--
--This is an example **denied** message - note that there are two
--`type=AVC` calls, but only one corresponding `type=SYSCALL` entry.
-+The **AVC Audit Message Keyword Descriptions** table describes the general
-+format of AVC audit messages in the *audit.log* when access has been denied
-+or an audit event has been specifically requested. Other types of events are
-+shown in the section that follows.
++*rule_name*
 +
-+**AVC Audit Message Keyword Descriptions:**
++The applicable *allow*, *dontaudit*, *auditallow*, and *neverallow* rule keyword.
 +
-+*type*
++*source_type*, *target_type*
 +
-+- For SELinux AVC events this can be:
-+  - *type=AVC* - for kernel events.
-+  - *type=USER_AVC* - for user-space object manager events.
-+- Note that once the AVC event has been logged, another event with
-+  *type=SYSCALL* may follow that contains further information regarding the
-+  event.
-+- The AVC event can always be tied to the relevant *SYSCALL* event as they
-+  have the same *serial_number* in the *msg=audit(time:serial_number)* field
-+  as shown in the following example:
-+  - ***type=AVC*** *msg=audit(1243332701.744:***101***): avc: denied { getattr }
-+    for pid=2714 comm="ls" path="/usr/lib/locale/locale-archive" dev=dm-0
-+    ino=353593 scontext=system_u:object_r:unlabeled_t:s0
-+    tcontext=system_u:object_r:locale_t:s0 tclass=file*
-+  - ***type=SYSCALL*** *msg=audit(1243332701.744:***101***): arch=40000003
-+    syscall=197 success=yes exit=0 a0=3 a1=553ac0 a2=552ff4 a3=bfc5eab0
-+    items=0 ppid=2671 pid=2714 auid=0 uid=0 gid=0 euid=0 suid=0 fsuid=0
-+    egid=0 sgid=0 fsgid=0 tty=pts1 ses=1 comm="ls" exe="/bin/ls"
-+    subj=system_u:object_r:unlabeled_t:s0 key=(null)*
++One or more source / target *type*, *typealias* or *attribute* identifiers.
++Multiple entries consist of a space separated list enclosed in braces \'\{\}\'.
++Entries can be excluded from the list by using the negative operator \'-\'.
++The *target_type* can have the self keyword instead of *type*, *typealias*
++or *attribute* identifiers. This means that the *target_type* is the same
++as the *source_type*.
++The *neverallow* rule also supports the wildcard operator \'\*\' to specify
++that all types are to be included and the complement operator \'\~\' to
++specify all types are to be included except those explicitly listed.
 +
-+*msg*
++*class*
 +
-+- This will contain the audit keyword with a reference number
-+  (e.g. *msg=audit(1243332701.744:101)*)
++One or more object classes. Multiple entries consist of a space separated
++list enclosed in braces \'\{\}\'.
 +
-+*avc*
++*perm_set*
 +
-+- This will be either denied when access has been denied or granted when an
-+  *auditallow* rule has been defined by the policy.
-+- The entries that follow the *avc=* field depend on what type of event is
-+  being audited. Those shown below are generated by the kernel AVC audit
-+  function, however the user space AVC audit function will return fields
-+  relevant to the application being managed by their Object Manager.
-+
-+*pid* and *comm*
-+
-+- If a task, then log the process id (*pid*) and the name of the executable
-+  file (*comm*).
-+
-+*capability*
-+
-+- If a capability event then log the identifier.
-+
-+*path*, *name*, *dev* and *ino*
-+
-+- If a File System event then log the relevant information. Note that the
-+  *name* field may not always be present.
-+
-+*laddr*, *lport*, *faddr* and *fport*
-+
-+- If a Socket event then log the Source / Destination addresses and ports
-+  for IPv4 or IPv6 sockets (*AF_INET*).
-+
-+*path*
-+
-+- If a File Socket event then log the path (*AF_UNIX*).
-+
-+*saddr*, *src*, *daddr*, *dest* and *netif*
-+
-+- If a Network event then log the Source / Destination addresses and ports
-+  with the network interface for IPv4 or IPv6 networks (*AF_INET*).
-+
-+*sauid*, *hostname* and *addr*
-+
-+- IPSec security association identifiers.
-+
-+*resid* and *restype*
-+
-+- X-Windows resource ID and type.
-+
-+*scontext*
-+
-+- The security context of the source or subject.
-+
-+*tcontext*
-+
-+- The security context of the target or object.
-+
-+*tclass*
-+
-+- The object class of the target or object.
-+
-+*permissive*
-+
-+- Keyword introduced in Linux 4.17 to indicate whether the event
-+  was denied or granted due to global or per-domain permissive mode.
-+
-+### Example Audit Events
-+
-+This is an example ***denied*** message - note that there are two
-+***type=AVC*** calls, but only one corresponding ***type=SYSCALL*** entry.
++The access permissions the source is allowed to access for the target
++object (also known as the Access Vector). Multiple entries consist of a
++space separated list enclosed in braces \'\{\}\'.
++The optional wildcard operator \'\*\' specifies that all permissions for
++the object *class* can be used.
++The complement operator \'\~\' is used to specify all permissions except
++those explicitly listed (although the compiler issues a warning if the
++*dontaudit* rule has \'\~\'.
  
- ```
- type=AVC msg=audit(1242575005.122:101): avc: denied { rename } for
-@@ -196,7 +166,7 @@ exe="/usr/bin/canberra-gtk-play"
- subj=test_u:staff_r:oddjob_mkhomedir_t:s0 key=(null)
+ **The statements are valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>Yes</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td><strong>Yes:</strong> <code>allow</code>, <code>dontaudit</code>, <code>auditallow</code> <strong>No:</strong> <code>neverallow</code></td>
+-<td><strong>Yes:</strong> <code>allow</code>, <code>dontaudit</code>, <code>auditallow</code>, <code>neverallow</code></td>
+-<td><strong>No:</strong> <code>allow</code>, <code>dontaudit</code>, <code>auditallow</code>, <code>neverallow</code></td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | Yes                     |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes: *allow*, *dontaudit*, *auditallow* No: *neverallow* | Yes     | No     |
+ 
+ ## *allow*
+ 
+-The allow rule checks whether the operations between the source\_type
+-and target_type are allowed for the class and permissions defined. It
++The allow rule checks whether the operations between the *source_type*
++and *target_type* are allowed for the class and permissions defined. It
+ is the most common statement that many of the **Reference Policy**
+ helper macros and interface definitions expand into multiple allow rules.
+ 
+@@ -177,8 +176,7 @@ auditallow ada_t self:process execstack;
+ This rule specifies that an *allow* rule must not be generated for the
+ operation, even if it has been previously allowed. The *neverallow*
+ statement is a compiler enforced action, where the ***checkpolicy**(8)*,
+-***checkmodule**(8)* <a href="#fna1" class="footnote-ref" id="fnavc1"><sup>1</sup></a>
+-or ***secilc**(8)* <a href="#fna2" class="footnote-ref" id="fnavc2"><sup>2</sup></a>
++***checkmodule**(8)*[^fn_avc_1] or ***secilc**(8)*[^fn_avc_2]
+ compiler checks if any allow rules have been generated in the policy source,
+ if so it will issue a warning and stop.
+ 
+@@ -201,12 +199,11 @@ neverallow ~can_read_shadow_passwords shadow_t:file read;
+ neverallow { domain -mmap_low_domain_type } self:memprotect mmap_zero;
  ```
  
--These are example X-Windows object manager audit message:
-+These are example X-Windows object manager audit messages:
+-<section class="footnotes">
+-<ol>
+-<li id="fna1"><p><code>neverallow</code> statements are allowed in modules, however to detect these the <em>semanage.conf</em> file must have the 'expand-check=1' entry present.<a href="#fnavc1" class="footnote-back">↩</a></p></li>
+-<li id="fna2"><p>The *--disable-neverallow* option can be used with <em></strong>secilc</strong>(8)</em> to disable <code>neverallow</code> rule checking.<a href="#fnavc2" class="footnote-back">↩</a></p></li>
+-</ol>
+-</section>
++[^fn_avc_1]: *neverallow* statements are allowed in modules, however to detect
++these the *semanage.conf* file must have the 'expand-check=1' entry present.
++
++[^fn_avc_2]: The *\-\-disable-neverallow* option can be used with ***secilc**(8)*
++to disable *neverallow* rule checking.
  
- ```
- type=USER_AVC msg=audit(1267534171.023:18): user pid=1169 uid=0
-@@ -211,7 +181,7 @@ type=USER_AVC msg=audit(1267534395.930:19): user pid=1169 uid=0
- auid=4294967295 ses=4294967295
- subj=system_u:unconfined_r:unconfined_t msg='avc: denied { read } for
- request=SELinux:SELinuxGetClientContext comm=X-setest resid=3c00001
--restype=&lt;unknown&gt;
-+restype=<unknown>
- scontext=unconfined_u:unconfined_r:x_select_paste_t
- tcontext=unconfined_u:unconfined_r:unconfined_t tclass=x_resource :
- exe="/usr/bin/Xorg" sauid=0 hostname=? addr=? terminal=?'
-@@ -357,7 +327,7 @@ perms=ioctl,read,write,getattr,lock,append,open
- ```
+ <!-- %CUTHERE% -->
  
- These were generated by the kernel security server when an SELinux-aware
--application was trying to use ***setcon***(3) to create a new thread. To
-+application was trying to use ***setcon**(3)* to create a new thread. To
- fix this a *typebounds* statement is required in the policy.
- 
- ```
 -- 
 2.26.2
 
