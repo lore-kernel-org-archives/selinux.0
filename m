@@ -7,51 +7,49 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 898C8C433E1
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93E69C433EB
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:26 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4520C2071E
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 6564220706
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="IFphhl//"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="JiciTYT6"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728145AbgHYIi0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:26 -0400
-Received: from mailomta17-sa.btinternet.com ([213.120.69.23]:51193 "EHLO
-        sa-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726365AbgHYIiU (ORCPT
+        id S1728986AbgHYIiZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:25 -0400
+Received: from mailomta9-sa.btinternet.com ([213.120.69.15]:51235 "EHLO
+        sa-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728145AbgHYIiU (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:20 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-048.btinternet.com with ESMTP
-          id <20200825083813.LXZL4139.sa-prd-fep-048.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Tue, 25 Aug 2020 09:38:13 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344694; 
-        bh=1f6uZZsp9WA0ydx+zF6ICacFeydHydUeq270gc+y1Tw=;
+          by sa-prd-fep-049.btinternet.com with ESMTP
+          id <20200825083810.JHDK4195.sa-prd-fep-049.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Tue, 25 Aug 2020 09:38:10 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344690; 
+        bh=rdfzeAhIXlReKS+I1/cNliu0vPNZfs6ItoLhaS6TReQ=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=IFphhl//TTLf9qGrKP7dUCyhg5IQ4qi5KnswmJspR7F2rNP6CzbX3evs8sDzVT/OIKTFoZjEATrzVF5q0/aFH8NWUEq4D6+akzSrh2cqzp40CzKeEFk/ZYpdrJ/6sek6lZykNPZ7fkm09hwzIEqUczmMoogUNbH5Fh15Av1oU+5arzv0+lXFATHHZYL46etsWu/n+alQdO7RxjVNlHgrrw9OJJhKUBmm22+NPRf/ZJ36KRleyPpdwQboJ6bJpV1l4na2cdmTn5fBvo9Uzd9AGqu/dOpBNNUA41jq9UL4MBL670sugDiba9RhySD7cYSfHxsuAsipsmt6cCQM3XQXFA==
+        b=JiciTYT6T+CX1DeLUXb6DHPqKpl7QTw1cQjQL9gT/CgwloqtOIlf1GWJ3ySxEFwUYnNrY9q/ajCa9RpMPc9IqVKrQVsa0GoUX4A3iM82TlQUJE5vQuceGY1KpOTZi2YM1pbLbnzlR8Ea803NJRYwo3UFk/Y5ZE7S9LBRJ/I4To9W6GdxjcnlZqSIciv7gz1lxxZRUSsTHSnquPrCXzdRzHeWK2y7JyJRGmVoA/H7nX3wNCPpr+HJQZegTHDih6hbdJcuhy66PaafiM7oILWUrgykZtnBtjIVFUScZWHEi6byGiVbk2d058YaQDg6k21mt7ZD3dupwJCvqmw0W60zCw==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfgggtgfesthekredtredtjeenucfhrhhomheptfhitghhrghrugcujfgrihhnvghsuceorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqnecuggftrfgrthhtvghrnhepledtffekgfevgeffkeehhedvleeljeejgffhvdeigfffgfefleevveetteduvddunecuffhomhgrihhnpeigrdhorhhgpdhsvghlihhnuhigphhrohhjvggtthdrohhrghenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphht
-        thhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599E7D; Tue, 25 Aug 2020 09:38:13 +0100
+        id 5ED9B8A70D599DD2; Tue, 25 Aug 2020 09:38:10 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 17/18] implementing_seaware_apps: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:42 +0100
-Message-Id: <20200825083743.6508-18-richard_c_haines@btinternet.com>
+Subject: [PATCH 08/18] computing_security_contexts: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:33 +0100
+Message-Id: <20200825083743.6508-9-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
@@ -62,303 +60,763 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/implementing_seaware_apps.md | 218 +++++++++++++++----------------
- 1 file changed, 109 insertions(+), 109 deletions(-)
+ src/computing_security_contexts.md | 662 +++++++++++++++--------------
+ 1 file changed, 346 insertions(+), 316 deletions(-)
 
-diff --git a/src/implementing_seaware_apps.md b/src/implementing_seaware_apps.md
-index 13020c9..ee38258 100644
---- a/src/implementing_seaware_apps.md
-+++ b/src/implementing_seaware_apps.md
-@@ -1,5 +1,10 @@
- # Implementing SELinux-aware Applications
+diff --git a/src/computing_security_contexts.md b/src/computing_security_contexts.md
+index 5849375..bb946b5 100644
+--- a/src/computing_security_contexts.md
++++ b/src/computing_security_contexts.md
+@@ -1,5 +1,22 @@
+ # Computing Security Contexts
  
-+- [Implementing SELinux-aware Applications](#implementing-selinux-aware-applications)
-+- [Implementing Object Managers](#implementing-object-managers)
-+- [Reference Policy Changes](#reference-policy-changes)
-+- [Adding New Object Classes and Permissions](#adding-new-object-classes-and-permissions)
++- [Security Context Computation for Kernel Objects](#security-context-computation-for-kernel-objects)
++  - [Process](#process)
++  - [Files](#files)
++  - [File Descriptors](#file-descriptors)
++  - [Filesystems](#filesystems)
++  - [Network File System (nfsv4.2)](#network-file-system-nfsv4.2)
++  - [INET Sockets](#inet-sockets)
++  - [IPC](#ipc)
++  - [Message Queues](#message-queues)
++  - [Semaphores](#semaphores)
++  - [Shared Memory](#shared-memory)
++  - [Keys](#keys)
++- [Using libselinux Functions](#using-libselinux-functions)
++  - [*avc_compute_create* and *security_compute_create*](#avc_compute_create-and-security_compute_create)
++  - [*avc_compute_member* and *security_compute_member*](#avc_compute_member-and-security_compute_member)
++  - [*security_compute_relabel*](#security_compute_relabel)
 +
- The following definitions attempt to explain the difference between the
- two types of userspace SELinux application (however the distinction can
- get 'blurred'):
-@@ -13,22 +18,21 @@ object manager as an SELinux-aware application.
+ SELinux uses a number of policy language statements and *libselinux*
+ functions to compute a security context via the kernel security server.
  
- **Object Manager** - Object Managers are a specialised form of
- SELinux-aware application that are responsible for the labeling,
--management and enforcement<a href="#fni1" class="footnote-ref" id="fnisa1"><sup>1</sup></a>
--of the objects under their control.
-+management and enforcement[^fn_isa_1] of the objects under their control.
+@@ -15,9 +32,9 @@ components: a source context, a target context and an object class.
+ The *libselinux* userspace functions used to compute a security context
+ are:
  
- Generally the userspace Object Manager forms part of an application that
- can be configured out should the base Linux OS not support SELinux.
+--   ***avc_compute_create**(3)* and ***security_compute_create**(3)*
+--   ***avc_compute_member**(3)* and ***security_compute_member**(3)*
+--   ***security_compute_relabel**(3)*
++- ***avc_compute_create**(3)* and ***security_compute_create**(3)*
++- ***avc_compute_member**(3)* and ***security_compute_member**(3)*
++- ***security_compute_relabel**(3)*
  
- Example userspace Object Managers are:
+ Note that these *libselinux* functions actually call the kernel
+ equivalent functions in the security server (see kernel source
+@@ -53,24 +70,24 @@ The initial task starts with the kernel security context, but the
+ (e.g. *init_t*) when the init binary is executed after the policy has
+ been loaded. Some init programs re-exec themselves after loading policy,
+ while in other cases the initial policy load is performed by the
+-*initrd*/*initramfs* script prior to mounting the real root and
+-executing the real init program.
++*initrd*/*initramfs* script prior to mounting the real *root* and
++executing the real *init* program.
  
---   X-SELinux is an optional X-Windows extension responsible for
--    labeling and enforcement of X-Windows objects.
---   Dbus has an optional Object Manager built if SELinux is defined in
--    the Linux build. This is responsible for the labeling and
--    enforcement of Dbus objects.
---   SE-PostgreSQL is an optional extension for PostgreSQL that is
--    responsible for the labeling and enforcement of PostgreSQL database
--    and supporting objects.
-+- X-SELinux is an optional X-Windows extension responsible for
-+  labeling and enforcement of X-Windows objects.
-+- Dbus has an optional Object Manager built if SELinux is defined in
-+  the Linux build. This is responsible for the labeling and
-+  enforcement of Dbus objects.
-+- SE-PostgreSQL is an optional extension for PostgreSQL that is
-+  responsible for the labeling and enforcement of PostgreSQL database
-+  and supporting objects.
+ Processes inherit their security context as follows:
  
- Therefore the basic distinction is that Object Managers manage their
- defined objects on behalf of an application, whereas general
-@@ -45,7 +49,7 @@ developing SELinux-aware applications and object managers using
- 1.  Determine the security objectives and requirements.
- 2.  Because these applications manage labeling and access control, they
-     need to be trusted.
--3.  Where possible use the libselinux *\*_raw* functions as they avoid
-+3.  Where possible use the libselinux *\*\_raw* functions as they avoid
-     the overhead of translating the context to/from the readable format
-     (unless of course there is a requirement for a readable context -
-     see ***mcstransd**(8)*).
-@@ -65,7 +69,7 @@ developing SELinux-aware applications and object managers using
- 8.  Do not use class IDs directly, use
-     ***string_to_security_class**(3)* that will take the class string
-     defined in the policy and return the class ID/value. Always check
--    the value is &gt; 0. If *0*, then signifies that the class is
-+    the value is \> 0. If *0*, then signifies that the class is
-     unknown and the **deny_unknown** flag setting in the policy will
-     determine the outcome of any decision - see
-     ***security_deny_unknown**(3)*.
-@@ -99,59 +103,60 @@ developing SELinux-aware applications and object managers using
- To implement object managers for applications, an understanding of the
- application is essential, because as a minimum:
+-1.  On fork a process inherits the security context of its
+-    creator/parent.
+-2.  On *exec*, a process may transition to another security context
+-    based on policy statements: *type_transition*, *range_transition*,
+-    *role_transition* (policy version 26), *default_user*,
+-    *default_role*, *default_range* (policy versions 27) and
+-    *default_type* (policy version 28) or if a security-aware process,
+-    by calling ***setexeccon**(3)* if permitted by policy prior to
+-    invoking exec.
+-3.  At any time, a security-aware process may invoke ***setcon**(3)* to
+-    switch its security context (if permitted by policy) although this
+-    practice is generally discouraged - exec-based transitions are
+-    preferred.
++1. On fork a process inherits the security context of its
++   creator/parent.
++2. On *exec*, a process may transition to another security context
++   based on policy statements: *type_transition*, *range_transition*,
++   *role_transition* (policy version 26), *default_user*,
++   *default_role*, *default_range* (policy versions 27) and
++   *default_type* (policy version 28) or if a security-aware process,
++   by calling ***setexeccon**(3)* if permitted by policy prior to
++   invoking exec.
++3. At any time, a security-aware process may invoke ***setcon**(3)* to
++   switch its security context (if permitted by policy) although this
++   practice is generally discouraged - exec-based transitions are
++   preferred.
  
---   What object types and their permissions are required.
---   Where in the code object instances are created.
---   Where access controls need to be applied.
-+- What object types and their permissions are required.
-+- Where in the code object instances are created.
-+- Where access controls need to be applied.
+ ### Files
  
- While this section cannot help with those points, here are some notes to
- help during the design phase:
+@@ -79,23 +96,23 @@ the following classes: files, symbolic links, directories, socket files,
+ fifo's and block/character) upon creation for any filesystem type that
+ supports labeling is as follows:
  
--1.  Determine what objects are required and the access controls
--    (permissions) that need to be applied.
--2.  Does SELinux already have some of these object classes and
--    permissions defined. For standard Linux OS objects such as files,
--    then these would be available. If so, the object manager should
--    remap them with ***selinux_set_mapping**(3)* so only those
--    required are available.
-+1. Determine what objects are required and the access controls
-+   (permissions) that need to be applied.
-+2. Does SELinux already have some of these object classes and
-+   permissions defined. For standard Linux OS objects such as files,
-+   then these would be available. If so, the object manager should
-+   remap them with ***selinux_set_mapping**(3)* so only those
-+   required are available.
+-1.  The user component is inherited from the creating process (policy
+-    version 27 allows a *default_user* of source or target to be
+-    defined for each object class).
+-2.  The role component generally defaults to the *object_r* role
+-    (policy version 26 allows a *role_transition* and version 27 allows
+-    a *default_role* of source or target to be defined for each object
+-    class).
+-3.  The type component defaults to the type of the parent directory if
+-    no matching *type_transition* rule was specified in the policy
+-    (policy version 25 allows a filename *type_transition* rule and
+-    version 28 allows a *default_type* of source or target to be
+-    defined for each object class).
+-4.  The *range*/*level* component defaults to the low/current level of
+-    the creating process if no matching *range_transition* rule was
+-    specified in the policy (policy version 27 allows a *default_range*
+-    of source or target with the selected range being low, high or
+-    low-high to be defined for each object class).
++1. The user component is inherited from the creating process (policy
++   version 27 allows a *default_user* of source or target to be
++   defined for each object class).
++2. The role component generally defaults to the *object_r* role
++   (policy version 26 allows a *role_transition* and version 27 allows
++   a *default_role* of source or target to be defined for each object
++   class).
++3. The type component defaults to the type of the parent directory if
++   no matching *type_transition* rule was specified in the policy
++   (policy version 25 allows a filename *type_transition* rule and
++   version 28 allows a *default_type* of source or target to be
++   defined for each object class).
++4. The *range*/*level* component defaults to the low/current level of
++   the creating process if no matching *range_transition* rule was
++   specified in the policy (policy version 27 allows a *default_range*
++   of source or target with the selected range being low, high or
++   low-high to be defined for each object class).
  
- However, do not try to reuse a current object that may be similar to the
- requirements, it will cause confusion at some stage. Always generate new
- classes/permissions.
+ Security-aware applications can override this default behavior by
+ calling ***setfscreatecon**(3)* prior to creating the file, if permitted
+@@ -116,7 +133,7 @@ Inherits the label of its creator/parent.
+ ### Filesystems
  
--1.  If the application has APIs or functions that integrate with other
--    applications or scripts, then as part of the object manager
--    implementation these may need to support the use of security
--    contexts (examples are X-Windows and SE-PostgreSQL that provide
--    functions for other applications to use). Therefore if required,
--    provide common functions that can be used to label the objects.
--2.  Determine how the initial objects will be labeled. For example will
--    a configuration file be required for default labels, if so how will
--    this be introduced into the SELinux userspace build. Examples of
--    these are the X-Windows (***selabel_x**(5)*), SE-PostgreSQL
--    (***selabel_db**(3)*), and file context series of files
--    (***selabel_file**(5)*).
--3.  Will the labeling need to be persistent across policy and system
--    reloads or not. X-Windows is an example of a non-persistent, and
--    SE-PostgreSQL is an example of a persistent object manager.
--4.  Will support for the standard audit log or its own be required (the
--    *libselinux* functions default to *stderr*). Use
--    ***selinux_set_callback**(3)* to manage logging services.
--5.  Decide whether an AVC cache is required or not. If the object
--    manager handles high volumes of requests then an AVC will be
--    required.
--6.  Will the object manager need to do additional processing when policy
--    or enforcement changes are detected. This could be clearing any
--    caches or resetting variables etc.. If so, then
--    ***selinux_set_callback**(3)* will be used to set up these
--    functions. These events are detected via the ***netlink**(7)*
--    services, see ***avc_open**(3)* and ***avc_netlink_open**(3)* for
--    the various options available.
--7.  If possible implement a service like XACE for the application, and
--    use it to interface with the applications SELinux object manager.
--    The XACE interface acts like the LSM which supports SELinux as well
--    as other providers such as SMACK. The XACE interface is defined in
--    the [**X Access Control Extension Specification**](http://www.x.org/releases/X11R7.5/doc/security/XACE-Spec.pdf), and for reference, the SE-PostgreSQL service also implements a similar
--    interface.
-+1. If the application has APIs or functions that integrate with other
-+   applications or scripts, then as part of the object manager
-+   implementation these may need to support the use of security
-+   contexts (examples are X-Windows and SE-PostgreSQL that provide
-+   functions for other applications to use). Therefore if required,
-+   provide common functions that can be used to label the objects.
-+2. Determine how the initial objects will be labeled. For example will
-+   a configuration file be required for default labels, if so how will
-+   this be introduced into the SELinux userspace build. Examples of
-+   these are the X-Windows (***selabel_x**(5)*), SE-PostgreSQL
-+   (***selabel_db**(3)*), and file context series of files
-+   (***selabel_file**(5)*).
-+3. Will the labeling need to be persistent across policy and system
-+   reloads or not. X-Windows is an example of a non-persistent, and
-+   SE-PostgreSQL is an example of a persistent object manager.
-+4. Will support for the standard audit log or its own be required (the
-+   *libselinux* functions default to *stderr*). Use
-+   ***selinux_set_callback**(3)* to manage logging services.
-+5. Decide whether an AVC cache is required or not. If the object
-+   manager handles high volumes of requests then an AVC will be
-+   required.
-+6. Will the object manager need to do additional processing when policy
-+   or enforcement changes are detected. This could be clearing any
-+   caches or resetting variables etc.. If so, then
-+   ***selinux_set_callback**(3)* will be used to set up these
-+   functions. These events are detected via the ***netlink**(7)*
-+   services, see ***avc_open**(3)* and ***avc_netlink_open**(3)* for
-+   the various options available.
-+7. If possible implement a service like XACE for the application, and
-+   use it to interface with the applications SELinux object manager.
-+   The XACE interface acts like the LSM which supports SELinux as well
-+   as other providers such as SMACK. The XACE interface is defined in the
-+   [**X Access Control Extension Specification**](http://www.x.org/releases/X11R7.5/doc/security/XACE-Spec.pdf),
-+   and for reference, the SE-PostgreSQL service also implements a similar
-+   interface.
+ Filesystems are labeled using the appropriate *fs_use* kernel policy
+-language statement as they are mounted, they are based on the filesystem
++language statement as they are mounted, they are based on the *filesystem*
+ type name (e.g. *ext4*) and their behaviour (e.g. *xattr*). For example
+ if the policy specifies the following:
  
- ## Reference Policy Changes
+@@ -128,37 +145,37 @@ then as the *pipefs* filesystem is being mounted, the SELinux LSM
+ security hook *selinux_set_mnt_opts* will call *security_fs_use*
+ that will:
  
-@@ -163,37 +168,36 @@ Policy source can be obtained from:
+--  Look for the filesystem name within the policy (*pipefs*)
+--  If present, obtain its behaviour (*fs_use_task*)
+--  Then obtain the allocated security context (*system_u:object_r:fs_t:s0*)
++- Look for the filesystem name within the policy (*pipefs*)
++- If present, obtain its behaviour (*fs_use_task*)
++- Then obtain the allocated security context (*system_u:object_r:fs_t:s0*)
  
- The main points to note when adding to the Reference Policy are:
+ Should the behaviour be defined as *fs_use_task*, then the filesystem
+ will be labeled as follows:
  
--1.  Create sample Reference Policy policy modules (*\*.te*, *\*.if* and
--    *\*.fc* module files) that provide rules for managing the new objects as
--    described in the [**The Reference Policy**](reference_policy.md#the-reference-policy) section.
---   The SE-PostgreSQL modules provide an example, see the
--    *./refpolicy/policy/modules/services/postgresql.* files in the
--    Reference Policy source.
+-1.  The user component is inherited from the creating process (policy
+-    version 27 allows a *default_user* of source or target to be
+-    defined).
+-2.  The role component generally defaults to the *object_r* role
+-    (policy version 26 allows a *role_transition* and version 27 allows
+-    a *default_role* of source or target to be defined).
+-3.  The type component defaults to the type of the target type if no
+-    matching *type_transition* rule was specified in the policy (policy
+-    version 28 allows a *default_type* of source or target to be
+-    defined).
+-4.  The *range*/*level* component defaults to the low/current level of
+-    the creating process if no matching *range_transition* rule was
+-    specified in the policy (policy version 27 allows a *default_range*
+-    of source or target with the selected range being low, high or
+-    low-high to be defined).
++1. The user component is inherited from the creating process (policy
++   version 27 allows a *default_user* of source or target to be
++   defined).
++2. The role component generally defaults to the *object_r* role
++   (policy version 26 allows a *role_transition* and version 27 allows
++   a *default_role* of source or target to be defined).
++3. The type component defaults to the type of the target type if no
++   matching *type_transition* rule was specified in the policy (policy
++   version 28 allows a *default_type* of source or target to be
++   defined).
++4. The *range*/*level* component defaults to the low/current level of
++   the creating process if no matching *range_transition* rule was
++   specified in the policy (policy version 27 allows a *default_range*
++   of source or target with the selected range being *low*, *high* or
++   *low-high* to be defined).
+ 
+ Notes:
+ 
+-1.  Filesystems that support *xattr* extended attributes can be
+-    identified via the mount command as there will be a '*seclabel*'
+-    keyword present.
+-2.  There are mount options for allocating various context types:
+-    *context=*, *fscontext=*, *defcontext=* and *rootcontext=*. They are
+-    fully described in the ***mount**(8)* man page.
++1. Filesystems that support *xattr* extended attributes can be
++   identified via the mount command as there will be a '*seclabel*'
++   keyword present.
++2. There are mount options for allocating various context types:
++   *context=*, *fscontext=*, *defcontext=* and *rootcontext=*. They are
++   fully described in the ***mount**(8)* man page.
+ 
+ ### Network File System (nfsv4.2)
+ 
+@@ -171,22 +188,22 @@ section.
+ If a socket is created by the ***socket**(3)* call they are labeled as
+ follows:
+ 
+-1.  The user component is inherited from the creating process (policy
+-    version 27 allows a *default_user* of source or target to be
+-    defined for each socket object class).
+-2.  The role component is inherited from the creating process (policy
+-    version 26 allows a *role_transition* and version 27 allows a
+-    *default_role* of source or target to be defined for each socket
+-    object class).
+-3.  The type component is inherited from the creating process if no
+-    matching *type_transition* rule was specified in the policy and
+-    version 28 allows a *default_type* of source or target to be
+-    defined for each socket object class).
+-4.  The *range*/*level* component is inherited from the creating process
+-    if no matching *range_transition* rule was specified in the policy
+-    (policy version 27 allows a *default_range* of source or target
+-    with the selected range being low, high or low-high to be defined
+-    for each socket object class).
++1. The user component is inherited from the creating process (policy
++   version 27 allows a *default_user* of source or target to be
++   defined for each socket object class).
++2. The role component is inherited from the creating process (policy
++   version 26 allows a *role_transition* and version 27 allows a
++   *default_role* of source or target to be defined for each socket
++   object class).
++3. The type component is inherited from the creating process if no
++   matching *type_transition* rule was specified in the policy and
++   version 28 allows a *default_type* of source or target to be
++   defined for each socket object class).
++4. The *range*/*level* component is inherited from the creating process
++   if no matching *range_transition* rule was specified in the policy
++   (policy version 27 allows a *default_range* of source or target
++   with the selected range being *low*, *high* or *low-high* to be defined
++   for each socket object class).
+ 
+ Security-aware applications may use ***setsockcreatecon**(3)* to
+ explicitly label sockets they create if permitted by policy.
+@@ -208,22 +225,22 @@ Inherits the label of its sending process. However if sending a message
+ that is unlabeled, compute a new label based on the current process and
+ the message queue it will be stored in as follows:
+ 
+-1.  The user component is inherited from the sending process (policy
+-    version 27 allows a *default_user* of source or target to be
+-    defined for the message object class).
+-2.  The role component is inherited from the sending process (policy
+-    version 26 allows a *role_transition* and version 27 allows a
+-    *default_role* of source or target to be defined for the message
+-    object class).
+-3.  The type component is inherited from the sending process if no
+-    matching *type_transition* rule was specified in the policy and
+-    version 28 allows a *default_type* of source or target to be
+-    defined for the message object class).
+-4.  The *range*/*level* component is inherited from the sending process
+-    if no matching *range_transition* rule was specified in the policy
+-    (policy version 27 allows a *default_range* of source or target
+-    with the selected range being low, high or low-high to be defined
+-    for the message object class).
++1. The user component is inherited from the sending process (policy
++   version 27 allows a *default_user* of source or target to be
++   defined for the message object class).
++2. The role component is inherited from the sending process (policy
++   version 26 allows a *role_transition* and version 27 allows a
++   *default_role* of source or target to be defined for the message
++   object class).
++3. The type component is inherited from the sending process if no
++   matching *type_transition* rule was specified in the policy and
++   version 28 allows a *default_type* of source or target to be
++   defined for the message object class).
++4. The *range*/*level* component is inherited from the sending process
++   if no matching *range_transition* rule was specified in the policy
++   (policy version 27 allows a *default_range* of source or target
++   with the selected range being *low*, *high* or *low-high* to be defined
++   for the message object class).
+ 
+ ### Semaphores
+ 
+@@ -244,249 +261,262 @@ explicitly label keys they create if permitted by policy.
+ 
+ ### *avc_compute_create* and *security_compute_create*
+ 
+-**Table 1** below shows how the components from the source context
++The table below shows how the components from the source context
+ *scon*, target context *tcon* and class *tclass* are used to compute the
+ new context *newcon* (referenced by SIDs for
+ ***avc_compute_create**(3)*). The following notes also apply:
+ 
+-1.  Any valid policy *role_transition*, *type_transition* and
+-    *range_transition* enforcement rules will influence the final
+-    outcome as shown.
+-2.  For kernels less than 2.6.39 the context generated will depend on
+-    whether the class is *process* or any other class.
+-3.  For kernels 2.6.39 and above the following also applies:
+--   Those classes suffixed by *socket* will also be included in the *process*
++1. Any valid policy [***role_transition***](role_statements.md#role_transition),
++   [***type_transition***](type_statements.md#type_transition) and
++   [***range_transition***](mls_statements.md#range_transition) enforcement
++   rules will influence the final outcome as shown.
++2. For kernels less than 2.6.39 the context generated will depend on
++   whether the class is *process* or any other class.
++3. For kernels 2.6.39 and above the following also applies:
++   - Those classes suffixed by *socket* will also be included in the *process*
+     class outcome.
+--   If a valid *role_transition* rule for *tclass*, then use that
+-    instead of the default *object_r*. Also requires policy version
+-    26 or greater - see ***security_policyvers**(3)*.
+--   If the *type_transition* rule is classed as the 'file name
+-    transition rule' (i.e. it has an *object_name* parameter), then
+-    provided the object name in the rule matches the last component of
+-    the objects name (in this case a file or directory name), then use
+-    the rules *default_type*. Also requires policy version 25 or greater.
+-4.  For kernels 3.5 and above with policy version 27 or greater, the
+-    *default_user*, *default_role*, *default_range* statements will
+-    influence the *user*, *role* and *range* of the computed context for
+-    the specified class *tclass*. With policy version 28 or greater the
+-    *default_type* statement can also influence the *type* in the
+-    computed context.
 -
--2.  Create any new policy classes and permissions for the Reference
--    Policy, these will need to be built into the base module as
--    described in the
--    [Adding New Object Classes and Permissions](#adding-new-object-classes-and-permissions)
--    section.
-+1. Create sample Reference Policy policy modules (*\*.te*, *\*.if* and
-+   *\*.fc* module files) that provide rules for managing the new objects as
-+   described in the [**The Reference Policy**](reference_policy.md#the-reference-policy) section.
-+   - The SE-PostgreSQL modules provide an example, see the
-+     *./refpolicy/policy/modules/services/postgresql.* files in the
-+     Reference Policy source.
-+2. Create any new policy classes and permissions for the Reference
-+   Policy, these will need to be built into the base module as
-+   described in the
-+   [Adding New Object Classes and Permissions](#adding-new-object-classes-and-permissions)
-+   section.
- 
- Note, that if no new object classes, permissions or constraints are
- being added to the policy, then the Reference Policy source code does
- not require modification, and supplying the module files (*\*.te*,
- *\*.if* and *\*.fc*) should suffice.
- 
--1.  Create any constraints required as these need to be built into the
--    base module of the Reference Policy. They are added to the
--    *./refpolicy/policy/constraints*, *mcs* and *mls* files. Again the
--    SE-PostgreSQL entries in these files give examples (find the
--    *db_\** class entries).
--2.  Create any SELinux configuration files (context, user etc.) that
--    need to be added to the policy at build time.
--3.  Either produce an updated Reference Policy source or module patch,
--    depending on whether new classes/constraints have been added. Note
--    that by default a new module will be generated as a 'module', if it
--    is required that the module is in the base (unusual), then add an
--    entry ***&lt;required val="true"&gt;*** to the start of the
--    interface file as shown below:
-+1. Create any constraints required as these need to be built into the
-+   base module of the Reference Policy. They are added to the
-+   *./refpolicy/policy/constraints*, *mcs* and *mls* files. Again the
-+   SE-PostgreSQL entries in these files give examples (find the
-+   *db_\** class entries).
-+2. Create any SELinux configuration files (context, user etc.) that
-+   need to be added to the policy at build time.
-+3. Either produce an updated Reference Policy source or module patch,
-+   depending on whether new classes/constraints have been added. Note
-+   that by default a new module will be generated as a 'module', if it
-+   is required that the module is in the base (unusual), then add an
-+   entry ***\<required val="true"\>*** to the start of the
-+   interface file as shown below:
- 
- ```
- # <summary>
-@@ -258,40 +262,36 @@ be declared using the *class*, *classpermission*, and *classorder* statements.
- 
- For reference, <http://selinuxproject.org/page/Adding_New_Permissions>
- describes how new kernel object classes and permissions are added to the
--system and is summarised as follows for kernels &gt;= 2.6.33 that use
-+system and is summarised as follows for kernels \>= 2.6.33 that use
- dynamic class/perm discovery:
- 
--1.  Edit *security/selinux/include/classmap.h* in the kernel tree and
--    add the required definition. This will define the class and/or
--    permission for use in the kernel; the corresponding symbol
--    definitions will be automatically generated during the kernel build.
--    If not defined in the policy, then the class and/or permission will
--    be handled in accordance with the policy's *handle_unknown*
--    definition, which can be reject (refuse to load the policy), deny
--    (deny the undefined class/permission), or allow (allow the undefined
--    class/permission). *handle_unknown* is set to allow in Fedora
--    policies.
--2.  Edit *refpolicy/policy/flask/security_classes* and/or
--    *access_vectors* in the refpolicy tree and add your definition.
--    This will define the class and permission for use in the policy.
--    These are generally added to the class and/or permission at the end
--    of the existing list of classes or permissions for that class for
--    backward compatibility with older kernels. The class and/or
--    permission definition in policy need not line up with the definition
--    in the kernel's classmap, as the values will be dynamically mapped
--    by the kernel. Then add allow rules as appropriate to the policy for
--    the new permissions.
+-<table>
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>user</strong></td>
+-<td><strong>role</strong></td>
+-<td><strong>type</strong></td>
+-<td><strong>range</strong></td>
+-</tr>
+-<tr>
+-<td><p>If kernel &gt;= 3.5 with a <strong>default_user </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>user</em></p>
+-<p>ELSE</p>
+-<p>Use <em>scon</em> <em>user</em></p></td>
+-<td><p>If kernel &gt;=2.6.39, and there is a valid</p>
+-<p>role_transition</p>
+-<p> rule then use the rules <em>new_role</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <em><strong>default_role </strong>tclass<strong> source</strong></em> rule then use <em>scon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <em><strong>default_role </strong>tclass<strong> target</strong></em> rule then use <em>tcon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <em><strong>process</strong></em>, then use <em>scon</em> <em>role</em></p>
+-<p>ELSE</p>
+-<p>Use <em><strong>object_r</strong></em></p></td>
+-<td><p>If there is a valid</p>
+-<p>type_transition</p>
+-<p>rule then use the rules <em>default_type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <em><strong>default_type </strong>tclass<strong> source</strong></em> rule then use <em>scon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <em><strong>default_type </strong>tclass<strong> target</strong></em> rule then use <em>tcon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <em><strong>process</strong></em>, then use <em>scon</em> <em>type</em></p>
+-<p>ELSE</p>
+-<p>Use <em>tcon</em> <em>type</em></p></td>
+-<td><p> If there is a valid</p>
+-<p>range_transition</p>
+-<p> rule then use the rules <em>new_range</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low</strong> rule then use <em>scon</em> <em>low</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source high</strong> rule then use <em>scon</em> <em>high</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low_high</strong> rule then use <em>scon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low</strong> rule then use <em>tcon</em> <em>low</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target high</strong> rule then use <em>tcon</em> <em>high</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low_high</strong> rule then use <em>tcon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <em><strong>process</strong></em>, then use <em>scon</em> <em>range</em></p>
+-<p>ELSE</p>
+-<p>Use <em>scon</em> <em>low</em></p></td>
+-</tr>
+-</tbody>
+-</table>
 -
--<section class="footnotes">
--<ol>
--<li id="fni1"><p>The SELinux security server does not enforce a decision, it merely
-+1. Edit *security/selinux/include/classmap.h* in the kernel tree and
-+   add the required definition. This will define the class and/or
-+   permission for use in the kernel; the corresponding symbol
-+   definitions will be automatically generated during the kernel build.
-+   If not defined in the policy, then the class and/or permission will
-+   be handled in accordance with the policy's *handle_unknown*
-+   definition, which can be reject (refuse to load the policy), deny
-+   (deny the undefined class/permission), or allow (allow the undefined
-+   class/permission). *handle_unknown* is set to allow in Fedora
-+   policies.
-+2. Edit *refpolicy/policy/flask/security_classes* and/or
-+   *access_vectors* in the refpolicy tree and add your definition.
-+   This will define the class and permission for use in the policy.
-+   These are generally added to the class and/or permission at the end
-+   of the existing list of classes or permissions for that class for
-+   backward compatibility with older kernels. The class and/or
-+   permission definition in policy need not line up with the definition
-+   in the kernel's classmap, as the values will be dynamically mapped
-+   by the kernel. Then add allow rules as appropriate to the policy for
-+   the new permissions.
+-**Table 1**
++   - If a valid *role_transition* rule for *tclass*, then use that
++     instead of the default *object_r*. Also requires policy version
++     26 or greater - see ***security_policyvers**(3)*.
++   - If the *type_transition* rule is classed as the 'file name
++     transition rule' (i.e. it has an *object_name* parameter), then
++     provided the object name in the rule matches the last component of
++     the objects name (in this case a file or directory name), then use
++     the rules *default_type*. Also requires policy version 25 or greater.
++4. For kernels 3.5 and above with policy version 27 or greater, the
++   *default_user*, *default_role*, *default_range* statements will
++   influence the *user*, *role* and *range* of the computed context for
++   the specified class *tclass*. With policy version 28 or greater the
++   *default_type* statement can also influence the *type* in the
++   computed context.
 +
-+[^fn_isa_1]: The SELinux security server does not enforce a decision, it merely
- states whether the operation is allowed or not according to the policy.
- It is the object manager that enforces the decision of the policy /
- security server, therefore an object manager must be trusted. This is
- also true of labeling, the object manager ensures that labels are
--applied to their objects as defined by policy.<a href="#fnisa1" class="footnote-back">↩</a></p></li>
--</ol>
--</section>
-+applied to their objects as defined by policy.
++***Computing avc_compute_create(3) and security_compute_create(3) contexts***:
++
++- ***user***
++  - IF kernel \>= 3.5 with a *default_user tclass target* rule then
++    use *tcon user*
++  - ELSE
++  - Use *scon user*
++- ***role***
++  - IF kernel \>=2.6.39, and there is a valid *role_transition* rule then
++    use the rules [***new_role***](role_statements.md#role_transition)
++  - OR
++  - IF kernel \>= 3.5 with *default_role tclass source* rule then use
++    *scon role*
++  - OR
++  - IF kernel \>= 3.5 with *default_role tclass target* rule then use
++    *tcon role*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket*, then
++    use *scon role*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon role*
++  - ELSE
++  - Use *object_r*
++- ***type***
++  - IF there is a valid *type_transition* rule then use the rules
++    [***default_type***](type_statements.md#type_transition)
++  - OR
++  - IF kernel \>= 3.5 with *default_type tclass source* rule then use
++    *scon type*
++  - OR
++  - IF kernel \>= 3.5 with *default_type tclass target* rule then use
++    *tcon type*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
++    use *scon type*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon type*
++  - **ELSE**
++  - Use *tcon type*
++- ***range***
++  - IF there is a valid *range_transition* rule then use the rules
++    [***new_range***](mls_statements.md#range_transition)
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass source low* rule then
++    use *scon low*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass source high* rule then
++    use *scon high*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass source low_high* rule
++    then use *scon range*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target low* rule then
++    use *tcon low*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target high* rule then
++    use *tcon high*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target low_high* rule
++    then use *tcon range*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
++    use *scon range*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon range*
++  - **ELSE**
++  - Use *scon low*
+ 
+ ### *avc_compute_member* and *security_compute_member*
+ 
+-**Table 2** shows how the components from the source context,
++The table below shows how the components from the source context,
+ *scon* target context, *tcon* and class, *tclass* are used to compute
+ the new context *newcon* (referenced by SIDs for
+ ***avc_compute_member**(3)*). The following notes also apply:
+ 
+-1.  Any valid policy *type_member* enforcement rules will influence the
+-    final outcome as shown.
+-2.  For kernels less than 2.6.39 the context generated will depend on
+-    whether the class is *process* or any other class.
+-3.  For kernels 2.6.39 and above, those classes suffixed by *socket* are
+-    also included in the *process* class outcome.
+-4.  For kernels 3.5 and above with policy version 28 or greater, the
+-    *default_role*, *default_range* statements will influence the
+-    *role* and *range* of the computed context for the specified class
+-    *tclass*. With policy version 28 or greater the *default_type*
+-    statement can also influence the *type* in the computed context.
+-
+-<table>
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>user</strong></td>
+-<td><strong>role</strong></td>
+-<td><strong>type</strong></td>
+-<td><strong>range</strong></td>
+-</tr>
+-<tr>
+-<td>Always uses <em>tcon</em> <em>user</em></td>
+-<td><p>If kernel &gt;= 3.5 with <strong>default_role </strong><em>tclass</em><strong> source</strong> rule then use <em>scon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_role </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <strong>process</strong> or <em>socket</em>, then use <em>scon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>role</em></p>
+-<p>ELSE</p>
+-<p>Use <strong>object_r</strong></p></td>
+-<td><p>If there is a valid</p>
+-<p>type_member</p>
+-<p>rule then use the rules <em>member_type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_type </strong><em>tclass</em><strong> source</strong> rule then use <em>scon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_type </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>type</em></p>
+-<p>ELSE</p>
+-<p>Use <em>tcon</em> <em>type</em></p></td>
+-<td><p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low</strong> rule then use <em>scon</em> <em>low</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source high</strong> rule then use <em>scon</em> <em>high</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low_high</strong> rule then use <em>scon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low</strong> rule then use <em>tcon</em> <em>low</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target high</strong> rule then use <em>tcon</em> <em>high</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low_high</strong> rule then use <em>tcon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <strong>process</strong> or <em>socket</em>, then use <em>scon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>range</em></p>
+-<p>ELSE</p>
+-<p>Use <em>scon</em> <em>low</em></p></td>
+-</tr>
+-</tbody>
+-</table>
+-
+-**Table 2**
++1. Any valid policy [***type_member***](type_statements.md#type_member)
++   enforcement rules will influence the final outcome as shown.
++2. For kernels less than 2.6.39 the context generated will depend on
++   whether the class is *process* or any other class.
++3. For kernels 2.6.39 and above, those classes suffixed by *socket* are
++   also included in the *process* class outcome.
++4. For kernels 3.5 and above with policy version 28 or greater, the
++   *default_role*, *default_range* statements will influence the
++   *role* and *range* of the computed context for the specified class
++   *tclass*. With policy version 28 or greater the *default_type*
++   statement can also influence the *type* in the computed context.
++
++***Computing avc_compute_member(3) and security_compute_member(3) contexts:***
++
++- ***user***
++  - Always uses *tcon user*
++- ***role***
++  - IF kernel \>= 3.5 with *default_role tclass source* rule then use
++    *scon role*
++  - OR
++  - IF kernel \>= 3.5 with *default_role tclass target* rule then use
++    *tcon role*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
++    use *scon role*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon role*
++  - ELSE
++  - Use *object_r*
++- ***type***
++  - IF there is a valid *type_member* rule then use the rules
++    [***member_type***](type_statements.md#type_member)
++  - OR
++  - IF kernel \>= 3.5 with *default_type tclass source* rule then use
++    *scon type*
++  - OR
++  - IF kernel \>= 3.5 with *default_type tclass target* rule then use
++    *tcon type*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
++    use *scon type*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon type*
++  - ELSE
++  - Use *tcon type*
++- ***range***
++  - IF kernel \>= 3.5 with *default_range tclass source low* rule then
++    use *scon low*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass source high* rule then
++    use *scon high*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass source low_high* rule
++    then use *scon range*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target low* rule then
++      use *tcon low*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target high* rule then
++    use *tcon high*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target low_high* rule
++    then use *tcon range*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
++    use *scon range*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon range*
++  - ELSE
++  - Use *scon low*
+ 
+ ### *security_compute_relabel*
+ 
+-**Table 3** below shows how the components from the source context,
++The table below shows how the components from the source context,
+ *scon* target context, *tcon* and class, *tclass* are used to compute
+ the new context *newcon* for ***security_compute_relabel**(3)*. The
+ following notes also apply:
+ 
+-1.  Any valid policy *type_change* enforcement rules will influence the
+-    final outcome shown in the table.
+-2.  For kernels less than 2.6.39 the context generated will depend on
+-    whether the class is *process* or any other class.
+-3.  For kernels 2.6.39 and above, those classes suffixed by *socket*
+-    are also included in the *process* class outcome.
+-4.  For kernels 3.5 and above with policy version 28 or greater, the
+-    *default_user*, *default_role*, *default_range* statements will
+-    influence the *user*, *role* and *range* of the computed context for
+-    the specified class *tclass*. With policy version 28 or greater the
+-    *default_type* statement can also influence the *type* in the
+-    computed context.
+-
+-<table>
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>user</strong></td>
+-<td><strong>role</strong></td>
+-<td><strong>type</strong></td>
+-<td><strong>range</strong></td>
+-</tr>
+-<tr>
+-<td><p>If kernel &gt;= 3.5 with a <strong>default_user </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>user</em></p>
+-<p>ELSE</p>
+-<p>Use <em>scon</em> <em>user</em></p></td>
+-<td><p>If kernel &gt;= 3.5 with <strong>default_role </strong><em>tclass</em><strong> source</strong> rule then use <em>scon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_role </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <strong>process</strong> or <em>socket</em>, then use <em>scon</em> <em>role</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>role</em></p>
+-<p>ELSE</p>
+-<p>Use <strong>object_r</strong></p></td>
+-<td><p>If there is a valid</p>
+-<p>type_change</p>
+-<p>rule then use the rules <em>change_type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_type </strong><em>tclass</em><strong> source</strong> rule then use <em>scon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_type </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>type</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>type</em></p>
+-<p>ELSE</p>
+-<p>Use <em>tcon</em> <em>type</em></p></td>
+-<td><p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low</strong> rule then use <em>scon</em> <em>low</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source high</strong> rule then use <em>scon</em> <em>high</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low_high</strong> rule then use <em>scon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low</strong> rule then use <em>tcon</em> <em>low</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target high</strong> rule then use <em>tcon</em> <em>high</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low_high</strong> rule then use <em>tcon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <strong>process</strong> or <em>socket</em>, then use <em>scon</em> <em>range</em></p>
+-<p>OR</p>
+-<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>range</em></p>
+-<p>ELSE</p>
+-<p>Use <em>scon</em> <em>low</em></p></td>
+-</tr>
+-</tbody>
+-</table>
+-
+-**Table 3**
++1. Any valid policy [***type_change***](type_statements.md#type_change)
++   enforcement rules will influence the final outcome shown in the table.
++2. For kernels less than 2.6.39 the context generated will depend on
++   whether the class is *process* or any other class.
++3. For kernels 2.6.39 and above, those classes suffixed by *socket*
++   are also included in the *process* class outcome.
++4. For kernels 3.5 and above with policy version 28 or greater, the
++   *default_user*, *default_role*, *default_range* statements will
++   influence the *user*, *role* and *range* of the computed context for
++   the specified class *tclass*. With policy version 28 or greater the
++   *default_type* statement can also influence the *type* in the
++   computed context.
++
++***Computing security_compute_relabel(3) contexts:***
++
++- ***user***
++  - If kernel \>= 3.5 with a *default_user tclass target* rule then use
++    *tcon user*
++  - ELSE
++  - Use *scon user*
++- ***role***
++  - IF kernel \>= 3.5 with *default_role tclass source* rule then use
++    *scon role*
++  - OR
++  - IF kernel \>= 3.5 with *default_role tclass target* rule then use
++    *tcon role*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then use
++    *scon role*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon role*
++  - ELSE
++  - Use *object_r*
++- ***type***
++  - IF there is a valid *type_change* rule then use the rules
++    [***change_type***](type_statements.md#type_change)
++  - OR
++  - IF kernel \>= 3.5 with *default_type tclass source* rule then use
++    *scon type*
++  - OR
++  - IF kernel \>= 3.5 with *default_type tclass target* rule then use
++    *tcon type*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then use
++    *scon type*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon type*
++  - ELSE
++  - Use *tcon type*
++- ***range***
++  - IF kernel \>= 3.5 with *default_range tclass source low* rule then use
++    *scon low*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass source high* rule then use
++    *scon high*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass source low_high* rule then
++    use *scon range*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target low* rule then use
++    *tcon low*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target high* rule then use
++    *tcon high*
++  - OR
++  - IF kernel \>= 3.5 with *default_range tclass target low_high* rule then
++    use *tcon range*
++  - OR
++  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then use
++    *scon range*
++  - OR
++  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon range*
++  - ELSE
++  - Use *scon low*
  
  <!-- %CUTHERE% -->
  
