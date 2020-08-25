@@ -7,28 +7,28 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93E69C433EB
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26987C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6564220706
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id EAFAA20706
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="JiciTYT6"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="CNCkUIho"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728986AbgHYIiZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:25 -0400
-Received: from mailomta9-sa.btinternet.com ([213.120.69.15]:51235 "EHLO
-        sa-prd-fep-049.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728145AbgHYIiU (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:20 -0400
+        id S1729184AbgHYIi0 (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:26 -0400
+Received: from mailomta26-sa.btinternet.com ([213.120.69.32]:46596 "EHLO
+        sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728605AbgHYIiS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:18 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-049.btinternet.com with ESMTP
-          id <20200825083810.JHDK4195.sa-prd-fep-049.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Tue, 25 Aug 2020 09:38:10 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344690; 
-        bh=rdfzeAhIXlReKS+I1/cNliu0vPNZfs6ItoLhaS6TReQ=;
+          by sa-prd-fep-047.btinternet.com with ESMTP
+          id <20200825083811.VUFQ4609.sa-prd-fep-047.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Tue, 25 Aug 2020 09:38:11 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344691; 
+        bh=XfI7YSDz9AOp789EAuW2cs4yNvVPVMWv3AJxxnNBuDM=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=JiciTYT6T+CX1DeLUXb6DHPqKpl7QTw1cQjQL9gT/CgwloqtOIlf1GWJ3ySxEFwUYnNrY9q/ajCa9RpMPc9IqVKrQVsa0GoUX4A3iM82TlQUJE5vQuceGY1KpOTZi2YM1pbLbnzlR8Ea803NJRYwo3UFk/Y5ZE7S9LBRJ/I4To9W6GdxjcnlZqSIciv7gz1lxxZRUSsTHSnquPrCXzdRzHeWK2y7JyJRGmVoA/H7nX3wNCPpr+HJQZegTHDih6hbdJcuhy66PaafiM7oILWUrgykZtnBtjIVFUScZWHEi6byGiVbk2d058YaQDg6k21mt7ZD3dupwJCvqmw0W60zCw==
+        b=CNCkUIhoa7mHCwXF7mmtH9A0ynLUiLL4v8R6HGTHtKmLlrYhxpDrAyqQIGi8UA/mg0Pk+ctkeRSZkDlfPhRA4hCBBpqWws16yFpn6xY63dwPjnZNlEV65LN2fC1+TRgvJRka+qKH8GQ9sqWmlksFxnWQ97Z/lFPZV0g7Nf+QR59dEcISXN4y1KcPQCp5HVvQpb5QZY3tWqxber+Qh8T+HRfDC8twSpjntvgSFOwX+d2c85bWmLSjkWmrvUpJzkVOf+mciB9r1ubfOp/fMhA4eKG6luq2kWUFkzf34id0Ltjy01APVhuaBbL72Iet3iIiZbqY8ewrCrveXDrX0TTffg==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
@@ -39,13 +39,13 @@ X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599DD2; Tue, 25 Aug 2020 09:38:10 +0100
+        id 5ED9B8A70D599E2E; Tue, 25 Aug 2020 09:38:11 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 08/18] computing_security_contexts: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:33 +0100
-Message-Id: <20200825083743.6508-9-richard_c_haines@btinternet.com>
+Subject: [PATCH 11/18] constraint_statements: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:36 +0100
+Message-Id: <20200825083743.6508-12-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
@@ -60,765 +60,657 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/computing_security_contexts.md | 662 +++++++++++++++--------------
- 1 file changed, 346 insertions(+), 316 deletions(-)
+ src/constraint_statements.md | 562 ++++++++++++++++-------------------
+ 1 file changed, 251 insertions(+), 311 deletions(-)
 
-diff --git a/src/computing_security_contexts.md b/src/computing_security_contexts.md
-index 5849375..bb946b5 100644
---- a/src/computing_security_contexts.md
-+++ b/src/computing_security_contexts.md
-@@ -1,5 +1,22 @@
- # Computing Security Contexts
+diff --git a/src/constraint_statements.md b/src/constraint_statements.md
+index 4834f6b..4c9a621 100644
+--- a/src/constraint_statements.md
++++ b/src/constraint_statements.md
+@@ -1,93 +1,82 @@
+ # Constraint Statements
  
-+- [Security Context Computation for Kernel Objects](#security-context-computation-for-kernel-objects)
-+  - [Process](#process)
-+  - [Files](#files)
-+  - [File Descriptors](#file-descriptors)
-+  - [Filesystems](#filesystems)
-+  - [Network File System (nfsv4.2)](#network-file-system-nfsv4.2)
-+  - [INET Sockets](#inet-sockets)
-+  - [IPC](#ipc)
-+  - [Message Queues](#message-queues)
-+  - [Semaphores](#semaphores)
-+  - [Shared Memory](#shared-memory)
-+  - [Keys](#keys)
-+- [Using libselinux Functions](#using-libselinux-functions)
-+  - [*avc_compute_create* and *security_compute_create*](#avc_compute_create-and-security_compute_create)
-+  - [*avc_compute_member* and *security_compute_member*](#avc_compute_member-and-security_compute_member)
-+  - [*security_compute_relabel*](#security_compute_relabel)
++- [*constrain*](#constrain)
++- [*validatetrans*](#validatetrans)
++- [*mlsconstrain*](#mlsconstrain)
++- [*mlsvalidatetrans*](#mlsvalidatetrans)
 +
- SELinux uses a number of policy language statements and *libselinux*
- functions to compute a security context via the kernel security server.
+ ## *constrain*
  
-@@ -15,9 +32,9 @@ components: a source context, a target context and an object class.
- The *libselinux* userspace functions used to compute a security context
- are:
+-The constrain statement allows further restriction on permissions for
++The *constrain* statement allows further restriction on permissions for
+ the specified object classes by using boolean expressions covering:
+ source and target types, roles and users as described in the examples.
  
---   ***avc_compute_create**(3)* and ***security_compute_create**(3)*
---   ***avc_compute_member**(3)* and ***security_compute_member**(3)*
---   ***security_compute_relabel**(3)*
-+- ***avc_compute_create**(3)* and ***security_compute_create**(3)*
-+- ***avc_compute_member**(3)* and ***security_compute_member**(3)*
-+- ***security_compute_relabel**(3)*
+ **The statement definition is:**
  
- Note that these *libselinux* functions actually call the kernel
- equivalent functions in the security server (see kernel source
-@@ -53,24 +70,24 @@ The initial task starts with the kernel security context, but the
- (e.g. *init_t*) when the init binary is executed after the policy has
- been loaded. Some init programs re-exec themselves after loading policy,
- while in other cases the initial policy load is performed by the
--*initrd*/*initramfs* script prior to mounting the real root and
--executing the real init program.
-+*initrd*/*initramfs* script prior to mounting the real *root* and
-+executing the real *init* program.
+ ```
+-constrain class perm_set expression;
++constrain class perm_set expression | expr ...;
+ ```
  
- Processes inherit their security context as follows:
+ **Where:**
  
--1.  On fork a process inherits the security context of its
--    creator/parent.
--2.  On *exec*, a process may transition to another security context
--    based on policy statements: *type_transition*, *range_transition*,
--    *role_transition* (policy version 26), *default_user*,
--    *default_role*, *default_range* (policy versions 27) and
--    *default_type* (policy version 28) or if a security-aware process,
--    by calling ***setexeccon**(3)* if permitted by policy prior to
--    invoking exec.
--3.  At any time, a security-aware process may invoke ***setcon**(3)* to
--    switch its security context (if permitted by policy) although this
--    practice is generally discouraged - exec-based transitions are
--    preferred.
-+1. On fork a process inherits the security context of its
-+   creator/parent.
-+2. On *exec*, a process may transition to another security context
-+   based on policy statements: *type_transition*, *range_transition*,
-+   *role_transition* (policy version 26), *default_user*,
-+   *default_role*, *default_range* (policy versions 27) and
-+   *default_type* (policy version 28) or if a security-aware process,
-+   by calling ***setexeccon**(3)* if permitted by policy prior to
-+   invoking exec.
-+3. At any time, a security-aware process may invoke ***setcon**(3)* to
-+   switch its security context (if permitted by policy) although this
-+   practice is generally discouraged - exec-based transitions are
-+   preferred.
- 
- ### Files
- 
-@@ -79,23 +96,23 @@ the following classes: files, symbolic links, directories, socket files,
- fifo's and block/character) upon creation for any filesystem type that
- supports labeling is as follows:
- 
--1.  The user component is inherited from the creating process (policy
--    version 27 allows a *default_user* of source or target to be
--    defined for each object class).
--2.  The role component generally defaults to the *object_r* role
--    (policy version 26 allows a *role_transition* and version 27 allows
--    a *default_role* of source or target to be defined for each object
--    class).
--3.  The type component defaults to the type of the parent directory if
--    no matching *type_transition* rule was specified in the policy
--    (policy version 25 allows a filename *type_transition* rule and
--    version 28 allows a *default_type* of source or target to be
--    defined for each object class).
--4.  The *range*/*level* component defaults to the low/current level of
--    the creating process if no matching *range_transition* rule was
--    specified in the policy (policy version 27 allows a *default_range*
--    of source or target with the selected range being low, high or
--    low-high to be defined for each object class).
-+1. The user component is inherited from the creating process (policy
-+   version 27 allows a *default_user* of source or target to be
-+   defined for each object class).
-+2. The role component generally defaults to the *object_r* role
-+   (policy version 26 allows a *role_transition* and version 27 allows
-+   a *default_role* of source or target to be defined for each object
-+   class).
-+3. The type component defaults to the type of the parent directory if
-+   no matching *type_transition* rule was specified in the policy
-+   (policy version 25 allows a filename *type_transition* rule and
-+   version 28 allows a *default_type* of source or target to be
-+   defined for each object class).
-+4. The *range*/*level* component defaults to the low/current level of
-+   the creating process if no matching *range_transition* rule was
-+   specified in the policy (policy version 27 allows a *default_range*
-+   of source or target with the selected range being low, high or
-+   low-high to be defined for each object class).
- 
- Security-aware applications can override this default behavior by
- calling ***setfscreatecon**(3)* prior to creating the file, if permitted
-@@ -116,7 +133,7 @@ Inherits the label of its creator/parent.
- ### Filesystems
- 
- Filesystems are labeled using the appropriate *fs_use* kernel policy
--language statement as they are mounted, they are based on the filesystem
-+language statement as they are mounted, they are based on the *filesystem*
- type name (e.g. *ext4*) and their behaviour (e.g. *xattr*). For example
- if the policy specifies the following:
- 
-@@ -128,37 +145,37 @@ then as the *pipefs* filesystem is being mounted, the SELinux LSM
- security hook *selinux_set_mnt_opts* will call *security_fs_use*
- that will:
- 
---  Look for the filesystem name within the policy (*pipefs*)
---  If present, obtain its behaviour (*fs_use_task*)
---  Then obtain the allocated security context (*system_u:object_r:fs_t:s0*)
-+- Look for the filesystem name within the policy (*pipefs*)
-+- If present, obtain its behaviour (*fs_use_task*)
-+- Then obtain the allocated security context (*system_u:object_r:fs_t:s0*)
- 
- Should the behaviour be defined as *fs_use_task*, then the filesystem
- will be labeled as follows:
- 
--1.  The user component is inherited from the creating process (policy
--    version 27 allows a *default_user* of source or target to be
--    defined).
--2.  The role component generally defaults to the *object_r* role
--    (policy version 26 allows a *role_transition* and version 27 allows
--    a *default_role* of source or target to be defined).
--3.  The type component defaults to the type of the target type if no
--    matching *type_transition* rule was specified in the policy (policy
--    version 28 allows a *default_type* of source or target to be
--    defined).
--4.  The *range*/*level* component defaults to the low/current level of
--    the creating process if no matching *range_transition* rule was
--    specified in the policy (policy version 27 allows a *default_range*
--    of source or target with the selected range being low, high or
--    low-high to be defined).
-+1. The user component is inherited from the creating process (policy
-+   version 27 allows a *default_user* of source or target to be
-+   defined).
-+2. The role component generally defaults to the *object_r* role
-+   (policy version 26 allows a *role_transition* and version 27 allows
-+   a *default_role* of source or target to be defined).
-+3. The type component defaults to the type of the target type if no
-+   matching *type_transition* rule was specified in the policy (policy
-+   version 28 allows a *default_type* of source or target to be
-+   defined).
-+4. The *range*/*level* component defaults to the low/current level of
-+   the creating process if no matching *range_transition* rule was
-+   specified in the policy (policy version 27 allows a *default_range*
-+   of source or target with the selected range being *low*, *high* or
-+   *low-high* to be defined).
- 
- Notes:
- 
--1.  Filesystems that support *xattr* extended attributes can be
--    identified via the mount command as there will be a '*seclabel*'
--    keyword present.
--2.  There are mount options for allocating various context types:
--    *context=*, *fscontext=*, *defcontext=* and *rootcontext=*. They are
--    fully described in the ***mount**(8)* man page.
-+1. Filesystems that support *xattr* extended attributes can be
-+   identified via the mount command as there will be a '*seclabel*'
-+   keyword present.
-+2. There are mount options for allocating various context types:
-+   *context=*, *fscontext=*, *defcontext=* and *rootcontext=*. They are
-+   fully described in the ***mount**(8)* man page.
- 
- ### Network File System (nfsv4.2)
- 
-@@ -171,22 +188,22 @@ section.
- If a socket is created by the ***socket**(3)* call they are labeled as
- follows:
- 
--1.  The user component is inherited from the creating process (policy
--    version 27 allows a *default_user* of source or target to be
--    defined for each socket object class).
--2.  The role component is inherited from the creating process (policy
--    version 26 allows a *role_transition* and version 27 allows a
--    *default_role* of source or target to be defined for each socket
--    object class).
--3.  The type component is inherited from the creating process if no
--    matching *type_transition* rule was specified in the policy and
--    version 28 allows a *default_type* of source or target to be
--    defined for each socket object class).
--4.  The *range*/*level* component is inherited from the creating process
--    if no matching *range_transition* rule was specified in the policy
--    (policy version 27 allows a *default_range* of source or target
--    with the selected range being low, high or low-high to be defined
--    for each socket object class).
-+1. The user component is inherited from the creating process (policy
-+   version 27 allows a *default_user* of source or target to be
-+   defined for each socket object class).
-+2. The role component is inherited from the creating process (policy
-+   version 26 allows a *role_transition* and version 27 allows a
-+   *default_role* of source or target to be defined for each socket
-+   object class).
-+3. The type component is inherited from the creating process if no
-+   matching *type_transition* rule was specified in the policy and
-+   version 28 allows a *default_type* of source or target to be
-+   defined for each socket object class).
-+4. The *range*/*level* component is inherited from the creating process
-+   if no matching *range_transition* rule was specified in the policy
-+   (policy version 27 allows a *default_range* of source or target
-+   with the selected range being *low*, *high* or *low-high* to be defined
-+   for each socket object class).
- 
- Security-aware applications may use ***setsockcreatecon**(3)* to
- explicitly label sockets they create if permitted by policy.
-@@ -208,22 +225,22 @@ Inherits the label of its sending process. However if sending a message
- that is unlabeled, compute a new label based on the current process and
- the message queue it will be stored in as follows:
- 
--1.  The user component is inherited from the sending process (policy
--    version 27 allows a *default_user* of source or target to be
--    defined for the message object class).
--2.  The role component is inherited from the sending process (policy
--    version 26 allows a *role_transition* and version 27 allows a
--    *default_role* of source or target to be defined for the message
--    object class).
--3.  The type component is inherited from the sending process if no
--    matching *type_transition* rule was specified in the policy and
--    version 28 allows a *default_type* of source or target to be
--    defined for the message object class).
--4.  The *range*/*level* component is inherited from the sending process
--    if no matching *range_transition* rule was specified in the policy
--    (policy version 27 allows a *default_range* of source or target
--    with the selected range being low, high or low-high to be defined
--    for the message object class).
-+1. The user component is inherited from the sending process (policy
-+   version 27 allows a *default_user* of source or target to be
-+   defined for the message object class).
-+2. The role component is inherited from the sending process (policy
-+   version 26 allows a *role_transition* and version 27 allows a
-+   *default_role* of source or target to be defined for the message
-+   object class).
-+3. The type component is inherited from the sending process if no
-+   matching *type_transition* rule was specified in the policy and
-+   version 28 allows a *default_type* of source or target to be
-+   defined for the message object class).
-+4. The *range*/*level* component is inherited from the sending process
-+   if no matching *range_transition* rule was specified in the policy
-+   (policy version 27 allows a *default_range* of source or target
-+   with the selected range being *low*, *high* or *low-high* to be defined
-+   for the message object class).
- 
- ### Semaphores
- 
-@@ -244,249 +261,262 @@ explicitly label keys they create if permitted by policy.
- 
- ### *avc_compute_create* and *security_compute_create*
- 
--**Table 1** below shows how the components from the source context
-+The table below shows how the components from the source context
- *scon*, target context *tcon* and class *tclass* are used to compute the
- new context *newcon* (referenced by SIDs for
- ***avc_compute_create**(3)*). The following notes also apply:
- 
--1.  Any valid policy *role_transition*, *type_transition* and
--    *range_transition* enforcement rules will influence the final
--    outcome as shown.
--2.  For kernels less than 2.6.39 the context generated will depend on
--    whether the class is *process* or any other class.
--3.  For kernels 2.6.39 and above the following also applies:
---   Those classes suffixed by *socket* will also be included in the *process*
-+1. Any valid policy [***role_transition***](role_statements.md#role_transition),
-+   [***type_transition***](type_statements.md#type_transition) and
-+   [***range_transition***](mls_statements.md#range_transition) enforcement
-+   rules will influence the final outcome as shown.
-+2. For kernels less than 2.6.39 the context generated will depend on
-+   whether the class is *process* or any other class.
-+3. For kernels 2.6.39 and above the following also applies:
-+   - Those classes suffixed by *socket* will also be included in the *process*
-     class outcome.
---   If a valid *role_transition* rule for *tclass*, then use that
--    instead of the default *object_r*. Also requires policy version
--    26 or greater - see ***security_policyvers**(3)*.
---   If the *type_transition* rule is classed as the 'file name
--    transition rule' (i.e. it has an *object_name* parameter), then
--    provided the object name in the rule matches the last component of
--    the objects name (in this case a file or directory name), then use
--    the rules *default_type*. Also requires policy version 25 or greater.
--4.  For kernels 3.5 and above with policy version 27 or greater, the
--    *default_user*, *default_role*, *default_range* statements will
--    influence the *user*, *role* and *range* of the computed context for
--    the specified class *tclass*. With policy version 28 or greater the
--    *default_type* statement can also influence the *type* in the
--    computed context.
--
 -<table>
 -<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>user</strong></td>
--<td><strong>role</strong></td>
--<td><strong>type</strong></td>
--<td><strong>range</strong></td>
+-<tr>
+-<td><code>constrain</code></td>
+-<td>The <code>constrain</code> keyword.</td>
 -</tr>
 -<tr>
--<td><p>If kernel &gt;= 3.5 with a <strong>default_user </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>user</em></p>
--<p>ELSE</p>
--<p>Use <em>scon</em> <em>user</em></p></td>
--<td><p>If kernel &gt;=2.6.39, and there is a valid</p>
--<p>role_transition</p>
--<p> rule then use the rules <em>new_role</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <em><strong>default_role </strong>tclass<strong> source</strong></em> rule then use <em>scon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <em><strong>default_role </strong>tclass<strong> target</strong></em> rule then use <em>tcon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <em><strong>process</strong></em>, then use <em>scon</em> <em>role</em></p>
--<p>ELSE</p>
--<p>Use <em><strong>object_r</strong></em></p></td>
--<td><p>If there is a valid</p>
--<p>type_transition</p>
--<p>rule then use the rules <em>default_type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <em><strong>default_type </strong>tclass<strong> source</strong></em> rule then use <em>scon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <em><strong>default_type </strong>tclass<strong> target</strong></em> rule then use <em>tcon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <em><strong>process</strong></em>, then use <em>scon</em> <em>type</em></p>
--<p>ELSE</p>
--<p>Use <em>tcon</em> <em>type</em></p></td>
--<td><p> If there is a valid</p>
--<p>range_transition</p>
--<p> rule then use the rules <em>new_range</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low</strong> rule then use <em>scon</em> <em>low</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source high</strong> rule then use <em>scon</em> <em>high</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low_high</strong> rule then use <em>scon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low</strong> rule then use <em>tcon</em> <em>low</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target high</strong> rule then use <em>tcon</em> <em>high</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low_high</strong> rule then use <em>tcon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <em><strong>process</strong></em>, then use <em>scon</em> <em>range</em></p>
--<p>ELSE</p>
--<p>Use <em>scon</em> <em>low</em></p></td>
+-<td><code>class</code></td>
+-<td>One or more object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
+-</tr>
+-<tr>
+-<td><code>perm_set</code></td>
+-<td>One or more permissions. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
+-</tr>
+-<tr>
+-<td><code>expression</code></td>
+-<td>The boolean expression of the constraint that is defined as follows:</td>
+-</tr>
+-<tr>
+-<td></td>
+-<td><p> <code>( expression : expression )</code> </p>
+-<p><code>| not expression</code></p>
+-<p><code>| expression and expression</code></p>
+-<p><code>| expression or expression</code></p>
+-<p><code>| u1 op u2</code></p>
+-<p><code>| r1 role_op r2</code></p>
+-<p><code>| t1 op t2</code></p>
+-<p><code>| u1 op names</code></p>
+-<p><code>| u2 op names</code></p>
+-<p><code>| r1 op names</code></p>
+-<p><code>| r2 op names</code></p>
+-<p><code>| t1 op names</code></p>
+-<p><code>| t2 op names</code></p></td>
+-</tr>
+-<tr>
+-<td><p>Where:</p>
+-<p>u1, r1, t1 = Source user, role, type</p>
+-<p>u2, r2, t2 = Target user, role, type</p>
+-<p>and:</p>
+-<p>op : == | != </p>
+-<p>role_op : == | != | eq | dom | domby | incomp</p>
+-<p>names : name | { name_list }</p>
+-<p>name_list : name | name_list name</p></td>
+-<td></td>
 -</tr>
 -</tbody>
 -</table>
--
--**Table 1**
-+   - If a valid *role_transition* rule for *tclass*, then use that
-+     instead of the default *object_r*. Also requires policy version
-+     26 or greater - see ***security_policyvers**(3)*.
-+   - If the *type_transition* rule is classed as the 'file name
-+     transition rule' (i.e. it has an *object_name* parameter), then
-+     provided the object name in the rule matches the last component of
-+     the objects name (in this case a file or directory name), then use
-+     the rules *default_type*. Also requires policy version 25 or greater.
-+4. For kernels 3.5 and above with policy version 27 or greater, the
-+   *default_user*, *default_role*, *default_range* statements will
-+   influence the *user*, *role* and *range* of the computed context for
-+   the specified class *tclass*. With policy version 28 or greater the
-+   *default_type* statement can also influence the *type* in the
-+   computed context.
++*constrain*
 +
-+***Computing avc_compute_create(3) and security_compute_create(3) contexts***:
++The *constrain* keyword.
 +
-+- ***user***
-+  - IF kernel \>= 3.5 with a *default_user tclass target* rule then
-+    use *tcon user*
-+  - ELSE
-+  - Use *scon user*
-+- ***role***
-+  - IF kernel \>=2.6.39, and there is a valid *role_transition* rule then
-+    use the rules [***new_role***](role_statements.md#role_transition)
-+  - OR
-+  - IF kernel \>= 3.5 with *default_role tclass source* rule then use
-+    *scon role*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_role tclass target* rule then use
-+    *tcon role*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket*, then
-+    use *scon role*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon role*
-+  - ELSE
-+  - Use *object_r*
-+- ***type***
-+  - IF there is a valid *type_transition* rule then use the rules
-+    [***default_type***](type_statements.md#type_transition)
-+  - OR
-+  - IF kernel \>= 3.5 with *default_type tclass source* rule then use
-+    *scon type*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_type tclass target* rule then use
-+    *tcon type*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
-+    use *scon type*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon type*
-+  - **ELSE**
-+  - Use *tcon type*
-+- ***range***
-+  - IF there is a valid *range_transition* rule then use the rules
-+    [***new_range***](mls_statements.md#range_transition)
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass source low* rule then
-+    use *scon low*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass source high* rule then
-+    use *scon high*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass source low_high* rule
-+    then use *scon range*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target low* rule then
-+    use *tcon low*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target high* rule then
-+    use *tcon high*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target low_high* rule
-+    then use *tcon range*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
-+    use *scon range*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon range*
-+  - **ELSE**
-+  - Use *scon low*
++*class*
++
++One or more object classes. Multiple entries consist of a space separated list
++enclosed in braces \'\{\}\'.
++
++*perm_set*
++
++One or more permissions. Multiple entries consist of a space separated list
++enclosed in braces \'\{\}\'.
++
++*expression*
++
++There must be one constraint *expression* or one or more *expr*'s. An
++*expression* consists of '*operand operator operand*' as follows:
++
++- *( u1 op u2 )*
++- *( r1 role_op r2 )*
++- *( t1 op t2 )*
++- *( u1 op names )*
++- *( u2 op names )*
++- *( r1 op names )*
++- *( r2 op names )*
++- *( t1 op names )*
++- *( t2 op names )*
++- Where:
++  - *u1*, *r1*, *t1* = Source *user*, *role*, *type*
++  - *u2*, *r2*, *t2* = Target *user*, *role*, *type*
++- And:
++  - *op : == | !=*
++  - *role_op : == | != | eq | dom | domby | incomp*
++  - *names : name | { name_list }*
++  - *name_list : name | name_list name*
++
++*expr*
++
++Zero or more *expr*'s, the valid operators and syntax are:
++
++- *( not expression )*
++- *( expression and expression )*
++- *( expression or expression )*
  
- ### *avc_compute_member* and *security_compute_member*
+ **The statement is valid in:**
  
--**Table 2** shows how the components from the source context,
-+The table below shows how the components from the source context,
- *scon* target context, *tcon* and class, *tclass* are used to compute
- the new context *newcon* (referenced by SIDs for
- ***avc_compute_member**(3)*). The following notes also apply:
- 
--1.  Any valid policy *type_member* enforcement rules will influence the
--    final outcome as shown.
--2.  For kernels less than 2.6.39 the context generated will depend on
--    whether the class is *process* or any other class.
--3.  For kernels 2.6.39 and above, those classes suffixed by *socket* are
--    also included in the *process* class outcome.
--4.  For kernels 3.5 and above with policy version 28 or greater, the
--    *default_role*, *default_range* statements will influence the
--    *role* and *range* of the computed context for the specified class
--    *tclass*. With policy version 28 or greater the *default_type*
--    statement can also influence the *type* in the computed context.
--
--<table>
+-<table style="text-align:center">
 -<tbody>
 -<tr style="background-color:#D3D3D3;">
--<td><strong>user</strong></td>
--<td><strong>role</strong></td>
--<td><strong>type</strong></td>
--<td><strong>range</strong></td>
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
 -</tr>
 -<tr>
--<td>Always uses <em>tcon</em> <em>user</em></td>
--<td><p>If kernel &gt;= 3.5 with <strong>default_role </strong><em>tclass</em><strong> source</strong> rule then use <em>scon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_role </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <strong>process</strong> or <em>socket</em>, then use <em>scon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>role</em></p>
--<p>ELSE</p>
--<p>Use <strong>object_r</strong></p></td>
--<td><p>If there is a valid</p>
--<p>type_member</p>
--<p>rule then use the rules <em>member_type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_type </strong><em>tclass</em><strong> source</strong> rule then use <em>scon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_type </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>type</em></p>
--<p>ELSE</p>
--<p>Use <em>tcon</em> <em>type</em></p></td>
--<td><p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low</strong> rule then use <em>scon</em> <em>low</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source high</strong> rule then use <em>scon</em> <em>high</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low_high</strong> rule then use <em>scon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low</strong> rule then use <em>tcon</em> <em>low</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target high</strong> rule then use <em>tcon</em> <em>high</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low_high</strong> rule then use <em>tcon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <strong>process</strong> or <em>socket</em>, then use <em>scon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>range</em></p>
--<p>ELSE</p>
--<p>Use <em>scon</em> <em>low</em></p></td>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
 -</tr>
 -</tbody>
 -</table>
--
--**Table 2**
-+1. Any valid policy [***type_member***](type_statements.md#type_member)
-+   enforcement rules will influence the final outcome as shown.
-+2. For kernels less than 2.6.39 the context generated will depend on
-+   whether the class is *process* or any other class.
-+3. For kernels 2.6.39 and above, those classes suffixed by *socket* are
-+   also included in the *process* class outcome.
-+4. For kernels 3.5 and above with policy version 28 or greater, the
-+   *default_role*, *default_range* statements will influence the
-+   *role* and *range* of the computed context for the specified class
-+   *tclass*. With policy version 28 or greater the *default_type*
-+   statement can also influence the *type* in the computed context.
++Policy Type
 +
-+***Computing avc_compute_member(3) and security_compute_member(3) contexts:***
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
 +
-+- ***user***
-+  - Always uses *tcon user*
-+- ***role***
-+  - IF kernel \>= 3.5 with *default_role tclass source* rule then use
-+    *scon role*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_role tclass target* rule then use
-+    *tcon role*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
-+    use *scon role*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon role*
-+  - ELSE
-+  - Use *object_r*
-+- ***type***
-+  - IF there is a valid *type_member* rule then use the rules
-+    [***member_type***](type_statements.md#type_member)
-+  - OR
-+  - IF kernel \>= 3.5 with *default_type tclass source* rule then use
-+    *scon type*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_type tclass target* rule then use
-+    *tcon type*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
-+    use *scon type*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon type*
-+  - ELSE
-+  - Use *tcon type*
-+- ***range***
-+  - IF kernel \>= 3.5 with *default_range tclass source low* rule then
-+    use *scon low*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass source high* rule then
-+    use *scon high*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass source low_high* rule
-+    then use *scon range*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target low* rule then
-+      use *tcon low*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target high* rule then
-+    use *tcon high*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target low_high* rule
-+    then use *tcon range*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then
-+    use *scon range*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon range*
-+  - ELSE
-+  - Use *scon low*
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
  
- ### *security_compute_relabel*
+ **Examples:**
  
--**Table 3** below shows how the components from the source context,
-+The table below shows how the components from the source context,
- *scon* target context, *tcon* and class, *tclass* are used to compute
- the new context *newcon* for ***security_compute_relabel**(3)*. The
- following notes also apply:
+@@ -174,12 +163,12 @@ constrain { dir file lnk_file sock_file fifo_file chr_file blk_file } { create r
  
--1.  Any valid policy *type_change* enforcement rules will influence the
--    final outcome shown in the table.
--2.  For kernels less than 2.6.39 the context generated will depend on
--    whether the class is *process* or any other class.
--3.  For kernels 2.6.39 and above, those classes suffixed by *socket*
--    are also included in the *process* class outcome.
--4.  For kernels 3.5 and above with policy version 28 or greater, the
--    *default_user*, *default_role*, *default_range* statements will
--    influence the *user*, *role* and *range* of the computed context for
--    the specified class *tclass*. With policy version 28 or greater the
--    *default_type* statement can also influence the *type* in the
--    computed context.
--
+ ## *validatetrans*
+ 
+-This statement is used to control the ability to change the objects
+-security context.
++The *validatetrans* statement is used to control the ability to change the
++objects security context.
+ 
+-The first context *u1.r1.t1* is the context before the transition, the
+-second context *u2.r2.t2* is the context after the transition, and the
+-third *u3.r3.t3* is the context of the process performing the transition.
++The first context *u1:r1:t1* is the context before the transition, the
++second context *u2:r2:t2* is the context after the transition, and the
++third *u3:r3:t3* is the context of the process performing the transition.
+ 
+ Note there are no *validatetrans* statements specified within the
+ **Reference Policy** source.
+@@ -187,95 +176,78 @@ Note there are no *validatetrans* statements specified within the
+ **The statement definition is:**
+ 
+ ```
+-validatetrans class expression;
++validatetrans class  expression | expr ...;
+ ```
+ 
+ **Where:**
+ 
 -<table>
 -<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>user</strong></td>
--<td><strong>role</strong></td>
--<td><strong>type</strong></td>
--<td><strong>range</strong></td>
+-<tr>
+-<td><code>validatetrans</code></td>
+-<td>The <code>validatetrans</code> keyword.</td>
 -</tr>
 -<tr>
--<td><p>If kernel &gt;= 3.5 with a <strong>default_user </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>user</em></p>
--<p>ELSE</p>
--<p>Use <em>scon</em> <em>user</em></p></td>
--<td><p>If kernel &gt;= 3.5 with <strong>default_role </strong><em>tclass</em><strong> source</strong> rule then use <em>scon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_role </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <strong>process</strong> or <em>socket</em>, then use <em>scon</em> <em>role</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>role</em></p>
--<p>ELSE</p>
--<p>Use <strong>object_r</strong></p></td>
--<td><p>If there is a valid</p>
--<p>type_change</p>
--<p>rule then use the rules <em>change_type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_type </strong><em>tclass</em><strong> source</strong> rule then use <em>scon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_type </strong><em>tclass</em><strong> target</strong> rule then use <em>tcon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <em><strong>process</strong></em> or <em>socket</em>, then use <em>scon</em> <em>type</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>type</em></p>
--<p>ELSE</p>
--<p>Use <em>tcon</em> <em>type</em></p></td>
--<td><p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low</strong> rule then use <em>scon</em> <em>low</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source high</strong> rule then use <em>scon</em> <em>high</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> source low_high</strong> rule then use <em>scon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low</strong> rule then use <em>tcon</em> <em>low</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target high</strong> rule then use <em>tcon</em> <em>high</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 3.5 with <strong>default_range </strong><em>tclass</em><strong> target low_high</strong> rule then use <em>tcon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &gt;= 2.6.39 and <em>tclass</em> is <strong>process</strong> or <em>socket</em>, then use <em>scon</em> <em>range</em></p>
--<p>OR</p>
--<p>If kernel &lt;= 2.6.38 and <em>tclass</em> is <strong>process</strong>, then use <em>scon</em> <em>range</em></p>
--<p>ELSE</p>
--<p>Use <em>scon</em> <em>low</em></p></td>
+-<td><code>class</code></td>
+-<td>One or more file related object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
+-</tr>
+-<tr>
+-<td><code>expression</code></td>
+-<td>The boolean expression of the constraint that is defined as follows:</td>
+-</tr>
+-<tr>
+-<td></td>
+-<td><p><code>( expression : expression )</code> </p>
+-<p><code>| not expression</code></p>
+-<p><code>| expression and expression</code></p>
+-<p><code>| expression or expression</code></p>
+-<p><code>| u1 op u2</code></p>
+-<p><code>| r1 role_op r2</code></p>
+-<p><code>| t1 op t2</code></p>
+-<p><code>| u1 op names</code></p>
+-<p><code>| u2 op names</code></p>
+-<p><code>| r1 op names</code></p>
+-<p><code>| r2 op names</code></p>
+-<p><code>| t1 op names</code></p>
+-<p><code>| t2 op names</code></p>
+-<p><code>| u3 op names</code></p>
+-<p><code>| r3 op names</code></p>
+-<p><code>| t3 op names</p></code></td>
+-</tr>
+-<tr>
+-<td><p>Where:</p>
+-<p>u1, r1, t1 = Old user, role, type</p>
+-<p>u2, r2, t2 = New user, role, type</p>
+-<p>u3, r3, t3 = Process user, role, type</p>
+-<p>and:</p>
+-<p>op : == | !=</p>
+-<p>role_op : == | != | eq | dom | domby | incomp</p>
+-<p>names : name | { name_list }</p>
+-<p>name_list : name | name_list name</p></td>
+-<td></td>
 -</tr>
 -</tbody>
 -</table>
--
--**Table 3**
-+1. Any valid policy [***type_change***](type_statements.md#type_change)
-+   enforcement rules will influence the final outcome shown in the table.
-+2. For kernels less than 2.6.39 the context generated will depend on
-+   whether the class is *process* or any other class.
-+3. For kernels 2.6.39 and above, those classes suffixed by *socket*
-+   are also included in the *process* class outcome.
-+4. For kernels 3.5 and above with policy version 28 or greater, the
-+   *default_user*, *default_role*, *default_range* statements will
-+   influence the *user*, *role* and *range* of the computed context for
-+   the specified class *tclass*. With policy version 28 or greater the
-+   *default_type* statement can also influence the *type* in the
-+   computed context.
++*validatetrans*
 +
-+***Computing security_compute_relabel(3) contexts:***
++The *validatetrans* keyword.
 +
-+- ***user***
-+  - If kernel \>= 3.5 with a *default_user tclass target* rule then use
-+    *tcon user*
-+  - ELSE
-+  - Use *scon user*
-+- ***role***
-+  - IF kernel \>= 3.5 with *default_role tclass source* rule then use
-+    *scon role*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_role tclass target* rule then use
-+    *tcon role*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then use
-+    *scon role*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon role*
-+  - ELSE
-+  - Use *object_r*
-+- ***type***
-+  - IF there is a valid *type_change* rule then use the rules
-+    [***change_type***](type_statements.md#type_change)
-+  - OR
-+  - IF kernel \>= 3.5 with *default_type tclass source* rule then use
-+    *scon type*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_type tclass target* rule then use
-+    *tcon type*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then use
-+    *scon type*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon type*
-+  - ELSE
-+  - Use *tcon type*
-+- ***range***
-+  - IF kernel \>= 3.5 with *default_range tclass source low* rule then use
-+    *scon low*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass source high* rule then use
-+    *scon high*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass source low_high* rule then
-+    use *scon range*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target low* rule then use
-+    *tcon low*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target high* rule then use
-+    *tcon high*
-+  - OR
-+  - IF kernel \>= 3.5 with *default_range tclass target low_high* rule then
-+    use *tcon range*
-+  - OR
-+  - IF kernel \>= 2.6.39 and *tclass* is *process* or *\*socket* then use
-+    *scon range*
-+  - OR
-+  - IF kernel \<= 2.6.38 and *tclass* is *process* then use *scon range*
-+  - ELSE
-+  - Use *scon low*
++*class*
++
++One or more object classes. Multiple entries consist of a space separated list
++enclosed in braces \'\{\}\'.
++
++*expression*
++
++There must be one constraint *expression* or one or more *expr*'s. An
++*expression* consists of '*operand operator operand*' as follows:
++
++- *( u1 op u2 )*
++- *( r1 role_op r2 )*
++- *( t1 op t2 )*
++- *( u1 op names )*
++- *( u2 op names )*
++- *( u3 op names )*
++- *( r1 op names )*
++- *( r2 op names )*
++- *( r3 op names )*
++- *( t1 op names )*
++- *( t2 op names )*
++- *( t3 op names )*
++- Where:
++  - *u1*, *r1*, *t1* = Source *user*, *role*, *type*
++  - *u2*, *r2*, *t2* = Target *user*, *role*, *type*
++  - *u3*, *r3*, *t3* = Process *user*, *role*, *type*
++- And:
++  - *op : == | !=*
++  - *role_op : == | != | eq | dom | domby | incomp*
++  - *names : name | { name_list }*
++  - *name_list : name | name_list name*
++
++*expr*
++
++Zero or more *expr*'s, the valid operators and syntax are:
++
++- *( not expression )*
++- *( expression and expression )*
++- *( expression or expression )*
  
- <!-- %CUTHERE% -->
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Example:**
+ 
+ ```
+-validatetrans { file } { t1 == unconfined_t );
++validatetrans { file } ( t1 == unconfined_t );
+ ```
+ 
+ ## *mlsconstrain*
+ 
+-The mlsconstrain statement allows further restriction on permissions for
++The *mlsconstrain* statement allows further restriction on permissions for
+ the specified object classes by using boolean expressions covering:
+ source and target types, roles, users and security levels as described
+ in the examples.
+@@ -283,91 +255,75 @@ in the examples.
+ **The statement definition is:**
+ 
+ ```
+-mlsconstrain class perm_set expression;
++mlsconstrain class perm_set expression | expr ...;
+ ```
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>mlsconstrain</code></td>
+-<td>The <code>mlsconstrain</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>class</code></td>
+-<td>One or more object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
+-</tr>
+-<tr>
+-<td><code>perm_set</code></td>
+-<td>One or more permissions. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
+-</tr>
+-<tr>
+-<td><code>expression<code></td>
+-<td>The boolean expression of the constraint that is defined as follows:</td>
+-</tr>
+-<tr>
+-<td></td>
+-<td><p><code> ( expression : expression ) </code></p>
+-<p><code>| not expression</code></p>
+-<p><code>| expression and expression</code></p>
+-<p><code>| expression or expression</code></p>
+-<p><code>| u1 op u2</code></p>
+-<p><code>| r1 role_mls_op r2</code></p>
+-<p><code>| t1 op t2</code></p>
+-<p><code>| l1 role_mls_op l2</code></p>
+-<p><code>| l1 role_mls_op h2</code></p>
+-<p><code>| h1 role_mls_op l2</code></p>
+-<p><code>| h1 role_mls_op h2</code></p>
+-<p><code>| l1 role_mls_op h1</code></p>
+-<p><code>| l2 role_mls_op h2</code></p>
+-<p><code>| u1 op names</code></p>
+-<p><code>| u2 op names</code></p>
+-<p><code>| r1 op names</code></p>
+-<p><code>| r2 op names</code></p>
+-<p><code>| t1 op names</code></p>
+-<p><code>| t2 op names</code></p></td>
+-</tr>
+-<tr>
+-<td><p>Where:</p>
+-<p>u1, r1, t1, l1, h1 = Source user, role, type, low level, high level</p>
+-<p>u2, r2, t2, l2, h2 = Target user, role, type, low level, high level</p>
+-<p>and:</p>
+-<p>op : == | !=</p>
+-<p>role_mls_op : == | != | eq | dom | domby | incomp</p>
+-<p>names : name | { name_list }</p>
+-<p>name_list : name | name_list name</p></td>
+-<td></td>
+-</tr>
+-</tbody>
+-</table>
++*mlsconstrain*
++
++The *mlsconstrain* keyword.
++
++*class*
++
++One or more object classes. Multiple entries consist of a space separated
++list enclosed in braces \'\{\}\'.
++
++*perm_set*
++
++One or more permissions. Multiple entries consist of a space separated
++list enclosed in braces \'\{\}\'.
++
++*expression*
++
++There must be one constraint *expression* or one or more *expr*'s. An
++*expression* consists of '*operand operator operand*' as follows:
++
++- *( u1 op u2 )*
++- *( r1 role_mls_op r2 )*
++- *( t1 op t2 )*
++- *( l1 role_mls_op l2 )*
++- *( l1 role_mls_op h2 )*
++- *( h1 role_mls_op l2 )*
++- *( h1 role_mls_op h2 )*
++- *( l1 role_mls_op h1 )*
++- *( l2 role_mls_op h2 )*
++- *( u1 op names )*
++- *( u2 op names )*
++- *( r1 op names )*
++- *( r2 op names )*
++- *( t1 op names )*
++- *( t2 op names )*
++- Where:
++  - *u1*, *r1*, *t1*, *l1*, *h1* = Source *user*, *role*, *type*, *low*, *high*
++  - *u2*, *r2*, *t2*, *l2*, *h2* = Target *user*, *role*, *type*, *low*, *high*
++- And:
++  - *op : == | !=*
++  - *role_mls_op : == | != | eq | dom | domby | incomp*
++  - *names : name | { name_list }*
++  - *name_list : name | name_list name*
++
++*expr*
++
++Zero or more *expr*'s, the valid operators and syntax are:
++
++- *( not expression )*
++- *( expression and expression )*
++- *( expression or expression )*
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Example:**
+ 
+@@ -404,98 +360,82 @@ The *mlsvalidatetrans* is the MLS equivalent of the *validatetrans*
+ statement where it is used to control the ability to change the objects
+ security context.
+ 
+-The first context *u1.r1.t1* is the context before the transition, the
+-second context *u2.r2.t2* is the context after the transition, and the
+-third *u3.r3.t3* is the context of the process performing the transition.
++The first context *u1:r1:t1:l1-h1* is the context before the transition, the
++second context *u2:r2:t2:l2-h2* is the context after the transition, and the
++third *u3:r3:t3:*\[*range*\] is the context of the process performing the
++transition.
+ 
+ **The statement definition is:**
+ 
+ ```
+-mlsvalidatetrans class expression;
++mlsvalidatetrans class expression | expr ...;
+ ```
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>mlsvalidatetrans</code></td>
+-<td>The <code>mlsvalidatetrans</code> keyword.</td>
+-</tr>
+-<tr>
+-<td><code>class</code></td>
+-<td>One or more file type object classes. Multiple entries consist of a space separated list enclosed in braces '{}'.</td>
+-</tr>
+-<tr>
+-<td><code>expression</code></td>
+-<td>The boolean expression of the constraint that is defined as follows:</td>
+-</tr>
+-<tr>
+-<td></td>
+-<td><p><code>( expression : expression ) </code></p>
+-<p><code>| not expression</code></p>
+-<p><code>| and (expression and expression</code></p>
+-<p><code>| or expression or expression</code></p>
+-<p><code>| u1 op u2</code></p>
+-<p><code>| r1 role_mls_op r2</code></p>
+-<p><code>| t1 op t2</code></p>
+-<p><code>| l1 role_mls_op l2</code></p>
+-<p><code>| l1 role_mls_op h2</code></p>
+-<p><code>| h1 role_mls_op l2</code></p>
+-<p><code>| h1 role_mls_op h2</code></p>
+-<p><code>| l1 role_mls_op h1</code></p>
+-<p><code>| l2 role_mls_op h2</code></p>
+-<p><code>| u1 op names</code></p>
+-<p><code>| u2 op names</code></p>
+-<p><code>| r1 op names</code></p>
+-<p><code>| r2 op names</code></p>
+-<p><code>| t1 op names</code></p>
+-<p><code>| t2 op names</code></p>
+-<p><code>| u3 op names</code></p>
+-<p><code>| r3 op names</code></p>
+-<p><code>| t3 op names</code></p></td>
+-</tr>
+-<tr>
+-<td><p>Where:</p>
+-<p>u1, r1, t1, l1, h1 = Old user, role, type, low level, high level</p>
+-<p>u2, r2, t2, l2, h2 = New user, role, type, low level, high level</p>
+-<p>u3, r3, t3, l3, h3 = Process user, role, type, low level, high level</p>
+-<p>and:</p>
+-<p>op : == | !=</p>
+-<p>role_mls_op : == | != | eq | dom | domby | incomp</p>
+-<p>names : name | { name_list }</p>
+-<p>name_list : name | name_list name</p></td>
+-<td></td>
+-</tr>
+-</tbody>
+-</table>
++*mlsvalidatetrans*
++
++The *mlsvalidatetrans* keyword.
++
++*class*
++
++One or more object classes. Multiple entries consist of a space separated list
++enclosed in braces \'\{\}\'.
++
++*expression*
++
++There must be one constraint *expression* or one or more *expr*'s. An
++*expression* consists of '*operand operator operand*' as follows:
++
++- *( u1 op u2 )*
++- *( r1 role_mls_op r2 )*
++- *( t1 op t2 )*
++- *( l1 role_mls_op l2 )*
++- *( l1 role_mls_op h2 )*
++- *( h1 role_mls_op l2 )*
++- *( h1 role_mls_op h2 )*
++- *( l1 role_mls_op h1 )*
++- *( l2 role_mls_op h2 )*
++- *( u1 op names )*
++- *( u2 op names )*
++- *( u3 op names )*
++- *( r1 op names )*
++- *( r2 op names )*
++- *( r3 op names )*
++- *( t1 op names )*
++- *( t2 op names )*
++- *( t3 op names )*
++- Where:
++  - *u1*, *r1*, *t1*, *l1*, *h1* = Source *user*, *role*, *type*, *low*, *high*
++  - *u2*, *r2*, *t2*, *l2*, *h2* = Target *user*, *role*, *type*, *low*, *high*
++  - *u3*, *r3*, *t3*, \[*range*\] = Process *user*, *role*, *type*, \[*range*\]
++- And:
++  - *op : == | !=*
++  - *role_mls_op : == | != | eq | dom | domby | incomp*
++  - *names : name | { name_list }*
++  - *name_list : name | name_list name*
++
++*expr*
++
++Zero or more *expr*'s, the valid operators and syntax are:
++
++- *( not expression )*
++- *( expression and expression )*
++- *( expression or expression )*
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Example:**
  
 -- 
 2.26.2
