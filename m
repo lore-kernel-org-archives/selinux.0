@@ -2,184 +2,186 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY autolearn=no
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22883C433E1
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 12:51:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0FD5C433E1
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 13:09:44 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D78072075F
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 12:51:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 71EBD2074A
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 13:09:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="yGKnSTMZ"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="1KZvR4CE"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726752AbgHYMvl (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 08:51:41 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:47946 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726336AbgHYMvk (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 08:51:40 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07PCilxX112615;
-        Tue, 25 Aug 2020 12:51:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
- : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
- bh=ixHxOsosoizUbLpQlj1KssPo9vyrR+f5BtYiUgnA3Rw=;
- b=yGKnSTMZ4Vi0uGfJTR0ifczqf592Z8LnAWy3gVhqPo2GtKgKIdUejYFfUIcXL5+JYtGs
- O/XcXVJ9JIGUmYy6WUrV10Nv8e1Nr0fK6DHV6TDmA7/M7LPsVDwK3VQiCftjwKmdjtrq
- lwDgl1/7Ytqcth3f/fXJ/Ft61+OFM/+dNL3xkLGQF5v3Iyf4TPcUd/V6K9TSVesL3R7c
- deIMrQyF/WVBAtmPl73Aq99P7Scnzvl1t6iocYvdIC8AXDGKFIJ8ufZvV9+hueQq5YTf
- u1S0OJ3fxIg9Und5JUEVFW4lF2Nzdb2pzIcwamp3s6gsfChaa2lxvPu9LYkqJtsO0shX hw== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by userp2130.oracle.com with ESMTP id 333csj2a90-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Tue, 25 Aug 2020 12:51:38 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 07PCils2083086;
-        Tue, 25 Aug 2020 12:51:37 GMT
-Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
-        by aserp3030.oracle.com with ESMTP id 333r9juaj5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 25 Aug 2020 12:51:37 +0000
-Received: from abhmp0010.oracle.com (abhmp0010.oracle.com [141.146.116.16])
-        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 07PCpaxj003005;
-        Tue, 25 Aug 2020 12:51:36 GMT
-Received: from mwanda (/41.57.98.10)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Tue, 25 Aug 2020 05:51:35 -0700
-Date:   Tue, 25 Aug 2020 15:51:30 +0300
-From:   Dan Carpenter <dan.carpenter@oracle.com>
-To:     stephen.smalley.work@gmail.com
-Cc:     selinux@vger.kernel.org
-Subject: [bug report] selinux: encapsulate policy state, refactor policy load
-Message-ID: <20200825125130.GA304650@mwanda>
+        id S1726585AbgHYNJn (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 09:09:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48988 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726015AbgHYNJl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 09:09:41 -0400
+Received: from mail-ej1-x644.google.com (mail-ej1-x644.google.com [IPv6:2a00:1450:4864:20::644])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BFF4C061574
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 06:09:41 -0700 (PDT)
+Received: by mail-ej1-x644.google.com with SMTP id b17so8159910ejq.8
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 06:09:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LpD66simFLhm5uNNfMJtAVQc0hDv90GqJgXGm8EJ6IE=;
+        b=1KZvR4CEGRaSj8ii3VNK6063Ta3ceDYOR1rnWBqkwoE8Ki+6pkQlIDc2V8zyJ5MTKV
+         rbvj1YUgbmxY5sM8Rg3mdjBGjgLToHIqsPLNv4ic5HxNo05KHPqDZBPy6rBWImmcq8M2
+         7oHRKdNEZo0rVGw8N3okMFg35K/OFTyrkV1vn1R0iCsLFMT1aEILaTCpsw7RLllQ3nHZ
+         ZVr1GzjUEsuTgAZYrHu083aFR7LRLECbPrrAiUw4MWyVPvjlKHy6UrjgxJjkYoRAetmc
+         PyTyoz+rLiaTP5ZxXTzwxwP30Un+Z7ksFQOh76MLdwuy/L/Bq0i1e9GN4rxManPFyOJv
+         Jz0g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LpD66simFLhm5uNNfMJtAVQc0hDv90GqJgXGm8EJ6IE=;
+        b=bu3NxXqziRsRaYQmJ0eYqu15XUwW8LswvN8C3B7YZ6YxZz7c43WkD6i7uId6dKp+lR
+         xp0jzBIa38ogl55OAsHoo59zXuSX3NVTH8nH1XmVisBzLPf1VwzN7DZT1r/GosFVS0jw
+         qSqSZ07NLzDurr/R9dONRQVTAMPUNNXF2CmOkgIs1MeK4dqSOAlNtJ2awdgpgqw7EpXu
+         TTYZLsKA4UwR8oHvS26daAS+OSPhNUGaLgWZJjZIjzvtprcBDk8ipQ7KsXaxZkcRVyOT
+         ODPleE2jrsZadCQwvqe73fGwJdZByem2iuYVjsR95EofAVY2RN9yIFk7f81ICRhqZMAh
+         kfbg==
+X-Gm-Message-State: AOAM531StaP9iK/pnTY+Gj+WAqa1DVJfwjPZCPRzEk9WlhCanJdiPopk
+        GSprCRW/jeBabgt9an+QBt228GJz1obH3JZXr88q
+X-Google-Smtp-Source: ABdhPJwrokBfusMcWuMi7eUHNudEdQ29KjimqCko8ixpPwdJdx7ykKXQTAdQvNj3pOML/O9smfYtZLOdzfbeihra9RE=
+X-Received: by 2002:a17:906:1993:: with SMTP id g19mr3155181ejd.431.1598360979532;
+ Tue, 25 Aug 2020 06:09:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9723 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 mlxscore=0 bulkscore=0
- adultscore=0 spamscore=0 mlxlogscore=999 phishscore=0 suspectscore=11
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2006250000
- definitions=main-2008250097
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9723 signatures=668679
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 bulkscore=0 clxscore=1011
- spamscore=0 priorityscore=1501 impostorscore=0 adultscore=0
- lowpriorityscore=0 suspectscore=11 mlxlogscore=999 phishscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2008250097
+References: <20200819194516.50746-1-stephen.smalley.work@gmail.com> <CAFqZXNs0xG+FgGW3DamHWw+smzHpz_9g86VvhTwa9rM5W=C49w@mail.gmail.com>
+In-Reply-To: <CAFqZXNs0xG+FgGW3DamHWw+smzHpz_9g86VvhTwa9rM5W=C49w@mail.gmail.com>
+From:   Paul Moore <paul@paul-moore.com>
+Date:   Tue, 25 Aug 2020 09:09:28 -0400
+Message-ID: <CAHC9VhQT1GLBMY5ajWsVRM=yi-_Mw0Ws5VjmzMbTMAp-feO_DQ@mail.gmail.com>
+Subject: Re: [RFC PATCH v4] selinux: convert policy read-write lock to RCU
+To:     Ondrej Mosnacek <omosnace@redhat.com>,
+        Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     SElinux list <selinux@vger.kernel.org>,
+        peter enderborg <peter.enderborg@sony.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Hello Stephen Smalley,
+On Thu, Aug 20, 2020 at 10:27 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> On Wed, Aug 19, 2020 at 9:45 PM Stephen Smalley
+> <stephen.smalley.work@gmail.com> wrote:
+> > Convert the policy read-write lock to RCU.  This is significantly
+> > simplified by the earlier work to encapsulate the policy data
+> > structures and refactor the policy load and boolean setting logic.
+> > Move the latest_granting sequence number into the selinux_policy
+> > structure so that it can be updated atomically with the policy.
+> > Since removing the policy rwlock and moving latest_granting reduces
+> > the selinux_ss structure to nothing more than a wrapper around the
+> > selinux_policy pointer, get rid of the extra layer of indirection.
+> >
+> > At present this change merely passes a hardcoded 1 to
+> > rcu_dereference_check() in the cases where we know we do not need to
+> > take rcu_read_lock(), with the preceding comment explaining why.
+> > Alternatively we could pass fsi->mutex down from selinuxfs and
+> > apply a lockdep check on it instead.
+> >
+> > Based in part on earlier attempts to convert the policy rwlock
+> > to RCU by Kaigai Kohei [1] and by Peter Enderborg [2].
+> >
+> > [1] https://lore.kernel.org/selinux/6e2f9128-e191-ebb3-0e87-74bfccb0767f@tycho.nsa.gov/
+> > [2] https://lore.kernel.org/selinux/20180530141104.28569-1-peter.enderborg@sony.com/
+> >
+> > Signed-off-by: Stephen Smalley <stephen.smalley.work@gmail.com>
+> > ---
+>
+> (from v3 comment section:)
+> > Remaining open questions include whether I should change selinuxfs
+> > to pass down fsi->mutex so that we can use it in a lockdep check
+> > for rcu_dereference_check() and whether the sidtab live convert is
+> > safe after this change.
+>
+> FTR, I spent some time pondering on whether there is any bad
+> interaction with the sidtab live convert and I couldn't find anything.
+> The tricky part was splitting the policy load into load/commit/cancel
+> and that seems to have been done correctly.
 
-The patch 461698026ffa: "selinux: encapsulate policy state, refactor
-policy load" from Aug 7, 2020, leads to the following static checker
-warning:
+You and Stephen have obviously spent more time looking at this than I
+have, but looking it over this morning it seems reasonable.
 
-	security/selinux/ss/services.c:2288 security_load_policy()
-	error: we previously assumed 'newpolicy->sidtab' could be null (see line 2227)
+> As for rcu_dereference_check(), I'd prefer to pass the fsi->mutex in
+> there for better clarity.
 
-security/selinux/ss/services.c
-  2221  
-  2222          newpolicy = kzalloc(sizeof(*newpolicy), GFP_KERNEL);
-  2223          if (!newpolicy)
-  2224                  return -ENOMEM;
-  2225  
-  2226          newpolicy->sidtab = kzalloc(sizeof(*newpolicy->sidtab), GFP_KERNEL);
-  2227          if (!newpolicy->sidtab)
-  2228                  goto err;
-  2229  
-  2230          rc = policydb_read(&newpolicy->policydb, fp);
-  2231          if (rc)
-  2232                  goto err;
-  2233  
-  2234          newpolicy->policydb.len = len;
-  2235          rc = selinux_set_mapping(&newpolicy->policydb, secclass_map,
-  2236                                  &newpolicy->map);
-  2237          if (rc)
-  2238                  goto err;
-  2239  
-  2240          rc = policydb_load_isids(&newpolicy->policydb, newpolicy->sidtab);
-  2241          if (rc) {
-  2242                  pr_err("SELinux:  unable to load the initial SIDs\n");
-  2243                  goto err;
-  2244          }
-  2245  
-  2246  
-  2247          if (!selinux_initialized(state)) {
-  2248                  /* First policy load, so no need to preserve state from old policy */
-  2249                  *newpolicyp = newpolicy;
-  2250                  return 0;
-  2251          }
-  2252  
-  2253          /* Preserve active boolean values from the old policy */
-  2254          rc = security_preserve_bools(state, &newpolicy->policydb);
-  2255          if (rc) {
-  2256                  pr_err("SELinux:  unable to preserve booleans\n");
-  2257                  goto err;
-  2258          }
-  2259  
-  2260          /*
-  2261           * Convert the internal representations of contexts
-  2262           * in the new SID table.
-  2263           *
-  2264           * NOTE: We do not need to take the policy read-lock
-  2265           * around the code below because other policy-modifying
-  2266           * operations are already excluded by selinuxfs via
-  2267           * fsi->mutex.
-  2268           */
-  2269          args.state = state;
-  2270          args.oldp = &state->ss->policy->policydb;
-  2271          args.newp = &newpolicy->policydb;
-  2272  
-  2273          convert_params.func = convert_context;
-  2274          convert_params.args = &args;
-  2275          convert_params.target = newpolicy->sidtab;
-  2276  
-  2277          rc = sidtab_convert(state->ss->policy->sidtab, &convert_params);
-  2278          if (rc) {
-  2279                  pr_err("SELinux:  unable to convert the internal"
-  2280                          " representation of contexts in the new SID"
-  2281                          " table\n");
-  2282                  goto err;
-  2283          }
-  2284  
-  2285          *newpolicyp = newpolicy;
-  2286          return 0;
-  2287  err:
-  2288          selinux_policy_free(newpolicy);
+I still can't say I'm really loving the write lock side of this, but
+short of breaking the boundary between the security server and the
+Linux/LSM hook side of the code I'm not sure there is a really good
+solution.  I think simply commenting it as Stephen has done is about
+the best we can do.
 
-This style of "one function frees everything" error handling is the
-most bug prone style of error handling.  Typical bugs are:
+It is my opinion that passing an arbitrary mutex into the security
+server code doesn't really accomplish much.  Sure, it gives the caller
+some indication that exclusivity is required, but a bare mutex doesn't
+really provide any guarantee that the *right* mutex is being used.  If
+we wanted to fix that we would need to look at passing down the
+selinux_fs_info pointer itself, but then we are back to breaking the
+abstraction between the security server and the Linux hook layer.  The
+only thing saving us here is that this code is *deep* inside SELinux
+and it is *extremely* unlikely that we are going to have any
+cross-subsystem abuse which touches this code.  The comment based
+approach isn't perfect, but I think it is our best option at this
+point in time.
 
-1) Free uninitalized memory.
+> > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > index a48fc1b337ba..838161462756 100644
+> > --- a/security/selinux/ss/services.c
+> > +++ b/security/selinux/ss/services.c
+> [...]
+> > @@ -2174,14 +2208,18 @@ void selinux_policy_commit(struct selinux_state *state,
+> >                         pr_info("SELinux: Enabling MLS support...\n");
+> >         }
+> >
+> > +       /* Set latest granting seqno for new policy. */
+> > +       if (oldpolicy)
+> > +               newpolicy->latest_granting = oldpolicy->latest_granting + 1;
+> > +       else
+> > +               newpolicy->latest_granting = 1;
+> > +       seqno = newpolicy->latest_granting;
+>
+> This could be written as:
+>
+>     seqno = newpolicy->latest_granting = oldpolicy ?
+> oldpolicy->latest_granting + 1 : 1;
+>
+> ...which is a bit easier to read to me, but others may differ.
 
-2) Decrement reference counts which weren't incremented.
+I'll differ :)
 
-3) Rely on things to be allocated like this example where
-   "newpolicy->sidtab" is NULL.
+I realize multiple assignments look pretty cool in that
+hey-I-can-combine-three-lines-of-code-into-one sorta way, but I hate
+having to read code like that, especially when you get to that point
+where you end up reading more code than you write.
 
-4) Double free things because other code is written in the style where
-   each function cleans up its own allocations.  For example, in this
-   case policydb_read() calls policydb_destroy(p); and
-   selinux_policy_free() calls it as well so it is a double free.
-   There are some other double frees on this path as well.
+Simple code is easier to read, easier to review, easier to debug, and
+easier to maintain.
 
-5) Leaks because the code is hard/impossible to audit.
+... and just to be clear, combining multiple assignments on a single
+line in combination with a ternary statement is not my idea of
+"simple" ;)
 
-The best way to write error handling is to use "Free the most recent
-allocation" style.  Use good label names, like "err_free_foo: kfree(foo);"
-which say what the goto frees.  That way we never free uninitialized
-memory.  It's easy to audit because we just have to mentally keep
-track of the most recent allocation and we check that "goto free_foo;"
-matches that foo is the recentest allocation.
+> Other than the minor things above, I didn't find any logical issue in
+> this patch.
+>
+> Since the mutex passing is going to be discussed in a separate patch
+> and the only other comments I had are minor nits (and which may not
+> align with your and/or Paul's preference), here you go:
+>
+> Reviewed-by: Ondrej Mosnacek <omosnace@redhat.com>
 
-  2289          return rc;
-  2290  }
+Merged into selinux/next, thanks everyone.
 
-regards,
-dan carpenter
+-- 
+paul moore
+www.paul-moore.com
