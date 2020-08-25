@@ -2,106 +2,141 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D541C433E1
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 13:38:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38593C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 13:43:33 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6E1732071E
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 13:38:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 119B42075F
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 13:43:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="1q6263Ry"
+	dkim=pass (2048-bit key) header.d=paul-moore-com.20150623.gappssmtp.com header.i=@paul-moore-com.20150623.gappssmtp.com header.b="Nu8vjPUe"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726656AbgHYNi5 (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 09:38:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53698 "EHLO
+        id S1726356AbgHYNnU (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 09:43:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726986AbgHYNir (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 09:38:47 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10391C0617A4
-        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 06:38:40 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id l23so11255231edv.11
-        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 06:38:39 -0700 (PDT)
+        with ESMTP id S1726187AbgHYNnB (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 09:43:01 -0400
+Received: from mail-ej1-x642.google.com (mail-ej1-x642.google.com [IPv6:2a00:1450:4864:20::642])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DB32C061756
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 06:43:01 -0700 (PDT)
+Received: by mail-ej1-x642.google.com with SMTP id a21so626325ejp.0
+        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 06:43:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=zFQ7lW9wDnCGOlGaO9qxYO0EL1Bi1Ise4K2xXXDejTA=;
-        b=1q6263RyIWTTvUIYM+C8Ea/v+MA76nfQn8vbopYvD5VRRnLq17m6an7/BFeURIz8jY
-         0dznrogeYiwyaRSiA7yBqRmuroCUoJDKGedz7zj5AQ83nNg3sf6ejTQL+urAvT86MSsn
-         WriZrQtvpL5E4rWSGynsJNL5myly6uKmDOibjiQ0cgMhN4jrYDSqvI6+wcQZ2r0qr5Bk
-         cWnB+p1GafEAjvoHQcnssykmlmgUDbTjKy5DxW5190srfIdAv7+CTBIxVnajbwGP9sYM
-         XLZZWQxdFcSNmDRkqixBWfiCPrf0eWMeHp3TXW7Cj6Z0ZhV8lQHu9JTaB4pUyc6YdkGS
-         twzw==
+        bh=8hlDp35H/I6+USSlz9g7OmWeqrjbkaygsZYJJyv3rOI=;
+        b=Nu8vjPUe8U98pyTachMTwlIAYOi8LIMuy6fMnFcNjRydnj/xvFpemrnKzYbfphjqCr
+         93kVIRJJglIKVZF/I2vsmp0ojbN6Wvy0hgqASO5oecpYuX024j2XvEW9uGK3XAcaYMYO
+         LkTIRKH8XyqkLob8X0gFIfzmLjX/fnur1SJ0u2D6pIzFeAVwulk0bqIZ2ND0le5G3zQE
+         f/InR04CfHR6MvZd081RuTpHHj2q3sIDoDT/EIIrd57BWLSQt1k0XGQysY3xvtioQir4
+         Tf06mitbWg1KDF0XaX6TOz+NaV6/FbzRbFQkDKAovpYEhw6qxgMJzXIMIlgy3hgOUe9A
+         RzhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=zFQ7lW9wDnCGOlGaO9qxYO0EL1Bi1Ise4K2xXXDejTA=;
-        b=KKumAtEOCbUyUn3ASaxvbsKc0xzE1ciZJ/VDMkmmpNydOORo3ChDI67F/lkE/bRI4k
-         bO4wd9UZulbc42xWo5FvmN1YIN5mTUQNlFV929ix0P0k3B5rwW8Q5Ppy8nXvy8zp8aIP
-         9RyaHL8R+h5vAWXshzpbJMOXnYAXJWy1Y+SYfZQw1PO/pu8U8G2gTYgNjfQkVo8Bke76
-         NByptrASbkUDjUcJl6HL+Ie08xW+VEEqBJo5BOBGy8/7WZHl4y9XXfduk/+bEI4FMBDa
-         4C/EcIKzt0XV5cV94e53qe40Z+TFlnVlKGVrVTfn8ZNDDB4G5GIbeUJThE6LLCV92xw1
-         fnBA==
-X-Gm-Message-State: AOAM531VZpEr5DR9vMgKUy+fVo2ijQo+GyymnAfaG6Qrcz4xE/G4hWny
-        MskCO9MIg8+9SvOEpx+YdmZxcyLqGTMidYMq5823UmfuDt/L
-X-Google-Smtp-Source: ABdhPJwNz4dyn/ZVot9zFaLgxNn2pO0Ir2DfKNyO6Xikxo/pfmL58/LF9UYei+ML6GUi+YR7t3G39W6Qn32GyHl8gAA=
-X-Received: by 2002:aa7:c383:: with SMTP id k3mr9956342edq.164.1598362713402;
- Tue, 25 Aug 2020 06:38:33 -0700 (PDT)
+        bh=8hlDp35H/I6+USSlz9g7OmWeqrjbkaygsZYJJyv3rOI=;
+        b=fpGYGiuG1NSyvEKlMh88Qci5owaOZwsToSiPW2x7Bn4+cU4HY24xJhAC1ySI+ilpQm
+         K9s6oC7kh7HpakbPckIJmJGZGNNmSxKNhgS4gpGJ61tKfLzvQUhFOhHCzLStlzyAsodn
+         SVbACmDA0LBzLrWkse1aUgFgM/XXG/hoqauDXV1GHVwTYqBhsm8Oav4ZMWRYS5dFR3zZ
+         /SFXmEmUeb03bTjKRm5YSfFmbT1haSQtAxLZufjXONKHlVw4nb3C9KQz8c1ddTLPQQDh
+         T6HFPFrTaGTUOFrptg2i3aOKeHfyOo7gv7qJG/Tftm1jT9di4S/SN1k81nJ1brmJnjHv
+         hIRA==
+X-Gm-Message-State: AOAM531sn0ZdiXbG11qZigkeNZz/+86HhlpM4PjUUZKhqgmmFycfyjoa
+        3RADD+FNF0Riv2FAzzx4EOBR4X6m5a9HA/8yEgUt
+X-Google-Smtp-Source: ABdhPJznGI0EHgg0IHuuLG+w87xpoF/6sJ2RMCWcY4yoJxxLYAwe/4S9pm93wobqH13gwjujO+JN75K/cXrSoaFUPyY=
+X-Received: by 2002:a17:906:3390:: with SMTP id v16mr10312086eja.106.1598362979816;
+ Tue, 25 Aug 2020 06:42:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200825125130.GA304650@mwanda>
-In-Reply-To: <20200825125130.GA304650@mwanda>
+References: <20200821154704.1214330-1-omosnace@redhat.com> <CAEjxPJ5gZhE2RB7A4LQyBOi5FQF5PLw_vs6gHeiwsiB1-j6Rog@mail.gmail.com>
+ <CAFqZXNvdtpxveqesYMz3ZxoWGd_vi5euqy6c9gzhmdkKgbU-Fg@mail.gmail.com> <CAEjxPJ5zFv7wDccDP2+0Z=B9-03g03H3wgy5pgu-DHjE3CGU5Q@mail.gmail.com>
+In-Reply-To: <CAEjxPJ5zFv7wDccDP2+0Z=B9-03g03H3wgy5pgu-DHjE3CGU5Q@mail.gmail.com>
 From:   Paul Moore <paul@paul-moore.com>
-Date:   Tue, 25 Aug 2020 09:38:22 -0400
-Message-ID: <CAHC9VhS5pAr8g9C18cniKDrh3NRgg1z8e3qYs14P1iBpioOS7w@mail.gmail.com>
-Subject: Re: [bug report] selinux: encapsulate policy state, refactor policy load
-To:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     selinux@vger.kernel.org
+Date:   Tue, 25 Aug 2020 09:42:48 -0400
+Message-ID: <CAHC9VhQT+G13pdVpf7rfQqeTv387vytNUeQ1wbyCu1GGCpcNog@mail.gmail.com>
+Subject: Re: [PATCH] selinux: fix a race condition in security_read_policy()
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 25, 2020 at 8:51 AM Dan Carpenter <dan.carpenter@oracle.com> wrote:
+On Mon, Aug 24, 2020 at 8:40 AM Stephen Smalley
+<stephen.smalley.work@gmail.com> wrote:
 >
-> Hello Stephen Smalley,
+> On Mon, Aug 24, 2020 at 4:33 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> >
+> > On Fri, Aug 21, 2020 at 7:39 PM Stephen Smalley
+> > <stephen.smalley.work@gmail.com> wrote:
+> > > On Fri, Aug 21, 2020 at 11:47 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
+> > > >
+> > > > In security_read_policy(), the policy length is computed using
+> > > > security_policydb_len(), which does a separate transaction, and then
+> > > > another transaction is done to write the policydb into a buffer of this
+> > > > length.
+> > > >
+> > > > The bug is that the policy might be re-loaded in between the two
+> > > > transactions and so the length can be wrong. In case the new length is
+> > > > lower than the old length, the length is corrected at the end of the
+> > > > function. In case the new length is higher than the old one, an error is
+> > > > returned.
+> > > >
+> > > > Fix it by doing everything in a single transaction and getting the
+> > > > length directly from policydb instead of calling
+> > > > security_policydb_len().
+> > > >
+> > > > Fixes: cee74f47a6ba ("SELinux: allow userspace to read policy back out of the kernel")
+> > > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> > > > ---
+> > > >  security/selinux/ss/services.c | 19 +++++++++++--------
+> > > >  1 file changed, 11 insertions(+), 8 deletions(-)
+> > > >
+> > > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+> > > > index a48fc1b337ba9..ab4de2a01634a 100644
+> > > > --- a/security/selinux/ss/services.c
+> > > > +++ b/security/selinux/ss/services.c
+> > > > @@ -3842,22 +3842,25 @@ int security_read_policy(struct selinux_state *state,
+> > > >                          void **data, size_t *len)
+> > > >  {
+> > > >         int rc;
+> > > > +       struct policydb *policydb;
+> > > >         struct policy_file fp;
+> > > >
+> > > >         if (!selinux_initialized(state))
+> > > >                 return -EINVAL;
+> > > >
+> > > > -       *len = security_policydb_len(state);
+> > > > +       read_lock(&state->ss->policy_rwlock);
+> > > > +       policydb = &state->ss->policy->policydb;
+> > > >
+> > > > +       *len = policydb->len;
+> > > >         *data = vmalloc_user(*len);
+> > >
+> > > I don't believe you can hold a read_lock() across a vmalloc.  That's
+> > > why this is done the way it is now.
+> >
+> > Fair point. Then I guess the only option is to keep retrying the
+> > allocation until the allocated size is >= the size we are about to
+> > write. I'll send a revised patch soon.
 >
-> The patch 461698026ffa: "selinux: encapsulate policy state, refactor
-> policy load" from Aug 7, 2020, leads to the following static checker
-> warning:
->
->         security/selinux/ss/services.c:2288 security_load_policy()
->         error: we previously assumed 'newpolicy->sidtab' could be null (see line 2227)
->
-> security/selinux/ss/services.c
->   2221
->   2222          newpolicy = kzalloc(sizeof(*newpolicy), GFP_KERNEL);
->   2223          if (!newpolicy)
->   2224                  return -ENOMEM;
->   2225
->   2226          newpolicy->sidtab = kzalloc(sizeof(*newpolicy->sidtab), GFP_KERNEL);
->   2227          if (!newpolicy->sidtab)
->   2228                  goto err;
+> Wondering if this is worthwhile/necessary versus just having userspace
+> retry if needed. Reading /sys/fs/selinux/policy is not a common or
+> frequent operation.
 
-...
-
->   2287  err:
->   2288          selinux_policy_free(newpolicy);
->
-> This style of "one function frees everything" error handling is the
-> most bug prone style of error handling ...
-
-In this particular case I think the use of selinux_poicy_free() is
-okay, we should just make selinux_policy_free() a bit more robust,
-e.g. checking that ->sidtab is non-NULL before calling
-sidtab_destroy().  While we are at it, it probably wouldn't hurt to
-also check ->policydb.
+I tend to agree.  If the kernel is under memory pressure, continually
+hammering it with requests seems like the last thing we want to do;
+not to mention that we would need to bound the requests at some point
+so we don't potentially hang userspace (or worse).  Failing and
+letting userspace rety seems like the best option to me.
 
 -- 
 paul moore
