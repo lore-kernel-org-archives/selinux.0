@@ -2,127 +2,335 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.8 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-21.5 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1,USER_IN_DEF_DKIM_WL autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10D20C433E3
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 17:31:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FB75C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 17:32:45 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E18152076C
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 17:31:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 690122076C
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 17:32:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HGdEL+RG"
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="ZdemlU3p"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbgHYRbB (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 13:31:01 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([63.128.21.124]:28268 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726551AbgHYRav (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 13:30:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1598376649;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=y34NfGULsziFK7YlrVTY2fh1C/O2yHc5XIhMFwMrJ6k=;
-        b=HGdEL+RGCVZpVRC7FgFpW7iWgCszJjnHZRTcK1QovdczrAVClGsRLGYg3BBlhsD7n+dvT1
-        Yy7X+9u8v1w8muBXB/rqFw4IO91wM9cnDzbJj1n2NaDvlt8viSaQZsN4KcGTABihRR+3l+
-        WIIcHA7T69qiVBSUwOBdOC6hpvWEREs=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-84-R1UmxgIlMLKdrriJTErHRA-1; Tue, 25 Aug 2020 13:30:46 -0400
-X-MC-Unique: R1UmxgIlMLKdrriJTErHRA-1
-Received: by mail-lf1-f72.google.com with SMTP id f203so1575539lfd.2
-        for <selinux@vger.kernel.org>; Tue, 25 Aug 2020 10:30:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=y34NfGULsziFK7YlrVTY2fh1C/O2yHc5XIhMFwMrJ6k=;
-        b=MWbsprJb0EuOE/AVcpLVjuwlkp6K/I6a9ZtDFcvVRCV7hxi1F4anwf/T0h9nClKcog
-         6V/Oimo8OrnSnovzTOMfk3kRkGq0mgnFS6p2kBrw579EqjYbtmssOjbvpGxXWx5VHTkL
-         o9/hiKZXFDZi4C3HCoK7oQGUzKBMUa8j2HMOib6MOaKMdeFWof19w/8f8xTESDcOeYpt
-         qjBztMxZKD0Pl5efLV+nR28fQhBU8MOK/QvTaYnVic/44EDJoYxVeOxtL8HanPyRaQZB
-         s7WmXJgcLZimC0ez7OGBVhjBUePZ8FkjrKBlg2OPpeJVD+1BQuF5Y055AL8QBoPZJ6gi
-         j3jg==
-X-Gm-Message-State: AOAM532t5PSPfVg2K9ZcW/9YEsSyIoyJWj65CNXNsRA3XqH0y/HOclIk
-        YpCOE9938eYLVMLCkT/Lno5y+rPk5jZtg0TWDadgWqqxeoiq8TuTL56h5eLsp4ASEfL+qAyoMfH
-        8Zder8djKGvjJvupjl6RtiaPu/lY5pEqT2w==
-X-Received: by 2002:a19:4853:: with SMTP id v80mr1629522lfa.125.1598376644805;
-        Tue, 25 Aug 2020 10:30:44 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxCJZfPC7kWZuKIqsE3rYAdeYTE7680u3WAOU1q8Ilpz6c6aPznIGd8xtE8HPkO+T2Osj2FHmYCntF+wj7BT+M=
-X-Received: by 2002:a19:4853:: with SMTP id v80mr1629515lfa.125.1598376644589;
- Tue, 25 Aug 2020 10:30:44 -0700 (PDT)
+        id S1725936AbgHYRcp (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 13:32:45 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:33360 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726090AbgHYRcl (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 13:32:41 -0400
+Received: from [192.168.86.21] (c-71-197-163-6.hsd1.wa.comcast.net [71.197.163.6])
+        by linux.microsoft.com (Postfix) with ESMTPSA id ECFA320B4908;
+        Tue, 25 Aug 2020 10:32:38 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com ECFA320B4908
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+        s=default; t=1598376759;
+        bh=ym33B67iPgLMuGorJ+JkAin7zQIK5vYjzuOwS2ATPhE=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=ZdemlU3p12xh8psoe6kCUoclHXAO+vW1DjPGYEmWVB2oKaLHALD2Lr7OabJju3Dby
+         q6GdmohVnbZ3hwVA8sNJmnKweX2gXxXn9yT3fhqYbdqt2DKE3TOSswO8+zJc28DqUZ
+         t3jfyDHByak1kKSADbfF9KG0MO++aZVTUT6VrISY=
+Subject: Re: [PATCH v2 2/3] IMA: add policy to support measuring critical data
+ from kernel components
+To:     Mimi Zohar <zohar@linux.ibm.com>, stephen.smalley.work@gmail.com,
+        casey@schaufler-ca.com, agk@redhat.com, snitzer@redhat.com,
+        gmazyland@gmail.com
+Cc:     tyhicks@linux.microsoft.com, sashal@kernel.org, jmorris@namei.org,
+        nramas@linux.microsoft.com, linux-integrity@vger.kernel.org,
+        selinux@vger.kernel.org, linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, dm-devel@redhat.com
+References: <20200821182107.5328-1-tusharsu@linux.microsoft.com>
+ <20200821182107.5328-3-tusharsu@linux.microsoft.com>
+ <d82c5cdab170d3dcc513b38632801c3aa14ca389.camel@linux.ibm.com>
+From:   Tushar Sugandhi <tusharsu@linux.microsoft.com>
+Message-ID: <e701ad15-1672-d208-c2b8-8228a728c98d@linux.microsoft.com>
+Date:   Tue, 25 Aug 2020 10:32:38 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20200825152045.1719298-1-omosnace@redhat.com> <20200825152045.1719298-4-omosnace@redhat.com>
- <CAEjxPJ54cS+HOPxb839UWu3UiCbv=eMRAfyRHbCy_5bAxU0a6A@mail.gmail.com>
-In-Reply-To: <CAEjxPJ54cS+HOPxb839UWu3UiCbv=eMRAfyRHbCy_5bAxU0a6A@mail.gmail.com>
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-Date:   Tue, 25 Aug 2020 19:30:33 +0200
-Message-ID: <CAFqZXNsfNDDoDFtZ7uJP9eKGjwZEwAtouJAWdAN124+nE7Uswg@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/3] selinux: track policy lifetime with refcount
-To:     Stephen Smalley <stephen.smalley.work@gmail.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        rcu@vger.kernel.org, "Paul E . McKenney" <paulmck@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <d82c5cdab170d3dcc513b38632801c3aa14ca389.camel@linux.ibm.com>
+Content-Type: text/plain; charset=iso-8859-15; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 25, 2020 at 6:47 PM Stephen Smalley
-<stephen.smalley.work@gmail.com> wrote:
-> On Tue, Aug 25, 2020 at 11:20 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> >
-> > Instead of holding the RCU read lock the whole time while accessing the
-> > policy, add a simple refcount mechanism to track its lifetime. After
-> > this, the RCU read lock is held only for a brief time when fetching the
-> > policy pointer and incrementing the refcount. The policy struct is then
-> > guaranteed to stay alive until the refcount is decremented.
-> >
-> > Freeing of the policy remains the responsibility of the task that does
-> > the policy reload. In case the refcount drops to zero in a different
-> > task, the policy load task is notified via a completion.
->
-> That's an interesting pattern.  Is this approach used anywhere else in
-> the kernel?  I didn't see any examples of it in the RCU documentation.
 
-If you mean RCU + reference counting, that's actually mentioned in RCU
-documentation in quite a few places as an option, e.g. [1] or [2].
 
-As for the completion, I'm not aware if it's been used like this yet,
-but it seems to fit the purpose nicely. At least I hope there are no
-hidden gotchas, but I couldn't think of any. I know it from the crypto
-subsystem, where it's often used to wait for the result of an
-asynchronous operation.
+On 2020-08-24 3:46 p.m., Mimi Zohar wrote:
+> On Fri, 2020-08-21 at 11:21 -0700, Tushar Sugandhi wrote:
+>> There would be several candidate kernel components suitable for IMA
+>> measurement. Not all of them would have support for IMA measurement.
+>> Also, system administrators may not want to measure data for all of
+>> them, even when they support IMA measurement. An IMA policy specific
+>> to various kernel components is needed to measure their respective
+>> critical data.
+>>
+>> Add a new IMA policy CRITICAL_DATA+data_sources to support measuring
+>> various critical kernel components. This policy would enable the
+>> system administrators to limit the measurement to the components,
+>> if the components support IMA measurement.
+>>
+>> Signed-off-by: Tushar Sugandhi <tusharsu@linux.microsoft.com>
+>> ---
+>>   Documentation/ABI/testing/ima_policy |  6 ++-
+>>   security/integrity/ima/ima.h         |  1 +
+>>   security/integrity/ima/ima_api.c     |  2 +-
+>>   security/integrity/ima/ima_policy.c  | 62 +++++++++++++++++++++++++---
+>>   4 files changed, 63 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/Documentation/ABI/testing/ima_policy b/Documentation/ABI/testing/ima_policy
+>> index cd572912c593..a0dd0f108555 100644
+>> --- a/Documentation/ABI/testing/ima_policy
+>> +++ b/Documentation/ABI/testing/ima_policy
+>> @@ -29,7 +29,7 @@ Description:
+>>   		base: 	func:= [BPRM_CHECK][MMAP_CHECK][CREDS_CHECK][FILE_CHECK][MODULE_CHECK]
+>>   				[FIRMWARE_CHECK]
+>>   				[KEXEC_KERNEL_CHECK] [KEXEC_INITRAMFS_CHECK]
+>> -				[KEXEC_CMDLINE] [KEY_CHECK]
+>> +				[KEXEC_CMDLINE] [KEY_CHECK] [CRITICAL_DATA]
+>>   			mask:= [[^]MAY_READ] [[^]MAY_WRITE] [[^]MAY_APPEND]
+>>   			       [[^]MAY_EXEC]
+>>   			fsmagic:= hex value
+>> @@ -125,3 +125,7 @@ Description:
+>>   		keys added to .builtin_trusted_keys or .ima keyring:
+>>   
+>>   			measure func=KEY_CHECK keyrings=.builtin_trusted_keys|.ima
+>> +
+>> +		Example of measure rule using CRITICAL_DATA to measure critical data
+>> +
+>> +			measure func=CRITICAL_DATA data_sources=selinux|apparmor|dm-crypt
+> 
+> This example uses "data_sources" without first defining it in the
+> "option:" section.  Defining two new options is an indication that this
+Thanks. I will define "data_sources" first in "option:" section.
+> patch should be split up.  One which defines the "CRITICAL_DATA" and
+> another one which defines the new key value pair.  The term
+I intentionally kept the "CRITICAL_DATA" and "data_sources" in the same
+patch.
 
-[1] https://www.kernel.org/doc/html/latest/RCU/whatisRCU.html#rcu-read-lock
-[2] https://www.kernel.org/doc/html/latest/core-api/kernel-api.html?highlight=long_lived#c.rcu_pointer_handoff
+CRITICAL_DATA is different than KEY_CHECK because in case of KEY_CHECK,
+"keyrings=" is optional. If "keyrings=" is not specified, then we
+measure all keyrings.
 
->
-> > The advantage of this change is that the operations that access the
-> > policy can now do sleeping allocations, since they don't need to hold
-> > the RCU read lock anymore. This patch so far only leverages this in
-> > security_read_policy() for the vmalloc_user() allocation (although this
-> > function is always called under fsi->mutex and could just access the
-> > policy pointer directly). The conversion of affected GFP_ATOMIC
-> > allocations to GFP_KERNEL is left for a later patch, since auditing
-> > which code paths may still need GFP_ATOMIC is not very easy.
->
-> Technically we don't need this patch for that purpose because
-> rcu_read_lock() isn't actually needed at all in
-> security_read_policy(), so I think we're better off just getting rid
-> of it there and letting it use rcu_dereference_check(..., 1) or
-> rcu_dereference_protected() instead.
+Where for CRITICAL_DATA, "data_sources=" is mandatory.
 
-Yes, I'll address that in the next revision.
+Because the data sources would be diverse and orthogonal to each other,
+(unlike "keyrings=") - not specifying "data_sources=" shouldn't result
+in IMA blindly measuring all data sources.
 
---
-Ondrej Mosnacek
-Software Engineer, Platform Security - SELinux kernel
-Red Hat, Inc.
+Since CRITICAL_DATA, and "data_sources=" go hand in hand, I wanted them
+to be part of the same patch.
+> "data_sources" is pretty generic.  Perhaps constrain it a bit by re-
+> naming it "critical_data=".  Or was such using a generic name
+> intentional?
+> 
+We intentionally kept the name generic because the data to be measured
+could be coming from any kernel component with any granularity (from a
+single bool to megabytes of data). The kernel component is also loosely
+defined here. It could be an LSM (like SELinux), or a broader base layer
+(like device-mapper), or a specific module (like dm-crypt), or it could
+be different parts of a single module.
 
+Also, we didn't want to name "data_sources" as "critical_data" to avoid
+confusion with func "CRITICAL_DATA".
+
+> Normally "CRITICAL_DATA" would be defined with the critical data hook,
+> but that seems to be defined in patch 3/3 "IMA: define IMA hook to
+> measure critical data from kernel components".
+> 
+I can make the "CRITICAL_DATA" and the hook as part of the same patch.
+That would mean combining patch 2 and 3 into a single one.
+
+Does it sound ok?
+>> diff --git a/security/integrity/ima/ima.h b/security/integrity/ima/ima.h
+>> index 8875085db689..0f4209a92bfb 100644
+>> --- a/security/integrity/ima/ima.h
+>> +++ b/security/integrity/ima/ima.h
+>> @@ -200,6 +200,7 @@ static inline unsigned int ima_hash_key(u8 *digest)
+>>   	hook(POLICY_CHECK, policy)			\
+>>   	hook(KEXEC_CMDLINE, kexec_cmdline)		\
+>>   	hook(KEY_CHECK, key)				\
+>> +	hook(CRITICAL_DATA, critical_data)		\
+>>   	hook(MAX_CHECK, none)
+>>   
+>>   #define __ima_hook_enumify(ENUM, str)	ENUM,
+>> diff --git a/security/integrity/ima/ima_api.c b/security/integrity/ima/ima_api.c
+>> index af218babd198..9917e1730cb6 100644
+>> --- a/security/integrity/ima/ima_api.c
+>> +++ b/security/integrity/ima/ima_api.c
+>> @@ -176,7 +176,7 @@ void ima_add_violation(struct file *file, const unsigned char *filename,
+>>    *		subj=, obj=, type=, func=, mask=, fsmagic=
+>>    *	subj,obj, and type: are LSM specific.
+>>    *	func: FILE_CHECK | BPRM_CHECK | CREDS_CHECK | MMAP_CHECK | MODULE_CHECK
+>> - *	| KEXEC_CMDLINE | KEY_CHECK
+>> + *	| KEXEC_CMDLINE | KEY_CHECK | CRITICAL_DATA
+>>    *	mask: contains the permission mask
+>>    *	fsmagic: hex value
+>>    *
+>> diff --git a/security/integrity/ima/ima_policy.c b/security/integrity/ima/ima_policy.c
+>> index 8866e84d0062..7b649095ac7a 100644
+>> --- a/security/integrity/ima/ima_policy.c
+>> +++ b/security/integrity/ima/ima_policy.c
+>> @@ -33,6 +33,7 @@
+>>   #define IMA_PCR		0x0100
+>>   #define IMA_FSNAME	0x0200
+>>   #define IMA_KEYRINGS	0x0400
+>> +#define IMA_DATA_SOURCES	0x0800
+>>   
+>>   #define UNKNOWN		0
+>>   #define MEASURE		0x0001	/* same as IMA_MEASURE */
+>> @@ -84,6 +85,7 @@ struct ima_rule_entry {
+>>   	} lsm[MAX_LSM_RULES];
+>>   	char *fsname;
+>>   	struct ima_rule_opt_list *keyrings; /* Measure keys added to these keyrings */
+>> +	struct ima_rule_opt_list *data_sources; /* Measure data from these sources */
+>>   	struct ima_template_desc *template;
+>>   };
+>>   
+>> @@ -508,14 +510,23 @@ static bool ima_match_rules(struct ima_rule_entry *rule, struct inode *inode,
+>>   {
+>>   	int i;
+>>   
+>> -	if (func == KEY_CHECK) {
+>> -		return (rule->flags & IMA_FUNC) && (rule->func == func) &&
+>> -		       ima_match_rule_data(rule, rule->keyrings, func_data,
+>> -					   true, cred);
+>> -	}
+>>   	if ((rule->flags & IMA_FUNC) &&
+>>   	    (rule->func != func && func != POST_SETATTR))
+>>   		return false;
+>> +
+>> +	switch (func) {
+>> +	case KEY_CHECK:
+>> +		return ((rule->func == func) &&
+>> +			ima_match_rule_data(rule, rule->keyrings,
+>> +					    func_data, true, cred));
+>> +	case CRITICAL_DATA:
+>> +		return ((rule->func == func) &&
+>> +			ima_match_rule_data(rule, rule->data_sources,
+>> +					    func_data, false, cred));
+>> +	default:
+>> +		break;
+>> +	}
+>> +
+>>   	if ((rule->flags & IMA_MASK) &&
+>>   	    (rule->mask != mask && func != POST_SETATTR))
+>>   		return false;
+>> @@ -911,7 +922,7 @@ enum {
+>>   	Opt_uid_lt, Opt_euid_lt, Opt_fowner_lt,
+>>   	Opt_appraise_type, Opt_appraise_flag,
+>>   	Opt_permit_directio, Opt_pcr, Opt_template, Opt_keyrings,
+>> -	Opt_err
+>> +	Opt_data_sources, Opt_err
+>>   };
+>>   
+>>   static const match_table_t policy_tokens = {
+>> @@ -948,6 +959,7 @@ static const match_table_t policy_tokens = {
+>>   	{Opt_pcr, "pcr=%s"},
+>>   	{Opt_template, "template=%s"},
+>>   	{Opt_keyrings, "keyrings=%s"},
+>> +	{Opt_data_sources, "data_sources=%s"},
+>>   	{Opt_err, NULL}
+>>   };
+>>   
+>> @@ -1110,6 +1122,19 @@ static bool ima_validate_rule(struct ima_rule_entry *entry)
+>>   		if (ima_rule_contains_lsm_cond(entry))
+>>   			return false;
+>>   
+>> +		break;
+>> +	case CRITICAL_DATA:
+>> +		if (entry->action & ~(MEASURE | DONT_MEASURE))
+>> +			return false;
+>> +
+>> +		if (!(entry->flags & IMA_DATA_SOURCES) ||
+>> +		    (entry->flags & ~(IMA_FUNC | IMA_UID | IMA_PCR |
+>> +		    IMA_DATA_SOURCES)))
+>> +			return false;
+> 
+> Requiring IMA_FUNC and IMA_DATA_SOURCES makes sense, but why are
+> IMA_UID and IMA_PCR required?
+> 
+Since the data to be measured could be for any scenario, I didn't want
+to restrict the kernel components from choosing UID to measure the data
+for, or restrict them from choosing PCR to store the measurements in.
+But as the consumers are kernel components, perhaps support for IMA_UID
+is not required.  But we should still support IMA_PCR.
+Please let me know what do you think, and I can update the logic
+accordingly.
+>> +
+>> +		if (ima_rule_contains_lsm_cond(entry))
+>> +			return false;
+>> +
+>>   		break;
+>>   	default:
+>>   		return false;
+>> @@ -1242,6 +1267,8 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
+>>   			else if (IS_ENABLED(CONFIG_IMA_MEASURE_ASYMMETRIC_KEYS) &&
+>>   				 strcmp(args[0].from, "KEY_CHECK") == 0)
+>>   				entry->func = KEY_CHECK;
+>> +			else if (strcmp(args[0].from, "CRITICAL_DATA") == 0)
+>> +				entry->func = CRITICAL_DATA;
+>>   			else
+>>   				result = -EINVAL;
+>>   			if (!result)
+>> @@ -1312,6 +1339,23 @@ static int ima_parse_rule(char *rule, struct ima_rule_entry *entry)
+>>   
+>>   			entry->flags |= IMA_KEYRINGS;
+>>   			break;
+>> +		case Opt_data_sources:
+>> +			ima_log_string(ab, "data_sources", args[0].from);
+>> +
+>> +			if (entry->data_sources) {
+>> +				result = -EINVAL;
+>> +				break;
+>> +			}
+>> +
+>> +			entry->data_sources = ima_alloc_rule_opt_list(args);
+>> +			if (IS_ERR(entry->data_sources)) {
+>> +				result = PTR_ERR(entry->data_sources);
+>> +				entry->data_sources = NULL;
+>> +				break;
+>> +			}
+>> +
+> 
+> "keyrings=" isn't bounded because keyrings can be created by userspace.
+> Perhaps keyring names has a minimum/maximum length.  IMA isn't
+> measuring userspace construsts.  Shouldn't the list of critical data
+> being measured be bounded and verified?
+The comment is not entirely clear.
+Do you mean there should be some sort of allow_list in IMA, against
+which the values in "data_sources=" should be vetted? And if the
+value is present in the IMA allow_list, then only the measurements for
+that data source are allowed?
+
+Or do you mean something else?
+
+~Tushar
+> 
+> Mimi
+> 
+>> +			entry->flags |= IMA_DATA_SOURCES;
+>> +			break;
+>>   		case Opt_fsuuid:
+>>   			ima_log_string(ab, "fsuuid", args[0].from);
+>>   
+>> @@ -1692,6 +1736,12 @@ int ima_policy_show(struct seq_file *m, void *v)
+>>   		seq_puts(m, " ");
+>>   	}
+>>   
+>> +	if (entry->flags & IMA_DATA_SOURCES) {
+>> +		seq_puts(m, "data_sources=");
+>> +		ima_show_rule_opt_list(m, entry->data_sources);
+>> +		seq_puts(m, " ");
+>> +	}
+>> +
+>>   	if (entry->flags & IMA_PCR) {
+>>   		snprintf(tbuf, sizeof(tbuf), "%d", entry->pcr);
+>>   		seq_printf(m, pt(Opt_pcr), tbuf);
+> 
