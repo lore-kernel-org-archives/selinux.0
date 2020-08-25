@@ -2,324 +2,189 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-11.0 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	UNWANTED_LANGUAGE_BODY,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B77BBC433E1
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 03:50:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E764C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 07:00:43 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 83FBB20738
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 03:50:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=default; t=1598327440;
-	bh=/qaH/Df2BjIuDnX7glMJFXv/aDKx+6dGkNKeusDOWLk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:List-ID:From;
-	b=BIDA/pgFNgbGJfmkdmtlHEAU+G77H8sAlt0K/nTEw8g4HyOQmqf2crsWg325csjS6
-	 MiTr7tgKJVmPFQSp830J2D60OOmq2DqZARM8HKYxlfE+R0ev+4aXZoS+Zgn9KIlB69
-	 e0LPyflF+r1mNhRky6FyGNJ8/R3NNylF+CWeHXUc=
+	by mail.kernel.org (Postfix) with ESMTP id 425342076C
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 07:00:43 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VqmGwRMt"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728081AbgHYDuk (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Mon, 24 Aug 2020 23:50:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60392 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728080AbgHYDuj (ORCPT <rfc822;selinux@vger.kernel.org>);
-        Mon, 24 Aug 2020 23:50:39 -0400
-Received: from sol.localdomain (c-107-3-166-239.hsd1.ca.comcast.net [107.3.166.239])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF55420665;
-        Tue, 25 Aug 2020 03:50:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1598327438;
-        bh=/qaH/Df2BjIuDnX7glMJFXv/aDKx+6dGkNKeusDOWLk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Pqhw2dYFDJDJ4xe2JZ/DeHzdi72rteajBIf3gFrGLdbChFC1WT6kbSCwJJz7jwy/M
-         vT5/SQf8EHg4ZOfVVX4PLiECRO0ikm6uKB1Dh+QMq69GDdE28NwK9oRxj6x5rXkaNx
-         k9ea63AnL4lck3rLkMpzQ+JYcNe6ljtw0E3tj2Qg=
-Date:   Mon, 24 Aug 2020 20:50:36 -0700
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Lokesh Gidra <lokeshgidra@google.com>
-Cc:     Alexander Viro <viro@zeniv.linux.org.uk>,
-        James Morris <jmorris@namei.org>,
-        Stephen Smalley <stephen.smalley.work@gmail.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        "Serge E. Hallyn" <serge@hallyn.com>,
-        Paul Moore <paul@paul-moore.com>,
-        Eric Paris <eparis@parisplace.org>,
-        Daniel Colascione <dancol@dancol.org>,
-        Kees Cook <keescook@chromium.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        KP Singh <kpsingh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Thomas Cedeno <thomascedeno@google.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Sami Tolvanen <samitolvanen@google.com>,
-        Matthew Garrett <matthewgarrett@google.com>,
-        Aaron Goidel <acgoide@tycho.nsa.gov>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Alexey Budankov <alexey.budankov@linux.intel.com>,
-        Adrian Reber <areber@redhat.com>,
-        Aleksa Sarai <cyphar@cyphar.com>,
-        linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-security-module@vger.kernel.org, selinux@vger.kernel.org,
-        kaleshsingh@google.com, calin@google.com, surenb@google.com,
-        nnk@google.com, jeffv@google.com, kernel-team@android.com,
-        Daniel Colascione <dancol@google.com>
-Subject: Re: [PATCH v7 1/3] Add a new LSM-supporting anonymous inode interface
-Message-ID: <20200825035036.GC810@sol.localdomain>
-References: <20200821185645.801971-1-lokeshgidra@google.com>
- <20200821185645.801971-2-lokeshgidra@google.com>
+        id S1729179AbgHYHAh (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 03:00:37 -0400
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:56185 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729137AbgHYHAW (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 03:00:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1598338799;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=y+2EZTOHD/9tP1KriYT9wCpC52KwmoTCji6kfRWG+1M=;
+        b=VqmGwRMtaqi7TLMO08sTiKG8i0gHUA2E1XLU0ATFD0LhKNRw6KlcdqfxvQ5vgpensV68Nv
+        xXUt/UoCBWQfx0GkyVNl6SYgjNfCjtl2IhhezoGFND0LZTW9RE03h8xOB1o4vyOMIvpiQq
+        DoJEG6TEzWpzKtmTLy5lw7zrtRgzD74=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-264-SyfPOY6kOZaTryZSrL0oMQ-1; Tue, 25 Aug 2020 02:59:58 -0400
+X-MC-Unique: SyfPOY6kOZaTryZSrL0oMQ-1
+Received: by mail-wm1-f71.google.com with SMTP id r14so384570wmh.1
+        for <selinux@vger.kernel.org>; Mon, 24 Aug 2020 23:59:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=y+2EZTOHD/9tP1KriYT9wCpC52KwmoTCji6kfRWG+1M=;
+        b=q4y3dWM3kBaK+uTO0KEtHstIwrOr1tefZ/JUKAhy2ZAaT+jravvMgMrye+bC0R1AL3
+         KTOH0t8hq2mZno6aOQOOTm+8M2wTcFM9nUBZeu1ND2TtwcNsuC+rI74J5qFC+SqwJEQ6
+         2UYuI/ePUgwG4db9+HpSYtkOw6ljMiaFynsR6ohzobY0zT1bc+SfiGPc3M41X0rJi5IW
+         kWeb631rH5YUF6JKLG/nn4HrssanrwymdCDOjKlylMTz/Z/0oKYYD/JYnDwNBif0H7id
+         7R4xvXbWpOpZ6mbIh8H8J2HlXvcFYh3p5CGuNyzTeKK7WppeJ3sGmIp/NOO8zWGNu1+e
+         UeVA==
+X-Gm-Message-State: AOAM532515Cb9LcOaCk1Eb2qazvGPlfiHf6wi43C2VQmblKl96bAQMCF
+        gcnQ6U753hYp4JV2u6p7Va07AuvNAX+Q8zgqsd+hLNBG+M2pCF4P1AM907Brkl7JIH2siN3HAnz
+        9MdDAtOdjbcCzMjwdMA==
+X-Received: by 2002:adf:ba10:: with SMTP id o16mr9271496wrg.100.1598338796848;
+        Mon, 24 Aug 2020 23:59:56 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzLV8/RBJukm8QWNSiD5VJvdL8VzAJ301duu/pmxDinKDwYck7HZzHv4FIPz+QKy7iAlV1JGQ==
+X-Received: by 2002:adf:ba10:: with SMTP id o16mr9271485wrg.100.1598338796658;
+        Mon, 24 Aug 2020 23:59:56 -0700 (PDT)
+Received: from omos.redhat.com ([2a02:8308:b103:4000:e83d:a4fb:e589:6902])
+        by smtp.gmail.com with ESMTPSA id h6sm28714644wrv.40.2020.08.24.23.59.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Aug 2020 23:59:56 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Subject: [PATCH v2 1/2] selinux: switch unnecessary GFP_ATOMIC allocs to GFP_KERNEL
+Date:   Tue, 25 Aug 2020 08:59:52 +0200
+Message-Id: <20200825065953.1566718-2-omosnace@redhat.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20200825065953.1566718-1-omosnace@redhat.com>
+References: <20200825065953.1566718-1-omosnace@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20200821185645.801971-2-lokeshgidra@google.com>
+Content-Transfer-Encoding: 8bit
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Fri, Aug 21, 2020 at 11:56:43AM -0700, Lokesh Gidra wrote:
-> From: Daniel Colascione <dancol@google.com>
-> 
-> This change adds a new function, anon_inode_getfd_secure, that creates
-> anonymous-node file with individual non-S_PRIVATE inode to which security
-> modules can apply policy. Existing callers continue using the original
-> singleton-inode kind of anonymous-inode file. We can transition anonymous
-> inode users to the new kind of anonymous inode in individual patches for
-> the sake of bisection and review.
-> 
-> The new function accepts an optional context_inode parameter that
-> callers can use to provide additional contextual information to
-> security modules for granting/denying permission to create an anon inode
-> of the same type.
-> 
-> For example, in case of userfaultfd, the created inode is a
-> 'logical child' of the context_inode (userfaultfd inode of the
-> parent process) in the sense that it provides the security context
-> required during creation of the child process' userfaultfd inode.
-> 
-> Signed-off-by: Daniel Colascione <dancol@google.com>
-> 
-> [Fix comment documenting return values of inode_init_security_anon()]
-> [Add context_inode description in comments to anon_inode_getfd_secure()]
-> [Remove definition of anon_inode_getfile_secure() as there are no callers]
-> [Make _anon_inode_getfile() static]
-> [Use correct error cast in _anon_inode_getfile()]
-> 
-> Signed-off-by: Lokesh Gidra <lokeshgidra@google.com>
-> ---
->  fs/anon_inodes.c              | 148 ++++++++++++++++++++++++----------
->  include/linux/anon_inodes.h   |  13 +++
->  include/linux/lsm_hook_defs.h |   2 +
->  include/linux/lsm_hooks.h     |   7 ++
->  include/linux/security.h      |   3 +
->  security/security.c           |   9 +++
->  6 files changed, 141 insertions(+), 41 deletions(-)
-> 
-> diff --git a/fs/anon_inodes.c b/fs/anon_inodes.c
-> index 89714308c25b..2aa8b57be895 100644
-> --- a/fs/anon_inodes.c
-> +++ b/fs/anon_inodes.c
-> @@ -55,61 +55,78 @@ static struct file_system_type anon_inode_fs_type = {
->  	.kill_sb	= kill_anon_super,
->  };
->  
-> -/**
-> - * anon_inode_getfile - creates a new file instance by hooking it up to an
-> - *                      anonymous inode, and a dentry that describe the "class"
-> - *                      of the file
-> - *
-> - * @name:    [in]    name of the "class" of the new file
-> - * @fops:    [in]    file operations for the new file
-> - * @priv:    [in]    private data for the new file (will be file's private_data)
-> - * @flags:   [in]    flags
-> - *
-> - * Creates a new file by hooking it on a single inode. This is useful for files
-> - * that do not need to have a full-fledged inode in order to operate correctly.
-> - * All the files created with anon_inode_getfile() will share a single inode,
-> - * hence saving memory and avoiding code duplication for the file/inode/dentry
-> - * setup.  Returns the newly created file* or an error pointer.
-> - */
-> -struct file *anon_inode_getfile(const char *name,
-> -				const struct file_operations *fops,
-> -				void *priv, int flags)
-> +static struct inode *anon_inode_make_secure_inode(
-> +	const char *name,
-> +	const struct inode *context_inode)
-> +{
-> +	struct inode *inode;
-> +	const struct qstr qname = QSTR_INIT(name, strlen(name));
-> +	int error;
-> +
-> +	inode = alloc_anon_inode(anon_inode_mnt->mnt_sb);
-> +	if (IS_ERR(inode))
-> +		return inode;
-> +	inode->i_flags &= ~S_PRIVATE;
-> +	error =	security_inode_init_security_anon(
-> +		inode, &qname, context_inode);
+There seems to be no reason to use GFP_ATOMIC in these cases.
 
-Weird indentation here.  The call to security_inode_init_security_anon() fits on
-one line.
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/hooks.c       |  6 +++---
+ security/selinux/ss/policydb.c | 10 +++++-----
+ security/selinux/ss/services.c |  4 ++--
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-> +	if (error) {
-> +		iput(inode);
-> +		return ERR_PTR(error);
-> +	}
-> +	return inode;
-> +}
-> +
-> +static struct file *_anon_inode_getfile(const char *name,
-> +					const struct file_operations *fops,
-> +					void *priv, int flags,
-> +					const struct inode *context_inode,
-> +					bool secure)
->  {
-> +	struct inode *inode;
->  	struct file *file;
->  
-> -	if (IS_ERR(anon_inode_inode))
-> -		return ERR_PTR(-ENODEV);
-> +	if (secure) {
-> +		inode =	anon_inode_make_secure_inode(
-> +			name, context_inode);
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 89d3753b7bd5d..4de962daffbde 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -3171,7 +3171,7 @@ static int selinux_inode_setxattr(struct dentry *dentry, const char *name,
+ 				audit_size = 0;
+ 			}
+ 			ab = audit_log_start(audit_context(),
+-					     GFP_ATOMIC, AUDIT_SELINUX_ERR);
++					     GFP_KERNEL, AUDIT_SELINUX_ERR);
+ 			audit_log_format(ab, "op=setxattr invalid_context=");
+ 			audit_log_n_untrustedstring(ab, value, audit_size);
+ 			audit_log_end(ab);
+@@ -6388,7 +6388,7 @@ static int selinux_setprocattr(const char *name, void *value, size_t size)
+ 				else
+ 					audit_size = size;
+ 				ab = audit_log_start(audit_context(),
+-						     GFP_ATOMIC,
++						     GFP_KERNEL,
+ 						     AUDIT_SELINUX_ERR);
+ 				audit_log_format(ab, "op=fscreate invalid_context=");
+ 				audit_log_n_untrustedstring(ab, value, audit_size);
+@@ -6854,7 +6854,7 @@ static int selinux_lockdown(enum lockdown_reason what)
+ 
+ 	if (WARN(invalid_reason, "Invalid lockdown reason")) {
+ 		audit_log(audit_context(),
+-			  GFP_ATOMIC, AUDIT_SELINUX_ERR,
++			  GFP_KERNEL, AUDIT_SELINUX_ERR,
+ 			  "lockdown_reason=invalid");
+ 		return -EINVAL;
+ 	}
+diff --git a/security/selinux/ss/policydb.c b/security/selinux/ss/policydb.c
+index 9fccf417006b0..c1437de04e1d9 100644
+--- a/security/selinux/ss/policydb.c
++++ b/security/selinux/ss/policydb.c
+@@ -1577,7 +1577,7 @@ static int sens_read(struct policydb *p, struct symtab *s, void *fp)
+ 	__le32 buf[2];
+ 	u32 len;
+ 
+-	levdatum = kzalloc(sizeof(*levdatum), GFP_ATOMIC);
++	levdatum = kzalloc(sizeof(*levdatum), GFP_KERNEL);
+ 	if (!levdatum)
+ 		return -ENOMEM;
+ 
+@@ -1588,12 +1588,12 @@ static int sens_read(struct policydb *p, struct symtab *s, void *fp)
+ 	len = le32_to_cpu(buf[0]);
+ 	levdatum->isalias = le32_to_cpu(buf[1]);
+ 
+-	rc = str_read(&key, GFP_ATOMIC, fp, len);
++	rc = str_read(&key, GFP_KERNEL, fp, len);
+ 	if (rc)
+ 		goto bad;
+ 
+ 	rc = -ENOMEM;
+-	levdatum->level = kmalloc(sizeof(*levdatum->level), GFP_ATOMIC);
++	levdatum->level = kmalloc(sizeof(*levdatum->level), GFP_KERNEL);
+ 	if (!levdatum->level)
+ 		goto bad;
+ 
+@@ -1618,7 +1618,7 @@ static int cat_read(struct policydb *p, struct symtab *s, void *fp)
+ 	__le32 buf[3];
+ 	u32 len;
+ 
+-	catdatum = kzalloc(sizeof(*catdatum), GFP_ATOMIC);
++	catdatum = kzalloc(sizeof(*catdatum), GFP_KERNEL);
+ 	if (!catdatum)
+ 		return -ENOMEM;
+ 
+@@ -1630,7 +1630,7 @@ static int cat_read(struct policydb *p, struct symtab *s, void *fp)
+ 	catdatum->value = le32_to_cpu(buf[1]);
+ 	catdatum->isalias = le32_to_cpu(buf[2]);
+ 
+-	rc = str_read(&key, GFP_ATOMIC, fp, len);
++	rc = str_read(&key, GFP_KERNEL, fp, len);
+ 	if (rc)
+ 		goto bad;
+ 
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index a48fc1b337ba9..fa61a54bc1440 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -109,7 +109,7 @@ static int selinux_set_mapping(struct policydb *pol,
+ 		i++;
+ 
+ 	/* Allocate space for the class records, plus one for class zero */
+-	out_map->mapping = kcalloc(++i, sizeof(*out_map->mapping), GFP_ATOMIC);
++	out_map->mapping = kcalloc(++i, sizeof(*out_map->mapping), GFP_KERNEL);
+ 	if (!out_map->mapping)
+ 		return -ENOMEM;
+ 
+@@ -2982,7 +2982,7 @@ int security_set_bools(struct selinux_state *state, u32 len, int *values)
+ 		int old_state = newpolicy->policydb.bool_val_to_struct[i]->state;
+ 
+ 		if (new_state != old_state) {
+-			audit_log(audit_context(), GFP_ATOMIC,
++			audit_log(audit_context(), GFP_KERNEL,
+ 				AUDIT_MAC_CONFIG_CHANGE,
+ 				"bool=%s val=%d old_val=%d auid=%u ses=%u",
+ 				sym_name(&newpolicy->policydb, SYM_BOOLS, i),
+-- 
+2.26.2
 
-Likewise here.  The call to anon_inode_make_secure_inode() fits on one line.
-
-> +		if (IS_ERR(inode))
-> +			return ERR_CAST(inode);
-> +	} else {
-> +		inode =	anon_inode_inode;
-> +		if (IS_ERR(inode))
-> +			return ERR_PTR(-ENODEV);
-> +		/*
-> +		 * We know the anon_inode inode count is always
-> +		 * greater than zero, so ihold() is safe.
-> +		 */
-> +		ihold(inode);
-> +	}
->  
-> -	if (fops->owner && !try_module_get(fops->owner))
-> -		return ERR_PTR(-ENOENT);
-> +	if (fops->owner && !try_module_get(fops->owner)) {
-> +		file = ERR_PTR(-ENOENT);
-> +		goto err;
-> +	}
-
-The error path here does module_put(fops->owner), even though a reference wasn't
-acquired.
-
-> +
-> +/**
-> + * anon_inode_getfd - creates a new file instance by hooking it up to
-> + *                    an anonymous inode and a dentry that describe
-> + *                    the "class" of the file
-> + *
-> + * @name:    [in]    name of the "class" of the new file
-> + * @fops:    [in]    file operations for the new file
-> + * @priv:    [in]    private data for the new file (will be file's private_data)
-> + * @flags:   [in]    flags
-> + *
-> + * Creates a new file by hooking it on a single inode. This is
-> + * useful for files that do not need to have a full-fledged inode in
-> + * order to operate correctly.  All the files created with
-> + * anon_inode_getfile() will use the same singleton inode, reducing
-
-This should say anon_inode_getfd(), not anon_inode_getfile().
-
-> +/**
-> + * Like anon_inode_getfd(), but adds the @context_inode argument to
-> + * allow security modules to control creation of the new file. Once the
-> + * security module makes the decision, this inode is no longer needed
-> + * and hence reference to it is not held.
-> + */
-> +int anon_inode_getfd_secure(const char *name, const struct file_operations *fops,
-> +			    void *priv, int flags,
-> +			    const struct inode *context_inode)
-> +{
-> +	return _anon_inode_getfd(name, fops, priv, flags,
-> +				 context_inode, true);
-> +}
-
-Weird indentation here again.  The call to _anon_inode_getfd() fits on one line.
-
-> @@ -162,4 +229,3 @@ static int __init anon_inode_init(void)
->  }
->  
->  fs_initcall(anon_inode_init);
-> -
-
-Unnecessary whitespace change.
-
-> diff --git a/include/linux/anon_inodes.h b/include/linux/anon_inodes.h
-> index d0d7d96261ad..67bd85d92dca 100644
-> --- a/include/linux/anon_inodes.h
-> +++ b/include/linux/anon_inodes.h
-> @@ -10,12 +10,25 @@
->  #define _LINUX_ANON_INODES_H
->  
->  struct file_operations;
-> +struct inode;
-> +
-> +struct file *anon_inode_getfile_secure(const char *name,
-> +				       const struct file_operations *fops,
-> +				       void *priv, int flags,
-> +				       const struct inode *context_inode);
-
-This function isn't defined anywhere.
-
-> + * @inode_init_security_anon:
-> + *      Set up a secure anonymous inode.
-> + *      @inode contains the inode structure
-> + *      @name name of the anonymous inode class
-> + *      @context_inode optional related inode
-> + *	Returns 0 on success, -EACCESS if the security module denies the
-> + *	creation of this inode, or another -errno upon other errors.
-
-Is there a better name for this than "secure anonymous inode"?
-(What is meant by "secure"?)
-
-> diff --git a/include/linux/security.h b/include/linux/security.h
-> index 0a0a03b36a3b..95c133a8f8bb 100644
-> --- a/include/linux/security.h
-> +++ b/include/linux/security.h
-> @@ -322,6 +322,9 @@ void security_inode_free(struct inode *inode);
->  int security_inode_init_security(struct inode *inode, struct inode *dir,
->  				 const struct qstr *qstr,
->  				 initxattrs initxattrs, void *fs_data);
-> +int security_inode_init_security_anon(struct inode *inode,
-> +				      const struct qstr *name,
-> +				      const struct inode *context_inode);
->  int security_old_inode_init_security(struct inode *inode, struct inode *dir,
->  				     const struct qstr *qstr, const char **name,
->  				     void **value, size_t *len);
-
-This patch doesn't compile when !CONFIG_SECURITY because this file is missing a
-!CONFIG_SECURITY stub for security_inode_init_security_anon().
-
-> diff --git a/security/security.c b/security/security.c
-> index 70a7ad357bc6..149b3f024e2d 100644
-> --- a/security/security.c
-> +++ b/security/security.c
-> @@ -1057,6 +1057,15 @@ int security_inode_init_security(struct inode *inode, struct inode *dir,
->  }
->  EXPORT_SYMBOL(security_inode_init_security);
->  
-> +int
-> +security_inode_init_security_anon(struct inode *inode,
-> +				  const struct qstr *name,
-> +				  const struct inode *context_inode)
-> +{
-> +	return call_int_hook(inode_init_security_anon, 0, inode, name,
-> +			     context_inode);
-> +}
-
-Nit: everything else in this file has 'int' on the same line as the function
-name.
-
-- Eric
