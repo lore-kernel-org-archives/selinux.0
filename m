@@ -7,28 +7,28 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A22AC433E5
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55C90C433DF
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 341A520706
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2F7CE20706
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="QJ7XtE51"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="S4oxa02S"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728087AbgHYIiS (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        id S1725936AbgHYIiS (ORCPT <rfc822;selinux@archiver.kernel.org>);
         Tue, 25 Aug 2020 04:38:18 -0400
-Received: from mailomta30-sa.btinternet.com ([213.120.69.36]:23248 "EHLO
-        sa-prd-fep-042.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725936AbgHYIiQ (ORCPT
+Received: from mailomta10-sa.btinternet.com ([213.120.69.16]:46270 "EHLO
+        sa-prd-fep-047.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728890AbgHYIiQ (ORCPT
         <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:16 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-042.btinternet.com with ESMTP
-          id <20200825083812.IOUU26396.sa-prd-fep-042.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          by sa-prd-fep-047.btinternet.com with ESMTP
+          id <20200825083812.VUFU4609.sa-prd-fep-047.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
           Tue, 25 Aug 2020 09:38:12 +0100
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344692; 
-        bh=QC+svJEAdzLwdQSNt57fEKYeJFgYUGtdD+UBOXyr2J0=;
+        bh=sxT9hoY/sJl5Qz9DRDnuzmbh1B6Uo+Wz1qgs0NSCirM=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=QJ7XtE51QpPpbxWEUj/MTGQ/rBtb8k+uDaibvc1nS6tdfoord794FSQ4NALfnMx5sttS3yv2a/H7SC0UfCBPZ1EveAqSpUiygUipixFtX2GNHybgHqf86ppEMuQqcn8bTBHy7yeoO+YPiGkWEOgApEJNOrp/iIxi1ZVuxKSBWH5/E8S4i8wkYP29idYNKIarMoQSMISK8m1QRY65sKJ523V7TB+GTiVKz/UZ8UL5rH9rO6Qp+wJAUqZpRjB6NsWs4ccwrKJsLUqkBPqP/PHpMyoEjpIPLXwg62yKKwv4e3+IKeVzoiLY725Wdcz/gFS7a45mhIDYzRI9i568YZ1EWw==
+        b=S4oxa02Smhi8r+/k5KCjY5nlW50sVCTtwVN2ZviIOy6lLtu19G+bK3db550Bk8lPxghjPQWN0EQxp7kQLPCRLl3FK+L1eNdLHf3Q7AYrtvBgdPa2aQWI17ZrB//2VZ78B10wR3UXczklLhWbMOdR7mrWJ60WLgSaWiBEgOz0T7hrF1217FObYPlZKVoAn33W6P2hL6iakdctEDO3IT4TEpDUaVMmmf4L2fex2/3y1EJA7Mug8aMzZ7+E30BhhqUjCao6VGDTz3uQgwIogXwrE3LH+TBnAzaAN4inWXWT4SDHoT07IOgMtIET1alCknSBznfzYl80hyYKMwgeApVcaw==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
@@ -39,13 +39,13 @@ X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599E55; Tue, 25 Aug 2020 09:38:12 +0100
+        id 5ED9B8A70D599E4D; Tue, 25 Aug 2020 09:38:12 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 14/18] domain_object_transitions: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:39 +0100
-Message-Id: <20200825083743.6508-15-richard_c_haines@btinternet.com>
+Subject: [PATCH 13/18] default_rules: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:38 +0100
+Message-Id: <20200825083743.6508-14-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
@@ -60,240 +60,361 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/domain_object_transitions.md | 121 ++++++++++++++++---------------
- 1 file changed, 62 insertions(+), 59 deletions(-)
+ src/default_rules.md | 293 ++++++++++++++++++-------------------------
+ 1 file changed, 119 insertions(+), 174 deletions(-)
 
-diff --git a/src/domain_object_transitions.md b/src/domain_object_transitions.md
-index 030d866..f897c3b 100644
---- a/src/domain_object_transitions.md
-+++ b/src/domain_object_transitions.md
-@@ -1,9 +1,13 @@
- # Domain and Object Transitions
+diff --git a/src/default_rules.md b/src/default_rules.md
+index 92ba272..e0d11e8 100644
+--- a/src/default_rules.md
++++ b/src/default_rules.md
+@@ -1,8 +1,14 @@
+ # Default Object Rules
  
-+- [Domain Transition](#domain-transition)
-+  - [Type Enforcement Rules](#type-enforcement-rules)
-+- [Object Transition](#object-transition)
++- [*default_user*](#default_user)
++- [*default_role*](#default_role)
++- [*default_type*](#default_type)
++- [*default_range*](#default_range)
 +
- This section discusses the *type_transition* statement that is used to:
+ These rules allow a default user, role, type and/or range to be used
+ when computing a context for a new object. These require policy version
+-27 or 28 with kernels 3.5 or greater.
++27 or 28 with kernels 3.5 or greater, for *glblub* support version 32 with
++kernel 5.5 is required.
  
--1.  Transition a process from one domain to another (a domain transition).
--2.  Transition an object from one type to another (an object transition).
-+- Transition a process from one domain to another (a domain transition).
-+- Transition an object from one type to another (an object transition).
+ ## *default_user*
  
- These transitions can also be achieved using the **libselinux** API
- functions for SELinux-aware applications.
-@@ -14,19 +18,19 @@ A domain transition is where a process in one domain starts a new
- process in another domain under a different security context. There are
- two ways a process can define a domain transition:
+@@ -18,50 +24,34 @@ default_user class default;
  
--1.  Using a *type_transition* statement, where the ***exec**(2)* system call
--    will automatically perform a domain transition for programs that are not
--    themselves SELinux-aware. This is the most common method and would
--    be in the form of the following statement:
-+- Using a *type_transition* statement, where the ***exec**(2)* system call
-+  will automatically perform a domain transition for programs that are not
-+  themselves SELinux-aware. This is the most common method and would
-+  be in the form of the following statement:
+ **Where:**
  
- ```
- type_transition unconfined_t secure_services_exec_t : process ext_gateway_t;
- ```
- 
--1.  SELinux-aware applications can specify the domain of the new process
--    using the **libselinux** API call ***setexeccon**(3)*. To achieve
--    this the SELinux-aware application must also have the setexec
--    permission, for example:
-+- SELinux-aware applications can specify the domain of the new process
-+  using the **libselinux** API call ***setexeccon**(3)*. To achieve
-+  this the SELinux-aware application must also have the setexec
-+  permission, for example:
- 
- ```
- allow crond_t self:process setexec;
-@@ -35,12 +39,12 @@ allow crond_t self:process setexec;
- However, before any domain transition can take place the policy must
- specify that:
- 
--1.  The source *domain* has permission to *transition* into the target
--    domain.
--2.  The application binary file needs to be *executable* in the source
--    domain.
--3.  The application binary file needs an *entry point* into the target
--    domain.
-+1. The source *domain* has permission to *transition* into the target
-+   domain.
-+2. The application binary file needs to be *executable* in the source
-+   domain.
-+3. The application binary file needs an *entry point* into the target
-+   domain.
- 
- The following is a *type_transition* statement taken an example
- loadable module message filter *ext_gateway.conf* that will be used to explain
-@@ -59,27 +63,26 @@ the *unconfined_t* domain (the source domain) executes a file labeled
- transition from the *unconfined_t* domain to the *ext_gateway_t* domain).
- 
- However as stated above, to be able to *transition* to the
--*ext_gateway_t* domain, the following minimum permissions must be
--granted in the policy using *allow* rules, where (note that the
--bullet numbers correspond to the numbers shown in **Figure 7: Domain Transition**:
-+*ext_gateway_t* domain, the following minimum permissions must be granted in
-+the policy using *allow* rules, where (the bullet numbers correspond to those
-+in **Figure 7: Domain Transition**):
- 
--1.  The *domain* needs permission to *transition* into the
--    *ext_gateway_t* (target) domain:
-+**(1)** The *domain* needs permission to *transition* into the *ext_gateway_t*
-+(target) domain:
- 
- ```
- allow unconfined_t ext_gateway_t : process transition;
- ```
- 
--2.  The executable file needs to be *executable* in the *unconfined_t*
--    (source) domain, and therefore also requires that the file is
--    readable:
-+**(2)** The executable file needs to be *executable* in the *unconfined_t*
-+(source) domain, and therefore also requires that the file is readable:
- 
- ```
- allow unconfined_t secure_services_exec_t : file { execute read getattr };
- ```
- 
--3.  The executable file needs an *entry point* into the
--    *ext_gateway_t* (target) domain:
-+**(3)** The executable file needs an *entry point* into the *ext_gateway_t*
-+(target) domain:
- 
- ```
- allow ext_gateway_t secure_services_exec_t : file entrypoint;
-@@ -94,7 +97,7 @@ SELinux enabled kernel.
- ![](./images/7-domain-transition.png)
- 
- **Figure 7: Domain Transition** - *Where the secure_server is executed
--within the *unconfined_t* domain and then transitioned to the *ext_gateway_t*
-+within the unconfined_t domain and then transitioned to the ext_gateway_t
- domain.*
- 
- ### Type Enforcement Rules
-@@ -164,10 +167,10 @@ target domains), that breaks the type enforcement rule.
- 
- It was decided to resolve this by:
- 
--1.  Keeping the *type_transition* rule for the 'default' type of
--    *ext_gateway_t* and allow the secure server process to be exec'd
--    from *unconfined_t* as shown in **Figure 7: Domain Transition**, by simply
--    running the command from the prompt as follows:
-+- Keeping the *type_transition* rule for the 'default' type of
-+  *ext_gateway_t* and allow the secure server process to be exec'd
-+  from *unconfined_t* as shown in **Figure 7: Domain Transition**, by simply
-+  running the command from the prompt as follows:
- 
- ```
- # Run the external gateway 'secure server' application on port 9999 and
-@@ -176,9 +179,9 @@ It was decided to resolve this by:
- secure_server 99999
- ```
- 
--1.  Use the SELinux ***runcon**(1)* command to ensure that the internal
--    gateway runs in the correct domain by running runcon from the prompt
--    as follows:
-+- Use the SELinux ***runcon**(1)* command to ensure that the internal
-+  gateway runs in the correct domain by running *runcon* from the prompt
-+  as follows:
- 
- ```
- # Run the internal gateway 'secure server' application on port 1111 and
-@@ -189,34 +192,34 @@ runcon -t int_gateway_t -r message_filter_r secure_server 1111
- # Note: The role is required as a role transition is defined in the policy.
- ```
- 
--The runcon command makes use of a number of **libselinux** API
-+The ***runcon**(1)* command makes use of a number of **libselinux** API
- functions to check the current context and set up the new context (for
- example ***getfilecon**(3)* is used to get the executable files context
- and ***setexeccon**(3)* is used to set the new process context). If all
- contexts are correct, then the ***execvp**(2)* system call is executed
- that exec's the secure_server application with the argument of '1111'
- into the *int_gateway_t* domain with the *message_filter_r* role. The
--runcon source can be found in the coreutils package.
-+*runcon* source can be found in the coreutils package.
- 
- Other ways to resolve this issue are:
- 
--1.  Use the runcon command for both gateways to transition to their
--    respective domains. The *type_transition* statements are therefore
--    not required.
--2.  Use different names for the secure server executable files and
--    ensure they have a different type (i.e. instead of
--    *secure_service_exec_t* label the external gateway
--    *ext_gateway_exec_t* and the internal gateway
--    *int_gateway_exec_t*. This would involve making a copy of the
--    application binary (which has already been done as part of the
--    **module testing** by calling the server 'server' and labeling it
--    *unconfined_t* and then making a copy called secure_server and
--    labeling it *secure_services_exec_t*).
--3.  Implement the policy using the Reference Policy utilising the
--    template interface principles discussed in the
--    [**template**](reference_policy.md#template-macro) section.
--
--It was decided to use runcon as it demonstrates the command usage better
-+1. Use the *runcon* command for both gateways to transition to their
-+   respective domains. The *type_transition* statements are therefore
-+   not required.
-+2. Use different names for the secure server executable files and
-+   ensure they have a different type (i.e. instead of
-+   *secure_service_exec_t* label the external gateway
-+   *ext_gateway_exec_t* and the internal gateway
-+   *int_gateway_exec_t*. This would involve making a copy of the
-+   application binary (which has already been done as part of the
-+   **module testing** by calling the server 'server' and labeling it
-+   *unconfined_t* and then making a copy called secure_server and
-+   labeling it *secure_services_exec_t*).
-+3. Implement the policy using the Reference Policy utilising the
-+   template interface principles discussed in the
-+   [**template**](reference_policy.md#template-macro) section.
+-<table>
+-<tbody>
+-<tr>
+-<td><code>default_user</code></td>
+-<td>The <code>default_user</code> rule keyword.</td>
+-</tr>
+-<tr>
+-<td><p><code>class</code></p></td>
+-<td><p>One or more <code>class</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
+-<p>Entries can be excluded from the list by using the negative operator '-'.</p></td>
+-</tr>
+-<tr>
+-<td><code>default</code></td>
+-<td>A single keyword consisting of either <code>source</code> or <code>target</code> that will state whether the default user should be obtained from the source or target context.</td>
+-</tr>
+-</tbody>
+-</table>
++*default_user*
 +
-+It was decided to use *runcon* as it demonstrates the command usage better
- than reading the man pages.
++The *default_user* rule keyword.
++
++*class*
++
++One or more *class* identifiers. Multiple entries consist of a space separated
++list enclosed in braces \'\{\}\'. Entries can be excluded from the list by using
++the negative operator \'\-\'.
++
++*default*
++
++A single keyword consisting of either *source* or *target* that will state
++whether the default user should be obtained from the source or target context.
  
- ## Object Transition
-@@ -230,7 +233,7 @@ automatically using a *type_transition* statement as follows:
- type_transition ext_gateway_t in_queue_t:file in_file_t;
- ```
+ **The statement is valid in:**
  
--The following details an object transition used in n example
-+The following details an object transition used in an example
- *ext_gateway.conf* loadable module where by default, files would be labeled
- *in_queue_t* when created by the gateway application as this is the label
- attached to the parent directory as shown:
-@@ -261,21 +264,21 @@ However as stated above to be able to create the file, the following
- minimum permissions need to be granted in the policy using *allow*
- rules, where:
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
  
--1.  The source domain needs permission to *add file entries into the
--    directory*:
-+- The source domain needs permission to *add file entries into the
-+  directory*:
+ **Examples:**
  
- ```
- allow ext_gateway_t in_queue_t : dir { write search add_name };
- ```
+@@ -93,50 +83,35 @@ default_role class default;
  
--2.  The source domain needs permission to *create file entries*:
-+- The source domain needs permission to *create file entries*:
+ **Where:**
  
- ```
- allow ext_gateway_t in_file_t : file { write create getattr };
- ```
+-<table>
+-<tbody>
+-<tr>
+-<td><code>default_role</code></td>
+-<td>The <code>default_role</code> rule keyword.</td>
+-</tr>
+-<tr>
+-<td><p><code>class</code></p></td>
+-<td><p>One or more <code>class</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
+-<p>Entries can be excluded from the list by using the negative operator '-'.</p></td>
+-</tr>
+-<tr>
+-<td><code>default</code></td>
+-<td>A single keyword consisting of either <code>source</code> or <code>target</code> that will state whether the default role should be obtained from the source or target context.</td>
+-</tr>
+-</tbody>
+-</table>
++*default_role*
++
++The *default_role* rule keyword.
++
++*class*
++
++One or more *class* identifiers. Multiple entries consist of a space
++separated list enclosed in braces \'\{\}\'.
++Entries can be excluded from the list by using the negative operator \'\-\'.
++
++*default*
++
++A single keyword consisting of either *source* or *target* that will state
++whether the default role should be obtained from the source or target context.
++
  
--3.  The policy can then ensure (via the SELinux kernel services) that
--    files created in the *in_queue* are relabeled:
-+- The policy can then ensure (via the SELinux kernel services) that
-+  files created in the *in_queue* are relabeled:
+ **The statement is valid in:**
  
- ```
- type_transition ext_gateway_t in_queue_t : file in_file_t;
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Examples:**
+ 
+@@ -168,50 +143,34 @@ default_type class default;
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>default_type</code></td>
+-<td>The <code>default_type</code> rule keyword.</td>
+-</tr>
+-<tr>
+-<td><p><code>class</code></p></td>
+-<td><p>One or more <code>class</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
+-<p>Entries can be excluded from the list by using the negative operator '-'.</p></td>
+-</tr>
+-<tr>
+-<td><code>default</code></td>
+-<td>A single keyword consisting of either <code>source</code> or <code>target</code> that will state whether the default type should be obtained from the source or target context.</td>
+-</tr>
+-</tbody>
+-</table>
++*default_type*
++
++The *default_type* rule keyword.
++
++*class*
++
++One or more *class* identifiers. Multiple entries consist of a space
++separated list enclosed in braces \'\{\}\'. Entries can be excluded from the
++list by using the negative operator \'\-\'.
++
++*default*
++
++A single keyword consisting of either *source* or *target* that will state
++whether the default type should be obtained from the source or target context.
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Examples:**
+ 
+@@ -235,7 +194,7 @@ Allows the default range or level to be taken from the source or target
+ context when computing a new context for an object of the defined class.
+ Requires policy version 27.
+ 
+-Policy verion 32 with kernel 5.5 allows the use of *glblub* as a
++Policy version 32 with kernel 5.5 allows the use of *glblub* as a
+ *default_range* default and the computed transition will be the
+ intersection of the MLS range of the two contexts. The *glb* (greatest
+ lower bound) *lub* (lowest upper bound) of a range is calculated as the
+@@ -249,58 +208,44 @@ default_range class [default range] | [glblub];
+ 
+ **Where:**
+ 
+-<table>
+-<tbody>
+-<tr>
+-<td><code>default_range</code></td>
+-<td>The <code>default_range</code> rule keyword.</td>
+-</tr>
+-<tr>
+-<td><p><code>class</code></p></td>
+-<td><p>One or more <code>class</code> identifiers. Multiple entries consist of a space separated list enclosed in braces '{}'. </p>
+-<p>Entries can be excluded from the list by using the negative operator '-'.</p></td>
+-</tr>
+-<tr>
+-<td><code>default</code></td>
+-<td>A single keyword consisting of either <code>source</code> or <code>target</code> that will state whether the default level or range should be obtained from the source or target context.</td>
+-</tr>
+-<tr>
+-<td><code>range</code></td>
+-<td>A single keyword consisting of either: <code>low</code>, <code>high</code> or <code>low_high</code> that will state what part of the range should be used.</td>
+-</tr>
+-<tr>
+-<td><code>glblub</code></td>
+-<td>The <code>glblub</code> keyword used instead of <code>[default range]</code>.</td>
+-</tr>
+-</tbody>
+-</table>
++*default_range*
++
++The *default_range* rule keyword.
++
++*class*
++
++One or more *class* identifiers. Multiple entries consist of a space
++separated list enclosed in braces \'\{\}\'. Entries can be excluded from the
++list by using the negative operator \'\-\'.
++
++*default*
++
++A single keyword consisting of either *source* or *target* that will state
++whether the default level or range should be obtained from the source
++or target context.
++
++*range*
++
++A single keyword consisting of either: *low*, *high* or *low_high* that will
++state what part of the range should be used.
++
++*glblub*
++
++The *glblub* keyword used instead of *[default range]*.
+ 
+ **The statement is valid in:**
+ 
+-<table style="text-align:center">
+-<tbody>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Monolithic Policy</strong></td>
+-<td><strong>Base Policy</strong></td>
+-<td><strong>Module Policy</strong></td>
+-</tr>
+-<tr>
+-<td>Yes</td>
+-<td>Yes</td>
+-<td>No</td>
+-</tr>
+-<tr style="background-color:#D3D3D3;">
+-<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
+-<td><strong><code>optional</code> Statement</strong></td>
+-<td><strong><code>require</code> Statement</strong></td>
+-</tr>
+-<tr>
+-<td>No</td>
+-<td>No</td>
+-<td>No</td>
+-</tr>
+-</tbody>
+-</table>
++Policy Type
++
++| Monolithic Policy       | Base Policy             | Module Policy           |
++| ----------------------- | ----------------------- | ----------------------- |
++| Yes                     | Yes                     | No                      |
++
++Conditional Policy Statements
++
++| *if* Statement          | *optional* Statement    | *require* Statement     |
++| ----------------------- | ----------------------- | ----------------------- |
++| No                      | No                      | No                      |
+ 
+ **Examples:**
+ 
 -- 
 2.26.2
 
