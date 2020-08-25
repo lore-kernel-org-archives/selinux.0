@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
 	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 940E2C433E1
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 16:04:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 458A1C433E3
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 16:07:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6F6D120782
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 16:04:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2824720786
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 16:07:34 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SUyNE8yq"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RapDDaZ/"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727768AbgHYQEA (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 12:04:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48274 "EHLO
+        id S1727047AbgHYQHb (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 12:07:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726813AbgHYQDy (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 12:03:54 -0400
-Received: from mail-ot1-x341.google.com (mail-ot1-x341.google.com [IPv6:2607:f8b0:4864:20::341])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9FAFC061756;
-        Tue, 25 Aug 2020 09:03:53 -0700 (PDT)
-Received: by mail-ot1-x341.google.com with SMTP id n23so1036582otq.11;
-        Tue, 25 Aug 2020 09:03:53 -0700 (PDT)
+        with ESMTP id S1726988AbgHYQHa (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 12:07:30 -0400
+Received: from mail-oo1-xc42.google.com (mail-oo1-xc42.google.com [IPv6:2607:f8b0:4864:20::c42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49462C061574;
+        Tue, 25 Aug 2020 09:07:30 -0700 (PDT)
+Received: by mail-oo1-xc42.google.com with SMTP id r6so2815154oon.13;
+        Tue, 25 Aug 2020 09:07:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=NrY5BOuEwv9i/y8I9V7tOuPskohUHoY8aphMXsMirGg=;
-        b=SUyNE8yqNHVDU6hmseYbFHMbdJh28npASqQH8+lsX2+q8J43/la3WuU4nTWHozAyNC
-         Ef3AkdJnXy6bIzyafNRhgNN5CnRQgjpzlBIKe/BxV3qovna6b8tF85TXZIlORoW5AX0t
-         xbwn2L0iOCsAW3LG8P85E8ZW6G4ebfMvzRUjbLLFD7UyzYclK4mmeqWEo3xo52BDvjil
-         lMKN9qzJNGjelYec9j38yxaXf/nnhwuVy95JJXvVxUtAhh28avDjYrBRmZIzqfKBAx27
-         FO7pgKLOB5LZU5jgHGfZRrfs73Ym37auz/f0Bw7Osi9pnshdlQv10VwMC6MnqrFZ5nyJ
-         43ew==
+        bh=NjGfeIk9l5icN6djyNEL6TqKfVYkE6E61keGU7ky82c=;
+        b=RapDDaZ/1H+10Ln3sKtjoQLr62DQ6TQNJrfSZpYfbTXod+zCEEerFTuRCm7RcBtXmN
+         NC0ne/5xEdgZcyPWavBK42tnNVW5UjSbcpu14cBuqxJO1lPwJMsZxbJACOfd6NFcqso9
+         ghEy3/Av9ciPLTezFoGod5M2DnpYbtACi0h2wlTu/1iGYBd1/2UFmOz4HtU75Tk3ZHX8
+         QkIN/JddIhgRHiYYtF1qEumZ7O0NfgEV79cJOlOhTr/8KbxeiTUV8Cxr0WJ+7WVhX7B8
+         8ZWtRijjh+wrkryR1yjKwbz80mh03av9Qs03vfvBo9Ra3U8j8g6c+E0/wrOBfuG/Jqm6
+         vsow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=NrY5BOuEwv9i/y8I9V7tOuPskohUHoY8aphMXsMirGg=;
-        b=SDxrE47eIx1+ncjDYhZc6L+9NJXWPzKygLOwxSXxZXr4dH3PGJ8tbI6kM6Zby41awM
-         NRRGR7sla4gNxSHV3bS6L1dc1dUf60eDTz+uABSa1aYDfVy82g1lvernJo1o62K42oCI
-         U1XiK/n+xWHz2uq87I+sewBNdNZdvf2wbGjXa9FWL0ss2MQXVwxs2VYWQyaK1CfOIURk
-         FiY2dudSNFmchAvsX9bsdE0kYk7ZBCn5R2/SBHciCOGOkKVRzzKW/ypb3vMXutoUFVN9
-         qS/dz/vMjKTdbKRkAtdGFEO38Rojmu+ljOQrGdpDJfyCmWPXZOHIr8RneL+I0sHd34+g
-         bw0Q==
-X-Gm-Message-State: AOAM532loyzI/CoIbY0fJK+0tawOJL/uz5d2OOfFoyLYCmK8GCEc/jt3
-        ieK86k2IHXMZTn71dTbqJ0NZEHJ/0W0sX/m/gtdDcG4uAh4=
-X-Google-Smtp-Source: ABdhPJwWdmRmDKE4N6Btm3wLta95ynS2EhPrCo70ZTrdpipMICVOnawkuwLRCWblppUQ5BBmGvXUJ0tYOFW804h5m+M=
-X-Received: by 2002:a05:6830:16d8:: with SMTP id l24mr6897361otr.89.1598371433072;
- Tue, 25 Aug 2020 09:03:53 -0700 (PDT)
+        bh=NjGfeIk9l5icN6djyNEL6TqKfVYkE6E61keGU7ky82c=;
+        b=nqkEET36Ktn+BdrQ8dhydknstqn9UPo0awVz5fAgPzF6SxqW2H0Va0fqtPxq41UC3w
+         jLPLkTWIsuQjwsSd+EkyJqdNUPCZn8XYp96y1Fya8LX64ahRKy+XAG1HjcKBpBkKiwpY
+         MDXG6JbR/FTWIR1RD4uBLGi8G1FUegIoJwOJ6aZfUH/SwzW+rf7yhKRqofFLhoPjBq1r
+         GUkCYfLbkSAOH/gl/HeZwR0mHoKCe+cKhLtKCHVotk8rB+Nrz/cI/QpAIFpolT5mCswn
+         TYmmMIHeiHAn6W6D2RzV9v0lH7hlMbeNu6u79Ehp6uMUKyYMyM5k7V8sfI6sXoTKIYeI
+         QYYw==
+X-Gm-Message-State: AOAM5337S4RCr66ptpdM9DligbM2EITRnFfpltOOLqfoudbqfSKtg80Y
+        dni2l/D5PvFyXTg3GnbjrFFukAR6OL1Fk0yzDgw=
+X-Google-Smtp-Source: ABdhPJxSJfomarMJqUX0NZuLD3FY2ZNOI3YeCf7apWfaN8CGQHh7UUJzr3iHC+XJe3C88Wjj2Y9xGpnD4xi1RkDSy0Q=
+X-Received: by 2002:a4a:b80b:: with SMTP id g11mr7562372oop.13.1598371649754;
+ Tue, 25 Aug 2020 09:07:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <20200825152045.1719298-1-omosnace@redhat.com> <20200825152045.1719298-2-omosnace@redhat.com>
-In-Reply-To: <20200825152045.1719298-2-omosnace@redhat.com>
+References: <20200825152045.1719298-1-omosnace@redhat.com> <20200825152045.1719298-3-omosnace@redhat.com>
+In-Reply-To: <20200825152045.1719298-3-omosnace@redhat.com>
 From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 25 Aug 2020 12:02:26 -0400
-Message-ID: <CAEjxPJ5vPX1bp6kq_H4pU1bg2=NERt1_irdzMpdJ7R_Jfb3Q4g@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/3] selinux: simplify away security_policydb_len()
+Date:   Tue, 25 Aug 2020 12:06:03 -0400
+Message-ID: <CAEjxPJ4UYV5OqtumoN9tK5wAQbOjuP0tUKW6dTPgftWxbY+R-w@mail.gmail.com>
+Subject: Re: [RFC PATCH 2/3] selinux: remove the 'initialized' flag from selinux_state
 To:     Ondrej Mosnacek <omosnace@redhat.com>
 Cc:     SElinux list <selinux@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
@@ -73,36 +73,30 @@ X-Mailing-List: selinux@vger.kernel.org
 
 On Tue, Aug 25, 2020 at 11:20 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 >
-> Remove the security_policydb_len() calls from sel_open_policy() and
-> instead update the inode size from the size returned from
-> security_read_policy().
->
-> Since after this change security_policydb_len() is only called from
-> security_load_policy(), remove it entirely and just open-code it there.
+> After the RCU conversion, it is possible to simply check the policy
+> pointer against NULL instead.
 >
 > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
 > ---
 
 > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> index 8381614627569..ec4570d6c38f7 100644
+> index ec4570d6c38f7..d863b23f2a670 100644
 > --- a/security/selinux/ss/services.c
 > +++ b/security/selinux/ss/services.c
-> @@ -3915,7 +3899,10 @@ int security_read_policy(struct selinux_state *state,
->         if (!selinux_initialized(state))
->                 return -EINVAL;
+> @@ -2221,20 +2218,19 @@ void selinux_policy_commit(struct selinux_state *state,
+>         /* Load the policycaps from the new policy */
+>         security_load_policycaps(state, newpolicy);
 >
-> -       *len = security_policydb_len(state);
-> +       rcu_read_lock();
-> +       policy = rcu_dereference(state->policy);
-> +       *len = policy->policydb.len;
-> +       rcu_read_unlock();
->
->         *data = vmalloc_user(*len);
->         if (!*data)
+> -       if (!selinux_initialized(state)) {
+> +       if (!oldpolicy) {
+>                 /*
+>                  * After first policy load, the security server is
+>                  * marked as initialized and ready to handle requests and
+>                  * any objects created prior to policy load are then labeled.
+>                  */
+> -               selinux_mark_initialized(state);
+>                 selinux_complete_init();
 
-We don't actually need to take rcu_read_lock() here at all, and can
-use rcu_dereference_check(..., 1) or rcu_deference_protected() because
-the fsi->mutex is held.  We should also fix the code immediately below
-this diff context to not double dereference the policy pointer and
-just reuse the already dereferenced pointer (also not requiring
-rcu_read_lock).
+This isn't quite equivalent. The difference is whether
+security_load_policycaps() has completed.  Not sure of the
+implications but could yield different behavior.
