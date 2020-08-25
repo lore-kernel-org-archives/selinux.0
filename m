@@ -2,116 +2,103 @@ Return-Path: <SRS0=Kf9N=CD=vger.kernel.org=selinux-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_SIGNED,
-	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.6 required=3.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F3BDC433DF
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 17:47:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5ACBC433E1
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 17:50:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3489D207BC
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 17:47:32 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="o5GS8Wol"
+	by mail.kernel.org (Postfix) with ESMTP id B8C2D207D3
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 17:50:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=default; t=1598377813;
+	bh=DRMmvoHAahR60w6HO9LbtYVUvEGwTgZ3p45sYk+ndmw=;
+	h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:List-ID:
+	 From;
+	b=O7Dy220CZgi57kt3x0tcEUo8lKqe2y6zbv5kv6d3170EXq1VtUd/mRUnKqG65sLWh
+	 2bGoHHCbIoddZGIH+Wb7GjdKYqYyquFHLlZvnUFjM9cEuVb4utO4BS2UzRmhnxyD9i
+	 syXD15aEh9SrC7VbiRgN0n9afKkuRQqCxRIRiddY=
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726429AbgHYRrb (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 13:47:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36172 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726090AbgHYRra (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 13:47:30 -0400
-Received: from mail-ot1-x343.google.com (mail-ot1-x343.google.com [IPv6:2607:f8b0:4864:20::343])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F509C061574;
-        Tue, 25 Aug 2020 10:47:30 -0700 (PDT)
-Received: by mail-ot1-x343.google.com with SMTP id k2so4522448ots.4;
-        Tue, 25 Aug 2020 10:47:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=HyMrtU/7MgkVL+vpZCj4h11Rs4wMfdxZeJcMwtMTVYc=;
-        b=o5GS8WolA+iNKEdGSYTsoWISB9AjMa/UcgvsSACzM+DZp3MS/gWAGEQEQ6HuTjsycZ
-         HPJRIALpb1jmanyxlzCLJhLEdVWWy6hc70OXPzvUVWtbNc+COzYsN7j4tbn1QkOhAcr9
-         6yGjuKbjtZGCDhg0PLKhElkBE7N4LNtLT6z8y2MWtGXg74ZOY94aKe0crF5VWpNGSVT/
-         9lBfRc1GhG6lU7vN3mPDYwG5SOZ1iHLEP/KKps6jyTjf2qpXlkW3NbSIe7ekjzxZUC3D
-         1prq49KJt/no5lGyUvKqjTwGKNRNhDUcw26YBlJlfr744jjLG7i2Mvfx81HWiMaD/qp/
-         WdNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=HyMrtU/7MgkVL+vpZCj4h11Rs4wMfdxZeJcMwtMTVYc=;
-        b=W35qDkE1nJ1kyofWMq6Jjd9KwMKwHoxd69fBhblxA8Vslg7reUGMIwFdThiyTIdwRa
-         TZnLBvH0sPEAnIeStRGhLoLmwplwIf4jBzGKlFfONWkY9XbYQi8MmjxbILM14V0pcf0M
-         jQO4feKterSE79ziwtpzvSvi0iMwoS/rrt6Ie/32fHKvFpxP3LyisWwC3VBmDVQRVSpa
-         dDmyx3fHsRt+shR4iyF1rph1/twyqDTpEoffyYN8uAdffVweMjCk4WDIVF1dRDNm2DwI
-         E2TqPhmPkvP6hdsq39aVHf48CgSqK4mbuugEFNQcq7zsnnQExtX2aL6R4YddT2Dfjlc8
-         YSqA==
-X-Gm-Message-State: AOAM533DRF8tQxoJJaQjx8uRcER/zKZn8vWHMlShMMofVvXcKDxUjmdQ
-        8rITB9ZVOGb5IKt2ZtRuYfypjDWatnoNEGb8MwfHh+533As=
-X-Google-Smtp-Source: ABdhPJzqPCZxr6cFbmczOdCqC2P0TQWuYE3JripQcX2JbLPXoPXypP0jGHRz7iU5aJNoVUXAz5s6LH+T8wTEm/N0e6c=
-X-Received: by 2002:a05:6830:16d8:: with SMTP id l24mr7149154otr.89.1598377649504;
- Tue, 25 Aug 2020 10:47:29 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200825152045.1719298-1-omosnace@redhat.com> <20200825152045.1719298-3-omosnace@redhat.com>
- <CAEjxPJ4UYV5OqtumoN9tK5wAQbOjuP0tUKW6dTPgftWxbY+R-w@mail.gmail.com> <CAFqZXNtLn_Tw_t1bnzYJ+cH_Kw8CUjs7kBdHKbMTp5WYBw7Fmw@mail.gmail.com>
-In-Reply-To: <CAFqZXNtLn_Tw_t1bnzYJ+cH_Kw8CUjs7kBdHKbMTp5WYBw7Fmw@mail.gmail.com>
-From:   Stephen Smalley <stephen.smalley.work@gmail.com>
-Date:   Tue, 25 Aug 2020 13:46:02 -0400
-Message-ID: <CAEjxPJ5afetsB26nT+VwiNjTYZyM684qD+9WYdN8NEdiRXk99Q@mail.gmail.com>
-Subject: Re: [RFC PATCH 2/3] selinux: remove the 'initialized' flag from selinux_state
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     SElinux list <selinux@vger.kernel.org>,
+        id S1726187AbgHYRuM (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 13:50:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59728 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726090AbgHYRuM (ORCPT <rfc822;selinux@vger.kernel.org>);
+        Tue, 25 Aug 2020 13:50:12 -0400
+Received: from paulmck-ThinkPad-P72.home (unknown [50.45.173.55])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92F1020782;
+        Tue, 25 Aug 2020 17:50:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1598377811;
+        bh=DRMmvoHAahR60w6HO9LbtYVUvEGwTgZ3p45sYk+ndmw=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=JNl+pLZLt4DhJDIJ/ARRQrv5tjMJNw9di9rnAftriIRNxgYawiCh8LGip8GYXKwH8
+         rZ+1WbP/x2ncgOMBqGO314mZGJ1eB1tmEi4LOp6uzKOtD0/TCgylYOcYL9YCkjLV/s
+         rI/LUuXY/IQtjnSMJVNod2tHTZKcw9hc231yNwQQ=
+Received: by paulmck-ThinkPad-P72.home (Postfix, from userid 1000)
+        id 65B8035226AE; Tue, 25 Aug 2020 10:50:11 -0700 (PDT)
+Date:   Tue, 25 Aug 2020 10:50:11 -0700
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Stephen Smalley <stephen.smalley.work@gmail.com>
+Cc:     Ondrej Mosnacek <omosnace@redhat.com>,
+        SElinux list <selinux@vger.kernel.org>,
         Paul Moore <paul@paul-moore.com>,
         Lakshmi Ramasubramanian <nramas@linux.microsoft.com>,
-        rcu@vger.kernel.org, "Paul E . McKenney" <paulmck@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        rcu@vger.kernel.org
+Subject: Re: [RFC PATCH 3/3] selinux: track policy lifetime with refcount
+Message-ID: <20200825175011.GU2855@paulmck-ThinkPad-P72>
+Reply-To: paulmck@kernel.org
+References: <20200825152045.1719298-1-omosnace@redhat.com>
+ <20200825152045.1719298-4-omosnace@redhat.com>
+ <CAEjxPJ54cS+HOPxb839UWu3UiCbv=eMRAfyRHbCy_5bAxU0a6A@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAEjxPJ54cS+HOPxb839UWu3UiCbv=eMRAfyRHbCy_5bAxU0a6A@mail.gmail.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: selinux-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-On Tue, Aug 25, 2020 at 1:21 PM Ondrej Mosnacek <omosnace@redhat.com> wrote:
->
-> On Tue, Aug 25, 2020 at 6:07 PM Stephen Smalley
-> <stephen.smalley.work@gmail.com> wrote:
-> > On Tue, Aug 25, 2020 at 11:20 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
-> > >
-> > > After the RCU conversion, it is possible to simply check the policy
-> > > pointer against NULL instead.
-> > >
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > ---
+On Tue, Aug 25, 2020 at 12:45:43PM -0400, Stephen Smalley wrote:
+> On Tue, Aug 25, 2020 at 11:20 AM Ondrej Mosnacek <omosnace@redhat.com> wrote:
 > >
-> > > diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
-> > > index ec4570d6c38f7..d863b23f2a670 100644
-> > > --- a/security/selinux/ss/services.c
-> > > +++ b/security/selinux/ss/services.c
-> > > @@ -2221,20 +2218,19 @@ void selinux_policy_commit(struct selinux_state *state,
-> > >         /* Load the policycaps from the new policy */
-> > >         security_load_policycaps(state, newpolicy);
-> > >
-> > > -       if (!selinux_initialized(state)) {
-> > > +       if (!oldpolicy) {
-> > >                 /*
-> > >                  * After first policy load, the security server is
-> > >                  * marked as initialized and ready to handle requests and
-> > >                  * any objects created prior to policy load are then labeled.
-> > >                  */
-> > > -               selinux_mark_initialized(state);
-> > >                 selinux_complete_init();
+> > Instead of holding the RCU read lock the whole time while accessing the
+> > policy, add a simple refcount mechanism to track its lifetime. After
+> > this, the RCU read lock is held only for a brief time when fetching the
+> > policy pointer and incrementing the refcount. The policy struct is then
+> > guaranteed to stay alive until the refcount is decremented.
 > >
-> > This isn't quite equivalent. The difference is whether
-> > security_load_policycaps() has completed.  Not sure of the
-> > implications but could yield different behavior.
->
-> Good point... And you just reminded me of my plan to eliminate the
-> selinux_state::policycap[] array and replace it with calls to
-> security_policycap_supported(). That should have no more race
-> conditions than the current code at least... I'll try to splice such a
-> patch below this one for the next revision. Or is there some
-> compelling reason to keep the array?
+> > Freeing of the policy remains the responsibility of the task that does
+> > the policy reload. In case the refcount drops to zero in a different
+> > task, the policy load task is notified via a completion.
+> 
+> That's an interesting pattern.  Is this approach used anywhere else in
+> the kernel?  I didn't see any examples of it in the RCU documentation.
 
-Only reason I can see would potentially be performance overhead of
-ebitmap_get_bit().  Probably not significant.
+The function txopt_get() in include/net/ipv6.h uses something quite
+similar.  By convention, rcu_pointer_handoff() is (sometimes) used to
+indicate that the pointer is now protected by something other than RCU,
+as shown in that function.  And grepping for rcu_pointer_handoff()
+can find you a few more.
+
+							Thanx, Paul
+
+> > The advantage of this change is that the operations that access the
+> > policy can now do sleeping allocations, since they don't need to hold
+> > the RCU read lock anymore. This patch so far only leverages this in
+> > security_read_policy() for the vmalloc_user() allocation (although this
+> > function is always called under fsi->mutex and could just access the
+> > policy pointer directly). The conversion of affected GFP_ATOMIC
+> > allocations to GFP_KERNEL is left for a later patch, since auditing
+> > which code paths may still need GFP_ATOMIC is not very easy.
+> 
+> Technically we don't need this patch for that purpose because
+> rcu_read_lock() isn't actually needed at all in
+> security_read_policy(), so I think we're better off just getting rid
+> of it there and letting it use rcu_dereference_check(..., 1) or
+> rcu_dereference_protected() instead.
