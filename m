@@ -7,45 +7,45 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 596AAC433E8
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE018C433EA
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3518520706
+	by mail.kernel.org (Postfix) with ESMTP id B875A2071E
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="U/LoWXsF"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="TL/N9Eik"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728115AbgHYIiY (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:24 -0400
-Received: from mailomta10-sa.btinternet.com ([213.120.69.16]:21504 "EHLO
-        sa-prd-fep-041.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728109AbgHYIiR (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:17 -0400
+        id S1728951AbgHYIiZ (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:25 -0400
+Received: from mailomta9-sa.btinternet.com ([213.120.69.15]:35166 "EHLO
+        sa-prd-fep-046.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1729003AbgHYIiS (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:18 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-041.btinternet.com with ESMTP
-          id <20200825083809.MJXX19995.sa-prd-fep-041.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Tue, 25 Aug 2020 09:38:09 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344689; 
-        bh=WAke2q5HIFSVAmCRcXhPKk31kmXXju7pzkqUUlE2JGw=;
+          by sa-prd-fep-046.btinternet.com with ESMTP
+          id <20200825083814.RNYH4114.sa-prd-fep-046.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Tue, 25 Aug 2020 09:38:14 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344694; 
+        bh=Q88WSTdQzGbFHlFMHrp2oR2+T9Wza1NWJzWqze3a3Bg=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=U/LoWXsFkAFsBX2DDgsbbJnimt0AHQRdboMQcs+9smjOIyn12n/e/Cv5hDfrhfmhxu5DdjK8bCIrqZ5Uq3OZNyjejHBj8Ja7Zq6o8Kd5D/nXbaAlfQQeDna7LIgCF0hL+MntAPiCfWU9P5hu/jwZx88fAAXcI0KFBloYfT48DOHSziWkmFa33vhMF9CMZspWd2E2227OyLaFygZFomlyd+5FFJ9XRRI5LwuSNBn2T+ztQUD5sNQvtrAhjHHvsHEHsWe7GFbeeLh0cqIesrUtgqVHFnzBI92OdEPB8CfqoANHExOgouaI+VPqL25eqXoB2p4mgLs5p+6g4UmpTGzOlw==
+        b=TL/N9EikDQCHhnmr65fVSD8hXLazN1GGIW4RCRD5qxEJza9t8ua3z+B2NW1sriVQ7W1bgQGk8SQHD3yNzNBrBoKxTADAtLRpZF7AMOTWgObiLOwM8slpOEVzSRPkV9RfJoibLNPxKlnG7zy+vq8LDeLUrtm5Lg4k0SJsdfRsH07qxMbIGym9OYdDwPYAf+eDpCsbSxhGe+Jr9c9hAvEMI/CGQNRnEWgEbbKOYJXLLuqwlkTIW/B/z0XevVcLDScVNm8i4k7MSTT+9RSAx9KNt+5Y/dXuuvlSPRjO8GspVvcImkssZxYjfyXOf+k1ZQryZHdoDoD9bnV0q2+et04EvQ==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
 X-OWM-Env-Sender: richard_c_haines@btinternet.com
 X-VadeSecure-score: verdict=clean score=0/300, class=clean
-X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhephhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhinhgvthepuddtledrudehhedrudeftddrudeitddpmhgrihhlfhhrohhmpeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomheqpdhrtghpthhtohepoehprghulhesphgruhhlqdhmohhorhgvrdgtohhmqedprhgtphhtthhopeeorhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhequcfqtfevrffvpehrfhgtkedvvdenrhhitghhrghruggptggphhgrihhnvghssegsthhinhhtvghrnhgvthdrtghomhdprhgtphhtthhopeeoshgvlhhinhhugiesvhhgvghrrdhkvghrnhgvlhdrohhrgheq
+X-RazorGate-Vade: gggruggvucftvghtrhhoucdtuddrgeduiedruddvtddgtdejucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuueftkffvkffujffvgffngfevqffopdfqfgfvnecuuegrihhlohhuthemuceftddunecunecujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeftihgthhgrrhguucfjrghinhgvshcuoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqeenucggtffrrghtthgvrhhnpeeutddtleelheeugefgiefhiedtheeukeffveeitdffgeffieeugeeljeegvefgieenucfkphepuddtledrudehhedrudeftddrudeitdenucevlhhushhtvghrufhiiigvpeduudenucfrrghrrghmpehhvghloheplhhotggrlhhhohhsthdrlhhotggrlhguohhmrghinhdpihhnvghtpedutdelrdduheehrddufedtrdduiedtpdhmrghilhhfrhhomhepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqedprhgtphhtthhopeeophgruhhlsehprghulhdqmhhoohhrvgdrtghomheqpdhrtghpthhtohepoehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmqecuqfftvefrvfeprhhftgekvddvnehrihgthhgrrhgupggtpghhrghinhgvshessghtihhnthgvrhhnvghtrdgtohhmpdhrtghpthhtohepoehsvghlihhnuhigsehvghgvrhdrkhgvrhhnvghlrdhorhhgqe
 X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599DAC; Tue, 25 Aug 2020 09:38:09 +0100
+        id 5ED9B8A70D599E8B; Tue, 25 Aug 2020 09:38:14 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 06/18] class_permission_statements: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:31 +0100
-Message-Id: <20200825083743.6508-7-richard_c_haines@btinternet.com>
+Subject: [PATCH 18/18] infiniband_statements: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:43 +0100
+Message-Id: <20200825083743.6508-19-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
@@ -60,69 +60,70 @@ Add a TOC to aid navigation and convert to markdown.
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/class_permission_statements.md | 231 ++++++++++++-----------------
- 1 file changed, 93 insertions(+), 138 deletions(-)
+ src/infiniband_statements.md | 155 ++++++++++++++---------------------
+ 1 file changed, 61 insertions(+), 94 deletions(-)
 
-diff --git a/src/class_permission_statements.md b/src/class_permission_statements.md
-index 4090fa0..b1ef36a 100644
---- a/src/class_permission_statements.md
-+++ b/src/class_permission_statements.md
-@@ -1,5 +1,10 @@
- # Object Class and Permission Statements
+diff --git a/src/infiniband_statements.md b/src/infiniband_statements.md
+index 492bdb6..943cee6 100644
+--- a/src/infiniband_statements.md
++++ b/src/infiniband_statements.md
+@@ -1,5 +1,8 @@
+ # InfiniBand Labeling Statements
  
-+- [*class* (1)](#class-1)
-+  - [Associating Permissions to a Class](#associating-permissions-to-a-class)
-+- [*common*](#common)
-+- [*class* (2)](#class-2)
++- [*ibpkeycon*](#ibpkeycon)
++- [*ibendportcon*](#ibendportcon)
 +
- For those who write or manager SELinux policy, there is no need to
- define new objects and their associated permissions as these would be
- done by those who actually design and/or write object managers.
-@@ -9,14 +14,14 @@ in the *./policy/flask/security\_classes* file.
+ To support access control for InfiniBand (IB) partitions and subnet
+ management, security contexts are provided for: Partition Keys (Pkey)
+ that are 16 bit numbers assigned to subnets and their IB end ports. An
+@@ -13,7 +16,7 @@ Note that there are no terminating semi-colons ';' on these statements.
+ The *ibpkeycon* statement is used to label IB partition keys.
  
- There are two variants of the *class* statement for writing policy:
+ It is also possible to add a security context to partition keys outside
+-the policy using the ***semanage ibpkey*** command that will associate the
++the policy using the *semanage ibpkey* command that will associate the
+ *pkey* (or range of pkeys) to a security context.
  
--1.  There is the *class* statement that declares the actual class
--    identifier or name.
--2.  There is a further refinement of the *class* statement that
--    associates permissions to the class as discussed in the
--    [**Associating Permissions to a Class**](#associating-permissions-to-a-class)
--    section.
-+1. There is the *class* statement that declares the actual class
-+   identifier or name.
-+2. There is a further refinement of the *class* statement that
-+   associates permissions to the class as discussed in the
-+   [**Associating Permissions to a Class**](#associating-permissions-to-a-class)
-+   section.
- 
--## *class*
-+## *class* (1)
- 
- Object classes are declared within a policy with the following statement
- definition:
-@@ -27,45 +32,27 @@ class class_id
+ **The statement definition is:**
+@@ -24,53 +27,35 @@ ibpkeycon subnet pkey pkey_context
  
  **Where:**
  
 -<table>
 -<tbody>
 -<tr>
--<td><code>class</code></td>
--<td>The <code>class</code> keyword.</td>
+-<td><code>ibpkeycon</code></td>
+-<td>The <code>ibpkeycon</code> keyword.</td>
 -</tr>
 -<tr>
--<td><code>class_id</code></td>
--<td>The <code>class</code> identifier. </td>
+-<td><code>subnet</code></td>
+-<td>IP address in IPv6 format.</td>
+-</tr>
+-<tr>
+-<td><code>pkey</code></td>
+-<td>Partition key number or range. The range is separated by a hyphen '-'.</td>
+-</tr>
+-<tr>
+-<td><code>pkey_context</code></td>
+-<td>The security context for the pkey(s).</td>
 -</tr>
 -</tbody>
 -</table>
-+*class*
++*ibpkeycon*
 +
-+The *class* keyword.
++The *ibpkeycon* keyword.
 +
-+*class_id*
++*subnet*
 +
-+The *class* identifier.
++IP address in IPv6 format.
++
++*pkey*
++
++Partition key number or range. The range is separated by a hyphen \'\-\'.
++
++*pkey_context*
++
++The security context for the pkey(s).
  
  **The statement is valid in:**
  
@@ -136,97 +137,7 @@ index 4090fa0..b1ef36a 100644
 -<tr>
 -<td>Yes</td>
 -<td>Yes</td>
--<td>No</td>
--</tr>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
--<td><strong><code>optional</code> Statement</strong></td>
--<td><strong><code>require</code> Statement</strong></td>
--</tr>
--<tr>
--<td>No</td>
--<td>No</td>
 -<td>Yes</td>
--</tr>
--</tbody>
--</table>
-+Policy Type
-+
-+| Monolithic Policy       | Base Policy             | Module Policy           |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
-+
-+Conditional Policy Statements
-+
-+| *if* Statement          | *optional* Statement    | *require* Statement     |
-+| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | Yes                     |
- 
- **Example:**
- 
-@@ -79,11 +66,11 @@ class db_tuple
- 
- Permissions can be defined within policy in two ways:
- 
--1.  Define a set of common permissions that can then be inherited by one
--    or more object classes using further *class* statements.
--2.  Define *class* specific permissions. This is where permissions are
--    declared for a specific object class only (i.e. the permission is
--    not inherited by any other object class).
-+1. Define a set of common permissions that can then be inherited by one
-+   or more object classes using further *class* statements.
-+2. Define *class* specific permissions. This is where permissions are
-+   declared for a specific object class only (i.e. the permission is
-+   not inherited by any other object class).
- 
- A list of classes and their permissions used by the **Reference Policy**
- can be found in the *./policy/flask/access_vectors* file.
-@@ -100,49 +87,32 @@ common common_id { perm_set }
- 
- **Where:**
- 
--<table>
--<tbody>
--<tr>
--<td><code>common</code></td>
--<td>The <code>common</code> keyword.</td>
--</tr>
--<tr>
--<td><code>common_id</code></td>
--<td>The <code>common</code> identifier. </td>
--</tr>
--<tr>
--<td><code>perm_set</code></td>
--<td>One or more permission identifiers in a space separated list enclosed within braces '{}'.</td>
--</tr>
--</tbody>
--</table>
-+*common*
-+
-+The *common* keyword.
-+
-+*common_id*
-+
-+The *common* identifier.
-+
-+*perm_set*
-+
-+One or more permission identifiers in a space separated list enclosed within
-+braces \'\{\}\'.
- 
- **The statement is valid in:**
- 
--<table style="text-align:center">
--<tbody>
--<tr style="background-color:#D3D3D3;">
--<td><strong>Monolithic Policy</strong></td>
--<td><strong>Base Policy</strong></td>
--<td><strong>Module Policy</strong></td>
--</tr>
--<tr>
--<td>Yes</td>
--<td>Yes</td>
--<td>No</td>
 -</tr>
 -<tr style="background-color:#D3D3D3;">
 -<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
@@ -244,7 +155,7 @@ index 4090fa0..b1ef36a 100644
 +
 +| Monolithic Policy       | Base Policy             | Module Policy           |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
++| Yes                     | Yes                     | Yes                     |
 +
 +Conditional Policy Statements
 +
@@ -252,73 +163,67 @@ index 4090fa0..b1ef36a 100644
 +| ----------------------- | ----------------------- | ----------------------- |
 +| No                      | No                      | No                      |
  
- **Example:**
+ **Examples:**
  
-@@ -152,9 +122,10 @@ common common_id { perm_set }
- common database { create drop getattr setattr relabelfrom relabelto }
+@@ -86,8 +71,8 @@ semanage ibpkey -a -t default_ibpkey_t -x fe80:: 0xFFFF
  ```
  
--## *class*
-+## *class* (2)
+ The above command will produce the following file:
+-*/var/lib/selinux/&lt;SELINUXTYPE&gt;/active/ibpkeys.local*
+-in the default *<SELINUXTYPE>* policy store and then activate the policy:
++*/var/lib/selinux/\<SELINUXTYPE\>/active/ibpkeys.local*
++in the default *\<SELINUXTYPE\>* policy store and then activate the policy:
  
--Inherit and / or associate permissions to a perviously declared *class* identifier.
-+Inherit and / or associate permissions to a perviously declared *class*
-+identifier.
+ ```
+ # This file is auto-generated by libsemanage
+@@ -101,7 +86,7 @@ ibpkeycon fe80:: 0xFFFF system_u:object_r:default_ibpkey_t:s0
+ The *ibendportcon* statement is used to label IB end ports.
+ 
+ It is also possible to add a security context to ports outside the
+-policy using the 'semanage ibendport' command that will associate the
++policy using the *semanage ibendport* command that will associate the
+ end port to a security context.
  
  **The statement definition is:**
- 
-@@ -164,60 +135,44 @@ class class_id [ inherits common_set ] [ { perm_set } ]
+@@ -112,53 +97,35 @@ ibendportcon device_id port_number port_context
  
  **Where:**
  
 -<table>
 -<tbody>
 -<tr>
--<td><code>class</code></td>
--<td>The <code>class</code> keyword.</td>
+-<td><code>ibendportcon</code></td>
+-<td>The <code>ibendportcon</code> keyword.</td>
 -</tr>
 -<tr>
--<td><code>class_id</code></td>
--<td>The previously declared <code>class</code> identifier. </td>
+-<td><code>device_id</code></td>
+-<td>Device name</td>
 -</tr>
 -<tr>
--<td><code>inherits</code></td>
--<td>The optional <code>inherits</code> keyword that allows a set of common permissions to be inherited.</td>
+-<td><code>port_number</code></td>
+-<td>Single port number.</td>
 -</tr>
 -<tr>
--<td><code>common_set</code></td>
--<td>A previously declared <code>common</code> identifier.</td>
--</tr>
--<tr>
--<td><code>perm_set</code></td>
--<td>One or more optional permission identifiers in a space separated list enclosed within braces '{}'.</td>
+-<td><code>port_context</code></td>
+-<td>The security context for the port.</td>
 -</tr>
 -</tbody>
 -</table>
-+*class*
++*ibendportcon*
 +
-+The *class* keyword.
++The *ibendportcon* keyword.
 +
-+*class_id*
++*device_id*
 +
-+The previously declared *class* identifier.
++Device name
 +
-+*inherits*
++*port_number*
 +
-+The optional *inherits* keyword that allows a set of common permissions to be
-+inherited.
++Single port number.
 +
-+*common_set*
++*port_context*
 +
-+A previously declared *common* identifier.
-+
-+*perm_set*
-+
-+One or more optional permission identifiers in a space separated list enclosed
-+within braces \'\{\}\'.</td>
- 
- Note: There must be at least one *common_set* or one *perm_set* defined within
- the statement.
++The security context for the port.
  
  **The statement is valid in:**
  
@@ -332,7 +237,7 @@ index 4090fa0..b1ef36a 100644
 -<tr>
 -<td>Yes</td>
 -<td>Yes</td>
--<td>No</td>
+-<td>Yes</td>
 -</tr>
 -<tr style="background-color:#D3D3D3;">
 -<td><strong>Conditional Policy <code>if</code> Statement</strong></td>
@@ -342,7 +247,7 @@ index 4090fa0..b1ef36a 100644
 -<tr>
 -<td>No</td>
 -<td>No</td>
--<td>Yes</td>
+-<td>No</td>
 -</tr>
 -</tbody>
 -</table>
@@ -350,16 +255,27 @@ index 4090fa0..b1ef36a 100644
 +
 +| Monolithic Policy       | Base Policy             | Module Policy           |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| Yes                     | Yes                     | No                      |
++| Yes                     | Yes                     | Yes                     |
 +
 +Conditional Policy Statements
 +
 +| *if* Statement          | *optional* Statement    | *require* Statement     |
 +| ----------------------- | ----------------------- | ----------------------- |
-+| No                      | No                      | Yes                     |
++| No                      | No                      | No                      |
  
  **Examples:**
  
+@@ -174,8 +141,8 @@ semanage ibendport -a -t opensm_ibendport_t -z mlx4_0 2
+ ```
+ 
+ This command will produce the following file
+-*/var/lib/selinux/&lt;SELINUXTYPE&gt;/active/ibendports.local* in the default
+-*<SELINUXTYPE>* policy store and then activate the policy:
++*/var/lib/selinux/\<SELINUXTYPE\>/active/ibendports.local* in the default
++*\<SELINUXTYPE\>* policy store and then activate the policy:
+ 
+ ```
+ # This file is auto-generated by libsemanage
 -- 
 2.26.2
 
