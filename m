@@ -7,28 +7,28 @@ X-Spam-Status: No, score=-12.9 required=3.0 tests=BAYES_00,DKIM_SIGNED,
 	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18964C433E1
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38AC4C433E3
 	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8F652075B
-	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 17D312071E
+	for <selinux@archiver.kernel.org>; Tue, 25 Aug 2020 08:38:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="REpx97+K"
+	dkim=pass (2048-bit key) header.d=btinternet.com header.i=@btinternet.com header.b="L9oh5Ir0"
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728890AbgHYIiT (ORCPT <rfc822;selinux@archiver.kernel.org>);
-        Tue, 25 Aug 2020 04:38:19 -0400
-Received: from mailomta11-sa.btinternet.com ([213.120.69.17]:34229 "EHLO
-        sa-prd-fep-048.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728543AbgHYIiP (ORCPT
-        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:15 -0400
+        id S1728504AbgHYIiY (ORCPT <rfc822;selinux@archiver.kernel.org>);
+        Tue, 25 Aug 2020 04:38:24 -0400
+Received: from mailomta5-sa.btinternet.com ([213.120.69.11]:37035 "EHLO
+        sa-prd-fep-044.btinternet.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728115AbgHYIiQ (ORCPT
+        <rfc822;selinux@vger.kernel.org>); Tue, 25 Aug 2020 04:38:16 -0400
 Received: from sa-prd-rgout-005.btmx-prd.synchronoss.net ([10.2.38.8])
-          by sa-prd-fep-048.btinternet.com with ESMTP
-          id <20200825083810.LXZC4139.sa-prd-fep-048.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
-          Tue, 25 Aug 2020 09:38:10 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344690; 
-        bh=MscxKCRu5e6f/Y6erVfiJFdf4IKu1/9yRWC6PTtnlkY=;
+          by sa-prd-fep-044.btinternet.com with ESMTP
+          id <20200825083809.GKOE3440.sa-prd-fep-044.btinternet.com@sa-prd-rgout-005.btmx-prd.synchronoss.net>;
+          Tue, 25 Aug 2020 09:38:09 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=btinternet.com; s=btmx201904; t=1598344689; 
+        bh=dr9T7/JLpH7J3P0mRfUWnisH5zS+69UMofuRGXGw9aA=;
         h=From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:References:MIME-Version;
-        b=REpx97+Kq8382H6mGf0iBIRFn8EzV1YcvdDVUQpLEIcVdz+eQOHjgvMnlDaXj7i77FLcMkNiv6+qlkGxjszlyINYpr7NQWs0lJLxzfbxlpyeLsfndcLwNIRd2AzcUrfins+iAyh/9WXtcdyCQ18qpXujG9CaG7jAPj7vnAt2S9P7BrObsIxdQECKA6wxffJirradIsd0ak2L/OdQlw/OQnnMIMoW6zjS4hwA1Td+iiT9dzSCizHhMAZrgtuVfRlcoyivdAL+6WCvcOBMeOvWVsLpGqWW8MhNJMOHgVXeW8zumV2ffm3hlTf/569IeNvx8sHqXXqn2/ifJwDWoXeeBw==
+        b=L9oh5Ir0o9yGq8Ls3opfLi2beIYOlH503B+ByYrEKK/+PnFENm/AShj6Mjzt9sUBUFBEk2n9kYGeX8hasSbVlGDU95Gf+cUIix9Ryk65tkvETpWMJBfFdFc8sBwwTN7Wag4Lwd7hrx+1IsilpJxlK4E2yVH8o2yfTc4AmZahzfQSdf8Xo+1toMHVqq7rqucoVvdOjaXpo43abH+nR3A74yVbPBWTu4lOPgiA93eoSKVu5vrErAeOEeXMM686vx/SI/sYXF4Q+JyuyI0P3l1daMW9gQ0+qX0G1IhG+8SaaUA6eVI4rCT3glkFMTjfsSuVW5zCRlUjOylU6gUxvgmrfA==
 Authentication-Results: btinternet.com; none
 X-Originating-IP: [109.155.130.160]
 X-OWM-Source-IP: 109.155.130.160 (GB)
@@ -39,13 +39,13 @@ X-RazorGate-Vade-Verdict: clean 0
 X-RazorGate-Vade-Classification: clean
 X-SNCR-hdrdom: btinternet.com
 Received: from localhost.localdomain (109.155.130.160) by sa-prd-rgout-005.btmx-prd.synchronoss.net (5.8.340) (authenticated as richard_c_haines@btinternet.com)
-        id 5ED9B8A70D599DF2; Tue, 25 Aug 2020 09:38:10 +0100
+        id 5ED9B8A70D599DB6; Tue, 25 Aug 2020 09:38:09 +0100
 From:   Richard Haines <richard_c_haines@btinternet.com>
 To:     paul@paul-moore.com, selinux@vger.kernel.org
 Cc:     Richard Haines <richard_c_haines@btinternet.com>
-Subject: [PATCH 10/18] configuration_files: Convert to markdown
-Date:   Tue, 25 Aug 2020 09:37:35 +0100
-Message-Id: <20200825083743.6508-11-richard_c_haines@btinternet.com>
+Subject: [PATCH 07/18] computing_access_decisions: Convert to markdown
+Date:   Tue, 25 Aug 2020 09:37:32 +0100
+Message-Id: <20200825083743.6508-8-richard_c_haines@btinternet.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20200825083743.6508-1-richard_c_haines@btinternet.com>
 References: <20200825083743.6508-1-richard_c_haines@btinternet.com>
@@ -56,134 +56,106 @@ Precedence: bulk
 List-ID: <selinux.vger.kernel.org>
 X-Mailing-List: selinux@vger.kernel.org
 
-Add a TOC to aid navigation and convert to markdown.
+Convert to markdown
 
 Signed-off-by: Richard Haines <richard_c_haines@btinternet.com>
 ---
- src/configuration_files.md | 74 ++++++++++++++++++++------------------
- 1 file changed, 39 insertions(+), 35 deletions(-)
+ src/computing_access_decisions.md | 82 ++++++++++++++-----------------
+ 1 file changed, 38 insertions(+), 44 deletions(-)
 
-diff --git a/src/configuration_files.md b/src/configuration_files.md
-index 3515f1b..0d48d09 100644
---- a/src/configuration_files.md
-+++ b/src/configuration_files.md
-@@ -1,5 +1,9 @@
- # SELinux Configuration Files
+diff --git a/src/computing_access_decisions.md b/src/computing_access_decisions.md
+index 5ab9430..0ab1092 100644
+--- a/src/computing_access_decisions.md
++++ b/src/computing_access_decisions.md
+@@ -3,50 +3,44 @@
+ There are a number of ways to compute access decisions within userspace
+ SELinux-aware applications or object managers:
  
-+- [The Policy Store](#the-policy-store)
-+  - [The priority Option](#the-priority-option)
-+- [Converting policy packages to CIL](#converting-policy-packages-to-cil)
-+
- This section explains each SELinux configuration file with its format,
- example content and where applicable, any supporting SELinux commands or
- **libselinux** library API functions.
-@@ -10,34 +14,34 @@ adding the man page section (e.g. ***semanage.config**(5)*).
- This Notebook classifies the types of configuration file used in SELinux
- as follows:
+-1.  Use of the ***selinux_check_access**(3)* function is the
+-    recommended option. This utilises the AVC services discussed in
+-    bullet 3 in a single call that:
+-
+--   Dynamically resolves class and permissions strings to their
+-    class/permission values using ***string_to_security_class**(3)*
+-    and ***string_to_av_perm**(3)* with
+-    ***security_deny_unknown**(3)* to handle unknown
+-    classes/permissions.
+--   Uses ***avc_has_perm**(3)* to check whether the decision is cached
+-    before calling ***security_compute_av_flags**(3)* (and caching
+-    the result), checks enforcing mode (both global and per-domain
+-    (permissive)), and logs any denials (there is also an option to add
+-    supplemental auditing information that is handled as described in
+-    ***avc_audit**(3)*.
+-
+-2.  Use functions that do not cache access decisions (i.e. they do not
+-    use the *libselinux* AVC services). These require a call to the
+-    kernel for every decision using ***security_compute_av**(3)* or
+-    ***security_compute_av_flags**(3)*. The ***avc_netlink_\***(3)*
+-    functions can be used to detect policy change events. Auditing would
+-    need to be implemented if required.
+-
+-3.  Use functions that utilise the *libselinux* userspace AVC services
+-    that are initialised with ***avc_open**(3)*. These can be built in
+-    various configurations such as:
+-
+--   Using the default single threaded mode where ***avc_has_perm**(3)*
+-    will automatically cache entries, audit the decision and manage
+-    the handling of policy change events.
+-
+--   Implementing threads or a similar service that will handle policy
+-    change events and auditing in real time with
+-    ***avc_has_perm**(3)* or ***avc_has_perm_noaudit**(3)*
+-    handling decisions and caching. This has the advantage of better
+-    performance, which can be further increased by caching the entry
+-    reference.
+-
+-4.  Implement custom caching services with
+-    ***security_compute_av**(3)* or
+-    ***security_compute_av_flags**(3)* for computing access
+-    decisions. The ***avc_netlink_\***(3)* functions can then be used to
+-    detect policy change events. Auditing would need to be implemented
+-    if required.
++1. Use of the ***selinux_check_access**(3)* function is the
++   recommended option. This utilises the AVC services discussed in
++   bullet 3 in a single call that:
++   - Dynamically resolves class and permissions strings to their
++     class/permission values using ***string_to_security_class**(3)*
++     and ***string_to_av_perm**(3)* with
++     ***security_deny_unknown**(3)* to handle unknown
++     classes/permissions.
++   - Uses ***avc_has_perm**(3)* to check whether the decision is cached
++     before calling ***security_compute_av_flags**(3)* (and caching
++     the result), checks enforcing mode (both global and per-domain
++     (permissive)), and logs any denials (there is also an option to add
++     supplemental auditing information that is handled as described in
++     ***avc_audit**(3)*.
++2. Use functions that do not cache access decisions (i.e. they do not
++   use the *libselinux* AVC services). These require a call to the
++   kernel for every decision using ***security_compute_av**(3)* or
++   ***security_compute_av_flags**(3)*. The ***avc_netlink_\***(3)*
++   functions can be used to detect policy change events. Auditing would
++   need to be implemented if required.
++3. Use functions that utilise the *libselinux* userspace AVC services
++   that are initialised with ***avc_open**(3)*. These can be built in
++   various configurations such as:
++   - Using the default single threaded mode where ***avc_has_perm**(3)*
++     will automatically cache entries, audit the decision and manage
++     the handling of policy change events.
++   - Implementing threads or a similar service that will handle policy
++     change events and auditing in real time with
++     ***avc_has_perm**(3)* or ***avc_has_perm_noaudit**(3)*
++     handling decisions and caching. This has the advantage of better
++     performance, which can be further increased by caching the entry
++     reference.
++4. Implement custom caching services with
++   ***security_compute_av**(3)* or
++   ***security_compute_av_flags**(3)* for computing access
++   decisions. The ***avc_netlink_\***(3)* functions can then be used to
++   detect policy change events. Auditing would need to be implemented
++   if required.
  
--1.  [**Global Configuration files**](global_config_files.md#global-configuration-files) that
--    affect the active policy and their supporting SELinux-aware
--    applications, utilities or commands. This Notebook will only refer
--    to the commonly used configuration files.
--2.  [**Policy Store Configuration Files**](policy_store_config_files.md#policy-store-configuration-files)
--    that are managed by the **semanage**(8) and **semodule**(8) commands. These
--    are used to build the majority of the
--    [Policy Configuration Files](policy_config_files.md#policy-configuration-files)
--    and should NOT be edited as together they describe the overall 'policy' configuration.
--3.  [**Policy Configuration Files**](policy_config_files.md) used by an active
--    (run time) policy/system. Note that there can be multiple policy
--    configurations on a system (e.g. */etc/selinux/targeted* and
--    */etc/selinux/mls*), however only one can be the active policy.
--4.  [**SELinux Filesystem files - Table 6: SELinux filesystem Information**](lsm_selinux.md#selinux-filesystem) located under the */sys/fs/selinux*
--    directory and reflect the current configuration of SELinux for the active
--    policy. This area is used
--    extensively by the libselinux library for userspace object managers and
--    other SELinux-aware applications. These files and directories should not
--    be updated by users (the majority are read only anyway), however
--    they can be read to check various configuration parameters and
--    viewing the currently loaded policy using tools such as
--    ***apol**(1)* (e.g. *apol /sys/fs/selinux/policy*).
-+1. [**Global Configuration files**](global_config_files.md#global-configuration-files) that
-+   affect the active policy and their supporting SELinux-aware
-+   applications, utilities or commands. This Notebook will only refer
-+   to the commonly used configuration files.
-+2. [**Policy Store Configuration Files**](policy_store_config_files.md#policy-store-configuration-files)
-+   that are managed by the **semanage**(8) and **semodule**(8) commands. These
-+   are used to build the majority of the
-+   [Policy Configuration Files](policy_config_files.md#policy-configuration-files)
-+   and should NOT be edited as together they describe the overall 'policy' configuration.
-+3. [**Policy Configuration Files**](policy_config_files.md) used by an active
-+   (run time) policy/system. Note that there can be multiple policy
-+   configurations on a system (e.g. */etc/selinux/targeted* and
-+   */etc/selinux/mls*), however only one can be the active policy.
-+4. [**SELinux Filesystem files - Table 6: SELinux filesystem Information**](lsm_selinux.md#selinux-filesystem)
-+   located under the */sys/fs/selinux* directory and reflect the current
-+   configuration of SELinux for the active policy. This area is used
-+   extensively by the libselinux library for userspace object managers and
-+   other SELinux-aware applications. These files and directories should not
-+   be updated by users (the majority are read only anyway), however
-+   they can be read to check various configuration parameters and
-+   viewing the currently loaded policy using tools such as
-+   ***apol**(1)* (e.g. *apol /sys/fs/selinux/policy*).
- 
- ## The Policy Store
- 
- Version 2.7 of *libsemanage*, *libsepol*, and *policycoreutils* had the
--policy module store has moved from */etc/selinux/&lt;SELINUXTYPE&gt;/modules*
--to */var/lib/selinux/&lt;SELINUXTYPE&gt;*.
-+policy module store has moved from */etc/selinux/\<SELINUXTYPE\>/modules*
-+to */var/lib/selinux/\<SELINUXTYPE\>*.
- 
- This new infrastructure now makes it possible to build policies containing a
- mixture of Reference Policy modules, kernel policy language modules and
-@@ -83,12 +87,12 @@ int_gateway
- The ***semodule**(8)* command now has a number of new options, with the
- most significant being:
- 
--1.  Setting module priorities (*-X | --priority*), this is discussed in
--    [The priority Option](#the-priority-option) section.
--2.  Listing modules (*--list-modules=full | standard*). The 'f*ull*'
--    option shows all the available modules with their priority and
--    policy format. The '*standard*' option will only show the highest
--    priority, enabled modules.
-+1. Setting module priorities (*-X | \-\-priority*), this is discussed in
-+   [The priority Option](#the-priority-option) section.
-+2. Listing modules (*\-\-list-modules=full | standard*). The '*full*'
-+   option shows all the available modules with their priority and
-+   policy format. The '*standard*' option will only show the highest
-+   priority, enabled modules.
- 
- ### The priority Option
- 
-@@ -105,7 +109,7 @@ semodule --priority 400 --install custom/apache.pp
- 
- Both apache modules are installed in the policy store as 'apache', but
- only the custom apache module is included in the final kernel binary.
--The distribution apache module is ignored. The *--list-modules* options
-+The distribution apache module is ignored. The *\-\-list-modules* options
- can be used to show these:
- 
- ```
-@@ -137,15 +141,15 @@ new distribution policy.
- 
- This does require that policy managers adopt some kind of scheme for who
- uses what priority. No strict guidelines currently exist, however the
--value used by the *semanage\_migrate\_store* script is *--priority 100*
-+value used by the *semanage\_migrate\_store* script is *\-\-priority 100*
- as this is assumed to be migrating a distribution. If a value is not
--provided, *semodule* will use a default of *--priority 400* as it is
-+provided, *semodule* will use a default of *\-\-priority 400* as it is
- assumed to be a locally customised policy.
- 
- When *semodule* builds a lower priority module when a higher priority is
- already available, the following message will be given: "*A higher
--priority &lt;name&gt; module exists at priority &lt;999&gt; and will
--override the module currently being installed at priority &lt;111&gt;*".
-+priority \<name\> module exists at priority \<999\> and will
-+override the module currently being installed at priority \<111\>*".
- 
- ## Converting policy packages to CIL
- 
+ Where performance is important when making policy decisions, then the
+ ***selinux_status_open**(3)*, ***selinux_status_updated**(3)*,
 -- 
 2.26.2
 
